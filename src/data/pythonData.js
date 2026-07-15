@@ -1,6 +1,2154 @@
 import { getPlaygroundBlocksForTopic } from './pythonPlaygroundData.js'
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ─── Dalga 8 — pythonData video-scene filmleri (tek ağaçlı bilingual format,
+// gaugeData.js kalıbı). Her final tab (finalEnSections/finalTrSections) için
+// 1 film; sections[N]/trSections[N] RAW blocks dizisine DOKUNULMAZ — index
+// kaymasını önlemek için her film final tab literal'ına (spread sonrası)
+// eklenir. Şema: Documents/video-rollout-plan.md + gaugeData.js. ───────────
+
+// 0. Intro — .py kaynak dosyasından PVM'de çalışan bytecode'a giden zincir
+const pyBytecodeJourneyFilm = {
+  type: 'video-scene',
+  id: 'py-bytecode-journey-film',
+  title: {
+    tr: '🎬 python hello.py: Bir Kaynak Dosya Nasıl Çalışır?',
+    en: '🎬 python hello.py: How Does a Source File Actually Run?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'source', emoji: '📄', label: { tr: 'hello.py', en: 'hello.py' }, color: '#0ea5e9' },
+    { id: 'compiler', emoji: '🛠️', label: { tr: 'Derleyici (dahili)', en: 'Compiler (internal)' }, color: '#f59e0b' },
+    { id: 'bytecode', emoji: '🧬', label: { tr: '.pyc Bytecode', en: '.pyc Bytecode' }, color: '#8b5cf6' },
+    { id: 'pvm', emoji: '⚙️', label: { tr: 'PVM (Python Virtual Machine)', en: 'PVM (Python Virtual Machine)' }, color: '#22c55e' },
+    { id: 'output', emoji: '🖥️', label: { tr: 'Terminal Çıktısı', en: 'Terminal Output' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'SyntaxError', en: 'SyntaxError' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`python hello.py` yazdığında "yorumlanan dil" olduğu için hiç derleme YAPILMADIĞINI mı düşünüyorsun? Yanlış — Python da arka planda bir derleme adımından geçer, sadece bunu SENDEN gizler. Bu filmde o gizli zinciri izleyeceğiz.',
+        en: 'When you type `python hello.py`, do you assume nothing gets "compiled" because it is an "interpreted language"? Wrong — Python does go through a compilation step behind the scenes, it just hides it from YOU. In this film we will watch that hidden chain.',
+      },
+      code: { tr: `python hello.py`, en: `python hello.py` },
+      positions: { source: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Kaynak kod okunur: Python önce dosyanın TAMAMINI okur ve söz dizimini (syntax) kontrol eder. Bu aşamada henüz hiçbir satır ÇALIŞTIRILMADI — sadece metin taranıyor.',
+        en: 'Step 1 — Source is read: Python first reads the ENTIRE file and checks its syntax. At this point no line has EXECUTED yet — only the text is being scanned.',
+      },
+      code: { tr: `print("Merhaba")`, en: `print("Hello")` },
+      positions: {
+        source: { x: 16, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Dahili derleyici devreye girer: kaynak kod, PVM\'in doğrudan anlayabileceği düşük seviyeli bir komut kümesine (bytecode) çevrilir. Bu, Java\'daki `.java` → `.class` adımına ŞAŞIRTICI DERECEDE benzer — fark, Python bunu senin `javac` çalıştırmana GEREK KALMADAN otomatik yapar.',
+        en: 'Step 2 — The internal compiler kicks in: source code is translated into a low-level instruction set (bytecode) the PVM can understand directly. This is SURPRISINGLY similar to Java\'s `.java` → `.class` step — the difference is Python does it automatically, with no need for you to run `javac`.',
+      },
+      code: { tr: `LOAD_CONST 'Merhaba'\nCALL print`, en: `LOAD_CONST 'Hello'\nCALL print` },
+      positions: {
+        source: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        compiler: { x: 38, y: 50, scale: 1.2, pulse: true },
+        bytecode: { x: 62, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'source', to: 'compiler' }, { from: 'compiler', to: 'bytecode', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — PVM bytecode\'u satır satır yorumlar: her bytecode komutu, gerçek bir işlem (ekrana yazdırma, toplama, karşılaştırma) haline gelir. Java\'da bu görevi JVM yapar; Python\'da PVM aynı rolü üstlenir.',
+        en: 'Step 3 — The PVM interprets the bytecode line by line: each bytecode instruction becomes a real operation (printing, adding, comparing). Java\'s JVM does this same job; Python\'s PVM plays the identical role.',
+      },
+      positions: {
+        bytecode: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        pvm: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'bytecode', to: 'pvm', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Sonuç terminale yazdırılır: "Merhaba" ekranda görünür. Kaynak koddan çıktıya giden TÜM bu zincir, sen sadece `python hello.py` yazdığın milisaniyeler içinde gerçekleşti.',
+        en: 'Step 4 — The result is printed to the terminal: "Hello" appears on screen. This ENTIRE chain from source to output happened in the milliseconds after you typed `python hello.py`.',
+      },
+      positions: {
+        pvm: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        output: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pvm', to: 'output', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — dosyada bir söz dizimi hatası olsaydı (örn. eksik parantez), zincir Adım 1\'de DURURDU: derleyici hatayı anında yakalar, bytecode\'a hiç geçilmez, PVM hiç çalışmaz. Bu yüzden bir `SyntaxError`, testin YARIM çalışıp çökmesinden farklıdır — kod bir satır bile ÇALIŞMADAN reddedilir.',
+        en: 'Final (the contrast) — if the file had a syntax error (say, a missing parenthesis), the chain would STOP at Step 1: the compiler catches it instantly, bytecode is never reached, the PVM never runs. That is why a `SyntaxError` differs from a test crashing halfway through — the code is rejected before a single line ever EXECUTES.',
+      },
+      code: { tr: `print("Merhaba"`, en: `print("Hello"` },
+      positions: {
+        source: { x: 20, y: 30, scale: 1.05 },
+        compiler: { x: 46, y: 50, scale: 1.05 },
+        ghost: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'source', to: 'compiler' }, { from: 'compiler', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 1. Installation — requirements.txt ile bir ortamı başka bir makineye taşımak
+const pyRequirementsPortabilityFilm = {
+  type: 'video-scene',
+  id: 'py-requirements-portability-film',
+  title: {
+    tr: '🎬 requirements.txt: Bir Ortamı Başka Bir Makineye Taşımak',
+    en: '🎬 requirements.txt: Moving an Environment to Another Machine',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dev', emoji: '💻', label: { tr: 'Geliştirici Makinesi (venv)', en: "Developer Machine (venv)" }, color: '#0ea5e9' },
+    { id: 'freeze', emoji: '📸', label: { tr: 'pip freeze', en: 'pip freeze' }, color: '#f59e0b' },
+    { id: 'reqfile', emoji: '📋', label: { tr: 'requirements.txt', en: 'requirements.txt' }, color: '#8b5cf6' },
+    { id: 'git', emoji: '📦', label: { tr: 'Git Repo', en: 'Git Repo' }, color: '#6366f1' },
+    { id: 'ci', emoji: '🤖', label: { tr: 'CI Sunucusu (temiz venv)', en: 'CI Server (fresh venv)' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Sürüm Uyuşmazlığı', en: 'Version Mismatch' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '"Benim makinemde çalışıyor ama CI\'da patlıyor" — QA otomasyonunda en klasik cümle. Bu filmde requirements.txt\'in bu cümleyi nasıl ORTADAN KALDIRDIĞINI adım adım izleyeceksin.',
+        en: '"It works on my machine but breaks on CI" — the most classic sentence in QA automation. In this film you\'ll watch step by step how requirements.txt makes that sentence DISAPPEAR.',
+      },
+      positions: { dev: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — pip freeze: geliştirici, kendi venv\'inde kurulu TÜM paketlerin TAM sürüm numaralarını bir komutla döker: `pytest==7.4.3`, `selenium==4.16.0`. Bu, "yaklaşık aynı" değil, TAM OLARAK aynı sürümdür.',
+        en: 'Step 1 — pip freeze: the developer dumps the EXACT version numbers of every package installed in their own venv with one command: `pytest==7.4.3`, `selenium==4.16.0`. This is not "roughly the same" — it is EXACTLY the same version.',
+      },
+      code: { tr: `pip freeze > requirements.txt`, en: `pip freeze > requirements.txt` },
+      positions: {
+        dev: { x: 16, y: 50, scale: 1.1 },
+        freeze: { x: 42, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'freeze', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — requirements.txt oluşur: bu dosya artık "bu proje TAM OLARAK bu sürümlerle test edildi" sözleşmesidir. Java\'daki pom.xml/build.gradle\'ın bağımlılık listesiyle aynı görevi görür.',
+        en: 'Step 2 — requirements.txt is created: this file is now the contract "this project was tested with EXACTLY these versions." It plays the same role as the dependency list in Java\'s pom.xml/build.gradle.',
+      },
+      positions: {
+        freeze: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        reqfile: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'freeze', to: 'reqfile' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Git\'e commit edilir: requirements.txt, kodla BİRLİKTE repoya gider. Artık bu dosya, projenin bir parçası — kimin makinesinde açılırsa açılsın aynı bilgiyi taşır.',
+        en: 'Step 3 — Committed to Git: requirements.txt travels TOGETHER with the code into the repo. It is now part of the project — whoever\'s machine opens it, it carries the same information.',
+      },
+      positions: {
+        reqfile: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        git: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'reqfile', to: 'git', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — CI sunucusu repoyu klonlar ve `pip install -r requirements.txt` çalıştırır: sıfırdan, TAMAMEN temiz bir venv\'e, geliştiricinin makinesindekiyle BİREBİR aynı sürümler kurulur. "Benim makinemde çalışıyordu" artık geçerli bir mazeret değil.',
+        en: 'Step 4 — The CI server clones the repo and runs `pip install -r requirements.txt`: into a completely fresh venv, the EXACT SAME versions as the developer\'s machine get installed. "It worked on my machine" is no longer a valid excuse.',
+      },
+      code: { tr: `pip install -r requirements.txt`, en: `pip install -r requirements.txt` },
+      positions: {
+        git: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        ci: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'git', to: 'ci', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — requirements.txt OLMASAYDI: CI sunucusu "en son sürümü kur" derdi, ve `pytest 8.0` gibi geliştiricinin hiç test etmediği YENİ bir sürüm gelirdi. Testler CI\'da sebepsiz kırılır, "ama benim makinemde çalışıyordu" cümlesi tam olarak BURADAN doğar — sürüm SABİTLENMEDİĞİ için.',
+        en: 'Final (the contrast) — WITHOUT requirements.txt: the CI server would say "install the latest," and a NEW version like `pytest 8.0` the developer never tested against would arrive. Tests break on CI for no obvious reason — "but it worked on my machine" is born EXACTLY here, because the version was never PINNED.',
+      },
+      positions: {
+        ci: { x: 20, y: 30, scale: 0.95 },
+        reqfile: { x: 46, y: 55, opacity: 0.4, scale: 0.85 },
+        ghost: { x: 72, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ci', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 2. Syntax & Comments — tab/boşluk karışınca girinti nasıl kırılır
+const pyIndentationMixFilm = {
+  type: 'video-scene',
+  id: 'py-indentation-mix-film',
+  title: {
+    tr: '🎬 Girinti (Indentation): Tab ile Boşluk Karışınca Ne Olur?',
+    en: '🎬 Indentation: What Happens When Tabs and Spaces Mix?',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'editor', emoji: '⌨️', label: { tr: 'Kod Editörü', en: 'Code Editor' }, color: '#0ea5e9' },
+    { id: 'line1', emoji: '4️⃣', label: { tr: '4 Boşluk Girinti', en: '4-Space Indent' }, color: '#22c55e' },
+    { id: 'line2', emoji: '↹', label: { tr: 'Tab Karakteri', en: 'Tab Character' }, color: '#f59e0b' },
+    { id: 'parser', emoji: '🔎', label: { tr: 'Python Ayrıştırıcı', en: 'Python Parser' }, color: '#8b5cf6' },
+    { id: 'run', emoji: '✅', label: { tr: 'Çalışır', en: 'Runs' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'IndentationError', en: 'IndentationError' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Python\'da girinti SÜS değil, kod bloğunun SINIRIDIR. Peki gözle "aynı" görünen iki girinti (biri tab, biri 4 boşluk) Python için de aynı mıdır? Bu filmde tam olarak burayı test edeceğiz.',
+        en: 'In Python, indentation is not decoration — it IS the block boundary. But do two indents that LOOK identical to the eye (one a tab, one 4 spaces) look identical to Python too? This film tests exactly that.',
+      },
+      positions: { editor: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — İlk satır 4 BOŞLUK ile girintilenir: `if age >= 18:` sonrası `print(...)` satırı 4 space karakteriyle içeri alınır. Editörde bu görünmez ama dosyanın ham baytlarında SPACE SPACE SPACE SPACE olarak durur.',
+        en: 'Step 1 — the first line is indented with 4 SPACES: after `if age >= 18:`, the `print(...)` line is pushed in with 4 space characters. Invisible in the editor, but the file\'s raw bytes literally hold SPACE SPACE SPACE SPACE.',
+      },
+      code: { tr: `if age >= 18:\n    print("Yetişkin")`, en: `if age >= 18:\n    print("Adult")` },
+      positions: {
+        editor: { x: 20, y: 50, scale: 1.05 },
+        line1: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'editor', to: 'line1', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — bir sonraki satır (`print("Skill:", skill)` gibi) yanlışlıkla bir TAB karakteriyle girintilenir — bazı editörler Tab tuşuna basınca sessizce bunu yapar. Gözle ikisi de "içeri alınmış" görünür.',
+        en: 'Step 2 — the next line (like `print("Skill:", skill)`) accidentally gets indented with a TAB character — some editors silently do this when you hit the Tab key. To the eye, both look equally "indented."',
+      },
+      code: { tr: `if age >= 18:\n    print("Yetişkin")\n\tprint("Devam")`, en: `if age >= 18:\n    print("Adult")\n\tprint("Continuing")` },
+      positions: {
+        line1: { x: 22, y: 40, opacity: 0.6, scale: 0.9 },
+        line2: { x: 50, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'line1', to: 'line2', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Python ayrıştırıcısı dosyayı okur: tab ve boşluk KARIŞIK kullanıldığında, Python "bu iki satır aynı girinti seviyesinde mi, değil mi?" sorusunu ARTIK GÜVENİLİR BİÇİMDE cevaplayamaz — çünkü bir tab kaç boşluğa eşdeğer, tutarsızdır.',
+        en: 'Step 3 — the Python parser reads the file: once tabs and spaces are MIXED, Python can no longer RELIABLY answer "are these two lines at the same indent level?" — because how many spaces a tab equals becomes inconsistent.',
+      },
+      positions: {
+        line1: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        line2: { x: 20, y: 60, opacity: 0.5, scale: 0.85 },
+        parser: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'line1', to: 'parser' }, { from: 'line2', to: 'parser', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (kontrast) — Python bunu SESSİZCE geçmez: `TabError` veya `IndentationError: inconsistent use of tabs and spaces` fırlatır ve program BİR SATIR BİLE çalışmadan durur. Bu, Java\'nın hiç düşünmediği bir hata sınıfıdır — çünkü Java girintiyi hiç UMURSAMAZ.',
+        en: 'Step 4 (the contrast) — Python does NOT silently move past this: it raises `TabError` or `IndentationError: inconsistent use of tabs and spaces` and the program stops before EVEN ONE line runs. This is an entire error class Java never has to think about — because Java does not CARE about indentation at all.',
+      },
+      positions: {
+        parser: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        ghost: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'parser', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final — çözüm basit: editörde "tabları boşluğa çevir" (insert spaces on Tab) ayarını AÇIK tut. O zaman her satır TUTARLI biçimde 4 boşlukla iner, ayrıştırıcı hiç şüpheye düşmez ve kod normal biçimde ÇALIŞIR. Bu ayar, QA otomasyon ekiplerinde standart bir gün-1 kuralıdır.',
+        en: 'Final — the fix is simple: keep the editor\'s "insert spaces on Tab" setting ON. Then every line indents CONSISTENTLY with 4 spaces, the parser never has any doubt, and the code RUNS normally. This setting is a standard day-1 rule on QA automation teams.',
+      },
+      positions: {
+        editor: { x: 24, y: 50, scale: 1.05 },
+        line1: { x: 50, y: 50, scale: 1.1 },
+        run: { x: 76, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'editor', to: 'line1' }, { from: 'line1', to: 'run', color: '#10b981' }],
+    },
+  ],
+}
+
+// 3. Variables & Types — API'den string olarak gelen bir sayıyı unutup casting yapmamak
+const pyCastConfigBugFilm = {
+  type: 'video-scene',
+  id: 'py-cast-config-bug-film',
+  title: {
+    tr: '🎬 Casting Unutulunca: "3" + 1 Neden 4 Değil "31" Yapar?',
+    en: '🎬 Forgetting to Cast: Why Does "3" + 1 Become "31", Not 4?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'config', emoji: '📋', label: { tr: 'config.json', en: 'config.json' }, color: '#0ea5e9' },
+    { id: 'parsed', emoji: '📦', label: { tr: "config['retries']", en: "config['retries']" }, color: '#f59e0b' },
+    { id: 'strplus', emoji: '➕', label: { tr: '"3" + 1 (yanlış)', en: '"3" + 1 (wrong)' }, color: '#ef4444' },
+    { id: 'ghost', emoji: '👻', label: { tr: '"31" (string birleşimi!)', en: '"31" (string concat!)' }, color: '#ef4444' },
+    { id: 'cast', emoji: '🔄', label: { tr: 'int(...)', en: 'int(...)' }, color: '#8b5cf6' },
+    { id: 'correct', emoji: '✅', label: { tr: '4 (doğru toplam)', en: '4 (correct sum)' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir config dosyasından "retries": "3" okuyorsun. Görünüşte bir sayı ama JSON\'da tırnak İÇİNDE — yani aslında bir STRING. Bu filmde bu tek karakterlik farkın (tırnak) neden tüm matematiği bozduğunu izleyeceğiz.',
+        en: 'You read "retries": "3" from a config file. It looks like a number, but in JSON it is INSIDE quotes — meaning it is actually a STRING. In this film we\'ll watch how that single-character difference (the quote) breaks all the math.',
+      },
+      code: { tr: `{"retries": "3", "timeout": 30}`, en: `{"retries": "3", "timeout": 30}` },
+      positions: { config: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — JSON okunur: `config["retries"]` çağrıldığında Python sana `"3"` verir — TIRNAK İÇİNDE, yani str tipinde. Python bunu otomatik sayıya çevirmez, senin ne istediğini VARSAYMAZ.',
+        en: 'Step 1 — the JSON is read: calling `config["retries"]` gives you `"3"` — IN QUOTES, meaning type str. Python does not auto-convert this to a number; it never ASSUMES what you meant.',
+      },
+      code: { tr: `retries = config["retries"]\nprint(type(retries))  # <class 'str'>`, en: `retries = config["retries"]\nprint(type(retries))  # <class 'str'>` },
+      positions: {
+        config: { x: 18, y: 50, scale: 1.1 },
+        parsed: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'config', to: 'parsed', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 (yanlış yol) — bir sonraki denemede 1 eklemeye çalışırsın: `retries + 1`. Python burada HATA fırlatmaz (bu bir tuzak!) — çünkü + operatörü hem sayı toplamı hem string birleştirme anlamına gelebilir, Python seninkini "string" sanır.',
+        en: 'Step 2 (the wrong path) — you try to add 1: `retries + 1`. Python does NOT throw an error here (this is the trap!) — because the + operator can mean both numeric addition and string concatenation, and Python assumes yours is a string.',
+      },
+      code: { tr: `# retries hâlâ "3" (string)\nresult = retries * 1  # yanlış varsayım`, en: `# retries is still "3" (string)\nresult = retries * 1  # wrong assumption` },
+      positions: {
+        parsed: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        strplus: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'parsed', to: 'strplus', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (kontrast) — `retries * 10` yazarsan Python ÇÖKMEZ, sessizce `"3333333333"` (10 kez tekrarlanan string!) üretir çünkü string * int Python\'da GEÇERLİ bir işlemdir (tekrar anlamına gelir). Matematik HİÇ gerçekleşmedi ama test yeşil geçebilir — sessiz bir yanlış PASS.',
+        en: 'Step 3 (the contrast) — write `retries * 10` and Python does NOT crash, it silently produces `"3333333333"` (the string repeated 10 times!) because string * int is a VALID operation in Python (it means repetition). No math EVER happened, yet the test could still pass green — a silent false PASS.',
+      },
+      code: { tr: `print(retries * 10)\n# "3333333333"  ← matematik değil, tekrar!`, en: `print(retries * 10)\n# "3333333333"  ← not math, repetition!` },
+      positions: {
+        strplus: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        ghost: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'strplus', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (düzeltme) — `int(config["retries"])` ile açıkça CASTING yaparsan, Python "3" metnini gerçek 3 sayısına çevirir. Artık `retries + 1` işlemi GERÇEK toplama yapar ve 4 sonucunu verir — string uzunluğu değil, matematik.',
+        en: 'Step 4 (the fix) — explicitly CAST with `int(config["retries"])` and Python converts the text "3" into a real number 3. Now `retries + 1` performs REAL addition and returns 4 — math, not string length.',
+      },
+      code: { tr: `retries = int(config["retries"])\nprint(retries + 1)  # 4 ✓`, en: `retries = int(config["retries"])\nprint(retries + 1)  # 4 ✓` },
+      positions: {
+        config: { x: 16, y: 55, opacity: 0.6, scale: 0.85 },
+        cast: { x: 46, y: 50, scale: 1.2, pulse: true },
+        correct: { x: 76, y: 50, scale: 1.2 },
+      },
+      beams: [{ from: 'config', to: 'cast', color: '#8b5cf6' }, { from: 'cast', to: 'correct', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java bu hatayı ASLA yaşatmaz: `String retries = "3"; retries + 1;` yazarsan derleyici anında hata verir, çünkü tipler SIKI kontrol edilir. Python\'da aynı disiplin sana kalır — her API/JSON/CSV verisini kullanmadan önce TÜRÜNÜ varsaymak yerine kontrol et.',
+        en: 'The lesson — Java could NEVER let this happen: write `String retries = "3"; retries + 1;` and the compiler errors instantly, because types are STRICTLY checked. In Python, that same discipline is on you — check the TYPE of every API/JSON/CSV value before using it, instead of assuming it.',
+      },
+      positions: {
+        cast: { x: 30, y: 50, scale: 1.05 },
+        correct: { x: 60, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cast', to: 'correct', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 4. Strings & Booleans — truthy/falsy tuzağı: 0 geçerli bir değer olsa da falsy davranır
+const pyTruthyFalsyFilm = {
+  type: 'video-scene',
+  id: 'py-truthy-falsy-film',
+  title: {
+    tr: '🎬 "if response:" Tuzağı — 0 da "Boş" Sayılınca Ne Olur?',
+    en: '🎬 The "if response:" Trap — When 0 Also Counts as "Empty"',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'api', emoji: '🌐', label: { tr: 'API Yanıtı', en: 'API Response' }, color: '#0ea5e9' },
+    { id: 'zero', emoji: '0️⃣', label: { tr: 'retry_count = 0', en: 'retry_count = 0' }, color: '#f59e0b' },
+    { id: 'ifcheck', emoji: '❓', label: { tr: 'if retry_count:', en: 'if retry_count:' }, color: '#8b5cf6' },
+    { id: 'falsebranch', emoji: '🚫', label: { tr: '"Retry Yok" Dalı', en: '"No Retry" Branch' }, color: '#ef4444' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'if retry_count is not None:', en: 'if retry_count is not None:' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Python\'da boş liste, 0, None hepsi "falsy" davranır — yani `if x:` yazınca hepsi False gibi işlenir. Peki 0 gerçekten "yok" mu demektir, yoksa GEÇERLİ bir değer mi? Bu filmde tam bu karışıklığın QA\'de nasıl bir bug\'a dönüştüğünü izleyeceğiz.',
+        en: 'In Python, an empty list, 0, and None all behave as "falsy" — writing `if x:` treats all of them as False. But does 0 really mean "nothing," or is it a VALID value? This film watches exactly how that confusion turns into a QA bug.',
+      },
+      positions: { api: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — API yanıtı gelir: `retry_count` alanı 0 değerini taşıyor — bu, "hiç retry yapılmadı, test ilk denemede geçti" anlamına gelen GEÇERLİ ve ÖNEMLİ bir bilgi, "veri yok" değil.',
+        en: 'Step 1 — the API response arrives: the `retry_count` field holds 0 — a VALID and MEANINGFUL piece of information ("no retries happened, the test passed on the first try"), not "no data."',
+      },
+      code: { tr: `retry_count = response["retry_count"]  # 0`, en: `retry_count = response["retry_count"]  # 0` },
+      positions: {
+        api: { x: 18, y: 50, scale: 1.1 },
+        zero: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'api', to: 'zero', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — kod "eğer retry bilgisi VARSA logla" mantığıyla `if retry_count:` yazar. Python bunu değerlendirirken 0\'ı "boş/yok" sayar ve koşulu False yapar — oysa retry_count GERÇEKTEN vardı, sadece değeri 0\'dı.',
+        en: 'Step 2 — the code writes `if retry_count:` meaning "log it IF retry info exists." Python evaluates 0 as "empty/nothing" and makes the condition False — even though retry_count DID exist, it just happened to be 0.',
+      },
+      code: { tr: `if retry_count:\n    log(f"Retry sayısı: {retry_count}")`, en: `if retry_count:\n    log(f"Retry count: {retry_count}")` },
+      positions: {
+        zero: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        ifcheck: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'zero', to: 'ifcheck', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (kontrast) — kod sessizce "else" dalına düşer: log satırı hiç ÇALIŞMAZ, sanki retry bilgisi hiç gelmemiş gibi davranılır. Rapor "0 retry ile geçti" yerine hiçbir şey söylemez — bilgi SESSİZCE kaybolur, hata bile fırlatılmaz.',
+        en: 'Step 3 (the contrast) — the code silently falls to the else branch: the log line never RUNS, as if retry info never arrived at all. The report says nothing instead of "passed with 0 retries" — the information SILENTLY disappears, no error is even raised.',
+      },
+      positions: {
+        ifcheck: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        falsebranch: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ifcheck', to: 'falsebranch', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (düzeltme) — asıl niyet "bu alan API\'den hiç GELMEDİ mi?" ise doğru kontrol `if retry_count is not None:`dır — çünkü bu, DEĞERİ değil VARLIĞINI sorar. 0 artık doğru şekilde "var ve loglanmalı" sayılır.',
+        en: 'Step 4 (the fix) — if the real intent is "did this field never ARRIVE from the API at all?", the correct check is `if retry_count is not None:` — because it asks about PRESENCE, not VALUE. 0 is now correctly treated as "present and worth logging."',
+      },
+      code: { tr: `if retry_count is not None:\n    log(f"Retry sayısı: {retry_count}")  # artık 0 da loglanır`, en: `if retry_count is not None:\n    log(f"Retry count: {retry_count}")  # 0 is logged now too` },
+      positions: {
+        zero: { x: 18, y: 55, opacity: 0.6, scale: 0.85 },
+        fixed: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'zero', to: 'fixed', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — "if x:" kısa ve Pythonic görünür, ama x\'in 0, boş string ya da boş liste olarak "geçerli ama falsy" bir değer taşıyabileceği HER yerde bilinçli bir tercih olmalı. Java\'da bu risk yoktur çünkü `if (x)` sadece boolean kabul eder, sayı/liste asla otomatik dönüştürülmez.',
+        en: 'The lesson — "if x:" looks short and Pythonic, but anywhere x could hold a "valid but falsy" value like 0, an empty string, or an empty list, it must be a deliberate choice. Java has no such risk because `if (x)` only accepts a boolean — a number or list is never auto-converted.',
+      },
+      positions: {
+        fixed: { x: 40, y: 50, scale: 1.1 },
+        ifcheck: { x: 65, y: 50, scale: 1.05, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// 5. Operators — is vs == : aynı değer, farklı kimlik (identity)
+const pyIsVsEqFilm = {
+  type: 'video-scene',
+  id: 'py-is-vs-eq-film',
+  title: {
+    tr: '🎬 `is` ile `==` Arasındaki Fark: Aynı Değer, Farklı Kimlik',
+    en: '🎬 `is` vs `==`: Same Value, Different Identity',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'original', emoji: '📋', label: { tr: 'original = ["PASS","FAIL"]', en: 'original = ["PASS","FAIL"]' }, color: '#0ea5e9' },
+    { id: 'copy', emoji: '📋', label: { tr: 'snapshot = original.copy()', en: 'snapshot = original.copy()' }, color: '#f59e0b' },
+    { id: 'eqcheck', emoji: '⚖️', label: { tr: 'original == snapshot', en: 'original == snapshot' }, color: '#22c55e' },
+    { id: 'ischeck', emoji: '🆔', label: { tr: 'original is snapshot', en: 'original is snapshot' }, color: '#ef4444' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Yanlış Varsayım', en: 'Wrong Assumption' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir test sonuç listesinin bir "anlık görüntüsünü" (`snapshot`) alıp saklıyorsun. İçerikleri BİREBİR aynı iki liste, aynı NESNE midir? Bu filmde `==` ile `is`in gerçekte NEYİ sorduğunu izleyeceğiz.',
+        en: 'You take a "snapshot" of a test-result list and keep it. Are two lists with IDENTICAL contents the same OBJECT? This film watches what `==` and `is` actually ask.',
+      },
+      positions: { original: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `original = ["PASS", "FAIL"]` bellekte bir liste nesnesi oluşturur. Bu nesnenin kendine özgü bir "kimliği" (bellek adresi) vardır — Python\'da `id(original)` ile görülebilir.',
+        en: 'Step 1 — `original = ["PASS", "FAIL"]` creates a list object in memory. That object has its own unique "identity" (a memory address) — visible in Python via `id(original)`.',
+      },
+      code: { tr: `original = ["PASS", "FAIL"]\nprint(id(original))  # örn: 140234...`, en: `original = ["PASS", "FAIL"]\nprint(id(original))  # e.g. 140234...` },
+      positions: { original: { x: 22, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `snapshot = original.copy()` YENİ ve AYRI bir liste nesnesi üretir — içeriği birebir aynı ["PASS", "FAIL"] olsa da, bellekte FARKLI bir yerde durur. Bu, orijinal fotoğrafın bir FOTOKOPİSİNİ almak gibi: sayfa aynı görünür ama fiziksel olarak İKİ AYRI kağıttır.',
+        en: 'Step 2 — `snapshot = original.copy()` produces a NEW, SEPARATE list object — even though its contents are identically ["PASS", "FAIL"], it sits in a DIFFERENT place in memory. It\'s like photocopying a photo: the page looks the same but they\'re PHYSICALLY two separate sheets.',
+      },
+      code: { tr: `snapshot = original.copy()`, en: `snapshot = original.copy()` },
+      positions: {
+        original: { x: 18, y: 40, scale: 1.05 },
+        copy: { x: 52, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'original', to: 'copy', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `original == snapshot` sorusu "İÇERİKLERİ aynı mı?" sorar — cevap `True`\'dur, çünkü ikisi de ["PASS", "FAIL"] taşır. Java\'daki `.equals()` ile BİREBİR aynı mantık.',
+        en: 'Step 3 — `original == snapshot` asks "are their CONTENTS the same?" — the answer is `True`, since both hold ["PASS", "FAIL"]. IDENTICAL logic to Java\'s `.equals()`.',
+      },
+      code: { tr: `print(original == snapshot)  # True — içerik aynı`, en: `print(original == snapshot)  # True — same content` },
+      positions: {
+        copy: { x: 22, y: 50, opacity: 0.6, scale: 0.9 },
+        eqcheck: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'copy', to: 'eqcheck', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (kontrast) — `original is snapshot` ise "AYNI bellek nesnesi mi?" sorar — cevap `False`\'tur, çünkü .copy() ile YENİ bir nesne üretilmişti. Bu soruyu `==` ile karıştırmak, "bu değişkeni değiştirirsem diğeri de değişir mi?" sorusuna YANLIŞ cevap vermene yol açar.',
+        en: 'Step 4 (the contrast) — `original is snapshot` asks "is it the SAME memory object?" — the answer is `False`, since .copy() produced a NEW object. Confusing this with `==` leads you to answer WRONG when asking "if I mutate this variable, does the other one change too?"',
+      },
+      code: { tr: `print(original is snapshot)  # False — farklı nesne!`, en: `print(original is snapshot)  # False — different object!` },
+      positions: {
+        eqcheck: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        ischeck: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'eqcheck', to: 'ischeck', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — bu ayrım en çok `None` kontrolünde önem taşır: `x is None` doğru kullanımdır çünkü None Python\'da tek (singleton) bir nesnedir; sayı ve string karşılaştırmalarında ise değeri sorduğun için `==` doğrudur. Yanlış operatörü seçmek, "iki test sonucu AYNI mı?" sorusuna sessizce yanlış cevap verdirir.',
+        en: 'The lesson — this distinction matters most for `None` checks: `x is None` is correct because None is a singleton object in Python; for number and string comparisons, you\'re asking about value, so `==` is correct. Picking the wrong operator silently gives the wrong answer to "are these two test results THE SAME?"',
+      },
+      positions: {
+        ischeck: { x: 35, y: 50, scale: 1.05 },
+        ghost: { x: 65, y: 50, scale: 1.15, opacity: 0.7 },
+      },
+    },
+  ],
+}
+
+// 6. Lists & Tuples — tuple immutability: fonksiyon dönen sonuç neden korunur
+const pyTupleImmutabilityFilm = {
+  type: 'video-scene',
+  id: 'py-tuple-immutability-film',
+  title: {
+    tr: '🎬 Tuple Neden "Mühürlü Kutu"dur? Sonuç Kazara Değişemez',
+    en: '🎬 Why Is a Tuple a "Sealed Box"? A Result Cannot Be Accidentally Changed',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'func', emoji: '🔧', label: { tr: 'get_test_result()', en: 'get_test_result()' }, color: '#0ea5e9' },
+    { id: 'tuple', emoji: '📦', label: { tr: '(True, 145, "OK")', en: '(True, 145, "OK")' }, color: '#8b5cf6' },
+    { id: 'caller', emoji: '👤', label: { tr: 'Çağıran Kod', en: 'Caller Code' }, color: '#f59e0b' },
+    { id: 'attempt', emoji: '✏️', label: { tr: 'result[0] = False', en: 'result[0] = False' }, color: '#ef4444' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'TypeError', en: 'TypeError' }, color: '#ef4444' },
+    { id: 'listactor', emoji: '📋', label: { tr: 'Bir list Olsaydı...', en: 'If It Were a list...' }, color: '#f59e0b' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir fonksiyon (True, 145, "OK") gibi bir tuple döndürüyor — test geçti mi, ne kadar sürdü, mesaj ne. Peki bu sonucu ALAN kod, yanlışlıkla içeriğini DEĞİŞTİREBİLİR mi? Bu filmde tuple\'ın buna neden İZİN VERMEDİĞİNİ izleyeceğiz.',
+        en: 'A function returns a tuple like (True, 145, "OK") — did the test pass, how long did it take, what\'s the message. But can the code RECEIVING this result accidentally CHANGE its contents? This film watches why a tuple does NOT allow that.',
+      },
+      positions: { func: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `get_test_result()` çalışır ve `return True, 145, "OK"` satırı, Python\'da OTOMATİK olarak bir tuple\'a paketlenir: (True, 145, "OK"). Bunu sen istemesen de Python virgülle ayrılmış değerleri tuple sayar.',
+        en: 'Step 1 — `get_test_result()` runs and `return True, 145, "OK"` gets AUTOMATICALLY packed into a tuple in Python: (True, 145, "OK"). Even without asking for it, Python treats comma-separated return values as a tuple.',
+      },
+      code: { tr: `def get_test_result():\n    return True, 145, "OK"`, en: `def get_test_result():\n    return True, 145, "OK"` },
+      positions: {
+        func: { x: 20, y: 50, scale: 1.1 },
+        tuple: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'func', to: 'tuple', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — çağıran kod sonucu alır: `result = get_test_result()`. Şimdi elinde (True, 145, "OK") var — ve bu değeri BAŞKA bir yere (örn. bir rapor listesine) güvenle ekleyebilir çünkü kimse bunu SONRADAN bozamayacak.',
+        en: 'Step 2 — the caller receives the result: `result = get_test_result()`. Now it holds (True, 145, "OK") — and can safely append it elsewhere (say, a report list), knowing no one can corrupt it LATER.',
+      },
+      positions: {
+        tuple: { x: 22, y: 50, opacity: 0.6, scale: 0.9 },
+        caller: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'tuple', to: 'caller', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (kontrast) — çağıran kod `result[0] = False` yazarak sonucu "düzeltmeye" çalışsa ne olur? Python HEMEN `TypeError: \'tuple\' object does not support item assignment` fırlatır — mühürlü kutu AÇILAMAZ.',
+        en: 'Step 3 (the contrast) — what if the caller tries to "fix" the result with `result[0] = False`? Python IMMEDIATELY raises `TypeError: \'tuple\' object does not support item assignment` — the sealed box CANNOT be opened.',
+      },
+      code: { tr: `result[0] = False\n# TypeError: 'tuple' object does not support item assignment`, en: `result[0] = False\n# TypeError: 'tuple' object does not support item assignment` },
+      positions: {
+        caller: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        attempt: { x: 48, y: 55, scale: 1.1 },
+        ghost: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'attempt', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (karşı senaryo) — eğer fonksiyon bir LİSTE ([True, 145, "OK"]) döndürseydi, `result[0] = False` SESSİZCE çalışırdı — hiç hata vermeden test SONUCU değişirdi. Bir raporlama koduna eklenmiş bu sonuç, kimse fark etmeden BOZULMUŞ olurdu.',
+        en: 'Step 4 (the counter-scenario) — if the function had returned a LIST ([True, 145, "OK"]) instead, `result[0] = False` would run SILENTLY — the test result would change with no error at all. Once appended into reporting code, that result would be CORRUPTED without anyone noticing.',
+      },
+      positions: {
+        listactor: { x: 40, y: 50, scale: 1.2, pulse: true },
+        attempt: { x: 68, y: 50, scale: 1.05 },
+      },
+      beams: [{ from: 'listactor', to: 'attempt', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — tuple\'ın "değiştirilemezliği" bir eksiklik değil, BİLİNÇLİ bir garantidir: "bu sonucu bir kez üret, sonra kimse bozamaz" demenin yoludur. Java\'da bu garanti final değişkenler veya immutable record\'larla verilir — farklı sözdizimi, AYNI güvence.',
+        en: 'The lesson — a tuple\'s "immutability" is not a limitation, it is a DELIBERATE guarantee: a way of saying "produce this result once, then no one can corrupt it." Java gives the same guarantee with final variables or immutable records — different syntax, the SAME assurance.',
+      },
+      positions: {
+        tuple: { x: 30, y: 50, scale: 1.1 },
+        caller: { x: 60, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'tuple', to: 'caller', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 7. Sets & Dicts — set ile hızlı tekilleştirme (dedup)
+const pySetDedupeFilm = {
+  type: 'video-scene',
+  id: 'py-set-dedupe-film',
+  title: {
+    tr: '🎬 1000 Testten Kaç FARKLI Hata Mesajı Çıktı? set() ile Tekilleştirme',
+    en: '🎬 How Many DISTINCT Errors from 1000 Tests? Deduping with set()',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'errors', emoji: '📜', label: { tr: 'error_messages (1000 satır)', en: 'error_messages (1000 lines)' }, color: '#0ea5e9' },
+    { id: 'listcheck', emoji: '🔁', label: { tr: 'list — Tekrar Tekrar Aynı Mesaj', en: 'list — Same Message, Over and Over' }, color: '#f59e0b' },
+    { id: 'setbuild', emoji: '🎯', label: { tr: 'set(error_messages)', en: 'set(error_messages)' }, color: '#8b5cf6' },
+    { id: 'distinct', emoji: '✅', label: { tr: '3 Farklı Hata Mesajı', en: '3 Distinct Error Messages' }, color: '#22c55e' },
+    { id: 'hash', emoji: '#️⃣', label: { tr: 'Hash Tablosu (dahili)', en: 'Hash Table (internal)' }, color: '#6366f1' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '1000 test çalıştırdın, 340 tanesi hata verdi — ama muhtemelen bu 340 hatanın ÇOĞU aynı kök nedenden kaynaklanıyor. "Kaç FARKLI hata mesajı var?" sorusuna bu filmde `set()` ile tek satırda cevap vereceğiz.',
+        en: 'You ran 1000 tests, 340 failed — but most of those 340 failures likely share the SAME root cause. This film answers "how many DISTINCT error messages are there?" in a single line with `set()`.',
+      },
+      positions: { errors: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — 340 hata mesajı bir listeye toplanmış: "Timeout waiting for element" 210 kez, "Connection refused" 90 kez, "Element not found" 40 kez tekrarlanıyor. list halinde bu SADECE 340 satırlık ham veri.',
+        en: 'Step 1 — 340 error messages are collected into a list: "Timeout waiting for element" appears 210 times, "Connection refused" 90 times, "Element not found" 40 times. As a list, this is JUST 340 lines of raw data.',
+      },
+      code: { tr: `print(len(error_messages))  # 340`, en: `print(len(error_messages))  # 340` },
+      positions: {
+        errors: { x: 20, y: 50, scale: 1.1 },
+        listcheck: { x: 52, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'errors', to: 'listcheck', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `set(error_messages)` çağrılır: Python her mesajı bir HASH TABLOSUNA yerleştirir. Aynı metin ikinci kez gelince, "bunu daha önce gördüm" der ve SESSİZCE atlar — tıpkı parmak izi okuyan bir kapı gibi.',
+        en: 'Step 2 — `set(error_messages)` is called: Python places each message into a HASH TABLE. When the same text arrives a second time, it says "I\'ve seen this before" and SILENTLY skips it — just like a fingerprint-scanning door.',
+      },
+      code: { tr: `unique = set(error_messages)`, en: `unique = set(error_messages)` },
+      positions: {
+        listcheck: { x: 20, y: 40, opacity: 0.6, scale: 0.9 },
+        hash: { x: 50, y: 55, scale: 1.15 },
+        setbuild: { x: 76, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'listcheck', to: 'hash', color: '#6366f1' }, { from: 'hash', to: 'setbuild', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — sonuç: 340 satırlık ham veri, 3 elemanlı bir set\'e indirgenir — çünkü sadece 3 FARKLI mesaj metni vardı. `len(unique)` tek satırda "3" der; hiç manuel sayaç, hiç döngü yazmana gerek KALMADI.',
+        en: 'Step 3 — the result: 340 lines of raw data collapse into a 3-element set — because there were only 3 DISTINCT message texts. `len(unique)` says "3" in one line; you never needed to write a manual counter or a loop.',
+      },
+      code: { tr: `print(len(unique))  # 3 — sadece 3 farklı kök neden var`, en: `print(len(unique))  # 3 — only 3 distinct root causes` },
+      positions: {
+        setbuild: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        distinct: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'setbuild', to: 'distinct', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (bedeli) — bu hız BEDAVA değil: set elemanları SIRASIZDIR, `unique[0]` yazamazsın (IndexError!) çünkü set indeksleme desteklemez — sadece "içinde mi var?" ve "kaç tane FARKLI var?" sorularına hızlı cevap verir.',
+        en: 'Step 4 (the cost) — this speed is not FREE: set elements have NO order, you cannot write `unique[0]` (IndexError!) because a set does not support indexing — it only answers "is this in it?" and "how many DISTINCT items?" fast.',
+      },
+      positions: {
+        distinct: { x: 30, y: 50, scale: 1.05 },
+        hash: { x: 58, y: 50, scale: 1.1, opacity: 0.7 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Ders — Java\'da bu tam olarak `HashSet<String>`\'e karşılık gelir, aynı hash tabanlı mantıkla çalışır. QA\'de pratik kural: "bu koleksiyonda TEKRAR var mı önemli değil, sadece FARKLI değerler önemli" dediğin her yerde list yerine set düşün.',
+        en: 'The lesson — in Java this maps exactly to `HashSet<String>`, working on the identical hash-based logic. Practical QA rule: anywhere you think "duplicates in this collection don\'t matter, only DISTINCT values do," reach for a set instead of a list.',
+      },
+      positions: {
+        distinct: { x: 40, y: 50, scale: 1.1 },
+        errors: { x: 68, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// 8. Conditions & Loops — while retry: durma koşulu bilinmeden döngü
+const pyRetryWhileFilm = {
+  type: 'video-scene',
+  id: 'py-retry-while-film',
+  title: {
+    tr: '🎬 while Retry Döngüsü: "Kaç Kez?" Değil, "Ne Zamana Kadar?"',
+    en: '🎬 The while Retry Loop: Not "How Many Times?", "Until When?"',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'service', emoji: '🌐', label: { tr: 'Flaky Servis', en: 'Flaky Service' }, color: '#0ea5e9' },
+    { id: 'attempt', emoji: '🔁', label: { tr: 'retry += 1', en: 'retry += 1' }, color: '#f59e0b' },
+    { id: 'check', emoji: '❓', label: { tr: 'retry < max_retries?', en: 'retry < max_retries?' }, color: '#8b5cf6' },
+    { id: 'success', emoji: '✅', label: { tr: 'Servis UP — break', en: 'Service UP — break' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '♾️', label: { tr: 'Sonsuz Döngü (sayaç unutulursa)', en: 'Infinite Loop (if counter forgotten)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir servisin ayağa kalkmasını beklerken KAÇ deneme yapacağını önceden bilemezsin — sadece "ne zaman durman gerektiğini" bilirsin. Bu, for döngüsünden temelde farklı bir akıl yürütmedir; bu filmde while retry mekanizmasını izleyeceğiz.',
+        en: 'While waiting for a service to come up, you cannot know in advance HOW MANY attempts it\'ll take — you only know WHEN to stop. This is a fundamentally different mindset from a for loop; this film watches the while-retry mechanism.',
+      },
+      positions: { service: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `retry = 0`, `max_retries = 5` ile başlanır. `while retry < max_retries:` koşulu "hâlâ deneme hakkın var mı?" diye sorar — henüz servisin durumuyla İLGİLİ hiçbir şey bilmiyoruz.',
+        en: 'Step 1 — start with `retry = 0`, `max_retries = 5`. The `while retry < max_retries:` condition asks "do you still have attempts left?" — we don\'t yet know ANYTHING about the service\'s state.',
+      },
+      code: { tr: `retry = 0\nwhile retry < max_retries:`, en: `retry = 0\nwhile retry < max_retries:` },
+      positions: { check: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — her turda önce `retry += 1` çalışır (sayaç İLERLER), sonra servis kontrol edilir: `check_service()`. Servis henüz ayakta DEĞİLSE, döngü başa döner ve koşul TEKRAR sorulur.',
+        en: 'Step 2 — each turn first runs `retry += 1` (the counter ADVANCES), then the service is checked: `check_service()`. If the service is NOT up yet, the loop returns to the top and the condition is asked AGAIN.',
+      },
+      code: { tr: `retry += 1\nif check_service():\n    break`, en: `retry += 1\nif check_service():\n    break` },
+      positions: {
+        check: { x: 20, y: 50, opacity: 0.6, scale: 0.9 },
+        attempt: { x: 48, y: 50, scale: 1.15, pulse: true },
+        service: { x: 76, y: 50, scale: 1.05 },
+      },
+      beams: [{ from: 'check', to: 'attempt', color: '#f59e0b' }, { from: 'attempt', to: 'service' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (başarı yolu) — servis 3. denemede ayağa kalkar: `check_service()` True döner, `break` çalışır ve döngü DERHAL sona erer — kalan 2 deneme hiç harcanmaz.',
+        en: 'Step 3 (the success path) — the service comes up on the 3rd attempt: `check_service()` returns True, `break` runs, and the loop ends IMMEDIATELY — the remaining 2 attempts are never spent.',
+      },
+      positions: {
+        service: { x: 22, y: 50, opacity: 0.6, scale: 0.9 },
+        success: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'service', to: 'success', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (kontrast — gerçek tehlike) — kodda `retry += 1` satırı YANLIŞLIKLA silinseydi ne olurdu? Koşul HİÇBİR ZAMAN False olmazdı ve döngü SONSUZA dek dönerdi. CI pipeline\'ında bu, "test 2 saat sonra timeout\'a çarptı" şeklinde fark edilir — en pahalı hata türlerinden biri.',
+        en: 'Step 4 (the contrast — the real danger) — what if the `retry += 1` line got ACCIDENTALLY deleted? The condition would NEVER become False and the loop would run FOREVER. On a CI pipeline this surfaces as "the test hit a timeout after 2 hours" — one of the most expensive failure types.',
+      },
+      code: { tr: `# retry += 1  ← unutulursa:\nwhile retry < max_retries:  # SONSUZA kadar True`, en: `# retry += 1  ← if forgotten:\nwhile retry < max_retries:  # True FOREVER` },
+      positions: {
+        attempt: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        ghost: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'attempt', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java\'daki `while (condition) { }` BİREBİR aynı mantıkla çalışır, tek fark Python koşulu yazarken parantez İSTEMEZ. Her while yazdığında kendine sor: "bu koşul GERÇEKTEN her turda bir noktada False olacak mı?"',
+        en: 'The lesson — Java\'s `while (condition) { }` runs on the EXACT same logic, the only difference is Python doesn\'t want parentheses around the condition. Every time you write a while, ask yourself: "will this condition REALLY become False at some point, every turn?"',
+      },
+      positions: {
+        success: { x: 35, y: 50, scale: 1.1 },
+        check: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// 9. Functions & Lambda — mutable default argument tuzağı
+const pyMutableDefaultArgFilm = {
+  type: 'video-scene',
+  id: 'py-mutable-default-arg-film',
+  title: {
+    tr: '🎬 def f(cases=[]): Neden İkinci Çağrıda Liste Zaten Dolu?',
+    en: '🎬 def f(cases=[]): Why Is the List Already Full on the Second Call?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'define', emoji: '📝', label: { tr: 'Fonksiyon Tanımlanır', en: 'Function Defined' }, color: '#0ea5e9' },
+    { id: 'defaultbox', emoji: '📦', label: { tr: 'cases=[] (BİR KEZ oluşur)', en: 'cases=[] (created ONCE)' }, color: '#f59e0b' },
+    { id: 'call1', emoji: '1️⃣', label: { tr: 'add_case("login")', en: 'add_case("login")' }, color: '#8b5cf6' },
+    { id: 'call2', emoji: '2️⃣', label: { tr: 'add_case("checkout")', en: 'add_case("checkout")' }, color: '#8b5cf6' },
+    { id: 'ghost', emoji: '👻', label: { tr: '["login","checkout"] (paylaşılan!)', en: '["login","checkout"] (shared!)' }, color: '#ef4444' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'cases=None (düzeltme)', en: 'cases=None (the fix)' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`def add_case(case, cases=[]):` yazınca, o `[]` her ÇAĞRIDA yeniden mi oluşur, yoksa BİR KEZ mi? Cevap, Python\'un en sinsi tuzaklarından biri — bu filmde tam olarak neden BİR KEZ oluştuğunu izleyeceğiz.',
+        en: 'When you write `def add_case(case, cases=[]):`, does that `[]` get recreated on EVERY call, or just ONCE? The answer is one of Python\'s sneakiest traps — this film watches exactly why it\'s created ONCE.',
+      },
+      positions: { define: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Python bu fonksiyonu İLK okuduğunda (tanımlandığı an, henüz hiç ÇAĞRILMADAN), varsayılan değer `[]` HEMEN oluşturulur ve fonksiyonun kendisine bağlı bir kutuya konur — bu kutu SONRAKİ tüm çağrılar arasında PAYLAŞILACAK.',
+        en: 'Step 1 — the FIRST time Python reads this function (at definition time, before it\'s ever CALLED), the default value `[]` is created IMMEDIATELY and stored in a box attached to the function itself — a box that will be SHARED across every future call.',
+      },
+      code: { tr: `def add_case(case, cases=[]):\n    cases.append(case)\n    return cases`, en: `def add_case(case, cases=[]):\n    cases.append(case)\n    return cases` },
+      positions: {
+        define: { x: 20, y: 50, scale: 1.1 },
+        defaultbox: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'define', to: 'defaultbox', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `add_case("login")` çağrılır: `cases` parametresi verilmediği için o PAYLAŞILAN kutu kullanılır, "login" eklenir, ["login"] döner. Şimdiye kadar her şey beklenen gibi görünüyor.',
+        en: 'Step 2 — `add_case("login")` is called: since `cases` wasn\'t provided, that SHARED box is used, "login" gets appended, ["login"] is returned. So far, everything looks as expected.',
+      },
+      code: { tr: `add_case("login")\n# → ["login"]`, en: `add_case("login")\n# → ["login"]` },
+      positions: {
+        defaultbox: { x: 20, y: 40, scale: 1.05 },
+        call1: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'defaultbox', to: 'call1', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (tuzak) — bambaşka bir test `add_case("checkout")` çağırır, YİNE `cases` VERMEDEN. Ama bu SEFERKİ kutu, Adım 1\'deki AYNI paylaşılan kutu — hâlâ içinde "login" duruyor! Sonuç: ["login", "checkout"] — boş liste BEKLENİYORDU.',
+        en: 'Step 3 (the trap) — a completely unrelated test calls `add_case("checkout")`, again WITHOUT providing `cases`. But THIS TIME\'s box is the EXACT SAME shared box from Step 1 — "login" is still sitting in it! Result: ["login", "checkout"] — an EMPTY list was expected.',
+      },
+      code: { tr: `add_case("checkout")\n# BEKLENEN: ["checkout"]\n# GERÇEK:   ["login", "checkout"]  ← paylaşılan kutu!`, en: `add_case("checkout")\n# EXPECTED: ["checkout"]\n# ACTUAL:   ["login", "checkout"]  ← shared box!` },
+      positions: {
+        call1: { x: 18, y: 40, opacity: 0.5, scale: 0.85 },
+        call2: { x: 42, y: 55, scale: 1.1 },
+        ghost: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'call2', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (düzeltme) — çözüm `cases=None` yazmak, sonra fonksiyon İÇİNDE `if cases is None: cases = []` demek. Bu satır, HER çağrıda TAZE bir liste oluşturur — kutu artık paylaşılmaz.',
+        en: 'Step 4 (the fix) — the solution is `cases=None`, then INSIDE the function `if cases is None: cases = []`. This line creates a FRESH list on EVERY call — the box is no longer shared.',
+      },
+      code: { tr: `def add_case(case, cases=None):\n    if cases is None:\n        cases = []   # her çağrıda taze liste\n    cases.append(case)\n    return cases`, en: `def add_case(case, cases=None):\n    if cases is None:\n        cases = []   # fresh list every call\n    cases.append(case)\n    return cases` },
+      positions: {
+        ghost: { x: 20, y: 40, opacity: 0.4, scale: 0.8 },
+        fixed: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ghost', to: 'fixed', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java bu sorunu hiç YAŞAMAZ çünkü varsayılan değerler her metod çağrısında YENİDEN değerlendirilir (aslında Java\'da varsayılan parametre bile yok, overload kullanılır). Python\'da kural basit: varsayılan değer olarak ASLA mutable (list, dict, set) kullanma — sadece immutable (None, sayı, string, tuple) kullan.',
+        en: 'The lesson — Java NEVER has this problem because default values are RE-evaluated on every method call (in fact Java has no default parameters at all, it uses overloading). Python\'s rule is simple: NEVER use a mutable (list, dict, set) as a default value — only use immutable ones (None, numbers, strings, tuples).',
+      },
+      positions: {
+        fixed: { x: 35, y: 50, scale: 1.1 },
+        define: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// 10. Classes & OOP — __init__ constructor: şablondan gerçek nesneye
+const pyInitConstructorFilm = {
+  type: 'video-scene',
+  id: 'py-init-constructor-film',
+  title: {
+    tr: '🎬 TestResult("login", "PASS"): __init__ Şablonu Nasıl Doldurur?',
+    en: '🎬 TestResult("login", "PASS"): How __init__ Fills In the Blueprint',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'class', emoji: '🏗️', label: { tr: 'class TestResult (şablon)', en: 'class TestResult (blueprint)' }, color: '#0ea5e9' },
+    { id: 'call', emoji: '☎️', label: { tr: 'TestResult("login","PASS")', en: 'TestResult("login","PASS")' }, color: '#f59e0b' },
+    { id: 'init', emoji: '⚙️', label: { tr: '__init__(self, name, status)', en: '__init__(self, name, status)' }, color: '#8b5cf6' },
+    { id: 'object', emoji: '📦', label: { tr: 'r1 (kendine özgü nesne)', en: 'r1 (its own object)' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'TypeError: eksik argüman', en: 'TypeError: missing argument' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`class TestResult:` bir ŞABLON tanımlar ama şablonun kendisinden kimse "bir test sonucu" ÜRETEMEZ. `TestResult("login", "PASS")` yazdığında arka planda ne olur? Bu filmde __init__\'in bu zinciri nasıl yönettiğini izleyeceğiz.',
+        en: '`class TestResult:` defines a BLUEPRINT, but no one can PRODUCE "a test result" from the blueprint itself. What happens behind the scenes when you write `TestResult("login", "PASS")`? This film watches how __init__ runs that chain.',
+      },
+      positions: { class: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — sınıf tanımlanır: `test_name` ve `status` alanlarının VAR OLACAĞI, ama henüz DEĞER TAŞIMADIĞI bir şablon. Java\'daki bir class dosyasının derlenmesi gibi — henüz hiçbir nesne yok.',
+        en: 'Step 1 — the class is defined: a blueprint saying `test_name` and `status` fields WILL EXIST, but none of them CARRY a value yet. Like a Java class file being compiled — no object exists yet.',
+      },
+      code: { tr: `class TestResult:\n    def __init__(self, test_name, status):\n        self.test_name = test_name\n        self.status = status`, en: `class TestResult:\n    def __init__(self, test_name, status):\n        self.test_name = test_name\n        self.status = status` },
+      positions: { class: { x: 20, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `TestResult("login", "PASS")` çağrılır: Python önce YENİ, BOŞ bir nesne oluşturur, sonra bu nesneyi otomatik olarak `self` parametresi olarak `__init__`e GEÇİRİR — sen "new" yazmadın ama Python bunu senin için yaptı.',
+        en: 'Step 2 — `TestResult("login", "PASS")` is called: Python first creates a NEW, EMPTY object, then automatically PASSES that object as the `self` parameter into `__init__` — you never wrote "new", but Python did it for you.',
+      },
+      positions: {
+        class: { x: 18, y: 40, opacity: 0.5, scale: 0.85 },
+        call: { x: 46, y: 55, scale: 1.15, pulse: true },
+        init: { x: 74, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'class', to: 'call' }, { from: 'call', to: 'init', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `__init__` içinde `self.test_name = "login"` ve `self.status = "PASS"` çalışır: Java\'daki `this.name = name;` ile BİREBİR aynı iş — boş nesneye kendine özgü verileri doldurur.',
+        en: 'Step 3 — inside `__init__`, `self.test_name = "login"` and `self.status = "PASS"` run: the EXACT same job as Java\'s `this.name = name;` — filling the empty object with its own data.',
+      },
+      code: { tr: `self.test_name = "login"\nself.status = "PASS"`, en: `self.test_name = "login"\nself.status = "PASS"` },
+      positions: {
+        init: { x: 22, y: 50, opacity: 0.6, scale: 0.9 },
+        object: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'init', to: 'object', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — sonuç: `r1` artık KENDİNE ÖZGÜ verilere sahip GERÇEK bir nesne — `r2 = TestResult("checkout", "FAIL")` yazarsan bu, r1\'den TAMAMEN BAĞIMSIZ ikinci bir nesne olur, aynı şablondan üretilmiş ama kendi verisini taşıyan.',
+        en: 'Step 4 — the result: `r1` is now a REAL object with its OWN data — write `r2 = TestResult("checkout", "FAIL")` and it becomes a SECOND object, COMPLETELY INDEPENDENT from r1, built from the same blueprint but carrying its own data.',
+      },
+      positions: {
+        object: { x: 30, y: 50, scale: 1.15, pulse: true },
+        call: { x: 60, y: 50, scale: 1.0, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — `TestResult("login")` yazıp `status` argümanını UNUTURSAN, Python nesneyi hiç OLUŞTURMAZ: `__init__` "2 argüman bekliyordum, 1 aldım" der ve `TypeError: missing 1 required positional argument` fırlatır — Java\'daki constructor overload eksikliğinin AYNI garantisi.',
+        en: 'Final (the contrast) — forget the `status` argument and write `TestResult("login")`, and Python never CREATES the object at all: `__init__` says "I expected 2 arguments, got 1" and raises `TypeError: missing 1 required positional argument` — the SAME guarantee Java gives you when no matching constructor overload exists.',
+      },
+      positions: {
+        init: { x: 30, y: 50, scale: 1.05 },
+        ghost: { x: 62, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'init', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 11. Scope & Modules — LEGB kuralı ve "global" unutulunca UnboundLocalError
+const pyLegbScopeFilm = {
+  type: 'video-scene',
+  id: 'py-legb-scope-film',
+  title: {
+    tr: '🎬 test_counter += 1 Neden "Referenced Before Assignment" Verir?',
+    en: '🎬 Why Does test_counter += 1 Raise "Referenced Before Assignment"?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'global', emoji: '🌍', label: { tr: 'test_counter = 0 (global)', en: 'test_counter = 0 (global)' }, color: '#0ea5e9' },
+    { id: 'func', emoji: '🚪', label: { tr: 'record_result() Fonksiyonu', en: 'record_result() Function' }, color: '#f59e0b' },
+    { id: 'localguess', emoji: '🔍', label: { tr: 'Python: "Bu atama var, YEREL olmalı"', en: 'Python: "There\'s an assignment, must be LOCAL"' }, color: '#8b5cf6' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'UnboundLocalError', en: 'UnboundLocalError' }, color: '#ef4444' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'global test_counter', en: 'global test_counter' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir fonksiyonun İÇİNDEN dışarıdaki bir değişkeni okuyabilirsin — peki ona YAZABILIR misin? Cevap hiç beklemediğin bir yerde saklı: Python, atama yapan HER satırı otomatik olarak "yerel" sayar. Bu filmde bu kuralın nasıl bir hataya dönüştüğünü izleyeceğiz.',
+        en: 'You can READ an outer variable from inside a function — but can you WRITE to it? The answer hides somewhere unexpected: Python automatically treats EVERY line that assigns a value as "local." This film watches how that rule turns into an error.',
+      },
+      positions: { global: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — dışarıda (global scope\'ta) `test_counter = 0` tanımlıdır. Bu, tüm programın "görebileceği" bir odadaki not gibidir.',
+        en: 'Step 1 — outside (in global scope), `test_counter = 0` is defined. This is like a note in a room the whole program can "see."',
+      },
+      code: { tr: `test_counter = 0`, en: `test_counter = 0` },
+      positions: { global: { x: 22, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `record_result()` fonksiyonu içinde `test_counter += 1` yazılır — niyet "dışarıdaki sayacı bir artır" ama Python bu satırı görür görmez FARKLI bir karar verir: "bu isme bu fonksiyon İÇİNDE bir ATAMA yapılıyor, o zaman bu isim bu fonksiyona ÖZGÜ (yerel) olmalı."',
+        en: 'Step 2 — inside `record_result()`, `test_counter += 1` is written — the intent is "increment the outer counter" but the moment Python sees this line, it decides something DIFFERENT: "this name gets ASSIGNED to INSIDE this function, so it must be LOCAL to this function."',
+      },
+      code: { tr: `def record_result():\n    test_counter += 1  # niyet: dışarıyı artır`, en: `def record_result():\n    test_counter += 1  # intent: increment the outer one` },
+      positions: {
+        global: { x: 18, y: 40, opacity: 0.5, scale: 0.85 },
+        func: { x: 48, y: 55, scale: 1.15, pulse: true },
+        localguess: { x: 76, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'func', to: 'localguess', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (çelişki) — ama `test_counter += 1` aslında ÖNCE test_counter\'ı OKUMAYA çalışır (mevcut değerine 1 eklemek için), SONRA yeni değeri atar. Python bu ismi zaten "yerel" saydığı için, o yerel değişkenin HENÜZ bir değeri YOK — okuma adımı patlar.',
+        en: 'Step 3 (the contradiction) — but `test_counter += 1` actually tries to READ test_counter FIRST (to add 1 to its current value), THEN assign the new value. Since Python already decided this name is "local," that local variable has NO value YET — the read step blows up.',
+      },
+      positions: {
+        localguess: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        ghost: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'localguess', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — hata mesajı tam olarak bunu söyler: `UnboundLocalError: local variable \'test_counter\' referenced before assignment`. Java\'da bu kavram hiç YOK — instance/static field\'lar zaten açıkça tanımlıdır, "atama = otomatik yerel" kuralı Python\'a özgüdür.',
+        en: 'Step 4 — the error message says exactly this: `UnboundLocalError: local variable \'test_counter\' referenced before assignment`. Java has NO such concept — instance/static fields are already explicitly declared; the "assignment = automatic local" rule is unique to Python.',
+      },
+      positions: {
+        ghost: { x: 30, y: 50, scale: 1.1 },
+        func: { x: 58, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final (düzeltme) — fonksiyonun ilk satırına `global test_counter` eklemek, Python\'a "hayır, bu isimden bahsederken dışarıdaki (global) odayı kastediyorum" der. Artık `+= 1` gerçekten dışarıdaki sayacı GÜNCELLER — ama pratikte bu pattern nadiren önerilir, genelde bir parametre/return ile aynı iş daha temiz yapılır.',
+        en: 'Final (the fix) — adding `global test_counter` as the function\'s first line tells Python "no, when I mention this name, I mean the outer (global) room." Now `+= 1` genuinely UPDATES the outer counter — though in practice this pattern is rarely recommended; a parameter/return usually does the same job more cleanly.',
+      },
+      code: { tr: `def record_result():\n    global test_counter\n    test_counter += 1  # artık gerçekten çalışır`, en: `def record_result():\n    global test_counter\n    test_counter += 1  # now it actually works` },
+      positions: {
+        global: { x: 20, y: 55, opacity: 0.6, scale: 0.85 },
+        fixed: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'global', to: 'fixed', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 12. Helper Modules — random.seed() ile QA test verisini reprodüklenebilir kılmak
+const pyRandomSeedFilm = {
+  type: 'video-scene',
+  id: 'py-random-seed-film',
+  title: {
+    tr: '🎬 random.seed(42): Rastgeleyi "Tekrarlanabilir" Yapmak',
+    en: '🎬 random.seed(42): Making "Random" Reproducible',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'norandom', emoji: '🎲', label: { tr: 'random.choice() — Tohumsuz', en: 'random.choice() — No Seed' }, color: '#f59e0b' },
+    { id: 'run1', emoji: '🏃', label: { tr: 'CI Koşumu #1', en: 'CI Run #1' }, color: '#0ea5e9' },
+    { id: 'run2', emoji: '🏃', label: { tr: 'CI Koşumu #2', en: 'CI Run #2' }, color: '#0ea5e9' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Farklı Sonuç — Flaky!', en: 'Different Result — Flaky!' }, color: '#ef4444' },
+    { id: 'seeded', emoji: '🌱', label: { tr: 'random.seed(42)', en: 'random.seed(42)' }, color: '#22c55e' },
+    { id: 'same', emoji: '✅', label: { tr: 'Her Koşumda AYNI Veri', en: 'SAME Data Every Run' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test verisi üretmek için `random.choice(["chrome","firefox"])` kullanıyorsun. Peki bu test, CI\'da HER koşumda aynı senaryoyu mu test ediyor, yoksa her seferinde FARKLI bir tesadüf mü? Bu filmde `random.seed()`in bu soruyu nasıl çözdüğünü izleyeceğiz.',
+        en: 'You use `random.choice(["chrome","firefox"])` to generate test data. But does this test exercise the SAME scenario every CI run, or a DIFFERENT coincidence each time? This film watches how `random.seed()` resolves that question.',
+      },
+      positions: { norandom: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — tohum (seed) belirtilmeden `random.choice()` çağrılır: Python, sistem saatine bağlı bir başlangıç noktasından rastgele sayı üretir — bu, HER çalıştırmada FARKLI bir başlangıç demektir.',
+        en: 'Step 1 — `random.choice()` is called with no seed specified: Python generates random numbers from a starting point tied to the system clock — meaning a DIFFERENT starting point EVERY run.',
+      },
+      code: { tr: `browser = random.choice(["chrome", "firefox", "webkit"])`, en: `browser = random.choice(["chrome", "firefox", "webkit"])` },
+      positions: { norandom: { x: 22, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — CI Koşumu #1: bu tohumsuz çağrı "firefox" seçer, test firefox\'a özgü bir hatayı YAKALAR ve KIRMIZI döner.',
+        en: 'Step 2 — CI Run #1: this unseeded call picks "firefox", the test CATCHES a firefox-specific bug and goes RED.',
+      },
+      positions: {
+        norandom: { x: 20, y: 40, opacity: 0.6, scale: 0.9 },
+        run1: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'norandom', to: 'run1', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (kontrast) — CI Koşumu #2 (kod HİÇ değişmedi!): aynı tohumsuz çağrı bu sefer "chrome" seçer — firefox hatası hiç TETİKLENMEZ, test YEŞİL geçer. Ekip "ama dün kırmızıydı, bugün neden yeşil?" diye saatlerce debug eder — bu FLAKY test\'in klasik tarifidir.',
+        en: 'Step 3 (the contrast) — CI Run #2 (the code has NOT changed at all!): the same unseeded call picks "chrome" this time — the firefox bug never TRIGGERS, the test goes GREEN. The team spends hours debugging "but it was red yesterday, why is it green today?" — the classic recipe for a FLAKY test.',
+      },
+      positions: {
+        run1: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        run2: { x: 48, y: 55, scale: 1.15 },
+        ghost: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'run2', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (düzeltme) — test başında `random.seed(42)` çağrılırsa, Python\'un "rastgele" üreteci ARTIK HER ZAMAN aynı sırayla aynı sayıları üretir. `random.choice()` artık HER koşumda birebir aynı elemanı seçer — "rastgele" davranış DETERMİNİSTİK hale gelir.',
+        en: 'Step 4 (the fix) — call `random.seed(42)` at the start of the test, and Python\'s "random" generator now ALWAYS produces the same sequence of numbers in the same order. `random.choice()` now picks the IDENTICAL element on EVERY run — "random" behavior becomes DETERMINISTIC.',
+      },
+      code: { tr: `random.seed(42)\nbrowser = random.choice(["chrome", "firefox", "webkit"])\n# HER koşumda aynı seçim`, en: `random.seed(42)\nbrowser = random.choice(["chrome", "firefox", "webkit"])\n# same pick EVERY run` },
+      positions: {
+        ghost: { x: 20, y: 40, opacity: 0.4, scale: 0.8 },
+        seeded: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ghost', to: 'seeded', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — CI Koşumu #1 ve #2 artık BİREBİR aynı "rastgele" veriyi üretir: test HER seferinde aynı senaryoyu doğrular, sonuç TUTARLI olur. Java\'da bu, `new Random(42)` ile sabit tohum vermeye karşılık gelir — mantık dilden bağımsız aynıdır.',
+        en: 'The lesson — CI Run #1 and #2 now produce the IDENTICAL "random" data: the test verifies the same scenario every time, the result is CONSISTENT. In Java, this maps to seeding with `new Random(42)` — the logic is the same regardless of language.',
+      },
+      positions: {
+        seeded: { x: 30, y: 50, scale: 1.1 },
+        same: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'seeded', to: 'same', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 13. Files & JSON — "with open() as f" bağlam yöneticisi: dosya hep KAPANIR mı?
+const pyWithFileCloseFilm = {
+  type: 'video-scene',
+  id: 'py-with-file-close-film',
+  title: {
+    tr: '🎬 with open() as f: Bir Hata Olsa Bile Dosya Neden Hep Kapanır?',
+    en: '🎬 with open() as f: Why the File Always Closes, Even on Error',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'manual', emoji: '📂', label: { tr: 'f = open(...) — Manuel', en: 'f = open(...) — Manual' }, color: '#f59e0b' },
+    { id: 'crash', emoji: '💥', label: { tr: 'Okuma Sırasında Hata', en: 'Error During Read' }, color: '#ef4444' },
+    { id: 'leak', emoji: '🔓', label: { tr: 'f.close() HİÇ ÇALIŞMADI', en: 'f.close() NEVER RAN' }, color: '#ef4444' },
+    { id: 'with', emoji: '🔒', label: { tr: 'with open(...) as f:', en: 'with open(...) as f:' }, color: '#8b5cf6' },
+    { id: 'closed', emoji: '✅', label: { tr: 'Dosya OTOMATİK Kapandı', en: 'File CLOSED Automatically' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir dosyayı açtıktan sonra okurken bir hata OLUŞURSA, dosya handle\'ı açık mı KALIR? Bu filmde manuel `open()`/`close()` ile `with` bloğunun bu soruya verdiği FARKLI cevabı izleyeceğiz.',
+        en: 'If an error occurs while reading a file you\'ve opened, does the file handle STAY open? This film watches the DIFFERENT answer manual `open()`/`close()` gives compared to a `with` block.',
+      },
+      positions: { manual: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 (manuel yol) — `f = open("results.json")` ile dosya açılır, sonra `data = json.load(f)` ile içerik okunur, en sonunda `f.close()` YAZILMIŞTIR — ama bu satır sadece kodun SONUNA yazılmış bir NİYET, bir GARANTİ değil.',
+        en: 'Step 1 (the manual path) — `f = open("results.json")` opens the file, then `data = json.load(f)` reads the content, and `f.close()` is WRITTEN at the end — but that line is just an INTENTION placed at the end of the code, not a GUARANTEE.',
+      },
+      code: { tr: `f = open("results.json")\ndata = json.load(f)   # burada hata olursa?\nf.close()`, en: `f = open("results.json")\ndata = json.load(f)   # what if this errors?\nf.close()` },
+      positions: { manual: { x: 22, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 (kontrast) — dosya bozuk bir JSON içeriyorsa, `json.load(f)` satırında bir hata FIRLAR ve Python bu fonksiyonu HEMEN terk eder — `f.close()` satırına ASLA ULAŞILMAZ.',
+        en: 'Step 2 (the contrast) — if the file contains malformed JSON, `json.load(f)` RAISES an error and Python ABANDONS the function IMMEDIATELY — the `f.close()` line is NEVER REACHED.',
+      },
+      positions: {
+        manual: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        crash: { x: 50, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'manual', to: 'crash', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — sonuç: dosya handle\'ı AÇIK kalır — işletim sistemi bu dosyayı hâlâ "kullanımda" sayar. Yüzlerce test dosyası bu şekilde açılırsa, "too many open files" hatası GÜNLER sonra, en beklenmedik anda patlar.',
+        en: 'Step 3 — the result: the file handle stays OPEN — the OS still considers this file "in use." If hundreds of test files get opened this way, a "too many open files" error explodes DAYS later, at the most unexpected moment.',
+      },
+      positions: {
+        crash: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        leak: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'crash', to: 'leak', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (düzeltme) — `with open("results.json") as f:` yazınca, Python bir "bağlam yöneticisi" (context manager) devreye sokar: blok İÇİNDE HANGİ SEBEPLE olursa olsun (normal bitişi ya da bir exception) çıkılırken, `f.close()` OTOMATİK ve GARANTİLİ olarak çağrılır.',
+        en: 'Step 4 (the fix) — write `with open("results.json") as f:` and Python engages a "context manager": for WHATEVER REASON the block is exited (normal completion or an exception), `f.close()` is called AUTOMATICALLY and GUARANTEED.',
+      },
+      code: { tr: `with open("results.json") as f:\n    data = json.load(f)   # hata olsa bile\n# buraya gelindiğinde f zaten kapalı — GARANTİLİ`, en: `with open("results.json") as f:\n    data = json.load(f)   # even if this errors\n# by here f is already closed — GUARANTEED` },
+      positions: {
+        leak: { x: 20, y: 40, opacity: 0.4, scale: 0.8 },
+        with: { x: 46, y: 55, scale: 1.15 },
+        closed: { x: 74, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'with', to: 'closed', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java\'daki `try-with-resources` BİREBİR aynı garantiyi verir: `try (var f = new FileReader(...))`. İkisinin de arkasındaki felsefe aynı: "kaynak açan kod, o kaynağı KAPATMA sorumluluğunu ELLE takip etmemeli — dil bunu senin için garanti etmeli."',
+        en: 'The lesson — Java\'s `try-with-resources` gives the EXACT same guarantee: `try (var f = new FileReader(...))`. The philosophy behind both is identical: "code that opens a resource shouldn\'t have to MANUALLY track closing it — the language should guarantee that for you."',
+      },
+      positions: {
+        closed: { x: 35, y: 50, scale: 1.1 },
+        with: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// 14. Exceptions & RegEx — yanlış except tipi hatayı YAKALAMAZ
+const pyExceptTypeMatchFilm = {
+  type: 'video-scene',
+  id: 'py-except-type-match-film',
+  title: {
+    tr: '🎬 except TypeError Yazdın ama Hata ValueError — Neden Yakalanmıyor?',
+    en: '🎬 You Wrote except TypeError but the Error Is ValueError — Why No Catch?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'call', emoji: '🔢', label: { tr: 'int("abc")', en: 'int("abc")' }, color: '#0ea5e9' },
+    { id: 'raised', emoji: '💥', label: { tr: 'ValueError Fırlatılır', en: 'ValueError Is Raised' }, color: '#ef4444' },
+    { id: 'wrongcatch', emoji: '🥅', label: { tr: 'except TypeError: (yanlış kask)', en: 'except TypeError: (wrong helmet)' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Yakalanmadı — Program Çöker', en: 'Not Caught — Program Crashes' }, color: '#ef4444' },
+    { id: 'rightcatch', emoji: '🛡️', label: { tr: 'except ValueError: (doğru kask)', en: 'except ValueError: (right helmet)' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`except` bir bisiklet kaskı gibi — ama YANLIŞ kaskı takarsan düşme yine seni yaralar. Bu filmde `int("abc")`nin gerçekte HANGİ hatayı fırlattığını ve yanlış except\'in neden hiç DEVREYE GİRMEDİĞİNİ izleyeceğiz.',
+        en: 'An `except` is like a bike helmet — but wear the WRONG one and the fall still hurts. This film watches which error `int("abc")` actually raises, and why the wrong except never ACTIVATES.',
+      },
+      positions: { call: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `age = int(user_input)` çalışır, `user_input` "abc" gibi rakam OLMAYAN bir metin taşıyor. Python bunu sayıya çeviremeyeceğini anlar ve bir istisna (exception) HAZIRLAR.',
+        en: 'Step 1 — `age = int(user_input)` runs, and `user_input` holds text like "abc" that is NOT a digit. Python realizes it cannot convert this to a number and PREPARES an exception.',
+      },
+      code: { tr: `age = int(user_input)  # user_input = "abc"`, en: `age = int(user_input)  # user_input = "abc"` },
+      positions: { call: { x: 22, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — fırlatılan hata TAM OLARAK `ValueError`dır — "tip DOĞRU (string verildi) ama İÇERİK yanlış (sayısal değil)" anlamına gelir. `TypeError` ise TAMAMEN FARKLI bir durumu ifade eder: yanlış TİPTE bir argüman verilmesi (örn. int(None)).',
+        en: 'Step 2 — the exact error raised is `ValueError` — meaning "the TYPE is correct (a string was given) but the CONTENT is wrong (not numeric)." `TypeError` describes a COMPLETELY DIFFERENT situation: an argument of the wrong TYPE entirely (like int(None)).',
+      },
+      positions: {
+        call: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        raised: { x: 52, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'call', to: 'raised', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (yanlış kask) — kod `except TypeError:` yazmış — ama fırlatılan hata `ValueError`. Python bu iki tipi EŞLEŞTİRMEZ, bu except bloğu HİÇ devreye girmez, sanki hiç yazılmamış gibi ATLANIR.',
+        en: 'Step 3 (the wrong helmet) — the code wrote `except TypeError:` — but the raised error is `ValueError`. Python does NOT match these two types, this except block NEVER activates, it gets SKIPPED as if it had never been written.',
+      },
+      code: { tr: `try:\n    age = int(user_input)\nexcept TypeError:   # eşleşmiyor!\n    print("Yanlış tip")`, en: `try:\n    age = int(user_input)\nexcept TypeError:   # no match!\n    print("Wrong type")` },
+      positions: {
+        raised: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        wrongcatch: { x: 52, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'raised', to: 'wrongcatch', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — eşleşme YOK, hata try-except bloğunu tamamen ATLAR ve programın TAMAMINI çökertir: `ValueError: invalid literal for int() with base 10: \'abc\'`. Saatlerce "except bloğum neden çalışmıyor?" diye debug edilir — kök neden basit bir TİP EŞLEŞTİRME hatasıdır.',
+        en: 'Step 4 — there is NO match, the error skips right past the try-except block and crashes the ENTIRE program: `ValueError: invalid literal for int() with base 10: \'abc\'`. Hours get spent debugging "why isn\'t my except block firing?" — the root cause is a simple TYPE MISMATCH.',
+      },
+      positions: {
+        wrongcatch: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        ghost: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'wrongcatch', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final (doğru kask) — `except ValueError:` yazınca hata TİPİ birebir eşleşir, blok devreye girer, program NAZİKÇE "Geçersiz sayı" der ve devam eder. Java\'daki `catch (SpecificException e)` disiplini BİREBİR aynıdır — genel bir `except:`/`catch(Exception e)` alışkanlığı ise gerçek hatayı GİZLER, bu QA\'de görünür bir hatadan çok daha tehlikelidir.',
+        en: 'Final (the right helmet) — write `except ValueError:` and the error TYPE matches exactly, the block activates, the program GRACEFULLY says "Invalid number" and continues. Java\'s `catch (SpecificException e)` discipline is EXACTLY the same — a lazy bare `except:`/`catch(Exception e)` habit HIDES the real error, and in QA that is far more dangerous than a visible one.',
+      },
+      code: { tr: `except ValueError:\n    print("Geçersiz sayı")  # şimdi yakalanıyor`, en: `except ValueError:\n    print("Invalid number")  # now caught` },
+      positions: {
+        ghost: { x: 20, y: 40, opacity: 0.4, scale: 0.8 },
+        rightcatch: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ghost', to: 'rightcatch', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 15. Advanced Concepts — @retry decorator: fonksiyonu değiştirmeden davranış SARMAK
+const pyDecoratorRetryFilm = {
+  type: 'video-scene',
+  id: 'py-decorator-retry-film',
+  title: {
+    tr: '🎬 @retry(times=3): Decorator Flaky Bir Testi Nasıl Sarmalar?',
+    en: '🎬 @retry(times=3): How a Decorator Wraps a Flaky Test',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'original', emoji: '🧪', label: { tr: 'unstable_check() (orijinal)', en: 'unstable_check() (original)' }, color: '#0ea5e9' },
+    { id: 'decorator', emoji: '🎀', label: { tr: '@retry(times=3)', en: '@retry(times=3)' }, color: '#8b5cf6' },
+    { id: 'wrapper', emoji: '📦', label: { tr: 'wrapper() (sarmalanmış)', en: 'wrapper() (wrapped)' }, color: '#f59e0b' },
+    { id: 'fail1', emoji: '❌', label: { tr: 'Deneme 1: ConnectionError', en: 'Attempt 1: ConnectionError' }, color: '#ef4444' },
+    { id: 'success', emoji: '✅', label: { tr: 'Deneme 2: Başarılı', en: 'Attempt 2: Succeeds' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir decorator, fonksiyonun KENDİSİNE hiç dokunmadan etrafına ek davranış sarar — hediye paketleyici gibi. `@retry(times=3)` yazınca, flaky bir test fonksiyonu arka planda GERÇEKTE neye dönüşür? Bu filmde o sarmalamayı izleyeceğiz.',
+        en: 'A decorator wraps extra behavior AROUND a function without ever touching the function ITSELF — like a gift wrapper. When you write `@retry(times=3)`, what does a flaky test function ACTUALLY become behind the scenes? This film watches that wrapping.',
+      },
+      positions: { original: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — orijinal fonksiyon `unstable_check()` basittir: bağlantıyı dener, %50 ihtimalle `ConnectionError` fırlatır. Bu fonksiyonun kendisi retry mantığından TAMAMEN habersizdir.',
+        en: 'Step 1 — the original function `unstable_check()` is simple: it attempts a connection, and 50% of the time raises `ConnectionError`. This function itself is COMPLETELY unaware of any retry logic.',
+      },
+      code: { tr: `def unstable_check():\n    if random.random() < 0.5:\n        raise ConnectionError("Kararsız ağ")\n    return "OK"`, en: `def unstable_check():\n    if random.random() < 0.5:\n        raise ConnectionError("Flaky network")\n    return "OK"` },
+      positions: { original: { x: 20, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `@retry(times=3)` satırı fonksiyonun ÜSTÜNE eklenince, Python arka planda `unstable_check = retry(times=3)(unstable_check)` çalıştırır: orijinal fonksiyon artık `wrapper` adlı YENİ bir fonksiyonun İÇİNE saklanmıştır.',
+        en: 'Step 2 — adding `@retry(times=3)` above the function makes Python run `unstable_check = retry(times=3)(unstable_check)` behind the scenes: the original function is now hidden INSIDE a NEW function called `wrapper`.',
+      },
+      code: { tr: `@retry(times=3, delay=0.1)\ndef unstable_check():\n    ...`, en: `@retry(times=3, delay=0.1)\ndef unstable_check():\n    ...` },
+      positions: {
+        original: { x: 18, y: 40, opacity: 0.5, scale: 0.85 },
+        decorator: { x: 46, y: 55, scale: 1.15, pulse: true },
+        wrapper: { x: 74, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'original', to: 'decorator' }, { from: 'decorator', to: 'wrapper', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — test kodu `unstable_check()` çağırdığında GERÇEKTE `wrapper()` çalışır: wrapper, orijinal fonksiyonu bir `try` bloğu içine alır, 1. denemede `ConnectionError` yakalanır ve SESSİZCE bir sonraki denemeye geçilir.',
+        en: 'Step 3 — when test code calls `unstable_check()`, `wrapper()` ACTUALLY runs: wrapper wraps the original function in a `try` block, catches `ConnectionError` on attempt 1, and SILENTLY moves to the next attempt.',
+      },
+      positions: {
+        wrapper: { x: 22, y: 50, opacity: 0.6, scale: 0.9 },
+        fail1: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'wrapper', to: 'fail1', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — 2. denemede orijinal fonksiyon "OK" döner: wrapper bu sonucu ALIR ve çağıran koda geri VERİR. Test kodu hiçbir zaman ilk başarısız denemeyi GÖRMEZ — sadece nihai sonucu görür, retry mantığı tamamen decorator\'ın içinde GİZLİDİR.',
+        en: 'Step 4 — on attempt 2, the original function returns "OK": wrapper CAPTURES this result and RETURNS it to the caller. Test code never SEES the first failed attempt at all — it only sees the final result, the retry logic stays entirely HIDDEN inside the decorator.',
+      },
+      positions: {
+        fail1: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        success: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'fail1', to: 'success', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — bu sarmalamayı elle 50 test fonksiyonuna kopyala-yapıştır yapmak yerine, tek satır `@retry(times=3)` ile HEPSİNE uygularsın — kod tekrarı sıfıra iner. Java\'da en yakın akraba annotation\'lardır (`@Test`, `@BeforeEach`): onlar da fonksiyonun KENDİSİNİ değiştirmez, framework\'e "bunu nasıl çalıştıracağını" söyler.',
+        en: 'The lesson — instead of manually copy-pasting this wrapping into 50 test functions, you apply it to ALL of them with one line, `@retry(times=3)` — duplication drops to zero. Java\'s closest relative is annotations (`@Test`, `@BeforeEach`): they too don\'t change the function ITSELF, they tell the framework how to run it.',
+      },
+      positions: {
+        success: { x: 35, y: 50, scale: 1.1 },
+        decorator: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// 16. Real World (pytest) — fixture injection zinciri: session vs function scope
+const pyPytestFixtureChainFilm = {
+  type: 'video-scene',
+  id: 'py-pytest-fixture-chain-film',
+  title: {
+    tr: '🎬 pytest Fixture Zinciri: Test Fonksiyonu Verisini Nereden Alır?',
+    en: '🎬 The pytest Fixture Chain: Where Does a Test Get Its Data From?',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test', emoji: '🧪', label: { tr: 'test_place_order(sample_order)', en: 'test_place_order(sample_order)' }, color: '#0ea5e9' },
+    { id: 'pytest', emoji: '🔎', label: { tr: 'pytest Fixture Çözücü', en: 'pytest Fixture Resolver' }, color: '#f59e0b' },
+    { id: 'sampleorder', emoji: '📦', label: { tr: '@pytest.fixture sample_order(db)', en: '@pytest.fixture sample_order(db)' }, color: '#8b5cf6' },
+    { id: 'db', emoji: '💾', label: { tr: "@pytest.fixture(scope='session') db", en: "@pytest.fixture(scope='session') db" }, color: '#6366f1' },
+    { id: 'runtest', emoji: '✅', label: { tr: 'Test Hazır Veriyle Çalışır', en: 'Test Runs With Ready Data' }, color: '#22c55e' },
+    { id: 'reused', emoji: '♻️', label: { tr: 'db 2. Testte TEKRAR KULLANILIR', en: 'db REUSED for 2nd Test' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`def test_place_order(sample_order):` yazdığında, bu `sample_order` parametresi NEREDEN geliyor? Sen hiçbir yerde `test_place_order(get_sample_order())` çağırmadın — pytest bunu SENİN YERİNE nasıl buluyor? Bu filmde fixture zincirini izleyeceğiz.',
+        en: 'When you write `def test_place_order(sample_order):`, where does that `sample_order` parameter actually COME from? You never called `test_place_order(get_sample_order())` anywhere — how does pytest find it FOR you? This film watches the fixture chain.',
+      },
+      positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — pytest, `test_place_order` fonksiyonunu ÇALIŞTIRMADAN ÖNCE, parametre listesine bakar: "sample_order" adında bir isim görür ve conftest.py\'de bu isimde bir `@pytest.fixture` ARAR.',
+        en: 'Step 1 — BEFORE running `test_place_order`, pytest looks at its parameter list: it sees a name called "sample_order" and SEARCHES conftest.py for a `@pytest.fixture` with that exact name.',
+      },
+      code: { tr: `def test_place_order(sample_order):\n    assert sample_order["status"] == "pending"`, en: `def test_place_order(sample_order):\n    assert sample_order["status"] == "pending"` },
+      positions: {
+        test: { x: 20, y: 50, scale: 1.1 },
+        pytest: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'pytest', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `sample_order` fixture\'ı bulunur, ama onun KENDİSİ de bir parametre alıyor: `def sample_order(db):`. pytest burada DURMAZ, zinciri takip eder: şimdi "db" adında bir fixture ARANIR.',
+        en: 'Step 2 — the `sample_order` fixture is found, but it ITSELF takes a parameter: `def sample_order(db):`. pytest does NOT stop here, it follows the chain: now it SEARCHES for a fixture named "db".',
+      },
+      code: { tr: `@pytest.fixture\ndef sample_order(db):\n    cursor = db.execute("INSERT INTO orders ...")\n    ...`, en: `@pytest.fixture\ndef sample_order(db):\n    cursor = db.execute("INSERT INTO orders ...")\n    ...` },
+      positions: {
+        pytest: { x: 20, y: 40, opacity: 0.6, scale: 0.9 },
+        sampleorder: { x: 50, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'pytest', to: 'sampleorder', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `db` fixture\'ı `scope="session"` ile tanımlıdır: "bu SQLite bağlantısını TÜM test dosyası boyunca SADECE BİR KEZ oluştur" demektir. pytest onu ilk ihtiyaç anında kurar ve BELLEKTE tutar.',
+        en: 'Step 3 — the `db` fixture is defined with `scope="session"`: meaning "create this SQLite connection ONLY ONCE for the WHOLE test file." pytest builds it the first time it\'s needed and KEEPS it in memory.',
+      },
+      code: { tr: `@pytest.fixture(scope="session")\ndef db():\n    conn = sqlite3.connect(":memory:")\n    ...\n    return conn`, en: `@pytest.fixture(scope="session")\ndef db():\n    conn = sqlite3.connect(":memory:")\n    ...\n    return conn` },
+      positions: {
+        sampleorder: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        db: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'sampleorder', to: 'db', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — zincir yukarı doğru ÇÖZÜLÜR: db hazır → sample_order db\'yi kullanıp bir sipariş EKLER → test_place_order artık HAZIR veriyle enjekte edilmiş şekilde ÇALIŞIR. Sen hiçbir yerde bu bağlantıyı elle KURMADIN.',
+        en: 'Step 4 — the chain RESOLVES bottom-up: db is ready → sample_order uses it to INSERT an order → test_place_order now RUNS injected with ready data. You never wired up this connection by hand, anywhere.',
+      },
+      positions: {
+        db: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        sampleorder: { x: 45, y: 55, opacity: 0.6, scale: 0.9 },
+        runtest: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'db', to: 'sampleorder' }, { from: 'sampleorder', to: 'runtest', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — dosyada ikinci bir test (`test_cancel_order`) ÇALIŞTIĞINDA, `db` fixture\'ı YENİDEN OLUŞTURULMAZ (session scope — zaten var), ama `sample_order` fixture\'ı (varsayılan scope="function") HER test için TAZE bir sipariş ekler. Java\'daki JUnit `@BeforeAll` (session) ile `@BeforeEach` (function) ayrımının BİREBİR karşılığıdır.',
+        en: 'Final — when a second test (`test_cancel_order`) RUNS, the `db` fixture is NOT recreated (session scope — it already exists), but the `sample_order` fixture (default scope="function") inserts a FRESH order for EACH test. This is the EXACT equivalent of JUnit\'s `@BeforeAll` (session) vs `@BeforeEach` (function) distinction in Java.',
+      },
+      positions: {
+        db: { x: 24, y: 50, scale: 1.05 },
+        reused: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'db', to: 'reused', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 17. Ecosystem — bir testin arkasında birden fazla kütüphane nasıl işbirliği yapar
+const pyEcosystemCollabFilm = {
+  type: 'video-scene',
+  id: 'py-ecosystem-collab-film',
+  title: {
+    tr: '🎬 Bir Testin Arkasında: pytest + Faker + requests Birlikte Çalışırken',
+    en: '🎬 Behind One Test: pytest + Faker + requests Working Together',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pytest', emoji: '🧪', label: { tr: 'pytest (Test Çalıştırıcı)', en: 'pytest (Test Runner)' }, color: '#0ea5e9' },
+    { id: 'faker', emoji: '🎭', label: { tr: 'Faker (Sahte Veri)', en: 'Faker (Fake Data)' }, color: '#f59e0b' },
+    { id: 'requests', emoji: '🌐', label: { tr: 'requests (HTTP İstemci)', en: 'requests (HTTP Client)' }, color: '#8b5cf6' },
+    { id: 'api', emoji: '🖥️', label: { tr: 'API Sunucusu', en: 'API Server' }, color: '#6366f1' },
+    { id: 'assertion', emoji: '✅', label: { tr: 'assert response.status == 201', en: 'assert response.status == 201' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Tek bir "kullanıcı oluştur" testi yazarken aslında TEK BİR kütüphane değil, BİRDEN FAZLA kütüphane sırayla iş yapar — hiçbirini sıfırdan yazmazsın. Bu filmde bir testin arkasındaki gerçek ZİNCİRİ izleyeceğiz.',
+        en: 'Writing a single "create user" test actually means MULTIPLE libraries doing work in sequence, not just one — you never write any of them from scratch. This film watches the real CHAIN behind one test.',
+      },
+      positions: { pytest: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — pytest, `test_create_user()` fonksiyonunu KEŞFEDER (dosya adı `test_` ile başladığı için) ve çalıştırmaya başlar. Henüz hiçbir veri ya da ağ isteği YOK.',
+        en: 'Step 1 — pytest DISCOVERS the `test_create_user()` function (because the filename starts with `test_`) and begins running it. No data or network request exists YET.',
+      },
+      code: { tr: `def test_create_user():\n    ...`, en: `def test_create_user():\n    ...` },
+      positions: { pytest: { x: 22, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — test içinde `Faker()` çağrılır: `fake.email()`, `fake.name()` GERÇEKÇİ ama SAHTE veri üretir — "aynı email\'i elle 50 kere yazmak" yerine, her çalıştırmada FARKLI ama geçerli formatta veri gelir.',
+        en: 'Step 2 — inside the test, `Faker()` is called: `fake.email()`, `fake.name()` generate REALISTIC but FAKE data — instead of "typing the same email 50 times by hand," you get DIFFERENT but validly-formatted data every run.',
+      },
+      code: { tr: `from faker import Faker\nfake = Faker()\nemail = fake.email()   # örn: "asya.demir42@example.com"`, en: `from faker import Faker\nfake = Faker()\nemail = fake.email()   # e.g. "asya.demir42@example.com"` },
+      positions: {
+        pytest: { x: 20, y: 40, opacity: 0.6, scale: 0.9 },
+        faker: { x: 52, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'pytest', to: 'faker', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — üretilen sahte veri `requests.post()` çağrısına GEÇİRİLİR: `requests`, bu Python dict\'ini gerçek bir HTTP isteğine (headers, JSON body) ÇEVİRİR ve API sunucusuna GÖNDERİR. Selenium/Playwright\'ın tarayıcıyla yaptığını, requests network katmanında yapar.',
+        en: 'Step 3 — the generated fake data is PASSED into a `requests.post()` call: `requests` TRANSLATES this Python dict into a real HTTP request (headers, JSON body) and SENDS it to the API server. What Selenium/Playwright do for a browser, requests does at the network layer.',
+      },
+      code: { tr: `response = requests.post(f"{BASE_URL}/users", json={"email": email, "name": fake.name()})`, en: `response = requests.post(f"{BASE_URL}/users", json={"email": email, "name": fake.name()})` },
+      positions: {
+        faker: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        requests: { x: 50, y: 55, scale: 1.15 },
+        api: { x: 78, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'faker', to: 'requests', color: '#8b5cf6' }, { from: 'requests', to: 'api', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — API "201 Created" ile yanıt verir, `requests` bu yanıtı Python nesnesine ÇEVİRİR, ve son olarak pytest\'in `assert` mekanizması "beklenen 201 miydi, GERÇEKTEN 201 mi geldi?" sorusunu KARŞILAŞTIRIR — üç ayrı kütüphane, tek bir sonuç için birleşti.',
+        en: 'Step 4 — the API responds with "201 Created", `requests` CONVERTS that response back into a Python object, and finally pytest\'s `assert` mechanism COMPARES "was 201 expected, did 201 ACTUALLY arrive?" — three separate libraries came together for one result.',
+      },
+      code: { tr: `assert response.status_code == 201, f"Beklenen 201, gelen {response.status_code}"`, en: `assert response.status_code == 201, f"Expected 201, got {response.status_code}"` },
+      positions: {
+        api: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        assertion: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'api', to: 'assertion', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Python\'un test otomasyonundaki GERÇEK gücü tek bir dilde değil, bu kütüphanelerin BİRBİRİYLE sürtüşmeden çalışabilmesindedir: pip ile hepsini saniyeler içinde kurarsın, hiçbiri diğerinin "kendi diliyle" konuşmasını beklemez. Java\'da benzer bir zincir Maven bağımlılıkları + JUnit + RestAssured ile kurulur — felsefe aynı, sözdizimi farklı.',
+        en: 'The lesson — Python\'s REAL strength in test automation is not the language alone, it\'s how these libraries work TOGETHER without friction: pip installs all of them in seconds, none of them needs the others to "speak its own language." Java builds a similar chain with Maven dependencies + JUnit + RestAssured — same philosophy, different syntax.',
+      },
+      positions: {
+        assertion: { x: 35, y: 50, scale: 1.1 },
+        pytest: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// 18. Troubleshooting — bir traceback'i doğru okuma sırası (aşağıdan yukarı)
+const pyTracebackReadingFilm = {
+  type: 'video-scene',
+  id: 'py-traceback-reading-film',
+  title: {
+    tr: '🎬 Bir Traceback Nasıl Okunur? Yukarıdan Değil, AŞAĞIDAN Başla',
+    en: '🎬 How to Read a Traceback? Start from the BOTTOM, Not the Top',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'panic', emoji: '😱', label: { tr: 'Kırmızı Duvar Dolusu Metin', en: 'A Wall of Red Text' }, color: '#ef4444' },
+    { id: 'top', emoji: '⬆️', label: { tr: 'En Üst: İlk Çağrı', en: 'Top: First Call' }, color: '#8b5cf6' },
+    { id: 'middle', emoji: '↕️', label: { tr: 'Orta: Çağrı Zinciri', en: 'Middle: Call Chain' }, color: '#f59e0b' },
+    { id: 'bottom', emoji: '⬇️', label: { tr: 'En Alt: Gerçek Hata + Satır', en: 'Bottom: Actual Error + Line' }, color: '#22c55e' },
+    { id: 'fix', emoji: '🎯', label: { tr: 'Kesin Konum Bulundu', en: 'Exact Location Found' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir traceback ilk bakışta korkutucu bir kırmızı metin duvarı gibi görünür. Ama içinde bir SIRA vardır ve bu sıra Java\'daki stack trace ile AYNI mantıkla işler. Bu filmde onu doğru sırayla okumayı izleyeceğiz.',
+        en: 'A traceback looks like a scary wall of red text at first glance. But there IS an order to it, and that order works on the SAME logic as a Java stack trace. This film watches how to read it in the right order.',
+      },
+      positions: { panic: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — traceback\'in EN ÜSTÜ "Traceback (most recent call last):" satırıyla başlar ve çağrı zincirinin İLK adımını gösterir — genelde test fonksiyonunun kendisi. Buradan başlamak seni YANLIŞ yola sokar çünkü bu satır SORUNUN kendisi değil, sadece BAŞLANGIÇ noktasıdır.',
+        en: 'Step 1 — the traceback\'s VERY TOP starts with "Traceback (most recent call last):" and shows the FIRST step of the call chain — usually the test function itself. Starting here sends you down the WRONG path, because this line is not the PROBLEM, just the STARTING point.',
+      },
+      code: { tr: `Traceback (most recent call last):\n  File "test_login.py", line 12, in test_login`, en: `Traceback (most recent call last):\n  File "test_login.py", line 12, in test_login` },
+      positions: { top: { x: 50, y: 25, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — ORTA satırlar çağrı zincirini gösterir: `test_login` → `login_page.submit()` → `wait_for_element()` gibi, fonksiyonun İÇİNDEN İÇİNE giden yolu izler. Bu, "hata NEREDEN buraya geldi" sorusunun CEVABIDIR ama henüz "asıl hata NE" sorusunun değil.',
+        en: 'Step 2 — the MIDDLE lines show the call chain: `test_login` → `login_page.submit()` → `wait_for_element()`, tracing the path deeper and deeper INTO the code. This ANSWERS "where did the error come FROM" but not yet "what IS the actual error."',
+      },
+      code: { tr: `  File "login_page.py", line 34, in submit\n    wait_for_element(self.driver, LOGIN_BUTTON)`, en: `  File "login_page.py", line 34, in submit\n    wait_for_element(self.driver, LOGIN_BUTTON)` },
+      positions: {
+        top: { x: 20, y: 20, opacity: 0.5, scale: 0.85 },
+        middle: { x: 50, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'top', to: 'middle', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — traceback\'in EN ALTI, GERÇEK hatayı, tam satır numarasını ve exception tipini gösterir: `TimeoutException: element not found within 10s`. QA mühendisleri için "buradan başla" kuralı TAM OLARAK bu satırdır — kök nedeni burada BULURSUN.',
+        en: 'Step 3 — the VERY BOTTOM of the traceback shows the ACTUAL error, the exact line number, and the exception type: `TimeoutException: element not found within 10s`. The "start here" rule for QA engineers is EXACTLY this line — you FIND the root cause here.',
+      },
+      code: { tr: `selenium.common.exceptions.TimeoutException: element not found within 10s`, en: `selenium.common.exceptions.TimeoutException: element not found within 10s` },
+      positions: {
+        middle: { x: 20, y: 35, opacity: 0.5, scale: 0.85 },
+        bottom: { x: 55, y: 70, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'middle', to: 'bottom', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — doğru okuma sırası: EN ALTTAN başla (hata tipi + mesaj), sonra bir üste bak (hangi satırda fırlatıldı), gerekirse yukarı doğru devam et (nasıl BURAYA gelindi). Panikleyip EN ÜSTTEN okumaya başlamak, sana en az yararlı bilgiyi İLK verir.',
+        en: 'Step 4 — the correct reading order: start from the BOTTOM (error type + message), then look one line up (which line raised it), continue upward if needed (how you GOT here). Panicking and reading from the TOP FIRST gives you the least useful information FIRST.',
+      },
+      positions: {
+        bottom: { x: 25, y: 55, scale: 1.1 },
+        fix: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bottom', to: 'fix', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java\'daki stack trace AYNI mantıkla çalışır: `Caused by:` satırı genelde en ALTTA, gerçek kök nedeni gösterir. Fark sadece format — QA mühendisinin disiplini dilden BAĞIMSIZDIR: önce ALTA bak, sonra yukarı çık.',
+        en: 'The lesson — a Java stack trace works on the SAME logic: the `Caused by:` line usually sits at the BOTTOM, showing the real root cause. Only the format differs — a QA engineer\'s discipline is language-INDEPENDENT: look at the BOTTOM first, then work your way up.',
+      },
+      positions: {
+        fix: { x: 35, y: 50, scale: 1.1 },
+        panic: { x: 62, y: 50, scale: 1.0, opacity: 0.5 },
+      },
+    },
+  ],
+}
+
+// 19. Java → Python — Java constructor'ı ile Python __init__ yan yana
+const pyJavaConstructorInitFilm = {
+  type: 'video-scene',
+  id: 'py-java-constructor-init-film',
+  title: {
+    tr: '🎬 new LoginTest("chrome") vs LoginTest("chrome"): "new" Nereye Kayboldu?',
+    en: '🎬 new LoginTest("chrome") vs LoginTest("chrome"): Where Did "new" Go?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'javasrc', emoji: '☕', label: { tr: 'Java: new LoginTest("chrome")', en: 'Java: new LoginTest("chrome")' }, color: '#f59e0b' },
+    { id: 'javaconstr', emoji: '🏗️', label: { tr: 'Java Constructor (this.browser=...)', en: 'Java Constructor (this.browser=...)' }, color: '#f59e0b' },
+    { id: 'pysrc', emoji: '🐍', label: { tr: 'Python: LoginTest("chrome")', en: 'Python: LoginTest("chrome")' }, color: '#0ea5e9' },
+    { id: 'pyinit', emoji: '⚙️', label: { tr: '__init__(self, browser): self.browser=...', en: '__init__(self, browser): self.browser=...' }, color: '#0ea5e9' },
+    { id: 'sameresult', emoji: '✅', label: { tr: 'Aynı Sonuç: Kendine Özgü Nesne', en: 'Same Result: An Object With Its Own Data' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Core Java biliyorsun ve `new LoginTest("chrome")` yazmaya alışkınsın. Python\'da `LoginTest("chrome")` yazılıyor ve "new" kelimesi hiç GÖZÜKMÜYOR — nereye kayboldu? Bu filmde iki dilin AYNI işi nasıl yaptığını yan yana izleyeceğiz.',
+        en: 'You know Core Java and are used to writing `new LoginTest("chrome")`. In Python you write `LoginTest("chrome")` and the word "new" never SHOWS UP — where did it go? This film watches the two languages do the SAME job side by side.',
+      },
+      positions: { javasrc: { x: 30, y: 40, scale: 1.05 }, pysrc: { x: 70, y: 60, scale: 1.05 } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 (Java) — `new LoginTest("chrome")` yazdığında, JVM önce bellekte BOŞ bir nesne AYIRIR, sonra bu nesneyi `this` olarak constructor\'a geçirir: `public LoginTest(String browser) { this.browser = browser; }`.',
+        en: 'Step 1 (Java) — writing `new LoginTest("chrome")` makes the JVM first ALLOCATE an empty object in memory, then pass that object as `this` into the constructor: `public LoginTest(String browser) { this.browser = browser; }`.',
+      },
+      code: { tr: `public LoginTest(String browser) {\n    this.browser = browser;\n}`, en: `public LoginTest(String browser) {\n    this.browser = browser;\n}` },
+      positions: {
+        javasrc: { x: 20, y: 30, scale: 1.1 },
+        javaconstr: { x: 55, y: 30, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'javasrc', to: 'javaconstr', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 (Python) — `LoginTest("chrome")` yazdığında GERÇEKTE aynı iki adım olur: Python önce boş bir nesne oluşturur, sonra bunu `self` olarak `__init__`e geçirir. Fark SADECE "new" kelimesinin yazılmaması — Python bunu SENİN İÇİN otomatik yapar.',
+        en: 'Step 2 (Python) — writing `LoginTest("chrome")` ACTUALLY does the same two steps: Python first creates an empty object, then passes it as `self` into `__init__`. The ONLY difference is not typing "new" — Python does it automatically FOR you.',
+      },
+      code: { tr: `def __init__(self, browser):\n    self.browser = browser`, en: `def __init__(self, browser):\n    self.browser = browser` },
+      positions: {
+        pysrc: { x: 20, y: 70, scale: 1.1 },
+        pyinit: { x: 55, y: 70, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pysrc', to: 'pyinit', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — yan yana koy: Java\'da `this` her yerde ÖRTÜKTÜR (metot içinde otomatik erişilebilir), Python\'da ise `self` HER instance metoduna AÇIKÇA ilk parametre olarak yazılmalıdır. Bu, "hangisi daha az yazım gerektirir" değil, "hangisi daha AÇIK/explicit" felsefesidir — Python\'ın "explicit is better than implicit" ilkesi tam burada görünür.',
+        en: 'Step 3 — put them side by side: in Java, `this` is IMPLICIT everywhere (automatically accessible inside a method); in Python, `self` must be EXPLICITLY written as the first parameter of EVERY instance method. This isn\'t about "which requires less typing," it\'s a philosophy of "which is more EXPLICIT" — Python\'s "explicit is better than implicit" principle shows up exactly here.',
+      },
+      positions: {
+        javaconstr: { x: 30, y: 30, scale: 1.05 },
+        pyinit: { x: 30, y: 70, scale: 1.05 },
+        sameresult: { x: 70, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'javaconstr', to: 'sameresult', color: '#f59e0b' }, { from: 'pyinit', to: 'sameresult', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — sonuç İKİ dilde de AYNI: kendine özgü `browser` verisini taşıyan bir nesne oluştu. `t1 = LoginTest("chrome")` ve Java\'daki `LoginTest t1 = new LoginTest("chrome");` TAM OLARAK aynı kavramsal işi yapar — sözdizimi farklı, mekanizma AYNI.',
+        en: 'Step 4 — the result is IDENTICAL in both languages: an object carrying its own `browser` data was created. `t1 = LoginTest("chrome")` and Java\'s `LoginTest t1 = new LoginTest("chrome");` perform the EXACT same conceptual job — different syntax, the SAME mechanism.',
+      },
+      positions: {
+        sameresult: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Ders — bu benzerliği bildiğin an, Python OOP\'u sıfırdan öğrenmiyorsun, sadece Java\'da zaten BİLDİĞİN bir mekanizmayı YENİ bir sözdizimine ÇEVİRİYORSUN: constructor→__init__, this→self, new yok→otomatik. QA otomasyon framework\'ü yazarken bu zihinsel köprü seni çok hızlandırır.',
+        en: 'The lesson — once you know this parallel, you\'re not learning Python OOP from scratch, you\'re TRANSLATING a mechanism you already KNOW from Java into a NEW syntax: constructor→__init__, this→self, no new→automatic. When writing a QA automation framework, this mental bridge speeds you up enormously.',
+      },
+      positions: {
+        javaconstr: { x: 30, y: 45, scale: 1.0 },
+        pyinit: { x: 70, y: 55, scale: 1.0 },
+      },
+      beams: [{ from: 'javaconstr', to: 'pyinit', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 20. Practice Exercises — parse_results egzersizini adım adım çözmek
+const pyParseResultsExerciseFilm = {
+  type: 'video-scene',
+  id: 'py-parse-results-exercise-film',
+  title: {
+    tr: '🎬 Alıştırma Çözümü: parse_results() Fonksiyonu Adım Adım',
+    en: '🎬 Solving an Exercise: parse_results() Step by Step',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'input', emoji: '📥', label: { tr: 'results listesi (dict\'ler)', en: 'results list (dicts)' }, color: '#0ea5e9' },
+    { id: 'init', emoji: '🧮', label: { tr: 'counts = {} (başlangıç)', en: 'counts = {} (start)' }, color: '#f59e0b' },
+    { id: 'loop', emoji: '🔁', label: { tr: 'for r in results:', en: 'for r in results:' }, color: '#8b5cf6' },
+    { id: 'getdefault', emoji: '🛡️', label: { tr: '.get(status, 0) + 1', en: '.get(status, 0) + 1' }, color: '#6366f1' },
+    { id: 'output', emoji: '✅', label: { tr: '{"PASS":2,"FAIL":1,"total":3}', en: '{"PASS":2,"FAIL":1,"total":3}' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Alıştırma: her biri "status" anahtarı taşıyan dict\'lerden oluşan bir listeyi al, kaç PASS/FAIL/SKIP olduğunu SAY. Kağıt üzerinde kolay görünür ama bir sayaç dict\'ini NASIL güvenle büyütürsün? Bu filmde çözümü adım adım izleyeceğiz.',
+        en: 'The exercise: take a list of dicts each carrying a "status" key, COUNT how many are PASS/FAIL/SKIP. Sounds easy on paper, but how do you safely grow a counter dict? This film watches the solution step by step.',
+      },
+      positions: { input: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — girdi: `[{"status":"PASS"}, {"status":"FAIL"}, {"status":"PASS"}]` gibi bir liste. İlk soru şu: sayaçları TUTACAK boş bir dict\'i döngüden ÖNCE mi, İÇİNDE mi oluşturmalısın?',
+        en: 'Step 1 — the input: a list like `[{"status":"PASS"}, {"status":"FAIL"}, {"status":"PASS"}]`. The first question: should the empty dict that HOLDS the counters be created BEFORE the loop, or INSIDE it?',
+      },
+      code: { tr: `def parse_results(results):\n    counts = {}   # döngüden ÖNCE — bir kere oluşturulur`, en: `def parse_results(results):\n    counts = {}   # BEFORE the loop — created once` },
+      positions: {
+        input: { x: 20, y: 50, scale: 1.1 },
+        init: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'input', to: 'init', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `counts` döngüden ÖNCE oluşturulmalı: içinde oluşturulsaydı, her turda SIFIRLANIRDI ve önceki turların sayımı KAYBOLURDU. `for r in results:` ile her dict\'i sırayla ele alırız.',
+        en: 'Step 2 — `counts` must be created BEFORE the loop: if created inside it, it would RESET every turn and previous turns\' counts would be LOST. `for r in results:` walks through each dict in order.',
+      },
+      code: { tr: `for r in results:\n    status = r["status"]`, en: `for r in results:\n    status = r["status"]` },
+      positions: {
+        init: { x: 22, y: 40, opacity: 0.6, scale: 0.9 },
+        loop: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'init', to: 'loop', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (tuzak ve çözüm) — `counts[status] += 1` yazarsan ve o status İLK KEZ geliyorsa, Python `KeyError` fırlatır çünkü henüz o anahtar YOK. Çözüm: `counts[status] = counts.get(status, 0) + 1` — `.get()` anahtar yoksa 0 VARSAYAR, hiçbir zaman patlamaz.',
+        en: 'Step 3 (the trap and the fix) — write `counts[status] += 1` and if that status arrives for the FIRST time, Python raises `KeyError` because the key doesn\'t exist YET. The fix: `counts[status] = counts.get(status, 0) + 1` — `.get()` ASSUMES 0 if the key is missing, it never blows up.',
+      },
+      code: { tr: `counts[status] = counts.get(status, 0) + 1`, en: `counts[status] = counts.get(status, 0) + 1` },
+      positions: {
+        loop: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        getdefault: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'loop', to: 'getdefault', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — döngü tüm dict\'leri işledikten sonra, `counts["total"] = len(results)` eklenir — bu, bilinmeyen status değerleri gelse bile toplam kaydı DOĞRU tutar. Sonuç: `{"PASS": 2, "FAIL": 1, "total": 3}`.',
+        en: 'Step 4 — after the loop processes every dict, `counts["total"] = len(results)` is added — this keeps the total record CORRECT even if unknown status values show up. Result: `{"PASS": 2, "FAIL": 1, "total": 3}`.',
+      },
+      code: { tr: `counts["total"] = len(results)\nreturn counts`, en: `counts["total"] = len(results)\nreturn counts` },
+      positions: {
+        getdefault: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        output: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'getdefault', to: 'output', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — bu kalıp (`dict.get(key, default) + 1`) QA otomasyonunda son derece yaygındır: hata mesajı sayacı, durum sayacı, tarayıcı bazlı test sayacı — HEPSİ aynı desendir. Java\'da `Map.getOrDefault(key, 0) + 1` BİREBİR aynı işi görür.',
+        en: 'The lesson — this pattern (`dict.get(key, default) + 1`) is extremely common in QA automation: error-message counters, status counters, browser-based test counters — ALL the same pattern. Java\'s `Map.getOrDefault(key, 0) + 1` does the EXACT same job.',
+      },
+      positions: {
+        output: { x: 35, y: 50, scale: 1.1 },
+        input: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// 21. Manual Testing Lab — bir bug report'un "tekrar üretilebilir" hale gelme zinciri
+const pyBugReportReproFilm = {
+  type: 'video-scene',
+  id: 'py-bug-report-repro-film',
+  title: {
+    tr: '🎬 "Giriş Çalışmıyor" Neden Yetersiz? Bir Bug Report\'un Zinciri',
+    en: '🎬 Why Is "Login Doesn\'t Work" Not Enough? The Chain of a Bug Report',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'tester', emoji: '🧑‍💻', label: { tr: 'Tester', en: 'Tester' }, color: '#0ea5e9' },
+    { id: 'vague', emoji: '💬', label: { tr: '"Giriş çalışmıyor"', en: '"Login doesn\'t work"' }, color: '#ef4444' },
+    { id: 'dev', emoji: '👩‍💻', label: { tr: 'Geliştirici', en: 'Developer' }, color: '#f59e0b' },
+    { id: 'confused', emoji: '❓', label: { tr: 'Ekranımda Sorun Yok!', en: 'Nothing Wrong on My Screen!' }, color: '#ef4444' },
+    { id: 'structured', emoji: '📋', label: { tr: 'Adımlar + Beklenen + Gerçek', en: 'Steps + Expected + Actual' }, color: '#22c55e' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'Anında Anlaşıldı, Düzeltildi', en: 'Understood Instantly, Fixed' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir bug bulduğunda, "bir şey ters gitti" demek YETER mi? Bu filmde bir bug report\'un neden bir polis tutanağı GİBİ olması gerektiğini — adım adım, kanıtla — izleyeceğiz.',
+        en: 'When you find a bug, is saying "something went wrong" ENOUGH? This film watches why a bug report needs to be LIKE a police report — step by step, with evidence.',
+      },
+      positions: { tester: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — tester login formunda bir sorun BULUR ve raporu yazar: "Giriş çalışmıyor." Bu cümle tester\'ın kendi ekranında GÖRDÜĞÜ bir HİSSİ anlatır — ama geliştiriciye hiçbir SOMUT bilgi TAŞIMAZ.',
+        en: 'Step 1 — the tester FINDS an issue in the login form and writes the report: "Login doesn\'t work." This sentence describes a FEELING the tester SAW on their own screen — but carries NO CONCRETE information to the developer.',
+      },
+      code: { tr: `Başlık: Giriş çalışmıyor`, en: `Title: Login doesn't work` },
+      positions: {
+        tester: { x: 20, y: 50, scale: 1.1 },
+        vague: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'tester', to: 'vague', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 (kontrast) — geliştirici raporu okur, KENDİ ekranında login sayfasını açar, normal şifreyle giriş yapar — HER ŞEY ÇALIŞIR. "Ekranımda sorun yok!" der ve raporu "reproduce edilemedi" diye KAPATIR — bug hâlâ oradadır ama GÖRÜNMEZ kalmıştır.',
+        en: 'Step 2 (the contrast) — the developer reads the report, opens the login page on THEIR OWN screen, logs in with a normal password — EVERYTHING WORKS. "Nothing wrong on my screen!" they say, and CLOSE the report as "could not reproduce" — the bug is still there but stays INVISIBLE.',
+      },
+      positions: {
+        vague: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        dev: { x: 48, y: 55, scale: 1.15 },
+        confused: { x: 76, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'vague', to: 'dev', color: '#f59e0b' }, { from: 'dev', to: 'confused', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (düzeltme) — tester raporu YENİDEN yazar: "ADIMLAR: 1) Login sayfasını aç, 2) Şifre alanını BOŞ bırak, 3) Giriş Yap\'a tıkla. BEKLENEN: \'Şifre gerekli\' uyarısı. GERÇEK: sayfa sessizce yeniden yükleniyor, hiçbir uyarı yok."',
+        en: 'Step 3 (the fix) — the tester REWRITES the report: "STEPS: 1) Open the login page, 2) Leave the password field EMPTY, 3) Click Log In. EXPECTED: a \'Password required\' warning. ACTUAL: the page silently reloads, no warning at all."',
+      },
+      code: { tr: `Adımlar: 1) Login aç 2) Şifreyi boş bırak 3) Giriş Yap'a tıkla\nBeklenen: "Şifre gerekli" uyarısı\nGerçek: Sayfa sessizce yeniden yükleniyor`, en: `Steps: 1) Open login 2) Leave password empty 3) Click Log In\nExpected: "Password required" warning\nActual: Page silently reloads` },
+      positions: {
+        confused: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        structured: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'confused', to: 'structured', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — geliştirici bu raporu okur ve EKRANI HİÇ AÇMADAN "ah, boş şifre kontrolü eksik" der — çünkü rapor artık bir HİS değil, bir TEKRAR ÜRETME TARİFİ: kesin adımlar, kesin beklenti, kesin gözlem.',
+        en: 'Step 4 — the developer reads this report and says "ah, the empty-password check is missing" WITHOUT EVEN OPENING THE SCREEN — because the report is no longer a FEELING, it\'s a REPRODUCTION RECIPE: exact steps, exact expectation, exact observation.',
+      },
+      positions: {
+        structured: { x: 22, y: 50, opacity: 0.6, scale: 0.9 },
+        fixed: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'structured', to: 'fixed', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — bir bug report yazmak, kod yazmaktan TAMAMEN farklı bir beceridir: BELİRSİZLİĞİ ortadan kaldırma disiplini. Aşağıdaki Manual Testing Lab\'da kendi bug report\'unu yaz ve sistemin onu nasıl DEĞERLENDİRDİĞİNİ gör.',
+        en: 'The lesson — writing a bug report is a COMPLETELY different skill from writing code: the discipline of eliminating AMBIGUITY. In the Manual Testing Lab below, write your own bug report and see how the system EVALUATES it.',
+      },
+      positions: {
+        fixed: { x: 35, y: 50, scale: 1.1 },
+        tester: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+// step-animation + code-playground for Manual Testing Lab tab (currently has
+// NO animation/sandbox at all — CLAUDE.md §9.5 gap being closed here).
+const stepAnimationBugReportAnatomy = {
+  type: 'step-animation',
+  title: { tr: 'İyi Bir Bug Report\'un Anatomisi', en: 'The Anatomy of a Good Bug Report' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: 'Net Başlık', en: 'Clear Title' }, detail: { tr: '"Giriş çalışmıyor" değil, "Boş şifreyle giriş denendiğinde uyarı gösterilmiyor".', en: 'Not "Login doesn\'t work" but "No warning shown when logging in with empty password".' } },
+    { id: 2, icon: '🔢', label: { tr: 'Yeniden Üretme Adımları', en: 'Reproduction Steps' }, detail: { tr: 'Numaralı, sırayla, atlanabilecek hiçbir ayrıntı olmadan.', en: 'Numbered, in order, with no detail left to guesswork.' } },
+    { id: 3, icon: '🎯', label: { tr: 'Beklenen Sonuç', en: 'Expected Result' }, detail: { tr: 'Sistemin NE yapması gerektiği — spesifikasyona veya mantığa dayalı.', en: 'What the system SHOULD do — based on spec or logic.' } },
+    { id: 4, icon: '📸', label: { tr: 'Gerçek Sonuç', en: 'Actual Result' }, detail: { tr: 'Sistemin GERÇEKTE ne yaptığı — ekran görüntüsü/log ile desteklenirse daha güçlü.', en: 'What the system ACTUALLY did — stronger with a screenshot/log attached.' } },
+    { id: 5, icon: '🚦', label: { tr: 'Severity / Önem Derecesi', en: 'Severity' }, detail: { tr: 'Bu bug production\'da ne kadar riskli? Kritik mi, kozmetik mi?', en: 'How risky is this bug in production? Critical or cosmetic?' } },
+  ],
+}
+
+// 22. Interview Q&A — güçlü bir mülakat cevabının kurulma zinciri
+const pyInterviewMindsetFilm = {
+  type: 'video-scene',
+  id: 'py-interview-mindset-film',
+  title: {
+    tr: '🎬 Güçlü Bir Mülakat Cevabı Nasıl Kurulur?',
+    en: '🎬 How Is a Strong Interview Answer Built?',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '❓', label: { tr: 'Soru: "list ile tuple farkı?"', en: 'Question: "list vs tuple?"' }, color: '#0ea5e9' },
+    { id: 'concept', emoji: '🧠', label: { tr: 'Kavram: Mutable / Immutable', en: 'Concept: Mutable / Immutable' }, color: '#f59e0b' },
+    { id: 'javaref', emoji: '☕', label: { tr: 'Java Karşılaştırması', en: 'Java Comparison' }, color: '#8b5cf6' },
+    { id: 'qaExample', emoji: '🧪', label: { tr: 'Somut QA Örneği', en: 'Concrete QA Example' }, color: '#6366f1' },
+    { id: 'answer', emoji: '✅', label: { tr: 'Yapılandırılmış, Güçlü Cevap', en: 'Structured, Strong Answer' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Tek Cümlelik Ezber Cevap', en: 'One-Line Memorized Answer' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '"list ile tuple arasındaki fark nedir?" sorusuna "biri değişebilir biri değişemez" demek TEKNİK OLARAK doğru ama mülakatta ZAYIF bir cevaptır. Bu filmde güçlü bir cevabın nasıl İNŞA edildiğini izleyeceğiz.',
+        en: '"What\'s the difference between list and tuple?" — answering "one can change, one can\'t" is TECHNICALLY correct but a WEAK interview answer. This film watches how a strong answer gets BUILT.',
+      },
+      positions: { question: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — soru gelir: "list ile tuple arasındaki fark nedir?" İlk adım, altındaki KAVRAMI netleştirmektir: mutable (değiştirilebilir) vs immutable (değiştirilemez) — bu, cevabın İSKELETİDİR.',
+        en: 'Step 1 — the question arrives: "what\'s the difference between list and tuple?" The first step is clarifying the underlying CONCEPT: mutable vs immutable — this is the SKELETON of the answer.',
+      },
+      positions: {
+        question: { x: 20, y: 50, scale: 1.1 },
+        concept: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'concept', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 (zayıf yol) — sadece "list mutable, tuple immutable" demek ve DURMAK, mülakatçıya "ezberlemiş ama DÜŞÜNMEMİŞ" izlenimi VERİR. Bu tek başına yeterli bir cevap DEĞİLDİR.',
+        en: 'Step 2 (the weak path) — just saying "list is mutable, tuple is immutable" and STOPPING gives the interviewer the impression of "memorized but never THOUGHT about it." This alone is NOT a sufficient answer.',
+      },
+      positions: {
+        concept: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        ghost: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'concept', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (güçlendirme #1) — Java karşılaştırması EKLENİR: "Java\'da List.of() ile immutable bir liste yaratılır, ArrayList ise mutable\'dır — Python\'da bu ayrım list/tuple ile YAPISAL olarak baştan verilir." Bu, bilginin DERİNLİĞİNİ gösterir.',
+        en: 'Step 3 (strengthening #1) — a Java comparison gets ADDED: "In Java, List.of() creates an immutable list while ArrayList is mutable — in Python, that distinction is built in STRUCTURALLY from the start via list/tuple." This shows DEPTH of knowledge.',
+      },
+      positions: {
+        ghost: { x: 20, y: 40, opacity: 0.4, scale: 0.8 },
+        javaref: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ghost', to: 'javaref', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (güçlendirme #2) — somut bir QA örneği EKLENİR: "Bir fonksiyondan (status, message) tuple\'ı dönersem, çağıran kod bunu yanlışlıkla DEĞİŞTİREMEZ — bu, test sonucu gibi hassas verilerde bir GÜVENCE sağlar." Bu, bilgiyi GERÇEK dünyaya bağlar.',
+        en: 'Step 4 (strengthening #2) — a concrete QA example gets ADDED: "If a function returns a (status, message) tuple, the caller cannot accidentally MUTATE it — this gives a GUARANTEE for sensitive data like a test result." This ties the knowledge to the REAL world.',
+      },
+      positions: {
+        javaref: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        qaExample: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'javaref', to: 'qaExample', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final — üç katman BİRLEŞİR: kavram + Java karşılaştırması + somut QA örneği = yapılandırılmış, güçlü bir cevap. Aşağıdaki mülakat sorularını yanıtlarken, kendi cevabını bu ÜÇ katmanla kur — sistem cevabını tam olarak bu ölçütlerle DEĞERLENDİRİYOR.',
+        en: 'Final — three layers COMBINE: concept + Java comparison + concrete QA example = a structured, strong answer. When answering the interview questions below, build your own answer with these THREE layers — the system EVALUATES your answer against exactly these criteria.',
+      },
+      positions: {
+        qaExample: { x: 30, y: 50, scale: 1.05 },
+        answer: { x: 65, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'qaExample', to: 'answer', color: '#22c55e' }],
+    },
+  ],
+}
+
+// step-animation + code-playground for Interview tab (currently only had
+// `text` + `interview-questions` — no animation/sandbox at all).
+const stepAnimationAnswerStructure = {
+  type: 'step-animation',
+  title: { tr: 'Bir Mülakat Cevabını Yapılandırma Sırası', en: 'The Order for Structuring an Interview Answer' },
+  steps: [
+    { id: 1, icon: '🧠', label: { tr: 'Kavramı Söyle', en: 'State the Concept' }, detail: { tr: 'Sorunun arkasındaki temel fikri net bir cümleyle özetle.', en: 'Summarize the core idea behind the question in one clear sentence.' } },
+    { id: 2, icon: '☕', label: { tr: 'Java ile Karşılaştır', en: 'Compare with Java' }, detail: { tr: 'Java\'da bu nasıl yapılır, Python\'da neden farklı? Bu bilgi derinliğini gösterir.', en: 'How is this done in Java, why is Python different? This shows depth of knowledge.' } },
+    { id: 3, icon: '🧪', label: { tr: 'Somut QA Örneği Ver', en: 'Give a Concrete QA Example' }, detail: { tr: 'Gerçek bir otomasyon senaryosuna bağla — flaky test, yanlış PASS, production incident gibi.', en: 'Tie it to a real automation scenario — flaky test, false PASS, production incident.' } },
+    { id: 4, icon: '✅', label: { tr: 'Toparla', en: 'Wrap Up' }, detail: { tr: 'Tek cümlede özet yaparak cevabı net bir şekilde bitir.', en: 'Close with a one-sentence summary to end the answer clearly.' } },
+  ],
+}
+
+// Manual Testing Lab tab — hand-written code-playground (relatedTopicId
+// required per CLAUDE.md §9.4/§9.5; this tab had zero sandbox/animation before).
+const codePlaygroundBugReportValidator = {
+  type: 'code-playground',
+  relatedTopicId: 'manual-testing-lab',
+  id: 'py-bug-report-validator',
+  label: { tr: 'Kendin Yaz: Bir Bug Report Geçerli mi?', en: 'Write It Yourself: Is a Bug Report Valid?' },
+  language: 'python',
+  code: `def is_valid_report(report):
+    # BOZUK: sadece "title" anahtarını kontrol ediyor, adımlar/beklenen/gerçek eksik olsa bile geçerli sayıyor
+    return "title" in report
+
+report = {"title": "Giris calismiyor"}
+print(is_valid_report(report))  # True olmamali - eksik alanlar var!`,
+  expected: `False`,
+  explanation: {
+    tr: 'Bir bug report sadece başlığa sahip olmakla "geçerli" sayılamaz — yeniden üretme adımları, beklenen sonuç ve gerçek sonuç da ZORUNLU alanlardır. Fonksiyon bu dört alanın HEPSİNİN mevcut olduğunu kontrol etmeli.',
+    en: 'A bug report cannot be "valid" just because it has a title — reproduction steps, expected result, and actual result are also REQUIRED fields. The function must check that ALL four fields are present.',
+  },
+  hints: [
+    { tr: 'is_valid_report sadece bir anahtar kontrol ediyor. Geçerli bir rapor kaç anahtara sahip olmalı?', en: 'is_valid_report only checks one key. How many keys should a valid report have?' },
+    { tr: 'all() fonksiyonunu, bir liste anahtarın hepsinin dict içinde olup olmadığını kontrol etmek için kullanabilirsin.', en: 'You can use all() to check whether every key in a list is present in the dict.' },
+    { tr: '`return all(key in report for key in ["title", "steps", "expected", "actual"])` yaz.', en: 'Write `return all(key in report for key in ["title", "steps", "expected", "actual"])`.' },
+  ],
+  buggyCode: `def is_valid_report(report):
+    return "title" in report
+
+report = {"title": "Giris calismiyor"}
+print(is_valid_report(report))`,
+  fixedCode: `def is_valid_report(report):
+    required = ["title", "steps", "expected", "actual"]
+    return all(key in report for key in required)
+
+report = {"title": "Giris calismiyor"}
+print(is_valid_report(report))`,
+  starterCode: {
+    tr: `def is_valid_report(report):
+    # TODO: "title", "steps", "expected", "actual" anahtarlarının HEPSİNİN
+    # report dict'inde olup olmadığını kontrol et
+    return "title" in report
+
+report = {"title": "Giris calismiyor"}
+print(is_valid_report(report))  # Beklenen: False (eksik alanlar var)`,
+    en: `def is_valid_report(report):
+    # TODO: check that "title", "steps", "expected", "actual" are ALL
+    # present in the report dict
+    return "title" in report
+
+report = {"title": "Login doesn't work"}
+print(is_valid_report(report))  # Expected: False (missing fields)`,
+  },
+  solutionCode: `def is_valid_report(report):
+    required = ["title", "steps", "expected", "actual"]
+    return all(key in report for key in required)
+
+report = {"title": "Giris calismiyor"}
+print(is_valid_report(report))  # False
+
+full_report = {
+    "title": "Bos sifre ile giriste uyari gosterilmiyor",
+    "steps": "1) Login ac 2) Sifreyi bos birak 3) Giris Yap'a tikla",
+    "expected": "'Sifre gerekli' uyarisi",
+    "actual": "Sayfa sessizce yeniden yukleniyor",
+}
+print(is_valid_report(full_report))  # True`,
+  xpReward: 11,
+}
+
+// Interview tab — hand-written code-playground (relatedTopicId required;
+// this tab had zero sandbox/animation before — just text + interview-questions).
+const codePlaygroundAnswerChecklist = {
+  type: 'code-playground',
+  relatedTopicId: 'python-interview',
+  id: 'py-interview-answer-checklist',
+  label: { tr: 'Kendin Yaz: Cevabın Üç Katmanı Var mı?', en: 'Write It Yourself: Does Your Answer Have All Three Layers?' },
+  language: 'python',
+  code: `def score_answer(answer_text):
+    # BOZUK: her zaman 1 puan döner, cevabın içeriğine hiç bakmıyor
+    return 1
+
+answer = "list mutable, tuple immutable'dir."
+print(score_answer(answer))  # Zayif bir cevap - 1 degil daha dusuk bir puan almali`,
+  expected: `0`,
+  explanation: {
+    tr: 'Güçlü bir mülakat cevabı üç katman içerir: kavram, Java karşılaştırması, somut QA örneği. Fonksiyon cevap metninde "java" ve "test" (ya da benzeri QA terimi) geçip geçmediğini kontrol ederek bu katmanları SAYMALI, sabit bir puan DÖNMEMELİ.',
+    en: 'A strong interview answer has three layers: the concept, a Java comparison, a concrete QA example. The function should COUNT these layers by checking whether the answer text mentions "java" and "test" (or a similar QA term) — not return a FIXED score.',
+  },
+  hints: [
+    { tr: 'score_answer her zaman 1 döndürüyor — cevap metnine hiç bakmıyor. Metinde "java" kelimesi geçiyor mu diye kontrol etmelisin.', en: 'score_answer always returns 1 — it never looks at the answer text. You need to check if the word "java" appears in it.' },
+    { tr: '.lower() ile metni küçük harfe çevirip "java" ve "test" kelimelerini "in" operatörüyle ara.', en: 'Use .lower() to lowercase the text, then search for "java" and "test" with the "in" operator.' },
+    { tr: 'score = 1 (kavram var); "java" varsa +1; "test" ya da "qa" varsa +1 şeklinde topla.', en: 'score = 1 (concept present); +1 if "java" is found; +1 if "test" or "qa" is found.' },
+  ],
+  buggyCode: `def score_answer(answer_text):
+    return 1
+
+answer = "list mutable, tuple immutable'dir."
+print(score_answer(answer))`,
+  fixedCode: `def score_answer(answer_text):
+    text = answer_text.lower()
+    score = 1  # kavram anlatildi
+    if "java" in text:
+        score += 1
+    if "test" in text or "qa" in text:
+        score += 1
+    return score
+
+answer = "list mutable, tuple immutable'dir."
+print(score_answer(answer))`,
+  starterCode: {
+    tr: `def score_answer(answer_text):
+    text = answer_text.lower()
+    score = 1  # kavram anlatildi (taban puan)
+    # TODO: "java" kelimesi geçiyorsa +1 puan ekle
+    # TODO: "test" ya da "qa" kelimesi geçiyorsa +1 puan ekle
+    return score
+
+weak = "list mutable, tuple immutable'dir."
+strong = "list mutable'dir tuple immutable'dir; java'da List.of() immutable liste verir; bir test fonksiyonundan tuple donunce sonuc kazara degistirilemez."
+print(score_answer(weak))    # Beklenen: 1
+print(score_answer(strong))  # Beklenen: 3`,
+    en: `def score_answer(answer_text):
+    text = answer_text.lower()
+    score = 1  # concept was explained (base score)
+    # TODO: add +1 if the word "java" appears
+    # TODO: add +1 if the word "test" or "qa" appears
+    return score
+
+weak = "list is mutable, tuple is immutable."
+strong = "list is mutable, tuple is immutable; in java, List.of() gives an immutable list; when a test function returns a tuple, the result can't be accidentally mutated."
+print(score_answer(weak))    # Expected: 1
+print(score_answer(strong))  # Expected: 3`,
+  },
+  solutionCode: `def score_answer(answer_text):
+    text = answer_text.lower()
+    score = 1
+    if "java" in text:
+        score += 1
+    if "test" in text or "qa" in text:
+        score += 1
+    return score
+
+weak = "list mutable, tuple immutable'dir."
+strong = "list mutable'dir tuple immutable'dir; java'da List.of() immutable liste verir; bir test fonksiyonundan tuple donunce sonuc kazara degistirilemez."
+print(score_answer(weak))
+print(score_answer(strong))`,
+  xpReward: 11,
+}
+
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
   {
@@ -8653,27 +10801,27 @@ const challengeBugReportWriteOrder = {
 
 // --- FINAL SECTION MAPPING ---
 const finalEnSections = [
-  { ...sections[0], blocks: [...sections[0].blocks, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro'), challengePrintFlowOrder, challengeVariableAssignUseOrder] },
-  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation'), challengePipInstallOrder, challengeRequirementsTxtOrder]) },
-  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments'), challengeIndentationNestingOrder, challengeCommentToggleOrder]) },
-  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
-  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
-  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
-  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
-  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
-  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
-  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
-  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
-  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
-  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
-  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith, challengeJsonLoadOrder, challengeJsonDumpOrder]) },
-  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException, challengeMultiExceptOrder, challengeRegexFindallOrder]) },
-  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts'), challengeDecoratorOrder, challengeContextManagerOrder]) },
-  { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture, challengePytestFixtureOrder, challengePytestRunOrder]) },
-  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder, challengeVirtualenvWorkflowOrder, challengePyPiVersionCheckOrder]) },
-  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder]) },
-  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python'), challengeJavaTryCatchToPythonOrder, challengeJavaForRangeToPythonOrder]) },
-  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark, challengeTestHelperFunctionOrder, challengeBugReportWriteOrder]) },
+  { ...sections[0], blocks: [...sections[0].blocks, pyBytecodeJourneyFilm, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro'), challengePrintFlowOrder, challengeVariableAssignUseOrder] },
+  { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, pyRequirementsPortabilityFilm, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation'), challengePipInstallOrder, challengeRequirementsTxtOrder]) },
+  { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), pyIndentationMixFilm, stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments'), challengeIndentationNestingOrder, challengeCommentToggleOrder]) },
+  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), pyCastConfigBugFilm, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
+  { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
+  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), pyIsVsEqFilm, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
+  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
+  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
+  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
+  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
+  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
+  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), ...sections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
+  { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), pyRandomSeedFilm, stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
+  { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), ...sections[4].blocks.slice(107, 125), pyWithFileCloseFilm, stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith, challengeJsonLoadOrder, challengeJsonDumpOrder]) },
+  { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), pyExceptTypeMatchFilm, stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException, challengeMultiExceptOrder, challengeRegexFindallOrder]) },
+  { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), ...sections[4].blocks.slice(125, 137), pyDecoratorRetryFilm, stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts'), challengeDecoratorOrder, challengeContextManagerOrder]) },
+  { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), pyPytestFixtureChainFilm, feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture, challengePytestFixtureOrder, challengePytestRunOrder]) },
+  { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, pyEcosystemCollabFilm, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder, challengeVirtualenvWorkflowOrder, challengePyPiVersionCheckOrder]) },
+  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), pyTracebackReadingFilm, stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, pyJavaConstructorInitFilm, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python'), challengeJavaTryCatchToPythonOrder, challengeJavaForRangeToPythonOrder]) },
+  { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, pyParseResultsExerciseFilm, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark, challengeTestHelperFunctionOrder, challengeBugReportWriteOrder]) },
   {
     title: '🐞 Manual Testing Lab',
     blocks: [
@@ -8693,34 +10841,37 @@ const finalEnSections = [
           en: 'The login form below intentionally contains at least 5 different bugs. Try it with different inputs (empty password, invalid email, the "Forgot password" link, clicking Log In repeatedly), then write a structured bug report for each issue you find. The system automatically scores your report based on the title, repro steps, expected/actual result, and severity — and awards XP.',
         },
       },
+      pyBugReportReproFilm,
+      stepAnimationBugReportAnatomy,
+      codePlaygroundBugReportValidator,
       { type: 'manual-testing-lab' },
     ],
   },
-  sections[6] // Interview Q&A
+  { ...sections[6], blocks: [sections[6].blocks[0], pyInterviewMindsetFilm, stepAnimationAnswerStructure, codePlaygroundAnswerChecklist, sections[6].blocks[1]] } // Interview Q&A
 ];
 
 const finalTrSections = [
-  { ...trSections[0], blocks: [...trSections[0].blocks, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro'), challengePrintFlowOrder, challengeVariableAssignUseOrder] },
-  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation'), challengePipInstallOrder, challengeRequirementsTxtOrder]) },
-  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments'), challengeIndentationNestingOrder, challengeCommentToggleOrder]) },
-  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
-  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
-  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
-  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
-  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
-  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
-  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
-  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
-  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
-  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
-  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith, challengeJsonLoadOrder, challengeJsonDumpOrder]) },
-  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException, challengeMultiExceptOrder, challengeRegexFindallOrder]) },
-  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts'), challengeDecoratorOrder, challengeContextManagerOrder]) },
-  { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture, challengePytestFixtureOrder, challengePytestRunOrder]) },
-  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder, challengeVirtualenvWorkflowOrder, challengePyPiVersionCheckOrder]) },
-  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder]) },
-  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python'), challengeJavaTryCatchToPythonOrder, challengeJavaForRangeToPythonOrder]) },
-  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark, challengeTestHelperFunctionOrder, challengeBugReportWriteOrder]) },
+  { ...trSections[0], blocks: [...trSections[0].blocks, pyBytecodeJourneyFilm, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro'), challengePrintFlowOrder, challengeVariableAssignUseOrder] },
+  { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, pyRequirementsPortabilityFilm, stepAnimationInstallFlow, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation'), challengePipInstallOrder, challengeRequirementsTxtOrder]) },
+  { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), pyIndentationMixFilm, stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments'), challengeIndentationNestingOrder, challengeCommentToggleOrder]) },
+  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), pyCastConfigBugFilm, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
+  { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
+  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), pyIsVsEqFilm, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
+  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
+  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
+  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
+  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
+  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
+  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), ...trSections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
+  { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), pyRandomSeedFilm, stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
+  { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), ...trSections[4].blocks.slice(107, 125), pyWithFileCloseFilm, stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith, challengeJsonLoadOrder, challengeJsonDumpOrder]) },
+  { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), pyExceptTypeMatchFilm, stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException, challengeMultiExceptOrder, challengeRegexFindallOrder]) },
+  { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), ...trSections[4].blocks.slice(125, 137), pyDecoratorRetryFilm, stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts'), challengeDecoratorOrder, challengeContextManagerOrder]) },
+  { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), pyPytestFixtureChainFilm, feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture, challengePytestFixtureOrder, challengePytestRunOrder]) },
+  { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, pyEcosystemCollabFilm, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder, challengeVirtualenvWorkflowOrder, challengePyPiVersionCheckOrder]) },
+  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), pyTracebackReadingFilm, stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder]) },
+  { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, pyJavaConstructorInitFilm, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python'), challengeJavaTryCatchToPythonOrder, challengeJavaForRangeToPythonOrder]) },
+  { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, pyParseResultsExerciseFilm, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark, challengeTestHelperFunctionOrder, challengeBugReportWriteOrder]) },
   {
     title: '🐞 Manuel Test Lab',
     blocks: [
@@ -8740,10 +10891,13 @@ const finalTrSections = [
           en: 'The login form below intentionally contains at least 5 different bugs. Try it with different inputs (empty password, invalid email, the "Forgot password" link, clicking Log In repeatedly), then write a structured bug report for each issue you find. The system automatically scores your report based on the title, repro steps, expected/actual result, and severity — and awards XP.',
         },
       },
+      pyBugReportReproFilm,
+      stepAnimationBugReportAnatomy,
+      codePlaygroundBugReportValidator,
       { type: 'manual-testing-lab' },
     ],
   },
-  trSections[6] // Interview Q&A
+  { ...trSections[6], blocks: [trSections[6].blocks[0], pyInterviewMindsetFilm, stepAnimationAnswerStructure, codePlaygroundAnswerChecklist, trSections[6].blocks[1]] } // Interview Q&A
 ];
 
 export const pythonData = {

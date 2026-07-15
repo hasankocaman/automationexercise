@@ -10,6 +10,78 @@
 
 ---
 
+## OTURUM ÖZETİ — Dalga 8 (/python) TAMAMLANDI, workflow değişikliği (2026-07-15, devam)
+
+> **ÖNEMLİ — bu oturumda kullanıcı talimatıyla geçici bir workflow değişikliği
+> uygulanıyor:** Kullanıcı, Dalga 8'den itibaren geliştirmeler bitene kadar
+> (Dalga 8→21) her dalga sonunda **e2e/Playwright testlerini ÇALIŞTIRMAMA ve
+> `tests/video-scene.spec.ts`'e yeni test EKLEMEME** talimatı verdi — sadece
+> `node scripts/check-content-integrity.mjs` + TR/EN sızıntı taraması +
+> `npm run build` her dalga sonunda çalıştırılıyor, commit atılıyor, sonraki
+> dalgaya geçiliyor. **Playwright/e2e testleri ve `video-scene.spec.ts`
+> genişletmesi TÜM dalgalar bitince TEK SEFERDE, toplu bir "final doğrulama
+> turu" olarak yapılacak.** Bu, CLAUDE.md §1.1/§22'nin normal zorunlu akışından
+> BİLİNÇLİ bir sapmadır — kalıcı kural değişmedi, sadece bu çok-dalgalı oturum
+> için hız/pratiklik tercihi. Yeni bir oturum bu dosyayı okuyorsa ve final
+> doğrulama turu henüz yapılmadıysa, **Dalga 8-21 arası hiçbir sayfa
+> `tests/video-scene.spec.ts` kapsamında değildir** — bunu unutma.
+>
+> Branch: `feature/video-scene-dalga4` (yeni açıldı, `feature/video-scene-
+> dalga3`'ten sonra — o branch zaten main'e merge edilmişti).
+
+### Dalga 8 — /python — TAMAMLANDI (23/23 sekme)
+
+**Kritik yapısal keşif:** `pythonData.js`'teki ham `sections`/`trSections`
+(9 eleman) doğrudan render EDİLMİYOR — `finalEnSections`/`finalTrSections`
+adında bir `.slice(a,b)` mekanizmasıyla **23 GERÇEK render edilen sekmeye**
+bölünüyor (örn. ham `sections[2]` tek başına 4 ayrı sekmeye — Syntax &
+Comments, Variables & Types, Strings & Booleans, Operators — fanlanıyor).
+CLAUDE.md §9.5 gerçekte RENDER EDİLEN sekmeye uygulandığından, **23 film**
+üretildi (başlangıç tahmini olan 9 değil).
+
+**Uygulanan yöntem (index-shift riskinden kaçınma):** Ham `sections[N].
+blocks`'a film eklemek, TÜM `.slice()` sınırlarının yeniden hesaplanmasını
+gerektirip [[feedback_ts_heading_property]] hafızasındaki `applyTr` index-
+override riskini büyütebilirdi. Bunun yerine her film, doğrudan **final**
+sekmenin array literal'ine (hem `finalEnSections` hem `finalTrSections`'da
+aynı referansla) eklendi — ham `sections`/`trSections`/slice sınırlarına
+HİÇ dokunulmadı, index kayması riski sıfırlandı.
+
+- 23 adet `video-scene` filmi (her biri 5-6 sahne, bilingual, `xpReward`
+  11-14, `sceneDurationMs: 3400`), sekmenin gerçek mekanizmasına bağlı
+  (örn. `def f(cases=[])` mutable-default-argument tuzağı, pytest fixture
+  zinciri, tab/space `IndentationError`, Java `this` ↔ Python `self`).
+- Animasyon/sandbox'ı TAMAMEN eksik olan 2 sekme (💼 Interview, Manual
+  Testing Lab) için elle `step-animation` + `code-playground`
+  (`relatedTopicId` ile) eklendi.
+- Node script ile 23 sekmenin İKİSİNDE de (EN+TR) ≥1 video + ≥1 animasyon +
+  ≥1 sandbox olduğu doğrulandı; 23 film id'si proje genelinde (tüm
+  `*Data.js`) benzersiz olduğu grep ile teyit edildi.
+
+### Doğrulama (bu dalganın kapsamına göre daraltılmış — yukarıdaki nota bak)
+- `node scripts/check-content-integrity.mjs` → **TÜM KONTROLLER GEÇTİ ✓**
+  (35 dosya tarandı).
+- TR caption/code alanları manuel okunarak tarandı, İngilizce sızıntı yok.
+- `npm run build` → **temiz, 0 hata**. `pythonData` chunk: **710.48 kB /
+  gzip 234.84 kB** (önceki ölçümden büyüdü, ama 350KB gzip eşiğinin altında
+  — CLAUDE.md §14'teki javaData/typescriptData büyük-chunk uyarısına benzer
+  bir not, henüz aksiyon gerektirmiyor).
+- `tests/video-scene.spec.ts` bilerek GENİŞLETİLMEDİ, Playwright/e2e
+  ÇALIŞTIRILMADI (yukarıdaki workflow notuna bak).
+
+### Commit durumu
+Bu dalganın değişikliği (`src/data/pythonData.js`, +2198/-44 satır) commit
+edilecek — commit hash'i bu bölümün hemen altına (bir sonraki güncellemede)
+düşülecek.
+
+### Sıradaki adım
+`Documents/video-sitewide-plan.md` sırasındaki **Dalga 9 (/sql — önce yapı
+tespiti gerekli, "?" sekme sayısı)** — aynı `feature/video-scene-dalga4`
+branch'inde devam edilecek (her dalgada yeni branch AÇILMIYOR, sadece Dalga
+8 başlangıcında açıldı).
+
+---
+
 ## OTURUM ÖZETİ — Kontrast Denetimi (proje geneli) + Dalga 7 TAMAMLANDI (2026-07-15)
 
 > Bu oturum, altındaki "DEVİR NOTU" bölümünün öngördüğü "başka bir Claude
