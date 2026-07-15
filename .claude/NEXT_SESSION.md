@@ -98,13 +98,77 @@ bilingual (commitJourneyFilm kalıbı birebir takip edildi).
   🚫 .gitignore ve 🌿 Branch & Switch sekmelerine tıklanıp
   `video-scene-block` render'ı doğrulandı (count: 1 her ikisinde de)
 
+Prompt A commit edildi: `d27d908` (main değil, `feature/video-scene-dalga3`
+branch'inde).
+
+### SONNET PROMPT B — TAMAMLANDI (2026-07-15, commit BEKLİYOR)
+
+`Documents/video-rollout-plan.md` **Bölüm 9'daki SONNET PROMPT B** koşuldu:
+gitGithubData.js'e son 5 `video-scene` film sabiti eklendi (Prompt A'nın 6
+filminin hemen ardına, dosya başında), EN + TR section'larının İKİSİNE de:
+
+| Sekme | Film id | Yerleşim |
+|---|---|---|
+| 🐙 GitHub Akışı | `git-remote-sync-film` | `gitPrPractice`'ten sonra, özet grid'den önce |
+| 🧾 Pull Request | `github-pr-lifecycle-film` | `githubPrConflictPractice`'ten sonra, warning/quiz'den önce |
+| 🚀 Actions | `github-actions-trigger-film` | "Upload Playwright artifacts" kod bloğundan sonra, warning'den önce |
+| 🌐 Pages | `github-pages-deploy-film` | SPA routes tablosundan sonra, warning'den önce |
+| ⚠️ İş Riskleri | `git-force-push-rescue-film` | `git-reset-step-01` step-animation'dan sonra, `git-reset-order-01` challenge'dan önce |
+
+`tests/video-scene.spec.ts`'e yeni bir `describe` bloğu eklendi (mevcut
+testlere dokunulmadı): `/git-github` 3 temsili sekme (🎯 Giriş, 🔀 Merge,
+🚨 Hata Sözlüğü) + `/gauge` 🏠 Neden Gauge? sekmesi. 💼 Mülakat sekmesi
+BİLEREK dışarıda bırakıldı (quiz-gating %60 kilidi, gating-bypass yardımcısı
+yok bu suite'te) — 🚨 Hata Sözlüğü'nün gating'e TABİ OLMADIĞI kod okunarak
+doğrulandı (`TopicPage.jsx` `isDedicatedInterviewTab` SADECE 💼 emoji'sini
+kontrol ediyor, Hata Sözlüğü'nde bu emoji yok).
+
+**Doğrulama (§1.1) — hepsi geçti:**
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+- 5 filmin TR caption/code'u tek tek tarandı — İngilizce açıklama cümlesi yok
+  (grep ile doğrulandı)
+- `npm run build` → temiz, 8.67s, 41 shell üretildi
+- `npx playwright test tests/video-scene.spec.ts --workers=1` → **9/9 PASS**
+  (5 eski + 4 yeni test, ~37s)
+
+### DALGA 3 SONUÇ — 14/14 git-github sekmesi + 8/8 gauge sekmesi tamam
+
+| git-github sekmesi | Video | Animasyon | Sandbox |
+|---|---|---|---|
+| 🎯 Giriş | ✅ `git-version-chaos-film` | ✅ | ✅ |
+| ⚙️ Kurulum | ✅ `git-identity-config-film` | ✅ | ✅ |
+| ⌨️ Git Temelleri | ✅ `git-commit-journey-film` | ✅ | ✅ |
+| 🚫 .gitignore | ✅ `gitignore-filter-film` | ✅ | ✅ |
+| 🌿 Branch & Switch | ✅ `git-branch-parallel-film` | ✅ | ✅ |
+| 🔀 Merge & Conflict | ✅ `git-merge-two-faces-film` | ✅ | ✅ |
+| 🧬 Rebase & İleri Akış | ✅ `git-rebase-replay-film` | ✅ | ✅ |
+| 🐙 GitHub Akışı | ✅ `git-remote-sync-film` | ✅ | ✅ |
+| 🧾 Pull Request | ✅ `github-pr-lifecycle-film` | ✅ | ✅ |
+| 🚀 Actions | ✅ `github-actions-trigger-film` | ✅ | ✅ |
+| 🌐 Pages | ✅ `github-pages-deploy-film` | ✅ | ✅ |
+| ⚠️ İş Riskleri | ✅ `git-force-push-rescue-film` | ✅ | ✅ |
+| 🚨 Hata Sözlüğü | ✅ `git-error-diagnosis-film` (Fable) | ✅ | ✅ |
+| 💼 Mülakat | ✅ `git-interview-answer-film` (Fable) | ✅ | ✅ |
+
+| gauge sekmesi | Video | Animasyon | Sandbox |
+|---|---|---|---|
+| 🏠 Neden Gauge? | ✅ | ✅ | ✅ (Fable) |
+| ⚙️ Kurulum | ✅ | ✅ | ✅ (auto) |
+| 📝 Spec & Step | ✅ | ✅ | ✅ (auto) |
+| 🎯 By Locator | ✅ | ✅ | ✅ (auto) |
+| 🗂️ JSON Depo | ✅ | ✅ | ✅ (auto) |
+| 🌍 Ekosistem & CI/CD | ✅ | ✅ | ✅ (auto) |
+| 🚨 Gerçek Hayat | ✅ | ✅ | ✅ (Fable) |
+| 💼 Mülakat | ✅ | ✅ | ✅ (Fable) |
+
+**Kalan iş: YOK** (Katman 1 — "her sekmede ≥1 video + ≥1 animasyon + ≥1
+sandbox" hedefi %100 tamamlandı). Katman 2 ("her konudan sonra film+animasyon",
+video-rollout-plan.md §7.5) bilinçli olarak Dalga 4'e ertelendi.
+
 ### Sıradaki adımlar (sırayla)
-1. Bu oturumun (Prompt A) değişikliklerini commit et (kullanıcı onayıyla).
-2. `Documents/video-rollout-plan.md` **Bölüm 9'daki SONNET PROMPT B**'yi çalıştır
-   (git-github son 5 film: 🐙/🧾/🚀/🌐/⚠️ + `tests/video-scene.spec.ts`
-   genişletme + bu dosyanın Dalga 3 tablosu güncellemesi). Prompt A ile AYNI
-   ANDA çalıştırma — ikisi de gitGithubData.js'e dokunur, A commit edilmeden
-   B başlamamalı.
+1. Bu oturumun (Prompt B) değişikliklerini commit et (kullanıcı onayıyla).
+2. Kullanıcıya Dalga 3'ün tamamlandığını raporla; Dalga 4 (Katman 2 veya
+   Bölüm 6 backlog'undaki yeni sayfalar) için yönlendirme bekle.
 
 ---
 

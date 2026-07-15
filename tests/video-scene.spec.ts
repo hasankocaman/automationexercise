@@ -121,3 +121,79 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
         await context.close();
     });
 });
+
+// Dalga 3 (video-rollout-plan.md §7-9) — git-github'a eklenen 11 yeni filmin
+// (Prompt A: 🎯/⚙️/🚫/🌿/🔀/🧬, Prompt B: 🐙/🧾/🚀/🌐/⚠️) hepsini tek tek test
+// etmek yerine temsili 3 sekme (Giriş, Merge, Hata Sözlüğü) + gauge'da 1 yeni
+// sekme (Neden Gauge?) ile hafif render kontrolü yapılır. 💼 Mülakat sekmesi
+// BİLEREK dışarıda bırakıldı — quiz-gating (%60, CLAUDE.md §22 AC2) ile
+// kilitli ve bu suite gating'i açan bir yardımcı kullanmıyor.
+test.describe('Video-Scene — Dalga 3 (git-github 11 yeni film + gauge Neden Gauge?)', () => {
+    test('/git-github — 🎯 Giriş sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/git-github');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/git-github — 🔀 Merge & Conflict sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/git-github');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🔀 Merge & Conflict/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/git-github — 🚨 Hata Sözlüğü sekmesinde film render olur (gating YOK — sadece 💼 Mülakat kilitli)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/git-github');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🚨 Error Dictionary|🚨 Hata Sözlüğü/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/gauge — 🏠 Neden Gauge? sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/gauge');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🏠 Why Gauge\?|🏠 Neden Gauge\?/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});

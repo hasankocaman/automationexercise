@@ -1084,6 +1084,547 @@ const gitRebaseReplayFilm = {
   ],
 }
 
+// ─── GitHub Akışı sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 B1
+const gitRemoteSyncFilm = {
+  type: 'video-scene',
+  id: 'git-remote-sync-film',
+  title: {
+    tr: '🎬 origin/main: Uzaktaki Son Bilinen Fotoğraf',
+    en: '🎬 origin/main: The Last Known Photo of the Remote',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'repo',   emoji: '🗄️', label: { tr: 'Local repo',              en: 'Local repo' },              color: '#8b5cf6' },
+    { id: 'origin', emoji: '☁️', label: { tr: 'origin (GitHub)',         en: 'origin (GitHub)' },         color: '#0ea5e9' },
+    { id: 'push',   emoji: '📤', label: { tr: 'push',                    en: 'push' },                    color: '#22c55e' },
+    { id: 'fetch',  emoji: '📥', label: { tr: 'fetch',                   en: 'fetch' },                   color: '#10b981' },
+    { id: 'pull',   emoji: '🔀', label: { tr: 'pull (fetch+merge)',      en: 'pull (fetch+merge)' },      color: '#6366f1' },
+    { id: 'marker', emoji: '🏷️', label: { tr: 'origin/main işaretçisi',  en: 'origin/main pointer' },     color: '#f97316' },
+    { id: 'team',   emoji: '👥', label: { tr: 'Takım commit\'i',         en: 'Team commit' },             color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Local repo\'n zaten var, ama GitHub\'daki karşılığından habersiz — ikisi arasında bir bağlantı henüz kurulmadı.',
+        en: 'Your local repo already exists, but it does not know about its GitHub counterpart yet — no link has been established between them.',
+      },
+      positions: {
+        repo: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: '`git remote add origin` local zincire uzak bir ADRES tanıtır. `origin` sadece bir takma isimdir — Git\'e "buluttaki karşılığın burada" der.',
+        en: '`git remote add origin` introduces a remote ADDRESS to the local chain. `origin` is just a nickname — it tells Git "your cloud counterpart lives here".',
+      },
+      code: { tr: `git remote add origin https://github.com/hasankocaman/deneme2.git`, en: `git remote add origin https://github.com/hasankocaman/deneme2.git` },
+      positions: {
+        repo: { x: 30, y: 50, scale: 1, pulse: true },
+        origin: { x: 68, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'repo', to: 'origin', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: '`git push` ile local commit\'ler buluta KOPYALANIR. Bu ana kadar her şey senin bilgisayarındaydı — artık takım da görebiliyor.',
+        en: '`git push` COPIES local commits to the cloud. Until this moment everything lived only on your machine — now the team can see it too.',
+      },
+      code: { tr: `git push -u origin main`, en: `git push -u origin main` },
+      positions: {
+        repo: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        push: { x: 50, y: 50, scale: 1.2, pulse: true },
+        origin: { x: 78, y: 45, scale: 1.1 },
+      },
+      beams: [{ from: 'push', to: 'origin', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Takım arkadaşın da kendi commit\'ini push\'lar — origin ilerler. Ama senin local\'in bunu HENÜZ bilmiyor; hiçbir otomatik bildirim gelmez, sessizce GERİDE kalırsın.',
+        en: 'Your teammate also pushes their own commit — origin moves forward. But your local does NOT know this yet; no automatic notification arrives, you silently fall BEHIND.',
+      },
+      positions: {
+        origin: { x: 55, y: 50, scale: 1.1, pulse: true },
+        team: { x: 80, y: 35, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'team', to: 'origin', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: '`git fetch origin` uzaktaki yeniliği indirir — ama working tree\'ye DOKUNMAZ. Sadece `origin/main` işaretçisi ilerler: "işte uzaktakinin son hali" der, senin dosyaların hâlâ eskisi.',
+        en: '`git fetch origin` downloads the remote news — but does NOT touch your working tree. Only the `origin/main` pointer moves: it says "here is the remote\'s latest state", while your files stay the old ones.',
+      },
+      code: { tr: `git fetch origin`, en: `git fetch origin` },
+      positions: {
+        origin: { x: 22, y: 40, scale: 0.9, opacity: 0.6 },
+        fetch: { x: 50, y: 50, scale: 1.15, pulse: true },
+        marker: { x: 74, y: 32, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'origin', to: 'fetch' }, { from: 'fetch', to: 'marker', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: '`git pull` = `fetch` + `merge` TEK adımda. Uzaktaki yenilik hem indirilir HEM de senin dalına birleştirilir — iki komutu birbirine bağlayan bir kısayoldur.',
+        en: '`git pull` = `fetch` + `merge` in ONE step. The remote news is both downloaded AND merged into your branch — a shortcut that chains two commands together.',
+      },
+      code: { tr: `git pull origin main`, en: `git pull origin main` },
+      positions: {
+        fetch: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        pull: { x: 55, y: 50, scale: 1.2, pulse: true },
+        repo: { x: 80, y: 40, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'fetch', to: 'pull' }, { from: 'pull', to: 'repo', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final — `origin/main` = "uzaktaki main\'in en son BİLİNEN fotoğrafı", canlı bağlantı değil. QA bağı: sabah ilk iş `git pull`, akşam son iş `git push` ritmi, günler sonra patlayan dev bir conflict\'i önler.',
+        en: 'Final — `origin/main` is "the last KNOWN photo of the remote main", not a live connection. The QA tie-in: `git pull` first thing in the morning, `git push` last thing at night — this rhythm prevents a giant conflict from exploding days later.',
+      },
+      positions: {
+        repo: { x: 15, y: 55, scale: 0.85 },
+        marker: { x: 35, y: 35, scale: 0.85 },
+        origin: { x: 58, y: 55, scale: 0.9 },
+        team: { x: 80, y: 35, scale: 0.85 },
+        pull: { x: 92, y: 55, scale: 0.75, opacity: 0.5 },
+      },
+      beams: [{ from: 'repo', to: 'marker' }, { from: 'marker', to: 'origin' }, { from: 'origin', to: 'team' }],
+    },
+  ],
+}
+
+// ─── Pull Request sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 B2
+const githubPrLifecycleFilm = {
+  type: 'video-scene',
+  id: 'github-pr-lifecycle-film',
+  title: {
+    tr: '🎬 Bir Pull Request\'in Yaşam Döngüsü',
+    en: '🎬 The Life Cycle of a Pull Request',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'branch',   emoji: '🌿', label: { tr: 'feature dalı',           en: 'feature branch' },       color: '#22c55e' },
+    { id: 'pr',       emoji: '📬', label: { tr: 'PR',                     en: 'PR' },                   color: '#2563eb' },
+    { id: 'ci',       emoji: '🤖', label: { tr: 'CI check\'leri',         en: 'CI checks' },            color: '#f59e0b' },
+    { id: 'reviewer', emoji: '👀', label: { tr: 'Reviewer',               en: 'Reviewer' },             color: '#8b5cf6' },
+    { id: 'fix',      emoji: '🔧', label: { tr: 'Düzeltme commit\'i',     en: 'Fix commit' },           color: '#0ea5e9' },
+    { id: 'approve',  emoji: '✅', label: { tr: 'Approve',                en: 'Approve' },              color: '#16a34a' },
+    { id: 'merge',    emoji: '🔀', label: { tr: 'Merge butonu',           en: 'Merge button' },         color: '#7c3aed' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Feature dalı push\'lanır ve GitHub\'da bir PR AÇILIR: başlık, açıklama, diff — "bu değişikliği main\'e almak istiyorum" başvurusu.',
+        en: 'The feature branch is pushed and a PR is OPENED on GitHub: title, description, diff — a formal request to "bring this change into main".',
+      },
+      code: { tr: `git push -u origin feature/login-tests\n# GitHub: Open Pull Request`, en: `git push -u origin feature/login-tests\n# GitHub: Open Pull Request` },
+      positions: {
+        branch: { x: 30, y: 50, scale: 1.1, pulse: true },
+        pr: { x: 68, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'branch', to: 'pr' }],
+    },
+    {
+      caption: {
+        tr: 'CI otomatik olarak KOŞAR — hiç kimse elle tetiklemez. Kırmızıysa, reviewer henüz devreye girmeden PR geri döner: bir insanın zamanını boşa harcamadan önce robot elemesi.',
+        en: 'CI RUNS automatically — nobody triggers it by hand. If it is red, the PR bounces back before a reviewer even gets involved: a robot filter before any human time is spent.',
+      },
+      positions: {
+        pr: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        ci: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pr', to: 'ci', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'CI yeşil — sıra insan gözünde: reviewer diff\'i satır satır okur, şüpheli bir satıra yorum bırakır, "Request changes" ile merge\'ü BLOKE eder.',
+        en: 'CI is green — now the human eye: the reviewer reads the diff line by line, leaves a comment on a suspicious line, and BLOCKS the merge with "Request changes".',
+      },
+      positions: {
+        ci: { x: 22, y: 40, scale: 0.85, opacity: 0.6 },
+        reviewer: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ci', to: 'reviewer' }],
+    },
+    {
+      caption: {
+        tr: 'Yazar düzeltme commit\'ini AYNI dala push\'lar — PR OTOMATİK güncellenir, yeni bir PR açmaya GEREK YOK. Diff büyür, CI yeniden koşar.',
+        en: 'The author pushes a fix commit to the SAME branch — the PR updates AUTOMATICALLY, NO new PR is needed. The diff grows, CI reruns.',
+      },
+      code: { tr: `git add tests/login.spec.js\ngit commit -m "fix: cover empty password edge case"\ngit push`, en: `git add tests/login.spec.js\ngit commit -m "fix: cover empty password edge case"\ngit push` },
+      positions: {
+        reviewer: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        fix: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'reviewer', to: 'fix', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Reviewer tekrar bakar: sorun çözülmüş, check\'ler yeşil. `Approve` gelir — "bu değişiklik benim gözümden merge\'e hazır" demektir.',
+        en: 'The reviewer looks again: the issue is fixed, checks are green. `Approve` arrives — meaning "from my perspective this change is merge-ready".',
+      },
+      positions: {
+        fix: { x: 22, y: 40, scale: 0.85, opacity: 0.6 },
+        approve: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fix', to: 'approve', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Tüm koşullar sağlandı: approve VAR, check\'ler yeşil, açık conversation YOK. `Merge pull request` butonu tıklanır — squash/merge/rebase seçeneklerinden biriyle main\'e girer.',
+        en: 'All conditions are met: approve EXISTS, checks are green, no open conversations. The `Merge pull request` button is clicked — it lands in main via one of squash/merge/rebase.',
+      },
+      code: { tr: `# Merge pull request -> main`, en: `# Merge pull request -> main` },
+      positions: {
+        approve: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        merge: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'approve', to: 'merge', color: '#7c3aed' }],
+    },
+    {
+      caption: {
+        tr: 'Final — PR bir KALİTE KAPISIDIR: kod + test kanıtı + insan onayı, hepsi AYNI kapıdan geçer. QA bağı: test kodu da PR\'sız main\'e girmez — flaky bir test bile review\'dan geçmeden production\'a sızmaz.',
+        en: 'Final — a PR is a QUALITY GATE: code + test evidence + human approval all pass through the SAME gate. The QA tie-in: test code does not enter main without a PR either — not even a flaky test slips into production without review.',
+      },
+      positions: {
+        branch: { x: 12, y: 55, scale: 0.85 },
+        ci: { x: 30, y: 35, scale: 0.8 },
+        reviewer: { x: 48, y: 55, scale: 0.8 },
+        fix: { x: 65, y: 35, scale: 0.75, opacity: 0.5 },
+        merge: { x: 86, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'branch', to: 'ci' }, { from: 'ci', to: 'reviewer' }, { from: 'reviewer', to: 'merge' }],
+    },
+  ],
+}
+
+// ─── GitHub Actions sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 B3
+const githubActionsTriggerFilm = {
+  type: 'video-scene',
+  id: 'github-actions-trigger-film',
+  title: {
+    tr: '🎬 Push\'tan Yeşil Onaya: Bir Actions Koşumu',
+    en: '🎬 From Push to Green Check: One Actions Run',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'push',     emoji: '📤', label: { tr: 'push event',              en: 'push event' },              color: '#22c55e' },
+    { id: 'workflow', emoji: '📄', label: { tr: 'workflow.yml',            en: 'workflow.yml' },            color: '#8b5cf6' },
+    { id: 'runner',   emoji: '🖥️', label: { tr: 'Runner (ubuntu-latest)',  en: 'Runner (ubuntu-latest)' },  color: '#0ea5e9' },
+    { id: 'setup',    emoji: '📦', label: { tr: 'checkout+setup',          en: 'checkout+setup' },          color: '#f59e0b' },
+    { id: 'test',     emoji: '🧪', label: { tr: 'Test adımı',              en: 'Test step' },               color: '#6366f1' },
+    { id: 'artifact', emoji: '📊', label: { tr: 'Artifact/rapor',          en: 'Artifact/report' },         color: '#10b981' },
+    { id: 'status',   emoji: '✅', label: { tr: 'Status check',            en: 'Status check' },            color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir `push` gerçekleşir — GitHub bunu bir EVENT olarak yayınlar. Kimse "Actions\'ı çalıştır" demedi, bu event kendi başına bir tetikleyicidir.',
+        en: 'A `push` happens — GitHub broadcasts it as an EVENT. Nobody said "run Actions", this event is a trigger all on its own.',
+      },
+      positions: {
+        push: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: '`.github/workflows/*.yml` dosyaları TARANIR: `on: push` ile eşleşen workflow bulunur. YAML dosyası aslında bir SÖZLEŞMEDİR — "bu event olursa şunları yap".',
+        en: '`.github/workflows/*.yml` files are SCANNED: the workflow matching `on: push` is found. The YAML file is really a CONTRACT — "if this event happens, do the following".',
+      },
+      code: { tr: `on:\n  push:\n    branches: [main]`, en: `on:\n  push:\n    branches: [main]` },
+      positions: {
+        push: { x: 20, y: 45, scale: 0.9, opacity: 0.6 },
+        workflow: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'push', to: 'workflow', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Taze bir runner VM ayağa kalkar — HER koşumda SIFIRDAN. Önceki koşumdan hiçbir dosya, hiçbir cache kalıntısı YOK; "bende çalışıyor"un panzehiri tam olarak bu.',
+        en: 'A fresh runner VM spins up — SCRATCH every single run. No file, no cache leftover from the previous run — this is the exact antidote to "works on my machine".',
+      },
+      code: { tr: `runs-on: ubuntu-latest`, en: `runs-on: ubuntu-latest` },
+      positions: {
+        workflow: { x: 22, y: 40, scale: 0.9, opacity: 0.6 },
+        runner: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'workflow', to: 'runner' }],
+    },
+    {
+      caption: {
+        tr: 'Adımlar SIRAYLA çalışır: `checkout` kodu indirir, `setup-node` runtime\'ı kurar, `npm ci` bağımlılıkları kilit dosyasından yükler — hepsi bir öncekinin bitmesini bekler.',
+        en: 'Steps run IN ORDER: `checkout` downloads the code, `setup-node` installs the runtime, `npm ci` installs dependencies from the lockfile — each one waits for the previous to finish.',
+      },
+      code: { tr: `- uses: actions/checkout@v4\n- uses: actions/setup-node@v4\n- run: npm ci`, en: `- uses: actions/checkout@v4\n- uses: actions/setup-node@v4\n- run: npm ci` },
+      positions: {
+        runner: { x: 22, y: 40, scale: 0.85, opacity: 0.6 },
+        setup: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'runner', to: 'setup' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — testler KIRMIZI çıkarsa: adım zinciri orada DURUR, sonraki adımlar hiç çalışmaz, commit\'e ❌ status düşer. Zincir kırıldı, ilerlemek anlamsız.',
+        en: 'Contrast — if tests come back RED: the step chain STOPS right there, later steps never run, a ❌ status lands on the commit. The chain is broken, continuing would be meaningless.',
+      },
+      code: { tr: `- run: npm test\n# FAIL — sonraki adimlar calismaz`, en: `- run: npm test\n# FAIL — later steps do not run` },
+      positions: {
+        setup: { x: 20, y: 40, scale: 0.85, opacity: 0.5 },
+        test: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'setup', to: 'test', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Testler YEŞİLSE: adım zinciri devam eder, `upload-artifact` raporu/screenshot\'ı SAKLAR, commit\'e ✅ status düşer — PR sekmesindeki "checks" tam olarak budur.',
+        en: 'If tests are GREEN: the step chain continues, `upload-artifact` SAVES the report/screenshots, a ✅ status lands on the commit — this is exactly what "checks" on the PR tab means.',
+      },
+      code: { tr: `- run: npm test\n- uses: actions/upload-artifact@v4`, en: `- run: npm test\n- uses: actions/upload-artifact@v4` },
+      positions: {
+        test: { x: 22, y: 40, scale: 0.85, opacity: 0.6 },
+        artifact: { x: 50, y: 50, scale: 1.15, pulse: true },
+        status: { x: 78, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'artifact', color: '#10b981' }, { from: 'artifact', to: 'status', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — CI şudur: her push\'ta TARAFSIZ bir robotun, testleri TEMİZ bir ortamda koşması. Reviewer\'ın güvendiği yeşil check, insanın hiç görmediği bu zincirin ÇIKTISIDIR.',
+        en: 'Final — CI is this: an IMPARTIAL robot running the tests in a CLEAN environment, on every push. The green check the reviewer trusts is the OUTPUT of this chain that no human ever watched directly.',
+      },
+      positions: {
+        push: { x: 12, y: 55, scale: 0.8 },
+        workflow: { x: 30, y: 35, scale: 0.8 },
+        runner: { x: 48, y: 55, scale: 0.8 },
+        test: { x: 66, y: 35, scale: 0.8 },
+        status: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'push', to: 'workflow' }, { from: 'workflow', to: 'runner' }, { from: 'runner', to: 'test' }, { from: 'test', to: 'status' }],
+    },
+  ],
+}
+
+// ─── GitHub Pages sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 B4
+const githubPagesDeployFilm = {
+  type: 'video-scene',
+  id: 'github-pages-deploy-film',
+  title: {
+    tr: '🎬 dist/\'ten Canlı Siteye: Bir SPA\'nın Yayın Yolculuğu',
+    en: '🎬 From dist/ to Live: An SPA\'s Deployment Journey',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dist',    emoji: '📦', label: { tr: 'dist/ build çıktısı',      en: 'dist/ build output' },      color: '#8b5cf6' },
+    { id: 'deploy',  emoji: '🤖', label: { tr: 'Actions deploy job\'u',    en: 'Actions deploy job' },      color: '#0ea5e9' },
+    { id: 'artifact',emoji: '🗜️', label: { tr: 'Artifact',                en: 'Artifact' },                color: '#f59e0b' },
+    { id: 'cdn',     emoji: '🌍', label: { tr: 'Pages CDN',                en: 'Pages CDN' },               color: '#22c55e' },
+    { id: 'domain',  emoji: '🔗', label: { tr: 'Custom domain (DNS)',      en: 'Custom domain (DNS)' },     color: '#6366f1' },
+    { id: 'notfound',emoji: '👻', label: { tr: '404 (SPA fallback)',       en: '404 (SPA fallback)' },      color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`npm run build` çalışır — React kodu derlenir, tek bir statik `dist/` klasörü ÜRETİLİR: HTML, CSS, JS, hepsi hazır ve sabit.',
+        en: '`npm run build` runs — the React code is compiled, a single static `dist/` folder is PRODUCED: HTML, CSS, JS, all ready and fixed.',
+      },
+      code: { tr: `npm run build`, en: `npm run build` },
+      positions: {
+        dist: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Actions\'daki deploy job\'u devreye girer: `dist/` klasörünü bir ARTIFACT olarak PAKETLER — bu paket sunucuya gönderilecek tek birim.',
+        en: 'The deploy job in Actions kicks in: it PACKAGES the `dist/` folder as an ARTIFACT — this package is the single unit that gets shipped to the server.',
+      },
+      code: { tr: `uses: actions/upload-pages-artifact@v3`, en: `uses: actions/upload-pages-artifact@v3` },
+      positions: {
+        dist: { x: 20, y: 45, scale: 0.9, opacity: 0.6 },
+        deploy: { x: 50, y: 50, scale: 1.1, pulse: true },
+        artifact: { x: 78, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'deploy', to: 'artifact' }],
+    },
+    {
+      caption: {
+        tr: 'Artifact Pages CDN\'e YAYILIR — site artık gerçek bir URL\'de CANLI. Bu andan sonra dünyanın her yerinden erişilebilir bir vending machine gibi çalışır.',
+        en: 'The artifact gets SPREAD across the Pages CDN — the site is now LIVE at a real URL. From this point it works like a vending machine reachable from anywhere in the world.',
+      },
+      positions: {
+        artifact: { x: 22, y: 40, scale: 0.85, opacity: 0.6 },
+        cdn: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'artifact', to: 'cdn', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Custom domain: DNS\'e eklenen bir `CNAME` kaydı, çirkin `github.io` URL\'sini `learnqa.dev` gibi bir isimle GÜZELLEŞTİRİR — CDN\'in kendisi değişmez, sadece kapıdaki tabela.',
+        en: 'Custom domain: a `CNAME` record added to DNS BEAUTIFIES the ugly `github.io` URL into something like `learnqa.dev` — the CDN itself does not change, only the sign on the door.',
+      },
+      positions: {
+        cdn: { x: 22, y: 40, scale: 0.85, opacity: 0.6 },
+        domain: { x: 55, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cdn', to: 'domain', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — kullanıcı `/selenium`\'u DOĞRUDAN tarayıcı adres çubuğundan açar. Sunucuda öyle bir DOSYA yok — sadece tek bir `index.html` var. Sonuç: çıplak 404.',
+        en: 'Contrast — the user types `/selenium` DIRECTLY into the browser address bar. There is no such FILE on the server — only a single `index.html` exists. Result: a bare 404.',
+      },
+      positions: {
+        domain: { x: 20, y: 40, scale: 0.85, opacity: 0.5 },
+        notfound: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'domain', to: 'notfound', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Çözüm: `dist/index.html` kopyalanıp `dist/404.html` olarak da yayınlanır — Pages 404 verdiğinde bile React uygulaması yüklenir, JavaScript routing\'i devralır.',
+        en: 'The fix: `dist/index.html` is copied and also published as `dist/404.html` — even when Pages returns a 404, the React app still loads and JavaScript routing takes over.',
+      },
+      code: { tr: `cp dist/index.html dist/404.html`, en: `cp dist/index.html dist/404.html` },
+      positions: {
+        notfound: { x: 24, y: 45, scale: 0.85, opacity: 0.6 },
+        dist: { x: 58, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'notfound', to: 'dist', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — GitHub Pages sunucu-taraflı YÖNLENDİRME BİLMEZ, sadece dosya sunar. SPA yayınlıyorsan `404.html` fallback\'i + statik route shell\'leri (bu projenin gerçek mimarisi) ZORUNLUDUR, opsiyonel değil.',
+        en: 'Final — GitHub Pages does NOT know server-side REDIRECTS, it only serves files. If you publish an SPA, a `404.html` fallback + static route shells (this project\'s actual architecture) are MANDATORY, not optional.',
+      },
+      positions: {
+        dist: { x: 12, y: 55, scale: 0.8 },
+        deploy: { x: 30, y: 35, scale: 0.75 },
+        cdn: { x: 50, y: 55, scale: 0.85 },
+        domain: { x: 68, y: 35, scale: 0.8 },
+        notfound: { x: 88, y: 50, scale: 0.7, opacity: 0.4 },
+      },
+      beams: [{ from: 'dist', to: 'deploy' }, { from: 'deploy', to: 'cdn' }, { from: 'cdn', to: 'domain' }],
+    },
+  ],
+}
+
+// ─── İş Riskleri sekmesi film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Spesifikasyon: Documents/video-rollout-plan.md §7.4 B5
+const gitForcePushRescueFilm = {
+  type: 'video-scene',
+  id: 'git-force-push-rescue-film',
+  title: {
+    tr: '🎬 Force Push Kazası: Neşter mi Silah mı?',
+    en: '🎬 The Force-Push Accident: Scalpel or Weapon?',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'local',   emoji: '💻', label: { tr: 'Local\'in (eski)',         en: 'Your local (stale)' },      color: '#64748b' },
+    { id: 'origin',  emoji: '☁️', label: { tr: 'origin/main (+3 commit)',  en: 'origin/main (+3 commits)' }, color: '#0ea5e9' },
+    { id: 'force',   emoji: '💥', label: { tr: 'push --force',             en: 'push --force' },            color: '#dc2626' },
+    { id: 'crushed', emoji: '😱', label: { tr: 'Ezilen commit\'ler',       en: 'Crushed commits' },         color: '#ef4444' },
+    { id: 'reflog',  emoji: '🧾', label: { tr: 'reflog',                   en: 'reflog' },                  color: '#f59e0b' },
+    { id: 'lease',   emoji: '🛟', label: { tr: '--force-with-lease',       en: '--force-with-lease' },      color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Local\'in GERİDE — takım origin/main\'e 3 yeni commit eklemiş. Normal `git push` REDDEDİLİR: "non-fast-forward".',
+        en: 'Your local is BEHIND — the team has added 3 new commits to origin/main. A plain `git push` gets REJECTED: "non-fast-forward".',
+      },
+      code: { tr: `git push origin main\n# ! [rejected] non-fast-forward`, en: `git push origin main\n# ! [rejected] non-fast-forward` },
+      positions: {
+        local: { x: 25, y: 50, scale: 1.1, pulse: true },
+        origin: { x: 68, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Yanlış refleks devreye girer: "reddedildiyse zorla gönderirim" — `git push --force` çalıştırılır. Bu, güvenlik kemerini KESMEK gibidir.',
+        en: 'The wrong reflex kicks in: "if it is rejected, I will force it through" — `git push --force` is run. This is like CUTTING the seatbelt.',
+      },
+      code: { tr: `git push --force origin main`, en: `git push --force origin main` },
+      positions: {
+        local: { x: 25, y: 50, scale: 1, opacity: 0.7 },
+        force: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'local', to: 'force', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Takımın 3 commit\'i remote\'tan SİLİNİR — origin artık senin eski local\'ini birebir yansıtıyor. Saatlerce emek, hiç uyarı vermeden buharlaşır.',
+        en: 'The team\'s 3 commits get WIPED from the remote — origin now mirrors your stale local exactly. Hours of work evaporates without a single warning.',
+      },
+      positions: {
+        force: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        crushed: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'force', to: 'crushed', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Panik — ama Git UNUTMAZ. `git reflog`, HEAD\'in gittiği her yerin bir kaydını tutar; ezilen commit\'lerin eski hash\'i hâlâ orada duruyor.',
+        en: 'Panic — but Git NEVER forgets. `git reflog` keeps a record of everywhere HEAD has been; the old hash of the crushed commits is still sitting right there.',
+      },
+      code: { tr: `git reflog\n# a1b2c3d HEAD@{1}: commit: fix(payment): ...`, en: `git reflog\n# a1b2c3d HEAD@{1}: commit: fix(payment): ...` },
+      positions: {
+        crushed: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        reflog: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'crushed', to: 'reflog', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Kurtarma: `git reset --hard <eski-hash>` local\'i o ana geri taşır, sonra normal bir `git push --force` ile origin ONARILIR. Kayıp geri geldi.',
+        en: 'Recovery: `git reset --hard <old-hash>` takes local back to that moment, then a normal `git push --force` REPAIRS origin. The loss is undone.',
+      },
+      code: { tr: `git reset --hard a1b2c3d\ngit push --force origin main`, en: `git reset --hard a1b2c3d\ngit push --force origin main` },
+      positions: {
+        reflog: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        origin: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'reflog', to: 'origin', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Doğru araç baştan `--force-with-lease` OLMALIYDI: "uzak, benim son bildiğim durumdaysa zorla — DEĞİLSE dur". Kilitli bir emniyet, kör bir silah değil.',
+        en: 'The right tool from the start SHOULD have been `--force-with-lease`: "force it only if the remote is where I last knew it to be — otherwise STOP". A locked safety catch, not a blind weapon.',
+      },
+      code: { tr: `git push --force-with-lease origin main`, en: `git push --force-with-lease origin main` },
+      positions: {
+        origin: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        lease: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'origin', to: 'lease', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — force push bir SİLAH değil, bir NEŞTERdir: doğru elde, doğru anda gerekli. Korunan main + PR akışı (bu sekmenin diğer konuları) tam da bu kazayı BAŞTAN engellemek için var.',
+        en: 'Final — a force push is not a WEAPON, it is a SCALPEL: necessary in the right hand, at the right moment. A protected main + PR flow (the rest of this tab) exists precisely to PREVENT this accident from the start.',
+      },
+      positions: {
+        local: { x: 12, y: 55, scale: 0.8 },
+        force: { x: 30, y: 35, scale: 0.75, opacity: 0.5 },
+        reflog: { x: 50, y: 55, scale: 0.85 },
+        lease: { x: 70, y: 35, scale: 0.9 },
+        origin: { x: 90, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'local', to: 'reflog' }, { from: 'reflog', to: 'lease' }, { from: 'lease', to: 'origin' }],
+    },
+  ],
+}
+
 const iq = (level, qTr, aTr, qEn, aEn) => ({
   level,
   q: { tr: qTr, en: qEn },
@@ -3991,6 +4532,7 @@ git push -u origin feature/login-tests
             language: 'bash',
           },
           gitPrPractice,
+          gitRemoteSyncFilm,
           {
             type: 'grid',
             cols: 2,
@@ -4099,6 +4641,7 @@ git push -u origin feature/login-tests
             content: 'Yes. GitHub can sometimes offer a web conflict editor for simple text conflicts, but real QA work is safer locally because you can run tests. The normal flow is: fetch the latest main, switch to your PR branch, merge origin/main, edit conflict markers, run the relevant test, commit the fix and push. The PR updates automatically.',
           },
           githubPrConflictPractice,
+          githubPrLifecycleFilm,
           {
             type: 'warning',
             content: 'Real-work danger: do not click Merge pull request just because GitHub lets you. Check unresolved conversations, required checks, requested changes, test evidence, branch freshness and deployment risk first.',
@@ -4250,6 +4793,7 @@ jobs:
     path: playwright-report/
     retention-days: 7                   # Keep reports long enough for debugging`,
           },
+          githubActionsTriggerFilm,
           {
             type: 'warning',
             content: 'Never print secrets in workflow logs. Use repository or environment secrets, keep permissions minimal, and remember that secrets are restricted for untrusted fork pull requests.',
@@ -4393,6 +4937,7 @@ jobs:
               ['Secrets', 'Pages deploy usually should not need app secrets for a static site', 'Accidental leak in built JS is public forever'],
             ],
           },
+          githubPagesDeployFilm,
           {
             type: 'warning',
             content: 'Anything inside a static Pages build is public. Do not put API keys, tokens or private test data into Vite/React client code. Environment variables bundled into client JavaScript are visible to users.',
@@ -4517,6 +5062,7 @@ git status                                 # Working tree clean`,
               { id: 5, icon: '🛡️', label: { tr: 'Güvenlik kuralı', en: 'Safety rule' }, detail: { tr: 'Push edilmiş bir commit üzerinde asla --hard kullanma; bunun yerine git revert kullan, çünkü revert tarihi yeni bir commit ile düzeltir, silmez.', en: 'Never run --hard on an already-pushed commit; use git revert instead, since revert fixes history with a new commit instead of deleting it.' } },
             ],
           },
+          gitForcePushRescueFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -6377,6 +6923,7 @@ git push -u origin feature/login-tests
             language: 'bash',
           },
           gitPrPractice,
+          gitRemoteSyncFilm,
           {
             type: 'grid',
             cols: 2,
@@ -6485,6 +7032,7 @@ git push -u origin feature/login-tests
             content: 'Evet. GitHub bazı basit text conflict’leri web editörüyle çözmeyi teklif edebilir; ama QA işinde güvenli yol çoğu zaman lokalde çözmektir çünkü test çalıştırabilirsin. Normal akış: güncel main bilgisini al, PR branch’ine geç, origin/main’i branch’ine merge et, conflict markerları bilinçli düzenle, ilgili testi çalıştır, fix commit’i at ve push et. PR GitHub’da otomatik güncellenir.',
           },
           githubPrConflictPractice,
+          githubPrLifecycleFilm,
           {
             type: 'warning',
             content: 'Gerçek iş tehlikesi: GitHub Merge pull request butonunu gösteriyor diye hemen basma. Önce unresolved conversation, required checks, requested changes, test kanıtı, branch güncelliği ve deploy riskini kontrol et.',
@@ -6636,6 +7184,7 @@ jobs:
     path: playwright-report/
     retention-days: 7                   # Debug için yeterli süre sakla`,
           },
+          githubActionsTriggerFilm,
           {
             type: 'warning',
             content: 'Secret değerlerini workflow loglarına asla yazdırma. Repository/environment secrets kullan, permissions değerini minimum tut ve untrusted fork pull request’lerinde secret erişiminin kısıtlı olduğunu unutma.',
@@ -6779,6 +7328,7 @@ jobs:
               ['Secrets', 'Static site deploy için app secret genelde gerekmez', 'Built JS içine giren secret herkese açık olur'],
             ],
           },
+          githubPagesDeployFilm,
           {
             type: 'warning',
             content: 'Static Pages build içindeki her şey public’tir. API key, token veya özel test datasını Vite/React client koduna koyma. Client JavaScript içine giren environment variable kullanıcı tarafından görülebilir.',
@@ -6903,6 +7453,7 @@ git status                                 # Working tree clean`,
               { id: 5, icon: '🛡️', label: { tr: 'Güvenlik kuralı', en: 'Safety rule' }, detail: { tr: 'Push edilmiş bir commit üzerinde asla --hard kullanma; bunun yerine git revert kullan, çünkü revert tarihi yeni bir commit ile düzeltir, silmez.', en: 'Never run --hard on an already-pushed commit; use git revert instead, since revert fixes history with a new commit instead of deleting it.' } },
             ],
           },
+          gitForcePushRescueFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
