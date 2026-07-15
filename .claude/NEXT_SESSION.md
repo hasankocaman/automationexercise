@@ -174,8 +174,50 @@ kullanılıyor (post-commit hook'un tam 142 testlik paketi her commit'te
 otomatik tetiklenmesini önlemek için — Dalga 8 commit'inde bu atlanmamış
 ve 2 dakikalık timeout'a yol açmıştı).
 
+### Sıradaki adım (Dalga 10 için, artık eski)
+~~Dalga 11 (/javascript)~~ → TAMAMLANDI, bkz. aşağıdaki güncel bölüm.
+
+---
+
+## Dalga 11 — /javascript — TAMAMLANDI (19/19 sekme, 2026-07-15 devam)
+
+Aynı `feature/video-scene-dalga4` branch'inde, aynı workflow. Bu dalgada
+kesinti YAŞANMADI (subagent'a önceki dalganın session-limit kesintisi
+hakkında uyarı + "adım adım ilerle" notu eklenmişti).
+
+**Yapı:** `javascriptData.js` **TEK bir `sections` array'i** kullanıyor —
+`javascriptData.en.sections` ve `javascriptData.tr.sections` AYNI
+değişkene işaret ediyor (gaugeData.js ile aynı en-güvenli kalıp, ne
+index-override ne iki-ayrı-ağaç senkronizasyonu derdi var). 19 sekme,
+hiçbirinde film yoktu.
+
+**Eklenenler:** 19 yeni video-scene filmi (`js-` prefix'li), her biri
+sekmenin gerçek mekanizmasına bağlı — örn. `var`/`let`/`const` scope
+farkı, `0.1+0.2 !== 0.3` floating point tuzağı, `for(var i)+setTimeout`
+closure tuzağı (`3,3,3` vs `let` ile `0,1,2`), event loop (call stack →
+Web API → microtask → macrotask), `this` binding kaybı, Date ayının
+0-based olması, regex `/g` flag `lastIndex` durumu. 5 sekmede
+(Kurulum, Değişkenler, Event Loop, Karma Pratik Oyunlar, Mülakat) eksik
+animasyon/sandbox elle tamamlandı (`relatedTopicId` ile).
+
+**Doğrulama:**
+- Node ile 19 sekmenin İKİSİNDE de (aynı `sections` paylaşıldığı için tr/en
+  otomatik aynı) ≥1 video+anim+sandbox olduğu doğrulandı.
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓.
+- `npm run build` → temiz. `javascriptData` chunk: **459.46 kB / gzip
+  151.66 kB** (eşiğin altında).
+- Film id'leri proje genelinde benzersiz (grep ile teyit).
+- `tests/video-scene.spec.ts` genişletilmedi, Playwright çalıştırılmadı.
+
+**Commit:** bu dalganın değişikliği commit edilecek, hash bir sonraki
+güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
+
 ### Sıradaki adım
-Dalga 11 (`/javascript`, ~20 sekme) — aynı branch'te devam.
+Dalga 12 (`/typescript`) — ⚠️ **chunk eşiği İZLENEREK** (CLAUDE.md
+Bölüm 4): `typescriptData` şu an zaten **337.83 kB gzip**, 350KB eşiğine
+çok yakın. Filmler eklenmeden ÖNCE durum kullanıcıya raporlanmalı ve
+mimari karar istenmeli (seçenekler: filmleri ayrı lazy chunk'a almak,
+sekme başına film sayısını düşürmek, olduğu gibi devam).
 
 ---
 

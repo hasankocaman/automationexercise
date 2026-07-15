@@ -2,6 +2,1735 @@
 // Fully bilingual structure for TopicPage renderer
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ═══════════════════════════════════════════════════════════════════════════
+// VIDEO-SCENE FILMLERİ (Bölüm 9.5) — her sekme için 1 film, tek ağaç (en/tr paylaşımlı)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// 🎬 0 — JavaScript Nedir? — V8 motorunun kod çalıştırma akışı
+const jsV8EngineFlowFilm = {
+  type: "video-scene",
+  id: "js-v8-engine-flow-film",
+  title: {
+    tr: "🎬 console.log Yazınca Perde Arkasında Ne Olur? — V8 Motorunun Yolculuğu",
+    en: "🎬 What Happens Behind console.log? — The V8 Engine's Journey",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "source",      emoji: "📄", label: { tr: "JS Kaynak Kodu",      en: "JS Source Code" },      color: "#0ea5e9" },
+    { id: "parser",      emoji: "🔎", label: { tr: "Parser",              en: "Parser" },              color: "#f59e0b" },
+    { id: "ast",         emoji: "🌳", label: { tr: "AST (Sözdizim Ağacı)", en: "AST (Syntax Tree)" },   color: "#8b5cf6" },
+    { id: "ignition",    emoji: "⚡", label: { tr: "Ignition Interpreter", en: "Ignition Interpreter" }, color: "#6366f1" },
+    { id: "turbofan",    emoji: "🚀", label: { tr: "TurboFan JIT",         en: "TurboFan JIT" },        color: "#22c55e" },
+    { id: "output",      emoji: "🖥️", label: { tr: "Konsol Çıktısı",       en: "Console Output" },      color: "#10b981" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Tarayıcıya `console.log(\"Merhaba, LearnQA.dev!\")` yazdığında bu tek satırın arkasında V8 motoru (Chrome/Node.js'in JS motoru) devreye girer.",
+        en: "When you write `console.log(\"Hello, LearnQA.dev!\")` in the browser, V8 (Chrome/Node.js's JS engine) kicks into action behind this single line.",
+      },
+      code: { tr: `console.log("Merhaba, LearnQA.dev!");`, en: `console.log("Hello, LearnQA.dev!");` },
+      positions: { source: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — Parser kaynağı karakter karakter okur ve sözdizimini kontrol eder. Bir noktalı virgül veya parantez eksikse burada `SyntaxError` fırlatılır ve kod hiç ÇALIŞMAZ.",
+        en: "Step 1 — the Parser reads the source character by character and checks syntax. If a semicolon or parenthesis is missing, a `SyntaxError` is thrown here and the code NEVER runs.",
+      },
+      positions: {
+        source: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        parser: { x: 42, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "source", to: "parser" }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Parser başarılı olursa kodu bir AST'ye (Abstract Syntax Tree) dönüştürür: kodun anlamını taşıyan bir ağaç yapısı. Bu, motorun kodu 'anladığı' andır.",
+        en: "Step 2 — if parsing succeeds, the code becomes an AST (Abstract Syntax Tree): a tree structure carrying the code's meaning. This is the moment the engine 'understands' the code.",
+      },
+      positions: {
+        parser: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        ast: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "parser", to: "ast" }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Ignition Interpreter AST'yi bytecode'a çevirip HEMEN satır satır çalıştırmaya başlar. Amaç: derleme beklemeden ANINDA başlamak — Java'daki JIT derleyicisinin aksine JS önce yorumlar, sonra optimize eder.",
+        en: "Step 3 — the Ignition Interpreter converts the AST to bytecode and starts executing it line by line IMMEDIATELY. Goal: start running WITHOUT waiting for compilation — unlike Java's JIT compiler, JS interprets first and optimizes later.",
+      },
+      positions: {
+        ast: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        ignition: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "ast", to: "ignition" }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — Eğer bir fonksiyon defalarca aynı tiplerle (hep number, hep string) çağrılırsa TurboFan JIT devreye girer ve o fonksiyonu ÇOK daha hızlı makine koduna derler — bu yüzden bir döngü ısındıkça hızlanır.",
+        en: "Step 4 — if a function is repeatedly called with the same types (always number, always string), TurboFan JIT kicks in and compiles that function into MUCH faster machine code — this is why a hot loop speeds up over time.",
+      },
+      positions: {
+        ignition: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        turbofan: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "ignition", to: "turbofan", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "Kontrast — bir fonksiyona bazen number bazen string gönderirsen (tip kararsızlığı), TurboFan optimizasyonu İPTAL EDER (deoptimize) ve kod tekrar YAVAŞ yorumlayıcıya döner. Test kodunda tutarlı tipler kullanmak bu yüzden performans için de önemlidir.",
+        en: "Contrast — if you sometimes pass a number and sometimes a string to the same function (type instability), TurboFan CANCELS its optimization (deoptimizes) and execution falls back to the SLOW interpreter. This is why consistent types in test code matter for performance too.",
+      },
+      positions: {
+        turbofan: { x: 30, y: 30, opacity: 0.4, scale: 0.8 },
+        ignition: { x: 30, y: 70, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: "turbofan", to: "ignition", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Final — sonuç konsola yazdırılır: `Merhaba, LearnQA.dev!`. Playwright/Cypress testlerin de tam olarak bu motorun üzerinde, aynı yolculuğu izleyerek çalışır.",
+        en: "Final — the result is printed to the console: `Hello, LearnQA.dev!`. Your Playwright/Cypress tests run on this exact same engine, following this exact same journey.",
+      },
+      positions: {
+        ignition: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        output: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "ignition", to: "output", color: "#10b981" }],
+    },
+  ],
+}
+
+// 🎬 1 — Kurulum & Setup — Node.js/npm kurulum + ilk test koşumu akışı
+const jsNodeNpmSetupFilm = {
+  type: "video-scene",
+  id: "js-node-npm-setup-film",
+  title: {
+    tr: "🎬 Boş Bilgisayardan Çalışan Bir Test Projesine",
+    en: "🎬 From an Empty Computer to a Running Test Project",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "installer", emoji: "⬇️", label: { tr: "Node.js Installer",     en: "Node.js Installer" },   color: "#0ea5e9" },
+    { id: "node",       emoji: "🟢", label: { tr: "Node.js Runtime",       en: "Node.js Runtime" },     color: "#22c55e" },
+    { id: "npm",        emoji: "📦", label: { tr: "npm CLI",               en: "npm CLI" },             color: "#f59e0b" },
+    { id: "pkgJson",    emoji: "📋", label: { tr: "package.json",          en: "package.json" },        color: "#8b5cf6" },
+    { id: "playwright", emoji: "🎭", label: { tr: "@playwright/test",      en: "@playwright/test" },    color: "#6366f1" },
+    { id: "testRun",    emoji: "✅", label: { tr: "İlk Test Koşumu",        en: "First Test Run" },      color: "#10b981" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Boş bir bilgisayarda JavaScript kodu tarayıcı dışında ÇALIŞMAZ. Node.js kurulmadan `npx playwright test` diye bir şey yoktur.",
+        en: "On an empty computer, JavaScript code CANNOT run outside a browser. Without Node.js installed, there is no such thing as `npx playwright test`.",
+      },
+      code: { tr: `node --version\n# 'node' komutu tanınmıyor`, en: `node --version\n# 'node' is not recognized` },
+      positions: { installer: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — nodejs.org'dan LTS sürümü indirilip kurulur. Kurulum bittiğinde `node --version` ile doğrulama yapılır.",
+        en: "Step 1 — the LTS version is downloaded from nodejs.org and installed. After install, `node --version` verifies it.",
+      },
+      code: { tr: `node --version   # v22.x.x`, en: `node --version   # v22.x.x` },
+      positions: {
+        installer: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        node: { x: 42, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "installer", to: "node" }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Node.js kurulunca npm (Node Package Manager) de OTOMATİK gelir. `npm --version` çıktısı npm'in de hazır olduğunu kanıtlar.",
+        en: "Step 2 — installing Node.js AUTOMATICALLY brings npm (Node Package Manager). The `npm --version` output proves npm is ready too.",
+      },
+      code: { tr: `npm --version    # 10.x.x`, en: `npm --version    # 10.x.x` },
+      positions: {
+        node: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        npm: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "node", to: "npm" }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — `npm init -y` çalıştırılır: projenin kimlik kartı olan `package.json` doğar. Henüz hiçbir kütüphane yok, sadece boş bir iskelet.",
+        en: "Step 3 — `npm init -y` runs: `package.json`, the project's identity card, is born. No libraries yet, just an empty skeleton.",
+      },
+      code: { tr: `npm init -y\n# package.json olusturuldu`, en: `npm init -y\n# package.json created` },
+      positions: {
+        npm: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        pkgJson: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "npm", to: "pkgJson" }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — `npm init playwright@latest` çalıştırılır. npm, npm Registry üzerinden Playwright'ı indirip `node_modules`'e yerleştirir; `package.json` bu bağımlılığı kaydeder.",
+        en: "Step 4 — `npm init playwright@latest` runs. npm fetches Playwright from the npm Registry into `node_modules`; `package.json` records this dependency.",
+      },
+      code: { tr: `npm init playwright@latest`, en: `npm init playwright@latest` },
+      positions: {
+        pkgJson: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        playwright: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "pkgJson", to: "playwright" }],
+    },
+    {
+      caption: {
+        tr: "Final — `npx playwright test` çalıştırılır: boş bilgisayar artık ÇALIŞAN, tarayıcı otomasyonu koşturan bir test projesi. `X passed` çıktısı bu yolculuğun kanıtıdır.",
+        en: "Final — `npx playwright test` runs: the empty computer is now a RUNNING project executing browser automation. The `X passed` output is proof of this journey.",
+      },
+      code: { tr: `npx playwright test\n# 3 passed (12s)`, en: `npx playwright test\n# 3 passed (12s)` },
+      positions: {
+        playwright: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        testRun: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "playwright", to: "testRun", color: "#10b981" }],
+    },
+  ],
+}
+
+// 🎬 2 — Değişkenler & Operatörler — var/let/const scope + hoisting farkı
+const jsVarScopeFilm = {
+  type: "video-scene",
+  id: "js-var-let-const-scope-film",
+  title: {
+    tr: "🎬 var'ın Sızıntısı: Bir Değişken Bloktan Nasıl Kaçar?",
+    en: "🎬 The Leak of var: How a Variable Escapes Its Block",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "block",   emoji: "🧱", label: { tr: "if Bloğu",             en: "if Block" },              color: "#94a3b8" },
+    { id: "varDecl", emoji: "🪣", label: { tr: "var score (delikli)",  en: "var score (leaky)" },     color: "#ef4444" },
+    { id: "leak",    emoji: "💧", label: { tr: "Blok Dışına Sızıntı",   en: "Leak Outside Block" },    color: "#f59e0b" },
+    { id: "letDecl", emoji: "📦", label: { tr: "let score (kutu)",     en: "let score (box)" },       color: "#0ea5e9" },
+    { id: "tdz",     emoji: "⛔", label: { tr: "ReferenceError (TDZ)", en: "ReferenceError (TDZ)" },   color: "#8b5cf6" },
+    { id: "safe",    emoji: "✅", label: { tr: "Korunmuş Kapsam",       en: "Protected Scope" },        color: "#22c55e" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`if (true) { var score = 95; }` — score, if bloğunun İÇİNDE tanımlanır. Java'da bu blok bittiğinde değişken yok olur. JavaScript'te `var` için durum FARKLIDIR.",
+        en: "`if (true) { var score = 95; }` — score is declared INSIDE the if block. In Java, the variable would die when the block ends. In JavaScript, `var` behaves DIFFERENTLY.",
+      },
+      code: { tr: `if (true) {\n  var score = 95;\n}`, en: `if (true) {\n  var score = 95;\n}` },
+      positions: {
+        block: { x: 30, y: 40, scale: 1.1 },
+        varDecl: { x: 30, y: 65, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: "`console.log(score)` blok dışında çağrılır — ve `95` YAZDIRILIR! `var`'ın function-scope doğası, değeri bloğun sınırlarını aşarak dışarı sızdırır.",
+        en: "`console.log(score)` is called outside the block — and it PRINTS `95`! `var`'s function-scope nature leaks the value past the block boundary.",
+      },
+      code: { tr: `console.log(score); // 95 — sizdi!`, en: `console.log(score); // 95 — it leaked!` },
+      positions: {
+        varDecl: { x: 20, y: 65, opacity: 0.6, scale: 0.9 },
+        leak: { x: 55, y: 65, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "varDecl", to: "leak", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Kontrast — AYNI kodu `let score = 95;` ile yazarsan `let` bloğa MÜHÜRLENİR. Blok dışında `console.log(score)` artık sızıntı değil, doğrudan bir HATA verir.",
+        en: "Contrast — write the SAME code with `let score = 95;` and `let` is SEALED to the block. Outside the block, `console.log(score)` no longer leaks — it throws an ERROR instead.",
+      },
+      code: { tr: `if (true) {\n  let score = 95;\n}\nconsole.log(score); // ReferenceError!`, en: `if (true) {\n  let score = 95;\n}\nconsole.log(score); // ReferenceError!` },
+      positions: {
+        leak: { x: 18, y: 40, opacity: 0.4, scale: 0.8 },
+        letDecl: { x: 30, y: 65, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: "`let` ve `const` tanımlanmadan önce erişilirse Temporal Dead Zone (TDZ) devreye girer ve `ReferenceError` fırlatılır — Java'daki derleme zamanı hatasının, JS'teki çalışma zamanı karşılığı.",
+        en: "Accessing `let`/`const` before declaration triggers the Temporal Dead Zone (TDZ), throwing a `ReferenceError` — the runtime equivalent of Java's compile-time error.",
+      },
+      positions: {
+        letDecl: { x: 25, y: 65, opacity: 0.6, scale: 0.9 },
+        tdz: { x: 58, y: 65, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "letDecl", to: "tdz", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "Final — bu yüzden modern JavaScript'te `const` varsayılan tercih, `let` sadece yeniden atama gerektiğinde kullanılır; `var` neredeyse hiç kullanılmaz. Kapsam sızıntısı böyle önlenir.",
+        en: "Final — this is why modern JavaScript defaults to `const`, uses `let` only when reassignment is needed, and almost never uses `var`. This is how scope leaks are prevented.",
+      },
+      positions: {
+        tdz: { x: 22, y: 65, opacity: 0.4, scale: 0.8 },
+        safe: { x: 55, y: 65, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "tdz", to: "safe", color: "#22c55e" }],
+    },
+  ],
+}
+
+// 🎬 3 — Veri Tipleri & Fonksiyonlar — == vs === type coercion tuzağı
+const jsTypeCoercionFilm = {
+  type: "video-scene",
+  id: "js-type-coercion-film",
+  title: {
+    tr: "🎬 == Tuzağı: Gizli Tip Dönüştürücü Nasıl Yalan Söyler?",
+    en: "🎬 The == Trap: How the Hidden Type Converter Lies",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "num5",     emoji: "5️⃣",  label: { tr: "5 (Number)",           en: "5 (Number)" },          color: "#0ea5e9" },
+    { id: "str5",     emoji: "🔤", label: { tr: "'5' (String)",         en: "'5' (String)" },        color: "#f59e0b" },
+    { id: "coercion", emoji: "🔄", label: { tr: "Tip Dönüştürücü",       en: "Type Coercion Engine" }, color: "#ef4444" },
+    { id: "looseEq",  emoji: "❓", label: { tr: "== (Gevşek Eşitlik)",   en: "== (Loose Equality)" },  color: "#94a3b8" },
+    { id: "strictEq", emoji: "🔒", label: { tr: "=== (Sıkı Eşitlik)",    en: "=== (Strict Equality)" }, color: "#22c55e" },
+    { id: "assertion", emoji: "🧪", label: { tr: "Test Assertion'ı",     en: "Test Assertion" },       color: "#8b5cf6" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "API'den gelen `statusCode` bazen Number (200) bazen String (\"200\") olabilir. `5 == '5'` yazdığında ne olur?",
+        en: "An API's `statusCode` might arrive as a Number (200) or a String (\"200\"). What happens when you write `5 == '5'`?",
+      },
+      code: { tr: `let a = 5;\nlet b = '5';\nconsole.log(a == b);`, en: `let a = 5;\nlet b = '5';\nconsole.log(a == b);` },
+      positions: {
+        num5: { x: 22, y: 40, scale: 1.1 },
+        str5: { x: 22, y: 70, scale: 1.1 },
+      },
+    },
+    {
+      caption: {
+        tr: "`==` operatörü, karşılaştırmadan ÖNCE gizlice bir tip dönüşümü (coercion) yapar: String `'5'`'i Number `5`'e çevirir, SONRA karşılaştırır.",
+        en: "The `==` operator secretly performs type coercion BEFORE comparing: it converts the String `'5'` into the Number `5`, THEN compares.",
+      },
+      positions: {
+        num5: { x: 18, y: 40, opacity: 0.6, scale: 0.9 },
+        str5: { x: 18, y: 70, opacity: 0.6, scale: 0.9 },
+        coercion: { x: 48, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "num5", to: "coercion" }, { from: "str5", to: "coercion" }],
+    },
+    {
+      caption: {
+        tr: "Dönüşüm sonrası her iki taraf da `5` olur — `==` sonucu `true` döner. Görünüşte doğru ama BİLGİ KAYBI var: tiplerin farklı olduğu gizlendi.",
+        en: "After coercion both sides become `5` — `==` returns `true`. It looks correct but INFORMATION IS LOST: the fact that the types differ is hidden.",
+      },
+      positions: {
+        coercion: { x: 22, y: 55, opacity: 0.5, scale: 0.85 },
+        looseEq: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "coercion", to: "looseEq", color: "#f59e0b" }],
+    },
+    {
+      caption: {
+        tr: "Kontrast — daha tehlikeli bir örnek: `[] == false` de `true` döner (boş dizi önce string'e, sonra number'a çevrilir). Bu tür zincirleme dönüşümler assertion'larda SESSİZ bug'lara yol açar.",
+        en: "Contrast — a more dangerous example: `[] == false` ALSO returns `true` (an empty array is converted to a string, then to a number). These chained conversions cause SILENT bugs in assertions.",
+      },
+      code: { tr: `console.log([] == false); // true (!)`, en: `console.log([] == false); // true (!)` },
+      positions: {
+        looseEq: { x: 30, y: 30, opacity: 0.5, scale: 0.85 },
+        coercion: { x: 30, y: 70, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "looseEq", to: "coercion", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Final — `===` hiçbir dönüşüm YAPMAZ: tip farklıysa direkt `false` döner. `5 === '5'` → `false`. Test otomasyonunda assertion'lar HER ZAMAN `===` kullanmalı — gizli dönüşüme yer yok.",
+        en: "Final — `===` performs NO conversion: if types differ, it is immediately `false`. `5 === '5'` → `false`. Test automation assertions must ALWAYS use `===` — no room for hidden conversion.",
+      },
+      code: { tr: `console.log(a === b); // false`, en: `console.log(a === b); // false` },
+      positions: {
+        coercion: { x: 22, y: 55, opacity: 0.4, scale: 0.8 },
+        strictEq: { x: 46, y: 45, scale: 1.2, pulse: true },
+        assertion: { x: 70, y: 55, scale: 1.15 },
+      },
+      beams: [{ from: "strictEq", to: "assertion", color: "#22c55e" }],
+    },
+  ],
+}
+
+// 🎬 4 — String & Sayı & Matematik — 0.1 + 0.2 !== 0.3 floating point tuzağı
+const jsFloatPrecisionFilm = {
+  type: "video-scene",
+  id: "js-float-precision-film",
+  title: {
+    tr: "🎬 0.1 + 0.2 Neden 0.3 Etmez? — İkili Sayıların Sırrı",
+    en: "🎬 Why Doesn't 0.1 + 0.2 Equal 0.3? — The Secret of Binary Numbers",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "a01",       emoji: "0️⃣", label: { tr: "0.1 (Ondalık)",        en: "0.1 (Decimal)" },       color: "#0ea5e9" },
+    { id: "b02",       emoji: "0️⃣", label: { tr: "0.2 (Ondalık)",        en: "0.2 (Decimal)" },       color: "#f59e0b" },
+    { id: "binary",    emoji: "⚙️", label: { tr: "IEEE 754 İkili Temsil", en: "IEEE 754 Binary Repr." }, color: "#8b5cf6" },
+    { id: "approx",    emoji: "〰️", label: { tr: "Yaklaşık Değerler",     en: "Approximate Values" },  color: "#ef4444" },
+    { id: "sum",       emoji: "➕", label: { tr: "Toplam",                en: "Sum" },                 color: "#6366f1" },
+    { id: "expected",  emoji: "🎯", label: { tr: "Beklenen: 0.3",         en: "Expected: 0.3" },       color: "#22c55e" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Fiyat testlerinde sık görülen bir assertion: `0.1 + 0.2 === 0.3`. Sezgisel olarak `true` bekliyorsun. Perde arkasında neler oluyor?",
+        en: "A common assertion in price tests: `0.1 + 0.2 === 0.3`. You intuitively expect `true`. What happens behind the curtain?",
+      },
+      code: { tr: `console.log(0.1 + 0.2 === 0.3);`, en: `console.log(0.1 + 0.2 === 0.3);` },
+      positions: { a01: { x: 22, y: 40, scale: 1.1 }, b02: { x: 22, y: 70, scale: 1.1 } },
+    },
+    {
+      caption: {
+        tr: "JavaScript'te TÜM sayılar IEEE 754 çift-hassasiyet ikili (binary) formatında saklanır. Ama `0.1` ve `0.2` gibi ondalık sayılar ikili sistemde TAM olarak temsil EDİLEMEZ — tıpkı 1/3'ün ondalıkta 0.333... hiç bitmemesi gibi.",
+        en: "In JavaScript, ALL numbers are stored as IEEE 754 double-precision binary. But decimal numbers like `0.1` and `0.2` CANNOT be represented EXACTLY in binary — just like 1/3 never terminates as 0.333... in decimal.",
+      },
+      positions: {
+        a01: { x: 18, y: 40, opacity: 0.6, scale: 0.9 },
+        b02: { x: 18, y: 70, opacity: 0.6, scale: 0.9 },
+        binary: { x: 48, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "a01", to: "binary" }, { from: "b02", to: "binary" }],
+    },
+    {
+      caption: {
+        tr: "Bu yüzden `0.1` bellekte aslında `0.1000000000000000055511151231257827...` gibi ÇOK küçük bir yuvarlama hatasıyla saklanır. `0.2` için de aynı durum geçerlidir.",
+        en: "So `0.1` is actually stored in memory as something like `0.1000000000000000055511151231257827...` — with a TINY rounding error. The same applies to `0.2`.",
+      },
+      positions: {
+        binary: { x: 22, y: 55, opacity: 0.5, scale: 0.85 },
+        approx: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "binary", to: "approx", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "İki yaklaşık değer toplanınca hatalar birikir: sonuç `0.30000000000000004` olur — GÖRÜNÜŞTE 0.3 ama BİTE bite farklı bir sayı! `=== 0.3` bu yüzden `false` döner.",
+        en: "Adding two approximations accumulates the error: the result is `0.30000000000000004` — it LOOKS like 0.3 but is bit-for-bit a DIFFERENT number! That's why `=== 0.3` returns `false`.",
+      },
+      code: { tr: `console.log(0.1 + 0.2); // 0.30000000000000004`, en: `console.log(0.1 + 0.2); // 0.30000000000000004` },
+      positions: {
+        approx: { x: 25, y: 55, opacity: 0.5, scale: 0.85 },
+        sum: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "approx", to: "sum", color: "#f59e0b" }],
+    },
+    {
+      caption: {
+        tr: "Final — bu Java'da da (double tipinde) AYNI şekilde olur; bu bir JS hatası değil, IEEE 754 standardının doğası. Doğru fiyat karşılaştırması: `Math.abs(a - b) < Number.EPSILON` veya `toFixed(2)` ile string karşılaştırması.",
+        en: "Final — this happens IDENTICALLY in Java (with the double type); it is not a JS bug, it is the nature of the IEEE 754 standard. Correct price comparison: `Math.abs(a - b) < Number.EPSILON` or compare as strings via `toFixed(2)`.",
+      },
+      code: { tr: `console.log(Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON); // true`, en: `console.log(Math.abs(0.1 + 0.2 - 0.3) < Number.EPSILON); // true` },
+      positions: {
+        sum: { x: 25, y: 55, opacity: 0.4, scale: 0.8 },
+        expected: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "sum", to: "expected", color: "#22c55e" }],
+    },
+  ],
+}
+
+// 🎬 5 — Array Metotları — .map()/.filter() immutable zincir vs .forEach() mutasyon
+const jsMapFilterChainFilm = {
+  type: "video-scene",
+  id: "js-map-filter-chain-film",
+  title: {
+    tr: "🎬 .map() ve .filter() Zinciri: Orijinal Diziye Neden Hiç Dokunulmaz?",
+    en: "🎬 The .map()/.filter() Chain: Why the Original Array Is Never Touched",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "original", emoji: "📋", label: { tr: "testResults (Orijinal)", en: "testResults (Original)" }, color: "#0ea5e9" },
+    { id: "filterOp", emoji: "🔍", label: { tr: ".filter()",              en: ".filter()" },              color: "#f59e0b" },
+    { id: "passedArr", emoji: "✨", label: { tr: "Yeni Dizi: passedTests", en: "New Array: passedTests" }, color: "#22c55e" },
+    { id: "mapOp",     emoji: "🗺️", label: { tr: ".map()",                en: ".map()" },                  color: "#8b5cf6" },
+    { id: "namesArr",  emoji: "🏷️", label: { tr: "Yeni Dizi: testNames",  en: "New Array: testNames" },   color: "#6366f1" },
+    { id: "forEachGhost", emoji: "👻", label: { tr: "forEach + push (Mutasyon Riski)", en: "forEach + push (Mutation Risk)" }, color: "#ef4444" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`testResults` dizisi 3 test sonucu içeriyor: Login (passed), Payment (failed), Signup (passed). Bu diziyi filtrelemek ve isimlerini çıkarmak istiyoruz.",
+        en: "`testResults` holds 3 test outcomes: Login (passed), Payment (failed), Signup (passed). We want to filter it and extract names.",
+      },
+      code: { tr: `const testResults = [\n  { name: "Login", status: "passed" },\n  { name: "Payment", status: "failed" },\n  { name: "Signup", status: "passed" }\n];`, en: `const testResults = [\n  { name: "Login", status: "passed" },\n  { name: "Payment", status: "failed" },\n  { name: "Signup", status: "passed" }\n];` },
+      positions: { original: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "`.filter(test => test.status === \"passed\")` çağrılır. `testResults` HİÇ değişmez — filter, koşulu geçenleri kopyalayarak TAMAMEN YENİ bir dizi oluşturur.",
+        en: "`.filter(test => test.status === \"passed\")` runs. `testResults` is NEVER changed — filter copies the matching items into a BRAND NEW array.",
+      },
+      code: { tr: `const passedTests = testResults.filter(t => t.status === "passed");`, en: `const passedTests = testResults.filter(t => t.status === "passed");` },
+      positions: {
+        original: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        filterOp: { x: 42, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "original", to: "filterOp" }],
+    },
+    {
+      caption: {
+        tr: "Sonuç: `passedTests` — sadece Login ve Signup içeren YENİ ve BAĞIMSIZ bir dizi. `testResults` hâlâ orijinal 3 elemanıyla sapasağlam duruyor.",
+        en: "Result: `passedTests` — a NEW, INDEPENDENT array containing only Login and Signup. `testResults` still stands intact with its original 3 elements.",
+      },
+      positions: {
+        filterOp: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        passedArr: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "filterOp", to: "passedArr", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "Şimdi `passedTests.map(t => t.name)` çağrılır — yine YENİ bir dizi doğar: `testNames`. Zincirleme (`.filter().map()`) her adımda önceki diziyi bozmadan yeni bir tanesini üretir.",
+        en: "Now `passedTests.map(t => t.name)` runs — again giving birth to a NEW array: `testNames`. Chaining (`.filter().map()`) produces a fresh array at every step without breaking the previous one.",
+      },
+      code: { tr: `const testNames = passedTests.map(t => t.name);\n// ["Login", "Signup"]`, en: `const testNames = passedTests.map(t => t.name);\n// ["Login", "Signup"]` },
+      positions: {
+        passedArr: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        mapOp: { x: 44, y: 50, scale: 1.15, pulse: true },
+        namesArr: { x: 68, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: "passedArr", to: "mapOp" }, { from: "mapOp", to: "namesArr", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "Kontrast — `forEach` ile aynı işi yapmaya çalışırsan dışarıdaki bir diziyi `.push()` ile MUTASYONA uğratman gerekir: bu, test kodunda paylaşılan veri üzerinde YAN ETKİ (side effect) riski taşır ve iki test paralel çalışırsa çakışabilir.",
+        en: "Contrast — trying to do the same with `forEach` requires MUTATING an outer array via `.push()`: this carries a SIDE EFFECT risk on shared data in test code and can clash when two tests run in parallel.",
+      },
+      code: { tr: `const names = [];\ntestResults.forEach(t => names.push(t.name)); // mutasyon!`, en: `const names = [];\ntestResults.forEach(t => names.push(t.name)); // mutation!` },
+      positions: {
+        namesArr: { x: 30, y: 30, opacity: 0.5, scale: 0.85 },
+        forEachGhost: { x: 30, y: 70, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "namesArr", to: "forEachGhost", color: "#ef4444" }],
+    },
+  ],
+}
+
+// 🎬 6 — Karar Yapıları & Döngüler — for + var + closure/setTimeout tuzağı
+const jsLoopClosureTrapFilm = {
+  type: "video-scene",
+  id: "js-loop-closure-trap-film",
+  title: {
+    tr: "🎬 Neden Hepsi Son Değeri Yazdırıyor? — Döngü + var + Closure Tuzağı",
+    en: "🎬 Why Do They All Print the Last Value? — The Loop + var + Closure Trap",
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "loop",     emoji: "🔁", label: { tr: "for (var i = 0; i < 3; i++)", en: "for (var i = 0; i < 3; i++)" }, color: "#94a3b8" },
+    { id: "sharedVar", emoji: "🪣", label: { tr: "Paylaşılan var i",     en: "Shared var i" },        color: "#ef4444" },
+    { id: "timers",   emoji: "⏰", label: { tr: "3 setTimeout Çağrısı",  en: "3 setTimeout Calls" },   color: "#f59e0b" },
+    { id: "wrongOut", emoji: "😱", label: { tr: "Çıktı: 3, 3, 3",        en: "Output: 3, 3, 3" },     color: "#ef4444" },
+    { id: "letBinding", emoji: "📦", label: { tr: "let — Her Tur Kendi Kopyası", en: "let — Own Copy Per Iteration" }, color: "#0ea5e9" },
+    { id: "rightOut", emoji: "✅", label: { tr: "Çıktı: 0, 1, 2",        en: "Output: 0, 1, 2" },     color: "#22c55e" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Sık karşılaşılan bir 'gizemli bug': `for (var i = 0; i < 3; i++) { setTimeout(() => console.log(i), 100); }` — geliştirici `0, 1, 2` bekler.",
+        en: "A common 'mystery bug': `for (var i = 0; i < 3; i++) { setTimeout(() => console.log(i), 100); }` — the developer expects `0, 1, 2`.",
+      },
+      code: { tr: `for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}`, en: `for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}` },
+      positions: { loop: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "`var` fonksiyon kapsamlıdır — döngünün 3 turu da AYNI `i` değişkenini PAYLAŞIR. Her `setTimeout` callback'i bu tek, paylaşılan kutuya bir REFERANS tutar, o anki değeri değil.",
+        en: "`var` is function-scoped — all 3 loop iterations SHARE THE SAME `i` variable. Every `setTimeout` callback holds a REFERENCE to this one shared box, not the value at that moment.",
+      },
+      positions: {
+        loop: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        sharedVar: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "loop", to: "sharedVar" }],
+    },
+    {
+      caption: {
+        tr: "3 `setTimeout` çağrısı Web API'ye devredilir. Bu sırada Call Stack senkron olarak döngüyü BİTİRİR ve `i` en son `3` değerine ulaşır — döngü koşulu `i < 3` artık YANLIŞ olduğu için durur.",
+        en: "All 3 `setTimeout` calls are delegated to the Web API. Meanwhile the Call Stack synchronously FINISHES the loop and `i` reaches its final value of `3` — the loop stops once `i < 3` becomes FALSE.",
+      },
+      positions: {
+        sharedVar: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        timers: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "sharedVar", to: "timers", color: "#f59e0b" }],
+    },
+    {
+      caption: {
+        tr: "100ms sonra 3 callback de tetiklenir — ama HEPSİ aynı paylaşılan kutuya bakıyor, ve o kutunun içinde artık `3` var. Sonuç: `3, 3, 3` — beklenmedik ve şaşırtıcı.",
+        en: "After 100ms all 3 callbacks fire — but they ALL point to the same shared box, which now holds `3`. Result: `3, 3, 3` — unexpected and surprising.",
+      },
+      code: { tr: `// cikti: 3\n// cikti: 3\n// cikti: 3`, en: `// output: 3\n// output: 3\n// output: 3` },
+      positions: {
+        timers: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        wrongOut: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "timers", to: "wrongOut", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Kontrast — AYNI kodu `let i` ile yazarsan, `let` her döngü turunda YENİ ve BAĞIMSIZ bir `i` kopyası oluşturur. Her `setTimeout` kendi turunun değerini hatırlar.",
+        en: "Contrast — write the SAME code with `let i` and `let` creates a NEW, INDEPENDENT copy of `i` on EVERY iteration. Each `setTimeout` remembers the value from its own turn.",
+      },
+      code: { tr: `for (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}`, en: `for (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}` },
+      positions: {
+        wrongOut: { x: 20, y: 30, opacity: 0.4, scale: 0.8 },
+        letBinding: { x: 50, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "wrongOut", to: "letBinding", color: "#0ea5e9" }],
+    },
+    {
+      caption: {
+        tr: "Final — çıktı artık `0, 1, 2` — beklenen sıra. Bu yüzden CLAUDE.md kuralı gibi projeler `var`'ı yasaklar: asenkron kod içeren döngülerde `let` kullanmak bu klasik tuzağı baştan önler.",
+        en: "Final — the output is now `0, 1, 2` — the expected sequence. This is why projects ban `var`: using `let` in loops containing async code prevents this classic trap from the start.",
+      },
+      positions: {
+        letBinding: { x: 22, y: 55, opacity: 0.5, scale: 0.85 },
+        rightOut: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "letBinding", to: "rightOut", color: "#22c55e" }],
+    },
+  ],
+}
+
+// 🎬 7 — Event Loop & Asenkron Yapı — Call Stack → Web API → Callback Queue → Event Loop
+const jsEventLoopFlowFilm = {
+  type: "video-scene",
+  id: "js-event-loop-flow-film",
+  title: {
+    tr: "🎬 A, D, C, B: Event Loop Sırasının Perde Arkası",
+    en: "🎬 A, D, C, B: Behind the Scenes of Event Loop Ordering",
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "callStack", emoji: "📚", label: { tr: "Call Stack",           en: "Call Stack" },           color: "#0ea5e9" },
+    { id: "webApi",    emoji: "🌐", label: { tr: "Web API",              en: "Web API" },              color: "#f59e0b" },
+    { id: "microtask", emoji: "⚡", label: { tr: "Microtask Queue (Promise)", en: "Microtask Queue (Promise)" }, color: "#8b5cf6" },
+    { id: "macrotask", emoji: "⏰", label: { tr: "Macrotask Queue (setTimeout)", en: "Macrotask Queue (setTimeout)" }, color: "#ef4444" },
+    { id: "eventLoop", emoji: "🔁", label: { tr: "Event Loop",            en: "Event Loop" },           color: "#22c55e" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Kod çalışır: `console.log(\"A\")`, `setTimeout(()=>console.log(\"B\"),0)`, `Promise.resolve().then(()=>console.log(\"C\"))`, `console.log(\"D\")`. Çıktı sırası ne olur?",
+        en: "Code runs: `console.log(\"A\")`, `setTimeout(()=>console.log(\"B\"),0)`, `Promise.resolve().then(()=>console.log(\"C\"))`, `console.log(\"D\")`. What order prints?",
+      },
+      code: { tr: `console.log("A");\nsetTimeout(() => console.log("B"), 0);\nPromise.resolve().then(() => console.log("C"));\nconsole.log("D");`, en: `console.log("A");\nsetTimeout(() => console.log("B"), 0);\nPromise.resolve().then(() => console.log("C"));\nconsole.log("D");` },
+      positions: { callStack: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — Call Stack senkron kodu SIRAYLA çalıştırır: önce `\"A\"` basılır. `setTimeout` ise Web API'ye HAVALE edilir, Call Stack'i beklemez.",
+        en: "Step 1 — the Call Stack runs synchronous code IN ORDER: `\"A\"` prints first. `setTimeout` is DELEGATED to the Web API and does not block the stack.",
+      },
+      positions: {
+        callStack: { x: 16, y: 40, scale: 1.15, pulse: true },
+        webApi: { x: 50, y: 70, scale: 1.1 },
+      },
+      beams: [{ from: "callStack", to: "webApi" }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — `Promise.resolve().then(...)` çağrılır: bu callback hemen Microtask Queue'ya konur (Call Stack'i bloklamaz). Ardından `console.log(\"D\")` senkron olarak çalışır ve `\"D\"` basılır.",
+        en: "Step 2 — `Promise.resolve().then(...)` runs: its callback goes straight into the Microtask Queue (does not block the Call Stack). Then `console.log(\"D\")` runs synchronously and `\"D\"` prints.",
+      },
+      positions: {
+        webApi: { x: 18, y: 70, opacity: 0.5, scale: 0.85 },
+        microtask: { x: 46, y: 30, scale: 1.15, pulse: true },
+        callStack: { x: 20, y: 40, scale: 1.05 },
+      },
+      beams: [{ from: "callStack", to: "microtask", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Call Stack artık TAMAMEN boş: senkron kod (`A`, `D`) bitti. Event Loop kuralı gereği ÖNCE Microtask Queue tamamen boşaltılır — `\"C\"` basılır.",
+        en: "Step 3 — the Call Stack is now COMPLETELY empty: synchronous code (`A`, `D`) is done. By Event Loop rule, the Microtask Queue is drained FIRST — `\"C\"` prints.",
+      },
+      positions: {
+        microtask: { x: 20, y: 30, opacity: 0.5, scale: 0.85 },
+        eventLoop: { x: 46, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "microtask", to: "eventLoop", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — Microtask Queue tamamen boşaldıktan SONRA Event Loop, Macrotask Queue'ya (`setTimeout` callback'i) bakar ve onu Call Stack'e sokar — `\"B\"` en son basılır.",
+        en: "Step 4 — only AFTER the Microtask Queue is fully drained does the Event Loop check the Macrotask Queue (`setTimeout` callback) and push it into the Call Stack — `\"B\"` prints last.",
+      },
+      positions: {
+        eventLoop: { x: 20, y: 55, opacity: 0.5, scale: 0.85 },
+        macrotask: { x: 52, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "eventLoop", to: "macrotask", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Final — sıra kesinlikle `A → D → C → B`. Playwright'ta `await` unutulursa test kodu bu sırayı yanlış varsayar ve elementin daha hazır olmadığı bir anda assertion çalıştırır — klasik flaky test kaynağı.",
+        en: "Final — the order is definitively `A → D → C → B`. In Playwright, forgetting `await` makes test code assume the wrong order and run an assertion before the element is actually ready — the classic flaky test source.",
+      },
+      code: { tr: `// cikti: A, D, C, B`, en: `// output: A, D, C, B` },
+      positions: {
+        macrotask: { x: 26, y: 55, opacity: 0.5, scale: 0.85 },
+        callStack: { x: 58, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "macrotask", to: "callStack", color: "#22c55e" }],
+    },
+  ],
+}
+
+// 🎬 8 — Promises & Closures — Promise chain / async-await mikro görev sırası
+const jsPromiseMicrotaskFilm = {
+  type: "video-scene",
+  id: "js-promise-microtask-film",
+  title: {
+    tr: "🎬 Bir Promise'in Üç Hali: Pending → Resolved/Rejected → then/catch",
+    en: "🎬 The Three States of a Promise: Pending → Resolved/Rejected → then/catch",
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "pending",  emoji: "⏳", label: { tr: "Pending (Bekliyor)",    en: "Pending" },              color: "#94a3b8" },
+    { id: "resolve",  emoji: "✅", label: { tr: "resolve()",             en: "resolve()" },            color: "#22c55e" },
+    { id: "reject",   emoji: "❌", label: { tr: "reject()",              en: "reject()" },             color: "#ef4444" },
+    { id: "thenChain", emoji: "🔗", label: { tr: ".then() Zinciri",       en: ".then() Chain" },        color: "#0ea5e9" },
+    { id: "catchBlock", emoji: "🪤", label: { tr: ".catch()",             en: ".catch()" },             color: "#f59e0b" },
+    { id: "asyncAwait", emoji: "⌛", label: { tr: "async/await (Şeker)",  en: "async/await (Sugar)" },  color: "#8b5cf6" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`new Promise((resolve, reject) => {...})` çağrıldığında Promise `Pending` (beklemede) durumunda doğar — henüz ne başarılı ne başarısız.",
+        en: "When `new Promise((resolve, reject) => {...})` is called, the Promise is born `Pending` — neither succeeded nor failed yet.",
+      },
+      code: { tr: `const iceCreamPromise = new Promise((resolve, reject) => {\n  // ... asenkron islem ...\n});`, en: `const iceCreamPromise = new Promise((resolve, reject) => {\n  // ... async work ...\n});` },
+      positions: { pending: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "İşlem BAŞARILI olursa `resolve(value)` çağrılır: Promise artık `Fulfilled` durumuna geçer ve değeri taşır. Bu değer `.then()` callback'ine akıtılır.",
+        en: "If the work SUCCEEDS, `resolve(value)` is called: the Promise moves to `Fulfilled` and carries the value. This value flows into the `.then()` callback.",
+      },
+      positions: {
+        pending: { x: 18, y: 40, opacity: 0.5, scale: 0.85 },
+        resolve: { x: 50, y: 30, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "pending", to: "resolve", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "İşlem BAŞARISIZ olursa `reject(error)` çağrılır: Promise `Rejected` durumuna geçer, hata `.catch()` bloğuna akıtılır — `.then()` bu durumda ATLANIR.",
+        en: "If the work FAILS, `reject(error)` is called: the Promise moves to `Rejected`, and the error flows into `.catch()` — `.then()` is SKIPPED in this case.",
+      },
+      positions: {
+        resolve: { x: 22, y: 30, opacity: 0.5, scale: 0.85 },
+        reject: { x: 50, y: 70, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "pending", to: "reject", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "`.then(value => ...).then(next => ...)` ile zincirleme kurulur: her `.then()` bir önceki `.then()`'in döndürdüğü değeri alır — dominotaşı gibi sırayla akar.",
+        en: "Chaining is built with `.then(value => ...).then(next => ...)`: each `.then()` receives the value returned by the previous one — flowing in sequence like dominoes.",
+      },
+      code: { tr: `iceCreamPromise\n  .then(flavor => pourCone(flavor))\n  .then(cone => addSprinkles(cone))\n  .catch(err => console.log("Hata:", err));`, en: `iceCreamPromise\n  .then(flavor => pourCone(flavor))\n  .then(cone => addSprinkles(cone))\n  .catch(err => console.log("Error:", err));` },
+      positions: {
+        resolve: { x: 22, y: 30, opacity: 0.4, scale: 0.8 },
+        thenChain: { x: 50, y: 40, scale: 1.2, pulse: true },
+        catchBlock: { x: 74, y: 60, scale: 1.05 },
+      },
+      beams: [{ from: "resolve", to: "thenChain", color: "#0ea5e9" }, { from: "thenChain", to: "catchBlock", color: "#f59e0b" }],
+    },
+    {
+      caption: {
+        tr: "Final — `async/await`, aynı `.then()` zincirini SENKRON görünümlü kodla yazmanı sağlayan sözdizim şekeridir (syntactic sugar). Perde arkasında yine aynı Promise mekanizması, Microtask Queue üzerinden çalışır.",
+        en: "Final — `async/await` is syntactic sugar letting you write the SAME `.then()` chain as SYNCHRONOUS-looking code. Behind the curtain it is still the exact same Promise mechanism, running through the Microtask Queue.",
+      },
+      code: { tr: `async function makeIceCream() {\n  try {\n    const flavor = await iceCreamPromise;\n    const cone = await pourCone(flavor);\n  } catch (err) { console.log("Hata:", err); }\n}`, en: `async function makeIceCream() {\n  try {\n    const flavor = await iceCreamPromise;\n    const cone = await pourCone(flavor);\n  } catch (err) { console.log("Error:", err); }\n}` },
+      positions: {
+        thenChain: { x: 24, y: 40, opacity: 0.4, scale: 0.8 },
+        asyncAwait: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "thenChain", to: "asyncAwait", color: "#8b5cf6" }],
+    },
+  ],
+}
+
+// 🎬 9 — Sınıflar, Modüller & JSON — class + this binding kaybı
+const jsThisBindingFilm = {
+  type: "video-scene",
+  id: "js-this-binding-film",
+  title: {
+    tr: "🎬 this Kaybolunca: Bir Metodu Callback Olarak Geçirmenin Bedeli",
+    en: "🎬 When this Gets Lost: The Cost of Passing a Method as a Callback",
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "instance",   emoji: "🏛️", label: { tr: "new LoginPage()",      en: "new LoginPage()" },      color: "#0ea5e9" },
+    { id: "directCall", emoji: "👉", label: { tr: "page.fillForm() — Normal Çağrı", en: "page.fillForm() — Direct Call" }, color: "#22c55e" },
+    { id: "thisOk",     emoji: "✅", label: { tr: "this === page",         en: "this === page" },        color: "#22c55e" },
+    { id: "refCopy",    emoji: "📎", label: { tr: "const fn = page.fillForm", en: "const fn = page.fillForm" }, color: "#f59e0b" },
+    { id: "standalone", emoji: "⚠️", label: { tr: "fn() — Bağlamsız Çağrı", en: "fn() — Standalone Call" }, color: "#ef4444" },
+    { id: "thisLost",   emoji: "💥", label: { tr: "this === undefined",    en: "this === undefined" },   color: "#ef4444" },
+    { id: "arrowFix",   emoji: "🏹", label: { tr: "Arrow / .bind(page) ile Çözüm", en: "Fix with Arrow / .bind(page)" }, color: "#8b5cf6" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`const page = new LoginPage();` ile bir nesne örneği oluşturulur. `page.fillForm(...)` NORMAL şekilde çağrıldığında `this`, `page` nesnesinin KENDİSİNİ işaret eder.",
+        en: "`const page = new LoginPage();` creates an object instance. When `page.fillForm(...)` is called NORMALLY, `this` points to the `page` object ITSELF.",
+      },
+      code: { tr: `const page = new LoginPage();\npage.fillForm("hasan", "secret"); // calisir`, en: `const page = new LoginPage();\npage.fillForm("hasan", "secret"); // works` },
+      positions: {
+        instance: { x: 28, y: 40, scale: 1.1 },
+        directCall: { x: 60, y: 40, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: "instance", to: "directCall" }],
+    },
+    {
+      caption: {
+        tr: "`this.url` gibi ifadeler doğru çalışır çünkü çağrı `page.fillForm(...)` NOKTA (dot) ile yapıldı — JS bu noktayı gördüğünde `this`'i çağıran nesneye bağlar.",
+        en: "Expressions like `this.url` work correctly because the call `page.fillForm(...)` used the DOT — JS binds `this` to the calling object when it sees that dot.",
+      },
+      positions: {
+        directCall: { x: 22, y: 40, opacity: 0.6, scale: 0.9 },
+        thisOk: { x: 55, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "directCall", to: "thisOk", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "Kontrast — metodu bir callback olarak geçirmek için `const fn = page.fillForm;` yazılır. Bu, fonksiyonu nesneden KOPARIR — sadece fonksiyon referansı taşınır, nesne bağlantısı GİTMEZ.",
+        en: "Contrast — to pass the method as a callback, `const fn = page.fillForm;` is written. This DETACHES the function from the object — only the function reference travels, the object connection is LOST.",
+      },
+      code: { tr: `const fn = page.fillForm;\nbutton.addEventListener('click', fn); // this baglanti koptu!`, en: `const fn = page.fillForm;\nbutton.addEventListener('click', fn); // this connection lost!` },
+      positions: {
+        thisOk: { x: 20, y: 30, opacity: 0.4, scale: 0.8 },
+        refCopy: { x: 50, y: 60, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "thisOk", to: "refCopy", color: "#f59e0b" }],
+    },
+    {
+      caption: {
+        tr: "`fn()` NOKTASIZ çağrıldığında (örneğin bir event listener içinde) JS artık hangi nesneye bağlanacağını BİLMEZ — `this` `undefined` olur ve `this.name` erişimi `TypeError` fırlatır.",
+        en: "When `fn()` is called WITHOUT a dot (e.g. inside an event listener), JS no longer KNOWS which object to bind to — `this` becomes `undefined` and accessing `this.name` throws a `TypeError`.",
+      },
+      positions: {
+        refCopy: { x: 22, y: 45, opacity: 0.5, scale: 0.85 },
+        standalone: { x: 50, y: 45, scale: 1.15, pulse: true },
+        thisLost: { x: 76, y: 65, scale: 1.1 },
+      },
+      beams: [{ from: "refCopy", to: "standalone", color: "#ef4444" }, { from: "standalone", to: "thisLost", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Final — çözüm: `fn.bind(page)` ile `this`'i kalıcı olarak bağlamak, veya çağrıyı bir arrow function içine sarmak (`() => page.fillForm(...)`), çünkü arrow function KENDİ `this`'ini oluşturmaz, çevresinden DEVRALIR.",
+        en: "Final — the fix: permanently bind `this` with `fn.bind(page)`, or wrap the call in an arrow function (`() => page.fillForm(...)`), because arrow functions do NOT create their own `this` — they INHERIT it from their surroundings.",
+      },
+      code: { tr: `button.addEventListener('click', () => page.fillForm("hasan","secret"));`, en: `button.addEventListener('click', () => page.fillForm("hasan","secret"));` },
+      positions: {
+        thisLost: { x: 24, y: 60, opacity: 0.4, scale: 0.8 },
+        arrowFix: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "thisLost", to: "arrowFix", color: "#8b5cf6" }],
+    },
+  ],
+}
+
+// 🎬 10 — Gerçek Hayat QA & DOM — bir Playwright/Selenium testinin arkasındaki DOM sorgu akışı
+const jsDomQueryTestFilm = {
+  type: "video-scene",
+  id: "js-dom-query-test-film",
+  title: {
+    tr: "🎬 page.click() Yazınca Arka Planda DOM Nasıl Sorgulanır?",
+    en: "🎬 What Happens to the DOM When You Write page.click()?",
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "testCode", emoji: "🧪", label: { tr: "Test Kodu",             en: "Test Code" },            color: "#0ea5e9" },
+    { id: "locator",  emoji: "🎯", label: { tr: "page.locator(selector)", en: "page.locator(selector)" }, color: "#f59e0b" },
+    { id: "domTree",  emoji: "🌳", label: { tr: "DOM Ağacı",             en: "DOM Tree" },             color: "#8b5cf6" },
+    { id: "queryEngine", emoji: "🔍", label: { tr: "querySelector Motoru", en: "querySelector Engine" }, color: "#6366f1" },
+    { id: "matchedEl", emoji: "✅", label: { tr: "Bulunan Element",       en: "Matched Element" },      color: "#22c55e" },
+    { id: "clickAction", emoji: "🖱️", label: { tr: ".click()",             en: ".click()" },            color: "#10b981" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Test kodun `document.querySelectorAll('.product-card')` çağırır — perde arkasında tarayıcı, canlı DOM ağacını taramaya başlar.",
+        en: "Your test code calls `document.querySelectorAll('.product-card')` — behind the curtain, the browser starts scanning the live DOM tree.",
+      },
+      code: { tr: `const items = document.querySelectorAll('.product-card');`, en: `const items = document.querySelectorAll('.product-card');` },
+      positions: { testCode: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Selector `.product-card`, tarayıcının querySelector motoruna İLETİLİR. Bu, CSS selector kurallarıyla eşleşen elementleri arayan bir eşleştirme motorudur.",
+        en: "The selector `.product-card` is HANDED to the browser's querySelector engine. This is a matching engine that searches for elements matching CSS selector rules.",
+      },
+      positions: {
+        testCode: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        locator: { x: 42, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "testCode", to: "locator" }],
+    },
+    {
+      caption: {
+        tr: "Motor DOM ağacını yukarıdan aşağıya (veya optimize edilmiş bir yol) TARAR — her düğümün class, id, attribute'larını kontrol eder. `NodeList` (Array DEĞİL!) olarak eşleşen sonuçları toplar.",
+        en: "The engine SCANS the DOM tree top-down (or via an optimized path) — checking each node's class, id, and attributes. It collects matches as a `NodeList` (NOT an Array!).",
+      },
+      positions: {
+        locator: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        domTree: { x: 44, y: 30, scale: 1.15 },
+        queryEngine: { x: 44, y: 70, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "locator", to: "domTree" }, { from: "domTree", to: "queryEngine" }],
+    },
+    {
+      caption: {
+        tr: "Eşleşen elementler bulunur ve `items` değişkenine döner. `Array.from(items).map(...)` ile bu NodeList, gerçek bir Array'e çevrilerek `.map()`/`.filter()` gibi metotlarla işlenebilir hale gelir.",
+        en: "Matching elements are found and returned into `items`. `Array.from(items).map(...)` converts this NodeList into a real Array so it can be processed with `.map()`/`.filter()`.",
+      },
+      code: { tr: `const priceArr = Array.from(items).map(item => item.dataset.price);`, en: `const priceArr = Array.from(items).map(item => item.dataset.price);` },
+      positions: {
+        queryEngine: { x: 22, y: 60, opacity: 0.5, scale: 0.85 },
+        matchedEl: { x: 55, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "queryEngine", to: "matchedEl", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "Final — Playwright/Selenium'daki `page.click(selector)` da AYNI mekanizmayı kullanır: önce element DOM'da bulunur, GÖRÜNÜR/tıklanabilir olduğu doğrulanır, sonra fiziksel bir click event tetiklenir. Element bulunamazsa timeout hatası fırlatılır.",
+        en: "Final — Playwright/Selenium's `page.click(selector)` uses the EXACT SAME mechanism: the element is found in the DOM first, verified as visible/clickable, then a physical click event fires. If not found, a timeout error is thrown.",
+      },
+      positions: {
+        matchedEl: { x: 24, y: 60, opacity: 0.5, scale: 0.85 },
+        clickAction: { x: 58, y: 60, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "matchedEl", to: "clickAction", color: "#10b981" }],
+    },
+  ],
+}
+
+// 🎬 11 — Ekosistem & Araçlar — npm bağımlılık çözümleme (dependency resolution) akışı
+const jsNpmDependencyResolveFilm = {
+  type: "video-scene",
+  id: "js-npm-dependency-resolve-film",
+  title: {
+    tr: "🎬 npm install Yazınca: Bağımlılık Ağacının Çözülmesi",
+    en: "🎬 What npm install Really Does: Resolving the Dependency Tree",
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "pkgJson",  emoji: "📋", label: { tr: "package.json",         en: "package.json" },        color: "#0ea5e9" },
+    { id: "registry", emoji: "☁️", label: { tr: "npm Registry",          en: "npm Registry" },        color: "#f59e0b" },
+    { id: "depTree",  emoji: "🌲", label: { tr: "Bağımlılık Ağacı",       en: "Dependency Tree" },     color: "#8b5cf6" },
+    { id: "lockFile", emoji: "🔒", label: { tr: "package-lock.json",      en: "package-lock.json" },   color: "#6366f1" },
+    { id: "nodeModules", emoji: "📁", label: { tr: "node_modules",         en: "node_modules" },        color: "#22c55e" },
+    { id: "ciGhost",  emoji: "⚠️", label: { tr: "Kilitsiz Kurulum Riski", en: "Unlocked Install Risk" }, color: "#ef4444" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`npm install` çalıştırılır. npm önce `package.json`'daki `dependencies`/`devDependencies` listesini OKUR: örneğin `@playwright/test: ^1.48.0`.",
+        en: "`npm install` runs. npm first READS the `dependencies`/`devDependencies` list in `package.json`: e.g. `@playwright/test: ^1.48.0`.",
+      },
+      code: { tr: `npm install`, en: `npm install` },
+      positions: { pkgJson: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "npm, npm Registry'ye (bulut deposu) BAĞLANIR ve `@playwright/test` paketini ister. Ama bu paketin de KENDİ bağımlılıkları vardır (örn. playwright-core) — onlar da istenir.",
+        en: "npm CONNECTS to the npm Registry (cloud repository) and requests `@playwright/test`. But that package has its OWN dependencies too (e.g. playwright-core) — those are requested as well.",
+      },
+      positions: {
+        pkgJson: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        registry: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "pkgJson", to: "registry" }],
+    },
+    {
+      caption: {
+        tr: "npm bu iç içe bağımlılıkları (bağımlılığın bağımlılığının bağımlılığı...) çözerek dallanan bir AĞAÇ oluşturur — hangi paketin hangi versiyonu gerektiğini hesaplar, çakışmaları uzlaştırır.",
+        en: "npm resolves these nested dependencies (a dependency's dependency's dependency...) into a branching TREE — computing which package needs which version, reconciling conflicts.",
+      },
+      positions: {
+        registry: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        depTree: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "registry", to: "depTree", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "Bu çözülmüş ağaç `package-lock.json`'a TAM sürüm numaralarıyla YAZILIR — bu, herkesin AYNI paket versiyonlarını kurmasını garanti eder (deterministik kurulum).",
+        en: "This resolved tree is WRITTEN to `package-lock.json` with EXACT version numbers — this guarantees everyone installs the SAME package versions (deterministic install).",
+      },
+      positions: {
+        depTree: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        lockFile: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "depTree", to: "lockFile", color: "#6366f1" }],
+    },
+    {
+      caption: {
+        tr: "Final — tüm paketler `node_modules` klasörüne İNDİRİLİR. Kontrast: `package-lock.json` yoksa veya git'e commit'lenmediyse, farklı geliştiriciler farklı alt-sürümler kurabilir — klasik 'bende çalışıyor, CI'da çalışmıyor' hatası.",
+        en: "Final — all packages are DOWNLOADED into `node_modules`. Contrast: without a committed `package-lock.json`, different developers can install different sub-versions — the classic 'works on my machine, fails in CI' bug.",
+      },
+      code: { tr: `npm ci   # lock dosyasindan birebir, deterministik kurulum`, en: `npm ci   # exact, deterministic install from the lock file` },
+      positions: {
+        lockFile: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        nodeModules: { x: 50, y: 55, scale: 1.2, pulse: true },
+        ciGhost: { x: 76, y: 30, scale: 0.9 },
+      },
+      beams: [{ from: "lockFile", to: "nodeModules", color: "#22c55e" }],
+    },
+  ],
+}
+
+// 🎬 12 — Hatalar & Debugging — try/catch + stack trace okuma akışı
+const jsTryCatchStacktraceFilm = {
+  type: "video-scene",
+  id: "js-try-catch-stacktrace-film",
+  title: {
+    tr: "🎬 Bir Hata Fırlatıldığında: try/catch ve Stack Trace'in Yolculuğu",
+    en: "🎬 When an Error is Thrown: The Journey Through try/catch and the Stack Trace",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "tryBlock",  emoji: "🛡️", label: { tr: "try { ... }",          en: "try { ... }" },          color: "#0ea5e9" },
+    { id: "riskyCall", emoji: "⚠️", label: { tr: "Riskli Çağrı",          en: "Risky Call" },           color: "#f59e0b" },
+    { id: "errorThrown", emoji: "💥", label: { tr: "Exception Fırlatıldı", en: "Exception Thrown" },    color: "#ef4444" },
+    { id: "catchBlock", emoji: "🧤", label: { tr: "catch (e)",            en: "catch (e)" },            color: "#8b5cf6" },
+    { id: "stackTrace", emoji: "📜", label: { tr: "Stack Trace",          en: "Stack Trace" },          color: "#6366f1" },
+    { id: "finallyBlock", emoji: "🔚", label: { tr: "finally { ... }",     en: "finally { ... }" },      color: "#22c55e" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Bir Playwright testinde `JSON.parse(rawJson)` çağrılır ama `rawJson` bozuk bir string olabilir. `try` bloğu bu riski KUŞATIR.",
+        en: "In a Playwright test, `JSON.parse(rawJson)` is called but `rawJson` might be malformed. The `try` block WRAPS this risk.",
+      },
+      code: { tr: `try {\n  const testData = JSON.parse(rawJson);\n} catch (e) {\n  console.log("Parse hatasi:", e.message);\n}`, en: `try {\n  const testData = JSON.parse(rawJson);\n} catch (e) {\n  console.log("Parse error:", e.message);\n}` },
+      positions: { tryBlock: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "`try` bloğu içindeki riskli çağrı çalışır — bozuk JSON parse EDİLMEYE çalışılır. Motor sözdizimini kontrol eder ve GEÇERSİZ olduğunu tespit eder.",
+        en: "The risky call inside `try` runs — malformed JSON is ATTEMPTED to be parsed. The engine checks the syntax and detects it is INVALID.",
+      },
+      positions: {
+        tryBlock: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        riskyCall: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "tryBlock", to: "riskyCall" }],
+    },
+    {
+      caption: {
+        tr: "Bir `SyntaxError` nesnesi FIRLATILIR (throw). Bu an, kodun normal akışını KESER — hatanın fırlatıldığı satırdan itibaren bir Stack Trace oluşmaya başlar.",
+        en: "A `SyntaxError` object is THROWN. This moment INTERRUPTS normal code flow — a Stack Trace starts forming from the line where the error was thrown.",
+      },
+      positions: {
+        riskyCall: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        errorThrown: { x: 46, y: 30, scale: 1.2, pulse: true },
+        stackTrace: { x: 74, y: 55, scale: 1.05 },
+      },
+      beams: [{ from: "riskyCall", to: "errorThrown", color: "#ef4444" }, { from: "errorThrown", to: "stackTrace", color: "#6366f1" }],
+    },
+    {
+      caption: {
+        tr: "Hata, `catch (e)` bloğu tarafından YAKALANIR — `e.message` okunabilir bir açıklama taşır, `e.stack` ise hatanın hangi fonksiyon zincirinden geçtiğini satır satır gösterir.",
+        en: "The error is CAUGHT by the `catch (e)` block — `e.message` carries a readable description, while `e.stack` shows line-by-line which function chain the error passed through.",
+      },
+      positions: {
+        errorThrown: { x: 22, y: 30, opacity: 0.5, scale: 0.85 },
+        catchBlock: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "errorThrown", to: "catchBlock", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "Final — `catch` bloğu çalışsın ya da çalışmasın, `finally` bloğu HER ZAMAN çalışır: örneğin bir tarayıcıyı kapatmak veya test raporuna sonucu kaydetmek için idealdir. `catch` olmadan fırlatılan hata testi ÇÖKERTİR.",
+        en: "Final — whether `catch` runs or not, `finally` ALWAYS runs: ideal for closing a browser or logging the test result. An uncaught error CRASHES the test.",
+      },
+      code: { tr: `finally {\n  console.log("Test temizligi tamamlandi.");\n}`, en: `finally {\n  console.log("Test cleanup complete.");\n}` },
+      positions: {
+        catchBlock: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        finallyBlock: { x: 56, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "catchBlock", to: "finallyBlock", color: "#22c55e" }],
+    },
+  ],
+}
+
+// 🎬 13 — DOM Olayları — event bubbling/capturing akışı
+const jsEventBubblingFilm = {
+  type: "video-scene",
+  id: "js-event-bubbling-film",
+  title: {
+    tr: "🎬 Bir Tıklama Nereye Gider? — Capturing ve Bubbling Fazları",
+    en: "🎬 Where Does a Click Go? — The Capturing and Bubbling Phases",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "docRoot",  emoji: "📄", label: { tr: "document",             en: "document" },             color: "#94a3b8" },
+    { id: "parentDiv", emoji: "📦", label: { tr: "Parent <div>",          en: "Parent <div>" },         color: "#0ea5e9" },
+    { id: "childBtn", emoji: "🔘", label: { tr: "Child <button>",        en: "Child <button>" },       color: "#f59e0b" },
+    { id: "captureFlow", emoji: "⬇️", label: { tr: "Capturing Fazı",       en: "Capturing Phase" },      color: "#8b5cf6" },
+    { id: "bubbleFlow", emoji: "⬆️", label: { tr: "Bubbling Fazı",        en: "Bubbling Phase" },       color: "#22c55e" },
+    { id: "stopped",  emoji: "🛑", label: { tr: "stopPropagation()",     en: "stopPropagation()" },    color: "#ef4444" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Kullanıcı `<div>` içindeki `<button>`'a TIKLAR. Bu tek tıklama, aslında `document`'tan başlayıp element ağacında İKİ yönde seyahat eden bir yolculuktur.",
+        en: "The user CLICKS a `<button>` inside a `<div>`. This single click is actually a journey starting from `document`, traveling in TWO directions through the element tree.",
+      },
+      code: { tr: `const btn = document.querySelector('#submit-btn');`, en: `const btn = document.querySelector('#submit-btn');` },
+      positions: {
+        docRoot: { x: 20, y: 30, scale: 1.05 },
+        parentDiv: { x: 40, y: 50, scale: 1.05 },
+        childBtn: { x: 60, y: 70, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — Capturing Fazı: event ÖNCE en üstten (`document`) aşağıya, hedefe doğru İNER: `document → parentDiv → childBtn`. Bu faz genellikle görünmezdir, çoğu kod bunu dinlemez.",
+        en: "Step 1 — Capturing Phase: the event goes DOWN from the top (`document`) toward the target FIRST: `document → parentDiv → childBtn`. This phase is usually invisible; most code doesn't listen for it.",
+      },
+      positions: {
+        docRoot: { x: 20, y: 30, scale: 1.1, pulse: true },
+        captureFlow: { x: 45, y: 50, scale: 1.15 },
+        childBtn: { x: 65, y: 70, scale: 1.05 },
+      },
+      beams: [{ from: "docRoot", to: "captureFlow" }, { from: "captureFlow", to: "childBtn" }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Hedef Fazı: event, gerçek hedefi olan `childBtn`'e ULAŞIR ve oradaki click handler ÇALIŞIR (örn. form submit tetiklenir).",
+        en: "Step 2 — Target Phase: the event REACHES its actual target, `childBtn`, and its click handler RUNS (e.g. triggering a form submit).",
+      },
+      positions: {
+        captureFlow: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        childBtn: { x: 55, y: 60, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "captureFlow", to: "childBtn", color: "#f59e0b" }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Bubbling Fazı: event şimdi TERSİNE dönerek hedeften yukarı doğru KABARCIK gibi yükselir: `childBtn → parentDiv → document`. `parentDiv` üzerine bir click listener eklendiyse, o da TETİKLENİR!",
+        en: "Step 3 — Bubbling Phase: the event now reverses, BUBBLING UP from the target: `childBtn → parentDiv → document`. If `parentDiv` has a click listener, it TRIGGERS too!",
+      },
+      positions: {
+        childBtn: { x: 24, y: 70, opacity: 0.6, scale: 0.9 },
+        bubbleFlow: { x: 48, y: 50, scale: 1.2, pulse: true },
+        parentDiv: { x: 70, y: 30, scale: 1.1 },
+      },
+      beams: [{ from: "childBtn", to: "bubbleFlow", color: "#22c55e" }, { from: "bubbleFlow", to: "parentDiv", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "Final — Kontrast: `event.stopPropagation()` çağrılırsa yükseliş yarıda KESİLİR — üstteki parent listener'lar TETİKLENMEZ. Test otomasyonunda beklenmedik çift-tetiklenen event'lerin sebebi genelde bubbling'in fark edilmemesidir.",
+        en: "Final — Contrast: calling `event.stopPropagation()` CUTS the bubbling short — parent listeners above do NOT trigger. In test automation, unexpectedly double-firing events are usually caused by not noticing bubbling.",
+      },
+      positions: {
+        bubbleFlow: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        stopped: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "bubbleFlow", to: "stopped", color: "#ef4444" }],
+    },
+  ],
+}
+
+// 🎬 14 — Tarih & Zaman — Date ay indeksinin 0-based olması tuzağı
+const jsDateMonthIndexFilm = {
+  type: "video-scene",
+  id: "js-date-month-index-film",
+  title: {
+    tr: "🎬 new Date(2025, 5, 1) Neden Temmuz Değil, Haziran'ı Gösteriyor... ya da Tam Tersi?",
+    en: "🎬 Why Does new Date(2025, 5, 1) Show June, Not July... or the Reverse?",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "dateCall", emoji: "📅", label: { tr: "new Date(2025, 5, 1)",  en: "new Date(2025, 5, 1)" }, color: "#0ea5e9" },
+    { id: "monthArg", emoji: "5️⃣", label: { tr: "Ay Argümanı: 5",        en: "Month Argument: 5" },    color: "#f59e0b" },
+    { id: "zeroIndex", emoji: "🔢", label: { tr: "0-Based İndeks (0=Ocak)", en: "0-Based Index (0=Jan)" }, color: "#8b5cf6" },
+    { id: "wrongExpect", emoji: "❌", label: { tr: "Yanlış Beklenti: Haziran", en: "Wrong Expectation: June" }, color: "#ef4444" },
+    { id: "realResult", emoji: "✅", label: { tr: "Gerçek Sonuç: Haziran (index 5)", en: "Actual Result: June (index 5)" }, color: "#22c55e" },
+    { id: "ciFail",   emoji: "🚨", label: { tr: "CI'da Kırmızı Test",     en: "Red Test in CI" },       color: "#ef4444" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Bir test verisi hazırlanır: `new Date(2025, 5, 1)`. Geliştirici '5. ay = Mayıs' diye düşünür ama JavaScript'in Date API'sinde ay parametresi 0-BASED'dir.",
+        en: "A test fixture is prepared: `new Date(2025, 5, 1)`. The developer thinks '5th month = May' but JavaScript's Date API month parameter is 0-BASED.",
+      },
+      code: { tr: `const created = new Date(2025, 5, 1);`, en: `const created = new Date(2025, 5, 1);` },
+      positions: { dateCall: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "İkinci argüman `5` doğrudan bir ay ismi DEĞİL, 0'dan başlayan bir İNDEKSTİR: `0=Ocak, 1=Şubat, 2=Mart, 3=Nisan, 4=Mayıs, 5=Haziran...`",
+        en: "The second argument `5` is NOT a direct month name — it's a ZERO-based INDEX: `0=Jan, 1=Feb, 2=Mar, 3=Apr, 4=May, 5=June...`",
+      },
+      positions: {
+        dateCall: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        monthArg: { x: 42, y: 40, scale: 1.15, pulse: true },
+        zeroIndex: { x: 68, y: 60, scale: 1.1 },
+      },
+      beams: [{ from: "dateCall", to: "monthArg" }, { from: "monthArg", to: "zeroIndex", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "Geliştiricinin ZİHNİNDEKİ beklenti '5 = Mayıs'tır — sezgisel olarak insan sayma sistemine göre düşünür (1=Ocak). Bu yanlış varsayım test verisinde YANLIŞ bir tarih üretir.",
+        en: "The developer's MENTAL expectation is '5 = May' — intuitively thinking in human counting (1=Jan). This wrong assumption produces the WRONG date in test fixtures.",
+      },
+      positions: {
+        zeroIndex: { x: 20, y: 60, opacity: 0.5, scale: 0.85 },
+        wrongExpect: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "zeroIndex", to: "wrongExpect", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Gerçekte `new Date(2025, 5, 1).getMonth()` çağrıldığında `5` döner ve bu HAZİRAN'DIR (index 5 = 6. ay). Bir test 'Mayıs ayı içinde oluşturulan kayıt' assertion'ı yazmışsa, bu test YANLIŞ tarih üzerinde çalışıyor demektir.",
+        en: "In reality, calling `new Date(2025, 5, 1).getMonth()` returns `5`, and that IS JUNE (index 5 = the 6th month). If a test asserts 'record created in May', that test is running against the WRONG date.",
+      },
+      code: { tr: `console.log(created.getMonth()); // 5 -> Haziran, Mayis DEGIL!`, en: `console.log(created.getMonth()); // 5 -> June, NOT May!` },
+      positions: {
+        wrongExpect: { x: 24, y: 40, opacity: 0.5, scale: 0.85 },
+        realResult: { x: 56, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "wrongExpect", to: "realResult", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "Final — bu tuzak CI pipeline'da bir ay farklı beklenen assertion olarak ortaya çıkar: `expect(date.getMonth()).toBe(5)` şeklinde YAZILMASI gerekirken geliştirici `toBe(6)` yazmıştır. Güvenli çözüm: ay isimlerini sabit (`const JUNE = 5`) tanımlamak veya `date-fns`/`Luxon` gibi kütüphaneler kullanmak.",
+        en: "Final — this trap surfaces in CI as an off-by-one-month assertion: it should be written `expect(date.getMonth()).toBe(5)` but the developer wrote `toBe(6)`. Safe fix: define named month constants (`const JUNE = 5`) or use libraries like `date-fns`/`Luxon`.",
+      },
+      positions: {
+        realResult: { x: 22, y: 55, opacity: 0.5, scale: 0.85 },
+        ciFail: { x: 56, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "realResult", to: "ciFail", color: "#ef4444" }],
+    },
+  ],
+}
+
+// 🎬 15 — RegExp — global flag (g) ve lastIndex durum tuzağı
+const jsRegexLastIndexFilm = {
+  type: "video-scene",
+  id: "js-regex-lastindex-film",
+  title: {
+    tr: "🎬 Aynı Regex'i İkinci Kez Kullanınca Neden Sonuç Değişir? — lastIndex Tuzağı",
+    en: "🎬 Why Does the Same Regex Give a Different Result the Second Time? — The lastIndex Trap",
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "regexObj", emoji: "🔤", label: { tr: "/\\d+/g (global flag)", en: "/\\d+/g (global flag)" }, color: "#0ea5e9" },
+    { id: "testCall1", emoji: "1️⃣", label: { tr: ".test() — 1. Çağrı",   en: ".test() — 1st Call" },   color: "#f59e0b" },
+    { id: "lastIndex", emoji: "📍", label: { tr: "lastIndex Güncellendi",  en: "lastIndex Updated" },    color: "#8b5cf6" },
+    { id: "testCall2", emoji: "2️⃣", label: { tr: ".test() — 2. Çağrı",   en: ".test() — 2nd Call" },   color: "#ef4444" },
+    { id: "falseResult", emoji: "❌", label: { tr: "Beklenmedik: false",   en: "Unexpected: false" },    color: "#ef4444" },
+    { id: "fixReset",  emoji: "✅", label: { tr: "match() veya Yeni Regex", en: "match() or New Regex" }, color: "#22c55e" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`const emailRegex = /\\d+/g;` — `g` (global) flag'i ile tanımlanan bir regex nesnesi, HER ARAMADAN sonra bir DURUM (state) tutar: `lastIndex`.",
+        en: "`const emailRegex = /\\d+/g;` — a regex defined with the `g` (global) flag carries STATE after EVERY search: `lastIndex`.",
+      },
+      code: { tr: `const digitRegex = /\\d+/g;\nconsole.log(digitRegex.test("Kod: 404")); // true`, en: `const digitRegex = /\\d+/g;\nconsole.log(digitRegex.test("Code: 404")); // true` },
+      positions: { regexObj: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "İlk `.test(\"Kod: 404\")` çağrısı `true` döner VE regex nesnesinin `lastIndex` özelliğini eşleşmenin BİTTİĞİ pozisyona (7) günceller — bu, klasik regex motorlarında olmayan bir davranıştır.",
+        en: "The first `.test(\"Code: 404\")` call returns `true` AND updates the regex object's `lastIndex` property to the position WHERE the match ended (7) — a behavior most classic regex engines don't have.",
+      },
+      positions: {
+        regexObj: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        testCall1: { x: 42, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "regexObj", to: "testCall1" }],
+    },
+    {
+      caption: {
+        tr: "`lastIndex` artık `7` değerini TAŞIR — bu, AYNI regex nesnesinin bir sonraki aramaya nereden BAŞLAYACAĞINI belirler; sıfırdan değil, kaldığı yerden devam eder.",
+        en: "`lastIndex` now CARRIES the value `7` — this determines where the SAME regex object will START its next search; not from zero, but from where it left off.",
+      },
+      positions: {
+        testCall1: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        lastIndex: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "testCall1", to: "lastIndex", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "AYNI `digitRegex` nesnesiyle AYNI string üzerinde İKİNCİ kez `.test(\"Kod: 404\")` çağrılır — ama bu sefer arama pozisyon `7`'den başlar, yani string'in sonuna yakın bir yerden. Rakam bulunamaz.",
+        en: "Calling `.test(\"Code: 404\")` a SECOND time on the SAME string with the SAME `digitRegex` object — but this time the search starts at position `7`, near the end of the string. No digit is found there.",
+      },
+      code: { tr: `console.log(digitRegex.test("Kod: 404")); // false (!)`, en: `console.log(digitRegex.test("Code: 404")); // false (!)` },
+      positions: {
+        lastIndex: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        testCall2: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "lastIndex", to: "testCall2", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Sonuç `false` — aynı string, aynı regex, ama SONUÇ FARKLI! Bu, bir `if (regex.test(x))` içinde aynı regex'i tekrar kullanan validation kodlarında SESSİZ bir bug kaynağıdır.",
+        en: "Result `false` — same string, same regex, but a DIFFERENT RESULT! This is a SILENT bug source in validation code that reuses the same regex inside repeated `if (regex.test(x))` checks.",
+      },
+      positions: {
+        testCall2: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        falseResult: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "testCall2", to: "falseResult", color: "#ef4444" }],
+    },
+    {
+      caption: {
+        tr: "Final — çözüm: `g` flag'i gereksizse kaldır, veya `str.match(/\\d+/g)` gibi durumsuz (stateless) bir metot kullan, ya da her aramadan önce `regex.lastIndex = 0` ile SIFIRLA.",
+        en: "Final — the fix: remove the `g` flag if unnecessary, or use a stateless method like `str.match(/\\d+/g)`, or RESET with `regex.lastIndex = 0` before every search.",
+      },
+      code: { tr: `digitRegex.lastIndex = 0; // guvenli sifirlama`, en: `digitRegex.lastIndex = 0; // safe reset` },
+      positions: {
+        falseResult: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        fixReset: { x: 56, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "falseResult", to: "fixReset", color: "#22c55e" }],
+    },
+  ],
+}
+
+// 🎬 16 — Set & Map — dedupe + insertion order akışı
+const jsSetMapFlowFilm = {
+  type: "video-scene",
+  id: "js-set-map-flow-film",
+  title: {
+    tr: "🎬 Bir Set Tekrarları Nasıl Yutar, Bir Map Sırayı Nasıl Korur?",
+    en: "🎬 How a Set Swallows Duplicates and a Map Preserves Order",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "rawArray", emoji: "📋", label: { tr: "rawLogs (Tekrarlı)",     en: "rawLogs (Duplicated)" }, color: "#94a3b8" },
+    { id: "setStruct", emoji: "🎯", label: { tr: "new Set(rawLogs)",       en: "new Set(rawLogs)" },     color: "#0ea5e9" },
+    { id: "dedupedArr", emoji: "✨", label: { tr: "Benzersiz Dizi",         en: "Unique Array" },         color: "#22c55e" },
+    { id: "mapStruct", emoji: "🗺️", label: { tr: "new Map()",              en: "new Map()" },            color: "#8b5cf6" },
+    { id: "insertOrder", emoji: "🔢", label: { tr: "Ekleme Sırası Korunur", en: "Insertion Order Preserved" }, color: "#f59e0b" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`rawLogs = [\"INFO\", \"ERROR\", \"INFO\", \"WARN\", \"ERROR\"]` — 5 log kaydı ama sadece 3 BENZERSİZ değer var. Tekrarları temizlemek için döngü mü yazacaksın?",
+        en: "`rawLogs = [\"INFO\", \"ERROR\", \"INFO\", \"WARN\", \"ERROR\"]` — 5 log entries but only 3 UNIQUE values. Do you need to write a loop to clean duplicates?",
+      },
+      code: { tr: `const rawLogs = ["INFO", "ERROR", "INFO", "WARN", "ERROR"];`, en: `const rawLogs = ["INFO", "ERROR", "INFO", "WARN", "ERROR"];` },
+      positions: { rawArray: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "`new Set(rawLogs)` çağrılır. Set, matematikteki KÜME kavramı gibi: aynı değeri İKİNCİ kez eklemeye çalışırsan sessizce YOK SAYAR — otomatik benzersizlik garantisi.",
+        en: "`new Set(rawLogs)` is called. A Set works like the mathematical SET concept: trying to add the same value a SECOND time is silently IGNORED — automatic uniqueness guarantee.",
+      },
+      positions: {
+        rawArray: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        setStruct: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "rawArray", to: "setStruct" }],
+    },
+    {
+      caption: {
+        tr: "Set içeriden `INFO`'yu bir kez, `ERROR`'ı bir kez, `WARN`'ı bir kez tutar — tekrarlar tamamen KAYBOLUR. `[...new Set(rawLogs)]` ile bu tekrar tekrar kullanılabilen bir Array'e geri çevrilir.",
+        en: "Internally the Set holds `INFO` once, `ERROR` once, `WARN` once — duplicates completely VANISH. `[...new Set(rawLogs)]` spreads it back into a reusable Array.",
+      },
+      code: { tr: `const uniqueLogs = [...new Set(rawLogs)];\n// ["INFO", "ERROR", "WARN"]`, en: `const uniqueLogs = [...new Set(rawLogs)];\n// ["INFO", "ERROR", "WARN"]` },
+      positions: {
+        setStruct: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        dedupedArr: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "setStruct", to: "dedupedArr", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "Şimdi farklı bir problem: birden fazla `WebDriver` örneğini isimleriyle eşleştirmek istiyorsun. Düz bir `{}` nesnesi kullanılabilir, ama `new Map()` daha güvenli bir seçenektir.",
+        en: "Now a different problem: you want to map multiple `WebDriver` instances by name. A plain `{}` object could work, but `new Map()` is the safer choice.",
+      },
+      code: { tr: `const drivers = new Map([\n  ["chrome", chromeDriver],\n  ["firefox", firefoxDriver],\n]);`, en: `const drivers = new Map([\n  ["chrome", chromeDriver],\n  ["firefox", firefoxDriver],\n]);` },
+      positions: {
+        dedupedArr: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        mapStruct: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "dedupedArr", to: "mapStruct" }],
+    },
+    {
+      caption: {
+        tr: "Final — `Map`, elemanları EKLENDİKLERİ sırayla saklamayı GARANTİ eder ve key olarak herhangi bir tip (string, obje, fonksiyon) kabul eder — düz `{}` nesnesinde bu garantiler yoktur. `.size`, `.get()`, `.has()` gibi net bir API sunar.",
+        en: "Final — `Map` GUARANTEES elements are kept in INSERTION order and accepts any type as a key (string, object, function) — plain `{}` objects have no such guarantees. It offers a clean API: `.size`, `.get()`, `.has()`.",
+      },
+      positions: {
+        mapStruct: { x: 24, y: 55, opacity: 0.5, scale: 0.85 },
+        insertOrder: { x: 56, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "mapStruct", to: "insertOrder", color: "#f59e0b" }],
+    },
+  ],
+}
+
+// 🎬 17 — Karma Pratik Oyunlar — interleaving effect (vites değiştirme) mekanizması
+const jsInterleavePracticeFilm = {
+  type: "video-scene",
+  id: "js-interleave-practice-film",
+  title: {
+    tr: "🎬 Beyin Neden Vites Değiştirince Daha İyi Öğrenir? — Interleaving Etkisi",
+    en: "🎬 Why Does the Brain Learn Better When It Shifts Gears? — The Interleaving Effect",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "brain",   emoji: "🧠", label: { tr: "Beyin",                 en: "Brain" },                color: "#8b5cf6" },
+    { id: "gameA",   emoji: "🎮", label: { tr: "Oyun A: Array Metotları", en: "Game A: Array Methods" }, color: "#0ea5e9" },
+    { id: "gameB",   emoji: "🎲", label: { tr: "Oyun B: Promises",        en: "Game B: Promises" },     color: "#f59e0b" },
+    { id: "blockedPractice", emoji: "😴", label: { tr: "Sadece A, A, A (Zayıf Kalıcılık)", en: "Only A, A, A (Weak Retention)" }, color: "#94a3b8" },
+    { id: "switchGear", emoji: "🔀", label: { tr: "Vites Değişimi: A→B→A", en: "Gear Shift: A→B→A" },   color: "#22c55e" },
+    { id: "retention", emoji: "📈", label: { tr: "Güçlü Kalıcı Öğrenme",  en: "Strong Long-Term Retention" }, color: "#10b981" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "İki mini oyun var: Oyun A (.map()/.filter() sıralama) ve Oyun B (Promise zinciri kurma). Hangi sırayla oynamak daha iyi öğretir?",
+        en: "There are two mini-games: Game A (ordering .map()/.filter()) and Game B (building a Promise chain). Which order teaches better?",
+      },
+      positions: { gameA: { x: 30, y: 40, scale: 1.05 }, gameB: { x: 70, y: 40, scale: 1.05 } },
+    },
+    {
+      caption: {
+        tr: "Kontrast — sadece Oyun A'yı arka arkaya 5 kez oynarsan (`blocked practice`), beyin ezberler ama derinlemesine kavramaz — bir hafta sonra unutma oranı YÜKSEKTİR.",
+        en: "Contrast — playing only Game A five times in a row (`blocked practice`), the brain memorizes but doesn't deeply understand — forgetting rate a week later is HIGH.",
+      },
+      positions: {
+        gameA: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        blockedPractice: { x: 60, y: 60, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "gameA", to: "blockedPractice", color: "#94a3b8" }],
+    },
+    {
+      caption: {
+        tr: "Beyin, A'dan B'ye GEÇİŞ yaptığında (vites değiştirdiğinde) her seferinde 'bu hangi kural, hangi mekanizma?' diye AKTİF olarak sınıflandırma yapmak ZORUNDA kalır — bu ekstra zihinsel efor, öğrenmeyi PEKİŞTİRİR.",
+        en: "When the brain SWITCHES from A to B (shifts gears), it is FORCED each time to actively classify 'which rule, which mechanism is this?' — this extra mental effort REINFORCES learning.",
+      },
+      positions: {
+        blockedPractice: { x: 20, y: 60, opacity: 0.4, scale: 0.8 },
+        brain: { x: 45, y: 40, scale: 1.2, pulse: true },
+        gameB: { x: 70, y: 60, scale: 1.1 },
+      },
+      beams: [{ from: "brain", to: "gameB", color: "#8b5cf6" }],
+    },
+    {
+      caption: {
+        tr: "`A → B → A → B` sırasıyla (interleaving) oynamak, beynin her seferinde bağlamı yeniden İNŞA etmesini gerektirir — bu, tek bir konuda köreltici tekrar yerine ESNEK bir zihinsel model kurar.",
+        en: "Playing in `A → B → A → B` order (interleaving) requires the brain to RECONSTRUCT context every time — this builds a FLEXIBLE mental model instead of numbing repetition on a single topic.",
+      },
+      positions: {
+        gameB: { x: 22, y: 60, opacity: 0.5, scale: 0.85 },
+        switchGear: { x: 55, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: "gameB", to: "switchGear", color: "#22c55e" }],
+    },
+    {
+      caption: {
+        tr: "Final — araştırmalar interleaved practice'in blocked practice'e göre uzun vadeli hatırlamada üstün olduğunu gösteriyor. Bu yüzden bu sekme array metotları ile Promise'leri KARIŞTIRARAK sorar — kafa karışıklığı değil, bilinçli bir öğrenme mühendisliği.",
+        en: "Final — research shows interleaved practice outperforms blocked practice for long-term recall. This is why this tab MIXES array methods and Promises together — not confusion, but deliberate learning engineering.",
+      },
+      positions: {
+        switchGear: { x: 24, y: 45, opacity: 0.5, scale: 0.85 },
+        retention: { x: 56, y: 45, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "switchGear", to: "retention", color: "#10b981" }],
+    },
+  ],
+}
+
+// 🎬 18 — Mülakat Soruları — JavaScript zihinsel modelinin tek filmde özeti
+const jsInterviewRecapFilm = {
+  type: "video-scene",
+  id: "js-interview-recap-film",
+  title: {
+    tr: "🎬 Mülakat Öncesi Son Tekrar: JavaScript'in Zihinsel Modeli Tek Filmde",
+    en: "🎬 The Final Review Before the Interview: JavaScript's Mental Model in One Film",
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: "scope",     emoji: "📦", label: { tr: "Scope (var/let/const)", en: "Scope (var/let/const)" }, color: "#0ea5e9" },
+    { id: "coercion",  emoji: "🔄", label: { tr: "Tip Dönüşümü (==/===)", en: "Type Coercion (==/===)" }, color: "#f59e0b" },
+    { id: "eventLoop", emoji: "🔁", label: { tr: "Event Loop",            en: "Event Loop" },            color: "#8b5cf6" },
+    { id: "closures",  emoji: "🎁", label: { tr: "Closures",              en: "Closures" },              color: "#6366f1" },
+    { id: "interviewer", emoji: "🎤", label: { tr: "Mülakatçı Sorusu",     en: "Interviewer's Question" }, color: "#94a3b8" },
+    { id: "confidentAnswer", emoji: "🏆", label: { tr: "Senaryo Tabanlı, Güçlü Cevap", en: "Scenario-Based, Strong Answer" }, color: "#22c55e" },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Mülakatçı soruyor: 'JavaScript'te neden bazen `var` sızıntı yapar, neden `0.1+0.2 !== 0.3`, neden `setTimeout(fn,0)` anında çalışmaz?' Bu film, öğrendiğin dört temel mekanizmayı hızla tekrar ettirir.",
+        en: "The interviewer asks: 'Why does `var` sometimes leak in JavaScript, why is `0.1+0.2 !== 0.3`, why doesn't `setTimeout(fn,0)` run instantly?' This film quickly re-runs the four core mechanisms you learned.",
+      },
+      positions: { interviewer: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "1️⃣ Scope — `var` fonksiyon kapsamlıdır ve sızar; `let`/`const` bloğa mühürlenir. Bir döngüde `var` kullanmak asenkron kodda klasik 'hepsi son değeri yazdırır' hatasına yol açar.",
+        en: "1️⃣ Scope — `var` is function-scoped and leaks; `let`/`const` are sealed to their block. Using `var` in a loop with async code causes the classic 'all print the last value' bug.",
+      },
+      positions: {
+        interviewer: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        scope: { x: 50, y: 30, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "interviewer", to: "scope", color: "#0ea5e9" }],
+    },
+    {
+      caption: {
+        tr: "2️⃣ Tip Dönüşümü — `==` gizlice tip dönüştürür, `===` dönüştürmez. `0.1+0.2 !== 0.3` ise IEEE 754'ün ikili sayı yaklaşıklığından kaynaklanır — bir JS hatası değil.",
+        en: "2️⃣ Type Coercion — `==` secretly converts types, `===` does not. `0.1+0.2 !== 0.3` comes from IEEE 754's binary approximation — not a JS bug.",
+      },
+      positions: {
+        scope: { x: 22, y: 30, opacity: 0.5, scale: 0.85 },
+        coercion: { x: 55, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: "scope", to: "coercion", color: "#f59e0b" }],
+    },
+    {
+      caption: {
+        tr: "3️⃣ Event Loop — Call Stack senkron kodu çalıştırır, Microtask Queue (Promise) HER ZAMAN Macrotask Queue'dan (setTimeout) önce boşalır. 4️⃣ Closures — bir fonksiyon, kendini oluşturan kapsamı hatırlar; bu, module pattern ve encapsulation'ın temelidir.",
+        en: "3️⃣ Event Loop — the Call Stack runs sync code, the Microtask Queue (Promise) ALWAYS drains before the Macrotask Queue (setTimeout). 4️⃣ Closures — a function remembers the scope it was created in; this is the foundation of the module pattern and encapsulation.",
+      },
+      positions: {
+        coercion: { x: 24, y: 40, opacity: 0.5, scale: 0.85 },
+        eventLoop: { x: 50, y: 55, scale: 1.15, pulse: true },
+        closures: { x: 76, y: 35, scale: 1.1 },
+      },
+      beams: [{ from: "coercion", to: "eventLoop", color: "#8b5cf6" }, { from: "eventLoop", to: "closures", color: "#6366f1" }],
+    },
+    {
+      caption: {
+        tr: "Final — güçlü bir mülakat cevabı 'X nedir?' tanımıyla BİTMEZ; gerçek bir senaryoyla başlar ('production'da flaky bir testte bunu gördüm'), mekanizmayı anlatır, sonra ÇÖZÜMÜ verir. Ezber değil, akıl yürütme mülakatı kazandırır.",
+        en: "Final — a strong interview answer does NOT end with a 'what is X?' definition; it starts with a real scenario ('I saw this in a flaky production test'), explains the mechanism, then gives the FIX. Reasoning wins interviews, not memorization.",
+      },
+      positions: {
+        closures: { x: 24, y: 35, opacity: 0.5, scale: 0.85 },
+        confidentAnswer: { x: 56, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: "closures", to: "confidentAnswer", color: "#22c55e" }],
+    },
+  ],
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EKSİK ANİMASYON/SANDBOX TAMAMLAMALARI (Bölüm 9.5) — elle eklenen bloklar
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Sekme 1 (Kurulum & Setup) — sandbox eksikti (bash kodları auto-fill kapsamı dışında)
+const jsNodeNpmInstallPractice = {
+  type: "code-playground",
+  relatedTopicId: "javascript-installation",
+  id: "js-node-npm-install-practice-01",
+  label: {
+    tr: "Micro Lab: package.json'a Playwright'ı devDependency Olarak Ekle",
+    en: "Micro Lab: Add Playwright to package.json as a devDependency",
+  },
+  language: "bash",
+  task: {
+    tr: "Yukarıdaki filmdeki kurulum zincirini kendin uygula: Node.js kuruldu, package.json oluştu, sıra Playwright'ı devDependency olarak kurmada. TODO satırını doğru komutla tamamla.",
+    en: "Apply the install chain from the film above yourself: Node.js is installed, package.json exists, next is installing Playwright as a devDependency. Complete the TODO line with the right command.",
+  },
+  explanation: {
+    tr: "Bu gerçek bir runtime değil; amaç npm install --save-dev komutunun neden test bağımlılıklarını devDependencies'e yazdığını elle pekiştirmek.",
+    en: "This is not a real runtime; the goal is to reinforce by hand why npm install --save-dev writes test dependencies into devDependencies.",
+  },
+  code: {
+    tr: `npm init -y\n# cikti: package.json olusturuldu\n\nnpm install --save-dev @playwright/test\n# cikti: added 3 packages, devDependencies'e eklendi\n\nnpx playwright install\n# tarayici binary'leri iniyor...\n\nnpx playwright test\n# 3 passed`,
+    en: `npm init -y\n# output: package.json created\n\nnpm install --save-dev @playwright/test\n# output: added 3 packages, added to devDependencies\n\nnpx playwright install\n# downloading browser binaries...\n\nnpx playwright test\n# 3 passed`,
+  },
+  starterCode: {
+    tr: `npm init -y\n# cikti: package.json olusturuldu\n\n# TODO: Playwright'i devDependency olarak kur\n\nnpx playwright install\n# tarayici binary'leri iniyor...\n\nnpx playwright test\n# 3 passed`,
+    en: `npm init -y\n# output: package.json created\n\n# TODO: install Playwright as a devDependency\n\nnpx playwright install\n# downloading browser binaries...\n\nnpx playwright test\n# 3 passed`,
+  },
+  solutionCode: {
+    tr: `npm init -y\n# cikti: package.json olusturuldu\n\nnpm install --save-dev @playwright/test\n# cikti: added 3 packages, devDependencies'e eklendi\n\nnpx playwright install\n# tarayici binary'leri iniyor...\n\nnpx playwright test\n# 3 passed`,
+    en: `npm init -y\n# output: package.json created\n\nnpm install --save-dev @playwright/test\n# output: added 3 packages, added to devDependencies\n\nnpx playwright install\n# downloading browser binaries...\n\nnpx playwright test\n# 3 passed`,
+  },
+  expected: {
+    tr: "package.json'un devDependencies alanında @playwright/test görünür; npx playwright test komutu artık calisir.",
+    en: "The devDependencies field of package.json now shows @playwright/test; npx playwright test now runs.",
+  },
+  hints: [
+    { tr: "Test araçları son kullanıcıya gitmez — bu yüzden --save-dev (veya kısaltması -D) flag'i kullanılır, düz npm install değil.", en: "Test tools don't ship to end users — that's why the --save-dev (or -D) flag is used, not plain npm install." },
+    { tr: "Paket adı tam olarak @playwright/test'tir — @ ile başlayan bu isimlere 'scoped package' denir.", en: "The package name is exactly @playwright/test — names starting with @ are called 'scoped packages'." },
+    { tr: "TODO satırı tek bir npm install komutudur ve --save-dev flag'ini içermelidir.", en: "The TODO line is a single npm install command and must include the --save-dev flag." },
+  ],
+  xpReward: 10,
+}
+
+// Sekme 2 (Değişkenler & Operatörler) — animasyon eksikti
+const jsVarScopeSteps = {
+  type: "step-animation",
+  id: "js-var-let-const-scope-steps",
+  title: { tr: "Adım Adım: var'ın Sızıntısını İzle", en: "Step by Step: Watch var Leak" },
+  steps: [
+    { id: 1, icon: "🧱", label: { tr: "if bloğu içinde tanımla", en: "Declare inside an if block" }, detail: { tr: "if (true) { var score = 95; } — score, bloğun İÇİNDE doğar.", en: "if (true) { var score = 95; } — score is born INSIDE the block." } },
+    { id: 2, icon: "💧", label: { tr: "Blok dışına sız", en: "Leak outside the block" }, detail: { tr: "console.log(score) blok dışında çağrılır ve 95 YAZDIRILIR — var function-scope'tur, block-scope değil.", en: "console.log(score) is called outside the block and PRINTS 95 — var is function-scoped, not block-scoped." } },
+    { id: 3, icon: "📦", label: { tr: "let ile aynısını dene", en: "Try the same with let" }, detail: { tr: "if (true) { let score = 95; } — bu sefer console.log(score) blok dışında ReferenceError fırlatır.", en: "if (true) { let score = 95; } — this time console.log(score) outside the block throws a ReferenceError." } },
+    { id: 4, icon: "✅", label: { tr: "const ile sabitle", en: "Lock it with const" }, detail: { tr: "const kullanmak hem block scope korumasını hem de yeniden atama korumasını aynı anda sağlar.", en: "Using const gives you both block-scope protection and reassignment protection at once." } },
+  ],
+}
+
+// Sekme 7 (Event Loop) — animasyon eksikti
+const jsEventLoopMechanismSteps = {
+  type: "step-animation",
+  id: "js-event-loop-mechanism-steps",
+  title: { tr: "Adım Adım: Event Loop Mekanizması", en: "Step by Step: The Event Loop Mechanism" },
+  steps: [
+    { id: 1, icon: "📚", label: { tr: "Call Stack senkron kodu çalıştırır", en: "Call Stack runs sync code" }, detail: { tr: "console.log gibi senkron satırlar sırayla Call Stack üzerinde çalışır.", en: "Synchronous lines like console.log run in order on the Call Stack." } },
+    { id: 2, icon: "🌐", label: { tr: "Web API asenkron işi devralır", en: "Web API takes over async work" }, detail: { tr: "setTimeout veya fetch çağrıldığında iş Web API'ye havale edilir, Call Stack bloklanmaz.", en: "When setTimeout or fetch is called, the work is delegated to the Web API — the Call Stack is never blocked." } },
+    { id: 3, icon: "⚡", label: { tr: "Microtask Queue önce boşalır", en: "Microtask Queue drains first" }, detail: { tr: "Call Stack boşalınca Event Loop ÖNCE Promise callback'lerini (Microtask) tüketir.", en: "Once the Call Stack is empty, the Event Loop consumes Promise callbacks (Microtasks) FIRST." } },
+    { id: 4, icon: "⏰", label: { tr: "Macrotask Queue en son çalışır", en: "Macrotask Queue runs last" }, detail: { tr: "Microtask Queue tamamen boşaldıktan SONRA setTimeout gibi Macrotask'lar Call Stack'e alınır.", en: "Only AFTER the Microtask Queue is fully drained are Macrotasks like setTimeout pushed into the Call Stack." } },
+  ],
+}
+
+// Sekme 17 (Karma Pratik Oyunlar) — animasyon + sandbox eksikti
+const jsInterleavePracticeSteps = {
+  type: "step-animation",
+  id: "js-interleave-practice-steps",
+  title: { tr: "Adım Adım: Interleaving Pratiği Nasıl Kurulur?", en: "Step by Step: How to Set Up Interleaved Practice" },
+  steps: [
+    { id: 1, icon: "🎮", label: { tr: "Oyun A'yı bir tur oyna", en: "Play Game A for one round" }, detail: { tr: "Array metotlarını (map/filter) sıralama oyununu bir kez tamamla.", en: "Complete the array-method (map/filter) ordering game once." } },
+    { id: 2, icon: "🔀", label: { tr: "Vites değiştir: Oyun B'ye geç", en: "Shift gears to Game B" }, detail: { tr: "Hemen ardından Promise zinciri kurma oyununa geç — beyin bağlamı yeniden kurmak zorunda kalır.", en: "Immediately switch to the Promise-chain game — the brain must rebuild context." } },
+    { id: 3, icon: "🔁", label: { tr: "A'ya geri dön", en: "Return to Game A" }, detail: { tr: "Tekrar Oyun A'ya dönmek, ilk turdan daha hızlı ve daha doğru olup olmadığını gösterir.", en: "Returning to Game A shows whether you are faster and more accurate than the first round." } },
+    { id: 4, icon: "📈", label: { tr: "Kalıcılığı gözlemle", en: "Observe retention" }, detail: { tr: "İki oyun arasında geçiş yapmak, sadece birini tekrar tekrar oynamaktan daha güçlü uzun vadeli hatırlama sağlar.", en: "Switching between two games produces stronger long-term recall than repeating just one." } },
+  ],
+}
+
+const jsInterleavePracticeLab = {
+  type: "code-playground",
+  relatedTopicId: "javascript-practice-games",
+  id: "js-interleave-practice-lab-01",
+  label: {
+    tr: "Micro Lab: Array Zincirini ve Promise Zincirini Aynı Egzersizde Kur",
+    en: "Micro Lab: Build an Array Chain and a Promise Chain in the Same Exercise",
+  },
+  language: "javascript",
+  task: {
+    tr: "İki farklı mekanizmayı arka arkaya kur: önce testResults dizisini filtrele ve isimlerini çıkar, sonra bir Promise'i .then() ile zincirle. TODO satırlarını tamamla.",
+    en: "Build two different mechanisms back to back: first filter testResults and extract names, then chain a Promise with .then(). Complete the TODO lines.",
+  },
+  explanation: {
+    tr: "Bu gerçek bir test ortamı değildir; amaç array metotları ile Promise zincirleme arasında vites değiştirerek her ikisinin sözdizimini birlikte pekiştirmektir.",
+    en: "This is not a real test environment; the goal is to shift gears between array methods and Promise chaining to reinforce both syntaxes together.",
+  },
+  code: {
+    tr: `const testResults = [\n  { name: "Login", status: "passed" },\n  { name: "Payment", status: "failed" },\n];\nconst passedNames = testResults.filter(t => t.status === "passed").map(t => t.name);\nconsole.log(passedNames); // ["Login"]\n\nPromise.resolve("hazir").then(msg => console.log(msg));`,
+    en: `const testResults = [\n  { name: "Login", status: "passed" },\n  { name: "Payment", status: "failed" },\n];\nconst passedNames = testResults.filter(t => t.status === "passed").map(t => t.name);\nconsole.log(passedNames); // ["Login"]\n\nPromise.resolve("ready").then(msg => console.log(msg));`,
+  },
+  starterCode: {
+    tr: `const testResults = [\n  { name: "Login", status: "passed" },\n  { name: "Payment", status: "failed" },\n];\n// TODO: sadece "passed" olanlarin ismini cikar\nconst passedNames = testResults;\nconsole.log(passedNames);\n\nPromise.resolve("hazir").then(msg => console.log(msg));`,
+    en: `const testResults = [\n  { name: "Login", status: "passed" },\n  { name: "Payment", status: "failed" },\n];\n// TODO: extract the name of only the "passed" ones\nconst passedNames = testResults;\nconsole.log(passedNames);\n\nPromise.resolve("ready").then(msg => console.log(msg));`,
+  },
+  solutionCode: {
+    tr: `const testResults = [\n  { name: "Login", status: "passed" },\n  { name: "Payment", status: "failed" },\n];\nconst passedNames = testResults.filter(t => t.status === "passed").map(t => t.name);\nconsole.log(passedNames);\n\nPromise.resolve("hazir").then(msg => console.log(msg));`,
+    en: `const testResults = [\n  { name: "Login", status: "passed" },\n  { name: "Payment", status: "failed" },\n];\nconst passedNames = testResults.filter(t => t.status === "passed").map(t => t.name);\nconsole.log(passedNames);\n\nPromise.resolve("ready").then(msg => console.log(msg));`,
+  },
+  expected: {
+    tr: 'passedNames konsola ["Login"] olarak yazdirilir; Promise then callback\'i "hazir" mesajini basar.',
+    en: 'passedNames prints ["Login"] to the console; the Promise then callback prints "ready".',
+  },
+  hints: [
+    { tr: "Önce .filter() ile status === \"passed\" olanları seç, sonra .map() ile sadece name alanını çıkar — zincirleme sırası önemlidir.", en: "First use .filter() to select status === \"passed\", then .map() to extract only the name field — chain order matters." },
+    { tr: "testResults.filter(...).map(...) tek bir ifade olarak zincirlenebilir; ara değişkene gerek yoktur.", en: "testResults.filter(...).map(...) can be chained as a single expression; no intermediate variable is needed." },
+    { tr: "TODO satırı testResults'u doğrudan passedNames'e atamak yerine filter+map zincirini kurmalıdır.", en: "The TODO line should build the filter+map chain instead of directly assigning testResults to passedNames." },
+  ],
+  xpReward: 10,
+}
+
+// Sekme 18 (Mülakat Soruları) — animasyon + sandbox eksikti
+const jsInterviewMechanismSteps = {
+  type: "step-animation",
+  id: "js-interview-mechanism-steps",
+  title: { tr: "Adım Adım: Senaryo Tabanlı Bir Mülakat Cevabı Nasıl Kurulur?", en: "Step by Step: How to Build a Scenario-Based Interview Answer" },
+  steps: [
+    { id: 1, icon: "👂", label: { tr: "Soruyu mekanizmaya bağla", en: "Tie the question to a mechanism" }, detail: { tr: "Soru hangi konuyu hedefliyor: scope mı, coercion mı, event loop mu, closure mu?", en: "Which topic does the question target: scope, coercion, event loop, or closures?" } },
+    { id: 2, icon: "🧭", label: { tr: "Somut bir senaryoyla başla", en: "Start with a concrete scenario" }, detail: { tr: "Soyut tanım yerine 'production'da flaky bir testte bunu gördüm' gibi gerçek bir örnekle aç.", en: "Instead of an abstract definition, open with a real example like 'I saw this in a flaky production test'." } },
+    { id: 3, icon: "🔧", label: { tr: "Mekanizmayı adım adım anlat", en: "Explain the mechanism step by step" }, detail: { tr: "Neyin, hangi sırayla, neden öyle çalıştığını akıl yürüterek anlat.", en: "Explain what happens, in what order, and why — through reasoning, not memorization." } },
+    { id: 4, icon: "✅", label: { tr: "Çözümle bitir", en: "Close with the fix" }, detail: { tr: "Cevabı somut bir çözümle veya best practice ile kapat — bu, ezber değil derin anlayış gösterir.", en: "End with a concrete fix or best practice — this demonstrates deep understanding, not memorization." } },
+  ],
+}
+
+const jsInterviewMechanismLab = {
+  type: "code-playground",
+  relatedTopicId: "javascript-interview",
+  id: "js-interview-mechanism-lab-01",
+  label: {
+    tr: "Micro Lab: var Sızıntısını Senaryo Cevabıyla Düzelt",
+    en: "Micro Lab: Fix a var Leak with a Scenario-Based Answer",
+  },
+  language: "javascript",
+  task: {
+    tr: "Mülakatta sık sorulan bir kod parçası: bir for döngüsünde var kullanılınca setTimeout callback'leri hep aynı son değeri yazdırıyor. TODO satırını let ile değiştirerek düzelt.",
+    en: "A frequent interview snippet: using var in a for loop makes every setTimeout callback print the same last value. Fix the TODO line by switching to let.",
+  },
+  explanation: {
+    tr: "Bu gerçek bir runtime değil; amaç mülakatta karşına çıkabilecek klasik var/let closure sorusunu elinle çözerek pekiştirmek.",
+    en: "This is not a real runtime; the goal is to reinforce the classic var/let closure interview question by fixing it yourself.",
+  },
+  code: {
+    tr: `for (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}\n// cikti: 0, 1, 2`,
+    en: `for (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}\n// output: 0, 1, 2`,
+  },
+  starterCode: {
+    tr: `// TODO: var yerine dogru keyword'u kullan\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}\n// mevcut hatali cikti: 3, 3, 3`,
+    en: `// TODO: use the correct keyword instead of var\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}\n// current buggy output: 3, 3, 3`,
+  },
+  solutionCode: {
+    tr: `for (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}\n// cikti: 0, 1, 2`,
+    en: `for (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}\n// output: 0, 1, 2`,
+  },
+  expected: {
+    tr: "Konsol cikisi artik 0, 1, 2 sirasiyla basilir; her setTimeout kendi turunun i degerini hatirlar.",
+    en: "The console output now prints 0, 1, 2 in order; each setTimeout remembers the i value from its own iteration.",
+  },
+  hints: [
+    { tr: "var fonksiyon kapsamlıdır ve döngünün 3 turu da AYNI değişkeni paylaşır — sorun keyword seçiminde.", en: "var is function-scoped and all 3 loop iterations SHARE the same variable — the problem is the keyword choice." },
+    { tr: "let her iterasyonda YENİ bir bağlama (binding) oluşturur; bu yüzden her closure kendi i'sini hatırlar.", en: "let creates a NEW binding on every iteration; that's why each closure remembers its own i." },
+    { tr: "TODO satırı sadece for döngüsündeki 'var' kelimesini 'let' ile değiştirmelidir, başka hiçbir şey değişmez.", en: "The TODO line should only replace the word 'var' with 'let' in the for loop — nothing else changes." },
+  ],
+  xpReward: 10,
+}
+
 const sections = [
   // ─────────────────────────────────────────────
   // SECTION 0 — Intro & Why JS
@@ -98,6 +1827,7 @@ let y = 20;
 console.log("Total Sum:", x + y);`
         }
       },
+      jsV8EngineFlowFilm,
       {
         type: "quiz",
         question: {
@@ -399,6 +2129,8 @@ npx playwright test
           }
         ]
       },
+      jsNodeNpmSetupFilm,
+      jsNodeNpmInstallPractice,
       {
         type: "quiz",
         question: {
@@ -601,6 +2333,8 @@ console.log("== (Loose Equality):", a == b);   // true
 console.log("=== (Strict Equality):", a === b); // false`
         }
       },
+      jsVarScopeFilm,
+      jsVarScopeSteps,
       {
         type: "quiz",
         question: {
@@ -882,6 +2616,7 @@ console.log(summarize(12, 3));
 console.log(typeof "test", typeof 42, typeof true, typeof undefined, typeof null);`
         }
       },
+      jsTypeCoercionFilm,
       {
         type: "quiz",
         question: {
@@ -1135,6 +2870,7 @@ console.log("Uppercase:", cleanText.toUpperCase());
 console.log("Split parts:", cleanText.split(": ")); // ["Report", "15 Passed"]`
         }
       },
+      jsFloatPrecisionFilm,
       {
         type: "quiz",
         question: {
@@ -1345,6 +3081,7 @@ const testNames = testResults.map(test => test.name);
 console.log("Test Names:", testNames);`
         }
       },
+      jsMapFilterChainFilm,
       {
         type: "quiz",
         question: {
@@ -1811,6 +3548,7 @@ for (const result of tests) {
 console.log("Total Fails:", failCount, "/ Total:", tests.length);`
         }
       },
+      jsLoopClosureTrapFilm,
       {
         type: "quiz",
         question: {
@@ -2007,6 +3745,8 @@ setTimeout(() => {
 console.log("3. Stack End");`
         }
       },
+      jsEventLoopFlowFilm,
+      jsEventLoopMechanismSteps,
       {
         type: "quiz",
         question: {
@@ -2229,6 +3969,7 @@ console.log("Count call 1:", counter());
 console.log("Count call 2:", counter());`
         }
       },
+      jsPromiseMicrotaskFilm,
       {
         type: "quiz",
         question: {
@@ -2527,6 +4268,7 @@ const testData = JSON.parse(rawJson);
 console.log("Parsed Browser:", testData.browser);`
         }
       },
+      jsThisBindingFilm,
       {
         type: "quiz",
         question: {
@@ -2991,6 +4733,7 @@ observer.disconnect();
 // 3. Test assertion runs`
         }
       },
+      jsDomQueryTestFilm,
       {
         type: "quiz",
         question: { tr: "`document.querySelectorAll(\".item\")` ne döndürür?", en: "What does `document.querySelectorAll(\".item\")` return?" },
@@ -3197,6 +4940,7 @@ observer.disconnect();
   }
 }`
       },
+      jsNpmDependencyResolveFilm,
       {
         type: "quiz",
         question: {
@@ -3483,6 +5227,7 @@ try {
 }`
         }
       },
+      jsTryCatchStacktraceFilm,
       {
         type: "quiz",
         question: {
@@ -3750,6 +5495,7 @@ mockElement.addEventListener('click', (e) => {
 mockElement.trigger('click', { clientX: 100, clientY: 200 });`
         }
       },
+      jsEventBubblingFilm,
       {
         type: "quiz",
         question: {
@@ -4004,6 +5750,7 @@ const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 console.log("7 days later:", nextWeek.toLocaleDateString('en-US'));`
         }
       },
+      jsDateMonthIndexFilm,
       {
         type: "quiz",
         question: {
@@ -4252,6 +5999,7 @@ const isValid = /^\\w+@\\w+\\.\\w+$/.test(email);
 console.log("Email valid?", isValid);`
         }
       },
+      jsRegexLastIndexFilm,
       {
         type: "quiz",
         question: {
@@ -4512,6 +6260,7 @@ drivers.forEach((driver, browser) => {
 });`
         }
       },
+      jsSetMapFlowFilm,
       {
         type: "quiz",
         question: {
@@ -4613,9 +6362,12 @@ drivers.forEach((driver, browser) => {
           en: "Learning skyrockets when the brain shifts gears (interleaving effect)! We will play two distinct mini-games to test both array methods and asynchronous Promise behaviors. Correct blocks will click into place!"
         }
       },
+      jsInterleavePracticeFilm,
+      jsInterleavePracticeSteps,
       {
         type: "js-interleaving-games"
-      }
+      },
+      jsInterleavePracticeLab
     ]
   },
 
@@ -4625,6 +6377,9 @@ drivers.forEach((driver, browser) => {
   {
     title: { tr: "Mülakat Soruları", en: "Interview Q&A" },
     blocks: [
+      jsInterviewRecapFilm,
+      jsInterviewMechanismSteps,
+      jsInterviewMechanismLab,
       {
         type: "interview-questions",
           relatedTopicId: 'javascript',
