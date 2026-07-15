@@ -109,6 +109,763 @@ const gaugeRunChainFilm = {
   ],
 }
 
+// ─── Her dikey sekmeye video + animasyon: kalan 7 sekmenin filmleri ve
+// step-animation'ları (kullanıcı talebi: "gauge sayfasında her dikey sekmeye
+// en az 1 video ve animasyon"). gaugeData tek ağaç (bilingual field'lar),
+// her sabit TEK sekmeye eklenir. ────────────────────────────────────────────
+
+// 🏠 Neden Gauge? — film + animasyon
+const gaugeVsCompetitorsFilm = {
+  type: 'video-scene',
+  id: 'gauge-vs-competitors-film',
+  title: {
+    tr: '🎬 Bir Senaryonun Üç Yolu: TestNG vs Cucumber vs Gauge',
+    en: '🎬 One Scenario, Three Paths: TestNG vs Cucumber vs Gauge',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'scenario', emoji: '📋', label: { tr: 'Senaryo: "Giriş Yapar"', en: 'Scenario: "Signs In"' }, color: '#0ea5e9' },
+    { id: 'testng',   emoji: '⚙️', label: { tr: 'TestNG @Test',          en: 'TestNG @Test' },          color: '#8b5cf6' },
+    { id: 'cucumber', emoji: '🥒', label: { tr: 'Cucumber .feature',     en: 'Cucumber .feature' },      color: '#22c55e' },
+    { id: 'gaugeTool',emoji: '📏', label: { tr: 'Gauge .spec',           en: 'Gauge .spec' },            color: '#f59e0b' },
+    { id: 'pm',       emoji: '🧑‍💼', label: { tr: 'Ürün Yöneticisi',    en: 'Product Manager' },        color: '#6366f1' },
+    { id: 'drift',    emoji: '👻', label: { tr: 'Sessiz Kopukluk',       en: 'Silent Drift' },           color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Aynı senaryo — "kullanıcı admin ile giriş yapar" — üç farklı araçta yazılırsa nasıl farklı YAŞAR? Bu filmde aynı cümlenin TestNG, Cucumber ve Gauge\'de nereye gittiğini izleyeceksin.',
+        en: 'The same scenario — "user signs in as admin" — LIVES differently depending on the tool. In this film you will watch where that one sentence ends up in TestNG, Cucumber, and Gauge.',
+      },
+      code: { tr: `Senaryo: Kullanici "admin" ile giris yapar`, en: `Scenario: User signs in as "admin"` },
+      positions: {
+        scenario: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'TestNG: senaryo doğrudan @Test metodunun İÇİNE gömülür. Metni sadece Java bilen biri okuyabilir — senaryo ile kod AYNI dosyadadır ve ayrılamaz.',
+        en: 'TestNG: the scenario is baked DIRECTLY into the @Test method. Only someone who reads Java can understand it — scenario and code are the SAME file and cannot be separated.',
+      },
+      code: { tr: `@Test\npublic void adminGirisYapabilir() { ... }`, en: `@Test\npublic void adminCanSignIn() { ... }` },
+      positions: {
+        scenario: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        testng: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'scenario', to: 'testng' }],
+    },
+    {
+      caption: {
+        tr: 'Cucumber: senaryo bir .feature dosyasında Given/When/Then KALIBIYLA yazılır. Okunabilir ama Gherkin\'in katı grameri öğrenilmesi gereken bir sözdizimidir.',
+        en: 'Cucumber: the scenario is written in a .feature file using the Given/When/Then GRAMMAR. It is readable, but Gherkin\'s strict grammar is a syntax that must be learned.',
+      },
+      code: { tr: `Given kullanici login sayfasinda\nWhen "admin" ile giris yapar\nThen dashboard gorunur`, en: `Given the user is on the login page\nWhen they sign in as "admin"\nThen the dashboard is shown` },
+      positions: {
+        testng: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        cucumber: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'testng', to: 'cucumber' }],
+    },
+    {
+      caption: {
+        tr: 'Gauge: senaryo DÜZ Markdown\'dır, hiçbir özel gramer zorunlu değil. GitHub bunu doğrudan render eder — kod bilmeyen biri bile PR diff\'inde okuyabilir.',
+        en: 'Gauge: the scenario is PLAIN Markdown, no special grammar required. GitHub renders it natively — even someone who cannot code can read it in a PR diff.',
+      },
+      code: { tr: `* Kullanici "admin" ile giris yapar`, en: `* User signs in as "admin"` },
+      positions: {
+        cucumber: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        gaugeTool: { x: 48, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'cucumber', to: 'gaugeTool' }],
+    },
+    {
+      caption: {
+        tr: 'Ürün yöneticisi bir OTP adımı ekletmek istiyor. Gauge\'de PM, PR\'daki Markdown diff\'ini okuyup DOĞRUDAN yorum yazabilir; TestNG\'de bunu yapamaz — sadece Excel\'e "OTP eklendi" notu düşer.',
+        en: 'The product manager wants an OTP step added. In Gauge, the PM can read the Markdown diff in the PR and comment DIRECTLY; in TestNG they cannot — they can only jot "OTP added" in Excel.',
+      },
+      code: { tr: `PR yorumu: "* OTP kodu girilir" satiri eklensin`, en: `PR comment: add the line "* OTP code is entered"` },
+      positions: {
+        gaugeTool: { x: 22, y: 40, scale: 1.05 },
+        pm: { x: 52, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pm', to: 'gaugeTool', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — TestNG/Excel yolunda PM\'in notu koda İŞLENMEZSE kopukluk SESSİZ kalır: regression yeşil görünür ama eski akış test edilir. Gauge\'de spec değişince karşılıksız step koşumu KIRAR — kopukluk asla gizli kalamaz.',
+        en: 'Final (the contrast) — on the TestNG/Excel path, if the PM\'s note never lands in the code, the drift stays SILENT: regression looks green but the old flow is what actually gets tested. In Gauge, when the spec changes, a step without an implementation BREAKS the run — the drift can never hide.',
+      },
+      positions: {
+        pm: { x: 14, y: 30, scale: 0.9 },
+        testng: { x: 40, y: 60, opacity: 0.6 },
+        drift: { x: 40, y: 30, scale: 1.2, pulse: true },
+        gaugeTool: { x: 74, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'testng', to: 'drift', color: '#ef4444' }, { from: 'pm', to: 'gaugeTool', color: '#22c55e' }],
+    },
+  ],
+}
+
+const driftAnatomySteps = {
+  type: 'step-animation',
+  id: 'gauge-drift-anatomy-steps',
+  title: { tr: 'Adım Adım: Excel ile Kodun Kopması (Drift) Nasıl Oluşur?', en: 'Step by Step: How Excel and Code Drift Apart' },
+  steps: [
+    { id: 1, icon: '📊', label: { tr: 'Excel güncellenir', en: 'Excel is updated' }, detail: { tr: 'Ürün yöneticisi login akışına OTP adımı ekletir; manuel test ekibi Excel\'i günceller.', en: 'The product manager adds an OTP step to the login flow; the manual QA team updates Excel.' } },
+    { id: 2, icon: '💻', label: { tr: 'Kod kısmen güncellenir', en: 'The code is only partly updated' }, detail: { tr: '12 login testinden sadece 7\'si yeni OTP adımını yansıtacak şekilde değiştirilir.', en: 'Only 7 of the 12 login tests are changed to reflect the new OTP step.' } },
+    { id: 3, icon: '✅', label: { tr: 'Regression yeşil görünür', en: 'Regression looks green' }, detail: { tr: 'Kalan 5 test hâlâ ESKİ akışı test ettiği için hiçbir alarm çalmaz — suite tamamen yeşildir.', en: 'The remaining 5 tests still test the OLD flow, so nothing alarms — the suite is entirely green.' } },
+    { id: 4, icon: '🚨', label: { tr: 'Production\'da sessiz hata', en: 'A silent failure in production' }, detail: { tr: 'Bir müşteri segmentinde OTP ekranı hiç açılmadı ve kimse fark etmedi — çünkü hiçbir test bunu sormuyordu.', en: 'The OTP screen never appeared for one customer segment, and nobody noticed — because no test was asking about it.' } },
+  ],
+}
+
+// ⚙️ Kurulum — film + animasyon
+const gaugeInitJourneyFilm = {
+  type: 'video-scene',
+  id: 'gauge-init-journey-film',
+  title: {
+    tr: '🎬 gauge init java: Bir Projenin Doğuşu',
+    en: '🎬 gauge init java: The Birth of a Project',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'cli',        emoji: '⚙️', label: { tr: 'gauge CLI',              en: 'gauge CLI' },              color: '#0ea5e9' },
+    { id: 'javaPlugin',  emoji: '☕', label: { tr: 'java plugin',            en: 'java plugin' },            color: '#f59e0b' },
+    { id: 'htmlPlugin',  emoji: '📊', label: { tr: 'html-report plugin',     en: 'html-report plugin' },     color: '#8b5cf6' },
+    { id: 'initCmd',     emoji: '🏗️', label: { tr: 'gauge init java',        en: 'gauge init java' },        color: '#6366f1' },
+    { id: 'folders',     emoji: '📁', label: { tr: 'specs/ + src/test/',     en: 'specs/ + src/test/' },     color: '#22c55e' },
+    { id: 'report',      emoji: '📈', label: { tr: 'HTML Rapor',             en: 'HTML Report' },            color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Boş bir klasörden çalışan, rapor üreten bir test projesine giden yolculuğu izleyeceksin — kurulum, plugin, init ve ilk koşum tek zincirde.',
+        en: 'You will watch the journey from an empty folder to a running, report-producing test project — install, plugins, init, and the first run in one chain.',
+      },
+      code: { tr: `mkdir gauge-selenium-demo && cd gauge-selenium-demo`, en: `mkdir gauge-selenium-demo && cd gauge-selenium-demo` },
+      positions: {
+        cli: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — gauge CLI kurulur (choco/npm/brew). "Plugins: (none)" çıktısı GÖVDENİN hazır ama UCUN takılı olmadığını gösterir — matkap var, ne deleceğini bilmiyor.',
+        en: 'Step 1 — the gauge CLI is installed (choco/npm/brew). The "Plugins: (none)" output shows the BODY is ready but no BIT is attached — the drill exists, it just does not know what to drill.',
+      },
+      code: { tr: `choco install gauge\ngauge version`, en: `choco install gauge\ngauge version` },
+      positions: {
+        cli: { x: 16, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — java ve html-report plugin\'leri kurulur. Artık uç takılı: hangi dilde koşacağını ve raporu nasıl üreteceğini biliyor.',
+        en: 'Step 2 — the java and html-report plugins are installed. Now the bit is attached: it knows which language to run and how to produce a report.',
+      },
+      code: { tr: `gauge install java\ngauge install html-report`, en: `gauge install java\ngauge install html-report` },
+      positions: {
+        cli: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        javaPlugin: { x: 40, y: 36, scale: 1.15, pulse: true },
+        htmlPlugin: { x: 40, y: 68, scale: 1.1 },
+      },
+      beams: [{ from: 'cli', to: 'javaPlugin' }, { from: 'cli', to: 'htmlPlugin' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — gauge init java çalıştırılır. Bu, çekirdeğe VE her iki plugin\'e bağlı tek bir komutla proje iskeletinin doğduğu andır.',
+        en: 'Step 3 — gauge init java runs. This is the moment the project skeleton is born, from one command tied to the core AND both plugins.',
+      },
+      code: { tr: `gauge init java`, en: `gauge init java` },
+      positions: {
+        javaPlugin: { x: 18, y: 36, opacity: 0.5, scale: 0.85 },
+        htmlPlugin: { x: 18, y: 68, opacity: 0.5, scale: 0.85 },
+        initCmd: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'javaPlugin', to: 'initCmd' }, { from: 'htmlPlugin', to: 'initCmd' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — klasör yapısı oluşur: specs/ (restoran benzetmesindeki sipariş fişleri) ve src/test/java/ (mutfak). manifest.json hangi dil plugin\'inin kullanıldığını kaydeder.',
+        en: 'Step 4 — the folder structure appears: specs/ (the order tickets from our restaurant analogy) and src/test/java/ (the kitchen). manifest.json records which language plugin is in use.',
+      },
+      code: { tr: `specs/example.spec\nsrc/test/java/`, en: `specs/example.spec\nsrc/test/java/` },
+      positions: {
+        initCmd: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        folders: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'initCmd', to: 'folders' }],
+    },
+    {
+      caption: {
+        tr: 'Final — gauge run specs çalıştırılır: örnek senaryo koşar, PASS/FAIL renkleri belirir ve reports/html-report/index.html üretilir. Boş klasör artık ÇALIŞAN, RAPOR ÜRETEN bir proje.',
+        en: 'Final — gauge run specs executes: the example scenario runs, PASS/FAIL colors appear, and reports/html-report/index.html is produced. The empty folder is now a RUNNING, REPORT-PRODUCING project.',
+      },
+      code: { tr: `gauge run specs\n# Successfully generated html-report`, en: `gauge run specs\n# Successfully generated html-report` },
+      positions: {
+        folders: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        report: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'folders', to: 'report', color: '#10b981' }],
+    },
+  ],
+}
+
+const installVerifyReflexSteps = {
+  type: 'step-animation',
+  id: 'gauge-install-verify-reflex-steps',
+  title: { tr: 'Kurulumu Doğrulama Refleksi', en: 'The Install-Verification Reflex' },
+  steps: [
+    { id: 1, icon: '🔍', label: { tr: 'gauge version çalıştır', en: 'Run gauge version' }, detail: { tr: 'Her kurulum adımından sonra bu komutu çalıştırmayı alışkanlık hâline getir — çıktıdaki Plugins listesi tek doğruluk kaynağıdır.', en: 'Make running this command a habit after every install step — the Plugins list in the output is the single source of truth.' } },
+    { id: 2, icon: '⚠️', label: { tr: '"(none)" görürsen DUR', en: 'If you see "(none)", STOP' }, detail: { tr: 'Plugin listesi boşken gauge run denemek "Failed to start gauge API" hatasına doğrudan gider.', en: 'Attempting gauge run with an empty plugin list leads straight to "Failed to start gauge API".' } },
+    { id: 3, icon: '📦', label: { tr: 'Plugin\'leri kur', en: 'Install the plugins' }, detail: { tr: 'gauge install java ve gauge install html-report çalıştır — CI imajına da bu iki satırı sabitle.', en: 'Run gauge install java and gauge install html-report — bake both lines into the CI image too.' } },
+    { id: 4, icon: '✅', label: { tr: 'Tekrar doğrula, sonra koş', en: 'Verify again, then run' }, detail: { tr: 'gauge version çıktısında java ve html-report İKİSİ de listelenmeden gauge run specs deneme.', en: 'Do not attempt gauge run specs before BOTH java and html-report are listed in gauge version.' } },
+  ],
+}
+
+// 📝 Spec & Step Temelleri — sadece animasyon (film zaten mevcut: gaugeRunChainFilm)
+const contextVsScenarioStepSteps = {
+  type: 'step-animation',
+  id: 'gauge-context-vs-scenario-steps',
+  title: { tr: 'Adım Adım: Context Step vs Scenario Step', en: 'Step by Step: Context Step vs Scenario Step' },
+  steps: [
+    { id: 1, icon: '📄', label: { tr: '# başlığının hemen altı', en: 'Directly under the # heading' }, detail: { tr: 'Specification başlığının altına konan * satırları "context step" olur.', en: 'A * line placed right under the Specification heading becomes a "context step".' } },
+    { id: 2, icon: '🔁', label: { tr: 'Context step HER senaryodan önce koşar', en: 'A context step runs before EVERY scenario' }, detail: { tr: 'Java\'daki @BeforeMethod\'un spec-içi karşılığıdır — dosyadaki tüm senaryolar için otomatik çalışır.', en: 'The in-spec equivalent of Java\'s @BeforeMethod — it runs automatically for every scenario in that file.' } },
+    { id: 3, icon: '🎯', label: { tr: '## başlığının altı', en: 'Under a ## heading' }, detail: { tr: 'Scenario başlığı altındaki * satırları SADECE o senaryoya özeldir, bağımsız çalışır.', en: 'A * line under a Scenario heading is scoped to THAT scenario only and runs independently.' } },
+    { id: 4, icon: '🧹', label: { tr: 'Tekrarı önle', en: 'Avoid repetition' }, detail: { tr: 'Her senaryoya tekrar tekrar kopyaladığın ortak bir adım varsa (örn. "sayfayı aç"), context step\'e taşı.', en: 'If you keep copy-pasting a shared step into every scenario (like "open the page"), move it to a context step.' } },
+  ],
+}
+
+// 🎯 By ile Locator Yazma — film + animasyon
+const findByLazyProxyFilm = {
+  type: 'video-scene',
+  id: 'gauge-findby-lazy-proxy-film',
+  title: {
+    tr: '🎬 @FindBy\'ın Tembel Yüklemesi: Bir Proxy\'nin Sırrı',
+    en: '🎬 @FindBy\'s Lazy Loading: the Secret of a Proxy',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'initElements', emoji: '🏗️', label: { tr: 'PageFactory.initElements', en: 'PageFactory.initElements' }, color: '#0ea5e9' },
+    { id: 'proxy',         emoji: '👤', label: { tr: 'Proxy Nesnesi',            en: 'Proxy Object' },            color: '#f59e0b' },
+    { id: 'loginAs',       emoji: '👆', label: { tr: 'loginAs() çağrısı',        en: 'loginAs() call' },          color: '#8b5cf6' },
+    { id: 'realElement',   emoji: '🎯', label: { tr: 'Gerçek WebElement',        en: 'Real WebElement' },         color: '#22c55e' },
+    { id: 'stale',         emoji: '💥', label: { tr: 'StaleElementReferenceException', en: 'StaleElementReferenceException' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '@FindBy alanlarının GERÇEKTEN ne zaman doldurulduğunu izleyeceksin — bu, Gauge/Selenium mülakatlarının favori sorularından biridir.',
+        en: 'You will watch exactly WHEN @FindBy fields actually get populated — this is one of the favorite questions in Gauge/Selenium interviews.',
+      },
+      code: { tr: `new LoginPage(DriverFactory.getDriver());`, en: `new LoginPage(DriverFactory.getDriver());` },
+      positions: {
+        initElements: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — PageFactory.initElements(driver, this) çağrılır. Bu satır çalıştığında dikkat: hiçbir DOM sorgusu YAPILMAZ, sayfa henüz yüklenmemiş bile olabilir.',
+        en: 'Step 1 — PageFactory.initElements(driver, this) is called. Notice: when this line runs, NO DOM query happens yet — the page may not even be loaded.',
+      },
+      code: { tr: `PageFactory.initElements(driver, this);`, en: `PageFactory.initElements(driver, this);` },
+      positions: {
+        initElements: { x: 16, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — @FindBy alanlarına GERÇEK WebElement değil, dinamik bir PROXY enjekte edilir. Proxy, "nasıl bulunacağını" bilir ama henüz kimseyi ARAMAMIŞTIR.',
+        en: 'Step 2 — @FindBy fields are injected not with a real WebElement, but with a dynamic PROXY. The proxy knows HOW to find the element but has not SEARCHED for anyone yet.',
+      },
+      code: { tr: `@FindBy(id = "username")\nprivate WebElement usernameInput; // = proxy`, en: `@FindBy(id = "username")\nprivate WebElement usernameInput; // = proxy` },
+      positions: {
+        initElements: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        proxy: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'initElements', to: 'proxy' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — loginAs() çağrılır, usernameInput.sendKeys(user) satırına gelinir. Alana İLK KEZ DOKUNULUYOR — proxy tam burada uyanır.',
+        en: 'Step 3 — loginAs() is called and execution reaches usernameInput.sendKeys(user). The field is TOUCHED for the FIRST TIME — this is exactly where the proxy wakes up.',
+      },
+      code: { tr: `usernameInput.sendKeys(kullanici);`, en: `usernameInput.sendKeys(user);` },
+      positions: {
+        proxy: { x: 20, y: 50, opacity: 0.55, scale: 0.85 },
+        loginAs: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'proxy', to: 'loginAs' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — proxy şimdi GERÇEK bir findElement(By.id("username")) çağırır ve elementi DOM\'da arar. Bu yüzden sayfa yüklenmeden PageFactory çalışsa bile hata almazsın — hata, dokunulduğu anda gelir.',
+        en: 'Step 4 — the proxy now calls a REAL findElement(By.id("username")) and searches the DOM for the element. This is why PageFactory can run before the page loads without erroring — the error only comes when the field is actually touched.',
+      },
+      code: { tr: `driver.findElement(By.id("username"))`, en: `driver.findElement(By.id("username"))` },
+      positions: {
+        loginAs: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        realElement: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'loginAs', to: 'realElement', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — @CacheLookup eklenmiş olsaydı, ilk bulunan element ÖNBELLEĞE alınırdı. Sayfa AJAX ile yeniden render olduğunda önbellekteki referans ölür ve bir sonraki dokunuşta StaleElementReferenceException fırlar.',
+        en: 'Final (the contrast) — had @CacheLookup been added, the first-found element would be CACHED. When the page re-renders via AJAX, that cached reference dies, and the next touch throws StaleElementReferenceException.',
+      },
+      positions: {
+        realElement: { x: 20, y: 40, scale: 0.95 },
+        stale: { x: 56, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'realElement', to: 'stale', color: '#ef4444' }],
+    },
+  ],
+}
+
+const byPriorityLadderSteps = {
+  type: 'step-animation',
+  id: 'gauge-by-priority-ladder-steps',
+  title: { tr: 'By Stratejisi Önceliği: Doğru Sırayla Dene', en: 'By Strategy Priority: Try Them in the Right Order' },
+  steps: [
+    { id: 1, icon: '🥇', label: { tr: 'id var mı?', en: 'Is there an id?' }, detail: { tr: 'Varsa HER ZAMAN ilk tercih: By.id, sayfada tekil olması beklenen en güvenilir stratejidir.', en: 'If it exists, ALWAYS the first choice: By.id is the most reliable strategy, expected to be unique on the page.' } },
+    { id: 2, icon: '🥈', label: { tr: 'name var mı?', en: 'Is there a name?' }, detail: { tr: 'Form alanlarında yaygındır (input, select) — id yoksa ikinci sıradaki tercih.', en: 'Common on form fields (input, select) — the second choice when no id exists.' } },
+    { id: 3, icon: '🥉', label: { tr: 'Anlamlı bir class var mı?', en: 'Is there a meaningful class?' }, detail: { tr: 'By.cssSelector: attribute, hiyerarşi ve durum bazlı arama yapabilir — id yoksa varsayılan tercih.', en: 'By.cssSelector: can search by attribute, hierarchy, and state — the default choice when no id exists.' } },
+    { id: 4, icon: '🏅', label: { tr: 'Hiçbiri yoksa: By.xpath', en: 'If none work: By.xpath' }, detail: { tr: 'En güçlü strateji — metne göre arama ve eksen gezinmesi yapabilir — ama aynı zamanda en kırılganı.', en: 'The most powerful strategy — can search by text and navigate axes — but also the most fragile.' } },
+    { id: 5, icon: '⚠️', label: { tr: 'Pozisyon bazlı XPath kullanma', en: 'Avoid position-based XPath' }, detail: { tr: '/html/body/div[3] gibi mutlak yollar DOM\'daki en küçük değişiklikte kırılır — mümkünse metin/attribute bazlı XPath tercih et.', en: 'Absolute paths like /html/body/div[3] break at the smallest DOM change — prefer text/attribute-based XPath when possible.' } },
+  ],
+}
+
+// 🗂️ JSON Locator Deposu — film + animasyon
+const jsonLocatorLoadChainFilm = {
+  type: 'video-scene',
+  id: 'gauge-json-locator-load-chain-film',
+  title: {
+    tr: '🎬 JSON Locator Deposunun Yüklenme Zinciri',
+    en: '🎬 The Loading Chain of the JSON Locator Repository',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'json',    emoji: '📄', label: { tr: 'locators.json',           en: 'locators.json' },           color: '#0ea5e9' },
+    { id: 'jackson', emoji: '⚙️', label: { tr: 'Jackson ObjectMapper',    en: 'Jackson ObjectMapper' },    color: '#f59e0b' },
+    { id: 'map',     emoji: '🗂️', label: { tr: 'LOCATORS Map (statik)',   en: 'LOCATORS Map (static)' },   color: '#8b5cf6' },
+    { id: 'getCall', emoji: '🔍', label: { tr: 'LocatorRepository.get()', en: 'LocatorRepository.get()' }, color: '#6366f1' },
+    { id: 'byObj',   emoji: '🎯', label: { tr: 'By Nesnesi',              en: 'By Object' },               color: '#22c55e' },
+    { id: 'fail',    emoji: '💥', label: { tr: 'IllegalArgumentException', en: 'IllegalArgumentException' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir JSON dosyasının nasıl "koda dönüşen veri" hâline geldiğini adım adım izleyeceksin — ve yanlış bir anahtarın neden sessizce değil, GÜRÜLTÜLÜ şekilde patlaması gerektiğini.',
+        en: 'You will watch step by step how a JSON file becomes "data that acts like code" — and why a wrong key must explode LOUDLY, not silently.',
+      },
+      code: { tr: `LocatorRepository.get("loginPage", "usernameInput")`, en: `LocatorRepository.get("loginPage", "usernameInput")` },
+      positions: {
+        json: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — locators.json, src/test/resources altından CLASSPATH üzerinden okunur (dosya yolu değil). Bu yüzden testler CI dahil her makinede aynı şekilde çalışır.',
+        en: 'Step 1 — locators.json is read from the CLASSPATH under src/test/resources (not a file path). This is why tests behave identically on every machine, CI included.',
+      },
+      code: { tr: `getResourceAsStream("/locators.json")`, en: `getResourceAsStream("/locators.json")` },
+      positions: {
+        json: { x: 16, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Jackson ObjectMapper, TypeReference yardımıyla JSON\'u Map<String, Map<String, LocatorDef>>\'e çevirir. TypeReference, Java\'nın tip silmesi (type erasure) yüzünden gereklidir.',
+        en: 'Step 2 — Jackson\'s ObjectMapper, with help from a TypeReference, converts the JSON into Map<String, Map<String, LocatorDef>>. The TypeReference is required because of Java\'s type erasure.',
+      },
+      code: { tr: `new ObjectMapper().readValue(in, new TypeReference<>() {})`, en: `new ObjectMapper().readValue(in, new TypeReference<>() {})` },
+      positions: {
+        json: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        jackson: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'json', to: 'jackson' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — sonuç, static final bir LOCATORS alanında BİR KEZ saklanır. Immutable olduğu için tüm testler bu haritayı paralel koşumda bile güvenle paylaşır.',
+        en: 'Step 3 — the result is stored ONCE in a static final LOCATORS field. Because it is immutable, all tests safely share this map even during parallel execution.',
+      },
+      code: { tr: `private static final Map<...> LOCATORS = load();`, en: `private static final Map<...> LOCATORS = load();` },
+      positions: {
+        jackson: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        map: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'jackson', to: 'map' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — LocatorRepository.get("loginPage", "usernameInput") çağrılır: önce dış Map\'te sayfa, sonra iç Map\'te element aranır. Bulunan {type, value} çifti bir switch ile By nesnesine çevrilir.',
+        en: 'Step 4 — LocatorRepository.get("loginPage", "usernameInput") is called: the outer Map is searched for the page, then the inner Map for the element. The found {type, value} pair is converted to a By object via a switch.',
+      },
+      code: { tr: `case "id" -> By.id(def.getValue());`, en: `case "id" -> By.id(def.getValue());` },
+      positions: {
+        map: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        getCall: { x: 44, y: 50, scale: 1.15, pulse: true },
+        byObj: { x: 74, y: 50, scale: 1.15 },
+      },
+      beams: [{ from: 'map', to: 'getCall' }, { from: 'getCall', to: 'byObj', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — anahtar YANLIŞ yazılsaydı ("usernmeInput" gibi): derleyici bunu YAKALAYAMAZDI, çünkü bu bir String. Bunun yerine LocatorRepository, mevcut anahtarları da listeleyen ANLAŞILIR bir IllegalArgumentException fırlatır — sessiz null asla dönmez.',
+        en: 'Final (the contrast) — had the key been misspelled ("usernmeInput"): the compiler could NOT catch it, since it is a String. Instead, LocatorRepository throws a CLEAR IllegalArgumentException that also lists the available keys — it never returns a silent null.',
+      },
+      positions: {
+        getCall: { x: 22, y: 50, scale: 1.0 },
+        fail: { x: 56, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'getCall', to: 'fail', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jsonKeyLookupSteps = {
+  type: 'step-animation',
+  id: 'gauge-json-key-lookup-steps',
+  title: { tr: 'Sayfa+Element Anahtarıyla Locator Bulma', en: 'Looking Up a Locator by Page+Element Key' },
+  steps: [
+    { id: 1, icon: '🔑', label: { tr: 'get() çağrılır', en: 'get() is called' }, detail: { tr: 'LocatorRepository.get("loginPage", "usernameInput") — iki anahtarla arama başlar.', en: 'LocatorRepository.get("loginPage", "usernameInput") — the lookup begins with two keys.' } },
+    { id: 2, icon: '🗂️', label: { tr: 'Dış Map: sayfa aranır', en: 'Outer Map: page lookup' }, detail: { tr: '"loginPage" anahtarı dış Map\'te aranır; bulunamazsa mevcut sayfaları listeleyen bir hata fırlar.', en: 'The "loginPage" key is looked up in the outer Map; if missing, an error lists the available pages.' } },
+    { id: 3, icon: '📦', label: { tr: 'İç Map: element aranır', en: 'Inner Map: element lookup' }, detail: { tr: '"usernameInput" anahtarı o sayfanın iç Map\'inde aranır; bulunamazsa mevcut elementleri listeler.', en: 'The "usernameInput" key is looked up in that page\'s inner Map; if missing, it lists the available elements.' } },
+    { id: 4, icon: '🎯', label: { tr: 'By nesnesine çevrilir', en: 'Converted to a By object' }, detail: { tr: 'Bulunan {type, value} çifti switch ifadesiyle doğru By.xxx() çağrısına dönüştürülür.', en: 'The found {type, value} pair is converted into the correct By.xxx() call via a switch expression.' } },
+  ],
+}
+
+// 🌍 Ekosistem & CI/CD — film + animasyon
+const ciPipelineRunFilm = {
+  type: 'video-scene',
+  id: 'gauge-ci-pipeline-run-film',
+  title: {
+    tr: '🎬 CI Pipeline\'da Bir Gauge Koşumu',
+    en: '🎬 A Gauge Run Inside a CI Pipeline',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pr',            emoji: '🔀', label: { tr: 'Pull Request',            en: 'Pull Request' },            color: '#0ea5e9' },
+    { id: 'checkout',      emoji: '📥', label: { tr: 'Checkout',                en: 'Checkout' },                color: '#6366f1' },
+    { id: 'setup',         emoji: '☕', label: { tr: 'JDK + Gauge Kurulumu',    en: 'JDK + Gauge Setup' },       color: '#f59e0b' },
+    { id: 'pluginVerify',  emoji: '🔌', label: { tr: 'Plugin Doğrulama',        en: 'Plugin Verification' },     color: '#8b5cf6' },
+    { id: 'run',           emoji: '▶️', label: { tr: 'gauge run --env ci',      en: 'gauge run --env ci' },      color: '#22c55e' },
+    { id: 'artifact',      emoji: '📦', label: { tr: 'HTML Rapor Artifact',     en: 'HTML Report Artifact' },    color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir PR açıldığında CI\'ın perde arkasında GERÇEKTE ne yaptığını izleyeceksin — ve plugin doğrulama adımının neden atlanmaması gerektiğinin kanıtını.',
+        en: 'You will watch what CI ACTUALLY does behind the scenes when a PR opens — and the proof of why the plugin-verification step must never be skipped.',
+      },
+      code: { tr: `on:\n  pull_request:\n    branches: [main]`, en: `on:\n  pull_request:\n    branches: [main]` },
+      positions: {
+        pr: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — PR açılınca workflow TETİKLENİR ve checkout adımı kaynak kodu runner\'a alır. Henüz Java veya Gauge kurulu DEĞİLDİR.',
+        en: 'Step 1 — opening the PR TRIGGERS the workflow, and the checkout step pulls the source onto the runner. Java or Gauge are NOT installed yet.',
+      },
+      code: { tr: `uses: actions/checkout@v4`, en: `uses: actions/checkout@v4` },
+      positions: {
+        pr: { x: 16, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — JDK 17 ve Gauge CLI kurulur. Bu, senin makinende Bölüm 1\'de yaptığın kurulumun tıpatıp aynısı — sadece runner üzerinde, her PR\'da SIFIRDAN.',
+        en: 'Step 2 — JDK 17 and the Gauge CLI are installed. This is the EXACT same installation you did on your machine — just running on the runner, from SCRATCH on every PR.',
+      },
+      code: { tr: `curl -SsL https://downloads.gauge.org/stable | sh`, en: `curl -SsL https://downloads.gauge.org/stable | sh` },
+      positions: {
+        pr: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        checkout: { x: 36, y: 50, opacity: 0.7 },
+        setup: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pr', to: 'checkout' }, { from: 'checkout', to: 'setup' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — java ve html-report plugin\'leri kurulur ve gauge version ile DOĞRULANIR. Bu doğrulama satırı olmasaydı, eksik plugin hatası gauge run adımına kadar GİZLİ kalırdı.',
+        en: 'Step 3 — the java and html-report plugins are installed and VERIFIED with gauge version. Without this verification line, a missing-plugin error would stay HIDDEN until the gauge run step.',
+      },
+      code: { tr: `gauge install java\ngauge install html-report\ngauge version`, en: `gauge install java\ngauge install html-report\ngauge version` },
+      positions: {
+        setup: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        pluginVerify: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'setup', to: 'pluginVerify' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — gauge run --env ci --tags "smoke" çalışır: CI ortamına özel ayarlar (env/ci/) yüklenir, sadece "smoke" etiketli senaryolar koşar.',
+        en: 'Step 4 — gauge run --env ci --tags "smoke" executes: CI-specific settings (env/ci/) load, and only "smoke"-tagged scenarios run.',
+      },
+      code: { tr: `gauge run --env ci --tags "smoke" specs`, en: `gauge run --env ci --tags "smoke" specs` },
+      positions: {
+        pluginVerify: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        run: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'pluginVerify', to: 'run', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — if: always() sayesinde test PASS ya da FAIL olsun, HTML rapor artifact olarak yüklenir. Kontrast: Adım 3\'teki doğrulama atlanmış olsaydı, bu adıma hiç ULAŞILAMAZDI — pipeline "Failed to start gauge API" ile daha en baştan kırılırdı.',
+        en: 'Final — thanks to if: always(), whether the tests PASS or FAIL, the HTML report is uploaded as an artifact. Contrast: had the verification in Step 3 been skipped, this step would NEVER be REACHED — the pipeline would have broken right at the start with "Failed to start gauge API".',
+      },
+      positions: {
+        run: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        artifact: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'run', to: 'artifact', color: '#10b981' }],
+    },
+  ],
+}
+
+const envLayerMergeSteps = {
+  type: 'step-animation',
+  id: 'gauge-env-layer-merge-steps',
+  title: { tr: 'env/ Katmanlarının Birleşme Sırası', en: 'The Merge Order of env/ Layers' },
+  steps: [
+    { id: 1, icon: '📁', label: { tr: 'env/default/ önce yüklenir', en: 'env/default/ loads first' }, detail: { tr: 'Tüm ortamlarda ortak, nadiren değişen ayarlar (rapor klasörü, ekran görüntüsü ayarı) her koşumda otomatik yüklenir.', en: 'Settings shared across all environments and rarely changed (report folder, screenshot setting) load automatically on every run.' } },
+    { id: 2, icon: '🎯', label: { tr: '--env test verilirse env/test/ de yüklenir', en: 'With --env test, env/test/ also loads' }, detail: { tr: 'Bayrakla belirtilen ortamın klasörü, default\'un ÜSTÜNE yüklenir.', en: 'The folder for the environment named by the flag loads ON TOP of default.' } },
+    { id: 3, icon: '🔀', label: { tr: 'Aynı anahtar varsa test/ kazanır', en: 'On a key clash, test/ wins' }, detail: { tr: 'base.url gibi bir anahtar her iki dosyada da varsa, env/test/ dosyasındaki değer default\'u EZER.', en: 'If a key like base.url exists in both files, the value in env/test/ OVERRIDES default.' } },
+    { id: 4, icon: '☕', label: { tr: 'Java tarafında şeffafça okunur', en: 'Read transparently on the Java side' }, detail: { tr: 'Gauge bu anahtarları System Properties\'e yükler; kod System.getProperty("base.url") ile okur, hangi ortamda olduğundan HABERSİZDİR.', en: 'Gauge loads these keys into System Properties; the code reads them with System.getProperty("base.url"), OBLIVIOUS to which environment it is in.' } },
+  ],
+}
+
+// 🚨 Gerçek Hayat Sorunları — film + animasyon
+const failLayerDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'gauge-fail-layer-diagnosis-film',
+  title: {
+    tr: '🎬 Bir FAIL\'in Katman Teşhisi',
+    en: '🎬 Diagnosing the Layer Behind a FAIL',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'redTest',  emoji: '🔴', label: { tr: 'Kırmızı Test',              en: 'Red Test' },              color: '#ef4444' },
+    { id: 'layer1',   emoji: '1️⃣', label: { tr: 'Gauge Çekirdeği',          en: 'Gauge Core' },            color: '#0ea5e9' },
+    { id: 'layer2',   emoji: '2️⃣', label: { tr: 'Spec-Step Eşleşmesi',      en: 'Spec-Step Binding' },     color: '#f59e0b' },
+    { id: 'layer3',   emoji: '3️⃣', label: { tr: 'Selenium / Element',       en: 'Selenium / Element' },    color: '#8b5cf6' },
+    { id: 'layer4',   emoji: '4️⃣', label: { tr: 'Locator Deposu',           en: 'Locator Repository' },    color: '#6366f1' },
+    { id: 'fix',      emoji: '🔧', label: { tr: 'Kalıcı Çözüm',              en: 'Permanent Fix' },         color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir doktorun ateşten teşhise gittiği gibi, sen de tek bir kırmızı renkten (FAIL) dört olası katmana inen bir teşhis yolculuğunu izleyeceksin.',
+        en: 'Just like a doctor going from fever to diagnosis, you will watch a diagnostic journey descending from one red color (FAIL) into four possible layers.',
+      },
+      code: { tr: `Specifications: 0 passed  1 failed`, en: `Specifications: 0 passed  1 failed` },
+      positions: {
+        redTest: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Katman 1 — Gauge Çekirdeği: hata "Failed to start gauge API" mı diyor? Bu, bir plugin\'in eksik olduğu anlamına gelir — koşum daha BAŞLAMADAN kırılmıştır.',
+        en: 'Layer 1 — Gauge Core: does the error say "Failed to start gauge API"? This means a plugin is missing — the run broke before it even STARTED.',
+      },
+      code: { tr: `Plugin 'java' not installed`, en: `Plugin 'java' not installed` },
+      positions: {
+        redTest: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        layer1: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'redTest', to: 'layer1' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 2 — Spec-Step Eşleşmesi: hata "Step implementation not found" mu diyor? Spec cümlesi ile @Step metni KARAKTER KARAKTER eşleşmiyor demektir.',
+        en: 'Layer 2 — Spec-Step Binding: does the error say "Step implementation not found"? The spec sentence and the @Step text do not match CHARACTER BY CHARACTER.',
+      },
+      code: { tr: `Step implementation not found`, en: `Step implementation not found` },
+      positions: {
+        layer1: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        layer2: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'layer1', to: 'layer2' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 3 — Selenium/Element: hata NoSuchElementException veya StaleElementReferenceException mi? Locator yanlış, zamanlama sorunu ya da DOM yeniden render olmuş olabilir.',
+        en: 'Layer 3 — Selenium/Element: is the error NoSuchElementException or StaleElementReferenceException? A wrong locator, a timing issue, or a DOM re-render could be the cause.',
+      },
+      code: { tr: `NoSuchElementException`, en: `NoSuchElementException` },
+      positions: {
+        layer2: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        layer3: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'layer2', to: 'layer3' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 4 — Locator Deposu: sorun @FindBy veya JSON deposunda yanlış bir anahtar/değer mi? IllegalArgumentException fırlıyorsa mesajdaki "mevcut anahtarlar" listesine bak.',
+        en: 'Layer 4 — Locator Repository: is the issue a wrong key/value in @FindBy or the JSON repository? If IllegalArgumentException fires, check the "available keys" list in the message.',
+      },
+      code: { tr: `Element bulunamadi: 'loginPage.usernmeInput'`, en: `Element not found: 'loginPage.usernmeInput'` },
+      positions: {
+        layer3: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        layer4: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'layer3', to: 'layer4' }],
+    },
+    {
+      caption: {
+        tr: 'Final — doğru katman teşhis edilince kalıcı çözüm NETLEŞİR: plugin kurulur, spec cümlesi düzeltilir, wait eklenir veya JSON anahtarı düzeltilir. Teşhis edilemeyen hata "3 kez koştur, geçerse merge et" ritüelini doğurur — bu noktada suite artık kalite kapısı değildir.',
+        en: 'Final — once the right layer is diagnosed, the permanent fix becomes CLEAR: install the plugin, fix the spec sentence, add a wait, or correct the JSON key. An undiagnosed failure breeds the "run it 3 times, merge if it passes" ritual — at that point the suite is no longer a quality gate.',
+      },
+      positions: {
+        layer4: { x: 20, y: 50, scale: 1.0 },
+        fix: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'layer4', to: 'fix', color: '#10b981' }],
+    },
+  ],
+}
+
+const stackTraceRootCauseSteps = {
+  type: 'step-animation',
+  id: 'gauge-stacktrace-root-cause-steps',
+  title: { tr: 'Stack Trace\'te Kök Nedene İnme', en: 'Descending to the Root Cause in a Stack Trace' },
+  steps: [
+    { id: 1, icon: '📜', label: { tr: 'En üstteki exception\'a güvenme', en: 'Do not trust the top exception' }, detail: { tr: 'Yüzeydeki hata çoğu zaman asıl sebebin AMBALAJIDIR — "Step failed" gibi genel bir mesajdan ibaret olabilir.', en: 'The surface error is often just PACKAGING around the real cause — it can be as generic as "Step failed".' } },
+    { id: 2, icon: '⬇️', label: { tr: '"Caused by:" satırlarını takip et', en: 'Follow the "Caused by:" lines' }, detail: { tr: 'Java stack trace\'i, her "Caused by:" ile bir katman daha içeri iner — bu zinciri aşağı doğru oku.', en: 'A Java stack trace descends one layer deeper with each "Caused by:" — read this chain downward.' } },
+    { id: 3, icon: '🎯', label: { tr: 'Zincirin EN ALTI gerçek nedendir', en: 'The BOTTOM of the chain is the real cause' }, detail: { tr: 'NoSuchElementException veya StaleElementReferenceException gibi asıl exception genelde en altta durur.', en: 'The actual exception — like NoSuchElementException or StaleElementReferenceException — usually sits at the bottom.' } },
+    { id: 4, icon: '🔧', label: { tr: 'Kök nedene göre düzelt', en: 'Fix based on the root cause' }, detail: { tr: 'Semptomu (kırmızı test) değil, zincirin dibindeki gerçek nedeni hedef alarak düzelt.', en: 'Fix by targeting the real cause at the bottom of the chain, not the symptom (the red test).' } },
+  ],
+}
+
+// 💼 Mülakat Soruları — film + animasyon
+const gaugeJourneyRecapFilm = {
+  type: 'video-scene',
+  id: 'gauge-journey-recap-film',
+  title: {
+    tr: '🎬 Gauge Zincirini Tek Filmde Özetle',
+    en: '🎬 The Whole Gauge Chain, Recapped in One Film',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'spec',      emoji: '📄', label: { tr: 'Spec',              en: 'Spec' },              color: '#0ea5e9' },
+    { id: 'step',      emoji: '☕', label: { tr: '@Step',             en: '@Step' },             color: '#8b5cf6' },
+    { id: 'locator',   emoji: '🎯', label: { tr: 'Locator',           en: 'Locator' },           color: '#f59e0b' },
+    { id: 'ci',        emoji: '⚙️', label: { tr: 'CI',                en: 'CI' },                color: '#6366f1' },
+    { id: 'report',    emoji: '📊', label: { tr: 'Rapor',             en: 'Report' },            color: '#22c55e' },
+    { id: 'diagnosis', emoji: '🩺', label: { tr: 'Hata Teşhisi',      en: 'Error Diagnosis' },   color: '#ef4444' },
+    { id: 'interview', emoji: '💼', label: { tr: 'Mülakat',           en: 'Interview' },         color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakattan önce bu sayfada öğrendiğin HER ŞEYİN tek bir zincirde nasıl bağlandığını hızlıca gözden geçireceksin — spec\'ten mülakat masasına kadar.',
+        en: 'Before the interview, you will quickly review how EVERYTHING you learned on this page connects in one single chain — from the spec all the way to the interview table.',
+      },
+      code: { tr: `gauge run specs`, en: `gauge run specs` },
+      positions: {
+        spec: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Spec, insan dilinde Markdown olarak yazılır. GitHub\'da render olur, ürün ekibi bile okuyabilir.',
+        en: 'Step 1 — the Spec is written in human-language Markdown. It renders on GitHub, and even the product team can read it.',
+      },
+      code: { tr: `* Kullanici "admin" ile giris yapar`, en: `* User signs in as "admin"` },
+      positions: {
+        spec: { x: 14, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — @Step, spec cümlesini KARAKTER KARAKTER eşleştirerek bir Java metoduna bağlar. Metod adı serbesttir, bağ annotation metnindedir.',
+        en: 'Step 2 — @Step binds the spec sentence to a Java method via a CHARACTER-BY-CHARACTER match. The method name is free; the binding lives in the annotation text.',
+      },
+      code: { tr: `@Step("Kullanici <k> ile giris yapar")`, en: `@Step("User signs in as <k>")` },
+      positions: {
+        spec: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        step: { x: 38, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'spec', to: 'step' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Locator (By ile kodda veya JSON deposunda veride) elementi bulur — @FindBy\'ın tembel proxy\'si veya LocatorRepository\'nin fail-fast kontrolü devrede.',
+        en: 'Step 3 — the Locator (By in code, or data in the JSON repository) finds the element — either @FindBy\'s lazy proxy or LocatorRepository\'s fail-fast check is at work.',
+      },
+      code: { tr: `driver.findElement(By.id("username"))`, en: `driver.findElement(By.id("username"))` },
+      positions: {
+        step: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        locator: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'step', to: 'locator' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — CI\'da gauge run --env ci koşar. Plugin\'ler önceden DOĞRULANMIŞ olmalı, yoksa pipeline gauge run\'a hiç ulaşamadan kırılır.',
+        en: 'Step 4 — gauge run --env ci runs in CI. The plugins must already be VERIFIED, or the pipeline breaks before ever reaching gauge run.',
+      },
+      code: { tr: `gauge run --env ci --tags "smoke" specs`, en: `gauge run --env ci --tags "smoke" specs` },
+      positions: {
+        locator: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        ci: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'locator', to: 'ci' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — koşum bir Rapor üretir. FAIL varsa katman teşhisi devreye girer: çekirdek mi, eşleşme mi, Selenium mı, locator mu?',
+        en: 'Step 5 — the run produces a Report. If there is a FAIL, layer diagnosis kicks in: core, binding, Selenium, or locator?',
+      },
+      code: { tr: `reports/html-report/index.html`, en: `reports/html-report/index.html` },
+      positions: {
+        ci: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        report: { x: 38, y: 50, scale: 1.15 },
+        diagnosis: { x: 64, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'ci', to: 'report' }, { from: 'report', to: 'diagnosis', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final — bu 5 adımlık zinciri BAŞTAN SONA, kendi cümlelerinle anlatabilmek, "@Step nedir?" sorusuna değil "Step implementation not found aldın, ilk 30 saniyede ne yaparsın?" sorusuna hazır olmak demektir.',
+        en: 'Final — being able to narrate this 5-step chain START TO FINISH, in your own words, is what readiness for "you got Step implementation not found, what do you do in the first 30 seconds?" looks like — not readiness for "what is @Step?".',
+      },
+      positions: {
+        diagnosis: { x: 22, y: 50, scale: 1.0 },
+        interview: { x: 56, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'diagnosis', to: 'interview', color: '#10b981' }],
+    },
+  ],
+}
+
+const scenarioAnswerReflexSteps = {
+  type: 'step-animation',
+  id: 'gauge-scenario-answer-reflex-steps',
+  title: { tr: 'Senaryo Sorusuna Cevap Verme Refleksi', en: 'The Reflex for Answering a Scenario Question' },
+  steps: [
+    { id: 1, icon: '👂', label: { tr: 'Hangi katmanı soruyor?', en: 'Which layer is it asking about?' }, detail: { tr: 'Soruyu dinlerken önce "bu, çekirdek mi, eşleşme mi, Selenium mı, yoksa locator deposu mu?" diye sınıflandır.', en: 'While listening, first classify: "is this about the core, the binding, Selenium, or the locator repository?"' } },
+    { id: 2, icon: '🧭', label: { tr: 'Somut bir örnek ver', en: 'Give a concrete example' }, detail: { tr: 'Gerçek bir senaryo veya hata mesajıyla başla — soyut tanımla değil, "böyle bir hata gördüm, şöyle çözdüm" ile.', en: 'Start with a real scenario or error message — not an abstract definition, but "I saw this error, here is how I fixed it".' } },
+    { id: 3, icon: '🔧', label: { tr: 'Adım adım anlat', en: 'Explain step by step' }, detail: { tr: 'Checklist okur gibi değil, akıl yürüterek anlat: önce neyi kontrol ettin, sonra neden oraya baktın.', en: 'Narrate through reasoning, not like reading a checklist: what you checked first, and why you looked there.' } },
+    { id: 4, icon: '❓', label: { tr: '"Neden bu sırayla?" diye ekle', en: 'Add "why this order?"' }, detail: { tr: 'Cevabını "çünkü..." ile bitir — mekanizmayı anladığını, sadece adımları ezberlemediğini gösterir.', en: 'End your answer with "because..." — it shows you understand the mechanism, not just memorized the steps.' } },
+  ],
+}
+
 const sections = [
 
   // ── 0: Neden Gauge? ─────────────────────────────────────────────────────────
@@ -262,6 +1019,8 @@ const sections = [
           en: 'You have two LEGO baseplates. The top plate (spec) holds big, colorful DUPLO bricks: "Sign in", "Add to cart", "Complete payment" — even a child can arrange them. The bottom plate (Java) holds small technical bricks: WebDriver, By.id, click(). The two plates lock together through @Step studs: every DUPLO brick on top MUST have a matching group of technical bricks underneath — place a DUPLO brick with no counterpart and the build refuses to click into place (Step implementation not found). The second LEGO game is the concept: you glue your frequently used 4-brick "sign in" combo into one big brick (.cpt) and snap it onto any scenario in a single move.',
         },
       },
+      gaugeVsCompetitorsFilm,
+      driftAnatomySteps,
       {
         type: 'quiz',
         question: {
@@ -482,6 +1241,7 @@ Plugins
 html-report (4.3.1)
 java (0.11.2)`,
       },
+      installVerifyReflexSteps,
       {
         type: 'heading',
         text: { tr: '🏗️ İlk Projeyi Oluştur: gauge init java', en: '🏗️ Create Your First Project: gauge init java' },
@@ -630,6 +1390,7 @@ Successfully generated html-report to => reports/html-report/index.html
 Specifications: 1 executed  1 passed  0 failed  0 skipped
 Scenarios:      2 executed  2 passed  0 failed  0 skipped`,
       },
+      gaugeInitJourneyFilm,
       {
         type: 'callout',
         color: 'yellow',
@@ -736,6 +1497,7 @@ Scenarios:      2 executed  2 passed  0 failed  0 skipped`,
           en: 'A .spec file has three levels: a single Specification heading starting with # (one per file), Scenario headings starting with ## (each an independent test), and step lines starting with *. Steps placed right under the Specification heading become "context steps": they run before EVERY scenario in that file — the in-spec equivalent of Java\'s @BeforeMethod. Values in double quotes (like "admin") automatically become parameters.',
         },
       },
+      contextVsScenarioStepSteps,
       {
         type: 'code',
         language: 'markdown',
@@ -1233,6 +1995,7 @@ WebElement priceCell = driver.findElement(
           ['By.xpath', { tr: 'Metin araması, eksen gezinmesi gerekince', en: 'When text search or axis navigation is needed' }, { tr: '🔴 En yüksek', en: '🔴 Highest' }, { tr: 'Pozisyon bazlı mutlak yollar (/html/body/div[3]) ilk DOM değişikliğinde kırılır', en: 'Position-based absolute paths (/html/body/div[3]) break at the first DOM change' }],
         ],
       },
+      byPriorityLadderSteps,
       {
         type: 'callout',
         color: 'green',
@@ -1490,6 +2253,7 @@ public class LoginStepsWithPom {
 }`,
         },
       },
+      findByLazyProxyFilm,
       {
         type: 'quiz',
         question: {
@@ -1788,6 +2552,7 @@ public class LocatorRepository {
 }`,
         },
       },
+      jsonKeyLookupSteps,
       {
         type: 'heading',
         text: { tr: '🔌 Adım 3: Depoyu Gauge Step\'inde Kullan', en: '🔌 Step 3: Use the Repository in a Gauge Step' },
@@ -1858,6 +2623,7 @@ public class JsonLocatorSteps {
 }`,
         },
       },
+      jsonLocatorLoadChainFilm,
       {
         type: 'heading',
         text: { tr: '⚖️ @FindBy vs JSON Deposu: Dürüst Karşılaştırma', en: '⚖️ @FindBy vs JSON Repository: an Honest Comparison' },
@@ -2139,6 +2905,7 @@ gauge run --env staging specs`,
           ],
         ],
       },
+      envLayerMergeSteps,
       {
         type: 'heading',
         text: { tr: '⚙️ GitHub Actions ile CI Pipeline', en: '⚙️ CI Pipeline with GitHub Actions' },
@@ -2238,6 +3005,7 @@ jobs:
           path: reports/html-report/`,
         },
       },
+      ciPipelineRunFilm,
       {
         type: 'heading',
         text: { tr: '🏗️ Jenkins Pipeline Karşılığı', en: '🏗️ The Jenkins Pipeline Equivalent' },
@@ -2595,6 +3363,8 @@ gauge docs spectacle specs`,
           en: 'Reading an error message is like a doctor going from symptom to diagnosis: fever (a red test) alone names no disease — the doctor examines what accompanies it (sore throat? cough?). In the Gauge + Selenium stack the same failure color (FAIL) can come from at least four layers: the Gauge core (missing plugin), the spec-code binding (step not found), Selenium (element not found), or your own locator repository (wrong key). Why learn to diagnose the LAYER instead of memorizing errors? Because messages change between versions but the layer architecture does not: a QA who can answer "which layer is speaking?" also solves errors they have never seen. Java comparison: a developer who reads stack traces descends to the BOTTOM of the Caused-by chain — the surface exception is usually just packaging around the real cause; likewise in Gauge, "Step failed" is the surface and you must descend to the actual exception beneath. The real QA cost: an undiagnosed flaky failure breeds the "run it 3 times, merge if it passes" culture — at that point the suite is no longer a quality gate, it is a ritual. The 8 errors below are the scenarios you will meet most in the field; for each, learn the message first, then its layer, then the permanent fix.',
         },
       },
+      failLayerDiagnosisFilm,
+      stackTraceRootCauseSteps,
       {
         type: 'error-dictionary',
         relatedTopicId: 'gauge-real-life-issues',
@@ -2834,6 +3604,8 @@ driver.findElement(
           en: 'A scenario-based interview question resembles the "engine failure" drill in a flight simulator: the pilot may have never faced a real engine failure, yet the simulator corners them with "Engine 2 just died, what do you do?" — because the airline is not measuring whether the pilot memorized the checklist, but whether they can make the RIGHT DECISION IN THE RIGHT ORDER during an actual failure. CLAUDE.md\'s ban on plain "What is X?" questions on this page comes from the same logic. Why doesn\'t an interviewer ask "What is the @Step annotation?" but instead "You get Step implementation not found, what do you see on screen, what do you do in the first 30 seconds?" Because answering a definition question correctly is equivalent to being able to search Google — it produces zero value on the actual job; diagnosing and fixing the failure does. The same evolution happened in Java interviews: "What is an ArrayList?" is now considered amateur, replaced by "You got a ConcurrentModificationException, explain the cause and the fix" — both test the same knowledge, but one measures memorization, the other understanding. The real QA cost: an engineer can recite the @Step syntax flawlessly and pass a definition-based interview, yet freeze and burn an hour when a real "Step implementation not found" error appears in front of them — hiring managers ask scenario questions precisely to catch this resume-versus-reality gap, because a production incident never waits for you to check the docs.',
         },
       },
+      gaugeJourneyRecapFilm,
+      scenarioAnswerReflexSteps,
       {
         type: 'interview-questions',
         relatedTopicId: 'gauge-interview',

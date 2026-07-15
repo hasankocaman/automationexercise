@@ -10,6 +10,59 @@
 
 ---
 
+## Gauge: Her Dikey Sekmeye Video + Animasyon — TAMAMLANDI, commit BEKLİYOR (2026-07-15)
+
+> Kullanıcı talebi: "/gauge sayfasında her dikey sekmeye en az 1 video ve
+> animasyon ekle". `gaugeData.js` tek ağaç (bilingual field'lar) — Dalga 2'de
+> sadece "Spec & Step Temelleri" sekmesinde `gaugeRunChainFilm` vardı, diğer
+> 7 sekmede hiç `video-scene`/`step-animation` yoktu (grep ile doğrulanmıştı).
+
+**Eklenenler — 7 yeni film (`video-scene`) + 8 yeni animasyon (`step-animation`),
+her biri TEK sekmeye TEK kez eklendi (grep ile doğrulandı, hepsi count=2:
+1 tanım + 1 kullanım):**
+
+| Sekme | Film | Animasyon |
+|---|---|---|
+| 🏠 Neden Gauge? | `gauge-vs-competitors-film` (TestNG vs Cucumber vs Gauge) | `gauge-drift-anatomy-steps` (Excel/kod kopması) |
+| ⚙️ Kurulum | `gauge-init-journey-film` (CLI→plugin→init→run) | `gauge-install-verify-reflex-steps` |
+| 📝 Spec & Step Temelleri | *(zaten vardı: `gauge-run-chain-film`)* | `gauge-context-vs-scenario-steps` |
+| 🎯 By ile Locator Yazma | `gauge-findby-lazy-proxy-film` (@FindBy proxy sırrı) | `gauge-by-priority-ladder-steps` |
+| 🗂️ JSON Locator Deposu | `gauge-json-locator-load-chain-film` | `gauge-json-key-lookup-steps` |
+| 🌍 Ekosistem & CI/CD | `gauge-ci-pipeline-run-film` (GH Actions) | `gauge-env-layer-merge-steps` |
+| 🚨 Gerçek Hayat Sorunları | `gauge-fail-layer-diagnosis-film` (4 katman teşhisi) | `gauge-stacktrace-root-cause-steps` |
+| 💼 Mülakat Soruları | `gauge-journey-recap-film` (tüm zincir özeti) | `gauge-scenario-answer-reflex-steps` |
+
+Her ekleme ilgili sekmenin GERÇEK içeriğine bağlı (uydurma değil): örn.
+By-locator sekmesindeki `@FindBy`/`PageFactory.initElements` kod bloğu →
+lazy-proxy filmi; JSON Locator sekmesindeki `LocatorRepository.get()` →
+yükleme zinciri filmi. Yerleşim: konu anlatan kod bloğunun hemen ardına,
+quiz/challenge'dan ÖNCE (CLAUDE.md §9.1).
+
+### Doğrulama (§1.1)
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+- 15 yeni bloğun TR tarafı tam okunarak tarandı — İngilizce açıklama cümlesi
+  yok, teknik terimler (proxy, TypeReference, IllegalArgumentException,
+  healthcheck, depends_on vb.) doğru şekilde İngilizce.
+- `npm run build` → temiz (2m 42s, 41 shell).
+- Runtime smoke (vite preview + headless Chromium, 8 sekme dolaşıldı):
+  **7/8 sekmede canlı doğrulandı** (video-scene-block render + caption dolu +
+  oynatılabilir animasyon butonu var + 0 konsol hatası + 380px'te taşma yok).
+  **8. sekme (Mülakat Soruları) beklenen bir sebeple "FAIL" verdi — GERÇEK
+  BUG DEĞİL:** proje genelindeki quiz-gating mekanizması (CLAUDE.md §22 AC2),
+  sayfa genelinde quizlerin %60'ı cevaplanmadan `isDedicatedInterviewTab`
+  sekmesinin TÜM içeriğini (mevcut `interview-questions` bloğu dahil) kilit
+  ekranıyla değiştiriyor — yeni film/animasyon da bu bloğun ÖNÜNDE aynı
+  sekmede olduğu için kilit ekranı onları da gizliyor. Kod incelemesiyle
+  doğrulandı: blok doğru sırada (`simple-box` → film → animasyon →
+  `interview-questions`), sadece kilit açılınca görünür — tıpkı
+  `interview-questions`'ın kendisi gibi.
+
+### Sıradaki adım
+Commit + push. Sonra `Documents/video-rollout-plan.md` Bölüm 6'daki
+Dalga 3+ backlog'undan devam edilebilir.
+
+---
+
 ## Video-Scene Dalga 2 — TAMAMLANDI, commit BEKLİYOR (2026-07-15)
 
 > Plan + film spesifikasyonları: **`Documents/video-rollout-plan.md`**.
