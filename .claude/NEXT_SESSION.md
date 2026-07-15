@@ -10,6 +10,81 @@
 
 ---
 
+## DALGA 6 — /selenium (2026-07-15, TAMAMLANDI, commit BEKLİYOR)
+
+> `Documents/video-sitewide-plan.md` Bölüm 5'teki parametrik Sonnet şablonuyla
+> koşuldu (model: Sonnet). 14 sekme, sıfırdan başlandı — sayfada Dalga 6 öncesi
+> HİÇ video-scene/step-animation/code-playground/challenge yoktu (site
+> planındaki envanterle birebir uyumlu: "seleniumData.js | 14 | 0"). ≥14 eşiği
+> nedeniyle 2 batch'e bölündü: Batch 1 = 7 sekme (Giriş/Kurulum/Locators/
+> Actions/Wait/Frames & Alert/Gerçek Hayat, commit `e1376a9`), Batch 2 = 7
+> sekme (Ekosistem/CDP & BiDi/Sanal Auth & PDF/Selenium IDE/Grid 4/Yaygın
+> Hatalar/Mülakat, bu commit).
+>
+> **Mimari not:** `seleniumData.js` diğer dalgalardan farklı olarak TEK bir
+> `en:{...}, tr:{...}` ağacı değil, 14 AYRI modüler const (`s0`..`s13`, her biri
+> kendi içinde `{ tr: {...}, en: {...} }`) kullanır; `sections: [s0.tr, s1.tr, ...]`
+> ile birleştirilir. Film sabitleri yine dosya başında tanımlanıp her `s{n}.tr.blocks`
+> ve `s{n}.en.blocks` içine bare identifier olarak eklendi (docker/linux'taki
+> aynı kalıp). `fillMissingCodeTrios(seleniumData, 'selenium')` da aktif —
+> java/python/typescript dilli kod blokları (docker'daki gibi bash/shell HARİÇ)
+> otomatik step-animation/code-playground/challenge alıyor; bu yüzden
+> Locators/Actions/Wait/Frames/Real World/Ecosystem/CDP&BiDi/Virtual Auth/
+> Grid4 sekmelerine SADECE film eklendi, elle animasyon/sandbox eklenmedi.
+> Giriş (kod bloğu yok) ve Selenium IDE (2 kod bloğu da bash, auto-fill dışı)
+> için elle step-animation/code-playground eklendi; Yaygın Hatalar ve Mülakat
+> (kodsuz, error-dictionary/interview-questions) için linux/docker'daki gibi
+> tam üçlü (film+steps+practice) eklendi.
+
+### Sekme × film × animasyon × sandbox matrisi (14 sekme, hepsi ✅)
+
+| Sekme | Video | Animasyon | Sandbox |
+|---|---|---|---|
+| 🌐 Giriş | ✅ `seleniumDomProofFilm` (yeni) | ✅ `seleniumIntroFlowSteps` (yeni) | ✅ `seleniumIntroPractice` (yeni) |
+| ⚙️ Kurulum | ✅ `seleniumVersionMismatchFilm` (yeni) | ✅ auto-fill (java/python/ts) | ✅ auto-fill |
+| 🎯 Locators | ✅ `seleniumSilentMismatchFilm` (yeni) | ✅ auto-fill | ✅ auto-fill + `locator-explorer` (mevcut) |
+| ⚡ Aksiyonlar | ✅ `seleniumActionsChainFilm` (yeni) | ✅ auto-fill | ✅ auto-fill |
+| ⏳ Wait | ✅ `seleniumWaitReflexFilm` (yeni) | ✅ auto-fill + `animated-timeline` (mevcut) | ✅ auto-fill |
+| 🪟 Frames & Alert | ✅ `seleniumIframeContextFilm` (yeni) | ✅ auto-fill | ✅ auto-fill |
+| 🛠️ Gerçek Hayat | ✅ `seleniumE2eFunnelFilm` (yeni) | ✅ auto-fill | ✅ auto-fill |
+| 🔗 Ekosistem | ✅ `seleniumGridSpeedupFilm` (yeni) | ✅ auto-fill | ✅ auto-fill |
+| 🌐 CDP & BiDi | ✅ `seleniumBidiListenerFilm` (yeni) | ✅ auto-fill | ✅ auto-fill |
+| 🔐 Sanal Auth & PDF | ✅ `seleniumVirtualAuthFilm` (yeni) | ✅ auto-fill | ✅ auto-fill |
+| 🖥️ Selenium IDE | ✅ `seleniumIdeExportFilm` (yeni) | ✅ `visual/simulation` (mevcut) | ✅ `git-practice` (mevcut) |
+| 🌐 Grid 4 & Dağıtık | ✅ `seleniumGridRoutingFilm` (yeni) | ✅ auto-fill | ✅ auto-fill |
+| 🚨 Yaygın Hatalar | ✅ `seleniumStaleElementDiagnosisFilm` (yeni) | ✅ `seleniumStaleElementDiagnosisSteps` (yeni) | ✅ `seleniumStaleElementPractice` (yeni) |
+| 💼 Mülakat Soruları | ✅ `seleniumInterviewAnswerFilm` (yeni) | ✅ `seleniumInterviewAnswerSteps` (yeni) | ✅ `seleniumInterviewPractice` (yeni) |
+
+14 yeni film + 7 ek destek bloğu (step-animation/code-playground), hepsi her
+`s{n}`'in EN+TR ağaçlarının İKİSİNE de aynı referansla eklendi; grep ile
+doğrulandı (hepsi 1 tanım + 2 kullanım = 3 toplam eşleşme). Yaygın Hatalar ve
+Mülakat sekmelerinde sıra linux/docker kalıbı takip edildi: Yaygın Hatalar =
+film → steps → `error-dictionary` (mevcut) → practice; Mülakat = film → steps
+→ practice → `interview-questions` (mevcut).
+
+### Doğrulama (§1.1) — hepsi geçti
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (her iki batch'te de)
+- TR/EN sızıntı taraması: 20 yeni sabitin tamamı programatik script ile
+  tarandı — gerçek leakage YOK (script'in 1 "flagged" çıktısı elle
+  doğrulanıp yanlış pozitif olduğu kanıtlandı — `en:` alanı gerçekte tam
+  İngilizce, script'in nested-quote parse hatasıydı; bu artefakt Dalga 5'te
+  de görülmüştü, gerçek bug değil).
+- `npm run build` → temiz; her iki batch'te de ayrı ayrı koşuldu.
+  `seleniumData` chunk'ı: batch 1 sonrası 414.88 kB/gzip 130.47 kB, batch 2
+  sonrası **455.88 kB / gzip 143.13 kB** — performans eşiğinin (gzip 350KB,
+  CLAUDE.md Bölüm 4) altında.
+- `npx playwright test tests/video-scene.spec.ts --workers=1` → **21/21 PASS**
+  (16 eski + 5 yeni Dalga 6 testi: 🌐 Giriş, ⚡ Actions, 🔗 Ecosystem,
+  🌐 CDP & BiDi, 🚨 Common Errors; 💼 Mülakat BİLEREK dışarıda bırakıldı —
+  quiz-gating %60 kilidi arkasında).
+
+### Sıradaki adım
+Bu Dalga 6 (Batch 2) değişikliklerini (seleniumData.js + tests/video-scene.spec.ts
++ bu dosya) commit et (kullanıcı onayıyla), sonra `Documents/video-sitewide-plan.md`
+sırasındaki Dalga 7'ye (/playwright) geç.
+
+---
+
 ## DALGA 5 — /docker (2026-07-15, TAMAMLANDI, commit BEKLİYOR)
 
 > `Documents/video-sitewide-plan.md` Bölüm 5'teki parametrik Sonnet şablonuyla

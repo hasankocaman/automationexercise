@@ -734,6 +734,803 @@ const seleniumIntroFlowSteps = {
   ],
 }
 
+// 🔗 Ekosistem — 60 dakikadan 3 dakikaya Grid paralelleştirme filmi
+const seleniumGridSpeedupFilm = {
+  type: 'video-scene',
+  id: 'selenium-grid-speedup-film',
+  title: {
+    tr: '🎬 200 Test, Tek Node: Neden Herkes "Bekleyemem" Diyor',
+    en: '🎬 200 Tests, One Node: Why Everyone Says "I Can\'t Wait"',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'suite',   emoji: '🧪', label: { tr: '200 E2E test',           en: '200 E2E tests' },          color: '#0ea5e9' },
+    { id: 'single',  emoji: '🖥️', label: { tr: 'Tek Node (sıralı)',       en: 'Single Node (sequential)' }, color: '#94a3b8' },
+    { id: 'slow',    emoji: '🐌', label: { tr: '40-60 dakika',            en: '40-60 minutes' },          color: '#dc2626' },
+    { id: 'pileup',  emoji: '📚', label: { tr: 'Commit üstüne commit',    en: 'Commit piling on commit' }, color: '#ef4444' },
+    { id: 'grid',    emoji: '🌐', label: { tr: 'Selenium Grid (20 Node)', en: 'Selenium Grid (20 Nodes)' }, color: '#8b5cf6' },
+    { id: 'parallel',emoji: '⚡', label: { tr: '20 paralel koşum',        en: '20 parallel runs' },       color: '#22c55e' },
+    { id: 'fast',    emoji: '✅', label: { tr: '3-4 dakika',              en: '3-4 minutes' },            color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '200 E2E test yazıldı — hepsi değerli, hepsi gerçek kullanıcı akışlarını doğruluyor. Ama hepsi TEK bir Node\'da SIRAYLA çalıştırılıyor.',
+        en: '200 E2E tests were written — all valuable, all verifying real user flows. But all of them run SEQUENTIALLY on a SINGLE Node.',
+      },
+      positions: { suite: { x: 30, y: 50, scale: 1.1, pulse: true }, single: { x: 65, y: 50, scale: 1.1 } },
+      beams: [{ from: 'suite', to: 'single' }],
+    },
+    {
+      caption: {
+        tr: 'Her test ortalama 15-20 saniye sürüyor — tek başına makul. Ama 200 test × sıralı çalışma = CI pipeline\'ı 40-60 dakika BLOKE ediyor.',
+        en: 'Each test takes 15-20 seconds on average — reasonable alone. But 200 tests × sequential execution = the CI pipeline is BLOCKED for 40-60 minutes.',
+      },
+      positions: {
+        single: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        slow: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'single', to: 'slow', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Geliştiriciler bir sonucun gelmesini 60 dakika bekleyemez — "zaten bekleyemem" der ve önceki commit\'in üzerine yeni commit atmaya başlarlar.',
+        en: 'Developers cannot wait 60 minutes for a result — they say "I can\'t wait anyway" and start stacking new commits on top of the previous one.',
+      },
+      positions: {
+        slow: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        pileup: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'slow', to: 'pileup', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: hangi commit\'in hangi testi kırdığı belirsizleşir, feedback loop kopar, test raporları kimsenin açmadığı bir e-postaya dönüşür.',
+        en: 'The result: which commit broke which test becomes unclear, the feedback loop breaks, test reports become an email nobody opens.',
+      },
+      positions: {
+        pileup: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        single: { x: 60, y: 55, scale: 0.9, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Selenium Grid devreye girer: aynı 200 test, 20 farklı Node\'a DAĞITILIR — Java\'nın ForkJoinPool\'unun tek JVM yerine tarayıcı Node\'larına genişlemiş hali.',
+        en: 'Selenium Grid steps in: the same 200 tests are DISTRIBUTED across 20 different Nodes — Java\'s ForkJoinPool, expanded from a single JVM to browser Nodes.',
+      },
+      code: { tr: `docker compose up --scale chrome=20`, en: `docker compose up --scale chrome=20` },
+      positions: {
+        pileup: { x: 22, y: 45, scale: 0.85, opacity: 0.5 },
+        grid: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pileup', to: 'grid', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: '200 test artık 20 Node\'a eşit dağılır — her Node yaklaşık 10 test çalıştırır, HEPSİ AYNI ANDA.',
+        en: 'The 200 tests are now evenly split across 20 Nodes — each Node runs about 10 tests, ALL AT THE SAME TIME.',
+      },
+      positions: {
+        grid: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        parallel: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'grid', to: 'parallel', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: bu, JUnit 5\'in `@Execution(CONCURRENT)`\'ının tarayıcı boyutuna genişlemesidir. Toplam süre 40-60 dakikadan 3-4 dakikaya düşer; geliştiriciler artık sonucu BEKLEYEBİLİR, feedback loop yeniden kurulur.',
+        en: 'Final — the Java bridge: this is JUnit 5\'s `@Execution(CONCURRENT)` expanded to the scale of browsers. Total time drops from 40-60 minutes to 3-4 minutes; developers can now WAIT for the result, the feedback loop is restored.',
+      },
+      positions: {
+        suite: { x: 12, y: 55, scale: 0.8 },
+        single: { x: 30, y: 35, scale: 0.7, opacity: 0.4 },
+        grid: { x: 54, y: 55, scale: 0.9 },
+        parallel: { x: 74, y: 35, scale: 0.85 },
+        fast: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'grid', to: 'parallel' }, { from: 'parallel', to: 'fast' }],
+    },
+  ],
+}
+
+// 🌐 CDP & BiDi — sessiz JS hatasını yakalama filmi
+const seleniumBidiListenerFilm = {
+  type: 'video-scene',
+  id: 'selenium-bidi-listener-film',
+  title: {
+    tr: '🎬 Konsoldaki Sessiz Hata: Klasik WebDriver Neden Onu Hiç Görmez',
+    en: '🎬 The Silent Console Error: Why Classic WebDriver Never Sees It',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test',    emoji: '🧪', label: { tr: 'Test: butona tıkla, assert et', en: 'Test: click button, assert' }, color: '#0ea5e9' },
+    { id: 'http',    emoji: '📨', label: { tr: 'Klasik WebDriver (HTTP)',   en: 'Classic WebDriver (HTTP)' },  color: '#94a3b8' },
+    { id: 'jserror', emoji: '💥', label: { tr: 'Sessiz JS hatası (konsol)', en: 'Silent JS error (console)' }, color: '#ef4444' },
+    { id: 'greenwrong', emoji: '✅', label: { tr: 'Test YİNE geçiyor',    en: 'Test STILL passes' },        color: '#dc2626' },
+    { id: 'bidi',    emoji: '🔌', label: { tr: 'WebDriver BiDi (WebSocket)', en: 'WebDriver BiDi (WebSocket)' }, color: '#8b5cf6' },
+    { id: 'listener',emoji: '👂', label: { tr: 'Log.entryAdded() dinleyici', en: 'Log.entryAdded() listener' }, color: '#f59e0b' },
+    { id: 'caught',  emoji: '🎯', label: { tr: 'Hata yakalandı, test FAIL', en: 'Error caught, test FAILS' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test butona tıklar ve bir sonraki elementin göründüğünü doğrular — assertion GEÇER. Görünüşe göre her şey yolunda.',
+        en: 'The test clicks a button and asserts that the next element appears — the assertion PASSES. Everything looks fine.',
+      },
+      positions: { test: { x: 30, y: 50, scale: 1.1, pulse: true }, http: { x: 65, y: 50, scale: 1.1 } },
+      beams: [{ from: 'test', to: 'http' }],
+    },
+    {
+      caption: {
+        tr: 'Klasik WebDriver mimarisi tek yönlüdür: komut gönder → HTTP response al. Java\'da klasik bir blocking REST çağrısı gibi — tarayıcının arka planda BAŞKA ne yaptığını hiç bilmezsin.',
+        en: 'Classic WebDriver is one-directional: send a command → get an HTTP response. Like a classic blocking REST call in Java — you never know what ELSE the browser is doing in the background.',
+      },
+      positions: {
+        http: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        test: { x: 56, y: 50, scale: 1, opacity: 0.7 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Ama o sırada konsolda: `TypeError: Cannot read properties of undefined`. Butonun ARKASINDAKİ bir JS fonksiyonu sessizce patladı — ekranda hiçbir görsel değişiklik olmadı.',
+        en: 'But meanwhile, in the console: `TypeError: Cannot read properties of undefined`. A JS function BEHIND the button silently blew up — no visual change appeared on screen.',
+      },
+      code: { tr: `TypeError: Cannot read properties of undefined (reading 'total')`, en: `TypeError: Cannot read properties of undefined (reading 'total')` },
+      positions: {
+        http: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        jserror: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'http', to: 'jserror', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Klasik WebDriver bu hatayı GÖREMEZ — konsol logu WebDriver protokolünün parçası değildir. Test PASSED yazar, ama sepet toplamı hesaplanamadı.',
+        en: 'Classic WebDriver CANNOT see this error — the console log is not part of the WebDriver protocol. The test says PASSED, but the cart total was never calculated.',
+      },
+      positions: {
+        jserror: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        greenwrong: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'jserror', to: 'greenwrong', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Selenium 4\'ün çözümü: WebDriver BiDi. HTTP yerine kalıcı bir WebSocket tüneli açar — Java\'daki CompletableFuture + event listener mimarisine benzer.',
+        en: 'Selenium 4\'s fix: WebDriver BiDi. It opens a persistent WebSocket tunnel instead of HTTP — similar to a Java CompletableFuture + event listener architecture.',
+      },
+      code: { tr: `DevTools devTools = driver.getDevTools();\ndevTools.createSession();\ndevTools.send(Log.enable());`, en: `DevTools devTools = driver.getDevTools();\ndevTools.createSession();\ndevTools.send(Log.enable());` },
+      positions: {
+        greenwrong: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        bidi: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'greenwrong', to: 'bidi', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: '`devTools.addListener(Log.entryAdded(), ...)` artık HER konsol olayını gerçek zamanlı dinler — hata oluştuğu ANDA test koduna bildirilir.',
+        en: '`devTools.addListener(Log.entryAdded(), ...)` now listens to EVERY console event in real time — the error is reported to the test code the INSTANT it happens.',
+      },
+      positions: {
+        bidi: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        listener: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bidi', to: 'listener', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — dinleyici hatayı yakalar, test artık GERÇEĞE uygun şekilde FAIL verir. QA kazanımı: her E2E testin yanına otomatik JS error monitoring eklenebilir — kod kaynağına hiç dokunmadan.',
+        en: 'Final — the listener catches the error, the test now FAILS as it truthfully should. The QA payoff: automatic JS error monitoring can be added alongside every E2E test — without touching the source code at all.',
+      },
+      positions: {
+        test: { x: 12, y: 55, scale: 0.8 },
+        http: { x: 30, y: 35, scale: 0.7, opacity: 0.4 },
+        bidi: { x: 54, y: 55, scale: 0.9 },
+        listener: { x: 74, y: 35, scale: 0.85 },
+        caught: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'listener', to: 'caught' }],
+    },
+  ],
+}
+
+// 🔐 Sanal Auth & PDF — Virtual Authenticator filmi
+const seleniumVirtualAuthFilm = {
+  type: 'video-scene',
+  id: 'selenium-virtual-auth-film',
+  title: {
+    tr: '🎬 Passkey Testi İçin USB Anahtara mı İhtiyacın Var? Hayır.',
+    en: '🎬 Do You Need a USB Key to Test Passkeys? No.',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'company', emoji: '🏢', label: { tr: '"Passkey\'e geçiyoruz" kararı', en: '"We\'re switching to Passkeys" decision' }, color: '#0ea5e9' },
+    { id: 'usb',     emoji: '🔑', label: { tr: 'Fiziksel USB dongle',       en: 'Physical USB dongle' },    color: '#94a3b8' },
+    { id: 'manual',  emoji: '🖐️', label: { tr: 'Sadece elle test edilebilir', en: 'Only testable manually' }, color: '#ef4444' },
+    { id: 'mockito', emoji: '🎭', label: { tr: 'Mockito? Çalışmaz.',        en: 'Mockito? Doesn\'t work.' },  color: '#dc2626' },
+    { id: 'virtual', emoji: '🤖', label: { tr: 'Virtual Authenticator',     en: 'Virtual Authenticator' },  color: '#8b5cf6' },
+    { id: 'ci',      emoji: '☁️', label: { tr: 'CI pipeline',              en: 'CI pipeline' },            color: '#22c55e' },
+    { id: 'automated', emoji: '✅', label: { tr: 'Regresyon otomatik',     en: 'Regression automated' },   color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Şirket karar verir: "Şifreleri kaldırıyoruz, WebAuthn Passkey\'e geçiyoruz." Güvenlik ekibi mutlu — ama QA ekibi bir soruyla baş başa kalır: bunu nasıl otomatikleştiririz?',
+        en: 'The company decides: "We\'re dropping passwords, switching to WebAuthn Passkeys." Security is happy — but QA is left with a question: how do we automate this?',
+      },
+      positions: { company: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Passkey doğrulaması normalde fiziksel bir USB güvenlik anahtarı veya cihaz biyometrisi gerektirir — CI sunucusunda böyle bir donanım YOKTUR.',
+        en: 'Passkey verification normally requires a physical USB security key or device biometrics — a CI server has NO such hardware.',
+      },
+      positions: {
+        company: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        usb: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'company', to: 'usb', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'İlk refleks: "sadece elle test edelim" — ama bu, her regresyon koşumunda bir insanın fiziksel anahtarla oturması demektir. Otomasyon boşluğu doğar.',
+        en: 'The first reflex: "let\'s just test it manually" — but that means a human must sit with a physical key on every regression run. An automation gap is born.',
+      },
+      positions: {
+        usb: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        manual: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'usb', to: 'manual', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Neden Mockito ile servis katmanını mock\'lar gibi bu API\'yi de mock\'lamıyoruz? Çünkü WebAuthn doğrulaması uygulama kodunda DEĞİL, tarayıcının kendi API\'sinde gerçekleşir — Mockito o katmana hiç erişemez.',
+        en: 'Why not mock this API the way Mockito mocks the service layer? Because WebAuthn verification happens in the BROWSER\'s own API, not the application code — Mockito can never reach that layer.',
+      },
+      positions: {
+        manual: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        mockito: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'manual', to: 'mockito', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Selenium\'un çözümü: `addVirtualAuthenticator(options)` — tıpkı testlerde gerçek veritabanı yerine H2 in-memory DB kullanmak gibi, tarayıcıya YAZILIM TABANLI bir donanım simülatörü enjekte eder.',
+        en: 'Selenium\'s fix: `addVirtualAuthenticator(options)` — just like using an H2 in-memory DB instead of a real database in tests, it injects a SOFTWARE-BASED hardware simulator into the browser.',
+      },
+      code: { tr: `VirtualAuthenticatorOptions options = new VirtualAuthenticatorOptions()\n    .setProtocol(Protocol.CTAP2)\n    .setHasResidentKey(true);\ndriver.addVirtualAuthenticator(options);`, en: `VirtualAuthenticatorOptions options = new VirtualAuthenticatorOptions()\n    .setProtocol(Protocol.CTAP2)\n    .setHasResidentKey(true);\ndriver.addVirtualAuthenticator(options);` },
+      positions: {
+        mockito: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        virtual: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'mockito', to: 'virtual', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Bu sanal cihaz, gerçek USB anahtarın YERİNE geçer ve FIDO2 akışını uçtan uca tetikler — CI sunucusunda, hiçbir fiziksel donanım olmadan.',
+        en: 'This virtual device SUBSTITUTES for the real USB key and triggers the full FIDO2 flow end to end — on the CI server, with no physical hardware at all.',
+      },
+      positions: {
+        virtual: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        ci: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'virtual', to: 'ci', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: Virtual Authenticator, arayüz aynı kalırken alttaki implementasyonun test için değiştirilmesidir — H2 ile production PostgreSQL\'i değiştirmek gibi. Login regresyonu artık her commit\'te otomatik koşar.',
+        en: 'Final — the Java bridge: the Virtual Authenticator keeps the interface identical while swapping the underlying implementation for testing — like replacing production PostgreSQL with H2. Login regression now runs automatically on every commit.',
+      },
+      positions: {
+        company: { x: 12, y: 55, scale: 0.8 },
+        usb: { x: 30, y: 35, scale: 0.7, opacity: 0.4 },
+        virtual: { x: 54, y: 55, scale: 0.9 },
+        ci: { x: 74, y: 35, scale: 0.85 },
+        automated: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'virtual', to: 'ci' }, { from: 'ci', to: 'automated' }],
+    },
+  ],
+}
+
+// 🖥️ Selenium IDE — kayıttan production koduna filmi
+const seleniumIdeExportFilm = {
+  type: 'video-scene',
+  id: 'selenium-ide-export-film',
+  title: {
+    tr: '🎬 Manuel Testçinin Kaydı, QA Mühendisinin Koduna Dönüşüyor',
+    en: '🎬 The Manual Tester\'s Recording Becomes the QA Engineer\'s Code',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'tester',  emoji: '🖐️', label: { tr: 'Manuel testçi',           en: 'Manual tester' },          color: '#0ea5e9' },
+    { id: 'record',  emoji: '🎥', label: { tr: 'Selenium IDE (kayıt)',    en: 'Selenium IDE (recording)' }, color: '#6366f1' },
+    { id: 'side',    emoji: '📄', label: { tr: 'flow.side',               en: 'flow.side' },              color: '#f59e0b' },
+    { id: 'export',  emoji: '📤', label: { tr: 'Export → Java/JUnit',     en: 'Export → Java/JUnit' },    color: '#8b5cf6' },
+    { id: 'raw',     emoji: '🪵', label: { tr: 'Kaba taslak kod',         en: 'Rough draft code' },       color: '#94a3b8' },
+    { id: 'refactor',emoji: '🔧', label: { tr: 'QA mühendisi refactor eder', en: 'QA engineer refactors' }, color: '#22c55e' },
+    { id: 'suite',   emoji: '✅', label: { tr: 'Gerçek test suite\'ine entegre', en: 'Integrated into real suite' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir manuel testçi yeni bir sayfa akışını KEŞFEDER: hangi locator stabil, navigasyon sırası ne, hangi koşul beklenmeli — bunları elle deneyerek öğrenir.',
+        en: 'A manual tester EXPLORES a new page flow: which locator is stable, what the navigation order is, which condition to wait for — learned by trying it by hand.',
+      },
+      positions: { tester: { x: 30, y: 50, scale: 1.1, pulse: true }, record: { x: 65, y: 50, scale: 1.1 } },
+      beams: [{ from: 'tester', to: 'record' }],
+    },
+    {
+      caption: {
+        tr: 'Selenium IDE\'yi açar, tarayıcıda akışı normal şekilde kullanır — IDE, tıpkı IntelliJ\'in getter/setter iskelet kodu üretmesi gibi, her adımı otomatik kaydeder.',
+        en: 'They open Selenium IDE and use the flow normally in the browser — the IDE auto-records every step, like IntelliJ generating getter/setter boilerplate.',
+      },
+      positions: {
+        record: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        side: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'record', to: 'side', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: '`flow.side` dosyası artık komut-hedef-değer üçlüleriyle dolu: open, click, type, assertText — akışın tam bir kaydı.',
+        en: 'The `flow.side` file is now full of command-target-value triples: open, click, type, assertText — a complete record of the flow.',
+      },
+      positions: {
+        side: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        export: { x: 60, y: 50, scale: 1.15, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Sağ tık → Export → Java (JUnit). Kayıt, çalıştırılabilir bir WebDriver koduna dönüşür — ama bu KABA bir taslaktır, henüz production kalitesinde değil.',
+        en: 'Right-click → Export → Java (JUnit). The recording becomes runnable WebDriver code — but it is a ROUGH draft, not yet production quality.',
+      },
+      code: { tr: `// Selenium IDE'den export edilen kaba taslak\n@Test\npublic void flowTest() {\n    driver.findElement(By.id("loginBtn")).click();\n    // ... elle uretilen adimlar\n}`, en: `// Rough draft exported from Selenium IDE\n@Test\npublic void flowTest() {\n    driver.findElement(By.id("loginBtn")).click();\n    // ... auto-generated steps\n}` },
+      positions: {
+        export: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        raw: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'export', to: 'raw', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'QA mühendisi devralır: hardcoded locator\'ları Page Object\'lere taşır, `Thread.sleep()` varsa `WebDriverWait`\'e çevirir, tekrar eden adımları metotlara çıkarır.',
+        en: 'The QA engineer takes over: moves hardcoded locators into Page Objects, converts any `Thread.sleep()` to `WebDriverWait`, extracts repeated steps into methods.',
+      },
+      positions: {
+        raw: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        refactor: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'raw', to: 'refactor', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: bu, IDE\'nin ürettiği iskelet kodu elle temizlemeye benzer — çıktıyı olduğu gibi production\'a göndermezsin. Manuel testçi ile QA mühendisi arasında bir köprü kurulur: "neden bu senaryo hiç test edilmiyor?" sorusu artık sorulmaz.',
+        en: 'Final — the Java bridge: this is like manually cleaning up IDE-generated boilerplate — you never ship the raw output as-is. A bridge is built between the manual tester and the QA engineer: the question "why is this scenario never tested?" no longer needs to be asked.',
+      },
+      positions: {
+        tester: { x: 12, y: 55, scale: 0.8 },
+        record: { x: 30, y: 35, scale: 0.75, opacity: 0.5 },
+        raw: { x: 54, y: 55, scale: 0.9 },
+        refactor: { x: 74, y: 35, scale: 0.85 },
+        suite: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'refactor', to: 'suite' }],
+    },
+  ],
+}
+
+// 🌐 Grid 4 & Dağıtık — mikroservis routing filmi
+const seleniumGridRoutingFilm = {
+  type: 'video-scene',
+  id: 'selenium-grid-routing-film',
+  title: {
+    tr: '🎬 "Safari\'de Ödeme Bozuk mu?" Sorusunu Grid 4 Nasıl Cevaplar',
+    en: '🎬 How Grid 4 Answers "Is Checkout Broken in Safari?"',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'request', emoji: '📨', label: { tr: 'newSession(Safari)',      en: 'newSession(Safari)' },     color: '#0ea5e9' },
+    { id: 'router',  emoji: '🧭', label: { tr: 'Router',                  en: 'Router' },                 color: '#6366f1' },
+    { id: 'distributor', emoji: '📋', label: { tr: 'Distributor',        en: 'Distributor' },            color: '#8b5cf6' },
+    { id: 'sessionmap', emoji: '🗺️', label: { tr: 'Session Map',         en: 'Session Map' },            color: '#f59e0b' },
+    { id: 'node',    emoji: '🖥️', label: { tr: 'Safari Node (macOS)',    en: 'Safari Node (macOS)' },    color: '#22c55e' },
+    { id: 'eventbus',emoji: '📡', label: { tr: 'Event Bus',               en: 'Event Bus' },              color: '#94a3b8' },
+    { id: 'answer',  emoji: '✅', label: { tr: 'Cevap: bozuk/sağlam',     en: 'Answer: broken/healthy' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir e-ticaret ekibi bilmiyor: "Safari\'de ödeme sayfası bozuk mu?" Bu soruyu CI\'da OTOMATİK cevaplamak istiyorlar — Grid 4 mimarisi devreye girer.',
+        en: 'An e-commerce team does not know: "Is the checkout page broken in Safari?" They want to answer this AUTOMATICALLY in CI — Grid 4\'s architecture takes over.',
+      },
+      positions: { request: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'İstek Router\'a gelir: "Safari, macOS istiyorum". Router, Grid 3\'ün monolith Hub\'ının aksine sadece YÖNLENDİRME yapar — kararı kendisi vermez.',
+        en: 'The request arrives at the Router: "I want Safari, macOS". Unlike Grid 3\'s monolithic Hub, the Router only ROUTES — it does not make the decision itself.',
+      },
+      positions: {
+        request: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        router: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'request', to: 'router', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Router, isteği Distributor\'a iletir. Distributor, hangi Node\'un Safari/macOS kapasitesine sahip olduğunu ve şu an MÜSAİT olduğunu bilir — bir yük dengeleyici gibi.',
+        en: 'The Router forwards the request to the Distributor. The Distributor knows which Node has Safari/macOS capacity and is currently AVAILABLE — like a load balancer.',
+      },
+      positions: {
+        router: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        distributor: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'router', to: 'distributor', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Uygun Node bulunur, session oluşturulur ve Session Map\'e kaydedilir — bu harita, hangi session ID\'nin hangi Node\'da yaşadığını takip eder.',
+        en: 'A suitable Node is found, a session is created and recorded in the Session Map — this map tracks which session ID lives on which Node.',
+      },
+      positions: {
+        distributor: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        sessionmap: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'distributor', to: 'sessionmap', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Test artık gerçek Safari Node\'unda çalışır — ödeme sayfasını gerçek WebKit motoruyla açar, Chrome/Firefox\'un asla yakalayamayacağı bir WebKit-özel bug\'ı ortaya çıkarabilir.',
+        en: 'The test now runs on the real Safari Node — it opens the checkout page with the real WebKit engine, potentially revealing a WebKit-specific bug Chrome/Firefox could never catch.',
+      },
+      positions: {
+        sessionmap: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        node: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'sessionmap', to: 'node', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Event Bus, tüm bileşenler arasında durum güncellemelerini yayınlar — Node çöktüğünde, session sona erdiğinde herkes ANINDA haberdar olur.',
+        en: 'The Event Bus broadcasts state updates across all components — when a Node crashes or a session ends, everyone finds out INSTANTLY.',
+      },
+      positions: {
+        node: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        eventbus: { x: 56, y: 50, scale: 1.1, opacity: 0.7 },
+        answer: { x: 56, y: 32, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'node', to: 'answer', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: Router/Distributor/Session Map/Event Bus ayrımı, bir monolith Java uygulamasının mikroservislere bölünmesi gibidir — her bileşen bağımsız scale edilir, tek bir parça çökse bile sistem ayakta kalır.',
+        en: 'Final — the Java bridge: the Router/Distributor/Session Map/Event Bus split is like a monolithic Java application broken into microservices — each component scales independently, and the system stays up even if one part crashes.',
+      },
+      positions: {
+        request: { x: 10, y: 55, scale: 0.75 },
+        router: { x: 28, y: 35, scale: 0.75 },
+        distributor: { x: 46, y: 55, scale: 0.8 },
+        node: { x: 66, y: 35, scale: 0.85 },
+        answer: { x: 90, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'request', to: 'router' }, { from: 'router', to: 'distributor' }, { from: 'distributor', to: 'node' }, { from: 'node', to: 'answer' }],
+    },
+  ],
+}
+
+// 🚨 Yaygın Hatalar — StaleElementReferenceException teşhis zinciri filmi
+const seleniumStaleElementDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'selenium-stale-element-diagnosis-film',
+  title: {
+    tr: '🎬 Bir Selenium Hatasının Teşhis Zinciri: StaleElementReferenceException',
+    en: '🎬 The Diagnosis Chain of a Selenium Error: StaleElementReferenceException',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'found',   emoji: '🔍', label: { tr: 'Element bulundu ve kaydedildi', en: 'Element found and captured' }, color: '#0ea5e9' },
+    { id: 'rerender',emoji: '🔄', label: { tr: 'SPA yeniden render eder',   en: 'SPA re-renders' },         color: '#f59e0b' },
+    { id: 'stale',   emoji: '💥', label: { tr: 'StaleElementReferenceException', en: 'StaleElementReferenceException' }, color: '#ef4444' },
+    { id: 'wrongfix',emoji: '😰', label: { tr: '"Tekrar findElement" refleksi', en: 'The "just findElement again" reflex' }, color: '#94a3b8' },
+    { id: 'refind',  emoji: '🔁', label: { tr: 'Kullanmadan ÖNCE yeniden bul', en: 'Re-find BEFORE each use' }, color: '#8b5cf6' },
+    { id: 'wait',    emoji: '⏳', label: { tr: 'WebDriverWait ile stabilite', en: 'Stability via WebDriverWait' }, color: '#22c55e' },
+    { id: 'stable',  emoji: '✅', label: { tr: 'Güvenilir test',           en: 'Reliable test' },          color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`WebElement btn = driver.findElement(By.id("btn"))` — element bulunur ve bir Java referansında SAKLANIR.',
+        en: '`WebElement btn = driver.findElement(By.id("btn"))` — the element is found and STORED in a Java reference.',
+      },
+      code: { tr: `WebElement btn = driver.findElement(By.id("btn"));`, en: `WebElement btn = driver.findElement(By.id("btn"));` },
+      positions: { found: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — mesajı PARÇALA: "stale element reference: element is not attached to the page document" — bu bir locator hatası DEĞİL, bir YAŞAM SÜRESİ hatasıdır.',
+        en: 'Step 1 — DECOMPOSE the message: "stale element reference: element is not attached to the page document" — this is not a locator error, it is a LIFETIME error.',
+      },
+      positions: {
+        found: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        rerender: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'found', to: 'rerender', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'React/Vue gibi bir SPA, arka planda DOM\'u yeniden render eder — belki sadece görsel olarak aynı görünen ama TEKNİK OLARAK yeni bir element ağacı oluşturur.',
+        en: 'A SPA like React/Vue re-renders the DOM in the background — perhaps visually identical, but TECHNICALLY a brand new element tree.',
+      },
+      positions: {
+        rerender: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        stale: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'rerender', to: 'stale', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Java köprüsü: bu tam olarak GC sonrası bir `WeakReference`\'a erişmeye benzer — referans hâlâ elinde ama işaret ettiği nesne artık YOK.',
+        en: 'Step 2 — the Java bridge: this is exactly like accessing a `WeakReference` after GC — you still hold the reference, but the object it points to is GONE.',
+      },
+      positions: {
+        stale: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        wrongfix: { x: 58, y: 50, scale: 1.15, opacity: 0.7 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Kontrast — yaygın yanlış refleks: catch bloğunda "bir daha findElement dene" demek sorunu GİZLER ama tekrar aynı yerde stale olma riskini taşır — kök nedeni anlamadan yama yapmaktır.',
+        en: 'Contrast — the common wrong reflex: catching and saying "just findElement again" HIDES the problem but still risks going stale at the same spot again — patching without understanding the root cause.',
+      },
+      positions: {
+        wrongfix: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        refind: { x: 60, y: 50, scale: 1.1, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — en küçük GÜVENLİ düzeltme: element\'i HER kullanmadan HEMEN ÖNCE yeniden bul, asla önceden yakalayıp saklama.',
+        en: 'Step 3 — the smallest SAFE fix: re-find the element IMMEDIATELY BEFORE each use, never capture it ahead of time and store it.',
+      },
+      code: { tr: `driver.navigate().refresh();\ndriver.findElement(By.id("btn")).click(); // yeniden bul, SAKLAMA`, en: `driver.navigate().refresh();\ndriver.findElement(By.id("btn")).click(); // re-find, do NOT store` },
+      positions: {
+        refind: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        wait: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'refind', to: 'wait', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — AYNI komutla kanıtla: `WebDriverWait` + `elementToBeClickable` ile sarılan bu çağrı, hem stale referansı hem de zamanlama sorununu tek seferde çözer.',
+        en: 'Step 4 — PROVE it with the SAME command: wrapping this call with `WebDriverWait` + `elementToBeClickable` solves both the stale reference and the timing issue at once.',
+      },
+      code: { tr: `wait.until(EC.elementToBeClickable(By.id("btn"))).click();`, en: `wait.until(EC.elementToBeClickable(By.id("btn"))).click();` },
+      positions: {
+        wait: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        stable: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'wait', to: 'stable', color: '#16a34a' }],
+    },
+  ],
+}
+
+// 🚨 Yaygın Hatalar — StaleElement teşhis refleksi step-animation'ı
+const seleniumStaleElementDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'selenium-stale-element-diagnosis-step-01',
+  title: { tr: 'Adım Adım: Selenium Hata Teşhis Refleksi', en: 'Step by Step: The Selenium Error Diagnosis Reflex' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Mesajın türünü ayırt et', en: 'Classify the message' }, detail: { tr: '"NoSuchElement" locator/timing, "StaleElement" yaşam süresi, "ElementNotInteractable" görünürlük/CSS, "Timeout" koşul hiç sağlanmadı — her biri farklı katmana işaret eder.', en: '"NoSuchElement" is locator/timing, "StaleElement" is lifetime, "ElementNotInteractable" is visibility/CSS, "Timeout" means the condition was never met — each points to a different layer.' } },
+    { id: 2, icon: '🗺️', label: { tr: 'Katmanı bul', en: 'Locate the layer' }, detail: { tr: 'Hata mesajının işaret ettiği TEK katmanda çalış — StaleElement\'te sorun locator değil, elementin DOM\'daki YAŞAM SÜRESİdir.', en: 'Work in the ONE layer the message points to — for StaleElement, the problem is not the locator, it is the element\'s LIFETIME in the DOM.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Değiştirmeyen kanıt topla', en: 'Collect non-destructive evidence' }, detail: { tr: 'DevTools\'da element\'i manuel test et, sayfanın ne zaman yeniden render olduğunu Network/Console sekmesinde izle.', en: 'Test the element manually in DevTools, watch when the page re-renders via the Network/Console tabs.' } },
+    { id: 4, icon: '🔧', label: { tr: 'En küçük güvenli düzeltmeyi uygula', en: 'Apply the smallest safe fix' }, detail: { tr: 'Element referansını asla önceden saklama; her kullanımdan hemen önce yeniden bul ve WebDriverWait ile sar.', en: 'Never store an element reference ahead of time; re-find it immediately before each use and wrap it with WebDriverWait.' } },
+    { id: 5, icon: '✅', label: { tr: 'Aynı komutla kanıtla', en: 'Prove with the same command' }, detail: { tr: 'Başarısız olan test AYNEN tekrar çalıştırılır, birkaç kez arka arkaya geçtiği doğrulanır — flaky testler tek koşumda "düzeldi" denemez.', en: 'Rerun the EXACT failing test, verify it passes several times in a row — a flaky test cannot be called "fixed" after a single run.' } },
+  ],
+}
+
+// 🚨 Yaygın Hatalar — StaleElement sandbox'ı
+const seleniumStaleElementPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'selenium-webdriver-errors',
+  id: 'selenium-stale-element-practice-01',
+  label: { tr: 'Micro Lab: StaleElementReferenceException\'ı doğru düzelt', en: 'Micro Lab: Correctly fix a StaleElementReferenceException' },
+  language: 'java',
+  task: {
+    tr: 'Bir buton element\'i sayfa yenilenmeden önce yakalanmış ve saklanmış; yenileme sonrası tıklama StaleElementReferenceException veriyor. TODO satırını, element\'i YENİDEN bulup WebDriverWait ile sararak tamamla.',
+    en: 'A button element was captured and stored before a page refresh; clicking it after the refresh throws StaleElementReferenceException. Complete the TODO line by RE-FINDING the element wrapped with WebDriverWait.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç "önceden yakala ve sakla" refleksinden "her kullanımdan önce yeniden bul" refleksine geçişi elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the shift from "capture and store ahead of time" to "re-find before each use" by writing it yourself.',
+  },
+  code: {
+    tr: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\nwait.until(EC.elementToBeClickable(By.id("btn"))).click();`,
+    en: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\nwait.until(EC.elementToBeClickable(By.id("btn"))).click();`,
+  },
+  starterCode: {
+    tr: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\n// TODO: eski referansi KULLANMA, elementi yeniden bul ve WebDriverWait ile sar`,
+    en: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\n// TODO: do NOT use the old reference, re-find the element wrapped with WebDriverWait`,
+  },
+  solutionCode: {
+    tr: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\nwait.until(EC.elementToBeClickable(By.id("btn"))).click();`,
+    en: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\nwait.until(EC.elementToBeClickable(By.id("btn"))).click();`,
+  },
+  expected: {
+    tr: 'Tıklama, sayfa yenilendikten sonra bile StaleElementReferenceException fırlatmadan başarıyla çalışır — çünkü referans yenileme SONRASINDA alınmıştır.',
+    en: 'The click succeeds even after the page refresh without throwing StaleElementReferenceException — because the reference was taken AFTER the refresh.',
+  },
+  hints: [
+    { tr: 'Eski `btn` değişkenini kullanma — o, yenilemeden ÖNCEki DOM\'a işaret ediyor.', en: 'Do not use the old `btn` variable — it points to the DOM from BEFORE the refresh.' },
+    { tr: '`wait.until(EC.elementToBeClickable(By.id("btn")))` hem yeniden bulur hem tıklanabilir olana kadar bekler.', en: '`wait.until(EC.elementToBeClickable(By.id("btn")))` both re-finds the element and waits until it is clickable.' },
+  ],
+  xpReward: 10,
+}
+
+// 💼 Mülakat Q&A — güçlü cevap anatomisi filmi
+const seleniumInterviewAnswerFilm = {
+  type: 'video-scene',
+  id: 'selenium-interview-answer-film',
+  title: {
+    tr: '🎬 Selenium Senaryo Sorusuna Güçlü Cevap Anatomisi',
+    en: '🎬 The Anatomy of a Strong Selenium Scenario Answer',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '🎤', label: { tr: 'Senaryo sorusu',        en: 'Scenario question' },     color: '#6366f1' },
+    { id: 'weak',     emoji: '😰', label: { tr: '"Sleep ekle" refleksi', en: 'The "just add sleep" reflex' }, color: '#94a3b8' },
+    { id: 'evidence', emoji: '🧭', label: { tr: 'Kanıt: hangi katman?',   en: 'Evidence: which layer?' },  color: '#f59e0b' },
+    { id: 'rationale',emoji: '⚖️', label: { tr: 'Koşul + gerekçe',        en: 'Condition + rationale' },   color: '#10b981' },
+    { id: 'root',     emoji: '🛡️', label: { tr: 'Kalıcı kök çözüm',       en: 'Permanent root fix' },      color: '#0ea5e9' },
+    { id: 'java',     emoji: '☕', label: { tr: 'Java analojisi',         en: 'Java analogy' },           color: '#8b5cf6' },
+    { id: 'win',      emoji: '🏆', label: { tr: 'Güçlü cevap',            en: 'Strong answer' },          color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakatçı soruyor: "CI\'da aralıklı başarısız olan (flaky) testleriniz var — nasıl stabilize edersiniz?" Bu filmde aynı soruya iki cevabın farkını izleyeceksin.',
+        en: 'The interviewer asks: "Your CI has intermittently failing (flaky) tests — how do you stabilize them?" In this film you will watch the difference between two answers.',
+      },
+      positions: { question: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Zayıf refleks: "Thread.sleep ekleriz, biraz daha bekletiriz." Bu, mülakatçının en sık duyduğu ve en az etkilenen cevaptır — kök nedeni hiç sormaz.',
+        en: 'The weak reflex: "We add Thread.sleep, make it wait a bit longer." This is the answer interviewers hear most and are least impressed by — it never asks about the root cause.',
+      },
+      positions: {
+        question: { x: 20, y: 40, scale: 0.9, opacity: 0.7 },
+        weak: { x: 55, y: 52, scale: 1.15, pulse: true, opacity: 0.8 },
+      },
+      beams: [{ from: 'question', to: 'weak', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Güçlü cevabın 1. katmanı — KANIT: "Önce hangi KATEGORİDE flaky olduğuna bakarım: NoSuchElement mi, StaleElement mi, timing mi, yoksa test veri kirliliği mi?"',
+        en: 'Layer 1 of the strong answer — EVIDENCE: "First I check WHICH CATEGORY the flakiness falls into: NoSuchElement, StaleElement, timing, or test data pollution?"',
+      },
+      positions: {
+        weak: { x: 15, y: 68, scale: 0.7, opacity: 0.35 },
+        evidence: { x: 52, y: 48, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'evidence' }],
+    },
+    {
+      caption: {
+        tr: '2. katman — koşul + GEREKÇE: "Thread.sleep yerine ExpectedConditions ile ilgili koşulu tanımlarım — çünkü sabit bekleme hem yavaş hem güvenilmezdir, koşul ise HER ortamda doğru davranır."',
+        en: 'Layer 2 — condition + RATIONALE: "Instead of Thread.sleep, I define the relevant ExpectedCondition — because a fixed wait is both slow and unreliable, while a condition behaves correctly in EVERY environment."',
+      },
+      positions: {
+        evidence: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        rationale: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'rationale', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: '3. katman — KÖK neden: "Tek bir test değil, TÜM suite\'i tararım — aynı anti-pattern (örn. element önceden yakalayıp saklama) başka testlerde de tekrar ediyor mu?"',
+        en: 'Layer 3 — the ROOT cause: "I do not scan just one test, I scan the WHOLE suite — is the same anti-pattern (e.g. capturing and storing an element ahead of time) repeating in other tests too?"',
+      },
+      positions: {
+        rationale: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        root: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'rationale', to: 'root', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: '4. katman — Java köprüsü: "Bu, Java\'da CompletableFuture.get(timeout) ile bir Future\'ı erken okumak gibidir — koşulu tanımlamak, veri gelene kadar akıllıca beklemektir."',
+        en: 'Layer 4 — the Java bridge: "This is like reading a Future too early with CompletableFuture.get(timeout) in Java — defining the condition is waiting intelligently until the data arrives."',
+      },
+      positions: {
+        root: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        java: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'root', to: 'java', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Final — formül: kanıt (kategori) → koşul + gerekçe → kalıcı kök çözüm (suite geneli tarama) → Java analojisi. Sıralı düşünen aday, komut ezberleyeni her zaman geçer.',
+        en: 'Final — the formula: evidence (category) → condition + rationale → permanent root fix (suite-wide scan) → Java analogy. The candidate who thinks in order always beats the one who memorized commands.',
+      },
+      positions: {
+        evidence: { x: 14, y: 55, scale: 0.85 },
+        rationale: { x: 34, y: 38, scale: 0.85 },
+        root: { x: 54, y: 55, scale: 0.85 },
+        java: { x: 72, y: 38, scale: 0.85 },
+        win: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'rationale' }, { from: 'rationale', to: 'root' }, { from: 'root', to: 'java' }, { from: 'java', to: 'win' }],
+    },
+  ],
+}
+
+// 💼 Mülakat Q&A — cevap kurma step-animation'ı
+const seleniumInterviewAnswerSteps = {
+  type: 'step-animation',
+  id: 'selenium-interview-answer-step-01',
+  title: { tr: 'Adım Adım: Selenium Senaryo Cevabı Kurma', en: 'Step by Step: Building a Selenium Scenario Answer' },
+  steps: [
+    { id: 1, icon: '🧭', label: { tr: 'Kategoriyi sor', en: 'Ask about the category' }, detail: { tr: 'Cevaba netleştirerek başla: hangi exception, ne sıklıkla, tek testte mi çoklu testte mi? Kategori sormak ilk puandır.', en: 'Open by clarifying: which exception, how often, one test or many? Asking about the category is the first point.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Kanıt komutlarını sırala', en: 'List the evidence commands' }, detail: { tr: '"Önce hata mesajını, sonra hangi katmana işaret ettiğini kontrol ederim" de — bu, ezberden ayrışmanın yoludur.', en: 'Say "first I check the error message, then which layer it points to" — this is how you separate yourself from rote memory.' } },
+    { id: 3, icon: '⚖️', label: { tr: 'Koşulu gerekçesiyle ver', en: 'Give the condition with its why' }, detail: { tr: 'Seçtiğin ExpectedCondition\'ı NEDENiyle söyle: "elementToBeClickable, çünkü hem görünürlük hem tıklanabilirlik gerekiyor".', en: 'State your chosen ExpectedCondition WITH its reason: "elementToBeClickable, because both visibility and clickability are needed".' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Kalıcı çözümü ekle', en: 'Add the permanent fix' }, detail: { tr: 'Tek testi değil, suite genelini tara — aynı anti-pattern\'in başka testlerde tekrarlanıp tekrarlanmadığını kontrol et.', en: 'Do not scan just one test — scan the whole suite for the same anti-pattern repeating elsewhere.' } },
+    { id: 5, icon: '☕', label: { tr: 'Java analojisiyle kapat', en: 'Close with a Java analogy' }, detail: { tr: 'Cevabı bildiğin dünyaya bağla: ExplicitWait, CompletableFuture.get(timeout) gibidir. Analoji, kavramı gerçekten ANLADIĞINI kanıtlar.', en: 'Tie the answer to a world you know: ExplicitWait is like CompletableFuture.get(timeout). The analogy proves you truly UNDERSTAND the concept.' } },
+  ],
+}
+
+// 💼 Mülakat Q&A — flaky test teşhis akışı sandbox'ı
+const seleniumInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'selenium-webdriver',
+  id: 'selenium-interview-practice-01',
+  label: { tr: 'Micro Lab: Mülakat senaryosunu koşul akışına çevir', en: 'Micro Lab: Turn the interview scenario into a condition flow' },
+  language: 'java',
+  task: {
+    tr: 'Klasik mülakat senaryosu: bir test CI\'da aralıklı başarısız oluyor, kanıt Thread.sleep\'in yetersiz kaldığını gösteriyor. TODO satırını, doğru ExpectedCondition ile tamamla.',
+    en: 'The classic interview scenario: a test fails intermittently in CI, the evidence shows Thread.sleep is insufficient. Complete the TODO line with the correct ExpectedCondition.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç mülakatta anlatacağın çözüm akışını (kanıt → koşul seçimi → kalıcı kök çözüm) elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the solution flow you would narrate in an interview (evidence → condition choice → permanent root fix) by writing it yourself.',
+  },
+  code: {
+    tr: `// kanit: element bazen "not interactable" hatasi veriyor\nWebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nwait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))).click();`,
+    en: `// evidence: element sometimes throws "not interactable"\nWebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nwait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))).click();`,
+  },
+  starterCode: {
+    tr: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n// TODO: hem gorunur hem tiklanabilir olmasini bekleyen koşulu yaz\n.click();`,
+    en: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n// TODO: write the condition that waits for both visibility AND clickability\n.click();`,
+  },
+  solutionCode: {
+    tr: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nwait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))).click();`,
+    en: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nwait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))).click();`,
+  },
+  expected: {
+    tr: 'Test artık CI\'da tutarlı şekilde geçer — çünkü koşul, elementin GERÇEKTEN etkileşilebilir olduğu anı bekler, sabit bir süreyi değil.',
+    en: 'The test now passes consistently in CI — because the condition waits for the moment the element is TRULY interactable, not a fixed duration.',
+  },
+  hints: [
+    { tr: 'Aranan koşul hem görünürlüğü hem tıklanabilirliği kontrol eder: `elementToBeClickable`.', en: 'The condition you need checks both visibility and clickability: `elementToBeClickable`.' },
+    { tr: 'Sözdizimi: `wait.until(ExpectedConditions.elementToBeClickable(By.id("x")))`.', en: 'Syntax: `wait.until(ExpectedConditions.elementToBeClickable(By.id("x")))`.' },
+  ],
+  xpReward: 10,
+}
+
 const seleniumIntroPractice = {
   type: 'code-playground',
   relatedTopicId: 'selenium-intro-flow-practice-01',
@@ -4306,6 +5103,7 @@ driver.get("https://example.com")
 print(driver.title)
 driver.quit()`,
       },
+      seleniumGridSpeedupFilm,
       { type: 'heading', text: '3. GitHub Actions CI/CD Entegrasyonu' },
       {
         type: 'code', language: 'yaml',
@@ -4423,6 +5221,7 @@ java -jar selenium-server.jar node --hub http://localhost:4444`,
     options=Options()
 )`,
       },
+      seleniumGridSpeedupFilm,
       {
         type: 'quiz',
         question: 'Which TestNG annotation runs BEFORE every test method?',
@@ -4508,6 +5307,7 @@ devTools.addListener(Log.entryAdded(), logEntry -> {
 
 driver.get("https://example.com");`,
       },
+      seleniumBidiListenerFilm,
       {
         type: 'heading', text: '2. Network Interception (API Mocking)'
       },
@@ -4678,6 +5478,7 @@ devTools.addListener(Log.entryAdded(), logEntry -> {
 
 driver.get("https://example.com");`,
       },
+      seleniumBidiListenerFilm,
       {
         type: 'heading', text: '2. Network Interception (API Mocking)'
       },
@@ -4823,6 +5624,7 @@ driver.get("https://webauthn.io");
 // Passkey kaydı ve giriş işlemlerini yap...
 authDriver.removeVirtualAuthenticator(authenticator);`,
       },
+      seleniumVirtualAuthFilm,
       {
         type: 'heading', text: '2. Print Page (Headless PDF Kaydetme)'
       },
@@ -4961,6 +5763,7 @@ driver.get("https://webauthn.io");
 // Perform passkey registration/login tests...
 authDriver.removeVirtualAuthenticator(authenticator);`,
       },
+      seleniumVirtualAuthFilm,
       {
         type: 'heading', text: '2. Print Page (Headless PDF Export)'
       },
@@ -5117,6 +5920,7 @@ selenium-side-runner -c "browserName=chrome" -w 4 projem.side`,
         type: 'text',
         content: 'IDE\'de kaydettiğiniz adımları sağ tıklayıp "Export" diyerek Java (JUnit/TestNG), Python (pytest) veya JavaScript formatında temiz bir WebDriver koduna dönüştürebilirsiniz. Bu, POM mimarisine başlarken şablon kod oluşturmak için mükemmeldir.',
       },
+      seleniumIdeExportFilm,
       {
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-ide-flow',
@@ -5232,6 +6036,7 @@ selenium-side-runner -c "browserName=chrome" -w 4 project.side`,
         type: 'text',
         content: 'You can right-click any suite in the IDE and choose "Export" to export your test scripts into Java (JUnit/TestNG), Python (pytest), or JavaScript code. This creates excellent boilerplate template code to start with.',
       },
+      seleniumIdeExportFilm,
       {
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-ide-flow',
@@ -5324,6 +6129,7 @@ const s11 = {
             { icon: '💻', label: 'Node', desc: 'Testlerin üzerinde koştuğu, tarayıcılara ev sahipliği yapan gerçek veya sanal makinedir.' },
         ],
       },
+      seleniumGridRoutingFilm,
       {
         type: 'heading', text: '2. Grid Çalışma Modları'
       },
@@ -5476,6 +6282,7 @@ driver.quit();`,
             { icon: '💻', label: 'Node', desc: 'The execution host hosting actual browsers and executing driver instructions.' },
         ],
       },
+      seleniumGridRoutingFilm,
       {
         type: 'heading', text: '2. Grid Execution Modes'
       },
@@ -5613,6 +6420,8 @@ const s12 = {
         type: 'simple-box', emoji: '🔧',
         content: 'Selenium\'daki hata mesajları, Java\'nın checked exception\'ları gibi davranır: mesajı yüzeysel okursun, yanlış yere bakarsın, saatlerce debug edersin. Örneğin NoSuchElementException bir "locator yanlış" hatası gibi görünür ama çoğu zaman locator doğrudur — element henüz DOM\'a eklenmemiştir; bu, Java\'da bir Future\'ı .get() olmadan okumaya çalışmaya benzer. Peki bu hatalar belgelenmiş ve bilinen hatalarsa neden herkes aynı tuzağa düşüyor? Çünkü hata mesajı kök nedeni değil belirtiyi gösterir; "Unable to locate element" diyince akıl "locator\'ı düzelt" der ama gerçek sorun genellikle timing, iframe context veya DOM yeniden render olmasıdır. StaleElementReferenceException ise Java\'da WeakReference\'a GC sonrası erişmek gibidir: element yakalanmış, DOM yeniden render edilmiş, referans artık geçersiz — bunu anlamadan "bir daha findElement" demek sorunu gizler. QA\'da bu hataların birikimi flaky test report\'larına dönüşür: CI yeşil görünür ama aynı test bazen geçer bazen geçmez; bu güvensizlik, ekibin tüm test sonuçlarını görmezden gelmesine zemin hazırlar.',
       },
+      seleniumStaleElementDiagnosisFilm,
+      seleniumStaleElementDiagnosisSteps,
       {
         type: 'error-dictionary',
           relatedTopicId: 'selenium-webdriver-errors',
@@ -5711,6 +6520,7 @@ driver.findElement(By.xpath("//button[text()='Login']")); // Tırnak ekle`,
           },
         ],
       },
+      seleniumStaleElementPractice,
       {
         type: 'quiz',
         question: 'Bir React/Vue (SPA) uygulamasında DOM sürekli güncellendiği için en sık karşılaşılan exception hangisidir?',
@@ -5756,6 +6566,8 @@ driver.findElement(By.xpath("//button[text()='Login']")); // Tırnak ekle`,
         type: 'simple-box', emoji: '🔧',
         content: 'Selenium error messages behave like Java\'s checked exceptions: you read the message at face value, look in the wrong place, and spend hours debugging. For example, NoSuchElementException looks like "your locator is wrong" — but most of the time the locator is correct and the element simply has not been added to the DOM yet, analogous to reading a Java Future without calling .get() first. If these errors are documented and well-known, why does everyone fall into the same traps? Because the error message reports the symptom, not the root cause: "Unable to locate element" makes the mind jump to "fix the locator," but the actual problem is usually timing, a missing iframe context switch, or a DOM re-render. StaleElementReferenceException is like accessing a Java WeakReference after garbage collection: the element was captured, the DOM re-rendered, and the reference is no longer valid — papering over it with another findElement hides the problem. In QA, accumulating these errors produces flaky test reports: CI appears green but the same test passes intermittently; this unreliability creates a culture where the team ignores all test results, which is far more dangerous than a test suite that simply fails.',
       },
+      seleniumStaleElementDiagnosisFilm,
+      seleniumStaleElementDiagnosisSteps,
       {
         type: 'error-dictionary',
           relatedTopicId: 'selenium-webdriver-errors',
@@ -5817,6 +6629,7 @@ el.click();`,
           },
         ],
       },
+      seleniumStaleElementPractice,
       {
         type: 'quiz',
         question: 'Which exception is most common in a React/Vue (SPA) app because the DOM updates constantly?',
@@ -5866,6 +6679,9 @@ const s13 = {
         type: 'simple-box', emoji: '🎓',
         content: 'Selenium mülakat soruları, Java Core sorularından farklı bir zihinsel modeli test eder: "API\'yi ezberledin mi?" değil, "gerçek bir otomasyon projesinde sorun çözebiliyor musun?" Tıpkı Java\'da "Collections nedir?" yerine "HashMap ile ConcurrentHashMap arasındaki farkı production threading senaryosunda anlat" diye sorulması gibi — doğru cevap belleği değil, kök-neden analizi yapabilme kapasitesini ölçer. Peki Selenium öğrendikten sonra bu soruları çalışmak neden hâlâ gerekiyor? Çünkü mülakatta karşılaştığın senaryo ("CI\'da aralıklı başarısız olan testler var, nasıl stabilize edersin?") kendi projende hiç görmediğin bir durumu tarif edebilir; bu 50 soru her senaryo kategorisini önceden yaşatır, mülakatta "buna benzeri bir şeyle karşılaştım" hissini verir. Java bilgini avantaja dönüştür: "Java\'daki Future timeout mekanizması gibi ExplicitWait..." şeklinde çapraz bağ kurabilmek, aynı soruyu Selenium-only bilen birine göre çok daha güçlü bir cevap üretir ve mülakatçıda derin teknik anlayış izlenimi bırakır.',
       },
+      seleniumInterviewAnswerFilm,
+      seleniumInterviewAnswerSteps,
+      seleniumInterviewPractice,
       {
         type: 'interview-questions',
           relatedTopicId: 'selenium-webdriver',
@@ -6633,6 +7449,9 @@ Assert.assertEquals(violations.size(), 0, "Erişilebilirlik ihlali var!");` },
         type: 'simple-box', emoji: '🎓',
         content: 'Selenium interview questions test a different mental model than Java Core questions: not "did you memorize the API?" but "can you solve real problems in an automation project?" Just as Java interviews ask "explain the difference between HashMap and ConcurrentHashMap in a production threading scenario" instead of "what is a Collection?" — the right answer measures root-cause analytical capacity, not memory. If you already learned Selenium, why study these questions separately? Because the scenario you face in an interview ("tests are intermittently failing in CI — how do you stabilize them?") may describe a situation you have never personally encountered; these 50 questions pre-load each scenario category so that in the interview you can genuinely say "I\'ve dealt with something like this." Use your Java background as a differentiator: framing an answer as "similar to a Java Future timeout mechanism, ExplicitWait..." creates cross-domain connections that someone with Selenium-only knowledge cannot make, and leaves the interviewer with a strong impression of deep technical understanding rather than surface-level tool familiarity.',
       },
+      seleniumInterviewAnswerFilm,
+      seleniumInterviewAnswerSteps,
+      seleniumInterviewPractice,
       {
         type: 'interview-questions',
           relatedTopicId: 'selenium-webdriver',
