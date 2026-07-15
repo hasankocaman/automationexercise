@@ -165,10 +165,30 @@ kontrol ediyor, Hata Sözlüğü'nde bu emoji yok).
 sandbox" hedefi %100 tamamlandı). Katman 2 ("her konudan sonra film+animasyon",
 video-rollout-plan.md §7.5) bilinçli olarak Dalga 4'e ertelendi.
 
+Prompt B commit edildi: `0931cd4` — post-commit e2e suite **124/124 PASS**
+(video-scene.spec.ts'in 9 testi dahil).
+
+### SİTE GENELİ YAYILIM — plan + kalıcı kural yazıldı (2026-07-15, uncommitted)
+
+Kullanıcı kararı: Dalga 3 standardı ("her sekmede ≥1 video + ≥1 animasyon +
+≥1 sandbox") TÜM projeye yayılacak. Bu oturumda yapılanlar:
+1. **`CLAUDE.md`** — yeni **Bölüm 9.5** (sekme standardı: tanımlar, film
+   kuralları, EN+TR/tek-ağaç kalıbı, doğrulama), Dosya Haritası'na
+   `video-rollout-plan.md` + `video-sitewide-plan.md` satırları, §11'e 3 yeni
+   ❌ maddesi.
+2. **`Documents/video-sitewide-plan.md`** (YENİ) — envanter (sayfa × sekme ×
+   film), Dalga 4-21 sırası (gerekçeli), sayfa başına 5 adımlık iş akışı,
+   performans eşiği kuralı (gzip 350KB), parametrik prompt şablonu, dalga
+   kontrol listesi.
+
 ### Sıradaki adımlar (sırayla)
-1. Bu oturumun (Prompt B) değişikliklerini commit et (kullanıcı onayıyla).
-2. Kullanıcıya Dalga 3'ün tamamlandığını raporla; Dalga 4 (Katman 2 veya
-   Bölüm 6 backlog'undaki yeni sayfalar) için yönlendirme bekle.
+1. Bu oturumun doküman değişikliklerini (CLAUDE.md + video-sitewide-plan.md +
+   bu dosya) commit et (kullanıcı onayıyla).
+2. **Dalga 4: /linux** — `Documents/video-sitewide-plan.md` Bölüm 5'teki
+   şablonu doldurup çalıştır (linuxData.js, 10 sekme, 1 film mevcut →
+   ~9 yeni film + eksik animasyon/sandbox tamamlama + test + durum).
+3. Sonraki dalgalar plandaki sırayla (5: /docker, 6: /selenium, ...) — her
+   dalga commit edilmeden sonraki başlamaz.
 
 ---
 
