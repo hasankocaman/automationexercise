@@ -4,6 +4,157 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 import { LOCATOR_EXPLORER_BLOCK } from './locatorExplorerData.js'
 
+// ─── video-scene filmleri (Bölüm 9.5) — her sabit HEM tr HEM en blocks'a aynı
+// referansla eklenir (cypressData EN+TR ayrı ağaçlı, bkz. CLAUDE.md §9.5) ─────
+const cypressInProcessArchitectureFilm = {
+  type: 'video-scene',
+  id: 'cypress-in-process-architecture-film',
+  title: { tr: '🎬 Aynı Süreç mi, Uzaktan Kumanda mı? Cypress vs Selenium Mimarisi', en: '🎬 Same Process or Remote Control? Cypress vs Selenium Architecture' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'testCode', emoji: '📜', label: { tr: 'Test Kodu', en: 'Test Code' }, color: '#0ea5e9' },
+    { id: 'seleniumDriver', emoji: '☕', label: { tr: 'Selenium Driver (Java)', en: 'Selenium Driver (Java)' }, color: '#f59e0b' },
+    { id: 'webdriverProto', emoji: '📡', label: { tr: 'WebDriver Protokolü', en: 'WebDriver Protocol' }, color: '#8b5cf6' },
+    { id: 'remoteBrowser', emoji: '🖥️', label: { tr: 'Uzak Tarayıcı Süreci', en: 'Remote Browser Process' }, color: '#64748b' },
+    { id: 'raceGhost', emoji: '👻', label: { tr: 'Race Condition', en: 'Race Condition' }, color: '#ef4444' },
+    { id: 'cypRunner', emoji: '🌲', label: { tr: 'Cypress Runner', en: 'Cypress Runner' }, color: '#10b981' },
+    { id: 'domActor', emoji: '🌐', label: { tr: 'Browser DOM', en: 'Browser DOM' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Aynı satırı iki araç nasıl çalıştırır? Bu filmde bir tıklama komutunun Selenium\'da ve Cypress\'te izlediği FARKLI yolu adım adım izleyeceksin — mimari farkın nereden geldiğini gözünle göreceksin.',
+        en: 'How do two tools run the same line? In this film you will watch, step by step, the DIFFERENT path a click command takes in Selenium versus Cypress — and see exactly where the architectural difference comes from.',
+      },
+      code: { tr: `driver.findElement(By.id("submit")).click()   // Selenium
+cy.get('#submit').click()                       // Cypress`, en: `driver.findElement(By.id("submit")).click()   // Selenium
+cy.get('#submit').click()                       // Cypress` },
+      positions: { testCode: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Selenium yolu: Java test kodu, WebDriver nesnesine bir komut verir. Bu nesne, tarayıcıyla AYNI süreçte değildir — ayrı bir process\'te yaşar.',
+        en: "Step 1 — The Selenium path: the Java test code hands a command to the WebDriver object. This object does NOT live in the same process as the browser — it runs in a separate process.",
+      },
+      code: { tr: `WebDriver driver = new ChromeDriver();
+driver.findElement(By.id("submit")).click();`, en: `WebDriver driver = new ChromeDriver();
+driver.findElement(By.id("submit")).click();` },
+      positions: {
+        testCode: { x: 14, y: 40, scale: 0.95 },
+        seleniumDriver: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'testCode', to: 'seleniumDriver' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — WebDriver protokolü devreye girer: komut bir HTTP isteğine paketlenip ağ üzerinden uzaktaki tarayıcı sürecine gönderilir. Bu bir "round-trip"tir — git ve dön, her komutta.',
+        en: 'Step 2 — the WebDriver protocol kicks in: the command is packaged into an HTTP request and sent over the network to the remote browser process. This is a "round-trip" — there and back, on every single command.',
+      },
+      code: { tr: `POST /session/{id}/element/{id}/click
+// HTTP round-trip — ağ gecikmesi her komuta eklenir`, en: `POST /session/{id}/element/{id}/click
+// HTTP round-trip — network latency added to every command` },
+      positions: {
+        seleniumDriver: { x: 22, y: 40, opacity: 0.55, scale: 0.85 },
+        webdriverProto: { x: 46, y: 40, scale: 1.1, pulse: true },
+        remoteBrowser: { x: 72, y: 40, scale: 1.1 },
+      },
+      beams: [{ from: 'seleniumDriver', to: 'webdriverProto', color: '#f59e0b' }, { from: 'webdriverProto', to: 'remoteBrowser', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast sahnesi — ağ gecikmesi sırasında sayfa değişirse: buton tam o anda kaybolur ya da yerini değiştirirse, HTTP isteği geç kalmış bir hedefe tıklamaya çalışır — bu "race condition"dır ve CI\'da rastgele (flaky) test hatalarının klasik kaynağıdır.',
+        en: "Contrast scene — if the page changes during that network delay: the button vanishes or moves at that exact moment, and the HTTP request ends up clicking a stale target — this is a \"race condition\" and the classic source of flaky test failures in CI.",
+      },
+      positions: {
+        remoteBrowser: { x: 50, y: 40, scale: 1 },
+        raceGhost: { x: 78, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'remoteBrowser', to: 'raceGhost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Cypress yolu: aynı test kodu, Cypress Runner ile birlikte tarayıcının İÇİNDE, uygulamayla AYNI JavaScript run-loop\'unda çalışır. Ayrı bir süreç, ayrı bir protokol yoktur.',
+        en: 'Step 3 — the Cypress path: the same test code runs together with the Cypress Runner INSIDE the browser, in the SAME JavaScript run-loop as the application. No separate process, no separate protocol.',
+      },
+      code: { tr: `// cy.get() doğrudan tarayıcının kendi JS motorunda çalışır
+cy.get('#submit').click()`, en: `// cy.get() runs directly inside the browser's own JS engine
+cy.get('#submit').click()` },
+      positions: {
+        testCode: { x: 16, y: 60, scale: 1 },
+        cypRunner: { x: 42, y: 60, scale: 1.2, pulse: true },
+        domActor: { x: 70, y: 60, scale: 1.15 },
+      },
+      beams: [{ from: 'testCode', to: 'cypRunner', color: '#10b981' }, { from: 'cypRunner', to: 'domActor', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: Cypress\'te komut ile DOM arasında ağ yoktur — bu yüzden retry-ability neredeyse ücretsizdir ve her komuttan sonra bir DOM snapshot\'ı almak (time travel) pahalı değildir. Bedeli: test kodu sadece JavaScript/TypeScript olabilir, WebDriver\'ın çoklu-dil ve çoklu-sekme özgürlüğü yoktur.',
+        en: "The takeaway: in Cypress there is no network between the command and the DOM — that's why retry-ability is almost free, and taking a DOM snapshot after every command (time travel) is cheap. The cost: test code can only be JavaScript/TypeScript, without WebDriver's multi-language and multi-tab freedom.",
+      },
+      positions: {
+        seleniumDriver: { x: 16, y: 30, scale: 0.85, opacity: 0.5 },
+        remoteBrowser: { x: 34, y: 30, scale: 0.85, opacity: 0.5 },
+        cypRunner: { x: 58, y: 60, scale: 1.1 },
+        domActor: { x: 82, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cypRunner', to: 'domActor', color: '#22c55e' }],
+    },
+  ],
+}
+
+// Elle yazılan sandbox (s0'da otomatik trio üretilmez çünkü sekmede 'code' bloğu yok) —
+// CLAUDE.md §9.4: relatedTopicId zorunlu.
+const cypressArchitecturePractice = {
+  type: 'code-playground',
+  id: 'cypress-architecture-practice-1',
+  relatedTopicId: 'cypress-architecture',
+  label: { tr: 'Kendin Yaz ve Dene: İlk cy.get() Zincirin', en: 'Write It Yourself: Your First cy.get() Chain' },
+  language: 'javascript',
+  task: {
+    tr: 'Aşağıdaki senaryoyu tamamla: sayfayı ziyaret et, email input\'una yaz, submit butonuna tıkla. Cypress\'in tarayıcı içinde çalıştığını unutma — her satır DOM\'a doğrudan erişir, ağ round-trip\'i yoktur.',
+    en: "Complete the scenario below: visit the page, type into the email input, click submit. Remember Cypress runs inside the browser — every line accesses the DOM directly, there is no network round-trip.",
+  },
+  explanation: {
+    tr: 'TODO satırlarını, film sahnesinde gördüğün cy.get() zincirinin devamı olacak şekilde tamamla.',
+    en: 'Complete the TODO lines so they continue the cy.get() chain you saw in the film.',
+  },
+  code: {
+    tr: `cy.visit('/login')
+cy.get('[data-cy=email]').type('user@test.com')
+cy.get('[data-cy=submit]').click()`,
+    en: `cy.visit('/login')
+cy.get('[data-cy=email]').type('user@test.com')
+cy.get('[data-cy=submit]').click()`,
+  },
+  starterCode: {
+    tr: `cy.visit('/login')
+// TODO: [data-cy=email] alanına 'user@test.com' yaz
+// TODO: [data-cy=submit] butonuna tıkla`,
+    en: `cy.visit('/login')
+// TODO: type 'user@test.com' into [data-cy=email]
+// TODO: click [data-cy=submit]`,
+  },
+  solutionCode: {
+    tr: `cy.visit('/login')
+cy.get('[data-cy=email]').type('user@test.com')
+cy.get('[data-cy=submit]').click()`,
+    en: `cy.visit('/login')
+cy.get('[data-cy=email]').type('user@test.com')
+cy.get('[data-cy=submit]').click()`,
+  },
+  expected: {
+    tr: 'Çözüm, beklenen cy.get() zinciriyle eşleşti. Artık Selenium\'un findElement + click iki adımını Cypress\'in tek satırlık zincirleme sözdizimiyle nasıl yazacağını biliyorsun.',
+    en: "Your solution matches the expected cy.get() chain. You now know how to write Selenium's two-step findElement + click as Cypress's single-line chaining syntax.",
+  },
+  hints: [
+    { tr: 'cy.get() bir CSS selector alır — köşeli parantez içindeki attribute selector\'ları ([data-cy=x]) tırnak içine almana gerek yoktur.', en: 'cy.get() takes a CSS selector — attribute selectors like [data-cy=x] do not need to be quoted inside the brackets.' },
+    { tr: '.type() bir metin yazar, .click() ise elementin tıklanabilir olmasını otomatik bekleyip tıklar — retry-ability sayesinde ekstra wait yazmana gerek yok.', en: '.type() types text, .click() automatically waits for the element to be clickable before clicking — thanks to retry-ability you do not need to write an extra wait.' },
+  ],
+  xpReward: 10,
+}
+
 const s0 = {
   tr: {
     title: '🌲 Cypress Nedir? Mimari ve Felsefe',
@@ -62,6 +213,8 @@ const s0 = {
           { icon: '⚠️', label: 'Tek Sekme Sınırı', desc: 'Cypress aynı anda sadece bir sekmeyi kontrol eder — çoklu pencere/sekme testi Selenium kadar kolay değildir.' },
         ],
       },
+      cypressInProcessArchitectureFilm,
+      cypressArchitecturePractice,
       {
         type: 'quiz',
         question: { tr: 'Cypress\'in Selenium\'a göre en temel mimari farkı nedir?', en: "What is Cypress's most fundamental architectural difference from Selenium?" },
@@ -138,6 +291,11 @@ const s0 = {
         content: "Cypress runs inside the same process as the browser — like a surgeon operating with their own hands rather than giving instructions to a remote team over a phone: every cut is immediate, every reaction in real time, with zero round-trip delay. But if Selenium has worked for decades, why did we need a different architecture? Because Selenium's WebDriver protocol makes an HTTP round-trip to the browser for every command — that \"remote control\" model introduces network latency into your tests and opens the door to race conditions. In Java, JUnit tests run inside the JVM alongside your application code; that's exactly the relationship Cypress has with the browser — except the runtime is Chromium instead of the JVM. The practical QA consequence: since Cypress automatically snapshots the DOM after every command, when a test fails in CI you don't comb through logs for hours — you time-travel to the exact moment and see precisely what the DOM showed, making it far easier to catch tests that silently PASS while the UI is actually broken.",
       },
       {
+        type: 'css-animation',
+        kind: 'cypress-retry',
+        label: { tr: 'Cypress Otomatik Yeniden Deneme', en: 'Cypress Retry Mechanism' },
+      },
+      {
         type: 'text',
         content: 'Cypress is an open-source end-to-end testing framework written in JavaScript/TypeScript, released in 2015. Its most fundamental architectural difference from Selenium and Playwright: Cypress runs the test code INSIDE the browser, in the SAME run-loop as the application. This gives it direct DOM access, real-time network request capturing, and an automatic "snapshot" after every command — this is called "time travel debugging".',
       },
@@ -182,6 +340,8 @@ const s0 = {
           { icon: '⚠️', label: 'Single-Tab Limit', desc: 'Cypress controls only one tab at a time — multi-window/tab testing is not as easy as in Selenium.' },
         ],
       },
+      cypressInProcessArchitectureFilm,
+      cypressArchitecturePractice,
       {
         type: 'quiz',
         question: { tr: 'Cypress\'in Selenium\'a göre en temel mimari farkı nedir?', en: "What is Cypress's most fundamental architectural difference from Selenium?" },
@@ -250,6 +410,95 @@ const s0 = {
       },
     ],
   },
+}
+
+const cypressInstallOpenFilm = {
+  type: 'video-scene',
+  id: 'cypress-install-open-film',
+  title: { tr: '🎬 npm install cypress → npx cypress open: Kurulum Zinciri', en: '🎬 npm install cypress → npx cypress open: The Installation Chain' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'terminal', emoji: '💻', label: { tr: 'Terminal', en: 'Terminal' }, color: '#0ea5e9' },
+    { id: 'npmReg', emoji: '📦', label: { tr: 'npm Registry', en: 'npm Registry' }, color: '#f59e0b' },
+    { id: 'cyBinary', emoji: '🌲', label: { tr: 'Cypress Binary (kendi tarayıcısı)', en: 'Cypress Binary (own browser)' }, color: '#10b981' },
+    { id: 'scaffold', emoji: '🗂️', label: { tr: 'cypress/ Klasör Yapısı', en: 'cypress/ Folder Structure' }, color: '#8b5cf6' },
+    { id: 'runner', emoji: '🖥️', label: { tr: 'Test Runner GUI', en: 'Test Runner GUI' }, color: '#22c55e' },
+    { id: 'serverGhost', emoji: '👻', label: { tr: 'Sunucu Ayakta Değil', en: 'Server Not Running' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Tek bir kurulum komutu iki farklı şeyi indirir: npm paketini VE kendi tarayıcı ikili dosyasını (binary). Selenium\'da ChromeDriver\'ı ayrı indirip PATH\'e eklemen gerekirdi — burada tek komut yeterli.',
+        en: "A single install command downloads two different things: the npm package AND its own browser binary. In Selenium you'd separately download ChromeDriver and add it to PATH — here one command is enough.",
+      },
+      code: { tr: `npm install cypress --save-dev`, en: `npm install cypress --save-dev` },
+      positions: { terminal: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — npm, package.json\'a devDependency olarak Cypress\'i ekler ve npm registry\'den paketi indirir. Bu kısım tıpkı herhangi bir npm paketi kurulumu gibidir.',
+        en: "Step 1 — npm adds Cypress as a devDependency in package.json and downloads the package from the npm registry. This part is like installing any other npm package.",
+      },
+      code: { tr: `// package.json
+"devDependencies": { "cypress": "^13.6.0" }`, en: `// package.json
+"devDependencies": { "cypress": "^13.6.0" }` },
+      positions: {
+        terminal: { x: 16, y: 40, scale: 0.95 },
+        npmReg: { x: 44, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'terminal', to: 'npmReg' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — kurulumun ASIL farklı kısmı: npm install sırasında Cypress ayrıca kendi Chromium tabanlı test çalıştırıcı ikili dosyasını (binary) indirir ve önbelleğe koyar. Bu, "her tarayıcı için ayrı driver indirme" derdini ortadan kaldırır.',
+        en: "Step 2 — the ACTUALLY different part of this install: during npm install, Cypress also downloads its own Chromium-based test runner binary and caches it. This eliminates the \"download a separate driver for every browser\" hassle.",
+      },
+      code: { tr: `Installing Cypress (version 13.6.0)
+[Cypress binary indiriliyor...] ~150MB`, en: `Installing Cypress (version 13.6.0)
+[Downloading Cypress binary...] ~150MB` },
+      positions: {
+        npmReg: { x: 24, y: 40, opacity: 0.55, scale: 0.85 },
+        cyBinary: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'npmReg', to: 'cyBinary', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — npx cypress open ilk çalıştırıldığında, Cypress projede cypress/e2e, cypress/fixtures, cypress/support gibi klasörleri ve cypress.config.js dosyasını otomatik oluşturur (scaffold).',
+        en: 'Step 3 — the first time you run npx cypress open, Cypress automatically scaffolds folders like cypress/e2e, cypress/fixtures, cypress/support and a cypress.config.js file in your project.',
+      },
+      code: { tr: `npx cypress open`, en: `npx cypress open` },
+      positions: {
+        cyBinary: { x: 26, y: 55, opacity: 0.55, scale: 0.85 },
+        scaffold: { x: 54, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cyBinary', to: 'scaffold', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — scaffold tamamlanınca Test Runner GUI açılır: burada testleri seçip çalıştırabilir, Command Log\'u ve time-travel\'i canlı izleyebilirsin.',
+        en: 'Step 4 — once scaffolding finishes, the Test Runner GUI opens: here you can pick and run tests, and watch the Command Log and time-travel live.',
+      },
+      positions: {
+        scaffold: { x: 28, y: 55, opacity: 0.55, scale: 0.85 },
+        runner: { x: 58, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'scaffold', to: 'runner', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast sahnesi — eğer cypress.config.js\'teki baseUrl yanlışsa YA DA local dev server henüz ayakta değilken cypress run çalıştırılırsa: "Cypress could not verify that this server is running" hatası alırsın. Çözüm ezber değil, sıralamadır — CI\'da start-server-and-test gibi bir araçla önce sunucunun GERÇEKTEN hazır olduğunu kanıtla, sonra testi başlat.',
+        en: 'Contrast scene — if baseUrl in cypress.config.js is wrong, OR cypress run executes while the local dev server has not started yet: you get "Cypress could not verify that this server is running". The fix is not memorization, it is ordering — in CI, prove with a tool like start-server-and-test that the server is GENUINELY ready before starting the test.',
+      },
+      positions: {
+        runner: { x: 30, y: 55, opacity: 0.55, scale: 0.85 },
+        serverGhost: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'runner', to: 'serverGhost', color: '#ef4444' }],
+    },
+  ],
 }
 
 const s1 = {
@@ -322,6 +571,7 @@ const s1 = {
         title: 'Java Biliyorsan:',
         content: 'npm install cypress --save-dev, Maven\'da pom.xml\'e bir test bağımlılığı (örneğin selenium-java) eklemeye benzer — fark şu ki Cypress bir derleme (mvn compile) adımına ihtiyaç duymaz, doğrudan .js dosyasını çalıştırır. describe()/it() yapısı da JUnit 5\'teki @Nested test sınıfları ve @Test metodlarının JavaScript karşılığıdır (aslında alttan Mocha test çatısını kullanır).',
       },
+      cypressInstallOpenFilm,
       {
         type: 'quiz',
         question: { tr: 'cypress.config.js dosyasının amacı nedir?', en: 'What is the purpose of cypress.config.js?' },
@@ -450,6 +700,7 @@ const s1 = {
         title: 'If You Know Java:',
         content: "npm install cypress --save-dev is similar to adding a test dependency (like selenium-java) to pom.xml in Maven — except Cypress needs no compile step (no mvn compile), it runs the .js file directly. The describe()/it() structure is the JavaScript counterpart of JUnit 5's @Nested test classes and @Test methods (under the hood it actually uses the Mocha test framework).",
       },
+      cypressInstallOpenFilm,
       {
         type: 'quiz',
         question: { tr: 'cypress.config.js dosyasının amacı nedir?', en: 'What is the purpose of cypress.config.js?' },
@@ -497,6 +748,90 @@ const s1 = {
 },
     ],
   },
+}
+
+const cypressCommandQueueRetryFilm = {
+  type: 'video-scene',
+  id: 'cypress-command-queue-retry-film',
+  title: { tr: '🎬 cy.get() Aslında Ne Zaman Çalışır? Komut Kuyruğu ve Retry Döngüsü', en: '🎬 When Does cy.get() Actually Run? The Command Queue and Retry Loop' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'testFile', emoji: '📜', label: { tr: 'Test Dosyası', en: 'Test File' }, color: '#0ea5e9' },
+    { id: 'queue', emoji: '📋', label: { tr: 'Komut Kuyruğu', en: 'Command Queue' }, color: '#8b5cf6' },
+    { id: 'domCheck', emoji: '🌐', label: { tr: 'DOM Kontrolü', en: 'DOM Check' }, color: '#f59e0b' },
+    { id: 'found', emoji: '✅', label: { tr: 'Element Bulundu', en: 'Element Found' }, color: '#22c55e' },
+    { id: 'timeoutGhost', emoji: '⏰', label: { tr: 'defaultCommandTimeout Doldu', en: 'defaultCommandTimeout Expired' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'cy.get(\'[data-cy=search-input]\') senkron bir fonksiyon çağrısı gibi GÖRÜNÜR — ama arka planda hiç de öyle çalışmaz. Bu filmde bu tek satırın gerçekte nasıl bir kuyruğa girip beklediğini izleyeceksin.',
+        en: "cy.get('[data-cy=search-input]') LOOKS like a synchronous function call — but under the hood it works nothing like that. In this film you will watch how this one line actually enters a queue and waits.",
+      },
+      code: { tr: `cy.get('[data-cy=search-input]').type('laptop')`, en: `cy.get('[data-cy=search-input]').type('laptop')` },
+      positions: { testFile: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — cy.get() çağrıldığı anda ÇALIŞMAZ, sadece Cypress\'in dahili komut kuyruğuna bir "görev" olarak eklenir. Test fonksiyonu senkron gibi okunsa da gerçek çalışma sıraya bağlıdır.',
+        en: 'Step 1 — calling cy.get() does NOT execute it immediately; it only enqueues a "task" in Cypress\'s internal command queue. The test function reads synchronously, but actual execution depends on the queue.',
+      },
+      positions: {
+        testFile: { x: 16, y: 40, scale: 0.95 },
+        queue: { x: 44, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'testFile', to: 'queue' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — sıra cy.get()\'e geldiğinde, Cypress DOM\'u kontrol eder: element var mı? Yoksa hemen hata FIRLATMAZ — "retry-ability" devreye girer ve birkaç milisaniye sonra tekrar dener.',
+        en: "Step 2 — when it's cy.get()'s turn, Cypress checks the DOM: does the element exist? If not, it does NOT throw immediately — \"retry-ability\" kicks in and it tries again a few milliseconds later.",
+      },
+      code: { tr: `// 1. deneme: element yok → bekle → 2. deneme: element yok → bekle → ...`, en: `// attempt 1: not found → wait → attempt 2: not found → wait → ...` },
+      positions: {
+        queue: { x: 22, y: 40, opacity: 0.6, scale: 0.9 },
+        domCheck: { x: 50, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'queue', to: 'domCheck', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — element DOM\'a girdiği anda (örn. bir API isteği yeni tamamlandı ve React yeniden render etti) bir sonraki denemede kontrol BAŞARILI olur ve komut zinciri devam eder: .type(\'laptop\') artık gerçek elemente yazabilir.',
+        en: "Step 3 — the moment the element enters the DOM (e.g. an API request just finished and React re-rendered), the next attempt SUCCEEDS and the command chain continues: .type('laptop') can now type into the real element.",
+      },
+      positions: {
+        domCheck: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        found: { x: 56, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'domCheck', to: 'found', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast (hayalet) sahnesi — eğer element HİÇBİR ZAMAN DOM\'a gelmezse (selector yanlış yazılmış ya da API hiç dönmemiş), retry döngüsü sonsuza kadar sürmez: varsayılan defaultCommandTimeout olan 4000ms dolunca Cypress "Timed out retrying..." hatasıyla testi durdurur.',
+        en: 'Contrast (ghost) scene — if the element NEVER arrives in the DOM (wrong selector, or the API never responded), the retry loop does not run forever: once the default defaultCommandTimeout of 4000ms expires, Cypress stops the test with a "Timed out retrying..." error.',
+      },
+      code: { tr: `Timed out retrying after 4000ms: Expected to find element: '[data-cy=search-input]', but never found it.`, en: `Timed out retrying after 4000ms: Expected to find element: '[data-cy=search-input]', but never found it.` },
+      positions: {
+        found: { x: 30, y: 40, opacity: 0.55, scale: 0.85 },
+        timeoutGhost: { x: 62, y: 40, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'found', to: 'timeoutGhost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: bu döngü sayesinde Thread.sleep() gibi sabit beklemeler yazmana gerek kalmaz — Cypress elementi bulana ya da timeout dolana kadar arka planda kendisi tekrar dener. Bu, Selenium\'da WebDriverWait ile ELLE kurman gereken mantığın komutların kendisine gömülü halidir.',
+        en: 'The takeaway: thanks to this loop you never need to write fixed waits like Thread.sleep() — Cypress retries in the background by itself until it finds the element or the timeout expires. This is the same logic you would manually set up with WebDriverWait in Selenium, but baked directly into the commands.',
+      },
+      positions: {
+        queue: { x: 20, y: 55, scale: 0.9 },
+        domCheck: { x: 42, y: 55, scale: 1 },
+        found: { x: 68, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'queue', to: 'domCheck' }, { from: 'domCheck', to: 'found', color: '#22c55e' }],
+    },
+  ],
 }
 
 const s2 = {
@@ -552,6 +887,7 @@ cy.get('[data-cy=submit]').click()
         type: 'tip',
         content: 'cy.get(...).then(($el) => { ... }) sadece BİR KEZ çalışan bir callback\'tir (jQuery elemanına erişmek için), retry-ability YOKTUR. Assertion yazarken her zaman .should() kullan — o, koşul sağlanana kadar otomatik tekrar dener; .then() içine assertion koyma.',
       },
+      cypressCommandQueueRetryFilm,
       {
         type: 'quiz',
         question: { tr: 'Cypress\'te selector olarak neden data-cy attribute\'u önerilir?', en: 'Why is the data-cy attribute recommended as a selector strategy in Cypress?' },
@@ -651,6 +987,7 @@ cy.get('[data-cy=submit]').click()
         type: 'tip',
         content: "cy.get(...).then(($el) => { ... }) is a callback that runs only ONCE (to access the jQuery element) — it has NO retry-ability. Always use .should() for assertions — it automatically retries until the condition passes; never put assertions inside .then().",
       },
+      cypressCommandQueueRetryFilm,
       {
         type: 'quiz',
         question: { tr: 'Cypress\'te selector olarak neden data-cy attribute\'u önerilir?', en: 'Why is the data-cy attribute recommended as a selector strategy in Cypress?' },
@@ -698,6 +1035,91 @@ cy.get('[data-cy=submit]').click()
 },
     ],
   },
+}
+
+const cypressActionChainFilm = {
+  type: 'video-scene',
+  id: 'cypress-action-chain-film',
+  title: { tr: '🎬 .type() ve .click()\'ten Önce: Actionability Kontrol Zinciri', en: '🎬 Before .type() and .click(): The Actionability Check Chain' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'testFile', emoji: '📜', label: { tr: 'Test Kodu', en: 'Test Code' }, color: '#0ea5e9' },
+    { id: 'found', emoji: '🔍', label: { tr: 'Element Bulundu', en: 'Element Found' }, color: '#f59e0b' },
+    { id: 'checks', emoji: '👁️', label: { tr: 'Actionability Kontrolleri', en: 'Actionability Checks' }, color: '#8b5cf6' },
+    { id: 'action', emoji: '🖱️', label: { tr: 'type() / click() Uygulanır', en: 'type() / click() Applied' }, color: '#22c55e' },
+    { id: 'domUpdate', emoji: '🔄', label: { tr: 'DOM Güncellenir', en: 'DOM Updates' }, color: '#10b981' },
+    { id: 'forceGhost', emoji: '🕳️', label: { tr: '{ force: true } — Gizli Elemente Tıklama', en: '{ force: true } — Clicking a Hidden Element' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'cy.get(...).click() yazdığında Cypress hemen tıklamaz — önce kullanıcının gerçekte tıklayabileceğinden EMİN olmak için birkaç görünmez kontrolden geçer. Bu filmde o kontrol zincirini izleyeceksin.',
+        en: "When you write cy.get(...).click(), Cypress doesn't click right away — it first runs a few invisible checks to make SURE a real user could actually click it. In this film you will watch that check chain.",
+      },
+      code: { tr: `cy.get('[data-cy=name]').type('Ada Lovelace')
+cy.get('[data-cy=submit]').click()`, en: `cy.get('[data-cy=name]').type('Ada Lovelace')
+cy.get('[data-cy=submit]').click()` },
+      positions: { testFile: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — cy.get() önce elementi retry-ability ile DOM\'da bulur. Ama bulmuş olmak henüz "tıklanabilir" demek değildir.',
+        en: 'Step 1 — cy.get() first finds the element in the DOM using retry-ability. But finding it does not yet mean it is "clickable".',
+      },
+      positions: {
+        testFile: { x: 16, y: 40, scale: 0.95 },
+        found: { x: 44, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'testFile', to: 'found' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Cypress dört soruyu otomatik sorar: element görünür mü (display:none değil)? Etkin mi (disabled değil)? Animasyon bitmiş mi? Başka bir element (modal, overlay) onu ÖRTMÜYOR mu? Hepsi EVET olana kadar bekler.',
+        en: 'Step 2 — Cypress automatically asks four questions: is the element visible (not display:none)? Is it enabled (not disabled)? Has any animation finished? Is another element (a modal, overlay) NOT covering it? It waits until all are YES.',
+      },
+      code: { tr: `// visible? enabled? not animating? not covered?`, en: `// visible? enabled? not animating? not covered?` },
+      positions: {
+        found: { x: 22, y: 40, opacity: 0.6, scale: 0.9 },
+        checks: { x: 50, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'found', to: 'checks', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — dört kontrol de geçince Cypress GERÇEK bir tarayıcı olayı gönderir: type() karakterleri tek tek simüle eder, click() gerçek bir mouse event dizisi (mousedown, mouseup, click) tetikler.',
+        en: 'Step 3 — once all four checks pass, Cypress fires a REAL browser event: type() simulates characters one by one, click() triggers a real mouse event sequence (mousedown, mouseup, click).',
+      },
+      positions: {
+        checks: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        action: { x: 54, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'checks', to: 'action', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — aksiyon uygulanınca DOM güncellenir: input\'un değeri değişir, form submit olur, sayfa yeni bir state\'e geçer. Bu, "gerçek bir kullanıcı gibi davranma" prensibinin bir sonucudur.',
+        en: 'Step 4 — once the action applies, the DOM updates: the input value changes, the form submits, the page moves to a new state. This is a direct result of the "behave like a real user" principle.',
+      },
+      positions: {
+        action: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        domUpdate: { x: 58, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'action', to: 'domUpdate', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast sahnesi — { force: true } bu dört kontrolü BİLEREK atlar. Bir buton gerçekten bir modal arkasında gizliyse ve testi { force: true } ile geçirirsen, test YEŞİL olur ama gerçek bir kullanıcı o butona ASLA tıklayamaz — bu, CI\'da yanlış bir PASS\'in klasik kaynağıdır. force sadece bilinçli, gerekçeli durumlarda kullanılmalıdır.',
+        en: 'Contrast scene — { force: true } deliberately skips these four checks. If a button is genuinely hidden behind a modal and you make the test pass with { force: true }, the test turns GREEN but a real user could NEVER click that button — this is a classic source of a false PASS in CI. force should only be used deliberately, with a documented reason.',
+      },
+      positions: {
+        domUpdate: { x: 30, y: 40, opacity: 0.5, scale: 0.85 },
+        forceGhost: { x: 64, y: 40, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'domUpdate', to: 'forceGhost', color: '#ef4444' }],
+    },
+  ],
 }
 
 const s3 = {
@@ -758,6 +1180,7 @@ cy.get('[data-cy=drag-source]').drag('[data-cy=drop-target]')`,
         title: { tr: 'Dikkat:', en: 'Watch Out:' },
         content: { tr: 'Native HTML5 drag-and-drop, gerçek işletim sistemi mouse olaylarına dayanır; Cypress (ve aslında tarayıcının kendi otomasyon API\'leri) bunu tam olarak taklit edemez. Bu yüzden .trigger() ile event\'leri elle tetiklemek ya da bir eklenti kullanmak gerekir — bu, Cypress\'in "tek sınırlı alanlardan" biridir.', en: "Native HTML5 drag-and-drop relies on real OS-level mouse events; Cypress (and in fact a browser's own automation APIs) cannot fully replicate this. That's why you either trigger the events manually with .trigger() or use a plugin — this is one of Cypress's known limitations." },
       },
+      cypressActionChainFilm,
       {
         type: 'quiz',
         question: { tr: 'Cypress\'te native HTML5 drag-and-drop testlerinin Selenium\'a göre neden daha zor olduğu söylenir?', en: 'Why are native HTML5 drag-and-drop tests said to be harder in Cypress compared to Selenium?' },
@@ -862,6 +1285,7 @@ cy.get('[data-cy=drag-source]').drag('[data-cy=drop-target]')`,
         title: { tr: 'Dikkat:', en: 'Watch Out:' },
         content: { tr: 'Native HTML5 drag-and-drop, gerçek işletim sistemi mouse olaylarına dayanır; Cypress (ve aslında tarayıcının kendi otomasyon API\'leri) bunu tam olarak taklit edemez. Bu yüzden .trigger() ile event\'leri elle tetiklemek ya da bir eklenti kullanmak gerekir — bu, Cypress\'in "tek sınırlı alanlardan" biridir.', en: "Native HTML5 drag-and-drop relies on real OS-level mouse events; Cypress (and in fact a browser's own automation APIs) cannot fully replicate this. That's why you either trigger the events manually with .trigger() or use a plugin — this is one of Cypress's known limitations." },
       },
+      cypressActionChainFilm,
       {
         type: 'quiz',
         question: { tr: 'Cypress\'te native HTML5 drag-and-drop testlerinin Selenium\'a göre neden daha zor olduğu söylenir?', en: 'Why are native HTML5 drag-and-drop tests said to be harder in Cypress compared to Selenium?' },
@@ -911,6 +1335,138 @@ cy.get('[data-cy=drag-source]').drag('[data-cy=drop-target]')`,
   },
 }
 
+const cypressTimeTravelRetryFilm = {
+  type: 'video-scene',
+  id: 'cypress-time-travel-retry-film',
+  title: { tr: '🎬 Her Komuttan Sonra Bir Fotoğraf: Time Travel Debugging', en: '🎬 A Snapshot After Every Command: Time Travel Debugging' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'cmd1', emoji: '1️⃣', label: { tr: 'cy.visit()', en: 'cy.visit()' }, color: '#0ea5e9' },
+    { id: 'cmd2', emoji: '2️⃣', label: { tr: "cy.get().type()", en: 'cy.get().type()' }, color: '#f59e0b' },
+    { id: 'cmd3', emoji: '3️⃣', label: { tr: 'cy.get().click()', en: 'cy.get().click()' }, color: '#8b5cf6' },
+    { id: 'snapshots', emoji: '📸', label: { tr: 'Snapshot Deposu', en: 'Snapshot Store' }, color: '#22c55e' },
+    { id: 'cursor', emoji: '🖱️', label: { tr: 'Command Log Tıklaması', en: 'Command Log Click' }, color: '#10b981' },
+    { id: 'lostDebug', emoji: '👻', label: { tr: 'Selenium: Yakalanmamış An', en: 'Selenium: The Moment You Never Captured' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir test 3 komuttan oluşuyor. Selenium\'da bu komutlar çalışıp geçer, geriye sadece son durum kalır. Cypress\'te ise HER komut arkasında görünmez bir "fotoğraf makinesi" çalıştırır. Bu filmde o makineyi izleyeceksin.',
+        en: 'A test consists of 3 commands. In Selenium these commands run and are gone, only the final state remains. In Cypress, EVERY command runs an invisible "camera" behind it. In this film you will watch that camera at work.',
+      },
+      code: { tr: `cy.visit('/login')
+cy.get('[data-cy=email]').type('user@test.com')
+cy.get('[data-cy=submit]').click()`, en: `cy.visit('/login')
+cy.get('[data-cy=email]').type('user@test.com')
+cy.get('[data-cy=submit]').click()` },
+      positions: { cmd1: { x: 50, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — cy.visit() çalışır çalışmaz, Cypress o anki DOM\'un TAM bir anlık görüntüsünü (snapshot) alıp Command Log\'daki bu satıra bağlar. Bu, sen hiçbir şey istemeden otomatik olur.',
+        en: 'Step 1 — the moment cy.visit() runs, Cypress takes a COMPLETE snapshot of the DOM at that instant and attaches it to this line in the Command Log. This happens automatically, without you asking for it.',
+      },
+      positions: {
+        cmd1: { x: 16, y: 40, scale: 1 },
+        snapshots: { x: 44, y: 40, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'cmd1', to: 'snapshots' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — cy.get().type() ve cy.get().click() da aynısını yapar: her biri kendi anlık görüntüsünü depoya ekler. Artık 3 komut için 3 ayrı "zaman kapsülü" var.',
+        en: 'Step 2 — cy.get().type() and cy.get().click() do the same: each adds its own snapshot to the store. Now there are 3 separate "time capsules" for 3 commands.',
+      },
+      positions: {
+        cmd2: { x: 20, y: 55, scale: 1 },
+        cmd3: { x: 40, y: 55, scale: 1 },
+        snapshots: { x: 66, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cmd2', to: 'snapshots', color: '#f59e0b' }, { from: 'cmd3', to: 'snapshots', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — test bittikten SONRA (ya da hata verdikten sonra), Command Log\'da 2. komuta (type) tıklarsın. Cypress yeniden test ÇALIŞTIRMAZ — depodaki o anki snapshot\'ı doğrudan ekrana geri yükler.',
+        en: 'Step 3 — AFTER the test finishes (or fails), you click the 2nd command (type) in the Command Log. Cypress does NOT re-run the test — it directly restores that exact snapshot from the store to the screen.',
+      },
+      positions: {
+        snapshots: { x: 30, y: 45, opacity: 0.6, scale: 0.9 },
+        cursor: { x: 58, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'snapshots', to: 'cursor', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast sahnesi — Selenium\'da bu "geçmişe dönme" özelliği yoktur: eğer o anki DOM durumunu görmek istiyorsan, testi YAZARKEN önceden driver.getScreenshotAs(...) çağrısı eklemiş olman gerekirdi. Beklemediğin bir yerde test kırılırsa, o anın kanıtı SONSUZA kadar kaybolur.',
+        en: "Contrast scene — Selenium has no such \"go back in time\" feature: to see the DOM state at that moment, you would have had to add a driver.getScreenshotAs(...) call in advance, while WRITING the test. If the test breaks somewhere you didn't anticipate, the evidence of that moment is lost FOREVER.",
+      },
+      positions: {
+        cursor: { x: 32, y: 45, opacity: 0.55, scale: 0.85 },
+        lostDebug: { x: 64, y: 45, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'cursor', to: 'lostDebug', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: bu yüzden CI\'da fail eden bir Cypress testinde saatlerce log okumak yerine, tam olarak hangi komutta hangi elementin ne gösterdiğini bir tıkla görebilirsin — flaky test analizini dakikalara indiren asıl özellik budur.',
+        en: 'The takeaway: this is why, instead of combing through logs for hours when a Cypress test fails in CI, you can see exactly what an element showed at exactly which command with a single click — this is the feature that turns flaky-test analysis into a matter of minutes.',
+      },
+      positions: {
+        snapshots: { x: 30, y: 55, scale: 0.95 },
+        cursor: { x: 62, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'snapshots', to: 'cursor', color: '#10b981' }],
+    },
+  ],
+}
+
+// Elle yazılan sandbox (s4'te 'code' tipi blok yok, otomatik trio üretilmez) —
+// CLAUDE.md §9.4: relatedTopicId zorunlu.
+const cypressTimeTravelPractice = {
+  type: 'code-playground',
+  id: 'cypress-time-travel-practice-1',
+  relatedTopicId: 'cypress-time-travel',
+  label: { tr: 'Kendin Yaz ve Dene: cy.wait(sayı) Yerine Retry-able Assertion', en: 'Write It Yourself: A Retry-able Assertion Instead of cy.wait(number)' },
+  language: 'javascript',
+  task: {
+    tr: 'Sepete ürün eklendikten sonra sepet sayacının "3" olmasını bekleyen bir satır yaz — sabit bir cy.wait(3000) İLE DEĞİL, retry-ability\'li bir should() ile.',
+    en: 'Write a line that waits for the cart counter to become "3" after adding a product — NOT with a fixed cy.wait(3000), but with a retry-able should().',
+  },
+  explanation: {
+    tr: 'TODO satırını, sayacın metninin "3" olmasını bekleyen bir cy.get(...).should(...) zinciriyle tamamla.',
+    en: 'Complete the TODO line with a cy.get(...).should(...) chain that waits for the counter text to be "3".',
+  },
+  code: {
+    tr: `cy.get('[data-cy=add-to-cart]').click()
+cy.get('[data-cy=cart-count]').should('have.text', '3')`,
+    en: `cy.get('[data-cy=add-to-cart]').click()
+cy.get('[data-cy=cart-count]').should('have.text', '3')`,
+  },
+  starterCode: {
+    tr: `cy.get('[data-cy=add-to-cart]').click()
+// TODO: [data-cy=cart-count] elementinin metninin '3' olmasını retry-able şekilde bekle`,
+    en: `cy.get('[data-cy=add-to-cart]').click()
+// TODO: wait for [data-cy=cart-count] text to be '3', retry-ably`,
+  },
+  solutionCode: {
+    tr: `cy.get('[data-cy=add-to-cart]').click()
+cy.get('[data-cy=cart-count]').should('have.text', '3')`,
+    en: `cy.get('[data-cy=add-to-cart]').click()
+cy.get('[data-cy=cart-count]').should('have.text', '3')`,
+  },
+  expected: {
+    tr: 'Çözüm eşleşti — should(\'have.text\', \'3\') koşul sağlanana kadar otomatik tekrar dener; cy.wait(3000) gibi sabit bir süre beklemez, hem daha hızlı hem daha güvenilirdir.',
+    en: "Your solution matches — should('have.text', '3') automatically retries until the condition passes; it does not wait a fixed duration like cy.wait(3000), making it both faster and more reliable.",
+  },
+  hints: [
+    { tr: 'should() bir assertion\'dır ve retry-ability\'lidir — koşul doğru olana kadar (varsayılan 4000ms) arka planda tekrar dener.', en: 'should() is an assertion and is retry-able — it retries in the background (default 4000ms) until the condition is true.' },
+    { tr: '.should(\'have.text\', \'3\') tam metin eşleşmesi arar; kısmi eşleşme için .should(\'contain.text\', \'3\') kullanılır.', en: ".should('have.text', '3') looks for an exact text match; for partial matches use .should('contain.text', '3')." },
+  ],
+  xpReward: 10,
+}
+
 const s4 = {
   tr: {
     title: '🕐 Zaman Yolculuğu & Retry-ability',
@@ -935,6 +1491,8 @@ cy.url().should('include', '/dashboard')
 // Cypress o anın DOM anlık görüntüsünü gösterir.`,
         language: 'javascript',
       },
+      cypressTimeTravelRetryFilm,
+      cypressTimeTravelPractice,
       {
         type: 'comparison',
         left: { label: 'Selenium — Explicit Wait', code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -1027,6 +1585,8 @@ cy.url().should('include', '/dashboard')
 // Cypress shows the DOM snapshot from that exact moment.`,
         language: 'javascript',
       },
+      cypressTimeTravelRetryFilm,
+      cypressTimeTravelPractice,
       {
         type: 'comparison',
         left: { label: 'Selenium — Explicit Wait', code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -1110,6 +1670,94 @@ wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("toast")));`,
   },
 }
 
+const cypressInterceptStubFilm = {
+  type: 'video-scene',
+  id: 'cypress-intercept-stub-film',
+  title: { tr: '🎬 İstek Daha Yola Çıkmadan: cy.intercept() Nasıl Araya Girer?', en: '🎬 Before the Request Even Leaves: How cy.intercept() Steps In' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'app', emoji: '📱', label: { tr: 'Uygulama (fetch/XHR)', en: 'Application (fetch/XHR)' }, color: '#0ea5e9' },
+    { id: 'intercept', emoji: '🕸️', label: { tr: 'cy.intercept() Katmanı', en: 'cy.intercept() Layer' }, color: '#8b5cf6' },
+    { id: 'fixture', emoji: '📄', label: { tr: 'fixture: products.json', en: 'fixture: products.json' }, color: '#f59e0b' },
+    { id: 'realServer', emoji: '🖧', label: { tr: 'Gerçek Sunucu', en: 'Real Server' }, color: '#64748b' },
+    { id: 'domAssert', emoji: '✅', label: { tr: 'UI Güncellendi + Assertion', en: 'UI Updated + Assertion' }, color: '#22c55e' },
+    { id: 'missedGhost', emoji: '👻', label: { tr: 'cy.wait() Hiç Tetiklenmedi', en: 'cy.wait() Never Fired' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Uygulama /api/products\'a bir GET isteği atacak. Ama cy.intercept() bu isteğin tarayıcıyı GERÇEKTEN terk etmesinden önce araya girer. Bu filmde tam olarak NEREDE araya girdiğini göreceksin.',
+        en: "The app is about to make a GET request to /api/products. But cy.intercept() steps in before the request actually leaves the browser. In this film you will see EXACTLY where it intercepts.",
+      },
+      code: { tr: `cy.intercept('GET', '/api/products', { fixture: 'products.json' }).as('getProducts')
+cy.visit('/shop')`, en: `cy.intercept('GET', '/api/products', { fixture: 'products.json' }).as('getProducts')
+cy.visit('/shop')` },
+      positions: { app: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — cy.intercept() cy.visit()\'ten ÖNCE tanımlandığı için, sayfa yüklenmeye başladığında Cypress zaten "/api/products" isteklerini dinliyor olur — bu sıralama kritiktir.',
+        en: 'Step 1 — because cy.intercept() is defined BEFORE cy.visit(), by the time the page starts loading Cypress is already listening for "/api/products" requests — this ordering is critical.',
+      },
+      positions: {
+        app: { x: 16, y: 40, scale: 0.95 },
+        intercept: { x: 44, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'app', to: 'intercept' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — uygulama isteği attığında, istek GERÇEK sunucuya ULAŞMADAN cy.intercept() katmanında yakalanır. STUB modunda ({ fixture: ... }) Cypress isteği hiç sunucuya göndermez — doğrudan fixture dosyasından sahte veri döner.',
+        en: "Step 2 — when the app fires the request, it is caught at the cy.intercept() layer BEFORE it ever reaches the REAL server. In STUB mode ({ fixture: ... }), Cypress never sends the request to the server at all — it returns fake data directly from the fixture file.",
+      },
+      positions: {
+        intercept: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        fixture: { x: 52, y: 40, scale: 1.2, pulse: true },
+        realServer: { x: 78, y: 40, scale: 0.85, opacity: 0.4 },
+      },
+      beams: [{ from: 'intercept', to: 'fixture', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — fixture verisi uygulamaya gerçek bir HTTP cevabıymış GİBİ döner; React/Vue bileşeni bunun sahte olduğunu bilmez, normal şekilde 8 ürünü render eder.',
+        en: "Step 3 — the fixture data is returned to the app AS IF it were a real HTTP response; the React/Vue component has no idea it's fake, and renders the 8 products normally.",
+      },
+      positions: {
+        fixture: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        domAssert: { x: 58, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fixture', to: 'domAssert', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — cy.wait(\'@getProducts\') testin, isteğin gerçekten TAMAMLANMASINI (stub cevabı dönene kadar) beklemesini sağlar; sonra cy.get(\'.product-card\').should(\'have.length\', 8) doğrulamayı yapar.',
+        en: "Step 4 — cy.wait('@getProducts') makes the test wait for the request to actually COMPLETE (until the stub response returns); then cy.get('.product-card').should('have.length', 8) performs the check.",
+      },
+      code: { tr: `cy.wait('@getProducts')
+cy.get('.product-card').should('have.length', 8)`, en: `cy.wait('@getProducts')
+cy.get('.product-card').should('have.length', 8)` },
+      positions: {
+        domAssert: { x: 34, y: 40, scale: 1 },
+        intercept: { x: 60, y: 55, scale: 1 },
+      },
+      beams: [{ from: 'domAssert', to: 'intercept', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast (hayalet) sahnesi — sıralama TERSİNE çevrilirse (cy.intercept() cy.visit()\'ten SONRA yazılırsa), sayfa isteği intercept kaydolmadan ÖNCE atmış olur; cy.wait(\'@getProducts\') hiçbir zaman eşleşen bir istek görmez ve "No request ever occurred" hatasıyla timeout olur. Sıra, cy.intercept() için her şeydir.',
+        en: 'Contrast (ghost) scene — if the order is REVERSED (cy.intercept() written AFTER cy.visit()), the page fires its request BEFORE the intercept is even registered; cy.wait(\'@getProducts\') never sees a matching request and times out with "No request ever occurred". Order is everything for cy.intercept().',
+      },
+      positions: {
+        intercept: { x: 34, y: 55, opacity: 0.55, scale: 0.85 },
+        missedGhost: { x: 66, y: 55, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'intercept', to: 'missedGhost', color: '#ef4444' }],
+    },
+  ],
+}
+
 const s5 = {
   tr: {
     title: '🌐 Network & cy.intercept()',
@@ -1164,6 +1812,7 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
         why: { tr: 'Java\'da network stub\'lamak için WireMock/MockServer gibi ayrı bir HTTP sunucusu ayağa kaldırman, port çakışmalarını yönetmen ve testten önce/sonra başlatıp durdurman gerekir. Cypress\'te cy.intercept() tarayıcının network katmanını doğrudan yakalar — ekstra sunucu yoktur.', en: "In Java, stubbing the network requires spinning up a separate HTTP server like WireMock/MockServer, managing port conflicts, and starting/stopping it around your tests. In Cypress, cy.intercept() captures the browser's network layer directly — there is no extra server." },
         note: { tr: 'Bu fark, Cypress\'in "tek process içinde çalışma" mimarisinin doğrudan bir sonucudur — network katmanı zaten aynı tarayıcı içinde olduğu için yakalamak trivial hale gelir.', en: "This difference is a direct consequence of Cypress's \"same-process\" architecture — since the network layer is already inside the same browser, intercepting it becomes trivial." },
       },
+      cypressInterceptStubFilm,
       {
         type: 'quiz',
         question: { tr: 'cy.intercept() ile "stub" ve "spy" arasındaki temel fark nedir?', en: 'What is the core difference between "stub" and "spy" with cy.intercept()?' },
@@ -1276,6 +1925,7 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
         why: { tr: 'Java\'da network stub\'lamak için WireMock/MockServer gibi ayrı bir HTTP sunucusu ayağa kaldırman, port çakışmalarını yönetmen ve testten önce/sonra başlatıp durdurman gerekir. Cypress\'te cy.intercept() tarayıcının network katmanını doğrudan yakalar — ekstra sunucu yoktur.', en: "In Java, stubbing the network requires spinning up a separate HTTP server like WireMock/MockServer, managing port conflicts, and starting/stopping it around your tests. In Cypress, cy.intercept() captures the browser's network layer directly — there is no extra server." },
         note: { tr: 'Bu fark, Cypress\'in "tek process içinde çalışma" mimarisinin doğrudan bir sonucudur — network katmanı zaten aynı tarayıcı içinde olduğu için yakalamak trivial hale gelir.', en: "This difference is a direct consequence of Cypress's \"same-process\" architecture — since the network layer is already inside the same browser, intercepting it becomes trivial." },
       },
+      cypressInterceptStubFilm,
       {
         type: 'quiz',
         question: { tr: 'cy.intercept() ile "stub" ve "spy" arasındaki temel fark nedir?', en: 'What is the core difference between "stub" and "spy" with cy.intercept()?' },
@@ -1335,6 +1985,95 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
 },
     ],
   },
+}
+
+const cypressCiRealWorldFilm = {
+  type: 'video-scene',
+  id: 'cypress-ci-real-world-film',
+  title: { tr: '🎬 Push\'tan Sipariş Onayına: Gerçek Bir CI Checkout Testi', en: '🎬 From Push to Order Confirmed: A Real CI Checkout Test' },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'push', emoji: '🔔', label: { tr: 'git push', en: 'git push' }, color: '#0ea5e9' },
+    { id: 'ciRunner', emoji: '🤖', label: { tr: 'CI Runner (cypress run)', en: 'CI Runner (cypress run)' }, color: '#f59e0b' },
+    { id: 'loginApi', emoji: '🔑', label: { tr: 'cy.loginByApi()', en: 'cy.loginByApi()' }, color: '#8b5cf6' },
+    { id: 'session', emoji: '🍪', label: { tr: 'Oturum Kuruldu (localStorage)', en: 'Session Established (localStorage)' }, color: '#22c55e' },
+    { id: 'checkout', emoji: '🛒', label: { tr: 'Checkout UI Testi', en: 'Checkout UI Test' }, color: '#10b981' },
+    { id: 'uiLoginTrap', emoji: '👻', label: { tr: 'Her Testte UI Login — Kırılgan', en: 'UI Login Every Test — Fragile' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir geliştirici kodu push\'lar, CI cypress run\'ı tetikler. Ama gerçek testler başlamadan önce, sahnede fark etmeyeceğin bir kısayol devreye girer — bu filmde onu izleyeceksin.',
+        en: 'A developer pushes code, CI triggers cypress run. But before the real tests start, a shortcut you would not notice on stage kicks in — in this film you will watch it.',
+      },
+      code: { tr: `git push origin feature/checkout-coupon`, en: `git push origin feature/checkout-coupon` },
+      positions: { push: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — CI runner uygulamayı ayağa kaldırır ve cypress run --record komutunu çalıştırır. beforeEach hook\'u ilk olarak cy.loginByApi(...) custom komutunu çağırır.',
+        en: 'Step 1 — the CI runner boots the app and runs cypress run --record. The beforeEach hook first calls the cy.loginByApi(...) custom command.',
+      },
+      code: { tr: `beforeEach(() => {
+  cy.loginByApi('user@test.com', 'Secret123!')
+  cy.visit('/cart')
+})`, en: `beforeEach(() => {
+  cy.loginByApi('user@test.com', 'Secret123!')
+  cy.visit('/cart')
+})` },
+      positions: {
+        push: { x: 16, y: 40, scale: 0.95 },
+        ciRunner: { x: 44, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'push', to: 'ciRunner' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — loginByApi() UI\'da hiçbir buton tıklamaz: cy.request(\'POST\', \'/api/login\', ...) ile doğrudan bir HTTP isteği atar ve dönen token\'ı localStorage\'a yazar. Bu, "App Actions" pattern\'idir.',
+        en: "Step 2 — loginByApi() clicks no button in the UI: it fires a direct HTTP request with cy.request('POST', '/api/login', ...) and writes the returned token into localStorage. This is the \"App Actions\" pattern.",
+      },
+      positions: {
+        ciRunner: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        loginApi: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ciRunner', to: 'loginApi', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — oturum artık kurulu. cy.visit(\'/cart\') sayfayı açtığında uygulama zaten login olmuş bir kullanıcı görür — 5 UI adımını (email yaz, şifre yaz, tıkla, bekle, yönlendirmeyi doğrula) atlamış olursun.',
+        en: "Step 3 — the session is now established. When cy.visit('/cart') opens the page, the app already sees a logged-in user — you have skipped 5 UI steps (type email, type password, click, wait, verify redirect).",
+      },
+      positions: {
+        loginApi: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        session: { x: 58, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'loginApi', to: 'session', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — asıl checkout testi ŞİMDİ başlar: kupon yaz, uygula, ödeme yap, "Siparişiniz Alındı" mesajını doğrula. Bu test artık sadece checkout mantığına odaklanır — login mekaniğiyle uğraşmaz.',
+        en: 'Step 4 — the ACTUAL checkout test starts NOW: type the coupon, apply it, pay, verify the "Order Confirmed" message. This test now focuses purely on checkout logic — it never deals with login mechanics.',
+      },
+      positions: {
+        session: { x: 34, y: 40, scale: 1 },
+        checkout: { x: 62, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'session', to: 'checkout', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast (hayalet) sahnesi — bu pattern KULLANILMASAYDI: 50 testin HER BİRİ UI\'dan login olurdu. Login sayfasında bir CSS class değişse, TÜM 50 test aynı anda kırılır — tek bir gerçek bug yokken CI kırmızıya boyanır. App Actions bu kırılganlığı köküyle keser.',
+        en: 'Contrast (ghost) scene — if this pattern were NOT used: EVERY ONE of the 50 tests would log in through the UI. If a single CSS class on the login page changes, ALL 50 tests break at once — CI turns red with zero real bugs. App Actions cuts this fragility off at the root.',
+      },
+      positions: {
+        checkout: { x: 30, y: 55, opacity: 0.55, scale: 0.85 },
+        uiLoginTrap: { x: 64, y: 55, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'checkout', to: 'uiLoginTrap', color: '#ef4444' }],
+    },
+  ],
 }
 
 const s6 = {
@@ -1399,6 +2138,7 @@ describe('Checkout Flow', () => {
         type: 'tip',
         content: { tr: 'Hands-on mini proje: jsonplaceholder.typicode.com gibi public bir API\'ye karşı cy.intercept() ile sahte ürün listesi dönen, kupon uygulayan ve "sipariş onaylandı" mesajını doğrulayan uçtan uca bir checkout testi yaz — gerçek bir backend\'e ihtiyacın olmadan tüm akışı pratik edebilirsin.', en: 'Hands-on mini project: write an end-to-end checkout test against a public API like jsonplaceholder.typicode.com, using cy.intercept() to return a fake product list, applying a coupon, and asserting the "order confirmed" message — you can practice the whole flow without needing a real backend.' },
       },
+      cypressCiRealWorldFilm,
       {
         type: 'quiz',
         question: { tr: 'Gerçek bir e-ticaret checkout test paketinde, her testte UI üzerinden tekrar giriş yapmak yerine "App Actions" pattern\'i ne yapar?', en: 'In a real e-commerce checkout test suite, instead of logging in through the UI in every test, what does the "App Actions" pattern do?' },
@@ -1485,6 +2225,7 @@ describe('Checkout Flow', () => {
         type: 'tip',
         content: { tr: 'Hands-on mini proje: jsonplaceholder.typicode.com gibi public bir API\'ye karşı cy.intercept() ile sahte ürün listesi dönen, kupon uygulayan ve "sipariş onaylandı" mesajını doğrulayan uçtan uca bir checkout testi yaz — gerçek bir backend\'e ihtiyacın olmadan tüm akışı pratik edebilirsin.', en: 'Hands-on mini project: write an end-to-end checkout test against a public API like jsonplaceholder.typicode.com, using cy.intercept() to return a fake product list, applying a coupon, and asserting the "order confirmed" message — you can practice the whole flow without needing a real backend.' },
       },
+      cypressCiRealWorldFilm,
       {
         type: 'quiz',
         question: { tr: 'Gerçek bir e-ticaret checkout test paketinde, her testte UI üzerinden tekrar giriş yapmak yerine "App Actions" pattern\'i ne yapar?', en: 'In a real e-commerce checkout test suite, instead of logging in through the UI in every test, what does the "App Actions" pattern do?' },
@@ -1510,6 +2251,80 @@ describe('Checkout Flow', () => {
       },
     ],
   },
+}
+
+const cypressEcosystemFilm = {
+  type: 'video-scene',
+  id: 'cypress-ecosystem-film',
+  title: { tr: '🎬 Ekosistem Canlı: cypress-axe Bir Sayfayı Nasıl Tarar?', en: '🎬 The Ecosystem in Action: How cypress-axe Scans a Page' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'page', emoji: '🧾', label: { tr: '/checkout Sayfası', en: '/checkout Page' }, color: '#0ea5e9' },
+    { id: 'axeCore', emoji: '♿', label: { tr: 'axe-core Enjekte Edildi', en: 'axe-core Injected' }, color: '#8b5cf6' },
+    { id: 'scanEngine', emoji: '🔬', label: { tr: 'WCAG Tarama Motoru', en: 'WCAG Scan Engine' }, color: '#f59e0b' },
+    { id: 'cleanReport', emoji: '✅', label: { tr: 'İhlal Yok — Test Geçti', en: 'No Violations — Test Passes' }, color: '#22c55e' },
+    { id: 'violationGhost', emoji: '👻', label: { tr: 'Kontrast İhlali Bulundu', en: 'Contrast Violation Found' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Ekosistemin gerçek gücü, tek satırlık bir eklentinin bütün bir kalite kategorisini (erişilebilirlik) otomatikleştirmesindedir. Bu filmde cypress-axe\'in bir sayfayı NASIL taradığını izleyeceksin.',
+        en: "The real power of the ecosystem is a single-line plugin automating an entire quality category (accessibility). In this film you will watch HOW cypress-axe scans a page.",
+      },
+      code: { tr: `cy.visit('/checkout')
+cy.injectAxe()
+cy.checkA11y()`, en: `cy.visit('/checkout')
+cy.injectAxe()
+cy.checkA11y()` },
+      positions: { page: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — cy.injectAxe(), Deque\'in axe-core kütüphanesini çalışan sayfaya bir <script> gibi enjekte eder. Bu, sayfanın kendi koduna hiçbir değişiklik yapmadan gerçekleşir.',
+        en: "Step 1 — cy.injectAxe() injects Deque's axe-core library into the running page like a <script>. This happens without any change to the page's own code.",
+      },
+      positions: {
+        page: { x: 16, y: 40, scale: 0.95 },
+        axeCore: { x: 44, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'page', to: 'axeCore' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — cy.checkA11y() çağrıldığında axe-core, sayfanın TÜM DOM ağacını tarar: renk kontrastı, eksik alt-text, yanlış ARIA rolü, klavye ile erişilemeyen elementler gibi onlarca WCAG kuralını kontrol eder.',
+        en: 'Step 2 — when cy.checkA11y() is called, axe-core scans the ENTIRE DOM tree of the page: it checks dozens of WCAG rules like color contrast, missing alt-text, incorrect ARIA roles, and keyboard-unreachable elements.',
+      },
+      positions: {
+        axeCore: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        scanEngine: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'axeCore', to: 'scanEngine', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — hiçbir ihlal bulunmazsa test yeşil geçer; bu, "checkout sayfası ekran okuyucuyla ve klavyeyle kullanılabilir" iddiasının otomatik bir kanıtıdır — insan tarafından manuel kontrol edilmesi gerekmez.',
+        en: 'Step 3 — if no violations are found, the test passes green; this is automatic proof of the claim "the checkout page is usable with a screen reader and keyboard" — no manual human check required.',
+      },
+      positions: {
+        scanEngine: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        cleanReport: { x: 58, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'scanEngine', to: 'cleanReport', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast (hayalet) sahnesi — bir tasarımcı "Ödeme Yap" butonunun rengini açık griye çevirdiğinde: axe-core bunu bir renk kontrastı İHLALİ olarak yakalar ve test kırmızı olur — hangi elementin, hangi kuralı, ne kadar ihlal ettiğini gösteren detaylı bir rapor üretir. Bu, insan gözünün PR review\'de kolayca kaçırdığı bir regresyonu CI\'da otomatik yakalamaktır.',
+        en: 'Contrast (ghost) scene — when a designer changes the "Pay Now" button to a light gray: axe-core catches this as a color contrast VIOLATION and the test turns red — producing a detailed report of which element violated which rule and by how much. This is CI automatically catching a regression the human eye would easily miss in a PR review.',
+      },
+      positions: {
+        cleanReport: { x: 30, y: 40, opacity: 0.55, scale: 0.85 },
+        violationGhost: { x: 64, y: 40, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'cleanReport', to: 'violationGhost', color: '#ef4444' }],
+    },
+  ],
 }
 
 const s7 = {
@@ -1555,6 +2370,7 @@ it('has no detectable accessibility violations', () => {
   cy.checkA11y()
 })`,
       },
+      cypressEcosystemFilm,
       {
         type: 'quiz',
         question: { tr: 'cypress-axe eklentisi ne için kullanılır?', en: 'What is the cypress-axe plugin used for?' },
@@ -1654,6 +2470,7 @@ it('has no detectable accessibility violations', () => {
   cy.checkA11y()
 })`,
       },
+      cypressEcosystemFilm,
       {
         type: 'quiz',
         question: { tr: 'cypress-axe eklentisi ne için kullanılır?', en: 'What is the cypress-axe plugin used for?' },
@@ -1703,6 +2520,149 @@ it('has no detectable accessibility violations', () => {
   },
 }
 
+const cypressArchitectureShowdownFilm = {
+  type: 'video-scene',
+  id: 'cypress-architecture-showdown-film',
+  title: { tr: '🎬 Aynı Assertion, Üç Farklı Yol: Selenium vs Cypress vs Playwright', en: '🎬 Same Assertion, Three Different Paths: Selenium vs Cypress vs Playwright' },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'task', emoji: '🎯', label: { tr: '"Sepet sayacı 3 olmalı"', en: '"Cart counter must be 3"' }, color: '#0ea5e9' },
+    { id: 'selenium', emoji: '☕', label: { tr: 'Selenium (WebDriver HTTP)', en: 'Selenium (WebDriver HTTP)' }, color: '#f59e0b' },
+    { id: 'cypress', emoji: '🌲', label: { tr: 'Cypress (in-process)', en: 'Cypress (in-process)' }, color: '#22c55e' },
+    { id: 'playwright', emoji: '🎭', label: { tr: 'Playwright (CDP/WebSocket)', en: 'Playwright (CDP/WebSocket)' }, color: '#8b5cf6' },
+    { id: 'board', emoji: '📊', label: { tr: 'Üçü de PASS — ama aynı değil', en: 'All three PASS — but not the same' }, color: '#10b981' },
+    { id: 'safariGhost', emoji: '👻', label: { tr: 'Safari Gereksinimi — Cypress Elenir', en: 'Safari Requirement — Cypress Is Out' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Tek bir görev: "sepet sayacı 3 olana kadar bekle ve doğrula". Üç araç da bu görevi yapabilir — ama HANGİ yoldan geçtikleri tamamen farklıdır. Bu filmde aynı anda üç yolu izleyeceksin.',
+        en: 'One task: "wait until the cart counter is 3 and verify it". All three tools can do this — but WHICH path they take is completely different. In this film you will watch all three paths at once.',
+      },
+      code: { tr: `// Aynı hedef, üç sözdizimi
+driver / cy / page — hepsi "3" olana kadar bekleyip doğrular`, en: `// Same goal, three syntaxes
+driver / cy / page — all wait for "3" and verify` },
+      positions: { task: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Yol 1 — Selenium: WebDriverWait, HER kontrol denemesinde ChromeDriver\'a bir HTTP isteği gönderir. Ayrı bir process, ayrı bir protokol — güvenilir ama her "3 mü oldu?" sorusu bir ağ round-trip\'i demektir.',
+        en: "Path 1 — Selenium: WebDriverWait sends an HTTP request to ChromeDriver on EVERY check attempt. A separate process, a separate protocol — reliable, but every \"is it 3 yet?\" question means a network round-trip.",
+      },
+      code: { tr: `wait.until(ExpectedConditions.textToBePresentInElement(
+  driver.findElement(By.id("cart-count")), "3"));`, en: `wait.until(ExpectedConditions.textToBePresentInElement(
+  driver.findElement(By.id("cart-count")), "3"));` },
+      positions: {
+        task: { x: 14, y: 30, scale: 0.9 },
+        selenium: { x: 40, y: 30, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'task', to: 'selenium', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Yol 2 — Cypress: cy.get().should() tarayıcının İÇİNDE çalışır, hiçbir ağ isteği yoktur. Aynı "3 mü oldu?" kontrolü, JavaScript motorunun kendi belleğinde milisaniyeler içinde tekrar tekrar çalışır.',
+        en: 'Path 2 — Cypress: cy.get().should() runs INSIDE the browser, there is no network request at all. The same "is it 3 yet?" check reruns within the JavaScript engine\'s own memory, in milliseconds.',
+      },
+      code: { tr: `cy.get('[data-cy=cart-count]').should('have.text', '3')`, en: `cy.get('[data-cy=cart-count]').should('have.text', '3')` },
+      positions: {
+        task: { x: 14, y: 50, scale: 0.9 },
+        cypress: { x: 40, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'task', to: 'cypress', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Yol 3 — Playwright: expect(locator).toHaveText() Chrome DevTools Protokolü (CDP) üzerinden KALICI bir WebSocket bağlantısı kullanır. HTTP round-trip\'i yoktur ama Selenium gibi ayrı bir process\'ten yönetilir — bu yüzden çoklu sekme/dil desteği Cypress\'te olmayan bir esneklik sağlar.',
+        en: "Path 3 — Playwright: expect(locator).toHaveText() uses a PERSISTENT WebSocket connection over the Chrome DevTools Protocol (CDP). No HTTP round-trip, but it is still managed from a separate process like Selenium — which is why it offers multi-tab/multi-language flexibility that Cypress does not have.",
+      },
+      code: { tr: `await expect(page.locator('[data-cy=cart-count]')).toHaveText('3')`, en: `await expect(page.locator('[data-cy=cart-count]')).toHaveText('3')` },
+      positions: {
+        task: { x: 14, y: 70, scale: 0.9 },
+        playwright: { x: 40, y: 70, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'task', to: 'playwright', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç tahtası: her üçü de doğru koşullarda PASS eder. Ama maliyet modeli farklıdır — Selenium: her komut bir ağ isteği. Cypress: sıfır ağ isteği ama JS/TS ile sınırlı, tek sekme. Playwright: kalıcı bağlantı + çoklu dil + çoklu sekme.',
+        en: 'The results board: all three PASS under the right conditions. But the cost model differs — Selenium: every command is a network request. Cypress: zero network requests but limited to JS/TS, single tab. Playwright: persistent connection + multi-language + multi-tab.',
+      },
+      positions: {
+        selenium: { x: 20, y: 30, scale: 0.85, opacity: 0.6 },
+        cypress: { x: 20, y: 50, scale: 0.85, opacity: 0.6 },
+        playwright: { x: 20, y: 70, scale: 0.85, opacity: 0.6 },
+        board: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'selenium', to: 'board' }, { from: 'cypress', to: 'board', color: '#22c55e' }, { from: 'playwright', to: 'board', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast (hayalet) sahnesi — proje Safari/WebKit\'te ZORUNLU test istiyorsa: Cypress yolu bu görevi asla tamamlayamaz, Chromium/Firefox/Electron ile sınırlıdır. Bu durumda karar mimari zarafetten değil, tek bir zorunlu kısıttan (tarayıcı desteği) geçer — Selenium ya da Playwright seçilmelidir.',
+        en: "Contrast (ghost) scene — if the project REQUIRES testing on Safari/WebKit: the Cypress path can never complete this task, it is limited to Chromium/Firefox/Electron. In this case the decision is not about architectural elegance but a single hard constraint (browser support) — Selenium or Playwright must be chosen.",
+      },
+      positions: {
+        cypress: { x: 24, y: 50, opacity: 0.55, scale: 0.85 },
+        safariGhost: { x: 58, y: 50, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'cypress', to: 'safariGhost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const cypressArchitectureDecisionStep = {
+  type: 'step-animation',
+  id: 'cypress-architecture-decision-step-01',
+  title: { tr: 'Adım Adım: Doğru Aracı Seçme Refleksi', en: 'Step by Step: The Right-Tool-Selection Reflex' },
+  steps: [
+    { id: 1, icon: '👥', label: { tr: 'Ekip hangi dili yazıyor?', en: 'What language does the team write?' }, detail: { tr: 'Ekip sadece JS/TS biliyorsa Cypress bir seçenektir; Java/Python/C# yazıyorsa Selenium veya Playwright (çoklu dil desteği) gerekir.', en: 'If the team only knows JS/TS, Cypress is an option; if they write Java/Python/C#, Selenium or Playwright (multi-language support) is required.' } },
+    { id: 2, icon: '🧭', label: { tr: 'Hangi tarayıcılar zorunlu?', en: 'Which browsers are mandatory?' }, detail: { tr: 'Safari/WebKit zorunluysa Cypress otomatik elenir — bu tek başına kararı belirleyebilecek sert bir kısıttır.', en: 'If Safari/WebKit is mandatory, Cypress is automatically eliminated — this alone can be a hard constraint that decides the outcome.' } },
+    { id: 3, icon: '🪟', label: { tr: 'Çoklu sekme/pencere gerekiyor mu?', en: 'Do you need multiple tabs/windows?' }, detail: { tr: 'OAuth popup\'ları, yeni sekmede açılan linkler gibi senaryolar kritikse, tek sekmeli Cypress yerine Selenium/Playwright tercih edilir.', en: 'If scenarios like OAuth popups or links opening in new tabs are critical, Selenium/Playwright are preferred over single-tab Cypress.' } },
+    { id: 4, icon: '🧩', label: { tr: 'Component testing isteniyor mu?', en: 'Is component testing desired?' }, detail: { tr: 'Cypress\'in built-in Component Testing modu, test piramidinin orta katmanına da hizmet eden nadir bir özelliktir.', en: "Cypress's built-in Component Testing mode is a rare feature that also serves the middle layer of the test pyramid." } },
+    { id: 5, icon: '⚖️', label: { tr: 'Kararı ver — gerekirse hibrit', en: 'Make the call — hybrid if needed' }, detail: { tr: 'Gerçekçi bir strateji genelde "ikisi bir arada"dır: yeni SPA özellikleri Cypress\'le, Safari zorunlu kritik regresyon Selenium/Playwright\'te kalır.', en: 'A realistic strategy is often "both at once": new SPA features in Cypress, Safari-critical regression staying in Selenium/Playwright.' } },
+  ],
+}
+
+// Elle yazılan sandbox (s8'de 'code' tipi blok yok, otomatik trio üretilmez) —
+// CLAUDE.md §9.4: relatedTopicId zorunlu.
+const cypressArchitectureShowdownPractice = {
+  type: 'code-playground',
+  id: 'cypress-architecture-showdown-practice-1',
+  relatedTopicId: 'cypress-vs-selenium-playwright',
+  label: { tr: 'Kendin Yaz ve Dene: Aynı Assertion\'ı Üç Sözdizimiyle Tanı', en: 'Write It Yourself: Recognize the Same Assertion in Three Syntaxes' },
+  language: 'javascript',
+  task: {
+    tr: 'Cypress sözdizimiyle, sepet sayacının "3" metnine sahip olmasını retry-able şekilde bekleyen satırı tamamla — filmde gördüğün "Yol 2"nin aynısı.',
+    en: 'In Cypress syntax, complete the line that retry-ably waits for the cart counter to have the text "3" — the exact same "Path 2" you saw in the film.',
+  },
+  explanation: {
+    tr: 'TODO satırını, [data-cy=cart-count] elementinin metninin "3" olmasını bekleyen bir should() zinciriyle tamamla.',
+    en: 'Complete the TODO line with a should() chain that waits for the [data-cy=cart-count] element\'s text to be "3".',
+  },
+  code: {
+    tr: `cy.get('[data-cy=cart-count]').should('have.text', '3')`,
+    en: `cy.get('[data-cy=cart-count]').should('have.text', '3')`,
+  },
+  starterCode: {
+    tr: `// TODO: [data-cy=cart-count] elementinin metninin '3' olmasını retry-able şekilde bekle`,
+    en: `// TODO: retry-ably wait for [data-cy=cart-count] text to be '3'`,
+  },
+  solutionCode: {
+    tr: `cy.get('[data-cy=cart-count]').should('have.text', '3')`,
+    en: `cy.get('[data-cy=cart-count]').should('have.text', '3')`,
+  },
+  expected: {
+    tr: 'Çözüm eşleşti. Bu tek satır, Selenium\'daki WebDriverWait + ExpectedConditions\'ın ve Playwright\'taki await expect(...).toHaveText()\'in yaptığı işi, Cypress\'in "in-process" mimarisi sayesinde tek zincire sığdırır.',
+    en: "Your solution matches. This single line fits into one chain what Selenium's WebDriverWait + ExpectedConditions and Playwright's await expect(...).toHaveText() do, thanks to Cypress's \"in-process\" architecture.",
+  },
+  hints: [
+    { tr: 'should() retry-able bir assertion\'dır — .then() içine assertion koyma, o sadece bir kerelik çalışır.', en: 'should() is a retry-able assertion — do not put assertions inside .then(), it only runs once.' },
+    { tr: '\'have.text\' TAM metin eşleşmesi ister; sadece içerdiğini kontrol etmek istersen \'contain.text\' kullan.', en: "'have.text' requires an EXACT text match; use 'contain.text' if you only want to check it contains the value." },
+  ],
+  xpReward: 10,
+}
+
 const s8 = {
   tr: {
     title: '🆚 Cypress vs Selenium vs Playwright',
@@ -1743,6 +2703,9 @@ const s8 = {
           { icon: '❌', label: 'Cypress Seçme', desc: 'Safari/WebKit desteği şart, çoklu sekme/pencere senaryoları kritik, ekip Java/Python/C# yazıyor, native mobil test gerekiyor (bunun için Appium gerekir).' },
         ],
       },
+      cypressArchitectureShowdownFilm,
+      cypressArchitectureDecisionStep,
+      cypressArchitectureShowdownPractice,
       {
         type: 'quiz',
         question: { tr: 'Projende mutlaka Safari/WebKit\'te test çalıştırman gerekiyorsa hangi araç uygun DEĞİLDİR?', en: 'If your project absolutely must run tests on Safari/WebKit, which tool is NOT suitable?' },
@@ -1841,6 +2804,9 @@ const s8 = {
           { icon: '❌', label: "Don't Choose Cypress", desc: 'Safari/WebKit support is required, multi-tab/window scenarios are critical, the team writes Java/Python/C#, or native mobile testing is needed (which requires Appium).' },
         ],
       },
+      cypressArchitectureShowdownFilm,
+      cypressArchitectureDecisionStep,
+      cypressArchitectureShowdownPractice,
       {
         type: 'quiz',
         question: { tr: 'Projende mutlaka Safari/WebKit\'te test çalıştırman gerekiyorsa hangi araç uygun DEĞİLDİR?', en: 'If your project absolutely must run tests on Safari/WebKit, which tool is NOT suitable?' },
@@ -1888,6 +2854,123 @@ const s8 = {
 },
     ],
   },
+}
+
+// 🚨 Yaygın Hatalar — fixture mutation kirliliği film + step-animation + code-playground
+const cypressFixtureMutationFilm = {
+  type: 'video-scene',
+  id: 'cypress-fixture-mutation-film',
+  title: {
+    tr: '🎬 "PASS" Diyen Ama Aslında Kirli Veriyle Çalışan Test',
+    en: '🎬 The Test That "PASSes" But Is Secretly Running on Dirty Data',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'fixture', emoji: '📄', label: { tr: 'user.json (fixture)', en: 'user.json (fixture)' }, color: '#0ea5e9' },
+    { id: 'test1', emoji: '1️⃣', label: { tr: 'Test 1: profil günceller', en: 'Test 1: updates profile' }, color: '#8b5cf6' },
+    { id: 'test2', emoji: '2️⃣', label: { tr: 'Test 2: yeni kullanıcı bekler', en: 'Test 2: expects a fresh user' }, color: '#8b5cf6' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'used: true (sızmış!)', en: 'used: true (leaked!)' }, color: '#ef4444' },
+    { id: 'fixed', emoji: '✅', label: { tr: '{ ...data } (klon)', en: '{ ...data } (clone)' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'İki bağımsız test AYNI cy.fixture(\'user.json\') dosyasını okuyor. "Bağımsız" derken emin misin? Bu filmde ikisinin gerçekten izole olup olmadığını izleyeceğiz.',
+        en: 'Two independent tests both read the same cy.fixture(\'user.json\') file. Sure they\'re "independent"? This film watches whether they really are isolated.',
+      },
+      positions: { fixture: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Test 1 çalışır: cy.fixture(\'user.json\') JSON\'ı parse eder ve JavaScript\'te REFERANS tipi bir obje döner — bu, dosyanın kopyası değil, aynı objeye işaret eden bir handle\'dır.',
+        en: 'Step 1 — Test 1 runs: cy.fixture(\'user.json\') parses the JSON and returns a REFERENCE-type object in JavaScript — not a copy of the file, but a handle pointing at the same object.',
+      },
+      code: { tr: `cy.fixture('user.json').then((data) => {\n  data.used = true   // objeyi DOĞRUDAN mutate ediyor\n})`, en: `cy.fixture('user.json').then((data) => {\n  data.used = true   // mutates the object DIRECTLY\n})` },
+      positions: {
+        fixture: { x: 20, y: 50, scale: 1.1 },
+        test1: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fixture', to: 'test1', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Test 1, data.used = true yazarak objeyi mutate eder ve testi PASS eder. Ama Cypress bu fixture\'ı testler arasında CACHE\'ler — aynı obje referansı hafızada kalmaya devam eder.',
+        en: 'Step 2 — Test 1 mutates the object with data.used = true and PASSes. But Cypress CACHES this fixture across tests — the same object reference stays alive in memory.',
+      },
+      positions: {
+        test1: { x: 22, y: 40, scale: 0.95 },
+        ghost: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'test1', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (tuzak) — Test 2 başlar ve "temiz bir kullanıcı" bekleyerek AYNI cy.fixture(\'user.json\')\'ı çağırır. Ama cache\'den dönen obje, Test 1\'in mutate ettiği AYNI referans — used: true hâlâ orada!',
+        en: 'Step 3 (the trap) — Test 2 starts, expecting a "fresh user", and calls the SAME cy.fixture(\'user.json\'). But the object returned from cache is the EXACT SAME reference Test 1 mutated — used: true is still there!',
+      },
+      code: { tr: `// Test 2\ncy.fixture('user.json').then((data) => {\n  expect(data.used).to.be.undefined  // BEKLENEN\n  // GERÇEK: data.used === true — Test 1'den sızdı!\n})`, en: `// Test 2\ncy.fixture('user.json').then((data) => {\n  expect(data.used).to.be.undefined  // EXPECTED\n  // ACTUAL: data.used === true — leaked from Test 1!\n})` },
+      positions: {
+        ghost: { x: 30, y: 50, scale: 1.2 },
+        test2: { x: 65, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ghost', to: 'test2', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (düzeltme) — çözüm, objeyi kullanmadan ÖNCE klonlamaktır: { ...data }. Artık her test kendi bağımsız kopyasını mutate eder, orijinal fixture objesi hiç değişmez.',
+        en: 'Step 4 (the fix) — the solution is cloning the object BEFORE use: { ...data }. Now every test mutates its own independent copy, and the original fixture object never changes.',
+      },
+      code: { tr: `cy.fixture('user.json').then((data) => {\n  const myUser = { ...data }   // taze kopya\n  myUser.used = true            // sadece BU testin kopyası kirlenir\n})`, en: `cy.fixture('user.json').then((data) => {\n  const myUser = { ...data }   // fresh copy\n  myUser.used = true            // only THIS test's copy gets dirty\n})` },
+      positions: {
+        test2: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        fixed: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'test2', to: 'fixed', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java\'da bir @BeforeEach içinde her testten önce TAZE bir test fixture nesnesi oluşturmak aynı prensiptir: paylaşılan mutable bir static nesne, testler arasında sessizce sızan bir hataya dönüşür. Cypress\'te test isolation cookie/localStorage\'ı temizler ama fixture referansını KLONLAMAZ — bu senin sorumluluğundadır.',
+        en: 'The lesson — in Java, creating a FRESH test fixture object before every test inside @BeforeEach follows the same principle: a shared mutable static object turns into a bug that silently leaks between tests. Cypress\'s test isolation clears cookies/localStorage, but it does NOT clone the fixture reference for you — that\'s your responsibility.',
+      },
+      positions: {
+        fixed: { x: 35, y: 50, scale: 1.1 },
+        fixture: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+const cypressWaitAntiPatternStep = {
+  type: 'step-animation',
+  title: { tr: 'cy.wait(sayı) mı, cy.wait(\'@alias\') mı?', en: 'cy.wait(number) or cy.wait(\'@alias\')?' },
+  steps: [
+    { tr: 'cy.wait(3000) yazılır — "3 saniye yeter" varsayımıyla sabit bir süre beklenir.', en: 'cy.wait(3000) is written — a fixed duration, assuming "3 seconds will be enough".' },
+    { tr: 'CI makinesi o gün yavaşsa 3 saniye YETMEZ — istek hâlâ dönmemiştir, test flaky FAIL olur.', en: 'If the CI machine is slow that day, 3 seconds is NOT enough — the request hasn\'t returned yet, the test flaky-FAILs.' },
+    { tr: 'Yerel makinede ise 3 saniye ÇOK FAZLADIR — istek 200ms\'de bitmiştir ama test yine de bekler, süre boşa gider.', en: 'On a local machine, 3 seconds is TOO MUCH — the request finishes in 200ms, but the test waits anyway, wasting time.' },
+    { tr: 'Çözüm: cy.intercept(...).as(\'getData\') ile isteği adlandır, sonra cy.wait(\'@getData\') yaz.', en: 'The fix: name the request with cy.intercept(...).as(\'getData\'), then write cy.wait(\'@getData\').' },
+    { tr: 'cy.wait(\'@getData\') artık SÜRE değil KOŞUL bekler — istek gerçekten tamamlanana kadar, ne 200ms ne 3000ms sabit bir sayı değil.', en: 'cy.wait(\'@getData\') now waits for a CONDITION, not a DURATION — until the request truly completes, never a fixed number like 200ms or 3000ms.' },
+  ],
+}
+
+const cypressFixtureCloneP = {
+  type: 'code-playground',
+  relatedTopicId: 'cypress-errors',
+  title: { tr: 'Kendin Dene: Fixture Mutation Hatasını Düzelt', en: 'Try It Yourself: Fix the Fixture Mutation Bug' },
+  starterCode: `cy.fixture('user.json').then((data) => {
+  // BUG: data objesi doğrudan mutate ediliyor, sıradaki testi kirletiyor
+  data.lastLogin = new Date().toISOString()
+  cy.wrap(data).as('currentUser')
+})`,
+  solutionCode: `cy.fixture('user.json').then((data) => {
+  // FIX: kullanmadan önce klonla, orijinal fixture objesi hiç değişmez
+  const currentUser = { ...data }
+  currentUser.lastLogin = new Date().toISOString()
+  cy.wrap(currentUser).as('currentUser')
+})`,
+  hint: { tr: 'Object spread (`{ ...data }`) ile data\'nın bir kopyasını oluştur, mutasyonu KOPYA üzerinde yap — orijinal fixture referansına dokunma.', en: 'Create a copy of data with object spread (`{ ...data }`), mutate the COPY — never touch the original fixture reference.' },
+  successMessage: { tr: 'Doğru! Artık her test kendi bağımsız kopyasıyla çalışıyor, fixture kirliliği imkansız.', en: 'Correct! Every test now works with its own independent copy — fixture pollution is impossible.' },
 }
 
 const s9 = {
@@ -1961,6 +3044,9 @@ const s9 = {
           },
         ],
       },
+      cypressFixtureMutationFilm,
+      cypressWaitAntiPatternStep,
+      cypressFixtureCloneP,
       {
         type: 'quiz',
         question: { tr: 'Bir testte cy.fixture() ile alınan obje mutate edilip sonraki testte "kirli" veri kalmasına ne sebep olur?', en: 'What causes a "dirty" data leak into the next test when an object returned by cy.fixture() is mutated?' },
@@ -2056,6 +3142,9 @@ const s9 = {
           },
         ],
       },
+      cypressFixtureMutationFilm,
+      cypressWaitAntiPatternStep,
+      cypressFixtureCloneP,
       {
         type: 'quiz',
         question: { tr: 'Bir testte cy.fixture() ile alınan obje mutate edilip sonraki testte "kirli" veri kalmasına ne sebep olur?', en: 'What causes a "dirty" data leak into the next test when an object returned by cy.fixture() is mutated?' },
@@ -2081,6 +3170,127 @@ const s9 = {
       },
     ],
   },
+}
+
+// 💼 Mülakat — cy.request() ile UI'yı atlayan API-first login film + step-animation + code-playground
+const cypressApiFirstLoginFilm = {
+  type: 'video-scene',
+  id: 'cypress-api-first-login-film',
+  title: {
+    tr: '🎬 cy.request(): 5 Adımlık UI Login\'i 1 HTTP Çağrısına İndirmek',
+    en: '🎬 cy.request(): Collapsing a 5-Step UI Login into 1 HTTP Call',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test', emoji: '🧪', label: { tr: 'Test (dashboard\'ı doğrulayacak)', en: 'Test (needs to verify the dashboard)' }, color: '#8b5cf6' },
+    { id: 'uiform', emoji: '🖱️', label: { tr: 'UI Login Formu (5 adım)', en: 'UI Login Form (5 steps)' }, color: '#94a3b8' },
+    { id: 'api', emoji: '🔗', label: { tr: 'POST /api/login', en: 'POST /api/login' }, color: '#0ea5e9' },
+    { id: 'token', emoji: '🔑', label: { tr: 'JWT Token', en: 'JWT Token' }, color: '#f59e0b' },
+    { id: 'storage', emoji: '💾', label: { tr: 'localStorage', en: 'localStorage' }, color: '#22c55e' },
+    { id: 'dashboard', emoji: '📊', label: { tr: 'Dashboard (asıl test hedefi)', en: 'Dashboard (the real test target)' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Asıl test hedefi "dashboard\'da doğru istatistikler görünüyor mu?" sorusu — login\'in KENDİSİ değil. Peki her testte 5 UI adımıyla login olmak gerçekten şart mı?',
+        en: 'The real test goal is "do the correct stats show on the dashboard?" — not the login itself. So is logging in through 5 UI steps really necessary in every single test?',
+      },
+      positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Yol 1 (yavaş) — Geleneksel yol: cy.visit(\'/login\') → username yaz → password yaz → submit\'e tıkla → yönlendirmeyi bekle. 5 adım, her biri gerçek bir tarayıcı render\'ı gerektirir.',
+        en: 'Path 1 (slow) — The traditional way: cy.visit(\'/login\') → type username → type password → click submit → wait for redirect. 5 steps, each requiring a real browser render.',
+      },
+      code: { tr: `cy.visit('/login')\ncy.get('[data-cy=username]').type('qa_user')\ncy.get('[data-cy=password]').type('Secret123')\ncy.get('[data-cy=submit]').click()\ncy.url().should('include', '/dashboard')`, en: `cy.visit('/login')\ncy.get('[data-cy=username]').type('qa_user')\ncy.get('[data-cy=password]').type('Secret123')\ncy.get('[data-cy=submit]').click()\ncy.url().should('include', '/dashboard')` },
+      positions: {
+        test: { x: 20, y: 40, scale: 1.0 },
+        uiform: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'uiform', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Yol 2 (hızlı) — cy.request() tarayıcı UI\'sını HİÇ açmadan doğrudan bir HTTP isteği atar: POST /api/login. Sunucu aynı doğrulamayı yapar, ama hiçbir buton render edilmez, hiçbir input\'a tıklanmaz.',
+        en: 'Path 2 (fast) — cy.request() fires an HTTP request directly, WITHOUT ever opening the browser UI: POST /api/login. The server does the exact same validation, but no button renders and no input gets clicked.',
+      },
+      code: { tr: `cy.request('POST', '/api/login', {\n  username: 'qa_user',\n  password: 'Secret123',\n})`, en: `cy.request('POST', '/api/login', {\n  username: 'qa_user',\n  password: 'Secret123',\n})` },
+      positions: {
+        uiform: { x: 18, y: 30, opacity: 0.35, scale: 0.8 },
+        api: { x: 50, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'api', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Sunucu yanıtı bir JWT token içerir — bu token, UI\'dan login olsan da API\'den login olsan da SUNUCU AÇISINDAN AYNI kimlik doğrulama sonucudur.',
+        en: 'The server response includes a JWT token — from the SERVER\'S point of view, this is the exact same authentication result whether you logged in via the UI or via the API.',
+      },
+      code: { tr: `.its('body.token')  // → "eyJhbGciOiJIUzI1NiIs..."`, en: `.its('body.token')  // → "eyJhbGciOiJIUzI1NiIs..."` },
+      positions: {
+        api: { x: 22, y: 40, scale: 1.0 },
+        token: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'api', to: 'token', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Token, window.localStorage.setItem(...) ile doğrudan tarayıcıya yazılır — dashboard sayfası bu token\'ı görünce kullanıcının login olduğunu SANIR (çünkü gerçekten öyledir).',
+        en: 'The token is written directly into the browser with window.localStorage.setItem(...) — when the dashboard page sees this token, it BELIEVES the user is logged in (because they genuinely are).',
+      },
+      code: { tr: `window.localStorage.setItem('token', response.body.token)\ncy.visit('/dashboard')  // login formu HİÇ görünmedi`, en: `window.localStorage.setItem('token', response.body.token)\ncy.visit('/dashboard')  // the login form was NEVER seen` },
+      positions: {
+        token: { x: 20, y: 40, scale: 1.0 },
+        storage: { x: 48, y: 55, scale: 1.15 },
+        dashboard: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'token', to: 'storage', color: '#22c55e' }, { from: 'storage', to: 'dashboard', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Ders (kontrast) — bu kısayolu ne zaman KULLANMAMALISIN? Login akışının KENDİSİNİ test ediyorsan (yanlış şifre mesajı, "beni hatırla" checkbox\'ı) — o zaman UI adımlarını ATLAMAK asıl test edilmesi gerekeni gizler. cy.request() sadece login\'in bir ÖN KOŞUL olduğu testlerde (dashboard, sepet, profil) doğru kısayoldur.',
+        en: 'The lesson (the contrast) — when should you NOT use this shortcut? If you\'re testing the login flow ITSELF (wrong-password message, "remember me" checkbox) — then skipping the UI steps hides the very thing you\'re supposed to test. cy.request() is the right shortcut only when login is a PRECONDITION (dashboard, cart, profile), not the test subject.',
+      },
+      positions: {
+        dashboard: { x: 40, y: 50, scale: 1.1 },
+        uiform: { x: 68, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
+}
+
+const cypressApiVsUiLoginStep = {
+  type: 'step-animation',
+  title: { tr: 'API-First Login: Ne Zaman Kullan, Ne Zaman Kullanma?', en: 'API-First Login: When to Use It, When Not To' },
+  steps: [
+    { tr: 'Test hedefi "dashboard\'daki veri doğru mu?" ise — login sadece bir ÖN KOŞULDUR, cy.request() ile hızlandır.', en: 'If the test target is "is the dashboard data correct?" — login is just a PRECONDITION, speed it up with cy.request().' },
+    { tr: 'Test hedefi "yanlış şifre girilince doğru hata mesajı çıkıyor mu?" ise — login akışının KENDİSİ test ediliyor, UI adımlarını ATLAMA.', en: 'If the test target is "does the correct error message appear on a wrong password?" — the login flow ITSELF is under test, do NOT skip the UI steps.' },
+    { tr: 'cy.request() kullanırken sunucunun döndürdüğü token\'ı window.localStorage\'a yazman gerekir — tarayıcı bunu kendisi yapmaz.', en: 'When using cy.request(), you must write the token the server returns into window.localStorage yourself — the browser does not do this automatically.' },
+    { tr: 'cy.session() ile birleştirilirse, bu API login\'i testler arasında CACHE\'lenir — ikinci testte sıfırdan tekrarlanmaz.', en: 'Combined with cy.session(), this API login gets CACHED across tests — it is not repeated from scratch on the second test.' },
+  ],
+}
+
+const cypressApiLoginP = {
+  type: 'code-playground',
+  relatedTopicId: 'cypress',
+  title: { tr: 'Kendin Dene: UI Login\'i cy.request()\'e Çevir', en: 'Try It Yourself: Convert a UI Login to cy.request()' },
+  starterCode: `// Bu test SADECE dashboard'daki veriyi kontrol ediyor, login akışını DEĞİL
+cy.visit('/login')
+cy.get('[data-cy=username]').type('qa_user')
+cy.get('[data-cy=password]').type('Secret123')
+cy.get('[data-cy=submit]').click()
+cy.get('[data-cy=stats-total]').should('have.text', '42')`,
+  solutionCode: `// login bir ön koşul olduğu için cy.request() ile hızlandırılır
+cy.request('POST', '/api/login', { username: 'qa_user', password: 'Secret123' })
+  .then((response) => {
+    window.localStorage.setItem('token', response.body.token)
+    cy.visit('/dashboard')
+    cy.get('[data-cy=stats-total]').should('have.text', '42')
+  })`,
+  hint: { tr: 'cy.request() gerçek bir HTTP isteği atar ve response.body içinde token döner — bu token\'ı localStorage\'a yazıp doğrudan hedef sayfayı ziyaret edebilirsin.', en: 'cy.request() fires a real HTTP request and returns a token in response.body — write that token to localStorage and visit the target page directly.' },
+  successMessage: { tr: 'Doğru! 5 UI adımı yerine 1 API çağrısı + localStorage yazımı — test artık çok daha hızlı ve login akışına bağımlı değil.', en: 'Correct! One API call + a localStorage write instead of 5 UI steps — the test is now much faster and no longer coupled to the login flow.' },
 }
 
 const s10 = {
@@ -2150,6 +3360,9 @@ const s10 = {
           { level: 'advanced', q: 'Gerçek senaryo: Cypress\'i tercih ettiğiniz veya etmediğiniz bir proje deneyimi anlatın.', a: 'Tercih ederim: React tabanlı bir SaaS dashboard\'unda ekip tamamen JS/TS yazıyordu, time-travel debugging sayesinde CI\'da fail eden testleri yeniden çalıştırmadan saniyeler içinde kök nedeni bulabiliyorduk. Tercih etmem: bankacılık projesinde Safari zorunlu uyumluluk gereksinimi vardı ve ekip büyük bir Java/Selenium Grid altyapısına sahipti — bu durumda geçişin maliyeti (Safari desteği yokluğu + migration efor) faydasından fazlaydı.' },
         ],
       },
+      cypressApiFirstLoginFilm,
+      cypressApiVsUiLoginStep,
+      cypressApiLoginP,
     ],
   },
   en: {
@@ -2218,8 +3431,96 @@ const s10 = {
           { level: 'advanced', q: 'Real scenario: describe a project experience where you chose Cypress, or chose not to.', a: "Chose it: on a React-based SaaS dashboard where the team wrote entirely JS/TS, time-travel debugging let us find the root cause of CI failures in seconds without re-running tests — far faster than debugging via screenshots and logs in Selenium. Didn't choose it: on a banking project with a mandatory Safari compatibility requirement and an existing large Java/Selenium Grid investment — there, the cost of migrating (no Safari support + migration effort) outweighed the benefit." },
         ],
       },
+      cypressApiFirstLoginFilm,
+      cypressApiVsUiLoginStep,
+      cypressApiLoginP,
     ],
   },
+}
+
+// 🗂️ Test Yazma & Organizasyon — .only tehlikesi filmi
+const cypressOnlyDangerFilm = {
+  type: 'video-scene',
+  id: 'cypress-only-danger-film',
+  title: {
+    tr: '🎬 it.only() Commit\'te Kalırsa: CI\'da Sessizce Kaybolan Testler',
+    en: '🎬 When it.only() Ships in a Commit: Tests That Vanish Silently in CI',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dev', emoji: '🧑‍💻', label: { tr: 'Geliştirici (yerelde debug ediyor)', en: 'Developer (debugging locally)' }, color: '#8b5cf6' },
+    { id: 'test1', emoji: '1️⃣', label: { tr: 'it.only(...) — odaklı test', en: 'it.only(...) — focused test' }, color: '#f59e0b' },
+    { id: 'others', emoji: '📦', label: { tr: '47 diğer test', en: '47 other tests' }, color: '#94a3b8' },
+    { id: 'commit', emoji: '📝', label: { tr: 'git commit', en: 'git commit' }, color: '#0ea5e9' },
+    { id: 'ci', emoji: '🚨', label: { tr: 'CI: "48/48 PASS"', en: 'CI: "48/48 PASS"' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir describe bloğunda 48 test var, ama biri kırılıyor. Geliştirici sadece o teste odaklanmak için it.only() yazıyor — bu satır CI\'a giderse ne olur?',
+        en: 'A describe block has 48 tests, but one is failing. The developer writes it.only() to focus on just that one — what happens if this line ships to CI?',
+      },
+      positions: { dev: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Geliştirici yerelde çalışırken 48 testin hepsini beklemek istemiyor: it.only(\'sepete ürün eklenir\', ...) yazıp SADECE bu testi çalıştırıyor.',
+        en: 'Step 1 — Working locally, the developer doesn\'t want to wait for all 48 tests: they write it.only(\'adds item to cart\', ...) to run ONLY this one.',
+      },
+      code: { tr: `it.only('sepete ürün eklenir', () => {\n  cy.get('[data-cy=add]').click()\n})`, en: `it.only('adds item to cart', () => {\n  cy.get('[data-cy=add]').click()\n})` },
+      positions: {
+        dev: { x: 20, y: 40, scale: 1.0 },
+        test1: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'test1', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — .only() aktifken Mocha (Cypress\'in alt motoru) o describe/dosyadaki DİĞER 47 testi tamamen ATLAR — bu bir hata değil, tam olarak .only()\'in tasarım amacıdır.',
+        en: 'Step 2 — While .only() is active, Mocha (Cypress\'s underlying engine) completely SKIPS the other 47 tests in that describe/file — this isn\'t a bug, it\'s exactly what .only() is designed to do.',
+      },
+      positions: {
+        test1: { x: 22, y: 40, scale: 1.0 },
+        others: { x: 58, y: 55, scale: 1.15, opacity: 0.4 },
+      },
+      beams: [{ from: 'test1', to: 'others', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (tuzak) — geliştirici hatayı düzeltir, ama .only() satırını SİLMEYİ unutur ve git commit + push yapar. Kod review\'da da fark edilmez.',
+        en: 'Step 3 (the trap) — the developer fixes the bug but FORGETS to remove the .only() line, then git commits and pushes. Code review doesn\'t catch it either.',
+      },
+      code: { tr: `// unutulan satır hâlâ burada:\nit.only('sepete ürün eklenir', () => { ... })`, en: `// the forgotten line is still here:\nit.only('adds item to cart', () => { ... })` },
+      positions: {
+        others: { x: 20, y: 55, opacity: 0.3 },
+        commit: { x: 55, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test1', to: 'commit', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (hayalet/kontrast) — CI çalışır ve "1/1 PASS" ya da yanıltıcı bir yeşil tik gösterir — ama aslında diğer 47 test HİÇ ÇALIŞMADI. Regresyon kontrolü olmayan bir PR merge edilir.',
+        en: 'Step 4 (the ghost/contrast) — CI runs and shows "1/1 PASS" or a misleading green checkmark — but the other 47 tests NEVER RAN AT ALL. A PR with zero regression coverage gets merged.',
+      },
+      positions: {
+        commit: { x: 22, y: 40, scale: 0.9 },
+        ci: { x: 60, y: 55, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'commit', to: 'ci', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — bu yüzden çoğu takım eslint-plugin-cypress veya benzeri bir lint kuralıyla .only()/.skip()\'i CI\'a girmeden ÖNCE, pre-commit hook\'ta yakalar. Java\'da @Disabled ile işaretlenip unutulan bir test de aynı riski taşır: derleyici bunu görmez, sadece test raporunu dikkatlice okuyan biri fark eder.',
+        en: 'The lesson — this is why most teams catch .only()/.skip() BEFORE it reaches CI, using eslint-plugin-cypress or a similar lint rule in a pre-commit hook. A Java test marked @Disabled and forgotten carries the exact same risk: the compiler won\'t catch it, only someone who carefully reads the test report will.',
+      },
+      positions: {
+        ci: { x: 40, y: 50, scale: 1.1 },
+        others: { x: 68, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
 }
 
 const s11 = {
@@ -2338,6 +3639,7 @@ before(() => cy.task('db:seed'))`,
           en: 'The order is missing or wrong. before/after run only once, beforeEach/afterEach wrap every test — don\'t mix them up.',
         },
       },
+      cypressOnlyDangerFilm,
       {
         type: 'quiz',
         question: { tr: '3 it() içeren bir describe bloğunda beforeEach() kaç kez çalışır?', en: 'In a describe block with 3 it()s, how many times does beforeEach() run?' },
@@ -2500,6 +3802,7 @@ before(() => cy.task('db:seed'))`,
           en: "The order is missing or wrong. before/after run only once, beforeEach/afterEach wrap every test — don't mix them up.",
         },
       },
+      cypressOnlyDangerFilm,
       {
         type: 'quiz',
         question: { tr: '3 it() içeren bir describe bloğunda beforeEach() kaç kez çalışır?', en: 'In a describe block with 3 it()s, how many times does beforeEach() run?' },
@@ -2547,6 +3850,91 @@ before(() => cy.task('db:seed'))`,
 },
     ],
   },
+}
+
+// 🔗 Variables, Aliases & Test Isolation — cy.session() cache mekanizması filmi
+const cypressSessionCacheFilm = {
+  type: 'video-scene',
+  id: 'cypress-session-cache-film',
+  title: {
+    tr: '🎬 cy.session(): Login\'i Bir Kez Yap, Sonsuza Kadar Cache\'le',
+    en: '🎬 cy.session(): Log In Once, Cache It Forever',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test1', emoji: '1️⃣', label: { tr: 'Test 1: cy.login(...)', en: 'Test 1: cy.login(...)' }, color: '#8b5cf6' },
+    { id: 'realLogin', emoji: '🖱️', label: { tr: 'Gerçek Login Formu', en: 'Real Login Form' }, color: '#f59e0b' },
+    { id: 'cache', emoji: '💾', label: { tr: 'Session Cache (id: [user,pass])', en: 'Session Cache (id: [user,pass])' }, color: '#0ea5e9' },
+    { id: 'test2', emoji: '2️⃣', label: { tr: 'Test 2: cy.login(...) (aynı parametre)', en: 'Test 2: cy.login(...) (same params)' }, color: '#8b5cf6' },
+    { id: 'restored', emoji: '⚡', label: { tr: 'Anında Geri Yüklendi', en: 'Instantly Restored' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '10 testin HEPSİ dashboard\'ı test ediyor ve HEPSİ önce login olmak zorunda. 10 kez gerçek login formu doldurmak mı, yoksa 1 kez login olup 9 kez "hatırlamak" mı?',
+        en: 'All 10 tests exercise the dashboard, and ALL of them need to log in first. Fill out the real login form 10 times — or log in once and "remember" it 9 times?',
+      },
+      positions: { test1: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Test 1, cy.session([username, password], () => {...}) çağırır. Bu id (kullanıcı+şifre) için henüz CACHE\'de bir kayıt YOK, bu yüzden içteki callback GERÇEKTEN çalışır.',
+        en: 'Step 1 — Test 1 calls cy.session([username, password], () => {...}). No entry exists in the CACHE yet for this id (username+password), so the inner callback actually RUNS.',
+      },
+      code: { tr: `cy.session(['qa_user', 'Secret123'], () => {\n  cy.visit('/login')\n  cy.get('[data-cy=username]').type('qa_user')\n  cy.get('[data-cy=password]').type('Secret123')\n  cy.get('form').contains('Log In').click()\n})`, en: `cy.session(['qa_user', 'Secret123'], () => {\n  cy.visit('/login')\n  cy.get('[data-cy=username]').type('qa_user')\n  cy.get('[data-cy=password]').type('Secret123')\n  cy.get('form').contains('Log In').click()\n})` },
+      positions: {
+        test1: { x: 20, y: 40, scale: 1.0 },
+        realLogin: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test1', to: 'realLogin', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Login gerçekten tamamlanınca Cypress, o anki cookie/localStorage/sessionStorage durumunu bu id\'ye bağlı bir kutuya kaydeder — bu kutu, testler arası HAFIZADA kalır.',
+        en: 'Step 2 — Once login genuinely completes, Cypress saves the current cookie/localStorage/sessionStorage state into a box tied to this id — that box stays in MEMORY across tests.',
+      },
+      positions: {
+        realLogin: { x: 22, y: 40, scale: 0.95 },
+        cache: { x: 58, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'realLogin', to: 'cache', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Test isolation gereği Test 2 başlamadan önce cookie/localStorage TEMİZLENİR (about:blank\'e gidilir) — Test 2 sıfırdan başlıyor GİBİ görünür.',
+        en: 'Step 3 — Because of test isolation, cookies/localStorage are CLEARED before Test 2 starts (the browser visits about:blank) — Test 2 LOOKS like it\'s starting from scratch.',
+      },
+      positions: {
+        cache: { x: 30, y: 40, scale: 1.05 },
+        test2: { x: 62, y: 55, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (kontrast) — ama Test 2 AYNI [username, password] id\'siyle cy.session() çağırınca, Cypress cache\'de bu id\'yi BULUR ve içteki login callback\'ini HİÇ ÇALIŞTIRMADAN, kaydedilmiş context\'i anında geri yükler.',
+        en: 'Step 4 (the contrast) — but when Test 2 calls cy.session() with the SAME [username, password] id, Cypress FINDS it in the cache and instantly restores the saved context WITHOUT ever running the inner login callback.',
+      },
+      code: { tr: `// Test 2 — AYNI id, callback bu sefer ÇALIŞMAZ\ncy.session(['qa_user', 'Secret123'], () => { /* ... */ })\ncy.visit('/dashboard')  // login formu hiç görünmedi`, en: `// Test 2 — SAME id, callback does NOT run this time\ncy.session(['qa_user', 'Secret123'], () => { /* ... */ })\ncy.visit('/dashboard')  // the login form was never seen` },
+      positions: {
+        test2: { x: 18, y: 40, scale: 1.0 },
+        cache: { x: 42, y: 55, opacity: 0.6, scale: 0.95 },
+        restored: { x: 72, y: 50, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'test2', to: 'cache', color: '#94a3b8' }, { from: 'cache', to: 'restored', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java\'da bir test suite\'inde @BeforeAll ile bir kez login olup token\'ı statik bir alanda paylaşmaya benzer bir performans fikri, ama cy.session() bunu her SPEC dosyası için ayrı ayrı, id bazlı ve otomatik yapar — sen sadece "aynı id\'yle tekrar çağır" dersin, cache\'i sen yönetmezsin.',
+        en: 'The lesson — this resembles the performance idea of logging in once with @BeforeAll and sharing a token in a static field in Java, but cy.session() does it per spec file, per id, and automatically — you just "call it again with the same id", you never manage the cache yourself.',
+      },
+      positions: {
+        restored: { x: 35, y: 50, scale: 1.1 },
+        cache: { x: 62, y: 50, scale: 1.0, opacity: 0.6 },
+      },
+    },
+  ],
 }
 
 const s12 = {
@@ -2671,6 +4059,7 @@ cy.get('header').should('contain', this.users[0].name)`,
           en: 'Order is wrong — the alias and login must be ready BEFORE visiting the page and asserting.',
         },
       },
+      cypressSessionCacheFilm,
       {
         type: 'quiz',
         question: { tr: 'cy.session() ikinci testte ne yapar?', en: 'What does cy.session() do on the second test?' },
@@ -2847,6 +4236,7 @@ cy.get('header').should('contain', this.users[0].name)`,
           en: 'Order is wrong — the alias and login must be ready BEFORE visiting the page and asserting.',
         },
       },
+      cypressSessionCacheFilm,
       {
         type: 'quiz',
         question: { tr: 'cy.session() ikinci testte ne yapar?', en: 'What does cy.session() do on the second test?' },
@@ -2906,6 +4296,93 @@ cy.get('header').should('contain', this.users[0].name)`,
 },
     ],
   },
+}
+
+// 🧩 Component Testing — cy.mount() izolasyon filmi
+const cypressMountIsolationFilm = {
+  type: 'video-scene',
+  id: 'cypress-mount-isolation-film',
+  title: {
+    tr: '🎬 cy.mount(): Sunucu, Router ve Uygulama Olmadan Tek Bir Component Render',
+    en: '🎬 cy.mount(): Rendering One Component With No Server, Router, or App',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'file', emoji: '📄', label: { tr: 'Counter.jsx', en: 'Counter.jsx' }, color: '#0ea5e9' },
+    { id: 'bundler', emoji: '📦', label: { tr: 'Vite Bundler', en: 'Vite Bundler' }, color: '#f59e0b' },
+    { id: 'sandbox', emoji: '🧪', label: { tr: 'İzole Test Sandbox\'ı', en: 'Isolated Test Sandbox' }, color: '#8b5cf6' },
+    { id: 'fullapp', emoji: '👻', label: { tr: 'Server/Router/Redux (YOK)', en: 'Server/Router/Redux (ABSENT)' }, color: '#94a3b8' },
+    { id: 'result', emoji: '✅', label: { tr: 'Gerçek Tarayıcıda Render', en: 'Rendered in a Real Browser' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Counter.jsx component\'i normalde sunucu + router + Redux store\'un HEPSİ ayağa kalkınca çalışıyor. cy.mount() bu bağımlılıkların HİÇBİRİ olmadan onu nasıl çalıştırıyor?',
+        en: 'Counter.jsx normally only runs once the server + router + Redux store ALL boot up. How does cy.mount() run it with NONE of those dependencies?',
+      },
+      positions: { file: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — cy.mount(<Counter />) çağrıldığında, Vite (ya da Webpack) SADECE Counter.jsx dosyasını ve onun doğrudan import ettiklerini derler — tüm uygulamayı DEĞİL.',
+        en: 'Step 1 — When cy.mount(<Counter />) is called, Vite (or Webpack) compiles ONLY Counter.jsx and its direct imports — NOT the entire application.',
+      },
+      code: { tr: `import Counter from './Counter'\ncy.mount(<Counter />)`, en: `import Counter from './Counter'\ncy.mount(<Counter />)` },
+      positions: {
+        file: { x: 20, y: 40, scale: 1.0 },
+        bundler: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'file', to: 'bundler', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Bundler\'ın ürettiği küçük bundle, gerçek bir tarayıcıda (jsdom değil, Chromium) minimal bir izole sandbox\'a enjekte edilir — server/router/Redux store hiç var OLMAZ.',
+        en: 'Step 2 — The small bundle the bundler produces is injected into a minimal isolated sandbox in a real browser (Chromium, not jsdom) — no server/router/Redux store ever exists.',
+      },
+      positions: {
+        bundler: { x: 22, y: 40, scale: 0.95 },
+        sandbox: { x: 55, y: 55, scale: 1.2, pulse: true },
+        fullapp: { x: 80, y: 30, opacity: 0.3, scale: 0.8 },
+      },
+      beams: [{ from: 'bundler', to: 'sandbox', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (kontrast) — cy.visit() kullansaydın: tarayıcı gerçek bir URL\'e gider, sunucu ayağa kalkmalı, router tüm sayfayı render etmeli, Redux store gerçek verilerle dolmalı — Counter\'ı görmek için TÜM bunlar gerekirdi.',
+        en: 'Step 3 (the contrast) — if you used cy.visit() instead: the browser navigates to a real URL, the server must boot, the router must render the whole page, the Redux store must fill with real data — you\'d need ALL of that just to see the Counter.',
+      },
+      code: { tr: `// cy.visit() ile: TÜM zincir gerekli\ncy.visit('/dashboard')  // server + router + store + ...\ncy.get('[data-cy=counter]')  // sayfanın DERİNLİKLERİNDE`, en: `// with cy.visit(): the FULL chain is needed\ncy.visit('/dashboard')  // server + router + store + ...\ncy.get('[data-cy=counter]')  // buried DEEP in the page` },
+      positions: {
+        sandbox: { x: 22, y: 40, scale: 0.9 },
+        fullapp: { x: 58, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'sandbox', to: 'fullapp', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — cy.mount() ile: Counter, gerçek DOM\'da render olur, cy.get(\'[data-cy=increment]\').click() gerçek bir tıklamadır, retry-ability/auto-wait built-in\'dir — ama BUNLARIN HİÇBİRİ için server/router/store gerekmez.',
+        en: 'Step 4 — with cy.mount(): Counter renders into a real DOM, cy.get(\'[data-cy=increment]\').click() is a real click, retry-ability/auto-wait are built-in — but NONE of it needs a server/router/store.',
+      },
+      code: { tr: `cy.get('[data-cy=increment]').click()\ncy.get('[data-cy=count]').should('have.text', '1')`, en: `cy.get('[data-cy=increment]').click()\ncy.get('[data-cy=count]').should('have.text', '1')` },
+      positions: {
+        fullapp: { x: 20, y: 30, opacity: 0.25, scale: 0.75 },
+        result: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'sandbox', to: 'result', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java\'da Spring\'in @WebMvcTest\'i tüm Spring context\'ini AYAĞA KALDIRMADAN sadece MVC katmanını test eder, servis/repository bean\'lerini mock\'lar. cy.mount() de aynı izolasyon felsefesiyle çalışır: tüm React ağacını değil, SADECE ilgilendiğin component\'i başlatırsın — bu yüzden component testleri E2E\'den kat kat hızlıdır.',
+        en: 'The lesson — in Java, Spring\'s @WebMvcTest tests only the MVC layer WITHOUT booting the entire Spring context, mocking the service/repository beans. cy.mount() follows the same isolation philosophy: you boot only the component you care about, not the whole React tree — which is why component tests run many times faster than E2E.',
+      },
+      positions: {
+        result: { x: 35, y: 50, scale: 1.1 },
+        fullapp: { x: 65, y: 50, scale: 0.9, opacity: 0.4 },
+      },
+    },
+  ],
 }
 
 const s13 = {
@@ -3016,6 +4493,7 @@ Install the suggested dependencies (adapter)`,
           en: 'Order is wrong — trying to write cy.mount() before the setup wizard finishes leads to errors.',
         },
       },
+      cypressMountIsolationFilm,
       {
         type: 'quiz',
         question: { tr: 'cy.mount() ile cy.visit() arasındaki temel fark nedir?', en: 'What is the fundamental difference between cy.mount() and cy.visit()?' },
@@ -3182,6 +4660,7 @@ Install the suggested dependencies (adapter)`,
           en: 'Order is wrong — trying to write cy.mount() before the setup wizard finishes leads to errors.',
         },
       },
+      cypressMountIsolationFilm,
       {
         type: 'quiz',
         question: { tr: 'cy.mount() ile cy.visit() arasındaki temel fark nedir?', en: 'What is the fundamental difference between cy.mount() and cy.visit()?' },
@@ -3229,6 +4708,91 @@ Install the suggested dependencies (adapter)`,
 },
     ],
   },
+}
+
+// 🎭 Stubs, Spies, Clock & Fixtures — cy.stub() ile ödeme servisini sarmalama filmi
+const cypressStubPaymentFilm = {
+  type: 'video-scene',
+  id: 'cypress-stub-payment-film',
+  title: {
+    tr: '🎬 cy.stub() Olmadan CI\'da Gerçek Para Kaybetmek',
+    en: '🎬 Losing Real Money in CI Without cy.stub()',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test', emoji: '🧪', label: { tr: 'Checkout Testi', en: 'Checkout Test' }, color: '#8b5cf6' },
+    { id: 'realgw', emoji: '💳', label: { tr: 'GERÇEK Ödeme Gateway\'i', en: 'REAL Payment Gateway' }, color: '#ef4444' },
+    { id: 'money', emoji: '💸', label: { tr: 'Gerçek İşlem (her CI koşumunda!)', en: 'Real Transaction (every CI run!)' }, color: '#ef4444' },
+    { id: 'stub', emoji: '🎭', label: { tr: 'cy.stub(paymentApi, \'charge\')', en: 'cy.stub(paymentApi, \'charge\')' }, color: '#22c55e' },
+    { id: 'fake', emoji: '✅', label: { tr: 'Sahte { success: true }', en: 'Fake { success: true }' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Checkout testi her CI koşumunda "Ödemeyi Tamamla" butonuna tıklıyor — bu buton GERÇEKTEN paymentApi.charge()\'ı çağırıyorsa, her push\'ta ne olur?',
+        en: 'The checkout test clicks "Complete Payment" on every CI run — if that button REALLY calls paymentApi.charge(), what happens on every push?',
+      },
+      positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 (tehlike) — stub YOKSA: test butona tıklar, gerçek kod çalışır, paymentApi.charge() GERÇEK bir ödeme sağlayıcısına (Stripe/iyzico) gerçek bir istek atar.',
+        en: 'Step 1 (the danger) — WITHOUT a stub: the test clicks the button, the real code runs, paymentApi.charge() fires a genuine request to a real payment provider (Stripe/iyzico).',
+      },
+      code: { tr: `cy.get('[data-cy=pay]').click()\n// paymentApi.charge() GERÇEKTEN çalışır!`, en: `cy.get('[data-cy=pay]').click()\n// paymentApi.charge() REALLY runs!` },
+      positions: {
+        test: { x: 20, y: 40, scale: 1.0 },
+        realgw: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'realgw', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 (hayalet) — bu test günde 20 kez CI\'da koşarsa, ödeme sağlayıcısına 20 GERÇEK işlem gönderilir — test kartı kullanılmıyorsa gerçek para hareket edebilir, sağlayıcı hesabı fraud olarak işaretleyebilir.',
+        en: 'Step 2 (the ghost) — if this test runs 20 times a day in CI, 20 REAL transactions get sent to the payment provider — if a test card isn\'t used, real money can move, and the provider may flag the account as fraud.',
+      },
+      positions: {
+        realgw: { x: 22, y: 40, scale: 0.95 },
+        money: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'realgw', to: 'money', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (düzeltme) — cy.stub(paymentApi, \'charge\').returns({ success: true }) yazılır. Bu, fonksiyonun GERÇEK kodunu tamamen devre dışı bırakır — hiçbir ağ isteği atılmaz.',
+        en: 'Step 3 (the fix) — cy.stub(paymentApi, \'charge\').returns({ success: true }) is written. This completely DISABLES the function\'s real code — no network request is ever sent.',
+      },
+      code: { tr: `cy.stub(paymentApi, 'charge').returns({ success: true })\ncy.get('[data-cy=pay]').click()\n// GERÇEK gateway'e HİÇ dokunulmadı`, en: `cy.stub(paymentApi, 'charge').returns({ success: true })\ncy.get('[data-cy=pay]').click()\n// the REAL gateway was NEVER touched` },
+      positions: {
+        money: { x: 20, y: 55, opacity: 0.3 },
+        stub: { x: 55, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'stub', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — checkout akışı normal şekilde devam eder ("Ödeme başarılı" mesajı görünür) ama arka planda sadece SENİN verdiğin sahte cevap döndü — test istediğin senaryoyu (başarı, timeout, red) tam kontrollü şekilde üretebilir.',
+        en: 'Step 4 — the checkout flow continues normally ("Payment successful" appears), but under the hood only the FAKE response you provided was returned — the test can produce exactly the scenario you want (success, timeout, decline) under full control.',
+      },
+      positions: {
+        stub: { x: 22, y: 40, scale: 0.95 },
+        fake: { x: 58, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'stub', to: 'fake', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Java\'da Mockito.mock(PaymentGateway.class) ile birebir aynı riski önlersin: entegrasyon testinde gerçek bir dış servisi çağırmak yerine, when(gateway.charge(any())).thenReturn(...) ile davranışı KONTROLLÜ hale getirirsin. cy.stub() ve Mockito.mock() aynı mimari kararın iki farklı dildeki karşılığıdır.',
+        en: 'The lesson — in Java, Mockito.mock(PaymentGateway.class) prevents the exact same risk: instead of calling a real external service in an integration test, when(gateway.charge(any())).thenReturn(...) makes the behavior CONTROLLED. cy.stub() and Mockito.mock() are the same architectural decision in two different languages.',
+      },
+      positions: {
+        fake: { x: 35, y: 50, scale: 1.1 },
+        realgw: { x: 65, y: 50, scale: 0.9, opacity: 0.4 },
+      },
+    },
+  ],
 }
 
 const s14 = {
@@ -3341,6 +4905,7 @@ cy.stub(paymentApi, 'charge').returns({ success: true })`,
           en: "Order is wrong — calling cy.tick() before starting the clock with cy.clock() throws an error.",
         },
       },
+      cypressStubPaymentFilm,
       {
         type: 'quiz',
         question: { tr: 'cy.stub() ile cy.spy() arasındaki temel fark nedir?', en: 'What is the fundamental difference between cy.stub() and cy.spy()?' },
@@ -3497,6 +5062,7 @@ cy.stub(paymentApi, 'charge').returns({ success: true })`,
           en: "Order is wrong — calling cy.tick() before starting the clock with cy.clock() throws an error.",
         },
       },
+      cypressStubPaymentFilm,
       {
         type: 'quiz',
         question: { tr: 'cy.stub() ile cy.spy() arasındaki temel fark nedir?', en: 'What is the fundamental difference between cy.stub() and cy.spy()?' },
@@ -3544,6 +5110,90 @@ cy.stub(paymentApi, 'charge').returns({ success: true })`,
 },
     ],
   },
+}
+
+// 🐞 Debugging & Selector Playground — time-travel debugging filmi
+const cypressTimeTravelDebugFilm = {
+  type: 'video-scene',
+  id: 'cypress-time-travel-debug-film',
+  title: {
+    tr: '🎬 Time-Travel Debugging: Hiç Kod Yazmadan Geçmişe Git',
+    en: '🎬 Time-Travel Debugging: Go Back in Time Without Writing Code',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'cmd1', emoji: '1️⃣', label: { tr: 'cy.visit(\'/cart\')', en: 'cy.visit(\'/cart\')' }, color: '#0ea5e9' },
+    { id: 'cmd2', emoji: '2️⃣', label: { tr: 'cy.get(\'[data-cy=add]\').click()', en: 'cy.get(\'[data-cy=add]\').click()' }, color: '#8b5cf6' },
+    { id: 'cmd3', emoji: '3️⃣', label: { tr: 'cy.get(\'[data-cy=total]\').should(...)', en: 'cy.get(\'[data-cy=total]\').should(...)' }, color: '#ef4444' },
+    { id: 'log', emoji: '📜', label: { tr: 'Command Log', en: 'Command Log' }, color: '#94a3b8' },
+    { id: 'snapshot', emoji: '📸', label: { tr: 'DOM Snapshot #2', en: 'DOM Snapshot #2' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir test 3. komutta fail oluyor: total\'in "20" olmasını bekliyordu ama "10" bulundu. Java/Selenium\'da bunu anlamak için println eklemen gerekirdi — Cypress\'te nasıl?',
+        en: 'A test fails on the 3rd command: it expected total to be "20" but found "10". In Java/Selenium you\'d need to add println statements to understand this — how does Cypress do it?',
+      },
+      positions: { cmd1: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Cypress her komuttan (cy.visit, cy.get, .click, .should...) SONRA otomatik olarak o anki DOM\'un bir "fotoğrafını" (snapshot) çeker ve Command Log\'a bir satır ekler — hiçbir ekstra kod yazmadan.',
+        en: 'Step 1 — after EVERY command (cy.visit, cy.get, .click, .should...), Cypress automatically takes a "photo" (snapshot) of the DOM at that moment and adds a line to the Command Log — with zero extra code.',
+      },
+      positions: {
+        cmd1: { x: 20, y: 40, scale: 1.0 },
+        log: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cmd1', to: 'log', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — cy.get(\'[data-cy=add]\').click() çalışır, Command Log\'a 2. satır eklenir — o anki DOM\'un snapshot\'ı da bu satıra bağlıdır.',
+        en: 'Step 2 — cy.get(\'[data-cy=add]\').click() runs, a 2nd line is added to the Command Log — the DOM snapshot at that exact moment is attached to this line too.',
+      },
+      positions: {
+        log: { x: 22, y: 40, scale: 1.0 },
+        cmd2: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'log', to: 'cmd2', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (hata) — 3. komut cy.get(\'[data-cy=total]\').should(\'have.text\', \'20\') FAIL olur: gerçek metin "10"dur. Test burada durur, kırmızı bir satır Command Log\'da işaretlenir.',
+        en: 'Step 3 (the failure) — the 3rd command cy.get(\'[data-cy=total]\').should(\'have.text\', \'20\') FAILS: the actual text is "10". The test stops here, a red line marks it in the Command Log.',
+      },
+      code: { tr: `cy.get('[data-cy=total]').should('have.text', '20')\n// AssertionError: expected '10' to equal '20'`, en: `cy.get('[data-cy=total]').should('have.text', '20')\n// AssertionError: expected '10' to equal '20'` },
+      positions: {
+        cmd2: { x: 20, y: 40, scale: 0.95 },
+        cmd3: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'cmd2', to: 'cmd3', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (kontrast — asıl güç) — hiçbir ekstra kod yazmadan, Command Log\'da 2. satıra (add\'e tıklama) TIKLARSIN — uygulama o anki DOM haline geri "ışınlanır": ürün gerçekten sepete eklenmiş mi, miktar doğru mu görürsün.',
+        en: 'Step 4 (the contrast — the real power) — WITHOUT writing any extra code, you CLICK on line 2 (the add click) in the Command Log — the app "teleports" back to the DOM state at that moment: you see whether the item was really added, whether the quantity is right.',
+      },
+      positions: {
+        cmd3: { x: 22, y: 40, scale: 0.9 },
+        snapshot: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'cmd3', to: 'snapshot', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Selenium/Java\'da bu tür bir "geçmişi tekrar oynatma" YOKTUR: testi tekrar çalıştırıp bir breakpoint koymak ya da ekstra ekran görüntüsü almak gerekir. Cypress\'te snapshot\'lar ZATEN oradadır — sen sadece geriye tıklarsın, bu yüzden "time-travel debugging" denir.',
+        en: 'The lesson — this kind of "replaying the past" does NOT exist in Selenium/Java: you\'d need to re-run the test with a breakpoint or take extra screenshots. In Cypress the snapshots are ALREADY there — you just click backward, which is why it\'s called "time-travel debugging".',
+      },
+      positions: {
+        snapshot: { x: 35, y: 50, scale: 1.1 },
+        cmd1: { x: 65, y: 50, scale: 0.9, opacity: 0.4 },
+      },
+    },
+  ],
 }
 
 const s15 = {
@@ -3643,6 +5293,7 @@ Re-run the test to confirm`,
           en: 'Order is wrong — leaving debug/pause lines in a commit, or adding random code without reading the error, wastes time.',
         },
       },
+      cypressTimeTravelDebugFilm,
       {
         type: 'quiz',
         question: { tr: 'Selector Playground bir elemana tıklandığında ne gösterir?', en: 'What does the Selector Playground show when you click an element?' },
@@ -3798,6 +5449,7 @@ Re-run the test to confirm`,
           en: 'Order is wrong — leaving debug/pause lines in a commit, or adding random code without reading the error, wastes time.',
         },
       },
+      cypressTimeTravelDebugFilm,
       {
         type: 'quiz',
         question: { tr: 'Selector Playground bir elemana tıklandığında ne gösterir?', en: 'What does the Selector Playground show when you click an element?' },
@@ -3857,6 +5509,91 @@ Re-run the test to confirm`,
 },
     ],
   },
+}
+
+// ⚙️ CI/CD & Cross Browser Testing — cross-browser matrix'in yakaladığı sessiz bug filmi
+const cypressCrossBrowserBugFilm = {
+  type: 'video-scene',
+  id: 'cypress-cross-browser-bug-film',
+  title: {
+    tr: '🎬 Chrome\'da PASS, Firefox\'ta FAIL: Matriks Neyi Yakalar?',
+    en: '🎬 PASS on Chrome, FAIL on Firefox: What Does the Matrix Catch?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pr', emoji: '🔀', label: { tr: 'Pull Request', en: 'Pull Request' }, color: '#0ea5e9' },
+    { id: 'chrome', emoji: '🟢', label: { tr: 'Chrome: PASS', en: 'Chrome: PASS' }, color: '#22c55e' },
+    { id: 'firefox', emoji: '🦊', label: { tr: 'Firefox: ?', en: 'Firefox: ?' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Firefox: FAIL (sessiz bug)', en: 'Firefox: FAIL (silent bug)' }, color: '#ef4444' },
+    { id: 'gate', emoji: '🚦', label: { tr: 'Merge Engellendi', en: 'Merge Blocked' }, color: '#8b5cf6' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir geliştirici yerelde SADECE Chrome\'da test çalıştırıp PR açıyor. Matrix\'te sadece Chrome olsaydı, bu PR merge olur muydu?',
+        en: 'A developer runs tests locally in Chrome ONLY and opens a PR. If the matrix only had Chrome, would this PR get merged?',
+      },
+      positions: { pr: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — CI matrix\'i tek bir "cypress run" komutunu 3 farklı job\'a (Chrome, Firefox, Edge) böler ve AYNI ANDA paralel çalıştırır — matrix: { browser: [chrome, firefox, edge] }.',
+        en: 'Step 1 — the CI matrix splits a single "cypress run" command into 3 separate jobs (Chrome, Firefox, Edge) and runs them ALL AT ONCE in parallel — matrix: { browser: [chrome, firefox, edge] }.',
+      },
+      code: { tr: `strategy:\n  matrix:\n    browser: [chrome, firefox, edge]`, en: `strategy:\n  matrix:\n    browser: [chrome, firefox, edge]` },
+      positions: {
+        pr: { x: 20, y: 40, scale: 1.0 },
+        chrome: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pr', to: 'chrome', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Chrome job\'ı biter: TÜM testler PASS. Geliştiricinin yerel makinesinde gördüğü sonuçla birebir aynı — çünkü zaten Chrome\'da test etmişti.',
+        en: 'Step 2 — the Chrome job finishes: ALL tests PASS. Exactly what the developer saw on their local machine — because they tested in Chrome all along.',
+      },
+      positions: {
+        chrome: { x: 22, y: 40, scale: 1.0 },
+        firefox: { x: 58, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'chrome', to: 'firefox', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (kontrast) — Firefox job\'ı PARALEL çalışıyordu ve şimdi biter: bir CSS flex-gap özelliği Firefox\'un o an desteklediği versiyondan farklı render oluyor, bir buton görünmez kalıyor, test FAIL olur.',
+        en: 'Step 3 (the contrast) — the Firefox job was running in PARALLEL and now finishes: a CSS flex-gap feature renders differently on that version of Firefox, a button stays hidden, and the test FAILS.',
+      },
+      code: { tr: `cy.get('[data-cy=checkout]').click()\n// Firefox: element not visible — flex-gap render farkı`, en: `cy.get('[data-cy=checkout]').click()\n// Firefox: element not visible — flex-gap render difference` },
+      positions: {
+        firefox: { x: 20, y: 40, scale: 0.9 },
+        ghost: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'firefox', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Cypress Cloud, 3 job\'ın sonucunu group parametresiyle TEK bir raporda birleştirir: "2/3 browser PASS, Firefox FAIL" — kalite kapısı bu PR\'ı merge\'e KAPATIR.',
+        en: 'Step 4 — Cypress Cloud merges the 3 jobs\' results into a SINGLE report via the group parameter: "2/3 browsers PASS, Firefox FAIL" — the quality gate BLOCKS this PR from merging.',
+      },
+      positions: {
+        ghost: { x: 22, y: 40, scale: 0.95 },
+        gate: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ghost', to: 'gate', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — matrix Chrome\'a sınırlı kalsaydı, bu PR sorunsuz PASS görünüp merge OLURDU ve sadece Firefox kullanan gerçek kullanıcılar production\'da checkout\'ı tamamlayamazdı — bug, müşteri şikayetiyle bulunurdu. Java\'da Maven Surefire\'ın forkCount\'u tek makinede paralellik sağlar; Cypress\'in CI matrix\'i FARKLI ortamlar arasında paralellik sağlayarak bambaşka bir sınıf hatayı yakalar.',
+        en: 'The lesson — if the matrix had been limited to Chrome, this PR would have PASSed cleanly and gotten merged, and only real Firefox users would have been unable to complete checkout in production — the bug would have been found via customer complaints. In Java, Maven Surefire\'s forkCount gives parallelism on one machine; Cypress\'s CI matrix gives parallelism ACROSS DIFFERENT environments, catching a completely different class of bug.',
+      },
+      positions: {
+        gate: { x: 35, y: 50, scale: 1.1 },
+        chrome: { x: 65, y: 50, scale: 0.9, opacity: 0.4 },
+      },
+    },
+  ],
 }
 
 const s16 = {
@@ -3976,6 +5713,7 @@ Install dependencies with npm ci`,
           en: 'Order is wrong — trying to run cypress run without checkout/dependency install fails in CI.',
         },
       },
+      cypressCrossBrowserBugFilm,
       {
         type: 'quiz',
         question: { tr: 'cypress run --browser firefox komutu CI\'da ne yapar?', en: 'What does cypress run --browser firefox do in CI?' },
@@ -4151,6 +5889,7 @@ Install dependencies with npm ci`,
           en: 'Order is wrong — trying to run cypress run without checkout/dependency install fails in CI.',
         },
       },
+      cypressCrossBrowserBugFilm,
       {
         type: 'quiz',
         question: { tr: 'cypress run --browser firefox komutu CI\'da ne yapar?', en: 'What does cypress run --browser firefox do in CI?' },
@@ -4210,6 +5949,91 @@ Install dependencies with npm ci`,
 },
     ],
   },
+}
+
+// 🦄 Sadece Cypress'te Olan Özellikler — jQuery Sizzle motoru filmi
+const cypressSizzleEngineFilm = {
+  type: 'video-scene',
+  id: 'cypress-sizzle-engine-film',
+  title: {
+    tr: '🎬 :contains() Neden Selenium\'da Yok Ama Cypress\'te Tek Satır?',
+    en: '🎬 Why :contains() Doesn\'t Exist in Selenium But Is One Line in Cypress',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'goal', emoji: '🎯', label: { tr: '"Cherry" Yazan Elemanı Bul', en: 'Find the Element Saying "Cherry"' }, color: '#8b5cf6' },
+    { id: 'css3', emoji: '📐', label: { tr: 'CSS3 Standardı (W3C)', en: 'CSS3 Standard (W3C)' }, color: '#94a3b8' },
+    { id: 'xpath', emoji: '🔀', label: { tr: 'Selenium: XPath\'e Geç', en: 'Selenium: Switch to XPath' }, color: '#f59e0b' },
+    { id: 'jquery', emoji: '🧬', label: { tr: 'jQuery Sizzle Motoru (tarayıcıda hazır)', en: 'jQuery Sizzle Engine (already in the browser)' }, color: '#0ea5e9' },
+    { id: 'oneline', emoji: '✅', label: { tr: 'cy.get(\'li:contains("Cherry")\')', en: 'cy.get(\'li:contains("Cherry")\')' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '"Cherry" metnini içeren bir li elemanını bulmak istiyorsun. Selenium\'da ve Cypress\'te bu aynı basit hedef için neden farklı bir yol izlenir?',
+        en: 'You want to find an li element containing the text "Cherry". Why do Selenium and Cypress take different paths for this exact same simple goal?',
+      },
+      positions: { goal: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — CSS3 standardı (W3C tarafından tanımlanan) :contains() diye bir pseudo-class TANIMLAMAZ — bu, tüm CSS motorları için geçerli sabit bir kural, tarayıcı/araç seçimiyle ilgisi yok.',
+        en: 'Step 1 — the CSS3 standard (defined by the W3C) does NOT define a :contains() pseudo-class — this is a fixed rule for all CSS engines, unrelated to which browser/tool you pick.',
+      },
+      positions: {
+        goal: { x: 20, y: 40, scale: 1.0 },
+        css3: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'goal', to: 'css3', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 (kontrast) — Selenium\'un CSS selector motoru W3C standardını HARFİYEN takip eder — bu yüzden By.cssSelector("li:contains(...)") kullanamazsın, By.xpath("//li[contains(text(),...)]")\'e GEÇMEK ZORUNDASIN — ayrı bir sorgu dili öğrenmen gerekir.',
+        en: 'Step 2 (the contrast) — Selenium\'s CSS selector engine follows the W3C standard TO THE LETTER — so you can\'t use By.cssSelector("li:contains(...)"), you MUST SWITCH to By.xpath("//li[contains(text(),...)]") — a whole separate query language to learn.',
+      },
+      code: { tr: `// Selenium'da ZORUNLU:\nBy.xpath("//li[contains(text(),'Cherry')]")`, en: `// Mandatory in Selenium:\nBy.xpath("//li[contains(text(),'Cherry')]")` },
+      positions: {
+        css3: { x: 20, y: 40, scale: 1.0 },
+        xpath: { x: 58, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'css3', to: 'xpath', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Cypress ise farklı bir mimari karara sahip: test kodu tarayıcının İÇİNDE çalışır ve jQuery (Sizzle motoruyla) zaten orada yüklüdür — Cypress kendi selector motorunu YAZMADI, jQuery\'ninkini KULLANDI.',
+        en: 'Step 3 — Cypress made a different architectural choice: test code runs INSIDE the browser, and jQuery (with its Sizzle engine) is already loaded there — Cypress didn\'t WRITE its own selector engine, it USED jQuery\'s.',
+      },
+      positions: {
+        xpath: { x: 20, y: 40, opacity: 0.4, scale: 0.85 },
+        jquery: { x: 58, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'goal', to: 'jquery', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — jQuery 2006\'dan beri :contains() destekler; Cypress bunu bedavaya devralır: cy.get(\'li:contains("Cherry")\') CSS3\'ün dışına hiç çıkmadan, TEK SATIRDA çalışır.',
+        en: 'Step 4 — jQuery has supported :contains() since 2006; Cypress inherits it for free: cy.get(\'li:contains("Cherry")\') works in ONE LINE, never stepping outside plain CSS syntax.',
+      },
+      code: { tr: `cy.get('li:contains("Cherry")').click()\n// ekstra dil/sözdizimi YOK`, en: `cy.get('li:contains("Cherry")').click()\n// NO extra language/syntax` },
+      positions: {
+        jquery: { x: 22, y: 40, scale: 0.95 },
+        oneline: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'jquery', to: 'oneline', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Playwright de metne göre arama sunar (getByText, :has-text()) ama bu Playwright\'a ÖZEL, jQuery\'den FARKLI bir sözdizimidir — yani "aynı jQuery pseudo-class\'ları" değil, paralel ama ayrı bir çözümdür. Java\'da Apache Commons Collections\'ın JDK\'nın temel koleksiyon API\'sinin üzerine kattığı yardımcı metotlara benzer: standart değil ama gerçek işte hız kazandırır.',
+        en: 'The lesson — Playwright also offers text-based search (getByText, :has-text()) but this is a Playwright-SPECIFIC syntax, DIFFERENT from jQuery\'s — not "the same jQuery pseudo-classes", but a parallel, separate solution. In Java, this resembles Apache Commons Collections layering utility methods on top of the JDK\'s core collection API: not standard, but it speeds up real-world work.',
+      },
+      positions: {
+        oneline: { x: 35, y: 50, scale: 1.1 },
+        xpath: { x: 65, y: 50, scale: 0.9, opacity: 0.4 },
+      },
+    },
+  ],
 }
 
 const s17 = {
@@ -4319,6 +6143,7 @@ cy.get('[data-cy=cherry-item]').click()`,
           en: "Order is wrong — even though jQuery pseudo-classes are powerful, :eq()/:first/:last should always be the LAST RESORT; the first choice should always be a dedicated test attribute like data-cy.",
         },
       },
+      cypressSizzleEngineFilm,
       {
         type: 'quiz',
         question: { tr: 'Aşağıdakilerden hangisi CSS3 standardında YOKTUR ama Cypress\'te (jQuery sayesinde) doğrudan çalışır?', en: 'Which of the following does NOT exist in the CSS3 standard but works directly in Cypress (thanks to jQuery)?' },
@@ -4484,6 +6309,7 @@ cy.get('[data-cy=cherry-item]').click()`,
           en: "Order is wrong — even though jQuery pseudo-classes are powerful, :eq()/:first/:last should always be the LAST RESORT; the first choice should always be a dedicated test attribute like data-cy.",
         },
       },
+      cypressSizzleEngineFilm,
       {
         type: 'quiz',
         question: { tr: 'Aşağıdakilerden hangisi CSS3 standardında YOKTUR ama Cypress\'te (jQuery sayesinde) doğrudan çalışır?', en: 'Which of the following does NOT exist in the CSS3 standard but works directly in Cypress (thanks to jQuery)?' },

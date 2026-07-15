@@ -117,8 +117,65 @@ Order" sekmesinde film vardı (`sqlQueryOrderFilm`, önceden mevcut).
 **Commit:** bu dalganın değişikliği commit edilecek, hash bir sonraki
 güncellemede düşülecek.
 
+### Sıradaki adım (Dalga 9 için, artık eski)
+~~Dalga 10 (/cypress)~~ → TAMAMLANDI, bkz. aşağıdaki güncel bölüm.
+
+---
+
+## Dalga 10 — /cypress — TAMAMLANDI (18/18 sekme, 2026-07-15 devam)
+
+Aynı `feature/video-scene-dalga4` branch'inde, aynı workflow (e2e/Playwright
+atlanıyor, sadece integrity+TR tarama+build). **Bu dalgada bir kesinti
+yaşandı:** ilk atanan subagent (s0-s8, 9/18 sekme) tamamladıktan sonra
+"You've hit your session limit" hatasıyla yarıda kesildi; bir de repo
+köküne yanlışlıkla `existing_ids.txt` scratch dosyası bıraktı (temizlendi).
+Kesinti sonrası `node --check` ile dosyanın syntax olarak sağlam kaldığı,
+s0-s8'in film+destek bloklarının HER İKİSİNE de (tr+en, 3'er referans)
+doğru eklendiği doğrulandı — yarım kalan iş SADECE eksik sekmeler
+(s9-s17) idi, mevcut olan bozulmamıştı. Kalan 9 sekme ana oturumda
+(subagent'a devredilmeden) elle tamamlandı.
+
+**Yapı:** `cypressData.js` 18 AYRI modüler sabitten oluşuyor (`s0`..`s17`,
+her biri kendi içinde `{tr, en}` alt-ağaçlı — seleniumData/playwrightData
+ile aynı güvenli kalıp, index-override riski yok). Tanım sırası (s0..s17)
+ile render sırası (`cypressData.tr/en.sections`) FARKLI — export'ta
+`[s0..s5, s11..s17, s6..s10]` şeklinde karışık diziliyor; bu dalgada buna
+dokunulmadı, sadece her `sN` sabitinin kendi içine ekleme yapıldı.
+
+**Eklenenler (9 yeni film, s9-s17):**
+- s9 (Yaygın Hatalar) ve s10 (50 Mülakat Sorusu) **tamamen kodsuzdu**
+  (video=0, anim=0, sandbox=0) — ikisine de TAM üçlü (film + step-animation
+  + code-playground, `relatedTopicId` ile) elle eklendi: s9 → fixture
+  mutation kirliliği (paylaşılan referans), s10 → cy.request() ile UI
+  login'i atlama.
+- s11-s17 (Test Organizasyonu, Aliases/Session, Component Testing,
+  Stub/Spy/Clock, Debugging, CI/CD, jQuery Sizzle) zaten animasyon+sandbox'a
+  sahipti, sadece 1'er film eklendi: `.only()` tehlikesi, `cy.session()`
+  cache mekanizması, `cy.mount()` izolasyonu, `cy.stub()` ile ödeme
+  servisi sarmalama, time-travel debugging, cross-browser matrix'in
+  yakaladığı sessiz bug, `:contains()` neden Selenium'da yok.
+- Ayrıca kesinti öncesi kalan bir eksiklik fark edildi ve düzeltildi: EN
+  s0'da TR'de olan bir `css-animation` (`cypress-retry`) bloğu eksikti —
+  eklendi.
+
+**Doğrulama (daraltılmış kapsam — e2e hariç):**
+- Node ile `cypressData.tr/en.sections`'ın TÜM 18 sekmesinde ≥1 video +
+  ≥1 animasyon + ≥1 sandbox olduğu programatik olarak doğrulandı (hem TR
+  hem EN, 36/36 kontrol geçti).
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓.
+- `npm run build` → temiz, 0 hata. `cypressData` chunk: **396.24 kB / gzip
+  111.27 kB** (eşiğin altında).
+- `tests/video-scene.spec.ts` genişletilmedi, Playwright çalıştırılmadı
+  (final toplu tur bekleniyor — bkz. Dalga 8 notundaki workflow uyarısı).
+
+**Commit:** bu dalganın değişikliği commit edilecek, hash bir sonraki
+güncellemede düşülecek. Bundan sonraki commit'lerde `SKIP_E2E_HOOK=1`
+kullanılıyor (post-commit hook'un tam 142 testlik paketi her commit'te
+otomatik tetiklenmesini önlemek için — Dalga 8 commit'inde bu atlanmamış
+ve 2 dakikalık timeout'a yol açmıştı).
+
 ### Sıradaki adım
-Dalga 10 (`/cypress`, ~18 sekme) — aynı branch'te devam.
+Dalga 11 (`/javascript`, ~20 sekme) — aynı branch'te devam.
 
 ---
 
