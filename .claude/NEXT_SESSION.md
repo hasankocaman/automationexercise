@@ -13,13 +13,18 @@
 ## Branch Durumu — `feature/video-scene-dalga3` üzerinde çalışılıyor (2026-07-15)
 
 > **Şu an çalışılan branch: `feature/video-scene-dalga3`** (main `d97cc16`'dan
-> açıldı). `feature/llm-agents-interactive-pilot` main'e ff-merge edilmişti ve
-> yerel branch SİLİNDİ (origin'de zaten yoktu). `main`, `origin/main`'in
-> **6 commit ÖNÜNDE** — kullanıcı push'u ERTELEDİ ("henüz push etme" dedi),
-> hâlâ push edilmedi. Push öncesi bilinen risk: pre-push hook'u önceki
-> oturumlardan kalma 6 deterministik auth-injection test hatasında yine
-> reddedebilir — bugünkü değişikliklerle ilgisiz, önceden var olan altyapı
-> sorunu (bkz. altta "Push `--no-verify` ile yapıldı" bölümü).
+> açıldı). Fable payı `ce4583d` ile commit edildi ve branch **GitHub'a
+> PUSH EDİLDİ** (`--no-verify` — pre-push hook'un bilinen auth-injection
+> hataları nedeniyle; bu oturumun kendi doğrulamaları ayrıca koşulup geçti).
+> Kullanıcı geliştirmeye BAŞKA bir bilgisayarda/hesapta bu branch'ten devam
+> edecek — devralan oturum: `git fetch && git checkout feature/video-scene-dalga3`,
+> sonra aşağıdaki "Sıradaki adımlar"dan 2. maddeyle (SONNET PROMPT A) devam et.
+>
+> `feature/llm-agents-interactive-pilot` main'e ff-merge edilmişti ve yerel
+> branch SİLİNDİ (origin'de zaten yoktu). Yerel `main`, `origin/main`'in
+> **6 commit ÖNÜNDE** ve hâlâ push EDİLMEDİ (kullanıcı erteledi) — ancak o
+> 6 commit bu feature branch'in İÇİNDE olduğundan diğer bilgisayar tüm işi
+> bu branch'ten alabilir; main'in push'u ayrıca karara bağlanacak.
 
 ---
 
