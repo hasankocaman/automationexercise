@@ -387,7 +387,7 @@ function PytestRunnerSim({ darkMode, tr }) {
                 )}
                 {cur >= order.indexOf('t4') && (
                     <div className="p-2.5 rounded-lg mb-3" style={{ background: darkMode ? '#3b0d14' : '#fef2f2', border: '1px solid #f7768e55' }}>
-                        <div className="text-[10px] font-bold mb-1" style={{ color: '#c2475c' }}>
+                        <div className="text-[10px] font-bold mb-1" style={{ color: darkMode ? '#fb7185' : '#9f1239' }}>
                             ❌ AssertionError — test_login_validation[notanemail-pass-invalid]
                         </div>
                         <pre className="text-[9.5px] font-mono whitespace-pre-wrap" style={{ color: darkMode ? '#fca5a5' : '#991b1b' }}>
@@ -400,7 +400,7 @@ not found in 'please enter a valid email'`}
                 {phase === 'done' && (
                     <div className="p-2.5 rounded-lg" style={{ background: darkMode ? '#1f2937' : '#fff', border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` }}>
                         <div className={`text-[10px] font-bold mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>📄 pytest-html</div>
-                        <div className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>reports/report.html <span style={{ color: '#5fa83f' }}>{tr ? 'oluşturuldu' : 'generated'}</span></div>
+                        <div className={`text-[10px] ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>reports/report.html <span style={{ color: darkMode ? '#84cc16' : '#3f6212' }}>{tr ? 'oluşturuldu' : 'generated'}</span></div>
                     </div>
                 )}
                 {phase !== 'idle' && (

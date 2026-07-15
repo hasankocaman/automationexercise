@@ -116,7 +116,7 @@ export default function InteractiveDiagramBlock({ block, darkMode, language }) {
 
             {selected ? (
                 <div className={`mt-3 rounded-lg border p-4 ${panelCls(darkMode)}`}>
-                    <div className="text-sm font-black" style={{ color: selected.color || '#6366f1' }}>
+                    <div className="text-sm font-black" style={{ color: darkMode ? '#f1f5f9' : '#1e293b' }}>
                         {selected.label}
                     </div>
                     <p className="mt-1 text-sm opacity-90">{pick(selected.detail, isTr)}</p>
@@ -124,7 +124,7 @@ export default function InteractiveDiagramBlock({ block, darkMode, language }) {
                         <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
                             {Object.entries(selected.stats).map(([key, value]) => (
                                 <span key={key} className={`rounded-md border px-2 py-1 ${panelCls(darkMode)}`}>
-                                    {key}: <span style={{ color: selected.color || '#6366f1' }}>{pick(value, isTr)}</span>
+                                    {key}: <span style={{ color: darkMode ? '#f1f5f9' : '#1e293b' }}>{pick(value, isTr)}</span>
                                 </span>
                             ))}
                         </div>

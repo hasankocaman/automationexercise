@@ -316,10 +316,10 @@ function RecallFlashcard({ lesson, labels, darkMode, onRecallComplete }) {
                     onClick={() => setFlipped(!flipped)}
                     className={`p-4 min-h-[110px] flex flex-col justify-center items-center text-center cursor-pointer transition-all duration-500 ${flipped ? 'bg-emerald-950/20' : 'bg-sky-950/20'}`}
                 >
-                    <div className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-2" style={{ color: flipped ? '#10b981' : '#0ea5e9' }}>
+                    <div className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-2" style={{ color: flipped ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#38bdf8' : '#0369a1') }}>
                         {flipped ? 'Cevap / Answer' : 'Soru / Question'}
                     </div>
-                    <p className={`text-xs font-bold leading-relaxed px-2 ${darkMode ? 'text-white' : 'text-slate-100'}`}>
+                    <p className={`text-xs font-bold leading-relaxed px-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                         {flipped ? answer : question}
                     </p>
                     <div className="mt-3 text-[9px] font-bold opacity-60 border border-current rounded px-2 py-0.5 hover:opacity-100 transition select-none">
@@ -869,7 +869,7 @@ function GameBlock({ lesson, labels, darkMode }) {
 
     return (
         <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950/70' : 'border-slate-200 bg-slate-50'}`}>
-            <div className="mb-3 text-sm font-black" style={{ color: lesson.color }}>{game.title}</div>
+            <div className="mb-3 text-sm font-black" style={{ color: darkMode ? '#f1f5f9' : '#1e293b' }}>{game.title}</div>
             {game.type === 'sequence' && <SequenceGame {...common} />}
             {game.type === 'machine' && <MachineGame {...common} />}
             {game.type === 'decision' && <DecisionGame {...common} />}

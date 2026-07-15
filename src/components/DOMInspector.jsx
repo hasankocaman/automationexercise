@@ -357,7 +357,7 @@ export default function DOMInspector({ containerRef, darkMode }) {
               padding: '7px 4px',
               border: 'none',
               background: tab === t.key ? (darkMode ? '#1e1b4b' : '#f5f3ff') : 'transparent',
-              color: tab === t.key ? '#7c3aed' : (darkMode ? '#6b7280' : '#9ca3af'),
+              color: tab === t.key ? (darkMode ? '#c4b5fd' : '#6d28d9') : (darkMode ? '#6b7280' : '#9ca3af'),
               fontWeight: tab === t.key ? 700 : 400,
               fontSize: 11,
               cursor: 'pointer',
