@@ -1,5 +1,1672 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ─── Dockerfile → Container film bloğu (video-scene — EN + TR paylaşımlı) ────
+// Veri şeması: PILOT_PLAN_ve_PROMPT.md §2 / src/components/VideoSceneBlock.jsx
+const dockerfileToContainerFilm = {
+  type: 'video-scene',
+  id: 'docker-dockerfile-to-container-film',
+  title: {
+    tr: '🎬 Dockerfile\'dan Çalışan Container\'a',
+    en: '🎬 From Dockerfile to a Running Container',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dockerfile', emoji: '📝', label: { tr: 'Dockerfile',                 en: 'Dockerfile' },              color: '#0ea5e9' },
+    { id: 'layerBase',  emoji: '🧱', label: { tr: 'FROM Katmanı',               en: 'FROM Layer' },              color: '#6366f1' },
+    { id: 'layerDeps',  emoji: '🧱', label: { tr: 'RUN (Bağımlılık) Katmanı',   en: 'RUN (Dependencies) Layer' }, color: '#8b5cf6' },
+    { id: 'layerCode',  emoji: '🧱', label: { tr: 'COPY (Kod) Katmanı',         en: 'COPY (Code) Layer' },       color: '#f59e0b' },
+    { id: 'image',      emoji: '💿', label: { tr: 'Image (docker build)',      en: 'Image (docker build)' },    color: '#22c55e' },
+    { id: 'container',  emoji: '🚀', label: { tr: 'Container (docker run)',    en: 'Container (docker run)' },  color: '#10b981' },
+    { id: 'port',       emoji: '🔌', label: { tr: 'Port Eşleme -p 8080:8080',  en: 'Port Mapping -p 8080:8080' }, color: '#f97316' },
+    { id: 'browser',    emoji: '🌍', label: { tr: 'localhost:8080',            en: 'localhost:8080' },          color: '#a855f7' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker build` ve `docker run` komutlarının GERÇEKTE ne yaptığını izleyeceksin — bir Dockerfile\'ın satır satır nasıl bir Image\'a, sonra ÇALIŞAN bir Container\'a dönüştüğünü.',
+        en: 'You will watch what `docker build` and `docker run` ACTUALLY do — how a Dockerfile turns, line by line, into an Image, and then into a RUNNING Container.',
+      },
+      code: { tr: `FROM python:3.12-slim\nRUN pip install -r requirements.txt\nCOPY . .`, en: `FROM python:3.12-slim\nRUN pip install -r requirements.txt\nCOPY . .` },
+      positions: {
+        dockerfile: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — FROM: taban image (python:3.12-slim) salt-okunur bir KATMAN olarak indirilir. Bu katman neredeyse hiç değişmez, bu yüzden Docker onu en agresif şekilde önbelleğe alır.',
+        en: 'Step 1 — FROM: the base image (python:3.12-slim) is pulled as a read-only LAYER. This layer almost never changes, so Docker caches it most aggressively.',
+      },
+      code: { tr: `FROM python:3.12-slim`, en: `FROM python:3.12-slim` },
+      positions: {
+        dockerfile: { x: 14, y: 26, opacity: 0.6, scale: 0.85 },
+        layerBase: { x: 14, y: 70, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'dockerfile', to: 'layerBase' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — RUN: bağımlılıklar kurulur ve base katmanının ÜSTÜNE yeni bir katman eklenir. requirements.txt değişmediği sürece bu katman CACHE\'DEN gelir — kurulum tekrar çalışmaz.',
+        en: 'Step 2 — RUN: dependencies are installed and a new layer is stacked ON TOP of the base layer. As long as requirements.txt has not changed, this layer comes straight from CACHE — installation does not re-run.',
+      },
+      code: { tr: `RUN pip install -r requirements.txt`, en: `RUN pip install -r requirements.txt` },
+      positions: {
+        layerBase: { x: 14, y: 70, scale: 0.95 },
+        layerDeps: { x: 38, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'layerBase', to: 'layerDeps' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — COPY: proje kodu EN ÜSTE, ayrı bir katman olarak eklenir. Kod neredeyse HER commit\'te değişir — bu yüzden bilerek en sona konur: sadece bu katman geçersiz olur, alttaki ağır bağımlılık katmanı yeniden kurulmaz.',
+        en: 'Step 3 — COPY: the project code is added on TOP, as its own layer. Code changes on almost EVERY commit — which is exactly why it is placed last: only this layer gets invalidated, the heavy dependency layer below is never reinstalled.',
+      },
+      code: { tr: `COPY . .`, en: `COPY . .` },
+      positions: {
+        layerDeps: { x: 30, y: 55, scale: 0.9 },
+        layerCode: { x: 52, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'layerDeps', to: 'layerCode' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — docker build: üç katman tek bir salt-okunur, taşınabilir Image\'da BİRLEŞTİRİLİR. Image henüz ÇALIŞMIYOR — tıpkı bir Java class\'ının henüz bir nesne (instance) olmaması gibi, sadece bir "tarif" halinde donmuş durumda.',
+        en: 'Step 4 — docker build: the three layers are FUSED into one read-only, portable Image. The image is not RUNNING yet — just like a Java class is not yet an object, it is a frozen "recipe" waiting to be instantiated.',
+      },
+      code: { tr: `docker build -t qa-app .`, en: `docker build -t qa-app .` },
+      positions: {
+        layerCode: { x: 24, y: 40, opacity: 0.55, scale: 0.85 },
+        image: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'layerCode', to: 'image' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — docker run: Image\'dan ÇALIŞAN bir örnek (instance) başlatılır — bu bir Container\'dır. Java analojisi tam burada netleşir: Image = class, Container = new ile üretilmiş nesne. Aynı image\'dan istediğin kadar bağımsız container başlatabilirsin.',
+        en: 'Step 5 — docker run: a RUNNING instance is launched from the Image — this is a Container. The Java analogy clicks right here: Image = class, Container = the object created with new. You can start as many independent containers from the same image as you want.',
+      },
+      code: { tr: `docker run -d --name qa-app qa-app`, en: `docker run -d --name qa-app qa-app` },
+      positions: {
+        image: { x: 24, y: 50, opacity: 0.55, scale: 0.85 },
+        container: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'image', to: 'container' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 6 — Port Eşleme: container kendi izole ağında yaşar; -p 8080:8080 olmadan host makineden ona ERİŞİLEMEZ. Bu satır, host\'un 8080 portunu container içindeki 8080 portuna bağlayan bir KÖPRÜdür.',
+        en: 'Step 6 — Port Mapping: the container lives in its own isolated network; without -p 8080:8080 the host machine CANNOT reach it. This flag is a BRIDGE connecting the host\'s port 8080 to port 8080 inside the container.',
+      },
+      code: { tr: `docker run -d -p 8080:8080 qa-app`, en: `docker run -d -p 8080:8080 qa-app` },
+      positions: {
+        container: { x: 26, y: 50, scale: 1.05 },
+        port: { x: 52, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'container', to: 'port' }],
+    },
+    {
+      caption: {
+        tr: 'Final — tarayıcıdan localhost:8080\'e giden istek, port köprüsünden geçip çalışan container\'ın İÇİNDEKİ uygulamaya ulaşır. Dockerfile\'daki 3 satır, sonunda erişilebilir, çalışan bir servise dönüştü.',
+        en: 'Final — a request from the browser to localhost:8080 crosses the port bridge and reaches the application INSIDE the running container. The 3 lines in the Dockerfile have finally become a reachable, running service.',
+      },
+      code: { tr: `curl http://localhost:8080`, en: `curl http://localhost:8080` },
+      positions: {
+        port: { x: 30, y: 50, opacity: 0.55, scale: 0.85 },
+        browser: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'port', to: 'browser' }],
+    },
+  ],
+}
+
+// ─── docker compose up film bloğu (video-scene — EN + TR paylaşımlı) ─────────
+// Veri şeması: Documents/video-rollout-plan.md §2.3 / src/components/VideoSceneBlock.jsx
+// Compose sekmesinin 2. filmi — dockerfileToContainerFilm'den TAMAMEN ayrı, farklı id.
+const composeStartupFilm = {
+  type: 'video-scene',
+  id: 'docker-compose-startup-film',
+  title: {
+    tr: '🎬 docker compose up: Servislerin Uyanışı',
+    en: '🎬 docker compose up: The Services Wake Up',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'yaml',    emoji: '📜', label: { tr: 'compose.yml',            en: 'compose.yml' },            color: '#0ea5e9' },
+    { id: 'network', emoji: '🌐', label: { tr: 'Network',                en: 'Network' },                color: '#6366f1' },
+    { id: 'db',      emoji: '🗄️', label: { tr: 'db container',          en: 'db container' },           color: '#8b5cf6' },
+    { id: 'health',  emoji: '🩺', label: { tr: 'Healthcheck',            en: 'Healthcheck' },            color: '#f59e0b' },
+    { id: 'app',     emoji: '🚀', label: { tr: 'app container',         en: 'app container' },          color: '#22c55e' },
+    { id: 'tests',   emoji: '🧪', label: { tr: 'test-runner container', en: 'test-runner container' },  color: '#10b981' },
+    { id: 'fail',    emoji: '💥', label: { tr: 'Flaky FAIL',            en: 'Flaky FAIL' },             color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker compose up` tek bir komut ama arka planda 3 servisin doğru SIRAYLA uyanmasını koordine eder. Bu film, healthcheck OLMADAN neden flaky bir başarısızlık kaçınılmaz olduğunu da göstererek biter.',
+        en: '`docker compose up` is one command, but behind the scenes it coordinates 3 services waking up in the correct ORDER. This film ends by also showing why, WITHOUT a healthcheck, a flaky failure is nearly guaranteed.',
+      },
+      code: { tr: `docker compose up`, en: `docker compose up` },
+      positions: {
+        yaml: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Network: Compose önce tüm servislerin paylaşacağı ortak bir NETWORK kurar. Bu, servislerin birbirini localhost yerine servis ADIYLA (örn. "db") bulabilmesinin temelidir.',
+        en: 'Step 1 — Network: Compose first builds a shared NETWORK that all services will use. This is the foundation that lets services find each other by service NAME (e.g. "db") instead of localhost.',
+      },
+      code: { tr: `Creating network "qa_default"`, en: `Creating network "qa_default"` },
+      positions: {
+        yaml: { x: 14, y: 26, opacity: 0.6, scale: 0.85 },
+        network: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'yaml', to: 'network' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — db başlar ama HAZIR DEĞİL: PostgreSQL container\'ı ayağa kalkar, ama process başlamak ile veritabanının bağlantı KABUL ETMEYE hazır olması aynı an değildir — "starting" durumu bir kaç saniye sürer.',
+        en: 'Step 2 — db starts but is NOT READY: the PostgreSQL container comes up, but the process starting and the database being ready to ACCEPT connections are not the same moment — the "starting" state lasts a few seconds.',
+      },
+      code: { tr: `db: Starting...`, en: `db: Starting...` },
+      positions: {
+        network: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        db: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'network', to: 'db' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Healthcheck yoklar: Compose, `pg_isready` komutunu tekrar tekrar çalıştırarak db\'yi kontrol eder. "healthy" cevabı gelene kadar BEKLER — burası hız kaybı gibi görünür ama aslında bir sonraki felaketi önler.',
+        en: 'Step 3 — Healthcheck probes: Compose repeatedly runs `pg_isready` to check on db. It WAITS until the answer is "healthy" — this looks like lost time, but it is actually preventing the next disaster.',
+      },
+      code: { tr: `healthcheck: pg_isready -U testuser`, en: `healthcheck: pg_isready -U testuser` },
+      positions: {
+        db: { x: 20, y: 50, opacity: 0.6, scale: 0.9 },
+        health: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'db', to: 'health' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — app ANCAK ŞİMDİ başlar: `depends_on: condition: service_healthy` sayesinde app container\'ı, db "healthy" olana kadar hiç başlamaz. Bu satır olmadan Compose sadece process\'in başlamasını bekler, DB\'nin hazır olmasını değil.',
+        en: 'Step 4 — app starts ONLY NOW: thanks to `depends_on: condition: service_healthy`, the app container never starts until db is "healthy". Without this line, Compose only waits for the process to start, not for the DB to actually be ready.',
+      },
+      code: { tr: `depends_on:\n  db:\n    condition: service_healthy`, en: `depends_on:\n  db:\n    condition: service_healthy` },
+      positions: {
+        health: { x: 20, y: 50, opacity: 0.55, scale: 0.85 },
+        app: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'health', to: 'app' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — test-runner en son kalkar: app da hazır olduğunda test-runner başlar ve testler ÇALIŞIR — db gerçekten hazır olduğu için "connection refused" hatası yaşanmaz. Testler yeşil.',
+        en: 'Step 5 — test-runner comes up last: once app is also ready, the test-runner starts and the tests RUN — because db is genuinely ready, there is no "connection refused" error. Tests are green.',
+      },
+      code: { tr: `tests: 12 passed`, en: `tests: 12 passed` },
+      positions: {
+        app: { x: 20, y: 50, opacity: 0.55, scale: 0.85 },
+        tests: { x: 48, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'app', to: 'tests', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — healthcheck OLMASAYDI: `depends_on` sadece "db process\'i başlasın" derdi, "hazır olsun" değil. test-runner db henüz bağlantı kabul etmezken başlar, "connection refused" alır — bu, bir gün geçen bir gün geçmeyen KLASİK bir flaky test\'in doğuşudur.',
+        en: 'Final (the contrast) — WITHOUT the healthcheck: `depends_on` alone would only mean "let the db process start", not "be ready". The test-runner starts while db is not yet accepting connections and gets "connection refused" — this is the birth of a CLASSIC flaky test that passes one day and fails the next.',
+      },
+      positions: {
+        db: { x: 18, y: 40, scale: 0.95 },
+        app: { x: 42, y: 60, opacity: 0.7, scale: 0.9 },
+        tests: { x: 66, y: 40, opacity: 0.55, scale: 0.85 },
+        fail: { x: 66, y: 68, scale: 1.25, pulse: true },
+      },
+      beams: [
+        { from: 'db', to: 'app', color: '#8b5cf6' },
+        { from: 'app', to: 'tests' },
+        { from: 'app', to: 'fail', color: '#ef4444' },
+      ],
+    },
+  ],
+}
+
+// ─── Dalga 5 film sabitleri (video-scene — EN + TR paylaşımlı) ───────────────
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+// 🎯 Introduction — "works on my machine" filmi
+const dockerWorksOnMyMachineFilm = {
+  type: 'video-scene',
+  id: 'docker-works-on-my-machine-film',
+  title: {
+    tr: '🎬 "Benim Makinemde Çalışıyor"— Ta ki CI Kırılana Kadar',
+    en: '🎬 "Works on My Machine" — Until CI Breaks It',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'laptop',  emoji: '💻', label: { tr: 'Laptop (yeşil test)',       en: 'Laptop (green test)' },       color: '#0ea5e9' },
+    { id: 'push',    emoji: '📤', label: { tr: 'git push',                  en: 'git push' },                  color: '#6366f1' },
+    { id: 'ci',      emoji: '☁️', label: { tr: 'CI agent',                  en: 'CI agent' },                  color: '#8b5cf6' },
+    { id: 'fail',    emoji: '💥', label: { tr: 'ImportError',               en: 'ImportError' },                color: '#ef4444' },
+    { id: 'image',   emoji: '💿', label: { tr: 'Docker Image',              en: 'Docker Image' },              color: '#f59e0b' },
+    { id: 'container', emoji: '📦', label: { tr: 'Container (her yerde aynı)', en: 'Container (identical everywhere)' }, color: '#22c55e' },
+    { id: 'green',   emoji: '✅', label: { tr: 'Her yerde yeşil',            en: 'Green everywhere' },          color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Testin senin laptop\'unda YEŞİL — Selenium çalışıyor, tüm sistem kütüphaneleri zaten senin makinende kurulu. Her şey yolunda görünüyor.',
+        en: 'The test is GREEN on your laptop — Selenium runs fine, every system library is already installed on your machine. Everything looks fine.',
+      },
+      positions: { laptop: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: '`git push` — aynı kod, farklı bir makineye gidiyor. CI agent\'ı senin laptop\'un DEĞİL; sıfırdan, minimal bir Linux imajından ayağa kalkmış taze bir ortam.',
+        en: '`git push` — the same code travels to a different machine. The CI agent is NOT your laptop; it is a fresh environment booted from a minimal, from-scratch Linux image.',
+      },
+      code: { tr: `git push origin main`, en: `git push origin main` },
+      positions: {
+        laptop: { x: 20, y: 45, scale: 0.9, opacity: 0.6 },
+        push: { x: 48, y: 50, scale: 1.1, pulse: true },
+        ci: { x: 76, y: 45, scale: 1.1 },
+      },
+      beams: [{ from: 'laptop', to: 'push' }, { from: 'push', to: 'ci', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'CI PATLAR: `ImportError: libgconf-2.so.4 not found`. Bu kütüphane senin laptop\'unda zaten vardı — kimse onu senin için "kurmadı", zaten oradaydı. CI agent\'ında YOK.',
+        en: 'CI BLOWS UP: `ImportError: libgconf-2.so.4 not found`. This library was already on your laptop — nobody "installed" it for you, it was just there. It is MISSING on the CI agent.',
+      },
+      code: { tr: `ImportError: libgconf-2.so.4: cannot open shared object file`, en: `ImportError: libgconf-2.so.4: cannot open shared object file` },
+      positions: {
+        ci: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        fail: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ci', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Docker olmasaydı: her CI agent\'ına elle `apt-get install libgconf-2-4` eklersin, sonra bir sonraki eksik kütüphanede tekrar aynı avı yaparsın — sonsuz whack-a-mole.',
+        en: 'Contrast — without Docker: you manually add `apt-get install libgconf-2-4` to every CI agent, then repeat the same hunt for the next missing library — an endless game of whack-a-mole.',
+      },
+      positions: {
+        fail: { x: 30, y: 50, scale: 1.1, pulse: true },
+        laptop: { x: 68, y: 50, scale: 0.85, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Docker\'ın çözümü: Dockerfile, kodun YANINDA hangi OS paketlerinin de gerektiğini yazar. `docker build` bir kere çalışır, sonuç TEK bir taşınabilir Image\'dır — kod + tüm bağımlılıklar birlikte.',
+        en: 'Docker\'s fix: the Dockerfile states which OS packages are needed RIGHT ALONGSIDE the code. `docker build` runs once, and the result is ONE portable Image — code and every dependency together.',
+      },
+      code: { tr: `RUN apt-get install -y libgconf-2-4\ndocker build -t qa-tests .`, en: `RUN apt-get install -y libgconf-2-4\ndocker build -t qa-tests .` },
+      positions: {
+        fail: { x: 20, y: 45, scale: 0.85, opacity: 0.5 },
+        image: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'image', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Aynı Image, laptop\'unda da CI\'da da AYNI container\'ı üretir — libgconf orada, Python sürümü orada, hepsi orada. `docker run` her yerde aynı sonucu verir.',
+        en: 'The same Image produces the IDENTICAL container on your laptop and in CI — libgconf is there, the Python version is there, everything is there. `docker run` gives the same result everywhere.',
+      },
+      code: { tr: `docker run qa-tests`, en: `docker run qa-tests` },
+      positions: {
+        image: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        container: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'image', to: 'container', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: bir JAR sadece derlenmiş bytecode\'u taşır, altındaki OS paketini DEĞİL — Docker Image ise ikisini birlikte taşır. "Benim makinemde çalışıyor" cümlesi, artık bir ortam garantisi haline gelir.',
+        en: 'Final — the Java bridge: a JAR only carries compiled bytecode, NOT the OS package underneath it — a Docker Image carries both together. "Works on my machine" now becomes an environment guarantee, not a hope.',
+      },
+      positions: {
+        laptop: { x: 12, y: 55, scale: 0.85 },
+        ci: { x: 34, y: 35, scale: 0.8, opacity: 0.6 },
+        image: { x: 56, y: 55, scale: 0.9 },
+        container: { x: 76, y: 35, scale: 0.9 },
+        green: { x: 92, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'laptop', to: 'image' }, { from: 'image', to: 'container' }, { from: 'container', to: 'green' }],
+    },
+  ],
+}
+
+// ⚙️ Installation — WSL2/Docker Desktop mimarisi filmi
+const dockerDesktopBackendFilm = {
+  type: 'video-scene',
+  id: 'docker-desktop-backend-film',
+  title: {
+    tr: '🎬 Docker Desktop\'ın Perde Arkası: Whale İkonundan Daemon\'a',
+    en: '🎬 Behind Docker Desktop: From the Whale Icon to the Daemon',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'desktop', emoji: '🐳', label: { tr: 'Docker Desktop GUI',    en: 'Docker Desktop GUI' },    color: '#0ea5e9' },
+    { id: 'wsl2',    emoji: '🐧', label: { tr: 'WSL 2 (Linux kernel)',  en: 'WSL 2 (Linux kernel)' },  color: '#059669' },
+    { id: 'daemon',  emoji: '⚙️', label: { tr: 'Docker daemon',          en: 'Docker daemon' },          color: '#8b5cf6' },
+    { id: 'cli',     emoji: '⌨️', label: { tr: 'docker CLI',             en: 'docker CLI' },             color: '#f59e0b' },
+    { id: 'fail',    emoji: '💥', label: { tr: 'Cannot connect',         en: 'Cannot connect' },         color: '#ef4444' },
+    { id: 'container', emoji: '📦', label: { tr: 'hello-world container', en: 'hello-world container' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Sistem tepsisinde 🐳 balina ikonunu görüyorsun — ama bu ikon Docker\'ın KENDİSİ değil, arkasında dönen üç katmanlı bir zincirin sadece görünen ucu.',
+        en: 'You see the 🐳 whale icon in the system tray — but that icon is not Docker ITSELF, just the visible tip of a three-layer chain spinning behind it.',
+      },
+      positions: { desktop: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Katman 1 — WSL 2: Windows\'un kendi kernel\'i Linux container çalıştıramaz. Docker Desktop, arka planda GERÇEK bir Linux kernel\'i çalıştıran WSL 2\'yi sessizce başlatır.',
+        en: 'Layer 1 — WSL 2: Windows\'s own kernel cannot run Linux containers. Docker Desktop quietly starts WSL 2 in the background, which runs a REAL Linux kernel.',
+      },
+      positions: {
+        desktop: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        wsl2: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'desktop', to: 'wsl2', color: '#059669' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 2 — Docker daemon: WSL 2\'nin içinde asıl işi yapan servis budur — image indirir, container başlatır, network kurar. GUI sadece bu daemon\'a tıklama gönderen bir panel.',
+        en: 'Layer 2 — the Docker daemon: this is the service inside WSL 2 that does the actual work — pulling images, starting containers, wiring networks. The GUI is just a panel sending clicks to this daemon.',
+      },
+      positions: {
+        wsl2: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        daemon: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'wsl2', to: 'daemon', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 3 — CLI konuşur: terminalde yazdığın her `docker` komutu bu daemon\'a bir istek gönderir. Daemon HENÜZ hazır değilse: `Cannot connect to the Docker daemon`.',
+        en: 'Layer 3 — the CLI talks: every `docker` command you type in the terminal sends a request to this daemon. If the daemon is NOT ready yet: `Cannot connect to the Docker daemon`.',
+      },
+      code: { tr: `docker ps\n# Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?`, en: `docker ps\n# Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?` },
+      positions: {
+        daemon: { x: 20, y: 45, scale: 0.9, opacity: 0.6 },
+        cli: { x: 48, y: 55, scale: 1.05, pulse: true },
+        fail: { x: 76, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'daemon', to: 'cli' }, { from: 'cli', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Düzeltme basit ama teşhis önemli: hata bir CLI ayarı DEĞİL, "Docker Desktop henüz açık değil" demektir. Uygulamayı aç, balina ikonu sabitlenene kadar bekle.',
+        en: 'The fix is simple, but the diagnosis matters: the error is NOT a CLI setting — it means "Docker Desktop is not open yet". Open the app, wait until the whale icon settles.',
+      },
+      positions: {
+        fail: { x: 25, y: 45, scale: 0.85, opacity: 0.6 },
+        desktop: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'desktop', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Kanıt zinciri: `docker run hello-world` çalışır. Bu tek komut, CLI → daemon → WSL 2 → GERÇEK Linux kernel zincirinin BAŞTAN SONA sağlam olduğunu kanıtlar.',
+        en: 'The proof chain: `docker run hello-world` runs. That single command proves the CLI → daemon → WSL 2 → REAL Linux kernel chain is solid END TO END.',
+      },
+      code: { tr: `docker run hello-world\n# Hello from Docker!`, en: `docker run hello-world\n# Hello from Docker!` },
+      positions: {
+        desktop: { x: 20, y: 45, scale: 0.85, opacity: 0.6 },
+        container: { x: 56, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'desktop', to: 'container', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — QA riski: CI\'ın gerçek Linux Engine\'i, Docker Desktop\'ın WSL 2 sarmalayıcısından farklı davranabilir. Mac/Windows\'ta "yeşil" olan bir container, gerçek CI\'da hâlâ ayrıca doğrulanmalı.',
+        en: 'Final — the QA risk: CI\'s real Linux Engine can behave differently from Docker Desktop\'s WSL 2 wrapper. A container that is "green" on Mac/Windows must still be verified separately on the real CI.',
+      },
+      positions: {
+        wsl2: { x: 16, y: 55, scale: 0.8 },
+        daemon: { x: 36, y: 35, scale: 0.85 },
+        cli: { x: 56, y: 55, scale: 0.8 },
+        container: { x: 76, y: 35, scale: 0.9 },
+        desktop: { x: 92, y: 55, scale: 0.85, opacity: 0.6 },
+      },
+      beams: [{ from: 'wsl2', to: 'daemon' }, { from: 'daemon', to: 'cli' }, { from: 'cli', to: 'container' }],
+    },
+  ],
+}
+
+// 📥 Images — image yaşam döngüsü filmi (pull engellenmiş rmi teşhisi)
+const dockerImageLifecycleFilm = {
+  type: 'video-scene',
+  id: 'docker-image-lifecycle-film',
+  title: {
+    tr: '🎬 Bir Image\'ı Silmeye Çalışmak: "Image is Being Used"',
+    en: '🎬 Trying to Delete an Image: "Image Is Being Used"',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'hub',      emoji: '🏪', label: { tr: 'Docker Hub',              en: 'Docker Hub' },              color: '#0ea5e9' },
+    { id: 'image',    emoji: '💿', label: { tr: 'python:3.12-slim',        en: 'python:3.12-slim' },        color: '#6366f1' },
+    { id: 'container',emoji: '📦', label: { tr: 'Çalışan container',       en: 'Running container' },       color: '#22c55e' },
+    { id: 'blocked',  emoji: '🚫', label: { tr: 'rmi engellendi',          en: 'rmi blocked' },             color: '#ef4444' },
+    { id: 'stopped',  emoji: '⏹️', label: { tr: 'Container durduruldu',     en: 'Container stopped' },       color: '#f59e0b' },
+    { id: 'removed',  emoji: '🗑️', label: { tr: 'Image silindi',           en: 'Image removed' },           color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker pull python:3.12-slim` — Docker Hub\'dan salt-okunur bir template Katman katman iner ve local diskte önbelleğe alınır.',
+        en: '`docker pull python:3.12-slim` — a read-only template descends layer by layer from Docker Hub and gets cached on local disk.',
+      },
+      code: { tr: `docker pull python:3.12-slim`, en: `docker pull python:3.12-slim` },
+      positions: {
+        hub: { x: 25, y: 45, scale: 1.1, pulse: true },
+        image: { x: 60, y: 50, scale: 1.15 },
+      },
+      beams: [{ from: 'hub', to: 'image', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Bu image\'dan bir container başlatılır ve çalışır durumda kalır — `docker ps` onu listede gösterir.',
+        en: 'A container is started from this image and stays running — `docker ps` lists it.',
+      },
+      code: { tr: `docker run -d python:3.12-slim tail -f /dev/null`, en: `docker run -d python:3.12-slim tail -f /dev/null` },
+      positions: {
+        image: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        container: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'image', to: 'container', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Disk temizliği yapmak istersin: `docker rmi python:3.12-slim`. Ama Docker REDDEDER — "image is being used by a running container". Katman hâlâ ÇALIŞAN bir şeyin altında.',
+        en: 'You want to free up disk space: `docker rmi python:3.12-slim`. But Docker REFUSES — "image is being used by a running container". The layer is still underneath something RUNNING.',
+      },
+      code: { tr: `docker rmi python:3.12-slim\n# Error: image is being used by running container abc123`, en: `docker rmi python:3.12-slim\n# Error: image is being used by running container abc123` },
+      positions: {
+        container: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        blocked: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'container', to: 'blocked', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — refleks hata: `docker rmi -f` ile ZORLA silmeye çalışmak, container\'ı hayalet bir duruma sokabilir; doğru sıra önce container\'ı durdurmaktır.',
+        en: 'Contrast — the reflex mistake: trying to FORCE-remove with `docker rmi -f` can leave the container in a ghost state; the correct order is stopping the container first.',
+      },
+      positions: {
+        blocked: { x: 30, y: 45, scale: 1.1, pulse: true },
+        container: { x: 62, y: 55, scale: 0.9, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Doğru sıra: önce `docker stop`, sonra `docker rm` container\'ı temizler — image artık kimseye "bağlı" değildir.',
+        en: 'The correct order: `docker stop` first, then `docker rm` clears the container — the image is no longer "attached" to anything.',
+      },
+      code: { tr: `docker stop abc123\ndocker rm abc123`, en: `docker stop abc123\ndocker rm abc123` },
+      positions: {
+        blocked: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        stopped: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'blocked', to: 'stopped', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Şimdi `docker rmi python:3.12-slim` başarılı olur — hiçbir container onu tutmadığı için katmanlar diskten temizlenir.',
+        en: 'Now `docker rmi python:3.12-slim` succeeds — with no container holding it, the layers are cleared from disk.',
+      },
+      code: { tr: `docker rmi python:3.12-slim\n# Untagged: python:3.12-slim`, en: `docker rmi python:3.12-slim\n# Untagged: python:3.12-slim` },
+      positions: {
+        stopped: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        removed: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'stopped', to: 'removed', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: çalışan bir container image\'ı tutması, bir nesne referansının class\'ın unload edilmesini engellemesi gibidir — GC (`docker rmi`) referans (container) hâlâ canlıyken devreye giremez.',
+        en: 'Final — the Java bridge: a running container holding onto its image is like an object reference preventing a class from being unloaded — GC (`docker rmi`) cannot act while the reference (container) is still alive.',
+      },
+      positions: {
+        hub: { x: 12, y: 55, scale: 0.8 },
+        image: { x: 34, y: 35, scale: 0.8, opacity: 0.6 },
+        blocked: { x: 56, y: 55, scale: 0.8, opacity: 0.5 },
+        stopped: { x: 76, y: 35, scale: 0.85 },
+        removed: { x: 92, y: 55, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'image', to: 'blocked' }, { from: 'blocked', to: 'stopped' }, { from: 'stopped', to: 'removed' }],
+    },
+  ],
+}
+
+// 🚀 Containers: docker run — yanlış port eşleme filmi
+const dockerPortMappingFilm = {
+  type: 'video-scene',
+  id: 'docker-port-mapping-film',
+  title: {
+    tr: '🎬 "Container Yeşil Ama Test Bağlanamıyor" — Port Eşleme Vakası',
+    en: '🎬 "The Container Is Green But the Test Can\'t Connect" — The Port-Mapping Case',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'run',      emoji: '▶️', label: { tr: 'docker run',              en: 'docker run' },              color: '#0ea5e9' },
+    { id: 'container',emoji: '📦', label: { tr: 'app container (port 80)',  en: 'app container (port 80)' }, color: '#22c55e' },
+    { id: 'test',     emoji: '🧪', label: { tr: 'Selenium test',           en: 'Selenium test' },           color: '#6366f1' },
+    { id: 'fail',     emoji: '💥', label: { tr: 'Connection refused',      en: 'Connection refused' },      color: '#ef4444' },
+    { id: 'inspect',  emoji: '🔍', label: { tr: 'docker port',             en: 'docker port' },             color: '#f59e0b' },
+    { id: 'fixed',    emoji: '✅', label: { tr: 'Doğru port ile bağlandı', en: 'Connected with correct port' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker run -d --name web nginx` — container ayağa kalkar, `docker ps` "Up" yazar. Görünüşe göre HER ŞEY yolunda.',
+        en: '`docker run -d --name web nginx` — the container comes up, `docker ps` says "Up". Everything LOOKS fine.',
+      },
+      code: { tr: `docker run -d --name web nginx`, en: `docker run -d --name web nginx` },
+      positions: { run: { x: 25, y: 45, scale: 1.1 }, container: { x: 60, y: 50, scale: 1.15, pulse: true } },
+      beams: [{ from: 'run', to: 'container' }],
+    },
+    {
+      caption: {
+        tr: 'Selenium testi `http://localhost:8080` adresine gitmeye çalışır — çünkü ekip her zaman 8080\'i kullanır.',
+        en: 'The Selenium test tries to visit `http://localhost:8080` — because the team always uses 8080.',
+      },
+      code: { tr: `driver.get("http://localhost:8080")`, en: `driver.get("http://localhost:8080")` },
+      positions: {
+        container: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        test: { x: 58, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'container', to: 'test' }],
+    },
+    {
+      caption: {
+        tr: 'PATLAR: `Connection refused`. Ama container "Up" durumda, nginx İÇERİDE mükemmel çalışıyor — sorun uygulamada DEĞİL.',
+        en: 'IT BLOWS UP: `Connection refused`. But the container is "Up", nginx runs perfectly INSIDE it — the problem is NOT the application.',
+      },
+      code: { tr: `Connection refused: localhost:8080`, en: `Connection refused: localhost:8080` },
+      positions: {
+        test: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        fail: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kanıt: `docker port web` çalıştırılır. Sonuç boş — çünkü `docker run` komutunda `-p` flag\'i hiç yoktu. Container kendi izole ağında yaşıyor, host hiç davet edilmemiş.',
+        en: 'The evidence: `docker port web` is run. The result is empty — because the `docker run` command never had a `-p` flag. The container lives in its own isolated network; the host was never invited in.',
+      },
+      code: { tr: `docker port web\n# (bos cikti)`, en: `docker port web\n# (empty output)` },
+      positions: {
+        fail: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        inspect: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'inspect', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Düzeltme: `-p 8080:80` — host\'un 8080 portunu container\'ın İÇİNDEKİ 80 portuna bağlayan köprü. Bu satır olmadan container asla dışarıya açılmaz.',
+        en: 'The fix: `-p 8080:80` — the bridge that connects the host\'s port 8080 to port 80 INSIDE the container. Without this flag, the container never opens to the outside.',
+      },
+      code: { tr: `docker rm -f web\ndocker run -d --name web -p 8080:80 nginx`, en: `docker rm -f web\ndocker run -d --name web -p 8080:80 nginx` },
+      positions: {
+        inspect: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        container: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'inspect', to: 'container', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: '`driver.get("http://localhost:8080")` artık nginx\'in gerçek sayfasına ulaşır — test yeşile döner. Uygulama hiç bozuk değildi; kapı numarası eksikti.',
+        en: '`driver.get("http://localhost:8080")` now reaches nginx\'s real page — the test turns green. The app was never broken; the door number was missing.',
+      },
+      positions: {
+        container: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        fixed: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'container', to: 'fixed', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: `docker run` bir constructor gibidir — image aynı class\'tır, ama `-p`, `-e`, `--name` her çağrıda FARKLI bir yapılandırma üretir. Bir instance\'ı yanlış argümanla "new"lamak nasıl yanlış davranışa yol açarsa, eksik `-p` de aynı şekilde container\'ı erişilemez bırakır.',
+        en: 'Final — the Java bridge: `docker run` is like a constructor — the image is the same class, but `-p`, `-e`, `--name` produce a DIFFERENT configuration on every call. Just as "new"-ing an instance with the wrong argument causes wrong behavior, a missing `-p` leaves the container unreachable the same way.',
+      },
+      positions: {
+        run: { x: 12, y: 55, scale: 0.8 },
+        container: { x: 34, y: 35, scale: 0.85 },
+        test: { x: 56, y: 55, scale: 0.85 },
+        inspect: { x: 76, y: 35, scale: 0.8, opacity: 0.6 },
+        fixed: { x: 92, y: 55, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'run', to: 'container' }, { from: 'container', to: 'test' }, { from: 'test', to: 'fixed' }],
+    },
+  ],
+}
+
+// 🔄 Lifecycle & Debug — logs-before-rm filmi
+const dockerCrashDebugFilm = {
+  type: 'video-scene',
+  id: 'docker-crash-debug-film',
+  title: {
+    tr: '🎬 03:00 Vakası: Logs Önce mi, rm Önce mi?',
+    en: '🎬 The 3 AM Case: Logs First, or rm First?',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'crash',   emoji: '💥', label: { tr: 'Container çöktü',         en: 'Container crashed' },       color: '#ef4444' },
+    { id: 'engA',    emoji: '😰', label: { tr: 'Mühendis A (rm önce)',    en: 'Engineer A (rm first)' },   color: '#94a3b8' },
+    { id: 'engB',    emoji: '🕵️', label: { tr: 'Mühendis B (logs önce)', en: 'Engineer B (logs first)' }, color: '#0ea5e9' },
+    { id: 'gone',    emoji: '🕳️', label: { tr: 'Kanıt kayboldu',         en: 'Evidence gone' },           color: '#dc2626' },
+    { id: 'trace',   emoji: '📜', label: { tr: 'Stack trace yakalandı',  en: 'Stack trace captured' },    color: '#22c55e' },
+    { id: 'ticket',  emoji: '🎫', label: { tr: 'Kanıtlı bug ticket\'ı',   en: 'Bug ticket with evidence' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Saat 03:00: gece koşan bir test container\'ı çöküyor. `docker ps -a` onu "Exited (1)" olarak gösteriyor — süreç öldü ama dosya sistemi HÂLÂ diskte duruyor.',
+        en: 'It is 3 AM: a nightly test container crashes. `docker ps -a` shows it as "Exited (1)" — the process died, but the filesystem is STILL sitting on disk.',
+      },
+      code: { tr: `docker ps -a\n# CONTAINER ID   STATUS\n# a1b2c3         Exited (1) 2 minutes ago`, en: `docker ps -a\n# CONTAINER ID   STATUS\n# a1b2c3         Exited (1) 2 minutes ago` },
+      positions: { crash: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Mühendis A refleksle temizler: `docker rm a1b2c3` — "kirli" container\'ı hemen siler. Niyeti iyi: ortamı toparlamak.',
+        en: 'Engineer A cleans up reflexively: `docker rm a1b2c3` — deletes the "dirty" container immediately. The intent is good: tidy up the environment.',
+      },
+      code: { tr: `docker rm a1b2c3`, en: `docker rm a1b2c3` },
+      positions: {
+        crash: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        engA: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'crash', to: 'engA', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Kanıt SONSUZA dek kayboldu: container silinince onun logları, stack trace\'i, her şey de silindi. `docker logs a1b2c3` artık "No such container" verir. Bug raporunda yazacak bir şey yok.',
+        en: 'The evidence is gone FOREVER: deleting the container also deletes its logs, its stack trace — everything. `docker logs a1b2c3` now returns "No such container". There is nothing to write in the bug report.',
+      },
+      code: { tr: `docker logs a1b2c3\n# Error: No such container: a1b2c3`, en: `docker logs a1b2c3\n# Error: No such container: a1b2c3` },
+      positions: {
+        engA: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        gone: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'engA', to: 'gone', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Mühendis B AYNI çökmüş container\'ı görür ama farklı sırayla ilerler: önce `docker logs`, TEMİZLİK sonra.',
+        en: 'Contrast — Engineer B sees the SAME crashed container but proceeds in a different order: `docker logs` first, cleanup AFTER.',
+      },
+      code: { tr: `docker logs a1b2c3`, en: `docker logs a1b2c3` },
+      positions: {
+        crash: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        engB: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'crash', to: 'engB', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Stack trace tam olarak yakalanır — container durdurulmuş (stopped) olsa da dosya sistemi HÂLÂ orada, `rm` çağrılmadığı sürece. Kanıt önce, temizlik sonra.',
+        en: 'The stack trace is captured in full — even though the container is stopped, its filesystem is STILL there, as long as `rm` has not been called. Evidence first, cleanup after.',
+      },
+      code: { tr: `Traceback (most recent call last):\n  File "test_checkout.py", line 42\nAssertionError: cart total mismatch`, en: `Traceback (most recent call last):\n  File "test_checkout.py", line 42\nAssertionError: cart total mismatch` },
+      positions: {
+        engB: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        trace: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'engB', to: 'trace', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Şimdi güvenle temizlenir: `docker rm a1b2c3`. Kanıt zaten kopyalandı, bug ticket\'ına iliştirildi. Temizlik artık veri kaybı değil.',
+        en: 'Now it is safely cleaned up: `docker rm a1b2c3`. The evidence is already copied and attached to the bug ticket. Cleanup is no longer data loss.',
+      },
+      code: { tr: `docker rm a1b2c3`, en: `docker rm a1b2c3` },
+      positions: {
+        trace: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        ticket: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'trace', to: 'ticket', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: `stop` ile `rm` arasındaki ayrım, `close()` ile garbage collection arasındaki ayrımla aynıdır — kapatılmış bir kaynak hâlâ incelenebilir, ama yok edilmiş (rm) bir kaynak sonsuza dek gitmiştir.',
+        en: 'Final — the Java bridge: the distinction between `stop` and `rm` mirrors the distinction between `close()` and garbage collection — a closed resource can still be inspected, but a destroyed (rm) resource is gone forever.',
+      },
+      positions: {
+        crash: { x: 12, y: 55, scale: 0.8 },
+        engB: { x: 34, y: 35, scale: 0.85 },
+        trace: { x: 56, y: 55, scale: 0.85 },
+        ticket: { x: 78, y: 35, scale: 0.9 },
+        gone: { x: 92, y: 60, scale: 0.75, opacity: 0.5 },
+      },
+      beams: [{ from: 'crash', to: 'engB' }, { from: 'engB', to: 'trace' }, { from: 'trace', to: 'ticket' }],
+    },
+  ],
+}
+
+// 💾 Volumes — whiteboard vs binder filmi
+const dockerVolumePersistenceFilm = {
+  type: 'video-scene',
+  id: 'docker-volume-persistence-film',
+  title: {
+    tr: '🎬 Rapor Nereye Gitti? — Volume\'süz Bir Test Koşumunun Sonu',
+    en: '🎬 Where Did the Report Go? — The Death of a Volume-less Test Run',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'container', emoji: '📦', label: { tr: 'Test container',        en: 'Test container' },        color: '#0ea5e9' },
+    { id: 'report',    emoji: '📄', label: { tr: 'reports/report.html',   en: 'reports/report.html' },   color: '#22c55e' },
+    { id: 'rm',        emoji: '🗑️', label: { tr: 'docker rm',            en: 'docker rm' },             color: '#ef4444' },
+    { id: 'gone',      emoji: '💨', label: { tr: 'Rapor kayboldu',        en: 'Report gone' },           color: '#dc2626' },
+    { id: 'volume',    emoji: '💾', label: { tr: 'Named volume',          en: 'Named volume' },          color: '#8b5cf6' },
+    { id: 'safe',      emoji: '✅', label: { tr: 'Rapor host\'ta duruyor', en: 'Report survives on host' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`pytest tests/ --html=reports/report.html` container İÇİNDE çalışır ve raporu container\'ın KENDİ dosya sisteminde yazar — henüz host\'a bağlı hiçbir şey yok.',
+        en: '`pytest tests/ --html=reports/report.html` runs INSIDE the container and writes the report to the container\'s OWN filesystem — nothing is connected to the host yet.',
+      },
+      code: { tr: `docker run my-test-image pytest tests/ --html=reports/report.html`, en: `docker run my-test-image pytest tests/ --html=reports/report.html` },
+      positions: {
+        container: { x: 40, y: 50, scale: 1.1, pulse: true },
+        report: { x: 70, y: 50, scale: 1 },
+      },
+      beams: [{ from: 'container', to: 'report' }],
+    },
+    {
+      caption: {
+        tr: 'Koşum bitince container işini tamamlar ve durur — bu tıpkı otel odasından çıkış yapmak gibidir. Rapor hâlâ o odanın (container\'ın) içinde.',
+        en: 'When the run finishes, the container completes its job and stops — like checking out of a hotel room. The report is still inside that room (the container).',
+      },
+      positions: {
+        container: { x: 30, y: 50, scale: 1 },
+        report: { x: 62, y: 50, scale: 1.05 },
+      },
+    },
+    {
+      caption: {
+        tr: 'CI temizlik yapar: `docker rm my-container` — ya da `--rm` flag\'i zaten container\'ı otomatik silmiştir. Odanın kendisi temizlik ekibi tarafından SİLİNİR.',
+        en: 'CI does its cleanup: `docker rm my-container` — or the `--rm` flag already auto-removed the container. The room itself gets WIPED by the cleanup crew.',
+      },
+      code: { tr: `docker rm my-container`, en: `docker rm my-container` },
+      positions: {
+        container: { x: 25, y: 45, scale: 0.95, opacity: 0.7 },
+        rm: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'container', to: 'rm', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Rapor da container\'la BİRLİKTE gider — hiçbir mesaj, hiçbir uyarı olmadan. Pipeline "success" der ama HTML raporu, ekran görüntüleri, hepsi buharlaştı.',
+        en: 'The report goes WITH the container — no message, no warning. The pipeline says "success" but the HTML report, the screenshots — all of it evaporated.',
+      },
+      positions: {
+        rm: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        gone: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'rm', to: 'gone', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — çözüm: `-v test-data:/app/reports` bir named volume bağlar. Volume, Docker\'ın YÖNETTİĞİ ama container\'ın YAŞAM DÖNGÜSÜNDEN bağımsız bir depodur — otelden çıkarken yanında götürdüğün klasör gibi.',
+        en: 'Contrast — the fix: `-v test-data:/app/reports` mounts a named volume. The volume is storage MANAGED by Docker but INDEPENDENT of the container\'s lifecycle — like the binder you carry out of the hotel room.',
+      },
+      code: { tr: `docker run -v test-data:/app/reports --rm my-test-image pytest tests/ --html=/app/reports/report.html`, en: `docker run -v test-data:/app/reports --rm my-test-image pytest tests/ --html=/app/reports/report.html` },
+      positions: {
+        gone: { x: 22, y: 45, scale: 0.85, opacity: 0.5 },
+        volume: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'gone', to: 'volume', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: '`--rm` container\'ı yine siler ama volume DOKUNULMADAN kalır — rapor host\'ta erişilebilir durumda kalıcı olarak durur.',
+        en: '`--rm` still removes the container, but the volume remains UNTOUCHED — the report stays permanently accessible on the host.',
+      },
+      positions: {
+        volume: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        safe: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'volume', to: 'safe', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: container\'ın filesystem\'i JVM heap\'i gibidir — process bitince kaybolur. Volume ise diske serileştirdiğin (serialize) veridir; heap\'in ötesinde hayatta kalır.',
+        en: 'Final — the Java bridge: a container\'s filesystem is like the JVM heap — it vanishes when the process ends. A volume is data you serialized to disk; it survives beyond the heap.',
+      },
+      positions: {
+        container: { x: 14, y: 55, scale: 0.8, opacity: 0.6 },
+        rm: { x: 34, y: 35, scale: 0.75, opacity: 0.5 },
+        volume: { x: 56, y: 55, scale: 0.9 },
+        safe: { x: 90, y: 45, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'volume', to: 'safe' }],
+    },
+  ],
+}
+
+// 🌐 Networks — localhost vs container-name filmi
+const dockerNetworkDiscoveryFilm = {
+  type: 'video-scene',
+  id: 'docker-network-discovery-film',
+  title: {
+    tr: '🎬 "localhost:5432" Neden Çalışmıyor? — Container İçinden Bakış',
+    en: '🎬 Why Doesn\'t "localhost:5432" Work? — The View From Inside a Container',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test',    emoji: '🧪', label: { tr: 'Test container',          en: 'Test container' },         color: '#0ea5e9' },
+    { id: 'localhost', emoji: '🏠', label: { tr: 'localhost (kendisi)',   en: 'localhost (itself)' },      color: '#94a3b8' },
+    { id: 'fail',    emoji: '💥', label: { tr: 'Connection refused',      en: 'Connection refused' },      color: '#ef4444' },
+    { id: 'network', emoji: '🌐', label: { tr: 'qa-network',              en: 'qa-network' },              color: '#8b5cf6' },
+    { id: 'db',      emoji: '🗄️', label: { tr: 'db container',           en: 'db container' },           color: '#22c55e' },
+    { id: 'green',   emoji: '✅', label: { tr: 'db:5432 bağlandı',        en: 'Connected via db:5432' },  color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test container\'ı, veritabanına ulaşmak için `localhost:5432` adresini dener — laptop\'ta bu hep işe yaramıştı, alışkanlık böyle.',
+        en: 'The test container tries to reach the database at `localhost:5432` — this always worked on the laptop, so it is the habit.',
+      },
+      code: { tr: `psql -h localhost -p 5432`, en: `psql -h localhost -p 5432` },
+      positions: {
+        test: { x: 30, y: 50, scale: 1.1, pulse: true },
+        localhost: { x: 62, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'test', to: 'localhost' }],
+    },
+    {
+      caption: {
+        tr: 'PATLAR: `Connection refused`. Çünkü bir container İÇİNDE "localhost", host makineyi DEĞİL, container\'ın KENDİSİNİ işaret eder — ve o container\'da 5432 portunu dinleyen hiçbir şey yok.',
+        en: 'IT BLOWS UP: `Connection refused`. Because inside a container, "localhost" points to the container ITSELF, not the host machine — and nothing in that container listens on port 5432.',
+      },
+      code: { tr: `Connection refused: localhost:5432`, en: `Connection refused: localhost:5432` },
+      positions: {
+        localhost: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        fail: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'localhost', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — ofis telefon rehberi metaforu: masa numarasını (IP) ezberlemek yerine isimle (extension) ararsın. `docker network create qa-network` bu rehberi kurar.',
+        en: 'Contrast — the office phone-directory metaphor: instead of memorizing a desk number (IP), you call by name (extension). `docker network create qa-network` sets up this directory.',
+      },
+      code: { tr: `docker network create qa-network`, en: `docker network create qa-network` },
+      positions: {
+        fail: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        network: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'network', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'db ve test container\'ları AYNI ağa katılır: `--network qa-network`. Artık ikisi de aynı rehberde kayıtlı — birbirlerini isimle bulabilirler.',
+        en: 'The db and test containers join the SAME network: `--network qa-network`. Now both are listed in the same directory — they can find each other by name.',
+      },
+      code: { tr: `docker run -d --name db --network qa-network postgres:16\ndocker run --network qa-network my-test-image`, en: `docker run -d --name db --network qa-network postgres:16\ndocker run --network qa-network my-test-image` },
+      positions: {
+        network: { x: 25, y: 40, scale: 1 },
+        db: { x: 58, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'network', to: 'db', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Test artık `localhost:5432` değil, `db:5432`\'yi arar — container ADINI dialer\'da yazmak, extension\'ı çevirmek gibidir. Docker bu ismi otomatik DNS ile IP\'ye çözer.',
+        en: 'The test now dials `db:5432` instead of `localhost:5432` — typing the container NAME is like dialing the extension. Docker resolves this name to an IP automatically via DNS.',
+      },
+      code: { tr: `psql -h db -p 5432`, en: `psql -h db -p 5432` },
+      positions: {
+        db: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        green: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'db', to: 'green', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: sabit bir IP\'ye bağımlı kod, somut bir sınıfa bağımlı kod gibidir — implementasyon her yeniden başlatmada değişebilir. Servis ADINA bağımlı olmak ise bir interface\'e bağımlı olmaktır: sözleşme sabit kalır.',
+        en: 'Final — the Java bridge: code depending on a fixed IP is like code depending on a concrete class — the implementation can change on every restart. Depending on a service NAME is depending on an interface: the contract stays stable.',
+      },
+      positions: {
+        test: { x: 12, y: 55, scale: 0.8 },
+        localhost: { x: 32, y: 35, scale: 0.75, opacity: 0.5 },
+        network: { x: 54, y: 55, scale: 0.85 },
+        db: { x: 74, y: 35, scale: 0.9 },
+        green: { x: 92, y: 55, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'network' }, { from: 'network', to: 'db' }, { from: 'db', to: 'green' }],
+    },
+  ],
+}
+
+// 📥 Images — image yaşam döngüsü step-animation'ı (Dalga 5, eksik animasyon tamamlama)
+const dockerImageLifecycleSteps = {
+  type: 'step-animation',
+  id: 'docker-image-lifecycle-step-01',
+  title: { tr: 'Adım Adım: Kullanımdaki Bir Image\'ı Doğru Silme', en: 'Step by Step: Correctly Removing an Image in Use' },
+  steps: [
+    { id: 1, icon: '🔍', label: { tr: 'Kullanan container\'ı bul', en: 'Find the container using it' }, detail: { tr: '`docker ps` çalıştırılır; image\'ı kullanan container\'ın ID/adı görülür.', en: 'Run `docker ps`; the container ID/name using the image is found.' } },
+    { id: 2, icon: '⏹️', label: { tr: 'Container\'ı durdur', en: 'Stop the container' }, detail: { tr: '`docker stop <id>` çalıştırılır — process düzgünce kapanır, dosya sistemi hâlâ incelenebilir durumda kalır.', en: 'Run `docker stop <id>` — the process shuts down gracefully, the filesystem remains inspectable.' } },
+    { id: 3, icon: '🗑️', label: { tr: 'Container\'ı kaldır', en: 'Remove the container' }, detail: { tr: '`docker rm <id>` çalıştırılır — artık hiçbir container image\'a "bağlı" değildir.', en: 'Run `docker rm <id>` — no container is "attached" to the image anymore.' } },
+    { id: 4, icon: '💿', label: { tr: 'Image\'ı sil', en: 'Remove the image' }, detail: { tr: '`docker rmi <image>` artık başarıyla çalışır ve katmanları diskten temizler.', en: '`docker rmi <image>` now succeeds and clears the layers from disk.' } },
+    { id: 5, icon: '✅', label: { tr: 'Diski doğrula', en: 'Verify the disk' }, detail: { tr: '`docker images` ile image\'ın listeden kalktığı, `docker system df` ile disk alanının boşaldığı doğrulanır.', en: 'Verify with `docker images` that it is gone from the list, and with `docker system df` that disk space was freed.' } },
+  ],
+}
+
+// 📥 Images — image yaşam döngüsü sandbox'ı (Dalga 5, eksik sandbox tamamlama)
+const dockerImageLifecyclePractice = {
+  type: 'code-playground',
+  relatedTopicId: 'docker-image-lifecycle-practice-01',
+  id: 'docker-image-lifecycle-practice-01',
+  label: { tr: 'Micro Lab: Kullanımdaki image\'ı doğru sırayla temizle', en: 'Micro Lab: Clean up an image in use in the right order' },
+  language: 'bash',
+  task: {
+    tr: 'nginx:latest image\'ını kullanan bir container çalışıyor ve docker rmi başarısız oluyor. TODO satırlarını, önce container\'ı durdurup silen, sonra image\'ı temizleyen doğru sırayla tamamla.',
+    en: 'A container using nginx:latest is running, and docker rmi fails. Complete the TODO lines in the correct order: stop and remove the container first, then clean up the image.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç "kullanımdaki image" hatasının doğru çözüm sırasını (stop → rm → rmi) elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the correct fix order for the "image in use" error (stop → rm → rmi) by writing it yourself.',
+  },
+  code: {
+    tr: `docker rmi nginx:latest\n# Error: image is being used by running container qa-nginx\n\ndocker stop qa-nginx\ndocker rm qa-nginx\ndocker rmi nginx:latest`,
+    en: `docker rmi nginx:latest\n# Error: image is being used by running container qa-nginx\n\ndocker stop qa-nginx\ndocker rm qa-nginx\ndocker rmi nginx:latest`,
+  },
+  starterCode: {
+    tr: `docker rmi nginx:latest\n# Error: image is being used by running container qa-nginx\n\n# TODO: once container'i durdur\n# TODO: sonra container'i kaldir\ndocker rmi nginx:latest`,
+    en: `docker rmi nginx:latest\n# Error: image is being used by running container qa-nginx\n\n# TODO: first stop the container\n# TODO: then remove the container\ndocker rmi nginx:latest`,
+  },
+  solutionCode: {
+    tr: `docker rmi nginx:latest\n# Error: image is being used by running container qa-nginx\n\ndocker stop qa-nginx\ndocker rm qa-nginx\ndocker rmi nginx:latest`,
+    en: `docker rmi nginx:latest\n# Error: image is being used by running container qa-nginx\n\ndocker stop qa-nginx\ndocker rm qa-nginx\ndocker rmi nginx:latest`,
+  },
+  expected: {
+    tr: 'Son `docker rmi nginx:latest` çağrısı artık başarılı olur ve "Untagged: nginx:latest" yazdırır.',
+    en: 'The final `docker rmi nginx:latest` call now succeeds and prints "Untagged: nginx:latest".',
+  },
+  hints: [
+    { tr: 'Container adı komuttaki hata mesajında geçer: qa-nginx.', en: 'The container name appears in the error message itself: qa-nginx.' },
+    { tr: 'Sıra önemlidir: önce stop, sonra rm — ikisi ayrı komutlardır.', en: 'Order matters: stop first, then rm — they are separate commands.' },
+    { tr: 'rmi ancak HİÇBİR container image\'a bağlı değilken çalışır.', en: 'rmi only works once NO container is attached to the image.' },
+  ],
+  xpReward: 10,
+}
+
+// 🚀 Containers: docker run — port teşhis step-animation'ı (Dalga 5, eksik animasyon tamamlama)
+const dockerPortMappingSteps = {
+  type: 'step-animation',
+  id: 'docker-port-mapping-step-01',
+  title: { tr: 'Adım Adım: "Connection Refused" Port Teşhisi', en: 'Step by Step: Diagnosing a "Connection Refused" Port Issue' },
+  steps: [
+    { id: 1, icon: '🧪', label: { tr: 'Hatayı gözlemle', en: 'Observe the error' }, detail: { tr: 'Test `Connection refused` ile patlar ama `docker ps` container\'ı "Up" gösterir — çelişki, ilk ipucudur.', en: 'The test blows up with `Connection refused`, but `docker ps` shows the container as "Up" — the contradiction is the first clue.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Port eşlemesini kontrol et', en: 'Check the port mapping' }, detail: { tr: '`docker port <container>` çalıştırılır; çıktı BOŞSA host için hiç port açılmamış demektir.', en: 'Run `docker port <container>`; if the output is EMPTY, no port was ever opened to the host.' } },
+    { id: 3, icon: '🚫', label: { tr: 'Eksik flag\'i teşhis et', en: 'Diagnose the missing flag' }, detail: { tr: 'Orijinal `docker run` komutunda `-p HOST:CONTAINER` flag\'i hiç yoktu — container kendi izole ağında yaşıyor.', en: 'The original `docker run` command never had a `-p HOST:CONTAINER` flag — the container lives in its own isolated network.' } },
+    { id: 4, icon: '🔧', label: { tr: 'Yeniden başlat', en: 'Restart with the flag' }, detail: { tr: 'Container kaldırılıp `-p 8080:80` flag\'iyle yeniden `docker run` çalıştırılır.', en: 'The container is removed and `docker run` is re-run with `-p 8080:80`.' } },
+    { id: 5, icon: '✅', label: { tr: 'Bağlantıyı kanıtla', en: 'Prove the connection' }, detail: { tr: '`docker port` artık `80/tcp -> 0.0.0.0:8080` gösterir; test aynı host portuna bağlanınca geçer.', en: '`docker port` now shows `80/tcp -> 0.0.0.0:8080`; the test passes once it connects to that same host port.' } },
+  ],
+}
+
+// 🚀 Containers: docker run — güvenli komut sırası challenge'ı (Dalga 5, eksik drag-and-drop tamamlama)
+const dockerRunFlagOrderChallenge = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'ch-docker-run-port-fix-order-01',
+  question: { tr: '"Connection refused" veren bir container\'ı port eşlemesiyle düzeltme sırasını diz.', en: 'Arrange the order for fixing a "Connection refused" container with port mapping.' },
+  items: [
+    { id: '1', text: { tr: 'docker port <container> ile mevcut eşlemeyi kontrol et', en: 'Check current mapping with docker port <container>' }, order: 1 },
+    { id: '2', text: { tr: 'Eşleme boşsa docker rm -f ile container\'ı kaldır', en: 'If empty, remove the container with docker rm -f' }, order: 2 },
+    { id: '3', text: { tr: '-p HOST:CONTAINER flag\'iyle yeniden docker run çalıştır', en: 'Re-run docker run with the -p HOST:CONTAINER flag' }, order: 3 },
+    { id: '4', text: { tr: 'docker ps ile port sütununu doğrula', en: 'Verify the ports column with docker ps' }, order: 4 },
+    { id: '5', text: { tr: 'Test kodunu aynı host portuna işaret edecek şekilde çalıştır', en: 'Run the test code pointing at the same host port' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+// 💾 Volumes — named volume kurma step-animation'ı (Dalga 5, eksik animasyon tamamlama)
+const dockerVolumeMountSteps = {
+  type: 'step-animation',
+  id: 'docker-volume-mount-step-01',
+  title: { tr: 'Adım Adım: Test Raporunu Volume ile Kalıcı Yapmak', en: 'Step by Step: Persisting a Test Report with a Volume' },
+  steps: [
+    { id: 1, icon: '💾', label: { tr: 'Volume\'ü oluştur', en: 'Create the volume' }, detail: { tr: '`docker volume create test-data` çalıştırılır — Docker\'ın yönettiği, container\'dan bağımsız bir depo alanı ayrılır.', en: 'Run `docker volume create test-data` — a storage area managed by Docker, independent of any container, is allocated.' } },
+    { id: 2, icon: '🔗', label: { tr: 'Container\'a bağla', en: 'Mount it into the container' }, detail: { tr: '`-v test-data:/app/reports` ile volume, container içindeki rapor dizinine bağlanır.', en: 'With `-v test-data:/app/reports`, the volume is mounted at the report directory inside the container.' } },
+    { id: 3, icon: '🧪', label: { tr: 'Testler yazar', en: 'Tests write to it' }, detail: { tr: 'pytest raporu /app/reports\'a yazar — ama fiziksel olarak volume\'ün diskindedir, container\'ın kendi katmanında DEĞİL.', en: 'pytest writes the report to /app/reports — but physically it lives on the volume\'s disk, NOT in the container\'s own layer.' } },
+    { id: 4, icon: '🗑️', label: { tr: 'Container kaldırılır', en: 'The container is removed' }, detail: { tr: '`--rm` veya `docker rm` container\'ı siler — ama volume DOKUNULMADAN kalır, Docker onu ayrı bir kaynak olarak izler.', en: '`--rm` or `docker rm` deletes the container — but the volume stays UNTOUCHED, Docker tracks it as a separate resource.' } },
+    { id: 5, icon: '✅', label: { tr: 'Veriyi doğrula', en: 'Verify the data' }, detail: { tr: '`docker run -v test-data:/app/reports ... ls /app/reports` ile aynı volume\'ü yeni bir container\'a bağlayıp raporun hâlâ orada olduğu kanıtlanır.', en: 'Mount the same volume into a fresh container with `docker run -v test-data:/app/reports ... ls /app/reports` and prove the report is still there.' } },
+  ],
+}
+
+// 🧪 QA: Selenium Grid — shm_size ve paralel node ölçeklendirme filmi
+const dockerGridScaleFilm = {
+  type: 'video-scene',
+  id: 'docker-grid-scale-film',
+  title: {
+    tr: '🎬 8 Paralel Tarayıcı: Selenium Grid Nasıl Ölçeklenir',
+    en: '🎬 8 Parallel Browsers: How a Selenium Grid Scales',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'hub',    emoji: '🏗️', label: { tr: 'selenium-hub',        en: 'selenium-hub' },        color: '#0ea5e9' },
+    { id: 'chrome', emoji: '🐳', label: { tr: '2× chrome node (4 oturum)', en: '2× chrome node (4 sessions)' }, color: '#f59e0b' },
+    { id: 'shm',    emoji: '🧠', label: { tr: '/dev/shm 64MB (varsayılan)', en: '/dev/shm 64MB (default)' }, color: '#94a3b8' },
+    { id: 'crash',  emoji: '💥', label: { tr: 'Chrome crash',         en: 'Chrome crash' },         color: '#ef4444' },
+    { id: 'fix',    emoji: '🔧', label: { tr: 'shm_size: 2gb',         en: 'shm_size: 2gb' },         color: '#22c55e' },
+    { id: 'runner', emoji: '🧪', label: { tr: 'test-runner (pytest -n 8)', en: 'test-runner (pytest -n 8)' }, color: '#8b5cf6' },
+    { id: 'done',   emoji: '✅', label: { tr: '8 paralel oturum',      en: '8 parallel sessions' },  color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker compose up` üç servisi koordine eder: selenium-hub, 2 chrome node ve bir test-runner. Hedef: 500 testi sıra sıra değil, paralel koşmak.',
+        en: '`docker compose up` coordinates three services: selenium-hub, 2 chrome nodes, and a test-runner. The goal: run 500 tests in parallel, not one by one.',
+      },
+      code: { tr: `docker compose -f docker-compose.selenium.yml up`, en: `docker compose -f docker-compose.selenium.yml up` },
+      positions: { hub: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Chrome node\'ları hub\'a kayıt olur. `deploy: replicas: 2` ve `SE_NODE_MAX_SESSIONS=4` matematiği: 2 node × 4 oturum = 8 paralel Chrome session\'ı.',
+        en: 'Chrome nodes register with the hub. The `deploy: replicas: 2` and `SE_NODE_MAX_SESSIONS=4` math: 2 nodes × 4 sessions = 8 parallel Chrome sessions.',
+      },
+      code: { tr: `SE_NODE_MAX_SESSIONS=4\ndeploy:\n  replicas: 2   # 2 x 4 = 8 paralel`, en: `SE_NODE_MAX_SESSIONS=4\ndeploy:\n  replicas: 2   # 2 x 4 = 8 parallel` },
+      positions: {
+        hub: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        chrome: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'hub', to: 'chrome', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Ama her Chrome node\'u varsayılan olarak sadece 64MB `/dev/shm` (paylaşılan bellek) ile başlar — bu, tek bir sayfa render ederken bile Chrome için YETERSİZDİR.',
+        en: 'But every Chrome node starts with only 64MB of `/dev/shm` (shared memory) by default — this is INSUFFICIENT for Chrome even rendering a single page.',
+      },
+      positions: {
+        chrome: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        shm: { x: 58, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'chrome', to: 'shm' }],
+    },
+    {
+      caption: {
+        tr: '8 paralel session aynı anda ağır SPA sayfaları render etmeye çalışınca 64MB anında dolar — Chrome sessizce, ya da `DevToolsActivePort` hatasıyla ÇÖKER.',
+        en: 'When 8 parallel sessions try to render heavy SPA pages at once, 64MB fills instantly — Chrome CRASHES, silently or with a `DevToolsActivePort` error.',
+      },
+      code: { tr: `# DevToolsActivePort file doesn't exist`, en: `# DevToolsActivePort file doesn't exist` },
+      positions: {
+        shm: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        crash: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'shm', to: 'crash', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Compose dosyasındaki tek satır bunu önler: `shm_size: \'2gb\'`. Bu, container\'ın paylaşılan bellek limitini 64MB\'dan 2GB\'a çıkarır — Chrome artık nefes alabilir.',
+        en: 'One line in the Compose file prevents this: `shm_size: \'2gb\'`. This raises the container\'s shared-memory limit from 64MB to 2GB — Chrome can finally breathe.',
+      },
+      code: { tr: `chrome:\n  image: selenium/node-chrome:4.20.0\n  shm_size: '2gb'`, en: `chrome:\n  image: selenium/node-chrome:4.20.0\n  shm_size: '2gb'` },
+      positions: {
+        crash: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        fix: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'crash', to: 'fix', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Şimdi `test-runner` devreye girer: `pytest tests/ -n 8` — 8 test aynı anda 8 sağlıklı Chrome session\'ına dağıtılır. Sıralı koşumda saatler süren şey dakikalara iner.',
+        en: 'Now `test-runner` kicks in: `pytest tests/ -n 8` — 8 tests are distributed across 8 healthy Chrome sessions at once. What took hours sequentially now takes minutes.',
+      },
+      code: { tr: `command: pytest tests/ -n 8`, en: `command: pytest tests/ -n 8` },
+      positions: {
+        fix: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        runner: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fix', to: 'runner', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: selenium-hub bir `ExecutorService` gibidir, chrome node\'ları onun worker thread\'leridir. `SE_NODE_MAX_SESSIONS`, thread pool\'un boyutunu belirlemesi gibi kapasiteyi belirler — kapasiteyi bilmeden ölçeklendirmek, havuzu taşırıp sistemi çökertmektir.',
+        en: 'Final — the Java bridge: selenium-hub is like an `ExecutorService`, and the chrome nodes are its worker threads. `SE_NODE_MAX_SESSIONS` sets capacity the way sizing a thread pool does — scaling without knowing capacity means overflowing the pool and crashing the system.',
+      },
+      positions: {
+        hub: { x: 12, y: 55, scale: 0.8 },
+        chrome: { x: 34, y: 35, scale: 0.85 },
+        fix: { x: 56, y: 55, scale: 0.85 },
+        runner: { x: 76, y: 35, scale: 0.9 },
+        done: { x: 92, y: 55, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'hub', to: 'chrome' }, { from: 'chrome', to: 'fix' }, { from: 'fix', to: 'runner' }, { from: 'runner', to: 'done' }],
+    },
+  ],
+}
+
+// 🎭 QA: Playwright & CI — pixel-perfect tutarlılık filmi
+const dockerPixelParityFilm = {
+  type: 'video-scene',
+  id: 'docker-pixel-parity-film',
+  title: {
+    tr: '🎬 "Ekranımda Farklı Görünüyor" — Playwright\'ın Piksel Garantisi',
+    en: '🎬 "It Looks Different on My Screen" — Playwright\'s Pixel Guarantee',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'local',  emoji: '💻', label: { tr: 'Local Playwright (v1.41)', en: 'Local Playwright (v1.41)' }, color: '#0ea5e9' },
+    { id: 'screenshot', emoji: '📸', label: { tr: 'Visual regression testi', en: 'Visual regression test' }, color: '#8b5cf6' },
+    { id: 'ci',     emoji: '☁️', label: { tr: 'CI (v1.42, farklı font)',    en: 'CI (v1.42, different fonts)' }, color: '#f59e0b' },
+    { id: 'fail',   emoji: '💥', label: { tr: 'Screenshot mismatch',        en: 'Screenshot mismatch' },        color: '#ef4444' },
+    { id: 'image',  emoji: '📦', label: { tr: 'mcr.microsoft.com/playwright:v1.42.0-jammy', en: 'mcr.microsoft.com/playwright:v1.42.0-jammy' }, color: '#22c55e' },
+    { id: 'green',  emoji: '✅', label: { tr: 'Bit-bit aynı piksel',        en: 'Bit-for-bit identical pixels' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir görsel regresyon testi laptop\'ta yeşil — `npm install`\'un getirdiği yerel Playwright sürümü, kendi işletim sisteminin fontlarıyla ekran görüntüsü alıyor.',
+        en: 'A visual regression test is green on the laptop — the local Playwright version from `npm install` takes a screenshot using its own OS fonts.',
+      },
+      positions: { local: { x: 30, y: 50, scale: 1.1, pulse: true }, screenshot: { x: 65, y: 50, scale: 1 } },
+      beams: [{ from: 'local', to: 'screenshot' }],
+    },
+    {
+      caption: {
+        tr: 'CI\'da AYNI test kırmızı: `screenshot mismatch — 342 pixels differ`. Kod değişmedi, test değişmedi — ama CI agent\'ının Chromium sürümü ve sistem fontları FARKLI.',
+        en: 'The SAME test turns red in CI: `screenshot mismatch — 342 pixels differ`. The code did not change, the test did not change — but the CI agent\'s Chromium version and system fonts are DIFFERENT.',
+      },
+      code: { tr: `screenshot mismatch — 342 pixels differ`, en: `screenshot mismatch — 342 pixels differ` },
+      positions: {
+        screenshot: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        ci: { x: 50, y: 50, scale: 1.1 },
+        fail: { x: 78, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'screenshot', to: 'ci' }, { from: 'ci', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Neden: `npm install` sadece Playwright\'ın NPM paket sürümünü sabitler — altındaki Chromium binary\'sini, sistem fontlarını veya locale ayarlarını DEĞİL. Bunlar makineden makineye kayar.',
+        en: 'Why: `npm install` only pins Playwright\'s NPM package version — NOT the Chromium binary underneath it, the system fonts, or the locale settings. These drift from machine to machine.',
+      },
+      positions: {
+        fail: { x: 30, y: 45, scale: 1.05, pulse: true },
+        local: { x: 65, y: 55, scale: 0.85, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Çözüm: aynı `mcr.microsoft.com/playwright:v1.42.0-jammy` Image\'ını hem local\'de hem CI\'da kullan. Bu Image, tarayıcı binary\'sini, fontları VE OS\'u tek bir dondurulmuş pakette taşır.',
+        en: 'The fix: use the exact same `mcr.microsoft.com/playwright:v1.42.0-jammy` Image on both local and CI. This Image carries the browser binary, fonts, AND the OS together in one frozen package.',
+      },
+      code: { tr: `docker run --rm -v $(pwd):/app -w /app \\\n  mcr.microsoft.com/playwright:v1.42.0-jammy \\\n  npx playwright test`, en: `docker run --rm -v $(pwd):/app -w /app \\\n  mcr.microsoft.com/playwright:v1.42.0-jammy \\\n  npx playwright test` },
+      positions: {
+        fail: { x: 22, y: 45, scale: 0.85, opacity: 0.5 },
+        image: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'image', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Artık laptop ve CI, AYNI Chromium sürümünü, AYNI fontları, AYNI OS katmanını kullanıyor — ekran görüntüsü bit-bit özdeş. "Farklı görünüyor" cümlesi artık imkansız.',
+        en: 'Now the laptop and CI use the SAME Chromium version, the SAME fonts, the SAME OS layer — the screenshot is bit-for-bit identical. "It looks different" is no longer possible.',
+      },
+      positions: {
+        image: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        green: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'image', to: 'green', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: bir CI\'ın "hangi Java 17\'yi bulursa" güvenmek yerine tam bir JDK Image\'ı sabitlemesi gibi — Docker, tarayıcının ortamını da bir sürüm numarasına değil, TAM bir imaja sabitler.',
+        en: 'Final — the Java bridge: just as CI pins an exact JDK image instead of trusting "whatever Java 17 the agent happens to have" — Docker pins the browser\'s environment to a FULL image, not just a version number.',
+      },
+      positions: {
+        local: { x: 14, y: 55, scale: 0.8 },
+        ci: { x: 36, y: 35, scale: 0.8, opacity: 0.6 },
+        image: { x: 58, y: 55, scale: 0.9 },
+        green: { x: 88, y: 45, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'local', to: 'image' }, { from: 'image', to: 'green' }],
+    },
+  ],
+}
+
+// 🩺 Troubleshooting — "container exits immediately" teşhis zinciri filmi
+const dockerExitCodeDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'docker-exit-code-diagnosis-film',
+  title: {
+    tr: '🎬 Bir Docker Hatasının Teşhis Zinciri: "Anında Kapanan Container"',
+    en: '🎬 The Diagnosis Chain of a Docker Error: "The Container That Exits Instantly"',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'run',    emoji: '▶️', label: { tr: 'docker run my-image',   en: 'docker run my-image' },   color: '#0ea5e9' },
+    { id: 'exit',   emoji: '💨', label: { tr: '< 1 saniyede durdu',    en: 'Exited in < 1 second' },   color: '#ef4444' },
+    { id: 'logs',   emoji: '📜', label: { tr: 'docker logs',           en: 'docker logs' },            color: '#f59e0b' },
+    { id: 'cause',  emoji: '🔎', label: { tr: 'nginx daemonize oluyor', en: 'nginx daemonizes' },      color: '#8b5cf6' },
+    { id: 'fix',    emoji: '🔧', label: { tr: '-g "daemon off;"',       en: '-g "daemon off;"' },       color: '#22c55e' },
+    { id: 'works',  emoji: '✅', label: { tr: 'Container ayakta kalıyor', en: 'Container stays up' },   color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker run my-image` çalıştırılır — container BAŞLAR ve bir saniyeden az sürede DURUR. Exit code 0, yani "hata" bile vermedi; sadece kayboldu.',
+        en: '`docker run my-image` is run — the container STARTS and STOPS in under a second. Exit code 0, meaning it did not even "error"; it just vanished.',
+      },
+      code: { tr: `docker run my-image\ndocker ps -a\n# STATUS: Exited (0) 2 seconds ago`, en: `docker run my-image\ndocker ps -a\n# STATUS: Exited (0) 2 seconds ago` },
+      positions: { run: { x: 30, y: 50, scale: 1.1 }, exit: { x: 65, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'run', to: 'exit', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — mesajı PARÇALA: exit code 0 bir HATA değil, "process düzgün bitti" demek. Sorun crash DEĞİL — sorun, sürecin hiç YAŞAMAMASI.',
+        en: 'Step 1 — DECOMPOSE the message: exit code 0 is not an ERROR, it means "the process ended cleanly". The problem is not a crash — the problem is that the process never STAYED ALIVE.',
+      },
+      positions: {
+        exit: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        logs: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'exit', to: 'logs' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — değiştirmeyen kanıt topla: `docker logs my-container`. Çıktıda nginx\'in normal başlangıç mesajları var — hata YOK, sadece process erken bitmiş.',
+        en: 'Step 2 — collect non-destructive evidence: `docker logs my-container`. The output shows nginx\'s normal startup messages — NO error, just an early-ending process.',
+      },
+      code: { tr: `docker logs my-container\n# nginx: the configuration file syntax is ok\n# (baska cikti yok — process bitti)`, en: `docker logs my-container\n# nginx: the configuration file syntax is ok\n# (no more output — the process ended)` },
+      positions: {
+        logs: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        cause: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'logs', to: 'cause', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — KÖK nedeni teşhis et: `CMD ["nginx"]` çalıştırıldığında nginx kendini bir ARKA PLAN DAEMON\'ına dönüştürür ve CMD\'nin başlattığı süreç hemen biter — Docker "ana süreç bitti" der ve container\'ı kapatır.',
+        en: 'Step 3 — diagnose the ROOT cause: when `CMD ["nginx"]` runs, nginx turns itself into a BACKGROUND DAEMON and the process CMD started immediately ends — Docker says "the main process ended" and shuts the container down.',
+      },
+      code: { tr: `FROM nginx\nCMD ["nginx"]   # nginx arka plana gecer, CMD sureci biter`, en: `FROM nginx\nCMD ["nginx"]   # nginx daemonizes, the CMD process ends` },
+      positions: {
+        cause: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        fix: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cause', to: 'fix', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — en küçük GÜVENLİ düzeltme: `CMD ["nginx", "-g", "daemon off;"]` — nginx\'i ÖN PLANDA çalıştırır. Docker izleyeceği süreci artık kaybetmez.',
+        en: 'Step 4 — the smallest SAFE fix: `CMD ["nginx", "-g", "daemon off;"]` — runs nginx in the FOREGROUND. Docker no longer loses track of the process it is watching.',
+      },
+      code: { tr: `CMD ["nginx", "-g", "daemon off;"]`, en: `CMD ["nginx", "-g", "daemon off;"]` },
+      positions: {
+        fix: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        works: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fix', to: 'works', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — AYNI komutla kanıtla: `docker run my-image` tekrar çalıştırılır. `docker ps` artık container\'ı "Up" olarak gösterir — sonsuza dek değil, ana process yaşadığı sürece.',
+        en: 'Step 5 — PROVE it with the SAME command: `docker run my-image` runs again. `docker ps` now shows the container as "Up" — not forever, but for as long as the main process lives.',
+      },
+      code: { tr: `docker ps\n# STATUS: Up 12 seconds`, en: `docker ps\n# STATUS: Up 12 seconds` },
+      positions: {
+        works: { x: 30, y: 50, scale: 1.1 },
+        run: { x: 62, y: 50, scale: 1, opacity: 0.7 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final — zincir: mesajı parçala → değiştirmeyen kanıt (logs) → kök neden → en küçük güvenli düzeltme → aynı komutla kanıtla. Java köprüsü: bu, `main()` metodunun daha ilk satırda return etmesine benzer — thread hiç canlı kalmadı, exception fırlatmadı.',
+        en: 'Final — the chain: decompose the message → non-destructive evidence (logs) → root cause → smallest safe fix → prove with the same command. The Java bridge: this is like a `main()` method returning on its very first line — the thread never stayed alive, it never threw an exception.',
+      },
+      positions: {
+        exit: { x: 12, y: 55, scale: 0.8 },
+        logs: { x: 30, y: 35, scale: 0.8 },
+        cause: { x: 50, y: 55, scale: 0.8 },
+        fix: { x: 70, y: 35, scale: 0.85 },
+        works: { x: 90, y: 55, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'exit', to: 'logs' }, { from: 'logs', to: 'cause' }, { from: 'cause', to: 'fix' }, { from: 'fix', to: 'works' }],
+    },
+  ],
+}
+
+// 🩺 Troubleshooting — teşhis refleksi step-animation'ı
+const dockerExitCodeDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'docker-exit-code-diagnosis-step-01',
+  title: { tr: 'Adım Adım: Docker Hata Teşhis Refleksi', en: 'Step by Step: The Docker Error Diagnosis Reflex' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Exit code\'u oku', en: 'Read the exit code' }, detail: { tr: '`docker ps -a` çalıştırılır; 0 temiz çıkış, 1+ hata anlamına gelir — ama "hangi hata" sorusunun cevabı burada değildir.', en: 'Run `docker ps -a`; 0 means a clean exit, 1+ means an error — but the answer to "which error" is not here.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Değiştirmeyen kanıt topla', en: 'Collect non-destructive evidence' }, detail: { tr: '`docker logs`, `docker inspect`, `docker diff` gibi hiçbir şeyi bozmayan komutlarla başla — asla `rm` veya `-f` ile başlama.', en: 'Start with commands that break nothing: `docker logs`, `docker inspect`, `docker diff` — never start with `rm` or `-f`.' } },
+    { id: 3, icon: '🗺️', label: { tr: 'Katmanı bul', en: 'Locate the layer' }, detail: { tr: 'Hata mesajı hangi katmanı işaret ediyor: process yaşam döngüsü, port/network, disk, yoksa izin mi?', en: 'Which layer does the error message point to: process lifecycle, port/network, disk, or permissions?' } },
+    { id: 4, icon: '🔧', label: { tr: 'En küçük güvenli düzeltmeyi uygula', en: 'Apply the smallest safe fix' }, detail: { tr: 'Dockerfile veya komuttaki TEK satırı düzelt — tüm image\'ı yeniden tasarlama, önce en küçük hipotezi dene.', en: 'Fix the ONE line in the Dockerfile or command — do not redesign the whole image, try the smallest hypothesis first.' } },
+    { id: 5, icon: '✅', label: { tr: 'Aynı komutla kanıtla', en: 'Prove with the same command' }, detail: { tr: 'Başarısız olan `docker run`\'ı AYNEN tekrar çalıştır. Geçmediyse teşhis yanlıştı — 3. adıma dön.', en: 'Rerun the EXACT `docker run` that failed. If it still fails, the diagnosis was wrong — go back to step 3.' } },
+  ],
+}
+
+// 🩺 Troubleshooting — daemonize sandbox'ı
+const dockerExitCodePractice = {
+  type: 'code-playground',
+  relatedTopicId: 'docker-errors',
+  id: 'docker-exit-code-practice-01',
+  label: { tr: 'Micro Lab: Anında kapanan container\'ı düzelt', en: 'Micro Lab: Fix a container that exits instantly' },
+  language: 'dockerfile',
+  task: {
+    tr: 'Bu Dockerfile ile başlatılan container 1 saniyede kapanıyor çünkü nginx arka plana (daemon) geçiyor. TODO satırını, nginx\'i ön planda tutan CMD ile tamamla.',
+    en: 'A container started from this Dockerfile exits in 1 second because nginx daemonizes. Complete the TODO line with the CMD that keeps nginx in the foreground.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç "container neden hemen kapanıyor" teşhisinin çözümünü (CMD ile foreground zorlama) elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the fix for "why does the container exit immediately" (forcing foreground via CMD) by writing it yourself.',
+  },
+  code: {
+    tr: `FROM nginx\nCMD ["nginx", "-g", "daemon off;"]`,
+    en: `FROM nginx\nCMD ["nginx", "-g", "daemon off;"]`,
+  },
+  starterCode: {
+    tr: `FROM nginx\n# TODO: nginx'i arka plana gecmeden, on planda tutan CMD'yi yaz`,
+    en: `FROM nginx\n# TODO: write the CMD that keeps nginx in the foreground, without daemonizing`,
+  },
+  solutionCode: {
+    tr: `FROM nginx\nCMD ["nginx", "-g", "daemon off;"]`,
+    en: `FROM nginx\nCMD ["nginx", "-g", "daemon off;"]`,
+  },
+  expected: {
+    tr: '`docker ps` artık container\'ı "Up" olarak gösterir — process arka plana geçmediği için Docker onu ana süreç olarak izlemeye devam eder.',
+    en: '`docker ps` now shows the container as "Up" — since the process never daemonizes, Docker keeps tracking it as the main process.',
+  },
+  hints: [
+    { tr: 'nginx\'in kendi `-g` (global directive) flag\'i vardır; "daemon off;" değerini alır.', en: 'nginx has its own `-g` (global directive) flag; it takes the value "daemon off;".' },
+    { tr: 'CMD dizi formatında yazılır: CMD ["komut", "flag1", "flag2"].', en: 'CMD is written in array form: CMD ["command", "flag1", "flag2"].' },
+    { tr: 'Bu kalıp sadece nginx\'e özgü değildir — arka plana geçen HER servis (mysqld, apache) için aynı mantık uygulanır.', en: 'This pattern is not nginx-specific — the same logic applies to EVERY service that daemonizes (mysqld, apache).' },
+  ],
+  xpReward: 10,
+}
+
+// 🔗 Ecosystem — ":latest" tag sürüklenmesi filmi
+const dockerLatestTagDriftFilm = {
+  type: 'video-scene',
+  id: 'docker-latest-tag-drift-film',
+  title: {
+    tr: '🎬 Dün Çalışıyordu, Bugün Çalışmıyor: ":latest" Tuzağı',
+    en: '🎬 It Worked Yesterday, Not Today: The ":latest" Trap',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'mon',    emoji: '📅', label: { tr: 'Pazartesi: myapp:latest', en: 'Monday: myapp:latest' }, color: '#0ea5e9' },
+    { id: 'reg',    emoji: '📦', label: { tr: 'Registry',                en: 'Registry' },                color: '#8b5cf6' },
+    { id: 'push',   emoji: '📤', label: { tr: 'Yeni push (latest kayar)', en: 'New push (latest shifts)' }, color: '#f59e0b' },
+    { id: 'fri',    emoji: '📅', label: { tr: 'Cuma: myapp:latest',      en: 'Friday: myapp:latest' },      color: '#94a3b8' },
+    { id: 'confused', emoji: '😵', label: { tr: 'Bug reproduce edilemiyor', en: 'Bug cannot be reproduced' }, color: '#ef4444' },
+    { id: 'sha',    emoji: '🏷️', label: { tr: 'myapp:abc1234 (SHA)',     en: 'myapp:abc1234 (SHA)' },     color: '#22c55e' },
+    { id: 'fixed',  emoji: '✅', label: { tr: 'Aynı bug, her seferinde',  en: 'Same bug, every time' },     color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Pazartesi: bir tester `myapp:latest` çeker ve bir bug bulur — durumu tarif eder, "myapp:latest\'te reproduce edilebilir" der.',
+        en: 'Monday: a tester pulls `myapp:latest` and finds a bug — describes it, says "reproducible on myapp:latest".',
+      },
+      code: { tr: `docker pull myapp:latest`, en: `docker pull myapp:latest` },
+      positions: { mon: { x: 30, y: 50, scale: 1.1, pulse: true }, reg: { x: 65, y: 50, scale: 1.1 } },
+      beams: [{ from: 'mon', to: 'reg' }],
+    },
+    {
+      caption: {
+        tr: 'Arada bir yerde: CI, ana branch\'e her merge olduğunda yeni bir image build edip AYNI `:latest` etiketiyle push eder. `:latest` bir SÜRÜM DEĞİL, sadece "en son push edilen" anlamına gelen değişebilir bir işaretçidir.',
+        en: 'In between: CI builds a new image on every merge to main and pushes it with the SAME `:latest` tag. `:latest` is NOT a version — it is a mutable pointer meaning "whatever was pushed most recently".',
+      },
+      code: { tr: `docker push myapp:latest   # her merge'de calisir`, en: `docker push myapp:latest   # runs on every merge` },
+      positions: {
+        reg: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        push: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'reg', to: 'push', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Cuma: bir developer aynı bug\'ı incelemek için `myapp:latest`\'i çeker — ama bu artık PAZARTESİ\'nin image\'ı DEĞİL, o günden bugüne 14 merge geçmiş, tamamen farklı bir build.',
+        en: 'Friday: a developer pulls `myapp:latest` to investigate the same bug — but this is NO LONGER Monday\'s image, 14 merges have passed since then, a completely different build.',
+      },
+      code: { tr: `docker pull myapp:latest\n# ayni etiket, farkli image!`, en: `docker pull myapp:latest\n# same tag, different image!` },
+      positions: {
+        push: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        fri: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'push', to: 'fri', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Bug artık YOK — çünkü arada bir merge onu sessizce düzeltmiş (veya maskelemiş) olabilir. Tester\'a "reproduce edemiyorum" denir; kimse yalan söylemiyor, ikisi de FARKLI image\'a bakıyor.',
+        en: 'The bug is now GONE — because some merge in between silently fixed (or masked) it. The tester hears "I cannot reproduce it"; nobody is lying, they are just looking at DIFFERENT images.',
+      },
+      positions: {
+        fri: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        confused: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'fri', to: 'confused', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Düzeltme: her build\'i commit SHA\'sıyla etiketle — `myapp:abc1234`. Artık etiket bir işaretçi değil, DEĞİŞMEZ bir kimliktir; hangi kodun çalıştığı asla belirsiz kalmaz.',
+        en: 'The fix: tag every build with its commit SHA — `myapp:abc1234`. Now the tag is not a pointer, it is an IMMUTABLE identity; which code is running is never ambiguous.',
+      },
+      code: { tr: `docker build -t myapp:abc1234 .\ndocker push myapp:abc1234`, en: `docker build -t myapp:abc1234 .\ndocker push myapp:abc1234` },
+      positions: {
+        confused: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        sha: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'confused', to: 'sha', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Artık bug raporunda "myapp:abc1234\'te reproduce edilebilir" yazılır — Pazartesi de Cuma da AYNI image\'ı çeker, aynı bug, her seferinde.',
+        en: 'Now the bug report says "reproducible on myapp:abc1234" — Monday and Friday both pull the SAME image, the same bug, every time.',
+      },
+      positions: {
+        sha: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        fixed: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'sha', to: 'fixed', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: `:latest`\'e güvenmek bir Maven bağımlılığını `1.0-SNAPSHOT`\'a sabitlemeye benzer — isim SABİT görünür ama arkasındaki artefakt sessizce değişebilir. Commit SHA, sürüm numarası kadar KESİN bir referanstır.',
+        en: 'Final — the Java bridge: trusting `:latest` is like pinning a Maven dependency to `1.0-SNAPSHOT` — the name looks FIXED but the artifact behind it can silently change. A commit SHA is as PRECISE a reference as a version number.',
+      },
+      positions: {
+        mon: { x: 12, y: 55, scale: 0.8 },
+        push: { x: 32, y: 35, scale: 0.75, opacity: 0.5 },
+        fri: { x: 54, y: 55, scale: 0.8, opacity: 0.6 },
+        sha: { x: 76, y: 35, scale: 0.9 },
+        fixed: { x: 92, y: 55, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'mon', to: 'sha' }, { from: 'sha', to: 'fixed' }],
+    },
+  ],
+}
+
+// 💼 Interview Q&A — güçlü cevap anatomisi filmi
+const dockerInterviewAnswerFilm = {
+  type: 'video-scene',
+  id: 'docker-interview-answer-film',
+  title: {
+    tr: '🎬 Docker Senaryo Sorusuna Güçlü Cevap Anatomisi',
+    en: '🎬 The Anatomy of a Strong Docker Scenario Answer',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '🎤', label: { tr: 'Senaryo sorusu',        en: 'Scenario question' },     color: '#6366f1' },
+    { id: 'weak',     emoji: '😰', label: { tr: '"Yeniden başlat" refleksi', en: 'The "just restart it" reflex' }, color: '#94a3b8' },
+    { id: 'evidence', emoji: '🧭', label: { tr: 'Kanıt komutları',       en: 'Evidence commands' },      color: '#f59e0b' },
+    { id: 'rationale',emoji: '⚖️', label: { tr: 'Komut + gerekçe',       en: 'Command + rationale' },    color: '#10b981' },
+    { id: 'root',     emoji: '🛡️', label: { tr: 'Kalıcı kök çözüm',      en: 'Permanent root fix' },     color: '#0ea5e9' },
+    { id: 'java',     emoji: '☕', label: { tr: 'Java analojisi',        en: 'Java analogy' },           color: '#8b5cf6' },
+    { id: 'win',      emoji: '🏆', label: { tr: 'Güçlü cevap',           en: 'Strong answer' },          color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakatçı soruyor: "Production\'da bir container sürekli restart oluyor — ne yaparsın?" Bu filmde aynı soruya iki cevabın farkını izleyeceksin: refleks ile yapılandırılmış cevap.',
+        en: 'The interviewer asks: "A container in production keeps restarting — what do you do?" In this film you will watch the difference between two answers to the same question: the reflex versus the structured one.',
+      },
+      positions: { question: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Zayıf refleks: "docker restart derim, kesin çözülür." Evet, geçici olarak çalışabilir. Ama mülakatçının gördüğü şey: KÖK NEDENİ hiç sormayan bir aday.',
+        en: 'The weak reflex: "I would just docker restart it, that always works." Yes, it might work temporarily. But what the interviewer sees is a candidate who never asked about the ROOT CAUSE.',
+      },
+      positions: {
+        question: { x: 20, y: 40, scale: 0.9, opacity: 0.7 },
+        weak: { x: 55, y: 52, scale: 1.15, pulse: true, opacity: 0.8 },
+      },
+      beams: [{ from: 'question', to: 'weak', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Güçlü cevabın 1. katmanı — KANIT: "Önce `docker ps -a` ile restart sayısını, `docker logs --tail 100` ile son çıktıyı, `docker inspect` ile RestartPolicy\'i kontrol ederim."',
+        en: 'Layer 1 of the strong answer — EVIDENCE: "First I check the restart count with `docker ps -a`, the last output with `docker logs --tail 100`, and the RestartPolicy with `docker inspect`."',
+      },
+      code: { tr: `docker ps -a\ndocker logs --tail 100 my-container\ndocker inspect my-container | grep RestartPolicy`, en: `docker ps -a\ndocker logs --tail 100 my-container\ndocker inspect my-container | grep RestartPolicy` },
+      positions: {
+        weak: { x: 15, y: 68, scale: 0.7, opacity: 0.35 },
+        evidence: { x: 52, y: 48, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'evidence' }],
+    },
+    {
+      caption: {
+        tr: '2. katman — komut + GEREKÇE: "Loglar `OOMKilled` gösteriyorsa bellek limitini artırırım, ama önce NEDEN bu kadar bellek tükettiğini profile ederim — sadece limiti büyütmek semptomu gizler, hastalığı değil."',
+        en: 'Layer 2 — command + RATIONALE: "If the logs show `OOMKilled`, I would raise the memory limit, but first I profile WHY it consumes that much memory — just raising the limit hides the symptom, not the disease."',
+      },
+      positions: {
+        evidence: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        rationale: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'rationale', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: '3. katman — KÖK neden: "Geçici çözüm restart\'tır; kalıcı çözüm sızıntıyı bulup Dockerfile\'ı veya kod\'u düzeltip yeni bir image push etmektir — commit SHA\'sıyla etiketlenmiş, `:latest` değil."',
+        en: 'Layer 3 — the ROOT cause: "The temporary fix is a restart; the permanent fix is finding the leak, fixing the Dockerfile or code, and pushing a new image — tagged with a commit SHA, not `:latest`."',
+      },
+      positions: {
+        rationale: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        root: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'rationale', to: 'root', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: '4. katman — Java köprüsü: "Bir container\'ın restart loop\'u, bir JVM\'in `OutOfMemoryError` sonrası tekrar tekrar çökmesi gibidir — restart semptomu giderir, heap dump/profiling kök nedeni bulur."',
+        en: 'Layer 4 — the Java bridge: "A container\'s restart loop is like a JVM crashing repeatedly after `OutOfMemoryError` — restarting treats the symptom, a heap dump/profiling finds the root cause."',
+      },
+      positions: {
+        root: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        java: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'root', to: 'java', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Final — formül: kanıt komutları → komut + gerekçe → kalıcı kök çözüm → Java analojisi. Aşağıdaki her mülakat sorusunda cevabını bu 4 katmandan geçir; sıralı düşünen aday, komut ezberleyeni her zaman geçer.',
+        en: 'Final — the formula: evidence commands → command + rationale → permanent root fix → Java analogy. Run your answer through these 4 layers for every interview question below; the candidate who thinks in order always beats the one who memorized commands.',
+      },
+      positions: {
+        evidence: { x: 14, y: 55, scale: 0.85 },
+        rationale: { x: 34, y: 38, scale: 0.85 },
+        root: { x: 54, y: 55, scale: 0.85 },
+        java: { x: 72, y: 38, scale: 0.85 },
+        win: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'rationale' }, { from: 'rationale', to: 'root' }, { from: 'root', to: 'java' }, { from: 'java', to: 'win' }],
+    },
+  ],
+}
+
+// 💼 Interview Q&A — cevap kurma step-animation'ı
+const dockerInterviewAnswerSteps = {
+  type: 'step-animation',
+  id: 'docker-interview-answer-step-01',
+  title: { tr: 'Adım Adım: Docker Senaryo Cevabı Kurma', en: 'Step by Step: Building a Docker Scenario Answer' },
+  steps: [
+    { id: 1, icon: '🧭', label: { tr: 'Netleştirici soru sor', en: 'Ask a clarifying question' }, detail: { tr: 'Cevaba ortamı netleştirerek başla: hangi restart policy, ne zamandan beri, log\'da ne var? Sorgulamak ilk puandır.', en: 'Open by clarifying the environment: which restart policy, since when, what is in the logs? Asking is the first point.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Kanıt komutlarını sırala', en: 'List the evidence commands' }, detail: { tr: '"Önce `docker ps -a`, `logs`, `inspect` ile bakarım" de — hangi komutun hangi bilgiyi verdiğini bilmek, ezberden ayrışmanın yoludur.', en: 'Say "first I look with `docker ps -a`, `logs`, `inspect`" — knowing which command gives which information is how you separate yourself from rote memory.' } },
+    { id: 3, icon: '⚖️', label: { tr: 'Komutu gerekçesiyle ver', en: 'Give the command with its why' }, detail: { tr: 'Seçtiğin aksiyonu NEDENiyle söyle: "bellek limitini artırırım AMA önce sızıntıyı profile ederim". Gerekçesiz cevap ezberden ayırt edilemez.', en: 'State your action WITH its reason: "I would raise the memory limit BUT first profile the leak". Without rationale, the answer is indistinguishable from memorization.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Kalıcı çözümü ekle', en: 'Add the permanent fix' }, detail: { tr: 'Yara bandı (restart) ile kök çözümü (kod düzeltip yeni image push) ayır — bu ayrım junior ile senior cevabı ayıran çizgidir.', en: 'Separate the band-aid (restart) from the root fix (fix the code, push a new image) — this distinction is the line between a junior and senior answer.' } },
+    { id: 5, icon: '☕', label: { tr: 'Java analojisiyle kapat', en: 'Close with a Java analogy' }, detail: { tr: 'Cevabı bildiğin dünyaya bağla: restart loop, OOM sonrası JVM çökmesi gibidir. Analoji, kavramı gerçekten ANLADIĞINI kanıtlar.', en: 'Tie the answer to a world you know: a restart loop is like a JVM crashing after OOM. The analogy proves you truly UNDERSTAND the concept.' } },
+  ],
+}
+
+// 💼 Interview Q&A — restart loop teşhis sandbox'ı
+const dockerInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'docker',
+  id: 'docker-interview-practice-01',
+  label: { tr: 'Micro Lab: Mülakat senaryosunu komut akışına çevir', en: 'Micro Lab: Turn the interview scenario into a command flow' },
+  language: 'bash',
+  task: {
+    tr: 'Klasik mülakat senaryosu: production\'da bir container sürekli restart oluyor. Filmdeki kanıt toplama katmanını komuta çevir — TODO satırını, restart sayısını VE son log çıktısını gösteren komutla tamamla.',
+    en: 'The classic interview scenario: a container in production keeps restarting. Turn the film\'s evidence-gathering layer into commands — complete the TODO line with the command that shows the restart count AND the last log output.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç mülakatta anlatacağın kanıt toplama sırasını (ps -a → logs → inspect) elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the evidence-gathering order you would narrate in an interview (ps -a → logs → inspect) by writing it yourself.',
+  },
+  code: {
+    tr: `docker ps -a\ndocker logs --tail 100 my-container\ndocker inspect my-container | grep -A 2 RestartPolicy`,
+    en: `docker ps -a\ndocker logs --tail 100 my-container\ndocker inspect my-container | grep -A 2 RestartPolicy`,
+  },
+  starterCode: {
+    tr: `# TODO: restart sayisini ve durumu goren komutu yaz\ndocker logs --tail 100 my-container\ndocker inspect my-container | grep -A 2 RestartPolicy`,
+    en: `# TODO: write the command that shows restart count and status\ndocker logs --tail 100 my-container\ndocker inspect my-container | grep -A 2 RestartPolicy`,
+  },
+  solutionCode: {
+    tr: `docker ps -a\ndocker logs --tail 100 my-container\ndocker inspect my-container | grep -A 2 RestartPolicy`,
+    en: `docker ps -a\ndocker logs --tail 100 my-container\ndocker inspect my-container | grep -A 2 RestartPolicy`,
+  },
+  expected: {
+    tr: '`docker ps -a` çıktısında restart sayısı ve STATUS sütunu görünür; sonraki iki komut son hatayı ve restart policy\'i kanıtlar.',
+    en: '`docker ps -a` output shows the restart count and STATUS column; the next two commands prove the last error and the restart policy.',
+  },
+  hints: [
+    { tr: 'Tüm container\'ları (durmuş olanlar dahil) ve durumlarını gösteren komut `docker ps -a`\'dır.', en: 'The command that shows all containers (including stopped ones) and their status is `docker ps -a`.' },
+    { tr: 'Bu üç komut mülakatta anlatacağın "kanıt katmanı"nın TAMAMIdır — sırayı karıştırma.', en: 'These three commands are the COMPLETE "evidence layer" you would narrate in an interview — do not scramble the order.' },
+  ],
+  xpReward: 10,
+}
+
 const dockerIntroInteractiveBlocks = [
   {
     type: 'code-playground',
@@ -663,6 +2330,7 @@ export const dockerData = {
             ],
           },
           ...dockerIntroInteractiveBlocks,
+          dockerWorksOnMyMachineFilm,
           {
             type: 'quiz',
             question: 'What is the key difference between a Docker Image and a Docker Container?',
@@ -811,6 +2479,7 @@ docker images              # List downloaded images (should be empty)`,
             type: 'tip',
             content: 'On Windows, make sure Docker Desktop is running (whale icon in system tray) before using Docker commands. If you get "Cannot connect to the Docker daemon", Docker Desktop is not running.',
           },
+          dockerDesktopBackendFilm,
           {
             type: 'quiz',
             question: 'On Windows, what backend does Docker Desktop use to run Linux containers?',
@@ -914,6 +2583,9 @@ docker image rm abc123def456       # Remove by image ID
 # Remove all unused images (cleanup)
 docker image prune -a`,
           },
+          dockerImageLifecycleFilm,
+          dockerImageLifecycleSteps,
+          dockerImageLifecyclePractice,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -1042,6 +2714,9 @@ It will restart automatically if it crashes.`,
             ],
             xpReward: 15,
           },
+          dockerPortMappingFilm,
+          dockerPortMappingSteps,
+          dockerRunFlagOrderChallenge,
         ],
       },
       // ── SECTION: CONTAINER LIFECYCLE & DEBUG ──────────────────────────────
@@ -1132,6 +2807,7 @@ docker exec my-container ls /app   # Run command without interactive shell
 docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
           },
+          dockerCrashDebugFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -1222,6 +2898,8 @@ docker run -d \\
   -v test-data:/app/data \\  # Named volume: test-data → /app/data in container
   python:3.12-slim`,
           },
+          dockerVolumePersistenceFilm,
+          dockerVolumeMountSteps,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-volume-mount-practice',
@@ -1386,6 +3064,7 @@ docker network inspect qa-network
 # Connect existing container to a network
 docker network connect qa-network my-container`,
           },
+          dockerNetworkDiscoveryFilm,
           ...dockerCoreCommandInteractiveBlocks,
           {
             type: 'quiz',
@@ -1476,6 +3155,7 @@ CMD ["pytest", "tests/", "--html=reports/report.html", "-v"]
 # Alternative: ENTRYPOINT — always runs this command
 # ENTRYPOINT ["python", "-m"]  # CMD would then append arguments`,
           },
+          dockerfileToContainerFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -1763,6 +3443,7 @@ services:
 volumes:
   postgres_data:    # Named volume for DB persistence`,
           },
+          composeStartupFilm,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-compose-healthcheck-practice',
@@ -2213,6 +3894,7 @@ No local Chrome installation is required.`,
             ],
             xpReward: 15,
           },
+          dockerGridScaleFilm,
         ],
       },
       // ── SECTION: QA — PLAYWRIGHT & CI ─────────────────────────────────────
@@ -2319,6 +4001,7 @@ docker run --rm \\
 # Results are saved in ./test-results on your host machine`,
           },
           ...dockerQaInteractiveBlocks,
+          dockerPixelParityFilm,
         ],
       },
       // ── SECTION: TROUBLESHOOTING ──────────────────────────────────────────
@@ -2330,6 +4013,8 @@ docker run --rm \\
             emoji: '🩺',
             content: "Docker error messages are like a car dashboard: 'port is already allocated' is not the engine exploding — it is one specific warning light pointing at one specific subsystem, and this tab is the manual that maps each light to its fuse box. Why memorize error patterns instead of just googling each one as it appears? Because in a broken CI pipeline the clock runs differently: recognizing 'Cannot connect to the Docker daemon' as a service-not-running problem in 10 seconds versus 30 minutes of trial-and-error is the difference between a footnote and a blocked release — exactly like a seasoned Java developer telling NullPointerException from ClassNotFoundException across the room, because each points at a completely different layer. Every error below is real and harvested from actual QA pipelines; learn the shape of each one now, while nothing is on fire.",
           },
+          dockerExitCodeDiagnosisFilm,
+          dockerExitCodeDiagnosisSteps,
           { type: 'heading', text: 'Real-World Scenarios & Solutions' },
           {
             type: 'error-dictionary',
@@ -2418,6 +4103,7 @@ options.add_argument('--disable-dev-shm-usage')`,
               },
             ],
           },
+          dockerExitCodePractice,
           {
             type: 'quiz',
             question: 'Why do Selenium Docker containers need "shm_size: 2gb" or "--disable-dev-shm-usage"?',
@@ -2508,6 +4194,7 @@ options.add_argument('--disable-dev-shm-usage')`,
           },
           { type: 'heading', text: 'Where Docker Sits Next to Other QA/DevOps Tools' },
           { type: 'text', content: 'In a typical pipeline: Jenkins triggers the build → Docker packages the app and test runner into images → the test image runs against a docker-compose stack (app + DB + Selenium Grid, all containerized) → on success, Docker pushes the production image to a registry → Kubernetes deploys it. QA engineers interact with Docker most directly when running Selenium Grid in containers or spinning up disposable test environments with docker-compose.' },
+          dockerLatestTagDriftFilm,
           {
             type: 'quiz',
             question: 'In a CI/CD pipeline, which tool is responsible for pulling a Docker image from a registry and running multiple replicas of it across a cluster, restarting them if they crash?',
@@ -2550,6 +4237,9 @@ options.add_argument('--disable-dev-shm-usage')`,
       {
         title: '💼 Docker Interview Questions',
         blocks: [
+          dockerInterviewAnswerFilm,
+          dockerInterviewAnswerSteps,
+          dockerInterviewPractice,
           {
             type: 'interview-questions',
               relatedTopicId: 'docker',
@@ -2767,6 +4457,7 @@ options.add_argument('--disable-dev-shm-usage')`,
             ],
           },
           ...dockerIntroInteractiveBlocks,
+          dockerWorksOnMyMachineFilm,
           {
             type: 'quiz',
             question: 'Docker Image ile Docker Container arasındaki temel fark nedir?',
@@ -2893,6 +4584,7 @@ docker images              # İndirilen image\'ları listele (boş olmalı)`,
           },
           ...dockerInstallationInteractiveBlocks,
           { type: 'tip', content: 'Windows\'ta Docker komutlarını kullanmadan önce Docker Desktop\'ın çalıştığından emin ol (sistem tepsisinde balina simgesi). "Cannot connect to the Docker daemon" hatası alıyorsan Docker Desktop çalışmıyordur.' },
+          dockerDesktopBackendFilm,
           {
             type: 'quiz',
             question: 'Windows\'ta Docker Desktop, Linux container\'larını çalıştırmak için hangi arka ucu kullanır?',
@@ -2995,6 +4687,9 @@ docker image rm abc123def456       # Image ID ile sil
 # Kullanılmayan tüm image\'ları sil (temizlik)
 docker image prune -a`,
           },
+          dockerImageLifecycleFilm,
+          dockerImageLifecycleSteps,
+          dockerImageLifecyclePractice,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -3123,6 +4818,9 @@ It will restart automatically if it crashes.`,
             ],
             xpReward: 15,
           },
+          dockerPortMappingFilm,
+          dockerPortMappingSteps,
+          dockerRunFlagOrderChallenge,
         ],
       },
       // ── SECTION (TR): CONTAINER YAŞAM DÖNGÜSÜ & DEBUG ─────────────────────
@@ -3213,6 +4911,7 @@ docker exec my-container ls /app   # İnteraktif olmadan komut çalıştır
 docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
           },
+          dockerCrashDebugFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -3303,6 +5002,8 @@ docker run -d \\
   -v test-data:/app/data \\  # Adlandırılmış volume: test-data → container içinde /app/data
   python:3.12-slim`,
           },
+          dockerVolumePersistenceFilm,
+          dockerVolumeMountSteps,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-volume-mount-practice',
@@ -3467,6 +5168,7 @@ docker network inspect qa-network
 # Mevcut container\'ı network\'e bağla
 docker network connect qa-network my-container`,
           },
+          dockerNetworkDiscoveryFilm,
           ...dockerCoreCommandInteractiveBlocks,
           {
             type: 'quiz',
@@ -3552,6 +5254,7 @@ EXPOSE 8080
 # CMD — Container başladığında çalıştırılacak varsayılan komut
 CMD ["pytest", "tests/", "--html=reports/report.html", "-v"]`,
           },
+          dockerfileToContainerFilm,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -3836,6 +5539,7 @@ services:
 volumes:
   postgres_data:`,
           },
+          composeStartupFilm,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-compose-healthcheck-practice',
@@ -4285,6 +5989,7 @@ No local Chrome installation is required.`,
             ],
             xpReward: 15,
           },
+          dockerGridScaleFilm,
         ],
       },
       // ── SECTION (TR): QA — PLAYWRIGHT & CI ────────────────────────────────
@@ -4312,6 +6017,7 @@ docker run --rm \\
 # ./test-results, host makinende kaydedilir`,
           },
           ...dockerQaInteractiveBlocks,
+          dockerPixelParityFilm,
         ],
       },
       // ── SECTION (TR): YAYGIN HATALAR ──────────────────────────────────────
@@ -4323,6 +6029,8 @@ docker run --rm \\
             emoji: '🩺',
             content: "Docker hata mesajları araba göstergesi gibidir: 'port is already allocated' motorun patlaması değil, tek bir alt sisteme işaret eden belirli bir uyarı ışığıdır — bu sekme de her ışığı kendi sigorta kutusuyla eşleştiren kılavuzdur. Peki her hatayı çıktıkça google'lamak varken kalıpları neden ezbere tanıyasın? Çünkü kırık bir CI pipeline'ında saat farklı işler: 'Cannot connect to the Docker daemon' mesajını 10 saniyede 'servis çalışmıyor' diye teşhis etmekle 30 dakika deneme-yanılma arasındaki fark, sürüm notunda bir dipnot ile bloklanmış bir release arasındaki farktır — tıpkı deneyimli bir Java geliştiricisinin NullPointerException ile ClassNotFoundException'ı odanın öbür ucundan ayırt etmesi gibi; ikisi bambaşka katmanlara işaret eder. Aşağıdaki her hata gerçektir, gerçek QA pipeline'larından derlenmiştir; şekillerini şimdi, hiçbir şey yanmıyorken öğren.",
           },
+          dockerExitCodeDiagnosisFilm,
+          dockerExitCodeDiagnosisSteps,
           { type: 'heading', text: 'Gerçek Hayat Senaryoları ve Çözümleri' },
           {
             type: 'error-dictionary',
@@ -4411,6 +6119,7 @@ options.add_argument('--disable-dev-shm-usage')`,
               },
             ],
           },
+          dockerExitCodePractice,
           {
             type: 'quiz',
             question: 'Selenium Docker container\'larının neden "shm_size: 2gb" veya "--disable-dev-shm-usage" gerektirdiği?',
@@ -4501,6 +6210,7 @@ options.add_argument('--disable-dev-shm-usage')`,
           },
           { type: 'heading', text: 'Docker Diğer QA/DevOps Araçları Yanında Nerede Duruyor' },
           { type: 'text', content: 'Tipik bir pipeline\'da: Jenkins build\'i tetikler → Docker uygulamayı ve test runner\'ı image\'lara paketler → test image\'ı bir docker-compose stack\'ine (uygulama + DB + Selenium Grid, hepsi containerized) karşı çalışır → başarılı olursa Docker production image\'ını bir registry\'e push eder → Kubernetes deploy eder. QA mühendisleri Docker ile en doğrudan Selenium Grid\'i container\'larda çalıştırırken veya docker-compose ile atılabilir test ortamları kurarken etkileşime girer.' },
+          dockerLatestTagDriftFilm,
           {
             type: 'quiz',
             question: 'Bir CI/CD pipeline\'ında, bir registry\'den Docker image çekip cluster genelinde birden fazla replikasını çalıştırmaktan ve çökerlerse yeniden başlatmaktan hangi araç sorumludur?',
@@ -4543,6 +6253,9 @@ options.add_argument('--disable-dev-shm-usage')`,
       {
         title: '💼 Docker Mülakat Soruları',
         blocks: [
+          dockerInterviewAnswerFilm,
+          dockerInterviewAnswerSteps,
+          dockerInterviewPractice,
           {
             type: 'interview-questions',
               relatedTopicId: 'docker',

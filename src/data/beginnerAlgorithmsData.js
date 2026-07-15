@@ -1,3 +1,111 @@
+// ─── Linear Search film bloğu (video-scene — TR + EN lesson ağaçlarında aynı sabit) ───
+// Veri şeması: Documents/video-rollout-plan.md §2.4 / src/components/VideoSceneBlock.jsx
+// Loop dersinin gerçek-algoritma uygulaması: dizide 42'yi arayan döngünün filmi.
+const linearSearchFilm = {
+    type: 'video-scene',
+    id: 'algorithms-linear-search-film',
+    title: {
+        tr: '🎬 Linear Search: Kayıp Değeri Bulmak',
+        en: '🎬 Linear Search: Finding the Lost Value',
+    },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 240,
+    actors: [
+        { id: 'target', emoji: '🎯', label: { tr: 'Hedef: 42',   en: 'Target: 42' },   color: '#8b5cf6' },
+        { id: 'b0',     emoji: '7',  label: { tr: 'dizi[0]',     en: 'array[0]' },     color: '#0ea5e9' },
+        { id: 'b1',     emoji: '19', label: { tr: 'dizi[1]',     en: 'array[1]' },     color: '#0ea5e9' },
+        { id: 'b2',     emoji: '3',  label: { tr: 'dizi[2]',     en: 'array[2]' },     color: '#0ea5e9' },
+        { id: 'b3',     emoji: '42', label: { tr: 'dizi[3]',     en: 'array[3]' },     color: '#22c55e' },
+        { id: 'b4',     emoji: '88', label: { tr: 'dizi[4]',     en: 'array[4]' },     color: '#0ea5e9' },
+        { id: 'cursor', emoji: '👆', label: { tr: 'İmleç (sayaç i)', en: 'Cursor (counter i)' }, color: '#f59e0b' },
+        { id: 'found',  emoji: '✅', label: { tr: 'Bulundu!',    en: 'Found!' },       color: '#10b981' },
+    ],
+    scenes: [
+        {
+            caption: {
+                tr: 'Problem: 5 kutuluk bir dizide 42 değerini bul. Döngü dersindeki yoklama örneğinin ta kendisi — her kutuya TEK TEK sorulacak: "42 sen misin?"',
+                en: 'The problem: find the value 42 in a 5-box array. This is exactly the roll-call example from the loop lesson — each box will be asked ONE BY ONE: "are you 42?"',
+            },
+            positions: {
+                target: { x: 12, y: 16, scale: 1.1, pulse: true },
+                b0: { x: 18, y: 44 }, b1: { x: 34, y: 44 }, b2: { x: 50, y: 44 }, b3: { x: 66, y: 44 }, b4: { x: 82, y: 44 },
+            },
+        },
+        {
+            caption: {
+                tr: 'Adım 1 — i=0: imleç ilk kutuya gelir. Karşılaştırma: 7 == 42 mi? Hayır. Kutu elenmedi, sadece "bu değil" dendi — imleç yoluna devam edecek.',
+                en: 'Step 1 — i=0: the cursor arrives at the first box. Comparison: is 7 == 42? No. The box is not removed, we just said "not this one" — the cursor will move on.',
+            },
+            positions: {
+                target: { x: 12, y: 16, opacity: 0.6 },
+                b0: { x: 18, y: 44, scale: 1.2, pulse: true }, b1: { x: 34, y: 44 }, b2: { x: 50, y: 44 }, b3: { x: 66, y: 44 }, b4: { x: 82, y: 44 },
+                cursor: { x: 18, y: 74, scale: 1.1 },
+            },
+            beams: [{ from: 'cursor', to: 'b0' }],
+        },
+        {
+            caption: {
+                tr: 'Adım 2 — i=1: sayaç 1 arttı, imleç ikinci kutuda. 19 == 42 mi? Hayır. Dikkat: her adımda AYNI işlem tekrarlanıyor — değişen tek şey imlecin yeri. Döngünün özü tam olarak bu.',
+                en: 'Step 2 — i=1: the counter went up by 1, the cursor is at the second box. Is 19 == 42? No. Notice: the SAME operation repeats on every step — the only thing changing is the cursor position. That is the essence of a loop.',
+            },
+            positions: {
+                target: { x: 12, y: 16, opacity: 0.6 },
+                b0: { x: 18, y: 44, opacity: 0.35 }, b1: { x: 34, y: 44, scale: 1.2, pulse: true }, b2: { x: 50, y: 44 }, b3: { x: 66, y: 44 }, b4: { x: 82, y: 44 },
+                cursor: { x: 34, y: 74, scale: 1.1 },
+            },
+            beams: [{ from: 'cursor', to: 'b1' }],
+        },
+        {
+            caption: {
+                tr: 'Adım 3 — i=2: 3 == 42 mi? Hayır. Döngü sabırla ilerliyor ve durma koşulunu ("buldum mu VEYA dizi bitti mi?") HER adımda yeniden kontrol ediyor — sürükle-bırak alıştırmasındaki "koşulu her adımda tekrar kontrol et" maddesi tam olarak bu.',
+                en: 'Step 3 — i=2: is 3 == 42? No. The loop patiently continues and re-checks its stop condition ("found it OR array ended?") on EVERY step — exactly the "re-check the condition each step" card from the drag-and-drop exercise.',
+            },
+            positions: {
+                target: { x: 12, y: 16, opacity: 0.6 },
+                b0: { x: 18, y: 44, opacity: 0.35 }, b1: { x: 34, y: 44, opacity: 0.35 }, b2: { x: 50, y: 44, scale: 1.2, pulse: true }, b3: { x: 66, y: 44 }, b4: { x: 82, y: 44 },
+                cursor: { x: 50, y: 74, scale: 1.1 },
+            },
+            beams: [{ from: 'cursor', to: 'b2' }],
+        },
+        {
+            caption: {
+                tr: 'Adım 4 — i=3: 42 == 42 → EVET! Durma koşulu sağlandı, döngü burada durur. Yoklamada aradığın öğrenci "burada!" dedi — artık sormaya devam etmenin anlamı yok.',
+                en: 'Step 4 — i=3: 42 == 42 → YES! The stop condition is met, the loop stops right here. The student you were looking for said "present!" — there is no point in continuing the roll call.',
+            },
+            positions: {
+                target: { x: 12, y: 16, opacity: 0.6 },
+                b0: { x: 18, y: 44, opacity: 0.35 }, b1: { x: 34, y: 44, opacity: 0.35 }, b2: { x: 50, y: 44, opacity: 0.35 }, b3: { x: 66, y: 40, scale: 1.35, pulse: true }, b4: { x: 82, y: 44 },
+                cursor: { x: 66, y: 74, scale: 1.1 },
+                found: { x: 66, y: 14, scale: 1.2, pulse: true },
+            },
+            beams: [{ from: 'cursor', to: 'b3' }, { from: 'b3', to: 'found', color: '#10b981' }],
+        },
+        {
+            caption: {
+                tr: 'Son kutuya dikkat: dizi[4]=88 kutusuna HİÇ bakılmadı. Erken durmak (buldunsa devam etmemek) bedava hız kazandırır — gereksiz adım, gereksiz iştir.',
+                en: 'Look at the last box: array[4]=88 was NEVER examined. Stopping early (not continuing once found) buys you free speed — an unnecessary step is unnecessary work.',
+            },
+            positions: {
+                b0: { x: 18, y: 44, opacity: 0.35 }, b1: { x: 34, y: 44, opacity: 0.35 }, b2: { x: 50, y: 44, opacity: 0.35 }, b3: { x: 66, y: 44, scale: 1.15 }, b4: { x: 82, y: 40, scale: 1.25, pulse: true },
+                found: { x: 66, y: 14, opacity: 0.6 },
+            },
+        },
+        {
+            caption: {
+                tr: 'Final — bu aramanın adı Linear Search: en kötü durumda (aranan en sonda ya da hiç yoksa) dizinin TAMAMI gezilir, yani N kutu = N adım. Düşün: dizi 1 milyon kutuluk olsaydı? İşte o soruya çok daha akıllı bir cevap var — İleri Algoritmalar sayfasındaki Binary Search seni bekliyor.',
+                en: 'Final — this search is called Linear Search: in the worst case (the target is last, or absent) the ENTIRE array is walked, so N boxes = N steps. Now think: what if the array had 1 million boxes? There is a much smarter answer to that question — Binary Search awaits you on the Advanced Algorithms page.',
+            },
+            positions: {
+                target: { x: 12, y: 16, opacity: 0.6 },
+                b0: { x: 18, y: 44 }, b1: { x: 34, y: 44 }, b2: { x: 50, y: 44 }, b3: { x: 66, y: 44, scale: 1.15, pulse: true }, b4: { x: 82, y: 44 },
+                found: { x: 66, y: 14, scale: 1.1 },
+            },
+            beams: [{ from: 'b3', to: 'found', color: '#10b981' }],
+        },
+    ],
+}
+
 export const beginnerAlgorithmsData = {
     tr: {
         hero: {
@@ -206,12 +314,16 @@ export const beginnerAlgorithmsData = {
                     keywords: ['eger', 'degilse', 'kosul'],
                     modelAnswer: 'Koşul: sepetteki ürün sayısı 3\'ten büyük mü? Eğer (if) evetse: kargo ücreti 0 olarak göster. Değilse (else): normal kargo ücretini göster. Bu iki dalın da ayrı ayrı test edilmesi gerekir — sadece "evet" durumunu test edip "hayır" durumunu atlamak, production\'da yanlış ücretlendirme hatasına yol açabilir.',
                 },
+            },
+            {
+                id: 'loop',
                 shortTitle: 'Tekrar',
                 title: '4. Loop = Aynı işi gerektiği kadar tekrar etmek',
                 color: '#10b981',
                 analogy: 'Öğretmen yoklama yaparken sınıftaki her öğrenciye tek tek "burada mısın?" diye sorar. 30 öğrenci varsa 30 kez aynı soruyu sorar — her seferinde aynı işlem, sadece hedef değişir. Düşündürücü soru: bunun yerine öğretmen bir anda tüm sınıfa birden soramaz mıydı? Hayır — bilgisayar da aynı anda birden fazla şeyi işleyemez. Onun yerine listeyi baştan sona tek tek gezer ve her elemana aynı işlemi uygular. Ama dikkat: öğretmen "herkes var" diyebilmesi için listeyi bitirmek zorundadır — yani loop\'un ne zaman duracağını bilmesi gerekir.',
                 why: 'Yazılımda bir ürün listesini ekrana yazmak, bir müşteri listesinde belirli olanları bulmak, test setindeki her test durumunu çalıştırmak — hepsi loop mantığıyla yapılır. QA açısından özellikle önemli olan şu: sonsuz döngü (infinite loop) yazılımın en sık rastlanan hatalarından biridir. "Bu döngünün durma koşulu doğru mu?" sorusunu sormak, bir yazılım testçisinin rutin kontrollerinden biri olmalıdır.',
                 visual: 'loop',
+                film: linearSearchFilm,
                 feynman: {
                     keywords: ['tekrar', 'yildiz', 'dongu', 'limit', 'durmak'],
                     forbiddenWords: ['for', 'while', 'loop', 'iteration', 'increment'],
@@ -245,6 +357,9 @@ export const beginnerAlgorithmsData = {
                     keywords: ['bas', 'tekrar', 'dur'],
                     modelAnswer: 'Sayaç 1\'den başlar. Döngü: sayacı yazdır, sonra sayacı 1 artır; sayaç 10\'u geçene kadar bunu tekrarla. Sayaç 10\'u geçince döngü durur. Durma koşulu unutulursa (örneğin sayaç hiç artırılmazsa), döngü sonsuza kadar çalışır — bu, yazılımda en sık rastlanan hatalardan biridir.',
                 },
+            },
+            {
+                id: 'memory',
                 shortTitle: 'Hafıza',
                 title: '5. Hafıza kutusu = Bilgiyi saklamak',
                 color: '#3b82f6',
@@ -284,6 +399,9 @@ export const beginnerAlgorithmsData = {
                     keywords: ['kutu', 'guncelle', 'toplam'],
                     modelAnswer: 'sepetToplami kutusu 0 ile başlar. İlk ürün eklenince kutunun değeri ürün fiyatı kadar artar, ikinci üründe tekrar artar, üçüncüde tekrar artar. Her ekleme adımında kutunun ESKİ değeri okunur, üstüne yeni fiyat eklenir ve kutu bu YENİ değerle güncellenir — kutu hiçbir zaman iki değeri aynı anda tutmaz.',
                 },
+            },
+            {
+                id: 'debug',
                 shortTitle: 'Hata Bul',
                 title: '6. Debug = Tarifin nerede bozulduğunu bulmak',
                 color: '#e11d48',
@@ -328,6 +446,9 @@ export const beginnerAlgorithmsData = {
                     keywords: ['adim', 'kontrol', 'neden'],
                     modelAnswer: 'Önce beklenen davranışı yaz: ürün eklenince toplam artmalı. Sonra adım adım kontrol et: ürün gerçekten sepete eklendi mi? Sepetteki ürün listesi güncellendi mi? Toplam hesaplama fonksiyonu tekrar çalıştı mı? Her adımı tek tek elemine ederek, sorunun tam olarak nerede olduğunu (örneğin toplam hesaplama fonksiyonu çağrılmıyor) bulursun.',
                 },
+            },
+            {
+                id: 'flowchart',
                 shortTitle: 'Akış',
                 title: '7. Flowchart = Algoritmayı resimle çizmek',
                 color: '#8b5cf6',
@@ -653,6 +774,7 @@ export const beginnerAlgorithmsData = {
                 analogy: 'A teacher taking attendance asks each student one by one: "Are you here?" — the same action repeats for every student, only the target changes. The thought-provoking question: could the teacher just ask the whole class at once? No — and neither can a computer. Software processes items one at a time, looping through them. The critical thing about a loop is knowing when to stop: the teacher stops when the list is finished. A loop without a stopping condition runs forever — this is one of the most common bugs in software.',
                 why: 'Walking through a product list, printing each item on screen, running every test case in a test suite one by one — all of these require a loop. From a QA perspective, loops deserve special attention: does the loop process every item, does it handle an empty list without crashing, and does it stop correctly? Testing loop boundaries (zero items, one item, very large lists) is a core pattern in software quality assurance.',
                 visual: 'loop',
+                film: linearSearchFilm,
                 feynman: {
                     keywords: ['repeat', 'star', 'loop', 'limit', 'stop'],
                     forbiddenWords: ['for', 'while', 'iteration', 'increment', 'recursion'],

@@ -36,6 +36,8 @@ Bu proje birden fazla AI aracıyla (Claude Code, Antigravity, Windsurf, Trae) ge
 | **`.claude/INTERVIEW_TEMPLATE.md`** | Mülakat soruları şablonu. | Mülakat sekmesi yazarken. |
 | **`.claude/JAVA_COMPARISON.md`** | Java ↔ Python/TS karşılaştırma kuralları. | Python/TS anlatırken. |
 | **`Documents/acceptancecriterias.md`** | Sistem kabul kriterleri (Acceptance Criteria) — navigasyon, quiz/retry mekanizması, i18n (TR/EN içerik+yorum kuralları), %60 mülakat gating, AI quiz açıklaması, mülakat AI değerlendirme döngüsü, %80 bitirme rozeti + reset akışı (Major AC 01-07); tema/erişilebilirlik ve roadmap ilerleme takibi (Minor AC 08-09). | Yeni özellik/sayfa geliştirirken veya bir akışı (gating, AI değerlendirme, reset, i18n) test ederken — bu dosyadaki AC'lere göre doğrula. |
+| **`Documents/video-rollout-plan.md`** | Video-scene (film bloğu) veri şeması referansı, film spesifikasyon kalıbı ve ilk dalgaların (pilot sayfalar) uygulama detayları + Sonnet prompt şablonları. | Herhangi bir sayfaya `video-scene` filmi eklerken — şema ve kalıp buradan alınır. |
+| **`Documents/video-sitewide-plan.md`** | "Her sekmede video + animasyon + sandbox" standardının (Bölüm 9.5) kalan TÜM sayfalara sıralı yayılım planı: dalga sırası, sayfa envanteri, sayfa başına iş akışı, parametrik prompt şablonu. | Sıradaki sayfayı Bölüm 9.5 standardına yükseltirken — hangi sayfa, hangi sırayla, nasıl. |
 
 **Kural:** Bu dosyalardan biri diğeriyle çelişiyorsa, en güncel olanı değil, **bu dosyanın (CLAUDE.md) tanımladığı sorumluluk alanına uygun olanı** doğru kabul et — yani SEO sorusu varsa `codexSeo.md`, güncel durum sorusu varsa `NEXT_SESSION.md` otoritedir. **`NEXT_SESSION.md` hariç** hiçbir kalıcı kural dosyasına commit hash veya anlık bilgi yazma — anlık durum sadece `NEXT_SESSION.md`'dedir.
 
@@ -323,6 +325,43 @@ Her `code-playground`, `interview-questions` ve `error-dictionary` bloğu, hangi
 **Tekrar yasağı:**
 Aynı veya birbirine %85'ten fazla benzeyen hint/ipucu/practice metni birden fazla farklı `topicId` altında kullanılamaz. Yeni bir ipucu/practice eklemeden önce mevcut projede aynı/benzer bir ipucunun olup olmadığını kontrol et (`check-content-integrity.mjs` bunu otomatik tespit eder).
 
+### 9.5. Sekme Standardı: Her Dikey Sekmede Video + Animasyon + Sandbox (Katman 1)
+
+Bu standart pilot sayfalarda (`/git-github`, `/gauge`) tamamlanmış olup **tüm
+teknoloji sayfalarına yayılması kalıcı bir hedeftir** — Bölüm 9.2'deki üçlü
+kuralın sekme düzeyindeki tamamlayıcısıdır. Sıralı yayılım planı
+`Documents/video-sitewide-plan.md`'de, hangi sayfanın tamamlandığı
+`NEXT_SESSION.md`'dedir.
+
+**Tanımlar (bağlayıcı):**
+- **Video** = `video-scene` bloğu (`VideoSceneBlock` filmi). Başka hiçbir blok video sayılmaz.
+- **Animasyon** = `step-animation` | `simulation` | `animated-timeline` | `css-animation`.
+- **Sandbox** = kullanıcı girdisi alan + sonucu değerlendiren interaktif blok: `code-playground` | `git-practice` | `editor` | `java-practice`. `simulation` sandbox SAYILMAZ (izleme ağırlıklı).
+
+**Standart:** İçerik sayfasındaki her dikey sekmede en az **1 video + 1
+animasyon + 1 sandbox** bulunmalıdır. Yeni bir sekme veya sayfa eklenirken bu
+standart baştan uygulanır; mevcut bir sekme güncellenirken eksikler
+tamamlanır.
+
+**Film (video-scene) kuralları:**
+- 5-8 sahne · `caption: {tr,en}` zorunlu · benzersiz `id` (XP tekilliği) · `xpReward` 10-15 · `sceneDurationMs: 3400` · aktör hareketi veri akışını GÖSTERMELİ (süs değil).
+- Film, sekmenin GERÇEK içeriğine bağlı olmalı (o sekmedeki kod bloğu/simulation'ın anlattığı mekanizmayı görselleştirir) — konudan bağımsız film uydurulmaz.
+- TR caption'larda açıklama cümleleri Türkçe, teknik terimler İngilizce kalır (Bölüm 8); `code` alanı varsa `{tr,en}` bilingual, TR yorumlar Türkçe.
+- Yerleşim: sekmenin ana konu anlatım bloğunun (kod/simulation) hemen ARDINA, quiz/challenge'dan ÖNCE (Bölüm 9.1).
+- Bileşen hazırdır (`VideoSceneBlock`, `type: 'video-scene'`, TopicPage'de kayıtlı) — yeni bileşen yazılmaz, sadece `*Data.js`'e veri eklenir. Veri şeması referansı: `Documents/video-rollout-plan.md` + mevcut film sabitleri (örn. `gitGithubData.js`).
+- **EN+TR ayrı ağaçlı** veri dosyalarında film sabiti dosyanın başında tanımlanır ve İKİ section ağacına da AYNI referansla konur; **tek ağaçlı** (bilingual field) dosyalarda (örn. `gaugeData.js`) SADECE bir yere konur. İşe başlamadan önce dosyanın hangi yapıda olduğu tespit edilir.
+
+**Animasyon/sandbox tamamlama kuralları:**
+- `fillMissingCodeTrios` (interactiveTrioFillers.js) yalnızca `type: 'code'` bloğu olan ve dili bash/shell/text OLMAYAN yerlere otomatik üretim yapar; kodsuz sekmelere (hata sözlüğü, mülakat vb.) blok ELLE yazılır ve elle yazılan her `code-playground`'a `relatedTopicId` ZORUNLUDUR (Bölüm 9.4).
+- Mülakat sekmesine eklenen bloklar quiz-gating (%60) kilidi arkasında kalır — bu beklenen davranıştır, hata değildir.
+
+**Doğrulama:** Her sayfa yükseltmesinden sonra Bölüm 1.1 checklist'ine ek
+olarak `tests/video-scene.spec.ts`'e o sayfa için en az 1 temsili render
+testi eklenir (mülakat sekmesi gating nedeniyle test kapsamına alınmaz veya
+gating'i açan yardımcıyla test edilir). Bölüm 22.1'deki sayfalar bu testlere
+eklenmez. Çok büyük veri dosyalarında (örn. `javaData`, `typescriptData`)
+build sonrası chunk boyutu izlenir ve `NEXT_SESSION.md`'ye not edilir.
+
 ---
 
 ## 10. KESİN KURAL — Mülakat Soruları (Esnek Değildir)
@@ -362,6 +401,9 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Türkçe bağlamdaki `code-playground`, `interview-questions`, `error-dictionary` bloklarındaki yorum satırlarını İngilizce bırakmak — kapsam yalnızca `code`/`editor` değil, yorum satırı içeren HER block tipini kapsar (Bölüm 9.4).
 - ❌ `code-playground`, `interview-questions`, `error-dictionary` bloğuna `relatedTopicId` alanı koymadan eklemek — bu alan zorunludur, eksik blok build'i kırar (Bölüm 9.4).
 - ❌ Aynı veya %85'ten fazla benzer hint/ipucu metnini farklı `topicId`'ler altında tekrarlamak — her ipucu benzersiz ve konuya özgü olmalıdır (Bölüm 9.4).
+- ❌ Yeni bir sekme/sayfa eklerken veya mevcut sekmeyi güncellerken Bölüm 9.5 standardını (her dikey sekmede ≥1 video + ≥1 animasyon + ≥1 sandbox) atlamak — standart yalnızca pilot sayfalara (`/git-github`, `/gauge`) özgü değildir.
+- ❌ EN+TR ayrı ağaçlı bir veri dosyasına `video-scene` film sabitini SADECE bir ağaca koymak — öbür dilde film görünmez; sabit iki section ağacına da aynı referansla konur (tek ağaçlı dosyalarda ise tam tersi: yalnızca bir yere) (Bölüm 9.5).
+- ❌ Sekmenin gerçek içeriğiyle bağı olmayan, konudan kopuk bir film uydurmak — her film o sekmedeki kod/simulation'ın anlattığı mekanizmayı görselleştirmelidir (Bölüm 9.5).
 - ❌ Bölüm 1.1'deki 4 maddelik doğruluk checklist'ini çalıştırmadan "tamamladım", "hazır", "bitti" demek.
 
 ---

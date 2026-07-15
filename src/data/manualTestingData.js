@@ -1,3 +1,122 @@
+// ─── Bug Yaşam Döngüsü film bloğu (video-scene — TR + EN lesson ağaçlarında aynı sabit) ───
+// Veri şeması: Documents/video-rollout-plan.md §2.5 / src/components/VideoSceneBlock.jsx
+// bug-report dersinin devamı: yazılan raporun başına ne geldiğini gösterir.
+const bugLifecycleFilm = {
+    type: 'video-scene',
+    id: 'manual-bug-lifecycle-film',
+    title: {
+        tr: '🎬 Bir Bug\'ın Yaşam Döngüsü',
+        en: '🎬 The Life Cycle of a Bug',
+    },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'tester',    emoji: '🔍', label: { tr: 'Tester (keşif)',        en: 'Tester (discovery)' },   color: '#0ea5e9' },
+        { id: 'report',    emoji: '📝', label: { tr: 'Bug Raporu — New',      en: 'Bug Report — New' },     color: '#8b5cf6' },
+        { id: 'triage',    emoji: '🗂️', label: { tr: 'Triage',                en: 'Triage' },               color: '#f59e0b' },
+        { id: 'developer', emoji: '👨‍💻', label: { tr: 'Developer — In Progress', en: 'Developer — In Progress' }, color: '#6366f1' },
+        { id: 'fix',       emoji: '🔧', label: { tr: 'Fix — Resolved',        en: 'Fix — Resolved' },       color: '#f97316' },
+        { id: 'retest',    emoji: '🧪', label: { tr: 'Retest',                en: 'Retest' },               color: '#22c55e' },
+        { id: 'closed',    emoji: '✅', label: { tr: 'Closed',                en: 'Closed' },               color: '#10b981' },
+        { id: 'reopened',  emoji: '🔁', label: { tr: 'Reopened',              en: 'Reopened' },             color: '#ef4444' },
+    ],
+    scenes: [
+        {
+            caption: {
+                tr: 'Keşif: tester ödeme sayfasında bir hata bulur — ödeme sonrası boş ekran. Bug\'ın hayatı burada, bir gözlem olarak başlar; ama gözlem tek başına henüz bir "bug kaydı" değildir.',
+                en: 'Discovery: the tester finds a failure on the payment page — a blank screen after payment. The bug\'s life begins here, as an observation; but an observation alone is not yet a "bug record".',
+            },
+            positions: {
+                tester: { x: 16, y: 50, scale: 1.2, pulse: true },
+            },
+        },
+        {
+            caption: {
+                tr: 'Rapor — New: gözlem, derste öğrendiğin tarifle kayda dönüşür — numaralı adımlar + beklenen sonuç + gerçekleşen sonuç + kanıt. Rapor sisteme "New" durumuyla düşer; kalitesi, bundan sonraki HER aşamanın hızını belirler.',
+                en: 'Report — New: the observation becomes a record using the recipe you just learned — numbered steps + expected result + actual result + evidence. The report enters the system as "New"; its quality determines the speed of EVERY stage that follows.',
+            },
+            positions: {
+                tester: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+                report: { x: 40, y: 50, scale: 1.15, pulse: true },
+            },
+            beams: [{ from: 'tester', to: 'report' }],
+        },
+        {
+            caption: {
+                tr: 'Triage: ekip raporu inceler — severity (teknik etki) ve priority (iş önceliği) belirlenir, doğru takıma atanır. Belirsiz bir rapor tam burada takılır: "yeniden üretilemedi" etiketiyle tester\'a geri döner ve günler kaybedilir.',
+                en: 'Triage: the team reviews the report — severity (technical impact) and priority (business urgency) are set, and it is assigned to the right team. A vague report gets stuck exactly here: it bounces back to the tester as "cannot reproduce" and days are lost.',
+            },
+            positions: {
+                report: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+                triage: { x: 46, y: 50, scale: 1.15, pulse: true },
+            },
+            beams: [{ from: 'report', to: 'triage' }],
+        },
+        {
+            caption: {
+                tr: 'In Progress: developer bug\'ı alır ve raporundaki adımları BİREBİR izleyerek hatayı kendi ortamında yeniden üretir. İyi yazılmış adımların karşılığı budur — tahmin yok, doğrudan kök neden avı var.',
+                en: 'In Progress: the developer picks up the bug and reproduces it locally by following your steps EXACTLY. This is the payoff of well-written steps — no guessing, straight to root-cause hunting.',
+            },
+            positions: {
+                triage: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+                developer: { x: 48, y: 50, scale: 1.2, pulse: true },
+            },
+            beams: [{ from: 'triage', to: 'developer' }],
+        },
+        {
+            caption: {
+                tr: 'Resolved: fix hazır, kod merge edildi ve bug "Resolved" durumuna çekildi. Kritik nokta: bug henüz KAPANMADI. "Developer çözdüm dedi" ile "gerçekten çözüldü" aynı şey değildir — arada henüz kanıt yok.',
+                en: 'Resolved: the fix is ready, the code is merged, and the bug moves to "Resolved". The critical point: the bug is NOT closed yet. "The developer says it\'s fixed" and "it is actually fixed" are not the same thing — there is no proof yet.',
+            },
+            positions: {
+                developer: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+                fix: { x: 48, y: 50, scale: 1.15, pulse: true },
+            },
+            beams: [{ from: 'developer', to: 'fix' }],
+        },
+        {
+            caption: {
+                tr: 'Retest: kanıtı üreten adım. Tester, raporundaki AYNI adımları AYNI ortam koşullarıyla tekrar koşar — ödeme yap, ekranı kontrol et. Fix\'i doğrulayan şey kod değil, bu testtir.',
+                en: 'Retest: the step that produces the proof. The tester re-runs the SAME steps from the report under the SAME environment conditions — make the payment, check the screen. What validates the fix is not the code, it is this test.',
+            },
+            positions: {
+                fix: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+                retest: { x: 48, y: 50, scale: 1.2, pulse: true },
+            },
+            beams: [{ from: 'fix', to: 'retest' }],
+        },
+        {
+            caption: {
+                tr: 'Closed: retest geçti — boş ekran artık gelmiyor, kanıt eklendi, bug resmen kapandı. Yaşam döngüsü tamamlandı: gözlemden kapanışa kadar her durumun bir sahibi ve bir kanıtı vardı.',
+                en: 'Closed: the retest passed — the blank screen is gone, evidence is attached, the bug is officially closed. The life cycle is complete: from observation to closure, every state had an owner and a proof.',
+            },
+            positions: {
+                retest: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+                closed: { x: 48, y: 50, scale: 1.25, pulse: true },
+            },
+            beams: [{ from: 'retest', to: 'closed', color: '#10b981' }],
+        },
+        {
+            caption: {
+                tr: 'Final (alternatif son) — retest GEÇMEZSE bug "Reopened" olur ve developer\'a geri döner. Bu döngü, QA\'in neden fix\'ten sonra da işin bitmediğinin kanıtıdır: bug\'ı kapatan şey developer\'ın "çözdüm" demesi değil, tester\'ın retest\'idir.',
+                en: 'Final (the alternate ending) — if the retest FAILS, the bug becomes "Reopened" and goes back to the developer. This loop is the proof of why QA\'s job is not done after the fix: what closes a bug is not the developer saying "fixed", it is the tester\'s retest.',
+            },
+            positions: {
+                retest: { x: 26, y: 36, scale: 1.05 },
+                closed: { x: 60, y: 22, opacity: 0.45, scale: 0.85 },
+                reopened: { x: 56, y: 62, scale: 1.2, pulse: true },
+                developer: { x: 84, y: 62, opacity: 0.75 },
+            },
+            beams: [
+                { from: 'retest', to: 'closed', color: '#10b981' },
+                { from: 'retest', to: 'reopened', color: '#ef4444' },
+                { from: 'reopened', to: 'developer', color: '#ef4444' },
+            ],
+        },
+    ],
+}
+
 export const manualTestingData = {
     tr: {
         hero: {
@@ -217,6 +336,7 @@ export const manualTestingData = {
                 id: 'bug-report',
                 shortTitle: 'Bug Raporu',
                 color: '#ef4444',
+                film: bugLifecycleFilm,
                 title: '4. Bug report = ekibin hatayi yeniden uretmesini saglayan tarif',
                 analogy: 'Araban bozuldugunda ustaya "calismiyor" demek tek basina islevsizdir; usta tahmin yurutur, zaman kaybeder. Ama "sabah sogukta 80 km/s\'de iken sag onde titreme basladi ve motor isik yandi" dediginde usta hangi parcayi kontrol edecegini cok daha hizli daraltir. Bug report da ayni sebeple net adim ve kanit ister. Burada dusundurucu soru su: "Developer zaten stack trace\'e bakmiyor mu, neden ayrica adimlar yazayim?" Stack trace hata noktasini gosterir; ama o noktaya ulasmak icin kullanicinin hangi veri ve sirayla ilerlemesi gerektigini gostermez.',
                 why: 'Java\'da bir exception firladiginda stack trace hata sinifini, satir numarasini ve cagri yigini verir — bu "actual" ile "where" sorusunu cevaplar. Ama "nasil uretilir?" sorusunu cevaplamaz. Iyi bug report bu bolumu tamamlar: Environment (tarayici, OS, app version), Steps to Reproduce (sirasiz degil, numarali), Expected Result (ne olmasi gerekiyordu?), Actual Result (ne oldu?), Evidence (ekran goruntusu, log, video). Stack trace olmadan da anlasilabilir; adimlar olmadan developer sadece tahmin eder.',
@@ -619,6 +739,7 @@ export const manualTestingData = {
                 id: 'bug-report',
                 shortTitle: 'Bug Report',
                 color: '#ef4444',
+                film: bugLifecycleFilm,
                 title: '4. Bug report = a recipe that lets the team reproduce the failure',
                 analogy: 'When your car breaks down, telling the mechanic "it does not work" leads to guesswork and wasted time. But saying "yesterday morning in the cold, at 80 km/h, the front right started vibrating and the engine light came on" immediately narrows down the likely component. A bug report works exactly the same way: the more precisely you describe the conditions, the faster the developer can stop guessing and start fixing. The key question to ask yourself: if the developer does not have my browser, my account, and my exact data — can they still reproduce this?',
                 why: 'A Java stack trace answers "what broke and where" — it gives the exception class, the line number, and the call stack. But it does not answer "how do I get there?" A good bug report fills that gap: Environment (browser, OS, app version), Steps to Reproduce (numbered, precise), Expected Result (what should have happened), Actual Result (what actually happened), Evidence (screenshot, video, log). A stack trace without reproduction steps is like a GPS coordinate without directions — you know where the crash happened, but not how to get there.',

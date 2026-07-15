@@ -1,5 +1,119 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ─── Bir Pipe Zincirinin Yolculuğu film bloğu (video-scene — EN + TR paylaşımlı) ───
+// Veri şeması: Documents/video-rollout-plan.md §2.2 / src/components/VideoSceneBlock.jsx
+const pipeChainFilm = {
+  type: 'video-scene',
+  id: 'linux-pipe-chain-film',
+  title: {
+    tr: '🎬 Bir Pipe Zincirinin Yolculuğu',
+    en: '🎬 The Journey of a Pipe Chain',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'log',    emoji: '📄', label: { tr: 'test.log (10.000 satır)', en: 'test.log (10,000 lines)' }, color: '#0ea5e9' },
+    { id: 'grep',   emoji: '🔍', label: { tr: 'grep ERROR',              en: 'grep ERROR' },              color: '#f59e0b' },
+    { id: 'lines',  emoji: '📉', label: { tr: 'Filtrelenmiş Satırlar',   en: 'Filtered Lines' },          color: '#8b5cf6' },
+    { id: 'sort',   emoji: '🔀', label: { tr: 'sort',                    en: 'sort' },                    color: '#6366f1' },
+    { id: 'uniq',   emoji: '🧮', label: { tr: 'uniq -c',                 en: 'uniq -c' },                 color: '#22c55e' },
+    { id: 'result', emoji: '📊', label: { tr: 'Sonuç (hata özeti)',      en: 'Result (error summary)' },  color: '#10b981' },
+    { id: 'file',   emoji: '💾', label: { tr: '> rapor.txt',             en: '> report.txt' },            color: '#f97316' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'QA senaryosu: CI koşumundan 10.000 satırlık devasa bir log düştü. Beş küçük komutun bir zincirde nasıl işbirliği yaparak bunu okunabilir bir hata özetine dönüştürdüğünü izleyeceksin.',
+        en: 'QA scenario: a massive 10,000-line log dropped from a CI run. You will watch five small commands cooperate in a chain to turn it into a readable error summary.',
+      },
+      code: { tr: `cat test.log | grep ERROR | sort | uniq -c > rapor.txt`, en: `cat test.log | grep ERROR | sort | uniq -c > report.txt` },
+      positions: {
+        log: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `cat test.log`: dosyanın TÜMÜ akıtılır. Tek başına işe yaramaz — 10.000 satırı olduğu gibi ekrana basar, hiçbir filtre yoktur.',
+        en: 'Step 1 — `cat test.log`: the ENTIRE file streams out. Alone it is useless — it dumps all 10,000 lines as-is, no filtering at all.',
+      },
+      code: { tr: `cat test.log`, en: `cat test.log` },
+      positions: {
+        log: { x: 16, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `| grep ERROR`: pipe, cat\'in çıktısını grep\'in girdisine BAĞLAR — ara dosya yok. Sadece "ERROR" içeren satırlar hayatta kalır; 10.000 satır belki 40\'a düşer.',
+        en: 'Step 2 — `| grep ERROR`: the pipe CONNECTS cat\'s output directly to grep\'s input — no intermediate file. Only lines containing "ERROR" survive; 10,000 lines might drop to 40.',
+      },
+      code: { tr: `cat test.log | grep ERROR`, en: `cat test.log | grep ERROR` },
+      positions: {
+        log: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        grep: { x: 38, y: 50, scale: 1.15, pulse: true },
+        lines: { x: 62, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'log', to: 'grep' }, { from: 'grep', to: 'lines', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `| sort`: filtrelenmiş satırlar ALFABETİK sıraya dizilir. Bu adım kritik: aynı hata mesajları artık YAN YANA — bir sonraki adım için gerekli ön koşul.',
+        en: 'Step 3 — `| sort`: the filtered lines are arranged ALPHABETICALLY. This step is critical: identical error messages are now ADJACENT — the required precondition for the next step.',
+      },
+      code: { tr: `cat test.log | grep ERROR | sort`, en: `cat test.log | grep ERROR | sort` },
+      positions: {
+        lines: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        sort: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'lines', to: 'sort' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — `| uniq -c`: yan yana duran AYNI satırlar tek satıra indirilir ve başına tekrar SAYISI eklenir. `uniq` sadece ARDIŞIK tekrarları yakalar — bu yüzden bir önceki `sort` adımı olmadan `uniq -c` neredeyse işe yaramaz.',
+        en: 'Step 4 — `| uniq -c`: adjacent IDENTICAL lines collapse into one, prefixed with a repeat COUNT. `uniq` only catches CONSECUTIVE duplicates — which is exactly why `uniq -c` is nearly useless without the preceding `sort`.',
+      },
+      code: { tr: `cat test.log | grep ERROR | sort | uniq -c`, en: `cat test.log | grep ERROR | sort | uniq -c` },
+      positions: {
+        sort: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        uniq: { x: 48, y: 50, scale: 1.2, pulse: true },
+        result: { x: 76, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'sort', to: 'uniq' }, { from: 'uniq', to: 'result', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — `> rapor.txt`: sonuç terminale değil bir DOSYAYA yönlendirilir. Artık "3× Connection timeout, 2× Auth failed" gibi kısa bir özet, ekibin paylaşabileceği kalıcı bir dosyada.',
+        en: 'Step 5 — `> report.txt`: the result is redirected to a FILE instead of the terminal. Now a short summary like "3× Connection timeout, 2× Auth failed" lives in a permanent file the team can share.',
+      },
+      code: { tr: `cat test.log | grep ERROR | sort | uniq -c > rapor.txt`, en: `cat test.log | grep ERROR | sort | uniq -c > report.txt` },
+      positions: {
+        result: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        file: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'result', to: 'file' }],
+    },
+    {
+      caption: {
+        tr: 'Final — tek satırlık bu zincir aslında BEŞ ayrı programın işbirliğidir: her biri tek bir işi yapar (cat okur, grep filtreler, sort sıralar, uniq sayar, > kaydeder), pipe onları bağlar. Tıpkı Java\'nın `stream().filter().sorted().collect()` zinciri gibi — monolitik tek bir "hepsini yap" komutu yerine, küçük ve test edilebilir parçaların kompozisyonu.',
+        en: 'Final — this one-line chain is actually FIVE separate programs cooperating: each does exactly one job (cat reads, grep filters, sort orders, uniq counts, > saves), and the pipe connects them. Just like Java\'s `stream().filter().sorted().collect()` chain — composition of small, testable pieces instead of one monolithic "do everything" command.',
+      },
+      positions: {
+        log: { x: 10, y: 60, scale: 0.85 },
+        grep: { x: 26, y: 40, scale: 0.85 },
+        sort: { x: 44, y: 60, scale: 0.85 },
+        uniq: { x: 62, y: 40, scale: 0.85 },
+        file: { x: 84, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [
+        { from: 'log', to: 'grep' },
+        { from: 'grep', to: 'sort' },
+        { from: 'sort', to: 'uniq' },
+        { from: 'uniq', to: 'file', color: '#f97316' },
+      ],
+    },
+  ],
+}
+
 const iq = (level, qTr, aTr, qEn, aEn) => ({
   level,
   q: { tr: qTr, en: qEn },
@@ -353,6 +467,1183 @@ const linuxErrors = [
   ),
 ]
 
+// ─── Dalga 4 film/animasyon/sandbox sabitleri (EN + TR paylaşımlı) ───
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+// 🎯 Giriş — görünmez taşıyıcı duvar filmi
+const linuxInvisibleWallFilm = {
+  type: 'video-scene',
+  id: 'linux-invisible-wall-film',
+  title: {
+    tr: '🎬 Görünmez Duvar: Testin CI\'daki İlk Gecesi',
+    en: '🎬 The Invisible Wall: Your Test\'s First Night in CI',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'laptop',   emoji: '💻', label: { tr: 'Windows laptop (yeşil test)', en: 'Windows laptop (green test)' }, color: '#0ea5e9' },
+    { id: 'ci',       emoji: '☁️', label: { tr: 'CI pipeline',                 en: 'CI pipeline' },                 color: '#6366f1' },
+    { id: 'container',emoji: '📦', label: { tr: 'Ubuntu container',            en: 'Ubuntu container' },            color: '#f97316' },
+    { id: 'terminal', emoji: '🖥️', label: { tr: 'Terminal',                   en: 'Terminal' },                    color: '#64748b' },
+    { id: 'shell',    emoji: '🐚', label: { tr: 'Shell (bash)',                en: 'Shell (bash)' },                color: '#8b5cf6' },
+    { id: 'kernel',   emoji: '⚙️', label: { tr: 'Kernel',                     en: 'Kernel' },                      color: '#059669' },
+    { id: 'fail',     emoji: '💥', label: { tr: 'CI-only hata',                en: 'CI-only failure' },             color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test laptop\'unda YEŞİL — Windows\'ta yazdın, çalıştırdın, geçti. Şimdi push\'luyorsun ve testin senin hiç görmediğin bir dünyaya taşınıyor.',
+        en: 'The test is GREEN on your laptop — you wrote it on Windows, ran it, it passed. Now you push, and your test travels to a world you have never seen.',
+      },
+      positions: {
+        laptop: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'CI devralır: test artık senin makinende DEĞİL — `ubuntu-latest` üzerinde, bir Linux container\'ının içinde koşuyor. Path kuralları, kullanıcı, izinler: hepsi değişti.',
+        en: 'CI takes over: the test is NO LONGER on your machine — it runs inside a Linux container on `ubuntu-latest`. Path rules, user, permissions: everything changed.',
+      },
+      positions: {
+        laptop: { x: 18, y: 45, scale: 0.85, opacity: 0.6 },
+        ci: { x: 48, y: 50, scale: 1.1, pulse: true },
+        container: { x: 78, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'laptop', to: 'ci' }, { from: 'ci', to: 'container', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Container\'ın içinde her komut üç ayrı katmandan geçer: 🖥️ Terminal sadece penceredir → 🐚 Shell (bash) yazdığını YORUMLAR → ⚙️ Kernel donanımla gerçekten konuşur.',
+        en: 'Inside the container, every command passes through three separate layers: 🖥️ the Terminal is just the window → 🐚 the Shell (bash) INTERPRETS what you type → ⚙️ the Kernel actually talks to the hardware.',
+      },
+      code: { tr: `./run-tests.sh`, en: `./run-tests.sh` },
+      positions: {
+        terminal: { x: 20, y: 50, scale: 1.05, pulse: true },
+        shell: { x: 50, y: 50, scale: 1.05, pulse: true },
+        kernel: { x: 80, y: 50, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'terminal', to: 'shell' }, { from: 'shell', to: 'kernel', color: '#059669' }],
+    },
+    {
+      caption: {
+        tr: 'Ve test PATLAR: `Permission denied`. Windows\'ta böyle bir kavram yoktu — Linux, dosyanın çalıştırılabilirliğini uzantıya değil, İZİN BİTLERİNE bakarak karar verir.',
+        en: 'And the test BLOWS UP: `Permission denied`. This concept did not exist on Windows — Linux decides whether a file can run by its PERMISSION BITS, not its extension.',
+      },
+      code: { tr: `bash: ./run-tests.sh: Permission denied`, en: `bash: ./run-tests.sh: Permission denied` },
+      positions: {
+        kernel: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        fail: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'kernel', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Linux bilmeyen bakış: log okunamaz, "flaky test" denir, retry butonuna basılır. Hata gizlenir, bir sonraki gece yine gelir — sorun testte değildi ki.',
+        en: 'Contrast — the eye that does not know Linux: the log is unreadable, the test is labeled "flaky", the retry button is pressed. The failure hides and returns the next night — the problem was never in the test.',
+      },
+      positions: {
+        fail: { x: 30, y: 50, scale: 1.1, pulse: true },
+        laptop: { x: 68, y: 50, scale: 0.9, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Linux bilen bakış: terminali OKUR. `ls -l` izin bitlerini gösterir, `whoami` hangi kullanıcı olduğunu, `echo $PATH` komutların nereden arandığını — hata 30 saniyede katmanına yerleşir.',
+        en: 'The eye that knows Linux READS the terminal. `ls -l` shows the permission bits, `whoami` shows which user you are, `echo $PATH` shows where commands are searched — the failure lands in its layer within 30 seconds.',
+      },
+      code: { tr: `ls -l run-tests.sh\nwhoami\necho $PATH`, en: `ls -l run-tests.sh\nwhoami\necho $PATH` },
+      positions: {
+        fail: { x: 20, y: 45, scale: 0.85, opacity: 0.5 },
+        terminal: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'terminal', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Final — "sadece CI\'da oluyor" diyen hata, neredeyse her zaman bir Linux ortam sorunudur: yanlış PATH, eksik izin, yanlış kullanıcı. Java analojisi: kod (`.jar`) her yerde aynı, ama `ClassNotFoundException` tek ortamda çıkar — çünkü RUNTIME farklı. Linux, testlerinin runtime\'ıdır.',
+        en: 'Final — a failure that "only happens in CI" is almost always a Linux environment issue: wrong PATH, missing permission, wrong user. The Java analogy: the code (`.jar`) is identical everywhere, yet `ClassNotFoundException` appears in only one environment — because the RUNTIME differs. Linux is your tests\' runtime.',
+      },
+      positions: {
+        laptop: { x: 12, y: 55, scale: 0.8 },
+        ci: { x: 32, y: 35, scale: 0.8 },
+        container: { x: 52, y: 55, scale: 0.85 },
+        shell: { x: 70, y: 35, scale: 0.8 },
+        kernel: { x: 88, y: 55, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'laptop', to: 'ci' }, { from: 'ci', to: 'container' }, { from: 'container', to: 'shell' }, { from: 'shell', to: 'kernel' }],
+    },
+  ],
+}
+
+// 🎯 Giriş — Windows→Linux komut haritası sandbox'ı
+const linuxIntroCommandMapPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'linux-intro-command-map-practice-01',
+  id: 'linux-intro-command-map-practice-01',
+  label: { tr: 'Micro Lab: Windows komutunu Linux\'a çevir', en: 'Micro Lab: Translate a Windows command to Linux' },
+  language: 'bash',
+  task: {
+    tr: 'Windows alışkanlıklarını Linux\'a taşı: `dir` yerine `ls -la` zaten yazılmış. TODO satırında, Windows\'ta `findstr "ERROR" build.log` ile yaptığın aramanın Linux karşılığını yaz. Java analojisi: aynı interface\'in iki farklı implementasyonu gibi — amaç aynı (dosyada metin ara), sözdizimi farklı.',
+    en: 'Carry your Windows habits over to Linux: `ls -la` already replaces `dir`. On the TODO line, write the Linux equivalent of the Windows search `findstr "ERROR" build.log`. Java analogy: like two implementations of the same interface — same goal (search text in a file), different syntax.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç yukarıdaki Windows↔Linux komut haritasını pasif okumak yerine elinle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the Windows↔Linux command map above by typing it yourself instead of passively reading it.',
+  },
+  code: {
+    tr: `ls -la\ngrep "ERROR" build.log\ncat build.log`,
+    en: `ls -la\ngrep "ERROR" build.log\ncat build.log`,
+  },
+  starterCode: {
+    tr: `ls -la\n# TODO: build.log icinde "ERROR" gecen satirlari ara (findstr'in Linux karsiligi)\ncat build.log`,
+    en: `ls -la\n# TODO: search build.log for lines containing "ERROR" (the Linux equivalent of findstr)\ncat build.log`,
+  },
+  solutionCode: {
+    tr: `ls -la\ngrep "ERROR" build.log\ncat build.log`,
+    en: `ls -la\ngrep "ERROR" build.log\ncat build.log`,
+  },
+  expected: {
+    tr: '`grep "ERROR" build.log` yalnızca içinde ERROR geçen satırları döndürür — dosyanın tamamını okumadan hatayı bulursun.',
+    en: '`grep "ERROR" build.log` returns only the lines containing ERROR — you find the failure without reading the whole file.',
+  },
+  hints: [
+    { tr: 'Windows\'taki `findstr`\'ın Linux dünyasındaki karşılığı `grep`\'tir; ikisi de "şu dosyada şu metni ara" işini yapar.', en: 'The Linux counterpart of Windows `findstr` is `grep`; both do "search this file for this text".' },
+    { tr: 'Sıra `grep "aranan" dosya` şeklindedir — önce desen, sonra dosya adı gelir.', en: 'The order is `grep "pattern" file` — pattern first, then the filename.' },
+  ],
+  xpReward: 10,
+}
+
+// ⚙️ Kurulum — WSL2 kurulum step-animation'ı
+const linuxWsl2InstallSteps = {
+  type: 'step-animation',
+  id: 'linux-wsl2-install-step-01',
+  title: { tr: 'Adım Adım: WSL2 Kurulumu', en: 'Step by Step: Installing WSL2' },
+  steps: [
+    { id: 1, icon: '🛠️', label: { tr: 'Kurulumu başlat', en: 'Start the install' }, detail: { tr: 'PowerShell\'i Yönetici olarak aç ve `wsl --install` çalıştır — WSL2 ve varsayılan Ubuntu dağıtımı birlikte kurulur.', en: 'Open PowerShell as Administrator and run `wsl --install` — WSL2 and the default Ubuntu distribution are installed together.' } },
+    { id: 2, icon: '🔄', label: { tr: 'Yeniden başlat ve doğrula', en: 'Restart and verify' }, detail: { tr: 'Bilgisayarı yeniden başlat, sonra `wsl -l -v` çalıştır — dağıtımın VERSION sütununda 2 yazmalı (eski ve yavaş WSL 1 değil).', en: 'Restart the computer, then run `wsl -l -v` — the distribution\'s VERSION column must say 2 (not the old, slow WSL 1).' } },
+    { id: 3, icon: '👤', label: { tr: 'Linux kimliğini oluştur', en: 'Create your Linux identity' }, detail: { tr: '`ubuntu` komutuyla ilk açılışta senden bir Linux kullanıcı adı ve şifre istenir — bu, Windows hesabından tamamen AYRI bir kimliktir.', en: 'On first launch via the `ubuntu` command you are asked for a Linux username and password — a completely SEPARATE identity from your Windows account.' } },
+    { id: 4, icon: '📦', label: { tr: 'Paketleri güncelle', en: 'Update the packages' }, detail: { tr: '`sudo apt update && sudo apt upgrade -y` ile paket listesi tazelenir ve kurulu paketler yükseltilir — ilk kurulumdan hemen sonra yapılmalı.', en: 'Run `sudo apt update && sudo apt upgrade -y` to refresh the package list and upgrade installed packages — do this right after first setup.' } },
+    { id: 5, icon: '✅', label: { tr: 'Ortamı kanıtla', en: 'Prove the environment' }, detail: { tr: '`lsb_release -a` çıktısında "Distributor ID: Ubuntu" ve sürüm (örn. 22.04) görünüyorsa artık CI runner\'larıyla aynı zemindesin.', en: 'If `lsb_release -a` shows "Distributor ID: Ubuntu" and a version (e.g. 22.04), you now stand on the same ground as the CI runners.' } },
+  ],
+}
+
+// ⚙️ Kurulum — WSL2 köprüsü filmi
+const linuxWsl2BridgeFilm = {
+  type: 'video-scene',
+  id: 'linux-wsl2-bridge-film',
+  title: {
+    tr: '🎬 WSL2: Windows\'un İçindeki Gerçek Linux',
+    en: '🎬 WSL2: The Real Linux Inside Windows',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'windows', emoji: '🪟', label: { tr: 'Windows',                     en: 'Windows' },                     color: '#0ea5e9' },
+    { id: 'install', emoji: '📦', label: { tr: 'wsl --install',               en: 'wsl --install' },               color: '#f59e0b' },
+    { id: 'kernel',  emoji: '🐧', label: { tr: 'Gerçek Linux kernel (VM)',    en: 'Real Linux kernel (VM)' },      color: '#059669' },
+    { id: 'user',    emoji: '👤', label: { tr: 'Linux kullanıcısı',           en: 'Linux user' },                  color: '#8b5cf6' },
+    { id: 'verify',  emoji: '✅', label: { tr: 'lsb_release doğrulaması',     en: 'lsb_release verification' },    color: '#22c55e' },
+    { id: 'ghost',   emoji: '👻', label: { tr: 'Üretilemeyen CI hatası',      en: 'Unreproducible CI failure' },   color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Sorun şu: testlerin gece 03:00\'te `ubuntu-latest` üzerinde patlıyor ama senin makinen Windows — hatayı local\'de üretecek bir Linux zeminin YOK.',
+        en: 'The problem: your tests blow up at 3 AM on `ubuntu-latest`, but your machine is Windows — you have NO local Linux ground to reproduce the failure on.',
+      },
+      positions: {
+        windows: { x: 35, y: 50, scale: 1.15, pulse: true },
+        ghost: { x: 72, y: 45, scale: 1, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Tek komut: `wsl --install` — PowerShell (Yönetici) içinde çalışır, WSL2\'yi VE varsayılan Ubuntu dağıtımını birlikte kurar. Yeniden başlatma ister.',
+        en: 'One command: `wsl --install` — run in PowerShell (Administrator), it installs WSL2 AND the default Ubuntu distribution together. A restart is required.',
+      },
+      code: { tr: `wsl --install`, en: `wsl --install` },
+      positions: {
+        windows: { x: 22, y: 45, scale: 0.9, opacity: 0.7 },
+        install: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'windows', to: 'install' }],
+    },
+    {
+      caption: {
+        tr: 'Kritik nokta: bu bir emülatör ya da simülatör DEĞİL. WSL2, hafif bir VM içinde GERÇEK bir Linux kernel çalıştırır — Docker Desktop\'ın Windows\'ta kullandığı mekanizmanın ta kendisi.',
+        en: 'The critical point: this is NOT an emulator or a simulator. WSL2 runs a REAL Linux kernel inside a lightweight VM — the very same mechanism Docker Desktop uses on Windows.',
+      },
+      positions: {
+        install: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        kernel: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'install', to: 'kernel', color: '#059669' }],
+    },
+    {
+      caption: {
+        tr: 'İlk açılışta Ubuntu senden bir Linux kullanıcı adı ve şifre ister — Windows hesabından AYRI bir kimlik. Artık `whoami` iki dünyada iki farklı cevap verir.',
+        en: 'On first launch, Ubuntu asks you for a Linux username and password — an identity SEPARATE from your Windows account. From now on, `whoami` gives two different answers in two worlds.',
+      },
+      code: { tr: `ubuntu\n# Yeni UNIX kullanici adi girin: qa`, en: `ubuntu\n# Enter new UNIX username: qa` },
+      positions: {
+        kernel: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        user: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'kernel', to: 'user', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: '`sudo apt update && sudo apt upgrade -y` paket listesini tazeler; ardından `lsb_release -a` kanıtı verir: "Distributor ID: Ubuntu, Release: 22.04" — CI runner\'ın koştuğu zeminle BİREBİR aynı.',
+        en: '`sudo apt update && sudo apt upgrade -y` refreshes the packages; then `lsb_release -a` delivers the proof: "Distributor ID: Ubuntu, Release: 22.04" — the EXACT ground your CI runner stands on.',
+      },
+      code: { tr: `lsb_release -a\n# Distributor ID: Ubuntu\n# Release:        22.04`, en: `lsb_release -a\n# Distributor ID: Ubuntu\n# Release:        22.04` },
+      positions: {
+        user: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        verify: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'user', to: 'verify', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — WSL2 OLMASAYDI: `chmod +x` davranış farkı, CRLF satır sonu bozulması, `grep` desen uyumsuzluğu gibi CI-only hatalar local\'de asla üretilemezdi. Tek yol: push\'la, 15 dakika bekle, logu oku, tahmin et, tekrar push\'la.',
+        en: 'Contrast — WITHOUT WSL2: CI-only failures like a `chmod +x` behavior difference, a CRLF line-ending break, or a `grep` pattern mismatch could never be reproduced locally. The only loop: push, wait 15 minutes, read the log, guess, push again.',
+      },
+      positions: {
+        verify: { x: 22, y: 45, scale: 0.85, opacity: 0.5 },
+        ghost: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'verify', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final — iş bölümü: Docker gemiye YÜKLEMEK içindir, WSL2 DEBUG etmek için. Java analojisi: WSL2\'nin Linux\'a yaptığı, JVM\'in bytecode\'a yaptığıdır — ince bir sarmalayıcı değil, GERÇEK çalıştırma ortamının kendisi.',
+        en: 'Final — the division of labor: Docker is for SHIPPING, WSL2 is for DEBUGGING. The Java analogy: what WSL2 does for Linux is what the JVM does for bytecode — not a thin wrapper, but the REAL execution environment itself.',
+      },
+      positions: {
+        windows: { x: 14, y: 55, scale: 0.85 },
+        install: { x: 32, y: 35, scale: 0.75, opacity: 0.6 },
+        kernel: { x: 52, y: 55, scale: 1 },
+        user: { x: 70, y: 35, scale: 0.8 },
+        verify: { x: 88, y: 55, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'windows', to: 'kernel' }, { from: 'kernel', to: 'user' }, { from: 'user', to: 'verify' }],
+    },
+  ],
+}
+
+// 📁 Dosya Sistemi — path çözümleme filmi
+const linuxPathResolutionFilm = {
+  type: 'video-scene',
+  id: 'linux-path-resolution-film',
+  title: {
+    tr: '🎬 Bir Path\'in Yolculuğu: Absolute vs Relative',
+    en: '🎬 The Journey of a Path: Absolute vs Relative',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'root',     emoji: '🌳', label: { tr: '/ (kök)',                  en: '/ (root)' },                  color: '#059669' },
+    { id: 'absolute', emoji: '🧭', label: { tr: 'Absolute path',            en: 'Absolute path' },             color: '#0ea5e9' },
+    { id: 'cwd',      emoji: '📍', label: { tr: 'cwd (bulunduğun yer)',     en: 'cwd (where you stand)' },     color: '#f59e0b' },
+    { id: 'relative', emoji: '↕️', label: { tr: 'Relative path',            en: 'Relative path' },             color: '#8b5cf6' },
+    { id: 'jenkins',  emoji: '🤖', label: { tr: 'Jenkins workspace',        en: 'Jenkins workspace' },         color: '#6366f1' },
+    { id: 'wrongdir', emoji: '💥', label: { tr: 'Yanlış klasör',            en: 'Wrong directory' },           color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Linux\'ta TEK bir ters ağaç vardır: her dosya, her disk, her mount `/` kökünden dallanır — `C:\\` ya da `D:\\` diye bir şey yoktur.',
+        en: 'Linux has a SINGLE upside-down tree: every file, every disk, every mount branches from the `/` root — there is no such thing as `C:\\` or `D:\\`.',
+      },
+      positions: {
+        root: { x: 50, y: 35, scale: 1.25, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Absolute path kökten tarif eder: `/home/qa/projects` — NEREDE durursan dur, hep aynı adrese çözülür. Java analojisi: tam nitelikli sınıf adı (`com.myapp.service.UserService`) gibi.',
+        en: 'An absolute path describes from the root: `/home/qa/projects` — WHEREVER you stand, it always resolves to the same address. Java analogy: like a fully-qualified class name (`com.myapp.service.UserService`).',
+      },
+      code: { tr: `cd /home/qa/projects`, en: `cd /home/qa/projects` },
+      positions: {
+        root: { x: 20, y: 30, scale: 0.9, opacity: 0.7 },
+        absolute: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'root', to: 'absolute', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Relative path ise BULUNDUĞUN YERDEN tarif eder: `../logs` = "bir üst kata çık, logs\'a gir". Aynı komut, farklı cwd\'de bambaşka bir yere çözülür — bağlama bağımlıdır.',
+        en: 'A relative path describes FROM WHERE YOU STAND: `../logs` = "go up one level, enter logs". The same command resolves to a completely different place under a different cwd — it is context-dependent.',
+      },
+      code: { tr: `cd ../logs`, en: `cd ../logs` },
+      positions: {
+        cwd: { x: 30, y: 50, scale: 1.1, pulse: true },
+        relative: { x: 65, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cwd', to: 'relative', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Senaryo: script\'in `cd reports && tar -czf archive.tar.gz .` diyor. Sen proje kökünden çalıştırınca cwd doğru — DOĞRU klasör arşivlenir, her şey yolunda görünür.',
+        en: 'The scenario: your script says `cd reports && tar -czf archive.tar.gz .`. When you run it from the project root, the cwd is right — the CORRECT folder gets archived, everything looks fine.',
+      },
+      code: { tr: `cd reports && tar -czf archive.tar.gz .`, en: `cd reports && tar -czf archive.tar.gz .` },
+      positions: {
+        cwd: { x: 25, y: 45, scale: 1, pulse: true },
+        relative: { x: 60, y: 50, scale: 1, opacity: 0.8 },
+      },
+      beams: [{ from: 'cwd', to: 'relative' }],
+    },
+    {
+      caption: {
+        tr: 'Ama Jenkins AYNI script\'i `/var/lib/jenkins/workspace/job-name/` içinden tetikler — cwd artık BAŞKA bir yer. `cd reports` başka bir reports\'a çözülür ya da hiç bulunamaz.',
+        en: 'But Jenkins triggers the SAME script from inside `/var/lib/jenkins/workspace/job-name/` — the cwd is now somewhere ELSE. `cd reports` resolves to a different reports, or is not found at all.',
+      },
+      positions: {
+        jenkins: { x: 30, y: 45, scale: 1.15, pulse: true },
+        cwd: { x: 65, y: 50, scale: 1, pulse: true },
+      },
+      beams: [{ from: 'jenkins', to: 'cwd', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — sonuç sessiz bir felaket: YANLIŞ klasör arşivlenir, pipeline yeşil kalır, müşteriye giden rapor paketi boştur. Hata mesajı yok, sadece yanlış içerik var.',
+        en: 'Contrast — the result is a silent disaster: the WRONG folder is archived, the pipeline stays green, and the report bundle sent to the customer is empty. No error message, just wrong content.',
+      },
+      positions: {
+        cwd: { x: 25, y: 45, scale: 0.85, opacity: 0.5 },
+        wrongdir: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'cwd', to: 'wrongdir', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final — CI script\'i refleksi: ya absolute path kullan, ya script\'in başında `cd "$(dirname "$0")"` ile kendi konumuna sabitle ve `pwd` ile logla. Nerede çalıştığını KANITLAMAYAN script, nerede çalışacağını da garanti edemez.',
+        en: 'Final — the CI script reflex: either use absolute paths, or pin the script to its own location with `cd "$(dirname "$0")"` at the top and log it with `pwd`. A script that does not PROVE where it runs cannot guarantee where it will run.',
+      },
+      code: { tr: `cd "$(dirname "$0")"\npwd`, en: `cd "$(dirname "$0")"\npwd` },
+      positions: {
+        root: { x: 14, y: 55, scale: 0.8 },
+        absolute: { x: 34, y: 35, scale: 0.9 },
+        cwd: { x: 54, y: 55, scale: 0.85 },
+        jenkins: { x: 72, y: 35, scale: 0.8 },
+        wrongdir: { x: 90, y: 55, scale: 0.7, opacity: 0.4 },
+      },
+      beams: [{ from: 'root', to: 'absolute' }, { from: 'absolute', to: 'cwd' }, { from: 'cwd', to: 'jenkins' }],
+    },
+  ],
+}
+
+// 🔐 İzinler — execute biti kapısı filmi
+const linuxPermissionGateFilm = {
+  type: 'video-scene',
+  id: 'linux-permission-gate-film',
+  title: {
+    tr: '🎬 x Biti: Kapıdaki Görünmez Bekçi',
+    en: '🎬 The x Bit: The Invisible Gatekeeper',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'script', emoji: '📄', label: { tr: 'run-tests.sh',            en: 'run-tests.sh' },            color: '#64748b' },
+    { id: 'owner',  emoji: '👤', label: { tr: 'owner',                   en: 'owner' },                   color: '#0ea5e9' },
+    { id: 'group',  emoji: '👥', label: { tr: 'group',                   en: 'group' },                   color: '#8b5cf6' },
+    { id: 'others', emoji: '🌍', label: { tr: 'others',                  en: 'others' },                  color: '#f59e0b' },
+    { id: 'gate',   emoji: '🚧', label: { tr: 'x biti kapısı',           en: 'the x-bit gate' },          color: '#ef4444' },
+    { id: 'runner', emoji: '🤖', label: { tr: 'CI runner',               en: 'CI runner' },               color: '#6366f1' },
+    { id: 'chmod',  emoji: '🔧', label: { tr: 'chmod +x',                en: 'chmod +x' },                color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`ls -l` bir kimlik kartı okur: `-rw-r--r--` = üç seyirci (👤 owner / 👥 group / 🌍 others), her birine üç bit (r okuma, w yazma, x çalıştırma).',
+        en: '`ls -l` reads an ID card: `-rw-r--r--` = three audiences (👤 owner / 👥 group / 🌍 others), each with three bits (r read, w write, x execute).',
+      },
+      code: { tr: `ls -l run-tests.sh\n# -rw-r--r-- 1 qa qa 412 run-tests.sh`, en: `ls -l run-tests.sh\n# -rw-r--r-- 1 qa qa 412 run-tests.sh` },
+      positions: {
+        script: { x: 25, y: 50, scale: 1.1, pulse: true },
+        owner: { x: 58, y: 30, scale: 0.95 },
+        group: { x: 72, y: 50, scale: 0.95 },
+        others: { x: 58, y: 70, scale: 0.95 },
+      },
+      beams: [{ from: 'script', to: 'owner' }, { from: 'script', to: 'group' }, { from: 'script', to: 'others' }],
+    },
+    {
+      caption: {
+        tr: 'Kritik ayrım: r ve x TAMAMEN AYRI bitlerdir. Dosyayı okuyabiliyor, hatta düzenleyebiliyor olman, ÇALIŞTIRABİLECEĞİN anlamına gelmez — editörde kusursuz görünen script çalıştırılamaz olabilir.',
+        en: 'The critical distinction: r and x are COMPLETELY SEPARATE bits. Being able to read — even edit — a file does not mean you can EXECUTE it; a script that looks perfect in the editor can still be unrunnable.',
+      },
+      positions: {
+        script: { x: 35, y: 50, scale: 1.05, pulse: true },
+        gate: { x: 68, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'CI runner `./run-tests.sh` çağırır. Kernel kapıda x bitine bakar: YOK. Sonuç: satır 1\'de "Permission denied" — içerik hiç okunmadan, kapıda reddedilir.',
+        en: 'The CI runner calls `./run-tests.sh`. At the gate, the kernel checks the x bit: MISSING. Result: "Permission denied" at line one — rejected at the door, without the content ever being read.',
+      },
+      code: { tr: `./run-tests.sh\n# bash: ./run-tests.sh: Permission denied`, en: `./run-tests.sh\n# bash: ./run-tests.sh: Permission denied` },
+      positions: {
+        runner: { x: 22, y: 45, scale: 1.05, pulse: true },
+        gate: { x: 55, y: 50, scale: 1.25, pulse: true },
+        script: { x: 82, y: 45, scale: 0.85, opacity: 0.5 },
+      },
+      beams: [{ from: 'runner', to: 'gate', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Peki local\'de neden çalışıyordu? Çünkü `bash run-tests.sh` diye çağırıyordun — orada ÇALIŞAN bash\'tir, dosya sadece OKUNUR (r yeter). `./run-tests.sh` ise dosyanın KENDİSİNİ çalıştırır, x ister.',
+        en: 'So why did it work locally? Because you were calling `bash run-tests.sh` — there, bash is what RUNS and the file is only READ (r suffices). `./run-tests.sh` executes the file ITSELF, which demands x.',
+      },
+      code: { tr: `bash run-tests.sh   # r yeterli\n./run-tests.sh      # x gerekli`, en: `bash run-tests.sh   # r is enough\n./run-tests.sh      # x is required` },
+      positions: {
+        script: { x: 30, y: 50, scale: 1.1, pulse: true },
+        gate: { x: 65, y: 50, scale: 1, opacity: 0.7 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Düzeltme: `chmod +x run-tests.sh` — kapı açılır. DİKKAT: refleksin `chmod 777` OLMASIN; herkese yazma yetkisi vermek, paylaşılan bir CI makinesinde gerçek bir güvenlik deliğidir.',
+        en: 'The fix: `chmod +x run-tests.sh` — the gate opens. CAREFUL: do not let your reflex be `chmod 777`; granting everyone write access is a real security hole on a shared CI machine.',
+      },
+      code: { tr: `chmod +x run-tests.sh\nls -l run-tests.sh\n# -rwxr-xr-x 1 qa qa 412 run-tests.sh`, en: `chmod +x run-tests.sh\nls -l run-tests.sh\n# -rwxr-xr-x 1 qa qa 412 run-tests.sh` },
+      positions: {
+        chmod: { x: 30, y: 50, scale: 1.2, pulse: true },
+        gate: { x: 65, y: 50, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'chmod', to: 'gate', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — bir hafta sonra hata GERİ GELİR: git, dosyanın x bitini her platformda korumaz; taze bir checkout biti düşürebilir. Kalıcı çözüm: `git update-index --chmod=+x` ile biti repoya İŞLE.',
+        en: 'Contrast — a week later the failure COMES BACK: git does not preserve the x bit on every platform; a fresh checkout can drop it. The permanent fix: COMMIT the bit into the repo with `git update-index --chmod=+x`.',
+      },
+      code: { tr: `git update-index --chmod=+x run-tests.sh\ngit commit -m "ci: run-tests.sh calistirilabilir yapildi"`, en: `git update-index --chmod=+x run-tests.sh\ngit commit -m "ci: make run-tests.sh executable"` },
+      positions: {
+        gate: { x: 25, y: 45, scale: 0.85, opacity: 0.6 },
+        chmod: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'gate', to: 'chmod', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: chmod 700 ≈ `private`, 750 ≈ package-private, 644 ≈ herkese-okunur `public` alan; Linux aynı erişim felsefesini sınıf üyelerine değil, DOSYALARA uygular. QA bağı: "editörde kusursuz, CI\'da satır 1\'de ölü" hatasının teşhisi 30 saniyedir — `ls -l`\'i okuyabilene.',
+        en: 'Final — the Java bridge: chmod 700 ≈ `private`, 750 ≈ package-private, 644 ≈ a world-readable `public` field; Linux applies the same access philosophy to FILES instead of class members. The QA tie-in: diagnosing "perfect in the editor, dead at line one in CI" takes 30 seconds — for whoever can read `ls -l`.',
+      },
+      positions: {
+        script: { x: 12, y: 55, scale: 0.8 },
+        gate: { x: 32, y: 35, scale: 0.8, opacity: 0.6 },
+        runner: { x: 52, y: 55, scale: 0.85 },
+        chmod: { x: 72, y: 35, scale: 0.9 },
+        owner: { x: 90, y: 55, scale: 1, pulse: true },
+      },
+      beams: [{ from: 'script', to: 'gate' }, { from: 'gate', to: 'chmod' }, { from: 'chmod', to: 'runner' }],
+    },
+  ],
+}
+
+// ⚙️ Süreçler — sinyal merdiveni filmi
+const linuxSignalLadderFilm = {
+  type: 'video-scene',
+  id: 'linux-signal-ladder-film',
+  title: {
+    tr: '🎬 Sinyal Merdiveni: SIGTERM\'den SIGKILL\'e',
+    en: '🎬 The Signal Ladder: From SIGTERM to SIGKILL',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'ps',      emoji: '🔍', label: { tr: 'ps aux | grep',           en: 'ps aux | grep' },           color: '#0ea5e9' },
+    { id: 'proc',    emoji: '🤖', label: { tr: 'selenium-node (PID 4821)', en: 'selenium-node (PID 4821)' }, color: '#f97316' },
+    { id: 'sigterm', emoji: '🤝', label: { tr: 'SIGTERM',                 en: 'SIGTERM' },                 color: '#22c55e' },
+    { id: 'cleanup', emoji: '🧹', label: { tr: 'Temizlik şansı',          en: 'Cleanup chance' },          color: '#8b5cf6' },
+    { id: 'sigkill', emoji: '💥', label: { tr: 'SIGKILL (kill -9)',       en: 'SIGKILL (kill -9)' },       color: '#dc2626' },
+    { id: 'residue', emoji: '⚠️', label: { tr: 'Kilitli port / yarım dosya', en: 'Locked port / partial file' }, color: '#f59e0b' },
+    { id: 'clear',   emoji: '✅', label: { tr: 'Boş liste',               en: 'Empty list' },              color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Suite bitti ama sonraki pipeline koşumu başlayamıyor: port 4444 hâlâ MEŞGUL. Bir şey ölmesi gerektiği halde yaşıyor.',
+        en: 'The suite finished, but the next pipeline run cannot start: port 4444 is still BUSY. Something is alive that should be dead.',
+      },
+      positions: {
+        proc: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: '`ps aux | grep selenium` suçluyu bulur: PID 4821, CPU %98.7 — testler bittiği halde kapanmayı unutmuş bir selenium-node.',
+        en: '`ps aux | grep selenium` finds the culprit: PID 4821 at 98.7% CPU — a selenium-node that forgot to shut down after the tests ended.',
+      },
+      code: { tr: `ps aux | grep selenium\n# qa  4821  98.7  2.1  node selenium-node.js`, en: `ps aux | grep selenium\n# qa  4821  98.7  2.1  node selenium-node.js` },
+      positions: {
+        ps: { x: 25, y: 45, scale: 1.1, pulse: true },
+        proc: { x: 62, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'ps', to: 'proc', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Merdivenin İLK basamağı: `kill 4821` — SIGTERM gönderir: "lütfen kapan". Process bu sinyali YAKALAYABİLİR: açık dosyalarını kapatır, portu bırakır, temp\'ini siler — düzgün bir veda.',
+        en: 'The FIRST rung of the ladder: `kill 4821` — sends SIGTERM: "please shut down". The process CAN catch this signal: it closes its open files, releases the port, removes its temp — a graceful goodbye.',
+      },
+      code: { tr: `kill 4821`, en: `kill 4821` },
+      positions: {
+        sigterm: { x: 28, y: 45, scale: 1.15, pulse: true },
+        proc: { x: 60, y: 50, scale: 1, opacity: 0.8 },
+        cleanup: { x: 84, y: 40, scale: 0.95, pulse: true },
+      },
+      beams: [{ from: 'sigterm', to: 'proc', color: '#22c55e' }, { from: 'proc', to: 'cleanup', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Tekrar kontrol: `ps aux | grep selenium` — hâlâ listede. Process SIGTERM\'i yok saydı (ya da sonsuz döngüde sıkışıp sinyali işleyemiyor). Nazik istek işe yaramadı.',
+        en: 'Check again: `ps aux | grep selenium` — still on the list. The process ignored SIGTERM (or is stuck in a loop and cannot handle the signal). The polite request did not work.',
+      },
+      positions: {
+        ps: { x: 30, y: 45, scale: 1.05, pulse: true },
+        proc: { x: 65, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'ps', to: 'proc', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Merdivenin SON basamağı: `kill -9 4821` — SIGKILL. Bu sinyal process\'e hiç ULAŞMAZ; kernel process\'i doğrudan yok eder. Anında ölüm, sıfır temizlik şansı.',
+        en: 'The LAST rung of the ladder: `kill -9 4821` — SIGKILL. This signal never even REACHES the process; the kernel destroys it directly. Instant death, zero cleanup chance.',
+      },
+      code: { tr: `kill -9 4821`, en: `kill -9 4821` },
+      positions: {
+        sigkill: { x: 30, y: 45, scale: 1.25, pulse: true },
+        proc: { x: 65, y: 50, scale: 0.85, opacity: 0.4 },
+      },
+      beams: [{ from: 'sigkill', to: 'proc', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — SIGKILL\'in bedeli: yarım yazılmış temp dosyası, bırakılmamış lock, hâlâ "meşgul" görünen port kalabilir. Merdivenin sırası bu yüzden vardır: önce TERM (temizlik şansı), ancak yanıt yoksa KILL.',
+        en: 'Contrast — the price of SIGKILL: a half-written temp file, an unreleased lock, a port that still looks "busy" may remain. That is exactly why the ladder has an order: TERM first (cleanup chance), KILL only when there is no response.',
+      },
+      positions: {
+        sigkill: { x: 25, y: 45, scale: 0.85, opacity: 0.6 },
+        residue: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'sigkill', to: 'residue', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — kanıt: `ps aux | grep selenium` artık BOŞ döner; port 4444 serbest, sıradaki koşum başlayabilir. Java köprüsü: SIGTERM ≈ `Thread.interrupt()` (kibarca durmasını iste), SIGKILL ≈ deprecated `Thread.stop()` — zorla durdurmanın deprecated OLMA sebebi, tam da bu temizlik sorunlarıdır.',
+        en: 'Final — the proof: `ps aux | grep selenium` now returns EMPTY; port 4444 is free, the next run can start. The Java bridge: SIGTERM ≈ `Thread.interrupt()` (politely ask it to stop), SIGKILL ≈ the deprecated `Thread.stop()` — and these cleanup problems are exactly WHY forced stopping was deprecated.',
+      },
+      positions: {
+        ps: { x: 14, y: 55, scale: 0.8 },
+        sigterm: { x: 34, y: 35, scale: 0.85 },
+        sigkill: { x: 54, y: 55, scale: 0.85 },
+        residue: { x: 72, y: 35, scale: 0.7, opacity: 0.4 },
+        clear: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'ps', to: 'sigterm' }, { from: 'sigterm', to: 'sigkill' }, { from: 'sigkill', to: 'clear' }],
+    },
+  ],
+}
+
+// 🧪 Gerçek Hayat — CI teşhis zinciri filmi
+const linuxCiDebugChainFilm = {
+  type: 'video-scene',
+  id: 'linux-ci-debug-chain-film',
+  title: {
+    tr: '🎬 02:00 Vakası: Connection Refused\'un İzini Sürmek',
+    en: '🎬 The 2 AM Case: Tracing a Connection Refused',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'fail',     emoji: '🌙', label: { tr: 'Gece koşumu FAIL',        en: 'Nightly run FAIL' },        color: '#6366f1' },
+    { id: 'ssh',      emoji: '🔐', label: { tr: 'ssh',                     en: 'ssh' },                     color: '#0ea5e9' },
+    { id: 'ss',       emoji: '🔌', label: { tr: 'ss -tulpn',               en: 'ss -tulpn' },               color: '#f59e0b' },
+    { id: 'journal',  emoji: '📜', label: { tr: 'journalctl',              en: 'journalctl' },              color: '#8b5cf6' },
+    { id: 'disk',     emoji: '💾', label: { tr: 'df -h (%98 dolu)',        en: 'df -h (98% full)' },        color: '#ef4444' },
+    { id: 'clean',    emoji: '🧹', label: { tr: 'find -mtime +30 -delete', en: 'find -mtime +30 -delete' }, color: '#22c55e' },
+    { id: 'green',    emoji: '✅', label: { tr: 'Yeşil koşum',             en: 'Green run' },               color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Sabah geldiğinde tablo şu: gece regresyonu 02:00\'de düşmüş — "Connection refused on port 5432". Test loglarında başka hiçbir ipucu yok. 45 dakikan var.',
+        en: 'The morning picture: the nightly regression fell over at 2 AM — "Connection refused on port 5432". The test logs hold no other clue. You have 45 minutes.',
+      },
+      positions: {
+        fail: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Olay yerine gidiş: `ssh qa@jenkins-agent-01`. Hata ekran görüntüsünden değil, hatanın YAŞANDIĞI makineden teşhis edilir.',
+        en: 'Travel to the scene: `ssh qa@jenkins-agent-01`. You diagnose from the machine where the failure HAPPENED, not from a screenshot of it.',
+      },
+      code: { tr: `ssh qa@jenkins-agent-01`, en: `ssh qa@jenkins-agent-01` },
+      positions: {
+        fail: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        ssh: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'ssh', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'İlk kanıt: `ss -tulpn | grep 5432` → çıktı BOŞ. Veritabanı o portu dinlemiyor bile. Demek ki sorun testte ya da ağda değil — SERVİSİN KENDİSİ ayakta değil.',
+        en: 'First evidence: `ss -tulpn | grep 5432` → the output is EMPTY. The database is not even listening on that port. So the problem is not the test or the network — the SERVICE ITSELF is down.',
+      },
+      code: { tr: `ss -tulpn | grep 5432\n# (bos cikti — kimse dinlemiyor)`, en: `ss -tulpn | grep 5432\n# (empty output — nobody is listening)` },
+      positions: {
+        ssh: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        ss: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ssh', to: 'ss', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Servisin son sözleri: `journalctl -u postgresql -n 50` — son 50 log satırında gerçek katil yakalanır: "No space left on device".',
+        en: 'The service\'s last words: `journalctl -u postgresql -n 50` — the real killer is caught in the last 50 log lines: "No space left on device".',
+      },
+      code: { tr: `journalctl -u postgresql -n 50\n# FATAL: could not write... No space left on device`, en: `journalctl -u postgresql -n 50\n# FATAL: could not write... No space left on device` },
+      positions: {
+        ss: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        journal: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ss', to: 'journal', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Doğrulama: `df -h` diski %98 dolu gösterir; `du -sh /var/log/* | sort -rh | head` en büyük tüketiciyi ele verir — haftalardır birikmiş eski loglar.',
+        en: 'Confirmation: `df -h` shows the disk at 98%; `du -sh /var/log/* | sort -rh | head` exposes the biggest consumer — old logs piling up for weeks.',
+      },
+      code: { tr: `df -h\ndu -sh /var/log/* | sort -rh | head -10`, en: `df -h\ndu -sh /var/log/* | sort -rh | head -10` },
+      positions: {
+        journal: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        disk: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'journal', to: 'disk', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'En küçük güvenli düzeltme: 30 günden eski logları temizle (`find /var/log -name "*.log" -mtime +30 -delete`), servisi başlat — `ss` artık 5432\'yi DİNLEMEDE gösteriyor.',
+        en: 'The smallest safe fix: clean logs older than 30 days (`find /var/log -name "*.log" -mtime +30 -delete`), start the service — `ss` now shows 5432 LISTENING.',
+      },
+      code: { tr: `find /var/log -name "*.log" -mtime +30 -delete\nsudo systemctl start postgresql\nss -tulpn | grep 5432   # LISTEN`, en: `find /var/log -name "*.log" -mtime +30 -delete\nsudo systemctl start postgresql\nss -tulpn | grep 5432   # LISTEN` },
+      positions: {
+        disk: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        clean: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'disk', to: 'clean', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — teşhis zinciri: bağlan (ssh) → port dinleniyor mu (ss) → servisin son sözleri (journalctl) → kaynak durumu (df/du) → en küçük güvenli düzeltme → yeniden koş. "Connection refused" çoğu zaman ağ sorunu DEĞİL, ölmüş bir servisin sessizliğidir — ve servisler en çok dolu diskten ölür.',
+        en: 'Final — the diagnosis chain: connect (ssh) → is the port listening (ss) → the service\'s last words (journalctl) → resource state (df/du) → smallest safe fix → rerun. "Connection refused" is usually NOT a network problem, but the silence of a dead service — and services die of full disks more than anything else.',
+      },
+      positions: {
+        ssh: { x: 12, y: 55, scale: 0.8 },
+        ss: { x: 30, y: 35, scale: 0.8 },
+        journal: { x: 48, y: 55, scale: 0.8 },
+        disk: { x: 66, y: 35, scale: 0.75, opacity: 0.6 },
+        green: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'ssh', to: 'ss' }, { from: 'ss', to: 'journal' }, { from: 'journal', to: 'disk' }, { from: 'disk', to: 'green' }],
+    },
+  ],
+}
+
+// 🔗 Ekosistem — sızan soyutlama filmi
+const linuxLeakyAbstractionFilm = {
+  type: 'video-scene',
+  id: 'linux-leaky-abstraction-film',
+  title: {
+    tr: '🎬 Sızan Soyutlama: Her Aracın Altındaki Kernel',
+    en: '🎬 The Leaky Abstraction: The Kernel Beneath Every Tool',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'kernel',  emoji: '🐧', label: { tr: 'Ortak Linux kernel',      en: 'Shared Linux kernel' },     color: '#059669' },
+    { id: 'docker',  emoji: '🐳', label: { tr: 'Docker container',        en: 'Docker container' },        color: '#0ea5e9' },
+    { id: 'k8s',     emoji: '☸️', label: { tr: 'K8s pod',                 en: 'K8s pod' },                 color: '#6366f1' },
+    { id: 'jenkins', emoji: '🤖', label: { tr: 'Jenkins agent',           en: 'Jenkins agent' },           color: '#f59e0b' },
+    { id: 'oom',     emoji: '💥', label: { tr: 'OOMKilled',               en: 'OOMKilled' },               color: '#ef4444' },
+    { id: 'leak',    emoji: '🕳️', label: { tr: 'Sızıntı noktası',         en: 'Leak point' },              color: '#dc2626' },
+    { id: 'light',   emoji: '🔦', label: { tr: 'Linux bilgisi',           en: 'Linux knowledge' },         color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'QA yığınındaki araçların hepsi aynı zeminde durur: Docker container\'ları, Kubernetes node\'ları, `ubuntu-latest` runner\'ları, Jenkins agent\'ları — altta HEP aynı Linux kernel.',
+        en: 'Every tool in the QA stack stands on the same ground: Docker containers, Kubernetes nodes, `ubuntu-latest` runners, Jenkins agents — underneath, it is ALWAYS the same Linux kernel.',
+      },
+      positions: {
+        kernel: { x: 50, y: 70, scale: 1.25, pulse: true },
+        docker: { x: 25, y: 30, scale: 0.95 },
+        k8s: { x: 50, y: 25, scale: 0.95 },
+        jenkins: { x: 75, y: 30, scale: 0.95 },
+      },
+      beams: [{ from: 'docker', to: 'kernel' }, { from: 'k8s', to: 'kernel' }, { from: 'jenkins', to: 'kernel' }],
+    },
+    {
+      caption: {
+        tr: 'Docker container ayrı bir işletim sistemi DEĞİLDİR: host\'un kernel\'ini paylaşan, sadece dosya sistemi/ağ/process görünümü izole edilmiş bir Linux process\'idir. Windows\'ta WSL2 şart olmasının sebebi tam olarak bu.',
+        en: 'A Docker container is NOT a separate operating system: it is a Linux process sharing the host\'s kernel, isolated only in filesystem/network/process view. This is exactly why WSL2 is mandatory on Windows.',
+      },
+      positions: {
+        docker: { x: 35, y: 40, scale: 1.2, pulse: true },
+        kernel: { x: 65, y: 60, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'docker', to: 'kernel', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Araçlar Linux\'u kendi CLI\'larının arkasına saklar — docker, kubectl, Jenkins UI. Her şey yolundayken bu soyutlama kusursuz çalışır; altını bilmene gerek yokmuş gibi hissettirir.',
+        en: 'The tools hide Linux behind their own CLIs — docker, kubectl, the Jenkins UI. While everything works, the abstraction is flawless; it makes you feel you never need what is underneath.',
+      },
+      positions: {
+        docker: { x: 25, y: 40, scale: 0.95 },
+        k8s: { x: 50, y: 35, scale: 0.95 },
+        jenkins: { x: 75, y: 40, scale: 0.95 },
+        kernel: { x: 50, y: 72, scale: 0.9, opacity: 0.4 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Baskı altında soyutlama SIZAR — vaka 1: pod "OOMKilled" ile ölür. Bu bir Kubernetes hatası değildir; Linux OOM killer\'ın, cgroup bellek limitini aşan process\'ini öldürmesidir.',
+        en: 'Under pressure, the abstraction LEAKS — case 1: a pod dies with "OOMKilled". That is not a Kubernetes error; it is the Linux OOM killer terminating your process for exceeding its cgroup memory limit.',
+      },
+      code: { tr: `kubectl get pod test-runner\n# STATUS: OOMKilled`, en: `kubectl get pod test-runner\n# STATUS: OOMKilled` },
+      positions: {
+        k8s: { x: 25, y: 40, scale: 0.9, opacity: 0.7 },
+        oom: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'k8s', to: 'oom', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Vaka 2: Jenkins "permission denied on the workspace" der. Bu bir Jenkins ayarı değildir — düpedüz bir Linux dosya izni sorunudur; ne kubectl ne Jenkins UI bunu senin yerine çözer.',
+        en: 'Case 2: Jenkins says "permission denied on the workspace". That is not a Jenkins setting — it is plainly a Linux file permission problem; neither kubectl nor the Jenkins UI will fix it for you.',
+      },
+      positions: {
+        jenkins: { x: 25, y: 40, scale: 0.9, opacity: 0.7 },
+        leak: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'jenkins', to: 'leak', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Linux bilgisi bir el feneridir: sızıntı anında hatanın HANGİ katmandan geldiğini görürsün — izin mi, bellek mi, disk mi, ağ mı. Feneri olmayan, saatlerce YANLIŞ katmanda debug eder.',
+        en: 'Linux knowledge is a flashlight: at the moment of a leak, you see WHICH layer the failure comes from — permission, memory, disk, or network. Without the flashlight, you debug the WRONG layer for hours.',
+      },
+      positions: {
+        leak: { x: 28, y: 45, scale: 0.9, opacity: 0.6 },
+        light: { x: 62, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'light', to: 'leak', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: `ArrayList`\'i içini bilmeden yıllarca kullanabilirsin, ta ki 0. index\'e milyon ekleme yapan kod O(n) yüzünden çökene kadar. Linux da öyledir: soyutlamanın altını bilmemek, ödemeyi hata gününe ertelemektir — ve QA\'de o gün her zaman gelir.',
+        en: 'Final — the Java bridge: you can use `ArrayList` for years without knowing its internals, until the code inserting a million items at index 0 collapses under O(n). Linux is the same: not knowing what is beneath the abstraction just defers the payment to failure day — and in QA, that day always comes.',
+      },
+      positions: {
+        kernel: { x: 50, y: 70, scale: 1.15, pulse: true },
+        docker: { x: 22, y: 32, scale: 0.85 },
+        k8s: { x: 45, y: 26, scale: 0.85 },
+        jenkins: { x: 68, y: 32, scale: 0.85 },
+        light: { x: 88, y: 55, scale: 1 },
+      },
+      beams: [{ from: 'docker', to: 'kernel' }, { from: 'k8s', to: 'kernel' }, { from: 'jenkins', to: 'kernel' }, { from: 'light', to: 'kernel', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 🔗 Ekosistem — kernel paylaşımı step-animation'ı
+const linuxKernelShareSteps = {
+  type: 'step-animation',
+  id: 'linux-kernel-share-step-01',
+  title: { tr: 'Adım Adım: Container Kernel\'i Nasıl Paylaşır?', en: 'Step by Step: How a Container Shares the Kernel' },
+  steps: [
+    { id: 1, icon: '🚀', label: { tr: 'Container başlar', en: 'The container starts' }, detail: { tr: '`docker run ubuntu` çalıştırılır — yeni bir işletim sistemi AÇILMAZ; host üzerinde sıradan bir Linux process\'i başlar.', en: 'Run `docker run ubuntu` — no new operating system BOOTS; an ordinary Linux process starts on the host.' } },
+    { id: 2, icon: '🤝', label: { tr: 'Kernel paylaşılır', en: 'The kernel is shared' }, detail: { tr: 'Container, host makinenin kernel\'ini AYNEN kullanır — kendi kernel\'i yoktur; bu yüzden saniyeler içinde başlar, bir VM gibi dakikalar sürmez.', en: 'The container uses the host machine\'s kernel AS-IS — it has no kernel of its own; that is why it starts in seconds, not minutes like a VM.' } },
+    { id: 3, icon: '🧱', label: { tr: 'Görünüm izole edilir', en: 'The view is isolated' }, detail: { tr: 'Namespace\'ler devreye girer: container kendi dosya sistemini, kendi ağını, kendi process listesini görür — ama bunlar aynı kernel\'in sunduğu ayrı PENCERELERDİR.', en: 'Namespaces kick in: the container sees its own filesystem, its own network, its own process list — but these are separate WINDOWS served by the same kernel.' } },
+    { id: 4, icon: '📏', label: { tr: 'Kaynak sınırlanır', en: 'Resources are limited' }, detail: { tr: 'cgroup\'lar container\'a bellek/CPU limiti koyar — `docker run --memory=512m` dediğinde bu limiti kernel uygular, Docker değil.', en: 'cgroups put memory/CPU limits on the container — when you say `docker run --memory=512m`, the kernel enforces that limit, not Docker.' } },
+    { id: 5, icon: '💥', label: { tr: 'Limit aşılırsa: OOMKilled', en: 'Exceed the limit: OOMKilled' }, detail: { tr: 'Process 512m\'yi aşarsa Linux OOM killer onu öldürür ve pod/container "OOMKilled" ile düşer — hata mesajı Kubernetes\'ten görünür ama kararı veren KERNEL\'dir.', en: 'If the process exceeds 512m, the Linux OOM killer terminates it and the pod/container falls with "OOMKilled" — the message surfaces via Kubernetes, but the decision-maker is the KERNEL.' } },
+  ],
+}
+
+// 🔗 Ekosistem — bash script sandbox'ı
+const linuxBashScriptPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'linux-bash-if-practice-01',
+  id: 'linux-bash-if-practice-01',
+  label: { tr: 'Micro Lab: bash if/then/fi', en: 'Micro Lab: bash if/then/fi' },
+  language: 'bash',
+  task: {
+    tr: 'Yukarıdaki "Bash Scripting Essentials" kalıplarını birleştir: test koşumunun sonucunu tutan `STATUS` değişkenini kontrol eden bir `if` bloğu yaz. TODO satırını, `STATUS` "PASSED" ise ekrana "suite yesil" yazan koşulla tamamla. Java analojisi: `if (status.equals("PASSED"))` — ama bash\'te köşeli parantez ve boşluklar sözdiziminin PARÇASIDIR.',
+    en: 'Combine the "Bash Scripting Essentials" patterns above: write an `if` block that checks the `STATUS` variable holding the test run result. Complete the TODO line with the condition that prints "suite green" when `STATUS` is "PASSED". Java analogy: `if (status.equals("PASSED"))` — except in bash, the square brackets and spaces are PART of the syntax.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç bash if sözdizimini — köşeli parantez içi boşluklar, tırnaklı değişken, then/fi çifti — elinle kurarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce bash if syntax — the spaces inside brackets, the quoted variable, the then/fi pair — by building it yourself.',
+  },
+  code: {
+    tr: `STATUS="PASSED"\nif [ "$STATUS" = "PASSED" ]; then\n  echo "suite yesil"\nfi`,
+    en: `STATUS="PASSED"\nif [ "$STATUS" = "PASSED" ]; then\n  echo "suite green"\nfi`,
+  },
+  starterCode: {
+    tr: `STATUS="PASSED"\n# TODO: STATUS "PASSED" ise "suite yesil" yazan if blogunu yaz\nfi`,
+    en: `STATUS="PASSED"\n# TODO: write the if block that prints "suite green" when STATUS is "PASSED"\nfi`,
+  },
+  solutionCode: {
+    tr: `STATUS="PASSED"\nif [ "$STATUS" = "PASSED" ]; then\n  echo "suite yesil"\nfi`,
+    en: `STATUS="PASSED"\nif [ "$STATUS" = "PASSED" ]; then\n  echo "suite green"\nfi`,
+  },
+  expected: {
+    tr: 'Script çalıştığında ekrana "suite yesil" yazılır; STATUS başka bir değer olsaydı if bloğu sessizce atlanırdı.',
+    en: 'When the script runs, "suite green" is printed; had STATUS held another value, the if block would be silently skipped.',
+  },
+  hints: [
+    { tr: 'Bash\'te değişken atamasında `=` etrafında boşluk OLMAZ (`STATUS="PASSED"`), ama `[ ... ]` içindeki karşılaştırmada boşluklar ZORUNLUDUR.', en: 'In bash, assignment takes NO spaces around `=` (`STATUS="PASSED"`), but the spaces inside the `[ ... ]` comparison are MANDATORY.' },
+    { tr: 'Değişkeni `"$STATUS"` diye tırnakla — değer boş olursa tırnaksız hali sözdizimi hatasına yol açar.', en: 'Quote the variable as `"$STATUS"` — if the value is empty, the unquoted form causes a syntax error.' },
+    { tr: 'Kalıp: `if [ koşul ]; then ... fi` — `fi`, `if`\'in tersten yazılışıdır ve bloğu kapatır.', en: 'The pattern is `if [ condition ]; then ... fi` — `fi` is `if` spelled backwards and closes the block.' },
+  ],
+  xpReward: 10,
+}
+
+// 🚨 Hata Sözlüğü — teşhis zinciri filmi
+const linuxErrorDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'linux-error-diagnosis-film',
+  title: {
+    tr: '🎬 Bir Linux Hatasının Teşhis Zinciri',
+    en: '🎬 The Diagnosis Chain of a Linux Error',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'error',  emoji: '❌', label: { tr: 'Permission denied',        en: 'Permission denied' },       color: '#ef4444' },
+    { id: 'reader', emoji: '👀', label: { tr: 'Mesajı okuma',             en: 'Reading the message' },     color: '#f59e0b' },
+    { id: 'map',    emoji: '🗺️', label: { tr: 'Katman haritası',          en: 'Layer map' },               color: '#8b5cf6' },
+    { id: 'proof',  emoji: '🔍', label: { tr: 'ls -l kanıtı',             en: 'ls -l evidence' },          color: '#0ea5e9' },
+    { id: 'fix',    emoji: '🔧', label: { tr: 'chmod u+x',                en: 'chmod u+x' },               color: '#22c55e' },
+    { id: 'works',  emoji: '✅', label: { tr: 'Çalışan script',           en: 'Working script' },          color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'CI adımı kıpkırmızı: `./deploy.sh: Permission denied`. Dosya ORADA, içeriği DOĞRU — ama çalışmıyor. Bu filmde, sözlükteki her hataya uygulanabilen 5 adımlı teşhis zincirini bu vaka üzerinden izleyeceksin.',
+        en: 'The CI step is blood-red: `./deploy.sh: Permission denied`. The file IS there, the content IS correct — yet it will not run. In this film you will watch the 5-step diagnosis chain that fits every dictionary error, through this very case.',
+      },
+      code: { tr: `./deploy.sh\n# bash: ./deploy.sh: Permission denied`, en: `./deploy.sh\n# bash: ./deploy.sh: Permission denied` },
+      positions: {
+        error: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — mesajı PARÇALA: "Permission denied" bir sözdizimi hatası değil, bir ERİŞİM reddi. Bash dosyayı çalıştırmayı denemeden kapıda durduruldu — içerik hiç okunmadı bile.',
+        en: 'Step 1 — DECOMPOSE the message: "Permission denied" is not a syntax error, it is an ACCESS refusal. Bash was stopped at the door before even attempting execution — the content was never read.',
+      },
+      positions: {
+        error: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        reader: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'error', to: 'reader' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — KATMANI bul: sorun izin mi, PATH mi, disk mi, ağ mı? "Permission denied" izin katmanının sesidir — script\'in içeriğini düzeltmeye çalışmak yanlış katmanda kürek çekmektir.',
+        en: 'Step 2 — locate the LAYER: is it permissions, PATH, disk, or network? "Permission denied" is the voice of the permission layer — editing the script\'s content would be rowing in the wrong layer.',
+      },
+      positions: {
+        reader: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        map: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'reader', to: 'map', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — DEĞİŞTİRMEYEN komutla kanıt topla: `ls -l deploy.sh` → `-rw-r--r--`. İşte kanıt: x biti HİÇBİR seyircide yok. Teşhis artık tahmin değil, gözlem.',
+        en: 'Step 3 — collect evidence with a NON-DESTRUCTIVE command: `ls -l deploy.sh` → `-rw-r--r--`. There is the proof: the x bit exists for NO audience. The diagnosis is now observation, not guesswork.',
+      },
+      code: { tr: `ls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh`, en: `ls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh` },
+      positions: {
+        map: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        proof: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'map', to: 'proof', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — en küçük GÜVENLİ düzeltme: `chmod u+x deploy.sh` — sadece owner\'a, sadece execute. `chmod 777` de "çözerdi" — ama herkese yazma yetkisi vererek, paylaşılan CI makinesinde güvenlik deliği açarak.',
+        en: 'Step 4 — the smallest SAFE fix: `chmod u+x deploy.sh` — only the owner, only execute. `chmod 777` would also "solve" it — by handing everyone write access and opening a security hole on the shared CI machine.',
+      },
+      code: { tr: `chmod u+x deploy.sh\n# -rwxr--r-- oldu`, en: `chmod u+x deploy.sh\n# now -rwxr--r--` },
+      positions: {
+        proof: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        fix: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'proof', to: 'fix', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — KANITLA: başarısız olan komutu AYNEN tekrar çalıştır. `./deploy.sh` artık çalışıyor. Hata "kayboldu" değil — ANLAŞILDI ve kökünden çözüldü.',
+        en: 'Step 5 — PROVE it: rerun the EXACT command that failed. `./deploy.sh` now runs. The error did not "go away" — it was UNDERSTOOD and fixed at the root.',
+      },
+      code: { tr: `./deploy.sh\n# Deploying test environment...`, en: `./deploy.sh\n# Deploying test environment...` },
+      positions: {
+        fix: { x: 22, y: 45, scale: 0.85, opacity: 0.6 },
+        works: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'fix', to: 'works', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — zincir: mesajı parçala → katmanı bul → değiştirmeyen kanıt → en küçük güvenli düzeltme → aynı komutla kanıtla. Java refleksinin aynısı: stack trace\'te ilk satır + "Caused by" okunur, rastgele satır silinmez. Aşağıdaki sözlükteki her hata bu zincirle çözülür.',
+        en: 'Final — the chain: decompose the message → locate the layer → non-destructive evidence → smallest safe fix → prove with the same command. The exact Java reflex: read the first stack-trace line + "Caused by", never delete random lines. Every error in the dictionary below yields to this chain.',
+      },
+      positions: {
+        error: { x: 12, y: 55, scale: 0.8 },
+        reader: { x: 30, y: 35, scale: 0.8 },
+        map: { x: 48, y: 55, scale: 0.8 },
+        proof: { x: 66, y: 35, scale: 0.8 },
+        works: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'error', to: 'reader' }, { from: 'reader', to: 'map' }, { from: 'map', to: 'proof' }, { from: 'proof', to: 'works' }],
+    },
+  ],
+}
+
+// 🚨 Hata Sözlüğü — teşhis refleksi step-animation'ı
+const linuxErrorDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'linux-error-diagnosis-step-01',
+  title: { tr: 'Adım Adım: Linux Hata Teşhis Refleksi', en: 'Step by Step: The Linux Error Diagnosis Reflex' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Mesajın türünü ayırt et', en: 'Classify the message' }, detail: { tr: '"Permission denied" erişim, "No such file or directory" path/isim, "command not found" PATH, "No space left on device" disk sorunudur — mesajın kendisi katmanı fısıldar.', en: '"Permission denied" is access, "No such file or directory" is path/name, "command not found" is PATH, "No space left on device" is disk — the message itself whispers the layer.' } },
+    { id: 2, icon: '🗺️', label: { tr: 'Katmanı seç', en: 'Pick the layer' }, detail: { tr: 'Dört aday katman: izin (ls -l), konum/path (pwd, ls), ortam (echo $PATH, env), kaynak (df -h, free). Hata mesajının işaret ettiği TEK katmanda çalış.', en: 'Four candidate layers: permission (ls -l), location/path (pwd, ls), environment (echo $PATH, env), resources (df -h, free). Work in the ONE layer the message points to.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Değiştirmeyen kanıt topla', en: 'Collect non-destructive evidence' }, detail: { tr: 'Önce hiçbir şeyi bozamayan komutlar: ls -l, pwd, whoami, df -h, ss -tulpn. `sudo`, `rm`, `chmod 777` gibi kalıcı hamlelerle ASLA başlama.', en: 'First, commands that cannot break anything: ls -l, pwd, whoami, df -h, ss -tulpn. NEVER start with permanent moves like `sudo`, `rm`, or `chmod 777`.' } },
+    { id: 4, icon: '🔧', label: { tr: 'En küçük güvenli düzeltmeyi uygula', en: 'Apply the smallest safe fix' }, detail: { tr: 'Hedef en az yan etki: chmod 777 yerine chmod u+x, klasörü silip baştan kurmak yerine tek dosyayı düzeltmek, sudo\'ya sarılmak yerine doğru kullanıcıya geçmek.', en: 'Aim for the fewest side effects: chmod u+x instead of chmod 777, fixing one file instead of wiping the folder, switching to the right user instead of reaching for sudo.' } },
+    { id: 5, icon: '✅', label: { tr: 'Aynı komutla kanıtla', en: 'Prove with the same command' }, detail: { tr: 'Başarısız olan komutu AYNEN tekrar çalıştır ve geçtiğini gör. Geçmediyse teşhis yanlıştı — 2. adıma dön, bir sonraki aday katmanı dene.', en: 'Rerun the EXACT failing command and watch it pass. If it still fails, the diagnosis was wrong — return to step 2 and try the next candidate layer.' } },
+  ],
+}
+
+// 🚨 Hata Sözlüğü — Permission denied sandbox'ı
+const linuxErrorPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'linux-errors',
+  id: 'linux-error-practice-01',
+  label: {
+    tr: 'Micro Lab: Permission denied\'ı teşhis zinciriyle çöz',
+    en: 'Micro Lab: Fix Permission denied with the diagnosis chain',
+  },
+  language: 'bash',
+  task: {
+    tr: 'Yukarıdaki filmdeki teşhis zincirini kendin uygula: kanıt toplandı (`ls -l` çıktısı x biti olmadığını gösteriyor), sıra en küçük güvenli düzeltmede. TODO satırını, SADECE owner\'a execute yetkisi veren komutla tamamla — 777 DEĞİL.',
+    en: 'Apply the diagnosis chain from the film above yourself: the evidence is in (`ls -l` shows the x bit is missing), and the smallest safe fix is next. Complete the TODO line with the command that grants execute to the owner ONLY — NOT 777.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç "Permission denied" karşısında doğru refleks sırasını (kanıt → en küçük güvenli düzeltme → aynı komutla kanıt) elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the correct reflex order for "Permission denied" (evidence → smallest safe fix → prove with the same command) by writing it yourself.',
+  },
+  code: {
+    tr: `./deploy.sh\n# bash: ./deploy.sh: Permission denied\n\n# 1) degistirmeyen komutla kanit topla\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# 2) en kucuk guvenli duzeltme: sadece owner'a execute\nchmod u+x deploy.sh\n\n# 3) ayni komutla kanitla\n./deploy.sh`,
+    en: `./deploy.sh\n# bash: ./deploy.sh: Permission denied\n\n# 1) collect evidence with a non-destructive command\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# 2) smallest safe fix: execute for the owner only\nchmod u+x deploy.sh\n\n# 3) prove it with the same command\n./deploy.sh`,
+  },
+  starterCode: {
+    tr: `./deploy.sh\n# bash: ./deploy.sh: Permission denied\n\n# 1) degistirmeyen komutla kanit topla\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# 2) TODO: sadece owner'a execute veren en kucuk guvenli duzeltmeyi yaz\n\n# 3) ayni komutla kanitla\n./deploy.sh`,
+    en: `./deploy.sh\n# bash: ./deploy.sh: Permission denied\n\n# 1) collect evidence with a non-destructive command\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# 2) TODO: write the smallest safe fix granting execute to the owner only\n\n# 3) prove it with the same command\n./deploy.sh`,
+  },
+  solutionCode: {
+    tr: `./deploy.sh\n# bash: ./deploy.sh: Permission denied\n\n# 1) degistirmeyen komutla kanit topla\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# 2) en kucuk guvenli duzeltme: sadece owner'a execute\nchmod u+x deploy.sh\n\n# 3) ayni komutla kanitla\n./deploy.sh`,
+    en: `./deploy.sh\n# bash: ./deploy.sh: Permission denied\n\n# 1) collect evidence with a non-destructive command\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# 2) smallest safe fix: execute for the owner only\nchmod u+x deploy.sh\n\n# 3) prove it with the same command\n./deploy.sh`,
+  },
+  expected: {
+    tr: 'Son `./deploy.sh` çağrısı artık çalışır; `ls -l` çıktısı `-rwxr--r--` gösterir — x biti sadece owner\'a eklendi, kimseye fazladan yetki verilmedi.',
+    en: 'The final `./deploy.sh` call now runs; `ls -l` shows `-rwxr--r--` — the x bit was added for the owner only, nobody gained extra rights.',
+  },
+  hints: [
+    { tr: 'chmod\'un sembolik modunda hedef seyirciyi seçebilirsin: `u` owner, `g` group, `o` others demektir — buradaki ihtiyaç sadece `u`.', en: 'chmod\'s symbolic mode lets you pick the audience: `u` is owner, `g` is group, `o` is others — the need here is only `u`.' },
+    { tr: '`+x` mevcut izinlere execute EKLER, diğer bitlere dokunmaz — 755/777 gibi sayısal mod tüm string\'i baştan yazar.', en: '`+x` ADDS execute to the existing permissions without touching other bits — numeric modes like 755/777 rewrite the whole string.' },
+    { tr: 'Paylaşılan bir CI makinesinde 777, "herkes bu dosyayı değiştirebilir" demektir — mülakatta da gerçek işte de eksi puandır.', en: 'On a shared CI machine, 777 means "anyone can modify this file" — a minus point in interviews and in real work alike.' },
+  ],
+  xpReward: 10,
+}
+
+// 💼 Mülakat — güçlü cevap anatomisi filmi
+const linuxInterviewAnswerFilm = {
+  type: 'video-scene',
+  id: 'linux-interview-answer-film',
+  title: {
+    tr: '🎬 Linux Senaryo Sorusuna Güçlü Cevap Anatomisi',
+    en: '🎬 The Anatomy of a Strong Linux Scenario Answer',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '🎤', label: { tr: 'Senaryo sorusu',       en: 'Scenario question' },      color: '#6366f1' },
+    { id: 'weak',     emoji: '😰', label: { tr: 'chmod 777 refleksi',   en: 'The chmod 777 reflex' },   color: '#94a3b8' },
+    { id: 'evidence', emoji: '🧭', label: { tr: 'Kanıt komutları',      en: 'Evidence commands' },      color: '#f59e0b' },
+    { id: 'rationale',emoji: '⚖️', label: { tr: 'Komut + gerekçe',      en: 'Command + rationale' },    color: '#10b981' },
+    { id: 'root',     emoji: '🛡️', label: { tr: 'Kalıcı kök çözüm',     en: 'Permanent root fix' },     color: '#0ea5e9' },
+    { id: 'java',     emoji: '☕', label: { tr: 'Java analojisi',       en: 'Java analogy' },           color: '#8b5cf6' },
+    { id: 'win',      emoji: '🏆', label: { tr: 'Güçlü cevap',          en: 'Strong answer' },          color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakatçı soruyor: "CI pipeline\'ında script Permission denied veriyor ama local\'de çalışıyor — ne yaparsın?" Bu filmde aynı soruya iki cevabın farkını izleyeceksin: refleks ile yapılandırılmış cevap.',
+        en: 'The interviewer asks: "A script fails with Permission denied in the CI pipeline but works locally — what do you do?" In this film you will watch the difference between two answers: the reflex versus the structured one.',
+      },
+      positions: {
+        question: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Zayıf refleks: "chmod 777 atarım, kesin çözülür." Evet — çalışır. Ama mülakatçının gördüğü şey çözüm değil: paylaşılan bir makinede herkese yazma yetkisi açan bir GÜVENLİK KÖRLÜĞÜdür.',
+        en: 'The weak reflex: "I would chmod 777 it, that always fixes it." Yes — it works. But what the interviewer sees is not a solution: it is a SECURITY BLINDNESS that grants everyone write access on a shared machine.',
+      },
+      positions: {
+        question: { x: 20, y: 40, scale: 0.9, opacity: 0.7 },
+        weak: { x: 55, y: 52, scale: 1.15, pulse: true, opacity: 0.8 },
+      },
+      beams: [{ from: 'question', to: 'weak', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Güçlü cevabın 1. katmanı — KANIT: "Önce `ls -l` ile izin string\'ine, `whoami` ile CI\'ın hangi kullanıcıyla koştuğuna bakarım. Local\'de ben owner\'ım; CI muhtemelen başka bir kullanıcı — fark buradan doğuyor olabilir."',
+        en: 'Layer 1 of the strong answer — EVIDENCE: "First I check the permission string with `ls -l` and which user CI runs as with `whoami`. Locally I am the owner; CI likely runs as another user — the difference may be born right there."',
+      },
+      code: { tr: `ls -l deploy.sh\nwhoami`, en: `ls -l deploy.sh\nwhoami` },
+      positions: {
+        weak: { x: 15, y: 68, scale: 0.7, opacity: 0.35 },
+        evidence: { x: 52, y: 48, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'evidence' }],
+    },
+    {
+      caption: {
+        tr: '2. katman — komut + GEREKÇE: "`chmod u+x` derim, çünkü ihtiyaç yalnızca owner\'ın çalıştırabilmesi. 777\'yi bilerek REDDEDERİM — herkese yazma yetkisi, paylaşılan CI\'da güvenlik açığıdır." Reddettiğin alternatifi söylemek, komutun kendisinden değerlidir.',
+        en: 'Layer 2 — command + RATIONALE: "I would use `chmod u+x`, because the need is only for the owner to execute. I deliberately REJECT 777 — write access for everyone is a security hole on shared CI." Naming the alternative you rejected is worth more than the command itself.',
+      },
+      code: { tr: `chmod u+x deploy.sh`, en: `chmod u+x deploy.sh` },
+      positions: {
+        evidence: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        rationale: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'rationale', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: '3. katman — KÖK neden: "chmod geçici bir yara bandı; taze checkout biti yine düşürebilir. Kalıcı çözüm, biti repoya işlemek: `git update-index --chmod=+x`. Böylece hata bir daha HİÇ dönmez." Bu cümle, yangın söndüren ile yangını önleyeni ayırır.',
+        en: 'Layer 3 — the ROOT cause: "chmod is a temporary band-aid; a fresh checkout can drop the bit again. The permanent fix is committing the bit into the repo: `git update-index --chmod=+x`. That way the failure NEVER returns." This sentence separates the firefighter from the fire preventer.',
+      },
+      code: { tr: `git update-index --chmod=+x deploy.sh`, en: `git update-index --chmod=+x deploy.sh` },
+      positions: {
+        rationale: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        root: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'rationale', to: 'root', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: '4. katman — Java köprüsü: "Linux izinleri, Java erişim modifier\'larının dosya sistemi hali: 700 ≈ private, 644 ≈ herkese-okunur public alan. 777 vermek, her field\'ı public yapıp \'artık çalışıyor\' demek gibidir." Bildiğin dünyaya köprü, cevabı kalıcı yapar.',
+        en: 'Layer 4 — the Java bridge: "Linux permissions are Java access modifiers applied to the filesystem: 700 ≈ private, 644 ≈ a world-readable public field. Granting 777 is like making every field public and declaring \'it works now\'." A bridge to a world you know makes the answer stick.',
+      },
+      positions: {
+        root: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        java: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'root', to: 'java', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Final — formül: kanıt komutları → komut + gerekçe (reddettiğin alternatifle) → kalıcı kök çözüm → Java analojisi. Aşağıdaki her mülakat sorusunda cevabını bu 4 katmandan geçir; sıralı düşünen aday, komut ezberleyeni her zaman geçer.',
+        en: 'Final — the formula: evidence commands → command + rationale (with the alternative you rejected) → permanent root fix → Java analogy. Run your answer through these 4 layers for every interview question below; the candidate who thinks in order always beats the one who memorized commands.',
+      },
+      positions: {
+        evidence: { x: 14, y: 55, scale: 0.85 },
+        rationale: { x: 34, y: 38, scale: 0.85 },
+        root: { x: 54, y: 55, scale: 0.85 },
+        java: { x: 72, y: 38, scale: 0.85 },
+        win: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'rationale' }, { from: 'rationale', to: 'root' }, { from: 'root', to: 'java' }, { from: 'java', to: 'win' }],
+    },
+  ],
+}
+
+// 💼 Mülakat — cevap kurma step-animation'ı
+const linuxInterviewAnswerSteps = {
+  type: 'step-animation',
+  id: 'linux-interview-answer-step-01',
+  title: { tr: 'Adım Adım: Linux Senaryo Cevabı Kurma', en: 'Step by Step: Building a Linux Scenario Answer' },
+  steps: [
+    { id: 1, icon: '🧭', label: { tr: 'Ortam farkını sor', en: 'Ask about the environment gap' }, detail: { tr: 'Cevaba koşulları netleştirerek başla: hangi kullanıcı koşuyor, hangi dağıtım, container mı VM mi? "Local\'de çalışıyor" cümlesindeki local ile CI arasındaki farkı sorgulamak, cevabın ilk puanıdır.', en: 'Open by clarifying conditions: which user runs it, which distro, container or VM? Questioning the gap between "works locally" and CI is the answer\'s first point.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Kanıt komutlarını sırala', en: 'List the evidence commands' }, detail: { tr: '"Önce `ls -l`, `whoami`, `echo $PATH` ile bakarım" de — hangi komutun hangi katmanı kanıtladığını söylemek, komut ezberinden ayrışmanın yoludur.', en: 'Say "first I look with `ls -l`, `whoami`, `echo $PATH`" — stating which command proves which layer is how you separate yourself from rote memory.' } },
+    { id: 3, icon: '⚖️', label: { tr: 'Komutu gerekçesiyle ver', en: 'Give the command with its why' }, detail: { tr: 'Seçtiğin komutu NEDENiyle ve reddettiğin alternatifle söyle: "u+x yeter, 777 paylaşılan makinede güvenlik açığı olurdu". Gerekçesiz cevap, ezberden ayırt edilemez.', en: 'State your command WITH its reason and the alternative you rejected: "u+x suffices; 777 would be a security hole on a shared machine". Without rationale, the answer is indistinguishable from memorization.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Kalıcı çözümü ekle', en: 'Add the permanent fix' }, detail: { tr: 'Yara bandı ile kök çözümü ayır: chmod bugünü kurtarır, `git update-index --chmod=+x` hatayı bir daha döndürmez. Kök neden cümlesi, junior ile senior cevabı ayıran çizgidir.', en: 'Separate the band-aid from the root fix: chmod saves today, `git update-index --chmod=+x` keeps the failure from ever returning. The root-cause sentence is the line between a junior and a senior answer.' } },
+    { id: 5, icon: '☕', label: { tr: 'Java analojisiyle kapat', en: 'Close with a Java analogy' }, detail: { tr: 'Cevabı bildiğin dünyaya bağla: izin bitleri erişim modifier\'ları gibidir, SIGTERM/SIGKILL interrupt()/stop() gibidir. Analoji, kavramı gerçekten ANLADIĞINI kanıtlar.', en: 'Tie the answer to a world you know: permission bits are like access modifiers, SIGTERM/SIGKILL like interrupt()/stop(). The analogy proves you truly UNDERSTAND the concept.' } },
+  ],
+}
+
+// 💼 Mülakat — senaryo komut akışı sandbox'ı
+const linuxInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'linux',
+  id: 'linux-interview-practice-01',
+  label: {
+    tr: 'Micro Lab: Mülakat senaryosunu komut akışına çevir',
+    en: 'Micro Lab: Turn the interview scenario into a command flow',
+  },
+  language: 'bash',
+  task: {
+    tr: 'Klasik mülakat senaryosu: script CI\'da Permission denied veriyor, kanıt toplandı, geçici düzeltme uygulandı. Filmdeki 3. katmanı komuta çevir — TODO satırını, x bitini repoya kalıcı olarak işleyen komutla tamamla.',
+    en: 'The classic interview scenario: the script fails with Permission denied in CI, the evidence is in, the temporary fix is applied. Turn the film\'s layer 3 into a command — complete the TODO line with the command that permanently commits the x bit into the repo.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç mülakatta anlatacağın çözüm akışını (kanıt → geçici düzeltme → kalıcı kök çözüm → commit) elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the solution flow you would narrate in an interview (evidence → temporary fix → permanent root fix → commit) by writing it yourself.',
+  },
+  code: {
+    tr: `# kanit: x biti yok, CI baska kullaniciyla kosuyor\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# gecici duzeltme: bugunu kurtarir\nchmod u+x deploy.sh\n\n# kalici kok cozum: biti repoya isle\ngit update-index --chmod=+x deploy.sh\n\n# kaydi tamamla\ngit commit -m "ci: deploy.sh execute biti kalici yapildi"`,
+    en: `# evidence: no x bit, CI runs as a different user\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# temporary fix: saves today\nchmod u+x deploy.sh\n\n# permanent root fix: commit the bit into the repo\ngit update-index --chmod=+x deploy.sh\n\n# complete the record\ngit commit -m "ci: make deploy.sh execute bit permanent"`,
+  },
+  starterCode: {
+    tr: `# kanit: x biti yok, CI baska kullaniciyla kosuyor\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# gecici duzeltme: bugunu kurtarir\nchmod u+x deploy.sh\n\n# TODO: x bitini repoya kalici isleyen komutu yaz\n\n# kaydi tamamla\ngit commit -m "ci: deploy.sh execute biti kalici yapildi"`,
+    en: `# evidence: no x bit, CI runs as a different user\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# temporary fix: saves today\nchmod u+x deploy.sh\n\n# TODO: write the command that permanently commits the x bit into the repo\n\n# complete the record\ngit commit -m "ci: make deploy.sh execute bit permanent"`,
+  },
+  solutionCode: {
+    tr: `# kanit: x biti yok, CI baska kullaniciyla kosuyor\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# gecici duzeltme: bugunu kurtarir\nchmod u+x deploy.sh\n\n# kalici kok cozum: biti repoya isle\ngit update-index --chmod=+x deploy.sh\n\n# kaydi tamamla\ngit commit -m "ci: deploy.sh execute biti kalici yapildi"`,
+    en: `# evidence: no x bit, CI runs as a different user\nls -l deploy.sh\n# -rw-r--r-- 1 qa qa 412 deploy.sh\n\n# temporary fix: saves today\nchmod u+x deploy.sh\n\n# permanent root fix: commit the bit into the repo\ngit update-index --chmod=+x deploy.sh\n\n# complete the record\ngit commit -m "ci: make deploy.sh execute bit permanent"`,
+  },
+  expected: {
+    tr: 'Bir sonraki taze checkout\'ta bile `ls -l` x bitini gösterir; CI hatası bir daha dönmez — çünkü çözüm makinede değil, REPODA yaşıyor.',
+    en: 'Even on the next fresh checkout, `ls -l` shows the x bit; the CI failure never returns — because the fix lives in the REPO, not on a machine.',
+  },
+  hints: [
+    { tr: 'chmod sadece SENİN makinendeki dosyayı düzeltir; git\'in izin bilgisini taşıması için index\'e ayrıca işlenmesi gerekir.', en: 'chmod only fixes the file on YOUR machine; for git to carry the permission, it must also be recorded into the index.' },
+    { tr: 'Aranan komut git\'in kendi alt komutudur ve `--chmod=+x` bayrağını alır — dosya adıyla birlikte.', en: 'The command you need is a git subcommand taking the `--chmod=+x` flag — together with the filename.' },
+    { tr: 'Bu komuttan sonra değişiklik staged olur; kalıcılık ancak commit ile tamamlanır.', en: 'After this command the change is staged; permanence is only completed by the commit.' },
+  ],
+  xpReward: 10,
+}
+
 export const linuxData = {
   en: {
     hero: {
@@ -403,6 +1694,7 @@ export const linuxData = {
               'Debug "works on my machine" issues where CI runs Linux and your laptop runs Windows/macOS',
             ],
           },
+          linuxInvisibleWallFilm,
           { type: 'heading', text: 'Windows Commands vs Linux Commands — A Quick Map' },
           {
             type: 'table',
@@ -418,6 +1710,7 @@ export const linuxData = {
               ['Who am I', 'whoami', 'whoami'],
             ],
           },
+          linuxIntroCommandMapPractice,
           {
             type: 'quiz',
             question: 'What is the correct relationship between terminal, shell, and kernel?',
@@ -477,6 +1770,8 @@ export const linuxData = {
               { cmd: 'lsb_release -a', explanation: 'Verifies the installation. Expected output includes "Distributor ID: Ubuntu" and a version number like "22.04".' },
             ],
           },
+          linuxWsl2BridgeFilm,
+          linuxWsl2InstallSteps,
           { type: 'heading', text: 'macOS → You Already Have a Unix Shell' },
           {
             type: 'installation',
@@ -638,6 +1933,7 @@ ls -la                       # drwxr-xr-x  test-suite/  notes.txt  .env
 cd test-suite                # move into the project folder
 pwd                          # /home/qa/test-suite`,
           },
+          linuxPathResolutionFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-ls-cd-pwd-practice-01',
@@ -794,6 +2090,7 @@ chmod 755 deploy.sh               # rwxr-xr-x — owner full, others read+execut
 sudo chown jenkins:ci deploy.sh   # transfer ownership to the jenkins user/group
 ls -l deploy.sh                   # -rwxr-xr-x 1 jenkins ci 412 deploy.sh`,
           },
+          linuxPermissionGateFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-chmod-chown-practice-01',
@@ -1002,6 +2299,7 @@ grep -v "PASSED" app.log    # invert match: lines that do NOT contain PASSED`,
 # wc -l → count how many lines remain`,
             expected: '7',
           },
+          pipeChainFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-pipe-redirect-practice-01',
@@ -1136,6 +2434,7 @@ ps aux | grep selenium          # still there? it ignored SIGTERM
 kill -9 4821                    # SIGKILL, force it
 ps aux | grep selenium          # no matching process — it is gone`,
           },
+          linuxSignalLadderFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-ps-kill-practice-01',
@@ -1389,6 +2688,7 @@ ps aux | grep java             # check if the Jenkins agent process is alive`,
 du -sh /var/log/* /tmp/* | sort -rh | head -10   # biggest space consumers
 find /var/log -name "*.log" -mtime +30 -delete   # delete logs older than 30 days`,
           },
+          linuxCiDebugChainFilm,
           { type: 'heading', text: 'Writing a QA Bash Script' },
           {
             type: 'code',
@@ -1552,6 +2852,8 @@ find . -size +100M                  # find suspiciously large files`,
             type: 'text',
             content: 'A Docker container is not a separate operating system — it is a constrained Linux process sharing the host machine\'s kernel, isolated only in filesystem, network, and process view. That is exactly why Docker needs WSL2/Hyper-V on Windows: it needs a real Linux kernel to actually run containers on.',
           },
+          linuxLeakyAbstractionFilm,
+          linuxKernelShareSteps,
           { type: 'heading', text: 'Linux Distributions for QA' },
           {
             type: 'table',
@@ -1574,6 +2876,7 @@ find . -size +100M                  # find suspiciously large files`,
               { icon: '🧩', label: 'functions', desc: 'run_tests() { pytest "$1"; }' },
             ],
           },
+          linuxBashScriptPractice,
           { type: 'heading', text: 'Where Linux Shows Up in Your QA Toolchain' },
           {
             type: 'list',
@@ -1640,7 +2943,10 @@ find . -size +100M                  # find suspiciously large files`,
       {
         title: '🚨 Error Dictionary',
         blocks: [
+          linuxErrorDiagnosisFilm,
+          linuxErrorDiagnosisSteps,
           { type: 'error-dictionary', framework: 'Linux', errors: linuxErrors, relatedTopicId: 'linux-errors' },
+          linuxErrorPractice,
           {
             type: 'quiz',
             question: 'A CI agent fails a step with "Permission denied" when running ./deploy.sh, even though the file clearly exists and the content is correct. What is the most likely cause?',
@@ -1671,6 +2977,9 @@ find . -size +100M                  # find suspiciously large files`,
       {
         title: '💼 Interview Q&A',
         blocks: [
+          linuxInterviewAnswerFilm,
+          linuxInterviewAnswerSteps,
+          linuxInterviewPractice,
           { type: 'interview-questions', topic: 'Linux', questions: linuxInterviewQuestions, relatedTopicId: 'linux' },
         ],
       },
@@ -1721,6 +3030,7 @@ find . -size +100M                  # find suspiciously large files`,
               'CI Linux\'ta, laptop\'un Windows/macOS\'te çalıştığında oluşan "benim makinemde çalışıyor" sorunlarını debug etmek',
             ],
           },
+          linuxInvisibleWallFilm,
           { type: 'heading', text: 'Windows Komutları vs Linux Komutları — Hızlı Harita' },
           {
             type: 'table',
@@ -1736,6 +3046,7 @@ find . -size +100M                  # find suspiciously large files`,
               ['Ben kimim', 'whoami', 'whoami'],
             ],
           },
+          linuxIntroCommandMapPractice,
           {
             type: 'quiz',
             question: 'Terminal, shell ve kernel arasındaki doğru ilişki nedir?',
@@ -1813,6 +3124,8 @@ find . -size +100M                  # find suspiciously large files`,
               { cmd: 'lsb_release -a', explanation: 'Kurulumu doğrular. Beklenen çıktıda "Distributor ID: Ubuntu" ve "22.04" gibi bir versiyon numarası olmalı.' },
             ],
           },
+          linuxWsl2BridgeFilm,
+          linuxWsl2InstallSteps,
           { type: 'heading', text: 'macOS → Zaten Bir Unix Shell\'in Var' },
           {
             type: 'installation',
@@ -1974,6 +3287,7 @@ ls -la                       # drwxr-xr-x  test-suite/  notes.txt  .env
 cd test-suite                # proje klasörüne geç
 pwd                          # /home/qa/test-suite`,
           },
+          linuxPathResolutionFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-ls-cd-pwd-practice-01',
@@ -2130,6 +3444,7 @@ chmod 755 deploy.sh               # rwxr-xr-x — owner full, diğerleri read+ex
 sudo chown jenkins:ci deploy.sh   # sahipliği jenkins kullanıcısına/grubuna devret
 ls -l deploy.sh                   # -rwxr-xr-x 1 jenkins ci 412 deploy.sh`,
           },
+          linuxPermissionGateFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-chmod-chown-practice-01',
@@ -2338,6 +3653,7 @@ grep -v "PASSED" app.log    # ters eşleşme: PASSED İÇERMEYEN satırlar`,
 # wc -l → kaç satır kaldığını say`,
             expected: '7',
           },
+          pipeChainFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-pipe-redirect-practice-01',
@@ -2472,6 +3788,7 @@ ps aux | grep selenium          # hâlâ orada mı? SIGTERM'i yok saydı
 kill -9 4821                    # SIGKILL, zorla durdur
 ps aux | grep selenium          # eşleşen process yok — gitti`,
           },
+          linuxSignalLadderFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-ps-kill-practice-01',
@@ -2725,6 +4042,7 @@ ps aux | grep java             # Jenkins agent process'i hayatta mı?`,
 du -sh /var/log/* /tmp/* | sort -rh | head -10   # en büyük tüketiciler
 find /var/log -name "*.log" -mtime +30 -delete   # 30 günden eski logları sil`,
           },
+          linuxCiDebugChainFilm,
           { type: 'heading', text: 'Bir QA Bash Script Yazmak' },
           {
             type: 'code',
@@ -2888,6 +4206,8 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
             type: 'text',
             content: 'Bir Docker container ayrı bir işletim sistemi değildir — host makinenin kernel\'ini paylaşan, sadece dosya sistemi, ağ ve process görünümü açısından izole edilmiş kısıtlı bir Linux process\'idir. Docker\'ın Windows\'ta WSL2/Hyper-V\'ye ihtiyaç duymasının sebebi tam olarak budur: container\'ları gerçekten çalıştırmak için gerçek bir Linux kernel\'ine gereksinimi vardır.',
           },
+          linuxLeakyAbstractionFilm,
+          linuxKernelShareSteps,
           { type: 'heading', text: 'QA için Linux Dağıtımları' },
           {
             type: 'table',
@@ -2910,6 +4230,7 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
               { icon: '🧩', label: 'fonksiyonlar', desc: 'run_tests() { pytest "$1"; }' },
             ],
           },
+          linuxBashScriptPractice,
           { type: 'heading', text: 'Linux, QA Toolchain\'inde Nerede Karşına Çıkar' },
           {
             type: 'list',
@@ -2976,7 +4297,10 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
       {
         title: '🚨 Hata Sözlüğü',
         blocks: [
+          linuxErrorDiagnosisFilm,
+          linuxErrorDiagnosisSteps,
           { type: 'error-dictionary', framework: 'Linux', errors: linuxErrors, relatedTopicId: 'linux-errors' },
+          linuxErrorPractice,
           {
             type: 'quiz',
             question: 'Bir CI agent\'ı ./deploy.sh çalıştırırken "Permission denied" hatası veriyor, dosya gerçekten var ve içeriği doğru. En olası neden nedir?',
@@ -3007,6 +4331,9 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
       {
         title: '💼 Mülakat S&C',
         blocks: [
+          linuxInterviewAnswerFilm,
+          linuxInterviewAnswerSteps,
+          linuxInterviewPractice,
           { type: 'interview-questions', topic: 'Linux', questions: linuxInterviewQuestions, relatedTopicId: 'linux' },
         ],
       },

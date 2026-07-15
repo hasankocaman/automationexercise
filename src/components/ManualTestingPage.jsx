@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import TopicHeader from './TopicHeader'
+import VideoSceneBlock from './VideoSceneBlock'
 import { useLanguage } from '../context/LanguageContext'
 import { manualTestingData } from '../data/manualTestingData'
 
@@ -582,7 +583,7 @@ function GameBlock({ lesson, labels, onComplete, darkMode }) {
 
     return (
         <div className={`rounded-lg border p-4 transition-all duration-300 ${darkMode ? 'border-slate-700 bg-slate-900/90 text-slate-200' : 'border-slate-200 bg-indigo-50/70 text-slate-800'}`}>
-            <div className="mb-3 text-sm font-black" style={{ color: lesson.color }}>{lesson.game.title}</div>
+            <div className="mb-3 text-sm font-black" style={{ color: darkMode ? '#f1f5f9' : '#1e293b' }}>{lesson.game.title}</div>
             {lesson.game.type === 'checklist' && <ChecklistGame {...props} />}
             {lesson.game.type === 'sequence' && <SequenceGame {...props} />}
             {['map', 'bug', 'quiz'].includes(lesson.game.type) && <ChoiceGame {...props} />}
@@ -824,10 +825,10 @@ function RecallFlashcard({ lesson, labels, darkMode }) {
                     onClick={() => setFlipped(!flipped)}
                     className={`p-4 min-h-[120px] flex flex-col justify-center items-center text-center cursor-pointer transition-all duration-500 ${flipped ? 'bg-emerald-950/25' : 'bg-sky-950/25'}`}
                 >
-                    <div className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2" style={{ color: flipped ? '#10b981' : '#0ea5e9' }}>
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2" style={{ color: flipped ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#38bdf8' : '#0369a1') }}>
                         {flipped ? 'Cevap / Answer' : 'Soru / Question'}
                     </div>
-                    <p className={`text-xs font-bold leading-relaxed px-2 ${darkMode ? 'text-white' : 'text-slate-100'}`}>
+                    <p className={`text-xs font-bold leading-relaxed px-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                         {flipped ? lesson.recall.answer : lesson.recall.question}
                     </p>
                     <div className="mt-3 text-[10px] font-bold opacity-60 border border-current rounded px-2 py-0.5 hover:opacity-100 transition select-none">
@@ -856,7 +857,7 @@ function RecallFlashcard({ lesson, labels, darkMode }) {
     )
 }
 
-function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode }) {
+function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode, language }) {
     return (
         <section id={lesson.id} className="scroll-mt-24">
             <div className={`rounded-lg border p-4 shadow-xl md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900/95' : 'border-slate-200 bg-white'}`}>
@@ -883,6 +884,11 @@ function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode 
                         <GameBlock lesson={lesson} labels={labels} onComplete={onComplete} darkMode={darkMode} />
                     </div>
                 </div>
+
+                {/* İzle → dene sırası: film (varsa) drag-drop/practice alıştırmalarından önce gelir */}
+                {lesson.film && (
+                    <VideoSceneBlock block={lesson.film} darkMode={darkMode} language={language} />
+                )}
 
                 <div className="mt-5 border-t border-slate-700/30 pt-5 grid gap-4 md:grid-cols-2">
                     <DragDropChallenge lesson={lesson} labels={labels} darkMode={darkMode} />
@@ -1064,6 +1070,7 @@ function ManualTestingPage() {
                                 complete={Boolean(completed[lesson.id])}
                                 onComplete={() => setCompleted(current => current[lesson.id] ? current : { ...current, [lesson.id]: true })}
                                 neuroMode={neuroMode}
+                                language={language}
                             />
                         ))}
                         <FinalQuiz quiz={data.quiz} labels={data.ui} darkMode={darkMode} />

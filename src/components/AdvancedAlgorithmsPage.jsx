@@ -314,10 +314,10 @@ function RecallFlashcard({ lesson, labels, darkMode, onRecallComplete }) {
                     onClick={() => setFlipped(!flipped)}
                     className={`p-4 min-h-[110px] flex flex-col justify-center items-center text-center cursor-pointer transition-all duration-500 ${flipped ? 'bg-emerald-950/20' : 'bg-sky-950/20'}`}
                 >
-                    <div className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-2" style={{ color: flipped ? '#10b981' : '#0ea5e9' }}>
+                    <div className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-2" style={{ color: flipped ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#38bdf8' : '#0369a1') }}>
                         {flipped ? 'Cevap / Answer' : 'Soru / Question'}
                     </div>
-                    <p className={`text-xs font-bold leading-relaxed px-2 ${darkMode ? 'text-white' : 'text-slate-100'}`}>
+                    <p className={`text-xs font-bold leading-relaxed px-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                         {flipped ? answer : question}
                     </p>
                     <div className="mt-3 text-[9px] font-bold opacity-60 border border-current rounded px-2 py-0.5 hover:opacity-100 transition select-none">
@@ -746,7 +746,7 @@ function BinarySearchLab({ section, labels, darkMode }) {
                             className={`rounded-lg border px-2 py-3 text-center font-mono text-xs font-black transition-all ${active ? 'scale-100 opacity-100' : 'scale-95 opacity-30'} ${darkMode ? 'bg-slate-900' : 'bg-white'}`}
                             style={{
                                 borderColor: isTarget ? '#10b981' : isProbe ? '#f59e0b' : active ? '#0891b2' : '#64748b',
-                                color: isTarget ? '#10b981' : isProbe ? '#f59e0b' : active ? '#38bdf8' : '#94a3b8',
+                                color: isTarget ? (darkMode ? '#34d399' : '#047857') : isProbe ? (darkMode ? '#fbbf24' : '#b45309') : active ? (darkMode ? '#38bdf8' : '#0369a1') : (darkMode ? '#94a3b8' : '#475569'),
                             }}
                         >
                             {commit}
@@ -962,10 +962,10 @@ function StateMachineLab({ section, labels, darkMode }) {
 function ComplexityLab({ section, darkMode }) {
     const [n, setN] = useState(section.lab.defaultValue)
     const ops = [
-        { label: 'O(1)', value: 1, color: '#10b981' },
-        { label: 'O(log n)', value: Math.ceil(Math.log2(n)), color: '#3b82f6' },
-        { label: 'O(n)', value: n, color: '#f59e0b' },
-        { label: 'O(n^2)', value: n * n, color: '#ef4444' },
+        { label: 'O(1)', value: 1, color: darkMode ? '#34d399' : '#047857' },
+        { label: 'O(log n)', value: Math.ceil(Math.log2(n)), color: darkMode ? '#93c5fd' : '#1d4ed8' },
+        { label: 'O(n)', value: n, color: darkMode ? '#fbbf24' : '#b45309' },
+        { label: 'O(n^2)', value: n * n, color: darkMode ? '#f87171' : '#b91c1c' },
     ]
     const maxLog = Math.log10(n * n + 1)
 

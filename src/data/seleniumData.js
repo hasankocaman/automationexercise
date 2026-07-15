@@ -3,7 +3,1572 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 import { LOCATOR_EXPLORER_BLOCK } from './locatorExplorerData.js'
 
-// ─── S0: GİRİŞ ───────────────────────────────────────────────────────────────
+// ─── Dalga 6 film sabitleri (video-scene — EN + TR paylaşımlı) ───────────────
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+// 🌐 Giriş — WebDriver komut zinciri filmi
+const seleniumDomProofFilm = {
+  type: 'video-scene',
+  id: 'selenium-dom-proof-film',
+  title: {
+    tr: '🎬 Bir Tıklamanın Yolculuğu: Test Kodundan DOM\'a',
+    en: '🎬 The Journey of a Click: From Test Code to the DOM',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test',   emoji: '📝', label: { tr: 'Test kodu',            en: 'Test code' },            color: '#0ea5e9' },
+    { id: 'api',    emoji: '🚗', label: { tr: 'WebDriver API',         en: 'WebDriver API' },         color: '#6366f1' },
+    { id: 'driver', emoji: '🔌', label: { tr: 'ChromeDriver',          en: 'ChromeDriver' },          color: '#8b5cf6' },
+    { id: 'browser',emoji: '🌍', label: { tr: 'Chrome',                en: 'Chrome' },                color: '#f59e0b' },
+    { id: 'dom',    emoji: '📄', label: { tr: 'DOM',                   en: 'DOM' },                   color: '#22c55e' },
+    { id: 'unit',   emoji: '🧪', label: { tr: 'Unit test (kör nokta)', en: 'Unit test (blind spot)' }, color: '#94a3b8' },
+    { id: 'proof',  emoji: '✅', label: { tr: 'Görsel kanıt',          en: 'Visual proof' },          color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'JUnit + Mockito zaten var — peki neden bir de tarayıcıyı gerçekten açan bir araca ihtiyacımız var? `driver.findElement(By.id("loginBtn")).click()` çalıştığında bunu izleyeceksin.',
+        en: 'JUnit + Mockito already exist — so why do we also need a tool that actually opens a browser? Watch what happens when `driver.findElement(By.id("loginBtn")).click()` runs.',
+      },
+      code: { tr: `driver.findElement(By.id("loginBtn")).click();`, en: `driver.findElement(By.id("loginBtn")).click();` },
+      positions: { test: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — komut standart bir arayüze gider: WebDriver API. Java\'da RemoteWebDriver, Python\'da webdriver.Chrome(), TypeScript\'te aynı kavram — sözdizimi değişir, KONTRAT değişmez.',
+        en: 'Step 1 — the command goes through a standard interface: the WebDriver API. RemoteWebDriver in Java, webdriver.Chrome() in Python, the same concept in TypeScript — the syntax changes, the CONTRACT does not.',
+      },
+      positions: {
+        test: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        api: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'api', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — API, ChromeDriver\'a bir W3C WebDriver isteği gönderir. ChromeDriver, Java\'daki JDBC sürücüsü gibi bir KÖPRÜDÜR: senin kodunla gerçek Chrome arasında çevirmenlik yapar.',
+        en: 'Step 2 — the API sends a W3C WebDriver request to ChromeDriver. ChromeDriver is a BRIDGE, like a Java JDBC driver: it translates between your code and the real Chrome.',
+      },
+      positions: {
+        api: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        driver: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'api', to: 'driver', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — ChromeDriver, gerçek Chrome\'u yönetir. Bu simüle edilmiş bir tarayıcı DEĞİL — kullanıcının göreceği AYNI render motoru, AYNI JavaScript motoru.',
+        en: 'Step 3 — ChromeDriver drives the real Chrome. This is NOT a simulated browser — it is the SAME rendering engine, the SAME JavaScript engine a user would see.',
+      },
+      positions: {
+        driver: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        browser: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'driver', to: 'browser', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — click DOM\'a ulaşır: buton gerçekten var mı, gerçekten tıklanabilir mi, tıklandığında modal AÇILIYOR mu? Bu sorulara cevap, sadece bu katmanda ölçülebilir.',
+        en: 'Step 4 — the click reaches the DOM: does the button really exist, is it really clickable, does a modal really OPEN when clicked? These questions can only be measured at this layer.',
+      },
+      positions: {
+        browser: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        dom: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'browser', to: 'dom', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — unit test bu zincire hiç GİRMEZ: backend mantığını izole test eder ama "buton göründü mü, modal açıldı mı" sorusuna asla ulaşamaz. Bu, Selenium\'un doldurduğu kör noktadır.',
+        en: 'Contrast — a unit test never ENTERS this chain: it tests backend logic in isolation but never reaches "did the button appear, did the modal open". This is the blind spot Selenium fills.',
+      },
+      positions: {
+        dom: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        unit: { x: 60, y: 55, scale: 1, opacity: 0.7 },
+        proof: { x: 60, y: 35, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'dom', to: 'proof', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — zincir: test kodu → WebDriver API → ChromeDriver → gerçek tarayıcı → DOM. Cevapsız kalan her "göründü mü, tıklandı mı" sorusu, production\'da müşterinin bulduğu bir bug demektir.',
+        en: 'Final — the chain: test code → WebDriver API → ChromeDriver → real browser → DOM. Every unanswered "did it appear, was it clicked" question becomes a bug the customer finds in production.',
+      },
+      positions: {
+        test: { x: 10, y: 55, scale: 0.75 },
+        api: { x: 28, y: 35, scale: 0.8 },
+        driver: { x: 48, y: 55, scale: 0.8 },
+        browser: { x: 68, y: 35, scale: 0.85 },
+        proof: { x: 90, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'api' }, { from: 'api', to: 'driver' }, { from: 'driver', to: 'browser' }, { from: 'browser', to: 'proof' }],
+    },
+  ],
+}
+
+// ⚙️ Kurulum — ChromeDriver sürüm uyuşmazlığı filmi
+const seleniumVersionMismatchFilm = {
+  type: 'video-scene',
+  id: 'selenium-version-mismatch-film',
+  title: {
+    tr: '🎬 Cuma Gecesi Chrome Güncellendi: CI Neden Kırmızı?',
+    en: '🎬 Chrome Updated Friday Night: Why Is CI Red?',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'chrome',  emoji: '🌍', label: { tr: 'Chrome (auto-update)',   en: 'Chrome (auto-update)' },   color: '#0ea5e9' },
+    { id: 'driver',  emoji: '🔌', label: { tr: 'Eski ChromeDriver',      en: 'Old ChromeDriver' },        color: '#94a3b8' },
+    { id: 'fail',    emoji: '💥', label: { tr: 'session not created',    en: 'session not created' },     color: '#ef4444' },
+    { id: 'ci',      emoji: '☁️', label: { tr: 'CI pipeline (kırmızı)',  en: 'CI pipeline (red)' },       color: '#dc2626' },
+    { id: 'manager', emoji: '🤖', label: { tr: 'Selenium Manager',       en: 'Selenium Manager' },        color: '#8b5cf6' },
+    { id: 'match',   emoji: '🔗', label: { tr: 'Uyumlu sürücü',          en: 'Matching driver' },         color: '#22c55e' },
+    { id: 'green',   emoji: '✅', label: { tr: 'CI yeşil',                en: 'CI green' },                color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Chrome, arka planda kendini otomatik günceller — kullanıcı hiçbir şey fark etmez. Ama CI ajanındaki ChromeDriver, DÜN\'ün Chrome sürümüne göre indirilmişti.',
+        en: 'Chrome silently auto-updates itself in the background — the user notices nothing. But the ChromeDriver on the CI agent was downloaded for YESTERDAY\'s Chrome version.',
+      },
+      positions: { chrome: { x: 30, y: 50, scale: 1.15, pulse: true }, driver: { x: 65, y: 50, scale: 0.95, opacity: 0.7 } },
+    },
+    {
+      caption: {
+        tr: 'Pazartesi sabahı `new ChromeDriver()` çağrılır. Eski sürücü, yeni Chrome ile el sıkışamaz — W3C handshake başarısız olur.',
+        en: 'Monday morning, `new ChromeDriver()` is called. The old driver cannot shake hands with the new Chrome — the W3C handshake fails.',
+      },
+      code: { tr: `WebDriver driver = new ChromeDriver();`, en: `WebDriver driver = new ChromeDriver();` },
+      positions: {
+        chrome: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        driver: { x: 50, y: 50, scale: 1.1 },
+        fail: { x: 78, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'chrome', to: 'driver' }, { from: 'driver', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: '`session not created: This version of ChromeDriver only supports Chrome version 128`. Kod değişmedi, test değişmedi — sadece Chrome\'un arka plan güncellemesi tüm pipeline\'ı durdurdu.',
+        en: '`session not created: This version of ChromeDriver only supports Chrome version 128`. The code did not change, the test did not change — only Chrome\'s background update stopped the entire pipeline.',
+      },
+      code: { tr: `session not created: This version of ChromeDriver only supports Chrome version 128`, en: `session not created: This version of ChromeDriver only supports Chrome version 128` },
+      positions: {
+        fail: { x: 25, y: 45, scale: 1.05, pulse: true },
+        ci: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'ci', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium 3 refleksi: sürücüyü elle indir, PATH\'e ekle, versiyonu elle takip et. Chrome her 4-6 haftada güncellendiğinden bu döngü SONSUZA dek tekrar eder.',
+        en: 'Contrast — the Selenium 3 reflex: manually download the driver, add it to PATH, manually track the version. Since Chrome updates every 4-6 weeks, this cycle repeats FOREVER.',
+      },
+      positions: {
+        ci: { x: 30, y: 45, scale: 1.05, pulse: true },
+        driver: { x: 65, y: 55, scale: 0.85, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Selenium 4\'ün çözümü: Selenium Manager. `new ChromeDriver()` çağrıldığında, yüklü Chrome sürümünü OTOMATİK tespit eder ve uyumlu sürücüyü kendisi indirir — Gradle\'ın bağımlılık çözümlemesi gibi.',
+        en: 'Selenium 4\'s fix: Selenium Manager. When `new ChromeDriver()` is called, it AUTOMATICALLY detects the installed Chrome version and downloads the matching driver itself — like Gradle\'s dependency resolution.',
+      },
+      code: { tr: `WebDriver driver = new ChromeDriver();\n// Selenium Manager: Chrome 128 tespit edildi, uyumlu surucu indiriliyor...`, en: `WebDriver driver = new ChromeDriver();\n// Selenium Manager: detected Chrome 128, downloading matching driver...` },
+      positions: {
+        ci: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        manager: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ci', to: 'manager', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Uyumlu sürücü saniyeler içinde iner, handshake başarılı olur — `new ChromeDriver()` artık her Chrome güncellemesinde SESSİZCE kendini onarır.',
+        en: 'The matching driver downloads in seconds, the handshake succeeds — `new ChromeDriver()` now SILENTLY heals itself on every Chrome update.',
+      },
+      positions: {
+        manager: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        match: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'manager', to: 'match', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — CI yeşile döner, kimsenin müdahalesi olmadan. Tek istisna: CI ajanının internet erişimi yoksa, Selenium Manager indiremez — o zaman sürücüyü proje artifact\'ı olarak SEN yönetmelisin.',
+        en: 'Final — CI turns green with no human intervention. The one exception: if the CI agent has no internet access, Selenium Manager cannot download — then YOU must manage the driver as a project artifact.',
+      },
+      positions: {
+        driver: { x: 12, y: 55, scale: 0.75, opacity: 0.5 },
+        fail: { x: 30, y: 35, scale: 0.7, opacity: 0.4 },
+        manager: { x: 54, y: 55, scale: 0.9 },
+        match: { x: 74, y: 35, scale: 0.9 },
+        green: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'manager', to: 'match' }, { from: 'match', to: 'green' }],
+    },
+  ],
+}
+
+// 🎯 Locators — sessiz yanlış eşleşme filmi
+const seleniumSilentMismatchFilm = {
+  type: 'video-scene',
+  id: 'selenium-silent-mismatch-film',
+  title: {
+    tr: '🎬 En Tehlikeli Locator: By.className\'in Sessiz Tuzağı',
+    en: '🎬 The Most Dangerous Locator: The Silent Trap of By.className',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'button',  emoji: '🔘', label: { tr: '"Satın Al" (class="btn")', en: '"Buy Now" (class="btn")' }, color: '#0ea5e9' },
+    { id: 'locator', emoji: '🔍', label: { tr: 'By.className("btn")',      en: 'By.className("btn")' },      color: '#6366f1' },
+    { id: 'green',   emoji: '✅', label: { tr: 'Test GEÇİYOR',             en: 'Test PASSES' },              color: '#22c55e' },
+    { id: 'refactor',emoji: '🎨', label: { tr: 'Tasarımcı CSS\'i refactor eder', en: 'Designer refactors the CSS' }, color: '#f59e0b' },
+    { id: 'other',   emoji: '🔗', label: { tr: '"İptal Et" (class="btn")', en: '"Cancel" (class="btn")' },  color: '#94a3b8' },
+    { id: 'wrong',   emoji: '😱', label: { tr: 'Yanlış butona tıklandı',   en: 'Wrong button clicked' },    color: '#ef4444' },
+    { id: 'stillgreen', emoji: '💀', label: { tr: 'Test YİNE geçiyor', en: 'Test STILL passes' },          color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`By.className("btn")` — "Satın Al" butonunu bulur, tıklar, test GEÇER. Her şey mükemmel görünüyor.',
+        en: '`By.className("btn")` — finds the "Buy Now" button, clicks it, the test PASSES. Everything looks perfect.',
+      },
+      code: { tr: `driver.findElement(By.className("btn")).click();`, en: `driver.findElement(By.className("btn")).click();` },
+      positions: { locator: { x: 30, y: 50, scale: 1.1 }, button: { x: 65, y: 50, scale: 1.15, pulse: true } },
+      beams: [{ from: 'locator', to: 'button' }],
+    },
+    {
+      caption: {
+        tr: 'Test yeşil kaldı, kimse şüphelenmedi — ama `By.className` HER ZAMAN ilk eşleşen elementi döndürür, sayfada aynı class\'a sahip başka element OLMASA bile.',
+        en: 'The test stayed green, nobody suspected anything — but `By.className` ALWAYS returns the first matching element, even if no other element shares that class YET.',
+      },
+      positions: {
+        button: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        green: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'button', to: 'green', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Haftalar sonra: bir tasarımcı stil tutarlılığı için "İptal Et" butonuna da `class="btn"` ekler — sayfanın görünümü değişmez, ama artık İKİ eleman aynı class\'ı paylaşıyor.',
+        en: 'Weeks later: a designer adds `class="btn"` to the "Cancel" button too, for style consistency — the page looks unchanged, but now TWO elements share that class.',
+      },
+      code: { tr: `<button class="btn">İptal Et</button>`, en: `<button class="btn">Cancel</button>` },
+      positions: {
+        green: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        refactor: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'green', to: 'refactor', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: '`By.className("btn")` artık DOM sırasına göre "İptal Et" butonunu buluyor olabilir — hangisinin önce geldiği CSS\'ten değil, HTML sırasından belirlenir.',
+        en: '`By.className("btn")` may now find the "Cancel" button instead, depending on DOM order — which one comes first is determined by HTML order, not CSS.',
+      },
+      positions: {
+        refactor: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        other: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'refactor', to: 'other', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Test AYNI kodu çalıştırır, AYNI şekilde tıklar — ama artık "Satın Al" yerine "İptal Et"e tıklıyor. Hiçbir exception YOK, çünkü element gerçekten bulundu ve gerçekten tıklanabilirdi.',
+        en: 'The test runs the SAME code, clicks the SAME way — but now it clicks "Cancel" instead of "Buy Now". There is NO exception, because the element genuinely existed and was genuinely clickable.',
+      },
+      positions: {
+        other: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        wrong: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'other', to: 'wrong', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Test raporunda: "PASSED". Ama gerçekte ödeme akışı test EDİLMEDİ — sipariş iptal edildi ve kimse fark etmedi. Bu, bulunması en zor flaky test türüdür: hata vermeyen, sessizce YANLIŞ çalışan test.',
+        en: 'The test report says: "PASSED". But the checkout flow was never actually tested — an order was cancelled and nobody noticed. This is the hardest kind of flaky test to find: one that errors nowhere, but silently does the WRONG thing.',
+      },
+      positions: {
+        wrong: { x: 25, y: 45, scale: 0.95, opacity: 0.7 },
+        stillgreen: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'wrong', to: 'stillgreen', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: `By.className` sınıf tipiyle değil AD\'la eşleştirme yapan `instanceof` kontrolü gibidir; birden fazla sınıf aynı adı paylaşırsa yanlış nesneyi yakalarsın. Güvenli seçim: `By.id` veya `data-testid` — tasarımın ASLA dokunmayacağı bir kimlik.',
+        en: 'Final — the Java bridge: `By.className` is like an `instanceof` check that matches by NAME, not by unique identity; if multiple classes share a name, you catch the wrong object. The safe choice: `By.id` or `data-testid` — an identity design will NEVER touch.',
+      },
+      positions: {
+        locator: { x: 10, y: 55, scale: 0.75 },
+        button: { x: 28, y: 35, scale: 0.8, opacity: 0.6 },
+        refactor: { x: 50, y: 55, scale: 0.85 },
+        other: { x: 70, y: 35, scale: 0.85 },
+        stillgreen: { x: 92, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'locator', to: 'refactor' }, { from: 'refactor', to: 'other' }, { from: 'other', to: 'stillgreen' }],
+    },
+  ],
+}
+
+// ⚡ Aksiyonlar — drag-and-drop sessiz yanlış PASS filmi
+const seleniumActionsChainFilm = {
+  type: 'video-scene',
+  id: 'selenium-actions-chain-film',
+  title: {
+    tr: '🎬 element.click() ile Yazılan Drag-and-Drop Testi Neden Yalan Söyler',
+    en: '🎬 Why a Drag-and-Drop Test Written with element.click() Lies',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'widget',  emoji: '🧩', label: { tr: 'Drag-and-drop widget',    en: 'Drag-and-drop widget' },    color: '#0ea5e9' },
+    { id: 'click',   emoji: '🖱️', label: { tr: 'element.click()',        en: 'element.click()' },         color: '#94a3b8' },
+    { id: 'localpass', emoji: '✅', label: { tr: 'Lokal: "çalışıyor"',   en: 'Local: "it works"' },        color: '#22c55e' },
+    { id: 'actions', emoji: '🔗', label: { tr: 'Actions.perform()',      en: 'Actions.perform()' },        color: '#8b5cf6' },
+    { id: 'events',  emoji: '⚡', label: { tr: 'mousedown→mousemove→mouseup', en: 'mousedown→mousemove→mouseup' }, color: '#f59e0b' },
+    { id: 'staging', emoji: '☁️', label: { tr: 'Staging (gerçek listener)', en: 'Staging (real listener)' }, color: '#dc2626' },
+    { id: 'truepass',emoji: '🏆', label: { tr: 'Gerçek geçen test',       en: 'Genuinely passing test' },   color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir geliştirici drag-and-drop widget\'ını test etmek için basit `element.click()` yazar — hızlı, tanıdık, önceki testlerde hep işe yaramıştı.',
+        en: 'A developer writes a simple `element.click()` to test a drag-and-drop widget — fast, familiar, always worked in previous tests.',
+      },
+      code: { tr: `sourceElement.click();\ntargetElement.click();`, en: `sourceElement.click();\ntargetElement.click();` },
+      positions: { widget: { x: 30, y: 50, scale: 1.1 }, click: { x: 65, y: 50, scale: 1.15, pulse: true } },
+      beams: [{ from: 'click', to: 'widget' }],
+    },
+    {
+      caption: {
+        tr: 'Lokal makinede test YEŞİL — element bulundu, tıklandı, hiçbir exception yok. "Çalışıyor" diye commit edilir.',
+        en: 'On the local machine the test is GREEN — the element was found, clicked, no exception. It gets committed as "it works".',
+      },
+      positions: {
+        click: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        localpass: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'click', to: 'localpass', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Gerçek şu: `element.click()` tarayıcıya sadece "tıklanmış gibi davran" der — drag-and-drop widget\'larının dinlediği `mousedown`, `mousemove`, `mouseup` olaylarının HİÇBİRİNİ tetiklemez.',
+        en: 'The reality: `element.click()` only tells the browser "act as if clicked" — it triggers NONE of the `mousedown`, `mousemove`, `mouseup` events a drag-and-drop widget actually listens for.',
+      },
+      positions: {
+        localpass: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        events: { x: 60, y: 50, scale: 1.15, pulse: true, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Doğru araç: Actions API. Java\'da `new Actions(driver)` ile başlayan zincir, tıpkı StringBuilder gibi hareketleri BİRİKTİRİR, `.perform()` çağrılana kadar hiçbir şey tetiklenmez.',
+        en: 'The right tool: the Actions API. The chain starting with `new Actions(driver)` in Java ACCUMULATES movements just like StringBuilder — nothing fires until `.perform()` is called.',
+      },
+      code: { tr: `new Actions(driver)\n  .clickAndHold(sourceElement)\n  .moveToElement(targetElement)\n  .release()\n  .perform();`, en: `new Actions(driver)\n  .clickAndHold(sourceElement)\n  .moveToElement(targetElement)\n  .release()\n  .perform();` },
+      positions: {
+        events: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        actions: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'events', to: 'actions', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: '`.perform()` çağrıldığında zincir GERÇEK mouse olaylarının tamamını sırayla tetikler: mousedown → mousemove → mouseup — widget\'ın beklediği TAM olay dizisi.',
+        en: 'When `.perform()` is called, the chain fires the FULL sequence of real mouse events in order: mousedown → mousemove → mouseup — the EXACT event sequence the widget expects.',
+      },
+      positions: {
+        actions: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        events: { x: 56, y: 50, scale: 1.2, pulse: true, opacity: 1 },
+      },
+      beams: [{ from: 'actions', to: 'events', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — staging\'de gerçek JavaScript event listener\'ları devreye girince `element.click()` yazılmış test SESSİZCE yanlış PASS verir; widget hiç sürüklenmemiştir ama exception yoktur.',
+        en: 'Contrast — in staging, once the real JavaScript event listeners kick in, the test written with `element.click()` SILENTLY passes wrong; the widget was never actually dragged, yet there is no exception.',
+      },
+      positions: {
+        events: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        staging: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'events', to: 'staging', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: Actions API, StringBuilder\'a append edip en sonda `toString()` çağırmaya benzer — hareketleri BİRİKTİR, tek seferde `.perform()` ile çalıştır. Widget gerçekten sürüklenir, test GERÇEKTEN geçer.',
+        en: 'Final — the Java bridge: the Actions API is like appending to a StringBuilder and calling `toString()` at the end — ACCUMULATE the movements, execute them all at once with `.perform()`. The widget is genuinely dragged, the test genuinely passes.',
+      },
+      positions: {
+        widget: { x: 12, y: 55, scale: 0.8 },
+        click: { x: 30, y: 35, scale: 0.75, opacity: 0.5 },
+        actions: { x: 54, y: 55, scale: 0.9 },
+        staging: { x: 72, y: 35, scale: 0.8, opacity: 0.6 },
+        truepass: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'actions', to: 'truepass' }],
+    },
+  ],
+}
+
+// ⏳ Wait — Thread.sleep refleksi filmi
+const seleniumWaitReflexFilm = {
+  type: 'video-scene',
+  id: 'selenium-wait-reflex-film',
+  title: {
+    tr: '🎬 50 Test × 2 Saniye: Thread.sleep()\'in Gizli Faturası',
+    en: '🎬 50 Tests × 2 Seconds: The Hidden Bill of Thread.sleep()',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'element', emoji: '🔘', label: { tr: 'Async yüklenen buton',   en: 'Async-loaded button' },     color: '#0ea5e9' },
+    { id: 'sleep',   emoji: '💤', label: { tr: 'Thread.sleep(3000)',     en: 'Thread.sleep(3000)' },       color: '#94a3b8' },
+    { id: 'waste',   emoji: '⏱️', label: { tr: '100 saniye israf (50 test)', en: '100 seconds wasted (50 tests)' }, color: '#dc2626' },
+    { id: 'flaky',   emoji: '🎲', label: { tr: 'Yine de flaky',          en: 'Still flaky' },              color: '#ef4444' },
+    { id: 'explicit',emoji: '🎯', label: { tr: 'ExplicitWait + koşul',   en: 'ExplicitWait + condition' }, color: '#8b5cf6' },
+    { id: 'fast',    emoji: '⚡', label: { tr: '0.5 saniyede geçti',     en: 'Passed in 0.5 seconds' },    color: '#22c55e' },
+    { id: 'reliable',emoji: '✅', label: { tr: 'Güvenilir + hızlı',      en: 'Reliable + fast' },          color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir buton, API çağrısı bitince ekranda belirir — ne zaman hazır olacağı belirsizdir. Refleks çözüm: `Thread.sleep(3000)` ekle, "3 saniye yeter" diye düşün.',
+        en: 'A button appears once an API call finishes — exactly when it will be ready is unknown. The reflex fix: add `Thread.sleep(3000)`, thinking "3 seconds should be enough".',
+      },
+      code: { tr: `Thread.sleep(3000);\ndriver.findElement(By.id("submitBtn")).click();`, en: `Thread.sleep(3000);\ndriver.findElement(By.id("submitBtn")).click();` },
+      positions: { element: { x: 30, y: 50, scale: 1.1 }, sleep: { x: 65, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Buton 0.5 saniyede hazır olsa BİLE, `Thread.sleep(3000)` yine de tam 3 saniye bekler — geri kalan 2.5 saniye saf, geri kazanılamaz zaman kaybıdır.',
+        en: 'Even if the button is ready in 0.5 seconds, `Thread.sleep(3000)` still waits the FULL 3 seconds — the remaining 2.5 seconds are pure, unrecoverable waste.',
+      },
+      positions: {
+        sleep: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        element: { x: 55, y: 50, scale: 1, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: '50 testin her biri ortalama 2 saniye böyle bekliyorsa: 50 × 2 = 100 saniye — her CI koşumunda, hiçbir katma değer olmadan.',
+        en: 'If each of 50 tests waits about 2 seconds like this: 50 × 2 = 100 seconds — on every CI run, with zero added value.',
+      },
+      code: { tr: `50 test x ortalama 2sn sleep = 100 saniye israf`, en: `50 tests x average 2s sleep = 100 seconds wasted` },
+      positions: {
+        element: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        waste: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'element', to: 'waste', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Daha kötüsü: ağ gecikmesi arttığında buton 3 saniyeden GEÇ gelirse, sabit sleep yine de yetersiz kalır — test hâlâ flaky\'dir, sadece daha yavaş flaky.',
+        en: 'Worse: if network latency spikes and the button takes LONGER than 3 seconds, the fixed sleep is still insufficient — the test is still flaky, just slower and flaky.',
+      },
+      positions: {
+        waste: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        flaky: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'waste', to: 'flaky', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Doğru araç: `WebDriverWait` + `ExpectedConditions.elementToBeClickable`. Bu, sabit süre DEĞİL, bir KOŞUL bekler — koşul sağlanır sağlanmaz devam eder.',
+        en: 'The right tool: `WebDriverWait` + `ExpectedConditions.elementToBeClickable`. This waits for a CONDITION, not a fixed duration — it proceeds the instant the condition is met.',
+      },
+      code: { tr: `new WebDriverWait(driver, Duration.ofSeconds(10))\n  .until(ExpectedConditions.elementToBeClickable(By.id("submitBtn")))\n  .click();`, en: `new WebDriverWait(driver, Duration.ofSeconds(10))\n  .until(ExpectedConditions.elementToBeClickable(By.id("submitBtn")))\n  .click();` },
+      positions: {
+        flaky: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        explicit: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'flaky', to: 'explicit', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Buton 0.5 saniyede hazır olursa, test 0.5 saniyede devam eder — 10 saniyelik timeout sadece bir GÜVENLİK AĞIDIR, sabit bir bekleme değil.',
+        en: 'If the button is ready in 0.5 seconds, the test proceeds in 0.5 seconds — the 10-second timeout is only a SAFETY NET, not a fixed wait.',
+      },
+      positions: {
+        explicit: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        fast: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'explicit', to: 'fast', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: Thread.sleep() süresi sabit bir `Thread.sleep()` çağrısıdır, koşulu hiç sormaz; `WebDriverWait` ise bloklu bir `CompletableFuture.get(timeout, SECONDS)` gibidir — HANGİ koşulu beklediğini sen tanımlarsın, gereksiz bekleme ve erken exception ikisi de önlenir.',
+        en: 'Final — the Java bridge: Thread.sleep() is a fixed call that never asks about the condition; `WebDriverWait` is like a blocking `CompletableFuture.get(timeout, SECONDS)` — YOU define which condition it waits for, preventing both wasted time and premature exceptions.',
+      },
+      positions: {
+        sleep: { x: 12, y: 55, scale: 0.75, opacity: 0.5 },
+        waste: { x: 30, y: 35, scale: 0.7, opacity: 0.4 },
+        explicit: { x: 54, y: 55, scale: 0.9 },
+        fast: { x: 74, y: 35, scale: 0.85 },
+        reliable: { x: 92, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'explicit', to: 'fast' }, { from: 'fast', to: 'reliable' }],
+    },
+  ],
+}
+
+// 🪟 Frames & Alert — ödeme iframe'i sessiz kilit filmi
+const seleniumIframeContextFilm = {
+  type: 'video-scene',
+  id: 'selenium-iframe-context-film',
+  title: {
+    tr: '🎬 "Satın Al" Butonu Bulundu Ama Tıklanamıyor — iframe Vakası',
+    en: '🎬 The "Buy Now" Button Was Found But Can\'t Be Clicked — The iframe Case',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'page',    emoji: '📄', label: { tr: 'Ana sayfa DOM\'u',       en: 'Main page DOM' },           color: '#0ea5e9' },
+    { id: 'iframe',  emoji: '🖼️', label: { tr: 'Ödeme iframe\'i (Stripe)', en: 'Payment iframe (Stripe)' }, color: '#8b5cf6' },
+    { id: 'find',    emoji: '🔍', label: { tr: 'findElement (ana bağlam)', en: 'findElement (main context)' }, color: '#94a3b8' },
+    { id: 'noexc',   emoji: '❓', label: { tr: 'Exception YOK',           en: 'NO exception' },            color: '#f59e0b' },
+    { id: 'switch',  emoji: '🔀', label: { tr: 'switchTo().frame()',      en: 'switchTo().frame()' },      color: '#22c55e' },
+    { id: 'clicked', emoji: '✅', label: { tr: 'Gerçekten tıklandı',      en: 'Genuinely clicked' },       color: '#16a34a' },
+    { id: 'unpaid',  emoji: '💸', label: { tr: 'Ödeme akışı test edilmedi', en: 'Payment flow never tested' }, color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Ödeme sayfası görsel olarak TEK bir bütün görünür — ama "Satın Al" butonu aslında Stripe\'ın kendi iframe\'inin İÇİNDEDİR, ayrı bir DOM bağlamında.',
+        en: 'The payment page LOOKS like a single unit — but the "Buy Now" button actually lives INSIDE Stripe\'s own iframe, in a separate DOM context.',
+      },
+      positions: { page: { x: 30, y: 50, scale: 1.1, pulse: true }, iframe: { x: 65, y: 50, scale: 1 } },
+      beams: [{ from: 'page', to: 'iframe' }],
+    },
+    {
+      caption: {
+        tr: 'Test, ana sayfa bağlamından `driver.findElement(By.id("payBtn"))` çağırır — geçiş (switchTo) yapılmamıştır.',
+        en: 'The test calls `driver.findElement(By.id("payBtn"))` from the main page context — no switch (switchTo) has happened.',
+      },
+      code: { tr: `driver.findElement(By.id("payBtn")).click();`, en: `driver.findElement(By.id("payBtn")).click();` },
+      positions: {
+        page: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        find: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'page', to: 'find' }],
+    },
+    {
+      caption: {
+        tr: 'Java\'da bir ClassLoader\'ın başka bir ClassLoader\'ın sınıflarını GÖRMEMESİ gibi: ana bağlam, iframe İÇİNDEKİ elementleri göremez. Ama burada beklenen `NoSuchElementException` gelmez!',
+        en: 'Like a Java ClassLoader that cannot SEE classes loaded by another ClassLoader: the main context cannot see elements INSIDE the iframe. But the expected `NoSuchElementException` does not appear here!',
+      },
+      positions: {
+        find: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        noexc: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Neden çünkü buton, ana sayfanın KENDİ HTML\'inde farklı bir amaçla zaten var olabilir (örn. bir wrapper div) — element bulunur, tıklanır, ama Stripe\'ın GERÇEK butonuna hiç dokunulmaz.',
+        en: 'Because the button may already exist in the main page\'s OWN HTML for a different purpose (e.g. a wrapper div) — the element is found, clicked, but Stripe\'s REAL button is never touched.',
+      },
+      positions: {
+        noexc: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        iframe: { x: 56, y: 50, scale: 1.15, pulse: true, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Doğru akış: önce `driver.switchTo().frame("stripe-frame")` ile bağlamı DEĞİŞTİR — artık findElement, iframe\'in İÇİNDEKİ gerçek DOM\'a bakar.',
+        en: 'The correct flow: first CHANGE context with `driver.switchTo().frame("stripe-frame")` — now findElement looks at the real DOM INSIDE the iframe.',
+      },
+      code: { tr: `driver.switchTo().frame("stripe-frame");\ndriver.findElement(By.id("payBtn")).click();\ndriver.switchTo().defaultContent();`, en: `driver.switchTo().frame("stripe-frame");\ndriver.findElement(By.id("payBtn")).click();\ndriver.switchTo().defaultContent();` },
+      positions: {
+        iframe: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        switch: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'iframe', to: 'switch', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Artık buton GERÇEKTEN tıklanır — Stripe\'ın kendi JavaScript event listener\'ı tetiklenir, ödeme akışı GERÇEKTEN test edilmiş olur.',
+        en: 'Now the button is GENUINELY clicked — Stripe\'s own JavaScript event listener fires, the payment flow is GENUINELY tested.',
+      },
+      positions: {
+        switch: { x: 25, y: 45, scale: 0.95, opacity: 0.7 },
+        clicked: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'switch', to: 'clicked', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — kontrast bedeli: switchTo() atlanırsa test yine PASS verir ("bir şeye" tıklandı) ama gerçek ödeme akışı hiç dokunulmamıştır — production\'da bulunması aylar süren bir bug.',
+        en: 'Final — the cost of skipping switchTo(): the test still PASSES ("something" was clicked) but the real payment flow was never touched — a bug that takes months to find in production.',
+      },
+      positions: {
+        find: { x: 12, y: 55, scale: 0.75 },
+        noexc: { x: 30, y: 35, scale: 0.7, opacity: 0.5 },
+        switch: { x: 54, y: 55, scale: 0.9 },
+        clicked: { x: 72, y: 35, scale: 0.85 },
+        unpaid: { x: 90, y: 55, scale: 1.05, opacity: 0.7 },
+      },
+      beams: [{ from: 'find', to: 'unpaid', color: '#dc2626' }, { from: 'switch', to: 'clicked' }],
+    },
+  ],
+}
+
+// 🛠️ Gerçek Hayat — E2E ödeme fonksiyonu test edilmedi filmi
+const seleniumE2eFunnelFilm = {
+  type: 'video-scene',
+  id: 'selenium-e2e-funnel-film',
+  title: {
+    tr: '🎬 Sepet Çalışıyor, Ödeme Bozuk — CI Neden Hâlâ Yeşil?',
+    en: '🎬 The Cart Works, Checkout Is Broken — Why Is CI Still Green?',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'login',   emoji: '🔑', label: { tr: 'LoginPage',              en: 'LoginPage' },              color: '#0ea5e9' },
+    { id: 'search',  emoji: '🔍', label: { tr: 'ProductSearchPage',       en: 'ProductSearchPage' },      color: '#6366f1' },
+    { id: 'cart',    emoji: '🛒', label: { tr: 'CartPage',                en: 'CartPage' },                color: '#8b5cf6' },
+    { id: 'checkout',emoji: '💳', label: { tr: 'CheckoutPage (test YOK)', en: 'CheckoutPage (NO test)' },  color: '#94a3b8' },
+    { id: 'ci',      emoji: '☁️', label: { tr: 'CI (yeşil)',              en: 'CI (green)' },              color: '#22c55e' },
+    { id: 'broken',  emoji: '💥', label: { tr: 'Ödeme butonu bozuk',      en: 'Checkout button broken' },  color: '#ef4444' },
+    { id: 'revenue', emoji: '📉', label: { tr: 'Gelir kaybı',             en: 'Revenue loss' },            color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'E-ticaret E2E senaryosu bir FUNNEL\'dır: giriş → ürün arama → sepete ekleme → ödeme. Her adım bir öncekinin ön koşuludur — Page Object Model her sayfayı ayrı bir class yapar.',
+        en: 'The e-commerce E2E scenario is a FUNNEL: login → product search → add to cart → checkout. Each step is a precondition for the next — the Page Object Model makes each page its own class.',
+      },
+      positions: { login: { x: 20, y: 50, scale: 1.1, pulse: true }, search: { x: 45, y: 50, scale: 0.9 }, cart: { x: 70, y: 50, scale: 0.9 } },
+      beams: [{ from: 'login', to: 'search' }, { from: 'search', to: 'cart' }],
+    },
+    {
+      caption: {
+        tr: '`LoginPage.login()` → `ProductSearchPage.search()` → `CartPage.addToCart()` — her adım test edilir, hepsi yeşil. Sepet simgesi güncellenir, sayım doğru.',
+        en: '`LoginPage.login()` → `ProductSearchPage.search()` → `CartPage.addToCart()` — every step is tested, all green. The cart icon updates, the count is correct.',
+      },
+      code: { tr: `LoginPage login = new LoginPage(driver);\nlogin.login("qa@test.com", "pass123");`, en: `LoginPage login = new LoginPage(driver);\nlogin.login("qa@test.com", "pass123");` },
+      positions: {
+        login: { x: 22, y: 50, scale: 0.95, opacity: 0.7 },
+        cart: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'login', to: 'cart', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Ama funnel\'ın SON adımı — `CheckoutPage` — hiç bir test dosyasında yer almaz. "Sepete ekle çalışıyor, gerisi zaten aynı mantık" varsayımıyla atlanmıştır.',
+        en: 'But the LAST step of the funnel — `CheckoutPage` — appears in no test file at all. It was skipped under the assumption "add-to-cart works, the rest is the same logic anyway".',
+      },
+      positions: {
+        cart: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        checkout: { x: 58, y: 50, scale: 1.15, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: 'CI, sadece YAZILMIŞ testleri çalıştırır — checkout hiç yazılmadığı için CI\'ın "başarısız olacağı" bir test YOK. Pipeline tertemiz yeşil kalır.',
+        en: 'CI only runs the tests that were WRITTEN — since checkout was never written, there is NO test for CI to fail. The pipeline stays perfectly green.',
+      },
+      positions: {
+        checkout: { x: 25, y: 45, scale: 0.95, opacity: 0.7 },
+        ci: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'checkout', to: 'ci', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Gerçekte: bir deploy, checkout sayfasındaki ödeme butonunu KIRAR — buton hâlâ görünür ama tıklandığında hiçbir şey olmaz (JS hatası, konsol\'da sessizce).',
+        en: 'In reality: a deploy BREAKS the checkout page\'s payment button — the button is still visible, but clicking it does nothing (a JS error, silent in the console).',
+      },
+      positions: {
+        ci: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        broken: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ci', to: 'broken', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'CI hâlâ YEŞİL — çünkü kırılan şey hiçbir zaman test edilmemişti. Bu bug\'ı bulan ilk kişi bir QA mühendisi değil, ödeme yapamayan gerçek bir müşteri olur.',
+        en: 'CI is STILL GREEN — because the broken thing was never tested. The first person to find this bug is not a QA engineer, it is a real customer who cannot pay.',
+      },
+      positions: {
+        broken: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        revenue: { x: 56, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'broken', to: 'revenue', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: unit test entegrasyon testinin YERİNİ tutmaz — biri backend mantığını izole doğrular, diğeri kullanıcının GERÇEKTEN gördüğü frontend state\'i. Funnel\'ın HER adımı, en riskli olanı dahil, E2E\'de yer almalıdır.',
+        en: 'Final — the Java bridge: a unit test does NOT substitute for an integration test — one verifies backend logic in isolation, the other verifies the frontend state the user ACTUALLY sees. EVERY step of the funnel, including the riskiest one, belongs in E2E.',
+      },
+      positions: {
+        login: { x: 10, y: 55, scale: 0.75 },
+        search: { x: 26, y: 35, scale: 0.7, opacity: 0.5 },
+        cart: { x: 48, y: 55, scale: 0.85 },
+        checkout: { x: 68, y: 35, scale: 0.8, opacity: 0.6 },
+        revenue: { x: 90, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'login', to: 'cart' }, { from: 'cart', to: 'checkout' }, { from: 'checkout', to: 'revenue' }],
+    },
+  ],
+}
+
+// 🌐 Giriş — WebDriver API akış step-animation'ı ve sandbox'ı (kod bloğu olmayan sekme için eksik tamamlama)
+const seleniumIntroFlowSteps = {
+  type: 'step-animation',
+  id: 'selenium-intro-flow-step-01',
+  title: { tr: 'Adım Adım: Bir Komutun WebDriver Zincirinden Geçişi', en: 'Step by Step: A Command\'s Journey Through the WebDriver Chain' },
+  steps: [
+    { id: 1, icon: '📝', label: { tr: 'Test kodu komut verir', en: 'Test code issues a command' }, detail: { tr: '`driver.findElement(By.id("x")).click()` çağrılır — bu, standart WebDriver API\'sine giden bir istektir.', en: 'Calling `driver.findElement(By.id("x")).click()` — this is a request sent to the standard WebDriver API.' } },
+    { id: 2, icon: '🔌', label: { tr: 'Sürücüye W3C isteği gider', en: 'A W3C request goes to the driver' }, detail: { tr: 'API, isteği W3C WebDriver protokolü olarak ChromeDriver/GeckoDriver\'a HTTP üzerinden gönderir.', en: 'The API sends the request as the W3C WebDriver protocol to ChromeDriver/GeckoDriver over HTTP.' } },
+    { id: 3, icon: '🌍', label: { tr: 'Gerçek tarayıcı çalıştırır', en: 'The real browser executes it' }, detail: { tr: 'Sürücü, komutu GERÇEK Chrome/Firefox\'a iletir — simüle edilmiş bir motor değil, kullanıcının kullandığı motorun ta kendisi.', en: 'The driver relays the command to the REAL Chrome/Firefox — not a simulated engine, the exact engine a user would use.' } },
+    { id: 4, icon: '📄', label: { tr: 'DOM üzerinde ölçülür', en: 'It is measured on the DOM' }, detail: { tr: 'Element gerçekten var mı, tıklanabilir mi, tıklandığında ne değişti — bu sorular sadece bu katmanda cevaplanabilir.', en: 'Does the element truly exist, is it clickable, what changed when clicked — these questions can only be answered at this layer.' } },
+    { id: 5, icon: '✅', label: { tr: 'Sonuç test koduna döner', en: 'The result returns to the test code' }, detail: { tr: 'Başarı/hata bilgisi zincirden geriye akar; bu geri bildirim, bir unit testin ASLA ulaşamayacağı bir kanıttır.', en: 'Success/failure flows back through the chain; this feedback is proof a unit test can NEVER reach.' } },
+  ],
+}
+
+// 🔗 Ekosistem — 60 dakikadan 3 dakikaya Grid paralelleştirme filmi
+const seleniumGridSpeedupFilm = {
+  type: 'video-scene',
+  id: 'selenium-grid-speedup-film',
+  title: {
+    tr: '🎬 200 Test, Tek Node: Neden Herkes "Bekleyemem" Diyor',
+    en: '🎬 200 Tests, One Node: Why Everyone Says "I Can\'t Wait"',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'suite',   emoji: '🧪', label: { tr: '200 E2E test',           en: '200 E2E tests' },          color: '#0ea5e9' },
+    { id: 'single',  emoji: '🖥️', label: { tr: 'Tek Node (sıralı)',       en: 'Single Node (sequential)' }, color: '#94a3b8' },
+    { id: 'slow',    emoji: '🐌', label: { tr: '40-60 dakika',            en: '40-60 minutes' },          color: '#dc2626' },
+    { id: 'pileup',  emoji: '📚', label: { tr: 'Commit üstüne commit',    en: 'Commit piling on commit' }, color: '#ef4444' },
+    { id: 'grid',    emoji: '🌐', label: { tr: 'Selenium Grid (20 Node)', en: 'Selenium Grid (20 Nodes)' }, color: '#8b5cf6' },
+    { id: 'parallel',emoji: '⚡', label: { tr: '20 paralel koşum',        en: '20 parallel runs' },       color: '#22c55e' },
+    { id: 'fast',    emoji: '✅', label: { tr: '3-4 dakika',              en: '3-4 minutes' },            color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '200 E2E test yazıldı — hepsi değerli, hepsi gerçek kullanıcı akışlarını doğruluyor. Ama hepsi TEK bir Node\'da SIRAYLA çalıştırılıyor.',
+        en: '200 E2E tests were written — all valuable, all verifying real user flows. But all of them run SEQUENTIALLY on a SINGLE Node.',
+      },
+      positions: { suite: { x: 30, y: 50, scale: 1.1, pulse: true }, single: { x: 65, y: 50, scale: 1.1 } },
+      beams: [{ from: 'suite', to: 'single' }],
+    },
+    {
+      caption: {
+        tr: 'Her test ortalama 15-20 saniye sürüyor — tek başına makul. Ama 200 test × sıralı çalışma = CI pipeline\'ı 40-60 dakika BLOKE ediyor.',
+        en: 'Each test takes 15-20 seconds on average — reasonable alone. But 200 tests × sequential execution = the CI pipeline is BLOCKED for 40-60 minutes.',
+      },
+      positions: {
+        single: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        slow: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'single', to: 'slow', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Geliştiriciler bir sonucun gelmesini 60 dakika bekleyemez — "zaten bekleyemem" der ve önceki commit\'in üzerine yeni commit atmaya başlarlar.',
+        en: 'Developers cannot wait 60 minutes for a result — they say "I can\'t wait anyway" and start stacking new commits on top of the previous one.',
+      },
+      positions: {
+        slow: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        pileup: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'slow', to: 'pileup', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: hangi commit\'in hangi testi kırdığı belirsizleşir, feedback loop kopar, test raporları kimsenin açmadığı bir e-postaya dönüşür.',
+        en: 'The result: which commit broke which test becomes unclear, the feedback loop breaks, test reports become an email nobody opens.',
+      },
+      positions: {
+        pileup: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        single: { x: 60, y: 55, scale: 0.9, opacity: 0.5 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Selenium Grid devreye girer: aynı 200 test, 20 farklı Node\'a DAĞITILIR — Java\'nın ForkJoinPool\'unun tek JVM yerine tarayıcı Node\'larına genişlemiş hali.',
+        en: 'Selenium Grid steps in: the same 200 tests are DISTRIBUTED across 20 different Nodes — Java\'s ForkJoinPool, expanded from a single JVM to browser Nodes.',
+      },
+      code: { tr: `docker compose up --scale chrome=20`, en: `docker compose up --scale chrome=20` },
+      positions: {
+        pileup: { x: 22, y: 45, scale: 0.85, opacity: 0.5 },
+        grid: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pileup', to: 'grid', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: '200 test artık 20 Node\'a eşit dağılır — her Node yaklaşık 10 test çalıştırır, HEPSİ AYNI ANDA.',
+        en: 'The 200 tests are now evenly split across 20 Nodes — each Node runs about 10 tests, ALL AT THE SAME TIME.',
+      },
+      positions: {
+        grid: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        parallel: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'grid', to: 'parallel', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: bu, JUnit 5\'in `@Execution(CONCURRENT)`\'ının tarayıcı boyutuna genişlemesidir. Toplam süre 40-60 dakikadan 3-4 dakikaya düşer; geliştiriciler artık sonucu BEKLEYEBİLİR, feedback loop yeniden kurulur.',
+        en: 'Final — the Java bridge: this is JUnit 5\'s `@Execution(CONCURRENT)` expanded to the scale of browsers. Total time drops from 40-60 minutes to 3-4 minutes; developers can now WAIT for the result, the feedback loop is restored.',
+      },
+      positions: {
+        suite: { x: 12, y: 55, scale: 0.8 },
+        single: { x: 30, y: 35, scale: 0.7, opacity: 0.4 },
+        grid: { x: 54, y: 55, scale: 0.9 },
+        parallel: { x: 74, y: 35, scale: 0.85 },
+        fast: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'grid', to: 'parallel' }, { from: 'parallel', to: 'fast' }],
+    },
+  ],
+}
+
+// 🌐 CDP & BiDi — sessiz JS hatasını yakalama filmi
+const seleniumBidiListenerFilm = {
+  type: 'video-scene',
+  id: 'selenium-bidi-listener-film',
+  title: {
+    tr: '🎬 Konsoldaki Sessiz Hata: Klasik WebDriver Neden Onu Hiç Görmez',
+    en: '🎬 The Silent Console Error: Why Classic WebDriver Never Sees It',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test',    emoji: '🧪', label: { tr: 'Test: butona tıkla, assert et', en: 'Test: click button, assert' }, color: '#0ea5e9' },
+    { id: 'http',    emoji: '📨', label: { tr: 'Klasik WebDriver (HTTP)',   en: 'Classic WebDriver (HTTP)' },  color: '#94a3b8' },
+    { id: 'jserror', emoji: '💥', label: { tr: 'Sessiz JS hatası (konsol)', en: 'Silent JS error (console)' }, color: '#ef4444' },
+    { id: 'greenwrong', emoji: '✅', label: { tr: 'Test YİNE geçiyor',    en: 'Test STILL passes' },        color: '#dc2626' },
+    { id: 'bidi',    emoji: '🔌', label: { tr: 'WebDriver BiDi (WebSocket)', en: 'WebDriver BiDi (WebSocket)' }, color: '#8b5cf6' },
+    { id: 'listener',emoji: '👂', label: { tr: 'Log.entryAdded() dinleyici', en: 'Log.entryAdded() listener' }, color: '#f59e0b' },
+    { id: 'caught',  emoji: '🎯', label: { tr: 'Hata yakalandı, test FAIL', en: 'Error caught, test FAILS' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test butona tıklar ve bir sonraki elementin göründüğünü doğrular — assertion GEÇER. Görünüşe göre her şey yolunda.',
+        en: 'The test clicks a button and asserts that the next element appears — the assertion PASSES. Everything looks fine.',
+      },
+      positions: { test: { x: 30, y: 50, scale: 1.1, pulse: true }, http: { x: 65, y: 50, scale: 1.1 } },
+      beams: [{ from: 'test', to: 'http' }],
+    },
+    {
+      caption: {
+        tr: 'Klasik WebDriver mimarisi tek yönlüdür: komut gönder → HTTP response al. Java\'da klasik bir blocking REST çağrısı gibi — tarayıcının arka planda BAŞKA ne yaptığını hiç bilmezsin.',
+        en: 'Classic WebDriver is one-directional: send a command → get an HTTP response. Like a classic blocking REST call in Java — you never know what ELSE the browser is doing in the background.',
+      },
+      positions: {
+        http: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        test: { x: 56, y: 50, scale: 1, opacity: 0.7 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Ama o sırada konsolda: `TypeError: Cannot read properties of undefined`. Butonun ARKASINDAKİ bir JS fonksiyonu sessizce patladı — ekranda hiçbir görsel değişiklik olmadı.',
+        en: 'But meanwhile, in the console: `TypeError: Cannot read properties of undefined`. A JS function BEHIND the button silently blew up — no visual change appeared on screen.',
+      },
+      code: { tr: `TypeError: Cannot read properties of undefined (reading 'total')`, en: `TypeError: Cannot read properties of undefined (reading 'total')` },
+      positions: {
+        http: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        jserror: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'http', to: 'jserror', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Klasik WebDriver bu hatayı GÖREMEZ — konsol logu WebDriver protokolünün parçası değildir. Test PASSED yazar, ama sepet toplamı hesaplanamadı.',
+        en: 'Classic WebDriver CANNOT see this error — the console log is not part of the WebDriver protocol. The test says PASSED, but the cart total was never calculated.',
+      },
+      positions: {
+        jserror: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        greenwrong: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'jserror', to: 'greenwrong', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Selenium 4\'ün çözümü: WebDriver BiDi. HTTP yerine kalıcı bir WebSocket tüneli açar — Java\'daki CompletableFuture + event listener mimarisine benzer.',
+        en: 'Selenium 4\'s fix: WebDriver BiDi. It opens a persistent WebSocket tunnel instead of HTTP — similar to a Java CompletableFuture + event listener architecture.',
+      },
+      code: { tr: `DevTools devTools = driver.getDevTools();\ndevTools.createSession();\ndevTools.send(Log.enable());`, en: `DevTools devTools = driver.getDevTools();\ndevTools.createSession();\ndevTools.send(Log.enable());` },
+      positions: {
+        greenwrong: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        bidi: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'greenwrong', to: 'bidi', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: '`devTools.addListener(Log.entryAdded(), ...)` artık HER konsol olayını gerçek zamanlı dinler — hata oluştuğu ANDA test koduna bildirilir.',
+        en: '`devTools.addListener(Log.entryAdded(), ...)` now listens to EVERY console event in real time — the error is reported to the test code the INSTANT it happens.',
+      },
+      positions: {
+        bidi: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        listener: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bidi', to: 'listener', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — dinleyici hatayı yakalar, test artık GERÇEĞE uygun şekilde FAIL verir. QA kazanımı: her E2E testin yanına otomatik JS error monitoring eklenebilir — kod kaynağına hiç dokunmadan.',
+        en: 'Final — the listener catches the error, the test now FAILS as it truthfully should. The QA payoff: automatic JS error monitoring can be added alongside every E2E test — without touching the source code at all.',
+      },
+      positions: {
+        test: { x: 12, y: 55, scale: 0.8 },
+        http: { x: 30, y: 35, scale: 0.7, opacity: 0.4 },
+        bidi: { x: 54, y: 55, scale: 0.9 },
+        listener: { x: 74, y: 35, scale: 0.85 },
+        caught: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'listener', to: 'caught' }],
+    },
+  ],
+}
+
+// 🔐 Sanal Auth & PDF — Virtual Authenticator filmi
+const seleniumVirtualAuthFilm = {
+  type: 'video-scene',
+  id: 'selenium-virtual-auth-film',
+  title: {
+    tr: '🎬 Passkey Testi İçin USB Anahtara mı İhtiyacın Var? Hayır.',
+    en: '🎬 Do You Need a USB Key to Test Passkeys? No.',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'company', emoji: '🏢', label: { tr: '"Passkey\'e geçiyoruz" kararı', en: '"We\'re switching to Passkeys" decision' }, color: '#0ea5e9' },
+    { id: 'usb',     emoji: '🔑', label: { tr: 'Fiziksel USB dongle',       en: 'Physical USB dongle' },    color: '#94a3b8' },
+    { id: 'manual',  emoji: '🖐️', label: { tr: 'Sadece elle test edilebilir', en: 'Only testable manually' }, color: '#ef4444' },
+    { id: 'mockito', emoji: '🎭', label: { tr: 'Mockito? Çalışmaz.',        en: 'Mockito? Doesn\'t work.' },  color: '#dc2626' },
+    { id: 'virtual', emoji: '🤖', label: { tr: 'Virtual Authenticator',     en: 'Virtual Authenticator' },  color: '#8b5cf6' },
+    { id: 'ci',      emoji: '☁️', label: { tr: 'CI pipeline',              en: 'CI pipeline' },            color: '#22c55e' },
+    { id: 'automated', emoji: '✅', label: { tr: 'Regresyon otomatik',     en: 'Regression automated' },   color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Şirket karar verir: "Şifreleri kaldırıyoruz, WebAuthn Passkey\'e geçiyoruz." Güvenlik ekibi mutlu — ama QA ekibi bir soruyla baş başa kalır: bunu nasıl otomatikleştiririz?',
+        en: 'The company decides: "We\'re dropping passwords, switching to WebAuthn Passkeys." Security is happy — but QA is left with a question: how do we automate this?',
+      },
+      positions: { company: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Passkey doğrulaması normalde fiziksel bir USB güvenlik anahtarı veya cihaz biyometrisi gerektirir — CI sunucusunda böyle bir donanım YOKTUR.',
+        en: 'Passkey verification normally requires a physical USB security key or device biometrics — a CI server has NO such hardware.',
+      },
+      positions: {
+        company: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        usb: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'company', to: 'usb', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'İlk refleks: "sadece elle test edelim" — ama bu, her regresyon koşumunda bir insanın fiziksel anahtarla oturması demektir. Otomasyon boşluğu doğar.',
+        en: 'The first reflex: "let\'s just test it manually" — but that means a human must sit with a physical key on every regression run. An automation gap is born.',
+      },
+      positions: {
+        usb: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        manual: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'usb', to: 'manual', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Neden Mockito ile servis katmanını mock\'lar gibi bu API\'yi de mock\'lamıyoruz? Çünkü WebAuthn doğrulaması uygulama kodunda DEĞİL, tarayıcının kendi API\'sinde gerçekleşir — Mockito o katmana hiç erişemez.',
+        en: 'Why not mock this API the way Mockito mocks the service layer? Because WebAuthn verification happens in the BROWSER\'s own API, not the application code — Mockito can never reach that layer.',
+      },
+      positions: {
+        manual: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        mockito: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'manual', to: 'mockito', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Selenium\'un çözümü: `addVirtualAuthenticator(options)` — tıpkı testlerde gerçek veritabanı yerine H2 in-memory DB kullanmak gibi, tarayıcıya YAZILIM TABANLI bir donanım simülatörü enjekte eder.',
+        en: 'Selenium\'s fix: `addVirtualAuthenticator(options)` — just like using an H2 in-memory DB instead of a real database in tests, it injects a SOFTWARE-BASED hardware simulator into the browser.',
+      },
+      code: { tr: `VirtualAuthenticatorOptions options = new VirtualAuthenticatorOptions()\n    .setProtocol(Protocol.CTAP2)\n    .setHasResidentKey(true);\ndriver.addVirtualAuthenticator(options);`, en: `VirtualAuthenticatorOptions options = new VirtualAuthenticatorOptions()\n    .setProtocol(Protocol.CTAP2)\n    .setHasResidentKey(true);\ndriver.addVirtualAuthenticator(options);` },
+      positions: {
+        mockito: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        virtual: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'mockito', to: 'virtual', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Bu sanal cihaz, gerçek USB anahtarın YERİNE geçer ve FIDO2 akışını uçtan uca tetikler — CI sunucusunda, hiçbir fiziksel donanım olmadan.',
+        en: 'This virtual device SUBSTITUTES for the real USB key and triggers the full FIDO2 flow end to end — on the CI server, with no physical hardware at all.',
+      },
+      positions: {
+        virtual: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        ci: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'virtual', to: 'ci', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: Virtual Authenticator, arayüz aynı kalırken alttaki implementasyonun test için değiştirilmesidir — H2 ile production PostgreSQL\'i değiştirmek gibi. Login regresyonu artık her commit\'te otomatik koşar.',
+        en: 'Final — the Java bridge: the Virtual Authenticator keeps the interface identical while swapping the underlying implementation for testing — like replacing production PostgreSQL with H2. Login regression now runs automatically on every commit.',
+      },
+      positions: {
+        company: { x: 12, y: 55, scale: 0.8 },
+        usb: { x: 30, y: 35, scale: 0.7, opacity: 0.4 },
+        virtual: { x: 54, y: 55, scale: 0.9 },
+        ci: { x: 74, y: 35, scale: 0.85 },
+        automated: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'virtual', to: 'ci' }, { from: 'ci', to: 'automated' }],
+    },
+  ],
+}
+
+// 🖥️ Selenium IDE — kayıttan production koduna filmi
+const seleniumIdeExportFilm = {
+  type: 'video-scene',
+  id: 'selenium-ide-export-film',
+  title: {
+    tr: '🎬 Manuel Testçinin Kaydı, QA Mühendisinin Koduna Dönüşüyor',
+    en: '🎬 The Manual Tester\'s Recording Becomes the QA Engineer\'s Code',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'tester',  emoji: '🖐️', label: { tr: 'Manuel testçi',           en: 'Manual tester' },          color: '#0ea5e9' },
+    { id: 'record',  emoji: '🎥', label: { tr: 'Selenium IDE (kayıt)',    en: 'Selenium IDE (recording)' }, color: '#6366f1' },
+    { id: 'side',    emoji: '📄', label: { tr: 'flow.side',               en: 'flow.side' },              color: '#f59e0b' },
+    { id: 'export',  emoji: '📤', label: { tr: 'Export → Java/JUnit',     en: 'Export → Java/JUnit' },    color: '#8b5cf6' },
+    { id: 'raw',     emoji: '🪵', label: { tr: 'Kaba taslak kod',         en: 'Rough draft code' },       color: '#94a3b8' },
+    { id: 'refactor',emoji: '🔧', label: { tr: 'QA mühendisi refactor eder', en: 'QA engineer refactors' }, color: '#22c55e' },
+    { id: 'suite',   emoji: '✅', label: { tr: 'Gerçek test suite\'ine entegre', en: 'Integrated into real suite' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir manuel testçi yeni bir sayfa akışını KEŞFEDER: hangi locator stabil, navigasyon sırası ne, hangi koşul beklenmeli — bunları elle deneyerek öğrenir.',
+        en: 'A manual tester EXPLORES a new page flow: which locator is stable, what the navigation order is, which condition to wait for — learned by trying it by hand.',
+      },
+      positions: { tester: { x: 30, y: 50, scale: 1.1, pulse: true }, record: { x: 65, y: 50, scale: 1.1 } },
+      beams: [{ from: 'tester', to: 'record' }],
+    },
+    {
+      caption: {
+        tr: 'Selenium IDE\'yi açar, tarayıcıda akışı normal şekilde kullanır — IDE, tıpkı IntelliJ\'in getter/setter iskelet kodu üretmesi gibi, her adımı otomatik kaydeder.',
+        en: 'They open Selenium IDE and use the flow normally in the browser — the IDE auto-records every step, like IntelliJ generating getter/setter boilerplate.',
+      },
+      positions: {
+        record: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        side: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'record', to: 'side', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: '`flow.side` dosyası artık komut-hedef-değer üçlüleriyle dolu: open, click, type, assertText — akışın tam bir kaydı.',
+        en: 'The `flow.side` file is now full of command-target-value triples: open, click, type, assertText — a complete record of the flow.',
+      },
+      positions: {
+        side: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        export: { x: 60, y: 50, scale: 1.15, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Sağ tık → Export → Java (JUnit). Kayıt, çalıştırılabilir bir WebDriver koduna dönüşür — ama bu KABA bir taslaktır, henüz production kalitesinde değil.',
+        en: 'Right-click → Export → Java (JUnit). The recording becomes runnable WebDriver code — but it is a ROUGH draft, not yet production quality.',
+      },
+      code: { tr: `// Selenium IDE'den export edilen kaba taslak\n@Test\npublic void flowTest() {\n    driver.findElement(By.id("loginBtn")).click();\n    // ... elle uretilen adimlar\n}`, en: `// Rough draft exported from Selenium IDE\n@Test\npublic void flowTest() {\n    driver.findElement(By.id("loginBtn")).click();\n    // ... auto-generated steps\n}` },
+      positions: {
+        export: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        raw: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'export', to: 'raw', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'QA mühendisi devralır: hardcoded locator\'ları Page Object\'lere taşır, `Thread.sleep()` varsa `WebDriverWait`\'e çevirir, tekrar eden adımları metotlara çıkarır.',
+        en: 'The QA engineer takes over: moves hardcoded locators into Page Objects, converts any `Thread.sleep()` to `WebDriverWait`, extracts repeated steps into methods.',
+      },
+      positions: {
+        raw: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        refactor: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'raw', to: 'refactor', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: bu, IDE\'nin ürettiği iskelet kodu elle temizlemeye benzer — çıktıyı olduğu gibi production\'a göndermezsin. Manuel testçi ile QA mühendisi arasında bir köprü kurulur: "neden bu senaryo hiç test edilmiyor?" sorusu artık sorulmaz.',
+        en: 'Final — the Java bridge: this is like manually cleaning up IDE-generated boilerplate — you never ship the raw output as-is. A bridge is built between the manual tester and the QA engineer: the question "why is this scenario never tested?" no longer needs to be asked.',
+      },
+      positions: {
+        tester: { x: 12, y: 55, scale: 0.8 },
+        record: { x: 30, y: 35, scale: 0.75, opacity: 0.5 },
+        raw: { x: 54, y: 55, scale: 0.9 },
+        refactor: { x: 74, y: 35, scale: 0.85 },
+        suite: { x: 92, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'refactor', to: 'suite' }],
+    },
+  ],
+}
+
+// 🌐 Grid 4 & Dağıtık — mikroservis routing filmi
+const seleniumGridRoutingFilm = {
+  type: 'video-scene',
+  id: 'selenium-grid-routing-film',
+  title: {
+    tr: '🎬 "Safari\'de Ödeme Bozuk mu?" Sorusunu Grid 4 Nasıl Cevaplar',
+    en: '🎬 How Grid 4 Answers "Is Checkout Broken in Safari?"',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'request', emoji: '📨', label: { tr: 'newSession(Safari)',      en: 'newSession(Safari)' },     color: '#0ea5e9' },
+    { id: 'router',  emoji: '🧭', label: { tr: 'Router',                  en: 'Router' },                 color: '#6366f1' },
+    { id: 'distributor', emoji: '📋', label: { tr: 'Distributor',        en: 'Distributor' },            color: '#8b5cf6' },
+    { id: 'sessionmap', emoji: '🗺️', label: { tr: 'Session Map',         en: 'Session Map' },            color: '#f59e0b' },
+    { id: 'node',    emoji: '🖥️', label: { tr: 'Safari Node (macOS)',    en: 'Safari Node (macOS)' },    color: '#22c55e' },
+    { id: 'eventbus',emoji: '📡', label: { tr: 'Event Bus',               en: 'Event Bus' },              color: '#94a3b8' },
+    { id: 'answer',  emoji: '✅', label: { tr: 'Cevap: bozuk/sağlam',     en: 'Answer: broken/healthy' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir e-ticaret ekibi bilmiyor: "Safari\'de ödeme sayfası bozuk mu?" Bu soruyu CI\'da OTOMATİK cevaplamak istiyorlar — Grid 4 mimarisi devreye girer.',
+        en: 'An e-commerce team does not know: "Is the checkout page broken in Safari?" They want to answer this AUTOMATICALLY in CI — Grid 4\'s architecture takes over.',
+      },
+      positions: { request: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'İstek Router\'a gelir: "Safari, macOS istiyorum". Router, Grid 3\'ün monolith Hub\'ının aksine sadece YÖNLENDİRME yapar — kararı kendisi vermez.',
+        en: 'The request arrives at the Router: "I want Safari, macOS". Unlike Grid 3\'s monolithic Hub, the Router only ROUTES — it does not make the decision itself.',
+      },
+      positions: {
+        request: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        router: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'request', to: 'router', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Router, isteği Distributor\'a iletir. Distributor, hangi Node\'un Safari/macOS kapasitesine sahip olduğunu ve şu an MÜSAİT olduğunu bilir — bir yük dengeleyici gibi.',
+        en: 'The Router forwards the request to the Distributor. The Distributor knows which Node has Safari/macOS capacity and is currently AVAILABLE — like a load balancer.',
+      },
+      positions: {
+        router: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        distributor: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'router', to: 'distributor', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Uygun Node bulunur, session oluşturulur ve Session Map\'e kaydedilir — bu harita, hangi session ID\'nin hangi Node\'da yaşadığını takip eder.',
+        en: 'A suitable Node is found, a session is created and recorded in the Session Map — this map tracks which session ID lives on which Node.',
+      },
+      positions: {
+        distributor: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        sessionmap: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'distributor', to: 'sessionmap', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Test artık gerçek Safari Node\'unda çalışır — ödeme sayfasını gerçek WebKit motoruyla açar, Chrome/Firefox\'un asla yakalayamayacağı bir WebKit-özel bug\'ı ortaya çıkarabilir.',
+        en: 'The test now runs on the real Safari Node — it opens the checkout page with the real WebKit engine, potentially revealing a WebKit-specific bug Chrome/Firefox could never catch.',
+      },
+      positions: {
+        sessionmap: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        node: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'sessionmap', to: 'node', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Event Bus, tüm bileşenler arasında durum güncellemelerini yayınlar — Node çöktüğünde, session sona erdiğinde herkes ANINDA haberdar olur.',
+        en: 'The Event Bus broadcasts state updates across all components — when a Node crashes or a session ends, everyone finds out INSTANTLY.',
+      },
+      positions: {
+        node: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        eventbus: { x: 56, y: 50, scale: 1.1, opacity: 0.7 },
+        answer: { x: 56, y: 32, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'node', to: 'answer', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: Router/Distributor/Session Map/Event Bus ayrımı, bir monolith Java uygulamasının mikroservislere bölünmesi gibidir — her bileşen bağımsız scale edilir, tek bir parça çökse bile sistem ayakta kalır.',
+        en: 'Final — the Java bridge: the Router/Distributor/Session Map/Event Bus split is like a monolithic Java application broken into microservices — each component scales independently, and the system stays up even if one part crashes.',
+      },
+      positions: {
+        request: { x: 10, y: 55, scale: 0.75 },
+        router: { x: 28, y: 35, scale: 0.75 },
+        distributor: { x: 46, y: 55, scale: 0.8 },
+        node: { x: 66, y: 35, scale: 0.85 },
+        answer: { x: 90, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'request', to: 'router' }, { from: 'router', to: 'distributor' }, { from: 'distributor', to: 'node' }, { from: 'node', to: 'answer' }],
+    },
+  ],
+}
+
+// 🚨 Yaygın Hatalar — StaleElementReferenceException teşhis zinciri filmi
+const seleniumStaleElementDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'selenium-stale-element-diagnosis-film',
+  title: {
+    tr: '🎬 Bir Selenium Hatasının Teşhis Zinciri: StaleElementReferenceException',
+    en: '🎬 The Diagnosis Chain of a Selenium Error: StaleElementReferenceException',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'found',   emoji: '🔍', label: { tr: 'Element bulundu ve kaydedildi', en: 'Element found and captured' }, color: '#0ea5e9' },
+    { id: 'rerender',emoji: '🔄', label: { tr: 'SPA yeniden render eder',   en: 'SPA re-renders' },         color: '#f59e0b' },
+    { id: 'stale',   emoji: '💥', label: { tr: 'StaleElementReferenceException', en: 'StaleElementReferenceException' }, color: '#ef4444' },
+    { id: 'wrongfix',emoji: '😰', label: { tr: '"Tekrar findElement" refleksi', en: 'The "just findElement again" reflex' }, color: '#94a3b8' },
+    { id: 'refind',  emoji: '🔁', label: { tr: 'Kullanmadan ÖNCE yeniden bul', en: 'Re-find BEFORE each use' }, color: '#8b5cf6' },
+    { id: 'wait',    emoji: '⏳', label: { tr: 'WebDriverWait ile stabilite', en: 'Stability via WebDriverWait' }, color: '#22c55e' },
+    { id: 'stable',  emoji: '✅', label: { tr: 'Güvenilir test',           en: 'Reliable test' },          color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`WebElement btn = driver.findElement(By.id("btn"))` — element bulunur ve bir Java referansında SAKLANIR.',
+        en: '`WebElement btn = driver.findElement(By.id("btn"))` — the element is found and STORED in a Java reference.',
+      },
+      code: { tr: `WebElement btn = driver.findElement(By.id("btn"));`, en: `WebElement btn = driver.findElement(By.id("btn"));` },
+      positions: { found: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — mesajı PARÇALA: "stale element reference: element is not attached to the page document" — bu bir locator hatası DEĞİL, bir YAŞAM SÜRESİ hatasıdır.',
+        en: 'Step 1 — DECOMPOSE the message: "stale element reference: element is not attached to the page document" — this is not a locator error, it is a LIFETIME error.',
+      },
+      positions: {
+        found: { x: 22, y: 45, scale: 0.95, opacity: 0.7 },
+        rerender: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'found', to: 'rerender', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'React/Vue gibi bir SPA, arka planda DOM\'u yeniden render eder — belki sadece görsel olarak aynı görünen ama TEKNİK OLARAK yeni bir element ağacı oluşturur.',
+        en: 'A SPA like React/Vue re-renders the DOM in the background — perhaps visually identical, but TECHNICALLY a brand new element tree.',
+      },
+      positions: {
+        rerender: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        stale: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'rerender', to: 'stale', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Java köprüsü: bu tam olarak GC sonrası bir `WeakReference`\'a erişmeye benzer — referans hâlâ elinde ama işaret ettiği nesne artık YOK.',
+        en: 'Step 2 — the Java bridge: this is exactly like accessing a `WeakReference` after GC — you still hold the reference, but the object it points to is GONE.',
+      },
+      positions: {
+        stale: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        wrongfix: { x: 58, y: 50, scale: 1.15, opacity: 0.7 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Kontrast — yaygın yanlış refleks: catch bloğunda "bir daha findElement dene" demek sorunu GİZLER ama tekrar aynı yerde stale olma riskini taşır — kök nedeni anlamadan yama yapmaktır.',
+        en: 'Contrast — the common wrong reflex: catching and saying "just findElement again" HIDES the problem but still risks going stale at the same spot again — patching without understanding the root cause.',
+      },
+      positions: {
+        wrongfix: { x: 25, y: 45, scale: 1, opacity: 0.7 },
+        refind: { x: 60, y: 50, scale: 1.1, opacity: 0.6 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — en küçük GÜVENLİ düzeltme: element\'i HER kullanmadan HEMEN ÖNCE yeniden bul, asla önceden yakalayıp saklama.',
+        en: 'Step 3 — the smallest SAFE fix: re-find the element IMMEDIATELY BEFORE each use, never capture it ahead of time and store it.',
+      },
+      code: { tr: `driver.navigate().refresh();\ndriver.findElement(By.id("btn")).click(); // yeniden bul, SAKLAMA`, en: `driver.navigate().refresh();\ndriver.findElement(By.id("btn")).click(); // re-find, do NOT store` },
+      positions: {
+        refind: { x: 22, y: 45, scale: 0.9, opacity: 0.6 },
+        wait: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'refind', to: 'wait', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — AYNI komutla kanıtla: `WebDriverWait` + `elementToBeClickable` ile sarılan bu çağrı, hem stale referansı hem de zamanlama sorununu tek seferde çözer.',
+        en: 'Step 4 — PROVE it with the SAME command: wrapping this call with `WebDriverWait` + `elementToBeClickable` solves both the stale reference and the timing issue at once.',
+      },
+      code: { tr: `wait.until(EC.elementToBeClickable(By.id("btn"))).click();`, en: `wait.until(EC.elementToBeClickable(By.id("btn"))).click();` },
+      positions: {
+        wait: { x: 25, y: 45, scale: 0.9, opacity: 0.6 },
+        stable: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'wait', to: 'stable', color: '#16a34a' }],
+    },
+  ],
+}
+
+// 🚨 Yaygın Hatalar — StaleElement teşhis refleksi step-animation'ı
+const seleniumStaleElementDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'selenium-stale-element-diagnosis-step-01',
+  title: { tr: 'Adım Adım: Selenium Hata Teşhis Refleksi', en: 'Step by Step: The Selenium Error Diagnosis Reflex' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Mesajın türünü ayırt et', en: 'Classify the message' }, detail: { tr: '"NoSuchElement" locator/timing, "StaleElement" yaşam süresi, "ElementNotInteractable" görünürlük/CSS, "Timeout" koşul hiç sağlanmadı — her biri farklı katmana işaret eder.', en: '"NoSuchElement" is locator/timing, "StaleElement" is lifetime, "ElementNotInteractable" is visibility/CSS, "Timeout" means the condition was never met — each points to a different layer.' } },
+    { id: 2, icon: '🗺️', label: { tr: 'Katmanı bul', en: 'Locate the layer' }, detail: { tr: 'Hata mesajının işaret ettiği TEK katmanda çalış — StaleElement\'te sorun locator değil, elementin DOM\'daki YAŞAM SÜRESİdir.', en: 'Work in the ONE layer the message points to — for StaleElement, the problem is not the locator, it is the element\'s LIFETIME in the DOM.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Değiştirmeyen kanıt topla', en: 'Collect non-destructive evidence' }, detail: { tr: 'DevTools\'da element\'i manuel test et, sayfanın ne zaman yeniden render olduğunu Network/Console sekmesinde izle.', en: 'Test the element manually in DevTools, watch when the page re-renders via the Network/Console tabs.' } },
+    { id: 4, icon: '🔧', label: { tr: 'En küçük güvenli düzeltmeyi uygula', en: 'Apply the smallest safe fix' }, detail: { tr: 'Element referansını asla önceden saklama; her kullanımdan hemen önce yeniden bul ve WebDriverWait ile sar.', en: 'Never store an element reference ahead of time; re-find it immediately before each use and wrap it with WebDriverWait.' } },
+    { id: 5, icon: '✅', label: { tr: 'Aynı komutla kanıtla', en: 'Prove with the same command' }, detail: { tr: 'Başarısız olan test AYNEN tekrar çalıştırılır, birkaç kez arka arkaya geçtiği doğrulanır — flaky testler tek koşumda "düzeldi" denemez.', en: 'Rerun the EXACT failing test, verify it passes several times in a row — a flaky test cannot be called "fixed" after a single run.' } },
+  ],
+}
+
+// 🚨 Yaygın Hatalar — StaleElement sandbox'ı
+const seleniumStaleElementPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'selenium-webdriver-errors',
+  id: 'selenium-stale-element-practice-01',
+  label: { tr: 'Micro Lab: StaleElementReferenceException\'ı doğru düzelt', en: 'Micro Lab: Correctly fix a StaleElementReferenceException' },
+  language: 'java',
+  task: {
+    tr: 'Bir buton element\'i sayfa yenilenmeden önce yakalanmış ve saklanmış; yenileme sonrası tıklama StaleElementReferenceException veriyor. TODO satırını, element\'i YENİDEN bulup WebDriverWait ile sararak tamamla.',
+    en: 'A button element was captured and stored before a page refresh; clicking it after the refresh throws StaleElementReferenceException. Complete the TODO line by RE-FINDING the element wrapped with WebDriverWait.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç "önceden yakala ve sakla" refleksinden "her kullanımdan önce yeniden bul" refleksine geçişi elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the shift from "capture and store ahead of time" to "re-find before each use" by writing it yourself.',
+  },
+  code: {
+    tr: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\nwait.until(EC.elementToBeClickable(By.id("btn"))).click();`,
+    en: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\nwait.until(EC.elementToBeClickable(By.id("btn"))).click();`,
+  },
+  starterCode: {
+    tr: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\n// TODO: eski referansi KULLANMA, elementi yeniden bul ve WebDriverWait ile sar`,
+    en: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\n// TODO: do NOT use the old reference, re-find the element wrapped with WebDriverWait`,
+  },
+  solutionCode: {
+    tr: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\nwait.until(EC.elementToBeClickable(By.id("btn"))).click();`,
+    en: `WebElement btn = driver.findElement(By.id("btn"));\ndriver.navigate().refresh();\nwait.until(EC.elementToBeClickable(By.id("btn"))).click();`,
+  },
+  expected: {
+    tr: 'Tıklama, sayfa yenilendikten sonra bile StaleElementReferenceException fırlatmadan başarıyla çalışır — çünkü referans yenileme SONRASINDA alınmıştır.',
+    en: 'The click succeeds even after the page refresh without throwing StaleElementReferenceException — because the reference was taken AFTER the refresh.',
+  },
+  hints: [
+    { tr: 'Eski `btn` değişkenini kullanma — o, yenilemeden ÖNCEki DOM\'a işaret ediyor.', en: 'Do not use the old `btn` variable — it points to the DOM from BEFORE the refresh.' },
+    { tr: '`wait.until(EC.elementToBeClickable(By.id("btn")))` hem yeniden bulur hem tıklanabilir olana kadar bekler.', en: '`wait.until(EC.elementToBeClickable(By.id("btn")))` both re-finds the element and waits until it is clickable.' },
+  ],
+  xpReward: 10,
+}
+
+// 💼 Mülakat Q&A — güçlü cevap anatomisi filmi
+const seleniumInterviewAnswerFilm = {
+  type: 'video-scene',
+  id: 'selenium-interview-answer-film',
+  title: {
+    tr: '🎬 Selenium Senaryo Sorusuna Güçlü Cevap Anatomisi',
+    en: '🎬 The Anatomy of a Strong Selenium Scenario Answer',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '🎤', label: { tr: 'Senaryo sorusu',        en: 'Scenario question' },     color: '#6366f1' },
+    { id: 'weak',     emoji: '😰', label: { tr: '"Sleep ekle" refleksi', en: 'The "just add sleep" reflex' }, color: '#94a3b8' },
+    { id: 'evidence', emoji: '🧭', label: { tr: 'Kanıt: hangi katman?',   en: 'Evidence: which layer?' },  color: '#f59e0b' },
+    { id: 'rationale',emoji: '⚖️', label: { tr: 'Koşul + gerekçe',        en: 'Condition + rationale' },   color: '#10b981' },
+    { id: 'root',     emoji: '🛡️', label: { tr: 'Kalıcı kök çözüm',       en: 'Permanent root fix' },      color: '#0ea5e9' },
+    { id: 'java',     emoji: '☕', label: { tr: 'Java analojisi',         en: 'Java analogy' },           color: '#8b5cf6' },
+    { id: 'win',      emoji: '🏆', label: { tr: 'Güçlü cevap',            en: 'Strong answer' },          color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakatçı soruyor: "CI\'da aralıklı başarısız olan (flaky) testleriniz var — nasıl stabilize edersiniz?" Bu filmde aynı soruya iki cevabın farkını izleyeceksin.',
+        en: 'The interviewer asks: "Your CI has intermittently failing (flaky) tests — how do you stabilize them?" In this film you will watch the difference between two answers.',
+      },
+      positions: { question: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Zayıf refleks: "Thread.sleep ekleriz, biraz daha bekletiriz." Bu, mülakatçının en sık duyduğu ve en az etkilenen cevaptır — kök nedeni hiç sormaz.',
+        en: 'The weak reflex: "We add Thread.sleep, make it wait a bit longer." This is the answer interviewers hear most and are least impressed by — it never asks about the root cause.',
+      },
+      positions: {
+        question: { x: 20, y: 40, scale: 0.9, opacity: 0.7 },
+        weak: { x: 55, y: 52, scale: 1.15, pulse: true, opacity: 0.8 },
+      },
+      beams: [{ from: 'question', to: 'weak', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Güçlü cevabın 1. katmanı — KANIT: "Önce hangi KATEGORİDE flaky olduğuna bakarım: NoSuchElement mi, StaleElement mi, timing mi, yoksa test veri kirliliği mi?"',
+        en: 'Layer 1 of the strong answer — EVIDENCE: "First I check WHICH CATEGORY the flakiness falls into: NoSuchElement, StaleElement, timing, or test data pollution?"',
+      },
+      positions: {
+        weak: { x: 15, y: 68, scale: 0.7, opacity: 0.35 },
+        evidence: { x: 52, y: 48, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'evidence' }],
+    },
+    {
+      caption: {
+        tr: '2. katman — koşul + GEREKÇE: "Thread.sleep yerine ExpectedConditions ile ilgili koşulu tanımlarım — çünkü sabit bekleme hem yavaş hem güvenilmezdir, koşul ise HER ortamda doğru davranır."',
+        en: 'Layer 2 — condition + RATIONALE: "Instead of Thread.sleep, I define the relevant ExpectedCondition — because a fixed wait is both slow and unreliable, while a condition behaves correctly in EVERY environment."',
+      },
+      positions: {
+        evidence: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        rationale: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'rationale', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: '3. katman — KÖK neden: "Tek bir test değil, TÜM suite\'i tararım — aynı anti-pattern (örn. element önceden yakalayıp saklama) başka testlerde de tekrar ediyor mu?"',
+        en: 'Layer 3 — the ROOT cause: "I do not scan just one test, I scan the WHOLE suite — is the same anti-pattern (e.g. capturing and storing an element ahead of time) repeating in other tests too?"',
+      },
+      positions: {
+        rationale: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        root: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'rationale', to: 'root', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: '4. katman — Java köprüsü: "Bu, Java\'da CompletableFuture.get(timeout) ile bir Future\'ı erken okumak gibidir — koşulu tanımlamak, veri gelene kadar akıllıca beklemektir."',
+        en: 'Layer 4 — the Java bridge: "This is like reading a Future too early with CompletableFuture.get(timeout) in Java — defining the condition is waiting intelligently until the data arrives."',
+      },
+      positions: {
+        root: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        java: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'root', to: 'java', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Final — formül: kanıt (kategori) → koşul + gerekçe → kalıcı kök çözüm (suite geneli tarama) → Java analojisi. Sıralı düşünen aday, komut ezberleyeni her zaman geçer.',
+        en: 'Final — the formula: evidence (category) → condition + rationale → permanent root fix (suite-wide scan) → Java analogy. The candidate who thinks in order always beats the one who memorized commands.',
+      },
+      positions: {
+        evidence: { x: 14, y: 55, scale: 0.85 },
+        rationale: { x: 34, y: 38, scale: 0.85 },
+        root: { x: 54, y: 55, scale: 0.85 },
+        java: { x: 72, y: 38, scale: 0.85 },
+        win: { x: 88, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'evidence', to: 'rationale' }, { from: 'rationale', to: 'root' }, { from: 'root', to: 'java' }, { from: 'java', to: 'win' }],
+    },
+  ],
+}
+
+// 💼 Mülakat Q&A — cevap kurma step-animation'ı
+const seleniumInterviewAnswerSteps = {
+  type: 'step-animation',
+  id: 'selenium-interview-answer-step-01',
+  title: { tr: 'Adım Adım: Selenium Senaryo Cevabı Kurma', en: 'Step by Step: Building a Selenium Scenario Answer' },
+  steps: [
+    { id: 1, icon: '🧭', label: { tr: 'Kategoriyi sor', en: 'Ask about the category' }, detail: { tr: 'Cevaba netleştirerek başla: hangi exception, ne sıklıkla, tek testte mi çoklu testte mi? Kategori sormak ilk puandır.', en: 'Open by clarifying: which exception, how often, one test or many? Asking about the category is the first point.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Kanıt komutlarını sırala', en: 'List the evidence commands' }, detail: { tr: '"Önce hata mesajını, sonra hangi katmana işaret ettiğini kontrol ederim" de — bu, ezberden ayrışmanın yoludur.', en: 'Say "first I check the error message, then which layer it points to" — this is how you separate yourself from rote memory.' } },
+    { id: 3, icon: '⚖️', label: { tr: 'Koşulu gerekçesiyle ver', en: 'Give the condition with its why' }, detail: { tr: 'Seçtiğin ExpectedCondition\'ı NEDENiyle söyle: "elementToBeClickable, çünkü hem görünürlük hem tıklanabilirlik gerekiyor".', en: 'State your chosen ExpectedCondition WITH its reason: "elementToBeClickable, because both visibility and clickability are needed".' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Kalıcı çözümü ekle', en: 'Add the permanent fix' }, detail: { tr: 'Tek testi değil, suite genelini tara — aynı anti-pattern\'in başka testlerde tekrarlanıp tekrarlanmadığını kontrol et.', en: 'Do not scan just one test — scan the whole suite for the same anti-pattern repeating elsewhere.' } },
+    { id: 5, icon: '☕', label: { tr: 'Java analojisiyle kapat', en: 'Close with a Java analogy' }, detail: { tr: 'Cevabı bildiğin dünyaya bağla: ExplicitWait, CompletableFuture.get(timeout) gibidir. Analoji, kavramı gerçekten ANLADIĞINI kanıtlar.', en: 'Tie the answer to a world you know: ExplicitWait is like CompletableFuture.get(timeout). The analogy proves you truly UNDERSTAND the concept.' } },
+  ],
+}
+
+// 💼 Mülakat Q&A — flaky test teşhis akışı sandbox'ı
+const seleniumInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'selenium-webdriver',
+  id: 'selenium-interview-practice-01',
+  label: { tr: 'Micro Lab: Mülakat senaryosunu koşul akışına çevir', en: 'Micro Lab: Turn the interview scenario into a condition flow' },
+  language: 'java',
+  task: {
+    tr: 'Klasik mülakat senaryosu: bir test CI\'da aralıklı başarısız oluyor, kanıt Thread.sleep\'in yetersiz kaldığını gösteriyor. TODO satırını, doğru ExpectedCondition ile tamamla.',
+    en: 'The classic interview scenario: a test fails intermittently in CI, the evidence shows Thread.sleep is insufficient. Complete the TODO line with the correct ExpectedCondition.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç mülakatta anlatacağın çözüm akışını (kanıt → koşul seçimi → kalıcı kök çözüm) elle yazarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the solution flow you would narrate in an interview (evidence → condition choice → permanent root fix) by writing it yourself.',
+  },
+  code: {
+    tr: `// kanit: element bazen "not interactable" hatasi veriyor\nWebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nwait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))).click();`,
+    en: `// evidence: element sometimes throws "not interactable"\nWebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nwait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))).click();`,
+  },
+  starterCode: {
+    tr: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n// TODO: hem gorunur hem tiklanabilir olmasini bekleyen koşulu yaz\n.click();`,
+    en: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\n// TODO: write the condition that waits for both visibility AND clickability\n.click();`,
+  },
+  solutionCode: {
+    tr: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nwait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))).click();`,
+    en: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));\nwait.until(ExpectedConditions.elementToBeClickable(By.id("submitBtn"))).click();`,
+  },
+  expected: {
+    tr: 'Test artık CI\'da tutarlı şekilde geçer — çünkü koşul, elementin GERÇEKTEN etkileşilebilir olduğu anı bekler, sabit bir süreyi değil.',
+    en: 'The test now passes consistently in CI — because the condition waits for the moment the element is TRULY interactable, not a fixed duration.',
+  },
+  hints: [
+    { tr: 'Aranan koşul hem görünürlüğü hem tıklanabilirliği kontrol eder: `elementToBeClickable`.', en: 'The condition you need checks both visibility and clickability: `elementToBeClickable`.' },
+    { tr: 'Sözdizimi: `wait.until(ExpectedConditions.elementToBeClickable(By.id("x")))`.', en: 'Syntax: `wait.until(ExpectedConditions.elementToBeClickable(By.id("x")))`.' },
+  ],
+  xpReward: 10,
+}
+
+const seleniumIntroPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'selenium-intro-flow-practice-01',
+  id: 'selenium-intro-flow-practice-01',
+  label: { tr: 'Micro Lab: İlk Selenium komutunu tamamla', en: 'Micro Lab: Complete the first Selenium command' },
+  language: 'java',
+  task: {
+    tr: 'Amaç: Chrome\'u başlatıp bir sayfaya git, başlığını yazdır, sonra tarayıcıyı kapat. TODO satırını, driver\'ı kapatan doğru metotla tamamla.',
+    en: 'Goal: launch Chrome, navigate to a page, print its title, then close the browser. Complete the TODO line with the method that closes the driver.',
+  },
+  explanation: {
+    tr: 'driver.quit(), tarayıcıyı ve arka plandaki sürücü process\'ini tamamen kapatır — driver.close() sadece aktif SEKMEYİ kapatır, farkı bilmek kaynak sızıntısını önler.',
+    en: 'driver.quit() fully closes the browser AND the background driver process — driver.close() only closes the active TAB; knowing the difference prevents resource leaks.',
+  },
+  code: {
+    tr: `WebDriver driver = new ChromeDriver();\ndriver.get("https://www.google.com");\nSystem.out.println("Baslik: " + driver.getTitle());\ndriver.quit();`,
+    en: `WebDriver driver = new ChromeDriver();\ndriver.get("https://www.google.com");\nSystem.out.println("Title: " + driver.getTitle());\ndriver.quit();`,
+  },
+  starterCode: {
+    tr: `WebDriver driver = new ChromeDriver();\ndriver.get("https://www.google.com");\nSystem.out.println("Baslik: " + driver.getTitle());\n// TODO: tarayiciyi VE surucu process'ini tamamen kapat`,
+    en: `WebDriver driver = new ChromeDriver();\ndriver.get("https://www.google.com");\nSystem.out.println("Title: " + driver.getTitle());\n// TODO: fully close the browser AND the driver process`,
+  },
+  solutionCode: {
+    tr: `WebDriver driver = new ChromeDriver();\ndriver.get("https://www.google.com");\nSystem.out.println("Baslik: " + driver.getTitle());\ndriver.quit();`,
+    en: `WebDriver driver = new ChromeDriver();\ndriver.get("https://www.google.com");\nSystem.out.println("Title: " + driver.getTitle());\ndriver.quit();`,
+  },
+  expected: {
+    tr: 'Konsolda "Baslik: Google" yazar, ardından tarayıcı penceresi VE arka plan sürücü process\'i tamamen kapanır.',
+    en: 'The console prints "Title: Google", then both the browser window AND the background driver process fully close.',
+  },
+  hints: [
+    { tr: 'İki kapatma metodu vardır: biri sadece sekmeyi kapatır, diğeri her şeyi kapatır.', en: 'There are two closing methods: one closes only the tab, the other closes everything.' },
+    { tr: 'Aradığın metot `driver.quit()` — parantez içi boştur.', en: 'The method you need is `driver.quit()` — empty parentheses.' },
+  ],
+  xpReward: 10,
+}
+
+
 const s0 = {
   tr: {
     title: '🟢 Selenium Nedir? Nasıl Çalışır?',
@@ -47,6 +1612,9 @@ const s0 = {
           { num: 5, label: 'Web Sayfası', desc: 'DOM & JavaScript', highlight: true },
         ],
       },
+      seleniumDomProofFilm,
+      seleniumIntroFlowSteps,
+      seleniumIntroPractice,
       {
         type: 'table',
         headers: ['Özellik', 'Selenium 3', 'Selenium 4'],
@@ -154,6 +1722,9 @@ const s0 = {
           { num: 5, label: 'Web Page', desc: 'DOM & JavaScript', highlight: true },
         ],
       },
+      seleniumDomProofFilm,
+      seleniumIntroFlowSteps,
+      seleniumIntroPractice,
       {
         type: 'table',
         headers: ['Feature', 'Selenium 3', 'Selenium 4'],
@@ -277,6 +1848,7 @@ public class FirstTest {
 }`,
         expected: 'Başlık: Google',
       },
+      seleniumVersionMismatchFilm,
       { type: 'heading', text: '2️⃣ Python ile Selenium Kurulumu' },
       {
         type: 'code', language: 'bash',
@@ -455,6 +2027,7 @@ public class FirstTest {
 }`,
         expected: 'Title: Google',
       },
+      seleniumVersionMismatchFilm,
       { type: 'heading', text: '2️⃣ Python Selenium Setup' },
       {
         type: 'code', language: 'bash',
@@ -554,6 +2127,7 @@ const s2 = {
         label: { tr: 'Locator Stratejileri Karşılaştırması', en: 'Locator Strategy Comparison' },
       },
       LOCATOR_EXPLORER_BLOCK,
+      seleniumSilentMismatchFilm,
       { type: 'heading', text: 'Locator Türleri — Hızlı Karşılaştırma' },
       {
         type: 'table',
@@ -870,6 +2444,7 @@ for (const link of links) {
         content: 'Choosing a locator directly mirrors choosing a collection access strategy in Java: By.id is a Map key lookup — O(1), the browser calls getElementById internally. By.xpath, by contrast, works like scanning an unsorted List — it may traverse the entire DOM tree. So if pages seem to always have IDs, why do you ever need XPath or CSS selectors? Because front-end frameworks (React, Angular) can regenerate the DOM on each render, making IDs unstable or absent; in those cases structural queries like `//button[normalize-space()=\'Buy\']` become the only reliable anchor. In Java you wrote By.id("loginBtn"); in Python it is By.ID, in TypeScript the same — only syntax differs, the locator strategy stays constant. The most dangerous locator for QA is By.className("btn"): when a designer refactors CSS class names, the locator silently starts matching different elements, the test returns a false PASS, and no exception is thrown — the hardest category of flaky test to diagnose.',
       },
       LOCATOR_EXPLORER_BLOCK,
+      seleniumSilentMismatchFilm,
       { type: 'heading', text: 'Locator Types — Quick Comparison' },
       {
         type: 'table',
@@ -1336,6 +2911,7 @@ actions.clickAndHold(source)     // kaynak üzerinde fareyi bas
 // ActionChains(driver).drag_and_drop(source, target).perform()`,
         language: 'java',
       },
+      seleniumActionsChainFilm,
       { type: 'heading', text: '4. JavaScript Executor' },
       {
         type: 'code', language: 'java',
@@ -1718,6 +3294,7 @@ actions.double_click(item).perform()            # Double click
 actions.context_click(file_el).perform()        # Right click
 actions.drag_and_drop(source, target).perform() # Drag & Drop`,
       },
+      seleniumActionsChainFilm,
       { type: 'heading', text: '4. JavaScript Executor' },
       {
         type: 'code', language: 'java',
@@ -2108,6 +3685,7 @@ result = wait.until(
         title: 'Thread.sleep() Kullanma!',
         content: 'Thread.sleep(3000) veya time.sleep(3) GİBİ sabit beklemeler KULLANMA. Neden? 1) Test yavaşlar — eleman 0.5sn\'de hazır olsa bile 3sn bekleriz. 2) Güvenilmez — eleman 3sn\'de hazır olmazsa yine hata alırız. Bunun yerine her zaman Explicit Wait kullan.',
       },
+      seleniumWaitReflexFilm,
       {
         type: 'quiz',
         question: { tr: 'Selenium\'da bir spinner (yükleniyor ikonu) kaybolana kadar beklemek için hangi ExpectedCondition kullanılır?', en: 'Which ExpectedCondition is used to wait for a spinner to disappear in Selenium?' },
@@ -2255,6 +3833,7 @@ await btn.click();
 
 await driver.wait(until.urlContains('/dashboard'), 15000);`,
       },
+      seleniumWaitReflexFilm,
       {
         type: 'quiz',
         question: { tr: 'Selenium\'da bir spinner (yükleniyor ikonu) kaybolana kadar beklemek için hangi ExpectedCondition kullanılır?', en: 'Which ExpectedCondition is used to wait for a spinner to disappear in Selenium?' },
@@ -2542,6 +4121,7 @@ await driver.switchTo().frame(frame);
 await (await driver.findElement(By.id('cardNumber'))).sendKeys('4111111111111111');
 await driver.switchTo().parentFrame();`,
       },
+      seleniumIframeContextFilm,
       { type: 'heading', text: '3. Çoklu Pencere/Sekme Yönetimi' },
       {
         type: 'code', language: 'java',
@@ -2831,6 +4411,7 @@ driver.switchTo().defaultContent(); // Back to main page`,
 driver.find_element(By.ID, "cardNumber").send_keys("4111111111111111")
 driver.switch_to.default_content()`,
       },
+      seleniumIframeContextFilm,
       { type: 'heading', text: '3. Multiple Windows/Tabs' },
       {
         type: 'code', language: 'java',
@@ -3183,6 +4764,7 @@ describe('E-Commerce Tests', function () {
   });
 });`,
       },
+      seleniumE2eFunnelFilm,
       { type: 'heading', text: 'Selenium vs Playwright vs Cypress — Karşılaştırma' },
       {
         type: 'table',
@@ -3292,6 +4874,7 @@ public void testSuccessfulLogin() {
     logout = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "a[href='/logout']")))
     assert logout.is_displayed()`,
       },
+      seleniumE2eFunnelFilm,
       { type: 'heading', text: 'Selenium vs Playwright vs Cypress' },
       {
         type: 'table',
@@ -3520,6 +5103,7 @@ driver.get("https://example.com")
 print(driver.title)
 driver.quit()`,
       },
+      seleniumGridSpeedupFilm,
       { type: 'heading', text: '3. GitHub Actions CI/CD Entegrasyonu' },
       {
         type: 'code', language: 'yaml',
@@ -3637,6 +5221,7 @@ java -jar selenium-server.jar node --hub http://localhost:4444`,
     options=Options()
 )`,
       },
+      seleniumGridSpeedupFilm,
       {
         type: 'quiz',
         question: 'Which TestNG annotation runs BEFORE every test method?',
@@ -3722,6 +5307,7 @@ devTools.addListener(Log.entryAdded(), logEntry -> {
 
 driver.get("https://example.com");`,
       },
+      seleniumBidiListenerFilm,
       {
         type: 'heading', text: '2. Network Interception (API Mocking)'
       },
@@ -3892,6 +5478,7 @@ devTools.addListener(Log.entryAdded(), logEntry -> {
 
 driver.get("https://example.com");`,
       },
+      seleniumBidiListenerFilm,
       {
         type: 'heading', text: '2. Network Interception (API Mocking)'
       },
@@ -4037,6 +5624,7 @@ driver.get("https://webauthn.io");
 // Passkey kaydı ve giriş işlemlerini yap...
 authDriver.removeVirtualAuthenticator(authenticator);`,
       },
+      seleniumVirtualAuthFilm,
       {
         type: 'heading', text: '2. Print Page (Headless PDF Kaydetme)'
       },
@@ -4175,6 +5763,7 @@ driver.get("https://webauthn.io");
 // Perform passkey registration/login tests...
 authDriver.removeVirtualAuthenticator(authenticator);`,
       },
+      seleniumVirtualAuthFilm,
       {
         type: 'heading', text: '2. Print Page (Headless PDF Export)'
       },
@@ -4331,6 +5920,7 @@ selenium-side-runner -c "browserName=chrome" -w 4 projem.side`,
         type: 'text',
         content: 'IDE\'de kaydettiğiniz adımları sağ tıklayıp "Export" diyerek Java (JUnit/TestNG), Python (pytest) veya JavaScript formatında temiz bir WebDriver koduna dönüştürebilirsiniz. Bu, POM mimarisine başlarken şablon kod oluşturmak için mükemmeldir.',
       },
+      seleniumIdeExportFilm,
       {
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-ide-flow',
@@ -4446,6 +6036,7 @@ selenium-side-runner -c "browserName=chrome" -w 4 project.side`,
         type: 'text',
         content: 'You can right-click any suite in the IDE and choose "Export" to export your test scripts into Java (JUnit/TestNG), Python (pytest), or JavaScript code. This creates excellent boilerplate template code to start with.',
       },
+      seleniumIdeExportFilm,
       {
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-ide-flow',
@@ -4538,6 +6129,7 @@ const s11 = {
             { icon: '💻', label: 'Node', desc: 'Testlerin üzerinde koştuğu, tarayıcılara ev sahipliği yapan gerçek veya sanal makinedir.' },
         ],
       },
+      seleniumGridRoutingFilm,
       {
         type: 'heading', text: '2. Grid Çalışma Modları'
       },
@@ -4690,6 +6282,7 @@ driver.quit();`,
             { icon: '💻', label: 'Node', desc: 'The execution host hosting actual browsers and executing driver instructions.' },
         ],
       },
+      seleniumGridRoutingFilm,
       {
         type: 'heading', text: '2. Grid Execution Modes'
       },
@@ -4827,6 +6420,8 @@ const s12 = {
         type: 'simple-box', emoji: '🔧',
         content: 'Selenium\'daki hata mesajları, Java\'nın checked exception\'ları gibi davranır: mesajı yüzeysel okursun, yanlış yere bakarsın, saatlerce debug edersin. Örneğin NoSuchElementException bir "locator yanlış" hatası gibi görünür ama çoğu zaman locator doğrudur — element henüz DOM\'a eklenmemiştir; bu, Java\'da bir Future\'ı .get() olmadan okumaya çalışmaya benzer. Peki bu hatalar belgelenmiş ve bilinen hatalarsa neden herkes aynı tuzağa düşüyor? Çünkü hata mesajı kök nedeni değil belirtiyi gösterir; "Unable to locate element" diyince akıl "locator\'ı düzelt" der ama gerçek sorun genellikle timing, iframe context veya DOM yeniden render olmasıdır. StaleElementReferenceException ise Java\'da WeakReference\'a GC sonrası erişmek gibidir: element yakalanmış, DOM yeniden render edilmiş, referans artık geçersiz — bunu anlamadan "bir daha findElement" demek sorunu gizler. QA\'da bu hataların birikimi flaky test report\'larına dönüşür: CI yeşil görünür ama aynı test bazen geçer bazen geçmez; bu güvensizlik, ekibin tüm test sonuçlarını görmezden gelmesine zemin hazırlar.',
       },
+      seleniumStaleElementDiagnosisFilm,
+      seleniumStaleElementDiagnosisSteps,
       {
         type: 'error-dictionary',
           relatedTopicId: 'selenium-webdriver-errors',
@@ -4925,6 +6520,7 @@ driver.findElement(By.xpath("//button[text()='Login']")); // Tırnak ekle`,
           },
         ],
       },
+      seleniumStaleElementPractice,
       {
         type: 'quiz',
         question: 'Bir React/Vue (SPA) uygulamasında DOM sürekli güncellendiği için en sık karşılaşılan exception hangisidir?',
@@ -4970,6 +6566,8 @@ driver.findElement(By.xpath("//button[text()='Login']")); // Tırnak ekle`,
         type: 'simple-box', emoji: '🔧',
         content: 'Selenium error messages behave like Java\'s checked exceptions: you read the message at face value, look in the wrong place, and spend hours debugging. For example, NoSuchElementException looks like "your locator is wrong" — but most of the time the locator is correct and the element simply has not been added to the DOM yet, analogous to reading a Java Future without calling .get() first. If these errors are documented and well-known, why does everyone fall into the same traps? Because the error message reports the symptom, not the root cause: "Unable to locate element" makes the mind jump to "fix the locator," but the actual problem is usually timing, a missing iframe context switch, or a DOM re-render. StaleElementReferenceException is like accessing a Java WeakReference after garbage collection: the element was captured, the DOM re-rendered, and the reference is no longer valid — papering over it with another findElement hides the problem. In QA, accumulating these errors produces flaky test reports: CI appears green but the same test passes intermittently; this unreliability creates a culture where the team ignores all test results, which is far more dangerous than a test suite that simply fails.',
       },
+      seleniumStaleElementDiagnosisFilm,
+      seleniumStaleElementDiagnosisSteps,
       {
         type: 'error-dictionary',
           relatedTopicId: 'selenium-webdriver-errors',
@@ -5031,6 +6629,7 @@ el.click();`,
           },
         ],
       },
+      seleniumStaleElementPractice,
       {
         type: 'quiz',
         question: 'Which exception is most common in a React/Vue (SPA) app because the DOM updates constantly?',
@@ -5080,6 +6679,9 @@ const s13 = {
         type: 'simple-box', emoji: '🎓',
         content: 'Selenium mülakat soruları, Java Core sorularından farklı bir zihinsel modeli test eder: "API\'yi ezberledin mi?" değil, "gerçek bir otomasyon projesinde sorun çözebiliyor musun?" Tıpkı Java\'da "Collections nedir?" yerine "HashMap ile ConcurrentHashMap arasındaki farkı production threading senaryosunda anlat" diye sorulması gibi — doğru cevap belleği değil, kök-neden analizi yapabilme kapasitesini ölçer. Peki Selenium öğrendikten sonra bu soruları çalışmak neden hâlâ gerekiyor? Çünkü mülakatta karşılaştığın senaryo ("CI\'da aralıklı başarısız olan testler var, nasıl stabilize edersin?") kendi projende hiç görmediğin bir durumu tarif edebilir; bu 50 soru her senaryo kategorisini önceden yaşatır, mülakatta "buna benzeri bir şeyle karşılaştım" hissini verir. Java bilgini avantaja dönüştür: "Java\'daki Future timeout mekanizması gibi ExplicitWait..." şeklinde çapraz bağ kurabilmek, aynı soruyu Selenium-only bilen birine göre çok daha güçlü bir cevap üretir ve mülakatçıda derin teknik anlayış izlenimi bırakır.',
       },
+      seleniumInterviewAnswerFilm,
+      seleniumInterviewAnswerSteps,
+      seleniumInterviewPractice,
       {
         type: 'interview-questions',
           relatedTopicId: 'selenium-webdriver',
@@ -5847,6 +7449,9 @@ Assert.assertEquals(violations.size(), 0, "Erişilebilirlik ihlali var!");` },
         type: 'simple-box', emoji: '🎓',
         content: 'Selenium interview questions test a different mental model than Java Core questions: not "did you memorize the API?" but "can you solve real problems in an automation project?" Just as Java interviews ask "explain the difference between HashMap and ConcurrentHashMap in a production threading scenario" instead of "what is a Collection?" — the right answer measures root-cause analytical capacity, not memory. If you already learned Selenium, why study these questions separately? Because the scenario you face in an interview ("tests are intermittently failing in CI — how do you stabilize them?") may describe a situation you have never personally encountered; these 50 questions pre-load each scenario category so that in the interview you can genuinely say "I\'ve dealt with something like this." Use your Java background as a differentiator: framing an answer as "similar to a Java Future timeout mechanism, ExplicitWait..." creates cross-domain connections that someone with Selenium-only knowledge cannot make, and leaves the interviewer with a strong impression of deep technical understanding rather than surface-level tool familiarity.',
       },
+      seleniumInterviewAnswerFilm,
+      seleniumInterviewAnswerSteps,
+      seleniumInterviewPractice,
       {
         type: 'interview-questions',
           relatedTopicId: 'selenium-webdriver',

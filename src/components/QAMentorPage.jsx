@@ -190,7 +190,7 @@ function MindMapNode({ node, index, lang, darkMode, animDelay }) {
                     {/* Arrow */}
                     <div
                         className="flex-shrink-0 text-xs font-bold opacity-0 group-hover:opacity-100 transition-all duration-200 group-hover:translate-x-1 whitespace-nowrap"
-                        style={{ color: node.color }}
+                        style={{ color: darkMode ? '#f1f5f9' : '#1e293b' }}
                     >
                         →
                     </div>

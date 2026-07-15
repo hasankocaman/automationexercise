@@ -25,6 +25,7 @@ import TokenPredictorBlock from './TokenPredictorBlock'
 import DeterministicVsStochasticBlock from './DeterministicVsStochasticBlock'
 import JudgePlaygroundBlock from './JudgePlaygroundBlock'
 import RagLabBlock from './RagLabBlock'
+import VideoSceneBlock from './VideoSceneBlock'
 import PromptInjectionArenaBlock from './PromptInjectionArenaBlock'
 import DriftMeterBlock from './DriftMeterBlock'
 import ObservabilityDashboardBlock from './ObservabilityDashboardBlock'
@@ -4365,7 +4366,7 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
         const selectedVal = step.selectedValue || 'tr'
         return (
             <div style={{ fontFamily: 'monospace', fontSize: 13 }}>
-                <div style={{ marginBottom: 8, color: accent, fontWeight: 700 }}>{'<select id="country">'}</div>
+                <div style={{ marginBottom: 8, color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700 }}>{'<select id="country">'}</div>
                 <div style={{
                     border: `2px solid ${accent}`,
                     borderRadius: 8,
@@ -4477,7 +4478,7 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
                     boxShadow: s.outerActive ? `0 0 12px ${accent}44` : 'none',
                     transition: 'all 0.3s',
                 }}>
-                    <div style={{ color: s.outerActive ? accent : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>
+                    <div style={{ color: s.outerActive ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>
                         {s.outerActive ? '✅ ' : ''}🌐 {isTr ? 'Ana Sayfa' : 'Main Page'}
                     </div>
                     <div style={{
@@ -4492,7 +4493,7 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
                             🖼️ iframe.payment-frame — {s.innerLabel}
                         </div>
                         {s.nested && (
-                            <div style={{ padding: 6, border: `1px dashed #8b5cf6`, borderRadius: 4, marginTop: 4, color: '#8b5cf6', fontSize: 10 }}>
+                            <div style={{ padding: 6, border: `1px dashed #8b5cf6`, borderRadius: 4, marginTop: 4, color: darkMode ? '#c4b5fd' : '#6d28d9', fontSize: 10 }}>
                                 🔲 iframe#captchaFrame (nested)
                             </div>
                         )}
@@ -4531,7 +4532,7 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
                         border: `2px solid ${active.includes(w.id) ? w.color : (darkMode ? '#374151' : '#d1d5db')}`,
                         background: active.includes(w.id) ? (darkMode ? '#111827' : '#f9fafb') : (darkMode ? '#1f2937' : '#fff'),
                         boxShadow: active.includes(w.id) ? `0 0 10px ${w.color}44` : 'none',
-                        color: active.includes(w.id) ? w.color : (darkMode ? '#6b7280' : '#9ca3af'),
+                        color: active.includes(w.id) ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'),
                         fontWeight: active.includes(w.id) ? 700 : 400,
                         transition: 'all 0.3s',
                     }}>
@@ -4628,7 +4629,7 @@ function SeleniumVisualBlock({ block, darkMode, language }) {
                         minWidth: 90,
                     }}>
                         {['✂️ Cut', '📋 Copy', '🗑️ Delete'].map(m => (
-                            <div key={m} style={{ padding: '4px 14px', fontSize: 11, color: m.includes('Delete') ? '#ef4444' : (darkMode ? '#e5e7eb' : '#374151') }}>{m}</div>
+                            <div key={m} style={{ padding: '4px 14px', fontSize: 11, color: m.includes('Delete') ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#e5e7eb' : '#374151') }}>{m}</div>
                         ))}
                     </div>
                 )}
@@ -4787,14 +4788,14 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         if (state === 'selenium-way') {
             return (
                 <div style={{ fontFamily: 'monospace', fontSize: 11, maxWidth: 280 }}>
-                    <div style={{ color: '#ef4444', fontWeight: 700, marginBottom: 8 }}>⚠️ Selenium: Manuel Bekleme</div>
+                    <div style={{ color: darkMode ? '#f87171' : '#b91c1c', fontWeight: 700, marginBottom: 8 }}>⚠️ Selenium: Manuel Bekleme</div>
                     {[
                         'WebDriverWait(driver, 30)',
                         'ExpectedConditions.visibilityOf(...)',
                         '.until(...) → element bul',
                         isTr ? 'Her action için tekrar yaz!' : 'Repeat it for every action!',
                     ].map((txt, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 3 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 3 ? '#ef4444' : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 3 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 3 ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
                             <span>{['1️⃣', '2️⃣', '3️⃣', '⛔'][idx]}</span><span>{txt}</span>
                         </div>
                     ))}
@@ -4803,7 +4804,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         }
         return (
             <div style={{ maxWidth: 260, fontFamily: 'monospace', fontSize: 11 }}>
-                <div style={{ color: accent, fontWeight: 700, marginBottom: 8 }}>✅ Playwright: Auto-Wait</div>
+                <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, marginBottom: 8 }}>✅ Playwright: Auto-Wait</div>
                 {phases.map((phase, idx) => {
                     const isActive = active.includes(phase.id)
                     const isTimeout = state === 'timeout' && phase.id === 'retry'
@@ -4820,8 +4821,8 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                         </div>
                     )
                 })}
-                {state === 'found' && <div style={{ marginTop: 6, color: '#10b981', fontWeight: 700, fontSize: 11 }}>✅ {isTr ? 'Extra kod yazmana gerek yok!' : 'No extra code needed!'}</div>}
-                {state === 'timeout' && <div style={{ marginTop: 6, color: '#ef4444', fontSize: 11 }}>⏱️ {isTr ? 'TimeoutError: 30s içinde bulunamadı' : 'TimeoutError: not found within 30s'}</div>}
+                {state === 'found' && <div style={{ marginTop: 6, color: darkMode ? '#34d399' : '#047857', fontWeight: 700, fontSize: 11 }}>✅ {isTr ? 'Extra kod yazmana gerek yok!' : 'No extra code needed!'}</div>}
+                {state === 'timeout' && <div style={{ marginTop: 6, color: darkMode ? '#f87171' : '#b91c1c', fontSize: 11 }}>⏱️ {isTr ? 'TimeoutError: 30s içinde bulunamadı' : 'TimeoutError: not found within 30s'}</div>}
             </div>
         )
     }
@@ -4831,7 +4832,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         const selectedVal = step.selectedValue || 'tr'
         return (
             <div style={{ fontFamily: 'monospace', fontSize: 12 }}>
-                <div style={{ marginBottom: 8, color: accent, fontWeight: 700, fontSize: 11 }}>{'page.locator("#country")'}</div>
+                <div style={{ marginBottom: 8, color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, fontSize: 11 }}>{'page.locator("#country")'}</div>
                 <div style={{ border: `2px solid ${accent}`, borderRadius: 8, overflow: 'hidden', maxWidth: 220, boxShadow: `0 0 12px ${accent}44`, transition: 'all 0.3s' }}>
                     {(state === 'wrap' ? [opts[0]] : opts).map((opt, idx) => (
                         <div key={opt.value} style={{ padding: '7px 14px', background: (state !== 'wrap' && opt.value === selectedVal && state !== 'getOptions') ? accent : (darkMode ? '#1f2937' : '#fff'), color: (state !== 'wrap' && opt.value === selectedVal && state !== 'getOptions') ? '#fff' : (darkMode ? '#d1d5db' : '#374151'), borderBottom: idx < (state === 'wrap' ? 0 : 3) ? `1px solid ${darkMode ? '#374151' : '#e5e7eb'}` : 'none', transition: 'background 0.3s', fontWeight: opt.value === selectedVal ? 700 : 400 }}>
@@ -4879,13 +4880,13 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         return (
             <div style={{ maxWidth: 260, fontFamily: 'monospace', fontSize: 11 }}>
                 <div style={{ padding: 10, borderRadius: 8, border: `2px solid ${s.outerActive ? accent : (darkMode ? '#374151' : '#d1d5db')}`, background: darkMode ? '#111827' : '#f9fafb', boxShadow: s.outerActive ? `0 0 12px ${accent}44` : 'none', transition: 'all 0.3s' }}>
-                    <div style={{ color: s.outerActive ? accent : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>{s.outerActive ? '✅ ' : ''}🌐 {isTr ? 'Ana Sayfa' : 'Main Page'}</div>
+                    <div style={{ color: s.outerActive ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: s.outerActive ? 700 : 400, marginBottom: 6 }}>{s.outerActive ? '✅ ' : ''}🌐 {isTr ? 'Ana Sayfa' : 'Main Page'}</div>
                     <div style={{ padding: 8, borderRadius: 6, border: `2px solid ${s.innerBorder}`, background: darkMode ? '#1f2937' : '#fff', opacity: s.innerOpacity, boxShadow: s.innerOpacity === 1 ? `0 0 10px ${s.innerBorder}44` : 'none', transition: 'all 0.4s' }}>
                         <div style={{ color: s.innerBorder, fontWeight: 700 }}>🖼️ iframe#payment — {s.innerLabel}</div>
                         {s.innerOpacity === 1 && <div style={{ fontSize: 10, color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 4 }}>💳 frameLocator → locator chain</div>}
                     </div>
                 </div>
-                {state === 'inner' && <div style={{ marginTop: 6, fontSize: 10, color: '#10b981' }}>✅ {isTr ? 'switchTo() gerekmez — chain yeterli!' : 'No switchTo() needed — the chain is enough!'}</div>}
+                {state === 'inner' && <div style={{ marginTop: 6, fontSize: 10, color: darkMode ? '#34d399' : '#047857' }}>✅ {isTr ? 'switchTo() gerekmez — chain yeterli!' : 'No switchTo() needed — the chain is enough!'}</div>}
             </div>
         )
     }
@@ -4898,7 +4899,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 240, fontFamily: 'monospace', fontSize: 11 }}>
                 {pages.slice(0, showCount).map(p => (
-                    <div key={p.id} style={{ padding: '7px 12px', borderRadius: 8, border: `2px solid ${active.includes(p.id) ? p.color : (darkMode ? '#374151' : '#d1d5db')}`, background: active.includes(p.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#fff'), boxShadow: active.includes(p.id) ? `0 0 10px ${p.color}44` : 'none', color: active.includes(p.id) ? p.color : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(p.id) ? 700 : 400, transition: 'all 0.3s' }}>
+                    <div key={p.id} style={{ padding: '7px 12px', borderRadius: 8, border: `2px solid ${active.includes(p.id) ? p.color : (darkMode ? '#374151' : '#d1d5db')}`, background: active.includes(p.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#fff'), boxShadow: active.includes(p.id) ? `0 0 10px ${p.color}44` : 'none', color: active.includes(p.id) ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(p.id) ? 700 : 400, transition: 'all 0.3s' }}>
                         {active.includes(p.id) ? '▶ ' : '  '}{p.label}{active.includes(p.id) && <span style={{ fontSize: 9, marginLeft: 6, opacity: 0.7 }}>← active</span>}
                     </div>
                 ))}
@@ -4921,7 +4922,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                 {state === 'drag' && <div style={{ position: 'absolute', top: 80, left: 0, right: 0, display: 'flex', gap: 24, justifyContent: 'center', alignItems: 'center' }}><div style={{ width: 48, height: 36, borderRadius: 6, background: `${accent}bb`, border: `2px dashed ${accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', fontWeight: 700, transform: 'translateX(20px)', transition: 'transform 0.5s' }}>DRAG</div><span style={{ color: accent, fontWeight: 700 }}>→</span><div style={{ width: 56, height: 40, borderRadius: 6, border: `2px solid ${accent}`, background: `${accent}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: accent, fontWeight: 700 }}>DROP</div></div>}
                 {state === 'keyboard' && <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>{['Control', 'A', '→', 'Del'].map(k => <div key={k} style={{ padding: '4px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: accent, color: '#fff', boxShadow: `0 2px 0 ${accent}88`, animation: 'pulse 1s infinite' }}>{k}</div>)}</div>}
                 {state === 'dblclick' && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }}><div style={{ width: 50, height: 50, borderRadius: '50%', border: `2px solid ${accent}`, animation: 'ping 0.6s ease-out', opacity: 0.6 }} /><div style={{ width: 30, height: 30, borderRadius: '50%', border: `2px solid ${accent}`, animation: 'ping 0.6s ease-out 0.15s', opacity: 0.4, position: 'absolute', top: 10, left: 10 }} /></div>}
-                {state === 'rightclick' && <div style={{ position: 'absolute', top: 60, left: 80, background: darkMode ? '#1f2937' : '#fff', border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`, borderRadius: 6, padding: '4px 0', boxShadow: '0 4px 16px rgba(0,0,0,0.2)', animation: 'fadeIn 0.2s ease', minWidth: 90 }}>{['✂️ Cut', '📋 Copy', '🗑️ Delete'].map(m => <div key={m} style={{ padding: '4px 14px', fontSize: 11, color: m.includes('Delete') ? '#ef4444' : (darkMode ? '#e5e7eb' : '#374151') }}>{m}</div>)}</div>}
+                {state === 'rightclick' && <div style={{ position: 'absolute', top: 60, left: 80, background: darkMode ? '#1f2937' : '#fff', border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`, borderRadius: 6, padding: '4px 0', boxShadow: '0 4px 16px rgba(0,0,0,0.2)', animation: 'fadeIn 0.2s ease', minWidth: 90 }}>{['✂️ Cut', '📋 Copy', '🗑️ Delete'].map(m => <div key={m} style={{ padding: '4px 14px', fontSize: 11, color: m.includes('Delete') ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#e5e7eb' : '#374151') }}>{m}</div>)}</div>}
                 {state !== 'drag' && state !== 'keyboard' && <div style={{ ...cursor, ...pos, transform: 'translate(-50%,-50%)' }}>🖱️</div>}
             </div>
         )
@@ -4962,7 +4963,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                 <div style={{ textAlign: 'center', marginBottom: 8, color: darkMode ? '#9ca3af' : '#6b7280', fontSize: 10 }}>🌐 browser (tek proses)</div>
                 <div style={{ border: `2px solid ${darkMode ? '#374151' : '#d1d5db'}`, borderRadius: 10, padding: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
                     {contexts.slice(0, showCount).map(ctx => (
-                        <div key={ctx.id} style={{ padding: '6px 10px', borderRadius: 6, border: `2px solid ${active.includes(ctx.id) ? ctx.color : (darkMode ? '#374151' : '#e5e7eb')}`, background: active.includes(ctx.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#f9fafb'), color: active.includes(ctx.id) ? ctx.color : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(ctx.id) ? 700 : 400, boxShadow: active.includes(ctx.id) ? `0 0 8px ${ctx.color}44` : 'none', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div key={ctx.id} style={{ padding: '6px 10px', borderRadius: 6, border: `2px solid ${active.includes(ctx.id) ? ctx.color : (darkMode ? '#374151' : '#e5e7eb')}`, background: active.includes(ctx.id) ? (darkMode ? '#111827' : '#f0f9ff') : (darkMode ? '#1f2937' : '#f9fafb'), color: active.includes(ctx.id) ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: active.includes(ctx.id) ? 700 : 400, boxShadow: active.includes(ctx.id) ? `0 0 8px ${ctx.color}44` : 'none', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: 6 }}>
                             {ctx.label}{active.includes(ctx.id) && state === 'isolation' && <span style={{ marginLeft: 'auto', fontSize: 9, background: `${ctx.color}22`, padding: '2px 5px', borderRadius: 3 }}>🍪 isolated</span>}
                         </div>
                     ))}
@@ -4982,7 +4983,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                 {(state === 'video') && <div style={{ marginBottom: 8, padding: '6px 10px', borderRadius: 6, background: '#fef3c7', border: '1px solid #f59e0b', fontSize: 10, color: '#92400e' }}>🎥 video.webm kaydediliyor...</div>}
                 {(state === 'viewer') && <div style={{ marginBottom: 8, padding: '6px 10px', borderRadius: 6, background: `${accent}11`, border: `1px solid ${accent}`, fontSize: 10, color: accent }}>🎭 trace.zip → Trace Viewer</div>}
                 <div style={{ background: darkMode ? '#111827' : '#f8fafc', border: `2px solid ${accent}`, borderRadius: 8, padding: 10 }}>
-                    <div style={{ color: accent, fontWeight: 700, marginBottom: 8, fontSize: 10 }}>📊 {isTr ? 'Test İzleme' : 'Trace Timeline'}</div>
+                    <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, marginBottom: 8, fontSize: 10 }}>📊 {isTr ? 'Test İzleme' : 'Trace Timeline'}</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         {events.map((e, idx) => (
                             <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -5012,13 +5013,13 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         if (state === 'fail-fast') {
             return (
                 <div style={{ fontFamily: 'monospace', fontSize: 11, maxWidth: 280 }}>
-                    <div style={{ color: '#ef4444', fontWeight: 700, marginBottom: 8 }}>⚠️ {isTr ? 'Klasik Assert: Anlık Kontrol' : 'Classic Assert: Instant Check'}</div>
+                    <div style={{ color: darkMode ? '#f87171' : '#b91c1c', fontWeight: 700, marginBottom: 8 }}>⚠️ {isTr ? 'Klasik Assert: Anlık Kontrol' : 'Classic Assert: Instant Check'}</div>
                     {[
                         'assertEquals(beklenen, gercek)',
                         isTr ? 'DOM o anki haliyle okunur' : 'Reads the DOM at this exact instant',
                         isTr ? 'Doğru değilse → ANINDA FAIL' : 'Not correct yet → FAILS IMMEDIATELY',
                     ].map((txt, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 2 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 2 ? '#ef4444' : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, padding: '5px 10px', borderRadius: 6, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${idx === 2 ? '#ef444444' : (darkMode ? '#374151' : '#e5e7eb')}`, color: idx === 2 ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#9ca3af' : '#6b7280'), fontSize: 11 }}>
                             <span>{['1️⃣', '2️⃣', '⛔'][idx]}</span><span>{txt}</span>
                         </div>
                     ))}
@@ -5027,7 +5028,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         }
         return (
             <div style={{ maxWidth: 260, fontFamily: 'monospace', fontSize: 11 }}>
-                <div style={{ color: accent, fontWeight: 700, marginBottom: 8 }}>✅ {isTr ? 'Playwright expect() — Auto-Retry' : 'Playwright expect() — Auto-Retry'}</div>
+                <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, marginBottom: 8 }}>✅ {isTr ? 'Playwright expect() — Auto-Retry' : 'Playwright expect() — Auto-Retry'}</div>
                 {phases.map((phase, idx) => {
                     const isActive = active.includes(phase.id)
                     const isTimeout = state === 'timeout' && phase.id === 'retrying'
@@ -5044,8 +5045,8 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                         </div>
                     )
                 })}
-                {state === 'found' && <div style={{ marginTop: 6, color: '#10b981', fontWeight: 700, fontSize: 11 }}>✅ {isTr ? 'Toplam süre = gerçekte gereken süre' : 'Total time = exactly what was needed'}</div>}
-                {state === 'timeout' && <div style={{ marginTop: 6, color: '#ef4444', fontSize: 11 }}>⏱️ {isTr ? 'TimeoutError: 5s içinde koşul hiç doğru olmadı' : 'TimeoutError: condition never became true within 5s'}</div>}
+                {state === 'found' && <div style={{ marginTop: 6, color: darkMode ? '#34d399' : '#047857', fontWeight: 700, fontSize: 11 }}>✅ {isTr ? 'Toplam süre = gerçekte gereken süre' : 'Total time = exactly what was needed'}</div>}
+                {state === 'timeout' && <div style={{ marginTop: 6, color: darkMode ? '#f87171' : '#b91c1c', fontSize: 11 }}>⏱️ {isTr ? 'TimeoutError: 5s içinde koşul hiç doğru olmadı' : 'TimeoutError: condition never became true within 5s'}</div>}
             </div>
         )
     }
@@ -5056,19 +5057,19 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         return (
             <div style={{ fontFamily: 'monospace', fontSize: 10.5, maxWidth: 260 }}>
                 <div style={{ padding: '8px 10px', borderRadius: 8, border: `2px solid ${idx >= 0 ? accent : (darkMode ? '#374151' : '#d1d5db')}`, background: darkMode ? '#111827' : '#f0f9ff', marginBottom: 8, opacity: idx >= 0 ? 1 : 0.5 }}>
-                    <div style={{ color: accent, fontWeight: 700 }}>{"test(async ({ loggedInPage }) => {"}</div>
+                    <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700 }}>{"test(async ({ loggedInPage }) => {"}</div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, color: idx >= 1 ? accent : (darkMode ? '#4b5563' : '#cbd5e1'), fontSize: 16, transition: 'color 0.3s' }}>↓</div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, color: idx >= 1 ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#4b5563' : '#cbd5e1'), fontSize: 16, transition: 'color 0.3s' }}>↓</div>
                 <div style={{ padding: '8px 10px', borderRadius: 8, border: `2px solid ${idx >= 1 ? '#f59e0b' : (darkMode ? '#374151' : '#d1d5db')}`, background: idx === 1 ? '#fef3c722' : (darkMode ? '#1f2937' : '#f9fafb'), marginBottom: 8, opacity: idx >= 1 ? 1 : 0.4, transition: 'all 0.3s' }}>
-                    <div style={{ color: idx >= 1 ? '#f59e0b' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700 }}>🧩 {isTr ? 'Fixture Factory' : 'Fixture Factory'}</div>
+                    <div style={{ color: idx >= 1 ? (darkMode ? '#fbbf24' : '#b45309') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700 }}>🧩 {isTr ? 'Fixture Factory' : 'Fixture Factory'}</div>
                     {idx === 1 && <div style={{ fontSize: 9.5, marginTop: 4, color: darkMode ? '#9ca3af' : '#6b7280' }}>{isTr ? 'login adımları çalışıyor...' : 'running login steps...'}</div>}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, color: idx >= 2 ? '#10b981' : (darkMode ? '#4b5563' : '#cbd5e1'), fontSize: 16, transition: 'color 0.3s' }}>↓ use()</div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, color: idx >= 2 ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#4b5563' : '#cbd5e1'), fontSize: 16, transition: 'color 0.3s' }}>↓ use()</div>
                 <div style={{ padding: '8px 10px', borderRadius: 8, border: `2px solid ${idx >= 2 ? '#10b981' : (darkMode ? '#374151' : '#d1d5db')}`, background: idx === 2 ? '#10b98122' : (darkMode ? '#1f2937' : '#f9fafb'), opacity: idx >= 2 ? 1 : 0.4, transition: 'all 0.3s' }}>
-                    <div style={{ color: idx >= 2 ? '#10b981' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700 }}>{isTr ? '✅ Test gövdesi çalışıyor' : '✅ Test body runs'}</div>
+                    <div style={{ color: idx >= 2 ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700 }}>{isTr ? '✅ Test gövdesi çalışıyor' : '✅ Test body runs'}</div>
                 </div>
                 {state === 'teardown' && (
-                    <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 6, background: '#8b5cf622', border: '1px solid #8b5cf6', color: '#8b5cf6', fontSize: 10 }}>
+                    <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 6, background: '#8b5cf622', border: '1px solid #8b5cf6', color: darkMode ? '#c4b5fd' : '#6d28d9', fontSize: 10 }}>
                         🧹 {isTr ? 'use() sonrası kod → logout (teardown)' : 'code after use() → logout (teardown)'}
                     </div>
                 )}
@@ -5081,7 +5082,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         if (state === 'no-pom') {
             return (
                 <div style={{ fontFamily: 'monospace', fontSize: 10, maxWidth: 260 }}>
-                    <div style={{ color: '#ef4444', fontWeight: 700, marginBottom: 8 }}>😱 {isTr ? 'Her dosyada kopya locator' : 'Duplicated locator in every file'}</div>
+                    <div style={{ color: darkMode ? '#f87171' : '#b91c1c', fontWeight: 700, marginBottom: 8 }}>😱 {isTr ? 'Her dosyada kopya locator' : 'Duplicated locator in every file'}</div>
                     {files.map((f, idx) => (
                         <div key={idx} style={{ padding: '6px 9px', borderRadius: 6, marginBottom: 4, background: darkMode ? '#1f2937' : '#fef2f2', border: '1px solid #ef444444' }}>
                             <div style={{ color: darkMode ? '#fca5a5' : '#dc2626', fontWeight: 700 }}>{f}</div>
@@ -5112,12 +5113,12 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
                     {files.map((f, idx) => (
-                        <div key={idx} style={{ flex: 1, padding: '5px 4px', borderRadius: 5, background: darkMode ? '#1f2937' : '#f0fdf4', border: '1px solid #10b98144', textAlign: 'center', fontSize: 8.5, color: '#10b981', fontWeight: 600 }}>
+                        <div key={idx} style={{ flex: 1, padding: '5px 4px', borderRadius: 5, background: darkMode ? '#1f2937' : '#f0fdf4', border: '1px solid #10b98144', textAlign: 'center', fontSize: 8.5, color: darkMode ? '#34d399' : '#047857', fontWeight: 600 }}>
                             {f.split('.')[0]}
                         </div>
                     ))}
                 </div>
-                {state === 'change' && <div style={{ marginTop: 8, color: '#10b981', fontSize: 10, textAlign: 'center', fontWeight: 700 }}>✅ {isTr ? '3 dosyaya da DOKUNULMADI' : '3 files were NOT touched'}</div>}
+                {state === 'change' && <div style={{ marginTop: 8, color: darkMode ? '#34d399' : '#047857', fontSize: 10, textAlign: 'center', fontWeight: 700 }}>✅ {isTr ? '3 dosyaya da DOKUNULMADI' : '3 files were NOT touched'}</div>}
             </div>
         )
     }
@@ -5178,7 +5179,7 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
                 <div style={{ borderRadius: 8, overflow: 'hidden', border: `1.5px solid ${darkMode ? '#374151' : '#1f2937'}` }}>
                     <div style={{ background: '#1e293b', padding: '4px 8px', fontSize: 8.5, color: '#94a3b8' }}>🌐 {isTr ? 'Gerçek Tarayıcı' : 'Real Browser'}</div>
                     <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', padding: 8, fontSize: 9 }}>
-                        <div style={{ color: accent, fontWeight: 700, marginBottom: 4 }}>example.com/login</div>
+                        <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, marginBottom: 4 }}>example.com/login</div>
                         <div style={{ position: 'relative', display: 'inline-block' }}>
                             <span style={{ padding: '3px 8px', borderRadius: 4, background: ['recording'].includes(state) ? `${accent}33` : 'transparent', border: `1px solid ${['recording'].includes(state) ? accent : 'transparent'}`, color: darkMode ? '#e5e7eb' : '#374151' }}>
                                 {state === 'recording' ? '🖱️ Sign in' : state === 'assert' ? '✅ Welcome back' : 'Sign in'}
@@ -5209,19 +5210,19 @@ function PlaywrightVisualBlock({ block, darkMode, language }) {
         return (
             <div style={{ maxWidth: 280, fontFamily: 'monospace', fontSize: 9.5 }}>
                 <div style={{ padding: '6px 10px', borderRadius: 8, background: idx === 0 ? `${accent}22` : (darkMode ? '#1f2937' : '#f9fafb'), border: `1.5px solid ${idx >= 0 ? accent : (darkMode ? '#374151' : '#d1d5db')}`, marginBottom: 6, opacity: idx >= 0 ? 1 : 0.4 }}>
-                    <div style={{ color: accent, fontWeight: 700, fontSize: 9 }}>💬 {isTr ? 'Kullanıcı' : 'User'}</div>
+                    <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, fontSize: 9 }}>💬 {isTr ? 'Kullanıcı' : 'User'}</div>
                     {idx === 0 && <div style={{ color: darkMode ? '#d1d5db' : '#374151', marginTop: 2 }}>{isTr ? '"example.com\'a git ve başlığı söyle"' : '"go to example.com and tell me the title"'}</div>}
                 </div>
-                <div style={{ textAlign: 'center', color: idx >= 1 ? accent : (darkMode ? '#4b5563' : '#cbd5e1'), marginBottom: 6 }}>↓</div>
+                <div style={{ textAlign: 'center', color: idx >= 1 ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#4b5563' : '#cbd5e1'), marginBottom: 6 }}>↓</div>
                 <div style={{ padding: '6px 10px', borderRadius: 8, background: idx === 1 ? '#f59e0b22' : (darkMode ? '#1f2937' : '#f9fafb'), border: `1.5px solid ${idx >= 1 ? '#f59e0b' : (darkMode ? '#374151' : '#d1d5db')}`, marginBottom: 6, opacity: idx >= 1 ? 1 : 0.4 }}>
-                    <div style={{ color: idx >= 1 ? '#f59e0b' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 9 }}>🔌 MCP Server</div>
+                    <div style={{ color: idx >= 1 ? (darkMode ? '#fbbf24' : '#b45309') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 9 }}>🔌 MCP Server</div>
                     {idx === 1 && <div style={{ color: darkMode ? '#d1d5db' : '#374151', marginTop: 2 }}>browser_navigate({'{ url: "..." }'})</div>}
-                    {idx === 2 && <div style={{ color: '#10b981', marginTop: 2 }}>browser_snapshot() →</div>}
+                    {idx === 2 && <div style={{ color: darkMode ? '#34d399' : '#047857', marginTop: 2 }}>browser_snapshot() →</div>}
                     {idx === 3 && <div style={{ color: darkMode ? '#d1d5db' : '#374151', marginTop: 2 }}>browser_click({'{ ref: "e2" }'})</div>}
                 </div>
-                <div style={{ textAlign: 'center', color: idx >= 2 ? '#10b981' : (darkMode ? '#4b5563' : '#cbd5e1'), marginBottom: 6 }}>↓</div>
+                <div style={{ textAlign: 'center', color: idx >= 2 ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#4b5563' : '#cbd5e1'), marginBottom: 6 }}>↓</div>
                 <div style={{ padding: '6px 10px', borderRadius: 8, background: idx === 2 ? '#10b98122' : (darkMode ? '#1f2937' : '#f9fafb'), border: `1.5px solid ${idx >= 2 ? '#10b981' : (darkMode ? '#374151' : '#d1d5db')}`, opacity: idx >= 2 ? 1 : 0.4 }}>
-                    <div style={{ color: idx >= 2 ? '#10b981' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 9 }}>🌳 {isTr ? 'Accessibility Tree' : 'Accessibility Tree'}</div>
+                    <div style={{ color: idx >= 2 ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, fontSize: 9 }}>🌳 {isTr ? 'Accessibility Tree' : 'Accessibility Tree'}</div>
                     {idx >= 2 && (
                         <div style={{ color: darkMode ? '#d1d5db' : '#374151', marginTop: 2, fontSize: 8.5 }}>
                             - heading "Example Domain" [ref=e1]<br />- link "More info" [ref=e2]
@@ -10252,11 +10253,11 @@ pm.test("per_page is 6", () => {
                             <span style={{ fontSize: 10.5, fontWeight: 700, color: darkMode ? '#cbd5e1' : '#475569' }}>
                                 {isTr ? 'Depolama Tipi:' : 'Storage Mode:'}
                             </span>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, cursor: 'pointer', color: dockerVolumeMode === 'none' ? '#ef4444' : '#64748b', fontWeight: dockerVolumeMode === 'none' ? 700 : 400 }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, cursor: 'pointer', color: dockerVolumeMode === 'none' ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#94a3b8' : '#475569'), fontWeight: dockerVolumeMode === 'none' ? 700 : 400 }}>
                                 <input type="radio" name="volMode" checked={dockerVolumeMode === 'none'} onChange={() => setDockerVolumeMode('none')} />
                                 Ephemeral (No Volume)
                             </label>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, cursor: 'pointer', color: dockerVolumeMode === 'volume' ? '#10b981' : '#64748b', fontWeight: dockerVolumeMode === 'volume' ? 700 : 400 }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, cursor: 'pointer', color: dockerVolumeMode === 'volume' ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#94a3b8' : '#475569'), fontWeight: dockerVolumeMode === 'volume' ? 700 : 400 }}>
                                 <input type="radio" name="volMode" checked={dockerVolumeMode === 'volume'} onChange={() => setDockerVolumeMode('volume')} />
                                 Persistent (-v volume)
                             </label>
@@ -10267,8 +10268,8 @@ pm.test("per_page is 6", () => {
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                                 {/* Host Machine */}
                                 <div style={{ flex: 1, border: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 6, padding: 8, background: darkMode ? '#111827' : '#fff', position: 'relative' }}>
-                                    <div style={{ fontSize: 9, color: '#94a3b8', fontWeight: 800 }}>HOST MACHINE</div>
-                                    <div style={{ fontSize: 11, fontWeight: 700, color: '#3b82f6', marginTop: 4 }}>Port: 8080</div>
+                                    <div style={{ fontSize: 9, color: darkMode ? '#94a3b8' : '#475569', fontWeight: 800 }}>HOST MACHINE</div>
+                                    <div style={{ fontSize: 11, fontWeight: 700, color: darkMode ? '#93c5fd' : '#1d4ed8', marginTop: 4 }}>Port: 8080</div>
                                     
                                     {/* Volume Box */}
                                     {dockerVolumeMode === 'volume' && (
@@ -10494,7 +10495,7 @@ pm.test("per_page is 6", () => {
                         🏭 Jenkins Pipeline Factory
                     </span>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginLeft: 'auto' }}>
-                        <span style={{ fontSize: 10.5, color: '#94a3b8' }}>{isTr ? 'Test Senaryosu:' : 'QA Scenario:'}</span>
+                        <span style={{ fontSize: 10.5, color: darkMode ? '#94a3b8' : '#475569' }}>{isTr ? 'Test Senaryosu:' : 'QA Scenario:'}</span>
                         <select
                             value={jenkinsBuildMode}
                             onChange={(e) => setJenkinsBuildMode(e.target.value)}
@@ -10545,7 +10546,7 @@ pm.test("per_page is 6", () => {
                                         width: 50, height: 50, borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                         background: isFailed ? '#7f1d1d' : isPast ? '#064e3b' : isCurrent ? '#1e3a8a' : darkMode ? '#111827' : '#fff',
                                         border: `2px solid ${isFailed ? '#ef4444' : isPast ? '#10b981' : isCurrent ? '#3b82f6' : darkMode ? '#334155' : '#cbd5e1'}`,
-                                        color: isFailed ? '#fca5a5' : isPast ? '#a7f3d0' : isCurrent ? '#93c5fd' : '#64748b',
+                                        color: isFailed ? '#fca5a5' : isPast ? '#a7f3d0' : isCurrent ? '#93c5fd' : (darkMode ? '#94a3b8' : '#475569'),
                                         fontSize: 18, transition: 'all 0.3s', position: 'relative'
                                     }}>
                                         <span>{st.icon}</span>
@@ -10553,16 +10554,16 @@ pm.test("per_page is 6", () => {
                                         {isPast && <span style={{ position: 'absolute', top: -14, fontSize: 11, color: '#10b981' }}>✓</span>}
                                         {isFailed && <span style={{ position: 'absolute', top: -14, fontSize: 11, color: '#ef4444' }}>❌</span>}
                                     </div>
-                                    <div style={{ fontSize: 9.5, fontWeight: 700, marginTop: 6, color: isFailed ? '#ef4444' : isPast ? '#10b981' : isCurrent ? '#3b82f6' : '#64748b', textAlign: 'center' }}>{st.label}</div>
+                                    <div style={{ fontSize: 9.5, fontWeight: 700, marginTop: 6, color: isFailed ? (darkMode ? '#f87171' : '#b91c1c') : isPast ? (darkMode ? '#34d399' : '#047857') : isCurrent ? (darkMode ? '#93c5fd' : '#1d4ed8') : (darkMode ? '#94a3b8' : '#475569'), textAlign: 'center' }}>{st.label}</div>
 
                                     {/* Parallel Agent Testing Details */}
                                     {st.key === 'test' && (isCurrent || isFailed || (s === 'deploy' || s === 'done')) && (
                                         <div style={{ position: 'absolute', top: 76, width: 140, display: 'flex', flexDirection: 'column', gap: 4, background: darkMode ? '#111827' : '#fff', border: `1px solid ${isFailed ? '#ef4444' : '#10b981'}`, borderRadius: 6, padding: '4px 6px', fontSize: 8.5 }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', color: jenkinsParallelAgents.chrome === 'success' ? '#10b981' : '#f59e0b' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', color: jenkinsParallelAgents.chrome === 'success' ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#fbbf24' : '#b45309') }}>
                                                 <span>🖥️ Chrome Agent</span>
                                                 <span style={{ fontWeight: 800 }}>{jenkinsParallelAgents.chrome === 'success' ? '✓ OK' : '⏳ Test...'}</span>
                                             </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', color: jenkinsParallelAgents.firefox === 'success' ? '#10b981' : jenkinsParallelAgents.firefox === 'failed' ? '#ef4444' : '#f59e0b' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', color: jenkinsParallelAgents.firefox === 'success' ? (darkMode ? '#34d399' : '#047857') : jenkinsParallelAgents.firefox === 'failed' ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#fbbf24' : '#b45309') }}>
                                                 <span>🦊 Firefox Agent</span>
                                                 <span style={{ fontWeight: 800 }}>{jenkinsParallelAgents.firefox === 'success' ? '✓ OK' : jenkinsParallelAgents.firefox === 'failed' ? '❌ FAIL' : '⏳ Test...'}</span>
                                             </div>
@@ -10691,7 +10692,7 @@ pm.test("per_page is 6", () => {
                     </span>
                     
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginLeft: 'auto' }}>
-                        <span style={{ fontSize: 10.5, color: '#94a3b8' }}>Selector:</span>
+                        <span style={{ fontSize: 10.5, color: darkMode ? '#94a3b8' : '#475569' }}>Selector:</span>
                         <select
                             value={k8sSelectorMode}
                             onChange={(e) => setK8sSelectorMode(e.target.value)}
@@ -10772,8 +10773,8 @@ pm.test("per_page is 6", () => {
                     {/* Cluster Nodes & Pods */}
                     <div style={{ border: `2px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderRadius: 8, padding: 12, background: darkMode ? '#111827' : '#fff' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#f1f5f9'}`, paddingBottom: 4, marginBottom: 10 }}>
-                            <span style={{ fontSize: 9.5, fontWeight: 800, color: '#94a3b8' }}>WORKER NODE 1</span>
-                            <span style={{ fontSize: 9.5, color: '#94a3b8' }}>IP: 10.244.1.10</span>
+                            <span style={{ fontSize: 9.5, fontWeight: 800, color: darkMode ? '#94a3b8' : '#475569' }}>WORKER NODE 1</span>
+                            <span style={{ fontSize: 9.5, color: darkMode ? '#94a3b8' : '#475569' }}>IP: 10.244.1.10</span>
                         </div>
 
                         {/* Pod Grid */}
@@ -10966,7 +10967,7 @@ pm.test("per_page is 6", () => {
                         <div key={i} style={{
                             padding: '4px 12px', borderRadius: '6px 6px 0 0', fontSize: 10, fontWeight: 700,
                             background: tab.closed ? (darkMode ? '#374151' : '#e5e7eb') : tab.active ? accent : (darkMode ? '#1f2937' : '#f9fafb'),
-                            color: tab.closed ? '#6b7280' : tab.active ? '#fff' : (darkMode ? '#9ca3af' : '#6b7280'),
+                            color: tab.closed ? (darkMode ? '#6b7280' : '#64748b') : tab.active ? '#fff' : (darkMode ? '#9ca3af' : '#6b7280'),
                             textDecoration: tab.closed ? 'line-through' : 'none',
                             transition: 'all 0.3s',
                         }}>
@@ -10984,7 +10985,7 @@ pm.test("per_page is 6", () => {
                     </div>
                     <div style={{ padding: 12, minHeight: 80, background: darkMode ? '#111827' : '#fff', transition: 'all 0.3s' }}>
                         {canStart && (
-                            <a style={{ color: accent, fontSize: 11, textDecoration: 'underline', cursor: 'pointer' }} onClick={() => runSteps([
+                            <a style={{ color: darkMode ? '#93c5fd' : '#1d4ed8', fontSize: 11, textDecoration: 'underline', cursor: 'pointer' }} onClick={() => runSteps([
                                 ['clicking', 50], ['collecting', 600], ['switching', 600], ['new-tab-open', 50], ['in-new', 600], ['closing', 600], ['back-main', 600], ['done', 800]
                             ])}>
                                 🔗 {isTr ? 'Belgeleri Aç (yeni sekmede)' : 'Open Docs (new tab)'}
@@ -10997,7 +10998,7 @@ pm.test("per_page is 6", () => {
                             </div>
                         )}
                         {(s === 'closing' || backMain) && (
-                            <a style={{ color: accent, fontSize: 11, textDecoration: 'underline' }}>
+                            <a style={{ color: darkMode ? '#93c5fd' : '#1d4ed8', fontSize: 11, textDecoration: 'underline' }}>
                                 🔗 {isTr ? 'Belgeleri Aç (yeni sekmede)' : 'Open Docs (new tab)'}
                             </a>
                         )}
@@ -11010,7 +11011,7 @@ pm.test("per_page is 6", () => {
                         const done = st.done.includes(s) && s !== 'idle'
                         return (
                             <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 10 }}>
-                                <span style={{ color: done ? '#10b981' : (darkMode ? '#4b5563' : '#d1d5db'), transition: 'color 0.3s' }}>{done ? '✓' : '○'}</span>
+                                <span style={{ color: done ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#4b5563' : '#d1d5db'), transition: 'color 0.3s' }}>{done ? '✓' : '○'}</span>
                                 <span style={{ color: done ? (darkMode ? '#f3f4f6' : '#111827') : (darkMode ? '#6b7280' : '#9ca3af'), transition: 'color 0.3s' }}>{st.label}</span>
                             </div>
                         )
@@ -11424,14 +11425,14 @@ pm.test("per_page is 6", () => {
                                             background: isActiveFrame ? fr.color : (darkMode ? '#1f2937' : '#fff'),
                                             border: `1px solid ${fr.color}`,
                                             borderRadius: '0 0 4px 4px', padding: '1px 6px', fontSize: 8, fontWeight: 700,
-                                            color: isActiveFrame ? '#fff' : fr.color, zIndex: 10,
+                                            color: isActiveFrame ? '#fff' : (darkMode ? '#f1f5f9' : '#1e293b'), zIndex: 10,
                                             animation: isActiveFrame ? 'none' : 'simFadeUp 0.3s',
                                         }}>
                                             {isActiveFrame ? `✅ ${isTr ? 'İçindesin!' : 'You\'re inside!'}` : `📌 ${fr.id}`}
                                         </div>
                                     )}
                                     <div style={{ padding: '10px 8px', background: darkMode ? '#0f172a' : '#fff', fontSize: 9 }}>
-                                        <div style={{ color: fr.color, fontWeight: 700, marginBottom: 3 }}>{fr.label}</div>
+                                        <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, marginBottom: 3 }}>{fr.label}</div>
                                         <div style={{ color: darkMode ? '#6b7280' : '#9ca3af' }}>{fr.desc}</div>
                                         {isActiveFrame && (
                                             <div style={{ marginTop: 4, padding: '3px 6px', background: '#10b98122', border: '1px solid #10b981', borderRadius: 3, color: '#10b981', fontSize: 8, animation: 'simFadeUp 0.3s' }}>
@@ -11451,7 +11452,7 @@ pm.test("per_page is 6", () => {
                         {/* Scanning overlay */}
                         {isScanning && (
                             <div style={{ position: 'absolute', inset: 0, background: `${accent}08`, animation: 'simPulse 0.6s ease infinite', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <div style={{ color: accent, fontWeight: 700, fontSize: 10, background: darkMode ? '#111827' : '#fff', padding: '4px 10px', borderRadius: 6, border: `1px solid ${accent}44` }}>
+                                <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, fontSize: 10, background: darkMode ? '#111827' : '#fff', padding: '4px 10px', borderRadius: 6, border: `1px solid ${accent}44` }}>
                                     🔍 {isTr ? 'DOM tarıyor...' : 'Scanning DOM...'}
                                 </div>
                             </div>
@@ -11537,16 +11538,16 @@ pm.test("per_page is 6", () => {
                                 boxShadow: showShadow ? '0 0 14px #a78bfa44' : isFailing ? '0 0 8px #ef444444' : 'none',
                             }}>
                                 {/* Shadow host label */}
-                                <div style={{ background: showShadow ? '#a78bfa22' : (darkMode ? '#1f2937' : '#f1f5f9'), padding: '3px 6px', fontSize: 8, color: showShadow ? '#a78bfa' : (darkMode ? '#6b7280' : '#9ca3af'), fontFamily: 'monospace', borderBottom: `1px solid ${showShadow ? '#a78bfa33' : (darkMode ? '#374151' : '#e5e7eb')}` }}>
+                                <div style={{ background: showShadow ? '#a78bfa22' : (darkMode ? '#1f2937' : '#f1f5f9'), padding: '3px 6px', fontSize: 8, color: showShadow ? (darkMode ? '#c4b5fd' : '#6d28d9') : (darkMode ? '#6b7280' : '#9ca3af'), fontFamily: 'monospace', borderBottom: `1px solid ${showShadow ? '#a78bfa33' : (darkMode ? '#374151' : '#e5e7eb')}` }}>
                                     {'<my-password-input>'}
-                                    {showShadow && <span style={{ marginLeft: 6, color: '#f59e0b', fontWeight: 700 }}>← Shadow Host</span>}
-                                    {isFailing && <span style={{ marginLeft: 6, color: '#ef4444' }}>← findElement() buraya giremiyor!</span>}
+                                    {showShadow && <span style={{ marginLeft: 6, color: darkMode ? '#fbbf24' : '#b45309', fontWeight: 700 }}>← Shadow Host</span>}
+                                    {isFailing && <span style={{ marginLeft: 6, color: darkMode ? '#f87171' : '#b91c1c' }}>← findElement() buraya giremiyor!</span>}
                                 </div>
 
                                 {/* Shadow root (only visible in xray mode) */}
                                 {showShadow && (
                                     <div style={{ animation: 'simFadeUp 0.4s', padding: '4px 6px', background: darkMode ? '#0f172a' : '#faf5ff' }}>
-                                        <div style={{ fontSize: 8, color: '#a78bfa', fontFamily: 'monospace', marginBottom: 3 }}>
+                                        <div style={{ fontSize: 8, color: darkMode ? '#c4b5fd' : '#6d28d9', fontFamily: 'monospace', marginBottom: 3 }}>
                                             #shadow-root (open)
                                         </div>
                                         <div style={{ paddingLeft: 12, fontSize: 8, fontFamily: 'monospace' }}>
@@ -11629,16 +11630,16 @@ pm.test("per_page is 6", () => {
             <div style={{ maxWidth: 300 }}>
                 <div style={{ fontFamily: 'monospace', fontSize: 10, lineHeight: 2, padding: '10px 14px', borderRadius: 8, background: darkMode ? '#111827' : '#f8fafc', border: `1px solid ${accent}33`, minHeight: 110 }}>
                     <div style={{ color: darkMode ? '#60a5fa' : '#2563eb' }}>{'<my-custom-button>'}</div>
-                    <div style={{ paddingLeft: 14, color: (simState === 'host' || showRoot) ? accent : (darkMode ? '#4b5563' : '#9ca3af'), fontWeight: simState === 'host' ? 700 : 400, transition: 'all 0.3s' }}>
+                    <div style={{ paddingLeft: 14, color: (simState === 'host' || showRoot) ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#4b5563' : '#9ca3af'), fontWeight: simState === 'host' ? 700 : 400, transition: 'all 0.3s' }}>
                         {'  #shadow-root (open)'}
-                        {simState === 'host' && <span style={{ color: '#f59e0b', fontSize: 9, marginLeft: 4 }}>← .shadowRoot</span>}
+                        {simState === 'host' && <span style={{ color: darkMode ? '#fbbf24' : '#b45309', fontSize: 9, marginLeft: 4 }}>← .shadowRoot</span>}
                     </div>
                     {showRoot && (
                         <div style={{ animation: 'simFadeUp 0.3s' }}>
                             <div style={{ paddingLeft: 28, color: darkMode ? '#a78bfa' : '#7c3aed' }}>{'  <style>...</style>'}</div>
                             <div style={{
                                 paddingLeft: 28,
-                                color: showTarget ? '#10b981' : (darkMode ? '#d1d5db' : '#374151'),
+                                color: showTarget ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#d1d5db' : '#374151'),
                                 fontWeight: showTarget ? 700 : 400,
                                 background: showTarget ? (darkMode ? '#064e3b' : '#ecfdf5') : 'transparent',
                                 padding: showTarget ? '1px 4px' : '0 0 0 28px',
@@ -11646,7 +11647,7 @@ pm.test("per_page is 6", () => {
                                 transition: 'all 0.4s',
                             }}>
                                 {'  <button class="inner-btn">Click Me</button>'}
-                                {showTarget && <span style={{ color: '#10b981', fontSize: 9, marginLeft: 4 }}>← FOUND ✅</span>}
+                                {showTarget && <span style={{ color: darkMode ? '#34d399' : '#047857', fontSize: 9, marginLeft: 4 }}>← FOUND ✅</span>}
                             </div>
                         </div>
                     )}
@@ -15061,7 +15062,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                 <div>
                     <div style={{ fontFamily: 'monospace', fontSize: 10, lineHeight: 1.9 }}>
                         {nodes.map((n, idx) => {
-                            const col = n.state === 'found' ? '#10b981' : n.state === 'success' ? '#10b981' : n.state === 'active' ? accent : n.state === 'hidden' ? (darkMode ? '#374151' : '#d1d5db') : (darkMode ? '#9ca3af' : '#6b7280')
+                            const col = n.state === 'found' ? (darkMode ? '#34d399' : '#047857') : n.state === 'success' ? (darkMode ? '#34d399' : '#047857') : n.state === 'active' ? accent : n.state === 'hidden' ? (darkMode ? '#374151' : '#d1d5db') : (darkMode ? '#9ca3af' : '#6b7280')
                             const bg = n.state === 'found' ? (darkMode ? '#064e3b44' : '#ecfdf544') : n.state === 'active' ? `${accent}22` : 'transparent'
                             return (
                                 <div key={idx} style={{ paddingLeft: n.level * 14 + 4, paddingRight: 4, paddingTop: 2, paddingBottom: 2, color: col, background: bg, borderRadius: 3, border: (n.state === 'found' || n.state === 'active') ? `1px solid ${n.state === 'found' ? '#10b981' : accent}44` : '1px solid transparent', transition: 'all 0.4s ease', fontWeight: n.state === 'found' ? 700 : 400 }}>
@@ -15074,7 +15075,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         })}
                     </div>
                     <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, fontSize: 10, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${accent}33`, fontFamily: 'monospace' }}>
-                        <div style={{ color: accent, fontWeight: 700, marginBottom: 3, fontFamily: 'sans-serif' }}>{isTr ? '🤖 Test Engine:' : '🤖 Test Engine:'}</div>
+                        <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700, marginBottom: 3, fontFamily: 'sans-serif' }}>{isTr ? '🤖 Test Engine:' : '🤖 Test Engine:'}</div>
                         <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', lineHeight: 1.6 }}>
                             {simState === 'idle' ? (isTr ? '⏸ Hazır — Butona tıkla!' : '⏸ Ready — Click the button!') :
                                 simState === 'clicking' ? 'driver.findElement("load-btn").click()' :
@@ -15095,15 +15096,15 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
             const cur = order.indexOf(s)
 
             const codeLines = [
-                { minState: 'given', text: `given()`, color: '#3b82f6', indent: 0 },
+                { minState: 'given', text: `given()`, color: darkMode ? '#93c5fd' : '#1d4ed8', indent: 0 },
                 { minState: 'given', text: `.baseUri("https://reqres.in")`, color: subtext, indent: 4 },
                 { minState: 'given', text: `.queryParam("page", 2)`, color: subtext, indent: 4 },
-                { minState: 'when', text: `.when()`, color: '#f59e0b', indent: 0 },
-                { minState: 'sending', text: `.get("/api/users")`, color: '#f97316', indent: 4 },
-                { minState: 'then', text: `.then()`, color: '#7c3aed', indent: 0 },
-                { minState: 'asserting', text: `.statusCode(200)`, color: '#10b981', indent: 4 },
-                { minState: 'asserting', text: `.body("page", equalTo(2))`, color: '#10b981', indent: 4 },
-                { minState: 'asserting', text: `.body("data", hasSize(6))`, color: '#10b981', indent: 4 },
+                { minState: 'when', text: `.when()`, color: darkMode ? '#fbbf24' : '#b45309', indent: 0 },
+                { minState: 'sending', text: `.get("/api/users")`, color: darkMode ? '#fdba74' : '#c2410c', indent: 4 },
+                { minState: 'then', text: `.then()`, color: darkMode ? '#c4b5fd' : '#6d28d9', indent: 0 },
+                { minState: 'asserting', text: `.statusCode(200)`, color: darkMode ? '#34d399' : '#047857', indent: 4 },
+                { minState: 'asserting', text: `.body("page", equalTo(2))`, color: darkMode ? '#34d399' : '#047857', indent: 4 },
+                { minState: 'asserting', text: `.body("data", hasSize(6))`, color: darkMode ? '#34d399' : '#047857', indent: 4 },
             ]
             const vs = `// Postman Test:\npm.test("Status 200", () => {\n  pm.response.to.have.status(200);\n});\n// → pm.test() ≈ .then().statusCode(200)`
 
@@ -15138,33 +15139,33 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
             const order = ['idle', 'checkout', 'build', 'test', 'analyze', 'deploy', 'done']
             const cur = order.indexOf(s)
             const stages = [
-                { key: 'checkout', label: 'Checkout SCM', icon: '📥', color: '#3b82f6' },
-                { key: 'build', label: 'Build', icon: '🔨', color: '#f59e0b' },
-                { key: 'test', label: 'Test', icon: '🧪', color: '#7c3aed' },
-                { key: 'analyze', label: 'SonarQube', icon: '🔍', color: '#06b6d4' },
-                { key: 'deploy', label: 'Deploy', icon: '🚀', color: '#10b981' },
+                { key: 'checkout', label: 'Checkout SCM', icon: '📥', color: darkMode ? '#93c5fd' : '#1d4ed8' },
+                { key: 'build', label: 'Build', icon: '🔨', color: darkMode ? '#fbbf24' : '#b45309' },
+                { key: 'test', label: 'Test', icon: '🧪', color: darkMode ? '#c4b5fd' : '#6d28d9' },
+                { key: 'analyze', label: 'SonarQube', icon: '🔍', color: darkMode ? '#67e8f9' : '#0e7490' },
+                { key: 'deploy', label: 'Deploy', icon: '🚀', color: darkMode ? '#34d399' : '#047857' },
             ]
             return (
                 <div>
                     <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Jenkinsfile Stages</div>
                     <div style={{ padding: '8px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#fff', fontFamily: 'monospace', fontSize: 10, lineHeight: 1.8 }}>
-                        <div style={{ color: '#f59e0b' }}>pipeline {'{'}</div>
-                        <div style={{ paddingLeft: 12, color: '#6b7280' }}>agent any</div>
-                        <div style={{ paddingLeft: 12, color: '#f59e0b' }}>stages {'{'}</div>
+                        <div style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>pipeline {'{'}</div>
+                        <div style={{ paddingLeft: 12, color: darkMode ? '#9ca3af' : '#475569' }}>agent any</div>
+                        <div style={{ paddingLeft: 12, color: darkMode ? '#fbbf24' : '#b45309' }}>stages {'{'}</div>
                         {stages.map((st, i) => {
                             const stIdx = order.indexOf(st.key)
                             const active = stIdx === cur
                             const done = stIdx < cur && s !== 'idle'
                             return (
                                 <div key={i} style={{ paddingLeft: 24, transition: 'opacity 0.3s', opacity: s === 'idle' ? 0.4 : 1 }}>
-                                    <span style={{ color: done ? '#10b981' : active ? st.color : subtext, fontWeight: active ? 700 : 400, transition: 'color 0.3s' }}>
+                                    <span style={{ color: done ? (darkMode ? '#34d399' : '#047857') : active ? st.color : subtext, fontWeight: active ? 700 : 400, transition: 'color 0.3s' }}>
                                         {done ? '✅ ' : active ? '⏳ ' : '  '}stage('{st.label}')
                                     </span>
                                 </div>
                             )
                         })}
-                        <div style={{ paddingLeft: 12, color: '#f59e0b' }}>{'}'}</div>
-                        <div style={{ color: '#f59e0b' }}>{'}'}</div>
+                        <div style={{ paddingLeft: 12, color: darkMode ? '#fbbf24' : '#b45309' }}>{'}'}</div>
+                        <div style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>{'}'}</div>
                     </div>
                     {s === 'done' && (
                         <div style={{ marginTop: 8, padding: '6px 8px', borderRadius: 6, background: '#10b98118', border: '1px solid #10b981', fontSize: 10, color: '#10b981', fontWeight: 700 }}>
@@ -15530,14 +15531,14 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         { t: '~2s', label: isWithFound ? (isTr ? 'Element bulundu! ✅' : 'Element found! ✅') : '—', success: isWithFound, active: isWithFound },
                     ].map((item, idx) => (
                         <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 5 }}>
-                            <div style={{ width: 28, flexShrink: 0, color: item.error ? '#ef4444' : item.success ? '#10b981' : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, paddingTop: 3 }}>{item.t}</div>
-                            <div style={{ flex: 1, padding: '3px 7px', borderRadius: 4, background: item.error ? '#ef444422' : item.success ? '#10b98122' : (item.active ? `${accent}22` : 'transparent'), border: `1px solid ${item.error ? '#ef4444' : item.success ? '#10b981' : (item.active ? accent : (darkMode ? '#374151' : '#e5e7eb'))}44`, color: item.error ? '#ef4444' : item.success ? '#10b981' : (darkMode ? '#9ca3af' : '#6b7280'), opacity: item.active ? 1 : 0.4, transition: 'all 0.4s' }}>
+                            <div style={{ width: 28, flexShrink: 0, color: item.error ? (darkMode ? '#f87171' : '#b91c1c') : item.success ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#6b7280' : '#9ca3af'), fontWeight: 700, paddingTop: 3 }}>{item.t}</div>
+                            <div style={{ flex: 1, padding: '3px 7px', borderRadius: 4, background: item.error ? '#ef444422' : item.success ? '#10b98122' : (item.active ? `${accent}22` : 'transparent'), border: `1px solid ${item.error ? '#ef4444' : item.success ? '#10b981' : (item.active ? accent : (darkMode ? '#374151' : '#e5e7eb'))}44`, color: item.error ? (darkMode ? '#f87171' : '#b91c1c') : item.success ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#9ca3af' : '#6b7280'), opacity: item.active ? 1 : 0.4, transition: 'all 0.4s' }}>
                                 {item.label}
                             </div>
                         </div>
                     ))}
                     <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${accent}33`, fontFamily: 'sans-serif' }}>
-                        <div style={{ color: accent, fontWeight: 700 }}>{isTr ? '📖 Fark Nedir?' : '📖 Key Difference:'}</div>
+                        <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700 }}>{isTr ? '📖 Fark Nedir?' : '📖 Key Difference:'}</div>
                         <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 2, lineHeight: 1.5 }}>
                             {isTr ? 'Implicit Wait, tüm findElement() çağrılarına global uygulanır. Koşul bazlı değil, sadece süre bazlıdır.' : 'Implicit Wait applies globally to all findElement() calls. Time-based only, not condition-based.'}
                         </div>
@@ -15581,7 +15582,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
 
                     {/* Status messages */}
                     <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${accent}33`, fontFamily: 'sans-serif' }}>
-                        <div style={{ color: accent, fontWeight: 700 }}>{isTr ? '🤖 Driver Durumu:' : '🤖 Driver Status:'}</div>
+                        <div style={{ color: darkMode ? '#f1f5f9' : '#1e293b', fontWeight: 700 }}>{isTr ? '🤖 Driver Durumu:' : '🤖 Driver Status:'}</div>
                         <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 2, lineHeight: 1.6 }}>
                             {phase === 'idle' ? (isTr ? '⏸ Hazır — Tarama başlatılmadı' : '⏸ Ready — No scan yet') :
                                 phase === 'scanning' ? (isTr ? '🔍 driver.findElements(By.tagName("iframe"))' : '🔍 driver.findElements(By.tagName("iframe"))') :
@@ -15631,21 +15632,21 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                             animation: (n.root || n.inner || n.target) ? 'simFadeUp 0.3s' : 'none',
                             background: n.found ? '#10b98122' : n.root ? '#a78bfa11' : n.target ? '#a78bfa11' : 'transparent',
                             border: n.found ? '1px solid #10b98144' : (n.root || n.target) ? '1px solid #a78bfa33' : '1px solid transparent',
-                            color: n.found ? '#10b981' : n.normal ? (darkMode ? '#60a5fa' : '#2563eb') : n.host ? (isFailing ? '#ef4444' : '#a78bfa') : n.root ? '#f59e0b' : n.target ? (darkMode ? '#d1d5db' : '#374151') : (darkMode ? '#6b7280' : '#9ca3af'),
+                            color: n.found ? (darkMode ? '#34d399' : '#047857') : n.normal ? (darkMode ? '#60a5fa' : '#2563eb') : n.host ? (isFailing ? (darkMode ? '#f87171' : '#b91c1c') : (darkMode ? '#c4b5fd' : '#6d28d9')) : n.root ? (darkMode ? '#fbbf24' : '#b45309') : n.target ? (darkMode ? '#d1d5db' : '#374151') : (darkMode ? '#6b7280' : '#9ca3af'),
                             fontWeight: (n.found || n.root) ? 700 : 400,
                             transition: 'all 0.4s',
                         }}>
                             {n.tag}
                             {n.normal && <span style={{ opacity: 0.7 }}> {n.desc}</span>}
-                            {n.host && isFailing && <span style={{ color: '#ef4444', marginLeft: 4, fontSize: 9 }}>← girilemiyor!</span>}
-                            {n.host && isXray && <span style={{ color: '#f59e0b', marginLeft: 4, fontSize: 9 }}>← .shadowRoot</span>}
+                            {n.host && isFailing && <span style={{ color: darkMode ? '#f87171' : '#b91c1c', marginLeft: 4, fontSize: 9 }}>← girilemiyor!</span>}
+                            {n.host && isXray && <span style={{ color: darkMode ? '#fbbf24' : '#b45309', marginLeft: 4, fontSize: 9 }}>← .shadowRoot</span>}
                             {n.found && <span style={{ marginLeft: 4, fontSize: 9 }}>← getShadowRoot().findElement() ✅</span>}
                         </div>
                     ))}
 
                     {/* Status */}
                     <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#f8fafc', border: `1px dashed ${isFailing ? '#ef4444' : isPierced ? '#10b981' : '#a78bfa'}33`, fontFamily: 'sans-serif' }}>
-                        <div style={{ color: isFailing ? '#ef4444' : isPierced ? '#10b981' : '#a78bfa', fontWeight: 700 }}>
+                        <div style={{ color: isFailing ? (darkMode ? '#f87171' : '#b91c1c') : isPierced ? (darkMode ? '#34d399' : '#047857') : (darkMode ? '#c4b5fd' : '#6d28d9'), fontWeight: 700 }}>
                             {isFailing ? (isTr ? '❌ Hata:' : '❌ Error:') : isPierced ? (isTr ? '✅ Başarı:' : '✅ Success:') : (isTr ? '🕶 X-Ray Modu:' : '🕶 X-Ray Mode:')}
                         </div>
                         <div style={{ color: darkMode ? '#9ca3af' : '#6b7280', marginTop: 2, lineHeight: 1.6 }}>
@@ -15673,8 +15674,8 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         { label: 'Target Element', desc: '.inner-btn → CLICK ✅', active: simState === 'target', layer: 3, success: simState === 'target' },
                     ].map((item, idx) => (
                         <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-                            <span style={{ color: item.active ? accent : (darkMode ? '#374151' : '#e5e7eb'), paddingLeft: item.layer * 10, flexShrink: 0 }}>{idx > 0 ? '↳' : '▸'}</span>
-                            <div style={{ flex: 1, padding: '3px 8px', borderRadius: 4, background: item.success ? '#10b98122' : (item.active ? `${accent}22` : (darkMode ? '#1f2937' : '#f9fafb')), border: `1px solid ${item.success ? '#10b981' : item.active ? accent : (darkMode ? '#374151' : '#e5e7eb')}44`, color: item.success ? '#10b981' : (item.active ? (darkMode ? '#e5e7eb' : '#111827') : (darkMode ? '#4b5563' : '#9ca3af')), fontWeight: item.active ? 600 : 400, transition: 'all 0.4s' }}>
+                            <span style={{ color: item.active ? (darkMode ? '#f1f5f9' : '#1e293b') : (darkMode ? '#374151' : '#e5e7eb'), paddingLeft: item.layer * 10, flexShrink: 0 }}>{idx > 0 ? '↳' : '▸'}</span>
+                            <div style={{ flex: 1, padding: '3px 8px', borderRadius: 4, background: item.success ? '#10b98122' : (item.active ? `${accent}22` : (darkMode ? '#1f2937' : '#f9fafb')), border: `1px solid ${item.success ? '#10b981' : item.active ? accent : (darkMode ? '#374151' : '#e5e7eb')}44`, color: item.success ? (darkMode ? '#34d399' : '#047857') : (item.active ? (darkMode ? '#e5e7eb' : '#111827') : (darkMode ? '#4b5563' : '#9ca3af')), fontWeight: item.active ? 600 : 400, transition: 'all 0.4s' }}>
                                 <span style={{ fontWeight: 700 }}>{item.label}</span>
                                 <span style={{ opacity: 0.7, marginLeft: 4 }}>— {item.desc}</span>
                             </div>
@@ -15707,18 +15708,18 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                 <div>
                     <div style={{ fontSize: 10, color: subtext, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Desired Capabilities</div>
                     <div style={{ padding: '8px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#fff', fontFamily: 'monospace', fontSize: 9.5, lineHeight: 1.9, marginBottom: 10 }}>
-                        <div style={{ color: '#f59e0b' }}>{'{'}</div>
+                        <div style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>{'{'}</div>
                         {caps.map((cap, i) => {
                             const active = s !== 'idle' && cap.highlight && cur >= order.indexOf('tree-built')
                             return (
-                                <div key={i} style={{ paddingLeft: 10, color: active ? '#7c3aed' : (darkMode ? '#a6accd' : '#374151'), fontWeight: active ? 700 : 400, transition: 'color 0.4s' }}>
-                                    <span style={{ color: active ? '#ffd66e' : '#10b981' }}>{cap.key}</span>
+                                <div key={i} style={{ paddingLeft: 10, color: active ? (darkMode ? '#c4b5fd' : '#6d28d9') : (darkMode ? '#a6accd' : '#374151'), fontWeight: active ? 700 : 400, transition: 'color 0.4s' }}>
+                                    <span style={{ color: active ? (darkMode ? '#ffd66e' : '#92600a') : (darkMode ? '#34d399' : '#047857') }}>{cap.key}</span>
                                     <span style={{ color: subtext }}>{': '}</span>
-                                    <span style={{ color: '#ef4444' }}>{cap.val}</span>
+                                    <span style={{ color: darkMode ? '#f87171' : '#b91c1c' }}>{cap.val}</span>
                                 </div>
                             )
                         })}
-                        <div style={{ color: '#f59e0b' }}>{'}'}</div>
+                        <div style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>{'}'}</div>
                     </div>
                     {cur >= order.indexOf('selected') && (
                         <div style={{ padding: '6px 8px', borderRadius: 6, background: nodeBg, fontSize: 9.5, animation: 'simFadeUp 0.4s' }}>
@@ -15747,11 +15748,11 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
             const order = ['idle', 'touch-start', 'swiping', 'scrolled', 'new-item', 'done']
             const cur = order.indexOf(s)
             const events = [
-                { state: 'touch-start', text: '.pointerDown(540, 1600)', color: '#f59e0b' },
-                { state: 'swiping', text: '.move(540, 1200)', color: '#7c3aed' },
-                { state: 'swiping', text: '.move(540, 800)', color: '#7c3aed' },
-                { state: 'scrolled', text: '.pointerUp(540, 400)', color: '#10b981' },
-                { state: 'done', text: '.perform()  ✅', color: '#10b981' },
+                { state: 'touch-start', text: '.pointerDown(540, 1600)', color: darkMode ? '#fbbf24' : '#b45309' },
+                { state: 'swiping', text: '.move(540, 1200)', color: darkMode ? '#c4b5fd' : '#6d28d9' },
+                { state: 'swiping', text: '.move(540, 800)', color: darkMode ? '#c4b5fd' : '#6d28d9' },
+                { state: 'scrolled', text: '.pointerUp(540, 400)', color: darkMode ? '#34d399' : '#047857' },
+                { state: 'done', text: '.perform()  ✅', color: darkMode ? '#34d399' : '#047857' },
             ]
             return (
                 <div>
@@ -15759,7 +15760,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                     <div style={{ padding: '8px 10px', borderRadius: 6, background: darkMode ? '#0f172a' : '#fff', fontFamily: 'monospace', fontSize: 9.5, lineHeight: 1.9, marginBottom: 10 }}>
                         {s === 'idle' && <div style={{ color: subtext }}>{isTr ? '// ▶ Swipe\'a bas...' : '// Press ▶ Swipe...'}</div>}
                         {cur >= order.indexOf('touch-start') && (
-                            <div style={{ color: '#3b82f6' }}>new PointerInput(<span style={{ color: '#10b981' }}>"finger"</span>)</div>
+                            <div style={{ color: darkMode ? '#93c5fd' : '#1d4ed8' }}>new PointerInput(<span style={{ color: darkMode ? '#34d399' : '#047857' }}>"finger"</span>)</div>
                         )}
                         {events.map((ev, i) => {
                             const evIdx = order.indexOf(ev.state)
@@ -15830,7 +15831,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                                 </div>
                             )}
                             {cur >= order.indexOf('done') && (
-                                <div style={{ fontSize: 9, color: '#10b981', fontWeight: 700 }}>
+                                <div style={{ fontSize: 9, color: darkMode ? '#34d399' : '#047857', fontWeight: 700 }}>
                                     ✅ {isTr ? 'Süre: 4.2s — Network log + Console log kaydedildi' : 'Duration: 4.2s — Network log + Console log saved'}
                                 </div>
                             )}
@@ -15868,7 +15869,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                         {cwLines.map((ln, i) => {
                             const show = order.indexOf(ln.state) <= cur && s !== 'idle'
                             return show ? (
-                                <div key={i} style={{ color: order.indexOf(ln.state) === cur ? '#ec7211' : subtext, animation: order.indexOf(ln.state) === cur ? 'simFadeUp 0.3s' : undefined }}>{ln.text}</div>
+                                <div key={i} style={{ color: order.indexOf(ln.state) === cur ? (darkMode ? '#fb923c' : '#c2410c') : subtext, animation: order.indexOf(ln.state) === cur ? 'simFadeUp 0.3s' : undefined }}>{ln.text}</div>
                             ) : null
                         })}
                     </div>
@@ -15916,7 +15917,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
                             if (s === 'idle') return null
                             if (tIdx > cur) return null
                             return (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', color: dn ? '#10b981' : act ? '#0078d4' : subtext, animation: act ? 'simFadeUp 0.3s' : undefined }}>
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', color: dn ? (darkMode ? '#34d399' : '#047857') : act ? (darkMode ? '#60a5fa' : '#0078d4') : subtext, animation: act ? 'simFadeUp 0.3s' : undefined }}>
                                     <span>{dn ? '✓' : act ? '⏳' : '○'}</span>
                                     <span style={{ fontFamily: 'monospace' }}>{t.text}</span>
                                 </div>
@@ -17697,6 +17698,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
         case 'rag-lab':
             return <RagLabBlock key={i} block={block} darkMode={darkMode} language={language} />
 
+        case 'video-scene':
+            return <VideoSceneBlock key={i} block={block} darkMode={darkMode} language={language} />
+
         case 'injection-arena':
             return <PromptInjectionArenaBlock key={i} block={block} darkMode={darkMode} language={language} />
 
@@ -17732,8 +17736,8 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
     const responseBody = block.responseBody || '{\n  "data": { "id": 1, "email": "george.bluth@reqres.in" }\n}'
     const raCode = block.raCode || `given()\n  .header("Authorization", "Bearer " + token)\n.when()\n  .get("/api/users/1")\n.then()\n  .statusCode(200)\n  .body("data.id", equalTo(1));`
 
-    const methodColor = { GET: '#22c55e', POST: '#f59e0b', PUT: '#3b82f6', PATCH: '#8b5cf6', DELETE: '#ef4444' }[method] || '#6b7280'
-    const statusColor = statusCode < 300 ? '#22c55e' : statusCode < 400 ? '#f59e0b' : '#ef4444'
+    const methodColor = darkMode ? ({ GET: '#4ade80', POST: '#fbbf24', PUT: '#93c5fd', PATCH: '#c4b5fd', DELETE: '#f87171' }[method] || '#94a3b8') : ({ GET: '#15803d', POST: '#b45309', PUT: '#1d4ed8', PATCH: '#6d28d9', DELETE: '#b91c1c' }[method] || '#475569')
+    const statusColor = darkMode ? (statusCode < 300 ? '#4ade80' : statusCode < 400 ? '#fbbf24' : '#f87171') : (statusCode < 300 ? '#15803d' : statusCode < 400 ? '#b45309' : '#b91c1c')
 
     const reset = () => {
         timersRef.current.forEach(t => clearTimeout(t)); timersRef.current = []
@@ -17784,7 +17788,7 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
                         const done = ['sending','network','server','response','done'].indexOf(phase) > idx
                         return (
                             <span key={p} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 99, background: active ? '#7c3aed' : done ? '#166534' : darkMode ? '#1e293b' : '#e2e8f0', color: active ? '#fff' : done ? '#bbf7d0' : darkMode ? '#64748b' : '#94a3b8', transition: 'all .3s', boxShadow: active ? '0 0 12px rgba(124,58,237,0.6)' : 'none' }}>{labels[p]}</span>
+                                <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 99, background: active ? '#7c3aed' : done ? '#166534' : darkMode ? '#1e293b' : '#e2e8f0', color: active ? '#fff' : done ? '#bbf7d0' : darkMode ? '#94a3b8' : '#475569', transition: 'all .3s', boxShadow: active ? '0 0 12px rgba(124,58,237,0.6)' : 'none' }}>{labels[p]}</span>
                                 {idx < 3 && <span style={{ color: darkMode ? '#334155' : '#cbd5e1', fontSize: 14 }}>→</span>}
                             </span>
                         )
@@ -17799,24 +17803,24 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
                     {/* Postman Panel */}
                     <div style={{ borderRight: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, transition: 'all .3s', ...glowStyle('postman') }}>
                         <div style={{ background: darkMode ? '#1a0a2e' : '#fdf4ff', padding: '10px 14px', borderBottom: `1px solid ${darkMode ? '#2d1b4e' : '#f3e8ff'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: '#e879f9' }}>📬 Postman</span>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: darkMode ? '#f0abfc' : '#a21caf' }}>📬 Postman</span>
                             {panelActive('postman') && <span style={{ fontSize: 10, background: '#e879f922', color: '#e879f9', borderRadius: 4, padding: '1px 6px', animation: 'pulse 1s infinite' }}>SENDING...</span>}
                             {(['network','server','response','done'].includes(phase)) && <span style={{ fontSize: 10, background: '#22c55e22', color: '#22c55e', borderRadius: 4, padding: '1px 6px' }}>SENT ✓</span>}
                         </div>
                         <div style={{ padding: 12, fontSize: 11, fontFamily: 'monospace' }}>
                             <div style={{ marginBottom: 8 }}>
-                                <div style={{ color: '#94a3b8', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>REQUEST</div>
+                                <div style={{ color: darkMode ? '#94a3b8' : '#475569', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>REQUEST</div>
                                 <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>{methodBadge}<span style={{ color: darkMode ? '#c7d2fe' : '#4338ca', fontWeight: 600 }}>{endpoint}</span></div>
                                 <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8 }}>
                                     {Object.entries(requestHeaders).map(([k, v]) => (
-                                        <div key={k}><span style={{ color: '#f59e0b' }}>{k}:</span> <span style={{ color: '#22c55e' }}>{v}</span></div>
+                                        <div key={k}><span style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>{k}:</span> <span style={{ color: darkMode ? '#4ade80' : '#15803d' }}>{v}</span></div>
                                     ))}
                                 </div>
                             </div>
                             {['response','done'].includes(phase) && (
                                 <div style={{ animation: 'fadeInUp .4s ease' }}>
-                                    <div style={{ color: '#94a3b8', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>RESPONSE {statusBadge}</div>
-                                    <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8, color: '#22c55e', whiteSpace: 'pre', maxHeight: 80, overflow: 'auto' }}>{responseBody}</div>
+                                    <div style={{ color: darkMode ? '#94a3b8' : '#475569', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>RESPONSE {statusBadge}</div>
+                                    <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8, color: darkMode ? '#4ade80' : '#15803d', whiteSpace: 'pre', maxHeight: 80, overflow: 'auto' }}>{responseBody}</div>
                                 </div>
                             )}
                         </div>
@@ -17825,27 +17829,27 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
                     {/* DevTools Panel */}
                     <div style={{ borderRight: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, transition: 'all .3s', ...glowStyle('devtools') }}>
                         <div style={{ background: darkMode ? '#0a1628' : '#eff6ff', padding: '10px 14px', borderBottom: `1px solid ${darkMode ? '#1e3a5f' : '#dbeafe'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: '#60a5fa' }}>🔍 DevTools Network</span>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: darkMode ? '#93c5fd' : '#1d4ed8' }}>🔍 DevTools Network</span>
                             {panelActive('devtools') && <span style={{ fontSize: 10, background: '#60a5fa22', color: '#60a5fa', borderRadius: 4, padding: '1px 6px', animation: 'pulse 1s infinite' }}>CAPTURING...</span>}
                         </div>
                         <div style={{ padding: 12, fontSize: 11, fontFamily: 'monospace' }}>
-                            <div style={{ color: '#94a3b8', marginBottom: 6, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>HEADERS</div>
+                            <div style={{ color: darkMode ? '#94a3b8' : '#475569', marginBottom: 6, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>HEADERS</div>
                             <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8, marginBottom: 8 }}>
-                                <div><span style={{ color: '#f59e0b' }}>:method:</span> <span style={{ color: methodColor }}>{method}</span></div>
-                                <div><span style={{ color: '#f59e0b' }}>:path:</span> <span style={{ color: '#c7d2fe' }}>{endpoint.split(' ')[1] || endpoint}</span></div>
-                                <div><span style={{ color: '#f59e0b' }}>:status:</span> <span style={{ color: statusColor }}>{['response','done'].includes(phase) ? statusCode : '...'}</span></div>
+                                <div><span style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>:method:</span> <span style={{ color: methodColor }}>{method}</span></div>
+                                <div><span style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>:path:</span> <span style={{ color: darkMode ? '#c7d2fe' : '#4338ca' }}>{endpoint.split(' ')[1] || endpoint}</span></div>
+                                <div><span style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>:status:</span> <span style={{ color: statusColor }}>{['response','done'].includes(phase) ? statusCode : '...'}</span></div>
                                 {Object.entries(requestHeaders).slice(0, 2).map(([k, v]) => (
-                                    <div key={k}><span style={{ color: '#f59e0b' }}>{k.toLowerCase()}:</span> <span style={{ color: '#22c55e' }}>{v}</span></div>
+                                    <div key={k}><span style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>{k.toLowerCase()}:</span> <span style={{ color: darkMode ? '#4ade80' : '#15803d' }}>{v}</span></div>
                                 ))}
                             </div>
                             {['network','server','response','done'].includes(phase) && (
                                 <div style={{ animation: 'fadeInUp .4s ease' }}>
-                                    <div style={{ color: '#94a3b8', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>PAYLOAD (TIMING)</div>
+                                    <div style={{ color: darkMode ? '#94a3b8' : '#475569', marginBottom: 4, fontSize: 10, fontWeight: 700, fontFamily: 'Inter, system-ui' }}>PAYLOAD (TIMING)</div>
                                     <div style={{ background: darkMode ? '#0f172a' : '#f8fafc', borderRadius: 6, padding: 8 }}>
-                                        <div><span style={{ color: '#94a3b8' }}>DNS: </span><span style={{ color: '#22c55e' }}>2ms</span></div>
-                                        <div><span style={{ color: '#94a3b8' }}>Connect: </span><span style={{ color: '#22c55e' }}>8ms</span></div>
-                                        <div><span style={{ color: '#94a3b8' }}>TTFB: </span><span style={{ color: '#22c55e' }}>{['response','done'].includes(phase) ? '124ms' : '...'}</span></div>
-                                        <div><span style={{ color: '#94a3b8' }}>Download: </span><span style={{ color: '#22c55e' }}>{phase === 'done' ? '2ms' : '...'}</span></div>
+                                        <div><span style={{ color: darkMode ? '#94a3b8' : '#475569' }}>DNS: </span><span style={{ color: darkMode ? '#4ade80' : '#15803d' }}>2ms</span></div>
+                                        <div><span style={{ color: darkMode ? '#94a3b8' : '#475569' }}>Connect: </span><span style={{ color: darkMode ? '#4ade80' : '#15803d' }}>8ms</span></div>
+                                        <div><span style={{ color: darkMode ? '#94a3b8' : '#475569' }}>TTFB: </span><span style={{ color: darkMode ? '#4ade80' : '#15803d' }}>{['response','done'].includes(phase) ? '124ms' : '...'}</span></div>
+                                        <div><span style={{ color: darkMode ? '#94a3b8' : '#475569' }}>Download: </span><span style={{ color: darkMode ? '#4ade80' : '#15803d' }}>{phase === 'done' ? '2ms' : '...'}</span></div>
                                     </div>
                                 </div>
                             )}
@@ -17855,7 +17859,7 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
                     {/* Swagger Panel */}
                     <div style={{ borderRight: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, transition: 'all .3s', ...glowStyle('swagger') }}>
                         <div style={{ background: darkMode ? '#0a1f0a' : '#f0fdf4', padding: '10px 14px', borderBottom: `1px solid ${darkMode ? '#14532d' : '#bbf7d0'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: '#4ade80' }}>📋 Swagger / OpenAPI</span>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: darkMode ? '#4ade80' : '#15803d' }}>📋 Swagger / OpenAPI</span>
                             {panelActive('swagger') && <span style={{ fontSize: 10, background: '#4ade8022', color: '#4ade80', borderRadius: 4, padding: '1px 6px', animation: 'pulse 1s infinite' }}>PROCESSING...</span>}
                         </div>
                         <div style={{ padding: 12, fontSize: 11 }}>
@@ -17865,13 +17869,13 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
                                     <span style={{ fontFamily: 'monospace', fontWeight: 700, color: darkMode ? '#bbf7d0' : '#166534' }}>{endpoint.split(' ')[1] || endpoint}</span>
                                 </div>
                                 <div style={{ padding: '8px 10px', fontFamily: 'monospace', background: darkMode ? '#0a1f0a' : '#f0fdf4' }}>
-                                    <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 4, fontFamily: 'Inter, system-ui' }}>PARAMETERS</div>
+                                    <div style={{ color: darkMode ? '#94a3b8' : '#475569', fontSize: 10, marginBottom: 4, fontFamily: 'Inter, system-ui' }}>PARAMETERS</div>
                                     {Object.entries(requestHeaders).slice(0, 1).map(([k]) => (
-                                        <div key={k} style={{ color: darkMode ? '#86efac' : '#166534' }}>• {k} <span style={{ color: '#f59e0b' }}>(header, required)</span></div>
+                                        <div key={k} style={{ color: darkMode ? '#86efac' : '#166534' }}>• {k} <span style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>(header, required)</span></div>
                                     ))}
                                     {panelActive('swagger') || ['response','done'].includes(phase) ? (
                                         <div style={{ marginTop: 8, animation: 'fadeInUp .3s ease' }}>
-                                            <div style={{ color: '#94a3b8', fontSize: 10, marginBottom: 4, fontFamily: 'Inter, system-ui' }}>RESPONSES</div>
+                                            <div style={{ color: darkMode ? '#94a3b8' : '#475569', fontSize: 10, marginBottom: 4, fontFamily: 'Inter, system-ui' }}>RESPONSES</div>
                                             <div style={{ color: statusColor }}>✓ {statusCode} — Success</div>
                                         </div>
                                     ) : null}
@@ -17883,7 +17887,7 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
                     {/* RestAssured Panel */}
                     <div style={{ borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, transition: 'all .3s', ...glowStyle('restassured') }}>
                         <div style={{ background: darkMode ? '#1a1000' : '#fffbeb', padding: '10px 14px', borderBottom: `1px solid ${darkMode ? '#451a03' : '#fde68a'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: '#fbbf24' }}>☕ REST Assured</span>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: darkMode ? '#fbbf24' : '#92600a' }}>☕ REST Assured</span>
                             {panelActive('restassured') && <span style={{ fontSize: 10, background: '#fbbf2422', color: '#fbbf24', borderRadius: 4, padding: '1px 6px', animation: 'pulse 1s infinite' }}>ASSERTING...</span>}
                             {phase === 'done' && <span style={{ fontSize: 10, background: '#22c55e22', color: '#22c55e', borderRadius: 4, padding: '1px 6px' }}>PASS ✓</span>}
                         </div>
@@ -17893,7 +17897,7 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
                                     const isActive = phase === 'done' || panelActive('restassured')
                                     const highlight = isActive && (line.includes('given') || line.includes('when') || line.includes('then'))
                                     return (
-                                        <span key={idx} style={{ display: 'block', color: line.includes('given') ? '#60a5fa' : line.includes('when') ? '#f59e0b' : line.includes('then') ? '#4ade80' : line.includes('.statusCode') ? statusColor : darkMode ? '#fde68a' : '#78350f', fontWeight: highlight ? 800 : 400, transition: 'color .3s' }}>{line}</span>
+                                        <span key={idx} style={{ display: 'block', color: line.includes('given') ? (darkMode ? '#93c5fd' : '#1d4ed8') : line.includes('when') ? (darkMode ? '#fbbf24' : '#b45309') : line.includes('then') ? (darkMode ? '#4ade80' : '#15803d') : line.includes('.statusCode') ? statusColor : darkMode ? '#fde68a' : '#78350f', fontWeight: highlight ? 800 : 400, transition: 'color .3s' }}>{line}</span>
                                     )
                                 })}
                             </pre>
@@ -17905,7 +17909,7 @@ function ApiTrafficChainBlock({ block, darkMode, language }) {
                 {phase === 'done' && (
                     <div style={{ padding: '12px 20px', background: darkMode ? '#052e16' : '#f0fdf4', borderTop: `1px solid ${darkMode ? '#14532d' : '#bbf7d0'}`, display: 'flex', alignItems: 'center', gap: 10, animation: 'fadeInUp .4s ease' }}>
                         <span style={{ fontSize: 18 }}>✅</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#4ade80' }}>{isTr ? 'İstek-Yanıt döngüsü tamamlandı — 4 araç aynı veriyi farklı perspektiften gösterdi.' : 'Request-Response cycle complete — all 4 tools showed the same data from different angles.'}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: darkMode ? '#4ade80' : '#15803d' }}>{isTr ? 'İstek-Yanıt döngüsü tamamlandı — 4 araç aynı veriyi farklı perspektiften gösterdi.' : 'Request-Response cycle complete — all 4 tools showed the same data from different angles.'}</span>
                     </div>
                 )}
             </div>
@@ -18074,26 +18078,26 @@ function SqlJoinVisualBlock({ block, darkMode, language }) {
                         <div style={{ animation: 'fadeInUp .5s ease', border: `2px solid ${activeJoin?.color || '#22c55e'}`, borderRadius: 10, overflow: 'hidden' }}>
                             <div style={{ background: (activeJoin?.color || '#22c55e') + '22', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
                                 <span style={{ fontWeight: 800, fontSize: 13, color: activeJoin?.color || '#22c55e' }}>📊 {isTr ? 'Sonuç' : 'Result'}: {activeJoin?.label}</span>
-                                <span style={{ fontSize: 11, color: '#94a3b8' }}>{resultRows.length} {isTr ? 'satır döndü' : 'rows returned'}</span>
+                                <span style={{ fontSize: 11, color: darkMode ? '#94a3b8' : '#475569' }}>{resultRows.length} {isTr ? 'satır döndü' : 'rows returned'}</span>
                             </div>
                             <div style={{ overflowX: 'auto' }}>
                                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                     <thead>
                                         <tr>
-                                            {leftTable.columns.map(c => <th key={'l'+c} style={{ padding: '5px 10px', fontSize: 10, fontWeight: 800, color: '#94a3b8', textAlign: 'left', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, background: darkMode ? '#0f172a' : '#f8fafc' }}>{leftTable.name}.{c}</th>)}
-                                            {rightTable.columns.map(c => <th key={'r'+c} style={{ padding: '5px 10px', fontSize: 10, fontWeight: 800, color: '#94a3b8', textAlign: 'left', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, background: darkMode ? '#0f172a' : '#f8fafc' }}>{rightTable.name}.{c}</th>)}
+                                            {leftTable.columns.map(c => <th key={'l'+c} style={{ padding: '5px 10px', fontSize: 10, fontWeight: 800, color: darkMode ? '#94a3b8' : '#475569', textAlign: 'left', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, background: darkMode ? '#0f172a' : '#f8fafc' }}>{leftTable.name}.{c}</th>)}
+                                            {rightTable.columns.map(c => <th key={'r'+c} style={{ padding: '5px 10px', fontSize: 10, fontWeight: 800, color: darkMode ? '#94a3b8' : '#475569', textAlign: 'left', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, background: darkMode ? '#0f172a' : '#f8fafc' }}>{rightTable.name}.{c}</th>)}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {resultRows.map((row, ri) => (
                                             <tr key={ri} style={{ animation: `fadeInUp .3s ease ${ri * 0.1}s both` }}>
                                                 {leftTable.columns.map((_, ci) => (
-                                                    <td key={'l'+ci} style={{ padding: '5px 10px', fontSize: 11, fontFamily: 'monospace', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, color: row.left ? (darkMode ? '#e2e8f0' : '#1e293b') : '#94a3b8', fontStyle: row.left ? 'normal' : 'italic' }}>
+                                                    <td key={'l'+ci} style={{ padding: '5px 10px', fontSize: 11, fontFamily: 'monospace', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, color: row.left ? (darkMode ? '#e2e8f0' : '#1e293b') : (darkMode ? '#94a3b8' : '#475569'), fontStyle: row.left ? 'normal' : 'italic' }}>
                                                         {row.left ? row.left[ci] : 'NULL'}
                                                     </td>
                                                 ))}
                                                 {rightTable.columns.map((_, ci) => (
-                                                    <td key={'r'+ci} style={{ padding: '5px 10px', fontSize: 11, fontFamily: 'monospace', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, color: row.right ? (darkMode ? '#e2e8f0' : '#1e293b') : '#94a3b8', fontStyle: row.right ? 'normal' : 'italic' }}>
+                                                    <td key={'r'+ci} style={{ padding: '5px 10px', fontSize: 11, fontFamily: 'monospace', borderBottom: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`, color: row.right ? (darkMode ? '#e2e8f0' : '#1e293b') : (darkMode ? '#94a3b8' : '#475569'), fontStyle: row.right ? 'normal' : 'italic' }}>
                                                         {row.right ? row.right[ci] : 'NULL'}
                                                     </td>
                                                 ))}
@@ -18203,7 +18207,7 @@ function FeynmanCheckpointBlock({ block, darkMode, language }) {
 
                             {showModel && modelAnswer && (
                                 <div style={{ marginTop: 14, background: darkMode ? '#1f2937' : '#f9fafb', border: `1px solid ${darkMode ? '#374151' : '#e5e7eb'}`, borderRadius: 10, padding: 14, fontSize: 13, color: darkMode ? '#f9fafb' : '#374151', lineHeight: 1.7, animation: 'fadeInUp .3s ease' }}>
-                                    <div style={{ fontWeight: 800, marginBottom: 8, color: '#f59e0b' }}>📖 {isTr ? 'Model Açıklama:' : 'Model Explanation:'}</div>
+                                    <div style={{ fontWeight: 800, marginBottom: 8, color: darkMode ? '#fbbf24' : '#b45309' }}>📖 {isTr ? 'Model Açıklama:' : 'Model Explanation:'}</div>
                                     {modelAnswer}
                                 </div>
                             )}
@@ -18322,7 +18326,7 @@ function InterleavingChallengeBlock({ block, darkMode, language }) {
                                     ) : (
                                         <div style={{ background: darkMode ? '#052e16' : '#f0fdf4', border: `1px solid #22c55e`, borderRadius: 10, padding: 14, textAlign: 'center' }}>
                                             <div style={{ fontSize: 18, marginBottom: 4 }}>🏆</div>
-                                            <div style={{ fontWeight: 800, color: '#22c55e' }}>{score}/{challenges.length} {isTr ? 'doğru! Beyin başarıyla vites değiştirdi.' : 'correct! Brain successfully shifted gears.'}</div>
+                                            <div style={{ fontWeight: 800, color: darkMode ? '#4ade80' : '#15803d' }}>{score}/{challenges.length} {isTr ? 'doğru! Beyin başarıyla vites değiştirdi.' : 'correct! Brain successfully shifted gears.'}</div>
                                         </div>
                                     )}
                                 </div>
@@ -18349,7 +18353,7 @@ function HttpFlowAnimationBlock({ block, darkMode, language }) {
     const endpoint = block.endpoint || '/api/users/1'
     const dbQuery = block.dbQuery || 'SELECT * FROM users WHERE id = 1'
     const statusCode = block.statusCode || 200
-    const methodColor = { GET: '#22c55e', POST: '#f59e0b', PUT: '#3b82f6', PATCH: '#8b5cf6', DELETE: '#ef4444' }[method] || '#6b7280'
+    const methodColor = darkMode ? ({ GET: '#4ade80', POST: '#fbbf24', PUT: '#93c5fd', PATCH: '#c4b5fd', DELETE: '#f87171' }[method] || '#94a3b8') : ({ GET: '#15803d', POST: '#b45309', PUT: '#1d4ed8', PATCH: '#6d28d9', DELETE: '#b91c1c' }[method] || '#475569')
 
     const reset = () => {
         timersRef.current.forEach(t => clearTimeout(t)); timersRef.current = []
@@ -18410,7 +18414,7 @@ function HttpFlowAnimationBlock({ block, darkMode, language }) {
                     <span style={{ fontSize: 12, fontWeight: 700, color: darkMode ? '#94a3b8' : '#64748b' }}>{isTr ? 'Beklenen HTTP Status:' : 'Expected HTTP Status:'}</span>
                     <input type="text" value={expectedVal} onChange={e => { setExpectedVal(e.target.value); reset() }}
                         style={{ width: 70, borderRadius: 6, border: `1px solid ${darkMode ? '#374151' : '#d1d5db'}`, background: darkMode ? '#1f2937' : '#fff', color: darkMode ? '#f9fafb' : '#111', padding: '4px 8px', fontSize: 12, fontFamily: 'monospace', outline: 'none' }} />
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{isTr ? '(gerçek:' : '(actual:'} <span style={{ color: '#22c55e', fontWeight: 700 }}>{statusCode}</span>)</span>
+                    <span style={{ fontSize: 11, color: darkMode ? '#94a3b8' : '#475569' }}>{isTr ? '(gerçek:' : '(actual:'} <span style={{ color: darkMode ? '#4ade80' : '#15803d', fontWeight: 700 }}>{statusCode}</span>)</span>
                     <button onClick={runFlow} style={{ marginLeft: 'auto', border: 0, borderRadius: 8, padding: '7px 16px', fontSize: 12, fontWeight: 800, cursor: 'pointer', background: '#7c3aed', color: '#fff' }}>
                         {phase === 'idle' ? (isTr ? '▶ Gönder' : '▶ Send') : (isTr ? '↺ Sıfırla' : '↺ Reset')}
                     </button>
@@ -18424,9 +18428,9 @@ function HttpFlowAnimationBlock({ block, darkMode, language }) {
                                 <div style={{ minWidth: 80, padding: '10px 8px', borderRadius: 12, border: `2px solid ${nodeActive(node.id) ? node.color : darkMode ? '#1e293b' : '#e2e8f0'}`, background: nodeActive(node.id) ? node.color + '22' : darkMode ? '#1e293b' : '#f8fafc', textAlign: 'center', transition: 'all .3s', boxShadow: nodeActive(node.id) ? `0 0 16px ${node.color}55` : 'none' }}>
                                     <div style={{ fontSize: 14 }}>{node.label.split(' ')[0]}</div>
                                     <div style={{ fontSize: 11, fontWeight: 700, color: nodeActive(node.id) ? node.color : darkMode ? '#94a3b8' : '#64748b' }}>{node.label.split(' ').slice(1).join(' ')}</div>
-                                    <div style={{ fontSize: 9, color: '#94a3b8' }}>{node.sub}</div>
+                                    <div style={{ fontSize: 9, color: darkMode ? '#94a3b8' : '#64748b' }}>{node.sub}</div>
                                     {node.id === 'db' && ['db-query','db-response'].includes(phase) && (
-                                        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#22c55e', marginTop: 4, animation: 'pulse 1s infinite' }}>{dbQuery.slice(0, 20)}...</div>
+                                        <div style={{ fontSize: 9, fontFamily: 'monospace', color: darkMode ? '#4ade80' : '#15803d', marginTop: 4, animation: 'pulse 1s infinite' }}>{dbQuery.slice(0, 20)}...</div>
                                     )}
                                 </div>
                                 {ni < nodes.length - 1 && (
@@ -18502,7 +18506,7 @@ function PythonMemoryVisualBlock({ block, darkMode, language }) {
     const [step, setStep] = useState(-1)
     const timersRef = useRef([])
     const vars = block.variables || []
-    const TYPE_COLOR = { str: '#3b82f6', int: '#10b981', float: '#f59e0b', bool: '#8b5cf6', list: '#ec4899', dict: '#f97316', None: '#94a3b8' }
+    const TYPE_COLOR = darkMode ? { str: '#93c5fd', int: '#4ade80', float: '#fbbf24', bool: '#c4b5fd', list: '#f9a8d4', dict: '#fdba74', None: '#94a3b8' } : { str: '#1d4ed8', int: '#15803d', float: '#b45309', bool: '#6d28d9', list: '#be185d', dict: '#c2410c', None: '#475569' }
 
     const runAnim = () => {
         timersRef.current.forEach(clearTimeout)
@@ -18524,16 +18528,16 @@ function PythonMemoryVisualBlock({ block, darkMode, language }) {
             <div style={{ padding: '10px 14px', background: darkMode ? '#1e293b' : '#fff', borderRadius: 8, fontFamily: 'JetBrains Mono, monospace', fontSize: 12, marginBottom: 16, overflowX: 'auto' }}>
                 {vars.map((v, i) => (
                     <div key={i} style={{ lineHeight: 2 }}>
-                        <span style={{ color: step >= i ? '#93c5fd' : '#94a3b8' }}>{v.name}</span>
-                        <span style={{ color: '#64748b' }}> = </span>
-                        <span style={{ color: step >= i ? (TYPE_COLOR[v.type] || '#e2e8f0') : '#94a3b8' }}>{v.type === 'str' ? `"${v.value}"` : String(v.value)}</span>
-                        <span style={{ color: '#475569', fontSize: 11 }}>  # {v.type}</span>
+                        <span style={{ color: step >= i ? (darkMode ? '#93c5fd' : '#1d4ed8') : (darkMode ? '#94a3b8' : '#64748b') }}>{v.name}</span>
+                        <span style={{ color: darkMode ? '#64748b' : '#475569' }}> = </span>
+                        <span style={{ color: step >= i ? (TYPE_COLOR[v.type] || (darkMode ? '#e2e8f0' : '#1e293b')) : (darkMode ? '#94a3b8' : '#64748b') }}>{v.type === 'str' ? `"${v.value}"` : String(v.value)}</span>
+                        <span style={{ color: darkMode ? '#94a3b8' : '#94a3b8', fontSize: 11 }}>  # {v.type}</span>
                     </div>
                 ))}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                 {vars.map((v, i) => {
-                    const c = TYPE_COLOR[v.type] || '#94a3b8'
+                    const c = TYPE_COLOR[v.type] || (darkMode ? '#94a3b8' : '#475569')
                     const active = step >= i
                     return (
                         <div key={i} style={{
@@ -18545,12 +18549,12 @@ function PythonMemoryVisualBlock({ block, darkMode, language }) {
                             transition: 'all 0.4s ease',
                             boxShadow: active ? `0 4px 16px ${c}30` : 'none',
                         }}>
-                            <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 4 }}>{v.type}</div>
+                            <div style={{ fontSize: 10, color: darkMode ? '#94a3b8' : '#64748b', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 4 }}>{v.type}</div>
                             <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 14, fontWeight: 800, color: active ? c : (darkMode ? '#475569' : '#94a3b8'), marginBottom: 4 }}>
                                 {v.type === 'str' ? `"${v.value}"` : String(v.value)}
                             </div>
                             <div style={{ fontSize: 12, color: darkMode ? '#94a3b8' : '#64748b', fontWeight: 600 }}>{v.name}</div>
-                            {v.desc && <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, lineHeight: 1.3 }}>{isTr && v.descTr ? v.descTr : v.desc}</div>}
+                            {v.desc && <div style={{ fontSize: 10, color: darkMode ? '#94a3b8' : '#64748b', marginTop: 4, lineHeight: 1.3 }}>{isTr && v.descTr ? v.descTr : v.desc}</div>}
                         </div>
                     )
                 })}
@@ -18611,12 +18615,12 @@ function PythonCollectionVisualBlock({ block, darkMode, language }) {
         <div style={{ margin: '24px 0', padding: '24px', background: darkMode ? '#0f1a0a' : '#fefce8', borderRadius: 16, border: `1px solid ${darkMode ? '#3d4a00' : '#fde68a'}` }}>
             <div style={{ fontWeight: 700, fontSize: 15, color: darkMode ? '#e2e8f0' : '#1e293b', marginBottom: 16 }}>
                 📦 {isTr ? (block.titleTr || 'Koleksiyon Görselleştirici') : (block.titleEn || 'Collection Visualizer')}
-                <span style={{ marginLeft: 8, fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: '#f59e0b' }}>{isDict ? 'dict {}' : 'list []'}</span>
+                <span style={{ marginLeft: 8, fontFamily: 'JetBrains Mono, monospace', fontSize: 13, color: darkMode ? '#fbbf24' : '#b45309' }}>{isDict ? 'dict {}' : 'list []'}</span>
             </div>
             {!isDict ? (
                 <>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', minHeight: 60, alignItems: 'center', marginBottom: 16 }}>
-                        {listItems.length === 0 && <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: 13 }}>{isTr ? '(boş liste)' : '(empty list)'}</span>}
+                        {listItems.length === 0 && <span style={{ color: darkMode ? '#94a3b8' : '#64748b', fontStyle: 'italic', fontSize: 13 }}>{isTr ? '(boş liste)' : '(empty list)'}</span>}
                         {listItems.map((item, idx) => {
                             const isPop = flash?.type === 'pop' && flash?.idx === idx
                             const isNew = flash?.type === 'append' && flash?.idx === idx
@@ -18735,9 +18739,9 @@ function PythonFlowDiagramBlock({ block, darkMode, language }) {
                                 transition: 'all 0.4s ease',
                                 boxShadow: isCurr ? `0 0 20px ${c}50` : 'none',
                             }}>
-                                <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 3 }}>{s.type}</div>
+                                <div style={{ fontSize: 10, color: darkMode ? '#94a3b8' : '#64748b', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 3 }}>{s.type}</div>
                                 <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 700, color: isActive ? c : (darkMode ? '#475569' : '#94a3b8') }}>{s.code}</div>
-                                {s.desc && <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{isTr && s.descTr ? s.descTr : s.desc}</div>}
+                                {s.desc && <div style={{ fontSize: 11, color: darkMode ? '#94a3b8' : '#64748b', marginTop: 4 }}>{isTr && s.descTr ? s.descTr : s.desc}</div>}
                                 {s.branch && isActive && (
                                     <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
                                         <span style={{ fontSize: 11, padding: '3px 10px', background: '#10b98115', border: '1px solid #10b981', borderRadius: 20, color: '#10b981' }}>True → {s.branch.true}</span>
@@ -18821,8 +18825,8 @@ function PytestExecutionVisualBlock({ block, darkMode, language }) {
                                 opacity: phase === 'idle' ? 0.45 : (active ? 1 : 0.35),
                             }}>
                                 <div style={{ fontSize: 20, marginBottom: 5 }}>{p.icon}</div>
-                                <div style={{ fontSize: 11, fontWeight: 700, color: active ? p.color : '#94a3b8' }}>{isTr ? p.labelTr : p.labelEn}</div>
-                                <div style={{ fontSize: 9, color: '#64748b', marginTop: 2, lineHeight: 1.3 }}>{isTr ? p.descTr : p.descEn}</div>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: active ? p.color : (darkMode ? '#94a3b8' : '#64748b') }}>{isTr ? p.labelTr : p.labelEn}</div>
+                                <div style={{ fontSize: 9, color: darkMode ? '#94a3b8' : '#64748b', marginTop: 2, lineHeight: 1.3 }}>{isTr ? p.descTr : p.descEn}</div>
                             </div>
                             {i < PHASES.length - 1 && <div style={{ padding: '0 3px', color: darkMode ? '#334155' : '#cbd5e1', fontSize: 14 }}>→</div>}
                         </Fragment>
@@ -18831,7 +18835,7 @@ function PytestExecutionVisualBlock({ block, darkMode, language }) {
             </div>
             {visibleTests.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 8 }}>{isTr ? 'Test Sonuçları:' : 'Test Results:'}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: darkMode ? '#94a3b8' : '#64748b', marginBottom: 8 }}>{isTr ? 'Test Sonuçları:' : 'Test Results:'}</div>
                     {visibleTests.map((t, i) => (
                         <div key={i} style={{
                             display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6,
@@ -19038,17 +19042,17 @@ function TSLegoTypeVsInterface({ isTr, darkMode }) {
 
                     {demo === 'merge' && (
                         <div style={{ background: darkMode ? '#052e16' : '#f0fdf4', border: '2px solid #22c55e', borderRadius: 12, padding: 14, marginBottom: 14, animation: 'ts-merge-in .5s ease' }}>
-                            <div style={{ fontWeight: 800, color: '#22c55e', marginBottom: 8 }}>🎉 {isTr ? 'Declaration Merging başarılı!' : 'Declaration Merging works!'}</div>
+                            <div style={{ fontWeight: 800, color: darkMode ? '#4ade80' : '#15803d', marginBottom: 8 }}>🎉 {isTr ? 'Declaration Merging başarılı!' : 'Declaration Merging works!'}</div>
                             <pre style={{ fontSize: 11, color: darkMode ? '#86efac' : '#15803d', background: 'transparent', margin: 0, fontFamily: 'JetBrains Mono,monospace', lineHeight: 1.7 }}>{`interface User { email: string }\ninterface User { name: string }   // Same name — no error!\n// TypeScript AUTOMATICALLY merges:\n// → interface User { email: string; name: string }`}</pre>
                         </div>
                     )}
                     {demo === 'error' && (
                         <div style={{ background: darkMode ? '#2d0000' : '#fef2f2', border: '2px solid #ef4444', borderRadius: 12, padding: 14, marginBottom: 14 }}>
-                            <div style={{ fontWeight: 800, color: '#ef4444', marginBottom: 8 }}>⚡ {isTr ? 'Cızz! Type alias yeniden açılamaz!' : 'Buzz! Type alias cannot be reopened!'}</div>
+                            <div style={{ fontWeight: 800, color: darkMode ? '#f87171' : '#b91c1c', marginBottom: 8 }}>⚡ {isTr ? 'Cızz! Type alias yeniden açılamaz!' : 'Buzz! Type alias cannot be reopened!'}</div>
                             <pre style={{ fontSize: 11, color: darkMode ? '#fca5a5' : '#dc2626', background: 'transparent', margin: 0, fontFamily: 'JetBrains Mono,monospace', lineHeight: 1.7 }}>{`type Status = "PASS" | "FAIL";\ntype Status = "SKIP";   // ❌ Error: Duplicate identifier\n// Kare parça → Yuvarlak deliğe SIĞMAZ 🔲 ≠ ⭕`}</pre>
                             <div style={{ display: 'flex', gap: 3, marginTop: 8, alignItems: 'center' }}>
                                 {Array.from({ length: 6 }, (_, i) => <div key={i} style={{ width: 8, height: i % 2 === 0 ? 18 : 7, background: '#ef4444', borderRadius: 2, opacity: 0.85 }} />)}
-                                <span style={{ fontSize: 12, fontWeight: 800, color: '#ef4444', marginLeft: 6 }}>⚡ Cızz!</span>
+                                <span style={{ fontSize: 12, fontWeight: 800, color: darkMode ? '#f87171' : '#b91c1c', marginLeft: 6 }}>⚡ Cızz!</span>
                             </div>
                         </div>
                     )}
@@ -19070,9 +19074,9 @@ function TSLegoGenericsFactory({ isTr, darkMode }) {
     const [out, setOut] = useState(null)
 
     const PIECES = [
-        { id: 'string',  label: '"hello"', color: '#3b82f6', typeLabel: 'string',  result: 'Box<string>',  ex: 'box.get() → "hello"' },
-        { id: 'number',  label: '42',      color: '#f59e0b', typeLabel: 'number',  result: 'Box<number>',  ex: 'box.get() → 42' },
-        { id: 'boolean', label: 'true',    color: '#22c55e', typeLabel: 'boolean', result: 'Box<boolean>', ex: 'box.get() → true' },
+        { id: 'string',  label: '"hello"', color: darkMode ? '#93c5fd' : '#1d4ed8', typeLabel: 'string',  result: 'Box<string>',  ex: 'box.get() → "hello"' },
+        { id: 'number',  label: '42',      color: darkMode ? '#fbbf24' : '#b45309', typeLabel: 'number',  result: 'Box<number>',  ex: 'box.get() → 42' },
+        { id: 'boolean', label: 'true',    color: darkMode ? '#4ade80' : '#15803d', typeLabel: 'boolean', result: 'Box<boolean>', ex: 'box.get() → true' },
     ]
 
     const pick = (p) => {
@@ -19332,10 +19336,10 @@ function TSLegoFunctionsVisual({ isTr, darkMode }) {
                         ))}
                     </div>
                     <div style={{ background: darkMode ? '#1e1b4b' : '#f5f3ff', border: '1px solid #c084fc44', borderRadius: 8, padding: '10px 12px', animation: 'ts-fn-in .3s ease' }}>
-                        <div style={{ fontSize: 9, color: '#94a3b8', marginBottom: 4 }}>{isTr ? '// Çağrı:' : '// Call:'}</div>
-                        <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: '#c084fc', fontWeight: 700, wordBreak: 'break-all', marginBottom: 8 }}>{callStr}</div>
-                        <div style={{ fontSize: 9, color: '#94a3b8', marginBottom: 4 }}>{isTr ? '// Sonuç:' : '// Result:'}</div>
-                        <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: '#22c55e', fontWeight: 700, wordBreak: 'break-all' }}>{resultStr}</div>
+                        <div style={{ fontSize: 9, color: darkMode ? '#94a3b8' : '#64748b', marginBottom: 4 }}>{isTr ? '// Çağrı:' : '// Call:'}</div>
+                        <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: darkMode ? '#c084fc' : '#7e22ce', fontWeight: 700, wordBreak: 'break-all', marginBottom: 8 }}>{callStr}</div>
+                        <div style={{ fontSize: 9, color: darkMode ? '#94a3b8' : '#64748b', marginBottom: 4 }}>{isTr ? '// Sonuç:' : '// Result:'}</div>
+                        <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, color: darkMode ? '#4ade80' : '#15803d', fontWeight: 700, wordBreak: 'break-all' }}>{resultStr}</div>
                     </div>
                     <div style={{ marginTop: 8, fontSize: 10, color: darkMode ? '#475569' : '#94a3b8' }}>
                         💡 {isTr ? '? işaretli parametreler geçilmezse default değer kullanılır. Java\'da ise overloaded method yazman gerekirdi.' : 'Params with ? use their default if omitted. In Java you\'d need overloaded methods for each combination.'}
@@ -19410,11 +19414,11 @@ function TSLegoUtilityVisual({ isTr, darkMode }) {
         { name: 'tags', type: 'string[]' },
     ]
     const MODES = [
-        { id: 'original', label: 'TestCase', color: '#64748b', apply: f => ({ ...f, optional: false, hidden: false, readonly: false }), desc: { tr: 'Orijinal interface — tüm alanlar zorunlu.', en: 'Original interface — all fields required.' } },
-        { id: 'partial', label: 'Partial<T>', color: '#3b82f6', apply: f => ({ ...f, optional: true, hidden: false, readonly: false }), desc: { tr: 'Tüm alanlar opsiyonel (?). PATCH için ideal!', en: 'All fields optional (?). Ideal for PATCH!' } },
-        { id: 'pick', label: 'Pick<T,"id"|"name">', color: '#22c55e', apply: f => ({ ...f, optional: false, hidden: !['id', 'name'].includes(f.name), readonly: false }), desc: { tr: 'Sadece id ve name kalır.', en: 'Only id and name remain.' } },
-        { id: 'omit', label: 'Omit<T,"tags">', color: '#f59e0b', apply: f => ({ ...f, optional: false, hidden: f.name === 'tags', readonly: false }), desc: { tr: 'tags alanı çıkarılır.', en: 'The tags field is removed.' } },
-        { id: 'readonly', label: 'Readonly<T>', color: '#8b5cf6', apply: f => ({ ...f, optional: false, hidden: false, readonly: true }), desc: { tr: 'Tüm alanlar salt okunur.', en: 'All fields readonly — cannot be mutated.' } },
+        { id: 'original', label: 'TestCase', color: darkMode ? '#94a3b8' : '#475569', apply: f => ({ ...f, optional: false, hidden: false, readonly: false }), desc: { tr: 'Orijinal interface — tüm alanlar zorunlu.', en: 'Original interface — all fields required.' } },
+        { id: 'partial', label: 'Partial<T>', color: darkMode ? '#93c5fd' : '#1d4ed8', apply: f => ({ ...f, optional: true, hidden: false, readonly: false }), desc: { tr: 'Tüm alanlar opsiyonel (?). PATCH için ideal!', en: 'All fields optional (?). Ideal for PATCH!' } },
+        { id: 'pick', label: 'Pick<T,"id"|"name">', color: darkMode ? '#4ade80' : '#15803d', apply: f => ({ ...f, optional: false, hidden: !['id', 'name'].includes(f.name), readonly: false }), desc: { tr: 'Sadece id ve name kalır.', en: 'Only id and name remain.' } },
+        { id: 'omit', label: 'Omit<T,"tags">', color: darkMode ? '#fbbf24' : '#b45309', apply: f => ({ ...f, optional: false, hidden: f.name === 'tags', readonly: false }), desc: { tr: 'tags alanı çıkarılır.', en: 'The tags field is removed.' } },
+        { id: 'readonly', label: 'Readonly<T>', color: darkMode ? '#c4b5fd' : '#6d28d9', apply: f => ({ ...f, optional: false, hidden: false, readonly: true }), desc: { tr: 'Tüm alanlar salt okunur.', en: 'All fields readonly — cannot be mutated.' } },
     ]
     const [modeId, setModeId] = useState('original')
     const active = MODES.find(m => m.id === modeId)
@@ -19447,11 +19451,11 @@ function TSLegoUtilityVisual({ isTr, darkMode }) {
                         {shown.map(f => (
                             <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 7, background: f.hidden ? '#ef444411' : (active.id !== 'original' ? active.color + '11' : (darkMode ? '#1e293b' : '#f8fafc')), border: `1px solid ${f.hidden ? '#ef444433' : (active.id !== 'original' ? active.color + '33' : (darkMode ? '#334155' : '#e2e8f0'))}`, opacity: f.hidden ? 0.3 : 1, transition: 'all .35s', fontFamily: 'JetBrains Mono,monospace', animation: 'ts-util-in .3s ease' }}>
                                 {f.hidden && <span style={{ fontSize: 11 }}>🚫</span>}
-                                {f.readonly && !f.hidden && <span style={{ fontSize: 9, color: '#8b5cf6', fontWeight: 800 }}>readonly{' '}</span>}
+                                {f.readonly && !f.hidden && <span style={{ fontSize: 9, color: darkMode ? '#c4b5fd' : '#6d28d9', fontWeight: 800 }}>readonly{' '}</span>}
                                 <span style={{ fontSize: 10, color: active.id !== 'original' ? active.color : (darkMode ? '#94a3b8' : '#1e293b'), fontWeight: 700 }}>{f.name}</span>
-                                {f.optional && !f.hidden && <span style={{ fontSize: 10, color: '#3b82f6' }}>?</span>}
-                                <span style={{ fontSize: 10, color: '#64748b' }}>:</span>
-                                <span style={{ fontSize: 10, color: '#f59e0b', marginLeft: 4 }}>{f.type}</span>
+                                {f.optional && !f.hidden && <span style={{ fontSize: 10, color: darkMode ? '#93c5fd' : '#1d4ed8' }}>?</span>}
+                                <span style={{ fontSize: 10, color: darkMode ? '#94a3b8' : '#475569' }}>:</span>
+                                <span style={{ fontSize: 10, color: darkMode ? '#fbbf24' : '#b45309', marginLeft: 4 }}>{f.type}</span>
                             </div>
                         ))}
                     </div>
@@ -19465,10 +19469,10 @@ function TSLegoConstructorVisual({ isTr, darkMode }) {
     const [step, setStep] = useState(-1)
     const [running, setRunning] = useState(false)
     const cProps = [
-        { name: 'brand', value: '"Toyota"', color: '#3b82f6' },
-        { name: 'model', value: '"Corolla"', color: '#22c55e' },
-        { name: 'year', value: '2024', color: '#f59e0b' },
-        { name: 'running', value: 'false', color: '#8b5cf6' },
+        { name: 'brand', value: '"Toyota"', color: darkMode ? '#93c5fd' : '#1d4ed8' },
+        { name: 'model', value: '"Corolla"', color: darkMode ? '#4ade80' : '#15803d' },
+        { name: 'year', value: '2024', color: darkMode ? '#fbbf24' : '#b45309' },
+        { name: 'running', value: 'false', color: darkMode ? '#c4b5fd' : '#6d28d9' },
     ]
     const build = () => {
         if (running) return
@@ -19503,14 +19507,14 @@ function TSLegoConstructorVisual({ isTr, darkMode }) {
                         ].map(([emoji, title, desc]) => (
                             <div key={title} style={{ background: darkMode ? '#1e293b' : '#fff', border: `1px solid ${darkMode ? '#334155' : '#fde68a'}`, borderRadius: 8, padding: 8, textAlign: 'center' }}>
                                 <div style={{ fontSize: 22, marginBottom: 4 }}>{emoji}</div>
-                                <div style={{ fontSize: 10, fontWeight: 800, color: '#b45309', marginBottom: 3 }}>{title}</div>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#fbbf24' : '#b45309', marginBottom: 3 }}>{title}</div>
                                 <div style={{ fontSize: 9, color: darkMode ? '#64748b' : '#92400e', lineHeight: 1.4 }}>{desc}</div>
                             </div>
                         ))}
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 12, alignItems: 'center', marginBottom: 14 }}>
                         <div style={{ border: '2px dashed #94a3b8', borderRadius: 10, padding: 10, background: darkMode ? '#1e293b' : '#f8fafc' }}>
-                            <div style={{ fontSize: 9, fontWeight: 800, color: '#94a3b8', marginBottom: 6 }}>📋 CLASS BLUEPRINT</div>
+                            <div style={{ fontSize: 9, fontWeight: 800, color: darkMode ? '#94a3b8' : '#475569', marginBottom: 6 }}>📋 CLASS BLUEPRINT</div>
                             <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, lineHeight: 1.8, color: darkMode ? '#94a3b8' : '#475569' }}>
                                 <div>{`class Car {`}</div>
                                 <div>{`  constructor(`}</div>
@@ -19529,7 +19533,7 @@ function TSLegoConstructorVisual({ isTr, darkMode }) {
                             </div>
                         </div>
                         <div style={{ border: `2px solid ${done ? '#22c55e' : (darkMode ? '#334155' : '#e2e8f0')}`, borderRadius: 10, padding: 10, minHeight: 110, background: done ? (darkMode ? '#052e16' : '#f0fdf4') : (darkMode ? '#1e293b' : '#f8fafc'), transition: 'all .4s' }}>
-                            <div style={{ fontSize: 9, fontWeight: 800, color: done ? '#22c55e' : '#94a3b8', marginBottom: 6 }}>
+                            <div style={{ fontSize: 9, fontWeight: 800, color: done ? (darkMode ? '#4ade80' : '#15803d') : (darkMode ? '#94a3b8' : '#475569'), marginBottom: 6 }}>
                                 {done ? '🚗 ' : '🔲 '}{isTr ? 'Nesne (Object)' : 'Object'}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -19620,18 +19624,18 @@ function TSLegoInheritanceVisual({ isTr, darkMode }) {
                             </div>
                         </div>
                         <div style={{ background: darkMode ? '#1e293b' : '#f8fafc', border: `1px solid ${darkMode ? '#334155' : '#e2e8f0'}`, borderRadius: 10, padding: 10 }}>
-                            <div style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', marginBottom: 8 }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#94a3b8' : '#475569', marginBottom: 8 }}>
                                 {'📥 '}{isTr ? 'MİRAS alınan metodlar' : 'INHERITED methods'}
                             </div>
                             {inherited.length === 0 ? (
-                                <div style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic' }}>
+                                <div style={{ fontSize: 10, color: darkMode ? '#94a3b8' : '#475569', fontStyle: 'italic' }}>
                                     {isTr ? '(Temel sınıf — miras yok)' : '(Base class — nothing inherited)'}
                                 </div>
                             ) : inherited.map((m, mi) => (
                                 <div key={`${m.fk}-${m.method}-${mi}`} style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 10, padding: '3px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
                                     <span>{m.emoji}</span>
                                     <span style={{ color: hierarchy[m.fk].color, fontWeight: 700 }}>{m.method}</span>
-                                    <span style={{ fontSize: 9, color: '#64748b' }}>← {m.from}</span>
+                                    <span style={{ fontSize: 9, color: darkMode ? '#94a3b8' : '#64748b' }}>← {m.from}</span>
                                 </div>
                             ))}
                         </div>
@@ -19691,7 +19695,7 @@ function TSLegoAbstractVisual({ isTr, darkMode }) {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                         <div style={{ animation: shaking ? 'ts-abs-shake .7s ease' : 'none' }}>
                             <div style={{ border: '2px dashed #ef4444', borderRadius: 10, padding: 10, background: darkMode ? '#1c0a0a' : '#fff5f5', minHeight: 160 }}>
-                                <div style={{ fontSize: 10, fontWeight: 800, color: '#ef4444', marginBottom: 6, display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+                                <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#f87171' : '#b91c1c', marginBottom: 6, display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
                                     <span>📋</span>
                                     <span>{isTr ? 'SOYUT (Abstract)' : 'ABSTRACT'}</span>
                                     <span style={{ fontSize: 8, background: '#ef444420', color: '#ef4444', borderRadius: 4, padding: '1px 5px' }}>{isTr ? 'YAPI PLANI' : 'BLUEPRINT'}</span>
@@ -19714,7 +19718,7 @@ function TSLegoAbstractVisual({ isTr, darkMode }) {
                             </div>
                         </div>
                         <div style={{ border: `2px solid ${builtConcrete ? '#22c55e' : '#64748b'}`, borderRadius: 10, padding: 10, background: builtConcrete ? (darkMode ? '#052e16' : '#f0fdf4') : (darkMode ? '#1e293b' : '#f8fafc'), minHeight: 160, transition: 'all .4s' }}>
-                            <div style={{ fontSize: 10, fontWeight: 800, color: builtConcrete ? '#22c55e' : '#64748b', marginBottom: 6, display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: builtConcrete ? (darkMode ? '#4ade80' : '#15803d') : (darkMode ? '#94a3b8' : '#475569'), marginBottom: 6, display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
                                 <span>{builtConcrete ? '🏢' : '🏗️'}</span>
                                 <span>{isTr ? 'SOMUT (Concrete)' : 'CONCRETE'}</span>
                                 <span style={{ fontSize: 8, background: (builtConcrete ? '#22c55e' : '#64748b') + '20', color: builtConcrete ? '#22c55e' : '#64748b', borderRadius: 4, padding: '1px 5px' }}>{isTr ? 'GERÇEK SINIF' : 'REAL CLASS'}</span>
@@ -19737,12 +19741,12 @@ function TSLegoAbstractVisual({ isTr, darkMode }) {
                         </div>
                     </div>
                     <div style={{ background: darkMode ? '#1e293b' : '#f8fafc', border: `1px solid ${darkMode ? '#334155' : '#e2e8f0'}`, borderRadius: 8, padding: '8px 12px', marginBottom: 10 }}>
-                        <div style={{ fontSize: 10, fontWeight: 800, color: '#f59e0b', marginBottom: 4 }}>{'☕ '}{isTr ? "Java'da aynı kavram:" : 'Same concept in Java:'}</div>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: darkMode ? '#fbbf24' : '#b45309', marginBottom: 4 }}>{'☕ '}{isTr ? "Java'da aynı kavram:" : 'Same concept in Java:'}</div>
                         <div style={{ fontFamily: 'JetBrains Mono,monospace', fontSize: 9, lineHeight: 1.7, color: darkMode ? '#94a3b8' : '#475569' }}>
-                            <div><span style={{ color: '#ef4444', fontWeight: 800 }}>{'abstract'}</span>{` class Shape { `}<span style={{ color: '#f59e0b' }}>{'abstract void'}</span>{` draw(); }`}</div>
-                            <div>{`class Circle extends Shape { `}<span style={{ color: '#22c55e' }}>{'void draw'}</span>{`() { ... } }`}</div>
+                            <div><span style={{ color: darkMode ? '#f87171' : '#b91c1c', fontWeight: 800 }}>{'abstract'}</span>{` class Shape { `}<span style={{ color: darkMode ? '#fbbf24' : '#b45309' }}>{'abstract void'}</span>{` draw(); }`}</div>
+                            <div>{`class Circle extends Shape { `}<span style={{ color: darkMode ? '#4ade80' : '#15803d' }}>{'void draw'}</span>{`() { ... } }`}</div>
                         </div>
-                        <div style={{ marginTop: 4, fontSize: 9, color: '#94a3b8' }}>
+                        <div style={{ marginTop: 4, fontSize: 9, color: darkMode ? '#94a3b8' : '#64748b' }}>
                             {isTr ? '→ TypeScript sözdizimi Java ile neredeyse aynı — abstract keyword birebir var.' : '→ TypeScript syntax is almost identical to Java — the abstract keyword is there word for word.'}
                         </div>
                     </div>
@@ -19872,7 +19876,7 @@ function TSMiniHeroBlock({ block, darkMode, language }) {
                             </div>
                             {showModel && modelAnswer && (
                                 <div style={{ marginTop: 12, background: darkMode ? '#1f2937' : '#f3e8ff', border: '1px solid #a855f7', borderRadius: 10, padding: 14, fontSize: 13, color: darkMode ? '#f3e8ff' : '#4c1d95', lineHeight: 1.7, animation: 'fadeInUp .3s ease' }}>
-                                    <div style={{ fontWeight: 800, color: '#a855f7', marginBottom: 6 }}>📖 {isTr ? 'Model Açıklama:' : 'Model Explanation:'}</div>
+                                    <div style={{ fontWeight: 800, color: darkMode ? '#a855f7' : '#7e22ce', marginBottom: 6 }}>📖 {isTr ? 'Model Açıklama:' : 'Model Explanation:'}</div>
                                     {modelAnswer}
                                 </div>
                             )}
