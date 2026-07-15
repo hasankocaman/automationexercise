@@ -261,3 +261,81 @@ test.describe('Video-Scene — Dalga 4 (/linux, 9 yeni film + eksik animasyon/sa
         await context.close();
     });
 });
+
+// Dalga 5 (video-sitewide-plan.md) — /docker'ın 14 sekmesine dağıtılan 12 yeni
+// video-scene filmi (Dockerfile ve Docker Compose hariç, orada zaten Dalga 1+2
+// filmleri vardı) tek tek test edilmek yerine temsili 4 sekme ile hafif render
+// kontrolü yapılır: 🎯 Introduction (yeni film, önceden hiç yoktu), 📥 Images
+// (film + step-animation + code-playground sıfırdan eklendi), 🩺 Troubleshooting
+// ve 🔗 Ecosystem (gating'e TABİ DEĞİL — isDedicatedInterviewTab SADECE 💼
+// emoji'sini kilitliyor). 💼 Interview Q&A diğer sayfalardaki gibi quiz-gating
+// (%60, CLAUDE.md §22 AC2) ARKASINDA kalabileceği için burada TEST EDİLMİYOR.
+test.describe('Video-Scene — Dalga 5 (/docker, 12 yeni film + eksik animasyon/sandbox tamamlama)', () => {
+    test('/docker — 🎯 What is Docker? sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/docker');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/docker — 📥 Images sekmesinde film render olur (Dalga 5te sıfırdan eklendi)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/docker');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /📥 Images|📥 Image\'lar/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/docker — 🩺 Troubleshooting sekmesinde film render olur (gating YOK)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/docker');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🩺 Troubleshooting|🩺 Yaygın Hatalar/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/docker — 🔗 Ecosystem sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/docker');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🔗 Ecosystem|🔗 Ekosistem/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});

@@ -10,6 +10,91 @@
 
 ---
 
+## DALGA 5 — /docker (2026-07-15, TAMAMLANDI, commit BEKLİYOR)
+
+> `Documents/video-sitewide-plan.md` Bölüm 5'teki parametrik Sonnet şablonuyla
+> koşuldu (model: Sonnet, kullanıcı talimatıyla). 14 sekme, ≥14 eşiği nedeniyle
+> plandaki kurala göre 2 parçaya bölündü (Prompt A/B kalıbı): Batch 1 = 7 sekme
+> (Introduction/Installation/Images/Containers/Lifecycle & Debug/Volumes/
+> Networks), Batch 2 = 5 sekme (Selenium Grid/Playwright & CI/Troubleshooting/
+> Ecosystem/Interview Q&A) — Dockerfile ve Docker Compose zaten Dalga 1-2'den
+> film sahibiydi, dokunulmadı.
+>
+> **Önemli mimari keşif (bu oturumda yapıldı):** `dockerData.js` (ve linux/
+> git-github/gauge dahil çoğu sayfa) `interactiveTrioFillers.js`'teki
+> `fillMissingCodeTrios()` fonksiyonunu import + module-load'da çağırıyor —
+> bu fonksiyon, `bash/shell/sh/powershell/cmd/text` DIŞINDAKİ dillerdeki
+> (`dockerfile`, `yaml`, `python` vb.) her `code` bloğu için eksikse otomatik
+> step-animation + code-playground + challenge EKLİYOR (source dosyasında
+> GÖRÜNMEZ, sadece runtime'da). Bash/shell kodu bu auto-fill'in KAPSAMI
+> DIŞINDA — docker'ın "Core Commands" mega-bölümü (Images/Containers/
+> Lifecycle/Volumes/Networks) neredeyse tamamen bash olduğundan, oradaki
+> eksik animasyon/sandbox'lar ELLE tamamlandı; Selenium Grid/Playwright&CI
+> gibi yaml+python ağırlıklı sekmelerde auto-fill zaten devrede olduğundan
+> sadece FİLM eklendi.
+
+### Sekme × film × animasyon × sandbox matrisi (14 sekme, hepsi ✅)
+
+| Sekme | Video | Animasyon | Sandbox |
+|---|---|---|---|
+| 🎯 Introduction | ✅ `dockerWorksOnMyMachineFilm` (yeni) | ✅ css-animation + simulation (mevcut) | ✅ code-playground (`dockerIntroInteractiveBlocks`, mevcut) |
+| ⚙️ Installation | ✅ `dockerDesktopBackendFilm` (yeni) | ✅ step-animation (`dockerInstallationInteractiveBlocks`, mevcut) | ✅ code-playground + git-practice (mevcut) |
+| 📥 Images | ✅ `dockerImageLifecycleFilm` (yeni) | ✅ `dockerImageLifecycleSteps` (yeni) | ✅ `dockerImageLifecyclePractice` (yeni) |
+| 🚀 Containers: docker run | ✅ `dockerPortMappingFilm` (yeni) | ✅ `dockerPortMappingSteps` (yeni) | ✅ code-playground (mevcut) + `dockerRunFlagOrderChallenge` (yeni) |
+| 🔄 Lifecycle & Debug | ✅ `dockerCrashDebugFilm` (yeni) | ✅ simulation (mevcut) | ✅ `docker-sandbox` interaktif terminal (mevcut) |
+| 💾 Volumes | ✅ `dockerVolumePersistenceFilm` (yeni) | ✅ `dockerVolumeMountSteps` (yeni) | ✅ code-playground ×2 (mevcut) |
+| 🌐 Networks | ✅ `dockerNetworkDiscoveryFilm` (yeni) | ✅ step-animation (`dockerCoreCommandInteractiveBlocks`, mevcut) | ✅ code-playground (mevcut) |
+| 📝 Dockerfile | ✅ `dockerfileToContainerFilm` (Dalga 1) | ✅ auto-fill (`dockerfile` profili) | ✅ code-playground ×2 (mevcut) |
+| 🧩 Docker Compose | ✅ `composeStartupFilm` (Dalga 1) | ✅ `dockerComposeInteractiveBlocks` (mevcut) | ✅ code-playground ×2 (mevcut) |
+| 🧪 QA: Selenium Grid | ✅ `dockerGridScaleFilm` (yeni) | ✅ auto-fill (yaml/python profilleri) | ✅ code-playground (mevcut) + auto-fill |
+| 🎭 QA: Playwright & CI | ✅ `dockerPixelParityFilm` (yeni) | ✅ `dockerQaInteractiveBlocks` (mevcut) | ✅ code-playground (mevcut) |
+| 🩺 Troubleshooting | ✅ `dockerExitCodeDiagnosisFilm` (yeni) | ✅ `dockerExitCodeDiagnosisSteps` (yeni) | ✅ `dockerExitCodePractice` (yeni) |
+| 🔗 Ecosystem | ✅ `dockerLatestTagDriftFilm` (yeni) | ✅ `dockerEcosystemInteractiveBlocks` (mevcut) | ✅ code-playground (mevcut) |
+| 💼 Interview Q&A | ✅ `dockerInterviewAnswerFilm` (yeni) | ✅ `dockerInterviewAnswerSteps` (yeni) | ✅ `dockerInterviewPractice` (yeni) |
+
+12 yeni film + 8 ek destek bloğu (step-animation/code-playground/challenge),
+hepsi EN+TR ağaçlarının İKİSİNE de aynı referansla (bare identifier) eklendi;
+grep ile doğrulandı (hepsi 1 tanım + 2 kullanım = 3 toplam eşleşme). Hata
+Sözlüğü ve Mülakat sekmelerinde sıra linux/git-github kalıbı takip edildi:
+Troubleshooting = film → steps → `error-dictionary` (mevcut) → practice;
+Interview Q&A = film → steps → practice → `interview-questions` (mevcut).
+
+### Doğrulama (§1.1) — hepsi geçti
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (iki batch sonrasında da)
+- TR/EN sızıntı taraması: 21 yeni sabitin `tr`/`en` alanları programatik script
+  ile tek tek tarandı — gerçek İngilizce/Türkçe leakage YOK (flagged eşleşmeler
+  ya gerçek terminal/program çıktısıydı — `Error: image is being used by...`,
+  `Cannot connect to the Docker daemon` vb. — ya da YAML anahtarı `command:`
+  gibi yanlış pozitifti; elle tek tek doğrulandı).
+- `npm run build` → temiz; her iki batch\'te de ayrı ayrı koşuldu.
+  `dockerData` chunk'ı: batch 1 sonrası 321.68 kB/gzip 102.91 kB, batch 2
+  sonrası **354.87 kB / gzip 113.40 kB** — performans eşiğinin (gzip 350KB,
+  CLAUDE.md Bölüm 4) altında.
+- `npx playwright test tests/video-scene.spec.ts --workers=1` → **16/16 PASS**
+  (12 eski + 4 yeni Dalga 5 testi: 🎯 Introduction, 📥 Images, 🩺 Troubleshooting,
+  🔗 Ecosystem; 💼 Interview Q&A BİLEREK dışarıda bırakıldı — quiz-gating %60
+  kilidi arkasında).
+  - **Bilinen tuzak (gerçek bug DEĞİL):** Introduction testi ilk yazımda
+    section title metnini (`"🎯 What is Docker?"`) aradı ama sidebar
+    BUTONU'nun görünen adı `tabs[]` dizisindeki KISA etiket (`"🎯 Introduction"
+    / "🎯 Giriş"`) — docker'da SADECE Introduction ve Installation sekmelerinde
+    bu ikisi birbirinden FARKLI (diğer 12 sekmede `tabs[]` metni = section
+    title). Test bu farkı gözden kaçırdığı için ilk koşumda 1 test yanlış
+    buton arayıp timeout verdi; `tabs[]` metnine düzeltilince geçti. Yeni bir
+    sayfada test yazarken bu ayrımı kontrol et.
+  - Ayrıca: `/docker` rotasına SOĞUK (cold-start) giden ilk istek, dev
+    server'ın `TopicPage.jsx`'i (>500KB, Babel "deoptimised" uyarısı verir)
+    ilk kez transpile etmesi yüzünden 60s'lik test timeout'unu bazen aşıyor
+    (izole çalıştırıldığında gözlemlendi, tam suite içinde sunucu zaten
+    ısındığından sorun olmuyor) — gerçek bir içerik/kod hatası DEĞİL.
+
+### Sıradaki adım
+Bu Dalga 5 değişikliklerini (dockerData.js + tests/video-scene.spec.ts +
+bu dosya) commit et (kullanıcı onayıyla), sonra `Documents/video-sitewide-plan.md`
+sırasındaki Dalga 6'ya (/selenium) geç.
+
+---
+
 ## Branch Durumu — `feature/video-scene-dalga3` üzerinde çalışılıyor (2026-07-15)
 
 > **Şu an çalışılan branch: `feature/video-scene-dalga3`** (main `d97cc16`'dan
