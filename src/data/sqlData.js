@@ -189,6 +189,1987 @@ const sqlQueryOrderFilm = {
     },
   ],
 }
+// ─── Intro & Why film — SELECT'in bildirimsel (declarative) doğası ─────────
+const sqlIntroWhyFilm = {
+  type: 'video-scene',
+  id: 'sql-intro-why-film',
+  title: { tr: '🎬 SQL Neden "Nasıl" Değil "Ne" Sorar', en: '🎬 Why SQL Asks "What", Not "How"' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'request', emoji: '📝', label: { tr: 'SELECT İsteği', en: 'SELECT Request' }, color: '#6366f1' },
+    { id: 'javaLoop', emoji: '☕', label: { tr: 'Java for-döngüsü', en: 'Java for-loop' }, color: '#94a3b8' },
+    { id: 'engine', emoji: '🗄️', label: { tr: 'SQL Motoru', en: 'SQL Engine' }, color: '#0ea5e9' },
+    { id: 'plan', emoji: '🧭', label: { tr: 'Execution Plan', en: 'Execution Plan' }, color: '#f59e0b' },
+    { id: 'rows', emoji: '📦', label: { tr: 'Sonuç Satırları', en: 'Result Rows' }, color: '#22c55e' },
+    { id: 'final', emoji: '✅', label: { tr: 'QA Doğrulaması', en: 'QA Verification' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir QA mühendisi backend durumunu doğrulamak istiyor: "FAIL durumundaki testleri göster." Bunu Java\'da yazsaydın bir for-döngüsüyle listeyi elle tarardın; SQL\'de sadece SONUCU tarif edersin.',
+        en: 'A QA engineer wants to verify backend state: "show me the FAIL tests." In Java you would write a for-loop to walk the list by hand; in SQL you only describe the RESULT you want.',
+      },
+      code: { tr: `SELECT * FROM test_results WHERE status = 'FAIL';`, en: `SELECT * FROM test_results WHERE status = 'FAIL';` },
+      positions: { request: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Java\'da aynı isteği karşılamak için "nasıl" yapılacağını adım adım söylersin: listeyi gez, her elemanı kontrol et, uyanı ayrı bir listeye ekle. Bu emir cümlesi (imperative) tarzıdır.',
+        en: 'In Java, satisfying the same request means spelling out HOW step by step: walk the list, check each item, add matches to a new list. This is the imperative style.',
+      },
+      code: { tr: `for (TestResult r : results) {\n    if (r.getStatus().equals("FAIL")) {\n        failed.add(r);\n    }\n}`, en: `for (TestResult r : results) {\n    if (r.getStatus().equals("FAIL")) {\n        failed.add(r);\n    }\n}` },
+      positions: {
+        request: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        javaLoop: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'request', to: 'javaLoop', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'SQL motoru ise cümleyi hiç bu şekilde okumaz. İsteği alır ve kendi başına en verimli fiziksel planı (execution plan) üretir — index kullanılsın mı, tablo baştan mı taransın, motor karar verir.',
+        en: 'The SQL engine never reads the request that way. It receives the request and produces its own most efficient physical execution plan — whether to use an index or scan the table, the engine decides.',
+      },
+      positions: {
+        javaLoop: { x: 14, y: 60, scale: 0.7, opacity: 0.35 },
+        engine: { x: 40, y: 45, scale: 1.1, pulse: true },
+        plan: { x: 66, y: 55, scale: 1.15 },
+      },
+      beams: [{ from: 'engine', to: 'plan' }],
+    },
+    {
+      caption: {
+        tr: 'Plan çalıştırılır, tablo taranır, koşula uyan satırlar toplanır. Sen "nasıl tarayacağını" hiç yazmadın — sadece "FAIL olanları istiyorum" dedin.',
+        en: 'The plan executes, the table is scanned, matching rows are collected. You never wrote HOW to scan — you only said "I want the FAIL ones."',
+      },
+      positions: {
+        plan: { x: 30, y: 45, scale: 0.85, opacity: 0.6 },
+        rows: { x: 62, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'plan', to: 'rows' }],
+    },
+    {
+      caption: {
+        tr: 'Final: QA mühendisi için bu fark hayatidir — UI testinin arkasındaki gerçek veriyi doğrulamak için karmaşık bir traversal kodu yazmana gerek yok, sadece istediğin sonucu tarif eden tek satır SQL yeter.',
+        en: 'Final: for a QA engineer this difference matters — verifying the real data behind a UI test does not require writing complex traversal code, just one SQL line describing the result you want.',
+      },
+      positions: {
+        rows: { x: 30, y: 45, scale: 0.85, opacity: 0.6 },
+        final: { x: 66, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'rows', to: 'final' }],
+    },
+  ],
+}
+
+// ─── Installation film — İlk bağlantı akışı ─────────────────────────────────
+const sqlInstallationFilm = {
+  type: 'video-scene',
+  id: 'sql-installation-film',
+  title: { tr: '🎬 Kurulum Sonrası: İlk Bağlantı El Sıkışması', en: '🎬 After Installation: The First Connection Handshake' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'client', emoji: '💻', label: { tr: 'SQL İstemcisi', en: 'SQL Client' }, color: '#6366f1' },
+    { id: 'wrongAuth', emoji: '🔑', label: { tr: 'Yanlış Şifre', en: 'Wrong Password' }, color: '#94a3b8' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Reddedilen Bağlantı', en: 'Rejected Connection' }, color: '#ef4444' },
+    { id: 'engine', emoji: '🗄️', label: { tr: 'Veritabanı Sunucusu', en: 'Database Server' }, color: '#0ea5e9' },
+    { id: 'session', emoji: '🔌', label: { tr: 'Açık Session', en: 'Open Session' }, color: '#f59e0b' },
+    { id: 'verify', emoji: '✅', label: { tr: 'SELECT 1 Doğrulaması', en: 'SELECT 1 Verification' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Kurulum bitti ama iş burada bitmiyor — istemci, veritabanı sunucusuna gerçekten konuşabildiğini KANITLAMALI. İlk adım her zaman bir bağlantı denemesidir.',
+        en: 'Installation is done, but the job is not finished — the client must PROVE it can actually talk to the database server. The first step is always a connection attempt.',
+      },
+      positions: { client: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Yanlış şifreyle bağlanmaya çalışırsan sunucu seni tanımaz ve bağlantıyı reddeder — bu, kurulumun bozuk olduğu anlamına gelmez, sadece kimlik doğrulamanın çalıştığını gösterir.',
+        en: 'If you try to connect with the wrong password, the server does not recognize you and rejects the connection — this does NOT mean the install is broken, it proves authentication is working.',
+      },
+      code: { tr: `psql -U postgres -d testdb\n# Şifre: yanlis_sifre123`, en: `psql -U postgres -d testdb\n# Password: wrong_password123` },
+      positions: {
+        client: { x: 16, y: 40, scale: 0.9, opacity: 0.7 },
+        wrongAuth: { x: 45, y: 55, scale: 1.1 },
+        ghost: { x: 74, y: 45, opacity: 0.5, scale: 0.9 },
+      },
+      beams: [{ from: 'wrongAuth', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Doğru kimlik bilgileriyle tekrar denersin — sunucu bu sefer seni tanır ve bir oturum (session) açar. Kurulum artık gerçekten çalışıyor demektir.',
+        en: 'You try again with the correct credentials — this time the server recognizes you and opens a session. The installation is now genuinely working.',
+      },
+      code: { tr: `psql -U postgres -d testdb\n# Şifre: (doğru şifre)`, en: `psql -U postgres -d testdb\n# Password: (correct password)` },
+      positions: {
+        ghost: { x: 14, y: 60, scale: 0.65, opacity: 0.3 },
+        engine: { x: 44, y: 45, scale: 1.1, pulse: true },
+        session: { x: 72, y: 55, scale: 1.15 },
+      },
+      beams: [{ from: 'engine', to: 'session' }],
+    },
+    {
+      caption: {
+        tr: 'Son adım: kurulumu KANITLAYAN doğrulama sorgusu. `SELECT 1;` sonuç döndürüyorsa, istemciden motora kadar tüm zincir çalışıyor demektir — artık test veritabanına güvenle bağlanabilirsin.',
+        en: 'Final step: the verification query that PROVES the install. If `SELECT 1;` returns a result, the whole chain from client to engine works — you can now safely connect to your test database.',
+      },
+      code: { tr: `SELECT 1;\n-- çıktı: 1 satır döndü`, en: `SELECT 1;\n-- output: 1 row returned` },
+      positions: {
+        session: { x: 30, y: 45, scale: 0.85, opacity: 0.6 },
+        verify: { x: 66, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'session', to: 'verify' }],
+    },
+  ],
+}
+
+// ─── CREATE TABLE film — Şema kalıbı ve constraint reddi ───────────────────
+const sqlCreateTableFilm = {
+  type: 'video-scene',
+  id: 'sql-create-table-film',
+  title: { tr: '🎬 CREATE TABLE: Kalıcı Şema Kalıbı', en: '🎬 CREATE TABLE: The Permanent Schema Mold' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'blueprint', emoji: '📐', label: { tr: 'Şema Tasarımı', en: 'Schema Design' }, color: '#6366f1' },
+    { id: 'engine', emoji: '🗄️', label: { tr: 'Veritabanı Motoru', en: 'Database Engine' }, color: '#0ea5e9' },
+    { id: 'table', emoji: '🗂️', label: { tr: 'Kalıcı Tablo', en: 'Persistent Table' }, color: '#f59e0b' },
+    { id: 'badRow', emoji: '📦', label: { tr: 'Kısıtlamayı İhlal Eden Satır', en: 'Row Violating Constraint' }, color: '#8b5cf6' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Reddedilen INSERT', en: 'Rejected INSERT' }, color: '#ef4444' },
+    { id: 'goodRow', emoji: '✅', label: { tr: 'Kabul Edilen Satır', en: 'Accepted Row' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'CREATE TABLE, Java\'daki bir class tanımına benzer — ama fark şu: Java nesnesi program kapanınca bellekten silinir, SQL tablosu ise diske kalıcı olarak yazılır.',
+        en: 'CREATE TABLE resembles a Java class definition — but the difference is: a Java object disappears from memory when the program exits, while a SQL table is written permanently to disk.',
+      },
+      code: { tr: `CREATE TABLE test_results (\n    id     INT PRIMARY KEY,\n    status VARCHAR(10) NOT NULL\n);`, en: `CREATE TABLE test_results (\n    id     INT PRIMARY KEY,\n    status VARCHAR(10) NOT NULL\n);` },
+      positions: { blueprint: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Motor bu şemayı alır ve tabloyu fiziksel olarak diske kalıcı hale getirir. Artık her satır bu kalıba uymak ZORUNDADIR.',
+        en: 'The engine takes this schema and physically persists the table to disk. From now on every row is FORCED to conform to this mold.',
+      },
+      positions: {
+        blueprint: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        engine: { x: 45, y: 55, scale: 1.1 },
+        table: { x: 72, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'engine', to: 'table' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast: id sütununu boş bırakan bir INSERT deneriz. PRIMARY KEY NULL olamayacağı için motor bu satırı KABUL ETMEZ — kalıba uymayan hiçbir veri tabloya giremez.',
+        en: 'Contrast: we try an INSERT that leaves id empty. Since PRIMARY KEY can never be NULL, the engine REJECTS this row — no data that violates the mold can enter the table.',
+      },
+      code: { tr: `INSERT INTO test_results (status) VALUES ('PASS');\n-- HATA: id NOT NULL/PRIMARY KEY`, en: `INSERT INTO test_results (status) VALUES ('PASS');\n-- ERROR: id NOT NULL/PRIMARY KEY` },
+      positions: {
+        table: { x: 20, y: 40, scale: 0.9, opacity: 0.6 },
+        badRow: { x: 48, y: 55, scale: 1.1 },
+        ghost: { x: 76, y: 45, opacity: 0.5, scale: 0.9 },
+      },
+      beams: [{ from: 'badRow', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final: id ve status ile eksiksiz bir satır gönderdiğimizde, motor kalıba uyduğunu doğrular ve satırı kalıcı olarak kabul eder. QA için bu şu demektir: yanlış tanımlı bir sütun tipi, ilerideki test verisi eklemede sessiz hatalara yol açar.',
+        en: 'Final: when we send a complete row with id and status, the engine confirms it matches the mold and permanently accepts it. For QA this means: a wrongly defined column type can cause silent failures later when seeding test data.',
+      },
+      code: { tr: `INSERT INTO test_results (id, status) VALUES (1, 'PASS');\n-- OK`, en: `INSERT INTO test_results (id, status) VALUES (1, 'PASS');\n-- OK` },
+      positions: {
+        ghost: { x: 16, y: 60, scale: 0.65, opacity: 0.3 },
+        goodRow: { x: 62, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'table', to: 'goodRow' }],
+    },
+  ],
+}
+
+// ─── INSERT INTO film — Satır oluşturma ve tip/constraint reddi ─────────────
+const sqlInsertIntoFilm = {
+  type: 'video-scene',
+  id: 'sql-insert-into-film',
+  title: { tr: '🎬 INSERT INTO: Yeni Satırın Yolculuğu', en: '🎬 INSERT INTO: A New Row\'s Journey' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'newRow', emoji: '📦', label: { tr: 'Yeni Satır', en: 'New Row' }, color: '#6366f1' },
+    { id: 'check', emoji: '🔍', label: { tr: 'Tip/Constraint Kontrolü', en: 'Type/Constraint Check' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Reddedilen Satır', en: 'Rejected Row' }, color: '#ef4444' },
+    { id: 'table', emoji: '🗄️', label: { tr: 'test_results Tablosu', en: 'test_results Table' }, color: '#0ea5e9' },
+    { id: 'stored', emoji: '✅', label: { tr: 'Kalıcı Satır', en: 'Persisted Row' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'INSERT INTO, tabloya yeni bir satır teklif etmektir — Java\'da bir listeye `.add()` çağırmak gibi görünür ama SQL\'de bu satır önce bir denetimden geçmelidir.',
+        en: 'INSERT INTO proposes a new row to the table — it looks like calling `.add()` on a Java list, but in SQL this row must first pass an inspection.',
+      },
+      code: { tr: `INSERT INTO test_results (test_name, status)\nVALUES ('Signup Test', 'PASS');`, en: `INSERT INTO test_results (test_name, status)\nVALUES ('Signup Test', 'PASS');` },
+      positions: { newRow: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Motor her değeri sütunun tipiyle ve kısıtlamalarıyla (NOT NULL, UNIQUE, PRIMARY KEY) karşılaştırır — bu satır kalıba uyuyor mu diye kontrol eder.',
+        en: 'The engine checks every value against the column\'s type and constraints (NOT NULL, UNIQUE, PRIMARY KEY) — verifying this row fits the mold.',
+      },
+      positions: {
+        newRow: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        check: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'newRow', to: 'check' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast: aynı id ile ikinci bir satır eklemeye çalışırsak — PRIMARY KEY zaten kullanılmış olduğu için motor bu satırı reddeder, veritabanına asla girmez.',
+        en: 'Contrast: if we try inserting a second row with the same id — since PRIMARY KEY is already taken, the engine rejects this row, it never enters the database.',
+      },
+      code: { tr: `INSERT INTO test_results (id, test_name) VALUES (1, 'Duplicate');\n-- HATA: UNIQUE constraint failed`, en: `INSERT INTO test_results (id, test_name) VALUES (1, 'Duplicate');\n-- ERROR: UNIQUE constraint failed` },
+      positions: {
+        check: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        ghost: { x: 66, y: 55, opacity: 0.5, scale: 0.9 },
+      },
+      beams: [{ from: 'check', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final: kalıba uyan satır kontrolü geçer ve tabloya KALICI olarak yazılır. Java nesnesinin aksine, bu satır programı kapatsan da diskte durmaya devam eder.',
+        en: 'Final: a row that fits the mold passes the check and is written PERMANENTLY to the table. Unlike a Java object, this row keeps existing on disk even after the program closes.',
+      },
+      positions: {
+        ghost: { x: 16, y: 60, scale: 0.65, opacity: 0.3 },
+        table: { x: 42, y: 45, scale: 1.05 },
+        stored: { x: 70, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'table', to: 'stored' }],
+    },
+  ],
+}
+
+// ─── SELECT & Sort film — WHERE filtresi + ORDER BY sıralama ───────────────
+const sqlSelectSortFilm = {
+  type: 'video-scene',
+  id: 'sql-select-sort-film',
+  title: { tr: '🎬 SELECT: Önce Filtrele, Sonra Sırala', en: '🎬 SELECT: Filter First, Then Sort' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'table', emoji: '🗄️', label: { tr: 'Tüm Satırlar', en: 'All Rows' }, color: '#0ea5e9' },
+    { id: 'filter', emoji: '🔍', label: { tr: 'WHERE Filtresi', en: 'WHERE Filter' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Elenen Satır', en: 'Rejected Row' }, color: '#ef4444' },
+    { id: 'sorter', emoji: '🔀', label: { tr: 'ORDER BY', en: 'ORDER BY' }, color: '#8b5cf6' },
+    { id: 'result', emoji: '🏆', label: { tr: 'Sıralı Sonuç', en: 'Sorted Result' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Tabloda hem PASS hem FAIL satırları var. Amacımız: sadece FAIL olanları, en uzun süren en üstte olacak şekilde görmek.',
+        en: 'The table has both PASS and FAIL rows. Our goal: see only the FAIL ones, with the longest-running test at the top.',
+      },
+      code: { tr: `SELECT test_name, duration_ms\nFROM test_results\nWHERE status = 'FAIL'\nORDER BY duration_ms DESC;`, en: `SELECT test_name, duration_ms\nFROM test_results\nWHERE status = 'FAIL'\nORDER BY duration_ms DESC;` },
+      positions: { table: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'WHERE devreye girer: her satırı tek tek kontrol eder. `status = \'FAIL\'` olmayan satırlar burada elenir (soluk figür) ve sonraki adıma HİÇ ulaşmaz.',
+        en: 'WHERE kicks in: it checks each row one by one. Rows where `status = \'FAIL\'` is false are rejected here (faded figure) and NEVER reach the next step.',
+      },
+      positions: {
+        table: { x: 16, y: 40, scale: 0.9, opacity: 0.6 },
+        filter: { x: 45, y: 55, scale: 1.15, pulse: true },
+        ghost: { x: 74, y: 45, opacity: 0.5, scale: 0.85 },
+      },
+      beams: [{ from: 'filter', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Sadece FAIL satırları kalır. Şimdi ORDER BY devreye girer ve kalan satırları duration_ms\'e göre BÜYÜKTEN küçüğe diziyor.',
+        en: 'Only the FAIL rows remain. Now ORDER BY kicks in and arranges the remaining rows by duration_ms from LARGEST to smallest.',
+      },
+      positions: {
+        ghost: { x: 14, y: 60, scale: 0.6, opacity: 0.3 },
+        filter: { x: 34, y: 45, scale: 0.85, opacity: 0.6 },
+        sorter: { x: 66, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'filter', to: 'sorter' }],
+    },
+    {
+      caption: {
+        tr: 'Final: yalnızca FAIL testleri, en yavaş en üstte olacak şekilde sıralı geldi. Filtreleme HER ZAMAN sıralamadan önce çalışır — sıralamanın işi yalnızca zaten filtrelenmiş satırları düzenlemektir.',
+        en: 'Final: only FAIL tests arrive, with the slowest at the top. Filtering ALWAYS runs before sorting — sorting\'s only job is to arrange rows that are already filtered.',
+      },
+      positions: {
+        sorter: { x: 30, y: 45, scale: 0.85, opacity: 0.6 },
+        result: { x: 66, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'sorter', to: 'result' }],
+    },
+  ],
+}
+
+// ─── UPDATE & DELETE film — WHERE'siz komutun felaketi ─────────────────────
+const sqlUpdateDeleteFilm = {
+  type: 'video-scene',
+  id: 'sql-update-delete-film',
+  title: { tr: '🎬 WHERE\'siz UPDATE: Klasik QA Felaketi', en: '🎬 UPDATE Without WHERE: The Classic QA Disaster' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'table', emoji: '🗄️', label: { tr: 'test_results (500 satır)', en: 'test_results (500 rows)' }, color: '#0ea5e9' },
+    { id: 'noWhere', emoji: '💥', label: { tr: 'WHERE\'siz UPDATE', en: 'UPDATE Without WHERE' }, color: '#ef4444' },
+    { id: 'ghostAll', emoji: '👻', label: { tr: '500 Satır ETKİLENDİ', en: '500 Rows AFFECTED' }, color: '#ef4444' },
+    { id: 'safeSelect', emoji: '🔍', label: { tr: 'Önce SELECT ile Kontrol', en: 'Check with SELECT First' }, color: '#f59e0b' },
+    { id: 'safeWhere', emoji: '🎯', label: { tr: 'WHERE\'li UPDATE', en: 'UPDATE With WHERE' }, color: '#8b5cf6' },
+    { id: 'oneRow', emoji: '✅', label: { tr: '1 Satır Etkilendi', en: '1 Row Affected' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'test_results tablosunda 500 satır var. Bir mühendis "id=42 olan testi PASS yap" derken WHERE yazmayı unutuyor.',
+        en: 'The test_results table has 500 rows. An engineer means "mark test id=42 as PASS" but forgets to write WHERE.',
+      },
+      code: { tr: `UPDATE test_results SET status = 'PASS';\n-- WHERE YOK!`, en: `UPDATE test_results SET status = 'PASS';\n-- NO WHERE!` },
+      positions: { table: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Felaket: UPDATE her satırı hedef alır çünkü hiçbir koşul onu sınırlamıyor. 500 satırın TAMAMI status=\'PASS\' oluyor — geçmiş FAIL kayıtları sessizce kayboluyor.',
+        en: 'Disaster: UPDATE targets every row because no condition limits it. ALL 500 rows become status=\'PASS\' — the history of FAIL records silently vanishes.',
+      },
+      positions: {
+        table: { x: 16, y: 40, scale: 0.9, opacity: 0.6 },
+        noWhere: { x: 45, y: 55, scale: 1.15, pulse: true },
+        ghostAll: { x: 76, y: 45, opacity: 0.55, scale: 1.1 },
+      },
+      beams: [{ from: 'noWhere', to: 'ghostAll', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Doğru refleks: HERHANGİ bir UPDATE/DELETE yazmadan önce, aynı WHERE koşuluyla bir SELECT çalıştır. Kaç satırın etkileneceğini önceden GÖR.',
+        en: 'The correct reflex: before writing ANY UPDATE/DELETE, run a SELECT with the same WHERE condition. SEE how many rows will be affected beforehand.',
+      },
+      code: { tr: `SELECT * FROM test_results WHERE id = 42;\n-- 1 satır döner, doğrula`, en: `SELECT * FROM test_results WHERE id = 42;\n-- returns 1 row, verify` },
+      positions: {
+        ghostAll: { x: 14, y: 65, scale: 0.6, opacity: 0.3 },
+        safeSelect: { x: 50, y: 45, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Şimdi WHERE ile aynı komutu çalıştır — motor sadece id=42 olan TEK satırı hedefler, geri kalan 499 satır dokunulmadan kalır.',
+        en: 'Now run the same command WITH WHERE — the engine targets only the SINGLE row where id=42, the remaining 499 rows stay untouched.',
+      },
+      code: { tr: `UPDATE test_results SET status = 'PASS' WHERE id = 42;\n-- 1 satır etkilendi`, en: `UPDATE test_results SET status = 'PASS' WHERE id = 42;\n-- 1 row affected` },
+      positions: {
+        safeSelect: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        safeWhere: { x: 48, y: 55, scale: 1.1 },
+        oneRow: { x: 78, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'safeWhere', to: 'oneRow' }],
+    },
+    {
+      caption: {
+        tr: 'Kural asla değişmez: production\'da WHERE\'siz UPDATE/DELETE çalıştırmak kariyeri bitirebilecek bir hatadır. Her zaman önce SELECT ile aynı koşulu dene, sonra UPDATE/DELETE\'e geç.',
+        en: 'The rule never changes: running UPDATE/DELETE without WHERE in production is a career-ending mistake. Always test the same condition with SELECT first, then move to UPDATE/DELETE.',
+      },
+      positions: {
+        oneRow: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+    },
+  ],
+}
+
+// ─── NULL Values film — = NULL tuzağı vs IS NULL ───────────────────────────
+const sqlNullValuesFilm = {
+  type: 'video-scene',
+  id: 'sql-null-values-film',
+  title: { tr: '🎬 = NULL Tuzağı: Neden Hep 0 Satır Dönüyor', en: '🎬 The = NULL Trap: Why It Always Returns 0 Rows' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'row', emoji: '📦', label: { tr: 'phone = NULL Olan Satır', en: 'Row Where phone = NULL' }, color: '#8b5cf6' },
+    { id: 'eqNull', emoji: '❓', label: { tr: '= NULL Karşılaştırması', en: '= NULL Comparison' }, color: '#f59e0b' },
+    { id: 'unknown', emoji: '👻', label: { tr: 'UNKNOWN (0 Satır)', en: 'UNKNOWN (0 Rows)' }, color: '#ef4444' },
+    { id: 'isNull', emoji: '🔑', label: { tr: 'IS NULL Operatörü', en: 'IS NULL Operator' }, color: '#0ea5e9' },
+    { id: 'found', emoji: '✅', label: { tr: 'Doğru Bulunan Satır', en: 'Correctly Found Row' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Tabloda phone sütunu NULL olan bir satır var — telefon numarası hiç girilmemiş. Bu satırı bulmaya çalışıyoruz.',
+        en: 'The table has a row where the phone column is NULL — no phone number was ever entered. We are trying to find this row.',
+      },
+      positions: { row: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Sezgisel yaklaşım: `WHERE phone = NULL` yazarız — tıpkı Java\'da `x == null` gibi görünür. Ama SQL\'in üç değerli mantığında NULL hiçbir şeye "eşit" DEĞİLDİR, kendisi dahil.',
+        en: 'The intuitive approach: write `WHERE phone = NULL` — it looks like Java\'s `x == null`. But in SQL\'s three-valued logic, NULL is never "equal" to anything, not even itself.',
+      },
+      code: { tr: `SELECT * FROM users WHERE phone = NULL;`, en: `SELECT * FROM users WHERE phone = NULL;` },
+      positions: {
+        row: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        eqNull: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'row', to: 'eqNull' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: karşılaştırma UNKNOWN döner (TRUE değil!) ve WHERE sadece TRUE olan satırları tutar. Sonuç: 0 satır — telefon numarası eksik olan satır GERÇEKTEN var olsa bile.',
+        en: 'Result: the comparison evaluates to UNKNOWN (not TRUE!) and WHERE only keeps rows that are TRUE. Result: 0 rows — even though the row with the missing phone number REALLY exists.',
+      },
+      positions: {
+        eqNull: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        unknown: { x: 66, y: 55, opacity: 0.55, scale: 1.1 },
+      },
+      beams: [{ from: 'eqNull', to: 'unknown', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast: `IS NULL` özel bir operatördür — "eşitlik" sormaz, "bu değer bilinmiyor mu?" diye sorar. Bu soru NULL için TRUE döner.',
+        en: 'Contrast: `IS NULL` is a special operator — it does not ask "is this equal", it asks "is this value unknown?". This question returns TRUE for NULL.',
+      },
+      code: { tr: `SELECT * FROM users WHERE phone IS NULL;`, en: `SELECT * FROM users WHERE phone IS NULL;` },
+      positions: {
+        unknown: { x: 16, y: 60, scale: 0.65, opacity: 0.3 },
+        isNull: { x: 50, y: 45, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final: `IS NULL` doğru satırı bulur. QA için ders: bir sorgu 0 satır döndürüyorsa ve "olmaması gerekiyor" diye düşünüyorsan, ilk şüphelin `= NULL` yazıp yazmadığın olmalı.',
+        en: 'Final: `IS NULL` finds the correct row. Lesson for QA: if a query returns 0 rows and you think "that shouldn\'t happen", your first suspect should be whether you wrote `= NULL`.',
+      },
+      positions: {
+        isNull: { x: 30, y: 45, scale: 0.85, opacity: 0.6 },
+        found: { x: 66, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'isNull', to: 'found' }],
+    },
+  ],
+}
+
+// ─── SQL Query Order sekmesi — eksik sandbox (code-playground) ─────────────
+const sqlQueryOrderPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'sql-query-order',
+  id: 'sql-query-order-practice-01',
+  label: { tr: 'Micro Lab: Alias Kırılmasını Kendi Elinle Çöz', en: 'Micro Lab: Fix the Alias Break Yourself' },
+  language: 'sql',
+  task: {
+    tr: 'Filmdeki kuralı uygula: SELECT aşamasında tanımlanan bir alias, WHERE aşamasında henüz mevcut değildir çünkü WHERE, SELECT\'ten ÖNCE çalışır. TODO satırını, alias yerine ham sütun adını kullanarak tamamla.',
+    en: 'Apply the rule from the film: an alias defined in SELECT is not yet available in WHERE, because WHERE runs BEFORE SELECT. Complete the TODO line using the raw column name instead of the alias.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç mantıksal çalışma sırasını (FROM → WHERE → SELECT) elle uygulayarak pekiştirmek.',
+    en: 'This is not a real runtime; the goal is to reinforce the logical execution order (FROM → WHERE → SELECT) by applying it yourself.',
+  },
+  code: {
+    tr: `-- Hedef: sadece 5\'ten uzun süren testleri göster\nSELECT test_name, duration_ms AS slow_ms\nFROM test_results\nWHERE duration_ms > 5000;  -- alias değil, ham sütun adı!`,
+    en: `-- Goal: show only tests running longer than 5s\nSELECT test_name, duration_ms AS slow_ms\nFROM test_results\nWHERE duration_ms > 5000;  -- raw column, not the alias!`,
+  },
+  starterCode: {
+    tr: `-- Hedef: sadece 5sn'den uzun süren testleri göster\nSELECT test_name, duration_ms AS slow_ms\nFROM test_results\n-- TODO: WHERE koşulunu ham sütun adıyla yaz (alias kullanma!)`,
+    en: `-- Goal: show only tests running longer than 5s\nSELECT test_name, duration_ms AS slow_ms\nFROM test_results\n-- TODO: write the WHERE condition with the raw column name (do not use the alias!)`,
+  },
+  solutionCode: {
+    tr: `-- Hedef: sadece 5sn'den uzun süren testleri göster\nSELECT test_name, duration_ms AS slow_ms\nFROM test_results\nWHERE duration_ms > 5000;`,
+    en: `-- Goal: show only tests running longer than 5s\nSELECT test_name, duration_ms AS slow_ms\nFROM test_results\nWHERE duration_ms > 5000;`,
+  },
+  expected: {
+    tr: 'Sorgu hatasız çalışır ve duration_ms > 5000 olan satırları döndürür — slow_ms alias\'ı sadece SELECT çıktısında görünür isim olarak kalır.',
+    en: 'The query runs without error and returns rows where duration_ms > 5000 — the slow_ms alias remains only a display name in the SELECT output.',
+  },
+  hints: [
+    { tr: 'WHERE, SELECT\'ten ÖNCE çalıştığı için orada tanımlanan alias\'lar (slow_ms gibi) WHERE aşamasında henüz doğmamıştır.', en: 'Because WHERE runs BEFORE SELECT, aliases defined there (like slow_ms) do not yet exist during the WHERE stage.' },
+    { tr: 'TODO satırında `slow_ms` yerine gerçek sütun adı olan `duration_ms`\'i kullan.', en: 'In the TODO line, use the real column name `duration_ms` instead of `slow_ms`.' },
+    { tr: 'Doğru sözdizimi: `WHERE duration_ms > 5000;` — alias sadece SELECT çıktısında görünür.', en: 'The correct syntax is: `WHERE duration_ms > 5000;` — the alias only appears in the SELECT output.' },
+  ],
+  xpReward: 10,
+}
+
+// ─── Aggregate Functions film — Satırların tek özet değere çökmesi ─────────
+const sqlAggregateFilm = {
+  type: 'video-scene',
+  id: 'sql-aggregate-film',
+  title: { tr: '🎬 Aggregate: Yüzlerce Satır, Tek Sayı', en: '🎬 Aggregate: Hundreds of Rows, One Number' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'rows', emoji: '📦', label: { tr: 'Tüm Test Satırları', en: 'All Test Rows' }, color: '#0ea5e9' },
+    { id: 'count', emoji: '🔢', label: { tr: 'COUNT(*)', en: 'COUNT(*)' }, color: '#f59e0b' },
+    { id: 'avg', emoji: '📊', label: { tr: 'AVG(duration_ms)', en: 'AVG(duration_ms)' }, color: '#8b5cf6' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Ham Satırlar (Görünmez Oldu)', en: 'Raw Rows (Vanished)' }, color: '#94a3b8' },
+    { id: 'summary', emoji: '🏆', label: { tr: 'Tek Özet Satır', en: 'One Summary Row' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'test_results tablosunda 500 satır var. "Kaç test var, ortalama ne kadar sürüyor?" sorusuna cevap ararken 500 satırı tek tek OKUMAK istemeyiz.',
+        en: 'The test_results table has 500 rows. When asking "how many tests are there, what\'s the average duration?", we do NOT want to read 500 rows one by one.',
+      },
+      code: { tr: `SELECT COUNT(*) AS total, AVG(duration_ms) AS avg_ms\nFROM test_results;`, en: `SELECT COUNT(*) AS total, AVG(duration_ms) AS avg_ms\nFROM test_results;` },
+      positions: { rows: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'COUNT(*), satırları teker teker sayar ama sana her satırı GÖSTERMEZ — sadece kaç tane olduğunu söyler. 500 satır tek bir sayıya dönüşür.',
+        en: 'COUNT(*) counts rows one by one but does NOT show you each row — it only tells you how many there are. 500 rows collapse into a single number.',
+      },
+      positions: {
+        rows: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        count: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'rows', to: 'count' }],
+    },
+    {
+      caption: {
+        tr: 'Aynı anda AVG de tüm duration_ms değerlerini toplar ve satır sayısına böler. Ham satırlar artık görünmez oldu (soluk figür) — sadece özet kaldı.',
+        en: 'At the same time AVG sums all duration_ms values and divides by the row count. The raw rows have become invisible (faded figure) — only the summary remains.',
+      },
+      positions: {
+        count: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        avg: { x: 55, y: 55, scale: 1.15, pulse: true },
+        ghost: { x: 80, y: 45, opacity: 0.4, scale: 0.8 },
+      },
+      beams: [{ from: 'avg', to: 'ghost', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Final: 500 satır tek bir özet satıra çöktü — total=500, avg_ms=1840. Java analojisi: bu, bir List üzerinde `.stream().count()` ve `.stream().mapToInt(...).average()` çağırmak gibidir — ama SQL bunu TEK sorguda yapar.',
+        en: 'Final: 500 rows collapsed into one summary row — total=500, avg_ms=1840. Java analogy: this is like calling `.stream().count()` and `.stream().mapToInt(...).average()` on a List — but SQL does it in ONE query.',
+      },
+      positions: {
+        avg: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        summary: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'avg', to: 'summary' }],
+    },
+  ],
+}
+
+// ─── GROUP BY & HAVING film — Gruplama sonra grup filtreleme ──────────────
+const sqlGroupByHavingFilm = {
+  type: 'video-scene',
+  id: 'sql-group-by-having-film',
+  title: { tr: '🎬 GROUP BY Gruplar, HAVING Grupları Filtreler', en: '🎬 GROUP BY Buckets, HAVING Filters Buckets' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'rows', emoji: '📦', label: { tr: 'FAIL Satırları', en: 'FAIL Rows' }, color: '#6366f1' },
+    { id: 'buckets', emoji: '🗂️', label: { tr: 'env\'e Göre Gruplar', en: 'Groups by env' }, color: '#f59e0b' },
+    { id: 'having', emoji: '🚦', label: { tr: 'HAVING Kapısı', en: 'HAVING Gate' }, color: '#f97316' },
+    { id: 'ghostGroup', emoji: '👻', label: { tr: 'Elenen Grup (az hata)', en: 'Rejected Group (few failures)' }, color: '#ef4444' },
+    { id: 'passedGroup', emoji: '✅', label: { tr: 'Geçen Grup (çok hata)', en: 'Passed Group (many failures)' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Amaç: "5\'ten FAZLA hatası olan ortamları göster." Önce satırları env\'e (staging, prod) göre kovalara ayırmamız gerekiyor.',
+        en: 'Goal: "show environments with MORE THAN 5 failures." First we need to bucket rows by env (staging, prod).',
+      },
+      code: { tr: `SELECT env, COUNT(*) AS fails\nFROM test_results\nWHERE status = 'FAIL'\nGROUP BY env\nHAVING COUNT(*) > 5;`, en: `SELECT env, COUNT(*) AS fails\nFROM test_results\nWHERE status = 'FAIL'\nGROUP BY env\nHAVING COUNT(*) > 5;` },
+      positions: { rows: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'GROUP BY, satırları env değerine göre kovalara ayırır. Her kova artık TEK bir grup olarak işlem görür — satırlar birer birer değil, grup halinde ele alınır.',
+        en: 'GROUP BY buckets rows by their env value. Each bucket is now treated as a SINGLE group — rows are handled as a group, not one by one.',
+      },
+      positions: {
+        rows: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        buckets: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'rows', to: 'buckets' }],
+    },
+    {
+      caption: {
+        tr: 'HAVING devreye girer — ama WHERE\'den FARKLI bir şey filtreler: WHERE satırları eler, HAVING ise GRUPLARI eler. "staging" grubunda 3 hata var, 5\'i geçmiyor — bu grup reddedilir.',
+        en: 'HAVING kicks in — but it filters something DIFFERENT from WHERE: WHERE rejects rows, HAVING rejects GROUPS. The "staging" group has 3 failures, not over 5 — this group is rejected.',
+      },
+      positions: {
+        buckets: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        having: { x: 50, y: 55, scale: 1.15, pulse: true },
+        ghostGroup: { x: 80, y: 45, opacity: 0.5, scale: 0.9 },
+      },
+      beams: [{ from: 'having', to: 'ghostGroup', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: '"prod" grubunda ise 12 hata var — 5\'i geçiyor, HAVING kapısından GEÇER. Final: sadece gerçekten sorunlu ortamlar listelenir.',
+        en: 'The "prod" group has 12 failures — it exceeds 5, it PASSES through the HAVING gate. Final: only environments that are genuinely problematic are listed.',
+      },
+      positions: {
+        ghostGroup: { x: 14, y: 62, scale: 0.6, opacity: 0.3 },
+        having: { x: 30, y: 45, scale: 0.85, opacity: 0.6 },
+        passedGroup: { x: 66, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'having', to: 'passedGroup' }],
+    },
+  ],
+}
+
+// ─── SQL JOINs film — INNER vs LEFT JOIN eşleşmeyen satır ──────────────────
+const sqlJoinsFilm = {
+  type: 'video-scene',
+  id: 'sql-joins-film',
+  title: { tr: '🎬 INNER JOIN Kaybeder, LEFT JOIN Korur', en: '🎬 INNER JOIN Loses It, LEFT JOIN Keeps It' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'testers', emoji: '🧑‍💼', label: { tr: 'testers Tablosu', en: 'testers Table' }, color: '#6366f1' },
+    { id: 'bugs', emoji: '🐞', label: { tr: 'bugs Tablosu', en: 'bugs Table' }, color: '#f59e0b' },
+    { id: 'inner', emoji: '🔗', label: { tr: 'INNER JOIN', en: 'INNER JOIN' }, color: '#8b5cf6' },
+    { id: 'ghostTester', emoji: '👻', label: { tr: 'Bug\'ı Olmayan Tester (Kayboldu)', en: 'Tester Without Bugs (Vanished)' }, color: '#ef4444' },
+    { id: 'leftJoin', emoji: '🔀', label: { tr: 'LEFT JOIN', en: 'LEFT JOIN' }, color: '#0ea5e9' },
+    { id: 'nullFill', emoji: '⬜', label: { tr: 'NULL ile Dolduruldu', en: 'Filled with NULL' }, color: '#94a3b8' },
+    { id: 'final', emoji: '✅', label: { tr: 'Tüm Testerlar Görünür', en: 'All Testers Visible' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'İki tablo var: testers (3 kişi) ve bugs (sadece 2 kişinin raporladığı hatalar). Amaç: her testerın kaç bug raporladığını görmek.',
+        en: 'There are two tables: testers (3 people) and bugs (bugs reported by only 2 of them). Goal: see how many bugs each tester reported.',
+      },
+      positions: { testers: { x: 30, y: 45, scale: 1.05 }, bugs: { x: 70, y: 55, scale: 1.05 } },
+    },
+    {
+      caption: {
+        tr: 'INNER JOIN ile denersek: sadece HER İKİ tabloda da eşleşme olan satırlar kalır. Hiç bug raporlamamış tester tamamen KAYBOLUR — sanki hiç yokmuş gibi.',
+        en: 'If we use INNER JOIN: only rows with a match in BOTH tables survive. A tester who never reported a bug DISAPPEARS entirely — as if they never existed.',
+      },
+      code: { tr: `SELECT t.name, COUNT(b.id) AS bugs\nFROM testers t\nINNER JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.name;`, en: `SELECT t.name, COUNT(b.id) AS bugs\nFROM testers t\nINNER JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.name;` },
+      positions: {
+        testers: { x: 16, y: 40, scale: 0.9, opacity: 0.6 },
+        bugs: { x: 16, y: 65, scale: 0.9, opacity: 0.6 },
+        inner: { x: 46, y: 52, scale: 1.1, pulse: true },
+        ghostTester: { x: 78, y: 45, opacity: 0.5, scale: 0.9 },
+      },
+      beams: [{ from: 'inner', to: 'ghostTester', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast: LEFT JOIN yazarsak — sol tablodaki (testers) TÜM satırlar korunur. Eşleşme yoksa sağ taraf (bug bilgisi) NULL ile doldurulur, satır KAYBOLMAZ.',
+        en: 'Contrast: if we write LEFT JOIN — ALL rows from the left table (testers) are preserved. If there is no match, the right side (bug info) is filled with NULL, the row does NOT vanish.',
+      },
+      code: { tr: `SELECT t.name, COUNT(b.id) AS bugs\nFROM testers t\nLEFT JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.name;`, en: `SELECT t.name, COUNT(b.id) AS bugs\nFROM testers t\nLEFT JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.name;` },
+      positions: {
+        ghostTester: { x: 14, y: 62, scale: 0.6, opacity: 0.3 },
+        leftJoin: { x: 48, y: 45, scale: 1.15, pulse: true },
+        nullFill: { x: 76, y: 55, scale: 0.95 },
+      },
+      beams: [{ from: 'leftJoin', to: 'nullFill' }],
+    },
+    {
+      caption: {
+        tr: 'Final: bug raporlamayan tester bile listede görünür — bugs=0 ile. QA raporlaması için LEFT JOIN kritiktir: "hiç hata bulmayan" testerları da GÖRMEK isteriz, onları listeden silmek değil.',
+        en: 'Final: even the tester who reported no bugs appears in the list — with bugs=0. LEFT JOIN is critical for QA reporting: we WANT to see testers who found zero bugs too, not erase them from the list.',
+      },
+      positions: {
+        nullFill: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        final: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'nullFill', to: 'final' }],
+    },
+  ],
+}
+
+// ─── Subqueries film — İç sorgu önce çalışır ────────────────────────────────
+const sqlSubqueriesFilm = {
+  type: 'video-scene',
+  id: 'sql-subqueries-film',
+  title: { tr: '🎬 Alt Sorgu: İçeriden Dışarıya Doğru Çalışır', en: '🎬 Subquery: Executes From Inside Out' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'inner', emoji: '🔎', label: { tr: 'İç Sorgu (AVG)', en: 'Inner Query (AVG)' }, color: '#f59e0b' },
+    { id: 'value', emoji: '📦', label: { tr: 'Tek Sonuç Değeri', en: 'Single Result Value' }, color: '#8b5cf6' },
+    { id: 'outer', emoji: '🗄️', label: { tr: 'Dış Sorgu', en: 'Outer Query' }, color: '#0ea5e9' },
+    { id: 'ghostLoop', emoji: '👻', label: { tr: 'Correlated: Her Satır İçin Tekrar', en: 'Correlated: Reruns Per Row' }, color: '#ef4444' },
+    { id: 'final', emoji: '✅', label: { tr: 'Filtrelenmiş Sonuç', en: 'Filtered Result' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Amaç: "ortalamadan daha uzun süren testleri bul." Bu soruda önce "ortalama nedir?" sorusunun cevaplanması gerekiyor — bu, iç sorgunun işi.',
+        en: 'Goal: "find tests that ran longer than average." This question requires first answering "what is the average?" — that is the inner query\'s job.',
+      },
+      code: { tr: `SELECT * FROM test_results\nWHERE duration_ms > (\n    SELECT AVG(duration_ms) FROM test_results\n);`, en: `SELECT * FROM test_results\nWHERE duration_ms > (\n    SELECT AVG(duration_ms) FROM test_results\n);` },
+      positions: { inner: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Motor önce parantez içindeki iç sorguyu TAMAMEN çalıştırır — BİR KEZ. Bu sorgu tek bir sayı üretir: ortalama süre.',
+        en: 'The engine fully executes the inner query inside the parentheses FIRST — ONCE. This query produces a single number: the average duration.',
+      },
+      positions: {
+        inner: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        value: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'inner', to: 'value' }],
+    },
+    {
+      caption: {
+        tr: 'Bu tek değer artık dış sorgunun WHERE koşuluna sabit bir sayı gibi enjekte edilir — sanki `WHERE duration_ms > 1840` yazmışsın gibi.',
+        en: 'This single value is now injected into the outer query\'s WHERE condition like a fixed number — as if you had written `WHERE duration_ms > 1840`.',
+      },
+      positions: {
+        value: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        outer: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'value', to: 'outer' }],
+    },
+    {
+      caption: {
+        tr: 'Uyarı: bir de "correlated" alt sorgu türü var — dış sorgudaki bir sütuna referans verir ve dış sorgunun HER satırı için TEKRAR TEKRAR çalışır. Büyük tablolarda bu çok yavaş olabilir.',
+        en: 'Warning: there is also a "correlated" subquery type — it references a column from the outer query and REPEATS for EACH row of the outer query. On large tables this can be very slow.',
+      },
+      code: { tr: `SELECT t.name,\n  (SELECT COUNT(*) FROM bugs b WHERE b.tester_id = t.id) AS bug_count\nFROM testers t;`, en: `SELECT t.name,\n  (SELECT COUNT(*) FROM bugs b WHERE b.tester_id = t.id) AS bug_count\nFROM testers t;` },
+      positions: {
+        outer: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        ghostLoop: { x: 60, y: 55, opacity: 0.5, scale: 1.05 },
+      },
+      beams: [{ from: 'outer', to: 'ghostLoop', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final: basit alt sorgu bir kez çalışıp filtrelenmiş sonucu döndürür — hızlıdır. Correlated alt sorgu tekrar tekrar çalışır — mümkünse yerine JOIN kullan.',
+        en: 'Final: a simple subquery runs once and returns the filtered result — it is fast. A correlated subquery reruns repeatedly — use a JOIN instead when possible.',
+      },
+      positions: {
+        ghostLoop: { x: 16, y: 62, scale: 0.6, opacity: 0.3 },
+        final: { x: 60, y: 50, scale: 1.25, pulse: true },
+      },
+    },
+  ],
+}
+
+// ─── LIKE/BETWEEN/IN film — Üç farklı filtreleme mekanizması ───────────────
+const sqlLikeBetweenInFilm = {
+  type: 'video-scene',
+  id: 'sql-like-between-in-film',
+  title: { tr: '🎬 LIKE, BETWEEN, IN: Üç Farklı Eşleşme Şekli', en: '🎬 LIKE, BETWEEN, IN: Three Different Ways to Match' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'rows', emoji: '📦', label: { tr: 'Test Satırları', en: 'Test Rows' }, color: '#0ea5e9' },
+    { id: 'like', emoji: '🔤', label: { tr: "LIKE '%Login%'", en: "LIKE '%Login%'" }, color: '#f59e0b' },
+    { id: 'between', emoji: '📏', label: { tr: 'BETWEEN 1000 AND 3000', en: 'BETWEEN 1000 AND 3000' }, color: '#8b5cf6' },
+    { id: 'inList', emoji: '📋', label: { tr: "IN ('staging','prod')", en: "IN ('staging','prod')" }, color: '#6366f1' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Eşleşmeyen Satır', en: 'Non-matching Row' }, color: '#ef4444' },
+    { id: 'matched', emoji: '✅', label: { tr: 'Eşleşen Satırlar', en: 'Matched Rows' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Üç farklı arama ihtiyacımız var: isimde bir kelime GEÇEN testler, bir SÜRE ARALIĞINDAKİ testler, belirli bir LİSTEDEKİ ortamlar. Her biri farklı bir operatör ister.',
+        en: 'We have three different search needs: tests where the name CONTAINS a word, tests within a DURATION RANGE, environments in a specific LIST. Each needs a different operator.',
+      },
+      positions: { rows: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: '`LIKE \'%Login%\'` bir DESEN arar: % işareti "önce/sonra herhangi bir şey olabilir" demektir. "Login Test" ve "User Login Flow" ikisi de eşleşir, "Checkout" eşleşmez (soluk figür).',
+        en: '`LIKE \'%Login%\'` searches for a PATTERN: the % sign means "anything can come before/after". Both "Login Test" and "User Login Flow" match, "Checkout" does not (faded figure).',
+      },
+      code: { tr: `SELECT * FROM test_results WHERE test_name LIKE '%Login%';`, en: `SELECT * FROM test_results WHERE test_name LIKE '%Login%';` },
+      positions: {
+        rows: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        like: { x: 50, y: 55, scale: 1.15, pulse: true },
+        ghost: { x: 80, y: 45, opacity: 0.5, scale: 0.85 },
+      },
+      beams: [{ from: 'like', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: '`BETWEEN 1000 AND 3000` bir ARALIK arar: iki sınır DAHİL olmak üzere arasındaki her değeri kabul eder — 999 veya 3001 kabul edilmez.',
+        en: '`BETWEEN 1000 AND 3000` searches a RANGE: it accepts every value between the two bounds, INCLUSIVE — 999 or 3001 are not accepted.',
+      },
+      code: { tr: `SELECT * FROM test_results WHERE duration_ms BETWEEN 1000 AND 3000;`, en: `SELECT * FROM test_results WHERE duration_ms BETWEEN 1000 AND 3000;` },
+      positions: {
+        like: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        between: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'like', to: 'between' }],
+    },
+    {
+      caption: {
+        tr: '`IN (\'staging\', \'prod\')` bir LİSTE arar: birden fazla `OR environment = X` yazmak yerine, kabul edilecek tüm değerleri tek satırda listelersin.',
+        en: '`IN (\'staging\', \'prod\')` searches a LIST: instead of writing multiple `OR environment = X`, you list all accepted values in one line.',
+      },
+      code: { tr: `SELECT * FROM test_results WHERE environment IN ('staging', 'prod');`, en: `SELECT * FROM test_results WHERE environment IN ('staging', 'prod');` },
+      positions: {
+        between: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        inList: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'between', to: 'inList' }],
+    },
+    {
+      caption: {
+        tr: 'Final: üçü de farklı bir eşleşme mantığı sunar ama ortak amaçları aynıdır — WHERE\'i tek tek `=` yazmaktan kurtarıp okunabilir hale getirmek.',
+        en: 'Final: all three offer a different matching logic but share the same purpose — freeing WHERE from writing `=` one by one and making it readable.',
+      },
+      positions: {
+        inList: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        matched: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'inList', to: 'matched' }],
+    },
+  ],
+}
+
+// ─── Window Functions film — Satırlar KORUNUR, GROUP BY gibi çökmez ───────
+const sqlWindowFunctionsFilm = {
+  type: 'video-scene',
+  id: 'sql-window-functions-film',
+  title: { tr: '🎬 Window Function: Satırları Kaybetmeden Sırala', en: '🎬 Window Function: Rank Without Losing Rows' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'rows', emoji: '📦', label: { tr: 'Tüm Satırlar (Korunur)', en: 'All Rows (Preserved)' }, color: '#6366f1' },
+    { id: 'partition', emoji: '🪟', label: { tr: 'PARTITION BY env', en: 'PARTITION BY env' }, color: '#f59e0b' },
+    { id: 'rank', emoji: '🏅', label: { tr: 'RANK() OVER', en: 'RANK() OVER' }, color: '#8b5cf6' },
+    { id: 'groupGhost', emoji: '👻', label: { tr: 'GROUP BY Olsaydı: Satırlar Kaybolurdu', en: 'If GROUP BY: Rows Would Vanish' }, color: '#ef4444' },
+    { id: 'final', emoji: '✅', label: { tr: 'Sıralı AMA Tam Satırlar', en: 'Ranked BUT Full Rows' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Amaç: her ortamda (env) testleri süreye göre sırala — ama HER satırı ayrı ayrı görmeye devam etmek istiyoruz, GROUP BY gibi özet satıra çökmesin.',
+        en: 'Goal: rank tests by duration within each env — but we still want to see EVERY row individually, not collapsed into a summary like GROUP BY.',
+      },
+      code: { tr: `SELECT test_name, environment, duration_ms,\n  RANK() OVER (PARTITION BY environment ORDER BY duration_ms DESC) AS rnk\nFROM test_results;`, en: `SELECT test_name, environment, duration_ms,\n  RANK() OVER (PARTITION BY environment ORDER BY duration_ms DESC) AS rnk\nFROM test_results;` },
+      positions: { rows: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'PARTITION BY, satırları env\'e göre gruplara ayırır — GROUP BY\'a benzer bir bölme. AMA fark hemen sonraki sahnede ortaya çıkacak.',
+        en: 'PARTITION BY divides rows into groups by env — a split that looks like GROUP BY. BUT the difference reveals itself in the next scene.',
+      },
+      positions: {
+        rows: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        partition: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'rows', to: 'partition' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — GROUP BY olsaydı: env başına TEK bir özet satır kalır, hangi testin hangi sırada olduğu bilgisi tamamen KAYBOLURDU (hayalet).',
+        en: 'Contrast — if GROUP BY were used instead: only ONE summary row per env would remain, all information about which test ranked where would be COMPLETELY LOST (ghost).',
+      },
+      positions: {
+        partition: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        groupGhost: { x: 60, y: 55, opacity: 0.5, scale: 1.05 },
+      },
+      beams: [{ from: 'partition', to: 'groupGhost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'RANK() OVER ise farklı davranır: her satır kendi kimliğini KORUR, sadece yanına bir sıra numarası eklenir. Hiçbir satır kaybolmaz veya birleşmez.',
+        en: 'RANK() OVER behaves differently: every row KEEPS its own identity, only a rank number is added next to it. No row is lost or merged.',
+      },
+      positions: {
+        groupGhost: { x: 14, y: 62, scale: 0.6, opacity: 0.3 },
+        rank: { x: 50, y: 45, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final: env başına sıralanmış AMA TAM satır listesi elde ederiz — "her testi göster, ayrıca hangi sırada olduğunu da söyle." Bu, GROUP BY\'ın asla veremeyeceği bir sonuçtur.',
+        en: 'Final: we get a ranked list PER env but with FULL rows preserved — "show every test, and also tell me its rank." This is a result GROUP BY could never give.',
+      },
+      positions: {
+        rank: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        final: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'rank', to: 'final' }],
+    },
+  ],
+}
+
+// ─── CTEs film — WITH bloğu okunabilir ara adım ────────────────────────────
+const sqlCtesFilm = {
+  type: 'video-scene',
+  id: 'sql-ctes-film',
+  title: { tr: '🎬 CTE: İç İçe Karmaşadan Okunabilir Adımlara', en: '🎬 CTE: From Nested Chaos to Readable Steps' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'messy', emoji: '🌀', label: { tr: 'İç İçe Alt Sorgu', en: 'Nested Subquery' }, color: '#ef4444' },
+    { id: 'cte1', emoji: '📦', label: { tr: 'CTE: failed_tests', en: 'CTE: failed_tests' }, color: '#f59e0b' },
+    { id: 'cte2', emoji: '📦', label: { tr: 'CTE: env_failures', en: 'CTE: env_failures' }, color: '#8b5cf6' },
+    { id: 'final', emoji: '✅', label: { tr: 'Okunabilir Sonuç', en: 'Readable Result' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Karmaşık bir soru: "5\'ten fazla FAIL alan ortamları göster." Bunu tek bir iç içe alt sorguyla yazmaya çalışırsak, parantezler birbirine karışır ve okunması ZORLAŞIR.',
+        en: 'A complex question: "show environments with more than 5 FAILs." Trying to write this as a single nested subquery makes the parentheses tangle and HARD to read.',
+      },
+      code: { tr: `SELECT * FROM (\n  SELECT environment, COUNT(*) c FROM (\n    SELECT * FROM test_results WHERE status='FAIL'\n  ) x GROUP BY environment\n) y WHERE c > 5;  -- okumak zor!`, en: `SELECT * FROM (\n  SELECT environment, COUNT(*) c FROM (\n    SELECT * FROM test_results WHERE status='FAIL'\n  ) x GROUP BY environment\n) y WHERE c > 5;  -- hard to read!` },
+      positions: { messy: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'CTE devreye girer: `WITH failed_tests AS (...)` — ilk adımı ADLANDIRILMIŞ, geçici bir tabloya dönüştürür. Artık bu adım kendi başına OKUNABİLİR.',
+        en: 'CTE steps in: `WITH failed_tests AS (...)` — turns the first step into a NAMED, temporary table. This step is now READABLE on its own.',
+      },
+      code: { tr: `WITH failed_tests AS (\n    SELECT * FROM test_results WHERE status = 'FAIL'\n)`, en: `WITH failed_tests AS (\n    SELECT * FROM test_results WHERE status = 'FAIL'\n)` },
+      positions: {
+        messy: { x: 16, y: 60, scale: 0.65, opacity: 0.35 },
+        cte1: { x: 50, y: 45, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'İkinci CTE, birinciye referans verir: `env_failures AS (SELECT ... FROM failed_tests GROUP BY env)`. Her adım kendinden ÖNCEKİ adımı isimle çağırır — sanki cümle cümle okuyorsun.',
+        en: 'The second CTE references the first: `env_failures AS (SELECT ... FROM failed_tests GROUP BY env)`. Each step calls the PREVIOUS step by name — like reading sentence by sentence.',
+      },
+      code: { tr: `WITH failed_tests AS (...),\nenv_failures AS (\n    SELECT environment, COUNT(*) AS fails\n    FROM failed_tests\n    GROUP BY environment\n)`, en: `WITH failed_tests AS (...),\nenv_failures AS (\n    SELECT environment, COUNT(*) AS fails\n    FROM failed_tests\n    GROUP BY environment\n)` },
+      positions: {
+        cte1: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        cte2: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cte1', to: 'cte2' }],
+    },
+    {
+      caption: {
+        tr: 'Final: `SELECT * FROM env_failures WHERE fails > 5;` — son sorgu tek satırda okunur. Java analojisi: bu, uzun bir tek satırlık ifade yerine ara değişkenlere (`var step1 = ...`) bölmek gibidir.',
+        en: 'Final: `SELECT * FROM env_failures WHERE fails > 5;` — the last query reads in one line. Java analogy: this is like splitting one giant expression into intermediate variables (`var step1 = ...`).',
+      },
+      positions: {
+        cte2: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        final: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'cte2', to: 'final' }],
+    },
+  ],
+}
+
+// ─── Transactions film — BEGIN/COMMIT/ROLLBACK atomikliği ──────────────────
+const sqlTransactionsFilm = {
+  type: 'video-scene',
+  id: 'sql-transactions-film',
+  title: { tr: '🎬 Transaction: Ya Hepsi, Ya Hiçbiri', en: '🎬 Transaction: All or Nothing' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'begin', emoji: '🚦', label: { tr: 'BEGIN', en: 'BEGIN' }, color: '#6366f1' },
+    { id: 'step1', emoji: '➖', label: { tr: 'Bakiye Düş (A hesabı)', en: 'Debit (Account A)' }, color: '#f59e0b' },
+    { id: 'crash', emoji: '💥', label: { tr: 'Kesinti / Hata', en: 'Crash / Error' }, color: '#ef4444' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Yarım Kalan Değişiklik', en: 'Half-applied Change' }, color: '#ef4444' },
+    { id: 'rollback', emoji: '⏪', label: { tr: 'ROLLBACK', en: 'ROLLBACK' }, color: '#8b5cf6' },
+    { id: 'safe', emoji: '✅', label: { tr: 'Eski Hale Dönüldü', en: 'Restored to Before' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test verisi kurulumu: A hesabından B hesabına 100 birim aktarılacak — bu iki UPDATE ya BİRLİKTE başarılı olmalı ya da HİÇBİRİ uygulanmamalı.',
+        en: 'Test data setup: transferring 100 units from account A to account B — these two UPDATEs must either succeed TOGETHER or NEITHER apply at all.',
+      },
+      code: { tr: `BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;`, en: `BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;` },
+      positions: { begin: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'BEGIN ile transaction açılır. İlk UPDATE çalışır: A hesabından 100 düşülür. Ama bu değişiklik HENÜZ kalıcı değil — sadece transaction\'ın içinde bekliyor.',
+        en: 'BEGIN opens the transaction. The first UPDATE runs: 100 is deducted from account A. But this change is NOT yet permanent — it only waits inside the transaction.',
+      },
+      positions: {
+        begin: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        step1: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'begin', to: 'step1' }],
+    },
+    {
+      caption: {
+        tr: 'Kesinti! İkinci UPDATE çalışmadan bağlantı kopuyor veya hata fırlıyor. Şu an sistemde YARIM kalmış bir durum var: A\'dan düşüldü ama B\'ye eklenmedi.',
+        en: 'Interruption! The connection drops or an error is thrown before the second UPDATE runs. Right now the system is in a HALF-applied state: deducted from A but not added to B.',
+      },
+      positions: {
+        step1: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        crash: { x: 50, y: 55, scale: 1.15, pulse: true },
+        ghost: { x: 78, y: 45, opacity: 0.5, scale: 0.9 },
+      },
+      beams: [{ from: 'crash', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Motor devreye girer: transaction tamamlanmadığı için otomatik veya elle ROLLBACK çalıştırılır — A hesabındaki 100 birim, hiç düşülmemiş gibi GERİ GELİR.',
+        en: 'The engine steps in: since the transaction never completed, ROLLBACK runs automatically or manually — the 100 units in account A come BACK as if never deducted.',
+      },
+      code: { tr: `ROLLBACK;\n-- A hesabı eski bakiyesine döner`, en: `ROLLBACK;\n-- account A returns to its previous balance` },
+      positions: {
+        ghost: { x: 14, y: 62, scale: 0.6, opacity: 0.3 },
+        rollback: { x: 48, y: 45, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final: sistem transaction öncesindeki HALİYLE aynı — hiçbir bakiye tutarsız kalmadı. Kontrast: transaction OLMASAYDI, ilk UPDATE kalıcı olurdu ve para "kaybolurdu".',
+        en: 'Final: the system is EXACTLY as it was before the transaction — no balance ends up inconsistent. Contrast: WITHOUT a transaction, the first UPDATE would have stuck and the money would "vanish".',
+      },
+      positions: {
+        rollback: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        safe: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'rollback', to: 'safe' }],
+    },
+  ],
+}
+
+// ─── Indexes & Views film — Full table scan vs Index scan ─────────────────
+const sqlIndexesViewsFilm = {
+  type: 'video-scene',
+  id: 'sql-indexes-views-film',
+  title: { tr: '🎬 Index: Kitabın Sonundaki Dizin Gibi Atla', en: '🎬 Index: Jump Like a Book\'s Back Index' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'query', emoji: '🔍', label: { tr: "WHERE status='FAIL'", en: "WHERE status='FAIL'" }, color: '#6366f1' },
+    { id: 'fullScan', emoji: '🐢', label: { tr: 'Full Table Scan', en: 'Full Table Scan' }, color: '#94a3b8' },
+    { id: 'ghost', emoji: '👻', label: { tr: '49.995 Gereksiz Satır Okundu', en: '49,995 Unnecessary Rows Read' }, color: '#ef4444' },
+    { id: 'index', emoji: '📇', label: { tr: 'CREATE INDEX (B-tree)', en: 'CREATE INDEX (B-tree)' }, color: '#f59e0b' },
+    { id: 'fastScan', emoji: '⚡', label: { tr: 'Index Scan', en: 'Index Scan' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '50.000 satırlık bir tabloda `status = \'FAIL\'` sorgusu var. Index YOKSA motor bunu bulmak için ne yapar?',
+        en: 'There is a `status = \'FAIL\'` query on a 50,000-row table. WITHOUT an index, what does the engine do to find it?',
+      },
+      code: { tr: `EXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ALL`, en: `EXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ALL` },
+      positions: { query: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Motor kitabı BAŞTAN SONA okuyan biri gibi davranır: 50.000 satırın HER birini teker teker kontrol eder — buna Full Table Scan denir. 49.995 satır boşuna okunmuş olur (hayalet).',
+        en: 'The engine behaves like someone reading a book cover to cover: it checks EVERY single one of the 50,000 rows — this is called a Full Table Scan. 49,995 rows are read for nothing (ghost).',
+      },
+      positions: {
+        query: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        fullScan: { x: 50, y: 55, scale: 1.15, pulse: true },
+        ghost: { x: 80, y: 45, opacity: 0.5, scale: 1.05 },
+      },
+      beams: [{ from: 'fullScan', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Çözüm: `CREATE INDEX idx_status ON test_results(status);` — bu, kitabın SONUNA bir dizin (index) eklemek gibidir: "FAIL kelimesi hangi sayfalarda geçiyor?" listesi hazırlanır.',
+        en: 'Solution: `CREATE INDEX idx_status ON test_results(status);` — this is like adding an index to the BACK of the book: a list of "which pages contain the word FAIL?" is prepared.',
+      },
+      code: { tr: `CREATE INDEX idx_status ON test_results(status);`, en: `CREATE INDEX idx_status ON test_results(status);` },
+      positions: {
+        ghost: { x: 14, y: 62, scale: 0.6, opacity: 0.3 },
+        index: { x: 50, y: 45, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'AYNI sorgu şimdi index üzerinden doğrudan FAIL satırlarına ATLAR — B-tree yapısı sayesinde 50.000 satırın çoğunu hiç dokunmaz. `EXPLAIN` artık type: ref gösterir.',
+        en: 'The SAME query now JUMPS directly to the FAIL rows via the index — thanks to the B-tree structure, it never touches most of the 50,000 rows. `EXPLAIN` now shows type: ref.',
+      },
+      code: { tr: `EXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ref (index kullanıldı)`, en: `EXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ref (index used)` },
+      positions: {
+        index: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        fastScan: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'index', to: 'fastScan' }],
+    },
+  ],
+}
+
+// ─── SQL Injection film — Concatenation exploit vs parametreli sorgu ───────
+const sqlInjectionFilm = {
+  type: 'video-scene',
+  id: 'sql-injection-film',
+  title: { tr: '🎬 SQL Injection: Girdi Nasıl Komuta Dönüşür', en: '🎬 SQL Injection: How Input Becomes a Command' },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'input', emoji: '⌨️', label: { tr: "Girdi: admin' OR '1'='1", en: "Input: admin' OR '1'='1" }, color: '#ef4444' },
+    { id: 'concat', emoji: '🧵', label: { tr: 'String Concatenation', en: 'String Concatenation' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Sorgu Anlamı Değişti', en: 'Query Meaning Changed' }, color: '#ef4444' },
+    { id: 'param', emoji: '🔒', label: { tr: 'Parametreli Sorgu (?)', en: 'Parameterized Query (?)' }, color: '#0ea5e9' },
+    { id: 'safe', emoji: '✅', label: { tr: 'Girdi Sadece Veri', en: 'Input Is Just Data' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir login formu kullanıcı adını doğrudan SQL string\'ine yapıştırıyor (concatenation). Saldırgan normal bir isim yerine `admin\' OR \'1\'=\'1` yazıyor.',
+        en: 'A login form pastes the username directly into the SQL string (concatenation). Instead of a normal name, the attacker types `admin\' OR \'1\'=\'1`.',
+      },
+      positions: { input: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kod bu girdiyi hiç sorgulamadan sorguya YAPIŞTIRIR: `"SELECT * FROM users WHERE user=\'" + input + "\'"`. Girdi artık SADECE veri değil, SQL\'in bir PARÇASI oldu.',
+        en: 'The code PASTES this input into the query without question: `"SELECT * FROM users WHERE user=\'" + input + "\'"`. The input is no longer JUST data, it became PART of the SQL.',
+      },
+      code: { tr: `query = "SELECT * FROM users WHERE user = '" + input + "'";`, en: `query = "SELECT * FROM users WHERE user = '" + input + "'";` },
+      positions: {
+        input: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        concat: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'input', to: 'concat' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç sorgu: `WHERE user=\'admin\' OR \'1\'=\'1\'`. `\'1\'=\'1\'` HER ZAMAN doğru olduğu için WHERE koşulu anlamsızlaşır — motor TÜM kullanıcıları döndürür, şifre hiç kontrol edilmeden giriş yapılır.',
+        en: 'The resulting query: `WHERE user=\'admin\' OR \'1\'=\'1\'`. Since `\'1\'=\'1\'` is ALWAYS true, the WHERE condition becomes meaningless — the engine returns ALL users, login succeeds without ever checking the password.',
+      },
+      positions: {
+        concat: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        ghost: { x: 62, y: 55, opacity: 0.55, scale: 1.1 },
+      },
+      beams: [{ from: 'concat', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — savunma: parametreli sorgu, SQL kalıbını ÖNCE derler, sonra girdiyi SADECE bir DEĞER olarak bağlar. `?` işareti asla SQL kodu olarak yorumlanmaz.',
+        en: 'Contrast — the defense: a parameterized query compiles the SQL template FIRST, then binds the input as a VALUE ONLY. The `?` placeholder is never interpreted as SQL code.',
+      },
+      code: { tr: `query = "SELECT * FROM users WHERE user = ?";\nps.setString(1, input);  -- input SADECE veri`, en: `query = "SELECT * FROM users WHERE user = ?";\nps.setString(1, input);  -- input is JUST data` },
+      positions: {
+        ghost: { x: 16, y: 62, scale: 0.6, opacity: 0.3 },
+        param: { x: 50, y: 45, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final: aynı zararlı girdi bu sefer sadece bir string DEĞERİ olarak aranır — kimse böyle bir isimde kullanıcı olmadığı için giriş REDDEDİLİR. QA için ders: her formda bu senaryoyu test senaryosu olarak dene.',
+        en: 'Final: the same malicious input this time is searched only as a string VALUE — since no user has that exact name, login is REJECTED. Lesson for QA: try this exact scenario as a test case on every form.',
+      },
+      positions: {
+        param: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        safe: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'param', to: 'safe' }],
+    },
+  ],
+}
+
+// ─── QA Use Cases film — "UI PASS dedi ama DB yanlış" ──────────────────────
+const sqlQaUseCasesFilm = {
+  type: 'video-scene',
+  id: 'sql-qa-use-cases-film',
+  title: { tr: '🎬 UI PASS Dedi, Ama DB\'de Kayıt Yanlış', en: '🎬 UI Said PASS, But the DB Record Is Wrong' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'uiTest', emoji: '🖥️', label: { tr: 'UI Testi: PASS ✔', en: 'UI Test: PASS ✔' }, color: '#22c55e' },
+    { id: 'hidden', emoji: '❓', label: { tr: 'DB\'deki Gerçek Durum?', en: 'Real State in the DB?' }, color: '#94a3b8' },
+    { id: 'sqlCheck', emoji: '🔍', label: { tr: 'SQL Doğrulama Sorgusu', en: 'SQL Verification Query' }, color: '#f59e0b' },
+    { id: 'db', emoji: '🗄️', label: { tr: 'orders Tablosu', en: 'orders Table' }, color: '#0ea5e9' },
+    { id: 'ghost', emoji: '⚠️', label: { tr: 'Uyuşmazlık: status hâlâ pending', en: 'Mismatch: status still pending' }, color: '#ef4444' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'Gerçek Bug Yakalandı', en: 'Real Bug Caught' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Selenium testi bir sipariş verir, "Siparişiniz alındı" mesajını görür ve PASS yeşil ışığı yakar. Ama bu mesaj SADECE ekranda ne göründüğünü doğrular.',
+        en: 'A Selenium test places an order, sees the "Order received" message, and lights up green PASS. But this message only verifies what APPEARS on screen.',
+      },
+      positions: { uiTest: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Soru: bu mesajın ARKASINDA veritabanına gerçekten doğru veri yazıldı mı? UI testi bunu HİÇ bilemez — sadece DOM\'a bakar, veritabanına bakmaz.',
+        en: 'Question: BEHIND this message, was the correct data actually written to the database? The UI test can NEVER know this — it only looks at the DOM, not the database.',
+      },
+      positions: {
+        uiTest: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        hidden: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'uiTest', to: 'hidden', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Gerçek doğrulama burada başlar: test sonrası veritabanına doğrudan bir SQL sorgusu at ve gerçek satırı OKU — arayüzün söylediğine değil, veriye güven.',
+        en: 'Real verification starts here: after the test, run a direct SQL query against the database and READ the actual row — trust the data, not what the interface claims.',
+      },
+      code: { tr: `SELECT id, status FROM orders WHERE id = 4471;`, en: `SELECT id, status FROM orders WHERE id = 4471;` },
+      positions: {
+        hidden: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        sqlCheck: { x: 50, y: 55, scale: 1.15, pulse: true },
+        db: { x: 78, y: 45, scale: 1.05 },
+      },
+      beams: [{ from: 'sqlCheck', to: 'db' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç şaşırtıcı: `status = \'pending\'` — hâlâ "beklemede"! UI "alındı" dese de arka planda bir async job siparişi henüz "shipped" durumuna GEÇİRMEMİŞ. UI testi bunu asla YAKALAYAMAZDI.',
+        en: 'The result is shocking: `status = \'pending\'` — still "pending"! Even though the UI said "received", a background async job has NOT yet moved the order to "shipped". The UI test could never have CAUGHT this.',
+      },
+      positions: {
+        db: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        ghost: { x: 62, y: 55, opacity: 0.6, scale: 1.1 },
+      },
+      beams: [{ from: 'db', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final: SQL doğrulaması sayesinde gerçek bir bug yakalandı — UI yeşil yanarken arka planda veri tutarsızdı. Ders: kritik akışlarda UI PASS\'i tek kanıt sayma, SQL ile backend durumunu da doğrula.',
+        en: 'Final: thanks to SQL verification, a real bug was caught — while the UI showed green, the backend data was inconsistent. Lesson: on critical flows, do not treat UI PASS as sole proof — verify backend state with SQL too.',
+      },
+      positions: {
+        ghost: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        fixed: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ghost', to: 'fixed' }],
+    },
+  ],
+}
+
+// ─── Ecosystem film — Script → Driver → Engine, ORM kontrastı ─────────────
+const sqlEcosystemFilm = {
+  type: 'video-scene',
+  id: 'sql-ecosystem-film',
+  title: { tr: '🎬 Test Scriptinden Motora: Driver Köprüsü', en: '🎬 From Test Script to Engine: The Driver Bridge' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'script', emoji: '🧪', label: { tr: 'Test Scripti', en: 'Test Script' }, color: '#6366f1' },
+    { id: 'driver', emoji: '🔌', label: { tr: 'Driver (psycopg2/JDBC)', en: 'Driver (psycopg2/JDBC)' }, color: '#f59e0b' },
+    { id: 'engine', emoji: '🗄️', label: { tr: 'Veritabanı Motoru', en: 'Database Engine' }, color: '#0ea5e9' },
+    { id: 'orm', emoji: '📦', label: { tr: 'ORM (Ekstra Katman)', en: 'ORM (Extra Layer)' }, color: '#94a3b8' },
+    { id: 'rawSql', emoji: '⚡', label: { tr: 'Ham SQL (Doğrudan)', en: 'Raw SQL (Direct)' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test scriptin (Python veya Java) veritabanıyla DOĞRUDAN konuşamaz — aralarında bir çevirmen gerekir: Driver.',
+        en: 'Your test script (Python or Java) cannot talk to the database DIRECTLY — a translator is needed between them: the Driver.',
+      },
+      positions: { script: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Script, driver kütüphanesini çağırır — Python\'da `psycopg2`/yerleşik `sqlite3`, Java\'da JDBC. Driver, sorguyu motorun anlayacağı ağ protokolüne çevirir.',
+        en: 'The script calls the driver library — `psycopg2`/built-in `sqlite3` in Python, JDBC in Java. The driver translates the query into the wire protocol the engine understands.',
+      },
+      positions: {
+        script: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        driver: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'script', to: 'driver' }],
+    },
+    {
+      caption: {
+        tr: 'Driver, motorla konuşur, sorguyu çalıştırır ve ham satırları geri getirir. Bu üç katman (script → driver → engine) her SQL testinin temel akışıdır.',
+        en: 'The driver talks to the engine, executes the query, and brings back the raw rows. These three layers (script → driver → engine) are the basic flow of every SQL test.',
+      },
+      positions: {
+        driver: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        engine: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'driver', to: 'engine' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast: bir ORM (SQLAlchemy/Hibernate) kullanırsan araya EK bir katman girer — nesneleri tablolara eşlemek için ekstra kurulum ve gecikme gerekir. Basit bir test verisi seed işlemi için bu genelde gereksizdir.',
+        en: 'Contrast: if you use an ORM (SQLAlchemy/Hibernate), an EXTRA layer is inserted — mapping objects to tables requires extra setup and latency. For a simple test data seed, this is usually unnecessary.',
+      },
+      positions: {
+        engine: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        orm: { x: 60, y: 55, opacity: 0.6, scale: 1.05 },
+      },
+      beams: [{ from: 'engine', to: 'orm', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Final: QA otomasyonunda ham SQL (driver → engine, ORM\'siz) genelde tercih edilir — daha hızlı, daha az kurulum, hatayı daha az katmanda arayacaksın.',
+        en: 'Final: in QA automation, raw SQL (driver → engine, no ORM) is usually preferred — faster, less setup, fewer layers to search when debugging.',
+      },
+      positions: {
+        orm: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        rawSql: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'orm', to: 'rawSql' }],
+    },
+  ],
+}
+
+// ─── Ecosystem sekmesi — eksik animasyon + sandbox ─────────────────────────
+const sqlEcosystemSteps = {
+  type: 'step-animation',
+  id: 'sql-ecosystem-steps',
+  title: { tr: 'Adım Adım: Test Scriptinden Veritabanına', en: 'Step by Step: From Test Script to Database' },
+  steps: [
+    { id: 1, icon: '🧪', label: { tr: 'Test scripti sorguyu hazırlar', en: 'Test script prepares the query' }, detail: { tr: 'Python veya Java kodun calisirken cagiracagi SQL metnini olusturur — henuz veritabanina hicbir sey gitmedi.', en: 'Your Python or Java code builds the SQL text it will call — nothing has reached the database yet.' } },
+    { id: 2, icon: '🔌', label: { tr: 'Driver bağlantıyı açar', en: 'Driver opens the connection' }, detail: { tr: 'sqlite3, psycopg2 veya JDBC driver, dil ile motor arasindaki agi protokolunu konusan cevirmendir.', en: 'sqlite3, psycopg2, or the JDBC driver is the translator speaking the wire protocol between the language and the engine.' } },
+    { id: 3, icon: '🗄️', label: { tr: 'Motor sorguyu çalıştırır', en: 'The engine executes the query' }, detail: { tr: 'Veritabani motoru (PostgreSQL/MySQL/SQLite) sorguyu isler ve ham satirlari geri dondurur.', en: 'The database engine (PostgreSQL/MySQL/SQLite) processes the query and returns raw rows.' } },
+    { id: 4, icon: '📦', label: { tr: 'ORM (opsiyonel) satırları nesneye çevirir', en: 'ORM (optional) maps rows to objects' }, detail: { tr: 'SQLAlchemy/Hibernate gibi bir ORM kullanirsan, satirlar once nesnelere eslenir — ekstra bir katman ve kurulum demektir.', en: 'If you use an ORM like SQLAlchemy/Hibernate, rows are mapped to objects first — an extra layer and extra setup.' } },
+    { id: 5, icon: '⚡', label: { tr: 'QA scriptinde ham SQL tercih edilir', en: 'QA scripts prefer raw SQL' }, detail: { tr: 'Test verisi seed/cleanup gibi basit islerde ORM kurulumu yerine dogrudan SQL calistirmak cogu zaman daha hizli ve daha az kirilgandir.', en: 'For simple jobs like seeding/cleaning test data, running direct SQL is usually faster and less fragile than setting up an ORM.' } },
+  ],
+}
+
+const sqlEcosystemPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'sql-ecosystem',
+  id: 'sql-ecosystem-practice-01',
+  label: { tr: 'Micro Lab: Driver Bağlantısını Kendin Kur', en: 'Micro Lab: Set Up the Driver Connection Yourself' },
+  language: 'sql',
+  task: {
+    tr: 'Bir test scriptinin veritabanına bağlanıp doğrulama yapmasını simüle eden akışı tamamla. TODO satırını, bağlantı açıldıktan sonra çalıştırılması gereken doğrulama sorgusuyla tamamla.',
+    en: 'Complete the flow simulating a test script connecting to a database to verify data. Complete the TODO line with the verification query that should run after the connection opens.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç script → driver → engine akışının hangi adımda hangi sorgunun çalıştığını pekiştirmektir.',
+    en: 'This is not a real runtime; the goal is to reinforce which query runs at which step of the script → driver → engine flow.',
+  },
+  code: {
+    tr: `-- 1) driver bağlantıyı açtı, oturum hazır\n-- 2) test verisini doğrula\nSELECT status FROM orders WHERE id = 4471;`,
+    en: `-- 1) driver opened the connection, session is ready\n-- 2) verify the test data\nSELECT status FROM orders WHERE id = 4471;`,
+  },
+  starterCode: {
+    tr: `-- 1) driver bağlantıyı açtı, oturum hazır\n-- TODO: id=4471 olan siparişin status'unu okuyan sorguyu yaz`,
+    en: `-- 1) driver opened the connection, session is ready\n-- TODO: write the query that reads the status of order id=4471`,
+  },
+  solutionCode: {
+    tr: `-- 1) driver bağlantıyı açtı, oturum hazır\n-- 2) test verisini doğrula\nSELECT status FROM orders WHERE id = 4471;`,
+    en: `-- 1) driver opened the connection, session is ready\n-- 2) verify the test data\nSELECT status FROM orders WHERE id = 4471;`,
+  },
+  expected: {
+    tr: 'Sorgu, id=4471 olan siparişin gerçek status değerini döndürür — UI\'ın söylediğine değil, veritabanının kendisine bakılmış olur.',
+    en: 'The query returns the real status value of order id=4471 — verifying the database itself, not what the UI claims.',
+  },
+  hints: [
+    { tr: 'Driver zaten bağlantıyı açtı — senin yazman gereken şey basit bir SELECT sorgusu.', en: 'The driver already opened the connection — what you need to write is a simple SELECT query.' },
+    { tr: 'Hedef sütun `status`, hedef tablo `orders`, koşul `id = 4471`.', en: 'The target column is `status`, the target table is `orders`, the condition is `id = 4471`.' },
+    { tr: 'Doğru sözdizimi: `SELECT status FROM orders WHERE id = 4471;`', en: 'Correct syntax: `SELECT status FROM orders WHERE id = 4471;`' },
+  ],
+  xpReward: 10,
+}
+
+// ─── Troubleshooting film — Lock wait timeout senaryosu ────────────────────
+const sqlTroubleshootingFilm = {
+  type: 'video-scene',
+  id: 'sql-troubleshooting-film',
+  title: { tr: '🎬 Lock Wait Timeout: Kim Kilidi Tutuyor?', en: '🎬 Lock Wait Timeout: Who Is Holding the Lock?' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'txA', emoji: '🔒', label: { tr: 'Transaction A (COMMIT yok)', en: 'Transaction A (no COMMIT)' }, color: '#ef4444' },
+    { id: 'rowLock', emoji: '🚫', label: { tr: 'Satır Kilidi', en: 'Row Lock' }, color: '#f59e0b' },
+    { id: 'txB', emoji: '⏳', label: { tr: 'Transaction B (Bekliyor)', en: 'Transaction B (Waiting)' }, color: '#8b5cf6' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Timeout Hatası', en: 'Timeout Error' }, color: '#ef4444' },
+    { id: 'commit', emoji: '✅', label: { tr: 'COMMIT', en: 'COMMIT' }, color: '#22c55e' },
+    { id: 'released', emoji: '🔓', label: { tr: 'Kilit Açıldı', en: 'Lock Released' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir test önceki adımda bir transaction başlatıp id=1 satırını güncelledi — ama COMMIT ya da ROLLBACK ÇAĞIRMAYI unuttu. Bağlantı açık kaldı.',
+        en: 'A test started a transaction in an earlier step and updated the row id=1 — but FORGOT to call COMMIT or ROLLBACK. The connection stayed open.',
+      },
+      code: { tr: `START TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- COMMIT çağrılmadı!`, en: `START TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- COMMIT never called!` },
+      positions: { txA: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Bu açık transaction, id=1 satırını KİLİTLER — COMMIT ya da ROLLBACK gelene kadar bu satıra kimse dokunamaz.',
+        en: 'This open transaction LOCKS the id=1 row — until COMMIT or ROLLBACK arrives, no one else can touch this row.',
+      },
+      positions: {
+        txA: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        rowLock: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'txA', to: 'rowLock', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Bir sonraki test (Transaction B) aynı satırı güncellemeye çalışır — ama kilit açık olduğu için BEKLEMEK zorunda kalır.',
+        en: 'The next test (Transaction B) tries to update the same row — but since the lock is held, it is forced to WAIT.',
+      },
+      code: { tr: `UPDATE users SET status = 'DONE' WHERE id = 1;\n-- bekliyor...`, en: `UPDATE users SET status = 'DONE' WHERE id = 1;\n-- waiting...` },
+      positions: {
+        rowLock: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        txB: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'rowLock', to: 'txB' }],
+    },
+    {
+      caption: {
+        tr: 'Yeterince uzun beklerse: "Lock wait timeout exceeded" hatası fırlar. Kök neden AYNI satırı yeniden filtrelemek değil — bir önceki transaction\'ın kilidi HİÇ bırakmamış olmasıdır.',
+        en: 'If it waits long enough: "Lock wait timeout exceeded" is thrown. The root cause is NOT re-filtering the same row — it is that the previous transaction NEVER released the lock.',
+      },
+      positions: {
+        txB: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        ghost: { x: 62, y: 55, opacity: 0.55, scale: 1.05 },
+      },
+      beams: [{ from: 'txB', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Düzeltme: Transaction A\'ya dönüp COMMIT çağırırız — kilit ANINDA açılır ve Transaction B beklemeden devam eder. Ders: her transaction MUTLAKA COMMIT ya da ROLLBACK ile bitmelidir.',
+        en: 'Fix: we go back to Transaction A and call COMMIT — the lock is released IMMEDIATELY and Transaction B proceeds without waiting. Lesson: every transaction MUST end with either COMMIT or ROLLBACK.',
+      },
+      code: { tr: `COMMIT;\n-- kilit kalkti, B artik calisabilir`, en: `COMMIT;\n-- lock released, B can now proceed` },
+      positions: {
+        ghost: { x: 14, y: 62, scale: 0.6, opacity: 0.3 },
+        commit: { x: 42, y: 45, scale: 1.1 },
+        released: { x: 70, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'commit', to: 'released' }],
+    },
+  ],
+}
+
+const sqlTroubleshootingSteps = {
+  type: 'step-animation',
+  id: 'sql-troubleshooting-steps',
+  title: { tr: 'Adım Adım: Bir SQL Hatasını Teşhis Etme', en: 'Step by Step: Diagnosing a SQL Error' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Hata mesajını tam oku', en: 'Read the full error message' }, detail: { tr: 'Hata metni cogu zaman kok nedeni acikca soyler: "UNIQUE constraint failed" ile "Lock wait timeout" tamamen farkli sorunlardir.', en: 'The error text usually states the root cause explicitly: "UNIQUE constraint failed" and "Lock wait timeout" are completely different problems.' } },
+    { id: 2, icon: '🗺️', label: { tr: 'Hangi katman konuşuyor?', en: 'Which layer is speaking?' }, detail: { tr: 'Hata syntax (yazim), constraint (kisitlama) veya concurrency (kilit) katmanindan mi geliyor? Her biri farkli bir cozum ister.', en: 'Does the error come from the syntax, constraint, or concurrency (lock) layer? Each requires a different fix.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Değiştirmeyen sorguyla kanıt topla', en: 'Collect evidence with a non-destructive query' }, detail: { tr: 'SELECT ile ilgili satiri veya transaction durumunu kontrol et — hicbir seyi bozmadan durumu gozlemle.', en: 'Check the row or transaction state with SELECT — observe the situation without breaking anything.' } },
+    { id: 4, icon: '🔧', label: { tr: 'En küçük güvenli düzeltme', en: 'Apply the smallest safe fix' }, detail: { tr: 'Sozlukteki cozumu uygula: eksik COMMIT\'i tamamla, FK icin once parent kaydi ekle, syntax hatasini duzelt.', en: 'Apply the dictionary fix: complete a missing COMMIT, insert the parent record for FK, fix the syntax error.' } },
+    { id: 5, icon: '✅', label: { tr: 'Aynı sorguyla doğrula', en: 'Verify with the same query' }, detail: { tr: 'Basarisiz olan sorguyu AYNEN tekrar calistir ve gectigini gor — gecmediyse teshis yanlisti, 2. adima don.', en: 'Rerun the EXACT query that failed and watch it pass — if it still fails, the diagnosis was wrong, go back to step 2.' } },
+  ],
+}
+
+const sqlTroubleshootingPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'sql-troubleshooting',
+  id: 'sql-troubleshooting-practice-01',
+  label: { tr: 'Micro Lab: Kilitlenmiş Transaction\'ı Çöz', en: 'Micro Lab: Fix a Stuck Transaction' },
+  language: 'sql',
+  task: {
+    tr: 'Filmdeki senaryoyu kendin çöz: Transaction A açık kaldı ve id=1 satırını kilitledi. TODO satırını, kilidi açacak komutla tamamla.',
+    en: 'Solve the scenario from the film yourself: Transaction A stayed open and locked the id=1 row. Complete the TODO line with the command that releases the lock.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç açık kalan bir transaction\'ın kilidi nasıl serbest bıraktığını elle yazarak pekiştirmektir.',
+    en: 'This is not a real runtime; the goal is to reinforce how an open transaction releases its lock by writing it yourself.',
+  },
+  code: {
+    tr: `START TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- kilit hâlâ açık, başka bir sorgu bekliyor\nCOMMIT;\n-- kilit kalktı`,
+    en: `START TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- lock still held, another query is waiting\nCOMMIT;\n-- lock released`,
+  },
+  starterCode: {
+    tr: `START TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- kilit hâlâ açık, başka bir sorgu bekliyor\n-- TODO: kilidi açacak komutu yaz`,
+    en: `START TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- lock still held, another query is waiting\n-- TODO: write the command that releases the lock`,
+  },
+  solutionCode: {
+    tr: `START TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- kilit hâlâ açık, başka bir sorgu bekliyor\nCOMMIT;\n-- kilit kalktı`,
+    en: `START TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- lock still held, another query is waiting\nCOMMIT;\n-- lock released`,
+  },
+  expected: {
+    tr: 'Transaction tamamlanır, satır kilidi kalkar ve bekleyen ikinci sorgu artık zaman aşımına uğramadan çalışabilir.',
+    en: 'The transaction completes, the row lock is released, and the waiting second query can now run without timing out.',
+  },
+  hints: [
+    { tr: 'Açık kalan transaction her zaman iki şekilde bitirilir: değişiklikleri kalıcılaştıran COMMIT ya da geri alan ROLLBACK.', en: 'An open transaction always ends in one of two ways: COMMIT to persist changes, or ROLLBACK to undo them.' },
+    { tr: 'Bu senaryoda UPDATE başarılı olduğu için değişikliği geri almak değil, kalıcılaştırmak istiyoruz.', en: 'In this scenario the UPDATE succeeded, so we want to persist the change, not undo it.' },
+    { tr: 'TODO satırının cevabı tek kelimedir: `COMMIT;`', en: 'The answer to the TODO line is one word: `COMMIT;`' },
+  ],
+  xpReward: 10,
+}
+
+// ─── Java → SQL film — ResultSet imleci vs fetchall() listesi ──────────────
+const sqlJavaToSqlFilm = {
+  type: 'video-scene',
+  id: 'sql-java-to-sql-film',
+  title: { tr: '🎬 rs.next() İmleci vs fetchall() Listesi', en: '🎬 The rs.next() Cursor vs the fetchall() List' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'query', emoji: '🗄️', label: { tr: 'SELECT Sonucu (3 satır)', en: 'SELECT Result (3 rows)' }, color: '#0ea5e9' },
+    { id: 'cursor', emoji: '👉', label: { tr: 'ResultSet İmleci (rs.next())', en: 'ResultSet Cursor (rs.next())' }, color: '#f59e0b' },
+    { id: 'row', emoji: '📦', label: { tr: 'Tek Satır', en: 'Single Row' }, color: '#8b5cf6' },
+    { id: 'pythonList', emoji: '📋', label: { tr: 'fetchall() Listesi', en: 'fetchall() List' }, color: '#6366f1' },
+    { id: 'final', emoji: '✅', label: { tr: 'Aynı Veri, Farklı Erişim', en: 'Same Data, Different Access' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir sorgu 3 satır döndürüyor. Java ve Python bu SONUCA tamamen farklı iki şekilde erişir.',
+        en: 'A query returns 3 rows. Java and Python access this RESULT in two completely different ways.',
+      },
+      code: { tr: `SELECT test_name, status FROM test_results WHERE status='FAIL';`, en: `SELECT test_name, status FROM test_results WHERE status='FAIL';` },
+      positions: { query: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Java: ResultSet bir İMLEÇ gibi çalışır — başta hiçbir satırın üzerinde durmaz. `rs.next()` çağrısı imleci bir SONRAKİ satıra taşır ve o satır varsa true döner.',
+        en: 'Java: ResultSet works like a CURSOR — it starts positioned before any row. Calling `rs.next()` moves the cursor to the NEXT row and returns true if it exists.',
+      },
+      code: { tr: `while (rs.next()) {\n    String name = rs.getString("test_name");\n}`, en: `while (rs.next()) {\n    String name = rs.getString("test_name");\n}` },
+      positions: {
+        query: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        cursor: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'query', to: 'cursor' }],
+    },
+    {
+      caption: {
+        tr: 'Her `rs.next()` çağrısı imleci bir satır ilerletir — üç satır için while döngüsü ÜÇ KEZ döner, her seferinde tek bir satırla çalışırsın.',
+        en: 'Each `rs.next()` call advances the cursor by one row — for three rows the while loop runs THREE TIMES, working with a single row each time.',
+      },
+      positions: {
+        cursor: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        row: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cursor', to: 'row' }],
+    },
+    {
+      caption: {
+        tr: 'Python: `cursor.fetchall()` imleç mantığı KULLANMAZ — sonucun TAMAMINI tek seferde bir liste (tuple listesi) olarak belleğe alır. Döngü listenin üzerinde gezer, imleci ilerletmez.',
+        en: 'Python: `cursor.fetchall()` does NOT use cursor logic — it loads the ENTIRE result into memory at once as a list (of tuples). The loop walks the list, it does not advance a cursor.',
+      },
+      code: { tr: `rows = cursor.fetchall()  # [(...), (...), (...)]\nfor name, status in rows:\n    print(name)`, en: `rows = cursor.fetchall()  # [(...), (...), (...)]\nfor name, status in rows:\n    print(name)` },
+      positions: {
+        row: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        pythonList: { x: 60, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'row', to: 'pythonList' }],
+    },
+    {
+      caption: {
+        tr: 'Final: aynı 3 satırlık sonucu farklı API\'lerle geziyorsun — Java satır satır ilerler (bellek dostu, büyük tablolarda tercih edilir), Python hepsini tek seferde alır (küçük sonuçlarda pratiktir). QA olarak her iki dilde de assertion yazarken bu farkı bilmelisin.',
+        en: 'Final: you walk the same 3-row result with different APIs — Java advances row by row (memory-friendly, preferred for large tables), Python grabs everything at once (convenient for small results). As QA you must know this difference when writing assertions in either language.',
+      },
+      positions: {
+        pythonList: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        final: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'pythonList', to: 'final' }],
+    },
+  ],
+}
+
+const sqlJavaToSqlSteps = {
+  type: 'step-animation',
+  id: 'sql-java-to-sql-steps',
+  title: { tr: 'Adım Adım: JDBC Sonucunu Okuma', en: 'Step by Step: Reading a JDBC Result' },
+  steps: [
+    { id: 1, icon: '🔌', label: { tr: 'Bağlantı ve Statement', en: 'Connection and Statement' }, detail: { tr: 'DriverManager.getConnection() ile baglanti acilir, Statement veya PreparedStatement olusturulur.', en: 'DriverManager.getConnection() opens the connection, then a Statement or PreparedStatement is created.' } },
+    { id: 2, icon: '🗄️', label: { tr: 'executeQuery() çağrılır', en: 'executeQuery() is called' }, detail: { tr: 'Sorgu motora gonderilir ve bir ResultSet nesnesi doner — ama imlec henuz hicbir satirda degildir.', en: 'The query is sent to the engine and a ResultSet object returns — but the cursor is not yet positioned on any row.' } },
+    { id: 3, icon: '👉', label: { tr: 'rs.next() imleci ilerletir', en: 'rs.next() advances the cursor' }, detail: { tr: 'Her cagri imleci bir sonraki satira tasir; satir yoksa false doner ve while dongusu biter.', en: 'Each call moves the cursor to the next row; if none remain it returns false and the while loop ends.' } },
+    { id: 4, icon: '📥', label: { tr: 'Sütun değerleri okunur', en: 'Column values are read' }, detail: { tr: 'rs.getString("test_name"), rs.getInt("id") gibi tip-guvenli getter\'larla o anki satirin sutunlari okunur.', en: 'Type-safe getters like rs.getString("test_name"), rs.getInt("id") read the current row\'s columns.' } },
+    { id: 5, icon: '🔒', label: { tr: 'Kaynaklar kapatılır', en: 'Resources are closed' }, detail: { tr: 'try-with-resources veya rs.close()/stmt.close()/conn.close() ile baglanti kaynaklari serbest birakilir.', en: 'try-with-resources, or rs.close()/stmt.close()/conn.close(), releases the connection resources.' } },
+  ],
+}
+
+const sqlJavaToSqlPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'sql-java-to-sql',
+  id: 'sql-java-to-sql-practice-01',
+  label: { tr: 'Micro Lab: ResultSet Döngüsünü Tamamla', en: 'Micro Lab: Complete the ResultSet Loop' },
+  language: 'sql',
+  task: {
+    tr: 'JDBC ResultSet mantığını SQL tarafında simüle et: motor önce tüm eşleşen satırları üretir, sonra Java bu satırları tek tek okur. TODO satırını, FAIL testlerini süreye göre azalan sıralayan komutla tamamla — Java tarafında `while(rs.next())` bu sırayla gezecek.',
+    en: 'Simulate JDBC ResultSet logic on the SQL side: the engine first produces all matching rows, then Java reads them one by one. Complete the TODO line with the command that sorts FAIL tests by duration descending — the Java side\'s `while(rs.next())` will walk them in this order.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç SQL motorunun ürettiği satır sırasının, ResultSet imlecinin hangi sırayla ilerleyeceğini belirlediğini pekiştirmektir.',
+    en: 'This is not a real runtime; the goal is to reinforce that the row order the SQL engine produces determines the order the ResultSet cursor will walk.',
+  },
+  code: {
+    tr: `SELECT test_name, duration_ms FROM test_results\nWHERE status = 'FAIL'\nORDER BY duration_ms DESC;`,
+    en: `SELECT test_name, duration_ms FROM test_results\nWHERE status = 'FAIL'\nORDER BY duration_ms DESC;`,
+  },
+  starterCode: {
+    tr: `SELECT test_name, duration_ms FROM test_results\nWHERE status = 'FAIL'\n-- TODO: en yavaş test en üstte olacak şekilde sırala`,
+    en: `SELECT test_name, duration_ms FROM test_results\nWHERE status = 'FAIL'\n-- TODO: sort so the slowest test appears first`,
+  },
+  solutionCode: {
+    tr: `SELECT test_name, duration_ms FROM test_results\nWHERE status = 'FAIL'\nORDER BY duration_ms DESC;`,
+    en: `SELECT test_name, duration_ms FROM test_results\nWHERE status = 'FAIL'\nORDER BY duration_ms DESC;`,
+  },
+  expected: {
+    tr: 'Sonuç kümesi duration_ms\'e göre büyükten küçüğe sıralanır — Java\'daki `while(rs.next())` döngüsü satırları tam bu sırayla okur.',
+    en: 'The result set is sorted by duration_ms descending — Java\'s `while(rs.next())` loop will read the rows in exactly this order.',
+  },
+  hints: [
+    { tr: 'ResultSet imleci, motorun ÜRETTİĞİ sırayla ilerler — sıralama sorumluluğu SQL tarafındadır, Java tarafında değil.', en: 'The ResultSet cursor advances in whatever order the engine PRODUCES — sorting responsibility belongs to SQL, not to Java.' },
+    { tr: '"En yavaş en üstte" demek, duration_ms\'i BÜYÜKTEN küçüğe sıralamak demektir.', en: '"Slowest first" means sorting duration_ms from LARGEST to smallest.' },
+    { tr: 'Doğru sözdizimi: `ORDER BY duration_ms DESC;`', en: 'Correct syntax: `ORDER BY duration_ms DESC;`' },
+  ],
+  xpReward: 10,
+}
+
+// ─── Practice & Reference film — Exercise 3 çözüm akışı ────────────────────
+const sqlPracticeReferenceFilm = {
+  type: 'video-scene',
+  id: 'sql-practice-reference-film',
+  title: { tr: '🎬 Zor Bir Alıştırmayı Adım Adım Çözmek', en: '🎬 Solving a Hard Exercise Step by Step' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'req', emoji: '📋', label: { tr: 'Gereksinim: Sprint Bazlı Sıralama', en: 'Requirement: Rank Per Sprint' }, color: '#6366f1' },
+    { id: 'cte1', emoji: '📦', label: { tr: 'CTE 1: sprint_stats', en: 'CTE 1: sprint_stats' }, color: '#f59e0b' },
+    { id: 'cte2', emoji: '🔗', label: { tr: 'CTE 2: isim JOIN', en: 'CTE 2: name JOIN' }, color: '#8b5cf6' },
+    { id: 'rank', emoji: '🏅', label: { tr: 'RANK() OVER', en: 'RANK() OVER' }, color: '#0ea5e9' },
+    { id: 'final', emoji: '✅', label: { tr: 'Sıralı Rapor', en: 'Ranked Report' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Zor görünen bir alıştırma: "Testerları her sprint içinde başarı oranına göre sırala." Bu tek bir sorguda yazılamayacak kadar KARMAŞIK görünüyor — o yüzden ADIMLARA bölüyoruz.',
+        en: 'A hard-looking exercise: "rank testers by pass rate within each sprint." This looks too COMPLEX to write in one query — so we break it into STEPS.',
+      },
+      positions: { req: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1: ilk CTE sadece HAM SAYILARI toplar — sprint ve user_id\'ye göre grupla, toplam test ve geçen test sayısını say. Henüz isim veya sıralama YOK.',
+        en: 'Step 1: the first CTE only aggregates RAW NUMBERS — group by sprint and user_id, count total tests and passed tests. No name or ranking YET.',
+      },
+      code: { tr: `WITH sprint_stats AS (\n    SELECT sprint, user_id, COUNT(*) AS total,\n        SUM(CASE WHEN status='PASS' THEN 1 ELSE 0 END) AS passed\n    FROM results GROUP BY sprint, user_id\n)`, en: `WITH sprint_stats AS (\n    SELECT sprint, user_id, COUNT(*) AS total,\n        SUM(CASE WHEN status='PASS' THEN 1 ELSE 0 END) AS passed\n    FROM results GROUP BY sprint, user_id\n)` },
+      positions: {
+        req: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        cte1: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'req', to: 'cte1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2: ikinci CTE, ilk CTE\'ye referans verir ve users tablosuyla JOIN yaparak isimleri ve pass_rate yüzdesini ekler — önceki adımın üzerine İNŞA eder.',
+        en: 'Step 2: the second CTE references the first and JOINs with users to add names and the pass_rate percentage — it BUILDS ON the previous step.',
+      },
+      code: { tr: `sprint_rates AS (\n    SELECT s.sprint, u.name AS tester,\n        ROUND(s.passed * 100.0 / s.total, 1) AS pass_rate\n    FROM sprint_stats s JOIN users u ON s.user_id = u.id\n)`, en: `sprint_rates AS (\n    SELECT s.sprint, u.name AS tester,\n        ROUND(s.passed * 100.0 / s.total, 1) AS pass_rate\n    FROM sprint_stats s JOIN users u ON s.user_id = u.id\n)` },
+      positions: {
+        cte1: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        cte2: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cte1', to: 'cte2' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3: son SELECT, RANK() OVER (PARTITION BY sprint ORDER BY pass_rate DESC) ekler — her sprint İÇİNDE testerları başarı oranına göre sıralar, satırları kaybetmeden.',
+        en: 'Step 3: the final SELECT adds RANK() OVER (PARTITION BY sprint ORDER BY pass_rate DESC) — ranking testers by pass rate WITHIN each sprint, without losing any rows.',
+      },
+      positions: {
+        cte2: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        rank: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cte2', to: 'rank' }],
+    },
+    {
+      caption: {
+        tr: 'Final: karmaşık gereksinim üç okunabilir adıma bölündü — her CTE bağımsız test edilebilir, hata varsa hangi adımda olduğu hemen görülür. Zor bir alıştırmayı çözmenin sırrı budur: böl, adlandır, birleştir.',
+        en: 'Final: the complex requirement split into three readable steps — each CTE can be tested independently, and if something is wrong you see exactly which step it is in. This is the secret to solving a hard exercise: split, name, combine.',
+      },
+      positions: {
+        rank: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        final: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'rank', to: 'final' }],
+    },
+  ],
+}
+
+const sqlPracticeReferenceSteps = {
+  type: 'step-animation',
+  id: 'sql-practice-reference-steps',
+  title: { tr: 'Adım Adım: Zor Bir Sorguyu Parçalara Bölme', en: 'Step by Step: Breaking a Hard Query Into Pieces' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Gereksinimi tam oku', en: 'Read the requirement fully' }, detail: { tr: 'Hangi tablolar, hangi gruplama, hangi siralama gerekiyor — yazmadan once cumle cumle cikar.', en: 'Which tables, which grouping, which ordering is needed — extract it sentence by sentence before writing anything.' } },
+    { id: 2, icon: '📦', label: { tr: 'İlk CTE: ham sayıları topla', en: 'First CTE: aggregate raw numbers' }, detail: { tr: 'GROUP BY ile en temel sayilari (COUNT, SUM) cikar — henuz isim veya siralama ekleme.', en: 'Use GROUP BY to extract the most basic numbers (COUNT, SUM) — do not add names or ordering yet.' } },
+    { id: 3, icon: '🔗', label: { tr: 'İkinci CTE: JOIN ile zenginleştir', en: 'Second CTE: enrich with JOIN' }, detail: { tr: 'Birinci CTE\'ye referans ver, users gibi baska bir tabloyla JOIN yaparak isim/etiket ekle.', en: 'Reference the first CTE, JOIN with another table like users to add names/labels.' } },
+    { id: 4, icon: '🏅', label: { tr: 'Window fonksiyonu ekle', en: 'Add the window function' }, detail: { tr: 'RANK()/ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) ile satirlari kaybetmeden sirala.', en: 'Use RANK()/ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) to rank without losing rows.' } },
+    { id: 5, icon: '✅', label: { tr: 'Her adımı ayrı çalıştırıp doğrula', en: 'Run and verify each step separately' }, detail: { tr: 'Her CTE\'yi tek basina SELECT * FROM cte_adi ile calistirip ara sonucu goz ile dogrula, sonra bir sonraki adima gec.', en: 'Run each CTE alone with SELECT * FROM cte_name to visually verify the intermediate result, then move to the next step.' } },
+  ],
+}
+
+const sqlPracticeReferencePractice = {
+  type: 'code-playground',
+  relatedTopicId: 'sql-practice-reference',
+  id: 'sql-practice-reference-practice-01',
+  label: { tr: 'Micro Lab: İkinci CTE\'yi Kendin Tamamla', en: 'Micro Lab: Complete the Second CTE Yourself' },
+  language: 'sql',
+  task: {
+    tr: 'Filmdeki adım 2\'yi tekrarla: ilk CTE (sprint_stats) hazır, senin görevin onu users tablosuyla JOIN edip tester ismini eklemek. TODO satırını tamamla.',
+    en: 'Repeat step 2 from the film: the first CTE (sprint_stats) is ready, your job is to JOIN it with users to add the tester name. Complete the TODO line.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç bir CTE\'nin bir önceki CTE\'ye nasıl referans verdiğini elle yazarak pekiştirmektir.',
+    en: 'This is not a real runtime; the goal is to reinforce how one CTE references the previous one by writing it yourself.',
+  },
+  code: {
+    tr: `WITH sprint_stats AS (\n    SELECT sprint, user_id, COUNT(*) AS total\n    FROM results GROUP BY sprint, user_id\n)\nSELECT s.sprint, u.name AS tester, s.total\nFROM sprint_stats s\nJOIN users u ON s.user_id = u.id;`,
+    en: `WITH sprint_stats AS (\n    SELECT sprint, user_id, COUNT(*) AS total\n    FROM results GROUP BY sprint, user_id\n)\nSELECT s.sprint, u.name AS tester, s.total\nFROM sprint_stats s\nJOIN users u ON s.user_id = u.id;`,
+  },
+  starterCode: {
+    tr: `WITH sprint_stats AS (\n    SELECT sprint, user_id, COUNT(*) AS total\n    FROM results GROUP BY sprint, user_id\n)\nSELECT s.sprint, u.name AS tester, s.total\nFROM sprint_stats s\n-- TODO: users tablosuyla user_id üzerinden JOIN yap`,
+    en: `WITH sprint_stats AS (\n    SELECT sprint, user_id, COUNT(*) AS total\n    FROM results GROUP BY sprint, user_id\n)\nSELECT s.sprint, u.name AS tester, s.total\nFROM sprint_stats s\n-- TODO: JOIN with the users table on user_id`,
+  },
+  solutionCode: {
+    tr: `WITH sprint_stats AS (\n    SELECT sprint, user_id, COUNT(*) AS total\n    FROM results GROUP BY sprint, user_id\n)\nSELECT s.sprint, u.name AS tester, s.total\nFROM sprint_stats s\nJOIN users u ON s.user_id = u.id;`,
+    en: `WITH sprint_stats AS (\n    SELECT sprint, user_id, COUNT(*) AS total\n    FROM results GROUP BY sprint, user_id\n)\nSELECT s.sprint, u.name AS tester, s.total\nFROM sprint_stats s\nJOIN users u ON s.user_id = u.id;`,
+  },
+  expected: {
+    tr: 'Sonuç, her sprint-user_id çifti için tester ismini ve toplam test sayısını gösterir — CTE ile users tablosu user_id üzerinden başarıyla eşleşmiştir.',
+    en: 'The result shows the tester name and total test count for each sprint-user_id pair — the CTE and users table are successfully matched on user_id.',
+  },
+  hints: [
+    { tr: 'CTE\'ye normal bir tablo gibi FROM içinde referans verirsin — burada alias `s` olarak kullanılmış.', en: 'You reference a CTE like a normal table in FROM — here it is aliased as `s`.' },
+    { tr: 'JOIN koşulu, sprint_stats\'taki user_id ile users tablosundaki id\'yi eşlemelidir.', en: 'The JOIN condition must match user_id from sprint_stats with id from the users table.' },
+    { tr: 'Doğru sözdizimi: `JOIN users u ON s.user_id = u.id;`', en: 'Correct syntax: `JOIN users u ON s.user_id = u.id;`' },
+  ],
+  xpReward: 10,
+}
+
+// ─── DBeaver film — Görsel bağlantı + SQL editör + sonuç grid'i ────────────
+const sqlDbeaverFilm = {
+  type: 'video-scene',
+  id: 'sql-dbeaver-film',
+  title: { tr: '🎬 DBeaver: Terminal Olmadan Sorgudan Sonuca', en: '🎬 DBeaver: From Query to Result Without a Terminal' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'wizard', emoji: '🔌', label: { tr: 'Bağlantı Sihirbazı', en: 'Connection Wizard' }, color: '#6366f1' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Terminal + JDBC Kodu (Eski Yöntem)', en: 'Terminal + JDBC Code (Old Way)' }, color: '#94a3b8' },
+    { id: 'editor', emoji: '📝', label: { tr: 'SQL Editor (F3)', en: 'SQL Editor (F3)' }, color: '#f59e0b' },
+    { id: 'engine', emoji: '🗄️', label: { tr: 'Veritabanı', en: 'Database' }, color: '#0ea5e9' },
+    { id: 'grid', emoji: '📊', label: { tr: 'Sonuç Grid\'i', en: 'Result Grid' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'DBeaver açılınca Bağlantı Sihirbazı ile başlarsın: host, port, kullanıcı adı, şifre gir — Host/Port/User/Password alanlarını doldurup Test Connection\'a tıkla.',
+        en: 'DBeaver opens with the Connection Wizard: enter host, port, username, password — fill the Host/Port/User/Password fields and click Test Connection.',
+      },
+      positions: { wizard: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kontrast: bunu koda dökseydin, Java\'da DriverManager.getConnection() ile bağlantı dizesi yazman ve pom.xml\'e sürücü bağımlılığı eklemen gerekirdi — burada tek tıkla aynı işi yaparsın.',
+        en: 'Contrast: if you did this in code, you would write a connection string with Java\'s DriverManager.getConnection() and add a driver dependency to pom.xml — here you do the same thing with one click.',
+      },
+      positions: {
+        wizard: { x: 16, y: 40, scale: 0.85, opacity: 0.6 },
+        ghost: { x: 62, y: 55, opacity: 0.5, scale: 0.95 },
+      },
+      beams: [{ from: 'wizard', to: 'ghost', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Bağlantı kurulunca SQL Editor\'ü açarsın (F3) — burası, terminaldeki `psql` komut satırının görsel karşılığıdır: syntax highlight ve autocomplete ile.',
+        en: 'Once connected you open the SQL Editor (F3) — this is the visual counterpart of the terminal\'s `psql` command line, with syntax highlighting and autocomplete.',
+      },
+      code: { tr: `SELECT u.name, p.title, p.published\nFROM app.users u\nJOIN app.posts p ON p.author_id = u.id;`, en: `SELECT u.name, p.title, p.published\nFROM app.users u\nJOIN app.posts p ON p.author_id = u.id;` },
+      positions: {
+        ghost: { x: 14, y: 62, scale: 0.6, opacity: 0.3 },
+        editor: { x: 48, y: 45, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Ctrl+Enter ile çalıştırırsın — sorgu veritabanı motoruna gider, işlenir ve sonuç geri döner. Tüm bu iletişim ekranın arkasında saniyeler içinde gerçekleşir.',
+        en: 'Ctrl+Enter runs it — the query goes to the database engine, gets processed, and the result comes back. All this communication happens behind the screen in seconds.',
+      },
+      positions: {
+        editor: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        engine: { x: 55, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'editor', to: 'engine' }],
+    },
+    {
+      caption: {
+        tr: 'Final: sonuç bir Excel benzeri grid\'de belirir — satırlara tıklayabilir, sıralayabilir, CSV\'ye aktarabilirsin. Terminaldeki düz metin çıktısına göre çok daha okunabilir bir deneyim.',
+        en: 'Final: the result appears in an Excel-like grid — you can click rows, sort them, export to CSV. A far more readable experience than the terminal\'s plain-text output.',
+      },
+      positions: {
+        engine: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        grid: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'engine', to: 'grid' }],
+    },
+  ],
+}
+
+// ─── Interview Q&A film — EXPLAIN planını mülakatta okumak ─────────────────
+const sqlInterviewFilm = {
+  type: 'video-scene',
+  id: 'sql-interview-film',
+  title: { tr: '🎬 Mülakatta EXPLAIN Planını Okumak', en: '🎬 Reading an EXPLAIN Plan in an Interview' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '🎤', label: { tr: 'Soru: "Bu Sorgu Neden Yavaş?"', en: 'Question: "Why Is This Query Slow?"' }, color: '#6366f1' },
+    { id: 'explain', emoji: '🔍', label: { tr: 'EXPLAIN Komutu', en: 'EXPLAIN Command' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'type: ALL (Full Scan)', en: 'type: ALL (Full Scan)' }, color: '#ef4444' },
+    { id: 'index', emoji: '📇', label: { tr: 'CREATE INDEX Önerisi', en: 'CREATE INDEX Suggestion' }, color: '#8b5cf6' },
+    { id: 'answer', emoji: '🏆', label: { tr: 'Güçlü Cevap', en: 'Strong Answer' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakatta klasik senaryo sorusu: "Bu sorgu production\'da çok yavaş çalışıyor, ne yaparsın?" Zayıf cevap sadece "index eklerim" der — GÜÇLÜ cevap önce KANIT ister.',
+        en: 'A classic interview scenario question: "This query runs very slowly in production, what do you do?" A weak answer just says "I add an index" — a STRONG answer asks for EVIDENCE first.',
+      },
+      positions: { question: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Güçlü cevabın ilk katmanı: "Önce `EXPLAIN` ile sorgu planını incelerim" — tahmin etmek yerine motorun NE YAPTIĞINI gözlemlemek.',
+        en: 'Layer 1 of the strong answer: "First I inspect the query plan with `EXPLAIN`" — observing WHAT the engine does instead of guessing.',
+      },
+      code: { tr: `EXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';`, en: `EXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';` },
+      positions: {
+        question: { x: 16, y: 40, scale: 0.9, opacity: 0.65 },
+        explain: { x: 52, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'explain' }],
+    },
+    {
+      caption: {
+        tr: 'Çıktı `type: ALL` gösteriyor — bu, motorun HER satırı taradığı anlamına gelir (Full Table Scan). Aday burada durup "işte kanıt bu" diyebilmelidir, sadece "yavaş" demek yetmez.',
+        en: 'The output shows `type: ALL` — this means the engine scans EVERY row (Full Table Scan). The candidate must be able to stop here and say "here is the evidence", not just "it\'s slow".',
+      },
+      positions: {
+        explain: { x: 18, y: 40, scale: 0.85, opacity: 0.6 },
+        ghost: { x: 62, y: 55, opacity: 0.55, scale: 1.05 },
+      },
+      beams: [{ from: 'explain', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: '2. katman — çözüm + gerekçe: "WHERE\'de kullanılan `status` sütununa index eklerim, çünkü `EXPLAIN` böylece `type: ref`\'e döner ve motor artık HER satırı değil, sadece ilgili satırları okur."',
+        en: 'Layer 2 — solution + rationale: "I add an index on the `status` column used in WHERE, because then `EXPLAIN` switches to `type: ref` and the engine reads only the relevant rows, not EVERY row."',
+      },
+      code: { tr: `CREATE INDEX idx_status ON test_results(status);`, en: `CREATE INDEX idx_status ON test_results(status);` },
+      positions: {
+        ghost: { x: 16, y: 62, scale: 0.6, opacity: 0.3 },
+        index: { x: 50, y: 45, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final — formül: KANIT topla (EXPLAIN) → sorunu ADLANDIR (Full Scan) → çözüm + GEREKÇE ver (neden index type: ref\'e çevirir). Komut adı ezberleyen değil, NEDENİ açıklayan aday kazanır.',
+        en: 'Final — the formula: gather EVIDENCE (EXPLAIN) → NAME the problem (Full Scan) → give solution + RATIONALE (why the index flips it to type: ref). The candidate who explains WHY wins, not the one who memorized a command name.',
+      },
+      positions: {
+        index: { x: 20, y: 40, scale: 0.85, opacity: 0.6 },
+        answer: { x: 62, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'index', to: 'answer' }],
+    },
+  ],
+}
+
+const sqlInterviewSteps = {
+  type: 'step-animation',
+  id: 'sql-interview-steps',
+  title: { tr: 'Adım Adım: Bir SQL Senaryo Sorusuna Cevap Kurma', en: 'Step by Step: Building an Answer to a SQL Scenario Question' },
+  steps: [
+    { id: 1, icon: '🧭', label: { tr: 'Durumu netleştir', en: 'Clarify the situation' }, detail: { tr: 'Hangi sorgu, hangi tablo boyutu, ne zamandan beri yavas? Once soru sormak derinligi gosterir.', en: 'Which query, what table size, how long has it been slow? Asking questions first shows depth.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Kanıt komutunu söyle', en: 'Name the evidence command' }, detail: { tr: '"Once EXPLAIN ile bakarim" de — tahmin yerine gozlem refleksini goster.', en: 'Say "first I look with EXPLAIN" — show the observation reflex instead of guessing.' } },
+    { id: 3, icon: '🏷️', label: { tr: 'Sorunu adlandır', en: 'Name the problem' }, detail: { tr: '"type: ALL yani full table scan goruyorum" gibi somut bir bulguyu soyle, sadece "yavas" deme.', en: 'State a concrete finding like "I see type: ALL, meaning a full table scan", not just "it\'s slow".' } },
+    { id: 4, icon: '🔧', label: { tr: 'Çözüm + gerekçe ver', en: 'Give solution + rationale' }, detail: { tr: '"Index eklerim, cunku..." diyerek NEDEN o cozumun isledigini acikla.', en: 'Say "I add an index, because..." and explain WHY that solution works.' } },
+    { id: 5, icon: '✅', label: { tr: 'Sonucu doğrulamayı söyle', en: 'Mention verifying the result' }, detail: { tr: '"Ayni EXPLAIN\'i tekrar calistirir, type: ref\'e dondugunu dogrularim" diyerek cevabi kapat.', en: 'Close the answer with "I rerun the same EXPLAIN and verify it now shows type: ref".' } },
+  ],
+}
+
+const sqlInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'sql',
+  id: 'sql-interview-practice-01',
+  label: { tr: 'Micro Lab: Yavaş Sorguyu Mülakat Formatında Çöz', en: 'Micro Lab: Fix a Slow Query in Interview Format' },
+  language: 'sql',
+  task: {
+    tr: 'Filmdeki formülü uygula: EXPLAIN zaten çalıştırıldı ve type: ALL görüldü. TODO satırını, status sütununa index ekleyen komutla tamamla.',
+    en: 'Apply the formula from the film: EXPLAIN has already run and shows type: ALL. Complete the TODO line with the command that adds an index on the status column.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç mülakatta anlatacağın "kanıt → çözüm → doğrulama" akışını elle yazarak pekiştirmektir.',
+    en: 'This is not a real runtime; the goal is to reinforce the "evidence → solution → verify" flow you would narrate in an interview by writing it yourself.',
+  },
+  code: {
+    tr: `-- 1) kanıt topla\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ALL (full table scan)\n\n-- 2) çözüm: index ekle\nCREATE INDEX idx_status ON test_results(status);\n\n-- 3) doğrula\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ref`,
+    en: `-- 1) collect evidence\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ALL (full table scan)\n\n-- 2) fix: add an index\nCREATE INDEX idx_status ON test_results(status);\n\n-- 3) verify\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ref`,
+  },
+  starterCode: {
+    tr: `-- 1) kanıt topla\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ALL (full table scan)\n\n-- 2) TODO: status sütununa index ekleyen komutu yaz\n\n-- 3) doğrula\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ref`,
+    en: `-- 1) collect evidence\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ALL (full table scan)\n\n-- 2) TODO: write the command that adds an index on the status column\n\n-- 3) verify\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ref`,
+  },
+  solutionCode: {
+    tr: `-- 1) kanıt topla\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ALL (full table scan)\n\n-- 2) çözüm: index ekle\nCREATE INDEX idx_status ON test_results(status);\n\n-- 3) doğrula\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ref`,
+    en: `-- 1) collect evidence\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ALL (full table scan)\n\n-- 2) fix: add an index\nCREATE INDEX idx_status ON test_results(status);\n\n-- 3) verify\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- type: ref`,
+  },
+  expected: {
+    tr: 'İkinci EXPLAIN çalıştırıldığında type: ref görünür — motor artık status sütunundaki index sayesinde sadece ilgili satırları okur.',
+    en: 'When the second EXPLAIN runs, it shows type: ref — the engine now reads only the relevant rows thanks to the index on the status column.',
+  },
+  hints: [
+    { tr: 'Hedef sütun WHERE koşulunda kullanılan sütundur: `status`.', en: 'The target column is the one used in the WHERE clause: `status`.' },
+    { tr: 'Index oluşturma komutu her zaman şu kalıptadır: `CREATE INDEX isim ON tablo(sütun);`', en: 'The index creation command always follows this pattern: `CREATE INDEX name ON table(column);`' },
+    { tr: 'Doğru komut: `CREATE INDEX idx_status ON test_results(status);`', en: 'Correct command: `CREATE INDEX idx_status ON test_results(status);`' },
+  ],
+  xpReward: 10,
+}
+
+// ─── Intro & Why sekmesi — eksik sandbox (code-playground) ─────────────────
+const sqlIntroPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'sql-intro-why',
+  id: 'sql-intro-why-practice-01',
+  label: { tr: 'Micro Lab: İlk Bildirimsel Sorgunu Yaz', en: 'Micro Lab: Write Your First Declarative Query' },
+  language: 'sql',
+  task: {
+    tr: 'Filmdeki fikri uygula: "nasıl" yapılacağını değil, "ne" istediğini tarif et. TODO satırını, test_results tablosundaki FAIL durumundaki satırları isteyen bir sorguyla tamamla.',
+    en: 'Apply the idea from the film: describe "what" you want, not "how" to get it. Complete the TODO line with a query that asks for FAIL rows in the test_results table.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç SQL\'in bildirimsel (declarative) doğasını — sonucu tarif etmeyi — elle yazarak pekiştirmektir.',
+    en: 'This is not a real runtime; the goal is to reinforce SQL\'s declarative nature — describing the result — by writing it yourself.',
+  },
+  code: {
+    tr: `SELECT * FROM test_results WHERE status = 'FAIL';`,
+    en: `SELECT * FROM test_results WHERE status = 'FAIL';`,
+  },
+  starterCode: {
+    tr: `-- TODO: test_results tablosundaki FAIL durumundaki tüm satırları iste`,
+    en: `-- TODO: ask for all rows in test_results where status is FAIL`,
+  },
+  solutionCode: {
+    tr: `SELECT * FROM test_results WHERE status = 'FAIL';`,
+    en: `SELECT * FROM test_results WHERE status = 'FAIL';`,
+  },
+  expected: {
+    tr: 'Sorgu, status sütunu FAIL olan tüm satırları döndürür — motorun bunu NASIL bulduğunu hiç yazmadan, sadece NE istediğini tarif ederek.',
+    en: 'The query returns all rows where the status column is FAIL — without ever writing HOW the engine finds them, only describing WHAT you want.',
+  },
+  hints: [
+    { tr: 'Bir Java for-döngüsü yazmana gerek yok — sadece hangi satırları istediğini tarif et.', en: 'You do not need to write a Java for-loop — just describe which rows you want.' },
+    { tr: 'Hedef sütun `status`, hedef değer `\'FAIL\'`.', en: 'The target column is `status`, the target value is `\'FAIL\'`.' },
+    { tr: 'Doğru sözdizimi: `SELECT * FROM test_results WHERE status = \'FAIL\';`', en: 'Correct syntax: `SELECT * FROM test_results WHERE status = \'FAIL\';`' },
+  ],
+  xpReward: 10,
+}
+
 
 const finalEnSections = [
   {
@@ -472,6 +2453,8 @@ const finalEnSections = [
         ],
         "note": "Each row is a record. Each column is a field. id is the Primary Key — it uniquely identifies every row."
       },
+      sqlIntroWhyFilm,
+      sqlIntroPractice,
       {
         "type": "quiz",
         "question": "What does SQL stand for?",
@@ -640,6 +2623,7 @@ const finalEnSections = [
         "type": "code",
         "code": "# SQLite — built into Python, no install needed:\nimport sqlite3\n\nconn   = sqlite3.connect(\"test.db\")   # connect (creates file if not exists)\ncursor = conn.cursor()\n\ncursor.execute(\"SELECT * FROM users WHERE age > 25\")\nrows = cursor.fetchall()              # get all results as list of tuples\n\nfor row in rows:\n    print(row)\n\nconn.close()\n\n# PostgreSQL — install: pip install psycopg2-binary\nimport psycopg2\n\nconn = psycopg2.connect(\n    host=\"localhost\", database=\"testdb\",\n    user=\"postgres\",  password=\"mypassword\"\n)\ncursor = conn.cursor()\ncursor.execute(\"SELECT COUNT(*) FROM orders WHERE status = 'pending'\")\ncount = cursor.fetchone()[0]\nprint(f\"Pending orders: {count}\")\nconn.close()"
       },
+      sqlInstallationFilm,
       {
         "type": "quiz",
         "question": {
@@ -786,6 +2770,7 @@ const finalEnSections = [
           "en": "When defining tables, we add rules (constraints) to columns to ensure data integrity:\n\n1. **PRIMARY KEY**: A column that **uniquely** identifies each row. No two rows can have the same primary key, and it can never be empty (`NULL`).\n2. **AUTO_INCREMENT**: Automatically generates a sequential number (1, 2, 3...) when a new row is inserted.\n3. **NOT NULL**: Ensures that a column cannot have a `NULL` (empty) value.\n4. **VARCHAR(n)**: Variable-length text, where `n` is the maximum character limit (e.g., `VARCHAR(100)`).\n5. **DEFAULT**: Specifies a fallback value if no value is provided during insertion (e.g., `DEFAULT 0` or `DEFAULT FALSE`)."
         }
       },
+      sqlCreateTableFilm,
       {
         "type": "quiz",
         "question": {
@@ -992,6 +2977,7 @@ const finalEnSections = [
           "en": "When inserting new rows (INSERT INTO), keep these two critical rules in mind:\n\n1. **Specifying Columns (Best Practice)**: Explicitly declaring column names like `INSERT INTO users (id, name)...` is the safest way. Omitting them (`INSERT INTO users VALUES...`) makes the query fragile, as it will break if a column is added or rearranged in the future.\n2. **Bulk Insert Performance**: Instead of running 1,000 individual `INSERT` statements, sending all values in a single bulk `INSERT INTO ... VALUES (1, \"A\"), (2, \"B\")...` reduces network roundtrips and transaction overhead, multiplying write speed."
         }
       },
+      sqlInsertIntoFilm,
       {
         "type": "quiz",
         "question": {
@@ -1145,6 +3131,7 @@ const finalEnSections = [
           "en": "We read data from the database using the SELECT statement:\n\n- **Column Selection**: While `SELECT *` retrieves all columns, it is best practice to select only the necessary columns (`SELECT name, status`) to save memory and network bandwidth.\n- **Sorting (ORDER BY)**: Sorts output rows by a column in ascending (`ASC`, default) or descending (`DESC`) order.\n- **Limiting and Paging (LIMIT & OFFSET)**: `LIMIT 10` restricts results to a maximum of 10 rows. `OFFSET 20` skips the first 20 rows before starting to return values (ideal for pagination).\n- **Uniqueness (DISTINCT)**: Filters out duplicate values from your results, returning only unique entries (e.g. `SELECT DISTINCT status`)."
         }
       },
+      sqlSelectSortFilm,
       {
         "type": "quiz",
         "question": {
@@ -1281,6 +3268,7 @@ const finalEnSections = [
           "en": "Updating (UPDATE) and deleting (DELETE) data can cause irreversible damage. Follow these safety rules:\n\n1. **The Critical WHERE Clause**: Running `UPDATE` or `DELETE` without a `WHERE` filter modifies or deletes **every single row** in the table! (e.g., `DELETE FROM logs;` empties the table completely but keeps its schema/structure).\n2. **Verify with SELECT First**: Before running an update or delete, run the exact same `WHERE` condition in a `SELECT` query first. This confirms you are targeting only the intended rows."
         }
       },
+      sqlUpdateDeleteFilm,
       {
         "type": "quiz",
         "question": {
@@ -1459,6 +3447,7 @@ const finalEnSections = [
           "en": "NULL represents missing or unknown data in a database. It is not equivalent to zero (0) or an empty string (''):\n\n- **Matching Queries**: You cannot test for NULL using regular equality operators like `=` or `!=` (e.g., `status = NULL` will fail). You must use `IS NULL` or `IS NOT NULL`.\n- **COALESCE(column, fallback)**: Returns the first non-NULL value in its arguments. Useful for providing fallback defaults (e.g., `COALESCE(environment, \"local\")`).\n- **NULLIF(val1, val2)**: Returns `NULL` if the two arguments are equal. Frequently used to prevent crash-inducing division-by-zero errors (e.g. `NULLIF(total_runs, 0)`)."
         }
       },
+      sqlNullValuesFilm,
       {
         "type": "quiz",
         "question": {
@@ -1772,6 +3761,7 @@ const finalEnSections = [
         }
       },
       sqlQueryOrderFilm,
+      sqlQueryOrderPractice,
       {
         "type": "quiz",
         "question": {
@@ -1923,6 +3913,7 @@ const finalEnSections = [
           "en": "Aggregate functions (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`) collapse multiple rows of data into a summary:\n\n1. **Usage Without GROUP BY**: If used alone (e.g., `SELECT COUNT(*) FROM test_results;`), the engine treats the entire table as a single massive partition and outputs exactly one summary row.\n2. **The GROUP BY Rule**: If you select a non-aggregated column alongside an aggregate function (e.g., `SELECT status, COUNT(*)`), you must list that column in a `GROUP BY` clause. Otherwise, standard SQL throws an error because it cannot display individual rows alongside summarized values."
         }
       },
+      sqlAggregateFilm,
       {
         "type": "quiz",
         "question": {
@@ -2080,6 +4071,7 @@ const finalEnSections = [
           "en": "GROUP BY and HAVING are used to organize rows into summary groups and filter the results:\n\n- **Grouping (GROUP BY)**: Gathers rows that share the same values in specified columns (e.g., group test runs by their environment: `GROUP BY environment`).\n- **Group Filtering (HAVING)**: Evaluates conditions on groups of rows. **WHERE filters source rows before grouping, while HAVING filters the groups themselves.** Unlike WHERE, HAVING allows aggregate functions in its conditions (e.g. `HAVING COUNT(*) > 5`)."
         }
       },
+      sqlGroupByHavingFilm,
       {
         "type": "quiz",
         "question": {
@@ -2467,6 +4459,7 @@ const finalEnSections = [
           "note": { "tr": "LEFT JOIN: 0 hatalı durumları da doğru işler", "en": "LEFT JOIN: handles 0 bugs correctly too" }
         }
       },
+      sqlJoinsFilm,
       {
         "type": "quiz",
         "question": { "tr": "Hangi JOIN türü, sağ tabloda eşleşmesi olmayan satırlar dahil sol tablodan TÜM satırları döndürür?", "en": "Which JOIN type returns ALL rows from the left table, including rows with NO matches in the right table?" },
@@ -2645,6 +4638,7 @@ const finalEnSections = [
           "en": "A subquery is a SELECT query nested inside another SQL statement. There are two primary types:\n\n- **Simple Subquery**: Runs independently of the outer query. It executes **once** first, computes its value, and hands it to the outer query.\n- **Correlated Subquery**: References columns from the outer query. It must execute **once for each row** evaluated by the outer query, which can create significant performance overhead on large tables.\n- **EXISTS Operator**: Checks for the existence of rows in a subquery. It stops searching as soon as it finds a single match, making it highly efficient."
         }
       },
+      sqlSubqueriesFilm,
       {
         "type": "quiz",
         "question": {
@@ -2783,6 +4777,7 @@ const finalEnSections = [
           "en": "The `LIKE` operator is used to search for patterns in text columns using special wildcard characters:\n\n- **Percent (%)**: Matches zero or more characters (e.g., `API%` matches values starting with \"API\", `%API` ends with \"API\", and `%API%` contains \"API\" anywhere).\n- **Underscore (_)**: Matches exactly **one** character (e.g., `_Login%` matches strings that start with exactly one character followed by \"Login\", matching \"ALogin\" but not \"Login\" or \"APILogin\")."
         }
       },
+      sqlLikeBetweenInFilm,
       {
         "type": "quiz",
         "question": {
@@ -2939,6 +4934,7 @@ const finalEnSections = [
           "en": "Window functions perform calculations across a set of table rows that are related to the current row, without collapsing the rows into a single summary row like GROUP BY does:\n\n- **OVER (PARTITION BY ...)**: Defines the subset of rows (window partition) the function is calculated against.\n- **ROW_NUMBER()**: Assigns a unique sequential integer (1, 2, 3...) to each row within its partition.\n- **RANK() vs DENSE_RANK()**: Determines order for duplicate values. `RANK()` leaves gaps in the ordering sequence after duplicates (1, 1, 3). `DENSE_RANK()` continues without skipping any numbers (1, 1, 2)."
         }
       },
+      sqlWindowFunctionsFilm,
       {
         "type": "quiz",
         "question": {
@@ -3088,6 +5084,7 @@ const finalEnSections = [
           "en": "A CTE (Common Table Expression) is a temporary named result set that you can reference within a SELECT, INSERT, UPDATE, or DELETE statement:\n\n- **Definition**: Declared at the very start of a query using `WITH cte_name AS (SELECT...)`. It acts like a virtual table for the main query.\n- **Advantage**: Dramatically improves query readability and maintenance by decomposing nested, hard-to-read subqueries into clean, sequential virtual tables.\n- **Recursive CTEs**: A CTE that references itself. Essential for traversing hierarchical or tree-structured data (e.g. organizational hierarchies or product categories)."
         }
       },
+      sqlCtesFilm,
       {
         "type": "quiz",
         "question": {
@@ -3208,6 +5205,7 @@ const finalEnSections = [
           "en": "A transaction is a unit of work that executes under an \"all-or-nothing\" rule, guaranteed by ACID properties:\n\n- **Isolation**: Ensures that concurrent transactions do not interfere with each other or see intermediate, uncommitted states. Each runs as if it were the only one.\n- **ROLLBACK**: Reverts all database modifications made since the transaction started, returning the database to its last committed, stable state.\n- **COMMIT**: Permanently saves all changes made during the transaction and releases active resource locks."
         }
       },
+      sqlTransactionsFilm,
       {
         "type": "quiz",
         "question": {
@@ -3371,6 +5369,7 @@ const finalEnSections = [
           "en": "Database optimization and schema management rely on two key concepts:\n\n- **Indexes**: Accelerate SELECT queries by avoiding full table scans. However, blindly indexing columns degrades write performance (INSERT, UPDATE, DELETE) because the index structures (e.g. B-Trees) must be updated dynamically on every write, consuming additional disk space.\n- **Views**: A View is a virtual table representation defined by a stored SELECT query. It does not store data itself; rather, it queries the underlying base tables dynamically whenever called."
         }
       },
+      sqlIndexesViewsFilm,
       {
         "type": "quiz",
         "question": {
@@ -3601,6 +5600,7 @@ const finalEnSections = [
           "en": "SQL Injection is a critical vulnerability where user inputs are concatenated directly into SQL queries, enabling attackers to inject malicious SQL commands by manipulating quotes.\n\n- **Prevention**: Use Parameterized Queries (Prepared Statements). In this pattern, the query structure is pre-compiled by the database engine. User inputs are bound strictly as parameters (data literals), ensuring they are never executed as database code."
         }
       },
+      sqlInjectionFilm,
       {
         "type": "quiz",
         "question": {
@@ -3778,6 +5778,7 @@ const finalEnSections = [
         "code": "-- 1. Identify a slow query and add EXPLAIN before it:\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL' AND environment = 'prod';\n\n-- Look for:\n-- type: \"ALL\" = full table scan (bad — reads every row)\n-- key: NULL   = no index being used (bad)\n-- rows: high  = many rows examined\n\n-- 2. Create a composite index:\nCREATE INDEX idx_status_env ON test_results(status, environment);\n\n-- 3. Run EXPLAIN again:\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL' AND environment = 'prod';\n-- Now see: type: \"ref\", key: idx_status_env, rows: much lower\n\n-- EXPLAIN ANALYZE (PostgreSQL — actually runs the query):\nEXPLAIN ANALYZE SELECT * FROM test_results WHERE status = 'FAIL';",
         "expected": "Before index: type=ALL, rows=50000, key=NULL\nAfter index:  type=ref, rows=120, key=idx_status_env"
       },
+      sqlQaUseCasesFilm,
       {
         "type": "quiz",
         "question": {
@@ -3982,6 +5983,9 @@ const finalEnSections = [
           "en": "Database architectures rely on structured communication layers:\n\n- **Database Engine**: The server system managing physical data and execution (e.g., PostgreSQL, MySQL).\n- **Driver**: The connector library bridging your programming language and the engine. Python's sqlite3 driver is built-in, whereas PostgreSQL needs `psycopg2` and Java requires a database-specific JDBC dependency.\n- **ORM**: Maps rows directly to code objects. While great for backend development, QA automation scripts generally prefer raw SQL for seeding and cleaning test data due to lower setup complexity and execution speed."
         }
       },
+      sqlEcosystemFilm,
+      sqlEcosystemSteps,
+      sqlEcosystemPractice,
       {
         "type": "quiz",
         "question": {
@@ -4239,6 +6243,9 @@ const finalEnSections = [
           "en": "QA engineers frequently encounter these common constraint and lock errors in automated pipelines:\n\n- **Lock Wait Timeout Exceeded**: Occurs when concurrent processes attempt to modify the same rows. If a previous test leaves a transaction open (fails to run COMMIT/ROLLBACK), subsequent tests will hang waiting for row locks and eventually time out.\n- **FOREIGN KEY Constraint Failed**: Triggered when attempting to write a child record referencing an ID that does not exist in the parent table. Fix by creating the parent record first."
         }
       },
+      sqlTroubleshootingFilm,
+      sqlTroubleshootingSteps,
+      sqlTroubleshootingPractice,
       {
         "type": "quiz",
         "question": {
@@ -4461,6 +6468,9 @@ const finalEnSections = [
           "en": "Java (JDBC) and Python approach database connectivity and library management differently:\n\n- **Dependency Management**: Python's `sqlite3` is built-in, requiring no configuration. Java JDBC provides a standard interface but requires declaring vendor-specific database driver jar dependencies in Maven (pom.xml) or Gradle.\n- **Parameter Binding**: Java's `PreparedStatement` (`pstmt.setInt(1, 25)`) and Python's parameter binding (`cursor.execute(..., (25,))`) share the exact same objective: isolating input values from query commands to prevent SQL Injection."
         }
       },
+      sqlJavaToSqlFilm,
+      sqlJavaToSqlSteps,
+      sqlJavaToSqlPractice,
       {
         "type": "quiz",
         "question": {
@@ -4855,6 +6865,9 @@ const finalEnSections = [
           }
         ]
       },
+      sqlPracticeReferenceFilm,
+      sqlPracticeReferenceSteps,
+      sqlPracticeReferencePractice,
       {
         "type": "quiz",
         "question": {
@@ -5227,6 +7240,7 @@ const finalEnSections = [
         "language": "bash",
         "code": "# .env.local file (do NOT commit — add it to .gitignore!)\n\n# PostgreSQL connection URL format\nDATABASE_URL=\"postgresql://user:password@localhost:5432/myapp_db?schema=app\"\n\n# For SQLite (dev environment — no server needed)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver connection settings (connects to the same database)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL default)\n# Database : myapp_db\n# Username : user\n# Password : password\n# Schema   : app"
       },
+      sqlDbeaverFilm,
       {
         "type": "quiz",
         "question": {
@@ -5402,6 +7416,9 @@ const finalEnSections = [
               {"level":"advanced","q":{"en":"Q50: What is the N+1 query problem and how do you detect it in QA test automation?","tr":"Soru 50: N+1 sorgu problemi nedir ve QA test otomasyonunda nasıl tespit edilir?"},"a":{"en":"The N+1 problem: 1 query fetches N parent records, then N more queries fetch each child separately (N+1 DB round-trips). Example: 100 orders + 100 item queries instead of 1 JOIN. Detect in QA: 1) Enable SQL query logging in test env. 2) Assert page load triggers fewer queries than a threshold. 3) Use Hibernate stats or p6spy to count queries per test. Java analogy: calling a DB method inside a for-each loop.","tr":"N+1 problemi: 1 sorgu N parent kaydı getirir, ardından her biri için N sorgu daha koşar (N+1 DB turu). Örnek: 100 sipariş + 100 ürün sorgusu yerine 1 JOIN yeterli. QA tespit: 1) Test ortamında SQL loglama etkinleştir. 2) Sayfa yüklemesinin sorgu limitini aşmadığını assert et. 3) Hibernate istatistikleri veya p6spy ile test başına sorgu sayısını say. Java analogu: for-each döngüsü içinde DB metodu çağırmak."},"code":{"en":"-- N+1 (bad): 1 parent query + N child queries in loop\nSELECT * FROM orders;  -- then loop: SELECT * FROM items WHERE order_id = ?\n\n-- Fix: single JOIN (1 query total)\nSELECT o.id, o.total, i.name\nFROM orders o JOIN order_items i ON i.order_id = o.id;","tr":"-- N+1 (kötü): 1 parent sorgusu + döngüde N alt sorgu\nSELECT * FROM orders;  -- sonra: SELECT * FROM items WHERE order_id = ?\n\n-- Düzeltme: tek JOIN (toplam 1 sorgu)\nSELECT o.id, o.total, i.name\nFROM orders o JOIN order_items i ON i.order_id = o.id;"}},
         ],
       },
+      sqlInterviewFilm,
+      sqlInterviewSteps,
+      sqlInterviewPractice,
       {
         "type": "quiz",
         "question": {
@@ -5765,6 +7782,8 @@ const finalTrSections = [
         ],
         "note": "Her satır bir kayıttır. Her sütun bir alandır. id, Primary Key'dir — her satırı benzersiz olarak tanımlar."
       },
+      sqlIntroWhyFilm,
+      sqlIntroPractice,
       {
         "type": "quiz",
         "question": "SQL neyin kısaltmasıdır?",
@@ -5933,6 +7952,7 @@ const finalTrSections = [
         "type": "code",
         "code": "# SQLite — built into Python, no install needed:\nimport sqlite3\n\nconn   = sqlite3.connect(\"test.db\")   # connect (creates file if not exists)\ncursor = conn.cursor()\n\ncursor.execute(\"SELECT * FROM users WHERE age > 25\")\nrows = cursor.fetchall()              # get all results as list of tuples\n\nfor row in rows:\n    print(row)\n\nconn.close()\n\n# PostgreSQL — install: pip install psycopg2-binary\nimport psycopg2\n\nconn = psycopg2.connect(\n    host=\"localhost\", database=\"testdb\",\n    user=\"postgres\",  password=\"mypassword\"\n)\ncursor = conn.cursor()\ncursor.execute(\"SELECT COUNT(*) FROM orders WHERE status = 'pending'\")\ncount = cursor.fetchone()[0]\nprint(f\"Pending orders: {count}\")\nconn.close()"
       },
+      sqlInstallationFilm,
       {
         "type": "quiz",
         "question": {
@@ -6079,6 +8099,7 @@ const finalTrSections = [
           "en": "When defining tables, we add rules (constraints) to columns to ensure data integrity:\n\n1. **PRIMARY KEY**: A column that **uniquely** identifies each row. No two rows can have the same primary key, and it can never be empty (`NULL`).\n2. **AUTO_INCREMENT**: Automatically generates a sequential number (1, 2, 3...) when a new row is inserted.\n3. **NOT NULL**: Ensures that a column cannot have a `NULL` (empty) value.\n4. **VARCHAR(n)**: Variable-length text, where `n` is the maximum character limit (e.g., `VARCHAR(100)`).\n5. **DEFAULT**: Specifies a fallback value if no value is provided during insertion (e.g., `DEFAULT 0` or `DEFAULT FALSE`)."
         }
       },
+      sqlCreateTableFilm,
       {
         "type": "quiz",
         "question": {
@@ -6285,6 +8306,7 @@ const finalTrSections = [
           "en": "When inserting new rows (INSERT INTO), keep these two critical rules in mind:\n\n1. **Specifying Columns (Best Practice)**: Explicitly declaring column names like `INSERT INTO users (id, name)...` is the safest way. Omitting them (`INSERT INTO users VALUES...`) makes the query fragile, as it will break if a column is added or rearranged in the future.\n2. **Bulk Insert Performance**: Instead of running 1,000 individual `INSERT` statements, sending all values in a single bulk `INSERT INTO ... VALUES (1, \"A\"), (2, \"B\")...` reduces network roundtrips and transaction overhead, multiplying write speed."
         }
       },
+      sqlInsertIntoFilm,
       {
         "type": "quiz",
         "question": {
@@ -6438,6 +8460,7 @@ const finalTrSections = [
           "en": "We read data from the database using the SELECT statement:\n\n- **Column Selection**: While `SELECT *` retrieves all columns, it is best practice to select only the necessary columns (`SELECT name, status`) to save memory and network bandwidth.\n- **Sorting (ORDER BY)**: Sorts output rows by a column in ascending (`ASC`, default) or descending (`DESC`) order.\n- **Limiting and Paging (LIMIT & OFFSET)**: `LIMIT 10` restricts results to a maximum of 10 rows. `OFFSET 20` skips the first 20 rows before starting to return values (ideal for pagination).\n- **Uniqueness (DISTINCT)**: Filters out duplicate values from your results, returning only unique entries (e.g. `SELECT DISTINCT status`)."
         }
       },
+      sqlSelectSortFilm,
       {
         "type": "quiz",
         "question": {
@@ -6574,6 +8597,7 @@ const finalTrSections = [
           "en": "Updating (UPDATE) and deleting (DELETE) data can cause irreversible damage. Follow these safety rules:\n\n1. **The Critical WHERE Clause**: Running `UPDATE` or `DELETE` without a `WHERE` filter modifies or deletes **every single row** in the table! (e.g., `DELETE FROM logs;` empties the table completely but keeps its schema/structure).\n2. **Verify with SELECT First**: Before running an update or delete, run the exact same `WHERE` condition in a `SELECT` query first. This confirms you are targeting only the intended rows."
         }
       },
+      sqlUpdateDeleteFilm,
       {
         "type": "quiz",
         "question": {
@@ -6752,6 +8776,7 @@ const finalTrSections = [
           "en": "NULL represents missing or unknown data in a database. It is not equivalent to zero (0) or an empty string (''):\n\n- **Matching Queries**: You cannot test for NULL using regular equality operators like `=` or `!=` (e.g., `status = NULL` will fail). You must use `IS NULL` or `IS NOT NULL`.\n- **COALESCE(column, fallback)**: Returns the first non-NULL value in its arguments. Useful for providing fallback defaults (e.g., `COALESCE(environment, \"local\")`).\n- **NULLIF(val1, val2)**: Returns `NULL` if the two arguments are equal. Frequently used to prevent crash-inducing division-by-zero errors (e.g. `NULLIF(total_runs, 0)`)."
         }
       },
+      sqlNullValuesFilm,
       {
         "type": "quiz",
         "question": {
@@ -7065,6 +9090,7 @@ const finalTrSections = [
         }
       },
       sqlQueryOrderFilm,
+      sqlQueryOrderPractice,
       {
         "type": "quiz",
         "question": {
@@ -7216,6 +9242,7 @@ const finalTrSections = [
           "en": "Aggregate functions (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`) collapse multiple rows of data into a summary:\n\n1. **Usage Without GROUP BY**: If used alone (e.g., `SELECT COUNT(*) FROM test_results;`), the engine treats the entire table as a single massive partition and outputs exactly one summary row.\n2. **The GROUP BY Rule**: If you select a non-aggregated column alongside an aggregate function (e.g., `SELECT status, COUNT(*)`), you must list that column in a `GROUP BY` clause. Otherwise, standard SQL throws an error because it cannot display individual rows alongside summarized values."
         }
       },
+      sqlAggregateFilm,
       {
         "type": "quiz",
         "question": {
@@ -7373,6 +9400,7 @@ const finalTrSections = [
           "en": "GROUP BY and HAVING are used to organize rows into summary groups and filter the results:\n\n- **Grouping (GROUP BY)**: Gathers rows that share the same values in specified columns (e.g., group test runs by their environment: `GROUP BY environment`).\n- **Group Filtering (HAVING)**: Evaluates conditions on groups of rows. **WHERE filters source rows before grouping, while HAVING filters the groups themselves.** Unlike WHERE, HAVING allows aggregate functions in its conditions (e.g. `HAVING COUNT(*) > 5`)."
         }
       },
+      sqlGroupByHavingFilm,
       {
         "type": "quiz",
         "question": {
@@ -7757,6 +9785,7 @@ const finalTrSections = [
           "note": "LEFT JOIN: 0 hatalı durumları da doğru işler"
         }
       },
+      sqlJoinsFilm,
       {
         "type": "quiz",
         "question": "Hangi JOIN türü, sağ tabloda eşleşmesi olmayan satırlar dahil sol tablodan TÜM satırları döndürür?",
@@ -7937,6 +9966,7 @@ const finalTrSections = [
           "en": "A subquery is a SELECT query nested inside another SQL statement. There are two primary types:\n\n- **Simple Subquery**: Runs independently of the outer query. It executes **once** first, computes its value, and hands it to the outer query.\n- **Correlated Subquery**: References columns from the outer query. It must execute **once for each row** evaluated by the outer query, which can create significant performance overhead on large tables.\n- **EXISTS Operator**: Checks for the existence of rows in a subquery. It stops searching as soon as it finds a single match, making it highly efficient."
         }
       },
+      sqlSubqueriesFilm,
       {
         "type": "quiz",
         "question": {
@@ -8078,6 +10108,7 @@ const finalTrSections = [
           "en": "The `LIKE` operator is used to search for patterns in text columns using special wildcard characters:\n\n- **Percent (%)**: Matches zero or more characters (e.g., `API%` matches values starting with \"API\", `%API` ends with \"API\", and `%API%` contains \"API\" anywhere).\n- **Underscore (_)**: Matches exactly **one** character (e.g., `_Login%` matches strings that start with exactly one character followed by \"Login\", matching \"ALogin\" but not \"Login\" or \"APILogin\")."
         }
       },
+      sqlLikeBetweenInFilm,
       {
         "type": "quiz",
         "question": {
@@ -8234,6 +10265,7 @@ const finalTrSections = [
           "en": "Window functions perform calculations across a set of table rows that are related to the current row, without collapsing the rows into a single summary row like GROUP BY does:\n\n- **OVER (PARTITION BY ...)**: Defines the subset of rows (window partition) the function is calculated against.\n- **ROW_NUMBER()**: Assigns a unique sequential integer (1, 2, 3...) to each row within its partition.\n- **RANK() vs DENSE_RANK()**: Determines order for duplicate values. `RANK()` leaves gaps in the ordering sequence after duplicates (1, 1, 3). `DENSE_RANK()` continues without skipping any numbers (1, 1, 2)."
         }
       },
+      sqlWindowFunctionsFilm,
       {
         "type": "quiz",
         "question": {
@@ -8383,6 +10415,7 @@ const finalTrSections = [
           "en": "A CTE (Common Table Expression) is a temporary named result set that you can reference within a SELECT, INSERT, UPDATE, or DELETE statement:\n\n- **Definition**: Declared at the very start of a query using `WITH cte_name AS (SELECT...)`. It acts like a virtual table for the main query.\n- **Advantage**: Dramatically improves query readability and maintenance by decomposing nested, hard-to-read subqueries into clean, sequential virtual tables.\n- **Recursive CTEs**: A CTE that references itself. Essential for traversing hierarchical or tree-structured data (e.g. organizational hierarchies or product categories)."
         }
       },
+      sqlCtesFilm,
       {
         "type": "quiz",
         "question": {
@@ -8503,6 +10536,7 @@ const finalTrSections = [
           "en": "A transaction is a unit of work that executes under an \"all-or-nothing\" rule, guaranteed by ACID properties:\n\n- **Isolation**: Ensures that concurrent transactions do not interfere with each other or see intermediate, uncommitted states. Each runs as if it were the only one.\n- **ROLLBACK**: Reverts all database modifications made since the transaction started, returning the database to its last committed, stable state.\n- **COMMIT**: Permanently saves all changes made during the transaction and releases active resource locks."
         }
       },
+      sqlTransactionsFilm,
       {
         "type": "quiz",
         "question": {
@@ -8666,6 +10700,7 @@ const finalTrSections = [
           "en": "Database optimization and schema management rely on two key concepts:\n\n- **Indexes**: Accelerate SELECT queries by avoiding full table scans. However, blindly indexing columns degrades write performance (INSERT, UPDATE, DELETE) because the index structures (e.g. B-Trees) must be updated dynamically on every write, consuming additional disk space.\n- **Views**: A View is a virtual table representation defined by a stored SELECT query. It does not store data itself; rather, it queries the underlying base tables dynamically whenever called."
         }
       },
+      sqlIndexesViewsFilm,
       {
         "type": "quiz",
         "question": {
@@ -8896,6 +10931,7 @@ const finalTrSections = [
           "en": "SQL Injection is a critical vulnerability where user inputs are concatenated directly into SQL queries, enabling attackers to inject malicious SQL commands by manipulating quotes.\n\n- **Prevention**: Use Parameterized Queries (Prepared Statements). In this pattern, the query structure is pre-compiled by the database engine. User inputs are bound strictly as parameters (data literals), ensuring they are never executed as database code."
         }
       },
+      sqlInjectionFilm,
       {
         "type": "quiz",
         "question": {
@@ -9073,6 +11109,7 @@ const finalTrSections = [
         "code": "-- 1. Identify a slow query and add EXPLAIN before it:\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL' AND environment = 'prod';\n\n-- Look for:\n-- type: \"ALL\" = full table scan (bad — reads every row)\n-- key: NULL   = no index being used (bad)\n-- rows: high  = many rows examined\n\n-- 2. Create a composite index:\nCREATE INDEX idx_status_env ON test_results(status, environment);\n\n-- 3. Run EXPLAIN again:\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL' AND environment = 'prod';\n-- Now see: type: \"ref\", key: idx_status_env, rows: much lower\n\n-- EXPLAIN ANALYZE (PostgreSQL — actually runs the query):\nEXPLAIN ANALYZE SELECT * FROM test_results WHERE status = 'FAIL';",
         "expected": "Before index: type=ALL, rows=50000, key=NULL\nAfter index:  type=ref, rows=120, key=idx_status_env"
       },
+      sqlQaUseCasesFilm,
       {
         "type": "quiz",
         "question": {
@@ -9277,6 +11314,9 @@ const finalTrSections = [
           "en": "Database architectures rely on structured communication layers:\n\n- **Database Engine**: The server system managing physical data and execution (e.g., PostgreSQL, MySQL).\n- **Driver**: The connector library bridging your programming language and the engine. Python's sqlite3 driver is built-in, whereas PostgreSQL needs `psycopg2` and Java requires a database-specific JDBC dependency.\n- **ORM**: Maps rows directly to code objects. While great for backend development, QA automation scripts generally prefer raw SQL for seeding and cleaning test data due to lower setup complexity and execution speed."
         }
       },
+      sqlEcosystemFilm,
+      sqlEcosystemSteps,
+      sqlEcosystemPractice,
       {
         "type": "quiz",
         "question": {
@@ -9534,6 +11574,9 @@ const finalTrSections = [
           "en": "QA engineers frequently encounter these common constraint and lock errors in automated pipelines:\n\n- **Lock Wait Timeout Exceeded**: Occurs when concurrent processes attempt to modify the same rows. If a previous test leaves a transaction open (fails to run COMMIT/ROLLBACK), subsequent tests will hang waiting for row locks and eventually time out.\n- **FOREIGN KEY Constraint Failed**: Triggered when attempting to write a child record referencing an ID that does not exist in the parent table. Fix by creating the parent record first."
         }
       },
+      sqlTroubleshootingFilm,
+      sqlTroubleshootingSteps,
+      sqlTroubleshootingPractice,
       {
         "type": "quiz",
         "question": {
@@ -9759,6 +11802,9 @@ const finalTrSections = [
           "en": "Java (JDBC) and Python approach database connectivity and library management differently:\n\n- **Dependency Management**: Python's `sqlite3` is built-in, requiring no configuration. Java JDBC provides a standard interface but requires declaring vendor-specific database driver jar dependencies in Maven (pom.xml) or Gradle.\n- **Parameter Binding**: Java's `PreparedStatement` (`pstmt.setInt(1, 25)`) and Python's parameter binding (`cursor.execute(..., (25,))`) share the exact same objective: isolating input values from query commands to prevent SQL Injection."
         }
       },
+      sqlJavaToSqlFilm,
+      sqlJavaToSqlSteps,
+      sqlJavaToSqlPractice,
       {
         "type": "quiz",
         "question": {
@@ -10153,6 +12199,9 @@ const finalTrSections = [
           }
         ]
       },
+      sqlPracticeReferenceFilm,
+      sqlPracticeReferenceSteps,
+      sqlPracticeReferencePractice,
       {
         "type": "quiz",
         "question": {
@@ -10525,6 +12574,7 @@ const finalTrSections = [
         "language": "bash",
         "code": "# .env.local dosyası (git'e EKLEME — .gitignore'a ekle!)\n\n# PostgreSQL bağlantı URL formatı\nDATABASE_URL=\"postgresql://kullanici:sifre@localhost:5432/myapp_db?schema=app\"\n\n# SQLite için (geliştirme ortamı — sunucu gerekmez)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver bağlantı ayarları (aynı veritabanına bağlanır)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL varsayılanı)\n# Database : myapp_db\n# Username : kullanici\n# Password : sifre\n# Schema   : app"
       },
+      sqlDbeaverFilm,
       {
         "type": "quiz",
         "question": {
@@ -10700,6 +12750,9 @@ const finalTrSections = [
               {"level":"advanced","q":{"en":"Q50: What is the N+1 query problem and how do you detect it in QA test automation?","tr":"Soru 50: N+1 sorgu problemi nedir ve QA test otomasyonunda nasıl tespit edilir?"},"a":{"en":"The N+1 problem: 1 query fetches N parent records, then N more queries fetch each child separately (N+1 DB round-trips). Example: 100 orders + 100 item queries instead of 1 JOIN. Detect in QA: 1) Enable SQL query logging in test env. 2) Assert page load triggers fewer queries than a threshold. 3) Use Hibernate stats or p6spy to count queries per test. Java analogy: calling a DB method inside a for-each loop.","tr":"N+1 problemi: 1 sorgu N parent kaydı getirir, ardından her biri için N sorgu daha koşar (N+1 DB turu). Örnek: 100 sipariş + 100 ürün sorgusu yerine 1 JOIN yeterli. QA tespit: 1) Test ortamında SQL loglama etkinleştir. 2) Sayfa yüklemesinin sorgu limitini aşmadığını assert et. 3) Hibernate istatistikleri veya p6spy ile test başına sorgu sayısını say. Java analogu: for-each döngüsü içinde DB metodu çağırmak."},"code":{"en":"-- N+1 (bad): 1 parent query + N child queries in loop\nSELECT * FROM orders;  -- then loop: SELECT * FROM items WHERE order_id = ?\n\n-- Fix: single JOIN (1 query total)\nSELECT o.id, o.total, i.name\nFROM orders o JOIN order_items i ON i.order_id = o.id;","tr":"-- N+1 (kötü): 1 parent sorgusu + döngüde N alt sorgu\nSELECT * FROM orders;  -- sonra: SELECT * FROM items WHERE order_id = ?\n\n-- Düzeltme: tek JOIN (toplam 1 sorgu)\nSELECT o.id, o.total, i.name\nFROM orders o JOIN order_items i ON i.order_id = o.id;"}},
         ],
       },
+      sqlInterviewFilm,
+      sqlInterviewSteps,
+      sqlInterviewPractice,
       {
         "type": "quiz",
         "question": {

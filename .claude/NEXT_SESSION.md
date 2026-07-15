@@ -74,11 +74,51 @@ Bu dalganın değişikliği (`src/data/pythonData.js`, +2198/-44 satır) commit
 edilecek — commit hash'i bu bölümün hemen altına (bir sonraki güncellemede)
 düşülecek.
 
+### Sıradaki adım (Dalga 8 için, artık eski)
+~~Dalga 9 (/sql)~~ → TAMAMLANDI, bkz. aşağıdaki güncel bölüm.
+
+---
+
+## Dalga 9 — /sql — TAMAMLANDI (25/25 sekme, 2026-07-15 devam)
+
+Aynı `feature/video-scene-dalga4` branch'inde, aynı workflow (yukarıdaki
+"workflow değişikliği" notu geçerli — e2e/Playwright atlanıyor, sadece
+integrity+TR tarama+build).
+
+**Yapı:** `sqlData.js` EN+TR AYRI AĞAÇLI (`finalEnSections`/
+`finalTrSections`, applyTr/index-override YOK — pythonData'dan farklı,
+daha güvenli kalıp). 25 sekme (`enTabs`/`trTabs`), sadece "🟢 SQL Query
+Order" sekmesinde film vardı (`sqlQueryOrderFilm`, önceden mevcut).
+
+**Eklenenler:**
+- 24 yeni `video-scene` filmi (SQL Query Order hariç tüm sekmeler),
+  her biri sekmenin gerçek mekanizmasına bağlı (örn. `UPDATE&DELETE` →
+  WHERE'siz UPDATE felaketi kontrastı, `NULL Values` → `= NULL` vs
+  `IS NULL` tuzağı, `SQL Injection` → concatenation istismarı + parametrized
+  query koruması, `Window Functions` → GROUP BY'dan farkı).
+- Animasyon/sandbox'ı eksik 7 sekme tamamlandı: Intro&Why (sandbox),
+  SQL Query Order (sandbox), Ecosystem (animasyon+sandbox), Troubleshooting
+  (animasyon+sandbox), Java→SQL (animasyon+sandbox), Practice&Reference
+  (animasyon+sandbox), Interview Q&A (animasyon+sandbox) — hepsi
+  `relatedTopicId` ile.
+- Toplam 36 yeni sabit (24 film + 12 destek bloğu), tümü proje genelinde
+  benzersiz id ile.
+
+**Doğrulama (daraltılmış kapsam — e2e hariç):**
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (agent 1 TR sızıntı
+  buldu — `sqlUpdateDeleteFilm`'de `-- 1 row affected` → `-- 1 satır
+  etkilendi` düzeltildi — sonra temiz).
+- `npm run build` → temiz, 0 hata. `sqlData` chunk: **692.76 kB / gzip
+  221.71 kB** (javaData/typescriptData ile aynı "büyük chunk" uyarı
+  kategorisine girdi, henüz aksiyon gerektirmiyor — CLAUDE.md §14).
+- `tests/video-scene.spec.ts` genişletilmedi, Playwright çalıştırılmadı
+  (final toplu tur bekleniyor).
+
+**Commit:** bu dalganın değişikliği commit edilecek, hash bir sonraki
+güncellemede düşülecek.
+
 ### Sıradaki adım
-`Documents/video-sitewide-plan.md` sırasındaki **Dalga 9 (/sql — önce yapı
-tespiti gerekli, "?" sekme sayısı)** — aynı `feature/video-scene-dalga4`
-branch'inde devam edilecek (her dalgada yeni branch AÇILMIYOR, sadece Dalga
-8 başlangıcında açıldı).
+Dalga 10 (`/cypress`, ~18 sekme) — aynı branch'te devam.
 
 ---
 
