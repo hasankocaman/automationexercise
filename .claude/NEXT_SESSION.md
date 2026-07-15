@@ -28,6 +28,63 @@
 
 ---
 
+## DALGA 4 — /linux (2026-07-15, TAMAMLANDI, commit BEKLİYOR)
+
+> `Documents/video-sitewide-plan.md` Bölüm 5'teki parametrik Sonnet şablonuyla
+> koşuldu (kullanıcı talimatıyla model: Sonnet). Başlangıç durumu farklıydı:
+> commit `028a651` ("src/data/linuxData.js dosyası update edildi") linuxData.js
+> başına 9 film + 4 step-animation + 4 code-playground sabiti EKLEMİŞ ama
+> HİÇBİRİNİ sekmelerin blocks dizisine bağlamamıştı (her sabit tanımdan sonra
+> 0 kullanım — muhtemelen başka bir araçla yarım bırakılmış). Bu oturumda önce
+> bu tespit yapıldı, sonra 17 sabitin tümü (17 = 9 film + 4 step-animation +
+> 4 code-playground) ilgili sekmelere EN+TR ağaçlarının İKİSİNE de aynı
+> referansla yerleştirildi — hiçbiri uydurulmadı, hepsi dosyada zaten
+> hazırdı.
+
+### Sekme × film × animasyon × sandbox matrisi (10 sekme, hepsi ✅)
+
+| Sekme | Film | Animasyon | Sandbox |
+|---|---|---|---|
+| 🎯 Giriş | ✅ `linuxInvisibleWallFilm` (yeni) | ✅ `css-animation` (mevcut, Dalga 2) | ✅ `linuxIntroCommandMapPractice` (yeni) |
+| ⚙️ Kurulum | ✅ `linuxWsl2BridgeFilm` (yeni) | ✅ `linuxWsl2InstallSteps` (yeni) | ✅ `git-practice` (mevcut) |
+| 📁 Dosya Sistemi | ✅ `linuxPathResolutionFilm` (yeni) | ✅ `step-animation` (mevcut) | ✅ `code-playground` + `git-practice` (mevcut) |
+| 🔐 İzinler | ✅ `linuxPermissionGateFilm` (yeni) | ✅ `step-animation` (mevcut) | ✅ `code-playground` + `git-practice` (mevcut) |
+| 📝 Metin & Pipe'lar | ✅ `pipeChainFilm` (Dalga 2) | ✅ `step-animation` (mevcut) | ✅ `code-playground` (mevcut) |
+| ⚙️ Süreçler | ✅ `linuxSignalLadderFilm` (yeni) | ✅ `step-animation` (mevcut) | ✅ `code-playground` + `git-practice` (mevcut) |
+| 🧪 Gerçek Hayat QA | ✅ `linuxCiDebugChainFilm` (yeni) | ✅ `step-animation` (mevcut) | ✅ `code-playground` (mevcut) |
+| 🔗 Ekosistem | ✅ `linuxLeakyAbstractionFilm` (yeni) | ✅ `linuxKernelShareSteps` (yeni) | ✅ `linuxBashScriptPractice` (yeni — sekme sıfırdan tamamlandı) |
+| 🚨 Hata Sözlüğü | ✅ `linuxErrorDiagnosisFilm` (yeni) | ✅ `linuxErrorDiagnosisSteps` (yeni) | ✅ `linuxErrorPractice` (yeni) |
+| 💼 Mülakat | ✅ `linuxInterviewAnswerFilm` (yeni) | ✅ `linuxInterviewAnswerSteps` (yeni) | ✅ `linuxInterviewPractice` (yeni) |
+
+Yerleşim kuralı (CLAUDE.md §9.1) her sekmede takip edildi: film/animasyon
+ilgili kod bloğunun hemen ardına, quiz'den önce. Hata Sözlüğü ve Mülakat
+sekmelerinde sıra git-github Fable payı kalıbı birebir takip edildi:
+Hata Sözlüğü = film → steps → `error-dictionary` (mevcut) → practice;
+Mülakat = film → steps → practice → `interview-questions` (mevcut).
+
+### Doğrulama (§1.1) — hepsi geçti
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (17 sabitin hepsi
+  `relatedTopicId`'li; 3 kez grep edilip 1 tanım + 2 kullanım (EN+TR)
+  doğrulandı)
+- TR yorum taraması: linuxData.js'e Dalga 4 ile eklenen tüm TR caption/code/
+  hint alanları tek tek okunarak tarandı — İngilizce açıklama cümlesi yok,
+  kod yorumları dosyanın mevcut ASCII-Türkçe kalıbına uyuyor
+  (`# TODO: ... yaz`, `# kanit: ...` gibi); gerçek terminal çıktıları
+  (`Permission denied`, `OOMKilled`, `LISTEN` vb.) kural gereği değiştirilmedi.
+- `npm run build` → temiz, 22.54s, 41 shell; `linuxData` chunk'ı
+  **335.32 kB / gzip 113.51 kB** — performans eşiğinin (gzip 350KB, CLAUDE.md
+  §Bölüm 4) çok altında.
+- `npx playwright test tests/video-scene.spec.ts --workers=1` → **12/12 PASS**
+  (9 eski + 3 yeni Dalga 4 testi: 🎯 Giriş, 🔗 Ekosistem, 🚨 Hata Sözlüğü;
+  💼 Mülakat BİLEREK dışarıda bırakıldı — quiz-gating %60 kilidi arkasında).
+
+### Sıradaki adım
+Bu Dalga 4 değişikliklerini (linuxData.js + tests/video-scene.spec.ts +
+bu dosya) commit et (kullanıcı onayıyla), sonra `Documents/video-sitewide-plan.md`
+sırasındaki Dalga 5'e (/docker) geç.
+
+---
+
 ## DALGA 3 — Pilot Derinleştirme: git-github + gauge (2026-07-15, Fable payı TAMAM — commit BEKLİYOR)
 
 > Kullanıcı pilot sayfa olarak `/git-github` + `/gauge` seçti. Hedef: her

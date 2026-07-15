@@ -1694,6 +1694,7 @@ export const linuxData = {
               'Debug "works on my machine" issues where CI runs Linux and your laptop runs Windows/macOS',
             ],
           },
+          linuxInvisibleWallFilm,
           { type: 'heading', text: 'Windows Commands vs Linux Commands — A Quick Map' },
           {
             type: 'table',
@@ -1709,6 +1710,7 @@ export const linuxData = {
               ['Who am I', 'whoami', 'whoami'],
             ],
           },
+          linuxIntroCommandMapPractice,
           {
             type: 'quiz',
             question: 'What is the correct relationship between terminal, shell, and kernel?',
@@ -1768,6 +1770,8 @@ export const linuxData = {
               { cmd: 'lsb_release -a', explanation: 'Verifies the installation. Expected output includes "Distributor ID: Ubuntu" and a version number like "22.04".' },
             ],
           },
+          linuxWsl2BridgeFilm,
+          linuxWsl2InstallSteps,
           { type: 'heading', text: 'macOS → You Already Have a Unix Shell' },
           {
             type: 'installation',
@@ -1929,6 +1933,7 @@ ls -la                       # drwxr-xr-x  test-suite/  notes.txt  .env
 cd test-suite                # move into the project folder
 pwd                          # /home/qa/test-suite`,
           },
+          linuxPathResolutionFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-ls-cd-pwd-practice-01',
@@ -2085,6 +2090,7 @@ chmod 755 deploy.sh               # rwxr-xr-x — owner full, others read+execut
 sudo chown jenkins:ci deploy.sh   # transfer ownership to the jenkins user/group
 ls -l deploy.sh                   # -rwxr-xr-x 1 jenkins ci 412 deploy.sh`,
           },
+          linuxPermissionGateFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-chmod-chown-practice-01',
@@ -2428,6 +2434,7 @@ ps aux | grep selenium          # still there? it ignored SIGTERM
 kill -9 4821                    # SIGKILL, force it
 ps aux | grep selenium          # no matching process — it is gone`,
           },
+          linuxSignalLadderFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-ps-kill-practice-01',
@@ -2681,6 +2688,7 @@ ps aux | grep java             # check if the Jenkins agent process is alive`,
 du -sh /var/log/* /tmp/* | sort -rh | head -10   # biggest space consumers
 find /var/log -name "*.log" -mtime +30 -delete   # delete logs older than 30 days`,
           },
+          linuxCiDebugChainFilm,
           { type: 'heading', text: 'Writing a QA Bash Script' },
           {
             type: 'code',
@@ -2844,6 +2852,8 @@ find . -size +100M                  # find suspiciously large files`,
             type: 'text',
             content: 'A Docker container is not a separate operating system — it is a constrained Linux process sharing the host machine\'s kernel, isolated only in filesystem, network, and process view. That is exactly why Docker needs WSL2/Hyper-V on Windows: it needs a real Linux kernel to actually run containers on.',
           },
+          linuxLeakyAbstractionFilm,
+          linuxKernelShareSteps,
           { type: 'heading', text: 'Linux Distributions for QA' },
           {
             type: 'table',
@@ -2866,6 +2876,7 @@ find . -size +100M                  # find suspiciously large files`,
               { icon: '🧩', label: 'functions', desc: 'run_tests() { pytest "$1"; }' },
             ],
           },
+          linuxBashScriptPractice,
           { type: 'heading', text: 'Where Linux Shows Up in Your QA Toolchain' },
           {
             type: 'list',
@@ -2932,7 +2943,10 @@ find . -size +100M                  # find suspiciously large files`,
       {
         title: '🚨 Error Dictionary',
         blocks: [
+          linuxErrorDiagnosisFilm,
+          linuxErrorDiagnosisSteps,
           { type: 'error-dictionary', framework: 'Linux', errors: linuxErrors, relatedTopicId: 'linux-errors' },
+          linuxErrorPractice,
           {
             type: 'quiz',
             question: 'A CI agent fails a step with "Permission denied" when running ./deploy.sh, even though the file clearly exists and the content is correct. What is the most likely cause?',
@@ -2963,6 +2977,9 @@ find . -size +100M                  # find suspiciously large files`,
       {
         title: '💼 Interview Q&A',
         blocks: [
+          linuxInterviewAnswerFilm,
+          linuxInterviewAnswerSteps,
+          linuxInterviewPractice,
           { type: 'interview-questions', topic: 'Linux', questions: linuxInterviewQuestions, relatedTopicId: 'linux' },
         ],
       },
@@ -3013,6 +3030,7 @@ find . -size +100M                  # find suspiciously large files`,
               'CI Linux\'ta, laptop\'un Windows/macOS\'te çalıştığında oluşan "benim makinemde çalışıyor" sorunlarını debug etmek',
             ],
           },
+          linuxInvisibleWallFilm,
           { type: 'heading', text: 'Windows Komutları vs Linux Komutları — Hızlı Harita' },
           {
             type: 'table',
@@ -3028,6 +3046,7 @@ find . -size +100M                  # find suspiciously large files`,
               ['Ben kimim', 'whoami', 'whoami'],
             ],
           },
+          linuxIntroCommandMapPractice,
           {
             type: 'quiz',
             question: 'Terminal, shell ve kernel arasındaki doğru ilişki nedir?',
@@ -3105,6 +3124,8 @@ find . -size +100M                  # find suspiciously large files`,
               { cmd: 'lsb_release -a', explanation: 'Kurulumu doğrular. Beklenen çıktıda "Distributor ID: Ubuntu" ve "22.04" gibi bir versiyon numarası olmalı.' },
             ],
           },
+          linuxWsl2BridgeFilm,
+          linuxWsl2InstallSteps,
           { type: 'heading', text: 'macOS → Zaten Bir Unix Shell\'in Var' },
           {
             type: 'installation',
@@ -3266,6 +3287,7 @@ ls -la                       # drwxr-xr-x  test-suite/  notes.txt  .env
 cd test-suite                # proje klasörüne geç
 pwd                          # /home/qa/test-suite`,
           },
+          linuxPathResolutionFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-ls-cd-pwd-practice-01',
@@ -3422,6 +3444,7 @@ chmod 755 deploy.sh               # rwxr-xr-x — owner full, diğerleri read+ex
 sudo chown jenkins:ci deploy.sh   # sahipliği jenkins kullanıcısına/grubuna devret
 ls -l deploy.sh                   # -rwxr-xr-x 1 jenkins ci 412 deploy.sh`,
           },
+          linuxPermissionGateFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-chmod-chown-practice-01',
@@ -3765,6 +3788,7 @@ ps aux | grep selenium          # hâlâ orada mı? SIGTERM'i yok saydı
 kill -9 4821                    # SIGKILL, zorla durdur
 ps aux | grep selenium          # eşleşen process yok — gitti`,
           },
+          linuxSignalLadderFilm,
           {
             type: 'code-playground',
               relatedTopicId: 'linux-ps-kill-practice-01',
@@ -4018,6 +4042,7 @@ ps aux | grep java             # Jenkins agent process'i hayatta mı?`,
 du -sh /var/log/* /tmp/* | sort -rh | head -10   # en büyük tüketiciler
 find /var/log -name "*.log" -mtime +30 -delete   # 30 günden eski logları sil`,
           },
+          linuxCiDebugChainFilm,
           { type: 'heading', text: 'Bir QA Bash Script Yazmak' },
           {
             type: 'code',
@@ -4181,6 +4206,8 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
             type: 'text',
             content: 'Bir Docker container ayrı bir işletim sistemi değildir — host makinenin kernel\'ini paylaşan, sadece dosya sistemi, ağ ve process görünümü açısından izole edilmiş kısıtlı bir Linux process\'idir. Docker\'ın Windows\'ta WSL2/Hyper-V\'ye ihtiyaç duymasının sebebi tam olarak budur: container\'ları gerçekten çalıştırmak için gerçek bir Linux kernel\'ine gereksinimi vardır.',
           },
+          linuxLeakyAbstractionFilm,
+          linuxKernelShareSteps,
           { type: 'heading', text: 'QA için Linux Dağıtımları' },
           {
             type: 'table',
@@ -4203,6 +4230,7 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
               { icon: '🧩', label: 'fonksiyonlar', desc: 'run_tests() { pytest "$1"; }' },
             ],
           },
+          linuxBashScriptPractice,
           { type: 'heading', text: 'Linux, QA Toolchain\'inde Nerede Karşına Çıkar' },
           {
             type: 'list',
@@ -4269,7 +4297,10 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
       {
         title: '🚨 Hata Sözlüğü',
         blocks: [
+          linuxErrorDiagnosisFilm,
+          linuxErrorDiagnosisSteps,
           { type: 'error-dictionary', framework: 'Linux', errors: linuxErrors, relatedTopicId: 'linux-errors' },
+          linuxErrorPractice,
           {
             type: 'quiz',
             question: 'Bir CI agent\'ı ./deploy.sh çalıştırırken "Permission denied" hatası veriyor, dosya gerçekten var ve içeriği doğru. En olası neden nedir?',
@@ -4300,6 +4331,9 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
       {
         title: '💼 Mülakat S&C',
         blocks: [
+          linuxInterviewAnswerFilm,
+          linuxInterviewAnswerSteps,
+          linuxInterviewPractice,
           { type: 'interview-questions', topic: 'Linux', questions: linuxInterviewQuestions, relatedTopicId: 'linux' },
         ],
       },

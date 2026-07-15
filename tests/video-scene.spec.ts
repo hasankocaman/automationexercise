@@ -197,3 +197,67 @@ test.describe('Video-Scene — Dalga 3 (git-github 11 yeni film + gauge Neden Ga
         await context.close();
     });
 });
+
+// Dalga 4 (video-sitewide-plan.md) — /linux'un 10 sekmesine dağıtılan 9 yeni
+// video-scene filmi (Text & Pipes hariç, orada Dalga 2'nin pipeChainFilm'i
+// zaten vardı) tek tek test edilmek yerine temsili 4 sekme ile hafif render
+// kontrolü yapılır: 🎯 Giriş (yeni film, önceden hiç yoktu), 🔗 Ekosistem
+// (film+step-animation+code-playground üçlüsü sıfırdan eklendi), 🚨 Hata
+// Sözlüğü ve 💼 Mülakat (ikisi de gating'e TABİ DEĞİL — TopicPage.jsx'teki
+// isDedicatedInterviewTab SADECE 💼 emoji'sini kilitliyor, Hata Sözlüğü'nde
+// bu emoji yok; 💼 Mülakat ise diğer sayfalarda olduğu gibi quiz-gating
+// (%60, CLAUDE.md §22 AC2) ARKASINDA kalabilir — bu yüzden Mülakat burada
+// TEST EDİLMİYOR, sadece Hata Sözlüğü ile film+steps+practice üçlüsünün
+// section'a doğru enjekte edildiği doğrulanıyor).
+test.describe('Video-Scene — Dalga 4 (/linux, 9 yeni film + eksik animasyon/sandbox tamamlama)', () => {
+    test('/linux — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/linux');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/linux — 🔗 Ecosystem sekmesinde film render olur (Dalga 4te sıfırdan eklendi)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/linux');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🔗 Ecosystem|🔗 Ekosistem/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/linux — 🚨 Error Dictionary sekmesinde film render olur (gating YOK)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/linux');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🚨 Error Dictionary|🚨 Hata Sözlüğü/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
