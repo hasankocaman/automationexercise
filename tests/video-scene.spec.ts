@@ -339,3 +339,47 @@ test.describe('Video-Scene — Dalga 5 (/docker, 12 yeni film + eksik animasyon/
         await context.close();
     });
 });
+
+// Dalga 6 (video-sitewide-plan.md) — /selenium'ün 14 sekmesine dağıtılan
+// filmler (sıfırdan başlandı: sayfada önceden HİÇ film/step-animation/
+// code-playground/challenge yoktu) tek tek test edilmek yerine temsili
+// sekmelerle hafif render kontrolü yapılır. Not: seleniumData.js her sekmeyi
+// AYRI bir const (s0..s13) olarak modülerize eder — tabs[] (sidebar buton
+// metni) çoğu sekmede section title ile AYNIDIR, ama linux/docker'daki gibi
+// yine de tabs[] metnini kullanmak güvenlidir (bkz. Dalga 5'teki Introduction
+// tuzağı notu, NEXT_SESSION.md).
+test.describe('Video-Scene — Dalga 6 Batch 1 (/selenium, Giriş/Actions/Wait/Frames/Gerçek Hayat)', () => {
+    test('/selenium — 🌐 Giriş sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/selenium');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🌐 Introduction|🌐 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/selenium — ⚡ Actions sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/selenium');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /⚡ Actions|⚡ Aksiyonlar/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
