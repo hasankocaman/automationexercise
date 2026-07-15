@@ -135,6 +135,655 @@ const testLifecycleFilm = {
   ],
 }
 
+// 🎭 Playwright Nedir? — mimari zinciri + Selenium'un HTTP hayaleti
+const playwrightArchitectureFilm = {
+  type: 'video-scene',
+  id: 'playwright-architecture-film',
+  title: {
+    tr: '🎬 Bir Tıklama Nereden Nereye Gider?',
+    en: '🎬 Where Does a Click Actually Travel?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'code',      emoji: '📝', label: { tr: 'Test Kodu',                 en: 'Test Code' },                 color: '#0ea5e9' },
+    { id: 'api',       emoji: '🎭', label: { tr: 'Playwright API',            en: 'Playwright API' },            color: '#8b5cf6' },
+    { id: 'ws',        emoji: '🔌', label: { tr: 'Tek WebSocket (CDP)',       en: 'Single WebSocket (CDP)' },     color: '#6366f1' },
+    { id: 'browser',   emoji: '🌐', label: { tr: 'Gerçek Browser',            en: 'Real Browser' },               color: '#22c55e' },
+    { id: 'result',    emoji: '✅', label: { tr: 'Sonuç Döner',                en: 'Result Returns' },             color: '#16a34a' },
+    { id: 'seleniumHttp', emoji: '📮', label: { tr: 'Selenium — Her Komut Yeni HTTP', en: 'Selenium — New HTTP per Command' }, color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'page.getByRole(\'button\', {name:\'Add to Cart\'}).click() yazdığında, bu tek satır aslında 4 katmandan geçer. İlk durak: Playwright\'ın kendi API katmanı.',
+        en: 'When you write page.getByRole(\'button\', {name:\'Add to Cart\'}).click(), that single line actually passes through 4 layers. First stop: Playwright\'s own API layer.',
+      },
+      code: { tr: `await page.getByRole('button', { name: 'Add to Cart' }).click();`, en: `await page.getByRole('button', { name: 'Add to Cart' }).click();` },
+      positions: { code: { x: 20, y: 50, scale: 1.15, pulse: true }, api: { x: 55, y: 50, scale: 1 } },
+      beams: [{ from: 'code', to: 'api' }],
+    },
+    {
+      caption: {
+        tr: 'Playwright API, komutu Chrome DevTools Protocol (CDP) mesajına çevirir ve testin BAŞINDA açılmış olan TEK bir WebSocket bağlantısı üzerinden gönderir — yeni bir bağlantı AÇILMAZ.',
+        en: 'The Playwright API translates the command into a Chrome DevTools Protocol (CDP) message and sends it over the SINGLE WebSocket connection opened at the START of the test — no new connection is opened.',
+      },
+      positions: { code: { x: 10, y: 45, scale: 0.85, opacity: 0.5 }, api: { x: 35, y: 50, scale: 1, opacity: 0.6 }, ws: { x: 62, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'api', to: 'ws', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'WebSocket bağlantısı zaten AÇIK olduğu için mesaj neredeyse anında browser\'a ulaşır — yeni bağlantı kurma (handshake) maliyeti YOKTUR.',
+        en: 'Because the WebSocket connection is already OPEN, the message reaches the browser almost instantly — there is NO handshake cost for a new connection.',
+      },
+      positions: { ws: { x: 30, y: 45, scale: 0.9, opacity: 0.6 }, browser: { x: 62, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'ws', to: 'browser', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium/Java dünyası: driver.findElement(...).click() çağrısı, W3C WebDriver JSON wire protokolü üzerinden ChromeDriver\'a YENİ bir HTTP isteği açar. Her komut = yeni bir HTTP round-trip.',
+        en: 'Contrast — the Selenium/Java world: driver.findElement(...).click() opens a NEW HTTP request to ChromeDriver over the W3C WebDriver JSON wire protocol. Every command = a new HTTP round-trip.',
+      },
+      code: { tr: `driver.findElement(By.id("btn")).click(); // yeni HTTP istegi`, en: `driver.findElement(By.id("btn")).click(); // opens a new HTTP request` },
+      positions: {
+        browser: { x: 20, y: 35, scale: 0.8, opacity: 0.4 },
+        seleniumHttp: { x: 60, y: 55, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Java\'da RestTemplate ile her seferinde yeni bir HTTP bağlantısı açmak yerine bir Connection Pool kullanman gibi düşün — Playwright\'ın tek WebSocket\'i tam olarak bu tasarruftur, sadece browser komutları için.',
+        en: 'Think of it like using a Connection Pool in Java instead of opening a new HTTP connection for every RestTemplate call — Playwright\'s single WebSocket is exactly that savings, applied to browser commands.',
+      },
+      positions: { seleniumHttp: { x: 22, y: 45, scale: 0.85, opacity: 0.5 }, ws: { x: 58, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Browser tıklamayı gerçekleştirir, sonucu AYNI açık WebSocket üzerinden geri yollar. Sonuç testine döner ve bir sonraki satıra geçilir — hepsi milisaniyeler içinde.',
+        en: 'The browser performs the click and sends the result back over the SAME open WebSocket. The result returns to the test and execution moves to the next line — all within milliseconds.',
+      },
+      positions: {
+        browser: { x: 20, y: 45, scale: 0.85, opacity: 0.5 },
+        result: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'browser', to: 'result', color: '#16a34a' }],
+    },
+  ],
+}
+
+const playwrightIntroPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'playwright-nedir-basic-test-practice-01',
+  id: 'playwright-nedir-basic-test-practice-01',
+  label: { tr: 'Micro Lab: İlk Playwright Testini Tamamla', en: 'Micro Lab: Complete Your First Playwright Test' },
+  language: 'typescript',
+  task: {
+    tr: 'Amaç: sayfaya git, "Products" linkine ARIA rolüne göre tıkla, sonra sayfa başlığının doğru olduğunu doğrula. TODO satırını, Java\'daki assertEquals\'a karşılık gelen Playwright assertion\'ıyla tamamla.',
+    en: 'Goal: navigate to the page, click the "Products" link by its ARIA role, then verify the page title. Complete the TODO line with the Playwright assertion equivalent to Java\'s assertEquals.',
+  },
+  explanation: {
+    tr: 'expect(page).toHaveTitle(...), Playwright\'ın "web-first" assertion\'ıdır — Selenium\'daki Assert.assertEquals(beklenen, driver.getTitle()) gibi anlık kontrol etmez, koşul doğru olana kadar birkaç saniye otomatik tekrar dener.',
+    en: 'expect(page).toHaveTitle(...) is Playwright\'s "web-first" assertion — unlike Selenium\'s Assert.assertEquals(expected, driver.getTitle()) which checks instantly, it automatically retries for a few seconds until the condition is true.',
+  },
+  code: {
+    tr: `import { test, expect } from '@playwright/test';\n\ntest('ilk test', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('link', { name: 'Products' }).click();\n  await expect(page).toHaveTitle(/Products/);\n});`,
+    en: `import { test, expect } from '@playwright/test';\n\ntest('first test', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('link', { name: 'Products' }).click();\n  await expect(page).toHaveTitle(/Products/);\n});`,
+  },
+  starterCode: {
+    tr: `import { test, expect } from '@playwright/test';\n\ntest('ilk test', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('link', { name: 'Products' }).click();\n  // TODO: sayfa basliginin "Products" icerdigini dogrula (web-first assertion kullan)\n});`,
+    en: `import { test, expect } from '@playwright/test';\n\ntest('first test', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('link', { name: 'Products' }).click();\n  // TODO: verify the page title contains "Products" (use a web-first assertion)\n});`,
+  },
+  solutionCode: {
+    tr: `import { test, expect } from '@playwright/test';\n\ntest('ilk test', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('link', { name: 'Products' }).click();\n  await expect(page).toHaveTitle(/Products/);\n});`,
+    en: `import { test, expect } from '@playwright/test';\n\ntest('first test', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('link', { name: 'Products' }).click();\n  await expect(page).toHaveTitle(/Products/);\n});`,
+  },
+  expected: {
+    tr: 'Test PASS olur: sayfa "Products" linkine tıklandıktan sonra başlık "Products" kelimesini içerir, expect() bunu birkaç yüz milisaniye içinde otomatik doğrular.',
+    en: 'The test PASSes: after clicking the "Products" link, the title contains the word "Products" — expect() automatically confirms this within a few hundred milliseconds.',
+  },
+  hints: [
+    { tr: 'page üzerinde çalışan (locator değil) bir assertion arıyorsun — URL/title gibi sayfa seviyesi kontroller için.', en: 'You need an assertion that runs on page (not a locator) — for page-level checks like URL/title.' },
+    { tr: 'Aradığın metod: expect(page).toHaveTitle(regex_veya_string).', en: 'The method you need: expect(page).toHaveTitle(regexOrString).' },
+  ],
+  xpReward: 10,
+}
+
+// ⚙️ Kurulum — browser binary + npm sürüm senkronizasyonu filmi
+const playwrightBinarySyncFilm = {
+  type: 'video-scene',
+  id: 'playwright-binary-sync-film',
+  title: {
+    tr: '🎬 Sürüm Uyuşmazlığı Hiç Olmasın: npm Paketi = Browser Binary',
+    en: '🎬 Never a Version Mismatch: npm Package = Browser Binary',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'install',  emoji: '📦', label: { tr: 'npm init playwright@latest', en: 'npm init playwright@latest' }, color: '#0ea5e9' },
+    { id: 'pkg',      emoji: '🎭', label: { tr: '@playwright/test v1.45.0',    en: '@playwright/test v1.45.0' },   color: '#8b5cf6' },
+    { id: 'binaries', emoji: '🌐', label: { tr: 'Chromium/FF/WebKit Binary',   en: 'Chromium/FF/WebKit Binaries' }, color: '#22c55e' },
+    { id: 'seleniumDriver', emoji: '🚗', label: { tr: 'Selenium — Ayrı ChromeDriver', en: 'Selenium — Separate ChromeDriver' }, color: '#94a3b8' },
+    { id: 'chromeAutoUpdate', emoji: '⬆️', label: { tr: 'Chrome Otomatik Güncellendi', en: 'Chrome Auto-Updated' },  color: '#f59e0b' },
+    { id: 'crash',    emoji: '💥', label: { tr: 'SessionNotCreatedException',  en: 'SessionNotCreatedException' },  color: '#dc2626' },
+    { id: 'ci',       emoji: '✅', label: { tr: 'CI\'da Aynı Sürümler',         en: 'Same Versions in CI' },         color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'npm init playwright@latest çalıştırıldığında tek bir npm paketi (@playwright/test) kurulur.',
+        en: 'When you run npm init playwright@latest, a single npm package (@playwright/test) is installed.',
+      },
+      code: { tr: `npm init playwright@latest`, en: `npm init playwright@latest` },
+      positions: { install: { x: 30, y: 50, scale: 1.15, pulse: true }, pkg: { x: 65, y: 50, scale: 1 } },
+      beams: [{ from: 'install', to: 'pkg' }],
+    },
+    {
+      caption: {
+        tr: 'Bu paket, Chromium/Firefox/WebKit binary\'lerini KENDİ İÇİNE gömülü bir sürüm numarasıyla indirir — ~/.cache/ms-playwright altına. Binary sürümü, npm paketi sürümüne KİLİTLİDİR.',
+        en: 'This package downloads Chromium/Firefox/WebKit binaries with a version number BAKED INTO the package — into ~/.cache/ms-playwright. Binary version is LOCKED to the npm package version.',
+      },
+      positions: { install: { x: 12, y: 45, scale: 0.8, opacity: 0.4 }, pkg: { x: 35, y: 50, scale: 0.95 }, binaries: { x: 65, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'pkg', to: 'binaries', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium/Java dünyası: pom.xml\'e selenium-java eklersin, ama ChromeDriver AYRI bir binary\'dir — sistemdeki Chrome sürümüyle EL İLE eşleştirmen gerekir.',
+        en: 'Contrast — the Selenium/Java world: you add selenium-java to pom.xml, but ChromeDriver is a SEPARATE binary — you must MANUALLY match it to the system\'s Chrome version.',
+      },
+      positions: { binaries: { x: 18, y: 40, scale: 0.85, opacity: 0.5 }, seleniumDriver: { x: 60, y: 55, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'CI runner\'da işletim sistemi Chrome\'u sessizce 118\'den 119\'a otomatik günceller. ChromeDriver hâlâ 118 için indirilmiş durumda — ikisi artık UYUŞMUYOR.',
+        en: 'On the CI runner, the OS silently auto-updates Chrome from 118 to 119. ChromeDriver is still the one downloaded for 118 — the two no longer MATCH.',
+      },
+      positions: { seleniumDriver: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, chromeAutoUpdate: { x: 58, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'seleniumDriver', to: 'chromeAutoUpdate', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: pipeline SessionNotCreatedException ile patlar — "this version of ChromeDriver only supports Chrome version 118". Kimse kodu değiştirmedi, ama build kırmızı.',
+        en: 'Result: the pipeline explodes with SessionNotCreatedException — "this version of ChromeDriver only supports Chrome version 118". Nobody changed any code, yet the build is red.',
+      },
+      positions: { chromeAutoUpdate: { x: 22, y: 40, scale: 0.85, opacity: 0.5 }, crash: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'chromeAutoUpdate', to: 'crash', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Playwright dünyasında bu senaryo İMKANSIZ: npx playwright install ile indirilen binary, npm paketiyle AYNI sürüm kilidine sahiptir. İşletim sistemi Chrome\'u güncellese bile Playwright kendi izole binary\'sini kullanır, sistem Chrome\'una hiç dokunmaz.',
+        en: 'Final — this scenario is IMPOSSIBLE in the Playwright world: the binary downloaded by npx playwright install shares the SAME version lock as the npm package. Even if the OS updates Chrome, Playwright uses its own isolated binary and never touches the system Chrome at all.',
+      },
+      code: { tr: `npx playwright install  // paket surumune kilitli binary`, en: `npx playwright install  // binary locked to the package version` },
+      positions: { binaries: { x: 25, y: 45, scale: 1 }, ci: { x: 65, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'binaries', to: 'ci', color: '#16a34a' }],
+    },
+  ],
+}
+
+// 🖱️ Temel Aksiyonlar — click() öncesi 5 katmanlı actionability zinciri
+const playwrightActionabilityFilm = {
+  type: 'video-scene',
+  id: 'playwright-actionability-film',
+  title: {
+    tr: '🎬 .click() Çalışmadan Önce Playwright 5 Şeyi Kontrol Eder',
+    en: '🎬 Before .click() Fires, Playwright Checks 5 Things',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'call',      emoji: '👆', label: { tr: '.click() çağrıldı',        en: '.click() called' },        color: '#0ea5e9' },
+    { id: 'attached',  emoji: '📎', label: { tr: 'DOM\'a Ekli mi?',           en: 'Attached to DOM?' },       color: '#8b5cf6' },
+    { id: 'visible',   emoji: '👁️', label: { tr: 'Görünür mü?',              en: 'Visible?' },                color: '#6366f1' },
+    { id: 'stable',    emoji: '🧊', label: { tr: 'Stabil mi? (Hareketsiz)',   en: 'Stable? (Not animating)' }, color: '#f59e0b' },
+    { id: 'receiving', emoji: '🎯', label: { tr: 'Olayı Alabiliyor mu?',      en: 'Receives Events?' },        color: '#f97316' },
+    { id: 'enabled',   emoji: '🔓', label: { tr: 'Etkin mi? (disabled değil)', en: 'Enabled? (not disabled)' }, color: '#22c55e' },
+    { id: 'fired',     emoji: '✅', label: { tr: 'Tıklama Gerçekleşti',        en: 'Click Fires' },             color: '#16a34a' },
+    { id: 'seleniumCrash', emoji: '💥', label: { tr: 'Selenium — ElementClickInterceptedException', en: 'Selenium — ElementClickInterceptedException' }, color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'page.locator(\'#btn\').click() çağrıldığında, Playwright HEMEN tıklamaz — önce görünmez bir kontrol zincirine girer.',
+        en: 'When page.locator(\'#btn\').click() is called, Playwright does NOT click immediately — it first enters an invisible check chain.',
+      },
+      code: { tr: `await page.locator('#btn').click();`, en: `await page.locator('#btn').click();` },
+      positions: { call: { x: 25, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kontrol 1 — Element DOM\'a eklenmiş mi? Bir API yanıtı henüz gelmediyse element hâlâ hiç YOKTUR; Playwright burada bekler, hemen hata fırlatmaz.',
+        en: 'Check 1 — Is the element attached to the DOM? If an API response hasn\'t arrived yet, the element simply does NOT exist yet; Playwright waits here instead of throwing immediately.',
+      },
+      positions: { call: { x: 12, y: 45, scale: 0.8, opacity: 0.5 }, attached: { x: 40, y: 50, scale: 1.15, pulse: true } },
+      beams: [{ from: 'call', to: 'attached' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrol 2 — Görünür mü? display:none veya visibility:hidden ise element DOM\'da olsa bile "görünür" sayılmaz, Playwright bunun değişmesini bekler.',
+        en: 'Check 2 — Is it visible? Even if the element is in the DOM, display:none or visibility:hidden means it doesn\'t count as "visible" — Playwright waits for that to change.',
+      },
+      positions: { attached: { x: 18, y: 40, scale: 0.85, opacity: 0.5 }, visible: { x: 46, y: 50, scale: 1.15, pulse: true } },
+      beams: [{ from: 'attached', to: 'visible' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrol 3 — Stabil mi? Bir CSS animasyonu elementi hâlâ ekranda kaydırıyorsa Playwright tıklamaz — hareket bitene, aynı konumda 2 ardışık frame kalana kadar bekler.',
+        en: 'Check 3 — Is it stable? If a CSS animation is still sliding the element across the screen, Playwright will not click — it waits until the motion stops and the position holds for 2 consecutive frames.',
+      },
+      positions: { visible: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, stable: { x: 50, y: 50, scale: 1.15, pulse: true } },
+      beams: [{ from: 'visible', to: 'stable' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium: bu kontrolleri YAPMAZ. Element animasyonla hareket halindeyken .click() çağrılırsa, tıklama YANLIŞ koordinata düşer ve ElementClickInterceptedException fırlar.',
+        en: 'Contrast — Selenium: it does NOT perform these checks. If .click() is called while the element is mid-animation, the click lands on the WRONG coordinate and throws ElementClickInterceptedException.',
+      },
+      positions: { stable: { x: 18, y: 35, scale: 0.8, opacity: 0.45 }, seleniumCrash: { x: 55, y: 55, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kontrol 4 ve 5 — Olayı alabiliyor mu (başka bir element üstünü kapatmıyor mu) ve etkin mi (disabled değil mi)? İkisi de doğruysa zincir tamamlanır.',
+        en: 'Checks 4 and 5 — Does it receive pointer events (nothing else covering it) and is it enabled (not disabled)? Once both are true, the chain completes.',
+      },
+      positions: {
+        seleniumCrash: { x: 14, y: 35, scale: 0.75, opacity: 0.35 },
+        receiving: { x: 42, y: 45, scale: 1.05, pulse: true },
+        enabled: { x: 66, y: 55, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'receiving', to: 'enabled' }],
+    },
+    {
+      caption: {
+        tr: 'Final — 5 kontrolün TAMAMI aynı anda doğru olduğu frame\'de gerçek fare tıklaması dispatch edilir. Bu yüzden Playwright\'ta "element henüz hazır değildi" hatası neredeyse hiç görülmez.',
+        en: 'Final — the real mouse click is dispatched at the exact frame where ALL 5 checks are true at once. This is why "element wasn\'t ready yet" errors are almost never seen in Playwright.',
+      },
+      positions: { receiving: { x: 20, y: 45, scale: 0.85, opacity: 0.5 }, enabled: { x: 40, y: 55, scale: 0.85, opacity: 0.5 }, fired: { x: 70, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'enabled', to: 'fired', color: '#16a34a' }],
+    },
+  ],
+}
+
+// 🎯 Locator Stratejileri — DOM refactor'ünde kırılan CSS vs hayatta kalan role
+const playwrightBrittleLocatorFilm = {
+  type: 'video-scene',
+  id: 'playwright-brittle-locator-film',
+  title: {
+    tr: '🎬 Aynı Refactor, İki Farklı Kader: CSS Locator vs Role Locator',
+    en: '🎬 Same Refactor, Two Different Fates: CSS Locator vs Role Locator',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'domBefore', emoji: '🧱', label: { tr: 'div > span > input',        en: 'div > span > input' },       color: '#94a3b8' },
+    { id: 'cssLoc',    emoji: '🔗', label: { tr: 'CSS: "div > span > input"', en: 'CSS: "div > span > input"' }, color: '#f59e0b' },
+    { id: 'roleLoc',   emoji: '🎯', label: { tr: 'getByRole("textbox", ...)', en: 'getByRole("textbox", ...)' }, color: '#8b5cf6' },
+    { id: 'refactor',  emoji: '🎨', label: { tr: 'Frontend: Wrapper div Eklendi', en: 'Frontend: Wrapper div Added' }, color: '#0ea5e9' },
+    { id: 'cssBroken', emoji: '💥', label: { tr: 'CSS Locator KIRILDI',        en: 'CSS Locator BROKEN' },       color: '#dc2626' },
+    { id: 'roleAlive', emoji: '✅', label: { tr: 'Role Locator ÇALIŞIYOR',      en: 'Role Locator STILL WORKS' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Aynı input elementi için iki farklı test yazılmış: biri DOM YAPISINA (div > span > input) bakıyor, diğeri erişilebilirlik ROLÜNE (textbox, "Kullanıcı Adı") bakıyor.',
+        en: 'Two different tests target the same input element: one looks at the DOM STRUCTURE (div > span > input), the other looks at the accessibility ROLE (textbox, "Username").',
+      },
+      positions: { domBefore: { x: 50, y: 40, scale: 1.1, pulse: true }, cssLoc: { x: 22, y: 62, scale: 0.95 }, roleLoc: { x: 78, y: 62, scale: 0.95 } },
+      beams: [{ from: 'cssLoc', to: 'domBefore' }, { from: 'roleLoc', to: 'domBefore' }],
+    },
+    {
+      caption: {
+        tr: 'Frontend ekibi sadece görsel boşluk için input\'u yeni bir <div class="field-wrapper"> içine ALIR. İşlevsel olarak HİÇBİR ŞEY değişmedi — kullanıcı hâlâ aynı yerde aynı input\'u görüyor.',
+        en: 'The frontend team wraps the input in a new <div class="field-wrapper"> purely for visual spacing. Functionally NOTHING changed — the user still sees the exact same input in the exact same place.',
+      },
+      positions: { domBefore: { x: 30, y: 40, scale: 0.9, opacity: 0.6 }, refactor: { x: 65, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'domBefore', to: 'refactor', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'CSS locator "div > span > input" artık bir katman EKSİK sayıyor — yeni wrapper div araya girdiği için ilişki bozuldu. Test elementi BULAMIYOR.',
+        en: 'The CSS locator "div > span > input" is now off by one level — the new wrapper div breaks the relationship. The test CANNOT find the element.',
+      },
+      positions: { refactor: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, cssBroken: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'refactor', to: 'cssBroken', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'getByRole("textbox", {name:"Kullanıcı Adı"}) ise DOM hiyerarşisine HİÇ bakmaz — ekran okuyucunun gördüğü rolü ve erişilebilir adı arar. Wrapper div eklensin ya da eklenmesin, bu ikisi DEĞİŞMEDİ.',
+        en: 'getByRole("textbox", {name:"Username"}) never looks at the DOM hierarchy at all — it searches for the role and accessible name a screen reader would see. Whether or not the wrapper div was added, neither of those changed.',
+      },
+      positions: { cssBroken: { x: 18, y: 35, scale: 0.8, opacity: 0.4 }, roleAlive: { x: 58, y: 55, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Sonuç: aynı commit\'te bir test kırmızı yanar (yanlış bir hata — kod bug\'ı yok, sadece markup detayı değişti), diğeri sessizce PASS olmaya devam eder.',
+        en: 'Result: in the exact same commit, one test goes red (a false alarm — there\'s no real code bug, just a markup detail change), while the other silently keeps passing.',
+      },
+      positions: { cssBroken: { x: 25, y: 45, scale: 1 }, roleAlive: { x: 65, y: 45, scale: 1 } },
+    },
+    {
+      caption: {
+        tr: 'Final — Java analojisi: bu, private bir field\'ı rename ettiğinde IDE\'nin otomatik refactor yapması gibi düşün. getByRole, arayüzün "sözleşmesine" (kullanıcının gördüğüne) bakar; CSS/XPath ise "implementasyon detayına" (DOM ağacına) bakar. Sözleşmeye bağlı kod her zaman daha az kırılır.',
+        en: 'Final — the Java analogy: think of it like an IDE auto-refactoring when you rename a private field. getByRole targets the interface\'s "contract" (what the user sees); CSS/XPath targets the "implementation detail" (the DOM tree). Code bound to the contract always breaks less.',
+      },
+      positions: { roleAlive: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+  ],
+}
+
+// ⏳ Bekleme Mekanizmaları — akıllı trafik ışığı vs sabit Thread.sleep()
+const playwrightAutoWaitPollFilm = {
+  type: 'video-scene',
+  id: 'playwright-auto-wait-poll-film',
+  title: {
+    tr: '🎬 Akıllı Trafik Işığı vs Sabit Zamanlayıcı',
+    en: '🎬 Smart Traffic Light vs a Fixed Timer',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'apiCall',  emoji: '📡', label: { tr: 'API Çağrısı Başladı',        en: 'API Call Started' },        color: '#0ea5e9' },
+    { id: 'notReady', emoji: '⏳', label: { tr: 'Buton Henüz Yok',            en: 'Button Not Yet There' },     color: '#94a3b8' },
+    { id: 'poll1',    emoji: '🔁', label: { tr: 'Kontrol (t=0ms)',            en: 'Check (t=0ms)' },            color: '#f59e0b' },
+    { id: 'poll2',    emoji: '🔁', label: { tr: 'Kontrol (t=100ms)',          en: 'Check (t=100ms)' },          color: '#f59e0b' },
+    { id: 'ready',    emoji: '✅', label: { tr: 'Buton Hazır (t=280ms)',      en: 'Button Ready (t=280ms)' },   color: '#16a34a' },
+    { id: 'sleepGhost', emoji: '⏰', label: { tr: 'Thread.sleep(2000) — Sabit', en: 'Thread.sleep(2000) — Fixed' }, color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Sepete ekleme butonuna tıklandı, arka planda bir API çağrısı başladı — yanıt gelene kadar "Sipariş Onaylandı" butonu DOM\'da yok.',
+        en: 'The add-to-cart button was clicked, triggering an API call in the background — the "Order Confirmed" button does not exist in the DOM until the response arrives.',
+      },
+      positions: { apiCall: { x: 25, y: 45, scale: 1.1, pulse: true }, notReady: { x: 65, y: 55, scale: 0.9 } },
+      beams: [{ from: 'apiCall', to: 'notReady' }],
+    },
+    {
+      caption: {
+        tr: 'Playwright bir akıllı trafik ışığı gibi davranır: sabit bir süre beklemez, ~100ms aralıklarla "artık hazır mı?" diye sessizce sorar.',
+        en: 'Playwright behaves like a smart traffic light: instead of waiting a fixed duration, it quietly asks "is it ready yet?" roughly every ~100ms.',
+      },
+      positions: { notReady: { x: 20, y: 45, scale: 0.85, opacity: 0.5 }, poll1: { x: 55, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'notReady', to: 'poll1' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrol (t=0ms): "Hazır değil." Playwright hata fırlatmaz, sessizce tekrar dener.',
+        en: 'Check (t=0ms): "Not ready." Playwright doesn\'t throw — it silently retries.',
+      },
+      positions: { poll1: { x: 22, y: 45, scale: 0.9, opacity: 0.6 }, poll2: { x: 58, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'poll1', to: 'poll2', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrol (t=100, 200ms...): API yanıtı geldiği anda (t=280ms) buton DOM\'a girer, görünür ve tıklanabilir olur — Playwright bunu FARK EDER ve HEMEN devam eder.',
+        en: 'Checks (t=100, 200ms...): the moment the API response arrives (t=280ms), the button enters the DOM, becomes visible and clickable — Playwright DETECTS this and continues IMMEDIATELY.',
+      },
+      positions: { poll2: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, ready: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'poll2', to: 'ready', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium/Java: Thread.sleep(2000) yazılmış. Yerel makinede API 280ms\'de yanıt verir — geri kalan 1720ms tamamen BOŞA harcanır, her test 1.7 saniye gereksiz uzar.',
+        en: 'Contrast — Selenium/Java: Thread.sleep(2000) was written. On the local machine the API responds in 280ms — the remaining 1720ms is completely WASTED, adding 1.7 unnecessary seconds to every test.',
+      },
+      code: { tr: `Thread.sleep(2000); // yerelde 1720ms bosa gider`, en: `Thread.sleep(2000); // wastes 1720ms locally` },
+      positions: { ready: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, sleepGhost: { x: 60, y: 55, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Daha kötüsü: yoğun bir CI runner\'da aynı API 2500ms\'de yanıt verirse, sabit 2000ms\'lik sleep süresi DOLAR ve element hâlâ yok — test NoSuchElementException ile patlar. Yerelde YEŞİL, CI\'da KIRMIZI — klasik "works on my machine".',
+        en: 'Worse: on a busy CI runner, if the same API takes 2500ms, the fixed 2000ms sleep EXPIRES first while the element still doesn\'t exist — the test explodes with NoSuchElementException. GREEN locally, RED in CI — the classic "works on my machine".',
+      },
+      positions: { sleepGhost: { x: 45, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Final — Playwright\'ın event-driven pollingi asla sabit değildir: koşul erken sağlanırsa erken biter (280ms), geç sağlanırsa timeout\'a kadar (varsayılan 30s aksiyon, 5s assertion) beklemeye devam eder. Ne çok bekler, ne az.',
+        en: 'Final — Playwright\'s event-driven polling is never fixed: if the condition is met early, it finishes early (280ms); if it\'s met late, it keeps waiting up to the timeout (default 30s for actions, 5s for assertions). Never too long, never too short.',
+      },
+      positions: { ready: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+  ],
+}
+
+// ✅ Assertions — poll ile bekleyen expect() vs anlık patlayan klasik assert
+const playwrightAssertRetryFilm = {
+  type: 'video-scene',
+  id: 'playwright-assert-retry-film',
+  title: {
+    tr: '🎬 Aynı 300ms Gecikme, İki Farklı Sonuç',
+    en: '🎬 The Same 300ms Delay, Two Different Outcomes',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'submit',   emoji: '🖱️', label: { tr: 'Form Gönderildi',           en: 'Form Submitted' },         color: '#0ea5e9' },
+    { id: 'delay',    emoji: '⏱️', label: { tr: 'Sunucu 300ms Gecikmeli',    en: 'Server Delayed by 300ms' }, color: '#94a3b8' },
+    { id: 'junitAssert', emoji: '⚖️', label: { tr: 'JUnit assertEquals()',   en: 'JUnit assertEquals()' },   color: '#dc2626' },
+    { id: 'failFast', emoji: '💥', label: { tr: 'ANINDA FAIL',               en: 'FAILS IMMEDIATELY' },       color: '#dc2626' },
+    { id: 'expectPoll', emoji: '🔁', label: { tr: 'expect().toBeVisible()',  en: 'expect().toBeVisible()' },  color: '#8b5cf6' },
+    { id: 'retryLoop', emoji: '🔄', label: { tr: '~100ms Aralıklarla Tekrar', en: 'Retries Every ~100ms' },    color: '#f59e0b' },
+    { id: 'passed',   emoji: '✅', label: { tr: '300ms\'de PASS',            en: 'PASS at 300ms' },           color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Kullanıcı formu gönderdi. Sunucu "Sipariş Onaylandı" mesajını 300ms GECİKMEYLE gönderiyor — normal bir ağ gecikmesi, bug değil.',
+        en: 'The user submitted the form. The server sends the "Order Confirmed" message with a 300ms DELAY — a normal network delay, not a bug.',
+      },
+      positions: { submit: { x: 25, y: 45, scale: 1.1, pulse: true }, delay: { x: 65, y: 55, scale: 0.95 } },
+      beams: [{ from: 'submit', to: 'delay' }],
+    },
+    {
+      caption: {
+        tr: 'Yol 1 — Klasik JUnit assertEquals(): kodun çalıştığı ANDA (t=0ms) DOM\'a bakar. Mesaj daha gelmedi. Test HEMEN kırmızı yanar.',
+        en: 'Path 1 — Classic JUnit assertEquals(): looks at the DOM at the EXACT INSTANT (t=0ms) it runs. The message hasn\'t arrived yet. The test goes red IMMEDIATELY.',
+      },
+      code: { tr: `Assert.assertEquals("Siparis Onaylandi", msg.getText()); // t=0ms`, en: `Assert.assertEquals("Order Confirmed", msg.getText()); // t=0ms` },
+      positions: { delay: { x: 18, y: 40, scale: 0.85, opacity: 0.5 }, junitAssert: { x: 55, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'delay', to: 'junitAssert', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: "AssertionError: expected <Siparis Onaylandi> but was <>"— hâlbuki mesaj 300ms sonra GERÇEKTEN gelecekti. Bu YANLIŞ bir hata, ama pipeline kırmızı yanar.',
+        en: 'Result: "AssertionError: expected <Order Confirmed> but was <>" — even though the message WOULD have genuinely arrived 300ms later. This is a FALSE alarm, but the pipeline goes red.',
+      },
+      positions: { junitAssert: { x: 25, y: 40, scale: 0.9, opacity: 0.6 }, failFast: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'junitAssert', to: 'failFast', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Yol 2 — Aynı senaryo, Playwright ile: await expect(locator).toBeVisible() da t=0ms\'de ilk kontrolü yapar — mesaj yine yok. Ama BURADA hata fırlatmaz.',
+        en: 'Path 2 — the same scenario, with Playwright: await expect(locator).toBeVisible() also runs its first check at t=0ms — the message still isn\'t there. But it does NOT throw HERE.',
+      },
+      code: { tr: `await expect(page.getByText('Siparis Onaylandi')).toBeVisible(); // ilk kontrol: false`, en: `await expect(page.getByText('Order Confirmed')).toBeVisible(); // first check: false` },
+      positions: { failFast: { x: 15, y: 35, scale: 0.75, opacity: 0.35 }, expectPoll: { x: 55, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'expect() bir polling döngüsüne girer: ~100ms\'de bir sessizce yeniden kontrol eder — t=0, t=100, t=200... Sen bu döngü için hiçbir ekstra kod yazmadın.',
+        en: 'expect() enters a polling loop: it silently re-checks roughly every ~100ms — t=0, t=100, t=200... You wrote zero extra code for this loop.',
+      },
+      positions: { expectPoll: { x: 22, y: 45, scale: 0.9, opacity: 0.6 }, retryLoop: { x: 58, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'expectPoll', to: 'retryLoop', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — t=300ms\'de mesaj gerçekten DOM\'a girer, bir sonraki kontrol bunu yakalar ve assertion HEMEN geçer. Toplam bekleme sadece 300ms — ne eksik ne fazla, ve gerçek bir bug OLSAYDI 5 saniye sonunda yine düzgün bir TimeoutError alırdın.',
+        en: 'Final — at t=300ms the message truly enters the DOM, the next check catches it and the assertion passes IMMEDIATELY. Total wait is exactly 300ms — no more, no less — and if it HAD been a real bug, you\'d still get a clean TimeoutError after the 5-second budget.',
+      },
+      positions: { retryLoop: { x: 22, y: 45, scale: 0.85, opacity: 0.5 }, passed: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'retryLoop', to: 'passed', color: '#16a34a' }],
+    },
+  ],
+}
+
+// 📦 Page Object Model — UI değişikliğinin 20 dosyada mı 1 dosyada mı yankılanacağı
+const playwrightPomRippleFilm = {
+  type: 'video-scene',
+  id: 'playwright-pom-ripple-film',
+  title: {
+    tr: '🎬 "Giriş Yap" → "Oturum Aç": 20 Dosya mı, 1 Dosya mı?',
+    en: '🎬 "Sign In" → "Log In": 20 Files, or Just 1?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'uiChange', emoji: '🎨', label: { tr: 'Buton Metni Değişti',        en: 'Button Text Changed' },     color: '#0ea5e9' },
+    { id: 'raw1',     emoji: '📄', label: { tr: 'login.spec.ts',              en: 'login.spec.ts' },           color: '#94a3b8' },
+    { id: 'raw2',     emoji: '📄', label: { tr: 'checkout.spec.ts',           en: 'checkout.spec.ts' },        color: '#94a3b8' },
+    { id: 'raw3',     emoji: '📄', label: { tr: '...18 dosya daha',           en: '...18 more files' },        color: '#94a3b8' },
+    { id: 'brokenAll', emoji: '💥', label: { tr: '20 Test KIRMIZI',           en: '20 Tests RED' },            color: '#dc2626' },
+    { id: 'pomClass', emoji: '🏠', label: { tr: 'LoginPage.ts (Tek Kaynak)',  en: 'LoginPage.ts (Single Source)' }, color: '#8b5cf6' },
+    { id: 'oneEdit',  emoji: '✏️', label: { tr: '1 Satır Değişti',            en: '1 Line Changed' },          color: '#f59e0b' },
+    { id: 'allGreen', emoji: '✅', label: { tr: '20 Test YEŞİL',              en: '20 Tests GREEN' },          color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Frontend ekibi login butonunun metnini "Giriş Yap"tan "Oturum Aç"a değiştirdi — küçük bir UX kararı, işlevsel bir değişiklik değil.',
+        en: 'The frontend team renamed the login button from "Sign In" to "Log In" — a small UX decision, not a functional change.',
+      },
+      positions: { uiChange: { x: 50, y: 45, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Yol 1 — POM YOK: getByRole(\'button\', {name:\'Giriş Yap\'}) locator\'ı 20 farklı test dosyasına AYRI AYRI kopyalanmış.',
+        en: 'Path 1 — NO POM: the getByRole(\'button\', {name:\'Sign In\'}) locator was copy-pasted SEPARATELY into 20 different test files.',
+      },
+      positions: {
+        uiChange: { x: 15, y: 40, scale: 0.85, opacity: 0.5 },
+        raw1: { x: 42, y: 30, scale: 0.9 },
+        raw2: { x: 62, y: 55, scale: 0.9 },
+        raw3: { x: 42, y: 70, scale: 0.9 },
+      },
+      beams: [{ from: 'uiChange', to: 'raw1' }, { from: 'uiChange', to: 'raw2' }, { from: 'uiChange', to: 'raw3' }],
+    },
+    {
+      caption: {
+        tr: 'Metin değiştiği anda getByRole(\'button\', {name:\'Giriş Yap\'}) artık HİÇBİR YERDE elementi bulamıyor — çünkü o metin artık DOM\'da yok. 20 dosyanın HEPSİ kırmızı yanar.',
+        en: 'The moment the text changes, getByRole(\'button\', {name:\'Sign In\'}) can no longer find the element ANYWHERE — because that text no longer exists in the DOM. ALL 20 files go red.',
+      },
+      positions: {
+        raw1: { x: 25, y: 35, scale: 0.8, opacity: 0.5 },
+        raw2: { x: 25, y: 55, scale: 0.8, opacity: 0.5 },
+        raw3: { x: 25, y: 75, scale: 0.8, opacity: 0.5 },
+        brokenAll: { x: 65, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'raw1', to: 'brokenAll', color: '#dc2626' }, { from: 'raw2', to: 'brokenAll', color: '#dc2626' }, { from: 'raw3', to: 'brokenAll', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Düzeltme: 20 dosyanın HER BİRİNİ elle açıp aynı satırı tek tek güncellemen gerekiyor — Java\'da bir interface\'i implement eden 20 sınıfı elle güncellemek gibi, IDE\'nin refactor aracı burada yardım edemez çünkü locator\'lar birer STRING.',
+        en: 'The fix: you must manually open EACH of the 20 files and update the same line one by one — like manually updating 20 classes implementing an interface in Java, except the IDE\'s refactor tool can\'t help because locators are just STRINGS.',
+      },
+      positions: { brokenAll: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Yol 2 — POM VAR: aynı locator, aynı login mantığı sadece LoginPage.ts sınıfında YAŞIYOR. 20 test dosyası, kendi locator\'ını taşımaz — sadece new LoginPage(page).login(...) çağırır.',
+        en: 'Path 2 — WITH POM: the same locator and the same login logic LIVE only inside the LoginPage.ts class. The 20 test files don\'t carry their own locator — they just call new LoginPage(page).login(...).',
+      },
+      positions: { uiChange: { x: 15, y: 45, scale: 0.85, opacity: 0.5 }, pomClass: { x: 55, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'uiChange', to: 'pomClass', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Buton metni değişince tek yapılması gereken: LoginPage.ts içindeki BİR satırı güncellemek — signInButton = page.getByRole(\'button\', {name:\'Oturum Aç\'}).',
+        en: 'When the button text changes, the only thing that needs updating is ONE line inside LoginPage.ts — signInButton = page.getByRole(\'button\', {name:\'Log In\'}).',
+      },
+      code: { tr: `signInButton = page.getByRole('button', { name: 'Oturum Ac' });`, en: `signInButton = page.getByRole('button', { name: 'Log In' });` },
+      positions: { pomClass: { x: 25, y: 40, scale: 0.9, opacity: 0.6 }, oneEdit: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'pomClass', to: 'oneEdit', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — LoginPage sınıfını kullanan 20 test dosyasının HİÇBİRİNE dokunulmadı, ama HEPSİ otomatik olarak yeşile döner. Bu, "single source of truth" prensibinin test katmanındaki en somut kanıtıdır.',
+        en: 'Final — NONE of the 20 test files using the LoginPage class were touched, yet ALL of them automatically turn green again. This is the most concrete proof of the "single source of truth" principle in the test layer.',
+      },
+      positions: { oneEdit: { x: 25, y: 45, scale: 0.85, opacity: 0.5 }, allGreen: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'oneEdit', to: 'allGreen', color: '#16a34a' }],
+    },
+  ],
+}
+
+// 🖼️ iframe · Alert · Popup — frameLocator kapsamı vs Selenium'un global context kayması
+const playwrightIframeScopeFilm = {
+  type: 'video-scene',
+  id: 'playwright-iframe-scope-film',
+  title: {
+    tr: '🎬 Bağlamı Kaybetmeyen Zincir: frameLocator()',
+    en: '🎬 The Chain That Never Loses Context: frameLocator()',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'mainPage', emoji: '📄', label: { tr: 'Checkout Sayfası',            en: 'Checkout Page' },           color: '#0ea5e9' },
+    { id: 'outer',    emoji: '🪟', label: { tr: 'Dış iframe (ödeme sağlayıcı)', en: 'Outer iframe (payment provider)' }, color: '#8b5cf6' },
+    { id: 'inner',    emoji: '🪟', label: { tr: 'İç iframe (kart formu)',      en: 'Inner iframe (card form)' },  color: '#6366f1' },
+    { id: 'cardField', emoji: '💳', label: { tr: '#cardNumber Alanı',          en: '#cardNumber Field' },        color: '#22c55e' },
+    { id: 'seleniumSwitch', emoji: '🔀', label: { tr: 'Selenium: switchTo().frame()', en: 'Selenium: switchTo().frame()' }, color: '#dc2626' },
+    { id: 'stuck',    emoji: '😵', label: { tr: 'Unutulan defaultContent() → Sonraki Komut KAYBOLDU', en: 'Forgotten defaultContent() → Next Command LOST' }, color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Checkout sayfasının içinde bir ödeme sağlayıcının iframe\'i var, ONUN içinde de kart numarası formunun olduğu İKİNCİ bir iç içe iframe var.',
+        en: 'The checkout page contains a payment provider\'s iframe, and INSIDE that there\'s a SECOND nested iframe holding the card number form.',
+      },
+      positions: { mainPage: { x: 20, y: 50, scale: 1.05 }, outer: { x: 48, y: 50, scale: 1 }, inner: { x: 76, y: 50, scale: 1 } },
+      beams: [{ from: 'mainPage', to: 'outer' }, { from: 'outer', to: 'inner' }],
+    },
+    {
+      caption: {
+        tr: 'Playwright\'ta bu tek bir ZİNCİR ile ifade edilir: page.frameLocator(\'#outer\').frameLocator(\'#inner\').locator(\'#cardNumber\'). Her frameLocator() çağrısı SADECE kendi ifadesinde geçerli, hiçbir global durum değişmez.',
+        en: 'In Playwright this is expressed as a single CHAIN: page.frameLocator(\'#outer\').frameLocator(\'#inner\').locator(\'#cardNumber\'). Each frameLocator() call is scoped ONLY to its own expression — no global state changes anywhere.',
+      },
+      code: { tr: `const kart = page.frameLocator('#outer').frameLocator('#inner').locator('#cardNumber');\nawait kart.fill('4242 4242 4242 4242');`, en: `const card = page.frameLocator('#outer').frameLocator('#inner').locator('#cardNumber');\nawait card.fill('4242 4242 4242 4242');` },
+      positions: { mainPage: { x: 12, y: 45, scale: 0.85, opacity: 0.5 }, outer: { x: 35, y: 50, scale: 0.9, opacity: 0.6 }, inner: { x: 58, y: 50, scale: 0.95, opacity: 0.7 }, cardField: { x: 84, y: 50, scale: 1.2, pulse: true } },
+      beams: [{ from: 'inner', to: 'cardField', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium/Java: driver.switchTo().frame("outer") çağrısı driver\'ın GLOBAL bağlamını iframe\'e taşır — bu andan sonraki HER findElement() otomatik olarak o iframe içinde arar.',
+        en: 'Contrast — Selenium/Java: driver.switchTo().frame("outer") moves the driver\'s GLOBAL context into the iframe — from this moment on, EVERY findElement() automatically searches inside that iframe.',
+      },
+      code: { tr: `driver.switchTo().frame("outer");\ndriver.switchTo().frame("inner");\ndriver.findElement(By.id("cardNumber")).sendKeys("4242...");`, en: `driver.switchTo().frame("outer");\ndriver.switchTo().frame("inner");\ndriver.findElement(By.id("cardNumber")).sendKeys("4242...");` },
+      positions: { cardField: { x: 15, y: 40, scale: 0.8, opacity: 0.4 }, seleniumSwitch: { x: 58, y: 55, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kart bilgisi girildikten sonra developer bir satır UNUTUR: driver.switchTo().defaultContent() çağrısı — ana sayfaya dönmeyi hatırlatan tek satır.',
+        en: 'After entering the card details, the developer FORGETS one line: the driver.switchTo().defaultContent() call — the only line that reminds Selenium to return to the main page.',
+      },
+      positions: { seleniumSwitch: { x: 30, y: 45, scale: 0.95, opacity: 0.6 }, stuck: { x: 65, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'seleniumSwitch', to: 'stuck', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Bir sonraki satır ana sayfadaki "Ödemeyi Tamamla" butonunu arıyor — ama driver HÂLÂ iç iframe bağlamında! Element "bulunamıyor", hata mesajı yanıltıcı: aslında bug locator\'da değil, UNUTULAN context switch\'te.',
+        en: 'The next line searches for the "Complete Payment" button on the main page — but the driver is STILL scoped to the inner iframe! The element "can\'t be found", and the error is misleading: the real bug isn\'t the locator, it\'s the FORGOTTEN context switch.',
+      },
+      positions: { stuck: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Final — Playwright\'ta bu hata sınıfı yapısal olarak İMKANSIZ: frameLocator() zinciri değişkende yaşar, page nesnesinin kendisini asla değiştirmez. Bir sonraki satır her zaman page.locator(...) ile ana sayfaya sorunsuzca erişir — "unutulacak" bir reset adımı hiç YOKTUR.',
+        en: 'Final — this entire class of bug is structurally IMPOSSIBLE in Playwright: the frameLocator() chain lives in a variable and never mutates the page object itself. The next line always accesses the main page cleanly via page.locator(...) — there is simply NO reset step to forget.',
+      },
+      positions: { cardField: { x: 25, y: 45, scale: 0.9 }, mainPage: { x: 65, y: 50, scale: 1.15, pulse: true } },
+    },
+  ],
+}
+
 const s0 = {
   tr: {
     title: '🎭 Playwright Nedir? Neden Kullanılır?',
@@ -200,6 +849,8 @@ const s0 = {
           { icon: '🔀', label: 'Paralel', desc: 'Workers ile testler aynı anda birden fazla tarayıcıda çalışır.' },
         ],
       },
+      playwrightArchitectureFilm,
+      playwrightIntroPractice,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta "auto-wait" ne anlama gelir?', en: 'What does "auto-wait" mean in Playwright?' },
@@ -312,6 +963,8 @@ const s0 = {
           { icon: '🔀', label: 'Parallel', desc: 'Workers run tests simultaneously across multiple browsers.' },
         ],
       },
+      playwrightArchitectureFilm,
+      playwrightIntroPractice,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta "auto-wait" ne anlama gelir?', en: 'What does "auto-wait" mean in Playwright?' },
@@ -548,6 +1201,7 @@ def test_playwright_hello(page: Page):   # 'page' fixture — pytest-playwright 
           ['Async?', 'HAYIR — sync', 'EVET — async/await zorunlu', 'HAYIR — sync_api ile sync'],
         ],
       },
+      playwrightBinarySyncFilm,
       {
         type: 'quiz',
         question: { tr: 'Python\'da Playwright\'ı yükledikten sonra tarayıcıları indirmek için hangi komut kullanılır?', en: 'After installing Playwright in Python, which command downloads the browsers?' },
@@ -712,6 +1366,7 @@ def test_playwright_hello(page: Page):   # 'page' fixture from pytest-playwright
           ['Async?', 'NO — sync', 'YES — async/await required', 'NO — sync_api is sync'],
         ],
       },
+      playwrightBinarySyncFilm,
       {
         type: 'quiz',
         question: { tr: 'Python\'da Playwright\'ı yükledikten sonra tarayıcıları indirmek için hangi komut kullanılır?', en: 'After installing Playwright in Python, which command downloads the browsers?' },
@@ -929,6 +1584,7 @@ def test_basic_actions(page: Page):
         title: 'Önemli Fark: fill() vs type()',
         content: 'fill() — Önce alanı temizler, sonra yazar. Selenium\'daki clear() + sendKeys() kombinasyonu. type() — Temizlemez, karakterleri tek tek yazar (klavyede gerçekten yazmak gibi). Çoğu durumda fill() kullanın.',
       },
+      playwrightActionabilityFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir input alanını önce temizleyip sonra metin yazmak için hangi metod kullanılır?', en: 'Which method in Playwright clears an input field and then types text?' },
@@ -1044,6 +1700,7 @@ def test_basic_actions(page: Page):
     expect(page).to_have_url(re.compile("dashboard"))
     expect(page.locator("h1")).to_have_text("Welcome")`,
       },
+      playwrightActionabilityFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir input alanını önce temizleyip sonra metin yazmak için hangi metod kullanılır?', en: 'Which method in Playwright clears an input field and then types text?' },
@@ -1237,6 +1894,7 @@ def test_locators(page: Page):
         title: 'Locator Öncelik Sırası (Playwright Resmi Tavsiyesi)',
         content: '1. getByRole → 2. getByLabel → 3. getByPlaceholder → 4. getByText → 5. getByTestId → 6. CSS/XPath. XPath\'ı son çare kullan — sayfa yapısı değişince kırılır.',
       },
+      playwrightBrittleLocatorFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta data-testid="submit-btn" olan bir elementi bulmak için en doğru yöntem hangisidir?', en: 'What is the best way to find an element with data-testid="submit-btn" in Playwright?' },
@@ -1332,6 +1990,7 @@ test('locators', async ({ page }) => {
     .click();
 });`,
       },
+      playwrightBrittleLocatorFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta data-testid="submit-btn" olan bir elementi bulmak için en doğru yöntem hangisidir?', en: 'What is the best way to find an element with data-testid="submit-btn" in Playwright?' },
@@ -1536,6 +2195,7 @@ await page.getByRole('button', { name: 'Sepete Ekle' }).click();
 // page.getByRole(AriaRole.BUTTON, ...).click(); // no extra wait needed`,
         language: 'typescript',
       },
+      playwrightAutoWaitPollFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir spinner\'ın kaybolmasını beklemek için hangi kod kullanılır?', en: 'Which code waits for a spinner to disappear in Playwright?' },
@@ -1624,6 +2284,7 @@ test('wait examples', async ({ page }) => {
   // await page.waitForTimeout(2000); // avoid — causes flaky tests
 });`,
       },
+      playwrightAutoWaitPollFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir spinner\'ın kaybolmasını beklemek için hangi kod kullanılır?', en: 'Which code waits for a spinner to disappear in Playwright?' },
@@ -1852,6 +2513,7 @@ def test_new_tab(browser: Browser):
 
     context.close()`,
       },
+      playwrightIframeScopeFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir iframe içindeki elementi bulmak için hangi yöntem kullanılır?', en: 'Which method is used to find an element inside an iframe in Playwright?' },
@@ -1966,6 +2628,7 @@ test('new tab', async ({ browser }) => {
   await context.close();
 });`,
       },
+      playwrightIframeScopeFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir iframe içindeki elementi bulmak için hangi yöntem kullanılır?', en: 'Which method is used to find an element inside an iframe in Playwright?' },
@@ -2011,6 +2674,778 @@ test('new tab', async ({ browser }) => {
     ],
   },
 }
+// 📁 Dosya·Network·API — page.route() ile proxy'siz network mock filmi
+const playwrightNetworkMockFilm = {
+  type: 'video-scene',
+  id: 'playwright-network-mock-film',
+  title: {
+    tr: '🎬 Gerçek Sunucuya Hiç Dokunmadan: page.route()',
+    en: '🎬 Never Touching the Real Server: page.route()',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'ui',        emoji: '🖱️', label: { tr: 'UI Aksiyonu',              en: 'UI Action' },              color: '#0ea5e9' },
+    { id: 'request',   emoji: '📡', label: { tr: '/api/products İsteği',      en: '/api/products Request' },  color: '#8b5cf6' },
+    { id: 'cdpTap',    emoji: '🔌', label: { tr: 'page.route() — CDP Musluğu', en: 'page.route() — CDP Tap' }, color: '#6366f1' },
+    { id: 'fakeData',  emoji: '🎭', label: { tr: 'route.fulfill() — Sahte JSON', en: 'route.fulfill() — Fake JSON' }, color: '#22c55e' },
+    { id: 'uiRenders', emoji: '✅', label: { tr: 'UI Sahte Veriyle Render',    en: 'UI Renders with Fake Data' }, color: '#16a34a' },
+    { id: 'proxyGhost', emoji: '🛰️', label: { tr: 'Selenium — Ayrı Proxy Sunucu', en: 'Selenium — Separate Proxy Server' }, color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Kullanıcı "Ürünleri Göster" butonuna tıklar — bu, arka planda gerçek bir /api/products isteği tetikler.',
+        en: 'The user clicks "Show Products" — this triggers a real /api/products request behind the scenes.',
+      },
+      positions: { ui: { x: 25, y: 50, scale: 1.1, pulse: true }, request: { x: 65, y: 55, scale: 0.95 } },
+      beams: [{ from: 'ui', to: 'request' }],
+    },
+    {
+      caption: {
+        tr: 'İstek tarayıcıyı TERK ETMEDEN önce page.route() onu yakalar — Chrome DevTools Protocol üzerinden doğrudan tarayıcının network katmanına bağlanan bir "musluk".',
+        en: 'BEFORE the request leaves the browser, page.route() intercepts it — a "tap" that connects directly into the browser\'s network layer via the Chrome DevTools Protocol.',
+      },
+      code: { tr: `await page.route('**/api/products', route => { ... });`, en: `await page.route('**/api/products', route => { ... });` },
+      positions: { request: { x: 20, y: 45, scale: 0.85, opacity: 0.5 }, cdpTap: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'request', to: 'cdpTap', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'route.fulfill() sahte bir JSON yanıtı ANINDA döndürür — gerçek backend\'e hiçbir paket gitmez.',
+        en: 'route.fulfill() returns a fake JSON response INSTANTLY — not a single packet reaches the real backend.',
+      },
+      positions: { cdpTap: { x: 22, y: 45, scale: 0.9, opacity: 0.6 }, fakeData: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'cdpTap', to: 'fakeData', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'UI bu sahte veriyle render olur — gerçek backend yanıtından hiçbir farkı yoktur, ama backend hiç çalışmıyor olabilir bile.',
+        en: 'The UI renders using this fake data — indistinguishable from a real backend response, even though the backend might not be running at all.',
+      },
+      positions: { fakeData: { x: 25, y: 45, scale: 0.9, opacity: 0.6 }, uiRenders: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'fakeData', to: 'uiRenders', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium/Java: Aynı sonucu almak için driver\'ın DIŞINDA ayrı bir proxy sunucusu (BrowserMob Proxy, mitmproxy) kurman, SSL sertifikasını tarayıcıya güvenilir olarak tanıtman ve proxy\'yi driver\'a bağlaman gerekirdi.',
+        en: 'Contrast — Selenium/Java: to get the same result, you\'d need to stand up a proxy server OUTSIDE the driver (BrowserMob Proxy, mitmproxy), trust its SSL certificate in the browser, and wire the proxy into the driver.',
+      },
+      positions: { uiRenders: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, proxyGhost: { x: 62, y: 55, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Final — Java analojisi: bu, harici bir mock server (WireMock) ayağa kaldırmak yerine test kodunun İÇİNDE tek satırlık bir interceptor tanımlamak gibi. page.route() bir satır; proxy kurulumu onlarca satır konfigürasyon ve bir process yönetimi demektir.',
+        en: 'Final — the Java analogy: this is like defining a one-line interceptor INSIDE your test code instead of standing up an external mock server (WireMock). page.route() is one line; a proxy setup means dozens of lines of configuration and a whole extra process to manage.',
+      },
+      positions: { proxyGhost: { x: 25, y: 45, scale: 0.85 }, fakeData: { x: 62, y: 50, scale: 1.1, pulse: true } },
+    },
+  ],
+}
+
+// 🐞 Debugging & Trace — kara kutu (flight recorder) filmi
+const playwrightTraceTimeTravelFilm = {
+  type: 'video-scene',
+  id: 'playwright-trace-time-travel-film',
+  title: {
+    tr: '🎬 Kaza Sonrası Kara Kutuyu Açmak: Trace Viewer',
+    en: '🎬 Opening the Black Box After the Crash: Trace Viewer',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'recorder', emoji: '📼', label: { tr: 'Kara Kutu (trace) — Sessizce Kaydediyor', en: 'Black Box (trace) — Silently Recording' }, color: '#8b5cf6' },
+    { id: 'action1',  emoji: '🖱️', label: { tr: 'Adım 1 — click()',           en: 'Step 1 — click()' },        color: '#0ea5e9' },
+    { id: 'action2',  emoji: '⌨️', label: { tr: 'Adım 2 — fill()',            en: 'Step 2 — fill()' },         color: '#0ea5e9' },
+    { id: 'fail',     emoji: '💥', label: { tr: 'Adım 3 — Assertion FAIL (03:14 CI)', en: 'Step 3 — Assertion FAILS (03:14 CI)' }, color: '#dc2626' },
+    { id: 'stackGhost', emoji: '📄', label: { tr: 'Selenium — Sadece Stack Trace', en: 'Selenium — Only a Stack Trace' }, color: '#94a3b8' },
+    { id: 'timeTravel', emoji: '🔍', label: { tr: 'show-trace → O Ana Geri Dön', en: 'show-trace → Travel Back to That Moment' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test çalışırken, hiçbir hata olmasa bile, Trace Viewer arka planda SESSİZCE her adımı kaydeder — bir uçağın kara kutusu gibi, kazayı beklemez, en baştan kaydeder.',
+        en: 'While the test runs — even if nothing fails — Trace Viewer SILENTLY records every step in the background, like an aircraft\'s black box: it doesn\'t wait for a crash, it records from the very start.',
+      },
+      positions: { recorder: { x: 70, y: 30, scale: 1.05, pulse: true }, action1: { x: 25, y: 60, scale: 1 } },
+      beams: [{ from: 'action1', to: 'recorder', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 1 ve Adım 2 sorunsuzca geçer — DOM anlık görüntüsü, network isteği ve console log\'u kara kutuya yazılır.',
+        en: 'Steps 1 and 2 pass cleanly — the DOM snapshot, network request, and console log are all written to the black box.',
+      },
+      positions: { action1: { x: 15, y: 55, scale: 0.85, opacity: 0.5 }, action2: { x: 45, y: 60, scale: 1.1, pulse: true }, recorder: { x: 75, y: 30, scale: 1 } },
+      beams: [{ from: 'action2', to: 'recorder', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Sabah saat 03:14, CI pipeline\'ında Adım 3\'teki assertion başarısız olur — kimse ekranı izlemiyordu.',
+        en: 'At 3:14 AM, in the CI pipeline, the assertion in Step 3 fails — nobody was watching the screen.',
+      },
+      positions: { action2: { x: 15, y: 50, scale: 0.85, opacity: 0.5 }, fail: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'action2', to: 'fail', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium/Java: elinde sadece "NoSuchElementException" stack trace\'i olurdu — o an DOM neye benziyordu, hangi network isteği ne döndürdü? Cevap yoktu, lokalde tekrar tekrar çalıştırıp tahmin etmen gerekirdi.',
+        en: 'Contrast — Selenium/Java: all you\'d have is a "NoSuchElementException" stack trace — what did the DOM look like at that exact moment, what did the network request return? No answer — you\'d have to re-run locally over and over and guess.',
+      },
+      positions: { fail: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, stackGhost: { x: 60, y: 55, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'npx playwright show-trace trace.zip komutu kara kutuyu açar: tam olarak o anki DOM, network yanıtı ve ekran görüntüsü geri gelir — "zaman yolculuğu".',
+        en: 'The command npx playwright show-trace trace.zip opens the black box: the exact DOM, network response, and screenshot from that moment come back — a "time travel".',
+      },
+      code: { tr: `npx playwright show-trace trace.zip`, en: `npx playwright show-trace trace.zip` },
+      positions: { stackGhost: { x: 18, y: 40, scale: 0.8, opacity: 0.4 }, timeTravel: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'recorder', to: 'timeTravel', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — kara kutu tüm koşum boyunca zaten kayıttaydı; investigation için lokalde tekrar koşum GEREKMEZ. Saatler süren "bende çalışıyor" araştırması dakikalara iner.',
+        en: 'Final — the black box was recording the ENTIRE time; no local re-run is NEEDED for investigation. What used to take hours of "works on my machine" digging now takes minutes.',
+      },
+      positions: { timeTravel: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+  ],
+}
+
+// 🎬 Codegen — semantik locator vs piksel koordinatlı klasik makro
+const playwrightCodegenSemanticFilm = {
+  type: 'video-scene',
+  id: 'playwright-codegen-semantic-film',
+  title: {
+    tr: '🎬 Buton Yer Değiştirdi: Biri Hâlâ Buluyor, Biri Kayboluyor',
+    en: '🎬 The Button Moved: One Still Finds It, One Gets Lost',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'click',     emoji: '🖱️', label: { tr: '"Sepete Ekle" Tıklandı',    en: '"Add to Cart" Clicked' },   color: '#0ea5e9' },
+    { id: 'inspector', emoji: '🎭', label: { tr: 'Playwright Inspector',       en: 'Playwright Inspector' },     color: '#8b5cf6' },
+    { id: 'semantic',  emoji: '🎯', label: { tr: 'getByRole(\'button\', ...)', en: 'getByRole(\'button\', ...)' }, color: '#22c55e' },
+    { id: 'pixelGhost', emoji: '📍', label: { tr: 'Klasik Makro — click(482, 617)', en: 'Classic Macro — click(482, 617)' }, color: '#dc2626' },
+    { id: 'reflow',    emoji: '🎨', label: { tr: 'Sayfaya Banner Eklendi',     en: 'Banner Added to Page' },     color: '#f59e0b' },
+    { id: 'result',    emoji: '✅', label: { tr: 'Rol Tabanlı: Yine Buluyor',  en: 'Role-Based: Still Finds It' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'npx playwright codegen ile açılan GERÇEK tarayıcıda "Sepete Ekle" butonuna tıklarsın — normal bir kullanıcı gibi.',
+        en: 'In the REAL browser opened by npx playwright codegen, you click "Add to Cart" — just like a normal user.',
+      },
+      positions: { click: { x: 30, y: 50, scale: 1.15, pulse: true }, inspector: { x: 68, y: 55, scale: 1 } },
+      beams: [{ from: 'click', to: 'inspector' }],
+    },
+    {
+      caption: {
+        tr: 'Yan penceredeki Playwright Inspector, bu tıklamanın karşılığı olan kod satırını CANLI üretir: page.getByRole(\'button\', {name:\'Sepete Ekle\'}).click().',
+        en: 'The Playwright Inspector window on the side LIVE-generates the code line for this click: page.getByRole(\'button\', {name:\'Add to Cart\'}).click().',
+      },
+      code: { tr: `page.getByRole('button', { name: 'Sepete Ekle' }).click();`, en: `page.getByRole('button', { name: 'Add to Cart' }).click();` },
+      positions: { inspector: { x: 20, y: 45, scale: 0.85, opacity: 0.5 }, semantic: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'inspector', to: 'semantic', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — klasik bir makro kaydedici (Selenium IDE\'nin eski nesli veya genel OS makrosu) bunun yerine mutlak piksel koordinatını kaydederdi: click(482, 617).',
+        en: 'Contrast — a classic macro recorder (an older Selenium IDE generation, or a generic OS macro tool) would instead record the absolute pixel coordinate: click(482, 617).',
+      },
+      positions: { semantic: { x: 18, y: 40, scale: 0.85, opacity: 0.5 }, pixelGhost: { x: 60, y: 55, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Frontend ekibi sayfanın üstüne bir kampanya banner\'ı ekler — sayfa aşağı kayar, buton artık FARKLI bir piksel konumunda.',
+        en: 'The frontend team adds a promo banner to the top of the page — everything shifts down, the button is now at a DIFFERENT pixel position.',
+      },
+      positions: { pixelGhost: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, reflow: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'pixelGhost', to: 'reflow', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'click(482, 617) artık YANLIŞ bir yere tıklar — belki banner\'a, belki boş alana. getByRole(\'button\', {name:\'Sepete Ekle\'}) ise piksele hiç bakmadığı için hâlâ doğru butonu bulur.',
+        en: 'click(482, 617) now clicks the WRONG spot — maybe the banner, maybe empty space. getByRole(\'button\', {name:\'Add to Cart\'}) never looked at pixels in the first place, so it still finds the right button.',
+      },
+      positions: { reflow: { x: 18, y: 40, scale: 0.85, opacity: 0.5 }, result: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'reflow', to: 'result', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Codegen ham kod üretir ama assertion eklemez, POM kullanmaz; bu senin işin. Ama ürettiği locator stratejisi baştan sağlamdır — Selenium IDE\'nin CSS/XPath ağırlıklı çıktısından çok daha az kırılgandır.',
+        en: 'Final — Codegen produces raw code but doesn\'t add assertions or use POM; that part is your job. But the locator strategy it produces is solid from the start — far less brittle than Selenium IDE\'s CSS/XPath-heavy output.',
+      },
+      positions: { result: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+  ],
+}
+
+const playwrightCodegenFlowSteps = {
+  type: 'step-animation',
+  id: 'playwright-codegen-flow-steps-01',
+  title: { tr: 'Adım Adım: Codegen İki Pencereyi Nasıl Senkronize Eder', en: 'Step by Step: How Codegen Syncs Its Two Windows' },
+  steps: [
+    { id: 1, icon: '🖥️', label: { tr: 'İki pencere açılır', en: 'Two windows open' }, detail: { tr: 'npx playwright codegen <url> çalıştırılınca gerçek bir tarayıcı VE Playwright Inspector penceresi yan yana açılır.', en: 'Running npx playwright codegen <url> opens a real browser AND the Playwright Inspector window side by side.' } },
+    { id: 2, icon: '🖱️', label: { tr: 'Sen normal kullanıcı gibi gezinirsin', en: 'You browse like a normal user' }, detail: { tr: 'Tıkla, yaz, dropdown seç — hiçbir kod yazmadan sadece uygulamayı kullanırsın.', en: 'Click, type, select dropdowns — you just use the app, no code written yet.' } },
+    { id: 3, icon: '🎭', label: { tr: 'Inspector her adımı koda çevirir', en: 'The Inspector translates every step to code' }, detail: { tr: 'Attığın her adım, semantik bir locator (getByRole/getByLabel öncelikli) ile Inspector\'da CANLI kod satırına dönüşür.', en: 'Every step you take turns into a LIVE code line in the Inspector, using a semantic locator (getByRole/getByLabel preferred).' } },
+    { id: 4, icon: '📋', label: { tr: 'Kodu kopyala', en: 'Copy the code' }, detail: { tr: 'İşin bitince ürettiği kodu tek tıkla panoya kopyalarsın.', en: 'When done, copy the generated code to the clipboard with one click.' } },
+    { id: 5, icon: '🔧', label: { tr: 'Refine et: POM + assertion ekle', en: 'Refine it: add POM + assertions' }, detail: { tr: 'Codegen assertion YAZMAZ ve POM kullanmaz — bunları sen eklersin, ham kodu üretken bir başlangıç noktası olarak kullan.', en: 'Codegen does NOT write assertions and does NOT use POM — you add those; treat the raw code as a productive starting point.' } },
+  ],
+}
+
+const playwrightCodegenPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'playwright-codegen-refine-practice-01',
+  id: 'playwright-codegen-refine-practice-01',
+  label: { tr: 'Micro Lab: Codegen Çıktısını Production\'a Hazırla', en: 'Micro Lab: Make Codegen Output Production-Ready' },
+  language: 'typescript',
+  task: {
+    tr: 'Amaç: Codegen\'in ürettiği ham kod aşağıda — tıklama ve doldurma adımları var ama HİÇBİR assertion yok. TODO satırını, giriş başarılı olduğunda URL\'nin /dashboard\'a değiştiğini doğrulayan bir web-first assertion ile tamamla.',
+    en: 'Goal: the raw Codegen output is below — it has click/fill steps but NO assertions at all. Complete the TODO line with a web-first assertion that verifies the URL changes to /dashboard on successful login.',
+  },
+  explanation: {
+    tr: 'Codegen sadece AKSİYONLARI kaydeder, "başarılı mıydı?" sorusunu asla sormaz — bu senin eklemen gereken kısımdır. expect(page).toHaveURL(...) olmadan test her zaman "geçer" görünür, çünkü hiçbir şeyi gerçekten doğrulamaz.',
+    en: 'Codegen only records ACTIONS — it never asks "did it actually work?" — that\'s the part you must add. Without expect(page).toHaveURL(...), the test always "passes" because it never actually verifies anything.',
+  },
+  code: {
+    tr: `await page.getByLabel('E-posta').fill('user@example.com');\nawait page.getByLabel('Şifre').fill('secret123');\nawait page.getByRole('button', { name: 'Giriş Yap' }).click();\nawait expect(page).toHaveURL('/dashboard');`,
+    en: `await page.getByLabel('Email').fill('user@example.com');\nawait page.getByLabel('Password').fill('secret123');\nawait page.getByRole('button', { name: 'Sign in' }).click();\nawait expect(page).toHaveURL('/dashboard');`,
+  },
+  starterCode: {
+    tr: `await page.getByLabel('E-posta').fill('user@example.com');\nawait page.getByLabel('Şifre').fill('secret123');\nawait page.getByRole('button', { name: 'Giriş Yap' }).click();\n// TODO: URL'nin /dashboard'a degistigini dogrulayan bir assertion ekle`,
+    en: `await page.getByLabel('Email').fill('user@example.com');\nawait page.getByLabel('Password').fill('secret123');\nawait page.getByRole('button', { name: 'Sign in' }).click();\n// TODO: add an assertion that verifies the URL changed to /dashboard`,
+  },
+  solutionCode: {
+    tr: `await page.getByLabel('E-posta').fill('user@example.com');\nawait page.getByLabel('Şifre').fill('secret123');\nawait page.getByRole('button', { name: 'Giriş Yap' }).click();\nawait expect(page).toHaveURL('/dashboard');`,
+    en: `await page.getByLabel('Email').fill('user@example.com');\nawait page.getByLabel('Password').fill('secret123');\nawait page.getByRole('button', { name: 'Sign in' }).click();\nawait expect(page).toHaveURL('/dashboard');`,
+  },
+  expected: {
+    tr: 'Test artık sadece aksiyonları oynatmakla kalmıyor, girişin GERÇEKTEN başarılı olduğunu da doğruluyor — URL değişmezse test kırmızı yanar.',
+    en: 'The test no longer just replays actions — it actually verifies the login REALLY succeeded. If the URL never changes, the test fails.',
+  },
+  hints: [
+    { tr: 'Sayfa seviyesinde bir kontrol arıyorsun (locator değil) — URL/title gibi.', en: 'You need a page-level check (not a locator) — like URL/title.' },
+    { tr: 'Aradığın metod: expect(page).toHaveURL(string_veya_regex).', en: 'The method you need: expect(page).toHaveURL(stringOrRegex).' },
+  ],
+  xpReward: 10,
+}
+
+// 🔌 Playwright MCP — piksel tahmini vs erişilebilirlik ağacı referansı
+const playwrightMcpA11yTreeFilm = {
+  type: 'video-scene',
+  id: 'playwright-mcp-a11y-tree-film',
+  title: {
+    tr: '🎬 AI Nasıl Tıklar: Piksel Tahmini mi, Kararlı Referans mı?',
+    en: '🎬 How an AI Clicks: Pixel Guessing or a Stable Reference?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'agent',     emoji: '🤖', label: { tr: 'AI Ajanı: "Sepete Ekle\'ye tıkla"', en: 'AI Agent: "Click Add to Cart"' }, color: '#0ea5e9' },
+    { id: 'screenshot', emoji: '🖼️', label: { tr: 'Sadece Screenshot (piksel)',      en: 'Just a Screenshot (pixels)' },    color: '#dc2626' },
+    { id: 'guess',     emoji: '🎲', label: { tr: 'Koordinat TAHMİNİ: (482, 617)',    en: 'Coordinate GUESS: (482, 617)' },  color: '#dc2626' },
+    { id: 'mcpServer', emoji: '🔌', label: { tr: 'Playwright MCP Server',            en: 'Playwright MCP Server' },         color: '#8b5cf6' },
+    { id: 'a11yTree',  emoji: '🌳', label: { tr: 'Accessibility Tree — ref=e14',      en: 'Accessibility Tree — ref=e14' },  color: '#22c55e' },
+    { id: 'exactClick', emoji: '✅', label: { tr: 'Kararlı Tıklama — Her Zaman Doğru', en: 'Stable Click — Always Correct' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'AI ajanına "Sepete Ekle butonuna tıkla" görevi verilir — ama AI\'ın sayfayı GÖRME yolu, insanınkinden tamamen farklıdır.',
+        en: 'The AI agent is given the task "click the Add to Cart button" — but the way the AI SEES the page is completely different from a human\'s.',
+      },
+      positions: { agent: { x: 25, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kontrast — sadece screenshot verilirse: AI görüntüdeki pikselleri analiz edip bir koordinat TAHMİN etmek zorunda kalır. Bu tahmin her zaman kesin değildir.',
+        en: 'Contrast — if given only a screenshot: the AI must analyze the pixels in the image and GUESS a coordinate. That guess is never perfectly precise.',
+      },
+      positions: { agent: { x: 15, y: 45, scale: 0.85, opacity: 0.5 }, screenshot: { x: 45, y: 55, scale: 1.05 }, guess: { x: 75, y: 55, scale: 1.1, pulse: true } },
+      beams: [{ from: 'screenshot', to: 'guess', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Sayfa yeniden render olduğunda (bir banner, bir reklam, bir animasyon) piksel koordinatı artık YANLIŞ konuma işaret eder — AI yanlış yere tıklar.',
+        en: 'When the page re-renders (a banner, an ad, an animation), the pixel coordinate now points to the WRONG spot — the AI clicks the wrong thing.',
+      },
+      positions: { guess: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'MCP yolu: AI, browser_snapshot() çağırır. Playwright MCP Server, screenshot yerine sayfanın erişilebilirlik ağacını yapılandırılmış veri olarak döndürür: rol, isim, ve kararlı bir "ref".',
+        en: 'The MCP path: the AI calls browser_snapshot(). The Playwright MCP Server returns the page\'s accessibility tree as structured data instead of a screenshot: role, name, and a stable "ref".',
+      },
+      code: { tr: `button "Sepete Ekle" [ref=e14]`, en: `button "Add to Cart" [ref=e14]` },
+      positions: { agent: { x: 15, y: 40, scale: 0.85, opacity: 0.5 }, mcpServer: { x: 45, y: 50, scale: 1.05 }, a11yTree: { x: 78, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'mcpServer', to: 'a11yTree', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'AI, browser_click({ref:\'e14\'}) çağırır — Playwright bu referansı GERÇEK DOM elementine çözer, piksel konumunun ne olduğu HİÇ önemli değildir.',
+        en: 'The AI calls browser_click({ref:\'e14\'}) — Playwright resolves this reference to the REAL DOM element; the pixel position never matters at all.',
+      },
+      positions: { a11yTree: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, exactClick: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'a11yTree', to: 'exactClick', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java analojisi: JDBC\'nin "hangi veritabanı motoru olursa olsun aynı SQL arayüzü" sunması gibi, MCP de "sayfa nasıl görünürse görünsün aynı yapılandırılmış referans" sunar. Sayfa yeniden render olsa bile ref=e14 aynı elemente işaret etmeye devam eder.',
+        en: 'Final — the Java analogy: just like JDBC offers "the same SQL interface no matter which database engine," MCP offers "the same structured reference no matter how the page looks." Even after a re-render, ref=e14 keeps pointing to the correct element.',
+      },
+      positions: { exactClick: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+  ],
+}
+
+// ⚡ Paralel & CI/CD — sıfır-altyapı workers vs Selenium Grid Hub+Node kurulumu
+const playwrightWorkersNoInfraFilm = {
+  type: 'video-scene',
+  id: 'playwright-workers-no-infra-film',
+  title: {
+    tr: '🎬 Tek Satır vs Bir Sunucu Ağı: workers: 4',
+    en: '🎬 One Line vs a Server Fleet: workers: 4',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'suite',    emoji: '🧪', label: { tr: '500 Test',                  en: '500 Tests' },                color: '#0ea5e9' },
+    { id: 'gridHub',  emoji: '🏢', label: { tr: 'Selenium Grid — Hub Kurulumu', en: 'Selenium Grid — Hub Setup' }, color: '#dc2626' },
+    { id: 'gridNodes', emoji: '🐳', label: { tr: 'Docker Node\'ları + Driver Sürümleri', en: 'Docker Nodes + Driver Versions' }, color: '#dc2626' },
+    { id: 'oneLine',  emoji: '✍️', label: { tr: 'workers: 4 — playwright.config.ts',   en: 'workers: 4 — playwright.config.ts' }, color: '#8b5cf6' },
+    { id: 'isolated', emoji: '🧱', label: { tr: '4 İzole Worker Context\'i',   en: '4 Isolated Worker Contexts' },  color: '#22c55e' },
+    { id: 'fastDone', emoji: '✅', label: { tr: '40dk → ~10dk',                en: '40min → ~10min' },             color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '500 E2E test var — hepsi değerli, hepsini her PR\'da çalıştırmak istiyorsun.',
+        en: 'There are 500 E2E tests — all valuable, and you want to run all of them on every PR.',
+      },
+      positions: { suite: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium Grid ile paralelleştirmek önce bir Hub kurmanı gerektirir: merkezi bir yönlendirici sunucu, ayrı bir process, ayrı bir konfigürasyon dosyası.',
+        en: 'Contrast — parallelizing with Selenium Grid first requires setting up a Hub: a central routing server, a separate process, a separate config file.',
+      },
+      positions: { suite: { x: 15, y: 45, scale: 0.85, opacity: 0.5 }, gridHub: { x: 55, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'suite', to: 'gridHub', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Sonra Hub\'a bağlı Node\'lar (genelde Docker container\'ları) kurman, HER Node\'da driver sürümlerini senkronize tutman gerekir — ciddi bir DevOps yükü.',
+        en: 'Then you need Nodes connected to the Hub (usually Docker containers), and you must keep driver versions in sync across EVERY Node — a serious DevOps burden.',
+      },
+      positions: { gridHub: { x: 25, y: 40, scale: 0.9, opacity: 0.6 }, gridNodes: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'gridHub', to: 'gridNodes', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Playwright yolu: playwright.config.ts\'ye TEK bir satır eklersin: workers: 4. Ayrı bir sunucu, ayrı bir Docker kurulumu, ayrı bir Hub YOKTUR.',
+        en: 'The Playwright way: you add ONE line to playwright.config.ts: workers: 4. There\'s NO separate server, NO separate Docker setup, NO separate Hub.',
+      },
+      code: { tr: `workers: process.env.CI ? 4 : undefined,`, en: `workers: process.env.CI ? 4 : undefined,` },
+      positions: { suite: { x: 15, y: 40, scale: 0.85, opacity: 0.5 }, oneLine: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'suite', to: 'oneLine', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Her worker kendi İZOLE browser context\'inde çalışır — paylaşılan state yoktur, bu yüzden thread-safety hataları da OLMAZ, Java\'daki paylaşılan mutable state bug\'ları gibi.',
+        en: 'Each worker runs in its own ISOLATED browser context — there\'s no shared state, so thread-safety bugs simply CANNOT happen, unlike the shared mutable state bugs you\'d chase in Java.',
+      },
+      positions: { oneLine: { x: 22, y: 40, scale: 0.9, opacity: 0.6 }, isolated: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'oneLine', to: 'isolated', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — 500 test 4 worker\'a bölünür, HİÇBİR ek altyapı olmadan. 40 dakikalık süre yaklaşık 10 dakikaya iner — ve bu, Hub/Node kurulumunun tüm bakım maliyetinden kurtularak elde edilir.',
+        en: 'Final — 500 tests split across 4 workers, with NO extra infrastructure at all. The 40-minute runtime drops to about 10 minutes — achieved without any of the Hub/Node setup\'s ongoing maintenance cost.',
+      },
+      positions: { isolated: { x: 25, y: 45, scale: 0.9 }, fastDone: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'isolated', to: 'fastDone', color: '#16a34a' }],
+    },
+  ],
+}
+
+// 🔐 Auth & Session — SSO analojisiyle storageState filmi
+const playwrightStorageStateSsoFilm = {
+  type: 'video-scene',
+  id: 'playwright-storage-state-sso-film',
+  title: {
+    tr: '🎬 Bir Kere Login Ol, 200 Test Otomatik İçeri Girsin',
+    en: '🎬 Log In Once, 200 Tests Walk Straight In',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'loginTest', emoji: '🔑', label: { tr: 'auth.spec.ts — Login TEK BURADA test edilir', en: 'auth.spec.ts — Login tested ONLY here' }, color: '#0ea5e9' },
+    { id: 'authFile',  emoji: '💾', label: { tr: 'auth.json — storageState',   en: 'auth.json — storageState' },    color: '#8b5cf6' },
+    { id: 'test2',     emoji: '🧪', label: { tr: 'Test #2 — Zaten İçeride',    en: 'Test #2 — Already Inside' },     color: '#22c55e' },
+    { id: 'test200',   emoji: '🧪', label: { tr: 'Test #200 — Zaten İçeride',  en: 'Test #200 — Already Inside' },   color: '#22c55e' },
+    { id: 'rateLimitGhost', emoji: '🚫', label: { tr: 'Selenium — 200x UI Login → 429 Too Many Requests', en: 'Selenium — 200x UI Login → 429 Too Many Requests' }, color: '#dc2626' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'auth.spec.ts adlı AYRI bir test dosyası, login akışının KENDİSİNİ derinlemesine test eder: doğru bilgiler, yanlış şifre, çıkış — login mantığı sadece BURADA doğrulanır.',
+        en: 'A SEPARATE test file called auth.spec.ts thoroughly tests the login flow ITSELF: correct credentials, wrong password, logout — the login logic is verified ONLY here.',
+      },
+      positions: { loginTest: { x: 40, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Başarılı login sonrası context.storageState({path:\'auth.json\'}) çağrılır — cookie\'ler ve localStorage tek bir dosyaya "SSO bileti" gibi yazılır.',
+        en: 'After a successful login, context.storageState({path:\'auth.json\'}) is called — cookies and localStorage are written to a single file, like an "SSO ticket".',
+      },
+      code: { tr: `await context.storageState({ path: 'auth.json' });`, en: `await context.storageState({ path: 'auth.json' });` },
+      positions: { loginTest: { x: 20, y: 45, scale: 0.9, opacity: 0.6 }, authFile: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'loginTest', to: 'authFile', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Test #2, playwright.config.ts\'teki use: {storageState: \'auth.json\'} sayesinde tarayıcıyı ZATEN GİRİŞ YAPMIŞ olarak açar — hiçbir UI login adımı yoktur.',
+        en: 'Test #2, thanks to use: {storageState: \'auth.json\'} in playwright.config.ts, opens the browser ALREADY LOGGED IN — there are zero UI login steps.',
+      },
+      positions: { authFile: { x: 22, y: 40, scale: 0.9, opacity: 0.6 }, test2: { x: 60, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'authFile', to: 'test2', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Test #3\'ten Test #200\'e kadar HEPSİ aynı dosyayı yükler — 200 test, sıfır ekstra login saniyesi.',
+        en: 'From Test #3 all the way to Test #200, EVERY test loads the same file — 200 tests, zero extra login seconds.',
+      },
+      positions: { test2: { x: 25, y: 45, scale: 0.9, opacity: 0.6 }, test200: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'test2', to: 'test200', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kontrast — her test UI\'dan tek tek login yapsaydı: 200 test × 2 saniye = 400 saniye kaybı, ÜSTELİK login endpoint\'i rate-limit uyguluyorsa test suite\'in yarısı 429 Too Many Requests alır.',
+        en: 'Contrast — if every test logged in individually via the UI: 200 tests × 2 seconds = 400 seconds wasted, AND if the login endpoint has a rate limit, half the suite gets 429 Too Many Requests.',
+      },
+      positions: { test200: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, rateLimitGhost: { x: 62, y: 55, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Final — Java analojisi: bu, Selenium\'da "login\'i API\'den yap, cookie\'yi driver.manage().addCookie() ile enjekte et" hack\'inin resmî, dosya tabanlı ve paralel-güvenli versiyonudur.',
+        en: 'Final — the Java analogy: this is the official, file-based, parallel-safe version of the Selenium hack "log in via API, inject the cookie with driver.manage().addCookie()".',
+      },
+      positions: { rateLimitGhost: { x: 30, y: 45, scale: 0.9 }, authFile: { x: 65, y: 50, scale: 1.1, pulse: true } },
+    },
+  ],
+}
+
+// 🌍 Gerçek Hayat — havaalanı güvenlik zinciri: sessiz kısmi hata
+const playwrightE2eSilentFailureFilm = {
+  type: 'video-scene',
+  id: 'playwright-e2e-silent-failure-film',
+  title: {
+    tr: '🎬 Buton Çalıştı, Ama Sipariş Gerçekten Tamamlandı mı?',
+    en: '🎬 The Button Worked, But Did the Order Actually Go Through?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'signup',   emoji: '📝', label: { tr: '1) Kayıt Ol',           en: '1) Sign Up' },            color: '#0ea5e9' },
+    { id: 'cart',     emoji: '🛒', label: { tr: '2) Sepete Ekle',        en: '2) Add to Cart' },         color: '#6366f1' },
+    { id: 'pay',      emoji: '💳', label: { tr: '3) Ödeme — 200 OK',     en: '3) Payment — 200 OK' },    color: '#8b5cf6' },
+    { id: 'shallow',  emoji: '✅', label: { tr: 'Sığ Test: "Buton Çalıştı" → PASS', en: 'Shallow Test: "Button Worked" → PASS' }, color: '#f59e0b' },
+    { id: 'silentBreak', emoji: '🔇', label: { tr: 'Stok Düşmedi + E-posta Gitmedi', en: 'Stock Never Decremented + No Email Sent' }, color: '#dc2626' },
+    { id: 'chainCatch', emoji: '🔗', label: { tr: 'Zincir Testi: Her Halka Ayrı Doğrulanır', en: 'Chain Test: Every Link Verified Separately' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'E2E test bir havaalanı güvenlik zinciri gibi ilerler: Kayıt → Sepete Ekle → Ödeme → Sipariş Onayı — her halka kendi kontrolüne sahiptir.',
+        en: 'The E2E test proceeds like an airport security chain: Sign Up → Add to Cart → Payment → Order Confirmation — each link has its own check.',
+      },
+      positions: { signup: { x: 20, y: 50, scale: 1.05 }, cart: { x: 48, y: 50, scale: 1 }, pay: { x: 76, y: 50, scale: 1 } },
+      beams: [{ from: 'signup', to: 'cart' }, { from: 'cart', to: 'pay' }],
+    },
+    {
+      caption: {
+        tr: 'Ödeme servisi 200 OK döndürür — buton tıklaması, network isteği, HTTP durum kodu HEPSİ "başarılı" görünür.',
+        en: 'The payment service returns 200 OK — the button click, the network request, the HTTP status code all LOOK "successful".',
+      },
+      positions: { pay: { x: 25, y: 45, scale: 1, opacity: 0.6 }, shallow: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'pay', to: 'shallow', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Sadece "Satın Al butonuna tıklandı mı?" diye kontrol eden SIĞ bir test burada PASS olur — ama işlemin GERÇEKTEN tamamlandığını hiç sormaz.',
+        en: 'A SHALLOW test that only checks "was the Buy button clicked?" PASSes right here — but never asks whether the transaction ACTUALLY completed.',
+      },
+      positions: { shallow: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kontrast — perde arkasında: stok sayısı ASLA düşmedi, sipariş onay e-postası ASLA gönderilmedi. Bu SESSİZ bir kısmi hata — hiçbir hata mesajı fırlamadı.',
+        en: 'Contrast — behind the curtain: the stock count NEVER decremented, the order confirmation email NEVER sent. This is a SILENT partial failure — no error was ever thrown.',
+      },
+      positions: { shallow: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, silentBreak: { x: 62, y: 55, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Zincir testi ise "Siparişiniz Alındı" METNİNİ ve yeni URL\'i AYRI AYRI doğrular — bu ek katman, sığ testin kaçırdığı sessiz hatayı yakalar.',
+        en: 'The chain test, however, verifies the "Order Received" TEXT and the new URL SEPARATELY — this extra layer catches the silent failure the shallow test missed.',
+      },
+      positions: { silentBreak: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, chainCatch: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'silentBreak', to: 'chainCatch', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java analojisi: bir mikroservis zincirinde her adımı ayrı ayrı doğrulayan bir entegrasyon testi ile, sadece "endpoint 200 döndürüyor mu?" diye bakan sığ bir health-check arasındaki fark budur. Production incident\'lar genelde bu sığ kontrolün arkasına saklanır.',
+        en: 'Final — the Java analogy: this is the difference between an integration test that verifies each step of a microservice chain separately, versus a shallow health-check that only asks "does the endpoint return 200?". Production incidents usually hide behind that shallow check.',
+      },
+      positions: { chainCatch: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+  ],
+}
+
+// 🚨 Yaygın Hatalar — tıbbi teşhis raporu analojisiyle zengin hata mesajı filmi
+const playwrightRichErrorFilm = {
+  type: 'video-scene',
+  id: 'playwright-rich-error-film',
+  title: {
+    tr: '🎬 Aynı Hata, İki Farklı Rapor',
+    en: '🎬 The Same Failure, Two Different Reports',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'fail3am',  emoji: '🌙', label: { tr: 'Test 03:14\'te CI\'da Patlıyor', en: 'Test Fails at 3:14 AM in CI' }, color: '#0ea5e9' },
+    { id: 'seleniumMsg', emoji: '📄', label: { tr: 'Selenium: "NoSuchElementException"', en: 'Selenium: "NoSuchElementException"' }, color: '#dc2626' },
+    { id: 'hoursGhost', emoji: '⏳', label: { tr: 'Saatlerce Lokal Tekrar Koşum', en: 'Hours of Local Re-running' },  color: '#dc2626' },
+    { id: 'pwMsg',    emoji: '📋', label: { tr: 'Playwright: Locator + State + Screenshot', en: 'Playwright: Locator + State + Screenshot' }, color: '#8b5cf6' },
+    { id: 'rootCause', emoji: '🔍', label: { tr: 'Kök Neden — Saniyeler İçinde',  en: 'Root Cause — Within Seconds' },   color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'CI pipeline\'ında bir test 03:14\'te başarısız olur — hiç kimse ekranı canlı izlemiyordu, sadece bir kırmızı bildirim var.',
+        en: 'A test fails in the CI pipeline at 3:14 AM — nobody is watching live, there\'s just a red notification.',
+      },
+      positions: { fail3am: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kontrast — Selenium/Java raporu: "NoSuchElementException" — sadece bir sınıf adı. Sorun locator\'da mı, zamanlamada mı, yanlış iframe\'de mi? Rapor cevap vermiyor.',
+        en: 'Contrast — the Selenium/Java report: "NoSuchElementException" — just a class name. Is the problem the locator, the timing, the wrong iframe? The report doesn\'t say.',
+      },
+      positions: { fail3am: { x: 15, y: 45, scale: 0.85, opacity: 0.5 }, seleniumMsg: { x: 55, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'fail3am', to: 'seleniumMsg', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Mühendis sabah bu raporla karşılaşır: kod içine System.out.println() satırları eklemesi, lokalde tekrar tekrar çalıştırması ve saatlerce tahmin yürütmesi gerekir.',
+        en: 'The engineer sees this report in the morning: they must add System.out.println() lines, re-run locally over and over, and guess for hours.',
+      },
+      positions: { seleniumMsg: { x: 25, y: 40, scale: 0.9, opacity: 0.6 }, hoursGhost: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'seleniumMsg', to: 'hoursGhost', color: '#dc2626' }],
+    },
+    {
+      caption: {
+        tr: 'Playwright raporu: "TimeoutError: locator.click: Timeout 30000ms exceeded — waiting for locator(\'#submit-btn\') to be visible" — HANGİ locator, HANGİ durum, NE kadar süre net biçimde yazar.',
+        en: 'The Playwright report: "TimeoutError: locator.click: Timeout 30000ms exceeded — waiting for locator(\'#submit-btn\') to be visible" — it clearly states WHICH locator, WHAT state, and HOW LONG it waited.',
+      },
+      code: { tr: `TimeoutError: waiting for locator('#submit-btn') to be visible`, en: `TimeoutError: waiting for locator('#submit-btn') to be visible` },
+      positions: { fail3am: { x: 12, y: 35, scale: 0.75, opacity: 0.35 }, pwMsg: { x: 55, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Mesajın yanında otomatik bir screenshot ve trace de gelir — mühendis lokalde HİÇBİR ŞEY çalıştırmadan mesajı okuyup kök nedeni saniyeler içinde görür.',
+        en: 'An automatic screenshot and trace come attached to the message — the engineer reads it and sees the root cause within seconds, without running ANYTHING locally.',
+      },
+      positions: { pwMsg: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, rootCause: { x: 60, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'pwMsg', to: 'rootCause', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — investigation süresi saatlerden dakikalara iner, çünkü teşhis işi hata OLUŞTUĞU anda zaten yapılmıştır — mühendisin tek işi raporu OKUMAKTIR.',
+        en: 'Final — investigation time drops from hours to minutes, because the diagnostic work was already done the moment the failure happened — the engineer\'s only job is to READ the report.',
+      },
+      positions: { rootCause: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+  ],
+}
+
+const playwrightErrorDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'playwright-error-diagnosis-steps-01',
+  title: { tr: 'Adım Adım: Bir Playwright Hata Mesajını Okuma', en: 'Step by Step: Reading a Playwright Error Message' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: 'Hata sınıfı', en: 'Error class' }, detail: { tr: 'TimeoutError, Error: strict mode violation gibi — hatanın KATEGORİSİNİ söyler.', en: 'TimeoutError, Error: strict mode violation, etc. — tells you the CATEGORY of failure.' } },
+    { id: 2, icon: '🎯', label: { tr: 'Hangi locator', en: 'Which locator' }, detail: { tr: 'Mesajın içinde locator("#submit-btn") gibi TAM OLARAK hangi elementin arandığı yazar.', en: 'The message states EXACTLY which element was being searched for, e.g. locator("#submit-btn").' } },
+    { id: 3, icon: '⏱️', label: { tr: 'Ne kadar beklendi', en: 'How long it waited' }, detail: { tr: 'Timeout 30000ms exceeded — 30 saniye boyunca koşulun hiç sağlanmadığını gösterir, sabit bir sleep değil.', en: 'Timeout 30000ms exceeded — shows the condition never became true for a full 30 seconds, not a fixed sleep.' } },
+    { id: 4, icon: '📋', label: { tr: 'Hangi durum bekleniyordu', en: 'Which state was expected' }, detail: { tr: 'to be visible / to be enabled gibi — Playwright TAM OLARAK neyi kontrol ettiğini söyler.', en: 'to be visible / to be enabled, etc. — Playwright states EXACTLY what it was checking.' } },
+    { id: 5, icon: '📸', label: { tr: 'Ekli kanıt', en: 'Attached evidence' }, detail: { tr: 'trace: "on-first-retry" ayarlıysa otomatik screenshot + trace.zip eklenir — lokalde tekrar koşuma gerek kalmaz.', en: 'With trace: "on-first-retry", an automatic screenshot + trace.zip is attached — no local re-run needed.' } },
+  ],
+}
+
+const playwrightErrorDiagnosisPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'playwright-error-diagnosis-practice-01',
+  id: 'playwright-error-diagnosis-practice-01',
+  label: { tr: 'Micro Lab: Doğru Hata Ayıklama Adımını Seç', en: 'Micro Lab: Pick the Right Debugging Fix' },
+  language: 'typescript',
+  task: {
+    tr: 'Amaç: "strict mode violation: locator(\'.btn\') resolved to 5 elements" hatasını al. TODO satırını, sayfadaki TEK doğru "Submit" butonunu hedefleyen bir locator ile tamamla.',
+    en: 'Goal: you got "strict mode violation: locator(\'.btn\') resolved to 5 elements". Complete the TODO line with a locator that targets exactly the ONE correct "Submit" button on the page.',
+  },
+  explanation: {
+    tr: 'getByRole(\'button\', {name:\'Submit\'}) hem okunabilir hem de sağlamdır — sayfadaki tüm ".btn" class\'lı elementleri değil, ARIA rolüne ve görünen ismine göre TEK butonu hedefler.',
+    en: 'getByRole(\'button\', {name:\'Submit\'}) is both readable and robust — instead of matching every ".btn"-classed element, it targets the ONE button by its ARIA role and visible name.',
+  },
+  code: {
+    tr: `await page.getByRole('button', { name: 'Submit' }).click();`,
+    en: `await page.getByRole('button', { name: 'Submit' }).click();`,
+  },
+  starterCode: {
+    tr: `// Hata: strict mode violation: locator('.btn') resolved to 5 elements\n// TODO: sayfadaki TEK "Submit" butonunu hedefleyen locator'i yaz\nawait page.locator('.btn').click();`,
+    en: `// Error: strict mode violation: locator('.btn') resolved to 5 elements\n// TODO: write a locator that targets the ONE "Submit" button\nawait page.locator('.btn').click();`,
+  },
+  solutionCode: {
+    tr: `await page.getByRole('button', { name: 'Submit' }).click();`,
+    en: `await page.getByRole('button', { name: 'Submit' }).click();`,
+  },
+  expected: {
+    tr: 'Strict mode violation ortadan kalkar — locator artık sayfadaki 5 elementten değil, ARIA rolü "button" ve ismi "Submit" olan TEK elementten eşleşir.',
+    en: 'The strict mode violation disappears — the locator now matches exactly ONE element by ARIA role "button" and name "Submit", not 5 elements on the page.',
+  },
+  hints: [
+    { tr: 'CSS class\'ı yerine erişilebilirlik rolüne ve görünen isme bakan bir locator ara.', en: 'Look for a locator based on accessibility role and visible name, not a CSS class.' },
+    { tr: 'Aradığın metod: getByRole(\'button\', {name:\'Submit\'}).', en: 'The method you need: getByRole(\'button\', {name:\'Submit\'}).' },
+  ],
+  xpReward: 10,
+}
+
+// 💼 50 Mülakat Sorusu — kariyer değerlendirme paneli filmi
+const playwrightInterviewPanelFilm = {
+  type: 'video-scene',
+  id: 'playwright-interview-panel-film',
+  title: {
+    tr: '🎬 Mülakat Panelinin Gerçekten Aradığı Şey',
+    en: '🎬 What the Interview Panel Is Really Looking For',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'basicQ',  emoji: '🟢', label: { tr: 'Basic — "getByRole nedir?"', en: 'Basic — "What is getByRole?"' },   color: '#22c55e' },
+    { id: 'apiOnly', emoji: '📖', label: { tr: 'Sadece API Ezberi',          en: 'API Memorization Only' },          color: '#94a3b8' },
+    { id: 'interQ',  emoji: '🟡', label: { tr: 'Intermediate — "storageState\'i CI\'da nasıl kullanırsın?"', en: 'Intermediate — "How do you use storageState in CI?"' }, color: '#f59e0b' },
+    { id: 'decision', emoji: '🧭', label: { tr: 'Karar Verme Yeteneği',      en: 'Decision-Making Ability' },        color: '#f59e0b' },
+    { id: 'advQ',    emoji: '🔴', label: { tr: 'Advanced — "POM mu, Fixture mi, ne zaman?"', en: 'Advanced — "POM or Fixture, when?"' }, color: '#8b5cf6' },
+    { id: 'architect', emoji: '🏛️', label: { tr: 'Mimari Karar Verebilen Mühendis', en: 'Engineer Who Can Make Architecture Calls' }, color: '#16a34a' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Basic seviye soru: "getByRole nedir, Selenium\'daki karşılığı ne?" — bu katman sadece API bilgisini doğrular.',
+        en: 'A Basic-level question: "What is getByRole, what\'s its Selenium equivalent?" — this layer only verifies API knowledge.',
+      },
+      positions: { basicQ: { x: 25, y: 50, scale: 1.1, pulse: true }, apiOnly: { x: 65, y: 55, scale: 1 } },
+      beams: [{ from: 'basicQ', to: 'apiOnly' }],
+    },
+    {
+      caption: {
+        tr: 'Java/Selenium deneyimliysen bu katmanı kolayca geçersin — locator ve aksiyon sözdizimi zaten tanıdıktır.',
+        en: 'If you have Java/Selenium experience, you breeze through this layer — the locator and action syntax already feels familiar.',
+      },
+      positions: { apiOnly: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Intermediate seviyede soru değişir: "storageState\'i CI\'da nasıl kullanırsın, rate-limit\'e nasıl çarpmazsın?" — artık gerçek iş senaryosunda KARAR VERME yeteneğin ölçülüyor.',
+        en: 'At Intermediate level the question shifts: "How do you use storageState in CI, how do you avoid hitting rate limits?" — now your DECISION-MAKING ability in a real scenario is being measured.',
+      },
+      positions: { apiOnly: { x: 15, y: 45, scale: 0.85, opacity: 0.5 }, interQ: { x: 45, y: 55, scale: 1.1, pulse: true }, decision: { x: 78, y: 55, scale: 1.1, pulse: true } },
+      beams: [{ from: 'interQ', to: 'decision', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Advanced seviyede soru mimariye taşınır: "Bu senaryoda Page Object mi Fixture mı kullanırsın, neden?" — artık senden bir TASARIM KARARI ve gerekçesi isteniyor.',
+        en: 'At Advanced level the question moves to architecture: "In this scenario, would you use a Page Object or a Fixture, and why?" — now you\'re asked for a DESIGN DECISION and its justification.',
+      },
+      positions: { decision: { x: 15, y: 40, scale: 0.85, opacity: 0.5 }, advQ: { x: 55, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'decision', to: 'advQ', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Bu 3 katman birlikte seni "API\'yi bilen" biri değil, "bir takımın tasarım toplantısında mimari karar alabilen" biri olarak konumlandırır.',
+        en: 'Together, these 3 layers position you not as someone who "knows the API," but as someone who "can make architecture decisions in a team\'s design meeting."',
+      },
+      positions: { advQ: { x: 20, y: 40, scale: 0.85, opacity: 0.5 }, architect: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'advQ', to: 'architect', color: '#16a34a' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Java köprüsü: bu, bir Java mülakatındaki "Collections.sort() nasıl çalışır?" (Basic) ile "hangi durumda ConcurrentHashMap yerine synchronized kullanırsın?" (Advanced) arasındaki farkın ta kendisidir.',
+        en: 'Final — the Java bridge: this is the exact same gap between "how does Collections.sort() work?" (Basic) and "when would you choose synchronized over ConcurrentHashMap?" (Advanced) in a Java interview.',
+      },
+      positions: { architect: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+  ],
+}
+
+const playwrightInterviewPrepSteps = {
+  type: 'step-animation',
+  id: 'playwright-interview-prep-steps-01',
+  title: { tr: 'Adım Adım: Bir Senaryo Sorusuna Cevap Kurma', en: 'Step by Step: Structuring an Answer to a Scenario Question' },
+  steps: [
+    { id: 1, icon: '🎯', label: { tr: 'Sorunun katmanını tanı', en: 'Identify the question\'s layer' }, detail: { tr: 'Basic mi (API bilgisi), Intermediate mi (senaryo kararı), Advanced mi (mimari gerekçe) — cevabının derinliği buna göre ayarlanır.', en: 'Basic (API knowledge), Intermediate (scenario decision), or Advanced (architecture rationale) — calibrate your answer\'s depth accordingly.' } },
+    { id: 2, icon: '☕', label: { tr: 'Java köprüsü kur', en: 'Build the Java bridge' }, detail: { tr: 'Mümkünse cevabını "Selenium/Java\'da bu şöyleydi, Playwright\'ta böyle" şeklinde çerçevele — bu, deneyimini somutlaştırır.', en: 'Whenever possible, frame your answer as "in Selenium/Java this was X, in Playwright it\'s Y" — this makes your experience concrete.' } },
+    { id: 3, icon: '📐', label: { tr: 'Somut bir örnek ver', en: 'Give a concrete example' }, detail: { tr: 'Soyut tanım yerine gerçek bir kod satırı veya gerçek bir senaryo anlat — "storageState kullanırım" değil, "auth.json\'a yazıp use bloğunda yüklerim" de.', en: 'Instead of an abstract definition, describe a real code line or real scenario — not "I use storageState" but "I write it to auth.json and load it in the use block".' } },
+    { id: 4, icon: '⚖️', label: { tr: 'Trade-off\'u adlandır', en: 'Name the trade-off' }, detail: { tr: 'İleri seviye sorularda "her zaman X kullanırım" demek zayıf bir cevaptır — "X\'i şu durumda, Y\'yi şu durumda tercih ederim" demek seni mimar gibi gösterir.', en: 'At advanced levels, "I always use X" is a weak answer — "I prefer X in this case, Y in that case" makes you sound like an architect.' } },
+  ],
+}
+
+const playwrightInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'playwright-interview-practice-01',
+  id: 'playwright-interview-practice-01',
+  label: { tr: 'Micro Lab: Senaryo Sorusuna Kod ile Cevap Ver', en: 'Micro Lab: Answer a Scenario Question with Code' },
+  language: 'typescript',
+  task: {
+    tr: 'Amaç: Mülakatta "200 testin her biri UI\'dan login yapıyor ve rate-limit\'e takılıyoruz, ne yaparsın?" sorusuna kod ile cevap ver. TODO satırını, kaydedilmiş oturumu YÜKLEYEN doğru config alanıyla tamamla.',
+    en: 'Goal: in an interview, answer "each of our 200 tests logs in via the UI and we\'re hitting the rate limit — what would you do?" with code. Complete the TODO line with the correct config field that LOADS the saved session.',
+  },
+  explanation: {
+    tr: 'use: {storageState: \'auth.json\'} her worker\'ın tarayıcısını ZATEN GİRİŞ YAPMIŞ olarak açar — login sadece auth.spec.ts\'de bir kere test edilir, kalan 199 test bu satırla oturumu devralır.',
+    en: 'use: {storageState: \'auth.json\'} opens every worker\'s browser ALREADY LOGGED IN — login is tested only once, in auth.spec.ts, and this line lets the other 199 tests inherit that session.',
+  },
+  code: {
+    tr: `export default defineConfig({\n  use: { storageState: 'auth.json' },\n});`,
+    en: `export default defineConfig({\n  use: { storageState: 'auth.json' },\n});`,
+  },
+  starterCode: {
+    tr: `export default defineConfig({\n  use: {\n    // TODO: kaydedilmis oturumu (auth.json) yukleyen alani ekle\n  },\n});`,
+    en: `export default defineConfig({\n  use: {\n    // TODO: add the field that loads the saved session (auth.json)\n  },\n});`,
+  },
+  solutionCode: {
+    tr: `export default defineConfig({\n  use: { storageState: 'auth.json' },\n});`,
+    en: `export default defineConfig({\n  use: { storageState: 'auth.json' },\n});`,
+  },
+  expected: {
+    tr: 'Artık 199 testin hiçbiri UI\'dan login yapmıyor — hepsi auth.json\'daki oturumu doğrudan yüklüyor, rate-limit riski ortadan kalkıyor.',
+    en: 'Now none of the 199 tests log in via the UI — they all load the session from auth.json directly, and the rate-limit risk disappears.',
+  },
+  hints: [
+    { tr: 'context.storageState() ile KAYDETTİĞİN dosyayı, use bloğunda hangi alanla geri YÜKLERSİN?', en: 'Which field in the use block LOADS back the file you SAVED with context.storageState()?' },
+    { tr: 'Aradığın alan: storageState.', en: 'The field you need: storageState.' },
+  ],
+  xpReward: 10,
+}
+
 const s6 = {
   tr: {
     title: '📁 Dosya · Network İzleme · API Mock',
@@ -2172,6 +3607,7 @@ def test_api_mock(page: Page):
 
     page.goto("https://automationexercise.com")`,
       },
+      playwrightNetworkMockFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir API çağrısını sahte veriyle yanıtlamak için hangi metod kullanılır?', en: 'Which method in Playwright intercepts an API call and returns fake data?' },
@@ -2269,6 +3705,7 @@ test('network mock', async ({ page }) => {
   await page.goto('https://automationexercise.com');
 });`,
       },
+      playwrightNetworkMockFilm,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta bir API çağrısını sahte veriyle yanıtlamak için hangi metod kullanılır?', en: 'Which method in Playwright intercepts an API call and returns fake data?' },
@@ -2561,6 +3998,7 @@ def test_full_ecommerce_flow(logged_in_page: Page):
 
 # Paralel çalıştır: pytest test_ecommerce.py -n 4 --headed`,
       },
+      playwrightE2eSilentFailureFilm,
       {
         type: 'quiz',
         question: 'Yukarıdaki uçtan uca checkout senaryosunda, "Siparişi tamamla" adımından SONRA gelen "Sipariş onayını doğrula" adımı neden ayrı bir assertion gerektirir?',
@@ -2640,6 +4078,7 @@ test('register → product → cart → payment', async ({ page }) => {
   await page.screenshot({ path: 'evidence/order-confirmed.png', fullPage: true });
 });`,
       },
+      playwrightE2eSilentFailureFilm,
       {
         type: 'quiz',
         question: 'In the end-to-end checkout scenario above, why does the "verify order confirmation" step AFTER "complete the order" require a separate assertion?',
@@ -2675,6 +4114,8 @@ const s8 = {
         type: 'simple-box', emoji: '🔧',
         content: 'Playwright hata mesajları, iyi yazılmış bir tıbbi teşhis raporu gibidir: semptom belirsiz olsa da rapor hangi organda, ne zaman ve hangi koşulda sorun oluştuğunu kat kat açıklar. Peki Selenium hata mesajlarından Playwright hata mesajlarına geçince ne değişir? Selenium\'da "NoSuchElementException" gördüğünde hatanın locator\'dan mı, zamanlama sorunundann mı, yoksa sayfa yüklemesinden mi kaynaklandığını anlamak için Trace yok, screenshot yok, sadece stack trace vardı — ve genellikle saatlerce debug gerekirdi. Playwright\'da "Locator resolved to 2 elements" gibi bir mesaj, hem sorunu tanımlar hem de hangi iki elementin seçildiğini HTML çıktısıyla gösterir; "Timeout 30000ms exceeded while waiting for element to be visible" mesajı ise timeout süresini, beklenen durumu ve testin tam o anda nerede olduğunu içerir. Java\'daki NullPointerException gibi muğlak hatalar yerine eylem odaklı mesajlar alırsın. QA gerçeği: CI pipeline\'da sabah 3\'te patlayan bir test için hata mesajı ne kadar zenginse gündüz inceleme süresi o kadar kısa olur — Playwright\'ın detaylı hata ve otomatik screenshot özelliği bu investigation süresini önemli ölçüde kısaltır.',
       },
+      playwrightRichErrorFilm,
+      playwrightErrorDiagnosisSteps,
       {
         type: 'error-dictionary',
           relatedTopicId: 'playwright-errors',
@@ -2762,6 +4203,7 @@ with sync_playwright() as p:
           },
         ],
       },
+      playwrightErrorDiagnosisPractice,
       {
         type: 'quiz',
         question: '`webServer: { command: "npm run dev", url: "http://localhost:8080" }` konfigürasyonu eksikken Playwright testleri "ECONNREFUSED" hatasıyla başarısız oluyorsa, en olası neden nedir?',
@@ -2794,6 +4236,8 @@ with sync_playwright() as p:
         type: 'simple-box', emoji: '🔧',
         content: 'Playwright error messages work like a well-written medical diagnosis report: even when the symptom is vague, the report spells out which organ was affected, when the problem occurred, and under what conditions. What changes when moving from Selenium errors to Playwright errors? In Selenium, when you saw "NoSuchElementException" you had no Trace, no screenshot, just a stack trace — figuring out whether it was a bad locator, a timing issue, or an incomplete page load often took hours. In Playwright, a message like "Locator resolved to 2 elements" both names the problem and shows you the HTML of both elements that were matched; "Timeout 30000ms exceeded while waiting for element to be visible" tells you the timeout duration, the expected state, and exactly where the test was at that moment. Instead of the ambiguous NullPointerExceptions you dealt with in Java, you get action-oriented messages. The QA reality: the richer the error message for a test that fails at 3 AM in CI, the shorter the investigation time the next morning — Playwright\'s detailed errors and automatic screenshots cut that investigation window significantly.',
       },
+      playwrightRichErrorFilm,
+      playwrightErrorDiagnosisSteps,
       {
         type: 'error-dictionary',
           relatedTopicId: 'playwright-errors',
@@ -2835,6 +4279,7 @@ use: { baseURL: 'http://localhost:8080' }`,
           },
         ],
       },
+      playwrightErrorDiagnosisPractice,
       {
         type: 'quiz',
         question: 'If Playwright tests fail with "ECONNREFUSED" when the `webServer: { command: "npm run dev", url: "http://localhost:8080" }` config is missing, what is the most likely cause?',
@@ -2869,6 +4314,9 @@ const s9 = {
         type: 'simple-box', emoji: '🎯',
         content: 'Bu 50 soru, bir mülakat panelinin hazırladığı bütünlük sınavı gibidir: her soru önceki bilginin üzerine inşa edilir — temeli sağlam olmadan ileri konularda gerçek iş deneyimi gibi konuşamazsın, ve mülakatta bu fark saniyeler içinde ortaya çıkar. Peki neden Playwright mülakat soruları Java/Selenium mülakat sorularından farklı bir hazırlık gerektiriyor? Çünkü Playwright mülakatları artık sadece "API nasıl kullanılır?" değil, "auto-wait ne zaman yetmez, neden ek waitForSelector gerekir?", "storageState\'i CI\'da nasıl kullanırsın?", "Page Object ile Fixture farkı ne, hangisini ne zaman tercih edersin?" gibi mimari kararları sorgular. Java\'da Selenium deneyimliysen locator ve aksiyon sorularını kolayca geçersin, ama TypeScript async/await semantiği, Playwright test runner özellikleri ve network mocking soruları sürpriz olabilir. Bu 50 soru, tam da bu açıkları hedefler: Basic, teknik bilgiyi doğrular; Intermediate, gerçek iş senaryolarında karar verme yeteneğini ölçer; Advanced, seni bir takımın tasarım toplantısında mimari kararlar alabilen biri olarak konumlandırır.',
       },
+      playwrightInterviewPanelFilm,
+      playwrightInterviewPrepSteps,
+      playwrightInterviewPractice,
       {
         type: 'interview-questions',
           relatedTopicId: 'playwright',
@@ -2935,6 +4383,9 @@ const s9 = {
         type: 'simple-box', emoji: '🎯',
         content: 'These 50 questions work like a comprehensive qualification exam assembled by a panel: each question builds on the previous one — without a solid foundation you can\'t talk through advanced topics the way someone with real production experience would, and in an interview that gap surfaces within seconds. Why do Playwright interview questions require different preparation than Java/Selenium ones? Because Playwright interviews no longer just ask "how do you use the API?" — they probe architectural decisions: "when does auto-wait fall short and why do you need an explicit waitForSelector?", "how do you use storageState in CI?", "what\'s the difference between Page Object and Fixture, and which do you prefer when?" If you have a Selenium/Java background, locator and action questions will be easy, but TypeScript async/await semantics, Playwright test runner features, and network mocking questions may catch you off guard. These 50 questions target exactly those gaps: Basic verifies technical knowledge; Intermediate measures your decision-making in real job scenarios; Advanced positions you as someone who can make architectural decisions in a team design meeting.',
       },
+      playwrightInterviewPanelFilm,
+      playwrightInterviewPrepSteps,
+      playwrightInterviewPractice,
       {
         type: 'interview-questions',
           relatedTopicId: 'playwright',
@@ -3102,6 +4553,7 @@ export default defineConfig({
           { icon: '🚫', label: '.not. ile tersi', desc: 'expect(x).not.toBeVisible() gibi her assertion\'ın tersi yazılabilir.' },
         ],
       },
+      playwrightAssertRetryFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -3274,6 +4726,7 @@ export default defineConfig({
           { icon: '🚫', label: 'Negate with .not.', desc: 'Any assertion can be inverted: expect(x).not.toBeVisible().' },
         ],
       },
+      playwrightAssertRetryFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -3934,6 +5387,7 @@ test('yanlış şifre hata mesajı gösterir', async ({ page }) => {
         title: 'POM Her Zaman Gerekli mi?',
         content: 'Hayır. Tek seferlik bir keşif testi yazıyorsan, UI hâlâ hızla değişiyorsa ya da sayfa çok basitse (1-2 eleman) POM ekstra karmaşıklık katar. Kural: "Önce POM olmadan başla, kod tekrarını fark ettiğin anda çıkar (extract)." Erken POM yazmak, henüz şekillenmemiş bir UI için yanlış bir abstraction oluşturabilir.',
       },
+      playwrightPomRippleFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -4125,6 +5579,7 @@ test('wrong password shows an error message', async ({ page }) => {
         title: 'Is POM Always Necessary?',
         content: 'No. If you\'re writing a one-off exploratory test, the UI is still changing rapidly, or the page is very simple (1-2 elements), POM adds unnecessary complexity. The rule of thumb: "Start without page objects. Extract them when you notice duplication." Writing POM too early can lock in the wrong abstraction for a UI that hasn\'t settled yet.',
       },
+      playwrightPomRippleFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -4300,6 +5755,7 @@ export default defineConfig({
           ['Kritik release smoke', 'on', 'on', 'on', 'Stakeholder\'a gösterim / tam kanıt arşivi'],
         ],
       },
+      playwrightTraceTimeTravelFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -4469,6 +5925,7 @@ export default defineConfig({
           ['Critical release smoke', 'on', 'on', 'on', 'Stakeholder demos / a full evidence archive'],
         ],
       },
+      playwrightTraceTimeTravelFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -4642,6 +6099,7 @@ jobs:
           { icon: '📦', label: 'Resmi Docker image', desc: 'mcr.microsoft.com/playwright:v1.4x — tüm tarayıcılar/dependency\'ler kurulu gelir, playwright install gerekmez.' },
         ],
       },
+      playwrightWorkersNoInfraFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -4818,6 +6276,7 @@ jobs:
           { icon: '📦', label: 'Official Docker image', desc: 'mcr.microsoft.com/playwright:v1.4x — comes with all browsers/dependencies pre-installed, no playwright install needed.' },
         ],
       },
+      playwrightWorkersNoInfraFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -4972,6 +6431,7 @@ export default defineConfig({
         title: 'API ile Login — Daha da Hızlı',
         content: 'UI\'dan login yerine doğrudan request.post("/api/login", { data: { email, password } }) çağırıp dönen token\'ı cookie/localStorage olarak set edebilirsin. UI\'ya hiç dokunmadığı için saniyenin altında çalışır. MFA/2FA için: test ortamında MFA\'yı kapatmak, MFA\'sız özel bir test kullanıcısı kullanmak veya otpauth gibi bir kütüphaneyle TOTP kodu üretmek üç yaygın çözümdür.',
       },
+      playwrightStorageStateSsoFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -5135,6 +6595,7 @@ export default defineConfig({
         title: 'API-Based Login — Even Faster',
         content: 'Instead of logging in via the UI, you can call request.post("/api/login", { data: { email, password } }) directly and set the returned token as a cookie/localStorage value. Since it never touches the UI, it runs in well under a second. For MFA/2FA, three common solutions: disable MFA in the test environment, use a dedicated test user without MFA, or generate a TOTP code with a library like otpauth.',
       },
+      playwrightStorageStateSsoFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -5295,6 +6756,8 @@ const s16 = {
           { icon: '🌐', label: 'Çok dilli çıktı', desc: 'Aynı kaydı --target ile JS/TS, Python, Java veya C# kodu olarak alabilirsin.' },
         ],
       },
+      playwrightCodegenSemanticFilm,
+      playwrightCodegenFlowSteps,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -5318,6 +6781,7 @@ npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
         successOutput: { tr: '✅ Doğru sıra! Önce oturumu kaydet, sonra her codegen/test çalışmasında o dosyayı yükleyip login\'i tekrarlama.', en: '✅ Correct order! Save the session once, then load that file in every later codegen/test run instead of logging in again.' },
         retryOutput: { tr: '❌ Sıra yanlış — önce save-storage, sonra load-storage gelmeli.', en: '❌ Wrong order — save-storage must come before load-storage.' },
       },
+      playwrightCodegenPractice,
       {
         type: 'quiz',
         question: { tr: 'Codegen ile üretilen kodu test dosyasına koymadan önce neden gözden geçirmek gerekir?', en: 'Why should you review codegen-generated code before putting it in a test file?' },
@@ -5448,6 +6912,8 @@ npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
           { icon: '🌐', label: 'Multi-language output', desc: 'Take the same recording as JS/TS, Python, Java, or C# code with --target.' },
         ],
       },
+      playwrightCodegenSemanticFilm,
+      playwrightCodegenFlowSteps,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -5471,6 +6937,7 @@ npx playwright codegen --load-storage=auth.json https://example.com/dashboard`,
         successOutput: { tr: '✅ Doğru sıra!', en: '✅ Correct order! Save the session once, then load that file in every later codegen/test run instead of logging in again.' },
         retryOutput: { tr: '❌ Sıra yanlış.', en: '❌ Wrong order — save-storage must come before load-storage.' },
       },
+      playwrightCodegenPractice,
       {
         type: 'quiz',
         question: { tr: 'Codegen ile üretilen kodu test dosyasına koymadan önce neden gözden geçirmek gerekir?', en: 'Why should you review codegen-generated code before putting it in a test file?' },
@@ -5653,6 +7120,7 @@ const s17 = {
         title: 'Güvenlik — AI\'a Gerçek Tarayıcı Vermek Risklidir',
         content: 'Playwright MCP\'ye bağlı bir AI, gerçek formlara veri girebilir, gerçek butonlara (silme, satın alma, gönder) tıklayabilir. (1) --allowed-origins ile AI\'ı sadece test/staging ortamına kilitle. (2) Gerçek production ödeme/silme akışlarında AI\'ı insan onayı olmadan serbest bırakma. (3) --user-data-dir kullanıyorsan, o profildeki gerçek oturumların (kişisel e-posta, banka vb.) AI tarafından da erişilebilir olduğunu unutma — test için ayrı, izole bir profil kullan.',
       },
+      playwrightMcpA11yTreeFilm,
       {
         type: 'git-practice',
         icon: '🎭',
@@ -5856,6 +7324,7 @@ claude mcp add playwright npx @playwright/mcp@latest
         title: 'Security — Giving an AI a Real Browser Is Risky',
         content: 'An AI connected to Playwright MCP can fill in real forms and click real buttons (delete, purchase, submit). (1) Use --allowed-origins to lock the AI to a test/staging environment only. (2) Don\'t let the AI loose on real production payment/delete flows without human approval. (3) If you use --user-data-dir, remember the AI can also access whatever real sessions (personal email, banking, etc.) are logged into that profile — use a separate, isolated profile for testing.',
       },
+      playwrightMcpA11yTreeFilm,
       {
         type: 'git-practice',
         icon: '🎭',

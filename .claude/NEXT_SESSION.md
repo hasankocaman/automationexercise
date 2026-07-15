@@ -10,7 +10,104 @@
 
 ---
 
-## DEVIR NOTU — Kullanıcı Dalga 7+'ye BAŞKA bir Claude hesabıyla devam edecek (2026-07-15)
+## OTURUM ÖZETİ — Kontrast Denetimi (proje geneli) + Dalga 7 TAMAMLANDI (2026-07-15)
+
+> Bu oturum, altındaki "DEVİR NOTU" bölümünün öngördüğü "başka bir Claude
+> hesabıyla devam" senaryosu yerine AYNI oturumda devam etti — DEVİR NOTU
+> tarihsel kayıt olarak aşağıda duruyor ama artık güncel değil, bu bölüm
+> onun yerine güncel durumdur.
+
+### 1) Proje geneli kontrast denetimi — TAMAMLANDI
+
+Kullanıcı "arka plan/font renk uyumunu hem dark hem light mode'da kontrol et,
+bütün projeyi incele, tamamla" dedi. Akış:
+1. Explore ajanı ile TÜM `src/components/*.jsx` dosyaları tarandı (önceki
+   oturumdaki `457cbaf` commit'inin KAPSAMADIĞI kalıntılar arandı).
+2. Sonuç: **TopicPage.jsx'te 145, diğer 8 dosyada 15 olmak üzere ~160
+   bulgu** — hepsi aynı anti-pattern: tema-farkında olmayan sabit/parlak
+   renk (`color: '#ef4444'`, `color: accent`, `color: item.color` gibi)
+   metin rengi olarak kullanılıp, arka planı `darkMode ? koyu : açık` olan
+   bir kutunun İÇİNE konmuş.
+3. **~175 satır fix uygulandı** (Python script ile satır-indeksli toplu
+   düzeltme, ardından manuel Edit ile diğer 8 dosya). Kalıp: `darkMode ?
+   <parlak-ton> : <koyu-okunaklı-ton>` (kırmızı ailesi → `#f87171`/`#b91c1c`,
+   yeşil → `#34d399`/`#047857`, amber → `#fbbf24`/`#b45309`, mor →
+   `#c4b5fd`/`#6d28d9`, mavi → `#93c5fd`/`#1d4ed8`, veri-kaynaklı/nötr →
+   `#f1f5f9`/`#1e293b`). Ayrıca 2 dosyada (`AdvancedAlgorithmsPage.jsx`,
+   `AlgorithmsPage.jsx`, `ManualTestingPage.jsx`) gerçek bir bug bulundu:
+   flashcard bileşeni light modda da `text-white`/`text-slate-100` (yani
+   HER İKİ modda da açık renk metin) kullanıyordu — light moda özel koyu
+   metin rengine (`text-slate-900`) düzeltildi.
+4. **Bilinçli olarak dokunulmayan/atlanan gruplar** (istisna, bug değil):
+   Jenkins/AWS/Azure/Postman/K8s/Docker/BrowserStack/JMeter/Appium/vb.
+   "her zaman sabit koyu terminal/konsol arka planlı" widget'lar (JK/AW/AZ
+   paletleri); kod editörleri (Pyodide/TS/JS/SQL); CSS-custom-property
+   tabanlı 3D pipeline hero'ları; "aktif chip" (beyaz metin + eşleşen sabit
+   renkli rozet) tasarımları; birkaç düşük-öncelikli dekoratif ok/etiket
+   (`CssAnimationBlock.jsx:1123`, `TopicPage.jsx` içinde birkaç adet —
+   agent raporunda "düşük risk" diye işaretliydi).
+5. **Not — yine TAM bir tarama değil:** Agent'ın kendi raporu da "TAM bir
+   tarama DEĞİL" diyor; en yaygın/yüksek-güvenli örnekler kapsandı. Yeni bir
+   oturumda benzer kalıp bulunursa aynı yöntem (nötr/dual-tone renk +
+   `darkMode` ternary) uygulanabilir.
+6. **Doğrulama:** `npm run build` temiz (birden fazla kez), `check-content-
+   integrity` temiz, `tests/video-scene.spec.ts --workers=1` tüm testler
+   PASS, `/playwright` POM sekmesi ve `/postman` sayfası açık/koyu modda
+   screenshot ile görsel teyit yapıldı (Playwright ile localhost:5173
+   üzerinden).
+
+### 2) Dalga 7 — /playwright — TAMAMLANDI (Batch 1 + Batch 2, 18/18 sekme)
+
+`Documents/video-sitewide-plan.md` sırasına göre. `playwrightData.js`
+14 AYRI modüler const (`s0`..`s17`, seleniumData.js ile aynı kalıp) —
+film sabitleri dosya başında tanımlanıp her `s{n}.tr.blocks` ve
+`s{n}.en.blocks`'a bare identifier olarak eklendi.
+
+**Batch 1** (8 yeni film + 1 sandbox, commit BEKLİYOR): Playwright Nedir?
+(+ sandbox, kod bloğu yoktu), Kurulum, Temel Aksiyonlar, Locator
+Stratejileri, Bekleme & Wait, Assertions, Page Object Model, iframe·Alert·
+Popup. Test Organizasyonu zaten filme sahipti (`testLifecycleFilm`,
+dokunulmadı).
+
+**Batch 2** (9 yeni film + 6 destek bloğu — 3 sekme kodsuz olduğundan elle
+step-animation/code-playground eklendi, commit BEKLİYOR): Dosya·Network·
+API, Gerçek Hayat, Yaygın Hatalar (+ steps + practice, error-dictionary
+kodsuz), 50 Mülakat Sorusu (+ steps + practice, interview-questions kodsuz,
+gating kilidi arkasında — beklenen davranış), Debugging & Trace, Paralel &
+CI/CD, Auth & Session, Codegen (+ steps + practice, kodsuz — git-practice
+zaten vardı), Playwright MCP.
+
+**Toplam 17 yeni film + 7 destek bloğu**, hepsi EN+TR ağaçlarının İKİSİNE
+de aynı referansla eklendi; grep ile doğrulandı (her biri 1 tanım + 2
+kullanım = 3 toplam eşleşme, 24 sabitin tamamı için).
+
+### Doğrulama (§1.1) — hepsi geçti
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (her iki batch'te de)
+- TR/EN sızıntı taraması: yeni sabitlerin tamamı programatik script ile
+  tarandı (Türkçe karakterlerin `en:` alanlarına sızıp sızmadığı) —
+  sıfır gerçek leakage.
+- `npm run build` → temiz. `playwrightData` chunk: **445.49 kB / gzip
+  129.03 kB** (350KB gzip eşiğinin çok altında; 1 filmden 18 filme
+  çıkmasına rağmen).
+- `npx playwright test tests/video-scene.spec.ts --workers=1` →
+  **27/27 PASS** (24 eski + 3 yeni Dalga 7 Batch 2 testi: Debugging &
+  Trace, Paralel & CI/CD, Yaygın Hatalar; Batch 1'den de 3 test zaten
+  vardı: Playwright Nedir?, Locator Stratejileri, Page Object Model;
+  💼 Mülakat testlere BİLEREK dahil edilmedi — quiz-gating kilidi
+  arkasında). 1 test tam koşumda "flaky" göründü (dev-server soğuk
+  başlangıç zaman aşımı), izole tekrar koşumda temiz PASS oldu — kod
+  hatası değil.
+
+### Sıradaki adım
+Bu oturumdaki TÜM değişiklikler (kontrast fix'leri + Dalga 7 Batch 1+2 +
+`tests/video-scene.spec.ts` genişletmesi) **kullanıcı onayı bekliyor,
+henüz commit edilmedi**. Onay gelince commit edilip, sonra
+`Documents/video-sitewide-plan.md` sırasındaki **Dalga 8'e (/python, ~12
+film, trio referans sayfası)** geçilecek.
+
+---
+
+## DEVİR NOTU (TARİHSEL — artık güncel değil, bkz. yukarıdaki güncel özet) — Kullanıcı Dalga 7+'ye BAŞKA bir Claude hesabıyla devam edecek (2026-07-15)
 
 > Branch: `feature/video-scene-dalga3` (main'e henüz merge/push edilmedi —
 > origin'de bu branch push edilmiş durumda, bkz. `git log`). Dalga 6
