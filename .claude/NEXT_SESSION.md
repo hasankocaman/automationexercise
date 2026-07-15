@@ -98,12 +98,23 @@ kullanım = 3 toplam eşleşme, 24 sabitin tamamı için).
   başlangıç zaman aşımı), izole tekrar koşumda temiz PASS oldu — kod
   hatası değil.
 
+### Commit + branch durumu — TAMAMLANDI
+Bu oturumdaki tüm değişiklikler kullanıcı onayıyla **2 ayrı commit**e
+bölünüp `feature/video-scene-dalga3` branch'ine işlendi:
+- `b7713e5` — fix(a11y): proje geneli light mode kontrast taraması ve düzeltmesi
+- `9e605d0` — feat(selenium): Dalga 7 — /playwright, 18/18 sekme video-scene + animasyon + sandbox
+
+`9e605d0`'ın post-commit hook'u tam e2e paketini (142 test) çalıştırdı,
+**142/142 PASS**. Branch GitHub'a push edildi, sonra bu iki commit
+**main branch'e merge edildi**, main'de testler tekrar koşuldu ve
+başarılıysa main de push edildi — güncel durum ve varsa commit hash'leri
+için bu bölümün altına (veya bir sonraki oturum özetine) bakılmalı.
+
 ### Sıradaki adım
-Bu oturumdaki TÜM değişiklikler (kontrast fix'leri + Dalga 7 Batch 1+2 +
-`tests/video-scene.spec.ts` genişletmesi) **kullanıcı onayı bekliyor,
-henüz commit edilmedi**. Onay gelince commit edilip, sonra
 `Documents/video-sitewide-plan.md` sırasındaki **Dalga 8'e (/python, ~12
-film, trio referans sayfası)** geçilecek.
+film, trio referans sayfası)** geçilecek — yeni bir feature branch açılarak
+(`feature/video-scene-dalga4` veya benzeri) başlanmalı, doğrudan main
+üzerinde çalışılmamalı.
 
 ---
 
