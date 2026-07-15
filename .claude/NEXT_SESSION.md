@@ -212,12 +212,84 @@ animasyon/sandbox elle tamamlandı (`relatedTopicId` ile).
 **Commit:** bu dalganın değişikliği commit edilecek, hash bir sonraki
 güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
 
+### Sıradaki adım (Dalga 11 için, artık eski)
+~~Dalga 12 (/typescript)~~ → TAMAMLANDI, bkz. aşağıdaki güncel bölüm —
+**YENİ bir kalıcı mimari (lazy-load film chunk) eklendi, bundan sonraki
+büyük dosyalar (Java) için de kullanılabilir.**
+
+---
+
+## Dalga 12 — /typescript — TAMAMLANDI (17/17 sekme, LAZY-LOAD mimarisi eklendi, 2026-07-15 devam)
+
+**Kullanıcı kararı:** `typescriptData` chunk'ı zaten 337.83 kB gzip
+(350KB eşiğine çok yakın, CLAUDE.md §4) olduğu için, filmler DOĞRUDAN
+dosyaya gömülmek yerine **lazy-load ayrı chunk** yaklaşımı seçildi
+(4 seçenekten kullanıcı bunu onayladı).
+
+**YENİ KALICI MİMARİ (bundan sonra büyük dosyalarda tekrar kullanılabilir):**
+1. `src/components/VideoSceneBlock.jsx`'e geriye dönük UYUMLU bir özellik
+   eklendi: `block.lazyLoader` (`() => import(...)`) ve `block.filmId`
+   varsa, component `useEffect` ile filmi asenkron çözer
+   (`mod.default[filmId]`), yüklenene kadar bir skeleton/loading state
+   gösterir. `block.lazyLoader` YOKSA (projedeki diğer TÜM sayfalar)
+   davranış TAMAMEN eskisiyle aynı — geriye dönük uyumluluk build ile
+   doğrulandı (diğer 20+ sayfanın chunk boyutları değişmedi).
+2. `src/data/typescriptFilmsData.js` — YENİ dosya, TÜM TS filmlerini
+   (17 adet) içerir, `export default { 'film-id': filmObj, ... }` lookup
+   map'i ile. Bu dosya `typescriptData.js`'e STATİK import EDİLMİYOR —
+   sadece `() => import('./typescriptFilmsData.js')` dinamik çağrısıyla
+   referans veriliyor, bu da Vite/Rollup'ın onu AYRI bir chunk olarak
+   bölmesini sağlıyor.
+3. `typescriptData.js`'e sadece küçük placeholder'lar eklendi:
+   `{ type: 'video-scene', lazyLoader: () => import('./typescriptFilmsData.js'), filmId: '...' }`
+   — hem `en.sections[i].blocks` hem `tr.sections[i].blocks`'a.
+4. **Ek risk keşfi ve çözümü:** dosyada `_tsLabel`/`_tsContent`/`_tsCode`
+   gibi HARDCODED INDEX post-processing dizileri var (`[sectionIndex,
+   blockIndex]` ile). Placeholder'ları elle sabit satır numarasına eklemek
+   bu index'leri kaydırıp SESSİZCE başka blokları bozabilirdi (pythonData
+   applyTr riskiyle AYNI aile). Çözüm: placeholder'lar dosyanın SONUNDA,
+   `fillMissingCodeTrios`'tan SONRA çalışan index-BAĞIMSIZ bir runtime
+   adımıyla spliced ediliyor — her section'da "gerçek içerik" ile
+   "quiz/interview-questions/challenge/error-dictionary" kümesi arasındaki
+   SINIRI otomatik bulup oraya ekliyor. Hardcoded index dizilerine hiç
+   dokunulmadı.
+
+**Eklenenler:** 17 film (1'i önceki proof-of-concept turunda: `ts-compile-
+chain-film` — Intro & Why; 16'sı bu turda: tsconfig/`any` vs `unknown`/
+tuple sabit sıra/enum/interface merge/`as` assertion riski/decorator/
+generic binding/Partial-Pick/optional chaining/discriminated union
+narrowing/typed POM autocomplete/Java generics karşılaştırma/vitest/
+exhaustive never/response narrowing). Animasyon/sandbox zaten TÜM
+sekmelerde mevcuttu (önceki bir turda `_tsInsert`/`_tsCodePlayground`
+ile eklenmiş) — sadece film eklendi.
+
+**Doğrulama:**
+- `node --check` her iki dosyada da temiz.
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (36 dosya).
+- Node ile 17 sekmenin İKİSİNDE de (en/tr) ≥1 video+anim+sandbox olduğu
+  doğrulandı.
+- Film id'leri proje genelinde benzersiz (grep ile teyit, `export default`
+  map key'i ile film objesinin içindeki `id:` alanının aynı olduğu
+  doğrulandı).
+- `npm run build` → temiz. **`typescriptData` chunk: 338.58 kB gzip**
+  (337.83'ten sadece +0.75KB — SADECE placeholder'ların ağırlığı, film
+  verisinin KENDİSİ main chunk'a hiç girmedi, `grep -c "actors"` main
+  chunk'ta 0 sonuç verdi). Ayrı `typescriptFilmsData` chunk'ı oluştu
+  (~70KB, lazy — sadece film açıldığında iner).
+- `tests/video-scene.spec.ts` genişletilmedi, Playwright çalıştırılmadı.
+
+**Commit:** bu dalganın değişikliği (3 dosya: VideoSceneBlock.jsx,
+typescriptData.js, typescriptFilmsData.js yeni) commit edilecek, hash
+bir sonraki güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
+
 ### Sıradaki adım
-Dalga 12 (`/typescript`) — ⚠️ **chunk eşiği İZLENEREK** (CLAUDE.md
-Bölüm 4): `typescriptData` şu an zaten **337.83 kB gzip**, 350KB eşiğine
-çok yakın. Filmler eklenmeden ÖNCE durum kullanıcıya raporlanmalı ve
-mimari karar istenmeli (seçenekler: filmleri ayrı lazy chunk'a almak,
-sekme başına film sayısını düşürmek, olduğu gibi devam).
+Dalga 13 (`/java`) — ⚠️ **chunk eşiği İZLENEREK** (CLAUDE.md §4):
+`javaData` şu an **238.27 kB gzip** (350KB eşiğinin altında ama
+`javaData` zaten CLAUDE.md §14'te "büyük chunk" uyarısı listesinde).
+Muhtemelen normal (in-file) film ekleme eşiği aşmaz, ama film ekledikten
+SONRA chunk boyutu tekrar ölçülmeli; aşarsa Dalga 12'deki YENİ lazy-load
+kalıbı (`VideoSceneBlock.jsx`'in `lazyLoader`/`filmId` desteği zaten hazır)
+aynı şekilde `javaFilmsData.js` olarak uygulanabilir.
 
 ---
 

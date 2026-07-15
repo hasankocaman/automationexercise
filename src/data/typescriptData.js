@@ -473,6 +473,11 @@ export const typescriptData = {
             }
           },
           {
+            "type": "video-scene",
+            "lazyLoader": () => import("./typescriptFilmsData.js"),
+            "filmId": "ts-compile-chain-film"
+          },
+          {
             "type": "quiz",
             "question": {
               "en": "What is TypeScript's core value proposition in test automation?",
@@ -7733,6 +7738,11 @@ export const typescriptData = {
                 "en": "tsc (TypeScript Compiler) compiles .ts source files into plain .js files that can execute in the browser or Node.js."
               }
             }
+          },
+          {
+            "type": "video-scene",
+            "lazyLoader": () => import("./typescriptFilmsData.js"),
+            "filmId": "ts-compile-chain-film"
           },
           {
             "type": "quiz",
@@ -18592,3 +18602,76 @@ testAction();`
 );
 
 fillMissingCodeTrios(typescriptData, 'typescript')
+
+// ── Dalga 12 (CLAUDE.md §9.5): video-scene filmleri — 16 kalan sekme ─────────
+// Section 0 ("Intro & Why") zaten ts-compile-chain-film ile TAMAMLANMIŞ durumda
+// (statik blok olarak eklenmişti). Bu 16 sekme için film verisi typeof
+// typescriptFilmsData.js (LAZY chunk) içinde tutuluyor; burada SADECE küçük bir
+// placeholder blok ekleniyor (`{ type: 'video-scene', lazyLoader, filmId }`).
+//
+// Yerleşim kuralı (Bölüm 9.1/9.5): film, sekmenin ana konu anlatımının hemen
+// ARDINA, quiz/challenge/interview-questions/error-dictionary kümesinden ÖNCE
+// gelmeli. Bazı sekmelerde bu blok tipleri (`_tsInsert`/`_tsCodePlayground`
+// yukarıda) zaten hardcoded index'lerle spliced edildiğinden, placeholder'ı
+// STATİK bir index'e eklemek o index'leri kaydırıp bozabilirdi. Bunun yerine
+// placeholder, bu dosyadaki TÜM önceki splice/patch işlemleri bittikten SONRA,
+// section'ın mevcut (final) blocks dizisini TARAYARAK — sondan başlayıp
+// quiz/challenge/interview-questions/error-dictionary/ts-mini-hero/
+// feynman-checkpoint türünden oluşan kesintisiz "değerlendirme kümesi"nin
+// BAŞLADIĞI noktayı bularak — eklenir. Böylece film her zaman gerçek konu
+// içeriğinden hemen sonra, değerlendirme bloklarından hemen önce oturur.
+const _tsFilmAssessmentTypes = new Set([
+  'quiz', 'interview-questions', 'challenge', 'error-dictionary',
+  'ts-mini-hero', 'feynman-checkpoint', 'interleaving-challenge',
+]);
+
+function _tsFindFilmInsertIndex(blocks) {
+  let idx = blocks.length;
+  for (let i = blocks.length - 1; i >= 0; i -= 1) {
+    if (_tsFilmAssessmentTypes.has(blocks[i]?.type)) {
+      idx = i;
+    } else {
+      break;
+    }
+  }
+  return idx;
+}
+
+function _tsMakeFilmPlaceholder(filmId) {
+  return {
+    type: 'video-scene',
+    lazyLoader: () => import('./typescriptFilmsData.js'),
+    filmId,
+  };
+}
+
+// sectionIndex → filmId (section 0 hariç, zaten tamamlanmıştı)
+const _tsFilmBySection = {
+  1: 'ts-tsconfig-init-film',                  // Installation — tsc --init & tsconfig zinciri
+  2: 'ts-any-unknown-film',                    // Simple & Special Types — any (kapı) vs unknown (kilit)
+  3: 'ts-tuple-fixed-order-film',               // Arrays & Tuples — tuple'ın sabit sıra/uzunluk garantisi
+  4: 'ts-enum-fixed-set-film',                  // Object Types & Enums — enum'ın derleme-zamanı sabit kümesi
+  5: 'ts-interface-merge-film',                 // Interface & Type Aliases — declaration merging vs type alias
+  6: 'ts-as-assertion-risk-film',               // Functions & Casting — `as` type assertion riski
+  7: 'ts-decorator-once-film',                  // Classes & Decorators — decorator'ın tanımlanma anında bir kez çalışması
+  8: 'ts-generic-binding-film',                 // Generics — <T>'nin her çağrıda farklı tipe bağlanması
+  9: 'ts-partial-pick-derive-film',             // Utility Types & Keyof — Partial/Pick'in yeni tip türetmesi
+  10: 'ts-optional-chaining-shortcircuit-film', // Template Literals & Null — ?./?? kısa devre
+  11: 'ts-catch-unknown-narrowing-film',        // Error Handling & Advanced Types — catch(error): unknown narrowing
+  12: 'ts-typed-pom-autocomplete-film',         // QA Use Cases — tipli Page Object + IDE autocomplete
+  13: 'ts-java-generics-compare-film',          // Java → TS — Java <T> vs TS <T>
+  14: 'ts-vitest-watch-film',                   // Test Runners — Vitest esbuild vs Jest ayrı derleme adımı
+  15: 'ts-exhaustive-never-film',               // Interview Q&A — exhaustive switch + never
+  16: 'ts-response-narrowing-film',             // Practice & Reference — ApiResponse<T> narrowing
+};
+
+Object.entries(_tsFilmBySection).forEach(([sectionIdxStr, filmId]) => {
+  const sectionIdx = Number(sectionIdxStr);
+  ;[typescriptData.en, typescriptData.tr].forEach((root) => {
+    const blocks = root.sections[sectionIdx]?.blocks;
+    if (!Array.isArray(blocks)) return;
+    if (blocks.some((b) => b?.type === 'video-scene' && b?.filmId === filmId)) return;
+    const insertAt = _tsFindFilmInsertIndex(blocks);
+    blocks.splice(insertAt, 0, _tsMakeFilmPlaceholder(filmId));
+  });
+});

@@ -27,10 +27,30 @@ const DEFAULT_STAGE_HEIGHT = 260
 
 export default function VideoSceneBlock({ block, darkMode, language }) {
     const isTr = language === 'tr'
-    const actors = block.actors || []
-    const scenes = block.scenes || []
-    const sceneMs = block.sceneDurationMs ?? DEFAULT_SCENE_MS
-    const stageHeight = block.stageHeight ?? DEFAULT_STAGE_HEIGHT
+
+    // Lazy film desteği: block.lazyLoader varsa (örn. büyük *Data.js
+    // dosyalarının chunk boyutunu düşürmek için) gerçek film verisi
+    // block.filmId ile block.lazyLoader()'ın döndürdüğü modülden
+    // asenkron çözülür; yoksa block'un kendisi zaten tam film verisidir.
+    const [lazyFilm, setLazyFilm] = useState(null)
+    useEffect(() => {
+        if (!block.lazyLoader) return
+        let cancelled = false
+        block.lazyLoader().then(mod => {
+            if (cancelled) return
+            const resolved = mod?.default?.[block.filmId] ?? mod?.[block.filmId] ?? null
+            setLazyFilm(resolved)
+        })
+        return () => { cancelled = true }
+    }, [block.lazyLoader, block.filmId])
+
+    const film = block.lazyLoader ? lazyFilm : block
+    const filmLoading = Boolean(block.lazyLoader) && !film
+
+    const actors = film?.actors || []
+    const scenes = film?.scenes || []
+    const sceneMs = film?.sceneDurationMs ?? DEFAULT_SCENE_MS
+    const stageHeight = film?.stageHeight ?? DEFAULT_STAGE_HEIGHT
 
     const [sceneIdx, setSceneIdx] = useState(0)
     const [playing, setPlaying] = useState(false)
@@ -51,7 +71,7 @@ export default function VideoSceneBlock({ block, darkMode, language }) {
     const scene = scenes[sceneIdx] || { positions: {} }
     const lastIdx = scenes.length - 1
     const atEnd = sceneIdx === lastIdx
-    const alreadyPaid = block.id ? completed.includes(block.id) : true
+    const alreadyPaid = film?.id ? completed.includes(film.id) : true
 
     /* ── Otomatik oynatma: sahne süresi dolunca ilerle, sonda dur ── */
     useEffect(() => {
@@ -71,9 +91,9 @@ export default function VideoSceneBlock({ block, darkMode, language }) {
     /* ── Son sahneye ulaşınca XP'yi bir kez öde ── */
     useEffect(() => {
         if (!atEnd || scenes.length < 2) return
-        if (!block.id || alreadyPaid) return
-        addXP(Math.max(0, block.xpReward ?? 0))
-        markExerciseComplete(block.id)
+        if (!film?.id || alreadyPaid) return
+        addXP(Math.max(0, film.xpReward ?? 0))
+        markExerciseComplete(film.id)
         setCompleted(getCompletedExercises())
         setXpPop(true)
     }, [atEnd]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -113,12 +133,21 @@ export default function VideoSceneBlock({ block, darkMode, language }) {
 
     const beams = scene.beams || []
 
+    if (filmLoading) {
+        return (
+            <div className={`mt-6 animate-pulse rounded-2xl border p-4 md:p-5 ${card}`} data-testid="video-scene-block-loading">
+                <div className={`mb-3 h-5 w-1/3 rounded ${darkMode ? 'bg-slate-700' : 'bg-slate-200'}`} />
+                <div className={`h-[260px] w-full rounded-xl ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`} />
+            </div>
+        )
+    }
+
     return (
         <div className={`mt-6 rounded-2xl border p-4 md:p-5 ${card}`} data-testid="video-scene-block">
             {/* ── Başlık + XP durumu ── */}
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h4 className={`text-base font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                    {pick(block.title, isTr)}
+                    {pick(film?.title, isTr)}
                 </h4>
                 <span className={`rounded px-2 py-1 font-mono text-xs ${darkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'}`}>
                     {isTr ? `Sahne ${sceneIdx + 1}/${scenes.length}` : `Scene ${sceneIdx + 1}/${scenes.length}`}
@@ -223,8 +252,8 @@ export default function VideoSceneBlock({ block, darkMode, language }) {
                         data-testid="video-scene-done"
                     >
                         🎬 {isTr ? 'Film bitti' : 'The end'}
-                        {block.xpReward > 0 && (
-                            <span>{alreadyPaid && !xpPop ? '✓' : `+${block.xpReward} XP`}</span>
+                        {film?.xpReward > 0 && (
+                            <span>{alreadyPaid && !xpPop ? '✓' : `+${film.xpReward} XP`}</span>
                         )}
                     </div>
                 )}
