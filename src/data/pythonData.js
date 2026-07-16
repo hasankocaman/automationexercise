@@ -2009,12 +2009,20 @@ const codePlaygroundBugReportValidator = {
   id: 'py-bug-report-validator',
   label: { tr: 'Kendin Yaz: Bir Bug Report Geçerli mi?', en: 'Write It Yourself: Is a Bug Report Valid?' },
   language: 'python',
-  code: `def is_valid_report(report):
+  code: {
+    tr: `def is_valid_report(report):
     # BOZUK: sadece "title" anahtarını kontrol ediyor, adımlar/beklenen/gerçek eksik olsa bile geçerli sayıyor
     return "title" in report
 
 report = {"title": "Giris calismiyor"}
 print(is_valid_report(report))  # True olmamali - eksik alanlar var!`,
+    en: `def is_valid_report(report):
+    # BROKEN: only checks the "title" key, counts it valid even if steps/expected/actual are missing
+    return "title" in report
+
+report = {"title": "Login doesn't work"}
+print(is_valid_report(report))  # Should NOT be True - fields are missing!`,
+  },
   expected: `False`,
   explanation: {
     tr: 'Bir bug report sadece başlığa sahip olmakla "geçerli" sayılamaz — yeniden üretme adımları, beklenen sonuç ve gerçek sonuç da ZORUNLU alanlardır. Fonksiyon bu dört alanın HEPSİNİN mevcut olduğunu kontrol etmeli.',

@@ -538,6 +538,44 @@ kesildi** (`resets 12:10pm Europe/Istanbul`). Ana oturumda devralındı:
 edilecek (`SKIP_E2E_HOOK=1` ile). `kafkaData.js` commit edilMEyecek
 (değişiklik yok zaten).
 
+### EK — main'e merge sonrası tam test paketi doğrulaması (2026-07-16)
+
+Kullanıcı talimatıyla: merge (test'siz) → main'de `npm run build` + tam
+`npm run test:e2e` (142 test) çalıştırıldı.
+
+**Ortam notu:** İlk denemede sistem belleği kritik derecede düşüktü (16GB
+üzerinden ~570MB boş) — `npm run build` Node "heap out of memory" ve
+esbuild (Go) çöküşüyle başarısız oldu. Kullanıcı WSL2/Docker Desktop'ı
+`.wslconfig` ile 8GB'a sınırlayınca (WSL bellek sızıntısı kök nedendi)
+bellek 5.7GB'a çıktı, build/testler sorunsuz çalıştı. **Bu proje için
+değil, bu makine için genel bir not** — ileride benzer OOM crash
+görülürse önce `wmic OS get FreePhysicalMemory` ile bellek kontrol
+edilmeli.
+
+**Bulunan GERÇEK bug (bu oturumun Dalga 8 /python çalışmasından):**
+`tests/i18n-content-toggle.spec.ts` AC03 Koşul B testi `/python`'da
+FAIL verdi — sekme 21'de (Manual Testing Lab) EN modda bile Türkçe
+metin görünüyordu: `codePlaygroundBugReportValidator` bloğunun `code`
+alanı düz string'di (bilingual `{tr,en}` DEĞİL), içinde
+`# BOZUK: sadece "title" anahtarını kontrol ediyor...` yorumu vardı —
+bu yorum dil modu ne olursa olsun HEP Türkçe gösteriliyordu.
+**Düzeltme:** `code` alanı `{tr: '...Türkçe yorumlu...', en: '...English
+comment...'}` bilingual formata çevrildi (dosyadaki `starterCode` alanı
+zaten bu kalıptaydı, `code` alanı unutulmuştu). Düzeltme sonrası test
+tek başına PASS.
+
+**Yanlış pozitif olduğu doğrulanan 2 "flaky" başarısızlık:** tam 142
+testlik paket paralel çalışırken `/typescript` ve `/python` (ayrıca
+`/java` retry'de) "her sekme render olur, içerik butonları görünür"
+testleri timeout'la FAIL görünmüştü — ama `--workers=1 --retries=0` ile
+tek tek tekrar koşulduğunda HEPSİ güvenilir şekilde PASS etti. Kök neden:
+142 testin paralel koşumu sırasında kaynak (CPU/bellek) rekabeti —
+kod hatası DEĞİL.
+
+**Sonuç:** i18n bug düzeltmesi commit edildi, `npm run build` + hedefli
+testler PASS. Tam 142 testlik paket bu düzeltmeyle birlikte tekrar
+koşuluyor (bkz. commit mesajı / bu bölümün üzerindeki commit hash'i).
+
 ### Sıradaki adım (KESİN — bir sonraki oturum buradan başlamalı)
 1. `/kafka` sayfasını SIFIRDAN Dalga 16'nın ikinci yarısı olarak
    tamamla (9 sekme, EN+TR ayrı ağaç — yukarıdaki nota bak).
