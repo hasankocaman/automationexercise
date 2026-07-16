@@ -598,27 +598,38 @@ koşuluyor (bkz. commit mesajı / bu bölümün üzerindeki commit hash'i).
 
 ### Sıradaki adım (KESİN — bir sonraki oturum buradan başlamalı)
 1. ~~`/kafka` sayfasını SIFIRDAN Dalga 16'nın ikinci yarısı olarak
-   tamamla~~ → **TAMAMLANDI** (2026-07-16, `feature/video-scene-dalga5`
-   branch'i, henüz main'e merge edilmedi — commit durumu bir alt bölümde).
-2. **Node runtime coverage-scan artık standart doğrulama adımı olarak
-   uygulandı** (`node scripts/audit-interactive.mjs kafka` → 0 gap) —
-   bundan sonraki her dalgada da bu adım tekrarlanmalı (sadece
-   `node --check` yetmez).
-3. **Sıradaki dalga: Dalga 17 (`/appium` + `/browserstack`)** — ikisi de
-   şu an 0 `video-scene` filmi içeriyor (`grep -c "type: 'video-scene'"`
-   ile doğrulandı), sıfırdan Dalga 16 kalıbıyla (film + eksik
-   animasyon/sandbox tamamlama + coverage-scan) yapılmalı.
-4. Kullanıcı "devamına sonra başka sohbette bakacağız" dedi — bu, aynı
-   görev listesinin (Dalga 17-21) YENİ bir oturumda/sohbette
+   tamamla~~ → **TAMAMLANDI** (2026-07-16).
+2. ~~Dalga 17 (`/appium` + `/browserstack`)~~ → **TAMAMLANDI** (2026-07-16,
+   aynı oturumun devamı — detay aşağıda).
+3. **Node runtime coverage-scan artık standart doğrulama adımı** —
+   `node scripts/audit-interactive.mjs <key>` her dalgada 0 gap
+   göstermeli (sadece `node --check` yetmez).
+4. **Sıradaki dalga: Dalga 18 (`/aws` + `/azure`)** — video-sitewide-plan.md
+   §2 sıralamasına göre; ikisi de henüz 0 `video-scene` filmi içeriyor mu
+   diye başlamadan önce `grep -c "type: 'video-scene'"` ile doğrulanmalı
+   (Dalga 17 başlarken appium/browserstack için yapılan kontrolle aynı).
+5. Kullanıcı "devamına sonra başka sohbette bakacağız" dedi — bu, aynı
+   görev listesinin (Dalga 18-21) YENİ bir oturumda/sohbette
    sürdürüleceği anlamına gelir, planın kendisi değişmedi.
 
-### Kafka commit / branch durumu (2026-07-16)
+### Kafka + Appium + BrowserStack commit / branch durumu (2026-07-16)
 - Branch: `feature/video-scene-dalga5` (main'den açıldı — `feature/
   video-scene-dalga3` ve `-dalga4` main'e merge olmuş halde SİLİNDİ, hem
   local hem remote'ta artık sadece `main` var).
-- `src/data/kafkaData.js` bu branch'te commit edilecek; workflow notu
-  (Dalga 8'in başındaki) hâlâ geçerli — Playwright/e2e bu dalgada da
-  çalıştırılmadı, sadece integrity+coverage+build.
+- `src/data/kafkaData.js` — commit `05e606a`, 9/9 sekme, EN+TR ayrı ağaç.
+- `src/data/appiumData.js` — commit `361f91c`, 7/7 sekme, EN+TR ayrı ağaç.
+  **Önemli keşif:** bu dosyada `fillMissingCodeTrios` hiç çağrılmıyordu
+  (jmeter'daki "import var, invoke yok" hatasından farklı — burada import
+  bile yoktu) — import + çağrı eklendi, sections 1-4 otomatik trio kazandı.
+- `src/data/browserstackData.js` — commit edilecek (bu oturumun sonunda).
+  **Yapısal not:** bu dosya TEK AĞAÇLI (gaugeData ile aynı kalıp) —
+  `tr.sections` ve `en.sections` AYNI array referansını paylaşıyor, içerik
+  `{tr, en}` bilingual field'larla tutuluyor. Film sabitleri bu yüzden
+  kafka/appium'un aksine SADECE BİR YERE referanslandı (iki değil).
+  `scripts/audit-interactive.mjs`'e `browserstack` girişi eklendi (önceden
+  kayıtlı değildi).
+- Workflow notu (Dalga 8'in başındaki) hâlâ geçerli — Playwright/e2e bu
+  dalgada da çalıştırılmadı, sadece integrity+coverage+build.
 
 ---
 

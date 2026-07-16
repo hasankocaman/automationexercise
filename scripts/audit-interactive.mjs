@@ -46,6 +46,7 @@ const PAGES = [
   { key: 'aws',          file: 'src/data/awsData.js',          export: 'awsData' },
   { key: 'azure',        file: 'src/data/azureData.js',        export: 'azureData' },
   { key: 'bruno',        file: 'src/data/brunoData.js',        export: 'brunoData' },
+  { key: 'browserstack', file: 'src/data/browserstackData.js', export: 'browserstackData' },
 ]
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────
