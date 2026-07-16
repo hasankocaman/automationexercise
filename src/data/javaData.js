@@ -2,6 +2,1693 @@
 
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ═══ DALGA 13 — §9.5 film sabitleri (19 sekme, EN+TR ayrı ağaç) ══════════════
+// Her film hem tr hem en blocks dizisine BARE IDENTIFIER olarak eklenir.
+// Veri şeması referansı: gaugeData.js gaugeRunChainFilm / gitGithubData.js.
+
+// (0) Giriş — JVM'in .java → bytecode → JVM çalıştırma zinciri
+const javaJvmChainFilm = {
+  type: 'video-scene',
+  id: 'java-jvm-bytecode-film',
+  title: { tr: '🎬 Bir .java Dosyasının JVM Yolculuğu', en: '🎬 A .java File\'s Journey Through the JVM' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'source', emoji: '📄', label: { tr: 'Main.java', en: 'Main.java' }, color: '#0ea5e9' },
+    { id: 'compiler', emoji: '⚙️', label: { tr: 'javac', en: 'javac' }, color: '#f59e0b' },
+    { id: 'bytecode', emoji: '📦', label: { tr: 'Main.class', en: 'Main.class' }, color: '#8b5cf6' },
+    { id: 'jvm', emoji: '☕', label: { tr: 'JVM', en: 'JVM' }, color: '#22c55e' },
+    { id: 'os', emoji: '🖥️', label: { tr: 'İşletim Sistemi', en: 'Operating System' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Syntax Error', en: 'Syntax Error' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`java Main` komutu tek satır ama arkasında Main.java\'nın önce derlenip sonra çalıştırıldığı iki aşamalı bir zincir var. Bu filmde bytecode\'un neden "platformdan bağımsız" olduğunu adım adım göreceksin.',
+        en: '`java Main` is one line, but behind it lies a two-stage chain where Main.java is first compiled, then run. In this film you will see step by step why bytecode is "platform-independent".',
+      },
+      code: { tr: `javac Main.java\njava Main`, en: `javac Main.java\njava Main` },
+      positions: { source: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — javac kaynak kodu okur: syntax kontrolü yapılır, tipler kontrol edilir. Bu aşamada henüz JVM yoktur — sadece metin taranır.',
+        en: 'Step 1 — javac reads the source: syntax is checked, types are checked. At this point there is no JVM yet — only text is parsed.',
+      },
+      code: { tr: `public class Main { ... }`, en: `public class Main { ... }` },
+      positions: {
+        source: { x: 20, y: 50, scale: 1.1 },
+        compiler: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'source', to: 'compiler' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — javac, Main.class bytecode dosyasını üretir. Bu dosya artık Windows/Mac/Linux\'a özgü değildir — hepsinde AYNI bytecode kullanılır.',
+        en: 'Step 2 — javac produces the Main.class bytecode file. This file is no longer specific to Windows/Mac/Linux — the SAME bytecode is used on all of them.',
+      },
+      code: { tr: `Main.class  ⟶  aynı byte dizisi her platformda`, en: `Main.class  ⟶  identical byte sequence on every platform` },
+      positions: {
+        compiler: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        bytecode: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'compiler', to: 'bytecode', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `java Main` komutu JVM\'i başlatır. JVM, Main.class\'ı class loader ile hafızaya yükler ve JIT compiler ile makinenin CPU\'suna özgü native koda çevirir.',
+        en: 'Step 3 — `java Main` starts the JVM. The JVM loads Main.class into memory via the class loader and translates it into native code specific to the machine\'s CPU using the JIT compiler.',
+      },
+      code: { tr: `ClassLoader.load("Main.class")`, en: `ClassLoader.load("Main.class")` },
+      positions: {
+        bytecode: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        jvm: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'bytecode', to: 'jvm', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — JVM ürettiği native komutları işletim sistemine iletir; ekrana çıktı basılır. Windows\'ta derlenmiş bir .exe burada YOKTUR — sadece JVM\'in o an ürettiği native kod vardır.',
+        en: 'Step 4 — The JVM passes the native instructions it produced to the operating system; output is printed. There is NO pre-compiled .exe here for Windows — only the native code the JVM produces at that moment.',
+      },
+      code: { tr: `>> Merhaba QA!`, en: `>> Hello QA!` },
+      positions: {
+        jvm: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        os: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'jvm', to: 'os', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — kaynak kodda bir noktalı virgül eksik olsaydı, javac bytecode ÜRETMEZ ve zincir daha ilk adımda durur; JVM hiç devreye girmez. Bu, production\'a bozuk bir .class dosyasının asla ulaşamayacağının garantisidir.',
+        en: 'Final (the contrast) — if a semicolon were missing in the source, javac would NOT produce bytecode and the chain would stop at the very first step; the JVM never gets involved. This is the guarantee that a broken .class file can never reach production.',
+      },
+      positions: {
+        source: { x: 16, y: 30, scale: 0.9 },
+        compiler: { x: 44, y: 50, scale: 1.05 },
+        ghost: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'source', to: 'compiler' }, { from: 'compiler', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const javaJvmChainPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'java-jvm-basics',
+  title: { tr: 'Kendin Dene: İlk Java Programını Çalıştır', en: 'Try It Yourself: Run Your First Java Program' },
+  starterCode: `public class Main {
+    public static void main(String[] args) {
+        // TODO: "JVM calisiyor" yazdir
+    }
+}`,
+  solutionCode: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("JVM calisiyor");
+    }
+}`,
+  hint: { tr: 'Her Java programı `public static void main(String[] args)` ile başlar — JVM programı burada başlatır. Ekrana yazdırmak için `System.out.println(...)` kullan.', en: 'Every Java program starts with `public static void main(String[] args)` — the JVM launches the program here. Use `System.out.println(...)` to print to the console.' },
+  successMessage: { tr: 'Doğru! `javac` bunu bytecode\'a derler, JVM ise o bytecode\'u çalıştırıp konsola yazdırır.', en: 'Correct! `javac` compiles this into bytecode, and the JVM runs that bytecode and prints to the console.' },
+}
+
+// (1) Kurulum — JDK/Maven kurulum + mvn compile akışı
+const javaJdkMavenSetupFilm = {
+  type: 'video-scene',
+  id: 'java-jdk-maven-setup-film',
+  title: { tr: '🎬 JDK Kurulumundan mvn compile\'a', en: '🎬 From JDK Installation to mvn compile' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'installer', emoji: '💾', label: { tr: 'JDK Installer', en: 'JDK Installer' }, color: '#0ea5e9' },
+    { id: 'envvar', emoji: '🔧', label: { tr: 'JAVA_HOME', en: 'JAVA_HOME' }, color: '#f59e0b' },
+    { id: 'terminal', emoji: '⌨️', label: { tr: 'Terminal', en: 'Terminal' }, color: '#8b5cf6' },
+    { id: 'maven', emoji: '🏗️', label: { tr: 'Maven (pom.xml)', en: 'Maven (pom.xml)' }, color: '#6366f1' },
+    { id: 'target', emoji: '📦', label: { tr: 'target/classes', en: 'target/classes' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: "'java' komutu bulunamadı", en: "'java' not recognized" }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'JDK kurulumu tek bir tıklama gibi görünür ama arkasında işletim sisteminin `java`/`javac` komutlarını nereden bulacağını öğrenmesi gereken bir zincir vardır. Bu filmde o zinciri ve Maven\'in derleme adımını izleyeceksin.',
+        en: 'JDK installation looks like a single click, but behind it lies a chain where the operating system must learn where to find the `java`/`javac` commands. In this film you will watch that chain and Maven\'s build step.',
+      },
+      code: { tr: `java -version`, en: `java -version` },
+      positions: { installer: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — JDK kurulumu, diske dosyaları kopyalar (javac, java, jar araçları). Ama bu araçlar henüz terminalden İSİM ile çağrılamaz — sistem onları nerede arayacağını bilmiyor.',
+        en: 'Step 1 — JDK installation copies files to disk (the javac, java, jar tools). But these tools cannot yet be called by NAME from the terminal — the system does not know where to look for them.',
+      },
+      code: { tr: `C:\\Program Files\\Java\\jdk-21\\bin\\javac.exe`, en: `C:\\Program Files\\Java\\jdk-21\\bin\\javac.exe` },
+      positions: {
+        installer: { x: 20, y: 50, scale: 1.1 },
+        envvar: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'installer', to: 'envvar' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — JAVA_HOME ve PATH ayarlanır: artık terminal, "java" yazıldığında hangi klasöre bakacağını bilir. Bu ayar olmadan her komutta tam dosya yolu yazmak gerekirdi.',
+        en: 'Step 2 — JAVA_HOME and PATH are set: now the terminal knows which folder to look in when "java" is typed. Without this setting, you would need to type the full file path every time.',
+      },
+      code: { tr: `setx JAVA_HOME "C:\\...\\jdk-21"`, en: `setx JAVA_HOME "C:\\...\\jdk-21"` },
+      positions: {
+        envvar: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        terminal: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'envvar', to: 'terminal', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `mvn compile` çalıştırılır: Maven, pom.xml\'deki bağımlılıkları okur, kaynak kodu javac ile derler ve sonucu target/classes klasörüne yazar.',
+        en: 'Step 3 — `mvn compile` runs: Maven reads the dependencies in pom.xml, compiles the source with javac, and writes the result to the target/classes folder.',
+      },
+      code: { tr: `mvn compile`, en: `mvn compile` },
+      positions: {
+        terminal: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        maven: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'terminal', to: 'maven', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — BUILD SUCCESS: target/classes klasöründe .class dosyaları oluşur. Artık `mvn test` ile bu derlenmiş sınıflar üzerinde testler çalıştırılabilir.',
+        en: 'Step 4 — BUILD SUCCESS: .class files appear in the target/classes folder. Now `mvn test` can run tests on these compiled classes.',
+      },
+      code: { tr: `[INFO] BUILD SUCCESS`, en: `[INFO] BUILD SUCCESS` },
+      positions: {
+        maven: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        target: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'maven', to: 'target', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — PATH ayarlanmadan terminale "java -version" yazılsaydı işletim sistemi "\'java\' is not recognized" hatası verirdi; kurulum dosyaları diskte olsa bile terminal onları BULAMAZ. Bu yüzden kurulum + PATH ikisi birlikte "kurulu" sayılır.',
+        en: 'Final (the contrast) — if "java -version" were typed before PATH was set, the OS would say "\'java\' is not recognized"; even if the installed files are on disk, the terminal CANNOT FIND them. That is why installation + PATH together count as "installed".',
+      },
+      positions: {
+        installer: { x: 16, y: 30, scale: 0.9 },
+        terminal: { x: 44, y: 50, scale: 1.05 },
+        ghost: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'installer', to: 'terminal' }, { from: 'terminal', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (2) sA Temel Sözdizimi — static tip sisteminin derleme zamanında yakalaması
+const javaStaticTypeCatchFilm = {
+  type: 'video-scene',
+  id: 'java-static-type-catch-film',
+  title: { tr: '🎬 Static Tip Denetiminin Derleme Anındaki Yakalaması', en: '🎬 Static Type Checking Caught at Compile Time' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'decl', emoji: '📝', label: { tr: 'int count = 5;', en: 'int count = 5;' }, color: '#0ea5e9' },
+    { id: 'checker', emoji: '🔍', label: { tr: 'javac Type Checker', en: 'javac Type Checker' }, color: '#f59e0b' },
+    { id: 'assign', emoji: '➡️', label: { tr: 'count = "beş";', en: 'count = "five";' }, color: '#8b5cf6' },
+    { id: 'error', emoji: '🛑', label: { tr: 'Compile-time Hata', en: 'Compile-time Error' }, color: '#ef4444' },
+    { id: 'runtime', emoji: '☕', label: { tr: 'JVM Runtime', en: 'JVM Runtime' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Java\'da `int count = 5;` yazdığında, count değişkeni sonsuza kadar int kalmaya mahkumdur. Bu filmde bu "mahkumiyet"in neden bir hata değil bir GÜVENCE olduğunu göreceksin.',
+        en: 'When you write `int count = 5;` in Java, the count variable is condemned to remain an int forever. In this film you will see why this "condemnation" is a GUARANTEE, not a flaw.',
+      },
+      code: { tr: `int count = 5;`, en: `int count = 5;` },
+      positions: { decl: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Derleyici, count\'un tipini int olarak KAYDEDER. Bu kayıt runtime\'da değil, derleme anında yapılır ve programın ömrü boyunca değişmez.',
+        en: 'Step 1 — The compiler RECORDS the type of count as int. This record happens at compile time, not runtime, and never changes for the life of the program.',
+      },
+      code: { tr: `// tip tablosu: count → int`, en: `// type table: count → int` },
+      positions: {
+        decl: { x: 20, y: 50, scale: 1.1 },
+        checker: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'decl', to: 'checker' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Birisi sonradan `count = "beş";` yazarsa, type checker bunu bytecode üretmeden ÖNCE fark eder: String bir int değişkenine atanamaz.',
+        en: 'Step 2 — If someone later writes `count = "five";`, the type checker notices this BEFORE bytecode is even produced: a String cannot be assigned to an int variable.',
+      },
+      code: { tr: `count = "beş";  // ❌`, en: `count = "five";  // ❌` },
+      positions: {
+        checker: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        assign: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'checker', to: 'assign', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Derleme HATASI fırlatılır: "incompatible types: String cannot be converted to int". Program derlenmez bile, .class dosyası hiç oluşmaz.',
+        en: 'Step 3 — A compile-time ERROR is thrown: "incompatible types: String cannot be converted to int". The program does not even compile, the .class file never gets created.',
+      },
+      code: { tr: `error: incompatible types`, en: `error: incompatible types` },
+      positions: {
+        assign: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        error: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'assign', to: 'error', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Python gibi dinamik tipli bir dilde aynı satır ÇALIŞIR ve hata ancak o satır runtime\'da işlenirken (belki de production\'da, üç ay sonra) ortaya çıkar. Java\'da bu hata IDE\'de, senin ekranında, dakikalar içinde yakalanır — bu yüzden QA otomasyonunda "derlenmeyen kod = test suite\'e giremez" garanti bir kapıdır.',
+        en: 'Final (the contrast) — in a dynamically typed language like Python, the same line RUNS and the error only surfaces when that line executes at runtime (maybe in production, three months later). In Java this error is caught in the IDE, on your screen, within minutes — that is why in QA automation "code that does not compile cannot enter the test suite" is a guaranteed gate.',
+      },
+      positions: {
+        error: { x: 20, y: 30, scale: 0.95 },
+        runtime: { x: 60, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'error', to: 'runtime', color: '#22c55e' }],
+    },
+  ],
+}
+
+// (3) sB Strings & Math — String immutability / String pool tuzağı
+const javaStringPoolFilm = {
+  type: 'video-scene',
+  id: 'java-string-pool-film',
+  title: { tr: '🎬 String Pool: Aynı Metin, Aynı Kutu', en: '🎬 The String Pool: Same Text, Same Box' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 's1', emoji: '📗', label: { tr: 's1 = "QA"', en: 's1 = "QA"' }, color: '#0ea5e9' },
+    { id: 'pool', emoji: '🗃️', label: { tr: 'String Pool', en: 'String Pool' }, color: '#f59e0b' },
+    { id: 's2', emoji: '📘', label: { tr: 's2 = "QA"', en: 's2 = "QA"' }, color: '#8b5cf6' },
+    { id: 'concat', emoji: '🔗', label: { tr: 's1 += "!"', en: 's1 += "!"' }, color: '#6366f1' },
+    { id: 'newbox', emoji: '📦', label: { tr: 'Yeni String Nesnesi', en: 'New String Object' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Eski s1 (Terk Edilmiş)', en: 'Old s1 (Abandoned)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`String s1 = "QA";` yazdığında JVM bu metni nereye koyar? Bu filmde String Pool\'un neden var olduğunu ve bir String\'i "değiştirmenin" aslında neden imkansız olduğunu göreceksin.',
+        en: 'When you write `String s1 = "QA";`, where does the JVM put this text? In this film you will see why the String Pool exists and why "modifying" a String is actually impossible.',
+      },
+      code: { tr: `String s1 = "QA";`, en: `String s1 = "QA";` },
+      positions: { s1: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — "QA" metni String Pool adlı özel bir hafıza bölgesine yerleştirilir. s1, bu kutuya bir REFERANS tutar; metnin kendisini değil.',
+        en: 'Step 1 — the text "QA" is placed into a special memory region called the String Pool. s1 holds a REFERENCE to this box; not the text itself.',
+      },
+      code: { tr: `pool["QA"] → oluşturuldu`, en: `pool["QA"] → created` },
+      positions: {
+        s1: { x: 20, y: 50, scale: 1.1 },
+        pool: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 's1', to: 'pool' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `String s2 = "QA";` yazıldığında JVM ÖNCE pool\'a bakar: "QA" zaten var mı? Varsa yeni kutu AÇMAZ, s2\'yi de AYNI kutuya işaret ettirir (s1 == s2 true olur).',
+        en: 'Step 2 — when `String s2 = "QA";` is written, the JVM FIRST checks the pool: does "QA" already exist? If so, it does NOT open a new box, it makes s2 point to the SAME box too (s1 == s2 becomes true).',
+      },
+      code: { tr: `s1 == s2  // true — aynı referans`, en: `s1 == s2  // true — same reference` },
+      positions: {
+        pool: { x: 22, y: 50, scale: 1.15, pulse: true },
+        s2: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pool', to: 's2', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `s1 += "!"` çalıştığında JVM eski kutuyu DEĞİŞTİRMEZ (String immutable\'dır) — yepyeni bir "QA!" kutusu oluşturur ve s1 artık BU yeni kutuyu gösterir.',
+        en: 'Step 3 — when `s1 += "!"` runs, the JVM does NOT modify the old box (Strings are immutable) — it creates a brand-new "QA!" box and s1 now points to THIS new box.',
+      },
+      code: { tr: `s1 += "!";  // yeni obje: "QA!"`, en: `s1 += "!";  // new object: "QA!"` },
+      positions: {
+        s2: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        concat: { x: 50, y: 50, scale: 1.15, pulse: true },
+        newbox: { x: 78, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'concat', to: 'newbox', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — eski "QA" kutusu pool\'da hâlâ durur (s2 ona bakmaya devam eder), ama artık s1 tarafından TERK edilmiştir. Bir test kodunda `for` döngüsünde binlerce kez `+=` yapmak, her seferinde yeni bir kutu (yeni obje) yaratır — bu yüzden StringBuilder kullanmayan bir data-driven test suite, sessizce yavaşlar ve heap\'i şişirir.',
+        en: 'Final (the contrast) — the old "QA" box still sits in the pool (s2 keeps pointing to it), but it has now been ABANDONED by s1. Doing `+=` thousands of times in a test `for` loop creates a new box (new object) every single time — that is why a data-driven test suite that does not use StringBuilder silently slows down and bloats the heap.',
+      },
+      positions: {
+        s1: { x: 16, y: 30, scale: 0.9 },
+        pool: { x: 44, y: 50, scale: 1.05 },
+        ghost: { x: 74, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 's1', to: 'pool' }, { from: 'pool', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (4) sC Akış Kontrolü — switch/if-else karar akışı
+const javaSwitchDecisionFilm = {
+  type: 'video-scene',
+  id: 'java-switch-decision-film',
+  title: { tr: '🎬 switch İçinde Bir Kararın Yolculuğu', en: '🎬 A Decision\'s Journey Inside switch' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'input', emoji: '📥', label: { tr: 'status = "FAILED"', en: 'status = "FAILED"' }, color: '#0ea5e9' },
+    { id: 'switch', emoji: '🔀', label: { tr: 'switch(status)', en: 'switch(status)' }, color: '#f59e0b' },
+    { id: 'case1', emoji: '1️⃣', label: { tr: 'case "PASSED"', en: 'case "PASSED"' }, color: '#94a3b8' },
+    { id: 'case2', emoji: '2️⃣', label: { tr: 'case "FAILED"', en: 'case "FAILED"' }, color: '#8b5cf6' },
+    { id: 'action', emoji: '🚨', label: { tr: 'sendAlert()', en: 'sendAlert()' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'break Unutulursa: Fall-through', en: 'Missing break: Fall-through' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir test sonucu string\'i (`status`) geldiğinde, switch bloğu bunu hangi case ile eşleştirir? Bu filmde JVM\'in bir switch içinde nasıl "tek yön" seçtiğini göreceksin.',
+        en: 'When a test result string (`status`) arrives, which case does the switch block match it to? In this film you will see how the JVM picks "one path" inside a switch.',
+      },
+      code: { tr: `switch (status) { ... }`, en: `switch (status) { ... }` },
+      positions: { input: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — status değeri switch\'e girer. JVM sırayla değil, doğrudan eşleşen case\'e ATLAR — case\'ler yukarıdan aşağı tek tek denenmez, tıpkı bir hashmap lookup gibi davranır.',
+        en: 'Step 1 — the status value enters the switch. The JVM does not check sequentially, it JUMPS directly to the matching case — cases are not tried one by one top-to-bottom, it behaves like a hashmap lookup.',
+      },
+      code: { tr: `"FAILED" → ?`, en: `"FAILED" → ?` },
+      positions: {
+        input: { x: 20, y: 50, scale: 1.1 },
+        switch: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'input', to: 'switch' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — "PASSED" case\'i KONTROL EDİLİR ama eşleşme YOKTUR — bu case pasif kalır.',
+        en: 'Step 2 — the "PASSED" case is CHECKED but there is NO match — this case stays inactive.',
+      },
+      code: { tr: `case "PASSED": // eşleşmedi`, en: `case "PASSED": // no match` },
+      positions: {
+        switch: { x: 24, y: 50, scale: 1.05 },
+        case1: { x: 55, y: 30, scale: 0.9, opacity: 0.5 },
+      },
+      beams: [{ from: 'switch', to: 'case1', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — "FAILED" case\'i EŞLEŞİR, içindeki kod çalışır ve `break` sayesinde diğer case\'lere düşmeden switch\'ten çıkılır.',
+        en: 'Step 3 — the "FAILED" case MATCHES, its code runs, and thanks to `break` execution exits the switch without falling into the other cases.',
+      },
+      code: { tr: `case "FAILED": sendAlert(); break;`, en: `case "FAILED": sendAlert(); break;` },
+      positions: {
+        switch: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        case2: { x: 50, y: 60, scale: 1.15, pulse: true },
+        action: { x: 78, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'switch', to: 'case2', color: '#8b5cf6' }, { from: 'case2', to: 'action', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — case "FAILED" sonundaki `break` UNUTULSAYDI, akış bir SONRAKİ case\'e "düşer" (fall-through) ve sendAlert() ile birlikte istenmeyen ekstra kod da çalışırdı. Production\'da bu, tek bir test hatası için birden fazla alarm/e-posta atılmasına yol açan sessiz bir buğdur.',
+        en: 'Final (the contrast) — if the `break` at the end of case "FAILED" were FORGOTTEN, execution would "fall through" to the NEXT case and unwanted extra code would run alongside sendAlert(). In production, this is a silent bug that causes multiple alerts/emails to fire for a single test failure.',
+      },
+      positions: {
+        case2: { x: 20, y: 30, scale: 0.95 },
+        action: { x: 44, y: 55, scale: 1.05 },
+        ghost: { x: 74, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'case2', to: 'action' }, { from: 'action', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (5) sD Arrays — sabit boyutlu array vs ArrayList farkı
+const javaArrayVsArrayListFilm = {
+  type: 'video-scene',
+  id: 'java-array-vs-arraylist-film',
+  title: { tr: '🎬 Sabit Kutu mu, Genişleyen Kutu mu: Array vs ArrayList', en: '🎬 Fixed Box or Growing Box: Array vs ArrayList' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'decl', emoji: '📐', label: { tr: 'int[] arr = new int[3]', en: 'int[] arr = new int[3]' }, color: '#0ea5e9' },
+    { id: 'heap', emoji: '🧱', label: { tr: 'Heap: 3 Bitişik Kutu', en: 'Heap: 3 Contiguous Boxes' }, color: '#f59e0b' },
+    { id: 'add4', emoji: '➕', label: { tr: 'arr[3] = 99  // ?', en: 'arr[3] = 99  // ?' }, color: '#ef4444' },
+    { id: 'list', emoji: '📋', label: { tr: 'ArrayList<Integer>', en: 'ArrayList<Integer>' }, color: '#8b5cf6' },
+    { id: 'newarr', emoji: '🧱', label: { tr: 'Dahili: Yeni, Daha Büyük Array', en: 'Internal: New, Bigger Array' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`new int[3]` yazdığında JVM hafızada tam olarak ne ayırır? Bu filmde array\'in neden "sabit boyutlu" olduğunu ve ArrayList\'in bu sınırı nasıl gizlediğini göreceksin.',
+        en: 'When you write `new int[3]`, what exactly does the JVM allocate in memory? In this film you will see why an array is "fixed-size" and how ArrayList hides this limit.',
+      },
+      code: { tr: `int[] arr = new int[3];`, en: `int[] arr = new int[3];` },
+      positions: { decl: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — JVM, heap üzerinde TAM OLARAK 3 kutuluk bitişik bir alan ayırır. Bu boyut, array oluşturulduğu ANDA sabitlenir — sonradan büyütülemez.',
+        en: 'Step 1 — the JVM allocates EXACTLY 3 contiguous boxes on the heap. This size is fixed at the MOMENT the array is created — it can never be enlarged later.',
+      },
+      code: { tr: `[_, _, _]  // 3 sabit slot`, en: `[_, _, _]  // 3 fixed slots` },
+      positions: {
+        decl: { x: 20, y: 50, scale: 1.1 },
+        heap: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'decl', to: 'heap' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `arr[3] = 99` yazılırsa (index 3, yani 4. eleman) JVM sınırı aşan bu erişimi ANINDA yakalar: ArrayIndexOutOfBoundsException fırlatılır. Yer YOKTUR, büyütme YOKTUR.',
+        en: 'Step 2 — if `arr[3] = 99` is written (index 3, the 4th element), the JVM catches this out-of-bounds access INSTANTLY: an ArrayIndexOutOfBoundsException is thrown. There is NO room, there is NO growth.',
+      },
+      code: { tr: `ArrayIndexOutOfBoundsException: 3`, en: `ArrayIndexOutOfBoundsException: 3` },
+      positions: {
+        heap: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        add4: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'heap', to: 'add4', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Aynı senaryo `ArrayList<Integer>` ile yapılsaydı: `.add(99)` çağrısı GEÇERDİ. Çünkü ArrayList aslında içinde SAKLI bir array tutar; bu array dolunca kendisini fark ettirmeden değiştirir.',
+        en: 'Step 3 — if the same scenario were done with `ArrayList<Integer>`: the `.add(99)` call would SUCCEED. Because an ArrayList actually holds a HIDDEN array inside; when that array fills up, it replaces itself invisibly.',
+      },
+      code: { tr: `list.add(99);  // ✅ çalışır`, en: `list.add(99);  // ✅ works` },
+      positions: {
+        add4: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        list: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'add4', to: 'list', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — ArrayList içindeki gizli array dolduğunda, JVM otomatik olarak %50 daha büyük YENİ bir array oluşturur, TÜM elemanları oraya kopyalar ve eskisini heap\'te terk eder. Bu "büyüme illüzyonu"nun bedeli vardır: her genişleme bir O(n) kopyalama maliyeti taşır — bu yüzden binlerce test verisi ekleyen bir data-driven suite\'te başlangıç kapasitesini `new ArrayList<>(1000)` ile önceden ayırmak performansı belirgin şekilde iyileştirir.',
+        en: 'Final (the contrast) — when the hidden array inside ArrayList fills up, the JVM automatically creates a NEW array 50% bigger, copies ALL elements into it, and abandons the old one on the heap. This "illusion of growth" has a cost: every expansion carries an O(n) copy cost — that is why in a data-driven suite adding thousands of test rows, pre-sizing with `new ArrayList<>(1000)` measurably improves performance.',
+      },
+      positions: {
+        list: { x: 20, y: 30, scale: 0.95 },
+        newarr: { x: 60, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'list', to: 'newarr', color: '#22c55e' }],
+    },
+  ],
+}
+
+// (6) sE Methods — overloading çözümleme akışı
+const javaOverloadResolutionFilm = {
+  type: 'video-scene',
+  id: 'java-overload-resolution-film',
+  title: { tr: '🎬 Aynı İsim, Farklı İmza: Overload Çözümlemesi', en: '🎬 Same Name, Different Signature: Overload Resolution' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'call', emoji: '📞', label: { tr: 'login("admin", 3)', en: 'login("admin", 3)' }, color: '#0ea5e9' },
+    { id: 'compiler', emoji: '🔍', label: { tr: 'javac: İmza Eşleştirici', en: 'javac: Signature Matcher' }, color: '#f59e0b' },
+    { id: 'm1', emoji: '1️⃣', label: { tr: 'login(String)', en: 'login(String)' }, color: '#94a3b8' },
+    { id: 'm2', emoji: '2️⃣', label: { tr: 'login(String, int)', en: 'login(String, int)' }, color: '#8b5cf6' },
+    { id: 'bound', emoji: '☕', label: { tr: 'Derleme Zamanında Bağlanır', en: 'Bound at Compile Time' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Belirsiz Çağrı: Derleme Hatası', en: 'Ambiguous Call: Compile Error' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir sınıfta `login(String)` ve `login(String, int)` birlikte varken, `login("admin", 3)` çağrısı HANGİSİNE gider? Bu filmde overload çözümlemesinin neden çalışma zamanında DEĞİL derleme zamanında olduğunu göreceksin.',
+        en: 'When a class has both `login(String)` and `login(String, int)`, which one does the call `login("admin", 3)` go to? In this film you will see why overload resolution happens at compile time, NOT at runtime.',
+      },
+      code: { tr: `login("admin", 3);`, en: `login("admin", 3);` },
+      positions: { call: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Derleyici çağrının PARAMETRE SAYISINI ve TİPLERİNİ okur: (String, int) — iki parametre, bir metin bir sayı.',
+        en: 'Step 1 — the compiler reads the call\'s PARAMETER COUNT and TYPES: (String, int) — two parameters, one text one number.',
+      },
+      code: { tr: `imza: (String, int)`, en: `signature: (String, int)` },
+      positions: {
+        call: { x: 20, y: 50, scale: 1.1 },
+        compiler: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'call', to: 'compiler' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `login(String)` imzası KONTROL EDİLİR ama parametre sayısı uyuşmaz (1 ≠ 2) — bu overload elenir.',
+        en: 'Step 2 — the `login(String)` signature is CHECKED but the parameter count does not match (1 ≠ 2) — this overload is eliminated.',
+      },
+      code: { tr: `login(String)  // ❌ eleme`, en: `login(String)  // ❌ eliminated` },
+      positions: {
+        compiler: { x: 24, y: 50, scale: 1.05 },
+        m1: { x: 55, y: 30, scale: 0.9, opacity: 0.5 },
+      },
+      beams: [{ from: 'compiler', to: 'm1', color: '#94a3b8' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `login(String, int)` imzası TAM EŞLEŞİR. Derleyici bytecode\'a "bu çağrı BU metodu çağırır" bilgisini işaretler — bu bağlama işlemi ÇALIŞMA ZAMANINDA değil, ŞİMDİ, derleme anında olur.',
+        en: 'Step 3 — the `login(String, int)` signature MATCHES exactly. The compiler stamps the bytecode with "this call invokes THIS method" — this binding happens NOW, at compile time, not at runtime.',
+      },
+      code: { tr: `login(String, int)  // ✅ bağlandı`, en: `login(String, int)  // ✅ bound` },
+      positions: {
+        compiler: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        m2: { x: 50, y: 60, scale: 1.15, pulse: true },
+        bound: { x: 78, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'compiler', to: 'm2', color: '#8b5cf6' }, { from: 'm2', to: 'bound', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — `login(null)` gibi belirsiz bir çağrı yazılsaydı ve iki overload da null\'u kabul edebilseydi, derleyici HANGİSİNİ seçeceğine karar VEREMEZ ve "reference to login is ambiguous" derleme hatası verir. Bu, method overloading\'in polymorphism ile karıştırılan ama aslında derleme-zamanlı (static) bir mekanizma olduğunun kanıtıdır — QA kodunda aşırı overload kullanmak bu belirsizlik riskini artırır.',
+        en: 'Final (the contrast) — if an ambiguous call like `login(null)` were written and both overloads could accept null, the compiler CANNOT decide which one to pick and throws a "reference to login is ambiguous" compile error. This proves that method overloading, often confused with polymorphism, is actually a compile-time (static) mechanism — overusing overloads in QA code increases this ambiguity risk.',
+      },
+      positions: {
+        m2: { x: 18, y: 30, scale: 0.9 },
+        bound: { x: 44, y: 50, scale: 1.0 },
+        ghost: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'm2', to: 'bound' }, { from: 'bound', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (7) s2 OOP & Collections — HashMap hash-collision çözümleme akışı
+const javaHashMapCollisionFilm = {
+  type: 'video-scene',
+  id: 'java-hashmap-collision-film',
+  title: { tr: '🎬 HashMap İçinde Bir Çarpışmanın Çözümü', en: '🎬 Resolving a Collision Inside a HashMap' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'put', emoji: '📥', label: { tr: 'map.put("qa1", user1)', en: 'map.put("qa1", user1)' }, color: '#0ea5e9' },
+    { id: 'hash', emoji: '#️⃣', label: { tr: 'hashCode()', en: 'hashCode()' }, color: '#f59e0b' },
+    { id: 'bucket', emoji: '🪣', label: { tr: 'Bucket[7]', en: 'Bucket[7]' }, color: '#8b5cf6' },
+    { id: 'collide', emoji: '💥', label: { tr: 'map.put("qa2", user2)  // aynı bucket', en: 'map.put("qa2", user2)  // same bucket' }, color: '#ef4444' },
+    { id: 'chain', emoji: '🔗', label: { tr: 'Bucket[7]: Bağlı Liste', en: 'Bucket[7]: Linked List' }, color: '#22c55e' },
+    { id: 'equals', emoji: '⚖️', label: { tr: '.equals() Karşılaştırması', en: '.equals() Comparison' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`map.put("qa1", user1)` çağrıldığında JVM bu veriyi HANGİ bucket\'a koyar? Bu filmde iki farklı anahtarın AYNI bucket\'a düşmesi (collision) durumunda HashMap\'in nasıl doğru cevabı bulduğunu göreceksin.',
+        en: 'When `map.put("qa1", user1)` is called, WHICH bucket does the JVM place this data in? In this film you will see how HashMap still finds the right answer when two different keys land in the SAME bucket (a collision).',
+      },
+      code: { tr: `map.put("qa1", user1);`, en: `map.put("qa1", user1);` },
+      positions: { put: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — "qa1" anahtarının `hashCode()` metodu çağrılır; bu, bir tam sayı üretir. Bu sayı, hangi bucket\'a gidileceğini belirler (index = hash % bucket sayısı).',
+        en: 'Step 1 — the `hashCode()` method of the "qa1" key is called; this produces an integer. That number determines which bucket to go to (index = hash % bucket count).',
+      },
+      code: { tr: `"qa1".hashCode() → 3392903`, en: `"qa1".hashCode() → 3392903` },
+      positions: {
+        put: { x: 20, y: 50, scale: 1.1 },
+        hash: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'put', to: 'hash' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — hesaplanan hash, Bucket[7]\'ye işaret eder. user1 nesnesi bu bucket\'a yerleştirilir.',
+        en: 'Step 2 — the computed hash points to Bucket[7]. The user1 object is placed in this bucket.',
+      },
+      code: { tr: `index 7 → [ "qa1"=user1 ]`, en: `index 7 → [ "qa1"=user1 ]` },
+      positions: {
+        hash: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        bucket: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'hash', to: 'bucket', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `map.put("qa2", user2)` çağrılır ve "qa2"\'nin hash\'i de TESADÜFEN aynı Bucket[7]\'ye düşer — bu bir ÇARPIŞMADIR (collision).',
+        en: 'Step 3 — `map.put("qa2", user2)` is called and "qa2"\'s hash COINCIDENTALLY also lands in the same Bucket[7] — this is a COLLISION.',
+      },
+      code: { tr: `"qa2".hashCode() % n === 7  // 💥`, en: `"qa2".hashCode() % n === 7  // 💥` },
+      positions: {
+        bucket: { x: 22, y: 50, scale: 1.05 },
+        collide: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'bucket', to: 'collide', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — HashMap paniklemez: Bucket[7] içeride bir bağlı liste (veya çok elemanlıysa ağaç) tutar; user2 bu listeye EKLENİR, user1\'in yerini almaz.',
+        en: 'Step 4 — HashMap does not panic: Bucket[7] holds an internal linked list (or a tree if it grows large); user2 is APPENDED to this list, it does not replace user1.',
+      },
+      code: { tr: `Bucket[7]: ["qa1"=user1, "qa2"=user2]`, en: `Bucket[7]: ["qa1"=user1, "qa2"=user2]` },
+      positions: {
+        collide: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        chain: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'collide', to: 'chain', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — `map.get("qa2")` çağrıldığında JVM önce hash ile Bucket[7]\'yi bulur, sonra listede TEK TEK gezip her anahtarı `.equals()` ile karşılaştırır ("qa1".equals("qa2") → false, sıradaki → true). `.equals()` ve `hashCode()` birlikte doğru override edilmezse (biri değişip diğeri değişmezse) bu zincir kırılır ve HashMap\'e koyduğun veriyi bir daha ASLA bulamazsın — production\'da "veri kayboldu" gibi görünen ama aslında sessiz bir equals/hashCode bug\'ı olan klasik hatalardan biri budur.',
+        en: 'Final (the contrast) — when `map.get("qa2")` is called, the JVM first finds Bucket[7] via the hash, then walks the list ONE BY ONE comparing each key with `.equals()` ("qa1".equals("qa2") → false, next → true). If `.equals()` and `hashCode()` are not overridden together correctly (one changes without the other), this chain breaks and you can NEVER find data you put into the HashMap again — this is a classic bug that looks like "data disappeared" in production but is actually a silent equals/hashCode bug.',
+      },
+      positions: {
+        chain: { x: 18, y: 30, scale: 0.9 },
+        equals: { x: 60, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'chain', to: 'equals', color: '#10b981' }],
+    },
+  ],
+}
+
+// (8) sF Advanced OOP — interface vs abstract class akışı, polymorphism
+const javaInterfaceAbstractFilm = {
+  type: 'video-scene',
+  id: 'java-interface-abstract-film',
+  title: { tr: '🎬 Sözleşme mi, Yarı-Hazır Şablon mu: Interface vs Abstract Class', en: '🎬 Contract or Half-Built Template: Interface vs Abstract Class' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'contract', emoji: '📜', label: { tr: 'interface TestRunner', en: 'interface TestRunner' }, color: '#0ea5e9' },
+    { id: 'abstractCls', emoji: '🏗️', label: { tr: 'abstract class BaseTest', en: 'abstract class BaseTest' }, color: '#f59e0b' },
+    { id: 'seleniumImpl', emoji: '🌐', label: { tr: 'SeleniumRunner implements', en: 'SeleniumRunner implements' }, color: '#8b5cf6' },
+    { id: 'playwrightImpl', emoji: '🎭', label: { tr: 'PlaywrightRunner implements', en: 'PlaywrightRunner implements' }, color: '#6366f1' },
+    { id: 'call', emoji: '📞', label: { tr: 'runner.run()  // hangisi?', en: 'runner.run()  // which one?' }, color: '#22c55e' },
+    { id: 'jvm', emoji: '☕', label: { tr: 'JVM: Runtime Polymorphism', en: 'JVM: Runtime Polymorphism' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir `TestRunner` referansı hem SeleniumRunner\'ı hem PlaywrightRunner\'ı tutabilir. Peki `runner.run()` çağrıldığında JVM HANGİ sınıfın kodunu çalıştıracağına NASIL karar verir? Bu filmde polymorphism\'in gerçek mekanizmasını göreceksin.',
+        en: 'A single `TestRunner` reference can hold either a SeleniumRunner or a PlaywrightRunner. So when `runner.run()` is called, HOW does the JVM decide which class\'s code to execute? In this film you will see the real mechanism behind polymorphism.',
+      },
+      code: { tr: `TestRunner runner = new SeleniumRunner();`, en: `TestRunner runner = new SeleniumRunner();` },
+      positions: { contract: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `interface TestRunner` sadece bir SÖZLEŞME imzalar: "run() metodu OLMALI" der ama hiçbir gövde (implementation) içermez. Hiç state (field) tutamaz.',
+        en: 'Step 1 — `interface TestRunner` only signs a CONTRACT: it says "there MUST be a run() method" but contains no body (implementation) at all. It cannot hold any state (fields).',
+      },
+      code: { tr: `interface TestRunner { void run(); }`, en: `interface TestRunner { void run(); }` },
+      positions: {
+        contract: { x: 22, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `abstract class BaseTest` ise DAHA FAZLASINI yapar: ortak field\'lar (`driver`) ve HAZIR metodlar (`setup()`) tutabilir, sadece BAZI metodları (`run()`) alt sınıfa bırakır — yarı-hazır bir şablondur.',
+        en: 'Step 2 — `abstract class BaseTest` does MORE: it can hold shared fields (`driver`) and READY-MADE methods (`setup()`), leaving only SOME methods (`run()`) for the subclass to fill in — it is a half-built template.',
+      },
+      code: { tr: `abstract class BaseTest { WebDriver driver; void setup(){...} abstract void run(); }`, en: `abstract class BaseTest { WebDriver driver; void setup(){...} abstract void run(); }` },
+      positions: {
+        contract: { x: 18, y: 30, opacity: 0.5, scale: 0.85 },
+        abstractCls: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'contract', to: 'abstractCls', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — hem SeleniumRunner hem PlaywrightRunner, `TestRunner` interface\'ini implement eder ve `run()`\'ı KENDİ tarzında doldurur. Aynı referans tipi (TestRunner), iki farklı gerçek nesneyi tutabilir hale gelir.',
+        en: 'Step 3 — both SeleniumRunner and PlaywrightRunner implement the `TestRunner` interface and fill `run()` in THEIR OWN way. The same reference type (TestRunner) can now hold two different real objects.',
+      },
+      code: { tr: `class SeleniumRunner implements TestRunner { void run(){ driver.get(...); } }`, en: `class SeleniumRunner implements TestRunner { void run(){ driver.get(...); } }` },
+      positions: {
+        abstractCls: { x: 18, y: 30, opacity: 0.5, scale: 0.85 },
+        seleniumImpl: { x: 45, y: 55, scale: 1.1, pulse: true },
+        playwrightImpl: { x: 75, y: 55, scale: 1.1 },
+      },
+      beams: [{ from: 'abstractCls', to: 'seleniumImpl', color: '#8b5cf6' }, { from: 'abstractCls', to: 'playwrightImpl', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — `runner.run()` çağrıldığında JVM, DEĞİŞKENİN TİPİNE (TestRunner) değil, HAFIZADAKİ GERÇEK NESNEYE (SeleniumRunner örneği) bakar ve onun run() gövdesini çalıştırır. Bu karar RUNTIME\'da verilir — buna "runtime polymorphism" denir.',
+        en: 'Step 4 — when `runner.run()` is called, the JVM looks not at the VARIABLE\'S TYPE (TestRunner) but at the REAL OBJECT IN MEMORY (the SeleniumRunner instance) and runs ITS run() body. This decision is made at RUNTIME — this is called "runtime polymorphism".',
+      },
+      code: { tr: `runner.run();  // → SeleniumRunner.run() çalışır`, en: `runner.run();  // → SeleniumRunner.run() executes` },
+      positions: {
+        seleniumImpl: { x: 22, y: 55, opacity: 0.5, scale: 0.85 },
+        call: { x: 50, y: 55, scale: 1.15, pulse: true },
+        jvm: { x: 78, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'seleniumImpl', to: 'call' }, { from: 'call', to: 'jvm', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (bağlam) — bu tek mekanizma sayesinde bir test framework\'ü `List<TestRunner> runners` tutup içinde Selenium VE Playwright runner\'larını KARIŞTIRABILIR, her birinde aynı `runner.run()` çağrısını yapabilir ve JVM her seferinde doğru implementasyonu bulur. Bu, "her yeni tarayıcı motoru için if-else zinciri yazma" kabusunu ortadan kaldıran temel OOP kazanımıdır.',
+        en: 'Final (the context) — thanks to this single mechanism, a test framework can hold `List<TestRunner> runners` MIXING Selenium AND Playwright runners together, call the same `runner.run()` on each, and the JVM finds the correct implementation every time. This is the core OOP payoff that eliminates the nightmare of "writing an if-else chain for every new browser engine".',
+      },
+      positions: {
+        call: { x: 22, y: 40, scale: 0.95 },
+        jvm: { x: 60, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'call', to: 'jvm', color: '#10b981' }],
+    },
+  ],
+}
+
+// (9) s3 Test Frameworkleri — JUnit5 @Test yaşam döngüsü
+const javaJunitLifecycleFilm = {
+  type: 'video-scene',
+  id: 'java-junit-lifecycle-film',
+  title: { tr: '🎬 Bir @Test Metodunun Yaşam Döngüsü', en: '🎬 The Lifecycle of a @Test Method' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'runner', emoji: '🏃', label: { tr: 'JUnit5 Test Engine', en: 'JUnit5 Test Engine' }, color: '#0ea5e9' },
+    { id: 'beforeAll', emoji: '1️⃣', label: { tr: '@BeforeAll', en: '@BeforeAll' }, color: '#f59e0b' },
+    { id: 'beforeEach', emoji: '2️⃣', label: { tr: '@BeforeEach', en: '@BeforeEach' }, color: '#8b5cf6' },
+    { id: 'test', emoji: '3️⃣', label: { tr: '@Test', en: '@Test' }, color: '#6366f1' },
+    { id: 'afterEach', emoji: '4️⃣', label: { tr: '@AfterEach', en: '@AfterEach' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Test 2: driver Kirli Kalırsa', en: 'Test 2: If driver Stays Dirty' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir test sınıfında 5 tane `@Test` metodu varsa, JUnit5 bunları çalıştırmadan ÖNCE ve SONRA hangi kodları çalıştırır? Bu filmde @BeforeEach/@AfterEach\'in her testi neden "temiz sayfa"dan başlattığını göreceksin.',
+        en: 'If a test class has 5 `@Test` methods, what code does JUnit5 run BEFORE and AFTER each of them? In this film you will see why @BeforeEach/@AfterEach start every test from a "clean page".',
+      },
+      code: { tr: `mvn test`, en: `mvn test` },
+      positions: { runner: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `@BeforeAll` sınıfta SADECE BİR KEZ çalışır (sınıf başlamadan önce) — genelde WebDriver kurulumu gibi pahalı, paylaşılan bir kaynak için kullanılır.',
+        en: 'Step 1 — `@BeforeAll` runs ONLY ONCE for the class (before it starts) — typically used for an expensive, shared resource like WebDriver setup.',
+      },
+      code: { tr: `@BeforeAll static void setupSuite() { ... }`, en: `@BeforeAll static void setupSuite() { ... }` },
+      positions: {
+        runner: { x: 20, y: 50, scale: 1.1 },
+        beforeAll: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'runner', to: 'beforeAll' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — HER `@Test` metodundan ÖNCE `@BeforeEach` çalışır: örneğin `driver.get(loginUrl)` ile her test AYNI temiz sayfadan başlar.',
+        en: 'Step 2 — `@BeforeEach` runs BEFORE EVERY `@Test` method: for example `driver.get(loginUrl)` makes every test start from the SAME clean page.',
+      },
+      code: { tr: `@BeforeEach void openLoginPage() { driver.get(loginUrl); }`, en: `@BeforeEach void openLoginPage() { driver.get(loginUrl); }` },
+      positions: {
+        beforeAll: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        beforeEach: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'beforeAll', to: 'beforeEach', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `@Test` metodu çalışır ve assertion\'lar değerlendirilir; PASS ya da FAIL sonucu üretilir.',
+        en: 'Step 3 — the `@Test` method runs and assertions are evaluated; a PASS or FAIL result is produced.',
+      },
+      code: { tr: `@Test void loginWithValidCreds() { assertTrue(dashboard.isVisible()); }`, en: `@Test void loginWithValidCreds() { assertTrue(dashboard.isVisible()); }` },
+      positions: {
+        beforeEach: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        test: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'beforeEach', to: 'test', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — `@Test` biter bitmez `@AfterEach` çalışır: örneğin cookie/localStorage temizlenir. Sıradaki test tekrar `@BeforeEach`\'ten başlar — bu döngü HER test için tekrarlanır.',
+        en: 'Step 4 — as soon as `@Test` finishes, `@AfterEach` runs: for example cookies/localStorage are cleared. The next test starts again from `@BeforeEach` — this cycle repeats for EVERY test.',
+      },
+      code: { tr: `@AfterEach void clearSession() { driver.manage().deleteAllCookies(); }`, en: `@AfterEach void clearSession() { driver.manage().deleteAllCookies(); }` },
+      positions: {
+        test: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        afterEach: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'afterEach', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — `@AfterEach` YAZILMASAYDI, bir testte oturum açılmış bir cookie ikinci teste "sızardı"; ikinci test kendi login akışını hiç test etmeden yanlışlıkla PASS olabilirdi. Bu, testler arası izolasyonun bozulduğu ve CI raporunda "her şey yeşil" görünürken gerçekte hiçbir şeyin doğrulanmadığı sinsi bir senaryodur.',
+        en: 'Final (the contrast) — if `@AfterEach` were NOT written, a logged-in cookie from one test would "leak" into the second test; the second test could falsely PASS without ever testing its own login flow. This is a sneaky scenario where test isolation breaks and the CI report shows "everything green" while nothing was actually verified.',
+      },
+      positions: {
+        afterEach: { x: 18, y: 30, scale: 0.9 },
+        beforeEach: { x: 44, y: 55, scale: 1.0 },
+        ghost: { x: 76, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'afterEach', to: 'beforeEach' }, { from: 'beforeEach', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (10) sCucumber — Gherkin adımının Step Definition'a eşleşme akışı
+const javaCucumberStepMatchFilm = {
+  type: 'video-scene',
+  id: 'java-cucumber-step-match-film',
+  title: { tr: '🎬 Bir Gherkin Cümlesinin Java Koduna Eşleşmesi', en: '🎬 A Gherkin Sentence Matching Java Code' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'feature', emoji: '📄', label: { tr: 'login.feature', en: 'login.feature' }, color: '#0ea5e9' },
+    { id: 'parser', emoji: '🔎', label: { tr: 'Gherkin Parser', en: 'Gherkin Parser' }, color: '#f59e0b' },
+    { id: 'glue', emoji: '🧩', label: { tr: 'Cucumber Glue Katmanı', en: 'Cucumber Glue Layer' }, color: '#8b5cf6' },
+    { id: 'stepdef', emoji: '☕', label: { tr: '@Given Java Metodu', en: '@Given Java Method' }, color: '#6366f1' },
+    { id: 'browser', emoji: '🌐', label: { tr: 'WebDriver', en: 'WebDriver' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Undefined Step', en: 'Undefined Step' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`Given kullanıcı login sayfasındadır` gibi düz bir Türkçe/İngilizce cümle nasıl gerçek bir Java metoduna dönüşür? Bu filmde Cucumber Expression eşleştirmesinin adımlarını göreceksin.',
+        en: 'How does a plain sentence like `Given the user is on the login page` turn into a real Java method? In this film you will see the steps of Cucumber Expression matching.',
+      },
+      code: { tr: `Given kullanıcı login sayfasındadır`, en: `Given the user is on the login page` },
+      positions: { feature: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Gherkin Parser, .feature dosyasındaki her `Given/When/Then` satırını bir STEP CÜMLESİ olarak çıkarır. Henüz hiçbir Java kodu çalışmamıştır.',
+        en: 'Step 1 — the Gherkin Parser extracts every `Given/When/Then` line in the .feature file as a STEP SENTENCE. No Java code has run yet.',
+      },
+      code: { tr: `step: "kullanıcı login sayfasındadır"`, en: `step: "the user is on the login page"` },
+      positions: {
+        feature: { x: 20, y: 50, scale: 1.1 },
+        parser: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'feature', to: 'parser' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Glue katmanı, projede taranmış TÜM `@Given/@When/@Then` annotation regex/Cucumber Expression\'larıyla bu cümleyi KARŞILAŞTIRIR — tam metin eşleşmesi değil, PATTERN eşleşmesi arar.',
+        en: 'Step 2 — the glue layer COMPARES this sentence against every scanned `@Given/@When/@Then` annotation regex/Cucumber Expression in the project — it looks for a PATTERN match, not an exact text match.',
+      },
+      code: { tr: `@Given("kullanıcı {string} sayfasındadır")`, en: `@Given("the user is on the {string} page")` },
+      positions: {
+        parser: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        glue: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'parser', to: 'glue', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — eşleşme bulunur: pattern\'daki `{string}` yer tutucusu "login" değerini YAKALAR ve bunu Java metoduna PARAMETRE olarak geçirir.',
+        en: 'Step 3 — a match is found: the `{string}` placeholder in the pattern CAPTURES the value "login" and passes it as a PARAMETER to the Java method.',
+      },
+      code: { tr: `@Given("...") public void openPage(String page) { driver.get(urls.get(page)); }`, en: `@Given("...") public void openPage(String page) { driver.get(urls.get(page)); }` },
+      positions: {
+        glue: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        stepdef: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'glue', to: 'stepdef', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Java metodu ÇALIŞIR: `driver.get(...)` çağrısı gerçek bir WebDriver komutuna dönüşür ve tarayıcıda gerçek bir sayfa açılır. Gherkin cümlesi artık somut bir aksiyon oldu.',
+        en: 'Step 4 — the Java method RUNS: the `driver.get(...)` call becomes a real WebDriver command and a real page opens in the browser. The Gherkin sentence has become a concrete action.',
+      },
+      code: { tr: `driver.get("https://demo.learnqa.dev/login")`, en: `driver.get("https://demo.learnqa.dev/login")` },
+      positions: {
+        stepdef: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        browser: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'stepdef', to: 'browser', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — feature dosyasında "login sayfasındadır" yerine "log-in sayfasındadır" yazılsaydı (tire eklenmiş), hiçbir `@Given` pattern\'i eşleşmez ve Cucumber "Undefined step" hatası fırlatır — hatta sana otomatik bir Java method İSKELETİ önerir. Bu katılık, Gherkin yazan iş analisti ile Java yazan mühendis arasındaki SÖZLEŞMEDİR: sessiz bir yanlış eşleşme yerine net bir hata.',
+        en: 'Final (the contrast) — if the feature file said "log-in page" instead of "login page" (with a hyphen added), no `@Given` pattern would match and Cucumber throws an "Undefined step" error — it even suggests an auto-generated Java method skeleton. This rigidity is the CONTRACT between the business analyst writing Gherkin and the engineer writing Java: a clear error instead of a silent wrong match.',
+      },
+      positions: {
+        feature: { x: 16, y: 30, scale: 0.9 },
+        glue: { x: 44, y: 50, scale: 1.05 },
+        ghost: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'feature', to: 'glue' }, { from: 'glue', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (11) sSelenium — WebDriver'ın tarayıcıya komut gönderme akışı (HTTP round-trip)
+const javaSeleniumHttpRoundtripFilm = {
+  type: 'video-scene',
+  id: 'java-selenium-http-roundtrip-film',
+  title: { tr: '🎬 driver.click() Aslında Bir HTTP İsteğidir', en: '🎬 driver.click() Is Actually an HTTP Request' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'javacode', emoji: '☕', label: { tr: 'driver.click()', en: 'driver.click()' }, color: '#0ea5e9' },
+    { id: 'jsonwire', emoji: '📦', label: { tr: 'W3C WebDriver Protokolü (JSON)', en: 'W3C WebDriver Protocol (JSON)' }, color: '#f59e0b' },
+    { id: 'http', emoji: '📡', label: { tr: 'HTTP POST /session/.../click', en: 'HTTP POST /session/.../click' }, color: '#8b5cf6' },
+    { id: 'browserdriver', emoji: '🚦', label: { tr: 'chromedriver.exe', en: 'chromedriver.exe' }, color: '#6366f1' },
+    { id: 'browser', emoji: '🌐', label: { tr: 'Chrome (Gerçek Tarayıcı)', en: 'Chrome (Real Browser)' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Element Görünmezse: Timeout', en: 'If Element Not Visible: Timeout' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`driver.click()` yazdığında tıklama İÇİNDE, Java kodundan tarayıcıya kadar giden bir ağ isteği zinciri vardır. Bu filmde WebDriver\'ın neden "yerel" değil "network tabanlı" bir mimari olduğunu göreceksin.',
+        en: 'When you write `driver.click()`, inside that click there is a network request chain running from your Java code all the way to the browser. In this film you will see why WebDriver is a "network-based" architecture, not a "local" one.',
+      },
+      code: { tr: `driver.findElement(By.id("login")).click();`, en: `driver.findElement(By.id("login")).click();` },
+      positions: { javacode: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Selenium Java kütüphanesi bu çağrıyı W3C WebDriver Protokolü\'ne uygun bir JSON komuta çevirir: hangi elementin, hangi eylemi yapacağı JSON içinde tanımlanır.',
+        en: 'Step 1 — the Selenium Java library converts this call into a JSON command compliant with the W3C WebDriver Protocol: which element does which action is defined inside the JSON.',
+      },
+      code: { tr: `{ "elementId": "abc123" }`, en: `{ "elementId": "abc123" }` },
+      positions: {
+        javacode: { x: 20, y: 50, scale: 1.1 },
+        jsonwire: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'javacode', to: 'jsonwire' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — bu JSON, GERÇEK bir HTTP POST isteği olarak `localhost:9515` üzerinden chromedriver\'a GÖNDERİLİR. Evet — her `.click()` bir ağ isteğidir; bu yüzden ağır DOM ile çalışırken gecikmeler doğaldır.',
+        en: 'Step 2 — this JSON is SENT as a REAL HTTP POST request over `localhost:9515` to chromedriver. Yes — every `.click()` is a network request; that is why delays are natural when working with a heavy DOM.',
+      },
+      code: { tr: `POST http://localhost:9515/session/{id}/element/{id}/click`, en: `POST http://localhost:9515/session/{id}/element/{id}/click` },
+      positions: {
+        jsonwire: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        http: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'jsonwire', to: 'http', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — chromedriver.exe bu isteği ALIR ve Chrome DevTools Protokolü üzerinden tarayıcıya GERÇEK bir tıklama komutu iletir.',
+        en: 'Step 3 — chromedriver.exe RECEIVES this request and relays a REAL click command to the browser over the Chrome DevTools Protocol.',
+      },
+      code: { tr: `chromedriver → CDP → Chrome`, en: `chromedriver → CDP → Chrome` },
+      positions: {
+        http: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        browserdriver: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'http', to: 'browserdriver', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Chrome tıklamayı gerçekleştirir ve bir HTTP YANITI (200 OK) geri döner; bu yanıt Java\'daki `.click()` çağrısına ULAŞTIĞINDA kod bir sonraki satıra geçer.',
+        en: 'Step 4 — Chrome performs the click and an HTTP RESPONSE (200 OK) travels back; once that response REACHES the `.click()` call in Java, the code moves to the next line.',
+      },
+      code: { tr: `HTTP 200 OK  ← click gerçekleşti`, en: `HTTP 200 OK  ← click performed` },
+      positions: {
+        browserdriver: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        browser: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'browserdriver', to: 'browser', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — element henüz DOM\'a gelmemişse (`By.id("login")` sayfada YOKSA), bu HTTP isteği chromedriver\'dan bir hata yanıtı alır ve Selenium `NoSuchElementException` fırlatır. `Thread.sleep()` bu ağ gecikmesini KÖR bir bekleme ile çözmeye çalışır; `WebDriverWait` ise bu HTTP round-trip\'i element GERÇEKTEN hazır olana kadar akıllıca tekrarlar — bu yüzden flaky testlerin gerçek kökeni genelde bu ağ gecikmesidir.',
+        en: 'Final (the contrast) — if the element has not arrived in the DOM yet (`By.id("login")` does NOT exist on the page), this HTTP request gets an error response from chromedriver and Selenium throws a `NoSuchElementException`. `Thread.sleep()` tries to solve this network delay with a BLIND wait; `WebDriverWait` instead intelligently repeats this HTTP round-trip until the element is REALLY ready — that is why the real root cause of flaky tests is usually this exact network delay.',
+      },
+      positions: {
+        browser: { x: 18, y: 30, scale: 0.9 },
+        http: { x: 46, y: 50, scale: 1.05 },
+        ghost: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'browser', to: 'http' }, { from: 'http', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (12) sPlaywright — CDP/WebSocket üzerinden tarayıcı kontrolü
+const javaPlaywrightCdpFilm = {
+  type: 'video-scene',
+  id: 'java-playwright-cdp-film',
+  title: { tr: '🎬 Playwright: Bir WebSocket Bağlantısının Ömrü', en: '🎬 Playwright: The Life of a WebSocket Connection' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'javacode', emoji: '☕', label: { tr: 'page.click("#login")', en: 'page.click("#login")' }, color: '#0ea5e9' },
+    { id: 'driver', emoji: '⚙️', label: { tr: 'Playwright Java Driver', en: 'Playwright Java Driver' }, color: '#f59e0b' },
+    { id: 'ws', emoji: '🔌', label: { tr: 'Kalıcı WebSocket', en: 'Persistent WebSocket' }, color: '#8b5cf6' },
+    { id: 'cdp', emoji: '📡', label: { tr: 'Chrome DevTools Protokolü', en: 'Chrome DevTools Protocol' }, color: '#6366f1' },
+    { id: 'browser', emoji: '🌐', label: { tr: 'Browser Engine', en: 'Browser Engine' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Selenium: Her Komut = Yeni HTTP', en: 'Selenium: Every Command = New HTTP' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`page.click(...)` Selenium\'dakiyle aynı işi yapıyor gibi görünür ama arkasındaki bağlantı türü TAMAMEN farklıdır. Bu filmde Playwright\'ın neden Selenium\'dan daha hızlı ve daha az flaky olduğunun mimari nedenini göreceksin.',
+        en: '`page.click(...)` looks like it does the same job as in Selenium, but the connection type behind it is COMPLETELY different. In this film you will see the architectural reason why Playwright is faster and less flaky than Selenium.',
+      },
+      code: { tr: `page.click("#login");`, en: `page.click("#login");` },
+      positions: { javacode: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Playwright Java Driver, test başladığında bir tarayıcı prosesini BAŞLATIR ve onunla TEK BİR kalıcı bağlantı kurar — Selenium\'daki gibi her komutta yeni bir HTTP isteği AÇILMAZ.',
+        en: 'Step 1 — the Playwright Java Driver LAUNCHES a browser process when the test starts and establishes ONE persistent connection with it — unlike Selenium, it does NOT open a new HTTP request for every command.',
+      },
+      code: { tr: `driver.launch() → tek bağlantı kurulur`, en: `driver.launch() → one connection established` },
+      positions: {
+        javacode: { x: 20, y: 50, scale: 1.1 },
+        driver: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'javacode', to: 'driver' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — bu bağlantı bir WebSocket\'tir: HTTP\'nin aksine AÇIK kalır, her iki yönde de veri akabilir. `page.click()` gibi HER komut bu AÇIK kanaldan gönderilir — yeni bağlantı kurma maliyeti YOKTUR.',
+        en: 'Step 2 — this connection is a WebSocket: unlike HTTP, it stays OPEN, and data can flow in both directions. EVERY command like `page.click()` is sent over this OPEN channel — there is NO cost of establishing a new connection.',
+      },
+      code: { tr: `ws://localhost:.../devtools/browser/{id}`, en: `ws://localhost:.../devtools/browser/{id}` },
+      positions: {
+        driver: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        ws: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'driver', to: 'ws', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — komutlar bu WebSocket üzerinden doğrudan Chrome DevTools Protokolü\'ne (CDP) akar; tarayıcı motoruyla neredeyse ÇEVİRİSİZ, düşük seviyeli bir dille konuşulur.',
+        en: 'Step 3 — commands flow directly over this WebSocket into the Chrome DevTools Protocol (CDP); the browser engine is spoken to almost WITHOUT translation, in a low-level language.',
+      },
+      code: { tr: `CDP: Input.dispatchMouseEvent`, en: `CDP: Input.dispatchMouseEvent` },
+      positions: {
+        ws: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        cdp: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ws', to: 'cdp', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — CDP, tarayıcı motoruna ULAŞIR ve tıklama gerçekleşir. Ayrıca Playwright bu AYNI kanaldan DOM olaylarını (network, console, DOM mutation) DİNLEYEBİLİR — bu da otomatik bekleme (auto-wait) mekanizmasının temelidir.',
+        en: 'Step 4 — the CDP REACHES the browser engine and the click happens. Also, over this SAME channel Playwright can LISTEN to DOM events (network, console, DOM mutations) — this is the foundation of the auto-wait mechanism.',
+      },
+      code: { tr: `CDP event: DOM.childNodeInserted`, en: `CDP event: DOM.childNodeInserted` },
+      positions: {
+        cdp: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        browser: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'cdp', to: 'browser', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Selenium\'da HER komut yeni bir HTTP isteği AÇAR ve YANIT bekler (round-trip maliyeti); Playwright\'ta ise kanal zaten AÇIKTIR ve tarayıcı olaylarını GERÇEK ZAMANLI dinlediği için "elementin hazır olmasını bekle" davranışı framework\'ün İÇİNE gömülüdür. Bu mimari fark, aynı testin Playwright\'ta neden daha az `Thread.sleep()` ihtiyacıyla, daha stabil çalıştığının temel sebebidir.',
+        en: 'Final (the contrast) — in Selenium, EVERY command OPENS a new HTTP request and WAITS for a response (round-trip cost); in Playwright the channel is ALREADY OPEN and because it listens to browser events in REAL TIME, "wait for the element to be ready" behavior is BUILT INTO the framework. This architectural difference is the core reason the same test runs more stably in Playwright with far less need for `Thread.sleep()`.',
+      },
+      positions: {
+        browser: { x: 20, y: 30, scale: 0.95 },
+        ws: { x: 50, y: 50, scale: 1.05 },
+        ghost: { x: 78, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'browser', to: 'ws' }, { from: 'ws', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (13) s4 Gerçek Hayat — CI/CD pipeline'da Java testinin çalışma akışı
+const javaCiPipelineRunFilm = {
+  type: 'video-scene',
+  id: 'java-ci-pipeline-run-film',
+  title: { tr: '🎬 Bir Commit\'in CI Pipeline\'daki Yolculuğu', en: '🎬 A Commit\'s Journey Through the CI Pipeline' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'commit', emoji: '💾', label: { tr: 'git push', en: 'git push' }, color: '#0ea5e9' },
+    { id: 'trigger', emoji: '⚡', label: { tr: 'GitHub Actions Tetikleyici', en: 'GitHub Actions Trigger' }, color: '#f59e0b' },
+    { id: 'maven', emoji: '🏗️', label: { tr: 'mvn clean test', en: 'mvn clean test' }, color: '#8b5cf6' },
+    { id: 'grid', emoji: '🕸️', label: { tr: 'Selenium Grid (Headless)', en: 'Selenium Grid (Headless)' }, color: '#6366f1' },
+    { id: 'report', emoji: '📊', label: { tr: 'Surefire/Allure Rapor', en: 'Surefire/Allure Report' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Bir Test FAIL: Merge Bloklanır', en: 'One Test FAILs: Merge Blocked' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`git push` sadece kodu gönderir gibi görünür ama arkasında otomatik olarak tetiklenen bir test zinciri vardır. Bu filmde bir Java test suite\'inin CI/CD pipeline\'ında nasıl bir "PR bekçisi" gibi davrandığını göreceksin.',
+        en: '`git push` looks like it just sends code, but behind it an automatically triggered test chain runs. In this film you will see how a Java test suite acts like a "PR gatekeeper" in the CI/CD pipeline.',
+      },
+      code: { tr: `git push origin feature/login-fix`, en: `git push origin feature/login-fix` },
+      positions: { commit: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — GitHub Actions, push olayını YAKALAR ve `.github/workflows/ci.yml`\'de tanımlı işi TETİKLER. Bir bulut runner\'ı (Ubuntu container) ayağa kalkar.',
+        en: 'Step 1 — GitHub Actions CATCHES the push event and TRIGGERS the job defined in `.github/workflows/ci.yml`. A cloud runner (Ubuntu container) spins up.',
+      },
+      code: { tr: `on: push: branches: [main, feature/*]`, en: `on: push: branches: [main, feature/*]` },
+      positions: {
+        commit: { x: 20, y: 50, scale: 1.1 },
+        trigger: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'commit', to: 'trigger' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — runner önce JDK ve Maven bağımlılıklarını kurar, sonra `mvn clean test` komutunu çalıştırır — bu, senin local\'de yazdığın TÜM JUnit5/TestNG testlerini derleyip çalıştırır.',
+        en: 'Step 2 — the runner first installs JDK and Maven dependencies, then runs `mvn clean test` — this compiles and runs ALL the JUnit5/TestNG tests you wrote locally.',
+      },
+      code: { tr: `mvn clean test`, en: `mvn clean test` },
+      positions: {
+        trigger: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        maven: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'trigger', to: 'maven', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — testler headless (görünmez) bir tarayıcıyla veya Selenium Grid container\'ıyla paralel ÇALIŞIR — burada bir masaüstü ekranı YOKTUR, her şey bulut sunucusunda gerçekleşir.',
+        en: 'Step 3 — the tests RUN in parallel using a headless (invisible) browser or a Selenium Grid container — there is NO desktop screen here, everything happens on the cloud server.',
+      },
+      code: { tr: `-Dwebdriver.chrome.headless=true`, en: `-Dwebdriver.chrome.headless=true` },
+      positions: {
+        maven: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        grid: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'maven', to: 'grid', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — tüm testler biter, Surefire/Allure bir HTML rapor ÜRETİR ve GitHub PR ekranında yeşil ✅ işareti belirir — takım artık bu kodu güvenle merge edebilir.',
+        en: 'Step 4 — all tests finish, Surefire/Allure GENERATE an HTML report and a green ✅ mark appears on the GitHub PR screen — the team can now safely merge this code.',
+      },
+      code: { tr: `✅ All checks have passed`, en: `✅ All checks have passed` },
+      positions: {
+        grid: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        report: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'grid', to: 'report', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — testlerden BİRİ FAIL olsaydı, `mvn test` sıfırdan farklı bir exit code döndürür, GitHub Actions işi KIRMIZI ❌ işaretler ve "Merge" butonu (branch protection ayarlıysa) PASİF hale gelir. Bu, "bende çalışıyordu" diyen bir geliştiricinin production\'a bozuk kod gönderemeyeceğinin OTOMATİK garantisidir.',
+        en: 'Final (the contrast) — if ONE of the tests FAILed, `mvn test` returns a non-zero exit code, GitHub Actions marks the job RED ❌, and the "Merge" button (if branch protection is set) becomes DISABLED. This is the AUTOMATIC guarantee that a developer who says "it worked on my machine" cannot ship broken code to production.',
+      },
+      positions: {
+        report: { x: 18, y: 30, scale: 0.9 },
+        maven: { x: 46, y: 50, scale: 1.0 },
+        ghost: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'report', to: 'maven' }, { from: 'maven', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (14) s5 Ekosistem — Maven dependency resolution akışı
+const javaMavenDependencyResolutionFilm = {
+  type: 'video-scene',
+  id: 'java-maven-dependency-resolution-film',
+  title: { tr: '🎬 pom.xml\'deki Bir Satırın Diske Kadar Yolculuğu', en: '🎬 One Line in pom.xml: The Journey to Your Disk' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pom', emoji: '📄', label: { tr: 'pom.xml <dependency>', en: 'pom.xml <dependency>' }, color: '#0ea5e9' },
+    { id: 'local', emoji: '💻', label: { tr: '~/.m2/repository', en: '~/.m2/repository' }, color: '#f59e0b' },
+    { id: 'central', emoji: '☁️', label: { tr: 'Maven Central', en: 'Maven Central' }, color: '#8b5cf6' },
+    { id: 'transitive', emoji: '🕸️', label: { tr: 'Transitive Dependencies', en: 'Transitive Dependencies' }, color: '#6366f1' },
+    { id: 'classpath', emoji: '📦', label: { tr: 'Classpath', en: 'Classpath' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Versiyon Çakışması: NoSuchMethodError', en: 'Version Clash: NoSuchMethodError' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'pom.xml\'e tek bir `<dependency>` satırı eklemek, diskine ONLARCA .jar dosyası indirilmesine yol açabilir. Bu filmde Maven\'in bu "zincirleme indirme" işini nasıl yönettiğini göreceksin.',
+        en: 'Adding a single `<dependency>` line to pom.xml can trigger DOZENS of .jar files being downloaded to your disk. In this film you will see how Maven manages this "chain download".',
+      },
+      code: { tr: `<dependency><artifactId>selenium-java</artifactId></dependency>`, en: `<dependency><artifactId>selenium-java</artifactId></dependency>` },
+      positions: { pom: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Maven önce LOKAL depoya (`~/.m2/repository`) bakar: bu jar zaten indirilmiş mi? Varsa AĞA hiç çıkmadan oradan kullanır.',
+        en: 'Step 1 — Maven first checks the LOCAL repository (`~/.m2/repository`): has this jar already been downloaded? If so, it uses it from there WITHOUT going to the network at all.',
+      },
+      code: { tr: `~/.m2/repository/org/seleniumhq/selenium/`, en: `~/.m2/repository/org/seleniumhq/selenium/` },
+      positions: {
+        pom: { x: 20, y: 50, scale: 1.1 },
+        local: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pom', to: 'local' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — bulunamazsa Maven, Maven Central\'e (internetteki merkezi jar deposu) bağlanır ve doğru versiyonu İNDİRİR.',
+        en: 'Step 2 — if not found, Maven connects to Maven Central (the internet\'s central jar repository) and DOWNLOADS the correct version.',
+      },
+      code: { tr: `GET https://repo.maven.apache.org/.../selenium-java-4.20.0.jar`, en: `GET https://repo.maven.apache.org/.../selenium-java-4.20.0.jar` },
+      positions: {
+        local: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        central: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'local', to: 'central', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — selenium-java\'nın kendisi de BAŞKA kütüphanelere ihtiyaç duyar (guava, jackson gibi) — Maven bu TRANSITIVE (dolaylı) bağımlılıkları da otomatik olarak bulup indirir; sen bunları pom.xml\'e YAZMAZSIN.',
+        en: 'Step 3 — selenium-java itself needs OTHER libraries (like guava, jackson) — Maven automatically finds and downloads these TRANSITIVE (indirect) dependencies too; you do NOT write these in pom.xml yourself.',
+      },
+      code: { tr: `+ guava-31.1.jar\n+ jackson-databind-2.15.jar`, en: `+ guava-31.1.jar\n+ jackson-databind-2.15.jar` },
+      positions: {
+        central: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        transitive: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'central', to: 'transitive', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — indirilen TÜM jar\'lar (doğrudan + transitive) classpath\'e eklenir; artık kodun içinde `import org.openqa.selenium.WebDriver;` çalışır.',
+        en: 'Step 4 — ALL downloaded jars (direct + transitive) are added to the classpath; now `import org.openqa.selenium.WebDriver;` works in your code.',
+      },
+      code: { tr: `import org.openqa.selenium.WebDriver;  // ✅`, en: `import org.openqa.selenium.WebDriver;  // ✅` },
+      positions: {
+        transitive: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        classpath: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'transitive', to: 'classpath', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — projede iki farklı kütüphane AYNI transitive bağımlılığın FARKLI versiyonlarını istese (örn. biri guava 28, diğeri guava 31), Maven bu çakışmayı "en yakın kazanır" kuralıyla SESSİZCE çözer — ama seçilen versiyon yanlışsa runtime\'da `NoSuchMethodError` gibi açıklaması zor bir hata çıkar. `mvn dependency:tree` komutu bu gizli çakışmaları GÖRÜNÜR kılar.',
+        en: 'Final (the contrast) — if two different libraries in the project want DIFFERENT versions of the SAME transitive dependency (e.g. one wants guava 28, the other guava 31), Maven resolves this SILENTLY with the "nearest wins" rule — but if the wrong version wins, a hard-to-explain `NoSuchMethodError` shows up at runtime. The `mvn dependency:tree` command makes these hidden conflicts VISIBLE.',
+      },
+      positions: {
+        classpath: { x: 18, y: 30, scale: 0.9 },
+        transitive: { x: 46, y: 50, scale: 1.0 },
+        ghost: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'classpath', to: 'transitive' }, { from: 'transitive', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const javaMavenResolutionStep = {
+  type: 'step-animation',
+  title: { tr: 'Maven Dependency Çakışması Nasıl Çözülür?', en: 'How to Resolve a Maven Dependency Conflict' },
+  steps: [
+    { tr: '`mvn dependency:tree` çalıştır — hangi kütüphanenin hangi SÜRÜMÜ getirdiğini gör.', en: 'Run `mvn dependency:tree` — see which library brought in which VERSION.' },
+    { tr: 'Aynı kütüphanenin İKİ farklı sürümü varsa, Maven "en yakın" (nearest) kuralına göre BİRİNİ seçer — bu her zaman senin istediğin sürüm OLMAYABİLİR.', en: 'If two different versions of the same library exist, Maven picks ONE based on the "nearest" rule — this might NOT always be the version you want.' },
+    { tr: 'Doğru sürümü zorlamak için `pom.xml`\'de `<dependencyManagement>` içinde açıkça sürüm belirt.', en: 'To force the right version, explicitly declare it inside `<dependencyManagement>` in `pom.xml`.' },
+  ],
+}
+
+const javaMavenResolutionPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'java-maven-ecosystem',
+  title: { tr: 'Kendin Dene: pom.xml\'e Bağımlılık Ekle', en: 'Try It Yourself: Add a Dependency to pom.xml' },
+  starterCode: `<dependencies>
+    <!-- TODO: junit-jupiter bagimliligini 5.10.2 versiyonuyla ekle -->
+</dependencies>`,
+  solutionCode: `<dependencies>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.2</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>`,
+  hint: { tr: 'Bir Maven bağımlılığı `groupId` + `artifactId` + `version` üçlüsüyle tanımlanır — test kütüphaneleri için `scope: test` eklenir.', en: 'A Maven dependency is identified by the `groupId` + `artifactId` + `version` triple — test libraries get `scope: test`.' },
+  successMessage: { tr: 'Doğru! Maven bu bilgiyle Maven Central\'dan doğru jar\'ı indirir ve classpath\'e ekler.', en: 'Correct! Maven uses this information to download the right jar from Maven Central and add it to the classpath.' },
+}
+
+// (15) s6 Yaygın Hatalar — NullPointerException'ın oluşma ve stack trace okuma akışı
+const javaNpeStackTraceFilm = {
+  type: 'video-scene',
+  id: 'java-npe-stacktrace-film',
+  title: { tr: '🎬 Bir NullPointerException\'ın Doğuşu', en: '🎬 The Birth of a NullPointerException' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'find', emoji: '🔎', label: { tr: 'driver.findElement(By.id("x"))', en: 'driver.findElement(By.id("x"))' }, color: '#0ea5e9' },
+    { id: 'notfound', emoji: '❓', label: { tr: 'Element DOM\'da Yok', en: 'Element Not in DOM' }, color: '#f59e0b' },
+    { id: 'nullref', emoji: '⭕', label: { tr: 'element = null', en: 'element = null' }, color: '#8b5cf6' },
+    { id: 'call', emoji: '📞', label: { tr: 'element.click()', en: 'element.click()' }, color: '#ef4444' },
+    { id: 'npe', emoji: '💥', label: { tr: 'NullPointerException', en: 'NullPointerException' }, color: '#dc2626' },
+    { id: 'trace', emoji: '📜', label: { tr: 'Stack Trace: Satır Numarası', en: 'Stack Trace: Line Number' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Selenium testlerinde en sık görülen hata NullPointerException\'dır. Bu filmde bir elementin "bulunamaması"nın nasıl sessizce `null`\'a dönüştüğünü ve iki satır sonra nasıl patladığını göreceksin.',
+        en: 'The most common error in Selenium tests is NullPointerException. In this film you will see how an element "not being found" silently turns into `null`, and how it explodes two lines later.',
+      },
+      code: { tr: `WebElement element = driver.findElement(By.id("x"));`, en: `WebElement element = driver.findElement(By.id("x"));` },
+      positions: { find: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `findElement` sayfada aranan id\'yi ARAR ama sayfa henüz TAM YÜKLENMEMİŞTİR (element DOM\'da yoktur).',
+        en: 'Step 1 — `findElement` SEARCHES the page for the given id, but the page has NOT FULLY LOADED yet (the element is not in the DOM).',
+      },
+      code: { tr: `<div id="x"> // henüz render edilmedi`, en: `<div id="x"> // not rendered yet` },
+      positions: {
+        find: { x: 20, y: 50, scale: 1.1 },
+        notfound: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'find', to: 'notfound' }],
+    },
+    {
+      caption: {
+        tr: 'ÖNEMLİ AYRIM — bazı Selenium metodları (`findElement`) bulunamayınca ANINDA exception fırlatır; ama bazı wrapper/yardımcı metodlar bu durumu YUTUP `null` DÖNDÜRÜR. İşte tam bu noktada `element` değişkeni null olur.',
+        en: 'IMPORTANT DISTINCTION — some Selenium methods (`findElement`) throw an exception IMMEDIATELY when not found; but some wrapper/helper methods SWALLOW this and RETURN `null` instead. This is the exact point where the `element` variable becomes null.',
+      },
+      code: { tr: `WebElement element = null;`, en: `WebElement element = null;` },
+      positions: {
+        notfound: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        nullref: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'notfound', to: 'nullref', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — birkaç satır sonra kod `element.click()` çağırır — ama `element` bir REFERANS DEĞİL, `null`\'dır. JVM bu çağrıyı yapacak bir NESNE bulamaz.',
+        en: 'Step 2 — a few lines later the code calls `element.click()` — but `element` is NOT a reference, it is `null`. The JVM cannot find an OBJECT to make this call on.',
+      },
+      code: { tr: `element.click();  // element === null`, en: `element.click();  // element === null` },
+      positions: {
+        nullref: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        call: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'nullref', to: 'call', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — JVM `NullPointerException` fırlatır ve bir STACK TRACE üretir: hatanın TAM olarak hangi dosyada, hangi satırda olduğunu gösterir — üstteki satır her zaman en gerçek suçlu.',
+        en: 'Step 3 — the JVM throws a `NullPointerException` and produces a STACK TRACE: it shows EXACTLY which file, which line the error occurred in — the topmost line is always the real culprit.',
+      },
+      code: { tr: `at LoginTest.testLogin(LoginTest.java:42)`, en: `at LoginTest.testLogin(LoginTest.java:42)` },
+      positions: {
+        call: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        npe: { x: 50, y: 50, scale: 1.25, pulse: true },
+        trace: { x: 78, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'call', to: 'npe', color: '#dc2626' }, { from: 'npe', to: 'trace', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — stack trace\'i satır 42\'ye kadar takip etmek yerine tüm testi baştan sona "gözle okumaya" çalışmak zaman kaybıdır; doğru refleks `element.click()`\'ten ÖNCE `WebDriverWait` ile elementin GERÇEKTEN DOM\'da olduğunu garanti altına almaktır — bu, NPE\'yi "olay yerinde yakalamak" yerine "hiç oluşmasına izin vermemek" demektir.',
+        en: 'Final (the contrast) — instead of following the stack trace down to line 42, trying to "eyeball-read" the whole test top to bottom is a waste of time; the correct reflex is to guarantee with `WebDriverWait` BEFORE `element.click()` that the element is REALLY in the DOM — this means "never letting the NPE happen" instead of "catching it at the scene".',
+      },
+      positions: {
+        trace: { x: 18, y: 30, scale: 0.9 },
+        nullref: { x: 60, y: 55, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'trace', to: 'nullref', color: '#22c55e' }],
+    },
+  ],
+}
+
+// (16) sFileIO — try-with-resources'ın dosya kapatmayı garanti etmesi
+const javaTryWithResourcesFilm = {
+  type: 'video-scene',
+  id: 'java-try-with-resources-film',
+  title: { tr: '🎬 try-with-resources: Kapatmayı Unutmayan Kod', en: '🎬 try-with-resources: Code That Never Forgets to Close' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'open', emoji: '📂', label: { tr: 'new FileReader("data.csv")', en: 'new FileReader("data.csv")' }, color: '#0ea5e9' },
+    { id: 'handle', emoji: '🔗', label: { tr: 'İşletim Sistemi Dosya Tutamacı', en: 'OS File Handle' }, color: '#f59e0b' },
+    { id: 'read', emoji: '📖', label: { tr: 'readLine() ...', en: 'readLine() ...' }, color: '#8b5cf6' },
+    { id: 'crash', emoji: '💥', label: { tr: 'Ortada Exception Fırlarsa', en: 'If Exception Is Thrown Midway' }, color: '#ef4444' },
+    { id: 'autoclose', emoji: '🔒', label: { tr: 'Otomatik close() — Garanti', en: 'Automatic close() — Guaranteed' }, color: '#22c55e' },
+    { id: 'leak', emoji: '👻', label: { tr: 'try-with-resources Olmadan: Sızıntı', en: 'Without try-with-resources: Leak' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`try (FileReader r = ...)` yazmak, sıradan bir `try` bloğundan FARKLI bir garanti taşır. Bu filmde bu parantezin, dosya HATA fırlatsa bile kapanmayı nasıl garanti ettiğini göreceksin.',
+        en: 'Writing `try (FileReader r = ...)` carries a DIFFERENT guarantee than a plain `try` block. In this film you will see how this parenthesis guarantees closing even if the file throws an ERROR.',
+      },
+      code: { tr: `try (FileReader r = new FileReader("data.csv")) { ... }`, en: `try (FileReader r = new FileReader("data.csv")) { ... }` },
+      positions: { open: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — dosya açıldığında işletim sistemi bir DOSYA TUTAMACI (file handle) ayırır — bu SINIRLI bir kaynaktır, sistemde aynı anda açık tutulabilecek dosya sayısı sonsuz DEĞİLDİR.',
+        en: 'Step 1 — when the file opens, the OS allocates a FILE HANDLE — this is a LIMITED resource, the number of files that can stay open at once on a system is NOT infinite.',
+      },
+      code: { tr: `OS: file descriptor #37 açıldı`, en: `OS: file descriptor #37 opened` },
+      positions: {
+        open: { x: 20, y: 50, scale: 1.1 },
+        handle: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'open', to: 'handle' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `readLine()` ile dosya satır satır okunur. Test verisi büyükse bu birçok satır sürer.',
+        en: 'Step 2 — the file is read line by line with `readLine()`. If the test data is large, this takes many lines.',
+      },
+      code: { tr: `while ((line = r.readLine()) != null) { ... }`, en: `while ((line = r.readLine()) != null) { ... }` },
+      positions: {
+        handle: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        read: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'handle', to: 'read', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — okuma sırasında beklenmedik bir satır formatı bir `NumberFormatException` FIRLATIR. Normal bir `try` bloğunda bu, dosyayı KAPATMADAN thread\'i terk edebilirdi.',
+        en: 'Step 3 — an unexpected line format THROWS a `NumberFormatException` mid-read. In a plain `try` block, this could leave the thread WITHOUT closing the file.',
+      },
+      code: { tr: `NumberFormatException: "N/A"`, en: `NumberFormatException: "N/A"` },
+      positions: {
+        read: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        crash: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'read', to: 'crash', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — ama `try-with-resources` kullanıldığı için JVM, exception fırlasa BİLE `try` bloğundan çıkarken FileReader\'ın `close()` metodunu OTOMATİK ve GARANTİLİ olarak çağırır — dosya tutamacı serbest bırakılır.',
+        en: 'Step 4 — but because `try-with-resources` was used, the JVM AUTOMATICALLY and GUARANTEED calls FileReader\'s `close()` method when leaving the `try` block, EVEN IF an exception was thrown — the file handle is released.',
+      },
+      code: { tr: `// derleyici arka planda ekler: finally { r.close(); }`, en: `// compiler adds behind the scenes: finally { r.close(); }` },
+      positions: {
+        crash: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        autoclose: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'crash', to: 'autoclose', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — eğer geliştirici eski usül `FileReader r = new FileReader(...)` yazıp elle `close()` çağırmayı UNUTSAYDI (özellikle exception fırladığında), dosya tutamacı sonsuza kadar AÇIK kalırdı. Binlerce test dosyası okuyan bir data-driven suite\'te bu, "too many open files" hatasıyla CI\'ı saatler sonra çökerten sinsi bir kaynak sızıntısıdır.',
+        en: 'Final (the contrast) — if a developer wrote the old-style `FileReader r = new FileReader(...)` and FORGOT to manually call `close()` (especially when an exception was thrown), the file handle would stay OPEN forever. In a data-driven suite reading thousands of test files, this is a sneaky resource leak that crashes CI hours later with a "too many open files" error.',
+      },
+      positions: {
+        autoclose: { x: 18, y: 30, scale: 0.9 },
+        handle: { x: 46, y: 50, scale: 1.0 },
+        leak: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'autoclose', to: 'handle' }, { from: 'handle', to: 'leak', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (17) sInteractivePractice — bir problem çözme akışı (Adım Adım Soru Çözücü)
+const javaProblemSolvingFlowFilm = {
+  type: 'video-scene',
+  id: 'java-problem-solving-flow-film',
+  title: { tr: '🎬 Bir Java Sorusunu Adım Adım Çözme Refleksi', en: '🎬 The Reflex of Solving a Java Question Step by Step' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '❓', label: { tr: 'Soru: Bu Kod Ne Yazdırır?', en: 'Question: What Does This Code Print?' }, color: '#0ea5e9' },
+    { id: 'trace', emoji: '👣', label: { tr: 'Satır Satır İzle', en: 'Trace Line by Line' }, color: '#f59e0b' },
+    { id: 'state', emoji: '🧠', label: { tr: 'Değişken Durumunu Zihinde Tut', en: 'Track Variable State Mentally' }, color: '#8b5cf6' },
+    { id: 'predict', emoji: '✍️', label: { tr: 'Tahminini Yaz', en: 'Write Your Prediction' }, color: '#6366f1' },
+    { id: 'verify', emoji: '✅', label: { tr: 'Gerçek Çıktıyla Karşılaştır', en: 'Compare with Real Output' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Ezbere Cevap: Yanlış Tahmin', en: 'Guessing by Memory: Wrong Prediction' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir mülakat sorusu geldiğinde "bu kod ne yazdırır?" sorusuna DOĞRUDAN cevap vermek riskli bir refleks. Bu filmde adım adım soru çözme yönteminin JVM\'in kendisini nasıl taklit ettiğini göreceksin.',
+        en: 'When an interview question comes up, jumping straight to "what does this code print?" is a risky reflex. In this film you will see how the step-by-step method mimics the JVM itself.',
+      },
+      code: { tr: `int x = 5;\nx = x++ + ++x;\nSystem.out.println(x);`, en: `int x = 5;\nx = x++ + ++x;\nSystem.out.println(x);` },
+      positions: { question: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — kodu TEK bir bütün olarak okumak yerine, JVM gibi SATIR SATIR (hatta operatör operatör) izlemeye başla. İlk satır: `x = 5` — basit bir atama.',
+        en: 'Step 1 — instead of reading the code as one whole, start tracing it LINE BY LINE (even operator by operator) like the JVM does. First line: `x = 5` — a simple assignment.',
+      },
+      code: { tr: `x = 5;  // x: 5`, en: `x = 5;  // x: 5` },
+      positions: {
+        question: { x: 20, y: 50, scale: 1.1 },
+        trace: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'trace' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — her ARA DURUMU bir kağıda (veya zihninde bir tabloya) yaz: `x++` önce OKUNUR sonra artırılır (post-increment); `++x` önce ARTIRILIR sonra okunur (pre-increment). Bu iki farkı ayrı ayrı takip et.',
+        en: 'Step 2 — write down every INTERMEDIATE state on paper (or a mental table): `x++` is READ FIRST then incremented (post-increment); `++x` is INCREMENTED FIRST then read (pre-increment). Track these two differences separately.',
+      },
+      code: { tr: `x++ → okunan: 5, sonra x: 6\n++x → x: 7, okunan: 7`, en: `x++ → read: 5, then x: 6\n++x → x: 7, read: 7` },
+      positions: {
+        trace: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        state: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'trace', to: 'state', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — TÜM ara durumları topladıktan sonra kendi TAHMİNİNİ yaz: `5 + 7 = 12`, ve `x = 12` olur. Bu tahmini yazılı olarak kaydetmek, ezberden cevap vermekten seni AYIRIR.',
+        en: 'Step 3 — after collecting ALL intermediate states, write your own PREDICTION: `5 + 7 = 12`, so `x = 12`. Recording this prediction in writing SEPARATES you from answering by memory.',
+      },
+      code: { tr: `tahmin: x = 12`, en: `prediction: x = 12` },
+      positions: {
+        state: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        predict: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'state', to: 'predict', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — tahminini gerçek JVM çıktısıyla KARŞILAŞTIR (bu sayfadaki soru çözücüde "Cevabı Gör" ile). Doğruysa mantığın SAĞLAMDIR; yanlışsa TAM olarak hangi adımda yanıldığını görürsün.',
+        en: 'Step 4 — COMPARE your prediction against the real JVM output (using "Show Answer" in this page\'s solver). If correct, your reasoning is SOLID; if wrong, you see EXACTLY which step you went wrong on.',
+      },
+      code: { tr: `gerçek çıktı: 12  ✅`, en: `real output: 12  ✅` },
+      positions: {
+        predict: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        verify: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'predict', to: 'verify', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — bu adımları atlayıp direkt "muhtemelen 12\'dir" diye EZBERDEN cevap veren biri, `x++` ve `++x` sırası değiştiğinde (örn. `x = ++x + x++`) YANLIŞ tahmin eder ve NEDEN yanıldığını da açıklayamaz. Mülakatta "doğru cevap" kadar "NASIL bu cevaba ulaştığını anlatabilmek" de değerlendirilir.',
+        en: 'Final (the contrast) — someone who skips these steps and answers by MEMORY with "probably 12" will predict WRONG the moment the order of `x++` and `++x` changes (e.g. `x = ++x + x++`), and cannot explain WHY they were wrong. In an interview, being able to explain HOW you arrived at the answer is evaluated just as much as the answer itself.',
+      },
+      positions: {
+        verify: { x: 18, y: 30, scale: 0.9 },
+        predict: { x: 46, y: 50, scale: 1.0 },
+        ghost: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'verify', to: 'predict' }, { from: 'predict', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// (18) s7 Mülakat — Java'nın kendi bir mekanizmasına bağlı film: equals/hashCode kontratının mülakattaki önemi
+const javaInterviewMindsetFilm = {
+  type: 'video-scene',
+  id: 'java-interview-mindset-film',
+  title: { tr: '🎬 Mülakatta Bir Cevabın 4 Katmanı', en: '🎬 The 4 Layers of an Interview Answer' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '🎤', label: { tr: '"HashMap vs TreeMap ne zaman?"', en: '"When HashMap vs TreeMap?"' }, color: '#0ea5e9' },
+    { id: 'definition', emoji: '1️⃣', label: { tr: 'Tanım', en: 'Definition' }, color: '#94a3b8' },
+    { id: 'comparison', emoji: '2️⃣', label: { tr: 'Karşılaştırma', en: 'Comparison' }, color: '#f59e0b' },
+    { id: 'experience', emoji: '3️⃣', label: { tr: 'Kendi Deneyimin', en: 'Your Own Experience' }, color: '#8b5cf6' },
+    { id: 'tradeoff', emoji: '4️⃣', label: { tr: 'Trade-off Farkındalığı', en: 'Trade-off Awareness' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Sadece Tanım = Yüzeysel Cevap', en: 'Definition Only = Shallow Answer' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakatçı "HashMap vs TreeMap ne zaman kullanılır?" diye sorduğunda, tek cümlelik bir tanım YETERSİZ kalır. Bu filmde güçlü bir mülakat cevabının 4 katmanını göreceksin.',
+        en: 'When the interviewer asks "when do you use HashMap vs TreeMap?", a one-sentence definition FALLS SHORT. In this film you will see the 4 layers of a strong interview answer.',
+      },
+      code: { tr: `Map<String, Integer> scores = new HashMap<>();`, en: `Map<String, Integer> scores = new HashMap<>();` },
+      positions: { question: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Katman 1 — TANIM: HashMap sırasızdır ama O(1) erişim sunar; TreeMap anahtarları sıralı tutar ama O(log n) erişimi vardır. Bu katman gereklidir ama TEK BAŞINA yeterli değildir.',
+        en: 'Layer 1 — DEFINITION: HashMap is unordered but offers O(1) access; TreeMap keeps keys sorted but has O(log n) access. This layer is necessary but NOT sufficient on its own.',
+      },
+      code: { tr: `HashMap: O(1) get()\nTreeMap: O(log n) get(), sıralı`, en: `HashMap: O(1) get()\nTreeMap: O(log n) get(), sorted` },
+      positions: {
+        question: { x: 20, y: 50, scale: 1.1 },
+        definition: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'definition' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 2 — KARŞILAŞTIRMA: Java\'da Map arayüzünün iki farklı implementasyonunu, Python\'daki tek `dict` yapısıyla ya da veritabanındaki index\'li vs index\'siz sütunlarla karşılaştırarak cevabı SOMUTLAŞTIR.',
+        en: 'Layer 2 — COMPARISON: make the answer CONCRETE by comparing these two Map implementations in Java to Python\'s single `dict` structure, or to indexed vs non-indexed database columns.',
+      },
+      code: { tr: `// Python\'da sadece dict var, sıralama garantisi Java\'daki gibi ayrı sınıfla değil`, en: `// Python only has dict, no separate sorted-map class like Java's TreeMap` },
+      positions: {
+        definition: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        comparison: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'definition', to: 'comparison', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 3 — KENDİ DENEYİMİN: "Ben test raporlarını tarih sırasına göre göstermem gerektiğinde TreeMap kullandım; ID\'ye göre hızlı arama gereken cache katmanında ise HashMap tercih ettim" gibi somut bir örnek ekle.',
+        en: 'Layer 3 — YOUR OWN EXPERIENCE: add a concrete example like "I used TreeMap when I needed to display test reports sorted by date; I chose HashMap for a cache layer that needed fast lookup by ID".',
+      },
+      code: { tr: `// "Projemde flaky test raporlarını tarihe göre TreeMap ile sıraladım"`, en: `// "In my project I sorted flaky test reports by date using TreeMap"` },
+      positions: {
+        comparison: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        experience: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'comparison', to: 'experience', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 4 — TRADE-OFF FARKINDALIĞI: "Sıralama garantisi bedava değil — TreeMap her insert\'te ağacı yeniden dengeler, bu yüzden milyonlarca kayıtta HashMap\'ten daha yavaştır" diyerek KARAR GEREKÇENİ göster.',
+        en: 'Layer 4 — TRADE-OFF AWARENESS: show your DECISION REASONING by saying "sorted order is not free — TreeMap rebalances its tree on every insert, so it is slower than HashMap at millions of records".',
+      },
+      code: { tr: `// TreeMap.put() → O(log n) ağaç dengeleme maliyeti`, en: `// TreeMap.put() → O(log n) tree rebalancing cost` },
+      positions: {
+        experience: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        tradeoff: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'experience', to: 'tradeoff', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — sadece Katman 1\'i (tanımı) söyleyip duran bir aday, mülakatçıya "bunu ezberledi ama hiç production\'da kullanmamış" izlenimi bırakır. 4 katmanı da kapsayan bir cevap ise, seni "teoriyi bilen" değil "kararını gerekçelendirebilen" bir mühendis olarak konumlandırır — ki mülakatın gerçekte ölçmeye çalıştığı budur.',
+        en: 'Final (the contrast) — a candidate who only recites Layer 1 (the definition) leaves the interviewer with the impression "they memorized this but never used it in production". An answer covering all 4 layers instead positions you as an engineer who can "justify a decision", not just "know the theory" — which is what the interview is actually trying to measure.',
+      },
+      positions: {
+        tradeoff: { x: 18, y: 30, scale: 0.9 },
+        definition: { x: 46, y: 50, scale: 0.95, opacity: 0.6 },
+        ghost: { x: 76, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'tradeoff', to: 'definition' }, { from: 'definition', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const javaInterviewAnswerStructureStep = {
+  type: 'step-animation',
+  title: { tr: 'Senaryo Bazlı Mülakat Cevabı Nasıl Kurulur?', en: 'How to Structure a Scenario-Based Interview Answer' },
+  steps: [
+    { tr: 'Katman 1 — TANIM: soruyu kısaca tanımla ("WebDriverWait, koşul sağlanana kadar bekler").', en: 'Layer 1 — DEFINITION: briefly define the concept ("WebDriverWait waits until a condition is met").' },
+    { tr: 'Katman 2 — MEKANİZMA: NASIL çalıştığını göster (polling aralığı, timeout, ExpectedConditions).', en: 'Layer 2 — MECHANISM: show HOW it works (polling interval, timeout, ExpectedConditions).' },
+    { tr: 'Katman 3 — DENEYİM: kendi projenden somut bir örnek ver ("bir dashboard testinde 3 saniyelik AJAX gecikmesini bu şekilde çözdüm").', en: 'Layer 3 — EXPERIENCE: give a concrete example from your own project ("I solved a 3-second AJAX delay in a dashboard test this way").' },
+    { tr: 'Katman 4 — TRADE-OFF: bedelini söyle ("her koşulda kullanmak testi yavaşlatır, sadece gerçekten asenkron olan yerlerde kullanılmalı").', en: 'Layer 4 — TRADE-OFF: state the cost ("using it everywhere slows the test down, it should only be used where things are genuinely asynchronous").' },
+  ],
+}
+
+const javaInterviewAnswerPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'java-qa',
+  title: { tr: 'Kendin Dene: Thread.sleep() Yerine WebDriverWait Yaz', en: 'Try It Yourself: Replace Thread.sleep() with WebDriverWait' },
+  starterCode: `// BUG: sabit bekleme -- yavas VEYA yetersiz olabilir
+Thread.sleep(3000);
+driver.findElement(By.id("result")).click();`,
+  solutionCode: `// FIX: kosul saglanana kadar bekle, sabit sure degil
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+wait.until(ExpectedConditions.elementToBeClickable(By.id("result"))).click();`,
+  hint: { tr: '`Thread.sleep()` her zaman SABİT bir süre bekler — ya gereğinden uzun ya da yetersiz olur. `WebDriverWait` + `ExpectedConditions` ise KOŞUL sağlanana kadar bekler.', en: '`Thread.sleep()` always waits a FIXED duration — either too long or not enough. `WebDriverWait` + `ExpectedConditions` waits until a CONDITION is met instead.' },
+  successMessage: { tr: 'Doğru! Bu, mülakatta en sık sorulan "flaky test\'i nasıl çözersin?" sorusunun temel cevabıdır.', en: 'Correct! This is the core answer to the most commonly asked "how do you fix a flaky test?" interview question.' },
+}
+
+// ═══ Dalga 13 film sabitleri sonu ════════════════════════════════════════════
+
 // ─── S0: GİRİŞ ────────────────────────────────────────────────────────────────
 const s0 = {
   tr: {
@@ -76,6 +1763,8 @@ Merhaba QA!`,
           { icon: '📱', label: 'Appium', desc: 'Mobil otomasyon için Java API\'si en kapsamlı ve belgelenmiş.' },
         ],
       },
+      javaJvmChainFilm,
+      javaJvmChainPractice,
       {
         type: 'quiz',
         question: { tr: 'Java kodunu bytecode\'a dönüştüren araç hangisidir?', en: 'Which tool converts Java code to bytecode?' },
@@ -192,6 +1881,8 @@ Hello QA!`,
           { icon: '📱', label: 'Appium', desc: 'Java API for mobile automation is most comprehensive and documented.' },
         ],
       },
+      javaJvmChainFilm,
+      javaJvmChainPractice,
       {
         type: 'quiz',
         question: { tr: 'Java kodunu bytecode\'a dönüştüren araç hangisidir?', en: 'Which tool converts Java code to bytecode?' },
@@ -899,6 +2590,7 @@ mvn test`,
         title: 'Output you should see:',
         content: 'BUILD SUCCESS — Tests run: 1, Failures: 0, Errors: 0',
       },
+      javaJdkMavenSetupFilm,
       {
         type: 'quiz',
         question: { tr: 'Maven projelerinde tüm bağımlılıkların, eklentilerin ve proje konfigürasyonlarının yönetildiği ana XML dosyası hangisidir?', en: 'Which main XML file is used to manage dependencies, plugins, and project configurations in a Maven project?' },
@@ -910,7 +2602,7 @@ mvn test`,
         ],
         correct: 'b',
         explanation: { tr: 'pom.xml (Project Object Model), Maven\'in kalbidir. Projenin kimliği, bağımlılıkları (dependencies), build ayarları ve eklentileri (plugins) bu dosyada XML formatında tanımlanır.', en: 'pom.xml (Project Object Model) is the heart of Maven. The project identity, dependencies, build settings, and plugins are defined in this XML file.' },
-      
+
         retryQuestion: {
       "question": {
             "tr": "Bir Maven projesinde, projenin sahip olduğu dış kütüphaneleri (bağımlılıkları) tanımlamak için kullanılan standart yapılandırma dosyası hangisidir?",
@@ -1037,6 +2729,7 @@ cd java-qa-project && mvn test`,
         title: 'Output you should see:',
         content: 'BUILD SUCCESS — Tests run: 1, Failures: 0, Errors: 0',
       },
+      javaJdkMavenSetupFilm,
       {
         type: 'quiz',
         question: { tr: 'Maven projelerinde tüm bağımlılıkların, eklentilerin ve proje konfigürasyonlarının yönetildiği ana XML dosyası hangisidir?', en: 'Which main XML file is used to manage dependencies, plugins, and project configurations in a Maven project?' },
@@ -2170,6 +3863,7 @@ const s5 = {
     </dependency>
 </dependencies>`,
       },
+      javaMavenDependencyResolutionFilm,
       {
         type: 'quiz',
         question: { tr: 'Java projelerinde getter, setter, constructor, toString gibi boilerplate (basmakalıp) kodları yazmadan, sadece anotasyonlar kullanarak otomatik üretilmesini sağlayan popüler kütüphane hangisidir?', en: 'Which popular library allows automatic generation of boilerplate code like getters, setters, constructors, and toString in Java using annotations?' },
@@ -2246,6 +3940,9 @@ const s5 = {
           ['Datafaker', 'Test data generation', 'net.datafaker'],
         ],
       },
+      javaMavenDependencyResolutionFilm,
+      javaMavenResolutionStep,
+      javaMavenResolutionPractice,
       {
         type: 'quiz',
         question: { tr: 'Java projelerinde getter, setter, constructor, toString gibi boilerplate (basmakalıp) kodları yazmadan, sadece anotasyonlar kullanarak otomatik üretilmesini sağlayan popüler kütüphane hangisidir?', en: 'Which popular library allows automatic generation of boilerplate code like getters, setters, constructors, and toString in Java using annotations?' },
@@ -2341,6 +4038,7 @@ assertThat(element.getText().trim()).isEqualTo("Welcome, Admin!");` },
       { type: 'heading', text: { tr: '8. Maven dependency çakışması', en: '8. Maven dependency conflict' } },
       { type: 'code', language: 'bash', label: 'Tanı', code: `mvn dependency:tree | grep selenium
 # pom.xml'de <properties><selenium.version>4.20.0</selenium.version></properties>` },
+      javaNpeStackTraceFilm,
       {
         type: 'quiz',
         question: { tr: 'Java\'da başlatılmamış (null referansına sahip) bir nesnenin metot veya değişkenlerine erişmeye çalışırken hangi runtime hatası fırlatılır?', en: 'Which runtime exception is thrown in Java when trying to access methods or fields of a null reference?' },
@@ -2402,6 +4100,7 @@ wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn"))).click();`
       { type: 'heading', text: { en: '6. WebDriverException — ChromeDriver mismatch' } },
       { type: 'code', language: 'java', label: 'Solution', code: `WebDriverManager.chromedriver().setup();
 WebDriver driver = new ChromeDriver();` },
+      javaNpeStackTraceFilm,
       {
         type: 'quiz',
         question: { tr: 'Java\'da başlatılmamış (null referansına sahip) bir nesnenin metot veya değişkenlerine erişmeye çalışırken hangi runtime hatası fırlatılır?', en: 'Which runtime exception is thrown in Java when trying to access methods or fields of a null reference?' },
@@ -7578,6 +9277,9 @@ const s7 = {
     title: '💼 Java QA Mülakat Soruları (50 Soru)',
     blocks: [
       { type: 'simple-box', emoji: '💼', content: 'Mülakat, ezberlediğin tanımları değil bir sorunu nasıl çözdüğünü ölçen bir "pilot testi" gibidir — tıpkı bir pilotun simülatörde motor arızası senaryosuyla sınanması gibi: mülakatçı senden "flaky test\'i nasıl stabilize edersin?" der, cevabın gerçek deneyimini ele verir. Peki teoriyi biliyorken neden senaryo bazlı hazırlanmak gerekiyor? Çünkü "explicit wait nedir?" sorusuna tanım vermek kolaydır ama "CI\'da rastgele kalan bir testi nasıl teşhis ettin?" sorusu senin gerçekten sahada durup durmadığını gösterir. Cevaplarını Java bağlamında kur (JUnit5 vs TestNG, WebDriverWait vs Thread.sleep, HashMap vs TreeMap seçimleri gibi) ve her yanıtı kendi projenle ilişkilendir. QA mühendisi için bu hazırlık doğrudan iş demektir: senaryo bazlı düşünme alışkanlığı hem mülakatı geçmeni sağlar hem de gerçek işte production incident anında sakin ve sistematik davranmanı öğretir.' },
+      javaInterviewMindsetFilm,
+      javaInterviewAnswerStructureStep,
+      javaInterviewAnswerPractice,
       { type: 'interview-questions', topic: 'Java QA', questions: _s7Q, relatedTopicId: 'java-qa' },
     ],
   },
@@ -7585,6 +9287,9 @@ const s7 = {
     title: '💼 Java QA Interview Questions (50 Questions)',
     blocks: [
       { type: 'simple-box', emoji: '💼', content: 'An interview is like a "pilot test" that measures how you solve a problem rather than the definitions you memorized — like a pilot being tested with an engine-failure scenario in a simulator: the interviewer says "how do you stabilize a flaky test?" and your answer reveals your real experience. But if you already know the theory, why prepare in a scenario-based way? Because giving a definition to "what is an explicit wait?" is easy, but "how did you diagnose a test that randomly fails in CI?" shows whether you have actually stood in the field. Frame your answers in the Java context (choices like JUnit5 vs TestNG, WebDriverWait vs Thread.sleep, HashMap vs TreeMap) and tie each response to your own project. For a QA engineer this preparation is directly job-relevant: the habit of scenario-based thinking both gets you through the interview and teaches you to stay calm and systematic during a real production incident.' },
+      javaInterviewMindsetFilm,
+      javaInterviewAnswerStructureStep,
+      javaInterviewAnswerPractice,
       { type: 'interview-questions', topic: 'Java QA', questions: _s7Q, relatedTopicId: 'java-qa' },
     ],
   },
@@ -15318,6 +17023,7 @@ public class Main {
 }`,
         height: '260px',
       },
+      javaTryWithResourcesFilm,
       {
         type: 'quiz',
         question: { tr: 'Java\'da Iterator kullanmanın for-each döngüsüne göre önemli avantajı nedir?', en: 'Key advantage of Iterator over for-each loop?' },
@@ -15474,6 +17180,7 @@ public class Main {
 }`,
         height: '220px',
       },
+      javaTryWithResourcesFilm,
       {
         type: 'quiz',
         question: { en: 'Why use Iterator instead of for-each when modifying a collection?' },
@@ -15518,13 +17225,44 @@ public class Main {
   },
 }
 
+const javaProblemSolvingStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir QA Problemini Adım Adım Çözme Akışı', en: 'Solving a QA Problem Step by Step' },
+  steps: [
+    { tr: 'Önce SORUYU tam olarak oku: "Bu koleksiyon neden ArrayList değil de HashSet olmalı?" gibi bir soru genelde birden fazla doğru gibi görünen seçenek sunar.', en: 'First read the QUESTION fully: a question like "why should this collection be a HashSet, not an ArrayList?" usually offers several options that all look plausible.' },
+    { tr: 'Anahtar kısıtı bul: soru "tekrar eden eleman olmamalı" mı diyor, "sıra önemli" mi diyor? Bu kısıt yanlış seçenekleri ELER.', en: 'Find the key constraint: does the question say "no duplicates allowed" or "order matters"? This constraint ELIMINATES the wrong options.' },
+    { tr: 'Her seçeneği kısıtla test et: HashSet tekrarı engeller ama sırayı garanti etmez; ArrayList sırayı korur ama tekrarı engellemez.', en: 'Test each option against the constraint: HashSet blocks duplicates but does not guarantee order; ArrayList preserves order but does not block duplicates.' },
+    { tr: 'En son adım: cevabı seç VE "neden diğerleri yanlış" sorusunu kendine sor — bu adım mülakatta "neden?" diye sorulduğunda seni hazır yakalar.', en: 'Final step: pick the answer AND ask yourself "why are the others wrong" — this step prepares you for when an interviewer asks "why?"' },
+  ],
+}
+
+const javaProblemSolvingPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'java-problem-solving',
+  title: { tr: 'Kendin Dene: Doğru Koleksiyonu Seç', en: 'Try It Yourself: Pick the Right Collection' },
+  starterCode: `// Gereksinim: kullanıcı ID'lerini SIRAYLA ekle, ama ayni ID iki kez EKLENMEMELI
+// TODO: List yerine dogru koleksiyonu sec
+List<String> userIds = new ArrayList<>();
+userIds.add("u1");
+userIds.add("u1"); // BUG: tekrar eklendi, engellenmedi`,
+  solutionCode: `// LinkedHashSet: hem tekrari engeller HEM ekleme sirasini korur
+Set<String> userIds = new LinkedHashSet<>();
+userIds.add("u1");
+userIds.add("u1"); // sessizce yok sayilir, sira bozulmaz`,
+  hint: { tr: 'Sıra korunmalı VE tekrar engellenmeli — bu ikisini AYNI ANDA veren tek koleksiyon `LinkedHashSet`\'tir (düz `HashSet` sırayı garanti etmez).', en: 'Order must be preserved AND duplicates blocked — the only collection giving you BOTH at once is `LinkedHashSet` (plain `HashSet` does not guarantee order).' },
+  successMessage: { tr: 'Doğru! LinkedHashSet, HashSet\'in tekrar-engelleme garantisini ArrayList\'in sıra garantisiyle birleştirir.', en: 'Correct! LinkedHashSet combines HashSet\'s duplicate-blocking guarantee with ArrayList\'s order guarantee.' },
+}
+
 const sInteractivePractice = {
   tr: {
     title: '🧠 Adım Adım Soru Çözücü',
     blocks: [
       {
         type: 'interactive-solver'
-      }
+      },
+      javaProblemSolvingFlowFilm,
+      javaProblemSolvingStep,
+      javaProblemSolvingPractice,
     ]
   },
   en: {
@@ -15532,7 +17270,10 @@ const sInteractivePractice = {
     blocks: [
       {
         type: 'interactive-solver'
-      }
+      },
+      javaProblemSolvingFlowFilm,
+      javaProblemSolvingStep,
+      javaProblemSolvingPractice,
     ]
   }
 }
@@ -15685,6 +17426,44 @@ String message = wait.until(
       en: 'WebDriverWait waits for the real readiness signal. It continues as soon as the element is visible and reduces flaky test risk.',
     },
   },
+}
+
+const javaPlaygroundWebDriverWait = {
+  type: 'code-playground',
+  relatedTopicId: 'java-selenium-wait-01',
+  id: 'java-selenium-wait-01',
+  xpReward: 15,
+  label: { tr: '⏳ Egzersiz — WebDriverWait ile elementin hazır olmasını bekle', en: '⏳ Exercise — Wait for an element to be ready with WebDriverWait' },
+  task: {
+    tr: '1️⃣ "▶ Çalıştır" ile beklenen çıktıyı gör.\n2️⃣ "🐛 Bozuk Testi Düzelt" moduna geç — kod `Duration.ofSeconds(0)` ile kurulmuş, yani wait aslında hiç beklemiyor; süreyi düzelt.\n3️⃣ Hedef: `new WebDriverWait(driver, Duration.ofSeconds(...))` çağrısındaki sürenin, elementin GERÇEKTEN görünür olmasını beklemek için yeterli olması gerektiğini hisset.',
+    en: '1️⃣ Press "▶ Run" to see the expected output.\n2️⃣ Switch to "🐛 Fix the Failing Test" — the code is set up with `Duration.ofSeconds(0)`, so the wait never actually waits; fix the duration.\n3️⃣ Goal: feel that the duration in `new WebDriverWait(driver, Duration.ofSeconds(...))` must be long enough to actually wait for the element to become visible.',
+  },
+  language: 'java',
+  code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+WebElement result = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.id("result"))
+);
+System.out.println(result.getText());`,
+  expected: 'Test tamamlandı',
+  explanation: {
+    tr: '✅ Çalıştı! WebDriverWait, koşulu (elementin görünür olması) her 500ms\'de bir kontrol eder ve koşul sağlanır sağlanmaz devam eder — 10 saniye bir TAVAN\'dır, ZORUNLU bekleme değildir. Bu yüzden WebDriverWait, Thread.sleep\'ten hem daha hızlı hem daha güvenilirdir.',
+    en: '✅ It ran! WebDriverWait checks the condition (the element being visible) every 500ms and continues as soon as it is met — 10 seconds is a CEILING, not a MANDATORY wait. That is why WebDriverWait is both faster and more reliable than Thread.sleep.',
+  },
+  hints: [
+    { tr: '🔍 İpucu 1 — Neye bak: `Duration.ofSeconds(...)` içindeki sayı, wait\'in en fazla ne kadar bekleyeceğini belirler. Çok küçük bir sayı, element henüz gelmeden TimeoutException fırlatır.', en: '🔍 Hint 1 — What to look for: the number inside `Duration.ofSeconds(...)` determines how long the wait waits at most. A very small number throws a TimeoutException before the element even arrives.' },
+    { tr: '🔍 İpucu 2 — Bozuk versiyonda: süre 0 saniye olarak ayarlanmış, yani wait elementi kontrol etmeye bile fırsat bulamıyor.', en: '🔍 Hint 2 — In the broken version: the duration is set to 0 seconds, so the wait does not even get a chance to check the element.' },
+    { tr: '✏️ İpucu 3 — Çözüm: `Duration.ofSeconds(0)` yerine `Duration.ofSeconds(10)` gibi gerçekçi bir süre yaz.', en: '✏️ Hint 3 — Solution: write a realistic duration like `Duration.ofSeconds(10)` instead of `Duration.ofSeconds(0)`.' },
+  ],
+  buggyCode: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(0));
+WebElement result = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.id("result"))
+);
+System.out.println(result.getText());`,
+  fixedCode: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+WebElement result = wait.until(
+    ExpectedConditions.visibilityOfElementLocated(By.id("result"))
+);
+System.out.println(result.getText());`,
 }
 
 const javaStepAnimationObjectLifecycle = {
@@ -17200,6 +18979,7 @@ const javaChallengeOrderPlaywright = {
 // ─── Blok grupları ─────────────────────────────────────────────────────────────
 
 const javaSyntaxTeachingBlocks = [
+  javaStaticTypeCatchFilm,
   javaPlaygroundMainMethod,
   javaStepAnimationMainExecution,
   javaChallengeOrderMainStructure,
@@ -17208,41 +18988,48 @@ const javaSyntaxTeachingBlocks = [
 ]
 
 const javaStringsTeachingBlocks = [
+  javaStringPoolFilm,
   javaPlaygroundStringMethods,
   javaStepAnimationStringImmutable,
   javaChallengeOrderStringChain,
 ]
 
 const javaControlFlowTeachingBlocks = [
+  javaSwitchDecisionFilm,
   javaPlaygroundIfElse,
   javaStepAnimationIfElse,
   javaChallengeOrderIfElse,
 ]
 
 const javaArraysTeachingBlocks = [
+  javaArrayVsArrayListFilm,
   javaPlaygroundArrays,
   javaStepAnimationArrayMemory,
   javaChallengeOrderArrayLifecycle,
 ]
 
 const javaMethodsTeachingBlocks = [
+  javaOverloadResolutionFilm,
   javaPlaygroundMethods,
   javaStepAnimationMethodCall,
   javaChallengeOrderMethodAnatomy,
 ]
 
 const javaOopTeachingBlocks = [
+  javaHashMapCollisionFilm,
   javaStepAnimationObjectLifecycle,
   javaChallengeOrderOopCreation,
 ]
 
 const javaAdvancedOopTeachingBlocks = [
+  javaInterfaceAbstractFilm,
   javaPlaygroundEnum,
   javaStepAnimationEnum,
   javaChallengeOrderTryCatch,
 ]
 
 const javaFrameworkTeachingBlocks = [
+  javaJunitLifecycleFilm,
   javaInteractiveDiagramTestLayers,
   javaStepAnimationJUnitLifecycle,
   javaStepAnimationMavenLifecycle,
@@ -17255,24 +19042,28 @@ const javaFrameworkTeachingBlocks = [
 ]
 
 const javaCucumberTeachingBlocks = [
+  javaCucumberStepMatchFilm,
   javaPlaygroundCucumber,
   javaStepAnimationCucumberFlow,
   javaChallengeOrderCucumber,
 ]
 
 const javaSeleniumTeachingBlocks = [
+  javaSeleniumHttpRoundtripFilm,
   javaGoodVsBadSleepWait,
   javaStepAnimationWebDriverWait,
   javaChallengeOrderWebDriverWait,
 ]
 
 const javaPlaywrightTeachingBlocks = [
+  javaPlaywrightCdpFilm,
   javaPlaygroundPlaywright,
   javaStepAnimationPlaywrightFlow,
   javaChallengeOrderPlaywright,
 ]
 
 const javaRealWorldTeachingBlocks = [
+  javaCiPipelineRunFilm,
   javaInteractiveDiagramTestLayers,
   javaStepAnimationMavenLifecycle,
 ]

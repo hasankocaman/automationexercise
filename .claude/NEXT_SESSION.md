@@ -282,14 +282,80 @@ ile eklenmiş) — sadece film eklendi.
 typescriptData.js, typescriptFilmsData.js yeni) commit edilecek, hash
 bir sonraki güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
 
+### Sıradaki adım (Dalga 12 için, artık eski)
+~~Dalga 13 (/java)~~ → TAMAMLANDI, bkz. aşağıdaki güncel bölüm.
+
+---
+
+## Dalga 13 — /java — TAMAMLANDI (19/19 sekme, 2026-07-16 devam)
+
+**Bu dalgada bir kesinti daha yaşandı** (ikinci kez, önceki Dalga 10/cypress'te
+de olmuştu): subagent 19 filmin TAMAMINI tanımladıktan (const olarak yazdıktan)
+ve ilk 2 sekmeye (s0 Giriş, s1 Kurulum) doğru şekilde bağladıktan sonra
+"session limit" hatasıyla kesildi — kalan 17 filmin sabiti dosyada
+TANIMLIYDI ama HİÇBİR YERDE REFERANS EDİLMİYORDU (kullanılmayan
+sabitler). Ana oturumda (subagent'a tekrar devredilmeden) kalan 17
+sekmeye referans elle eklendi.
+
+**Yapı (KARMAŞIK — gelecekte benzer dosyalarla karşılaşılırsa dikkat):**
+`javaData.js` 19 modüler sabitten oluşuyor (`s0, s1, sA, sB, sC, sD, sE,
+s2, sF, s3, sCucumber, sSelenium, sPlaywright, s4, s5, s6, sFileIO,
+sInteractivePractice, s7` — sıralı isimlendirilmemiş). **`withExtraBlocks`
+sarmalayıcısı:** 12 sekme (sA, sB, sC, sD, sE, s2, sF, s3, sCucumber,
+sSelenium, sPlaywright, s4) `withExtraBlocks(sX.tr, extraBlocksArray)`
+ile export ediliyor — gerçek render edilen `blocks` = `sX.blocks` +
+`extraBlocksArray`'ın birleşimi, VE bu `extraBlocksArray` (örn.
+`javaSyntaxTeachingBlocks`) tr/en'de AYNI referans olarak paylaşılıyor
+(tek ekleme her iki dilde de görünüyor). Film bu 12 sekme için
+`extraBlocksArray`'ın EN BAŞINA eklendi (tek seferde hem tr hem en'e
+yayıldı). Diğer 7 sekme (s0, s1, s5, s6, sFileIO, sInteractivePractice,
+s7) doğrudan `sX.tr.blocks`/`sX.en.blocks`'a (2 ayrı ekleme) eklendi.
+**Ekstra keşif:** `s6`'nın gerçek boyutu küçüktü (~150 satır) — 5000+
+satırlık bir blok aslında `_s7Q` adında AYRI bir üst-seviye sabitti
+(s7 Mülakat sekmesinin soru verisi, "shared questions array" yorumuyla).
+
+**Eklenenler:** 19 film (s0: JVM zinciri, s1: JDK/Maven kurulum, sA:
+static tip yakalama, sB: String pool, sC: switch karar akışı, sD:
+array vs ArrayList, sE: overload çözümleme, s2: HashMap collision, sF:
+interface vs abstract, s3: JUnit5 lifecycle, sCucumber: Gherkin↔Step
+eşleşme, sSelenium: WebDriver HTTP round-trip, sPlaywright: CDP/
+WebSocket, s4: CI pipeline, s5: Maven dependency resolution, s6: NPE
+stack trace, sFileIO: try-with-resources, sInteractivePractice: problem
+çözme akışı, s7: mülakat cevap katmanları). Ayrıca eksik anim/sandbox
+tamamlanan 3 nokta: s0 (sandbox eklendi), s5 EN (anim+sandbox eklendi —
+TR'de zaten vardı, asimetri fark edildi düzeltildi), s7 (anim+sandbox
+eklendi), sInteractivePractice (`interactive-solver` özel bloğunun
+yanına film+anim+sandbox eklendi).
+
+**Doğrulama:**
+- `node --check` temiz.
+- Node ile 19 sekmenin İKİSİNDE de (tr/en) ≥1 video+anim+sandbox
+  olduğu doğrulandı (ilk taramada 5 eksik bulundu — s0 tr/en sandbox,
+  s7 tr/en anim+sandbox, s5 en anim+sandbox — hepsi tamamlanıp
+  yeniden doğrulandı, 38/38 OK).
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (36 dosya).
+- Film id'leri proje genelinde benzersiz (`grep -ohE` ile, 0 tekrar).
+- `npm run build` → temiz. **`javaData` chunk: 268.75 kB gzip**
+  (238.27'den +30.5KB — 19 film için beklenen artışa yakın, 350KB
+  eşiğinin ÇOK altında, lazy-load GEREKMEDİ, normal in-file ekleme
+  yeterliydi).
+- `tests/video-scene.spec.ts` genişletilmedi, Playwright çalıştırılmadı.
+
+**Commit:** bu dalganın değişikliği commit edilecek, hash bir sonraki
+güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
+
+**Genel ders (2 kesinti sonrası):** Cypress'te ve şimdi Java'da subagent
+"session limit" hatasıyla kesildi ama HER İKİSİNDE de dosyanın syntax
+bütünlüğü korunmuştu ve devralma (kaldığı yerden devam) sorunsuz
+mümkün oldu — kesinti riski var ama kurtarılabilir, bu yüzden dalgalar
+arasında panik yapmaya gerek yok, sadece her kesintiden sonra
+`node --check` + kullanım-sayısı (`grep -c constName`) ile durum tespiti
+yapıp devam etmek yeterli.
+
 ### Sıradaki adım
-Dalga 13 (`/java`) — ⚠️ **chunk eşiği İZLENEREK** (CLAUDE.md §4):
-`javaData` şu an **238.27 kB gzip** (350KB eşiğinin altında ama
-`javaData` zaten CLAUDE.md §14'te "büyük chunk" uyarısı listesinde).
-Muhtemelen normal (in-file) film ekleme eşiği aşmaz, ama film ekledikten
-SONRA chunk boyutu tekrar ölçülmeli; aşarsa Dalga 12'deki YENİ lazy-load
-kalıbı (`VideoSceneBlock.jsx`'in `lazyLoader`/`filmId` desteği zaten hazır)
-aynı şekilde `javaFilmsData.js` olarak uygulanabilir.
+Dalga 14 (`/postman` + `/bruno` + `/rest-assured`) — API test üçlüsü,
+küçük sayfalar, tek dalgada gruplanıyor (`Documents/video-sitewide-
+plan.md` sırasına göre).
 
 ---
 
