@@ -1,3 +1,688 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
+// ─── Dalga 16b film sabitleri (video-scene — EN + TR paylaşımlı) ─────────────
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+// 🎯 Giriş — bir sanal kullanıcının Thread Group'tan Listener'a yolculuğu
+const jmeterVirtualUserJourneyFilm = {
+  type: 'video-scene',
+  id: 'jmeter-virtual-user-journey-film',
+  title: {
+    tr: '🎬 Bir Sanal Kullanıcının Yolculuğu: Thread Group\'tan Listener\'a',
+    en: '🎬 The Journey of a Virtual User: From Thread Group to Listener',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'threadgroup', emoji: '👥', label: { tr: 'Thread Group', en: 'Thread Group' }, color: '#8b5cf6' },
+    { id: 'vuser',       emoji: '🧍', label: { tr: 'Sanal Kullanıcı', en: 'Virtual User' },  color: '#0ea5e9' },
+    { id: 'sampler',     emoji: '📡', label: { tr: 'HTTP Sampler',   en: 'HTTP Sampler' },   color: '#f59e0b' },
+    { id: 'server',      emoji: '🖥️', label: { tr: 'Sunucu',        en: 'Server' },          color: '#22c55e' },
+    { id: 'assertion',   emoji: '🔍', label: { tr: 'Assertion',     en: 'Assertion' },       color: '#6366f1' },
+    { id: 'listener',    emoji: '📊', label: { tr: 'Listener',      en: 'Listener' },        color: '#10b981' },
+    { id: 'ghost',       emoji: '👻', label: { tr: 'Assertion Fail', en: 'Assertion Fail' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir JMeter testi çalıştığında, ekranda tek bir yeşil ▶ tuşu görürsün — ama arkasında Thread Group\'tan Listener\'a kadar giden tam bir zincir vardır. Bu filmde tek bir sanal kullanıcının bu zinciri nasıl geçtiğini adım adım izleyeceksin.',
+        en: 'When a JMeter test runs, you see one green ▶ button on screen — but behind it lies a full chain from Thread Group to Listener. In this film you will watch one virtual user pass through that chain step by step.',
+      },
+      code: { tr: `Number of Threads = 10`, en: `Number of Threads = 10` },
+      positions: { threadgroup: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Thread Group, "Number of Threads" değerine göre gerçek bir JVM thread\'i doğurur. Bu thread, tek bir sanal kullanıcıyı temsil eder — Java\'da yeni bir Thread nesnesi başlatmak gibi düşün.',
+        en: 'Step 1 — Thread Group spawns a real JVM thread based on "Number of Threads". This thread represents one virtual user — think of it like starting a new Thread object in Java.',
+      },
+      code: { tr: `new Thread(virtualUser).start()`, en: `new Thread(virtualUser).start()` },
+      positions: {
+        threadgroup: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        vuser: { x: 40, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'threadgroup', to: 'vuser' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Sanal kullanıcı, kendi sırasındaki HTTP Request Sampler\'a ulaşır. Sampler, gerçek bir HTTP isteği kurar — method, path, body — ve bunu gerçekten gönderir.',
+        en: 'Step 2 — The virtual user reaches its HTTP Request Sampler. The Sampler builds a real HTTP request — method, path, body — and actually sends it.',
+      },
+      code: { tr: `GET /api/posts`, en: `GET /api/posts` },
+      positions: {
+        vuser: { x: 20, y: 50, opacity: 0.6, scale: 0.9 },
+        sampler: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'vuser', to: 'sampler', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — İstek gerçekten ağ üzerinden sunucuya gider ve bir yanıt döner. Bu, Selenium\'daki tek bir tarayıcı tıklaması gibi değil — burada aynı anda binlerce kopyası paralel çalışabilir.',
+        en: 'Step 3 — The request actually travels over the network to the server and a response comes back. Unlike a single Selenium browser click, thousands of copies of this can run in parallel at the same time.',
+      },
+      code: { tr: `200 OK  { "posts": [...] }`, en: `200 OK  { "posts": [...] }` },
+      positions: {
+        sampler: { x: 24, y: 50, opacity: 0.6, scale: 0.9 },
+        server: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'sampler', to: 'server', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Assertion, dönen yanıtı kontrol eder: durum kodu 200 mü? Body beklenen metni içeriyor mu? Assertion olmadan JMeter her yanıtı otomatik olarak "başarılı" sayar — bir hata sayfası bile PASS görünebilir.',
+        en: 'Step 4 — The Assertion checks the returned response: is the status code 200? Does the body contain the expected text? Without an assertion, JMeter marks every response as "success" automatically — even an error page could show as PASS.',
+      },
+      code: { tr: `Response Code == 200 ?`, en: `Response Code == 200 ?` },
+      positions: {
+        server: { x: 26, y: 50, opacity: 0.6, scale: 0.9 },
+        assertion: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'server', to: 'assertion' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — Sonuç Listener\'a akar: yanıt süresi, durum kodu ve pass/fail bilgisi Aggregate Report\'a bir satır olarak eklenir. 100 kullanıcı × 10 istek çalıştırırsan, bu zincir 1.000 kez tekrar eder.',
+        en: 'Step 5 — The result flows into the Listener: response time, status code, and pass/fail get added as one row in the Aggregate Report. Run 100 users × 10 requests, and this chain repeats 1,000 times.',
+      },
+      code: { tr: `Aggregate Report += 1 satır`, en: `Aggregate Report += 1 row` },
+      positions: {
+        assertion: { x: 28, y: 50, opacity: 0.6, scale: 0.9 },
+        listener: { x: 56, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'assertion', to: 'listener', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Assertion\'sız bir test hayal et: sunucu 500 Internal Server Error dönse bile JMeter bunu PASS sayar, çünkü hiç kimse yanıtı kontrol etmedi. Assertion eklemek, sessiz bir production hatasını erken yakalamakla aynı şeydir.',
+        en: 'Final (the contrast) — imagine a test with no Assertion: even if the server returns 500 Internal Server Error, JMeter marks it PASS, because nobody checked the response. Adding an Assertion is the difference between catching a production failure early and shipping it silently.',
+      },
+      positions: {
+        server: { x: 24, y: 30, scale: 0.9 },
+        assertion: { x: 48, y: 50, scale: 1.0, opacity: 0.4 },
+        ghost: { x: 72, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'server', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 📦 Installation — JDK kontrolü + zip çıkarma + ilk GUI başlatma akışı
+const jmeterJdkLaunchFilm = {
+  type: 'video-scene',
+  id: 'jmeter-jdk-launch-film',
+  title: {
+    tr: '🎬 java -version\'dan Yeşil ▶ Tuşuna: JMeter Neden Kurulum Sihirbazı İstemiyor?',
+    en: '🎬 From java -version to the Green ▶: Why JMeter Skips the Installer Wizard',
+  },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'jdkcheck', emoji: '☕', label: { tr: 'java -version', en: 'java -version' }, color: '#0ea5e9' },
+    { id: 'zip', emoji: '📦', label: { tr: 'apache-jmeter-5.6.zip', en: 'apache-jmeter-5.6.zip' }, color: '#f59e0b' },
+    { id: 'extract', emoji: '🗂️', label: { tr: 'Çıkarılmış klasör', en: 'Extracted folder' }, color: '#8b5cf6' },
+    { id: 'gui', emoji: '🖥️', label: { tr: 'JMeter GUI', en: 'JMeter GUI' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'JDK eksik → başlamıyor', en: 'Missing JDK → won\'t start' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'JMeter\'ı indirdiğinde bir kurulum sihirbazı GÖRMEZSİN — sadece bir .zip dosyası. Peki bir "installer" olmadan bu araç nasıl çalışır hale gelir?',
+        en: 'When you download JMeter you see NO installer wizard — just a .zip file. So how does this tool become runnable without one?',
+      },
+      positions: { jdkcheck: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Önce `java -version` çalıştırılır: JMeter\'ın kendisi Java ile yazılmıştır, bu yüzden JVM olmadan HİÇ çalışamaz.',
+        en: 'Step 1 — First `java -version` runs: JMeter itself is written in Java, so it cannot run AT ALL without a JVM.',
+      },
+      code: { tr: `java -version\n# openjdk version "17.0.9"`, en: `java -version\n# openjdk version "17.0.9"` },
+      positions: { jdkcheck: { x: 22, y: 40, scale: 1.15, pulse: true }, zip: { x: 55, y: 55, scale: 1.0, opacity: 0.4 } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — JDK doğrulandıktan sonra .zip dosyası bir klasöre çıkarılır — kayıt defteri değişikliği, sistem servisi YOKTUR, sadece düz bir dizin.',
+        en: 'Step 2 — Once the JDK is confirmed, the .zip is extracted to a folder — no registry changes, no system service, just a plain directory.',
+      },
+      positions: { jdkcheck: { x: 18, y: 30, opacity: 0.4, scale: 0.85 }, zip: { x: 45, y: 50, scale: 1.1 }, extract: { x: 68, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'zip', to: 'extract', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `jmeter.bat`/`jmeter.sh` çalıştırılır: bu script aslında arka planda `java -jar ApacheJMeter.jar` komutunu tetikler — GUI, bir JVM process\'inden ibarettir.',
+        en: 'Step 3 — `jmeter.bat`/`jmeter.sh` runs: this script actually triggers `java -jar ApacheJMeter.jar` under the hood — the GUI is just a JVM process.',
+      },
+      code: { tr: `./jmeter.sh\n# → java -jar ApacheJMeter.jar`, en: `./jmeter.sh\n# → java -jar ApacheJMeter.jar` },
+      positions: { extract: { x: 20, y: 40, opacity: 0.4, scale: 0.85 }, gui: { x: 55, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'extract', to: 'gui', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — CI runner\'da JDK kurulu değilse ya da PATH\'te yoksa, `jmeter -n -t plan.jmx` sessizce ya da anlaşılmaz bir Java hatasıyla başarısız olur — sorun test planında değil, JVM\'in kendisindedir.',
+        en: 'Final (the contrast) — if the CI runner has no JDK or it\'s not on PATH, `jmeter -n -t plan.jmx` fails silently or with a confusing Java error — the problem isn\'t the test plan, it\'s the JVM itself.',
+      },
+      positions: { gui: { x: 22, y: 40, opacity: 0.4, scale: 0.85 }, ghost: { x: 60, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'gui', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 📚 Core Concepts — CSV Data Set Config'in ağaç seviyesi (scope) tuzağı
+const jmeterCsvScopeFilm = {
+  type: 'video-scene',
+  id: 'jmeter-csv-scope-film',
+  title: {
+    tr: '🎬 CSV Data Set Config Yanlış Yere Konursa: 500 Kullanıcı, TEK Satır',
+    en: '🎬 Misplacing CSV Data Set Config: 500 Users, ONE Shared Row',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'testplan', emoji: '🌳', label: { tr: 'Test Plan (kök)', en: 'Test Plan (root)' }, color: '#8b5cf6' },
+    { id: 'threadgroup', emoji: '👥', label: { tr: 'Thread Group (500 kullanıcı)', en: 'Thread Group (500 users)' }, color: '#0ea5e9' },
+    { id: 'csv', emoji: '📄', label: { tr: 'CSV Data Set Config', en: 'CSV Data Set Config' }, color: '#f59e0b' },
+    { id: 'sampler', emoji: '📡', label: { tr: 'HTTP Sampler', en: 'HTTP Sampler' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: '500 kullanıcı AYNI satırı okur', en: '500 users read the SAME row' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'JMeter, test ağacını yukarıdan aşağıya, katı bir ebeveyn-çocuk ilişkisiyle değerlendirir — tıpkı Java\'da bir metod içinde tanımlanan değişkenin sadece o metoda ait olması, sınıf seviyesindeki bir alanın ise HERKESE açık olması gibi.',
+        en: 'JMeter evaluates the test tree top-down with a strict parent-child relationship — just like in Java, a variable declared inside a method belongs only to that method, while a class-level field is visible to EVERYONE.',
+      },
+      positions: { testplan: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Bir geliştirici, CSV Data Set Config\'i Thread Group\'un İÇİNE, HTTP Sampler ile aynı seviyeye koyar — niyeti "her sanal kullanıcı kendi satırını okusun" idi.',
+        en: 'Step 1 — A developer places the CSV Data Set Config INSIDE the Thread Group, at the same level as the HTTP Sampler — the intent was "each virtual user reads its own row".',
+      },
+      positions: { testplan: { x: 18, y: 40, scale: 0.9 }, threadgroup: { x: 45, y: 50, scale: 1.1 }, csv: { x: 70, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'threadgroup', to: 'csv' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — AMA yanlışlıkla "Sharing Mode: All threads" yerine varsayılan ayar bırakılmış VE config, thread\'ler arasında paylaşılan tek bir dosya okuyucusuna bağlanmış — her thread AYNI satırdan okuyor.',
+        en: 'Step 2 — BUT the "Sharing Mode" was left at default instead of "All threads" correctly, AND the config ended up bound to one shared file reader across threads — every thread reads the SAME row.',
+      },
+      code: { tr: `# Beklenen: her kullanıcı FARKLI bir kullanıcı adı okur\n# Gerçek: 500 kullanıcı da AYNI satırı okuyor`, en: `# Expected: each user reads a DIFFERENT username\n# Actual: all 500 users read the SAME row` },
+      positions: { threadgroup: { x: 20, y: 40, opacity: 0.5, scale: 0.9 }, csv: { x: 48, y: 50, scale: 1.1 }, sampler: { x: 72, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'csv', to: 'sampler', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (hayalet) — 500 sanal kullanıcı, farklı hesaplar yerine TEK bir kullanıcı hesabıyla sunucuya saldırır — bu, satır kilitleme (row-locking) ve oturum çakışması (session-contention) hatalarını GİZLER, çünkü production\'da her kullanıcı kendi hesabıyla girer.',
+        en: 'Step 3 (the ghost) — 500 virtual users hammer the server with ONE shared account instead of different ones — this HIDES row-locking and session-contention bugs, because in production every user logs in with their own account.',
+      },
+      positions: { sampler: { x: 22, y: 40, opacity: 0.5, scale: 0.9 }, ghost: { x: 62, y: 55, scale: 1.3, pulse: true } },
+      beams: [{ from: 'sampler', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — CSV Data Set Config Test Plan KÖKÜNE (global) konursa ve "Sharing Mode: All threads" doğru ayarlanırsa, her thread dosyadaki SIRADAKİ satırı alır — Java\'da bir Iterator\'ın thread-safe paylaşılan bir kaynaktan sırayla `.next()` çağırması gibi.',
+        en: 'The lesson — if CSV Data Set Config is placed at the Test Plan ROOT (global) with "Sharing Mode: All threads" correctly set, each thread gets the NEXT row in the file — like a thread-safe Iterator in Java where every thread calls `.next()` in turn on a shared source.',
+      },
+      positions: { ghost: { x: 30, y: 50, scale: 1.0, opacity: 0.4 }, testplan: { x: 62, y: 50, scale: 1.15, pulse: true } },
+      beams: [{ from: 'ghost', to: 'testplan', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 🚀 Advanced — Regular Expression Extractor ile dinamik token zinciri
+const jmeterTokenExtractionFilm = {
+  type: 'video-scene',
+  id: 'jmeter-token-extraction-film',
+  title: {
+    tr: '🎬 Extractor Olmadan: 500 Kullanıcı, İlk İstekten Sonra Sessizce FAIL',
+    en: '🎬 Without an Extractor: 500 Users, Silently Failing After Request 1',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'login', emoji: '🔑', label: { tr: 'POST /login', en: 'POST /login' }, color: '#0ea5e9' },
+    { id: 'response', emoji: '📨', label: { tr: 'Response: { token: "..." }', en: 'Response: { token: "..." }' }, color: '#f59e0b' },
+    { id: 'extractor', emoji: '🔍', label: { tr: 'Regex/JSON Extractor', en: 'Regex/JSON Extractor' }, color: '#8b5cf6' },
+    { id: 'variable', emoji: '📦', label: { tr: '${authToken}', en: '${authToken}' }, color: '#22c55e' },
+    { id: 'next', emoji: '📡', label: { tr: 'GET /profile (Authorization Header)', en: 'GET /profile (Authorization Header)' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Extractor YOKSA: boş/eski token', en: 'Without extractor: stale/empty token' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '500 sanal kullanıcı önce login olup, sonra kendi profil sayfasını istiyor. Ama /profile isteği, /login\'in döndürdüğü bir token\'a İHTİYAÇ duyuyor — bu token JMeter\'a nasıl "aktarılır"?',
+        en: '500 virtual users log in first, then request their profile page. But the /profile request NEEDS a token returned by /login — how does that token get "passed along" in JMeter?',
+      },
+      positions: { login: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — POST /login isteği gönderilir ve sunucu bir JSON gövdesinde bir token döner: `{ "token": "eyJhbGci..." }`. Bu token HER kullanıcı için FARKLIDIR.',
+        en: 'Step 1 — POST /login is sent and the server returns a token in a JSON body: `{ "token": "eyJhbGci..." }`. This token is DIFFERENT for every user.',
+      },
+      code: { tr: `POST /login\n→ { "token": "eyJhbGci...user42" }`, en: `POST /login\n→ { "token": "eyJhbGci...user42" }` },
+      positions: { login: { x: 20, y: 40, scale: 1.0 }, response: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'login', to: 'response', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — JSON Extractor (ya da Regular Expression Extractor), bu response body\'sini ayrıştırır ve `token` alanını yakalar — bu, response\'a "bak ve şunu al" demektir.',
+        en: 'Step 2 — a JSON Extractor (or Regular Expression Extractor) parses this response body and captures the `token` field — it means "look at the response and grab this".',
+      },
+      code: { tr: `JSON Extractor:\n  Variable name: authToken\n  JSON Path: $.token`, en: `JSON Extractor:\n  Variable name: authToken\n  JSON Path: $.token` },
+      positions: { response: { x: 22, y: 40, scale: 0.95 }, extractor: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'response', to: 'extractor', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Yakalanan değer, `${authToken}` adında bir JMeter DEĞİŞKENİNE yazılır — bu, tıpkı bir HTTP response\'undan bir alanı okuyup Java\'da bir local değişkene atamak gibidir.',
+        en: 'Step 3 — the captured value is written into a JMeter VARIABLE named `${authToken}` — just like reading a field from an HTTP response and assigning it to a local variable in Java.',
+      },
+      positions: { extractor: { x: 22, y: 40, scale: 0.95 }, variable: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'extractor', to: 'variable', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — GET /profile isteği, Authorization header\'ında `Bearer ${authToken}` kullanır — her sanal kullanıcı KENDİ token\'ıyla profil isteği atar, doğru kullanıcının verisini görür.',
+        en: 'Step 4 — the GET /profile request uses `Bearer ${authToken}` in its Authorization header — each virtual user requests the profile with its OWN token, seeing the correct user\'s data.',
+      },
+      code: { tr: `Authorization: Bearer \${authToken}`, en: `Authorization: Bearer \${authToken}` },
+      positions: { variable: { x: 22, y: 40, scale: 0.95 }, next: { x: 62, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'variable', to: 'next', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Extractor eklenmezse, `${authToken}` HİÇ tanımlanmaz — Authorization header\'ı boş ya da literal `${authToken}` metnini gönderir. Sunucu 401 döner, ama bunu kimse fark etmez çünkü Assertion da yoksa test yine "PASS" görünür.',
+        en: 'Final (the contrast) — without the extractor, `${authToken}` is NEVER defined — the Authorization header sends an empty value or the literal text `${authToken}`. The server returns 401, but nobody notices because without an Assertion too, the test still shows "PASS".',
+      },
+      positions: { next: { x: 22, y: 40, scale: 0.9, opacity: 0.5 }, ghost: { x: 60, y: 55, scale: 1.3, pulse: true } },
+      beams: [{ from: 'next', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 🛠️ Real World — flash-sale yük testinde HikariCP havuzu tükenmesi
+const jmeterConnectionPoolFilm = {
+  type: 'video-scene',
+  id: 'jmeter-connection-pool-film',
+  title: {
+    tr: '🎬 Flaş İndirim Öncesi: P99 14.000ms\'den 1.800ms\'e Nasıl İndi?',
+    en: '🎬 Before the Flash Sale: How P99 Dropped From 14,000ms to 1,800ms',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'campaign', emoji: '📧', label: { tr: '200.000 e-posta gönderilecek', en: '200,000 emails about to send' }, color: '#8b5cf6' },
+    { id: 'loadtest', emoji: '⚡', label: { tr: '500 kullanıcı, 60sn ramp-up', en: '500 users, 60s ramp-up' }, color: '#0ea5e9' },
+    { id: 'pool', emoji: '🏊', label: { tr: 'HikariCP Pool (boyut: 10)', en: 'HikariCP Pool (size: 10)' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'P99 = 14.000ms, %12 hata', en: 'P99 = 14,000ms, 12% errors' }, color: '#ef4444' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'Pool: 50 + Redis cache', en: 'Pool: 50 + Redis cache' }, color: '#22c55e' },
+    { id: 'result', emoji: '🎉', label: { tr: 'P99 = 1.800ms, %0.2 hata', en: 'P99 = 1,800ms, 0.2% errors' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Pazarlama, 200.000 aboneye flaş indirim e-postası gönderecek — ilk 10 dakikada 2.000 tıklama bekleniyor. QA\'ya soruluyor: "checkout bu yükü kaldırır mı?" Selenium testleri zaten yeşilken bu soru neden hâlâ açık?',
+        en: 'Marketing is about to send a flash-sale email to 200,000 subscribers — 2,000 clicks expected in the first 10 minutes. QA is asked: "will checkout survive this?" Why is this question still open when Selenium tests are already green?',
+      },
+      positions: { campaign: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Selenium/pytest TEK bir kullanıcıyla çalışır; 500 EŞ ZAMANLI kullanıcıyı hiç simüle etmez. Bu yüzden JMeter ile 500 kullanıcı, 60 saniyelik ramp-up ile yük testi kurulur.',
+        en: 'Step 1 — Selenium/pytest run with ONE user; they never simulate 500 CONCURRENT users. So a JMeter load test is set up: 500 users, 60-second ramp-up.',
+      },
+      code: { tr: `jmeter -n -t flashsale.jmx -l results.jtl -Jusers=500 -Jrampup=60`, en: `jmeter -n -t flashsale.jmx -l results.jtl -Jusers=500 -Jrampup=60` },
+      positions: { campaign: { x: 20, y: 40, scale: 0.95 }, loadtest: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'campaign', to: 'loadtest', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 (hayalet) — İlk koşum: Aggregate Report P99 = 14.000ms ve %12 hata gösterir. Kök neden: Spring Boot\'un HikariCP bağlantı havuzu sadece 10 boyutunda — 500 eş zamanlı istek bu havuzu TÜKETİYOR.',
+        en: 'Step 2 (the ghost) — first run: the Aggregate Report shows P99 = 14,000ms and 12% errors. Root cause: Spring Boot\'s HikariCP connection pool is sized only 10 — 500 concurrent requests EXHAUST it.',
+      },
+      code: { tr: `# Aggregate Report:\n# P99: 14000ms | Error %: 12`, en: `# Aggregate Report:\n# P99: 14000ms | Error %: 12` },
+      positions: { loadtest: { x: 20, y: 40, scale: 0.95 }, pool: { x: 48, y: 55, scale: 1.15 }, ghost: { x: 74, y: 50, scale: 1.25, pulse: true } },
+      beams: [{ from: 'loadtest', to: 'pool' }, { from: 'pool', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Sadece Selenium yeşil olsaydı bu darboğaz HİÇ görülmezdi, çünkü Selenium tek bağlantı kullanır, havuzu asla tüketmez. Bu, JMeter\'ın Selenium\'un GÖREMEDİĞİ bir sınıf hatayı yakaladığı andır.',
+        en: 'Step 3 — if only Selenium were green, this bottleneck would NEVER surface, because Selenium uses a single connection and never exhausts the pool. This is the moment JMeter catches a class of bug Selenium CANNOT see.',
+      },
+      positions: { ghost: { x: 30, y: 50, scale: 1.1 }, pool: { x: 58, y: 55, scale: 1.0, opacity: 0.5 } },
+    },
+    {
+      caption: {
+        tr: 'Adım 4 (düzeltme) — HikariCP pool boyutu 50\'ye çıkarılır VE her istekte veritabanına giden fiyat sorgusunun önüne bir Redis cache eklenir — veritabanı yükü kaynağında azaltılır.',
+        en: 'Step 4 (the fix) — HikariCP pool size is increased to 50 AND a Redis cache is added in front of the price lookup that hit the database on every request — the load is reduced at the source.',
+      },
+      code: { tr: `hikari.maximum-pool-size: 50\n# + Redis cache: product-price lookup`, en: `hikari.maximum-pool-size: 50\n# + Redis cache: product-price lookup` },
+      positions: { pool: { x: 22, y: 40, opacity: 0.4, scale: 0.85 }, fixed: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'pool', to: 'fixed', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 (sonuç) — AYNI test planı tekrar koşulur (tek değişken: konfigürasyon) — P99 1.800ms\'e düşer, hata oranı %0.2\'ye iner. Kampanya artık güvenle gönderilebilir.',
+        en: 'Step 5 (the result) — the EXACT SAME test plan is re-run (only the config changed) — P99 drops to 1,800ms, error rate to 0.2%. The campaign can now be sent safely.',
+      },
+      positions: { fixed: { x: 22, y: 40, scale: 0.95 }, result: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'fixed', to: 'result', color: '#10b981' }],
+    },
+  ],
+}
+
+// 🔗 Ecosystem — Jenkins→Docker JMeter→InfluxDB→Grafana zinciri
+const jmeterEcosystemChainFilm = {
+  type: 'video-scene',
+  id: 'jmeter-ecosystem-chain-film',
+  title: {
+    tr: '🎬 Tek Bir HTML Rapor mu, Yoksa 30 Deploy\'luk Bir Trend mi?',
+    en: '🎬 One HTML Report, or a Trend Across 30 Deploys?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'jenkins', emoji: '🔧', label: { tr: 'Jenkins (cron/PR tetikler)', en: 'Jenkins (cron/PR trigger)' }, color: '#0ea5e9' },
+    { id: 'docker', emoji: '🐳', label: { tr: 'JMeter (Docker içinde)', en: 'JMeter (in Docker)' }, color: '#8b5cf6' },
+    { id: 'jtl', emoji: '📄', label: { tr: 'results.jtl (ham veri)', en: 'results.jtl (raw data)' }, color: '#f59e0b' },
+    { id: 'influx', emoji: '📈', label: { tr: 'InfluxDB (zaman serisi)', en: 'InfluxDB (time series)' }, color: '#22c55e' },
+    { id: 'grafana', emoji: '📊', label: { tr: 'Grafana Dashboard', en: 'Grafana Dashboard' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Sadece 1 HTML rapor — tek fotoğraf', en: 'Just 1 HTML report — a single photo' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'JMeter zaten her koşumdan sonra bir HTML rapor üretiyor — peki InfluxDB ve Grafana\'ya neden ek olarak ihtiyaç var?',
+        en: 'JMeter already produces an HTML report after every run — so why do you need InfluxDB and Grafana on top of that?',
+      },
+      positions: { jenkins: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Jenkins, JMeter\'ı her gece ya da her PR\'da otomatik tetikler — kimsenin "yük testi çalıştırmayı unutması" riski ortadan kalkar.',
+        en: 'Step 1 — Jenkins automatically triggers JMeter every night or on every PR — the risk of someone "forgetting to run the load test" disappears.',
+      },
+      positions: { jenkins: { x: 20, y: 40, scale: 1.0 }, docker: { x: 52, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'jenkins', to: 'docker', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — JMeter, `justb4/jmeter` Docker imajı içinde çalışır — her CI runner\'da ve her geliştirici makinesinde BİREBİR AYNI JMeter sürümü ve plugin\'ler garantilenir.',
+        en: 'Step 2 — JMeter runs inside the `justb4/jmeter` Docker image — every CI runner and developer machine gets the EXACT SAME JMeter version and plugins.',
+      },
+      code: { tr: `docker run justb4/jmeter -n -t flashsale.jmx -l results.jtl`, en: `docker run justb4/jmeter -n -t flashsale.jmx -l results.jtl` },
+      positions: { docker: { x: 22, y: 40, scale: 0.95 }, jtl: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'docker', to: 'jtl', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (kontrast) — Backend Listener OLMADAN, `results.jtl` sadece o KOŞUMUN bir "fotoğrafıdır" — geçmiş 30 deploy ile karşılaştırma yapamazsın, bir HTML dosyası açıp kapatırsın.',
+        en: 'Step 3 (the contrast) — WITHOUT a Backend Listener, `results.jtl` is just a "photograph" of that ONE run — you cannot compare it against the last 30 deploys, you just open and close one HTML file.',
+      },
+      positions: { jtl: { x: 22, y: 40, scale: 0.95 }, ghost: { x: 58, y: 55, scale: 1.2, pulse: true, opacity: 0.7 } },
+      beams: [{ from: 'jtl', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Backend Listener eklenirse, her örnek CANLI olarak InfluxDB\'ye akar — artık tek bir koşum değil, ZAMAN İÇİNDE bir seri veriye sahipsin.',
+        en: 'Step 4 — with a Backend Listener added, every sample streams LIVE into InfluxDB — now you have a series of data OVER TIME, not just one run.',
+      },
+      positions: { jtl: { x: 20, y: 30, opacity: 0.4, scale: 0.85 }, influx: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'docker', to: 'influx', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — Grafana, InfluxDB\'yi sorgulayıp P99 gecikmesinin son 30 deploy boyunca SESSİZCE kötüleşip kötüleşmediğini gösterir — kullanıcının fark edeceği eşiği aşmadan ÖNCE. Java\'da bu, tek bir `System.out.println(sonuç)` ile düzgün yapılandırılmış bir Micrometer+Prometheus+Grafana gözlemlenebilirlik yığını arasındaki fark gibidir.',
+        en: 'The lesson — Grafana queries InfluxDB to show whether P99 latency has been SILENTLY degrading across the last 30 deploys — BEFORE it crosses the threshold users would notice. In Java terms, this is the difference between a single `System.out.println(result)` and a properly configured Micrometer+Prometheus+Grafana observability stack.',
+      },
+      positions: { influx: { x: 30, y: 50, scale: 1.0 }, grafana: { x: 62, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'influx', to: 'grafana', color: '#10b981' }],
+    },
+  ],
+}
+
+// 💼 Interview Q&A — ortalama (300ms) vs P99 (12000ms) tanı akışı
+const jmeterAveragePercentileFilm = {
+  type: 'video-scene',
+  id: 'jmeter-average-percentile-film',
+  title: {
+    tr: '🎬 Ortalama 300ms Ama P99 12.000ms: Sistem İyi mi, Kötü mü?',
+    en: '🎬 Average 300ms But P99 12,000ms: Is the System Healthy or Not?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'requests', emoji: '📊', label: { tr: '1000 istek', en: '1000 requests' }, color: '#8b5cf6' },
+    { id: 'average', emoji: '📈', label: { tr: 'Ortalama: 300ms ("iyi" görünür)', en: 'Average: 300ms ("looks fine")' }, color: '#0ea5e9' },
+    { id: 'p99', emoji: '🔍', label: { tr: 'P99: 12.000ms', en: 'P99: 12,000ms' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: '1/100 istek 12 saniye donuyor', en: '1 in 100 requests hangs 12 seconds' }, color: '#ef4444' },
+    { id: 'cause', emoji: '🔧', label: { tr: 'Pool timeout / GC pause / lock contention', en: 'Pool timeout / GC pause / lock contention' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Aggregate Report ortalama yanıt süresini 300ms gösteriyor — "iyi" gibi görünüyor. Ama aynı raporda P99 = 12.000ms de yazıyor. Bu ikisi ÇELİŞKİLİ mi, yoksa aynı hikayenin iki farklı parçası mı?',
+        en: 'The Aggregate Report shows an average response time of 300ms — "looks fine". But the same report also shows P99 = 12,000ms. Are these CONTRADICTORY, or two parts of the same story?',
+      },
+      positions: { requests: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — 1000 istek çalıştırılır, hepsinin süresi ortalamaya dahil edilir. Ortalama, TÜM değerleri tek bir sayıya "yayarak" hesaplanır.',
+        en: 'Step 1 — 1000 requests run, every duration gets folded into the average. The average "smears" ALL values into a single number.',
+      },
+      positions: { requests: { x: 20, y: 40, scale: 1.0 }, average: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'requests', to: 'average', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Java\'da bunu düşün: HashMap.get() ortalamada O(1)\'dir — ama hash collision fırtınasında bazı çağrılar O(n)\'e düşer. Ortalama istatistiği bu PATOLOJİK durumu tamamen GİZLER.',
+        en: 'Step 2 — think of it like this in Java: HashMap.get() is O(1) on average — but under a hash-collision storm some calls degrade to O(n). The average statistic completely HIDES this pathological case.',
+      },
+      positions: { average: { x: 22, y: 40, scale: 0.95 }, p99: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'average', to: 'p99', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 (hayalet) — P99 = 12.000ms şunu söyler: 100 istekten 1\'i 12 SANİYE donuyor. 1000 kullanıcılı bir sistemde bu, saniyede 10 kişinin 12 saniyelik bir donma yaşaması demektir.',
+        en: 'Step 3 (the ghost) — P99 = 12,000ms means: 1 in 100 requests hangs for 12 SECONDS. In a system with 1,000 users, that translates to 10 people per second experiencing a 12-second freeze.',
+      },
+      positions: { p99: { x: 22, y: 40, scale: 0.95 }, ghost: { x: 62, y: 55, scale: 1.3, pulse: true } },
+      beams: [{ from: 'p99', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Ders — bir mülakatta "ortalama iyi" demek ezberi gösterir; "P99\'daki bu sıçrama pool timeout, GC pause ya da lock contention gibi bir kaynak-tükenmesi olayına işaret eder, şöyle doğrularım" demek seni junior\'dan senior\'a taşır — çünkü metrikleri MİMARİ kök nedene çevirebiliyorsun.',
+        en: 'The lesson — in an interview, saying "the average is fine" shows memorization; saying "this P99 spike points to a resource-exhaustion event like a pool timeout, GC pause, or lock contention, here\'s how I\'d confirm it" is what moves you from junior to senior — because you can translate metrics into an ARCHITECTURAL root cause.',
+      },
+      positions: { ghost: { x: 30, y: 50, scale: 1.0, opacity: 0.4 }, cause: { x: 62, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'ghost', to: 'cause', color: '#22c55e' }],
+    },
+  ],
+}
+
+const jmeterAveragePercentileStep = {
+  type: 'step-animation',
+  title: { tr: 'P99 Anomalisini Mülakatta Nasıl Teşhis Edersin?', en: 'How to Diagnose a P99 Anomaly in an Interview' },
+  steps: [
+    { tr: 'Önce sayıyı ÇEVİR: "P99 12000ms" değil, "100 istekten 1\'i 12 saniye bekliyor" de — bu, dinleyeni gerçek etkiye odaklar.', en: 'First TRANSLATE the number: instead of "P99 is 12000ms", say "1 in 100 requests waits 12 seconds" — this focuses the listener on the real impact.' },
+    { tr: 'Sonra OLASI kök nedenleri sırala: connection pool timeout, GC pause, lock contention, yavaş bir dış servis çağrısı.', en: 'Then list POSSIBLE root causes: connection pool timeout, GC pause, lock contention, a slow external service call.' },
+    { tr: 'Nasıl DOĞRULARSIN sorusuna cevap ver: "GC loglarına bakarım, connection pool metriklerini kontrol ederim, thread dump alırım."', en: 'Answer how you would VERIFY: "I\'d check GC logs, inspect connection pool metrics, take a thread dump."' },
+    { tr: 'Son olarak somut bir DÜZELTME öner: pool boyutunu artırmak, cache eklemek, ya da circuit breaker eşiği koymak.', en: 'Finally propose a concrete FIX: increasing pool size, adding a cache, or setting a circuit breaker threshold.' },
+  ],
+}
+
+const jmeterAveragePercentilePractice = {
+  type: 'code-playground',
+  relatedTopicId: 'jmeter-interview-en',
+  title: { tr: 'Kendin Dene: P99 Anomalisini Yorumla', en: 'Try It Yourself: Interpret a P99 Anomaly' },
+  starterCode: `// Aggregate Report:
+// Average: 250ms | P99: 9500ms | Error %: 0.1
+// TODO: bu sonucu tek cumleyle yorumla (degisken olarak yaz)
+const yorum = "";`,
+  solutionCode: `// Aggregate Report:
+// Average: 250ms | P99: 9500ms | Error %: 0.1
+const yorum = "Ortalama saglikli gorunse de P99=9500ms, 100 istekten " +
+  "1'inin ~9.5 saniye beklemesi demek -- bu muhtemelen bir kaynak " +
+  "tukenmesi (pool timeout/GC pause) belirtisi, sadece 'yavas kod' degil.";`,
+  hint: { tr: 'Ortalama tüm değerleri düzleştirir; P99 ile aradaki UÇURUM (250ms vs 9500ms) bir "kuyruk gecikmesi" (tail latency) sorunu olduğunu gösterir.', en: 'The average flattens all values; the GAP between it and P99 (250ms vs 9500ms) signals a "tail latency" problem.' },
+  successMessage: { tr: 'Doğru! Bu tür bir yorum, bir mülakatçıya sadece sayıyı okumadığını, sistemin davranışını anladığını gösterir.', en: 'Correct! This kind of interpretation shows an interviewer you don\'t just read the number — you understand the system\'s behavior.' },
+}
+
+// Eksik animasyon/sandbox tamamlamaları (bölüm 0-5)
+const jmeterAggregateReportStep = {
+  type: 'step-animation',
+  title: { tr: 'Aggregate Report Nasıl Birikir?', en: 'How Does the Aggregate Report Accumulate?' },
+  steps: [
+    { tr: 'Her sanal kullanıcının her isteği, kendi yanıt süresi/durum kodu ile Aggregate Report\'a BİR SATIR ekler.', en: 'Every request from every virtual user adds ONE ROW to the Aggregate Report with its own response time/status code.' },
+    { tr: '100 kullanıcı × 10 istek çalıştırırsan, rapor 1.000 satır biriktirir — Ortalama, Min, Max, P90, P99 bu 1.000 satırdan hesaplanır.', en: 'Run 100 users × 10 requests and the report accumulates 1,000 rows — Average, Min, Max, P90, P99 are all calculated from these 1,000 rows.' },
+    { tr: 'Test bitmeden rapora bakarsan sayılar hâlâ DEĞİŞİR — tam sonuç için testin bitmesini beklemek gerekir.', en: 'If you check the report before the test finishes, the numbers are still CHANGING — you must wait for the test to complete for the final result.' },
+  ],
+}
+
+const jmeterThreadGroupPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'jmeter-intro',
+  title: { tr: 'Kendin Dene: Thread Group Parametrelerini Ayarla', en: 'Try It Yourself: Configure Thread Group Parameters' },
+  starterCode: `// Hedef: 100 kullanici, 50 saniyede kademeli baslasin, her biri 5 kez tekrar etsin
+// TODO: asagidaki degerleri doldur
+Number of Threads = ?
+Ramp-Up Period = ?
+Loop Count = ?`,
+  solutionCode: `Number of Threads = 100
+Ramp-Up Period = 50
+Loop Count = 5`,
+  hint: { tr: 'Number of Threads = toplam sanal kullanıcı sayısı, Ramp-Up = hepsinin başlaması için geçen saniye, Loop Count = her kullanıcının tekrar sayısı.', en: 'Number of Threads = total virtual users, Ramp-Up = seconds to start them all, Loop Count = repeats per user.' },
+  successMessage: { tr: 'Doğru! Bu ayarlarla JMeter 2 saniyede bir yeni kullanıcı başlatır (100 kullanıcı / 50 saniye).', en: 'Correct! With these settings JMeter starts one new user every 2 seconds (100 users / 50 seconds).' },
+}
+
+const jmeterJavaHomeStep = {
+  type: 'step-animation',
+  title: { tr: 'JAVA_HOME Neden Ayarlanır?', en: 'Why Set JAVA_HOME?' },
+  steps: [
+    { tr: '`jmeter.sh`/`jmeter.bat`, hangi Java kurulumunu kullanacağını bilmek için `JAVA_HOME` ortam değişkenine bakar.', en: '`jmeter.sh`/`jmeter.bat` checks the `JAVA_HOME` environment variable to know which Java installation to use.' },
+    { tr: 'Birden fazla JDK sürümü kuruluysa (örn. 8 ve 17), `JAVA_HOME` YANLIŞ sürüme işaret ederse JMeter beklenmedik şekilde davranabilir.', en: 'If multiple JDK versions are installed (e.g. 8 and 17), JMeter can behave unexpectedly if `JAVA_HOME` points to the WRONG version.' },
+    { tr: '`echo $JAVA_HOME` ile doğrulamak, "hangi Java kullanılıyor?" sorusunu test başlamadan ÖNCE cevaplar.', en: 'Verifying with `echo $JAVA_HOME` answers "which Java is being used?" BEFORE the test starts.' },
+  ],
+}
+
+const jmeterJavaHomePractice = {
+  type: 'code-playground',
+  relatedTopicId: 'jmeter-installation',
+  title: { tr: 'Kendin Dene: JAVA_HOME Ayarla ve Doğrula', en: 'Try It Yourself: Set and Verify JAVA_HOME' },
+  starterCode: `# BUG: JAVA_HOME yanlis yola isaret ediyor
+export JAVA_HOME=/opt/java/jdk-8
+echo $JAVA_HOME`,
+  solutionCode: `# FIX: JMeter 5.x icin JDK 17 gerekli
+export JAVA_HOME=/opt/java/jdk-17
+export PATH=$JAVA_HOME/bin:$PATH
+echo $JAVA_HOME`,
+  hint: { tr: 'JMeter 5.x, Java 8 veya üzeri gerektirir ama 17 LTS önerilir — `JAVA_HOME` doğru sürüme işaret etmeli VE `PATH`\'e eklenmelidir.', en: 'JMeter 5.x requires Java 8+, but 17 LTS is recommended — `JAVA_HOME` must point to the right version AND be added to `PATH`.' },
+  successMessage: { tr: 'Doğru! Artık `jmeter.sh` doğru JDK sürümünü bulup çalışabilir.', en: 'Correct! Now `jmeter.sh` can find and run with the right JDK version.' },
+}
+
+const jmeterRampUpCalcStep = {
+  type: 'step-animation',
+  title: { tr: 'Ramp-Up Hesabı Nasıl Yapılır?', en: 'How Is Ramp-Up Calculated?' },
+  steps: [
+    { tr: 'Formül: saniye başına başlayan kullanıcı = Number of Threads / Ramp-Up Period.', en: 'Formula: users starting per second = Number of Threads / Ramp-Up Period.' },
+    { tr: '100 kullanıcı, 10 saniye ramp-up = saniyede 10 kullanıcı — bu HIZLI bir başlangıçtır, ani yük oluşturur.', en: '100 users, 10-second ramp-up = 10 users per second — this is a FAST start, creating a sudden spike.' },
+    { tr: 'Altın kural: Ramp-Up ≥ Duration\'ın %10\'u olmalı — çok kısa ramp-up gerçekçi olmayan yapay bir yük paterni yaratır.', en: 'Golden rule: Ramp-Up should be ≥ 10% of Duration — too short a ramp-up creates an unrealistic, artificial load pattern.' },
+  ],
+}
+
+const jmeterRampUpPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'jmeter-core-concepts',
+  title: { tr: 'Kendin Dene: Gerçekçi Bir Ramp-Up Hesapla', en: 'Try It Yourself: Calculate a Realistic Ramp-Up' },
+  starterCode: `// Hedef: 10 dakikalik (600s) bir test, 300 kullanici ile
+// TODO: altin kurala gore (Ramp-Up >= Duration'in %10'u) bir Ramp-Up degeri sec
+Number of Threads = 300
+Duration = 600
+Ramp-Up = ?`,
+  solutionCode: `Number of Threads = 300
+Duration = 600
+Ramp-Up = 60  // 600'un %10'u = 60, altin kurali karsilar`,
+  hint: { tr: '600 saniyenin %10\'u 60 saniyedir — Ramp-Up bu değerin ALTINDA olmamalı, aksi halde yapay bir "ani yük" (spike) oluşur.', en: '10% of 600 seconds is 60 seconds — Ramp-Up should not go BELOW this, otherwise it creates an artificial "spike".' },
+  successMessage: { tr: 'Doğru! 60 saniyelik ramp-up ile 300 kullanıcı saniyede 5 kullanıcı hızıyla kademeli başlar — gerçekçi bir trafik paterni.', en: 'Correct! With a 60-second ramp-up, 300 users start gradually at 5 users/second — a realistic traffic pattern.' },
+}
+
+const jmeterGroovyExtractStep = {
+  type: 'step-animation',
+  title: { tr: 'JSR223 Sampler Neden BeanShell\'den Hızlıdır?', en: 'Why Is the JSR223 Sampler Faster Than BeanShell?' },
+  steps: [
+    { tr: 'BeanShell script\'i HER İSTEKTE yeniden yorumlanır (interpret edilir) — bu, her seferinde kodu baştan okumak gibidir.', en: 'A BeanShell script is RE-INTERPRETED on every single request — like re-reading the code from scratch each time.' },
+    { tr: 'JSR223 + Groovy, script\'i BİR KEZ derler (compile) ve cache\'ler — sonraki her çağrı, önceden derlenmiş kodu çalıştırır.', en: 'JSR223 + Groovy compiles the script ONCE and caches it — every later call runs the already-compiled code.' },
+    { tr: '500 kullanıcı × 10 istek gibi yüksek hacimli bir testte bu fark, script overhead\'inin testin kendisini yavaşlatıp yavaşlatmadığını belirler.', en: 'In a high-volume test like 500 users × 10 requests, this difference determines whether the script overhead itself slows down the test.' },
+  ],
+}
+
+const jmeterGroovyExtractPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'jmeter-advanced',
+  title: { tr: 'Kendin Dene: JSR223 ile Rastgele Test Verisi Üret', en: 'Try It Yourself: Generate Random Test Data with JSR223' },
+  starterCode: `// TODO: rastgele bir kullanici ID'si uret ve JMeter degiskeni olarak sakla
+import java.util.UUID
+def userId = // ...
+vars.put("userId", userId)`,
+  solutionCode: `import java.util.UUID
+def userId = UUID.randomUUID().toString()
+vars.put("userId", userId)
+log.info("Generated userId: " + userId)`,
+  hint: { tr: '`vars.put(isim, deger)`, üretilen değeri bir JMeter değişkenine yazar — bu değişken sonraki isteklerde `${userId}` ile kullanılabilir.', en: '`vars.put(name, value)` writes the generated value into a JMeter variable — usable in later requests as `${userId}`.' },
+  successMessage: { tr: 'Doğru! `vars.put()` ile üretilen değer, aynı thread\'in sonraki tüm isteklerinde `${userId}` olarak erişilebilir hale gelir.', en: 'Correct! The value written with `vars.put()` becomes accessible as `${userId}` in every later request of the same thread.' },
+}
+
+const jmeterCsvConfigPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'jmeter-real-world',
+  title: { tr: 'Kendin Dene: CSV Data Set Config\'i Doğru Kur', en: 'Try It Yourself: Configure CSV Data Set Config Correctly' },
+  starterCode: `// BUG: her sanal kullanici AYNI hesapla test ediyor, row-locking bug'lari GIZLENIYOR
+// TODO: 500 farkli kullanici icin CSV config ayarla
+CSV Data Set Config:
+  Filename: users.csv
+  Sharing Mode: ?`,
+  solutionCode: `CSV Data Set Config:
+  Filename: users.csv
+  Variable Names: username,password
+  Sharing Mode: All threads
+  # Test Plan KOKUNE konur, boylece her thread bir SONRAKI satiri alir`,
+  hint: { tr: '"Sharing Mode: All threads" + Test Plan kökünde konumlandırma, her thread\'in dosyadaki BİR SONRAKİ satırı almasını garanti eder.', en: '"Sharing Mode: All threads" + placement at the Test Plan root guarantees each thread gets the NEXT row in the file.' },
+  successMessage: { tr: 'Doğru! Artık 500 kullanıcı 500 FARKLI hesapla test ediyor — row-locking ve session-contention hataları artık gizlenmiyor.', en: 'Correct! Now 500 users test with 500 DIFFERENT accounts — row-locking and session-contention bugs are no longer hidden.' },
+}
+
+const jmeterDockerCiStep = {
+  type: 'step-animation',
+  title: { tr: 'Docker\'da JMeter Neden Reprodüklenebilir?', en: 'Why Is JMeter in Docker Reproducible?' },
+  steps: [
+    { tr: 'Yerel kurulumda her makine farklı bir JMeter sürümüne/plugin setine sahip olabilir — "bende çalışıyordu" riski.', en: 'With local installs, every machine can have a different JMeter version/plugin set — the "works on my machine" risk.' },
+    { tr: '`justb4/jmeter` Docker imajı, TAM olarak aynı JMeter sürümünü her CI runner\'da ve geliştirici makinesinde garanti eder.', en: 'The `justb4/jmeter` Docker image guarantees the EXACT same JMeter version on every CI runner and developer machine.' },
+    { tr: 'Sonuç: yük testinin kendisi, test ettiği uygulama kadar reprodüklenebilir hale gelir.', en: 'Result: the load generator itself becomes as reproducible as the application it tests.' },
+  ],
+}
+
+const jmeterDockerCiPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'jmeter-ecosystem',
+  title: { tr: 'Kendin Dene: Docker ile JMeter Çalıştır', en: 'Try It Yourself: Run JMeter via Docker' },
+  starterCode: `# TODO: docker run ile flashsale.jmx'i calistir, sonuclari results.jtl'e yaz
+docker run --rm -v $(pwd):/tests justb4/jmeter \\
+  ?`,
+  solutionCode: `docker run --rm -v $(pwd):/tests justb4/jmeter \\
+  -n -t /tests/flashsale.jmx \\
+  -l /tests/results.jtl \\
+  -e -o /tests/report`,
+  hint: { tr: '`-n` Non-GUI modu, `-t` test planı yolu, `-l` sonuç dosyası, `-e -o` HTML rapor üretir — Docker dışında kullandığın komutla AYNIDIR.', en: '`-n` non-GUI mode, `-t` test plan path, `-l` results file, `-e -o` generates the HTML report — IDENTICAL to the command you\'d use outside Docker.' },
+  successMessage: { tr: 'Doğru! `-v $(pwd):/tests` bind mount\'u, container içindeki JMeter\'ın senin yerel .jmx dosyana erişmesini sağlar.', en: 'Correct! The `-v $(pwd):/tests` bind mount lets JMeter inside the container access your local .jmx file.' },
+}
+
 export const jmeterData = {
   en: {
     hero: {
@@ -109,6 +794,9 @@ export const jmeterData = {
             ],
             note: 'Steps 3-6 repeat for every request in every thread. 100 users × 10 requests = 1,000 data points.',
           },
+          jmeterVirtualUserJourneyFilm,
+          jmeterAggregateReportStep,
+          jmeterThreadGroupPractice,
           {
             type: 'quiz',
             question: 'You want to simulate 500 users gradually starting over 60 seconds in JMeter. Which component controls this?',
@@ -215,6 +903,9 @@ export PATH=$JAVA_HOME/bin:$PATH
 echo $JAVA_HOME`
           },
           { type: 'tip', content: 'Create a shortcut on your desktop to jmeter.bat/jmeter.sh for quick access. You\'ll be opening JMeter often!' },
+          jmeterJdkLaunchFilm,
+          jmeterJavaHomeStep,
+          jmeterJavaHomePractice,
           {
             type: 'quiz',
             question: 'Why must Java (JDK 8+) be installed before JMeter, even though JMeter has its own installer-free zip download?',
@@ -466,6 +1157,9 @@ diana,pass4
             ],
             note: 'Golden rule: Ramp-Up ≥ 10% of Duration. Too short a ramp-up creates an artificial spike — not a realistic load pattern.',
           },
+          jmeterCsvScopeFilm,
+          jmeterRampUpCalcStep,
+          jmeterRampUpPractice,
           {
             type: 'quiz',
             question: 'A Thread Group is set to Number of Threads = 10 and Ramp-Up Period = 10 seconds. What actually happens when the test starts?',
@@ -744,6 +1438,9 @@ HTML Dashboard (-e -o)
               note: 'Aggregate Report + HTML Dashboard is the standard combination for CI/CD pipelines',
             },
           },
+          jmeterTokenExtractionFilm,
+          jmeterGroovyExtractStep,
+          jmeterGroovyExtractPractice,
           {
             type: 'quiz',
             question: 'Why are real load tests run in JMeter\'s Non-GUI (CLI) mode in CI/CD pipelines instead of the GUI mode used to build the test plan?',
@@ -859,6 +1556,8 @@ jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
 #    and a P99 close to the average — that is what a HEALTHY
 #    system looks like under modest load.`
           },
+          jmeterConnectionPoolFilm,
+          jmeterCsvConfigPractice,
           {
             type: 'quiz',
             question: 'A team has QA engineers with limited coding skills and needs to test non-HTTP protocols (JDBC, JMS). Why would JMeter be preferred over a code-first tool like k6 here?',
@@ -943,6 +1642,9 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
 # zero "which JMeter version do you have?" debugging.`
           },
           { type: 'tip', content: 'In a real pipeline these four pieces compose: GitHub Actions triggers a Docker container running JMeter on a schedule, results stream to InfluxDB via a Backend Listener, and Grafana alerts the team in Slack if P99 crosses a threshold — fully automated performance regression detection.' },
+          jmeterEcosystemChainFilm,
+          jmeterDockerCiStep,
+          jmeterDockerCiPractice,
           {
             type: 'quiz',
             question: 'What is the core benefit of running JMeter as a Docker image (e.g. justb4/jmeter) instead of installing it directly on each CI runner?',
@@ -1204,6 +1906,9 @@ Response Assertion on Login:
       "explanation": "The Median tells you the experience of the middle user. A high P95 (800ms) compared to the median (95ms) indicates that the top 5% of requests are taking significantly longer than the rest, highlighting performance inconsistency or tail latency."
 }
 },
+          jmeterAveragePercentileFilm,
+          jmeterAveragePercentileStep,
+          jmeterAveragePercentilePractice,
         ],
       },
     ],
@@ -1319,6 +2024,9 @@ Response Assertion on Login:
             ],
             note: '3-6. adımlar her thread\'deki her istek için tekrar eder. 100 kullanıcı × 10 istek = test başına 1.000 veri noktası.',
           },
+          jmeterVirtualUserJourneyFilm,
+          jmeterAggregateReportStep,
+          jmeterThreadGroupPractice,
           {
             type: 'quiz',
             question: "JMeter'da 60 saniyede kademeli olarak başlayan 500 kullanıcıyı simüle etmek istiyorsunuz. Bunu hangi bileşen kontrol eder?",
@@ -1408,6 +2116,9 @@ export PATH=$JAVA_HOME/bin:$PATH
 echo $JAVA_HOME`
           },
           { type: 'tip', content: 'Masaüstünüzde jmeter.bat/jmeter.sh için bir kısayol oluşturun. JMeter\'ı sık açacaksınız!' },
+          jmeterJdkLaunchFilm,
+          jmeterJavaHomeStep,
+          jmeterJavaHomePractice,
           {
             type: 'quiz',
             question: 'JMeter\'ın installer\'sız bir zip indirme olmasına rağmen kurulumdan önce Java (JDK 8+) kurulması neden zorunludur?',
@@ -1600,6 +2311,9 @@ ayse,sifre3
             ],
             note: 'Altın kural: Ramp-Up ≥ Sürenin %10\'u olmalı. Çok kısa ramp-up yapay bir ani yük oluşturur — gerçekçi bir yük modeli değildir.',
           },
+          jmeterCsvScopeFilm,
+          jmeterRampUpCalcStep,
+          jmeterRampUpPractice,
           {
             type: 'quiz',
             question: 'Bir Thread Group\'ta Number of Threads=10 ve Ramp-Up Period=10 saniye ayarlandığında test başladığında gerçekte ne olur?',
@@ -1757,6 +2471,9 @@ HTML Dashboard (-e -o)
               note: 'Aggregate Report + HTML Dashboard, CI/CD pipeline\'ları için standart kombinasyondur',
             },
           },
+          jmeterTokenExtractionFilm,
+          jmeterGroovyExtractStep,
+          jmeterGroovyExtractPractice,
           {
             type: 'quiz',
             question: 'Gerçek yük testleri CI/CD pipeline\'larında neden test planını oluşturmak için kullanılan GUI modu yerine JMeter\'ın Non-GUI (CLI) modunda çalıştırılır?',
@@ -1871,6 +2588,8 @@ jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
 #    yakın bir P99 görmelisin — SAĞLIKLI bir sistem makul yük
 #    altında böyle görünür.`
           },
+          jmeterConnectionPoolFilm,
+          jmeterCsvConfigPractice,
           {
             type: 'quiz',
             question: 'Ekibinizde kodlama becerisi sınırlı QA mühendisleri varsa ve HTTP olmayan protokollere (JDBC, JMS) ihtiyacınız varsa, k6 gibi kod-öncelikli bir araç yerine neden JMeter tercih edilir?',
@@ -1956,6 +2675,9 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
 # "sende hangi JMeter sürümü var?" hata ayıklaması sıfır.`
           },
           { type: 'tip', content: 'Gerçek bir pipeline\'da bu dört parça birleşir: GitHub Actions, belirli bir programda JMeter çalıştıran bir Docker konteynerini tetikler, sonuçlar bir Backend Listener ile InfluxDB\'ye akar ve P99 bir eşiği aşarsa Grafana ekibi Slack\'te uyarır — tamamen otomatik performans regresyon tespiti.' },
+          jmeterEcosystemChainFilm,
+          jmeterDockerCiStep,
+          jmeterDockerCiPractice,
           {
             type: 'quiz',
             question: 'JMeter\'ı her CI runner\'a doğrudan kurmak yerine bir Docker image\'ı (örn. justb4/jmeter) olarak çalıştırmanın temel avantajı nedir?',
@@ -2210,6 +2932,9 @@ Thread Group:
             { term: 'Throughput', definition: { tr: 'Sistemin birim zamanda isleyebildigi istek sayisi (istek/saniye). Kapasiteyi olcer.', en: 'The number of requests the system processes per unit time (requests/second). Measures capacity.' } },
             { term: 'Timer', definition: { tr: 'Istekler arasinda gecikme ekleyen JMeter bileseni. Gercekci kullanici davranisini simule eder.', en: 'A JMeter component that adds delay between requests. Simulates realistic user think time.' } },
           ]},
+          jmeterAveragePercentileFilm,
+          jmeterAveragePercentileStep,
+          jmeterAveragePercentilePractice,
         ],
       },
     ],

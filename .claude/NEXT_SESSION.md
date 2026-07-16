@@ -459,9 +459,95 @@ mülakat control loop) + Interview Q&A sekmesine eksik animasyon/sandbox
 **Commit:** bu dalganın değişikliği (2 dosya) commit edilecek, hash bir
 sonraki güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
 
-### Sıradaki adım
-Dalga 16 (`/kafka` + `/jmeter`) — mesajlaşma + performans, aynı
-branch'te devam.
+### Sıradaki adım (Dalga 15 için, artık eski)
+~~Dalga 16 (/kafka + /jmeter)~~ → SADECE /jmeter TAMAMLANDI, /kafka HİÇ
+BAŞLANMADI. Bkz. aşağıdaki güncel bölüm — bu oturum kullanıcı talimatıyla
+burada durduruldu ("devamına sonra başka sohbette bakacağız").
+
+---
+
+## Dalga 16 — /jmeter TAMAMLANDI, /kafka BAŞLANMADI (2026-07-16, oturum burada durduruldu)
+
+**Bu dalgada 2 paralel subagent (kafka, jmeter) session limitiyle
+kesildi** (`resets 12:10pm Europe/Istanbul`). Ana oturumda devralındı:
+
+- **`kafkaData.js`: HİÇ İLERLEME YOK.** `git status` hiçbir değişiklik
+  göstermiyor, `grep -c "type: 'video-scene'"` → 0. Subagent hiçbir dosya
+  yazmadan kesilmiş. **Bu sayfa Dalga 16'nın devamında SIFIRDAN
+  yapılmalı** — 9 sekme (Introduction/Giriş, Installation/Kurulum,
+  Architecture/Mimari, Producer & Consumer, Topics & Partitions/Topic &
+  Partition, Java & Spring Boot, Ecosystem/Ekosistem, Real World/Gerçek
+  Hayat, Interview Q&A/Mülakat S&C), EN+TR ayrı ağaç. Fikir listesi için
+  bu bölümün altındaki eski Dalga 16a subagent prompt'una (görev
+  geçmişinde) bakılabilir — producer/consumer akışı, partition sıralama
+  garantisi, consumer rebalancing gibi.
+
+- **`jmeterData.js`: TAMAMLANDI (7/7 sekme, EN+TR).** Subagent 1 filmi
+  (Introduction) yazıp referanslamadan kesilmişti; ana oturumda kalan 6
+  sekmeye film + eksik animasyon/sandbox TAMAMEN elle tamamlandı.
+
+  **Eklenen 6 yeni film:** Kurulum (JDK→zip→launch zinciri), Core
+  Concepts (CSV Data Set Config'in ağaç seviyesi/scope tuzağı — 500
+  kullanıcı aynı satırı okuma riski), Advanced (Regular Expression
+  Extractor ile dinamik token zinciri — extractor olmadan sessiz 401
+  hatası), Real World (flaş indirim senaryosu — HikariCP pool tükenmesi,
+  P99 14000ms→1800ms), Ecosystem (Jenkins→Docker→InfluxDB→Grafana
+  zinciri — "fotoğraf vs video" analojisi), Interview Q&A (ortalama
+  300ms vs P99 12000ms tanı akışı). Interview Q&A sekmesine ayrıca eksik
+  step-animation+code-playground elle eklendi (kodsuzdu).
+
+  **Ek keşif — bu dosyada `fillMissingCodeTrios` import edilmiş ama HİÇ
+  ÇAĞRILMAMIŞ:** diğer sayfaların aksine (`import` var ama invoke YOK),
+  bu yüzden sections 0-5'in TAMAMINDA (Interview hariç) animasyon/sandbox
+  HİÇ yoktu — bu da elle (6 sekme × step-animation+code-playground)
+  tamamlandı. **Bu dosyanın kendine özgü bir özelliği** — diğer
+  `*Data.js` dosyalarında "otomatik dolduruluyor" varsayımı BURADA
+  GEÇERSİZ, gelecekte bu dosyaya dokunulursa hatırlanmalı.
+
+  **KENDİ YAPTIĞIM 2 GERÇEK BUG VE DÜZELTMESİ (önemli ders):** Node script
+  ile satır-numarası tabanlı toplu ekleme yaparken 2 kez tam olarak
+  önceki subagent'lara uyardığım hatayı BEN yaptım:
+  1. Dosyanın en sonundaki (TR/EN ağaç kapanışına yakın) ekleme, yanlış
+     satır hesabıyla `sections:` array'ine YENİ SAHTE SECTION'LAR (3 adet,
+     `blocks` alanı olmayan) olarak düştü — `en.sections.length` 7 yerine
+     10 çıktı, runtime'da "not iterable" hatası verdi. Kök neden: iç içe
+     `retryQuestion` yapılarının tutarsız girintisi görsel olarak yanlış
+     yorumlanmasına yol açtı. **Düzeltme yöntemi budur:** `node --check`
+     SADECE syntax'ı doğrular, YAPIYI doğrulamaz — gerçek doğrulama HER
+     ZAMAN `import()` edip `sections.length` ve her section'ın
+     `blocks`'unun gerçekten array olduğunu (`Array.isArray`) kontrol
+     etmekle yapılmalı, bu proje genelinde standart hale getirilmeli.
+  2. TR Installation quiz'inden önce ekleme yaparken satır numarasını
+     "quiz `{`'i" olarak aldım (tip yerine bir satır ÖNCESİ gerekiyordu) —
+     `jmeterJdkLaunchFilm,` quiz objesinin `{` ile `type:` satırı ARASINA
+     düştü. Aynı anchor seçim mantığı (referans satırı hep bir önceki
+     GERÇEK içerik satırı olmalı, `{` satırı DEĞİL) her iki dilde de
+     TUTARLI uygulanmalı — EN'de doğru, TR'de yanlış seçilmişti.
+
+**Doğrulama (jmeterData için, tam):**
+- `node --check` temiz.
+- Node runtime coverage-scan: 7 sekmenin İKİSİNDE de (en/tr) ≥1
+  video+anim+sandbox — 14/14 OK (2 hatalı bulgu düzeltildikten sonra).
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ (36 dosya).
+- Film id'leri proje genelinde benzersiz.
+- `npm run build` → temiz, `jmeterData` chunk 500KB eşiğinin altında
+  (büyük-chunk uyarı listesinde YOK).
+- `tests/video-scene.spec.ts` genişletilmedi, Playwright çalıştırılmadı.
+
+**Commit:** `jmeterData.js` + bu `NEXT_SESSION.md` güncellemesi commit
+edilecek (`SKIP_E2E_HOOK=1` ile). `kafkaData.js` commit edilMEyecek
+(değişiklik yok zaten).
+
+### Sıradaki adım (KESİN — bir sonraki oturum buradan başlamalı)
+1. `/kafka` sayfasını SIFIRDAN Dalga 16'nın ikinci yarısı olarak
+   tamamla (9 sekme, EN+TR ayrı ağaç — yukarıdaki nota bak).
+2. **Node runtime coverage-scan'i her dalganın standart doğrulama adımı
+   yap** (sadece `node --check` yetmez — yukarıdaki "gerçek bug" notuna
+   bak).
+3. Kafka bitince Dalga 17'ye (`/appium` + `/browserstack`) geç.
+4. Kullanıcı bu oturumda "devamına sonra başka sohbette bakacağız" dedi
+   — bu, aynı görev listesinin (Dalga 17-21) YENİ bir oturumda/sohbette
+   sürdürüleceği anlamına gelir, planın kendisi değişmedi.
 
 ---
 
