@@ -152,6 +152,1061 @@ const ecosystemSvg = `<svg viewBox='0 0 600 320' xmlns='http://www.w3.org/2000/s
   </g>
 </svg>`
 
+// ─── §9.5 sekme standardı: her dikey sekmeye 1 film + 1 animasyon + 1 sandbox ─
+// brunoData EN+TR AYRI AĞAÇLI — her sabit HEM en.sections HEM tr.sections'a
+// aynı bare identifier ile eklenir. Veri şeması: Documents/video-rollout-plan.md
+// / src/data/gaugeData.js referans.
+
+// 🎯 Introduction — .bru dosyasının Git diff'i vs Postman'ın opak JSON blob'u
+const brunoBruDiffFilm = {
+  type: 'video-scene',
+  id: 'bruno-bru-diff-film',
+  title: {
+    tr: '🎬 Bir Satırlık Değişiklik: .bru Diff vs Postman JSON Blob',
+    en: '🎬 A One-Line Change: .bru Diff vs the Postman JSON Blob',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dev',      emoji: '👩‍💻', label: { tr: 'QA Mühendisi',        en: 'QA Engineer' },        color: '#0ea5e9' },
+    { id: 'file',     emoji: '📇', label: { tr: 'get.bru',               en: 'get.bru' },             color: '#6366f1' },
+    { id: 'git',      emoji: '🗂️', label: { tr: 'Git Repo',              en: 'Git Repo' },            color: '#f59e0b' },
+    { id: 'diff',     emoji: '🧾', label: { tr: 'git diff Çıktısı',      en: 'git diff Output' },     color: '#10b981' },
+    { id: 'reviewer', emoji: '👀', label: { tr: 'Reviewer',              en: 'Reviewer' },            color: '#22c55e' },
+    { id: 'blob',     emoji: '☁️', label: { tr: 'Postman JSON Blob',     en: 'Postman JSON Blob' },   color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir backend değişikliği geldi: response alanı "userName" yerine artık "user_name" dönüyor. QA mühendisi .bru dosyasındaki assertion satırını buna göre güncelliyor.',
+        en: 'A backend change lands: the response field is now "user_name" instead of "userName". The QA engineer updates the assertion line in the .bru file to match.',
+      },
+      code: { tr: `res.body.user_name: contains @`, en: `res.body.user_name: contains @` },
+      positions: {
+        dev: { x: 16, y: 50, scale: 1.1, pulse: true },
+        file: { x: 40, y: 50, scale: 1.05 },
+      },
+      beams: [{ from: 'dev', to: 'file' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — dosya kaydedilir kaydedilmez, bu değişiklik ZATEN Git repo\'nun bir parçası: ayrı bir "export" adımına gerek yok, .bru dosyası zaten projenin içindeki düz metin.',
+        en: 'Step 1 — the moment the file is saved, this change is ALREADY part of the Git repo: no separate "export" step needed, the .bru file is already plain text inside the project.',
+      },
+      code: { tr: `git status\n# modified: collections/users/get.bru`, en: `git status\n# modified: collections/users/get.bru` },
+      positions: {
+        dev: { x: 12, y: 50, opacity: 0.5, scale: 0.85 },
+        file: { x: 34, y: 50, scale: 1.1 },
+        git: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'file', to: 'git', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `git diff` çalıştırıldığında, tam olarak HANGİ SATIRIN değiştiğini kırmızı/yeşil renkte gösterir — herhangi bir kod dosyasıyla birebir aynı davranış.',
+        en: 'Step 2 — running `git diff` shows exactly WHICH LINE changed, in red/green — identical behavior to any other code file.',
+      },
+      code: { tr: `- res.body.userName: contains @\n+ res.body.user_name: contains @`, en: `- res.body.userName: contains @\n+ res.body.user_name: contains @` },
+      positions: {
+        git: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        diff: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'git', to: 'diff', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Reviewer, Bruno\'yu hiç açmadan bile pull request\'te bu diff\'i okur: "test artık user_name bekliyor" cümlesini görür ve "mobil uygulama bu rename için güncellendi mi?" diye sorar.',
+        en: 'Step 3 — the reviewer reads this diff in the pull request without ever opening Bruno: they see "the test now expects user_name" and ask "was the mobile app updated for this rename too?"',
+      },
+      positions: {
+        diff: { x: 28, y: 50, opacity: 0.5, scale: 0.85 },
+        reviewer: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'diff', to: 'reviewer', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — AYNI değişiklik Postman\'da yapılsaydı: koleksiyon buluta senkronize olur ama Git\'e giren tek şey (varsa) tüm koleksiyonu kapsayan tek bir opak JSON blob\'u olurdu — hangi satırın değiştiğini kimse GÖREMEZ, sadece "bir şeyler değişti" bilinir.',
+        en: 'Final (the contrast) — had the SAME change been made in Postman: the collection syncs to the cloud, but the only thing that could enter Git (if anyone remembered) is one opaque JSON blob covering the whole collection — NOBODY can see which line changed, only that "something changed".',
+      },
+      positions: {
+        dev: { x: 14, y: 30, scale: 0.9 },
+        reviewer: { x: 40, y: 60, scale: 1.0 },
+        blob: { x: 72, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'blob', color: '#ef4444' }],
+    },
+  ],
+}
+
+const brunoFileVsCloudSteps = {
+  type: 'step-animation',
+  id: 'bruno-file-vs-cloud-steps',
+  title: { tr: 'Adım Adım: Bir Değişiklik Nereye Gider?', en: 'Step by Step: Where Does a Change Go?' },
+  steps: [
+    { id: 1, icon: '✏️', label: { tr: 'Değişikliği yap', en: 'Make the change' }, detail: { tr: 'Bruno\'da .bru dosyasını düzenle ya da Postman\'da bir field\'ı değiştir — her iki tarafta da tıklama adımları hemen hemen aynı görünür.', en: 'Edit the .bru file in Bruno, or change a field in Postman — from the outside, both feel like the same few clicks.' } },
+    { id: 2, icon: '💾', label: { tr: 'Kaydet', en: 'Save' }, detail: { tr: 'Bruno\'da kayıt = diskte gerçek bir dosya güncellenir. Postman\'da kayıt = bulut sunucusuna bir istek gider, senkron biter.', en: 'In Bruno, saving means a real file on disk is updated. In Postman, saving means a request goes to a cloud server and the sync completes.' } },
+    { id: 3, icon: '🗂️', label: { tr: 'Git\'e girer mi?', en: 'Does it enter Git?' }, detail: { tr: '.bru dosyası ZATEN proje klasöründe — otomatik olarak `git status`\'ta görünür. Postman koleksiyonu Git\'e girmek için MANUEL export gerektirir.', en: 'The .bru file is ALREADY inside the project folder — it shows up in `git status` automatically. A Postman collection needs a MANUAL export to enter Git at all.' } },
+    { id: 4, icon: '🧾', label: { tr: 'Diff okunabilir mi?', en: 'Is the diff readable?' }, detail: { tr: '.bru düz metin olduğu için `git diff` satır satır kırmızı/yeşil gösterir. Export edilmiş bir Postman JSON\'u tek bir dev blob olarak görünür — satır bazlı diff anlamsızdır.', en: 'Because .bru is plain text, `git diff` shows red/green line by line. An exported Postman JSON appears as one giant blob — a line-based diff is meaningless there.' } },
+    { id: 5, icon: '👀', label: { tr: 'Reviewer ne görür?', en: 'What does the reviewer see?' }, detail: { tr: 'Bruno: "hangi assertion değişti" net görünür. Postman export\'u: reviewer koskoca bir JSON\'u satır satır okumak zorunda kalır ya da hiç bakmaz.', en: 'Bruno: "which assertion changed" is immediately clear. Postman export: the reviewer must read a giant JSON line by line, or simply doesn\'t bother.' } },
+  ],
+}
+
+const brunoWhatIsPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'bruno-what-is-bruno',
+  id: 'bruno-what-is-practice-01',
+  label: {
+    tr: 'Micro Lab: Değişen bir .bru dosyasının diff\'ini gör',
+    en: 'Micro Lab: See the diff of a changed .bru file',
+  },
+  language: 'bash',
+  task: {
+    tr: 'get.bru dosyasında bir assertion satırını değiştirdin. TODO satırını, bu değişikliği reviewer\'ın okuyabileceği kırmızı/yeşil bir diff olarak gösteren komutla tamamla.',
+    en: 'You changed an assertion line in get.bru. Complete the TODO line with the command that shows this change as a red/green diff the reviewer can read.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir terminal degil; amac .bru dosyasinin diger kod dosyalari gibi Git ile diff\'lenebildigini komutu kendin yazarak pekistirmek.',
+    en: 'This is not a real terminal; the goal is to reinforce that a .bru file is diffable with Git just like any other code file, by writing the command yourself.',
+  },
+  code: {
+    tr: `# get.bru icinde assertion satiri degisti\n# TODO: degisikligi kirmizi/yesil olarak goster\ngit diff collections/users/get.bru`,
+    en: `# the assertion line in get.bru changed\n# TODO: show the change as red/green\ngit diff collections/users/get.bru`,
+  },
+  starterCode: {
+    tr: `# get.bru icinde assertion satiri degisti\n# TODO: degisikligi kirmizi/yesil olarak goster\n`,
+    en: `# the assertion line in get.bru changed\n# TODO: show the change as red/green\n`,
+  },
+  solutionCode: {
+    tr: `# get.bru icinde assertion satiri degisti\n# TODO: degisikligi kirmizi/yesil olarak goster\ngit diff collections/users/get.bru`,
+    en: `# the assertion line in get.bru changed\n# TODO: show the change as red/green\ngit diff collections/users/get.bru`,
+  },
+  expected: 'git diff collections/users/get.bru',
+}
+
+// 📦 Installation — indirmeden ilk yeşil response'a kadar
+const brunoInstallFirstRequestFilm = {
+  type: 'video-scene',
+  id: 'bruno-install-first-request-film',
+  title: {
+    tr: '🎬 İndirmeden İlk Yeşil Response\'a',
+    en: '🎬 From Download to the First Green Response',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'installer', emoji: '⬇️', label: { tr: 'Yükleyici',            en: 'Installer' },        color: '#0ea5e9' },
+    { id: 'app',       emoji: '📦', label: { tr: 'Bruno Uygulaması',      en: 'Bruno App' },        color: '#6366f1' },
+    { id: 'coll',      emoji: '🗂️', label: { tr: 'Yeni Collection',       en: 'New Collection' },   color: '#f59e0b' },
+    { id: 'req',       emoji: '📇', label: { tr: 'GET Users İsteği',      en: 'GET Users Request' }, color: '#8b5cf6' },
+    { id: 'api',       emoji: '🌐', label: { tr: 'Test API Sunucusu',     en: 'Test API Server' },  color: '#22c55e' },
+    { id: 'resp',      emoji: '✅', label: { tr: '200 OK Response',       en: '200 OK Response' },  color: '#10b981' },
+    { id: 'typo',      emoji: '👻', label: { tr: 'ENOTFOUND (yazım hatası)', en: 'ENOTFOUND (typo)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'usebruno.com/downloads\'tan işletim sistemine uygun yükleyici indirilir — hesap açmaya, veritabanı kurmaya gerek yok.',
+        en: 'The installer matching your OS is downloaded from usebruno.com/downloads — no account, no database to set up.',
+      },
+      code: { tr: `brew install --cask bruno`, en: `brew install --cask bruno` },
+      positions: { installer: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — uygulama açılır, Help → About "Bruno v1.x.x" gösterir. Bu tek başına doğrulama adımıdır; login YOKTUR.',
+        en: 'Step 1 — the app opens, Help → About shows "Bruno v1.x.x". This alone is the verification step; there is NO login.',
+      },
+      positions: {
+        installer: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        app: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'installer', to: 'app' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — "Create Collection" tıklanır: bu tek tık, diskte GERÇEK bir klasör oluşturur — bulutta değil, bilgisayarında.',
+        en: 'Step 2 — "Create Collection" is clicked: this one click creates a REAL folder on disk — on your machine, not in the cloud.',
+      },
+      positions: {
+        app: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        coll: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'app', to: 'coll', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — "New Request", GET, URL: jsonplaceholder.typicode.com/users. "Send" tıklanır ve istek gerçek bir sunucuya gider.',
+        en: 'Step 3 — "New Request", GET, URL: jsonplaceholder.typicode.com/users. "Send" is clicked and the request travels to a real server.',
+      },
+      code: { tr: `GET https://jsonplaceholder.typicode.com/users`, en: `GET https://jsonplaceholder.typicode.com/users` },
+      positions: {
+        coll: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        req: { x: 46, y: 50, scale: 1.1 },
+        api: { x: 72, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'coll', to: 'req' }, { from: 'req', to: 'api', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Response paneli bir saniye içinde dolar: status 200, 10 kullanıcılık JSON dizisi. İlk istek başarıyla tamamlandı.',
+        en: 'Step 4 — the Response panel fills within a second: status 200, a JSON array of 10 users. The first request completed successfully.',
+      },
+      positions: {
+        api: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        resp: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'api', to: 'resp', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — URL\'de tek bir harf yanlış yazılsaydı ("jsonplacehlder"), aynı akış "ENOTFOUND" ile kırılırdı: DNS bu hostname\'i hiç bulamaz. Body boş kalır, status bile gelmez — hata mesajı doğrudan sebebi söyler.',
+        en: 'Final (the contrast) — had a single letter been mistyped in the URL ("jsonplacehlder"), the same flow would break with "ENOTFOUND": DNS never finds that hostname at all. The body stays empty, not even a status arrives — the error message names the cause directly.',
+      },
+      positions: {
+        req: { x: 18, y: 30, scale: 0.9 },
+        api: { x: 46, y: 50, scale: 1.0, opacity: 0.4 },
+        typo: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'req', to: 'typo', color: '#ef4444' }],
+    },
+  ],
+}
+
+const brunoInstallJourneySteps = {
+  type: 'step-animation',
+  id: 'bruno-install-journey-steps',
+  title: { tr: 'Adım Adım: Sıfırdan İlk Response\'a', en: 'Step by Step: From Zero to the First Response' },
+  steps: [
+    { id: 1, icon: '⬇️', label: { tr: 'Doğru yükleyiciyi seç', en: 'Pick the right installer' }, detail: { tr: 'Windows için .exe/winget, macOS için .dmg/brew, Linux için .deb/.AppImage/snap — hepsi ayni usebruno.com/downloads kaynagindan gelir.', en: 'exe/winget for Windows, .dmg/brew for macOS, .deb/.AppImage/snap for Linux — all come from the same usebruno.com/downloads source.' } },
+    { id: 2, icon: '✅', label: { tr: 'Sürümü doğrula', en: 'Verify the version' }, detail: { tr: 'Help → About (veya `bru --version`) bir versiyon numarasi gostermeli. Hicbir login veya hesap adimi YOKTUR.', en: 'Help → About (or `bru --version`) should print a version number. There is NO login or account step.' } },
+    { id: 3, icon: '🗂️', label: { tr: 'Collection oluştur', en: 'Create a collection' }, detail: { tr: 'Bu tik diskte gercek bir klasor acar — sonra o klasoru Finder/Explorer\'da acip duz dosyalari gorebilirsin.', en: 'This click opens a real folder on disk — you can later open that same folder in Finder/Explorer and see plain files.' } },
+    { id: 4, icon: '📇', label: { tr: 'İlk isteği kur', en: 'Set up the first request' }, detail: { tr: 'Method GET, URL girilir. Auth veya API key GEREKMEZ cunku jsonplaceholder herkese acik bir test API\'sidir.', en: 'Method GET, URL entered. No auth or API key is NEEDED because jsonplaceholder is a public test API.' } },
+    { id: 5, icon: '📊', label: { tr: 'Send + oku', en: 'Send + read' }, detail: { tr: 'Status 200 ve JSON body bir saniyede doner. ENOTFOUND gorursen ilk supheli URL yaziminda arama yap, uygulamada degil.', en: 'Status 200 and the JSON body arrive within a second. If you see ENOTFOUND, suspect a URL typo first, not the app itself.' } },
+  ],
+}
+
+const brunoInstallationPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'bruno-installation',
+  id: 'bruno-installation-practice-01',
+  label: {
+    tr: 'Micro Lab: bru CLI kurulumunu doğrula',
+    en: 'Micro Lab: Verify the bru CLI installation',
+  },
+  language: 'bash',
+  task: {
+    tr: '`bru` komutu terminalde "command not found" veriyor. TODO satırını, CLI\'yi global kurup versiyonunu doğrulayan iki komutla tamamla.',
+    en: 'The `bru` command gives "command not found" in the terminal. Complete the TODO line with the two commands that install the CLI globally and verify its version.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir terminal degil; amac CLI kurulum + dogrulama refleksini (npm install -g, sonra --version) elle yazarak pekistirmek.',
+    en: 'This is not a real terminal; the goal is to reinforce the install + verify reflex for the CLI (npm install -g, then --version) by writing it yourself.',
+  },
+  code: {
+    tr: `$ bru --version\nzsh: command not found: bru\n\n# TODO: CLI'yi global kur, sonra versiyonu dogrula\nnpm install -g @usebruno/cli\nbru --version`,
+    en: `$ bru --version\nzsh: command not found: bru\n\n# TODO: install the CLI globally, then verify the version\nnpm install -g @usebruno/cli\nbru --version`,
+  },
+  starterCode: {
+    tr: `$ bru --version\nzsh: command not found: bru\n\n# TODO: CLI'yi global kur, sonra versiyonu dogrula\n`,
+    en: `$ bru --version\nzsh: command not found: bru\n\n# TODO: install the CLI globally, then verify the version\n`,
+  },
+  solutionCode: {
+    tr: `$ bru --version\nzsh: command not found: bru\n\n# TODO: CLI'yi global kur, sonra versiyonu dogrula\nnpm install -g @usebruno/cli\nbru --version`,
+    en: `$ bru --version\nzsh: command not found: bru\n\n# TODO: install the CLI globally, then verify the version\nnpm install -g @usebruno/cli\nbru --version`,
+  },
+  expected: '1.x.x',
+}
+
+// 📚 Core Concepts — .bru dosyasının anatomisi + {{baseUrl}} çözümleme zinciri
+const brunoAnatomyFilm = {
+  type: 'video-scene',
+  id: 'bruno-anatomy-film',
+  title: {
+    tr: '🎬 Bir .bru Dosyasının Anatomisi: {{baseUrl}} Nasıl Çözülür?',
+    en: '🎬 The Anatomy of a .bru File: How {{baseUrl}} Gets Resolved',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'file',  emoji: '📇', label: { tr: 'get.bru',              en: 'get.bru' },              color: '#6366f1' },
+    { id: 'meta',  emoji: '🏷️', label: { tr: 'meta { }',             en: 'meta { }' },             color: '#0ea5e9' },
+    { id: 'get',   emoji: '🔗', label: { tr: 'get { url }',          en: 'get { url }' },          color: '#f59e0b' },
+    { id: 'env',   emoji: '🌱', label: { tr: 'dev.bru (env)',        en: 'dev.bru (env)' },        color: '#8b5cf6' },
+    { id: 'assert', emoji: '✅', label: { tr: 'assert { }',          en: 'assert { }' },           color: '#22c55e' },
+    { id: 'script', emoji: '📜', label: { tr: 'script:post-response', en: 'script:post-response' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Environment Seçilmemiş', en: 'No Environment Selected' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'get.bru dosyası aslında dört küçük bölümden oluşur: meta, get, headers, assert. Bugün odak: get bölümündeki {{baseUrl}} nasıl gerçek bir URL\'e dönüşüyor?',
+        en: 'The get.bru file is really four small sections: meta, get, headers, assert. Today\'s focus: how does {{baseUrl}} inside the get section become a real URL?',
+      },
+      code: { tr: `get {\n  url: {{baseUrl}}/users\n}`, en: `get {\n  url: {{baseUrl}}/users\n}` },
+      positions: { file: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — meta bölümü sadece görüntüleme bilgisi taşır (sidebar\'daki isim). Henüz hiçbir network isteği yok, sadece dosya okunuyor.',
+        en: 'Step 1 — the meta section carries only display info (the name shown in the sidebar). No network request yet, just the file being read.',
+      },
+      positions: {
+        file: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        meta: { x: 42, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'file', to: 'meta' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — get bölümüne gelinir: {{baseUrl}} bir PLACEHOLDER\'dır, henüz gerçek bir domain değil. Bruno bunu çözmek için sağ üstteki seçili Environment dosyasına bakar.',
+        en: 'Step 2 — the get section is reached: {{baseUrl}} is a PLACEHOLDER, not yet a real domain. Bruno looks at the currently selected Environment file to resolve it.',
+      },
+      positions: {
+        meta: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        get: { x: 42, y: 50, scale: 1.15, pulse: true },
+        env: { x: 68, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'meta', to: 'get' }, { from: 'get', to: 'env', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — dev.bru dosyasında baseUrl = https://api-dev.example.com tanımlı. {{baseUrl}}/users artık https://api-dev.example.com/users olur ve GERÇEK istek bu adrese gider.',
+        en: 'Step 3 — dev.bru defines baseUrl = https://api-dev.example.com. {{baseUrl}}/users now becomes https://api-dev.example.com/users, and the REAL request goes to that address.',
+      },
+      code: { tr: `baseUrl: https://api-dev.example.com`, en: `baseUrl: https://api-dev.example.com` },
+      positions: {
+        get: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        env: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'get', to: 'env', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — response geldikten sonra assert bölümü res.status: eq 200 gibi basit kontrolleri çalıştırır; script:post-response ise bru.setVar() ile bir sonraki isteğe değer taşıyabilir.',
+        en: 'Step 4 — once the response arrives, the assert section runs simple checks like res.status: eq 200; script:post-response can carry a value to the next request with bru.setVar().',
+      },
+      positions: {
+        env: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        assert: { x: 48, y: 40, scale: 1.15, pulse: true },
+        script: { x: 48, y: 68, scale: 1.05 },
+      },
+      beams: [{ from: 'env', to: 'assert', color: '#10b981' }, { from: 'env', to: 'script' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — sağ üstte "No Environment" seçiliyse, adım 2\'deki arama HİÇBİR dosya bulamaz: {{baseUrl}} literal metin olarak kalır ve istek gerçek bir hostname\'e gitmeden başarısız olur.',
+        en: 'Final (the contrast) — if the top-right shows "No Environment" selected, the lookup in step 2 finds NO file at all: {{baseUrl}} stays literal text and the request fails before ever reaching a real hostname.',
+      },
+      positions: {
+        get: { x: 20, y: 40, scale: 0.95 },
+        env: { x: 46, y: 60, scale: 0.9, opacity: 0.4 },
+        ghost: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'get', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const brunoEnvVarResolutionSteps = {
+  type: 'step-animation',
+  id: 'bruno-env-var-resolution-steps',
+  title: { tr: 'Adım Adım: Değişken Öncelik Sırası', en: 'Step by Step: Variable Priority Order' },
+  steps: [
+    { id: 1, icon: '⚡', label: { tr: 'Runtime (bru.setVar)', en: 'Runtime (bru.setVar)' }, detail: { tr: 'Bir script icinde calisma zamaninda set edilen deger en yuksek onceliklidir — diger tum katmanlari GECERSIZ kilar.', en: 'A value set at runtime inside a script has the HIGHEST priority — it overrides every other layer.' } },
+    { id: 2, icon: '🌱', label: { tr: 'Environment (dev/staging/prod)', en: 'Environment (dev/staging/prod)' }, detail: { tr: 'Sag ustten secilen environment dosyasindaki deger, runtime\'da bir override yoksa kullanilir.', en: 'The value in the environment file selected at the top-right is used if no runtime override exists.' } },
+    { id: 3, icon: '🗂️', label: { tr: 'Collection değişkeni', en: 'Collection variable' }, detail: { tr: 'Environment\'ta o degisken tanimli degilse, koleksiyon seviyesindeki varsayilan deger devreye girer.', en: 'If the environment doesn\'t define that variable, the collection-level default kicks in.' } },
+    { id: 4, icon: '🌐', label: { tr: 'Global değişken', en: 'Global variable' }, detail: { tr: 'Son care olarak process/global seviyesindeki deger kullanilir — en genis, en dusuk oncelikli katman.', en: 'As a last resort, the process/global-level value is used — the broadest, lowest-priority layer.' } },
+    { id: 5, icon: '👻', label: { tr: 'Hiçbiri yoksa?', en: 'If none exist?' }, detail: { tr: 'Hicbir katmanda deger yoksa {{baseUrl}} LITERAL metin olarak kalir ve istek yanlis/eksik bir URL\'e gider.', en: 'If no layer defines it, {{baseUrl}} stays LITERAL text and the request goes to a wrong/incomplete URL.' } },
+  ],
+}
+
+const brunoCoreConceptsPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'bruno-core-concepts',
+  id: 'bruno-core-concepts-practice-01',
+  label: {
+    tr: 'Micro Lab: .bru dosyasına assert bölümü ekle',
+    en: 'Micro Lab: Add an assert section to a .bru file',
+  },
+  language: 'text',
+  task: {
+    tr: 'get.bru dosyasında meta, get ve headers bölümleri hazır ama assert bölümü eksik. TODO satırını, response status\'unun 200 olduğunu kontrol eden assert bloğuyla tamamla.',
+    en: 'The get.bru file has meta, get and headers sections ready, but the assert section is missing. Complete the TODO line with an assert block that checks the response status is 200.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir Bruno runtime\'i degil; amac .bru dosyasinin assert sozdizimini (res.status: eq 200) elle yazarak pekistirmek.',
+    en: 'This is not a real Bruno runtime; the goal is to reinforce the .bru assert syntax (res.status: eq 200) by writing it yourself.',
+  },
+  code: {
+    tr: `meta {\n  name: Get Users\n  type: http\n}\n\nget {\n  url: {{baseUrl}}/users\n}\n\n# TODO: response status 200 olmali\nassert {\n  res.status: eq 200\n}`,
+    en: `meta {\n  name: Get Users\n  type: http\n}\n\nget {\n  url: {{baseUrl}}/users\n}\n\n# TODO: response status should be 200\nassert {\n  res.status: eq 200\n}`,
+  },
+  starterCode: {
+    tr: `meta {\n  name: Get Users\n  type: http\n}\n\nget {\n  url: {{baseUrl}}/users\n}\n\n# TODO: response status 200 olmali\n`,
+    en: `meta {\n  name: Get Users\n  type: http\n}\n\nget {\n  url: {{baseUrl}}/users\n}\n\n# TODO: response status should be 200\n`,
+  },
+  solutionCode: {
+    tr: `meta {\n  name: Get Users\n  type: http\n}\n\nget {\n  url: {{baseUrl}}/users\n}\n\n# TODO: response status 200 olmali\nassert {\n  res.status: eq 200\n}`,
+    en: `meta {\n  name: Get Users\n  type: http\n}\n\nget {\n  url: {{baseUrl}}/users\n}\n\n# TODO: response status should be 200\nassert {\n  res.status: eq 200\n}`,
+  },
+  expected: 'res.status: eq 200',
+}
+
+// 🔥 Test Automation — post-response script'in çalışma akışı + CI exit code
+const brunoTestScriptFilm = {
+  type: 'video-scene',
+  id: 'bruno-test-script-film',
+  title: {
+    tr: '🎬 Response Sonrası: test()/expect() Nasıl Karar Verir?',
+    en: '🎬 After the Response: How test()/expect() Decides',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'req',    emoji: '📤', label: { tr: 'İstek Gönderildi',   en: 'Request Sent' },      color: '#0ea5e9' },
+    { id: 'res',    emoji: '📥', label: { tr: 'Response Geldi',     en: 'Response Arrived' },  color: '#6366f1' },
+    { id: 'script', emoji: '📜', label: { tr: 'post-response script', en: 'post-response script' }, color: '#f59e0b' },
+    { id: 'test',   emoji: '🧪', label: { tr: 'test()/expect()',    en: 'test()/expect()' },   color: '#8b5cf6' },
+    { id: 'exit',   emoji: '🚦', label: { tr: 'Exit Code',          en: 'Exit Code' },          color: '#22c55e' },
+    { id: 'ci',     emoji: '🏗️', label: { tr: 'CI Pipeline',        en: 'CI Pipeline' },        color: '#10b981' },
+    { id: 'fail',   emoji: '👻', label: { tr: 'expect() Fail',      en: 'expect() Fail' },      color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '"Send" tıklanır tıklanmaz istek yola çıkar. Test otomasyonunun asıl hikayesi response GELDİKTEN SONRA başlar.',
+        en: 'The moment "Send" is clicked, the request travels out. The real story of test automation begins AFTER the response arrives.',
+      },
+      positions: { req: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — sunucu yanıt verir: status code + body Bruno\'ya döner. Bu ana kadar henüz hiçbir test() çalışmadı.',
+        en: 'Step 1 — the server responds: status code + body return to Bruno. No test() has run yet at this point.',
+      },
+      positions: {
+        req: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        res: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'req', to: 'res' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — post-response script tetiklenir: res değişkeni artık dolu, script bu response\'a erişebilir.',
+        en: 'Step 2 — the post-response script fires: the res variable is now populated, and the script can access this response.',
+      },
+      positions: {
+        res: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        script: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'res', to: 'script', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — test("...", function() { expect(...) }) çalışır: users.length > 0 gibi bir koşul GERÇEKTEN kontrol edilir, sadece görsel bir kontrol DEĞİLDİR.',
+        en: 'Step 3 — test("...", function() { expect(...) }) runs: a condition like users.length > 0 is ACTUALLY checked, not just eyeballed.',
+      },
+      code: { tr: `test("user list is not empty", function() {\n  expect(users.length).to.be.above(0);\n});`, en: `test("user list is not empty", function() {\n  expect(users.length).to.be.above(0);\n});` },
+      positions: {
+        script: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        test: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'script', to: 'test', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — tüm test()\'ler geçerse process exit code 0 olur. Bu tek sayı CI\'a "devam et, deploy\'a izin ver" der — insan log okumasa bile.',
+        en: 'Step 4 — if every test() passes, the process exit code becomes 0. This single number tells CI "proceed, allow the deploy" — even without a human reading the logs.',
+      },
+      positions: {
+        test: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        exit: { x: 48, y: 50, scale: 1.15 },
+        ci: { x: 74, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'exit', color: '#22c55e' }, { from: 'exit', to: 'ci', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — expect(users.length).to.be.above(0) başarısız olsaydı (API boş dizi dönseydi): exit code 1 olur, CI pipeline\'ı deploy\'u BLOKE eder — insan hiç bakmadan bile.',
+        en: 'Final (the contrast) — had expect(users.length).to.be.above(0) failed (the API returned an empty array): exit code becomes 1, and the CI pipeline BLOCKS the deploy — even without a human looking.',
+      },
+      positions: {
+        test: { x: 20, y: 30, scale: 0.9 },
+        exit: { x: 46, y: 55, scale: 1.0, opacity: 0.5 },
+        fail: { x: 72, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'fail', color: '#ef4444' }],
+    },
+  ],
+}
+
+const brunoCiExitCodeSteps = {
+  type: 'step-animation',
+  id: 'bruno-ci-exit-code-steps',
+  title: { tr: 'Adım Adım: Exit Code CI\'a Nasıl Karar Aldırır?', en: 'Step by Step: How Exit Code Drives CI\'s Decision' },
+  steps: [
+    { id: 1, icon: '🧪', label: { tr: 'Tüm test()\'ler çalışır', en: 'Every test() runs' }, detail: { tr: '`bru run`, koleksiyondaki her istegi sirayla calistirir ve her assert/script test\'ini degerlendirir.', en: '`bru run` executes every request in the collection in order and evaluates every assert/script test.' } },
+    { id: 2, icon: '✅', label: { tr: 'Hepsi geçerse', en: 'If all pass' }, detail: { tr: 'Process exit code 0 doner — "hicbir sey kirilmadi" anlamina gelir.', en: 'The process returns exit code 0 — meaning "nothing broke".' } },
+    { id: 3, icon: '❌', label: { tr: 'Biri bile fail ederse', en: 'If even one fails' }, detail: { tr: 'Exit code 1 (veya sifirdan farkli) doner — TEK bir basarisiz assertion bile tum run\'i "fail" isaretler.', en: 'Exit code 1 (or any non-zero) is returned — even ONE failing assertion marks the whole run as "fail".' } },
+    { id: 4, icon: '🚦', label: { tr: 'CI bu sayıyı okur', en: 'CI reads that number' }, detail: { tr: 'GitHub Actions/Jenkins insan log\'u okumaz — sadece shell adiminin exit code\'una bakar.', en: 'GitHub Actions/Jenkins doesn\'t read logs like a human — it just checks the shell step\'s exit code.' } },
+    { id: 5, icon: '🚫', label: { tr: 'Deploy gate tetiklenir', en: 'The deploy gate triggers' }, detail: { tr: 'Sifirdan farkli exit code, sonraki deploy job\'inin ATLANMASINA veya PR\'in merge edilememesine sebep olur.', en: 'A non-zero exit code causes the next deploy job to be SKIPPED, or the PR to be blocked from merging.' } },
+  ],
+}
+
+const brunoTestAutomationPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'bruno-test-automation',
+  id: 'bruno-test-automation-practice-01',
+  label: {
+    tr: 'Micro Lab: post-response script\'e bir test ekle',
+    en: 'Micro Lab: Add a test to the post-response script',
+  },
+  language: 'javascript',
+  task: {
+    tr: 'Response gelen kullanıcı listesinin boş olmadığını doğrulayan bir test yazman gerekiyor. TODO satırını, users.length\'in 0\'dan büyük olduğunu kontrol eden expect() ile tamamla.',
+    en: 'You need to write a test verifying the returned user list is not empty. Complete the TODO line with an expect() that checks users.length is greater than 0.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir JS runtime\'i degil; amac Bruno\'nun test()/expect() sozdizimini (Postman\'in pm.test()\'ine denk) elle yazarak pekistirmek.',
+    en: 'This is not a real JS runtime; the goal is to reinforce Bruno\'s test()/expect() syntax (the counterpart of Postman\'s pm.test()) by writing it yourself.',
+  },
+  code: {
+    tr: `const users = res.getBody();\n\n// TODO: kullanici listesi bos olmamali\ntest("user list is not empty", function() {\n  expect(users.length).to.be.above(0);\n});`,
+    en: `const users = res.getBody();\n\n// TODO: the user list must not be empty\ntest("user list is not empty", function() {\n  expect(users.length).to.be.above(0);\n});`,
+  },
+  starterCode: {
+    tr: `const users = res.getBody();\n\n// TODO: kullanici listesi bos olmamali\n`,
+    en: `const users = res.getBody();\n\n// TODO: the user list must not be empty\n`,
+  },
+  solutionCode: {
+    tr: `const users = res.getBody();\n\n// TODO: kullanici listesi bos olmamali\ntest("user list is not empty", function() {\n  expect(users.length).to.be.above(0);\n});`,
+    en: `const users = res.getBody();\n\n// TODO: the user list must not be empty\ntest("user list is not empty", function() {\n  expect(users.length).to.be.above(0);\n});`,
+  },
+  expected: 'expect(users.length).to.be.above(0)',
+}
+
+// 🛠️ Real World — bru CLI'nin CI'da bir collection çalıştırma akışı
+const brunoCliCiRunFilm = {
+  type: 'video-scene',
+  id: 'bruno-cli-ci-run-film',
+  title: {
+    tr: '🎬 git push\'tan bru run\'a: CI Bir Koleksiyonu Nasıl Çalıştırır?',
+    en: '🎬 From git push to bru run: How CI Runs a Collection',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dev',    emoji: '👩‍💻', label: { tr: 'Geliştirici',        en: 'Developer' },       color: '#0ea5e9' },
+    { id: 'push',   emoji: '📤', label: { tr: 'git push',            en: 'git push' },        color: '#6366f1' },
+    { id: 'runner', emoji: '🤖', label: { tr: 'GitHub Actions Runner', en: 'GitHub Actions Runner' }, color: '#f59e0b' },
+    { id: 'cli',    emoji: '💻', label: { tr: 'bru CLI Kurulumu',     en: 'bru CLI Install' },  color: '#8b5cf6' },
+    { id: 'run',    emoji: '🏃', label: { tr: 'bru run --env staging', en: 'bru run --env staging' }, color: '#22c55e' },
+    { id: 'gate',   emoji: '🚧', label: { tr: 'Deploy Gate',          en: 'Deploy Gate' },      color: '#10b981' },
+    { id: 'block',  emoji: '🚫', label: { tr: 'Merge Bloke',          en: 'Merge Blocked' },    color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Geliştirici, hem backend kodunu hem de ilgili .bru koleksiyonunu içeren bir commit\'i push\'lar. Aynı pull request\'te ikisi de var.',
+        en: 'The developer pushes a commit containing both the backend code and the related .bru collection. Both live in the same pull request.',
+      },
+      code: { tr: `git push origin feature/orders-api`, en: `git push origin feature/orders-api` },
+      positions: {
+        dev: { x: 14, y: 50, scale: 1.05 },
+        push: { x: 38, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'push' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — GitHub Actions, pull_request event\'ini yakalar ve temiz bir ubuntu-latest runner ayağa kaldırır. Bu runner\'da HİÇBİR önceki state yoktur.',
+        en: 'Step 1 — GitHub Actions catches the pull_request event and spins up a clean ubuntu-latest runner. This runner has NO prior state.',
+      },
+      positions: {
+        push: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        runner: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'push', to: 'runner', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — checkout adımı .bru dosyalarını da çeker (onlar da sadece kod), sonra `npm install -g @usebruno/cli` CLI\'yi kurar.',
+        en: 'Step 2 — the checkout step also pulls in the .bru files (they\'re just code too), then `npm install -g @usebruno/cli` installs the CLI.',
+      },
+      code: { tr: `- uses: actions/checkout@v4\n- run: npm install -g @usebruno/cli`, en: `- uses: actions/checkout@v4\n- run: npm install -g @usebruno/cli` },
+      positions: {
+        runner: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        cli: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'runner', to: 'cli', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `bru run --env staging --reporter-junit results.xml` tüm koleksiyonu terminalden çalıştırır — GUI\'ye hiç ihtiyaç yok.',
+        en: 'Step 3 — `bru run --env staging --reporter-junit results.xml` runs the whole collection from the terminal — no GUI needed at all.',
+      },
+      positions: {
+        cli: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        run: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cli', to: 'run', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — her assertion geçerse exit code 0 döner, deploy gate açılır ve PR merge edilebilir hale gelir.',
+        en: 'Step 4 — if every assertion passes, exit code 0 returns, the deploy gate opens, and the PR becomes mergeable.',
+      },
+      positions: {
+        run: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        gate: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'run', to: 'gate', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — bir assertion fail etseydi ("user_name" yerine "userName" beklendiği için): exit code 1 döner, GitHub bu job\'u kırmızıya boyar ve "Merge" butonu FİZİKSEL olarak devre dışı kalır.',
+        en: 'Final (the contrast) — had one assertion failed (because it expected "userName" instead of "user_name"): exit code 1 returns, GitHub paints this job red, and the "Merge" button becomes PHYSICALLY disabled.',
+      },
+      positions: {
+        run: { x: 20, y: 30, scale: 0.9 },
+        gate: { x: 46, y: 55, scale: 1.0, opacity: 0.4 },
+        block: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'run', to: 'block', color: '#ef4444' }],
+    },
+  ],
+}
+
+const brunoPrReviewSteps = {
+  type: 'step-animation',
+  id: 'bruno-pr-review-steps',
+  title: { tr: 'Adım Adım: Bir Breaking Change Merge\'den Önce Nasıl Yakalanır?', en: 'Step by Step: How a Breaking Change Is Caught Before Merge' },
+  steps: [
+    { id: 1, icon: '✏️', label: { tr: 'Backend değişir', en: 'Backend changes' }, detail: { tr: 'Bir gelistirici response field\'ini "userName"den "user_name"e cevirir, QA\'ya haber vermeden.', en: 'A developer renames a response field from "userName" to "user_name", without telling QA.' } },
+    { id: 2, icon: '🧾', label: { tr: 'Aynı PR\'de görünür', en: 'It shows up in the same PR' }, detail: { tr: '.bru assertion dosyasi ayni repo\'da oldugu icin, PR diff\'i API degisikligini VE eski assertion\'in guncellenmedigini birlikte gosterir.', en: 'Because the .bru assertion file lives in the same repo, the PR diff shows the API change AND that the old assertion was never updated.' } },
+    { id: 3, icon: '👀', label: { tr: 'Reviewer boşluğu görür', en: 'The reviewer spots the gap' }, detail: { tr: 'Insan reviewer, "assertion hala eski field adini bekliyor" seklinde bir yorum birakabilir.', en: 'The human reviewer can leave a comment like "the assertion still expects the old field name".' } },
+    { id: 4, icon: '🤖', label: { tr: 'CI fiziksel olarak fail eder', en: 'CI physically fails' }, detail: { tr: 'Insan yorum birakmasa bile bru run, eski assertion\'in yeni field ile eslesmedigini gorup exit code 1 doner.', en: 'Even if no human comments, bru run sees the old assertion doesn\'t match the new field and returns exit code 1.' } },
+    { id: 5, icon: '🔧', label: { tr: 'Doğru düzeltme', en: 'The right fix' }, detail: { tr: 'Assertion\'i SILMEK yerine yeni field adiyla GUNCELLEMEK ve baska tuketen servis olup olmadigini sormak dogru refleks.', en: 'The right reflex is UPDATING the assertion to the new field name — not deleting it — and asking whether any other consumer depends on the old name.' } },
+  ],
+}
+
+const brunoRealWorldPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'bruno-real-world',
+  id: 'bruno-real-world-practice-01',
+  label: {
+    tr: 'Micro Lab: CI\'da bru run\'ı JUnit raporuyla çalıştır',
+    en: 'Micro Lab: Run bru run in CI with a JUnit report',
+  },
+  language: 'yaml',
+  task: {
+    tr: 'GitHub Actions job\'ında CLI kurulu ama koşum adımı eksik. TODO satırını, staging environment\'ında JUnit raporu üreten bru run komutuyla tamamla.',
+    en: 'The GitHub Actions job has the CLI installed but the run step is missing. Complete the TODO line with the bru run command that produces a JUnit report against the staging environment.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir CI calistirmasi degil; amac CI\'da bru run\'i dogru flag\'lerle (--env, --reporter-junit) yazma refleksini pekistirmek.',
+    en: 'This is not a real CI run; the goal is to reinforce writing bru run in CI with the correct flags (--env, --reporter-junit) yourself.',
+  },
+  code: {
+    tr: `- uses: actions/checkout@v4\n- run: npm install -g @usebruno/cli\n# TODO: staging ortaminda calistir, JUnit raporu uret\n- run: bru run --env staging --reporter-junit results.xml`,
+    en: `- uses: actions/checkout@v4\n- run: npm install -g @usebruno/cli\n# TODO: run against staging, produce a JUnit report\n- run: bru run --env staging --reporter-junit results.xml`,
+  },
+  starterCode: {
+    tr: `- uses: actions/checkout@v4\n- run: npm install -g @usebruno/cli\n# TODO: staging ortaminda calistir, JUnit raporu uret\n`,
+    en: `- uses: actions/checkout@v4\n- run: npm install -g @usebruno/cli\n# TODO: run against staging, produce a JUnit report\n`,
+  },
+  solutionCode: {
+    tr: `- uses: actions/checkout@v4\n- run: npm install -g @usebruno/cli\n# TODO: staging ortaminda calistir, JUnit raporu uret\n- run: bru run --env staging --reporter-junit results.xml`,
+    en: `- uses: actions/checkout@v4\n- run: npm install -g @usebruno/cli\n# TODO: run against staging, produce a JUnit report\n- run: bru run --env staging --reporter-junit results.xml`,
+  },
+  expected: 'bru run --env staging --reporter-junit results.xml',
+}
+
+// 🔗 Ecosystem — offline-first / dosya-tabanlı mimari vs Postman'ın bulut modeli
+const brunoOfflineFirstFilm = {
+  type: 'video-scene',
+  id: 'bruno-offline-first-film',
+  title: {
+    tr: '🎬 Uçakta Wi-Fi Yok: Offline-First Mimari Testte',
+    en: '🎬 No Wi-Fi on the Plane: Offline-First Architecture in Action',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'qa',    emoji: '👩‍💻', label: { tr: 'QA Mühendisi',     en: 'QA Engineer' },     color: '#0ea5e9' },
+    { id: 'disk',  emoji: '💾', label: { tr: '.bru Dosyaları (Disk)', en: '.bru Files (Disk)' }, color: '#6366f1' },
+    { id: 'app',   emoji: '📦', label: { tr: 'Bruno App',        en: 'Bruno App' },       color: '#f59e0b' },
+    { id: 'local', emoji: '🖥️', label: { tr: 'Local API Sunucusu', en: 'Local API Server' }, color: '#22c55e' },
+    { id: 'cloud', emoji: '☁️', label: { tr: 'Postman Cloud',    en: 'Postman Cloud' },   color: '#8b5cf6' },
+    { id: 'nowifi', emoji: '📵', label: { tr: 'İnternet Yok',    en: 'No Internet' },     color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'QA mühendisi bir uçuşta, internetsiz, ama sabahki API regresyonunu yine de çalıştırması gerekiyor.',
+        en: 'A QA engineer is on a flight, no internet, but still needs to run this morning\'s API regression.',
+      },
+      positions: { qa: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Bruno açılır: .bru dosyaları zaten diskte, bulut bağlantısı gerektirmez. Koleksiyon anında yüklenir.',
+        en: 'Step 1 — Bruno opens: the .bru files are already on disk, no cloud connection required. The collection loads instantly.',
+      },
+      positions: {
+        qa: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        disk: { x: 40, y: 50, scale: 1.1 },
+        app: { x: 62, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'qa', to: 'disk' }, { from: 'disk', to: 'app', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — local API sunucusu (localhost:3000, uçakta da çalışan bir mock/test sunucusu) hedeflenir. İstek internet gerektirmez, sadece kendi makinesinde döner.',
+        en: 'Step 2 — the local API server (localhost:3000, a mock/test server that runs fine on the plane too) is targeted. The request needs no internet, it just loops on the same machine.',
+      },
+      positions: {
+        app: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        local: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'app', to: 'local', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — regresyon çalışır, response gelir, assert\'ler geçer. Hiçbir noktada internete çıkma İHTİYACI olmadı.',
+        en: 'Step 3 — the regression runs, the response arrives, the assertions pass. At no point was there a NEED to reach the internet.',
+      },
+      positions: {
+        local: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        app: { x: 50, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'local', to: 'app', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — aynı senaryo Postman\'la denenseydi: koleksiyon buluta senkronize olduğu için ilk açılışta "syncing..." beklemesi ya da eski, önbelleğe alınmış bir sürümle çalışma riski doğardı — internet yoksa senkron da yoktur.',
+        en: 'Final (the contrast) — had the same scenario been tried with Postman: because the collection syncs to the cloud, first launch could mean waiting on "syncing..." or risk working from a stale, cached version — no internet means no sync.',
+      },
+      positions: {
+        qa: { x: 14, y: 30, scale: 0.9 },
+        cloud: { x: 46, y: 55, scale: 1.1 },
+        nowifi: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'qa', to: 'cloud' }, { from: 'cloud', to: 'nowifi', color: '#ef4444' }],
+    },
+  ],
+}
+
+const brunoEcosystemPluginSteps = {
+  type: 'step-animation',
+  id: 'bruno-ecosystem-plugin-steps',
+  title: { tr: 'Adım Adım: Ekosistem Neye Bağlanır?', en: 'Step by Step: What Plugs Into the Ecosystem' },
+  steps: [
+    { id: 1, icon: '📮', label: { tr: 'Postman koleksiyonu import', en: 'Import a Postman collection' }, detail: { tr: 'Export edilmis Collection v2.1 JSON dosyasi, Bruno\'nun Import ozelligiyle .bru dosyalarina cevrilir.', en: 'An exported Collection v2.1 JSON file gets converted into .bru files via Bruno\'s Import feature.' } },
+    { id: 2, icon: '📑', label: { tr: 'OpenAPI/Swagger import', en: 'Import OpenAPI/Swagger' }, detail: { tr: 'Bir API spec dosyasindan, hicbir istegi elle yazmadan tam bir koleksiyon uretilir.', en: 'A full collection is generated straight from an API spec file, without typing any request by hand.' } },
+    { id: 3, icon: '🧩', label: { tr: 'VS Code Extension', en: 'VS Code Extension' }, detail: { tr: '.bru dosyalarini syntax highlight ile editorde gormeni saglar — Bruno app\'ini acmadan hizli bir bakis.', en: 'Lets you view .bru files with syntax highlighting right in the editor — a quick peek without opening the Bruno app.' } },
+    { id: 4, icon: '🔗', label: { tr: 'GraphQL / gRPC / WebSocket', en: 'GraphQL / gRPC / WebSocket' }, detail: { tr: 'REST disina cikan protokoller icin de ayni .bru dosya modeli kullanilir — tek bir mental model her yerde gecerli.', en: 'The same .bru file model is used for protocols beyond REST — one mental model applies everywhere.' } },
+    { id: 5, icon: '☁️', label: { tr: 'Bruno Cloud (opsiyonel)', en: 'Bruno Cloud (optional)' }, detail: { tr: 'Ekip senkronu isteyenler icin opsiyonel ucretli katman — ayni .bru dosyalarinin UZERINE eklenir, onlari degistirmez.', en: 'An optional paid layer for teams wanting sync — it sits ON TOP of the same .bru files, it doesn\'t replace them.' } },
+  ],
+}
+
+const brunoEcosystemPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'bruno-ecosystem',
+  id: 'bruno-ecosystem-practice-01',
+  label: {
+    tr: 'Micro Lab: Postman koleksiyonunu Bruno\'ya taşı',
+    en: 'Micro Lab: Migrate a Postman collection to Bruno',
+  },
+  language: 'text',
+  task: {
+    tr: '80 isteklik bir Postman koleksiyonunu elle yeniden yazmadan taşıman gerekiyor. TODO satırını, doğru göç sırasını yazan iki adımla tamamla.',
+    en: 'You need to migrate an 80-request Postman collection without retyping it by hand. Complete the TODO line with the two steps of the correct migration order.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir import islemi degil; amac Postman -> Bruno gocunde dogru sirayi (export sonra import) elle yazarak pekistirmek.',
+    en: 'This is not a real import operation; the goal is to reinforce the correct order for a Postman -> Bruno migration (export, then import) by writing it yourself.',
+  },
+  code: {
+    tr: `# TODO: 80 istegi elle yeniden yazmadan tasi\n# 1) Postman: collection menu -> Export -> Collection v2.1 (JSON)\n# 2) Bruno: Import Collection -> "Postman Collection" -> JSON dosyasini sec`,
+    en: `# TODO: migrate 80 requests without retyping them by hand\n# 1) Postman: collection menu -> Export -> Collection v2.1 (JSON)\n# 2) Bruno: Import Collection -> "Postman Collection" -> select the JSON file`,
+  },
+  starterCode: {
+    tr: `# TODO: 80 istegi elle yeniden yazmadan tasi\n`,
+    en: `# TODO: migrate 80 requests without retyping them by hand\n`,
+  },
+  solutionCode: {
+    tr: `# TODO: 80 istegi elle yeniden yazmadan tasi\n# 1) Postman: collection menu -> Export -> Collection v2.1 (JSON)\n# 2) Bruno: Import Collection -> "Postman Collection" -> JSON dosyasini sec`,
+    en: `# TODO: migrate 80 requests without retyping them by hand\n# 1) Postman: collection menu -> Export -> Collection v2.1 (JSON)\n# 2) Bruno: Import Collection -> "Postman Collection" -> select the JSON file`,
+  },
+  expected: 'Export -> Collection v2.1 (JSON) -> Bruno Import Collection',
+}
+
+// 🚨 Common Errors — {{baseUrl}} çözülemedi hatasının teşhis akışı
+const brunoEnvVarErrorFilm = {
+  type: 'video-scene',
+  id: 'bruno-envvar-error-film',
+  title: {
+    tr: '🎬 "Could not resolve variable": Bir Hatanın Teşhisi',
+    en: '🎬 "Could not resolve variable": Diagnosing an Error',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'send',   emoji: '📤', label: { tr: 'Send Tıklandı',        en: 'Send Clicked' },       color: '#0ea5e9' },
+    { id: 'error',  emoji: '🚨', label: { tr: 'Could not resolve variable', en: 'Could not resolve variable' }, color: '#ef4444' },
+    { id: 'dropdown', emoji: '🔽', label: { tr: 'Environment Dropdown', en: 'Environment Dropdown' }, color: '#f59e0b' },
+    { id: 'file',   emoji: '📄', label: { tr: 'dev.bru Dosyası',      en: 'dev.bru File' },       color: '#8b5cf6' },
+    { id: 'fixed',  emoji: '✅', label: { tr: 'baseUrl Çözüldü',      en: 'baseUrl Resolved' },  color: '#10b981' },
+    { id: 'typo',   emoji: '👻', label: { tr: 'baseURL (yanlış case)', en: 'baseURL (wrong case)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '"Send" tıklanır ama Response paneli yerine kırmızı bir hata çıkar: "Could not resolve variable {{baseUrl}}".',
+        en: '"Send" is clicked, but instead of the Response panel, a red error appears: "Could not resolve variable {{baseUrl}}".',
+      },
+      code: { tr: `Error: Could not resolve variable "{{baseUrl}}"`, en: `Error: Could not resolve variable "{{baseUrl}}"` },
+      positions: {
+        send: { x: 20, y: 50, scale: 1.05 },
+        error: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'send', to: 'error', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — teşhis Bruno\'yu yeniden kurmak DEĞİL, sağ üstteki Environment dropdown\'a bakmakla başlar: "No Environment" mi seçili?',
+        en: 'Step 1 — diagnosis does NOT start with reinstalling Bruno, it starts by checking the top-right Environment dropdown: is "No Environment" selected?',
+      },
+      positions: {
+        error: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        dropdown: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'error', to: 'dropdown' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — doğru environment ("dev") seçilir. Şimdi asıl soru: dev.bru dosyasında baseUrl gerçekten TANIMLI mı?',
+        en: 'Step 2 — the correct environment ("dev") is selected. Now the real question: is baseUrl actually DEFINED in dev.bru?',
+      },
+      positions: {
+        dropdown: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        file: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dropdown', to: 'file', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — dosya açılır: baseUrl: https://api-dev.example.com satırı gerçekten var. Environment doğru seçiliyken bu artık çözülür.',
+        en: 'Step 3 — the file opens: the line baseUrl: https://api-dev.example.com is indeed there. With the environment correctly selected, this now resolves.',
+      },
+      positions: {
+        file: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        fixed: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'file', to: 'fixed', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — dosyada değişken "baseURL" (büyük harf) olarak yazılsaydı: {{baseUrl}} yine ÇÖZÜLEMEZDİ çünkü Bruno değişken adlarında BÜYÜK/küçük harfe duyarlıdır — bir tek harf farkı aynı hatayı tekrar üretir.',
+        en: 'Final (the contrast) — had the variable in the file been written as "baseURL" (capitalized): {{baseUrl}} would STILL fail to resolve, because Bruno is case-sensitive about variable names — a single-letter casing mismatch reproduces the exact same error.',
+      },
+      positions: {
+        file: { x: 20, y: 30, scale: 0.9 },
+        fixed: { x: 46, y: 55, scale: 1.0, opacity: 0.4 },
+        typo: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'file', to: 'typo', color: '#ef4444' }],
+    },
+  ],
+}
+
+const brunoErrorDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'bruno-error-diagnosis-steps',
+  title: { tr: 'Adım Adım: Bruno Hata Teşhis Refleksi', en: 'Step by Step: The Bruno Error Diagnosis Reflex' },
+  steps: [
+    { id: 1, icon: '📖', label: { tr: 'Mesajı tam oku', en: 'Read the full message' }, detail: { tr: '"Could not resolve" bir degisken sorunudur, "ECONNREFUSED" bir sunucu sorunudur, "Unexpected token" bir syntax sorunudur — ilk kelime kok nedeni zaten soyler.', en: '"Could not resolve" is a variable problem, "ECONNREFUSED" is a server problem, "Unexpected token" is a syntax problem — the first phrase already states the root cause.' } },
+    { id: 2, icon: '🔽', label: { tr: 'Environment\'ı kontrol et', en: 'Check the environment' }, detail: { tr: 'Degisken hatalarinin cogu, sag ustteki dropdown\'da yanlis/hic environment secili olmasindan kaynaklanir.', en: 'Most variable errors come from the wrong (or no) environment being selected in the top-right dropdown.' } },
+    { id: 3, icon: '📄', label: { tr: 'Dosyayı aç, tanımı doğrula', en: 'Open the file, confirm the definition' }, detail: { tr: 'Environment dogruysa, o degiskenin gercekten o dosyada tanimli oldugunu ve yazim/case hatasi olmadigini kontrol et.', en: 'If the environment is right, confirm the variable is actually defined in that file, with no typo/casing mismatch.' } },
+    { id: 4, icon: '🔧', label: { tr: 'En küçük düzeltmeyi yap', en: 'Apply the smallest fix' }, detail: { tr: 'Dogru environment\'i sec ya da eksik degiskeni ekle — dosyayi silip yeniden olusturmak gibi asiri hamlelere gerek yok.', en: 'Select the right environment, or add the missing variable — no need for drastic moves like deleting and recreating the file.' } },
+    { id: 5, icon: '✅', label: { tr: 'Aynı isteği tekrar gönder', en: 'Resend the same request' }, detail: { tr: '"Send"i tekrar tikla ve hatanin gercekten gittigini gor — hala ayni hata varsa teshis yanlisti, 1. adima don.', en: 'Click "Send" again and confirm the error is truly gone — if the same error persists, the diagnosis was wrong, go back to step 1.' } },
+  ],
+}
+
+const brunoErrorsPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'bruno-errors',
+  id: 'bruno-errors-practice-01',
+  label: {
+    tr: 'Micro Lab: Kapanmamış .bru bloğunu düzelt',
+    en: 'Micro Lab: Fix an unclosed .bru block',
+  },
+  language: 'text',
+  task: {
+    tr: 'assert bloğu elle düzenlenirken kapanış parantezi silinmiş ve dosya "Unexpected token" hatasıyla parse edilemiyor. TODO satırını, eksik kapanış parantezini ekleyerek tamamla.',
+    en: 'The assert block\'s closing brace was accidentally deleted during manual editing and the file fails to parse with "Unexpected token". Complete the TODO line by adding the missing closing brace.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir parser degil; amac .bru dosyasinin duz metin oldugunu ve tek bir kapanmamis parantezin bile parse\'i kirdigini elle duzelterek pekistirmek.',
+    en: 'This is not a real parser; the goal is to reinforce that a .bru file is plain text and even one unclosed brace breaks parsing, by fixing it yourself.',
+  },
+  code: {
+    tr: `assert {\n  res.status: eq 200\n// TODO: eksik kapanis parantezini ekle\n}`,
+    en: `assert {\n  res.status: eq 200\n// TODO: add the missing closing brace\n}`,
+  },
+  starterCode: {
+    tr: `assert {\n  res.status: eq 200\n// TODO: eksik kapanis parantezini ekle\n`,
+    en: `assert {\n  res.status: eq 200\n// TODO: add the missing closing brace\n`,
+  },
+  solutionCode: {
+    tr: `assert {\n  res.status: eq 200\n// TODO: eksik kapanis parantezini ekle\n}`,
+    en: `assert {\n  res.status: eq 200\n// TODO: add the missing closing brace\n}`,
+  },
+  expected: 'assert { res.status: eq 200 }',
+}
+
+// 💼 Interview Q&A — DELETE idempotency testi (advanced sorularla bire bir bağlı)
+const brunoIdempotentDeleteFilm = {
+  type: 'video-scene',
+  id: 'bruno-idempotent-delete-film',
+  title: {
+    tr: '🎬 Aynı DELETE İki Kez: İdempotency Testi Ne Bekler?',
+    en: '🎬 The Same DELETE Twice: What Idempotency Testing Expects',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'res1',   emoji: '1️⃣', label: { tr: '1. DELETE',          en: '1st DELETE' },        color: '#0ea5e9' },
+    { id: 'srv',    emoji: '🌐', label: { tr: 'Order Sunucusu',      en: 'Order Server' },      color: '#6366f1' },
+    { id: 'gone',   emoji: '🗑️', label: { tr: 'Kaynak Silindi',      en: 'Resource Deleted' },  color: '#f59e0b' },
+    { id: 'res2',   emoji: '2️⃣', label: { tr: '2. DELETE',          en: '2nd DELETE' },        color: '#8b5cf6' },
+    { id: 'ok404',  emoji: '✅', label: { tr: '404 (beklenen)',      en: '404 (expected)' },   color: '#10b981' },
+    { id: 'bug200', emoji: '👻', label: { tr: '200 (idempotency bug)', en: '200 (idempotency bug)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir "delete order" akışı test ediliyor. İlk soru: aynı DELETE isteği İKİ KEZ gönderilirse ne olmalı?',
+        en: 'A "delete order" flow is being tested. The first question: what should happen if the SAME DELETE request is sent TWICE?',
+      },
+      code: { tr: `DELETE /api/orders/{{orderId}}`, en: `DELETE /api/orders/{{orderId}}` },
+      positions: { res1: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — ilk DELETE gönderilir: kaynak gerçekten var, sunucu onu siler ve 200/204 döner.',
+        en: 'Step 1 — the first DELETE is sent: the resource genuinely exists, the server deletes it and returns 200/204.',
+      },
+      positions: {
+        res1: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        srv: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'res1', to: 'srv' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — kaynak artık gitti. bru.setVar() ile orderId saklanır ki ikinci istek AYNI ID\'yi tekrar dener, farklı bir ID değil.',
+        en: 'Step 2 — the resource is now gone. bru.setVar() stores the orderId so the second request retries the SAME ID, not a different one.',
+      },
+      positions: {
+        srv: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        gone: { x: 48, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'srv', to: 'gone', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — aynı orderId ile İKİNCİ DELETE gönderilir. Bu, gerçek idempotency testinin kalbi: kaynak zaten yokken ne dönmeli?',
+        en: 'Step 3 — the SECOND DELETE is sent with the same orderId. This is the heart of a real idempotency test: what should return when the resource is already gone?',
+      },
+      positions: {
+        gone: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        res2: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'gone', to: 'res2', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — doğru davranış: 404 "Not Found". "Zaten yoktu" demek, tekrar "başarıyla silindi" demekten farklıdır — assert 404\'ü BEKLER.',
+        en: 'Step 4 — the correct behavior: 404 "Not Found". Saying "it was already gone" is different from saying "successfully deleted again" — the assert EXPECTS 404.',
+      },
+      code: { tr: `assert {\n  res.status: eq 404\n}`, en: `assert {\n  res.status: eq 404\n}` },
+      positions: {
+        res2: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        ok404: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'res2', to: 'ok404', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — bir idempotency bug\'ı olsaydı: ikinci DELETE de 200/204 dönerdi, sanki bir şey silinmiş gibi — bu, backend\'in "zaten silinmiş" durumunu HİÇ takip etmediğinin kanıtıdır ve assert bu farkı yakalamak için özellikle var.',
+        en: 'Final (the contrast) — had there been an idempotency bug: the second DELETE would also return 200/204, as if something were deleted again — proof the backend NEVER tracks the "already deleted" state, and the assert exists specifically to catch this gap.',
+      },
+      positions: {
+        res2: { x: 20, y: 30, scale: 0.9 },
+        ok404: { x: 46, y: 55, scale: 1.0, opacity: 0.4 },
+        bug200: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'res2', to: 'bug200', color: '#ef4444' }],
+    },
+  ],
+}
+
+const brunoTokenRefreshSteps = {
+  type: 'step-animation',
+  id: 'bruno-token-refresh-steps',
+  title: { tr: 'Adım Adım: 50 İstek İçin Tek Bir Token-Refresh Yeri', en: 'Step by Step: One Token-Refresh Spot for 50 Requests' },
+  steps: [
+    { id: 1, icon: '🗂️', label: { tr: 'Collection-level pre-request script', en: 'Collection-level pre-request script' }, detail: { tr: 'Refresh mantigi TEK bir yere, koleksiyonun (veya ust klasorun) pre-request script\'ine konur — 50 istegin her birine kopyalanmaz.', en: 'The refresh logic is placed in ONE spot, the collection\'s (or top folder\'s) pre-request script — not copy-pasted into all 50 requests.' } },
+    { id: 2, icon: '⏱️', label: { tr: 'Süresi dolmuş mu kontrol et', en: 'Check if expired' }, detail: { tr: 'bru.getVar("tokenExpiry") ile saklanan zaman damgasi okunur ve simdiki zamanla karsilastirilir.', en: 'bru.getVar("tokenExpiry") reads the stored timestamp and compares it against the current time.' } },
+    { id: 3, icon: '🔄', label: { tr: 'Gerekirse yenile', en: 'Refresh if needed' }, detail: { tr: 'Suresi dolmussa, script kendi icinde bir auth istegi tetikler ve yeni token/expiry degerini bru.setVar() ile saklar.', en: 'If expired, the script fires its own auth request internally and stores the new token/expiry via bru.setVar().' } },
+    { id: 4, icon: '➡️', label: { tr: 'Asıl istek devam eder', en: 'The original request proceeds' }, detail: { tr: 'Token guncel oldugu icin asil istek (orn. GET /orders) simdi gecerli bir Authorization header\'iyla gonderilir.', en: 'Because the token is now current, the original request (e.g. GET /orders) is sent with a valid Authorization header.' } },
+    { id: 5, icon: '☕', label: { tr: 'Java karşılaştırması', en: 'The Java comparison' }, detail: { tr: 'Bu, ozel bir OkHttp/RestAssured interceptor\'inin yaptigi seyle aynidir — cross-cutting bir sorumluluk TEK bir yerde sahiplenilir, 50 kopyada degil.', en: 'This is the same idea as a custom OkHttp/RestAssured interceptor — one cross-cutting concern is owned in ONE place, not 50 copies.' } },
+  ],
+}
+
+const brunoInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'bruno-api-client',
+  id: 'bruno-interview-practice-01',
+  label: {
+    tr: 'Micro Lab: İkinci DELETE için idempotency assertion\'ı yaz',
+    en: 'Micro Lab: Write the idempotency assertion for the second DELETE',
+  },
+  language: 'text',
+  task: {
+    tr: 'Bir mülakat senaryosu: aynı kaynağa ikinci kez DELETE gönderiliyor, kaynak zaten silinmiş durumda. TODO satırını, beklenen status\'un 404 olduğunu doğrulayan assertion ile tamamla.',
+    en: 'An interview scenario: DELETE is sent a second time to the same resource, which is already deleted. Complete the TODO line with the assertion verifying the expected status is 404.',
+  },
+  explanation: {
+    tr: 'Bu gercek bir API cagrisi degil; amac idempotency testinin kalbini (ikinci DELETE\'in 404 beklemesi) elle yazarak pekistirmek.',
+    en: 'This is not a real API call; the goal is to reinforce the heart of idempotency testing (the second DELETE expects 404) by writing it yourself.',
+  },
+  code: {
+    tr: `# senaryo: orderId zaten ilk DELETE ile silindi\nDELETE {{baseUrl}}/orders/{{orderId}}\n\n# TODO: kaynak zaten yok, 404 beklenmeli\nassert {\n  res.status: eq 404\n}`,
+    en: `# scenario: orderId was already deleted by the first DELETE\nDELETE {{baseUrl}}/orders/{{orderId}}\n\n# TODO: the resource is already gone, 404 is expected\nassert {\n  res.status: eq 404\n}`,
+  },
+  starterCode: {
+    tr: `# senaryo: orderId zaten ilk DELETE ile silindi\nDELETE {{baseUrl}}/orders/{{orderId}}\n\n# TODO: kaynak zaten yok, 404 beklenmeli\n`,
+    en: `# scenario: orderId was already deleted by the first DELETE\nDELETE {{baseUrl}}/orders/{{orderId}}\n\n# TODO: the resource is already gone, 404 is expected\n`,
+  },
+  solutionCode: {
+    tr: `# senaryo: orderId zaten ilk DELETE ile silindi\nDELETE {{baseUrl}}/orders/{{orderId}}\n\n# TODO: kaynak zaten yok, 404 beklenmeli\nassert {\n  res.status: eq 404\n}`,
+    en: `# scenario: orderId was already deleted by the first DELETE\nDELETE {{baseUrl}}/orders/{{orderId}}\n\n# TODO: the resource is already gone, 404 is expected\nassert {\n  res.status: eq 404\n}`,
+  },
+  expected: 'res.status: eq 404',
+}
+
 export const brunoData = {
   en: {
     hero: {
@@ -210,6 +1265,9 @@ export const brunoData = {
             emoji: '🧩',
             content: `LEGO analogy #2: Postman's cloud workspace is like a LEGO display case in a shared community center — anyone in the building can walk up and admire the set, leave comments, even request changes through a front desk (the cloud API). That's powerful for big, mixed audiences. Bruno's bin-at-your-desk model is faster and more private, but there's no shared display case — if a non-technical product manager wants to "see the API tests," they need someone to walk them through the Git repo.`,
           },
+          brunoBruDiffFilm,
+          brunoFileVsCloudSteps,
+          brunoWhatIsPractice,
           {
             type: 'quiz',
             question: `You want every API test to be committed alongside the backend code it tests, diffable in the same pull request, with zero extra cloud account required. Which tool's default storage model fits this requirement?`,
@@ -298,6 +1356,9 @@ export const brunoData = {
 }`,
             expected: 'Status: 200 OK | 10 users returned as a JSON array',
           },
+          brunoInstallFirstRequestFilm,
+          brunoInstallJourneySteps,
+          brunoInstallationPractice,
           {
             type: 'quiz',
             question: `After clicking "Send" on your first GET request, you see a status but no body, and Bruno shows "ENOTFOUND". What's the most likely cause?`,
@@ -399,6 +1460,9 @@ script:post-response {
             type: 'text',
             content: `Reasoning #2 — why variables instead of just hardcoding the URL? If a junior tester hardcodes https://api-dev.example.com into 40 different requests, switching to staging means editing 40 files and almost certainly missing one. With {{baseUrl}}, switching environments is a single dropdown change — every request updates automatically. This is the exact same reasoning Java engineers already know from externalizing config out of hardcoded strings into application.properties.`,
           },
+          brunoAnatomyFilm,
+          brunoEnvVarResolutionSteps,
+          brunoCoreConceptsPractice,
           {
             type: 'quiz',
             question: `You need a value computed from one request's response (e.g. an auth token) to be reused in the very next request. Which Bruno mechanism is designed for that?`,
@@ -517,6 +1581,9 @@ jobs:
               ['Stays in sync with edits automatically', 'Yes — same files the GUI edits', 'No — re-export needed after every change'],
             ],
           },
+          brunoTestScriptFilm,
+          brunoCiExitCodeSteps,
+          brunoTestAutomationPractice,
           {
             type: 'quiz',
             question: `A request passes every time you click "Send" manually in the Bruno GUI, but fails when run via "bru run" in the CI pipeline. What's the single most common root cause to check first?`,
@@ -575,6 +1642,9 @@ jobs:
               ['Onboard a new teammate', 'git clone — they have everything instantly', 'Invite to workspace, wait for cloud sync'],
             ],
           },
+          brunoCliCiRunFilm,
+          brunoPrReviewSteps,
+          brunoRealWorldPractice,
           {
             type: 'quiz',
             question: `A backend developer's pull request silently changes an endpoint's response field from "userName" to "user_name" without telling QA. With Bruno collections committed in the same repo, how does this typically get caught BEFORE merging to main?`,
@@ -639,6 +1709,9 @@ jobs:
             type: 'text',
             content: `The VS Code extension lets you view and lightly edit .bru files with syntax highlighting right inside your editor — handy when you're already there fixing a backend bug and want to peek at the related test. Bruno Cloud is an entirely optional paid layer for teams that want some cloud convenience (shared secrets, team sync) without giving up the local-first, Git-based core — it sits on top of the same .bru files, it doesn't replace them.`,
           },
+          brunoOfflineFirstFilm,
+          brunoEcosystemPluginSteps,
+          brunoEcosystemPractice,
           {
             type: 'quiz',
             question: `Your team has 80 existing requests in Postman and wants to switch to Bruno without retyping everything by hand. What's the correct first move?`,
@@ -744,6 +1817,9 @@ jobs:
               },
             ],
           },
+          brunoEnvVarErrorFilm,
+          brunoErrorDiagnosisSteps,
+          brunoErrorsPractice,
           {
             type: 'quiz',
             question: `In CI, "bru run" exits with code 1 but the terminal log only shows a one-line summary with no detail about which assertion failed. What should you add to the CI command to get actionable detail?`,
@@ -782,6 +1858,9 @@ jobs:
             title: 'Interview Lens — Read the Bruno UI Like an Interviewer Would',
             svg: bruUiMockupSvg,
           },
+          brunoIdempotentDeleteFilm,
+          brunoTokenRefreshSteps,
+          brunoInterviewPractice,
           {
             type: 'interview-questions',
               relatedTopicId: 'bruno-api-client',
@@ -915,6 +1994,9 @@ jobs:
             emoji: '🧩',
             content: `LEGO benzetmesi #2: Postman'ın bulut workspace'i, paylaşımlı bir topluluk merkezindeki LEGO vitrini gibidir — binadaki herkes gelip sete bakabilir, yorum bırakabilir, hatta resepsiyon üzerinden (bulut API) değişiklik isteyebilir. Bu, büyük ve karma kitleler için güçlüdür. Bruno'nun "masandaki kutu" modeli daha hızlı ve daha özeldir ama paylaşımlı bir vitrin yoktur — teknik olmayan bir ürün yöneticisi "API testlerini görmek" istiyorsa, birinin onu Git repo'su içinde gezdirmesi gerekir.`,
           },
+          brunoBruDiffFilm,
+          brunoFileVsCloudSteps,
+          brunoWhatIsPractice,
           {
             type: 'quiz',
             question: `Her API testinin, test ettiği backend koduyla birlikte commit edilmesini, aynı pull request'te diff'lenebilmesini ve hiçbir ek bulut hesabı gerektirmemesini istiyorsun. Hangi aracın varsayılan depolama modeli bu gereksinime uyar?`,
@@ -1003,6 +2085,9 @@ jobs:
 }`,
             expected: 'Status: 200 OK | JSON dizisi olarak 10 kullanıcı döner',
           },
+          brunoInstallFirstRequestFilm,
+          brunoInstallJourneySteps,
+          brunoInstallationPractice,
           {
             type: 'quiz',
             question: `İlk GET isteğinde "Send" tıkladıktan sonra bir status görüyorsun ama body yok ve Bruno "ENOTFOUND" gösteriyor. En olası sebep nedir?`,
@@ -1104,6 +2189,9 @@ script:post-response {
             type: 'text',
             content: `Akıl Yürütme #2 — neden URL'yi hardcode etmek yerine değişken kullanılır? Junior bir tester https://api-dev.example.com'u 40 farklı isteğe sabit yazarsa, staging'e geçmek 40 dosyayı düzenlemek ve büyük olasılıkla birini gözden kaçırmak demektir. {{baseUrl}} ile environment değiştirmek tek bir dropdown değişikliğidir — her istek otomatik güncellenir. Bu, Java mühendislerinin connection string'leri sabit metin yerine application.properties'e taşımaktan zaten bildiği aynı akıl yürütmedir.`,
           },
+          brunoAnatomyFilm,
+          brunoEnvVarResolutionSteps,
+          brunoCoreConceptsPractice,
           {
             type: 'quiz',
             question: `Bir istekten gelen response'tan hesaplanan bir değeri (örn. auth token) bir sonraki istekte tekrar kullanman gerekiyor. Bunun için tasarlanmış Bruno mekanizması hangisidir?`,
@@ -1222,6 +2310,9 @@ jobs:
               ['Düzenlemelerle otomatik senkron', 'Evet — GUI\'nin düzenlediği aynı dosyalar', 'Hayır — her değişiklik sonrası yeniden export gerekir'],
             ],
           },
+          brunoTestScriptFilm,
+          brunoCiExitCodeSteps,
+          brunoTestAutomationPractice,
           {
             type: 'quiz',
             question: `Bir istek, Bruno GUI'sinde manuel "Send" tıkladığında her zaman geçiyor ama CI pipeline'ında "bru run" ile çalıştırıldığında başarısız oluyor. Önce kontrol edilmesi gereken en yaygın temel sebep nedir?`,
@@ -1280,6 +2371,9 @@ jobs:
               ['Yeni bir takım arkadaşını onboard etmek', 'git clone — her şeye anında sahip olur', 'Workspace\'e davet, bulut senkronunu beklemek'],
             ],
           },
+          brunoCliCiRunFilm,
+          brunoPrReviewSteps,
+          brunoRealWorldPractice,
           {
             type: 'quiz',
             question: `Bir backend developer'ın pull request'i, QA'ya haber vermeden bir endpoint'in response field'ını "userName"den "user_name"e sessizce değiştiriyor. Bruno collection'ları aynı repo'da commit edilmişken, bu genellikle main'e merge edilmeden ÖNCE nasıl yakalanır?`,
@@ -1344,6 +2438,9 @@ jobs:
             type: 'text',
             content: `VS Code extension'ı, .bru dosyalarını editörünün içinde syntax highlight ile görüntülemene ve hafifçe düzenlemene izin verir — zaten orada bir backend bug'ı düzeltiyorken ilgili teste göz atmak istediğinde kullanışlıdır. Bruno Cloud, local-first, Git tabanlı çekirdekten vazgeçmeden biraz bulut konforu (paylaşılan secret'lar, ekip senkronu) isteyen ekipler için tamamen opsiyonel, ücretli bir katmandır — aynı .bru dosyalarının üzerine oturur, onların yerini almaz.`,
           },
+          brunoOfflineFirstFilm,
+          brunoEcosystemPluginSteps,
+          brunoEcosystemPractice,
           {
             type: 'quiz',
             question: `Ekibinin Postman'da 80 mevcut isteği var ve her şeyi elle yeniden yazmadan Bruno'ya geçmek istiyor. Doğru ilk adım nedir?`,
@@ -1449,6 +2546,9 @@ jobs:
               },
             ],
           },
+          brunoEnvVarErrorFilm,
+          brunoErrorDiagnosisSteps,
+          brunoErrorsPractice,
           {
             type: 'quiz',
             question: `CI'da "bru run" exit code 1 ile çıkıyor ama terminal log'u hangi assertion'ın başarısız olduğuna dair detay içermeyen tek satırlık bir özet gösteriyor. Aksiyon alınabilir detay için CI komutuna ne eklemelisin?`,
@@ -1487,6 +2587,9 @@ jobs:
             title: 'Mülakat Merceği — Bruno UI\'sini Bir Mülakatçı Gibi Oku',
             svg: bruUiMockupSvg,
           },
+          brunoIdempotentDeleteFilm,
+          brunoTokenRefreshSteps,
+          brunoInterviewPractice,
           {
             type: 'interview-questions',
               relatedTopicId: 'bruno-api-client',

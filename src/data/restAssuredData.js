@@ -3,6 +3,606 @@
 // Code blocks never change between languages.
 import { fillMissingCodeTrios, fillMissingFeynman } from './interactiveTrioFillers.js'
 
+const raBddChainFilm = {
+  type: 'video-scene',
+  id: 'ra-bdd-chain-film',
+  title: { tr: '🎬 given().when().then(): Bir Cümle, Bir HTTP İsteği', en: '🎬 given().when().then(): One Sentence, One HTTP Request' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'given', emoji: '📋', label: { tr: 'given() — hazırlık', en: 'given() — setup' }, color: '#0ea5e9' },
+    { id: 'when', emoji: '🚀', label: { tr: 'when() — eylem', en: 'when() — action' }, color: '#f59e0b' },
+    { id: 'then', emoji: '✅', label: { tr: 'then() — doğrulama', en: 'then() — verification' }, color: '#22c55e' },
+    { id: 'httpclient', emoji: '👻', label: { tr: 'Düz HttpClient (30+ satır)', en: 'Plain HttpClient (30+ lines)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Bir API testi yazacaksın: header ekle, isteği gönder, status kodunu ve body\'yi doğrula. Java\'nın düz `HttpClient`\'ıyla bu kaç satır tutar? REST Assured aynı işi nasıl 3 kelimeye indiriyor?', en: 'You need to write an API test: add a header, send the request, verify the status code and body. How many lines does Java\'s plain `HttpClient` take? How does REST Assured compress the same job into 3 words?' },
+      positions: { given: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — given(): isteğin İÇİNDE olacak her şeyi (header, body, auth, query param) burada TANIMLARSIN — henüz hiçbir ağ isteği atılmadı, sadece bir tarif hazırlanıyor.', en: 'Step 1 — given(): you DECLARE everything that will go INSIDE the request (headers, body, auth, query params) here — no network call has fired yet, you\'re just preparing a recipe.' },
+      code: { tr: `given()\n    .header("Content-Type", "application/json")\n    .body(newUser)`, en: `given()\n    .header("Content-Type", "application/json")\n    .body(newUser)` },
+      positions: { given: { x: 20, y: 40, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 2 — when(): tarif hazır, ŞİMDİ gerçek HTTP isteği atılır — GET/POST/PUT/DELETE, hangisi olursa. Bu satırdan önce hiçbir şey sunucuya ulaşmamıştı.', en: 'Step 2 — when(): the recipe is ready, NOW the real HTTP request fires — GET/POST/PUT/DELETE, whichever it is. Before this line, nothing had reached the server.' },
+      code: { tr: `.when()\n    .post("/api/users")`, en: `.when()\n    .post("/api/users")` },
+      positions: {
+        given: { x: 18, y: 55, opacity: 0.5, scale: 0.85 },
+        when: { x: 52, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'given', to: 'when', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 3 — then(): response geldi, şimdi DOĞRULA — status kodu 201 mi, body\'de "id" alanı var mı? Bu üçü ZORUNLU sırayla çalışır: given→when→then, tersi mümkün değildir.', en: 'Step 3 — then(): the response arrived, now VERIFY it — is the status 201, does the body have an "id" field? These three run in a MANDATORY order: given→when→then, never reversed.' },
+      code: { tr: `.then()\n    .statusCode(201)\n    .body("id", notNullValue());`, en: `.then()\n    .statusCode(201)\n    .body("id", notNullValue());` },
+      positions: {
+        when: { x: 20, y: 40, opacity: 0.5, scale: 0.85 },
+        then: { x: 55, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'when', to: 'then', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Kontrast — bunu düz `java.net.http.HttpClient` ile yazsaydın: `HttpRequest.newBuilder()`, `.header(...)`, `.POST(BodyPublishers...)`, `client.send(...)`, sonra manuel JSON parse ve manuel assertion — 30+ satır, ve okuyan biri "hangi kısım istek, hangi kısım doğrulama" ayrımını cümleden değil, kod bloklarından çıkarmak zorunda kalır.', en: 'The contrast — writing this with plain `java.net.http.HttpClient`: `HttpRequest.newBuilder()`, `.header(...)`, `.POST(BodyPublishers...)`, `client.send(...)`, then manual JSON parsing and manual assertions — 30+ lines, and a reader has to infer "which part is the request, which part is verification" from code blocks instead of a sentence.' },
+      positions: {
+        then: { x: 22, y: 40, scale: 0.9 },
+        httpclient: { x: 60, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'then', to: 'httpclient', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Ders — given().when().then() aslında bir test literatüründeki BDD (Given-When-Then) kalıbının Java DSL\'e dönüşmüş halidir: Cucumber\'daki Gherkin cümlelerinin AYNI mantığı, ama derlenen Java kodu olarak. Kod, okunması gereken bir senaryo cümlesi gibi akar.', en: 'The lesson — given().when().then() is literally the BDD (Given-When-Then) pattern from test literature, turned into a Java DSL: the SAME logic as Gherkin sentences in Cucumber, but as compiled Java code. The code reads like a scenario sentence you\'re meant to read aloud.' },
+      positions: {
+        httpclient: { x: 35, y: 50, scale: 1.0, opacity: 0.5 },
+        given: { x: 65, y: 50, scale: 1.1 },
+      },
+    },
+  ],
+}
+
+const raMavenSetupFilm = {
+  type: 'video-scene',
+  id: 'ra-maven-setup-film',
+  title: { tr: '🎬 pom.xml\'e REST Assured Eklemek: Bağımlılıktan İlk Teste', en: '🎬 Adding REST Assured to pom.xml: From Dependency to First Test' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pom', emoji: '📄', label: { tr: 'pom.xml', en: 'pom.xml' }, color: '#0ea5e9' },
+    { id: 'maven', emoji: '📦', label: { tr: 'Maven Central', en: 'Maven Central' }, color: '#f59e0b' },
+    { id: 'jar', emoji: '☕', label: { tr: 'rest-assured.jar', en: 'rest-assured.jar' }, color: '#8b5cf6' },
+    { id: 'test', emoji: '✅', label: { tr: 'İlk Test Çalışıyor', en: 'First Test Runs' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'REST Assured bir framework değil, sadece bir JAR — projene NASIL dahil ediyorsun ve bunu yaptıktan sonra ne değişiyor?', en: 'REST Assured isn\'t a framework, just a JAR — HOW do you pull it into your project, and what changes once you do?' },
+      positions: { pom: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — pom.xml\'e `<dependency>` bloğu eklenir: groupId `io.rest-assured`, artifactId `rest-assured`, scope genelde `test` (production kodunda gerekmez).', en: 'Step 1 — a `<dependency>` block is added to pom.xml: groupId `io.rest-assured`, artifactId `rest-assured`, scope usually `test` (not needed in production code).' },
+      code: { tr: `<dependency>\n    <groupId>io.rest-assured</groupId>\n    <artifactId>rest-assured</artifactId>\n    <version>5.4.0</version>\n    <scope>test</scope>\n</dependency>`, en: `<dependency>\n    <groupId>io.rest-assured</groupId>\n    <artifactId>rest-assured</artifactId>\n    <version>5.4.0</version>\n    <scope>test</scope>\n</dependency>` },
+      positions: { pom: { x: 20, y: 40, scale: 1.0 }, maven: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'pom', to: 'maven', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — `mvn compile` çalıştırıldığında Maven, Maven Central\'dan `rest-assured-5.4.0.jar`\'ı (ve tüm transitive bağımlılıklarını — Hamcrest, Groovy) indirir, local `.m2` önbelleğine koyar.', en: 'Step 2 — running `mvn compile`, Maven downloads `rest-assured-5.4.0.jar` (and all its transitive dependencies — Hamcrest, Groovy) from Maven Central, caching it in the local `.m2` repository.' },
+      code: { tr: `mvn compile\n# Downloading rest-assured-5.4.0.jar...`, en: `mvn compile\n# Downloading rest-assured-5.4.0.jar...` },
+      positions: {
+        pom: { x: 18, y: 55, opacity: 0.5, scale: 0.85 },
+        maven: { x: 45, y: 45, scale: 1.1 },
+        jar: { x: 70, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'maven', to: 'jar', color: '#8b5cf6' }],
+    },
+    {
+      caption: { tr: 'Adım 3 — jar classpath\'e eklendikten sonra `given()`, `when()`, `then()` statik metotları IDE\'de otomatik tamamlama ile görünür — `import static io.restassured.RestAssured.*;` satırı bu köprüyü kurar.', en: 'Step 3 — once the jar is on the classpath, the static methods `given()`, `when()`, `then()` show up in IDE autocomplete — the `import static io.restassured.RestAssured.*;` line builds this bridge.' },
+      code: { tr: `import static io.restassured.RestAssured.*;\nimport static org.hamcrest.Matchers.*;`, en: `import static io.restassured.RestAssured.*;\nimport static org.hamcrest.Matchers.*;` },
+      positions: {
+        jar: { x: 22, y: 40, scale: 0.95 },
+        test: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'jar', to: 'test', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Ders — Postman\'de "kurulum" bir uygulama indirmektir; REST Assured\'da "kurulum" bir bağımlılık satırı eklemektir — bu fark, REST Assured testlerinin CI/CD\'ye Postman\'den çok daha doğal entegre olmasının temel nedenidir: `mvn test` zaten CI pipeline\'ının bir parçasıdır, ekstra bir "Postman CLI kur" adımı gerekmez.', en: 'The lesson — in Postman, "setup" means downloading an app; in REST Assured, "setup" means adding one dependency line — this difference is the core reason REST Assured tests integrate into CI/CD far more naturally than Postman: `mvn test` is already part of the CI pipeline, no extra "install Postman CLI" step needed.' },
+      positions: { test: { x: 40, y: 50, scale: 1.1 }, pom: { x: 68, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const raBasicRequestFilm = {
+  type: 'video-scene',
+  id: 'ra-basic-request-film',
+  title: { tr: '🎬 Bir GET İsteğinin Yolculuğu: URL\'den Assertion\'a', en: '🎬 The Journey of a GET Request: From URL to Assertion' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test', emoji: '🧪', label: { tr: 'Test Kodu', en: 'Test Code' }, color: '#8b5cf6' },
+    { id: 'request', emoji: '📤', label: { tr: 'HTTP GET /api/users/2', en: 'HTTP GET /api/users/2' }, color: '#0ea5e9' },
+    { id: 'server', emoji: '🌐', label: { tr: 'reqres.in', en: 'reqres.in' }, color: '#f59e0b' },
+    { id: 'response', emoji: '📥', label: { tr: 'JSON Response', en: 'JSON Response' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: '404 — Beklenmeyen', en: '404 — Unexpected' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: '`given().when().get("/api/users/2")` yazınca perde arkasında GERÇEKTEN ne oluyor — bu string bir sunucuya nasıl ulaşıyor ve JSON nasıl geri geliyor?', en: 'When you write `given().when().get("/api/users/2")`, what REALLY happens behind the curtain — how does this string reach a server, and how does JSON come back?' },
+      positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — baseURI (`spec`\'te tanımlı, örn. `https://reqres.in`) + path (`/api/users/2`) birleştirilerek TAM bir URL oluşturulur.', en: 'Step 1 — the baseURI (defined in `spec`, e.g. `https://reqres.in`) + path (`/api/users/2`) are combined into a FULL URL.' },
+      code: { tr: `baseURI = "https://reqres.in"\npath    = "/api/users/2"\n→ "https://reqres.in/api/users/2"`, en: `baseURI = "https://reqres.in"\npath    = "/api/users/2"\n→ "https://reqres.in/api/users/2"` },
+      positions: { test: { x: 20, y: 40, scale: 1.0 }, request: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'test', to: 'request', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — gerçek bir HTTP GET isteği ağ üzerinden sunucuya gider — bu an, testin JVM\'in dışına çıkıp gerçek dünyaya dokunduğu tek andır.', en: 'Step 2 — a real HTTP GET request travels over the network to the server — this is the one moment the test steps outside the JVM and touches the real world.' },
+      positions: { request: { x: 22, y: 40, scale: 0.95 }, server: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'request', to: 'server', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 3 (kontrast) — sunucu kaydı bulamazsa 404 döner; test bunu `statusCode(200)` ile BEKLİYORDU. `then()` burada testi FAIL eder — bu sessizce geçmez.', en: 'Step 3 (the contrast) — if the server can\'t find the record it returns 404; the test EXPECTED `statusCode(200)`. `then()` FAILS the test right here — it never passes silently.' },
+      code: { tr: `.then().statusCode(200)\n// GERÇEK: 404 Not Found → test FAIL`, en: `.then().statusCode(200)\n// ACTUAL: 404 Not Found → test FAILS` },
+      positions: { server: { x: 20, y: 40, opacity: 0.5, scale: 0.85 }, ghost: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'server', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Adım 4 — kayıt gerçekten varsa sunucu 200 + JSON body döner; response ağ üzerinden test koduna geri gelir ve `then()` her assertion\'ı BU response üzerinde çalıştırır.', en: 'Step 4 — if the record really exists the server returns 200 + a JSON body; the response travels back over the network to the test code, and `then()` runs every assertion against THIS response.' },
+      code: { tr: `{ "data": { "id": 2, "email": "janet.weaver@reqres.in" } }`, en: `{ "data": { "id": 2, "email": "janet.weaver@reqres.in" } }` },
+      positions: { ghost: { x: 22, y: 40, opacity: 0.3, scale: 0.8 }, response: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'server', to: 'response', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Ders — `.then()` her zaman GERÇEKTEN gelen response\'a bakar, senin varsaydığın bir şeye değil. Java\'daki bir mock testte sahte bir Response nesnesi enjekte edersin; REST Assured\'da gerçek ağ üzerinden gelen GERÇEK bir response\'u doğrularsın — bu, entegrasyon testinin birim testten farkının tam kalbidir.', en: 'The lesson — `.then()` always looks at what ACTUALLY came back, never at what you assumed. In a Java mock test you inject a fake Response object; in REST Assured you verify a REAL response that traveled over a real network — this is the very heart of what makes it an integration test, not a unit test.' },
+      positions: { response: { x: 35, y: 50, scale: 1.1 }, test: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const raAuthPreemptiveFilm = {
+  type: 'video-scene',
+  id: 'ra-auth-preemptive-film',
+  title: { tr: '🎬 preemptive() Olmadan Basic Auth: Fazladan Bir Round-Trip', en: '🎬 Basic Auth Without preemptive(): One Extra Round-Trip' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'req1', emoji: '📤', label: { tr: 'İstek 1 — auth YOK', en: 'Request 1 — NO auth' }, color: '#94a3b8' },
+    { id: 'server401', emoji: '🚫', label: { tr: '401 Unauthorized', en: '401 Unauthorized' }, color: '#ef4444' },
+    { id: 'req2', emoji: '📤', label: { tr: 'İstek 2 — auth İLE (retry)', en: 'Request 2 — WITH auth (retry)' }, color: '#f59e0b' },
+    { id: 'server200', emoji: '✅', label: { tr: '200 OK', en: '200 OK' }, color: '#22c55e' },
+    { id: 'preemptive', emoji: '⚡', label: { tr: 'preemptive() — tek istek', en: 'preemptive() — one request' }, color: '#0ea5e9' },
+  ],
+  scenes: [
+    {
+      caption: { tr: '`.auth().basic(user, pass)` yazdın ama isteğin NORMAL (preemptive OLMADAN) çalıştığında sunucuya kaç HTTP isteği gidiyor — 1 mi, 2 mi?', en: 'You wrote `.auth().basic(user, pass)`, but when the request runs NORMALLY (without preemptive), how many HTTP requests actually hit the server — 1 or 2?' },
+      positions: { req1: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — normal `.basic()` davranışı HTTP standardına SADIK kalır: önce credential OLMADAN bir istek gönderilir — bu, sunucunun GERÇEKTEN auth isteyip istemediğini "sormak" gibidir.', en: 'Step 1 — normal `.basic()` behavior FOLLOWS the HTTP standard: a request is first sent WITHOUT credentials — like "asking" whether the server actually requires auth.' },
+      code: { tr: `.auth().basic("admin", "secret123")\n// 1. istek: Authorization header YOK`, en: `.auth().basic("admin", "secret123")\n// Request 1: NO Authorization header` },
+      positions: { req1: { x: 22, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 2 — sunucu credential\'sız isteği REDDEDER: 401 Unauthorized + `WWW-Authenticate` header\'ı döner — "kimlik doğrulaman gerekiyor" der.', en: 'Step 2 — the server REJECTS the credential-less request: it returns 401 Unauthorized + a `WWW-Authenticate` header — saying "you need to authenticate".' },
+      positions: { req1: { x: 20, y: 55, opacity: 0.5, scale: 0.85 }, server401: { x: 55, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'req1', to: 'server401', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Adım 3 — İSTEMCİ bu 401\'i görünce, ŞİMDİ credential\'ları ekleyip AYNI isteği TEKRAR gönderir — bu 2. bir round-trip demektir, testin toplam süresine GİZLİ bir gecikme ekler.', en: 'Step 3 — upon seeing that 401, the CLIENT NOW adds credentials and sends the SAME request AGAIN — this is a 2nd round-trip, adding a HIDDEN delay to the test\'s total duration.' },
+      code: { tr: `// 2. istek: Authorization: Basic YWRtaW46c2VjcmV0MTIz`, en: `// Request 2: Authorization: Basic YWRtaW46c2VjcmV0MTIz` },
+      positions: { server401: { x: 20, y: 40, opacity: 0.5, scale: 0.85 }, req2: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'server401', to: 'req2', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 4 (kontrast/çözüm) — `.auth().preemptive().basic(...)` yazarsan, credential DAHA İLK istekte gönderilir — 401+retry döngüsü hiç OLMAZ, tek bir round-trip yeterlidir. Yüzlerce testin toplamında bu fark saniyeler kazandırır.', en: 'Step 4 (the contrast/fix) — with `.auth().preemptive().basic(...)`, credentials are sent on the VERY FIRST request — the 401+retry cycle NEVER happens, a single round-trip is enough. Across hundreds of tests, this difference saves real seconds.' },
+      code: { tr: `.auth().preemptive().basic("admin", "secret123")\n// TEK istek, credential BAŞTAN ekli`, en: `.auth().preemptive().basic("admin", "secret123")\n// ONE request, credentials included from the start` },
+      positions: { req2: { x: 20, y: 40, opacity: 0.4, scale: 0.85 }, preemptive: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'req2', to: 'preemptive', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Ders — HTTP standardı 401-sonra-retry akışını ÖNGÖRÜR (bu bir bug değil), ama otomatik test suite\'lerinde her testin performansı toplanır — preemptive auth, "standarda sadık ama testte gereksiz" bir maliyeti bilinçli olarak atlama kararıdır.', en: 'The lesson — the HTTP standard PRESCRIBES the 401-then-retry flow (it\'s not a bug), but in automated test suites every test\'s performance adds up — preemptive auth is a deliberate decision to skip a cost that\'s "standard-compliant but unnecessary in tests".' },
+      positions: { preemptive: { x: 40, y: 50, scale: 1.1 }, server200: { x: 68, y: 50, scale: 1.0, opacity: 0.7 } },
+    },
+  ],
+}
+
+const raPojoDeserializeFilm = {
+  type: 'video-scene',
+  id: 'ra-pojo-deserialize-film',
+  title: { tr: '🎬 JSON\'dan POJO\'ya: Jackson\'ın Sihri', en: '🎬 JSON to POJO: Jackson\'s Trick' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'json', emoji: '📄', label: { tr: 'JSON Response (metin)', en: 'JSON Response (text)' }, color: '#0ea5e9' },
+    { id: 'jackson', emoji: '⚙️', label: { tr: 'Jackson (ObjectMapper)', en: 'Jackson (ObjectMapper)' }, color: '#f59e0b' },
+    { id: 'pojo', emoji: '☕', label: { tr: 'User.java (POJO)', en: 'User.java (POJO)' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Alan adı UYUŞMUYOR', en: 'Field name MISMATCH' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Response bir düz metin JSON string\'i — ama testte `user.getEmail()` yazabiliyorsun. Bu metin nasıl gerçek bir Java nesnesine dönüşüyor?', en: 'The response is just a plain JSON string — yet in the test you can write `user.getEmail()`. How does that text turn into a real Java object?' },
+      positions: { json: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — `.as(User.class)` çağrıldığında REST Assured, Jackson kütüphanesine "bu JSON\'ı bu sınıfa dönüştür" der.', en: 'Step 1 — when `.as(User.class)` is called, REST Assured tells the Jackson library "convert this JSON into this class".' },
+      code: { tr: `User user = given().spec(spec)\n    .when().get("/api/users/2")\n    .then().extract().as(User.class);`, en: `User user = given().spec(spec)\n    .when().get("/api/users/2")\n    .then().extract().as(User.class);` },
+      positions: { json: { x: 20, y: 40, scale: 1.0 }, jackson: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'json', to: 'jackson', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — Jackson, JSON\'daki HER alan adını (`"email"`, `"first_name"`) User sınıfındaki getter/setter\'ların isimleriyle EŞLEŞTİRİR — `"email"` alanı `setEmail(String)` metoduna gider.', en: 'Step 2 — Jackson MATCHES every field name in the JSON (`"email"`, `"first_name"`) against the getter/setter names in the User class — the `"email"` field goes to the `setEmail(String)` method.' },
+      code: { tr: `public class User {\n    private String email;\n    public void setEmail(String e) { this.email = e; }\n}`, en: `public class User {\n    private String email;\n    public void setEmail(String e) { this.email = e; }\n}` },
+      positions: { jackson: { x: 22, y: 40, scale: 0.95 }, pojo: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'jackson', to: 'pojo', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Adım 3 (kontrast) — JSON\'da `"first_name"` var ama POJO\'da `firstName` (camelCase, alt çizgi yok) yazılmışsa, Jackson bu alanı EŞLEŞTİREMEZ ve sessizce `null` bırakır — test hiçbir hata FIRLATMAZ, ama veri eksiktir.', en: 'Step 3 (the contrast) — if the JSON has `"first_name"` but the POJO was written as `firstName` (camelCase, no underscore), Jackson CANNOT match that field and silently leaves it `null` — the test throws NO error, but the data is missing.' },
+      code: { tr: `// JSON: "first_name": "Janet"\n// POJO: private String firstName; // EŞLEŞMEZ!\nuser.getFirstName() // → null, sessizce`, en: `// JSON: "first_name": "Janet"\n// POJO: private String firstName; // NO MATCH!\nuser.getFirstName() // → null, silently` },
+      positions: { pojo: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, ghost: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'pojo', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Ders — çözüm `@JsonProperty("first_name")` annotasyonuyla eşlemeyi elle belirtmektir. Java\'daki bir ORM\'in (`@Column(name="first_name")`) veritabanı sütununu Java alanına eşlemesiyle BİREBİR aynı mantık — sadece kaynak veritabanı değil, JSON.', en: 'The lesson — the fix is explicitly declaring the mapping with `@JsonProperty("first_name")`. This is the EXACT same logic as a Java ORM (`@Column(name="first_name")`) mapping a database column to a Java field — just the source is JSON instead of a database.' },
+      positions: { ghost: { x: 35, y: 50, scale: 1.1 }, json: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const raHamcrestMatcherFilm = {
+  type: 'video-scene',
+  id: 'ra-hamcrest-matcher-film',
+  title: { tr: '🎬 Hamcrest Matcher\'ları: assertEquals\'tan Okunabilir Cümleye', en: '🎬 Hamcrest Matchers: From assertEquals to a Readable Sentence' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'response', emoji: '📥', label: { tr: 'Response Body', en: 'Response Body' }, color: '#0ea5e9' },
+    { id: 'matcher', emoji: '🔍', label: { tr: 'Hamcrest Matcher', en: 'Hamcrest Matcher' }, color: '#f59e0b' },
+    { id: 'pass', emoji: '✅', label: { tr: 'PASS', en: 'PASS' }, color: '#22c55e' },
+    { id: 'fail', emoji: '👻', label: { tr: 'FAIL — açıklayıcı mesaj', en: 'FAIL — descriptive message' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: '`assertEquals(3, list.size())` FAIL olduğunda "expected 3 but was 5" der — ama Hamcrest\'in `hasSize(3)` gibi matcher\'ları neden tercih edilir?', en: 'When `assertEquals(3, list.size())` fails it says "expected 3 but was 5" — so why are Hamcrest matchers like `hasSize(3)` preferred?' },
+      positions: { response: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — `.body("data", hasSize(6))` yazıldığında, matcher response\'un "data" alanındaki liste boyutunu KONTROL EDER — cümle neredeyse İngilizce gibi okunur: "body\'nin data\'sı 6 boyutunda olsun".', en: 'Step 1 — writing `.body("data", hasSize(6))`, the matcher CHECKS the size of the list at the response\'s "data" field — the sentence reads almost like English: "let body\'s data have size 6".' },
+      code: { tr: `.then()\n    .body("data", hasSize(6));`, en: `.then()\n    .body("data", hasSize(6));` },
+      positions: { response: { x: 20, y: 40, scale: 1.0 }, matcher: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'response', to: 'matcher', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — matcher\'lar ZİNCİRLENEBİLİR: `allOf(greaterThan(0), lessThan(100))` demek "0\'dan büyük VE 100\'den küçük" demektir — tek bir sayısal karşılaştırmayı ayrı ayrı iki assert yazmadan ifade edersin.', en: 'Step 2 — matchers can be CHAINED: `allOf(greaterThan(0), lessThan(100))` means "greater than 0 AND less than 100" — expressing a single numeric range without writing two separate asserts.' },
+      code: { tr: `.body("data.id", allOf(greaterThan(0), lessThan(100)))`, en: `.body("data.id", allOf(greaterThan(0), lessThan(100)))` },
+      positions: { matcher: { x: 22, y: 40, scale: 0.95 }, pass: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'matcher', to: 'pass', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Adım 3 (kontrast) — matcher FAIL olursa Hamcrest\'in hata mesajı ÖZELLİKLE okunabilir kurgulanmıştır: "Expected: a collection with size <6> but: collection size was <5>" — bu, kaç elemanın eksik olduğunu ANINDA gösterir.', en: 'Step 3 (the contrast) — when a matcher FAILS, Hamcrest\'s error message is DELIBERATELY built to be readable: "Expected: a collection with size <6> but: collection size was <5>" — this shows INSTANTLY how many elements are missing.' },
+      code: { tr: `java.lang.AssertionError:\nExpected: a collection with size <6>\n     but: collection size was <5>`, en: `java.lang.AssertionError:\nExpected: a collection with size <6>\n     but: collection size was <5>` },
+      positions: { pass: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, fail: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'pass', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Ders — düz `assertEquals` ile aynı hatayı yakalasan bile mesaj genelde "expected true but was false" gibi anlamsız kalır çünkü koşulun NE olduğunu kodun kendisine bakmadan bilemezsin. Hamcrest matcher\'ları, koşulun kendisini OKUNABİLİR bir sözcüğe (hasSize, greaterThan, containsString) dönüştürerek hata mesajını da otomatik olarak anlamlı kılar.', en: 'The lesson — even if plain `assertEquals` catches the same failure, the message often stays meaningless like "expected true but was false" because you can\'t tell WHAT the condition was without looking at the code. Hamcrest matchers turn the condition itself into a READABLE word (hasSize, greaterThan, containsString), automatically making the failure message meaningful too.' },
+      positions: { fail: { x: 35, y: 50, scale: 1.1 }, response: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const raJsonPathExtractFilm = {
+  type: 'video-scene',
+  id: 'ra-jsonpath-extract-film',
+  title: { tr: '🎬 JSON Path: Sıraya Değil, Alan Adına Göre Gitmek', en: '🎬 JSON Path: Navigating by Field Name, Not Position' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'response', emoji: '📥', label: { tr: 'Nested JSON', en: 'Nested JSON' }, color: '#0ea5e9' },
+    { id: 'split', emoji: '👻', label: { tr: 'String.split(",")[3]', en: 'String.split(",")[3]' }, color: '#ef4444' },
+    { id: 'jsonpath', emoji: '🗺️', label: { tr: 'jsonPath().getString(...)', en: 'jsonPath().getString(...)' }, color: '#22c55e' },
+    { id: 'token', emoji: '🔑', label: { tr: 'Bir Sonraki Teste Aktarılan Token', en: 'Token Passed to Next Test' }, color: '#8b5cf6' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Bir login response\'undan `token` alanını çekip bir sonraki isteğin header\'ına koyman gerekiyor — bunu string manipülasyonuyla mı, JSON Path ile mi yaparsın?', en: 'You need to pull the `token` field from a login response and put it in the next request\'s header — do you do it with string manipulation or JSON Path?' },
+      positions: { response: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 (kontrast/tuzak) — bazı ekipler response body\'yi `.asString()` ile düz metin alıp `split(",")[3]` gibi POZİSYONA göre değer çeker — bu, alan SIRASI değişirse SESSİZCE yanlış değeri döner.', en: 'Step 1 (the contrast/trap) — some teams grab the response body as plain text with `.asString()` and extract a value by POSITION like `split(",")[3]` — this SILENTLY returns the wrong value if field order changes.' },
+      code: { tr: `String body = response.asString();\nString token = body.split(",")[3]; // KIRILGAN`, en: `String body = response.asString();\nString token = body.split(",")[3]; // FRAGILE` },
+      positions: { response: { x: 20, y: 40, scale: 1.0 }, split: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'response', to: 'split', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — API bir gün response\'a YENİ bir alan eklerse (örn. `"requestId"` başa eklenir), `split(",")[3]` artık FARKLI bir değeri döner — test hâlâ PASS olur ama YANLIŞ token\'ı taşır.', en: 'Step 2 — if the API one day adds a NEW field to the response (e.g. `"requestId"` prepended), `split(",")[3]` now returns a DIFFERENT value — the test still PASSes but carries the WRONG token.' },
+      positions: { split: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, jsonpath: { x: 58, y: 55, scale: 0.9, opacity: 0.4 } },
+    },
+    {
+      caption: { tr: 'Adım 3 (çözüm) — `response.jsonPath().getString("token")` ALAN ADINA göre gider — JSON içinde başka kaç alan eklenirse eklensin, `"token"` adlı alanı DOĞRU şekilde bulur.', en: 'Step 3 (the fix) — `response.jsonPath().getString("token")` navigates by FIELD NAME — no matter how many other fields get added to the JSON, it CORRECTLY finds the field named `"token"`.' },
+      code: { tr: `String token = response.jsonPath().getString("token");\n// Alan sırası değişse de DOĞRU sonuç`, en: `String token = response.jsonPath().getString("token");\n// Correct result even if field order changes` },
+      positions: { split: { x: 20, y: 55, opacity: 0.3, scale: 0.8 }, jsonpath: { x: 55, y: 45, scale: 1.25, pulse: true } },
+      beams: [{ from: 'split', to: 'jsonpath', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Adım 4 — bu token artık bir sonraki testin `given().header("Authorization", "Bearer " + token)` satırına DOĞRUDAN aktarılabilir — zincirli senaryo (login→işlem→doğrulama) bu şekilde kurulur.', en: 'Step 4 — this token can now be DIRECTLY passed into the next test\'s `given().header("Authorization", "Bearer " + token)` line — this is how a chained scenario (login→action→verify) gets built.' },
+      positions: { jsonpath: { x: 22, y: 40, scale: 0.95 }, token: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'jsonpath', to: 'token', color: '#8b5cf6' }],
+    },
+    {
+      caption: { tr: 'Ders — Java\'da elle `JSONObject.getJSONObject("data").getJSONArray("users").getJSONObject(0).getString("email")` zincirlemek yerine, JSON Path bunu TEK bir `"data.users[0].email"` string\'ine indirger — okunabilirlik ve sağlamlık aynı anda kazanılır.', en: 'The lesson — instead of manually chaining `JSONObject.getJSONObject("data").getJSONArray("users").getJSONObject(0).getString("email")` in Java, JSON Path reduces that to a SINGLE `"data.users[0].email"` string — you gain readability and robustness at the same time.' },
+      positions: { token: { x: 35, y: 50, scale: 1.1 }, response: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const raTestChainFilm = {
+  type: 'video-scene',
+  id: 'ra-test-chain-film',
+  title: { tr: '🎬 Test Zinciri: Bir Testin Çıktısı, Diğerinin Girdisi', en: '🎬 Test Chaining: One Test\'s Output, Another\'s Input' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'create', emoji: '1️⃣', label: { tr: 'POST /users (oluştur)', en: 'POST /users (create)' }, color: '#0ea5e9' },
+    { id: 'id', emoji: '🆔', label: { tr: 'Yeni ID (response\'tan)', en: 'New ID (from response)' }, color: '#f59e0b' },
+    { id: 'get', emoji: '2️⃣', label: { tr: 'GET /users/{id} (doğrula)', en: 'GET /users/{id} (verify)' }, color: '#8b5cf6' },
+    { id: 'delete', emoji: '3️⃣', label: { tr: 'DELETE /users/{id} (temizle)', en: 'DELETE /users/{id} (cleanup)' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Hardcoded ID — kırık test', en: 'Hardcoded ID — broken test' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Gerçek bir E2E senaryo: kullanıcı OLUŞTUR, sonra o kullanıcıyı GETİR, sonra SİL. Bu üç isteği birbirine nasıl bağlarsın — ID\'yi nereden alırsın?', en: 'A real E2E scenario: CREATE a user, then FETCH that user, then DELETE it. How do you chain these three requests — where does the ID come from?' },
+      positions: { create: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — POST /users isteği gönderilir, sunucu YENİ bir kullanıcı oluşturur ve response body\'sinde bu kullanıcının kendine özgü `id`\'sini döner — bu ID daha önceden BİLİNEMEZ.', en: 'Step 1 — a POST /users request is sent, the server creates a NEW user and returns that user\'s unique `id` in the response body — this ID could NOT have been known beforehand.' },
+      code: { tr: `int newId = given().spec(spec).body(newUser)\n    .when().post("/api/users")\n    .then().extract().path("id");`, en: `int newId = given().spec(spec).body(newUser)\n    .when().post("/api/users")\n    .then().extract().path("id");` },
+      positions: { create: { x: 20, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 2 (kontrast/tuzak) — bir ekip bu ID\'yi TAHMİN ederek hardcode edebilir (`int id = 15;`) — ama sunucu her test koşumunda FARKLI bir ID üretebilir, bu test rastgele KIRILIR.', en: 'Step 2 (the contrast/trap) — a team might GUESS this ID and hardcode it (`int id = 15;`) — but the server can produce a DIFFERENT ID on every test run, so this test BREAKS randomly.' },
+      code: { tr: `int id = 15; // TAHMİN — yarın 16, 23 olabilir\nget("/api/users/" + id) // rastgele FAIL`, en: `int id = 15; // GUESS — could be 16, 23 tomorrow\nget("/api/users/" + id) // fails randomly` },
+      positions: { create: { x: 20, y: 55, opacity: 0.5, scale: 0.85 }, ghost: { x: 55, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'create', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Adım 3 (doğru yol) — `newId` değişkeni Adım 1\'in GERÇEK response\'undan geldi, bu yüzden GET isteği HER ZAMAN doğru kullanıcıyı bulur — ID asla tahmin edilmez, her zaman ÖNCEKİ adımdan alınır.', en: 'Step 3 (the right way) — the `newId` variable came from Step 1\'s REAL response, so the GET request ALWAYS finds the right user — the ID is never guessed, always taken from the PREVIOUS step.' },
+      code: { tr: `given().spec(spec)\n    .when().get("/api/users/" + newId)\n    .then().statusCode(200);`, en: `given().spec(spec)\n    .when().get("/api/users/" + newId)\n    .then().statusCode(200);` },
+      positions: { ghost: { x: 20, y: 40, opacity: 0.3, scale: 0.8 }, id: { x: 45, y: 55, scale: 1.1 }, get: { x: 68, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'id', to: 'get', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Adım 4 — zincirin son adımı DELETE\'tir: aynı `newId` ile kayıt silinir, böylece bu test kendi ARDINDAN temizlik yapar ve bir sonraki test koşumunu KİRLETMEZ.', en: 'Step 4 — the chain\'s last step is DELETE: the record is removed with the same `newId`, so this test CLEANS UP AFTER ITSELF and does NOT pollute the next test run.' },
+      positions: { get: { x: 22, y: 40, scale: 0.95 }, delete: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'get', to: 'delete', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Ders — Java\'da bir test suite\'inde `@BeforeAll`/`@AfterAll` ile setup/teardown yapmanın API testindeki karşılığı budur: her adımın GERÇEK çıktısı bir sonrakinin girdisi olur, hiçbir değer varsayılmaz veya hardcode edilmez.', en: 'The lesson — this is the API-testing equivalent of setup/teardown with `@BeforeAll`/`@AfterAll` in a Java test suite: each step\'s REAL output becomes the next step\'s input, no value is ever assumed or hardcoded.' },
+      positions: { delete: { x: 35, y: 50, scale: 1.1 }, create: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const raFlakyTimeoutFilm = {
+  type: 'video-scene',
+  id: 'ra-flaky-timeout-film',
+  title: { tr: '🎬 Flaky API Testi: Rate-Limit mi, Gerçek Bug mu?', en: '🎬 A Flaky API Test: Rate-Limit or a Real Bug?' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test', emoji: '🧪', label: { tr: 'CI\'da Test Suite', en: 'Test Suite in CI' }, color: '#8b5cf6' },
+    { id: 'burst', emoji: '💥', label: { tr: '50 istek/saniye (paralel)', en: '50 requests/sec (parallel)' }, color: '#f59e0b' },
+    { id: 'ratelimit', emoji: '🚦', label: { tr: '429 Too Many Requests', en: '429 Too Many Requests' }, color: '#ef4444' },
+    { id: 'diagnosis', emoji: '🔍', label: { tr: 'Log İncelemesi', en: 'Log Inspection' }, color: '#0ea5e9' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'Retry + Backoff', en: 'Retry + Backoff' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'CI\'da bir API test suite bazen PASS, bazen belirli testlerde 429 hatasıyla FAIL oluyor — bu gerçek bir bug mu, yoksa test suite\'inin kendisi mi sorun yaratıyor?', en: 'An API test suite in CI sometimes PASSes, sometimes FAILs on certain tests with a 429 error — is this a real bug, or is the test suite itself causing the problem?' },
+      positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — test suite paralel çalışacak şekilde ayarlanmış (`@Execution(CONCURRENT)`); 50 test AYNI ANDA aynı API\'ye istek atıyor.', en: 'Step 1 — the test suite is configured to run in parallel (`@Execution(CONCURRENT)`); 50 tests fire requests at the SAME API SIMULTANEOUSLY.' },
+      code: { tr: `@Execution(CONCURRENT) // JUnit5 paralel çalıştırma`, en: `@Execution(CONCURRENT) // JUnit5 parallel execution` },
+      positions: { test: { x: 20, y: 40, scale: 1.0 }, burst: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'test', to: 'burst', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — API sağlayıcısının rate-limit koruması devreye girer: dakikada belirli bir istek sayısını aşan client\'lara 429 Too Many Requests döner — bu bir GÜVENLİK önlemidir, bug değil.', en: 'Step 2 — the API provider\'s rate-limit protection kicks in: clients exceeding a certain requests-per-minute threshold get 429 Too Many Requests — this is a SAFETY measure, not a bug.' },
+      positions: { burst: { x: 22, y: 40, scale: 0.95 }, ratelimit: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'burst', to: 'ratelimit', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Adım 3 (teşhis) — log\'da hangi testlerin fail olduğuna bakılır: FAIL eden testler HER ZAMAN farklı, ve fail mesajı hep "429" — bu, testin KENDİ mantığında değil, İSTEK HACMİNDE bir sorun olduğunu gösterir.', en: 'Step 3 (the diagnosis) — checking the logs for which tests fail: the failing tests are ALWAYS different, and the failure message is always "429" — this signals the issue is in REQUEST VOLUME, not the test\'s own logic.' },
+      code: { tr: `// Log: 429 Too Many Requests (farklı testte her seferinde)`, en: `// Log: 429 Too Many Requests (a different test each time)` },
+      positions: { ratelimit: { x: 22, y: 40, scale: 0.9 }, diagnosis: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'ratelimit', to: 'diagnosis', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Adım 4 (çözüm) — iki yol: (1) paralellik derecesini düşürmek, (2) 429 aldığında exponential backoff ile otomatik retry eklemek (`RestAssuredConfig` içinde bir `Filter` ile). İkincisi hem CI hızını korur hem rate-limit\'e SAYGI gösterir.', en: 'Step 4 (the fix) — two paths: (1) lower the parallelism degree, (2) add automatic retry with exponential backoff on a 429 (via a `Filter` in `RestAssuredConfig`). The second option keeps CI speed AND respects the rate limit.' },
+      positions: { diagnosis: { x: 22, y: 40, scale: 0.95 }, fixed: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'diagnosis', to: 'fixed', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Ders — "flaky" etiketi bazen testin kendi hatası değil, test suite\'inin GERÇEK dünyaya (rate-limit, network) nasıl davrandığının bir yansımasıdır. Kök nedeni bulmadan retry eklemek belirtiyi gizler, sorunu çözmez.', en: 'The lesson — "flaky" sometimes isn\'t the test\'s own fault, it\'s a reflection of how the suite behaves toward the REAL world (rate limits, networks). Adding a retry without finding the root cause hides the symptom, it doesn\'t fix the problem.' },
+      positions: { fixed: { x: 35, y: 50, scale: 1.1 }, test: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const raToolComparisonFilm = {
+  type: 'video-scene',
+  id: 'ra-tool-comparison-film',
+  title: { tr: '🎬 REST Assured vs Postman: Kod mu, GUI mi?', en: '🎬 REST Assured vs Postman: Code or GUI?' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'goal', emoji: '🎯', label: { tr: 'Aynı Test: login → dashboard doğrula', en: 'Same Test: login → verify dashboard' }, color: '#8b5cf6' },
+    { id: 'postman', emoji: '📮', label: { tr: 'Postman — GUI + JS script', en: 'Postman — GUI + JS script' }, color: '#f59e0b' },
+    { id: 'restassured', emoji: '☕', label: { tr: 'REST Assured — Java kodu', en: 'REST Assured — Java code' }, color: '#0ea5e9' },
+    { id: 'cicd', emoji: '⚙️', label: { tr: 'CI/CD Pipeline (mvn test)', en: 'CI/CD Pipeline (mvn test)' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Aynı testi Postman\'da GUI ile, REST Assured\'da Java koduyla yazsan — ikisi de "çalışır", peki NEREDE gerçekten farklılaşırlar?', en: 'Write the same test in Postman\'s GUI vs REST Assured\'s Java code — both "work", so WHERE do they actually diverge?' },
+      positions: { goal: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — Postman\'da: isteği GUI\'de tıklayarak kurarsın, "Tests" sekmesine JavaScript yazarsın — hızlı prototipleme için harikadır, tıklarken görsel geri bildirim alırsın.', en: 'Step 1 — in Postman: you build the request by clicking through the GUI, write JavaScript in the "Tests" tab — great for fast prototyping, you get visual feedback as you click.' },
+      positions: { goal: { x: 20, y: 40, scale: 1.0 }, postman: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'goal', to: 'postman', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — REST Assured\'da: aynı test bir `.java` dosyasıdır — Git\'te version-control edilir, code review\'dan geçer, IDE\'nin refactor/rename araçları çalışır.', en: 'Step 2 — in REST Assured: the same test is a `.java` file — it\'s version-controlled in Git, goes through code review, and the IDE\'s refactor/rename tools work on it.' },
+      positions: { postman: { x: 22, y: 40, opacity: 0.6, scale: 0.9 }, restassured: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'goal', to: 'restassured', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Adım 3 (kontrast) — Postman\'i CI\'da çalıştırmak için AYRI bir araç (Newman) + collection export/import adımı gerekir; REST Assured testleri zaten `mvn test`\'in İÇİNDEDİR — proje derleme adımının doğal bir parçası.', en: 'Step 3 (the contrast) — running Postman in CI needs a SEPARATE tool (Newman) + collection export/import step; REST Assured tests are already INSIDE `mvn test` — a natural part of the project\'s build step.' },
+      code: { tr: `# Postman: ekstra adım\nnewman run collection.json\n\n# REST Assured: zaten build'in parçası\nmvn test`, en: `# Postman: extra step\nnewman run collection.json\n\n# REST Assured: already part of the build\nmvn test` },
+      positions: { restassured: { x: 22, y: 40, scale: 0.95 }, cicd: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'restassured', to: 'cicd', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Ders — doğru araç seçimi ekip yapısına bağlıdır: manuel/keşif odaklı QA için Postman daha hızlı başlar; Java/Selenium ekosistemine ZATEN gömülü bir otomasyon suite\'i için REST Assured daha az sürtünmeyle entegre olur. Gerçekçi ekipler genelde İKİSİNİ birden kullanır — keşif Postman\'de, regresyon REST Assured\'da.', en: 'The lesson — the right tool choice depends on team structure: for manual/exploratory QA, Postman gets started faster; for an automation suite ALREADY embedded in a Java/Selenium ecosystem, REST Assured integrates with less friction. Realistic teams often use BOTH — exploration in Postman, regression in REST Assured.' },
+      positions: { cicd: { x: 35, y: 50, scale: 1.1 }, postman: { x: 60, y: 40, scale: 0.85, opacity: 0.6 }, restassured: { x: 75, y: 60, scale: 0.85, opacity: 0.6 } },
+    },
+  ],
+}
+
+const raInterviewSpecPatternFilm = {
+  type: 'video-scene',
+  id: 'ra-interview-spec-pattern-film',
+  title: { tr: '🎬 Mülakatta "RequestSpecification Nedir?" Sorusuna Katmanlı Cevap', en: '🎬 A Layered Answer to "What Is RequestSpecification?" in an Interview' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'definition', emoji: '📖', label: { tr: 'Katman 1: Tanım', en: 'Layer 1: Definition' }, color: '#94a3b8' },
+    { id: 'mechanism', emoji: '⚙️', label: { tr: 'Katman 2: Mekanizma', en: 'Layer 2: Mechanism' }, color: '#0ea5e9' },
+    { id: 'experience', emoji: '💼', label: { tr: 'Katman 3: Deneyim', en: 'Layer 3: Experience' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: '"Sadece tanımı ezberlemiş" izlenimi', en: '"Just memorized the definition" impression' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Mülakatçı sorar: "RequestSpecification nedir, neden kullanılır?" — bu soruyu tek cümlelik bir tanımla mı, yoksa katmanlı bir cevapla mı geçersin?', en: 'The interviewer asks: "What is RequestSpecification, why is it used?" — do you pass this with a one-sentence definition, or a layered answer?' },
+      positions: { definition: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Katman 1 (TANIM) — "RequestSpecification, baseURI, header, auth gibi tekrar eden istek ayarlarını TEK bir yerde toplayan bir nesnedir." Doğru ama yüzeysel.', en: 'Layer 1 (DEFINITION) — "RequestSpecification is an object that collects repeated request settings like baseURI, headers, auth in ONE place." Correct but shallow.' },
+      code: { tr: `RequestSpecification spec = new RequestSpecBuilder()\n    .setBaseUri("https://reqres.in").build();`, en: `RequestSpecification spec = new RequestSpecBuilder()\n    .setBaseUri("https://reqres.in").build();` },
+      positions: { definition: { x: 22, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Katman 2 (MEKANİZMA) — "her `given().spec(spec)` çağrısında bu ayarlar İSTEĞE otomatik olarak enjekte edilir — 50 test dosyasında `baseURI`\'yi 50 kez tekrar YAZMAZSIN."', en: 'Layer 2 (MECHANISM) — "on every `given().spec(spec)` call these settings get automatically injected INTO the request — you don\'t REPEAT `baseURI` 50 times across 50 test files."' },
+      positions: { definition: { x: 20, y: 55, opacity: 0.5, scale: 0.85 }, mechanism: { x: 55, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'definition', to: 'mechanism', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Katman 3 (DENEYİM) — "bir projede staging/prod URL\'lerini environment variable\'dan okuyan TEK bir `spec` nesnesi kurdum — CI\'da hangi ortama karşı koştuğumuzu tek bir yerden değiştirebiliyorduk."', en: 'Layer 3 (EXPERIENCE) — "in one project I built a SINGLE `spec` object that read staging/prod URLs from an environment variable — in CI we could switch which environment we ran against from one place."' },
+      positions: { mechanism: { x: 20, y: 40, opacity: 0.5, scale: 0.85 }, experience: { x: 55, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'mechanism', to: 'experience', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Final (kontrast) — sadece Katman 1\'de kalan bir aday, mülakatçıya "bunu Google\'dan okumuş ama hiç kullanmamış" izlenimi bırakır. 3 katmanı da kapsayan bir cevap ise gerçek üretim deneyimini KANITLAR.', en: 'The final contrast — a candidate who stops at Layer 1 leaves the interviewer with the impression "they read this on Google but never used it". An answer covering all 3 layers PROVES real production experience.' },
+      positions: { experience: { x: 22, y: 40, scale: 0.9 }, ghost: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'experience', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const raInterviewStep = {
+  type: 'step-animation',
+  title: { tr: 'REST Assured Mülakat Cevabı — 3 Katman', en: 'REST Assured Interview Answer — 3 Layers' },
+  steps: [
+    { tr: 'Katman 1: Kavramı tek cümlede tanımla.', en: 'Layer 1: Define the concept in one sentence.' },
+    { tr: 'Katman 2: NASIL çalıştığını (mekanizmayı) göster.', en: 'Layer 2: Show HOW it works (the mechanism).' },
+    { tr: 'Katman 3: Kendi projenden somut bir örnekle DENEYİM göster.', en: 'Layer 3: Show EXPERIENCE with a concrete example from your own project.' },
+  ],
+}
+
+const raInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'rest-assured-interview',
+  title: { tr: 'Kendin Dene: Tekrar Eden İstek Ayarlarını RequestSpecification\'a Taşı', en: 'Try It Yourself: Move Repeated Request Settings into RequestSpecification' },
+  starterCode: `// Her testte tekrar eden ayarlar:
+given().baseUri("https://reqres.in").header("Content-Type", "application/json")
+    .when().get("/api/users/2");
+given().baseUri("https://reqres.in").header("Content-Type", "application/json")
+    .when().get("/api/users/3");`,
+  solutionCode: `RequestSpecification spec = new RequestSpecBuilder()
+    .setBaseUri("https://reqres.in")
+    .addHeader("Content-Type", "application/json")
+    .build();
+
+given().spec(spec).when().get("/api/users/2");
+given().spec(spec).when().get("/api/users/3");`,
+  hint: { tr: '`RequestSpecBuilder` ile tekrar eden `baseUri`/`header` ayarlarını TEK bir `spec` nesnesinde topla, sonra her testte `.spec(spec)` ile kullan.', en: 'Use `RequestSpecBuilder` to collect repeated `baseUri`/`header` settings into ONE `spec` object, then use `.spec(spec)` in every test.' },
+  successMessage: { tr: 'Doğru! Artık baseUri değişirse tek bir yerden güncellersin, 50 test dosyasını tek tek düzenlemezsin.', en: 'Correct! Now if baseUri changes you update one place, not 50 test files one by one.' },
+}
+
+const raWhyStep = {
+  type: 'step-animation',
+  title: { tr: 'Neden Bir API Test Kütüphanesine İhtiyaç Var?', en: 'Why Do You Need an API Testing Library at All?' },
+  steps: [
+    { tr: 'Düz `HttpClient` ile: istek hazırlamak, göndermek, JSON\'ı parse etmek ve assertion yazmak İÇİN 4 AYRI adım, her biri elle kodlanır.', en: 'With plain `HttpClient`: preparing the request, sending it, parsing the JSON, and writing assertions are 4 SEPARATE steps, each hand-coded.' },
+    { tr: 'REST Assured ile: given/when/then TEK bir akıcı zincirde bu 4 adımı BİRLEŞTİRİR — okuyan biri hangi kısmın istek, hangi kısmın doğrulama olduğunu cümleden anlar.', en: 'With REST Assured: given/when/then MERGES these 4 steps into ONE fluent chain — a reader understands which part is the request and which is verification just from the sentence.' },
+    { tr: 'Sonuç: aynı test %60\'a varan daha AZ kod ile yazılır ve okunabilirlik doğrudan bakım maliyetini düşürür.', en: 'Result: the same test is written with up to 60% LESS code, and readability directly lowers maintenance cost.' },
+  ],
+}
+
+const raWhyPractice = {
+  type: 'java-practice',
+  relatedTopicId: 'rest-assured-why',
+  title: { tr: 'Kendin Dene: given/when/then Zincirini Tamamla', en: 'Try It Yourself: Complete the given/when/then Chain' },
+  starterCode: `// TODO: eksik zinciri tamamla — GET /api/users/2, status 200 bekleniyor
+given()
+    .when().get("/api/users/2")
+    // .then() eksik!`,
+  solutionCode: `given()
+    .when().get("/api/users/2")
+    .then().statusCode(200);`,
+  hint: { tr: 'Üç bölüm ZORUNLU sırayla gelir: given() (hazırlık) → when() (eylem) → then() (doğrulama). Doğrulama olmadan bir test hiçbir şey KANITLAMAZ.', en: 'The three parts come in a MANDATORY order: given() (setup) → when() (action) → then() (verification). Without verification, a test PROVES nothing.' },
+  successMessage: { tr: 'Doğru! .then() olmadan istek gönderilir ama HİÇBİR ŞEY doğrulanmaz — bu, "test" olmayan bir test\'tir.', en: 'Correct! Without .then() the request is sent but NOTHING is verified — that\'s a "test" that isn\'t actually a test.' },
+}
+
+const raToolChoiceStep = {
+  type: 'step-animation',
+  title: { tr: 'Doğru API Test Aracını Seçme Kriterleri', en: 'Criteria for Choosing the Right API Testing Tool' },
+  steps: [
+    { tr: 'Ekip Java/Selenium ekosisteminde mi çalışıyor? Evet ise → REST Assured, aynı build/CI zincirine sürtünmesiz girer.', en: 'Does the team already work in a Java/Selenium ecosystem? If yes → REST Assured integrates into the same build/CI chain with no friction.' },
+    { tr: 'Keşif odaklı, hızlı manuel test mi gerekiyor? Evet ise → Postman/Bruno, GUI ile anında deneme sağlar.', en: 'Is fast, exploratory manual testing needed? If yes → Postman/Bruno gives instant experimentation via GUI.' },
+    { tr: 'İkisi ZORUNLU olarak birbirini dışlamaz — çoğu ekip keşifte Postman/Bruno, regresyon suite\'inde REST Assured kullanır.', en: 'The two are NOT mutually exclusive — most teams use Postman/Bruno for exploration and REST Assured for the regression suite.' },
+  ],
+}
+
+const raToolChoicePractice = {
+  type: 'java-practice',
+  relatedTopicId: 'rest-assured-tool-comparison',
+  title: { tr: 'Kendin Dene: Postman Testini REST Assured\'a Çevir', en: 'Try It Yourself: Convert a Postman Test to REST Assured' },
+  starterCode: `// Postman "Tests" sekmesi:
+// pm.test("Status is 200", function () {
+//     pm.response.to.have.status(200);
+// });
+// TODO: Bunun REST Assured karsiligini yaz`,
+  solutionCode: `@Test
+void statusIs200() {
+    given().spec(spec)
+        .when().get("/api/users/2")
+        .then().statusCode(200);
+}`,
+  hint: { tr: 'Postman\'in `pm.test(...)` bloğu, REST Assured\'da bir `@Test` metodu + `.then().statusCode(...)` assertion\'ına karşılık gelir.', en: 'Postman\'s `pm.test(...)` block corresponds to a `@Test` method + `.then().statusCode(...)` assertion in REST Assured.' },
+  successMessage: { tr: 'Doğru! Aynı doğrulama mantığı, iki farklı araçta iki farklı sözdizimiyle ifade edildi.', en: 'Correct! The same verification logic, expressed with two different syntaxes in two different tools.' },
+}
+
 const sections = [
 
   // ── 0: Why REST Assured? ────────────────────────────────────────────────────
@@ -212,6 +812,9 @@ public class BaseTest {
           },
         ],
       },
+      raBddChainFilm,
+      raWhyStep,
+      raWhyPractice,
       {
         type: 'quiz',
         question: {
@@ -477,6 +1080,7 @@ public class ConfigReader {
 // Usage:  ConfigReader.get("base.uri")  →  "https://reqres.in"
 // mvn test -Denv=staging  →  loads staging.properties`,
       },
+      raMavenSetupFilm,
       {
         type: 'quiz',
         question: {
@@ -726,6 +1330,7 @@ void deleteUser_shouldReturn204() {
         .statusCode(204);  // 204 No Content — no body, just the success code
 }`,
       },
+      raBasicRequestFilm,
       {
         type: 'quiz',
         question: {
@@ -911,6 +1516,7 @@ public class TokenRefreshFilter implements Filter {
 }
 // Add in BaseTest: RestAssured.filters(new TokenRefreshFilter());`,
       },
+      raAuthPreemptiveFilm,
       {
         type: 'quiz',
         question: {
@@ -1132,6 +1738,7 @@ ObjectNode node = mapper.readValue(body, ObjectNode.class);
 String email = node.get("data").get("email").asText();
 System.out.println(email); // george.bluth@reqres.in`,
       },
+      raPojoDeserializeFilm,
       {
         type: 'quiz',
         question: {
@@ -1293,6 +1900,7 @@ void userResponse_allFieldsValidation() {
     soft.assertAll(); // Execute all assertions, report all failures together
 }`,
       },
+      raHamcrestMatcherFilm,
       {
         type: 'quiz',
         question: {
@@ -1471,6 +2079,7 @@ void getUser_shouldMatchJsonSchema() {
           en: 'JSON Schema Validation is ideal for "API Contract Testing" in microservice architectures. When the backend team adds a new field or changes a field type, your tests automatically break — which is exactly what you want.',
         },
       },
+      raJsonPathExtractFilm,
       {
         type: 'quiz',
         question: {
@@ -1604,6 +2213,7 @@ public class UserCrudE2ETest extends BaseTest {
     }
 }`,
       },
+      raTestChainFilm,
       {
         type: 'quiz',
         question: {
@@ -1878,6 +2488,7 @@ public class UserResponse {
           },
         ],
       },
+      raFlakyTimeoutFilm,
       {
         type: 'quiz',
         question: {
@@ -2003,6 +2614,9 @@ Scenario: Create user with POST
           note: { tr: 'Java bilmeyenler okuyabilir. IDE desteği zayıf.', en: 'Readable by non-Java developers. IDE support is weaker.' },
         },
       },
+      raToolComparisonFilm,
+      raToolChoiceStep,
+      raToolChoicePractice,
       {
         type: 'quiz',
         question: {
@@ -2070,6 +2684,9 @@ Scenario: Create user with POST
   {
     title: { tr: '💼 Mülakat Soruları', en: '💼 Interview Questions' },
     blocks: [
+      raInterviewSpecPatternFilm,
+      raInterviewStep,
+      raInterviewPractice,
       {
         type: 'interview-questions',
           relatedTopicId: 'rest-assured',

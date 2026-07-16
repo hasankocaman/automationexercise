@@ -352,10 +352,76 @@ arasında panik yapmaya gerek yok, sadece her kesintiden sonra
 `node --check` + kullanım-sayısı (`grep -c constName`) ile durum tespiti
 yapıp devam etmek yeterli.
 
+### Sıradaki adım (Dalga 13 için, artık eski)
+~~Dalga 14 (/postman + /bruno + /rest-assured)~~ → TAMAMLANDI, bkz.
+aşağıdaki güncel bölüm.
+
+---
+
+## Dalga 14 — /postman + /bruno + /rest-assured — TAMAMLANDI (2026-07-16)
+
+Aynı `feature/video-scene-dalga4` branch'inde, 3 sayfa 3 AYRI subagent'a
+paralel verildi (farklı dosyalar, promptkurallar.md'ye göre izinli).
+
+**Kesinti/hata geçmişi bu dalgada olağandışı yoğundu:**
+- İlk paralel deneme: **3 subagent de** transient API hatasıyla (stream
+  stall / server error) hiç dosya değişikliği yapmadan başarısız oldu.
+  Hepsi sıfırdan retry edildi.
+- Retry'da Postman ve REST Assured yine hatayla kesildi (Postman: server
+  error mid-response, araştırma aşamasındayken; REST Assured: aynı).
+  Bruno retry'ı BAŞARILI oldu.
+- Postman ve REST Assured bu yüzden **ana oturumda elle** tamamlandı
+  (subagent'a 3. kez verilmedi).
+
+**REST Assured — TEK ağaçlı (`sections` paylaşımlı, gaugeData ile aynı
+güvenli kalıp), 11 sekme.** 11 film + Interview sekmesine tam üçlü +
+başlangıçta eksik kalan 2 sekmeye (Why REST Assured?, Tool Comparison)
+step-animation/java-practice sonradan eklendi.
+
+**Postman — EN+TR ayrı ağaçlı, 8 sekme.** 8 film + TÜM 7 kodlu sekmeye
+(orijinalde HİÇ animasyon/sandbox yoktu — `fillMissingCodeTrios` bu
+sayfada hiç çağrılmıyormuş) elle step-animation+code-playground + Interview
+sekmesine tam üçlü.
+
+**Bruno — EN+TR ayrı ağaçlı, 8 sekme (subagent tarafından tamamlandı).**
+8 film (.bru dosyasının Git-native doğası vurgulanarak) + zaten mevcut
+animasyon/sandbox'a ek film.
+
+**Bu dalgada bulunan/düzeltilen 2 gerçek bug (kendi yazdığım kodda):**
+1. Postman'de ilk film-referans ekleme turunda satır-numarası tabanlı
+   script'te off-by-one hatası: yeni blok referansları quiz/interview-
+   questions objesinin İÇİNE (obje literal'inin bir property'si gibi)
+   düşmüştü — `{ pmXFilm, type: 'quiz', ... }` gibi. `node --check` bunu
+   YAKALAMADI (geçerli JS shorthand property syntax'ı) ama semantik olarak
+   yanlıştı. CRLF line-ending farkı yüzünden ilk düzeltme regex'i de
+   tutmadı, ikinci denemede (`\r\n` dahil edilerek) düzeltildi.
+2. REST Assured'da 11 filmin TAMAMI tanımlandı ama HİÇBİRİ `sections`
+   dizisine referans olarak EKLENMEMİŞTİ (ben unutmuşum) — coverage
+   scan'i çalıştırınca `video=0` görülüp fark edildi, sonradan tamamlandı.
+
+**Genel ders:** Node script ile toplu satır-numaralı ekleme yaparken HER
+ZAMAN (a) dosyanın CRLF mi LF mi kullandığını kontrol et, (b) hedef
+satırın gerçekten "obje literal'inin İÇİNDE" mi yoksa "array'in bir
+sibling elemanı" mı olduğunu ekleme SONRASI görsel olarak doğrula —
+`node --check` bu tür semantik hataları YAKALAMAZ, sadece coverage-scan
+script'i veya manuel okuma yakalar.
+
+**Doğrulama (3 dosya için de):**
+- `node --check` üçünde de temiz.
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓.
+- Node coverage-scan: REST Assured 11x2, Postman 8x2, Bruno 8x2 — hepsi
+  ≥1 video+anim+sandbox (toplam 54 kontrol noktası, tamamı OK).
+- Film id'leri proje genelinde benzersiz (grep ile teyit, 0 tekrar).
+- `npm run build` → temiz. `restAssuredData` 66.09 kB gzip, `brunoData`
+  72.48 kB gzip, `postmanData` 91.89 kB gzip — hepsi eşiğin çok altında.
+- `tests/video-scene.spec.ts` genişletilmedi, Playwright çalıştırılmadı.
+
+**Commit:** bu dalganın değişikliği (3 dosya) commit edilecek, hash bir
+sonraki güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
+
 ### Sıradaki adım
-Dalga 14 (`/postman` + `/bruno` + `/rest-assured`) — API test üçlüsü,
-küçük sayfalar, tek dalgada gruplanıyor (`Documents/video-sitewide-
-plan.md` sırasına göre).
+Dalga 15 (`/jenkins` + `/kubernetes`) — CI/CD + orkestrasyon, aynı
+branch'te devam.
 
 ---
 

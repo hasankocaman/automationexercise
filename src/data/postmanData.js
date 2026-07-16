@@ -366,6 +366,564 @@ const shareFlowSvg = `<svg viewBox='0 0 700 290' xmlns='http://www.w3.org/2000/s
   </g>
 </svg>`
 
+const pmRequestCycleFilm = {
+  type: 'video-scene',
+  id: 'pm-request-cycle-film',
+  title: { tr: '🎬 Postman\'da Tek Tıkla İstek: Sahne Arkasında Ne Olur?', en: '🎬 One Click in Postman: What Happens Behind the Scenes?' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'client', emoji: '📮', label: { tr: 'Postman İstemcisi', en: 'Postman Client' }, color: '#f59e0b' },
+    { id: 'request', emoji: '📤', label: { tr: 'HTTP İsteği', en: 'HTTP Request' }, color: '#0ea5e9' },
+    { id: 'server', emoji: '🌐', label: { tr: 'API Sunucusu', en: 'API Server' }, color: '#8b5cf6' },
+    { id: 'response', emoji: '📥', label: { tr: 'Response + Test Sonucu', en: 'Response + Test Result' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: '200 ama YANLIŞ veri', en: '200 but WRONG data' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: '"Send" butonuna tıklıyorsun ve saniyeler içinde bir yanıt geliyor — ama bu tek tık aslında kaç ayrı adımı gizliyor?', en: 'You click "Send" and a response arrives in seconds — but how many separate steps does that one click actually hide?' },
+      positions: { client: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — Postman, GUI\'de girdiğin method/URL/header/body\'yi GERÇEK bir HTTP isteğine dönüştürür — bu, senin daha önce yazdığın bir cURL komutuyla BİREBİR aynı işi yapar.', en: 'Step 1 — Postman converts the method/URL/headers/body you entered in the GUI into a REAL HTTP request — this does the EXACT same job as a cURL command you might have typed by hand.' },
+      code: { tr: `GET https://reqres.in/api/users/2\nAccept: application/json`, en: `GET https://reqres.in/api/users/2\nAccept: application/json` },
+      positions: { client: { x: 20, y: 40, scale: 1.0 }, request: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'client', to: 'request', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — istek gerçek ağ üzerinden sunucuya ulaşır — Postman burada sadece bir "istemci" (client), tıpkı bir tarayıcı gibi; API\'nin kendisiyle hiçbir özel anlaşması yoktur.', en: 'Step 2 — the request travels over the real network to the server — Postman here is just a "client", like a browser; it has no special agreement with the API itself.' },
+      positions: { request: { x: 22, y: 40, scale: 0.95 }, server: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'request', to: 'server', color: '#8b5cf6' }],
+    },
+    {
+      caption: { tr: 'Adım 3 (kontrast) — sunucu 200 OK döner ama body\'deki `email` alanı BEKLENENDEN farklıdır — status kodu YEŞİL ışık yakar ama veri aslında YANLIŞTIR, ve status koduna bakan biri bunu asla fark etmez.', en: 'Step 3 (the contrast) — the server returns 200 OK but the `email` field in the body is DIFFERENT than expected — the status code gives a GREEN light but the data is actually WRONG, and anyone only glancing at the status code would never notice.' },
+      code: { tr: `HTTP/1.1 200 OK\n{ "data": { "email": "yanlis@ornek.com" } } // beklenmiyordu!`, en: `HTTP/1.1 200 OK\n{ "data": { "email": "wrong@example.com" } } // not expected!` },
+      positions: { server: { x: 20, y: 40, opacity: 0.5, scale: 0.85 }, ghost: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'server', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Adım 4 — bu yüzden "Tests" sekmesindeki script\'ler status koduyla YETİNMEZ, body\'nin İÇİNDEKİ alanları da tek tek kontrol eder — response gelir gelmez bu script\'ler otomatik çalışır.', en: 'Step 4 — this is why the scripts in the "Tests" tab do NOT stop at the status code, they also check the fields INSIDE the body one by one — these scripts run automatically the moment the response arrives.' },
+      positions: { ghost: { x: 22, y: 40, scale: 0.9 }, response: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'ghost', to: 'response', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Ders — Postman "Send" butonu bir kısayoldur, sihir değil: senin manuel yazacağın bir HTTP isteğini GUI ile hazırlar. Gerçek doğrulama işi hâlâ "Tests" sekmesindeki assertion\'lara aittir — status kodu tek başına asla YETERLİ bir kanıt değildir.', en: 'The lesson — Postman\'s "Send" button is a shortcut, not magic: it prepares an HTTP request you\'d otherwise write by hand, via a GUI. The real verification work still belongs to the assertions in the "Tests" tab — a status code alone is NEVER sufficient proof.' },
+      positions: { response: { x: 35, y: 50, scale: 1.1 }, client: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const pmFirstRequestFilm = {
+  type: 'video-scene',
+  id: 'pm-first-request-film',
+  title: { tr: '🎬 Kurulumdan İlk Yeşil Teste: Postman\'de Sıfırdan Başlamak', en: '🎬 From Install to First Green Test: Starting from Zero in Postman' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'download', emoji: '⬇️', label: { tr: 'Postman İndir/Kur', en: 'Download/Install Postman' }, color: '#0ea5e9' },
+    { id: 'workspace', emoji: '🗂️', label: { tr: 'Workspace Oluştur', en: 'Create Workspace' }, color: '#f59e0b' },
+    { id: 'collection', emoji: '📁', label: { tr: 'Collection Oluştur', en: 'Create Collection' }, color: '#8b5cf6' },
+    { id: 'firstreq', emoji: '✅', label: { tr: 'İlk İstek Gönderildi', en: 'First Request Sent' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Postman\'i az önce kurdun, boş bir ekranla karşılaştın — ilk anlamlı isteği gönderene kadar hangi adımlardan geçmen gerekiyor?', en: 'You just installed Postman and see an empty screen — which steps do you need before sending your first meaningful request?' },
+      positions: { download: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — postman.com/downloads\'tan işletim sistemine uygun sürüm indirilir, kurulur; ilk açılışta ücretsiz bir hesapla giriş yapman istenir (senkronizasyon için).', en: 'Step 1 — the OS-appropriate version is downloaded from postman.com/downloads and installed; on first launch you\'re asked to sign in with a free account (for sync).' },
+      positions: { download: { x: 20, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 2 — bir Workspace oluşturulur — bu, ilgili tüm collection\'ların, environment\'ların ve ekip üyelerinin bir arada tutulduğu bir "proje klasörü"dür.', en: 'Step 2 — a Workspace is created — this is a "project folder" holding all related collections, environments, and team members together.' },
+      positions: { download: { x: 18, y: 55, opacity: 0.5, scale: 0.85 }, workspace: { x: 55, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'download', to: 'workspace', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 3 — Workspace içinde bir Collection oluşturulur — ilgili tüm istekleri (login, users, orders...) mantıksal olarak bir arada gruplayan bir klasördür.', en: 'Step 3 — a Collection is created inside the Workspace — a folder logically grouping all related requests (login, users, orders...) together.' },
+      positions: { workspace: { x: 20, y: 40, opacity: 0.5, scale: 0.85 }, collection: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'workspace', to: 'collection', color: '#8b5cf6' }],
+    },
+    {
+      caption: { tr: 'Adım 4 — collection\'ın içine "New Request" ile bir GET isteği eklenir, URL yazılır, "Send" tıklanır — ilk gerçek yanıt ekrana gelir.', en: 'Step 4 — a GET request is added inside the collection via "New Request", the URL is typed, "Send" is clicked — the first real response appears on screen.' },
+      code: { tr: `GET https://reqres.in/api/users/2`, en: `GET https://reqres.in/api/users/2` },
+      positions: { collection: { x: 22, y: 40, scale: 0.95 }, firstreq: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'collection', to: 'firstreq', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Ders — bu hiyerarşi (Workspace → Collection → Request) tesadüfi değil: Java\'daki proje → paket → sınıf hiyerarşisiyle AYNI organizasyon mantığını taşır — ilgili şeyleri bir arada tutup büyüdükçe kaosu önler.', en: 'The lesson — this hierarchy (Workspace → Collection → Request) isn\'t accidental: it carries the SAME organizational logic as Java\'s project → package → class hierarchy — keeping related things together and preventing chaos as things grow.' },
+      positions: { firstreq: { x: 35, y: 50, scale: 1.1 }, collection: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const pmVariableResolutionFilm = {
+  type: 'video-scene',
+  id: 'pm-variable-resolution-film',
+  title: { tr: '🎬 {{baseUrl}}: Bir Değişken Nasıl Gerçek Bir URL\'e Dönüşür?', en: '🎬 {{baseUrl}}: How a Variable Becomes a Real URL' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'request', emoji: '📝', label: { tr: '{{baseUrl}}/users/2', en: '{{baseUrl}}/users/2' }, color: '#0ea5e9' },
+    { id: 'local', emoji: '📗', label: { tr: 'Local (en yüksek öncelik)', en: 'Local (highest priority)' }, color: '#22c55e' },
+    { id: 'environment', emoji: '📘', label: { tr: 'Environment', en: 'Environment' }, color: '#f59e0b' },
+    { id: 'global', emoji: '📙', label: { tr: 'Global (en düşük öncelik)', en: 'Global (lowest priority)' }, color: '#94a3b8' },
+    { id: 'resolved', emoji: '✅', label: { tr: 'https://staging.api.com/users/2', en: 'https://staging.api.com/users/2' }, color: '#8b5cf6' },
+  ],
+  scenes: [
+    {
+      caption: { tr: '`{{baseUrl}}` yazıyorsun, ama BAZEN staging\'e, bazen production\'a gidiyor — bu tek satır her seferinde farklı bir gerçek URL\'e nasıl dönüşüyor?', en: 'You write `{{baseUrl}}`, but SOMETIMES it goes to staging, sometimes to production — how does this single line turn into a different real URL each time?' },
+      positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — Postman `{{baseUrl}}`\'i gördüğünde, bu değişkeni ÇÖZMEK için bir öncelik sırasına göre ARAMA yapar — rastgele bir yerden almaz.', en: 'Step 1 — when Postman sees `{{baseUrl}}`, it SEARCHES for this variable following a priority order to RESOLVE it — it doesn\'t grab it from a random place.' },
+      positions: { request: { x: 20, y: 40, scale: 1.0 }, local: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'request', to: 'local', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Adım 2 — ÖNCE Local (o isteğe özel, geçici) değişkenlere bakılır — varsa bu KAZANIR ve arama burada durur.', en: 'Step 2 — FIRST it checks Local (request-specific, temporary) variables — if one exists, this WINS and the search stops here.' },
+      positions: { local: { x: 22, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 3 — Local\'de yoksa, aktif seçili Environment\'a (örn. "Staging") bakılır — bu genelde takım içinde en sık kullanılan katmandır.', en: 'Step 3 — if not in Local, the active selected Environment (e.g. "Staging") is checked — this is usually the most commonly used layer within a team.' },
+      positions: { local: { x: 20, y: 55, opacity: 0.5, scale: 0.85 }, environment: { x: 55, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'local', to: 'environment', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 4 (kontrast) — Environment\'ta da yoksa Global değişkenlere düşülür — bu EN DÜŞÜK öncelikli katmandır ve genelde nadiren değişen sabitler için kullanılır. Yanlışlıkla hem Environment\'ta hem Global\'de AYNI isimde farklı değerler tanımlarsan, Environment HER ZAMAN kazanır — bu şaşırtıcı bir "neden yanlış URL\'e gitti?" hatasının kaynağıdır.', en: 'Step 4 (the contrast) — if not in Environment either, it falls back to Global variables — this is the LOWEST priority layer, usually for rarely-changing constants. If you accidentally define the SAME name with different values in both Environment and Global, Environment ALWAYS wins — this is the source of a confusing "why did it hit the wrong URL?" bug.' },
+      positions: { environment: { x: 20, y: 40, opacity: 0.5, scale: 0.85 }, global: { x: 55, y: 55, scale: 1.15 } },
+      beams: [{ from: 'environment', to: 'global', color: '#94a3b8' }],
+    },
+    {
+      caption: { tr: 'Adım 5 — hangi katmandan geldiğine bakılmaksızın, `{{baseUrl}}` GERÇEK bir string ile değiştirilir ve istek bu TAM URL\'e gönderilir.', en: 'Step 5 — regardless of which layer it came from, `{{baseUrl}}` is replaced with a REAL string, and the request is sent to this FULL URL.' },
+      positions: { global: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, resolved: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'global', to: 'resolved', color: '#8b5cf6' }],
+    },
+  ],
+}
+
+const pmTestScriptTimingFilm = {
+  type: 'video-scene',
+  id: 'pm-test-script-timing-film',
+  title: { tr: '🎬 pm.test(): Script Ne Zaman, Response\'tan ÖNCE mi SONRA mı Çalışır?', en: '🎬 pm.test(): Does the Script Run BEFORE or AFTER the Response?' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'request', emoji: '📤', label: { tr: 'İstek Gönderilir', en: 'Request Sent' }, color: '#0ea5e9' },
+    { id: 'server', emoji: '🌐', label: { tr: 'Sunucu İşler', en: 'Server Processes' }, color: '#8b5cf6' },
+    { id: 'response', emoji: '📥', label: { tr: 'Response Gelir', en: 'Response Arrives' }, color: '#f59e0b' },
+    { id: 'testscript', emoji: '🧪', label: { tr: '"Tests" Script\'i Çalışır', en: '"Tests" Script Runs' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'response HENÜZ yok — ReferenceError', en: 'response does NOT exist yet — ReferenceError' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: '"Tests" sekmesine `pm.response.json()` yazıyorsun — bu script GÖNDERMEDEN önce mi, response GELDİKTEN sonra mı çalışıyor? Bu sırayı bilmek neden kritik?', en: 'You write `pm.response.json()` in the "Tests" tab — does this script run before sending, or after the response arrives? Why is knowing this order critical?' },
+      positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — istek "Send" ile ağa gönderilir — bu ana kadar "Tests" sekmesindeki KOD hiç çalışmamıştır, sadece yazılıp beklemektedir.', en: 'Step 1 — the request goes out over the network on "Send" — up to this point the CODE in the "Tests" tab has not run at all, it just sits there written.' },
+      positions: { request: { x: 20, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 2 — sunucu isteği işler, bir süre alır (network gecikmesi + sunucu işleme süresi) — bu SÜREÇ boyunca "Tests" kodu hâlâ ÇALIŞMAMIŞTIR.', en: 'Step 2 — the server processes the request, taking some time (network latency + server processing time) — throughout this PROCESS, the "Tests" code has still NOT run.' },
+      positions: { request: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, server: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'request', to: 'server', color: '#8b5cf6' }],
+    },
+    {
+      caption: { tr: 'Adım 3 — response GERİ döner — Postman şimdi "Tests" sekmesindeki script\'i çalıştırır, `pm.response` nesnesi ARTIK gerçek veriyle DOLUDUR.', en: 'Step 3 — the response comes back — Postman NOW runs the "Tests" tab script, and the `pm.response` object is NOW filled with real data.' },
+      code: { tr: `pm.test("Status is 200", function() {\n  pm.response.to.have.status(200); // response ARTIK var\n});`, en: `pm.test("Status is 200", function() {\n  pm.response.to.have.status(200); // response NOW exists\n});` },
+      positions: { server: { x: 22, y: 40, scale: 0.95 }, response: { x: 45, y: 55, scale: 1.1 }, testscript: { x: 68, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'response', to: 'testscript', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Adım 4 (kontrast) — "Pre-request Script" sekmesine YANLIŞLIKLA `pm.response.json()` yazsaydın: istek DAHA GÖNDERİLMEDEN çalışır, `pm.response` henüz YOKTUR — bu "Cannot read properties of undefined" hatasıyla PATLAR.', en: 'Step 4 (the contrast) — if you accidentally wrote `pm.response.json()` in the "Pre-request Script" tab instead: it runs BEFORE the request is even sent, `pm.response` does NOT exist yet — it CRASHES with "Cannot read properties of undefined".' },
+      code: { tr: `// Pre-request Script'te (YANLIŞ sekme!):\npm.response.json() // TypeError: Cannot read properties of undefined`, en: `// In Pre-request Script (WRONG tab!):\npm.response.json() // TypeError: Cannot read properties of undefined` },
+      positions: { testscript: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, ghost: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'testscript', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Ders — "Pre-request Script" İSTEKTEN ÖNCE (auth token yenileme, dinamik veri üretme için), "Tests" script\'i RESPONSE\'TAN SONRA çalışır (assertion için) — bu ikisi asla karıştırılmamalı, ismindeki "pre"/"test" kelimesi tam olarak ZAMANLAMAYI anlatır.', en: 'The lesson — "Pre-request Script" runs BEFORE the request (for refreshing auth tokens, generating dynamic data), "Tests" script runs AFTER the response (for assertions) — these must never be confused; the words "pre"/"test" in their names describe exactly this TIMING.' },
+      positions: { ghost: { x: 35, y: 50, scale: 1.1 }, request: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const pmNewmanCiFilm = {
+  type: 'video-scene',
+  id: 'pm-newman-ci-film',
+  title: { tr: '🎬 Newman: Postman Koleksiyonunu GUI\'siz CI\'da Çalıştırmak', en: '🎬 Newman: Running a Postman Collection Without a GUI in CI' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'export', emoji: '📤', label: { tr: 'Collection Export (JSON)', en: 'Collection Export (JSON)' }, color: '#0ea5e9' },
+    { id: 'push', emoji: '🔀', label: { tr: 'git push', en: 'git push' }, color: '#8b5cf6' },
+    { id: 'newman', emoji: '⚡', label: { tr: 'newman run collection.json', en: 'newman run collection.json' }, color: '#f59e0b' },
+    { id: 'exitcode', emoji: '🚦', label: { tr: 'Exit Code (0=PASS, 1=FAIL)', en: 'Exit Code (0=PASS, 1=FAIL)' }, color: '#22c55e' },
+    { id: 'blocked', emoji: '👻', label: { tr: 'Merge Engellendi', en: 'Merge Blocked' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Postman GUI\'sinde her şey PASS oluyor — ama CI sunucusunda ekranı yok, kimse tıklamıyor. Bu koleksiyon CI\'da nasıl otomatik çalışır?', en: 'Everything PASSes in the Postman GUI — but a CI server has no screen, nobody clicks anything. How does this collection run automatically in CI?' },
+      positions: { export: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — collection, "Export" ile düz bir JSON dosyasına dönüştürülür ve projenin Git deposuna eklenir.', en: 'Step 1 — the collection is turned into a plain JSON file via "Export" and added to the project\'s Git repository.' },
+      positions: { export: { x: 20, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 2 — bu JSON dosyası `git push` ile repoya gider — artık collection, GUI\'ye değil, GİT\'e bağlıdır.', en: 'Step 2 — this JSON file goes to the repo via `git push` — the collection is now tied to GIT, not the GUI.' },
+      positions: { export: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, push: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'export', to: 'push', color: '#8b5cf6' }],
+    },
+    {
+      caption: { tr: 'Adım 3 — CI pipeline\'ında `newman run collection.json` çalıştırılır — Newman, Node.js tabanlı bir CLI\'dır ve TAM OLARAK GUI\'nin yaptığı isteklerin AYNISINI, ekran olmadan gönderir.', en: 'Step 3 — `newman run collection.json` runs in the CI pipeline — Newman is a Node.js-based CLI that sends EXACTLY the SAME requests the GUI would, with no screen.' },
+      code: { tr: `newman run collection.json -e staging.postman_environment.json`, en: `newman run collection.json -e staging.postman_environment.json` },
+      positions: { push: { x: 22, y: 40, scale: 0.95 }, newman: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'push', to: 'newman', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 4 (kontrast) — bir test FAIL olursa Newman süreç çıkış kodunu (exit code) 1 yapar — CI sistemi bunu OKUR ve pipeline\'ı KIRMIZI işaretler, PR\'ın merge edilmesini ENGELLER.', en: 'Step 4 (the contrast) — if a test FAILS, Newman sets the process exit code to 1 — the CI system READS this and marks the pipeline RED, BLOCKING the PR from merging.' },
+      code: { tr: `# 3 failing tests found\nprocess.exit(1) // CI bunu görüp pipeline'ı kırar`, en: `# 3 failing tests found\nprocess.exit(1) // CI sees this and breaks the pipeline` },
+      positions: { newman: { x: 20, y: 40, scale: 0.95 }, blocked: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'newman', to: 'blocked', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Ders — Newman, Postman GUI\'sinin script\'lerini (Tests tab) BİREBİR aynı şekilde çalıştırır — GUI\'de yazdığın hiçbir assertion, CI\'da yeniden yazılmaz, sadece komut satırından tetiklenir.', en: 'The lesson — Newman runs the Postman GUI\'s scripts (Tests tab) EXACTLY the same way — none of the assertions you wrote in the GUI get rewritten for CI, they\'re just triggered from the command line instead.' },
+      positions: { blocked: { x: 35, y: 50, scale: 1.1 }, exitcode: { x: 65, y: 50, scale: 1.0, opacity: 0.7 } },
+    },
+  ],
+}
+
+const pmMockServerFilm = {
+  type: 'video-scene',
+  id: 'pm-mock-server-film',
+  title: { tr: '🎬 Mock Server: Backend Hazır Olmadan Frontend\'i Test Etmek', en: '🎬 Mock Server: Testing the Frontend Before the Backend Exists' },
+  xpReward: 11,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'collection', emoji: '📁', label: { tr: 'Collection (örnek response tanımlı)', en: 'Collection (example responses defined)' }, color: '#0ea5e9' },
+    { id: 'mockserver', emoji: '🎭', label: { tr: 'Postman Mock Server', en: 'Postman Mock Server' }, color: '#f59e0b' },
+    { id: 'frontend', emoji: '💻', label: { tr: 'Frontend Geliştiricisi', en: 'Frontend Developer' }, color: '#8b5cf6' },
+    { id: 'realapi', emoji: '👻', label: { tr: 'Gerçek Backend (henüz YOK)', en: 'Real Backend (does NOT exist yet)' }, color: '#94a3b8' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Backend ekibi API\'yi henüz bitirmedi, ama frontend ekibi ŞİMDİ entegrasyona başlamak istiyor — gerçek bir sunucu olmadan bu nasıl mümkün olur?', en: 'The backend team hasn\'t finished the API yet, but the frontend team wants to start integrating NOW — how is this possible without a real server?' },
+      positions: { collection: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — collection\'daki her isteğe "Example Response" olarak beklenen JSON yanıtı ELLE tanımlanır — bu, API sözleşmesinin (contract) bir taslağıdır.', en: 'Step 1 — an "Example Response" with the expected JSON is MANUALLY defined for each request in the collection — this is a draft of the API contract.' },
+      positions: { collection: { x: 20, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 2 — Postman bu collection\'dan GERÇEK, çalışan bir URL (bir Mock Server) üretir — bu URL, tanımladığın örnek yanıtları GERÇEK bir HTTP sunucusu gibi döner.', en: 'Step 2 — Postman generates a REAL, working URL (a Mock Server) from this collection — this URL returns your defined example responses just like a REAL HTTP server would.' },
+      code: { tr: `https://xxxx.mock.pstmn.io/api/users/2`, en: `https://xxxx.mock.pstmn.io/api/users/2` },
+      positions: { collection: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, mockserver: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'collection', to: 'mockserver', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 3 — frontend geliştiricisi bu Mock URL\'i kendi uygulamasına baseUrl olarak verir — uygulama, gerçek backend VARMIŞ gibi geliştirilip test edilebilir.', en: 'Step 3 — the frontend developer points their app\'s baseUrl at this Mock URL — the app can be developed and tested as if the real backend EXISTED.' },
+      positions: { mockserver: { x: 22, y: 40, scale: 0.95 }, frontend: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'mockserver', to: 'frontend', color: '#8b5cf6' }],
+    },
+    {
+      caption: { tr: 'Adım 4 (kontrast) — gerçek backend hazır olduğunda, frontend sadece baseUrl\'i değiştirir — Mock Server\'a hiç bağımlı kalınmaz, o sadece bir GEÇİŞ aracıdır, kalıcı bir bağımlılık değil.', en: 'Step 4 (the contrast) — once the real backend is ready, the frontend just changes the baseUrl — there\'s no lingering dependency on the Mock Server, it was only a TRANSITIONAL tool, not a permanent dependency.' },
+      positions: { frontend: { x: 22, y: 40, scale: 0.95 }, realapi: { x: 58, y: 55, scale: 1.2, opacity: 0.6 } },
+      beams: [{ from: 'frontend', to: 'realapi', color: '#94a3b8' }],
+    },
+    {
+      caption: { tr: 'Ders — Mock Server, ekipler arası PARALEL çalışmayı mümkün kılar: backend ve frontend birbirini beklemeden, ORTAK bir sözleşme (contract) üzerinden aynı anda ilerleyebilir.', en: 'The lesson — a Mock Server enables PARALLEL work across teams: backend and frontend can move forward at the same time on a SHARED contract, without waiting for each other.' },
+      positions: { realapi: { x: 35, y: 50, scale: 1.0 }, collection: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const pmUnauthorizedDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'pm-unauthorized-diagnosis-film',
+  title: { tr: '🎬 401 Unauthorized: Token Eksik mi, Yanlış Environment mı?', en: '🎬 401 Unauthorized: Missing Token or Wrong Environment?' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'request', emoji: '📤', label: { tr: 'İstek — 401 alıyor', en: 'Request — getting 401' }, color: '#8b5cf6' },
+    { id: 'checkenv', emoji: '🔍', label: { tr: '1. Aktif Environment\'ı kontrol et', en: '1. Check active Environment' }, color: '#0ea5e9' },
+    { id: 'checktoken', emoji: '🔑', label: { tr: '2. Token değerini kontrol et', en: '2. Check the token value' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Yanlış Environment seçili!', en: 'Wrong Environment selected!' }, color: '#ef4444' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'Doğru environment + geçerli token', en: 'Correct environment + valid token' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Dün çalışan bir istek bugün 401 Unauthorized dönüyor — hiçbir kod değişmedi. Sistematik olarak nasıl teşhis edersin?', en: 'A request that worked yesterday returns 401 Unauthorized today — no code changed. How do you diagnose this systematically?' },
+      positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Adım 1 — İLK kontrol: sağ üstteki Environment seçici gerçekten DOĞRU ortamı mı gösteriyor? Bir dropdown\'dan yanlışlıkla "Production" yerine "Staging (eski)" seçilmiş olabilir.', en: 'Step 1 — FIRST check: does the Environment selector in the top right actually show the CORRECT environment? A dropdown might have accidentally been left on "Staging (old)" instead of "Production".' },
+      positions: { request: { x: 20, y: 40, scale: 1.0 }, checkenv: { x: 55, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'request', to: 'checkenv', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Adım 2 (tuzak bulundu) — evet, yanlış environment seçiliydi: "Staging (eski)"\'deki token SÜRESİ DOLMUŞ, ama "Production"\'daki token GEÇERLİ.', en: 'Step 2 (the trap found) — yes, the wrong environment was selected: the token in "Staging (old)" had EXPIRED, but the token in "Production" is VALID.' },
+      positions: { checkenv: { x: 22, y: 40, scale: 0.95 }, ghost: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'checkenv', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Adım 3 — İKİNCİ kontrol (environment doğruysa): token değerinin KENDİSİ süresi dolmuş (expired JWT) olabilir — `{{token}}` değişkeninin GERÇEK değerine (Environment paneli, göz ikonu) bakılır.', en: 'Step 3 — SECOND check (if the environment was correct): the token VALUE itself might have expired (an expired JWT) — the ACTUAL value of the `{{token}}` variable is checked (Environment panel, the eye icon).' },
+      positions: { ghost: { x: 22, y: 40, opacity: 0.5, scale: 0.85 }, checktoken: { x: 58, y: 55, scale: 1.2, pulse: true } },
+      beams: [{ from: 'ghost', to: 'checktoken', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Adım 4 — doğru environment seçilir, gerekirse login isteği yeniden koşulup TAZE bir token alınır — istek artık 200 döner.', en: 'Step 4 — the correct environment is selected, and if needed the login request is re-run to get a FRESH token — the request now returns 200.' },
+      positions: { checktoken: { x: 22, y: 40, scale: 0.95 }, fixed: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'checktoken', to: 'fixed', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Ders — 401 hatalarının çoğu "yanlış kod" değil "yanlış bağlam" (context) sorunudur: hangi environment aktif, o environment\'taki değişken GÜNCEL mi? Sistematik teşhis, rastgele denemekten HER ZAMAN daha hızlıdır.', en: 'The lesson — most 401 errors aren\'t a "wrong code" problem, they\'re a "wrong context" problem: which environment is active, is the variable in that environment CURRENT? Systematic diagnosis is ALWAYS faster than random guessing.' },
+      positions: { fixed: { x: 35, y: 50, scale: 1.1 }, request: { x: 65, y: 50, scale: 0.9, opacity: 0.5 } },
+    },
+  ],
+}
+
+const pmInterviewApiVsUiFilm = {
+  type: 'video-scene',
+  id: 'pm-interview-api-vs-ui-film',
+  title: { tr: '🎬 Mülakat Katmanları: "API Testi vs UI Testi" Sorusuna Derinlemesine Cevap', en: '🎬 Interview Layers: A Deep Answer to "API Testing vs UI Testing"' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'definition', emoji: '📖', label: { tr: 'Katman 1: Tanım', en: 'Layer 1: Definition' }, color: '#94a3b8' },
+    { id: 'mechanism', emoji: '⚙️', label: { tr: 'Katman 2: Mekanizma', en: 'Layer 2: Mechanism' }, color: '#0ea5e9' },
+    { id: 'tradeoff', emoji: '⚖️', label: { tr: 'Katman 3: Trade-off', en: 'Layer 3: Trade-off' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: '"Sadece piramidi ezberlemiş"', en: '"Just memorized the pyramid"' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Mülakatçı sorar: "API testleri neden UI testlerinden daha hızlı ve daha az flaky?" — bu soruyu tek cümlelik bir cevapla mı geçersin?', en: 'The interviewer asks: "Why are API tests faster and less flaky than UI tests?" — do you get through with a one-sentence answer?' },
+      positions: { definition: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Katman 1 (TANIM) — "API testleri HTTP katmanında çalışır, UI testleri tarayıcı render\'ını bekler." Doğru ama yüzeysel.', en: 'Layer 1 (DEFINITION) — "API tests operate at the HTTP layer, UI tests wait for browser rendering." Correct but shallow.' },
+      positions: { definition: { x: 22, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Katman 2 (MEKANİZMA) — "UI testi bir butona tıklamadan önce DOM\'un render olmasını, animasyonların bitmesini, JS\'in çalışmasını BEKLEMEK zorundadır — bu, saniyeler süren gizli bir gecikme zinciridir. API testi bu zinciri tamamen ATLAR."', en: 'Layer 2 (MECHANISM) — "a UI test has to WAIT for the DOM to render, animations to finish, JS to execute before clicking a button — this is a hidden chain of delays lasting seconds. An API test SKIPS this chain entirely."' },
+      positions: { definition: { x: 20, y: 55, opacity: 0.5, scale: 0.85 }, mechanism: { x: 55, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'definition', to: 'mechanism', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Katman 3 (TRADE-OFF) — "ama bu hız bedelsiz değil: API testi, kullanıcının GERÇEKTEN gördüğü ekranı hiç doğrulamaz — bir buton CSS\'le gizlenmiş olsa bile API testi bunu FARK ETMEZ. Bu yüzden test piramidinde ikisi de gereklidir, biri diğerinin yerine geçmez."', en: 'Layer 3 (TRADE-OFF) — "but this speed isn\'t free: an API test never verifies what the user ACTUALLY sees on screen — even if a button is hidden by CSS, the API test won\'t NOTICE. That\'s why both are needed in the test pyramid, neither replaces the other."' },
+      positions: { mechanism: { x: 20, y: 40, opacity: 0.5, scale: 0.85 }, tradeoff: { x: 55, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'mechanism', to: 'tradeoff', color: '#f59e0b' }],
+    },
+    {
+      caption: { tr: 'Final (kontrast) — sadece "test piramidi" diyagramını ezbere çizen bir aday, mülakatçıya "bunu bir yerden okumuş ama neden öyle olduğunu düşünmemiş" izlenimi bırakır. Trade-off\'u da açıklayan bir cevap GERÇEK anlayışı kanıtlar.', en: 'The final contrast — a candidate who just draws the "test pyramid" diagram from memory leaves the interviewer with "they read this somewhere but never thought about why". An answer that also explains the trade-off PROVES real understanding.' },
+      positions: { tradeoff: { x: 22, y: 40, scale: 0.9 }, ghost: { x: 58, y: 55, scale: 1.25, pulse: true } },
+      beams: [{ from: 'tradeoff', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const pmInterviewStep = {
+  type: 'step-animation',
+  title: { tr: 'Postman Mülakat Cevabı — 3 Katman', en: 'Postman Interview Answer — 3 Layers' },
+  steps: [
+    { tr: 'Katman 1: Kavramı tek cümlede tanımla.', en: 'Layer 1: Define the concept in one sentence.' },
+    { tr: 'Katman 2: NASIL çalıştığını (mekanizmayı) göster.', en: 'Layer 2: Show HOW it works (the mechanism).' },
+    { tr: 'Katman 3: Bedelini/trade-off\'unu söyle — hiçbir araç bedelsiz değildir.', en: 'Layer 3: State the cost/trade-off — no tool is free.' },
+  ],
+}
+
+const pmInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'postman-interview',
+  title: { tr: 'Kendin Dene: Eksik Assertion\'ı Tamamla', en: 'Try It Yourself: Complete the Missing Assertion' },
+  starterCode: `pm.test("Response has valid user email", function () {
+    const json = pm.response.json();
+    // TODO: json.data.email alaninin bos olmadigini dogrula
+});`,
+  solutionCode: `pm.test("Response has valid user email", function () {
+    const json = pm.response.json();
+    pm.expect(json.data.email).to.be.a("string").and.not.empty;
+});`,
+  hint: { tr: '`pm.expect(değer).to.be.a("string").and.not.empty` bir alanın hem string TİPİNDE hem BOŞ OLMADIĞINI aynı anda doğrular.', en: '`pm.expect(value).to.be.a("string").and.not.empty` verifies a field is BOTH the string type AND not empty, at the same time.' },
+  successMessage: { tr: 'Doğru! Sadece "var mı" değil, "doğru TİPTE mi" kontrolü de flaky testleri önler.', en: 'Correct! Checking not just "does it exist" but "is it the right TYPE" also prevents flaky tests.' },
+}
+
+const pmMethodSemanticsStep = {
+  type: 'step-animation',
+  title: { tr: 'HTTP Metodları: Hangisi Veri Değiştirir, Hangisi Sadece Okur?', en: 'HTTP Methods: Which Ones Change Data, Which Just Read?' },
+  steps: [
+    { tr: 'GET — sadece OKUR, sunucuda hiçbir şeyi değiştirmez. Aynı GET isteğini 100 kez atmak GÜVENLİDİR.', en: 'GET — only READS, changes nothing on the server. Firing the same GET 100 times is SAFE.' },
+    { tr: 'POST — YENİ bir kayıt OLUŞTURUR. Aynı POST\'u 2 kez atarsan, 2 AYRI kayıt oluşabilir — bu "idempotent" DEĞİLDİR.', en: 'POST — CREATES a new record. Fire the same POST twice and you may get 2 SEPARATE records — this is NOT idempotent.' },
+    { tr: 'PUT/DELETE — idempotent\'tir: aynı isteği 5 kez atmak, 1 kez atmakla AYNI son duruma götürür.', en: 'PUT/DELETE — idempotent: firing the same request 5 times leads to the SAME final state as firing it once.' },
+  ],
+}
+
+const pmMethodSemanticsPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'postman-introduction',
+  title: { tr: 'Kendin Dene: Doğru HTTP Metodunu Seç', en: 'Try It Yourself: Pick the Right HTTP Method' },
+  starterCode: `// Gereksinim: mevcut bir kullanicinin SADECE email alanini guncelle
+// TODO: Dogru metodu sec (GET/POST/PUT/DELETE)
+fetch("/api/users/2", { method: "???", body: JSON.stringify({ email: "yeni@ornek.com" }) })`,
+  solutionCode: `// PUT: mevcut kaynagi GUNCELLER, idempotent'tir
+fetch("/api/users/2", { method: "PUT", body: JSON.stringify({ email: "yeni@ornek.com" }) })`,
+  hint: { tr: 'Mevcut bir kaynağı güncellemek istiyorsun (yeni kayıt DEĞİL) — bu PUT\'un tam işidir. POST yeni kayıt oluşturur, GET sadece okur.', en: 'You want to update an existing resource (NOT create a new one) — that\'s exactly PUT\'s job. POST creates new records, GET only reads.' },
+  successMessage: { tr: 'Doğru! PUT idempotenttir — bu isteği yanlışlıkla 2 kez gönderirsen bile sonuç değişmez.', en: 'Correct! PUT is idempotent — even if you accidentally send this request twice, the result stays the same.' },
+}
+
+const pmEnvSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'İlk Ortam (Environment) Kurulumu — Adım Adım', en: 'Setting Up Your First Environment — Step by Step' },
+  steps: [
+    { tr: 'Sağ üstteki "Environments" sekmesine git, "+" ile yeni bir environment oluştur (örn. "Staging").', en: 'Go to the "Environments" tab in the top right, create a new environment with "+" (e.g. "Staging").' },
+    { tr: '`baseUrl` adında bir değişken ekle, Initial Value VE Current Value alanlarına staging URL\'ini yaz.', en: 'Add a variable named `baseUrl`, write the staging URL into BOTH the Initial Value and Current Value fields.' },
+    { tr: 'Sağ üstteki dropdown\'dan bu environment\'ı AKTİF olarak seç — seçilmezse istekler `{{baseUrl}}`\'i ÇÖZEMEZ.', en: 'Select this environment as ACTIVE from the top-right dropdown — if not selected, requests CANNOT resolve `{{baseUrl}}`.' },
+  ],
+}
+
+const pmEnvSetupPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'postman-installation',
+  title: { tr: 'Kendin Dene: URL\'i Değişkenle Değiştir', en: 'Try It Yourself: Replace the URL with a Variable' },
+  starterCode: `// BUG: URL hardcoded, farkli ortamlarda calismiyor
+GET https://staging.api.example.com/users/2`,
+  solutionCode: `// FIX: {{baseUrl}} degiskeni her ortamda farkli deger cozer
+GET {{baseUrl}}/users/2`,
+  hint: { tr: 'Hardcoded bir URL, sadece TEK bir ortamda çalışır. `{{baseUrl}}` yazıp bu değeri Environment\'ta tanımlarsan, aynı istek staging/production arasında ortam değiştirerek çalışır.', en: 'A hardcoded URL only works in ONE environment. Write `{{baseUrl}}` and define its value in the Environment, and the same request works across staging/production by switching environments.' },
+  successMessage: { tr: 'Doğru! Artık bu isteği hiç değiştirmeden farklı ortamlarda kullanabilirsin.', en: 'Correct! Now you can use this request across different environments without ever changing it.' },
+}
+
+const pmCollectionHierarchyStep = {
+  type: 'step-animation',
+  title: { tr: 'Collection İçinde Klasörleme ve Kalıtım', en: 'Folder Organization and Inheritance Inside a Collection' },
+  steps: [
+    { tr: 'Bir Collection\'a Authorization ayarı yaparsan, İÇİNDEKİ TÜM klasör ve isteklerin varsayılan olarak bu ayarı MİRAS ALDIĞINI unutma.', en: 'If you set Authorization at the Collection level, remember that ALL folders and requests INSIDE it INHERIT this setting by default.' },
+    { tr: 'Bir alt klasörde farklı bir Authorization ayarı yaparsan, bu SADECE o klasör ve altındakiler için üst ayarı EZER (override).', en: 'If you set a different Authorization at a sub-folder level, this OVERRIDES the parent setting ONLY for that folder and what\'s inside it.' },
+    { tr: 'Bu miras zinciri, 50 isteğin HER birine ayrı ayrı auth yazmak yerine, TEK bir yerden yönetmeni sağlar.', en: 'This inheritance chain lets you manage auth from ONE place instead of writing it separately into all 50 requests.' },
+  ],
+}
+
+const pmCollectionHierarchyPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'postman-core-concepts',
+  title: { tr: 'Kendin Dene: Ortak Header\'ı Collection Seviyesine Taşı', en: 'Try It Yourself: Move a Shared Header to the Collection Level' },
+  starterCode: `// BUG: Content-Type header'i HER istekte ayri ayri tekrar yaziliyor
+Request 1: headers = { "Content-Type": "application/json" }
+Request 2: headers = { "Content-Type": "application/json" }
+Request 3: headers = { "Content-Type": "application/json" }`,
+  solutionCode: `// FIX: Collection seviyesinde TEK yerde tanimla, tum istekler miras alir
+Collection.headers = { "Content-Type": "application/json" }
+Request 1, 2, 3: header'i TEKRAR yazmaya gerek yok`,
+  hint: { tr: 'Her istekte tekrar eden bir header/auth ayarı görüyorsan, bu genelde Collection seviyesine taşınması gereken bir sinyaldir.', en: 'If you see a header/auth setting repeating in every request, that\'s usually a signal it should move to the Collection level.' },
+  successMessage: { tr: 'Doğru! Artık header değişirse tek bir yerden güncellersin, 50 isteği tek tek düzenlemezsin.', en: 'Correct! Now if the header changes you update one place, not 50 requests one by one.' },
+}
+
+const pmAssertionOrderStep = {
+  type: 'step-animation',
+  title: { tr: 'Birden Fazla pm.test() Bloğu Nasıl Çalışır?', en: 'How Do Multiple pm.test() Blocks Run?' },
+  steps: [
+    { tr: 'Bir response için 5 ayrı `pm.test()` bloğu yazabilirsin — her biri BAĞIMSIZ çalışır, biri FAIL olsa bile DİĞERLERİ çalışmaya devam eder.', en: 'You can write 5 separate `pm.test()` blocks for one response — each runs INDEPENDENTLY; even if one FAILS, the OTHERS keep running.' },
+    { tr: 'Bu, tek bir `assert` satırında dursaydı alamayacağın bir bilgi verir: "hangi 3 test PASS, hangi 2 test FAIL oldu?" hepsi TEK koşumda görünür.', en: 'This gives you information a single `assert` line couldn\'t: "which 3 tests PASSed, which 2 FAILed?" all visible in ONE run.' },
+    { tr: 'Test Results panelinde her `pm.test()` ayrı bir satır olarak ✅/❌ ile listelenir — hangi assertion\'ın kırıldığını ANINDA görürsün.', en: 'In the Test Results panel, every `pm.test()` is listed as its own row with ✅/❌ — you see INSTANTLY which assertion broke.' },
+  ],
+}
+
+const pmAssertionOrderPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'postman-test-automation',
+  title: { tr: 'Kendin Dene: İkinci Bir Assertion Ekle', en: 'Try It Yourself: Add a Second Assertion' },
+  starterCode: `pm.test("Status is 200", function () {
+    pm.response.to.have.status(200);
+});
+// TODO: response time'in 500ms'den az oldugunu dogrulayan ikinci bir test ekle`,
+  solutionCode: `pm.test("Status is 200", function () {
+    pm.response.to.have.status(200);
+});
+pm.test("Response time is acceptable", function () {
+    pm.expect(pm.response.responseTime).to.be.below(500);
+});`,
+  hint: { tr: 'Her `pm.test()` bağımsız bir bloktur — ikinci bir performans assertion\'ı eklemek için sadece yeni bir `pm.test(...)` çağrısı yeterlidir.', en: 'Every `pm.test()` is an independent block — adding a second performance assertion just needs another `pm.test(...)` call.' },
+  successMessage: { tr: 'Doğru! Artık status kodu VE performans, ayrı ayrı raporlanan iki bağımsız test.', en: 'Correct! Now status code AND performance are two independent tests, reported separately.' },
+}
+
+const pmCiGateStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Newman Koşumunun CI\'da Kalite Kapısı Olması', en: 'A Newman Run Acting as a CI Quality Gate' },
+  steps: [
+    { tr: 'PR açılır → CI pipeline tetiklenir → `newman run` collection\'ı çalıştırır.', en: 'A PR is opened → the CI pipeline triggers → `newman run` executes the collection.' },
+    { tr: 'TÜM testler PASS olursa: exit code 0, pipeline YEŞİL, merge butonu AÇIK.', en: 'If ALL tests PASS: exit code 0, pipeline GREEN, merge button UNLOCKED.' },
+    { tr: 'EN AZ 1 test FAIL olursa: exit code 1, pipeline KIRMIZI, merge butonu KİLİTLİ — geliştirici düzeltmeden birleştiremez.', en: 'If EVEN 1 test FAILS: exit code 1, pipeline RED, merge button LOCKED — the developer cannot merge without fixing it.' },
+  ],
+}
+
+const pmCiGatePractice = {
+  type: 'code-playground',
+  relatedTopicId: 'postman-real-world',
+  title: { tr: 'Kendin Dene: Newman Komutunu Düzelt', en: 'Try It Yourself: Fix the Newman Command' },
+  starterCode: `# BUG: environment dosyasi belirtilmemis, degiskenler cozulemiyor
+newman run collection.json`,
+  solutionCode: `# FIX: -e ile hangi environment kullanilacagi belirtiliyor
+newman run collection.json -e staging.postman_environment.json`,
+  hint: { tr: '`newman run` sadece collection dosyasını alır ama `{{baseUrl}}` gibi değişkenleri çözmek için `-e` bayrağıyla bir environment dosyası GEREKİR.', en: '`newman run` only takes the collection file, but it NEEDS an environment file via the `-e` flag to resolve variables like `{{baseUrl}}`.' },
+  successMessage: { tr: 'Doğru! Environment dosyası olmadan tüm `{{değişkenler}}` boş kalır ve testler 404/401 ile FAIL olur.', en: 'Correct! Without an environment file, all `{{variables}}` stay empty and tests FAIL with 404/401.' },
+}
+
+const pmToolLandscapeStep = {
+  type: 'step-animation',
+  title: { tr: 'Postman Ekosistemi: Hangi Araç Ne İşe Yarar?', en: 'The Postman Ecosystem: What Does Each Tool Do?' },
+  steps: [
+    { tr: 'Postman App — isteği GUI\'de manuel oluşturmak ve keşif (exploratory) testi için.', en: 'Postman App — for manually building requests in the GUI and exploratory testing.' },
+    { tr: 'Newman — aynı collection\'ı GUI olmadan CI/CD\'de otomatik çalıştırmak için (komut satırı).', en: 'Newman — for running the same collection automatically in CI/CD without a GUI (command line).' },
+    { tr: 'Mock Server — backend hazır olmadan frontend\'in geliştirme yapabilmesi için sahte ama gerçek bir URL üretir.', en: 'Mock Server — generates a fake-but-real URL so the frontend can develop before the backend exists.' },
+    { tr: 'Monitor — bir collection\'ı ZAMANLANMIŞ aralıklarla (örn. her 15 dakikada) otomatik çalıştırıp production\'ı sürekli izler.', en: 'Monitor — runs a collection on a SCHEDULED interval (e.g. every 15 minutes) to continuously watch production.' },
+  ],
+}
+
+const pmToolLandscapePractice = {
+  type: 'code-playground',
+  relatedTopicId: 'postman-ecosystem',
+  title: { tr: 'Kendin Dene: Doğru Postman Aracını Seç', en: 'Try It Yourself: Pick the Right Postman Tool' },
+  starterCode: `// Senaryo: production API'sinin her 15 dakikada bir ayakta oldugunu
+// dogrulamak istiyorsun, kimse tiklamadan
+// TODO: Postman App mi, Newman mi, Monitor mi kullanmalisin?`,
+  solutionCode: `// Monitor: zamanlanmis, otomatik, GUI acilmadan calisan
+// tek arac budur — Newman CI'da tek seferlik calisir, Monitor SUREKLI izler`,
+  hint: { tr: '"Kimse tıklamadan, ZAMANLANMIŞ aralıklarla, sürekli" anahtar kelimeleri Monitor\'ü işaret eder — Newman bir PR\'da BİR KEZ koşar, Monitor 7/24 zamanlanmış koşar.', en: 'The keywords "without anyone clicking, on a SCHEDULE, continuously" point to Monitor — Newman runs ONCE per PR, Monitor runs 24/7 on a schedule.' },
+  successMessage: { tr: 'Doğru! Monitor, production\'ı proaktif olarak izlemek için tasarlanmış araçtır.', en: 'Correct! Monitor is the tool designed for proactively watching production.' },
+}
+
+const pmDiagnosisFlowStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir API Hatasını Sistematik Teşhis Etme Sırası', en: 'The Order for Systematically Diagnosing an API Error' },
+  steps: [
+    { tr: '1. Status kodunu oku: 4xx istemci hatası (senin isteğin), 5xx sunucu hatası (backend\'de sorun).', en: '1. Read the status code: 4xx is a client error (your request), 5xx is a server error (backend problem).' },
+    { tr: '2. Aktif Environment\'ı kontrol et: doğru ortam mı seçili?', en: '2. Check the active Environment: is the correct one selected?' },
+    { tr: '3. Değişken değerlerini (göz ikonuyla) kontrol et: token/URL GERÇEKTEN beklediğin değer mi?', en: '3. Check the variable values (via the eye icon): is the token/URL REALLY the value you expect?' },
+    { tr: '4. Console\'u (View → Show Postman Console) aç: GERÇEKTEN giden isteğin tam header/body\'sini gör.', en: '4. Open the Console (View → Show Postman Console): see the ACTUAL full headers/body of the request that went out.' },
+  ],
+}
+
+const pmDiagnosisFlowPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'postman-common-errors',
+  title: { tr: 'Kendin Dene: Yanlış Değişken Adını Düzelt', en: 'Try It Yourself: Fix the Wrong Variable Name' },
+  starterCode: `// BUG: environment'ta degisken "base_url" ama istekte "{{baseUrl}}" kullaniliyor
+GET {{baseUrl}}/api/users/2
+// Sonuc: {{baseUrl}} COZULEMEDI, istek literal string'e gitti`,
+  solutionCode: `// FIX: degisken adi environment'takiyle BIREBIR ayni olmali (case-sensitive)
+GET {{base_url}}/api/users/2`,
+  hint: { tr: 'Postman değişken adlarında BÜYÜK/küçük harf duyarlıdır (`baseUrl` ≠ `base_url`) — Environment\'taki GERÇEK adı kontrol et.', en: 'Postman variable names are case-sensitive (`baseUrl` ≠ `base_url`) — check the ACTUAL name in the Environment.' },
+  successMessage: { tr: 'Doğru! Değişken adı eşleşmezse Postman sessizce literal string\'i gönderir, hiçbir hata FIRLATMAZ — bu yüzden Console kontrolü kritiktir.', en: 'Correct! If the variable name doesn\'t match, Postman silently sends the literal string, throwing NO error — which is why checking the Console is critical.' },
+}
+
 export const postmanData = {
   en: {
     hero: {
@@ -429,6 +987,9 @@ export const postmanData = {
             ],
             note: '2xx = pass. 4xx = your test data/auth is wrong. 5xx = server-side bug (escalate to dev).',
           },
+          pmRequestCycleFilm,
+          pmMethodSemanticsStep,
+          pmMethodSemanticsPractice,
           {
             type: 'quiz',
             question: 'A POST /api/login request returns status 401. What does this mean?',
@@ -556,6 +1117,9 @@ export const postmanData = {
   "createdAt": "2024-01-15T10:30:00Z" // Server timestamp
 }`,
           },
+          pmFirstRequestFilm,
+          pmEnvSetupStep,
+          pmEnvSetupPractice,
           {
             type: 'quiz',
             question: 'You send POST /api/users and the server responds 201. What should you verify next as a QA tester?',
@@ -844,6 +1408,9 @@ newman run tests/postman/payment-service.collection.json -e env.staging.json`,
             modelAnswerTr: 'Postman\'da bir istekten dönen değeri (örn. token) "Tests" sekmesine küçük bir kod yazarak environment\'a kaydedebilirsin: pm.environment.set("token", yanıt.body.token). Sonraki isteklerde Authorization header\'ına {{token}} yazınca Postman otomatik olarak kaydettiğin değeri oraya yerleştirir. Böylece her istekte token\'ı elle kopyalamazsın.',
             modelAnswerEn: 'In Postman you can save a value from one response (e.g. a token) into the environment by writing a small script in the Tests tab: pm.environment.set("token", response.body.token). In subsequent requests you write {{token}} in the Authorization header and Postman automatically fills in the saved value. This way you never copy-paste the token manually.',
           },
+          pmVariableResolutionFilm,
+          pmCollectionHierarchyStep,
+          pmCollectionHierarchyPractice,
           {
             type: 'quiz',
             question: 'Your E2E flow: POST /login → POST /users → POST /orders → POST /payments. The /orders request needs the userId from step 2. What is the correct approach?',
@@ -1116,6 +1683,9 @@ pm.test("Status OK", function() {       // open
               },
             ],
           },
+          pmTestScriptTimingFilm,
+          pmAssertionOrderStep,
+          pmAssertionOrderPractice,
           {
             type: 'quiz',
             question: 'You need to run your Postman collection every night at 2 AM as a scheduled regression. What should you use?',
@@ -1257,6 +1827,9 @@ pm.test("All posts belong to chained userId", () => {
 // Run both with Collection Runner — Request 2 automatically uses
 // the userId captured from Request 1's response. No manual copy-paste.`
           },
+          pmNewmanCiFilm,
+          pmCiGateStep,
+          pmCiGatePractice,
           {
             type: 'quiz',
             question: 'A team wants to do fast, exploratory API testing AND eventually move to CI automation without writing a full code framework from scratch. Which tool fits both needs?',
@@ -1319,6 +1892,9 @@ pm.test("All posts belong to chained userId", () => {
           },
           { type: 'heading', text: 'Where Postman Sits Next to Other QA Tools' },
           { type: 'text', content: 'A Selenium/Playwright suite tests the UI; a Postman/Newman suite tests the API layer underneath it. Both typically run as separate stages in the same CI pipeline — API tests usually run first because they are faster and catch backend bugs before spending time on slower UI tests that depend on that same backend.' },
+          pmMockServerFilm,
+          pmToolLandscapeStep,
+          pmToolLandscapePractice,
           {
             type: 'quiz',
             question: 'What is used to run a Postman collection unattended inside a CI/CD pipeline, without opening the Postman GUI?',
@@ -1451,6 +2027,9 @@ GET https://api.example.com/data
               },
             ],
           },
+          pmUnauthorizedDiagnosisFilm,
+          pmDiagnosisFlowStep,
+          pmDiagnosisFlowPractice,
           {
             type: 'quiz',
             question: 'A pm.test() block fails with "SyntaxError: Unexpected token < in JSON at position 0". What is the root cause and fix?',
@@ -1496,6 +2075,9 @@ GET https://api.example.com/data
             emoji: '🧭',
             content: 'Think of the Postman UI as a flight cockpit divided into four instrument panels — and interviewers expect you to know which panel controls which system. Panel ① (Collections/Environments sidebar) is your navigation computer: it holds the route plan (collection structure), fuel presets (environment variables), and autopilot profiles (pre-request scripts). Panel ② (Method + URL + Send bar) is the throttle and heading selector: choosing GET vs POST is choosing whether to observe or to act — a distinction with real consequences in a live API. Panel ③ (Authorization / Headers / Body / Tests tabs) is the communication and sensor suite: auth is your transponder ID, headers are your radio frequencies, body is your payload manifest, and the Tests tab is your automated pre-landing checklist. Panel ④ (Response area) is your instrument readout: status code is altitude (200 = cruising, 5xx = stall warning), response time is airspeed, and the response body schema is your fuel gauge — if the shape changes unexpectedly, something has gone wrong upstream. In Java terms, Panels ③ and ④ together are equivalent to your test setup (given) and assertions (then) in a JUnit/REST Assured test — the difference is that in Postman they are visible to every team member without opening an IDE.',
           },
+          pmInterviewApiVsUiFilm,
+          pmInterviewStep,
+          pmInterviewPractice,
           {
             type: 'interview-questions',
               relatedTopicId: 'postman-interview-en',
@@ -1667,6 +2249,9 @@ pm.test("Status is active", () => {
             ],
             note: '2xx = geçti. 4xx = test verim/auth hatalı. 5xx = sunucu hatası (geliştirici ekibine eskalasyon yap).',
           },
+          pmRequestCycleFilm,
+          pmMethodSemanticsStep,
+          pmMethodSemanticsPractice,
           {
             type: 'quiz',
             question: 'POST /api/login isteği 401 durumu döndürdü. Bu ne anlama gelir?',
@@ -1803,6 +2388,9 @@ pm.test("Status is active", () => {
   "createdAt": "2024-01-15T10:30:00Z" // Sunucu zaman damgası
 }`,
           },
+          pmFirstRequestFilm,
+          pmEnvSetupStep,
+          pmEnvSetupPractice,
           {
             type: 'quiz',
             question: 'POST /api/users gönderdin ve sunucu 201 döndürdü. QA test uzmanı olarak bundan sonra ne doğrulamalısın?',
@@ -2091,6 +2679,9 @@ newman run tests/postman/payment-service.collection.json -e env.staging.json`,
               ['Global (en düşük öncelik)', 'pm.globals.set()', 'Tüm workspace', 'Paylaşılan API key, sabitler'],
             ],
           },
+          pmVariableResolutionFilm,
+          pmCollectionHierarchyStep,
+          pmCollectionHierarchyPractice,
           {
             type: 'quiz',
             question: 'E2E akışın: POST /login → POST /users → POST /orders → POST /payments. /orders request\'i (3. adım) 2. adımdaki userId\'yi kullanıyor. Doğru Postman yaklaşımı nedir?',
@@ -2363,6 +2954,9 @@ pm.test("Durum OK", function() {       // aç
               },
             ],
           },
+          pmTestScriptTimingFilm,
+          pmAssertionOrderStep,
+          pmAssertionOrderPractice,
           {
             type: 'quiz',
             question: 'Her gece saat 02:00\'de Postman koleksiyonunu zamanlanmış regresyon testi olarak çalıştırman gerekiyor. Ne kullanmalısın?',
@@ -2470,6 +3064,9 @@ pm.test("Tüm postlar zincirlenen userId'ye ait", () => {
 // olarak İstek 1'in yanıtından yakalanan userId'yi kullanır. Elle
 // kopyala-yapıştır gerekmez.`
           },
+          pmNewmanCiFilm,
+          pmCiGateStep,
+          pmCiGatePractice,
           {
             type: 'quiz',
             question: 'Bir ekip hızlı, keşif amaçlı API testi yapmak VE sıfırdan tam bir kod framework\'ü yazmadan CI otomasyonuna geçmek istiyor. Hangi araç bu iki ihtiyacı da karşılar?',
@@ -2532,6 +3129,9 @@ pm.test("Tüm postlar zincirlenen userId'ye ait", () => {
           },
           { type: 'heading', text: 'Postman Diğer QA Araçları Yanında Nerede Duruyor' },
           { type: 'text', content: 'Selenium/Playwright süiti UI\'ı test eder; Postman/Newman süiti altındaki API katmanını test eder. İkisi de tipik olarak aynı CI pipeline\'ında ayrı aşamalar olarak çalışır — API testleri genellikle önce çalışır çünkü daha hızlıdır ve aynı backend\'e bağımlı olan daha yavaş UI testlerine zaman harcamadan önce backend hatalarını yakalar.' },
+          pmMockServerFilm,
+          pmToolLandscapeStep,
+          pmToolLandscapePractice,
           {
             type: 'quiz',
             question: 'Postman GUI\'sini hiç açmadan bir CI/CD pipeline\'ı içinde bir Postman collection\'ını gözetimsiz çalıştırmak için ne kullanılır?',
@@ -2664,6 +3264,9 @@ GET https://api.example.com/data
               },
             ],
           },
+          pmUnauthorizedDiagnosisFilm,
+          pmDiagnosisFlowStep,
+          pmDiagnosisFlowPractice,
           {
             type: 'quiz',
             question: 'Bir pm.test() bloğu "SyntaxError: Unexpected token < in JSON at position 0" hatasıyla başarısız oluyor. Kök neden ve çözüm nedir?',
@@ -2709,6 +3312,9 @@ GET https://api.example.com/data
             emoji: '🧭',
             content: 'Postman arayüzünü dört ayrı ölçüm aletine bölünmüş bir uçuş kokpiti gibi düşünün — ve deneyimli bir pilot her aletin ne zaman önemli olduğunu sezgisel olarak bilir. Peki neden bu ayrımı öğrenmek gerekiyor? Çünkü mülakatta "Postman\'da header\'ı nereye koyarsınız?" sorusu aslında şunu sorar: arayüzde kaybolmak yerine doğrudan hedefe gidebilir misiniz? Java\'da şu analoji işe yarar: ③ Sekmeler (Authorization / Headers / Body / Tests) bir test sınıfının annotation alanları gibidir, ④ Response alanı assertion\'ların çalıştırıldığı çıktı konsolu gibidir. Cevap verirken görseldeki numaraları referans alın: ① Collections/Environments alanı koleksiyon-değişken-ortam soruları için, ② Method + URL + Send alanı HTTP metodunu ve request kurulumunu sorgulayan sorular için, ③ Authorization / Headers / Body / Tests sekmeleri auth-body-script soruları için, ④ Response alanı status code, schema, response time ve assertion soruları için. QA mülakatında bu haritayı bilmek, "hangi sekmeye gidip ne yapacağınızı" anında söyleyebildiğinizi kanıtlar.',
           },
+          pmInterviewApiVsUiFilm,
+          pmInterviewStep,
+          pmInterviewPractice,
           {
             type: 'interview-questions',
               relatedTopicId: 'postman-interview-tr',
