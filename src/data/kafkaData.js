@@ -1,5 +1,949 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ─── Dalga 16 (kafka) film sabitleri (video-scene — EN + TR paylaşımlı) ─────
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+// 🎯 Introduction — mesaj tüketildikten sonra RabbitMQ'da silinir, Kafka'da kalır
+const kafkaRetentionReplayFilm = {
+  type: 'video-scene',
+  id: 'kafka-retention-replay-film',
+  title: {
+    tr: '🎬 Bir Mesajın Ölümü: RabbitMQ vs Kafka',
+    en: '🎬 The Death of a Message: RabbitMQ vs Kafka',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'producer',   emoji: '📤', label: { tr: 'Producer',            en: 'Producer' },            color: '#f97316' },
+    { id: 'rabbitq',    emoji: '🐇', label: { tr: 'RabbitMQ Kuyruğu',    en: 'RabbitMQ Queue' },       color: '#ef4444' },
+    { id: 'kafkalog',   emoji: '📗', label: { tr: 'Kafka Log',           en: 'Kafka Log' },            color: '#f59e0b' },
+    { id: 'consumerA',  emoji: '👤', label: { tr: 'Consumer Group A',    en: 'Consumer Group A' },     color: '#22c55e' },
+    { id: 'consumerB',  emoji: '🕓', label: { tr: 'Consumer Group B (saatler sonra)', en: 'Consumer Group B (hours later)' }, color: '#6366f1' },
+    { id: 'ghost',      emoji: '👻', label: { tr: 'Silinen Mesaj',       en: 'Deleted Message' },      color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Aynı "order-created" event\'i iki farklı sisteme gönderiliyor: biri geleneksel bir RabbitMQ kuyruğu, diğeri Kafka. Aradaki fark, mesaj OKUNDUKTAN sonra ortaya çıkacak.',
+        en: 'The same "order-created" event is sent to two different systems: a traditional RabbitMQ queue, and Kafka. The difference will show up AFTER the message is read.',
+      },
+      code: { tr: `publish("order-created")`, en: `publish("order-created")` },
+      positions: { producer: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'RabbitMQ tarafında: mesaj kuyruğa girer ve tek bir consumer\'ın onu almasını bekler — tıpkı bir bilet gişesindeki sıra numarası gibi, bir kez çağrılınca numara geçersiz olur.',
+        en: 'On the RabbitMQ side: the message enters the queue and waits for a single consumer to pick it up — like a number at a ticket counter, once called, the number is void.',
+      },
+      code: { tr: `queue.push(msg)`, en: `queue.push(msg)` },
+      positions: {
+        producer: { x: 20, y: 30, opacity: 0.6, scale: 0.9 },
+        rabbitq: { x: 46, y: 30, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'producer', to: 'rabbitq', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Consumer A mesajı okur okumaz RabbitMQ onu kuyruktan SİLER — mesaj artık yok. İkinci bir ekip aynı event\'i asla göremeyecek.',
+        en: 'The moment Consumer A reads the message, RabbitMQ DELETES it from the queue — the message is simply gone. A second team will never see this event.',
+      },
+      code: { tr: `queue.poll() -> mesaj silindi`, en: `queue.poll() -> message deleted` },
+      positions: {
+        rabbitq: { x: 30, y: 30, opacity: 0.5, scale: 0.9 },
+        consumerA: { x: 56, y: 20, scale: 1.1 },
+        ghost: { x: 56, y: 42, scale: 1.2, pulse: true, opacity: 0.6 },
+      },
+      beams: [{ from: 'rabbitq', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Kafka tarafında aynı event farklı davranır: Kafka mesajı bir log\'a EKLER, sırayla bir offset numarası (örn. 42) alır. Okunmuş olmak, silinmek anlamına gelmez.',
+        en: 'On the Kafka side, the same event behaves differently: Kafka APPENDS the message to a log, getting a sequential offset number (e.g. 42). Being read does not mean being deleted.',
+      },
+      code: { tr: `log.append(msg) // offset=42`, en: `log.append(msg) // offset=42` },
+      positions: {
+        producer: { x: 20, y: 70, opacity: 0.6, scale: 0.9 },
+        kafkalog: { x: 46, y: 70, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'producer', to: 'kafkalog', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Consumer A, Kafka log\'unu offset 42\'den okur — ama log KÜÇÜLMEZ. Mesaj retention süresi boyunca (varsayılan 7 gün) yerinde kalır.',
+        en: 'Consumer A reads the Kafka log at offset 42 — but the log does NOT shrink. The message stays put for the retention period (default 7 days).',
+      },
+      code: { tr: `consumerA.poll() // offset 42 okundu, log sabit`, en: `consumerA.poll() // offset 42 read, log unchanged` },
+      positions: {
+        kafkalog: { x: 46, y: 70, scale: 1.15 },
+        consumerA: { x: 68, y: 60, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'kafkalog', to: 'consumerA', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — saatler sonra Consumer Group B işe başlar. RabbitMQ tarafında bulacağı hiçbir şey yok (👻); Kafka tarafında ise aynı offset 42\'yi BAĞIMSIZ olarak okuyabilir, sanki mesaj hiç dokunulmamış gibi.',
+        en: 'Final (the contrast) — hours later, Consumer Group B starts up. On the RabbitMQ side there is nothing left to find (👻); on the Kafka side it can read the SAME offset 42 INDEPENDENTLY, as if the message was never touched.',
+      },
+      positions: {
+        ghost: { x: 30, y: 30, scale: 0.9, opacity: 0.35 },
+        kafkalog: { x: 46, y: 70, scale: 1.1 },
+        consumerB: { x: 70, y: 80, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'kafkalog', to: 'consumerB', color: '#6366f1' }],
+    },
+  ],
+}
+
+// ⚙️ Installation — docker-compose up ile broker + controller birlikte ayağa kalkar
+const kafkaDockerComposeBootFilm = {
+  type: 'video-scene',
+  id: 'kafka-docker-compose-boot-film',
+  title: {
+    tr: '🎬 docker-compose up: Kafka Cluster\'ının Uyanışı',
+    en: '🎬 docker-compose up: A Kafka Cluster Wakes Up',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'terminal',    emoji: '⌨️', label: { tr: 'Terminal',              en: 'Terminal' },              color: '#94a3b8' },
+    { id: 'compose',     emoji: '🐳', label: { tr: 'Docker Compose',        en: 'Docker Compose' },        color: '#0ea5e9' },
+    { id: 'controller',  emoji: '🗳️', label: { tr: 'KRaft Controller',      en: 'KRaft Controller' },      color: '#a855f7' },
+    { id: 'broker',      emoji: '📦', label: { tr: 'Kafka Broker',          en: 'Kafka Broker' },          color: '#f59e0b' },
+    { id: 'port',        emoji: '🔌', label: { tr: 'Port 9092',             en: 'Port 9092' },             color: '#22c55e' },
+    { id: 'check',       emoji: '✅', label: { tr: 'kafka-topics --list',   en: 'kafka-topics --list' },   color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Kafka\'yı manuel kurmak yerine tek komut çalıştırılır: docker-compose up. Bu komut arka planda birden fazla adımı sıraya sokar.',
+        en: 'Instead of a manual Kafka install, one command runs: docker-compose up. Behind the scenes it queues up several steps.',
+      },
+      code: { tr: `docker-compose up -d`, en: `docker-compose up -d` },
+      positions: { terminal: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Compose, docker-compose.yml dosyasını okur ve önce KRaft Controller container\'ını (eski ZooKeeper\'ın yerini alan cluster koordinatörü) başlatır.',
+        en: 'Compose reads the docker-compose.yml file and first starts the KRaft Controller container (the cluster coordinator that replaces the old ZooKeeper).',
+      },
+      code: { tr: `services:\n  controller:\n    image: kafka:latest`, en: `services:\n  controller:\n    image: kafka:latest` },
+      positions: {
+        terminal: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        compose: { x: 40, y: 50, scale: 1.1 },
+        controller: { x: 64, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'compose', to: 'controller', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'Controller, metadata quorum\'unu kurar ve "cluster hazır" durumuna geçer — Java\'da bir servisin @PostConstruct aşamasında bağımlılıklarını hazırlaması gibi.',
+        en: 'The Controller establishes its metadata quorum and moves to "cluster ready" — like a service preparing its dependencies in an @PostConstruct phase in Java.',
+      },
+      code: { tr: `controller.status = READY`, en: `controller.status = READY` },
+      positions: { controller: { x: 64, y: 50, scale: 1.25, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Ardından Broker container\'ı başlar ve Controller\'a kendini kaydettirir — bir mikroservisin service discovery\'e register olması gibi.',
+        en: 'Next the Broker container starts and registers itself with the Controller — like a microservice registering with service discovery.',
+      },
+      code: { tr: `broker.register(controller)`, en: `broker.register(controller)` },
+      positions: {
+        controller: { x: 40, y: 50, opacity: 0.6, scale: 0.9 },
+        broker: { x: 64, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'controller', to: 'broker', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Broker, 9092 portunu açar ve dinlemeye başlar. Compose dosyasındaki port eşlemesi sayesinde host makineden erişilebilir hale gelir.',
+        en: 'The Broker opens port 9092 and starts listening. Thanks to the port mapping in the compose file, it becomes reachable from the host machine.',
+      },
+      code: { tr: `listeners: PLAINTEXT://:9092`, en: `listeners: PLAINTEXT://:9092` },
+      positions: {
+        broker: { x: 44, y: 50, opacity: 0.7, scale: 1.0 },
+        port: { x: 68, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'broker', to: 'port', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — doğrulama komutu bağlanmayı dener: kafka-topics.sh --list. Bağlantı başarılıysa, bu 30 saniyeden kısa bir sürede tam bir cluster\'ın ayağa kalktığı anlamına gelir.',
+        en: 'Final — the verification command tries to connect: kafka-topics.sh --list. If it succeeds, a full cluster came up in under 30 seconds.',
+      },
+      code: { tr: `kafka-topics.sh --bootstrap-server localhost:9092 --list`, en: `kafka-topics.sh --bootstrap-server localhost:9092 --list` },
+      positions: {
+        port: { x: 40, y: 50, opacity: 0.6, scale: 0.9 },
+        check: { x: 66, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'port', to: 'check', color: '#10b981' }],
+    },
+  ],
+}
+
+// 🏗️ Architecture — bir broker çöktüğünde ISR follower'ın leader'a yükselmesi
+const kafkaLeaderElectionFilm = {
+  type: 'video-scene',
+  id: 'kafka-leader-election-film',
+  title: {
+    tr: '🎬 Leader Çöktüğünde: Otomatik Failover',
+    en: '🎬 When the Leader Crashes: Automatic Failover',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'producer',  emoji: '📤', label: { tr: 'Producer',              en: 'Producer' },              color: '#f97316' },
+    { id: 'broker1',   emoji: '👑', label: { tr: 'Broker 1 (Leader)',     en: 'Broker 1 (Leader)' },      color: '#f59e0b' },
+    { id: 'broker2',   emoji: '🔁', label: { tr: 'Broker 2 (Follower)',   en: 'Broker 2 (Follower)' },    color: '#0ea5e9' },
+    { id: 'broker3',   emoji: '🔁', label: { tr: 'Broker 3 (Follower)',   en: 'Broker 3 (Follower)' },    color: '#0ea5e9' },
+    { id: 'consumer',  emoji: '👤', label: { tr: 'Consumer',              en: 'Consumer' },               color: '#22c55e' },
+    { id: 'crash',     emoji: '💥', label: { tr: 'Broker 1 Çöktü',        en: 'Broker 1 Crashed' },       color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir "orders" partition\'ı için Broker 1 leader\'dır — tüm yazma ve okumaları o karşılar. Broker 2 ve 3 sadece kopyalayan follower\'lardır.',
+        en: 'For an "orders" partition, Broker 1 is the leader — it handles all writes and reads. Brokers 2 and 3 are just replicating followers.',
+      },
+      code: { tr: `partition.leader = broker1`, en: `partition.leader = broker1` },
+      positions: { broker1: { x: 50, y: 40, scale: 1.15, pulse: true }, broker2: { x: 30, y: 65, scale: 0.85, opacity: 0.7 }, broker3: { x: 70, y: 65, scale: 0.85, opacity: 0.7 } },
+    },
+    {
+      caption: {
+        tr: 'Producer, Broker 1\'e yazar. Broker 1, aynı byte\'ları Broker 2 ve Broker 3\'e de yansıtır — tıpkı bir RAID dizisinin her diski senkron tutması gibi.',
+        en: 'The Producer writes to Broker 1. Broker 1 mirrors the same bytes to Broker 2 and Broker 3 — just like a RAID array keeps every disk in sync.',
+      },
+      code: { tr: `broker1.replicate(broker2, broker3)`, en: `broker1.replicate(broker2, broker3)` },
+      positions: {
+        producer: { x: 14, y: 40, scale: 1.0 },
+        broker1: { x: 50, y: 40, scale: 1.15, pulse: true },
+        broker2: { x: 30, y: 65, scale: 0.95 },
+        broker3: { x: 70, y: 65, scale: 0.95 },
+      },
+      beams: [{ from: 'producer', to: 'broker1', color: '#f97316' }, { from: 'broker1', to: 'broker2', color: '#0ea5e9' }, { from: 'broker1', to: 'broker3', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Consumer da Broker 1\'den okur — sistem sağlıklı çalışıyor, Broker 2 ve 3 sessizce senkron kalıyor.',
+        en: 'The Consumer also reads from Broker 1 — the system runs healthy, Brokers 2 and 3 stay quietly in sync.',
+      },
+      code: { tr: `consumer.poll() -> broker1`, en: `consumer.poll() -> broker1` },
+      positions: {
+        broker1: { x: 50, y: 40, scale: 1.1 },
+        consumer: { x: 78, y: 40, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'broker1', to: 'consumer', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Aniden Broker 1 çöker — donanım arızası, OOM, fark etmez. Producer ve Consumer\'ın konuştuğu makine artık orada değil.',
+        en: 'Suddenly Broker 1 crashes — hardware failure, OOM, doesn\'t matter. The machine that Producer and Consumer were talking to is simply gone.',
+      },
+      code: { tr: `broker1.status = DOWN`, en: `broker1.status = DOWN` },
+      positions: {
+        broker1: { x: 50, y: 40, scale: 0.9, opacity: 0.3 },
+        crash: { x: 50, y: 20, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'broker1', to: 'crash', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Controller, Broker 1\'in kaybını saniyeler içinde tespit eder ve ISR (in-sync replica) listesindeki Broker 2\'yi yeni leader olarak seçer.',
+        en: 'The Controller detects the loss of Broker 1 within seconds and elects Broker 2 from the ISR (in-sync replica) list as the new leader.',
+      },
+      code: { tr: `partition.leader = broker2 // yeni secim`, en: `partition.leader = broker2 // new election` },
+      positions: {
+        broker2: { x: 40, y: 60, scale: 1.25, pulse: true },
+        broker3: { x: 68, y: 65, scale: 0.9 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final — Producer ve Consumer, kafka client kütüphanesi sayesinde otomatik olarak yeni leader\'a (Broker 2) yönlendirilir. Follower\'lar in-sync olduğu için TEK BİR mesaj kaybolmaz.',
+        en: 'Final — thanks to the Kafka client library, Producer and Consumer are automatically redirected to the new leader (Broker 2). Because the followers were in sync, NOT A SINGLE message is lost.',
+      },
+      positions: {
+        producer: { x: 14, y: 60, scale: 1.0 },
+        broker2: { x: 45, y: 60, scale: 1.2, pulse: true },
+        consumer: { x: 78, y: 60, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'producer', to: 'broker2', color: '#f97316' }, { from: 'broker2', to: 'consumer', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 📡 Producer & Consumer — key hashing ve consumer group rebalance
+const kafkaKeyPartitionRoutingFilm = {
+  type: 'video-scene',
+  id: 'kafka-key-partition-routing-film',
+  title: {
+    tr: '🎬 Aynı Key, Aynı Partition: Rebalance Anı',
+    en: '🎬 Same Key, Same Partition: The Moment of Rebalance',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'producer',  emoji: '📤', label: { tr: 'Producer',            en: 'Producer' },            color: '#f97316' },
+    { id: 'hash',      emoji: '#️⃣', label: { tr: 'hash(key) % 3',       en: 'hash(key) % 3' },        color: '#a855f7' },
+    { id: 'p1',        emoji: '🗂️', label: { tr: 'Partition 1',         en: 'Partition 1' },          color: '#f59e0b' },
+    { id: 'c1',        emoji: '👤', label: { tr: 'Consumer 1',          en: 'Consumer 1' },           color: '#22c55e' },
+    { id: 'c2',        emoji: '🆕', label: { tr: 'Consumer 2 (yeni)',   en: 'Consumer 2 (new)' },     color: '#0ea5e9' },
+    { id: 'rebalance', emoji: '🔄', label: { tr: 'Rebalance',           en: 'Rebalance' },            color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Producer, key="user-123" ile bir sipariş event\'i gönderiyor. Bu key hangi partition\'a gideceğini belirleyecek.',
+        en: 'The Producer sends an order event with key="user-123". This key will determine which partition it lands on.',
+      },
+      code: { tr: `send(key="user-123", value=orderEvent)`, en: `send(key="user-123", value=orderEvent)` },
+      positions: { producer: { x: 20, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kafka, hash(key) % numPartitions hesabını yapar — tıpkı Java\'da bir HashMap\'in hash(key) % capacity ile bucket seçmesi gibi. Sonuç: partition 1.',
+        en: 'Kafka computes hash(key) % numPartitions — just like a Java HashMap picking a bucket with hash(key) % capacity. The result: partition 1.',
+      },
+      code: { tr: `hash("user-123") % 3 = 1`, en: `hash("user-123") % 3 = 1` },
+      positions: {
+        producer: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        hash: { x: 40, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'producer', to: 'hash', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Mesaj Partition 1\'e yazılır. user-123\'e ait HER event aynı hash sonucuyla hep aynı partition\'a düşer — bu, o kullanıcı için sıralamayı garanti eder.',
+        en: 'The message is written to Partition 1. EVERY event for user-123 lands on the same partition via the same hash result — this guarantees ordering for that user.',
+      },
+      code: { tr: `partition1.append(orderEvent)`, en: `partition1.append(orderEvent)` },
+      positions: {
+        hash: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        p1: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'hash', to: 'p1', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Consumer Group\'ta tek bir consumer (Consumer 1) var ve tüm partition\'ları (0, 1, 2) tek başına okuyor.',
+        en: 'The Consumer Group has a single consumer (Consumer 1), reading all partitions (0, 1, 2) by itself.',
+      },
+      code: { tr: `consumer1.assignedPartitions = [0, 1, 2]`, en: `consumer1.assignedPartitions = [0, 1, 2]` },
+      positions: {
+        p1: { x: 40, y: 40, scale: 1.0 },
+        c1: { x: 66, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'p1', to: 'c1', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Consumer 2 gruba yeni katılır — Kafka bunu otomatik algılar ve bir REBALANCE tetikler: kısa bir an için tüketim durur, partition\'lar yeniden dağıtılır.',
+        en: 'Consumer 2 joins the group — Kafka detects this automatically and triggers a REBALANCE: consumption briefly pauses while partitions are redistributed.',
+      },
+      code: { tr: `group.rebalance() // yeni uye katildi`, en: `group.rebalance() // new member joined` },
+      positions: {
+        c1: { x: 55, y: 30, scale: 0.95, opacity: 0.7 },
+        c2: { x: 70, y: 55, scale: 1.1, pulse: true },
+        rebalance: { x: 62, y: 42, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final — rebalance sonrası Consumer 1, partition 0\'ı; Consumer 2, partition 1 ve 2\'yi alır. user-123\'ün event\'leri artık Consumer 2\'de ama SIRALAMA hâlâ bozulmadı, çünkü hepsi hâlâ aynı partition\'da.',
+        en: 'Final — after the rebalance, Consumer 1 gets partition 0; Consumer 2 gets partitions 1 and 2. user-123\'s events are now on Consumer 2, but the ORDERING is still intact because they are all still on the same partition.',
+      },
+      positions: {
+        c1: { x: 55, y: 25, scale: 1.0 },
+        p1: { x: 40, y: 55, scale: 1.05 },
+        c2: { x: 68, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'p1', to: 'c2', color: '#0ea5e9' }],
+    },
+  ],
+}
+
+// 🗂️ Topics & Partitions — min.insync.replicas ve log compaction
+const kafkaReplicationDurabilityFilm = {
+  type: 'video-scene',
+  id: 'kafka-replication-durability-film',
+  title: {
+    tr: '🎬 acks=all Yeterli mi? min.insync.replicas Tuzağı',
+    en: '🎬 Is acks=all Enough? The min.insync.replicas Trap',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'producer',  emoji: '✍️', label: { tr: 'Producer (acks=all)',      en: 'Producer (acks=all)' },      color: '#f97316' },
+    { id: 'leader',    emoji: '👑', label: { tr: 'Leader',                   en: 'Leader' },                    color: '#f59e0b' },
+    { id: 'followerA', emoji: '🔁', label: { tr: 'Follower A',               en: 'Follower A' },                color: '#0ea5e9' },
+    { id: 'followerB', emoji: '🔁', label: { tr: 'Follower B',               en: 'Follower B' },                color: '#0ea5e9' },
+    { id: 'ack',       emoji: '✅', label: { tr: 'Ack Gönderildi',           en: 'Ack Sent' },                  color: '#22c55e' },
+    { id: 'ghost',     emoji: '👻', label: { tr: 'Kaybolan Veri',            en: 'Lost Data' },                 color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Producer, acks=all ve min.insync.replicas=2 ile bir ödeme event\'i gönderiyor — en güvenli ayar kombinasyonu gibi görünüyor.',
+        en: 'The Producer sends a payment event with acks=all and min.insync.replicas=2 — this looks like the safest possible setting combination.',
+      },
+      code: { tr: `acks=all, min.insync.replicas=2`, en: `acks=all, min.insync.replicas=2` },
+      positions: { producer: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Leader mesajı alır ve kendi diskine yazar — ama henüz producer\'a onay göndermez, çünkü acks=all daha fazlasını bekliyor.',
+        en: 'The Leader receives the message and writes it to its own disk — but does not yet ack the producer, because acks=all is waiting for more.',
+      },
+      code: { tr: `leader.write(msg) // henuz ack yok`, en: `leader.write(msg) // no ack yet` },
+      positions: {
+        producer: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        leader: { x: 44, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'producer', to: 'leader', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Leader, mesajı Follower A ve Follower B\'ye replike eder. min.insync.replicas=2 demek, leader DAHİL en az 2 kopyanın hazır olması gerektiği anlamına gelir.',
+        en: 'The Leader replicates the message to Follower A and Follower B. min.insync.replicas=2 means at least 2 copies, INCLUDING the leader, must be ready.',
+      },
+      code: { tr: `leader.replicate(followerA, followerB)`, en: `leader.replicate(followerA, followerB)` },
+      positions: {
+        leader: { x: 44, y: 40, scale: 1.1 },
+        followerA: { x: 68, y: 25, scale: 1.05, pulse: true },
+        followerB: { x: 68, y: 58, scale: 1.05, pulse: true },
+      },
+      beams: [{ from: 'leader', to: 'followerA', color: '#0ea5e9' }, { from: 'leader', to: 'followerB', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Follower A onaylar — artık 2 kopya (leader + Follower A) hazır, min.insync.replicas=2 karşılandı. Leader, producer\'a ack gönderir.',
+        en: 'Follower A confirms — now 2 copies (leader + Follower A) are ready, satisfying min.insync.replicas=2. The Leader sends the ack to the producer.',
+      },
+      code: { tr: `ack sent -> producer (2/2 hazir)`, en: `ack sent -> producer (2/2 ready)` },
+      positions: {
+        followerA: { x: 68, y: 25, scale: 1.1 },
+        leader: { x: 44, y: 40, scale: 1.1 },
+        ack: { x: 20, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'leader', to: 'ack', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Ack gönderildikten HEMEN SONRA leader çöker. Ama sorun değil: Follower A zaten in-sync\'ti, yeni leader seçilir ve veri kaybolmaz.',
+        en: 'RIGHT AFTER the ack, the leader crashes. But that\'s fine: Follower A was already in sync, a new leader is elected, and no data is lost.',
+      },
+      code: { tr: `leader.status = DOWN // followerA -> yeni leader`, en: `leader.status = DOWN // followerA -> new leader` },
+      positions: {
+        leader: { x: 44, y: 40, opacity: 0.3, scale: 0.85 },
+        followerA: { x: 44, y: 40, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — AYNI senaryo ama min.insync.replicas=1: leader tek başına yazar yazmaz ack gönderir, follower\'lar henüz kopyalamadan leader çökerse, ack verilmiş olan mesaj SONSUZA DEK kaybolur.',
+        en: 'Final (the contrast) — the SAME scenario but min.insync.replicas=1: the leader acks right after writing alone; if it crashes before followers replicate, the already-acked message is lost FOREVER.',
+      },
+      positions: {
+        followerA: { x: 30, y: 55, scale: 0.9, opacity: 0.5 },
+        ack: { x: 55, y: 30, scale: 1.0, opacity: 0.5 },
+        ghost: { x: 72, y: 55, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'ack', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// ☕ Java & Spring Boot — @KafkaListener wiring ve Dead Letter Topic
+const kafkaSpringListenerWiringFilm = {
+  type: 'video-scene',
+  id: 'kafka-spring-listener-wiring-film',
+  title: {
+    tr: '🎬 @KafkaListener: Spring Boot Bir Mesajı Nasıl Yakalar?',
+    en: '🎬 @KafkaListener: How Spring Boot Catches a Message',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'app',        emoji: '⚙️', label: { tr: 'Spring Boot App',        en: 'Spring Boot App' },        color: '#22c55e' },
+    { id: 'listener',   emoji: '📻', label: { tr: '@KafkaListener metodu',  en: '@KafkaListener method' },  color: '#0ea5e9' },
+    { id: 'topic',      emoji: '📗', label: { tr: '"orders" topic',         en: '"orders" topic' },         color: '#f59e0b' },
+    { id: 'deser',      emoji: '🧩', label: { tr: 'Deserializer',           en: 'Deserializer' },           color: '#a855f7' },
+    { id: 'bad',        emoji: '🐛', label: { tr: 'Bozuk Mesaj',            en: 'Bad Message' },            color: '#ef4444' },
+    { id: 'dlt',        emoji: '☠️', label: { tr: 'Dead Letter Topic',      en: 'Dead Letter Topic' },      color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Spring Boot uygulaması başlarken, @KafkaListener anotasyonlu her metodu tarar — Java\'da bir @RequestMapping\'in HTTP route\'unu kaydetmesi gibi, burada bir Kafka topic\'i kaydedilir.',
+        en: 'As the Spring Boot app starts, it scans for every method annotated with @KafkaListener — like a @RequestMapping registering an HTTP route in Java, here a Kafka topic gets registered.',
+      },
+      code: { tr: `@KafkaListener(topics = "orders")`, en: `@KafkaListener(topics = "orders")` },
+      positions: { app: { x: 50, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Spring, bu metod için arka planda otomatik bir consumer thread\'i başlatır — sen KafkaConsumer\'ı elle hiç oluşturmadın.',
+        en: 'Spring automatically starts a background consumer thread for this method — you never manually created a KafkaConsumer.',
+      },
+      code: { tr: `spring.registerConsumerThread(listener)`, en: `spring.registerConsumerThread(listener)` },
+      positions: {
+        app: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        listener: { x: 52, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'app', to: 'listener', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: '"orders" topic\'ine yeni bir mesaj gelir — ham hali sadece byte dizisidir, henüz bir Java nesnesi değildir.',
+        en: 'A new message arrives on the "orders" topic — in its raw form it is just a byte array, not yet a Java object.',
+      },
+      code: { tr: `topic.newMessage(bytes)`, en: `topic.newMessage(bytes)` },
+      positions: {
+        listener: { x: 40, y: 40, opacity: 0.7, scale: 1.0 },
+        topic: { x: 68, y: 40, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Deserializer, JSON byte\'larını tipli bir OrderEvent POJO\'suna çevirir — Jackson\'ın bir REST controller\'daki @RequestBody\'i parse etmesiyle aynı mekanizma.',
+        en: 'The Deserializer converts the JSON bytes into a typed OrderEvent POJO — the same mechanism as Jackson parsing @RequestBody in a REST controller.',
+      },
+      code: { tr: `OrderEvent event = deserializer.parse(bytes)`, en: `OrderEvent event = deserializer.parse(bytes)` },
+      positions: {
+        topic: { x: 44, y: 40, opacity: 0.6, scale: 0.9 },
+        deser: { x: 68, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'topic', to: 'deser', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: '@KafkaListener metodu otomatik olarak tipli OrderEvent nesnesi ile çağrılır — sen sadece iş mantığını yazarsın, subscribe/poll döngüsünü değil.',
+        en: 'The @KafkaListener method is automatically invoked with the typed OrderEvent object — you only write business logic, never the subscribe/poll loop.',
+      },
+      code: { tr: `onOrderEvent(OrderEvent event) { ... }`, en: `onOrderEvent(OrderEvent event) { ... }` },
+      positions: {
+        deser: { x: 40, y: 40, opacity: 0.6, scale: 0.9 },
+        listener: { x: 68, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'deser', to: 'listener', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — bozuk bir mesaj (geçersiz JSON) gelirse deserializasyon patlar. İyi yapılandırılmış bir error handler bunu consumer\'ı çökertmeden Dead Letter Topic\'e yönlendirir.',
+        en: 'Final (the contrast) — if a malformed message (invalid JSON) arrives, deserialization blows up. A well-configured error handler routes it to a Dead Letter Topic instead of crashing the consumer.',
+      },
+      positions: {
+        bad: { x: 30, y: 55, scale: 1.1, pulse: true },
+        dlt: { x: 68, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bad', to: 'dlt', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 🔗 Ecosystem — Kafka Connect + Schema Registry + ksqlDB zinciri
+const kafkaConnectPipelineFilm = {
+  type: 'video-scene',
+  id: 'kafka-connect-pipeline-film',
+  title: {
+    tr: '🎬 Kod Yazmadan Pipeline: Connect + Schema Registry + ksqlDB',
+    en: '🎬 A Pipeline Without Code: Connect + Schema Registry + ksqlDB',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'db',        emoji: '🗄️', label: { tr: 'Kaynak Veritabanı',      en: 'Source Database' },       color: '#0ea5e9' },
+    { id: 'srcConn',   emoji: '🔌', label: { tr: 'Connect (Source)',       en: 'Connect (Source)' },      color: '#f97316' },
+    { id: 'topic',     emoji: '📗', label: { tr: 'Kafka Topic',            en: 'Kafka Topic' },           color: '#f59e0b' },
+    { id: 'registry',  emoji: '📐', label: { tr: 'Schema Registry',        en: 'Schema Registry' },       color: '#a855f7' },
+    { id: 'ksql',      emoji: '🌊', label: { tr: 'ksqlDB',                 en: 'ksqlDB' },                color: '#22c55e' },
+    { id: 'warehouse', emoji: '🏢', label: { tr: 'Data Warehouse',         en: 'Data Warehouse' },        color: '#6366f1' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Kaynak veritabanında bir satır değişir — örneğin bir siparişin durumu "shipped" olur. Bu değişikliği kimse elle Kafka\'ya yazmıyor.',
+        en: 'A row changes in the source database — say an order\'s status becomes "shipped". Nobody manually writes this change into Kafka.',
+      },
+      code: { tr: `UPDATE orders SET status='shipped' WHERE id=42`, en: `UPDATE orders SET status='shipped' WHERE id=42` },
+      positions: { db: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Kafka Connect Source connector\'ı bu değişikliği (CDC) yakalar ve otomatik olarak bir Kafka topic\'ine event olarak yazar — hiç özel kod yazılmadı.',
+        en: 'The Kafka Connect Source connector picks up this change (CDC) and automatically writes it as an event to a Kafka topic — zero custom code was written.',
+      },
+      code: { tr: `connect.capture(dbChange) -> topic.write(event)`, en: `connect.capture(dbChange) -> topic.write(event)` },
+      positions: {
+        db: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        srcConn: { x: 38, y: 40, scale: 1.15, pulse: true },
+        topic: { x: 62, y: 40, scale: 1.1 },
+      },
+      beams: [{ from: 'db', to: 'srcConn', color: '#0ea5e9' }, { from: 'srcConn', to: 'topic', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Schema Registry, event\'e bir Avro şeması iliştirir ve doğrular — Java\'daki compile-time type checking\'in çalışma zamanı karşılığı gibi düşün.',
+        en: 'Schema Registry attaches and validates an Avro schema for the event — think of it as the runtime equivalent of Java\'s compile-time type checking.',
+      },
+      code: { tr: `registry.validate(event.schema)`, en: `registry.validate(event.schema)` },
+      positions: {
+        topic: { x: 44, y: 40, opacity: 0.7, scale: 1.0 },
+        registry: { x: 68, y: 25, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'topic', to: 'registry', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'ksqlDB, akan event\'i sürekli olarak dönüştürür/aggregate eder — SQL benzeri bir sorgu yazarsın, ama sonuç bir kerelik değil, sürekli GÜNCEL akan bir sonuçtur.',
+        en: 'ksqlDB continuously transforms/aggregates the streaming event — you write a SQL-like query, but the result is not a one-time snapshot, it\'s a continuously UPDATING stream.',
+      },
+      code: { tr: `SELECT status, COUNT(*) FROM orders_stream GROUP BY status EMIT CHANGES;`, en: `SELECT status, COUNT(*) FROM orders_stream GROUP BY status EMIT CHANGES;` },
+      positions: {
+        topic: { x: 40, y: 55, scale: 1.0 },
+        ksql: { x: 66, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'topic', to: 'ksql', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Kafka Connect Sink connector\'ı dönüştürülmüş sonucu okur ve Data Warehouse\'a yazar — pipeline\'ın son adımı da yine kod yazmadan çalışır.',
+        en: 'The Kafka Connect Sink connector reads the transformed result and writes it to the Data Warehouse — the pipeline\'s last step also runs without writing code.',
+      },
+      code: { tr: `sinkConnector.write(warehouse)`, en: `sinkConnector.write(warehouse)` },
+      positions: {
+        ksql: { x: 40, y: 60, opacity: 0.6, scale: 0.9 },
+        warehouse: { x: 68, y: 60, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ksql', to: 'warehouse', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Connect olmadan bu zincir, her adımı elle bağlayan, hatalara karşı kırılgan, bakımı zor bir polling script\'ine dönüşürdü. Ekosistem, "yeniden icat etme" prensibini uygular.',
+        en: 'Final (the contrast) — without Connect, this chain would become a fragile, hard-to-maintain polling script wiring every step by hand. The ecosystem applies the "don\'t reinvent it" principle.',
+      },
+      positions: {
+        db: { x: 16, y: 40, scale: 0.9 },
+        warehouse: { x: 68, y: 60, scale: 1.1 },
+      },
+    },
+  ],
+}
+
+// 🛠️ Real World — sipariş event'inin 4 servis üzerinden bağımsız akışı
+const kafkaOrderEventChainFilm = {
+  type: 'video-scene',
+  id: 'kafka-order-event-chain-film',
+  title: {
+    tr: '🎬 Bir Siparişin 4 Servise Aynı Anda Ulaşması',
+    en: '🎬 One Order Reaching 4 Services at Once',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'orderSvc',  emoji: '🛒', label: { tr: 'Order Service',        en: 'Order Service' },        color: '#f97316' },
+    { id: 'topic',     emoji: '📗', label: { tr: '"orders" topic',       en: '"orders" topic' },       color: '#f59e0b' },
+    { id: 'inventory', emoji: '📦', label: { tr: 'Inventory Service',    en: 'Inventory Service' },    color: '#22c55e' },
+    { id: 'payment',   emoji: '💳', label: { tr: 'Payment Service',      en: 'Payment Service' },      color: '#0ea5e9' },
+    { id: 'notify',    emoji: '📧', label: { tr: 'Notification Service', en: 'Notification Service' }, color: '#a855f7' },
+    { id: 'crash',     emoji: '💥', label: { tr: 'Payment Çöktü',        en: 'Payment Crashed' },      color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Order Service, bir OrderCreated event\'ini "orders" topic\'ine yayınlar. Kimin okuyacağını Order Service bilmez ve umursamaz — bu, decoupling\'in temelidir.',
+        en: 'The Order Service publishes an OrderCreated event to the "orders" topic. It doesn\'t know or care who will read it — this is the foundation of decoupling.',
+      },
+      code: { tr: `publish("orders", OrderCreated(id=42))`, en: `publish("orders", OrderCreated(id=42))` },
+      positions: { orderSvc: { x: 14, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Event, topic\'e yazılır. Üç FARKLI consumer group aynı event\'i bağımsız olarak okumaya hazır bekliyor.',
+        en: 'The event lands in the topic. Three DIFFERENT consumer groups are waiting to read the same event independently.',
+      },
+      code: { tr: `topic.append(orderCreatedEvent)`, en: `topic.append(orderCreatedEvent)` },
+      positions: {
+        orderSvc: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        topic: { x: 42, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'orderSvc', to: 'topic', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Inventory Service kendi consumer group\'uyla event\'i okur ve stok rezervasyonu yapar — Order Service\'in API\'sini hiç çağırmadan.',
+        en: 'Inventory Service reads the event with its own consumer group and reserves stock — without ever calling the Order Service\'s API.',
+      },
+      code: { tr: `inventoryGroup.poll() -> reserveStock(42)`, en: `inventoryGroup.poll() -> reserveStock(42)` },
+      positions: {
+        topic: { x: 42, y: 40, scale: 1.0 },
+        inventory: { x: 70, y: 18, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'topic', to: 'inventory', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Payment Service, TAMAMEN AYRI bir consumer group ile AYNI event\'i okur ve kart tahsilatını başlatır — Inventory\'nin ne yaptığından habersiz.',
+        en: 'Payment Service reads the SAME event with a COMPLETELY SEPARATE consumer group and starts the card charge — unaware of what Inventory is doing.',
+      },
+      code: { tr: `paymentGroup.poll() -> chargeCard(42)`, en: `paymentGroup.poll() -> chargeCard(42)` },
+      positions: {
+        topic: { x: 42, y: 40, scale: 1.0 },
+        inventory: { x: 70, y: 18, scale: 0.9, opacity: 0.6 },
+        payment: { x: 70, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'topic', to: 'payment', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Payment Service kart tahsilatı SIRASINDA çöker. Ama offset\'ini henüz commit etmemişti — restart sonrası kaldığı yerden, aynı event\'i yeniden işleyerek devam eder.',
+        en: 'Payment Service crashes DURING the card charge. But it had not yet committed its offset — after restart, it resumes from where it left off, reprocessing the same event.',
+      },
+      code: { tr: `payment.status = DOWN // offset commit edilmedi`, en: `payment.status = DOWN // offset not committed` },
+      positions: {
+        payment: { x: 70, y: 45, opacity: 0.4, scale: 0.9 },
+        crash: { x: 70, y: 65, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final — Notification Service de bağımsız olarak aynı event\'i okuyup e-posta gönderir. Payment yeniden başladığında, Order/Inventory/Notification etkilenmedi bile: Kafka onları birbirinden AYRIŞTIRDI.',
+        en: 'Final — Notification Service also independently reads the same event and sends an email. When Payment restarts, Order/Inventory/Notification were not even affected: Kafka DECOUPLED them from each other.',
+      },
+      positions: {
+        topic: { x: 42, y: 40, scale: 1.1 },
+        notify: { x: 70, y: 70, scale: 1.2, pulse: true },
+        payment: { x: 70, y: 45, scale: 1.0, opacity: 0.6 },
+      },
+      beams: [{ from: 'topic', to: 'notify', color: '#a855f7' }],
+    },
+  ],
+}
+
+// 💼 Interview Q&A — yüksek consumer lag'i teşhis etme akışı
+const kafkaConsumerLagDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'kafka-consumer-lag-diagnosis-film',
+  title: {
+    tr: '🎬 Mülakat Senaryosu: Consumer Lag Neden Tırmanıyor?',
+    en: '🎬 Interview Scenario: Why Is Consumer Lag Climbing?',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dashboard',  emoji: '📈', label: { tr: 'Lag Dashboard',            en: 'Lag Dashboard' },            color: '#ef4444' },
+    { id: 'engineer',   emoji: '🧑‍💻', label: { tr: 'QA Mühendisi',            en: 'QA Engineer' },              color: '#f97316' },
+    { id: 'describe',   emoji: '🔍', label: { tr: 'consumer-groups --describe', en: 'consumer-groups --describe' }, color: '#a855f7' },
+    { id: 'blocking',   emoji: '🐌', label: { tr: 'Bloklayan Senkron Çağrı',   en: 'Blocking Synchronous Call' }, color: '#ef4444' },
+    { id: 'scale',      emoji: '➕', label: { tr: 'Consumer Ölçekleme',       en: 'Scaling Consumers' },        color: '#0ea5e9' },
+    { id: 'fixed',      emoji: '✅', label: { tr: 'Lag Normale Döndü',        en: 'Lag Back to Normal' },       color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Dashboard\'da consumer lag metriği tırmanıyor: 100 → 5.000 → 50.000. Bu, consumer\'ın producer\'dan DAHA YAVAŞ çalıştığının kanıtıdır.',
+        en: 'The consumer lag metric on the dashboard is climbing: 100 → 5,000 → 50,000. This is evidence the consumer is running SLOWER than the producer.',
+      },
+      code: { tr: `lag: 100 -> 5000 -> 50000`, en: `lag: 100 -> 5000 -> 50000` },
+      positions: { dashboard: { x: 50, y: 35, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Mühendis ilk adımı atar: kafka-consumer-groups.sh --describe --group order-processing-group ile o grubun her partition\'daki tam durumunu sorgular.',
+        en: 'The engineer takes the first step: querying the exact state of that group per partition with kafka-consumer-groups.sh --describe --group order-processing-group.',
+      },
+      code: { tr: `kafka-consumer-groups.sh --describe --group order-processing-group`, en: `kafka-consumer-groups.sh --describe --group order-processing-group` },
+      positions: {
+        dashboard: { x: 26, y: 35, opacity: 0.6, scale: 0.9 },
+        engineer: { x: 46, y: 55, scale: 1.05 },
+        describe: { x: 70, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'engineer', to: 'describe', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'Çıktı, LOG-END-OFFSET ile CURRENT-OFFSET arasındaki farkın (lag) her partition\'da eşit büyüdüğünü gösteriyor — tek bir partition sorunu değil, tüm consumer yavaş.',
+        en: 'The output shows the gap between LOG-END-OFFSET and CURRENT-OFFSET (lag) growing evenly across every partition — not a single partition issue, the whole consumer is slow.',
+      },
+      code: { tr: `PARTITION  LOG-END  CURRENT  LAG\n0          50000    100      49900`, en: `PARTITION  LOG-END  CURRENT  LAG\n0          50000    100      49900` },
+      positions: {
+        describe: { x: 50, y: 40, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Kök neden bulunur: listener metodunun içinde her mesaj için bloklayan, senkron bir dış servis çağrısı var — her mesaj işlenirken tüm partition tüketimi durur.',
+        en: 'The root cause is found: there is a blocking, synchronous external service call inside the listener method for every message — consumption of the whole partition halts while each message is processed.',
+      },
+      code: { tr: `onMessage(msg) { restTemplate.postForObject(...) } // bloklayan`, en: `onMessage(msg) { restTemplate.postForObject(...) } // blocking` },
+      positions: {
+        describe: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        blocking: { x: 62, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'describe', to: 'blocking', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Düzeltme uygulanır: consumer instance sayısı, topic\'in partition sayısına kadar artırılır — 6 partition için 6 consumer, paralel işleme kapasitesi 6 katına çıkar.',
+        en: 'The fix is applied: consumer instance count is scaled up to match the topic\'s partition count — 6 consumers for 6 partitions, parallel processing capacity increases 6x.',
+      },
+      code: { tr: `consumerInstances: 1 -> 6 // partition sayisina esitlendi`, en: `consumerInstances: 1 -> 6 // matched to partition count` },
+      positions: {
+        blocking: { x: 34, y: 55, opacity: 0.6, scale: 0.9 },
+        scale: { x: 64, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'blocking', to: 'scale', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Final — lag metriği hızla düşer ve neredeyse sıfıra iner. Mülakat dersi: partition sayısından FAZLA consumer eklemek boşta kapasite yaratır, partition sayısına EŞİTLEMEK gerçek paralelliği açığa çıkarır.',
+        en: 'Final — the lag metric drops quickly toward zero. Interview lesson: adding MORE consumers than partitions creates idle capacity; MATCHING the partition count is what unlocks real parallelism.',
+      },
+      positions: {
+        scale: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        fixed: { x: 68, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'scale', to: 'fixed', color: '#22c55e' }],
+    },
+  ],
+}
+
+// Eksik animasyon/sandbox tamamlamaları — kodsuz veya sadece bash içeren sekmeler
+// (fillMissingCodeTrios bash/shell dilini es geçtiği ve section 0/2/8'de hiç kod
+// bloğu olmadığı için CLAUDE.md §9.5 gereği elle tamamlanır)
+
+const kafkaRetentionReplayStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Mesaj Kafka Log\'unda Nasıl Kalıcı Olur?', en: 'How Does a Message Persist in the Kafka Log?' },
+  steps: [
+    { tr: 'Producer bir event\'i topic\'e gönderir — Kafka onu bir log dosyasına EKLER, üzerine yazmaz.', en: 'The Producer sends an event to the topic — Kafka APPENDS it to a log file, it never overwrites.' },
+    { tr: 'Event, sıralı bir offset numarası alır (örn. 42) — bu numara o event\'in log\'daki kalıcı adresidir.', en: 'The event gets a sequential offset number (e.g. 42) — this number is that event\'s permanent address in the log.' },
+    { tr: 'Consumer Group A, offset 42\'yi okur ve KENDİ offset\'ini ilerletir — log\'daki mesaj yerinde kalır, silinmez.', en: 'Consumer Group A reads offset 42 and advances ITS OWN offset — the message stays in the log, nothing is deleted.' },
+    { tr: 'Saatler sonra Consumer Group B (yepyeni bir grup) aynı topic\'e bağlanır ve offset 0\'dan başlayarak TÜM geçmişi bağımsız okuyabilir.', en: 'Hours later, Consumer Group B (a brand-new group) connects to the same topic and can independently read the ENTIRE history starting from offset 0.' },
+  ],
+}
+
+const kafkaRetentionReplayPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'kafka-intro',
+  title: { tr: 'Kendin Dene: Baştan Replay İçin Consumer Ayarla', en: 'Try It Yourself: Configure a Consumer to Replay From the Start' },
+  starterCode: `// Hedef: yeni bir consumer group, topic'in TÜM gecmisini bastan okusun
+// (henuz hic offset commit etmemis bir grup icin gecerlidir)
+// TODO: dogru degeri yaz
+props.put("auto.offset.reset", "?");`,
+  solutionCode: `// Hedef: yeni bir consumer group, topic'in TÜM gecmisini bastan okusun
+props.put("auto.offset.reset", "earliest");`,
+  hint: { tr: '"earliest" = offset 0\'dan başla (tüm geçmişi oku), "latest" = sadece bundan sonraki yeni mesajları oku. Bu ayar sadece grubun HİÇ commit edilmiş offset\'i yoksa devreye girer.', en: '"earliest" = start from offset 0 (read all history), "latest" = only read new messages from now on. This setting only kicks in when the group has NO committed offset yet.' },
+  successMessage: { tr: 'Doğru! auto.offset.reset=earliest, yeni bir consumer group\'un topic\'in retention süresi boyunca sakladığı HER mesajı, tıpkı ilk kez yazılmış gibi okuyabilmesini sağlar.', en: 'Correct! auto.offset.reset=earliest lets a brand-new consumer group read EVERY message the topic has kept for its retention period, as if it were written just now.' },
+}
+
+const kafkaLeaderElectionStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Broker Çöktüğünde Kim Devreye Girer?', en: 'When a Broker Crashes, Who Takes Over?' },
+  steps: [
+    { tr: 'Her partition\'ın bir leader broker\'ı vardır — tüm okuma/yazma o brokerdan geçer, diğerleri sadece kopyalayan follower\'dır.', en: 'Every partition has one leader broker — all reads/writes go through it, the others are just replicating followers.' },
+    { tr: 'Leader, her yazmayı ISR (in-sync replica) listesindeki follower\'lara anında yansıtır.', en: 'The leader instantly mirrors every write to the followers in the ISR (in-sync replica) list.' },
+    { tr: 'Leader broker çöktüğünde, controller ISR listesinden bir follower\'ı SANİYELER içinde yeni leader olarak seçer.', en: 'When the leader broker crashes, the controller elects a follower from the ISR list as the new leader within SECONDS.' },
+    { tr: 'Producer ve consumer client kütüphanesi sayesinde otomatik olarak yeni leader\'a yönlendirilir — follower in-sync olduğu için veri kaybı sıfırdır.', en: 'Thanks to the client library, producers and consumers are automatically redirected to the new leader — because the follower was in sync, data loss is zero.' },
+  ],
+}
+
+const kafkaLeaderElectionPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'kafka-architecture',
+  title: { tr: 'Kendin Dene: Failover\'da Veri Kaybını Önle', en: 'Try It Yourself: Prevent Data Loss During Failover' },
+  starterCode: `// Hedef: leader coktugunde HICBIR onaylanmis mesaj kaybolmasin
+// TODO: dogru degerleri yaz
+replication.factor = ?
+min.insync.replicas = ?
+acks = "?"`,
+  solutionCode: `// Hedef: leader coktugunde HICBIR onaylanmis mesaj kaybolmasin
+replication.factor = 3
+min.insync.replicas = 2
+acks = "all"`,
+  hint: { tr: 'acks=all, producer\'ın leader DIŞINDA en az bir follower\'ın da yazdığını onaylamasını bekler — min.insync.replicas bu "en az kaç"ı belirler. replication.factor=3 ile min.insync.replicas=2, tek broker kaybında bile ISR\'de en az 1 güncel kopya garantiler.', en: 'acks=all makes the producer wait for at least one follower besides the leader to confirm the write — min.insync.replicas sets that "at least how many". With replication.factor=3 and min.insync.replicas=2, even a single broker loss still guarantees at least 1 up-to-date copy in the ISR.' },
+  successMessage: { tr: 'Doğru! Bu üçlü, leader çökse bile en az bir in-sync follower\'ın onaylanmış her mesaja sahip olmasını garanti eder — failover veri kaybetmez.', en: 'Correct! This trio guarantees that even if the leader crashes, at least one in-sync follower already has every acknowledged message — failover loses nothing.' },
+}
+
+const kafkaLogCompactionStep = {
+  type: 'step-animation',
+  title: { tr: 'Log Compaction: Key Başına Sadece Son Değer', en: 'Log Compaction: Only the Latest Value Per Key' },
+  steps: [
+    { tr: 'user-123 profiline art arda 5 güncelleme event\'i gönderilir — her biri log\'a normal şekilde eklenir.', en: '5 consecutive update events are sent for user-123\'s profile — each one gets appended to the log normally.' },
+    { tr: 'cleanup.policy=compact ayarlıysa, Kafka arka planda periyodik olarak log\'u tarar.', en: 'With cleanup.policy=compact set, Kafka periodically scans the log in the background.' },
+    { tr: 'Aynı key\'e (user-123) ait ESKİ 4 event silinir, sadece EN SON güncelleme kalır.', en: 'The OLD 4 events for the same key (user-123) are removed, only the MOST RECENT update remains.' },
+    { tr: 'Sonuç: topic artık bir "olay geçmişi" değil, bir "güncel durum deposu" gibi davranır — bir key-value store\'a benzer.', en: 'Result: the topic no longer behaves like an "event history" but like a "current state store" — similar to a key-value store.' },
+  ],
+}
+
+const kafkaLogCompactionPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'kafka-topics-partitions',
+  title: { tr: 'Kendin Dene: "Güncel Durum" Topic\'i İçin Doğru Policy', en: 'Try It Yourself: The Right Policy for a "Current State" Topic' },
+  starterCode: `// Hedef: user-profiles topic'i her key icin SADECE en son degeri saklasin
+// (gecmis guncellemeler onemli degil, sadece "su an ne" onemli)
+// TODO: dogru degeri yaz
+cleanup.policy = "?"`,
+  solutionCode: `// Hedef: user-profiles topic'i her key icin SADECE en son degeri saklasin
+cleanup.policy = "compact"`,
+  hint: { tr: 'Varsayılan "delete" politikası mesajları sadece retention süresi dolunca siler — sıra veya key önemli değildir. "compact" ise özellikle AYNI KEY için eski değerleri eler, tıpkı bir HashMap\'e aynı key ile put() çağırmanın eskiyi değiştirmesi gibi.', en: 'The default "delete" policy only removes messages once the retention period expires — order or key doesn\'t matter. "compact" specifically eliminates old values for the SAME KEY, just like calling put() on a HashMap with the same key overwrites the old value.' },
+  successMessage: { tr: 'Doğru! cleanup.policy=compact ile "user-profiles" topic\'i, her user-id için sadece en güncel profil verisini tutar — geçmiş güncellemeler arka planda otomatik temizlenir.', en: 'Correct! With cleanup.policy=compact, the "user-profiles" topic keeps only the most current profile data per user-id — old updates get cleaned up automatically in the background.' },
+}
+
+const kafkaLagDiagnosisStep = {
+  type: 'step-animation',
+  title: { tr: 'Mülakatta Consumer Lag Sorununu Nasıl Çözersin?', en: 'How Do You Solve a Consumer Lag Question in an Interview?' },
+  steps: [
+    { tr: 'Önce metriği SOMUTLAŞTIR: "lag 50.000" değil, "consumer, producer\'dan 50.000 mesaj GERİDE" de — dinleyeni etkiye odaklar.', en: 'First MAKE the metric concrete: instead of "lag is 50,000", say "the consumer is 50,000 messages BEHIND the producer" — this focuses the listener on impact.' },
+    { tr: 'Sonra TEŞHİS adımını anlat: kafka-consumer-groups.sh --describe ile hangi partition\'ların geride kaldığını gör.', en: 'Then describe the DIAGNOSIS step: use kafka-consumer-groups.sh --describe to see which partitions are falling behind.' },
+    { tr: 'Kök nedeni SINIFLANDIR: bloklayan senkron I/O mu, yetersiz consumer sayısı mı, yoksa GC duraklaması mı?', en: 'CLASSIFY the root cause: blocking synchronous I/O, too few consumers, or a GC pause?' },
+    { tr: 'Somut bir DÜZELTME öner: consumer sayısını partition sayısına eşitle, ya da bloklayan çağrıyı asenkron hale getir.', en: 'Propose a concrete FIX: match consumer count to partition count, or make the blocking call asynchronous.' },
+  ],
+}
+
+const kafkaLagDiagnosisPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'kafka-interview',
+  title: { tr: 'Kendin Dene: Ham --describe Çıktısını Yorumla', en: 'Try It Yourself: Interpret Raw --describe Output' },
+  starterCode: `// kafka-consumer-groups --describe ciktisi:
+// PARTITION  LOG-END-OFFSET  CURRENT-OFFSET  LAG
+// 0          50000           100             49900
+// TODO: bu satiri tek cumleyle yorumla (degisken olarak yaz)
+const yorum = "";`,
+  solutionCode: `// kafka-consumer-groups --describe ciktisi:
+// PARTITION  LOG-END-OFFSET  CURRENT-OFFSET  LAG
+// 0          50000           100             49900
+const yorum = "Consumer sadece 100 mesaj islemis ama topic'te 50000 mesaj " +
+  "var -- 49900'luk fark, consumer'in producer'dan cok daha yavas " +
+  "calistigini gosteriyor, bu da bir bloklayan islem veya yetersiz " +
+  "consumer paralelligi isareti olabilir.";`,
+  hint: { tr: 'LAG = LOG-END-OFFSET − CURRENT-OFFSET. Büyük ve BÜYÜYEN bir lag, consumer\'ın producer\'ı yetiştiremediğinin doğrudan kanıtıdır — tek seferlik bir sıçrama değil.', en: 'LAG = LOG-END-OFFSET − CURRENT-OFFSET. A large and GROWING lag is direct evidence the consumer can\'t keep up with the producer — not a one-time spike.' },
+  successMessage: { tr: 'Doğru! Bir mülakatçıya ham sayıları okumadığını, ne anlama geldiklerini anladığını gösteren tam olarak bu türden bir yorum.', en: 'Correct! This is exactly the kind of interpretation that shows an interviewer you don\'t just read raw numbers — you understand what they mean.' },
+}
+
+const kafkaTopicLifecycleOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  question: { tr: 'Bir topic\'in CLI yaşam döngüsünü doğru sıraya diz.', en: 'Put a topic\'s CLI lifecycle in the correct order.' },
+  items: [
+    { id: '1', text: { tr: '--create ile 3 partition ve replication-factor 3 ile topic oluştur', en: 'Create the topic with --create using 3 partitions and replication-factor 3' }, order: 1 },
+    { id: '2', text: { tr: '--list ile topic\'in gerçekten oluştuğunu doğrula', en: 'Verify the topic actually exists with --list' }, order: 2 },
+    { id: '3', text: { tr: '--describe ile partition/leader/replica dağılımını incele', en: 'Inspect the partition/leader/replica layout with --describe' }, order: 3 },
+    { id: '4', text: { tr: 'Konsol producer ile birkaç test mesajı gönder', en: 'Send a few test messages with the console producer' }, order: 4 },
+    { id: '5', text: { tr: 'Consumer group lag\'ini --describe --group ile kontrol et', en: 'Check consumer group lag with --describe --group' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
 export const kafkaData = {
   en: {
     hero: {
@@ -48,6 +992,9 @@ export const kafkaData = {
               { icon: '🔔', label: 'Notifications', desc: 'Order placed → trigger email, inventory check, analytics simultaneously.' },
             ],
           },
+          kafkaRetentionReplayFilm,
+          kafkaRetentionReplayStep,
+          kafkaRetentionReplayPractice,
           {
             type: 'quiz',
             question: 'What happens to a Kafka message after it is consumed?',
@@ -291,6 +1238,7 @@ EOF
 docker compose -f docker-compose-kraft.yml up -d
 # No ZooKeeper container needed!`,
           },
+          kafkaDockerComposeBootFilm,
           {
             type: 'quiz',
             question: 'Why is running Kafka as a "bare binary" on a single VM discouraged for production, in favor of Strimzi on Kubernetes or Confluent Cloud?',
@@ -476,6 +1424,9 @@ docker compose -f docker-compose-kraft.yml up -d
               { icon: '📥', label: 'Consumer', desc: 'Application that reads messages from a topic. Tracks offset to know where it left off. Part of a Consumer Group for parallel consumption. Multiple groups can read same topic independently.' },
             ],
           },
+          kafkaLeaderElectionFilm,
+          kafkaLeaderElectionStep,
+          kafkaLeaderElectionPractice,
           {
             type: 'quiz',
             question: 'What is a Kafka Offset?',
@@ -673,6 +1624,7 @@ public class OrderConsumer {
   <text x="350" y="264" text-anchor="middle" fill="#a8a29e" font-size="8">Consumer crash → group rebalance → other consumers take over orphaned partitions</text>
 </svg>`,
           },
+          kafkaKeyPartitionRoutingFilm,
           {
             type: 'quiz',
             question: 'If a Kafka topic has 3 partitions and a consumer group has 5 consumers, what happens?',
@@ -798,6 +1750,10 @@ kafka-console-consumer.sh --bootstrap-server localhost:9092 \
 kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
   --describe --group order-processing-group`,
           },
+          kafkaReplicationDurabilityFilm,
+          kafkaLogCompactionStep,
+          kafkaLogCompactionPractice,
+          kafkaTopicLifecycleOrder,
           {
             type: 'quiz',
             question: 'You want to survive the loss of up to 2 brokers in a 3-broker production cluster without losing any messages. What `replication.factor` should you set on the topic?',
@@ -984,6 +1940,7 @@ class OrderEventConsumerTest {
             title: 'QA Testing Strategy for Kafka',
             content: '1) @EmbeddedKafka for unit/integration tests — no external Kafka needed. 2) Testcontainers for full integration tests — spins up a real Kafka Docker container. 3) Consumer Group Lag monitoring in production — if lag grows, consumers are behind. 4) Dead Letter Topic (DLT) — failed messages routed to orders.DLT for inspection.',
           },
+          kafkaSpringListenerWiringFilm,
           {
             type: 'quiz',
             question: 'You want a fast unit/integration test for a Spring Boot Kafka consumer that does not depend on an external Kafka cluster being available. What is the right tool?',
@@ -1212,6 +2169,7 @@ class OrderIntegrationTest {
 // After registration, every DB change produces an event on topic: dbserver1.shop.orders
 // {"op":"c","before":null,"after":{"id":1,"product":"laptop","status":"PLACED"}}`,
           },
+          kafkaConnectPipelineFilm,
           {
             type: 'quiz',
             question: 'A new consumer group needs to reprocess the last 7 days of events from a topic, even though those events were already consumed and acknowledged by other consumers. Is this possible with Kafka, and why does RabbitMQ/ActiveMQ struggle with the same request?',
@@ -1450,6 +2408,7 @@ public void handleDeadLetter(
               '✅ Retention policy is set appropriately (not accumulating indefinitely)',
             ],
           },
+          kafkaOrderEventChainFilm,
           {
             type: 'quiz',
             question: "A consumer crashes every time it processes a specific \"poison\" message, and consumer group lag never decreases. Without a Dead Letter Topic, why does this loop forever?",
@@ -1587,6 +2546,9 @@ public void handleDeadLetter(
               ['Min partitions for scale', 'partitions ≥ number of desired parallel consumers'],
             ],
           },
+          kafkaConsumerLagDiagnosisFilm,
+          kafkaLagDiagnosisStep,
+          kafkaLagDiagnosisPractice,
         ],
       },
     ],
@@ -1641,6 +2603,9 @@ public void handleDeadLetter(
               { icon: '🔔', label: 'Bildirimler', desc: 'Sipariş verildi → e-posta, stok kontrolü, analitiği aynı anda tetikle.' },
             ],
           },
+          kafkaRetentionReplayFilm,
+          kafkaRetentionReplayStep,
+          kafkaRetentionReplayPractice,
           {
             type: 'quiz',
             question: 'Kafka\'da bir mesaj tüketildikten sonra ne olur?',
@@ -1837,6 +2802,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 # ZooKeeper container'ına gerek yok!`,
           },
+          kafkaDockerComposeBootFilm,
           {
             type: 'quiz',
             question: 'Production\'da Kafka\'yı tek bir VM üzerinde "bare binary" olarak çalıştırmak yerine Kubernetes üzerinde Strimzi veya Confluent Cloud kullanmak neden tercih edilir?',
@@ -1982,6 +2948,9 @@ services:
               { icon: '📥', label: 'Consumer', desc: 'Topic\'ten mesaj okuyan uygulama. Kaldığı yeri bilmek için offset\'i takip eder. Paralel tüketim için Consumer Group\'un parçası. Çoklu group\'lar aynı topic\'i bağımsız olarak okuyabilir.' },
             ],
           },
+          kafkaLeaderElectionFilm,
+          kafkaLeaderElectionStep,
+          kafkaLeaderElectionPractice,
           {
             type: 'quiz',
             question: 'Kafka Offset nedir?',
@@ -2197,6 +3166,7 @@ public class SiparisConsumer {
   <text x="350" y="264" text-anchor="middle" fill="#a8a29e" font-size="8">Consumer crash → group rebalance → diğer consumer'lar sahipsiz partition'ları devralır</text>
 </svg>`,
           },
+          kafkaKeyPartitionRoutingFilm,
           {
             type: 'quiz',
             question: 'Kafka topic\'inin 3 partition\'ı varsa ve consumer group\'unda 5 consumer bulunuyorsa ne olur?',
@@ -2291,6 +3261,10 @@ kafka-console-consumer.sh --bootstrap-server localhost:9092 \
               ['cleanup.policy', 'delete vs compact', 'delete (varsayılan): eskiyi sil; compact: key başına en yeniyi sakla'],
             ],
           },
+          kafkaReplicationDurabilityFilm,
+          kafkaLogCompactionStep,
+          kafkaLogCompactionPractice,
+          kafkaTopicLifecycleOrder,
           {
             type: 'quiz',
             question: '3 broker\'lı bir production cluster\'da en fazla 2 broker\'ın kaybını mesaj kaybetmeden tolere etmek istiyorsun. Topic\'te hangi `replication.factor` ayarlanmalı?',
@@ -2417,6 +3391,7 @@ class SiparisEventConsumerTest {
             title: 'Kafka için QA Test Stratejisi',
             content: '1) @EmbeddedKafka ile unit/integration testler — dış Kafka gerekmez. 2) Testcontainers ile tam entegrasyon testleri — gerçek bir Kafka Docker container\'ı başlatır. 3) Production\'da Consumer Group Lag izleme — lag büyüyorsa consumer\'lar geride kalıyordur. 4) Dead Letter Topic (DLT) — başarısız mesajlar inceleme için siparisler.DLT\'ye yönlendirilir.',
           },
+          kafkaSpringListenerWiringFilm,
           {
             type: 'quiz',
             question: 'Dışarıda çalışan bir Kafka cluster\'ına bağımlı olmadan bir Spring Boot Kafka consumer\'ı için hızlı bir unit/integration testi yazmak istiyorsun. Doğru araç hangisidir?',
@@ -2554,6 +3529,7 @@ class SiparisEntegrasyonTest {
             emoji: '🔄',
             content: 'Debezium, veritabanı işlem log\'unu okuyup her INSERT/UPDATE/DELETE\'i Kafka event\'ine dönüştüren bir CDC (Change Data Capture) aracıdır — bilgisayarınızdaki ekran kayıt yazılımının gerçekleşen her değişikliği frame\'e frame kaydedip dışa aktarması gibi çalışır, ancak ekran yerine veritabanı transaction log\'u kaydedilir. Neden "SELECT * FROM users WHERE updated_at > ?" gibi basit bir polling sorgusu yeterli olmasın diye sorulabilir: çünkü polling iki kritik sorunu çözemez — DELETE olayları izlenemez (silinen kayıtta artık `updated_at` yoktur) ve yük altında polling aralıkları artık gerçek zamanlı değildir. Java açısından, Debezium bir `ChangeListener` arayüzü uygulayan bir JPA event hook gibidir: `@PostPersist`, `@PostUpdate`, `@PostRemove` callback\'lerinin uygulama katmanında değil, veritabanı binary log düzeyinde tetiklenmesi gibi — uygulama kodu değiştirilmeden her tablo değişikliği yakalanır. QA perspektifinden Debezium kritiktir çünkü veri bütünlüğü testleri bu akışla yapılır: sipariş oluşturulduğunda Elasticsearch\'teki ürün stok sayısı otomatik güncellendi mi, müşteri silindi mi silinmedi mi — bu soruları yalnızca CDC olaylarını kontrol eden testler güvenilir biçimde yanıtlayabilir.',
           },
+          kafkaConnectPipelineFilm,
           {
             type: 'quiz',
             question: 'Yeni bir consumer group, başka consumer\'lar tarafından zaten okunup onaylanmış olsa bile bir topic\'in son 7 gününün event\'lerini yeniden işlemek istiyor. Kafka\'da bu mümkün mü, ve RabbitMQ/ActiveMQ aynı istekte neden zorlanır?',
@@ -2744,6 +3720,7 @@ public class KafkaConsumerConfig {
               '✅ Retention policy uygun ayarlanmış (süresiz birikim yok)',
             ],
           },
+          kafkaOrderEventChainFilm,
           {
             type: 'quiz',
             question: 'Bir consumer, belirli bir "zehirli" mesajı işlerken her seferinde çöküyor ve consumer group lag\'i hiç azalmıyor. Dead Letter Topic olmadan bu döngü neden sonsuza kadar sürer?',
@@ -2877,6 +3854,9 @@ public class KafkaConsumerConfig {
               ['Ölçek için min partition', 'partition ≥ istenen paralel consumer sayısı'],
             ],
           },
+          kafkaConsumerLagDiagnosisFilm,
+          kafkaLagDiagnosisStep,
+          kafkaLagDiagnosisPractice,
         ],
       },
     ],

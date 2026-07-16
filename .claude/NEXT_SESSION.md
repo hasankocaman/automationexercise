@@ -466,21 +466,41 @@ burada durduruldu ("devamına sonra başka sohbette bakacağız").
 
 ---
 
-## Dalga 16 — /jmeter TAMAMLANDI, /kafka BAŞLANMADI (2026-07-16, oturum burada durduruldu)
+## Dalga 16 — /jmeter TAMAMLANDI, /kafka TAMAMLANDI (2026-07-16, devam)
 
 **Bu dalgada 2 paralel subagent (kafka, jmeter) session limitiyle
 kesildi** (`resets 12:10pm Europe/Istanbul`). Ana oturumda devralındı:
 
-- **`kafkaData.js`: HİÇ İLERLEME YOK.** `git status` hiçbir değişiklik
-  göstermiyor, `grep -c "type: 'video-scene'"` → 0. Subagent hiçbir dosya
-  yazmadan kesilmiş. **Bu sayfa Dalga 16'nın devamında SIFIRDAN
-  yapılmalı** — 9 sekme (Introduction/Giriş, Installation/Kurulum,
+- **`kafkaData.js`: TAMAMLANDI (yeni oturum, `feature/video-scene-dalga5`
+  branch'i, main'den açıldı).** 9 sekme (EN+TR ayrı ağaç) için 9 yeni
+  `video-scene` filmi eklendi — her biri sekmenin gerçek mekanizmasına
+  bağlı: retention/replay (RabbitMQ vs Kafka kontrastı), docker-compose
+  boot zinciri, leader election/ISR failover, key→partition hash routing +
+  consumer group rebalance, `min.insync.replicas` durability tuzağı,
+  `@KafkaListener` Spring wiring + DLT, Connect/Schema Registry/ksqlDB
+  pipeline, sipariş event'inin 4 servise bağımsız fan-out'u, consumer lag
+  teşhis akışı (mülakat sekmesi). Kod içeren 0 tab (Introduction,
+  Architecture, Interview Q&A) ve sadece bash içeren Topics & Partitions
+  sekmesi için elle `step-animation` + `code-playground` + (Topics &
+  Partitions'a ayrıca) `challenge/order-sort` eklendi —
+  `node scripts/audit-interactive.mjs kafka` artık **0 gap** raporluyor
+  (9/9 sekme ✓, ikisi de dil için). `check-content-integrity.mjs` temiz,
+  `npm run build` temiz (`kafkaData` chunk 288.71 kB / gzip 94.35 kB,
+  500KB uyarı eşiğinin altında). Eski (silinmiş) not, referans için altta
+  bırakıldı — sayfa artık SIFIRDAN değil, şu satırın ÜSTÜNDEKİ özet
+  günceldir.
+
+<details><summary>Eski not (artık geçersiz — kafka o zaman başlanmamıştı)</summary>
+
+9 sekme (Introduction/Giriş, Installation/Kurulum,
   Architecture/Mimari, Producer & Consumer, Topics & Partitions/Topic &
   Partition, Java & Spring Boot, Ecosystem/Ekosistem, Real World/Gerçek
   Hayat, Interview Q&A/Mülakat S&C), EN+TR ayrı ağaç. Fikir listesi için
   bu bölümün altındaki eski Dalga 16a subagent prompt'una (görev
   geçmişinde) bakılabilir — producer/consumer akışı, partition sıralama
   garantisi, consumer rebalancing gibi.
+
+</details>
 
 - **`jmeterData.js`: TAMAMLANDI (7/7 sekme, EN+TR).** Subagent 1 filmi
   (Introduction) yazıp referanslamadan kesilmişti; ana oturumda kalan 6
@@ -577,15 +597,28 @@ testler PASS. Tam 142 testlik paket bu düzeltmeyle birlikte tekrar
 koşuluyor (bkz. commit mesajı / bu bölümün üzerindeki commit hash'i).
 
 ### Sıradaki adım (KESİN — bir sonraki oturum buradan başlamalı)
-1. `/kafka` sayfasını SIFIRDAN Dalga 16'nın ikinci yarısı olarak
-   tamamla (9 sekme, EN+TR ayrı ağaç — yukarıdaki nota bak).
-2. **Node runtime coverage-scan'i her dalganın standart doğrulama adımı
-   yap** (sadece `node --check` yetmez — yukarıdaki "gerçek bug" notuna
-   bak).
-3. Kafka bitince Dalga 17'ye (`/appium` + `/browserstack`) geç.
-4. Kullanıcı bu oturumda "devamına sonra başka sohbette bakacağız" dedi
-   — bu, aynı görev listesinin (Dalga 17-21) YENİ bir oturumda/sohbette
+1. ~~`/kafka` sayfasını SIFIRDAN Dalga 16'nın ikinci yarısı olarak
+   tamamla~~ → **TAMAMLANDI** (2026-07-16, `feature/video-scene-dalga5`
+   branch'i, henüz main'e merge edilmedi — commit durumu bir alt bölümde).
+2. **Node runtime coverage-scan artık standart doğrulama adımı olarak
+   uygulandı** (`node scripts/audit-interactive.mjs kafka` → 0 gap) —
+   bundan sonraki her dalgada da bu adım tekrarlanmalı (sadece
+   `node --check` yetmez).
+3. **Sıradaki dalga: Dalga 17 (`/appium` + `/browserstack`)** — ikisi de
+   şu an 0 `video-scene` filmi içeriyor (`grep -c "type: 'video-scene'"`
+   ile doğrulandı), sıfırdan Dalga 16 kalıbıyla (film + eksik
+   animasyon/sandbox tamamlama + coverage-scan) yapılmalı.
+4. Kullanıcı "devamına sonra başka sohbette bakacağız" dedi — bu, aynı
+   görev listesinin (Dalga 17-21) YENİ bir oturumda/sohbette
    sürdürüleceği anlamına gelir, planın kendisi değişmedi.
+
+### Kafka commit / branch durumu (2026-07-16)
+- Branch: `feature/video-scene-dalga5` (main'den açıldı — `feature/
+  video-scene-dalga3` ve `-dalga4` main'e merge olmuş halde SİLİNDİ, hem
+  local hem remote'ta artık sadece `main` var).
+- `src/data/kafkaData.js` bu branch'te commit edilecek; workflow notu
+  (Dalga 8'in başındaki) hâlâ geçerli — Playwright/e2e bu dalgada da
+  çalıştırılmadı, sadece integrity+coverage+build.
 
 ---
 
