@@ -960,6 +960,834 @@ undo returns to the previous working revision.`,
   },
 ]
 
+// ─── video-scene filmleri (EN + TR ayrı ağaçlı dosya — her sabit HEM en HEM tr
+// section ağacına aynı referansla eklenir). Şema: Documents/video-rollout-plan.md
+// ve src/components/VideoSceneBlock.jsx. ────────────────────────────────────
+
+// Introduction sekmesi filmi: Kubernetes'in bir Pod isteğini nasıl orkestre ettiği
+const kubernetesIntroOrchestrationFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-intro-orchestration-film',
+  title: {
+    tr: '🎬 Kubernetes Bir İsteği Nasıl Orkestre Eder',
+    en: '🎬 How Kubernetes Orchestrates a Request',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'ssh', emoji: '🧑‍💻', label: { tr: 'Elle SSH ile Restart', en: 'Manual SSH Restart' }, color: '#ef4444' },
+    { id: 'dev', emoji: '👩‍💻', label: { tr: 'QA / Developer', en: 'QA / Developer' }, color: '#0ea5e9' },
+    { id: 'apiserver', emoji: '🎮', label: { tr: 'API Server', en: 'API Server' }, color: '#f59e0b' },
+    { id: 'scheduler', emoji: '🧭', label: { tr: 'Scheduler', en: 'Scheduler' }, color: '#8b5cf6' },
+    { id: 'nodeA', emoji: '🖥️', label: { tr: 'Node A', en: 'Node A' }, color: '#22c55e' },
+    { id: 'nodeB', emoji: '🖥️', label: { tr: 'Node B', en: 'Node B' }, color: '#10b981' },
+    { id: 'pod', emoji: '📦', label: { tr: 'Pod', en: 'Pod' }, color: '#6366f1' },
+    { id: 'ghost', emoji: '💥', label: { tr: 'Çöken Pod', en: 'Crashed Pod' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Kubernetes öncesi dünya: bir container çökerse birinin sunucuya SSH ile bağlanıp elle yeniden başlatması gerekir — gece yarısı olsa bile. Bu filmde bunun yerine geçen orkestrasyonu adım adım izleyeceksin.',
+        en: 'Before Kubernetes: when a container crashes, someone has to SSH into the server and restart it by hand — even at 3am. In this film you will watch the orchestration that replaces that manual work, step by step.',
+      },
+      positions: { ssh: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — İstenen durum DEĞİL adım adım komut yazılır: QA mühendisi tek bir Deployment ile "3 kopya nginx her zaman çalışsın" der. Nasıl yapılacağını değil, NE istendiğini tarif eder.',
+        en: 'Step 1 — Not a step-by-step script, a DESIRED STATE: the QA engineer declares one Deployment saying "always keep 3 nginx replicas running." It describes WHAT is wanted, not HOW to do it.',
+      },
+      code: { tr: `kubectl create deployment qa-web --image=nginx --replicas=3`, en: `kubectl create deployment qa-web --image=nginx --replicas=3` },
+      positions: { dev: { x: 20, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — API Server bu isteği alır ve cluster\'ın tek doğruluk kaynağı olan etcd\'ye "hedef durum" olarak kaydeder. Henüz hiçbir Pod çalışmıyor — sadece niyet kayda geçti.',
+        en: 'Step 2 — The API Server receives this request and stores it as the "target state" in etcd, the cluster\'s single source of truth. No Pod is running yet — only the intent has been recorded.',
+      },
+      positions: {
+        dev: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'apiserver', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Scheduler devreye girer: henüz hiçbir node\'a atanmamış Pod\'ları görür ve her biri için "hangi node\'da yeterli CPU/RAM var?" sorusuna cevap arar. Node A yeterli kaynağa sahip çıkar.',
+        en: 'Step 3 — The Scheduler steps in: it sees Pods with no assigned node yet and asks "which node has enough CPU/RAM?" for each. Node A turns out to have enough capacity.',
+      },
+      positions: {
+        apiserver: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        scheduler: { x: 44, y: 50, scale: 1.15 },
+        nodeA: { x: 70, y: 40, scale: 1.05 },
+      },
+      beams: [{ from: 'apiserver', to: 'scheduler', color: '#f59e0b' }, { from: 'scheduler', to: 'nodeA', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Node A üzerindeki kubelet, Pod\'u gerçekten çalıştırır. Artık soyut bir "istenen durum" değil, gerçek bir container prod\'da ayakta.',
+        en: 'Step 4 — kubelet on Node A actually runs the Pod. It is no longer an abstract "desired state" — a real container is up and running.',
+      },
+      positions: {
+        scheduler: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        nodeA: { x: 50, y: 45, scale: 1.1 },
+        pod: { x: 50, y: 65, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'nodeA', to: 'pod', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Node A çökerse ne olur? Pod hayalete gider ("Çöken Pod"), ama controller döngüsü etcd\'deki hedefle mevcut durumu KARŞILAŞTIRMAYI HİÇ BIRAKMAZ: eksik olan pod\'u fark eder ve Node B\'de yenisini otomatik başlatır. Kimse SSH ile bağlanmadı — bu self-healing.',
+        en: 'Final (the contrast) — what happens if Node A dies? The Pod goes to the ghost ("Crashed Pod"), but the control loop NEVER stops comparing etcd\'s target with reality: it notices the missing pod and automatically starts a new one on Node B. Nobody SSH\'d in — this is self-healing.',
+      },
+      positions: {
+        pod: { x: 30, y: 65, opacity: 0.4, scale: 0.8 },
+        ghost: { x: 30, y: 40, scale: 1.1, pulse: true },
+        apiserver: { x: 55, y: 50, scale: 1.05 },
+        nodeB: { x: 80, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ghost', to: 'apiserver', color: '#ef4444' }, { from: 'apiserver', to: 'nodeB', color: '#10b981' }],
+    },
+  ],
+}
+
+// Installation sekmesi filmi: minikube ile ilk cluster'ı ayağa kaldırma akışı
+const kubernetesInstallMinikubeFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-install-minikube-film',
+  title: {
+    tr: '🎬 minikube ile İlk Cluster\'ı Ayağa Kaldırmak',
+    en: '🎬 Bringing Up Your First Cluster with minikube',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'terminal', emoji: '⌨️', label: { tr: 'Terminal', en: 'Terminal' }, color: '#0ea5e9' },
+    { id: 'driver', emoji: '🐳', label: { tr: 'Docker Driver', en: 'Docker Driver' }, color: '#f59e0b' },
+    { id: 'vm', emoji: '📦', label: { tr: 'minikube VM/Container', en: 'minikube VM/Container' }, color: '#8b5cf6' },
+    { id: 'controlplane', emoji: '🧠', label: { tr: 'Control Plane', en: 'Control Plane' }, color: '#22c55e' },
+    { id: 'kubectl', emoji: '🛰️', label: { tr: 'kubectl', en: 'kubectl' }, color: '#6366f1' },
+    { id: 'ghost', emoji: '❌', label: { tr: 'Bağlantı Hatası', en: 'Connection Error' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`minikube start` tek bir komut ama arkasında gerçek bir Kubernetes cluster\'ı sıfırdan ayağa kalkıyor. Bu filmde o zinciri izleyeceksin — ve sonunda Docker Desktop kapalıyken ne olduğunu göreceksin.',
+        en: '`minikube start` is a single command, but behind it a real Kubernetes cluster boots from scratch. In this film you will watch that chain — and see what happens when Docker Desktop is not running.',
+      },
+      code: { tr: `minikube start`, en: `minikube start` },
+      positions: { terminal: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — minikube, Docker driver\'ı hazır bulur ve onu bir "sanal sunucu" olarak kullanır: gerçek bir VM kurmak yerine bir Docker container\'ı içine tüm cluster\'ı sığdırır.',
+        en: 'Step 1 — minikube finds the Docker driver ready and uses it as a "virtual server": instead of setting up a real VM, it fits the whole cluster inside a Docker container.',
+      },
+      positions: {
+        terminal: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        driver: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'terminal', to: 'driver', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Driver üzerinde minikube\'nin kendi container\'ı ayağa kalkar; bu container tek düğümlü (single-node) bir cluster\'ın hem control plane\'ini hem worker rolünü barındıracak.',
+        en: 'Step 2 — minikube\'s own container starts on top of the driver; this single container will host both the control plane and the worker role of a single-node cluster.',
+      },
+      positions: {
+        driver: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        vm: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'driver', to: 'vm', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Container içinde API Server, etcd, Scheduler ve Controller Manager gibi Control Plane bileşenleri başlatılır. Bu, "kubectl get nodes" komutunun cevap vereceği ilk an.',
+        en: 'Step 3 — Inside the container, Control Plane components like API Server, etcd, Scheduler, and Controller Manager are started. This is the first moment `kubectl get nodes` will get an answer.',
+      },
+      positions: {
+        vm: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        controlplane: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'vm', to: 'controlplane', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — minikube, yerel kubeconfig dosyanı otomatik günceller: artık `kubectl` komutların varsayılan olarak bu cluster\'a gider. `kubectl get nodes` ile bağlantıyı doğrularsın.',
+        en: 'Step 4 — minikube automatically updates your local kubeconfig: your `kubectl` commands now point at this cluster by default. You verify the connection with `kubectl get nodes`.',
+      },
+      code: { tr: `kubectl get nodes`, en: `kubectl get nodes` },
+      positions: {
+        controlplane: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        kubectl: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'controlplane', to: 'kubectl', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Docker Desktop kapalıyken `minikube start` çalıştırılsaydı: driver hiç bulunamaz, container ayağa kalkmaz ve `kubectl get nodes` "connection refused" hatası verir. Bu, kurulum adımlarını ATLAMANIN neden production incident\'a değil ama yerelde saatler kaybettiren bir hataya yol açtığını gösterir.',
+        en: 'Final (the contrast) — if `minikube start` ran with Docker Desktop turned off: the driver is never found, the container never comes up, and `kubectl get nodes` fails with "connection refused". This shows why SKIPPING setup steps does not cause a production incident here, but does cost hours of local debugging.',
+      },
+      positions: {
+        driver: { x: 20, y: 30, opacity: 0.4, scale: 0.8 },
+        ghost: { x: 50, y: 50, scale: 1.25, pulse: true },
+        kubectl: { x: 78, y: 50, scale: 0.9, opacity: 0.6 },
+      },
+      beams: [{ from: 'driver', to: 'ghost', color: '#ef4444' }, { from: 'ghost', to: 'kubectl', color: '#ef4444' }],
+    },
+  ],
+}
+
+// Architecture sekmesi filmi: Control Plane bileşenlerinin işbirliği
+const kubernetesArchitectureControlPlaneFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-architecture-controlplane-film',
+  title: {
+    tr: '🎬 Control Plane\'den Worker Node\'a Bir İsteğin Yolculuğu',
+    en: '🎬 A Request\'s Journey from Control Plane to Worker Node',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'kubectl', emoji: '🛰️', label: { tr: 'kubectl', en: 'kubectl' }, color: '#0ea5e9' },
+    { id: 'apiserver', emoji: '🎮', label: { tr: 'API Server', en: 'API Server' }, color: '#f59e0b' },
+    { id: 'etcd', emoji: '🗄️', label: { tr: 'etcd', en: 'etcd' }, color: '#8b5cf6' },
+    { id: 'scheduler', emoji: '🧭', label: { tr: 'Scheduler', en: 'Scheduler' }, color: '#22c55e' },
+    { id: 'controller', emoji: '🔁', label: { tr: 'Controller Manager', en: 'Controller Manager' }, color: '#6366f1' },
+    { id: 'kubelet', emoji: '⚙️', label: { tr: 'kubelet (Worker Node)', en: 'kubelet (Worker Node)' }, color: '#10b981' },
+    { id: 'ghost', emoji: '💀', label: { tr: 'etcd Çökerse', en: 'If etcd Dies' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Kubernetes mimarisi bir orkestrada şef ve müzisyenler gibidir: Control Plane şeftir, Worker Node\'lar müzisyenlerdir. Ama şefin HAFIZASI (etcd) olmadan kimse ne çalınacağını hatırlayamaz. Bu filmde beş bileşenin nasıl işbirliği yaptığını izleyeceksin.',
+        en: 'Kubernetes architecture is like a conductor and musicians: the Control Plane is the conductor, Worker Nodes are the musicians. But without the conductor\'s MEMORY (etcd), no one remembers what to play. In this film you will watch five components collaborate.',
+      },
+      positions: { kubectl: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — kubectl isteği tek bir kapıdan içeri girer: API Server. Cluster\'daki HER bileşen (scheduler, controller, kubelet dahil) sadece API Server ile konuşur, birbirleriyle doğrudan asla.',
+        en: 'Step 1 — the kubectl request enters through a single door: the API Server. EVERY component in the cluster (scheduler, controller, kubelet included) talks only to the API Server, never directly to each other.',
+      },
+      positions: {
+        kubectl: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'kubectl', to: 'apiserver', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — API Server isteği doğrular (validation) ve tek doğruluk kaynağı olan etcd\'ye kaydeder. Cluster\'ın "hafızası" burasıdır — her şey buradan okunur, buraya yazılır.',
+        en: 'Step 2 — the API Server validates the request and writes it to etcd, the single source of truth. This is the cluster\'s "memory" — everything is read from and written here.',
+      },
+      positions: {
+        apiserver: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        etcd: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'apiserver', to: 'etcd', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Scheduler, atanmamış Pod\'ları API Server üzerinden GÖZLEMLER (watch) ve her biri için uygun node\'u seçer. Scheduler kendisi hiçbir şeyi doğrudan etcd\'ye yazmaz, kararını API Server\'a bildirir.',
+        en: 'Step 3 — the Scheduler WATCHES for unassigned Pods through the API Server and picks a suitable node for each. The Scheduler never writes to etcd directly; it reports its decision to the API Server.',
+      },
+      positions: {
+        etcd: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 44, y: 40, scale: 1.05 },
+        scheduler: { x: 68, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'etcd', to: 'apiserver', color: '#8b5cf6' }, { from: 'apiserver', to: 'scheduler', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Controller Manager, mevcut durum ile hedef durumu SÜREKLİ karşılaştırır (control loop) — eksik ReplicaSet, bitmeyen Job, silinen Pod gördüğünde düzeltici isteği yine API Server üzerinden gönderir.',
+        en: 'Step 4 — the Controller Manager CONTINUOUSLY compares actual state with desired state (the control loop) — when it sees a missing ReplicaSet, an unfinished Job, or a deleted Pod, it sends the corrective request back through the API Server.',
+      },
+      positions: {
+        scheduler: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 48, y: 50, scale: 1.1 },
+        controller: { x: 74, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'scheduler', to: 'apiserver', color: '#f59e0b' }, { from: 'apiserver', to: 'controller', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — Worker node üzerindeki kubelet, kendisine atanan Pod\'ları API Server\'dan öğrenir ve container runtime\'a "şu container\'ları çalıştır" der. Burada iş soyut plandan gerçek bir container\'a dönüşür.',
+        en: 'Step 5 — kubelet on the worker node learns which Pods are assigned to it from the API Server and tells the container runtime "run these containers." Here the work turns from an abstract plan into a real container.',
+      },
+      positions: {
+        controller: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 50, y: 40, scale: 1.05 },
+        kubelet: { x: 76, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'controller', to: 'apiserver', color: '#6366f1' }, { from: 'apiserver', to: 'kubelet', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — etcd çökerse ne olur? API Server yeni istekleri KABUL ETMEYİ durdurur çünkü kaydedecek bir hafızası kalmaz — scheduler ve controller kör kalır. Zaten çalışan Pod\'lar bir süre ayakta kalır ama YENİ hiçbir değişiklik cluster\'a giremez. Bu yüzden etcd her zaman en az 3 node\'lu bir quorum ile çalıştırılır.',
+        en: 'Final (the contrast) — what if etcd dies? The API Server STOPS ACCEPTING new requests because it has no memory left to record them — the scheduler and controller go blind. Already-running Pods keep going for a while, but NO new change can enter the cluster. This is why etcd always runs with at least a 3-node quorum.',
+      },
+      positions: {
+        etcd: { x: 30, y: 40, opacity: 0.4, scale: 0.8 },
+        ghost: { x: 30, y: 60, scale: 1.25, pulse: true },
+        apiserver: { x: 60, y: 50, scale: 1.05, opacity: 0.6 },
+      },
+      beams: [{ from: 'etcd', to: 'ghost', color: '#ef4444' }, { from: 'ghost', to: 'apiserver', color: '#ef4444' }],
+    },
+  ],
+}
+
+// Core Concepts sekmesi filmi: Deployment → ReplicaSet → Pod hiyerarşisi + self-healing
+const kubernetesCoreSelfHealFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-core-selfheal-film',
+  title: {
+    tr: '🎬 Deployment → ReplicaSet → Pod: Self-Healing Anında',
+    en: '🎬 Deployment → ReplicaSet → Pod: Self-Healing in Action',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'deployment', emoji: '📜', label: { tr: 'Deployment', en: 'Deployment' }, color: '#0ea5e9' },
+    { id: 'replicaset', emoji: '🧬', label: { tr: 'ReplicaSet', en: 'ReplicaSet' }, color: '#f59e0b' },
+    { id: 'pod1', emoji: '📦', label: { tr: 'Pod 1', en: 'Pod 1' }, color: '#22c55e' },
+    { id: 'pod2', emoji: '📦', label: { tr: 'Pod 2', en: 'Pod 2' }, color: '#22c55e' },
+    { id: 'pod3', emoji: '📦', label: { tr: 'Pod 3', en: 'Pod 3' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '💥', label: { tr: 'Çöken Pod 2', en: 'Crashed Pod 2' }, color: '#ef4444' },
+    { id: 'pod2b', emoji: '📦', label: { tr: 'Yeni Pod 2', en: 'New Pod 2' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bu üç katman bir MATRUŞKA bebeği gibidir: en dıştaki Deployment içinde ReplicaSet, onun içinde de Pod\'lar vardır. Ama neden tek bir Pod objesi yeterli değil de üç katman gerekiyor? Cevabı bu filmde göreceksin.',
+        en: 'These three layers are like a MATRYOSHKA doll: the outer Deployment contains a ReplicaSet, which contains Pods. But why isn\'t one single Pod object enough — why three layers? You will see the answer in this film.',
+      },
+      positions: { deployment: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Deployment, "bu Pod template\'i ile HER ZAMAN 3 kopya çalışsın" der. Deployment kendisi hiçbir Pod yaratmaz — sadece hedefi tarif eder ve rollout geçmişini yönetir.',
+        en: 'Step 1 — the Deployment says "always run 3 copies of this Pod template." The Deployment itself never creates Pods — it just describes the target and manages rollout history.',
+      },
+      code: { tr: `replicas: 3\ntemplate:\n  containers:\n  - image: nginx:1.25`, en: `replicas: 3\ntemplate:\n  containers:\n  - image: nginx:1.25` },
+      positions: { deployment: { x: 22, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Deployment, bu hedefi gerçekleştirecek bir ReplicaSet oluşturur. ReplicaSet\'in TEK görevi vardır: "şu anda kaç Pod var, hedef kaç Pod olmalı" sayısını sürekli karşılaştırmak.',
+        en: 'Step 2 — the Deployment creates a ReplicaSet to realize this target. The ReplicaSet has ONE job: continuously compare "how many Pods exist now" against "how many Pods should exist."',
+      },
+      positions: {
+        deployment: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        replicaset: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'deployment', to: 'replicaset', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — ReplicaSet, hedef 3 Pod\'a ulaşmak için ortak bir label ile 3 Pod oluşturur. Artık gerçek container\'lar çalışıyor ve hepsi aynı `app: qa-web` etiketini taşıyor.',
+        en: 'Step 3 — the ReplicaSet creates 3 Pods with a shared label to reach the target of 3. Real containers are now running, all carrying the same `app: qa-web` label.',
+      },
+      positions: {
+        replicaset: { x: 26, y: 30, opacity: 0.6, scale: 0.9 },
+        pod1: { x: 55, y: 60, scale: 1.05 },
+        pod2: { x: 70, y: 50, scale: 1.05, pulse: true },
+        pod3: { x: 85, y: 60, scale: 1.05 },
+      },
+      beams: [{ from: 'replicaset', to: 'pod2', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Pod 2 beklenmedik şekilde çöküyor (ghost). Şu an cluster\'da sadece 2 Pod çalışıyor ama hedef HÂLÂ 3. ReplicaSet bunu fark eder çünkü sürekli izliyor, gözlem tek seferlik değil.',
+        en: 'Step 4 — Pod 2 unexpectedly crashes (the ghost). The cluster now only has 2 Pods running, but the target is STILL 3. The ReplicaSet notices this because it watches continuously, not just once.',
+      },
+      positions: {
+        pod2: { x: 70, y: 50, opacity: 0.3, scale: 0.8 },
+        ghost: { x: 70, y: 50, scale: 1.2, pulse: true },
+        replicaset: { x: 30, y: 30, scale: 1.05 },
+      },
+      beams: [{ from: 'ghost', to: 'replicaset', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — ReplicaSet farkı gördüğü anda yeni bir Pod 2 talep eder; scheduler node bulur, kubelet çalıştırır — hedef sayı yeniden 3 olur. Eğer sadece "3 Pod başlat" diyen bir script kullansaydık, script zaten bitmiş olurdu ve kimse fark etmezdi ta ki bir kullanıcı hata alana kadar.',
+        en: 'Final (the contrast) — the instant the ReplicaSet sees the gap, it requests a new Pod 2; the scheduler finds a node, kubelet runs it — the count is back to 3. If we had just used a script that said "start 3 Pods," that script would already have finished and no one would notice until a user hit an error.',
+      },
+      positions: {
+        ghost: { x: 22, y: 40, opacity: 0.35, scale: 0.75 },
+        replicaset: { x: 46, y: 30, scale: 1.1, pulse: true },
+        pod2b: { x: 74, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'replicaset', to: 'pod2b', color: '#10b981' }],
+    },
+  ],
+}
+
+// kubectl Commands sekmesi filmi: kubectl apply'ın API Server'a istek gönderme akışı
+const kubernetesKubectlApplyFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-kubectl-apply-film',
+  title: {
+    tr: '🎬 kubectl apply Bir Manifesti Cluster\'a Nasıl Ulaştırır',
+    en: '🎬 How kubectl apply Delivers a Manifest to the Cluster',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'file', emoji: '📄', label: { tr: 'deployment.yaml', en: 'deployment.yaml' }, color: '#0ea5e9' },
+    { id: 'kubectl', emoji: '🛰️', label: { tr: 'kubectl', en: 'kubectl' }, color: '#f59e0b' },
+    { id: 'apiserver', emoji: '🎮', label: { tr: 'API Server', en: 'API Server' }, color: '#8b5cf6' },
+    { id: 'etcd', emoji: '🗄️', label: { tr: 'etcd', en: 'etcd' }, color: '#22c55e' },
+    { id: 'controller', emoji: '🔁', label: { tr: 'Controller', en: 'Controller' }, color: '#6366f1' },
+    { id: 'ghost', emoji: '🚫', label: { tr: 'Doğrulama Hatası', en: 'Validation Error' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`kubectl apply -f deployment.yaml` görünüşte tek satır ama arkasında yerel bir dosyanın REST API çağrısına dönüşüp cluster durumunu değiştirdiği bir zincir var. Bu filmde o zinciri izleyeceksin.',
+        en: '`kubectl apply -f deployment.yaml` looks like one line, but behind it lies a chain where a local file becomes a REST API call that changes cluster state. In this film you will watch that chain.',
+      },
+      code: { tr: `kubectl apply -f deployment.yaml`, en: `kubectl apply -f deployment.yaml` },
+      positions: { file: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — kubectl, YAML dosyasını okur ve JSON\'a serileştirir. Bu aşamada henüz hiçbir ağ çağrısı yapılmadı, sadece dosya parse edildi.',
+        en: 'Step 1 — kubectl reads the YAML file and serializes it to JSON. At this point no network call has been made yet — only the file has been parsed.',
+      },
+      positions: {
+        file: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        kubectl: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'file', to: 'kubectl', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — kubectl, kubeconfig\'teki kimlik bilgileriyle (certificate/token) API Server\'a HTTPS üzerinden bir REST isteği (PATCH/POST) gönderir. Bu, herhangi bir REST Assured/Postman isteğiyle aynı mekanizmadır.',
+        en: 'Step 2 — kubectl sends a REST request (PATCH/POST) over HTTPS to the API Server, using the credentials (certificate/token) in kubeconfig. This is the exact same mechanism as any REST Assured/Postman request.',
+      },
+      positions: {
+        kubectl: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'kubectl', to: 'apiserver', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — API Server, manifesti şema açısından doğrular (validation): yanlış `apiVersion`, eksik `metadata.name` veya tip hatası varsa isteği hemen reddeder — hiçbir şey etcd\'ye yazılmaz.',
+        en: 'Step 3 — the API Server validates the manifest against its schema: a wrong `apiVersion`, missing `metadata.name`, or a type error causes it to reject the request immediately — nothing gets written to etcd.',
+      },
+      positions: {
+        apiserver: { x: 45, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Doğrulama geçerse API Server yeni durumu etcd\'ye yazar. Bu an, "cluster\'ın resmi hedefi" değişti demektir — henüz hiçbir Pod etkilenmedi ama niyet artık kayıtlı.',
+        en: 'Step 4 — if validation passes, the API Server writes the new state to etcd. This moment means "the cluster\'s official target" has changed — no Pod is affected yet, but the intent is now recorded.',
+      },
+      positions: {
+        apiserver: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        etcd: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'apiserver', to: 'etcd', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — Controller\'lar bu değişikliği API Server üzerinden gözlemler ve gerçek Pod\'ları oluşturmaya başlar. `kubectl apply` burada biter, ama cluster\'daki reconciliation devam eder.',
+        en: 'Step 5 — Controllers watch this change through the API Server and start creating the real Pods. `kubectl apply` ends here, but the reconciliation inside the cluster continues.',
+      },
+      positions: {
+        etcd: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 48, y: 40, scale: 1.05 },
+        controller: { x: 74, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'etcd', to: 'apiserver', color: '#22c55e' }, { from: 'apiserver', to: 'controller', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — YAML\'de `apiVersion: apps/v99` gibi geçersiz bir alan olsaydı, API Server isteği doğrulama aşamasında reddederdi: "Doğrulama Hatası" ekranda görünür, etcd HİÇBİR şey değişmez. Bu, yanlış PASS yerine erken ve net bir hatanın QA için neden değerli olduğunu gösterir.',
+        en: 'Final (the contrast) — if the YAML had an invalid field like `apiVersion: apps/v99`, the API Server would reject the request at the validation stage: a "Validation Error" appears on screen, and etcd changes NOTHING. This shows why an early, clear error is more valuable for QA than a false PASS.',
+      },
+      positions: {
+        apiserver: { x: 40, y: 50, scale: 1.1, pulse: true },
+        ghost: { x: 70, y: 50, scale: 1.25, pulse: true },
+        etcd: { x: 88, y: 50, opacity: 0.4, scale: 0.8 },
+      },
+      beams: [{ from: 'apiserver', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+// YAML Manifests sekmesi filmi: manifest apply -> declarative reconciliation
+const kubernetesYamlReconcileFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-yaml-reconcile-film',
+  title: {
+    tr: '🎬 Bir YAML Manifesti Cluster Durumuna Nasıl Dönüşür',
+    en: '🎬 How a YAML Manifest Becomes Cluster State',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'yaml', emoji: '📝', label: { tr: 'YAML Manifest', en: 'YAML Manifest' }, color: '#0ea5e9' },
+    { id: 'apiserver', emoji: '🎮', label: { tr: 'API Server', en: 'API Server' }, color: '#f59e0b' },
+    { id: 'desired', emoji: '🎯', label: { tr: 'İstenen Durum (etcd)', en: 'Desired State (etcd)' }, color: '#8b5cf6' },
+    { id: 'controller', emoji: '🔁', label: { tr: 'Reconciliation Loop', en: 'Reconciliation Loop' }, color: '#6366f1' },
+    { id: 'actual', emoji: '🏭', label: { tr: 'Gerçek Durum (Pods)', en: 'Actual State (Pods)' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '↩️', label: { tr: 'kubectl edit ile Elle Değişiklik', en: 'Manual kubectl edit Change' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'YAML Manifest bir tarif kitabı gibidir: sana ADIM ADIM ne yapacağını söylemez, sadece bitmiş yemeğin nasıl görünmesi gerektiğini tarif eder. Kubernetes bu tarifi sonsuz kez tekrar okuyup mutfağı ona benzetmeye çalışır.',
+        en: 'A YAML Manifest is like a recipe book: it does not tell you what to do STEP BY STEP, it just describes what the finished dish should look like. Kubernetes rereads this recipe endlessly and keeps trying to make the kitchen match it.',
+      },
+      positions: { yaml: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `kubectl apply -f deployment.yaml` bu manifesti API Server\'a gönderir. Manifest sadece `apiVersion`, `kind`, `metadata` ve `spec` alanlarından oluşan basit bir bildirimdir.',
+        en: 'Step 1 — `kubectl apply -f deployment.yaml` sends this manifest to the API Server. The manifest is a simple declaration made only of `apiVersion`, `kind`, `metadata`, and `spec` fields.',
+      },
+      code: { tr: `apiVersion: apps/v1\nkind: Deployment\nspec:\n  replicas: 3`, en: `apiVersion: apps/v1\nkind: Deployment\nspec:\n  replicas: 3` },
+      positions: {
+        yaml: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        apiserver: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'yaml', to: 'apiserver', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — API Server bu manifesti "istenen durum" (desired state) olarak etcd\'ye kaydeder. Bu andan itibaren bu, cluster\'ın SÜREKLİ ulaşmaya çalışacağı hedeftir — tek seferlik bir komut değil.',
+        en: 'Step 2 — the API Server stores this manifest as "desired state" in etcd. From this moment it is the target the cluster will CONTINUOUSLY try to reach — not a one-time command.',
+      },
+      positions: {
+        apiserver: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        desired: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'apiserver', to: 'desired', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Reconciliation Loop, "istenen durum" ile "gerçek durum"u sonsuz döngüde karşılaştırır. Fark varsa (örn. 2 Pod var ama 3 isteniyor), eksik olan kısmı tamamlayacak isteği gönderir.',
+        en: 'Step 3 — the Reconciliation Loop compares "desired state" with "actual state" in an endless loop. If there is a gap (e.g. 2 Pods exist but 3 are wanted), it sends a request to fill exactly that gap.',
+      },
+      positions: {
+        desired: { x: 24, y: 40, scale: 1.05 },
+        controller: { x: 50, y: 50, scale: 1.2, pulse: true },
+        actual: { x: 76, y: 60, scale: 1.0 },
+      },
+      beams: [{ from: 'desired', to: 'controller', color: '#8b5cf6' }, { from: 'controller', to: 'actual', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Gerçek durum artık istenen durumla eşleşiyor: 3 Pod çalışıyor. Bu QA için önemlidir: `kubectl get deploy` çıktısında `3/3 READY` görmek, manifestin başarıyla "gerçekliğe dönüştüğünün" kanıtıdır.',
+        en: 'Step 4 — actual state now matches desired state: 3 Pods are running. This matters for QA: seeing `3/3 READY` in `kubectl get deploy` output is proof the manifest was successfully "turned into reality."',
+      },
+      code: { tr: `kubectl get deploy qa-web\n# READY   3/3`, en: `kubectl get deploy qa-web\n# READY   3/3` },
+      positions: {
+        controller: { x: 30, y: 50, opacity: 0.5, scale: 0.85 },
+        actual: { x: 58, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'controller', to: 'actual', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — biri `kubectl edit` ile Pod sayısını elle 5\'e çıkarsa ne olur? Bu değişiklik SADECE geçici çalışır: manifest dosyası hâlâ `replicas: 3` diyor, bir sonraki `kubectl apply` çalıştığında reconciliation loop bunu 3\'e geri döndürür. Bu, declarative modelin ZORUNLU tuttuğu bir sözleşmedir — imperative elle müdahaleler manifestle çakışınca kaybeder.',
+        en: 'Final (the contrast) — what if someone manually bumps the Pod count to 5 with `kubectl edit`? That change only lasts TEMPORARILY: the manifest file still says `replicas: 3`, so the next time `kubectl apply` runs, the reconciliation loop puts it back to 3. This is a contract the declarative model ENFORCES — imperative manual edits lose when they conflict with the manifest.',
+      },
+      positions: {
+        ghost: { x: 22, y: 50, scale: 1.1, pulse: true },
+        desired: { x: 50, y: 40, scale: 1.05 },
+        actual: { x: 78, y: 55, scale: 1.15, opacity: 0.7 },
+      },
+      beams: [{ from: 'ghost', to: 'desired', color: '#ef4444' }, { from: 'desired', to: 'actual', color: '#8b5cf6' }],
+    },
+  ],
+}
+
+// Ecosystem sekmesi filmi: Helm / kubectl / Kubernetes Dashboard ekosistemi
+const kubernetesEcosystemToolsFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-ecosystem-tools-film',
+  title: {
+    tr: '🎬 Helm, kubectl ve Dashboard: Aynı Cluster\'a Üç Farklı Kapı',
+    en: '🎬 Helm, kubectl, and Dashboard: Three Doors to the Same Cluster',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dev', emoji: '👩‍💻', label: { tr: 'QA / Developer', en: 'QA / Developer' }, color: '#0ea5e9' },
+    { id: 'helm', emoji: '⎈', label: { tr: 'Helm', en: 'Helm' }, color: '#f59e0b' },
+    { id: 'kubectl', emoji: '🛰️', label: { tr: 'kubectl', en: 'kubectl' }, color: '#8b5cf6' },
+    { id: 'apiserver', emoji: '🎮', label: { tr: 'API Server', en: 'API Server' }, color: '#6366f1' },
+    { id: 'dashboard', emoji: '📊', label: { tr: 'Kubernetes Dashboard', en: 'Kubernetes Dashboard' }, color: '#22c55e' },
+    { id: 'cluster', emoji: '☸️', label: { tr: 'Cluster', en: 'Cluster' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Ekosistem bir mutfaktaki üç farklı alet gibidir: bıçak (kubectl) tek tek kesim yapar, mikser (Helm) birçok malzemeyi tek paket olarak karıştırır, tabak (Dashboard) ise ortaya çıkanı GÖRSEL olarak sunar. Hepsi aynı API Server\'a konuşur.',
+        en: 'The ecosystem is like three tools in a kitchen: a knife (kubectl) cuts things one at a time, a mixer (Helm) blends many ingredients into one package, and a plate (Dashboard) VISUALLY presents the result. All of them talk to the same API Server.',
+      },
+      positions: { dev: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — 15 ayrı YAML dosyasını elle senkron tutmak yerine, geliştirici Helm\'e "bu chart\'ı QA ortamı için kur" der. Helm, tek bir `values-qa.yaml` ile onlarca manifesti tek pakette birleştirir.',
+        en: 'Step 1 — instead of manually keeping 15 separate YAML files in sync, the developer tells Helm "install this chart for the QA environment." Helm merges dozens of manifests into one package using a single `values-qa.yaml`.',
+      },
+      code: { tr: `helm install qa-app ./chart -f values-qa.yaml`, en: `helm install qa-app ./chart -f values-qa.yaml` },
+      positions: {
+        dev: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        helm: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'helm', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Helm, şablonları (`{{ .Values.x }}`) gerçek değerlerle doldurup düz Kubernetes YAML\'ına render eder ve bunu — aynı `kubectl apply` gibi — API Server\'a gönderir. Helm, kubectl\'in YERİNE geçmez, onun ÜZERİNE bir katman ekler.',
+        en: 'Step 2 — Helm renders the templates (`{{ .Values.x }}`) with real values into plain Kubernetes YAML and sends it to the API Server — just like `kubectl apply` would. Helm does not REPLACE kubectl; it adds a layer ON TOP of it.',
+      },
+      positions: {
+        helm: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'helm', to: 'apiserver', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Bir başka gün, aynı QA mühendisi tek bir kaynağı hızlıca debug etmek için doğrudan `kubectl describe pod` çalıştırır. kubectl, Helm\'in ürettiği kaynaklarla aynı API Server\'a, aynı yetkiyle konuşur.',
+        en: 'Step 3 — on another day, the same QA engineer runs `kubectl describe pod` directly to quickly debug one resource. kubectl talks to the same API Server, with the same permissions, as the resources Helm produced.',
+      },
+      code: { tr: `kubectl describe pod qa-app-7d9f-xyz`, en: `kubectl describe pod qa-app-7d9f-xyz` },
+      positions: {
+        apiserver: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        kubectl: { x: 50, y: 55, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'kubectl', to: 'apiserver', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Dashboard, API Server\'dan aynı veriyi okuyup Pod\'ları, Deployment\'ları ve kaynak kullanımını GÖRSEL bir arayüzde gösterir. Hiçbir yeni veri üretmez — sadece cluster\'ın gerçek durumunu izlenebilir kılar.',
+        en: 'Step 4 — the Dashboard reads the same data from the API Server and shows Pods, Deployments, and resource usage in a VISUAL interface. It produces no new data — it just makes the cluster\'s real state observable.',
+      },
+      positions: {
+        kubectl: { x: 26, y: 55, opacity: 0.5, scale: 0.85 },
+        apiserver: { x: 50, y: 45, scale: 1.05 },
+        dashboard: { x: 76, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'apiserver', to: 'dashboard', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — üç aracın da ortak noktası: HİÇBİRİ cluster\'ı doğrudan değiştirmez. Helm, kubectl ve Dashboard sadece API Server ile konuşan istemcilerdir; gerçek "hafıza" ve kararlar her zaman Control Plane\'de kalır. Bu yüzden Dashboard\'da bir kaynağı silmek de, `kubectl delete` kadar gerçek bir etkiye sahiptir.',
+        en: 'Final (the contrast) — what all three tools share: NONE of them changes the cluster directly. Helm, kubectl, and Dashboard are just clients talking to the API Server; the real "memory" and decisions always stay in the Control Plane. That is why deleting a resource in Dashboard has just as real an effect as `kubectl delete`.',
+      },
+      positions: {
+        helm: { x: 18, y: 35, scale: 0.95 },
+        kubectl: { x: 18, y: 65, scale: 0.95 },
+        apiserver: { x: 48, y: 50, scale: 1.15, pulse: true },
+        cluster: { x: 78, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'helm', to: 'apiserver', color: '#f59e0b' }, { from: 'kubectl', to: 'apiserver', color: '#8b5cf6' }, { from: 'apiserver', to: 'cluster', color: '#10b981' }],
+    },
+  ],
+}
+
+// Real World sekmesi filmi: CI/CD pipeline'ının Docker image build -> K8s deploy akışı
+const kubernetesRealworldCicdFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-realworld-cicd-film',
+  title: {
+    tr: '🎬 Bir Commit\'in CI/CD ile Production Rollout\'a Yolculuğu',
+    en: '🎬 A Commit\'s Journey to Production Rollout via CI/CD',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dev', emoji: '👩‍💻', label: { tr: 'Developer', en: 'Developer' }, color: '#0ea5e9' },
+    { id: 'ci', emoji: '🤖', label: { tr: 'CI Pipeline', en: 'CI Pipeline' }, color: '#f59e0b' },
+    { id: 'registry', emoji: '📦', label: { tr: 'Image Registry', en: 'Image Registry' }, color: '#8b5cf6' },
+    { id: 'cd', emoji: '🚀', label: { tr: 'CD / kubectl', en: 'CD / kubectl' }, color: '#6366f1' },
+    { id: 'cluster', emoji: '☸️', label: { tr: 'K8s Cluster (Rollout)', en: 'K8s Cluster (Rollout)' }, color: '#22c55e' },
+    { id: 'monitor', emoji: '📈', label: { tr: 'Monitoring / Smoke Test', en: 'Monitoring / Smoke Test' }, color: '#10b981' },
+    { id: 'ghost', emoji: '🧯', label: { tr: 'Başarısız Rollout → Rollback', en: 'Failed Rollout → Rollback' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir `git push` ile production\'a çıkan kod arasında altı istasyonlu bir tren yolculuğu var: build, test, image, registry, deploy, doğrulama. Bu filmde treni istasyon istasyon izleyeceksin — ve son istasyonda tren rayından çıkarsa ne olduğunu göreceksin.',
+        en: 'Between a `git push` and code reaching production there is a six-station train journey: build, test, image, registry, deploy, verification. In this film you will watch the train station by station — and see what happens if it derails at the last stop.',
+      },
+      positions: { dev: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Developer kodu Git\'e push eder, bu CI pipeline\'ını otomatik tetikler. Pipeline önce testleri çalıştırır — testler kırmızıysa yolculuk BURADA biter, hiçbir image build edilmez.',
+        en: 'Step 1 — the developer pushes code to Git, which automatically triggers the CI pipeline. The pipeline runs tests first — if tests are red, the journey ENDS here, no image gets built.',
+      },
+      positions: {
+        dev: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+        ci: { x: 44, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'ci', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Testler yeşilse pipeline `docker build` ile yeni bir image üretir ve benzersiz bir tag ile (`app:sha-abc123`) registry\'ye push eder. `latest` tag\'ini production\'da KULLANMAMAK, hangi kodun deploy edildiğini takip edilebilir yapar.',
+        en: 'Step 2 — if tests are green, the pipeline runs `docker build` to produce a new image and pushes it to the registry with a unique tag (`app:sha-abc123`). NOT using the `latest` tag in production makes it possible to trace exactly which code was deployed.',
+      },
+      code: { tr: `docker build -t registry/app:sha-abc123 .\ndocker push registry/app:sha-abc123`, en: `docker build -t registry/app:sha-abc123 .\ndocker push registry/app:sha-abc123` },
+      positions: {
+        ci: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        registry: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ci', to: 'registry', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — CD adımı, Deployment\'ın image tag\'ini günceller (`kubectl set image` veya `helm upgrade`). Bu, YENİ bir rolling update başlatan tek komuttur — cluster\'a "artık bu image\'ı istiyorum" der.',
+        en: 'Step 3 — the CD step updates the Deployment\'s image tag (`kubectl set image` or `helm upgrade`). This is the single command that starts a NEW rolling update — it tells the cluster "I want this image now."',
+      },
+      code: { tr: `kubectl set image deployment/app app=registry/app:sha-abc123`, en: `kubectl set image deployment/app app=registry/app:sha-abc123` },
+      positions: {
+        registry: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        cd: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'registry', to: 'cd', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Cluster kademeli (rolling) bir güncelleme yapar: eski Pod\'lar teker teker yeni image\'lı Pod\'larla değiştirilir, readiness probe geçmeyen yeni Pod\'a asla trafik yönlendirilmez.',
+        en: 'Step 4 — the cluster performs a rolling update: old Pods are replaced one by one with new-image Pods, and a new Pod that fails its readiness probe never receives traffic.',
+      },
+      positions: {
+        cd: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        cluster: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cd', to: 'cluster', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — Rollout tamamlandıktan sonra monitoring ve smoke test devreye girer: error rate, latency ve health-check sonucu kontrol edilir. Bu, "deploy oldu" ile "gerçekten sağlıklı çalışıyor" arasındaki farkı kanıtlar.',
+        en: 'Step 5 — once the rollout completes, monitoring and smoke tests kick in: error rate, latency, and health-check results are checked. This proves the difference between "it deployed" and "it is actually healthy."',
+      },
+      positions: {
+        cluster: { x: 28, y: 50, opacity: 0.5, scale: 0.85 },
+        monitor: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cluster', to: 'monitor', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — smoke test hata rate\'inin fırladığını gösterirse: pipeline otomatik veya manuel `kubectl rollout undo` çağırır, cluster ÖNCEKİ sağlıklı revision\'a geri döner. CI/CD\'nin gerçek değeri hız değil, hatayı ERKEN yakalayıp GERİ ALINABİLİR kılmasıdır.',
+        en: 'Final (the contrast) — if the smoke test shows error rate spiking: the pipeline (automatically or manually) calls `kubectl rollout undo`, and the cluster reverts to the PREVIOUS healthy revision. The real value of CI/CD is not speed — it is catching the failure EARLY and making it REVERSIBLE.',
+      },
+      code: { tr: `kubectl rollout undo deployment/app`, en: `kubectl rollout undo deployment/app` },
+      positions: {
+        monitor: { x: 24, y: 40, opacity: 0.5, scale: 0.85 },
+        ghost: { x: 54, y: 55, scale: 1.25, pulse: true },
+        cluster: { x: 82, y: 45, scale: 1.05, opacity: 0.7 },
+      },
+      beams: [{ from: 'monitor', to: 'ghost', color: '#ef4444' }, { from: 'ghost', to: 'cluster', color: '#ef4444' }],
+    },
+  ],
+}
+
+// Interview Q&A sekmesi filmi: kodsuz sekme — Kubernetes'in control loop / self-healing mekanizması
+const kubernetesInterviewControlLoopFilm = {
+  type: 'video-scene',
+  id: 'kubernetes-interview-controlloop-film',
+  title: {
+    tr: '🎬 Mülakatın En Sık Sorulan Sorusu: Control Loop Nasıl Çalışır',
+    en: '🎬 The Most-Asked Interview Question: How the Control Loop Works',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'desired', emoji: '🎯', label: { tr: 'İstenen Durum', en: 'Desired State' }, color: '#0ea5e9' },
+    { id: 'watch', emoji: '👁️', label: { tr: 'Watch (API Server)', en: 'Watch (API Server)' }, color: '#f59e0b' },
+    { id: 'controller', emoji: '🔁', label: { tr: 'Controller', en: 'Controller' }, color: '#8b5cf6' },
+    { id: 'actual', emoji: '🏭', label: { tr: 'Gerçek Durum', en: 'Actual State' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '💤', label: { tr: 'Controller Çökerse', en: 'If the Controller Dies' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir mülakatta "Kubernetes\'i tek cümlede özetle" denirse doğru cevap "control loop\'lar bütünüdür" olur. Bu film, o tek cümlenin içindeki mekanizmayı — belki de en sık sorulan Kubernetes mülakat sorusunu — canlandırıyor.',
+        en: 'If an interview asks "summarize Kubernetes in one sentence," the right answer is "it is a collection of control loops." This film brings to life the mechanism behind that one sentence — perhaps the single most-asked Kubernetes interview question.',
+      },
+      positions: { desired: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Her control loop bir HEDEFLE başlar: "3 replica olsun", "bu Service şu Pod\'lara yönlensin" gibi. Bu hedef her zaman etcd\'de saklanır, kodda gömülü değildir.',
+        en: 'Step 1 — every control loop starts with a GOAL: "there should be 3 replicas," "this Service should route to those Pods." This goal always lives in etcd, never hardcoded in code.',
+      },
+      positions: { desired: { x: 20, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Controller, tek seferlik bir script gibi ÇALIŞIP BİTMEZ; API Server\'ı sürekli "watch" eder — herhangi bir değişiklik olduğunda anında haberdar olur, saniyede bir sorgu atmaz.',
+        en: 'Step 2 — the Controller does NOT run once and finish like a script; it continuously "watches" the API Server — it is notified instantly on any change, it does not poll once a second.',
+      },
+      positions: {
+        desired: { x: 18, y: 40, opacity: 0.6, scale: 0.9 },
+        watch: { x: 46, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'desired', to: 'watch', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Watch bir değişiklik bildirdiğinde Controller devreye girer: "gerçek durum" ile "istenen durum" arasındaki farkı hesaplar. Fark sıfırsa hiçbir şey yapmaz — bu israfı önler.',
+        en: 'Step 3 — when watch reports a change, the Controller kicks in: it computes the gap between "actual state" and "desired state." If the gap is zero, it does nothing — this prevents wasted work.',
+      },
+      positions: {
+        watch: { x: 22, y: 45, opacity: 0.5, scale: 0.85 },
+        controller: { x: 48, y: 55, scale: 1.2, pulse: true },
+        actual: { x: 74, y: 45, scale: 1.0 },
+      },
+      beams: [{ from: 'watch', to: 'controller', color: '#f59e0b' }, { from: 'controller', to: 'actual', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Fark varsa (örn. eksik bir Pod), Controller düzeltici bir istek gönderir ve gerçek durum yeniden hedefe yaklaşır. Bu döngü SONSUZDUR — hiçbir zaman "bitti" demez, sürekli tekrar eder.',
+        en: 'Step 4 — if there is a gap (e.g. a missing Pod), the Controller sends a corrective request and actual state moves back toward the target. This loop is INFINITE — it never says "done," it repeats forever.',
+      },
+      positions: {
+        controller: { x: 26, y: 55, opacity: 0.5, scale: 0.85 },
+        actual: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'controller', to: 'actual', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — mülakatta sorulan takip sorusu genelde şudur: "Controller kendisi çökerse ne olur?" Cevap: gerçek durum ANINDA bozulmaz ama kimse yeni sapmaları düzeltmez — drift SESSİZCE birikir, ta ki controller yeniden ayağa kalkana kadar. Bu yüzden Controller Manager\'ın kendisi de bir Deployment/Pod olarak K8s tarafından izlenir ve gerektiğinde yeniden başlatılır.',
+        en: 'Final (the contrast) — the common interview follow-up is: "what if the Controller itself crashes?" Answer: actual state does not break INSTANTLY, but no one corrects new drift — it accumulates SILENTLY until the controller comes back up. This is why the Controller Manager itself is watched as a Pod/Deployment by Kubernetes and restarted when needed.',
+      },
+      positions: {
+        controller: { x: 26, y: 40, opacity: 0.3, scale: 0.8 },
+        ghost: { x: 26, y: 60, scale: 1.2, pulse: true },
+        desired: { x: 54, y: 45, scale: 1.0 },
+        actual: { x: 80, y: 55, scale: 1.05, opacity: 0.7 },
+      },
+      beams: [{ from: 'ghost', to: 'desired', color: '#ef4444' }, { from: 'desired', to: 'actual', color: '#ef4444' }],
+    },
+  ],
+}
+
 export const kubernetesData = {
   // ══════════════════════════════════════════════════════════════
   // ENGLISH VERSION
@@ -1028,6 +1856,7 @@ export const kubernetesData = {
             ],
           },
           ...kubernetesIntroInteractiveBlocks,
+          kubernetesIntroOrchestrationFilm,
           {
             type: 'quiz',
             question: 'What is the main purpose of Kubernetes?',
@@ -1315,6 +2144,7 @@ kubectl get nodes  # Shows EC2 instances as worker nodes
 eksctl delete cluster --name my-qa-cluster --region eu-west-1`,
           },
           ...kubernetesInstallationInteractiveBlocks,
+          kubernetesInstallMinikubeFilm,
           {
             type: 'quiz',
             question: 'Why is minikube recommended for local learning/development instead of a real cloud cluster like AWS EKS?',
@@ -1527,6 +2357,7 @@ eksctl delete cluster --name my-qa-cluster --region eu-west-1`,
             ],
           },
           ...kubernetesArchitectureInteractiveBlocks,
+          kubernetesArchitectureControlPlaneFilm,
           {
             type: 'quiz',
             question: 'Which component decides which Worker Node a new pod should be scheduled on?',
@@ -1786,6 +2617,7 @@ spec:
         name: app-secrets      # All Secret keys as env vars`,
           },
           ...kubernetesCoreInteractiveBlocks,
+          kubernetesCoreSelfHealFilm,
           {
             type: 'quiz',
             question: 'Which Kubernetes object provides a stable network endpoint for a set of pods?',
@@ -1993,6 +2825,7 @@ kubens production   # switches to production namespace`,
             content: 'Experienced K8s users add aliases to .bashrc: alias k=kubectl | alias kgp="kubectl get pods" | alias kgs="kubectl get svc". This saves enormous time during day-to-day work and especially during interviews/certification exams.',
           },
           ...kubernetesKubectlInteractiveBlocks,
+          kubernetesKubectlApplyFilm,
           {
             type: 'quiz',
             question: 'How do you follow pod logs in real-time?',
@@ -2221,6 +3054,7 @@ spec:
             content: 'After applying manifests: 1) kubectl rollout status deployment/webapp — check rollout completed, 2) kubectl get pods -w — watch pods come healthy, 3) kubectl describe pod <pod-name> — inspect events if something is wrong, 4) kubectl logs <pod-name> — check app startup logs.',
           },
           ...kubernetesYamlInteractiveBlocks,
+          kubernetesYamlReconcileFilm,
           {
             type: 'quiz',
             question: 'After applying a Deployment manifest with `kubectl apply -f deployment.yaml`, which command tells you whether the rollout has actually finished successfully?',
@@ -2505,6 +3339,7 @@ helm uninstall monitoring -n monitoring`,
             ],
           },
           ...kubernetesEcosystemInteractiveBlocks,
+          kubernetesEcosystemToolsFilm,
           {
             type: 'quiz',
             question: 'Modern Kubernetes clusters run containers using containerd rather than the Docker Engine directly. Why?',
@@ -2761,6 +3596,7 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
             ],
           },
           ...kubernetesRealWorldInteractiveBlocks,
+          kubernetesRealworldCicdFilm,
           {
             type: 'quiz',
             question: 'A pod is stuck in CrashLoopBackOff. What is the right first command to diagnose why?',
@@ -2791,6 +3627,77 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
       {
         title: '💼 Kubernetes Interview Q&A',
         blocks: [
+          kubernetesInterviewControlLoopFilm,
+          {
+            type: 'step-animation',
+            title: { tr: 'Control Loop: Sonsuz Karşılaştırma Döngüsü', en: 'The Control Loop: An Endless Comparison Loop' },
+            steps: [
+              { id: 1, icon: '🎯', label: { tr: 'Hedef okunur', en: 'Target is read' }, detail: { tr: 'Controller, etcd\'deki istenen durumu API Server üzerinden okur.', en: 'The controller reads the desired state from etcd through the API Server.' } },
+              { id: 2, icon: '🏭', label: { tr: 'Gerçek durum okunur', en: 'Actual state is read' }, detail: { tr: 'Şu anda cluster\'da ne çalıştığı gözlemlenir (kaç Pod, hangi durumda).', en: 'What is currently running in the cluster is observed (how many Pods, in what state).' } },
+              { id: 3, icon: '⚖️', label: { tr: 'Fark hesaplanır', en: 'The gap is computed' }, detail: { tr: 'Hedef ile gerçek arasında fark var mı diye karşılaştırılır.', en: 'It is compared whether there is a gap between target and actual.' } },
+              { id: 4, icon: '🔧', label: { tr: 'Düzeltici istek gönderilir', en: 'A corrective request is sent' }, detail: { tr: 'Fark varsa (eksik Pod, yanlış replica sayısı) API Server\'a düzeltme isteği gider.', en: 'If there is a gap (missing Pod, wrong replica count), a correction request goes to the API Server.' } },
+              { id: 5, icon: '🔁', label: { tr: 'Döngü tekrar başlar', en: 'The loop starts again' }, detail: { tr: 'Fark sıfır olsa bile döngü DURMAZ, saniyeler içinde tekrar kontrol eder.', en: 'Even if the gap is zero, the loop does NOT stop — it checks again within seconds.' } },
+            ],
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'kubernetes-interview-diagnosis-practice',
+            id: 'kubernetes-interview-diagnosis-practice',
+            label: { tr: 'Pratik: Mülakatta Sorulan Bir Teşhis Senaryosunu Komutla Çöz', en: 'Practice: Solve an Interview-Style Diagnosis Scenario with Commands' },
+            language: 'bash',
+            task: {
+              tr: 'Mülakat senaryosu: "Bir Pod CrashLoopBackOff durumunda, ilk üç dakikada hangi komutları hangi sırayla çalıştırırsın?" TODO alanlarını doğru sırayla tamamla.',
+              en: 'Interview scenario: "A Pod is in CrashLoopBackOff — which commands do you run, in which order, in the first three minutes?" Fill the TODO parts in the right order.',
+            },
+            explanation: {
+              tr: 'Bu sıra mülakatta en çok aranan cevaptır: önce ÖNCEKİ crash\'in loglarına bak, sonra Events\'i incele, en son gerçek nedeni (image/env/probe/resource) düzelt.',
+              en: 'This order is the most-wanted interview answer: first look at the PREVIOUS crash\'s logs, then inspect Events, and only then fix the real cause (image/env/probe/resource).',
+            },
+            code: {
+              tr: `# 1. Son çöken denemenin loglarını al (mevcut deneme henüz hata basmamış olabilir)
+TODO
+
+# 2. Events bölümünde zamanlama ve sebep bilgisini oku
+TODO
+
+# 3. Gerçek nedeni düzelttikten sonra rollout'u doğrula
+TODO`,
+              en: `# 1. Fetch logs from the last crashed attempt (the current attempt may not have logged the error yet)
+TODO
+
+# 2. Read timing and cause info in the Events section
+TODO
+
+# 3. After fixing the real cause, verify the rollout
+TODO`,
+            },
+            starterCode: {
+              tr: `TODO\nTODO\nTODO`,
+              en: `TODO\nTODO\nTODO`,
+            },
+            solutionCode: {
+              tr: `kubectl logs <pod-adi> --previous
+kubectl describe pod <pod-adi>
+kubectl rollout status deployment/<deployment-adi>`,
+              en: `kubectl logs <pod-name> --previous
+kubectl describe pod <pod-name>
+kubectl rollout status deployment/<deployment-name>`,
+            },
+            expected: {
+              tr: `--previous ile son çöken denemenin gerçek hatası görülür.
+describe ile Events sırası ve olası root cause netleşir.
+rollout status ile düzeltmenin işe yaradığı doğrulanır.`,
+              en: `--previous reveals the real error from the last crashed attempt.
+describe clarifies the Events timeline and likely root cause.
+rollout status confirms the fix actually worked.`,
+            },
+            hints: [
+              { tr: 'CrashLoopBackOff\'ta mevcut container henüz log basmamış olabilir, bu yüzden --previous flag\'i kritik.', en: 'In CrashLoopBackOff the current container may not have logged anything yet, so the --previous flag is critical.' },
+              { tr: 'describe pod komutunun Events bölümü, logs komutunun asla göstermediği zamanlama bilgisini verir.', en: 'The Events section of describe pod gives timing information that logs never shows.' },
+              { tr: 'Düzeltmeden sonra rollout status ile "gerçekten düzeldi mi" sorusuna kanıt aranır.', en: 'After the fix, rollout status is used to find proof that it actually got fixed.' },
+            ],
+            xpReward: 12,
+          },
           {
             type: 'interview-questions',
               relatedTopicId: 'kubernetes',
@@ -2978,6 +3885,7 @@ kubectl rollout history deployment/spring-app  # Show all revisions`,
             ],
           },
           ...kubernetesIntroInteractiveBlocks,
+          kubernetesIntroOrchestrationFilm,
           {
             type: 'quiz',
             question: 'Kubernetes\'in temel amacı nedir?',
@@ -3189,6 +4097,7 @@ kubectl get pods                      # Running görmeli
 kubectl delete deployment hello-nginx # Temizlik`,
           },
           ...kubernetesInstallationInteractiveBlocks,
+          kubernetesInstallMinikubeFilm,
           {
             type: 'quiz',
             question: 'Yerel öğrenme/geliştirme için neden minikube önerilir, gerçek bir cloud cluster (AWS EKS gibi) değil?',
@@ -3356,6 +4265,7 @@ kubectl delete deployment hello-nginx # Temizlik`,
             ],
           },
           ...kubernetesArchitectureInteractiveBlocks,
+          kubernetesArchitectureControlPlaneFilm,
           {
             type: 'quiz',
             question: 'Hangi bileşen yeni bir pod\'un hangi Worker Node\'a schedule edileceğine karar verir?',
@@ -3668,6 +4578,7 @@ spec:
         name: uygulama-secrets   # Tüm Secret anahtarları env var olarak`,
           },
           ...kubernetesCoreInteractiveBlocks,
+          kubernetesCoreSelfHealFilm,
           {
             type: 'quiz',
             question: 'Hangi Kubernetes nesnesi bir pod kümesi için sabit ağ endpoint\'i sağlar?',
@@ -3853,6 +4764,7 @@ kubectl rollout history deployment/uygulama`,
             content: 'Deneyimli K8s kullanıcıları .bashrc\'ye alias\'lar ekler: alias k=kubectl | alias kgp="kubectl get pods" | alias kgs="kubectl get svc". Bu günlük çalışmada ve özellikle mülakatlarda/sertifika sınavlarında çok zaman kazandırır.',
           },
           ...kubernetesKubectlInteractiveBlocks,
+          kubernetesKubectlApplyFilm,
           {
             type: 'quiz',
             question: 'Pod loglarını gerçek zamanlı takip etmek için hangi komut kullanılır?',
@@ -4040,6 +4952,7 @@ spec:
             content: 'Manifest\'leri uyguladıktan sonra: 1) kubectl rollout status deployment/webuygulamasi — rollout tamamlandı mı kontrol et, 2) kubectl get pods -w — pod\'ların sağlıklı gelişini izle, 3) kubectl describe pod <pod-adı> — bir şeyler yanlışsa event\'leri incele, 4) kubectl logs <pod-adı> — uygulama başlangıç loglarını kontrol et.',
           },
           ...kubernetesYamlInteractiveBlocks,
+          kubernetesYamlReconcileFilm,
           {
             type: 'quiz',
             question: '`kubectl apply -f deployment.yaml` ile bir Deployment manifest\'i uyguladıktan sonra, rollout\'un gerçekten başarıyla bittiğini hangi komut söyler?',
@@ -4274,6 +5187,7 @@ helm upgrade monitoring prometheus-community/kube-prometheus-stack -n monitoring
 helm uninstall monitoring -n monitoring`,
           },
           ...kubernetesEcosystemInteractiveBlocks,
+          kubernetesEcosystemToolsFilm,
           {
             type: 'quiz',
             question: 'Modern Kubernetes cluster\'ları container çalıştırmak için doğrudan Docker Engine değil containerd kullanır. Neden?',
@@ -4439,6 +5353,7 @@ kubectl rollout undo deployment/spring-app`,
             ],
           },
           ...kubernetesRealWorldInteractiveBlocks,
+          kubernetesRealworldCicdFilm,
           {
             type: 'quiz',
             question: 'Bir pod CrashLoopBackOff durumunda takılı kalıyor. Nedenini teşhis etmek için doğru ilk komut hangisidir?',
@@ -4469,6 +5384,77 @@ kubectl rollout undo deployment/spring-app`,
       {
         title: '💼 Kubernetes Mülakat Soruları ve Cevapları',
         blocks: [
+          kubernetesInterviewControlLoopFilm,
+          {
+            type: 'step-animation',
+            title: { tr: 'Control Loop: Sonsuz Karşılaştırma Döngüsü', en: 'The Control Loop: An Endless Comparison Loop' },
+            steps: [
+              { id: 1, icon: '🎯', label: { tr: 'Hedef okunur', en: 'Target is read' }, detail: { tr: 'Controller, etcd\'deki istenen durumu API Server üzerinden okur.', en: 'The controller reads the desired state from etcd through the API Server.' } },
+              { id: 2, icon: '🏭', label: { tr: 'Gerçek durum okunur', en: 'Actual state is read' }, detail: { tr: 'Şu anda cluster\'da ne çalıştığı gözlemlenir (kaç Pod, hangi durumda).', en: 'What is currently running in the cluster is observed (how many Pods, in what state).' } },
+              { id: 3, icon: '⚖️', label: { tr: 'Fark hesaplanır', en: 'The gap is computed' }, detail: { tr: 'Hedef ile gerçek arasında fark var mı diye karşılaştırılır.', en: 'It is compared whether there is a gap between target and actual.' } },
+              { id: 4, icon: '🔧', label: { tr: 'Düzeltici istek gönderilir', en: 'A corrective request is sent' }, detail: { tr: 'Fark varsa (eksik Pod, yanlış replica sayısı) API Server\'a düzeltme isteği gider.', en: 'If there is a gap (missing Pod, wrong replica count), a correction request goes to the API Server.' } },
+              { id: 5, icon: '🔁', label: { tr: 'Döngü tekrar başlar', en: 'The loop starts again' }, detail: { tr: 'Fark sıfır olsa bile döngü DURMAZ, saniyeler içinde tekrar kontrol eder.', en: 'Even if the gap is zero, the loop does NOT stop — it checks again within seconds.' } },
+            ],
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'kubernetes-interview-diagnosis-practice',
+            id: 'kubernetes-interview-diagnosis-practice',
+            label: { tr: 'Pratik: Mülakatta Sorulan Bir Teşhis Senaryosunu Komutla Çöz', en: 'Practice: Solve an Interview-Style Diagnosis Scenario with Commands' },
+            language: 'bash',
+            task: {
+              tr: 'Mülakat senaryosu: "Bir Pod CrashLoopBackOff durumunda, ilk üç dakikada hangi komutları hangi sırayla çalıştırırsın?" TODO alanlarını doğru sırayla tamamla.',
+              en: 'Interview scenario: "A Pod is in CrashLoopBackOff — which commands do you run, in which order, in the first three minutes?" Fill the TODO parts in the right order.',
+            },
+            explanation: {
+              tr: 'Bu sıra mülakatta en çok aranan cevaptır: önce ÖNCEKİ crash\'in loglarına bak, sonra Events\'i incele, en son gerçek nedeni (image/env/probe/resource) düzelt.',
+              en: 'This order is the most-wanted interview answer: first look at the PREVIOUS crash\'s logs, then inspect Events, and only then fix the real cause (image/env/probe/resource).',
+            },
+            code: {
+              tr: `# 1. Son çöken denemenin loglarını al (mevcut deneme henüz hata basmamış olabilir)
+TODO
+
+# 2. Events bölümünde zamanlama ve sebep bilgisini oku
+TODO
+
+# 3. Gerçek nedeni düzelttikten sonra rollout'u doğrula
+TODO`,
+              en: `# 1. Fetch logs from the last crashed attempt (the current attempt may not have logged the error yet)
+TODO
+
+# 2. Read timing and cause info in the Events section
+TODO
+
+# 3. After fixing the real cause, verify the rollout
+TODO`,
+            },
+            starterCode: {
+              tr: `TODO\nTODO\nTODO`,
+              en: `TODO\nTODO\nTODO`,
+            },
+            solutionCode: {
+              tr: `kubectl logs <pod-adi> --previous
+kubectl describe pod <pod-adi>
+kubectl rollout status deployment/<deployment-adi>`,
+              en: `kubectl logs <pod-name> --previous
+kubectl describe pod <pod-name>
+kubectl rollout status deployment/<deployment-name>`,
+            },
+            expected: {
+              tr: `--previous ile son çöken denemenin gerçek hatası görülür.
+describe ile Events sırası ve olası root cause netleşir.
+rollout status ile düzeltmenin işe yaradığı doğrulanır.`,
+              en: `--previous reveals the real error from the last crashed attempt.
+describe clarifies the Events timeline and likely root cause.
+rollout status confirms the fix actually worked.`,
+            },
+            hints: [
+              { tr: 'CrashLoopBackOff\'ta mevcut container henüz log basmamış olabilir, bu yüzden --previous flag\'i kritik.', en: 'In CrashLoopBackOff the current container may not have logged anything yet, so the --previous flag is critical.' },
+              { tr: 'describe pod komutunun Events bölümü, logs komutunun asla göstermediği zamanlama bilgisini verir.', en: 'The Events section of describe pod gives timing information that logs never shows.' },
+              { tr: 'Düzeltmeden sonra rollout status ile "gerçekten düzeldi mi" sorusuna kanıt aranır.', en: 'After the fix, rollout status is used to find proof that it actually got fixed.' },
+            ],
+            xpReward: 12,
+          },
           {
             type: 'interview-questions',
               relatedTopicId: 'kubernetes',

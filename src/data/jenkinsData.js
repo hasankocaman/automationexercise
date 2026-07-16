@@ -799,6 +799,1027 @@ The message includes job name, build number, and build link.`,
   },
 ]
 
+// ─── Dalga 15a — Bölüm 9.5 video-scene filmleri: her 11 dikey sekmeye 1 film.
+// jenkinsData EN+TR AYRI AĞAÇLI; her film sabiti dosyanın başında TEK yerde
+// tanımlanır ve HEM en.sections[i].blocks HEM tr.sections[i].blocks'a AYNI
+// bare identifier referansıyla eklenir. Şema: Documents/video-rollout-plan.md
+// / src/data/gaugeData.js `gaugeRunChainFilm`.
+const jenkinsCicdFlowFilm = {
+  type: 'video-scene',
+  id: 'jenkins-cicd-flow-film',
+  title: {
+    tr: '🎬 Bir Commit Jenkins\'te Nasıl Kalite Kararına Dönüşür',
+    en: '🎬 How One Commit Becomes a Quality Decision in Jenkins',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'dev', emoji: '👩‍💻', label: { tr: 'Developer', en: 'Developer' }, color: '#0ea5e9' },
+    { id: 'git', emoji: '🐙', label: { tr: 'Git / Webhook', en: 'Git / Webhook' }, color: '#f59e0b' },
+    { id: 'jenkins', emoji: '🔧', label: { tr: 'Jenkins Pipeline', en: 'Jenkins Pipeline' }, color: '#8b5cf6' },
+    { id: 'tests', emoji: '🧪', label: { tr: 'Test Suite', en: 'Test Suite' }, color: '#6366f1' },
+    { id: 'report', emoji: '📊', label: { tr: 'Rapor', en: 'Report' }, color: '#22c55e' },
+    { id: 'team', emoji: '👥', label: { tr: 'Ekip', en: 'Team' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Atlanmış Manuel Test', en: 'Skipped Manual Test' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Developer kodu Git\'e push eder — bu tek an, arkasında Jenkins\'in devreye girdiği tam bir kalite kontrol zincirini tetikler.',
+        en: 'A developer pushes code to Git — this single moment triggers the full quality-control chain where Jenkins takes over.',
+      },
+      code: { tr: `git push origin feature/login-fix`, en: `git push origin feature/login-fix` },
+      positions: { dev: { x: 16, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Git webhook Jenkins\'i haberdar eder: hiçbir insan build butonuna basmaz, olay otomatik akar.',
+        en: 'Step 1 — A Git webhook notifies Jenkins: no human clicks a build button, the event flows automatically.',
+      },
+      positions: {
+        dev: { x: 12, y: 50, opacity: 0.5, scale: 0.85 },
+        git: { x: 36, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'git' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Jenkins pipeline\'ı başlatır: build stage kodu derler veya bağımlılıkları kurar.',
+        en: 'Step 2 — Jenkins starts the pipeline: the build stage compiles code or installs dependencies.',
+      },
+      positions: {
+        git: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        jenkins: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'git', to: 'jenkins', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Test Suite çalışır: unit/API/UI testleri koşar, sonuç dakikalar içinde belli olur, günler sonra değil.',
+        en: 'Step 3 — The Test Suite runs: unit/API/UI tests execute, and the result is known within minutes, not days.',
+      },
+      positions: {
+        jenkins: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        tests: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'jenkins', to: 'tests', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Rapor üretilir ve ekip anında bilgilendirilir: geç/kal kararı artık kanıta dayanır, kimsenin hafızasına değil.',
+        en: 'Step 4 — A report is generated and the team is notified instantly: pass/fail now rests on evidence, not memory.',
+      },
+      positions: {
+        tests: { x: 24, y: 40, opacity: 0.5, scale: 0.85 },
+        report: { x: 48, y: 50, scale: 1.15, pulse: true },
+        team: { x: 74, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'tests', to: 'report', color: '#22c55e' }, { from: 'report', to: 'team', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Jenkins olmasaydı: deadline baskısında biri "manuel testi zaten yaptım" der, test atlanır ve hiç kimse fark etmeden production\'a bug sızar. CI/CD tam olarak bu atlama seçeneğini ortadan kaldırır.',
+        en: 'Final (the contrast) — without Jenkins: under deadline pressure someone says "I already tested it manually," the test gets skipped, and a bug silently reaches production. CI/CD removes exactly this option to skip the step.',
+      },
+      positions: {
+        dev: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'dev', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jenkinsFirstJobSetupFilm = {
+  type: 'video-scene',
+  id: 'jenkins-first-job-setup-film',
+  title: {
+    tr: '🎬 Jenkins İlk Kurulum ve İlk Job Akışı',
+    en: '🎬 Jenkins First Install and First Job Flow',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'docker', emoji: '🐳', label: { tr: 'docker run', en: 'docker run' }, color: '#0ea5e9' },
+    { id: 'container', emoji: '🔧', label: { tr: 'Jenkins Container', en: 'Jenkins Container' }, color: '#8b5cf6' },
+    { id: 'pwfile', emoji: '🔑', label: { tr: 'initialAdminPassword', en: 'initialAdminPassword' }, color: '#f59e0b' },
+    { id: 'browser', emoji: '🌐', label: { tr: 'Unlock UI (:8080)', en: 'Unlock UI (:8080)' }, color: '#22c55e' },
+    { id: 'plugins', emoji: '🔌', label: { tr: 'Önerilen Plugin\'ler', en: 'Suggested Plugins' }, color: '#6366f1' },
+    { id: 'job', emoji: '📋', label: { tr: 'İlk Pipeline Job', en: 'First Pipeline Job' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Yanlış Port (:3000)', en: 'Wrong Port (:3000)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`docker run -p 8080:8080 jenkins/jenkins:lts` komutu Jenkins\'i konteyner içinde ayağa kaldırır — hiçbir yerel JDK/servis kurulumu gerekmez.',
+        en: '`docker run -p 8080:8080 jenkins/jenkins:lts` boots Jenkins inside a container — no local JDK/service install needed.',
+      },
+      code: { tr: `docker run -p 8080:8080 jenkins/jenkins:lts`, en: `docker run -p 8080:8080 jenkins/jenkins:lts` },
+      positions: { docker: { x: 20, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Container ayağa kalkar ve ilk açılışta bir güvenlik önlemi olarak rastgele bir parolayı `secrets/initialAdminPassword` dosyasına yazar.',
+        en: 'Step 1 — The container starts and, as a first-boot safeguard, writes a random password to `secrets/initialAdminPassword`.',
+      },
+      positions: {
+        docker: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        container: { x: 38, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'docker', to: 'container' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `docker exec` ile o dosyanın içeriği okunur; bu parola SADECE ilk unlock için geçerlidir.',
+        en: 'Step 2 — The file\'s contents are read via `docker exec`; this password is valid ONLY for the first unlock.',
+      },
+      code: { tr: `docker exec <container> cat /var/jenkins_home/secrets/initialAdminPassword`, en: `docker exec <container> cat /var/jenkins_home/secrets/initialAdminPassword` },
+      positions: {
+        container: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        pwfile: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'container', to: 'pwfile', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Tarayıcıda `localhost:8080` açılır, parola yapıştırılır ve kilit açılır.',
+        en: 'Step 3 — `localhost:8080` opens in the browser, the password is pasted in, and the lock opens.',
+      },
+      positions: {
+        pwfile: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        browser: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pwfile', to: 'browser', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — "Install suggested plugins" seçilir; Git, Pipeline, Credentials Binding gibi temel plugin\'ler otomatik kurulur.',
+        en: 'Step 4 — "Install suggested plugins" is chosen; core plugins like Git, Pipeline, and Credentials Binding install automatically.',
+      },
+      positions: {
+        browser: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        plugins: { x: 50, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'browser', to: 'plugins', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — Admin kullanıcısı oluşturulur, ilk Pipeline job kurulur ve "Build Now" ile ilk YEŞİL build alınır.',
+        en: 'Step 5 — The admin user is created, the first Pipeline job is set up, and "Build Now" produces the first GREEN build.',
+      },
+      positions: {
+        plugins: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        job: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'plugins', to: 'job', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — biri `docker run -p 3000:8080 ...` yazsaydı, tarayıcı `localhost:8080`\'de "connection refused" görürdü: Jenkins container port EŞLEMESİ olmadan dışarıdan görünmez.',
+        en: 'Final (the contrast) — if someone typed `docker run -p 3000:8080 ...`, the browser would show "connection refused" at `localhost:8080`: without the container port MAPPING, Jenkins is invisible from outside.',
+      },
+      positions: {
+        docker: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 68, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'docker', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jenkinsfileHierarchyFilm = {
+  type: 'video-scene',
+  id: 'jenkinsfile-hierarchy-film',
+  title: {
+    tr: '🎬 Jenkinsfile Hiyerarşisi: pipeline → stages → stage → steps',
+    en: '🎬 Jenkinsfile Hierarchy: pipeline → stages → stage → steps',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pipeline', emoji: '🏭', label: { tr: 'pipeline {}', en: 'pipeline {}' }, color: '#0ea5e9' },
+    { id: 'agent', emoji: '🖥️', label: { tr: 'agent any', en: 'agent any' }, color: '#f59e0b' },
+    { id: 'build', emoji: '🔨', label: { tr: "stage('Build')", en: "stage('Build')" }, color: '#8b5cf6' },
+    { id: 'test', emoji: '🧪', label: { tr: "stage('Test')", en: "stage('Test')" }, color: '#6366f1' },
+    { id: 'deploy', emoji: '🚀', label: { tr: "stage('Deploy')", en: "stage('Deploy')" }, color: '#22c55e' },
+    { id: 'post', emoji: '📮', label: { tr: 'post {}', en: 'post {}' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'SKIPPED Deploy', en: 'SKIPPED Deploy' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Her Jenkinsfile tek bir kök blokla başlar: `pipeline { ... }`. Bunun içindeki HER ŞEY bu tek blok altında yaşar.',
+        en: 'Every Jenkinsfile starts with a single root block: `pipeline { ... }`. EVERYTHING inside it lives under this one block.',
+      },
+      code: { tr: `pipeline { ... }`, en: `pipeline { ... }` },
+      positions: { pipeline: { x: 50, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `agent any` çalışacağı MAKİNEYİ seçer: pipeline hangi node üzerinde koşacağını bilmeden hiçbir stage başlayamaz.',
+        en: 'Step 1 — `agent any` picks WHICH MACHINE it runs on: no stage can start until the pipeline knows which node it will execute on.',
+      },
+      code: { tr: `agent any`, en: `agent any` },
+      positions: {
+        pipeline: { x: 20, y: 40, scale: 0.9 },
+        agent: { x: 52, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'pipeline', to: 'agent', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — `stages {}` içinde `stage('Build')` çalışır: `steps { sh 'npm install' }` bağımlılıkları kurar.",
+        en: "Step 2 — inside `stages {}`, `stage('Build')` runs: `steps { sh 'npm install' }` installs dependencies.",
+      },
+      code: { tr: `stage('Build') { steps { sh 'npm install' } }`, en: `stage('Build') { steps { sh 'npm install' } }` },
+      positions: {
+        agent: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        build: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'agent', to: 'build', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — sırada `stage('Test')` var: `sh 'npm test'` çalışır. Build başarısızsa Jenkins BURADA durur, sıradaki stage hiç başlamaz.",
+        en: "Step 3 — next is `stage('Test')`: `sh 'npm test'` runs. If Build fails, Jenkins stops RIGHT HERE — the next stage never starts.",
+      },
+      code: { tr: `stage('Test') { steps { sh 'npm test' } }`, en: `stage('Test') { steps { sh 'npm test' } }` },
+      positions: {
+        build: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        test: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'build', to: 'test', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — Test yeşilse `stage('Deploy')` çalışır: sıra, HİYERARŞİ içindeki konuma göre kesindir, rastgele değildir.",
+        en: "Step 4 — if Test is green, `stage('Deploy')` runs: order is fixed by position in the HIERARCHY, never random.",
+      },
+      code: { tr: `stage('Deploy') { steps { sh './scripts/deploy.sh' } }`, en: `stage('Deploy') { steps { sh './scripts/deploy.sh' } }` },
+      positions: {
+        test: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        deploy: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'deploy', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 5 — pipeline bitince `post {}` devreye girer: `always`/`success`/`failure` sonucun ne olduğuna göre farklı bloklar çalıştırır.',
+        en: 'Step 5 — once the pipeline finishes, `post {}` runs: `always`/`success`/`failure` execute different blocks depending on the outcome.',
+      },
+      code: { tr: `post { always { junit '**/*.xml' } }`, en: `post { always { junit '**/*.xml' } }` },
+      positions: {
+        deploy: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        post: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'deploy', to: 'post', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — `stage('Test')` başarısız olsaydı, `stage('Deploy')` hiç çalışmaz, konsolda SKIPPED olarak işaretlenirdi: hiyerarşi bir sözleşmedir, atlanan stage bir hata değil, tasarımın ta kendisidir.",
+        en: "Final (the contrast) — had `stage('Test')` failed, `stage('Deploy')` would never run, marked SKIPPED in the console: the hierarchy is a contract — a skipped stage isn't a bug, it IS the design.",
+      },
+      positions: {
+        pipeline: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'pipeline', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jenkinsCredentialsMaskingFilm = {
+  type: 'video-scene',
+  id: 'jenkins-credentials-masking-film',
+  title: {
+    tr: '🎬 Credentials Store: Secret Nasıl Şifrelenip Güvenle Enjekte Edilir',
+    en: '🎬 Credentials Store: How a Secret Is Encrypted and Safely Injected',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'store', emoji: '🔐', label: { tr: 'Credentials Store', en: 'Credentials Store' }, color: '#0ea5e9' },
+    { id: 'envblock', emoji: '📦', label: { tr: 'environment {}', en: 'environment {}' }, color: '#f59e0b' },
+    { id: 'vars', emoji: '🔑', label: { tr: 'DB_CREDS_USR/PSW', en: 'DB_CREDS_USR/PSW' }, color: '#8b5cf6' },
+    { id: 'step', emoji: '⚙️', label: { tr: 'sh step', en: 'sh step' }, color: '#6366f1' },
+    { id: 'log', emoji: '📜', label: { tr: 'Console Log', en: 'Console Log' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Sızan Parola', en: 'Leaked Password' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Credentials Store, `db-id` adıyla kayıtlı bir veritabanı parolasını ŞİFRELİ olarak tutar — hiçbir Jenkinsfile parolayı düz metin olarak görmez.',
+        en: 'The Credentials Store holds a database password registered as `db-id` in ENCRYPTED form — no Jenkinsfile ever sees it as plain text.',
+      },
+      code: { tr: `credentials('db-id')`, en: `credentials('db-id')` },
+      positions: { store: { x: 18, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — `environment { DB_CREDS = credentials('db-id') }` bu şifreli kaydı pipeline'a bağlar; Jenkins otomatik olarak `DB_CREDS_USR` ve `DB_CREDS_PSW` değişkenlerini oluşturur.",
+        en: "Step 1 — `environment { DB_CREDS = credentials('db-id') }` binds this encrypted record to the pipeline; Jenkins auto-creates `DB_CREDS_USR` and `DB_CREDS_PSW` variables.",
+      },
+      positions: {
+        store: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        envblock: { x: 38, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'store', to: 'envblock' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — bu değişkenler pipeline\'ın çalışma anında ortam değişkeni olarak canlanır; henüz hiçbir yere yazılmadılar.',
+        en: 'Step 2 — these variables come alive as environment variables at pipeline runtime; nothing has been written anywhere yet.',
+      },
+      positions: {
+        envblock: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        vars: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'envblock', to: 'vars', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — bir stage `sh 'echo $DB_CREDS_PSW'` çalıştırır: bu komut ham parolayı stdout'a yazmaya ÇALIŞIR.",
+        en: "Step 3 — a stage runs `sh 'echo $DB_CREDS_PSW'`: this command TRIES to write the raw password to stdout.",
+      },
+      code: { tr: `sh 'echo $DB_CREDS_PSW'`, en: `sh 'echo $DB_CREDS_PSW'` },
+      positions: {
+        vars: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        step: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'vars', to: 'step', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — Jenkins çıktıyı console log'a YAZMADAN ÖNCE tarar: bilinen credential değeriyle eşleşen her alt dizi `****` ile değiştirilir.",
+        en: 'Step 4 — Jenkins scans the output BEFORE writing it to the console log: any substring matching a known credential value is replaced with `****`.',
+      },
+      code: { tr: `**** (masked)`, en: `**** (masked)` },
+      positions: {
+        step: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        log: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'step', to: 'log', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — biri parolayı parçalara bölüp (`echo ${DB_CREDS_PSW:0:3}` gibi) yeniden oluşturmaya çalışsaydı, maskeleme bu parçaları YAKALAYAMAZ ve gerçek parola herkese açık bir Jenkins konsol logunda kalıcı olarak sızardı — üretimde yaşanmış gerçek olay tam olarak budur.',
+        en: 'Final (the contrast) — if someone tried reconstructing the password from fragments (like `echo ${DB_CREDS_PSW:0:3}`), the masking CANNOT CATCH those pieces, and the real password would leak permanently into a publicly readable Jenkins console log — a real production incident happens exactly this way.',
+      },
+      positions: {
+        store: { x: 14, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'store', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jenkinsPytestJmeterReportFilm = {
+  type: 'video-scene',
+  id: 'jenkins-pytest-jmeter-report-film',
+  title: {
+    tr: '🎬 pytest/JMeter Koşumundan Arşivlenen Rapora',
+    en: '🎬 From a pytest/JMeter Run to an Archived Report',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'stage', emoji: '🧪', label: { tr: 'Test Stage', en: 'Test Stage' }, color: '#0ea5e9' },
+    { id: 'pytest', emoji: '🐍', label: { tr: 'pytest', en: 'pytest' }, color: '#f59e0b' },
+    { id: 'jmeter', emoji: '📈', label: { tr: 'JMeter', en: 'JMeter' }, color: '#8b5cf6' },
+    { id: 'reportfile', emoji: '📄', label: { tr: 'report.html / junit.xml', en: 'report.html / junit.xml' }, color: '#6366f1' },
+    { id: 'post', emoji: '📮', label: { tr: 'post { always }', en: 'post { always }' }, color: '#22c55e' },
+    { id: 'slack', emoji: '📢', label: { tr: 'Slack', en: 'Slack' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Kayıp Rapor (post success)', en: 'Missing Report (post success)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Bir Jenkins stage'i `pytest tests/api/ --html=reports/report.html --junitxml=reports/junit.xml` komutunu tetikler.",
+        en: 'A Jenkins stage triggers `pytest tests/api/ --html=reports/report.html --junitxml=reports/junit.xml`.',
+      },
+      code: { tr: `pytest tests/api/ --html=reports/report.html --junitxml=reports/junit.xml`, en: `pytest tests/api/ --html=reports/report.html --junitxml=reports/junit.xml` },
+      positions: { stage: { x: 18, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — pytest API testlerini koşar ve hem HTML hem JUnit XML formatında iki rapor üretir.',
+        en: 'Step 1 — pytest runs the API tests and produces two reports: HTML and JUnit XML.',
+      },
+      positions: {
+        stage: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        pytest: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'stage', to: 'pytest' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — paralel bir stage JMeter yük testini çalıştırır, kendi `.jtl`/HTML dashboard raporunu üretir.",
+        en: "Step 2 — a parallel stage runs the JMeter load test, producing its own `.jtl`/HTML dashboard report.",
+      },
+      positions: {
+        pytest: { x: 22, y: 40, opacity: 0.5, scale: 0.85 },
+        jmeter: { x: 40, y: 62, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'stage', to: 'jmeter', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — her iki araç da dosyalarını workspace içine yazar: `reportfile` artık somut bir kanıt haline geldi.",
+        en: 'Step 3 — both tools write their files into the workspace: `reportfile` is now concrete evidence.',
+      },
+      positions: {
+        pytest: { x: 24, y: 40, opacity: 0.4, scale: 0.8 },
+        jmeter: { x: 24, y: 62, opacity: 0.4, scale: 0.8 },
+        reportfile: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pytest', to: 'reportfile', color: '#f59e0b' }, { from: 'jmeter', to: 'reportfile', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — `post { always { junit ...; publishHTML(...) } }` bu raporları SONUÇ NE OLURSA OLSUN arşivler ve Jenkins UI'da yayınlar.",
+        en: 'Step 4 — `post { always { junit ...; publishHTML(...) } }` archives these reports and publishes them in the Jenkins UI REGARDLESS OF THE OUTCOME.',
+      },
+      code: { tr: `post { always { junit 'reports/junit.xml'; publishHTML([...]) } }`, en: `post { always { junit 'reports/junit.xml'; publishHTML([...]) } }` },
+      positions: {
+        reportfile: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        post: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'reportfile', to: 'post', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: "Adım 5 — test başarısızsa `post { failure { slackSend(...) } }` linkli bir uyarı gönderir — ekip raporu açmadan ÖNCE ne olduğunu bilir.",
+        en: 'Step 5 — if the test fails, `post { failure { slackSend(...) } }` sends a linked alert — the team knows what happened BEFORE even opening the report.',
+      },
+      positions: {
+        post: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        slack: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'post', to: 'slack', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — arşivleme sadece `post { success {...} }` içinde olsaydı, tam da EN ÇOK ihtiyaç duyulan anda — testler BAŞARISIZ olduğunda — rapor asla yayınlanmazdı. Rapor 'her zaman', başarı 'bazen'.",
+        en: "Final (the contrast) — if archiving lived only inside `post { success {...} }`, the report would NEVER be published exactly when it's needed most — when tests FAIL. The report is 'always'; success is 'sometimes'.",
+      },
+      positions: {
+        stage: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'stage', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jenkinsPlaywrightDockerAgentFilm = {
+  type: 'video-scene',
+  id: 'jenkins-playwright-docker-agent-film',
+  title: {
+    tr: '🎬 Playwright Neden Jenkins\'te Docker Agent\'ında Koşmalı',
+    en: '🎬 Why Playwright Should Run in a Docker Agent on Jenkins',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'bare', emoji: '🖥️', label: { tr: 'agent any (çıplak node)', en: 'agent any (bare node)' }, color: '#94a3b8' },
+    { id: 'docker', emoji: '🐳', label: { tr: 'ms-playwright image', en: 'ms-playwright image' }, color: '#0ea5e9' },
+    { id: 'browsers', emoji: '🌐', label: { tr: 'Chromium/Firefox/WebKit', en: 'Chromium/Firefox/WebKit' }, color: '#8b5cf6' },
+    { id: 'runner', emoji: '🎭', label: { tr: 'npx playwright test', en: 'npx playwright test' }, color: '#6366f1' },
+    { id: 'report', emoji: '📊', label: { tr: 'Playwright Report', en: 'Playwright Report' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'browser executable not found', en: 'browser executable not found' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`agent any` ile çıplak bir Linux node üzerinde Playwright testleri doğrudan çalıştırılmaya çalışılır.",
+        en: '`agent any` tries to run Playwright tests directly on a bare Linux node.',
+      },
+      code: { tr: `agent any`, en: `agent any` },
+      positions: { bare: { x: 20, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 (kontrast önce) — node üzerinde tarayıcı sürümü Playwright test runner sürümüyle DRIFT eder: "browser executable not found" hatası patlar.',
+        en: 'Step 1 (contrast first) — the browser version on the node DRIFTS out of sync with the Playwright test runner version: a "browser executable not found" error explodes.',
+      },
+      positions: {
+        bare: { x: 16, y: 40, opacity: 0.6, scale: 0.9 },
+        ghost: { x: 48, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bare', to: 'ghost', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — çözüm: `agent { docker { image 'mcr.microsoft.com/playwright:v1.42.0-jammy' } }` ile pipeline'ın kendisi bir konteynerde çalışır.",
+        en: "Step 2 — the fix: `agent { docker { image 'mcr.microsoft.com/playwright:v1.42.0-jammy' } }` makes the pipeline itself run inside a container.",
+      },
+      code: { tr: `agent { docker { image 'mcr.microsoft.com/playwright:v1.42.0-jammy' } }`, en: `agent { docker { image 'mcr.microsoft.com/playwright:v1.42.0-jammy' } }` },
+      positions: {
+        ghost: { x: 18, y: 55, opacity: 0.3, scale: 0.8 },
+        docker: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bare', to: 'docker', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — bu image, test runner sürümüyle TAM EŞLEŞEN Chromium/Firefox/WebKit ikili dosyalarını zaten içinde barındırır.',
+        en: 'Step 3 — this image already ships Chromium/Firefox/WebKit binaries that EXACTLY MATCH the test runner version.',
+      },
+      positions: {
+        docker: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        browsers: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'docker', to: 'browsers', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — `npx playwright test --reporter=html,junit` artık hiçbir kurulum derdi olmadan temiz çalışır.",
+        en: 'Step 4 — `npx playwright test --reporter=html,junit` now runs cleanly with zero install friction.',
+      },
+      positions: {
+        browsers: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        runner: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'browsers', to: 'runner', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final — `post { always { publishHTML(...) } }` Playwright HTML raporunu ve ekran görüntülerini her koşumda AYNI ortamdan üretir: reproducibility güvenceye alınmış olur.',
+        en: 'Final — `post { always { publishHTML(...) } }` produces the Playwright HTML report and screenshots from the SAME environment every run: reproducibility is guaranteed.',
+      },
+      positions: {
+        runner: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        report: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'runner', to: 'report', color: '#22c55e' }],
+    },
+  ],
+}
+
+const jenkinsSlackNotifyFilm = {
+  type: 'video-scene',
+  id: 'jenkins-slack-notify-film',
+  title: {
+    tr: '🎬 post{success/failure} Slack Webhook\'una Nasıl Akar',
+    en: '🎬 How post{success/failure} Flows into a Slack Webhook',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'result', emoji: '🚦', label: { tr: 'Build Sonucu', en: 'Build Result' }, color: '#0ea5e9' },
+    { id: 'success', emoji: '✅', label: { tr: 'post { success }', en: 'post { success }' }, color: '#22c55e' },
+    { id: 'failure', emoji: '❌', label: { tr: 'post { failure }', en: 'post { failure }' }, color: '#ef4444' },
+    { id: 'webhook', emoji: '📢', label: { tr: 'Slack Webhook', en: 'Slack Webhook' }, color: '#8b5cf6' },
+    { id: 'channel', emoji: '💬', label: { tr: '#qa-alerts', en: '#qa-alerts' }, color: '#f59e0b' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Sessiz Log Dosyası', en: 'Silent Log File' }, color: '#64748b' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Pipeline biter ve bir sonuç hesaplanır: SUCCESS, FAILURE veya UNSTABLE.',
+        en: 'The pipeline finishes and a result is computed: SUCCESS, FAILURE, or UNSTABLE.',
+      },
+      positions: { result: { x: 20, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Sonuç FAILURE ise `post { failure { slackSend(channel: '#qa-alerts', color: 'danger', ...) } }` dalı çalışır.",
+        en: "If the result is FAILURE, the `post { failure { slackSend(channel: '#qa-alerts', color: 'danger', ...) } }` branch runs.",
+      },
+      code: { tr: `slackSend(channel: '#qa-alerts', color: 'danger', message: "❌ FAILED: ...")`, en: `slackSend(channel: '#qa-alerts', color: 'danger', message: "❌ FAILED: ...")` },
+      positions: {
+        result: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        failure: { x: 40, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'result', to: 'failure', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: "SUCCESS ise `post { success { slackSend(channel: '#qa-results', color: 'good', ...) } }` dalı çalışır — mesaj içeriği ve renk farklıdır.",
+        en: "If SUCCESS, the `post { success { slackSend(channel: '#qa-results', color: 'good', ...) } }` branch runs — different message content and color.",
+      },
+      positions: {
+        result: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        success: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'result', to: 'success', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım — her iki dal da `slackSend` üzerinden Slack Webhook API\'sine bir mesaj gönderir; build URL\'i mesajın içine gömülür.',
+        en: 'Step — both branches send a message to the Slack Webhook API via `slackSend`; the build URL is embedded in the message.',
+      },
+      positions: {
+        failure: { x: 42, y: 60, opacity: 0.5, scale: 0.85 },
+        success: { x: 42, y: 40, opacity: 0.5, scale: 0.85 },
+        webhook: { x: 66, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'failure', to: 'webhook', color: '#8b5cf6' }, { from: 'success', to: 'webhook', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım — mesaj saniyeler içinde `#qa-alerts` kanalına düşer: build\'i kıran kişi henüz masasından kalkmadan konsol linkine tıklayabilir.',
+        en: 'Step — the message lands in `#qa-alerts` within seconds: the person who broke the build can click the console link before they even leave their desk.',
+      },
+      positions: {
+        webhook: { x: 30, y: 50, opacity: 0.5, scale: 0.85 },
+        channel: { x: 58, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'webhook', to: 'channel', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Slack olmasaydı, sonuç sadece Jenkins konsolunda oturan sessiz bir log dosyasında kalırdı; kimse aramadıkça görünmezdi ve ertesi sabah standup\'ta 3 ekstra merge zaten bloke olmuş olurdu.',
+        en: "Final (the contrast) — without Slack, the result would just sit in a silent log file inside the Jenkins console; invisible until someone goes looking, and by next morning's standup, 3 extra merges would already be blocked.",
+      },
+      positions: {
+        result: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'result', to: 'ghost', color: '#64748b' }],
+    },
+  ],
+}
+
+const jenkinsParallelStagesFilm = {
+  type: 'video-scene',
+  id: 'jenkins-parallel-stages-film',
+  title: {
+    tr: '🎬 parallel {}: İki Stage Aynı Anda Nasıl Koşar',
+    en: '🎬 parallel {}: How Two Stages Run at the Same Time',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'parent', emoji: '🧪', label: { tr: "Run QA Tests", en: 'Run QA Tests' }, color: '#0ea5e9' },
+    { id: 'chrome', emoji: '🌐', label: { tr: 'UI Tests - Chrome', en: 'UI Tests - Chrome' }, color: '#f59e0b' },
+    { id: 'firefox', emoji: '🦊', label: { tr: 'UI Tests - Firefox', en: 'UI Tests - Firefox' }, color: '#8b5cf6' },
+    { id: 'exec1', emoji: '⚙️', label: { tr: 'Executor 1', en: 'Executor 1' }, color: '#22c55e' },
+    { id: 'exec2', emoji: '⚙️', label: { tr: 'Executor 2', en: 'Executor 2' }, color: '#22c55e' },
+    { id: 'merged', emoji: '🔀', label: { tr: 'Birleşik Sonuç', en: 'Combined Result' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Sıralı Koşum (2x Süre)', en: 'Sequential Run (2x Time)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "`stage('Run QA Tests')` içinde bir `parallel {}` bloğu açılır — bu blok, altındaki her child stage'i AYNI ANDA başlatmak için tasarlanmıştır.",
+        en: "Inside `stage('Run QA Tests')`, a `parallel {}` block opens — designed to start every child stage under it AT THE SAME TIME.",
+      },
+      code: { tr: `stage('Run QA Tests') { parallel { ... } }`, en: `stage('Run QA Tests') { parallel { ... } }` },
+      positions: { parent: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — `stage('UI Tests - Chrome')` ve `stage('UI Tests - Firefox')` iki AYRI child stage olarak tanımlanır.",
+        en: "Step 1 — `stage('UI Tests - Chrome')` and `stage('UI Tests - Firefox')` are defined as two SEPARATE child stages.",
+      },
+      positions: {
+        parent: { x: 20, y: 50, opacity: 0.6, scale: 0.9 },
+        chrome: { x: 50, y: 32, scale: 1.1, pulse: true },
+        firefox: { x: 50, y: 68, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'parent', to: 'chrome' }, { from: 'parent', to: 'firefox' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Jenkins Chrome branch\'ine Executor 1\'i, Firefox branch\'ine Executor 2\'yi ayırır: iki farklı executor, iki farklı browser testi.',
+        en: 'Step 2 — Jenkins allocates Executor 1 to the Chrome branch and Executor 2 to the Firefox branch: two different executors, two different browser tests.',
+      },
+      positions: {
+        chrome: { x: 30, y: 32, opacity: 0.6, scale: 0.9 },
+        firefox: { x: 30, y: 68, opacity: 0.6, scale: 0.9 },
+        exec1: { x: 58, y: 32, scale: 1.15, pulse: true },
+        exec2: { x: 58, y: 68, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'chrome', to: 'exec1', color: '#f59e0b' }, { from: 'firefox', to: 'exec2', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — her iki branch de `npx playwright test --project=chromium` ve `--project=firefox` komutlarını AYNI ANDA, aynı wall-clock zamanda çalıştırır.',
+        en: 'Step 3 — both branches run `npx playwright test --project=chromium` and `--project=firefox` SIMULTANEOUSLY, in the same wall-clock time.',
+      },
+      positions: {
+        exec1: { x: 30, y: 32, opacity: 0.6, scale: 0.9 },
+        exec2: { x: 30, y: 68, opacity: 0.6, scale: 0.9 },
+        merged: { x: 62, y: 50, scale: 0.9, opacity: 0.4 },
+      },
+      beams: [{ from: 'exec1', to: 'merged', color: '#22c55e' }, { from: 'exec2', to: 'merged', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — iki branch de bittiğinde, `parallel {}` bloğu sonuçları TEK bir parent stage kararına toplar: her ikisi de geçtiyse stage geçer.",
+        en: "Step 4 — once both branches finish, the `parallel {}` block combines the results into ONE parent-stage decision: if both pass, the stage passes.",
+      },
+      positions: {
+        merged: { x: 55, y: 50, scale: 1.25, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — `parallel {}` olmadan Firefox branch'i, Chrome TAMAMEN bitene kadar beklerdi; toplam pipeline süresi neredeyse İKİYE katlanırdı. `parallel {}` bu bekleyişi ortadan kaldırır.",
+        en: "Final (the contrast) — without `parallel {}`, the Firefox branch would wait until Chrome FULLY finished; total pipeline duration would nearly DOUBLE. `parallel {}` eliminates that wait.",
+      },
+      positions: {
+        parent: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'parent', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jenkinsPrToProdFilm = {
+  type: 'video-scene',
+  id: 'jenkins-pr-to-prod-film',
+  title: {
+    tr: '🎬 Bir PR Merge\'ünden Production Deploy\'a Tam Pipeline Akışı',
+    en: '🎬 The Full Pipeline Flow from PR Merge to Production Deploy',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pr', emoji: '🔀', label: { tr: 'Pull Request', en: 'Pull Request' }, color: '#0ea5e9' },
+    { id: 'jenkins', emoji: '🔧', label: { tr: 'Jenkins Pipeline', en: 'Jenkins Pipeline' }, color: '#8b5cf6' },
+    { id: 'tests', emoji: '🧪', label: { tr: 'Unit/API/UI Testleri', en: 'Unit/API/UI Tests' }, color: '#6366f1' },
+    { id: 'gate', emoji: '🚦', label: { tr: 'Quality Gate', en: 'Quality Gate' }, color: '#f59e0b' },
+    { id: 'merge', emoji: '✅', label: { tr: 'Merge Kararı', en: 'Merge Decision' }, color: '#22c55e' },
+    { id: 'prod', emoji: '🚀', label: { tr: 'Production Deploy', en: 'Production Deploy' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Bloke PR', en: 'Blocked PR' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir Pull Request açılır veya güncellenir: bu, tam pipeline zincirinin ilk halkasıdır.',
+        en: 'A Pull Request is opened or updated: this is the first link in the full pipeline chain.',
+      },
+      positions: { pr: { x: 16, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Jenkins pipeline checkout ve build stage\'lerini otomatik çalıştırır; hiç kimse "test ettim" demez, Jenkins bunu kanıtlar.',
+        en: 'Step 1 — the Jenkins pipeline automatically runs checkout and build stages; nobody just says "I tested it" — Jenkins proves it.',
+      },
+      positions: {
+        pr: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        jenkins: { x: 38, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'pr', to: 'jenkins' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Unit/API/UI test stage\'leri koşar ve her biri kendi raporunu üretir.',
+        en: 'Step 2 — Unit/API/UI test stages run and each produces its own report.',
+      },
+      positions: {
+        jenkins: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        tests: { x: 46, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'jenkins', to: 'tests', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — bir Quality Gate bu raporları değerlendirir: coverage eşiği, geçen/kalan test sayısı gibi kriterler kontrol edilir.",
+        en: 'Step 3 — a Quality Gate evaluates these reports: criteria like coverage threshold and pass/fail counts are checked.',
+      },
+      positions: {
+        tests: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        gate: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'tests', to: 'gate', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — gate geçilirse merge kararı ONAYLANIR ve kod main branch\'ine birleşir.',
+        en: 'Step 4 — if the gate passes, the merge decision is APPROVED and the code merges into the main branch.',
+      },
+      positions: {
+        gate: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        merge: { x: 50, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'gate', to: 'merge', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: "Adım 5 — main'e onaylı merge, ayrı bir pipeline koşumunu tetikler: bu koşum production deploy stage'ine kadar ilerler.",
+        en: 'Step 5 — an approved merge into main triggers a separate pipeline run: this run proceeds all the way to the production deploy stage.',
+      },
+      positions: {
+        merge: { x: 26, y: 50, opacity: 0.5, scale: 0.85 },
+        prod: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'merge', to: 'prod', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — Quality Gate geçilmeseydi, PR BLOKE kalırdı: merge butonu devre dışı bırakılır ve rapor/log linki doğrudan PR yorumuna yazılır — kod sessizce main'e sızmaz.",
+        en: "Final (the contrast) — had the Quality Gate failed, the PR would stay BLOCKED: the merge button is disabled and the report/log link is posted directly on the PR — code never quietly leaks into main.",
+      },
+      positions: {
+        pr: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'pr', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jenkinsPluginEcosystemFilm = {
+  type: 'video-scene',
+  id: 'jenkins-plugin-ecosystem-film',
+  title: {
+    tr: '🎬 Jenkins Plugin Ekosistemi: Core Aslında Ne Kadar İnce Bir Kabuk',
+    en: '🎬 The Jenkins Plugin Ecosystem: How Thin the Core Really Is',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'core', emoji: '🔧', label: { tr: 'Jenkins Core', en: 'Jenkins Core' }, color: '#0ea5e9' },
+    { id: 'pipelinePlugin', emoji: '📜', label: { tr: 'Pipeline Plugin', en: 'Pipeline Plugin' }, color: '#f59e0b' },
+    { id: 'blueOcean', emoji: '🌊', label: { tr: 'Blue Ocean', en: 'Blue Ocean' }, color: '#8b5cf6' },
+    { id: 'credBinding', emoji: '🔐', label: { tr: 'Credentials Binding', en: 'Credentials Binding' }, color: '#6366f1' },
+    { id: 'dockerPlugin', emoji: '🐳', label: { tr: 'Docker Plugin', en: 'Docker Plugin' }, color: '#22c55e' },
+    { id: 'slackPlugin', emoji: '📢', label: { tr: 'Slack Plugin', en: 'Slack Plugin' }, color: '#10b981' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Eksik Plugin: Parse Hatası', en: 'Missing Plugin: Parse Error' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Jenkins Core tek başına şaşırtıcı derecede sade bir şeydir: bir job zamanlayıcı ve bir shell komut çalıştırıcı. Gerçek gücü 1800+ plugin'den gelir.",
+        en: 'Jenkins Core alone is surprisingly plain: a job scheduler and a shell command runner. Its real power comes from 1800+ plugins.',
+      },
+      positions: { core: { x: 20, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — `pipeline { }` sözdiziminin KENDİSİ bile bir plugin'dir: Pipeline Plugin olmadan Jenkinsfile'daki `stages`/`stage`/`steps` DSL'i hiç var olmazdı.",
+        en: 'Step 1 — the `pipeline { }` syntax ITSELF is a plugin: without the Pipeline Plugin, the `stages`/`stage`/`steps` DSL in your Jenkinsfile would not exist at all.',
+      },
+      positions: {
+        core: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        pipelinePlugin: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'core', to: 'pipelinePlugin' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Blue Ocean, o aynı Jenkinsfile'ı ekip için görsel bir grafik haline getirir: hangi stage'in nerede takıldığı tek bakışta görünür.",
+        en: 'Step 2 — Blue Ocean renders that same Jenkinsfile as a visual graph for the team: which stage got stuck where is visible at a glance.',
+      },
+      positions: {
+        pipelinePlugin: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        blueOcean: { x: 56, y: 30, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'pipelinePlugin', to: 'blueOcean', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Credentials Binding, `credentials('db-id')` fonksiyonunun VAR OLMASINI sağlayan plugin'dir; secret enjeksiyonu bu plugin sayesinde çalışır.",
+        en: "Step 3 — Credentials Binding is the plugin that makes the `credentials('db-id')` function EXIST at all; secret injection works because of this plugin.",
+      },
+      positions: {
+        core: { x: 16, y: 60, opacity: 0.5, scale: 0.85 },
+        credBinding: { x: 42, y: 68, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'core', to: 'credBinding', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: "Adım 4 — Docker Plugin, `agent { docker { image '...' } }` bloğunu mümkün kılar: agent'lar isteğe bağlı konteynerlerde ayağa kalkar.",
+        en: "Step 4 — the Docker Plugin makes `agent { docker { image '...' } }` possible: agents spin up in containers on demand.",
+      },
+      positions: {
+        credBinding: { x: 30, y: 68, opacity: 0.5, scale: 0.85 },
+        dockerPlugin: { x: 58, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'credBinding', to: 'dockerPlugin', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: "Adım 5 — Slack Plugin, `post { }` bloğundaki sonucu gerçek zamanlı bir bildirime çevirir: eksiksiz zincir artık bir ekosistem oldu.",
+        en: 'Step 5 — the Slack Plugin turns the `post { }` result into a real-time notification: the complete chain has become an ecosystem.',
+      },
+      positions: {
+        dockerPlugin: { x: 40, y: 60, opacity: 0.5, scale: 0.85 },
+        slackPlugin: { x: 66, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dockerPlugin', to: 'slackPlugin', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — Credentials Binding kurulu olmasaydı, `credentials('db-id')` diye bir fonksiyon Jenkins için hiç var olmazdı ve Jenkinsfile ÇALIŞMADAN ÖNCE parse hatasıyla kırılırdı. 'Core Jenkins', 1800+ plugin etrafındaki ince bir kabuktan ibarettir.",
+        en: "Final (the contrast) — without Credentials Binding installed, `credentials('db-id')` would not exist as a function for Jenkins at all, and the Jenkinsfile would break with a parse error BEFORE it even ran. 'Core Jenkins' is just a thin shell around 1800+ plugins.",
+      },
+      positions: {
+        core: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'core', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
+const jenkinsInterviewBuildLifecycleFilm = {
+  type: 'video-scene',
+  id: 'jenkins-interview-build-lifecycle-film',
+  title: {
+    tr: '🎬 Mülakat Klasiği: Bir Build Queue\'dan Executor\'a Nasıl Geçer',
+    en: '🎬 Interview Classic: How a Build Moves from the Queue to an Executor',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'queue', emoji: '🕒', label: { tr: 'Build Queue', en: 'Build Queue' }, color: '#0ea5e9' },
+    { id: 'executor', emoji: '⚙️', label: { tr: 'Executor / Agent', en: 'Executor / Agent' }, color: '#f59e0b' },
+    { id: 'workspace', emoji: '📁', label: { tr: 'Workspace', en: 'Workspace' }, color: '#8b5cf6' },
+    { id: 'run', emoji: '🔧', label: { tr: 'Pipeline Koşumu', en: 'Pipeline Run' }, color: '#6366f1' },
+    { id: 'cleanup', emoji: '🧹', label: { tr: 'post / cleanup', en: 'post / cleanup' }, color: '#22c55e' },
+    { id: 'ghost', emoji: '👻', label: { tr: 'Kuyrukta Sıkışmış Build', en: 'Build Stuck in Queue' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakatta sık sorulan soru: "Build\'im Jenkins UI\'da BAŞLAMIYOR, neden?" Cevap, pipeline sözdiziminde değil, bu yaşam döngüsünde saklı.',
+        en: 'A common interview question: "My build is NOT STARTING in the Jenkins UI, why?" The answer isn\'t in pipeline syntax — it\'s in this lifecycle.',
+      },
+      positions: { queue: { x: 18, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — webhook veya manuel tetikleme, build isteğini Jenkins Build Queue\'suna KOYAR; bu an henüz "koşuyor" değil, sadece "bekliyor" demektir.',
+        en: 'Step 1 — a webhook or manual trigger PLACES the build request into the Jenkins Build Queue; at this point it is only "waiting," not yet "running."',
+      },
+      positions: { queue: { x: 30, y: 50, scale: 1.2, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Jenkins, gerekli label\'a (örn. `docker`, `linux`) sahip BOŞ bir executor/agent arar.',
+        en: 'Step 2 — Jenkins looks for a FREE executor/agent that matches the required label (e.g. `docker`, `linux`).',
+      },
+      positions: {
+        queue: { x: 18, y: 50, opacity: 0.5, scale: 0.85 },
+        executor: { x: 44, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'queue', to: 'executor', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — uygun bir executor bulununca, o executor kendine ait bir Workspace dizini ayırır ve kaynak kodu oraya checkout eder.',
+        en: 'Step 3 — once a matching executor is found, it allocates its own Workspace directory and checks out the source code there.',
+      },
+      positions: {
+        executor: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        workspace: { x: 46, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'executor', to: 'workspace', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — pipeline stage\'leri bu Workspace İÇİNDE çalışır; her `sh`/`pytest`/`npm` komutu bu dizine göre konumlanır.',
+        en: 'Step 4 — the pipeline stages run INSIDE this Workspace; every `sh`/`pytest`/`npm` command is positioned relative to this directory.',
+      },
+      positions: {
+        workspace: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        run: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'workspace', to: 'run', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: "Adım 5 — pipeline biterken `post {}` (always/success/failure) çalışır, artifact'ler arşivlenir; SONRA executor serbest bırakılır ve kuyruktaki bir sonraki build'e geçer.",
+        en: 'Step 5 — as the pipeline finishes, `post {}` (always/success/failure) runs, artifacts are archived; THEN the executor is released and moves to the next queued build.',
+      },
+      positions: {
+        run: { x: 24, y: 50, opacity: 0.5, scale: 0.85 },
+        cleanup: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'run', to: 'cleanup', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast/mülakat cevabı) — TÜM executor'lar meşgulse, yeni build KUYRUKTA SIKIŞIR: bu bir pipeline hatası değil, agent/executor KAPASİTE sorunudur. Mülakatta doğru cevap tam olarak budur.",
+        en: "Final (the contrast / the interview answer) — if ALL executors are busy, the new build gets STUCK IN THE QUEUE: this is not a pipeline bug, it's an agent/executor CAPACITY issue. That is precisely the correct interview answer.",
+      },
+      positions: {
+        queue: { x: 16, y: 30, scale: 0.9 },
+        ghost: { x: 70, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'queue', to: 'ghost', color: '#ef4444' }],
+    },
+  ],
+}
+
 export const jenkinsData = {
   // CP8 sekme atomikleştirme (2026-07-06): 8 mega-sekme → 11 atomik sekme.
   // Eski [2] "Pipeline Basics" 2'ye (First Jenkinsfile / Environment &
@@ -908,6 +1929,7 @@ export const jenkinsData = {
             ],
           },
           ...jenkinsIntroInteractiveBlocks,
+          jenkinsCicdFlowFilm,
           {
             type: 'quiz',
             question: 'What does "Continuous Integration" primarily mean?',
@@ -1075,6 +2097,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             ],
           },
           ...jenkinsInstallationInteractiveBlocks,
+          jenkinsFirstJobSetupFilm,
           {
             type: 'quiz',
             question: 'What is the default port for Jenkins web interface?',
@@ -1270,6 +2293,7 @@ pipeline {
               { id: 'back-to-green', text: { tr: "exit 1'i kaldırıp build'i tekrar YEŞİLE çevir — gerçek işte her kırmızı build böyle kapanır", en: "Remove exit 1 and turn the build GREEN again — that's how every red build ends in real work" } },
             ],
           },
+          jenkinsfileHierarchyFilm,
           {
             type: 'quiz',
             question: 'In the Jenkins Sandbox, removing the `agent any` line from a Jenkinsfile causes the build to fail with a compile error before any stage even starts. Why is `agent` mandatory at the top of a declarative pipeline?',
@@ -1383,6 +2407,7 @@ pipeline {
 }`,
           },
           ...jenkinsPipelineInteractiveBlocks,
+          jenkinsCredentialsMaskingFilm,
           {
             type: 'quiz',
             question: 'In a Declarative Pipeline, which keyword contains the shell commands to run inside a stage?',
@@ -1539,6 +2564,7 @@ pipeline {
             ],
             xpReward: 10,
           },
+          jenkinsPytestJmeterReportFilm,
           {
             type: 'quiz',
             question: 'A teammate\'s Jenkinsfile runs JMeter with the GUI mode flag inside a CI stage, and the build hangs indefinitely. What is the correct fix?',
@@ -1637,6 +2663,7 @@ pipeline {
             icon: '🧪',
             content: { tr: 'Şimdi İlk Jenkinsfile sekmesindeki Jenkins Sandbox\'ta dene: yukarıdaki gibi resmi bir Docker image kullanan bir stage ekle (mevcut \'Deploy\' stage\'ine benzer şekilde, içinde bir echo adımı yeterli) ve build\'i yeşil bitir.', en: 'Try it now in the Jenkins Sandbox on the First Jenkinsfile tab: add a stage that uses an official Docker image like the one above (similar to the existing "Deploy" stage, an echo step is enough) and finish the build green.' },
           },
+          jenkinsPlaywrightDockerAgentFilm,
           {
             type: 'quiz',
             question: "A Jenkinsfile runs Playwright tests on a plain `agent any` Linux node and consistently fails with 'browser executable not found'. What is the recommended fix shown in this lesson?",
@@ -1726,6 +2753,7 @@ Logs: <\${env.BUILD_URL}console|Console Output>"""
 }`,
           },
           ...jenkinsQaInteractiveBlocks,
+          jenkinsSlackNotifyFilm,
           {
             type: 'quiz',
             question: 'In Jenkins post actions, which block should you use to ALWAYS publish test reports — even when the build fails?',
@@ -2018,6 +3046,7 @@ stage('Flaky Tests') {
             ],
           },
           ...jenkinsAdvancedInteractiveBlocks,
+          jenkinsParallelStagesFilm,
           {
             type: 'quiz',
             question: 'How do you run multiple Jenkins stages SIMULTANEOUSLY?',
@@ -2172,6 +3201,7 @@ pipeline {
 // click "Build Now" — watch each stage light up green/red in real time.`
           },
           ...jenkinsRealWorldInteractiveBlocks,
+          jenkinsPrToProdFilm,
           {
             type: 'quiz',
             question: 'An organization needs self-hosted CI with full control and complex custom pipelines, and already has a large legacy plugin ecosystem. Which tool fits best, and why?',
@@ -2235,6 +3265,7 @@ pipeline {
           },
           { type: 'heading', text: 'Where Jenkins Sits Next to Other QA/DevOps Tools' },
           { type: 'text', content: 'In a typical pipeline: Git triggers Jenkins → Jenkins spins up a Docker container to build the app → runs unit tests, then Selenium/Playwright E2E tests inside another container → SonarQube scans for quality gates → on success, Jenkins pushes the image to a registry and triggers a Kubernetes deploy → Slack announces the result. QA engineers most often touch Jenkins when adding or debugging the test stages of this pipeline.' },
+          jenkinsPluginEcosystemFilm,
           {
             type: 'quiz',
             question: 'What is the core benefit of Jenkins spinning up a fresh Docker container as the build agent for every single pipeline run?',
@@ -2278,6 +3309,85 @@ pipeline {
       {
         title: '💼 Jenkins Interview Questions',
         blocks: [
+          jenkinsInterviewBuildLifecycleFilm,
+          {
+            type: 'step-animation',
+            title: { tr: 'Mülakatta Sık Sorulan: Build Neden Kuyrukta Bekliyor', en: 'Common Interview Question: Why Is My Build Waiting in the Queue' },
+            steps: [
+              { id: 1, icon: '🕒', label: { tr: 'İstek kuyruğa girer', en: 'Request enters the queue' }, detail: { tr: 'Webhook veya manuel tetikleme build isteğini Build Queue\'suna koyar; henüz hiçbir executor tahsis edilmedi.', en: 'A webhook or manual trigger places the build request in the Build Queue; no executor has been assigned yet.' } },
+              { id: 2, icon: '⚙️', label: { tr: 'Uygun executor aranır', en: 'A matching executor is searched' }, detail: { tr: 'Jenkins, gerekli label\'a (docker, linux vb.) sahip boş bir agent/executor arar.', en: 'Jenkins looks for a free agent/executor that matches the required label (docker, linux, etc.).' } },
+              { id: 3, icon: '📁', label: { tr: 'Workspace ayrılır', en: 'A workspace is allocated' }, detail: { tr: 'Bulunan executor kendi Workspace dizinini oluşturur ve kaynak kodu checkout eder.', en: 'The found executor creates its own Workspace directory and checks out the source code.' } },
+              { id: 4, icon: '🔧', label: { tr: 'Pipeline koşar', en: 'The pipeline runs' }, detail: { tr: 'Stage\'ler bu workspace içinde çalışır; post {} ile artifact\'ler arşivlenir.', en: 'Stages run inside this workspace; post {} archives the artifacts.' } },
+              { id: 5, icon: '🚦', label: { tr: 'Tüm executor\'lar meşgulse bekleme uzar', en: 'If all executors are busy, the wait grows' }, detail: { tr: 'Bu bir pipeline hatası değildir — agent/executor KAPASİTE sorunudur; mülakatın doğru cevabı budur.', en: 'This is not a pipeline bug — it is an agent/executor CAPACITY issue; that is the correct interview answer.' } },
+            ],
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'jenkins-ci-cd',
+            id: 'jenkins-interview-build-lifecycle-practice',
+            label: { tr: 'Pratik: Bir Mülakat Sorusuna Kod Üzerinden Cevap Ver', en: 'Practice: Answer an Interview Question Through Code' },
+            language: 'groovy',
+            task: {
+              tr: 'Amaç: "Build\'im neden başlamıyor?" mülakat sorusuna, agent/executor kapasitesini gösteren bir Jenkinsfile parçasıyla cevap vermek. Java analojisi: bir thread pool\'da tüm thread\'ler meşgulse yeni görev nasıl kuyrukta beklerse, Jenkins executor\'ları da aynı şekilde davranır.',
+              en: 'Goal: answer the "Why isn\'t my build starting?" interview question with a Jenkinsfile snippet that shows agent/executor capacity. Java analogy: just as a new task waits in the queue when every thread in a thread pool is busy, Jenkins executors behave the same way.',
+            },
+            explanation: {
+              tr: 'TODO yerlerini doldur: agent label\'ı ile hangi executor havuzunun kullanılacağını belirt, ardından bir stage ekle.',
+              en: 'Fill in the TODOs: specify which executor pool to use via the agent label, then add a stage.',
+            },
+            code: {
+              tr: `pipeline {
+    agent { label TODO }
+    stages {
+        stage('Test') { steps { TODO } }
+    }
+}`,
+              en: `pipeline {
+    agent { label TODO }
+    stages {
+        stage('Test') { steps { TODO } }
+    }
+}`,
+            },
+            starterCode: {
+              tr: `pipeline {
+    agent { label TODO }
+    stages {
+        stage('Test') { steps { TODO } }
+    }
+}`,
+              en: `pipeline {
+    agent { label TODO }
+    stages {
+        stage('Test') { steps { TODO } }
+    }
+}`,
+            },
+            solutionCode: {
+              tr: `pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Test') { steps { sh 'pytest tests/' } }
+    }
+}`,
+              en: `pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Test') { steps { sh 'pytest tests/' } }
+    }
+}`,
+            },
+            expected: {
+              tr: `'linux' etiketli bir executor bulunursa build hemen başlar; bulunamazsa kuyrukta bekler.`,
+              en: `If an executor labeled 'linux' is found, the build starts immediately; otherwise it waits in the queue.`,
+            },
+            hints: [
+              { tr: 'agent { label \'linux\' } belirli bir executor grubunu hedefler.', en: 'agent { label \'linux\' } targets a specific executor group.' },
+              { tr: 'Etiketle eşleşen boş bir executor yoksa build kuyrukta bekler, bu bir hata değildir.', en: 'If there is no free executor matching the label, the build waits in the queue — this is not a bug.' },
+              { tr: 'sh adımı steps {} içinde çalışır, agent bloğunun dışında değil.', en: 'The sh step runs inside steps {}, not outside the agent block.' },
+            ],
+            xpReward: 12,
+          },
           {
             type: 'interview-questions',
               relatedTopicId: 'jenkins-ci-cd',
@@ -2494,6 +3604,7 @@ pipeline {
             ],
           },
           ...jenkinsIntroInteractiveBlocks,
+          jenkinsCicdFlowFilm,
           {
             type: 'quiz',
             question: '"Continuous Integration" öncelikle ne anlama gelir?',
@@ -2622,6 +3733,7 @@ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
             ],
           },
           ...jenkinsInstallationInteractiveBlocks,
+          jenkinsFirstJobSetupFilm,
           {
             type: 'quiz',
             question: 'Jenkins web arayüzünün varsayılan portu hangisidir?',
@@ -2816,6 +3928,7 @@ pipeline {
               { id: 'back-to-green', text: { tr: "exit 1'i kaldırıp build'i tekrar YEŞİLE çevir — gerçek işte her kırmızı build böyle kapanır", en: "Remove exit 1 and turn the build GREEN again — that's how every red build ends in real work" } },
             ],
           },
+          jenkinsfileHierarchyFilm,
           {
             type: 'quiz',
             question: 'Jenkins Sandbox\'ta bir Jenkinsfile\'dan `agent any` satırını silmek, hiçbir stage başlamadan bir derleme hatasıyla build\'i başarısız kılar. `agent` bir declarative pipeline\'ın başında neden zorunludur?',
@@ -2929,6 +4042,7 @@ pipeline {
 }`,
           },
           ...jenkinsPipelineInteractiveBlocks,
+          jenkinsCredentialsMaskingFilm,
           {
             type: 'quiz',
             question: 'Declarative Pipeline\'da, stage içinde çalıştırılacak shell komutlarını hangi keyword tanımlar?',
@@ -3085,6 +4199,7 @@ pipeline {
             ],
             xpReward: 10,
           },
+          jenkinsPytestJmeterReportFilm,
           {
             type: 'quiz',
             question: 'Bir takım arkadaşının Jenkinsfile\'ı bir CI stage\'inde JMeter\'ı GUI mode bayrağıyla çalıştırıyor ve build sonsuza dek asılı kalıyor. Doğru çözüm nedir?',
@@ -3183,6 +4298,7 @@ pipeline {
             icon: '🧪',
             content: { tr: 'Şimdi İlk Jenkinsfile sekmesindeki Jenkins Sandbox\'ta dene: yukarıdaki gibi resmi bir Docker image kullanan bir stage ekle (mevcut \'Deploy\' stage\'ine benzer şekilde, içinde bir echo adımı yeterli) ve build\'i yeşil bitir.', en: 'Try it now in the Jenkins Sandbox on the First Jenkinsfile tab: add a stage that uses an official Docker image like the one above (similar to the existing "Deploy" stage, an echo step is enough) and finish the build green.' },
           },
+          jenkinsPlaywrightDockerAgentFilm,
           {
             type: 'quiz',
             question: 'Bir Jenkinsfile, Playwright testlerini düz bir `agent any` Linux node\'unda çalıştırıyor ve sürekli "browser executable not found" hatasıyla başarısız oluyor. Bu derste gösterilen önerilen çözüm nedir?',
@@ -3265,6 +4381,7 @@ Log: <\${env.BUILD_URL}console|Console Çıktısı>"""
 }`,
           },
           ...jenkinsQaInteractiveBlocks,
+          jenkinsSlackNotifyFilm,
           {
             type: 'quiz',
             question: 'Jenkins post action\'larında, build başarısız olsa bile test raporlarını HER ZAMAN yayınlamak için hangi blok kullanılır?',
@@ -3556,6 +4673,7 @@ stage('Flaky Testler') {
             ],
           },
           ...jenkinsAdvancedInteractiveBlocks,
+          jenkinsParallelStagesFilm,
           {
             type: 'quiz',
             question: 'Birden fazla Jenkins stage\'ini AYNI ANDA çalıştırmak için hangi directive kullanılır?',
@@ -3710,6 +4828,7 @@ pipeline {
 // yeşil/kırmızı yandığını izle.`
           },
           ...jenkinsRealWorldInteractiveBlocks,
+          jenkinsPrToProdFilm,
           {
             type: 'quiz',
             question: 'Bir organizasyon tam kontrole sahip self-hosted CI istiyor, karmaşık özel pipeline\'lara ihtiyacı var ve zaten büyük bir legacy plugin ekosistemine sahip. Hangi araç buna en uygun, ve neden?',
@@ -3773,6 +4892,7 @@ pipeline {
           },
           { type: 'heading', text: 'Jenkins Diğer QA/DevOps Araçları Yanında Nerede Duruyor' },
           { type: 'text', content: 'Tipik bir pipeline\'da: Git Jenkins\'i tetikler → Jenkins uygulamayı build etmek için bir Docker container başlatır → unit testleri, ardından başka bir container içinde Selenium/Playwright E2E testlerini çalıştırır → SonarQube kalite kapıları için tarar → başarılı olursa Jenkins image\'ı bir registry\'e push eder ve bir Kubernetes deploy\'u tetikler → Slack sonucu duyurur. QA mühendisleri Jenkins\'e en çok bu pipeline\'ın test aşamalarını eklerken veya debug ederken dokunur.' },
+          jenkinsPluginEcosystemFilm,
           {
             type: 'quiz',
             question: 'Jenkins\'in her pipeline çalıştırmasında build agent olarak taze bir Docker container başlatmasının temel avantajı nedir?',
@@ -3816,6 +4936,85 @@ pipeline {
       {
         title: '💼 Jenkins Mülakat Soruları',
         blocks: [
+          jenkinsInterviewBuildLifecycleFilm,
+          {
+            type: 'step-animation',
+            title: { tr: 'Mülakatta Sık Sorulan: Build Neden Kuyrukta Bekliyor', en: 'Common Interview Question: Why Is My Build Waiting in the Queue' },
+            steps: [
+              { id: 1, icon: '🕒', label: { tr: 'İstek kuyruğa girer', en: 'Request enters the queue' }, detail: { tr: 'Webhook veya manuel tetikleme build isteğini Build Queue\'suna koyar; henüz hiçbir executor tahsis edilmedi.', en: 'A webhook or manual trigger places the build request in the Build Queue; no executor has been assigned yet.' } },
+              { id: 2, icon: '⚙️', label: { tr: 'Uygun executor aranır', en: 'A matching executor is searched' }, detail: { tr: 'Jenkins, gerekli label\'a (docker, linux vb.) sahip boş bir agent/executor arar.', en: 'Jenkins looks for a free agent/executor that matches the required label (docker, linux, etc.).' } },
+              { id: 3, icon: '📁', label: { tr: 'Workspace ayrılır', en: 'A workspace is allocated' }, detail: { tr: 'Bulunan executor kendi Workspace dizinini oluşturur ve kaynak kodu checkout eder.', en: 'The found executor creates its own Workspace directory and checks out the source code.' } },
+              { id: 4, icon: '🔧', label: { tr: 'Pipeline koşar', en: 'The pipeline runs' }, detail: { tr: 'Stage\'ler bu workspace içinde çalışır; post {} ile artifact\'ler arşivlenir.', en: 'Stages run inside this workspace; post {} archives the artifacts.' } },
+              { id: 5, icon: '🚦', label: { tr: 'Tüm executor\'lar meşgulse bekleme uzar', en: 'If all executors are busy, the wait grows' }, detail: { tr: 'Bu bir pipeline hatası değildir — agent/executor KAPASİTE sorunudur; mülakatın doğru cevabı budur.', en: 'This is not a pipeline bug — it is an agent/executor CAPACITY issue; that is the correct interview answer.' } },
+            ],
+          },
+          {
+            type: 'code-playground',
+            relatedTopicId: 'jenkins-ci-cd',
+            id: 'jenkins-interview-build-lifecycle-practice',
+            label: { tr: 'Pratik: Bir Mülakat Sorusuna Kod Üzerinden Cevap Ver', en: 'Practice: Answer an Interview Question Through Code' },
+            language: 'groovy',
+            task: {
+              tr: 'Amaç: "Build\'im neden başlamıyor?" mülakat sorusuna, agent/executor kapasitesini gösteren bir Jenkinsfile parçasıyla cevap vermek. Java analojisi: bir thread pool\'da tüm thread\'ler meşgulse yeni görev nasıl kuyrukta beklerse, Jenkins executor\'ları da aynı şekilde davranır.',
+              en: 'Goal: answer the "Why isn\'t my build starting?" interview question with a Jenkinsfile snippet that shows agent/executor capacity. Java analogy: just as a new task waits in the queue when every thread in a thread pool is busy, Jenkins executors behave the same way.',
+            },
+            explanation: {
+              tr: 'TODO yerlerini doldur: agent label\'ı ile hangi executor havuzunun kullanılacağını belirt, ardından bir stage ekle.',
+              en: 'Fill in the TODOs: specify which executor pool to use via the agent label, then add a stage.',
+            },
+            code: {
+              tr: `pipeline {
+    agent { label TODO }
+    stages {
+        stage('Test') { steps { TODO } }
+    }
+}`,
+              en: `pipeline {
+    agent { label TODO }
+    stages {
+        stage('Test') { steps { TODO } }
+    }
+}`,
+            },
+            starterCode: {
+              tr: `pipeline {
+    agent { label TODO }
+    stages {
+        stage('Test') { steps { TODO } }
+    }
+}`,
+              en: `pipeline {
+    agent { label TODO }
+    stages {
+        stage('Test') { steps { TODO } }
+    }
+}`,
+            },
+            solutionCode: {
+              tr: `pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Test') { steps { sh 'pytest tests/' } }
+    }
+}`,
+              en: `pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Test') { steps { sh 'pytest tests/' } }
+    }
+}`,
+            },
+            expected: {
+              tr: `'linux' etiketli bir executor bulunursa build hemen başlar; bulunamazsa kuyrukta bekler.`,
+              en: `If an executor labeled 'linux' is found, the build starts immediately; otherwise it waits in the queue.`,
+            },
+            hints: [
+              { tr: 'agent { label \'linux\' } belirli bir executor grubunu hedefler.', en: 'agent { label \'linux\' } targets a specific executor group.' },
+              { tr: 'Etiketle eşleşen boş bir executor yoksa build kuyrukta bekler, bu bir hata değildir.', en: 'If there is no free executor matching the label, the build waits in the queue — this is not a bug.' },
+              { tr: 'sh adımı steps {} içinde çalışır, agent bloğunun dışında değil.', en: 'The sh step runs inside steps {}, not outside the agent block.' },
+            ],
+            xpReward: 12,
+          },
           {
             type: 'interview-questions',
               relatedTopicId: 'jenkins-ci-cd',

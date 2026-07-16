@@ -419,8 +419,48 @@ script'i veya manuel okuma yakalar.
 **Commit:** bu dalganın değişikliği (3 dosya) commit edilecek, hash bir
 sonraki güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
 
+### Sıradaki adım (Dalga 14 için, artık eski)
+~~Dalga 15 (/jenkins + /kubernetes)~~ → TAMAMLANDI, bkz. aşağıdaki
+güncel bölüm.
+
+---
+
+## Dalga 15 — /jenkins + /kubernetes — TAMAMLANDI (2026-07-16)
+
+Aynı `feature/video-scene-dalga4` branch'inde, 2 sayfa 2 AYRI subagent'a
+paralel verildi. **Bu dalgada kesinti YAŞANMADI** — önceki dalganın
+(§14) gerçek bug'ları (satır-tabanlı ekleme obje literal'inin içine
+düşmesi, CRLF farkı, film tanımlanıp hiç referans edilmemesi) hakkında
+her iki subagent'a da açık uyarı + kendi kendini doğrulama script'i
+verildi, ikisi de temiz raporladı ve bağımsız doğrulamam bunu teyit etti.
+
+**Jenkins (11 sekme, EN+TR ayrı ağaç):** 11 film (CI/CD akışı, Jenkinsfile
+hiyerarşisi, credentials masking, pytest&JMeter raporlama, Playwright
+Docker agent, Slack bildirimi, paralel stage'ler, PR→prod akışı, plugin
+ekosistemi, mülakat build lifecycle) + Interview Q&A sekmesine eksik
+animasyon/sandbox elle tamamlandı.
+
+**Kubernetes (9 sekme, EN+TR ayrı ağaç):** 9 film (orkestrasyon akışı,
+minikube kurulum, control plane mimarisi, self-healing, kubectl apply
+akışı, YAML reconciliation, ekosistem araçları, CI/CD→deploy akışı,
+mülakat control loop) + Interview Q&A sekmesine eksik animasyon/sandbox
+(CrashLoopBackOff teşhis pratiği) elle tamamlandı.
+
+**Doğrulama (her iki dosya için de, hem subagent hem ana oturum tarafından):**
+- `node --check` ikisinde de temiz.
+- `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓.
+- Node coverage-scan: Jenkins 11x2, Kubernetes 9x2 — tamamı ≥1
+  video+anim+sandbox (40 kontrol noktası, hepsi OK).
+- Film id'leri proje genelinde benzersiz (grep ile teyit, 0 tekrar).
+- `npm run build` → temiz. `jenkinsData` chunk: 99.27 kB gzip,
+  `kubernetesData` chunk: 104.18 kB gzip — ikisi de eşiğin çok altında.
+- `tests/video-scene.spec.ts` genişletilmedi, Playwright çalıştırılmadı.
+
+**Commit:** bu dalganın değişikliği (2 dosya) commit edilecek, hash bir
+sonraki güncellemede düşülecek (`SKIP_E2E_HOOK=1` ile).
+
 ### Sıradaki adım
-Dalga 15 (`/jenkins` + `/kubernetes`) — CI/CD + orkestrasyon, aynı
+Dalga 16 (`/kafka` + `/jmeter`) — mesajlaşma + performans, aynı
 branch'te devam.
 
 ---
