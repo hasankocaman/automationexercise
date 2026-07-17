@@ -3,6 +3,162 @@
 
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ── Dalga A4 (animation-per-topic §3.2): kod-bloğu-başına animasyon açıkları ──
+
+const appiumNodeJdkInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'Windows Kurulumunda Node.js ve JDK Neden Ayrı Ayrı Gerekir?', en: 'Why Do You Need Node.js AND JDK Separately on Windows?' },
+  steps: [
+    { tr: '`winget install OpenJS.NodeJS.LTS` Node.js kurar — bu, Appium Server\'ın kendisinin YAZILDIĞI dil çalışma ortamıdır, senin test kodunla İLGİSİ yoktur.', en: '`winget install OpenJS.NodeJS.LTS` installs Node.js — this is the runtime the Appium Server ITSELF is written in, it has NOTHING to do with your test code language.' },
+    { tr: '`winget install Microsoft.OpenJDK.21` AYRI olarak JDK kurar — bu, SENİN Java test kodunu (Appium Java Client) derleyip çalıştıracak ortamdır.', en: '`winget install Microsoft.OpenJDK.21` installs the JDK SEPARATELY — this is the environment that compiles and runs YOUR Java test code (Appium Java Client).' },
+    { tr: '`node --version` ve `java -version` ile doğrulama YAPILMADAN bir sonraki adıma geçmek, hangi bileşenin EKSİK olduğunu ANLAMADAN ilerlemek demektir.', en: 'Moving to the next step WITHOUT verifying with `node --version` and `java -version` means proceeding WITHOUT knowing which component is MISSING.' },
+    { tr: '`JAVA_HOME` Registry değişkeni AYRICA ayarlanır çünkü Android SDK araçları ve Appium, JDK\'nın TAM olarak nerede durduğunu bu değişkenden OKUR — `java` komutu PATH\'te çalışsa bile JAVA_HOME eksikse bazı araçlar başarısız OLUR.', en: 'The `JAVA_HOME` Registry variable is set SEPARATELY because Android SDK tools and Appium READ exactly where the JDK lives from this variable — even if `java` works on PATH, some tools FAIL without JAVA_HOME.' },
+  ],
+}
+
+const appiumMacHomebrewInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'Homebrew\'in İki Farklı Paketi (node@20 ve temurin@21) Nasıl Bir Arada Çalışır?', en: 'How Do Homebrew\'s Two Different Packages (node@20 and temurin@21) Coexist?' },
+  steps: [
+    { tr: 'Homebrew kurulumu (curl ile) İLK adımdır — Homebrew kendisi bir paket YÖNETİCİSİDİR, ondan SONRA gelen her `brew install` bu yöneticiyi kullanır.', en: 'The Homebrew install (via curl) is the FIRST step — Homebrew ITSELF is a package manager, every `brew install` AFTER it uses this manager.' },
+    { tr: '`brew install node@20` SÜRÜM NUMARASINI belirtir — bu, sistemde başka bir Node sürümü olsa bile Appium\'un test ettiği belirli sürümü GARANTİ eder.', en: '`brew install node@20` specifies the VERSION NUMBER — this GUARANTEES the specific version Appium is tested against, even if another Node version exists on the system.' },
+    { tr: '`echo \'export PATH=...\' >> ~/.zshrc` PATH\'e EKLENMESİ gerekir çünkü `node@20` gibi sürümlenmiş Homebrew paketleri OTOMATİK olarak PATH\'e girmez — bu, Homebrew\'in birden fazla sürümü ÇAKIŞTIRMADAN bir arada tutma yöntemidir.', en: '`echo \'export PATH=...\' >> ~/.zshrc` is needed because versioned Homebrew packages like `node@20` do NOT automatically enter PATH — this is how Homebrew keeps multiple versions coexisting WITHOUT conflict.' },
+    { tr: '`export JAVA_HOME=$(/usr/libexec/java_home -v 21)` macOS\'a ÖZGÜ bir komuttur — kurulu JDK 21\'in TAM yolunu otomatik BULUR, Windows\'taki gibi elle yol yazmana GEREK yoktur.', en: '`export JAVA_HOME=$(/usr/libexec/java_home -v 21)` is a macOS-SPECIFIC command — it automatically FINDS the exact path of the installed JDK 21, no NEED to hand-write the path like on Windows.' },
+  ],
+}
+
+const appiumLinuxInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'NodeSource Script\'i apt\'nin Varsayılan Node Paketinden Neden Daha Güvenilirdir?', en: 'Why Is the NodeSource Script More Reliable Than apt\'s Default Node Package?' },
+  steps: [
+    { tr: '`curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -` Ubuntu\'nun kendi paket deposundaki (genelde ESKİ) Node sürümü yerine, NodeSource\'un GÜNCEL 20.x deposunu sisteme EKLER.', en: '`curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -` ADDS NodeSource\'s CURRENT 20.x repository to the system, instead of Ubuntu\'s own (usually OUTDATED) Node version.' },
+    { tr: 'Bu script ÇALIŞTIKTAN SONRA `sudo apt-get install -y nodejs` artık DOĞRU (20.x) sürümü kurar — script ÇALIŞMADAN aynı komut eski bir sürüm kurardı.', en: 'AFTER this script runs, `sudo apt-get install -y nodejs` now installs the CORRECT (20.x) version — WITHOUT the script, the same command would install an old version.' },
+    { tr: '`sudo apt-get install -y openjdk-21-jdk` Node kurulumundan TAMAMEN BAĞIMSIZ ayrı bir komuttur — Linux\'ta paket yöneticisi her bileşeni TEK TEK, farklı kaynaklardan yönetir.', en: '`sudo apt-get install -y openjdk-21-jdk` is a COMPLETELY SEPARATE command from the Node install — on Linux the package manager handles each component INDIVIDUALLY, from different sources.' },
+    { tr: '`node --version && java -version` iki komutu `&&` ile ZİNCİRLER — İLK komut BAŞARISIZ olursa ikinci komut hiç ÇALIŞMAZ, bu da hangi kurulumun EKSİK olduğunu net gösterir.', en: '`node --version && java -version` CHAINS two commands with `&&` — if the FIRST command FAILS, the second never RUNS, clearly showing which install is MISSING.' },
+  ],
+}
+
+const appiumAndroidSdkSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'ANDROID_HOME Ayarlanmazsa adb Komutu Neden Çalışmaz?', en: 'Why Doesn\'t adb Work Without ANDROID_HOME Set?' },
+  steps: [
+    { tr: 'Android Studio kurulumu SADECE bir IDE getirir — asıl komut satırı araçları (`adb`, `emulator`) "SDK Command-line Tools" paketiyle AYRICA kurulmalıdır.', en: 'Installing Android Studio ONLY brings an IDE — the actual command-line tools (`adb`, `emulator`) must be installed SEPARATELY via the "SDK Command-line Tools" package.' },
+    { tr: '`ANDROID_HOME` değişkeni Android SDK\'nın KÖK klasörünü işaret eder — `adb`, `emulator` gibi araçlar bu klasörün İÇİNDEKİ alt dizinlerde YAŞAR.', en: 'The `ANDROID_HOME` variable points to the ROOT folder of the Android SDK — tools like `adb` and `emulator` LIVE in subdirectories INSIDE this folder.' },
+    { tr: 'PATH\'e SADECE `platform-tools` (adb için) ve `emulator` (emulator komutu için) EKLENİR — SDK\'nın TÜMÜ değil, sadece komut satırından çağıracağın İKİ alt klasör.', en: 'ONLY `platform-tools` (for adb) and `emulator` (for the emulator command) are ADDED to PATH — not the WHOLE SDK, just the TWO subfolders you\'ll call from the command line.' },
+    { tr: '`adb version` doğrulaması BAŞARISIZ olursa, sorun ADB\'nin kurulu olmaması DEĞİL, genelde `ANDROID_HOME`/`PATH`\'in yanlış ayarlanmış OLMASIDIR — terminal de YENİDEN başlatılmalıdır ki değişiklikler ETKİN olsun.', en: 'If `adb version` verification FAILS, the problem is usually NOT that ADB isn\'t installed, but that `ANDROID_HOME`/`PATH` is set INCORRECTLY — the terminal must also be RESTARTED for changes to take EFFECT.' },
+  ],
+}
+
+const appiumServerInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'Appium 3\'te Driver\'lar Neden Ayrı Bir Komutla Kurulur?', en: 'Why Are Drivers Installed With a Separate Command in Appium 3?' },
+  steps: [
+    { tr: '`npm install -g appium` SADECE Appium Server\'ın ÇEKİRDEĞİNİ kurar — bu çekirdek HİÇBİR platformu (Android/iOS) doğrudan otomatikleştiremez.', en: '`npm install -g appium` installs ONLY the Appium Server CORE — this core CANNOT automate any platform (Android/iOS) directly by itself.' },
+    { tr: '`appium driver install uiautomator2` Android desteğini AYRI bir eklenti olarak EKLER — bu, Appium 2\'nin her şeyi tek pakette getiren yapısından FARKLI bir mimaridir (plugin mimarisi).', en: '`appium driver install uiautomator2` ADDS Android support as a SEPARATE plugin — this is a DIFFERENT architecture (plugin-based) from Appium 2\'s everything-in-one-package structure.' },
+    { tr: '`appium driver install xcuitest` SADECE Mac\'te ÇALIŞIR çünkü iOS simülatörleri ve XCUITest framework\'ü Apple\'ın kendi araçlarına BAĞIMLIDIR.', en: '`appium driver install xcuitest` WORKS ONLY on Mac because iOS simulators and the XCUITest framework DEPEND on Apple\'s own tooling.' },
+    { tr: '`appium` komutu SUNUCUYU başlatır ve `http://127.0.0.1:4723`\'te DİNLEMEYE başlar — bu terminal AÇIK kalmalı, test kodun bu adrese HTTP isteği gönderecek.', en: 'The `appium` command STARTS the server and begins LISTENING on `http://127.0.0.1:4723` — this terminal must stay OPEN, your test code will send HTTP requests to this address.' },
+  ],
+}
+
+const appiumDoctorStep = {
+  type: 'step-animation',
+  title: { tr: 'appium-doctor Tek Komutla Hangi 7 Şeyi Aynı Anda Kontrol Eder?', en: 'What 7 Things Does appium-doctor Check in One Command?' },
+  steps: [
+    { tr: '`appium-doctor --android` önceki TÜM kurulum adımlarını (Node, JDK, ANDROID_HOME, adb, UIAutomator2 driver) TEK bir komutla SIRAYLA doğrular — her birini elle ayrı ayrı KONTROL etmen gerekmez.', en: '`appium-doctor --android` verifies ALL previous install steps (Node, JDK, ANDROID_HOME, adb, UIAutomator2 driver) IN SEQUENCE with ONE command — no NEED to check each one manually.' },
+    { tr: 'HER satırın başındaki ✔ işareti o BİLEŞENİN doğru kurulduğunu gösterir — bir tanesi ✖ (kırmızı) ise, kurulumun TAM OLARAK hangi adımda EKSİK kaldığı ANINDA görünür.', en: 'The ✔ mark at the start of EACH line shows that COMPONENT is correctly installed — if one shows ✖ (red), you INSTANTLY see EXACTLY which install step is MISSING.' },
+    { tr: 'Bu araç HİÇBİR ŞEYİ otomatik DÜZELTMEZ — sadece TEŞHİS koyar; düzeltme kararı (örn. hangi JDK sürümünü kurman gerektiği) hâlâ SANA aittir.', en: 'This tool FIXES NOTHING automatically — it only DIAGNOSES; the fix decision (e.g. which JDK version to install) is still YOURS to make.' },
+    { tr: '`appium-doctor --ios` SADECE Mac\'te ANLAMLIDIR — Windows/Linux\'ta iOS geliştirme araçları (Xcode) zaten hiç MEVCUT olamaz.', en: '`appium-doctor --ios` is MEANINGFUL ONLY on Mac — on Windows/Linux, iOS development tools (Xcode) can never EXIST in the first place.' },
+  ],
+}
+
+const appiumAvdSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'emulator -list-avds ile adb devices Neden Farklı Bilgi Verir?', en: 'Why Do emulator -list-avds and adb devices Give Different Information?' },
+  steps: [
+    { tr: '`emulator -list-avds` sadece DİSKTE TANIMLI (oluşturulmuş ama henüz ÇALIŞMIYOR olabilecek) sanal cihazları listeler — bu, "hangi AVD\'ler VAR" sorusuna cevap verir.', en: '`emulator -list-avds` lists only virtual devices DEFINED on disk (created but maybe not YET running) — it answers "which AVDs EXIST".' },
+    { tr: '`emulator -avd Pixel_7_API_33 -no-snapshot-load` belirtilen AVD\'yi TEMİZ bir durumdan (önceki oturumun kaydını YÜKLEMEDEN) BAŞLATIR — snapshot yüklemek daha hızlıdır ama bazen ESKİ/BOZUK bir duruma döner.', en: '`emulator -avd Pixel_7_API_33 -no-snapshot-load` STARTS the specified AVD from a CLEAN state (WITHOUT loading the previous session\'s snapshot) — loading a snapshot is faster but can sometimes restore a STALE/BROKEN state.' },
+    { tr: '`adb devices` ise şu ANDA GERÇEKTEN BAĞLI olan (çalışan emülatör veya USB\'li fiziksel cihaz) aygıtları listeler — "hangi AVD\'ler var" ile "hangi cihaz ŞU AN erişilebilir" FARKLI sorulardır.', en: '`adb devices` lists devices CURRENTLY ACTUALLY CONNECTED (a running emulator or a physical device over USB) — "which AVDs exist" and "which device is REACHABLE right now" are DIFFERENT questions.' },
+    { tr: 'Çıktıda `emulator-5554   device` satırının GÖRÜNMESİ, Appium\'un bu emülatöre bağlanabileceğinin TEK kanıtıdır — sadece emülatör PENCERESİNİN açık olması YETERLİ değildir, `adb` onu TANIMALIDIR.', en: 'Seeing the `emulator-5554   device` line in the output is the ONLY proof Appium can connect to this emulator — just having the emulator WINDOW open is NOT enough, `adb` must RECOGNIZE it.' },
+  ],
+}
+
+const appiumWdioTsSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'npx wdio config Sihirbazı Perde Arkasında Hangi Dosyaları Oluşturur?', en: 'What Files Does the npx wdio config Wizard Create Behind the Scenes?' },
+  steps: [
+    { tr: '`npm init -y` boş bir `package.json` OLUŞTURUR — bu, projenin bağımlılıklarını takip edecek TEMEL dosyadır, henüz hiçbir paket YÜKLENMEMİŞTİR.', en: '`npm init -y` CREATES an empty `package.json` — this is the BASE file that will track the project\'s dependencies, no package is INSTALLED yet.' },
+    { tr: '`npx wdio config` interaktif bir SİHİRBAZDIR — sorulara (framework, servisler, reporter seçimi) verdiğin cevaplara göre `wdio.conf.ts` dosyasını OTOMATİK üretir, elle yazmana GEREK kalmaz.', en: '`npx wdio config` is an interactive WIZARD — based on your answers (framework, services, reporter choice) it AUTO-generates `wdio.conf.ts`, no NEED to hand-write it.' },
+    { tr: 'Manuel kurulum alternatifi AYNI paketleri sihirbazsız, TEK TEK `npm install` ile ekler — sihirbazın perde arkasında NE yaptığını anlamak istersen bu YOLU izlersin.', en: 'The manual install alternative adds the SAME packages ONE BY ONE with `npm install`, without the wizard — you\'d follow this PATH if you want to understand what the wizard does BEHIND the scenes.' },
+    { tr: '`npx wdio --version` doğrulaması, kurulumun TAMAMLANDIĞINI ve bir sonraki adımda (`wdio.conf.ts` düzenleme) çalışmaya HAZIR olduğunu KANITLAR.', en: '`npx wdio --version` verification PROVES the install is COMPLETE and ready to work on the next step (editing `wdio.conf.ts`).' },
+  ],
+}
+
+const appiumCapabilitiesTypeSafeStep = {
+  type: 'step-animation',
+  title: { tr: 'UiAutomator2Options DesiredCapabilities\'e Göre Neden Daha Güvenlidir?', en: 'Why Is UiAutomator2Options Safer Than DesiredCapabilities?' },
+  steps: [
+    { tr: '`new UiAutomator2Options()` ile başlayan ZİNCİR, eski `DesiredCapabilities` + `capability("key", "value")` string-tabanlı yaklaşımın YERİNİ alır — `.setPlatformName(...)` gibi TİP GÜVENLİ metotlar, yanlış yazılmış bir key\'in DERLEME zamanında YAKALANMASINI sağlar.', en: 'The CHAIN starting with `new UiAutomator2Options()` REPLACES the old string-based `DesiredCapabilities` + `capability("key", "value")` approach — TYPE-SAFE methods like `.setPlatformName(...)` let a misspelled key be CAUGHT at COMPILE time.' },
+    { tr: 'W3C STANDART capability\'ler (`platformName`, `deviceName`) HİÇBİR önek ALMAZ, ama Appium\'a ÖZGÜ olanlar (`automationName`, `app`) java-client tarafından OTOMATİK `appium:` önekiyle GÖNDERİLİR — bunu elle yazmana gerek YOKTUR.', en: 'W3C STANDARD capabilities (`platformName`, `deviceName`) get NO prefix, but Appium-SPECIFIC ones (`automationName`, `app`) are AUTOMATICALLY sent with the `appium:` prefix by java-client — you don\'t hand-write this.' },
+    { tr: '`.setApp(...)` VEYA `.setAppPackage(...)` + `.setAppActivity(...)` — İKİ FARKLI senaryo: APK dosyası HENÜZ cihazda değilse `setApp` onu YÜKLER, zaten kuruluysa package+activity DOĞRUDAN uygulamayı AÇAR.', en: '`.setApp(...)` OR `.setAppPackage(...)` + `.setAppActivity(...)` — TWO DIFFERENT scenarios: if the APK is NOT YET on the device, `setApp` INSTALLS it; if already installed, package+activity DIRECTLY OPENS the app.' },
+    { tr: '`.setNoReset(false)` HER testten önce uygulama verisini SIFIRLAR — bu, bir testin BIRAKTIĞI verinin bir SONRAKİ testi ETKİLEMEMESİNİ garanti eder, testler birbirinden İZOLE kalır.', en: '`.setNoReset(false)` RESETS app data before EVERY test — this guarantees data LEFT by one test doesn\'t AFFECT the NEXT test, keeping tests ISOLATED from each other.' },
+  ],
+}
+
+const appiumJavaLocatorsStep = {
+  type: 'step-animation',
+  title: { tr: '7 Locator Stratejisi Neden Aynı Sınıfta Bir Arada Gösteriliyor?', en: 'Why Are All 7 Locator Strategies Shown Together in the Same Class?' },
+  steps: [
+    { tr: '`AppiumBy.id(...)` EN HIZLI ve GÜVENİLİR yöntemdir — Android\'in `resource-id`\'sini DOĞRUDAN hedefler, tıpkı Selenium\'daki `By.id()` gibi ama paket adı ÖNEKİYLE.', en: '`AppiumBy.id(...)` is the FASTEST and MOST RELIABLE method — it DIRECTLY targets Android\'s `resource-id`, just like Selenium\'s `By.id()` but WITH a package-name prefix.' },
+    { tr: '`AppiumBy.accessibilityId(...)` sadece bir locator DEĞİLDİR — TalkBack/VoiceOver gibi erişilebilirlik araçlarının da KULLANDIĞI aynı `content-desc` alanını hedeflediği için, bu locator\'ı kullanmak dolaylı yoldan erişilebilirlik TESTİ de yapar.', en: '`AppiumBy.accessibilityId(...)` is NOT just a locator — because it targets the SAME `content-desc` field that accessibility tools like TalkBack/VoiceOver USE, using this locator indirectly performs accessibility TESTING too.' },
+    { tr: '`androidUIAutomator` ile yazılan `UiSelector().scrollable(true)).scrollIntoView(...)` zinciri, Selenium\'da OLMAYAN bir yetenektir — mobil ekranda görünmeyen bir elemana OTOMATİK kaydırarak ULAŞIR.', en: 'The `UiSelector().scrollable(true)).scrollIntoView(...)` chain written via `androidUIAutomator` is a capability Selenium does NOT have — it AUTOMATICALLY scrolls to REACH an element not currently visible on the mobile screen.' },
+    { tr: '`AppiumBy.xpath(...)` yorum satırında "last resort, slow!" diye İŞARETLİDİR — 7 stratejinin EN SONUNA konması tesadüf değildir, öncelik SIRASINI da GÖSTERİR.', en: '`AppiumBy.xpath(...)` is MARKED "last resort, slow!" in the comment — being placed LAST among the 7 strategies is not a coincidence, it also SHOWS the priority ORDER.' },
+  ],
+}
+
+const appiumTsLocatorsStep = {
+  type: 'step-animation',
+  title: { tr: 'WebdriverIO\'nun ~ Kısayolu Java\'daki accessibilityId()\'nin Karşılığı mı?', en: 'Is WebdriverIO\'s ~ Shorthand the Equivalent of Java\'s accessibilityId()?' },
+  steps: [
+    { tr: '`$(\'~Login Button\')` — baştaki `~` işareti WebdriverIO\'nun ÖZEL sözdizimidir ve Java\'daki `AppiumBy.accessibilityId("Login Button")` ile AYNI şeyi yapar, sadece ÇOK daha kısa yazılır.', en: '`$(\'~Login Button\')` — the leading `~` is WebdriverIO\'s SPECIAL syntax and does the SAME thing as Java\'s `AppiumBy.accessibilityId("Login Button")`, just written MUCH shorter.' },
+    { tr: '`$(\'android=new UiSelector()...\')` — `android=` ÖNEKİ, string içindeki geri kalan kısmın DOĞRUDAN Android\'in native UiSelector sözdizimi olduğunu WebdriverIO\'ya SÖYLER.', en: '`$(\'android=new UiSelector()...\')` — the `android=` PREFIX TELLS WebdriverIO that the rest of the string is DIRECTLY Android\'s native UiSelector syntax.' },
+    { tr: '`get loginButton()` bir GETTER olarak tanımlanır, bir DEĞİŞKEN olarak değil — bu, HER erişimde elementi TAZE bulmayı sağlar; sayfa yeniden render olsa bile eski/geçersiz bir referansa TAKILMAZSIN.', en: '`get loginButton()` is defined as a GETTER, not a VARIABLE — this ensures the element is found FRESH on EVERY access; even if the page re-renders, you never get STUCK with a stale reference.' },
+    { tr: '`$$(\'android.widget.LinearLayout\')[1]` — Java\'daki `AppiumBy.className()`\'in TypeScript\'teki KARŞILIĞI çoklu-eleman versiyonudur; `$$` ÇOĞUL sorgu anlamına gelir, `$` TEKİL.', en: '`$$(\'android.widget.LinearLayout\')[1]` — this is the TypeScript multi-element COUNTERPART of Java\'s `AppiumBy.className()`; `$$` means a PLURAL query, `$` a SINGULAR one.' },
+  ],
+}
+
+const appiumLoginPagePomStep = {
+  type: 'step-animation',
+  title: { tr: '@AndroidFindBy Element\'i NE ZAMAN Bulur — Sınıf Yüklenince mi, Erişilince mi?', en: 'WHEN Does @AndroidFindBy Find the Element — At Class Load or At Access?' },
+  steps: [
+    { tr: '`@AndroidFindBy(id = "...")` annotation\'ı, Selenium\'daki `@FindBy`\'ın Appium karşılığıdır — elementi ANINDA aramaz, sadece BİR LOCATOR TANIMI yapar.', en: 'The `@AndroidFindBy(id = "...")` annotation is the Appium counterpart of Selenium\'s `@FindBy` — it does NOT search for the element IMMEDIATELY, it only DEFINES a locator.' },
+    { tr: '`PageFactory.initElements(new AppiumFieldDecorator(driver), this)` bu annotation\'ları GERÇEK `WebElement` referanslarına ÇEVİRİR — bu satır ÇALIŞMADAN `emailInput` gibi alanlar `null` KALIR.', en: '`PageFactory.initElements(new AppiumFieldDecorator(driver), this)` CONVERTS these annotations into ACTUAL `WebElement` references — WITHOUT this line running, fields like `emailInput` stay `null`.' },
+    { tr: '`WebDriverWait` alanı LoginPage\'in kendi İÇİNDE tanımlanır — böylece bu sayfayı kullanan HER metot, elementin hazır olmasını beklemek için AYRI AYRI wait nesnesi OLUŞTURMAK zorunda kalmaz.', en: 'The `WebDriverWait` field is defined INSIDE LoginPage itself — so EVERY method using this page doesn\'t have to CREATE a SEPARATE wait object to wait for element readiness.' },
+    { tr: 'Bu POM sınıfı hiçbir ASSERTION İÇERMEZ — sadece "sayfada NELER var, NASIL etkileşime girilir" bilgisini taşır; DOĞRULAMA görevi test sınıfına AİTTİR, bu ayrım POM\'un TEMEL kuralıdır.', en: 'This POM class contains NO ASSERTIONS — it only carries "WHAT exists on the page, HOW to interact"; the VERIFICATION job BELONGS to the test class, this separation is the CORE rule of POM.' },
+  ],
+}
+
+const appiumLoginTestJUnitStep = {
+  type: 'step-animation',
+  title: { tr: '@Order(1) ve @Order(2) Testleri Neden Belirli Bir Sırada Zorunlu Kılar?', en: 'Why Do @Order(1) and @Order(2) Force Tests Into a Specific Sequence?' },
+  steps: [
+    { tr: '`extends BaseTest` ile `LoginTest`, driver kurulumunu/kapatmasını TEKRAR YAZMAZ — bu sorumluluk zaten BaseTest\'te merkezi olarak ÇÖZÜLMÜŞTÜR, LoginTest sadece iş MANTIĞINA odaklanır.', en: 'By `extends BaseTest`, `LoginTest` does NOT rewrite driver setup/teardown — this responsibility is ALREADY centrally SOLVED in BaseTest, LoginTest focuses only on business LOGIC.' },
+    { tr: '`@BeforeEach openLogin()` HER test metodundan ÖNCE yeni bir `LoginPage` nesnesi OLUŞTURUR — bu, bir testteki durumun BİR SONRAKİ teste SIZMAMASINI sağlar.', en: '`@BeforeEach openLogin()` CREATES a fresh `LoginPage` object BEFORE EVERY test method — this ensures state from one test does NOT LEAK into the NEXT.' },
+    { tr: '`@TestMethodOrder(OrderAnnotation.class)` + `@Order(1)`/`@Order(2)` testlerin ÇALIŞMA sırasını GARANTİ eder — bu SIRALAMA rastgele değildir: önce BAŞARILI giriş, sonra HATALI giriş test edilir, mantıksal bir İLERLEME izler.', en: '`@TestMethodOrder(OrderAnnotation.class)` + `@Order(1)`/`@Order(2)` GUARANTEE test execution order — this ORDERING is not random: SUCCESSFUL login is tested first, then FAILED login, following a logical PROGRESSION.' },
+    { tr: 'Fluent zincir `loginPage.typeEmail(...).typePassword(...).tapLogin()` — HER metot `this` (veya bir SONRAKİ sayfayı) DÖNDÜRÜR, bu sayede testin OKUNUŞU adım adım bir SENARYO gibi AKAR.', en: 'The fluent chain `loginPage.typeEmail(...).typePassword(...).tapLogin()` — EVERY method RETURNS `this` (or the NEXT page), so the test READS like a step-by-step SCENARIO.' },
+  ],
+}
+
+const appiumBaseTestDriverStep = {
+  type: 'step-animation',
+  title: { tr: '@BeforeAll/@AfterAll Neden Test Sınıfı Başına Sadece Bir Kez Çalışır?', en: 'Why Do @BeforeAll/@AfterAll Run Only Once Per Test Class?' },
+  steps: [
+    { tr: '`protected static AndroidDriver driver` — `static` alan, tıpkı REST Assured\'daki `spec` gibi, driver\'ı TÜM test metotları arasında PAYLAŞILIR hale getirir; her test YENİDEN driver AÇMAZ.', en: '`protected static AndroidDriver driver` — the `static` field, just like REST Assured\'s `spec`, makes the driver SHARED across ALL test methods; no test OPENS a new driver.' },
+    { tr: '`@BeforeAll static void setUp()` UYGULAMAYI ve emülatör bağlantısını SADECE BİR KEZ, sınıftaki İLK test çalışmadan ÖNCE kurar — bunu her `@Test`\'te tekrarlamak, HER testi çok daha YAVAŞLATIRDI.', en: '`@BeforeAll static void setUp()` sets up the APP and emulator connection ONLY ONCE, BEFORE the FIRST test in the class runs — repeating this in every `@Test` would make EVERY test much SLOWER.' },
+    { tr: '`driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10))` TÜM `findElement` çağrıları için VARSAYILAN bir bekleme kurar — bu OLMASAYDI, henüz yüklenmemiş bir elemanı arayan HER çağrı anında BAŞARISIZ olurdu.', en: '`driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10))` sets a DEFAULT wait for ALL `findElement` calls — WITHOUT this, EVERY call searching for a not-yet-loaded element would FAIL instantly.' },
+    { tr: '`@AfterAll static void tearDown()` `driver.quit()` çağırır — bu, TÜM testler bittikten SONRA çalışır ve emülatör oturumunun AÇIK kalıp kaynak SIZDIRMASINI önler.', en: '`@AfterAll static void tearDown()` calls `driver.quit()` — this runs AFTER ALL tests finish and prevents the emulator session from staying OPEN and LEAKING resources.' },
+  ],
+}
+
 // ─── Dalga 17 film sabitleri (video-scene — EN + TR paylaşımlı) ─────────────
 // Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
 
@@ -1094,6 +1250,7 @@ java -version    # openjdk 21.x.x görünmeli
   "Machine"
 )`,
       },
+      appiumNodeJdkInstallStep,
       {
         type: 'code',
         language: 'bash',
@@ -1109,6 +1266,7 @@ echo 'export PATH="/opt/homebrew/opt/node@20/bin:$PATH"' >> ~/.zshrc
 brew install --cask temurin@21
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)`,
       },
+      appiumMacHomebrewInstallStep,
       {
         type: 'code',
         language: 'bash',
@@ -1123,6 +1281,7 @@ sudo apt-get install -y openjdk-21-jdk
 # Verify
 node --version && java -version`,
       },
+      appiumLinuxInstallStep,
       { type: 'heading', text: '2. Android SDK — ANDROID_HOME' },
       {
         type: 'code',
@@ -1152,6 +1311,7 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator
 # Doğrulama
 adb version   # Android Debug Bridge version 1.x.x görünmeli`,
       },
+      appiumAndroidSdkSetupStep,
       { type: 'heading', text: '3. Appium Server Kurulumu' },
       {
         type: 'code',
@@ -1176,6 +1336,7 @@ appium driver list --installed
 appium
 # Output: Appium REST http interface listener started on http://127.0.0.1:4723`,
       },
+      appiumServerInstallStep,
       { type: 'heading', text: '4. Appium Doctor — Kurulum Doğrulama' },
       {
         type: 'code',
@@ -1199,6 +1360,7 @@ appium-doctor --android
 # iOS ortamını kontrol et (sadece Mac)
 appium-doctor --ios`,
       },
+      appiumDoctorStep,
       { type: 'heading', text: '5. Emülatör Oluşturma ve Başlatma' },
       {
         type: 'code',
@@ -1219,6 +1381,7 @@ adb devices
 # List of devices attached
 # emulator-5554   device   ← bu görünmeli`,
       },
+      appiumAvdSetupStep,
       { type: 'heading', text: '6. Java Projesi Kurulumu (Maven)' },
       {
         type: 'code',
@@ -1279,6 +1442,7 @@ npm install -D typescript ts-node @types/node
 # Versiyon kontrolü
 npx wdio --version`,
       },
+      appiumWdioTsSetupStep,
       {
         type: 'callout',
         color: 'green',
@@ -1411,6 +1575,7 @@ java -version    # should show openjdk 21.x.x
   "Machine"
 )`,
       },
+      appiumNodeJdkInstallStep,
       {
         type: 'code',
         language: 'bash',
@@ -1426,6 +1591,7 @@ echo 'export PATH="/opt/homebrew/opt/node@20/bin:$PATH"' >> ~/.zshrc
 brew install --cask temurin@21
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)`,
       },
+      appiumMacHomebrewInstallStep,
       {
         type: 'code',
         language: 'bash',
@@ -1440,6 +1606,7 @@ sudo apt-get install -y openjdk-21-jdk
 # Verify
 node --version && java -version`,
       },
+      appiumLinuxInstallStep,
       { type: 'heading', text: '2. Android SDK — ANDROID_HOME' },
       {
         type: 'code',
@@ -1469,6 +1636,7 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator
 # Verify
 adb version   # Android Debug Bridge version 1.x.x`,
       },
+      appiumAndroidSdkSetupStep,
       { type: 'heading', text: '3. Appium Server Installation' },
       {
         type: 'code',
@@ -1491,6 +1659,7 @@ appium driver list --installed
 appium
 # Output: Appium REST http interface listener started on http://127.0.0.1:4723`,
       },
+      appiumServerInstallStep,
       { type: 'heading', text: '4. Appium Doctor — Verify Setup' },
       {
         type: 'code',
@@ -1511,6 +1680,7 @@ appium-doctor --android
 # iOS check (Mac only)
 appium-doctor --ios`,
       },
+      appiumDoctorStep,
       { type: 'heading', text: '5. Create and Start Emulator' },
       {
         type: 'code',
@@ -1531,6 +1701,7 @@ adb devices
 # List of devices attached
 # emulator-5554   device   ← this should appear`,
       },
+      appiumAvdSetupStep,
       { type: 'heading', text: '6. Java Project Setup (Maven)' },
       {
         type: 'code',
@@ -1589,6 +1760,7 @@ npm install -D typescript ts-node @types/node
 # Verify
 npx wdio --version`,
       },
+      appiumWdioTsSetupStep,
       {
         type: 'callout',
         color: 'green',
@@ -1770,6 +1942,7 @@ public class AppiumConfig {
     }
 }`,
       },
+      appiumCapabilitiesTypeSafeStep,
       { type: 'heading', text: 'TypeScript — wdio.conf.ts (WebdriverIO)' },
       {
         type: 'code',
@@ -2045,6 +2218,7 @@ public class AppiumConfig {
     }
 }`,
       },
+      appiumCapabilitiesTypeSafeStep,
       { type: 'heading', text: 'TypeScript — wdio.conf.ts (WebdriverIO)' },
       {
         type: 'code',
@@ -2334,6 +2508,7 @@ public class LocatorExamples {
     }
 }`,
       },
+      appiumJavaLocatorsStep,
       { type: 'heading', text: 'TypeScript — WebdriverIO Locator Sözdizimi' },
       {
         type: 'code',
@@ -2375,6 +2550,7 @@ class LocatorExamples {
     }
 }`,
       },
+      appiumTsLocatorsStep,
       { type: 'heading', text: 'Appium Inspector ile Locator Bulma' },
       {
         type: 'list',
@@ -2468,6 +2644,7 @@ public class LoginPage {
     }
 }`,
       },
+      appiumLoginPagePomStep,
       {
         type: 'code',
         language: 'java',
@@ -2509,6 +2686,7 @@ public class LoginTest extends BaseTest {  // BaseTest driver setup içerir
     }
 }`,
       },
+      appiumLoginTestJUnitStep,
       { type: 'heading', text: 'TypeScript — POM Örneği' },
       {
         type: 'code',
@@ -2782,6 +2960,7 @@ public class LocatorExamples {
     }
 }`,
       },
+      appiumJavaLocatorsStep,
       { type: 'heading', text: 'TypeScript — WebdriverIO Locator Syntax' },
       {
         type: 'code',
@@ -2823,6 +3002,7 @@ class LocatorExamples {
     }
 }`,
       },
+      appiumTsLocatorsStep,
       { type: 'heading', text: 'Finding Locators with Appium Inspector' },
       {
         type: 'list',
@@ -2916,6 +3096,7 @@ public class LoginPage {
     }
 }`,
       },
+      appiumLoginPagePomStep,
       {
         type: 'code',
         language: 'java',
@@ -2957,6 +3138,7 @@ public class LoginTest extends BaseTest {  // BaseTest contains driver setup
     }
 }`,
       },
+      appiumLoginTestJUnitStep,
       { type: 'heading', text: 'TypeScript — POM Example' },
       {
         type: 'code',
@@ -3224,6 +3406,7 @@ public class BaseTest {
     }
 }`,
       },
+      appiumBaseTestDriverStep,
       { type: 'heading', text: 'Java — Tam E2E Test Dosyası' },
       {
         type: 'code',
@@ -3640,6 +3823,7 @@ public class BaseTest {
     }
 }`,
       },
+      appiumBaseTestDriverStep,
       { type: 'heading', text: 'Java — Full E2E Test File' },
       {
         type: 'code',
