@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { algorithmsData } from '../data/algorithmsData'
 import { useLanguage } from '../context/LanguageContext'
 import TopicHeader from './TopicHeader'
+import VideoSceneBlock from './VideoSceneBlock'
 
 const neuroLabels = {
     tr: {
@@ -1020,7 +1021,7 @@ function VisualLab({ section, labels, darkMode, data }) {
     return null
 }
 
-function SectionCard({ section, labels, darkMode, data, neuroMode, recallProgress, onRecallUpdate, nLabels }) {
+function SectionCard({ section, labels, darkMode, data, neuroMode, recallProgress, onRecallUpdate, nLabels, language }) {
     const accent = accents[section.accent] || accents.violet
     const isUnlocked = !neuroMode || recallProgress[section.id] === 'recalled';
 
@@ -1105,6 +1106,11 @@ function SectionCard({ section, labels, darkMode, data, neuroMode, recallProgres
                         </div>
 
                         <CodeBlock code={section.code} darkMode={darkMode} />
+                        {section.film && (
+                            <div className="mt-4">
+                                <VideoSceneBlock block={section.film} darkMode={darkMode} language={language} />
+                            </div>
+                        )}
                         <QuizCard quiz={section.quiz} labels={labels} darkMode={darkMode} />
                     </div>
                 </div>
@@ -1273,16 +1279,17 @@ function AdvancedAlgorithmsPage() {
 
                     <div className="grid gap-6">
                         {interleavedSections.map(section => (
-                            <SectionCard 
-                                key={section.id} 
-                                section={section} 
-                                labels={data.page} 
-                                darkMode={darkMode} 
-                                data={data} 
+                            <SectionCard
+                                key={section.id}
+                                section={section}
+                                labels={data.page}
+                                darkMode={darkMode}
+                                data={data}
                                 neuroMode={neuroMode}
                                 recallProgress={recallProgress}
                                 onRecallUpdate={handleRecallUpdate}
                                 nLabels={nLabels}
+                                language={language}
                             />
                         ))}
 
