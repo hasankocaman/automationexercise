@@ -10,6 +10,58 @@
 
 ---
 
+## 🚨 AÇIK İŞ — step-animation ŞEMA HATASI: 7 dosyada + eski Dalga A2-A4 içeriğinde ÖNCEDEN VAR OLAN kırık `steps` formatı (2026-07-18)
+
+**Kullanıcı** `/java` sayfasında Kurulum sekmesindeki step-animation kutularının
+METİNSİZ (boş) render olduğunu ekran görüntüsüyle bildirdi. Kök neden bulundu:
+
+- `StepAnimationBlock.jsx` HER adım için `step.label` (kutu içi kısa başlık) ve
+  `step.detail` (seçilince açılan uzun açıklama) alanlarını ZORUNLU bekliyor.
+- `interactiveTrioFillers.js`'teki `makeStepBlock()` (otomatik dolgu) bu doğru
+  şemayı (`{id, icon, label:{tr,en}, detail:{tr,en}}`) zaten kullanıyor — yani
+  bu proje genelinde KANONİK format budur.
+- Ama BAZI elle yazılmış `step-animation` const'ları sadece `steps: [{tr,en}]`
+  (düz metin, label/detail YOK) formatını kullanıyor — bu adımlar EKRANDA
+  TAMAMEN BOŞ kutu olarak görünüyor (component `pick(step.label, isTr)` boş
+  string döndürüyor).
+
+**Bu oturumda DÜZELTİLEN (commit `e022192`):** Dalga A2-A4'te BU OTURUMDA
+eklenen 68 const (kafka:17, java:23, restassured:14, appium:14) — script ile
+`{tr,en}` → `{id,icon,label:{tr,en},detail:{tr,en}}` dönüştürüldü, orijinal
+metin `detail`'e taşındı, `label` metinden otomatik kısa ifade türetilerek
+üretildi. Playwright ile `/java` sayfasında CANLI doğrulandı (JAVA_HOME adımı
+artık okunabilir label gösteriyor).
+
+**DÜZELTİLMEYEN — hâlâ kırık, ayrı bir dalga gerektirir:**
+1. **Bu 4 dosyanın KENDİSİNDE, bu oturumdan ÖNCE yazılmış eski step-animation'lar**
+   (bu oturumun script'i SADECE yeni 68 const'u hedefledi, whitelist dışındakilere
+   dokunmadı): örn. `kafkaRetentionReplayStep`, `kafkaLeaderElectionStep`,
+   `kafkaLogCompactionStep`, `kafkaLagDiagnosisStep` (kafkaData.js);
+   `raInterviewStep`, `raWhyStep` ve benzerleri (restAssuredData.js);
+   `appiumCommandJourneyStep`, `appiumSessionNotCreatedStep`, `appiumFlakyTestStep`
+   ve benzerleri (appiumData.js); javaData.js'te ~10 eski const.
+2. **Hiç dokunulmayan 7 BAŞKA dosya** (2026-07-18 taramasında tespit edildi,
+   `node -e` ile canlı import edip her `step-animation` bloğunu `label` alanı
+   var mı diye kontrol eden bir script kullanıldı):
+   - `awsData.js` — 4 kırık
+   - `azureData.js` — 5 kırık
+   - `browserstackData.js` — 2 kırık
+   - `cypressData.js` — 2 kırık
+   - `jmeterData.js` — 6 kırık
+   - `postmanData.js` — 8 kırık
+   - `whatIsTestingData.js` — 4 kırık
+
+**Sıradaki oturum için öneri:** Bu düzeltme animation-per-topic dalgalarından
+BAĞIMSIZ, ayrı bir "Dalga F: step-animation şema temizliği" olarak ele
+alınmalı — mevcut `check-content-integrity.mjs`'e de bu kontrolü EKLEMEK
+(her `step-animation` bloğunun her adımında `label` alanı var mı diye
+otomatik doğrulama) gelecekte aynı hatanın TEKRARLANMASINI önler. Tespit
+script'i taslağı: her `data/*.js` dosyasını import et, `en`/`tr` ağaçlarındaki
+TÜM `step-animation` bloklarını gez, `steps.some(s => !s.label)` olan
+blokları raporla.
+
+---
+
 ## OTURUM ÖZETİ — animation-per-topic Dalga A4 (RestAssured + Appium) TAMAMLANDI (2026-07-18, Sonnet oturumu 4)
 
 **Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
