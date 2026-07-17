@@ -1836,6 +1836,84 @@ const s0 = {
   },
 }
 
+// ⚙️ Kurulum — Maven bağımlılık çözümleme adım adım
+const seleniumMavenDependencyStep = {
+  type: 'step-animation',
+  id: 'selenium-install-maven-dependency-step-01',
+  title: { tr: 'Adım Adım: pom.xml Bir Jar Dosyasına Nasıl Dönüşür?', en: 'Step by Step: How pom.xml Becomes a Jar File' },
+  steps: [
+    { id: 1, icon: '📄', label: { tr: 'Sürüm bir SÖZLEŞMEDİR', en: 'The version is a CONTRACT' }, detail: { tr: 'pom.xml içinde `selenium-java 4.25.0` yazmak bir dilek değil, kesin bir taleptir — Maven başka hiçbir sürümü kabul etmez.', en: 'Writing `selenium-java 4.25.0` in pom.xml is not a wish, it is an exact demand — Maven will accept no other version.' } },
+    { id: 2, icon: '☁️', label: { tr: 'Maven Central\'dan indirilir', en: 'Downloaded from Maven Central' }, detail: { tr: 'Maven bu talebi okur ve repo.maven.apache.org\'dan TAM olarak o versiyonun jar dosyasını çeker; yerelde `.m2` önbelleğinde varsa tekrar indirmez.', en: 'Maven reads this request and pulls EXACTLY that version\'s jar from repo.maven.apache.org; if it already exists in the local `.m2` cache, it skips the download.' } },
+    { id: 3, icon: '🧩', label: { tr: 'Classpath\'e eklenir', en: 'Added to the classpath' }, detail: { tr: 'İndirilen jar, projenin classpath\'ine eklenir — bundan sonra `org.openqa.selenium` paketi IDE ve derleyici tarafından TANINIR.', en: 'The downloaded jar is added to the project classpath — from this point on, the compiler and IDE RECOGNIZE the `org.openqa.selenium` package.' } },
+    { id: 4, icon: '🔁', label: { tr: 'Her makinede AYNI sonuç', en: 'The SAME result on every machine' }, detail: { tr: 'Aynı pom.xml başka bir makinede veya CI ajanında çalıştırıldığında aynı sürüm indirilir — "benim makinemde çalışıyordu" sorununun panzehiridir.', en: 'When the same pom.xml runs on another machine or CI agent, the identical version is fetched — this is the antidote to "it worked on my machine".' } },
+  ],
+}
+
+// ⚙️ Kurulum — Selenium Manager otomatik sürücü eşleştirme akışı
+const seleniumManagerAutoDriverStep = {
+  type: 'step-animation',
+  id: 'selenium-install-manager-autodriver-step-01',
+  title: { tr: 'Adım Adım: new ChromeDriver() Arkasında Ne Olur?', en: 'Step by Step: What Happens Behind new ChromeDriver()' },
+  steps: [
+    { id: 1, icon: '🔎', label: { tr: 'Yüklü Chrome sürümü tespit edilir', en: 'The installed Chrome version is detected' }, detail: { tr: '`new ChromeDriver()` çağrıldığı an Selenium Manager devreye girer ve makinede kurulu Chrome\'un TAM sürümünü okur.', en: 'The moment `new ChromeDriver()` is called, Selenium Manager kicks in and reads the EXACT version of Chrome installed on the machine.' } },
+    { id: 2, icon: '🤖', label: { tr: 'Uyumlu driver bulunur/indirilir', en: 'A matching driver is found/downloaded' }, detail: { tr: 'Tespit edilen sürümle TAM uyumlu ChromeDriver binary\'si yerel önbellekte aranır, yoksa otomatik indirilir.', en: 'A ChromeDriver binary EXACTLY matching the detected version is looked up in the local cache, or downloaded automatically if missing.' } },
+    { id: 3, icon: '🚀', label: { tr: 'WebDriver session başlatılır', en: 'A WebDriver session is launched' }, detail: { tr: 'Uyumlu driver, bu binary üzerinden gerçek Chrome process\'ini ayağa kaldırıp bir WebDriver session açar.', en: 'The matching driver spins up the real Chrome process through this binary and opens a WebDriver session.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Sürüm uyuşmazlığı hatası önlenir', en: 'A version-mismatch error is prevented' }, detail: { tr: 'Bu otomasyon olmasaydı burada "session not created: This version of ChromeDriver only supports Chrome version X" hatası fırlardı.', en: 'Without this automation, this is exactly where "session not created: This version of ChromeDriver only supports Chrome version X" would be thrown.' } },
+  ],
+}
+
+// ⚙️ Kurulum — Python driver yaşam döngüsü
+const seleniumPythonDriverLifecycleStep = {
+  type: 'step-animation',
+  id: 'selenium-install-python-lifecycle-step-01',
+  title: { tr: 'Adım Adım: Python\'da Bir Driver\'ın Yaşam Döngüsü', en: 'Step by Step: A Driver\'s Lifecycle in Python' },
+  steps: [
+    { id: 1, icon: '🌐', label: { tr: 'Tarayıcı process\'i başlar', en: 'The browser process starts' }, detail: { tr: '`webdriver.Chrome()` çağrısı yeni bir tarayıcı process\'i ve ona bağlı bir WebDriver session açar.', en: 'The `webdriver.Chrome()` call starts a new browser process and opens a WebDriver session bound to it.' } },
+    { id: 2, icon: '🧭', label: { tr: 'get(url) komutu gönderilir', en: 'The get(url) command is sent' }, detail: { tr: '`driver.get(url)` session\'a bir komut gönderir: tarayıcı o adrese gider ve sayfa yüklenene KADAR bekler.', en: '`driver.get(url)` sends a command to the session: the browser navigates there and WAITS UNTIL the page finishes loading.' } },
+    { id: 3, icon: '📖', label: { tr: 'title DOM\'dan okunur', en: 'title is read from the DOM' }, detail: { tr: '`driver.title`, o an tarayıcıda render edilmiş gerçek `<title>` etiketinin değerini okur — statik bir metin değil, canlı DOM sorgusudur.', en: '`driver.title` reads the real `<title>` tag value as currently rendered in the browser — not static text, a live DOM query.' } },
+    { id: 4, icon: '🧹', label: { tr: 'quit() process\'i kapatır', en: 'quit() closes the process' }, detail: { tr: '`driver.quit()` hem session\'ı hem de tarayıcı process\'ini kapatır — çağrılmazsa process bellekte açık kalır ve CI\'da "zombie chrome" birikimine yol açar.', en: '`driver.quit()` closes both the session and the browser process — skip it and the process stays open in memory, piling up as "zombie chrome" instances in CI.' } },
+  ],
+}
+
+// ⚙️ Kurulum — TypeScript proje iskeleti kurulum akışı
+const seleniumTsInstallStep = {
+  type: 'step-animation',
+  id: 'selenium-install-ts-scaffold-step-01',
+  title: { tr: 'Adım Adım: npm init\'ten tsconfig.json\'a', en: 'Step by Step: From npm init to tsconfig.json' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'package.json oluşur', en: 'package.json is created' }, detail: { tr: '`npm init -y`, varsayılan değerlerle bir package.json oluşturur — Java\'daki boş bir pom.xml\'in başlangıç noktası gibi.', en: '`npm init -y` creates a package.json with default values — like the starting point of an empty pom.xml in Java.' } },
+    { id: 2, icon: '⬇️', label: { tr: 'selenium-webdriver indirilir', en: 'selenium-webdriver is downloaded' }, detail: { tr: '`npm install selenium-webdriver`, kütüphaneyi `node_modules`\'e indirir ve package.json\'a bağımlılık olarak KAYDEDER.', en: '`npm install selenium-webdriver` downloads the library into `node_modules` and RECORDS it as a dependency in package.json.' } },
+    { id: 3, icon: '🏷️', label: { tr: 'Tip tanımları eklenir', en: 'Type definitions are added' }, detail: { tr: '`@types/selenium-webdriver`, derleyiciye kütüphanenin tip bilgisini verir — yanlış metot çağrısı ÇALIŞTIRMADAN, derleme anında yakalanır.', en: '`@types/selenium-webdriver` gives the compiler the library\'s type information — a wrong method call is caught at compile time, WITHOUT running anything.' } },
+    { id: 4, icon: '⚙️', label: { tr: 'tsconfig.json devreye girer', en: 'tsconfig.json takes over' }, detail: { tr: '`npx tsc --init`, derleyiciye hedef JS sürümünü ve tip kontrolü kurallarını söyleyen tsconfig.json\'ı üretir.', en: '`npx tsc --init` generates the tsconfig.json that tells the compiler the target JS version and the type-checking rules.' } },
+  ],
+}
+
+// ⚙️ Kurulum — TypeScript async/await driver akışı
+const seleniumTsAsyncStep = {
+  type: 'step-animation',
+  id: 'selenium-install-ts-async-step-01',
+  title: { tr: 'Adım Adım: TypeScript\'te async/await ile Driver Akışı', en: 'Step by Step: Driver Flow with async/await in TypeScript' },
+  steps: [
+    { id: 1, icon: '⏳', label: { tr: 'build() askıya alır', en: 'build() suspends execution' }, detail: { tr: '`await new Builder().forBrowser(Browser.CHROME).build()` tarayıcıyı asenkron başlatır — Promise çözülene KADAR bir sonraki satır çalışmaz.', en: '`await new Builder().forBrowser(Browser.CHROME).build()` starts the browser asynchronously — the next line does NOT run until the Promise resolves.' } },
+    { id: 2, icon: '🔄', label: { tr: 'try içinde sırayla awaitlenir', en: 'Sequentially awaited inside try' }, detail: { tr: '`driver.get()` ve `getTitle()` sırayla awaitlenir — bu sırada Node.js\'in event loop\'u BLOKE OLMAZ, sadece bu fonksiyon askıya alınır.', en: '`driver.get()` and `getTitle()` are awaited in sequence — Node.js\'s event loop does NOT block, only this function is suspended.' } },
+    { id: 3, icon: '🛡️', label: { tr: 'finally her koşulda çalışır', en: 'finally always runs' }, detail: { tr: '`finally` bloğu, try içinde hata OLSA da OLMASA da `driver.quit()`\'i çalıştırmayı garanti eder.', en: 'The `finally` block guarantees `driver.quit()` runs WHETHER OR NOT an error occurred inside try.' } },
+    { id: 4, icon: '🚪', label: { tr: 'finally olmasaydı ne olurdu?', en: 'What if there were no finally?' }, detail: { tr: 'Bir assertion hatası try içinde fırlasaydı ve finally olmasaydı, tarayıcı process\'i AÇIK kalır, bir sonraki test yanlış pencerede çalışabilirdi.', en: 'If an assertion error were thrown inside try without a finally, the browser process would stay OPEN, and the next test could run in the wrong window.' } },
+  ],
+}
+
+// ⚙️ Kurulum — pip install doğrulama zinciri
+const seleniumPipVerifyStep = {
+  type: 'step-animation',
+  id: 'selenium-install-pip-verify-step-01',
+  title: { tr: 'Adım Adım: pip install\'dan Doğrulamaya', en: 'Step by Step: From pip install to Verification' },
+  steps: [
+    { id: 1, icon: '📥', label: { tr: 'Paket PyPI\'dan indirilir', en: 'The package is fetched from PyPI' }, detail: { tr: '`pip install selenium`, PyPI (Python Package Index) üzerinden `selenium` paketinin en son kararlı sürümünü indirir.', en: '`pip install selenium` fetches the latest stable version of the `selenium` package from PyPI (Python Package Index).' } },
+    { id: 2, icon: '🗂️', label: { tr: 'site-packages\'a kurulur', en: 'Installed into site-packages' }, detail: { tr: 'İndirilen paket, aktif Python ortamının `site-packages` klasörüne yazılır — `import selenium` bu klasörden çözümlenir.', en: 'The downloaded package is written into the active Python environment\'s `site-packages` folder — `import selenium` resolves from there.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Kurulum tek satırla kanıtlanır', en: 'Installation is proven with one line' }, detail: { tr: '`python -c "import selenium; print(selenium.__version__)"`, ayrı bir dosya oluşturmadan kurulumun BAŞARILI olduğunu kanıtlar.', en: '`python -c "import selenium; print(selenium.__version__)"` proves the install SUCCEEDED without creating a separate file.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Sürüm uyuşmazlığı burada yakalanır', en: 'Version mismatches are caught right here' }, detail: { tr: 'Bu adım atlanırsa, sürüm uyuşmazlığı ilk gerçek testte, çok daha KARIŞIK bir hata izi içinde ortaya çıkar.', en: 'Skip this step and a version mismatch surfaces later in the first real test, buried in a far MESSIER error trace.' } },
+  ],
+}
+
 // ─── S1: KURULUM ──────────────────────────────────────────────────────────────
 const s1 = {
   tr: {
@@ -1870,6 +1948,7 @@ const s1 = {
   </dependency>
 </dependencies>`,
       },
+      seleniumMavenDependencyStep,
       {
         type: 'code', language: 'java',
         label: 'Java — İlk Selenium Testi',
@@ -1887,6 +1966,7 @@ public class FirstTest {
 }`,
         expected: 'Başlık: Google',
       },
+      seleniumManagerAutoDriverStep,
       seleniumVersionMismatchFilm,
       { type: 'heading', text: '2️⃣ Python ile Selenium Kurulumu' },
       {
@@ -1904,6 +1984,7 @@ pip install selenium
 python -c "import selenium; print(selenium.__version__)"`,
         expected: '4.25.0',
       },
+      seleniumPipVerifyStep,
       {
         type: 'code', language: 'python',
         label: 'Python — İlk Selenium Testi',
@@ -1917,6 +1998,7 @@ print("Başlık:", driver.title)
 driver.quit()  # Her zaman kapat!`,
         expected: 'Başlık: Google',
       },
+      seleniumPythonDriverLifecycleStep,
       { type: 'heading', text: '3️⃣ TypeScript ile Selenium Kurulumu' },
       {
         type: 'code', language: 'bash',
@@ -1937,6 +2019,7 @@ npm install --save-dev typescript @types/node @types/selenium-webdriver ts-node
 # tsconfig.json oluştur
 npx tsc --init`,
       },
+      seleniumTsInstallStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — İlk Selenium Testi (first-test.ts)',
@@ -1959,6 +2042,7 @@ async function main() {
 main();`,
         expected: 'Başlık: Google',
       },
+      seleniumTsAsyncStep,
       {
         type: 'code', language: 'bash',
         label: 'Terminal — TypeScript testi çalıştır',
@@ -2050,6 +2134,7 @@ main();`,
   </dependency>
 </dependencies>`,
       },
+      seleniumMavenDependencyStep,
       {
         type: 'code', language: 'java',
         label: 'Java — First Selenium Test',
@@ -2066,6 +2151,7 @@ public class FirstTest {
 }`,
         expected: 'Title: Google',
       },
+      seleniumManagerAutoDriverStep,
       seleniumVersionMismatchFilm,
       { type: 'heading', text: '2️⃣ Python Selenium Setup' },
       {
@@ -2075,6 +2161,7 @@ public class FirstTest {
 python -c "import selenium; print(selenium.__version__)"`,
         expected: '4.25.0',
       },
+      seleniumPipVerifyStep,
       {
         type: 'code', language: 'python',
         label: 'Python — First Selenium Test',
@@ -2086,6 +2173,7 @@ print("Title:", driver.title)
 driver.quit()`,
         expected: 'Title: Google',
       },
+      seleniumPythonDriverLifecycleStep,
       { type: 'heading', text: '3️⃣ TypeScript Selenium Setup' },
       {
         type: 'code', language: 'bash',
@@ -2093,6 +2181,7 @@ driver.quit()`,
         code: `npm install selenium-webdriver
 npm install --save-dev typescript @types/node @types/selenium-webdriver ts-node`,
       },
+      seleniumTsInstallStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — First Selenium Test',
@@ -2110,6 +2199,7 @@ async function main() {
 main();`,
         expected: 'Title: Google',
       },
+      seleniumTsAsyncStep,
       {
         type: 'quiz',
         question: 'From Selenium 4.6 onward, what automatically manages ChromeDriver?',
@@ -2152,6 +2242,97 @@ main();`,
 }
 
 // ─── S2: LOCATORS ─────────────────────────────────────────────────────────────
+// 🎯 Locators — By.ID O(1) lookup mekanizması
+const seleniumByIdLookupStep = {
+  type: 'step-animation',
+  id: 'selenium-locators-byid-lookup-step-01',
+  title: { tr: 'Adım Adım: By.id() Bir HashMap Gibi Neden Bu Kadar Hızlı?', en: 'Step by Step: Why By.id() Is as Fast as a HashMap' },
+  steps: [
+    { id: 1, icon: '🌐', label: { tr: 'Tarayıcı getElementById\'ye gider', en: 'The browser calls getElementById' }, detail: { tr: '`By.id("username")` çağrıldığında Selenium, tarayıcının native `document.getElementById()` metodunu tetikler.', en: 'Calling `By.id("username")` triggers the browser\'s native `document.getElementById()` method under the hood.' } },
+    { id: 2, icon: '🗺️', label: { tr: 'Tarayıcı ID indeksini tutar', en: 'The browser maintains an ID index' }, detail: { tr: 'Modern tarayıcılar tüm ID\'leri dahili bir hash tablosunda önbelleğe alır — Java\'daki HashMap.get(key) gibi ortalama O(1) sürede sonuç döner.', en: 'Modern browsers cache all IDs in an internal hash table — just like Java\'s HashMap.get(key), it returns in average O(1) time.' } },
+    { id: 3, icon: '🔍', label: { tr: 'DOM ağacı GEZİLMEZ', en: 'The DOM tree is NOT traversed' }, detail: { tr: 'By.xpath veya By.className\'in aksine, By.id ağacı kök\'ten yaprağa dolaşmaz — doğrudan indeksten TEK adımda bulur.', en: 'Unlike By.xpath or By.className, By.id never walks the tree from root to leaf — it resolves directly from the index in ONE step.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Koşul: ID gerçekten benzersiz olmalı', en: 'Condition: the ID must truly be unique' }, detail: { tr: 'HTML standardı ID\'nin sayfada TEK olmasını şart koşar; aynı ID iki elementte varsa tarayıcı sadece İLKİNİ döner, ikinci element sessizce görünmez olur.', en: 'The HTML standard requires an ID to be UNIQUE per page; if two elements share one, the browser returns only the FIRST, silently hiding the second.' } },
+  ],
+}
+
+// 🎯 Locators — dinamik DOM'da ID kırılganlığı
+const seleniumByIdReactRiskStep = {
+  type: 'step-animation',
+  id: 'selenium-locators-byid-react-risk-step-01',
+  title: { tr: 'Adım Adım: React Yeniden Render Ettiğinde ID\'ye Ne Olur?', en: 'Step by Step: What Happens to an ID When React Re-Renders' },
+  steps: [
+    { id: 1, icon: '🧩', label: { tr: 'Test önce ID\'yi kaydeder', en: 'The test first records the ID' }, detail: { tr: 'Test, `By.id("loginBtn")` ile elementi ilk denemede bulur ve tıklar — o an sayfa STATİK görünür.', en: 'The test finds and clicks the element via `By.id("loginBtn")` on the first attempt — the page looks STATIC at that moment.' } },
+    { id: 2, icon: '🔄', label: { tr: 'Bir state güncellemesi DOM\'u yeniden üretir', en: 'A state update regenerates the DOM' }, detail: { tr: 'React/Angular gibi framework\'ler bir state değiştiğinde ilgili bileşeni YENİDEN render eder — bazı build araçları auto-generated ID\'leri her render\'da DEĞİŞTİRİR.', en: 'Frameworks like React/Angular RE-RENDER the relevant component when state changes — some build tools regenerate auto-generated IDs on EVERY render.' } },
+    { id: 3, icon: '❌', label: { tr: 'Eski ID artık DOM\'da yok', en: 'The old ID no longer exists in the DOM' }, detail: { tr: 'Test tekrar `By.id("loginBtn")` ile arasa bile, o ID artık DOM\'da YOK — `NoSuchElementException` fırlar.', en: 'Even if the test searches for `By.id("loginBtn")` again, that ID no longer EXISTS in the DOM — a `NoSuchElementException` is thrown.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Çözüm: yapısal locator\'a geç', en: 'Fix: switch to a structural locator' }, detail: { tr: 'Bu durumda `By.cssSelector` veya `By.xpath` ile metin/yapısal ilişkiye dayalı bir sorgu yazmak, framework\'ün ID üretim detaylarından BAĞIMSIZ kalır.', en: 'Switching to `By.cssSelector` or `By.xpath` based on text/structural relationships stays INDEPENDENT of the framework\'s ID-generation details.' } },
+  ],
+}
+
+// 🎯 Locators — CSS selector eşleştirme motoru
+const seleniumCssMatchingStep = {
+  type: 'step-animation',
+  id: 'selenium-locators-css-matching-step-01',
+  title: { tr: 'Adım Adım: Tarayıcı Bir CSS Selector\'ı Nasıl Eşler?', en: 'Step by Step: How a Browser Matches a CSS Selector' },
+  steps: [
+    { id: 1, icon: '📐', label: { tr: 'Selector sağdan sola OKUNUR', en: 'The selector is READ right-to-left' }, detail: { tr: '`div.form > input` yazıldığında tarayıcı motoru önce EN SAĞDAKİ (`input`) parçayı arar, sonra ebeveynin `div.form` olup olmadığını kontrol eder.', en: 'For `div.form > input`, the browser engine first searches for the RIGHTMOST piece (`input`), then checks whether its parent matches `div.form`.' } },
+    { id: 2, icon: '🎯', label: { tr: 'Aday elementler filtrelenir', en: 'Candidate elements are filtered' }, detail: { tr: 'Tüm `<input>` etiketleri aday olarak toplanır; her biri için üst zincir yukarı doğru KONTROL edilir.', en: 'All `<input>` tags are collected as candidates; for each one, the parent chain is CHECKED going upward.' } },
+    { id: 3, icon: '⚡', label: { tr: 'Sağdan-sola strateji neden hızlı?', en: 'Why right-to-left is faster' }, detail: { tr: 'Yaprak elementler kökten daha az sayıdadır — sağdan başlamak taranacak aday havuzunu küçültür, `div.form input span a` gibi derin sorgularda fark yaratır.', en: 'Leaf elements are fewer than root-level ones — starting from the right shrinks the candidate pool, which matters for deep queries like `div.form input span a`.' } },
+    { id: 4, icon: '☕', label: { tr: 'Java analojisi', en: 'Java analogy' }, detail: { tr: 'Bu, Java\'da bir Stream\'i `.filter()` ile daraltıp sonra `.anyMatch()` ile üst koşulu kontrol etmeye benzer — önce dar kümeye in, sonra doğrula.', en: 'This resembles narrowing a Java Stream with `.filter()` then checking the parent condition with `.anyMatch()` — narrow first, verify after.' } },
+  ],
+}
+
+// 🎯 Locators — CSS attribute/nth-child hassasiyeti
+const seleniumCssAttributeStep = {
+  type: 'step-animation',
+  id: 'selenium-locators-css-attribute-step-01',
+  title: { tr: 'Adım Adım: input[placeholder*=\'ara\'] Nasıl Çözümlenir?', en: 'Step by Step: How input[placeholder*=\'search\'] Resolves' },
+  steps: [
+    { id: 1, icon: '🔠', label: { tr: 'Operatör TÜRÜ belirlenir', en: 'The operator TYPE is determined' }, detail: { tr: '`*=` "içerir", `^=` "ile başlar", `$=` "ile biter" anlamına gelir — her biri farklı bir string karşılaştırma stratejisidir.', en: '`*=` means "contains", `^=` means "starts with", `$=` means "ends with" — each is a different string-comparison strategy.' } },
+    { id: 2, icon: '🧮', label: { tr: 'nth-child SAYIMLA çalışır', en: 'nth-child works by COUNTING' }, detail: { tr: '`ul li:nth-child(2)` kardeş elementleri 1\'den başlayarak sayar — DOM sırası değişirse aynı SAYIDAKİ ama FARKLI elementi döndürebilir.', en: '`ul li:nth-child(2)` counts sibling elements starting from 1 — if DOM order changes, it may return a DIFFERENT element at the SAME position.' } },
+    { id: 3, icon: '🎯', label: { tr: 'Attribute değeri karakter karakter kontrol edilir', en: 'The attribute value is checked character by character' }, detail: { tr: 'Tarayıcı, elementin `placeholder` attribute string\'i içinde aranan alt diziyi (`ara`) TARAR — regex değil, düz substring eşleşmesidir.', en: 'The browser SCANS the element\'s `placeholder` attribute string for the target substring (`search`) — it is plain substring matching, not regex.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Kırılganlık riski', en: 'The fragility risk' }, detail: { tr: 'Placeholder metni i18n ile TR\'de "ara", EN\'de "search" olursa aynı selector her iki dilde ÇALIŞMAZ — dil bağımsız bir attribute (data-testid) tercih edilmelidir.', en: 'If the placeholder text is "ara" in TR and "search" in EN via i18n, the same selector will NOT work in both — a language-independent attribute (data-testid) is preferable.' } },
+  ],
+}
+
+// 🎯 Locators — XPath absolute vs relative
+const seleniumXpathTraversalStep = {
+  type: 'step-animation',
+  id: 'selenium-locators-xpath-traversal-step-01',
+  title: { tr: 'Adım Adım: Absolute XPath Neden Bir Sonraki Deploy\'da Kırılır?', en: 'Step by Step: Why Absolute XPath Breaks on the Next Deploy' },
+  steps: [
+    { id: 1, icon: '📍', label: { tr: 'Absolute XPath kökten SAYAR', en: 'Absolute XPath COUNTS from the root' }, detail: { tr: '`/html/body/div[1]/form/input[2]` her adımda TAM pozisyonu belirtir — "kökten 4 seviye aşağı, 2. input".', en: '`/html/body/div[1]/form/input[2]` states the EXACT position at every step — "4 levels down from root, 2nd input".' } },
+    { id: 2, icon: '🧱', label: { tr: 'Bir <div> eklenince TÜM sayım kayar', en: 'Adding one <div> shifts the ENTIRE count' }, detail: { tr: 'Tasarımcı sayfaya yeni bir banner `<div>` eklediğinde, ondan sonraki HER index bir kayar — locator artık YANLIŞ elementi işaret eder.', en: 'When a designer adds a new banner `<div>` to the page, EVERY index after it shifts by one — the locator now points to the WRONG element.' } },
+    { id: 3, icon: '🎯', label: { tr: 'Relative XPath ilişkiye göre arar', en: 'Relative XPath searches by relationship' }, detail: { tr: '`//input[@id=\'username\']`, konumdan bağımsız olarak SADECE `id` özniteliğine bakar — sayfada nerede olursa olsun bulunur.', en: '`//input[@id=\'username\']` looks ONLY at the `id` attribute, independent of position — it is found no matter where it sits on the page.' } },
+    { id: 4, icon: '☕', label: { tr: 'Java analojisi', en: 'Java analogy' }, detail: { tr: 'Absolute XPath, bir List\'te sabit `list.get(3)` index\'ine güvenmek gibidir; relative XPath ise `list.stream().filter(x -> x.getId().equals(...))` gibi KOŞULA göre arar.', en: 'Absolute XPath is like trusting a fixed `list.get(3)` index; relative XPath searches by CONDITION, like `list.stream().filter(x -> x.getId().equals(...))`.' } },
+  ],
+}
+
+// 🎯 Locators — XPath metin eşleştirme
+const seleniumXpathTextMatchStep = {
+  type: 'step-animation',
+  id: 'selenium-locators-xpath-textmatch-step-01',
+  title: { tr: 'Adım Adım: text() ile contains(text()) Arasındaki Fark', en: 'Step by Step: The Difference Between text() and contains(text())' },
+  steps: [
+    { id: 1, icon: '🔤', label: { tr: 'text() TAM eşleşme ister', en: 'text() demands an EXACT match' }, detail: { tr: '`//button[text()=\'Giriş Yap\']`, elementin metni HARFİ HARFİNE "Giriş Yap" ise bulur — sonunda tek bir boşluk bile eşleşmeyi bozar.', en: '`//button[text()=\'Login\']` matches ONLY if the element\'s text is EXACTLY "Login" — even one trailing space breaks the match.' } },
+    { id: 2, icon: '🧩', label: { tr: 'contains() KISMİ eşleşme ister', en: 'contains() allows a PARTIAL match' }, detail: { tr: '`//button[contains(text(),\'Giriş\')]`, metnin İÇİNDE "Giriş" geçen HER elementi bulur — "Giriş Yap", "Giriş Yapılıyor..." ikisi de eşleşir.', en: '`//button[contains(text(),\'Log\')]` matches ANY element whose text CONTAINS "Log" — both "Login" and "Logout" would match.' } },
+    { id: 3, icon: '⚠️', label: { tr: 'Çok geniş eşleşme riski', en: 'The over-matching risk' }, detail: { tr: 'contains() bazen İSTENMEYEN bir ikinci elementi de eşler — sayfada "Giriş Yapılıyor..." yükleme metni varsa test YANLIŞ elementi tıklayabilir.', en: 'contains() can sometimes match an UNWANTED second element — if a "Logging in..." loading text exists, the test may click the WRONG element.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Güvenli tercih', en: 'The safer choice' }, detail: { tr: 'Metin dinamik değilse `text()` ile tam eşleşme tercih edilir; metin kısmen değişebiliyorsa `contains()` + ek bir attribute koşulu (`and @type=\'submit\'`) birlikte kullanılır.', en: 'Prefer exact `text()` when the text is static; when it can partially vary, combine `contains()` with an extra attribute condition (`and @type=\'submit\'`).' } },
+  ],
+}
+
+// 🎯 Locators — XPath eksen (axis) navigasyonu
+const seleniumXpathAxisStep = {
+  type: 'step-animation',
+  id: 'selenium-locators-xpath-axis-step-01',
+  title: { tr: 'Adım Adım: following-sibling ve ancestor Nasıl Çalışır?', en: 'Step by Step: How following-sibling and ancestor Work' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: 'Label\'ın kendi ID\'si yoktur', en: 'The label has no ID of its own' }, detail: { tr: '"Email" yazan `<label>` bulunabilir ama input\'un kendisi bir ID taşımıyor olabilir — direkt `By.id` burada işe yaramaz.', en: 'The `<label>` reading "Email" can be found, but the input itself may carry no ID — `By.id` is useless here.' } },
+    { id: 2, icon: '➡️', label: { tr: 'following-sibling KARDEŞ arar', en: 'following-sibling searches SIBLINGS' }, detail: { tr: '`//label[text()=\'Email\']/following-sibling::input`, önce label\'ı bulur, sonra AYNI seviyedeki bir sonraki `<input>` kardeşine geçer.', en: '`//label[text()=\'Email\']/following-sibling::input` first finds the label, then moves to the next `<input>` sibling at the SAME level.' } },
+    { id: 3, icon: '⬆️', label: { tr: 'ancestor YUKARI çıkar', en: 'ancestor climbs UPWARD' }, detail: { tr: '`//input[@id=\'search\']/ancestor::form`, input\'tan başlayıp DOM ağacında YUKARI doğru en yakın `<form>` ebeveynini bulur.', en: '`//input[@id=\'search\']/ancestor::form` starts at the input and climbs UPWARD through the DOM tree to the nearest `<form>` ancestor.' } },
+    { id: 4, icon: '☕', label: { tr: 'Java analojisi', en: 'Java analogy' }, detail: { tr: 'following-sibling, bir LinkedList\'te `.next` ile ilerlemek gibidir; ancestor ise bir ağaç yapısında `node.getParent()`\'ı tekrar tekrar çağırmaya benzer.', en: 'following-sibling resembles walking `.next` in a LinkedList; ancestor resembles repeatedly calling `node.getParent()` in a tree structure.' } },
+  ],
+}
+
 const s2 = {
   tr: {
     title: '🎯 Locators — Element Bulma Stratejileri',
@@ -2194,6 +2375,7 @@ input.sendKeys("admin");
 WebElement btn = driver.findElement(By.id("loginBtn"));
 btn.click();`,
       },
+      seleniumByIdLookupStep,
       {
         type: 'code', language: 'python',
         label: 'Python — By.ID',
@@ -2218,6 +2400,7 @@ await input.sendKeys('admin');
 const btn = await driver.findElement(By.id('loginBtn'));
 await btn.click();`,
       },
+      seleniumByIdReactRiskStep,
       { type: 'heading', text: '2. By.CSS_SELECTOR — Modern & Hızlı' },
       {
         type: 'callout', color: 'blue', emoji: '☕',
@@ -2248,6 +2431,7 @@ driver.findElement(By.cssSelector("a[href^='https']")).click();
 // İçerik ile → input[placeholder*='ara']
 driver.findElement(By.cssSelector("input[placeholder*='ara']")).sendKeys("ürün");`,
       },
+      seleniumCssMatchingStep,
       {
         type: 'code', language: 'python',
         label: 'Python — CSS Selector',
@@ -2275,6 +2459,7 @@ await (await driver.findElement(By.css("input[type='email']"))).sendKeys('test@t
 // Nth child
 await (await driver.findElement(By.css('ul li:nth-child(2)'))).click();`,
       },
+      seleniumCssAttributeStep,
       { type: 'heading', text: '3. By.XPATH — En Güçlü Locator' },
       {
         type: 'callout', color: 'purple', emoji: '🔎',
@@ -2310,6 +2495,7 @@ driver.findElement(By.xpath("//input[@id='search']/ancestor::form")).submit();
 // Birden fazla koşul (AND)
 driver.findElement(By.xpath("//input[@type='text' and @name='user']")).sendKeys("admin");`,
       },
+      seleniumXpathTraversalStep,
       {
         type: 'code', language: 'python',
         label: 'Python — XPath',
@@ -2325,6 +2511,7 @@ driver.find_element(By.XPATH, "//label[text()='Email']/following-sibling::input"
 # AND koşulu
 driver.find_element(By.XPATH, "//input[@type='text' and @name='user']").send_keys("admin")`,
       },
+      seleniumXpathTextMatchStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — XPath',
@@ -2338,6 +2525,7 @@ await (await driver.findElement(By.xpath("//button[contains(text(),'Login')]")))
 const emailInput = await driver.findElement(By.xpath("//label[text()='Email']/following-sibling::input"));
 await emailInput.sendKeys('test@test.com');`,
       },
+      seleniumXpathAxisStep,
       { type: 'heading', text: '4. Selenium 4 — Relative Locators' },
       {
         type: 'callout', color: 'green', emoji: '✨',
@@ -2510,6 +2698,7 @@ input.sendKeys("admin");
 WebElement btn = driver.findElement(By.id("loginBtn"));
 btn.click();`,
       },
+      seleniumByIdLookupStep,
       {
         type: 'code', language: 'python',
         label: 'Python — By.ID',
@@ -2532,6 +2721,7 @@ await input.sendKeys('admin');
 const btn = await driver.findElement(By.id('loginBtn'));
 await btn.click();`,
       },
+      seleniumByIdReactRiskStep,
       { type: 'heading', text: '2. By.CSS_SELECTOR — Modern & Fast' },
       {
         type: 'code', language: 'java',
@@ -2543,6 +2733,7 @@ driver.findElement(By.cssSelector("ul li:nth-child(2)")).click(); // Nth child
 driver.findElement(By.cssSelector("a[href^='https']")).click();   // Starts with
 driver.findElement(By.cssSelector("input[placeholder*='search']")).sendKeys("query"); // Contains`,
       },
+      seleniumCssMatchingStep,
       {
         type: 'code', language: 'python',
         label: 'Python — CSS Selector',
@@ -2551,6 +2742,7 @@ driver.find_element(By.CSS_SELECTOR, ".submit-btn").click()
 driver.find_element(By.CSS_SELECTOR, "input[type='email']").send_keys("test@test.com")
 driver.find_element(By.CSS_SELECTOR, "ul li:nth-child(2)").click()`,
       },
+      seleniumCssAttributeStep,
       { type: 'heading', text: '3. By.XPATH — Most Powerful' },
       {
         type: 'code', language: 'java',
@@ -2573,6 +2765,7 @@ driver.findElement(By.xpath("//label[text()='Email']/following-sibling::input"))
 // AND condition
 driver.findElement(By.xpath("//input[@type='text' and @name='user']")).sendKeys("admin");`,
       },
+      seleniumXpathTraversalStep,
       {
         type: 'code', language: 'python',
         label: 'Python — XPath',
@@ -2580,12 +2773,14 @@ driver.findElement(By.xpath("//input[@type='text' and @name='user']")).sendKeys(
 driver.find_element(By.XPATH, "//button[contains(text(),'Login')]").click()
 driver.find_element(By.XPATH, "//label[text()='Email']/following-sibling::input").send_keys("test@test.com")`,
       },
+      seleniumXpathTextMatchStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — XPath',
         code: `await (await driver.findElement(By.xpath("//input[@id='username']"))).sendKeys('admin');
 await (await driver.findElement(By.xpath("//button[contains(text(),'Login')]"))).click();`,
       },
+      seleniumXpathAxisStep,
       {
         type: 'quiz',
         question: { en: 'Which locator type is the fastest and most reliable?', tr: 'Which locator type is the fastest and most reliable?' },
@@ -2638,6 +2833,110 @@ await (await driver.findElement(By.xpath("//button[contains(text(),'Login')]")))
 }
 
 // ─── S3: ACTIONS ─────────────────────────────────────────────────────────────
+// ⚡ Actions — element durum okuma zinciri
+const seleniumElementStateReadStep = {
+  type: 'step-animation',
+  id: 'selenium-actions-state-read-step-01',
+  title: { tr: 'Adım Adım: isDisplayed/isEnabled/isSelected Neyi Sorar?', en: 'Step by Step: What isDisplayed/isEnabled/isSelected Actually Ask' },
+  steps: [
+    { id: 1, icon: '👁️', label: { tr: 'isDisplayed() render durumunu sorar', en: 'isDisplayed() asks about render state' }, detail: { tr: 'Element DOM\'da VAR olsa bile `display:none` veya `visibility:hidden` ise `isDisplayed()` FALSE döner — varlık ile görünürlük FARKLI şeylerdir.', en: 'Even if the element EXISTS in the DOM, `isDisplayed()` returns FALSE when `display:none` or `visibility:hidden` applies — existence and visibility are DIFFERENT things.' } },
+    { id: 2, icon: '🔒', label: { tr: 'isEnabled() etkileşim durumunu sorar', en: 'isEnabled() asks about interaction state' }, detail: { tr: 'Bir buton görünür OLABİLİR ama `disabled` attribute\'u varsa `isEnabled()` FALSE döner — click() çağrılsa bile hiçbir şey OLMAZ.', en: 'A button CAN be visible but if it carries a `disabled` attribute, `isEnabled()` returns FALSE — calling click() would do NOTHING.' } },
+    { id: 3, icon: '☑️', label: { tr: 'isSelected() sadece belirli tiplerde anlamlıdır', en: 'isSelected() is meaningful only for certain types' }, detail: { tr: 'Checkbox, radio ve option elementleri için "işaretli mi?" sorusuna cevap verir — bir `<div>` için her zaman FALSE döner.', en: 'It answers "is it checked?" for checkboxes, radios, and options — for a `<div>` it always returns FALSE.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Neden bu üçü BİRLİKTE kontrol edilir?', en: 'Why check all three TOGETHER?' }, detail: { tr: 'Production\'da bir submit butonuna tıklamadan ÖNCE bu üç kontrolü yapmak, "buton var ama disabled" gibi sessiz hataları test ASSERTION\'ına dönüştürür.', en: 'Checking all three BEFORE clicking a submit button in production turns silent failures like "the button exists but is disabled" into a test ASSERTION.' } },
+  ],
+}
+
+// ⚡ Actions — clear() + yeniden yazma döngüsü
+const seleniumClearResendStep = {
+  type: 'step-animation',
+  id: 'selenium-actions-clear-resend-step-01',
+  title: { tr: 'Adım Adım: clear() Olmadan sendKeys() Neden Riskli?', en: 'Step by Step: Why sendKeys() Without clear() Is Risky' },
+  steps: [
+    { id: 1, icon: '📝', label: { tr: 'İlk sendKeys metni EKLER', en: 'The first sendKeys APPENDS text' }, detail: { tr: '`username.sendKeys("admin")` input\'a metni yazar — eğer input zaten önceden dolu bırakılmışsa, yeni metin ESKİ metnin SONUNA eklenir.', en: '`username.sendKeys("admin")` types into the input — if it was already pre-filled, the new text is APPENDED to the OLD text, not replacing it.' } },
+    { id: 2, icon: '🧹', label: { tr: 'clear() input\'u SIFIRLAR', en: 'clear() RESETS the input' }, detail: { tr: '`username.clear()`, alandaki TÜM mevcut değeri siler — bir sonraki sendKeys BOŞ bir alana yazar.', en: '`username.clear()` erases ALL existing value in the field — the next sendKeys writes into an EMPTY field.' } },
+    { id: 3, icon: '🔁', label: { tr: 'Testler arası KİRLENME riski', en: 'The risk of cross-test CONTAMINATION' }, detail: { tr: 'clear() atlanırsa, bir önceki testten kalan "olduser" değeri "newuser" ile birleşip "olduser newuser" gibi YANLIŞ bir veri oluşturabilir.', en: 'Skip clear() and a leftover "olduser" value from a previous test can merge with "newuser" into a WRONG value like "olduserewuser".' } },
+    { id: 4, icon: '☕', label: { tr: 'Java analojisi', en: 'Java analogy' }, detail: { tr: 'Bu, bir StringBuilder\'ı `.setLength(0)` ile sıfırlamadan yeniden `.append()` etmeye benzer — eski içerik SESSİZCE kalmaya devam eder.', en: 'This is like calling `.append()` on a StringBuilder again without first resetting it via `.setLength(0)` — the old content SILENTLY remains.' } },
+  ],
+}
+
+// ⚡ Actions — Keys.CONTROL chord mekanizması
+const seleniumKeysChordStep = {
+  type: 'step-animation',
+  id: 'selenium-actions-keys-chord-step-01',
+  title: { tr: 'Adım Adım: Keys.CONTROL + "a" Bir Tuş Kombinasyonunu Nasıl Simüle Eder?', en: 'Step by Step: How Keys.CONTROL + "a" Simulates a Key Combo' },
+  steps: [
+    { id: 1, icon: '⌨️', label: { tr: 'String birleştirme bir MODIFIER kodudur', en: 'String concatenation IS a modifier code' }, detail: { tr: '`Keys.CONTROL`, görünmez özel bir Unicode karakteridir — `+ "a"` ile birleştirildiğinde tarayıcıya "CTRL BASILIYKEN a" tuş olayı gönderilir.', en: '`Keys.CONTROL` is an invisible special Unicode character — concatenated with `+ "a"`, it sends the browser an "a WHILE CTRL is held" key event.' } },
+    { id: 2, icon: '📤', label: { tr: 'Tek bir sendKeys çağrısı yeterlidir', en: 'A single sendKeys call is enough' }, detail: { tr: 'İki ayrı tuşa basıp bırakmayı simüle etmek için iki ayrı `sendKeys` çağırmaya GEREK YOKTUR — birleştirilmiş string tek seferde gönderilir.', en: 'You do NOT need two separate `sendKeys` calls to simulate pressing and releasing two keys — the concatenated string is sent in one call.' } },
+    { id: 3, icon: '🗑️', label: { tr: 'DELETE ayrı bir olaydır', en: 'DELETE is a separate event' }, detail: { tr: '`Keys.CONTROL + "a"` metni SEÇER, gerçek silme için ayrı bir `Keys.DELETE` çağrısı GEREKİR — seçim ve silme iki farklı tuş olayıdır.', en: '`Keys.CONTROL + "a"` SELECTS the text; actual deletion REQUIRES a separate `Keys.DELETE` call — selection and deletion are two distinct key events.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Platform farkı riski', en: 'The platform-difference risk' }, detail: { tr: 'macOS\'ta "tümünü seç" genelde CMD+A\'dır; CI ajanı Linux/Windows\'sa `Keys.CONTROL` doğru çalışır ama macOS runner\'da `Keys.COMMAND` gerekebilir.', en: 'On macOS, "select all" is usually CMD+A; `Keys.CONTROL` works fine on a Linux/Windows CI agent, but a macOS runner may need `Keys.COMMAND` instead.' } },
+  ],
+}
+
+// ⚡ Actions — klavye odak (focus) akışı
+const seleniumKeyboardFocusStep = {
+  type: 'step-animation',
+  id: 'selenium-actions-keyboard-focus-step-01',
+  title: { tr: 'Adım Adım: Tab ile Odak Bir Alandan Diğerine Nasıl Geçer?', en: 'Step by Step: How Tab Moves Focus From One Field to Another' },
+  steps: [
+    { id: 1, icon: '🎯', label: { tr: 'sendKeys önce elemente ODAKLANIR', en: 'sendKeys FOCUSES the element first' }, detail: { tr: '`username.sendKeys("admin", Keys.TAB)` önce input\'a metni yazar, sonra TAB tuşunu gönderir — bu tarayıcının doğal focus zincirini tetikler.', en: '`username.sendKeys("admin", Keys.TAB)` types into the input first, then sends TAB — this triggers the browser\'s natural focus chain.' } },
+    { id: 2, icon: '➡️', label: { tr: 'Tarayıcı tabindex sırasını izler', en: 'The browser follows tabindex order' }, detail: { tr: 'TAB tuşu, sayfanın `tabindex` sırasına (veya DOM sırasına) göre BİR SONRAKİ odaklanabilir elemente geçer — Selenium bunu manuel `findElement` ile taklit ETMEZ.', en: 'TAB moves to the NEXT focusable element per the page\'s `tabindex` (or DOM) order — Selenium does not simulate this via manual `findElement` calls.' } },
+    { id: 3, icon: '⏎', label: { tr: 'ENTER genelde formu tetikler', en: 'ENTER usually triggers the form' }, detail: { tr: '`searchBox.sendKeys("Selenium", Keys.ENTER)` bir arama kutusunda genelde formun `submit` event\'ini tetikler — ayrı bir `.click()` çağrısına GEREK KALMAZ.', en: '`searchBox.sendKeys("Selenium", Keys.ENTER)` in a search box usually triggers the form\'s `submit` event — no separate `.click()` call is NEEDED.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Gerçek kullanıcı davranışına daha yakın', en: 'Closer to real user behavior' }, detail: { tr: 'Klavye ile gezinme, mouse tıklamalarından daha az test edilir ama erişilebilirlik (a11y) hatalarını yakalamada gerçek kullanıcı davranışına EN YAKIN yöntemdir.', en: 'Keyboard navigation is tested less than mouse clicks, but it is the method CLOSEST to real user behavior for catching accessibility (a11y) issues.' } },
+  ],
+}
+
+// ⚡ Actions API — builder zinciri ve .perform()
+const seleniumActionsBuilderStep = {
+  type: 'step-animation',
+  id: 'selenium-actions-builder-perform-step-01',
+  title: { tr: 'Adım Adım: .perform() Çağrılana Kadar Hiçbir Şey Neden Olmaz?', en: 'Step by Step: Why Nothing Happens Until .perform() Is Called' },
+  steps: [
+    { id: 1, icon: '🧱', label: { tr: 'Her metot bir adım BİRİKTİRİR', en: 'Every method ACCUMULATES a step' }, detail: { tr: '`actions.moveToElement(menu).click().sendKeys("metin")` çağrılırken tarayıcıda HENÜZ hiçbir şey olmaz — her metot sadece dahili bir eylem listesine bir adım ekler.', en: 'While calling `actions.moveToElement(menu).click().sendKeys("text")`, NOTHING happens in the browser yet — each method just appends a step to an internal action list.' } },
+    { id: 2, icon: '🏗️', label: { tr: '.build() listeyi bir komut nesnesine derler', en: '.build() compiles the list into a command object' }, detail: { tr: '`.build()` biriken adımları TEK bir composite eylem nesnesine derler — henüz tarayıcıya GÖNDERİLMEZ.', en: '`.build()` compiles the accumulated steps into ONE composite action object — it is still NOT sent to the browser.' } },
+    { id: 3, icon: '🚀', label: { tr: '.perform() TÜM zinciri tek seferde yürütür', en: '.perform() executes the WHOLE chain at once' }, detail: { tr: 'Sadece `.perform()` çağrıldığında tüm zincir tarayıcıya GERÇEK mouse/klavye olayları olarak sırayla gönderilir.', en: 'Only when `.perform()` is called does the entire chain get sent to the browser as REAL mouse/keyboard events, in order.' } },
+    { id: 4, icon: '☕', label: { tr: 'Java analojisi', en: 'Java analogy' }, detail: { tr: 'Bu, bir StringBuilder\'a `.append()` zinciri kurup en son `.toString()` çağırmaya benzer — ara adımların hiçbiri kendi başına SONUÇ üretmez.', en: 'This resembles chaining `.append()` calls on a StringBuilder and calling `.toString()` at the end — none of the intermediate steps produce a RESULT on their own.' } },
+  ],
+}
+
+// ⚡ Actions API — hover / mouseover event tetikleme
+const seleniumHoverEventStep = {
+  type: 'step-animation',
+  id: 'selenium-actions-hover-event-step-01',
+  title: { tr: 'Adım Adım: moveToElement() Neden click() ile YAPILAMAZ?', en: 'Step by Step: Why moveToElement() Cannot Be Done With click()' },
+  steps: [
+    { id: 1, icon: '🖱️', label: { tr: 'click() sadece TIKLAMA event\'i gönderir', en: 'click() sends ONLY a click event' }, detail: { tr: '`element.click()`, tarayıcıya SADECE `click` olayını tetikler — `mouseover`, `mouseenter` gibi imleç HAREKETİ olaylarını asla göndermez.', en: '`element.click()` fires ONLY the `click` event to the browser — it never sends cursor-MOVEMENT events like `mouseover` or `mouseenter`.' } },
+    { id: 2, icon: '🎯', label: { tr: 'moveToElement() imleci GERÇEKTEN taşır', en: 'moveToElement() ACTUALLY moves the cursor' }, detail: { tr: '`actions.moveToElement(menu).perform()`, sanal imleci menünün üzerine getirir ve `mouseover`/`mouseenter` olaylarını GERÇEKTEN tetikler.', en: '`actions.moveToElement(menu).perform()` moves the virtual cursor over the menu and ACTUALLY fires `mouseover`/`mouseenter` events.' } },
+    { id: 3, icon: '💬', label: { tr: 'CSS :hover ve JS listener\'ları BUNA bağlıdır', en: 'CSS :hover and JS listeners depend on THIS' }, detail: { tr: 'Bir açılır menü genelde CSS `:hover` veya bir `mouseenter` JS listener\'ı ile açılır — bunlar sadece GERÇEK mouseover olayına tepki verir.', en: 'A dropdown menu is usually opened by CSS `:hover` or a `mouseenter` JS listener — these respond ONLY to a REAL mouseover event.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'element.click() ile yazılan test neden yanıltıcı PASS verir?', en: 'Why a test written with element.click() gives a misleading PASS' }, detail: { tr: 'Menü öğesi zaten DOM\'da varsa `click()` çalışabilir, ama gerçek kullanıcı önce hover ETMEDEN o öğeyi asla GÖRMEZ — test senaryosu gerçek davranışı YANSITMAZ.', en: 'If the menu item already exists in the DOM, `click()` may work, but a real user never SEES that item without hovering first — the test scenario does NOT reflect real behavior.' } },
+  ],
+}
+
+// ⚡ JavaScript Executor — güven zincirini atlama riski
+const seleniumJsExecutorBypassStep = {
+  type: 'step-animation',
+  id: 'selenium-actions-js-executor-bypass-step-01',
+  title: { tr: 'Adım Adım: executeScript() WebDriver Katmanını Nasıl Atlar?', en: 'Step by Step: How executeScript() Bypasses the WebDriver Layer' },
+  steps: [
+    { id: 1, icon: '🧭', label: { tr: 'Normal click() WebDriver protokolünden geçer', en: 'A normal click() goes through the WebDriver protocol' }, detail: { tr: 'Standart `element.click()`, W3C WebDriver protokolü üzerinden gider — tarayıcı önce elementin görünür VE tıklanabilir olduğunu doğrular.', en: 'A standard `element.click()` travels through the W3C WebDriver protocol — the browser first verifies the element is visible AND clickable.' } },
+    { id: 2, icon: '⚡', label: { tr: 'executeScript() doğrudan DOM\'a yazar', en: 'executeScript() writes directly to the DOM' }, detail: { tr: '`(JavascriptExecutor) driver).executeScript("arguments[0].click();", element)`, bu doğrulamaları ATLAYIP JavaScript\'i doğrudan sayfada çalıştırır.', en: '`((JavascriptExecutor) driver).executeScript("arguments[0].click();", element)` SKIPS those checks and runs JavaScript directly on the page.' } },
+    { id: 3, icon: '👻', label: { tr: 'Görünmez elementler bile "tıklanabilir"', en: 'Even invisible elements become "clickable"' }, detail: { tr: 'Bu yüzden `display:none` olan bir elementi bile JS ile tıklamak MÜMKÜNDÜR — gerçek bir kullanıcı bunu asla yapamaz.', en: 'This is why it is POSSIBLE to JS-click even a `display:none` element — a real user could never do that.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Ne zaman son çare olarak kullanılır?', en: 'When is it used as a last resort?' }, detail: { tr: 'Sadece normal `.click()` gerçek bir overlay/animasyon yüzünden SÜREKLİ engelleniyorsa kullanılır — kural, önce nedeni araştırmak, sonra bypass\'a başvurmaktır.', en: 'Only used when a normal `.click()` is CONSISTENTLY blocked by a real overlay/animation — the rule is to investigate the cause first, then resort to the bypass.' } },
+  ],
+}
+
+// ⚡ Select dropdown — üç seçim stratejisi
+const seleniumSelectDropdownStep = {
+  type: 'step-animation',
+  id: 'selenium-actions-select-dropdown-step-01',
+  title: { tr: 'Adım Adım: selectByValue, selectByIndex, selectByVisibleText Farkı', en: 'Step by Step: The Difference Between selectByValue, selectByIndex, selectByVisibleText' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: 'selectByValue HTML value ATTRIBUTE\'una bakar', en: 'selectByValue looks at the HTML value ATTRIBUTE' }, detail: { tr: '`<option value="TR">Türkiye</option>` için `selectByValue("TR")` kullanılır — kullanıcıya GÖRÜNMEYEN teknik değere dayanır.', en: 'For `<option value="TR">Turkey</option>`, `selectByValue("TR")` is used — it relies on the technical value the user never SEES.' } },
+    { id: 2, icon: '🔢', label: { tr: 'selectByIndex SIRAYA bakar', en: 'selectByIndex looks at ORDER' }, detail: { tr: '`selectByIndex(2)`, dropdown\'daki 3\'üncü seçeneği (0\'dan sayarak) seçer — seçenekler yeniden sıralanırsa YANLIŞ öğe seçilir.', en: '`selectByIndex(2)` selects the 3rd option (counting from 0) in the dropdown — if options get reordered, the WRONG one gets picked.' } },
+    { id: 3, icon: '👁️', label: { tr: 'selectByVisibleText EKRANDAKİ metne bakar', en: 'selectByVisibleText looks at the ON-SCREEN text' }, detail: { tr: '`selectByVisibleText("Türkiye")`, kullanıcının GÖRDÜĞÜ metne göre seçer — en okunabilir ama i18n çevirisi değişirse KIRILIR.', en: '`selectByVisibleText("Turkey")` selects based on what the user actually SEES — most readable, but BREAKS if the i18n translation changes.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Hangisi en güvenilir?', en: 'Which is the most reliable?' }, detail: { tr: 'value attribute\'u genelde backend tarafından sabit tutulur ve UI metninden BAĞIMSIZDIR — bu yüzden `selectByValue`, üç strateji arasında genelde EN sağlamıdır.', en: 'The value attribute is usually kept stable by the backend and is INDEPENDENT of UI text — this is why `selectByValue` is usually the MOST robust of the three.' } },
+  ],
+}
+
 const s3 = {
   tr: {
     title: '⚡ Aksiyonlar — Tüm Kullanıcı Eylemleri',
@@ -2687,6 +2986,7 @@ boolean visible = driver.findElement(By.id("loader")).isDisplayed();
 boolean enabled = driver.findElement(By.id("submitBtn")).isEnabled();
 boolean selected = driver.findElement(By.id("rememberMe")).isSelected();`,
       },
+      seleniumElementStateReadStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Temel Aksiyonlar',
@@ -2723,6 +3023,7 @@ visible = driver.find_element(By.ID, "loader").is_displayed()
 enabled = driver.find_element(By.ID, "submitBtn").is_enabled()
 selected = driver.find_element(By.ID, "rememberMe").is_selected()`,
       },
+      seleniumClearResendStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — Temel Aksiyonlar',
@@ -2788,6 +3089,7 @@ driver.findElement(By.id("dropdown")).sendKeys(Keys.ARROW_DOWN);
 driver.findElement(By.id("dropdown")).sendKeys(Keys.ARROW_DOWN);
 driver.findElement(By.id("dropdown")).sendKeys(Keys.ENTER);`,
       },
+      seleniumKeysChordStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Klavye Tuşları',
@@ -2808,6 +3110,7 @@ search.send_keys(Keys.DELETE)
 # Escape
 driver.find_element(By.ID, "modal").send_keys(Keys.ESCAPE)`,
       },
+      seleniumKeyboardFocusStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — Klavye Tuşları',
@@ -2865,6 +3168,7 @@ actions.moveToElement(menu)
        .build()
        .perform();`,
       },
+      seleniumActionsBuilderStep,
       {
         type: 'code', language: 'python',
         label: 'Python — ActionChains',
@@ -2895,6 +3199,7 @@ actions.move_to_element(menu) \
        .send_keys("metin") \
        .perform()`,
       },
+      seleniumHoverEventStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — Actions',
@@ -2980,6 +3285,7 @@ js.executeScript("arguments[0].value='2024-01-15';", input);
 // Sayfa başlığını oku
 String title = (String) js.executeScript("return document.title;");`,
       },
+      seleniumJsExecutorBypassStep,
       {
         type: 'code', language: 'python',
         label: 'Python — JavaScript Execute',
@@ -3050,6 +3356,7 @@ for (WebElement opt : options) {
 select.selectByVisibleText("İstanbul");
 select.selectByVisibleText("Ankara");`,
       },
+      seleniumSelectDropdownStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Select Dropdown',
@@ -3281,6 +3588,7 @@ String attr = driver.findElement(By.id("link")).getAttribute("href");
 boolean visible = username.isDisplayed();
 boolean enabled = username.isEnabled();`,
       },
+      seleniumElementStateReadStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Basic Actions',
@@ -3293,6 +3601,7 @@ text = driver.find_element(By.ID, "msg").text
 attr = driver.find_element(By.ID, "link").get_attribute("href")
 visible = username.is_displayed()`,
       },
+      seleniumClearResendStep,
       { type: 'heading', text: '2. Keyboard Actions (Keys)' },
       {
         type: 'code', language: 'java',
@@ -3303,6 +3612,7 @@ driver.findElement(By.id("user")).sendKeys("admin", Keys.TAB);
 searchBox.sendKeys(Keys.CONTROL + "a");  // Select all
 searchBox.sendKeys(Keys.DELETE);          // Delete`,
       },
+      seleniumKeysChordStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Keyboard Keys',
@@ -3312,6 +3622,7 @@ driver.find_element(By.ID, "user").send_keys("admin", Keys.TAB)
 search.send_keys(Keys.CONTROL + "a")
 search.send_keys(Keys.DELETE)`,
       },
+      seleniumKeyboardFocusStep,
       { type: 'heading', text: '3. Actions API — Mouse & Advanced' },
       {
         type: 'code', language: 'java',
@@ -3323,6 +3634,7 @@ actions.contextClick(file).perform();            // Right click
 actions.dragAndDrop(source, target).perform();   // Drag & Drop
 actions.dragAndDropBy(source, 200, 0).perform(); // Drag by offset`,
       },
+      seleniumActionsBuilderStep,
       {
         type: 'code', language: 'python',
         label: 'Python — ActionChains',
@@ -3333,6 +3645,7 @@ actions.double_click(item).perform()            # Double click
 actions.context_click(file_el).perform()        # Right click
 actions.drag_and_drop(source, target).perform() # Drag & Drop`,
       },
+      seleniumHoverEventStep,
       seleniumActionsChainFilm,
       { type: 'heading', text: '4. JavaScript Executor' },
       {
@@ -3344,6 +3657,7 @@ js.executeScript("arguments[0].scrollIntoView(true);", element);
 js.executeScript("arguments[0].click();", hiddenElement);
 js.executeScript("arguments[0].value='2024-01-15';", dateInput);`,
       },
+      seleniumJsExecutorBypassStep,
       {
         type: 'code', language: 'python',
         label: 'Python — execute_script',
@@ -3361,6 +3675,7 @@ select.selectByValue("TR");
 select.selectByIndex(2);
 String selected = select.getFirstSelectedOption().getText();`,
       },
+      seleniumSelectDropdownStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Select',
@@ -3417,6 +3732,45 @@ select.select_by_index(2)`,
 }
 
 // ─── S4: WAIT STRATEJİLERİ ────────────────────────────────────────────────────
+// ⏳ Implicit Wait — polling mekanizması
+const seleniumImplicitWaitPollingStep = {
+  type: 'step-animation',
+  id: 'selenium-wait-implicit-polling-step-01',
+  title: { tr: 'Adım Adım: implicitlyWait(10) Arka Planda Ne Yapar?', en: 'Step by Step: What implicitlyWait(10) Does Behind the Scenes' },
+  steps: [
+    { id: 1, icon: '⏱️', label: { tr: 'findElement HEMEN denenir', en: 'findElement is tried IMMEDIATELY' }, detail: { tr: '`driver.findElement(By.id("submitBtn"))` çağrıldığı an, Selenium önce elementi HİÇ beklemeden bulmayı dener.', en: 'The moment `driver.findElement(By.id("submitBtn"))` is called, Selenium first tries to find the element WITHOUT waiting at all.' } },
+    { id: 2, icon: '🔁', label: { tr: 'Bulunamazsa POLLING başlar', en: 'If not found, POLLING begins' }, detail: { tr: 'Element yoksa Selenium belirli aralıklarla (varsayılan ~500ms) TEKRAR dener — bu, sabit bir `Thread.sleep(10000)` DEĞİLDİR.', en: 'If missing, Selenium RETRIES at fixed intervals (default ~500ms) — this is NOT the same as a fixed `Thread.sleep(10000)`.' } },
+    { id: 3, icon: '✅', label: { tr: 'Element bulununca HEMEN durur', en: 'It stops IMMEDIATELY once found' }, detail: { tr: 'Element 2. saniyede DOM\'a girerse, polling o anda durur ve kod devam eder — kalan 8 saniye BOŞA harcanmaz.', en: 'If the element enters the DOM at second 2, polling stops right there and code continues — the remaining 8 seconds are NOT wasted.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Global etki riski', en: 'The global-effect risk' }, detail: { tr: 'Bu ayar TÜM sonraki `findElement` çağrılarına uygulanır — element GERÇEKTEN yoksa (yazım hatası), test her seferinde 10 saniye BEKLEYİP sonra hata verir.', en: 'This setting applies to EVERY subsequent `findElement` call — if the element truly does not exist (a typo), the test WAITS the full 10 seconds every time before failing.' } },
+  ],
+}
+
+// ⏳ Explicit Wait — ExpectedConditions poll döngüsü
+const seleniumExplicitConditionStep = {
+  type: 'step-animation',
+  id: 'selenium-wait-explicit-condition-step-01',
+  title: { tr: 'Adım Adım: wait.until() Bir Koşulu Nasıl Bekler?', en: 'Step by Step: How wait.until() Waits for a Condition' },
+  steps: [
+    { id: 1, icon: '🎯', label: { tr: 'Koşul bir FONKSİYONDUR', en: 'The condition IS a function' }, detail: { tr: '`ExpectedConditions.visibilityOfElementLocated(...)`, çağrıldığı an DEĞİL, `wait.until()` içinde TEKRAR TEKRAR çalıştırılacak bir fonksiyon döndürür.', en: '`ExpectedConditions.visibilityOfElementLocated(...)` returns a function to be run REPEATEDLY inside `wait.until()` — it is not evaluated once at the call site.' } },
+    { id: 2, icon: '🔁', label: { tr: 'Fonksiyon periyodik OLARAK çağrılır', en: 'The function is called PERIODICALLY' }, detail: { tr: '`wait.until()`, bu fonksiyonu belirli aralıklarla çağırır ve TRUE/element dönene kadar BEKLER — her denemede eski `StaleElementReferenceException` gibi hataları YUTAR.', en: '`wait.until()` calls this function at intervals and WAITS until it returns TRUE/an element — it SWALLOWS transient errors like `StaleElementReferenceException` between tries.' } },
+    { id: 3, icon: '⏰', label: { tr: 'Timeout aşılırsa TimeoutException', en: 'Exceeding the timeout throws TimeoutException' }, detail: { tr: 'Koşul belirtilen sürede (örn. 15sn) hiç TRUE dönmezse, `wait.until()` net bir `TimeoutException` fırlatır — bu, Thread.sleep\'in ASLA vermeyeceği bir teşhis bilgisidir.', en: 'If the condition never returns TRUE within the given time (e.g. 15s), `wait.until()` throws a clear `TimeoutException` — diagnostic information a `Thread.sleep` would NEVER give you.' } },
+    { id: 4, icon: '🎯', label: { tr: 'Her koşul FARKLI bir şey ölçer', en: 'Each condition measures something DIFFERENT' }, detail: { tr: '`visibilityOfElementLocated` görünürlüğü, `elementToBeClickable` hem görünürlüğü hem etkileşimi, `presenceOfElementLocated` sadece DOM\'da VAR olmayı ölçer — yanlış koşulu seçmek yanlış hatayı gizler.', en: '`visibilityOfElementLocated` measures visibility, `elementToBeClickable` measures both visibility and interactivity, `presenceOfElementLocated` measures only DOM EXISTENCE — picking the wrong condition hides the wrong kind of bug.' } },
+  ],
+}
+
+// ⏳ Implicit + Explicit karıştırma riski
+const seleniumMixedWaitConflictStep = {
+  type: 'step-animation',
+  id: 'selenium-wait-mixed-conflict-step-01',
+  title: { tr: 'Adım Adım: Implicit + Explicit Wait Birlikte Kullanılınca Ne Olur?', en: 'Step by Step: What Happens When Implicit and Explicit Wait Mix' },
+  steps: [
+    { id: 1, icon: '🧩', label: { tr: 'Aynı driver\'da ikisi de AKTİF olabilir', en: 'Both can be ACTIVE on the same driver' }, detail: { tr: 'Bir projede hem `implicitlyWait(10)` hem de `WebDriverWait(driver, 15)` aynı anda tanımlanmış olabilir — Selenium bunu ENGELLEMEZ.', en: 'A project can define both `implicitlyWait(10)` and `WebDriverWait(driver, 15)` at the same time — Selenium does NOT prevent this.' } },
+    { id: 2, icon: '⏳', label: { tr: 'Element BULUNAMAZSA süreler TOPLANIR', en: 'Wait times can COMPOUND when the element is missing' }, detail: { tr: 'ExpectedConditions içindeki bir `findElement` çağrısı implicit wait\'in 10 saniyesini de BEKLER, sonra explicit wait kendi 15 saniyesini SAYMAYA başlar.', en: 'A `findElement` call inside an ExpectedConditions check also waits the implicit wait\'s 10 seconds, THEN the explicit wait starts counting ITS OWN 15 seconds.' } },
+    { id: 3, icon: '🐌', label: { tr: 'Sonuç: beklenmedik 25 saniyelik bekleme', en: 'Result: an unexpected 25-second wait' }, detail: { tr: 'Element GERÇEKTEN yoksa, test 15 değil, 10+15=25 saniye sonra hata verir — bu, hata ayıklaması en zor zaman aşımı senaryolarından biridir.', en: 'If the element truly does not exist, the test fails not after 15 but after 10+15=25 seconds — one of the hardest timeout scenarios to debug.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Resmi tavsiye: SADECE birini kullan', en: 'Official guidance: use ONLY one' }, detail: { tr: 'Selenium resmi dokümantasyonu implicit ve explicit wait\'i AYNI test projesinde karıştırmamayı önerir — production kodda ya SADECE explicit wait ya da SADECE implicit wait tercih edilmelidir.', en: 'Selenium\'s official docs recommend NEVER mixing implicit and explicit waits in the same test project — production code should use EITHER explicit wait ONLY or implicit wait ONLY.' } },
+  ],
+}
+
 const s4 = {
   tr: {
     title: '⏳ Wait Stratejileri — Bekleme Yöntemleri',
@@ -3545,6 +3899,7 @@ driver.get("https://example.com");
 WebElement btn = driver.findElement(By.id("submitBtn"));
 btn.click();`,
       },
+      seleniumImplicitWaitPollingStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Implicit Wait',
@@ -3648,6 +4003,7 @@ wait.until(EC.url_contains("/dashboard"))
 # Alert çıkana kadar bekle
 wait.until(EC.alert_is_present())`,
       },
+      seleniumExplicitConditionStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — Explicit Wait',
@@ -3673,6 +4029,7 @@ await driver.wait(until.urlContains('/dashboard'), 15000);
 // Başlık değişene kadar bekle
 await driver.wait(until.titleContains('Dashboard'), 15000);`,
       },
+      seleniumMixedWaitConflictStep,
       { type: 'heading', text: '3. Fluent Wait — İleri Seviye' },
       {
         type: 'code', language: 'java',
@@ -3828,6 +4185,7 @@ result = wait.until(
         code: `driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 WebElement btn = driver.findElement(By.id("submitBtn")); // waits up to 10s`,
       },
+      seleniumImplicitWaitPollingStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Implicit Wait',
@@ -3861,6 +4219,7 @@ btn.click()
 wait.until(EC.invisibility_of_element_located((By.ID, "spinner")))
 wait.until(EC.url_contains("/dashboard"))`,
       },
+      seleniumExplicitConditionStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — Explicit Wait',
@@ -3872,6 +4231,7 @@ await btn.click();
 
 await driver.wait(until.urlContains('/dashboard'), 15000);`,
       },
+      seleniumMixedWaitConflictStep,
       seleniumWaitReflexFilm,
       {
         type: 'quiz',
@@ -3920,6 +4280,71 @@ await driver.wait(until.urlContains('/dashboard'), 15000);`,
 }
 
 // ─── S5: FRAMES, ALERTS, WINDOWS ─────────────────────────────────────────────
+// 🪟 Alert — accept/dismiss/sendKeys akışı
+const seleniumAlertAcceptDismissStep = {
+  type: 'step-animation',
+  id: 'selenium-frames-alert-accept-dismiss-step-01',
+  title: { tr: 'Adım Adım: alert.accept() ile alert.dismiss() Arasındaki Fark', en: 'Step by Step: The Difference Between alert.accept() and alert.dismiss()' },
+  steps: [
+    { id: 1, icon: '⏳', label: { tr: 'Önce alertIsPresent() ile BEKLENİR', en: 'First, wait with alertIsPresent()' }, detail: { tr: 'Alert her zaman ANINDA açılmayabilir — `wait.until(ExpectedConditions.alertIsPresent())` alert hazır olana kadar bekler, aksi halde `NoAlertPresentException` fırlar.', en: 'An alert does not always appear INSTANTLY — `wait.until(ExpectedConditions.alertIsPresent())` waits until it is ready, otherwise a `NoAlertPresentException` is thrown.' } },
+    { id: 2, icon: '✅', label: { tr: 'accept() OK\'e basar', en: 'accept() presses OK' }, detail: { tr: '`alert.accept()`, dialog\'daki OK/Kabul Et butonuna basmayı simüle eder — `confirm()` dialog\'unda bu JavaScript tarafında `true` değeri döndürür.', en: '`alert.accept()` simulates pressing the OK/Confirm button — for a `confirm()` dialog, this makes the JavaScript side receive `true`.' } },
+    { id: 3, icon: '❌', label: { tr: 'dismiss() Cancel\'a basar', en: 'dismiss() presses Cancel' }, detail: { tr: '`alert.dismiss()`, Cancel/Reddet butonuna basmayı simüle eder — `confirm()` dialog\'unda JavaScript tarafında `false` döner.', en: '`alert.dismiss()` simulates pressing Cancel — for a `confirm()` dialog, JavaScript receives `false`.' } },
+    { id: 4, icon: '⌨️', label: { tr: 'sendKeys() sadece prompt\'ta anlamlıdır', en: 'sendKeys() only makes sense for prompt' }, detail: { tr: '`prompt.sendKeys("metin")`, sadece `window.prompt()` dialog\'undaki input alanına yazı yazar — `alert()` ve `confirm()`\'de input alanı OLMADIĞI için bu çağrı hata verir.', en: '`prompt.sendKeys("text")` only types into the input field of a `window.prompt()` dialog — calling it on `alert()` or `confirm()` fails because they have NO input field.' } },
+  ],
+}
+
+// 🪟 Alert — native dialog bloklama riski
+const seleniumAlertBlockingStep = {
+  type: 'step-animation',
+  id: 'selenium-frames-alert-blocking-step-01',
+  title: { tr: 'Adım Adım: Bir Alert Yakalanmazsa Test Neden TAMAMEN Durur?', en: 'Step by Step: Why an Unhandled Alert Completely FREEZES the Test' },
+  steps: [
+    { id: 1, icon: '🖥️', label: { tr: 'Alert bir DOM elementi DEĞİLDİR', en: 'An alert is NOT a DOM element' }, detail: { tr: 'window.alert(), tarayıcı motorunun kendisi tarafından çizilen NATIVE bir OS dialog\'udur — `findElement` ile ASLA bulunamaz.', en: 'window.alert() is a NATIVE OS-level dialog drawn by the browser engine itself — it can NEVER be found via `findElement`.' } },
+    { id: 2, icon: '🚫', label: { tr: 'Sayfa TÜM etkileşimi durdurur', en: 'The page BLOCKS all interaction' }, detail: { tr: 'Bir alert açıkken JavaScript execution DURUR ve sayfadaki hiçbir elemente `findElement` veya `click()` ÇALIŞMAZ — alert kapatılana kadar her komut BEKLER.', en: 'While an alert is open, JavaScript execution PAUSES and no `findElement` or `click()` works on the page — every command WAITS until the alert is closed.' } },
+    { id: 3, icon: '⏰', label: { tr: 'Yakalanmazsa TimeoutException gelir', en: 'Left unhandled, a TimeoutException follows' }, detail: { tr: 'Test kodu bir sonraki `findElement`\'i çağırırsa ve arka planda kapatılmamış bir alert varsa, komut zaman aşımına KADAR asılı kalır.', en: 'If the test code calls the next `findElement` while an unclosed alert lurks in the background, the command hangs UNTIL it times out.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Güvenli refleks', en: 'The safe reflex' }, detail: { tr: 'Bir aksiyonun alert AÇABİLECEĞİNİ biliyorsan, o aksiyondan hemen sonra `alertIsPresent()` ile kontrol etmek, testin sessizce KİLİTLENMESİNİ önler.', en: 'If you know an action MIGHT open an alert, checking with `alertIsPresent()` right after it prevents the test from silently HANGING.' } },
+  ],
+}
+
+// 🪟 iframe — switchTo().frame() bağlam değişimi
+const seleniumIframeSwitchStep = {
+  type: 'step-animation',
+  id: 'selenium-frames-iframe-switch-step-01',
+  title: { tr: 'Adım Adım: switchTo().frame() Selenium\'un "Görüşünü" Nasıl Değiştirir?', en: 'Step by Step: How switchTo().frame() Changes What Selenium "Sees"' },
+  steps: [
+    { id: 1, icon: '🌍', label: { tr: 'Varsayılan olarak ANA doküman görülür', en: 'By default, the MAIN document is visible' }, detail: { tr: 'Selenium başlangıçta sadece ANA sayfanın DOM\'unu görür — bir `<iframe>` içindeki elementler bu görüş alanında YOKTUR.', en: 'By default, Selenium sees only the MAIN page\'s DOM — elements inside an `<iframe>` are NOT part of this view.' } },
+    { id: 2, icon: '🚪', label: { tr: 'frame(0) bağlamı DEĞİŞTİRİR', en: 'frame(0) SWITCHES context' }, detail: { tr: '`driver.switchTo().frame(0)` çağrıldığında Selenium\'un "aktif belge" referansı DEĞİŞİR — artık TÜM `findElement` çağrıları o iframe\'in İÇİNDE arar.', en: 'Calling `driver.switchTo().frame(0)` CHANGES Selenium\'s "active document" reference — from now on, ALL `findElement` calls search INSIDE that iframe.' } },
+    { id: 3, icon: '🔒', label: { tr: 'Ana sayfa elementleri artık GÖRÜNMEZ', en: 'Main-page elements become INVISIBLE' }, detail: { tr: 'İframe\'e geçtikten sonra ana sayfadaki bir elementi ararsan `NoSuchElementException` alırsın — bağlam DEĞİŞTİĞİ için o elementler artık görüş alanı DIŞINDADIR.', en: 'After switching into the iframe, searching for a main-page element throws `NoSuchElementException` — the context CHANGED, so those elements are now OUTSIDE the view.' } },
+    { id: 4, icon: '☕', label: { tr: 'Java analojisi', en: 'Java analogy' }, detail: { tr: 'Bu, iki farklı ClassLoader arasında geçiş yapmaya benzer — bir ClassLoader\'daki sınıf, diğerinden DOĞRUDAN erişilemez, önce doğru context\'e GEÇMEK gerekir.', en: 'This resembles switching between two different ClassLoaders — a class in one ClassLoader is not DIRECTLY reachable from the other; you must SWITCH to the right context first.' } },
+  ],
+}
+
+// 🪟 iframe — defaultContent() ile geri dönüş
+const seleniumIframeReturnStep = {
+  type: 'step-animation',
+  id: 'selenium-frames-iframe-return-step-01',
+  title: { tr: 'Adım Adım: defaultContent() Unutulursa Ne Olur?', en: 'Step by Step: What Happens If defaultContent() Is Forgotten' },
+  steps: [
+    { id: 1, icon: '↩️', label: { tr: 'defaultContent() KÖKE döner', en: 'defaultContent() returns to the ROOT' }, detail: { tr: '`driver.switch_to.default_content()`, iframe bağlamından çıkıp Selenium\'un görüşünü EN DIŞTAKİ ana sayfaya geri getirir.', en: '`driver.switch_to.default_content()` exits the iframe context and brings Selenium\'s view back to the OUTERMOST main page.' } },
+    { id: 2, icon: '🔍', label: { tr: 'parentFrame() bir ÜST seviyeye çıkar', en: 'parentFrame() goes up ONE level' }, detail: { tr: 'İç içe iframe\'lerde `switchTo().parentFrame()`, en dışa değil sadece BİR ÜST çerçeveye döner — `defaultContent()`\'ten farkı budur.', en: 'In nested iframes, `switchTo().parentFrame()` returns only ONE level up, not to the outermost page — that is its difference from `defaultContent()`.' } },
+    { id: 3, icon: '🐛', label: { tr: 'Unutulursa sonraki adım BAŞARISIZ olur', en: 'Forgetting it makes the NEXT step fail' }, detail: { tr: '`defaultContent()` çağrılmazsa, iframe\'den sonraki bir `findElement` ana sayfa yerine HÂLÂ iframe içinde arar — ana sayfadaki bir elementi asla BULAMAZ.', en: 'Without `defaultContent()`, a `findElement` after the iframe STILL searches inside the iframe instead of the main page — it can never FIND a main-page element.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Kalıcı alışkanlık', en: 'The lasting habit' }, detail: { tr: 'İframe içine her `switchTo().frame()` girişinin, işlem bitince bir `switchTo().defaultContent()` ile KAPATILMASI, tıpkı açılan bir kaynağı `finally`\'de kapatmak gibi bir DİSİPLİNDİR.', en: 'Every `switchTo().frame()` entry should be CLOSED with a `switchTo().defaultContent()` once done — a discipline just like closing an opened resource in a `finally` block.' } },
+  ],
+}
+
+// 🪟 Windows — handle Set üzerinde iterasyon
+const seleniumWindowHandleStep = {
+  type: 'step-animation',
+  id: 'selenium-frames-window-handle-step-01',
+  title: { tr: 'Adım Adım: getWindowHandles() Yeni Pencereyi Nasıl Bulur?', en: 'Step by Step: How getWindowHandles() Finds the New Window' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: 'Ana pencerenin ID\'si ÖNCE kaydedilir', en: 'The main window\'s ID is recorded FIRST' }, detail: { tr: '`String mainWindow = driver.getWindowHandle()`, yeni sekme açılmadan ÖNCE mevcut penceyi benzersiz bir String ID olarak saklar.', en: '`String mainWindow = driver.getWindowHandle()` stores the current window as a unique String ID BEFORE any new tab opens.' } },
+    { id: 2, icon: '🗂️', label: { tr: 'getWindowHandles() bir SET döndürür', en: 'getWindowHandles() returns a SET' }, detail: { tr: 'Yeni sekme açıldıktan sonra `driver.getWindowHandles()`, açık TÜM pencerelerin ID\'lerini SIRASIZ bir Set olarak döner — Java\'daki `Set<String>` ile birebir eşleşir.', en: 'After the new tab opens, `driver.getWindowHandles()` returns the IDs of ALL open windows as an UNORDERED Set — it maps directly to Java\'s `Set<String>`.' } },
+    { id: 3, icon: '🔁', label: { tr: 'Döngü ana pencereyi EKLER', en: 'The loop EXCLUDES the main window' }, detail: { tr: '`for (handle : allWindows) { if (!handle.equals(mainWindow)) ... }`, kaydedilen ana pencereyi HARİÇ TUTARAK yeni açılan pencereyi bulur.', en: '`for (handle : allWindows) { if (!handle.equals(mainWindow)) ... }` finds the newly opened window by EXCLUDING the previously recorded main window.' } },
+    { id: 4, icon: '🎯', label: { tr: 'switchTo().window() odağı DEĞİŞTİRİR', en: 'switchTo().window() SWITCHES focus' }, detail: { tr: '`driver.switchTo().window(handle)`, Selenium\'un komut gönderdiği AKTİF pencereyi değiştirir — bu çağrılmadan yeni sekmedeki elementlere ERİŞİLEMEZ.', en: '`driver.switchTo().window(handle)` changes which window Selenium sends commands to — without this call, elements in the new tab are UNREACHABLE.' } },
+  ],
+}
+
 const s5 = {
   tr: {
     title: '🪟 Frames, Alert & Çoklu Pencere Yönetimi',
@@ -3954,6 +4379,7 @@ Alert prompt = wait.until(ExpectedConditions.alertIsPresent());
 prompt.sendKeys("test kullanıcısı");
 prompt.accept();`,
       },
+      seleniumAlertAcceptDismissStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Alert Yönetimi',
@@ -3979,6 +4405,7 @@ prompt = wait.until(EC.alert_is_present())
 prompt.send_keys("test kullanıcısı")
 prompt.accept()`,
       },
+      seleniumAlertBlockingStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — Alert',
@@ -4127,6 +4554,7 @@ driver.switchTo().frame("innerFrame");
 driver.findElement(By.id("deepElement")).click();
 driver.switchTo().defaultContent(); // En dıştaki sayfaya dön`,
       },
+      seleniumIframeSwitchStep,
       {
         type: 'code', language: 'python',
         label: 'Python — iframe',
@@ -4146,6 +4574,7 @@ driver.switch_to.frame(frame)
 driver.find_element(By.ID, "cvv").send_keys("123")
 driver.switch_to.parent_frame()`,
       },
+      seleniumIframeReturnStep,
       {
         type: 'code', language: 'typescript',
         label: 'TypeScript — iframe',
@@ -4195,6 +4624,7 @@ driver.switchTo().newWindow(WindowType.TAB);   // Yeni sekme
 driver.switchTo().newWindow(WindowType.WINDOW); // Yeni pencere
 driver.get("https://example.com");`,
       },
+      seleniumWindowHandleStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Pencere Yönetimi',
@@ -4424,6 +4854,7 @@ Alert prompt = wait.until(ExpectedConditions.alertIsPresent());
 prompt.sendKeys("test user");
 prompt.accept();`,
       },
+      seleniumAlertAcceptDismissStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Alert Handling',
@@ -4435,6 +4866,7 @@ alert.accept()
 driver.find_element(By.ID, "confirmBtn").click()
 wait.until(EC.alert_is_present()).dismiss()`,
       },
+      seleniumAlertBlockingStep,
       { type: 'heading', text: '2. iframe Management' },
       {
         type: 'code', language: 'java',
@@ -4443,6 +4875,7 @@ wait.until(EC.alert_is_present()).dismiss()`,
 driver.findElement(By.id("cardNumber")).sendKeys("4111111111111111");
 driver.switchTo().defaultContent(); // Back to main page`,
       },
+      seleniumIframeSwitchStep,
       {
         type: 'code', language: 'python',
         label: 'Python — iframe',
@@ -4450,6 +4883,7 @@ driver.switchTo().defaultContent(); // Back to main page`,
 driver.find_element(By.ID, "cardNumber").send_keys("4111111111111111")
 driver.switch_to.default_content()`,
       },
+      seleniumIframeReturnStep,
       seleniumIframeContextFilm,
       { type: 'heading', text: '3. Multiple Windows/Tabs' },
       {
@@ -4466,6 +4900,7 @@ for (String handle : driver.getWindowHandles()) {
 driver.close();
 driver.switchTo().window(mainWindow);`,
       },
+      seleniumWindowHandleStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Window Management',
@@ -4986,6 +5421,45 @@ public void testSuccessfulLogin() {
 }
 
 // ─── S7: EKOSİSTEM ───────────────────────────────────────────────────────────
+// 🔗 Grid — Hub/Node mimarisi ve RemoteWebDriver yönlendirmesi
+const seleniumGridHubNodeStep = {
+  type: 'step-animation',
+  id: 'selenium-ecosystem-grid-hubnode-step-01',
+  title: { tr: 'Adım Adım: RemoteWebDriver İsteği Hub Üzerinden Nasıl Yönlendirilir?', en: 'Step by Step: How RemoteWebDriver Routes a Request Through the Hub' },
+  steps: [
+    { id: 1, icon: '📮', label: { tr: 'RemoteWebDriver komutu Hub\'a GÖNDERİR', en: 'RemoteWebDriver SENDS the command to the Hub' }, detail: { tr: '`new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), options)` çağrıldığında test kodu KENDİ makinesinde çalışan bir tarayıcı BAŞLATMAZ — Hub\'a bir istek gönderir.', en: 'Calling `new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), options)` does NOT start a browser on the local machine — it sends a request to the Hub.' } },
+    { id: 2, icon: '🧭', label: { tr: 'Hub uygun bir Node ARAR', en: 'The Hub SEARCHES for a matching Node' }, detail: { tr: 'Hub, isteğin `ChromeOptions`\'ını (tarayıcı türü, sürüm) kayıtlı Node\'ların YETENEKLERİYLE karşılaştırır ve uygun BOŞ bir Node bulur.', en: 'The Hub compares the request\'s `ChromeOptions` (browser type, version) against registered Nodes\' CAPABILITIES and finds a matching FREE Node.' } },
+    { id: 3, icon: '🔗', label: { tr: 'Session gerçek Node\'da AÇILIR', en: 'The session OPENS on the actual Node' }, detail: { tr: 'Eşleşme bulununca gerçek Chrome process\'i o Node\'da başlar — test kodu ise HİÇBİR ZAMAN o Node\'un IP adresini bilmek ZORUNDA kalmaz.', en: 'Once matched, the real Chrome process starts ON that Node — the test code NEVER needs to know that Node\'s IP address.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Node meşgulse ne olur?', en: 'What if all Nodes are busy?' }, detail: { tr: 'Uygun Node YOKSA istek bir kuyrukta bekler — bu yüzden CI\'da Grid\'e paralel gönderilen test sayısı, mevcut Node kapasitesini AŞARSA testler birbirini bekletmeye başlar.', en: 'If no Node is available, the request WAITS in a queue — this is why sending more parallel tests to the Grid than the available Node capacity makes tests start waiting on EACH OTHER.' } },
+  ],
+}
+
+// 🔗 Grid — Hub/Node süreçlerinin başlatma sırası
+const seleniumGridBootOrderStep = {
+  type: 'step-animation',
+  id: 'selenium-ecosystem-grid-boot-order-step-01',
+  title: { tr: 'Adım Adım: Hub Önce mi, Node Önce mi Başlatılır?', en: 'Step by Step: Which Starts First, the Hub or the Node?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Hub İLK ayağa kaldırılır', en: 'The Hub is started FIRST' }, detail: { tr: '`java -jar selenium-server.jar hub` komutu, `localhost:4444` üzerinde istekleri dinleyen KOORDİNATÖR sürecini başlatır — henüz hiçbir Node bağlı DEĞİLDİR.', en: '`java -jar selenium-server.jar hub` starts the COORDINATOR process listening on `localhost:4444` — no Node is connected YET.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Node Hub\'a KAYIT olur', en: 'The Node REGISTERS with the Hub' }, detail: { tr: '`--hub http://localhost:4444` parametresiyle başlatılan Node, açılışta Hub\'a kendi tarayıcı YETENEKLERİNİ (Chrome, Firefox sürümleri) bildirir.', en: 'A Node started with `--hub http://localhost:4444` announces its browser CAPABILITIES (Chrome, Firefox versions) to the Hub at startup.' } },
+    { id: 3, icon: '📋', label: { tr: 'Hub bir KAYIT DEFTERİ tutar', en: 'The Hub keeps a REGISTRY' }, detail: { tr: 'Hub, bağlı TÜM Node\'ları ve onların o anki DOLULUK durumunu (kaç session açık, kaç boş slot var) bir tabloda TUTAR.', en: 'The Hub TRACKS every connected Node and its current OCCUPANCY (how many sessions are open, how many slots are free) in a table.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Sıra ters olursa ne olur?', en: 'What if the order is reversed?' }, detail: { tr: 'Bir Node, Hub HENÜZ AYAKTA değilken başlatılmaya çalışılırsa bağlantı hatası verir — bu yüzden CI script\'lerinde Hub\'ın ayağa kalkması için kısa bir BEKLEME adımı eklenir.', en: 'If a Node tries to start while the Hub is NOT yet up, it throws a connection error — this is why CI scripts add a short WAIT step for the Hub to come up first.' } },
+  ],
+}
+
+// 🔗 Grid — paralel koşum hız kazancı mekanizması
+const seleniumGridParallelStep = {
+  type: 'step-animation',
+  id: 'selenium-ecosystem-grid-parallel-step-01',
+  title: { tr: 'Adım Adım: 200 Test 60 Dakikadan 4 Dakikaya Nasıl İner?', en: 'Step by Step: How 200 Tests Drop From 60 Minutes to 4' },
+  steps: [
+    { id: 1, icon: '🐌', label: { tr: 'Tek makinede testler SIRAYLA çalışır', en: 'On one machine, tests run SEQUENTIALLY' }, detail: { tr: 'Grid olmadan 200 test, TEK bir tarayıcı process\'inde birbiri ardına çalışır — her test önceki bitmeden BAŞLAYAMAZ.', en: 'Without a Grid, 200 tests run one after another in a SINGLE browser process — no test can START before the previous one finishes.' } },
+    { id: 2, icon: '🔀', label: { tr: 'Grid testleri Node\'lara DAĞITIR', en: 'The Grid DISTRIBUTES tests across Nodes' }, detail: { tr: '20 paralel Node varsa, 200 test yaklaşık 10\'ar test gruplarına BÖLÜNÜR ve her Node kendi grubunu AYNI ANDA çalıştırır.', en: 'With 20 parallel Nodes, the 200 tests get SPLIT into groups of roughly 10, and each Node runs its group AT THE SAME TIME.' } },
+    { id: 3, icon: '⏱️', label: { tr: 'Toplam süre EN YAVAŞ Node\'a eşittir', en: 'Total time equals the SLOWEST Node' }, detail: { tr: 'Paralel koşumda toplam süre, tüm testlerin TOPLAMI değil, en çok teste sahip Node\'un kendi sırayla çalışma süresidir — bu yüzden 60 dakika 3-4 dakikaya İNER.', en: 'In parallel execution, total time is not the SUM of all tests but the time of the Node with the most tests running sequentially — this is why 60 minutes DROPS to 3–4.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Bedeli: paylaşılan state riski', en: 'The cost: shared-state risk' }, detail: { tr: 'Testler paralel Node\'larda AYNI test veritabanına yazıyorsa, iki testin birbirinin verisini SİLMESİ/bozması riski doğar — paralel koşum, test izolasyonunu ZORUNLU kılar.', en: 'If tests on parallel Nodes write to the SAME test database, one test risks DELETING/corrupting another\'s data — parallel execution makes test isolation MANDATORY.' } },
+  ],
+}
+
 const s7 = {
   tr: {
     title: '🔗 Ekosistem — TestNG, Maven, Jenkins, Grid',
@@ -5105,6 +5579,7 @@ java -jar selenium-server.jar hub
 # Node başlat (başka terminalde veya makinede)
 java -jar selenium-server.jar node --hub http://localhost:4444`,
       },
+      seleniumGridBootOrderStep,
       {
         type: 'code', language: 'java',
         label: 'Java — Grid\'e Bağlan (RemoteWebDriver)',
@@ -5124,6 +5599,7 @@ driver.get("https://example.com");
 System.out.println(driver.getTitle());
 driver.quit();`,
       },
+      seleniumGridHubNodeStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Grid',
@@ -5142,6 +5618,7 @@ driver.get("https://example.com")
 print(driver.title)
 driver.quit()`,
       },
+      seleniumGridParallelStep,
       seleniumGridSpeedupFilm,
       { type: 'heading', text: '3. GitHub Actions CI/CD Entegrasyonu' },
       {
@@ -5244,6 +5721,7 @@ jobs:
         code: `java -jar selenium-server.jar hub
 java -jar selenium-server.jar node --hub http://localhost:4444`,
       },
+      seleniumGridBootOrderStep,
       {
         type: 'code', language: 'java',
         label: 'Java — RemoteWebDriver',
@@ -5252,6 +5730,7 @@ java -jar selenium-server.jar node --hub http://localhost:4444`,
     new ChromeOptions()
 );`,
       },
+      seleniumGridHubNodeStep,
       {
         type: 'code', language: 'python',
         label: 'Python — Remote Grid',
@@ -5260,6 +5739,7 @@ java -jar selenium-server.jar node --hub http://localhost:4444`,
     options=Options()
 )`,
       },
+      seleniumGridParallelStep,
       seleniumGridSpeedupFilm,
       {
         type: 'quiz',
@@ -5302,6 +5782,32 @@ java -jar selenium-server.jar node --hub http://localhost:4444`,
 }
 
 // ─── S8: CDP & BIDI ──────────────────────────────────────────────────────────
+// 🌐 CDP — DevTools session ve event listener akışı
+const seleniumCdpSessionStep = {
+  type: 'step-animation',
+  id: 'selenium-cdp-session-listener-step-01',
+  title: { tr: 'Adım Adım: createSession() ile addListener() Arasında Ne Olur?', en: 'Step by Step: What Happens Between createSession() and addListener()' },
+  steps: [
+    { id: 1, icon: '🔌', label: { tr: 'getDevTools() bir WebSocket TÜNELİ açar', en: 'getDevTools() opens a WebSocket TUNNEL' }, detail: { tr: '`driver.getDevTools()`, standart HTTP WebDriver protokolünden AYRI, tarayıcıyla doğrudan bir WebSocket bağlantısı KURAR.', en: '`driver.getDevTools()` establishes a WebSocket connection DIRECTLY with the browser, SEPARATE from the standard HTTP WebDriver protocol.' } },
+    { id: 2, icon: '🎬', label: { tr: 'createSession() CDP\'yi AKTİFLEŞTİRİR', en: 'createSession() ACTIVATES CDP' }, detail: { tr: '`devTools.createSession()` çağrılmadan CDP komutları hiçbir şey YAPMAZ — bu çağrı, tarayıcının Chrome DevTools Protokolü\'nü DİNLEMEYE başlamasını sağlar.', en: 'Without `devTools.createSession()`, CDP commands do NOTHING — this call makes the browser start LISTENING via the Chrome DevTools Protocol.' } },
+    { id: 3, icon: '📡', label: { tr: 'Log.enable() belirli bir DOMAIN\'i açar', en: 'Log.enable() turns on a specific DOMAIN' }, detail: { tr: '`devTools.send(Log.enable())`, CDP\'nin onlarca domain\'inden (Network, Page, Log...) sadece "Log" domain\'ini AKTİF eder — gereksiz event trafiğini önler.', en: '`devTools.send(Log.enable())` activates ONLY the "Log" domain among CDP\'s dozens of domains (Network, Page, Log...) — this avoids unnecessary event traffic.' } },
+    { id: 4, icon: '🔁', label: { tr: 'Listener ASENKRON tetiklenir', en: 'The listener fires ASYNCHRONOUSLY' }, detail: { tr: '`addListener(Log.entryAdded(), ...)` içindeki kod, test ana akışıyla AYNI ANDA değil, tarayıcıda bir log oluştuğu HER an arka planda tetiklenir.', en: 'The code inside `addListener(Log.entryAdded(), ...)` fires in the background WHENEVER a log occurs in the browser — not in lockstep with the test\'s main flow.' } },
+  ],
+}
+
+// 🌐 CDP — network interception ve mock yanıt akışı
+const seleniumNetworkInterceptStep = {
+  type: 'step-animation',
+  id: 'selenium-cdp-network-intercept-step-01',
+  title: { tr: 'Adım Adım: NetworkInterceptor Gerçek API Çağrısını Nasıl Durdurur?', en: 'Step by Step: How NetworkInterceptor Stops a Real API Call' },
+  steps: [
+    { id: 1, icon: '🕸️', label: { tr: 'Route.matching() bir FİLTRE tanımlar', en: 'Route.matching() defines a FILTER' }, detail: { tr: '`Route.matching(req -> req.getUri().contains("/api/user"))`, sadece belirtilen URL desenine uyan istekleri YAKALAMAK için bir kural tanımlar — diğer istekler ETKİLENMEZ.', en: '`Route.matching(req -> req.getUri().contains("/api/user"))` defines a rule to CATCH only requests matching the given URL pattern — other requests are UNAFFECTED.' } },
+    { id: 2, icon: '🚧', label: { tr: 'İstek tarayıcıdan ÇIKMADAN yakalanır', en: 'The request is caught BEFORE it leaves the browser' }, detail: { tr: 'Gerçek bir ağ isteği backend\'e ULAŞMADAN önce interceptor bu isteği KESER — backend sunucusu bu isteğin varlığından bile HABERDAR OLMAZ.', en: 'The interceptor INTERCEPTS the request before it ever REACHES the backend — the backend server never even KNOWS the request existed.' } },
+    { id: 3, icon: '🎭', label: { tr: 'Sahte HttpResponse GERİ döner', en: 'A fake HttpResponse is returned INSTEAD' }, detail: { tr: '`.to(() -> req -> new HttpResponse().setStatus(200)...)`, tarayıcıya sanki gerçek backend cevap vermiş gibi ÖNCEDEN hazırlanmış bir JSON döner.', en: '`.to(() -> req -> new HttpResponse().setStatus(200)...)` returns a PRE-BUILT JSON to the browser, as if the real backend had responded.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Neden gerçek API yerine bu tercih edilir?', en: 'Why prefer this over the real API?' }, detail: { tr: 'Backend henüz hazır olmasa, yavaş olsa veya nadir bir hata durumunu (500, boş liste) simüle etmen gereksin — mock yanıt, testi GERÇEK backend\'den TAMAMEN bağımsız kılar.', en: 'The backend might not be ready yet, might be slow, or you may need to simulate a rare error case (500, empty list) — a mock response makes the test FULLY INDEPENDENT of the real backend.' } },
+  ],
+}
+
 const s8 = {
   tr: {
     title: '🌐 Chrome DevTools (CDP) & WebDriver BiDi',
@@ -5346,6 +5852,7 @@ devTools.addListener(Log.entryAdded(), logEntry -> {
 
 driver.get("https://example.com");`,
       },
+      seleniumCdpSessionStep,
       seleniumBidiListenerFilm,
       {
         type: 'heading', text: '2. Network Interception (API Mocking)'
@@ -5375,6 +5882,7 @@ try (NetworkInterceptor interceptor = new NetworkInterceptor(
     // Sayfada mock verilerin göründüğünü doğrula
 }`,
       },
+      seleniumNetworkInterceptStep,
       {
         type: 'heading', text: '3. Geolocation & Device Emulation'
       },
@@ -5517,6 +6025,7 @@ devTools.addListener(Log.entryAdded(), logEntry -> {
 
 driver.get("https://example.com");`,
       },
+      seleniumCdpSessionStep,
       seleniumBidiListenerFilm,
       {
         type: 'heading', text: '2. Network Interception (API Mocking)'
@@ -5540,6 +6049,7 @@ try (NetworkInterceptor interceptor = new NetworkInterceptor(
     driver.get("https://example.com/profile");
 }`,
       },
+      seleniumNetworkInterceptStep,
       {
         type: 'heading', text: '3. Geolocation & Device Emulation'
       },
@@ -5623,6 +6133,32 @@ driver.get("https://www.google.com/maps");`,
 }
 
 // ─── S9: VIRTUAL AUTHENTICATOR & ADVANCED FEATURES ───────────────────────────
+// 🔐 Print API — headless PDF üretim akışı
+const seleniumPdfPrintStep = {
+  type: 'step-animation',
+  id: 'selenium-advanced-pdf-print-step-01',
+  title: { tr: 'Adım Adım: printer.print() Bir PDF Dosyasını Nasıl Üretir?', en: 'Step by Step: How printer.print() Produces a PDF File' },
+  steps: [
+    { id: 1, icon: '🖥️', label: { tr: 'Headless mod ZORUNLUDUR', en: 'Headless mode is MANDATORY' }, detail: { tr: 'Print API, tarayıcının ekransız (headless) çalışan render motorunu kullanır — normal (headed) modda `print()` çağrısı ÇALIŞMAZ.', en: 'The Print API uses the browser\'s headless rendering engine — calling `print()` in normal (headed) mode does NOT work.' } },
+    { id: 2, icon: '📐', label: { tr: 'PrintOptions SAYFA aralığını belirler', en: 'PrintOptions defines the PAGE range' }, detail: { tr: '`printOptions.setPageRanges("1-2")`, tüm sayfayı değil, SADECE belirtilen sayfa aralığını PDF\'e dahil eder — büyük raporlarda test süresini kısaltır.', en: '`printOptions.setPageRanges("1-2")` includes ONLY the specified page range in the PDF, not the whole document — this shortens test time for large reports.' } },
+    { id: 3, icon: '🔢', label: { tr: 'Sonuç Base64 STRING olarak döner', en: 'The result comes back as a Base64 STRING' }, detail: { tr: '`printer.print(printOptions)`, ham bir dosya değil, PDF içeriğinin Base64 KODLANMIŞ bir metin temsilini döndürür.', en: '`printer.print(printOptions)` returns not a raw file, but a Base64-ENCODED text representation of the PDF content.' } },
+    { id: 4, icon: '💾', label: { tr: 'Decode edilip DİSKE yazılır', en: 'It is decoded and WRITTEN to disk' }, detail: { tr: '`Base64.getDecoder().decode(pdf.getContent())`, bu metni gerçek binary PDF byte\'larına çevirir; `Files.write()` bunu diske GERÇEK bir .pdf dosyası olarak kaydeder.', en: '`Base64.getDecoder().decode(pdf.getContent())` converts this text back into real binary PDF bytes; `Files.write()` saves it to disk as an ACTUAL .pdf file.' } },
+  ],
+}
+
+// 🔐 Wheel/Pen Actions — kaydırma origin mekanizması
+const seleniumWheelScrollStep = {
+  type: 'step-animation',
+  id: 'selenium-advanced-wheel-scroll-step-01',
+  title: { tr: 'Adım Adım: scrollFromOrigin() Neden Sadece scrollBy()\'den Daha Güçlüdür?', en: 'Step by Step: Why scrollFromOrigin() Is More Powerful Than a Plain scrollBy()' },
+  steps: [
+    { id: 1, icon: '📍', label: { tr: 'ScrollOrigin bir BAŞLANGIÇ noktası tanımlar', en: 'ScrollOrigin defines a STARTING point' }, detail: { tr: '`WheelInput.ScrollOrigin.fromElement(footerElement)`, kaydırmanın sayfanın en üstünden değil, BELİRLİ bir elementin konumundan başlamasını sağlar.', en: '`WheelInput.ScrollOrigin.fromElement(footerElement)` makes the scroll start from a SPECIFIC element\'s position, not from the top of the page.' } },
+    { id: 2, icon: '🖱️', label: { tr: 'Bu GERÇEK bir fare tekerleği olayıdır', en: 'This IS a real mouse wheel event' }, detail: { tr: '`scrollFromOrigin()`, JavaScript `window.scrollTo()` çağırmaz — GERÇEK bir mouse wheel donanım olayını simüle eder, tıpkı kullanıcı fareyi çevirmiş gibi.', en: '`scrollFromOrigin()` does not call JavaScript `window.scrollTo()` — it simulates a REAL mouse wheel hardware event, just as if a user physically turned the wheel.' } },
+    { id: 3, icon: '🎯', label: { tr: 'Neden bu fark ÖNEMLİDİR?', en: 'Why does this difference MATTER?' }, detail: { tr: 'Bazı UI bileşenleri (sonsuz kaydırma listeleri, custom scroll container\'lar) SADECE gerçek wheel event\'ine tepki veren bir JS listener\'a sahiptir — `executeScript` ile kaydırma bu bileşenleri TETİKLEMEZ.', en: 'Some UI components (infinite-scroll lists, custom scroll containers) have a JS listener that reacts ONLY to real wheel events — scrolling via `executeScript` does NOT trigger these components.' } },
+    { id: 4, icon: '📏', label: { tr: 'Piksel miktarı KESİNDİR', en: 'The pixel amount is EXACT' }, detail: { tr: '`.scrollFromOrigin(scrollOrigin, 0, 200)`, x ekseninde 0, y ekseninde TAM 200 piksel kaydırma yapar — test, "sayfanın sonuna kadar" gibi belirsiz bir hedef yerine KESİN bir mesafeyi doğrulayabilir.', en: '`.scrollFromOrigin(scrollOrigin, 0, 200)` scrolls 0 pixels on the x-axis and EXACTLY 200 on the y-axis — the test can verify an EXACT distance instead of a vague target like "to the bottom of the page".' } },
+  ],
+}
+
 const s9 = {
   tr: {
     title: '🔐 Sanal Auth & Gelişmiş Özellikler',
@@ -5688,6 +6224,7 @@ printOptions.setPageRanges("1-2"); // Sadece ilk iki sayfayı yazdır
 Pdf pdf = printer.print(printOptions);
 Files.write(Paths.get("fatura.pdf"), Base64.getDecoder().decode(pdf.getContent()));`,
       },
+      seleniumPdfPrintStep,
       {
         type: 'heading', text: '3. Pen & Wheel Actions (Hassas Kaydırma)'
       },
@@ -5707,6 +6244,7 @@ new Actions(driver)
     .scrollFromOrigin(scrollOrigin, 0, 200)
     .perform();`,
       },
+      seleniumWheelScrollStep,
       {
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-virtual-auth',
@@ -5823,6 +6361,7 @@ printOptions.setPageRanges("1-2");
 Pdf pdf = printer.print(printOptions);
 Files.write(Paths.get("invoice.pdf"), Base64.getDecoder().decode(pdf.getContent()));`,
       },
+      seleniumPdfPrintStep,
       {
         type: 'heading', text: '3. Pen & Wheel Actions (Precise Scrolling)'
       },
@@ -5837,6 +6376,7 @@ new Actions(driver)
     .scrollFromOrigin(scrollOrigin, 0, 200)
     .perform();`,
       },
+      seleniumWheelScrollStep,
       {
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-virtual-auth',
@@ -5902,6 +6442,19 @@ new Actions(driver)
 }
 
 // ─── S10: SELENIUM IDE ───────────────────────────────────────────────────────
+// 🖥️ Selenium IDE — side-runner paralel çalıştırma akışı
+const seleniumSideRunnerStep = {
+  type: 'step-animation',
+  id: 'selenium-ide-side-runner-step-01',
+  title: { tr: 'Adım Adım: selenium-side-runner Bir .side Dosyasını Nasıl Çalıştırır?', en: 'Step by Step: How selenium-side-runner Executes a .side File' },
+  steps: [
+    { id: 1, icon: '📄', label: { tr: '.side dosyası JSON tabanlıdır', en: 'The .side file is JSON-based' }, detail: { tr: 'IDE\'de kaydedilen `.side` dosyası aslında bir JSON\'dur — her komut, hedef ve değer bu dosyada düz METİN olarak saklanır.', en: 'The `.side` file saved by the IDE is actually JSON — every command, target, and value is stored as plain TEXT in this file.' } },
+    { id: 2, icon: '🚀', label: { tr: 'Runner dosyayı OKUR ve YORUMLAR', en: 'The runner READS and INTERPRETS the file' }, detail: { tr: '`selenium-side-runner projem.side` çağrıldığında Node.js tabanlı runner, JSON\'daki her komutu SIRAYLA gerçek WebDriver çağrılarına ÇEVİRİR.', en: 'When `selenium-side-runner projem.side` runs, the Node.js-based runner TRANSLATES each JSON command into a real WebDriver call, IN ORDER.' } },
+    { id: 3, icon: '🧵', label: { tr: '-w 4 bağımsız THREAD\'ler açar', en: '-w 4 opens independent THREADS' }, detail: { tr: '`-w 4` bayrağı, test suite\'indeki senaryoları 4 bağımsız tarayıcı örneğine DAĞITIR — her thread kendi ChromeDriver session\'ında çalışır.', en: 'The `-w 4` flag DISTRIBUTES the test suite\'s scenarios across 4 independent browser instances — each thread runs in its own ChromeDriver session.' } },
+    { id: 4, icon: '🛡️', label: { tr: 'Neden IDE\'nin kendisinde değil, CI\'da?', en: 'Why run it in CI, not inside the IDE itself?' }, detail: { tr: 'IDE eklentisi tek bir tarayıcıda, elle tetiklenerek çalışır; `selenium-side-runner` ise headless ve paralel çalıştığı için Jenkins gibi bir CI sunucusuna ENTEGRE edilebilir.', en: 'The IDE extension runs in a single browser, triggered manually; `selenium-side-runner` runs headless and in parallel, so it CAN be integrated into a CI server like Jenkins.' } },
+  ],
+}
+
 const s10 = {
   tr: {
     title: '🖥️ Selenium IDE — Kayıt & Oynatmanın Ötesi',
@@ -5952,6 +6505,7 @@ npm install -g chromedriver
 # Test dosyasını paralel 4 thread ile çalıştır
 selenium-side-runner -c "browserName=chrome" -w 4 projem.side`,
       },
+      seleniumSideRunnerStep,
       {
         type: 'heading', text: '4. Kod Olarak Dışa Aktarma (Code Export)'
       },
@@ -6069,6 +6623,7 @@ npm install -g chromedriver
 # Run side file in parallel with 4 workers
 selenium-side-runner -c "browserName=chrome" -w 4 project.side`,
       },
+      seleniumSideRunnerStep,
       {
         type: 'heading', text: '4. Code Export capabilities'
       },
@@ -6144,6 +6699,19 @@ selenium-side-runner -c "browserName=chrome" -w 4 project.side`,
 }
 
 // ─── S11: SELENIUM GRID 4 ────────────────────────────────────────────────────
+// 🌐 Grid 4 — Distributor capability eşleştirmesi
+const seleniumGridCapabilityMatchStep = {
+  type: 'step-animation',
+  id: 'selenium-grid4-capability-match-step-01',
+  title: { tr: 'Adım Adım: Distributor Doğru Node\'u Nasıl Seçer?', en: 'Step by Step: How the Distributor Picks the Right Node' },
+  steps: [
+    { id: 1, icon: '📝', label: { tr: 'ChromeOptions bir İSTEK LİSTESİDİR', en: 'ChromeOptions IS a wish list' }, detail: { tr: '`options.setPlatformName("LINUX")` ve `setBrowserVersion("125.0")`, RemoteWebDriver\'ın Grid\'den TALEP ettiği tam kapasiteyi tanımlar.', en: '`options.setPlatformName("LINUX")` and `setBrowserVersion("125.0")` define the exact capability the RemoteWebDriver REQUESTS from the Grid.' } },
+    { id: 2, icon: '🔀', label: { tr: 'Router isteği Distributor\'a İLETİR', en: 'The Router FORWARDS the request to the Distributor' }, detail: { tr: 'İstek önce Router\'a düşer, Router bunu doğru bileşene yönlendirmekle görevlidir ve Distributor\'a GEÇİRİR.', en: 'The request first hits the Router, whose job is to route it to the correct component, and it PASSES it to the Distributor.' } },
+    { id: 3, icon: '🎯', label: { tr: 'Distributor Session Map\'i TARAR', en: 'The Distributor SCANS the Session Map' }, detail: { tr: 'Distributor, Session Map\'teki kayıtlı Node\'ların yeteneklerini istekle KARŞILAŞTIRIR — Linux + Chrome 125 sunan BOŞ bir Node arar.', en: 'The Distributor COMPARES registered Nodes\' capabilities in the Session Map against the request — it looks for a FREE Node offering Linux + Chrome 125.' } },
+    { id: 4, icon: '⚠️', label: { tr: 'Eşleşme yoksa ne olur?', en: 'What if there is no match?' }, detail: { tr: 'Talep edilen platform/sürüm kombinasyonunu sunan hiçbir Node YOKSA, istek Session Queue\'da BEKLER ve belirli bir süre sonra `SessionNotCreatedException` ile SONUÇLANIR.', en: 'If no Node offers the requested platform/version combination, the request WAITS in the Session Queue and eventually RESULTS in a `SessionNotCreatedException`.' } },
+  ],
+}
+
 const s11 = {
   tr: {
     title: '🌐 Selenium Grid 4 & Dağıtık Otomasyon',
@@ -6235,6 +6803,7 @@ WebDriver driver = new RemoteWebDriver(
 driver.get("https://learnqa.dev");
 driver.quit();`,
       },
+      seleniumGridCapabilityMatchStep,
       {
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-grid-architecture',
@@ -6387,6 +6956,7 @@ WebDriver driver = new RemoteWebDriver(
 driver.get("https://learnqa.dev");
 driver.quit();`,
       },
+      seleniumGridCapabilityMatchStep,
       {
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-grid-architecture',
