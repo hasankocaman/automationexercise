@@ -1043,6 +1043,45 @@ const dockerRunFlagOrderChallenge = {
   xpReward: 10,
 }
 
+// 🔄 Lifecycle & Debug — logs-before-rm sandbox'ı (video-sitewide-plan §7, eksik sandbox tamamlama)
+const dockerLifecycleDebugPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'docker-lifecycle-debug-practice-01',
+  id: 'docker-lifecycle-debug-practice-01',
+  label: { tr: 'Micro Lab: Çöken container\'ı silmeden önce logla', en: 'Micro Lab: Log a crashed container before removing it' },
+  language: 'bash',
+  task: {
+    tr: 'qa-worker container\'ı çöktü. TODO satırlarını, ÖNCE crash log\'unu diske kaydeden, SONRA container\'ı temizleyen doğru sırayla tamamla.',
+    en: 'The qa-worker container just crashed. Complete the TODO lines in the correct order: FIRST save the crash log to disk, THEN clean up the container.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir runtime değil; amaç "önce logs, sonra rm" sırasını elle yazarak pekiştirmek — sırayı tersine çevirirsen stack trace sonsuza dek kaybolur.',
+    en: 'This is not a real runtime; the goal is to reinforce the "logs first, rm second" order by writing it yourself — reverse the order and the stack trace is gone forever.',
+  },
+  code: {
+    tr: `docker ps -a\n# STATUS: Exited (1) qa-worker\n\ndocker logs qa-worker > crash-report.log\ndocker rm qa-worker`,
+    en: `docker ps -a\n# STATUS: Exited (1) qa-worker\n\ndocker logs qa-worker > crash-report.log\ndocker rm qa-worker`,
+  },
+  starterCode: {
+    tr: `docker ps -a\n# STATUS: Exited (1) qa-worker\n\n# TODO: once cokme logunu crash-report.log dosyasina kaydet\n# TODO: sonra container'i sil`,
+    en: `docker ps -a\n# STATUS: Exited (1) qa-worker\n\n# TODO: first save the crash log to crash-report.log\n# TODO: then remove the container`,
+  },
+  solutionCode: {
+    tr: `docker ps -a\n# STATUS: Exited (1) qa-worker\n\ndocker logs qa-worker > crash-report.log\ndocker rm qa-worker`,
+    en: `docker ps -a\n# STATUS: Exited (1) qa-worker\n\ndocker logs qa-worker > crash-report.log\ndocker rm qa-worker`,
+  },
+  expected: {
+    tr: '`crash-report.log` dosyası stack trace ile doluyken container temizlenmiş olur — ikisi de kaybedilmez.',
+    en: 'The `crash-report.log` file is filled with the stack trace while the container is cleaned up — neither is lost.',
+  },
+  hints: [
+    { tr: 'Sırayı tersine çevirirsen (önce rm) `docker logs` artık hiçbir şey döndürmez.', en: 'Reverse the order (rm first) and `docker logs` returns nothing at all afterward.' },
+    { tr: '`>` operatörü terminal çıktısını bir dosyaya yönlendirir, silmez.', en: 'The `>` operator redirects terminal output into a file, it does not delete anything.' },
+    { tr: 'Container adı komuttaki durum satırında geçer: qa-worker.', en: 'The container name appears in the status line itself: qa-worker.' },
+  ],
+  xpReward: 10,
+}
+
 // 💾 Volumes — named volume kurma step-animation'ı (Dalga 5, eksik animasyon tamamlama)
 const dockerVolumeMountSteps = {
   type: 'step-animation',
@@ -2808,6 +2847,7 @@ docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
           },
           dockerCrashDebugFilm,
+          dockerLifecycleDebugPractice,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -4912,6 +4952,7 @@ docker cp my-container:/app/reports ./reports  # Container → host
 docker cp ./tests my-container:/app/tests       # Host → container`,
           },
           dockerCrashDebugFilm,
+          dockerLifecycleDebugPractice,
           {
             type: 'challenge',
             variant: 'order-sort',
