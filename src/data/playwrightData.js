@@ -915,6 +915,11 @@ const s0 = {
         content: 'Playwright works like the autopilot system in a flight simulator cockpit: you declare the destination ("click that button"), and the system simultaneously monitors dozens of sensors in the background — DOM state, network traffic, JavaScript events — then acts the moment conditions are right. But if Selenium already exists, why do you need Playwright? With Selenium you had to sit in the pilot\'s seat and manually coordinate every maneuver: "wait for the element, then click, then wait again" — dozens of lines of WebDriverWait code. Think of every thread.sleep() or FluentWait you wrote in Selenium/Java: set the wait too short and the test crashes halfway; set it too long and the CI pipeline crawls for hours. When a production service responds 3 seconds late, no hardcoded sleep can catch it. Playwright\'s auto-wait mechanism eliminates most of this flakiness — it directly attacks the "a few tests fail every morning, re-run and they pass" nightmare that plagues QA teams.',
       },
       {
+        type: 'css-animation',
+        kind: 'playwright-autowait',
+        label: { tr: 'Auto-Wait Mekanizması', en: 'Auto-Wait Mechanism' },
+      },
+      {
         type: 'text',
         content: 'Playwright is an open-source browser automation library released by Microsoft in 2020. It controls Chromium (Chrome/Edge), Firefox, and WebKit (Safari) engines with a SINGLE API. If you\'ve used Selenium WebDriver in Java, think of Playwright as "Selenium\'s modern, more powerful cousin".',
       },
