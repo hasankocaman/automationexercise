@@ -924,6 +924,110 @@ GET {{base_url}}/api/users/2`,
   successMessage: { tr: 'Doğru! Değişken adı eşleşmezse Postman sessizce literal string\'i gönderir, hiçbir hata FIRLATMAZ — bu yüzden Console kontrolü kritiktir.', en: 'Correct! If the variable name doesn\'t match, Postman silently sends the literal string, throwing NO error — which is why checking the Console is critical.' },
 }
 
+const pmGetRequestStep = {
+  type: 'step-animation',
+  title: { tr: 'Send Tuşuna Bastığında Postman Perde Arkasında Ne Yapar?', en: 'What Does Postman Actually Do Behind the Scenes When You Click Send?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'URL çubuğundaki adres sadece bir metin…', en: 'The address in the URL bar is just…' }, detail: { tr: 'URL çubuğundaki adres sadece bir metin DEĞİLDİR — Send\'e basınca Postman gerçek bir TCP bağlantısı açar ve o sunucuya GERÇEK bir HTTP isteği gönderir.', en: 'The address in the URL bar is NOT just text — clicking Send makes Postman open a real TCP connection and send an ACTUAL HTTP request to that server.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Sunucu isteği ALIR, işler ve bir…', en: 'The server RECEIVES the request…' }, detail: { tr: 'Sunucu isteği ALIR, işler ve bir HTTP status kodu (200, 404, 500…) İLE birlikte bir yanıt gövdesi DÖNDÜRÜR.', en: 'The server RECEIVES the request, processes it, and RETURNS a response body TOGETHER WITH an HTTP status code (200, 404, 500…).' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Status kodu 200 OK ise…', en: 'A status code of 200 OK means…' }, detail: { tr: 'Status kodu 200 OK ise, sunucunun isteği ANLADIĞINI ve BAŞARIYLA işlediğini gösterir — ama body\'nin İÇERİĞİNİN doğru olduğunu KANITLAMAZ, onu SEN kontrol etmelisin.', en: 'A status code of 200 OK shows the server UNDERSTOOD and SUCCESSFULLY processed the request — but it does NOT PROVE the body CONTENT is correct, YOU still have to verify that.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Response paneli JSON\'ı otomatik…', en: 'The Response panel automatically…' }, detail: { tr: 'Response paneli JSON\'ı otomatik olarak biçimlendirir — burada `id`, `name`, `email` gibi alanların BEKLEDİĞİN değerlerle eşleştiğini gözle KONTROL edersin.', en: 'The Response panel automatically formats the JSON — here you VISUALLY CHECK that fields like `id`, `name`, `email` match the values you EXPECTED.' } },
+  ],
+}
+
+const pmPostRequestStep = {
+  type: 'step-animation',
+  title: { tr: 'POST İsteği ile Kaynak Oluşturma: Body\'den 201\'e Giden Yol', en: 'Creating a Resource with POST: The Path from Body to 201' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Body → raw → JSON sekmesine yazdığın…', en: 'What you write in the Body → raw…' }, detail: { tr: 'Body → raw → JSON sekmesine yazdığın veri, isteğin GÖVDESİ olarak sunucuya GÖNDERİLİR — GET\'ten farklı olarak POST\'ta bu alan BOŞ olamaz.', en: 'What you write in the Body → raw → JSON tab is SENT to the server as the request BODY — unlike GET, this field CANNOT be empty for POST.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Sunucu bu JSON\'ı PARSE eder, doğrular…', en: 'The server PARSES this JSON, validates…' }, detail: { tr: 'Sunucu bu JSON\'ı PARSE eder, doğrular (örn. email zorunlu mu?) ve veritabanında YENİ bir kayıt OLUŞTURUR.', en: 'The server PARSES this JSON, validates it (e.g. is email required?), and CREATES a NEW record in the database.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '201 Created, 200 OK\'den FARKLI bir…', en: '201 Created carries a DIFFERENT meaning…' }, detail: { tr: '201 Created, 200 OK\'den FARKLI bir anlam taşır: "yeni bir KAYNAK oluşturuldu" — sunucu genelde bu yeni kaydın `id`\'sini de yanıt gövdesinde GERİ döndürür.', en: '201 Created carries a DIFFERENT meaning than 200 OK: "a new RESOURCE was created" — the server typically returns that new record\'s `id` BACK in the response body too.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Gerçek doğrulama burada bitmez…', en: 'Real verification doesn\'t stop here…' }, detail: { tr: 'Gerçek doğrulama burada bitmez: 201 aldıktan sonra dönen `id` ile bir GET isteği atıp kaydın GERÇEKTEN veritabanına YAZILDIĞINI teyit etmek QA\'nın işidir.', en: 'Real verification doesn\'t stop here: after getting 201, sending a GET request with the returned `id` to confirm the record was ACTUALLY WRITTEN to the database is the QA\'s job.' } },
+  ],
+}
+
+const pmEnvVarChainStep = {
+  type: 'step-animation',
+  title: { tr: '5 İsteklik Bir Zincirde Değişken Nasıl Bir İstekten Diğerine Akar?', en: 'How Does a Variable Flow from One Request to the Next in a 5-Request Chain?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'İstek 1 (login) yanıt döndüğünde…', en: 'When Request 1 (login) returns…' }, detail: { tr: 'İstek 1 (login) yanıt döndüğünde, Tests sekmesindeki `pm.environment.set("authToken", ...)` satırı bu token\'ı ORTAM DEĞİŞKENİ olarak KAYDEDER — sadece o AN için değil, environment değişene kadar KALICI olarak.', en: 'When Request 1 (login) returns, the `pm.environment.set("authToken", ...)` line in the Tests tab SAVES this token as an ENVIRONMENT VARIABLE — PERSISTENTLY, not just for that moment, until the environment changes.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'İstek 2\'nin URL veya Header alanına…', en: 'When you type {{userId}} into Request…' }, detail: { tr: 'İstek 2\'nin URL veya Header alanına `{{userId}}` yazdığında, Postman bunu göndermeden HEMEN ÖNCE o an environment\'ta kayıtlı GERÇEK değerle DEĞİŞTİRİR.', en: 'When you type `{{userId}}` into Request 2\'s URL or Header field, Postman REPLACES it with the ACTUAL value currently stored in the environment RIGHT BEFORE sending.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bu zincir 5 isteğe kadar UZAYABİLİR…', en: 'This chain can EXTEND across 5 requests…' }, detail: { tr: 'Bu zincir 5 isteğe kadar UZAYABİLİR: login → user → order → payment — her istek BİR ÖNCEKİNİN ürettiği veriyi OKUR, Java\'da bir metottan diğerine paylaşılan bir Properties nesnesi geçirmek gibi.', en: 'This chain can EXTEND across 5 requests: login → user → order → payment — each request READS the data PRODUCED by the previous one, like passing a shared Properties object from one Java method to another.' } },
+  ],
+}
+
+const pmCollectionVarsStep = {
+  type: 'step-animation',
+  title: { tr: 'pm.globals, pm.environment, pm.collectionVariables — Hangisi Ne Zaman Kazanır?', en: 'pm.globals, pm.environment, pm.collectionVariables — Which One Wins When?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'pm.collectionVariables.set() ile kaydedilen…', en: 'A value saved with pm.collectionVariables…' }, detail: { tr: '`pm.collectionVariables.set()` ile kaydedilen bir değer, o Collection\'daki HANGİ environment aktif olursa olsun AYNI kalır — `apiVersion` gibi sabitler için idealdir.', en: 'A value saved with `pm.collectionVariables.set()` stays the SAME regardless of which environment is active on that Collection — ideal for constants like `apiVersion`.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Aynı isimde bir değişken hem…', en: 'If a variable with the same name…' }, detail: { tr: 'Aynı isimde bir değişken hem environment\'ta hem collection\'da tanımlıysa, Postman ÖNCELİK sırasına göre `pm.environment` değerini KAZANDIRIR — Java\'daki local/instance/static alan gölgeleme (shadowing) kuralına BENZER.', en: 'If a variable with the same name exists in both the environment and the collection, Postman makes `pm.environment` WIN by priority order — SIMILAR to Java\'s local/instance/static field shadowing rule.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'URL çubuğundaki {{apiVersion}} çözülürken…', en: 'When {{apiVersion}} resolves in the URL…' }, detail: { tr: 'URL çubuğundaki `{{apiVersion}}` çözülürken bu öncelik sırası SESSİZCE uygulanır — bu yüzden beklenmedik bir değer görürsen önce HANGİ scope\'un kazandığını KONTROL et.', en: 'When `{{apiVersion}}` resolves in the URL bar, this priority order is applied SILENTLY — so if you see an unexpected value, first CHECK which scope WON.' } },
+  ],
+}
+
+const pmFolderStructureStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Klasör Hiyerarşisi Bağımsız Mikroservisleri Nasıl Yansıtır?', en: 'How Does a Folder Hierarchy Mirror Independent Microservices?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Her mikroservis KENDİ üst-seviye…', en: 'Each microservice gets its OWN top-level…' }, detail: { tr: 'Her mikroservis KENDİ üst-seviye klasörünü alır (Auth Service, User Service, Order Service…) — Java\'da her mikroservisin kendi Maven modülüne sahip olması gibi, kod birbirine KARIŞMAZ.', en: 'Each microservice gets its OWN top-level folder (Auth Service, User Service, Order Service…) — like each microservice having its own Maven module in Java, the code doesn\'t GET TANGLED together.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Klasör içindeki alt-klasörler (CRUD,…', en: 'Sub-folders inside (CRUD, Negative Tests…' }, detail: { tr: 'Klasör içindeki alt-klasörler (CRUD, Negative Tests) SENARYO tipine göre gruplar — bir geliştirici sadece "duplicate email" testini ARIYORSA, tüm collection\'ı taramadan doğru yeri BULUR.', en: 'Sub-folders inside (CRUD, Negative Tests) group by SCENARIO type — if a developer is only LOOKING for the "duplicate email" test, they FIND the right place without scanning the whole collection.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bu yapı Collection Runner\'da SIRALI…', en: 'This structure runs in SEQUENTIAL order…' }, detail: { tr: 'Bu yapı Collection Runner\'da SIRALI olarak çalışır: önce Auth (token üretir), sonra User (o token\'ı KULLANIR) — klasör sırası, bağımlılık SIRASINI da temsil eder.', en: 'This structure runs in SEQUENTIAL order in the Collection Runner: Auth first (produces the token), then User (USES that token) — folder order also represents the dependency ORDER.' } },
+  ],
+}
+
+const pmNewmanCliStep = {
+  type: 'step-animation',
+  title: { tr: 'Newman Komutundaki Her Bayrak Hangi Kararı Temsil Eder?', en: 'What Decision Does Each Flag in a Newman Command Represent?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'newman run collection.json, Postman GUI\'sini…', en: 'newman run collection.json runs the exact…' }, detail: { tr: '`newman run collection.json`, Postman GUI\'sini HİÇ açmadan collection\'daki AYNI istekleri, AYNI Tests scriptleriyle terminalden çalıştırır.', en: '`newman run collection.json` runs the EXACT SAME requests with the EXACT SAME Tests scripts from the terminal, WITHOUT ever opening the Postman GUI.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '-e env.json bayrağı olmadan, isteklerdeki…', en: 'Without the -e env.json flag, {{variables}}…' }, detail: { tr: '`-e env.json` bayrağı olmadan, isteklerdeki `{{baseUrl}}` gibi değişkenler ÇÖZÜLEMEZ ve testler 404/401 ile SESSİZCE başarısız olur.', en: 'Without the `-e env.json` flag, variables like `{{baseUrl}}` in requests CANNOT resolve and tests SILENTLY fail with 404/401.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '--iteration-data test-users.csv, aynı…', en: '--iteration-data test-users.csv runs the same…' }, detail: { tr: '`--iteration-data test-users.csv`, AYNI collection\'ı CSV\'deki HER satır için bir kez daha çalıştırır — 10 satır = veri odaklı 10 test koşumu.', en: '`--iteration-data test-users.csv` runs the SAME collection once more for EVERY row in the CSV — 10 rows = 10 data-driven test runs.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Newman testlerin TAMAMI PASS olursa exit…', en: 'Newman exits with code 0 if ALL tests…' }, detail: { tr: 'Newman testlerin TAMAMI PASS olursa exit code 0, EN AZ biri FAIL olursa exit code 1 döndürür — CI pipeline\'ının build\'i KIRMASI ya da GEÇİRMESİ bu tek sayıya bağlıdır.', en: 'Newman exits with code 0 if ALL tests PASS, code 1 if EVEN ONE FAILS — whether the CI pipeline BREAKS the build or LETS it PASS depends on this single number.' } },
+  ],
+}
+
+const pmCoreAssertionsStep = {
+  type: 'step-animation',
+  title: { tr: 'pm.test() ile pm.expect() Arasındaki Fark Neden Önemli?', en: 'Why Does the Difference Between pm.test() and pm.expect() Matter?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'pm.test("isim", fn) bir test BLOĞU…', en: 'pm.test("name", fn) DEFINES a test BLOCK…' }, detail: { tr: '`pm.test("isim", fn)` bir test BLOĞU tanımlar ve Test Results panelinde GÖRÜNECEK ismi verir — Java\'da `@Test public void testX()` yazmaya benzer.', en: '`pm.test("name", fn)` DEFINES a test BLOCK and gives it the name that will APPEAR in the Test Results panel — similar to writing `@Test public void testX()` in Java.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'pm.expect(...) o blok İÇİNDE gerçek…', en: 'pm.expect(...) is the actual assertion…' }, detail: { tr: '`pm.expect(...)` o blok İÇİNDE gerçek doğrulamayı yapan Chai assertion\'ıdır — `pm.test`\'siz bir `pm.expect` de çalışır ama Test Results\'ta AYRI bir satır olarak GÖRÜNMEZ.', en: '`pm.expect(...)` is the Chai assertion that does the actual checking INSIDE that block — a `pm.expect` without `pm.test` still runs but WON\'T appear as a SEPARATE row in Test Results.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bir response için 5 ayrı pm.test()…', en: 'Five separate pm.test() blocks for one…' }, detail: { tr: 'Bir response için 5 ayrı `pm.test()` yazmak, birini FAIL etse bile diğer 4\'ünün ÇALIŞMAYA devam etmesini sağlar — bir kod bloğu bir yerde patlarsa TÜMÜNÜN durduğu klasik try/catch\'ten FARKLI bir davranış.', en: 'Writing 5 separate `pm.test()` blocks for one response means even if one FAILS, the other 4 keep RUNNING — a DIFFERENT behavior from a classic try/catch where one break STOPS everything.' } },
+  ],
+}
+
+const pmRequestChainStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Token Bir İstekten Diğerine Nasıl Taşınır?', en: 'How Does a Token Travel from One Request to the Next?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'İstek 1\'in (login) Tests sekmesi…', en: 'Request 1\'s (login) Tests tab runs…' }, detail: { tr: 'İstek 1\'in (login) Tests sekmesi, yanıt geldikten SONRA çalışır ve `pm.environment.set("authToken", ...)` ile token\'ı ortam değişkenine YAZAR.', en: 'Request 1\'s (login) Tests tab runs AFTER the response arrives and WRITES the token to the environment variable via `pm.environment.set("authToken", ...)`.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'İstek 2\'nin (profile) Headers sekmesi…', en: 'Request 2\'s (profile) Headers tab reads…' }, detail: { tr: 'İstek 2\'nin (profile) Headers sekmesindeki `Authorization: Bearer {{authToken}}` satırı, Postman isteği GÖNDERMEDEN hemen önce bu değeri OKUR.', en: 'Request 2\'s (profile) `Authorization: Bearer {{authToken}}` line in Headers is READ by Postman right before it SENDS the request.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Eğer İstek 1 ÇALIŞMADAN İstek 2 tek…', en: 'If Request 2 runs ALONE without Request 1…' }, detail: { tr: 'Eğer İstek 1 ÇALIŞMADAN İstek 2 tek başına çalıştırılırsa, `{{authToken}}` BOŞ kalır ve sunucu 401 Unauthorized döner — bu yüzden Collection Runner\'da istekler DOĞRU SIRADA olmalıdır.', en: 'If Request 2 runs ALONE without Request 1 having run first, `{{authToken}}` stays EMPTY and the server returns 401 Unauthorized — which is why requests must be in the CORRECT ORDER in the Collection Runner.' } },
+  ],
+}
+
+const pmPreRequestScriptStep = {
+  type: 'step-animation',
+  title: { tr: 'Pre-request Script, Tests Sekmesinden Zamanlama Olarak Nasıl Farklıdır?', en: 'How Does a Pre-request Script Differ from the Tests Tab in Timing?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Pre-request Script, istek DAHA…', en: 'The Pre-request Script runs BEFORE the…' }, detail: { tr: 'Pre-request Script, istek DAHA sunucuya GİTMEDEN ÖNCE çalışır — Tests sekmesi ise yanıt GERİ geldikten SONRA çalışır. Bu ikisi zaman ekseninde tam TERS uçlardadır.', en: 'The Pre-request Script runs BEFORE the request even GOES to the server — the Tests tab runs AFTER the response comes BACK. These two sit at OPPOSITE ends of the timeline.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bu bloktaki pm.environment.set("testEmail",…', en: 'The pm.environment.set("testEmail", ...) line…' }, detail: { tr: 'Bu bloktaki `pm.environment.set("testEmail", ...)`, her koşumda BENZERSİZ bir email üretir — aynı email\'i tekrar tekrar POST etmek "duplicate email" hatasına YOL AÇARDI.', en: 'The `pm.environment.set("testEmail", ...)` line in this block generates a UNIQUE email on every run — POSTing the same email repeatedly would CAUSE a "duplicate email" error.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bu değişken, aynı isteğin Body sekmesinde…', en: 'This variable is then read as {{testEmail}}…' }, detail: { tr: 'Bu değişken, aynı isteğin Body sekmesinde `{{testEmail}}` olarak OKUNUR — Pre-request Script\'in ÜRETTİĞİ değer, o isteğin GÖVDESİNE anında akar.', en: 'This variable is then READ as `{{testEmail}}` in that same request\'s Body tab — the value PRODUCED by the Pre-request Script flows instantly into that request\'s BODY.' } },
+  ],
+}
+
+const pmNewmanCiCdStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir GitHub Actions Workflow\'u Postman Testlerini Nasıl Otomatik Kalite Kapısına Çevirir?', en: 'How Does a GitHub Actions Workflow Turn Postman Tests into an Automatic Quality Gate?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'push/pull_request tetikleyicisi, main\'e…', en: 'The push/pull_request trigger fires this…' }, detail: { tr: '`push`/`pull_request` tetikleyicisi, main\'e her push veya PR açıldığında bu workflow\'u OTOMATİK çalıştırır — kimse elle bir düğmeye BASMAZ.', en: 'The `push`/`pull_request` trigger fires this workflow AUTOMATICALLY on every push or PR to main — nobody manually PRESSES a button.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Runner önce Node.js kurar, sonra…', en: 'The runner first installs Node.js, then…' }, detail: { tr: 'Runner önce Node.js kurar, sonra `npm install -g newman` ile Newman\'ı GLOBAL olarak yükler — her CI koşumu SIFIRDAN, temiz bir ortamda başlar.', en: 'The runner first installs Node.js, then installs Newman GLOBALLY via `npm install -g newman` — every CI run starts FROM SCRATCH in a clean environment.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '"Run API Tests" adımı newman run\'ı…', en: 'The "Run API Tests" step runs newman…' }, detail: { tr: '"Run API Tests" adımı `newman run`\'ı çalıştırır — bu adım FAIL olursa (exit code 1), workflow\'un GERİ KALANI durur ve PR "checks failed" olarak İŞARETLENİR.', en: 'The "Run API Tests" step runs `newman run` — if this step FAILS (exit code 1), the REST of the workflow stops and the PR gets MARKED "checks failed".' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'if: always() sayesinde rapor, testler…', en: 'Thanks to if: always(), the report…' }, detail: { tr: '`if: always()` sayesinde rapor, testler PASS olsa da FAIL olsa da HER ZAMAN yüklenir — böylece bir hata durumunda TAM olarak neyin kırıldığını görebilirsin.', en: 'Thanks to `if: always()`, the report is uploaded ALWAYS, whether tests PASS or FAIL — so on a failure you can see EXACTLY what broke.' } },
+  ],
+}
+
 export const postmanData = {
   en: {
     hero: {
@@ -1094,6 +1198,7 @@ export const postmanData = {
 }`,
             expected: 'Status: 200 OK | 10 users returned as a JSON array',
           },
+          pmGetRequestStep,
           { type: 'heading', text: 'Making a POST Request' },
           {
             type: 'code',
@@ -1117,6 +1222,7 @@ export const postmanData = {
   "createdAt": "2024-01-15T10:30:00Z" // Server timestamp
 }`,
           },
+          pmPostRequestStep,
           pmFirstRequestFilm,
           pmEnvSetupStep,
           pmEnvSetupPractice,
@@ -1231,6 +1337,7 @@ pm.environment.set("orderId", order.id);           // → {{orderId}}
 // ── Request 5: POST /payments (Payment Service) ──────
 // Body: { "orderId": "{{orderId}}", "userId": "{{userId}}" }`,
           },
+          pmEnvVarChainStep,
           { type: 'heading', text: 'Creating Variables — Method 3: Collection Variables' },
           {
             type: 'code',
@@ -1252,6 +1359,7 @@ pm.collectionVariables.set("pageSize", "20");      // {{pageSize}}
 // pm.collectionVariables.set() → constant within collection (apiVersion, pageSize)
 // pm.variables.set()           → single request only (temp calculation, deleted after)`,
           },
+          pmCollectionVarsStep,
           { type: 'heading', text: 'Creating a Collection — Step by Step' },
           { type: 'text', content: 'One collection per microservice is the recommended QA pattern. Start with the Auth Service collection — once login works and saves the token, all other services inherit authentication through environment variables.' },
           {
@@ -1297,6 +1405,7 @@ pm.collectionVariables.set("pageSize", "20");      // {{pageSize}}
 // └── 📁 Payment Service Tests
 //     └── POST /payments — process payment        → 201 Created`,
           },
+          pmFolderStructureStep,
           { type: 'heading', text: 'Sharing a Collection — 4 Methods' },
           { type: 'text', content: 'Once your collection is ready, sharing it ensures the whole team tests consistently. Git is the recommended approach for CI/CD teams — version-controlled, reviewable in PRs, and runnable by Newman on every commit.' },
           {
@@ -1383,6 +1492,7 @@ newman run tests/postman/user-service.collection.json   -e env.staging.json &&
 newman run tests/postman/order-service.collection.json  -e env.staging.json &&
 newman run tests/postman/payment-service.collection.json -e env.staging.json`,
           },
+          pmNewmanCliStep,
           { type: 'heading', text: 'Variable Scope — Priority Order' },
           {
             type: 'diagram-svg',
@@ -1493,6 +1603,7 @@ pm.test("Users list not empty", function() {
     pm.expect(json.length).to.be.greaterThan(0); // length check
 });`,
           },
+          pmCoreAssertionsStep,
           {
             type: 'java-compare',
             topic: 'API Assertions',
@@ -1554,6 +1665,7 @@ pm.test("Profile returned", function() {
     pm.expect(profile).to.have.property("id");   // id field exists
 });`,
           },
+          pmRequestChainStep,
           { type: 'heading', text: 'Pre-request Scripts — Setup Before the Request' },
           {
             type: 'code',
@@ -1570,6 +1682,7 @@ pm.environment.set("today", today);
 // Use in request body:
 // { "email": "{{testEmail}}", "date": "{{today}}" }`,
           },
+          pmPreRequestScriptStep,
           { type: 'heading', text: 'Newman — Running Collections from CLI' },
           { type: 'text', content: 'Newman is the command-line runner for Postman collections. It executes every request and runs all test scripts. Newman is how you put Postman tests into Jenkins, GitHub Actions, or any CI/CD pipeline.' },
           {
@@ -1624,6 +1737,7 @@ jobs:
           name: api-test-report
           path: report.html`,
           },
+          pmNewmanCiCdStep,
           { type: 'heading', text: 'Common Postman Errors & Solutions' },
           {
             type: 'error-dictionary',
@@ -2365,6 +2479,7 @@ pm.test("Status is active", () => {
 }`,
             expected: 'Durum: 200 OK | JSON dizisi olarak 10 kullanıcı döner',
           },
+          pmGetRequestStep,
           { type: 'heading', text: 'POST İsteği Yapmak' },
           {
             type: 'code',
@@ -2388,6 +2503,7 @@ pm.test("Status is active", () => {
   "createdAt": "2024-01-15T10:30:00Z" // Sunucu zaman damgası
 }`,
           },
+          pmPostRequestStep,
           pmFirstRequestFilm,
           pmEnvSetupStep,
           pmEnvSetupPractice,
@@ -2511,6 +2627,7 @@ pm.environment.set("orderId", order.id);           // → {{orderId}}
 // ── İstek 5: POST /payments (Payment Service) ────────
 // Body: { "orderId": "{{orderId}}", "userId": "{{userId}}" }`,
           },
+          pmEnvVarChainStep,
           { type: 'heading', text: 'Variable Oluşturma — Yöntem 3: Collection Variables' },
           {
             type: 'code',
@@ -2532,6 +2649,7 @@ pm.collectionVariables.set("pageSize", "20");      // {{pageSize}}
 // pm.collectionVariables.set() → koleksiyonda sabit (apiVersion, pageSize)
 // pm.variables.set()           → yalnizca tek istek (gecici hesaplama, sonra silinir)`,
           },
+          pmCollectionVarsStep,
           { type: 'heading', text: 'Koleksiyon Oluşturma — Adım Adım' },
           { type: 'text', content: 'Her microservis için ayrı Collection, önerilen QA yaklaşımıdır. Auth Service Collection\'ıyla başla — login çalışıp token environment variable\'ına kaydedilince, diğer tüm servisler bu token\'ı miras alır.' },
           {
@@ -2577,6 +2695,7 @@ pm.collectionVariables.set("pageSize", "20");      // {{pageSize}}
 // └── 📁 Payment Service Testleri
 //     └── POST /payments — odemeyi isle            → 201 Created`,
           },
+          pmFolderStructureStep,
           { type: 'heading', text: 'Collection Paylaşma — 4 Yöntem' },
           { type: 'text', content: 'Collection hazır olunca ekiple paylaşmak şarttır. CI/CD ekipleri için Git en iyi yaklaşımdır — versiyonlanmış, PR\'da incelenebilir, her commit\'te Newman ile otomatik çalıştırılabilir.' },
           {
@@ -2663,6 +2782,7 @@ newman run tests/postman/user-service.collection.json   -e env.staging.json &&
 newman run tests/postman/order-service.collection.json  -e env.staging.json &&
 newman run tests/postman/payment-service.collection.json -e env.staging.json`,
           },
+          pmNewmanCliStep,
           { type: 'heading', text: 'Variable Scope — Öncelik Sırası' },
           {
             type: 'diagram-svg',
@@ -2764,6 +2884,7 @@ pm.test("Kullanıcı listesi dolu", function() {
     pm.expect(json.length).to.be.greaterThan(0); // Uzunluk kontrolü
 });`,
           },
+          pmCoreAssertionsStep,
           {
             type: 'java-compare',
             topic: 'API Assertion\'ları',
@@ -2825,6 +2946,7 @@ pm.test("Profil döndü", function() {
     pm.expect(profile).to.have.property("id");   // id alanı var mı
 });`,
           },
+          pmRequestChainStep,
           { type: 'heading', text: 'Pre-request Script — İstekten Önce Hazırlık' },
           {
             type: 'code',
@@ -2841,6 +2963,7 @@ pm.environment.set("today", today);
 // İstek body'sinde kullan:
 // { "email": "{{testEmail}}", "date": "{{today}}" }`,
           },
+          pmPreRequestScriptStep,
           { type: 'heading', text: 'Newman — CLI\'dan Koleksiyon Çalıştırma' },
           { type: 'text', content: 'Newman, Postman koleksiyonlarını komut satırından çalıştıran araçtır. Her isteği gönderir ve tüm test scriptlerini çalıştırır. Newman, Postman testlerini Jenkins, GitHub Actions veya herhangi bir CI/CD pipeline\'ına dahil etmenin yoludur.' },
           {
@@ -2895,6 +3018,7 @@ jobs:
           name: api-test-raporu
           path: report.html`,
           },
+          pmNewmanCiCdStep,
           { type: 'heading', text: 'Sık Karşılaşılan Postman Hataları ve Çözümleri' },
           {
             type: 'error-dictionary',
