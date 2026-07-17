@@ -944,6 +944,195 @@ const kafkaTopicLifecycleOrder = {
   xpReward: 10,
 }
 
+// ── Dalga A2 (animation-per-topic §3.2): kod-bloğu-başına animasyon açıkları ──
+
+const kafkaDockerDesktopSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'Docker Desktop Kurulumu docker-compose\'u Neden Öncelikli Gerektirir?', en: 'Why Does docker-compose Require Docker Desktop as a Prerequisite?' },
+  steps: [
+    { tr: 'İşletim sistemine göre paket yöneticisi (winget/brew/apt) Docker Desktop\'ı veya docker.io paketini indirir — bu, Kafka değil, Kafka\'yı içinde çalıştıracak container motorudur.', en: 'The OS-specific package manager (winget/brew/apt) downloads Docker Desktop or the docker.io package — this is not Kafka, it is the container engine that will run Kafka inside it.' },
+    { tr: 'Docker Desktop başlatılır ve taskbar\'da balina ikonu görünür — bu, Docker daemon\'unun (arka plan servisi) hazır olduğunun tek görsel kanıtıdır.', en: 'Docker Desktop starts and the whale icon appears in the taskbar — this is the only visual proof that the Docker daemon (background service) is ready.' },
+    { tr: '`docker --version` ve `docker compose version` komutları, CLI\'ın daemon\'a bağlanabildiğini doğrular — daemon çalışmıyorsa bu komutlar "Cannot connect" hatası verir.', en: 'The `docker --version` and `docker compose version` commands confirm the CLI can reach the daemon — if the daemon isn\'t running, these commands fail with "Cannot connect".' },
+    { tr: 'Bu doğrulama atlanırsa, bir sonraki adımdaki `docker compose up` komutu "daemon not running" hatasıyla anında başarısız olur — kurulumun geri kalanı bu ön koşula bağımlıdır.', en: 'If this verification is skipped, the next step\'s `docker compose up` command fails immediately with "daemon not running" — the rest of the setup depends on this prerequisite.' },
+  ],
+}
+
+const kafkaComposeUpStep = {
+  type: 'step-animation',
+  title: { tr: 'Terminalden Topic Oluşturup Mesaj Üretip Tüketmek', en: 'Creating a Topic and Producing/Consuming a Message From the Terminal' },
+  steps: [
+    { tr: '`kafka-topics --create --partitions 3` çalıştırılır — Kafka, "orders" adında 3 partition\'lı boş bir log dosyası ailesi ayırır, henüz hiçbir veri yoktur.', en: '`kafka-topics --create --partitions 3` runs — Kafka allocates an empty family of 3 partitioned log files named "orders", no data exists yet.' },
+    { tr: '`kafka-topics --list` topic\'in gerçekten var olduğunu doğrular — bu adım atlanırsa, bir sonraki komutun "topic bulunamadı" hatası verip vermeyeceği bilinmez.', en: '`kafka-topics --list` confirms the topic truly exists — skipping this step means you don\'t know if the next command will fail with "topic not found".' },
+    { tr: 'console-producer\'a yazılan her satır ayrı bir mesaj olarak "orders" topic\'ine EKLENİR, üzerine yazılmaz — Enter tuşu her satırı anında gönderir.', en: 'Each line typed into the console-producer is APPENDED as a separate message to the "orders" topic, never overwritten — pressing Enter sends each line instantly.' },
+    { tr: '`--from-beginning` ile başlatılan console-consumer, offset 0\'dan başlayarak TÜM mesajları okur — mesajlar zaten log\'da kalıcı olarak durduğu için consumer ne zaman başlarsa başlasın hiçbir şey kaybolmaz.', en: 'The console-consumer started with `--from-beginning` reads ALL messages starting from offset 0 — because messages already sit permanently in the log, nothing is lost no matter when the consumer starts.' },
+  ],
+}
+
+const kafkaBinaryInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'Binary Kurulumda İki Süreci Elle Yönetmek', en: 'Manually Managing Two Processes in a Binary Install' },
+  steps: [
+    { tr: 'Önce `java -version` ile Java 11+ kontrol edilir — Kafka JVM üzerinde çalışır, bu ön koşul Docker\'da otomatik gelir ama binary kurulumda SEN sağlamak zorundasın.', en: 'First `java -version` checks for Java 11+ — Kafka runs on the JVM, this prerequisite comes automatically in Docker but in a binary install YOU must provide it.' },
+    { tr: 'ZooKeeper `&` ile arka planda başlatılır — bu, cluster koordinasyon kaydını (broker listesi, leader seçimi metadata\'sı) tutan ayrı bir süreçtir.', en: 'ZooKeeper is started in the background with `&` — this is a separate process that holds the cluster coordination registry (broker list, leader-election metadata).' },
+    { tr: 'Kafka broker\'ı da ayrı bir arka plan süreci olarak başlatılır ve ZooKeeper\'a bağlanır — Docker Compose\'daki tek `up` komutu burada İKİ elle başlatılan komuta dönüşür.', en: 'The Kafka broker is also started as a separate background process and connects to ZooKeeper — the single `up` command in Docker Compose becomes TWO manually started commands here.' },
+    { tr: 'Bu iki süreçten biri çökerse (örn. terminal kapatılırsa) hiçbir otomatik yeniden başlatma yoktur — Docker Compose\'un `restart` politikasının aksine, binary kurulumda süreç sağlığını SEN izlersin.', en: 'If either of these two processes dies (e.g. the terminal closes), there is no automatic restart — unlike Docker Compose\'s `restart` policy, in a binary install YOU monitor process health.' },
+  ],
+}
+
+const kafkaKraftModeStep = {
+  type: 'step-animation',
+  title: { tr: 'KRaft Modu: Controller Rolü Broker\'ın İçine Nasıl Taşınır?', en: 'KRaft Mode: How the Controller Role Moves Inside the Broker' },
+  steps: [
+    { tr: 'ZooKeeper\'lı klasik mimaride, cluster metadata\'sı (leader seçimi, broker listesi) AYRI bir süreçte (ZooKeeper) tutulur — Kafka broker\'ı ona sürekli sorgu atar.', en: 'In the classic ZooKeeper architecture, cluster metadata (leader election, broker list) lives in a SEPARATE process (ZooKeeper) — the Kafka broker constantly queries it.' },
+    { tr: 'KRaft modunda `KAFKA_PROCESS_ROLES: "broker,controller"` ile aynı container hem broker HEM controller rolünü üstlenir — metadata artık Kafka\'nın kendi Raft log\'unda tutulur.', en: 'In KRaft mode, `KAFKA_PROCESS_ROLES: "broker,controller"` makes the same container take on BOTH the broker AND controller role — metadata now lives in Kafka\'s own Raft log.' },
+    { tr: '`KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"` ile controller quorum\'u kimin oy kullanacağını tanımlar — bu, ZooKeeper\'ın "hangi node coordinator" sorusuna Kafka\'nın kendi cevabıdır.', en: '`KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"` defines who votes in the controller quorum — this is Kafka\'s own answer to the "which node is the coordinator" question ZooKeeper used to answer.' },
+    { tr: 'Sonuç: docker-compose.yml\'de ayrı bir `zookeeper` servisi TANIMLANMAZ — tek container hem veriyi hem koordinasyonu taşır, operasyonel karmaşıklık yarıya iner.', en: 'Result: no separate `zookeeper` service is DEFINED in docker-compose.yml — a single container carries both data and coordination, cutting operational complexity in half.' },
+  ],
+}
+
+const kafkaProducerSendFlowStep = {
+  type: 'step-animation',
+  title: { tr: 'producer.send() Çağrısından Callback\'e Kadar Ne Olur?', en: 'What Happens From producer.send() to the Callback?' },
+  steps: [
+    { tr: '`ProducerRecord` oluşturulur: topic="orders", key="user-123", value=JSON — key, mesajın hangi partition\'a gideceğini belirleyecek olan tek alandır.', en: 'A `ProducerRecord` is built: topic="orders", key="user-123", value=JSON — the key is the single field that will decide which partition the message goes to.' },
+    { tr: '`producer.send()` ASENKRON çalışır — ana thread hemen devam eder, gönderim arka planda bir buffer\'da kuyruğa alınır.', en: '`producer.send()` runs ASYNCHRONOUSLY — the main thread continues immediately, the send is queued in a background buffer.' },
+    { tr: '`acks=all` ayarı sayesinde broker, mesajı SADECE leader değil TÜM in-sync replica\'lar yazana kadar onaylamaz — bu, en yavaş ama en güvenli seçenektir.', en: 'Because of `acks=all`, the broker does NOT confirm the message until ALL in-sync replicas — not just the leader — have written it — this is the slowest but safest option.' },
+    { tr: 'Onay geldiğinde callback tetiklenir: `exception == null` ise partition/offset loglanır, değilse (örn. `retries=3` tükendiyse) hata yakalanır — sonuç asla sessizce kaybolmaz.', en: 'When the acknowledgment arrives, the callback fires: if `exception == null`, partition/offset are logged; otherwise (e.g. `retries=3` exhausted), the error is caught — the outcome is never silently lost.' },
+  ],
+}
+
+const kafkaTopicCliDescribeStep = {
+  type: 'step-animation',
+  title: { tr: '--describe Çıktısında Leader/Replica/ISR Nasıl Okunur?', en: 'How to Read Leader/Replica/ISR in the --describe Output' },
+  steps: [
+    { tr: '`--create --partitions 3 --replication-factor 3` çalıştırıldığında Kafka her partition için 1 leader + 2 follower broker seçer — bu seçim rastgele değil, cluster\'a eşit dağıtılır.', en: 'When `--create --partitions 3 --replication-factor 3` runs, Kafka picks 1 leader + 2 follower brokers for each partition — this choice isn\'t random, it\'s spread evenly across the cluster.' },
+    { tr: '`--describe` çıktısındaki "Partition: 0 Leader: 1" satırı, o partition\'a yazılan HER mesajın broker 1 üzerinden geçtiğini gösterir — diğer brokerlar sadece kopyalar.', en: 'The "Partition: 0 Leader: 1" line in the `--describe` output shows EVERY message written to that partition goes through broker 1 — the other brokers only replicate.' },
+    { tr: '"Replicas: 1,2,3" o partition\'ın hangi broker\'larda KOPYALANDIĞINI, "Isr: 1,2,3" ise bu kopyaların hangilerinin GÜNCEL (in-sync) olduğunu gösterir — ikisi aynı olmayabilir.', en: '"Replicas: 1,2,3" shows which brokers the partition is COPIED to, "Isr: 1,2,3" shows which of those copies are actually UP TO DATE (in-sync) — the two lists can differ.' },
+    { tr: 'Bir broker geride kalırsa ISR listesinden düşer — bu durumda `min.insync.replicas` eşiği artık daha az broker tarafından karşılanıyor demektir ve durum izlenmelidir.', en: 'If a broker falls behind, it drops out of the ISR list — meaning the `min.insync.replicas` threshold is now met by fewer brokers, and this state should be monitored.' },
+  ],
+}
+
+const kafkaSpringPomSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'spring-kafka Bağımlılığı Neyi Otomatik Getirir?', en: 'What Does the spring-kafka Dependency Bring Automatically?' },
+  steps: [
+    { tr: '`spring-kafka` dependency\'si eklendiğinde, versiyonu Spring Boot parent POM\'u yönetir — Kafka client kütüphanesiyle uyumsuz bir versiyon seçme riski ortadan kalkar.', en: 'When the `spring-kafka` dependency is added, its version is managed by the Spring Boot parent POM — the risk of picking a version incompatible with the Kafka client library disappears.' },
+    { tr: 'Bu tek dependency, arka planda `kafka-clients` kütüphanesini de transitive olarak getirir — `KafkaTemplate` ve `@KafkaListener` bu ham client\'ı sarmalar.', en: 'This single dependency transitively brings in the `kafka-clients` library too — `KafkaTemplate` and `@KafkaListener` wrap that raw client underneath.' },
+    { tr: '`jackson-databind` AYRI eklenmezse, `JsonSerializer`/`JsonDeserializer` mesajı JSON\'a çeviremez ve uygulama başlangıçta `ClassNotFoundException` ile çöker.', en: 'If `jackson-databind` is NOT added separately, `JsonSerializer`/`JsonDeserializer` cannot convert the message to JSON and the app crashes at startup with `ClassNotFoundException`.' },
+    { tr: 'Java analojisi: Spring Data JPA\'nın Hibernate\'i sarmalaması gibi, spring-kafka da raw `KafkaProducer`/`KafkaConsumer`\'ı sarmalar — az kod, aynı alttaki mekanizma.', en: 'Java analogy: just as Spring Data JPA wraps Hibernate, spring-kafka wraps the raw `KafkaProducer`/`KafkaConsumer` — less code, same underlying mechanism.' },
+  ],
+}
+
+const kafkaSpringYamlConfigStep = {
+  type: 'step-animation',
+  title: { tr: 'application.yml\'deki Her Satır Hangi Ham Kafka Config\'ine Karşılık Gelir?', en: 'What Raw Kafka Config Does Each application.yml Line Map To?' },
+  steps: [
+    { tr: '`bootstrap-servers: localhost:9092` — hem producer hem consumer\'ın broker\'ı bulacağı TEK adres; ikisi de bu satırı okur.', en: '`bootstrap-servers: localhost:9092` — the SINGLE address both producer and consumer use to find the broker; both read this line.' },
+    { tr: '`producer.acks: all` + `retries: 3` — Java kodundaki `props.put("acks","all")` çağrısının YAML karşılığıdır; Spring bunu runtime\'da otomatik `Properties` nesnesine çevirir.', en: '`producer.acks: all` + `retries: 3` — the YAML equivalent of the Java code\'s `props.put("acks","all")` call; Spring automatically converts this into a `Properties` object at runtime.' },
+    { tr: '`consumer.auto-offset-reset: earliest` — yeni bir consumer group ilk kez bağlandığında offset 0\'dan mı yoksa sadece yeni mesajlardan mı başlayacağını belirler.', en: '`consumer.auto-offset-reset: earliest` — decides whether a brand-new consumer group starts from offset 0 or only from new messages when it first connects.' },
+    { tr: '`spring.json.trusted.packages: "com.example.events"` bir GÜVENLİK sınırıdır — `JsonDeserializer`, bu paket dışındaki bir sınıfa deserialize etmeyi REDDEDER, kötü niyetli bir payload\'ın rastgele sınıf yüklemesini engeller.', en: '`spring.json.trusted.packages: "com.example.events"` is a SECURITY boundary — `JsonDeserializer` REFUSES to deserialize into a class outside that package, blocking a malicious payload from loading an arbitrary class.' },
+  ],
+}
+
+const kafkaSpringProducerStep = {
+  type: 'step-animation',
+  title: { tr: 'kafkaTemplate.send() ile Asenkron Sonucu Nasıl Ele Alırsın?', en: 'How Do You Handle the Async Result of kafkaTemplate.send()?' },
+  steps: [
+    { tr: '`OrderEvent` nesnesi, sipariş verisinden inşa edilir — bu, raw Kafka API\'deki `ProducerRecord`\'un Spring soyutlamasıdır.', en: 'The `OrderEvent` object is built from the order data — this is the Spring abstraction over the raw Kafka API\'s `ProducerRecord`.' },
+    { tr: '`kafkaTemplate.send("orders", order.getUserId(), event)` çağrısında key=userId seçilir — böylece aynı kullanıcının TÜM event\'leri aynı partition\'a, dolayısıyla sırayla işlenir.', en: 'In `kafkaTemplate.send("orders", order.getUserId(), event)`, key=userId is chosen — so ALL events for the same user go to the same partition and are therefore processed in order.' },
+    { tr: '`send()` bir `CompletableFuture` döner — `.whenComplete()` bloğu, gönderim tamamlandığında (başarılı veya başarısız) ÇAĞRILAN thread\'i bloklamadan çalışır.', en: '`send()` returns a `CompletableFuture` — the `.whenComplete()` block runs when the send finishes (success or failure), without blocking the CALLING thread.' },
+    { tr: '`ex == null` ise partition/offset loglanır — bu bilgi, mesajın TAM OLARAK nereye yazıldığını kanıtlayan tek log satırıdır ve production debugging\'de kritiktir.', en: 'If `ex == null`, partition/offset are logged — this is the one log line that proves EXACTLY where the message was written, and it is critical in production debugging.' },
+  ],
+}
+
+const kafkaSpringConsumerStep = {
+  type: 'step-animation',
+  title: { tr: '@KafkaListener Arkasında Poll Döngüsü Nasıl Gizlenir?', en: 'How Does @KafkaListener Hide the Poll Loop Underneath?' },
+  steps: [
+    { tr: 'Raw API\'deki `while(true) { consumer.poll(...) }` döngüsü tamamen ortadan kalkar — `@KafkaListener` annotation\'ı bu döngüyü Spring\'in kendi thread havuzunda arka planda çalıştırır.', en: 'The raw API\'s `while(true) { consumer.poll(...) }` loop disappears entirely — the `@KafkaListener` annotation runs that loop in Spring\'s own thread pool behind the scenes.' },
+    { tr: '`@Payload` mesajın JSON body\'sini otomatik `OrderEvent` nesnesine deserialize eder — `JsonDeserializer` bunu senin elle `ObjectMapper.readValue()` çağırmana gerek kalmadan yapar.', en: '`@Payload` automatically deserializes the message JSON body into an `OrderEvent` object — `JsonDeserializer` does this without you manually calling `ObjectMapper.readValue()`.' },
+    { tr: '`@Header(RECEIVED_PARTITION)` ve `@Header(OFFSET)` metadata\'yı ayrı parametreler olarak enjekte eder — raw API\'de bu bilgi `ConsumerRecord.partition()`/`.offset()` ile elle çekilirdi.', en: '`@Header(RECEIVED_PARTITION)` and `@Header(OFFSET)` inject metadata as separate parameters — in the raw API this data would be pulled manually with `ConsumerRecord.partition()`/`.offset()`.' },
+    { tr: 'İkinci bir `@KafkaListener` (audit-group) AYNI "orders" topic\'ini BAĞIMSIZ bir consumer group olarak dinler — iki listener birbirinden habersiz, kendi offset\'ini kendi ilerletir.', en: 'A second `@KafkaListener` (audit-group) listens to the SAME "orders" topic as an INDEPENDENT consumer group — the two listeners are unaware of each other, each advancing its own offset.' },
+  ],
+}
+
+const kafkaEcosystemPomStep = {
+  type: 'step-animation',
+  title: { tr: 'spring-kafka-test Neden "test" Scope\'unda Kalır?', en: 'Why Does spring-kafka-test Stay in "test" Scope?' },
+  steps: [
+    { tr: '`spring-kafka` normal dependency olarak eklenir — production jar\'ına dahil olur, çünkü uygulama gerçek Kafka\'ya bağlanmak için buna ihtiyaç duyar.', en: '`spring-kafka` is added as a normal dependency — it gets bundled into the production jar because the app needs it to connect to a real Kafka.' },
+    { tr: '`spring-kafka-test` ise `<scope>test</scope>` ile işaretlenir — bu, `@EmbeddedKafka` gibi test-only sınıfların SADECE test derlemesinde bulunacağı anlamına gelir.', en: '`spring-kafka-test` is marked `<scope>test</scope>` — meaning test-only classes like `@EmbeddedKafka` will ONLY exist in the test compilation.' },
+    { tr: 'Bu ayrım olmasaydı, production jar\'ı gereksiz yere büyür VE test altyapısı (embedded broker kodu) yanlışlıkla canlı ortama sızabilirdi.', en: 'Without this separation, the production jar would grow unnecessarily AND test infrastructure (embedded broker code) could accidentally leak into the live environment.' },
+    { tr: 'Java analojisi: JUnit\'in kendisi de her zaman `test` scope\'undadır — `mvn package` production artifact\'ı üretirken test kütüphanelerini otomatik dışarıda bırakır.', en: 'Java analogy: JUnit itself is always in `test` scope too — `mvn package` automatically excludes test libraries when producing the production artifact.' },
+  ],
+}
+
+const kafkaEcosystemYamlConfigStep = {
+  type: 'step-animation',
+  title: { tr: 'Aynı YAML Bloğu Producer ve Consumer\'ı Nasıl Farklı Yapılandırır?', en: 'How Does the Same YAML Block Configure Producer and Consumer Differently?' },
+  steps: [
+    { tr: '`consumer.auto-offset-reset: earliest` sadece OKUMA davranışını etkiler — yeni bir tüketici grubu ilk bağlandığında topic\'in başından mı okuyacak.', en: '`consumer.auto-offset-reset: earliest` only affects READ behavior — whether a new consumer group starts reading from the beginning of the topic.' },
+    { tr: '`consumer.properties.spring.json.trusted.packages` deserialization\'ı SADECE belirtilen pakete izin vererek kısıtlar — bu bir yazma değil, okuma-tarafı güvenlik kontrolüdür.', en: '`consumer.properties.spring.json.trusted.packages` restricts deserialization to ONLY the specified package — this is a read-side security check, not a write concern.' },
+    { tr: '`producer.key-serializer`/`value-serializer` YAZMA tarafındaki dönüşümü tanımlar — consumer\'ın `key-deserializer`/`value-deserializer`\'ı ile SİMETRİK olmalıdır, aksi halde deserialization hatası alınır.', en: '`producer.key-serializer`/`value-serializer` define the WRITE-side conversion — it must be SYMMETRIC with the consumer\'s `key-deserializer`/`value-deserializer`, otherwise a deserialization error results.' },
+    { tr: 'Aynı `bootstrap-servers` satırı ikisi tarafından da paylaşılır — producer ve consumer teknik olarak aynı broker\'a bağlanan iki BAĞIMSIZ client\'tır, sadece config aynı dosyada durur.', en: 'The same `bootstrap-servers` line is shared by both — producer and consumer are technically two INDEPENDENT clients connecting to the same broker, the config just happens to live in one file.' },
+  ],
+}
+
+const kafkaEcosystemProducerConsumerStep = {
+  type: 'step-animation',
+  title: { tr: 'Saga Pattern: Envanter Yetersizse Ne Olur?', en: 'Saga Pattern: What Happens When Stock Is Insufficient?' },
+  steps: [
+    { tr: '`OrderProducer` bir `OrderEvent` gönderir, key=orderId — bu, aynı siparişin tüm event\'lerinin sırayla işlenmesini garanti eder.', en: '`OrderProducer` sends an `OrderEvent`, key=orderId — this guarantees all events for the same order are processed in order.' },
+    { tr: '`InventoryConsumer`, "inventory-service" grubunda bu event\'i dinler ve `reserveStock()` çağırır — bu, senkron bir HTTP çağrısı DEĞİL, bağımsız bir tüketimdir.', en: '`InventoryConsumer` listens for this event in the "inventory-service" group and calls `reserveStock()` — this is an independent consumption, NOT a synchronous HTTP call.' },
+    { tr: '`InsufficientStockException` fırlatılırsa, consumer BAŞARISIZLIĞI "orders-failed" topic\'ine bir telafi (compensating) event\'i yazarak ele alır — bu Saga pattern\'idir.', en: 'If `InsufficientStockException` is thrown, the consumer handles the FAILURE by writing a compensating event to the "orders-failed" topic — this is the Saga pattern.' },
+    { tr: 'Entegrasyon testi `@EmbeddedKafka` ile GERÇEK bir mini Kafka broker\'ı bellekte başlatır — mock yerine gerçek produce/consume akışını uçtan uca doğrular.', en: 'The integration test uses `@EmbeddedKafka` to start a REAL miniature Kafka broker in memory — instead of a mock, it verifies the actual produce/consume flow end to end.' },
+  ],
+}
+
+const kafkaSchemaRegistryComposeStep = {
+  type: 'step-animation',
+  title: { tr: 'Schema Registry Bir Şemayı Nasıl Kayıt Altına Alır?', en: 'How Does Schema Registry Register a Schema?' },
+  steps: [
+    { tr: '`schema-registry` container\'ı `depends_on: kafka` ile başlar — kendi şema geçmişini SAKLAMAK için bile Kafka\'nın kendi topic\'lerinden birini kullanır.', en: 'The `schema-registry` container starts with `depends_on: kafka` — it even uses one of Kafka\'s own topics to STORE its own schema history.' },
+    { tr: 'Registry ayağa kalktıktan sonra, `curl -X POST .../subjects/orders-value/versions` ile bir Avro/JSON şema kayıt altına alınır — bu andan itibaren "orders" topic\'inin sözleşmesi RESMİLEŞİR.', en: 'Once the registry is up, `curl -X POST .../subjects/orders-value/versions` registers an Avro/JSON schema — from this moment on, the "orders" topic\'s contract becomes OFFICIAL.' },
+    { tr: 'Bir producer artık bu kayıtlı şemaya UYMAYAN bir mesaj göndermeye çalışırsa, Registry gönderimi REDDEDER — hatalı veri broker\'a asla ulaşmaz.', en: 'If a producer now tries to send a message that does NOT conform to the registered schema, the Registry REJECTS the send — bad data never reaches the broker.' },
+    { tr: 'Her consumer, gelen byte\'ları işlemeden ÖNCE aynı Registry\'ye şemayı sorar — bu, bir alan adı yanlışlıkla değiştirildiğinde 12 downstream consumer\'ın sessizce bozulmasını ÖNLER.', en: 'Every consumer queries the same Registry for the schema BEFORE processing incoming bytes — this PREVENTS 12 downstream consumers from silently breaking when a field name is accidentally changed.' },
+  ],
+}
+
+const kafkaRealWorldTopicSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'Üç Farklı Topic Neden Farklı Partition Sayısıyla Oluşturulur?', en: 'Why Are Three Different Topics Created With Different Partition Counts?' },
+  steps: [
+    { tr: '"orders" ve "payments" topic\'leri 3 partition\'la oluşturulur — bu, yüksek hacimli akışların paralel işlenmesine izin verir (3 consumer aynı anda çalışabilir).', en: '"orders" and "payments" topics are created with 3 partitions — this allows high-volume streams to be processed in parallel (3 consumers can run at once).' },
+    { tr: '"orders-failed" ise SADECE 1 partition\'la oluşturulur — hata akışı düşük hacimlidir, paralellik yerine SIRALI işleme (tüm hatalar tek bir yerde, kronolojik) daha değerlidir.', en: '"orders-failed" is created with just 1 partition — the error stream is low-volume, and ORDERED processing (all failures in one place, chronological) matters more than parallelism.' },
+    { tr: 'Her `--create` komutu `--replication-factor 1` kullanır — bu sadece LOKAL geliştirme içindir; production\'da bu değer en az 3 olmalıdır (tek broker kaybında veri kaybı olmasın diye).', en: 'Every `--create` command uses `--replication-factor 1` — this is for LOCAL development only; in production this must be at least 3 (so a single broker loss doesn\'t lose data).' },
+    { tr: '`--list` komutu üç topic\'in de gerçekten oluştuğunu doğrular — bir sonraki adımdaki produce/consume simülasyonu bu doğrulamaya bağımlıdır.', en: 'The `--list` command confirms all three topics actually exist — the produce/consume simulation in the next step depends on this verification.' },
+  ],
+}
+
+const kafkaRealWorldPipelineSimStep = {
+  type: 'step-animation',
+  title: { tr: 'İki Farklı Consumer Group Aynı Mesajı Nasıl BAĞIMSIZ Okur?', en: 'How Do Two Different Consumer Groups Read the Same Message INDEPENDENTLY?' },
+  steps: [
+    { tr: 'TERMINAL 1\'de "inventory-service" grubu, TERMINAL 2\'de "payment-service" grubu AYNI "orders" topic\'ine abone olur — iki farklı group.id, iki tamamen ayrı okuma konumu demektir.', en: 'TERMINAL 1 subscribes as the "inventory-service" group, TERMINAL 2 as the "payment-service" group — both to the SAME "orders" topic — two different group.ids mean two completely separate read positions.' },
+    { tr: 'TERMINAL 3\'ten üretilen HER mesaj, her iki terminale de ANINDA görünür — çünkü mesaj bir kuyruktan silinmiyor, log\'a ekleniyor ve her grup kendi offset\'ini bağımsız ilerletiyor.', en: 'EVERY message produced from TERMINAL 3 appears in BOTH terminals INSTANTLY — because the message isn\'t removed from a queue, it\'s appended to the log, and each group advances its own offset independently.' },
+    { tr: 'Bu, geleneksel bir kuyruktan (RabbitMQ) TEMEL farktır: orada bir mesaj bir worker tarafından alınırsa diğeri onu ASLA göremez.', en: 'This is the FUNDAMENTAL difference from a traditional queue (RabbitMQ): there, once one worker takes a message, the other NEVER sees it.' },
+    { tr: '`--describe --group inventory-service` çıktısındaki "LAG 0" satırı, o grubun ürettiği HER mesajı işlediğinin kanıtıdır — LAG\'in ne anlama geldiği bir sonraki adımda derinleşir.', en: 'The "LAG 0" line in the `--describe --group inventory-service` output proves that group has processed EVERY message produced — what LAG means in depth is covered in the next step.' },
+  ],
+}
+
+const kafkaRealWorldLagMonitoringStep = {
+  type: 'step-animation',
+  title: { tr: 'Lag Sayısı Sana Hangi Production Kararını Söylüyor?', en: 'What Production Decision Does the Lag Number Tell You?' },
+  steps: [
+    { tr: '`--describe --all-groups` TÜM consumer group\'ların lag durumunu TEK seferde listeler — production\'da hangi servisin geride kaldığını görmek için ilk komut budur.', en: '`--describe --all-groups` lists the lag status of ALL consumer groups in ONE call — this is the first command to see which service is falling behind in production.' },
+    { tr: '`watch -n 2 "..."` komutu aynı `--describe` çağrısını 2 saniyede bir tekrarlar — lag\'in SABİT mi yoksa BÜYÜYOR mu olduğunu zaman içinde gözlemlemeni sağlar.', en: 'The `watch -n 2 "..."` command repeats the same `--describe` call every 2 seconds — letting you observe over time whether the lag is STABLE or GROWING.' },
+    { tr: 'LAG=0 sağlıklı demektir, LAG>100 SABİT kalıyorsa geçici bir yavaşlama olabilir, ama LAG SÜREKLİ büyüyorsa consumer producer\'ı asla yakalayamaz — bu ACİL bir müdahale sinyalidir.', en: 'LAG=0 means healthy, LAG>100 that stays STABLE might be a temporary slowdown, but LAG that keeps GROWING means the consumer will never catch up to the producer — this is an URGENT intervention signal.' },
+    { tr: 'LAG="-" özel bir durumdur: consumer group\'un HİÇ üyesi yok demektir — bu genelde uygulamanın çökmüş veya hiç başlamamış olduğu anlamına gelir, "yavaş" değil "yok".', en: 'LAG="-" is a special case: it means the consumer group has NO members at all — this usually means the application has crashed or never started, "absent" rather than "slow".' },
+  ],
+}
+
 export const kafkaData = {
   en: {
     hero: {
@@ -1078,6 +1267,7 @@ sudo usermod -aG docker $USER
 docker --version
 docker compose version`,
           },
+          kafkaDockerDesktopSetupStep,
           {
             type: 'code',
             language: 'yaml',
@@ -1173,6 +1363,7 @@ docker exec -it kafka kafka-console-consumer \
 # Stop all services
 docker compose down`,
           },
+          kafkaComposeUpStep,
           { type: 'heading', text: 'Option 2: Local Binary Install (Windows/Mac/Linux)' },
           {
             type: 'code',
@@ -1205,6 +1396,7 @@ bin/kafka-topics.sh --create --topic test-topic \
 # bin\windows\zookeeper-server-start.bat config\zookeeper.properties
 # bin\windows\kafka-server-start.bat config\server.properties`,
           },
+          kafkaBinaryInstallStep,
           { type: 'heading', text: 'Option 3: KRaft Mode (No ZooKeeper — Kafka 3.x)' },
           {
             type: 'code',
@@ -1238,6 +1430,7 @@ EOF
 docker compose -f docker-compose-kraft.yml up -d
 # No ZooKeeper container needed!`,
           },
+          kafkaKraftModeStep,
           kafkaDockerComposeBootFilm,
           {
             type: 'quiz',
@@ -1527,6 +1720,7 @@ public class OrderProducer {
             title: 'Key → Partition Routing',
             content: 'The message KEY determines which partition it goes to: hash(key) % numPartitions. Same key always goes to same partition → guarantees ordering for related messages. Example: key="user-123" — all orders for user 123 go to the same partition, so they\'re processed in order. No key → round-robin across partitions.',
           },
+          kafkaProducerSendFlowStep,
           { type: 'heading', text: 'Consumer — Reading Messages' },
           {
             type: 'code',
@@ -1698,6 +1892,7 @@ kafka-topics.sh --bootstrap-server localhost:9092 \
 kafka-topics.sh --bootstrap-server localhost:9092 \
   --delete --topic test-topic`,
           },
+          kafkaTopicCliDescribeStep,
           { type: 'heading', text: 'Replication — Fault Tolerance' },
           {
             type: 'simple-box',
@@ -1806,6 +2001,7 @@ kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
     <artifactId>jackson-databind</artifactId>
 </dependency>`,
           },
+          kafkaSpringPomSetupStep,
           {
             type: 'code',
             language: 'yaml',
@@ -1826,6 +2022,7 @@ kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
       properties:
         spring.json.trusted.packages: "com.example.events"`,
           },
+          kafkaSpringYamlConfigStep,
           {
             type: 'code',
             language: 'java',
@@ -1861,6 +2058,7 @@ public class OrderEventProducer {
     }
 }`,
           },
+          kafkaSpringProducerStep,
           {
             type: 'code',
             language: 'java',
@@ -1895,6 +2093,7 @@ public class OrderEventConsumer {
     }
 }`,
           },
+          kafkaSpringConsumerStep,
           { type: 'heading', text: 'Testing Kafka with Spring Boot' },
           {
             type: 'code',
@@ -2012,6 +2211,7 @@ class OrderEventConsumerTest {
     <scope>test</scope>
 </dependency>`,
           },
+          kafkaEcosystemPomStep,
           {
             type: 'code',
             language: 'yaml',
@@ -2030,6 +2230,7 @@ class OrderEventConsumerTest {
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer`,
           },
+          kafkaEcosystemYamlConfigStep,
           {
             type: 'code',
             language: 'java',
@@ -2107,6 +2308,7 @@ class OrderIntegrationTest {
     }
 }`,
           },
+          kafkaEcosystemProducerConsumerStep,
           { type: 'heading', text: 'Kafka + Kubernetes (Strimzi) — Production Setup' },
           {
             type: 'text',
@@ -2139,6 +2341,7 @@ class OrderIntegrationTest {
 #   -H "Content-Type: application/vnd.schemaregistry.v1+json" \
 #   -d '{"schema": "{\"type\":\"record\",\"name\":\"Order\",\"fields\":[{\"name\":\"orderId\",\"type\":\"long\"},{\"name\":\"product\",\"type\":\"string\"}]}"}'`,
           },
+          kafkaSchemaRegistryComposeStep,
           { type: 'heading', text: 'Debezium: Change Data Capture (CDC)' },
           {
             type: 'simple-box',
@@ -2245,6 +2448,7 @@ docker exec kafka kafka-topics \
 # Verify topics were created
 docker exec kafka kafka-topics --list --bootstrap-server localhost:9092`,
           },
+          kafkaRealWorldTopicSetupStep,
           {
             type: 'code',
             language: 'bash',
@@ -2282,6 +2486,7 @@ docker exec kafka kafka-consumer-groups \
 # Shows: TOPIC   PARTITION   CURRENT-OFFSET   LOG-END-OFFSET   LAG
 # orders  0       2            2                 0  ← lag 0 = all caught up`,
           },
+          kafkaRealWorldPipelineSimStep,
           {
             type: 'code',
             language: 'bash',
@@ -2308,6 +2513,7 @@ watch -n 2 "docker exec kafka kafka-consumer-groups \
 # Lag growing continuously: Consumer is stuck (check logs)
 # Lag = -:    Consumer group has no members (app not running)`,
           },
+          kafkaRealWorldLagMonitoringStep,
           { type: 'heading', text: 'Dead Letter Topic (DLT): Handling Poison Messages' },
           {
             type: 'simple-box',
@@ -2686,6 +2892,7 @@ sudo usermod -aG docker $USER
 docker --version
 docker compose version`,
           },
+          kafkaDockerDesktopSetupStep,
           {
             type: 'code',
             language: 'yaml',
@@ -2779,6 +2986,7 @@ docker exec -it kafka kafka-console-consumer \
 # Servisleri durdur
 docker compose down`,
           },
+          kafkaComposeUpStep,
           { type: 'heading', text: 'Seçenek 2: KRaft Modu (ZooKeeper\'sız — Kafka 3.x)' },
           {
             type: 'code',
@@ -2802,6 +3010,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 # ZooKeeper container'ına gerek yok!`,
           },
+          kafkaKraftModeStep,
           kafkaDockerComposeBootFilm,
           {
             type: 'quiz',
@@ -3079,6 +3288,7 @@ public class SiparisProducer {
             title: 'Key → Partition Yönlendirme',
             content: 'Mesaj KEY\'i hangi partition\'a gideceğini belirler: hash(key) % partitionSayisi. Aynı key her zaman aynı partition\'a gider → ilgili mesajlar için sıralama garantisi sağlar. Örnek: key="kullanici-123" — kullanıcı 123\'ün tüm siparişleri aynı partition\'a gider, böylece sırayla işlenir. Key yoksa → partition\'lar arasında round-robin.',
           },
+          kafkaProducerSendFlowStep,
           { type: 'heading', text: 'Consumer — Mesaj Okuma' },
           {
             type: 'code',
@@ -3243,6 +3453,7 @@ kafka-console-consumer.sh --bootstrap-server localhost:9092 \
   --from-beginning \
   --property "print.key=true"`,
           },
+          kafkaTopicCliDescribeStep,
           { type: 'heading', text: 'Replication — Fault Tolerance' },
           {
             type: 'simple-box',
@@ -3318,6 +3529,7 @@ kafka-console-consumer.sh --bootstrap-server localhost:9092 \
       properties:
         spring.json.trusted.packages: "com.example.events"`,
           },
+          kafkaSpringYamlConfigStep,
           {
             type: 'code',
             language: 'java',
@@ -3350,6 +3562,7 @@ public class SiparisEventConsumer {
     }
 }`,
           },
+          kafkaSpringConsumerStep,
           {
             type: 'code',
             language: 'java',
@@ -3602,6 +3815,7 @@ docker exec kafka kafka-topics \
   --bootstrap-server localhost:9092 \
   --partitions 1 --replication-factor 1`,
           },
+          kafkaRealWorldTopicSetupStep,
           {
             type: 'code',
             language: 'bash',
@@ -3638,6 +3852,7 @@ docker exec kafka kafka-consumer-groups \
 # TOPIC     PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
 # siparisler  0        2               2               0  ← lag 0 = sağlıklı`,
           },
+          kafkaRealWorldPipelineSimStep,
           { type: 'heading', text: 'Dead Letter Topic (DLT): Zehirli Mesajları Yönet' },
           {
             type: 'simple-box',
