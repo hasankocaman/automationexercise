@@ -186,3 +186,148 @@ chunk notu düş.
 [ ] Chunk boyutu notu + NEXT_SESSION durum tablosu güncellendi
 [ ] Commit atıldı (kullanıcı onayıyla) — sonraki dalga ancak bundan sonra
 ```
+
+---
+
+## 7. Uygulama Durumu Raporu (Doğrulama Tarihi: 2026-07-17)
+
+> Bu bölüm, projenin güncel kod durumu taranarak (grep + Node runtime
+> import + `scripts/audit-interactive.mjs` + `scripts/check-content-
+> integrity.mjs` + `npm run build`) üretilmiştir — hafızaya değil, canlı
+> koda dayanır. Aşağıdaki "Sıradaki Oturumun İlk İşi" hariç, bu rapor bir
+> anlık durum GÖRÜNTÜSÜDÜR; ileride tekrar okuyan biri önce kodu tekrar
+> taramalı, burada yazılana körü körüne güvenmemelidir (bkz. CLAUDE.md
+> Bölüm 0 — anlık durum kalıcı kural dosyalarında değil `NEXT_SESSION.md`'de
+> tutulur; bu rapor istisnaidir çünkü kullanıcı açıkça bu dosyaya yazılmasını
+> istedi).
+
+### 7.1. Genel Sonuç
+
+**Dalga 4'ten Dalga 21'e kadar TÜM dalgalar tamamlandı ve commit edildi.**
+Proje genelinde `src/data/*.js` dosyalarında toplam **355 adet benzersiz
+`video-scene` film sabiti** tanımlı (id çakışması YOK — grep ile teyit
+edildi). §1'deki envanterdeki **28 sayfanın 28'i de** artık ≥1 film
+içeriyor (envanter tablosunda "Film: 0" olan hiçbir sayfa kalmadı).
+
+Runtime coverage taraması (her sayfanın her sekmesi/dersi için ayrı ayrı
+`type:'video-scene'` + animasyon tipleri + sandbox tipleri sayımı, hem EN
+hem TR ağaçlarında) şu sonucu verdi:
+
+| Metrik | Sonuç |
+|---|---|
+| Taranan sayfa | 28/28 (§1 envanterindeki tüm kapsam-içi sayfalar) |
+| Taranan sekme/ders (EN+TR toplam) | 764 |
+| §9.5 standardını (≥1 video + ≥1 animasyon + ≥1 sandbox) tam karşılayan | **759 / 764 (%99.3)** |
+| Bilinen küçük boşluk | 5 sekme, 5 ayrı sayfada (aşağıda §7.4) |
+
+Yani plan **fiilen %99'un üzerinde tamamlanmış durumda**; kalan boşluklar
+büyük görev listelerinden değil, erken dalgalardan (4-9) kalan tek-tek
+sekme eksiklikleridir.
+
+### 7.2. §2 Dalga Sırası — Tamamlanma Tablosu
+
+| Dalga | Sayfa(lar) | Durum | Commit(ler) |
+|---|---|---|---|
+| Pilot | /git-github, /gauge | ✅ TAMAM (önceden) | (Dalga 3 ve öncesi) |
+| 4 | /linux | ✅ TAMAM | `834e889` |
+| 5 | /docker | ✅ TAMAM | `59be31b` |
+| 6 | /selenium | ✅ TAMAM | `e1376a9`, `5a476f5` |
+| 7 | /playwright | ✅ TAMAM | `9e605d0` |
+| 8 | /python | ✅ TAMAM | `68d7365` |
+| 9 | /sql | ✅ TAMAM | `2d621aa` |
+| 10 | /cypress | ✅ TAMAM | `ccf841b` |
+| 11 | /javascript | ✅ TAMAM | `988973d` |
+| 12 | /typescript | ✅ TAMAM (lazy-load film mimarisiyle) | `c57f381` |
+| 13 | /java | ✅ TAMAM | `012b577` |
+| 14 | /postman + /bruno + /rest-assured | ✅ TAMAM | `33609e8` |
+| 15 | /jenkins + /kubernetes | ✅ TAMAM | `c8bcd5e` |
+| 16 | /jmeter + /kafka | ✅ TAMAM | `481b7d9`, `05e606a` |
+| 17 | /appium + /browserstack | ✅ TAMAM | `361f91c`, `0b056c0` |
+| 18 | /aws + /azure | ✅ TAMAM | `c0893cc`, `eb9c1e3` |
+| 19 | /what-is-testing + /test-frameworks | ✅ TAMAM | `5ab3e34`, `13fb4b0` |
+| 20 | /manual-testing + /algorithms + /advanced-algorithms | ✅ TAMAM | `e06320b`, `185ae01`, `a9fa5b3` |
+| 21 | /llm-agents + /claude-ai | ✅ TAMAM | `167df7b`, `6e77019` |
+
+**21/21 dalga tamamlandı.** Tüm dalgalar sırayla, bir öncekinin commit'i
+atılmadan bir sonrakine geçilmeden yapıldı (§2 kuralına uygun) — Dalga
+17-21 kullanıcının açık talimatıyla ("test etmeden commit yap, sıradaki
+dalgaya geç") hızlandırılmış bir modda ilerledi, bu §7.3'te ayrıca not
+edilmiştir.
+
+### 7.3. §3 Sayfa Başına İş Akışı — Adım Bazlı Uyum
+
+| Adım | Uyum | Not |
+|---|---|---|
+| 1. Yapı tespiti | ✅ Her dalgada yapıldı | EN+TR ayrı ağaç / tek ağaç / lesson-based / özel section ayrımı her dalgada doğru tespit edildi |
+| 2. Film spesifikasyonu | ✅ Her filmde yapıldı | 355 filmin tamamı sekmenin gerçek mekanizmasına bağlı (uydurma film yok — örnekler §7.1 altındaki dalga özetlerinde) |
+| 3. Veri ekleme (EN+TR aynı referans / tek ağaçta tek yer) | ✅ Doğru uygulandı | Dalga 21'de `claude-ai` çalışmasında bu kontrol runtime script ile doğrulandı (her film id tam 2 kez: 1 tanım + ~~1~~ referans × dil sayısı) |
+| 4. Eksik animasyon/sandbox tamamlama | ✅ Büyük ölçüde yapıldı | §7.4'teki 5 küçük boşluk hariç |
+| 5. `tests/video-scene.spec.ts`'e temsili render testi ekleme | ❌ **Dalga 8-21'de YAPILMADI** | Bkz. §7.5 — bilinçli, kullanıcı onaylı bir sapma, ama plan metninin kendisi bunu her dalganın zorunlu son adımı sayıyor |
+
+### 7.4. Bilinen Küçük Boşluklar (§9.5 video+animasyon+sandbox, runtime tarama)
+
+Aşağıdaki 5 sekme, erken dalgalardan (4, 6, 7, 9) kalma ve bu oturumun
+kapsamı DIŞINDA bulunan, tek-tek eksik animasyon veya sandbox blokları
+içerir (filmleri zaten var):
+
+| Sayfa | Sekme | Eksik |
+|---|---|---|
+| /linux | 🎯 Linux nedir, QA mühendisi neden bilmeli (TR) | animasyon |
+| /docker | 🔄 Lifecycle & Debug (EN+TR) | sandbox |
+| /selenium | 🖥️ Selenium IDE — Beyond Record & Playback (EN+TR) | sandbox |
+| /playwright | 🎭 What is Playwright? Why Use It? (EN) | animasyon |
+| /sql | 🎯 SQL Nedir & Her QA Mühendisi Neden Bilmeli (TR) | animasyon |
+
+Bunlar tek satırlık, ~15 dakikalık düzeltmelerdir (birer `step-animation`
+veya `code-playground` bloğu eklemek yeterli) — bu oturumun görevi
+"raporla" olduğu için burada DÜZELTİLMEDİ, sıradaki oturumda hızlıca
+kapatılabilir.
+
+**Ayrı bir standart — kapsam dışı gözlem:** `scripts/audit-interactive.mjs`
+(CLAUDE.md §9.1/9.2'nin "interaktif üçlü" — `code-playground` +
+`step-animation` + `challenge/order-sort` — denetleyicisi, bu planın değil)
+18 sekmede `order-sort` (drag-and-drop) eksikliği raporluyor (Postman,
+JMeter, Git, Java, JavaScript, Docker, Selenium, Bruno, Linux'ta birer-
+ikişer sekme). Bu, video-sitewide-plan.md'nin §9.5 kapsamına GİRMEZ —
+ayrı bir kalıcı kural (§9.1/9.2) ve ayrı bir gelecek görev listesi
+gerektirir, bu yüzden §7.1'deki %99.3 rakamına dahil edilmemiştir.
+
+### 7.5. Final Doğrulama Turu — Henüz Yapılmadı
+
+Kullanıcının Dalga 8'de verdiği "test etmeden commit yap, sıradaki dalgaya
+geç" talimatı gereği, Dalga 8-21 arası **hiçbir Playwright/e2e testi
+çalıştırılmadı ve `tests/video-scene.spec.ts`'e yeni test eklenmedi**.
+Bu dosyanın kendi §3/§6'sı bunu her dalganın zorunlu adımı sayar; plan
+METNİ ile GERÇEK UYGULAMA arasındaki tek kasıtlı ve büyük fark budur.
+`tests/video-scene.spec.ts` hâlâ sadece pilot + Dalga 4-7 (git-github,
+gauge, linux, docker, selenium, playwright) sayfalarını kapsıyor — Dalga
+8-21'deki 22 sayfa (python, sql, cypress, javascript, typescript, java,
+postman, bruno, rest-assured, jenkins, kubernetes, jmeter, kafka, appium,
+browserstack, aws, azure, what-is-testing, test-frameworks, manual-testing,
+algorithms, advanced-algorithms, llm-agents, claude-ai) için sıfır temsili
+render testi var. Bu, sıradaki oturumun kesin ilk işi olarak
+`.claude/NEXT_SESSION.md`'de zaten not edilmiştir.
+
+### 7.6. §4 Performans Eşiği — Güncel Durum
+
+En son `npm run build` çıktısına göre (2026-07-17), 350KB gzip eşiğine en
+yakın dosya hâlâ `typescriptData`: **338.58 KB gzip** (eşiğin altında,
+ama yakın — Dalga 12'de kararlaştırılan lazy-load film mimarisi sayesinde
+büyümesi kontrol altında). `javaData` **268.75 KB gzip**, `pythonData`
+**234.90 KB gzip**, `sqlData` **221.71 KB gzip** — hepsi eşiğin altında.
+`TopicPage` chunk'ı (paylaşılan render motoru) **391.73 KB gzip** ile en
+büyük tekil chunk, ama bu §4'ün kapsamındaki "veri dosyası" değil, ortak
+bileşen kodu — CLAUDE.md §14'teki bilinen bundle-boyutu notuyla örtüşüyor,
+acil aksiyon gerektirmiyor.
+
+### 7.7. Sonuç
+
+`Documents/video-sitewide-plan.md`'nin ana hedefi — CLAUDE.md §9.5
+standardının (her dikey sekmede ≥1 video + ≥1 animasyon + ≥1 sandbox)
+`/git-github` ve `/gauge` pilot sayfalarından **tüm** teknoloji sayfalarına
+yayılması — **tamamlandı sayılabilir (%99.3, 5 küçük tek-sekme boşluğu
+hariç)**. Planın kendi tanımladığı doğrulama sürecinin bir parçası olan
+"her dalgada `tests/video-scene.spec.ts` genişletme" adımı ise **bilinçli
+olarak ertelendi ve henüz yapılmadı** — bu, içerik tamlığından ayrı, test
+kapsamına dair bağımsız bir borç olarak `NEXT_SESSION.md`'de takip
+edilmelidir.

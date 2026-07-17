@@ -106,6 +106,145 @@ const linearSearchFilm = {
     ],
 }
 
+// ─── Dalga 20 — kalan 6 ders için video-scene filmleri (TR+EN lesson ağaçlarında aynı sabit) ───
+
+const recipeOrderFilm = {
+    type: 'video-scene',
+    id: 'algorithms-recipe-order-film',
+    title: { tr: '🎬 Bir Algoritmanın Doğuşu: Sıra Neden Her Şeyi Değiştirir', en: '🎬 The Birth of an Algorithm: Why Order Changes Everything' },
+    xpReward: 11,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'wrong',   emoji: '🔥', label: { tr: 'Yanlış Sıra: Önce Isıt',   en: 'Wrong Order: Heat First' }, color: '#ef4444' },
+        { id: 'burnt',   emoji: '💥', label: { tr: 'Sonuç: Boş Makine Yandı', en: 'Result: Empty Machine Burns' }, color: '#ef4444' },
+        { id: 'step1',   emoji: '1️⃣', label: { tr: 'Ekmeği Al',              en: 'Get Bread' },           color: '#22c55e' },
+        { id: 'step2',   emoji: '2️⃣', label: { tr: 'Makineye Koy',           en: 'Put in Machine' },      color: '#0ea5e9' },
+        { id: 'toast',   emoji: '✅', label: { tr: 'Sonuç: Tost Hazır',       en: 'Result: Toast Ready' }, color: '#10b981' },
+    ],
+    scenes: [
+        { caption: { tr: 'Biri tost makinesini ÖNCE ısıtır, ekmeği koymayı unutur — sıra yanlıştır.', en: 'Someone heats the toaster FIRST, forgets to put the bread in — the order is wrong.' }, positions: { wrong: { x: 50, y: 30, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Bilgisayar (veya makine) bir aşçı ustası gibi tahmin yürütemez — eksik adımı fark edip düzeltemez, verileni AYNEN uygular.', en: 'A computer (or machine) can\'t guess like a master chef — it can\'t notice a missing step and fix it, it executes EXACTLY what\'s given.' }, code: { tr: `heat() // ekmek yok, ama makine yine de calisir`, en: `heat() // no bread, but the machine runs anyway` }, positions: { wrong: { x: 44, y: 30, scale: 1.0 }, burnt: { x: 72, y: 20, scale: 1.15, pulse: true } }, beams: [{ from: 'wrong', to: 'burnt', color: '#ef4444' }] },
+        { caption: { tr: 'Doğru sıra: ÖNCE ekmek alınır.', en: 'The right order: bread gets taken FIRST.' }, code: { tr: `step1: getBread()`, en: `step1: getBread()` }, positions: { burnt: { x: 60, y: 20, opacity: 0.5, scale: 0.9 }, step1: { x: 30, y: 45, scale: 1.15, pulse: true } }, beams: [{ from: 'burnt', to: 'step1', color: '#22c55e' }] },
+        { caption: { tr: 'SONRA makineye konur — her adım bir öncekinin üzerine inşa edilir, atlanamaz.', en: 'THEN it goes into the machine — each step builds on the previous one, none can be skipped.' }, code: { tr: `step2: putInMachine(bread)`, en: `step2: putInMachine(bread)` }, positions: { step1: { x: 36, y: 45, opacity: 0.6, scale: 0.9 }, step2: { x: 64, y: 55, scale: 1.2, pulse: true } }, beams: [{ from: 'step1', to: 'step2', color: '#0ea5e9' }] },
+        { caption: { tr: 'Final — doğru sırayla izlenen tarif, doğru sonucu üretir. Yazılım testinde de "test case" tam olarak budur: adımların DOĞRU sırasını kanıtlamak.', en: 'Final — a recipe followed in the right order produces the right result. In software testing, this is exactly what a "test case" is: proving the RIGHT order of steps.' }, positions: { step2: { x: 40, y: 55, scale: 1.0, opacity: 0.6 }, toast: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'step2', to: 'toast', color: '#10b981' }] },
+    ],
+}
+
+const inputOutputMachineFilm = {
+    type: 'video-scene',
+    id: 'algorithms-input-output-film',
+    title: { tr: '🎬 Meyve Suyu Makinesi: Girdi-İşlem-Çıktı Zinciri', en: '🎬 The Juice Machine: The Input-Process-Output Chain' },
+    xpReward: 11,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'orange',  emoji: '🍊', label: { tr: 'Girdi: Portakal',       en: 'Input: Orange' },       color: '#f97316' },
+        { id: 'process', emoji: '⚙️', label: { tr: 'İşlem: Sık',            en: 'Process: Squeeze' },    color: '#0ea5e9' },
+        { id: 'juice',   emoji: '🧃', label: { tr: 'Çıktı: Meyve Suyu',     en: 'Output: Juice' },       color: '#22c55e' },
+        { id: 'stone',   emoji: '🪨', label: { tr: 'Yanlış Girdi: Taş',     en: 'Wrong Input: Stone' },  color: '#ef4444' },
+        { id: 'error',   emoji: '💥', label: { tr: 'Sonuç: Makine Bozulur', en: 'Result: Machine Breaks' }, color: '#ef4444' },
+    ],
+    scenes: [
+        { caption: { tr: 'Bir portakal makineye girdi olarak konur.', en: 'An orange goes into the machine as input.' }, code: { tr: `input: portakal`, en: `input: orange` }, positions: { orange: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Makine sıkma işlemini uygular — İŞLEM aşaması, girdiyi dönüştürür.', en: 'The machine applies the squeeze process — the PROCESS stage transforms the input.' }, code: { tr: `process: sik(portakal)`, en: `process: squeeze(orange)` }, positions: { orange: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, process: { x: 40, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'orange', to: 'process', color: '#0ea5e9' }] },
+        { caption: { tr: 'Doğru girdiyle, ÇIKTI beklenen şeydir: bir bardak meyve suyu.', en: 'With the right input, the OUTPUT is what\'s expected: a glass of juice.' }, code: { tr: `output: meyve suyu`, en: `output: juice` }, positions: { process: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, juice: { x: 52, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'process', to: 'juice', color: '#22c55e' }] },
+        { caption: { tr: 'Ama biri makineye taş koyarsa? İşlem YİNE çalışmaya çalışır — ama girdi yanlıştır.', en: 'But what if someone puts a stone in? The process TRIES to run anyway — but the input is wrong.' }, code: { tr: `input: tas -> process: sik(tas)`, en: `input: stone -> process: squeeze(stone)` }, positions: { juice: { x: 30, y: 40, opacity: 0.5, scale: 0.9 }, stone: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'juice', to: 'stone', color: '#ef4444' }] },
+        { caption: { tr: 'Final — sonuç, çıktı değil bir HATADIR: makine bozulur. Yazılım testinin büyük kısmı tam olarak bu soruyu sorar: "bu makineye portakal dışında ne koysak ne olur?"', en: 'Final — the result isn\'t output, it\'s a FAILURE: the machine breaks. Most of software testing asks exactly this question: "what happens if we put something other than an orange in this machine?"' }, positions: { stone: { x: 34, y: 55, opacity: 0.6, scale: 0.9 }, error: { x: 62, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'stone', to: 'error', color: '#ef4444' }] },
+    ],
+}
+
+const decisionBranchFilm = {
+    type: 'video-scene',
+    id: 'algorithms-decision-branch-film',
+    title: { tr: '🎬 Şemsiye mi, Güneş Gözlüğü mü? Bir Karar Anının İçi', en: '🎬 Umbrella or Sunglasses? Inside a Decision Moment' },
+    xpReward: 11,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'condition', emoji: '❓', label: { tr: 'Koşul: Yağmur Var mı?', en: 'Condition: Is It Raining?' }, color: '#0ea5e9' },
+        { id: 'true',      emoji: '☔', label: { tr: 'if (true): Şemsiye Al', en: 'if (true): Take Umbrella' }, color: '#22c55e' },
+        { id: 'false',     emoji: '🕶️', label: { tr: 'else: Güneş Gözlüğü Al', en: 'else: Take Sunglasses' }, color: '#f59e0b' },
+        { id: 'untested',  emoji: '⚠️', label: { tr: 'Test Edilmeyen Dal',   en: 'Untested Branch' },     color: '#ef4444' },
+    ],
+    scenes: [
+        { caption: { tr: 'Sabah dışarı çıkmadan önce bir koşul sınanır: "yağmur var mı?"', en: 'Before heading out, a condition gets checked: "is it raining?"' }, code: { tr: `if (isRaining) { ... } else { ... }`, en: `if (isRaining) { ... } else { ... }` }, positions: { condition: { x: 50, y: 30, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Koşul DOĞRUYSA (yağmur var): if dalı çalışır, şemsiye alınır.', en: 'If the condition is TRUE (raining): the if branch runs, umbrella gets taken.' }, code: { tr: `isRaining == true -> takeUmbrella()`, en: `isRaining == true -> takeUmbrella()` }, positions: { condition: { x: 44, y: 30, scale: 1.0 }, true: { x: 72, y: 18, scale: 1.15, pulse: true } }, beams: [{ from: 'condition', to: 'true', color: '#22c55e' }] },
+        { caption: { tr: 'Koşul YANLIŞSA (yağmur yok): else dalı çalışır, güneş gözlüğü alınır — TAMAMEN farklı bir yol.', en: 'If the condition is FALSE (not raining): the else branch runs, sunglasses get taken — a COMPLETELY different path.' }, code: { tr: `isRaining == false -> takeSunglasses()`, en: `isRaining == false -> takeSunglasses()` }, positions: { true: { x: 60, y: 18, opacity: 0.5, scale: 0.9 }, false: { x: 30, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'true', to: 'false', color: '#f59e0b' }] },
+        { caption: { tr: 'Bir QA mühendisi sadece "yağmur var" senaryosunu test edip bırakırsa, "yağmur yok" dalı HİÇ kanıtlanmamış olur.', en: 'If a QA engineer only tests the "raining" scenario and stops, the "not raining" branch is NEVER proven.' }, code: { tr: `test(isRaining=true) // ama isRaining=false hic test edilmedi`, en: `test(isRaining=true) // but isRaining=false never tested` }, positions: { false: { x: 36, y: 50, opacity: 0.6, scale: 0.9 }, untested: { x: 64, y: 55, scale: 1.2, pulse: true } }, beams: [{ from: 'false', to: 'untested', color: '#ef4444' }] },
+        { caption: { tr: 'Final — her karar noktasının HEM "evet" HEM "hayır" dalı ayrı ayrı test edilmelidir. Bir dalı atlamak, production\'da hiç görülmemiş bir yolu şansa bırakmaktır.', en: 'Final — both the "yes" AND "no" branch of every decision point must be tested separately. Skipping a branch leaves an unseen path to chance in production.' }, positions: { untested: { x: 40, y: 55, scale: 1.0, opacity: 0.6 } } },
+    ],
+}
+
+const memoryBoxFilm = {
+    type: 'video-scene',
+    id: 'algorithms-memory-box-film',
+    title: { tr: '🎬 Skor Kutusu: Bir Değişkenin Hayatı', en: '🎬 The Score Box: The Life of a Variable' },
+    xpReward: 11,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'box',    emoji: '📦', label: { tr: 'Kutu: "skor" = 0',       en: 'Box: "score" = 0' },    color: '#0ea5e9' },
+        { id: 'answer1', emoji: '✅', label: { tr: 'Doğru Cevap 1',          en: 'Correct Answer 1' },    color: '#22c55e' },
+        { id: 'update1', emoji: '📦', label: { tr: 'Kutu: "skor" = 1',       en: 'Box: "score" = 1' },    color: '#0ea5e9' },
+        { id: 'answer2', emoji: '✅', label: { tr: 'Doğru Cevap 2',          en: 'Correct Answer 2' },    color: '#22c55e' },
+        { id: 'update2', emoji: '📦', label: { tr: 'Kutu: "skor" = 2',       en: 'Box: "score" = 2' },    color: '#a855f7' },
+    ],
+    scenes: [
+        { caption: { tr: '"skor" adında bir kutu açılır ve başlangıç değeri 0 konur.', en: 'A box named "score" is opened and given a starting value of 0.' }, code: { tr: `let skor = 0`, en: `let score = 0` }, positions: { box: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Kullanıcı bir soruyu doğru cevaplar.', en: 'The user answers a question correctly.' }, code: { tr: `answer("dogru")`, en: `answer("correct")` }, positions: { box: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, answer1: { x: 42, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'box', to: 'answer1', color: '#22c55e' }] },
+        { caption: { tr: 'Kutunun ESKİ değeri (0) SİLİNİR, yerine YENİ değer (1) yazılır — kutu asla iki değeri aynı anda tutmaz.', en: 'The box\'s OLD value (0) gets ERASED, the NEW value (1) gets written — the box never holds two values at once.' }, code: { tr: `skor = skor + 1  // skor: 0 -> 1`, en: `score = score + 1  // score: 0 -> 1` }, positions: { answer1: { x: 28, y: 40, opacity: 0.6, scale: 0.9 }, update1: { x: 56, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'answer1', to: 'update1', color: '#0ea5e9' }] },
+        { caption: { tr: 'İkinci doğru cevap gelir — AYNI kutu, AYNI mekanizmayla tekrar güncellenir.', en: 'A second correct answer comes — the SAME box, the SAME mechanism, updates again.' }, code: { tr: `answer("dogru")`, en: `answer("correct")` }, positions: { update1: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, answer2: { x: 60, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'update1', to: 'answer2', color: '#22c55e' }] },
+        { caption: { tr: 'Final — skor 1\'den 2\'ye güncellenir. Bir QA mühendisi için kritik soru: "bu kutu HER doğru anda GERÇEKTEN güncelleniyor mu, yoksa bazen eski değerde mi kalıyor?"', en: 'Final — score updates from 1 to 2. The critical question for a QA engineer: "does this box ACTUALLY update at EVERY correct moment, or does it sometimes stay stale?"' }, positions: { answer2: { x: 40, y: 40, opacity: 0.6, scale: 0.9 }, update2: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'answer2', to: 'update2', color: '#a855f7' }] },
+    ],
+}
+
+const debugRootCauseFilm = {
+    type: 'video-scene',
+    id: 'algorithms-debug-root-cause-film',
+    title: { tr: '🎬 Tost Neden Yandı? Kök Nedeni Bulma Süreci', en: '🎬 Why Did the Toast Burn? The Root Cause Hunt' },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'expected', emoji: '🎯', label: { tr: 'Beklenen: Altın Rengi Tost', en: 'Expected: Golden Toast' }, color: '#22c55e' },
+        { id: 'observed', emoji: '👁️', label: { tr: 'Gözlenen: Yanmış Tost',  en: 'Observed: Burnt Toast' },  color: '#ef4444' },
+        { id: 'check1',   emoji: '🍞', label: { tr: 'Şüpheli 1: Ekmek mi Bayat?', en: 'Suspect 1: Stale Bread?' }, color: '#0ea5e9' },
+        { id: 'check2',   emoji: '⏱️', label: { tr: 'Şüpheli 2: Süre mi Fazla?', en: 'Suspect 2: Too Much Time?' }, color: '#a855f7' },
+        { id: 'root',     emoji: '🎯', label: { tr: 'Kök Neden Bulundu: Süre', en: 'Root Cause Found: Time' }, color: '#f97316' },
+    ],
+    scenes: [
+        { caption: { tr: 'Beklenen sonuç netleştirilir: tost altın rengi ve gevrek olmalı.', en: 'The expected result gets defined: toast should be golden and crisp.' }, positions: { expected: { x: 20, y: 30, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Ama gözlenen sonuç FARKLIDIR: tost simsiyah yanmış.', en: 'But the observed result is DIFFERENT: the toast is charred black.' }, code: { tr: `expected: golden !== observed: burnt`, en: `expected: golden !== observed: burnt` }, positions: { expected: { x: 16, y: 30, opacity: 0.6, scale: 0.9 }, observed: { x: 50, y: 20, scale: 1.15, pulse: true } }, beams: [{ from: 'expected', to: 'observed', color: '#ef4444' }] },
+        { caption: { tr: 'İlk şüpheli elenir: ekmek yeni, bayat değil — bu neden değil.', en: 'First suspect ruled out: bread is fresh, not stale — not the cause.' }, code: { tr: `check(bread) -> taze, sebep degil`, en: `check(bread) -> fresh, not the cause` }, positions: { observed: { x: 40, y: 20, opacity: 0.6, scale: 0.9 }, check1: { x: 68, y: 35, scale: 1.15, pulse: true, opacity: 0.6 } }, beams: [{ from: 'observed', to: 'check1', color: '#0ea5e9' }] },
+        { caption: { tr: 'İkinci şüpheli kontrol edilir: makine 5 dakika yerine 15 dakika ayarlanmış — İŞTE gerçek neden burada.', en: 'Second suspect gets checked: the machine was set to 15 minutes instead of 5 — THIS is the real cause.' }, code: { tr: `check(duration) -> 15dk yerine 5dk olmali!`, en: `check(duration) -> should be 5min not 15min!` }, positions: { check1: { x: 60, y: 35, opacity: 0.4, scale: 0.85 }, check2: { x: 34, y: 55, scale: 1.2, pulse: true } }, beams: [{ from: 'check1', to: 'check2', color: '#a855f7' }] },
+        { caption: { tr: 'Final — kök neden bulundu: SÜRE. "Makine bozuk" deyip bırakmak yerine, tam olarak HANGİ ayarın yanlış olduğu kanıtlandı — aynı hata bir daha olmaz.', en: 'Final — root cause found: TIME. Instead of just saying "machine\'s broken", EXACTLY which setting was wrong got proven — the same bug won\'t happen again.' }, positions: { check2: { x: 40, y: 55, opacity: 0.6, scale: 0.9 }, root: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'check2', to: 'root', color: '#f97316' }] },
+    ],
+}
+
+const flowchartMapFilm = {
+    type: 'video-scene',
+    id: 'algorithms-flowchart-map-film',
+    title: { tr: '🎬 Bir Hazine Haritası: Kod Yazmadan Önce Yolu Çizmek', en: '🎬 A Treasure Map: Drawing the Path Before Writing Code' },
+    xpReward: 11,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'start',    emoji: '🏁', label: { tr: 'Başlangıç',       en: 'Start' },          color: '#0ea5e9' },
+        { id: 'decision', emoji: '❓', label: { tr: 'Karar Noktası',   en: 'Decision Point' },  color: '#f59e0b' },
+        { id: 'pathA',    emoji: '🛤️', label: { tr: 'Yol A',           en: 'Path A' },          color: '#22c55e' },
+        { id: 'pathB',    emoji: '🛤️', label: { tr: 'Yol B',           en: 'Path B' },          color: '#a855f7' },
+        { id: 'bug',      emoji: '🐛', label: { tr: 'Haritada Görülen Hata', en: 'Bug Spotted on the Map' }, color: '#ef4444' },
+    ],
+    scenes: [
+        { caption: { tr: 'Bir hazine haritası gibi, akış diyagramı bir Başlangıç kutusuyla başlar.', en: 'Like a treasure map, a flowchart starts with a Start box.' }, positions: { start: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Ok, bir Karar Noktasına götürür — "bu yolu mu, o yolu mu?" sorusu burada sorulur.', en: 'The arrow leads to a Decision Point — "this path or that path?" gets asked here.' }, code: { tr: `decision: kullanici admin mi?`, en: `decision: is user admin?` }, positions: { start: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, decision: { x: 42, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'start', to: 'decision', color: '#f59e0b' }] },
+        { caption: { tr: 'Evetse Yol A izlenir — kağıt üzerinde bu dal net bir kutu zinciriyle görülür.', en: 'If yes, Path A gets followed — on paper this branch is visible as a clear chain of boxes.' }, code: { tr: `if yes -> adminPanel`, en: `if yes -> adminPanel` }, positions: { decision: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, pathA: { x: 54, y: 24, scale: 1.15, pulse: true } }, beams: [{ from: 'decision', to: 'pathA', color: '#22c55e' }] },
+        { caption: { tr: 'Hayırsa Yol B izlenir — TAMAMEN farklı bir kutu zinciri, aynı haritada yan yana görünür.', en: 'If no, Path B gets followed — a COMPLETELY different chain of boxes, visible side by side on the same map.' }, code: { tr: `if no -> accessDenied`, en: `if no -> accessDenied` }, positions: { pathA: { x: 40, y: 24, opacity: 0.5, scale: 0.9 }, pathB: { x: 54, y: 56, scale: 1.15, pulse: true } }, beams: [{ from: 'decision', to: 'pathB', color: '#a855f7' }] },
+        { caption: { tr: 'Final — haritayı çizerken, Yol B\'nin hiçbir yere gitmediği (eksik bir kutu) fark edilir — bu hata, KOD YAZILMADAN ÖNCE, kağıt üzerinde yakalanmıştır.', en: 'Final — while drawing the map, it becomes clear Path B leads nowhere (a missing box) — this bug is caught on paper, BEFORE any code is written.' }, positions: { pathB: { x: 40, y: 56, scale: 1.0, opacity: 0.6 }, bug: { x: 68, y: 56, scale: 1.25, pulse: true } }, beams: [{ from: 'pathB', to: 'bug', color: '#ef4444' }] },
+    ],
+}
+
 export const beginnerAlgorithmsData = {
     tr: {
         hero: {
@@ -179,6 +318,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'recipe',
                 shortTitle: 'Tarif',
+                film: recipeOrderFilm,
                 title: '1. Algoritma = Kaybolmadan izlenen tarif',
                 color: '#7c3aed',
                 analogy: 'Kek yaparken önce malzemeleri ölçer, sonra karıştırır, sonra fırına verirsin. Sırayı karıştırırsan — mesela önce fırını açıp sonra hamur hazırlarsan — kek güzel olmaz. Ama burada düşündürücü bir soru var: neden sıra bu kadar önemli? Çünkü bilgisayar bir aşçı ustası gibi tahmin yürütemez. Eksik adımı tamamlayamaz, sırayı anlayıp düzeltemez. Algoritma, bilgisayara "adımları sırasıyla şöyle yap" diyebileceğimiz tek dildir.',
@@ -227,6 +367,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'input-output',
                 shortTitle: 'Girdi/Çıktı',
+                film: inputOutputMachineFilm,
                 title: '2. Input → İşlem → Output',
                 color: '#0891b2',
                 analogy: 'Bir meyve suyu makinesine portakal koyarsın, makine sıkar, bardakta meyve suyu çıkar. Portakal input, sıkma işlemi process, meyve suyu output olur. Düşündürücü soru şu: makineye portakal yerine taş koyarsan ne olur? Output olmaz — çünkü yanlış input verildi. Yazılımda da tam olarak bu olur: yanlış veya beklenmedik input verildiğinde program bozulur, hatalı sonuç üretir ya da çöker. Yazılım testinin büyük kısmı "bu makineye portakal dışında ne koysak ne olur?" diye bakmaktır.',
@@ -273,6 +414,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'decision',
                 shortTitle: 'Karar',
+                film: decisionBranchFilm,
                 title: '3. Eğer böyleyse şunu yap, değilse bunu yap',
                 color: '#f59e0b',
                 analogy: 'Sabah dışarı çıkmadan önce havanın yağmurlu olup olmadığına bakarsın: yağmurluysa şemsiye alırsın, değilse almayıp gidersin. Bu bir karar anıdır; ve mekanizması çok nettir — bir koşul sınanır, koşul doğruysa bir şey yapılır, değilse başka bir şey yapılır. Düşündürücü soru: peki karar her zaman iki seçenekli mi? Hayır — "Hava yağmurlu ise şemsiye, soğuk ise mont, ikisi birden ise her ikisi" gibi zincirleme kararlar da kurulabilir. Yazılımlardaki if/else if/else yapısı tam bu zincirlemenin temelidir.',
@@ -361,6 +503,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'memory',
                 shortTitle: 'Hafıza',
+                film: memoryBoxFilm,
                 title: '5. Hafıza kutusu = Bilgiyi saklamak',
                 color: '#3b82f6',
                 analogy: 'Bir kağıda “puanım 0” yazdığını düşün. Her doğru cevapta eski sayıyı siler, yerine yenisini yazarsın — kağıt, bilgiyi saklayan kutudur. Düşündürücü soru: bu kağıttan birden fazla yapamaz mıydık? Evet, yapabilirsin — birisi skor için, birisi kalan hak için, birisi son doğru cevap için. Yazılımda da birden fazla kutu açabilirsin; her kutunun bir adı ve içinde tutulan bir değeri vardır. Önemli olan: bir kutunun içeriği her an değişebilir — bu yüzden “değişken” (variable) denir.',
@@ -403,6 +546,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'debug',
                 shortTitle: 'Hata Bul',
+                film: debugRootCauseFilm,
                 title: '6. Debug = Tarifin nerede bozulduğunu bulmak',
                 color: '#e11d48',
                 analogy: 'Tost yanmışsa önce “ne yanlış gitti?” diye düşünürsün — ekmek mi bayattı, peynir mi yoktu, makine çok mu açıktı, süre mi fazla verildi? Her şüpheli adımı elimine ederek gerçek nedeni daraltırsın. Düşündürücü soru: neden “makine bozuk” deyip bırakmıyorsun? Çünkü gerçek nedeni bulmadan aynı hata tekrar eder — makineyi değiştirirsin ama ekmek yanlış olduğu için yeni makineyle de tost yanar. Hata bulmak (debug), semptomu değil kök nedeni (root cause) aramaktır.',
@@ -450,6 +594,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'flowchart',
                 shortTitle: 'Akış',
+                film: flowchartMapFilm,
                 title: '7. Flowchart = Algoritmayı resimle çizmek',
                 color: '#8b5cf6',
                 analogy: 'Bir hazine haritası gibi düşün: kutular durakları, oklar yönü gösterir. Başlangıç noktasından başlarsın, bir kutudan diğerine geçerken okun gösterdiği yolu izlersin, bazı yerlerde karar anı gelir — "bu yolu mu, o yolu mu?" — ve sonunda hazineye (output) ulaşırsın. Düşündürücü soru: kodu doğrudan yazmak yerine neden önce harita çizelim ki? Çünkü harita çizmek kodu yazmaktan daha hızlıdır ve hataları yazılmadan önce görmeyi sağlar — karar yollarından biri yanlışsa kağıt üzerinde düzeltirsin, kod satırları arasında değil.',
@@ -630,6 +775,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'recipe',
                 shortTitle: 'Recipe',
+                film: recipeOrderFilm,
                 title: '1. Algorithm = A recipe you can follow without getting lost',
                 color: '#7c3aed',
                 analogy: 'When baking a cake, you measure ingredients, mix them, then put the tray in the oven — in that exact order. If you reverse the steps, putting the tray in first and mixing later, the cake simply will not work. The thought-provoking question here is: why does order matter so much? Because a computer cannot improvise. It cannot look at your recipe and fill in the missing step from context. An algorithm is the only language a computer can follow: a sequence of steps so explicit that no step can be assumed or skipped.',
@@ -678,6 +824,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'input-output',
                 shortTitle: 'Input/Output',
+                film: inputOutputMachineFilm,
                 title: '2. Input -> Process -> Output',
                 color: '#0891b2',
                 analogy: 'Put oranges into a juicer: it squeezes them and juice comes out. Orange is input, squeezing is process, juice is output. Here is the thought-provoking question: what happens if you put a stone in the juicer? Nothing useful comes out — because the input was wrong. In software, this is exactly what causes bugs: unexpected or invalid inputs cause programs to crash, produce garbage results, or silently do the wrong thing. A large part of software testing is asking "what does this machine do with wrong input?" rather than just "does it work with correct input?"',
@@ -724,6 +871,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'decision',
                 shortTitle: 'Decision',
+                film: decisionBranchFilm,
                 title: '3. If this happens, do that; otherwise do something else',
                 color: '#f59e0b',
                 analogy: 'Before leaving the house in the morning, you check the weather: if it is raining, you take an umbrella; if it is not, you leave without one. That is one decision point — one condition, two possible outcomes. The thought-provoking question: is every decision always two choices? No. "If it is raining, take an umbrella; if it is cold, take a coat; if it is both, take both" is a chain of decisions. In software, these chains (if / else if / else) are how every rule in every program — from login checks to bank transfers to e-commerce eligibility — is expressed.',
@@ -812,6 +960,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'memory',
                 shortTitle: 'Memory',
+                film: memoryBoxFilm,
                 title: '5. Memory box = Store information',
                 color: '#3b82f6',
                 analogy: 'Imagine a sticky note that says “score: 0”. Every time you get a correct answer, you erase the old number and write the new one. That sticky note is a memory box — it holds a single piece of information that can be updated. The thought-provoking question: can you have more than one memory box? Yes — one for score, one for remaining lives, one for the last correct answer. In software, you can have as many as you need, and each box has a name so you can tell them apart.',
@@ -854,6 +1003,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'debug',
                 shortTitle: 'Debug',
+                film: debugRootCauseFilm,
                 title: '6. Debug = Find where the recipe broke',
                 color: '#e11d48',
                 analogy: 'If your toast burns, you do not throw away the toaster and give up. You check step by step: was the bread the wrong type? Was the cheese missing? Was the heat too high? Was the timer wrong? By eliminating each suspect, you narrow down the real cause. The thought-provoking question: why not just say "the toaster is broken" and stop? Because without finding the real cause, the same problem repeats with the next toaster. Debugging is about finding the root cause, not just removing the symptom.',
@@ -901,6 +1051,7 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'flowchart',
                 shortTitle: 'Flow',
+                film: flowchartMapFilm,
                 title: '7. Flowchart = Draw the algorithm as a picture',
                 color: '#8b5cf6',
                 analogy: 'Think of a treasure map: boxes mark the stops, arrows show the direction, and diamond shapes mark decision points where two paths diverge. You start at the beginning, follow the arrows, and at each decision point you take one branch based on the condition. The thought-provoking question: why draw the map before writing the code? Because drawing is faster than coding and errors become visible on paper. If a decision branch leads nowhere, you catch it before writing a single line.',

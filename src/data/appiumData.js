@@ -1,6 +1,724 @@
 // appiumData.js — Appium 3.x Mobil Test Otomasyonu
 // Her bölüm ayrı const ile tanımlanır, en altta birleştirilir.
 
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
+// ─── Dalga 17 film sabitleri (video-scene — EN + TR paylaşımlı) ─────────────
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+// 🎯 Intro & Architecture — bir driver.click() komutunun cihaza kadar yolculuğu
+const appiumCommandJourneyFilm = {
+  type: 'video-scene',
+  id: 'appium-command-journey-film',
+  title: {
+    tr: '🎬 Bir driver.click() Komutunun Cihaza Yolculuğu',
+    en: '🎬 The Journey of a driver.click() Command to the Device',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'code',     emoji: '💻', label: { tr: 'Test Kodu',              en: 'Test Code' },              color: '#f97316' },
+    { id: 'http',     emoji: '🌐', label: { tr: 'HTTP / W3C İsteği',      en: 'HTTP / W3C Request' },     color: '#a855f7' },
+    { id: 'server',   emoji: '🖥️', label: { tr: 'Appium Server :4723',    en: 'Appium Server :4723' },    color: '#0ea5e9' },
+    { id: 'driver',   emoji: '🤖', label: { tr: 'UIAutomator2 Driver',    en: 'UIAutomator2 Driver' },    color: '#22c55e' },
+    { id: 'device',   emoji: '📱', label: { tr: 'Gerçek Cihaz/Emülatör',  en: 'Real Device/Emulator' },   color: '#f59e0b' },
+    { id: 'web',      emoji: '🌍', label: { tr: 'Web Sayfası (Selenium)', en: 'Web Page (Selenium)' },    color: '#64748b' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test kodunda tek bir satır yazılır: driver.click(element). Ekranda görünen bu — ama arkasında tam bir zincir vardır.',
+        en: 'A single line is written in the test code: driver.click(element). That\'s what you see — but a full chain runs behind it.',
+      },
+      code: { tr: `driver.click(searchButton)`, en: `driver.click(searchButton)` },
+      positions: { code: { x: 16, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Test kodu bunu bir HTTP POST isteğine çevirir — W3C WebDriver protokolü, tıpkı Selenium\'un web tarayıcısıyla konuştuğu protokolün AYNISI.',
+        en: 'The test code turns this into an HTTP POST request — the W3C WebDriver protocol, the EXACT SAME protocol Selenium uses to talk to a web browser.',
+      },
+      code: { tr: `POST /session/:id/element/:id/click`, en: `POST /session/:id/element/:id/click` },
+      positions: {
+        code: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        http: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'code', to: 'http', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'İstek, Appium Server\'a (varsayılan port 4723) ulaşır. Server, "platformName" capability\'sine bakarak isteği HANGİ platform driver\'ına yönlendireceğine karar verir.',
+        en: 'The request reaches the Appium Server (default port 4723). The server looks at the "platformName" capability to decide WHICH platform driver to route the request to.',
+      },
+      code: { tr: `if (platformName === "Android") -> UIAutomator2`, en: `if (platformName === "Android") -> UIAutomator2` },
+      positions: {
+        http: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        server: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'http', to: 'server', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Appium Server, isteği UIAutomator2 Driver\'a iletir — bu driver, genel WebDriver komutunu Android\'in yerel instrumentation komutuna ÇEVİRİR.',
+        en: 'The Appium Server forwards the request to the UIAutomator2 Driver — this driver TRANSLATES the generic WebDriver command into Android\'s native instrumentation command.',
+      },
+      code: { tr: `UiObject2.click() // native Android komutu`, en: `UiObject2.click() // native Android command` },
+      positions: {
+        server: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        driver: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'server', to: 'driver', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Komut gerçek cihaza veya emülatöre ulaşır — buton gerçekten tıklanır, sonuç yukarı doğru aynı zincirden geri döner.',
+        en: 'The command reaches the real device or emulator — the button is actually tapped, and the result flows back up the same chain.',
+      },
+      code: { tr: `device.tap(x, y) -> 200 OK`, en: `device.tap(x, y) -> 200 OK` },
+      positions: {
+        driver: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        device: { x: 62, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'driver', to: 'device', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Java\'da AppiumDriver extends RemoteWebDriver: AYNI driver.click() metodu bir web butonuna (Selenium) tıklarken de birebir aynı görünür, sadece arkasındaki driver ChromeDriver yerine UIAutomator2\'dir.',
+        en: 'Final (the contrast) — in Java, AppiumDriver extends RemoteWebDriver: the EXACT SAME driver.click() method looks identical when clicking a web button (Selenium) too, only the driver underneath is UIAutomator2 instead of ChromeDriver.',
+      },
+      positions: {
+        code: { x: 16, y: 50, scale: 1.0 },
+        device: { x: 55, y: 30, scale: 1.0, opacity: 0.6 },
+        web: { x: 55, y: 65, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'code', to: 'web', color: '#64748b' }],
+    },
+  ],
+}
+
+// ⚙️ Installation — Node.js'ten ilk test çalıştırmaya kurulum zinciri
+const appiumInstallChainFilm = {
+  type: 'video-scene',
+  id: 'appium-install-chain-film',
+  title: {
+    tr: '🎬 JDK\'dan İlk Testin Çalışmasına: Kurulum Zinciri',
+    en: '🎬 From JDK to the First Test Run: The Install Chain',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'prereq',   emoji: '📦', label: { tr: 'Node.js + JDK',        en: 'Node.js + JDK' },       color: '#f97316' },
+    { id: 'sdk',      emoji: '🤖', label: { tr: 'ANDROID_HOME/SDK',     en: 'ANDROID_HOME/SDK' },    color: '#a855f7' },
+    { id: 'server',   emoji: '🖥️', label: { tr: 'Appium Server Kurulumu', en: 'Appium Server Install' }, color: '#0ea5e9' },
+    { id: 'doctor',   emoji: '🩺', label: { tr: 'Appium Doctor',        en: 'Appium Doctor' },       color: '#22c55e' },
+    { id: 'emulator', emoji: '📱', label: { tr: 'Emülatör Başlatma',    en: 'Emulator Boot' },       color: '#f59e0b' },
+    { id: 'test',     emoji: '▶️', label: { tr: 'İlk Test Çalışır',     en: 'First Test Runs' },     color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Zincirin ilk halkası: Node.js 20+ ve JDK 21 kurulur — Appium server Node.js üzerinde çalışır, Java test kodu ise JDK\'ya ihtiyaç duyar.',
+        en: 'The first link in the chain: Node.js 20+ and JDK 21 get installed — the Appium server runs on Node.js, while Java test code needs the JDK.',
+      },
+      code: { tr: `node --version && java -version`, en: `node --version && java -version` },
+      positions: { prereq: { x: 16, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Android SDK kurulur ve ANDROID_HOME environment variable\'ı set edilir — adb komutu artık PATH\'te bulunabilir.',
+        en: 'The Android SDK is installed and the ANDROID_HOME environment variable is set — the adb command becomes findable in PATH.',
+      },
+      code: { tr: `export ANDROID_HOME=.../Sdk`, en: `export ANDROID_HOME=.../Sdk` },
+      positions: {
+        prereq: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        sdk: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'prereq', to: 'sdk', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'npm ile Appium Server ve UIAutomator2 driver\'ı kurulur — bu, npm install ile bir Node.js paketi kurmaktan farklı değildir.',
+        en: 'The Appium Server and UIAutomator2 driver get installed via npm — no different from installing any Node.js package with npm install.',
+      },
+      code: { tr: `npm install -g appium && appium driver install uiautomator2`, en: `npm install -g appium && appium driver install uiautomator2` },
+      positions: {
+        sdk: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        server: { x: 50, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'sdk', to: 'server', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Appium Doctor çalıştırılır — JAVA_HOME, ANDROID_HOME, adb, tüm bağımlılıkları tek komutla doğrular. Bu adım atlanırsa hatalar TESTLERDE değil kurulumda yakalanmalıydı.',
+        en: 'Appium Doctor is run — it verifies JAVA_HOME, ANDROID_HOME, adb, and all dependencies with a single command. Skip this step, and errors that should\'ve been caught at install time surface in TESTS instead.',
+      },
+      code: { tr: `appium-doctor --android`, en: `appium-doctor --android` },
+      positions: {
+        server: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        doctor: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'server', to: 'doctor', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Emülatör başlatılır ve adb wait-for-device ile TAM olarak boot olması beklenir — erken başlayan bir test, henüz açılmamış bir cihaza komut göndermeye çalışır.',
+        en: 'The emulator boots, and adb wait-for-device makes sure it FULLY finishes booting — a test that starts too early tries to send commands to a device that isn\'t ready yet.',
+      },
+      code: { tr: `emulator -avd Pixel_7_API_33 & adb wait-for-device`, en: `emulator -avd Pixel_7_API_33 & adb wait-for-device` },
+      positions: {
+        doctor: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        emulator: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'doctor', to: 'emulator', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — zincirin her halkası doğru sırayla tamamlandığında, mvn test komutu ilk kez GERÇEKTEN bir cihazda çalışır. Sıra atlanırsa, hata "test bozuk" gibi görünür ama aslında kurulum eksiktir.',
+        en: 'Final — once every link in the chain completes in the right order, mvn test finally runs REAL commands against a device. Skip the order, and the failure looks like "the test is broken" when it\'s actually an incomplete setup.',
+      },
+      positions: {
+        emulator: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        test: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'emulator', to: 'test', color: '#10b981' }],
+    },
+  ],
+}
+
+// 🔧 Capabilities — bir Options nesnesinin session'a dönüşümü
+const appiumCapabilitiesSessionFilm = {
+  type: 'video-scene',
+  id: 'appium-capabilities-session-film',
+  title: {
+    tr: '🎬 Bir Capabilities Nesnesi Nasıl Bir Session\'a Dönüşür?',
+    en: '🎬 How Does a Capabilities Object Become a Session?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'options',  emoji: '🧩', label: { tr: 'UiAutomator2Options',  en: 'UiAutomator2Options' }, color: '#f97316' },
+    { id: 'prefix',   emoji: '🏷️', label: { tr: '"appium:" Prefix Ekleme', en: 'Adding "appium:" Prefix' }, color: '#a855f7' },
+    { id: 'post',     emoji: '📨', label: { tr: 'POST /session',        en: 'POST /session' },       color: '#0ea5e9' },
+    { id: 'match',    emoji: '🔍', label: { tr: 'Capability Eşleştirme', en: 'Capability Matching' }, color: '#f59e0b' },
+    { id: 'session',  emoji: '✅', label: { tr: 'Session Oluşturuldu',   en: 'Session Created' },     color: '#22c55e' },
+    { id: 'fail',     emoji: '💥', label: { tr: 'Prefix Eksik -> Hata',  en: 'Missing Prefix -> Error' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test kodu bir UiAutomator2Options nesnesi kurar: appPackage, appActivity, automationName gibi alanlar tek tek set edilir.',
+        en: 'The test code builds a UiAutomator2Options object: fields like appPackage, appActivity, and automationName get set one by one.',
+      },
+      code: { tr: `new UiAutomator2Options().setAppPackage("com.example.app")`, en: `new UiAutomator2Options().setAppPackage("com.example.app")` },
+      positions: { options: { x: 18, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'UiAutomator2Options, Appium 3\'ün zorunlu kıldığı "appium:" prefix\'ini OTOMATİK olarak her alana ekler — DesiredCapabilities ile elle yapman gereken işi senin yerine yapar.',
+        en: 'UiAutomator2Options AUTOMATICALLY adds the "appium:" prefix that Appium 3 requires to every field — doing the work you\'d otherwise have to do by hand with DesiredCapabilities.',
+      },
+      code: { tr: `appPackage -> "appium:appPackage"`, en: `appPackage -> "appium:appPackage"` },
+      positions: {
+        options: { x: 16, y: 40, opacity: 0.6, scale: 0.9 },
+        prefix: { x: 42, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'options', to: 'prefix', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'Tamamlanan capabilities nesnesi bir POST /session isteği olarak Appium Server\'a gönderilir.',
+        en: 'The completed capabilities object is sent to the Appium Server as a POST /session request.',
+      },
+      code: { tr: `POST /session { capabilities: {...} }`, en: `POST /session { capabilities: {...} }` },
+      positions: {
+        prefix: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        post: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'prefix', to: 'post', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Appium Server, gelen capability\'leri kayıtlı driver\'ların desteklediği capability\'lerle eşleştirir — platformName="Android" ise UIAutomator2\'ye yönlendirilir.',
+        en: 'The Appium Server matches the incoming capabilities against what the registered drivers support — platformName="Android" gets routed to UIAutomator2.',
+      },
+      code: { tr: `matchDriver(capabilities) -> uiautomator2`, en: `matchDriver(capabilities) -> uiautomator2` },
+      positions: {
+        post: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        match: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'post', to: 'match', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Eşleştirme başarılı olursa Appium bir session ID döndürür — bundan sonraki HER komut bu session ID\'sine bağlıdır.',
+        en: 'If the match succeeds, Appium returns a session ID — EVERY subsequent command is tied to this session ID.',
+      },
+      code: { tr: `{ sessionId: "abc-123" }`, en: `{ sessionId: "abc-123" }` },
+      positions: {
+        match: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        session: { x: 60, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'match', to: 'session', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — DesiredCapabilities ile prefix elle unutulursa (Appium 2 alışkanlığı), Appium Server capability\'yi W3C-geçersiz sayar ve session HİÇ oluşmaz — hata mesajı doğrudan bunu söyler.',
+        en: 'Final (the contrast) — if the prefix is forgotten by hand with DesiredCapabilities (an Appium 2 habit), the Appium Server treats the capability as W3C-invalid and the session NEVER gets created — the error message says exactly that.',
+      },
+      positions: {
+        options: { x: 20, y: 60, scale: 0.9 },
+        fail: { x: 55, y: 60, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'options', to: 'fail', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 🔍 Locator & POM — locator stratejisi önceliği ve Page Object Model
+const appiumLocatorFallbackFilm = {
+  type: 'video-scene',
+  id: 'appium-locator-fallback-film',
+  title: {
+    tr: '🎬 Locator Stratejisi Seçimi: Hız mı, Güvenilirlik mi?',
+    en: '🎬 Choosing a Locator Strategy: Speed or Reliability?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'element',   emoji: '🔘', label: { tr: 'Hedef Element',         en: 'Target Element' },       color: '#f97316' },
+    { id: 'accessId',  emoji: '🆔', label: { tr: 'Accessibility ID',      en: 'Accessibility ID' },     color: '#22c55e' },
+    { id: 'uiautomator', emoji: '🤖', label: { tr: 'UiAutomator Selector', en: 'UiAutomator Selector' }, color: '#0ea5e9' },
+    { id: 'xpath',     emoji: '🌲', label: { tr: 'XPath (son çare)',      en: 'XPath (last resort)' },  color: '#ef4444' },
+    { id: 'page',      emoji: '📄', label: { tr: 'Page Object Sınıfı',    en: 'Page Object Class' },    color: '#a855f7' },
+    { id: 'factory',   emoji: '🏭', label: { tr: 'PageFactory.initElements', en: 'PageFactory.initElements' }, color: '#f59e0b' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Ekranda tıklanması gereken bir element var — ama Appium\'un onu BULMASI için birden fazla strateji mevcut, hepsi eşit hızlı değil.',
+        en: 'There\'s an element on screen that needs to be clicked — but Appium has multiple strategies to FIND it, and they\'re not all equally fast.',
+      },
+      code: { tr: `<Element accessibility-id="login-btn">`, en: `<Element accessibility-id="login-btn">` },
+      positions: { element: { x: 50, y: 30, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'İlk tercih: Accessibility ID. Uygulama geliştiricisi element\'e sabit bir kimlik vermişse, Appium onu native erişilebilirlik ağacından DOĞRUDAN bulur — en hızlı, en kararlı yol.',
+        en: 'First choice: Accessibility ID. If the app developer gave the element a stable identifier, Appium finds it DIRECTLY from the native accessibility tree — the fastest, most stable path.',
+      },
+      code: { tr: `driver.findElement(AppiumBy.accessibilityId("login-btn"))`, en: `driver.findElement(AppiumBy.accessibilityId("login-btn"))` },
+      positions: {
+        element: { x: 44, y: 30, scale: 1.0 },
+        accessId: { x: 70, y: 20, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'element', to: 'accessId', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Accessibility ID yoksa: UiAutomator selector devreye girer — Android\'in native UiSelector sınıfını kullanır, hâlâ hızlı ama Accessibility ID kadar direkt değil.',
+        en: 'If there\'s no Accessibility ID: the UiAutomator selector steps in — using Android\'s native UiSelector class, still fast but not as direct as Accessibility ID.',
+      },
+      code: { tr: `new UiSelector().text("Login")`, en: `new UiSelector().text("Login")` },
+      positions: {
+        accessId: { x: 60, y: 20, opacity: 0.6, scale: 0.9 },
+        uiautomator: { x: 70, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'accessId', to: 'uiautomator', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Hiçbiri yoksa: XPath son çaredir — TÜM native UI ağacını yukarıdan aşağı tarar, en YAVAŞ ve en kırılgan yöntem (ekran düzeni değişince XPath da bozulur).',
+        en: 'If neither exists: XPath is the last resort — it scans the ENTIRE native UI tree top to bottom, the SLOWEST and most fragile method (change the screen layout and the XPath breaks too).',
+      },
+      code: { tr: `//android.widget.Button[@text='Login']`, en: `//android.widget.Button[@text='Login']` },
+      positions: {
+        uiautomator: { x: 55, y: 45, opacity: 0.6, scale: 0.9 },
+        xpath: { x: 70, y: 68, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'uiautomator', to: 'xpath', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Bulunan locator, Page Object sınıfında bir alan olarak tutulur — @AndroidFindBy anotasyonu ile, tıpkı Selenium\'un @FindBy\'ı gibi.',
+        en: 'The found locator is stored as a field in a Page Object class — with the @AndroidFindBy annotation, just like Selenium\'s @FindBy.',
+      },
+      code: { tr: `@AndroidFindBy(accessibility = "login-btn")\nWebElement loginBtn;`, en: `@AndroidFindBy(accessibility = "login-btn")\nWebElement loginBtn;` },
+      positions: {
+        xpath: { x: 30, y: 68, opacity: 0.5, scale: 0.9 },
+        page: { x: 58, y: 55, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final — PageFactory.initElements(driver, this) çağrısı, sınıftaki TÜM @AndroidFindBy alanlarını tek seferde başlatır: her locator arama mantığı test metodundan tamamen ayrışır.',
+        en: 'Final — the PageFactory.initElements(driver, this) call initializes EVERY @AndroidFindBy field in the class at once: all locator lookup logic is fully separated from the test method.',
+      },
+      positions: {
+        page: { x: 40, y: 55, scale: 1.0 },
+        factory: { x: 68, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'page', to: 'factory', color: '#f59e0b' }],
+    },
+  ],
+}
+
+// 🧪 Real Scenario — Product Search & Add to Cart uçtan uca akış
+const appiumProductSearchFilm = {
+  type: 'video-scene',
+  id: 'appium-product-search-film',
+  title: {
+    tr: '🎬 Uçtan Uca: Ürün Ara, Sepete Ekle, Doğrula',
+    en: '🎬 End to End: Search a Product, Add to Cart, Verify',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'search',  emoji: '🔎', label: { tr: 'Arama Ekranı',    en: 'Search Screen' },    color: '#f97316' },
+    { id: 'type',    emoji: '⌨️', label: { tr: 'Sorgu Yaz',       en: 'Type Query' },       color: '#a855f7' },
+    { id: 'results', emoji: '📋', label: { tr: 'Sonuç Listesi',   en: 'Results List' },     color: '#0ea5e9' },
+    { id: 'product', emoji: '🛍️', label: { tr: 'Ürün Seç',        en: 'Select Product' },   color: '#f59e0b' },
+    { id: 'cart',    emoji: '🛒', label: { tr: 'Sepete Ekle',     en: 'Add to Cart' },      color: '#22c55e' },
+    { id: 'badge',   emoji: '🔴', label: { tr: 'Sepet Rozeti = 1', en: 'Cart Badge = 1' },   color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test, uygulamanın arama ekranına ulaşır — POM sayesinde bu tek bir satır: searchPage.open().',
+        en: 'The test lands on the app\'s search screen — thanks to the POM, this is a single line: searchPage.open().',
+      },
+      code: { tr: `searchPage.open()`, en: `searchPage.open()` },
+      positions: { search: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Arama kutusuna sendKeys ile bir sorgu yazılır — bu, gerçek bir kullanıcının parmağıyla klavyeye dokunmasının otomasyon karşılığıdır.',
+        en: 'A query is typed into the search box with sendKeys — the automation equivalent of a real user\'s finger tapping the keyboard.',
+      },
+      code: { tr: `searchBox.sendKeys("laptop")`, en: `searchBox.sendKeys("laptop")` },
+      positions: {
+        search: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        type: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'search', to: 'type', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'Uygulama sonuçları listeler — explicit wait, listenin GERÇEKTEN yüklendiğini garanti eder, sabit bir Thread.sleep() değil.',
+        en: 'The app lists the results — an explicit wait guarantees the list has ACTUALLY loaded, not a fixed Thread.sleep().',
+      },
+      code: { tr: `wait.until(visibilityOf(resultsList))`, en: `wait.until(visibilityOf(resultsList))` },
+      positions: {
+        type: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        results: { x: 50, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'type', to: 'results', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Test, sonuç listesinden belirli bir ürünü seçer — Page Object\'in locator\'ı burada devreye girer.',
+        en: 'The test selects a specific product from the results list — the Page Object\'s locator kicks in here.',
+      },
+      code: { tr: `resultsList.selectProduct("laptop-1")`, en: `resultsList.selectProduct("laptop-1")` },
+      positions: {
+        results: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        product: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'results', to: 'product', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Ürün sayfasında "Sepete Ekle" butonuna tıklanır — bu, Page Object metodunun döndürdüğü CartPage nesnesiyle akıcı (fluent) bir şekilde zincirlenir.',
+        en: 'The "Add to Cart" button on the product page is clicked — chained fluently through the CartPage object the Page Object method returns.',
+      },
+      code: { tr: `CartPage cart = productPage.addToCart()`, en: `CartPage cart = productPage.addToCart()` },
+      positions: {
+        product: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        cart: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'product', to: 'cart', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — assertion, sepet rozetinin GERÇEKTEN "1" gösterdiğini doğrular. Bu assertion olmadan test sadece "hiçbir şey patlamadı" der, "doğru şey oldu" demez.',
+        en: 'Final — the assertion verifies the cart badge ACTUALLY shows "1". Without this assertion, the test only says "nothing crashed", not "the right thing happened".',
+      },
+      positions: {
+        cart: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        badge: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'cart', to: 'badge', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 🚨 Common Errors — SessionNotCreatedException teşhis akışı
+const appiumSessionNotCreatedFilm = {
+  type: 'video-scene',
+  id: 'appium-session-not-created-film',
+  title: {
+    tr: '🎬 SessionNotCreatedException: Emülatör mü, Sıra mı?',
+    en: '🎬 SessionNotCreatedException: The Emulator or the Order?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test',     emoji: '▶️', label: { tr: 'Test Başlar',          en: 'Test Starts' },        color: '#f97316' },
+    { id: 'noemu',    emoji: '📵', label: { tr: 'Emülatör Başlamamış',  en: 'Emulator Not Started' }, color: '#ef4444' },
+    { id: 'server',   emoji: '🖥️', label: { tr: 'Appium Server',        en: 'Appium Server' },      color: '#0ea5e9' },
+    { id: 'crash',    emoji: '💥', label: { tr: 'SessionNotCreated',    en: 'SessionNotCreated' },  color: '#ef4444' },
+    { id: 'fix',      emoji: '🔄', label: { tr: 'Doğru Sıra',           en: 'Correct Order' },      color: '#22c55e' },
+    { id: 'success',  emoji: '✅', label: { tr: 'Session Kuruldu',      en: 'Session Created' },    color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test kodu çalıştırılır: new AndroidDriver(url, options) — ama emülatör henüz hiç açılmamış.',
+        en: 'The test code runs: new AndroidDriver(url, options) — but the emulator was never started.',
+      },
+      code: { tr: `AndroidDriver driver = new AndroidDriver(url, options);`, en: `AndroidDriver driver = new AndroidDriver(url, options);` },
+      positions: { test: { x: 18, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'adb devices komutuyla kontrol edilseydi, bağlı hiçbir cihaz olmadığı görülürdü — ama test bu kontrolü hiç yapmadı.',
+        en: 'Running adb devices would\'ve shown no device connected at all — but the test never made that check.',
+      },
+      code: { tr: `adb devices // List of devices attached (bos)`, en: `adb devices // List of devices attached (empty)` },
+      positions: {
+        test: { x: 16, y: 40, opacity: 0.6, scale: 0.9 },
+        noemu: { x: 42, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'noemu', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Appium Server, isteği alır ama yönlendireceği canlı bir cihaz bulamaz — session kurma girişimi orada tıkanır.',
+        en: 'The Appium Server receives the request but finds no live device to route it to — the session creation attempt stalls right there.',
+      },
+      code: { tr: `server.createSession() -> cihaz bulunamadi`, en: `server.createSession() -> no device found` },
+      positions: {
+        noemu: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        server: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'noemu', to: 'server', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: SessionNotCreatedException fırlatılır — hata mesajı "server çalışmıyor" gibi okunabilir ama gerçek kök neden EMÜLATÖRÜN başlatılmamış olmasıdır.',
+        en: 'Result: SessionNotCreatedException is thrown — the error message can read like "server isn\'t running", but the real root cause is that the EMULATOR was never started.',
+      },
+      code: { tr: `SessionNotCreatedException: Unable to create session`, en: `SessionNotCreatedException: Unable to create session` },
+      positions: {
+        server: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        crash: { x: 58, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'server', to: 'crash', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Düzeltme, sırayı restore eder: ÖNCE emülatör başlatılır ve adb wait-for-device ile tam açılışı beklenir, SONRA Appium server başlatılır, EN SON test çalıştırılır.',
+        en: 'The fix restores the order: emulator starts FIRST and adb wait-for-device confirms it fully booted, THEN the Appium server starts, and LAST the test runs.',
+      },
+      code: { tr: `emulator & adb wait-for-device && appium & && mvn test`, en: `emulator & adb wait-for-device && appium & && mvn test` },
+      positions: {
+        crash: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        fix: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'crash', to: 'fix', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — doğru sırayla session sorunsuz kurulur. Ders: Appium hatalarının çoğu "kod bozuk" değil, "ortam sırası bozuk" hatasıdır.',
+        en: 'Final — with the correct order, the session is created cleanly. Lesson: most Appium errors aren\'t "the code is broken" — they\'re "the environment order is broken".',
+      },
+      positions: {
+        fix: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        success: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'fix', to: 'success', color: '#10b981' }],
+    },
+  ],
+}
+
+// 💼 Interview — flaky testi kök nedeniyle çözme akışı
+const appiumFlakyTestRootCauseFilm = {
+  type: 'video-scene',
+  id: 'appium-flaky-test-root-cause-film',
+  title: {
+    tr: '🎬 Mülakat Senaryosu: Flaky Testi Kök Nedeniyle Çöz',
+    en: '🎬 Interview Scenario: Solve a Flaky Test at the Root',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'flaky',    emoji: '🎲', label: { tr: 'Flaky Test',           en: 'Flaky Test' },         color: '#ef4444' },
+    { id: 'repeat',   emoji: '🔁', label: { tr: '10-20x Çalıştır',      en: 'Run 10-20x' },         color: '#f97316' },
+    { id: 'logs',     emoji: '📜', label: { tr: 'Appium Logları',       en: 'Appium Logs' },        color: '#a855f7' },
+    { id: 'timing',   emoji: '⏱️', label: { tr: 'Zamanlama Sorunu?',    en: 'Timing Issue?' },      color: '#0ea5e9' },
+    { id: 'isolation', emoji: '🔒', label: { tr: 'Test İzolasyonu?',    en: 'Test Isolation?' },    color: '#f59e0b' },
+    { id: 'fix',      emoji: '🩹', label: { tr: 'Explicit Wait Eklendi', en: 'Explicit Wait Added' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir test bazen geçiyor, bazen başarısız oluyor — kod değişmedi, ama sonuç her koşumda farklı. Bu bir "flaky test".',
+        en: 'A test sometimes passes, sometimes fails — the code hasn\'t changed, but the result differs on every run. This is a "flaky test".',
+      },
+      code: { tr: `Run 1: PASS  Run 2: FAIL  Run 3: PASS`, en: `Run 1: PASS  Run 2: FAIL  Run 3: PASS` },
+      positions: { flaky: { x: 50, y: 30, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'İlk adım tahmin etmek değil, ÖRÜNTÜ bulmaktır: testi 10-20 kez çalıştır ve başarısızlığın belirli bir koşulda mı yoksa rastgele mi olduğunu gör.',
+        en: 'The first step isn\'t guessing — it\'s finding the PATTERN: run the test 10-20 times and see whether failure ties to a specific condition or looks random.',
+      },
+      code: { tr: `for i in {1..20}; do mvn test; done`, en: `for i in {1..20}; do mvn test; done` },
+      positions: {
+        flaky: { x: 44, y: 30, scale: 1.0 },
+        repeat: { x: 70, y: 25, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'flaky', to: 'repeat', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Appium loglarına bakılır: hata TAM OLARAK nerede oluyor? Element bulunamadı mı, timeout mu, yoksa beklenmeyen bir ekran mı açıldı?',
+        en: 'The Appium logs get examined: EXACTLY where does the failure happen? Element not found, a timeout, or an unexpected screen appearing?',
+      },
+      code: { tr: `[HTTP] NoSuchElementException at line 42`, en: `[HTTP] NoSuchElementException at line 42` },
+      positions: {
+        repeat: { x: 55, y: 25, opacity: 0.6, scale: 0.9 },
+        logs: { x: 75, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'repeat', to: 'logs', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'İki ana şüpheli sorgulanır: zamanlama sorunu mu (element henüz yüklenmeden aranıyor)? Yoksa test izolasyonu mu (önceki testin bıraktığı veri)?',
+        en: 'Two main suspects get questioned: is it a timing issue (searching for the element before it loaded)? Or test isolation (leftover data from a previous test)?',
+      },
+      code: { tr: `implicitlyWait? test order dependency?`, en: `implicitlyWait? test order dependency?` },
+      positions: {
+        logs: { x: 60, y: 45, opacity: 0.6, scale: 0.9 },
+        timing: { x: 35, y: 60, scale: 1.1, pulse: true },
+        isolation: { x: 65, y: 65, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'logs', to: 'timing', color: '#0ea5e9' }, { from: 'logs', to: 'isolation', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Kök neden bulunur: implicitlyWait yerine element-özel bir explicit wait eksikti — element bazen 200ms\'de, bazen 2 saniyede yükleniyordu.',
+        en: 'The root cause is found: an element-specific explicit wait was missing in place of implicitlyWait — the element sometimes loaded in 200ms, sometimes in 2 seconds.',
+      },
+      code: { tr: `wait.until(ExpectedConditions.visibilityOf(el))`, en: `wait.until(ExpectedConditions.visibilityOf(el))` },
+      positions: {
+        timing: { x: 40, y: 60, opacity: 0.6, scale: 0.9 },
+        fix: { x: 65, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'timing', to: 'fix', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — explicit wait eklenince test 20/20 koşumda geçer. Mülakat dersi: "flaky" bir testi retry ile örtbas etmek semptomu gizler, kök nedeni asla düzeltmez.',
+        en: 'Final — with the explicit wait added, the test passes 20/20 runs. Interview lesson: papering over a "flaky" test with retries hides the symptom, it never fixes the root cause.',
+      },
+      positions: {
+        fix: { x: 50, y: 40, scale: 1.2 },
+      },
+    },
+  ],
+}
+
+// Eksik animasyon/sandbox tamamlamaları — kodsuz sekmeler (fillMissingCodeTrios
+// bu sekmelerde hiç 'code' bloğu bulamadığı için CLAUDE.md §9.5 gereği elle
+// tamamlanır)
+
+const appiumCommandJourneyStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Appium Komutu Cihaza Kadar Adım Adım', en: 'An Appium Command Step by Step to the Device' },
+  steps: [
+    { tr: 'Test kodunda driver.click(element) çağrılır — tek satır, ama arkasında tam bir zincir var.', en: 'driver.click(element) is called in the test code — one line, but a full chain runs behind it.' },
+    { tr: 'Bu çağrı bir HTTP POST isteğine (W3C WebDriver protokolü) dönüştürülür.', en: 'This call gets turned into an HTTP POST request (W3C WebDriver protocol).' },
+    { tr: 'Appium Server (port 4723), platformName\'e bakarak isteği doğru platform driver\'ına (UIAutomator2/XCUITest) yönlendirir.', en: 'The Appium Server (port 4723) looks at platformName and routes the request to the correct platform driver (UIAutomator2/XCUITest).' },
+    { tr: 'Platform driver, genel komutu cihazın native diline çevirir ve gerçek cihaz/emülatörde çalıştırır.', en: 'The platform driver translates the generic command into the device\'s native language and runs it on the real device/emulator.' },
+  ],
+}
+
+const appiumCommandJourneyPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'appium-intro',
+  title: { tr: 'Kendin Dene: Bir Appium Driver Nesnesi Kur', en: 'Try It Yourself: Build an Appium Driver Object' },
+  starterCode: `// Hedef: Android icin bir AppiumDriver session'i baslat
+// TODO: dogru driver sinifini yaz
+? driver = new AndroidDriver(new URL("http://127.0.0.1:4723"), options);`,
+  solutionCode: `// Hedef: Android icin bir AppiumDriver session'i baslat
+AndroidDriver driver = new AndroidDriver(new URL("http://127.0.0.1:4723"), options);`,
+  hint: { tr: 'AppiumDriver, RemoteWebDriver\'ı extend eder — Android testleri için somut sınıf AndroidDriver\'dır (iOS için XCUITest kullanılıyorsa IOSDriver). URL, Appium Server\'ın dinlediği adres+porttur.', en: 'AppiumDriver extends RemoteWebDriver — the concrete class for Android tests is AndroidDriver (IOSDriver for iOS/XCUITest). The URL is the address+port the Appium Server listens on.' },
+  successMessage: { tr: 'Doğru! AndroidDriver, tıpkı Selenium\'daki ChromeDriver gibi somut bir WebDriver implementasyonudur — sadece arkasında bir tarayıcı değil UIAutomator2 vardır.', en: 'Correct! AndroidDriver is a concrete WebDriver implementation just like Selenium\'s ChromeDriver — except UIAutomator2 sits behind it instead of a browser.' },
+}
+
+const appiumSessionNotCreatedStep = {
+  type: 'step-animation',
+  title: { tr: 'SessionNotCreatedException\'ı Teşhis Sırası', en: 'The Diagnosis Order for SessionNotCreatedException' },
+  steps: [
+    { tr: 'Önce adb devices çalıştır — bağlı/başlamış bir cihaz veya emülatör var mı?', en: 'First run adb devices — is there a connected/booted device or emulator?' },
+    { tr: 'Cihaz yoksa: emülatörü başlat ve adb wait-for-device ile TAM açılmasını bekle.', en: 'No device? Start the emulator and wait for it to FULLY boot with adb wait-for-device.' },
+    { tr: 'Cihaz varsa: Appium Server\'ın çalıştığını ve doğru port/URL\'de dinlediğini appium-doctor ile doğrula.', en: 'Device exists? Verify the Appium Server is running and listening on the right port/URL with appium-doctor.' },
+    { tr: 'İkisi de tamamsa: capability\'lerdeki appPackage/appActivity/automationName değerlerini kontrol et — yanlış paket adı da aynı hatayı verir.', en: 'Both fine? Check the appPackage/appActivity/automationName values in your capabilities — a wrong package name throws the same error too.' },
+  ],
+}
+
+const appiumSessionNotCreatedPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'appium-errors',
+  title: { tr: 'Kendin Dene: Doğru Başlatma Sırasını Kur', en: 'Try It Yourself: Build the Correct Startup Order' },
+  starterCode: `// Hedef: SessionNotCreatedException almadan test calistirmak
+// TODO: komutlari DOGRU siraya koy (1, 2, 3)
+// A) mvn test
+// B) emulator -avd Pixel_7_API_33 & adb wait-for-device
+// C) appium &
+const sira = ["?", "?", "?"];`,
+  solutionCode: `// Hedef: SessionNotCreatedException almadan test calistirmak
+const sira = ["B", "C", "A"];
+// B) emulator -avd Pixel_7_API_33 & adb wait-for-device
+// C) appium &
+// A) mvn test`,
+  hint: { tr: 'Appium Server, isteği yönlendirebilmesi için ÖNCE canlı bir cihaza ihtiyaç duyar; test ise ÖNCE bir Appium Server\'a. Sıra: cihaz → server → test.', en: 'The Appium Server needs a live device to route to FIRST; the test needs an Appium Server FIRST. Order: device → server → test.' },
+  successMessage: { tr: 'Doğru! Bu sıra bozulursa hata mesajı "kod bozuk" gibi okunur, ama gerçek sorun ortamın hazır olmamasıdır.', en: 'Correct! Break this order and the error reads like "the code is broken", but the real problem is the environment not being ready.' },
+}
+
+const appiumFlakyTestStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Flaky Testi Mülakatta Nasıl Ele Alırsın?', en: 'How Do You Handle a Flaky Test in an Interview?' },
+  steps: [
+    { tr: 'Önce ÖRÜNTÜYÜ bul: testi 10-20 kez çalıştır, başarısızlık rastgele mi yoksa belirli bir koşula mı bağlı gözlemle.', en: 'First find the PATTERN: run the test 10-20 times, observe whether failure is random or tied to a specific condition.' },
+    { tr: 'Appium loglarını oku: hata TAM OLARAK hangi satırda, hangi element için oluşuyor?', en: 'Read the Appium logs: EXACTLY which line, which element does the failure happen on?' },
+    { tr: 'İki ana şüpheliyi eledi: zamanlama (element henüz yüklenmeden aranıyor) mı, test izolasyonu (önceki testten kalan veri) mı?', en: 'Rule out the two main suspects: timing (element searched before it loaded) or test isolation (leftover data from a previous test)?' },
+    { tr: 'Kök nedene göre kalıcı düzeltmeyi uygula — retry ile örtbas etmek yerine explicit wait veya test izolasyonu ekle.', en: 'Apply the permanent fix based on the root cause — add an explicit wait or test isolation instead of papering over it with retries.' },
+  ],
+}
+
+const appiumFlakyTestPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'appium-interview',
+  title: { tr: 'Kendin Dene: implicitlyWait Yerine Explicit Wait Yaz', en: 'Try It Yourself: Write Explicit Wait Instead of implicitlyWait' },
+  starterCode: `// Sorun: element bazen 200ms, bazen 2sn'de yukleniyor -- implicitlyWait(0) yeterli degil
+// TODO: dogru satiri yaz
+? wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+wait.until(?);`,
+  solutionCode: `// Sorun: element bazen 200ms, bazen 2sn'de yukleniyor -- implicitlyWait(0) yeterli degil
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+wait.until(ExpectedConditions.visibilityOf(element));`,
+  hint: { tr: 'implicitlyWait GLOBAL bir bekleme ekler (her findElement\'te), explicit wait ise SADECE belirli bir koşulu (element görünür oldu mu?) bekler — daha akıllı ve daha az yavaşlatıcıdır.', en: 'implicitlyWait adds a GLOBAL wait (on every findElement), while explicit wait only waits for ONE specific condition (has the element become visible?) — smarter and less of a slowdown.' },
+  successMessage: { tr: 'Doğru! Bu değişiklik, testin element her yüklendiğinde (200ms veya 2sn fark etmeksizin) güvenilir şekilde geçmesini sağlar — flaky davranış ortadan kalkar.', en: 'Correct! This change makes the test pass reliably whenever the element loads (whether 200ms or 2s) — the flaky behavior disappears.' },
+}
+
 // ─── SECTION 0: GİRİŞ & MİMARİ ──────────────────────────────────────────────
 const section0 = {
   tr: {
@@ -103,6 +821,9 @@ const section0 = {
       "explanation": "Appium 3 ve üzerindeki W3C standartlarına uygun şekilde, özel Appium yetenekleri (appium-specific capabilities) her zaman 'appium:' ön eki ile kullanılmalıdır. appActivity, W3C standardı olmadığından 'appium:' ön ekini alması zorunludur."
 }
 },
+      appiumCommandJourneyFilm,
+      appiumCommandJourneyStep,
+      appiumCommandJourneyPractice,
       {
         type: 'quiz',
         question: 'Appium\'un WebDriver protokolünü kullanmasının en büyük avantajı nedir?',
@@ -278,6 +999,9 @@ const section0 = {
       "explanation": "Consistent with Appium 3 standards, any capability that is not part of the standard W3C spec must be prefixed with 'appium:'. Since 'automationName' is specific to the Appium driver, it must be declared as 'appium:automationName'."
 }
 },
+      appiumCommandJourneyFilm,
+      appiumCommandJourneyStep,
+      appiumCommandJourneyPractice,
       {
         type: 'quiz',
         question: 'What is the biggest advantage of Appium using the WebDriver protocol?',
@@ -598,6 +1322,7 @@ npx wdio --version`,
       "explanation": "Appium 2.x ve sonrası sürümlerde driver yönetimi komut satırı üzerinden yapılır. iOS platformunda otomasyon yapabilmek için Apple'ın XCUITest framework'ünü kullanan 'xcuitest' driver'ının 'appium driver install xcuitest' komutu ile yüklenmesi gerekmektedir."
 }
 },
+      appiumInstallChainFilm,
       {
         type: 'quiz',
         question: 'Appium kurulumu sonrası "ANDROID_HOME is not set" hatası alıyorsunuz. Ne yapmalısınız?',
@@ -908,6 +1633,7 @@ npx wdio --version`,
       "explanation": "Appium's CLI utilizes the 'appium driver install <driver-name>' command to manage its driver ecosystem. For iOS automation, the xcuitest driver must be installed using this command to allow Appium to interface with Apple's XCUITest framework."
 }
 },
+      appiumInstallChainFilm,
       {
         type: 'quiz',
         question: 'You get "ANDROID_HOME is not set" after Appium installation. What should you do?',
@@ -1181,6 +1907,7 @@ export const config: Options.Testrunner = {
       "explanation": "Appium 2 ve 3 standartlarında, tüm standart dışı (Appium-specific) capability'lerin W3C uyumluluğu için 'appium:' ön ekiyle tanımlanması zorunludur. TypeScript ile yapılandırma objesi oluştururken bu anahtarı string olarak bu önek ile sağlamalısınız."
 }
 },
+      appiumCapabilitiesSessionFilm,
       {
         type: 'quiz',
         question: 'noReset: true ile noReset: false arasındaki temel fark nedir?',
@@ -1437,6 +2164,7 @@ export const config: Options.Testrunner = {
       "explanation": "In modern Appium (2.0+), capabilities must be namespaced. Using the \"appium:\" prefix ensures that the driver properly interprets vendor-specific capabilities like automationName, deviceName, or platformVersion."
 }
 },
+      appiumCapabilitiesSessionFilm,
       {
         type: 'quiz',
         question: 'What is the difference between noReset: true and noReset: false?',
@@ -1872,6 +2600,7 @@ describe('Login Akışı', () => {
       "explanation": "Accessibility ID (iOS'te accessibility identifier, Android'de content-description), framework seviyesinde en hızlı sonuç veren ve platform bağımsızlığı sunan yöntemdir. ID (resource-id) de çok hızlıdır, ancak Accessibility ID özellikle platformlar arası geçişlerde tercih edilir. XPath ise DOM ağacını taradığı için performans açısından en maliyetli yöntemdir."
 }
 },
+      appiumLocatorFallbackFilm,
       {
         type: 'quiz',
         question: 'TypeScript WebdriverIO\'da $("~Login") ne anlama gelir?',
@@ -2319,6 +3048,7 @@ describe('Login Flow', () => {
       "explanation": "Accessibility ID is the recommended locator strategy because it is high-performance and works identically on both iOS and Android if the developer provides the same accessibility identifier on both platforms. XPath should be avoided whenever possible as it is slow and brittle. UIAutomator and ID are specific to Android, limiting code reusability."
 }
 },
+      appiumLocatorFallbackFilm,
       {
         type: 'quiz',
         question: 'What does $("~Login") mean in TypeScript WebdriverIO?',
@@ -2737,6 +3467,7 @@ describe('Automation Exercise — E2E Ürün Akışı', () => {
         title: 'Explicit Wait — Flaky Test Önleme',
         content: 'Mobil testlerde en sık hata "element not found" — element henüz yüklenmemiştir. Java\'da WebDriverWait + ExpectedConditions kullanın. TypeScript\'te waitForDisplayed({ timeout: 10000 }) veya waitForEnabled() metodlarını tercih edin. implicitlyWait her yerde beklediği için testleri yavaşlatır; explicit wait daha akıllıcadır.',
       },
+      appiumProductSearchFilm,
       {
         type: 'quiz',
         question: 'Mobil testlerde "flaky test" (bazen geçip bazen başarısız olan test) için en yaygın sebep nedir?',
@@ -3152,6 +3883,7 @@ describe('Automation Exercise — E2E Product Flow', () => {
         title: 'Explicit Wait — Preventing Flaky Tests',
         content: 'In mobile tests, the most common error is "element not found" — element hasn\'t loaded yet. In Java: use WebDriverWait + ExpectedConditions. In TypeScript: use waitForDisplayed({ timeout: 10000 }) or waitForEnabled(). implicitlyWait slows down all tests because it waits everywhere; explicit wait is smarter.',
       },
+      appiumProductSearchFilm,
       {
         type: 'quiz',
         question: 'What is the most common cause of "flaky tests" (sometimes passing, sometimes failing) in mobile testing?',
@@ -3426,6 +4158,9 @@ stage('Run Appium Tests') {
       "explanation": "Appium, güvenlik gerekçesiyle belirli gelişmiş komutları varsayılan olarak devre dışı bırakır. ChromeDriver'ın otomatik indirilmesi gibi özellikler, risk oluşturabileceği için --allow-insecure flag'i ile açıkça izin verilmesini gerektirir."
 }
 },
+      appiumSessionNotCreatedFilm,
+      appiumSessionNotCreatedStep,
+      appiumSessionNotCreatedPractice,
       {
         type: 'quiz',
         question: 'StaleElementReferenceException alındığında ne yapılmalıdır?',
@@ -3662,6 +4397,9 @@ stage('Run Appium Tests') {
       "explanation": "To maintain a secure environment, Appium blocks potentially dangerous commands by default. Adding specific features like 'adb_shell' to the allow-insecure list explicitly authorizes the server to execute those commands."
 }
 },
+      appiumSessionNotCreatedFilm,
+      appiumSessionNotCreatedStep,
+      appiumSessionNotCreatedPractice,
       {
         type: 'quiz',
         question: 'What should you do when StaleElementReferenceException occurs?',
@@ -3891,6 +4629,9 @@ class ProductPage {
           { level: 'advanced', q: '50. Appium 3 migration stratejisi — Appium 2\'den 3\'e geçiş nasıl yapılır?', a: 'Adım adım migration: 1) Node.js 20.19+\'e güncelle. 2) "npm install -g appium" ile Appium 3 kur. 3) "appium driver install uiautomator2" driver\'ı kur. 4) Tüm Appium-specific capability\'lere "appium:" prefix ekle (automationName → appium:automationName). 5) DesiredCapabilities yerine UiAutomator2Options kullan. 6) /sessions yerine /appium/sessions endpoint\'ini kullan. 7) TouchAction yerine W3C Actions API kullan. 8) Feature flag prefix\'lerini güncelle (adb_shell → uiautomator2:adb_shell). 9) Test suite\'ini çalıştır ve hataları tek tek çöz.' },
         ],
       },
+      appiumFlakyTestRootCauseFilm,
+      appiumFlakyTestStep,
+      appiumFlakyTestPractice,
     ],
   },
   en: {
@@ -4058,6 +4799,9 @@ class ProductPage {
           { level: 'advanced', q: '50. Appium 3 migration strategy — how do you migrate from Appium 2 to 3?', a: 'Step-by-step migration: 1) Update Node.js to 20.19+. 2) Install Appium 3 with "npm install -g appium". 3) Install drivers with "appium driver install uiautomator2". 4) Add "appium:" prefix to all Appium-specific capabilities (automationName → appium:automationName). 5) Use UiAutomator2Options instead of DesiredCapabilities. 6) Use /appium/sessions endpoint instead of /sessions. 7) Replace TouchAction with W3C Actions API. 8) Update feature flag prefixes (adb_shell → uiautomator2:adb_shell). 9) Run test suite and fix errors one by one.' },
         ],
       },
+      appiumFlakyTestRootCauseFilm,
+      appiumFlakyTestStep,
+      appiumFlakyTestPractice,
     ],
   },
 }
@@ -4089,3 +4833,5 @@ export const appiumData = {
   tr: buildLang('tr'),
   en: buildLang('en'),
 }
+
+fillMissingCodeTrios(appiumData, 'appium')

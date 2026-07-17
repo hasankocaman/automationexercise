@@ -10,6 +10,151 @@
 
 ---
 
+## OTURUM ÖZETİ — video-sitewide-plan.md Uygulama Durumu Raporu Yazıldı (2026-07-17, devam)
+
+> Kullanıcı talimatıyla `Documents/video-sitewide-plan.md` okundu, proje
+> canlı kod taranarak (grep + Node runtime import + `audit-interactive.mjs`
+> + `check-content-integrity.mjs` + `npm run build`) planın ne kadarının
+> gerçekten uygulandığı doğrulandı ve **rapor planın kendi dosyasının
+> sonuna, "## 7. Uygulama Durumu Raporu (Doğrulama Tarihi: 2026-07-17)"
+> başlığı altında yazıldı** (canlı durum raporu istisnası — normalde anlık
+> durum sadece bu dosyaya yazılır, ama kullanıcı açıkça planın kendi
+> dosyasına yazılmasını istedi).
+
+**Rapor özeti (tam detay `video-sitewide-plan.md` §7'de):**
+- **21/21 dalga tamamlandı** (Pilot + Dalga 4-21), tüm commit hash'leri
+  §7.2 tablosunda listelendi.
+- Runtime coverage taraması: 28/28 sayfa, 764 sekme/ders (EN+TR toplam)
+  tarandı → **759/764 (%99.3)** CLAUDE.md §9.5 standardını (≥1 video +
+  ≥1 animasyon + ≥1 sandbox) tam karşılıyor.
+- **5 bilinen küçük boşluk** (erken dalgalardan 4/6/7/9 kalma, bu oturumun
+  kapsamı dışında, ~15 dk'lık düzeltmeler):
+  - `/linux` TR "🎯 Linux nedir..." → animasyon eksik
+  - `/docker` EN+TR "🔄 Lifecycle & Debug" → sandbox eksik
+  - `/selenium` EN+TR "🖥️ Selenium IDE — Beyond Record & Playback" → sandbox eksik
+  - `/playwright` EN "🎭 What is Playwright? Why Use It?" → animasyon eksik
+  - `/sql` TR "🎯 SQL Nedir..." → animasyon eksik
+- **Ayrı/kapsam-dışı gözlem:** `scripts/audit-interactive.mjs` (CLAUDE.md
+  §9.1/9.2'nin `order-sort` drag-and-drop denetleyicisi — video-sitewide-
+  plan'ın DEĞİL) 18 sekmede eksik `order-sort` raporluyor (Postman, JMeter,
+  Git, Java, JavaScript, Docker, Selenium, Bruno, Linux). Bu %99.3 rakamına
+  DAHİL EDİLMEDİ çünkü farklı bir kalıcı kuralın (§9.1/9.2) kapsamı —
+  ayrı bir görev listesi gerektirir.
+- **En büyük gerçek boşluk hâlâ aynı:** `tests/video-scene.spec.ts` Dalga
+  8-21'deki 22 sayfayı KAPSAMIYOR (aşağıdaki "Sıradaki oturumun KESİN ilk
+  işi" bölümüyle aynı, değişmedi).
+- 355 benzersiz `video-scene` film sabiti proje genelinde, id çakışması yok
+  (grep ile teyit edildi).
+- Performans: `typescriptData` hâlâ en büyük veri dosyası (338.58 KB gzip,
+  350KB eşiğinin altında).
+
+**Commit:** `Documents/video-sitewide-plan.md` (§7 rapor eklendi) + bu
+`NEXT_SESSION.md` güncellemesi commit edildi (`SKIP_E2E_HOOK=1` ile, kod
+değişikliği yok, sadece dokümantasyon).
+
+### Sıradaki oturum için not
+Yukarıdaki 5 küçük boşluk + final Playwright/e2e doğrulama turu hâlâ
+bekliyor — bkz. bir alttaki "OTURUM ÖZETİ — Dalga 17-21" bölümünün
+"Sıradaki oturumun KESİN ilk işi" listesi, hâlâ geçerli ve güncel.
+
+---
+
+## OTURUM ÖZETİ — Dalga 17-21 TAMAMLANDI — video-sitewide-plan.md ROLLOUT'U BİTTİ (2026-07-17)
+
+> **`Documents/video-sitewide-plan.md`'deki TÜM dalgalar (1-21) artık
+> TAMAMLANDI.** CLAUDE.md §9.5 standardı (her dikey sekmede ≥1 video-scene
+> filmi + ≥1 animasyon + ≥1 sandbox) proje genelindeki TÜM teknoloji
+> sayfalarına yayıldı. Bu oturum, kullanıcının "test etmeden commit yap,
+> sıradaki dalgaya geç, hepsi bitince bitti yaz" talimatıyla Dalga 17'den
+> 21'e kadar kesintisiz ilerledi — her dalga sonunda SADECE
+> `check-content-integrity.mjs` + `node scripts/audit-interactive.mjs <key>`
+> + (JSX değişen dalgalarda) `npm run build` çalıştırıldı, Playwright/e2e
+> hâlâ ÇALIŞTIRILMADI (Dalga 8'den beri süregelen bilinçli sapma — bkz.
+> aşağıdaki eski not). **Bu yüzden final toplu Playwright/e2e doğrulama
+> turu hâlâ YAPILMADI ve bir sonraki oturumun İLK işi olmalı.**
+
+### Dalga 17 — /appium + /browserstack — TAMAMLANDI
+- `appiumData.js` (commit `361f91c`): 7/7 sekme. `fillMissingCodeTrios` hiç
+  çağrılmıyordu (import bile yoktu) — eklendi, sections 1-4 otomatik trio
+  kazandı. 7 yeni film + kodsuz sekmeler (Intro, Common Errors, Interview)
+  için elle animasyon/sandbox.
+- `browserstackData.js` (commit `0b056c0`): 8/8 sekme. **Tek ağaçlı yapı**
+  (gaugeData ile aynı kalıp, `tr.sections`/`en.sections` aynı referans) —
+  film sabitleri SADECE BİR YERE referanslandı. `fillMissingCodeTrios`
+  import+invoke hiç yoktu, eklendi. `scripts/audit-interactive.mjs`'e
+  `browserstack` girişi eklendi.
+
+### Dalga 18 — /aws + /azure — TAMAMLANDI
+- `awsData.js` (commit `c0893cc`): 6 yeni film + `fillMissingCodeTrios`
+  import/invoke eklendi. TR/EN içerik asimetrisi bulundu (Ecosystem
+  sekmesinde TR ağacında EN'deki bir Lambda kod örneği eksikti) — manuel
+  TR-only step+practice ile düzeltildi.
+- `azureData.js` (commit `eb9c1e3`): 6 yeni film. Benzer bir TR-only
+  asimetri (Installation sekmesinde `az account show` JSON örneği TR'de
+  eksikti) bulunup düzeltildi.
+
+### Dalga 19 — /what-is-testing + /test-frameworks — TAMAMLANDI
+- `whatIsTestingData.js` (commit `5ab3e34`): tek ağaçlı yapı, 6 yeni film.
+  `scripts/audit-interactive.mjs`'e `what-is-testing` girişi eklendi.
+- `test-frameworks`: bu sayfanın `src/data/*.js` dosyası YOK — içerik 3 alt
+  component'te (`FrameworkComparison.jsx`, `PlaywrightLangCompare.jsx`,
+  `PythonFrameworksTab.jsx`) hardcoded JSX. Çözüm: yeni
+  `src/data/testFrameworksFilms.js` dosyası (film+animasyon+practice
+  sabitleri) + `TestFrameworksPage.jsx`'e `VideoSceneBlock`/
+  `StepAnimationBlock`/`CodePlaygroundBlock` import edilip
+  `activeSection`'a göre koşullu render eklendi (commit `13fb4b0`,
+  `npm run build` ile JSX doğrulandı — bu dalga component dosyası
+  değiştirdiği için build kontrolü zorunluydu).
+
+### Dalga 20 — /manual-testing + /algorithms + /advanced-algorithms — TAMAMLANDI
+- `manualTestingData.js` (commit `e06320b`): 5 yeni film, dual-tree
+  `lessons` yapısı, `ManualTestingPage.jsx` zaten `lesson.film` render
+  ediyordu (Dalga öncesinde hazırdı).
+- `beginnerAlgorithmsData.js` — bu, `/algorithms` route'una ait veri
+  dosyasıdır (commit `185ae01`): 6 yeni film, dual-tree `lessons`.
+- `algorithmsData.js` — **DİKKAT: dosya adı `/algorithms` DEĞİL,
+  `/advanced-algorithms` route'una ait** (isimlendirme kafa karıştırıcı,
+  CLAUDE.md'de de not düşüldü). Sıfırdan video-scene entegrasyonu: 6 yeni
+  film + `AdvancedAlgorithmsPage.jsx`'e `VideoSceneBlock` import + `language`
+  prop threading + `section.film` render eklendi (commit `a9fa5b3`,
+  `npm run build` ile doğrulandı).
+
+### Dalga 21 — /llm-agents + /claude-ai — TAMAMLANDI (bu oturumun son işi)
+- `llmAgentsData.js` (commit `167df7b`): 18/18 sekme, dual-tree. 17 yeni
+  film + 7 sekmede (0,2,6,12,14,15,17) eksik kalan step-animation/
+  code-playground elle tamamlandı (`relatedTopicId` ile). Bu dosyanın
+  kendine özgü code-playground şeması (`label`/`task`/`explanation`/`code`/
+  `expected`/`hints[]`) diğer sayfalardan farklı — yeni bloklar bu yerel
+  konvansiyona uyduruldu.
+- `claudeAiData.js` (commit `6e77019`): 16/16 sekme, dual-tree. 15 yeni film
+  (1 pilot film — `judgeLoopFilm`, section 11 — zaten mevcuttu) + 5 sekmede
+  (0, 11, 12, 13, 15) eksik kalan step-animation/code-playground elle
+  tamamlandı. **Bu dalgada ilk planlanan gap listesi eksikti** — section 11
+  (LLM-as-a-Judge) de anim+sand eksikliği taşıyordu ama başlangıç analizinde
+  atlanmıştı; runtime coverage-scan bunu yakaladı ve düzeltildi (ders: her
+  zaman gerçek coverage-scan çalıştır, hafızadaki listeye güvenme).
+- Her iki dosya için de `scripts/audit-interactive.mjs`'e yeni kayıt
+  eklendi (`llm-agents`, `claude-ai`), `node scripts/audit-interactive.mjs
+  <key>` ile 0 gap doğrulandı, `check-content-integrity.mjs` temiz,
+  `npm run build` temiz (data-only değişiklik olduğu için build kontrolü
+  yapıldı ama JSX dokunulmadığından zorunlu değildi — yine de sanity
+  check olarak koşuldu).
+
+### Sıradaki oturumun KESİN ilk işi
+1. **Final toplu Playwright/e2e doğrulama turu** — Dalga 8'den beri
+   ertelenen `npm run test:e2e` (142+ test) ve gerekirse
+   `tests/video-scene.spec.ts`'e Dalga 8-21'de eklenen ~20 sayfa için
+   temsili render testleri eklenmesi. Bu dosyanın en üstündeki eski
+   "workflow değişikliği" notu artık KAPANMIŞTIR — bu maddeyi tamamladıktan
+   sonra o notu silebilirsin.
+2. Branch: `feature/video-scene-dalga5` — main'e merge edilmeyi bekliyor
+   (kullanıcı onayı olmadan merge/push YAPMA).
+3. `TopicPage`/`typescriptData`/`javaData`/`pythonData` chunk boyutu
+   uyarıları hâlâ mevcut (CLAUDE.md §14) — acil değil, code-splitting ileride
+   değerlendirilebilir.
+
+---
+
 ## OTURUM ÖZETİ — Dalga 8 (/python) TAMAMLANDI, workflow değişikliği (2026-07-15, devam)
 
 > **ÖNEMLİ — bu oturumda kullanıcı talimatıyla geçici bir workflow değişikliği
@@ -466,21 +611,41 @@ burada durduruldu ("devamına sonra başka sohbette bakacağız").
 
 ---
 
-## Dalga 16 — /jmeter TAMAMLANDI, /kafka BAŞLANMADI (2026-07-16, oturum burada durduruldu)
+## Dalga 16 — /jmeter TAMAMLANDI, /kafka TAMAMLANDI (2026-07-16, devam)
 
 **Bu dalgada 2 paralel subagent (kafka, jmeter) session limitiyle
 kesildi** (`resets 12:10pm Europe/Istanbul`). Ana oturumda devralındı:
 
-- **`kafkaData.js`: HİÇ İLERLEME YOK.** `git status` hiçbir değişiklik
-  göstermiyor, `grep -c "type: 'video-scene'"` → 0. Subagent hiçbir dosya
-  yazmadan kesilmiş. **Bu sayfa Dalga 16'nın devamında SIFIRDAN
-  yapılmalı** — 9 sekme (Introduction/Giriş, Installation/Kurulum,
+- **`kafkaData.js`: TAMAMLANDI (yeni oturum, `feature/video-scene-dalga5`
+  branch'i, main'den açıldı).** 9 sekme (EN+TR ayrı ağaç) için 9 yeni
+  `video-scene` filmi eklendi — her biri sekmenin gerçek mekanizmasına
+  bağlı: retention/replay (RabbitMQ vs Kafka kontrastı), docker-compose
+  boot zinciri, leader election/ISR failover, key→partition hash routing +
+  consumer group rebalance, `min.insync.replicas` durability tuzağı,
+  `@KafkaListener` Spring wiring + DLT, Connect/Schema Registry/ksqlDB
+  pipeline, sipariş event'inin 4 servise bağımsız fan-out'u, consumer lag
+  teşhis akışı (mülakat sekmesi). Kod içeren 0 tab (Introduction,
+  Architecture, Interview Q&A) ve sadece bash içeren Topics & Partitions
+  sekmesi için elle `step-animation` + `code-playground` + (Topics &
+  Partitions'a ayrıca) `challenge/order-sort` eklendi —
+  `node scripts/audit-interactive.mjs kafka` artık **0 gap** raporluyor
+  (9/9 sekme ✓, ikisi de dil için). `check-content-integrity.mjs` temiz,
+  `npm run build` temiz (`kafkaData` chunk 288.71 kB / gzip 94.35 kB,
+  500KB uyarı eşiğinin altında). Eski (silinmiş) not, referans için altta
+  bırakıldı — sayfa artık SIFIRDAN değil, şu satırın ÜSTÜNDEKİ özet
+  günceldir.
+
+<details><summary>Eski not (artık geçersiz — kafka o zaman başlanmamıştı)</summary>
+
+9 sekme (Introduction/Giriş, Installation/Kurulum,
   Architecture/Mimari, Producer & Consumer, Topics & Partitions/Topic &
   Partition, Java & Spring Boot, Ecosystem/Ekosistem, Real World/Gerçek
   Hayat, Interview Q&A/Mülakat S&C), EN+TR ayrı ağaç. Fikir listesi için
   bu bölümün altındaki eski Dalga 16a subagent prompt'una (görev
   geçmişinde) bakılabilir — producer/consumer akışı, partition sıralama
   garantisi, consumer rebalancing gibi.
+
+</details>
 
 - **`jmeterData.js`: TAMAMLANDI (7/7 sekme, EN+TR).** Subagent 1 filmi
   (Introduction) yazıp referanslamadan kesilmişti; ana oturumda kalan 6
@@ -577,15 +742,39 @@ testler PASS. Tam 142 testlik paket bu düzeltmeyle birlikte tekrar
 koşuluyor (bkz. commit mesajı / bu bölümün üzerindeki commit hash'i).
 
 ### Sıradaki adım (KESİN — bir sonraki oturum buradan başlamalı)
-1. `/kafka` sayfasını SIFIRDAN Dalga 16'nın ikinci yarısı olarak
-   tamamla (9 sekme, EN+TR ayrı ağaç — yukarıdaki nota bak).
-2. **Node runtime coverage-scan'i her dalganın standart doğrulama adımı
-   yap** (sadece `node --check` yetmez — yukarıdaki "gerçek bug" notuna
-   bak).
-3. Kafka bitince Dalga 17'ye (`/appium` + `/browserstack`) geç.
-4. Kullanıcı bu oturumda "devamına sonra başka sohbette bakacağız" dedi
-   — bu, aynı görev listesinin (Dalga 17-21) YENİ bir oturumda/sohbette
+1. ~~`/kafka` sayfasını SIFIRDAN Dalga 16'nın ikinci yarısı olarak
+   tamamla~~ → **TAMAMLANDI** (2026-07-16).
+2. ~~Dalga 17 (`/appium` + `/browserstack`)~~ → **TAMAMLANDI** (2026-07-16,
+   aynı oturumun devamı — detay aşağıda).
+3. **Node runtime coverage-scan artık standart doğrulama adımı** —
+   `node scripts/audit-interactive.mjs <key>` her dalgada 0 gap
+   göstermeli (sadece `node --check` yetmez).
+4. **Sıradaki dalga: Dalga 18 (`/aws` + `/azure`)** — video-sitewide-plan.md
+   §2 sıralamasına göre; ikisi de henüz 0 `video-scene` filmi içeriyor mu
+   diye başlamadan önce `grep -c "type: 'video-scene'"` ile doğrulanmalı
+   (Dalga 17 başlarken appium/browserstack için yapılan kontrolle aynı).
+5. Kullanıcı "devamına sonra başka sohbette bakacağız" dedi — bu, aynı
+   görev listesinin (Dalga 18-21) YENİ bir oturumda/sohbette
    sürdürüleceği anlamına gelir, planın kendisi değişmedi.
+
+### Kafka + Appium + BrowserStack commit / branch durumu (2026-07-16)
+- Branch: `feature/video-scene-dalga5` (main'den açıldı — `feature/
+  video-scene-dalga3` ve `-dalga4` main'e merge olmuş halde SİLİNDİ, hem
+  local hem remote'ta artık sadece `main` var).
+- `src/data/kafkaData.js` — commit `05e606a`, 9/9 sekme, EN+TR ayrı ağaç.
+- `src/data/appiumData.js` — commit `361f91c`, 7/7 sekme, EN+TR ayrı ağaç.
+  **Önemli keşif:** bu dosyada `fillMissingCodeTrios` hiç çağrılmıyordu
+  (jmeter'daki "import var, invoke yok" hatasından farklı — burada import
+  bile yoktu) — import + çağrı eklendi, sections 1-4 otomatik trio kazandı.
+- `src/data/browserstackData.js` — commit edilecek (bu oturumun sonunda).
+  **Yapısal not:** bu dosya TEK AĞAÇLI (gaugeData ile aynı kalıp) —
+  `tr.sections` ve `en.sections` AYNI array referansını paylaşıyor, içerik
+  `{tr, en}` bilingual field'larla tutuluyor. Film sabitleri bu yüzden
+  kafka/appium'un aksine SADECE BİR YERE referanslandı (iki değil).
+  `scripts/audit-interactive.mjs`'e `browserstack` girişi eklendi (önceden
+  kayıtlı değildi).
+- Workflow notu (Dalga 8'in başındaki) hâlâ geçerli — Playwright/e2e bu
+  dalgada da çalıştırılmadı, sadece integrity+coverage+build.
 
 ---
 

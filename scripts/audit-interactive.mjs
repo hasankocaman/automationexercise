@@ -46,6 +46,10 @@ const PAGES = [
   { key: 'aws',          file: 'src/data/awsData.js',          export: 'awsData' },
   { key: 'azure',        file: 'src/data/azureData.js',        export: 'azureData' },
   { key: 'bruno',        file: 'src/data/brunoData.js',        export: 'brunoData' },
+  { key: 'browserstack', file: 'src/data/browserstackData.js', export: 'browserstackData' },
+  { key: 'what-is-testing', file: 'src/data/whatIsTestingData.js', export: 'whatIsTestingData' },
+  { key: 'llm-agents',   file: 'src/data/llmAgentsData.js',    export: 'llmAgentsData' },
+  { key: 'claude-ai',    file: 'src/data/claudeAiData.js',     export: 'claudeAiData' },
 ]
 
 // ─── Arg parsing ─────────────────────────────────────────────────────────────

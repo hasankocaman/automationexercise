@@ -1,3 +1,145 @@
+// ─── Dalga 20 (3/3) film sabitleri (video-scene — TR + EN section ağaçlarında aynı sabit) ───
+// Bu sayfa (algorithmsData -> /advanced-algorithms) TopicPage mimarisini kullanmaz,
+// özel bir section/blocks yapısı vardır (video-rollout-plan.md §1 özel sayfa kalıbı).
+
+const algoIntroDecisionFilm = {
+    type: 'video-scene',
+    id: 'adv-algo-intro-decision-film',
+    title: { tr: '🎬 "Checkout\'u Test Et" Neden Yetersiz Bir Talimat?', en: '🎬 Why "Test Checkout" Is Not Enough of an Instruction' },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'vague',   emoji: '❓', label: { tr: '"Checkout\'u Test Et" (belirsiz)', en: '"Test Checkout" (vague)' }, color: '#ef4444' },
+        { id: 'tester1', emoji: '🧍', label: { tr: 'Tester A: Sadece Happy Path', en: 'Tester A: Happy Path Only' }, color: '#f59e0b' },
+        { id: 'tester2', emoji: '🧍', label: { tr: 'Tester B: Farklı Edge Case', en: 'Tester B: Different Edge Case' }, color: '#0ea5e9' },
+        { id: 'algo',    emoji: '📋', label: { tr: 'Algoritmik Adımlar (net)', en: 'Algorithmic Steps (explicit)' }, color: '#22c55e' },
+        { id: 'same',    emoji: '✅', label: { tr: 'İki Kişi, Aynı Sonuç',    en: 'Two People, Same Result' },  color: '#a855f7' },
+    ],
+    scenes: [
+        { caption: { tr: '"Checkout\'u test et" talimatı verilir — kulağa net gelir ama DEĞİLDİR.', en: 'The instruction "test checkout" is given — it sounds clear but ISN\'T.' }, positions: { vague: { x: 50, y: 30, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Tester A bunu okur ve sadece mutlu yolu test eder: geçerli kart, stokta ürün, indirim yok.', en: 'Tester A reads this and only tests the happy path: valid card, item in stock, no discount.' }, code: { tr: `test: gecerli kart + stok var + indirim yok`, en: `test: valid card + in stock + no discount` }, positions: { vague: { x: 44, y: 30, scale: 1.0 }, tester1: { x: 72, y: 18, scale: 1.15, pulse: true } }, beams: [{ from: 'vague', to: 'tester1', color: '#f59e0b' }] },
+        { caption: { tr: 'Tester B ise AYNI talimatı okur ama süresi dolmuş kupon senaryosunu test eder — TAMAMEN farklı bir yorumlama.', en: 'Tester B reads the SAME instruction but tests an expired-coupon scenario — a COMPLETELY different interpretation.' }, code: { tr: `test: suresi dolmus kupon + son stok`, en: `test: expired coupon + last stock item` }, positions: { tester1: { x: 60, y: 18, opacity: 0.5, scale: 0.9 }, tester2: { x: 30, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'tester1', to: 'tester2', color: '#0ea5e9' }] },
+        { caption: { tr: 'Algoritmik düşünme burada devreye girer: "giriş yapmamış kullanıcı, süresi dolmuş kuponu olan ürünle ödeme denemeli; sistem 400 hatası döndürmeli" gibi NET, sıralı adımlar yazılır.', en: 'Algorithmic thinking kicks in here: EXPLICIT, ordered steps get written like "a logged-out user with an expired coupon attempts payment; the system should return a 400 error".' }, code: { tr: `1) logout 2) expiredCoupon 3) pay() 4) assert 400`, en: `1) logout 2) expiredCoupon 3) pay() 4) assert 400` }, positions: { tester2: { x: 36, y: 50, opacity: 0.6, scale: 0.9 }, algo: { x: 64, y: 55, scale: 1.2, pulse: true } }, beams: [{ from: 'tester2', to: 'algo', color: '#22c55e' }] },
+        { caption: { tr: 'Final — NET adımlarla, iki farklı tester AYNI testi çalıştırıp AYNI sonucu üretir. Algoritmik düşünme, "tarif yoksa aynı test iki farklı sonuç üretir" riskini ortadan kaldırır.', en: 'Final — with EXPLICIT steps, two different testers run the SAME test and get the SAME result. Algorithmic thinking eliminates the risk that "without a recipe, the same test produces two different outcomes".' }, positions: { algo: { x: 40, y: 55, scale: 1.0, opacity: 0.6 }, same: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'algo', to: 'same', color: '#a855f7' }] },
+    ],
+}
+
+const algoSortingTriageFilm = {
+    type: 'video-scene',
+    id: 'adv-algo-sorting-triage-film',
+    title: { tr: '🎬 Beş Bug, Tek Soru: Hangisi Önce?', en: '🎬 Five Bugs, One Question: Which Goes First?' },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'unsorted', emoji: '📥', label: { tr: '5 Bug, Sırasız',        en: '5 Bugs, Unsorted' },      color: '#64748b' },
+        { id: 'criteria', emoji: '📏', label: { tr: 'Kriter: Impact+Sıklık', en: 'Criteria: Impact+Frequency' }, color: '#0ea5e9' },
+        { id: 'payment',  emoji: '🔴', label: { tr: 'Ödeme 500 -> Skor 99',  en: 'Payment 500 -> Score 99' }, color: '#ef4444' },
+        { id: 'badge',    emoji: '⚪', label: { tr: 'Yanlış Rozet -> Skor 18', en: 'Wrong Badge -> Score 18' }, color: '#94a3b8' },
+        { id: 'sorted',   emoji: '✅', label: { tr: 'Savunulabilir Sıra',    en: 'Defensible Order' },       color: '#22c55e' },
+    ],
+    scenes: [
+        { caption: { tr: 'Release öncesi 5 açık bug vardır — hepsi "önemli" görünür, hiçbiri sıralı değildir.', en: 'Before release there are 5 open bugs — all look "important", none are ordered.' }, positions: { unsorted: { x: 50, y: 30, scale: 1.1, pulse: true } } },
+        { caption: { tr: '"Kim önce yazdı" veya "kim daha yüksek sesle bağırdı" değil, ÖNCEDEN TANIMLI bir kriter kullanılır: kullanıcı ne kaybeder, ne sıklıkla olur, alternatif var mı?', en: 'Not "who wrote it first" or "who shouted loudest" — a PRE-DEFINED criterion is used: what does the user lose, how often does it happen, is there a workaround?' }, code: { tr: `comparator: impact + frequency + workaround`, en: `comparator: impact + frequency + workaround` }, positions: { unsorted: { x: 44, y: 30, scale: 1.0 }, criteria: { x: 72, y: 20, scale: 1.15, pulse: true } }, beams: [{ from: 'unsorted', to: 'criteria', color: '#0ea5e9' }] },
+        { caption: { tr: '"Ödeme 500 hatası veriyor, workaround yok" — bu kritere göre en yüksek skoru alır: 99.', en: '"Payment returns a 500, no workaround" — this scores highest by the criteria: 99.' }, code: { tr: `payment500.score = 99 // revenue blocker`, en: `payment500.score = 99 // revenue blocker` }, positions: { criteria: { x: 60, y: 20, opacity: 0.5, scale: 0.9 }, payment: { x: 30, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'criteria', to: 'payment', color: '#ef4444' }] },
+        { caption: { tr: '"Rozet rengi yanlış, cosmetic, workaround var" — aynı kritere göre en düşük skoru alır: 18.', en: '"Wrong badge color, cosmetic, has a workaround" — by the same criteria, it scores lowest: 18.' }, code: { tr: `badgeColor.score = 18 // cosmetic`, en: `badgeColor.score = 18 // cosmetic` }, positions: { payment: { x: 36, y: 50, opacity: 0.6, scale: 0.9 }, badge: { x: 64, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'payment', to: 'badge', color: '#94a3b8' }] },
+        { caption: { tr: 'Final — AYNI kriterle sıralanan 5 bug, stand-up\'ta SAVUNULABİLİR bir liste haline gelir. "Hepsi kritik" demek, hiçbirinin gerçekten ilk sırada bitmemesi demektir.', en: 'Final — 5 bugs sorted by the SAME criteria become a DEFENSIBLE list in stand-up. Saying "everything is critical" means nothing actually finishes first.' }, positions: { badge: { x: 40, y: 55, scale: 1.0, opacity: 0.6 }, sorted: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'badge', to: 'sorted', color: '#22c55e' }] },
+    ],
+}
+
+const algoBinarySearchFilm = {
+    type: 'video-scene',
+    id: 'adv-algo-binary-search-film',
+    title: { tr: '🎬 50 Commit\'te 6 Adımda: Binary Search ile Flaky Test Avı', en: '🎬 6 Steps Through 50 Commits: Hunting a Flaky Test with Binary Search' },
+    xpReward: 13,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'range',   emoji: '📊', label: { tr: '50 Commit\'lik Aralık',  en: 'A Range of 50 Commits' },   color: '#0ea5e9' },
+        { id: 'mid',     emoji: '🎯', label: { tr: 'Ortadaki Commit\'i Test Et', en: 'Test the Middle Commit' }, color: '#f97316' },
+        { id: 'half',    emoji: '✂️', label: { tr: 'Yarısı Elenir',          en: 'Half Gets Eliminated' },   color: '#a855f7' },
+        { id: 'narrow',  emoji: '🔍', label: { tr: 'Aralık Daralıyor',       en: 'Range Narrowing' },        color: '#22c55e' },
+        { id: 'found',   emoji: '🎯', label: { tr: 'Kırılma Noktası Bulundu', en: 'Breaking Point Found' },  color: '#ef4444' },
+    ],
+    scenes: [
+        { caption: { tr: 'Bir test 3 hafta önce bir yerde kırılmaya başladı — 50 commit\'lik bir aralıkta arama yapılacak.', en: 'A test started breaking somewhere 3 weeks ago — the search spans a range of 50 commits.' }, positions: { range: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Sırayla 50 build koşturmak yerine, TAM ORTADAKİ commit test edilir — 25. commit.', en: 'Instead of running all 50 builds sequentially, the MIDDLE commit gets tested — commit #25.' }, code: { tr: `test(commit_25) -> gecti mi, kaldi mi?`, en: `test(commit_25) -> passed or failed?` }, positions: { range: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, mid: { x: 40, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'range', to: 'mid', color: '#f97316' }] },
+        { caption: { tr: 'Commit 25 GEÇERSE, sorun ondan SONRA bir yerde — 1-25 arası TAMAMEN elenir, tek adımda 25 commit atlanır.', en: 'If commit 25 PASSES, the issue is somewhere AFTER it — commits 1-25 are ENTIRELY eliminated, 25 commits skipped in one step.' }, code: { tr: `commit_25: PASS -> 1..25 elendi`, en: `commit_25: PASS -> 1..25 eliminated` }, positions: { mid: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, half: { x: 52, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'mid', to: 'half', color: '#a855f7' }] },
+        { caption: { tr: 'Bu işlem tekrarlanır: 26-50 aralığının ortası (38.) test edilir, sonra onun yarısı — aralık HER adımda yarıya iner.', en: 'This repeats: the middle of the 26-50 range (#38) gets tested, then its half — the range HALVES every step.' }, code: { tr: `test(commit_38) -> aralik: 12 -> 6 -> 3 -> 1`, en: `test(commit_38) -> range: 12 -> 6 -> 3 -> 1` }, positions: { half: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, narrow: { x: 58, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'half', to: 'narrow', color: '#22c55e' }] },
+        { caption: { tr: 'Final — 50 commit\'lik aralık, YAKLAŞIK 6 adımda TEK bir commit\'e daralır. 50 ayrı build koşturmak yerine 6 test — ciddi zaman ve kaynak tasarrufu.', en: 'Final — a range of 50 commits narrows to a SINGLE commit in ABOUT 6 steps. 6 tests instead of running 50 separate builds — serious time and resource savings.' }, positions: { narrow: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, found: { x: 62, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'narrow', to: 'found', color: '#ef4444' }] },
+    ],
+}
+
+const algoGraphTraversalFilm = {
+    type: 'video-scene',
+    id: 'adv-algo-graph-traversal-film',
+    title: { tr: '🎬 Checkout Haritasında Kaybolmamak: BFS ile Tüm Yolları Gezmek', en: '🎬 Not Getting Lost in the Checkout Map: Visiting Every Path with BFS' },
+    xpReward: 13,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'home',    emoji: '🏠', label: { tr: 'Home (Başlangıç)',     en: 'Home (Start)' },        color: '#0ea5e9' },
+        { id: 'cart',    emoji: '🛒', label: { tr: 'Cart (doğrudan yol)',  en: 'Cart (direct path)' },  color: '#22c55e' },
+        { id: 'login',   emoji: '🔑', label: { tr: 'Login (alternatif yol)', en: 'Login (alternate path)' }, color: '#f59e0b' },
+        { id: 'payment', emoji: '💳', label: { tr: 'Payment',              en: 'Payment' },             color: '#a855f7' },
+        { id: 'missed',  emoji: '👻', label: { tr: 'Test Edilmeyen Kenar', en: 'Untested Edge' },       color: '#ef4444' },
+    ],
+    scenes: [
+        { caption: { tr: 'Bir metro haritası gibi: Home\'dan başlayarak hangi sayfalara hangi kapıdan gidilebileceği bilinmelidir.', en: 'Like a metro map: starting from Home, it must be known which pages are reachable through which door.' }, positions: { home: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'BFS (genişlik öncelikli), Home\'dan DOĞRUDAN ulaşılabilen tüm komşuları önce ziyaret eder: Cart.', en: 'BFS (breadth-first) first visits all neighbors DIRECTLY reachable from Home: Cart.' }, code: { tr: `queue: [Home] -> visit(Cart)`, en: `queue: [Home] -> visit(Cart)` }, positions: { home: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, cart: { x: 42, y: 30, scale: 1.15, pulse: true } }, beams: [{ from: 'home', to: 'cart', color: '#22c55e' }] },
+        { caption: { tr: 'Ama Cart\'a AYRICA Login üzerinden de gidilebilir — bu ALTERNATİF yol, sadece happy path\'te hiç görünmez.', en: 'But Cart can ALSO be reached via Login — this ALTERNATE path never shows up if you only test the happy path.' }, code: { tr: `visit(Login) -> Login.next = Cart`, en: `visit(Login) -> Login.next = Cart` }, positions: { cart: { x: 30, y: 30, opacity: 0.6, scale: 0.9 }, login: { x: 58, y: 55, scale: 1.2, pulse: true } }, beams: [{ from: 'cart', to: 'login', color: '#f59e0b' }] },
+        { caption: { tr: 'BFS, Payment\'a ulaşana kadar HER olası kenarı gezer — oturumu kapanmış bir kullanıcının Cart davranışı da haritaya girer.', en: 'BFS visits EVERY possible edge until it reaches Payment — a logged-out user\'s Cart behavior also enters the map.' }, code: { tr: `visited: [Home, Cart, Login, Payment]`, en: `visited: [Home, Cart, Login, Payment]` }, positions: { login: { x: 46, y: 55, opacity: 0.6, scale: 0.9 }, payment: { x: 74, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'login', to: 'payment', color: '#a855f7' }] },
+        { caption: { tr: 'Final (kontrast) — BFS/DFS çalıştırılmadan sadece happy path test edilseydi, "Login -> Cart" gibi bir kenar HİÇ görülmezdi. Production incident\'lerinin çoğu tam olarak bu görülmeyen kenarlarda çıkar.', en: 'Final (the contrast) — without running BFS/DFS, testing only the happy path would NEVER see an edge like "Login -> Cart". Most production incidents happen exactly on these unseen edges.' }, positions: { payment: { x: 50, y: 40, scale: 1.0, opacity: 0.6 }, missed: { x: 76, y: 25, scale: 1.25, pulse: true } }, beams: [{ from: 'payment', to: 'missed', color: '#ef4444' }] },
+    ],
+}
+
+const algoStateMachineFilm = {
+    type: 'video-scene',
+    id: 'adv-algo-state-machine-film',
+    title: { tr: '🎬 "Görünür" ≠ "Tıklanabilir": Bir Butonun Gizli Durumları', en: '🎬 "Visible" ≠ "Clickable": A Button\'s Hidden States' },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'disabled', emoji: '⚪', label: { tr: 'disabled',   en: 'disabled' },   color: '#64748b' },
+        { id: 'ready',    emoji: '🟢', label: { tr: 'ready',     en: 'ready' },      color: '#22c55e' },
+        { id: 'loading',  emoji: '🟡', label: { tr: 'loading',   en: 'loading' },    color: '#f59e0b' },
+        { id: 'submitted', emoji: '✅', label: { tr: 'submitted', en: 'submitted' },  color: '#a855f7' },
+        { id: 'flaky',    emoji: '💥', label: { tr: 'Erken Tıklama = Flaky',  en: 'Early Click = Flaky' }, color: '#ef4444' },
+    ],
+    scenes: [
+        { caption: { tr: 'Bir login butonu görünür hale gelir — test kodu wait.until(visible) ile bunu bekler.', en: 'A login button becomes visible — test code waits for it with wait.until(visible).' }, code: { tr: `wait.until(visible(loginButton))`, en: `wait.until(visible(loginButton))` }, positions: { disabled: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Ama "görünür" olmak "tıklanabilir" olmak DEĞİLDİR — buton hâlâ disabled durumundadır.', en: 'But "visible" does NOT mean "clickable" — the button is still in the disabled state.' }, code: { tr: `button.isVisible() == true, ama isEnabled() == false`, en: `button.isVisible() == true, but isEnabled() == false` }, positions: { disabled: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, ready: { x: 42, y: 40, scale: 1.15, pulse: true, opacity: 0.4 } } },
+        { caption: { tr: 'Test hemen tıklarsa: ElementNotInteractableException fırlatır YA DA sessizce hiçbir şey olmaz — bu %30 oranında FLAKY bir test üretir.', en: 'If the test clicks immediately: it throws ElementNotInteractableException OR silently does nothing — this produces a FLAKY test ~30% of the time.' }, code: { tr: `click() -> ElementNotInteractableException`, en: `click() -> ElementNotInteractableException` }, positions: { ready: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, flaky: { x: 58, y: 25, scale: 1.2, pulse: true } }, beams: [{ from: 'ready', to: 'flaky', color: '#ef4444' }] },
+        { caption: { tr: 'Doğru yaklaşım: state machine\'i modelle — disabled -> ready -> loading -> submitted sırasını BEKLE, sadece görünürlüğü değil.', en: 'The right approach: model the state machine — WAIT for the disabled -> ready -> loading -> submitted sequence, not just visibility.' }, code: { tr: `wait.until(state == "ready") -> click()`, en: `wait.until(state == "ready") -> click()` }, positions: { flaky: { x: 40, y: 25, opacity: 0.5, scale: 0.9 }, loading: { x: 66, y: 45, scale: 1.15, pulse: true } }, beams: [{ from: 'flaky', to: 'loading', color: '#f59e0b' }] },
+        { caption: { tr: 'Final — buton doğru sırayla ready\'e geçtiğinde tıklanır, loading\'i bekler, submitted\'a ulaşır. Test artık rastgele sleep değil, GERÇEK state geçişini bekliyor.', en: 'Final — the button gets clicked once it properly reaches ready, waits through loading, reaches submitted. The test now waits for a REAL state transition, not a random sleep.' }, positions: { loading: { x: 42, y: 45, opacity: 0.6, scale: 0.9 }, submitted: { x: 70, y: 45, scale: 1.25, pulse: true } }, beams: [{ from: 'loading', to: 'submitted', color: '#a855f7' }] },
+    ],
+}
+
+const algoComplexityFilm = {
+    type: 'video-scene',
+    id: 'adv-algo-complexity-film',
+    title: { tr: '🎬 Lokalde 3 Saniye, CI\'da 8 Dakika: Neden?', en: '🎬 3 Seconds Locally, 8 Minutes in CI: Why?' },
+    xpReward: 13,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'local',    emoji: '💻', label: { tr: 'Lokal: 200 Kayıt',    en: 'Local: 200 Records' },   color: '#22c55e' },
+        { id: 'nested',   emoji: '🔁', label: { tr: 'Nested Loop O(n²)',   en: 'Nested Loop O(n²)' },    color: '#f97316' },
+        { id: 'fast',     emoji: '⚡', label: { tr: 'Lokalde Hızlı: 3sn',   en: 'Fast Locally: 3s' },     color: '#22c55e' },
+        { id: 'ci',       emoji: '☁️', label: { tr: 'CI: 50.000 Kayıt',    en: 'CI: 50,000 Records' },   color: '#0ea5e9' },
+        { id: 'timeout',  emoji: '💥', label: { tr: 'CI\'da Timeout: 8dk', en: 'Timeout in CI: 8min' },  color: '#ef4444' },
+    ],
+    scenes: [
+        { caption: { tr: 'Lokal makinede test verisi küçüktür: sadece 200 kayıt.', en: 'On the local machine, test data is small: only 200 records.' }, positions: { local: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Kod, 100 API kaydını 100 DB kaydıyla karşılaştıran nested bir loop kullanır — bu O(n²) demektir.', en: 'The code uses a nested loop comparing 100 API records against 100 DB records — this is O(n²).' }, code: { tr: `for (api in apiRecords) { for (db in dbRecords) { compare(api, db) } }`, en: `for (api in apiRecords) { for (db in dbRecords) { compare(api, db) } }` }, positions: { local: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, nested: { x: 42, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'local', to: 'nested', color: '#f97316' }] },
+        { caption: { tr: '200 kayıtla bu 40.000 karşılaştırma demektir — modern bir makinede bu 3 saniyede biter, kimse sorun görmez.', en: 'With 200 records this means 40,000 comparisons — on a modern machine this finishes in 3 seconds, nobody notices a problem.' }, code: { tr: `200 x 200 = 40.000 karsilastirma -> 3sn`, en: `200 x 200 = 40,000 comparisons -> 3s` }, positions: { nested: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, fast: { x: 52, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'nested', to: 'fast', color: '#22c55e' }] },
+        { caption: { tr: 'Ama CI, production-benzeri 50.000 kayıtla çalışır — AYNI nested loop artık 2,5 MİLYAR karşılaştırma yapar.', en: 'But CI runs with production-like 50,000 records — the SAME nested loop now does 2.5 BILLION comparisons.' }, code: { tr: `50.000 x 50.000 = 2.5 milyar karsilastirma`, en: `50,000 x 50,000 = 2.5 billion comparisons` }, positions: { fast: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, ci: { x: 58, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'fast', to: 'ci', color: '#0ea5e9' }] },
+        { caption: { tr: 'Final — O(n²), veri boyutuyla KARESEL büyür: 250 kat daha fazla veri, 62.500 kat daha fazla işlem demektir. Test suite CI\'da timeout\'a düşer. Çözüm: HashSet ile O(1) lookup\'a geçmek.', en: 'Final — O(n²) grows QUADRATICALLY with data size: 250x more data means 62,500x more work. The test suite times out in CI. The fix: switch to O(1) lookup with a HashSet.' }, positions: { ci: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, timeout: { x: 62, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'ci', to: 'timeout', color: '#ef4444' }] },
+    ],
+}
+
 export const algorithmsData = {
     tr: {
         hero: {
@@ -46,6 +188,7 @@ export const algorithmsData = {
             {
                 id: "intro",
                 shortTitle: "Baslangic",
+                film: algoIntroDecisionFilm,
                 title: "1. Algoritmik dusunme: once problemi parcalara ayir",
                 difficulty: "beginner",
                 accent: "violet",
@@ -98,6 +241,7 @@ export const algorithmsData = {
             {
                 id: "sorting",
                 shortTitle: "Sorting",
+                film: algoSortingTriageFilm,
                 title: "2. Sorting: bug'lari riske gore sirala",
                 difficulty: "beginner",
                 accent: "emerald",
@@ -192,6 +336,7 @@ assert bugs.get(0).isReleaseBlocker();                   // Ilk siradaki bug rel
             {
                 id: "binary-search",
                 shortTitle: "Binary Search",
+                film: algoBinarySearchFilm,
                 title: "3. Binary Search: flaky test'in kok nedenini hizli bul",
                 difficulty: "intermediate",
                 accent: "cyan",
@@ -255,6 +400,7 @@ Commit firstBadCommit = commits.get(low);               // Ilk bozan commit bulu
             {
                 id: "graph",
                 shortTitle: "Graph",
+                film: algoGraphTraversalFilm,
                 title: "4. Graph Traversal: kullanici akislarini kapsa",
                 difficulty: "intermediate",
                 accent: "blue",
@@ -339,6 +485,7 @@ while (!queue.isEmpty()) {                              // Kuyruk bosalana kadar
             {
                 id: "state-machine",
                 shortTitle: "State Machine",
+                film: algoStateMachineFilm,
                 title: "5. State Machine: UI testlerinde bekleme stratejisini netlestir",
                 difficulty: "advanced",
                 accent: "amber",
@@ -406,6 +553,7 @@ assertEquals(LoginState.SUBMITTED, state);              // Beklenen son state do
             {
                 id: "complexity",
                 shortTitle: "Complexity",
+                film: algoComplexityFilm,
                 title: "6. Complexity: test suite yavaslamadan once kok nedeni gor",
                 difficulty: "advanced",
                 accent: "rose",
@@ -513,6 +661,7 @@ for (String dbId : databaseIds) {                         // Ilk liste tekrar ge
             {
                 id: "intro",
                 shortTitle: "Start",
+                film: algoIntroDecisionFilm,
                 title: "1. Algorithmic thinking: split the problem first",
                 difficulty: "beginner",
                 accent: "violet",
@@ -559,6 +708,7 @@ for (String dbId : databaseIds) {                         // Ilk liste tekrar ge
             {
                 id: "sorting",
                 shortTitle: "Sorting",
+                film: algoSortingTriageFilm,
                 title: "2. Sorting: rank bugs by release risk",
                 difficulty: "beginner",
                 accent: "emerald",
@@ -617,6 +767,7 @@ assert bugs.get(0).isReleaseBlocker();                   // The first bug must b
             {
                 id: "binary-search",
                 shortTitle: "Binary Search",
+                film: algoBinarySearchFilm,
                 title: "3. Binary Search: find a flaky test root cause faster",
                 difficulty: "intermediate",
                 accent: "cyan",
@@ -674,6 +825,7 @@ Commit firstBadCommit = commits.get(low);               // First bad commit is f
             {
                 id: "graph",
                 shortTitle: "Graph",
+                film: algoGraphTraversalFilm,
                 title: "4. Graph Traversal: cover user flows visually",
                 difficulty: "intermediate",
                 accent: "blue",
@@ -752,6 +904,7 @@ while (!queue.isEmpty()) {                              // Continue until the qu
             {
                 id: "state-machine",
                 shortTitle: "State Machine",
+                film: algoStateMachineFilm,
                 title: "5. State Machine: make UI waits deterministic",
                 difficulty: "advanced",
                 accent: "amber",
@@ -813,6 +966,7 @@ assertEquals(LoginState.SUBMITTED, state);              // Assert the expected f
             {
                 id: "complexity",
                 shortTitle: "Complexity",
+                film: algoComplexityFilm,
                 title: "6. Complexity: see why a test suite slows down",
                 difficulty: "advanced",
                 accent: "rose",

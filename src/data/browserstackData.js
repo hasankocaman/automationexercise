@@ -2,6 +2,794 @@
 // Part 1: Section 0 (Giriş) · Section 1 (Kurulum) · Section 2 (Selenium) · Section 3 (Playwright)
 // Part 2: Section 4 (Gerçek Hayat) · Section 5 (Ekosistem) · Section 6 (Hatalar) · Section 7 (Mülakat)
 
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
+// ─── Dalga 17 film sabitleri (video-scene — TEK ağaç, bilingual field'lar) ──
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+// browserstackData tek ağaçlıdır (gaugeData ile aynı kalıp) — her film
+// SADECE BİR YERE (ilgili section'ın blocks dizisine) referanslanır.
+
+// ☁️ Nedir? — Selenium Grid as a Service: testin buluta yolculuğu
+const browserstackHubJourneyFilm = {
+  type: 'video-scene',
+  id: 'browserstack-hub-journey-film',
+  title: {
+    tr: '🎬 Bir Testin Buluta Yolculuğu: Selenium Grid as a Service',
+    en: '🎬 A Test\'s Journey to the Cloud: Selenium Grid as a Service',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'code',    emoji: '💻', label: { tr: 'Test Kodu',            en: 'Test Code' },            color: '#f97316' },
+    { id: 'creds',   emoji: '🔑', label: { tr: 'Username + Access Key', en: 'Username + Access Key' }, color: '#a855f7' },
+    { id: 'url',     emoji: '🌐', label: { tr: 'RemoteWebDriver URL',   en: 'RemoteWebDriver URL' },  color: '#0ea5e9' },
+    { id: 'hub',     emoji: '☁️', label: { tr: 'BrowserStack Hub',      en: 'BrowserStack Hub' },     color: '#22c55e' },
+    { id: 'device',  emoji: '📱', label: { tr: 'Gerçek Cihaz Filosu',   en: 'Real Device Fleet' },    color: '#f59e0b' },
+    { id: 'video',   emoji: '🎥', label: { tr: 'Session Video Kaydı',   en: 'Session Video Recording' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test kodu değişmez: hâlâ driver.get(url), driver.findElement(...) yazılır — sadece driver\'ın bağlandığı adres değişir.',
+        en: 'The test code doesn\'t change: it\'s still driver.get(url), driver.findElement(...) — only the address the driver connects to changes.',
+      },
+      code: { tr: `driver.get("https://shop.example.com")`, en: `driver.get("https://shop.example.com")` },
+      positions: { code: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Username ve Access Key, RemoteWebDriver URL\'inin İÇİNE gömülür — her istek bu kimlik bilgisiyle imzalanır.',
+        en: 'The Username and Access Key get embedded INSIDE the RemoteWebDriver URL — every request is signed with this identity.',
+      },
+      code: { tr: `https://USER:KEY@hub-cloud.browserstack.com/wd/hub`, en: `https://USER:KEY@hub-cloud.browserstack.com/wd/hub` },
+      positions: {
+        code: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        creds: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'code', to: 'creds', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'new RemoteWebDriver(url, capabilities) çağrısı, Selenium Grid\'e bağlanmakla YAPISAL OLARAK AYNI — tek fark, grid kendi makinen değil BrowserStack\'in bulutu.',
+        en: 'The call new RemoteWebDriver(url, capabilities) is STRUCTURALLY IDENTICAL to connecting to a Selenium Grid — the only difference is the grid isn\'t your machine, it\'s BrowserStack\'s cloud.',
+      },
+      code: { tr: `new RemoteWebDriver(url, capabilities)`, en: `new RemoteWebDriver(url, capabilities)` },
+      positions: {
+        creds: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        url: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'creds', to: 'url', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'İstek BrowserStack Hub\'a ulaşır — Hub, capability\'lere (os, browserName, deviceName) bakarak isteği HANGİ gerçek cihaza yönlendireceğine karar verir.',
+        en: 'The request reaches the BrowserStack Hub — the Hub looks at the capabilities (os, browserName, deviceName) to decide WHICH real device to route the request to.',
+      },
+      code: { tr: `matchCapabilities(os, browserName, deviceName)`, en: `matchCapabilities(os, browserName, deviceName)` },
+      positions: {
+        url: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        hub: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'url', to: 'hub', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Hub, isteği filodaki GERÇEK bir cihaza (örn. gerçek bir iPhone 15) ayırır — emülatör değil, fiziksel donanım.',
+        en: 'The Hub allocates the request to a REAL device in the fleet (say, an actual iPhone 15) — not an emulator, physical hardware.',
+      },
+      code: { tr: `allocate(realDevice: "iPhone 15, iOS 17")`, en: `allocate(realDevice: "iPhone 15, iOS 17")` },
+      positions: {
+        hub: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        device: { x: 62, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'hub', to: 'device', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — her komut cihazda çalışırken bir video kaydedilir. Test bittiğinde, her adımı dakika/saniye bazında izleyebilirsin — kendi makinende bunu asla göremezdin.',
+        en: 'Final — a video is recorded while every command runs on the device. When the test finishes, you can watch every step minute by minute — something you\'d never get on your own machine.',
+      },
+      positions: {
+        device: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        video: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'device', to: 'video', color: '#ef4444' }],
+    },
+  ],
+}
+
+// ⚙️ Kurulum — API key'den ilk bulut testine
+const browserstackSetupChainFilm = {
+  type: 'video-scene',
+  id: 'browserstack-setup-chain-film',
+  title: {
+    tr: '🎬 API Key\'den İlk Bulut Testine: Kurulum Zinciri',
+    en: '🎬 From API Key to the First Cloud Test: The Setup Chain',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'key',      emoji: '🔑', label: { tr: 'Hesap + API Key',       en: 'Account + API Key' },   color: '#f97316' },
+    { id: 'sdk',      emoji: '🐍', label: { tr: 'SDK Kurulumu',          en: 'SDK Install' },         color: '#a855f7' },
+    { id: 'yml',      emoji: '📄', label: { tr: 'browserstack.yml',      en: 'browserstack.yml' },    color: '#0ea5e9' },
+    { id: 'env',      emoji: '🔒', label: { tr: '.env Secrets',          en: '.env Secrets' },        color: '#f59e0b' },
+    { id: 'tunnel',   emoji: '🚇', label: { tr: 'Local Testing Tüneli',  en: 'Local Testing Tunnel' }, color: '#22c55e' },
+    { id: 'test',     emoji: '▶️', label: { tr: 'İlk Bulut Testi',       en: 'First Cloud Test' },    color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Zincir bir BrowserStack hesabı ve Dashboard\'dan alınan API Access Key ile başlar.',
+        en: 'The chain starts with a BrowserStack account and an API Access Key from the Dashboard.',
+      },
+      code: { tr: `Dashboard -> Account -> Settings -> Access Key`, en: `Dashboard -> Account -> Settings -> Access Key` },
+      positions: { key: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'browserstack-sdk ile paket kurulur — bu SDK, testin çalışma zamanında kod satırlarına DOKUNMADAN bağlantıyı buluta yönlendirir.',
+        en: 'The package is installed via browserstack-sdk — at runtime, this SDK redirects the connection to the cloud WITHOUT touching your test code lines.',
+      },
+      code: { tr: `pip install browserstack-sdk`, en: `pip install browserstack-sdk` },
+      positions: {
+        key: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        sdk: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'key', to: 'sdk', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'browserstack.yml dosyası kurulur — hangi tarayıcı/OS kombinasyonlarında, kaç paralel session\'la test çalışacağını tanımlar.',
+        en: 'The browserstack.yml file is set up — it defines which browser/OS combinations, and how many parallel sessions, tests will run with.',
+      },
+      code: { tr: `platforms:\n  - os: Windows\n    browserName: chrome`, en: `platforms:\n  - os: Windows\n    browserName: chrome` },
+      positions: {
+        sdk: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        yml: { x: 50, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'sdk', to: 'yml', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'USERNAME ve ACCESS_KEY .env dosyasına konur, ASLA koda sabit yazılmaz — bu, credential\'ların git\'e commit edilmesini önler.',
+        en: 'USERNAME and ACCESS_KEY go into the .env file, NEVER hardcoded into code — this prevents credentials from being committed to git.',
+      },
+      code: { tr: `BROWSERSTACK_USERNAME=... (git\'e commitlenmez)`, en: `BROWSERSTACK_USERNAME=... (never committed to git)` },
+      positions: {
+        yml: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        env: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'yml', to: 'env', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'localhost\'ta çalışan bir staging ortamı test edilecekse, BrowserStack Local tüneli açılır — bulut, senin localhost\'una GÜVENLİ bir bağlantıyla erişir.',
+        en: 'To test a staging environment running on localhost, the BrowserStack Local tunnel is opened — the cloud reaches your localhost through a SECURE connection.',
+      },
+      code: { tr: `BrowserStackLocal --key ACCESS_KEY`, en: `BrowserStackLocal --key ACCESS_KEY` },
+      positions: {
+        env: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        tunnel: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'env', to: 'tunnel', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — zincir tamamlandığında, browserstack-sdk pytest tests/ komutu ilk kez GERÇEK bir bulut cihazında çalışır.',
+        en: 'Final — once the chain completes, browserstack-sdk pytest tests/ finally runs on a REAL cloud device for the first time.',
+      },
+      positions: {
+        tunnel: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        test: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'tunnel', to: 'test', color: '#10b981' }],
+    },
+  ],
+}
+
+// 🔗 Selenium — BrowserStack PASS/FAIL'i nasıl bilir?
+const browserstackStatusMarkingFilm = {
+  type: 'video-scene',
+  id: 'browserstack-status-marking-film',
+  title: {
+    tr: '🎬 BrowserStack, Testin PASS/FAIL Olduğunu Nasıl Bilir?',
+    en: '🎬 How Does BrowserStack Know a Test Was PASS/FAIL?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'assert',   emoji: '✅', label: { tr: 'Assertion Çalışır',     en: 'Assertion Runs' },      color: '#22c55e' },
+    { id: 'session',  emoji: '☁️', label: { tr: 'BS Session',            en: 'BS Session' },           color: '#0ea5e9' },
+    { id: 'unknown',  emoji: '❓', label: { tr: 'Dashboard: "Unknown"',  en: 'Dashboard: "Unknown"' }, color: '#f59e0b' },
+    { id: 'js',       emoji: '🧩', label: { tr: 'JS Executor',           en: 'JS Executor' },          color: '#a855f7' },
+    { id: 'status',   emoji: '📊', label: { tr: 'setSessionStatus',      en: 'setSessionStatus' },     color: '#f97316' },
+    { id: 'pass',     emoji: '🎯', label: { tr: 'Dashboard: PASS',       en: 'Dashboard: PASS' },      color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Test kodu çalışır ve bir assert ifadesi başarıyla geçer — Python\'da assert element.text == "Sepetim (1)".',
+        en: 'The test code runs and an assert statement passes successfully — in Python, assert element.text == "My Cart (1)".',
+      },
+      code: { tr: `assert element.text == "Sepetim (1)"`, en: `assert element.text == "My Cart (1)"` },
+      positions: { assert: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Ama BrowserStack Hub bunu GÖRMEZ — Hub sadece WebDriver komutlarının HTTP olarak başarıyla gönderilip gönderilmediğini bilir, senin assert\'ini değil.',
+        en: 'But the BrowserStack Hub does NOT see this — the Hub only knows whether WebDriver commands were successfully sent over HTTP, not whether your assert passed.',
+      },
+      code: { tr: `HTTP 200 OK != assertion passed`, en: `HTTP 200 OK != assertion passed` },
+      positions: {
+        assert: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        session: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'assert', to: 'session', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç: hiçbir şey söylenmezse Dashboard\'da session durumu "Unknown" görünür — test aslında geçmiş olsa bile.',
+        en: 'Result: if nothing is explicitly told, the Dashboard shows session status as "Unknown" — even if the test actually passed.',
+      },
+      code: { tr: `Session Status: Unknown`, en: `Session Status: Unknown` },
+      positions: {
+        session: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        unknown: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'session', to: 'unknown', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Düzeltme: assert bloğundan sonra bir JavaScript Executor komutu çağrılır — bu, Hub\'a EXPLICIT olarak sonucu bildiren tek yoldur.',
+        en: 'The fix: a JavaScript Executor command is called after the assert block — this is the ONLY way to explicitly tell the Hub the result.',
+      },
+      code: { tr: `driver.execute_script('browserstack_executor: ...')`, en: `driver.execute_script('browserstack_executor: ...')` },
+      positions: {
+        unknown: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        js: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'unknown', to: 'js', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'Bu komut, setSessionStatus action\'ıyla "passed" veya "failed" değerini AÇIKÇA gönderir.',
+        en: 'This command explicitly sends the "passed" or "failed" value via the setSessionStatus action.',
+      },
+      code: { tr: `{"action": "setSessionStatus", "arguments": {"status":"passed"}}`, en: `{"action": "setSessionStatus", "arguments": {"status":"passed"}}` },
+      positions: {
+        js: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        status: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'js', to: 'status', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Dashboard artık kesin bir PASS gösterir. Ders: BrowserStack senin test framework\'ünün assertion mantığını OKUYAMAZ, ona sonucu SEN söylemelisin.',
+        en: 'Final — the Dashboard now shows a definite PASS. Lesson: BrowserStack CANNOT read your test framework\'s assertion logic, YOU must tell it the result.',
+      },
+      positions: {
+        status: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        pass: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'status', to: 'pass', color: '#10b981' }],
+    },
+  ],
+}
+
+// 🎭 Playwright — test kodu değişmeden buluta taşınma
+const browserstackPlaywrightNoChangeFilm = {
+  type: 'video-scene',
+  id: 'browserstack-playwright-nochange-film',
+  title: {
+    tr: '🎬 Playwright Kodun Tek Satır Değişmeden Buluta Taşınması',
+    en: '🎬 Moving Your Playwright Code to the Cloud With Zero Line Changes',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'code',    emoji: '🎭', label: { tr: 'Playwright Test Kodu',   en: 'Playwright Test Code' },  color: '#f97316' },
+    { id: 'local',   emoji: '🖥️', label: { tr: 'Yerel Tarayıcı',        en: 'Local Browser' },         color: '#64748b' },
+    { id: 'sdk',     emoji: '🌉', label: { tr: 'SDK Rewire',             en: 'SDK Rewire' },            color: '#a855f7' },
+    { id: 'cdp',     emoji: '🔌', label: { tr: 'CDP Bağlantısı',         en: 'CDP Connection' },        color: '#0ea5e9' },
+    { id: 'remote',  emoji: '☁️', label: { tr: 'Uzak Tarayıcı (BS)',     en: 'Remote Browser (BS)' },   color: '#22c55e' },
+    { id: 'result',  emoji: '✅', label: { tr: 'Aynı Assertion\'lar Geçer', en: 'Same Assertions Pass' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir Playwright testi yazılır: page.goto(url), page.click(selector), expect(locator).toBeVisible() — standart Playwright kodu.',
+        en: 'A Playwright test is written: page.goto(url), page.click(selector), expect(locator).toBeVisible() — standard Playwright code.',
+      },
+      code: { tr: `await page.goto(url); await page.click(selector);`, en: `await page.goto(url); await page.click(selector);` },
+      positions: { code: { x: 18, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Normalde bu kod yerel bir Chromium/WebKit tarayıcısı başlatır — playwright.chromium.launch() ile.',
+        en: 'Normally this code launches a local Chromium/WebKit browser — with playwright.chromium.launch().',
+      },
+      code: { tr: `browser = playwright.chromium.launch()`, en: `browser = playwright.chromium.launch()` },
+      positions: {
+        code: { x: 16, y: 40, opacity: 0.6, scale: 0.9 },
+        local: { x: 42, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'code', to: 'local', color: '#64748b' }],
+    },
+    {
+      caption: {
+        tr: 'browserstack-sdk devreye girince, launch() çağrısını ARKA PLANDA yeniden kablolar — test kodundaki TEK BİR satır değişmez.',
+        en: 'Once browserstack-sdk kicks in, it rewires the launch() call BEHIND THE SCENES — not a single line in the test code changes.',
+      },
+      code: { tr: `browserstack-sdk playwright test`, en: `browserstack-sdk playwright test` },
+      positions: {
+        local: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        sdk: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'local', to: 'sdk', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'Playwright\'ın CDP (Chrome DevTools Protocol) tabanlı mimarisi sayesinde, tarayıcı UZAKTAN kontrol edilebilir — Selenium\'un HTTP komutlarından farklı bir kanal.',
+        en: 'Thanks to Playwright\'s CDP (Chrome DevTools Protocol) based architecture, the browser can be controlled REMOTELY — a different channel from Selenium\'s HTTP commands.',
+      },
+      code: { tr: `browser.connect_over_cdp(bs_endpoint)`, en: `browser.connect_over_cdp(bs_endpoint)` },
+      positions: {
+        sdk: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        cdp: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'sdk', to: 'cdp', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Test artık BrowserStack\'teki uzak bir tarayıcıya bağlanır — sanki yerelmiş gibi aynı page.click(), aynı expect() çağrılır.',
+        en: 'The test now connects to a remote browser on BrowserStack — the same page.click(), the same expect() get called as if it were local.',
+      },
+      code: { tr: `page.click(selector) -> uzak tarayicida calisir`, en: `page.click(selector) -> runs on remote browser` },
+      positions: {
+        cdp: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        remote: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cdp', to: 'remote', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — aynı expect(locator).toBeVisible() aynı şekilde geçer, ama bu sefer gerçek bir Windows 11 + Chrome kombinasyonunda. Kontrast: Selenium\'da bunu yapmak için capability + RemoteWebDriver URL yazman gerekirdi.',
+        en: 'Final — the same expect(locator).toBeVisible() passes the same way, but this time on a real Windows 11 + Chrome combination. Contrast: with Selenium you\'d have needed to write capabilities + a RemoteWebDriver URL to achieve this.',
+      },
+      positions: {
+        remote: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        result: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'remote', to: 'result', color: '#10b981' }],
+    },
+  ],
+}
+
+// 🛠️ Real World — CI/CD pipeline entegrasyonu
+const browserstackCicdPipelineFilm = {
+  type: 'video-scene',
+  id: 'browserstack-cicd-pipeline-film',
+  title: {
+    tr: '🎬 Bir Git Push\'un PR Check\'e Kadar Yolculuğu',
+    en: '🎬 The Journey of a Git Push to the PR Check',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'push',    emoji: '📤', label: { tr: 'Git Push',           en: 'Git Push' },           color: '#f97316' },
+    { id: 'actions', emoji: '⚙️', label: { tr: 'GitHub Actions',     en: 'GitHub Actions' },     color: '#a855f7' },
+    { id: 'bs',      emoji: '☁️', label: { tr: 'BS Automate (5 tarayıcı)', en: 'BS Automate (5 browsers)' }, color: '#0ea5e9' },
+    { id: 'result',  emoji: '🎥', label: { tr: 'Sonuç + Video',      en: 'Result + Video' },     color: '#f59e0b' },
+    { id: 'prcheck', emoji: '✅', label: { tr: 'PR Check',           en: 'PR Check' },           color: '#22c55e' },
+    { id: 'block',   emoji: '⛔', label: { tr: 'Merge Bloklandı',    en: 'Merge Blocked' },      color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir developer kodunu push eder — bu, cross-browser test zincirinin ilk halkasıdır.',
+        en: 'A developer pushes their code — this is the first link in the cross-browser test chain.',
+      },
+      code: { tr: `git push origin feature/checkout-fix`, en: `git push origin feature/checkout-fix` },
+      positions: { push: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'GitHub Actions workflow\'u otomatik tetiklenir — .github/workflows/browserstack.yml dosyasındaki adımlar sırayla çalışır.',
+        en: 'The GitHub Actions workflow triggers automatically — the steps in .github/workflows/browserstack.yml run in order.',
+      },
+      code: { tr: `on: pull_request: branches: [main]`, en: `on: pull_request: branches: [main]` },
+      positions: {
+        push: { x: 14, y: 40, opacity: 0.6, scale: 0.9 },
+        actions: { x: 40, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'push', to: 'actions', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'Workflow, BS Automate\'i tetikler — 5 farklı tarayıcı/OS kombinasyonu AYNI ANDA paralel çalışır.',
+        en: 'The workflow triggers BS Automate — 5 different browser/OS combinations run in PARALLEL at the same time.',
+      },
+      code: { tr: `browserstack-sdk pytest tests/ -v`, en: `browserstack-sdk pytest tests/ -v` },
+      positions: {
+        actions: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        bs: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'actions', to: 'bs', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Her tarayıcı kombinasyonundan bir sonuç ve bir video döner — bir tanesi (örn. Safari) başarısız olsa bile hangi adımda kırıldığı VİDEODAN görülür.',
+        en: 'Each browser combination returns a result and a video — even if one (say, Safari) fails, exactly which step broke is VISIBLE in the video.',
+      },
+      code: { tr: `5/5 results + 5 videos`, en: `5/5 results + 5 videos` },
+      positions: {
+        bs: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        result: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bs', to: 'result', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç, GitHub PR\'ının check statüsüne yansır — yeşil tik veya kırmızı çarpı doğrudan PR sayfasında görünür.',
+        en: 'The result reflects into the GitHub PR\'s check status — a green check or red X appears directly on the PR page.',
+      },
+      code: { tr: `PR Check: 5/5 passed -> merge allowed`, en: `PR Check: 5/5 passed -> merge allowed` },
+      positions: {
+        result: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        prcheck: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'result', to: 'prcheck', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Safari\'de test başarısız olsaydı, PR check kırmızı olur ve merge BLOKLANIR: iOS kullanıcılarını kıracak bir hata production\'a hiç ulaşmaz.',
+        en: 'Final (the contrast) — had the Safari test failed, the PR check would go red and merge would be BLOCKED: a bug that would\'ve broken iOS users never reaches production.',
+      },
+      positions: {
+        prcheck: { x: 40, y: 40, scale: 1.0, opacity: 0.5 },
+        block: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'prcheck', to: 'block', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 🔗 Ecosystem — Jenkins'ten Slack'e otomatik entegrasyon zinciri
+const browserstackEcosystemChainFilm = {
+  type: 'video-scene',
+  id: 'browserstack-ecosystem-chain-film',
+  title: {
+    tr: '🎬 Bir Testin Ekosistemi: Jenkins\'ten Slack\'e Otomatik Zincir',
+    en: '🎬 A Test\'s Ecosystem: The Automatic Chain from Jenkins to Slack',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'jenkins', emoji: '🔧', label: { tr: 'Jenkins Plugin',    en: 'Jenkins Plugin' },   color: '#f97316' },
+    { id: 'test',    emoji: '☁️', label: { tr: 'BS Test Başarısız', en: 'BS Test Fails' },    color: '#ef4444' },
+    { id: 'jira',    emoji: '🎫', label: { tr: 'Jira Ticket',       en: 'Jira Ticket' },      color: '#a855f7' },
+    { id: 'grafana', emoji: '📈', label: { tr: 'Grafana Dashboard', en: 'Grafana Dashboard' }, color: '#0ea5e9' },
+    { id: 'slack',   emoji: '💬', label: { tr: 'Slack Bildirimi',   en: 'Slack Notification' }, color: '#22c55e' },
+    { id: 'har',     emoji: '🌐', label: { tr: 'HAR/Network Log',   en: 'HAR/Network Log' },  color: '#f59e0b' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Jenkins plugin\'i doğru kurulduğunda, sadece test tetiklemekle kalmaz — BrowserStack ile TÜM ekosistemi birbirine bağlar.',
+        en: 'Once the Jenkins plugin is set up correctly, it doesn\'t just trigger tests — it connects the ENTIRE ecosystem together with BrowserStack.',
+      },
+      code: { tr: `jenkins.trigger("browserstack-pipeline")`, en: `jenkins.trigger("browserstack-pipeline")` },
+      positions: { jenkins: { x: 16, y: 30, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Bir test BrowserStack\'te başarısız olur — bu tek olay, arka planda BİRDEN FAZLA otomatik zinciri tetikler.',
+        en: 'A test fails on BrowserStack — this single event triggers MULTIPLE automatic chains in the background.',
+      },
+      code: { tr: `onTestFailed(sessionId) -> triggerIntegrations()`, en: `onTestFailed(sessionId) -> triggerIntegrations()` },
+      positions: {
+        jenkins: { x: 14, y: 30, opacity: 0.6, scale: 0.9 },
+        test: { x: 40, y: 30, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'jenkins', to: 'test', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'İlk zincir: başarısız testin screenshot\'ı otomatik olarak bir Jira ticket\'ına eklenir — kimse elle screenshot alıp yapıştırmaz.',
+        en: 'First chain: the failed test\'s screenshot is automatically attached to a Jira ticket — nobody manually takes and pastes a screenshot.',
+      },
+      code: { tr: `jira.attachScreenshot(ticketId, screenshot)`, en: `jira.attachScreenshot(ticketId, screenshot)` },
+      positions: {
+        test: { x: 24, y: 30, opacity: 0.6, scale: 0.9 },
+        jira: { x: 50, y: 20, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'jira', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'İkinci zincir: test süresi ve durum verisi Grafana\'ya çekilir — haftalık trend grafiği kendiliğinden güncellenir.',
+        en: 'Second chain: test duration and status data get pulled into Grafana — the weekly trend graph updates itself.',
+      },
+      code: { tr: `grafana.ingest(testDuration, status)`, en: `grafana.ingest(testDuration, status)` },
+      positions: {
+        test: { x: 24, y: 30, opacity: 0.5, scale: 0.85 },
+        grafana: { x: 50, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'grafana', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Üçüncü zincir: Slack\'e anlık bir bildirim düşer — takım, dashboard\'a bakmadan bile başarısızlıktan haberdar olur.',
+        en: 'Third chain: an instant notification lands in Slack — the team knows about the failure without even checking the dashboard.',
+      },
+      code: { tr: `slack.post("#qa-alerts", "Test failed: checkout")`, en: `slack.post("#qa-alerts", "Test failed: checkout")` },
+      positions: {
+        test: { x: 24, y: 30, opacity: 0.4, scale: 0.8 },
+        slack: { x: 50, y: 65, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'slack', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — "test geçti ama production kırıldı" vakasında, BrowserStack\'in HAR/network log analizi hangi API çağrısının farklı davrandığını SANİYELER içinde gösterir; elle yapmak saatler alırdı.',
+        en: 'Final — in a "test passed but production broke" incident, BrowserStack\'s HAR/network log analysis shows which API call behaved differently within SECONDS; doing it by hand would take hours.',
+      },
+      positions: {
+        grafana: { x: 30, y: 45, scale: 0.9, opacity: 0.5 },
+        har: { x: 62, y: 45, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'grafana', to: 'har', color: '#f59e0b' }],
+    },
+  ],
+}
+
+// 🚨 Common Errors — SessionNotCreatedException: hangi capability eşleşmedi?
+const browserstackSessionNotCreatedFilm = {
+  type: 'video-scene',
+  id: 'browserstack-session-not-created-film',
+  title: {
+    tr: '🎬 SessionNotCreatedException: Hangi Capability Eşleşmedi?',
+    en: '🎬 SessionNotCreatedException: Which Capability Didn\'t Match?',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'wrong',    emoji: '📝', label: { tr: '"os": "MacOS" (yanlış)', en: '"os": "MacOS" (wrong)' }, color: '#ef4444' },
+    { id: 'hub',      emoji: '☁️', label: { tr: 'BS Hub',                en: 'BS Hub' },              color: '#0ea5e9' },
+    { id: 'crash',    emoji: '💥', label: { tr: 'SessionNotCreated',     en: 'SessionNotCreated' },  color: '#ef4444' },
+    { id: 'dashboard', emoji: '🔍', label: { tr: 'Caps Validation Sekmesi', en: 'Caps Validation Tab' }, color: '#a855f7' },
+    { id: 'devices',  emoji: '🎯', label: { tr: 'GET /devices.json',     en: 'GET /devices.json' },  color: '#f59e0b' },
+    { id: 'fixed',    emoji: '✅', label: { tr: '"os": "OS X" (doğru)',  en: '"os": "OS X" (correct)' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Capability\'lerde "os": "MacOS" yazılır — sezgisel olarak doğru görünür, ama BrowserStack\'in beklediği exact string bu değildir.',
+        en: 'The capabilities are written with "os": "MacOS" — intuitively it looks right, but it isn\'t the exact string BrowserStack expects.',
+      },
+      code: { tr: `bstack_options = { "os": "MacOS", "osVersion": "Sonoma" }`, en: `bstack_options = { "os": "MacOS", "osVersion": "Sonoma" }` },
+      positions: { wrong: { x: 18, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'İstek Hub\'a ulaşır — Hub, gelen "os" değerini kendi desteklediği cihaz listesiyle EXACT MATCH olarak karşılaştırır.',
+        en: 'The request reaches the Hub — the Hub compares the incoming "os" value against its supported device list as an EXACT MATCH.',
+      },
+      code: { tr: `hub.matchDevice({ os: "MacOS" }) -> eslesme yok`, en: `hub.matchDevice({ os: "MacOS" }) -> no match` },
+      positions: {
+        wrong: { x: 16, y: 40, opacity: 0.6, scale: 0.9 },
+        hub: { x: 42, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'wrong', to: 'hub', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Eşleşme bulunamaz — SessionNotCreatedException fırlatılır. Hata mesajı "Capabilities did not match" der ama HANGİ capability olduğunu söylemez.',
+        en: 'No match is found — SessionNotCreatedException is thrown. The error message says "Capabilities did not match" but doesn\'t say WHICH capability.',
+      },
+      code: { tr: `SessionNotCreated: Capabilities did not match`, en: `SessionNotCreated: Capabilities did not match` },
+      positions: {
+        hub: { x: 26, y: 40, opacity: 0.6, scale: 0.9 },
+        crash: { x: 52, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'hub', to: 'crash', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Dashboard\'da Session Logs açılır ve Caps Validation sekmesine bakılır — bu sekme TAM OLARAK "os" alanının neden eşleşmediğini yazar.',
+        en: 'Session Logs are opened in the Dashboard and the Caps Validation tab is checked — this tab writes EXACTLY why the "os" field didn\'t match.',
+      },
+      code: { tr: `Caps Validation: "os" expected one of ["OS X", "Windows", ...]`, en: `Caps Validation: "os" expected one of ["OS X", "Windows", ...]` },
+      positions: {
+        crash: { x: 30, y: 40, opacity: 0.6, scale: 0.9 },
+        dashboard: { x: 56, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'crash', to: 'dashboard', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'GET /devices.json ile BrowserStack\'in kabul ettiği TAM string\'ler sorgulanır — tahmin etmek yerine kaynağa bakılır.',
+        en: 'GET /devices.json is queried for the EXACT strings BrowserStack accepts — checking the source instead of guessing.',
+      },
+      code: { tr: `curl https://api.browserstack.com/automate/devices.json`, en: `curl https://api.browserstack.com/automate/devices.json` },
+      positions: {
+        dashboard: { x: 34, y: 40, opacity: 0.6, scale: 0.9 },
+        devices: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dashboard', to: 'devices', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — "os": "OS X" olarak düzeltilince session sorunsuz kurulur. Ders: hata mesajı "eşleşmedi" der ama sebep genelde tek bir yanlış yazılmış string\'dir.',
+        en: 'Final — corrected to "os": "OS X", the session is created cleanly. Lesson: the error says "didn\'t match" but the cause is usually one single misspelled string.',
+      },
+      positions: {
+        devices: { x: 40, y: 40, scale: 1.0, opacity: 0.6 },
+        fixed: { x: 66, y: 40, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'devices', to: 'fixed', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 💼 Interview — test güvenilirliğini framework seviyesinde artırma
+const browserstackReliabilityInterviewFilm = {
+  type: 'video-scene',
+  id: 'browserstack-reliability-interview-film',
+  title: {
+    tr: '🎬 Mülakat Senaryosu: Test Güvenilirliğini Nasıl Artırırsın?',
+    en: '🎬 Interview Scenario: How Do You Increase Test Reliability?',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'flaky',   emoji: '🎲', label: { tr: 'Güvenilmez Test Süiti',  en: 'Unreliable Test Suite' }, color: '#ef4444' },
+    { id: 'retry',   emoji: '🔁', label: { tr: 'Retry Mekanizması',      en: 'Retry Mechanism' },     color: '#f97316' },
+    { id: 'shot',    emoji: '📸', label: { tr: 'Screenshot on Failure',  en: 'Screenshot on Failure' }, color: '#a855f7' },
+    { id: 'cleanup', emoji: '🧹', label: { tr: 'Session Cleanup',        en: 'Session Cleanup' },     color: '#0ea5e9' },
+    { id: 'validate', emoji: '🔒', label: { tr: 'Capability Validation', en: 'Capability Validation' }, color: '#f59e0b' },
+    { id: 'reliable', emoji: '✅', label: { tr: 'Güvenilir Süit',        en: 'Reliable Suite' },      color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Mülakat sorusu: "Test süitiniz bazen geçiyor bazen başarısız oluyor — framework seviyesinde ne yaparsınız?" Tek bir düzeltme yetmez, katmanlı bir yaklaşım gerekir.',
+        en: 'Interview question: "Your test suite sometimes passes, sometimes fails — what do you do at the framework level?" One single fix isn\'t enough, a layered approach is needed.',
+      },
+      code: { tr: `Suite: 87% pass rate (guvenilmez)`, en: `Suite: 87% pass rate (unreliable)` },
+      positions: { flaky: { x: 50, y: 30, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Katman 1: retry mekanizması — geçici ağ hatalarında test 1-2 kez otomatik tekrar dener, ama flaky bulgular bir bug kaydı olarak da düşülür.',
+        en: 'Layer 1: retry mechanism — on transient network errors, the test automatically retries 1-2 times, but flaky findings still get logged as a bug record too.',
+      },
+      code: { tr: `@retry(max_attempts=2)`, en: `@retry(max_attempts=2)` },
+      positions: {
+        flaky: { x: 44, y: 30, scale: 1.0 },
+        retry: { x: 70, y: 20, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'flaky', to: 'retry', color: '#f97316' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 2: screenshot on failure — her hatadan sonra conftest.py\'deki bir hook otomatik ekran görüntüsü alır, kimse "neydi o hata?" diye tahmin etmez.',
+        en: 'Layer 2: screenshot on failure — a hook in conftest.py automatically takes a screenshot after every error, nobody has to guess "what was that error?".',
+      },
+      code: { tr: `@pytest.hookimpl def on_failure(): take_screenshot()`, en: `@pytest.hookimpl def on_failure(): take_screenshot()` },
+      positions: {
+        retry: { x: 55, y: 20, opacity: 0.6, scale: 0.9 },
+        shot: { x: 78, y: 40, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'retry', to: 'shot', color: '#a855f7' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 3: session cleanup — driver.quit() bir yield fixture\'da HER durumda (test geçse de çökse de) çalışır, kalıntı session bırakmaz.',
+        en: 'Layer 3: session cleanup — driver.quit() runs in a yield fixture UNDER ALL circumstances (whether the test passes or crashes), leaving no dangling sessions.',
+      },
+      code: { tr: `yield driver\ndriver.quit()  # her zaman calisir`, en: `yield driver\ndriver.quit()  # always runs` },
+      positions: {
+        shot: { x: 60, y: 40, opacity: 0.6, scale: 0.9 },
+        cleanup: { x: 40, y: 60, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'shot', to: 'cleanup', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Katman 4: capability validation — geçersiz bir capability, testler çalışmaya başlamadan ÖNCE, kurulum aşamasında yakalanır.',
+        en: 'Layer 4: capability validation — an invalid capability gets caught at SETUP time, before tests even start running.',
+      },
+      code: { tr: `validateCapabilities(config) // testler baslamadan once`, en: `validateCapabilities(config) // before tests start` },
+      positions: {
+        cleanup: { x: 45, y: 60, opacity: 0.6, scale: 0.9 },
+        validate: { x: 68, y: 60, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'cleanup', to: 'validate', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Final — dört katman birlikte çalışınca süit %87\'den %99+\'a çıkar. Mülakat dersi: güvenilirlik tek bir hile değil, birden fazla savunma katmanının TOPLAMIdır.',
+        en: 'Final — with all four layers working together, the suite goes from 87% to 99%+. Interview lesson: reliability isn\'t one trick, it\'s the SUM of multiple defense layers.',
+      },
+      positions: {
+        validate: { x: 40, y: 45, scale: 1.0, opacity: 0.6 },
+        reliable: { x: 66, y: 45, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'validate', to: 'reliable', color: '#22c55e' }],
+    },
+  ],
+}
+
+// Eksik animasyon/sandbox tamamlamaları — kodsuz sekmeler (error-dictionary
+// ve interview-questions blokları fillMissingCodeTrios'un anchor olarak
+// kullandığı 'code' bloğu değildir, bu yüzden CLAUDE.md §9.5 gereği elle
+// tamamlanır)
+
+const browserstackInvalidCredsStep = {
+  type: 'step-animation',
+  title: { tr: 'Invalid Credentials Hatasını Teşhis Sırası', en: 'The Diagnosis Order for Invalid Credentials' },
+  steps: [
+    { tr: 'Önce BS Dashboard → Account → Settings\'ten ACCESS_KEY\'in doğru kopyalandığını kontrol et.', en: 'First check that ACCESS_KEY was copied correctly from BS Dashboard → Account → Settings.' },
+    { tr: 'os.environ (veya benzeri) ile KEY\'in test çalışırken GERÇEKTEN okunduğunu print/log ile doğrula.', en: 'Verify with print/log via os.environ (or equivalent) that the KEY is ACTUALLY being read when the test runs.' },
+    { tr: '.env dosyasında gizli boşluk veya tırnak işareti olmadığını kontrol et — bunlar sessizce string\'i bozar.', en: 'Check the .env file for hidden spaces or quote characters — these silently corrupt the string.' },
+    { tr: 'Credential\'ı asla kod içine sabit yazma — env değişkeninden oku, git\'e asla commit etme.', en: 'Never hardcode the credential into the code — read it from an env variable, never commit it to git.' },
+  ],
+}
+
+const browserstackInvalidCredsPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'browserstack-errors',
+  title: { tr: 'Kendin Dene: Credential\'ları Env\'den Oku', en: 'Try It Yourself: Read Credentials from Env' },
+  starterCode: `# Yanlis: credential'lar koda sabit yazilmis
+# TODO: dogru satirlari yaz
+username = "?"
+access_key = "?"`,
+  solutionCode: `import os
+username = os.environ["BROWSERSTACK_USERNAME"]
+access_key = os.environ["BROWSERSTACK_ACCESS_KEY"]`,
+  hint: { tr: 'Credential\'ları koda sabit yazmak hem güvenlik açığıdır (git\'e commit edilebilir) hem de "hangi ortamda çalışıyorum?" sorusuna cevap veremez. os.environ, credential\'ı çalışma zamanında dışarıdan alır.', en: 'Hardcoding credentials into code is both a security risk (could get committed to git) and can\'t answer "which environment am I running in?". os.environ pulls the credential from outside at runtime.' },
+  successMessage: { tr: 'Doğru! Bu değişiklik, aynı kodun farklı ortamlarda (local, CI, farklı takım üyeleri) farklı credential\'larla güvenle çalışmasını sağlar.', en: 'Correct! This change lets the same code safely run with different credentials across environments (local, CI, different team members).' },
+}
+
+const browserstackReliabilityLayersStep = {
+  type: 'step-animation',
+  title: { tr: 'Test Güvenilirliğini Katman Katman Artırma', en: 'Increasing Test Reliability Layer by Layer' },
+  steps: [
+    { tr: 'Katman 1 — Retry: geçici hatalarda test 1-2 kez otomatik tekrar dener (ama flaky bulgu yine de bug olarak kaydedilir).', en: 'Layer 1 — Retry: on transient errors, the test automatically retries 1-2 times (but the flaky finding is still logged as a bug).' },
+    { tr: 'Katman 2 — Screenshot on failure: her hatadan sonra otomatik ekran görüntüsü alınır, kimse tahmin etmez.', en: 'Layer 2 — Screenshot on failure: an automatic screenshot is taken after every error, nobody has to guess.' },
+    { tr: 'Katman 3 — Session cleanup: driver.quit() her durumda (test geçse de çökse de) çalışır.', en: 'Layer 3 — Session cleanup: driver.quit() runs under all circumstances (whether the test passes or crashes).' },
+    { tr: 'Katman 4 — Capability validation: geçersiz bir capability testler başlamadan ÖNCE yakalanır.', en: 'Layer 4 — Capability validation: an invalid capability is caught BEFORE tests even start.' },
+  ],
+}
+
+const browserstackReliabilityLayersPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'browserstack-interview',
+  title: { tr: 'Kendin Dene: Session Cleanup\'ı Her Zaman Çalıştır', en: 'Try It Yourself: Always Run Session Cleanup' },
+  starterCode: `# Hedef: test cokse dahi driver.quit() calissin
+# TODO: dogru pytest fixture yapisini yaz
+def driver():
+    d = create_driver()
+    ? d
+    d.quit()`,
+  solutionCode: `# Hedef: test cokse dahi driver.quit() calissin
+def driver():
+    d = create_driver()
+    yield d
+    d.quit()  # test cokse dahi burasi calisir`,
+  hint: { tr: 'yield kullanan bir pytest fixture, test bittikten (geçse de çökse de) sonra yield\'den sonraki kodu ÇALIŞTIRIR — bu, try/finally ile aynı garantiyi sağlar.', en: 'A pytest fixture using yield RUNS the code after the yield once the test finishes (whether it passes or crashes) — this gives the same guarantee as try/finally.' },
+  successMessage: { tr: 'Doğru! Bu, her test sonrasında BrowserStack session\'ının düzgün kapatılmasını garanti eder — kalıntı açık session\'lar paralel test slotlarını gereksiz yere tüketmez.', en: 'Correct! This guarantees the BrowserStack session closes cleanly after every test — dangling open sessions don\'t needlessly consume parallel test slots.' },
+}
+
 // ─── SECTION 0: GİRİŞ & MİMARİ ──────────────────────────────────────────────
 const section0 = {
   title: { tr: '☁️ BrowserStack Nedir? Mimari Nasıl Çalışır?', en: '☁️ What is BrowserStack? How Does the Architecture Work?' },
@@ -109,6 +897,7 @@ driver.get("https://example.com")           # Test URL'ine git
 print(driver.title)                         # Sayfa başlığını yazdır
 driver.quit()                               # Oturumu kapat`
     },
+    browserstackHubJourneyFilm,
     {
       type: 'quiz',
       question: {
@@ -323,6 +1112,7 @@ BROWSERSTACK_ACCESS_KEY=your_access_key    # BS erişim anahtarı
         }
       ]
     },
+    browserstackSetupChainFilm,
     {
       type: 'quiz',
       question: {
@@ -649,6 +1439,7 @@ driver = webdriver.Remote(
 )`,
       note: { tr: 'URL formatı aynı: USERNAME:KEY@hub. Java\'dan Python\'a geçiş çok kolay.', en: 'URL format is the same: USERNAME:KEY@hub. Transition from Java to Python is straightforward.' }
     },
+    browserstackStatusMarkingFilm,
     {
       type: 'quiz',
       question: {
@@ -884,6 +1675,7 @@ browserstack-sdk pytest tests/ -n auto`
         en: 'If you\'re starting a new project and need cross-browser testing, Playwright + BrowserStack is the ideal combination. Playwright\'s built-in auto-wait reduces the amount of test code to write. If you have an existing Selenium project, you can move it to BS without touching it using the SDK.'
       }
     },
+    browserstackPlaywrightNoChangeFilm,
     {
       type: 'quiz',
       question: {
@@ -1035,6 +1827,7 @@ jobs:
         en: 'If Safari/iOS testing is critical (BrowserStack\'s real iPhone fleet is unmatched), you want visual regression with Percy, and your team uses both Selenium and Playwright, BrowserStack is the most natural choice.'
       }
     },
+    browserstackCicdPipelineFilm,
     {
       type: 'quiz',
       question: {
@@ -1166,6 +1959,7 @@ percy_snapshot(driver, "Cart Page")     # 2. snapshot
 
 driver.quit()`
     },
+    browserstackEcosystemChainFilm,
     {
       type: 'quiz',
       question: {
@@ -1348,6 +2142,9 @@ bstack_options = { "os": "Windows", "osVersion": "11" }`,
         }
       ]
     },
+    browserstackSessionNotCreatedFilm,
+    browserstackInvalidCredsStep,
+    browserstackInvalidCredsPractice,
     {
       type: 'quiz',
       question: {
@@ -1659,7 +2456,10 @@ const section7 = {
           a: { tr: 'Enterprise kurulum planı: Hafta 1 — Hesap kurulumu: BS Enterprise kontrat, sub-accounts, SSO entegrasyonu, IP whitelist. Hafta 2 — Framework kurulumu: pytest + browserstack-sdk, Page Object Model, merkezi fixture\'lar, capability matrix (20+ browser/OS kombinasyonu). Hafta 3 — CI/CD entegrasyonu: GitHub Actions workflow, Jenkins pipeline, secret yönetimi. Hafta 4 — Test yazımı: smoke (50), sanity (200), regression (500+). Hafta 5-6 — Optimizasyon: paralel strateji, Smart Testing, Percy görsel testler, Allure raporlama. Hafta 7-8 — Governance: quota yönetimi, team onboarding, test ownership, haftalık review süreci. Bu süreç Java\'daki Maven + TestNG + Grid enterprise kurulumunun cloud versiyonudur.', en: 'Enterprise setup plan: Week 1 — Account setup: BS Enterprise contract, sub-accounts, SSO integration, IP whitelist. Week 2 — Framework setup: pytest + browserstack-sdk, Page Object Model, central fixtures, capability matrix (20+ browser/OS combinations). Week 3 — CI/CD integration: GitHub Actions workflow, Jenkins pipeline, secret management. Week 4 — Test writing: smoke (50), sanity (200), regression (500+). Weeks 5-6 — Optimization: parallel strategy, Smart Testing, Percy visual tests, Allure reporting. Weeks 7-8 — Governance: quota management, team onboarding, test ownership, weekly review process. This process is the cloud version of Maven + TestNG + Grid enterprise setup in Java.' }
         }
       ]
-    }
+    },
+    browserstackReliabilityInterviewFilm,
+    browserstackReliabilityLayersStep,
+    browserstackReliabilityLayersPractice,
   ]
 }
 
@@ -1702,3 +2502,5 @@ export const browserstackData = {
     sections: [section0, section1, section2, section3, section4, section5, section6, section7]
   }
 }
+
+fillMissingCodeTrios(browserstackData, 'browserstack')

@@ -1114,6 +1114,407 @@ Write code for this scenario; if there is any method or API you are not certain 
   xpReward: 15,
 }
 
+// ─── Dalga 21 (2/2) film + eksik animasyon/sandbox tamamlamaları (CLAUDE.md §9.5) ─
+
+const aiTrustCalibrationFilm = {
+  type: 'video-scene', id: 'claude-trust-calibration-film',
+  title: { tr: '🎬 Göreve Göre Güven Ayarı', en: '🎬 Trust Calibration by Task' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'task', emoji: '📝', label: { tr: 'Görev', en: 'Task' }, color: '#0ea5e9' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude', en: 'Claude' }, color: '#8b5cf6' },
+    { id: 'output', emoji: '📄', label: { tr: 'Çıktı', en: 'Output' }, color: '#f59e0b' },
+    { id: 'check', emoji: '🔍', label: { tr: 'İnsan Kontrolü', en: 'Human Check' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: 'Aynı Claude, iki farklı görev — ama ikisine de aynı güvenle mi yaklaşmalısın?', en: 'The same Claude, two different tasks — but should you trust both equally?' }, positions: { task: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Görev A: "500 test verisi formatını değiştir" — deterministik, tek doğru cevap var, hızlıca göz atmak yeterli.', en: 'Task A: "reformat 500 test data rows" — deterministic, one right answer, a quick glance suffices.' }, code: { tr: `görev = "veriyi CSV'den JSON'a çevir"`, en: `task = "convert data from CSV to JSON"` }, positions: { task: { x: 20, y: 30, scale: 1 }, claude: { x: 50, y: 30, scale: 1.1, pulse: true } }, beams: [{ from: 'task', to: 'claude' }] },
+    { caption: { tr: 'Görev B: "bu bug\'ın severity\'sini belirle" — yargı gerektirir, birden fazla makul cevap olabilir, DİKKATLİ kontrol şart.', en: 'Task B: "decide this bug\'s severity" — requires judgment, multiple reasonable answers exist, CAREFUL review is required.' }, code: { tr: `görev = "severity: critical mi major mı?"`, en: `task = "severity: critical or major?"` }, positions: { task: { x: 20, y: 70, scale: 1 }, claude: { x: 50, y: 70, scale: 1.1, pulse: true } }, beams: [{ from: 'task', to: 'claude' }] },
+    { caption: { tr: 'İki çıktı da aynı akıcılıkta gelir — akıcılık, doğruluğun kanıtı DEĞİLDİR. Format işi düşük risk, yargı işi yüksek risk taşır.', en: 'Both outputs arrive equally fluent — fluency is NOT proof of correctness. The formatting task carries low risk, the judgment task carries high risk.' }, code: { tr: `// akıcı ≠ doğru`, en: `// fluent != correct` }, positions: { claude: { x: 30, y: 50, opacity: 0.6 }, output: { x: 55, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'claude', to: 'output' }] },
+    { caption: { tr: 'Kural: risk yükseldikçe kontrol derinliği artar — format değişikliğine göz at, severity kararını BİZZAT doğrula.', en: 'Rule: the higher the risk, the deeper the check — skim the format change, PERSONALLY verify the severity call.' }, code: { tr: `kontrol_derinliği = f(risk)`, en: `check_depth = f(risk)` }, positions: { output: { x: 30, y: 50, opacity: 0.6 }, check: { x: 55, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'output', to: 'check' }] },
+  ],
+}
+
+const promptIterationFilm = {
+  type: 'video-scene', id: 'claude-prompt-iteration-film',
+  title: { tr: '🎬 Belirsiz Promptun Netleşme Yolculuğu', en: '🎬 A Vague Prompt\'s Journey to Precision' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'vague', emoji: '❓', label: { tr: 'Belirsiz Prompt', en: 'Vague Prompt' }, color: '#ef4444' },
+    { id: 'output1', emoji: '📄', label: { tr: 'Genel Çıktı', en: 'Generic Output' }, color: '#f59e0b' },
+    { id: 'constraint', emoji: '🎯', label: { tr: 'Eklenen Kısıt', en: 'Added Constraint' }, color: '#8b5cf6' },
+    { id: 'output2', emoji: '✅', label: { tr: 'Kullanılabilir Çıktı', en: 'Usable Output' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: '"Bunun için testler yaz" — kısa ama neyi test edeceği, hangi framework, hangi format belirsiz.', en: '"Write tests for this" — short, but what to test, which framework, which format are all unspecified.' }, positions: { vague: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Claude belirsizliği KENDİ VARSAYIMLARIYLA doldurur — belki yanlış framework, belki yanlış senaryo kapsamı.', en: 'Claude fills the ambiguity with ITS OWN ASSUMPTIONS — maybe the wrong framework, maybe the wrong scenario scope.' }, code: { tr: `// varsayılan: pytest, mutlu-yol senaryosu`, en: `// default: pytest, happy-path scenario` }, positions: { vague: { x: 20, y: 50, opacity: 0.6 }, output1: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'vague', to: 'output1' }] },
+    { caption: { tr: 'Kısıt eklenir: "Playwright TS kullan, negatif senaryoları da kapsa, Page Object Model uygula" — artık üç somut sınır var.', en: 'A constraint is added: "use Playwright TS, cover negative scenarios too, apply Page Object Model" — now there are three concrete boundaries.' }, code: { tr: `+ framework: Playwright TS\n+ negatif senaryolar\n+ Page Object Model`, en: `+ framework: Playwright TS\n+ negative scenarios\n+ Page Object Model` }, positions: { output1: { x: 25, y: 50, opacity: 0.5 }, constraint: { x: 52, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'output1', to: 'constraint' }] },
+    { caption: { tr: 'Yeni çıktı artık ilk seferde kullanılabilir — çünkü belirsizlik alanı Claude\'a değil, SANA bırakılmadı.', en: 'The new output is now usable on the first try — because the ambiguity space was left to YOU, not to Claude.' }, positions: { constraint: { x: 25, y: 50, opacity: 0.5 }, output2: { x: 52, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'constraint', to: 'output2' }] },
+    { caption: { tr: 'İlke: her belirsiz kelime ("bunun için", "iyi", "kapsamlı") Claude tarafından bir varsayımla doldurulur — varsayımı SEN yapmazsan, o yapar.', en: 'Principle: every vague word ("for this", "good", "comprehensive") gets filled by an assumption from Claude — if YOU don\'t make the assumption, it will.' }, positions: { output2: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const claudeSetupFilm = {
+  type: 'video-scene', id: 'claude-setup-film',
+  title: { tr: '🎬 API Anahtarından İlk Çağrıya', en: '🎬 From API Key to First Call' },
+  xpReward: 10, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'key', emoji: '🔑', label: { tr: 'API Anahtarı', en: 'API Key' }, color: '#f59e0b' },
+    { id: 'env', emoji: '🔒', label: { tr: 'Ortam Değişkeni', en: 'Env Variable' }, color: '#8b5cf6' },
+    { id: 'call', emoji: '📡', label: { tr: 'API Çağrısı', en: 'API Call' }, color: '#0ea5e9' },
+    { id: 'verified', emoji: '✅', label: { tr: 'Doğrulandı', en: 'Verified' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: 'Console\'dan bir API anahtarı üretilir — bu, hesabına bağlı, TEK SEFERLİK görünen gizli bir dize.', en: 'An API key is generated from the console — a secret string tied to your account, shown only ONCE.' }, positions: { key: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Anahtar koda hardcode EDİLMEZ — bir ortam değişkenine veya .env dosyasına konur, git\'e asla commit edilmez.', en: 'The key is NOT hardcoded — it goes into an environment variable or a .env file, never committed to git.' }, code: { tr: `export ANTHROPIC_API_KEY="sk-..."`, en: `export ANTHROPIC_API_KEY="sk-..."` }, positions: { key: { x: 20, y: 50, opacity: 0.6 }, env: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'key', to: 'env' }] },
+    { caption: { tr: 'Ortam değişkeni okunarak bir test API çağrısı yapılır — henüz bir sonuç yok, sadece bağlantı denemesi.', en: 'The env variable is read to make a test API call — no result yet, just a connection attempt.' }, code: { tr: `client = anthropic.Client()\nclient.messages.create(...)`, en: `client = anthropic.Client()\nclient.messages.create(...)` }, positions: { env: { x: 22, y: 50, opacity: 0.5 }, call: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'env', to: 'call' }] },
+    { caption: { tr: 'Bir cevap döner — kurulumun BAŞARILI olduğunun kanıtı bu geri dönen mesajdır, "anahtar doğru görünüyor" bir varsayım değildir.', en: 'A response comes back — this returned message is the proof the setup SUCCEEDED, not a guess that "the key looks right".' }, positions: { call: { x: 25, y: 50, opacity: 0.5 }, verified: { x: 52, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'call', to: 'verified' }] },
+    { caption: { tr: 'Kural: kurulumun tamamlandığını göstergesi, komutun hatasız BİTMESİ değil, beklenen bir yanıtın GERİ DÖNMESİDİR.', en: 'Rule: proof that setup is complete is not the command finishing WITHOUT error, it is an expected response ACTUALLY coming back.' }, positions: { verified: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const storyToGherkinFilm = {
+  type: 'video-scene', id: 'claude-story-gherkin-film',
+  title: { tr: '🎬 User Story\'den Gherkin Senaryosuna', en: '🎬 From User Story to Gherkin Scenario' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'story', emoji: '📖', label: { tr: 'User Story', en: 'User Story' }, color: '#0ea5e9' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude', en: 'Claude' }, color: '#8b5cf6' },
+    { id: 'scenarios', emoji: '📋', label: { tr: 'Gherkin Senaryoları', en: 'Gherkin Scenarios' }, color: '#f59e0b' },
+    { id: 'gap', emoji: '🕳️', label: { tr: 'Kapsam Boşluğu', en: 'Coverage Gap' }, color: '#ef4444' },
+  ],
+  scenes: [
+    { caption: { tr: '"Kullanıcı sepetine ürün ekleyebilir" — kısa bir cümle, ama arkasında düzinelerce test senaryosu gizli.', en: '"User can add a product to the cart" — a short sentence, but dozens of test scenarios hide behind it.' }, positions: { story: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Claude story\'i Given/When/Then formatına döker — mutlu yol hızlıca ortaya çıkar.', en: 'Claude turns the story into Given/When/Then format — the happy path appears quickly.' }, code: { tr: `Given sepet boş\nWhen ürün eklenir\nThen sepette 1 ürün olur`, en: `Given cart is empty\nWhen product is added\nThen cart has 1 item` }, positions: { story: { x: 20, y: 50, opacity: 0.6 }, claude: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'story', to: 'claude' }] },
+    { caption: { tr: '8 senaryo üretilir: stok yok, maksimum adet, giriş yapmamış kullanıcı, indirim kodu... hepsi makul görünür.', en: '8 scenarios are generated: out of stock, max quantity, logged-out user, discount code... all look reasonable.' }, positions: { claude: { x: 22, y: 50, opacity: 0.5 }, scenarios: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'claude', to: 'scenarios' }] },
+    { caption: { tr: 'Ama Claude story\'de YAZILMAYAN bir şeyi bilemez: eş zamanlı iki sekmeden aynı son stoklu ürünü eklemek. Bu senaryo YOK.', en: 'But Claude cannot know something NOT written in the story: adding the last-in-stock item from two tabs at once. This scenario is MISSING.' }, positions: { scenarios: { x: 25, y: 50, opacity: 0.5 }, gap: { x: 52, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'scenarios', to: 'gap' }] },
+    { caption: { tr: 'İlke: Claude, story\'nin YAZILI kapsamını kapsar — domain bilgisi ve gerçek prod incident\'leri hâlâ testere\'in sorumluluğundadır.', en: 'Principle: Claude covers the WRITTEN scope of the story — domain knowledge and real prod incidents remain the tester\'s responsibility.' }, positions: { gap: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const logToReportFilm = {
+  type: 'video-scene', id: 'claude-log-report-film',
+  title: { tr: '🎬 Ham Log\'dan Yapılandırılmış Rapora', en: '🎬 From Raw Log to Structured Report' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'log', emoji: '📜', label: { tr: 'Ham Log', en: 'Raw Log' }, color: '#64748b' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude', en: 'Claude' }, color: '#8b5cf6' },
+    { id: 'report', emoji: '📄', label: { tr: 'Yapılandırılmış Rapor', en: 'Structured Report' }, color: '#f59e0b' },
+    { id: 'severity', emoji: '🚦', label: { tr: 'Severity Etiketi', en: 'Severity Label' }, color: '#ef4444' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir müşteri destek ekibinden 40 satırlık, gürültülü, yığın izli bir ham log parçası gelir.', en: 'A 40-line, noisy, stack-trace-heavy raw log arrives from customer support.' }, positions: { log: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Claude gürültüyü filtreler: zaman damgaları, tekrarlanan satırlar, alakasız uyarılar bir kenara ayrılır.', en: 'Claude filters the noise: timestamps, repeated lines, unrelated warnings get set aside.' }, positions: { log: { x: 20, y: 50, opacity: 0.6 }, claude: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'log', to: 'claude' }] },
+    { caption: { tr: 'Yapılandırılmış bir rapor doğar: repro adımları, beklenen/gerçek davranış, etkilenen kullanıcı segmenti.', en: 'A structured report is born: repro steps, expected/actual behavior, affected user segment.' }, code: { tr: `Repro: ... \nBeklenen: ...\nGerçek: ...`, en: `Repro: ...\nExpected: ...\nActual: ...` }, positions: { claude: { x: 22, y: 50, opacity: 0.5 }, report: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'claude', to: 'report' }] },
+    { caption: { tr: 'Bir severity etiketi ÖNERİLİR — "critical" çünkü ödeme akışını etkiliyor gibi görünüyor. ÖNERİ, KARAR değildir.', en: 'A severity label is SUGGESTED — "critical" because it appears to affect the payment flow. A SUGGESTION is not a DECISION.' }, positions: { report: { x: 25, y: 50, opacity: 0.5 }, severity: { x: 52, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'report', to: 'severity' }] },
+    { caption: { tr: 'İlke: log\'dan rapora çeviri mekanik bir kazanç, ama severity gibi iş etkisi taşıyan kararlar bir insan tarafından ONAYLANMALI.', en: 'Principle: log-to-report translation is a mechanical win, but business-impact decisions like severity must be CONFIRMED by a human.' }, positions: { severity: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const testDataFilm = {
+  type: 'video-scene', id: 'claude-testdata-film',
+  title: { tr: '🎬 Şemadan Sınır-Değer Test Verisine', en: '🎬 From Schema to Boundary Test Data' },
+  xpReward: 11, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'schema', emoji: '📐', label: { tr: 'Şema', en: 'Schema' }, color: '#0ea5e9' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude', en: 'Claude' }, color: '#8b5cf6' },
+    { id: 'happy', emoji: '😊', label: { tr: 'Mutlu Yol Verisi', en: 'Happy-Path Data' }, color: '#f59e0b' },
+    { id: 'boundary', emoji: '⚠️', label: { tr: 'Sınır Değer Verisi', en: 'Boundary-Value Data' }, color: '#ef4444' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir "kullanıcı adı" alanı: 3-20 karakter, sadece harf/rakam — bu şema, testin sınırlarını çizer.', en: 'A "username" field: 3-20 chars, letters/digits only — this schema draws the test\'s boundaries.' }, positions: { schema: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'İlk istekte Claude "geçerli" veri üretir: "testuser1", "qaEngineer2025" — hepsi kurala uyar ama hiçbiri kuralı ZORLAMAZ.', en: 'On the first ask, Claude generates "valid" data: "testuser1", "qaEngineer2025" — all obey the rule but none STRESS it.' }, positions: { schema: { x: 20, y: 50, opacity: 0.6 }, happy: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'schema', to: 'happy' }] },
+    { caption: { tr: '"sınır değerleri de üret" istendiğinde: 2 karakter (kısa), 21 karakter (uzun), boşluklu, emoji içeren — kuralı KIRAN veriler.', en: 'When asked to "also generate boundary values": 2 chars (short), 21 chars (long), with spaces, with emoji — data that BREAKS the rule.' }, code: { tr: `["ab", "yirmibirkarakterlikbiraddd", "test user", "😀test"]`, en: `["ab", "twentyonecharslongusername", "test user", "😀test"]` }, positions: { happy: { x: 22, y: 50, opacity: 0.5 }, boundary: { x: 52, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'happy', to: 'boundary' }] },
+    { caption: { tr: 'Bu sınır verileri, mutlu-yol verisinin ASLA yakalayamayacağı validasyon bug\'larını ortaya çıkarır.', en: 'These boundary values surface validation bugs that happy-path data would NEVER catch.' }, positions: { boundary: { x: 40, y: 50, scale: 1.15, pulse: true } } },
+    { caption: { tr: 'İlke: "test verisi üret" demek yetmez — "mutlu yol VE sınır değerler" demek, kapsamı iki katına çıkarır.', en: 'Principle: "generate test data" is not enough — saying "happy path AND boundary values" doubles the coverage.' }, positions: { boundary: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const locatorFixLoopFilm = {
+  type: 'video-scene', id: 'claude-locator-fix-film',
+  title: { tr: '🎬 Kırık Locator\'dan Çalışan Teste', en: '🎬 From Broken Locator to Passing Test' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'broken', emoji: '💥', label: { tr: 'Kırık Test', en: 'Broken Test' }, color: '#ef4444' },
+    { id: 'error', emoji: '⚠️', label: { tr: 'Hata Mesajı', en: 'Error Message' }, color: '#f59e0b' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude', en: 'Claude' }, color: '#8b5cf6' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'Düzeltilmiş Test', en: 'Fixed Test' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir UI değişikliği sonrası test çöker: `ElementNotFoundException` — buton artık farklı bir class\'a sahip.', en: 'After a UI change, a test crashes: `ElementNotFoundException` — the button now has a different class.' }, positions: { broken: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Hata mesajı VE hatanın etrafındaki kod birlikte Claude\'a verilir — sadece hata METNİ yetmez, BAĞLAM gerekir.', en: 'The error message AND the surrounding code are given to Claude together — just the error TEXT is not enough, CONTEXT is required.' }, code: { tr: `driver.find_element(By.CLASS_NAME, "btn-submit-old")`, en: `driver.find_element(By.CLASS_NAME, "btn-submit-old")` }, positions: { broken: { x: 20, y: 50, opacity: 0.6 }, error: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'broken', to: 'error' }] },
+    { caption: { tr: 'Claude yeni DOM\'u inceler ve daha dayanıklı bir locator önerir: class yerine `data-testid`.', en: 'Claude inspects the new DOM and suggests a more resilient locator: `data-testid` instead of class.' }, code: { tr: `driver.find_element(By.CSS_SELECTOR, "[data-testid='submit-btn']")`, en: `driver.find_element(By.CSS_SELECTOR, "[data-testid='submit-btn']")` }, positions: { error: { x: 22, y: 50, opacity: 0.5 }, claude: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'error', to: 'claude' }] },
+    { caption: { tr: 'Test yeniden çalıştırılır ve GEÇER — ama bu döngü otomatik değil, insan hâlâ "çalıştır ve doğrula" adımını yapar.', en: 'The test is re-run and PASSES — but this loop isn\'t automatic, a human still performs the "run and verify" step.' }, positions: { claude: { x: 25, y: 50, opacity: 0.5 }, fixed: { x: 52, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'claude', to: 'fixed' }] },
+    { caption: { tr: 'İlke: Claude locator ÖNERİR, ama sadece daha dayanıklı MI olduğunu (class değil data-testid), gerçekten ÇALIŞTIĞINI da doğrulaman gerekir.', en: 'Principle: Claude SUGGESTS a locator, but you still must verify it is actually more resilient (data-testid, not class) AND that it truly WORKS.' }, positions: { fixed: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const apiAssertionFilm = {
+  type: 'video-scene', id: 'claude-api-assertion-film',
+  title: { tr: '🎬 %100 Yeşil Suite\'in Kör Noktası', en: '🎬 The Blind Spot of a 100% Green Suite' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'response', emoji: '📦', label: { tr: 'API Yanıtı', en: 'API Response' }, color: '#0ea5e9' },
+    { id: 'status', emoji: '✅', label: { tr: 'Sadece Status Kontrolü', en: 'Status-Only Check' }, color: '#f59e0b' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude', en: 'Claude' }, color: '#8b5cf6' },
+    { id: 'deep', emoji: '🔬', label: { tr: 'Derin Assertion\'lar', en: 'Deep Assertions' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir API test suite\'i %100 yeşil — her istek 200 OK döndürüyor. Ama bu, cevabın DOĞRU olduğu anlamına mı gelir?', en: 'An API test suite is 100% green — every request returns 200 OK. But does that mean the response is CORRECT?' }, positions: { response: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Mevcut testler SADECE status kodunu kontrol ediyor — body içeriği, alan tipleri, iş kuralları hiç doğrulanmıyor.', en: 'The existing tests ONLY check the status code — body content, field types, business rules are never verified.' }, positions: { response: { x: 20, y: 50, opacity: 0.6 }, status: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'response', to: 'status' }] },
+    { caption: { tr: 'Claude\'a gerçek response örneği verilir: "bu body\'de hangi assertion\'lar eksik?" diye sorulur.', en: 'Claude is given a real response sample: "which assertions are missing from this body?" is asked.' }, code: { tr: `{ "price": "19.99" } // string mi olmalı, number mi?`, en: `{ "price": "19.99" } // should this be a string or a number?` }, positions: { status: { x: 22, y: 50, opacity: 0.5 }, claude: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'status', to: 'claude' }] },
+    { caption: { tr: 'Claude tip kontrolü, null-check, sayısal aralık ve iş kuralı assertion\'ları önerir — status kodunun asla göremeyeceği katman.', en: 'Claude suggests type checks, null-checks, numeric range and business-rule assertions — a layer status codes can never see.' }, positions: { claude: { x: 25, y: 50, opacity: 0.5 }, deep: { x: 52, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'claude', to: 'deep' }] },
+    { caption: { tr: 'İlke: "%100 yeşil" bir suite kalite kanıtı değildir — ne test EDİLMEDİĞİNİ sormak, yeşilin arkasına bakmaktır.', en: 'Principle: a "100% green" suite is not proof of quality — asking what is NOT being tested is looking behind the green.' }, positions: { deep: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const agentTerminalLoopFilm = {
+  type: 'video-scene', id: 'claude-code-terminal-film',
+  title: { tr: '🎬 Terminaldeki Ajan Döngüsü', en: '🎬 The Agent Loop in the Terminal' },
+  xpReward: 13, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'task', emoji: '📝', label: { tr: 'Kapsamlı Görev', en: 'Scoped Task' }, color: '#0ea5e9' },
+    { id: 'read', emoji: '👀', label: { tr: 'Dosyaları Oku', en: 'Read Files' }, color: '#8b5cf6' },
+    { id: 'edit', emoji: '✏️', label: { tr: 'Değişiklik Yap', en: 'Make Edit' }, color: '#f59e0b' },
+    { id: 'verify', emoji: '🧪', label: { tr: 'Testi Çalıştır', en: 'Run Test' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: '"Şu flaky testi düzelt" görevi verilir — ama sınırları belirsiz: hangi dosyalara dokunabilir?', en: 'The task "fix this flaky test" is given — but its boundaries are unclear: which files can it touch?' }, positions: { task: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Claude Code önce ilgili dosyaları OKUR — test dosyasını, sayfa nesnesini, son 3 commit\'i inceler, hiçbir şey değiştirmeden.', en: 'Claude Code first READS the relevant files — the test file, the page object, the last 3 commits, without changing anything yet.' }, positions: { task: { x: 20, y: 50, opacity: 0.6 }, read: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'task', to: 'read' }] },
+    { caption: { tr: 'Kök nedeni bulur (sabit bir `sleep` yerine koşullu bekleme eksik) ve TEK dosyada, KAPSAM DIŞINA çıkmadan değişiklik yapar.', en: 'It finds the root cause (missing conditional wait instead of a fixed `sleep`) and edits ONE file, without going OUT OF SCOPE.' }, code: { tr: `- time.sleep(3)\n+ wait_for(lambda: element.is_visible())`, en: `- time.sleep(3)\n+ wait_for(lambda: element.is_visible())` }, positions: { read: { x: 22, y: 50, opacity: 0.5 }, edit: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'read', to: 'edit' }] },
+    { caption: { tr: 'Değişiklik sonrası test OTOMATİK çalıştırılır — "düzelttim" iddiası, gerçek bir test koşumuyla DOĞRULANIR.', en: 'After the edit, the test is AUTOMATICALLY run — the claim "I fixed it" is VERIFIED by an actual test run.' }, positions: { edit: { x: 25, y: 50, opacity: 0.5 }, verify: { x: 52, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'edit', to: 'verify' }] },
+    { caption: { tr: 'İlke: bir ajana geniş, sınırsız görev vermek yerine dar kapsamlı bir görev vermek, hem doğruluğu artırır hem gözden geçirmeyi kolaylaştırır.', en: 'Principle: giving an agent a narrowly scoped task instead of a broad, unbounded one both improves correctness and makes review easier.' }, positions: { verify: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const mcpConnectionFilm = {
+  type: 'video-scene', id: 'claude-mcp-film',
+  title: { tr: '🎬 MCP: Claude Harici Bir Araca Nasıl Bağlanır', en: '🎬 MCP: How Claude Connects to an External Tool' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude', en: 'Claude' }, color: '#8b5cf6' },
+    { id: 'server', emoji: '🔌', label: { tr: 'MCP Server', en: 'MCP Server' }, color: '#0ea5e9' },
+    { id: 'tools', emoji: '🧰', label: { tr: 'Araç Listesi', en: 'Tool List' }, color: '#f59e0b' },
+    { id: 'result', emoji: '📊', label: { tr: 'Gerçek Zamanlı Sonuç', en: 'Live Result' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: 'Claude\'un eğitim verisi dondurulmuştur — ama sen "şu an production\'da hangi testler kırık?" diye sorarsın.', en: 'Claude\'s training data is frozen — but you ask "which tests are broken in production right now?"' }, positions: { claude: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Bir MCP server\'a bağlanır — bu, Claude\'a canlı bir sisteme (CI, Jira, veritabanı) erişim VEREN standart bir köprüdür.', en: 'It connects to an MCP server — a standard bridge that GIVES Claude access to a live system (CI, Jira, a database).' }, positions: { claude: { x: 20, y: 50, opacity: 0.6 }, server: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'claude', to: 'server' }] },
+    { caption: { tr: 'Server, Claude\'a hangi ARAÇLARI kullanabileceğini bildirir: "get_failed_tests", "get_build_status" gibi.', en: 'The server tells Claude which TOOLS it can use: things like "get_failed_tests", "get_build_status".' }, positions: { server: { x: 22, y: 50, opacity: 0.5 }, tools: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'server', to: 'tools' }] },
+    { caption: { tr: 'Claude `get_failed_tests` aracını ÇAĞIRIR ve CI\'daki GÜNCEL, canlı veriyi alır — eğitim verisinden tahmin etmez.', en: 'Claude CALLS the `get_failed_tests` tool and gets the CURRENT, live data from CI — it does not guess from training data.' }, positions: { tools: { x: 25, y: 50, opacity: 0.5 }, result: { x: 52, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'tools', to: 'result' }] },
+    { caption: { tr: 'İlke: MCP, Claude\'un "bilmediği" ile "şu an sorgulayabildiği" arasındaki farkı kapatır — statik bilgiyi canlı veriyle değiştirir.', en: 'Principle: MCP closes the gap between what Claude "doesn\'t know" and what it "can query right now" — replacing static knowledge with live data.' }, positions: { result: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const ciPromptLibraryFilm = {
+  type: 'video-scene', id: 'claude-ci-prompt-library-film',
+  title: { tr: '🎬 PR Diff\'ten Ekip Prompt Kütüphanesine', en: '🎬 From a PR Diff to a Team Prompt Library' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'diff', emoji: '📝', label: { tr: 'PR Diff', en: 'PR Diff' }, color: '#0ea5e9' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude (CI)', en: 'Claude (CI)' }, color: '#8b5cf6' },
+    { id: 'comment', emoji: '💬', label: { tr: 'İnceleme Yorumu', en: 'Review Comment' }, color: '#f59e0b' },
+    { id: 'library', emoji: '📚', label: { tr: 'Paylaşılan Prompt Kütüphanesi', en: 'Shared Prompt Library' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir GitHub Actions workflow\'u her PR açıldığında tetiklenir — bu tek seferlik bir chat mesajı DEĞİLDİR, tekrar eden bir süreçtir.', en: 'A GitHub Actions workflow triggers on every PR — this is NOT a one-off chat message, it is a repeating process.' }, positions: { diff: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Claude PR diff\'ini alır ve sabit, ekip tarafından onaylanmış bir promptla değerlendirir — test kapsamı eksik mi, yeni assertion gerekli mi?', en: 'Claude receives the PR diff and evaluates it with a fixed, team-approved prompt — is test coverage missing, is a new assertion needed?' }, positions: { diff: { x: 20, y: 50, opacity: 0.6 }, claude: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'diff', to: 'claude' }] },
+    { caption: { tr: 'PR\'a otomatik bir yorum bırakılır: "yeni endpoint için negatif senaryo testi eksik görünüyor" — bir insan geliştirici gibi.', en: 'An automatic comment is left on the PR: "the new endpoint seems to be missing a negative-scenario test" — like a human reviewer.' }, positions: { claude: { x: 22, y: 50, opacity: 0.5 }, comment: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'claude', to: 'comment' }] },
+    { caption: { tr: 'Bu prompt tek bir kişinin dosyasında KALMAZ — ekip tarafından paylaşılan, versiyonlanan bir kütüphaneye eklenir.', en: 'This prompt does NOT stay in one person\'s file — it gets added to a shared, versioned library used by the team.' }, positions: { comment: { x: 25, y: 50, opacity: 0.5 }, library: { x: 52, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'comment', to: 'library' }] },
+    { caption: { tr: 'İlke: CI\'a gömülü bir prompt, "bir keresinde iyi çalıştı" değil, "her PR\'da tutarlı çalışıyor" olduğu için değerlidir.', en: 'Principle: a prompt embedded in CI is valuable not because it "worked well once" but because it "works consistently on every PR".' }, positions: { library: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const edgeCaseFactoryFilm = {
+  type: 'video-scene', id: 'claude-edge-case-factory-film',
+  title: { tr: '🎬 Mutlu Yoldan Edge Case Fabrikasına', en: '🎬 From Happy Path to an Edge-Case Factory' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'happy', emoji: '😊', label: { tr: 'Mutlu Yol', en: 'Happy Path' }, color: '#0ea5e9' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude', en: 'Claude' }, color: '#8b5cf6' },
+    { id: 'edges', emoji: '🕸️', label: { tr: 'Ham Edge Case Listesi', en: 'Raw Edge-Case List' }, color: '#f59e0b' },
+    { id: 'prioritized', emoji: '🏆', label: { tr: 'Önceliklendirilmiş Liste', en: 'Prioritized List' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: '"Ödeme akışını test ettik" denir — ama SADECE kart bilgisi doğru girildiğinde test edildi mi?', en: '"We tested the payment flow" is said — but was it tested ONLY when card details are entered correctly?' }, positions: { happy: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Claude\'a mutlu yol akışı verilir: "bunun kırılabileceği TÜM yolları listele" istenir.', en: 'The happy-path flow is given to Claude: "list ALL the ways this can break" is requested.' }, positions: { happy: { x: 20, y: 50, opacity: 0.6 }, claude: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'happy', to: 'claude' }] },
+    { caption: { tr: 'Onlarca edge case fışkırır: ağ kopması ödeme sırasında, çift tıklama, süresi dolmuş kart, negatif miktar, eş zamanlı iki ödeme...', en: 'Dozens of edge cases pour out: network drop mid-payment, double-click, expired card, negative amount, two concurrent payments...' }, positions: { claude: { x: 22, y: 50, opacity: 0.5 }, edges: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'claude', to: 'edges' }] },
+    { caption: { tr: 'Ham liste FAZLA geniştir — hepsini test etmek imkansız. Claude\'dan iş etkisine göre ÖNCELİKLENDİRME istenir.', en: 'The raw list is TOO broad — testing everything is impossible. Claude is asked to PRIORITIZE by business impact.' }, positions: { edges: { x: 25, y: 50, opacity: 0.5 }, prioritized: { x: 52, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'edges', to: 'prioritized' }] },
+    { caption: { tr: 'İlke: edge case üretmek kolay kısımdır — asıl QA becerisi, hangi 5 tanesinin gerçekten TEST EDİLMEYE değdiğine karar vermektir.', en: 'Principle: generating edge cases is the easy part — the real QA skill is deciding which 5 are actually WORTH testing.' }, positions: { prioritized: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const visualDiffFilm = {
+  type: 'video-scene', id: 'claude-visual-diff-film',
+  title: { tr: '🎬 İki Ekran Görüntüsü Arasındaki Anlamlı Fark', en: '🎬 The Meaningful Difference Between Two Screenshots' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'baseline', emoji: '🖼️', label: { tr: 'Baseline Görüntü', en: 'Baseline Screenshot' }, color: '#0ea5e9' },
+    { id: 'current', emoji: '🖼️', label: { tr: 'Güncel Görüntü', en: 'Current Screenshot' }, color: '#f59e0b' },
+    { id: 'claude', emoji: '🤖', label: { tr: 'Claude Vision', en: 'Claude Vision' }, color: '#8b5cf6' },
+    { id: 'verdict', emoji: '⚖️', label: { tr: 'Anlamlı mı, Gürültü mü?', en: 'Meaningful or Noise?' }, color: '#ef4444' },
+  ],
+  scenes: [
+    { caption: { tr: 'Piksel-piksel bir diff aracı iki görüntü arasında %2 fark bulur — bu bir bug mu, yoksa font render farkı mı?', en: 'A pixel-by-pixel diff tool finds a 2% difference between two images — is this a bug, or just a font-rendering difference?' }, positions: { baseline: { x: 30, y: 50, scale: 1.05 }, current: { x: 65, y: 50, scale: 1.05, pulse: true } } },
+    { caption: { tr: 'Klasik piksel-diff SADECE "bir şey değişti" der — hangi ANLAMDA değiştiğini bilmez, bir buton kaymasıyla anti-aliasing farkını ayırt edemez.', en: 'A classic pixel-diff ONLY says "something changed" — it does not know WHAT it means, it cannot tell a shifted button from an anti-aliasing difference.' }, positions: { baseline: { x: 20, y: 50, opacity: 0.6 }, current: { x: 45, y: 50, opacity: 0.6 }, claude: { x: 65, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'current', to: 'claude' }] },
+    { caption: { tr: 'İki görüntü Claude Vision\'a birlikte verilir: "buradaki fark kullanıcı için ANLAMLI mı, yoksa render gürültüsü mü?"', en: 'Both images are given to Claude Vision together: "is this difference MEANINGFUL to a user, or just render noise?"' }, code: { tr: `soru = "Bu fark kullanıcıyı etkiler mi?"`, en: `question = "Does this difference affect the user?"` }, positions: { claude: { x: 45, y: 50, scale: 1.2, pulse: true } } },
+    { caption: { tr: 'Claude ayırt eder: "submit butonu 15px sola kaymış, bu bir layout bug\'ı" — ama "gölge rengi 1 ton farklı" gürültü olarak işaretlenir.', en: 'Claude distinguishes: "the submit button shifted 15px left, this is a layout bug" — but "shadow color is 1 shade off" gets flagged as noise.' }, positions: { claude: { x: 25, y: 50, opacity: 0.5 }, verdict: { x: 55, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'claude', to: 'verdict' }] },
+    { caption: { tr: 'İlke: görsel regresyon testinin asıl maliyeti diff BULMAK değil, YÜZLERCE yanlış-pozitifi elemektir — vision modeli tam bu noktada devreye girer.', en: 'Principle: the real cost of visual regression testing is not FINDING diffs, it is filtering out HUNDREDS of false positives — this is exactly where a vision model helps.' }, positions: { verdict: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const claudeInterviewFilm = {
+  type: 'video-scene', id: 'claude-interview-film',
+  title: { tr: '🎬 Mülakatta "AI Kullanıyorum" ile "AI\'ı Doğru Kullanıyorum" Arasındaki Fark', en: '🎬 The Interview Gap Between "I Use AI" and "I Use AI Correctly"' },
+  xpReward: 13, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'weak', emoji: '❌', label: { tr: 'Zayıf Cevap', en: 'Weak Answer' }, color: '#ef4444' },
+    { id: 'medium', emoji: '📚', label: { tr: 'Orta Cevap', en: 'Medium Answer' }, color: '#f59e0b' },
+    { id: 'strong', emoji: '🎯', label: { tr: 'Güçlü Cevap', en: 'Strong Answer' }, color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: '"Claude ile test yazmayı nasıl güvenilir hâle getirirsin?" — mülakatçının asıl aradığı, tek cümlelik bir cevap değil.', en: '"How do you make writing tests with Claude reliable?" — what the interviewer is really looking for is not a one-line answer.' }, positions: { weak: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Zayıf: "Claude\'a sorarım, kodu alırım" — doğrulama, risk seviyesi veya sınır ayarı YOK, bir kırmızı bayrak.', en: 'Weak: "I ask Claude and take the code" — no verification, no risk-tiering, no scoping mentioned, a red flag.' }, positions: { weak: { x: 30, y: 50, scale: 1.15, pulse: true } } },
+    { caption: { tr: 'Orta: "Çıktıyı her zaman gözden geçiririm" — doğru yönde ama hâlâ somut değil, HANGİ durumda ne kadar gözden geçirdiği belirsiz.', en: 'Medium: "I always review the output" — right direction but still vague, unclear HOW MUCH review happens in which case.' }, positions: { weak: { x: 20, y: 50, opacity: 0.5 }, medium: { x: 50, y: 50, scale: 1.15, pulse: true } } },
+    { caption: { tr: 'Güçlü: "Göreve göre güven kalibre ederim, kapsamı daraltırım, çıktıyı gerçek bir koşumla doğrularım, riskli kararları BEN veririm" — dört somut teknik.', en: 'Strong: "I calibrate trust by task, scope tasks narrowly, verify output with a real run, and I make the risky decisions MYSELF" — four concrete techniques.' }, positions: { medium: { x: 25, y: 50, opacity: 0.5 }, strong: { x: 55, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'medium', to: 'strong' }] },
+    { caption: { tr: 'İlke: bir mülakatçı "AI kullandım" ile "AI\'ın nerede kırıldığını ve bunu nasıl telafi ettiğimi biliyorum" arasındaki farkı arar.', en: 'Principle: an interviewer looks for the gap between "I used AI" and "I know where it breaks and how I compensate for it".' }, positions: { strong: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+const alwaysPassRiskFilm = {
+  type: 'video-scene', id: 'claude-always-pass-risk-film',
+  title: { tr: '🎬 Her Zaman Geçen Assertion Tuzağı', en: '🎬 The Always-Passing Assertion Trap' },
+  xpReward: 12, sceneDurationMs: 3400, stageHeight: 260,
+  actors: [
+    { id: 'test', emoji: '🧪', label: { tr: 'Üretilen Test', en: 'Generated Test' }, color: '#0ea5e9' },
+    { id: 'feature', emoji: '⚙️', label: { tr: 'Özellik', en: 'Feature' }, color: '#f59e0b' },
+    { id: 'broken', emoji: '💥', label: { tr: 'Özellik Kasıtlı Kırılır', en: 'Feature Deliberately Broken' }, color: '#ef4444' },
+    { id: 'stillgreen', emoji: '🚨', label: { tr: 'Test Hâlâ Yeşil!', en: 'Test Still Green!' }, color: '#ef4444' },
+  ],
+  scenes: [
+    { caption: { tr: 'Claude bir test üretir, koşulur, YEŞİL geçer — güven verici görünür.', en: 'Claude generates a test, it runs, it passes GREEN — looks reassuring.' }, positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'Ama bu testin GERÇEKTEN bir şey doğruladığını nereden biliyorsun? Tek yol: özelliği KASITLI olarak boz.', en: 'But how do you know this test ACTUALLY verifies anything? The only way: DELIBERATELY break the feature.' }, positions: { test: { x: 20, y: 50, opacity: 0.6 }, feature: { x: 50, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'test', to: 'feature' }] },
+    { caption: { tr: 'Kodda bilerek bir bug enjekte edilir — buton artık hiçbir şey yapmıyor.', en: 'A bug is intentionally injected into the code — the button now does nothing.' }, code: { tr: `// kasıtlı bozulma: onClick kaldırıldı`, en: `// deliberate break: onClick removed` }, positions: { feature: { x: 22, y: 50, opacity: 0.5 }, broken: { x: 50, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'feature', to: 'broken' }] },
+    { caption: { tr: 'Test yeniden çalıştırılır — ve HÂLÂ YEŞİL geçer! Bu, assertion\'ın hiçbir şeyi gerçekten kontrol etmediğinin kanıtıdır.', en: 'The test is re-run — and it STILL PASSES GREEN! This proves the assertion never actually checked anything.' }, positions: { broken: { x: 25, y: 50, opacity: 0.5 }, stillgreen: { x: 52, y: 50, scale: 1.3, pulse: true } }, beams: [{ from: 'broken', to: 'stillgreen' }] },
+    { caption: { tr: 'İlke: "her zaman geçen test", "her zaman doğru test"ten daha tehlikelidir — sessizce YANLIŞ bir güven verir. Her yeni assertion\'ı bir kez KIRARAK doğrula.', en: 'Principle: an "always-passing test" is more dangerous than a "wrong test" — it silently gives FALSE confidence. Verify every new assertion by BREAKING it once.' }, positions: { stillgreen: { x: 40, y: 50, scale: 1.1 } } },
+  ],
+}
+
+// Gap-fill: sandbox for section 0 (Intro)
+const trustLevelPractice = {
+  type: 'code-playground', relatedTopicId: 'claude-trust-level-practice', id: 'claude-trust-level-practice',
+  label: { tr: 'Pratik: Güven Seviyesini Seç', en: 'Practice: Pick the Trust Level' },
+  language: 'text',
+  task: { tr: 'Claude\'dan "500 satır CSV\'yi JSON\'a çevir" istedin. Bu görev düşük risk mi, yüksek risk mi — ve neden?', en: 'You asked Claude to "convert 500 CSV rows to JSON". Is this task low-risk or high-risk — and why?' },
+  explanation: { tr: 'TODO satırını doğru cevapla değiştir.', en: 'Replace the TODO line with the correct answer.' },
+  code: { tr: `TODO: düşük risk | yüksek risk`, en: `TODO: low-risk | high-risk` },
+  starterCode: { tr: `TODO: düşük risk | yüksek risk`, en: `TODO: low-risk | high-risk` },
+  solutionCode: { tr: `düşük risk — deterministik bir dönüşüm, tek doğru cevap var, hızlı göz atmak yeterli`, en: `low-risk — a deterministic transform, one right answer exists, a quick glance is enough` },
+  expected: { tr: 'Format dönüşümü yargı gerektirmez — severity belirleme gibi yüksek riskli görevlerden farklı olarak, çıktıyı doğrulamak kolaydır.', en: 'Format conversion requires no judgment — unlike a high-risk task like severity assignment, verifying the output is easy.' },
+  hints: [{ tr: 'Görev deterministik mi (tek doğru cevap) yoksa yargısal mı (birden fazla makul cevap)?', en: 'Is the task deterministic (one right answer) or judgment-based (multiple reasonable answers)?' }],
+  xpReward: 10,
+}
+
+// Gap-fill: anim + sandbox for section 11 (LLM-as-a-Judge)
+const judgeCalibrationStep = {
+  type: 'step-animation', id: 'claude-judge-calibration-step-01',
+  title: { tr: 'Adım Adım: Bir Judge\'ı Kalibre Etmek', en: 'Step by Step: Calibrating a Judge' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'İnsan küçük bir örneği elle puanlar', en: 'A human hand-scores a small sample' }, detail: { tr: '20 bug raporunu bir insan rubrikle puanlar — bu, "doğru" kabul edilen referans puanlardır.', en: 'A human scores 20 bug reports against the rubric — these become the "correct" reference scores.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Judge model AYNI örneği puanlar', en: 'The judge model scores the SAME sample' }, detail: { tr: 'Aynı 20 rapor judge modele verilir — insan puanlarını GÖRMEDEN kendi puanlarını üretir.', en: 'The same 20 reports go to the judge model — it produces its own scores WITHOUT seeing the human ones.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'İki puan seti karşılaştırılır', en: 'The two score sets are compared' }, detail: { tr: 'Sapma büyükse (inter-rater reliability düşükse), rubrik metni netleştirilir ve döngü TEKRARLANIR.', en: 'If the gap is large (low inter-rater reliability), the rubric wording is clarified and the loop REPEATS.' } },
+  ],
+}
+
+const judgeRubricPractice = {
+  type: 'code-playground', relatedTopicId: 'claude-judge-rubric-practice', id: 'claude-judge-rubric-practice',
+  label: { tr: 'Pratik: Kalibrasyonsuz Judge\'ın Riski', en: 'Practice: The Risk of an Uncalibrated Judge' },
+  language: 'text',
+  task: { tr: 'Bir judge model hiç insan kalibrasyonu yapılmadan production\'a alındı. En büyük risk nedir?', en: 'A judge model goes to production without any human calibration. What is the biggest risk?' },
+  explanation: { tr: 'TODO satırını tamamla.', en: 'Complete the TODO line.' },
+  code: { tr: `TODO: en büyük risk nedir?`, en: `TODO: what is the biggest risk?` },
+  starterCode: { tr: `TODO: en büyük risk nedir?`, en: `TODO: what is the biggest risk?` },
+  solutionCode: { tr: `Bir AI, başka bir AI'ı körü körüne yargılar — judge'ın kendi sistematik önyargıları (örn. uzun cevapları hep yüksek puanlaması) hiç yakalanmaz.`, en: `One AI blindly judges another — the judge's own systematic biases (e.g. always scoring longer answers higher) never get caught.` },
+  expected: { tr: 'Kalibrasyon, judge\'ın insan yargısıyla ÖRTÜŞTÜĞÜNÜ kanıtlayan tek adımdır — onsuz judge\'a güvenmek bir varsayımdır, kanıt değil.', en: 'Calibration is the only step that PROVES the judge agrees with human judgment — trusting a judge without it is an assumption, not evidence.' },
+  hints: [{ tr: 'Judge modelin kendi önyargıları olabilir — bunu kim yakalar?', en: 'The judge model can have its own biases — who catches that?' }],
+  xpReward: 12,
+}
+
+// Gap-fill: anim + sandbox for section 12 (Edge Case Factory)
+const edgeCaseTriageStep = {
+  type: 'step-animation', id: 'claude-edge-case-triage-step-01',
+  title: { tr: 'Adım Adım: Ham Listeden Önceliklendirilmiş Listeye', en: 'Step by Step: From Raw List to Prioritized List' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Ham liste: 40+ edge case', en: 'Raw list: 40+ edge cases' }, detail: { tr: 'Claude, ödeme akışı için düzinelerce olası kırılma yolu üretir — hepsi TEORİK olarak mümkündür.', en: 'Claude generates dozens of possible breakage paths for the payment flow — all THEORETICALLY possible.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Her biri iş etkisine göre puanlanır', en: 'Each is scored by business impact' }, detail: { tr: '"Eş zamanlı iki ödeme" → yüksek etki, sık görülür. "Emoji içeren isim" → düşük etki, nadir.', en: '"Two concurrent payments" → high impact, common. "Name containing emoji" → low impact, rare.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'İlk 5 test edilir, geri kalanı belgelenir', en: 'The top 5 get tested, the rest get documented' }, detail: { tr: 'Sınırlı test bütçesi en yüksek riskli 5 senaryoya harcanır — geri kalanı backlog\'a düşer, unutulmaz.', en: 'The limited testing budget goes to the top 5 highest-risk scenarios — the rest go to the backlog, not forgotten.' } },
+  ],
+}
+
+const edgeCasePriorityPractice = {
+  type: 'code-playground', relatedTopicId: 'claude-edge-case-priority-practice', id: 'claude-edge-case-priority-practice',
+  label: { tr: 'Pratik: Hangi Edge Case Önce Test Edilir?', en: 'Practice: Which Edge Case Gets Tested First?' },
+  language: 'text',
+  task: { tr: 'İki edge case: (A) "eş zamanlı iki ödeme aynı son stoklu ürünü alır" (B) "kullanıcı adı Unicode kontrol karakteri içerir". Hangisi önce test edilir?', en: 'Two edge cases: (A) "two concurrent payments claim the last-in-stock item" (B) "username contains a Unicode control character". Which gets tested first?' },
+  explanation: { tr: 'TODO satırını doğru seçenekle değiştir.', en: 'Replace the TODO line with the correct option.' },
+  code: { tr: `TODO: A | B`, en: `TODO: A | B` },
+  starterCode: { tr: `TODO: A | B`, en: `TODO: A | B` },
+  solutionCode: { tr: `A`, en: `A` },
+  expected: { tr: 'A, gerçek işlemleri (çift satış, gelir kaybı) etkileyen SIK bir senaryodur. B teorik olarak mümkün ama nadir ve düşük etkilidir.', en: 'A is a COMMON scenario affecting real transactions (double-sell, revenue loss). B is theoretically possible but rare and low-impact.' },
+  hints: [{ tr: 'Önceliklendirme = sıklık × iş etkisi.', en: 'Prioritization = frequency × business impact.' }],
+  xpReward: 11,
+}
+
+// Gap-fill: anim + sandbox for section 13 (AI Vision)
+const visionMeaningfulStep = {
+  type: 'step-animation', id: 'claude-vision-meaningful-step-01',
+  title: { tr: 'Adım Adım: Anlamlı Fark mı, Render Gürültüsü mü?', en: 'Step by Step: Meaningful Difference or Render Noise?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Piksel-diff bir fark bulur', en: 'Pixel-diff finds a difference' }, detail: { tr: 'Klasik araç %3 fark raporlar — ama bu sayı TEK BAŞINA hiçbir şey söylemez.', en: 'A classic tool reports a 3% difference — but that number ALONE says nothing.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Vision modeli iki görüntüyü ANLAMSAL olarak karşılaştırır', en: 'A vision model compares the two images SEMANTICALLY' }, detail: { tr: '"Kullanıcı için bu fark fark edilir mi?" sorusu sorulur — piksel sayısı değil, ALGI ölçülür.', en: '"Would a user notice this difference?" is asked — PERCEPTION is measured, not pixel count.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Sonuç sınıflandırılır: bug ya da gürültü', en: 'The result gets classified: bug or noise' }, detail: { tr: 'Buton kayması → bug, layout testine gider. Anti-aliasing farkı → gürültü, otomatik ELENIR.', en: 'Button shift → bug, goes to layout testing. Anti-aliasing difference → noise, gets automatically FILTERED.' } },
+  ],
+}
+
+const visionVerdictPractice = {
+  type: 'code-playground', relatedTopicId: 'claude-vision-verdict-practice', id: 'claude-vision-verdict-practice',
+  label: { tr: 'Pratik: Bug mu, Gürültü mü?', en: 'Practice: Bug or Noise?' },
+  language: 'text',
+  task: { tr: 'Piksel-diff %1.2 fark buldu: "checkout" butonu ekranın sağına 40px kaymış. Bu bir layout bug\'ı mı, yoksa render gürültüsü mü?', en: 'Pixel-diff found a 1.2% difference: the "checkout" button shifted 40px to the right. Is this a layout bug or render noise?' },
+  explanation: { tr: 'TODO satırını doğru cevapla değiştir.', en: 'Replace the TODO line with the correct answer.' },
+  code: { tr: `TODO: layout bug | render gürültüsü`, en: `TODO: layout bug | render noise` },
+  starterCode: { tr: `TODO: layout bug | render gürültüsü`, en: `TODO: layout bug | render noise` },
+  solutionCode: { tr: `layout bug`, en: `layout bug` },
+  expected: { tr: 'Düşük piksel yüzdesi (%1.2) küçük görünür, ama 40px\'lik bir buton kayması KULLANICI için fark edilirdir — piksel oranı değil, algısal etki önemlidir.', en: 'A low pixel percentage (1.2%) looks small, but a 40px button shift IS noticeable to a user — perceptual impact matters, not the pixel ratio.' },
+  hints: [{ tr: 'Küçük piksel yüzdesi her zaman "önemsiz" demek değildir — NEYİN değiştiğine bak.', en: 'A small pixel percentage doesn\'t always mean "unimportant" — look at WHAT changed.' }],
+  xpReward: 11,
+}
+
+// Gap-fill: anim + sandbox for section 15 (Interview Q&A)
+const claudeInterviewLayerStep = {
+  type: 'step-animation', id: 'claude-interview-layer-step-01',
+  title: { tr: 'Adım Adım: Katmanlı Bir Mülakat Cevabı Kurmak', en: 'Step by Step: Building a Layered Interview Answer' },
+  steps: [
+    { id: 1, icon: '❌', label: { tr: 'Zayıf: teknik isim yok', en: 'Weak: no technique named' }, detail: { tr: '"Dikkatli kullanırım" — hiçbir somut teknik, süreç veya araç adı GEÇMEZ.', en: '"I use it carefully" — no concrete technique, process, or tool name is MENTIONED.' } },
+    { id: 2, icon: '📚', label: { tr: 'Orta: tek teknik', en: 'Medium: one technique' }, detail: { tr: '"Çıktıyı gözden geçiririm" — bir teknik var ama derinlik yok, HER durumda aynı mı uygulanıyor belirsiz.', en: '"I review the output" — one technique exists but no depth, unclear if it\'s applied the SAME way in every case.' } },
+    { id: 3, icon: '🎯', label: { tr: 'Güçlü: çoklu teknik + gerekçe', en: 'Strong: multiple techniques + reasoning' }, detail: { tr: 'Güven kalibrasyonu + kapsam daraltma + gerçek doğrulama + insan kararı — DÖRT teknik, HER BİRİNİN NEDEN gerekli olduğu açıklanır.', en: 'Trust calibration + task scoping + real verification + human decision — FOUR techniques, each with WHY it is necessary.' } },
+  ],
+}
+
+const claudeInterviewLayerPractice = {
+  type: 'code-playground', relatedTopicId: 'claude-interview-layer-practice', id: 'claude-interview-layer-practice',
+  label: { tr: 'Pratik: Kendi Katmanlı Cevabını Yaz', en: 'Practice: Write Your Own Layered Answer' },
+  language: 'text',
+  task: { tr: '"Claude\'un ürettiği bir test suite\'ine ne kadar güvenirsin?" sorusuna, en az üç somut teknik adlandıran bir cevap yaz.', en: 'Write an answer to "how much do you trust a test suite Claude generated?" naming at least three concrete techniques.' },
+  explanation: { tr: 'TODO satırını üç teknikle tamamla.', en: 'Complete the TODO line with three techniques.' },
+  code: { tr: `TODO: 3 farkli teknik yaz`, en: `TODO: name 3 different techniques` },
+  starterCode: { tr: `TODO: 3 farkli teknik yaz`, en: `TODO: name 3 different techniques` },
+  solutionCode: { tr: `1) Suite'i gerçekten çalıştırıp geçtiğini doğrularım 2) Kapsamı manuel olarak eksik senaryolara karşı kontrol ederim 3) Yüksek riskli assertion'ları (güvenlik, ödeme) satır satır incelerim`, en: `1) I actually run the suite and verify it passes 2) I manually check coverage against missing scenarios 3) I line-by-line review high-risk assertions (security, payment)` },
+  expected: { tr: 'Güven, körü körüne "Claude yazdı, o zaman doğrudur" değildir — her teknik farklı bir doğrulama katmanı ekler.', en: 'Trust is not "Claude wrote it, so it must be correct" — each technique adds a different layer of verification.' },
+  hints: [{ tr: 'Bir mülakatçı somut, tekrarlanabilir bir SÜREÇ duymak ister, genel bir tavır değil.', en: 'An interviewer wants to hear a concrete, repeatable PROCESS, not a general attitude.' }],
+  xpReward: 13,
+}
+
 // ─── Sayfa verisi ─────────────────────────────────────────────────────────────
 
 export const claudeAiData = {
@@ -1158,6 +1559,8 @@ export const claudeAiData = {
           claudeWorkflowOrder,
           qaAssistantCallout,
           llmAgentsCrossCallout,
+          aiTrustCalibrationFilm,
+          trustLevelPractice,
           {
             type: 'quiz',
             question: `Claude confidently generates a Selenium test using driver.findElementByAI("login button") and the code looks clean. What should you do first?`,
@@ -1229,6 +1632,7 @@ Output: 6 cases, table: ID | Scenario | Expected | Type.  <- 4) FORMAT`,
           promptLabBlock,
           promptFixOrder,
           promptRewritePlayground,
+          promptIterationFilm,
           {
             type: 'text',
             content: `Reasoning: why is iteration normal rather than a failure? Because a prompt is a specification, and specifications are refined through review — no test plan survives its first review either. Seniors treat the first answer as a draft: they point at what is wrong ("TC04 tests a rule that is not in my acceptance criteria — remove it, add an email boundary case instead") and let the answer converge. Java comparison: it is red-green-refactor from TDD — the first red run is not failure, it is information. One warning: in very long conversations the model can lose track of earlier decisions, so for a new feature start a fresh conversation and re-paste the essential context.`,
@@ -1373,6 +1777,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
           claudeCliInstallStepAnimation,
           claudeCliInstallOrder,
           claudeInstallTroubleshootPlayground,
+          claudeSetupFilm,
           {
             type: 'quiz',
             question: `You need Claude to read a failing Playwright test, run it, and propose a code fix in the same session. Which access method fits this task?`,
@@ -1456,6 +1861,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
           testCaseFromStoryAnimation,
           testCaseGherkinOrder,
           testCasePlayground,
+          storyToGherkinFilm,
           {
             type: 'quiz',
             question: `Claude generated 8 Gherkin scenarios for a checkout feature in one shot, without ever asking about the story's ambiguous "partial refund" rule. What went wrong in the PROCESS, not the output?`,
@@ -1526,6 +1932,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
           bugAnalysisAnimation,
           bugAnalysisOrder,
           bugReportPlayground,
+          logToReportFilm,
           {
             type: 'quiz',
             question: `You paste a raw log containing a customer's email and an active session token into Claude to get a root-cause hypothesis. What is wrong with this action, independent of whether the hypothesis turns out correct?`,
@@ -1600,6 +2007,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
           testDataAnimation,
           testDataOrder,
           testDataPlayground,
+          testDataFilm,
           {
             type: 'quiz',
             question: `You need 500 realistic fake customer names and emails for a load test running every night in CI. What is the right tool for this specific need?`,
@@ -1733,6 +2141,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
           uiFixLoopAnimation,
           uiFixLoopOrder,
           uiLocatorFixPlayground,
+          locatorFixLoopFilm,
           {
             type: 'quiz',
             question: `Claude generates a working XPath locator from your pasted HTML, and the test passes today. Two weeks later, after an unrelated frontend refactor, the same test fails. What is the most likely explanation?`,
@@ -1837,6 +2246,7 @@ pm.test("email field is valid", function () {
           apiAssertionAnimation,
           apiAssertionOrder,
           apiAssertionPlayground,
+          apiAssertionFilm,
           {
             type: 'quiz',
             question: `An API test suite is 100% green: every assertion on the 200 OK response passes. The suite has never once asserted on the documented 404 or 422 behavior. What is the real state of this suite's coverage?`,
@@ -1930,6 +2340,7 @@ claude "fix the failing test from the last commit"`,
           claudeCodeLoopAnimation,
           claudeCodeLoopOrder,
           claudeCodeScopedTaskPlayground,
+          agentTerminalLoopFilm,
           {
             type: 'quiz',
             question: `Why would a senior tester deliberately choose a read-only permission mode for Claude Code on a shared branch, even though a full-access mode would let it fix the failing test faster?`,
@@ -2005,6 +2416,7 @@ claude mcp add test-database --read-only`,
           mcpFlowAnimation,
           mcpFlowOrder,
           mcpScopedTaskPlayground,
+          mcpConnectionFilm,
           {
             type: 'quiz',
             question: `What is the key capability difference between "Claude generates Playwright code for you to run" and "Claude drives a browser through an MCP connection"?`,
@@ -2082,6 +2494,7 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
           promptLibraryLifecycleAnimation,
           promptLibraryLifecycleOrder,
           promptTemplatePlayground,
+          ciPromptLibraryFilm,
           {
             type: 'quiz',
             question: `A GitHub Actions workflow runs Claude on every PR and posts "✅ Looks good" as a comment. A junior treats this comment as approval and merges without further review. What is the flaw in this workflow?`,
@@ -2176,6 +2589,8 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
               },
             ],
           },
+          judgeCalibrationStep,
+          judgeRubricPractice,
           {
             type: 'quiz',
             question: `In the Judge Playground, the "vague report" draft is a complete, grammatical sentence, yet it scores 1/5 on reproducibility and actionability. Why does the rubric catch this when a simple "is the description field non-empty?" check would not?`,
@@ -2231,6 +2646,9 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
             content: `Pick a field type below and browse all 8 categories — each one is copyable, and the full set downloads as JSON for a real test suite. The two prompt templates underneath are meant to be reused: swap in your own field name and format description to have Claude generate the same 8-category breakdown for a field this factory doesn't already cover.`,
           },
           { type: 'edge-case-factory' },
+          edgeCaseFactoryFilm,
+          edgeCaseTriageStep,
+          edgeCasePriorityPractice,
           {
             type: 'quiz',
             question: `A teammate says: "We already tested the email field with 5 valid addresses, we're done." Looking at the 8-category factory, what does this reveal about their test coverage?`,
@@ -2274,6 +2692,9 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
             content: `A note on the tool this course actually runs: the original idea for this module used Anthropic's Claude Vision, but this platform's production AI service is Groq (see the "AI in Production" course for why) — so the live analysis below calls a Groq vision-capable model instead, behind the exact same interface: two images in, a category and a one-sentence reasoning out. Below, upload your own before/after screenshots for a real, live classification (signing in is required — image tokens cost more than text, so this call is gated the same way the Judge Playground's live mode is). Underneath that, a fully offline classification game lets anyone practice the judgment call on three built-in mock UI diffs with no upload and no login required.`,
           },
           { type: 'visual-diff-detective' },
+          visualDiffFilm,
+          visionMeaningfulStep,
+          visionVerdictPractice,
           {
             type: 'quiz',
             question: `Why does a mature visual-regression pipeline run BOTH a pixel-diff tool (Percy/Applitools) AND an AI vision triage step, instead of picking just one?`,
@@ -2453,6 +2874,7 @@ git push origin claude-generated-fix
           riskVerificationAnimation,
           riskVerificationOrder,
           uncertaintyFlagPlayground,
+          alwaysPassRiskFilm,
           {
             type: 'quiz',
             question: `A generated assertion always passes, even when you intentionally break the feature it's supposed to test. Which risk category is this, and what habit catches it?`,
@@ -2488,6 +2910,9 @@ git push origin claude-generated-fix
               en: 'A heads-up before you dive in: these questions might never come up in a typical QA/tester interview — most interviews today still focus on test design, automation, and process knowledge, not AI internals. But given how fast AI is entering testing work, nobody can guarantee what interviewers will ask a few years from now, so treat this tab as a forward-looking extra, not a mandatory checkbox to pass an interview. If you are just starting out in testing, do not feel like you must master this before anything else — focus on core testing fundamentals and automation first, and come back here as a bonus once that foundation is solid.',
             },
           },
+          claudeInterviewFilm,
+          claudeInterviewLayerStep,
+          claudeInterviewLayerPractice,
           {
             type: 'interview-questions',
             relatedTopicId: 'claude-ai-interview-questions',
@@ -2793,6 +3218,8 @@ git push origin claude-generated-fix
           claudeWorkflowOrder,
           qaAssistantCallout,
           llmAgentsCrossCallout,
+          aiTrustCalibrationFilm,
+          trustLevelPractice,
           {
             type: 'quiz',
             question: `Claude, driver.findElementByAI("login button") kullanan bir Selenium testi üretti ve kod tertemiz görünüyor. İlk yapman gereken nedir?`,
@@ -2864,6 +3291,7 @@ Output: 6 cases, table: ID | Scenario | Expected | Type.  <- 4) FORMAT`,
           promptLabBlock,
           promptFixOrder,
           promptRewritePlayground,
+          promptIterationFilm,
           {
             type: 'text',
             content: `Akıl yürütme: iterasyon neden başarısızlık değil, normal akıştır? Çünkü prompt bir spesifikasyondur ve spesifikasyonlar review ile olgunlaşır — hiçbir test planı da ilk review'undan aynen çıkmaz. Senior'lar ilk cevabı taslak sayar: yanlışı işaret eder ("TC04 kabul kriterlerimde olmayan bir kuralı test ediyor — çıkar, yerine e-posta sınır değeri ekle") ve cevabın yakınsamasına izin verir. Java karşılaştırması: bu, TDD'deki red-green-refactor döngüsüdür — ilk kırmızı koşum başarısızlık değil, bilgidir. Bir uyarı: çok uzun konuşmalarda model önceki kararların izini kaybedebilir; yeni bir özellik için yeni bir konuşma başlat ve kritik bağlamı yeniden yapıştır.`,
@@ -3008,6 +3436,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
           claudeCliInstallStepAnimation,
           claudeCliInstallOrder,
           claudeInstallTroubleshootPlayground,
+          claudeSetupFilm,
           {
             type: 'quiz',
             question: `Claude'un başarısız bir Playwright testini okumasını, çalıştırmasını ve aynı oturumda bir kod düzeltmesi önermesini istiyorsun. Bu görev için hangi erişim yöntemi uygundur?`,
@@ -3091,6 +3520,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
           testCaseFromStoryAnimation,
           testCaseGherkinOrder,
           testCasePlayground,
+          storyToGherkinFilm,
           {
             type: 'quiz',
             question: `Claude bir checkout özelliği için tek seferde 8 Gherkin senaryosu üretti, story'deki belirsiz "kısmi iade" kuralını hiç sormadan. Çıktıda değil, SÜREÇTE ne yanlış gitti?`,
@@ -3161,6 +3591,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
           bugAnalysisAnimation,
           bugAnalysisOrder,
           bugReportPlayground,
+          logToReportFilm,
           {
             type: 'quiz',
             question: `Kök neden hipotezi almak için müşterinin e-postasını ve aktif bir session token'ını içeren ham bir log'u Claude'a yapıştırıyorsun. Hipotez doğru çıksa bile bu eylemde yanlış olan nedir?`,
@@ -3235,6 +3666,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
           testDataAnimation,
           testDataOrder,
           testDataPlayground,
+          testDataFilm,
           {
             type: 'quiz',
             question: `Her gece CI'da çalışan bir yük testi için 500 gerçekçi sahte müşteri adı ve e-postasına ihtiyacın var. Bu spesifik ihtiyaç için doğru araç hangisi?`,
@@ -3368,6 +3800,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
           uiFixLoopAnimation,
           uiFixLoopOrder,
           uiLocatorFixPlayground,
+          locatorFixLoopFilm,
           {
             type: 'quiz',
             question: `Claude, yapıştırdığın HTML'den çalışan bir XPath locator üretiyor ve test bugün geçiyor. İki hafta sonra, ilgisiz bir frontend refactor'ünün ardından aynı test başarısız oluyor. En olası açıklama nedir?`,
@@ -3472,6 +3905,7 @@ pm.test("email field is valid", function () {
           apiAssertionAnimation,
           apiAssertionOrder,
           apiAssertionPlayground,
+          apiAssertionFilm,
           {
             type: 'quiz',
             question: `Bir API test seti %100 yeşil: 200 OK yanıtındaki her assertion geçiyor. Set, dokümante edilmiş 404 veya 422 davranışını hiç doğrulamamış. Bu setin kapsamının gerçek durumu nedir?`,
@@ -3565,6 +3999,7 @@ claude "fix the failing test from the last commit"`,
           claudeCodeLoopAnimation,
           claudeCodeLoopOrder,
           claudeCodeScopedTaskPlayground,
+          agentTerminalLoopFilm,
           {
             type: 'quiz',
             question: `Tam erişim modu başarısız testi daha hızlı düzelttirecek olsa bile, bir senior tester paylaşılan bir branch'te Claude Code için neden bilinçli olarak salt-okunur izin modunu seçer?`,
@@ -3640,6 +4075,7 @@ claude mcp add test-database --read-only`,
           mcpFlowAnimation,
           mcpFlowOrder,
           mcpScopedTaskPlayground,
+          mcpConnectionFilm,
           {
             type: 'quiz',
             question: `"Claude senin çalıştırman için Playwright kodu üretiyor" ile "Claude bir MCP bağlantısı üzerinden bir tarayıcıyı sürüyor" arasındaki temel yetenek farkı nedir?`,
@@ -3717,6 +4153,7 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
           promptLibraryLifecycleAnimation,
           promptLibraryLifecycleOrder,
           promptTemplatePlayground,
+          ciPromptLibraryFilm,
           {
             type: 'quiz',
             question: `Bir GitHub Actions workflow'u her PR'da Claude'u çalıştırıp "✅ Sorun görünmüyor" diye bir yorum bırakıyor. Bir junior bu yorumu onay sayıp başka bir inceleme yapmadan merge ediyor. Bu workflow'un kusuru nedir?`,
@@ -3811,6 +4248,8 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
               },
             ],
           },
+          judgeCalibrationStep,
+          judgeRubricPractice,
           {
             type: 'quiz',
             question: `Yargıç Oyun Alanı'nda "belirsiz rapor" taslağı tam, gramatik bir cümledir, yine de tekrar üretilebilirlik ve aksiyon alınabilirlikte 1/5 puan alır. Basit bir "açıklama alanı boş değil mi?" kontrolü bunu yakalayamazken rubrik neden yakalıyor?`,
@@ -3866,6 +4305,9 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
             content: `Aşağıda bir alan tipi seç ve 8 kategorinin tamamına göz at — her biri kopyalanabilir, ve tüm set gerçek bir test suite'i için JSON olarak indirilebilir. Alttaki iki prompt şablonu yeniden kullanılmak üzere tasarlandı: kendi alan adını ve format açıklamanı yerleştirerek, bu fabrikanın henüz kapsamadığı bir alan için Claude'a aynı 8-kategori dökümünü ürettirebilirsin.`,
           },
           { type: 'edge-case-factory' },
+          edgeCaseFactoryFilm,
+          edgeCaseTriageStep,
+          edgeCasePriorityPractice,
           {
             type: 'quiz',
             question: `Bir takım arkadaşın "E-posta alanını zaten 5 geçerli adresle test ettik, işimiz bitti" diyor. 8-kategori fabrikasına bakınca, bu onların test kapsamı hakkında ne ortaya koyuyor?`,
@@ -3909,6 +4351,9 @@ Once confirmed, write {{n}} Gherkin scenarios.`,
             content: `Bu dersin gerçekte çalıştırdığı araç hakkında bir not: bu modülün orijinal fikri Anthropic'in Claude Vision'ını kullanıyordu, ama bu platformun production AI servisi Groq'tur ("Üretimde AI" dersine bak, nedeni orada) — bu yüzden aşağıdaki canlı analiz, aynı arayüzün arkasında Groq'un vision-destekli bir modelini çağırır: iki görsel girer, bir kategori ve tek cümlelik bir gerekçe çıkar. Aşağıda, kendi önce/sonra ekran görüntülerini gerçek, canlı bir sınıflandırma için yükle (giriş yapman gerekiyor — görsel token'lar metinden daha pahalıdır, bu yüzden bu çağrı Yargıç Oyun Alanı'nın canlı modunun aynı şekilde kısıtlanmıştır). Altında, tamamen çevrimdışı bir sınıflandırma oyunu, herkesin 3 yerleşik mockup UI diff'inde yükleme veya giriş gerektirmeden yargılama becerisini pratik yapmasını sağlar.`,
           },
           { type: 'visual-diff-detective' },
+          visualDiffFilm,
+          visionMeaningfulStep,
+          visionVerdictPractice,
           {
             type: 'quiz',
             question: `Olgun bir visual-regression pipeline'ı neden hem bir pixel-diff aracı (Percy/Applitools) HEM DE bir AI vision triyaj adımı çalıştırır, sadece birini seçmek yerine?`,
@@ -4088,6 +4533,7 @@ git push origin claude-generated-fix
           riskVerificationAnimation,
           riskVerificationOrder,
           uncertaintyFlagPlayground,
+          alwaysPassRiskFilm,
           {
             type: 'quiz',
             question: `Üretilen bir assertion, test ettiği özelliği kasıtlı olarak bozsan bile her zaman geçiyor. Bu hangi risk kategorisidir ve hangi alışkanlık onu yakalar?`,
@@ -4123,6 +4569,9 @@ git push origin claude-generated-fix
               tr: `Başlamadan önce bir not: bu sekmedeki sorular klasik bir QA/tester mülakatında hiç karşına çıkmayabilir — bugün mülakatların çoğu hâlâ test tasarımı, otomasyon ve süreç bilgisi üzerine kurulu, AI'ın iç işleyişi üzerine değil. Ama yapay zekanın test işine bu kadar hızlı girdiğini görünce, birkaç yıl sonra karşımıza hangi soruların çıkacağını kimse garanti edemez — bu yüzden bu sekmeyi "mülakatı geçmek için zorunlu" değil, geleceğe hazırlıklı olmak için fazladan bir adım olarak düşün. Testerliğe yeni başlıyorsan, bunu her şeyden önce öğrenmen gerektiğini hissetme — önce temel test bilgisine ve otomasyona odaklan, o temel oturduktan sonra buraya bir bonus olarak dön.`,
             },
           },
+          claudeInterviewFilm,
+          claudeInterviewLayerStep,
+          claudeInterviewLayerPractice,
           {
             type: 'interview-questions',
             relatedTopicId: 'claude-ai-interview-questions',

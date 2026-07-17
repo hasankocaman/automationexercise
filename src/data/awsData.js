@@ -1,3 +1,398 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
+// ─── Dalga 18 film sabitleri (video-scene — EN + TR paylaşımlı) ─────────────
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+// 🎯 Introduction — pay-per-second billing vs idle traditional server
+const awsPayPerSecondFilm = {
+  type: 'video-scene',
+  id: 'aws-pay-per-second-film',
+  title: { tr: '🎬 Saniyesi Ödenen Sunucu: EC2 vs Klasik Sunucu', en: '🎬 The Server Billed by the Second: EC2 vs Traditional Server' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'traditional', emoji: '🖥️', label: { tr: 'Klasik Sunucu (boşta)', en: 'Traditional Server (idle)' }, color: '#64748b' },
+    { id: 'run',      emoji: '▶️', label: { tr: 'RunInstances',        en: 'RunInstances' },        color: '#f97316' },
+    { id: 'billing',  emoji: '💰', label: { tr: 'Saniye Bazlı Fatura',  en: 'Per-Second Billing' },  color: '#22c55e' },
+    { id: 'parallel', emoji: '🔀', label: { tr: '50 Paralel Session',   en: '50 Parallel Sessions' }, color: '#0ea5e9' },
+    { id: 'terminate', emoji: '🛑', label: { tr: 'TerminateInstances',  en: 'TerminateInstances' },  color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Klasik bir sunucu hafta sonu boyunca boşta durur — kimse test çalıştırmasa da fatura AYNIDIR.', en: 'A traditional server sits idle all weekend — the bill is THE SAME even if nobody runs a test.' },
+      code: { tr: `Aylik fatura: $500 (bos gecse de ayni)`, en: `Monthly bill: $500 (same even if idle)` },
+      positions: { traditional: { x: 50, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'AWS\'te bir komut yeni bir sunucuyu ~2 dakikada ayağa kaldırır — Java\'da ProcessBuilder ile yeni bir process başlatmak gibi.', en: 'On AWS, one command boots a fresh server in ~2 minutes — like starting a new process with Java\'s ProcessBuilder.' },
+      code: { tr: `aws ec2 run-instances --instance-type t3.medium`, en: `aws ec2 run-instances --instance-type t3.medium` },
+      positions: { traditional: { x: 20, y: 40, opacity: 0.5, scale: 0.9 }, run: { x: 50, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'traditional', to: 'run', color: '#f97316' }],
+    },
+    {
+      caption: { tr: 'Fatura saniye bazında başlar — 2 saatlik bir test koşumu sadece $0.08\'e mal olur.', en: 'Billing starts per second — a 2-hour test run costs just $0.08.' },
+      code: { tr: `2 saat calisma = $0.08`, en: `2 hours running = $0.08` },
+      positions: { run: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, billing: { x: 54, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'run', to: 'billing', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: '50 tarayıcı session\'ı AYNI ANDA paralel çalışır — 2 saatlik bir test süiti 5 dakikaya iner.', en: '50 browser sessions run in PARALLEL at once — a 2-hour test suite drops to 5 minutes.' },
+      code: { tr: `50x paralel -> suite: 2h -> 5dk`, en: `50x parallel -> suite: 2h -> 5min` },
+      positions: { billing: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, parallel: { x: 58, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'billing', to: 'parallel', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Final (kontrast) — TerminateInstances çağrılınca fatura ANINDA durur. Klasik sunucu hafta sonu boyunca boşta $500 yakarken, EC2 test bitince sıfıra iner.', en: 'Final (the contrast) — calling TerminateInstances stops billing INSTANTLY. While the traditional server burns $500 idle all weekend, EC2 drops to zero the moment the test ends.' },
+      positions: { parallel: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, terminate: { x: 62, y: 40, scale: 1.25, pulse: true } },
+      beams: [{ from: 'parallel', to: 'terminate', color: '#ef4444' }],
+    },
+  ],
+}
+
+// ⚙️ Installation — CLI script vs Console tıklaması
+const awsCliScriptedFilm = {
+  type: 'video-scene',
+  id: 'aws-cli-scripted-film',
+  title: { tr: '🎬 200 Screenshot: Tek Komut mu, 200 Tıklama mı?', en: '🎬 200 Screenshots: One Command or 200 Clicks?' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'console',  emoji: '🖱️', label: { tr: 'AWS Console (manuel)', en: 'AWS Console (manual)' }, color: '#64748b' },
+    { id: 'configure', emoji: '🔑', label: { tr: 'aws configure',       en: 'aws configure' },        color: '#a855f7' },
+    { id: 'script',   emoji: '📜', label: { tr: 'Pipeline Script',      en: 'Pipeline Script' },      color: '#f97316' },
+    { id: 'night',    emoji: '🌙', label: { tr: 'Gece 2:00 — İnsansız', en: '2 AM — Unattended' },    color: '#0ea5e9' },
+    { id: 'sync',     emoji: '📦', label: { tr: '200 Dosya Tek Komutla', en: '200 Files, One Command' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'AWS Console, ekrana tıklayarak gezinen bir insan gerektirir — her adımda bir "Onayla" tıklaması beklenir.', en: 'The AWS Console requires a human clicking through screens — every step waits for a "Confirm" click.' },
+      code: { tr: `Console -> tikla -> tikla -> onayla`, en: `Console -> click -> click -> confirm` },
+      positions: { console: { x: 50, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'aws configure, kimlik bilgilerini BİR KEZ kaydeder — bundan sonra her komut bu kimlikle imzalanır.', en: 'aws configure saves credentials ONCE — every command afterward is signed with this identity.' },
+      code: { tr: `aws configure # Access Key + Secret`, en: `aws configure # Access Key + Secret` },
+      positions: { console: { x: 20, y: 40, opacity: 0.5, scale: 0.9 }, configure: { x: 48, y: 40, scale: 1.15, pulse: true } },
+      beams: [{ from: 'console', to: 'configure', color: '#a855f7' }],
+    },
+    {
+      caption: { tr: 'Bir pipeline script\'i, aws s3 sync komutunu çağırır — hiçbir insan tıklaması gerekmez.', en: 'A pipeline script calls the aws s3 sync command — no human click required.' },
+      code: { tr: `aws s3 sync ./report/ s3://qa-reports/`, en: `aws s3 sync ./report/ s3://qa-reports/` },
+      positions: { configure: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, script: { x: 54, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'configure', to: 'script', color: '#f97316' }],
+    },
+    {
+      caption: { tr: 'Bu script gece 2:00\'de, kimse ekranda değilken, CI job\'ı bittikten hemen sonra insansız çalışabilir.', en: 'This script can run at 2 AM, with nobody at the screen, right after the CI job finishes.' },
+      code: { tr: `cron: 0 2 * * * ./upload-reports.sh`, en: `cron: 0 2 * * * ./upload-reports.sh` },
+      positions: { script: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, night: { x: 58, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'script', to: 'night', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Final (kontrast) — TEK bir aws s3 sync komutu 200 screenshot\'ı yükler; Console\'da bu, 200 ayrı sürükle-bırak tıklaması demektir.', en: 'Final (the contrast) — ONE aws s3 sync command uploads 200 screenshots; in the Console, that\'s 200 separate drag-and-drop clicks.' },
+      positions: { night: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, sync: { x: 62, y: 40, scale: 1.25, pulse: true } },
+      beams: [{ from: 'night', to: 'sync', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 🛠️ Real World — Selenium Grid on EC2 -> S3 -> CodePipeline
+const awsSeleniumEc2S3Film = {
+  type: 'video-scene',
+  id: 'aws-selenium-ec2-s3-film',
+  title: { tr: '🎬 Bir Testin EC2\'den S3\'e Yolculuğu', en: '🎬 A Test\'s Journey from EC2 to S3' },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'hub',      emoji: '▶️', label: { tr: 'EC2 Hub Başlatılır',   en: 'EC2 Hub Launched' },     color: '#f97316' },
+    { id: 'docker',   emoji: '🐳', label: { tr: 'Docker Selenium Grid', en: 'Docker Selenium Grid' }, color: '#0ea5e9' },
+    { id: 'tests',    emoji: '🧪', label: { tr: 'Paralel Tarayıcı Testleri', en: 'Parallel Browser Tests' }, color: '#22c55e' },
+    { id: 's3',       emoji: '📤', label: { tr: 'S3\'e Rapor Yükle',    en: 'Upload Report to S3' },  color: '#a855f7' },
+    { id: 'url',      emoji: '🔗', label: { tr: 'Paylaşılabilir URL',   en: 'Shareable URL' },        color: '#f59e0b' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'run-instances komutu, Selenium Hub\'ı barındıracak bir EC2 makinesini ayağa kaldırır.', en: 'The run-instances command boots an EC2 machine to host the Selenium Hub.' },
+      code: { tr: `aws ec2 run-instances --tag Name=selenium-hub`, en: `aws ec2 run-instances --tag Name=selenium-hub` },
+      positions: { hub: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Makinede Docker ile Selenium Hub ve Chrome node\'ları başlatılır — hepsi tek bir private network üzerinden konuşur.', en: 'On the machine, Docker starts the Selenium Hub and Chrome nodes — all talking over one private network.' },
+      code: { tr: `docker run selenium/hub:4.18.1`, en: `docker run selenium/hub:4.18.1` },
+      positions: { hub: { x: 20, y: 40, opacity: 0.6, scale: 0.9 }, docker: { x: 46, y: 40, scale: 1.15, pulse: true } },
+      beams: [{ from: 'hub', to: 'docker', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Testler hub\'a bağlanır ve birden fazla node\'da PARALEL çalışır — tek makinede sıralı koşmaktan çok daha hızlı.', en: 'Tests connect to the hub and run in PARALLEL across multiple nodes — far faster than running sequentially on one machine.' },
+      code: { tr: `pytest --numprocesses=10`, en: `pytest --numprocesses=10` },
+      positions: { docker: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, tests: { x: 54, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'docker', to: 'tests', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Test bitince Allure raporu tek bir komutla S3\'e senkronize edilir — hiçbir dosya elle kopyalanmaz.', en: 'When tests finish, the Allure report syncs to S3 with one command — no file is copied by hand.' },
+      code: { tr: `aws s3 sync ./allure-report/ s3://qa-reports/`, en: `aws s3 sync ./allure-report/ s3://qa-reports/` },
+      positions: { tests: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, s3: { x: 58, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'tests', to: 's3', color: '#a855f7' }],
+    },
+    {
+      caption: { tr: 'Final — S3 static website hosting sayesinde, rapor bir URL olarak takıma paylaşılır: kimse SSH\'e girip dosya aramaz.', en: 'Final — thanks to S3 static website hosting, the report becomes a shareable URL for the team: nobody SSHes in to hunt for files.' },
+      positions: { s3: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, url: { x: 62, y: 40, scale: 1.25, pulse: true } },
+      beams: [{ from: 's3', to: 'url', color: '#f59e0b' }],
+    },
+  ],
+}
+
+// 🔗 Ecosystem — QA servislerinin birbirine kablolanması
+const awsQaEcosystemMapFilm = {
+  type: 'video-scene',
+  id: 'aws-qa-ecosystem-map-film',
+  title: { tr: '🎬 Bir Git Push\'un AWS Ekosistemindeki Yolculuğu', en: '🎬 A Git Push\'s Journey Through the AWS Ecosystem' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pipeline', emoji: '🔁', label: { tr: 'CodePipeline',        en: 'CodePipeline' },       color: '#0ea5e9' },
+    { id: 'build',    emoji: '🔨', label: { tr: 'CodeBuild',           en: 'CodeBuild' },          color: '#f97316' },
+    { id: 'ec2',      emoji: '🖥️', label: { tr: 'EC2 (Selenium Hub)',  en: 'EC2 (Selenium Hub)' }, color: '#22c55e' },
+    { id: 's3',       emoji: '📦', label: { tr: 'S3 (Raporlar)',       en: 'S3 (Reports)' },       color: '#a855f7' },
+    { id: 'cloudwatch', emoji: '📊', label: { tr: 'CloudWatch',        en: 'CloudWatch' },         color: '#84cc16' },
+    { id: 'iam',      emoji: '🔐', label: { tr: 'IAM Rolleri',         en: 'IAM Roles' },          color: '#ec4899' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Bir git push, CodePipeline\'ı tetikler — zincirin ilk halkası.', en: 'A git push triggers CodePipeline — the first link in the chain.' },
+      code: { tr: `git push -> CodePipeline tetiklenir`, en: `git push -> CodePipeline triggers` },
+      positions: { pipeline: { x: 16, y: 30, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'CodePipeline, CodeBuild\'i çağırır — test suite\'i burada çalışır.', en: 'CodePipeline calls CodeBuild — the test suite runs here.' },
+      code: { tr: `CodeBuild: npm ci && test`, en: `CodeBuild: npm ci && test` },
+      positions: { pipeline: { x: 14, y: 30, opacity: 0.6, scale: 0.9 }, build: { x: 40, y: 30, scale: 1.15, pulse: true } },
+      beams: [{ from: 'pipeline', to: 'build', color: '#f97316' }],
+    },
+    {
+      caption: { tr: 'Ağır Selenium Grid işi, ayrı bir EC2 üzerinde çalışır — CodeBuild sadece tetikleyicidir.', en: 'The heavy Selenium Grid work runs on a separate EC2 — CodeBuild is just the trigger.' },
+      code: { tr: `EC2: Selenium Hub + Chrome nodes`, en: `EC2: Selenium Hub + Chrome nodes` },
+      positions: { build: { x: 24, y: 30, opacity: 0.6, scale: 0.9 }, ec2: { x: 50, y: 30, scale: 1.2, pulse: true } },
+      beams: [{ from: 'build', to: 'ec2', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Test raporu S3\'e, logları CloudWatch\'a akar — AYNI ANDA iki farklı hedefe.', en: 'The test report flows to S3, logs flow to CloudWatch — to TWO different destinations at once.' },
+      code: { tr: `report -> S3 | logs -> CloudWatch`, en: `report -> S3 | logs -> CloudWatch` },
+      positions: {
+        ec2: { x: 30, y: 30, opacity: 0.6, scale: 0.9 },
+        s3: { x: 56, y: 18, scale: 1.15, pulse: true },
+        cloudwatch: { x: 56, y: 45, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'ec2', to: 's3', color: '#a855f7' }, { from: 'ec2', to: 'cloudwatch', color: '#84cc16' }],
+    },
+    {
+      caption: { tr: 'Final — zincirdeki HER bağlantı, sabit kodlanmış bir şifre değil bir IAM rolü ile kimlik doğrular. Bir servisin permission\'ı eksikse, zincir orada sessizce kırılır.', en: 'Final — EVERY connection in the chain authenticates via an IAM role, not a hardcoded password. If one service is missing a permission, the chain silently breaks right there.' },
+      positions: {
+        s3: { x: 40, y: 18, scale: 1.0, opacity: 0.6 },
+        cloudwatch: { x: 40, y: 45, scale: 1.0, opacity: 0.6 },
+        iam: { x: 66, y: 30, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 's3', to: 'iam', color: '#ec4899' }, { from: 'cloudwatch', to: 'iam', color: '#ec4899' }],
+    },
+  ],
+}
+
+// 🚨 Common Errors — AccessDenied'ın sessizce 72 saati kaybetmesi
+const awsAccessDeniedDiagnosisFilm = {
+  type: 'video-scene',
+  id: 'aws-access-denied-diagnosis-film',
+  title: { tr: '🎬 Sessiz AccessDenied: 72 Saatlik CI Sonucu Nasıl Kaybolur?', en: '🎬 The Silent AccessDenied: How 72 Hours of CI Results Vanish' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'ci',       emoji: '⚙️', label: { tr: 'CI Pipeline Çalışır',  en: 'CI Pipeline Runs' },    color: '#f97316' },
+    { id: 'put',      emoji: '📤', label: { tr: 's3:PutObject Çağrısı', en: 's3:PutObject Call' },   color: '#0ea5e9' },
+    { id: 'denied',   emoji: '💥', label: { tr: 'AccessDenied (sessiz)', en: 'AccessDenied (silent)' }, color: '#ef4444' },
+    { id: 'logs',     emoji: '🕵️', label: { tr: 'Hata Logu Okunmadı',  en: 'Error Log Unread' },     color: '#a855f7' },
+    { id: 'fixed',    emoji: '✅', label: { tr: 'IAM Policy Eklendi',   en: 'IAM Policy Attached' },  color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'CI pipeline\'ı her gece çalışır ve "başarılı" görünür — testler gerçekten geçmiştir.', en: 'The CI pipeline runs every night and looks "successful" — the tests genuinely passed.' },
+      code: { tr: `Pipeline: SUCCESS (testler gecti)`, en: `Pipeline: SUCCESS (tests passed)` },
+      positions: { ci: { x: 50, y: 30, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Son adımda rapor S3\'e yüklenmeye çalışılır — s3:PutObject çağrılır.', en: 'In the last step, the report tries to upload to S3 — s3:PutObject is called.' },
+      code: { tr: `aws s3 sync report/ s3://qa-reports/`, en: `aws s3 sync report/ s3://qa-reports/` },
+      positions: { ci: { x: 44, y: 30, scale: 1.0 }, put: { x: 70, y: 20, scale: 1.15, pulse: true } },
+      beams: [{ from: 'ci', to: 'put', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'CI\'nın kullandığı IAM rolünde s3:PutObject izni YOK — yükleme sessizce başarısız olur.', en: 'The IAM role CI uses does NOT have s3:PutObject permission — the upload silently fails.' },
+      code: { tr: `AccessDenied: s3:PutObject`, en: `AccessDenied: s3:PutObject` },
+      positions: { put: { x: 55, y: 20, opacity: 0.6, scale: 0.9 }, denied: { x: 78, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'put', to: 'denied', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Pipeline\'ın kendisi hâlâ "SUCCESS" der — çünkü TESTLER geçti, upload adımının hatası kimse tarafından okunmadı.', en: 'The pipeline itself still says "SUCCESS" — because the TESTS passed, nobody read the upload step\'s error.' },
+      code: { tr: `3 gun sonra: "raporlar nerede?"`, en: `3 days later: "where are the reports?"` },
+      positions: { denied: { x: 60, y: 40, opacity: 0.6, scale: 0.9 }, logs: { x: 34, y: 55, scale: 1.15, pulse: true } },
+      beams: [{ from: 'denied', to: 'logs', color: '#a855f7' }],
+    },
+    {
+      caption: { tr: 'Final — düzeltme: IAM rolüne s3:PutObject izni eklenir. Ders: bir pipeline\'ın "yeşil" görünmesi, HER adımın gerçekten başarılı olduğu anlamına gelmez.', en: 'Final — the fix: s3:PutObject permission is added to the IAM role. Lesson: a pipeline looking "green" doesn\'t mean EVERY step actually succeeded.' },
+      positions: { logs: { x: 40, y: 55, opacity: 0.6, scale: 0.9 }, fixed: { x: 66, y: 40, scale: 1.25, pulse: true } },
+      beams: [{ from: 'logs', to: 'fixed', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 💼 Interview — CI pipeline'a minimum yetki (least privilege) tasarımı
+const awsLeastPrivilegeInterviewFilm = {
+  type: 'video-scene',
+  id: 'aws-least-privilege-interview-film',
+  title: { tr: '🎬 Mülakat Senaryosu: CI Pipeline\'a Ne Kadar Yetki Verirsin?', en: '🎬 Interview Scenario: How Much Access Do You Give a CI Pipeline?' },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'broad',    emoji: '🎫', label: { tr: 'AdministratorAccess (aşırı geniş)', en: 'AdministratorAccess (too broad)' }, color: '#ef4444' },
+    { id: 'risk',     emoji: '🚨', label: { tr: 'Güvenlik Riski',       en: 'Security Risk' },       color: '#ef4444' },
+    { id: 'analyze',  emoji: '🔍', label: { tr: 'Gerçekte Neye İhtiyaç Var?', en: 'What Is Actually Needed?' }, color: '#0ea5e9' },
+    { id: 'scoped',   emoji: '📝', label: { tr: 'Sadece s3:PutObject', en: 'Only s3:PutObject' },    color: '#f97316' },
+    { id: 'secure',   emoji: '✅', label: { tr: 'Güvenli Pipeline',     en: 'Secure Pipeline' },      color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Mülakat sorusu: "Bir CI pipeline\'ının S3\'e rapor yükleyebilmesi lazım — hangi IAM izinlerini verirsin?" Kolay cevap: AdministratorAccess. Ama bu YANLIŞ cevaptır.', en: 'Interview question: "A CI pipeline needs to upload reports to S3 — what IAM permissions do you grant?" Easy answer: AdministratorAccess. But that\'s the WRONG answer.' },
+      code: { tr: `policy = "AdministratorAccess" // cok kolay, cok tehlikeli`, en: `policy = "AdministratorAccess" // too easy, too dangerous` },
+      positions: { broad: { x: 50, y: 30, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: { tr: 'AdministratorAccess, pipeline\'a EC2 silme, IAM kullanıcısı oluşturma, TÜM S3 bucket\'larını okuma gücü de verir — sadece rapor yüklemek için gereken şeyden ÇOK fazlası.', en: 'AdministratorAccess also gives the pipeline the power to delete EC2 instances, create IAM users, and read EVERY S3 bucket — WAY more than needed just to upload a report.' },
+      code: { tr: `Sizin CI'niz artik TUM hesabi silebilir`, en: `Your CI can now delete the ENTIRE account` },
+      positions: { broad: { x: 44, y: 30, scale: 1.0 }, risk: { x: 72, y: 20, scale: 1.2, pulse: true } },
+      beams: [{ from: 'broad', to: 'risk', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Doğru soru: pipeline GERÇEKTE ne yapıyor? Sadece TEK bir bucket\'a rapor yazıyor — başka hiçbir şey.', en: 'The right question: what does the pipeline ACTUALLY do? It only writes reports to ONE bucket — nothing else.' },
+      code: { tr: `Gercek ihtiyac: s3:PutObject -> qa-reports bucket'i`, en: `Actual need: s3:PutObject -> qa-reports bucket only` },
+      positions: { risk: { x: 60, y: 20, opacity: 0.6, scale: 0.9 }, analyze: { x: 34, y: 45, scale: 1.15, pulse: true } },
+      beams: [{ from: 'risk', to: 'analyze', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Kapsamı daraltılmış bir policy yazılır: SADECE s3:PutObject, SADECE qa-reports bucket\'ına, başka hiçbir kaynağa değil.', en: 'A scoped-down policy is written: ONLY s3:PutObject, ONLY on the qa-reports bucket, on no other resource.' },
+      code: { tr: `{"Action":"s3:PutObject","Resource":"arn:...:qa-reports/*"}`, en: `{"Action":"s3:PutObject","Resource":"arn:...:qa-reports/*"}` },
+      positions: { analyze: { x: 40, y: 45, opacity: 0.6, scale: 0.9 }, scoped: { x: 66, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'analyze', to: 'scoped', color: '#f97316' }],
+    },
+    {
+      caption: { tr: 'Final — pipeline artık çalışır, ama credential\'ları çalınsa bile saldırgan sadece tek bir bucket\'a yazabilir, hesabın geri kalanına dokunamaz. Mülakat dersi: en az yetki, "çalışsın da nasıl olursa olsun" değil, "sadece gerekeni ver"dir.', en: 'Final — the pipeline still works, but even if its credentials are stolen, an attacker can only write to one bucket, not touch the rest of the account. Interview lesson: least privilege isn\'t "make it work somehow", it\'s "grant only what\'s needed".' },
+      positions: { scoped: { x: 40, y: 45, scale: 1.0, opacity: 0.6 }, secure: { x: 66, y: 45, scale: 1.25, pulse: true } },
+      beams: [{ from: 'scoped', to: 'secure', color: '#22c55e' }],
+    },
+  ],
+}
+
+// Eksik animasyon/sandbox tamamlamaları — kodsuz sekmeler (CLAUDE.md §9.5)
+
+const awsWhyQaFilmStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Test Ortamının Klasik Sunucudan EC2\'ye Farkı', en: 'How a Test Environment Differs: Traditional Server vs EC2' },
+  steps: [
+    { tr: 'Klasik sunucu: IT ticket aç, 2-4 hafta bekle, sunucu gelince manuel kurulum yap.', en: 'Traditional server: open an IT ticket, wait 2-4 weeks, manually set up once it arrives.' },
+    { tr: 'EC2: tek bir komutla ~2 dakikada Chrome + Selenium Grid kurulu bir Linux sunucu ayağa kalkar.', en: 'EC2: one command boots a Linux server with Chrome + Selenium Grid preinstalled in ~2 minutes.' },
+    { tr: 'Test bitince TerminateInstances çağrılır — fatura o an durur, sunucu diskten silinir.', en: 'When the test ends, TerminateInstances is called — billing stops that instant, the server is wiped from disk.' },
+  ],
+}
+
+const awsWhyQaFilmPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'aws-intro',
+  title: { tr: 'Kendin Dene: Doğru AWS Servisini Seç', en: 'Try It Yourself: Pick the Right AWS Service' },
+  starterCode: `// Hedef: her CI kosumunda uretilen Allure raporunu URL ile paylasilabilir sakla
+// TODO: dogru servisi yaz
+const service = "?";`,
+  solutionCode: `// Hedef: her CI kosumunda uretilen Allure raporunu URL ile paylasilabilir sakla
+const service = "S3";`,
+  hint: { tr: 'EC2 sanal makine çalıştırır, IAM izinleri yönetir, RDS veritabanıdır — hiçbiri "dosya sakla ve URL ile sun" için tasarlanmadı. S3 tam olarak bunun için var.', en: 'EC2 runs virtual machines, IAM manages permissions, RDS is a database — none are built for "store a file and serve it via URL". S3 exists exactly for that.' },
+  successMessage: { tr: 'Doğru! S3, statik dosyaları (HTML rapor, screenshot, video) neredeyse sıfır maliyetle sonsuza kadar saklar ve isteğe bağlı olarak bir URL üzerinden sunar.', en: 'Correct! S3 stores static files (HTML reports, screenshots, videos) forever at near-zero cost and can optionally serve them via a URL.' },
+}
+
+const awsAccessDeniedStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir AWS Hatasını Teşhis Sırası', en: 'The Diagnosis Order for an AWS Error' },
+  steps: [
+    { tr: 'Hata mesajının TAM METNİNİ oku — "AccessDenied" mi, "NoCredentials" mı, "InstanceLimitExceeded" mı?', en: 'Read the FULL error message text — is it "AccessDenied", "NoCredentials", or "InstanceLimitExceeded"?' },
+    { tr: 'IAM izin sorunu mu (kim bu işlemi yapmaya yetkili değil) yoksa kaynak/region sorunu mu (yanlış yerde arıyorsun) ayır.', en: 'Separate whether it\'s an IAM permission issue (who isn\'t authorized) or a resource/region issue (looking in the wrong place).' },
+    { tr: 'CloudTrail veya CI logunda TAM OLARAK hangi API çağrısının başarısız olduğunu bul.', en: 'Find EXACTLY which API call failed in CloudTrail or the CI log.' },
+    { tr: 'İlgili IAM rolüne/policy\'ye SADECE eksik olan izni ekle — geniş bir "FullAccess" ile örtbas etme.', en: 'Add ONLY the missing permission to the relevant IAM role/policy — don\'t paper over it with a broad "FullAccess".' },
+  ],
+}
+
+const awsAccessDeniedPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'aws-errors',
+  title: { tr: 'Kendin Dene: Eksik IAM İznini Tespit Et', en: 'Try It Yourself: Identify the Missing IAM Permission' },
+  starterCode: `// Hata: AccessDenied - s3:PutObject
+// TODO: dogru IAM action'i policy'ye ekle
+const policy = { Action: "?", Resource: "arn:aws:s3:::qa-reports/*" };`,
+  solutionCode: `// Hata: AccessDenied - s3:PutObject
+const policy = { Action: "s3:PutObject", Resource: "arn:aws:s3:::qa-reports/*" };`,
+  hint: { tr: 'Hata mesajı hangi action\'ın reddedildiğini SÖYLER — "s3:PutObject" hatası, policy\'de tam olarak "s3:PutObject" eksik demektir, tahmin etmeye gerek yok.', en: 'The error message TELLS you which action was denied — an "s3:PutObject" error means the policy is missing exactly "s3:PutObject", no guessing needed.' },
+  successMessage: { tr: 'Doğru! Bu, AWS hata mesajlarının aslında ne kadar açık olduğunu gösterir — mesajı okumak, tahmin etmekten çok daha hızlıdır.', en: 'Correct! This shows how explicit AWS error messages actually are — reading the message is much faster than guessing.' },
+}
+
+const awsInterviewStep = {
+  type: 'step-animation',
+  title: { tr: 'Mülakatta "Neden AWS Kullandınız?" Sorusuna Cevap', en: 'Answering "Why Did You Use AWS?" in an Interview' },
+  steps: [
+    { tr: 'Sadece "AWS güçlü bir araç" deme — hangi SERVİSİ, HANGİ problem için seçtiğini somutlaştır.', en: 'Don\'t just say "AWS is powerful" — make concrete which SERVICE you chose, for WHICH problem.' },
+    { tr: 'Bir maliyet/fayda kararı anlat: "20 EC2 instance 4 saatliğine $12\'ye mal oldu, 3 aylık özel sunucu $3000 olurdu."', en: 'Describe a cost/benefit decision: "20 EC2 instances for 4 hours cost $12, a 3-month dedicated server would\'ve cost $3000."' },
+    { tr: 'Bir güvenlik/least-privilege kararı anlat: pipeline\'a AdministratorAccess yerine sadece gereken izni verdiğini göster.', en: 'Describe a security/least-privilege decision: show you gave the pipeline only the needed permission instead of AdministratorAccess.' },
+  ],
+}
+
+const awsInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'aws-interview',
+  title: { tr: 'Kendin Dene: Least Privilege Policy Yaz', en: 'Try It Yourself: Write a Least Privilege Policy' },
+  starterCode: `// Hedef: pipeline SADECE tek bir bucket'a yazabilsin, baska hicbir seye degil
+// TODO: policy'yi tamamla
+const policy = { Action: "s3:PutObject", Resource: "?" };`,
+  solutionCode: `// Hedef: pipeline SADECE tek bir bucket'a yazabilsin, baska hicbir seye degil
+const policy = { Action: "s3:PutObject", Resource: "arn:aws:s3:::qa-reports/*" };`,
+  hint: { tr: 'Resource alanını "*" (her şey) bırakmak, pipeline\'ın HESAPTAKİ TÜM bucket\'lara yazabilmesi demektir — Resource\'u tek bir bucket ARN\'ine daraltmak least privilege\'in özüdür.', en: 'Leaving Resource as "*" (everything) means the pipeline can write to EVERY bucket in the account — scoping Resource to one bucket ARN is the essence of least privilege.' },
+  successMessage: { tr: 'Doğru! Bu policy, credential\'lar çalınsa bile saldırganın sadece tek bir bucket\'a erişebilmesini garanti eder.', en: 'Correct! This policy guarantees that even if credentials are stolen, the attacker can only access one bucket.' },
+}
+
+const awsEcosystemTrStep = {
+  type: 'step-animation',
+  title: { tr: 'Lambda ile Zamanlanmış Health Check', en: 'Scheduled Health Check with Lambda' },
+  steps: [
+    { tr: 'CloudWatch Events, Lambda fonksiyonunu her 5 dakikada bir tetikler — sunucu yönetmeye gerek yok.', en: 'CloudWatch Events triggers the Lambda function every 5 minutes — no server to manage.' },
+    { tr: 'Lambda, uygulamanın /health endpoint\'ine bir istek atar ve durumu kontrol eder.', en: 'Lambda sends a request to the app\'s /health endpoint and checks the status.' },
+    { tr: 'İstek başarısız olursa, Lambda bir SNS mesajı yayınlar — takım anında bir alarm alır.', en: 'If the request fails, Lambda publishes an SNS message — the team gets an instant alert.' },
+  ],
+}
+
+const awsEcosystemTrPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'aws-ecosystem-tr',
+  title: { tr: 'Kendin Dene: Health Check Başarısız Olunca Alarm Gönder', en: 'Try It Yourself: Send an Alert When Health Check Fails' },
+  starterCode: `// Hedef: health check basarisiz olunca SNS uyarisi gonder
+// TODO: dogru servisi cagir
+def send_alert(message):
+    ? = boto3.client('sns')
+    ?.publish(TopicArn="arn:aws:sns:...", Message=message)`,
+  solutionCode: `// Hedef: health check basarisiz olunca SNS uyarisi gonder
+def send_alert(message):
+    sns = boto3.client('sns')
+    sns.publish(TopicArn="arn:aws:sns:...", Message=message)`,
+  hint: { tr: 'SNS (Simple Notification Service), bir olay olduğunda birden fazla abone kanalına (email, Slack, SMS) anında bildirim yayınlamak için tasarlanmıştır.', en: 'SNS (Simple Notification Service) is built to instantly broadcast a notification to multiple subscriber channels (email, Slack, SMS) when an event happens.' },
+  successMessage: { tr: 'Doğru! Bu, sunucusuz bir health check + alarm zincirinin temelidir — hiçbir sunucu 7/24 çalışmaz, sadece 5 dakikada bir uyanır.', en: 'Correct! This is the foundation of a serverless health check + alert chain — no server runs 24/7, it only wakes up every 5 minutes.' },
+}
+
 export const awsData = {
   en: {
     hero: {
@@ -108,6 +503,9 @@ export const awsData = {
   <text x="350" y="205" text-anchor="middle" fill="#6b7280" font-size="9">Each Region has 2-6 Availability Zones (AZ) for redundancy</text>
 </svg>`,
           },
+          awsPayPerSecondFilm,
+          awsWhyQaFilmStep,
+          awsWhyQaFilmPractice,
           {
             type: 'quiz',
             question: 'A QA engineer needs to store Allure HTML reports and screenshots generated by every CI run, accessible by URL. Which AWS service is the right fit?',
@@ -270,6 +668,7 @@ aws s3 rb s3://my-qa-test-bucket-<timestamp>/ --force`,
   <text x="320" y="145" text-anchor="middle" fill="#6b7280" font-size="8">Credentials stored locally — never sent in plain text</text>
 </svg>`,
           },
+          awsCliScriptedFilm,
           {
             type: 'quiz',
             question: 'After creating an IAM user and downloading the .csv with the Access Key ID and Secret Access Key, you close the tab without saving the Secret. What can you do?',
@@ -436,6 +835,7 @@ aws s3 sync playwright-report/ s3://$BUCKET/$(date +%Y-%m-%d_%H-%M)/
 # 3. Print shareable URL
 echo "✅ Report: https://$BUCKET.s3.amazonaws.com/$(date +%Y-%m-%d_%H-%M)/index.html"`,
           },
+          awsSeleniumEc2S3Film,
           {
             type: 'quiz',
             question: 'A QA team needs to load-test their site for Black Friday: spin up 20 EC2 instances for 4 hours, then tear them down. Why is this dramatically cheaper than renting dedicated servers for 3 months?',
@@ -566,6 +966,7 @@ def send_alert(message):
     )`,
           },
           { type: 'tip', content: 'AWS Device Farm lets you run Appium mobile tests on real physical iOS and Android devices hosted by Amazon — no emulator, no device lab management.' },
+          awsQaEcosystemMapFilm,
           {
             type: 'quiz',
             question: 'You want to run Playwright tests inside Docker containers, on demand, without managing or patching any underlying servers yourself. Which AWS service fits best?',
@@ -662,6 +1063,9 @@ def send_alert(message):
               },
             ],
           },
+          awsAccessDeniedDiagnosisFilm,
+          awsAccessDeniedStep,
+          awsAccessDeniedPractice,
           {
             type: 'quiz',
             question: 'A test automation script using boto3 fails with "botocore.exceptions.NoCredentialsError: Unable to locate credentials". What is the most likely cause?',
@@ -954,6 +1358,9 @@ def send_alert(message):
               },
             ],
           },
+          awsLeastPrivilegeInterviewFilm,
+          awsInterviewStep,
+          awsInterviewPractice,
         ],
       },
     ],
@@ -1027,6 +1434,9 @@ def send_alert(message):
             ],
           },
           { type: 'tip', content: 'AWS Free Tier 12 ay boyunca aylık 750 saat t2.micro EC2 veriyor. Selenium Grid\'i ücretsiz kurabilirsin.' },
+          awsPayPerSecondFilm,
+          awsWhyQaFilmStep,
+          awsWhyQaFilmPractice,
           {
             type: 'quiz',
             question: 'Bir QA mühendisi her CI çalışmasında üretilen Allure HTML raporlarını ve screenshot\'ları saklayıp URL ile erişilebilir yapmak istiyor. Hangi AWS servisi buna uygun?',
@@ -1142,6 +1552,7 @@ aws s3 ls s3://my-qa-test-bucket-<timestamp>/
 # Bitince bucket'ı sil
 aws s3 rb s3://my-qa-test-bucket-<timestamp>/ --force`,
           },
+          awsCliScriptedFilm,
           {
             type: 'quiz',
             question: 'IAM user oluşturup Access Key ID ve Secret Access Key\'in olduğu .csv\'yi indirdikten sonra sekmeyi kaydetmeden kapatırsan ne olur?',
@@ -1280,6 +1691,7 @@ phases:
             ],
           },
           { type: 'tip', content: 'QA mühendisleri için AWS bilgisi en yüksek talep gören cloud yetkinliğidir. Cloud içeren iş ilanlarının %60\'ından fazlası AWS belirtiyor.' },
+          awsSeleniumEc2S3Film,
           {
             type: 'quiz',
             question: 'Bir QA ekibi Black Friday için yük testi yapacak: 20 EC2 instance\'ı 4 saatliğine başlatıp sonra kapatacaklar. Bu, 3 ay için özel sunucu kiralamaktan neden bu kadar ucuz?',
@@ -1344,6 +1756,9 @@ phases:
             ],
           },
           { type: 'tip', content: 'AWS Device Farm gerçek fiziksel iOS ve Android cihazlarda Appium testleri çalıştırmanı sağlar — Amazon\'un laboratuvarlarında. Cihaz lab yönetimi yok, emülatör yok.' },
+          awsQaEcosystemMapFilm,
+          awsEcosystemTrStep,
+          awsEcosystemTrPractice,
           {
             type: 'quiz',
             question: 'Playwright testlerini sunucu yönetmeden, talep üzerine Docker container\'larında çalıştırmak istiyorsun. Hangi AWS servisi buna en uygun?',
@@ -1440,6 +1855,9 @@ phases:
               },
             ],
           },
+          awsAccessDeniedDiagnosisFilm,
+          awsAccessDeniedStep,
+          awsAccessDeniedPractice,
           {
             type: 'quiz',
             question: 'boto3 kullanan bir otomasyon scripti "botocore.exceptions.NoCredentialsError: Unable to locate credentials" hatasıyla başarısız oluyor. En olası neden nedir?',
@@ -1732,9 +2150,14 @@ phases:
               },
             ],
           },
+          awsLeastPrivilegeInterviewFilm,
+          awsInterviewStep,
+          awsInterviewPractice,
         ],
       },
     ],
   },
 }
+
+fillMissingCodeTrios(awsData, 'aws')
 

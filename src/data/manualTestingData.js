@@ -117,6 +117,122 @@ const bugLifecycleFilm = {
     ],
 }
 
+// ─── Dalga 20 — kalan 5 ders için video-scene filmleri (TR+EN lesson ağaçlarında aynı sabit) ───
+
+const userMindsetFilm = {
+    type: 'video-scene',
+    id: 'manual-user-mindset-film',
+    title: { tr: '🎬 Kullanıcı Zihniyetiyle Test: Mutlu Yoldan Edge Case\'e', en: '🎬 Testing with a User Mindset: From Happy Path to Edge Case' },
+    xpReward: 11,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'feature',  emoji: '☕', label: { tr: 'Özellik: "Kahve Yap"',   en: 'Feature: "Make Coffee"' }, color: '#f97316' },
+        { id: 'happy',    emoji: '✅', label: { tr: 'Mutlu Yol: Buton Çalışıyor', en: 'Happy Path: Button Works' }, color: '#22c55e' },
+        { id: 'imagine',  emoji: '🤔', label: { tr: 'Hayal Et: Ne Ters Gidebilir?', en: 'Imagine: What Could Go Wrong?' }, color: '#0ea5e9' },
+        { id: 'edge',     emoji: '⚠️', label: { tr: 'Edge Case: Su Boşken?',  en: 'Edge Case: Water Empty?' },  color: '#ef4444' },
+        { id: 'risk',     emoji: '🎯', label: { tr: 'Gerçek Risk Bulundu',    en: 'Real Risk Found' },         color: '#a855f7' },
+    ],
+    scenes: [
+        { caption: { tr: 'Bir tester\'a "kahve makinesini test et" görevi verilir — düğmeye basmak tek başına yeterli görünür.', en: 'A tester gets the task "test the coffee machine" — pressing the button alone seems sufficient.' }, positions: { feature: { x: 50, y: 30, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'İlk test "mutlu yol"dur: düğmeye basılır, kahve çıkar. Buton ÇALIŞIYOR — ama bu tek bir kanıttır, TÜM hikaye değildir.', en: 'The first test is the "happy path": button pressed, coffee comes out. The button WORKS — but this is one piece of evidence, not the WHOLE story.' }, code: { tr: `press(button) -> coffee poured`, en: `press(button) -> coffee poured` }, positions: { feature: { x: 44, y: 30, scale: 1.0 }, happy: { x: 72, y: 20, scale: 1.15, pulse: true } }, beams: [{ from: 'feature', to: 'happy', color: '#22c55e' }] },
+        { caption: { tr: 'Gerçek kullanıcı zihniyeti burada devreye girer: "Su boşken ne olur? Bardak yokken?" diye HAYAL ETMEYE başlar.', en: 'The real user mindset kicks in here: they start IMAGINING "what if the water is empty? what if there\'s no cup?"' }, positions: { happy: { x: 60, y: 20, opacity: 0.5, scale: 0.9 }, imagine: { x: 30, y: 45, scale: 1.15, pulse: true } }, beams: [{ from: 'happy', to: 'imagine', color: '#0ea5e9' }] },
+        { caption: { tr: 'Su haznesi boşken düğmeye basılır — makine SESSİZCE hiçbir şey yapmaz, hiçbir uyarı vermez. Bu bir edge case: yazılan senaryoda hiç yoktu.', en: 'The button is pressed with an empty water tank — the machine does NOTHING silently, no warning. This is an edge case: it was never in the written scenario.' }, code: { tr: `press(button) // su yok -> hicbir sey olmuyor, uyari yok`, en: `press(button) // no water -> nothing happens, no warning` }, positions: { imagine: { x: 36, y: 45, opacity: 0.6, scale: 0.9 }, edge: { x: 64, y: 55, scale: 1.2, pulse: true } }, beams: [{ from: 'imagine', to: 'edge', color: '#ef4444' }] },
+        { caption: { tr: 'Final — bulunan bu, gerçek bir kullanıcının GERÇEKTEN yaşayacağı bir risktir: sabah erkenden su bitmiş, makine sessizce çalışmıyor, kullanıcı ne olduğunu hiç anlamıyor.', en: 'Final — this is a risk a real user will ACTUALLY experience: early morning, water is out, the machine silently fails, the user never understands why.' }, positions: { edge: { x: 40, y: 55, scale: 1.0, opacity: 0.6 }, risk: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'edge', to: 'risk', color: '#a855f7' }] },
+    ],
+}
+
+const testCaseBirthFilm = {
+    type: 'video-scene',
+    id: 'manual-test-case-birth-film',
+    title: { tr: '🎬 Bir Test Case\'in Doğuşu: Belirsizden Tekrarlanabilire', en: '🎬 The Birth of a Test Case: From Vague to Repeatable' },
+    xpReward: 11,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'vague',    emoji: '❓', label: { tr: '"Giriş Yap\'ı Test Et" (belirsiz)', en: '"Test Login" (vague)' }, color: '#ef4444' },
+        { id: 'precond',  emoji: '📋', label: { tr: 'Precondition',   en: 'Precondition' },   color: '#0ea5e9' },
+        { id: 'steps',    emoji: '🔢', label: { tr: 'Numaralı Adımlar', en: 'Numbered Steps' }, color: '#f97316' },
+        { id: 'expected', emoji: '🎯', label: { tr: 'Expected Result', en: 'Expected Result' }, color: '#22c55e' },
+        { id: 'repeat',   emoji: '🔁', label: { tr: 'İki Kişi, Aynı Sonuç', en: 'Two People, Same Result' }, color: '#a855f7' },
+    ],
+    scenes: [
+        { caption: { tr: '"Giriş yap\'ı test et" talimatı verilir — iki farklı tester bunu iki FARKLI şekilde yorumlayabilir.', en: 'The instruction "test login" is given — two different testers can interpret it in two DIFFERENT ways.' }, positions: { vague: { x: 50, y: 30, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Önce Precondition netleşir: "kayıtlı ve aktif bir kullanıcı hesabı hazır olmalı" — deney başlamadan ÖNCEKİ durum sabitlenir.', en: 'First the Precondition is nailed down: "a registered, active user account must be ready" — the state BEFORE the experiment is fixed.' }, code: { tr: `Precondition: kayitli + aktif kullanici`, en: `Precondition: registered + active user` }, positions: { vague: { x: 44, y: 30, scale: 1.0 }, precond: { x: 72, y: 20, scale: 1.15, pulse: true } }, beams: [{ from: 'vague', to: 'precond', color: '#0ea5e9' }] },
+        { caption: { tr: 'Sonra adımlar numaralanır: 1) sayfayı aç 2) email gir 3) şifre gir 4) login\'e bas — sıra ve içerik artık HERKESE aynıdır.', en: 'Then steps get numbered: 1) open page 2) enter email 3) enter password 4) click login — order and content are now the SAME for everyone.' }, code: { tr: `1) ac 2) email 3) sifre 4) login`, en: `1) open 2) email 3) password 4) login` }, positions: { precond: { x: 60, y: 20, opacity: 0.5, scale: 0.9 }, steps: { x: 30, y: 45, scale: 1.15, pulse: true } }, beams: [{ from: 'precond', to: 'steps', color: '#f97316' }] },
+        { caption: { tr: 'Expected Result eklenir: "dashboard görünür, kullanıcı adı görünür" — sonucun NE olması gerektiği artık tahmine bırakılmaz.', en: 'Expected Result gets added: "dashboard is visible, username is visible" — what the result SHOULD be is no longer left to guesswork.' }, code: { tr: `Expected: dashboard + kullanici adi gorunur`, en: `Expected: dashboard + username visible` }, positions: { steps: { x: 36, y: 45, opacity: 0.6, scale: 0.9 }, expected: { x: 64, y: 55, scale: 1.2, pulse: true } }, beams: [{ from: 'steps', to: 'expected', color: '#22c55e' }] },
+        { caption: { tr: 'Final — artık İKİ FARKLI kişi bu test case\'i okuyup çalıştırsa, AYNI adımları AYNI sırayla izler ve AYNI sonucu bekler. Belirsizlik, tekrarlanabilir bir deneye dönüştü.', en: 'Final — now TWO DIFFERENT people reading and running this test case follow the SAME steps in the SAME order and expect the SAME result. Ambiguity became a repeatable experiment.' }, positions: { expected: { x: 40, y: 55, scale: 1.0, opacity: 0.6 }, repeat: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'expected', to: 'repeat', color: '#a855f7' }] },
+    ],
+}
+
+const exploratorySessionFilm = {
+    type: 'video-scene',
+    id: 'manual-exploratory-session-film',
+    title: { tr: '🎬 Bir Exploratory Test Oturumunun Haritası', en: '🎬 The Map of an Exploratory Test Session' },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'charter',    emoji: '🎯', label: { tr: 'Charter (Hedef)',      en: 'Charter (Goal)' },      color: '#f97316' },
+        { id: 'hypothesis', emoji: '💡', label: { tr: 'Hipotez: Risk Nerede?', en: 'Hypothesis: Where\'s the Risk?' }, color: '#0ea5e9' },
+        { id: 'explore',    emoji: '🔍', label: { tr: 'Ürünü Kurcala',         en: 'Poke at the Product' },  color: '#22c55e' },
+        { id: 'note',       emoji: '📝', label: { tr: 'Bulguyu Not Al',        en: 'Note the Finding' },     color: '#a855f7' },
+        { id: 'loop',       emoji: '🔄', label: { tr: 'Yeni Hipotez -> Tekrar Keşif', en: 'New Hypothesis -> Explore Again' }, color: '#f59e0b' },
+    ],
+    scenes: [
+        { caption: { tr: 'Oturum, rastgele tıklamayla değil bir Charter (hedef) ile başlar: "checkout akışının kupon+stok kombinasyonlarını keşfet."', en: 'The session doesn\'t start with random clicking — it starts with a Charter (goal): "explore the checkout flow\'s coupon+stock combinations."' }, positions: { charter: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Bir hipotez kurulur: "son kullanma tarihi geçmiş bir kupon + stoktaki son ürün aynı anda kullanılırsa bir hata olabilir."', en: 'A hypothesis is formed: "an expired coupon + the last item in stock used together might cause a bug."' }, code: { tr: `hipotez: expired coupon + last stock -> hata?`, en: `hypothesis: expired coupon + last stock -> bug?` }, positions: { charter: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, hypothesis: { x: 40, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'charter', to: 'hypothesis', color: '#0ea5e9' }] },
+        { caption: { tr: 'Tester ürünü GERÇEKTEN kurcalar — hipotezi test eder, sonucu gözlemler.', en: 'The tester ACTUALLY pokes at the product — testing the hypothesis, observing the result.' }, code: { tr: `apply(expiredCoupon) + buy(lastStockItem)`, en: `apply(expiredCoupon) + buy(lastStockItem)` }, positions: { hypothesis: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, explore: { x: 52, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'hypothesis', to: 'explore', color: '#22c55e' }] },
+        { caption: { tr: 'Bulgu not alınır — bu ADIM, exploratory testi rastgele tıklamadan ayıran şeydir: her şey belgelenir, hiçbir şey unutulmaz.', en: 'The finding gets noted — this STEP is what separates exploratory testing from random clicking: everything gets documented, nothing gets forgotten.' }, code: { tr: `not: fiyat yanlis hesaplaniyor, hata mesaji yok`, en: `note: price miscalculated, no error message` }, positions: { explore: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, note: { x: 58, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'explore', to: 'note', color: '#a855f7' }] },
+        { caption: { tr: 'Final — bulgu, YENİ bir hipotezi tetikler ("aynı hata farklı kupon tiplerinde de olur mu?") ve döngü DEVAM EDER. Bu, exploratory testin sistematik ama planlı-olmayan doğasıdır.', en: 'Final — the finding triggers a NEW hypothesis ("does the same bug happen with other coupon types?") and the loop CONTINUES. This is exploratory testing\'s systematic-but-unscripted nature.' }, positions: { note: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, loop: { x: 62, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'note', to: 'loop', color: '#f59e0b' }] },
+    ],
+}
+
+const severityTriageFilm = {
+    type: 'video-scene',
+    id: 'manual-severity-triage-film',
+    title: { tr: '🎬 Aynı "Bug" Kelimesi, Üç Farklı Aciliyet', en: '🎬 The Same Word "Bug", Three Different Urgencies' },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'critical', emoji: '🔴', label: { tr: 'Critical: Checkout Çöktü',  en: 'Critical: Checkout Down' }, color: '#ef4444' },
+        { id: 'major',    emoji: '🟠', label: { tr: 'Major: Kupon Yanlış Hesaplıyor', en: 'Major: Coupon Miscalculates' }, color: '#f59e0b' },
+        { id: 'minor',    emoji: '🟡', label: { tr: 'Minor: Yazım Hatası',      en: 'Minor: Typo' },          color: '#eab308' },
+        { id: 'triage',   emoji: '🗂️', label: { tr: 'Triage Kararı',           en: 'Triage Decision' },      color: '#a855f7' },
+    ],
+    scenes: [
+        { caption: { tr: 'Üç ayrı bug raporu aynı gün gelir — üçü de "hata var" diyor, ama gerçek aciliyetleri KÖKTEN farklıdır.', en: 'Three separate bug reports arrive the same day — all three say "there\'s a bug", but their real urgency is FUNDAMENTALLY different.' }, positions: { critical: { x: 20, y: 25, scale: 1.05, pulse: true }, major: { x: 50, y: 45, scale: 1.0 }, minor: { x: 80, y: 65, scale: 0.95 } } },
+        { caption: { tr: 'İlki: Checkout butonu 500 hatası veriyor — TÜM satın almalar durdu. Bu Critical: iş akışının kalbi kırıldı.', en: 'The first: the checkout button throws a 500 error — ALL purchases stopped. This is Critical: the heart of the business flow is broken.' }, code: { tr: `checkout.click() -> 500 error // TUM satislar durdu`, en: `checkout.click() -> 500 error // ALL sales stopped` }, positions: { critical: { x: 30, y: 30, scale: 1.2, pulse: true }, major: { x: 55, y: 50, opacity: 0.5, scale: 0.9 }, minor: { x: 78, y: 65, opacity: 0.4, scale: 0.85 } } },
+        { caption: { tr: 'İkincisi: kupon kodu doğru fiyatı hesaplamıyor — kullanıcı yine de sipariş verebiliyor, ama şirket para kaybediyor. Bu Major: alternatif yol var ama ciddi zarar riski.', en: 'The second: the coupon code doesn\'t calculate the right price — the user can still order, but the company loses money. This is Major: a workaround exists, but serious loss risk.' }, code: { tr: `applyCoupon() -> yanlis fiyat, ama siparis devam ediyor`, en: `applyCoupon() -> wrong price, but order still proceeds` }, positions: { critical: { x: 20, y: 25, opacity: 0.5, scale: 0.9 }, major: { x: 52, y: 45, scale: 1.2, pulse: true }, minor: { x: 78, y: 65, opacity: 0.4, scale: 0.85 } } },
+        { caption: { tr: 'Üçüncüsü: profil sayfasında bir yazım hatası — kullanıcı fark eder ama hiçbir işlem engellenmez. Bu Minor: görünür ama iş akışına dokunmuyor.', en: 'The third: a typo on the profile page — the user notices, but nothing gets blocked. This is Minor: visible but doesn\'t touch the business flow.' }, code: { tr: `profile.text = "Hosgeldiniz" // yazim hatasi, akis devam`, en: `profile.text = "Welcom" // typo, flow continues` }, positions: { critical: { x: 20, y: 25, opacity: 0.4, scale: 0.85 }, major: { x: 50, y: 45, opacity: 0.5, scale: 0.9 }, minor: { x: 80, y: 65, scale: 1.2, pulse: true } } },
+        { caption: { tr: 'Final — triage bu üçünü SIRAYA koyar: Critical ANINDA, Major bu sprint içinde, Minor backlog\'a. Severity olmadan "her şey acil" der, ekip hangi yangını önce söndüreceğini bilemez.', en: 'Final — triage puts these three in ORDER: Critical IMMEDIATELY, Major within this sprint, Minor to the backlog. Without severity, everything is "urgent" and the team can\'t tell which fire to fight first.' }, positions: { critical: { x: 20, y: 25, scale: 1.0, opacity: 0.6 }, major: { x: 50, y: 45, scale: 0.9, opacity: 0.5 }, minor: { x: 78, y: 65, scale: 0.85, opacity: 0.4 }, triage: { x: 55, y: 25, scale: 1.25, pulse: true } }, beams: [{ from: 'critical', to: 'triage', color: '#a855f7' }] },
+    ],
+}
+
+const regressionSideEffectFilm = {
+    type: 'video-scene',
+    id: 'manual-regression-side-effect-film',
+    title: { tr: '🎬 Bir Fix\'in Gizli Yan Etkisi', en: '🎬 A Fix\'s Hidden Side Effect' },
+    xpReward: 12,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+        { id: 'fix',      emoji: '🔧', label: { tr: 'Kupon Bug\'ı Düzeltildi', en: 'Coupon Bug Fixed' },   color: '#f97316' },
+        { id: 'verify',   emoji: '✅', label: { tr: 'Kupon Doğrulandı: ÇALIŞIYOR', en: 'Coupon Verified: WORKS' }, color: '#22c55e' },
+        { id: 'shared',   emoji: '🔗', label: { tr: 'Paylaşılan Fiyat Hesaplama Kodu', en: 'Shared Price Calculation Code' }, color: '#0ea5e9' },
+        { id: 'broken',   emoji: '💥', label: { tr: 'Kapıda Ödeme Sessizce Bozuldu', en: 'Cash-on-Delivery Silently Broke' }, color: '#ef4444' },
+        { id: 'caught',   emoji: '🕵️', label: { tr: 'Regression Testinde Yakalandı', en: 'Caught by Regression Testing' }, color: '#a855f7' },
+    ],
+    scenes: [
+        { caption: { tr: 'Bir kupon hesaplama bug\'ı düzeltilir — developer değişikliği yapar, kendi test ettiği senaryo geçer.', en: 'A coupon calculation bug gets fixed — the developer makes the change, the scenario they tested passes.' }, positions: { fix: { x: 16, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: '"Sadece kupon fix ettik" denir — QA kuponu doğrular, ÇALIŞIYOR. Görev bitmiş gibi görünür.', en: '"We only fixed the coupon" is said — QA verifies the coupon, it WORKS. The task looks done.' }, code: { tr: `applyCoupon() -> dogru fiyat`, en: `applyCoupon() -> correct price` }, positions: { fix: { x: 14, y: 40, opacity: 0.6, scale: 0.9 }, verify: { x: 40, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'fix', to: 'verify', color: '#22c55e' }] },
+        { caption: { tr: 'Ama görünmeyen gerçek şu: kupon hesaplama fonksiyonu, kapıda ödeme akışının da kullandığı PAYLAŞILAN bir fiyat hesaplama koduna dokunmuştur.', en: 'But the invisible truth: the coupon calculation function touched a SHARED price calculation code that the cash-on-delivery flow also uses.' }, code: { tr: `calculatePrice() // hem kupon hem kapida odeme kullanir`, en: `calculatePrice() // used by both coupon AND cash-on-delivery` }, positions: { verify: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, shared: { x: 52, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'verify', to: 'shared', color: '#0ea5e9' }] },
+        { caption: { tr: 'Kimse test etmediği için kapıda ödeme akışı SESSİZCE bozulmuştur — hiçbir alarm çalmaz, hiçbir hata logu düşmez.', en: 'Since nobody tested it, the cash-on-delivery flow SILENTLY broke — no alarm rings, no error log drops.' }, code: { tr: `cashOnDelivery() -> yanlis tutar // fark edilmedi`, en: `cashOnDelivery() -> wrong amount // unnoticed` }, positions: { shared: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, broken: { x: 58, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'shared', to: 'broken', color: '#ef4444' }] },
+        { caption: { tr: 'Final — regression testi, "sadece kupon"un ötesine geçip normal kart ödemesi, havale ve kapıda ödemeyi de smoke test\'ten geçirir ve bu SESSİZ kırılmayı production\'a ulaşmadan yakalar.', en: 'Final — regression testing goes beyond "just the coupon", smoke-testing card payment, bank transfer, and cash-on-delivery too, catching this SILENT break before it reaches production.' }, positions: { broken: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, caught: { x: 62, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'broken', to: 'caught', color: '#a855f7' }] },
+    ],
+}
+
 export const manualTestingData = {
     tr: {
         hero: {
@@ -192,6 +308,7 @@ export const manualTestingData = {
                 id: 'mindset',
                 shortTitle: 'Bakis Acisi',
                 color: '#0ea5e9',
+                film: userMindsetFilm,
                 title: '1. Manuel test = urunu kullanici gibi yasamak',
                 analogy: 'Yeni bir kahve makinesi aldigini dusun. Sadece dugmeye basmazsin; su haznesi bosken ne oluyor, bardak yokken uyari geliyor mu, sicak kahve tasiyor mu diye bakarsin. Peki "Buton calisiyor mu?" sorusu neden yetmez? Cunku kullanici makineyi aldiginda zaten dugmenin calistigini varsayar — gercek risk, beklentisi karsilandi mi sorusundadir. Manuel test de tam olarak bu bakis acisiyla calisir: urunun var oldugunu degil, kullanicinin beklentisini karsilayip karsilamadigini kanit uzerinden gosterir.',
                 why: 'Java unit test yazarken sadece beklenen happy-path inputu degil; null, bos liste ve sinir degerlerini de `assertThrows`, `assertNull` ile kontrol edersin. Manuel test de ayni dusunce yapisiyla ama UI katmaninda calisir: "Bu ekran gecerli veriyle dogru mu?" sorusunun yanina "Bu ekran gecersiz veriyle ne yapiyor?" sorusunu da ekler. Bir fark var: unit test tek bir methodu izole test eder; manuel test kullanicinin tum akim boyunca hissettigi deneyimi test eder.',
@@ -240,6 +357,7 @@ export const manualTestingData = {
                 id: 'test-case',
                 shortTitle: 'Test Case',
                 color: '#22c55e',
+                film: testCaseBirthFilm,
                 title: '2. Test case = kanitlanabilir kucuk deney',
                 analogy: 'Doktor tahlil isterken "bir bak bakalim" demez: hangi test, hangi numune, beklenen aralik acikcadir. Test case de ayni netlikte calisir — hangi on kosul, hangi adimlar, hangi beklenen sonuc. Burada dusundurucu soru su: "Giris yap" yazmak neden test case sayilmaz? Cunku ayni adi tasiyan iki kisi bu "tarifi" okusaydi, biri sifre alanini birakip sadece email yazabilir, digeri farkli bir tarayici kullanabilirdi. Test case, her calistiranda ayni deneyi uretilebilir kilmak icindir.',
                 why: 'Java JUnit metodlarinda Arrange (on kosul kurma), Act (eylemi calistirma), Assert (sonucu dogrulama) uclusu standart yapidadir. Manuel test case de tam olarak bu yapiyi IC kullanir: Precondition (kayitli aktif kullanici), Steps (sayfa ac → email gir → sifre gir → Login bas), Expected Result (dashboard gorunur, kullanici adi gorunur). Fark: JUnit otomatik calisir; manuel case insanin elinde ayni hassasliyi saglar.',
@@ -289,6 +407,7 @@ export const manualTestingData = {
                 id: 'exploratory',
                 shortTitle: 'Kesif',
                 color: '#f59e0b',
+                film: exploratorySessionFilm,
                 title: '3. Exploratory test = haritayla gezmek, ezberle degil',
                 analogy: 'Bir alisveris merkezine ilk kez giren kisi her magaza icin onceden hazir senaryo aramaz; ama rastgele de yurumuyor. "Cikis nerede, asansor bu katta mi, yemek kati nerede?" diye bir zihinsel harita olusturup kesfediyor. Peki hazir test senaryolari varken neden ek kesif? Cunku yazilan senaryolar, yazani bilen birinin hayal edebildigi yollari kapsayabilir — ancak kullanicinin gercekte ne yapacagini yazan kisi bilmez. Exploratory testing bu kaygani gecmeyi yakalar: onceden yazilmayan, ama gercek kullanicinin yapabiliyor oldugunun farkedilmesiyle.',
                 why: 'Java debugger\'i kullanan deneyimli bir gelistirici once bir hipotez kurar ("bu NPE muhtemelen bu null check\'ten geliyor"), sonra kodu adim adim izler, beklentisini dogrular veya revize eder. Exploratory testing de ayni zihinsel model: charter (hedef), hipotez (risk nerede olabilir?), gozlem (ne goruyorum?) ve not (ne buldugumu belgele). Fark: Java debugger tek bir cagri yigini izler; exploratory test tum urun katmanlarini, veri kombinasyonlarini ve kullanici tiplerini gezer.',
@@ -384,6 +503,7 @@ export const manualTestingData = {
                 id: 'severity',
                 shortTitle: 'Severity',
                 color: '#8b5cf6',
+                film: severityTriageFilm,
                 title: '5. Severity = hatanin kullaniciya ve is akisina etkisi',
                 analogy: 'Restoranda tuzluk yoksa musteri rahatsiz olur ama restoran kapanmaz. Yangin alarmi calismiyorsa can riski var demektir. Ikisi de "sorun" ama biri hemen yanit ister, digeri bekliyebilir. Burada kritik soru su: "Her bug critical degil mi, neden siniflandiriyoruz?" Cunku gelistirme ekibinin dikkatini ve sprint kapasitesini sonlu. QA severity atamadan "her sey onemli" dersen ekip hangisini once cozeceğini bilemez, can alici bug gorunmez kalir.',
                 why: 'Java dunyasinda exception hiyerarsisini dusun: bir UI label\'daki null degeri sadece bos gorunum uretir (Minor), ama PaymentService\'in `processPayment()` metodundaki NullPointerException tum odeme akisini cokertir (Critical). QA severity siniflandirmasi da ayni mantikla calisir: "Bu hata hangi is akisini engelliyor, kac kullaniciy etkileyecek, workaround var mi?" sorulari severity karar agacini olusturur.',
@@ -430,6 +550,7 @@ export const manualTestingData = {
                 id: 'regression',
                 shortTitle: 'Regression',
                 color: '#14b8a6',
+                film: regressionSideEffectFilm,
                 title: '6. Regression test = eski calisan seyin hala calistigini kanitlamak',
                 analogy: 'Evde muslugu tamir ettikten sonra sadece yeni parcaya bakmazsin; lavabo gideri tikali mi, sicak su hala calisiyor mu, banyo duvari titremiyor mu diye de kontrol edersin. Peki "biz sadece o bolumu duzeltik, neden baska yerlere bakalim?" sorusu akla gelir. Yazilim modulleri birbirine o kadar bagli ki, bir yerden yapilan degisiklik tamamen ilgisiz gorundugu bir baska is akisini kırabilir; buna side effect denir ve QA bunu onceden koklemezse production\'da gorulur.',
                 why: 'Java\'da bir sinifa yeni bir metod eklendiginde ya da refactor yapildiginda `mvn test` veya `gradle test` komutuyla tum test suite yeniden kosulur. Bu tam anlamiyla regression test uygulamasidir: eski garantilerin hala gecerli olup olmadigini sistematik dogrulama. Manuel regression da ayni ilkeyi izler: yeni fix sonrasinda, degisiklikle iliski kurulabilecek tum kritik akislar smoke testten gecirilir; risk degerlendirmesine gore derinlestirilir.',
@@ -595,6 +716,7 @@ export const manualTestingData = {
                 id: 'mindset',
                 shortTitle: 'Mindset',
                 color: '#0ea5e9',
+                film: userMindsetFilm,
                 title: '1. Manual testing = experiencing the product like a user',
                 analogy: 'Imagine buying a coffee machine. You do not just press the button — you check what happens when water runs out, when there is no cup, when coffee overflows. But here is the key question: why is "does the button work?" not enough? Because the user already assumes the button works when they buy the machine. The real risk is whether their expectation is met. Manual testing operates with this exact mindset: it does not just verify the product exists and runs — it proves, with evidence, whether the product meets real user expectations.',
                 why: 'In Java unit tests you cover not only the happy-path input but also null, empty list, and boundary values using assertThrows, assertNull, and assertEquals. Manual testing applies the same thinking at the UI layer: alongside "does this screen work with valid data?" it also asks "what does this screen do with invalid data?" One key difference: a unit test isolates a single method; a manual test covers the full experience across the flow a user actually goes through.',
@@ -643,6 +765,7 @@ export const manualTestingData = {
                 id: 'test-case',
                 shortTitle: 'Test Case',
                 color: '#22c55e',
+                film: testCaseBirthFilm,
                 title: '2. Test case = a small experiment with proof',
                 analogy: 'A doctor does not order a vague test — the specific panel, sample type, and expected reference range are all written down. A test case works the same way: every run must produce the same experiment. Here is the key question: why is "log in and check" not a test case? Because two people reading that instruction would do different things — one might skip the password field, another might use a different browser. A test case exists to make the experiment reproducible by anyone, anytime.',
                 why: 'A JUnit test method follows Arrange (set up preconditions), Act (run the action), Assert (verify the result) — this is the standard Java testing contract. A manual test case mirrors exactly that structure: Precondition (a registered, active user exists), Steps (open page → enter email → enter password → click Login), Expected Result (dashboard is visible, username appears in header). The difference: JUnit runs automatically; a manual test case delivers the same precision in human hands.',
@@ -692,6 +815,7 @@ export const manualTestingData = {
                 id: 'exploratory',
                 shortTitle: 'Explore',
                 color: '#f59e0b',
+                film: exploratorySessionFilm,
                 title: '3. Exploratory testing = navigating with a map, not by memorizing',
                 analogy: 'The first time you enter a shopping mall, you do not have a pre-written script for every store — but you are not wandering randomly either. You form a mental map: where is the exit, is there an elevator, which floor has food? The thought-provoking question here is: if we already have scripted test cases, why do we need exploratory testing on top? Because scripted tests only cover what the person writing them could imagine. Exploratory testing catches the scenarios no one thought to write — the ones real users actually hit.',
                 why: 'An experienced Java developer using a debugger does not step through every line blindly. They form a hypothesis ("this NPE probably comes from this null check"), step through to confirm or revise, and note what they find. Exploratory testing uses exactly that mental model: a charter (target area), a hypothesis (where might the risk be?), observation (what am I seeing?), and notes (what did I find?). The difference from scripted testing is the same as the difference between reading a book and writing one — the tester learns and generates new tests at the same time.',
@@ -787,6 +911,7 @@ export const manualTestingData = {
                 id: 'severity',
                 shortTitle: 'Severity',
                 color: '#8b5cf6',
+                film: severityTriageFilm,
                 title: '5. Severity = the impact of a defect on users and business flow',
                 analogy: 'In a restaurant, missing salt is annoying — but a broken fire alarm is life-critical. Both are problems, but they demand completely different response times and resources. The thought-provoking question here is: "Why should QA classify bugs at all — is not everything important?" The answer is that a development team has finite capacity. Without severity, "everything is important" means the team cannot decide what to fix first, and the critical bug that blocks all payments stays invisible behind a pile of cosmetic issues.',
                 why: 'In Java, think of the exception hierarchy: a NullPointerException in a UI label produces an empty display (Minor), but a NullPointerException inside PaymentService.processPayment() crashes the entire payment flow (Critical). QA severity classification uses exactly the same reasoning: "Which business flow does this block? How many users are affected? Is there a workaround?" These three questions form the decision tree that maps defects to severity levels — and they make the priority conversation in stand-up take minutes instead of hours.',
@@ -833,6 +958,7 @@ export const manualTestingData = {
                 id: 'regression',
                 shortTitle: 'Regression',
                 color: '#14b8a6',
+                film: regressionSideEffectFilm,
                 title: '6. Regression testing = proving old behavior still works',
                 analogy: 'After fixing a leaky faucet, you do not just check the new washer — you also check for drips under the sink, run the hot water, and make sure the drain still flows. The key question to ask yourself: "We only changed that one part, why check everything else?" Because software modules are far more interconnected than faucet pipes. A change in one service or module can silently break something that appears completely unrelated — this is called a side effect, and QA catches it before the user does.',
                 why: 'In Java development, after any new code addition or refactor, the test suite is run with `mvn test` or `gradle test`. This is regression testing in its purest form: systematically verifying that old guarantees still hold. Manual regression applies the same principle at the UI layer: after a fix, all flows that could plausibly be affected are smoke-tested, and the highest-risk adjacent areas are tested more deeply. The difference from automated regression is that a human tester can notice visual glitches, layout shifts, and UX degradations that automated scripts simply skip.',
