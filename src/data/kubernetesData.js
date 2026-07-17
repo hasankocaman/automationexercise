@@ -1788,6 +1788,211 @@ const kubernetesInterviewControlLoopFilm = {
   ],
 }
 
+// ── Dalga A2 (animation-per-topic §3.2): kod-bloğu-başına animasyon açıkları ──
+
+const kubernetesDockerDesktopPrereqStep = {
+  type: 'step-animation',
+  title: { tr: 'Docker Desktop Kurulumu minikube İçin Neden Ön Koşuldur', en: 'Why Docker Desktop Install Is a Prerequisite for minikube' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'Paket yöneticisi kurar', en: 'Package manager installs it' }, detail: { tr: 'winget/brew/apt, Kubernetes\'i değil, minikube\'ün üstünde çalışacağı container motorunu kurar.', en: 'winget/brew/apt installs not Kubernetes, but the container engine minikube will run on top of.' } },
+    { id: 2, icon: '🔗', label: { tr: 'WSL Integration açılır', en: 'WSL Integration enabled' }, detail: { tr: 'Windows\'ta Settings → Resources → WSL Integration açılmazsa minikube\'ün docker driver\'ı konteyner başlatamaz.', en: 'On Windows, without Settings → Resources → WSL Integration enabled, minikube\'s docker driver cannot start containers.' } },
+    { id: 3, icon: '✅', label: { tr: 'docker --version doğrular', en: 'docker --version verifies' }, detail: { tr: 'Bu komut CLI\'ın daemon\'a bağlanabildiğini kanıtlar — bağlanamıyorsa minikube start anında başarısız olur.', en: 'This command proves the CLI can reach the daemon — if it can\'t, minikube start fails immediately.' } },
+    { id: 4, icon: '🌍', label: { tr: 'hello-world çalıştırılır', en: 'hello-world runs' }, detail: { tr: 'docker run hello-world, image çekme + container çalıştırma zincirinin UÇTAN UCA çalıştığını kanıtlar.', en: 'docker run hello-world proves the entire image-pull-and-run chain works END TO END.' } },
+    { id: 5, icon: '☸️', label: { tr: 'minikube\'ün temeli hazır', en: 'minikube\'s foundation is ready' }, detail: { tr: 'minikube kendi Kubernetes düğümünü bu ÇALIŞAN Docker motorunun üzerine inşa edecek.', en: 'minikube will build its own Kubernetes node on top of this WORKING Docker engine.' } },
+  ],
+}
+
+const kubernetesMinikubeInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'minikube Binary\'si Kurulduğunda Henüz Bir Cluster Yoktur', en: 'Installing the minikube Binary Does Not Yet Create a Cluster' },
+  steps: [
+    { id: 1, icon: '⬇️', label: { tr: 'İşletim sistemine göre indirilir', en: 'Downloaded per OS' }, detail: { tr: 'winget/brew/curl, işletim sistemine özgü minikube binary\'sini indirir — hepsi AYNI aracı farklı paket yöneticileriyle kurar.', en: 'winget/brew/curl download the OS-specific minikube binary — all install the SAME tool via different package managers.' } },
+    { id: 2, icon: '🧰', label: { tr: 'Sadece bir CLI aracıdır', en: 'It is just a CLI tool' }, detail: { tr: 'Kurulum anında henüz hiçbir cluster çalışmıyor — binary, cluster\'ı BAŞLATACAK komutu içerir, kendisi cluster değildir.', en: 'At install time no cluster is running yet — the binary contains the command to START one, it is not the cluster itself.' } },
+    { id: 3, icon: '✅', label: { tr: 'minikube version doğrular', en: 'minikube version verifies' }, detail: { tr: 'Bu komut sadece binary\'nin PATH\'te ve çalışır durumda olduğunu kanıtlar, cluster durumuyla ilgisi yoktur.', en: 'This command only proves the binary is on PATH and functional, it has nothing to do with cluster state.' } },
+    { id: 4, icon: '▶️', label: { tr: 'Sıradaki adım cluster\'ı doğurur', en: 'The next step gives birth to the cluster' }, detail: { tr: '`minikube start` çalıştırılana kadar hiçbir Kubernetes bileşeni (API Server, etcd) ayakta değildir.', en: 'Until `minikube start` runs, no Kubernetes component (API Server, etcd) is up.' } },
+  ],
+}
+
+const kubernetesKubectlInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'kubectl Neden Kendi Başına Hiçbir Cluster Mantığı Taşımaz', en: 'Why kubectl Carries No Cluster Logic on Its Own' },
+  steps: [
+    { id: 1, icon: '📥', label: { tr: 'minikube\'den AYRI kurulur', en: 'Installed SEPARATELY from minikube' }, detail: { tr: 'kubectl ve minikube iki farklı araçtır — biri client, diğeri local cluster sağlayıcısıdır, birbirine bağımlı değildir.', en: 'kubectl and minikube are two separate tools — one is a client, the other a local cluster provisioner, neither depends on the other.' } },
+    { id: 2, icon: '📡', label: { tr: 'Saf bir API client\'tır', en: 'It is a pure API client' }, detail: { tr: 'kubectl kendi başına HİÇBİR cluster mantığı taşımaz — her komut, hedef cluster\'ın API Server\'ına bir HTTPS isteğidir.', en: 'kubectl carries NO cluster logic of its own — every command is an HTTPS request to the target cluster\'s API Server.' } },
+    { id: 3, icon: '✅', label: { tr: 'version --client cluster GEREKTİRMEZ', en: 'version --client does NOT require a cluster' }, detail: { tr: '`kubectl version --client` çalışan bir cluster olmadan da kurulumu doğrular — bu, kubectl\'in bağımsız bir binary olduğunun kanıtıdır.', en: '`kubectl version --client` verifies the install without any running cluster — proof that kubectl is an independent binary.' } },
+    { id: 4, icon: '⚡', label: { tr: 'Alias\'lar sadece kısayoldur', en: 'Aliases are just shortcuts' }, detail: { tr: '`alias kgp` gibi tanımlar davranışı DEĞİŞTİRMEZ, sadece klavye tuşlarını azaltır — arkadaki komut aynı kalır.', en: 'Definitions like `alias kgp` do NOT change behavior, they just reduce keystrokes — the underlying command stays identical.' } },
+    { id: 5, icon: '🔑', label: { tr: 'kubeconfig hedefi belirler', en: 'kubeconfig decides the target' }, detail: { tr: 'Bir cluster var olduğunda, kubectl hangi cluster\'a konuşacağını `~/.kube/config` dosyasından okur.', en: 'Once a cluster exists, kubectl reads `~/.kube/config` to know which cluster to talk to.' } },
+  ],
+}
+
+const kubernetesFirstClusterStep = {
+  type: 'step-animation',
+  title: { tr: 'minikube start\'tan İlk Uygulamaya Kadar Ne Olur?', en: 'What Happens From minikube start to Your First App?' },
+  steps: [
+    { id: 1, icon: '🚀', label: { tr: 'Tek düğümlü cluster sağlanır', en: 'A single-node cluster is provisioned' }, detail: { tr: '`--cpus=2 --memory=4096` ile minikube, belirtilen kaynaklarla bir Docker container/VM içinde TEK düğümlü bir cluster kurar.', en: 'With `--cpus=2 --memory=4096`, minikube provisions a SINGLE-node cluster inside a Docker container/VM with the given resources.' } },
+    { id: 2, icon: '🩺', label: { tr: 'minikube status sağlığı doğrular', en: 'minikube status verifies health' }, detail: { tr: 'host/kubelet/apiserver hepsi "Running" göstermeden cluster GÜVENİLİR sayılmaz.', en: 'The cluster is not considered RELIABLE until host/kubelet/apiserver all show "Running".' } },
+    { id: 3, icon: '🔌', label: { tr: 'kubectl get nodes bağlantıyı kanıtlar', en: 'kubectl get nodes proves connectivity' }, detail: { tr: '"Ready" durumu, kubectl\'in artık az önce oluşan cluster\'a GERÇEKTEN ulaşabildiğinin tek kanıtıdır.', en: '"Ready" status is the only proof that kubectl can now ACTUALLY reach the cluster that just came up.' } },
+    { id: 4, icon: '🧩', label: { tr: 'Addon\'lar yetenek ekler', en: 'Addons add capability' }, detail: { tr: 'ingress/metrics-server/dashboard varsayılan olarak GELMEZ — HPA gibi ileri konular metrics-server olmadan çalışmaz.', en: 'ingress/metrics-server/dashboard do NOT come by default — later topics like HPA won\'t work without metrics-server.' } },
+    { id: 5, icon: '🌐', label: { tr: 'İlk deploy uçtan uca kanıtlanır', en: 'The first deploy proves it end to end' }, detail: { tr: 'create deployment → expose → minikube service ile TAM döngü: image çalıştırma, ağa açma, log okuma, temizleme.', en: 'create deployment → expose → minikube service is the FULL loop: running an image, exposing it, reading logs, cleaning up.' } },
+  ],
+}
+
+const kubernetesKindMultiNodeStep = {
+  type: 'step-animation',
+  title: { tr: 'kind: Düğümler VM Değil, Docker Container\'ıdır', en: 'kind: Nodes Are Docker Containers, Not VMs' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'Düğüm = container', en: 'Node = container' }, detail: { tr: 'minikube genelde bir VM/container içinde TEK düğüm koşturur; kind ise HER düğümü ayrı bir Docker container olarak çalıştırır.', en: 'minikube usually runs a SINGLE node inside one VM/container; kind runs EACH node as its own Docker container.' } },
+    { id: 2, icon: '⚡', label: { tr: 'Tek satır = hızlı cluster', en: 'One line = a fast cluster' }, detail: { tr: '`kind create cluster --name my-learning` saniyeler içinde tek düğümlü bir cluster verir — hızlı iterasyon içindir.', en: '`kind create cluster --name my-learning` gives a single-node cluster in seconds — meant for fast iteration.' } },
+    { id: 3, icon: '🗺️', label: { tr: 'YAML çok düğümü tanımlar', en: 'YAML defines multiple nodes' }, detail: { tr: 'kind-config.yaml\'daki `role: control-plane`/`role: worker` girdileri, production\'a daha yakın ÇOK düğümlü bir topoloji kurar.', en: 'The `role: control-plane`/`role: worker` entries in kind-config.yaml build a MULTI-node topology closer to production.' } },
+    { id: 4, icon: '🔑', label: { tr: 'kubectl otomatik yönlenir', en: 'kubectl points itself automatically' }, detail: { tr: 'Cluster oluşunca kubectl context\'i OTOMATİK olarak yeni kind cluster\'ına ayarlanır — elle config değiştirmeye gerek yok.', en: 'Once the cluster is created, kubectl\'s context is set to the new kind cluster AUTOMATICALLY — no manual config editing.' } },
+    { id: 5, icon: '🧹', label: { tr: 'Yaşam döngüsü minikube\'e benzer', en: 'Lifecycle mirrors minikube' }, detail: { tr: '`kind get clusters`/`kind delete cluster` aynı yaşam döngüsünü sağlar ama "düğüm" olmaları sadece container olduğundan çok daha hızlıdır.', en: '`kind get clusters`/`kind delete cluster` mirror the same lifecycle, but because "nodes" are just containers, it is much faster.' } },
+  ],
+}
+
+const kubernetesPodYamlStep = {
+  type: 'step-animation',
+  title: { tr: 'Bu Minimal YAML Uygulanınca Cluster\'da Tam Olarak Ne Olur?', en: 'What Exactly Happens in the Cluster When This Minimal YAML Is Applied?' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: 'apiVersion + kind tanımlar', en: 'apiVersion + kind identify it' }, detail: { tr: 'API Server bu iki alana bakarak isteği HANGİ controller\'a yönlendireceğini belirler — burada basitçe "Pod".', en: 'The API Server looks at these two fields to decide WHICH controller handles the request — here, simply "Pod".' } },
+    { id: 2, icon: '🔖', label: { tr: 'labels gelecekteki keşfi sağlar', en: 'labels enable future discovery' }, detail: { tr: '`app: my-app` etiketi şu an hiçbir şey yapmaz ama bir Service\'in bu pod\'u BULMASININ TEK yoludur.', en: 'The `app: my-app` label does nothing right now, but it is the ONLY way a future Service will FIND this pod.' } },
+    { id: 3, icon: '🐳', label: { tr: 'image çekilir ve çalıştırılır', en: 'image is pulled and run' }, detail: { tr: '`nginx:1.25` container runtime tarafından ÇEKİLİR ve container olarak başlatılır — bu Pod\'un tek işi budur.', en: '`nginx:1.25` is PULLED by the container runtime and started as a container — this is the Pod\'s only job.' } },
+    { id: 4, icon: '⚖️', label: { tr: 'requests/limits kaynağı sınırlar', en: 'requests/limits bound resources' }, detail: { tr: 'requests scheduler\'a "en az bu kadar yer ayır" der, limits ise pod\'un asla AŞMAYACAĞI tavanı belirler.', en: 'requests tells the scheduler "reserve at least this much", limits sets the ceiling the pod will never EXCEED.' } },
+    { id: 5, icon: '⚠️', label: { tr: 'Kendi kendini iyileştirmez', en: 'It does not self-heal' }, detail: { tr: 'Bu Pod tek başına silinirse KİMSE onu yeniden oluşturmaz — self-healing\'i Deployment ekler, düz Pod değil.', en: 'If this Pod alone is deleted, NOBODY recreates it — self-healing comes from a Deployment, not a bare Pod.' } },
+  ],
+}
+
+const kubernetesDeploymentYamlStep = {
+  type: 'step-animation',
+  title: { tr: 'replicas: 3 Bir Eylem Değil, Sürekli Bir Sözdür', en: 'replicas: 3 Is Not an Action, It Is an Ongoing Promise' },
+  steps: [
+    { id: 1, icon: '🔢', label: { tr: 'replicas SÜREKLİ bir hedeftir', en: 'replicas is a CONTINUOUS target' }, detail: { tr: '`replicas: 3` bir kerelik "3 pod oluştur" komutu DEĞİL, "her zaman 3 pod olsun" şeklinde sürekli izlenen bir sözdür.', en: '`replicas: 3` is NOT a one-time "create 3 pods" command, it is a continuously enforced promise of "always keep 3 pods".' } },
+    { id: 2, icon: '🎯', label: { tr: 'selector sahiplik kurar', en: 'selector establishes ownership' }, detail: { tr: '`selector.matchLabels` ReplicaSet\'e HANGİ pod\'ların ona ait olduğunu söyler — etiket uyuşmazsa pod "sahipsiz" kalır.', en: '`selector.matchLabels` tells the ReplicaSet WHICH pods belong to it — a label mismatch leaves a pod "ownerless".' } },
+    { id: 3, icon: '🧬', label: { tr: 'template damga kalıbıdır', en: 'template is the stamping mold' }, detail: { tr: '`template` altındaki her şey, 3 pod\'un HER BİRİNİN birebir kopyalanacağı tek bir kalıptır.', en: 'Everything under `template` is the single mold that ALL 3 pods get stamped from identically.' } },
+    { id: 4, icon: '🔄', label: { tr: 'RollingUpdate sıfır kesinti sağlar', en: 'RollingUpdate guarantees zero downtime' }, detail: { tr: '`maxSurge: 1` + `maxUnavailable: 0` = güncelleme sırasında ASLA 3\'ten az sağlıklı pod olmaz, sadece geçici olarak 4 olabilir.', en: '`maxSurge: 1` + `maxUnavailable: 0` = there are NEVER fewer than 3 healthy pods during an update, only briefly 4.' } },
+    { id: 5, icon: '🚦', label: { tr: 'readinessProbe trafiği geciktirir', en: 'readinessProbe gates traffic' }, detail: { tr: 'Yeni bir pod, `readinessProbe` BAŞARILI olana kadar Service trafiği ALMAZ — yarı-hazır bir pod\'a istek gitmez.', en: 'A new pod receives NO Service traffic until `readinessProbe` SUCCEEDS — a half-ready pod never gets a request.' } },
+  ],
+}
+
+const kubernetesNamespaceCliStep = {
+  type: 'step-animation',
+  title: { tr: '-n Bayrağını Unutmak Neden Sessiz Bir Hataya Yol Açar?', en: 'Why Forgetting the -n Flag Causes a Silent Bug' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'get namespaces mevcut sınırları listeler', en: 'get namespaces lists existing boundaries' }, detail: { tr: 'Bu komut cluster\'da ZATEN var olan izolasyon sınırlarını gösterir — henüz hiçbir şey değiştirmez.', en: 'This command shows the isolation boundaries that ALREADY exist in the cluster — nothing changes yet.' } },
+    { id: 2, icon: '➕', label: { tr: 'create namespace yeni bir dilim açar', en: 'create namespace opens a new slice' }, detail: { tr: '`kubectl create namespace qa-team`, AYNI fiziksel cluster üzerinde yeni bir sanal cluster dilimi oluşturur.', en: '`kubectl create namespace qa-team` creates a new virtual cluster slice on the SAME physical cluster.' } },
+    { id: 3, icon: '🎯', label: { tr: 'apply -n kapsamı daraltır', en: 'apply -n scopes it down' }, detail: { tr: '`-n qa-team` olmadan deployment "default" namespace\'e gider — bu, "pod\'umu bulamıyorum" hatalarının EN yaygın nedenidir.', en: 'Without `-n qa-team`, the deployment goes to the "default" namespace — this is the MOST common cause of "I can\'t find my pod" bugs.' } },
+    { id: 4, icon: '🏛️', label: { tr: '4 varsayılan namespace her zaman vardır', en: '4 default namespaces always exist' }, detail: { tr: 'default/kube-system/kube-public/kube-node-lease, HER taze cluster\'da otomatik gelir — sen hiçbirini oluşturmazsın.', en: 'default/kube-system/kube-public/kube-node-lease come automatically on EVERY fresh cluster — you create none of them.' } },
+    { id: 5, icon: '🔍', label: { tr: 'Sessiz kaçış: namespace belirtilmeyince', en: 'The silent trap: omitting namespace' }, detail: { tr: '`-n` unutulursa komut HATA vermez, sadece yanlış (default) namespace\'i sorgular — bu bir "başarısızlık" değil, "sessiz yanlış sonuç"tur.', en: 'Omitting `-n` does not ERROR, it just queries the wrong (default) namespace — this is not a "failure", it is a "silently wrong result".' } },
+  ],
+}
+
+const kubernetesGetCommandsStep = {
+  type: 'step-animation',
+  title: { tr: 'kubectl get: Her Bayrak Aynı Anlık Görüntüyü Farklı Şekillendirir', en: 'kubectl get: Every Flag Reshapes the Same Snapshot' },
+  steps: [
+    { id: 1, icon: '📸', label: { tr: 'get HİÇBİR ŞEYİ değiştirmez', en: 'get changes NOTHING' }, detail: { tr: '`kubectl get pods` sadece etcd\'deki mevcut durumun bir anlık görüntüsünü okur — salt okunur bir sorgudur.', en: '`kubectl get pods` only reads a snapshot of current state from etcd — it is a purely read-only query.' } },
+    { id: 2, icon: '📊', label: { tr: '-o wide ek sütun ekler', en: '-o wide adds columns' }, detail: { tr: 'Aynı sorguya IP ve node bilgisini eklemek için ikinci bir komut GEREKMEZ, sadece format değişir.', en: 'No SECOND command is needed to add IP and node info to the same query — only the output format changes.' } },
+    { id: 3, icon: '🌐', label: { tr: '-A namespace filtresini kaldırır', en: '-A removes the namespace filter' }, detail: { tr: '`-A`/`--all-namespaces` olmadan kubectl SESSİZCE sadece mevcut namespace\'i gösterir — bu da §"eksik pod" hatasının bir başka kaynağıdır.', en: 'Without `-A`/`--all-namespaces`, kubectl SILENTLY shows only the current namespace — another source of the "missing pod" confusion.' } },
+    { id: 4, icon: '👁️', label: { tr: '-w tek görüntüyü canlı akışa çevirir', en: '-w turns a snapshot into a live stream' }, detail: { tr: '`-w` bağlantıyı AÇIK tutar — durum her değiştiğinde yeni bir satır basılır, komut sonlanmaz.', en: '`-w` keeps the connection OPEN — a new line prints every time state changes, the command never terminates.' } },
+    { id: 5, icon: '📄', label: { tr: '-o yaml manifest formatında döner', en: '-o yaml returns manifest format' }, detail: { tr: 'Bu çıktı, bir dosyaya yazsan AYNEN bir manifest olarak kabul edilecek TAM object tanımıdır.', en: 'This output is the FULL object definition — if saved to a file, it would be accepted as a valid manifest AS-IS.' } },
+  ],
+}
+
+const kubernetesDescribeCommandsStep = {
+  type: 'step-animation',
+  title: { tr: 'describe, get\'ten Farklı Olarak Bir OLAY GEÇMİŞİ Ekler', en: 'Unlike get, describe Adds an EVENT HISTORY' },
+  steps: [
+    { id: 1, icon: '📜', label: { tr: 'Events bölümü get\'te YOKTUR', en: 'The Events section does NOT exist in get' }, detail: { tr: '`kubectl describe pod`, `get`\'in vermediği bir şeyi ekler: API Server\'ın hesapladığı sıralı bir OLAY listesi.', en: '`kubectl describe pod` adds something `get` never gives: an ordered EVENT list computed by the API Server.' } },
+    { id: 2, icon: '⏳', label: { tr: 'Events KRONOLOJİK bir hikaye anlatır', en: 'Events tell a CHRONOLOGICAL story' }, detail: { tr: 'Scheduled → Pulled → Started sırası, "şu an ne durumda" değil "buraya NASIL gelindi"ni gösterir.', en: 'The Scheduled → Pulled → Started order shows not "what state now" but "HOW it got here".' } },
+    { id: 3, icon: '📐', label: { tr: 'describe node kapasiteyi ortaya çıkarır', en: 'describe node exposes capacity' }, detail: { tr: 'Bir pod neden "Pending" kaldığını anlamak için node\'un kapasitesi ile ayrılmış kaynakları KARŞILAŞTIRMAN gerekir — bunu sadece describe gösterir.', en: 'To understand why a pod stays "Pending" you must COMPARE node capacity against allocated resources — only describe shows this.' } },
+    { id: 4, icon: '🌐', label: { tr: 'get events aynı veriyi namespace çapında verir', en: 'get events gives the same data namespace-wide' }, detail: { tr: '`--sort-by=.metadata.creationTimestamp`, TEK bir pod yerine tüm namespace\'in olay akışını kronolojik sıralar.', en: '`--sort-by=.metadata.creationTimestamp` sorts the event stream chronologically for the WHOLE namespace instead of one pod.' } },
+    { id: 5, icon: '🔎', label: { tr: 'field-selector gürültüyü keser', en: 'field-selector cuts the noise' }, detail: { tr: 'Namespace\'te çok fazla olay varsa, `field-selector involvedObject.name=my-pod` akışı TEK bir objeye daraltır.', en: 'When a namespace has too many events, `field-selector involvedObject.name=my-pod` narrows the stream to ONE object.' } },
+  ],
+}
+
+const kubernetesLogsExecStep = {
+  type: 'step-animation',
+  title: { tr: 'logs mu Yoksa exec mi? İkisi Tamamen Farklı Şeyler Yapar', en: 'logs vs. exec: Two Completely Different Operations' },
+  steps: [
+    { id: 1, icon: '📝', label: { tr: 'logs mevcut STDOUT/STDERR akışını okur', en: 'logs reads the existing STDOUT/STDERR stream' }, detail: { tr: '`kubectl logs` container runtime\'ın ZATEN yakaladığı çıktıyı okur — yeni bir şey ÇALIŞTIRMAZ.', en: '`kubectl logs` reads output the container runtime has ALREADY captured — it does NOT run anything new.' } },
+    { id: 2, icon: '👁️', label: { tr: '-f akışı açık tutar', en: '-f keeps the stream open' }, detail: { tr: '`-f`, Linux\'taki `tail -f` gibi bağlantıyı açık bırakır — yeni satırlar geldikçe canlı basılır.', en: '`-f` keeps the connection open like Linux `tail -f` — new lines print live as they arrive.' } },
+    { id: 3, icon: '💀', label: { tr: '--previous ÇÖKMÜŞ bir container\'ı gösterir', en: '--previous shows a CRASHED container' }, detail: { tr: 'Container çökmüş ve yeniden başlamışsa, `--previous` OLMADAN o çökmeden önceki logları GÖREMEZSİN.', en: 'If a container crashed and restarted, WITHOUT `--previous` you CANNOT see the logs from before it crashed.' } },
+    { id: 4, icon: '⚙️', label: { tr: 'exec YENİ bir komut çalıştırır', en: 'exec runs a NEW command' }, detail: { tr: '`kubectl exec` log okumaz — ZATEN çalışan container\'ın İÇİNDE yepyeni bir komut başlatır.', en: '`kubectl exec` does not read logs — it starts a BRAND-NEW command INSIDE an ALREADY-running container.' } },
+    { id: 5, icon: '🔌', label: { tr: 'port-forward Service\'siz erişim sağlar', en: 'port-forward gives access without a Service' }, detail: { tr: 'Bir Service oluşturmadan, `port-forward` geçici bir tünel açarak pod\'a doğrudan lokal erişim sağlar.', en: 'Without creating a Service, `port-forward` opens a temporary tunnel for direct local access to the pod.' } },
+  ],
+}
+
+const kubernetesApplyDeleteScaleStep = {
+  type: 'step-animation',
+  title: { tr: 'apply, scale, set image: Aynı Nesnenin Farklı Alanlarını Değiştirir', en: 'apply, scale, set image: They Edit Different Fields of the Same Object' },
+  steps: [
+    { id: 1, icon: '♻️', label: { tr: 'apply İDEMPOTENT\'tir', en: 'apply is IDEMPOTENT' }, detail: { tr: 'Aynı `kubectl apply -f` dosyasını 100 kere çalıştırmak, 1 kere çalıştırmakla AYNI sonucu verir — hata vermez.', en: 'Running the same `kubectl apply -f` file 100 times gives the SAME result as running it once — no error.' } },
+    { id: 2, icon: '🔢', label: { tr: 'scale replicas ALANINI düzenler', en: 'scale edits the replicas FIELD' }, detail: { tr: '`kubectl scale --replicas=5`, YAML\'daki `spec.replicas` alanını DOĞRUDAN değiştirir — YAML dosyasını elle açmana gerek kalmaz.', en: '`kubectl scale --replicas=5` DIRECTLY edits the `spec.replicas` field in the YAML — no need to open the file by hand.' } },
+    { id: 3, icon: '🖼️', label: { tr: 'set image ROLLING update tetikler', en: 'set image triggers a ROLLING update' }, detail: { tr: 'Image güncellemesi, Deployment YAML\'ındaki AYNI maxSurge/maxUnavailable stratejisini izleyerek kademeli yapılır.', en: 'The image update happens gradually, following the SAME maxSurge/maxUnavailable strategy declared in the Deployment YAML.' } },
+    { id: 4, icon: '⏪', label: { tr: 'rollout undo YAML DOSYASI istemez', en: 'rollout undo needs NO YAML file' }, detail: { tr: 'Geri alma, eski YAML dosyasını bulmana gerek kalmadan, ÖNCEKİ ReplicaSet\'in şablonunu doğrudan geri getirir.', en: 'Rollback restores the PREVIOUS ReplicaSet\'s template directly, without needing to find the old YAML file.' } },
+    { id: 5, icon: '🚦', label: { tr: 'rollout status CI\'ı BLOKLAR', en: 'rollout status BLOCKS CI' }, detail: { tr: 'Bu komut, yeni durum TAM olarak yayılana kadar terminali bekletir — bir CI pipeline\'ında deploy adımını güvenle kapatmak için kullanılır.', en: 'This command blocks the terminal until the new state is FULLY live — used to safely gate a deploy step in a CI pipeline.' } },
+  ],
+}
+
+const kubernetesYamlFieldsStep = {
+  type: 'step-animation',
+  title: { tr: '4 Zorunlu Alandan Biri Eksikse kubectl apply Neden Anında Reddeder?', en: 'Why Does kubectl apply Reject the File Instantly If One of the 4 Fields Is Missing?' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: 'apiVersion şema versiyonunu seçer', en: 'apiVersion picks the schema version' }, detail: { tr: 'API Server bu alana bakarak nesneyi HANGİ API versiyonuna göre doğrulayacağını belirler.', en: 'The API Server uses this field to decide WHICH API version to validate the object against.' } },
+    { id: 2, icon: '🧩', label: { tr: 'kind hangi controller\'ı belirler', en: 'kind determines which controller' }, detail: { tr: '"Deployment" mi "Service" mi yazdığın, isteğin HANGİ controller\'a yönlendirileceğini belirler.', en: 'Whether you write "Deployment" or "Service" determines WHICH controller the request gets routed to.' } },
+    { id: 3, icon: '🆔', label: { tr: 'metadata.name gerçek kimliktir', en: 'metadata.name is the real identity' }, detail: { tr: 'Bu isim, namespace İÇİNDE benzersiz olmalıdır — objenin cluster\'daki tek gerçek kimliği budur.', en: 'This name must be unique WITHIN the namespace — it is the object\'s one true identity in the cluster.' } },
+    { id: 4, icon: '🎯', label: { tr: 'spec YALNIZCA nesneye özgü kısımdır', en: 'spec is the ONLY object-specific part' }, detail: { tr: 'İlk 3 alan her nesnede aynı şablonu izler; spec içeriği ise Pod ile Service arasında TAMAMEN farklıdır.', en: 'The first 3 fields follow the same template for every object; spec content is COMPLETELY different between a Pod and a Service.' } },
+    { id: 5, icon: '❌', label: { tr: 'Biri hatalıysa hiçbir şey zamanlanmaz', en: 'If one is wrong, nothing gets scheduled' }, detail: { tr: 'kind yanlış yazılmışsa veya apiVersion uyuşmuyorsa, `kubectl apply` dosyayı DAHA scheduler\'a ulaşmadan reddeder.', en: 'If kind is misspelled or apiVersion mismatches, `kubectl apply` rejects the file BEFORE it ever reaches the scheduler.' } },
+  ],
+}
+
+const kubernetesFullDeploymentStep = {
+  type: 'step-animation',
+  title: { tr: 'Tek Bir Dosyada İki Nesne: Deployment ve Service Nasıl Birlikte Uygulanır?', en: 'Two Objects, One File: How Deployment and Service Apply Together' },
+  steps: [
+    { id: 1, icon: '🔗', label: { tr: 'Config REFERANS ile gelir, hardcode ile değil', en: 'Config arrives by REFERENCE, not hardcoding' }, detail: { tr: '`DB_URL`/`DB_PASS`, ConfigMap/Secret\'tan REFERANS ile okunur — değerler bu YAML dosyasının içinde asla yazılı değildir.', en: '`DB_URL`/`DB_PASS` are read by REFERENCE from a ConfigMap/Secret — the values are never written inside this YAML file.' } },
+    { id: 2, icon: '🩺', label: { tr: 'İki probe iki farklı amaca hizmet eder', en: 'Two probes serve two different purposes' }, detail: { tr: 'livenessProbe başarısız olursa pod YENİDEN BAŞLAR; readinessProbe başarısız olursa sadece TRAFİK almaz, silinmez.', en: 'If livenessProbe fails, the pod RESTARTS; if readinessProbe fails, it just stops receiving TRAFFIC without being killed.' } },
+    { id: 3, icon: '⚖️', label: { tr: 'requests/limits scheduler\'ın kararını verir', en: 'requests/limits drive the scheduler\'s decision' }, detail: { tr: 'Scheduler, bir node\'un bu pod için YETERLİ requests kaynağına sahip olup olmadığına bakarak yerleştirme kararı verir.', en: 'The scheduler decides placement by checking whether a node has ENOUGH requests capacity for this pod.' } },
+    { id: 4, icon: '➖', label: { tr: '--- iki nesneyi TEK dosyada ayırır', en: '--- separates two objects in ONE file' }, detail: { tr: 'Deployment ve Service farklı `kind`\'a sahip iki AYRI nesnedir ama `---` ile aynı dosyada tutulabilirler.', en: 'The Deployment and Service are two SEPARATE objects with different `kind`s, but `---` lets them live in the same file.' } },
+    { id: 5, icon: '🎯', label: { tr: 'Service, selector ile Deployment\'ı bulur', en: 'The Service finds the Deployment via selector' }, detail: { tr: 'Service.spec.selector, Deployment\'ın pod template\'indeki `app: webapp` etiketiyle EŞLEŞEREK trafiği doğru pod\'lara yönlendirir.', en: 'Service.spec.selector MATCHES the `app: webapp` label on the Deployment\'s pod template to route traffic to the right pods.' } },
+  ],
+}
+
+const kubernetesJenkinsfileStep = {
+  type: 'step-animation',
+  title: { tr: 'Jenkins Pipeline\'ının Kendisi Neden Bir K8s Pod\'unda Çalışır?', en: 'Why Does the Jenkins Pipeline Itself Run Inside a K8s Pod?' },
+  steps: [
+    { id: 1, icon: '🐕', label: { tr: 'Pipeline kendi platformunu kullanır', en: 'The pipeline dogfoods its own platform' }, detail: { tr: '`agent { kubernetes {...} }` bloğu, CI ajanının KENDİSİNİN bir K8s pod\'unda çalıştığı anlamına gelir — her build TEMİZ bir ortamda başlar.', en: 'The `agent { kubernetes {...} }` block means the CI agent ITSELF runs in a K8s pod — every build starts in a CLEAN environment.' } },
+    { id: 2, icon: '🧪', label: { tr: 'Testler İMAJDAN ÖNCE çalışır', en: 'Tests run BEFORE the image' }, detail: { tr: '"Unit Tests" aşaması, herhangi bir Docker image inşa edilmeden ÖNCE gelir — bozuk kod asla imaja bile ulaşmaz.', en: 'The "Unit Tests" stage comes BEFORE any Docker image is built — broken code never even reaches the image.' } },
+    { id: 3, icon: '🐳', label: { tr: 'docker-in-docker ayrı bir container gerektirir', en: 'docker-in-docker needs a separate container' }, detail: { tr: 'Bir container İÇİNDEN Docker image inşa etmek için `privileged: true` ile ayrı bir `dind` container\'ı gerekir.', en: 'Building a Docker image FROM INSIDE a container requires a separate `dind` container with `privileged: true`.' } },
+    { id: 4, icon: '🌍', label: { tr: 'environment tüm aşamalarda paylaşılır', en: 'environment is shared across all stages' }, detail: { tr: '`K8S_NAMESPACE` gibi değişkenler bir kez tanımlanır ve HER stage\'de kullanılır — Spring profile\'larının bir kez ayarlanıp her yerde kullanılması gibi.', en: 'Variables like `K8S_NAMESPACE` are defined once and used in EVERY stage — like a Spring profile set once and reused everywhere.' } },
+    { id: 5, icon: '🛑', label: { tr: 'Başarısız test deploy\'u durdurur', en: 'A failed test stops the deploy' }, detail: { tr: '"Unit Tests" aşaması başarısız olursa pipeline durur — Kubernetes YENİ bir image\'i asla görmez.', en: 'If the "Unit Tests" stage fails, the pipeline stops — Kubernetes NEVER sees a new image.' } },
+  ],
+}
+
+const kubernetesSpringDockerfileStep = {
+  type: 'step-animation',
+  title: { tr: 'İki FROM Satırı: Multi-Stage Build Neden Daha Küçük İmaj Üretir?', en: 'Two FROM Lines: Why Multi-Stage Build Produces a Smaller Image' },
+  steps: [
+    { id: 1, icon: '🏗️', label: { tr: 'builder JDK ile derler', en: 'builder compiles with the JDK' }, detail: { tr: 'İlk `FROM eclipse-temurin:17-jdk-alpine AS builder` aşaması, TAM JDK\'nın gerektiği JAR derlemesini yapar.', en: 'The first `FROM eclipse-temurin:17-jdk-alpine AS builder` stage does the JAR compilation that needs the FULL JDK.' } },
+    { id: 2, icon: '💾', label: { tr: 'Bağımlılıklar ÖNCE cache\'lenir', en: 'Dependencies are cached FIRST' }, detail: { tr: '`mvnw dependency:resolve`, `src` kopyalanmadan ÖNCE çalışır — pom.xml değişmediği sürece Docker bu katmanı YENİDEN indirmez.', en: '`mvnw dependency:resolve` runs BEFORE `src` is copied — Docker never RE-downloads this layer unless pom.xml changes.' } },
+    { id: 3, icon: '⏭️', label: { tr: '-DskipTests TEKRARI önler', en: '-DskipTests avoids REPEATING' }, detail: { tr: 'Testler image inşası sırasında TEKRAR çalıştırılmaz — CI bunları zaten önceki bir aşamada koşmuştur.', en: 'Tests are not run AGAIN during image build — CI already ran them in an earlier stage.' } },
+    { id: 4, icon: '🪶', label: { tr: 'runtime sadece JAR\'ı kopyalar', en: 'runtime only copies the JAR' }, detail: { tr: 'İkinci `FROM ... AS runtime` aşaması Maven\'i HİÇ görmez — sadece bitmiş `app.jar`\'ı ince bir JRE image\'ine kopyalar.', en: 'The second `FROM ... AS runtime` stage NEVER sees Maven — it only copies the finished `app.jar` into a slim JRE image.' } },
+    { id: 5, icon: '▶️', label: { tr: 'ENTRYPOINT kubelet\'in çalıştıracağı komuttur', en: 'ENTRYPOINT is what kubelet will run' }, detail: { tr: '`java -jar app.jar`, container START olduğunda kubelet\'in container runtime\'a çalıştırttığı GERÇEK komuttur.', en: '`java -jar app.jar` is the ACTUAL command kubelet has the runtime execute when the container STARTS.' } },
+  ],
+}
+
+const kubernetesMinikubeImageLoadStep = {
+  type: 'step-animation',
+  title: { tr: 'Registry\'siz Deploy: İmaj minikube\'e Nasıl "Işınlanır"?', en: 'Registry-Free Deploy: How the Image "Teleports" Into minikube' },
+  steps: [
+    { id: 1, icon: '💻', label: { tr: 'İlk build sadece LOKAL daemon\'a gider', en: 'The first build only goes to the LOCAL daemon' }, detail: { tr: 'Sıradan `docker build`, imajı SADECE laptop\'unun Docker daemon\'ında oluşturur — minikube bundan HABERSİZDİR.', en: 'A plain `docker build` creates the image ONLY on your laptop\'s Docker daemon — minikube is UNAWARE of it.' } },
+    { id: 2, icon: '🔀', label: { tr: 'docker-env CLI\'ı yönlendirir', en: 'docker-env redirects the CLI' }, detail: { tr: '`eval $(minikube docker-env)`, sonraki `docker` komutlarını laptop yerine minikube\'ün İÇ daemon\'una yönlendirir.', en: '`eval $(minikube docker-env)` redirects subsequent `docker` commands to minikube\'s INTERNAL daemon instead of your laptop.' } },
+    { id: 3, icon: '📥', label: { tr: 'Yeniden build DOĞRUDAN cluster\'a yazar', en: 'Rebuilding writes DIRECTLY into the cluster' }, detail: { tr: 'Yönlendirmeden SONRA aynı `docker build` komutu imajı minikube\'ün İÇİNE koyar — registry\'ye push GEREKMEZ.', en: 'AFTER the redirect, the same `docker build` command puts the image INSIDE minikube — no registry push NEEDED.' } },
+    { id: 4, icon: '🚫', label: { tr: 'imagePullPolicy: Never bu güvene dayanır', en: 'imagePullPolicy: Never relies on this trust' }, detail: { tr: 'Bir sonraki YAML\'daki bu ayar, Kubernetes\'e "dışarıdan ÇEKMEYİ deneme, imaj ZATEN burada" der.', en: 'This setting in the next YAML tells Kubernetes "do NOT try to pull from outside, the image is ALREADY here".' } },
+    { id: 5, icon: '☁️', label: { tr: 'Option B gerçek bir registry gerektirir', en: 'Option B requires a real registry' }, detail: { tr: 'tag + push, gerçek bir registry mevcut olduğunda kullanılan alternatiftir — lokal hız ile production-benzeri dağıtım arasındaki DEĞİŞ TOKUŞtur.', en: 'tag + push is the alternative when a real registry exists — the TRADEOFF between local speed and production-like distribution.' } },
+  ],
+}
+
 export const kubernetesData = {
   // ══════════════════════════════════════════════════════════════
   // ENGLISH VERSION
@@ -1970,6 +2175,7 @@ newgrp docker   # apply group change without logout
 docker --version
 docker run hello-world  # should print "Hello from Docker!"`,
           },
+          kubernetesDockerDesktopPrereqStep,
           { type: 'heading', text: 'Step 2: Install minikube' },
           {
             type: 'code',
@@ -1998,6 +2204,7 @@ rm minikube-linux-amd64
 minikube version
 # Output: minikube version: v1.32.x`,
           },
+          kubernetesMinikubeInstallStep,
           { type: 'heading', text: 'Step 3: Install kubectl' },
           {
             type: 'code',
@@ -2027,6 +2234,7 @@ alias kgs='kubectl get svc'
 alias kgd='kubectl get deployments'
 alias kga='kubectl get all'`,
           },
+          kubernetesKubectlInstallStep,
           { type: 'heading', text: 'Step 4: Start Your First Cluster' },
           {
             type: 'code',
@@ -2076,6 +2284,7 @@ kubectl logs deployment/hello-nginx    # Check nginx startup logs
 kubectl delete deployment hello-nginx
 kubectl delete svc hello-nginx`,
           },
+          kubernetesFirstClusterStep,
           { type: 'heading', text: 'Alternative: kind (K8s in Docker)' },
           {
             type: 'code',
@@ -2112,6 +2321,7 @@ kubectl get nodes
 kind get clusters           # List all kind clusters
 kind delete cluster --name my-learning  # Cleanup`,
           },
+          kubernetesKindMultiNodeStep,
           { type: 'heading', text: 'Cloud Option: AWS EKS' },
           {
             type: 'code',
@@ -2443,6 +2653,7 @@ spec:
         memory: "128Mi"
         cpu: "500m"`,
           },
+          kubernetesPodYamlStep,
           { type: 'heading', text: 'Deployment — Managing Pod Replicas' },
           {
             type: 'text',
@@ -2501,6 +2712,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10`,
           },
+          kubernetesDeploymentYamlStep,
           { type: 'heading', text: 'Service — Stable Network Endpoint' },
           {
             type: 'text',
@@ -2571,6 +2783,7 @@ kubectl apply -f deployment.yaml -n qa-team
 # kube-public    - publicly readable resources
 # kube-node-lease - node heartbeat leases`,
           },
+          kubernetesNamespaceCliStep,
           { type: 'heading', text: 'ConfigMap & Secret — Configuration Management' },
           {
             type: 'grid',
@@ -2701,6 +2914,7 @@ kubectl get services   # or kubectl get svc
 # Get nodes
 kubectl get nodes`,
           },
+          kubernetesGetCommandsStep,
           { type: 'heading', text: 'Inspecting Resources' },
           {
             type: 'code',
@@ -2721,6 +2935,7 @@ kubectl get events --sort-by=.metadata.creationTimestamp -n production
 # Filter events for a specific pod
 kubectl get events --field-selector involvedObject.name=my-pod`,
           },
+          kubernetesDescribeCommandsStep,
           { type: 'heading', text: 'Logs & Debugging' },
           {
             type: 'code',
@@ -2751,6 +2966,7 @@ kubectl run debug-pod --image=busybox --rm -it -- sh
 kubectl port-forward pod/my-pod 8080:8080
 # Now: curl http://localhost:8080`,
           },
+          kubernetesLogsExecStep,
           { type: 'heading', text: 'Applying & Deleting Resources' },
           {
             type: 'code',
@@ -2784,6 +3000,7 @@ kubectl rollout status deployment/my-app
 # View rollout history
 kubectl rollout history deployment/my-app`,
           },
+          kubernetesApplyDeleteScaleStep,
           {
             type: 'k8s-sandbox',
             missions: [
@@ -2902,6 +3119,7 @@ metadata:              # Identity of the object
 spec:                  # The DESIRED STATE — what you want K8s to do
   # ... object-specific configuration here`,
           },
+          kubernetesYamlFieldsStep,
           { type: 'heading', text: 'Complete App: Deployment + Service' },
           {
             type: 'code',
@@ -2984,6 +3202,7 @@ spec:
     port: 80
     targetPort: 3000`,
           },
+          kubernetesFullDeploymentStep,
           { type: 'heading', text: 'Ingress — Route External HTTP Traffic' },
           {
             type: 'code',
@@ -3212,6 +3431,7 @@ spec:
     }
 }`,
           },
+          kubernetesJenkinsfileStep,
           { type: 'heading', text: 'Kafka ↔ Kubernetes: Strimzi Operator' },
           {
             type: 'text',
@@ -3412,6 +3632,7 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 EOF`,
           },
+          kubernetesSpringDockerfileStep,
           {
             type: 'code',
             language: 'bash',
@@ -3429,6 +3650,7 @@ docker build -t my-spring-app:v1 .
 docker tag my-spring-app:v1 yourdockeruser/my-spring-app:v1
 docker push yourdockeruser/my-spring-app:v1`,
           },
+          kubernetesMinikubeImageLoadStep,
           {
             type: 'code',
             language: 'yaml',
@@ -4008,6 +4230,7 @@ newgrp docker   # logout yapmadan grup değişikliğini uygula
 docker --version
 docker run hello-world  # "Hello from Docker!" yazısı görünmeli`,
           },
+          kubernetesDockerDesktopPrereqStep,
           { type: 'heading', text: 'Adım 2: minikube Kurulumu' },
           {
             type: 'code',
@@ -4032,6 +4255,7 @@ rm minikube-linux-amd64
 minikube version
 # Çıktı: minikube version: v1.32.x`,
           },
+          kubernetesMinikubeInstallStep,
           { type: 'heading', text: 'Adım 3: kubectl Kurulumu' },
           {
             type: 'code',
@@ -4059,6 +4283,7 @@ alias kgp='kubectl get pods'
 alias kgs='kubectl get svc'
 alias kgd='kubectl get deployments'`,
           },
+          kubernetesKubectlInstallStep,
           { type: 'heading', text: 'Adım 4: İlk Cluster\'ı Başlatma' },
           {
             type: 'code',
@@ -4096,6 +4321,7 @@ minikube service hello-nginx  # Tarayıcıda otomatik açılır
 kubectl get pods                      # Running görmeli
 kubectl delete deployment hello-nginx # Temizlik`,
           },
+          kubernetesFirstClusterStep,
           ...kubernetesInstallationInteractiveBlocks,
           kubernetesInstallMinikubeFilm,
           {
@@ -4404,6 +4630,7 @@ spec:
         memory: "128Mi"
         cpu: "500m"`,
           },
+          kubernetesPodYamlStep,
           { type: 'heading', text: 'Deployment — Pod Replica\'larını Yönetme' },
           {
             type: 'text',
@@ -4462,6 +4689,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10`,
           },
+          kubernetesDeploymentYamlStep,
           { type: 'heading', text: 'Service — Sabit Ağ Endpoint\'i' },
           {
             type: 'text',
@@ -4532,6 +4760,7 @@ kubectl apply -f deployment.yaml -n qa-ekibi
 # kube-public    - Herkesçe okunabilir kaynaklar
 # kube-node-lease - Node kalp atışı kilit nesneleri`,
           },
+          kubernetesNamespaceCliStep,
           { type: 'heading', text: 'ConfigMap ve Secret — Konfigürasyon Yönetimi' },
           {
             type: 'grid',
@@ -4663,6 +4892,7 @@ kubectl get services   # veya kubectl get svc
 # Node\'ları getir
 kubectl get nodes`,
           },
+          kubernetesGetCommandsStep,
           { type: 'heading', text: 'Kaynakları İnceleme' },
           {
             type: 'code',
@@ -4683,6 +4913,7 @@ kubectl get events --sort-by=.metadata.creationTimestamp -n production
 # Belirli bir pod için event\'leri filtrele
 kubectl get events --field-selector involvedObject.name=benim-pod`,
           },
+          kubernetesDescribeCommandsStep,
           { type: 'heading', text: 'Log ve Debugging' },
           {
             type: 'code',
@@ -4713,6 +4944,7 @@ kubectl run debug-pod --image=busybox --rm -it -- sh
 kubectl port-forward pod/benim-pod 8080:8080
 # Şimdi: curl http://localhost:8080`,
           },
+          kubernetesLogsExecStep,
           { type: 'heading', text: 'Uygulama ve Silme' },
           {
             type: 'code',
@@ -4746,6 +4978,7 @@ kubectl rollout status deployment/uygulama
 # Rollout geçmişini görüntüle
 kubectl rollout history deployment/uygulama`,
           },
+          kubernetesApplyDeleteScaleStep,
           {
             type: 'k8s-sandbox',
             missions: [
@@ -4830,6 +5063,7 @@ metadata:              # Nesnenin kimliği
 spec:                  # İSTENEN DURUM — K8s\'ten ne yapmasını istiyorsun
   # ... nesneye özel konfigürasyon buraya`,
           },
+          kubernetesYamlFieldsStep,
           { type: 'heading', text: 'Tam Uygulama: Deployment + Service' },
           {
             type: 'code',
@@ -4912,6 +5146,7 @@ spec:
     port: 80
     targetPort: 3000`,
           },
+          kubernetesFullDeploymentStep,
           { type: 'heading', text: 'HorizontalPodAutoscaler (HPA)' },
           {
             type: 'text',
@@ -5093,6 +5328,7 @@ spec:
     }
 }`,
           },
+          kubernetesJenkinsfileStep,
           { type: 'heading', text: 'Kafka ↔ Kubernetes: Strimzi Operator' },
           {
             type: 'text',
@@ -5259,6 +5495,7 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 EOF`,
           },
+          kubernetesSpringDockerfileStep,
           {
             type: 'code',
             language: 'bash',
@@ -5273,6 +5510,7 @@ docker build -t my-spring-app:v1 .
 docker tag my-spring-app:v1 dockerkullaniciniz/my-spring-app:v1
 docker push dockerkullaniciniz/my-spring-app:v1`,
           },
+          kubernetesMinikubeImageLoadStep,
           {
             type: 'code',
             language: 'bash',
