@@ -10,7 +10,14 @@
 
 ---
 
-## 🚨 AÇIK İŞ — step-animation ŞEMA HATASI: 7 dosyada + eski Dalga A2-A4 içeriğinde ÖNCEDEN VAR OLAN kırık `steps` formatı (2026-07-18)
+## ✅ ÇÖZÜLDÜ — step-animation ŞEMA HATASI (2026-07-18, commit `07c754a`)
+
+> Aşağıdaki bölüm bu hatanın TEŞHİS sürecini kalıcı referans olarak
+> saklıyor. Hem kalıcı önlem (check-content-integrity.mjs [D] kontrolü)
+> hem 11 dosyadaki 44 blok/150 adımın düzeltmesi TAMAMLANDI, commit
+> `07c754a`. `node scripts/check-content-integrity.mjs` artık A=0 B=0 C=0
+> D=0 gösteriyor ve bu kontrol `npm run build` + pre-commit hook
+> zincirinde kalıcı — aynı hata sessizce tekrar EDEMEZ.
 
 **Kullanıcı** `/java` sayfasında Kurulum sekmesindeki step-animation kutularının
 METİNSİZ (boş) render olduğunu ekran görüntüsüyle bildirdi. Kök neden bulundu:
@@ -32,7 +39,7 @@ metin `detail`'e taşındı, `label` metinden otomatik kısa ifade türetilerek
 üretildi. Playwright ile `/java` sayfasında CANLI doğrulandı (JAVA_HOME adımı
 artık okunabilir label gösteriyor).
 
-**DÜZELTİLMEYEN — hâlâ kırık, ayrı bir dalga gerektirir:**
+**O ANDA DÜZELTİLMEMİŞ OLAN (sonradan `07c754a` ile TAMAMEN çözüldü):**
 1. **Bu 4 dosyanın KENDİSİNDE, bu oturumdan ÖNCE yazılmış eski step-animation'lar**
    (bu oturumun script'i SADECE yeni 68 const'u hedefledi, whitelist dışındakilere
    dokunmadı): örn. `kafkaRetentionReplayStep`, `kafkaLeaderElectionStep`,
@@ -51,14 +58,70 @@ artık okunabilir label gösteriyor).
    - `postmanData.js` — 8 kırık
    - `whatIsTestingData.js` — 4 kırık
 
-**Sıradaki oturum için öneri:** Bu düzeltme animation-per-topic dalgalarından
-BAĞIMSIZ, ayrı bir "Dalga F: step-animation şema temizliği" olarak ele
-alınmalı — mevcut `check-content-integrity.mjs`'e de bu kontrolü EKLEMEK
-(her `step-animation` bloğunun her adımında `label` alanı var mı diye
-otomatik doğrulama) gelecekte aynı hatanın TEKRARLANMASINI önler. Tespit
-script'i taslağı: her `data/*.js` dosyasını import et, `en`/`tr` ağaçlarındaki
-TÜM `step-animation` bloklarını gez, `steps.some(s => !s.label)` olan
-blokları raporla.
+**Uygulanan çözüm (commit `07c754a`, aynı oturumun devamı):** `check-content-
+integrity.mjs`'e [D] kontrolü eklendi (her `step-animation` adımında `label`
+var mı diye `steps.some(s => !s.label)` mantığıyla runtime import üzerinden
+doğrular) — bu kontrol artık `npm run build` + pre-commit zincirinde kalıcı.
+Ardından AYNI genel-amaçlı transform script'i (const adı whitelist'i değil,
+`type: 'step-animation'` + `steps: [` desenini bulup içindeki eski-format
+satırları dönüştüren versiyonu) tüm `src/data/` dizinine çalıştırıldı: 11
+dosyada (appium, aws, azure, browserstack, cypress, java, jmeter, kafka,
+postman, restassured, whatIsTesting) 44 blok / 150 adım düzeltildi.
+Playwright ile hem `/java` (bu oturumun kendi eklediği içerik) hem `/postman`
+(bu oturumdan bağımsız, önceden var olan içerik) üzerinde CANLI doğrulandı.
+
+---
+
+## OTURUM ÖZETİ — animation-per-topic Dalga A5 (JMeter + Postman) TAMAMLANDI (2026-07-18, Sonnet oturumu 5)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+**Commit'ler:** `581a2b6` (jmeter), `fb03b48` (postman) — ikisi de build yeşil, content-check temiz.
+
+Plan §3.2 Dalga A5: jmeter (13 açık, 4 sekme) ve postman (10 açık, 3 sekme)
+sayfalarındaki kod-bloğu-başına animasyon açıkları kapatıldı. Aynı oturumda
+önce [[şema hatası]] fix'i tamamlanmıştı (bkz. yukarıdaki "✅ ÇÖZÜLDÜ" bölümü,
+commit `07c754a`) — bu dalga o düzeltmenin ardından, YENİ eklenen tüm
+step-animation const'ları baştan doğru şemayla (`{id,icon,label:{tr,en},
+detail:{tr,en}}`) yazıldı.
+
+- **jmeterData.js ve postmanData.js:** İkisi de ÇİFT ağaçlı (`data.en.sections
+  !== data.tr.sections`), reassignment tuzağı yok. Yeni step-animation
+  const'ları dosyanın en üstüne (import/ilk const'lardan hemen sonra) toplu
+  yazıldı, sonra EN ve TR ağaçlarına ayrı ayrı, ilgili kod bloğunun hemen
+  ardına referans olarak eklendi.
+- **Asimetrik TR/EN yapı dersi (jmeter):** jmeter TR ağacının "İleri Seviye"
+  ve "Temel Kavramlar" bölümleri EN'den DAHA KISA — örn. EN'de ayrı "Regular
+  Expression Extractor", "User-Defined Variables", "JMeter Built-in
+  Functions", "Distributed Load Testing" başlıkları varken TR'de bu
+  konular ayrı başlık/kod bloğu olarak YOK (ya sadece ASCII ağaç diyagramında
+  geçiyor ya da hiç yok). Bu durumda animasyon, TR'de en yakın topiksel kod
+  bloğunun (örn. CSV Data Set Config ya da JSR223 Groovy) hemen ardına
+  yerleştirildi — TR başlığı YOKSA bile animasyon içeriği o konuyu ANLATIYOR,
+  sadece heading'e bağlı değil. Yeni bir sayfaya geçmeden TR ağacının EN
+  ile birebir aynı bölüm sayısına sahip olduğunu VARSAYMA — önce TR
+  başlıklarını `grep` ile listeleyip EN ile KARŞILAŞTIR.
+- **postmanData.js:** TR/EN yapısı simetrik çıktı, 10 const'ın hepsi aynı
+  başlık isimleriyle (çevrilmiş) hem EN hem TR ağacında bulundu — mirror adımı
+  düz ileri.
+
+**Doğrulama:** `node scripts/audit-animation-coverage.mjs <key>` → ikisi de
+deficit 0; `node -e "import(...)"` ile EN+TR step-animation blok sayısı VE
+`missing label` sayısı (0) doğrudan kontrol edildi; `check-content-
+integrity.mjs` → sıfır ihlal; `npm run build` → yeşil. Ayrıca postman için
+CANLI Playwright doğrulaması yapıldı: `npm run preview` ile sayfa açılıp
+Kurulum sekmesindeki yeni `pmGetRequestStep` bloğu hem kapalı (sadece label)
+hem açık (label+detail) haliyle screenshot alınarak GÖRSEL olarak da metnin
+dolu geldiği teyit edildi (otomatik script kontrolü + gerçek render ikisi
+birden).
+
+**Proje geneli güncel durum:** `node scripts/audit-animation-coverage.mjs`
+→ 551 kod bloğu / 631 animasyon / **89 açık kaldı** (Dalga A4 sonrası 112
+idi). jmeter, postman artık ✓ tam kapsam. Sıradaki dalgalar plan §3.2-3.3'te:
+Dalga A6 (docker 11 + azure 7 + aws 6 = 24), A7 (pythonData — SADECE Fable,
+applyTr riski, tek başına 17 açık), sonra sql(7)/playwright(7)/linux(6)/
+browserstack(5)/javascript(5)/claude-ai(5)/git(3)/bruno(3)/llm-agents(3)/
+jenkins(2)/cypress(2). Her dalga için hazır parametrik prompt: plan §4.1
+(Sonnet) `{PAGE_KEY}` doldurulup verilir.
 
 ---
 
