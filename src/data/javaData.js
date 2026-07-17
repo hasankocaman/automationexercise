@@ -2,6 +2,262 @@
 
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ── Dalga A3 (animation-per-topic §3.2): kod-bloğu-başına animasyon açıkları ──
+
+const javaWindowsJdkInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'winget ile JDK Kurulumu Perde Arkasında Ne Yapar?', en: 'What Does winget Actually Do When Installing the JDK?' },
+  steps: [
+    { tr: '`winget install --id EclipseAdoptium.Temurin.21.JDK` çalıştırıldığında Windows Package Manager, Microsoft\'un onaylı katalogundan doğru JDK 21 (LTS) yükleyicisini bulup indirir.', en: 'When `winget install --id EclipseAdoptium.Temurin.21.JDK` runs, Windows Package Manager finds and downloads the correct JDK 21 (LTS) installer from Microsoft\'s approved catalog.' },
+    { tr: 'Yükleyici sessizce (manuel tıklama olmadan) JDK dosyalarını `C:\\Program Files\\Eclipse Adoptium\\` altına açar.', en: 'The installer silently (no manual clicking) unpacks the JDK files under `C:\\Program Files\\Eclipse Adoptium\\`.' },
+    { tr: 'Bu adımda `java`/`javac` komutları HENÜZ terminalde tanınmaz — dosyalar diskte var ama PATH\'e eklenmemiştir.', en: 'At this point the `java`/`javac` commands are NOT yet recognized in the terminal — the files exist on disk but are not on the PATH.' },
+    { tr: 'Bir sonraki adım (JAVA_HOME ayarlama) tam olarak bu boşluğu kapatır: Windows\'a "java komutunu duyunca nereye bak" diye söyler.', en: 'The next step (setting JAVA_HOME) closes exactly this gap: it tells Windows "when you hear the java command, look here".' },
+  ],
+}
+
+const javaJavaHomeSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'JAVA_HOME Ayarlanmazsa Terminal java Komutunu Neden Tanımaz?', en: 'Why Does the Terminal Not Recognize java Without JAVA_HOME?' },
+  steps: [
+    { tr: '`SetEnvironmentVariable("JAVA_HOME", ..., "Machine")` işletim sistemine JDK\'nın TAM olarak hangi klasörde durduğunu kalıcı olarak kaydeder.', en: '`SetEnvironmentVariable("JAVA_HOME", ..., "Machine")` permanently tells the operating system EXACTLY which folder the JDK lives in.' },
+    { tr: '`$env:PATH += ";$env:JAVA_HOME\\bin"` satırı, `java.exe` ve `javac.exe`\'nin bulunduğu `bin` klasörünü, Windows\'un komut ARADIĞI yollar listesine ekler.', en: 'The `$env:PATH += ";$env:JAVA_HOME\\bin"` line adds the `bin` folder containing `java.exe` and `javac.exe` to the list of paths Windows SEARCHES for commands.' },
+    { tr: 'Bu iki değişken olmadan, dosyalar diskte olsa bile terminale `java -version` yazınca "komut tanınmıyor" hatası alınır.', en: 'Without these two variables, even though the files exist on disk, typing `java -version` in the terminal gives "command not recognized".' },
+    { tr: '`java -version` ve `javac -version` komutları, PATH\'in doğru ayarlandığını ANINDA kanıtlayan tek doğrulama adımıdır.', en: 'The `java -version` and `javac -version` commands are the single verification step that IMMEDIATELY proves the PATH was set correctly.' },
+  ],
+}
+
+const javaMacosJdkInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'Homebrew macOS\'ta JAVA_HOME\'u Nasıl Otomatikleştirir?', en: 'How Does Homebrew Automate JAVA_HOME on macOS?' },
+  steps: [
+    { tr: '`brew install --cask temurin@21`, Windows\'taki winget\'in macOS karşılığıdır — Temurin JDK\'yı `/Library/Java/JavaVirtualMachines/` altına kurar.', en: '`brew install --cask temurin@21` is the macOS equivalent of winget on Windows — it installs Temurin JDK under `/Library/Java/JavaVirtualMachines/`.' },
+    { tr: '`/usr/libexec/java_home -v 21` komutu, kurulu JDK 21\'in TAM disk yolunu otomatik BULUR — Windows\'taki gibi elle yol yazmana gerek yoktur.', en: 'The `/usr/libexec/java_home -v 21` command automatically FINDS the exact disk path of the installed JDK 21 — unlike Windows, you don\'t type the path by hand.' },
+    { tr: 'Bu değer `~/.zshrc`\'ye `export JAVA_HOME=...` olarak eklenir ve `source ~/.zshrc` ile mevcut terminal oturumuna HEMEN uygulanır.', en: 'This value is appended to `~/.zshrc` as `export JAVA_HOME=...` and `source ~/.zshrc` applies it to the current terminal session IMMEDIATELY.' },
+    { tr: '`java -version` ve `javac -version` aynı doğrulama görevini görür — Windows\'taki Registry ayarının yerini burada bir shell profil dosyası alır.', en: '`java -version` and `javac -version` serve the same verification purpose — here a shell profile file replaces the Windows Registry setting.' },
+  ],
+}
+
+const javaUbuntuJdkInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'apt Kurulumu JAVA_HOME\'u Neden Otomatik Ayarlamaz?', en: 'Why Doesn\'t apt Set JAVA_HOME Automatically?' },
+  steps: [
+    { tr: '`sudo apt update` önce paket kataloğunu YENİLER — güncellenmemiş bir katalog eski/kırık bir JDK sürümü kurabilir.', en: '`sudo apt update` first REFRESHES the package catalog — a stale catalog could install an old/broken JDK version.' },
+    { tr: '`sudo apt install -y openjdk-21-jdk`, JDK\'yı standart Linux konumu olan `/usr/lib/jvm/java-21-openjdk-amd64` altına kurar.', en: '`sudo apt install -y openjdk-21-jdk` installs the JDK under the standard Linux location `/usr/lib/jvm/java-21-openjdk-amd64`.' },
+    { tr: 'apt bu yolu OTOMATİK olarak `PATH`\'e ekler (Debian\'ın alternatives sistemi sayesinde), ama `JAVA_HOME` değişkenini AYARLAMAZ — Maven gibi araçlar bunu ayrıca ister.', en: 'apt AUTOMATICALLY adds this path to `PATH` (via Debian\'s alternatives system), but it does NOT set the `JAVA_HOME` variable — tools like Maven require it separately.' },
+    { tr: 'Bu yüzden `export JAVA_HOME=...` satırı elle `~/.bashrc`\'ye eklenir — `java -version` çalışsa bile, JAVA_HOME olmadan Maven/Gradle gibi build araçları sessizce başarısız olabilir.', en: 'That\'s why the `export JAVA_HOME=...` line is added to `~/.bashrc` by hand — even though `java -version` works, build tools like Maven/Gradle can silently fail without JAVA_HOME.' },
+  ],
+}
+
+const javaVerifyInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'İki Ayrı Doğrulama Komutu Neden Gerekli: java vs javac?', en: 'Why Two Separate Verification Commands: java vs javac?' },
+  steps: [
+    { tr: '`java -version` sadece ÇALIŞTIRMA ortamının (JRE parçası) kurulu olduğunu kanıtlar — bu, DERLENMİŞ bir programı çalıştırabileceğin anlamına gelir.', en: '`java -version` only proves the RUNTIME environment (JRE part) is installed — meaning you can run an ALREADY-COMPILED program.' },
+    { tr: '`javac -version` ise DERLEYİCİNİN (JDK parçası) kurulu olduğunu kanıtlar — `.java` kaynak dosyasını `.class` bytecode\'a çevirebileceğin anlamına gelir.', en: '`javac -version` proves the COMPILER (JDK part) is installed — meaning you can turn a `.java` source file into `.class` bytecode.' },
+    { tr: 'Bazı sistemlerde SADECE JRE kurulu olabilir (`java` çalışır ama `javac` "komut bulunamadı" der) — bu, geliştirme için YETERSİZ bir kurulumdur.', en: 'On some systems ONLY the JRE might be installed (`java` works but `javac` says "command not found") — this is an INSUFFICIENT setup for development.' },
+    { tr: 'Her iki komutun da beklenen sürüm numarasını (`21.0.x`) göstermesi, kurulumun bir SONRAKİ adıma (kendi `.java` dosyanı derleyip çalıştırma) hazır olduğunun kanıtıdır.', en: 'Both commands showing the expected version number (`21.0.x`) is proof the setup is ready for the NEXT step — compiling and running your own `.java` file.' },
+  ],
+}
+
+const javaMacLinuxRunMainStep = {
+  type: 'step-animation',
+  title: { tr: 'macOS/Linux\'ta Terminalden Java Kodu Nasıl Doğar?', en: 'How Does Java Code Come to Life From the Terminal on macOS/Linux?' },
+  steps: [
+    { tr: '`mkdir -p ~/java-lab && cd ~/java-lab` ile ayrı bir çalışma klasörü açılır — dosyalar rastgele bir yere DAĞILMAZ.', en: '`mkdir -p ~/java-lab && cd ~/java-lab` opens a dedicated working folder — files don\'t end up SCATTERED randomly.' },
+    { tr: '`cat > Main.java <<\'EOF\' ... EOF` heredoc sözdizimi, bir metin editörü açmadan doğrudan terminalden `Main.java` dosyasını YAZAR.', en: 'The `cat > Main.java <<\'EOF\' ... EOF` heredoc syntax WRITES the `Main.java` file directly from the terminal without opening a text editor.' },
+    { tr: '`javac Main.java` kaynak kodu okur ve AYNI klasörde bir `Main.class` bytecode dosyası üretir — `ls` ile bu yeni dosyanın oluştuğu gözle görülür.', en: '`javac Main.java` reads the source and produces a `Main.class` bytecode file in the SAME folder — `ls` visibly shows this new file appearing.' },
+    { tr: '`java Main` komutunda `.java` veya `.class` uzantısı YAZILMAZ — JVM\'e sadece çalıştırılacak class\'ın ADINI verirsin, dosya uzantısını değil.', en: 'In `java Main` you do NOT write the `.java` or `.class` extension — you give the JVM only the class NAME to run, not the file extension.' },
+  ],
+}
+
+const javaMavenQuickstartStep = {
+  type: 'step-animation',
+  title: { tr: 'archetype:generate Tek Komutla Neyi Otomatik Kurar?', en: 'What Does archetype:generate Automatically Set Up in One Command?' },
+  steps: [
+    { tr: '`mvn archetype:generate`, elle klasör-klasör oluşturmak yerine, Maven\'in standart proje ISKELETİNİ (pom.xml, src/main/java, src/test/java) tek seferde üretir.', en: '`mvn archetype:generate` produces Maven\'s standard project SKELETON (pom.xml, src/main/java, src/test/java) in one shot, instead of manually creating folder by folder.' },
+    { tr: '`-DgroupId`/`-DartifactId` üretilecek `pom.xml`\'in kimlik alanlarını doldurur — bu, projenin Maven Central\'daki BENZERSİZ adresidir.', en: '`-DgroupId`/`-DartifactId` fill the identity fields of the generated `pom.xml` — this is the project\'s UNIQUE address on Maven Central.' },
+    { tr: '`-DinteractiveMode=false` Maven\'in her adımda "emin misin?" diye SORMASINI engeller — CI ortamlarında bu bayrak olmadan komut askıda kalır.', en: '`-DinteractiveMode=false` prevents Maven from ASKING "are you sure?" at every step — without this flag, the command hangs in CI environments.' },
+    { tr: '`cd java-qa-project && mvn test` iskeleti hemen DOĞRULAR: Maven bağımlılıkları indirir, örnek testi derler ve çalıştırır — BUILD SUCCESS ilk projenin sağlıklı olduğunun kanıtıdır.', en: '`cd java-qa-project && mvn test` immediately VERIFIES the skeleton: Maven downloads dependencies, compiles, and runs the sample test — BUILD SUCCESS is proof the first project is healthy.' },
+  ],
+}
+
+const javaClassObjectStep = {
+  type: 'step-animation',
+  title: { tr: 'new TestUser(...) Çağrıldığında Bellekte Ne Olur?', en: 'What Happens in Memory When new TestUser(...) Is Called?' },
+  steps: [
+    { tr: '`public class TestUser` sadece bir KALIPTIR — kendi başına hiçbir bellek ayırmaz, tıpkı bir kurabiye kalıbının kurabiye olmaması gibi.', en: '`public class TestUser` is only a BLUEPRINT — by itself it allocates no memory, just as a cookie cutter is not a cookie.' },
+    { tr: '`new TestUser("admin", "admin@test.com", 30)` çağrıldığı AN, JVM heap\'te yeni bir alan ayırır ve constructor bu alanı doldurur.', en: 'THE MOMENT `new TestUser("admin", "admin@test.com", 30)` is called, the JVM allocates a new area on the heap and the constructor fills it.' },
+    { tr: '`user1` değişkeni nesnenin KENDİSİ değil, o heap alanına giden bir REFERANStır — `user2` farklı bir referans, farklı bir bellek alanı gösterir.', en: 'The `user1` variable is not the object ITSELF, it is a REFERENCE pointing to that heap area — `user2` is a different reference pointing to a different memory area.' },
+    { tr: '`System.out.println(user1)` çağrıldığında JVM otomatik olarak `toString()`\'i çağırır — `@Override` edilmemiş olsaydı anlamsız bir `TestUser@1a2b3c` hash kodu görürdün.', en: 'When `System.out.println(user1)` is called, the JVM automatically invokes `toString()` — without the `@Override`, you would see a meaningless `TestUser@1a2b3c` hash code.' },
+  ],
+}
+
+const javaInterfaceAbstractStep = {
+  type: 'step-animation',
+  title: { tr: 'BasePage Hem interface\'i Hem abstract class\'ı Neden Aynı Anda Kullanır?', en: 'Why Does BasePage Use Both an interface AND an abstract class at Once?' },
+  steps: [
+    { tr: '`PageActions` interface\'i SADECE bir sözleşme tanımlar: "her sayfa `open()`, `isLoaded()`, `waitForElement()` metotlarına sahip OLMALI" — hiçbir uygulama kodu içermez.', en: 'The `PageActions` interface defines ONLY a contract: "every page MUST have `open()`, `isLoaded()`, `waitForElement()`" — it contains no implementation code.' },
+    { tr: '`abstract class BasePage implements PageActions`, sözleşmeyi kabul EDER ama sadece `waitForElement()`\'i gerçekten uygular — `open()` ve `isLoaded()`\'i hâlâ boş bırakır.', en: '`abstract class BasePage implements PageActions` ACCEPTS the contract but only actually implements `waitForElement()` — it still leaves `open()` and `isLoaded()` unfilled.' },
+    { tr: '`LoginPage extends BasePage` sadece EKSİK kalan iki metodu (`open`, `isLoaded`) doldurur — `waitForElement()`\'i miras yoluyla BEDAVA alır, tekrar yazmaz.', en: '`LoginPage extends BasePage` only fills the two MISSING methods (`open`, `isLoaded`) — it gets `waitForElement()` FREE through inheritance, no rewrite needed.' },
+    { tr: 'Sonuç: her yeni sayfa (RegisterPage, CartPage...) aynı `waitForElement()` mantığını kopyalamadan, sadece kendine özgü 2 metodu yazarak Page Object ailesine katılır.', en: 'Result: every new page (RegisterPage, CartPage...) joins the Page Object family by writing only its own 2 methods, without copying the same `waitForElement()` logic.' },
+  ],
+}
+
+const javaNoSuchElementFixStep = {
+  type: 'step-animation',
+  title: { tr: 'WebDriverWait Neden findElement() Yerine elementToBeClickable Bekler?', en: 'Why Does WebDriverWait Wait for elementToBeClickable Instead of Just findElement()?' },
+  steps: [
+    { tr: 'Ham `driver.findElement(By.id("loginBtn"))` sayfa HENÜZ tam yüklenmediyse elementi bulamaz ve anında `NoSuchElementException` fırlatır.', en: 'A raw `driver.findElement(By.id("loginBtn"))` throws `NoSuchElementException` immediately if the page has NOT finished loading yet.' },
+    { tr: '`new WebDriverWait(driver, Duration.ofSeconds(10))` bir "en fazla 10 saniye bekle" SÖZLEŞMESİ kurar — anında pes etmez, ama sonsuza kadar da beklemez.', en: '`new WebDriverWait(driver, Duration.ofSeconds(10))` sets up a "wait AT MOST 10 seconds" CONTRACT — it doesn\'t give up instantly, but it doesn\'t wait forever either.' },
+    { tr: '`ExpectedConditions.elementToBeClickable(...)` sadece elementin DOM\'da olmasını değil, GÖRÜNÜR ve TIKLANABİLİR olmasını da kontrol eder — `findElement` bunların hiçbirini garantilemez.', en: '`ExpectedConditions.elementToBeClickable(...)` checks not just that the element is in the DOM, but that it is VISIBLE and CLICKABLE — plain `findElement` guarantees none of this.' },
+    { tr: 'Koşul sağlanınca `.click()` ZİNCİRLEME çağrılır — element hazır olur olmaz, ekstra bekleme kodu yazmadan tıklama gerçekleşir.', en: 'Once the condition is met, `.click()` is CHAINED immediately — the moment the element is ready, the click happens without extra waiting code.' },
+  ],
+}
+
+const javaStaleElementRetryStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Element Neden "Stale" Olur ve Retry Bunu Nasıl Çözer?', en: 'Why Does an Element Go "Stale" and How Does Retry Fix It?' },
+  steps: [
+    { tr: '`driver.findElement(l)` bir elementi bulduğunda, DOM\'daki o ANKİ konumuna bir referans TUTAR — sayfa değişmeden önceki hâlin fotoğrafı gibidir.', en: 'When `driver.findElement(l)` finds an element, it HOLDS a reference to its CURRENT position in the DOM — like a photo of the page before it changes.' },
+    { tr: 'Sayfa yeniden render edilirse (AJAX güncellemesi, animasyon, React re-render) o eski referans artık GEÇERSİZDİR — `StaleElementReferenceException` bu geçersizliğin sinyalidir.', en: 'If the page re-renders (AJAX update, animation, React re-render), that old reference becomes INVALID — `StaleElementReferenceException` is the signal of this invalidity.' },
+    { tr: '`for (i=0; i<max; i++)` döngüsü, HER denemede elementi SIFIRDAN yeniden bulur — eski/geçersiz referansa asla güvenmez.', en: 'The `for (i=0; i<max; i++)` loop finds the element FRESH from scratch on EVERY attempt — it never trusts the old/invalid reference.' },
+    { tr: '`if(i==max-1) throw e` son denemede de başarısız olursa hatayı GİZLEMEZ, yeniden fırlatır — sonsuz sessiz retry yerine, gerçek bir hata varsa test yine de KIRMIZI olur.', en: '`if(i==max-1) throw e` does NOT hide the error if the last attempt also fails — it re-throws, so if there is a real bug the test still goes RED instead of silently retrying forever.' },
+  ],
+}
+
+const javaEnumStep = {
+  type: 'step-animation',
+  title: { tr: 'Enum Neden Bir String\'den Daha Fazlasıdır?', en: 'Why Is an Enum More Than Just a String?' },
+  steps: [
+    { tr: '`enum Browser { CHROME("chrome"), FIREFOX("firefox"), EDGE("edge"); }` sadece 3 değeri KABUL EDER — `Browser.SAFARI` yazmaya çalışmak DERLEME hatası verir, çalışma zamanı hatası değil.', en: '`enum Browser { CHROME("chrome"), FIREFOX("firefox"), EDGE("edge"); }` ACCEPTS only 3 values — trying to write `Browser.SAFARI` is a COMPILE-time error, not a runtime one.' },
+    { tr: 'Her enum sabiti kendi private alanını (`driver`) ve constructor\'ını TAŞIYABİLİR — bu, düz bir `String` sabitinin YAPAMAYACAĞI bir şeydir.', en: 'Each enum constant can CARRY its own private field (`driver`) and constructor — something a plain `String` constant CANNOT do.' },
+    { tr: '`Browser.CHROME.getDriver()` çağrısı "chrome" değerini DOĞRUDAN, yanlış yazım riski olmadan döndürür — `"chrome"` yerine yanlışlıkla `"Chrome"` yazma ihtimali YOK OLUR.', en: 'The call `Browser.CHROME.getDriver()` returns "chrome" DIRECTLY, with no typo risk — the chance of accidentally writing `"Chrome"` instead of `"chrome"` DISAPPEARS.' },
+    { tr: '`Browser.values()` TÜM enum sabitlerini otomatik bir dizi olarak döndürür — yeni bir tarayıcı eklendiğinde, onu kullanan `for` döngüleri KOD DEĞİŞTİRMEDEN yeni değeri de kapsar.', en: '`Browser.values()` automatically returns ALL enum constants as an array — when a new browser is added, `for` loops that use it cover the new value WITHOUT any code change.' },
+  ],
+}
+
+const javaCucumberFeatureFileStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir .feature Dosyası Java Kodu OLMADAN Nasıl Bir Test Tanımlar?', en: 'How Does a .feature File Define a Test WITHOUT Any Java Code?' },
+  steps: [
+    { tr: '`Feature: User Login` başlığı, dosyanın HANGİ iş yeteneğini test ettiğini insan diliyle özetler — teknik olmayan bir okuyucu (PO, analist) bile anlar.', en: 'The `Feature: User Login` title summarizes in plain language WHICH business capability the file tests — even a non-technical reader (PO, analyst) understands it.' },
+    { tr: '`Background: Given browser is open on the login page` HER senaryodan önce OTOMATİK çalışır — aynı "önce tarayıcıyı aç" adımını her Scenario\'da tekrar YAZMANA gerek kalmaz.', en: '`Background: Given browser is open on the login page` runs AUTOMATICALLY before EVERY scenario — you don\'t need to REPEAT the same "open the browser first" step in every Scenario.' },
+    { tr: '`@smoke @critical` gibi etiketler senaryoları GRUPLAR — CI\'da `--tags "@smoke"` ile sadece kritik senaryoları çalıştırmak mümkün olur, tüm suite\'i beklemeden.', en: 'Tags like `@smoke @critical` GROUP scenarios — in CI, `--tags "@smoke"` lets you run only the critical scenarios without waiting for the whole suite.' },
+    { tr: '`Scenario Outline` + `Examples` tablosu, AYNI adımları 3 farklı veri satırıyla (admin/user1/wrong) TEKRAR TEKRAR çalıştırır — kod tekrarı olmadan veri-odaklı test elde edilir.', en: '`Scenario Outline` + the `Examples` table run the SAME steps REPEATEDLY with 3 different data rows (admin/user1/wrong) — you get data-driven testing without duplicating code.' },
+  ],
+}
+
+const javaCucumberStepDefsStep = {
+  type: 'step-animation',
+  title: { tr: 'Gherkin\'deki Bir Cümle Hangi Java Metoduna Bağlanır?', en: 'Which Java Method Does a Gherkin Sentence Bind To?' },
+  steps: [
+    { tr: '`@Given("browser is open on the login page")` annotation\'ı, .feature dosyasındaki AYNEN o metin ile eşleşir — Cucumber bu eşleşmeyi metin karşılaştırmasıyla YAPAR.', en: 'The `@Given("browser is open on the login page")` annotation matches that EXACT text in the .feature file — Cucumber makes this match by text comparison.' },
+    { tr: '`{string}` yer tutucusu, Gherkin\'deki `"admin"` ve `"admin123"` gibi tırnaklı değerleri METODUN parametrelerine OTOMATİK aktarır — elle parse etmen gerekmez.', en: 'The `{string}` placeholder AUTOMATICALLY passes quoted values like `"admin"` and `"admin123"` from Gherkin into the METHOD\'s parameters — no manual parsing needed.' },
+    { tr: 'Her `@Then` metodu bir ASSERTION içerir (`assertTrue`, `assertEquals`) — Gherkin\'in "sonuç ne olmalı" cümlesi burada gerçek bir doğrulamaya DÖNÜŞÜR.', en: 'Every `@Then` method contains an ASSERTION (`assertTrue`, `assertEquals`) — Gherkin\'s "what should happen" sentence TURNS INTO a real check here.' },
+    { tr: '`@After` içindeki `tearDown`, senaryo BAŞARISIZ olduğunda ekran görüntüsü ALIR ve rapora ekler — bu, hatanın "neden" olduğunu SONRADAN anlamanı sağlayan tek kanıttır.', en: 'The `tearDown` in `@After` TAKES a screenshot and attaches it to the report when the scenario FAILS — this is the one piece of evidence that lets you understand "why" AFTER the fact.' },
+  ],
+}
+
+const javaSeleniumPomStep = {
+  type: 'step-animation',
+  title: { tr: 'Bu 3 Bağımlılık Olmadan Selenium Kodu Neden Derlenmez?', en: 'Why Won\'t Selenium Code Compile Without These 3 Dependencies?' },
+  steps: [
+    { tr: '`selenium-java` ham `WebDriver`/`ChromeDriver` API\'sinin KENDİSİDİR — bu olmadan `driver.findElement(...)` gibi hiçbir satır derlenemez.', en: '`selenium-java` IS the raw `WebDriver`/`ChromeDriver` API itself — without it, no line like `driver.findElement(...)` compiles at all.' },
+    { tr: '`webdrivermanager` `<scope>test</scope>` ile işaretlidir — SADECE test derlemesinde bulunur, production jar\'ına asla KARIŞMAZ.', en: '`webdrivermanager` is marked with `<scope>test</scope>` — it exists ONLY in the test compilation, it NEVER leaks into the production jar.' },
+    { tr: 'WebDriverManager olmadan, her geliştiricinin ChromeDriver binary\'sinin doğru sürümünü ELLE indirip PATH\'e eklemesi GEREKİRDİ — versiyon uyuşmazlığı takımda sık bir hata kaynağıdır.', en: 'Without WebDriverManager, every developer would MANUALLY have to download the right ChromeDriver binary version and add it to PATH — version mismatch is a common team-wide failure source.' },
+    { tr: '`junit-jupiter` ayrı bir bağımlılıktır çünkü Selenium sadece TARAYICI kontrolünden sorumludur — testleri ÇALIŞTIRMAK ve ASSERT etmek tamamen farklı bir kütüphanenin işidir.', en: '`junit-jupiter` is a separate dependency because Selenium is only responsible for BROWSER control — RUNNING tests and making ASSERTIONS is a completely different library\'s job.' },
+  ],
+}
+
+const javaSeleniumBrowserSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'ChromeOptions Ayarlamak Neden driver.get()\'ten ÖNCE Gelir?', en: 'Why Does Configuring ChromeOptions Come BEFORE driver.get()?' },
+  steps: [
+    { tr: '`WebDriverManager.chromedriver().setup()` ilk satırdır — bu çalışmadan `new ChromeDriver()` çağrısı hangi binary\'yi kullanacağını BİLEMEZ.', en: '`WebDriverManager.chromedriver().setup()` is the first line — without it, `new ChromeDriver()` has NO WAY of knowing which binary to use.' },
+    { tr: '`ChromeOptions` (`--start-maximized`, `--headless=new`) DRIVER OLUŞTURULMADAN önce ayarlanır çünkü tarayıcı bu ayarlarla AÇILIR, sonradan değiştirilemez.', en: '`ChromeOptions` (`--start-maximized`, `--headless=new`) are set BEFORE the driver is created because the browser LAUNCHES with these settings, they can\'t be changed afterward.' },
+    { tr: '`driver.navigate().back()`/`.forward()`/`.refresh()` tarayıcının kendi geçmiş yığınını (browser history stack) KULLANIR — bu, `driver.get()` ile yeni bir URL\'e gitmekten FARKLIDIR.', en: '`driver.navigate().back()`/`.forward()`/`.refresh()` USE the browser\'s own history stack — this is DIFFERENT from navigating to a new URL with `driver.get()`.' },
+    { tr: '`driver.quit()` yorumundaki "always in finally!" uyarısı kritiktir: test bir assertion\'da BAŞARISIZ olsa bile, `finally` bloğu olmadan tarayıcı süreci arka planda AÇIK kalır ve hafızayı tüketir.', en: 'The "always in finally!" comment on `driver.quit()` is critical: even if the test FAILS an assertion, without a `finally` block the browser process stays OPEN in the background and leaks memory.' },
+  ],
+}
+
+const javaPlaywrightPomStep = {
+  type: 'step-animation',
+  title: { tr: 'Playwright Neden Tek Bağımlılıkla 3 Tarayıcıyı Birden Getirir?', en: 'Why Does Playwright Bring 3 Browsers With Just One Dependency?' },
+  steps: [
+    { tr: 'Selenium\'da her tarayıcı için ayrı bir driver binary\'si (chromedriver, geckodriver) İNDİRMEN gerekirdi; Playwright bunu TEK `com.microsoft.playwright:playwright` paketine gömer.', en: 'In Selenium you had to DOWNLOAD a separate driver binary for each browser (chromedriver, geckodriver); Playwright bundles this into ONE `com.microsoft.playwright:playwright` package.' },
+    { tr: 'Bağımlılık pom.xml\'e eklenmesi tarayıcı binary\'lerini İNDİRMEZ — bu sadece Java API\'sini classpath\'e ekler.', en: 'Adding the dependency to pom.xml does NOT download the browser binaries — it only adds the Java API to the classpath.' },
+    { tr: '`mvn exec:java ... CLI ... "install"` komutu ASIL Chromium/Firefox/WebKit binary\'lerini indirir — bu, ilk kurulumda SADECE BİR KEZ çalıştırılması gereken ayrı bir adımdır.', en: 'The `mvn exec:java ... CLI ... "install"` command downloads the ACTUAL Chromium/Firefox/WebKit binaries — this is a separate step that needs to run ONLY ONCE on first setup.' },
+    { tr: 'Sonuç: `selenium-java` + `webdrivermanager` + 3 ayrı driver kurulumu yerine, Playwright\'ta TEK dependency + TEK install komutu yeterlidir.', en: 'Result: instead of `selenium-java` + `webdrivermanager` + 3 separate driver installs, Playwright needs just ONE dependency + ONE install command.' },
+  ],
+}
+
+const javaPlaywrightBrowserLaunchStep = {
+  type: 'step-animation',
+  title: { tr: 'try-with-resources Playwright\'ta Neden driver.quit()\'in Yerini Alır?', en: 'Why Does try-with-resources Replace driver.quit() in Playwright?' },
+  steps: [
+    { tr: '`try (Playwright playwright = Playwright.create())` bloğu Java\'nın `AutoCloseable` mekanizmasını kullanır — blok bittiğinde `playwright` OTOMATİK kapanır, elle `.close()` çağırmaya gerek YOKTUR.', en: 'The `try (Playwright playwright = Playwright.create())` block uses Java\'s `AutoCloseable` mechanism — when the block ends, `playwright` closes AUTOMATICALLY, no manual `.close()` call NEEDED.' },
+    { tr: '`playwright.chromium().launch(...)` ile `Browser` nesnesi doğar — `.setHeadless(false)` GELİŞTİRME sırasında tarayıcıyı görünür yapar, CI\'da bu `true` olarak değişir.', en: '`playwright.chromium().launch(...)` gives birth to the `Browser` object — `.setHeadless(false)` makes the browser VISIBLE during development, in CI this flips to `true`.' },
+    { tr: '`BrowserContext`, Selenium\'daki tek `WebDriver` penceresinden FARKLI bir kavramdır: her context KENDİ çerezlerine, oturumuna ve viewport\'una sahip izole bir "profil"dir.', en: '`BrowserContext` is a DIFFERENT concept from Selenium\'s single `WebDriver` window: each context is an isolated "profile" with its OWN cookies, session, and viewport.' },
+    { tr: '`browser.close()` çağrıldığında ona bağlı TÜM context\'ler ve page\'ler otomatik kapanır — Selenium\'da her pencereyi TEK TEK kapatman gereken senaryonun aksine.', en: 'When `browser.close()` is called, ALL context\'s and pages tied to it close automatically — unlike Selenium where you had to close each window ONE BY ONE.' },
+  ],
+}
+
+const javaPlaywrightNavigationStep = {
+  type: 'step-animation',
+  title: { tr: 'waitForPopup() Selenium\'daki getWindowHandles()\'ın Yerini Nasıl Alır?', en: 'How Does waitForPopup() Replace Selenium\'s getWindowHandles()?' },
+  steps: [
+    { tr: '`page.navigate(url)` normal haliyle DOM yüklenene kadar otomatik bekler — Selenium\'da bu bekleme için ayrı bir `ExpectedConditions` yazman gerekirdi.', en: '`page.navigate(url)` in its plain form automatically waits until the DOM loads — in Selenium you would need to write a separate `ExpectedConditions` for this wait.' },
+    { tr: '`.setWaitUntil(NETWORKIDLE)` seçeneği, sayfanın SADECE HTML\'inin değil, tüm AJAX/API çağrılarının da bitmesini bekler — SPA (React/Angular) sayfalarında kritik bir farktır.', en: 'The `.setWaitUntil(NETWORKIDLE)` option waits until not just the page\'s HTML but ALL AJAX/API calls finish too — a critical difference on SPA (React/Angular) pages.' },
+    { tr: '`page.goBack()`/`.goForward()`/`.reload()` Selenium\'daki `navigate().back()` ile birebir aynı işi görür — isimlendirme farklı, mantık aynı.', en: '`page.goBack()`/`.goForward()`/`.reload()` do the exact same job as Selenium\'s `navigate().back()` — different naming, same logic.' },
+    { tr: '`page.waitForPopup(() -> {...})` popup\'ı TIKLAMA eylemiyle AYNI satırda bekler — Selenium\'da `getWindowHandles()` ile yeni pencereyi manuel bulup filtrelemen gerekirken, burada tek çağrı yeterlidir.', en: '`page.waitForPopup(() -> {...})` waits for the popup in the SAME line as the CLICK action that triggers it — where Selenium required manually finding and filtering the new window with `getWindowHandles()`, here one call suffices.' },
+  ],
+}
+
+const javaPlaywrightElementActionsStep = {
+  type: 'step-animation',
+  title: { tr: 'fill() Selenium\'un sendKeys()\'inden Neden Daha Güvenlidir?', en: 'Why Is fill() Safer Than Selenium\'s sendKeys()?' },
+  steps: [
+    { tr: '`input.fill("...")` ÖNCE alanı temizler SONRA yazar — Selenium\'daki `sendKeys()` bunu yapmaz, eski metnin ÜZERİNE ekleme yapabilir, bu yüzden elle `.clear()` çağırman gerekirdi.', en: '`input.fill("...")` clears the field FIRST, THEN types — Selenium\'s `sendKeys()` doesn\'t do this, it can APPEND on top of old text, which is why you had to manually call `.clear()`.' },
+    { tr: '`isVisible()`/`isEnabled()`/`isChecked()`/`isDisabled()` durum kontrolleri ANLIK çalışır — bu, elementin şu AN ne durumda olduğunu, bir sonraki aksiyondan ÖNCE doğrulamana izin verir.', en: '`isVisible()`/`isEnabled()`/`isChecked()`/`isDisabled()` state checks run INSTANTLY — this lets you verify the element\'s CURRENT state before the next action.' },
+    { tr: '`page.locator("#country").selectOption("TR")` Selenium\'daki gibi AYRI bir `Select` sınıfına SARMAYA gerek duymaz — dropdown işlemi doğrudan locator üzerinden tek satırda yapılır.', en: '`page.locator("#country").selectOption("TR")` needs NO SEPARATE `Select` class wrapper like Selenium — the dropdown operation happens directly on the locator in one line.' },
+    { tr: '`.check()`/`.uncheck()` checkbox\'ın MEVCUT durumunu KONTROL ETMEDEN doğru sonucu garanti eder — Selenium\'daki `.click()` ile toggle yapmak, checkbox zaten işaretliyse YANLIŞLIKLA kaldırabilirdi.', en: '`.check()`/`.uncheck()` guarantee the correct result WITHOUT checking the checkbox\'s CURRENT state first — toggling with Selenium\'s `.click()` could ACCIDENTALLY uncheck a box that was already checked.' },
+  ],
+}
+
+const javaPlaywrightAutoWaitStep = {
+  type: 'step-animation',
+  title: { tr: 'Aynı Senaryoda Selenium 3 Satır Wait Yazarken Playwright Neden 0 Satır Yazar?', en: 'Why Does Playwright Need 0 Lines of Wait Where Selenium Needs 3?' },
+  steps: [
+    { tr: 'Selenium tarafında HER adım için ayrı bir `wait.until(...)` çağrısı GEREKİR: buton tıklanabilir mi, spinner kayboldu mu, URL değişti mi — üçü de elle yazılır.', en: 'On the Selenium side, a SEPARATE `wait.until(...)` call is REQUIRED for every step: is the button clickable, has the spinner disappeared, has the URL changed — all three written by hand.' },
+    { tr: 'Bu üç `wait` satırından biri UNUTULURSA, test bazen geçer bazen "element not interactable" ile KIRILIR — bu, flaky test\'in klasik doğuş anıdır.', en: 'If even ONE of these three `wait` lines is FORGOTTEN, the test sometimes passes and sometimes BREAKS with "element not interactable" — this is the classic birth moment of a flaky test.' },
+    { tr: 'Playwright tarafında AYNI üç kontrol (tıklanabilirlik, spinner, URL) her `.click()`/`.fill()` çağrısının İÇİNE gömülüdür — opt-in değil, opt-out\'tur.', en: 'On the Playwright side, the SAME three checks (clickability, spinner, URL) are built INTO every `.click()`/`.fill()` call — it\'s opt-out, not opt-in.' },
+    { tr: 'Sonuç: Selenium\'da "wait yazmayı unutma" bir DİSİPLİN sorunuyken, Playwright\'ta bu sorun MİMARİ olarak baştan ORTADAN KALKAR.', en: 'Result: in Selenium "don\'t forget to write the wait" is a matter of DISCIPLINE, in Playwright this problem is ARCHITECTURALLY ELIMINATED from the start.' },
+  ],
+}
+
+const javaFilesApiStep = {
+  type: 'step-animation',
+  title: { tr: 'Files.write() ile Files.writeString(APPEND) Arasındaki Fark Neden Önemli?', en: 'Why Does the Difference Between Files.write() and Files.writeString(APPEND) Matter?' },
+  steps: [
+    { tr: '`Files.write(path, List.of(...))` dosyayı YOKSA oluşturur, VARSA baştan ÜZERİNE yazar — bu, bir test raporunu SIFIRDAN başlatmak için doğru seçimdir.', en: '`Files.write(path, List.of(...))` creates the file if it doesn\'t exist, OVERWRITES it from scratch if it does — the right choice for STARTING a test report FRESH.' },
+    { tr: '`Files.writeString(path, "...", APPEND)` ise MEVCUT içeriği SİLMEDEN sona ekler — sürekli büyüyen bir log dosyasına satır eklemek için budur.', en: '`Files.writeString(path, "...", APPEND)` adds to the END WITHOUT deleting existing content — this is for appending lines to a continuously growing log file.' },
+    { tr: '`Files.exists(path)` ve `Files.deleteIfExists(path)` sırayla çağrılır çünkü VAR OLMAYAN bir dosyayı silmeye çalışmak (`Files.delete()` ile) `NoSuchFileException` FIRLATIR — `deleteIfExists` bu riski ortadan kaldırır.', en: '`Files.exists(path)` and `Files.deleteIfExists(path)` are called in sequence because trying to delete a file that does NOT exist (with `Files.delete()`) THROWS `NoSuchFileException` — `deleteIfExists` removes this risk.' },
+    { tr: '`Properties.load(new FileInputStream(...))` bir `.properties` dosyasını key-value ÇİFTLERİ olarak okur — QA konfigürasyonunda `base.url` gibi ortam-bağımlı değerleri KODA gömmeden yönetmenin standart yoludur.', en: '`Properties.load(new FileInputStream(...))` reads a `.properties` file as key-value PAIRS — the standard way to manage environment-dependent values like `base.url` in QA config WITHOUT hardcoding them.' },
+  ],
+}
+
+const javaIteratorSafeRemovalStep = {
+  type: 'step-animation',
+  title: { tr: 'list.remove() Neden ConcurrentModificationException Fırlatır ama it.remove() Fırlatmaz?', en: 'Why Does list.remove() Throw ConcurrentModificationException but it.remove() Doesn\'t?' },
+  steps: [
+    { tr: 'Bir `for-each` döngüsü İÇİNDE doğrudan `list.remove(...)` çağırmak, koleksiyonu Iterator\'ın HABERİ OLMADAN değiştirir — Java bunu bir "eşzamanlı değişiklik" olarak algılar ve hata fırlatır.', en: 'Calling `list.remove(...)` directly INSIDE a for-each loop modifies the collection WITHOUT the Iterator\'s knowledge — Java detects this as a "concurrent modification" and throws.' },
+    { tr: '`Iterator<String> it = list.iterator()` Iterator\'ın KENDİ konum takibini kurar — `it.hasNext()`/`it.next()` bu takibi GÜNCEL tutarak sırayla ilerler.', en: '`Iterator<String> it = list.iterator()` sets up the Iterator\'s OWN position tracking — `it.hasNext()`/`it.next()` advances in order while keeping this tracking CURRENT.' },
+    { tr: '`it.remove()` ise Iterator\'IN KENDİ metodudur — silme işlemini Iterator\'ın konum takibiyle SENKRONİZE yapar, bu yüzden `ConcurrentModificationException` fırlamaz.', en: '`it.remove()` is the Iterator\'S OWN method — it performs the removal SYNCHRONIZED with the Iterator\'s position tracking, which is why it doesn\'t throw `ConcurrentModificationException`.' },
+    { tr: 'Aynı güvenli kalıp `Map.entrySet().iterator()` için de geçerlidir — `mapIt.remove()` ile bir `HashMap`\'ten güvenle eleman silinirken döngü kendisi bozulmaz.', en: 'The same safe pattern applies to `Map.entrySet().iterator()` — `mapIt.remove()` safely removes an element from a `HashMap` without breaking the loop itself.' },
+  ],
+}
+
+
 // ═══ DALGA 13 — §9.5 film sabitleri (19 sekme, EN+TR ayrı ağaç) ══════════════
 // Her film hem tr hem en blocks dizisine BARE IDENTIFIER olarak eklenir.
 // Veri şeması referansı: gaugeData.js gaugeRunChainFilm / gitGithubData.js.
@@ -2020,6 +2276,7 @@ java Main
 # Beklenen çıktı:
 # Merhaba Java!`,
       },
+      javaMacLinuxRunMainStep,
       {
         type: 'callout', color: 'yellow', emoji: '⚠️',
         title: 'İlk gün en çok yapılan 4 hata',
@@ -2282,6 +2539,7 @@ java Main
 # Expected:
 # Hello Java!`,
       },
+      javaMacLinuxRunMainStep,
       {
         type: 'callout', color: 'yellow', emoji: '⚠️',
         title: 'Top 4 first-day mistakes',
@@ -2486,6 +2744,7 @@ winget install --id Oracle.JDK.21
 
 # Maven'i şimdilik kurmak zorunda değilsin; aşağıdaki Maven bölümünde ayrıntılı anlatılıyor.`,
       },
+      javaWindowsJdkInstallStep,
       {
         type: 'callout', color: 'yellow', emoji: '⚠️',
         title: 'Output you should see:',
@@ -2502,6 +2761,7 @@ $env:PATH += ";$env:JAVA_HOME\\bin"
 java -version
 javac -version`,
       },
+      javaJavaHomeSetupStep,
       {
         type: 'heading', text: { tr: '🍎 macOS Kurulumu', en: '🍎 macOS Installation' },
       },
@@ -2523,6 +2783,7 @@ source ~/.zshrc
 java -version
 javac -version`,
       },
+      javaMacosJdkInstallStep,
       {
         type: 'heading', text: { tr: '🐧 Linux Kurulumu', en: '🐧 Linux Installation' },
       },
@@ -2544,6 +2805,7 @@ source ~/.bashrc
 java -version
 javac -version`,
       },
+      javaUbuntuJdkInstallStep,
       {
         type: 'code', language: 'bash',
         label: 'CentOS/RHEL/Fedora',
@@ -2568,6 +2830,7 @@ javac -version
 # Beklenen çıktı:
 # javac 21.0.x`,
       },
+      javaVerifyInstallStep,
       ...javaSetupWorkshop.tr,
       {
         type: 'heading', text: { tr: '🚀 İlk Maven Projesi', en: '🚀 First Maven Project' },
@@ -2585,6 +2848,7 @@ javac -version
 cd java-qa-project
 mvn test`,
       },
+      javaMavenQuickstartStep,
       {
         type: 'callout', color: 'green', emoji: '✅',
         title: 'Output you should see:',
@@ -2656,6 +2920,7 @@ winget install --id Oracle.JDK.21
 
 # You do not need Maven yet; the Maven section below explains when and how to install it.`,
       },
+      javaWindowsJdkInstallStep,
       {
         type: 'callout', color: 'yellow', emoji: '⚠️',
         title: 'Output you should see:',
@@ -2671,6 +2936,7 @@ $env:PATH += ";$env:JAVA_HOME\\bin"
 java -version
 javac -version`,
       },
+      javaJavaHomeSetupStep,
       {
         type: 'heading', text: { tr: '🍎 macOS Kurulumu', en: '🍎 macOS Installation' },
       },
@@ -2685,6 +2951,7 @@ source ~/.zshrc
 java -version
 javac -version`,
       },
+      javaMacosJdkInstallStep,
       {
         type: 'heading', text: { tr: '🐧 Linux Kurulumu', en: '🐧 Linux Installation' },
       },
@@ -2696,6 +2963,7 @@ echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' >> ~/.bashrc
 source ~/.bashrc
 java -version && javac -version`,
       },
+      javaUbuntuJdkInstallStep,
       {
         type: 'heading', text: { tr: '✅ Verification', en: '✅ Verification' },
       },
@@ -2708,6 +2976,7 @@ java -version && javac -version`,
 javac -version
 # Expected: javac 21.0.x`,
       },
+      javaVerifyInstallStep,
       ...javaSetupWorkshop.en,
       {
         type: 'heading', text: { tr: '🚀 İlk Maven Projesi', en: '🚀 First Maven Project' },
@@ -2724,6 +2993,7 @@ javac -version
 
 cd java-qa-project && mvn test`,
       },
+      javaMavenQuickstartStep,
       {
         type: 'callout', color: 'green', emoji: '✅',
         title: 'Output you should see:',
@@ -2834,6 +3104,7 @@ TestUser user1 = new TestUser("admin", "admin@test.com", 30);
 TestUser user2 = new TestUser("qa_user", "qa@test.com", 25);
 System.out.println(user1); // TestUser{username='admin', email='admin@test.com'}`,
       },
+      javaClassObjectStep,
       {
         type: 'heading', text: { tr: 'Interface & Abstract Class', en: 'Interface & Abstract Class' },
       },
@@ -2887,6 +3158,7 @@ public class LoginPage extends BasePage {
     }
 }`,
       },
+      javaInterfaceAbstractStep,
       {
         type: 'heading', text: { tr: 'Java Collections — QA\'da En Çok Kullanılanlar', en: 'Java Collections — Most Used in QA' },
       },
@@ -3059,6 +3331,7 @@ userIds.add(1002);`,
 TestUser user1 = new TestUser("admin", "admin@test.com", 30);
 System.out.println(user1);`,
       },
+      javaClassObjectStep,
       {
         type: 'heading', text: { tr: 'Interface & Abstract Class', en: 'Interface & Abstract Class' },
       },
@@ -3096,6 +3369,7 @@ public abstract class BasePage implements PageActions {
     }
 }`,
       },
+      javaInterfaceAbstractStep,
       {
         type: 'heading', text: { tr: 'Java Collections — QA\'da En Çok Kullanılanlar', en: 'Java Collections — Most Used in QA' },
       },
@@ -4003,6 +4277,7 @@ Unable to locate element: {"method":"id","selector":"loginBtn"}` },
       { type: 'code', language: 'java', label: 'Çözüm', code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn")));
 btn.click();` },
+      javaNoSuchElementFixStep,
       { type: 'heading', text: { tr: '2. StaleElementReferenceException', en: '2. StaleElementReferenceException' } },
       { type: 'callout', color: 'red', emoji: '❌', title: 'Sebep', content: 'Elementi bulduktan sonra sayfa refresh oldu veya DOM güncellendi — referans geçersiz.' },
       { type: 'code', language: 'java', label: 'Çözüm — Retry pattern', code: `public void clickWithRetry(By locator, int max) {
@@ -4011,6 +4286,7 @@ btn.click();` },
         catch (StaleElementReferenceException e) { if (i==max-1) throw e; }
     }
 }` },
+      javaStaleElementRetryStep,
       { type: 'heading', text: { tr: '3. ElementNotInteractableException', en: '3. ElementNotInteractableException' } },
       { type: 'code', language: 'java', label: 'Çözüm — JavaScript ile tıkla', code: `WebElement el = driver.findElement(By.id("hiddenBtn"));
 ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", el);
@@ -4090,6 +4366,7 @@ assertThat(element.getText().trim()).isEqualTo("Welcome, Admin!");` },
       { type: 'heading', text: { en: '1. NoSuchElementException' } },
       { type: 'code', language: 'java', label: 'Solution', code: `WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn"))).click();` },
+      javaNoSuchElementFixStep,
       { type: 'heading', text: { en: '2. StaleElementReferenceException' } },
       { type: 'code', language: 'java', label: 'Solution — Retry pattern', code: `public void clickWithRetry(By l, int max) {
     for (int i=0; i<max; i++) {
@@ -4097,6 +4374,7 @@ wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn"))).click();`
         catch (StaleElementReferenceException e) { if(i==max-1) throw e; }
     }
 }` },
+      javaStaleElementRetryStep,
       { type: 'heading', text: { en: '6. WebDriverException — ChromeDriver mismatch' } },
       { type: 'code', language: 'java', label: 'Solution', code: `WebDriverManager.chromedriver().setup();
 WebDriver driver = new ChromeDriver();` },
@@ -11138,6 +11416,7 @@ const sF = {
 }`,
         expected: `Bugün: WEDNESDAY\nİş günü\nWEDNESDAY\n2\nMONDAY TUESDAY WEDNESDAY THURSDAY FRIDAY SATURDAY SUNDAY \nDriver: chrome\nURL: https://qa.example.com`,
       },
+      javaEnumStep,
       { type: 'heading', text: { tr: 'Date / Time (Java 8+ LocalDate)', en: 'Date / Time (Java 8+ LocalDate)' } },
       {
         type: 'code', language: 'java', label: 'java.time API — modern tarih/saat',
@@ -11415,6 +11694,7 @@ public class Main {
     }
 }`,
       },
+      javaEnumStep,
       { type: 'heading', text: { en: 'Exceptions — try-catch-finally' } },
       {
         type: 'code', language: 'java', label: 'Exception handling',
@@ -11585,6 +11865,7 @@ Feature: Kullanıcı Giriş İşlemleri
       | user1    | pass1    | SUCCESS |
       | wrong    | wrong123 | FAILURE |`,
       },
+      javaCucumberFeatureFileStep,
       { type: 'heading', text: { tr: 'Step Definitions — Gherkin → Java', en: 'Step Definitions' } },
       {
         type: 'code', language: 'java', label: 'LoginSteps.java — Step Definitions',
@@ -11653,6 +11934,7 @@ public class LoginSteps {
     }
 }`,
       },
+      javaCucumberStepDefsStep,
       { type: 'heading', text: { tr: 'pom.xml — Cucumber + JUnit5 + TestNG', en: 'pom.xml — Dependencies' } },
       {
         type: 'code', language: 'xml', label: 'pom.xml — Tüm Cucumber bağımlılıkları',
@@ -11991,6 +12273,7 @@ public class CartSteps {
       | user1    | pass1    | SUCCESS |
       | wrong    | wrong123 | FAILURE |`,
       },
+      javaCucumberFeatureFileStep,
       { type: 'heading', text: { en: 'Step Definitions — Gherkin → Java' } },
       {
         type: 'code', language: 'java', label: 'LoginSteps.java — Step Definitions',
@@ -12047,6 +12330,7 @@ public class LoginSteps {
     }
 }`,
       },
+      javaCucumberStepDefsStep,
       { type: 'heading', text: { en: 'JUnit5 + Cucumber Runner' } },
       {
         type: 'code', language: 'java', label: 'RunCucumberTest.java',
@@ -12168,6 +12452,7 @@ const sSelenium = {
   </dependency>
 </dependencies>`,
       },
+      javaSeleniumPomStep,
       { type: 'heading', text: { tr: 'Adım 2: Tarayıcı Açma ve Kapatma', en: 'Step 2: Browser Launch' } },
       {
         type: 'code', language: 'java', label: 'Chrome / Firefox / Edge başlatma',
@@ -12214,6 +12499,7 @@ public class BrowserSetup {
     }
 }`,
       },
+      javaSeleniumBrowserSetupStep,
       { type: 'heading', text: { tr: 'Adım 3: Sayfa Navigasyonu', en: 'Step 3: Navigation' } },
       {
         type: 'code', language: 'java', label: 'Tüm navigasyon komutları',
@@ -13463,6 +13749,7 @@ public class EcommerceE2ETest {
   </dependency>
 </dependencies>`,
       },
+      javaSeleniumPomStep,
       { type: 'heading', text: { en: 'Steps 2-3: Browser Launch & Navigation' } },
       {
         type: 'code', language: 'java', label: 'Browser setup and navigation commands',
@@ -13484,6 +13771,7 @@ System.out.println(driver.getCurrentUrl());
 
 driver.quit(); // always in finally!`,
       },
+      javaSeleniumBrowserSetupStep,
       { type: 'heading', text: { en: 'Step 4: Finding Elements — 8 By Strategies' } },
       {
         type: 'simple-box',
@@ -13869,6 +14157,7 @@ const sPlaywright = {
 <!-- Browser binary'lerini indir (ilk kez) -->
 <!-- mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install" -->`,
       },
+      javaPlaywrightPomStep,
       { type: 'heading', text: { tr: 'Adım 2: Tarayıcı Açma ve Kapatma', en: 'Step 2: Browser Launch' } },
       {
         type: 'code', language: 'java', label: { tr: 'Chromium / Firefox / WebKit başlatma', en: 'Chromium / Firefox / WebKit Launch' },
@@ -13948,6 +14237,7 @@ public class BrowserSetup {
     }
 }` },
       },
+      javaPlaywrightBrowserLaunchStep,
       { type: 'heading', text: { tr: 'Adım 3: Sayfa Navigasyonu', en: 'Step 3: Navigation' } },
       {
         type: 'code', language: 'java', label: { tr: 'Tüm navigasyon komutları', en: 'All navigation commands' },
@@ -13979,6 +14269,7 @@ Page popup = page.waitForPopup(() -> {
 });
 System.out.println("Popup URL: " + popup.url());`,
       },
+      javaPlaywrightNavigationStep,
       { type: 'heading', text: { tr: 'Adım 4: Element Bulma — 8 Locator Stratejisi', en: 'Step 4: Element Locators — 8 Strategies' } },
       {
         type: 'simple-box',
@@ -14270,6 +14561,7 @@ page.locator("#country").selectOption("TR");                 // value ile
 page.locator("#country").selectOption(new SelectOption().setLabel("Türkiye")); // metin ile
 page.locator("#country").selectOption(new SelectOption().setIndex(0));         // index ile`,
       },
+      javaPlaywrightElementActionsStep,
       {
         type: 'playwright-visual',
         concept: 'select-option',
@@ -14399,6 +14691,7 @@ page.locator(".loading-spinner").waitFor(   // Element kaybolana kadar
         .setState(WaitForSelectorState.HIDDEN)
 );`,
       },
+      javaPlaywrightAutoWaitStep,
       {
         type: 'playwright-visual',
         concept: 'auto-wait',
@@ -16563,6 +16856,7 @@ public class Main {
 }`,
         expected: `Dosya oluşturuldu: ...\nYazma tamamlandı`,
       },
+      javaFilesApiStep,
       {
         type: 'editor', lang: 'java', label: 'File yazma pratiği',
         defaultCode: `import java.nio.file.*;
@@ -16716,6 +17010,7 @@ public class Main {
 }`,
         expected: `Tarayıcı: Chrome\nTarayıcı: Firefox\nSafari kaldırıldı\nTarayıcı: Edge\nTest A → 95\nTest B → 87\nTest C → 92\nKalan: {Test A=95, Test C=92}\nBüyük harf: [CHROME, FIREFOX, EDGE]`,
       },
+      javaIteratorSafeRemovalStep,
       {
         type: 'editor', lang: 'java', label: 'Iterator pratiği',
         defaultCode: `import java.util.*;
@@ -17107,6 +17402,7 @@ public class Main {
     }
 }`,
       },
+      javaFilesApiStep,
       { type: 'heading', text: { en: 'Iterator' } },
       {
         type: 'code', language: 'java', label: 'Iterator — safe removal during iteration',
@@ -17128,6 +17424,7 @@ while (mapIt.hasNext()) {
 }
 System.out.println(map); // {B=2, C=3}`,
       },
+      javaIteratorSafeRemovalStep,
       { type: 'heading', text: { en: 'Generics & Threads' } },
       {
         type: 'code', language: 'java', label: 'Generics and basic Thread usage',
