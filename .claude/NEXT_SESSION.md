@@ -10,6 +10,29 @@
 
 ---
 
+## OTURUM ÖZETİ — animation-per-topic planı BAŞLATILDI (2026-07-17, Fable oturumu)
+
+**Branch:** `feature/animation-per-topic` (main'den açıldı, merge edilmedi).
+
+**Yapılan (commit `2ee9e65`, build yeşil, content-check temiz):**
+- `scripts/audit-animation-coverage.mjs` yazıldı: CLAUDE.md §9.1'in "her
+  atomik kod bloğuna animasyon" hedefini sekme-içi deficit olarak ölçer.
+  Mevcut `audit-interactive.mjs` sekme başına ≥1 ölçtüğü için görünmeyen
+  açığı ortaya çıkardı: **551 kod bloğu → 487 animasyon → 233 açık**
+  (en kötüler: selenium %33/36 açık, kafka %39, jmeter %39, appium %45,
+  kubernetes %48). `npm run audit:animation[:missing]` kayıtları eklendi.
+- `Documents/animation-per-topic-plan.md` yazıldı: dalga planı (A1-A8 + B),
+  **model dağılımı** (Fable = tooling + pythonData/applyTr riski + QA;
+  Sonnet = A1-A6 yüksek açıklı sayfaların step-animation üretimi;
+  Haiku = A8 düşük açıklılar + Dalga B'deki 18 eksik order-sort) ve
+  Sonnet/Haiku için parametrik prompt şablonları (§4.1-4.3).
+
+**Sıradaki iş:** Plan §3.2'deki Dalga A1 (selenium, 36 açık) — Sonnet'e
+plan §4.1'deki prompt `{PAGE_KEY}=selenium` ile verilir. Fable'a ayrılan
+Dalga A7 (pythonData, applyTr index riski) daha sonra.
+
+---
+
 ## OTURUM ÖZETİ — video-sitewide-plan.md §7'deki 5 boşluk + test kapsamı KAPATILDI (2026-07-17, devam oturumu 2)
 
 > Bir önceki oturumun raporunda (§7.4/§7.5, aşağıdaki eski bölüm) bırakılan
