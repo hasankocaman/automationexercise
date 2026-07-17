@@ -3004,6 +3004,11 @@ find . -size +100M                  # find suspiciously large files`,
             content: 'Linux, dokunacağın neredeyse her CI agent\'ının, Docker container\'ının, Kubernetes node\'unun ve cloud VM\'inin altında çalışan işletim sistemidir — görünür bir yüzey olarak değil, tüm binanın üzerine inşa edildiği görünmez taşıyıcı duvar olarak. Ama şu soruyu sormadan geçemeyiz: Windows\'ta Selenium testi yazabiliyorken Linux bilmek neden önemli? Çünkü testlerin "CI\'da çalışıyor" dediğin anda artık senin makinende değil — bir Ubuntu container\'ı içinde, Linux dosya sistemi kurallarıyla path okuyor, Linux izin bitleriyle çalışıyor ve tamamen Linux\'a özgü sebeplerle (eksik execute biti, satır sonu uyumsuzluğu) başarısız oluyor. Java\'daki benzetimle: shell, JVM\'in runtime ortamı gibidir — test kodun (`.jar`) teoride her yerde aynı çalışır, ama pratikte `ClassNotFoundException` sadece bir ortamda çıkar çünkü classpath farklı kurulmuştur. QA çalışması için bu şu anlama gelir: "sadece CI\'da olur" diyen flaky hatalar neredeyse her zaman bir Linux ortam sorunudur — yanlış PATH, eksik izin, yanlış kullanıcı — ve bunları yalnızca Linux terminalini okuyabilirsen debug edebilirsin.',
           },
           {
+            type: 'css-animation',
+            kind: 'linux-pipe',
+            label: { tr: 'Linux Pipe Zinciri', en: 'Linux Pipe Chain' },
+          },
+          {
             type: 'text',
             content: 'Laptop\'unda Windows veya macOS çalışıyor olabilir, ama testlerin bir CI pipeline\'ına, Docker container\'ına veya cloud sunucuya taşındığı anda neredeyse her zaman Linux üzerine iniyorlar. Jenkins agent\'ları, GitHub Actions runner\'ları (ubuntu-latest), Kubernetes node\'ları ve çoğu Docker base image\'i Linux\'tur. Linux terminalini okuyamıyorsan, kendi test altyapını tam olarak debug edemezsin.',
           },
