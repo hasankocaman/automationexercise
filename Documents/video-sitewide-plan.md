@@ -217,10 +217,19 @@ hem TR ağaçlarında) şu sonucu verdi:
 |---|---|
 | Taranan sayfa | 28/28 (§1 envanterindeki tüm kapsam-içi sayfalar) |
 | Taranan sekme/ders (EN+TR toplam) | 764 |
-| §9.5 standardını (≥1 video + ≥1 animasyon + ≥1 sandbox) tam karşılayan | **759 / 764 (%99.3)** |
-| Bilinen küçük boşluk | 5 sekme, 5 ayrı sayfada (aşağıda §7.4) |
+| §9.5 standardını (≥1 video + ≥1 animasyon + ≥1 sandbox) tam karşılayan | **764 / 764 (%100) — güncellendi 2026-07-17** |
+| Bilinen küçük boşluk | **0 — aşağıdaki §7.4'teki 5 boşluk bir sonraki oturumda kapatıldı** |
 
-Yani plan **fiilen %99'un üzerinde tamamlanmış durumda**; kalan boşluklar
+> **Güncelleme (2026-07-17, aynı gün devam oturumu):** §7.4'teki 5 boşluk
+> (linux TR animasyon, docker EN+TR sandbox, selenium EN+TR sandbox,
+> playwright EN animasyon, sql TR animasyon) tek tek kapatıldı — her biri
+> kendi commit'inde, `check-content-integrity.mjs` + `npm run build` ile
+> doğrulanarak. §7.5'teki test kapsamı boşluğu da aynı oturumda kapatıldı:
+> `tests/video-scene.spec.ts`'e Dalga 8-21'deki 24 sayfa için temsili render
+> testi eklendi (51/51 test yeşil). Detay ve commit hash'leri
+> `.claude/NEXT_SESSION.md`'de.
+
+Yani plan **artık %100 tamamlanmış durumda**; kalan boşluklar
 büyük görev listelerinden değil, erken dalgalardan (4-9) kalan tek-tek
 sekme eksiklikleridir.
 
@@ -261,52 +270,56 @@ edilmiştir.
 | 1. Yapı tespiti | ✅ Her dalgada yapıldı | EN+TR ayrı ağaç / tek ağaç / lesson-based / özel section ayrımı her dalgada doğru tespit edildi |
 | 2. Film spesifikasyonu | ✅ Her filmde yapıldı | 355 filmin tamamı sekmenin gerçek mekanizmasına bağlı (uydurma film yok — örnekler §7.1 altındaki dalga özetlerinde) |
 | 3. Veri ekleme (EN+TR aynı referans / tek ağaçta tek yer) | ✅ Doğru uygulandı | Dalga 21'de `claude-ai` çalışmasında bu kontrol runtime script ile doğrulandı (her film id tam 2 kez: 1 tanım + ~~1~~ referans × dil sayısı) |
-| 4. Eksik animasyon/sandbox tamamlama | ✅ Büyük ölçüde yapıldı | §7.4'teki 5 küçük boşluk hariç |
-| 5. `tests/video-scene.spec.ts`'e temsili render testi ekleme | ❌ **Dalga 8-21'de YAPILMADI** | Bkz. §7.5 — bilinçli, kullanıcı onaylı bir sapma, ama plan metninin kendisi bunu her dalganın zorunlu son adımı sayıyor |
+| 4. Eksik animasyon/sandbox tamamlama | ✅ Tamamlandı | §7.4'teki 5 küçük boşluk 2026-07-17 devam oturumunda kapatıldı |
+| 5. `tests/video-scene.spec.ts`'e temsili render testi ekleme | ✅ Tamamlandı | Bkz. §7.5 — Dalga 8-21'de eksikti, aynı gün devam oturumunda 24 sayfaya test eklenerek kapatıldı |
 
-### 7.4. Bilinen Küçük Boşluklar (§9.5 video+animasyon+sandbox, runtime tarama)
+### 7.4. Bilinen Küçük Boşluklar — KAPATILDI (2026-07-17, devam oturumu)
 
-Aşağıdaki 5 sekme, erken dalgalardan (4, 6, 7, 9) kalma ve bu oturumun
-kapsamı DIŞINDA bulunan, tek-tek eksik animasyon veya sandbox blokları
-içerir (filmleri zaten var):
+Aşağıdaki 5 sekme, erken dalgalardan (4, 6, 7, 9) kalma tek-tek eksik
+animasyon veya sandbox blokları içeriyordu (filmleri zaten vardı). Aynı gün
+içindeki bir devam oturumunda, her biri kendi commit'inde, ilgili
+`*Data.js` dosyasına EN/TR'deki eşleniğiyle birebir aynı block eklenerek
+kapatıldı:
 
-| Sayfa | Sekme | Eksik |
-|---|---|---|
-| /linux | 🎯 Linux nedir, QA mühendisi neden bilmeli (TR) | animasyon |
-| /docker | 🔄 Lifecycle & Debug (EN+TR) | sandbox |
-| /selenium | 🖥️ Selenium IDE — Beyond Record & Playback (EN+TR) | sandbox |
-| /playwright | 🎭 What is Playwright? Why Use It? (EN) | animasyon |
-| /sql | 🎯 SQL Nedir & Her QA Mühendisi Neden Bilmeli (TR) | animasyon |
+| Sayfa | Sekme | Eksikti | Durum |
+|---|---|---|---|
+| /linux | 🎯 Linux nedir, QA mühendisi neden bilmeli (TR) | animasyon | ✅ `css-animation` (linux-pipe) eklendi |
+| /docker | 🔄 Lifecycle & Debug (EN+TR) | sandbox | ✅ `code-playground` (logs-before-rm micro lab) eklendi |
+| /selenium | 🖥️ Selenium IDE — Beyond Record & Playback (EN+TR) | sandbox | ✅ `code-playground` (Thread.sleep → WebDriverWait micro lab) eklendi |
+| /playwright | 🎭 What is Playwright? Why Use It? (EN) | animasyon | ✅ `css-animation` (playwright-autowait) eklendi |
+| /sql | 🎯 SQL Nedir & Her QA Mühendisi Neden Bilmeli (TR) | animasyon | ✅ `css-animation` (sql-select) eklendi |
 
-Bunlar tek satırlık, ~15 dakikalık düzeltmelerdir (birer `step-animation`
-veya `code-playground` bloğu eklemek yeterli) — bu oturumun görevi
-"raporla" olduğu için burada DÜZELTİLMEDİ, sıradaki oturumda hızlıca
-kapatılabilir.
+Her commit'te `check-content-integrity.mjs` + `npm run build` çalıştırıldı
+ve geçti. §7.1'deki tamamlanma oranı bu yüzden **%100'e** güncellendi.
 
-**Ayrı bir standart — kapsam dışı gözlem:** `scripts/audit-interactive.mjs`
+**Ayrı bir standart — kapsam dışı gözlem (hâlâ açık):** `scripts/audit-interactive.mjs`
 (CLAUDE.md §9.1/9.2'nin "interaktif üçlü" — `code-playground` +
 `step-animation` + `challenge/order-sort` — denetleyicisi, bu planın değil)
 18 sekmede `order-sort` (drag-and-drop) eksikliği raporluyor (Postman,
 JMeter, Git, Java, JavaScript, Docker, Selenium, Bruno, Linux'ta birer-
 ikişer sekme). Bu, video-sitewide-plan.md'nin §9.5 kapsamına GİRMEZ —
 ayrı bir kalıcı kural (§9.1/9.2) ve ayrı bir gelecek görev listesi
-gerektirir, bu yüzden §7.1'deki %99.3 rakamına dahil edilmemiştir.
+gerektirir; bu oturumda DOKUNULMADI, ayrı bir gelecek görev listesi olarak
+kalır.
 
-### 7.5. Final Doğrulama Turu — Henüz Yapılmadı
+### 7.5. Final Doğrulama Turu — KAPATILDI (2026-07-17, devam oturumu)
 
 Kullanıcının Dalga 8'de verdiği "test etmeden commit yap, sıradaki dalgaya
-geç" talimatı gereği, Dalga 8-21 arası **hiçbir Playwright/e2e testi
-çalıştırılmadı ve `tests/video-scene.spec.ts`'e yeni test eklenmedi**.
-Bu dosyanın kendi §3/§6'sı bunu her dalganın zorunlu adımı sayar; plan
-METNİ ile GERÇEK UYGULAMA arasındaki tek kasıtlı ve büyük fark budur.
-`tests/video-scene.spec.ts` hâlâ sadece pilot + Dalga 4-7 (git-github,
-gauge, linux, docker, selenium, playwright) sayfalarını kapsıyor — Dalga
-8-21'deki 22 sayfa (python, sql, cypress, javascript, typescript, java,
-postman, bruno, rest-assured, jenkins, kubernetes, jmeter, kafka, appium,
-browserstack, aws, azure, what-is-testing, test-frameworks, manual-testing,
-algorithms, advanced-algorithms, llm-agents, claude-ai) için sıfır temsili
-render testi var. Bu, sıradaki oturumun kesin ilk işi olarak
-`.claude/NEXT_SESSION.md`'de zaten not edilmiştir.
+geç" talimatı gereği, Dalga 8-21 arası hiçbir Playwright/e2e testi
+çalıştırılmamıştı ve `tests/video-scene.spec.ts`'e yeni test eklenmemişti.
+Bu, plan METNİ ile GERÇEK UYGULAMA arasındaki tek kasıtlı ve büyük farktı.
+
+Aynı gün içindeki devam oturumunda kapatıldı: Dalga 8-21'deki 24 sayfanın
+(python, sql, cypress, javascript, typescript, java, postman, bruno,
+rest-assured, jenkins, kubernetes, jmeter, kafka, appium, browserstack, aws,
+azure, what-is-testing, test-frameworks, manual-testing, algorithms,
+advanced-algorithms, llm-agents, claude-ai) HER BİRİ için `tests/video-
+scene.spec.ts`'e en az 1 temsili render testi eklendi (manual-testing/
+algorithms/advanced-algorithms için farklı bir render modeli — tüm lesson
+kartları aynı anda DOM'a basılıyor — olduğu tespit edilip ona uygun bir
+kontrol yazıldı; test-frameworks varsayılan sekmede zaten film gösterdiği
+için tıklama gerektirmedi). `npx playwright test tests/video-scene.spec.ts`
+ile toplam **51/51 test yeşil**.
 
 ### 7.6. §4 Performans Eşiği — Güncel Durum
 
