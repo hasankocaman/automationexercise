@@ -3,6 +3,162 @@
 // Code blocks never change between languages.
 import { fillMissingCodeTrios, fillMissingFeynman } from './interactiveTrioFillers.js'
 
+// ── Dalga A4 (animation-per-topic §3.2): kod-bloğu-başına animasyon açıkları ──
+
+const raPomXmlDependenciesStep = {
+  type: 'step-animation',
+  title: { tr: 'pom.xml\'deki 8 Bağımlılık Hangi Görevi Üstlenir?', en: 'What Role Does Each of the 8 pom.xml Dependencies Play?' },
+  steps: [
+    { tr: '`rest-assured` + `json-path` + `json-schema-validator` ÜÇLÜSÜ, sırasıyla istek/yanıt zincirini, değer çekmeyi ve kontrat doğrulamasını sağlar — hepsi `<scope>test</scope>`, production jar\'ına asla karışmaz.', en: 'The `rest-assured` + `json-path` + `json-schema-validator` TRIO handles the request/response chain, value extraction, and contract validation respectively — all `<scope>test</scope>`, never leaking into the production jar.' },
+    { tr: '`junit-jupiter` testleri ÇALIŞTIRIR, `hamcrest` ise assertion\'ları OKUNABİLİR yazar — ikisi farklı görev, biri olmadan diğeri anlamsız kalır.', en: '`junit-jupiter` RUNS the tests, `hamcrest` writes assertions READABLY — two different jobs, one is meaningless without the other.' },
+    { tr: '`jackson-databind` YORUM DEĞİL zorunludur: POJO\'ları JSON\'a çeviren tam olarak bu kütüphanedir — eksik olursa `body(request)` çağrısı derleme geçse bile çalışma zamanında patlar.', en: '`jackson-databind` is NOT optional despite the comment saying so: it is EXACTLY the library that converts POJOs to JSON — without it, `body(request)` compiles but blows up at runtime.' },
+    { tr: '`lombok` `<scope>provided</scope>`dur — sadece DERLEME sırasında getter/setter üretir, çalışan uygulamaya hiçbir kod EKLEMEZ.', en: '`lombok` is `<scope>provided</scope>` — it generates getters/setters only at COMPILE time, it ADDS no code to the running application.' },
+  ],
+}
+
+const raBaseTestStep = {
+  type: 'step-animation',
+  title: { tr: '@BeforeAll static Blok Cluster\'da Sadece Bir Kez Neden Çalışır?', en: 'Why Does the @BeforeAll static Block Run Only Once?' },
+  steps: [
+    { tr: '`protected static RequestSpecification spec` — `static` anahtar kelimesi bu alanı SINIF seviyesinde tanımlar, her test METODUNDA değil, TÜM test SINIFI boyunca TEK bir kopyası vardır.', en: '`protected static RequestSpecification spec` — the `static` keyword defines this at the CLASS level: ONE copy exists for the WHOLE test CLASS, not per test METHOD.' },
+    { tr: '`@BeforeAll` JUnit5\'te SADECE static metotlarla çalışır — bu, `spec`\'in TÜM test metotları başlamadan ÖNCE tam olarak BİR KEZ kurulmasını garanti eder.', en: '`@BeforeAll` in JUnit5 works ONLY with static methods — this guarantees `spec` is set up exactly ONCE, BEFORE all test methods begin.' },
+    { tr: '`System.getProperty("baseUri", "https://reqres.in")` bir GERİ DÖNÜŞ değeri sağlar — komut satırından `-DbaseUri=...` verilmezse varsayılan URL KULLANILIR, kod hiç değişmez.', en: '`System.getProperty("baseUri", "https://reqres.in")` provides a FALLBACK value — if `-DbaseUri=...` isn\'t passed on the command line, the default URL is USED, the code never changes.' },
+    { tr: 'İki `Filter` (Request/Response Logging) EKLENMESİ, her test çalıştığında TAM istek/yanıt içeriğinin konsola BASILMASINI sağlar — hata ayıklarken elle log satırı yazmana gerek KALMAZ.', en: 'ADDING the two `Filter`s (Request/Response Logging) makes the FULL request/response content PRINT to console on every test run — no need to hand-write log lines when debugging.' },
+  ],
+}
+
+const raGetPaginationStep = {
+  type: 'step-animation',
+  title: { tr: 'queryParam("page", 2) URL\'i Nasıl Değiştirir?', en: 'How Does queryParam("page", 2) Transform the URL?' },
+  steps: [
+    { tr: '`.queryParam("page", 2)` çağrısı `GET /api/users` adresine `?page=2` EKLER — URL\'i elle string birleştirerek yazmak yerine REST Assured bunu SENİN için kodlar.', en: 'The `.queryParam("page", 2)` call APPENDS `?page=2` to `GET /api/users` — instead of hand-concatenating the URL string, REST Assured encodes it FOR you.' },
+    { tr: '`.body("data", hasSize(6))` yanıttaki `data` dizisinin TAM OLARAK 6 eleman içerdiğini doğrular — bu, `reqres.in`\'in sayfa başına 6 kullanıcı döndürdüğü VARSAYIMINI test eder.', en: '`.body("data", hasSize(6))` verifies the `data` array has EXACTLY 6 elements — this tests the ASSUMPTION that `reqres.in` returns 6 users per page.' },
+    { tr: '`.body("data.first_name", everyItem(notNullValue()))` dizideki HER TEK kullanıcının `first_name` alanının dolu olduğunu tek satırda doğrular — 6 ayrı assertion yazmaya GEREK kalmaz.', en: '`.body("data.first_name", everyItem(notNullValue()))` verifies EVERY SINGLE user in the array has a non-empty `first_name` in one line — no NEED to write 6 separate assertions.' },
+    { tr: '`.time(lessThan(5000L))` performansı da AYNI zincire ekler — fonksiyonel doğruluk VE hız tek bir testte birlikte kanıtlanır.', en: '`.time(lessThan(5000L))` adds performance to the SAME chain — functional correctness AND speed are proven together in one test.' },
+  ],
+}
+
+const raGetSingleRecord404Step = {
+  type: 'step-animation',
+  title: { tr: 'pathParam Neden queryParam\'dan Farklı Bir URL Üretir?', en: 'Why Does pathParam Produce a Different URL Than queryParam?' },
+  steps: [
+    { tr: '`.pathParam("id", 2)` + `.get("/api/users/{id}")` — `{id}` yer tutucusu URL\'in İÇİNE gömülür (`/api/users/2`), `?` ile eklenen bir queryParam DEĞİLDİR.', en: '`.pathParam("id", 2)` + `.get("/api/users/{id}")` — the `{id}` placeholder is embedded INTO the URL (`/api/users/2`), it is NOT a `?`-appended queryParam.' },
+    { tr: 'Var olan bir ID (2) ile 200 dönerken, var OLMAYAN bir ID (999) ile 404 dönmesi — AYNI endpoint\'in iki farklı davranışını tek testte yan yana kanıtlar.', en: 'An existing ID (2) returns 200, while a NON-existing ID (999) returns 404 — proving two different behaviors of the SAME endpoint side by side in one test suite.' },
+    { tr: '`.body(equalTo("{}"))` reqres.in\'in 404\'te boş bir JSON nesnesi (`{}`) döndürdüğünü doğrular — bazı API\'ler burada HTML hata sayfası döner, bu FARKI test etmeden bilemezsin.', en: '`.body(equalTo("{}"))` verifies reqres.in returns an empty JSON object (`{}`) on 404 — some APIs return an HTML error page instead, and you cannot know this DIFFERENCE without testing it.' },
+    { tr: 'Yorum satırındaki "Negative tests are equally important" ilkesi somutlaşır: sadece "çalışıyor mu" değil, "doğru şekilde BAŞARISIZ oluyor mu" da test kapsamına GİRER.', en: 'The comment\'s "Negative tests are equally important" principle becomes concrete: not just "does it work" but also "does it FAIL correctly" ENTERS test coverage.' },
+  ],
+}
+
+const raBasicAuthStep = {
+  type: 'step-animation',
+  title: { tr: 'preemptive() Olmadan İlk İstek Neden Fazladan Bir Round-Trip Yapar?', en: 'Without preemptive(), Why Does the First Request Make an Extra Round-Trip?' },
+  steps: [
+    { tr: '`.auth().basic("admin", "secret123")` "username:password" metnini Base64\'e ÇEVİRİR ve `Authorization: Basic ...` header\'ı olarak EKLER — bu şifreleme DEĞİL, sadece kodlamadır.', en: '`.auth().basic("admin", "secret123")` CONVERTS the "username:password" text to Base64 and ADDS it as the `Authorization: Basic ...` header — this is encoding, NOT encryption.' },
+    { tr: 'NORMAL `.basic()` ÖNCE auth\'suz bir istek gönderir, sunucu 401 döner, SONRA auth ile yeniden dener — bu 2 round-trip DEMEKTIR.', en: 'PLAIN `.basic()` sends a request WITHOUT auth FIRST, the server returns 401, THEN it retries WITH auth — this MEANS 2 round-trips.' },
+    { tr: '`.preemptive()` bu bekleme oyununu ATLAR — auth header\'ı DAHA İLK istekte gönderir, sunucu asla 401 döndürmez.', en: '`.preemptive()` SKIPS this waiting game — it sends the auth header on the VERY FIRST request, the server never returns 401.' },
+    { tr: 'Sonuç: her testte 1 EKSİK HTTP round-trip = daha hızlı test suite VE sunucu loglarında gereksiz 401 gürültüsü OLMAZ.', en: 'Result: 1 FEWER HTTP round-trip per test = a faster test suite AND no unnecessary 401 noise in server logs.' },
+  ],
+}
+
+const raBearerTokenStep = {
+  type: 'step-animation',
+  title: { tr: 'Login Token\'ı Tüm Test Metotları Arasında Nasıl Paylaşılır?', en: 'How Is the Login Token Shared Across All Test Methods?' },
+  steps: [
+    { tr: '`private static String token` — `static` olduğu için bu değişken SINIF seviyesindedir, `@BeforeAll`\'da BİR KEZ doldurulur ve TÜM `@Test` metotları bu AYNI değeri okur.', en: '`private static String token` — being `static` makes this a CLASS-level variable, filled ONCE in `@BeforeAll`, and ALL `@Test` methods read this SAME value.' },
+    { tr: '`.extract().path("token")` login yanıtının JSON gövdesinden `token` alanını ÇEKER ve doğrudan bir `String` değişkenine ATAR — ayrı bir parse adımı YAZMAN gerekmez.', en: '`.extract().path("token")` PULLS the `token` field from the login response\'s JSON body and ASSIGNS it directly to a `String` variable — no separate parsing step to WRITE.' },
+    { tr: '`.auth().oauth2(token)` bu token\'ı `Authorization: Bearer {token}` header\'ı olarak EKLER — token\'ı elle header string\'ine birleştirmene GEREK kalmaz.', en: '`.auth().oauth2(token)` ADDS this token as the `Authorization: Bearer {token}` header — no NEED to manually concatenate the token into a header string.' },
+    { tr: 'İkinci test (token OLMADAN) 401 bekler — bu, "korumalı endpoint gerçekten KORUNUYOR mu" sorusunu ayrı bir test olarak KANITLAR, sadece "token ile çalışıyor" demek YETMEZ.', en: 'The second test (WITHOUT a token) expects 401 — this PROVES as a separate test that the protected endpoint is ACTUALLY protected, just saying "it works with a token" is NOT enough.' },
+  ],
+}
+
+const raRequestPojoStep = {
+  type: 'step-animation',
+  title: { tr: '@JsonInclude(NON_NULL) Doldurulmayan Alanları Nasıl Gizler?', en: 'How Does @JsonInclude(NON_NULL) Hide Unfilled Fields?' },
+  steps: [
+    { tr: '`@Data` + `@Builder` Lombok anotasyonları, getter/setter/constructor kodunu DERLEME zamanında OTOMATİK üretir — bu kodu elle YAZMAN gerekmez, IDE\'de de GÖRÜNMEZ ama derlenmiş sınıfta VARDIR.', en: '`@Data` + `@Builder` Lombok annotations AUTO-generate getter/setter/constructor code at COMPILE time — you don\'t WRITE this code, it\'s not VISIBLE in the IDE but it EXISTS in the compiled class.' },
+    { tr: '`@JsonInclude(NON_NULL)` sayesinde `.name("Alice").job("QA").build()` çağrısı `firstName`/`lastName`\'i JSON\'a HİÇ YAZMAZ — null alanlar sessizce ATLANIR, `"firstName":null` gibi gürültü ÜRETMEZ.', en: 'Thanks to `@JsonInclude(NON_NULL)`, `.name("Alice").job("QA").build()` does NOT write `firstName`/`lastName` to JSON AT ALL — null fields are SILENTLY skipped, no `"firstName":null` noise is PRODUCED.' },
+    { tr: '`@JsonProperty("first_name")` Java\'daki `firstName` (camelCase) ile API\'nin beklediği `first_name` (snake_case) arasında KÖPRÜ kurar — bu eşleme OLMASAYDI API alanı TANIMAMAZDI.', en: '`@JsonProperty("first_name")` BRIDGES Java\'s `firstName` (camelCase) with the API\'s expected `first_name` (snake_case) — WITHOUT this mapping, the API would NOT RECOGNIZE the field.' },
+    { tr: '`.nme()` gibi bir yazım hatası YAZMAYA ÇALIŞIRSAN derleyici bunu ANINDA REDDEDER — String JSON\'daki aynı hata ise ancak çalışma zamanında, sunucu yanıtından SONRA fark edilir.', en: 'If you TRY TO WRITE a typo like `.nme()`, the compiler REJECTS it INSTANTLY — the same typo in String JSON is only noticed at runtime, AFTER the server responds.' },
+  ],
+}
+
+const raResponsePojoStep = {
+  type: 'step-animation',
+  title: { tr: '.as(SingleUserResponse.class) Tek Satırda Ne Yapar?', en: 'What Does .as(SingleUserResponse.class) Do in One Line?' },
+  steps: [
+    { tr: '`@JsonIgnoreProperties(ignoreUnknown = true)` HER response POJO\'sunda ZORUNLUDUR — API yarın yeni bir alan EKLERSE, bu anotasyon olmadan `UnrecognizedPropertyException` ile test KIRILIR.', en: '`@JsonIgnoreProperties(ignoreUnknown = true)` is MANDATORY on EVERY response POJO — if the API ADDS a new field tomorrow, without this annotation the test BREAKS with `UnrecognizedPropertyException`.' },
+    { tr: 'İÇ İÇE `static class UserData` yapısı, JSON\'daki `data: {...}` iç içe nesnesini BİREBİR yansıtır — Java sınıf hiyerarşisi, JSON\'un ağaç yapısıyla EŞLEŞİR.', en: 'The NESTED `static class UserData` structure MIRRORS the JSON\'s nested `data: {...}` object exactly — the Java class hierarchy MATCHES the JSON\'s tree shape.' },
+    { tr: '`.extract().body().as(SingleUserResponse.class)` TÜM JSON gövdesini TEK çağrıda bir Java nesnesine DÖNÜŞTÜRÜR — ayrı ayrı `.path()` çağrıları YAZMAN gerekmez.', en: '`.extract().body().as(SingleUserResponse.class)` CONVERTS the ENTIRE JSON body into a Java object in ONE call — no NEED to write separate `.path()` calls.' },
+    { tr: 'Sonuç `response.getData().getFirstName()` gibi TİP GÜVENLİ Java metot çağrılarıyla okunur — `response.path("data.first_name")` yazarken yapabileceğin bir alan adı YAZIM HATASI burada derleme zamanında YAKALANIR.', en: 'The result is read with TYPE-SAFE Java method calls like `response.getData().getFirstName()` — a field-name TYPO you could make writing `response.path("data.first_name")` is CAUGHT at compile time here.' },
+  ],
+}
+
+const raHamcrestMatchersStep = {
+  type: 'step-animation',
+  title: { tr: 'Neden 6 Farklı Matcher Kategorisi Var, Tek Bir equalTo() Yetmez mi?', en: 'Why 6 Different Matcher Categories — Isn\'t equalTo() Alone Enough?' },
+  steps: [
+    { tr: '`equalTo`/`not`/`equalToIgnoringCase` TAM eşleşme ailesidir; `notNullValue`/`nullValue`/`emptyString` ise VARLIK kontrolüdür — biri "değer NE", diğeri "değer VAR MI" sorusuna cevap verir.', en: '`equalTo`/`not`/`equalToIgnoringCase` are the EXACT-match family; `notNullValue`/`nullValue`/`emptyString` are EXISTENCE checks — one answers "WHAT is the value", the other "DOES a value exist".' },
+    { tr: '`greaterThan`/`between`/`lessThan` SAYISAL aralık kontrolüdür — `age` alanının TAM OLARAK 25 olmasını değil, MANTIKLI bir aralıkta olmasını doğrularsın, bu daha GERÇEKÇİ bir testtir.', en: '`greaterThan`/`between`/`lessThan` are NUMERIC range checks — you verify `age` falls in a REASONABLE range instead of being EXACTLY 25, which is a more REALISTIC test.' },
+    { tr: '`hasSize`/`hasItem`/`everyItem` KOLEKSİYON matcher\'larıdır — bunlar olmadan bir diziyi doğrulamak için elle `for` döngüsü YAZMAN gerekirdi.', en: '`hasSize`/`hasItem`/`everyItem` are COLLECTION matchers — without them you would have to hand-write a `for` loop to verify an array.' },
+    { tr: '`anyOf(equalTo(200), equalTo(201))` TEK satırda "200 VEYA 201 kabul et" der — API bazen 200 bazen 201 dönebiliyorsa, iki AYRI test yazmak yerine bu TEK matcher yeterlidir.', en: '`anyOf(equalTo(200), equalTo(201))` says "accept 200 OR 201" in ONE line — if the API sometimes returns 200 and sometimes 201, this ONE matcher suffices instead of writing two SEPARATE tests.' },
+  ],
+}
+
+const raExtractPathStep = {
+  type: 'step-animation',
+  title: { tr: 'extract().path() ile extract().response() Arasındaki Fark Nedir?', en: 'What Is the Difference Between extract().path() and extract().response()?' },
+  steps: [
+    { tr: '`.extract().path("data.email")` TEK BİR alanı doğrudan `String`\'e ÇEKER — başka hiçbir alana ihtiyacın yoksa en KISA yoldur.', en: '`.extract().path("data.email")` PULLS a SINGLE field directly into a `String` — the SHORTEST path when you need nothing else.' },
+    { tr: 'AYNI JSON Path sözdizimi, tekil bir `String` için de (`data.email`) bir `List<String>` için de (`data.email` — dizi elemanlarına uygulanınca) ÇALIŞIR — REST Assured tipi OTOMATİK çıkarır.', en: 'The SAME JSON Path syntax WORKS for both a single `String` (`data.email`) and a `List<String>` (`data.email` — applied across array elements) — REST Assured infers the type AUTOMATICALLY.' },
+    { tr: '`.extract().response()` TÜM `Response` nesnesini döndürür — birden fazla alana `res.path(...)` ile erişmen gerektiğinde, isteği TEKRAR göndermek yerine BİR kez çekip TEKRAR TEKRAR okursun.', en: '`.extract().response()` returns the ENTIRE `Response` object — when you need multiple fields via `res.path(...)`, you extract ONCE and read REPEATEDLY instead of sending the request AGAIN.' },
+    { tr: '`res.asString()` ham JSON metnini TAMAMEN farklı bir amaç için verir: debug loglaması veya beklenmeyen bir formatı (HTML hata sayfası gibi) YAKALAMAK için.', en: '`res.asString()` serves a COMPLETELY different purpose: debug logging or CATCHING an unexpected format (like an HTML error page).' },
+  ],
+}
+
+const raGroovyFiltersStep = {
+  type: 'step-animation',
+  title: { tr: 'find { } ile findAll { } JSON Path\'i Nasıl SQL\'e Benzer Hale Getirir?', en: 'How Do find { } and findAll { } Make JSON Path Feel Like SQL?' },
+  steps: [
+    { tr: '`data.find { it.id == 3 }.email` — `find` dizide KOŞULU sağlayan İLK elemanı bulur ve dur; SQL\'deki `WHERE id = 3 LIMIT 1` ile AYNI mantık.', en: '`data.find { it.id == 3 }.email` — `find` locates the FIRST matching element in the array and stops; the SAME logic as SQL\'s `WHERE id = 3 LIMIT 1`.' },
+    { tr: '`data.findAll { it.id > 4 }.first_name` — `findAll` KOŞULU sağlayan TÜM elemanları bir listeye toplar; SQL\'deki `WHERE id > 4` ile AYNI mantık, ama filtre LIMIT\'siz.', en: '`data.findAll { it.id > 4 }.first_name` — `findAll` collects ALL matching elements into a list; the SAME logic as SQL\'s `WHERE id > 4`, but without a LIMIT.' },
+    { tr: '`it` Groovy\'nin ÖRTÜK değişkenidir — döngü değişkenini elle isimlendirmene GEREK kalmaz, dizideki "şu anki eleman"ı otomatik TEMSİL eder.', en: '`it` is Groovy\'s IMPLICIT variable — no NEED to manually name a loop variable, it automatically REPRESENTS "the current element" in the array.' },
+    { tr: 'Bu filtreler `.body(...)` assertion\'larının İÇİNDE de çalışır — veri ÇEKMEK ile veri DOĞRULAMAK için AYNI sözdizimini kullanırsın, iki farklı API öğrenmene gerek YOK.', en: 'These filters also work INSIDE `.body(...)` assertions — you use the SAME syntax to EXTRACT data and to VERIFY data, no NEED to learn two different APIs.' },
+  ],
+}
+
+const raSslErrorStep = {
+  type: 'step-animation',
+  title: { tr: 'setRelaxedHTTPSValidation() ve Health-Check Döngüsü Aynı Hatanın İki Farklı Nedenini Nasıl Çözer?', en: 'How Do setRelaxedHTTPSValidation() and the Health-Check Loop Fix Two Different Causes of the Same Error?' },
+  steps: [
+    { tr: '`SSLHandshakeException`\'ın kök nedeni self-signed sertifikadır — `.setRelaxedHTTPSValidation()` bu sertifika kontrolünü ATLAR, ama YORUMDAKİ uyarı gibi SADECE dev/test ortamında GÜVENLİDİR.', en: 'The root cause of `SSLHandshakeException` is a self-signed certificate — `.setRelaxedHTTPSValidation()` SKIPS that certificate check, but as the COMMENT warns, it is SAFE ONLY in dev/test environments.' },
+    { tr: 'AYNI bölümdeki `waitForService()` TAMAMEN FARKLI bir soruna çözümdür: CI/CD\'de uygulama testlerden SONRA ayağa kalkarsa, ilk istekler bağlantı hatası ALIR.', en: 'The `waitForService()` in the SAME section solves a COMPLETELY DIFFERENT problem: if the app starts AFTER the tests in CI/CD, the first requests get connection errors.' },
+    { tr: '`for (i=0; i<10; i++)` + `Thread.sleep(3000)` döngüsü, servis HAZIR olana kadar EN FAZLA 30 saniye BEKLER — sabit bir `sleep(30000)` yerine, servis erken hazırsa döngü ERKEN çıkar.', en: 'The `for (i=0; i<10; i++)` + `Thread.sleep(3000)` loop WAITS AT MOST 30 seconds until the service is READY — instead of a fixed `sleep(30000)`, if the service is ready early the loop EXITS early.' },
+    { tr: '10 denemenin HEPSİ başarısız olursa `throw new RuntimeException(...)` net bir hata FIRLATIR — sessizce devam edip ANLAMSIZ bir "Connection refused" ile karışık bir sonraki hatayı GÖRMEZSİN.', en: 'If ALL 10 attempts fail, `throw new RuntimeException(...)` FIRES a clear error — you don\'t silently continue and see a NEXT error confused with a MEANINGLESS "Connection refused".' },
+  ],
+}
+
+const raFlakyAwaitilityStep = {
+  type: 'step-animation',
+  title: { tr: 'Awaitility, Thread.sleep() ile Aynı İşi Neden Daha Güvenilir Yapar?', en: 'Why Does Awaitility Do the Same Job More Reliably Than Thread.sleep()?' },
+  steps: [
+    { tr: 'YANLIŞ örnek, `POST` sonrası HEMEN `GET` ile durumu kontrol eder — 202 "kabul edildi" demektir, "işlendi" DEMEZ; sunucu arka planda hâlâ ÇALIŞIYOR olabilir.', en: 'The WRONG example checks status with `GET` IMMEDIATELY after `POST` — 202 means "accepted", it does NOT mean "processed"; the server may still be WORKING in the background.' },
+    { tr: '`Awaitility.await().atMost(30, SECONDS)` sabit bir bekleme DEĞİL, bir ÜST SINIRDIR — durum 5 saniyede hazır olursa test 5 saniyede BİTER, 30 saniye beklemez.', en: '`Awaitility.await().atMost(30, SECONDS)` is NOT a fixed wait, it is an UPPER BOUND — if the status is ready in 5 seconds, the test FINISHES in 5 seconds, it doesn\'t wait 30.' },
+    { tr: '`.pollInterval(2, SECONDS)` her 2 saniyede bir YENİDEN sorgular — sabit `Thread.sleep(30000)`\'e kıyasla hem daha HIZLI hem daha AZ gereksiz istek atar.', en: '`.pollInterval(2, SECONDS)` RE-QUERIES every 2 seconds — compared to a fixed `Thread.sleep(30000)`, this is both FASTER and sends FEWER unnecessary requests.' },
+    { tr: '`.until(() -> "PROCESSED".equals(status))` koşul SAĞLANANA kadar döngüyü OTOMATİK tekrarlar — asenkron bir işlemi test ederken bu, tek doğru YAKLAŞIMDIR, sabit bekleme her zaman ya ÇOK KISA ya ÇOK UZUN olur.', en: '`.until(() -> "PROCESSED".equals(status))` AUTOMATICALLY repeats the loop until the condition is MET — when testing an async operation, this is the one correct APPROACH; a fixed wait is always either TOO SHORT or TOO LONG.' },
+  ],
+}
+
+const raParallelDataCollisionStep = {
+  type: 'step-animation',
+  title: { tr: 'UUID, Faker ve @AfterEach Cleanup Üç Farklı Sorunu mu Çözüyor, Bir mi?', en: 'Do UUID, Faker, and @AfterEach Cleanup Solve Three Different Problems, or One?' },
+  steps: [
+    { tr: 'YANLIŞ örnek SABİT bir email (`alice@test.com`) kullanır — testler PARALEL çalıştığında iki test AYNI ANDA aynı email\'i oluşturmaya çalışır, biri 409 Conflict ALIR.', en: 'The WRONG example uses a FIXED email (`alice@test.com`) — when tests run in PARALLEL, two tests try to create the SAME email at once, one gets a 409 Conflict.' },
+    { tr: '`UUID.randomUUID()` HER çalıştırmada FARKLI bir string üretir — bu, çakışma OLASILIĞINI matematiksel olarak SIFIRA yaklaştırır, basit bir sayaçtan çok daha güvenlidir.', en: '`UUID.randomUUID()` generates a DIFFERENT string on EVERY run — this mathematically drives collision PROBABILITY toward ZERO, far safer than a simple counter.' },
+    { tr: '`Faker` sadece BENZERSİZLİK değil, GERÇEKÇİLİK de katar — `"user1"` yerine gerçek görünen bir isim/iş unvanı, testin GERÇEK kullanım senaryosuna daha yakın veriyle çalışmasını sağlar.', en: '`Faker` adds not just UNIQUENESS but REALISM — a realistic-looking name/job title instead of `"user1"` makes the test run against data closer to a REAL usage scenario.' },
+    { tr: '`@AfterEach cleanup()` oluşturulan verinin test SONRASI SİLİNMESİNİ sağlar — bu OLMADAN, her test çalıştırması veritabanında BİRİKEN çöp veri bırakır ve zamanla test ortamı YAVAŞLAR.', en: '`@AfterEach cleanup()` ensures created data is DELETED after the test — WITHOUT this, every test run leaves ACCUMULATING junk data in the database, and the test environment SLOWS DOWN over time.' },
+  ],
+}
+
 const raBddChainFilm = {
   type: 'video-scene',
   id: 'ra-bdd-chain-film',
@@ -971,6 +1127,7 @@ public class BaseTest {
     </dependency>
 </dependencies>`,
       },
+      raPomXmlDependenciesStep,
       {
         type: 'heading',
         text: { tr: 'Proje Klasör Yapısı', en: 'Project Folder Structure' },
@@ -1051,6 +1208,7 @@ public class BaseTest {
     }
 }`,
       },
+      raBaseTestStep,
       {
         type: 'heading',
         text: { tr: 'ConfigReader.java — Ortam Konfigürasyonu', en: 'ConfigReader.java — Environment Configuration' },
@@ -1216,6 +1374,7 @@ void getUsers_page2_shouldReturn6Users() {
         .time(lessThan(5000L));          // Response under 5 seconds
 }`,
       },
+      raGetPaginationStep,
       {
         type: 'heading',
         text: { tr: 'GET — ID ile Tek Kayıt ve 404 Testi', en: 'GET — Single Record by ID and 404 Test' },
@@ -1254,6 +1413,7 @@ void getUser_notExistingId_shouldReturn404() {
     // Does the API handle errors correctly?
 }`,
       },
+      raGetSingleRecord404Step,
       {
         type: 'heading',
         text: { tr: 'POST — Yeni Kullanıcı Oluştur', en: 'POST — Create a New User' },
@@ -1424,6 +1584,7 @@ given()
 // Normal .basic() → sends request without auth → gets 401 → retries with auth
 // .preemptive() → sends auth from the very first request (faster, more reliable)`,
       },
+      raBasicAuthStep,
       {
         type: 'heading',
         text: { tr: 'Bearer Token — Login → Token Al → Kullan', en: 'Bearer Token — Login → Get Token → Use It' },
@@ -1470,6 +1631,7 @@ given()
     }
 }`,
       },
+      raBearerTokenStep,
       {
         type: 'heading',
         text: { tr: 'Token Auto-Refresh Filter — Gerçek Hayat Çözümü', en: 'Token Auto-Refresh Filter — Real-World Solution' },
@@ -1665,6 +1827,7 @@ UserRequest req2 = UserRequest.builder()
     .firstName("Alice").lastName("Smith").job("Senior QA").build();
 // → {"first_name":"Alice","last_name":"Smith","job":"Senior QA"}`,
       },
+      raRequestPojoStep,
       {
         type: 'heading',
         text: { tr: 'Response POJO — API Cevabını Nesneye Dönüştür', en: 'Response POJO — Deserialize API Response into an Object' },
@@ -1712,6 +1875,7 @@ void getUser_shouldDeserializeCorrectly() {
     assertTrue(response.getData().getEmail().contains("@"));
 }`,
       },
+      raResponsePojoStep,
       {
         type: 'heading',
         text: { tr: 'ObjectMapper — Manuel Kontrol', en: 'ObjectMapper — Manual Control' },
@@ -1863,6 +2027,7 @@ System.out.println(email); // george.bluth@reqres.in`,
     .statusCode(200)
     .statusCode(anyOf(equalTo(200), equalTo(201)));`,
       },
+      raHamcrestMatchersStep,
       {
         type: 'heading',
         text: { tr: 'Soft Assertions — Tüm Hataları Topla', en: 'Soft Assertions — Collect All Failures' },
@@ -2023,6 +2188,7 @@ String firstName = res.path("data.first_name");
 int    id        = res.path("data.id");
 String bodyStr   = res.asString();  // Entire body as a raw String`,
       },
+      raExtractPathStep,
       {
         type: 'heading',
         text: { tr: 'Gelişmiş JSON Path — Groovy Filtreler', en: 'Advanced JSON Path — Groovy Filters' },
@@ -2048,6 +2214,7 @@ List<String> names = given().spec(spec)
           equalTo("janet.weaver@reqres.in"))
     .body("data.findAll { it.id > 3 }.size()", greaterThan(0));`,
       },
+      raGroovyFiltersStep,
       {
         type: 'heading',
         text: { tr: 'JSON Schema Validation — Kontrat Testi', en: 'JSON Schema Validation — Contract Testing' },
@@ -2309,6 +2476,7 @@ static void waitForService() throws InterruptedException {
     throw new RuntimeException("Service did not start in 30 seconds!");
 }`,
       },
+      raSslErrorStep,
       {
         type: 'heading',
         text: { tr: '🚨 Sorun 2: Flaky Test', en: '🚨 Problem 2: Flaky Test' },
@@ -2344,6 +2512,7 @@ void createOrder_shouldEventuallyBeProcessed() {
         });
 }`,
       },
+      raFlakyAwaitilityStep,
       {
         type: 'heading',
         text: { tr: '🚨 Sorun 3: Paralel Testlerde Veri Çakışması', en: '🚨 Problem 3: Data Collision in Parallel Tests' },
@@ -2378,6 +2547,7 @@ void cleanup() {
     createdIds.clear();
 }`,
       },
+      raParallelDataCollisionStep,
       {
         type: 'heading',
         text: { tr: '🚨 Sorun 4: 429 Rate Limiting & JSON Parse Hatası', en: '🚨 Problem 4: 429 Rate Limiting & JSON Parse Error' },
