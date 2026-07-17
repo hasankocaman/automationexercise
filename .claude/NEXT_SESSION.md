@@ -10,6 +10,55 @@
 
 ---
 
+## OTURUM ÖZETİ — video-sitewide-plan.md §7'deki 5 boşluk + test kapsamı KAPATILDI (2026-07-17, devam oturumu 2)
+
+> Bir önceki oturumun raporunda (§7.4/§7.5, aşağıdaki eski bölüm) bırakılan
+> tüm açık kalemler bu oturumda kapatıldı. Branch: `main` üzerinden açılan
+> `fix/video-sitewide-gaps` (henüz main'e merge EDİLMEDİ — kullanıcı merge
+> istemedi/sormadı, sıradaki oturum karar verebilir).
+
+**Yapılanlar (her biri kendi commit'inde, `check-content-integrity.mjs` +
+`npm run build` ile doğrulanarak):**
+
+| # | Commit | Değişiklik |
+|---|---|---|
+| 1 | `8344afa` | `/linux` TR "🎯 Linux nedir..." bölümüne eksik `css-animation` (linux-pipe) eklendi |
+| 2 | `1db5e9c` | `/docker` EN+TR "🔄 Lifecycle & Debug" bölümüne eksik `code-playground` (logs-before-rm micro lab) eklendi |
+| 3 | `083239b` | `/selenium` EN+TR "🖥️ Selenium IDE" bölümüne eksik `code-playground` (Thread.sleep→WebDriverWait micro lab) eklendi |
+| 4 | `bce36d8` | `/playwright` EN "🎭 What is Playwright?" bölümüne eksik `css-animation` (playwright-autowait) eklendi |
+| 5 | `d0228c3` | `/sql` TR "🎯 SQL Nedir..." bölümüne eksik `css-animation` (sql-select) eklendi |
+| 6 | `418b832` | `tests/video-scene.spec.ts`'e Dalga 8-21'deki **24 sayfa** için temsili render testi eklendi (python, sql, cypress, javascript, typescript, java, postman, bruno, rest-assured, jenkins, kubernetes, jmeter, kafka, appium, browserstack, aws, azure, what-is-testing, test-frameworks, manual-testing, algorithms, advanced-algorithms, llm-agents, claude-ai) — dosya içi 51/51 test yeşil |
+| 7 | `180694a` | `Documents/video-sitewide-plan.md` §7 raporu güncellendi: %99.3 → %100, §7.4/§7.5 "KAPATILDI" olarak işaretlendi |
+
+**Final tam e2e doğrulama turu (`npm run test:e2e`) çalıştırıldı — ÖNEMLİ bulgu:**
+- İlk koşuda 9 test fail + 2 flaky çıktı (166 testten). İncelemede, ~19
+  saatlik (2026-07-16'dan kalma) **5 adet leftover/orphan Node process**
+  bulundu (eski bir Vite dev server + eski bir Playwright test-server +
+  eski bir `npm run test:e2e` koşumu) — kaynak çakışmasına (bazı testler
+  40+ dakika sürdü) neden oluyordu. Kullanıcıdan onay alınarak
+  (`AskUserQuestion`) bu 5 process (`taskkill /F`) sonlandırıldı.
+- Temiz ortamda YENİDEN koşuldu: **164/166 geçti, sadece 2 fail** —
+  `topic-pages-ui.spec.ts` içinde `/python` ve `/java` (en büyük 2 sayfa,
+  4 worker paralelinde 180s timeout'a çok yakın kalıyorlar). Bu ikisi tek
+  worker ile izole çalıştırıldığında (`--workers=1`) 1.1-1.3 dakikada
+  TEMİZ geçti — yani bu bir **timeout-marjı/paralellik sorunu**, benim bu
+  oturumdaki içerik değişikliklerimle İLGİSİZ (pythonData.js/javaData.js'e
+  hiç dokunulmadı).
+- **Sıradaki oturum için not:** `topic-pages-ui.spec.ts`'teki `/python` ve
+  `/java` testleri 4-worker'lı `npm run test:e2e` altında ara sıra
+  flaky olabilir (180s timeout'a çok yakınlar) — gerçek bir regresyon
+  değil, ama zaman zaman görülebilir. Kalıcı çözüm istenirse bu iki test
+  için ayrı bir daha uzun timeout tanımlanabilir.
+
+**Sonuç:** `video-sitewide-plan.md`'deki plan artık **fiilen %100
+tamamlanmış** durumda (21/21 dalga + 5 boşluk + test kapsamı). Kalan
+açık kalemler (bunlar bu planın DEĞİL, ayrı kalıcı kuralların kapsamı):
+`scripts/audit-interactive.mjs`'in raporladığı 18 sekmedeki eksik
+`order-sort` (CLAUDE.md §9.1/9.2) ve `fix/video-sitewide-gaps` branch'inin
+main'e merge edilip edilmeyeceği kararı.
+
+---
+
 ## OTURUM ÖZETİ — video-sitewide-plan.md Uygulama Durumu Raporu Yazıldı (2026-07-17, devam)
 
 > Kullanıcı talimatıyla `Documents/video-sitewide-plan.md` okundu, proje
