@@ -542,3 +542,441 @@ test.describe('Video-Scene — Dalga 7 Batch 2 (/playwright, Debugging & Trace/P
         await context.close();
     });
 });
+
+// Dalga 8-21 (video-sitewide-plan.md §7.5) — final doğrulama turu. Dalga 8-21
+// arasında (python, sql, cypress, javascript, typescript, java, postman,
+// bruno, rest-assured, jenkins, kubernetes, jmeter, kafka, appium,
+// browserstack, aws, azure, what-is-testing, test-frameworks, manual-testing,
+// algorithms, advanced-algorithms, llm-agents, claude-ai) "test etmeden
+// commit yap" talimatıyla ilerlendiği için hiçbir temsili render testi
+// eklenmemişti. Aşağıdaki bloklar her sayfa için CLAUDE.md §9.5'in gerektirdiği
+// en az 1 temsili render testini ekler — Giriş/Intro sekmesi (her sayfada
+// video-scene filmi olduğu doğrulanmış sekme) üzerinden hafif bir kontrol.
+test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescript/java Giriş sekmeleri)', () => {
+    test('/python — 🎯 Intro & Why sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/python');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/sql — 🎯 Giriş sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/sql');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/cypress — 🌲 What is Cypress? sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/cypress');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🌲 What is Cypress\?|🌲 Cypress Nedir\?/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/javascript — 🎯 Intro & Why sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/javascript');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş & Neden/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/typescript — 🎯 Intro & Why sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/typescript');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş & Neden/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/java — ☕ Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/java');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /☕ Introduction|☕ Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
+
+test.describe('Video-Scene — Dalga 14 (postman/bruno/rest-assured Giriş sekmeleri)', () => {
+    test('/postman — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/postman');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/bruno — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/bruno');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/rest-assured — 🏠 Why REST Assured? sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/rest-assured');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🏠 Why REST Assured\?|🏠 Neden REST Assured\?/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
+
+test.describe('Video-Scene — Dalga 15-16 (jenkins/kubernetes/jmeter/kafka Giriş sekmeleri)', () => {
+    test('/jenkins — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/jenkins');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/kubernetes — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/kubernetes');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/jmeter — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/jmeter');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/kafka — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/kafka');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
+
+test.describe('Video-Scene — Dalga 17-18 (appium/browserstack/aws/azure Giriş sekmeleri)', () => {
+    test('/appium — 🎯 Intro & Architecture sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/appium');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Intro & Architecture|🎯 Giriş & Mimari/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/browserstack — ☁️ What Is It? sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/browserstack');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /☁️ What Is It\?|☁️ Nedir\?/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/aws — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/aws');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/azure — 🎯 Introduction sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/azure');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
+
+// Dalga 19-20 — /what-is-testing ve /test-frameworks tab tabanlı (TopicPage
+// benzeri), ama /manual-testing, /algorithms, /advanced-algorithms FARKLI bir
+// yapı kullanır: tüm "lesson" kartları aynı anda DOM'a render edilir (sol
+// navigasyon sadece scrollIntoView yapar, tab switch değil) — bkz.
+// ManualTestingPage.jsx/AlgorithmsPage.jsx/AdvancedAlgorithmsPage.jsx
+// `navTo = (id) => document.getElementById(id)?.scrollIntoView(...)`. Bu
+// yüzden bu 3 sayfada herhangi bir tab'a tıklamaya gerek yok — sayfaya
+// gidip en az 1 video-scene-block DOM'da bulunduğunu doğrulamak yeterlidir.
+test.describe('Video-Scene — Dalga 19 (what-is-testing/test-frameworks)', () => {
+    test('/what-is-testing — 🎯 Intro & Why sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/what-is-testing');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş & Neden/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/test-frameworks — varsayılan (ilk) sekmede film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/test-frameworks');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+
+        await context.close();
+    });
+});
+
+test.describe('Video-Scene — Dalga 20 (manual-testing/algorithms/advanced-algorithms — tüm lesson kartları aynı anda render edilir)', () => {
+    test('/manual-testing — en az 1 video-scene-block DOM\'da bulunur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/manual-testing');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        const blocks = page.getByTestId('video-scene-block');
+        await blocks.first().scrollIntoViewIfNeeded();
+        await expect(blocks.first()).toBeVisible();
+        expect(await blocks.count()).toBeGreaterThan(0);
+
+        await context.close();
+    });
+
+    test('/algorithms — en az 1 video-scene-block DOM\'da bulunur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/algorithms');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        const blocks = page.getByTestId('video-scene-block');
+        await blocks.first().scrollIntoViewIfNeeded();
+        await expect(blocks.first()).toBeVisible();
+        expect(await blocks.count()).toBeGreaterThan(0);
+
+        await context.close();
+    });
+
+    test('/advanced-algorithms — en az 1 video-scene-block DOM\'da bulunur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/advanced-algorithms');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        const blocks = page.getByTestId('video-scene-block');
+        await blocks.first().scrollIntoViewIfNeeded();
+        await expect(blocks.first()).toBeVisible();
+        expect(await blocks.count()).toBeGreaterThan(0);
+
+        await context.close();
+    });
+});
+
+// Dalga 21 — /llm-agents için pilot testte (dosyanın en üstünde) zaten "🔍 RAG
+// Pipeline Testing" sekmesi test edildi; burada Dalga 21'in KENDİ eklediği
+// "🎯 Intro" sekmesi ayrıca doğrulanıyor. /claude-ai için ilk temsili test.
+test.describe('Video-Scene — Dalga 21 (llm-agents Intro sekmesi + claude-ai)', () => {
+    test('/llm-agents — 🎯 Intro: The AI, ML & LLM Map sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/llm-agents');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Intro: The AI, ML & LLM Map|🎯 Giriş: AI, ML ve LLM Haritası/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/claude-ai — 🎯 Intro: AI-Assisted Testing sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/claude-ai');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎯 Intro: AI-Assisted Testing|🎯 Giriş: AI Destekli Test/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
+
