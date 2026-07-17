@@ -291,9 +291,9 @@ const azureIntroStep = {
   type: 'step-animation',
   title: { tr: 'Azure DevOps Tek Platform Avantajı', en: 'The Azure DevOps Single-Platform Advantage' },
   steps: [
-    { tr: 'Ayrık araçlarla: Jenkins test çalıştırır, LDAP kimlik doğrular, TestRail sonucu ayrı tutar — hiçbir bağlantı otomatik değildir.', en: 'With siloed tools: Jenkins runs tests, LDAP authenticates, TestRail tracks results separately — no link is automatic.' },
-    { tr: 'Azure DevOps\'ta repo, pipeline, test plan ve board AYNI platformdadır — bir bağlantı hiç kopmaz.', en: 'In Azure DevOps, repo, pipeline, test plan, and board are on the SAME platform — a link never breaks.' },
-    { tr: 'Sonuç: başarısız bir test, PR ID\'siyle otomatik eşleşen bir bug work item\'ına dönüşür — kopyala-yapıştır yok.', en: 'Result: a failed test becomes a bug work item automatically matched to the PR ID — no copy-paste.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Ayrık araçlarla…', en: 'With siloed tools…' }, detail: { tr: 'Ayrık araçlarla: Jenkins test çalıştırır, LDAP kimlik doğrular, TestRail sonucu ayrı tutar — hiçbir bağlantı otomatik değildir.', en: 'With siloed tools: Jenkins runs tests, LDAP authenticates, TestRail tracks results separately — no link is automatic.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Azure DevOps\'ta repo…', en: 'In Azure DevOps…' }, detail: { tr: 'Azure DevOps\'ta repo, pipeline, test plan ve board AYNI platformdadır — bir bağlantı hiç kopmaz.', en: 'In Azure DevOps, repo, pipeline, test plan, and board are on the SAME platform — a link never breaks.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Sonuç: başarısız bir test, PR ID\'siyle…', en: 'Result…' }, detail: { tr: 'Sonuç: başarısız bir test, PR ID\'siyle otomatik eşleşen bir bug work item\'ına dönüşür — kopyala-yapıştır yok.', en: 'Result: a failed test becomes a bug work item automatically matched to the PR ID — no copy-paste.' } },
   ],
 }
 
@@ -314,9 +314,9 @@ const azureEcosystemStep = {
   type: 'step-animation',
   title: { tr: 'Bir Commit\'in Azure Ekosistemindeki Adımları', en: 'A Commit\'s Steps Through the Azure Ecosystem' },
   steps: [
-    { tr: 'Kod, Azure Repos\'a push edilir — Azure Pipelines\'ı tetikler.', en: 'Code gets pushed to Azure Repos — triggering Azure Pipelines.' },
-    { tr: 'Ağır paralel test yükü AKS\'e dağıtılır, onlarca pod aynı anda çalışır.', en: 'The heavy parallel test load is distributed to AKS, dozens of pods run at once.' },
-    { tr: 'Sonuç Azure Test Plans\'a akar, başarısızlık Azure Boards\'ta otomatik bir work item olur.', en: 'The result flows into Azure Test Plans, a failure becomes an automatic work item on Azure Boards.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Kod, Azure Repos\'a push edilir — Azure…', en: 'Code gets pushed to Azure Repos…' }, detail: { tr: 'Kod, Azure Repos\'a push edilir — Azure Pipelines\'ı tetikler.', en: 'Code gets pushed to Azure Repos — triggering Azure Pipelines.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Ağır paralel test yükü AKS\'e dağıtılır…', en: 'The heavy parallel test load is…' }, detail: { tr: 'Ağır paralel test yükü AKS\'e dağıtılır, onlarca pod aynı anda çalışır.', en: 'The heavy parallel test load is distributed to AKS, dozens of pods run at once.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Sonuç Azure Test Plans\'a akar…', en: 'The result flows into Azure Test Plans…' }, detail: { tr: 'Sonuç Azure Test Plans\'a akar, başarısızlık Azure Boards\'ta otomatik bir work item olur.', en: 'The result flows into Azure Test Plans, a failure becomes an automatic work item on Azure Boards.' } },
   ],
 }
 
@@ -337,9 +337,9 @@ const azureErrorsStep = {
   type: 'step-animation',
   title: { tr: 'Bir Azure Hatasını Teşhis Sırası', en: 'The Diagnosis Order for an Azure Error' },
   steps: [
-    { tr: 'Hata mesajının TAM METNİNİ oku — "AuthorizationFailed" mi, "StorageAccountAlreadyTaken" mı?', en: 'Read the FULL error message text — is it "AuthorizationFailed" or "StorageAccountAlreadyTaken"?' },
-    { tr: 'RBAC izin sorunu mu (kim yetkili değil) yoksa küresel isim/kapasite sorunu mu (platform kısıtı) ayır.', en: 'Separate whether it\'s an RBAC permission issue (who isn\'t authorized) or a global naming/capacity issue (a platform constraint).' },
-    { tr: 'Eksik rolü SADECE gereken en dar scope\'a (resource group, hatta tek kaynak) ekle — subscription\'a değil.', en: 'Add the missing role ONLY to the narrowest needed scope (resource group, even a single resource) — never the subscription.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Hata mesajının TAM METNİNİ oku…', en: 'Read the FULL error message text…' }, detail: { tr: 'Hata mesajının TAM METNİNİ oku — "AuthorizationFailed" mi, "StorageAccountAlreadyTaken" mı?', en: 'Read the FULL error message text — is it "AuthorizationFailed" or "StorageAccountAlreadyTaken"?' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'RBAC izin sorunu mu (kim yetkili değil)…', en: 'Separate whether it\'s an RBAC…' }, detail: { tr: 'RBAC izin sorunu mu (kim yetkili değil) yoksa küresel isim/kapasite sorunu mu (platform kısıtı) ayır.', en: 'Separate whether it\'s an RBAC permission issue (who isn\'t authorized) or a global naming/capacity issue (a platform constraint).' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Eksik rolü SADECE gereken en dar…', en: 'Add the missing role ONLY to the…' }, detail: { tr: 'Eksik rolü SADECE gereken en dar scope\'a (resource group, hatta tek kaynak) ekle — subscription\'a değil.', en: 'Add the missing role ONLY to the narrowest needed scope (resource group, even a single resource) — never the subscription.' } },
   ],
 }
 
@@ -360,9 +360,9 @@ const azureInterviewStep = {
   type: 'step-animation',
   title: { tr: 'Mülakatta "Neden Azure Kullandınız?" Sorusuna Cevap', en: 'Answering "Why Did You Use Azure?" in an Interview' },
   steps: [
-    { tr: 'Sadece "Azure DevOps güçlü" deme — HANGİ bileşeni, HANGİ problem için seçtiğini somutlaştır.', en: 'Don\'t just say "Azure DevOps is powerful" — make concrete WHICH component you chose, for WHICH problem.' },
-    { tr: 'Bir entegrasyon kararı anlat: "Zaten Active Directory kullanıyorduk, ayrı bir kimlik sistemi kurmak yerine Azure AD\'yi kullandık."', en: 'Describe an integration decision: "We already used Active Directory, so instead of standing up a separate identity system we used Azure AD."' },
-    { tr: 'Bir güvenlik/RBAC kararı anlat: pipeline\'a subscription seviyesi yerine sadece gereken resource group\'a izin verdiğini göster.', en: 'Describe a security/RBAC decision: show you scoped the pipeline\'s access to only the needed resource group, not the subscription.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Sadece "Azure DevOps güçlü" deme…', en: 'Don\'t just say "Azure DevOps is powerful"…' }, detail: { tr: 'Sadece "Azure DevOps güçlü" deme — HANGİ bileşeni, HANGİ problem için seçtiğini somutlaştır.', en: 'Don\'t just say "Azure DevOps is powerful" — make concrete WHICH component you chose, for WHICH problem.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bir entegrasyon kararı anlat…', en: 'Describe an integration decision…' }, detail: { tr: 'Bir entegrasyon kararı anlat: "Zaten Active Directory kullanıyorduk, ayrı bir kimlik sistemi kurmak yerine Azure AD\'yi kullandık."', en: 'Describe an integration decision: "We already used Active Directory, so instead of standing up a separate identity system we used Azure AD."' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bir güvenlik/RBAC kararı anlat…', en: 'Describe a security/RBAC decision…' }, detail: { tr: 'Bir güvenlik/RBAC kararı anlat: pipeline\'a subscription seviyesi yerine sadece gereken resource group\'a izin verdiğini göster.', en: 'Describe a security/RBAC decision: show you scoped the pipeline\'s access to only the needed resource group, not the subscription.' } },
   ],
 }
 
@@ -383,9 +383,9 @@ const azureCliTrStep = {
   type: 'step-animation',
   title: { tr: 'az account show Çıktısını Doğrulama Sırası', en: 'Verifying the az account show Output' },
   steps: [
-    { tr: 'az login sonrası, az account show ile HANGİ subscription\'a bağlı olduğunu kontrol et.', en: 'After az login, check WHICH subscription you\'re connected to with az account show.' },
-    { tr: '"isDefault": true alanının doğru subscription\'ı gösterdiğini doğrula — yanlış subscription\'da kaynak oluşturmak yaygın bir hatadır.', en: 'Verify the "isDefault": true field points to the correct subscription — creating resources in the wrong subscription is a common mistake.' },
-    { tr: 'Yanlışsa az account set --subscription ile doğru subscription\'a geç.', en: 'If wrong, switch to the correct subscription with az account set --subscription.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'az login sonrası…', en: 'After az login…' }, detail: { tr: 'az login sonrası, az account show ile HANGİ subscription\'a bağlı olduğunu kontrol et.', en: 'After az login, check WHICH subscription you\'re connected to with az account show.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '"isDefault"…', en: 'Verify the "isDefault"…' }, detail: { tr: '"isDefault": true alanının doğru subscription\'ı gösterdiğini doğrula — yanlış subscription\'da kaynak oluşturmak yaygın bir hatadır.', en: 'Verify the "isDefault": true field points to the correct subscription — creating resources in the wrong subscription is a common mistake.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Yanlışsa az account set --subscription…', en: 'If wrong…' }, detail: { tr: 'Yanlışsa az account set --subscription ile doğru subscription\'a geç.', en: 'If wrong, switch to the correct subscription with az account set --subscription.' } },
   ],
 }
 

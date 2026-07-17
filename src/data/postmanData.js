@@ -734,9 +734,9 @@ const pmInterviewStep = {
   type: 'step-animation',
   title: { tr: 'Postman Mülakat Cevabı — 3 Katman', en: 'Postman Interview Answer — 3 Layers' },
   steps: [
-    { tr: 'Katman 1: Kavramı tek cümlede tanımla.', en: 'Layer 1: Define the concept in one sentence.' },
-    { tr: 'Katman 2: NASIL çalıştığını (mekanizmayı) göster.', en: 'Layer 2: Show HOW it works (the mechanism).' },
-    { tr: 'Katman 3: Bedelini/trade-off\'unu söyle — hiçbir araç bedelsiz değildir.', en: 'Layer 3: State the cost/trade-off — no tool is free.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Katman 1…', en: 'Layer 1…' }, detail: { tr: 'Katman 1: Kavramı tek cümlede tanımla.', en: 'Layer 1: Define the concept in one sentence.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Katman 2…', en: 'Layer 2…' }, detail: { tr: 'Katman 2: NASIL çalıştığını (mekanizmayı) göster.', en: 'Layer 2: Show HOW it works (the mechanism).' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Katman 3…', en: 'Layer 3…' }, detail: { tr: 'Katman 3: Bedelini/trade-off\'unu söyle — hiçbir araç bedelsiz değildir.', en: 'Layer 3: State the cost/trade-off — no tool is free.' } },
   ],
 }
 
@@ -760,9 +760,9 @@ const pmMethodSemanticsStep = {
   type: 'step-animation',
   title: { tr: 'HTTP Metodları: Hangisi Veri Değiştirir, Hangisi Sadece Okur?', en: 'HTTP Methods: Which Ones Change Data, Which Just Read?' },
   steps: [
-    { tr: 'GET — sadece OKUR, sunucuda hiçbir şeyi değiştirmez. Aynı GET isteğini 100 kez atmak GÜVENLİDİR.', en: 'GET — only READS, changes nothing on the server. Firing the same GET 100 times is SAFE.' },
-    { tr: 'POST — YENİ bir kayıt OLUŞTURUR. Aynı POST\'u 2 kez atarsan, 2 AYRI kayıt oluşabilir — bu "idempotent" DEĞİLDİR.', en: 'POST — CREATES a new record. Fire the same POST twice and you may get 2 SEPARATE records — this is NOT idempotent.' },
-    { tr: 'PUT/DELETE — idempotent\'tir: aynı isteği 5 kez atmak, 1 kez atmakla AYNI son duruma götürür.', en: 'PUT/DELETE — idempotent: firing the same request 5 times leads to the SAME final state as firing it once.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'GET — sadece OKUR, sunucuda hiçbir şeyi…', en: 'GET — only READS, changes nothing on…' }, detail: { tr: 'GET — sadece OKUR, sunucuda hiçbir şeyi değiştirmez. Aynı GET isteğini 100 kez atmak GÜVENLİDİR.', en: 'GET — only READS, changes nothing on the server. Firing the same GET 100 times is SAFE.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'POST — YENİ bir kayıt OLUŞTURUR. Aynı…', en: 'POST — CREATES a new record. Fire the…' }, detail: { tr: 'POST — YENİ bir kayıt OLUŞTURUR. Aynı POST\'u 2 kez atarsan, 2 AYRI kayıt oluşabilir — bu "idempotent" DEĞİLDİR.', en: 'POST — CREATES a new record. Fire the same POST twice and you may get 2 SEPARATE records — this is NOT idempotent.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'PUT/DELETE…', en: 'PUT/DELETE…' }, detail: { tr: 'PUT/DELETE — idempotent\'tir: aynı isteği 5 kez atmak, 1 kez atmakla AYNI son duruma götürür.', en: 'PUT/DELETE — idempotent: firing the same request 5 times leads to the SAME final state as firing it once.' } },
   ],
 }
 
@@ -783,9 +783,9 @@ const pmEnvSetupStep = {
   type: 'step-animation',
   title: { tr: 'İlk Ortam (Environment) Kurulumu — Adım Adım', en: 'Setting Up Your First Environment — Step by Step' },
   steps: [
-    { tr: 'Sağ üstteki "Environments" sekmesine git, "+" ile yeni bir environment oluştur (örn. "Staging").', en: 'Go to the "Environments" tab in the top right, create a new environment with "+" (e.g. "Staging").' },
-    { tr: '`baseUrl` adında bir değişken ekle, Initial Value VE Current Value alanlarına staging URL\'ini yaz.', en: 'Add a variable named `baseUrl`, write the staging URL into BOTH the Initial Value and Current Value fields.' },
-    { tr: 'Sağ üstteki dropdown\'dan bu environment\'ı AKTİF olarak seç — seçilmezse istekler `{{baseUrl}}`\'i ÇÖZEMEZ.', en: 'Select this environment as ACTIVE from the top-right dropdown — if not selected, requests CANNOT resolve `{{baseUrl}}`.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Sağ üstteki "Environments" sekmesine git…', en: 'Go to the "Environments" tab in the top right…' }, detail: { tr: 'Sağ üstteki "Environments" sekmesine git, "+" ile yeni bir environment oluştur (örn. "Staging").', en: 'Go to the "Environments" tab in the top right, create a new environment with "+" (e.g. "Staging").' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'baseUrl adında bir değişken ekle…', en: 'Add a variable named baseUrl…' }, detail: { tr: '`baseUrl` adında bir değişken ekle, Initial Value VE Current Value alanlarına staging URL\'ini yaz.', en: 'Add a variable named `baseUrl`, write the staging URL into BOTH the Initial Value and Current Value fields.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Sağ üstteki dropdown\'dan bu…', en: 'Select this environment as ACTIVE from…' }, detail: { tr: 'Sağ üstteki dropdown\'dan bu environment\'ı AKTİF olarak seç — seçilmezse istekler `{{baseUrl}}`\'i ÇÖZEMEZ.', en: 'Select this environment as ACTIVE from the top-right dropdown — if not selected, requests CANNOT resolve `{{baseUrl}}`.' } },
   ],
 }
 
@@ -805,9 +805,9 @@ const pmCollectionHierarchyStep = {
   type: 'step-animation',
   title: { tr: 'Collection İçinde Klasörleme ve Kalıtım', en: 'Folder Organization and Inheritance Inside a Collection' },
   steps: [
-    { tr: 'Bir Collection\'a Authorization ayarı yaparsan, İÇİNDEKİ TÜM klasör ve isteklerin varsayılan olarak bu ayarı MİRAS ALDIĞINI unutma.', en: 'If you set Authorization at the Collection level, remember that ALL folders and requests INSIDE it INHERIT this setting by default.' },
-    { tr: 'Bir alt klasörde farklı bir Authorization ayarı yaparsan, bu SADECE o klasör ve altındakiler için üst ayarı EZER (override).', en: 'If you set a different Authorization at a sub-folder level, this OVERRIDES the parent setting ONLY for that folder and what\'s inside it.' },
-    { tr: 'Bu miras zinciri, 50 isteğin HER birine ayrı ayrı auth yazmak yerine, TEK bir yerden yönetmeni sağlar.', en: 'This inheritance chain lets you manage auth from ONE place instead of writing it separately into all 50 requests.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Bir Collection\'a Authorization ayarı yaparsan…', en: 'If you set Authorization at the Collection…' }, detail: { tr: 'Bir Collection\'a Authorization ayarı yaparsan, İÇİNDEKİ TÜM klasör ve isteklerin varsayılan olarak bu ayarı MİRAS ALDIĞINI unutma.', en: 'If you set Authorization at the Collection level, remember that ALL folders and requests INSIDE it INHERIT this setting by default.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bir alt klasörde farklı bir…', en: 'If you set a different Authorization at…' }, detail: { tr: 'Bir alt klasörde farklı bir Authorization ayarı yaparsan, bu SADECE o klasör ve altındakiler için üst ayarı EZER (override).', en: 'If you set a different Authorization at a sub-folder level, this OVERRIDES the parent setting ONLY for that folder and what\'s inside it.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bu miras zinciri…', en: 'This inheritance chain lets you manage…' }, detail: { tr: 'Bu miras zinciri, 50 isteğin HER birine ayrı ayrı auth yazmak yerine, TEK bir yerden yönetmeni sağlar.', en: 'This inheritance chain lets you manage auth from ONE place instead of writing it separately into all 50 requests.' } },
   ],
 }
 
@@ -830,9 +830,9 @@ const pmAssertionOrderStep = {
   type: 'step-animation',
   title: { tr: 'Birden Fazla pm.test() Bloğu Nasıl Çalışır?', en: 'How Do Multiple pm.test() Blocks Run?' },
   steps: [
-    { tr: 'Bir response için 5 ayrı `pm.test()` bloğu yazabilirsin — her biri BAĞIMSIZ çalışır, biri FAIL olsa bile DİĞERLERİ çalışmaya devam eder.', en: 'You can write 5 separate `pm.test()` blocks for one response — each runs INDEPENDENTLY; even if one FAILS, the OTHERS keep running.' },
-    { tr: 'Bu, tek bir `assert` satırında dursaydı alamayacağın bir bilgi verir: "hangi 3 test PASS, hangi 2 test FAIL oldu?" hepsi TEK koşumda görünür.', en: 'This gives you information a single `assert` line couldn\'t: "which 3 tests PASSed, which 2 FAILed?" all visible in ONE run.' },
-    { tr: 'Test Results panelinde her `pm.test()` ayrı bir satır olarak ✅/❌ ile listelenir — hangi assertion\'ın kırıldığını ANINDA görürsün.', en: 'In the Test Results panel, every `pm.test()` is listed as its own row with ✅/❌ — you see INSTANTLY which assertion broke.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Bir response için 5 ayrı pm.test() bloğu…', en: 'You can write 5 separate pm.test()…' }, detail: { tr: 'Bir response için 5 ayrı `pm.test()` bloğu yazabilirsin — her biri BAĞIMSIZ çalışır, biri FAIL olsa bile DİĞERLERİ çalışmaya devam eder.', en: 'You can write 5 separate `pm.test()` blocks for one response — each runs INDEPENDENTLY; even if one FAILS, the OTHERS keep running.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bu, tek bir assert satırında dursaydı…', en: 'This gives you information a single…' }, detail: { tr: 'Bu, tek bir `assert` satırında dursaydı alamayacağın bir bilgi verir: "hangi 3 test PASS, hangi 2 test FAIL oldu?" hepsi TEK koşumda görünür.', en: 'This gives you information a single `assert` line couldn\'t: "which 3 tests PASSed, which 2 FAILed?" all visible in ONE run.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Test Results panelinde her pm.test()…', en: 'In the Test Results panel…' }, detail: { tr: 'Test Results panelinde her `pm.test()` ayrı bir satır olarak ✅/❌ ile listelenir — hangi assertion\'ın kırıldığını ANINDA görürsün.', en: 'In the Test Results panel, every `pm.test()` is listed as its own row with ✅/❌ — you see INSTANTLY which assertion broke.' } },
   ],
 }
 
@@ -858,9 +858,9 @@ const pmCiGateStep = {
   type: 'step-animation',
   title: { tr: 'Bir Newman Koşumunun CI\'da Kalite Kapısı Olması', en: 'A Newman Run Acting as a CI Quality Gate' },
   steps: [
-    { tr: 'PR açılır → CI pipeline tetiklenir → `newman run` collection\'ı çalıştırır.', en: 'A PR is opened → the CI pipeline triggers → `newman run` executes the collection.' },
-    { tr: 'TÜM testler PASS olursa: exit code 0, pipeline YEŞİL, merge butonu AÇIK.', en: 'If ALL tests PASS: exit code 0, pipeline GREEN, merge button UNLOCKED.' },
-    { tr: 'EN AZ 1 test FAIL olursa: exit code 1, pipeline KIRMIZI, merge butonu KİLİTLİ — geliştirici düzeltmeden birleştiremez.', en: 'If EVEN 1 test FAILS: exit code 1, pipeline RED, merge button LOCKED — the developer cannot merge without fixing it.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'PR açılır → CI pipeline tetiklenir →…', en: 'A PR is opened → the CI pipeline…' }, detail: { tr: 'PR açılır → CI pipeline tetiklenir → `newman run` collection\'ı çalıştırır.', en: 'A PR is opened → the CI pipeline triggers → `newman run` executes the collection.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'TÜM testler PASS olursa…', en: 'If ALL tests PASS…' }, detail: { tr: 'TÜM testler PASS olursa: exit code 0, pipeline YEŞİL, merge butonu AÇIK.', en: 'If ALL tests PASS: exit code 0, pipeline GREEN, merge button UNLOCKED.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'EN AZ 1 test FAIL olursa…', en: 'If EVEN 1 test FAILS…' }, detail: { tr: 'EN AZ 1 test FAIL olursa: exit code 1, pipeline KIRMIZI, merge butonu KİLİTLİ — geliştirici düzeltmeden birleştiremez.', en: 'If EVEN 1 test FAILS: exit code 1, pipeline RED, merge button LOCKED — the developer cannot merge without fixing it.' } },
   ],
 }
 
@@ -880,10 +880,10 @@ const pmToolLandscapeStep = {
   type: 'step-animation',
   title: { tr: 'Postman Ekosistemi: Hangi Araç Ne İşe Yarar?', en: 'The Postman Ecosystem: What Does Each Tool Do?' },
   steps: [
-    { tr: 'Postman App — isteği GUI\'de manuel oluşturmak ve keşif (exploratory) testi için.', en: 'Postman App — for manually building requests in the GUI and exploratory testing.' },
-    { tr: 'Newman — aynı collection\'ı GUI olmadan CI/CD\'de otomatik çalıştırmak için (komut satırı).', en: 'Newman — for running the same collection automatically in CI/CD without a GUI (command line).' },
-    { tr: 'Mock Server — backend hazır olmadan frontend\'in geliştirme yapabilmesi için sahte ama gerçek bir URL üretir.', en: 'Mock Server — generates a fake-but-real URL so the frontend can develop before the backend exists.' },
-    { tr: 'Monitor — bir collection\'ı ZAMANLANMIŞ aralıklarla (örn. her 15 dakikada) otomatik çalıştırıp production\'ı sürekli izler.', en: 'Monitor — runs a collection on a SCHEDULED interval (e.g. every 15 minutes) to continuously watch production.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Postman App…', en: 'Postman App…' }, detail: { tr: 'Postman App — isteği GUI\'de manuel oluşturmak ve keşif (exploratory) testi için.', en: 'Postman App — for manually building requests in the GUI and exploratory testing.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Newman…', en: 'Newman…' }, detail: { tr: 'Newman — aynı collection\'ı GUI olmadan CI/CD\'de otomatik çalıştırmak için (komut satırı).', en: 'Newman — for running the same collection automatically in CI/CD without a GUI (command line).' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Mock Server…', en: 'Mock Server…' }, detail: { tr: 'Mock Server — backend hazır olmadan frontend\'in geliştirme yapabilmesi için sahte ama gerçek bir URL üretir.', en: 'Mock Server — generates a fake-but-real URL so the frontend can develop before the backend exists.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Monitor…', en: 'Monitor…' }, detail: { tr: 'Monitor — bir collection\'ı ZAMANLANMIŞ aralıklarla (örn. her 15 dakikada) otomatik çalıştırıp production\'ı sürekli izler.', en: 'Monitor — runs a collection on a SCHEDULED interval (e.g. every 15 minutes) to continuously watch production.' } },
   ],
 }
 
@@ -904,10 +904,10 @@ const pmDiagnosisFlowStep = {
   type: 'step-animation',
   title: { tr: 'Bir API Hatasını Sistematik Teşhis Etme Sırası', en: 'The Order for Systematically Diagnosing an API Error' },
   steps: [
-    { tr: '1. Status kodunu oku: 4xx istemci hatası (senin isteğin), 5xx sunucu hatası (backend\'de sorun).', en: '1. Read the status code: 4xx is a client error (your request), 5xx is a server error (backend problem).' },
-    { tr: '2. Aktif Environment\'ı kontrol et: doğru ortam mı seçili?', en: '2. Check the active Environment: is the correct one selected?' },
-    { tr: '3. Değişken değerlerini (göz ikonuyla) kontrol et: token/URL GERÇEKTEN beklediğin değer mi?', en: '3. Check the variable values (via the eye icon): is the token/URL REALLY the value you expect?' },
-    { tr: '4. Console\'u (View → Show Postman Console) aç: GERÇEKTEN giden isteğin tam header/body\'sini gör.', en: '4. Open the Console (View → Show Postman Console): see the ACTUAL full headers/body of the request that went out.' },
+    { id: 1, icon: '1️⃣', label: { tr: '1. Status kodunu oku: 4xx istemci…', en: '1. Read the status code: 4xx is a…' }, detail: { tr: '1. Status kodunu oku: 4xx istemci hatası (senin isteğin), 5xx sunucu hatası (backend\'de sorun).', en: '1. Read the status code: 4xx is a client error (your request), 5xx is a server error (backend problem).' } },
+    { id: 2, icon: '2️⃣', label: { tr: '2. Aktif Environment\'ı kontrol et:…', en: '2. Check the active Environment: is the…' }, detail: { tr: '2. Aktif Environment\'ı kontrol et: doğru ortam mı seçili?', en: '2. Check the active Environment: is the correct one selected?' } },
+    { id: 3, icon: '3️⃣', label: { tr: '3. Değişken değerlerini (göz ikonuyla)…', en: '3. Check the variable values (via the…' }, detail: { tr: '3. Değişken değerlerini (göz ikonuyla) kontrol et: token/URL GERÇEKTEN beklediğin değer mi?', en: '3. Check the variable values (via the eye icon): is the token/URL REALLY the value you expect?' } },
+    { id: 4, icon: '4️⃣', label: { tr: '4. Console\'u (View → Show Postman…', en: '4. Open the Console (View → Show…' }, detail: { tr: '4. Console\'u (View → Show Postman Console) aç: GERÇEKTEN giden isteğin tam header/body\'sini gör.', en: '4. Open the Console (View → Show Postman Console): see the ACTUAL full headers/body of the request that went out.' } },
   ],
 }
 

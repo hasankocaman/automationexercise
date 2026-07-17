@@ -799,10 +799,10 @@ const appiumCommandJourneyStep = {
   type: 'step-animation',
   title: { tr: 'Bir Appium Komutu Cihaza Kadar Adım Adım', en: 'An Appium Command Step by Step to the Device' },
   steps: [
-    { tr: 'Test kodunda driver.click(element) çağrılır — tek satır, ama arkasında tam bir zincir var.', en: 'driver.click(element) is called in the test code — one line, but a full chain runs behind it.' },
-    { tr: 'Bu çağrı bir HTTP POST isteğine (W3C WebDriver protokolü) dönüştürülür.', en: 'This call gets turned into an HTTP POST request (W3C WebDriver protocol).' },
-    { tr: 'Appium Server (port 4723), platformName\'e bakarak isteği doğru platform driver\'ına (UIAutomator2/XCUITest) yönlendirir.', en: 'The Appium Server (port 4723) looks at platformName and routes the request to the correct platform driver (UIAutomator2/XCUITest).' },
-    { tr: 'Platform driver, genel komutu cihazın native diline çevirir ve gerçek cihaz/emülatörde çalıştırır.', en: 'The platform driver translates the generic command into the device\'s native language and runs it on the real device/emulator.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Test kodunda driver.click(element) çağrılır…', en: 'driver.click(element) is called in the…' }, detail: { tr: 'Test kodunda driver.click(element) çağrılır — tek satır, ama arkasında tam bir zincir var.', en: 'driver.click(element) is called in the test code — one line, but a full chain runs behind it.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bu çağrı bir HTTP POST isteğine (W3C…', en: 'This call gets turned into an HTTP POST…' }, detail: { tr: 'Bu çağrı bir HTTP POST isteğine (W3C WebDriver protokolü) dönüştürülür.', en: 'This call gets turned into an HTTP POST request (W3C WebDriver protocol).' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Appium Server (port 4723)…', en: 'The Appium Server (port 4723) looks at…' }, detail: { tr: 'Appium Server (port 4723), platformName\'e bakarak isteği doğru platform driver\'ına (UIAutomator2/XCUITest) yönlendirir.', en: 'The Appium Server (port 4723) looks at platformName and routes the request to the correct platform driver (UIAutomator2/XCUITest).' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Platform driver…', en: 'The platform driver translates the…' }, detail: { tr: 'Platform driver, genel komutu cihazın native diline çevirir ve gerçek cihaz/emülatörde çalıştırır.', en: 'The platform driver translates the generic command into the device\'s native language and runs it on the real device/emulator.' } },
   ],
 }
 
@@ -823,10 +823,10 @@ const appiumSessionNotCreatedStep = {
   type: 'step-animation',
   title: { tr: 'SessionNotCreatedException\'ı Teşhis Sırası', en: 'The Diagnosis Order for SessionNotCreatedException' },
   steps: [
-    { tr: 'Önce adb devices çalıştır — bağlı/başlamış bir cihaz veya emülatör var mı?', en: 'First run adb devices — is there a connected/booted device or emulator?' },
-    { tr: 'Cihaz yoksa: emülatörü başlat ve adb wait-for-device ile TAM açılmasını bekle.', en: 'No device? Start the emulator and wait for it to FULLY boot with adb wait-for-device.' },
-    { tr: 'Cihaz varsa: Appium Server\'ın çalıştığını ve doğru port/URL\'de dinlediğini appium-doctor ile doğrula.', en: 'Device exists? Verify the Appium Server is running and listening on the right port/URL with appium-doctor.' },
-    { tr: 'İkisi de tamamsa: capability\'lerdeki appPackage/appActivity/automationName değerlerini kontrol et — yanlış paket adı da aynı hatayı verir.', en: 'Both fine? Check the appPackage/appActivity/automationName values in your capabilities — a wrong package name throws the same error too.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Önce adb devices çalıştır…', en: 'First run adb devices…' }, detail: { tr: 'Önce adb devices çalıştır — bağlı/başlamış bir cihaz veya emülatör var mı?', en: 'First run adb devices — is there a connected/booted device or emulator?' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Cihaz yoksa…', en: 'No device? Start the emulator and wait…' }, detail: { tr: 'Cihaz yoksa: emülatörü başlat ve adb wait-for-device ile TAM açılmasını bekle.', en: 'No device? Start the emulator and wait for it to FULLY boot with adb wait-for-device.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Cihaz varsa…', en: 'Device exists? Verify the Appium Server…' }, detail: { tr: 'Cihaz varsa: Appium Server\'ın çalıştığını ve doğru port/URL\'de dinlediğini appium-doctor ile doğrula.', en: 'Device exists? Verify the Appium Server is running and listening on the right port/URL with appium-doctor.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'İkisi de tamamsa…', en: 'Both fine? Check the…' }, detail: { tr: 'İkisi de tamamsa: capability\'lerdeki appPackage/appActivity/automationName değerlerini kontrol et — yanlış paket adı da aynı hatayı verir.', en: 'Both fine? Check the appPackage/appActivity/automationName values in your capabilities — a wrong package name throws the same error too.' } },
   ],
 }
 
@@ -853,10 +853,10 @@ const appiumFlakyTestStep = {
   type: 'step-animation',
   title: { tr: 'Bir Flaky Testi Mülakatta Nasıl Ele Alırsın?', en: 'How Do You Handle a Flaky Test in an Interview?' },
   steps: [
-    { tr: 'Önce ÖRÜNTÜYÜ bul: testi 10-20 kez çalıştır, başarısızlık rastgele mi yoksa belirli bir koşula mı bağlı gözlemle.', en: 'First find the PATTERN: run the test 10-20 times, observe whether failure is random or tied to a specific condition.' },
-    { tr: 'Appium loglarını oku: hata TAM OLARAK hangi satırda, hangi element için oluşuyor?', en: 'Read the Appium logs: EXACTLY which line, which element does the failure happen on?' },
-    { tr: 'İki ana şüpheliyi eledi: zamanlama (element henüz yüklenmeden aranıyor) mı, test izolasyonu (önceki testten kalan veri) mı?', en: 'Rule out the two main suspects: timing (element searched before it loaded) or test isolation (leftover data from a previous test)?' },
-    { tr: 'Kök nedene göre kalıcı düzeltmeyi uygula — retry ile örtbas etmek yerine explicit wait veya test izolasyonu ekle.', en: 'Apply the permanent fix based on the root cause — add an explicit wait or test isolation instead of papering over it with retries.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Önce ÖRÜNTÜYÜ bul…', en: 'First find the PATTERN…' }, detail: { tr: 'Önce ÖRÜNTÜYÜ bul: testi 10-20 kez çalıştır, başarısızlık rastgele mi yoksa belirli bir koşula mı bağlı gözlemle.', en: 'First find the PATTERN: run the test 10-20 times, observe whether failure is random or tied to a specific condition.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Appium loglarını oku…', en: 'Read the Appium logs…' }, detail: { tr: 'Appium loglarını oku: hata TAM OLARAK hangi satırda, hangi element için oluşuyor?', en: 'Read the Appium logs: EXACTLY which line, which element does the failure happen on?' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'İki ana şüpheliyi eledi…', en: 'Rule out the two main suspects…' }, detail: { tr: 'İki ana şüpheliyi eledi: zamanlama (element henüz yüklenmeden aranıyor) mı, test izolasyonu (önceki testten kalan veri) mı?', en: 'Rule out the two main suspects: timing (element searched before it loaded) or test isolation (leftover data from a previous test)?' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Kök nedene göre kalıcı düzeltmeyi uygula…', en: 'Apply the permanent fix based on the root…' }, detail: { tr: 'Kök nedene göre kalıcı düzeltmeyi uygula — retry ile örtbas etmek yerine explicit wait veya test izolasyonu ekle.', en: 'Apply the permanent fix based on the root cause — add an explicit wait or test isolation instead of papering over it with retries.' } },
   ],
 }
 

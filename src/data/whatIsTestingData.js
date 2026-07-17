@@ -146,9 +146,9 @@ const bugCostStep = {
   type: 'step-animation',
   title: { tr: 'Bir Hatanın SDLC Aşamalarındaki Maliyeti', en: 'A Bug\'s Cost Across SDLC Phases' },
   steps: [
-    { tr: 'Gereksinim aşaması: bir belirsizliği netleştirmek sadece bir cümle demektir.', en: 'Requirements phase: clarifying an ambiguity is just one sentence.' },
-    { tr: 'Kodlama aşaması: aynı hata artık yazılmış kodun yeniden yazılmasını gerektirir.', en: 'Coding phase: the same bug now requires rewriting already-written code.' },
-    { tr: 'Production: aynı hata artık müşteri kaybı, itibar zedelenmesi ve acil müdahale demektir.', en: 'Production: the same bug now means customer loss, reputation damage, and an emergency response.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Gereksinim aşaması…', en: 'Requirements phase…' }, detail: { tr: 'Gereksinim aşaması: bir belirsizliği netleştirmek sadece bir cümle demektir.', en: 'Requirements phase: clarifying an ambiguity is just one sentence.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Kodlama aşaması…', en: 'Coding phase…' }, detail: { tr: 'Kodlama aşaması: aynı hata artık yazılmış kodun yeniden yazılmasını gerektirir.', en: 'Coding phase: the same bug now requires rewriting already-written code.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Production…', en: 'Production…' }, detail: { tr: 'Production: aynı hata artık müşteri kaybı, itibar zedelenmesi ve acil müdahale demektir.', en: 'Production: the same bug now means customer loss, reputation damage, and an emergency response.' } },
   ],
 }
 
@@ -171,9 +171,9 @@ const istqbStep = {
   type: 'step-animation',
   title: { tr: 'ISTQB\'nin 7 İlkesini Hatırlama Sırası', en: 'The Order to Recall ISTQB\'s 7 Principles' },
   steps: [
-    { tr: 'Test, hataların VARLIĞINI gösterir — YOKLUĞUNU asla kanıtlayamaz.', en: 'Testing shows the PRESENCE of defects — it can never prove their ABSENCE.' },
-    { tr: 'Eksiksiz test imkansızdır — bu yüzden risk analizi ve önceliklendirme şarttır.', en: 'Exhaustive testing is impossible — so risk analysis and prioritization are required.' },
-    { tr: 'Pestisit paradoksu: aynı testler tekrarlanınca yeni hata bulmayı bırakır — senaryolar güncellenmeli.', en: 'Pesticide paradox: repeated tests stop finding new bugs — scenarios must be revised.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Test, hataların VARLIĞINI gösterir —…', en: 'Testing shows the PRESENCE of defects…' }, detail: { tr: 'Test, hataların VARLIĞINI gösterir — YOKLUĞUNU asla kanıtlayamaz.', en: 'Testing shows the PRESENCE of defects — it can never prove their ABSENCE.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Eksiksiz test imkansızdır…', en: 'Exhaustive testing is impossible…' }, detail: { tr: 'Eksiksiz test imkansızdır — bu yüzden risk analizi ve önceliklendirme şarttır.', en: 'Exhaustive testing is impossible — so risk analysis and prioritization are required.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Pestisit paradoksu…', en: 'Pesticide paradox…' }, detail: { tr: 'Pestisit paradoksu: aynı testler tekrarlanınca yeni hata bulmayı bırakır — senaryolar güncellenmeli.', en: 'Pesticide paradox: repeated tests stop finding new bugs — scenarios must be revised.' } },
   ],
 }
 
@@ -196,9 +196,9 @@ const devopsStep = {
   type: 'step-animation',
   title: { tr: 'DevOps Döngüsünde QA\'in Yeri', en: 'Where QA Fits in the DevOps Loop' },
   steps: [
-    { tr: 'Plan: QA, kabul kriterlerini geliştiriciyle BİRLİKTE yazar — sadece kod bitince devreye girmez.', en: 'Plan: QA writes acceptance criteria TOGETHER with the developer — not just stepping in once code is done.' },
-    { tr: 'Test: CI pipeline\'ı her commit\'te otomatik tetiklenir, insan beklemez.', en: 'Test: the CI pipeline triggers automatically on every commit, no human waits.' },
-    { tr: 'Monitor: production\'daki gerçek davranış, bir sonraki Plan aşamasına GERİ BESLEME sağlar — döngü hiç kapanmaz.', en: 'Monitor: real production behavior feeds back into the next Plan phase — the loop never closes.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Plan: QA, kabul kriterlerini…', en: 'Plan: QA writes acceptance criteria…' }, detail: { tr: 'Plan: QA, kabul kriterlerini geliştiriciyle BİRLİKTE yazar — sadece kod bitince devreye girmez.', en: 'Plan: QA writes acceptance criteria TOGETHER with the developer — not just stepping in once code is done.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Test: CI pipeline\'ı her commit\'te…', en: 'Test: the CI pipeline triggers…' }, detail: { tr: 'Test: CI pipeline\'ı her commit\'te otomatik tetiklenir, insan beklemez.', en: 'Test: the CI pipeline triggers automatically on every commit, no human waits.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Monitor…', en: 'Monitor…' }, detail: { tr: 'Monitor: production\'daki gerçek davranış, bir sonraki Plan aşamasına GERİ BESLEME sağlar — döngü hiç kapanmaz.', en: 'Monitor: real production behavior feeds back into the next Plan phase — the loop never closes.' } },
   ],
 }
 
@@ -221,9 +221,9 @@ const roadmapStep = {
   type: 'step-animation',
   title: { tr: 'Doğru Öğrenme Sırasını Kurma', en: 'Building the Right Learning Order' },
   steps: [
-    { tr: 'Önce temel test kavramları — QA, QC, test seviyeleri — anlaşılır.', en: 'First, basic testing concepts — QA, QC, test levels — are understood.' },
-    { tr: 'Sonra programlama dili (Python/Java/TS) öğrenilir — bu, ARAÇ öğrenmenin ön koşuludur.', en: 'Then the programming language (Python/Java/TS) is learned — this is the PREREQUISITE for tool learning.' },
-    { tr: 'En son araç (Selenium/Playwright) öğrenilir — artık sadece "tarayıcıyı nasıl kontrol ederim" kalır.', en: 'Finally the tool (Selenium/Playwright) is learned — now only "how do I control the browser" remains.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Önce temel test kavramları…', en: 'First, basic testing concepts — QA, QC,…' }, detail: { tr: 'Önce temel test kavramları — QA, QC, test seviyeleri — anlaşılır.', en: 'First, basic testing concepts — QA, QC, test levels — are understood.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Sonra programlama dili (Python/Java/TS)…', en: 'Then the programming language…' }, detail: { tr: 'Sonra programlama dili (Python/Java/TS) öğrenilir — bu, ARAÇ öğrenmenin ön koşuludur.', en: 'Then the programming language (Python/Java/TS) is learned — this is the PREREQUISITE for tool learning.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'En son araç (Selenium/Playwright) öğrenilir…', en: 'Finally the tool (Selenium/Playwright) is…' }, detail: { tr: 'En son araç (Selenium/Playwright) öğrenilir — artık sadece "tarayıcıyı nasıl kontrol ederim" kalır.', en: 'Finally the tool (Selenium/Playwright) is learned — now only "how do I control the browser" remains.' } },
   ],
 }
 

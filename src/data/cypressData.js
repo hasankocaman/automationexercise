@@ -2946,11 +2946,11 @@ const cypressWaitAntiPatternStep = {
   type: 'step-animation',
   title: { tr: 'cy.wait(sayı) mı, cy.wait(\'@alias\') mı?', en: 'cy.wait(number) or cy.wait(\'@alias\')?' },
   steps: [
-    { tr: 'cy.wait(3000) yazılır — "3 saniye yeter" varsayımıyla sabit bir süre beklenir.', en: 'cy.wait(3000) is written — a fixed duration, assuming "3 seconds will be enough".' },
-    { tr: 'CI makinesi o gün yavaşsa 3 saniye YETMEZ — istek hâlâ dönmemiştir, test flaky FAIL olur.', en: 'If the CI machine is slow that day, 3 seconds is NOT enough — the request hasn\'t returned yet, the test flaky-FAILs.' },
-    { tr: 'Yerel makinede ise 3 saniye ÇOK FAZLADIR — istek 200ms\'de bitmiştir ama test yine de bekler, süre boşa gider.', en: 'On a local machine, 3 seconds is TOO MUCH — the request finishes in 200ms, but the test waits anyway, wasting time.' },
-    { tr: 'Çözüm: cy.intercept(...).as(\'getData\') ile isteği adlandır, sonra cy.wait(\'@getData\') yaz.', en: 'The fix: name the request with cy.intercept(...).as(\'getData\'), then write cy.wait(\'@getData\').' },
-    { tr: 'cy.wait(\'@getData\') artık SÜRE değil KOŞUL bekler — istek gerçekten tamamlanana kadar, ne 200ms ne 3000ms sabit bir sayı değil.', en: 'cy.wait(\'@getData\') now waits for a CONDITION, not a DURATION — until the request truly completes, never a fixed number like 200ms or 3000ms.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'cy.wait(3000) yazılır…', en: 'cy.wait(3000) is written…' }, detail: { tr: 'cy.wait(3000) yazılır — "3 saniye yeter" varsayımıyla sabit bir süre beklenir.', en: 'cy.wait(3000) is written — a fixed duration, assuming "3 seconds will be enough".' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'CI makinesi o gün yavaşsa 3 saniye YETMEZ…', en: 'If the CI machine is slow that day…' }, detail: { tr: 'CI makinesi o gün yavaşsa 3 saniye YETMEZ — istek hâlâ dönmemiştir, test flaky FAIL olur.', en: 'If the CI machine is slow that day, 3 seconds is NOT enough — the request hasn\'t returned yet, the test flaky-FAILs.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Yerel makinede ise 3 saniye ÇOK FAZLADIR…', en: 'On a local machine…' }, detail: { tr: 'Yerel makinede ise 3 saniye ÇOK FAZLADIR — istek 200ms\'de bitmiştir ama test yine de bekler, süre boşa gider.', en: 'On a local machine, 3 seconds is TOO MUCH — the request finishes in 200ms, but the test waits anyway, wasting time.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Çözüm: cy.intercept(...).as(\'getData\')…', en: 'The fix…' }, detail: { tr: 'Çözüm: cy.intercept(...).as(\'getData\') ile isteği adlandır, sonra cy.wait(\'@getData\') yaz.', en: 'The fix: name the request with cy.intercept(...).as(\'getData\'), then write cy.wait(\'@getData\').' } },
+    { id: 5, icon: '5️⃣', label: { tr: 'cy.wait(\'@getData\') artık SÜRE değil KOŞUL…', en: 'cy.wait(\'@getData\') now waits for a CONDITION…' }, detail: { tr: 'cy.wait(\'@getData\') artık SÜRE değil KOŞUL bekler — istek gerçekten tamamlanana kadar, ne 200ms ne 3000ms sabit bir sayı değil.', en: 'cy.wait(\'@getData\') now waits for a CONDITION, not a DURATION — until the request truly completes, never a fixed number like 200ms or 3000ms.' } },
   ],
 }
 
@@ -3265,10 +3265,10 @@ const cypressApiVsUiLoginStep = {
   type: 'step-animation',
   title: { tr: 'API-First Login: Ne Zaman Kullan, Ne Zaman Kullanma?', en: 'API-First Login: When to Use It, When Not To' },
   steps: [
-    { tr: 'Test hedefi "dashboard\'daki veri doğru mu?" ise — login sadece bir ÖN KOŞULDUR, cy.request() ile hızlandır.', en: 'If the test target is "is the dashboard data correct?" — login is just a PRECONDITION, speed it up with cy.request().' },
-    { tr: 'Test hedefi "yanlış şifre girilince doğru hata mesajı çıkıyor mu?" ise — login akışının KENDİSİ test ediliyor, UI adımlarını ATLAMA.', en: 'If the test target is "does the correct error message appear on a wrong password?" — the login flow ITSELF is under test, do NOT skip the UI steps.' },
-    { tr: 'cy.request() kullanırken sunucunun döndürdüğü token\'ı window.localStorage\'a yazman gerekir — tarayıcı bunu kendisi yapmaz.', en: 'When using cy.request(), you must write the token the server returns into window.localStorage yourself — the browser does not do this automatically.' },
-    { tr: 'cy.session() ile birleştirilirse, bu API login\'i testler arasında CACHE\'lenir — ikinci testte sıfırdan tekrarlanmaz.', en: 'Combined with cy.session(), this API login gets CACHED across tests — it is not repeated from scratch on the second test.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Test hedefi "dashboard\'daki veri doğru…', en: 'If the test target is "is the dashboard…' }, detail: { tr: 'Test hedefi "dashboard\'daki veri doğru mu?" ise — login sadece bir ÖN KOŞULDUR, cy.request() ile hızlandır.', en: 'If the test target is "is the dashboard data correct?" — login is just a PRECONDITION, speed it up with cy.request().' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Test hedefi "yanlış şifre girilince…', en: 'If the test target is "does the correct…' }, detail: { tr: 'Test hedefi "yanlış şifre girilince doğru hata mesajı çıkıyor mu?" ise — login akışının KENDİSİ test ediliyor, UI adımlarını ATLAMA.', en: 'If the test target is "does the correct error message appear on a wrong password?" — the login flow ITSELF is under test, do NOT skip the UI steps.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'cy.request() kullanırken sunucunun…', en: 'When using cy.request()…' }, detail: { tr: 'cy.request() kullanırken sunucunun döndürdüğü token\'ı window.localStorage\'a yazman gerekir — tarayıcı bunu kendisi yapmaz.', en: 'When using cy.request(), you must write the token the server returns into window.localStorage yourself — the browser does not do this automatically.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'cy.session() ile birleştirilirse…', en: 'Combined with cy.session()…' }, detail: { tr: 'cy.session() ile birleştirilirse, bu API login\'i testler arasında CACHE\'lenir — ikinci testte sıfırdan tekrarlanmaz.', en: 'Combined with cy.session(), this API login gets CACHED across tests — it is not repeated from scratch on the second test.' } },
   ],
 }
 

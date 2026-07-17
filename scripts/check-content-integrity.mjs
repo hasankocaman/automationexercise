@@ -14,7 +14,7 @@
 
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const __dir = path.dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = path.join(__dir, '../src/data')
@@ -236,6 +236,59 @@ function collectHints(source, filename) {
   return collected
 }
 
+// ─── Check (d): step-animation schema (label/detail required per step) ──────
+//
+// StepAnimationBlock.jsx requires each `steps[]` entry to carry a `label`
+// (short badge text shown inside the numbered box) — a step with only
+// {tr,en} and no `label` renders as an EMPTY box in the UI. This mirrors
+// the canonical shape produced by interactiveTrioFillers.js's own
+// makeStepBlock(): { id, icon, label: {tr,en}, detail: {tr,en} }.
+// Discovered 2026-07-18 (see .claude/NEXT_SESSION.md "AÇIK İŞ" section).
+
+async function checkStepAnimationSchema(filepath, filename, violations) {
+  let mod
+  try {
+    mod = await import(pathToFileURL(filepath).href)
+  } catch {
+    return // file fails to import — not this check's concern
+  }
+
+  const exportKey = Object.keys(mod).find((k) => mod[k] && (mod[k].en || mod[k].tr))
+  if (!exportKey) return
+  const data = mod[exportKey]
+  const roots = [data.en, data.tr].filter(Boolean)
+  const seenTitles = new Set()
+
+  for (const root of roots) {
+    const sections = root?.sections || []
+    for (const section of sections) {
+      for (const block of section?.blocks || []) {
+        if (!block || block.type !== 'step-animation') continue
+        const steps = block.steps || []
+        if (steps.length === 0) continue
+
+        const titleKey = JSON.stringify(block.title)
+        if (seenTitles.has(titleKey)) continue
+        seenTitles.add(titleKey)
+
+        const missingLabel = steps.some((s) => !s || !s.label)
+        if (!missingLabel) continue
+
+        const titleText = typeof block.title === 'string'
+          ? block.title
+          : (block.title?.tr || block.title?.en || '(başlıksız)')
+
+        violations.push({
+          type: 'step-animation-missing-label',
+          file: filename,
+          line: 0,
+          content: `step-animation "${titleText}" — ${steps.length} adımdan en az biri 'label' alanı içermiyor (StepAnimationBlock boş kutu render eder)`,
+        })
+      }
+    }
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -254,6 +307,7 @@ async function main() {
 
     checkEnglishComments(source, filename, mappedPatterns, allViolations)
     checkRelatedTopicId(source, filename, allViolations)
+    await checkStepAnimationSchema(filepath, filename, allViolations)
     allHints.push(...collectHints(source, filename))
   }
 
@@ -303,6 +357,7 @@ async function main() {
   const englishViolations = dedupedViolations.filter((v) => v.type === 'english-comment')
   const missingIdViolations = dedupedViolations.filter((v) => v.type === 'missing-related-topic-id')
   const duplicateViolations = dedupedViolations.filter((v) => v.type === 'duplicate-hint')
+  const stepSchemaViolations = dedupedViolations.filter((v) => v.type === 'step-animation-missing-label')
 
   console.log(`\nİçerik Bütünlük Kontrolü — ${files.length} dosya tarandı\n`)
   console.log(`${'─'.repeat(60)}`)
@@ -328,6 +383,13 @@ async function main() {
     }
   }
 
+  if (stepSchemaViolations.length > 0) {
+    console.error(`\n[D] step-animation şema hatası — 'label' alanı eksik (${stepSchemaViolations.length} ihlal):`)
+    for (const v of stepSchemaViolations) {
+      console.error(`  ${v.file}  →  ${v.content}`)
+    }
+  }
+
   const total = dedupedViolations.length
   console.log(`\n${'─'.repeat(60)}`)
 
@@ -335,7 +397,7 @@ async function main() {
     console.log(`İçerik bütünlüğü: TÜM KONTROLLER GEÇTİ ✓`)
     process.exit(0)
   } else {
-    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length}`)
+    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length}`)
     console.error(`Build engellendi — lütfen yukarıdaki ihlalleri düzelt.`)
     process.exit(1)
   }

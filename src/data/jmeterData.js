@@ -512,10 +512,10 @@ const jmeterAveragePercentileStep = {
   type: 'step-animation',
   title: { tr: 'P99 Anomalisini Mülakatta Nasıl Teşhis Edersin?', en: 'How to Diagnose a P99 Anomaly in an Interview' },
   steps: [
-    { tr: 'Önce sayıyı ÇEVİR: "P99 12000ms" değil, "100 istekten 1\'i 12 saniye bekliyor" de — bu, dinleyeni gerçek etkiye odaklar.', en: 'First TRANSLATE the number: instead of "P99 is 12000ms", say "1 in 100 requests waits 12 seconds" — this focuses the listener on the real impact.' },
-    { tr: 'Sonra OLASI kök nedenleri sırala: connection pool timeout, GC pause, lock contention, yavaş bir dış servis çağrısı.', en: 'Then list POSSIBLE root causes: connection pool timeout, GC pause, lock contention, a slow external service call.' },
-    { tr: 'Nasıl DOĞRULARSIN sorusuna cevap ver: "GC loglarına bakarım, connection pool metriklerini kontrol ederim, thread dump alırım."', en: 'Answer how you would VERIFY: "I\'d check GC logs, inspect connection pool metrics, take a thread dump."' },
-    { tr: 'Son olarak somut bir DÜZELTME öner: pool boyutunu artırmak, cache eklemek, ya da circuit breaker eşiği koymak.', en: 'Finally propose a concrete FIX: increasing pool size, adding a cache, or setting a circuit breaker threshold.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Önce sayıyı ÇEVİR…', en: 'First TRANSLATE the number…' }, detail: { tr: 'Önce sayıyı ÇEVİR: "P99 12000ms" değil, "100 istekten 1\'i 12 saniye bekliyor" de — bu, dinleyeni gerçek etkiye odaklar.', en: 'First TRANSLATE the number: instead of "P99 is 12000ms", say "1 in 100 requests waits 12 seconds" — this focuses the listener on the real impact.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Sonra OLASI kök nedenleri sırala…', en: 'Then list POSSIBLE root causes…' }, detail: { tr: 'Sonra OLASI kök nedenleri sırala: connection pool timeout, GC pause, lock contention, yavaş bir dış servis çağrısı.', en: 'Then list POSSIBLE root causes: connection pool timeout, GC pause, lock contention, a slow external service call.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Nasıl DOĞRULARSIN sorusuna cevap ver…', en: 'Answer how you would VERIFY…' }, detail: { tr: 'Nasıl DOĞRULARSIN sorusuna cevap ver: "GC loglarına bakarım, connection pool metriklerini kontrol ederim, thread dump alırım."', en: 'Answer how you would VERIFY: "I\'d check GC logs, inspect connection pool metrics, take a thread dump."' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Son olarak somut bir DÜZELTME öner…', en: 'Finally propose a concrete FIX…' }, detail: { tr: 'Son olarak somut bir DÜZELTME öner: pool boyutunu artırmak, cache eklemek, ya da circuit breaker eşiği koymak.', en: 'Finally propose a concrete FIX: increasing pool size, adding a cache, or setting a circuit breaker threshold.' } },
   ],
 }
 
@@ -541,9 +541,9 @@ const jmeterAggregateReportStep = {
   type: 'step-animation',
   title: { tr: 'Aggregate Report Nasıl Birikir?', en: 'How Does the Aggregate Report Accumulate?' },
   steps: [
-    { tr: 'Her sanal kullanıcının her isteği, kendi yanıt süresi/durum kodu ile Aggregate Report\'a BİR SATIR ekler.', en: 'Every request from every virtual user adds ONE ROW to the Aggregate Report with its own response time/status code.' },
-    { tr: '100 kullanıcı × 10 istek çalıştırırsan, rapor 1.000 satır biriktirir — Ortalama, Min, Max, P90, P99 bu 1.000 satırdan hesaplanır.', en: 'Run 100 users × 10 requests and the report accumulates 1,000 rows — Average, Min, Max, P90, P99 are all calculated from these 1,000 rows.' },
-    { tr: 'Test bitmeden rapora bakarsan sayılar hâlâ DEĞİŞİR — tam sonuç için testin bitmesini beklemek gerekir.', en: 'If you check the report before the test finishes, the numbers are still CHANGING — you must wait for the test to complete for the final result.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Her sanal kullanıcının her isteği…', en: 'Every request from every virtual user…' }, detail: { tr: 'Her sanal kullanıcının her isteği, kendi yanıt süresi/durum kodu ile Aggregate Report\'a BİR SATIR ekler.', en: 'Every request from every virtual user adds ONE ROW to the Aggregate Report with its own response time/status code.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '100 kullanıcı × 10 istek çalıştırırsan…', en: 'Run 100 users × 10 requests and the…' }, detail: { tr: '100 kullanıcı × 10 istek çalıştırırsan, rapor 1.000 satır biriktirir — Ortalama, Min, Max, P90, P99 bu 1.000 satırdan hesaplanır.', en: 'Run 100 users × 10 requests and the report accumulates 1,000 rows — Average, Min, Max, P90, P99 are all calculated from these 1,000 rows.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Test bitmeden rapora bakarsan sayılar hâlâ…', en: 'If you check the report before the test…' }, detail: { tr: 'Test bitmeden rapora bakarsan sayılar hâlâ DEĞİŞİR — tam sonuç için testin bitmesini beklemek gerekir.', en: 'If you check the report before the test finishes, the numbers are still CHANGING — you must wait for the test to complete for the final result.' } },
   ],
 }
 
@@ -567,9 +567,9 @@ const jmeterJavaHomeStep = {
   type: 'step-animation',
   title: { tr: 'JAVA_HOME Neden Ayarlanır?', en: 'Why Set JAVA_HOME?' },
   steps: [
-    { tr: '`jmeter.sh`/`jmeter.bat`, hangi Java kurulumunu kullanacağını bilmek için `JAVA_HOME` ortam değişkenine bakar.', en: '`jmeter.sh`/`jmeter.bat` checks the `JAVA_HOME` environment variable to know which Java installation to use.' },
-    { tr: 'Birden fazla JDK sürümü kuruluysa (örn. 8 ve 17), `JAVA_HOME` YANLIŞ sürüme işaret ederse JMeter beklenmedik şekilde davranabilir.', en: 'If multiple JDK versions are installed (e.g. 8 and 17), JMeter can behave unexpectedly if `JAVA_HOME` points to the WRONG version.' },
-    { tr: '`echo $JAVA_HOME` ile doğrulamak, "hangi Java kullanılıyor?" sorusunu test başlamadan ÖNCE cevaplar.', en: 'Verifying with `echo $JAVA_HOME` answers "which Java is being used?" BEFORE the test starts.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'jmeter.sh/jmeter.bat…', en: 'jmeter.sh/jmeter.bat checks the…' }, detail: { tr: '`jmeter.sh`/`jmeter.bat`, hangi Java kurulumunu kullanacağını bilmek için `JAVA_HOME` ortam değişkenine bakar.', en: '`jmeter.sh`/`jmeter.bat` checks the `JAVA_HOME` environment variable to know which Java installation to use.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Birden fazla JDK sürümü kuruluysa (örn…', en: 'If multiple JDK versions are installed (e.g…' }, detail: { tr: 'Birden fazla JDK sürümü kuruluysa (örn. 8 ve 17), `JAVA_HOME` YANLIŞ sürüme işaret ederse JMeter beklenmedik şekilde davranabilir.', en: 'If multiple JDK versions are installed (e.g. 8 and 17), JMeter can behave unexpectedly if `JAVA_HOME` points to the WRONG version.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'echo $JAVA_HOME ile doğrulamak…', en: 'Verifying with echo $JAVA_HOME answers…' }, detail: { tr: '`echo $JAVA_HOME` ile doğrulamak, "hangi Java kullanılıyor?" sorusunu test başlamadan ÖNCE cevaplar.', en: 'Verifying with `echo $JAVA_HOME` answers "which Java is being used?" BEFORE the test starts.' } },
   ],
 }
 
@@ -592,9 +592,9 @@ const jmeterRampUpCalcStep = {
   type: 'step-animation',
   title: { tr: 'Ramp-Up Hesabı Nasıl Yapılır?', en: 'How Is Ramp-Up Calculated?' },
   steps: [
-    { tr: 'Formül: saniye başına başlayan kullanıcı = Number of Threads / Ramp-Up Period.', en: 'Formula: users starting per second = Number of Threads / Ramp-Up Period.' },
-    { tr: '100 kullanıcı, 10 saniye ramp-up = saniyede 10 kullanıcı — bu HIZLI bir başlangıçtır, ani yük oluşturur.', en: '100 users, 10-second ramp-up = 10 users per second — this is a FAST start, creating a sudden spike.' },
-    { tr: 'Altın kural: Ramp-Up ≥ Duration\'ın %10\'u olmalı — çok kısa ramp-up gerçekçi olmayan yapay bir yük paterni yaratır.', en: 'Golden rule: Ramp-Up should be ≥ 10% of Duration — too short a ramp-up creates an unrealistic, artificial load pattern.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Formül…', en: 'Formula…' }, detail: { tr: 'Formül: saniye başına başlayan kullanıcı = Number of Threads / Ramp-Up Period.', en: 'Formula: users starting per second = Number of Threads / Ramp-Up Period.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '100 kullanıcı…', en: '100 users…' }, detail: { tr: '100 kullanıcı, 10 saniye ramp-up = saniyede 10 kullanıcı — bu HIZLI bir başlangıçtır, ani yük oluşturur.', en: '100 users, 10-second ramp-up = 10 users per second — this is a FAST start, creating a sudden spike.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Altın kural…', en: 'Golden rule…' }, detail: { tr: 'Altın kural: Ramp-Up ≥ Duration\'ın %10\'u olmalı — çok kısa ramp-up gerçekçi olmayan yapay bir yük paterni yaratır.', en: 'Golden rule: Ramp-Up should be ≥ 10% of Duration — too short a ramp-up creates an unrealistic, artificial load pattern.' } },
   ],
 }
 
@@ -618,9 +618,9 @@ const jmeterGroovyExtractStep = {
   type: 'step-animation',
   title: { tr: 'JSR223 Sampler Neden BeanShell\'den Hızlıdır?', en: 'Why Is the JSR223 Sampler Faster Than BeanShell?' },
   steps: [
-    { tr: 'BeanShell script\'i HER İSTEKTE yeniden yorumlanır (interpret edilir) — bu, her seferinde kodu baştan okumak gibidir.', en: 'A BeanShell script is RE-INTERPRETED on every single request — like re-reading the code from scratch each time.' },
-    { tr: 'JSR223 + Groovy, script\'i BİR KEZ derler (compile) ve cache\'ler — sonraki her çağrı, önceden derlenmiş kodu çalıştırır.', en: 'JSR223 + Groovy compiles the script ONCE and caches it — every later call runs the already-compiled code.' },
-    { tr: '500 kullanıcı × 10 istek gibi yüksek hacimli bir testte bu fark, script overhead\'inin testin kendisini yavaşlatıp yavaşlatmadığını belirler.', en: 'In a high-volume test like 500 users × 10 requests, this difference determines whether the script overhead itself slows down the test.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'BeanShell script\'i HER İSTEKTE yeniden…', en: 'A BeanShell script is RE-INTERPRETED on…' }, detail: { tr: 'BeanShell script\'i HER İSTEKTE yeniden yorumlanır (interpret edilir) — bu, her seferinde kodu baştan okumak gibidir.', en: 'A BeanShell script is RE-INTERPRETED on every single request — like re-reading the code from scratch each time.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'JSR223 + Groovy…', en: 'JSR223 + Groovy compiles the script ONCE…' }, detail: { tr: 'JSR223 + Groovy, script\'i BİR KEZ derler (compile) ve cache\'ler — sonraki her çağrı, önceden derlenmiş kodu çalıştırır.', en: 'JSR223 + Groovy compiles the script ONCE and caches it — every later call runs the already-compiled code.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '500 kullanıcı × 10 istek gibi yüksek…', en: 'In a high-volume test like 500 users × 10…' }, detail: { tr: '500 kullanıcı × 10 istek gibi yüksek hacimli bir testte bu fark, script overhead\'inin testin kendisini yavaşlatıp yavaşlatmadığını belirler.', en: 'In a high-volume test like 500 users × 10 requests, this difference determines whether the script overhead itself slows down the test.' } },
   ],
 }
 
@@ -662,9 +662,9 @@ const jmeterDockerCiStep = {
   type: 'step-animation',
   title: { tr: 'Docker\'da JMeter Neden Reprodüklenebilir?', en: 'Why Is JMeter in Docker Reproducible?' },
   steps: [
-    { tr: 'Yerel kurulumda her makine farklı bir JMeter sürümüne/plugin setine sahip olabilir — "bende çalışıyordu" riski.', en: 'With local installs, every machine can have a different JMeter version/plugin set — the "works on my machine" risk.' },
-    { tr: '`justb4/jmeter` Docker imajı, TAM olarak aynı JMeter sürümünü her CI runner\'da ve geliştirici makinesinde garanti eder.', en: 'The `justb4/jmeter` Docker image guarantees the EXACT same JMeter version on every CI runner and developer machine.' },
-    { tr: 'Sonuç: yük testinin kendisi, test ettiği uygulama kadar reprodüklenebilir hale gelir.', en: 'Result: the load generator itself becomes as reproducible as the application it tests.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Yerel kurulumda her makine farklı bir…', en: 'With local installs…' }, detail: { tr: 'Yerel kurulumda her makine farklı bir JMeter sürümüne/plugin setine sahip olabilir — "bende çalışıyordu" riski.', en: 'With local installs, every machine can have a different JMeter version/plugin set — the "works on my machine" risk.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'justb4/jmeter Docker imajı…', en: 'The justb4/jmeter Docker image…' }, detail: { tr: '`justb4/jmeter` Docker imajı, TAM olarak aynı JMeter sürümünü her CI runner\'da ve geliştirici makinesinde garanti eder.', en: 'The `justb4/jmeter` Docker image guarantees the EXACT same JMeter version on every CI runner and developer machine.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Sonuç: yük testinin kendisi, test…', en: 'Result…' }, detail: { tr: 'Sonuç: yük testinin kendisi, test ettiği uygulama kadar reprodüklenebilir hale gelir.', en: 'Result: the load generator itself becomes as reproducible as the application it tests.' } },
   ],
 }
 

@@ -1541,9 +1541,9 @@ const javaMavenResolutionStep = {
   type: 'step-animation',
   title: { tr: 'Maven Dependency Çakışması Nasıl Çözülür?', en: 'How to Resolve a Maven Dependency Conflict' },
   steps: [
-    { tr: '`mvn dependency:tree` çalıştır — hangi kütüphanenin hangi SÜRÜMÜ getirdiğini gör.', en: 'Run `mvn dependency:tree` — see which library brought in which VERSION.' },
-    { tr: 'Aynı kütüphanenin İKİ farklı sürümü varsa, Maven "en yakın" (nearest) kuralına göre BİRİNİ seçer — bu her zaman senin istediğin sürüm OLMAYABİLİR.', en: 'If two different versions of the same library exist, Maven picks ONE based on the "nearest" rule — this might NOT always be the version you want.' },
-    { tr: 'Doğru sürümü zorlamak için `pom.xml`\'de `<dependencyManagement>` içinde açıkça sürüm belirt.', en: 'To force the right version, explicitly declare it inside `<dependencyManagement>` in `pom.xml`.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'mvn dependency:tree çalıştır…', en: 'Run mvn dependency:tree…' }, detail: { tr: '`mvn dependency:tree` çalıştır — hangi kütüphanenin hangi SÜRÜMÜ getirdiğini gör.', en: 'Run `mvn dependency:tree` — see which library brought in which VERSION.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Aynı kütüphanenin İKİ farklı sürümü varsa…', en: 'If two different versions of the same…' }, detail: { tr: 'Aynı kütüphanenin İKİ farklı sürümü varsa, Maven "en yakın" (nearest) kuralına göre BİRİNİ seçer — bu her zaman senin istediğin sürüm OLMAYABİLİR.', en: 'If two different versions of the same library exist, Maven picks ONE based on the "nearest" rule — this might NOT always be the version you want.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Doğru sürümü zorlamak için pom.xml\'de…', en: 'To force the right version…' }, detail: { tr: 'Doğru sürümü zorlamak için `pom.xml`\'de `<dependencyManagement>` içinde açıkça sürüm belirt.', en: 'To force the right version, explicitly declare it inside `<dependencyManagement>` in `pom.xml`.' } },
   ],
 }
 
@@ -1922,10 +1922,10 @@ const javaInterviewAnswerStructureStep = {
   type: 'step-animation',
   title: { tr: 'Senaryo Bazlı Mülakat Cevabı Nasıl Kurulur?', en: 'How to Structure a Scenario-Based Interview Answer' },
   steps: [
-    { tr: 'Katman 1 — TANIM: soruyu kısaca tanımla ("WebDriverWait, koşul sağlanana kadar bekler").', en: 'Layer 1 — DEFINITION: briefly define the concept ("WebDriverWait waits until a condition is met").' },
-    { tr: 'Katman 2 — MEKANİZMA: NASIL çalıştığını göster (polling aralığı, timeout, ExpectedConditions).', en: 'Layer 2 — MECHANISM: show HOW it works (polling interval, timeout, ExpectedConditions).' },
-    { tr: 'Katman 3 — DENEYİM: kendi projenden somut bir örnek ver ("bir dashboard testinde 3 saniyelik AJAX gecikmesini bu şekilde çözdüm").', en: 'Layer 3 — EXPERIENCE: give a concrete example from your own project ("I solved a 3-second AJAX delay in a dashboard test this way").' },
-    { tr: 'Katman 4 — TRADE-OFF: bedelini söyle ("her koşulda kullanmak testi yavaşlatır, sadece gerçekten asenkron olan yerlerde kullanılmalı").', en: 'Layer 4 — TRADE-OFF: state the cost ("using it everywhere slows the test down, it should only be used where things are genuinely asynchronous").' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Katman 1…', en: 'Layer 1…' }, detail: { tr: 'Katman 1 — TANIM: soruyu kısaca tanımla ("WebDriverWait, koşul sağlanana kadar bekler").', en: 'Layer 1 — DEFINITION: briefly define the concept ("WebDriverWait waits until a condition is met").' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Katman 2…', en: 'Layer 2…' }, detail: { tr: 'Katman 2 — MEKANİZMA: NASIL çalıştığını göster (polling aralığı, timeout, ExpectedConditions).', en: 'Layer 2 — MECHANISM: show HOW it works (polling interval, timeout, ExpectedConditions).' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Katman 3…', en: 'Layer 3…' }, detail: { tr: 'Katman 3 — DENEYİM: kendi projenden somut bir örnek ver ("bir dashboard testinde 3 saniyelik AJAX gecikmesini bu şekilde çözdüm").', en: 'Layer 3 — EXPERIENCE: give a concrete example from your own project ("I solved a 3-second AJAX delay in a dashboard test this way").' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Katman 4…', en: 'Layer 4…' }, detail: { tr: 'Katman 4 — TRADE-OFF: bedelini söyle ("her koşulda kullanmak testi yavaşlatır, sadece gerçekten asenkron olan yerlerde kullanılmalı").', en: 'Layer 4 — TRADE-OFF: state the cost ("using it everywhere slows the test down, it should only be used where things are genuinely asynchronous").' } },
   ],
 }
 
@@ -17526,10 +17526,10 @@ const javaProblemSolvingStep = {
   type: 'step-animation',
   title: { tr: 'Bir QA Problemini Adım Adım Çözme Akışı', en: 'Solving a QA Problem Step by Step' },
   steps: [
-    { tr: 'Önce SORUYU tam olarak oku: "Bu koleksiyon neden ArrayList değil de HashSet olmalı?" gibi bir soru genelde birden fazla doğru gibi görünen seçenek sunar.', en: 'First read the QUESTION fully: a question like "why should this collection be a HashSet, not an ArrayList?" usually offers several options that all look plausible.' },
-    { tr: 'Anahtar kısıtı bul: soru "tekrar eden eleman olmamalı" mı diyor, "sıra önemli" mi diyor? Bu kısıt yanlış seçenekleri ELER.', en: 'Find the key constraint: does the question say "no duplicates allowed" or "order matters"? This constraint ELIMINATES the wrong options.' },
-    { tr: 'Her seçeneği kısıtla test et: HashSet tekrarı engeller ama sırayı garanti etmez; ArrayList sırayı korur ama tekrarı engellemez.', en: 'Test each option against the constraint: HashSet blocks duplicates but does not guarantee order; ArrayList preserves order but does not block duplicates.' },
-    { tr: 'En son adım: cevabı seç VE "neden diğerleri yanlış" sorusunu kendine sor — bu adım mülakatta "neden?" diye sorulduğunda seni hazır yakalar.', en: 'Final step: pick the answer AND ask yourself "why are the others wrong" — this step prepares you for when an interviewer asks "why?"' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Önce SORUYU tam olarak oku…', en: 'First read the QUESTION fully…' }, detail: { tr: 'Önce SORUYU tam olarak oku: "Bu koleksiyon neden ArrayList değil de HashSet olmalı?" gibi bir soru genelde birden fazla doğru gibi görünen seçenek sunar.', en: 'First read the QUESTION fully: a question like "why should this collection be a HashSet, not an ArrayList?" usually offers several options that all look plausible.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Anahtar kısıtı bul…', en: 'Find the key constraint…' }, detail: { tr: 'Anahtar kısıtı bul: soru "tekrar eden eleman olmamalı" mı diyor, "sıra önemli" mi diyor? Bu kısıt yanlış seçenekleri ELER.', en: 'Find the key constraint: does the question say "no duplicates allowed" or "order matters"? This constraint ELIMINATES the wrong options.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Her seçeneği kısıtla test et…', en: 'Test each option against the constraint…' }, detail: { tr: 'Her seçeneği kısıtla test et: HashSet tekrarı engeller ama sırayı garanti etmez; ArrayList sırayı korur ama tekrarı engellemez.', en: 'Test each option against the constraint: HashSet blocks duplicates but does not guarantee order; ArrayList preserves order but does not block duplicates.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'En son adım…', en: 'Final step…' }, detail: { tr: 'En son adım: cevabı seç VE "neden diğerleri yanlış" sorusunu kendine sor — bu adım mülakatta "neden?" diye sorulduğunda seni hazır yakalar.', en: 'Final step: pick the answer AND ask yourself "why are the others wrong" — this step prepares you for when an interviewer asks "why?"' } },
   ],
 }
 

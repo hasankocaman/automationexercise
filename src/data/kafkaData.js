@@ -825,10 +825,10 @@ const kafkaRetentionReplayStep = {
   type: 'step-animation',
   title: { tr: 'Bir Mesaj Kafka Log\'unda Nasıl Kalıcı Olur?', en: 'How Does a Message Persist in the Kafka Log?' },
   steps: [
-    { tr: 'Producer bir event\'i topic\'e gönderir — Kafka onu bir log dosyasına EKLER, üzerine yazmaz.', en: 'The Producer sends an event to the topic — Kafka APPENDS it to a log file, it never overwrites.' },
-    { tr: 'Event, sıralı bir offset numarası alır (örn. 42) — bu numara o event\'in log\'daki kalıcı adresidir.', en: 'The event gets a sequential offset number (e.g. 42) — this number is that event\'s permanent address in the log.' },
-    { tr: 'Consumer Group A, offset 42\'yi okur ve KENDİ offset\'ini ilerletir — log\'daki mesaj yerinde kalır, silinmez.', en: 'Consumer Group A reads offset 42 and advances ITS OWN offset — the message stays in the log, nothing is deleted.' },
-    { tr: 'Saatler sonra Consumer Group B (yepyeni bir grup) aynı topic\'e bağlanır ve offset 0\'dan başlayarak TÜM geçmişi bağımsız okuyabilir.', en: 'Hours later, Consumer Group B (a brand-new group) connects to the same topic and can independently read the ENTIRE history starting from offset 0.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Producer bir event\'i topic\'e gönderir…', en: 'The Producer sends an event to the topic…' }, detail: { tr: 'Producer bir event\'i topic\'e gönderir — Kafka onu bir log dosyasına EKLER, üzerine yazmaz.', en: 'The Producer sends an event to the topic — Kafka APPENDS it to a log file, it never overwrites.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Event, sıralı bir offset numarası alır…', en: 'The event gets a sequential offset number (e.g…' }, detail: { tr: 'Event, sıralı bir offset numarası alır (örn. 42) — bu numara o event\'in log\'daki kalıcı adresidir.', en: 'The event gets a sequential offset number (e.g. 42) — this number is that event\'s permanent address in the log.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Consumer Group A…', en: 'Consumer Group A reads offset 42 and…' }, detail: { tr: 'Consumer Group A, offset 42\'yi okur ve KENDİ offset\'ini ilerletir — log\'daki mesaj yerinde kalır, silinmez.', en: 'Consumer Group A reads offset 42 and advances ITS OWN offset — the message stays in the log, nothing is deleted.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Saatler sonra Consumer Group B (yepyeni…', en: 'Hours later…' }, detail: { tr: 'Saatler sonra Consumer Group B (yepyeni bir grup) aynı topic\'e bağlanır ve offset 0\'dan başlayarak TÜM geçmişi bağımsız okuyabilir.', en: 'Hours later, Consumer Group B (a brand-new group) connects to the same topic and can independently read the ENTIRE history starting from offset 0.' } },
   ],
 }
 
@@ -850,10 +850,10 @@ const kafkaLeaderElectionStep = {
   type: 'step-animation',
   title: { tr: 'Bir Broker Çöktüğünde Kim Devreye Girer?', en: 'When a Broker Crashes, Who Takes Over?' },
   steps: [
-    { tr: 'Her partition\'ın bir leader broker\'ı vardır — tüm okuma/yazma o brokerdan geçer, diğerleri sadece kopyalayan follower\'dır.', en: 'Every partition has one leader broker — all reads/writes go through it, the others are just replicating followers.' },
-    { tr: 'Leader, her yazmayı ISR (in-sync replica) listesindeki follower\'lara anında yansıtır.', en: 'The leader instantly mirrors every write to the followers in the ISR (in-sync replica) list.' },
-    { tr: 'Leader broker çöktüğünde, controller ISR listesinden bir follower\'ı SANİYELER içinde yeni leader olarak seçer.', en: 'When the leader broker crashes, the controller elects a follower from the ISR list as the new leader within SECONDS.' },
-    { tr: 'Producer ve consumer client kütüphanesi sayesinde otomatik olarak yeni leader\'a yönlendirilir — follower in-sync olduğu için veri kaybı sıfırdır.', en: 'Thanks to the client library, producers and consumers are automatically redirected to the new leader — because the follower was in sync, data loss is zero.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Her partition\'ın bir leader broker\'ı vardır…', en: 'Every partition has one leader broker…' }, detail: { tr: 'Her partition\'ın bir leader broker\'ı vardır — tüm okuma/yazma o brokerdan geçer, diğerleri sadece kopyalayan follower\'dır.', en: 'Every partition has one leader broker — all reads/writes go through it, the others are just replicating followers.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Leader…', en: 'The leader instantly mirrors every…' }, detail: { tr: 'Leader, her yazmayı ISR (in-sync replica) listesindeki follower\'lara anında yansıtır.', en: 'The leader instantly mirrors every write to the followers in the ISR (in-sync replica) list.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Leader broker çöktüğünde…', en: 'When the leader broker crashes…' }, detail: { tr: 'Leader broker çöktüğünde, controller ISR listesinden bir follower\'ı SANİYELER içinde yeni leader olarak seçer.', en: 'When the leader broker crashes, the controller elects a follower from the ISR list as the new leader within SECONDS.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Producer ve consumer client kütüphanesi…', en: 'Thanks to the client library…' }, detail: { tr: 'Producer ve consumer client kütüphanesi sayesinde otomatik olarak yeni leader\'a yönlendirilir — follower in-sync olduğu için veri kaybı sıfırdır.', en: 'Thanks to the client library, producers and consumers are automatically redirected to the new leader — because the follower was in sync, data loss is zero.' } },
   ],
 }
 
@@ -878,10 +878,10 @@ const kafkaLogCompactionStep = {
   type: 'step-animation',
   title: { tr: 'Log Compaction: Key Başına Sadece Son Değer', en: 'Log Compaction: Only the Latest Value Per Key' },
   steps: [
-    { tr: 'user-123 profiline art arda 5 güncelleme event\'i gönderilir — her biri log\'a normal şekilde eklenir.', en: '5 consecutive update events are sent for user-123\'s profile — each one gets appended to the log normally.' },
-    { tr: 'cleanup.policy=compact ayarlıysa, Kafka arka planda periyodik olarak log\'u tarar.', en: 'With cleanup.policy=compact set, Kafka periodically scans the log in the background.' },
-    { tr: 'Aynı key\'e (user-123) ait ESKİ 4 event silinir, sadece EN SON güncelleme kalır.', en: 'The OLD 4 events for the same key (user-123) are removed, only the MOST RECENT update remains.' },
-    { tr: 'Sonuç: topic artık bir "olay geçmişi" değil, bir "güncel durum deposu" gibi davranır — bir key-value store\'a benzer.', en: 'Result: the topic no longer behaves like an "event history" but like a "current state store" — similar to a key-value store.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'user-123 profiline art arda 5…', en: '5 consecutive update events are sent…' }, detail: { tr: 'user-123 profiline art arda 5 güncelleme event\'i gönderilir — her biri log\'a normal şekilde eklenir.', en: '5 consecutive update events are sent for user-123\'s profile — each one gets appended to the log normally.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'cleanup.policy=compact ayarlıysa…', en: 'With cleanup.policy=compact set…' }, detail: { tr: 'cleanup.policy=compact ayarlıysa, Kafka arka planda periyodik olarak log\'u tarar.', en: 'With cleanup.policy=compact set, Kafka periodically scans the log in the background.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Aynı key\'e (user-123) ait ESKİ 4 event silinir…', en: 'The OLD 4 events for the same key…' }, detail: { tr: 'Aynı key\'e (user-123) ait ESKİ 4 event silinir, sadece EN SON güncelleme kalır.', en: 'The OLD 4 events for the same key (user-123) are removed, only the MOST RECENT update remains.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Sonuç: topic artık bir "olay geçmişi"…', en: 'Result…' }, detail: { tr: 'Sonuç: topic artık bir "olay geçmişi" değil, bir "güncel durum deposu" gibi davranır — bir key-value store\'a benzer.', en: 'Result: the topic no longer behaves like an "event history" but like a "current state store" — similar to a key-value store.' } },
   ],
 }
 
@@ -903,10 +903,10 @@ const kafkaLagDiagnosisStep = {
   type: 'step-animation',
   title: { tr: 'Mülakatta Consumer Lag Sorununu Nasıl Çözersin?', en: 'How Do You Solve a Consumer Lag Question in an Interview?' },
   steps: [
-    { tr: 'Önce metriği SOMUTLAŞTIR: "lag 50.000" değil, "consumer, producer\'dan 50.000 mesaj GERİDE" de — dinleyeni etkiye odaklar.', en: 'First MAKE the metric concrete: instead of "lag is 50,000", say "the consumer is 50,000 messages BEHIND the producer" — this focuses the listener on impact.' },
-    { tr: 'Sonra TEŞHİS adımını anlat: kafka-consumer-groups.sh --describe ile hangi partition\'ların geride kaldığını gör.', en: 'Then describe the DIAGNOSIS step: use kafka-consumer-groups.sh --describe to see which partitions are falling behind.' },
-    { tr: 'Kök nedeni SINIFLANDIR: bloklayan senkron I/O mu, yetersiz consumer sayısı mı, yoksa GC duraklaması mı?', en: 'CLASSIFY the root cause: blocking synchronous I/O, too few consumers, or a GC pause?' },
-    { tr: 'Somut bir DÜZELTME öner: consumer sayısını partition sayısına eşitle, ya da bloklayan çağrıyı asenkron hale getir.', en: 'Propose a concrete FIX: match consumer count to partition count, or make the blocking call asynchronous.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Önce metriği SOMUTLAŞTIR…', en: 'First MAKE the metric concrete…' }, detail: { tr: 'Önce metriği SOMUTLAŞTIR: "lag 50.000" değil, "consumer, producer\'dan 50.000 mesaj GERİDE" de — dinleyeni etkiye odaklar.', en: 'First MAKE the metric concrete: instead of "lag is 50,000", say "the consumer is 50,000 messages BEHIND the producer" — this focuses the listener on impact.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Sonra TEŞHİS adımını anlat…', en: 'Then describe the DIAGNOSIS step…' }, detail: { tr: 'Sonra TEŞHİS adımını anlat: kafka-consumer-groups.sh --describe ile hangi partition\'ların geride kaldığını gör.', en: 'Then describe the DIAGNOSIS step: use kafka-consumer-groups.sh --describe to see which partitions are falling behind.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Kök nedeni SINIFLANDIR…', en: 'CLASSIFY the root cause…' }, detail: { tr: 'Kök nedeni SINIFLANDIR: bloklayan senkron I/O mu, yetersiz consumer sayısı mı, yoksa GC duraklaması mı?', en: 'CLASSIFY the root cause: blocking synchronous I/O, too few consumers, or a GC pause?' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Somut bir DÜZELTME öner…', en: 'Propose a concrete FIX…' }, detail: { tr: 'Somut bir DÜZELTME öner: consumer sayısını partition sayısına eşitle, ya da bloklayan çağrıyı asenkron hale getir.', en: 'Propose a concrete FIX: match consumer count to partition count, or make the blocking call asynchronous.' } },
   ],
 }
 

@@ -300,9 +300,9 @@ const awsWhyQaFilmStep = {
   type: 'step-animation',
   title: { tr: 'Bir Test Ortamının Klasik Sunucudan EC2\'ye Farkı', en: 'How a Test Environment Differs: Traditional Server vs EC2' },
   steps: [
-    { tr: 'Klasik sunucu: IT ticket aç, 2-4 hafta bekle, sunucu gelince manuel kurulum yap.', en: 'Traditional server: open an IT ticket, wait 2-4 weeks, manually set up once it arrives.' },
-    { tr: 'EC2: tek bir komutla ~2 dakikada Chrome + Selenium Grid kurulu bir Linux sunucu ayağa kalkar.', en: 'EC2: one command boots a Linux server with Chrome + Selenium Grid preinstalled in ~2 minutes.' },
-    { tr: 'Test bitince TerminateInstances çağrılır — fatura o an durur, sunucu diskten silinir.', en: 'When the test ends, TerminateInstances is called — billing stops that instant, the server is wiped from disk.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Klasik sunucu…', en: 'Traditional server…' }, detail: { tr: 'Klasik sunucu: IT ticket aç, 2-4 hafta bekle, sunucu gelince manuel kurulum yap.', en: 'Traditional server: open an IT ticket, wait 2-4 weeks, manually set up once it arrives.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'EC2: tek bir komutla ~2 dakikada Chrome…', en: 'EC2: one command boots a Linux server…' }, detail: { tr: 'EC2: tek bir komutla ~2 dakikada Chrome + Selenium Grid kurulu bir Linux sunucu ayağa kalkar.', en: 'EC2: one command boots a Linux server with Chrome + Selenium Grid preinstalled in ~2 minutes.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Test bitince TerminateInstances çağrılır…', en: 'When the test ends…' }, detail: { tr: 'Test bitince TerminateInstances çağrılır — fatura o an durur, sunucu diskten silinir.', en: 'When the test ends, TerminateInstances is called — billing stops that instant, the server is wiped from disk.' } },
   ],
 }
 
@@ -323,10 +323,10 @@ const awsAccessDeniedStep = {
   type: 'step-animation',
   title: { tr: 'Bir AWS Hatasını Teşhis Sırası', en: 'The Diagnosis Order for an AWS Error' },
   steps: [
-    { tr: 'Hata mesajının TAM METNİNİ oku — "AccessDenied" mi, "NoCredentials" mı, "InstanceLimitExceeded" mı?', en: 'Read the FULL error message text — is it "AccessDenied", "NoCredentials", or "InstanceLimitExceeded"?' },
-    { tr: 'IAM izin sorunu mu (kim bu işlemi yapmaya yetkili değil) yoksa kaynak/region sorunu mu (yanlış yerde arıyorsun) ayır.', en: 'Separate whether it\'s an IAM permission issue (who isn\'t authorized) or a resource/region issue (looking in the wrong place).' },
-    { tr: 'CloudTrail veya CI logunda TAM OLARAK hangi API çağrısının başarısız olduğunu bul.', en: 'Find EXACTLY which API call failed in CloudTrail or the CI log.' },
-    { tr: 'İlgili IAM rolüne/policy\'ye SADECE eksik olan izni ekle — geniş bir "FullAccess" ile örtbas etme.', en: 'Add ONLY the missing permission to the relevant IAM role/policy — don\'t paper over it with a broad "FullAccess".' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Hata mesajının TAM METNİNİ oku…', en: 'Read the FULL error message text…' }, detail: { tr: 'Hata mesajının TAM METNİNİ oku — "AccessDenied" mi, "NoCredentials" mı, "InstanceLimitExceeded" mı?', en: 'Read the FULL error message text — is it "AccessDenied", "NoCredentials", or "InstanceLimitExceeded"?' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'IAM izin sorunu mu (kim bu işlemi…', en: 'Separate whether it\'s an IAM permission…' }, detail: { tr: 'IAM izin sorunu mu (kim bu işlemi yapmaya yetkili değil) yoksa kaynak/region sorunu mu (yanlış yerde arıyorsun) ayır.', en: 'Separate whether it\'s an IAM permission issue (who isn\'t authorized) or a resource/region issue (looking in the wrong place).' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'CloudTrail veya CI logunda TAM OLARAK…', en: 'Find EXACTLY which API call failed in…' }, detail: { tr: 'CloudTrail veya CI logunda TAM OLARAK hangi API çağrısının başarısız olduğunu bul.', en: 'Find EXACTLY which API call failed in CloudTrail or the CI log.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'İlgili IAM rolüne/policy\'ye SADECE eksik…', en: 'Add ONLY the missing permission to the…' }, detail: { tr: 'İlgili IAM rolüne/policy\'ye SADECE eksik olan izni ekle — geniş bir "FullAccess" ile örtbas etme.', en: 'Add ONLY the missing permission to the relevant IAM role/policy — don\'t paper over it with a broad "FullAccess".' } },
   ],
 }
 
@@ -347,9 +347,9 @@ const awsInterviewStep = {
   type: 'step-animation',
   title: { tr: 'Mülakatta "Neden AWS Kullandınız?" Sorusuna Cevap', en: 'Answering "Why Did You Use AWS?" in an Interview' },
   steps: [
-    { tr: 'Sadece "AWS güçlü bir araç" deme — hangi SERVİSİ, HANGİ problem için seçtiğini somutlaştır.', en: 'Don\'t just say "AWS is powerful" — make concrete which SERVICE you chose, for WHICH problem.' },
-    { tr: 'Bir maliyet/fayda kararı anlat: "20 EC2 instance 4 saatliğine $12\'ye mal oldu, 3 aylık özel sunucu $3000 olurdu."', en: 'Describe a cost/benefit decision: "20 EC2 instances for 4 hours cost $12, a 3-month dedicated server would\'ve cost $3000."' },
-    { tr: 'Bir güvenlik/least-privilege kararı anlat: pipeline\'a AdministratorAccess yerine sadece gereken izni verdiğini göster.', en: 'Describe a security/least-privilege decision: show you gave the pipeline only the needed permission instead of AdministratorAccess.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Sadece "AWS güçlü bir araç" deme…', en: 'Don\'t just say "AWS is powerful"…' }, detail: { tr: 'Sadece "AWS güçlü bir araç" deme — hangi SERVİSİ, HANGİ problem için seçtiğini somutlaştır.', en: 'Don\'t just say "AWS is powerful" — make concrete which SERVICE you chose, for WHICH problem.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bir maliyet/fayda kararı anlat…', en: 'Describe a cost/benefit decision…' }, detail: { tr: 'Bir maliyet/fayda kararı anlat: "20 EC2 instance 4 saatliğine $12\'ye mal oldu, 3 aylık özel sunucu $3000 olurdu."', en: 'Describe a cost/benefit decision: "20 EC2 instances for 4 hours cost $12, a 3-month dedicated server would\'ve cost $3000."' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bir güvenlik/least-privilege kararı anlat…', en: 'Describe a security/least-privilege decision…' }, detail: { tr: 'Bir güvenlik/least-privilege kararı anlat: pipeline\'a AdministratorAccess yerine sadece gereken izni verdiğini göster.', en: 'Describe a security/least-privilege decision: show you gave the pipeline only the needed permission instead of AdministratorAccess.' } },
   ],
 }
 
@@ -370,9 +370,9 @@ const awsEcosystemTrStep = {
   type: 'step-animation',
   title: { tr: 'Lambda ile Zamanlanmış Health Check', en: 'Scheduled Health Check with Lambda' },
   steps: [
-    { tr: 'CloudWatch Events, Lambda fonksiyonunu her 5 dakikada bir tetikler — sunucu yönetmeye gerek yok.', en: 'CloudWatch Events triggers the Lambda function every 5 minutes — no server to manage.' },
-    { tr: 'Lambda, uygulamanın /health endpoint\'ine bir istek atar ve durumu kontrol eder.', en: 'Lambda sends a request to the app\'s /health endpoint and checks the status.' },
-    { tr: 'İstek başarısız olursa, Lambda bir SNS mesajı yayınlar — takım anında bir alarm alır.', en: 'If the request fails, Lambda publishes an SNS message — the team gets an instant alert.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'CloudWatch Events…', en: 'CloudWatch Events triggers the Lambda…' }, detail: { tr: 'CloudWatch Events, Lambda fonksiyonunu her 5 dakikada bir tetikler — sunucu yönetmeye gerek yok.', en: 'CloudWatch Events triggers the Lambda function every 5 minutes — no server to manage.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Lambda…', en: 'Lambda sends a request to the app\'s…' }, detail: { tr: 'Lambda, uygulamanın /health endpoint\'ine bir istek atar ve durumu kontrol eder.', en: 'Lambda sends a request to the app\'s /health endpoint and checks the status.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'İstek başarısız olursa…', en: 'If the request fails…' }, detail: { tr: 'İstek başarısız olursa, Lambda bir SNS mesajı yayınlar — takım anında bir alarm alır.', en: 'If the request fails, Lambda publishes an SNS message — the team gets an instant alert.' } },
   ],
 }
 

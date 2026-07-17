@@ -738,10 +738,10 @@ const browserstackInvalidCredsStep = {
   type: 'step-animation',
   title: { tr: 'Invalid Credentials Hatasını Teşhis Sırası', en: 'The Diagnosis Order for Invalid Credentials' },
   steps: [
-    { tr: 'Önce BS Dashboard → Account → Settings\'ten ACCESS_KEY\'in doğru kopyalandığını kontrol et.', en: 'First check that ACCESS_KEY was copied correctly from BS Dashboard → Account → Settings.' },
-    { tr: 'os.environ (veya benzeri) ile KEY\'in test çalışırken GERÇEKTEN okunduğunu print/log ile doğrula.', en: 'Verify with print/log via os.environ (or equivalent) that the KEY is ACTUALLY being read when the test runs.' },
-    { tr: '.env dosyasında gizli boşluk veya tırnak işareti olmadığını kontrol et — bunlar sessizce string\'i bozar.', en: 'Check the .env file for hidden spaces or quote characters — these silently corrupt the string.' },
-    { tr: 'Credential\'ı asla kod içine sabit yazma — env değişkeninden oku, git\'e asla commit etme.', en: 'Never hardcode the credential into the code — read it from an env variable, never commit it to git.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Önce BS Dashboard → Account →…', en: 'First check that ACCESS_KEY was copied…' }, detail: { tr: 'Önce BS Dashboard → Account → Settings\'ten ACCESS_KEY\'in doğru kopyalandığını kontrol et.', en: 'First check that ACCESS_KEY was copied correctly from BS Dashboard → Account → Settings.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'os.environ (veya benzeri) ile KEY\'in…', en: 'Verify with print/log via os.environ…' }, detail: { tr: 'os.environ (veya benzeri) ile KEY\'in test çalışırken GERÇEKTEN okunduğunu print/log ile doğrula.', en: 'Verify with print/log via os.environ (or equivalent) that the KEY is ACTUALLY being read when the test runs.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '.env dosyasında gizli boşluk veya…', en: 'Check the .env file for hidden spaces…' }, detail: { tr: '.env dosyasında gizli boşluk veya tırnak işareti olmadığını kontrol et — bunlar sessizce string\'i bozar.', en: 'Check the .env file for hidden spaces or quote characters — these silently corrupt the string.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Credential\'ı asla kod içine sabit yazma…', en: 'Never hardcode the credential into the code…' }, detail: { tr: 'Credential\'ı asla kod içine sabit yazma — env değişkeninden oku, git\'e asla commit etme.', en: 'Never hardcode the credential into the code — read it from an env variable, never commit it to git.' } },
   ],
 }
 
@@ -764,10 +764,10 @@ const browserstackReliabilityLayersStep = {
   type: 'step-animation',
   title: { tr: 'Test Güvenilirliğini Katman Katman Artırma', en: 'Increasing Test Reliability Layer by Layer' },
   steps: [
-    { tr: 'Katman 1 — Retry: geçici hatalarda test 1-2 kez otomatik tekrar dener (ama flaky bulgu yine de bug olarak kaydedilir).', en: 'Layer 1 — Retry: on transient errors, the test automatically retries 1-2 times (but the flaky finding is still logged as a bug).' },
-    { tr: 'Katman 2 — Screenshot on failure: her hatadan sonra otomatik ekran görüntüsü alınır, kimse tahmin etmez.', en: 'Layer 2 — Screenshot on failure: an automatic screenshot is taken after every error, nobody has to guess.' },
-    { tr: 'Katman 3 — Session cleanup: driver.quit() her durumda (test geçse de çökse de) çalışır.', en: 'Layer 3 — Session cleanup: driver.quit() runs under all circumstances (whether the test passes or crashes).' },
-    { tr: 'Katman 4 — Capability validation: geçersiz bir capability testler başlamadan ÖNCE yakalanır.', en: 'Layer 4 — Capability validation: an invalid capability is caught BEFORE tests even start.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Katman 1…', en: 'Layer 1…' }, detail: { tr: 'Katman 1 — Retry: geçici hatalarda test 1-2 kez otomatik tekrar dener (ama flaky bulgu yine de bug olarak kaydedilir).', en: 'Layer 1 — Retry: on transient errors, the test automatically retries 1-2 times (but the flaky finding is still logged as a bug).' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Katman 2…', en: 'Layer 2…' }, detail: { tr: 'Katman 2 — Screenshot on failure: her hatadan sonra otomatik ekran görüntüsü alınır, kimse tahmin etmez.', en: 'Layer 2 — Screenshot on failure: an automatic screenshot is taken after every error, nobody has to guess.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Katman 3…', en: 'Layer 3…' }, detail: { tr: 'Katman 3 — Session cleanup: driver.quit() her durumda (test geçse de çökse de) çalışır.', en: 'Layer 3 — Session cleanup: driver.quit() runs under all circumstances (whether the test passes or crashes).' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Katman 4…', en: 'Layer 4…' }, detail: { tr: 'Katman 4 — Capability validation: geçersiz bir capability testler başlamadan ÖNCE yakalanır.', en: 'Layer 4 — Capability validation: an invalid capability is caught BEFORE tests even start.' } },
   ],
 }
 

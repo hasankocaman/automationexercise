@@ -679,9 +679,9 @@ const raInterviewStep = {
   type: 'step-animation',
   title: { tr: 'REST Assured Mülakat Cevabı — 3 Katman', en: 'REST Assured Interview Answer — 3 Layers' },
   steps: [
-    { tr: 'Katman 1: Kavramı tek cümlede tanımla.', en: 'Layer 1: Define the concept in one sentence.' },
-    { tr: 'Katman 2: NASIL çalıştığını (mekanizmayı) göster.', en: 'Layer 2: Show HOW it works (the mechanism).' },
-    { tr: 'Katman 3: Kendi projenden somut bir örnekle DENEYİM göster.', en: 'Layer 3: Show EXPERIENCE with a concrete example from your own project.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Katman 1…', en: 'Layer 1…' }, detail: { tr: 'Katman 1: Kavramı tek cümlede tanımla.', en: 'Layer 1: Define the concept in one sentence.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Katman 2…', en: 'Layer 2…' }, detail: { tr: 'Katman 2: NASIL çalıştığını (mekanizmayı) göster.', en: 'Layer 2: Show HOW it works (the mechanism).' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Katman 3…', en: 'Layer 3…' }, detail: { tr: 'Katman 3: Kendi projenden somut bir örnekle DENEYİM göster.', en: 'Layer 3: Show EXPERIENCE with a concrete example from your own project.' } },
   ],
 }
 
@@ -709,9 +709,9 @@ const raWhyStep = {
   type: 'step-animation',
   title: { tr: 'Neden Bir API Test Kütüphanesine İhtiyaç Var?', en: 'Why Do You Need an API Testing Library at All?' },
   steps: [
-    { tr: 'Düz `HttpClient` ile: istek hazırlamak, göndermek, JSON\'ı parse etmek ve assertion yazmak İÇİN 4 AYRI adım, her biri elle kodlanır.', en: 'With plain `HttpClient`: preparing the request, sending it, parsing the JSON, and writing assertions are 4 SEPARATE steps, each hand-coded.' },
-    { tr: 'REST Assured ile: given/when/then TEK bir akıcı zincirde bu 4 adımı BİRLEŞTİRİR — okuyan biri hangi kısmın istek, hangi kısmın doğrulama olduğunu cümleden anlar.', en: 'With REST Assured: given/when/then MERGES these 4 steps into ONE fluent chain — a reader understands which part is the request and which is verification just from the sentence.' },
-    { tr: 'Sonuç: aynı test %60\'a varan daha AZ kod ile yazılır ve okunabilirlik doğrudan bakım maliyetini düşürür.', en: 'Result: the same test is written with up to 60% LESS code, and readability directly lowers maintenance cost.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Düz HttpClient ile…', en: 'With plain HttpClient…' }, detail: { tr: 'Düz `HttpClient` ile: istek hazırlamak, göndermek, JSON\'ı parse etmek ve assertion yazmak İÇİN 4 AYRI adım, her biri elle kodlanır.', en: 'With plain `HttpClient`: preparing the request, sending it, parsing the JSON, and writing assertions are 4 SEPARATE steps, each hand-coded.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'REST Assured ile…', en: 'With REST Assured…' }, detail: { tr: 'REST Assured ile: given/when/then TEK bir akıcı zincirde bu 4 adımı BİRLEŞTİRİR — okuyan biri hangi kısmın istek, hangi kısmın doğrulama olduğunu cümleden anlar.', en: 'With REST Assured: given/when/then MERGES these 4 steps into ONE fluent chain — a reader understands which part is the request and which is verification just from the sentence.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Sonuç: aynı test %60\'a varan daha AZ…', en: 'Result…' }, detail: { tr: 'Sonuç: aynı test %60\'a varan daha AZ kod ile yazılır ve okunabilirlik doğrudan bakım maliyetini düşürür.', en: 'Result: the same test is written with up to 60% LESS code, and readability directly lowers maintenance cost.' } },
   ],
 }
 
@@ -734,9 +734,9 @@ const raToolChoiceStep = {
   type: 'step-animation',
   title: { tr: 'Doğru API Test Aracını Seçme Kriterleri', en: 'Criteria for Choosing the Right API Testing Tool' },
   steps: [
-    { tr: 'Ekip Java/Selenium ekosisteminde mi çalışıyor? Evet ise → REST Assured, aynı build/CI zincirine sürtünmesiz girer.', en: 'Does the team already work in a Java/Selenium ecosystem? If yes → REST Assured integrates into the same build/CI chain with no friction.' },
-    { tr: 'Keşif odaklı, hızlı manuel test mi gerekiyor? Evet ise → Postman/Bruno, GUI ile anında deneme sağlar.', en: 'Is fast, exploratory manual testing needed? If yes → Postman/Bruno gives instant experimentation via GUI.' },
-    { tr: 'İkisi ZORUNLU olarak birbirini dışlamaz — çoğu ekip keşifte Postman/Bruno, regresyon suite\'inde REST Assured kullanır.', en: 'The two are NOT mutually exclusive — most teams use Postman/Bruno for exploration and REST Assured for the regression suite.' },
+    { id: 1, icon: '1️⃣', label: { tr: 'Ekip Java/Selenium ekosisteminde mi…', en: 'Does the team already work in a…' }, detail: { tr: 'Ekip Java/Selenium ekosisteminde mi çalışıyor? Evet ise → REST Assured, aynı build/CI zincirine sürtünmesiz girer.', en: 'Does the team already work in a Java/Selenium ecosystem? If yes → REST Assured integrates into the same build/CI chain with no friction.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Keşif odaklı…', en: 'Is fast…' }, detail: { tr: 'Keşif odaklı, hızlı manuel test mi gerekiyor? Evet ise → Postman/Bruno, GUI ile anında deneme sağlar.', en: 'Is fast, exploratory manual testing needed? If yes → Postman/Bruno gives instant experimentation via GUI.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'İkisi ZORUNLU olarak birbirini dışlamaz…', en: 'The two are NOT mutually exclusive…' }, detail: { tr: 'İkisi ZORUNLU olarak birbirini dışlamaz — çoğu ekip keşifte Postman/Bruno, regresyon suite\'inde REST Assured kullanır.', en: 'The two are NOT mutually exclusive — most teams use Postman/Bruno for exploration and REST Assured for the regression suite.' } },
   ],
 }
 
