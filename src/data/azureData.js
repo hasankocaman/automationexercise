@@ -1,3 +1,407 @@
+import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
+// ─── Dalga 18 film sabitleri (video-scene — EN + TR paylaşımlı) ─────────────
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+// 🎯 Introduction — bir başarısız testin otomatik bug work item'a dönüşmesi
+const azureOneLoginFilm = {
+  type: 'video-scene',
+  id: 'azure-one-login-film',
+  title: { tr: '🎬 Tek Bir Login: Testten Bug\'a Kopyala-Yapıştırsız Zincir', en: '🎬 One Login: The Copy-Paste-Free Chain from Test to Bug' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'silo',     emoji: '🧩', label: { tr: 'Ayrık Araçlar (Jenkins+LDAP+TestRail)', en: 'Siloed Tools (Jenkins+LDAP+TestRail)' }, color: '#64748b' },
+    { id: 'test',     emoji: '🧪', label: { tr: 'Test Başarısız Olur',  en: 'Test Fails' },            color: '#f97316' },
+    { id: 'devops',   emoji: '🔷', label: { tr: 'Azure DevOps',         en: 'Azure DevOps' },          color: '#0078d4' },
+    { id: 'bug',      emoji: '🐛', label: { tr: 'Bug Work Item (otomatik)', en: 'Bug Work Item (automatic)' }, color: '#a855f7' },
+    { id: 'dashboard', emoji: '📊', label: { tr: 'Stakeholder Dashboard', en: 'Stakeholder Dashboard' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Ayrık araçlarla: Jenkins testi çalıştırır, LDAP kimlik doğrular, TestRail sonucu ayrı tutar — hiçbiri birbirini otomatik BİLMEZ.', en: 'With siloed tools: Jenkins runs the test, LDAP authenticates, TestRail tracks the result separately — none of them automatically KNOW about each other.' },
+      code: { tr: `Jenkins != LDAP != TestRail != Slack`, en: `Jenkins != LDAP != TestRail != Slack` },
+      positions: { silo: { x: 50, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Azure DevOps\'ta bir pipeline testi çalıştırır ve başarısız olur.', en: 'In Azure DevOps, a pipeline runs a test and it fails.' },
+      code: { tr: `az pipelines run -> test FAILED`, en: `az pipelines run -> test FAILED` },
+      positions: { silo: { x: 20, y: 40, opacity: 0.5, scale: 0.9 }, test: { x: 48, y: 40, scale: 1.15, pulse: true } },
+      beams: [{ from: 'silo', to: 'test', color: '#f97316' }],
+    },
+    {
+      caption: { tr: 'Azure DevOps, repo/pipeline/test plan/board\'u AYNI platformda tuttuğu için, başarısızlığı KİM YAZDIYSA o PR ID\'siyle bağlar.', en: 'Because Azure DevOps keeps repo/pipeline/test plan/board on the SAME platform, it links the failure to the PR ID of WHOEVER wrote it.' },
+      code: { tr: `failedTest.link(prId, workItem)`, en: `failedTest.link(prId, workItem)` },
+      positions: { test: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, devops: { x: 54, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'test', to: 'devops', color: '#0078d4' }],
+    },
+    {
+      caption: { tr: 'Bir bug work item OTOMATİK oluşur — ortam, adımlar ve sorumlu kişi hiçbir kopyala-yapıştır olmadan doldurulur.', en: 'A bug work item is created AUTOMATICALLY — environment, steps, and the responsible person are filled in without a single copy-paste.' },
+      code: { tr: `workItem.create({env, steps, owner})`, en: `workItem.create({env, steps, owner})` },
+      positions: { devops: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, bug: { x: 58, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'devops', to: 'bug', color: '#a855f7' }],
+    },
+    {
+      caption: { tr: 'Final — bug, stakeholder dashboard\'unda anında görünür. Kontrast: ayrık araçlarda bu zincir kurulmasaydı, geliştirici hiç kanıt görmeden özelliği production\'a gönderirdi.', en: 'Final — the bug appears instantly on the stakeholder dashboard. The contrast: without this chain, a developer would ship the feature to production having never seen any evidence.' },
+      positions: { bug: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, dashboard: { x: 62, y: 40, scale: 1.25, pulse: true } },
+      beams: [{ from: 'bug', to: 'dashboard', color: '#22c55e' }],
+    },
+  ],
+}
+
+// ⚙️ Installation — Service Principal ile insansız kimlik doğrulama
+const azureServicePrincipalFilm = {
+  type: 'video-scene',
+  id: 'azure-service-principal-film',
+  title: { tr: '🎬 İnsan Parola Yazmadan Azure\'a Giriş: Service Principal', en: '🎬 Logging into Azure Without a Human Typing a Password: Service Principal' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'portal',   emoji: '🖱️', label: { tr: 'Azure Portal (manuel)', en: 'Azure Portal (manual)' }, color: '#64748b' },
+    { id: 'cli',      emoji: '⌨️', label: { tr: 'Azure CLI',             en: 'Azure CLI' },            color: '#0078d4' },
+    { id: 'human',    emoji: '👤', label: { tr: 'az login (insan girişi)', en: 'az login (human login)' }, color: '#f97316' },
+    { id: 'sp',       emoji: '🤖', label: { tr: 'Service Principal',     en: 'Service Principal' },    color: '#a855f7' },
+    { id: 'pipeline', emoji: '✅', label: { tr: 'Pipeline İnsansız Çalışır', en: 'Pipeline Runs Unattended' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Azure Portal, ekrana tıklayan bir insan gerektirir — bir pipeline script\'inin tıklayacak eli yoktur.', en: 'The Azure Portal requires a human clicking screens — a pipeline script has no hand to click with.' },
+      code: { tr: `Portal -> tikla -> tikla -> onayla`, en: `Portal -> click -> click -> confirm` },
+      positions: { portal: { x: 50, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Azure CLI, aynı işlemleri komut satırından yapılabilir hale getirir.', en: 'The Azure CLI makes the same operations doable from the command line.' },
+      code: { tr: `az vm create --name selenium-hub`, en: `az vm create --name selenium-hub` },
+      positions: { portal: { x: 20, y: 40, opacity: 0.5, scale: 0.9 }, cli: { x: 48, y: 40, scale: 1.15, pulse: true } },
+      beams: [{ from: 'portal', to: 'cli', color: '#0078d4' }],
+    },
+    {
+      caption: { tr: 'az login normalde bir insanın interaktif olarak (belki MFA ile) giriş yapmasını bekler — bir CI job\'ı bunu YAPAMAZ.', en: 'az login normally waits for a human to log in interactively (maybe with MFA) — a CI job CANNOT do this.' },
+      code: { tr: `az login // MFA bekler, CI'da TAKILIR`, en: `az login // waits for MFA, HANGS in CI` },
+      positions: { cli: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, human: { x: 54, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'cli', to: 'human', color: '#f97316' }],
+    },
+    {
+      caption: { tr: 'Çözüm: bir Service Principal — pipeline için oluşturulan, MFA gerektirmeyen "makine kimliği".', en: 'The fix: a Service Principal — a "machine identity" created for the pipeline, exempt from MFA.' },
+      code: { tr: `az ad sp create-for-rbac --name qa-pipeline-sp`, en: `az ad sp create-for-rbac --name qa-pipeline-sp` },
+      positions: { human: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, sp: { x: 58, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'human', to: 'sp', color: '#a855f7' }],
+    },
+    {
+      caption: { tr: 'Final — az login --service-principal ile pipeline, hiçbir insan müdahalesi olmadan gece 2:00\'de bile sorunsuz çalışır.', en: 'Final — with az login --service-principal, the pipeline runs cleanly even at 2 AM without any human intervention.' },
+      positions: { sp: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, pipeline: { x: 62, y: 40, scale: 1.25, pulse: true } },
+      beams: [{ from: 'sp', to: 'pipeline', color: '#22c55e' }],
+    },
+  ],
+}
+
+// 🛠️ Real World — Playwright pipeline'ından Blob Storage SAS URL'ine
+const azurePlaywrightBlobFilm = {
+  type: 'video-scene',
+  id: 'azure-playwright-blob-film',
+  title: { tr: '🎬 Bir Playwright Raporunun Blob Storage\'a Yolculuğu', en: '🎬 A Playwright Report\'s Journey to Blob Storage' },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'push',     emoji: '📤', label: { tr: 'git push -> main',      en: 'git push -> main' },     color: '#f97316' },
+    { id: 'agent',    emoji: '🖥️', label: { tr: 'Microsoft-hosted Agent', en: 'Microsoft-hosted Agent' }, color: '#0078d4' },
+    { id: 'test',     emoji: '🎭', label: { tr: 'Playwright Testleri',    en: 'Playwright Tests' },     color: '#22c55e' },
+    { id: 'blob',     emoji: '📦', label: { tr: 'Blob Storage Upload',    en: 'Blob Storage Upload' },  color: '#a855f7' },
+    { id: 'sas',      emoji: '🔗', label: { tr: 'SAS URL (7 gün geçerli)', en: 'SAS URL (valid 7 days)' }, color: '#f59e0b' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'main branch\'ine bir git push, azure-pipelines.yml\'deki trigger\'ı ateşler.', en: 'A git push to main fires the trigger in azure-pipelines.yml.' },
+      code: { tr: `trigger:\n  - main`, en: `trigger:\n  - main` },
+      positions: { push: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Microsoft-hosted agent (ücretsiz 1800 dk/ay) devreye girer — Node.js kurulur, hiçbir sunucu senin değildir.', en: 'A Microsoft-hosted agent (1,800 free min/month) picks it up — Node.js gets installed, no server is yours to manage.' },
+      code: { tr: `pool: { vmImage: 'ubuntu-latest' }`, en: `pool: { vmImage: 'ubuntu-latest' }` },
+      positions: { push: { x: 20, y: 40, opacity: 0.6, scale: 0.9 }, agent: { x: 46, y: 40, scale: 1.15, pulse: true } },
+      beams: [{ from: 'push', to: 'agent', color: '#0078d4' }],
+    },
+    {
+      caption: { tr: 'Playwright testleri çalışır — continueOnError: true sayesinde, testler başarısız olsa bile sonuç yayımlanmaya devam eder.', en: 'Playwright tests run — thanks to continueOnError: true, results still get published even if tests fail.' },
+      code: { tr: `npx playwright test --reporter=html,junit`, en: `npx playwright test --reporter=html,junit` },
+      positions: { agent: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, test: { x: 54, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'agent', to: 'test', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'HTML rapor, az storage blob upload-batch komutuyla Blob Storage\'a yüklenir.', en: 'The HTML report gets uploaded to Blob Storage with az storage blob upload-batch.' },
+      code: { tr: `az storage blob upload-batch --source playwright-report/`, en: `az storage blob upload-batch --source playwright-report/` },
+      positions: { test: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, blob: { x: 58, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'test', to: 'blob', color: '#a855f7' }],
+    },
+    {
+      caption: { tr: 'Final — bir SAS URL üretilir: 7 gün boyunca geçerli, sadece okuma izinli, kimlik paylaşmadan takıma gönderilebilen bir link.', en: 'Final — a SAS URL is generated: valid for 7 days, read-only, a link that can be shared with the team without sharing any credentials.' },
+      positions: { blob: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, sas: { x: 62, y: 40, scale: 1.25, pulse: true } },
+      beams: [{ from: 'blob', to: 'sas', color: '#f59e0b' }],
+    },
+  ],
+}
+
+// 🔗 Ecosystem — uçtan uca Azure QA iş akışı
+const azureEndToEndWorkflowFilm = {
+  type: 'video-scene',
+  id: 'azure-end-to-end-workflow-film',
+  title: { tr: '🎬 Bir Commit\'in Uçtan Uca Azure QA Yolculuğu', en: '🎬 A Commit\'s End-to-End Journey Through Azure QA' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'repo',     emoji: '📁', label: { tr: 'Azure Repos',          en: 'Azure Repos' },          color: '#0078d4' },
+    { id: 'pipeline', emoji: '🔁', label: { tr: 'Azure Pipelines',      en: 'Azure Pipelines' },      color: '#f97316' },
+    { id: 'aks',      emoji: '🐳', label: { tr: 'AKS (paralel testler)', en: 'AKS (parallel tests)' }, color: '#22c55e' },
+    { id: 'plans',    emoji: '📋', label: { tr: 'Azure Test Plans',     en: 'Azure Test Plans' },     color: '#a855f7' },
+    { id: 'boards',   emoji: '📊', label: { tr: 'Azure Boards',         en: 'Azure Boards' },         color: '#f59e0b' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Bir geliştirici Azure Repos\'a kod push eder — aynı platformda tutulan tek bir repo.', en: 'A developer pushes code to Azure Repos — a single repo kept on the same platform.' },
+      code: { tr: `git push origin feature/checkout`, en: `git push origin feature/checkout` },
+      positions: { repo: { x: 16, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'Azure Pipelines otomatik tetiklenir ve test suite\'ini çalıştırır.', en: 'Azure Pipelines triggers automatically and runs the test suite.' },
+      code: { tr: `trigger: [main] -> pipeline calisir`, en: `trigger: [main] -> pipeline runs` },
+      positions: { repo: { x: 20, y: 40, opacity: 0.6, scale: 0.9 }, pipeline: { x: 46, y: 40, scale: 1.15, pulse: true } },
+      beams: [{ from: 'repo', to: 'pipeline', color: '#f97316' }],
+    },
+    {
+      caption: { tr: 'Ağır paralel test yükü AKS\'e (Azure Kubernetes Service) dağıtılır — onlarca test podu aynı anda çalışır.', en: 'The heavy parallel test load is distributed to AKS (Azure Kubernetes Service) — dozens of test pods run at once.' },
+      code: { tr: `kubectl scale deployment test-runner --replicas=20`, en: `kubectl scale deployment test-runner --replicas=20` },
+      positions: { pipeline: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, aks: { x: 54, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'pipeline', to: 'aks', color: '#22c55e' }],
+    },
+    {
+      caption: { tr: 'Sonuçlar Azure Test Plans\'a akar — manuel test senaryolarıyla aynı izlenebilirlik zincirinde birleşir.', en: 'Results flow into Azure Test Plans — merging into the same traceability chain as manual test scenarios.' },
+      code: { tr: `testPlans.recordResult(runId, status)`, en: `testPlans.recordResult(runId, status)` },
+      positions: { aks: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, plans: { x: 58, y: 40, scale: 1.2, pulse: true } },
+      beams: [{ from: 'aks', to: 'plans', color: '#a855f7' }],
+    },
+    {
+      caption: { tr: 'Final — başarısız bir sonuç, Azure Boards\'ta otomatik bir work item olarak belirir; TEK bir platformda repo\'dan board\'a kadar hiçbir bağlantı kopmaz.', en: 'Final — a failed result appears automatically as a work item on Azure Boards; on ONE single platform, nothing breaks from repo all the way to board.' },
+      positions: { plans: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, boards: { x: 62, y: 40, scale: 1.25, pulse: true } },
+      beams: [{ from: 'plans', to: 'boards', color: '#f59e0b' }],
+    },
+  ],
+}
+
+// 🚨 Common Errors — AuthorizationFailed: RBAC scope teşhisi
+const azureAuthorizationFailedFilm = {
+  type: 'video-scene',
+  id: 'azure-authorization-failed-film',
+  title: { tr: '🎬 AuthorizationFailed: 11\'de Panik, Sabah Felaket', en: '🎬 AuthorizationFailed: Panic at 11 PM, Disaster by Morning' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'pipeline', emoji: '⚙️', label: { tr: 'Release Öncesi Pipeline', en: 'Pre-Release Pipeline' }, color: '#f97316' },
+    { id: 'denied',   emoji: '💥', label: { tr: 'AuthorizationFailed',   en: 'AuthorizationFailed' },  color: '#ef4444' },
+    { id: 'oncall',   emoji: '🌙', label: { tr: 'Nöbetçi Mühendis (11pm)', en: 'On-Call Engineer (11pm)' }, color: '#a855f7' },
+    { id: 'broad',    emoji: '🎫', label: { tr: 'Contributor @ Subscription (aşırı geniş)', en: 'Contributor @ Subscription (too broad)' }, color: '#ef4444' },
+    { id: 'prod',     emoji: '🚨', label: { tr: 'QA Artık Prod\'a Erişebilir', en: 'QA Now Has Prod Access' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Bir release öncesi gece, pipeline bir Azure kaynağı oluşturmaya çalışır.', en: 'The night before a release, the pipeline tries to create an Azure resource.' },
+      code: { tr: `az vm create --resource-group qa-rg`, en: `az vm create --resource-group qa-rg` },
+      positions: { pipeline: { x: 50, y: 30, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: { tr: 'AuthorizationFailed fırlatılır — kullanılan Service Principal\'ın bu resource group\'ta gerekli RBAC rolü YOK.', en: 'AuthorizationFailed is thrown — the Service Principal in use does NOT have the required RBAC role on this resource group.' },
+      code: { tr: `AuthorizationFailed: Microsoft.Compute/virtualMachines/write`, en: `AuthorizationFailed: Microsoft.Compute/virtualMachines/write` },
+      positions: { pipeline: { x: 44, y: 30, scale: 1.0 }, denied: { x: 72, y: 20, scale: 1.15, pulse: true } },
+      beams: [{ from: 'pipeline', to: 'denied', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Nöbetçi mühendis gece 11\'de bunu görür — release baskısı altında "çalışsın da nasıl olursa olsun" moduna girer.', en: 'The on-call engineer sees this at 11 PM — under release pressure, they slip into "just make it work somehow" mode.' },
+      code: { tr: `"Sadece calissin, sabaha kadar zaman yok"`, en: `"Just make it work, no time before morning"` },
+      positions: { denied: { x: 60, y: 20, opacity: 0.6, scale: 0.9 }, oncall: { x: 34, y: 45, scale: 1.15, pulse: true } },
+      beams: [{ from: 'denied', to: 'oncall', color: '#a855f7' }],
+    },
+    {
+      caption: { tr: 'Doğru rolü bulmak yerine, Contributor rolü TÜM subscription seviyesinde atanır — sorun "çözülür".', en: 'Instead of finding the right role, the Contributor role gets assigned at the ENTIRE subscription level — the problem is "solved".' },
+      code: { tr: `az role assignment create --role Contributor --scope /subscriptions/...`, en: `az role assignment create --role Contributor --scope /subscriptions/...` },
+      positions: { oncall: { x: 40, y: 45, opacity: 0.6, scale: 0.9 }, broad: { x: 66, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'oncall', to: 'broad', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Final — ertesi sabah, QA pipeline\'ının Service Principal\'ı artık PRODUCTION veritabanlarına da yazma erişimine sahiptir. Ders: RBAC scope\'unu her zaman EN DAR kaynağa (resource group, hatta tek kaynak) hedefle, subscription\'a değil.', en: 'Final — the next morning, the QA pipeline\'s Service Principal now has write access to PRODUCTION databases too. Lesson: always scope RBAC to the NARROWEST resource (resource group, even a single resource), never the subscription.' },
+      positions: { broad: { x: 40, y: 45, scale: 1.0, opacity: 0.6 }, prod: { x: 66, y: 45, scale: 1.25, pulse: true } },
+      beams: [{ from: 'broad', to: 'prod', color: '#ef4444' }],
+    },
+  ],
+}
+
+// 💼 Interview — RBAC scope tasarımı mülakat senaryosu
+const azureRbacScopeInterviewFilm = {
+  type: 'video-scene',
+  id: 'azure-rbac-scope-interview-film',
+  title: { tr: '🎬 Mülakat Senaryosu: QA Pipeline\'ına Ne Kadar Yetki Verirsin?', en: '🎬 Interview Scenario: How Much Access Do You Give a QA Pipeline?' },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '❓', label: { tr: 'Mülakat Sorusu',        en: 'Interview Question' },    color: '#0ea5e9' },
+    { id: 'easy',     emoji: '🎫', label: { tr: 'Kolay Cevap: Owner',    en: 'Easy Answer: Owner' },    color: '#ef4444' },
+    { id: 'why',      emoji: '🤔', label: { tr: 'Gerçekte Ne Gerekiyor?', en: 'What Is Actually Needed?' }, color: '#a855f7' },
+    { id: 'scoped',   emoji: '📝', label: { tr: 'Tek Resource Group\'a Contributor', en: 'Contributor on One Resource Group' }, color: '#f97316' },
+    { id: 'secure',   emoji: '✅', label: { tr: 'Güvenli, Dar Kapsamlı Pipeline', en: 'Secure, Narrow-Scoped Pipeline' }, color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: { tr: 'Mülakat sorusu: "Bir QA pipeline\'ı için test VM\'leri oluşturması gerekiyor — hangi RBAC rolünü verirsin?"', en: 'Interview question: "A QA pipeline needs to create test VMs — what RBAC role do you grant?"' },
+      code: { tr: `role = "?"`, en: `role = "?"` },
+      positions: { question: { x: 50, y: 30, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: { tr: 'Kolay cevap: Owner rolünü subscription\'a ata, her şey çalışır. Ama bu YANLIŞ cevaptır — Owner, kaynak silme ve izin değiştirme gücü de verir.', en: 'Easy answer: assign the Owner role at the subscription level, everything works. But that\'s the WRONG answer — Owner also grants the power to delete resources and change permissions.' },
+      code: { tr: `role = "Owner" @ subscription // COK GENIS`, en: `role = "Owner" @ subscription // TOO BROAD` },
+      positions: { question: { x: 44, y: 30, scale: 1.0 }, easy: { x: 72, y: 20, scale: 1.2, pulse: true } },
+      beams: [{ from: 'question', to: 'easy', color: '#ef4444' }],
+    },
+    {
+      caption: { tr: 'Doğru soru: pipeline GERÇEKTE ne yapıyor? Sadece TEK bir resource group\'ta VM oluşturuyor — subscription\'ın geri kalanına dokunmuyor.', en: 'The right question: what does the pipeline ACTUALLY do? It only creates VMs in ONE resource group — it never touches the rest of the subscription.' },
+      code: { tr: `Gercek ihtiyac: VM create -> qa-rg SADECE`, en: `Actual need: VM create -> qa-rg ONLY` },
+      positions: { easy: { x: 60, y: 20, opacity: 0.6, scale: 0.9 }, why: { x: 34, y: 45, scale: 1.15, pulse: true } },
+      beams: [{ from: 'easy', to: 'why', color: '#0ea5e9' }],
+    },
+    {
+      caption: { tr: 'Contributor rolü, SADECE qa-rg resource group\'una atanır — production kaynaklarına hiç erişim yoktur.', en: 'The Contributor role gets assigned ONLY on the qa-rg resource group — no access to production resources whatsoever.' },
+      code: { tr: `az role assignment create --role Contributor --scope .../resourceGroups/qa-rg`, en: `az role assignment create --role Contributor --scope .../resourceGroups/qa-rg` },
+      positions: { why: { x: 40, y: 45, opacity: 0.6, scale: 0.9 }, scoped: { x: 66, y: 45, scale: 1.2, pulse: true } },
+      beams: [{ from: 'why', to: 'scoped', color: '#f97316' }],
+    },
+    {
+      caption: { tr: 'Final — pipeline yine çalışır, ama Service Principal\'ın credential\'ları çalınsa bile saldırgan sadece qa-rg\'ye dokunabilir. Mülakat dersi: en az yetki = "sadece çalışsın" değil, "yalnızca gerekeni ver".', en: 'Final — the pipeline still works, but even if the Service Principal\'s credentials are stolen, an attacker can only touch qa-rg. Interview lesson: least privilege isn\'t "just make it work", it\'s "grant only what\'s needed".' },
+      positions: { scoped: { x: 40, y: 45, scale: 1.0, opacity: 0.6 }, secure: { x: 66, y: 45, scale: 1.25, pulse: true } },
+      beams: [{ from: 'scoped', to: 'secure', color: '#22c55e' }],
+    },
+  ],
+}
+
+// Eksik animasyon/sandbox tamamlamaları — kodsuz sekmeler (CLAUDE.md §9.5)
+
+const azureIntroStep = {
+  type: 'step-animation',
+  title: { tr: 'Azure DevOps Tek Platform Avantajı', en: 'The Azure DevOps Single-Platform Advantage' },
+  steps: [
+    { tr: 'Ayrık araçlarla: Jenkins test çalıştırır, LDAP kimlik doğrular, TestRail sonucu ayrı tutar — hiçbir bağlantı otomatik değildir.', en: 'With siloed tools: Jenkins runs tests, LDAP authenticates, TestRail tracks results separately — no link is automatic.' },
+    { tr: 'Azure DevOps\'ta repo, pipeline, test plan ve board AYNI platformdadır — bir bağlantı hiç kopmaz.', en: 'In Azure DevOps, repo, pipeline, test plan, and board are on the SAME platform — a link never breaks.' },
+    { tr: 'Sonuç: başarısız bir test, PR ID\'siyle otomatik eşleşen bir bug work item\'ına dönüşür — kopyala-yapıştır yok.', en: 'Result: a failed test becomes a bug work item automatically matched to the PR ID — no copy-paste.' },
+  ],
+}
+
+const azureIntroPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'azure-intro',
+  title: { tr: 'Kendin Dene: Doğru Azure Servisini Seç', en: 'Try It Yourself: Pick the Right Azure Service' },
+  starterCode: `// Hedef: repo + pipeline + manuel test + bug takibini TEK platformda topla
+// TODO: dogru servisi yaz
+const service = "?";`,
+  solutionCode: `// Hedef: repo + pipeline + manuel test + bug takibini TEK platformda topla
+const service = "Azure DevOps";`,
+  hint: { tr: 'Azure Storage sadece dosya saklar, Azure VM sadece sanal makine sağlar — hiçbiri repo+pipeline+test plan+board\'u bir araya getirmez. Azure DevOps tam olarak bunun için tasarlandı.', en: 'Azure Storage only stores files, Azure VM only provides virtual machines — neither combines repo+pipeline+test plan+board. Azure DevOps is built exactly for that.' },
+  successMessage: { tr: 'Doğru! Azure DevOps, QA görünürlüğünün nerede kaybolduğu (araçlar arası kopuk geçişler) sorununu platform seviyesinde çözer.', en: 'Correct! Azure DevOps solves the problem of where QA visibility gets lost (broken handoffs between tools) at the platform level.' },
+}
+
+const azureEcosystemStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Commit\'in Azure Ekosistemindeki Adımları', en: 'A Commit\'s Steps Through the Azure Ecosystem' },
+  steps: [
+    { tr: 'Kod, Azure Repos\'a push edilir — Azure Pipelines\'ı tetikler.', en: 'Code gets pushed to Azure Repos — triggering Azure Pipelines.' },
+    { tr: 'Ağır paralel test yükü AKS\'e dağıtılır, onlarca pod aynı anda çalışır.', en: 'The heavy parallel test load is distributed to AKS, dozens of pods run at once.' },
+    { tr: 'Sonuç Azure Test Plans\'a akar, başarısızlık Azure Boards\'ta otomatik bir work item olur.', en: 'The result flows into Azure Test Plans, a failure becomes an automatic work item on Azure Boards.' },
+  ],
+}
+
+const azureEcosystemPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'azure-ecosystem',
+  title: { tr: 'Kendin Dene: Paralel Test Podlarını Ölçekle', en: 'Try It Yourself: Scale Parallel Test Pods' },
+  starterCode: `// Hedef: AKS'te 20 paralel test podu calistir
+// TODO: dogru komutu yaz
+? scale deployment test-runner --replicas=?`,
+  solutionCode: `// Hedef: AKS'te 20 paralel test podu calistir
+kubectl scale deployment test-runner --replicas=20`,
+  hint: { tr: 'kubectl scale, bir deployment\'ın kaç pod\'a (kopyaya) sahip olacağını belirler — replicas=20, aynı test-runner container\'ının 20 kopyasının paralel çalışması demektir.', en: 'kubectl scale sets how many pods (copies) a deployment should have — replicas=20 means 20 copies of the same test-runner container run in parallel.' },
+  successMessage: { tr: 'Doğru! Bu, tek bir makinede sıralı çalışacak bir test suite\'ini 20 kat hızlandırır — AKS otomatik olarak podları farklı node\'lara dağıtır.', en: 'Correct! This speeds up a test suite that would run sequentially on one machine by 20x — AKS automatically distributes pods across nodes.' },
+}
+
+const azureErrorsStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Azure Hatasını Teşhis Sırası', en: 'The Diagnosis Order for an Azure Error' },
+  steps: [
+    { tr: 'Hata mesajının TAM METNİNİ oku — "AuthorizationFailed" mi, "StorageAccountAlreadyTaken" mı?', en: 'Read the FULL error message text — is it "AuthorizationFailed" or "StorageAccountAlreadyTaken"?' },
+    { tr: 'RBAC izin sorunu mu (kim yetkili değil) yoksa küresel isim/kapasite sorunu mu (platform kısıtı) ayır.', en: 'Separate whether it\'s an RBAC permission issue (who isn\'t authorized) or a global naming/capacity issue (a platform constraint).' },
+    { tr: 'Eksik rolü SADECE gereken en dar scope\'a (resource group, hatta tek kaynak) ekle — subscription\'a değil.', en: 'Add the missing role ONLY to the narrowest needed scope (resource group, even a single resource) — never the subscription.' },
+  ],
+}
+
+const azureErrorsPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'azure-errors',
+  title: { tr: 'Kendin Dene: RBAC Rolünü Doğru Scope\'a Ata', en: 'Try It Yourself: Assign the RBAC Role to the Right Scope' },
+  starterCode: `// Hata: AuthorizationFailed - Microsoft.Compute/virtualMachines/write
+// TODO: rolu SADECE qa-rg resource group'una ata (subscription'a degil)
+az role assignment create --role Contributor --scope "?"`,
+  solutionCode: `// Hata: AuthorizationFailed - Microsoft.Compute/virtualMachines/write
+az role assignment create --role Contributor --scope "/subscriptions/xxx/resourceGroups/qa-rg"`,
+  hint: { tr: 'Scope\'u "/subscriptions/xxx" olarak bırakmak, rolü TÜM subscription\'a verir — resourceGroups/qa-rg ekleyerek scope\'u SADECE o resource group\'a daraltırsın.', en: 'Leaving scope as just "/subscriptions/xxx" grants the role across the ENTIRE subscription — adding resourceGroups/qa-rg narrows the scope to ONLY that resource group.' },
+  successMessage: { tr: 'Doğru! Bu, gece yarısı panikle "Contributor @ subscription" atayıp sabah production\'a yanlışlıkla erişim açmanın önüne geçer.', en: 'Correct! This prevents the midnight-panic mistake of assigning "Contributor @ subscription" and accidentally opening production access by morning.' },
+}
+
+const azureInterviewStep = {
+  type: 'step-animation',
+  title: { tr: 'Mülakatta "Neden Azure Kullandınız?" Sorusuna Cevap', en: 'Answering "Why Did You Use Azure?" in an Interview' },
+  steps: [
+    { tr: 'Sadece "Azure DevOps güçlü" deme — HANGİ bileşeni, HANGİ problem için seçtiğini somutlaştır.', en: 'Don\'t just say "Azure DevOps is powerful" — make concrete WHICH component you chose, for WHICH problem.' },
+    { tr: 'Bir entegrasyon kararı anlat: "Zaten Active Directory kullanıyorduk, ayrı bir kimlik sistemi kurmak yerine Azure AD\'yi kullandık."', en: 'Describe an integration decision: "We already used Active Directory, so instead of standing up a separate identity system we used Azure AD."' },
+    { tr: 'Bir güvenlik/RBAC kararı anlat: pipeline\'a subscription seviyesi yerine sadece gereken resource group\'a izin verdiğini göster.', en: 'Describe a security/RBAC decision: show you scoped the pipeline\'s access to only the needed resource group, not the subscription.' },
+  ],
+}
+
+const azureInterviewPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'azure-interview',
+  title: { tr: 'Kendin Dene: Least Privilege Service Principal Oluştur', en: 'Try It Yourself: Create a Least Privilege Service Principal' },
+  starterCode: `// Hedef: pipeline SADECE qa-rg'de VM olusturabilsin, baska hicbir yere degil
+// TODO: dogru scope'u yaz
+az ad sp create-for-rbac --name qa-pipeline-sp --role Contributor --scopes "?"`,
+  solutionCode: `// Hedef: pipeline SADECE qa-rg'de VM olusturabilsin, baska hicbir yere degil
+az ad sp create-for-rbac --name qa-pipeline-sp --role Contributor --scopes "/subscriptions/xxx/resourceGroups/qa-rg"`,
+  hint: { tr: '--scopes parametresi, Service Principal\'ın YETKİLİ olduğu TEK sınırdır — burayı bir resource group\'a daraltmak, credential\'lar çalınsa bile hasarı sınırlar.', en: 'The --scopes parameter is the ONLY boundary the Service Principal is authorized within — narrowing it to one resource group limits the damage even if credentials are stolen.' },
+  successMessage: { tr: 'Doğru! Bu, bir mülakatçıya "aracı kullandım" ile "aracı güvenlik bilinciyle kullandım" arasındaki farkı gösterir.', en: 'Correct! This shows an interviewer the difference between "I used the tool" and "I used the tool with security awareness".' },
+}
+
+const azureCliTrStep = {
+  type: 'step-animation',
+  title: { tr: 'az account show Çıktısını Doğrulama Sırası', en: 'Verifying the az account show Output' },
+  steps: [
+    { tr: 'az login sonrası, az account show ile HANGİ subscription\'a bağlı olduğunu kontrol et.', en: 'After az login, check WHICH subscription you\'re connected to with az account show.' },
+    { tr: '"isDefault": true alanının doğru subscription\'ı gösterdiğini doğrula — yanlış subscription\'da kaynak oluşturmak yaygın bir hatadır.', en: 'Verify the "isDefault": true field points to the correct subscription — creating resources in the wrong subscription is a common mistake.' },
+    { tr: 'Yanlışsa az account set --subscription ile doğru subscription\'a geç.', en: 'If wrong, switch to the correct subscription with az account set --subscription.' },
+  ],
+}
+
+const azureCliTrPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'azure-cli-tr',
+  title: { tr: 'Kendin Dene: Doğru Subscription\'a Geç', en: 'Try It Yourself: Switch to the Correct Subscription' },
+  starterCode: `// Hedef: "My QA Subscription" adli subscription'i varsayilan yap
+// TODO: dogru komutu yaz
+az account set --subscription "?"`,
+  solutionCode: `// Hedef: "My QA Subscription" adli subscription'i varsayilan yap
+az account set --subscription "My QA Subscription"`,
+  hint: { tr: 'az account set, sonraki TÜM az komutlarının hangi subscription üzerinde çalışacağını değiştirir — isim veya subscription ID kabul eder.', en: 'az account set changes which subscription ALL subsequent az commands operate on — it accepts either a name or a subscription ID.' },
+  successMessage: { tr: 'Doğru! Bu, yanlış subscription\'da yanlışlıkla kaynak oluşturmanın (ve fatura sürprizlerinin) önüne geçer.', en: 'Correct! This prevents accidentally creating resources in the wrong subscription (and the billing surprises that come with it).' },
+}
+
 export const azureData = {
   en: {
     hero: {
@@ -107,6 +511,9 @@ export const azureData = {
   <text x="350" y="218" text-anchor="middle" fill="#6b7280" font-size="8">Azure has 60+ regions worldwide — resources deployed closest to your users</text>
 </svg>`,
           },
+          azureOneLoginFilm,
+          azureIntroStep,
+          azureIntroPractice,
           {
             type: 'quiz',
             question: 'A QA team wants their source repo, CI/CD pipelines, manual test case management, and bug tracking all in one integrated platform. Which Azure service is built exactly for this?',
@@ -278,6 +685,7 @@ az storage blob list \\
   <text x="320" y="128" text-anchor="middle" fill="#6b7280" font-size="8">Token valid for ~1 hour (interactive) or until expiry (Service Principal)</text>
 </svg>`,
           },
+          azureServicePrincipalFilm,
           {
             type: 'quiz',
             question: 'In a QA automation pipeline, why is the Azure CLI used instead of clicking through the Azure Portal?',
@@ -511,6 +919,7 @@ stages:
                   --destination reports/$(Build.BuildId) \\
                   --source $(Pipeline.Workspace)/ui-report`,
           },
+          azurePlaywrightBlobFilm,
           {
             type: 'quiz',
             question: 'A bank\'s QA team already uses Microsoft 365, Teams, and Visual Studio. What is the main advantage of also adopting Azure DevOps for their test management, compared to introducing a separate non-Microsoft tool?',
@@ -619,6 +1028,9 @@ stages:
             ],
           },
           { type: 'tip', content: 'Azure Pipelines native integration with Azure Test Plans means every test run result is automatically visible in Test Plans — no extra configuration needed.' },
+          azureEndToEndWorkflowFilm,
+          azureEcosystemStep,
+          azureEcosystemPractice,
           {
             type: 'quiz',
             question: 'Which Azure DevOps component automatically links a failed automated test run to a bug work item, without any manual copy-pasting?',
@@ -715,6 +1127,9 @@ stages:
               },
             ],
           },
+          azureAuthorizationFailedFilm,
+          azureErrorsStep,
+          azureErrorsPractice,
           {
             type: 'quiz',
             question: 'A brand-new Azure DevOps organization running a private repo fails its very first pipeline run with "No hosted parallelism has been purchased or granted." What is happening?',
@@ -1012,6 +1427,9 @@ stages:
               },
             ],
           },
+          azureRbacScopeInterviewFilm,
+          azureInterviewStep,
+          azureInterviewPractice,
         ],
       },
     ],
@@ -1086,6 +1504,9 @@ stages:
             ],
           },
           { type: 'tip', content: 'Azure DevOps açık kaynak projeler için ücretsizdir ve özel projeler için 5 ücretsiz kullanıcı + aylık 1.800 ücretsiz pipeline dakikası verir. Birçok QA ekibi hiçbir şey ödemeden kullanıyor.' },
+          azureOneLoginFilm,
+          azureIntroStep,
+          azureIntroPractice,
           {
             type: 'quiz',
             question: 'Bir QA ekibi kod repo\'sunu, CI/CD pipeline\'larını, manuel test case yönetimini ve hata takibini TEK bir entegre platformda istiyor. Hangi Azure servisi tam olarak bunun için tasarlanmış?',
@@ -1202,6 +1623,9 @@ az storage blob upload \\
   --name test.txt \\
   --file test.txt`,
           },
+          azureServicePrincipalFilm,
+          azureCliTrStep,
+          azureCliTrPractice,
           {
             type: 'quiz',
             question: 'Bir QA otomasyon pipeline\'ında neden Azure Portal yerine Azure CLI kullanılır?',
@@ -1358,6 +1782,7 @@ az storage blob generate-sas \\
             ],
           },
           { type: 'tip', content: 'Azure Pipelines Microsoft hosted agent\'larda aylık 1.800 ücretsiz dakika veriyor. Bu yaklaşık 30 tam Playwright test çalışması demek — tamamen ücretsiz.' },
+          azurePlaywrightBlobFilm,
           {
             type: 'quiz',
             question: 'Bir bankanın QA ekibi zaten Microsoft 365, Teams ve Visual Studio kullanıyor. Test yönetimi için ayrı, Microsoft dışı bir araç getirmek yerine Azure DevOps benimsemenin temel avantajı nedir?',
@@ -1418,6 +1843,9 @@ az storage blob generate-sas \\
             ],
           },
           { type: 'tip', content: 'Azure Pipelines\'ın Azure Test Plans ile native entegrasyonu, her test çalışması sonucunun otomatik olarak Test Plans\'ta görülebileceği anlamına gelir — ek yapılandırma gerekmez.' },
+          azureEndToEndWorkflowFilm,
+          azureEcosystemStep,
+          azureEcosystemPractice,
           {
             type: 'quiz',
             question: 'Başarısız bir otomatik test çalışmasını, hiçbir manuel kopyala-yapıştır olmadan otomatik olarak bir bug work item\'ına bağlayan Azure DevOps bileşeni hangisidir?',
@@ -1514,6 +1942,9 @@ az storage blob generate-sas \\
               },
             ],
           },
+          azureAuthorizationFailedFilm,
+          azureErrorsStep,
+          azureErrorsPractice,
           {
             type: 'quiz',
             question: 'Private repo ile yepyeni bir Azure DevOps organizasyonu, ilk pipeline çalıştırmasında "No hosted parallelism has been purchased or granted" hatasıyla başarısız oluyor. Burada gerçekte ne oluyor?',
@@ -1806,9 +2237,14 @@ az storage blob generate-sas \\
               },
             ],
           },
+          azureRbacScopeInterviewFilm,
+          azureInterviewStep,
+          azureInterviewPractice,
         ],
       },
     ],
   },
 }
+
+fillMissingCodeTrios(azureData, 'azure')
 
