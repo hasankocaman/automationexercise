@@ -10,6 +10,55 @@
 
 ---
 
+## OTURUM ÖZETİ — video-sitewide-plan.md Uygulama Durumu Raporu Yazıldı (2026-07-17, devam)
+
+> Kullanıcı talimatıyla `Documents/video-sitewide-plan.md` okundu, proje
+> canlı kod taranarak (grep + Node runtime import + `audit-interactive.mjs`
+> + `check-content-integrity.mjs` + `npm run build`) planın ne kadarının
+> gerçekten uygulandığı doğrulandı ve **rapor planın kendi dosyasının
+> sonuna, "## 7. Uygulama Durumu Raporu (Doğrulama Tarihi: 2026-07-17)"
+> başlığı altında yazıldı** (canlı durum raporu istisnası — normalde anlık
+> durum sadece bu dosyaya yazılır, ama kullanıcı açıkça planın kendi
+> dosyasına yazılmasını istedi).
+
+**Rapor özeti (tam detay `video-sitewide-plan.md` §7'de):**
+- **21/21 dalga tamamlandı** (Pilot + Dalga 4-21), tüm commit hash'leri
+  §7.2 tablosunda listelendi.
+- Runtime coverage taraması: 28/28 sayfa, 764 sekme/ders (EN+TR toplam)
+  tarandı → **759/764 (%99.3)** CLAUDE.md §9.5 standardını (≥1 video +
+  ≥1 animasyon + ≥1 sandbox) tam karşılıyor.
+- **5 bilinen küçük boşluk** (erken dalgalardan 4/6/7/9 kalma, bu oturumun
+  kapsamı dışında, ~15 dk'lık düzeltmeler):
+  - `/linux` TR "🎯 Linux nedir..." → animasyon eksik
+  - `/docker` EN+TR "🔄 Lifecycle & Debug" → sandbox eksik
+  - `/selenium` EN+TR "🖥️ Selenium IDE — Beyond Record & Playback" → sandbox eksik
+  - `/playwright` EN "🎭 What is Playwright? Why Use It?" → animasyon eksik
+  - `/sql` TR "🎯 SQL Nedir..." → animasyon eksik
+- **Ayrı/kapsam-dışı gözlem:** `scripts/audit-interactive.mjs` (CLAUDE.md
+  §9.1/9.2'nin `order-sort` drag-and-drop denetleyicisi — video-sitewide-
+  plan'ın DEĞİL) 18 sekmede eksik `order-sort` raporluyor (Postman, JMeter,
+  Git, Java, JavaScript, Docker, Selenium, Bruno, Linux). Bu %99.3 rakamına
+  DAHİL EDİLMEDİ çünkü farklı bir kalıcı kuralın (§9.1/9.2) kapsamı —
+  ayrı bir görev listesi gerektirir.
+- **En büyük gerçek boşluk hâlâ aynı:** `tests/video-scene.spec.ts` Dalga
+  8-21'deki 22 sayfayı KAPSAMIYOR (aşağıdaki "Sıradaki oturumun KESİN ilk
+  işi" bölümüyle aynı, değişmedi).
+- 355 benzersiz `video-scene` film sabiti proje genelinde, id çakışması yok
+  (grep ile teyit edildi).
+- Performans: `typescriptData` hâlâ en büyük veri dosyası (338.58 KB gzip,
+  350KB eşiğinin altında).
+
+**Commit:** `Documents/video-sitewide-plan.md` (§7 rapor eklendi) + bu
+`NEXT_SESSION.md` güncellemesi commit edildi (`SKIP_E2E_HOOK=1` ile, kod
+değişikliği yok, sadece dokümantasyon).
+
+### Sıradaki oturum için not
+Yukarıdaki 5 küçük boşluk + final Playwright/e2e doğrulama turu hâlâ
+bekliyor — bkz. bir alttaki "OTURUM ÖZETİ — Dalga 17-21" bölümünün
+"Sıradaki oturumun KESİN ilk işi" listesi, hâlâ geçerli ve güncel.
+
+---
+
 ## OTURUM ÖZETİ — Dalga 17-21 TAMAMLANDI — video-sitewide-plan.md ROLLOUT'U BİTTİ (2026-07-17)
 
 > **`Documents/video-sitewide-plan.md`'deki TÜM dalgalar (1-21) artık
