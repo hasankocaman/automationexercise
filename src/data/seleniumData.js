@@ -1128,6 +1128,45 @@ const seleniumIdeExportFilm = {
   ],
 }
 
+// 🖥️ Selenium IDE — kaba taslağı production'a çevirme sandbox'ı (video-sitewide-plan §7, eksik sandbox tamamlama)
+const seleniumIdeRefactorPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'selenium-ide-refactor-practice-01',
+  id: 'selenium-ide-refactor-practice-01',
+  label: { tr: 'Micro Lab: IDE\'nin kaba taslağını production koduna çevir', en: 'Micro Lab: Turn the IDE\'s rough draft into production code' },
+  language: 'java',
+  task: {
+    tr: 'Selenium IDE\'den export edilen kod `Thread.sleep(2000)` kullanıyor ve flaky. TODO satırını, aynı bekleme mantığını `WebDriverWait` ile ifade edecek şekilde tamamla.',
+    en: 'The code exported from Selenium IDE uses `Thread.sleep(2000)` and is flaky. Complete the TODO line so the same wait logic is expressed with `WebDriverWait`.',
+  },
+  explanation: {
+    tr: 'Bu gerçek bir çalıştırılabilir Selenium runtime değil; amaç IDE\'nin ürettiği kaba taslağı elle refactor ederek `Thread.sleep` yerine koşullu bekleme yazmayı pekiştirmek.',
+    en: 'This is not a real executable Selenium runtime; the goal is to reinforce replacing `Thread.sleep` with a conditional wait by manually refactoring the IDE\'s rough draft.',
+  },
+  code: {
+    tr: `driver.findElement(By.id("loginBtn")).click();\nThread.sleep(2000);\ndriver.findElement(By.id("dashboard")).isDisplayed();`,
+    en: `driver.findElement(By.id("loginBtn")).click();\nThread.sleep(2000);\ndriver.findElement(By.id("dashboard")).isDisplayed();`,
+  },
+  starterCode: {
+    tr: `driver.findElement(By.id("loginBtn")).click();\n// TODO: Thread.sleep(2000) yerine WebDriverWait kullan\nThread.sleep(2000);\ndriver.findElement(By.id("dashboard")).isDisplayed();`,
+    en: `driver.findElement(By.id("loginBtn")).click();\n// TODO: replace Thread.sleep(2000) with WebDriverWait\nThread.sleep(2000);\ndriver.findElement(By.id("dashboard")).isDisplayed();`,
+  },
+  solutionCode: {
+    tr: `driver.findElement(By.id("loginBtn")).click();\nnew WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));`,
+    en: `driver.findElement(By.id("loginBtn")).click();\nnew WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));`,
+  },
+  expected: {
+    tr: '`dashboard` elementi 2 saniyeden önce hazır olsa da sonra hazır olsa da test sabit çalışır — sabit 2 saniyelik bekleme kaldırılmış olur.',
+    en: 'The test runs consistently whether the `dashboard` element becomes ready before or after 2 seconds — the fixed 2-second wait is gone.',
+  },
+  hints: [
+    { tr: '`Thread.sleep` her zaman sabit süre bekler; element daha erken hazır olsa bile zaman kaybedilir, daha geç hazır olursa test patlar.', en: '`Thread.sleep` always waits a fixed duration; time is wasted if the element is ready earlier, and the test breaks if it is ready later.' },
+    { tr: '`WebDriverWait` + `ExpectedConditions.visibilityOfElementLocated` koşul gerçekleşene kadar bekler, en fazla verilen süre kadar.', en: '`WebDriverWait` + `ExpectedConditions.visibilityOfElementLocated` waits only until the condition is true, up to the given timeout.' },
+    { tr: 'IDE\'nin export ettiği kod her zaman bir taslaktır — `isDisplayed()` öncesine bir bekleme koşulu eklemek QA mühendisinin işidir.', en: 'Code exported by the IDE is always a draft — adding a wait condition before `isDisplayed()` is the QA engineer\'s job.' },
+  ],
+  xpReward: 10,
+}
+
 // 🌐 Grid 4 & Dağıtık — mikroservis routing filmi
 const seleniumGridRoutingFilm = {
   type: 'video-scene',
@@ -5925,6 +5964,7 @@ selenium-side-runner -c "browserName=chrome" -w 4 projem.side`,
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-ide-flow',
       },
+      seleniumIdeRefactorPractice,
       {
         type: 'git-practice',
         practiceId: 'seleniumIdePractice',
@@ -6041,6 +6081,7 @@ selenium-side-runner -c "browserName=chrome" -w 4 project.side`,
         type: 'visual', variant: 'simulation',
         scenario: 'selenium-ide-flow',
       },
+      seleniumIdeRefactorPractice,
       {
         type: 'git-practice',
         practiceId: 'seleniumIdePractice',
