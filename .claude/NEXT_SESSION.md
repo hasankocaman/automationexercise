@@ -10,6 +10,60 @@
 
 ---
 
+## OTURUM ÖZETİ — animation-per-topic Dalga A3 (Java) TAMAMLANDI (2026-07-17, Sonnet oturumu 3)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+**Commit:** `645a33c` — `src/data/javaData.js`, build yeşil, content-check temiz.
+
+Plan §3.2 Dalga A3: java sayfasındaki 23 kod-bloğu-başına animasyon açığı (8
+sekme: Installation -7, OOP&Collections -2, Advanced OOP -1, Cucumber -2,
+Selenium -2, Playwright -5, Common Errors -2, File Handling/Iterator -2)
+tek tek kapatıldı. javaData.js kafka/kubernetes'ten yapısal olarak daha
+karmaşık çıktı — üç farklı iç kalıp barındırıyor:
+1. Bölüm-başına `const sX = { tr:{...}, en:{...} }` (çoğu sekme).
+2. Ayrı bir const'un `...someConst.tr` / `...someConst.en` ile spread
+   edilmesi (Installation sekmesindeki `javaSetupWorkshop`).
+3. **Kritik tuzak:** `sPlaywright.en = { title, blocks: sPlaywright.tr.blocks }`
+   satırı dosya sonunda `sPlaywright`'ı YENİDEN ATIYOR — yani Playwright
+   sekmesinin GERÇEK EN içeriği yoktur, `.en` sadece `.tr.blocks`'a işaret
+   eder. Bu yüzden Playwright'a ilk eklenen 5 animasyon (o zaman hâlâ var
+   sanılan `sPlaywright.en`'in kendi blocks'una yazılmıştı) derlemede hatasız
+   ama runtime'da SESSİZCE kayboldu — audit script'i deficit:0 göstermedi,
+   `node -e "import(...).then(...)"` ile canlı obje karşılaştırması yapılarak
+   teşhis edildi. Çözüm: animasyonlar `sPlaywright.tr.blocks`'a taşındı (o
+   diziye eklenen HERHANGİ bir blok otomatik olarak hem TR hem EN'de görünür,
+   çünkü ikisi aynı array referansını paylaşıyor).
+
+**Ayrıca çözülen ikinci sorun:** 23 yeni const, dosyanın EN ALTINA (mevcut
+`function withExtraBlocks` üstüne) eklenince, bazı erken tanımlanan const'lar
+(`javaSetupWorkshop` gibi, dosyanın çok üstünde) bu yeni const'lara referans
+verdiği için **temporal dead zone** hatası (`Cannot access 'X' before
+initialization`) verdi — 23 const'un TAMAMI dosyanın EN BAŞINA (import
+satırından hemen sonra) taşınarak çözüldü.
+
+**Doğrulama:** `node scripts/audit-animation-coverage.mjs java` → deficit 0
+(49/49 %100). `node scripts/check-content-integrity.mjs` → sıfır ihlal.
+`npm run build` → yeşil; **javaData chunk ~954 kB (gzip 281.99 kB)** — CLAUDE.md
+§14'teki bilinen büyük chunk'lardan biri zaten, ~920 kB'den ~954 kB'ye çıktı,
+izlenmeli ama build'i bozmuyor.
+
+**Proje geneli güncel durum:** `node scripts/audit-animation-coverage.mjs`
+→ 551 kod bloğu / 580 animasyon / **140 açık kaldı** (Dalga A2 sonrası 163
+idi). Sıradaki dalgalar plan §3.2-3.3'te: Dalga A4 (restassured+appium,
+14+14), A5 (jmeter+postman, 13+10), A6 (docker+azure+aws, 11+7+6), A7
+(pythonData — SADECE Fable, applyTr riski), A8 (Haiku, düşük açıklı
+sayfalar), Dalga B (Haiku, 18 eksik order-sort). Her dalga için hazır
+parametrik prompt: plan §4.1 (Sonnet) `{PAGE_KEY}` doldurulup verilir.
+
+**Yeni dalgalar için uyarı:** Bundan sonraki her dalgada, yeni const'ları
+dosyanın SONUNA eklemek yerine EN BAŞINA (import'tan hemen sonra) eklemek
+TDZ riskini baştan önler. Ayrıca yeni bir sayfada `sX.en = { blocks:
+sX.tr.blocks }` gibi bir yeniden-atama kalıbı olup olmadığı, animasyon
+eklemeden ÖNCE `grep -n "\.en = {\|\.tr = {"` ile kontrol edilmeli — aksi
+halde bu oturumdaki Playwright hatası tekrarlanır.
+
+---
+
 ## OTURUM ÖZETİ — animation-per-topic Dalga A2 (Kafka + Kubernetes) TAMAMLANDI (2026-07-17, Sonnet oturumu 2)
 
 **Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
