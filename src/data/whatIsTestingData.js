@@ -1,5 +1,249 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ─── Dalga 19 film sabitleri (video-scene — TEK ağaç, bilingual field'lar) ──
+// Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
+
+const bugCostSdlcFilm = {
+  type: 'video-scene',
+  id: 'wit-bug-cost-sdlc-film',
+  title: { tr: '🎬 Bir Hatanın SDLC\'de Katlanan Maliyeti', en: '🎬 A Bug\'s Compounding Cost Through the SDLC' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'req',    emoji: '📋', label: { tr: 'Gereksinim ($1)',   en: 'Requirement ($1)' },   color: '#22c55e' },
+    { id: 'design', emoji: '📐', label: { tr: 'Tasarım ($10)',     en: 'Design ($10)' },        color: '#0ea5e9' },
+    { id: 'code',   emoji: '💻', label: { tr: 'Kod ($100)',        en: 'Code ($100)' },         color: '#f59e0b' },
+    { id: 'test',   emoji: '🧪', label: { tr: 'Test ($1.000)',     en: 'Test ($1,000)' },       color: '#f97316' },
+    { id: 'prod',   emoji: '💥', label: { tr: 'Production ($440M / 45dk)', en: 'Production ($440M / 45min)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir gereksinim toplantısında bulunan belirsizlik, düzeltilmesi en UCUZ anda yakalanır — sadece bir cümleyi netleştirmek yeterlidir.', en: 'An ambiguity caught during a requirements meeting is fixed at its CHEAPEST point — clarifying one sentence is enough.' }, code: { tr: `Gereksinim netlestir: maliyet ~$1`, en: `Clarify requirement: cost ~$1` }, positions: { req: { x: 16, y: 40, scale: 1.15, pulse: true } } },
+    { caption: { tr: 'Aynı belirsizlik tasarım aşamasına sızarsa, birden fazla diyagramın yeniden çizilmesi gerekir.', en: 'If the same ambiguity leaks into design, multiple diagrams need to be redrawn.' }, code: { tr: `Tasarim revize: maliyet ~$10`, en: `Design revision: cost ~$10` }, positions: { req: { x: 14, y: 40, opacity: 0.5, scale: 0.9 }, design: { x: 42, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'req', to: 'design', color: '#0ea5e9' }] },
+    { caption: { tr: 'Kodlama aşamasına ulaşırsa, yazılmış onlarca satır kod yeniden yazılmalıdır.', en: 'If it reaches the coding phase, dozens of already-written lines need rewriting.' }, code: { tr: `Kod yeniden yaz: maliyet ~$100`, en: `Rewrite code: cost ~$100` }, positions: { design: { x: 24, y: 40, opacity: 0.6, scale: 0.9 }, code: { x: 50, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'design', to: 'code', color: '#f59e0b' }] },
+    { caption: { tr: 'Test aşamasında yakalanırsa, hatayı bulan, raporlayan ve doğrulayan üç ayrı adım gerekir.', en: 'Caught at the testing phase, it takes three separate steps: finding, reporting, and verifying the fix.' }, code: { tr: `Bul + rapor + retest: maliyet ~$1.000`, en: `Find + report + retest: cost ~$1,000` }, positions: { code: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, test: { x: 58, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'code', to: 'test', color: '#f97316' }] },
+    { caption: { tr: 'Final — hiç yakalanmadan production\'a ulaşırsa: Knight Capital, kontrol edilmemiş bir deploy yüzünden 45 dakikada 440 milyon dolar kaybetti. Maliyet eğrisi doğrusal değil, KATLANARAKTIR.', en: 'Final — reaching production uncaught: Knight Capital lost $440 million in 45 minutes due to an unverified deploy. The cost curve isn\'t linear, it COMPOUNDS.' }, positions: { test: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, prod: { x: 62, y: 40, scale: 1.3, pulse: true } }, beams: [{ from: 'test', to: 'prod', color: '#ef4444' }] },
+  ],
+}
+
+const pesticideParadoxFilm = {
+  type: 'video-scene',
+  id: 'wit-pesticide-paradox-film',
+  title: { tr: '🎬 Pestisit Paradoksu: Aynı Testler Neden Artık Hata Bulmuyor?', en: '🎬 The Pesticide Paradox: Why the Same Tests Stop Finding Bugs' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'suite',  emoji: '🧪', label: { tr: 'Test Suite (v1)',    en: 'Test Suite (v1)' },    color: '#f97316' },
+    { id: 'run1',   emoji: '🐛', label: { tr: 'Koşum 1: 5 hata bulur', en: 'Run 1: finds 5 bugs' }, color: '#ef4444' },
+    { id: 'run10',  emoji: '😴', label: { tr: 'Koşum 10: 0 yeni hata', en: 'Run 10: 0 new bugs' }, color: '#64748b' },
+    { id: 'hidden', emoji: '👻', label: { tr: 'Gizli Kalan Hatalar',  en: 'Bugs Still Hiding' },  color: '#a855f7' },
+    { id: 'revised', emoji: '🔄', label: { tr: 'Güncellenmiş Testler', en: 'Revised Tests' },     color: '#22c55e' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir test suite ilk yazıldığında 5 gerçek hata bulur — herkes etkilenir, hepsi düzeltilir.', en: 'When a test suite is first written, it finds 5 real bugs — everyone is impressed, all get fixed.' }, code: { tr: `Run 1: 5 bugs found`, en: `Run 1: 5 bugs found` }, positions: { suite: { x: 20, y: 40, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'AYNI testler tekrar tekrar çalıştırılır — kod değişse de test senaryoları hiç güncellenmez.', en: 'The SAME tests are run over and over — even as the code changes, the test scenarios never get updated.' }, code: { tr: `Run 2..9: ayni senaryolar`, en: `Run 2..9: same scenarios` }, positions: { suite: { x: 18, y: 40, opacity: 0.6, scale: 0.9 }, run1: { x: 46, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'suite', to: 'run1', color: '#ef4444' }] },
+    { caption: { tr: '10. koşumda artık hiçbir yeni hata bulunmaz — sanki uygulama mükemmelmiş gibi görünür.', en: 'By run 10, no new bugs are found at all — the app looks perfect, as if bug-free.' }, code: { tr: `Run 10: 0 new bugs`, en: `Run 10: 0 new bugs` }, positions: { run1: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, run10: { x: 58, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'run1', to: 'run10', color: '#64748b' }] },
+    { caption: { tr: 'Ama tıpkı böceklerin aynı pestisite bağışıklık kazanması gibi, kod YENİ hatalar üretmeye devam eder — sadece bu ESKİ testlerin GÖREMEDİĞİ yerlerde.', en: 'But just like pests build immunity to the same pesticide, the code keeps producing NEW bugs — just in places these OLD tests can\'t SEE.' }, code: { tr: `Yeni kod yollari test edilmiyor`, en: `New code paths untested` }, positions: { run10: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, hidden: { x: 62, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'run10', to: 'hidden', color: '#a855f7' }] },
+    { caption: { tr: 'Final — çözüm: test senaryoları düzenli olarak GÖZDEN GEÇİRİLİR ve YENİ senaryolar eklenir. Sabit bir test suite, zamanla giderek daha az işe yarar.', en: 'Final — the fix: test scenarios get REVIEWED regularly and NEW scenarios get added. A frozen test suite becomes less useful over time.' }, positions: { hidden: { x: 40, y: 40, opacity: 0.6, scale: 0.9 }, revised: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'hidden', to: 'revised', color: '#22c55e' }] },
+  ],
+}
+
+const qaVsQcFilm = {
+  type: 'video-scene',
+  id: 'wit-qa-vs-qc-film',
+  title: { tr: '🎬 QA Süreci Önler, QC Ürünü Yakalar', en: '🎬 QA Prevents the Process, QC Catches the Product' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'req',   emoji: '📋', label: { tr: 'Belirsiz Gereksinim',  en: 'Ambiguous Requirement' }, color: '#f97316' },
+    { id: 'qa',    emoji: '🛡️', label: { tr: 'QA: Toplantıda Yakalar', en: 'QA: Catches It in the Meeting' }, color: '#22c55e' },
+    { id: 'build', emoji: '💻', label: { tr: 'Uygulama İnşa Edilir', en: 'App Gets Built' },       color: '#0ea5e9' },
+    { id: 'qc',    emoji: '🔍', label: { tr: 'QC: Bitmiş Üründe Test Eder', en: 'QC: Tests the Finished Product' }, color: '#a855f7' },
+    { id: 'fire',  emoji: '🔥', label: { tr: 'QA Olmadan: Tekrar Eden Yangın', en: 'Without QA: Recurring Fire' }, color: '#ef4444' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir gereksinim toplantısında belirsiz bir cümle var: "Kullanıcı ödeme yapabilmeli."', en: 'A requirements meeting has an ambiguous sentence: "The user should be able to pay."' }, code: { tr: `"Kullanici odeme yapabilmeli" // hangi yontemle?`, en: `"User should be able to pay" // which method?` }, positions: { req: { x: 50, y: 30, scale: 1.1, pulse: true } } },
+    { caption: { tr: 'QA (süreç odaklı), bunu KOD YAZILMADAN ÖNCE toplantıda sorgular: "Kredi kartı mı, havale mi, ikisi de mi?"', en: 'QA (process-focused) questions this in the meeting BEFORE any code is written: "Credit card, bank transfer, or both?"' }, code: { tr: `QA: "hangi odeme yontemleri destekleniyor?"`, en: `QA: "which payment methods are supported?"` }, positions: { req: { x: 44, y: 30, scale: 1.0 }, qa: { x: 72, y: 20, scale: 1.2, pulse: true } }, beams: [{ from: 'req', to: 'qa', color: '#22c55e' }] },
+    { caption: { tr: 'Netleşen gereksinimle uygulama inşa edilir — belirsizlik koda hiç ulaşmaz.', en: 'The app gets built with the clarified requirement — the ambiguity never reaches the code.' }, code: { tr: `build(clearRequirement)`, en: `build(clearRequirement)` }, positions: { qa: { x: 60, y: 20, opacity: 0.6, scale: 0.9 }, build: { x: 34, y: 45, scale: 1.15, pulse: true } }, beams: [{ from: 'qa', to: 'build', color: '#0ea5e9' }] },
+    { caption: { tr: 'QC (ürün odaklı), bitmiş uygulamada gerçek testleri çalıştırır — kredi kartı akışı gerçekten çalışıyor mu?', en: 'QC (product-focused) runs real tests on the finished app — does the credit card flow actually work?' }, code: { tr: `QC: driver.click(payButton) -> assert success`, en: `QC: driver.click(payButton) -> assert success` }, positions: { build: { x: 40, y: 45, opacity: 0.6, scale: 0.9 }, qc: { x: 66, y: 45, scale: 1.2, pulse: true } }, beams: [{ from: 'build', to: 'qc', color: '#a855f7' }] },
+    { caption: { tr: 'Final (kontrast) — QA olmadan çalışsaydı: belirsizlik koda sızar, QC her release\'de AYNI belirsizlikten doğan hatayı bulur, ekip sürekli aynı yangını söndürür.', en: 'Final (the contrast) — without QA: the ambiguity leaks into code, QC finds the SAME ambiguity-born bug every release, the team keeps fighting the same fire.' }, positions: { qc: { x: 40, y: 45, scale: 1.0, opacity: 0.5 }, fire: { x: 66, y: 45, scale: 1.25, pulse: true } }, beams: [{ from: 'qc', to: 'fire', color: '#ef4444' }] },
+  ],
+}
+
+const automationPyramidFilm = {
+  type: 'video-scene',
+  id: 'wit-automation-pyramid-film',
+  title: { tr: '🎬 Test Otomasyon Piramidi: Neden Çoğu Test Birim Seviyesinde?', en: '🎬 The Test Automation Pyramid: Why Most Tests Should Be Unit Tests' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'unit',   emoji: '⚡', label: { tr: 'Birim Testleri (1000x, ms)', en: 'Unit Tests (1000x, ms)' }, color: '#22c55e' },
+    { id: 'integ',  emoji: '🔗', label: { tr: 'Entegrasyon (100x, sn)',    en: 'Integration (100x, sec)' }, color: '#0ea5e9' },
+    { id: 'e2e',    emoji: '🌐', label: { tr: 'E2E (10x, dk)',             en: 'E2E (10x, min)' },      color: '#f97316' },
+    { id: 'cone',   emoji: '🍦', label: { tr: 'Dondurma Külahı Anti-Pattern', en: 'Ice-Cream Cone Anti-Pattern' }, color: '#ef4444' },
+  ],
+  scenes: [
+    { caption: { tr: 'Piramidin tabanı: yüzlerce birim testi, milisaniyeler içinde, tek bir fonksiyonu izole test eder.', en: 'The base of the pyramid: hundreds of unit tests, running in milliseconds, testing one function in isolation.' }, code: { tr: `assert calculate_total([10,20]) == 30`, en: `assert calculate_total([10,20]) == 30` }, positions: { unit: { x: 50, y: 65, scale: 1.15, pulse: true } } },
+    { caption: { tr: 'Ortada daha az sayıda entegrasyon testi — birden fazla bileşenin (DB + API) birlikte çalıştığını doğrular, saniyeler sürer.', en: 'In the middle, fewer integration tests — verifying multiple components (DB + API) work together, taking seconds.' }, code: { tr: `test_order_saves_to_db_and_returns_id()`, en: `test_order_saves_to_db_and_returns_id()` }, positions: { unit: { x: 40, y: 65, opacity: 0.6, scale: 0.9 }, integ: { x: 55, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'unit', to: 'integ', color: '#0ea5e9' }] },
+    { caption: { tr: 'Tepede en az sayıda E2E testi — gerçek bir tarayıcıda TÜM sistemi uçtan uca doğrular, dakikalar sürer, en KIRILGAN olanıdır.', en: 'At the top, the fewest E2E tests — verifying the ENTIRE system end to end in a real browser, taking minutes, the most FRAGILE kind.' }, code: { tr: `driver.click(checkout) -> assert orderConfirmed`, en: `driver.click(checkout) -> assert orderConfirmed` }, positions: { integ: { x: 45, y: 40, opacity: 0.6, scale: 0.9 }, e2e: { x: 60, y: 18, scale: 1.2, pulse: true } }, beams: [{ from: 'integ', to: 'e2e', color: '#f97316' }] },
+    { caption: { tr: 'Neden bu oran? Bir E2E test, aynı mantığı doğrulayan bir birim testinden 100 KAT daha yavaş ve 10 kat daha kırılgandır (ağ, tarayıcı, timing).', en: 'Why this ratio? An E2E test verifying the same logic is 100x SLOWER and 10x more fragile (network, browser, timing) than a unit test.' }, positions: { e2e: { x: 50, y: 30, scale: 1.0 } } },
+    { caption: { tr: 'Final (kontrast) — piramit tersine çevrilirse ("dondurma külahı"): çoğu test E2E olur, suite 2 saat sürer, sık sık rastgele başarısız olur ve kimse ona güvenmez.', en: 'Final (the contrast) — invert the pyramid ("ice-cream cone"): most tests become E2E, the suite takes 2 hours, fails randomly often, and nobody trusts it.' }, positions: { e2e: { x: 40, y: 30, scale: 0.9, opacity: 0.6 }, cone: { x: 66, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'e2e', to: 'cone', color: '#ef4444' }] },
+  ],
+}
+
+const devopsLoopFilm = {
+  type: 'video-scene',
+  id: 'wit-devops-loop-film',
+  title: { tr: '🎬 Bir Özelliğin DevOps Döngüsündeki Yolculuğu', en: '🎬 A Feature\'s Journey Through the DevOps Loop' },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'plan',   emoji: '📋', label: { tr: 'Plan',    en: 'Plan' },    color: '#0ea5e9' },
+    { id: 'code',   emoji: '💻', label: { tr: 'Code',    en: 'Code' },    color: '#f97316' },
+    { id: 'test',   emoji: '🧪', label: { tr: 'Test',    en: 'Test' },    color: '#22c55e' },
+    { id: 'deploy', emoji: '🚀', label: { tr: 'Deploy',  en: 'Deploy' },  color: '#a855f7' },
+    { id: 'monitor', emoji: '📊', label: { tr: 'Monitor', en: 'Monitor' }, color: '#f59e0b' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir özellik "Plan" aşamasında tanımlanır — kullanıcı hikayesi ve kabul kriterleri yazılır.', en: 'A feature is defined in the "Plan" phase — user story and acceptance criteria get written.' }, code: { tr: `Kullanici hikayesi + kabul kriterleri`, en: `User story + acceptance criteria` }, positions: { plan: { x: 50, y: 40, scale: 1.1, pulse: true } } },
+    { caption: { tr: '"Code" aşamasında geliştirici özelliği yazar — QA aynı sprint içinde test senaryolarını PARALEL yazar.', en: 'In the "Code" phase the developer writes the feature — QA writes test scenarios in PARALLEL within the same sprint.' }, code: { tr: `feature branch + test senaryolari`, en: `feature branch + test scenarios` }, positions: { plan: { x: 20, y: 40, opacity: 0.6, scale: 0.9 }, code: { x: 46, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'plan', to: 'code', color: '#f97316' }] },
+    { caption: { tr: '"Test" aşamasında otomasyon suite\'i çalışır — CI pipeline\'ı her commit\'te otomatik tetiklenir.', en: 'In the "Test" phase the automation suite runs — the CI pipeline triggers automatically on every commit.' }, code: { tr: `CI: npm test -> pass/fail`, en: `CI: npm test -> pass/fail` }, positions: { code: { x: 26, y: 40, opacity: 0.6, scale: 0.9 }, test: { x: 52, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'code', to: 'test', color: '#22c55e' }] },
+    { caption: { tr: 'Testler geçince "Deploy" aşamasına otomatik geçilir — insan onayı beklemeden production\'a çıkar.', en: 'Once tests pass, it automatically moves to "Deploy" — reaching production without waiting for human approval.' }, code: { tr: `CD: auto-deploy on green build`, en: `CD: auto-deploy on green build` }, positions: { test: { x: 30, y: 40, opacity: 0.6, scale: 0.9 }, deploy: { x: 58, y: 40, scale: 1.2, pulse: true } }, beams: [{ from: 'test', to: 'deploy', color: '#a855f7' }] },
+    { caption: { tr: 'Final — "Monitor" aşaması, production\'daki gerçek kullanıcı davranışını izler ve bir sonraki "Plan" aşamasına GERİ BESLEME sağlar. Döngü kapanmaz, sürekli döner.', en: 'Final — the "Monitor" phase watches real user behavior in production and feeds back into the next "Plan" phase. The loop never closes, it keeps spinning.' }, positions: { deploy: { x: 34, y: 40, opacity: 0.6, scale: 0.9 }, monitor: { x: 62, y: 40, scale: 1.25, pulse: true } }, beams: [{ from: 'deploy', to: 'monitor', color: '#f59e0b' }] },
+  ],
+}
+
+const learningRoadmapFilm = {
+  type: 'video-scene',
+  id: 'wit-learning-roadmap-film',
+  title: { tr: '🎬 Neden Önce Python, Sonra Selenium?', en: '🎬 Why Python First, Then Selenium?' },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'jump',     emoji: '🎯', label: { tr: 'Doğrudan Selenium\'a Atla', en: 'Jump Straight to Selenium' }, color: '#ef4444' },
+    { id: 'stuck',    emoji: '🚧', label: { tr: 'Syntax Hatasında Takılır', en: 'Stuck on Syntax Errors' }, color: '#ef4444' },
+    { id: 'python',   emoji: '🐍', label: { tr: '1. Python Temelleri',    en: '1. Python Basics' },   color: '#22c55e' },
+    { id: 'pytest',   emoji: '🧪', label: { tr: '2. pytest Framework\'ü', en: '2. pytest Framework' }, color: '#0ea5e9' },
+    { id: 'selenium', emoji: '🟢', label: { tr: '3. Selenium + POM',      en: '3. Selenium + POM' },   color: '#a855f7' },
+  ],
+  scenes: [
+    { caption: { tr: 'Bir yeni başlayan, heyecanla doğrudan Selenium tutorial\'ına atlar — "web testi öğreneceğim" diye.', en: 'A beginner excitedly jumps straight into a Selenium tutorial — "I\'ll learn web testing".' }, code: { tr: `driver.find_element(By.ID, "login")`, en: `driver.find_element(By.ID, "login")` }, positions: { jump: { x: 50, y: 30, scale: 1.15, pulse: true } } },
+    { caption: { tr: 'İlk satırda takılır: "for", "def", girinti nedir? Selenium\'u değil, Python\'un TEMELİNİ öğrenmesi gerektiğini fark eder.', en: 'They get stuck on the first line: what\'s "for", "def", indentation? They realize they need Python BASICS, not Selenium.' }, code: { tr: `IndentationError: unexpected indent`, en: `IndentationError: unexpected indent` }, positions: { jump: { x: 44, y: 30, scale: 1.0 }, stuck: { x: 72, y: 20, scale: 1.2, pulse: true } }, beams: [{ from: 'jump', to: 'stuck', color: '#ef4444' }] },
+    { caption: { tr: 'Doğru sıra: ÖNCE Python temelleri — değişkenler, fonksiyonlar, döngüler — sağlam bir zemin kurulur.', en: 'The right order: Python basics FIRST — variables, functions, loops — building solid ground.' }, code: { tr: `def greet(name): return f"Merhaba {name}"`, en: `def greet(name): return f"Hello {name}"` }, positions: { stuck: { x: 60, y: 20, opacity: 0.5, scale: 0.9 }, python: { x: 30, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'stuck', to: 'python', color: '#22c55e' }] },
+    { caption: { tr: 'SONRA pytest — test yazma, assert, fixture kavramları Python\'un ÜZERİNE oturur, sıfırdan öğrenilmez.', en: 'THEN pytest — writing tests, assert, fixture concepts build ON TOP of Python, not learned from scratch.' }, code: { tr: `def test_login(): assert login("a","b") == True`, en: `def test_login(): assert login("a","b") == True` }, positions: { python: { x: 36, y: 50, opacity: 0.6, scale: 0.9 }, pytest: { x: 58, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'python', to: 'pytest', color: '#0ea5e9' }] },
+    { caption: { tr: 'Final — EN SON Selenium: artık Python\'u ve test yazmayı bildiği için, sadece "tarayıcıyı nasıl kontrol ederim" kısmına odaklanır. Sıra, öğrenme hızını ve motivasyonu doğrudan belirler.', en: 'Final — Selenium LAST: now knowing Python and how to write tests, they focus only on "how do I control the browser". Order directly determines learning speed and motivation.' }, positions: { pytest: { x: 40, y: 50, opacity: 0.6, scale: 0.9 }, selenium: { x: 66, y: 50, scale: 1.25, pulse: true } }, beams: [{ from: 'pytest', to: 'selenium', color: '#a855f7' }] },
+  ],
+}
+
+// Eksik animasyon/sandbox tamamlamaları — kodsuz sekmeler (CLAUDE.md §9.5)
+
+const bugCostStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Hatanın SDLC Aşamalarındaki Maliyeti', en: 'A Bug\'s Cost Across SDLC Phases' },
+  steps: [
+    { tr: 'Gereksinim aşaması: bir belirsizliği netleştirmek sadece bir cümle demektir.', en: 'Requirements phase: clarifying an ambiguity is just one sentence.' },
+    { tr: 'Kodlama aşaması: aynı hata artık yazılmış kodun yeniden yazılmasını gerektirir.', en: 'Coding phase: the same bug now requires rewriting already-written code.' },
+    { tr: 'Production: aynı hata artık müşteri kaybı, itibar zedelenmesi ve acil müdahale demektir.', en: 'Production: the same bug now means customer loss, reputation damage, and an emergency response.' },
+  ],
+}
+
+const bugCostPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'wit-intro',
+  title: { tr: 'Kendin Dene: Hatayı En Ucuz Aşamada Yakala', en: 'Try It Yourself: Catch the Bug at the Cheapest Stage' },
+  starterCode: `// Senaryo: gereksinim toplantisinda "kullanici sifresini sifirlayabilmeli" yaziyor
+// ama HANGI yontemle (email? SMS?) belirtilmemis
+// TODO: bu belirsizligi hangi asamada yakalamak en UCUZ olur?
+const asama = "?"; // "gereksinim" | "kodlama" | "production"`,
+  solutionCode: `// Senaryo: gereksinim toplantisinda "kullanici sifresini sifirlayabilmeli" yaziyor
+// ama HANGI yontemle (email? SMS?) belirtilmemis
+const asama = "gereksinim";`,
+  hint: { tr: 'Bir belirsizlik ne kadar erken yakalanırsa, düzeltme maliyeti o kadar düşüktür — gereksinim aşamasında bir SORU sormak, production\'da bir INCIDENT yönetmekten çok daha ucuzdur.', en: 'The earlier an ambiguity is caught, the cheaper the fix — asking a QUESTION at the requirements stage is far cheaper than managing an INCIDENT in production.' },
+  successMessage: { tr: 'Doğru! QA mühendisinin en değerli katkılarından biri, kod hiç yazılmadan önce soru sormaktır.', en: 'Correct! One of a QA engineer\'s most valuable contributions is asking questions before any code gets written.' },
+}
+
+const istqbStep = {
+  type: 'step-animation',
+  title: { tr: 'ISTQB\'nin 7 İlkesini Hatırlama Sırası', en: 'The Order to Recall ISTQB\'s 7 Principles' },
+  steps: [
+    { tr: 'Test, hataların VARLIĞINI gösterir — YOKLUĞUNU asla kanıtlayamaz.', en: 'Testing shows the PRESENCE of defects — it can never prove their ABSENCE.' },
+    { tr: 'Eksiksiz test imkansızdır — bu yüzden risk analizi ve önceliklendirme şarttır.', en: 'Exhaustive testing is impossible — so risk analysis and prioritization are required.' },
+    { tr: 'Pestisit paradoksu: aynı testler tekrarlanınca yeni hata bulmayı bırakır — senaryolar güncellenmeli.', en: 'Pesticide paradox: repeated tests stop finding new bugs — scenarios must be revised.' },
+  ],
+}
+
+const istqbPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'wit-istqb',
+  title: { tr: 'Kendin Dene: Doğru İlkeyi Eşleştir', en: 'Try It Yourself: Match the Right Principle' },
+  starterCode: `// Senaryo: ayni regresyon suite'i 6 aydir hic degismedi,
+// son 20 kosumda hic yeni hata bulunmadi
+// TODO: bu hangi ISTQB ilkesinin somut ornegi?
+const ilke = "?";`,
+  solutionCode: `// Senaryo: ayni regresyon suite'i 6 aydir hic degismedi,
+// son 20 kosumda hic yeni hata bulunmadi
+const ilke = "pestisit paradoksu";`,
+  hint: { tr: 'Sabit kalan bir test suite, tıpkı aynı pestisite bağışıklık kazanan böcekler gibi, kodun yeni değişen kısımlarını GÖREMEZ hale gelir.', en: 'A frozen test suite, just like pests building immunity to the same pesticide, becomes UNABLE TO SEE the newly changed parts of the code.' },
+  successMessage: { tr: 'Doğru! 20 koşumda hiç yeni hata bulunmaması "mükemmel kod" değil, "kör test suite" anlamına gelir.', en: 'Correct! Finding zero new bugs in 20 runs doesn\'t mean "perfect code", it means "blind test suite".' },
+}
+
+const devopsStep = {
+  type: 'step-animation',
+  title: { tr: 'DevOps Döngüsünde QA\'in Yeri', en: 'Where QA Fits in the DevOps Loop' },
+  steps: [
+    { tr: 'Plan: QA, kabul kriterlerini geliştiriciyle BİRLİKTE yazar — sadece kod bitince devreye girmez.', en: 'Plan: QA writes acceptance criteria TOGETHER with the developer — not just stepping in once code is done.' },
+    { tr: 'Test: CI pipeline\'ı her commit\'te otomatik tetiklenir, insan beklemez.', en: 'Test: the CI pipeline triggers automatically on every commit, no human waits.' },
+    { tr: 'Monitor: production\'daki gerçek davranış, bir sonraki Plan aşamasına GERİ BESLEME sağlar — döngü hiç kapanmaz.', en: 'Monitor: real production behavior feeds back into the next Plan phase — the loop never closes.' },
+  ],
+}
+
+const devopsPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'wit-web-mobile-process',
+  title: { tr: 'Kendin Dene: DevOps Döngüsündeki Doğru Aşamayı Bul', en: 'Try It Yourself: Find the Right DevOps Loop Phase' },
+  starterCode: `// Senaryo: production'da bir hata sepete ekleme oranini dusuruyor,
+// bu veri bir sonraki sprint planlamasina giriyor
+// TODO: bu geri besleme hangi iki asama arasinda gerceklesir?
+const gecis = "? -> ?";`,
+  solutionCode: `// Senaryo: production'da bir hata sepete ekleme oranini dusuruyor,
+// bu veri bir sonraki sprint planlamasina giriyor
+const gecis = "Monitor -> Plan";`,
+  hint: { tr: 'DevOps döngüsü doğrusal değil DAİRESELDİR — Monitor aşamasında toplanan gerçek kullanıcı verisi, bir sonraki Plan aşamasının GİRDİSİ olur.', en: 'The DevOps loop isn\'t linear, it\'s CIRCULAR — real user data gathered in Monitor becomes the INPUT for the next Plan phase.' },
+  successMessage: { tr: 'Doğru! Bu geri besleme döngüsü olmadan, ekip aynı hatayı fark etmeden tekrar tekrar üretebilir.', en: 'Correct! Without this feedback loop, a team can keep producing the same bug without ever noticing.' },
+}
+
+const roadmapStep = {
+  type: 'step-animation',
+  title: { tr: 'Doğru Öğrenme Sırasını Kurma', en: 'Building the Right Learning Order' },
+  steps: [
+    { tr: 'Önce temel test kavramları — QA, QC, test seviyeleri — anlaşılır.', en: 'First, basic testing concepts — QA, QC, test levels — are understood.' },
+    { tr: 'Sonra programlama dili (Python/Java/TS) öğrenilir — bu, ARAÇ öğrenmenin ön koşuludur.', en: 'Then the programming language (Python/Java/TS) is learned — this is the PREREQUISITE for tool learning.' },
+    { tr: 'En son araç (Selenium/Playwright) öğrenilir — artık sadece "tarayıcıyı nasıl kontrol ederim" kalır.', en: 'Finally the tool (Selenium/Playwright) is learned — now only "how do I control the browser" remains.' },
+  ],
+}
+
+const roadmapPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'wit-site-map',
+  title: { tr: 'Kendin Dene: Öğrenme Sırasını Doğru Diz', en: 'Try It Yourself: Order the Learning Path Correctly' },
+  starterCode: `// Hedef: Java bilen bir QA'nin dogru ogrenme sirasini yaz
+// TODO: dogru sirayi yaz (1, 2, 3)
+// A) Selenium + Page Object Model
+// B) Python temelleri (sozdizimi, fonksiyonlar)
+// C) pytest framework'u (assert, fixture)
+const sira = ["?", "?", "?"];`,
+  solutionCode: `// Hedef: Java bilen bir QA'nin dogru ogrenme sirasini yaz
+const sira = ["B", "C", "A"];
+// B) Python temelleri -> C) pytest -> A) Selenium + POM`,
+  hint: { tr: 'Selenium\'a doğrudan atlamak, önce Python\'u sıfırdan öğrenmeyi GEREKTİRİR — sıra atlanırsa, kişi Selenium hatası mı yoksa Python syntax hatası mı olduğunu ayırt edemez.', en: 'Jumping straight to Selenium REQUIRES learning Python from scratch anyway — skip the order and you can\'t tell if it\'s a Selenium error or a Python syntax error.' },
+  successMessage: { tr: 'Doğru! Java bildiğin için Python\'un syntax\'ı hızlı geçer — ama yine de atlanmaması gereken bir adımdır.', en: 'Correct! Knowing Java means Python\'s syntax goes fast — but it\'s still a step that shouldn\'t be skipped.' },
+}
+
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
   {
@@ -119,6 +363,9 @@ const sections = [
           en: 'The later a bug is caught, the cost of correction increases exponentially due to redesign, recoding, data cleanup, and customer attrition.'
         }
       },
+      bugCostSdlcFilm,
+      bugCostStep,
+      bugCostPractice,
       {
         type: 'quiz',
         question: {
@@ -309,6 +556,9 @@ const sections = [
           en: 'Tests are divided into two categories. Functional testing verifies *what* the system does (e.g. login, payment). Non-functional testing evaluates *how well* the system performs (speed, security, stability under heavy load).'
         }
       },
+      pesticideParadoxFilm,
+      istqbStep,
+      istqbPractice,
       {
         type: 'quiz',
         question: {
@@ -488,6 +738,7 @@ def test_product_purchase(browser):
     assert "Order confirmed" in browser.page_source`,
         },
       },
+      qaVsQcFilm,
       {
         type: 'quiz',
         question: {
@@ -709,6 +960,7 @@ class TestDiscountCalculation:
         assert result == 0.0   # 100% discount should make price zero`,
         },
       },
+      automationPyramidFilm,
       {
         type: 'quiz',
         question: {
@@ -985,6 +1237,9 @@ class TestDiscountCalculation:
           en: 'In Agile teams these phases do not happen once in sequence — they repeat in small loops inside every sprint.'
         }
       },
+      devopsLoopFilm,
+      devopsStep,
+      devopsPractice,
       {
         type: 'quiz',
         question: {
@@ -1197,7 +1452,10 @@ class TestDiscountCalculation:
           { icon: '📖', route: '/java-document', label: { tr: 'Java Referans Dokümanı', en: 'Java Reference Document' }, desc: { tr: 'Collections, OOP, exception ve concurrency konularını kapsayan aranabilir Java rehberi.', en: 'A searchable Java reference covering collections, OOP, exceptions, and concurrency.' } },
           { icon: '🐙', route: '/git-document', label: { tr: 'Git Referans Dokümanı', en: 'Git Reference Document' }, desc: { tr: 'Git kurulumu, hesap açma, branching, conflict ve gelişmiş Git konularını içeren rehber.', en: 'A searchable Git reference covering installation, account creation, branching, conflict resolution, and advanced Git concepts.' } }
         ]
-      }
+      },
+      learningRoadmapFilm,
+      roadmapStep,
+      roadmapPractice
     ]
   }
 ]
