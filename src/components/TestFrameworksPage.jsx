@@ -3,7 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import FrameworkComparison from './FrameworkComparison'
 import PlaywrightLangCompare from './PlaywrightLangCompare'
 import PythonFrameworksTab from './PythonFrameworksTab'
+import VideoSceneBlock from './VideoSceneBlock'
+import StepAnimationBlock from './StepAnimationBlock'
+import CodePlaygroundBlock from './CodePlaygroundBlock'
 import { useLanguage } from '../context/LanguageContext'
+import {
+    frameworkComparisonFilm, frameworkComparisonStep, frameworkComparisonPractice,
+    playwrightLangCompareFilm, playwrightLangCompareStep, playwrightLangComparePractice,
+    pythonFrameworksFilm,
+} from '../data/testFrameworksFilms'
 
 function ScrollProgressBar() {
     const [progress, setProgress] = useState(0)
@@ -173,9 +181,34 @@ function TestFrameworksPage() {
                                 {sections[activeSection].emoji}{' '}
                                 {language === 'tr' ? sections[activeSection].label : sections[activeSection].labelEn}
                             </h2>
-                            {activeSection === 0 && <FrameworkComparison darkMode={darkMode} />}
-                            {activeSection === 1 && <PlaywrightLangCompare darkMode={darkMode} />}
-                            {activeSection === 2 && <PythonFrameworksTab darkMode={darkMode} language={language} />}
+                            {activeSection === 0 && (
+                                <>
+                                    <FrameworkComparison darkMode={darkMode} />
+                                    <div className="mt-6 space-y-4">
+                                        <VideoSceneBlock block={frameworkComparisonFilm} darkMode={darkMode} language={language} />
+                                        <StepAnimationBlock block={frameworkComparisonStep} darkMode={darkMode} language={language} />
+                                        <CodePlaygroundBlock block={frameworkComparisonPractice} darkMode={darkMode} language={language} />
+                                    </div>
+                                </>
+                            )}
+                            {activeSection === 1 && (
+                                <>
+                                    <PlaywrightLangCompare darkMode={darkMode} />
+                                    <div className="mt-6 space-y-4">
+                                        <VideoSceneBlock block={playwrightLangCompareFilm} darkMode={darkMode} language={language} />
+                                        <StepAnimationBlock block={playwrightLangCompareStep} darkMode={darkMode} language={language} />
+                                        <CodePlaygroundBlock block={playwrightLangComparePractice} darkMode={darkMode} language={language} />
+                                    </div>
+                                </>
+                            )}
+                            {activeSection === 2 && (
+                                <>
+                                    <PythonFrameworksTab darkMode={darkMode} language={language} />
+                                    <div className="mt-6">
+                                        <VideoSceneBlock block={pythonFrameworksFilm} darkMode={darkMode} language={language} />
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {/* Pagination */}
