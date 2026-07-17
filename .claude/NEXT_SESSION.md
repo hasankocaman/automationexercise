@@ -10,6 +10,38 @@
 
 ---
 
+## OTURUM ÖZETİ — animation-per-topic Dalga A1 (Selenium) TAMAMLANDI (2026-07-17, Sonnet oturumu)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+**Commit:** `d68c86e` — `src/data/seleniumData.js`, build yeşil, content-check temiz.
+
+Plan §3.2 Dalga A1: Selenium sayfasındaki 36 kod-bloğu-başına animasyon
+açığı (49 kod bloğu / 16 animasyon → %33 kapsam) 10 sekmede tek tek
+kapatıldı: Installation(-5), Locators(-7), Actions(-8), Wait Strategies(-3),
+Frames/Alerts(-5), Ecosystem(-2), CDP&BiDi(-2), Virtual Auth(-2),
+Selenium IDE(-1), Grid 4(-1). 24 yeni `step-animation` const'u eklendi,
+her biri hemen üstündeki kod bloğunun mekanizmasını 4 adımda anlatıyor
+(TR/EN bilingual, EN+TR çift ağaca aynı referansla).
+
+**Doğrulama:** `node scripts/audit-animation-coverage.mjs selenium` →
+deficit 0 (49/49 %100). `npm run audit:interactive selenium` → sadece
+1 ÖNCEDEN VAR OLAN gap (Selenium IDE sekmesinde eksik order-sort — bu
+Dalga A1'in değil, ayrı Dalga B'nin kapsamı, CLAUDE.md §9.1/9.2). Build
+yeşil; `seleniumData` chunk'ı 527.91 kB (gzip 168.75 kB) — büyüdü ama
+"known warnings" listesindeki javaData/pythonData/typescriptData kadar
+büyük değil, ayrıca izlenmeli.
+
+**Proje geneli güncel durum:** `node scripts/audit-animation-coverage.mjs`
+→ 551 kod bloğu / 523 animasyon / **197 açık kaldı** (Dalga A1 öncesi 233
+idi). Sıradaki dalgalar plan §3.2-3.3'te: Dalga A2 (kafka+kubernetes, 17+17),
+A3 (java, 23), A4 (restassured+appium, 14+14), A5 (jmeter+postman, 13+10),
+A6 (docker+azure+aws, 11+7+6), A7 (pythonData — SADECE Fable, applyTr
+riski), A8 (Haiku, düşük açıklı sayfalar), Dalga B (Haiku, 18 eksik
+order-sort). Her dalga için hazır parametrik prompt: plan §4.1 (Sonnet)
+`{PAGE_KEY}` doldurulup verilir.
+
+---
+
 ## OTURUM ÖZETİ — animation-per-topic planı BAŞLATILDI (2026-07-17, Fable oturumu)
 
 **Branch:** `feature/animation-per-topic` (main'den açıldı, merge edilmedi).
