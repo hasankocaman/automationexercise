@@ -10,6 +10,54 @@
 
 ---
 
+## OTURUM ÖZETİ — animation-per-topic Dalga A4 (RestAssured + Appium) TAMAMLANDI (2026-07-18, Sonnet oturumu 4)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+**Commit'ler:** `0f96b58` (restassured), `9d86fbb` (appium) — ikisi de build yeşil, content-check temiz.
+
+Plan §3.2 Dalga A4: restassured (14 açık, 7 sekme) ve appium (14 açık, 4
+sekme) sayfalarındaki kod-bloğu-başına animasyon açıkları kapatıldı.
+
+- **restAssuredData.js:** TEK ağaçlı yapı keşfedildi — `data.en.sections ===
+  data.tr.sections` (aynı referans, tüm metin alanları `{tr,en}` bilingual).
+  14 yeni step-animation TEK yerleştirmeyle hem TR hem EN'de göründü, mirror
+  adımı gerekmedi. En hızlı dalga oldu.
+- **appiumData.js:** ÇİFT ağaçlı (`section0..section6` const'ları her biri
+  `{tr:{...},en:{...}}`, `buildLang()` ile birleştiriliyor) AMA kod bloğu
+  `label` alanları TR/EN'de bazı yerlerde KELİMESİ KELİMESİNE aynı kaldığı
+  için (örn. "Mac — Homebrew Installation" hem TR hem EN'de identik) Edit
+  tool'un metin-eşleştirmesi belirsiz kaldı. Çözüm: TR/EN sınırı dosyadaki
+  `  en: {` işaretinin SATIR NUMARASINA göre kesinleştirilip, insertion'lar
+  node ile doğrudan satır numarası bazlı yapıldı (`lines.splice(lineNum, 0,
+  ...)`), her ekleme ÖNCESİ hedef satırın gerçekten `      },` olduğu
+  doğrulandı. Bir seferde bu ön-doğrulama atlanınca bir const referansı
+  yanlışlıkla bir Java kod template literal'inin İÇİNE düştü (görsel olarak
+  fark edilir bir hata değil, JS parse olurdu ama block olarak SAYILMAZDI) —
+  audit/build çalıştırılmadan hemen fark edilip düzeltildi.
+
+**Doğrulama (her iki sayfa için ayrı ayrı):** `node scripts/audit-animation-
+coverage.mjs <key>` → deficit 0; `check-content-integrity.mjs` → sıfır
+ihlal; `npm run build` → yeşil (restAssuredData ve appiumData chunk'ları
+küçük/orta boy, "known warnings" listesine girmiyor).
+
+**Ders — gelecek dalgalar için:** Yeni bir sayfaya geçmeden önce artık şu 3
+şey ÖNCEDEN kontrol edilmeli: (1) `data.en.sections === data.tr.sections`
+(tek mi çift mi ağaç), (2) `grep -n "\.en = {\|\.tr = {"` (java'daki
+sPlaywright gibi reassignment tuzağı var mı), (3) kod bloğu `label`
+alanlarının TR/EN'de FARKLI mı AYNI mı olduğu — aynıysa Edit yerine satır
+numarası bazlı insertion kullanılmalı, her ekleme öncesi hedef satır
+içeriği MUTLAKA doğrulanmalı.
+
+**Proje geneli güncel durum:** `node scripts/audit-animation-coverage.mjs`
+→ 551 kod bloğu / 608 animasyon / **112 açık kaldı** (Dalga A3 sonrası 140
+idi). Sıradaki dalgalar plan §3.2-3.3'te: Dalga A5 (jmeter+postman, 13+10),
+A6 (docker+azure+aws, 11+7+6), A7 (pythonData — SADECE Fable, applyTr
+riski), A8 (Haiku, düşük açıklı sayfalar), Dalga B (Haiku, 18 eksik
+order-sort). Her dalga için hazır parametrik prompt: plan §4.1 (Sonnet)
+`{PAGE_KEY}` doldurulup verilir.
+
+---
+
 ## OTURUM ÖZETİ — animation-per-topic Dalga A3 (Java) TAMAMLANDI (2026-07-17, Sonnet oturumu 3)
 
 **Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
