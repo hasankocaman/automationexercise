@@ -7518,6 +7518,11 @@ const finalTrSections = [
         }
       },
       {
+        "type": "css-animation",
+        "kind": "sql-select",
+        "label": { "tr": "SQL Sorgu Yürütme Sırası", "en": "SQL Query Execution Order" }
+      },
+      {
         "type": "heading",
         "text": "Veritabanı Nedir?"
       },
