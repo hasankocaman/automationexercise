@@ -10,6 +10,102 @@
 
 ---
 
+## OTURUM ÖZETİ — Dalga 17-21 TAMAMLANDI — video-sitewide-plan.md ROLLOUT'U BİTTİ (2026-07-17)
+
+> **`Documents/video-sitewide-plan.md`'deki TÜM dalgalar (1-21) artık
+> TAMAMLANDI.** CLAUDE.md §9.5 standardı (her dikey sekmede ≥1 video-scene
+> filmi + ≥1 animasyon + ≥1 sandbox) proje genelindeki TÜM teknoloji
+> sayfalarına yayıldı. Bu oturum, kullanıcının "test etmeden commit yap,
+> sıradaki dalgaya geç, hepsi bitince bitti yaz" talimatıyla Dalga 17'den
+> 21'e kadar kesintisiz ilerledi — her dalga sonunda SADECE
+> `check-content-integrity.mjs` + `node scripts/audit-interactive.mjs <key>`
+> + (JSX değişen dalgalarda) `npm run build` çalıştırıldı, Playwright/e2e
+> hâlâ ÇALIŞTIRILMADI (Dalga 8'den beri süregelen bilinçli sapma — bkz.
+> aşağıdaki eski not). **Bu yüzden final toplu Playwright/e2e doğrulama
+> turu hâlâ YAPILMADI ve bir sonraki oturumun İLK işi olmalı.**
+
+### Dalga 17 — /appium + /browserstack — TAMAMLANDI
+- `appiumData.js` (commit `361f91c`): 7/7 sekme. `fillMissingCodeTrios` hiç
+  çağrılmıyordu (import bile yoktu) — eklendi, sections 1-4 otomatik trio
+  kazandı. 7 yeni film + kodsuz sekmeler (Intro, Common Errors, Interview)
+  için elle animasyon/sandbox.
+- `browserstackData.js` (commit `0b056c0`): 8/8 sekme. **Tek ağaçlı yapı**
+  (gaugeData ile aynı kalıp, `tr.sections`/`en.sections` aynı referans) —
+  film sabitleri SADECE BİR YERE referanslandı. `fillMissingCodeTrios`
+  import+invoke hiç yoktu, eklendi. `scripts/audit-interactive.mjs`'e
+  `browserstack` girişi eklendi.
+
+### Dalga 18 — /aws + /azure — TAMAMLANDI
+- `awsData.js` (commit `c0893cc`): 6 yeni film + `fillMissingCodeTrios`
+  import/invoke eklendi. TR/EN içerik asimetrisi bulundu (Ecosystem
+  sekmesinde TR ağacında EN'deki bir Lambda kod örneği eksikti) — manuel
+  TR-only step+practice ile düzeltildi.
+- `azureData.js` (commit `eb9c1e3`): 6 yeni film. Benzer bir TR-only
+  asimetri (Installation sekmesinde `az account show` JSON örneği TR'de
+  eksikti) bulunup düzeltildi.
+
+### Dalga 19 — /what-is-testing + /test-frameworks — TAMAMLANDI
+- `whatIsTestingData.js` (commit `5ab3e34`): tek ağaçlı yapı, 6 yeni film.
+  `scripts/audit-interactive.mjs`'e `what-is-testing` girişi eklendi.
+- `test-frameworks`: bu sayfanın `src/data/*.js` dosyası YOK — içerik 3 alt
+  component'te (`FrameworkComparison.jsx`, `PlaywrightLangCompare.jsx`,
+  `PythonFrameworksTab.jsx`) hardcoded JSX. Çözüm: yeni
+  `src/data/testFrameworksFilms.js` dosyası (film+animasyon+practice
+  sabitleri) + `TestFrameworksPage.jsx`'e `VideoSceneBlock`/
+  `StepAnimationBlock`/`CodePlaygroundBlock` import edilip
+  `activeSection`'a göre koşullu render eklendi (commit `13fb4b0`,
+  `npm run build` ile JSX doğrulandı — bu dalga component dosyası
+  değiştirdiği için build kontrolü zorunluydu).
+
+### Dalga 20 — /manual-testing + /algorithms + /advanced-algorithms — TAMAMLANDI
+- `manualTestingData.js` (commit `e06320b`): 5 yeni film, dual-tree
+  `lessons` yapısı, `ManualTestingPage.jsx` zaten `lesson.film` render
+  ediyordu (Dalga öncesinde hazırdı).
+- `beginnerAlgorithmsData.js` — bu, `/algorithms` route'una ait veri
+  dosyasıdır (commit `185ae01`): 6 yeni film, dual-tree `lessons`.
+- `algorithmsData.js` — **DİKKAT: dosya adı `/algorithms` DEĞİL,
+  `/advanced-algorithms` route'una ait** (isimlendirme kafa karıştırıcı,
+  CLAUDE.md'de de not düşüldü). Sıfırdan video-scene entegrasyonu: 6 yeni
+  film + `AdvancedAlgorithmsPage.jsx`'e `VideoSceneBlock` import + `language`
+  prop threading + `section.film` render eklendi (commit `a9fa5b3`,
+  `npm run build` ile doğrulandı).
+
+### Dalga 21 — /llm-agents + /claude-ai — TAMAMLANDI (bu oturumun son işi)
+- `llmAgentsData.js` (commit `167df7b`): 18/18 sekme, dual-tree. 17 yeni
+  film + 7 sekmede (0,2,6,12,14,15,17) eksik kalan step-animation/
+  code-playground elle tamamlandı (`relatedTopicId` ile). Bu dosyanın
+  kendine özgü code-playground şeması (`label`/`task`/`explanation`/`code`/
+  `expected`/`hints[]`) diğer sayfalardan farklı — yeni bloklar bu yerel
+  konvansiyona uyduruldu.
+- `claudeAiData.js` (commit `6e77019`): 16/16 sekme, dual-tree. 15 yeni film
+  (1 pilot film — `judgeLoopFilm`, section 11 — zaten mevcuttu) + 5 sekmede
+  (0, 11, 12, 13, 15) eksik kalan step-animation/code-playground elle
+  tamamlandı. **Bu dalgada ilk planlanan gap listesi eksikti** — section 11
+  (LLM-as-a-Judge) de anim+sand eksikliği taşıyordu ama başlangıç analizinde
+  atlanmıştı; runtime coverage-scan bunu yakaladı ve düzeltildi (ders: her
+  zaman gerçek coverage-scan çalıştır, hafızadaki listeye güvenme).
+- Her iki dosya için de `scripts/audit-interactive.mjs`'e yeni kayıt
+  eklendi (`llm-agents`, `claude-ai`), `node scripts/audit-interactive.mjs
+  <key>` ile 0 gap doğrulandı, `check-content-integrity.mjs` temiz,
+  `npm run build` temiz (data-only değişiklik olduğu için build kontrolü
+  yapıldı ama JSX dokunulmadığından zorunlu değildi — yine de sanity
+  check olarak koşuldu).
+
+### Sıradaki oturumun KESİN ilk işi
+1. **Final toplu Playwright/e2e doğrulama turu** — Dalga 8'den beri
+   ertelenen `npm run test:e2e` (142+ test) ve gerekirse
+   `tests/video-scene.spec.ts`'e Dalga 8-21'de eklenen ~20 sayfa için
+   temsili render testleri eklenmesi. Bu dosyanın en üstündeki eski
+   "workflow değişikliği" notu artık KAPANMIŞTIR — bu maddeyi tamamladıktan
+   sonra o notu silebilirsin.
+2. Branch: `feature/video-scene-dalga5` — main'e merge edilmeyi bekliyor
+   (kullanıcı onayı olmadan merge/push YAPMA).
+3. `TopicPage`/`typescriptData`/`javaData`/`pythonData` chunk boyutu
+   uyarıları hâlâ mevcut (CLAUDE.md §14) — acil değil, code-splitting ileride
+   değerlendirilebilir.
+
+---
+
 ## OTURUM ÖZETİ — Dalga 8 (/python) TAMAMLANDI, workflow değişikliği (2026-07-15, devam)
 
 > **ÖNEMLİ — bu oturumda kullanıcı talimatıyla geçici bir workflow değişikliği
