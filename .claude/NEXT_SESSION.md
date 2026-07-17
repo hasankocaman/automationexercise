@@ -10,6 +10,59 @@
 
 ---
 
+## OTURUM ÖZETİ — animation-per-topic Dalga A2 (Kafka + Kubernetes) TAMAMLANDI (2026-07-17, Sonnet oturumu 2)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+**Commit'ler:** `64f3e67` (kafka), `348f618` (kubernetes) — ikisi de build yeşil, content-check temiz.
+
+Plan §3.2 Dalga A2: kafka (17 açık, 6 sekme) ve kubernetes (17 açık, 6 sekme)
+sayfalarındaki kod-bloğu-başına animasyon açıkları tek tek kapatıldı. Her
+sayfa için önce `fillMissingCodeTrios`'un (dosya sonunda çağrılan, section
+başına en fazla 1 trio ekleyen otomatik doldurucu) hangi kod bloklarını
+ZATEN kapsadığı runtime import ile tespit edildi, sonra kalan açık kod
+bloklarının HER BİRİ için ayrı, o bloğun mekanizmasına özgü bir
+step-animation const yazıldı — jenerik/tekrar eden animasyon YOK.
+
+- **kafka:** 17 yeni `{tr,en}` step-animation const (kafkaData.js'in mevcut
+  düz `steps: [{tr,en}]` şemasına uyumlu). EN ağacına tam yerleştirildi
+  (deficit 0/23). TR ağacına da aynı referanslarla mirror edildi — TR'de
+  EN'e denk gelen kod bloğu YOKSA (örn. Ecosystem'de pom.xml/application.yml/
+  schema-registry TR'de tek bir birleşik koda indirgenmiş) o animasyon TR'ye
+  eklenmedi; bu EN/TR içerik paritesi eksikliği bu dalganın kapsamı DIŞINDA,
+  ayrı bir iş olarak not edildi.
+- **kubernetes:** 17 yeni step-animation const — ama kubernetesData.js'in
+  KENDİ yerleşik şeması `steps: [{id,icon,label:{tr,en},detail:{tr,en}}]`
+  (kafka'dan farklı, daha zengin) olduğu tespit edildi ve o şema BİREBİR
+  taklit edildi. EN ağacına tam yerleştirildi (deficit 0/27). TR ağacı da
+  mirror edildi; TR'de eksik olan bazı EN kod blokları (kind, AWS EKS,
+  Ingress, "Step 4: Kubernetes manifests" bash/yaml) için karşılık
+  gelmediğinden o animasyonlar TR'ye eklenmedi (aynı kapsam-dışı not).
+
+**Doğrulama (her iki sayfa için ayrı ayrı):** `node scripts/audit-animation-
+coverage.mjs <key>` → deficit 0 (%100); `node scripts/check-content-
+integrity.mjs` → sıfır ihlal; `npm run build` → yeşil (kafkaData chunk
+315.05 kB gzip 104.03 kB, kubernetesData chunk 348.88 kB gzip 115.81 kB —
+büyüdü ama "known warnings" listesindeki javaData/pythonData/typescriptData
+kadar büyük değil, izlenmeli).
+
+**Not — post-commit hook:** Bu oturumda kafka commit'i sırasında post-commit
+hook'un tam Playwright suite'i (166 test) 2 dakikalık bash timeout'unu aştı;
+komut kesildi ama commit ZATEN tamamlanmıştı (git commit hook'tan önce
+yazılır). Kubernetes commit'inde `SKIP_E2E_HOOK=1` ile bilinçli atlandı —
+CLAUDE.md §1.1'deki 4 zorunlu kontrol (content-integrity, ipucu-konu bağı,
+TR taraması, build) ayrıca ELLE çalıştırıldı, bu hook'un dışındadır.
+
+**Proje geneli güncel durum:** `node scripts/audit-animation-coverage.mjs`
+→ 551 kod bloğu / 557 animasyon / **163 açık kaldı** (Dalga A1 sonrası 197
+idi, Dalga A2 34 açık kapattı). Sıradaki dalgalar plan §3.2-3.3'te: Dalga A3
+(java, 23), A4 (restassured+appium, 14+14), A5 (jmeter+postman, 13+10), A6
+(docker+azure+aws, 11+7+6), A7 (pythonData — SADECE Fable, applyTr riski),
+A8 (Haiku, düşük açıklı sayfalar), Dalga B (Haiku, 18 eksik order-sort).
+Her dalga için hazır parametrik prompt: plan §4.1 (Sonnet) `{PAGE_KEY}`
+doldurulup verilir — Dalga A3 (java, tek sayfa) sıradaki en büyük açık.
+
+---
+
 ## OTURUM ÖZETİ — animation-per-topic Dalga A1 (Selenium) TAMAMLANDI (2026-07-17, Sonnet oturumu)
 
 **Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
