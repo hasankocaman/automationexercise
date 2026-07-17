@@ -1,5 +1,150 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// ── Dalga A5 (animation-per-topic §3.2): kod-bloğu-başına animasyon açıkları ──
+
+const jmeterJavaVersionCheckStep = {
+  type: 'step-animation',
+  title: { tr: 'java -version Çıktısı Sana Ne Söylüyor?', en: 'What Does the java -version Output Tell You?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Komut JVM\'e SORAR…', en: 'The command ASKS the JVM…' }, detail: { tr: '`java -version` çalıştırıldığında, terminal bir JMeter komutu ÇALIŞTIRMAZ — sadece kurulu olan JVM\'e kendi sürümünü SORAR.', en: 'Running `java -version` does NOT execute any JMeter command — it simply ASKS the installed JVM to report its own version.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Çıktı satırı sürüm UYUMLULUĞUNU…', en: 'The output line proves version…' }, detail: { tr: '`openjdk version "17.0.9"` satırı, JMeter 5.x\'in gerektirdiği Java 8+ şartının KARŞILANDIĞINI kanıtlar — bu kontrol JMeter\'i indirmeden ÖNCE yapılır.', en: 'The `openjdk version "17.0.9"` line proves the Java 8+ requirement JMeter 5.x needs is MET — this check happens BEFORE downloading JMeter.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Komut TANINMAZSA…', en: 'If the command is NOT recognized…' }, detail: { tr: 'Komut "not recognized"/"command not found" hatası VERİRSE, JMeter\'i indirmek BOŞUNA olur — jmeter.bat/jmeter.sh çalıştığı AN bir JVM arar ve bulamaz.', en: 'If the command errors "not recognized"/"command not found", downloading JMeter is POINTLESS — the moment jmeter.bat/jmeter.sh runs it looks for a JVM and finds NONE.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Adoptium linki YEDEK planı sunar…', en: 'The Adoptium link offers the FALLBACK…' }, detail: { tr: 'Kurulu değilse adoptium.net linki devreye girer — bu, ücretsiz açık kaynak bir JDK dağıtımıdır, Oracle\'ın lisanslı sürümüne bir ALTERNATİFTİR.', en: 'If not installed, the adoptium.net link is the FALLBACK — a free open-source JDK distribution, an ALTERNATIVE to Oracle\'s licensed build.' } },
+  ],
+}
+
+const jmeterLaunchGuiStep = {
+  type: 'step-animation',
+  title: { tr: '.bat/.sh Dosyasını Çalıştırmak Perde Arkasında Ne Başlatır?', en: 'What Does Running the .bat/.sh File Actually Launch Behind the Scenes?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'jmeter.bat/.sh bir KURULUM programı DEĞİLDİR…', en: 'jmeter.bat/.sh is NOT an installer…' }, detail: { tr: '`jmeter.bat`/`jmeter.sh`, bir KURULUM programı DEĞİLDİR — sadece kurulu JVM\'i, JMeter\'in Java sınıflarıyla BAŞLATAN bir kabuk (shell) betiğidir.', en: '`jmeter.bat`/`jmeter.sh` is NOT an installer program — it is just a shell script that LAUNCHES the already-installed JVM with JMeter\'s Java classes.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Windows ve Mac/Linux AYNI JAR\'ı…', en: 'Windows and Mac/Linux run the SAME…' }, detail: { tr: 'Windows\'ta çift tıklama, Mac/Linux\'ta `./jmeter.sh` — İKİSİ de AYNI Java JAR dosyalarını çalıştırır, sadece kabuk sözdizimi platforma göre DEĞİŞİR.', en: 'Double-clicking on Windows, `./jmeter.sh` on Mac/Linux — BOTH run the SAME Java JAR files, only the shell syntax differs PER platform.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'İlk açılış 10-20 saniye SÜRER…', en: 'The first launch TAKES 10-20 seconds…' }, detail: { tr: 'İlk açılış 10-20 saniye sürebilir çünkü JVM Swing arayüzünü ve TÜM eklenti sınıflarını bu ANDA yüklüyordur — sonraki açılışlar genelde daha HIZLIDIR.', en: 'The first launch can take 10-20 seconds because the JVM is loading the Swing UI and ALL plugin classes at that MOMENT — later launches are usually FASTER.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Açılan GUI BOŞ bir Test Plan\'dır…', en: 'The opened GUI is an EMPTY Test Plan…' }, detail: { tr: 'Açılan pencere BOŞ bir Test Plan\'dır — bu GUI sadece test KURMAK içindir, büyük yük testlerini ASLA GUI modunda çalıştırma (CLI kullan).', en: 'The window that opens is an EMPTY Test Plan — this GUI is only for BUILDING tests, NEVER run large load tests in GUI mode (use the CLI instead).' } },
+  ],
+}
+
+const jmeterTestPlanHierarchyStep = {
+  type: 'step-animation',
+  title: { tr: 'Ağaçtaki Sıralama Neden Bir Config Element\'in Kapsamını Belirler?', en: 'Why Does Tree Order Determine a Config Element\'s Scope?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Test Plan KÖK kapsayıcıdır…', en: 'Test Plan is the ROOT container…' }, detail: { tr: '`Test Plan` en üstteki KÖK kapsayıcıdır — altındaki HER ŞEY (Thread Group, sampler, listener) bu ağacın bir DALIDIR.', en: '`Test Plan` is the top-level ROOT container — EVERYTHING beneath it (Thread Group, sampler, listener) is a BRANCH of this tree.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Thread Group SANAL kullanıcıları TEMSİL eder…', en: 'Thread Group REPRESENTS virtual users…' }, detail: { tr: '`Thread Group`, kaç sanal kullanıcının çalışacağını TANIMLAR — altındaki HER sampler, o kullanıcı sayısı kadar TEKRARLANIR.', en: '`Thread Group` DEFINES how many virtual users run — EVERY sampler beneath it REPEATS that many times.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'CSV Data Set Config KONUMUNA göre kapsam alır…', en: 'CSV Data Set Config scopes by its POSITION…' }, detail: { tr: '`CSV Data Set Config` bir Thread Group İÇİNE konursa SADECE o grubun sampler\'larını etkiler; Test Plan KÖKÜNE konursa TÜM gruplara global olarak UYGULANIR.', en: 'If `CSV Data Set Config` sits INSIDE one Thread Group it affects ONLY that group\'s samplers; placed at the Test Plan ROOT it applies GLOBALLY to all groups.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Bu, Java\'daki değişken SCOPE\'una BENZER…', en: 'This RESEMBLES Java variable SCOPE…' }, detail: { tr: 'Bu tam olarak Java\'da bir metot İÇİNDE tanımlanan değişkenle sınıf SEVİYESİNDE tanımlanan değişken arasındaki FARKTIR — konum, görünürlüğü BELİRLER.', en: 'This is EXACTLY the difference between a variable declared INSIDE a method versus one declared at the CLASS level in Java — position DETERMINES visibility.' } },
+  ],
+}
+
+const jmeterHttpRequestSamplerStep = {
+  type: 'step-animation',
+  title: { tr: 'HTTP Request Sampler\'daki Her Alan Gerçek İsteğin Neresine Karşılık Gelir?', en: 'Which Part of the Real Request Does Each Sampler Field Map To?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Method + Path birlikte İSTEK SATIRINI…', en: 'Method + Path together form the…' }, detail: { tr: '`Method: POST` + `Path: /api/v1/login` birlikte, HTTP protokolündeki gerçek İSTEK SATIRINI ("POST /api/v1/login") OLUŞTURUR.', en: '`Method: POST` + `Path: /api/v1/login` together CONSTRUCT the actual HTTP request line ("POST /api/v1/login").' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Body Data JSON gövdesini TAŞIR…', en: 'Body Data CARRIES the JSON payload…' }, detail: { tr: '`Body Data` alanındaki JSON, isteğin GÖVDESİDİR — burada `username`/`password` gönderilir, tıpkı bir REST Assured `.body(...)` çağrısı GİBİ.', en: 'The JSON in `Body Data` IS the request body — `username`/`password` go here, JUST LIKE a REST Assured `.body(...)` call.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'HTTP Header Manager AYRI bir bileşendir…', en: 'HTTP Header Manager is a SEPARATE…' }, detail: { tr: '`Content-Type: application/json` header\'ı Sampler\'ın İÇİNDE DEĞİL, AYRI bir "HTTP Header Manager" bileşeninde ayarlanır — sunucuya gövdenin JSON olduğunu SÖYLER.', en: 'The `Content-Type: application/json` header is set in a SEPARATE "HTTP Header Manager" component, NOT inside the Sampler itself — it TELLS the server the body is JSON.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Header eksikse sunucu YANLIŞ yorumlar…', en: 'Missing the header, the server…' }, detail: { tr: 'Content-Type header\'ı EKLENMEZSE, bazı sunucular gövdeyi JSON olarak PARSE ETMEZ ve isteği HATALI (400) reddeder — bu sık yapılan bir HATADIR.', en: 'WITHOUT the Content-Type header, some servers do NOT PARSE the body as JSON and reject the request as malformed (400) — a COMMON mistake.' } },
+  ],
+}
+
+const jmeterCsvDataSetStep = {
+  type: 'step-animation',
+  title: { tr: 'CSV Data Set Config Her Sanal Kullanıcıya Farklı Veriyi Nasıl Dağıtır?', en: 'How Does CSV Data Set Config Distribute Different Data to Each Virtual User?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'CSV dosyası bir VERİ HAVUZU sağlar…', en: 'The CSV file supplies a data POOL…' }, detail: { tr: '`users.csv` dosyası, `alice`/`bob`/`charlie`/`diana` gibi FARKLI kullanıcı adlarını içeren bir VERİ HAVUZU sağlar — sabit KODLANMIŞ tek bir kullanıcı DEĞİL.', en: 'The `users.csv` file supplies a POOL of DIFFERENT usernames like `alice`/`bob`/`charlie`/`diana` — NOT a single hard-CODED user.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Variable Names sütunları JMeter değişkenine…', en: 'Variable Names map columns to JMeter…' }, detail: { tr: '`Variable Names: username,password` ayarı, CSV\'nin SÜTUNLARINI `${username}`/`${password}` gibi JMeter DEĞİŞKENLERİNE eşler.', en: '`Variable Names: username,password` maps the CSV\'s COLUMNS to JMeter VARIABLES like `${username}`/`${password}`.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Sharing Mode = All threads HERKESE dağıtır…', en: 'Sharing Mode = All threads DISTRIBUTES…' }, detail: { tr: '`Sharing Mode: All threads`, dosyadaki her SATIRIN farklı bir sanal kullanıcıya GİTMESİNİ sağlar — aksi halde HERKES aynı SATIRI okur.', en: '`Sharing Mode: All threads` ensures each ROW in the file goes to a DIFFERENT virtual user — otherwise EVERYONE reads the same ROW.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Yanlış paylaşım modu SESSİZ bir hataya…', en: 'The wrong sharing mode leads to a…' }, detail: { tr: 'Bu ayar YANLIŞ yapılırsa, 500 kullanıcılık bir test AYNI kimlik bilgisiyle sunucuyu döver — row-locking/session çakışması hataları PRODUCTION\'a kadar GİZLİ kalır.', en: 'Getting this setting WRONG means a 500-user test hammers the server with the SAME credentials — row-locking/session-contention bugs stay HIDDEN until PRODUCTION.' } },
+  ],
+}
+
+const jmeterRegexExtractorStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Token Bir İstekten Diğerine Nasıl "Correlation" ile Taşınır?', en: 'How Does a Token Travel From One Request to the Next via "Correlation"?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Login isteği CEVAPTA bir token DÖNDÜRÜR…', en: 'The login request RETURNS a token…' }, detail: { tr: 'Login isteğinin YANITINDA `"token":"..."` gibi DİNAMİK bir değer döner — bu değer HER test çalıştırmasında FARKLIDIR.', en: 'The login response RETURNS a DYNAMIC value like `"token":"..."` — this value is DIFFERENT on every test run.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Regular Expression Extractor bu değeri YAKALAR…', en: 'The Regular Expression Extractor CAPTURES…' }, detail: { tr: '`"token":"([^"]+)"` deseni, `Reference Name: authToken` altında bu değeri YAKALAR ve bir JMeter DEĞİŞKENİNE kaydeder.', en: 'The `"token":"([^"]+)"` pattern CAPTURES this value under `Reference Name: authToken` and saves it as a JMeter VARIABLE.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Sonraki istek bu değişkeni HEADER\'A koyar…', en: 'The next request injects the variable…' }, detail: { tr: 'Bir SONRAKİ istekte `Authorization: Bearer ${authToken}` header\'ı, bu YAKALANAN değeri otomatik olarak TAŞIR — elle kopyala-yapıştır GEREKMEZ.', en: 'The NEXT request\'s `Authorization: Bearer ${authToken}` header automatically CARRIES this captured value — no manual copy-paste NEEDED.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Bu adım ATLANIRSA zincir KOPAR…', en: 'Skip this step and the chain BREAKS…' }, detail: { tr: 'Bu "correlation" adımı ATLANIRSA, ikinci istek BOŞ veya ESKİ bir token ile gider ve 401 ile BAŞARISIZ olur — dinamik değerli her akışta ZORUNLUDUR.', en: 'SKIP this "correlation" step and the second request goes with an EMPTY or STALE token and FAILS with 401 — MANDATORY for any flow with dynamic values.' } },
+  ],
+}
+
+const jmeterNonGuiCliStep = {
+  type: 'step-animation',
+  title: { tr: '-n -t -l -e -o Bayrakları Bir Load Testinin Hangi Aşamasını Kontrol Eder?', en: 'Which Phase of a Load Test Does Each of -n -t -l -e -o Control?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: '-n GUI\'yi TAMAMEN devre dışı bırakır…', en: '-n DISABLES the GUI entirely…' }, detail: { tr: '`-n` bayrağı Swing arayüzünü TAMAMEN devre dışı bırakır — TÜM CPU/bellek yük ÜRETMEYE ayrılır, ölçüm aracının KENDİSİ gürültü KATMAZ.', en: 'The `-n` flag DISABLES the Swing UI entirely — ALL CPU/memory goes to GENERATING load, the measurement tool ITSELF adds no noise.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '-t HANGİ test planının çalışacağını…', en: '-t specifies WHICH test plan runs…' }, detail: { tr: '`-t my_test.jmx`, GUI\'de İNŞA ettiğin test planını İŞARET eder — CLI bu dosyayı okuyup AYNEN GUI\'deki gibi ÇALIŞTIRIR.', en: '`-t my_test.jmx` POINTS to the test plan you BUILT in the GUI — the CLI reads this file and RUNS it EXACTLY as the GUI would.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '-l HAM sonuçları dosyaya YAZAR…', en: '-l WRITES raw results to a file…' }, detail: { tr: '`-l results.jtl`, her tek isteğin HAM sonucunu (yanıt süresi, status code) bir dosyaya YAZAR — bu, SONRAKİ analiz için TEMEL veridir.', en: '`-l results.jtl` WRITES the RAW result of every single request (response time, status code) to a file — this is the FOUNDATION data for LATER analysis.' } },
+    { id: 4, icon: '4️⃣', label: { tr: '-e -o HAM veriyi görsel bir DASHBOARD\'a…', en: '-e -o turns the raw data into a…' }, detail: { tr: '`-e -o ./report`, o HAM `.jtl` dosyasını test BİTTİKTEN sonra etkileşimli bir HTML dashboard\'a ÇEVİRİR — `-o` klasörü BOŞ olmalıdır.', en: '`-e -o ./report` CONVERTS that RAW `.jtl` file into an interactive HTML dashboard AFTER the test finishes — the `-o` folder must be EMPTY.' } },
+  ],
+}
+
+const jmeterUserDefinedVarsStep = {
+  type: 'step-animation',
+  title: { tr: 'CLI\'dan -J ile Geçilen Değer, GUI\'deki Değeri Neden Ezer?', en: 'Why Does a -J Value Passed From the CLI Override the GUI Value?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'User Defined Variables VARSAYILAN değer…', en: 'User Defined Variables define DEFAULT…' }, detail: { tr: '`BASE_URL`/`USERS`/`RAMPUP`/`DURATION`, Test Plan\'ın "User Defined Variables" bölümünde VARSAYILAN değerler olarak TANIMLANIR.', en: '`BASE_URL`/`USERS`/`RAMPUP`/`DURATION` are DEFINED as DEFAULT values in the Test Plan\'s "User Defined Variables" section.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '${USERS} gibi referanslar Thread Group\'a…', en: 'References like ${USERS} feed into…' }, detail: { tr: 'Thread Group\'taki `Number of Threads: ${USERS}` alanı, sabit bir sayı YERİNE bu DEĞİŞKENİ okur — test planı TEK dosya, ama davranışı DEĞİŞKEN.', en: 'The Thread Group\'s `Number of Threads: ${USERS}` field reads this VARIABLE INSTEAD of a hardcoded number — one test plan FILE, VARIABLE behavior.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '-JBASE_URL=... CLI\'dan değeri EZER…', en: '-JBASE_URL=... OVERRIDES the value…' }, detail: { tr: '`-JBASE_URL=https://staging.example.com`, GUI\'de tanımlı VARSAYILAN değeri komut satırından EZER — test planını AÇIP DÜZENLEMEDEN ortam değiştirilir.', en: '`-JBASE_URL=https://staging.example.com` OVERRIDES the GUI-defined default from the command line — you switch environments WITHOUT opening and editing the plan.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Bu, CI pipeline\'ında AYNI .jmx\'i…', en: 'This lets CI reuse the SAME .jmx…' }, detail: { tr: 'Bu mekanizma sayesinde CI pipeline\'ı AYNI `.jmx` dosyasını hem staging hem production için, SADECE `-J` bayraklarını DEĞİŞTİREREK kullanabilir.', en: 'Thanks to this mechanism, a CI pipeline can reuse the SAME `.jmx` file for both staging and production, just by CHANGING the `-J` flags.' } },
+  ],
+}
+
+const jmeterJsr223GroovyStep = {
+  type: 'step-animation',
+  title: { tr: 'JSR223 Sampler İçindeki Groovy Kodu Diğer Request\'lere Veriyi Nasıl Aktarır?', en: 'How Does Groovy Code in a JSR223 Sampler Pass Data to Other Requests?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'UUID.randomUUID() HER çalıştırmada FARKLI…', en: 'UUID.randomUUID() Produces a DIFFERENT…' }, detail: { tr: '`UUID.randomUUID()` HER örnek/istek için FARKLI benzersiz bir kimlik ÜRETİR — sabit test verisiyle PARALEL testlerdeki çakışmayı ÖNLER.', en: '`UUID.randomUUID()` PRODUCES a different unique ID for EVERY sample/request — PREVENTS collisions in parallel tests that a fixed test value would cause.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'vars.put(...) JMeter DEĞİŞKENİ olarak SAKLAR…', en: 'vars.put(...) STORES it as a JMeter…' }, detail: { tr: '`vars.put("requestId", uuid)` bu değeri bir JMeter DEĞİŞKENİ olarak saklar — Regular Expression Extractor\'ın yaptığı gibi, ama sunucudan ÇEKMEK yerine SEN üretiyorsun.', en: '`vars.put("requestId", uuid)` stores this as a JMeter VARIABLE — like what a Regular Expression Extractor does, except YOU generate it instead of EXTRACTING it from the server.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'HMAC-SHA256 imzası KARMAŞIK mantık örneğidir…', en: 'The HMAC-SHA256 signature is an example…' }, detail: { tr: 'HMAC-SHA256 imza üretimi, JMeter\'in yerleşik fonksiyonlarıyla YAPILAMAYACAK KARMAŞIK bir mantığın Groovy\'de nasıl ÇÖZÜLDÜĞÜNÜ gösterir.', en: 'The HMAC-SHA256 signature generation shows how COMPLEX logic that JMeter\'s built-in functions CANNOT do is SOLVED in Groovy.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Groovy DERLENİR ve ÖNBELLEĞE alınır…', en: 'Groovy is COMPILED and CACHED…' }, detail: { tr: 'JSR223+Groovy, eski BeanShell sampler\'ından daha HIZLIDIR çünkü kod her çalıştırmada YENİDEN yorumlanmaz, DERLENİP ÖNBELLEĞE alınır.', en: 'JSR223+Groovy is FASTER than the old BeanShell sampler because the code is NOT re-interpreted on every run — it is COMPILED and CACHED.' } },
+  ],
+}
+
+const jmeterBuiltinFunctionsStep = {
+  type: 'step-animation',
+  title: { tr: '${__threadNum} ve ${__Random(...)} Aynı Anda Neden Farklı Değerler Üretir?', en: 'Why Do ${__threadNum} and ${__Random(...)} Produce Different Values Simultaneously?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: '${__functionName()} sözdizimi HER alanda…', en: 'The ${__functionName()} syntax works…' }, detail: { tr: '`${__functionName()}` sözdizimi, JMeter\'in HERHANGİ bir metin ALANINDA (URL, body, header) çalışan yerleşik bir fonksiyon ÇAĞIRMA yöntemidir.', en: 'The `${__functionName()}` syntax is how JMeter CALLS a built-in function inside ANY text FIELD (URL, body, header).' } },
+    { id: 2, icon: '2️⃣', label: { tr: '${__threadNum} HER sanal kullanıcı için SABİT…', en: '${__threadNum} stays FIXED per virtual…' }, detail: { tr: '`${__threadNum}` HER sanal kullanıcı İÇİN sabittir (kullanıcı 1 hep 1 görür) ama kullanıcılar ARASINDA farklıdır — bu, kullanıcı BAŞINA benzersiz veri üretir.', en: '`${__threadNum}` stays FIXED per virtual user (user 1 always sees 1) but DIFFERS between users — this produces per-user unique data.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '${__Random(1,1000)} HER çağrıda YENİDEN…', en: '${__Random(1,1000)} re-evaluates on…' }, detail: { tr: '`${__Random(1,1000)}` ise HER çağrıldığında YENİDEN hesaplanır — aynı kullanıcı bile art arda İKİ farklı rastgele sayı GÖREBİLİR.', en: '`${__Random(1,1000)}` RE-EVALUATES on every call — even the same user can see TWO different random numbers back to back.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'İkisi BİRLEŞTİRİLİNCE benzersiz kullanıcı verisi…', en: 'Combined, they produce unique per-user…' }, detail: { tr: '`user_${__threadNum}_${__Random(100,999)}` gibi bir kombinasyon, HEM kullanıcı bazında TUTARLI HEM de çakışma RİSKİ düşük benzersiz veri üretir.', en: 'A combination like `user_${__threadNum}_${__Random(100,999)}` produces data that is BOTH per-user CONSISTENT and low-collision-RISK unique.' } },
+  ],
+}
+
+const jmeterDistributedTestingStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Controller ve Birden Fazla Worker Nasıl Tek Bir Testi Paylaşır?', en: 'How Do One Controller and Multiple Workers Share a Single Test?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'remote_hosts Controller\'a HANGİ makineleri…', en: 'remote_hosts tells the Controller WHICH…' }, detail: { tr: '`jmeter.properties`\'teki `remote_hosts=192.168.1.101,...` satırı, Controller\'a KOMUTA edeceği worker makinelerin IP\'lerini SÖYLER.', en: 'The `remote_hosts=192.168.1.101,...` line in `jmeter.properties` TELLS the Controller which worker machines it will COMMAND.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'jmeter-server HER worker\'da AYRI çalışır…', en: 'jmeter-server runs SEPARATELY on each…' }, detail: { tr: 'HER worker makinede `jmeter-server` ÇALIŞTIRILIR — bu, o makineyi Controller\'dan gelen KOMUTLARI dinleyen bir RMI sunucusuna ÇEVİRİR.', en: '`jmeter-server` is RUN on EACH worker machine — this TURNS that machine into an RMI server LISTENING for commands from the Controller.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '-r TÜM worker\'lara, -R SEÇİLİ olanlara…', en: '-r targets ALL workers, -R targets…' }, detail: { tr: '`-r` bayrağı TANIMLI TÜM worker\'larda testi BAŞLATIR; `-R IP1,IP2` ise SADECE belirtilen IP\'lerde çalıştırır — kısmi bir yük dağılımı İÇİN kullanışlıdır.', en: 'The `-r` flag STARTS the test on ALL defined workers; `-R IP1,IP2` runs it ONLY on the specified IPs — useful for a PARTIAL load distribution.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Toplam kullanıcı sayısı worker sayısıyla ÇARPILIR…', en: 'Total user count MULTIPLIES by worker…' }, detail: { tr: 'Thread Group\'ta 100 kullanıcı tanımlıysa ve 5 worker VARSA, GERÇEK toplam sanal kullanıcı sayısı 500\'DÜR — bu ÇARPMA etkisini unutmak testi YANLIŞ boyutlandırır.', en: 'If the Thread Group defines 100 users and there are 5 workers, the ACTUAL total virtual user count is 500 — forgetting this MULTIPLICATION effect MIS-sizes the test.' } },
+  ],
+}
+
+const jmeterCicdGithubActionsStep = {
+  type: 'step-animation',
+  title: { tr: 'GitHub Actions Workflow\'u JMeter\'i Otomatik Kalite Kapısına Nasıl Çevirir?', en: 'How Does the GitHub Actions Workflow Turn JMeter Into an Automatic Quality Gate?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'on: push + schedule İKİ TETİKLEYİCİ tanımlar…', en: 'on: push + schedule define TWO…' }, detail: { tr: '`on: push` + `schedule: cron` İKİ AYRI tetikleyici tanımlar — HER main push\'unda VE her Pazartesi 6\'da OTOMATİK olarak load test ÇALIŞIR.', en: '`on: push` + `schedule: cron` define TWO SEPARATE triggers — the load test runs AUTOMATICALLY on every main push AND every Monday at 6am.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'setup-java + wget JMeter\'i sıfırdan İNDİRİR…', en: 'setup-java + wget download JMeter…' }, detail: { tr: '`setup-java` ile Java kurulur, `wget` ile JMeter tarball\'ı İNDİRİLİR — bu, her CI koşumunun SIFIRDAN, HER ZAMAN aynı sürümle başladığı anlamına GELİR.', en: '`setup-java` installs Java, `wget` DOWNLOADS the JMeter tarball — meaning every CI run starts FROM SCRATCH, ALWAYS with the same version.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '${{ secrets.STAGING_URL }} gizli bilgiyi KOD DIŞI…', en: '${{ secrets.STAGING_URL }} keeps secrets…' }, detail: { tr: '`-JBASE_URL=${{ secrets.STAGING_URL }}`, staging URL\'sini GitHub Secrets\'tan okur — hassas bir adres KOD İÇİNE hardcode EDİLMEZ.', en: '`-JBASE_URL=${{ secrets.STAGING_URL }}` reads the staging URL from GitHub Secrets — a sensitive address is NEVER hardcoded INTO the code.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Check Error Rate adımı pipeline\'ı BAŞARISIZ yapabilir…', en: 'The Check Error Rate step can FAIL…' }, detail: { tr: 'Son adım `.jtl` dosyasından hata oranını OKUR ve %1\'i AŞARSA `exit 1` ile pipeline\'ı KIRAR — bu, performans regresyonunu MERGE\'DEN önce YAKALAR.', en: 'The final step READS the error rate from the `.jtl` file and BREAKS the pipeline with `exit 1` if it EXCEEDS 1% — this CATCHES a performance regression BEFORE merge.' } },
+  ],
+}
+
+const jmeterBackendListenerStep = {
+  type: 'step-animation',
+  title: { tr: 'Backend Listener Bir Testin Sonucunu Neden Beklemeden Grafana\'ya Akıtır?', en: 'Why Does a Backend Listener Stream Results to Grafana Without Waiting for the Test to Finish?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Backend Listener HER örneği ANINDA gönderir…', en: 'The Backend Listener sends every sample…' }, detail: { tr: 'Normal bir listener sonuçları BELLEKTE/DİSKTE tutarken, `InfluxdbBackendListenerClient` HER örneği (sample) OLUŞTUĞU anda InfluxDB\'ye GÖNDERİR.', en: 'While a normal listener holds results in MEMORY/DISK, `InfluxdbBackendListenerClient` SENDS every sample to InfluxDB the MOMENT it is created.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'influxdbUrl + measurement VERİNİN NEREYE…', en: 'influxdbUrl + measurement decide WHERE…' }, detail: { tr: '`influxdbUrl` + `measurement: jmeter` ayarları, verinin HANGİ veritabanına ve HANGİ ölçüm adı altına YAZILACAĞINI belirler.', en: '`influxdbUrl` + `measurement: jmeter` settings decide WHICH database and WHICH measurement name the data gets WRITTEN under.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Grafana AYNI veritabanını SORGULAR…', en: 'Grafana QUERIES that SAME database…' }, detail: { tr: 'Grafana\'da eklenen InfluxDB data source AYNI veritabanını SORGULAR — dashboard ID 5496 içe aktarılınca hazır RPS/hata/gecikme GRAFİKLERİ görünür.', en: 'The InfluxDB data source added in Grafana QUERIES that SAME database — importing dashboard ID 5496 shows ready-made RPS/error/latency GRAPHS.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Sonuç: test HÂLÂ çalışırken CANLI izleme…', en: 'Result: LIVE monitoring while the test…' }, detail: { tr: 'Sonuç: test HÂLÂ çalışırken bile canlı throughput/hata oranı İZLENEBİLİR — HTML raporunu test bitene kadar BEKLEMEK gerekmez.', en: 'Result: LIVE throughput/error rate can be MONITORED while the test is STILL running — no need to WAIT for the test to finish for the HTML report.' } },
+  ],
+}
+
 // ─── Dalga 16b film sabitleri (video-scene — EN + TR paylaşımlı) ─────────────
 // Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
 
@@ -856,6 +1001,7 @@ OpenJDK Runtime Environment (build 17.0.9+9)
 # https://adoptium.net  (free, open-source OpenJDK)
 # or https://www.oracle.com/java/technologies/downloads/`
           },
+          jmeterJavaVersionCheckStep,
           { type: 'heading', text: 'Step 2: Download JMeter' },
           {
             type: 'steps',
@@ -877,6 +1023,7 @@ cd ~/Applications/jmeter/apache-jmeter-5.6/bin
 
 # Or just double-click jmeter.bat (Windows) / jmeter (Mac/Linux)`
           },
+          jmeterLaunchGuiStep,
           { type: 'info', content: 'The first launch may take 10-20 seconds. JMeter opens with an empty Test Plan. The GUI is for building tests only — never run large tests in GUI mode (use CLI instead).' },
           { type: 'heading', text: 'JMeter GUI Overview' },
           {
@@ -951,6 +1098,7 @@ echo $JAVA_HOME`
         ├── View Results Tree
         └── Aggregate Report`
           },
+          jmeterTestPlanHierarchyStep,
           { type: 'heading', text: '1. Thread Group — Virtual Users' },
           { type: 'text', content: 'A Thread Group defines how many virtual users (threads) run, how fast they start, and how many times they repeat. It is the heart of every JMeter test.' },
           {
@@ -996,6 +1144,7 @@ echo $JAVA_HOME`
 #   Content-Type: application/json
 #   Accept: application/json`
           },
+          jmeterHttpRequestSamplerStep,
           { type: 'heading', text: '3. CSV Data Set Config — Parameterization' },
           { type: 'text', content: 'Real tests don\'t use the same username 100 times. CSV Data Set Config lets you read test data from a CSV file and use different values for each virtual user.' },
           {
@@ -1017,6 +1166,7 @@ diana,pass4
   "password": "\${password}"
 }`
           },
+          jmeterCsvDataSetStep,
           { type: 'heading', text: '4. Regular Expression Extractor — Correlation' },
           { type: 'text', content: 'Many applications use dynamic values like CSRF tokens, session IDs, or auth tokens that change every request. You must extract these values and reuse them — this is called correlation.' },
           {
@@ -1035,6 +1185,7 @@ diana,pass4
 #   JSON Path Expression: $.data.token
 #   Reference Name: authToken`
           },
+          jmeterRegexExtractorStep,
           { type: 'heading', text: '5. Assertions — Validating Responses' },
           { type: 'text', content: 'Without assertions, JMeter marks every response as a success — even if the server returns an error page. Assertions validate that the response is correct.' },
           {
@@ -1215,6 +1366,7 @@ jmeter -n -t test.jmx -l res.jtl \\
        -Jrampup=60 \\
        -Jduration=300`
           },
+          jmeterNonGuiCliStep,
           { type: 'info', content: 'The -e -o flags generate a beautiful interactive HTML dashboard report in the specified folder. Open ./report/index.html in your browser after the test.' },
           { type: 'heading', text: 'Parameterize Tests with User-Defined Variables' },
           {
@@ -1237,6 +1389,7 @@ jmeter -n -t test.jmx -l res.jtl \\
        -JBASE_URL=https://staging.example.com \\
        -JUSERS=200`
           },
+          jmeterUserDefinedVarsStep,
           { type: 'heading', text: 'JSR223 Sampler — Groovy Scripting' },
           { type: 'text', content: 'For complex logic (custom authentication, dynamic data generation, conditional flows), use the JSR223 Sampler with Groovy. It\'s compiled and cached, making it much faster than BeanShell.' },
           {
@@ -1266,6 +1419,7 @@ mac.init(new SecretKeySpec(secret.getBytes(), "HmacSHA256"))
 def signature = Base64.getEncoder().encodeToString(mac.doFinal(message.getBytes()))
 vars.put("signature", signature)`
           },
+          jmeterJsr223GroovyStep,
           { type: 'heading', text: 'JMeter Built-in Functions' },
           {
             type: 'code', code: `# JMeter has 50+ built-in functions — use them in any field with \${__functionName()}
@@ -1287,6 +1441,7 @@ vars.put("signature", signature)`
   "email": "test_\${__time()}\${__Random(1,99)}@example.com"
 }`
           },
+          jmeterBuiltinFunctionsStep,
           { type: 'heading', text: 'Distributed Load Testing' },
           { type: 'text', content: 'A single machine can only generate so much load. For high concurrency (1000+ users), use JMeter\'s distributed mode: one controller machine, multiple worker (injector) machines.' },
           {
@@ -1309,6 +1464,7 @@ jmeter -n -t test.jmx -R 192.168.1.101,192.168.1.102 -l results.jtl
 
 # GUI: Run → Start Remote All (Ctrl+Shift+R)`
           },
+          jmeterDistributedTestingStep,
           { type: 'info', content: 'In distributed mode, the Thread Group user count is multiplied by the number of workers. 100 users on 5 workers = 500 total virtual users.' },
           { type: 'heading', text: 'CI/CD Integration — GitHub Actions' },
           {
@@ -1362,6 +1518,7 @@ jobs:
             exit 1
           fi`
           },
+          jmeterCicdGithubActionsStep,
           { type: 'heading', text: 'Understanding HTML Report Metrics' },
           {
             type: 'table',
@@ -1630,6 +1787,7 @@ jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
 # grafana.com/dashboards — you get live RPS, error rate and
 # response-time percentile graphs while the test is still running.`
           },
+          jmeterBackendListenerStep,
           { type: 'heading', text: 'JMeter in Docker' },
           {
             type: 'code', code: `# Run a load test without installing JMeter locally:
@@ -2083,6 +2241,7 @@ openjdk version "17.0.9" 2023-10-17
 # https://adoptium.net  (ücretsiz, açık kaynak OpenJDK)
 # veya https://www.oracle.com/java/technologies/downloads/`
           },
+          jmeterJavaVersionCheckStep,
           { type: 'heading', text: 'Adım 2: JMeter İndir' },
           {
             type: 'steps',
@@ -2102,6 +2261,7 @@ C:\\JMeter\\apache-jmeter-5.6\\bin\\jmeter.bat
 cd ~/Applications/jmeter/apache-jmeter-5.6/bin
 ./jmeter.sh`
           },
+          jmeterLaunchGuiStep,
           { type: 'info', content: 'İlk başlatma 10-20 saniye sürebilir. JMeter boş bir Test Planıyla açılır. GUI yalnızca test oluşturmak içindir — büyük testleri asla GUI modunda çalıştırma (bunun yerine CLI kullan).' },
           { type: 'heading', text: 'JAVA_HOME Ayarı (gerekirse)' },
           {
@@ -2162,6 +2322,7 @@ echo $JAVA_HOME`
         ├── View Results Tree
         └── Aggregate Report`
           },
+          jmeterTestPlanHierarchyStep,
           { type: 'heading', text: '1. Thread Group — Sanal Kullanıcılar' },
           {
             type: 'list', icon: '🔸',
@@ -2190,6 +2351,7 @@ echo $JAVA_HOME`
 #   Content-Type: application/json
 #   Accept: application/json`
           },
+          jmeterHttpRequestSamplerStep,
           { type: 'heading', text: '3. CSV Data Set Config — Parameterizasyon' },
           {
             type: 'code', code: `# 1. Dosya oluştur: testdata/kullanicilar.csv
@@ -2208,6 +2370,8 @@ ayse,sifre3
   "password": "\${sifre}"
 }`
           },
+          jmeterCsvDataSetStep,
+          jmeterRegexExtractorStep,
           { type: 'heading', text: '4. Response Assertion — Yanıt Doğrulama' },
           {
             type: 'code', code: `# Response Assertion (en yaygın):
@@ -2362,6 +2526,8 @@ jmeter -n -t test.jmx -l sonuclar.jtl -e -o ./rapor
 # Komut satırından özellikleri geçersiz kıl:
 jmeter -n -t test.jmx -l sonuc.jtl -Jkullanici=500 -Jsure=300`
           },
+          jmeterNonGuiCliStep,
+          jmeterUserDefinedVarsStep,
           { type: 'heading', text: 'JSR223 Sampler — Groovy Scripting' },
           {
             type: 'code', code: `// Dinamik veri üretme örneği
@@ -2378,6 +2544,9 @@ vars.put("rastgeleKullaniciId", String.valueOf(rastgeleId))
 
 log.info("Oluşturulan istekId: " + uuid)`
           },
+          jmeterJsr223GroovyStep,
+          jmeterBuiltinFunctionsStep,
+          jmeterDistributedTestingStep,
           { type: 'heading', text: 'CI/CD Entegrasyonu — GitHub Actions' },
           {
             type: 'code', code: `# .github/workflows/performans-testi.yml
@@ -2413,6 +2582,7 @@ jobs:
           name: jmeter-raporu
           path: sonuclar/html-rapor/`
           },
+          jmeterCicdGithubActionsStep,
           { type: 'heading', text: 'HTML Rapor Metrikleri' },
           {
             type: 'table',
@@ -2663,6 +2833,7 @@ jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
 # canlı RPS, hata oranı ve yanıt süresi persentil grafikleri
 # elde edersin.`
           },
+          jmeterBackendListenerStep,
           { type: 'heading', text: 'Docker İçinde JMeter' },
           {
             type: 'code', code: `# Yerelde JMeter kurmadan yük testi çalıştır:
