@@ -19,6 +19,8 @@
     "audit:interactive": "node scripts/audit-interactive.mjs",
     "audit:interactive:missing": "node scripts/audit-interactive.mjs --missing",
     "audit:interview-questions": "node scripts/audit-interview-questions.mjs",
+    "audit:animation": "node scripts/audit-animation-coverage.mjs",
+    "audit:animation:missing": "node scripts/audit-animation-coverage.mjs --missing",
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {
