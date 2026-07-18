@@ -1,5 +1,116 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+const dockerImagePullSearchStep = {
+  type: 'step-animation',
+  title: { tr: 'docker pull Komutu Perde Arkasında Ne İndirir?', en: 'What Does docker pull Actually Download Behind the Scenes?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'docker pull, image\'ı TEK dosya olarak…', en: 'docker pull does NOT download the image…' }, detail: { tr: '`docker pull python:3.12-slim`, image\'ı TEK bir dosya olarak İNDİRMEZ — image, üst üste binen KATMANLARDAN (layers) oluşur ve her katman AYRI ayrı çekilir.', en: '`docker pull python:3.12-slim` does NOT download the image as ONE file — an image is made of STACKED LAYERS, and each layer is pulled SEPARATELY.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Zaten yerel diskte var olan katmanlar…', en: 'Layers already present locally are…' }, detail: { tr: 'Zaten yerel diskte var olan katmanlar (örn. daha önce çekilmiş `python:3.11` ile PAYLAŞILAN taban katmanlar) TEKRAR indirilmez — sadece EKSİK katmanlar çekilir.', en: 'Layers already present locally (e.g. base layers SHARED with a previously pulled `python:3.11`) are NOT re-downloaded — only the MISSING layers are fetched.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'docker search ise Docker Hub\'ı SORGULAR…', en: 'docker search QUERIES Docker Hub…' }, detail: { tr: '`docker search selenium` ise hiçbir şey İNDİRMEZ — Docker Hub\'ın kayıt API\'sini SORGULAYIP eşleşen public image isimlerini LİSTELER, indirme kararı sana kalır.', en: '`docker search selenium` does NOT download anything — it QUERIES Docker Hub\'s registry API and LISTS matching public image names; the decision to pull is still yours.' } },
+  ],
+}
+
+const dockerRunAllFlagsStep = {
+  type: 'step-animation',
+  title: { tr: 'Production Tarzı docker run\'daki Her Flag Neyi Konfigüre Eder?', en: 'What Does Each Flag in a Production-Style docker run Configure?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: '-d ve --name, container\'ın NASIL…', en: '-d and --name configure HOW the…' }, detail: { tr: '`-d` ve `--name`, container\'ın NASIL çalışacağını konfigüre eder (arka planda, belirli bir isimle) — henüz UYGULAMAYA dair HİÇBİR şey söylemez.', en: '`-d` and `--name` configure HOW the container runs (in the background, under a specific name) — they say NOTHING about the APPLICATION yet.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '-p ve -e, DIŞ dünyayla ve…', en: '-p and -e wire the connection to the…' }, detail: { tr: '`-p` (port) ve `-e` (environment variable), container\'ın DIŞ dünyayla (ağ) ve KENDİ davranışıyla (config) bağlantısını kurar — ikisi de FARKLI bir katmanı ayarlar.', en: '`-p` (port) and `-e` (environment variable) wire the container\'s connection to the OUTSIDE world (network) and its OWN behavior (config) — each configures a DIFFERENT layer.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '-v ve --restart, KALICILIK ve…', en: '-v and --restart configure PERSISTENCE…' }, detail: { tr: '`-v` (volume) ve `--restart`, container SİLİNSE bile veriyi KORUMA ve container ÇÖKSE bile kendini toparlama kurallarını belirler — üretim ortamında en kritik iki flag.', en: '`-v` (volume) and `--restart` define the rules for KEEPING data even if the container is REMOVED, and for SELF-RECOVERING if it CRASHES — the two most critical flags in production.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'Bu flag\'lerden BİRİ eksik veya…', en: 'If EVEN ONE of these flags is…' }, detail: { tr: 'Bu flag\'lerden BİRİ eksik veya yanlış olursa (yanlış port, unutulmuş `-v`) hata GENELDE uygulama koduna DEĞİL, bu satırdaki bir yazım hatasına bağlıdır.', en: 'If EVEN ONE of these flags is missing or wrong (a wrong port, a forgotten `-v`), the bug is USUALLY not in the app code — it\'s a typo on THIS line.' } },
+  ],
+}
+
+const dockerPsListStep = {
+  type: 'step-animation',
+  title: { tr: 'docker ps ile docker ps -a Arasındaki Fark Neden Kritik?', en: 'Why Does the Difference Between docker ps and docker ps -a Matter?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'docker ps SADECE şu an ÇALIŞAN…', en: 'docker ps lists ONLY the containers…' }, detail: { tr: '`docker ps` SADECE şu an ÇALIŞAN (running) container\'ları listeler — durmuş bir container bu listede HİÇ görünmez, silinmiş de sanılabilir.', en: '`docker ps` lists ONLY currently RUNNING containers — a stopped container does NOT appear at all, which can look like it was deleted.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'docker ps -a ise DURMUŞ ve…', en: 'docker ps -a shows STOPPED and…' }, detail: { tr: '`docker ps -a` ise DURMUŞ ve HİÇ başlatılmamış container\'lar dahil TÜMÜNÜ gösterir — "container\'ım nereye gitti?" sorusunun ilk cevabı GENELDE bu komuttur.', en: '`docker ps -a` shows ALL containers including STOPPED ones and ones NEVER started — "where did my container go?" is USUALLY answered by this command first.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'STATUS sütunundaki "Exited (1)"…', en: 'The "Exited (1)" text in the STATUS…' }, detail: { tr: 'STATUS sütunundaki "Exited (1)" ifadesi, container\'ın SIFIR olmayan bir hata koduyla KAPANDIĞINI gösterir — 0\'dan farklı her sayı QA için bir ALARM\'dır.', en: 'The "Exited (1)" text in the STATUS column shows the container EXITED with a NON-ZERO error code — any number other than 0 is an ALARM for QA.' } },
+  ],
+}
+
+const dockerLifecycleStopStartStep = {
+  type: 'step-animation',
+  title: { tr: 'docker stop, Container\'ı NEDEN ANINDA Öldürmez?', en: 'Why Does docker stop NOT Kill the Container INSTANTLY?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'docker stop ÖNCE SIGTERM sinyali…', en: 'docker stop FIRST sends a SIGTERM…' }, detail: { tr: '`docker stop` ÖNCE bir SIGTERM sinyali gönderir — uygulamaya "kapanmaya HAZIRLAN, açık bağlantıları TEMİZLE" demenin NAZİK yoludur.', en: '`docker stop` FIRST sends a SIGTERM signal — a POLITE way of saying "get READY to shut down, CLEAN UP open connections".' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Uygulama 10 saniye içinde kapanmazsa…', en: 'If the app does not exit within 10…' }, detail: { tr: 'Uygulama 10 saniye içinde KENDİ isteğiyle kapanmazsa, Docker bir SIGKILL gönderir — bu artık ZORLA, temizlik YAPILMADAN durdurmaktır.', en: 'If the app does not exit VOLUNTARILY within 10 seconds, Docker sends a SIGKILL — this is a FORCED stop, WITHOUT any cleanup.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'docker restart, stop + start\'ı…', en: 'docker restart chains stop + start…' }, detail: { tr: '`docker restart`, `stop` + `start`\'ı TEK komutta zincirler — container\'ı SİLMEDEN, aynı konfigürasyonla YENİDEN başlatır.', en: '`docker restart` chains `stop` + `start` into ONE command — it starts the SAME container AGAIN with the same config, WITHOUT deleting it.' } },
+  ],
+}
+
+const dockerRemoveContainersStep = {
+  type: 'step-animation',
+  title: { tr: 'docker rm -f Kullanmak Neden Riskli Bir Kısayoldur?', en: 'Why Is docker rm -f a Risky Shortcut?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'docker rm SADECE durmuş bir…', en: 'docker rm ONLY removes a STOPPED…' }, detail: { tr: '`docker rm my-container` SADECE DURMUŞ bir container\'ı siler — hâlâ ÇALIŞIYORSA Docker daemon "container is running" HATASI verip işlemi REDDEDER.', en: '`docker rm my-container` ONLY removes a STOPPED container — if it\'s still RUNNING, the Docker daemon REJECTS the operation with a "container is running" ERROR.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '-f bayrağı bu güvenlik kontrolünü…', en: 'The -f flag BYPASSES this safety…' }, detail: { tr: '`-f` bayrağı bu güvenlik kontrolünü ATLAR: ÇALIŞAN container\'ı ANINDA SIGKILL\'le durdurup siler — hiçbir graceful shutdown ŞANSI VERMEDEN.', en: 'The `-f` flag BYPASSES this safety check: it kills a RUNNING container INSTANTLY with SIGKILL and removes it — WITHOUT giving it any chance for a graceful shutdown.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'docker container prune ise TÜM…', en: 'docker container prune removes ALL…' }, detail: { tr: '`docker container prune` ise TÜM durmuş container\'ları TOPLU siler — CI runner\'ında disk temizliği için idealdir ama HANGİ container\'ların durduğunu ÖNCEDEN kontrol etmeden çalıştırma.', en: '`docker container prune` removes ALL stopped containers in BULK — ideal for disk cleanup on a CI runner, but do not run it WITHOUT first checking WHICH containers are stopped.' } },
+  ],
+}
+
+const dockerLogsReadStep = {
+  type: 'step-animation',
+  title: { tr: 'docker logs -f, tail -f\'ten Farklı Ne Yapar?', en: 'What Does docker logs -f Do Differently from tail -f?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'docker logs my-container, container\'ın…', en: 'docker logs my-container prints the…' }, detail: { tr: '`docker logs my-container`, container\'ın STDOUT/STDERR çıktısını BAŞTAN SONA yazdırır — container KAPANMIŞ olsa bile bu loglar (silinmediyse) hâlâ OKUNABİLİR.', en: '`docker logs my-container` prints the container\'s STDOUT/STDERR output FROM START TO END — these logs are still READABLE even if the container has STOPPED (as long as it isn\'t removed).' } },
+    { id: 2, icon: '2️⃣', label: { tr: '-f (follow) bayrağı, terminali AÇIK…', en: 'The -f (follow) flag keeps the…' }, detail: { tr: '`-f` (follow) bayrağı terminali AÇIK bırakır ve YENİ log satırları geldikçe ANINDA gösterir — tıpkı Linux\'taki `tail -f` gibi, ama Docker\'ın kendi log sürücüsü ÜZERİNDEN.', en: 'The `-f` (follow) flag keeps the terminal OPEN and shows NEW log lines the INSTANT they arrive — just like Linux\'s `tail -f`, but going THROUGH Docker\'s own log driver.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '--tail 50, sadece SON 50 satırı…', en: '--tail 50 prints ONLY the LAST 50…' }, detail: { tr: '`--tail 50`, sadece SON 50 satırı gösterir — GÜNLERCE biriken bir log dosyasını TAMAMEN taramak yerine, hatanın olduğu ANA hızlıca ULAŞMANI sağlar.', en: '`--tail 50` prints ONLY the LAST 50 lines — instead of scanning a log file that has accumulated for DAYS, it gets you QUICKLY to the moment the error happened.' } },
+  ],
+}
+
+const dockerVolumeCommandsStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir docker volume Nerede Fiziksel Olarak Yaşar?', en: 'Where Does a docker volume Physically Live?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'docker volume create, Docker\'ın kendi…', en: 'docker volume create allocates space…' }, detail: { tr: '`docker volume create test-data`, Docker\'ın KENDİ yönettiği disk alanında (host makinede, ama container\'ın DIŞINDA) yeni bir depolama alanı AYIRIR — henüz HİÇBİR container\'a bağlı DEĞİLDİR.', en: '`docker volume create test-data` allocates space in an area Docker manages ITSELF (on the host machine, but OUTSIDE any container) — it is not yet ATTACHED to any container.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'docker volume ls ve inspect, o…', en: 'docker volume ls and inspect show…' }, detail: { tr: '`docker volume ls` ve `docker volume inspect`, o alanın VAR OLDUĞUNU ve GERÇEK disk yolunu (host\'taki fiziksel konumu) GÖSTERİR — container SİLİNSE bile bu veri ORADA kalır.', en: '`docker volume ls` and `docker volume inspect` show that this space EXISTS and reveal its REAL disk path (physical location on the host) — this data STAYS THERE even if the container is REMOVED.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'docker volume rm SADECE HİÇBİR…', en: 'docker volume rm ONLY works if NO…' }, detail: { tr: '`docker volume rm` SADECE o volume\'ü kullanan HİÇBİR container yoksa çalışır — aksi halde Docker "volume is in use" diyerek veriyi YANLIŞLIKLA silmeni ENGELLER.', en: '`docker volume rm` ONLY works if NO container is using that volume — otherwise Docker says "volume is in use" to PREVENT you from ACCIDENTALLY deleting the data.' } },
+  ],
+}
+
+const dockerBindMountStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Bind Mount, Named Volume\'den Neden Farklı Davranır?', en: 'Why Does a Bind Mount Behave Differently from a Named Volume?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Named volume Docker tarafından YÖNETİLİR…', en: 'A named volume is MANAGED by Docker…' }, detail: { tr: 'Named volume Docker tarafından YÖNETİLİR (fiziksel konumunu Docker seçer); bind mount ise SEN hangi host klasörünü ($(pwd)/tests) kullanacağını BİREBİR belirtirsin.', en: 'A named volume is MANAGED by Docker (Docker chooses its physical location); a bind mount is where YOU specify EXACTLY which host folder ($(pwd)/tests) to use.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bu yüzden bind mount, host\'taki…', en: 'This is why a bind mount reflects…' }, detail: { tr: 'Bu yüzden bind mount, host\'taki bir dosyada yaptığın değişikliği ANINDA container İÇİNDE de yansıtır — canlı geliştirme (`./tests` klasörünü mount edip kod DEĞİŞTİKÇE testi TEKRAR çalıştırmak) için idealdir.', en: 'This is why a bind mount reflects a change you make to a file on the host INSTANTLY inside the container too — ideal for live development (mounting `./tests` and RE-RUNNING as code CHANGES).' } },
+    { id: 3, icon: '3️⃣', label: { tr: '--rm ile birlikte kullanılan bir bind…', en: 'A bind mount used together with --rm…' }, detail: { tr: '`--rm` ile birlikte kullanılan bir bind mount (`-v $(pwd)/results:/app/results`), container KENDİNİ sildikten SONRA bile JUnit raporunun host\'ta KALICI kalmasını sağlar — CI\'da rapor kaybının klasik ÇÖZÜMÜdür.', en: 'A bind mount used together with `--rm` (`-v $(pwd)/results:/app/results`) ensures the JUnit report stays on the host PERMANENTLY even AFTER the container removes itself — the classic FIX for losing reports in CI.' } },
+  ],
+}
+
+const dockerfileBasicsStep = {
+  type: 'step-animation',
+  title: { tr: 'Dockerfile\'daki Satır Sırası Neden Build Hızını Belirler?', en: 'Why Does Line Order in a Dockerfile Determine Build Speed?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Docker, Dockerfile\'ı SATIR SATIR çalıştırır…', en: 'Docker executes the Dockerfile LINE BY…' }, detail: { tr: 'Docker, Dockerfile\'ı SATIR SATIR çalıştırır ve HER satırı ayrı bir KATMAN (layer) olarak CACHE\'ler — bir satır DEĞİŞMEDİĞİ sürece o katman TEKRAR ÇALIŞTIRILMAZ.', en: 'Docker executes the Dockerfile LINE BY LINE and CACHES each line as its own LAYER — as long as a line has NOT CHANGED, that layer is NOT RE-RUN.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'requirements.txt\'in COPY . .\'DAN ÖNCE…', en: 'Copying requirements.txt BEFORE COPY . .…' }, detail: { tr: '`requirements.txt`\'in `COPY . .`\'DAN ÖNCE kopyalanması KASITLIDIR: kod her değiştiğinde `COPY . .` katmanı BOZULUR ama `pip install` katmanı (requirements DEĞİŞMEDİYSE) CACHE\'DEN gelir — dakikalar süren kurulumu ATLAR.', en: 'Copying `requirements.txt` BEFORE `COPY . .` is DELIBERATE: every time the code changes, the `COPY . .` layer INVALIDATES, but the `pip install` layer (if requirements did NOT change) comes FROM CACHE — SKIPPING a multi-minute install.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'CMD, container BAŞLADIĞINDA çalışır…', en: 'CMD runs WHEN the container starts…' }, detail: { tr: '`CMD`, container BAŞLADIĞINDA çalışır — `RUN` ise SADECE build SIRASINDA bir kez çalışır. Bu ikisini KARIŞTIRMAK, testlerin build ANINDA çalışıp SONUCUN hiçbir yere kaydedilmemesine yol AÇAR.', en: '`CMD` runs WHEN the container starts — `RUN` runs ONLY ONCE during the build. CONFUSING these two causes tests to run DURING the build with the RESULT saved nowhere.' } },
+  ],
+}
+
+const dockerignoreStep = {
+  type: 'step-animation',
+  title: { tr: '.dockerignore Olmadan Bir "Yavaş Build" Nasıl Oluşur?', en: 'How Does a "Slow Build" Happen Without .dockerignore?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'docker build çalıştığında, Docker daemon…', en: 'When docker build runs, the Docker…' }, detail: { tr: '`docker build` çalıştığında, Docker daemon o klasördeki TÜM dosyaları (node_modules, .git dahil) "build context" olarak DAEMON\'A GÖNDERİR — .dockerignore olmadan bu YÜZLERCE MB olabilir.', en: 'When `docker build` runs, the Docker daemon SENDS every file in that folder (including node_modules, .git) to itself as the "build context" — without .dockerignore this can be HUNDREDS of MB.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '.dockerignore, .gitignore ile AYNI…', en: '.dockerignore uses the EXACT SAME…' }, detail: { tr: '`.dockerignore`, `.gitignore` ile AYNI sözdizimini kullanarak hangi dosyaların bu GÖNDERİME hiç DAHİL edilmeyeceğini belirtir — `node_modules/` gibi bir satır o klasörü baştan İSTEK dışı BIRAKIR.', en: '`.dockerignore` uses the EXACT SAME syntax as `.gitignore` to specify which files never get INCLUDED in that transfer — a line like `node_modules/` leaves that folder out of the request from the START.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bu satır EKSİKSE, build context BÜYÜR…', en: 'If this line is MISSING, the build…' }, detail: { tr: 'Bu satır EKSİKSE, build context BÜYÜR VE her `docker build` çağrısı daha YAVAŞ başlar — kod değişmese BİLE, sadece dosya transferi yüzünden.', en: 'If this line is MISSING, the build context GROWS and every `docker build` call starts SLOWER — even if the code has NOT changed, purely due to the file transfer.' } },
+  ],
+}
+
+const dockerComposeServiceLifecycleStep = {
+  type: 'step-animation',
+  title: { tr: 'docker compose up/down/build Arasındaki Fark Neden Önemli?', en: 'Why Does the Difference Between docker compose up/down/build Matter?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'docker compose up, docker-compose.yml\'deki…', en: 'docker compose up starts EVERY service…' }, detail: { tr: '`docker compose up`, `docker-compose.yml`\'deki TÜM servisleri (app, db, test runner) DOĞRU sırayla BAŞLATIR — `depends_on` sırası, hangisinin ÖNCE hazır olması gerektiğini belirler.', en: '`docker compose up` starts EVERY service (app, db, test runner) in `docker-compose.yml` in the CORRECT order — `depends_on` determines which one needs to be READY FIRST.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'docker compose down, TÜM servisleri…', en: 'docker compose down stops AND removes…' }, detail: { tr: '`docker compose down`, TÜM servisleri durdurup SİLER (varsayılan olarak volume\'ler HARİÇ) — `docker stop` + `docker rm`\'i HER servis için TEK TEK yapmanın kısayoludur.', en: '`docker compose down` stops AND removes EVERY service (excluding volumes by default) — a shortcut for doing `docker stop` + `docker rm` for EACH service ONE BY ONE.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'docker compose up --build, kod DEĞİŞTİYSE…', en: 'docker compose up --build rebuilds images…' }, detail: { tr: '`docker compose up --build`, kod DEĞİŞTİYSE image\'ları YENİDEN derler — `--build` bayrağını UNUTURSAN, Compose ESKİ image\'ı çalıştırmaya devam eder ve "neden değişikliğim görünmüyor?" hatasına YOL AÇAR.', en: '`docker compose up --build` rebuilds images IF the code CHANGED — FORGETTING the `--build` flag makes Compose keep running the OLD image, causing a "why don\'t I see my change?" bug.' } },
+  ],
+}
+
 // ─── Dockerfile → Container film bloğu (video-scene — EN + TR paylaşımlı) ────
 // Veri şeması: PILOT_PLAN_ve_PROMPT.md §2 / src/components/VideoSceneBlock.jsx
 const dockerfileToContainerFilm = {
@@ -2596,6 +2707,7 @@ docker pull postgres:16            # Download PostgreSQL 16
 # Search images on Docker Hub
 docker search selenium`,
           },
+          dockerImagePullSearchStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -2682,6 +2794,7 @@ docker run -d -p 8080:80 nginx     # -p host:container port mapping`,
   python:3.12-slim \\              # Image to use
   python app.py                    # Command to run`,
           },
+          dockerRunAllFlagsStep,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-run-flags-practice',
@@ -2775,6 +2888,7 @@ It will restart automatically if it crashes.`,
 docker ps                          # Running containers only
 docker ps -a                       # ALL containers (including stopped)`,
           },
+          dockerPsListStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -2792,6 +2906,7 @@ docker stop my-container           # Graceful stop (SIGTERM, then SIGKILL)
 docker start my-container          # Start a stopped container
 docker restart my-container        # Stop then start`,
           },
+          dockerLifecycleStopStartStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -2809,6 +2924,7 @@ docker rm my-container             # Remove stopped container
 docker rm -f my-container          # Force remove (even if running)
 docker container prune             # Remove ALL stopped containers`,
           },
+          dockerRemoveContainersStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -2826,6 +2942,7 @@ docker logs my-container           # Print all logs
 docker logs -f my-container        # Follow logs in real-time (like tail -f)
 docker logs --tail 50 my-container # Last 50 lines`,
           },
+          dockerLogsReadStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -2915,6 +3032,7 @@ docker volume inspect test-data         # Show volume details
 docker volume rm test-data             # Remove volume
 docker volume prune                    # Remove all unused volumes`,
           },
+          dockerVolumeCommandsStep,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -3013,6 +3131,7 @@ docker run --rm \\
   my-test-image \\
   pytest tests/ --junitxml=/app/results/junit.xml`,
           },
+          dockerBindMountStep,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-bind-mount-practice',
@@ -3195,6 +3314,7 @@ CMD ["pytest", "tests/", "--html=reports/report.html", "-v"]
 # Alternative: ENTRYPOINT — always runs this command
 # ENTRYPOINT ["python", "-m"]  # CMD would then append arguments`,
           },
+          dockerfileBasicsStep,
           dockerfileToContainerFilm,
           {
             type: 'challenge',
@@ -3343,6 +3463,7 @@ node_modules/        # Node dependencies — reinstall inside container
 .pytest_cache/
 .coverage`,
           },
+          dockerignoreStep,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-dockerignore-practice',
@@ -3582,6 +3703,7 @@ docker compose up --build
 # Scale a service (e.g., run 3 test containers in parallel)
 docker compose up --scale tests=3`,
           },
+          dockerComposeServiceLifecycleStep,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -4701,6 +4823,7 @@ docker pull postgres:16            # PostgreSQL 16\'yı indir
 # Docker Hub\'da image ara
 docker search selenium`,
           },
+          dockerImagePullSearchStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -4787,6 +4910,7 @@ docker run -d -p 8080:80 nginx     # -p host:container port eşlemesi`,
   python:3.12-slim \\              # Kullanılacak image
   python app.py                    # Çalıştırılacak komut`,
           },
+          dockerRunAllFlagsStep,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-run-flags-practice',
@@ -4880,6 +5004,7 @@ It will restart automatically if it crashes.`,
 docker ps                          # Sadece çalışan container\'lar
 docker ps -a                       # TÜM container\'lar (durdurulmuş dahil)`,
           },
+          dockerPsListStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -4897,6 +5022,7 @@ docker stop my-container           # Zarif durdur (SIGTERM, sonra SIGKILL)
 docker start my-container          # Durdurulmuş container\'ı başlat
 docker restart my-container        # Durdur sonra başlat`,
           },
+          dockerLifecycleStopStartStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -4914,6 +5040,7 @@ docker rm my-container             # Durdurulmuş container\'ı sil
 docker rm -f my-container          # Zorla sil (çalışıyor olsa bile)
 docker container prune             # Durdurulmuş TÜM container\'ları sil`,
           },
+          dockerRemoveContainersStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -4931,6 +5058,7 @@ docker logs my-container           # Tüm log\'ları yazdır
 docker logs -f my-container        # Log\'ları gerçek zamanlı takip et (tail -f gibi)
 docker logs --tail 50 my-container # Son 50 satır`,
           },
+          dockerLogsReadStep,
           {
             type: 'callout',
             icon: '🧪',
@@ -5020,6 +5148,7 @@ docker volume inspect test-data         # Volume detaylarını göster
 docker volume rm test-data             # Volume sil
 docker volume prune                    # Kullanılmayan volume\'leri sil`,
           },
+          dockerVolumeCommandsStep,
           {
             type: 'challenge',
             variant: 'order-sort',
@@ -5118,6 +5247,7 @@ docker run --rm \\
   my-test-image \\
   pytest tests/ --junitxml=/app/results/junit.xml`,
           },
+          dockerBindMountStep,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-bind-mount-practice',
@@ -5295,6 +5425,7 @@ EXPOSE 8080
 # CMD — Container başladığında çalıştırılacak varsayılan komut
 CMD ["pytest", "tests/", "--html=reports/report.html", "-v"]`,
           },
+          dockerfileBasicsStep,
           dockerfileToContainerFilm,
           {
             type: 'challenge',
@@ -5440,6 +5571,7 @@ node_modules/        # Node bağımlılıkları — container içinde yeniden ku
 .pytest_cache/
 .coverage`,
           },
+          dockerignoreStep,
           {
             type: 'code-playground',
             relatedTopicId: 'docker-core-dockerignore-practice',
@@ -5679,6 +5811,7 @@ docker compose up --build
 # Servisi ölçeklendir (örn: 3 test container paralel)
 docker compose up --scale tests=3`,
           },
+          dockerComposeServiceLifecycleStep,
           {
             type: 'challenge',
             variant: 'order-sort',
