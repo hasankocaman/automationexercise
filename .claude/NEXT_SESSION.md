@@ -88,6 +88,21 @@ zamanda planın §2.5 "aynı referansla" kuralına da tam uyum sağladı.
 dahil TÜM sayfalar + Dalga B) TAMAMEN bitti. Branch main'e merge edilmeyi
 bekliyor (kullanıcı onayı gerekir, bu oturumda merge YAPILMADI).
 
+### 4) Fable doğrulama oturumu (2026-07-19): plan vs proje uyum kontrolü
+
+Fable, planın §5 Tamamlanma Tanımı'nı bağımsız doğruladı: `audit-animation-coverage`
+→ Toplam açık 0 (551 kod / 724 animasyon), `audit:interactive --missing` → Total
+gaps 0 (25 sayfa), `check-content-integrity` → tüm kontroller geçti, `npm run
+build` → yeşil. Kalite örneklemi (python 5 blok + Dalga B git 3 blok + bruno
+2 blok) geçti — hepsi kod bloğuna bağlı, kanonik şemada, TR metinler Türkçe.
+
+Düzeltilen tek hata: `animation-per-topic-plan.md` §2.7'deki referans şema hâlâ
+eski/kırık `steps: [{tr,en}]` formatındaydı (bu dosyada daha önce "ESKİ/KIRIK"
+olarak raporlanmış ama plan dosyası düzeltilmemişti). §2.7 örneği + §4.1/§4.2
+prompt şablonları kanonik `{id, icon, label:{tr,en}, detail:{tr,en}}` şemasına
+güncellendi ve bu oturumda commit edildi; branch GitHub'a push edildi.
+Branch'in main'e merge kararı hâlâ kullanıcıda.
+
 ---
 
 ## OTURUM ÖZETİ — animation-per-topic Dalga A8 DEVAM EDİYOR (2026-07-18, Sonnet oturumu, playwright TAMAMLANDI)

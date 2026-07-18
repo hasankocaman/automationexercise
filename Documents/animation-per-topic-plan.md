@@ -103,16 +103,24 @@ parçası — bu planın **Dalga B**'sinde Haiku'ya atanmıştır (bkz. §3).
    `InteractiveDiagramBlock` vb. hazırdır — yalnızca `*Data.js`'e veri
    eklenir. Yeni bir `css-animation` `kind` preset'i gerekiyorsa bu JSX işi
    SADECE Fable'a aittir (bkz. §3).
-7. **Referans şema** (`kafkaData.js` içindeki mevcut örnekler kalite barıdır):
+7. **Referans şema** (`kafkaData.js` içindeki mevcut örnekler kalite barıdır).
+   Kanonik `steps[]` şeması `check-content-integrity.mjs` [D] kontrolünün ve
+   `StepAnimationBlock.jsx`'in zorladığı formattır — her adım `label` (kısa
+   başlık) + `detail` (açıklama) taşır; `label`sız adım UI'da BOŞ kutu render
+   eder ve build'i kırar:
 
 ```js
 const xxxStep = {
   type: 'step-animation',
   title: { tr: 'Soru formunda, merak uyandıran başlık?', en: '...' },
   steps: [
-    { tr: 'Adım 1 — mekanizmanın İLK olayı; veri/komut nereden nereye gidiyor açıkça söylenir.', en: '...' },
-    { tr: 'Adım 2 — ...', en: '...' },
-    // 4-6 adım; her adım tek cümle-iki cümle; NEDEN'i de söyler, sadece NE'yi değil
+    {
+      id: 1,
+      icon: '1️⃣',
+      label: { tr: 'Kısa adım başlığı…', en: 'Short step label…' },
+      detail: { tr: 'Adım 1 — mekanizmanın İLK olayı; veri/komut nereden nereye gidiyor açıkça söylenir.', en: '...' },
+    },
+    // 4-6 adım; her adımın detail'i tek-iki cümle; NEDEN'i de söyler, sadece NE'yi değil
   ],
 }
 ```
@@ -214,8 +222,10 @@ Adımlar:
    1 adet `step-animation` bloğu ekle:
    - Animasyon o kod bloğunun anlattığı mekanizmayı 4-6 adımda görselleştirir;
      jenerik/konudan kopuk animasyon YASAK.
-   - `title` ve her `steps[]` girdisi `{tr, en}` bilingual; TR'de açıklamalar
-     Türkçe, teknik terimler (locator, fixture, offset...) İngilizce kalır.
+   - `title` `{tr, en}` bilingual; her `steps[]` girdisi kanonik şemada
+     (`id`, `icon`, `label: {tr, en}`, `detail: {tr, en}` — bkz. Bölüm 2.7);
+     TR'de açıklamalar Türkçe, teknik terimler (locator, fixture, offset...)
+     İngilizce kalır.
    - Kalite barı: kafkaData.js'teki mevcut step-animation sabitleri
      (kafkaRetentionReplayStep vb.) — her adım NE olduğunu değil NEDEN
      olduğunu da söyler.
@@ -249,7 +259,8 @@ Yöntem (kopyala-uyarla — özgün senaryo kurmana gerek yok):
 1. Aynı veri dosyasındaki MEVCUT bir step-animation bloğunu şablon al.
 2. Açık olan kod bloğunun hemen ardına, o kod bloğunun adımlarını (koddaki
    satır sırasını takip ederek) 4-5 adımda anlatan yeni bir step-animation koy.
-3. Her adım {tr, en} bilingual; TR'de açıklama Türkçe, teknik terim İngilizce.
+3. Her adım kanonik şemada (`id`, `icon`, `label: {tr,en}`, `detail: {tr,en}` —
+   bkz. Bölüm 2.7); TR'de açıklama Türkçe, teknik terim İngilizce.
 4. Dosya EN+TR çift ağaçlıysa sabiti iki ağaca da aynı referansla koy.
 
 Her sayfadan sonra ZORUNLU:
