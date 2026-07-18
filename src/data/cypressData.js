@@ -2,6 +2,28 @@
 // 11 bölüm: Nedir, Kurulum, Komutlar&Selector, Aksiyonlar&Drag-Drop, Zaman Yolculuğu,
 // Network&Intercept, Gerçek Hayat, Ekosistem, Karşılaştırma, Yaygın Hatalar, 50 Mülakat
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
+
+const cypressStubVsFakeStep = {
+  type: 'step-animation',
+  title: { tr: 'cy.stub(), Gerçek Servisi Neden Tamamen Durduruyor?', en: 'Why Does cy.stub() Completely Stop the Real Service?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'cy.stub(paymentApi, "charge"), o…', en: 'cy.stub(paymentApi, "charge") wraps…' }, detail: { tr: '`cy.stub(paymentApi, "charge")`, ödeme API\'sinin charge fonksiyonunu YAKALAR — artık bu fonksiyon çağrılırsa gerçek kod çalışmaz, sen hangi yanıt döndürülmesi gerektiğini belirtirsin.', en: '`cy.stub(paymentApi, "charge")` intercepts the payment API\'s charge function — from now on, if that function is called, the real code DOES NOT run; instead, you specify what response is returned.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '`.returns({ success: true })` istekli…', en: '`.returns({ success: true })` configures…' }, detail: { tr: '`.returns({ success: true })`, çağrı gerçekleşirse geri döndürülecek SAHTE cevabı tanımlar — canlı bir ödeme işlemi asla yapılmaz, test bunu test ortamıyla sınırlandırmış olur.', en: '`.returns({ success: true })` defines the FAKE response that will be returned if the call happens — no real payment transaction ever occurs; the test constrains itself to the test environment.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Alternatif: `.rejects(new Error(…))` hata…', en: 'Alternative: `.rejects(new Error(…))` simulates…' }, detail: { tr: '`.rejects(new Error("Gateway timeout"))`, başarısız bir senaryo (network hatası, zaman aşımı) simüle etmek için kullanılır — gerçek servise hiç ulaşılmaksızın hata durumunu test etmeyi mümkün kılar.', en: '`.rejects(new Error("Gateway timeout"))` simulates a failure scenario (network error, timeout) — allowing you to test error handling without ever reaching the real service.' } },
+  ],
+}
+
+const cypressSpyVsTrackStep = {
+  type: 'step-animation',
+  title: { tr: 'cy.spy(), Gerçek Fonksiyonu Çalıştırıp Çağrısını Neden Kaydediyor?', en: 'Why Does cy.spy() Run the Real Function AND Record Its Call?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'cy.spy(user, "updateEmail"), user…', en: 'cy.spy(user, "updateEmail") wraps…' }, detail: { tr: '`cy.spy(user, "updateEmail")`, user nesnesinin updateEmail fonksiyonunu SARAR — orijinal kodu etkilemeksizin o fonksiyonun çağrılarını kayıt altına almaya başlar.', en: '`cy.spy(user, "updateEmail")` wraps the user object\'s updateEmail function — without affecting the original code, it starts recording calls to that function.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Fonksiyon çağrılırsa, orijinal kod…', en: 'When the function is called, the original…' }, detail: { tr: 'Fonksiyon çağrılırsa, orijinal kod TAMAMEN çalışır (örn. e-posta gerçekten update edilir); aynı anda spy, "kim, ne zaman, hangi argümanlarla çağırdı" bilgisini KAYDEDER.', en: 'When called, the original code runs COMPLETELY (e.g., the email is actually updated); at the same time, the spy RECORDS "who called it, when, and with what arguments".' } },
+    { id: 3, icon: '3️⃣', label: { tr: '`should("have.been.calledWith")`, kaydedilen…', en: '`should("have.been.calledWith")` verifies…' }, detail: { tr: '`cy.wrap(user.updateEmail).should("have.been.calledWith", "new@test.com")`, spy\'ın kaydettiği çağrıları kontrol eder — fonksiyonun doğru parametrelerle doğru sayıda çağrılıp çağrılmadığını doğrular.', en: '`cy.wrap(user.updateEmail).should("have.been.calledWith", "new@test.com")` verifies the recorded calls — confirming the function was called with the right parameters, the right number of times.' } },
+  ],
+}
+
+
 import { LOCATOR_EXPLORER_BLOCK } from './locatorExplorerData.js'
 
 // ─── video-scene filmleri (Bölüm 9.5) — her sabit HEM tr HEM en blocks'a aynı
@@ -4814,6 +4836,7 @@ const s14 = {
 cy.stub(paymentApi, 'charge').rejects(new Error('Gateway timeout'))
 // gerçek ödeme servisi HİÇ çağrılmaz, test kontrollü senaryoyu test eder`,
       },
+      cypressStubVsFakeStep,
       {
         type: 'code', label: 'cy.spy() — orijinal davranışı koru, çağrıyı izle',
         language: 'javascript',
@@ -4822,6 +4845,7 @@ cy.get('[data-cy=save]').click()
 cy.wrap(user.updateEmail).should('have.been.calledWith', 'new@test.com')
 // updateEmail gerçekten çalıştı, AMA çağrı bilgisi de kaydedildi`,
       },
+      cypressSpyVsTrackStep,
       {
         type: 'code', label: 'cy.clock() / cy.tick() — sahte zaman',
         language: 'javascript',
@@ -4971,6 +4995,7 @@ cy.stub(paymentApi, 'charge').returns({ success: true })`,
 cy.stub(paymentApi, 'charge').rejects(new Error('Gateway timeout'))
 // the real payment service is NEVER called, you test a controlled scenario`,
       },
+      cypressStubVsFakeStep,
       {
         type: 'code', label: 'cy.spy() — keep original behavior, track the call',
         language: 'javascript',
@@ -4979,6 +5004,7 @@ cy.get('[data-cy=save]').click()
 cy.wrap(user.updateEmail).should('have.been.calledWith', 'new@test.com')
 // updateEmail really ran, BUT the call info was also recorded`,
       },
+      cypressSpyVsTrackStep,
       {
         type: 'code', label: 'cy.clock() / cy.tick() — fake time',
         language: 'javascript',
