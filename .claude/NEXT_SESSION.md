@@ -67,9 +67,18 @@ karışık `sN` referans dizisi burada yok, düz sıralı array).
 **Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
 sql` deficit:0 ✓ + `npm run build` yeşil ✓.
 
-**Sıradaki:** linux (6 açık) → javascript (5) → browserstack (5) →
-claude-ai (5) → git (3) → bruno (3) → llm-agents (3). python (17 açık) Fable'a
-ayrılmış, bu oturumun kapsamı dışında.
+**linux (6 açık → 0):** `src/data/linuxData.js` (EN/TR **tamamen ayrı** section
+ağaçları, sql'dekiyle aynı desen — TR koddaki yorumlar burada baştan Türkçe
+yazılmıştı). 6 yeni step-animation:
+- Section 05 (Processes & Services): `node ... &`/`jobs`/`fg`/`nohup` arka plan iş yönetimi + `systemctl status/start/restart/enable`/`journalctl` mekanizması (2 animasyon)
+- Section 06 (Real-World QA Scenarios): `df -h`+`du -sh`+`find -delete` disk temizleme zinciri + `set -euo pipefail` script güvenlik bayrakları + `if ! pytest ... ; then` exit-code kontrolü + `find -mmin`/`-size` dosya arama (4 animasyon — hepsi bash, `fillMissingCodeTrios` atlamıştı)
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
+linux` deficit:0 ✓ + `npm run build` yeşil ✓.
+
+**Sıradaki:** javascript (5 açık) → browserstack (5) → claude-ai (5) → git (3)
+→ bruno (3) → llm-agents (3). python (17 açık) Fable'a ayrılmış, bu oturumun
+kapsamı dışında.
 
 ---
 

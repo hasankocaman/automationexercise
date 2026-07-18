@@ -2488,6 +2488,18 @@ jobs                       # list background jobs in this shell
 fg %1                      # bring job 1 back to the foreground
 nohup node mock-server.js &  # keep running even if the terminal/SSH session closes`,
           },
+          {
+            type: 'step-animation',
+            id: 'linux-background-jobs-step-01',
+            title: { tr: '& İşareti Bir Komutu Arka Plana Attığında Ne Değişir?', en: 'What Changes When & Sends a Command to the Background?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'node mock-server.js & çalıştırıldığında…', en: 'Running node mock-server.js &…' }, detail: { tr: 'node mock-server.js & çalıştırıldığında shell komutu ARKA PLANA gönderir ve KONTROLÜ ANINDA sana geri verir — terminal bloklanmaz, aynı pencerede başka komut yazabilirsin.', en: 'Running node mock-server.js & sends the command to the BACKGROUND and hands CONTROL back to you IMMEDIATELY — the terminal never blocks, you can type another command in the same window.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'jobs komutu O ANKİ shell oturumundaki…', en: 'jobs lists the background work…' }, detail: { tr: 'jobs komutu, O ANKİ shell oturumunda arka planda çalışan TÜM işleri (job number ile) listeler — bu numaralar SADECE bu terminal oturumuna özeldir.', en: 'jobs lists EVERY background job (with a job number) running in THIS shell session — those numbers are SPECIFIC to this terminal session only.' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'fg %1 ile 1 numaralı işi ÖN PLANA…', en: 'fg %1 brings job 1 to the FOREGROUND…' }, detail: { tr: 'fg %1 ile 1 numaralı işi ÖN PLANA getirirsin — artık terminal o process\'in çıktısını gösterir ve Ctrl+C ile durdurabilirsin.', en: 'fg %1 brings job 1 back to the FOREGROUND — the terminal now shows that process\'s output and you can stop it with Ctrl+C.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'nohup önüne eklendiğinde…', en: 'Prefixing with nohup…' }, detail: { tr: 'nohup önüne eklendiğinde process, terminal/SSH oturumu KAPANSA BİLE (SIGHUP sinyali göz ardı edilir) çalışmaya devam eder — bir CI runner\'da SSH bağlantısı kesilse de servisi ayakta tutmak için kullanılır.', en: 'Prefixing with nohup makes the process keep running EVEN IF the terminal/SSH session closes (the SIGHUP signal is ignored) — used to keep a service alive on a CI runner even if the SSH connection drops.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'nohup ile başlatılan bir process\'in çıktısı…', en: 'A process started with nohup writes…' }, detail: { tr: 'nohup ile başlatılan bir process\'in çıktısı varsayılan olarak nohup.out dosyasına yazılır — bu dosyayı unutmak, disk dolana kadar sessizce büyüyen bir log dosyasına yol açabilir (gerçek bir CI incident senaryosu).', en: 'A process started with nohup writes its output to nohup.out by default — forgetting about this file can lead to a log that silently grows until the disk fills up (a real CI incident scenario).' } },
+            ],
+          },
           { type: 'heading', text: 'Services with systemd' },
           {
             type: 'code',
@@ -2498,6 +2510,18 @@ systemctl start nginx         # start it
 systemctl restart nginx       # restart it
 systemctl enable nginx        # auto-start on boot
 journalctl -u nginx -f        # follow that service's logs live`,
+          },
+          {
+            type: 'step-animation',
+            id: 'linux-systemctl-step-01',
+            title: { tr: 'systemctl Komutları Aslında Neyle Konuşur?', en: 'What Do systemctl Commands Actually Talk To?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'systemctl status nginx komutu…', en: 'systemctl status nginx queries…' }, detail: { tr: 'systemctl status nginx komutu, systemd init sisteminin O SERVİS için tuttuğu DURUM bilgisini (running/failed/stopped) sorgular — process\'i DOĞRUDAN sorgulamaz, systemd\'nin kendi kayıtlarına bakar.', en: 'systemctl status nginx queries the STATE (running/failed/stopped) that the systemd init system keeps for THAT service — it doesn\'t query the process directly, it reads systemd\'s own records.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'systemctl start nginx çalıştırıldığında…', en: 'systemctl start nginx runs…' }, detail: { tr: 'systemctl start nginx çalıştırıldığında systemd, servis dosyasında (unit file) tanımlı ExecStart komutunu ÇALIŞTIRIR ve process\'i kendi gözetimi ALTINA alır.', en: 'When systemctl start nginx runs, systemd RUNS the ExecStart command defined in the unit file and takes the process UNDER its own supervision.' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'systemctl restart nginx, önce mevcut…', en: 'systemctl restart nginx first stops…' }, detail: { tr: 'systemctl restart nginx, önce mevcut process\'e DURDURMA sinyali gönderir, process tamamen kapandıktan SONRA yeniden BAŞLATIR — restart, stop+start\'ın sırayla garantili birleşimidir.', en: 'systemctl restart nginx first sends a STOP signal to the existing process, then STARTS a new one AFTER it has fully shut down — restart is a guaranteed, ordered combination of stop+start.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'systemctl enable nginx servis dosyasını…', en: 'systemctl enable nginx links the unit file…' }, detail: { tr: 'systemctl enable nginx servis dosyasını /etc/systemd/system/multi-user.target.wants/ altına SEMBOLİK LİNK olarak ekler — bu, sunucu her YENİDEN BAŞLADIĞINDA servisin otomatik başlayacağı anlamına gelir, ŞİMDİ başlatmaz.', en: 'systemctl enable nginx adds a SYMLINK to the unit file under /etc/systemd/system/multi-user.target.wants/ — this means the service will auto-start on every REBOOT, it does NOT start it right now.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'journalctl -u nginx -f, o servisin…', en: 'journalctl -u nginx -f follows…' }, detail: { tr: 'journalctl -u nginx -f, o servisin systemd tarafından toplanan loglarını CANLI (tail -f gibi) İZLER — bir servis crash olduğunda "neden çöktü" sorusuna en hızlı cevabı burası verir.', en: 'journalctl -u nginx -f LIVE-FOLLOWS (like tail -f) the logs systemd collects for that service — when a service crashes, this is the fastest place to find out why.' } },
+            ],
           },
           {
             type: 'callout',
@@ -2688,6 +2712,18 @@ ps aux | grep java             # check if the Jenkins agent process is alive`,
 du -sh /var/log/* /tmp/* | sort -rh | head -10   # biggest space consumers
 find /var/log -name "*.log" -mtime +30 -delete   # delete logs older than 30 days`,
           },
+          {
+            type: 'step-animation',
+            id: 'linux-disk-space-step-01',
+            title: { tr: 'df -h Doluluk Gösterir, du -sh SUÇLUYU Bulur', en: 'df -h Shows Fullness, du -sh Finds the CULPRIT' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'df -h çalıştırıldığında…', en: 'Running df -h shows…' }, detail: { tr: 'df -h çalıştırıldığında HER bir disk PARTİSYONUNUN toplam/kullanılan/boş alanını GÖSTERİR — hangi bölümün (örn. /var) %98 dolu olduğunu SANİYELER içinde ortaya çıkarır.', en: 'Running df -h SHOWS total/used/free space for EVERY disk partition — it reveals which partition (e.g. /var) is 98% full in SECONDS.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'df -h SADECE partisyon seviyesinde…', en: 'df -h only reports at the PARTITION level…' }, detail: { tr: 'df -h SADECE partisyon seviyesinde bilgi verir, HANGİ dosya/klasörün alanı yediğini SÖYLEMEZ — bunu bulmak için ikinci bir komut gerekir.', en: 'df -h only reports at the PARTITION level — it does NOT say WHICH file or folder is eating the space; a second command is needed to find that out.' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'du -sh ... | sort -rh, belirtilen…', en: 'du -sh ... | sort -rh sizes…' }, detail: { tr: 'du -sh /var/log/* /tmp/* | sort -rh, belirtilen klasörlerin HER BİRİNİN boyutunu hesaplar ve BÜYÜKTEN KÜÇÜĞE sıralar — en çok yer kaplayan dosya/klasör EN ÜSTTE çıkar.', en: 'du -sh /var/log/* /tmp/* | sort -rh computes the size of EACH listed folder and sorts LARGEST FIRST — the biggest space consumer ends up AT THE TOP.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'head -10 ile bu sıralı listenin…', en: 'head -10 trims the sorted list…' }, detail: { tr: 'head -10 ile bu sıralı listenin sadece İLK 10 satırı gösterilir — 10.000 log dosyası arasından "asıl suçlu" birkaç saniyede GÖRÜNÜR hale gelir.', en: 'head -10 shows only the FIRST 10 lines of that sorted list — the "actual culprit" among 10,000 log files becomes VISIBLE in seconds.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'find /var/log -name "*.log" -mtime +30 -delete…', en: 'find ... -mtime +30 -delete…' }, detail: { tr: 'find /var/log -name "*.log" -mtime +30 -delete, 30 GÜNDEN eski TÜM .log dosyalarını BULUR ve SİLER — -delete bayrağı OLMADAN aynı komut sadece LİSTELER, hiçbir şeyi silmez; önce -delete OLMADAN çalıştırıp sonucu kontrol etmek güvenli pratiktir.', en: 'find /var/log -name "*.log" -mtime +30 -delete FINDS and DELETES every .log file older than 30 days — WITHOUT -delete the same command only LISTS matches, it deletes nothing; running it without -delete first to check the results is the safe practice.' } },
+            ],
+          },
           linuxCiDebugChainFilm,
           { type: 'heading', text: 'Writing a QA Bash Script' },
           {
@@ -2700,6 +2736,18 @@ set -euo pipefail              # stop on error, undefined var, or failed pipe
 LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log"   # unique timestamped log name
 
 echo "Starting regression suite..." | tee "$LOG_FILE"   # log and print at once`,
+          },
+          {
+            type: 'step-animation',
+            id: 'linux-script-safety-step-01',
+            title: { tr: 'set -euo pipefail Script\'i Aslında Nasıl Korur?', en: 'How Does set -euo pipefail Actually Protect a Script?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: '#!/bin/bash ilk satırı…', en: 'The #!/bin/bash first line…' }, detail: { tr: '#!/bin/bash ilk satırı, script HANGİ interpreter ile çalıştırılacağını işletim sistemine söyler — chmod +x ile çalıştırılabilir yapıldığında bu satır OKUNUR ve doğru shell BAŞLATILIR.', en: 'The #!/bin/bash first line tells the OS WHICH interpreter to run the script with — once made executable with chmod +x, this line is READ and the correct shell is LAUNCHED.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'set -e eklendiğinde…', en: 'Adding set -e means…' }, detail: { tr: 'set -e eklendiğinde script içindeki HERHANGİ bir komut sıfırdan farklı bir çıkış koduyla başarısız olursa, script HEMEN durur — bu olmadan script bozuk bir adımdan SONRA da çalışmaya devam edip yanlış bir "başarılı" sonucu raporlayabilirdi.', en: 'With set -e, the moment ANY command in the script fails with a non-zero exit code, the script STOPS immediately — without it, the script could keep running AFTER a broken step and report a false "success".' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'set -u eklendiğinde…', en: 'Adding set -u means…' }, detail: { tr: 'set -u eklendiğinde TANIMLANMAMIŞ bir değişken kullanılmaya çalışılırsa script hata verir — yazım hatası yapılan bir değişken adı (örn. $LOG_FIEL) sessizce boş string OLARAK değil, GÖRÜNÜR bir hata olarak ortaya çıkar.', en: 'With set -u, trying to use an UNDEFINED variable errors out the script — a typo\'d variable name (e.g. $LOG_FIEL) surfaces as a VISIBLE error instead of silently becoming an empty string.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'set -o pipefail eklendiğinde…', en: 'Adding set -o pipefail means…' }, detail: { tr: 'set -o pipefail eklendiğinde bir pipe (|) zincirindeki ARA komutlardan biri bile başarısız olursa TÜM pipe başarısız sayılır — bu olmadan sadece SON komutun çıkış kodu önemli olurdu, ortadaki bir hata SESSİZCE yutulurdu.', en: 'With set -o pipefail, if even ONE intermediate command in a pipe (|) chain fails, the WHOLE pipe is considered failed — without it, only the LAST command\'s exit code mattered, and a mid-chain error would be SWALLOWED silently.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log"…', en: 'LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log"…' }, detail: { tr: 'LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log" ifadesi HER çalıştırmada FARKLI bir dosya adı üretir — sabit bir isim kullansaydın, önceki koşumun log kanıtı bir SONRAKİ koşum tarafından SESSİZCE üzerine yazılırdı.', en: 'LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log" produces a DIFFERENT filename on every run — with a fixed name, the log evidence of a previous run would be SILENTLY overwritten by the next one.' } },
+            ],
           },
           {
             type: 'callout',
@@ -2716,6 +2764,18 @@ echo "Starting regression suite..." | tee "$LOG_FILE"   # log and print at once`
 fi
 
 echo "All tests passed!" | tee -a "$LOG_FILE"   # append success message`,
+          },
+          {
+            type: 'step-animation',
+            id: 'linux-pytest-exitcode-step-01',
+            title: { tr: 'if ! pytest ... ; then Aslında Neyi Kontrol Eder?', en: 'What Does if ! pytest ... ; then Actually Check?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'pytest tests/ --maxfail=5 -v çalıştırıldığında…', en: 'pytest tests/ --maxfail=5 -v stops…' }, detail: { tr: 'pytest tests/ --maxfail=5 -v çalıştırıldığında, testler 5 hatadan SONRA DURUR (--maxfail=5) — yüzlerce test arka arkaya patlarken saatlerce beklemek yerine erken sinyal alırsın.', en: 'Running pytest tests/ --maxfail=5 -v STOPS after 5 failures (--maxfail=5) — instead of waiting for hundreds of tests to explode one by one, you get an early signal.' } },
+              { id: 2, icon: '2️⃣', label: { tr: '>> "$LOG_FILE" 2>&1 ifadesi…', en: '>> "$LOG_FILE" 2>&1 merges…' }, detail: { tr: '>> "$LOG_FILE" 2>&1 ifadesi HEM normal çıktıyı (stdout) HEM hata çıktısını (stderr, 2>&1 ile stdout\'a yönlendirilir) AYNI log dosyasına EKLER (>> ile üzerine yazmaz, sona ekler).', en: '>> "$LOG_FILE" 2>&1 APPENDS both normal output (stdout) AND error output (stderr, redirected into stdout via 2>&1) into the SAME log file (>> appends, it does not overwrite).' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'if ! ... ; then ifadesi…', en: 'The if ! ... ; then check…' }, detail: { tr: 'if ! ... ; then ifadesi, pytest\'in çıkış kodunu KONTROL eder — pytest tüm testler geçince 0, en az bir test FAIL olunca sıfırdan farklı bir kod döndürür; ! bu kodu TERSİNE çevirir, yani "başarısız OLDUYSA" bloğuna girer.', en: 'if ! ... ; then CHECKS pytest\'s exit code — pytest returns 0 when all tests pass, and a non-zero code when at least one test FAILs; ! FLIPS that logic, so the block runs "IF it failed".' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'Test başarısız olursa…', en: 'On failure…' }, detail: { tr: 'Test başarısız olursa hata mesajı stderr\'e (>&2) YAZILIR ve exit 1 ile script SIFIRDAN FARKLI bir kodla SONLANDIRILIR — bu exit kodu CI/CD pipeline\'ının "bu adım BAŞARISIZ" olarak işaretlemesini SAĞLAR.', en: 'On failure, the error message is WRITTEN to stderr (>&2) and exit 1 ENDS the script with a non-zero code — this exit code is what lets the CI/CD pipeline mark this step as FAILED.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Testler geçerse…', en: 'On success…' }, detail: { tr: 'Testler geçerse if bloğu HİÇ çalışmaz, akış doğrudan echo "All tests passed!" satırına DEVAM eder — tee -a ile bu mesaj HEM ekrana yazılır HEM aynı log dosyasına EKLENİR.', en: 'If tests pass, the if block NEVER runs, execution CONTINUES straight to echo "All tests passed!" — tee -a both PRINTS this message to the screen AND APPENDS it to the same log file.' } },
+            ],
           },
           {
             type: 'challenge',
@@ -2791,6 +2851,18 @@ ss -tulpn | grep 4444                       # what is listening on port 4444?`,
             code: `find . -name "*.spec.ts"            # find all spec files from here down
 find /var/log -mmin -60             # files modified in the last 60 minutes
 find . -size +100M                  # find suspiciously large files`,
+          },
+          {
+            type: 'step-animation',
+            id: 'linux-find-step-01',
+            title: { tr: 'find Komutu Aslında Neyi Nasıl Arar?', en: 'How Does find Actually Search for Things?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'find . -name "*.spec.ts" çalıştırıldığında…', en: 'find . -name "*.spec.ts" scans…' }, detail: { tr: 'find . -name "*.spec.ts" çalıştırıldığında, mevcut klasörden BAŞLAYARAK TÜM alt klasörleri REKÜRSİF olarak tarar — isim deseni *.spec.ts ile eşleşen HER dosyayı, kaç seviye derinde olursa olsun BULUR.', en: 'find . -name "*.spec.ts" scans RECURSIVELY through every subfolder starting from the current directory — it FINDS every file matching *.spec.ts, no matter how deep it is nested.' } },
+              { id: 2, icon: '2️⃣', label: { tr: '-mmin -60 bayrağı…', en: 'The -mmin -60 flag…' }, detail: { tr: '-mmin -60 bayrağı, dosyanın SON DEĞİŞTİRİLME zamanına göre filtreler — "-60" son 60 DAKİKA içinde değişenleri, "+60" ise 60 dakikadan ESKİ olanları anlamına gelir (işaret YÖNÜ önemlidir).', en: 'The -mmin -60 flag filters by LAST MODIFIED time — "-60" means changed in the last 60 MINUTES, "+60" means OLDER than 60 minutes (the sign DIRECTION matters).' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'find /var/log -mmin -60…', en: 'find /var/log -mmin -60 answers…' }, detail: { tr: 'find /var/log -mmin -60, "son 1 saatte hangi log dosyaları değişti" sorusuna CEVAP verir — bir incident sırasında "hangi servis SON DAKİKADA bir şeyler yazdı" diye ARAMA yaparken kritik bir komuttur.', en: 'find /var/log -mmin -60 ANSWERS "which log files changed in the last hour" — during an incident, it\'s the critical command for SEARCHING "which service wrote something JUST NOW".' } },
+              { id: 4, icon: '4️⃣', label: { tr: '-size +100M bayrağı…', en: 'The -size +100M flag…' }, detail: { tr: '-size +100M bayrağı, 100 MB\'den BÜYÜK dosyaları bulur — beklenmedik şekilde şişmiş bir log dosyası veya yanlışlıkla commit edilmiş büyük bir binary\'i YAKALAMANIN hızlı yoludur.', en: 'The -size +100M flag finds files LARGER than 100 MB — a fast way to CATCH an unexpectedly bloated log file or an accidentally committed large binary.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'find\'ın çıktısı BAŞKA komutlara…', en: 'find\'s output can PIPE…' }, detail: { tr: 'find\'ın çıktısı BAŞKA komutlara PIPE edilebilir (örn. | xargs rm veya | wc -l) — bu, "bul ve SONRA bir işlem yap" akışının Linux\'taki temel YAPI TAŞIDIR.', en: 'find\'s output can be PIPED into other commands (e.g. | xargs rm or | wc -l) — this is the fundamental BUILDING BLOCK of the "find, THEN act" workflow in Linux.' } },
+            ],
           },
           {
             type: 'callout',
@@ -3847,6 +3919,18 @@ jobs                       # bu shell'deki arka plan işlerini listele
 fg %1                      # 1 numaralı işi ön plana getir
 nohup node mock-server.js &  # terminal/SSH oturumu kapansa da çalışmayı sürdür`,
           },
+          {
+            type: 'step-animation',
+            id: 'linux-background-jobs-step-01',
+            title: { tr: '& İşareti Bir Komutu Arka Plana Attığında Ne Değişir?', en: 'What Changes When & Sends a Command to the Background?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'node mock-server.js & çalıştırıldığında…', en: 'Running node mock-server.js &…' }, detail: { tr: 'node mock-server.js & çalıştırıldığında shell komutu ARKA PLANA gönderir ve KONTROLÜ ANINDA sana geri verir — terminal bloklanmaz, aynı pencerede başka komut yazabilirsin.', en: 'Running node mock-server.js & sends the command to the BACKGROUND and hands CONTROL back to you IMMEDIATELY — the terminal never blocks, you can type another command in the same window.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'jobs komutu O ANKİ shell oturumundaki…', en: 'jobs lists the background work…' }, detail: { tr: 'jobs komutu, O ANKİ shell oturumunda arka planda çalışan TÜM işleri (job number ile) listeler — bu numaralar SADECE bu terminal oturumuna özeldir.', en: 'jobs lists EVERY background job (with a job number) running in THIS shell session — those numbers are SPECIFIC to this terminal session only.' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'fg %1 ile 1 numaralı işi ÖN PLANA…', en: 'fg %1 brings job 1 to the FOREGROUND…' }, detail: { tr: 'fg %1 ile 1 numaralı işi ÖN PLANA getirirsin — artık terminal o process\'in çıktısını gösterir ve Ctrl+C ile durdurabilirsin.', en: 'fg %1 brings job 1 back to the FOREGROUND — the terminal now shows that process\'s output and you can stop it with Ctrl+C.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'nohup önüne eklendiğinde…', en: 'Prefixing with nohup…' }, detail: { tr: 'nohup önüne eklendiğinde process, terminal/SSH oturumu KAPANSA BİLE (SIGHUP sinyali göz ardı edilir) çalışmaya devam eder — bir CI runner\'da SSH bağlantısı kesilse de servisi ayakta tutmak için kullanılır.', en: 'Prefixing with nohup makes the process keep running EVEN IF the terminal/SSH session closes (the SIGHUP signal is ignored) — used to keep a service alive on a CI runner even if the SSH connection drops.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'nohup ile başlatılan bir process\'in çıktısı…', en: 'A process started with nohup writes…' }, detail: { tr: 'nohup ile başlatılan bir process\'in çıktısı varsayılan olarak nohup.out dosyasına yazılır — bu dosyayı unutmak, disk dolana kadar sessizce büyüyen bir log dosyasına yol açabilir (gerçek bir CI incident senaryosu).', en: 'A process started with nohup writes its output to nohup.out by default — forgetting about this file can lead to a log that silently grows until the disk fills up (a real CI incident scenario).' } },
+            ],
+          },
           { type: 'heading', text: 'systemd ile Servisler' },
           {
             type: 'code',
@@ -3857,6 +3941,18 @@ systemctl start nginx         # başlat
 systemctl restart nginx       # yeniden başlat
 systemctl enable nginx        # boot'ta otomatik başlasın
 journalctl -u nginx -f        # o servisin loglarını canlı takip et`,
+          },
+          {
+            type: 'step-animation',
+            id: 'linux-systemctl-step-01',
+            title: { tr: 'systemctl Komutları Aslında Neyle Konuşur?', en: 'What Do systemctl Commands Actually Talk To?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'systemctl status nginx komutu…', en: 'systemctl status nginx queries…' }, detail: { tr: 'systemctl status nginx komutu, systemd init sisteminin O SERVİS için tuttuğu DURUM bilgisini (running/failed/stopped) sorgular — process\'i DOĞRUDAN sorgulamaz, systemd\'nin kendi kayıtlarına bakar.', en: 'systemctl status nginx queries the STATE (running/failed/stopped) that the systemd init system keeps for THAT service — it doesn\'t query the process directly, it reads systemd\'s own records.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'systemctl start nginx çalıştırıldığında…', en: 'systemctl start nginx runs…' }, detail: { tr: 'systemctl start nginx çalıştırıldığında systemd, servis dosyasında (unit file) tanımlı ExecStart komutunu ÇALIŞTIRIR ve process\'i kendi gözetimi ALTINA alır.', en: 'When systemctl start nginx runs, systemd RUNS the ExecStart command defined in the unit file and takes the process UNDER its own supervision.' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'systemctl restart nginx, önce mevcut…', en: 'systemctl restart nginx first stops…' }, detail: { tr: 'systemctl restart nginx, önce mevcut process\'e DURDURMA sinyali gönderir, process tamamen kapandıktan SONRA yeniden BAŞLATIR — restart, stop+start\'ın sırayla garantili birleşimidir.', en: 'systemctl restart nginx first sends a STOP signal to the existing process, then STARTS a new one AFTER it has fully shut down — restart is a guaranteed, ordered combination of stop+start.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'systemctl enable nginx servis dosyasını…', en: 'systemctl enable nginx links the unit file…' }, detail: { tr: 'systemctl enable nginx servis dosyasını /etc/systemd/system/multi-user.target.wants/ altına SEMBOLİK LİNK olarak ekler — bu, sunucu her YENİDEN BAŞLADIĞINDA servisin otomatik başlayacağı anlamına gelir, ŞİMDİ başlatmaz.', en: 'systemctl enable nginx adds a SYMLINK to the unit file under /etc/systemd/system/multi-user.target.wants/ — this means the service will auto-start on every REBOOT, it does NOT start it right now.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'journalctl -u nginx -f, o servisin…', en: 'journalctl -u nginx -f follows…' }, detail: { tr: 'journalctl -u nginx -f, o servisin systemd tarafından toplanan loglarını CANLI (tail -f gibi) İZLER — bir servis crash olduğunda "neden çöktü" sorusuna en hızlı cevabı burası verir.', en: 'journalctl -u nginx -f LIVE-FOLLOWS (like tail -f) the logs systemd collects for that service — when a service crashes, this is the fastest place to find out why.' } },
+            ],
           },
           {
             type: 'callout',
@@ -4047,6 +4143,18 @@ ps aux | grep java             # Jenkins agent process'i hayatta mı?`,
 du -sh /var/log/* /tmp/* | sort -rh | head -10   # en büyük tüketiciler
 find /var/log -name "*.log" -mtime +30 -delete   # 30 günden eski logları sil`,
           },
+          {
+            type: 'step-animation',
+            id: 'linux-disk-space-step-01',
+            title: { tr: 'df -h Doluluk Gösterir, du -sh SUÇLUYU Bulur', en: 'df -h Shows Fullness, du -sh Finds the CULPRIT' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'df -h çalıştırıldığında…', en: 'Running df -h shows…' }, detail: { tr: 'df -h çalıştırıldığında HER bir disk PARTİSYONUNUN toplam/kullanılan/boş alanını GÖSTERİR — hangi bölümün (örn. /var) %98 dolu olduğunu SANİYELER içinde ortaya çıkarır.', en: 'Running df -h SHOWS total/used/free space for EVERY disk partition — it reveals which partition (e.g. /var) is 98% full in SECONDS.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'df -h SADECE partisyon seviyesinde…', en: 'df -h only reports at the PARTITION level…' }, detail: { tr: 'df -h SADECE partisyon seviyesinde bilgi verir, HANGİ dosya/klasörün alanı yediğini SÖYLEMEZ — bunu bulmak için ikinci bir komut gerekir.', en: 'df -h only reports at the PARTITION level — it does NOT say WHICH file or folder is eating the space; a second command is needed to find that out.' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'du -sh ... | sort -rh, belirtilen…', en: 'du -sh ... | sort -rh sizes…' }, detail: { tr: 'du -sh /var/log/* /tmp/* | sort -rh, belirtilen klasörlerin HER BİRİNİN boyutunu hesaplar ve BÜYÜKTEN KÜÇÜĞE sıralar — en çok yer kaplayan dosya/klasör EN ÜSTTE çıkar.', en: 'du -sh /var/log/* /tmp/* | sort -rh computes the size of EACH listed folder and sorts LARGEST FIRST — the biggest space consumer ends up AT THE TOP.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'head -10 ile bu sıralı listenin…', en: 'head -10 trims the sorted list…' }, detail: { tr: 'head -10 ile bu sıralı listenin sadece İLK 10 satırı gösterilir — 10.000 log dosyası arasından "asıl suçlu" birkaç saniyede GÖRÜNÜR hale gelir.', en: 'head -10 shows only the FIRST 10 lines of that sorted list — the "actual culprit" among 10,000 log files becomes VISIBLE in seconds.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'find /var/log -name "*.log" -mtime +30 -delete…', en: 'find ... -mtime +30 -delete…' }, detail: { tr: 'find /var/log -name "*.log" -mtime +30 -delete, 30 GÜNDEN eski TÜM .log dosyalarını BULUR ve SİLER — -delete bayrağı OLMADAN aynı komut sadece LİSTELER, hiçbir şeyi silmez; önce -delete OLMADAN çalıştırıp sonucu kontrol etmek güvenli pratiktir.', en: 'find /var/log -name "*.log" -mtime +30 -delete FINDS and DELETES every .log file older than 30 days — WITHOUT -delete the same command only LISTS matches, it deletes nothing; running it without -delete first to check the results is the safe practice.' } },
+            ],
+          },
           linuxCiDebugChainFilm,
           { type: 'heading', text: 'Bir QA Bash Script Yazmak' },
           {
@@ -4059,6 +4167,18 @@ set -euo pipefail              # hata, tanımsız değişken veya başarısız p
 LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log"   # zaman damgalı benzersiz log adı
 
 echo "Starting regression suite..." | tee "$LOG_FILE"   # hem logla hem ekrana yaz`,
+          },
+          {
+            type: 'step-animation',
+            id: 'linux-script-safety-step-01',
+            title: { tr: 'set -euo pipefail Script\'i Aslında Nasıl Korur?', en: 'How Does set -euo pipefail Actually Protect a Script?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: '#!/bin/bash ilk satırı…', en: 'The #!/bin/bash first line…' }, detail: { tr: '#!/bin/bash ilk satırı, script HANGİ interpreter ile çalıştırılacağını işletim sistemine söyler — chmod +x ile çalıştırılabilir yapıldığında bu satır OKUNUR ve doğru shell BAŞLATILIR.', en: 'The #!/bin/bash first line tells the OS WHICH interpreter to run the script with — once made executable with chmod +x, this line is READ and the correct shell is LAUNCHED.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'set -e eklendiğinde…', en: 'Adding set -e means…' }, detail: { tr: 'set -e eklendiğinde script içindeki HERHANGİ bir komut sıfırdan farklı bir çıkış koduyla başarısız olursa, script HEMEN durur — bu olmadan script bozuk bir adımdan SONRA da çalışmaya devam edip yanlış bir "başarılı" sonucu raporlayabilirdi.', en: 'With set -e, the moment ANY command in the script fails with a non-zero exit code, the script STOPS immediately — without it, the script could keep running AFTER a broken step and report a false "success".' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'set -u eklendiğinde…', en: 'Adding set -u means…' }, detail: { tr: 'set -u eklendiğinde TANIMLANMAMIŞ bir değişken kullanılmaya çalışılırsa script hata verir — yazım hatası yapılan bir değişken adı (örn. $LOG_FIEL) sessizce boş string OLARAK değil, GÖRÜNÜR bir hata olarak ortaya çıkar.', en: 'With set -u, trying to use an UNDEFINED variable errors out the script — a typo\'d variable name (e.g. $LOG_FIEL) surfaces as a VISIBLE error instead of silently becoming an empty string.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'set -o pipefail eklendiğinde…', en: 'Adding set -o pipefail means…' }, detail: { tr: 'set -o pipefail eklendiğinde bir pipe (|) zincirindeki ARA komutlardan biri bile başarısız olursa TÜM pipe başarısız sayılır — bu olmadan sadece SON komutun çıkış kodu önemli olurdu, ortadaki bir hata SESSİZCE yutulurdu.', en: 'With set -o pipefail, if even ONE intermediate command in a pipe (|) chain fails, the WHOLE pipe is considered failed — without it, only the LAST command\'s exit code mattered, and a mid-chain error would be SWALLOWED silently.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log"…', en: 'LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log"…' }, detail: { tr: 'LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log" ifadesi HER çalıştırmada FARKLI bir dosya adı üretir — sabit bir isim kullansaydın, önceki koşumun log kanıtı bir SONRAKİ koşum tarafından SESSİZCE üzerine yazılırdı.', en: 'LOG_FILE="regression-$(date +%Y%m%d-%H%M%S).log" produces a DIFFERENT filename on every run — with a fixed name, the log evidence of a previous run would be SILENTLY overwritten by the next one.' } },
+            ],
           },
           {
             type: 'callout',
@@ -4075,6 +4195,18 @@ echo "Starting regression suite..." | tee "$LOG_FILE"   # hem logla hem ekrana y
 fi
 
 echo "All tests passed!" | tee -a "$LOG_FILE"   # başarı mesajını sona ekle`,
+          },
+          {
+            type: 'step-animation',
+            id: 'linux-pytest-exitcode-step-01',
+            title: { tr: 'if ! pytest ... ; then Aslında Neyi Kontrol Eder?', en: 'What Does if ! pytest ... ; then Actually Check?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'pytest tests/ --maxfail=5 -v çalıştırıldığında…', en: 'pytest tests/ --maxfail=5 -v stops…' }, detail: { tr: 'pytest tests/ --maxfail=5 -v çalıştırıldığında, testler 5 hatadan SONRA DURUR (--maxfail=5) — yüzlerce test arka arkaya patlarken saatlerce beklemek yerine erken sinyal alırsın.', en: 'Running pytest tests/ --maxfail=5 -v STOPS after 5 failures (--maxfail=5) — instead of waiting for hundreds of tests to explode one by one, you get an early signal.' } },
+              { id: 2, icon: '2️⃣', label: { tr: '>> "$LOG_FILE" 2>&1 ifadesi…', en: '>> "$LOG_FILE" 2>&1 merges…' }, detail: { tr: '>> "$LOG_FILE" 2>&1 ifadesi HEM normal çıktıyı (stdout) HEM hata çıktısını (stderr, 2>&1 ile stdout\'a yönlendirilir) AYNI log dosyasına EKLER (>> ile üzerine yazmaz, sona ekler).', en: '>> "$LOG_FILE" 2>&1 APPENDS both normal output (stdout) AND error output (stderr, redirected into stdout via 2>&1) into the SAME log file (>> appends, it does not overwrite).' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'if ! ... ; then ifadesi…', en: 'The if ! ... ; then check…' }, detail: { tr: 'if ! ... ; then ifadesi, pytest\'in çıkış kodunu KONTROL eder — pytest tüm testler geçince 0, en az bir test FAIL olunca sıfırdan farklı bir kod döndürür; ! bu kodu TERSİNE çevirir, yani "başarısız OLDUYSA" bloğuna girer.', en: 'if ! ... ; then CHECKS pytest\'s exit code — pytest returns 0 when all tests pass, and a non-zero code when at least one test FAILs; ! FLIPS that logic, so the block runs "IF it failed".' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'Test başarısız olursa…', en: 'On failure…' }, detail: { tr: 'Test başarısız olursa hata mesajı stderr\'e (>&2) YAZILIR ve exit 1 ile script SIFIRDAN FARKLI bir kodla SONLANDIRILIR — bu exit kodu CI/CD pipeline\'ının "bu adım BAŞARISIZ" olarak işaretlemesini SAĞLAR.', en: 'On failure, the error message is WRITTEN to stderr (>&2) and exit 1 ENDS the script with a non-zero code — this exit code is what lets the CI/CD pipeline mark this step as FAILED.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Testler geçerse…', en: 'On success…' }, detail: { tr: 'Testler geçerse if bloğu HİÇ çalışmaz, akış doğrudan echo "All tests passed!" satırına DEVAM eder — tee -a ile bu mesaj HEM ekrana yazılır HEM aynı log dosyasına EKLENİR.', en: 'If tests pass, the if block NEVER runs, execution CONTINUES straight to echo "All tests passed!" — tee -a both PRINTS this message to the screen AND APPENDS it to the same log file.' } },
+            ],
           },
           {
             type: 'challenge',
@@ -4150,6 +4282,18 @@ ss -tulpn | grep 4444                       # 4444 portunu kim dinliyor?`,
             code: `find . -name "*.spec.ts"            # buradan aşağıda tüm spec dosyalarını bul
 find /var/log -mmin -60             # son 60 dakikada değişen dosyalar
 find . -size +100M                  # şüpheli derecede büyük dosyaları bul`,
+          },
+          {
+            type: 'step-animation',
+            id: 'linux-find-step-01',
+            title: { tr: 'find Komutu Aslında Neyi Nasıl Arar?', en: 'How Does find Actually Search for Things?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'find . -name "*.spec.ts" çalıştırıldığında…', en: 'find . -name "*.spec.ts" scans…' }, detail: { tr: 'find . -name "*.spec.ts" çalıştırıldığında, mevcut klasörden BAŞLAYARAK TÜM alt klasörleri REKÜRSİF olarak tarar — isim deseni *.spec.ts ile eşleşen HER dosyayı, kaç seviye derinde olursa olsun BULUR.', en: 'find . -name "*.spec.ts" scans RECURSIVELY through every subfolder starting from the current directory — it FINDS every file matching *.spec.ts, no matter how deep it is nested.' } },
+              { id: 2, icon: '2️⃣', label: { tr: '-mmin -60 bayrağı…', en: 'The -mmin -60 flag…' }, detail: { tr: '-mmin -60 bayrağı, dosyanın SON DEĞİŞTİRİLME zamanına göre filtreler — "-60" son 60 DAKİKA içinde değişenleri, "+60" ise 60 dakikadan ESKİ olanları anlamına gelir (işaret YÖNÜ önemlidir).', en: 'The -mmin -60 flag filters by LAST MODIFIED time — "-60" means changed in the last 60 MINUTES, "+60" means OLDER than 60 minutes (the sign DIRECTION matters).' } },
+              { id: 3, icon: '3️⃣', label: { tr: 'find /var/log -mmin -60…', en: 'find /var/log -mmin -60 answers…' }, detail: { tr: 'find /var/log -mmin -60, "son 1 saatte hangi log dosyaları değişti" sorusuna CEVAP verir — bir incident sırasında "hangi servis SON DAKİKADA bir şeyler yazdı" diye ARAMA yaparken kritik bir komuttur.', en: 'find /var/log -mmin -60 ANSWERS "which log files changed in the last hour" — during an incident, it\'s the critical command for SEARCHING "which service wrote something JUST NOW".' } },
+              { id: 4, icon: '4️⃣', label: { tr: '-size +100M bayrağı…', en: 'The -size +100M flag…' }, detail: { tr: '-size +100M bayrağı, 100 MB\'den BÜYÜK dosyaları bulur — beklenmedik şekilde şişmiş bir log dosyası veya yanlışlıkla commit edilmiş büyük bir binary\'i YAKALAMANIN hızlı yoludur.', en: 'The -size +100M flag finds files LARGER than 100 MB — a fast way to CATCH an unexpectedly bloated log file or an accidentally committed large binary.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'find\'ın çıktısı BAŞKA komutlara…', en: 'find\'s output can PIPE…' }, detail: { tr: 'find\'ın çıktısı BAŞKA komutlara PIPE edilebilir (örn. | xargs rm veya | wc -l) — bu, "bul ve SONRA bir işlem yap" akışının Linux\'taki temel YAPI TAŞIDIR.', en: 'find\'s output can be PIPED into other commands (e.g. | xargs rm or | wc -l) — this is the fundamental BUILDING BLOCK of the "find, THEN act" workflow in Linux.' } },
+            ],
           },
           {
             type: 'callout',
