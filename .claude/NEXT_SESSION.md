@@ -10,6 +10,47 @@
 
 ---
 
+## OTURUM ÖZETİ — animation-per-topic Dalga A8 DEVAM EDİYOR (2026-07-18, Sonnet oturumu, playwright TAMAMLANDI)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+
+Bu oturum Dalga A8'in kalan 9 sayfasını (playwright/sql/linux/javascript/
+browserstack/claude-ai/git/bruno/llm-agents) sırayla kapatmak üzere başladı;
+kullanıcı talimatıyla her sayfa bitince bu dosya güncellenip commit atılıyor,
+onay beklenmeden bir sonraki sayfaya geçiliyor.
+
+**playwright (7 açık → 0):** `src/data/playwrightData.js` (çift ağaç, s0-s17 section
+const'ları, EN/TR aynı referansla) — 7 yeni step-animation eklendi:
+- Section 01 (Installation): `playwright.config.ts` yaşam döngüsü (testDir/baseURL/workers/retries/projects/trace)
+- Section 02 (Basic Actions): `fill()` çağrısının actionability + clear + input-event adımları
+- Section 06 (Test Organization & Fixtures): Arrange/Act/Assert fazları + `beforeEach`'in HER testte baştan çalışması (2 animasyon)
+- Section 08 (iframe/Alert/Popup): `page.on('dialog', ...)` satır sırasının kritikliği
+- Section 09 (File/Network/API Mock): `setInputFiles()` native dosya penceresini nasıl atladığı
+- Section 13 (Parallel/CI-CD): `devices['Pixel 5']` + `test.skip()` mekanizması
+
+**Önemli teknik not (gelecek sayfalar için de geçerli):** `audit-animation-
+coverage.mjs` SADECE `data.en.sections`'ı okur (`getSections()` fonksiyonu
+`data?.en || data?.tr`) — TR ağacı denetime hiç girmiyor. Ama Bölüm 2 kural 4
+gereği yine de HER animasyon iki ağaca da eklendi. Ayrıca plan dosyasındaki
+(`animation-per-topic-plan.md` §2.7) `steps: [{tr,en}]` düz format ESKİ/KIRIK
+şema — doğru kanonik şema `check-content-integrity.mjs` [D] kontrolünün
+zorladığı `{id, icon, label:{tr,en}, detail:{tr,en}}` formatıdır (bkz. aşağıdaki
+"ÇÖZÜLDÜ" bölümü). Runtime section index'i ile kaynak dosyadaki `const sN`
+değişkeni BİREBİR aynı sırada değil (playwrightData.js `sections: [s0,s1,s2,s3,
+s4,s10,s11,s12,s5,s6,s13,s16,s17,s14,s15,s7,s8,s9]` gibi yeniden sıralanmış
+diziler kullanıyor) — hangi index'in hangi `const`a karşılık geldiği HER
+ZAMAN `node -e "import(...).then(m=>console.log(m.xData.en.sections[N].title))"`
+ile canlı doğrulanmalı, dosya sırasına güvenilmemeli.
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ sıfır ihlal + `audit-animation-
+coverage.mjs playwright` deficit:0 ✓ + `npm run build` yeşil ✓.
+
+**Sıradaki:** sql (7 açık) → linux (6) → javascript (5) → browserstack (5) →
+claude-ai (5) → git (3) → bruno (3) → llm-agents (3). python (17 açık) Fable'a
+ayrılmış, bu oturumun kapsamı dışında.
+
+---
+
 ## OTURUM ÖZETİ — animation-per-topic Dalga A8 BAŞLADI (2026-07-18, Haiku oturumu 1)
 
 **Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).

@@ -1092,6 +1092,18 @@ export default defineConfig({
   ],
 });`,
       },
+      {
+        type: 'step-animation',
+        title: { tr: 'playwright.config.ts Dosyası Test Çalışırken Ne Yapar?', en: 'What Does playwright.config.ts Actually Do at Test Runtime?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'Test runner önce testDir\'i tarar…', en: 'The test runner scans testDir first…' }, detail: { tr: 'Test runner çalışmaya başlamadan önce testDir: "./tests" değerini okur ve SADECE o klasördeki dosyaları tarar — başka bir klasöre yanlışlıkla test dosyası koysan bile Playwright onu görmez.', en: 'Before running, the test runner reads testDir: "./tests" and scans ONLY that folder — if you accidentally put a test file elsewhere, Playwright never sees it.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'page.goto("/login") çağrıldığında…', en: 'When page.goto("/login") is called…' }, detail: { tr: 'page.goto("/login") çağrıldığında Playwright bunu baseURL + "/login" olarak birleştirir — yani ortam değişirse (staging/prod) tek satır (baseURL) değiştirmen yeterli, testin içindeki yüzlerce goto() satırına dokunmazsın.', en: 'page.goto("/login") gets resolved as baseURL + "/login" — so when the environment changes (staging/prod), you edit ONE line (baseURL) instead of touching hundreds of goto() calls inside your tests.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'workers: 4 sayesinde…', en: 'Thanks to workers: 4…' }, detail: { tr: 'workers: 4 sayesinde 4 test dosyası AYNI ANDA farklı process\'lerde çalışır — hız artar ama testler arasında paylaşılan bir veritabanı kaydı varsa yarış durumu (race condition) ortaya çıkabilir, bu yüzden testler birbirinden bağımsız veri kullanmalı.', en: 'Because of workers: 4, four test files run SIMULTANEOUSLY in separate processes — speed goes up, but if tests share a database record, you get a race condition, so tests must use independent data.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'Bir test FAIL olursa retries: 1…', en: 'If a test FAILs, retries: 1…' }, detail: { tr: 'Bir test FAIL olursa retries: 1 sayesinde Playwright onu otomatik olarak 1 kez daha çalıştırır — CI\'daki geçici ağ gecikmesi gibi "flaky" hataları gürültü olarak eleyip, gerçek bug\'ları FAIL raporunda öne çıkarır.', en: 'If a test FAILs, retries: 1 makes Playwright automatically run it once more — this filters out CI network-flake noise and keeps real bugs visible in the FAIL report.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'projects dizisindeki her satır…', en: 'Each entry in the projects array…' }, detail: { tr: 'projects dizisindeki her satır (chromium/firefox/webkit/mobile) AYNI test dosyalarını farklı tarayıcı motoruyla bağımsız çalıştırır — npx playwright test --project=firefox ile sadece birini hedefleyebilirsin.', en: 'Each entry in the projects array (chromium/firefox/webkit/mobile) runs the SAME test files independently against a different browser engine — npx playwright test --project=firefox targets just one.' } },
+          { id: 6, icon: '6️⃣', label: { tr: 'Bir test FAIL olduğunda screenshot/video/trace…', en: 'When a test FAILs, screenshot/video/trace…' }, detail: { tr: 'Bir test FAIL olduğunda screenshot: "only-on-failure", video: "retain-on-failure" ve trace: "on-first-retry" ayarları devreye girer — CI loglarına bakmadan, "neyin nerede kırıldığını" gösteren kanıt otomatik toplanır.', en: 'When a test FAILs, screenshot: "only-on-failure", video: "retain-on-failure", and trace: "on-first-retry" kick in — evidence of exactly what broke and where is collected automatically, without digging through CI logs.' } },
+        ],
+      },
       { type: 'heading', text: '2️⃣ Java (Maven) Kurulumu' },
       {
         type: 'callout', color: 'orange', emoji: '☕',
@@ -1313,6 +1325,18 @@ export default defineConfig({
   ],
 });`,
       },
+      {
+        type: 'step-animation',
+        title: { tr: 'playwright.config.ts Dosyası Test Çalışırken Ne Yapar?', en: 'What Does playwright.config.ts Actually Do at Test Runtime?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'Test runner önce testDir\'i tarar…', en: 'The test runner scans testDir first…' }, detail: { tr: 'Test runner çalışmaya başlamadan önce testDir: "./tests" değerini okur ve SADECE o klasördeki dosyaları tarar — başka bir klasöre yanlışlıkla test dosyası koysan bile Playwright onu görmez.', en: 'Before running, the test runner reads testDir: "./tests" and scans ONLY that folder — if you accidentally put a test file elsewhere, Playwright never sees it.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'page.goto("/login") çağrıldığında…', en: 'When page.goto("/login") is called…' }, detail: { tr: 'page.goto("/login") çağrıldığında Playwright bunu baseURL + "/login" olarak birleştirir — yani ortam değişirse (staging/prod) tek satır (baseURL) değiştirmen yeterli, testin içindeki yüzlerce goto() satırına dokunmazsın.', en: 'page.goto("/login") gets resolved as baseURL + "/login" — so when the environment changes (staging/prod), you edit ONE line (baseURL) instead of touching hundreds of goto() calls inside your tests.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'workers: 4 sayesinde…', en: 'Thanks to workers: 4…' }, detail: { tr: 'workers: 4 sayesinde 4 test dosyası AYNI ANDA farklı process\'lerde çalışır — hız artar ama testler arasında paylaşılan bir veritabanı kaydı varsa yarış durumu (race condition) ortaya çıkabilir, bu yüzden testler birbirinden bağımsız veri kullanmalı.', en: 'Because of workers: 4, four test files run SIMULTANEOUSLY in separate processes — speed goes up, but if tests share a database record, you get a race condition, so tests must use independent data.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'Bir test FAIL olursa retries: 1…', en: 'If a test FAILs, retries: 1…' }, detail: { tr: 'Bir test FAIL olursa retries: 1 sayesinde Playwright onu otomatik olarak 1 kez daha çalıştırır — CI\'daki geçici ağ gecikmesi gibi "flaky" hataları gürültü olarak eleyip, gerçek bug\'ları FAIL raporunda öne çıkarır.', en: 'If a test FAILs, retries: 1 makes Playwright automatically run it once more — this filters out CI network-flake noise and keeps real bugs visible in the FAIL report.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'projects dizisindeki her satır…', en: 'Each entry in the projects array…' }, detail: { tr: 'projects dizisindeki her satır (chromium/firefox/webkit/mobile) AYNI test dosyalarını farklı tarayıcı motoruyla bağımsız çalıştırır — npx playwright test --project=firefox ile sadece birini hedefleyebilirsin.', en: 'Each entry in the projects array (chromium/firefox/webkit/mobile) runs the SAME test files independently against a different browser engine — npx playwright test --project=firefox targets just one.' } },
+          { id: 6, icon: '6️⃣', label: { tr: 'Bir test FAIL olduğunda screenshot/video/trace…', en: 'When a test FAILs, screenshot/video/trace…' }, detail: { tr: 'Bir test FAIL olduğunda screenshot: "only-on-failure", video: "retain-on-failure" ve trace: "on-first-retry" ayarları devreye girer — CI loglarına bakmadan, "neyin nerede kırıldığını" gösteren kanıt otomatik toplanır.', en: 'When a test FAILs, screenshot: "only-on-failure", video: "retain-on-failure", and trace: "on-first-retry" kick in — evidence of exactly what broke and where is collected automatically, without digging through CI logs.' } },
+        ],
+      },
       { type: 'heading', text: '2️⃣ Java (Maven) Setup' },
       {
         type: 'callout', color: 'orange', emoji: '☕',
@@ -1492,6 +1516,17 @@ test('temel aksiyon örnekleri', async ({ page }) => {
   await expect(page).toHaveURL(/dashboard/);              // URL doğrula
   await expect(page.locator('h1')).toHaveText('Welcome'); // metin doğrula
 });`,
+      },
+      {
+        type: 'step-animation',
+        title: { tr: 'fill() Tek Satırda Aslında Kaç Adım Yapar?', en: 'How Many Steps Does fill() Actually Do in One Line?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'page.locator(\'#email\') elementi bulur…', en: 'page.locator(\'#email\') finds the element…' }, detail: { tr: 'page.locator(\'#email\') elementi bulur ama henüz dokunmaz — Playwright locator\'ı "lazy" tutar, gerçek arama fill() çağrılana kadar ertelenir.', en: 'page.locator(\'#email\') finds the element but doesn\'t touch it yet — Playwright keeps the locator lazy, the actual search is deferred until fill() is called.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'fill() önce actionability kontrolü yapar…', en: 'fill() runs an actionability check first…' }, detail: { tr: 'fill() önce actionability kontrolü yapar: element DOM\'da mı, görünür mü, disabled değil mi, animasyon bitmiş mi — bunlardan biri eksikse Playwright BEKLER, hemen hata FIRLATMAZ.', en: 'fill() first runs an actionability check: is the element attached, visible, enabled, and past any animation — if any check fails, Playwright WAITS instead of throwing immediately.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Mevcut input değeri TAMAMEN temizlenir…', en: 'The existing input value is CLEARED entirely…' }, detail: { tr: 'Mevcut input değeri TAMAMEN temizlenir — Selenium\'daki sendKeys() bunu yapmaz, önceki değerin sonuna ekler; bu yüzden Selenium\'da her zaman önce .clear() çağırman gerekiyordu.', en: 'The existing input value is CLEARED entirely — Selenium\'s sendKeys() does not do this, it appends to the previous value; that\'s why in Selenium you always had to call .clear() first.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'Yeni metin tek seferde input\'a yazılır…', en: 'The new text is set on the input in one go…' }, detail: { tr: 'Yeni metin tek seferde input\'a yazılır ve gerçek bir "input" DOM event\'i tetiklenir — React/Vue gibi framework\'lerin state\'i bu event sayesinde güncellenir, sadece value attribute\'ini değiştirmek yetmez.', en: 'The new text is set on the input in one go and a real "input" DOM event fires — frameworks like React/Vue update their state because of that event; just changing the value attribute would not be enough.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Playwright sonraki satıra geçmeden önce…', en: 'Before moving to the next line, Playwright…' }, detail: { tr: 'Playwright sonraki satıra geçmeden önce input\'un GERÇEKTEN o değeri taşıdığını doğrular — bu yüzden fill() sonrası ayrıca bir "değer yazıldı mı" kontrolüne genelde gerek kalmaz.', en: 'Before moving to the next line, Playwright verifies the input REALLY holds that value — that\'s why you rarely need a separate "was it typed" check after fill().' } },
+        ],
       },
       {
         type: 'code', language: 'Java',
@@ -1683,6 +1718,17 @@ test('basic actions example', async ({ page }) => {
   await expect(page).toHaveURL(/dashboard/);
   await expect(page.locator('h1')).toHaveText('Welcome');
 });`,
+      },
+      {
+        type: 'step-animation',
+        title: { tr: 'fill() Tek Satırda Aslında Kaç Adım Yapar?', en: 'How Many Steps Does fill() Actually Do in One Line?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'page.locator(\'#email\') elementi bulur…', en: 'page.locator(\'#email\') finds the element…' }, detail: { tr: 'page.locator(\'#email\') elementi bulur ama henüz dokunmaz — Playwright locator\'ı "lazy" tutar, gerçek arama fill() çağrılana kadar ertelenir.', en: 'page.locator(\'#email\') finds the element but doesn\'t touch it yet — Playwright keeps the locator lazy, the actual search is deferred until fill() is called.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'fill() önce actionability kontrolü yapar…', en: 'fill() runs an actionability check first…' }, detail: { tr: 'fill() önce actionability kontrolü yapar: element DOM\'da mı, görünür mü, disabled değil mi, animasyon bitmiş mi — bunlardan biri eksikse Playwright BEKLER, hemen hata FIRLATMAZ.', en: 'fill() first runs an actionability check: is the element attached, visible, enabled, and past any animation — if any check fails, Playwright WAITS instead of throwing immediately.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Mevcut input değeri TAMAMEN temizlenir…', en: 'The existing input value is CLEARED entirely…' }, detail: { tr: 'Mevcut input değeri TAMAMEN temizlenir — Selenium\'daki sendKeys() bunu yapmaz, önceki değerin sonuna ekler; bu yüzden Selenium\'da her zaman önce .clear() çağırman gerekiyordu.', en: 'The existing input value is CLEARED entirely — Selenium\'s sendKeys() does not do this, it appends to the previous value; that\'s why in Selenium you always had to call .clear() first.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'Yeni metin tek seferde input\'a yazılır…', en: 'The new text is set on the input in one go…' }, detail: { tr: 'Yeni metin tek seferde input\'a yazılır ve gerçek bir "input" DOM event\'i tetiklenir — React/Vue gibi framework\'lerin state\'i bu event sayesinde güncellenir, sadece value attribute\'ini değiştirmek yetmez.', en: 'The new text is set on the input in one go and a real "input" DOM event fires — frameworks like React/Vue update their state because of that event; just changing the value attribute would not be enough.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Playwright sonraki satıra geçmeden önce…', en: 'Before moving to the next line, Playwright…' }, detail: { tr: 'Playwright sonraki satıra geçmeden önce input\'un GERÇEKTEN o değeri taşıdığını doğrular — bu yüzden fill() sonrası ayrıca bir "değer yazıldı mı" kontrolüne genelde gerek kalmaz.', en: 'Before moving to the next line, Playwright verifies the input REALLY holds that value — that\'s why you rarely need a separate "was it typed" check after fill().' } },
+        ],
       },
       {
         type: 'code', language: 'Python',
@@ -2450,6 +2496,17 @@ page.onDialog(dialog -> {
 
 page.getByText("Delete Account").click();              // dialog tetikle`,
       },
+      {
+        type: 'step-animation',
+        title: { tr: 'page.on(\'dialog\', ...) Satır Sırası Neden Bu Kadar Kritik?', en: 'Why Does the Order of page.on(\'dialog\', ...) Matter So Much?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'page.on(\'dialog\', ...) listener KAYDEDİLİR…', en: 'page.on(\'dialog\', ...) REGISTERS a listener…' }, detail: { tr: 'page.on(\'dialog\', ...) listener KAYDEDİLİR ama henüz hiçbir dialog yok — sadece "bundan sonra bir dialog açılırsa şunu çalıştır" sözü verilmiş olur.', en: 'page.on(\'dialog\', ...) REGISTERS a listener but no dialog exists yet — it just promises "run this whenever a dialog opens next".' } },
+          { id: 2, icon: '2️⃣', label: { tr: '\'Delete Account\' tıklanınca tarayıcı native bir confirm() açar…', en: 'Clicking \'Delete Account\' opens a native confirm()…' }, detail: { tr: '\'Delete Account\' tıklanınca tarayıcı native bir confirm() dialogu açar — bu, sayfanın DOM\'unun DIŞINDA, işletim sistemi seviyesinde çizilen bir penceredir.', en: 'Clicking \'Delete Account\' opens a native confirm() dialog — this is a window drawn OUTSIDE the page\'s DOM, at the operating-system level.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Bu native dialog JavaScript\'in kendi thread\'ini BLOKE eder…', en: 'This native dialog BLOCKS JavaScript\'s own thread…' }, detail: { tr: 'Bu native dialog JavaScript\'in kendi thread\'ini BLOKE eder — Selenium\'da tam bu yüzden switchTo().alert() gibi ayrı bir API gerekiyordu, normal element sorgusu bu sırada donardı.', en: 'This native dialog BLOCKS JavaScript\'s own thread — this is exactly why Selenium needed a separate API like switchTo().alert(); a normal element query would freeze during it.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'Playwright\'ın kayıtlı listener\'ı otomatik tetiklenir…', en: 'Playwright\'s registered listener fires automatically…' }, detail: { tr: 'Playwright\'ın kayıtlı listener\'ı otomatik tetiklenir, dialog.accept() çağrısı native pencereyi KAPATIR ve sayfa akışı kaldığı yerden devam eder — hiçbir context switch gerekmez.', en: 'Playwright\'s registered listener fires automatically, dialog.accept() CLOSES the native window, and page execution resumes where it left off — no context switch needed.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Listener click\'ten SONRA eklenseydi…', en: 'If the listener were added AFTER the click…' }, detail: { tr: 'Listener click\'ten SONRA eklenseydi (satır sırası ters olsaydı) dialog zaten açılmış olurdu ve Playwright\'ın varsayılan davranışı (otomatik dismiss) devreye girer — test sessizce yanlış dala ilerler, bu yüzden listener HER ZAMAN tetikleyiciden önce yazılır.', en: 'If the listener were added AFTER the click (reversed order), the dialog would already be open and Playwright\'s default behavior (auto-dismiss) would kick in — the test silently follows the wrong branch, which is why the listener is ALWAYS written before the trigger.' } },
+        ],
+      },
       { type: 'heading', text: '3️⃣ Yeni Sekme / Popup Yönetimi' },
       {
         type: 'code', language: 'TypeScript',
@@ -2611,6 +2668,17 @@ test('dialogs', async ({ page }) => {
 
   await page.getByText('Delete Account').click(); // triggers dialog
 });`,
+      },
+      {
+        type: 'step-animation',
+        title: { tr: 'page.on(\'dialog\', ...) Satır Sırası Neden Bu Kadar Kritik?', en: 'Why Does the Order of page.on(\'dialog\', ...) Matter So Much?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'page.on(\'dialog\', ...) listener KAYDEDİLİR…', en: 'page.on(\'dialog\', ...) REGISTERS a listener…' }, detail: { tr: 'page.on(\'dialog\', ...) listener KAYDEDİLİR ama henüz hiçbir dialog yok — sadece "bundan sonra bir dialog açılırsa şunu çalıştır" sözü verilmiş olur.', en: 'page.on(\'dialog\', ...) REGISTERS a listener but no dialog exists yet — it just promises "run this whenever a dialog opens next".' } },
+          { id: 2, icon: '2️⃣', label: { tr: '\'Delete Account\' tıklanınca tarayıcı native bir confirm() açar…', en: 'Clicking \'Delete Account\' opens a native confirm()…' }, detail: { tr: '\'Delete Account\' tıklanınca tarayıcı native bir confirm() dialogu açar — bu, sayfanın DOM\'unun DIŞINDA, işletim sistemi seviyesinde çizilen bir penceredir.', en: 'Clicking \'Delete Account\' opens a native confirm() dialog — this is a window drawn OUTSIDE the page\'s DOM, at the operating-system level.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Bu native dialog JavaScript\'in kendi thread\'ini BLOKE eder…', en: 'This native dialog BLOCKS JavaScript\'s own thread…' }, detail: { tr: 'Bu native dialog JavaScript\'in kendi thread\'ini BLOKE eder — Selenium\'da tam bu yüzden switchTo().alert() gibi ayrı bir API gerekiyordu, normal element sorgusu bu sırada donardı.', en: 'This native dialog BLOCKS JavaScript\'s own thread — this is exactly why Selenium needed a separate API like switchTo().alert(); a normal element query would freeze during it.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'Playwright\'ın kayıtlı listener\'ı otomatik tetiklenir…', en: 'Playwright\'s registered listener fires automatically…' }, detail: { tr: 'Playwright\'ın kayıtlı listener\'ı otomatik tetiklenir, dialog.accept() çağrısı native pencereyi KAPATIR ve sayfa akışı kaldığı yerden devam eder — hiçbir context switch gerekmez.', en: 'Playwright\'s registered listener fires automatically, dialog.accept() CLOSES the native window, and page execution resumes where it left off — no context switch needed.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Listener click\'ten SONRA eklenseydi…', en: 'If the listener were added AFTER the click…' }, detail: { tr: 'Listener click\'ten SONRA eklenseydi (satır sırası ters olsaydı) dialog zaten açılmış olurdu ve Playwright\'ın varsayılan davranışı (otomatik dismiss) devreye girer — test sessizce yanlış dala ilerler, bu yüzden listener HER ZAMAN tetikleyiciden önce yazılır.', en: 'If the listener were added AFTER the click (reversed order), the dialog would already be open and Playwright\'s default behavior (auto-dismiss) would kick in — the test silently follows the wrong branch, which is why the listener is ALWAYS written before the trigger.' } },
+        ],
       },
       { type: 'heading', text: '3️⃣ New Tab / Popup' },
       {
@@ -3512,6 +3580,17 @@ def test_file_upload(page: Page):
 
     page.get_by_role("button", name="Upload").click()`,
       },
+      {
+        type: 'step-animation',
+        title: { tr: 'setInputFiles() Native Dosya Penceresini Nasıl Devre Dışı Bırakır?', en: 'How Does setInputFiles() Bypass the Native File Dialog?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'input[type="file"] normalde tıklanınca…', en: 'Clicking input[type="file"] normally…' }, detail: { tr: 'input[type="file"] normalde tıklanınca işletim sisteminin native dosya seçici penceresini açar — bu pencere sayfanın DOM\'unun DIŞINDadır, Selenium ve Playwright bu pencereye normal locator ile ERİŞEMEZ.', en: 'Clicking input[type="file"] normally opens the operating system\'s native file picker — this window is OUTSIDE the page\'s DOM, and neither Selenium nor Playwright can reach it with a normal locator.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'setInputFiles() bu native pencereyi HİÇ açmadan…', en: 'setInputFiles() writes the file path directly…' }, detail: { tr: 'setInputFiles() bu native pencereyi HİÇ açmadan, verilen dosya yolunu doğrudan input elementinin files listesine yazar — tamamen programatik bir kısayoldur.', en: 'setInputFiles() writes the given file path directly into the input element\'s files list, WITHOUT ever opening the native window — it\'s a fully programmatic shortcut.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Input değişince tarayıcı gerçek bir "change" event\'i fırlatır…', en: 'The browser fires a real "change" event…' }, detail: { tr: 'Input değişince tarayıcı gerçek bir "change" event\'i fırlatır — sayfanın JS kodu, sanki kullanıcı gerçekten dosya seçmiş gibi normal şekilde tepki verir.', en: 'When the input changes, the browser fires a real "change" event — the page\'s JS reacts normally, as if a user had actually picked the file.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'Birden fazla dosya bir dizi olarak verilirse…', en: 'When multiple files are passed as an array…' }, detail: { tr: 'Birden fazla dosya bir dizi olarak verilirse hepsi TEK bir change event\'inde birlikte eklenir — art arda tıklama simülasyonuna gerek yoktur.', en: 'When multiple files are passed as an array, they are all added together in a SINGLE change event — no repeated click simulation is needed.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'waitForEvent(\'filechooser\') ise gerçek diyaloğun AÇILMASINI bekler…', en: 'waitForEvent(\'filechooser\') instead waits for the real dialog…' }, detail: { tr: 'waitForEvent(\'filechooser\') ise gerçek diyaloğun AÇILMASINI bekler ve onu fileChooser.setFiles() ile programatik doldurur — headless modda zaten görünür bir pencere olmadığından bu iki yaklaşım da ekranda hiçbir şey GÖSTERMEZ.', en: 'waitForEvent(\'filechooser\') instead waits for the real dialog to open and fills it programmatically via fileChooser.setFiles() — in headless mode there\'s no visible window anyway, so neither approach ever SHOWS anything on screen.' } },
+        ],
+      },
       { type: 'heading', text: '2️⃣ Dosya İndirme (Download)' },
       {
         type: 'code', language: 'TypeScript',
@@ -3686,6 +3765,17 @@ test('file upload', async ({ page }) => {
   ]);
   await fileChooser.setFiles('upload-me.jpg');
 });`,
+      },
+      {
+        type: 'step-animation',
+        title: { tr: 'setInputFiles() Native Dosya Penceresini Nasıl Devre Dışı Bırakır?', en: 'How Does setInputFiles() Bypass the Native File Dialog?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'input[type="file"] normalde tıklanınca…', en: 'Clicking input[type="file"] normally…' }, detail: { tr: 'input[type="file"] normalde tıklanınca işletim sisteminin native dosya seçici penceresini açar — bu pencere sayfanın DOM\'unun DIŞINDadır, Selenium ve Playwright bu pencereye normal locator ile ERİŞEMEZ.', en: 'Clicking input[type="file"] normally opens the operating system\'s native file picker — this window is OUTSIDE the page\'s DOM, and neither Selenium nor Playwright can reach it with a normal locator.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'setInputFiles() bu native pencereyi HİÇ açmadan…', en: 'setInputFiles() writes the file path directly…' }, detail: { tr: 'setInputFiles() bu native pencereyi HİÇ açmadan, verilen dosya yolunu doğrudan input elementinin files listesine yazar — tamamen programatik bir kısayoldur.', en: 'setInputFiles() writes the given file path directly into the input element\'s files list, WITHOUT ever opening the native window — it\'s a fully programmatic shortcut.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Input değişince tarayıcı gerçek bir "change" event\'i fırlatır…', en: 'The browser fires a real "change" event…' }, detail: { tr: 'Input değişince tarayıcı gerçek bir "change" event\'i fırlatır — sayfanın JS kodu, sanki kullanıcı gerçekten dosya seçmiş gibi normal şekilde tepki verir.', en: 'When the input changes, the browser fires a real "change" event — the page\'s JS reacts normally, as if a user had actually picked the file.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'Birden fazla dosya bir dizi olarak verilirse…', en: 'When multiple files are passed as an array…' }, detail: { tr: 'Birden fazla dosya bir dizi olarak verilirse hepsi TEK bir change event\'inde birlikte eklenir — art arda tıklama simülasyonuna gerek yoktur.', en: 'When multiple files are passed as an array, they are all added together in a SINGLE change event — no repeated click simulation is needed.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'waitForEvent(\'filechooser\') ise gerçek diyaloğun AÇILMASINI bekler…', en: 'waitForEvent(\'filechooser\') instead waits for the real dialog…' }, detail: { tr: 'waitForEvent(\'filechooser\') ise gerçek diyaloğun AÇILMASINI bekler ve onu fileChooser.setFiles() ile programatik doldurur — headless modda zaten görünür bir pencere olmadığından bu iki yaklaşım da ekranda hiçbir şey GÖSTERMEZ.', en: 'waitForEvent(\'filechooser\') instead waits for the real dialog to open and fills it programmatically via fileChooser.setFiles() — in headless mode there\'s no visible window anyway, so neither approach ever SHOWS anything on screen.' } },
+        ],
       },
       {
         type: 'code', language: 'TypeScript',
@@ -4853,6 +4943,17 @@ test('giriş başarılı olursa dashboard\\'a yönlendirir', async ({ page }) =>
   await expect(page.getByText('Tekrar hoş geldin')).toBeVisible();
 });`,
       },
+      {
+        type: 'step-animation',
+        title: { tr: 'Bu Test Aslında 3 Fazda mı Çalışır: Arrange → Act → Assert?', en: 'This Test Actually Runs in 3 Phases: Arrange → Act → Assert' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'Arrange fazı: page.goto(\'/login\')…', en: 'Arrange phase: page.goto(\'/login\')…' }, detail: { tr: 'Arrange fazı: page.goto(\'/login\') sadece URL değiştirmekle kalmaz, sayfa "load" event\'ini fırlatana kadar bekler — bu yüzden bir sonraki satırda formu ARAMAK güvenlidir.', en: 'Arrange phase: page.goto(\'/login\') doesn\'t just change the URL, it waits until the page fires its "load" event — that\'s why the next line can safely search for the form.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'Act fazı: fill() ve click() sırayla…', en: 'Act phase: fill() and click() run…' }, detail: { tr: 'Act fazı: fill() ve click() sırayla ve her biri kendi actionability kontrolünü bekleyerek çalışır — email yazılmadan şifre alanına geçilmez, buton disabled\'sa click BEKLER.', en: 'Act phase: fill() and click() run in order, each waiting on its own actionability check — the password field isn\'t touched before email is filled, and click WAITS if the button is disabled.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Assert fazı: expect(page).toHaveURL(\'/dashboard\')…', en: 'Assert phase: expect(page).toHaveURL(\'/dashboard\')…' }, detail: { tr: 'Assert fazı: expect(page).toHaveURL(\'/dashboard\') TEK SEFERLİK bir kontrol değildir — varsayılan 5 saniye boyunca URL\'nin değişmesini POLL eder (auto-retrying assertion), Selenium\'daki manuel WebDriverWait\'in yerini alır.', en: 'Assert phase: expect(page).toHaveURL(\'/dashboard\') is NOT a one-shot check — it polls for up to 5 seconds by default (an auto-retrying assertion), replacing the manual WebDriverWait you\'d write in Selenium.' } },
+          { id: 4, icon: '4️⃣', label: { tr: '5 saniye içinde URL değişmezse…', en: 'If the URL never changes within 5 seconds…' }, detail: { tr: '5 saniye içinde URL değişmezse test FAIL olur ve hata mesajında "beklenen /dashboard, gerçekte hâlâ /login" gibi son ölçülen değeri gösterir — debug için ekstra log eklemene gerek kalmaz.', en: 'If the URL never changes within 5 seconds, the test FAILs and the error message shows the last observed value, like "expected /dashboard, actual still /login" — no extra logging needed for debugging.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Üç faz açıkça yorumla ayrıldığı için…', en: 'Because the three phases are clearly commented…' }, detail: { tr: 'Üç faz açıkça yorumla ayrıldığı için code review\'da bir bug\'ın "hazırlıkta mı, eylemde mi, doğrulamada mı" olduğu saniyeler içinde anlaşılır — bu, büyük bir test suite\'inde debug süresini doğrudan kısaltır.', en: 'Because the three phases are clearly commented, a code reviewer can tell within seconds whether a bug is in setup, the action, or the check — this directly cuts debugging time in a large test suite.' } },
+        ],
+      },
       testLifecycleFilm,
       { type: 'heading', text: 'describe ile Gruplama + Hook\'lar' },
       {
@@ -4875,6 +4976,17 @@ test('giriş başarılı olursa dashboard\\'a yönlendirir', async ({ page }) =>
     await expect(page.getByRole('list', { name: 'Son Siparişler' })).toBeVisible();
   });
 });`,
+      },
+      {
+        type: 'step-animation',
+        title: { tr: 'beforeEach Her Test İçin Neden Baştan Çalışır?', en: 'Why Does beforeEach Run From Scratch for Every Test?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'Playwright test.describe(\'Dashboard\') içindeki 2 testi bulur…', en: 'Playwright finds the 2 tests inside test.describe(\'Dashboard\')…' }, detail: { tr: 'Playwright test.describe(\'Dashboard\') içindeki 2 testi bulur — henüz hiçbiri çalışmadı, sadece hangi testlerin bu gruba ait olduğu belirlendi.', en: 'Playwright finds the 2 tests inside test.describe(\'Dashboard\') — neither has run yet, it just identifies which tests belong to this group.' } },
+          { id: 2, icon: '2️⃣', label: { tr: '1. test başlamadan hemen önce beforeEach TAMAMEN baştan çalışır…', en: 'Right before test 1, beforeEach runs COMPLETELY from scratch…' }, detail: { tr: '1. test başlamadan hemen önce beforeEach TAMAMEN baştan çalışır — page.goto(\'/login\') ve tüm login adımları sıfırdan yapılır, ÖNCEKİ hiçbir state yeniden kullanılmaz.', en: 'Right before test 1, beforeEach runs COMPLETELY from scratch — page.goto(\'/login\') and all login steps happen fresh, NO previous state is reused.' } },
+          { id: 3, icon: '3️⃣', label: { tr: '"hoş geldin mesajı" testi kendi TAZE page\'i üzerinde çalışır…', en: 'The "welcome message" test runs on its own FRESH page…' }, detail: { tr: '"hoş geldin mesajı" testi kendi TAZE page\'i üzerinde çalışır ve sonucu (PASS/FAIL) bağımsız olarak kaydedilir.', en: 'The "welcome message" test runs on its own FRESH page and its result (PASS/FAIL) is recorded independently.' } },
+          { id: 4, icon: '4️⃣', label: { tr: '2. test başlamadan önce beforeEach YİNE baştan çalışır…', en: 'Before test 2, beforeEach runs AGAIN from scratch…' }, detail: { tr: '2. test başlamadan önce beforeEach YİNE baştan çalışır — 1. testin page\'i, cookie\'leri veya login state\'i 2. teste ASLA aktarılmaz.', en: 'Before test 2, beforeEach runs AGAIN from scratch — test 1\'s page, cookies, or login state are NEVER carried over to test 2.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Bu tekrar çalıştırma sayesinde bir test diğerini etkileyemez…', en: 'Because of this re-run, one test can never affect another…' }, detail: { tr: 'Bu tekrar çalıştırma sayesinde bir test diğerini etkileyemez — testler farklı worker\'lara paralel dağıtılsa bile her biri KENDİ bağımsız ortamında, aynı hazırlıkla başlar.', en: 'Because of this re-run, one test can never affect another — even when tests are distributed to different workers in parallel, each one starts in its OWN independent environment with the same setup.' } },
+        ],
       },
       {
         type: 'table',
@@ -5083,6 +5195,17 @@ test('successful login redirects to dashboard', async ({ page }) => {
   await expect(page.getByText('Welcome back')).toBeVisible();
 });`,
       },
+      {
+        type: 'step-animation',
+        title: { tr: 'Bu Test Aslında 3 Fazda mı Çalışır: Arrange → Act → Assert?', en: 'This Test Actually Runs in 3 Phases: Arrange → Act → Assert' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'Arrange fazı: page.goto(\'/login\')…', en: 'Arrange phase: page.goto(\'/login\')…' }, detail: { tr: 'Arrange fazı: page.goto(\'/login\') sadece URL değiştirmekle kalmaz, sayfa "load" event\'ini fırlatana kadar bekler — bu yüzden bir sonraki satırda formu ARAMAK güvenlidir.', en: 'Arrange phase: page.goto(\'/login\') doesn\'t just change the URL, it waits until the page fires its "load" event — that\'s why the next line can safely search for the form.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'Act fazı: fill() ve click() sırayla…', en: 'Act phase: fill() and click() run…' }, detail: { tr: 'Act fazı: fill() ve click() sırayla ve her biri kendi actionability kontrolünü bekleyerek çalışır — email yazılmadan şifre alanına geçilmez, buton disabled\'sa click BEKLER.', en: 'Act phase: fill() and click() run in order, each waiting on its own actionability check — the password field isn\'t touched before email is filled, and click WAITS if the button is disabled.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Assert fazı: expect(page).toHaveURL(\'/dashboard\')…', en: 'Assert phase: expect(page).toHaveURL(\'/dashboard\')…' }, detail: { tr: 'Assert fazı: expect(page).toHaveURL(\'/dashboard\') TEK SEFERLİK bir kontrol değildir — varsayılan 5 saniye boyunca URL\'nin değişmesini POLL eder (auto-retrying assertion), Selenium\'daki manuel WebDriverWait\'in yerini alır.', en: 'Assert phase: expect(page).toHaveURL(\'/dashboard\') is NOT a one-shot check — it polls for up to 5 seconds by default (an auto-retrying assertion), replacing the manual WebDriverWait you\'d write in Selenium.' } },
+          { id: 4, icon: '4️⃣', label: { tr: '5 saniye içinde URL değişmezse…', en: 'If the URL never changes within 5 seconds…' }, detail: { tr: '5 saniye içinde URL değişmezse test FAIL olur ve hata mesajında "beklenen /dashboard, gerçekte hâlâ /login" gibi son ölçülen değeri gösterir — debug için ekstra log eklemene gerek kalmaz.', en: 'If the URL never changes within 5 seconds, the test FAILs and the error message shows the last observed value, like "expected /dashboard, actual still /login" — no extra logging needed for debugging.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Üç faz açıkça yorumla ayrıldığı için…', en: 'Because the three phases are clearly commented…' }, detail: { tr: 'Üç faz açıkça yorumla ayrıldığı için code review\'da bir bug\'ın "hazırlıkta mı, eylemde mi, doğrulamada mı" olduğu saniyeler içinde anlaşılır — bu, büyük bir test suite\'inde debug süresini doğrudan kısaltır.', en: 'Because the three phases are clearly commented, a code reviewer can tell within seconds whether a bug is in setup, the action, or the check — this directly cuts debugging time in a large test suite.' } },
+        ],
+      },
       testLifecycleFilm,
       { type: 'heading', text: 'Grouping with describe + Hooks' },
       {
@@ -5105,6 +5228,17 @@ test('successful login redirects to dashboard', async ({ page }) => {
     await expect(page.getByRole('list', { name: 'Recent Orders' })).toBeVisible();
   });
 });`,
+      },
+      {
+        type: 'step-animation',
+        title: { tr: 'beforeEach Her Test İçin Neden Baştan Çalışır?', en: 'Why Does beforeEach Run From Scratch for Every Test?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'Playwright test.describe(\'Dashboard\') içindeki 2 testi bulur…', en: 'Playwright finds the 2 tests inside test.describe(\'Dashboard\')…' }, detail: { tr: 'Playwright test.describe(\'Dashboard\') içindeki 2 testi bulur — henüz hiçbiri çalışmadı, sadece hangi testlerin bu gruba ait olduğu belirlendi.', en: 'Playwright finds the 2 tests inside test.describe(\'Dashboard\') — neither has run yet, it just identifies which tests belong to this group.' } },
+          { id: 2, icon: '2️⃣', label: { tr: '1. test başlamadan hemen önce beforeEach TAMAMEN baştan çalışır…', en: 'Right before test 1, beforeEach runs COMPLETELY from scratch…' }, detail: { tr: '1. test başlamadan hemen önce beforeEach TAMAMEN baştan çalışır — page.goto(\'/login\') ve tüm login adımları sıfırdan yapılır, ÖNCEKİ hiçbir state yeniden kullanılmaz.', en: 'Right before test 1, beforeEach runs COMPLETELY from scratch — page.goto(\'/login\') and all login steps happen fresh, NO previous state is reused.' } },
+          { id: 3, icon: '3️⃣', label: { tr: '"hoş geldin mesajı" testi kendi TAZE page\'i üzerinde çalışır…', en: 'The "welcome message" test runs on its own FRESH page…' }, detail: { tr: '"hoş geldin mesajı" testi kendi TAZE page\'i üzerinde çalışır ve sonucu (PASS/FAIL) bağımsız olarak kaydedilir.', en: 'The "welcome message" test runs on its own FRESH page and its result (PASS/FAIL) is recorded independently.' } },
+          { id: 4, icon: '4️⃣', label: { tr: '2. test başlamadan önce beforeEach YİNE baştan çalışır…', en: 'Before test 2, beforeEach runs AGAIN from scratch…' }, detail: { tr: '2. test başlamadan önce beforeEach YİNE baştan çalışır — 1. testin page\'i, cookie\'leri veya login state\'i 2. teste ASLA aktarılmaz.', en: 'Before test 2, beforeEach runs AGAIN from scratch — test 1\'s page, cookies, or login state are NEVER carried over to test 2.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Bu tekrar çalıştırma sayesinde bir test diğerini etkileyemez…', en: 'Because of this re-run, one test can never affect another…' }, detail: { tr: 'Bu tekrar çalıştırma sayesinde bir test diğerini etkileyemez — testler farklı worker\'lara paralel dağıtılsa bile her biri KENDİ bağımsız ortamında, aynı hazırlıkla başlar.', en: 'Because of this re-run, one test can never affect another — even when tests are distributed to different workers in parallel, each one starts in its OWN independent environment with the same setup.' } },
+        ],
       },
       {
         type: 'table',
@@ -6068,6 +6202,17 @@ projects: [
 // Sadece bir tarayıcıda bilinen sorun varsa
 test.skip(browserName === 'webkit', 'Safari\\'de henüz desteklenmiyor — bkz. JIRA-482');`,
       },
+      {
+        type: 'step-animation',
+        title: { tr: 'devices[\'Pixel 5\'] Tek Satırda Aslında Neyi Simüle Eder?', en: 'What Does devices[\'Pixel 5\'] Actually Simulate in One Line?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'devices[\'Pixel 5\'] tek satırda…', en: 'devices[\'Pixel 5\'] sets…' }, detail: { tr: 'devices[\'Pixel 5\'] tek satırda viewport genişliği/yüksekliğini, user-agent string\'ini, touch desteğini ve device pixel ratio\'yu AYNI ANDA ayarlar — elle 4 ayrı config satırı yazmana gerek kalmaz.', en: 'devices[\'Pixel 5\'] sets viewport width/height, the user-agent string, touch support, and device pixel ratio ALL AT ONCE — you don\'t write 4 separate config lines by hand.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'Bu profil projects dizisine eklenince…', en: 'Once this profile is added to projects…' }, detail: { tr: 'Bu profil projects dizisine \'Mobile Chrome\' adıyla eklenince, npx playwright test --project="Mobile Chrome" ile SADECE bu profil çalıştırılır — diğer project\'ler etkilenmez.', en: 'Once this profile is added to projects as \'Mobile Chrome\', npx playwright test --project="Mobile Chrome" runs ONLY this profile — the other projects are unaffected.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Sayfadaki CSS media query\'ler…', en: 'CSS media queries on the page…' }, detail: { tr: 'Sayfadaki CSS media query\'ler (örn. max-width: 768px) bu sahte viewport\'a göre GERÇEKTEN tetiklenir — bu bir screenshot yeniden boyutlandırma değil, tarayıcı motoru gerçek bir mobil layout hesaplar.', en: 'CSS media queries on the page (e.g. max-width: 768px) are REALLY triggered against this fake viewport — this isn\'t a screenshot resize, the browser engine genuinely computes a mobile layout.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'test.skip(browserName === \'webkit\', ...) satırı…', en: 'The test.skip(browserName === \'webkit\', ...) line…' }, detail: { tr: 'test.skip(browserName === \'webkit\', ...) satırı test BAŞLAMADAN ÖNCE değerlendirilir — koşul true ise test hiç çalışmaz, raporda "skipped" görünür, FAIL olarak SAYILMAZ.', en: 'The test.skip(browserName === \'webkit\', ...) line is evaluated BEFORE the test starts — if the condition is true, the test never runs, it shows as "skipped" in the report, and it does NOT count as a FAIL.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Skip nedeni (JIRA-482) rapora yazılır…', en: 'The skip reason (JIRA-482) is written into the report…' }, detail: { tr: 'Skip nedeni (JIRA-482) rapora yazılır — bu, 6 ay sonra rapora bakan başka bir mühendisin bile "neden atlandı" sorusunu anında cevaplamasını sağlar.', en: 'The skip reason (JIRA-482) is written into the report — this lets even another engineer looking at the report 6 months later instantly answer "why was this skipped".' } },
+        ],
+      },
       { type: 'heading', text: 'GitHub Actions ile CI/CD' },
       {
         type: 'code', language: 'yaml',
@@ -6244,6 +6389,17 @@ projects: [
 
 // Skip a test only when a browser has a known issue
 test.skip(browserName === 'webkit', 'Not supported in Safari yet — see JIRA-482');`,
+      },
+      {
+        type: 'step-animation',
+        title: { tr: 'devices[\'Pixel 5\'] Tek Satırda Aslında Neyi Simüle Eder?', en: 'What Does devices[\'Pixel 5\'] Actually Simulate in One Line?' },
+        steps: [
+          { id: 1, icon: '1️⃣', label: { tr: 'devices[\'Pixel 5\'] tek satırda…', en: 'devices[\'Pixel 5\'] sets…' }, detail: { tr: 'devices[\'Pixel 5\'] tek satırda viewport genişliği/yüksekliğini, user-agent string\'ini, touch desteğini ve device pixel ratio\'yu AYNI ANDA ayarlar — elle 4 ayrı config satırı yazmana gerek kalmaz.', en: 'devices[\'Pixel 5\'] sets viewport width/height, the user-agent string, touch support, and device pixel ratio ALL AT ONCE — you don\'t write 4 separate config lines by hand.' } },
+          { id: 2, icon: '2️⃣', label: { tr: 'Bu profil projects dizisine eklenince…', en: 'Once this profile is added to projects…' }, detail: { tr: 'Bu profil projects dizisine \'Mobile Chrome\' adıyla eklenince, npx playwright test --project="Mobile Chrome" ile SADECE bu profil çalıştırılır — diğer project\'ler etkilenmez.', en: 'Once this profile is added to projects as \'Mobile Chrome\', npx playwright test --project="Mobile Chrome" runs ONLY this profile — the other projects are unaffected.' } },
+          { id: 3, icon: '3️⃣', label: { tr: 'Sayfadaki CSS media query\'ler…', en: 'CSS media queries on the page…' }, detail: { tr: 'Sayfadaki CSS media query\'ler (örn. max-width: 768px) bu sahte viewport\'a göre GERÇEKTEN tetiklenir — bu bir screenshot yeniden boyutlandırma değil, tarayıcı motoru gerçek bir mobil layout hesaplar.', en: 'CSS media queries on the page (e.g. max-width: 768px) are REALLY triggered against this fake viewport — this isn\'t a screenshot resize, the browser engine genuinely computes a mobile layout.' } },
+          { id: 4, icon: '4️⃣', label: { tr: 'test.skip(browserName === \'webkit\', ...) satırı…', en: 'The test.skip(browserName === \'webkit\', ...) line…' }, detail: { tr: 'test.skip(browserName === \'webkit\', ...) satırı test BAŞLAMADAN ÖNCE değerlendirilir — koşul true ise test hiç çalışmaz, raporda "skipped" görünür, FAIL olarak SAYILMAZ.', en: 'The test.skip(browserName === \'webkit\', ...) line is evaluated BEFORE the test starts — if the condition is true, the test never runs, it shows as "skipped" in the report, and it does NOT count as a FAIL.' } },
+          { id: 5, icon: '5️⃣', label: { tr: 'Skip nedeni (JIRA-482) rapora yazılır…', en: 'The skip reason (JIRA-482) is written into the report…' }, detail: { tr: 'Skip nedeni (JIRA-482) rapora yazılır — bu, 6 ay sonra rapora bakan başka bir mühendisin bile "neden atlandı" sorusunu anında cevaplamasını sağlar.', en: 'The skip reason (JIRA-482) is written into the report — this lets even another engineer looking at the report 6 months later instantly answer "why was this skipped".' } },
+        ],
       },
       { type: 'heading', text: 'CI/CD with GitHub Actions' },
       {
