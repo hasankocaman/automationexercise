@@ -658,6 +658,45 @@ const brunoCiExitCodeSteps = {
   ],
 }
 
+const brunoAssertTabStep = {
+  type: 'step-animation',
+  id: 'bruno-assert-tab-step-01',
+  title: { tr: "res.status: eq 200 Satırı JavaScript Yazmadan Nasıl Çalışır?", en: 'How Does res.status: eq 200 Work Without Writing JavaScript?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Assert tab, YAZILI her satırı…', en: 'The Assert tab reads every line…' }, detail: { tr: "Assert tab, YAZILI her satırı kendi ÖZEL mini-dilinde OKUR — res.status: eq 200 gerçek JavaScript DEĞİLDİR, Bruno'nun İÇSEL olarak yorumladığı bir KARŞILAŞTIRMA ifadesidir.", en: "The Assert tab READS every written line in its OWN mini-language — res.status: eq 200 is NOT real JavaScript, it's a COMPARISON expression Bruno INTERPRETS internally." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'eq, lt, gt gibi operatörler…', en: 'Operators like eq, lt, gt…' }, detail: { tr: "eq, lt, gt gibi operatörler ÖNCEDEN TANIMLI bir KÜMEDİR — yeni bir operatör İCAT edemezsin, sadece Bruno'nun DESTEKLEDİĞİ birkaç karşılaştırma türünü KULLANABİLİRSİN.", en: "Operators like eq, lt, gt are a PREDEFINED set — you cannot INVENT a new operator, you can only USE the handful of comparison types Bruno SUPPORTS." } },
+    { id: 3, icon: '3️⃣', label: { tr: 'res.body.email: contains @ satırı…', en: 'res.body.email: contains @…' }, detail: { tr: 'res.body.email: contains @ satırı, yanıt gövdesindeki email ALANININ İÇİNDE "@" karakterinin GEÇİP GEÇMEDİĞİNİ kontrol eder — TAM eşleşme değil, KISMİ bir metin arama YAPAR.', en: 'res.body.email: contains @ checks WHETHER the "@" character APPEARS INSIDE the email field of the response body — not an EXACT match, a PARTIAL text search.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'res.responseTime: lt 500 ise…', en: 'res.responseTime: lt 500 compares…' }, detail: { tr: "res.responseTime: lt 500 ise Bruno'nun KENDİSİNİN ölçtüğü GERÇEK yanıt süresini (milisaniye) 500 ile KARŞILAŞTIRIR — bu değer sunucudan GELMEZ, istemci tarafında HESAPLANIR.", en: "res.responseTime: lt 500 COMPARES the ACTUAL response time (in milliseconds) that Bruno ITSELF measured against 500 — this value doesn't COME from the server, it's CALCULATED client-side." } },
+    { id: 5, icon: '5️⃣', label: { tr: 'Bu satırların HER BİRİ BAĞIMSIZ…', en: 'EACH of these lines is an INDEPENDENT…' }, detail: { tr: "Bu satırların HER BİRİ BAĞIMSIZ bir assertion'dır — biri FAIL olsa bile diğerleri ÇALIŞMAYA devam eder, ve TÜM sonuçlar tek bir run raporunda TOPLU olarak GÖSTERİLİR.", en: "EACH of these lines is an INDEPENDENT assertion — even if one FAILS, the others keep RUNNING, and ALL results are shown TOGETHER in a single run report." } },
+  ],
+}
+
+const brunoRunScopeStep = {
+  type: 'step-animation',
+  id: 'bruno-run-scope-step-01',
+  title: { tr: 'bru run collections/users/get.bru Üç Farklı Kapsamda Neyi Çalıştırır?', en: 'What Does bru run collections/users/get.bru Actually Run at Three Different Scopes?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'bru run collections/users/get.bru --env dev…', en: 'bru run collections/users/get.bru --env dev…' }, detail: { tr: "bru run collections/users/get.bru --env dev, TEK bir .bru dosyasını HEDEF alır — sadece o istek GÖNDERİLİR, klasördeki DİĞER istekler ETKİLENMEZ.", en: "bru run collections/users/get.bru --env dev TARGETS a SINGLE .bru file — only that request is SENT, the OTHER requests in the folder are UNAFFECTED." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'bru run collections/users --env dev ise…', en: 'bru run collections/users --env dev instead…' }, detail: { tr: "bru run collections/users --env dev ise bir KLASÖRÜ hedef alır — o klasördeki TÜM .bru dosyaları SIRAYLA çalıştırılır, her biri kendi assertion'larıyla DEĞERLENDİRİLİR.", en: "bru run collections/users --env dev instead TARGETS a FOLDER — EVERY .bru file in that folder RUNS in sequence, each EVALUATED against its own assertions." } },
+    { id: 3, icon: '3️⃣', label: { tr: 'bru run --env dev (yol BELİRTİLMEDEN)…', en: 'bru run --env dev with NO path…' }, detail: { tr: "bru run --env dev (yol BELİRTİLMEDEN) çalıştırıldığında, o an bulunduğun KOLEKSİYONUN TAMAMI çalıştırılır — CI pipeline'ında genelde bu SON form kullanılır.", en: "Running bru run --env dev with NO path RUNS the ENTIRE collection you're currently in — CI pipelines usually use this LAST form." } },
+    { id: 4, icon: '4️⃣', label: { tr: '--env dev bayrağı…', en: 'The --env dev flag…' }, detail: { tr: "--env dev bayrağı, HANGİ ortam değişkenleri setinin (baseUrl, token gibi) kullanılacağını BELİRLER — aynı .bru dosyaları --env staging ile TAMAMEN farklı bir sunucuya GİDEBİLİR.", en: "The --env dev flag DETERMINES which environment variable set (baseUrl, token, etc.) gets used — the SAME .bru files can HIT a COMPLETELY different server with --env staging." } },
+    { id: 5, icon: '5️⃣', label: { tr: 'Üç komut da AYNI .bru dosyalarını…', en: 'All three commands read the SAME…' }, detail: { tr: "Üç komut da AYNI .bru dosyalarını okur, sadece KAPSAMLARI farklıdır — bu, Java'da tek bir test metodu, bir test class'ı veya TÜM test suite'ini ÇALIŞTIRMAK arasındaki farka BENZER.", en: "All three commands read the SAME .bru files, only their SCOPE differs — this RESEMBLES the difference between running ONE Java test method, a test class, or the WHOLE test suite." } },
+  ],
+}
+
+const brunoReportersStep = {
+  type: 'step-animation',
+  id: 'bruno-reporters-step-01',
+  title: { tr: '--reporter-junit Neden CI İçin, --reporter-html Neden İnsan İçin?', en: 'Why Is --reporter-junit for CI, and --reporter-html for Humans?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'bru run --env dev --reporter-junit results.xml…', en: 'bru run --env dev --reporter-junit results.xml…' }, detail: { tr: "bru run --env dev --reporter-junit results.xml çalıştırıldığında, SONUÇLAR JUnit XML FORMATINDA bir dosyaya YAZILIR — bu format Java dünyasından GELİR ve HEMEN HEMEN her CI aracı (Jenkins, GitHub Actions) bunu NATIVE olarak OKUYABİLİR.", en: "Running bru run --env dev --reporter-junit results.xml WRITES the results into a JUnit XML FORMATTED file — this format COMES from the Java world and ALMOST every CI tool (Jenkins, GitHub Actions) can read it NATIVELY." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'CI aracı bu XML\'i OKUYUNCA…', en: 'Once the CI tool READS this XML…' }, detail: { tr: "CI aracı bu XML'i OKUYUNCA, hangi testin GEÇTİĞİNİ/BAŞARISIZ olduğunu PR ekranında veya build panosunda GÖRSEL bir ÖZET olarak GÖSTEREBİLİR — ham terminal logunu OKUMANA gerek KALMAZ.", en: "Once the CI tool READS this XML, it can SHOW which test PASSED/FAILED as a VISUAL summary right on the PR screen or build dashboard — you don't NEED to READ the raw terminal log." } },
+    { id: 3, icon: '3️⃣', label: { tr: '--reporter-html report.html ise…', en: '--reporter-html report.html instead…' }, detail: { tr: "--reporter-html report.html ise TAMAMEN farklı bir hedef için TASARLANMIŞTIR: bir İNSANIN tarayıcıda AÇIP OKUYACAĞI, renkli ve GEZİLEBİLİR bir rapor ÜRETİR.", en: "--reporter-html report.html instead is DESIGNED for a COMPLETELY different target: it PRODUCES a colorful, browsable report meant for a HUMAN to OPEN in a browser." } },
+    { id: 4, icon: '4️⃣', label: { tr: '--reporter-json results.json…', en: '--reporter-json results.json…' }, detail: { tr: "--reporter-json results.json, ham SONUÇLARI yapılandırılmış bir veri FORMATINDA verir — bunu KENDİ dashboard'una veya BAŞKA bir aracın veri işleme HATTINA BESLEYEBİLİRSİN.", en: "--reporter-json results.json gives the raw RESULTS in a structured data FORMAT — you can FEED this into YOUR OWN dashboard or ANOTHER tool's data pipeline." } },
+    { id: 5, icon: '5️⃣', label: { tr: 'Aynı bru run komutuna BİRDEN FAZLA…', en: 'Adding MULTIPLE --reporter flags…' }, detail: { tr: "Aynı bru run komutuna BİRDEN FAZLA --reporter bayrağı EKLEYEREK, TEK bir çalıştırmadan üç FARKLI formatta rapor AYNI ANDA ÜRETEBİLİRSİN — CI için XML, insan için HTML, dashboard için JSON.", en: "Adding MULTIPLE --reporter flags to the SAME bru run command lets you PRODUCE three DIFFERENT report formats from ONE run AT ONCE — XML for CI, HTML for humans, JSON for a dashboard." } },
+  ],
+}
+
 const brunoTestAutomationPractice = {
   type: 'code-playground',
   relatedTopicId: 'bruno-test-automation',
@@ -1505,6 +1544,7 @@ script:post-response {
 res.body.email: contains @    // simple substring check
 res.responseTime: lt 500      // must respond under 500ms`,
           },
+          brunoAssertTabStep,
           {
             type: 'code',
             language: 'javascript',
@@ -1532,6 +1572,7 @@ test("every user has a valid email", function() {
 bru run collections/users --env dev           # whole folder
 bru run --env dev                             # entire collection`,
           },
+          brunoRunScopeStep,
           {
             type: 'diagram-svg',
             title: 'bru run in the Terminal — Pass/Fail Output',
@@ -1550,6 +1591,7 @@ bru run --env dev                             # entire collection`,
 bru run --env dev --reporter-html report.html     # for humans
 bru run --env dev --reporter-json results.json    # for custom dashboards`,
           },
+          brunoReportersStep,
           { type: 'heading', text: `Wiring It Into GitHub Actions` },
           {
             type: 'code',
@@ -2234,6 +2276,7 @@ script:post-response {
 res.body.email: contains @    // basit alt-string kontrolü
 res.responseTime: lt 500      // 500ms'den hızlı olmalı`,
           },
+          brunoAssertTabStep,
           {
             type: 'code',
             language: 'javascript',
@@ -2261,6 +2304,7 @@ test("every user has a valid email", function() {
 bru run collections/users --env dev           # tüm klasör
 bru run --env dev                             # tüm collection`,
           },
+          brunoRunScopeStep,
           {
             type: 'diagram-svg',
             title: 'Terminalde bru run — Pass/Fail Çıktısı',
@@ -2279,6 +2323,7 @@ bru run --env dev                             # tüm collection`,
 bru run --env dev --reporter-html report.html     # insanlar için
 bru run --env dev --reporter-json results.json    # özel dashboard'lar için`,
           },
+          brunoReportersStep,
           { type: 'heading', text: `GitHub Actions'a Bağlamak` },
           {
             type: 'code',

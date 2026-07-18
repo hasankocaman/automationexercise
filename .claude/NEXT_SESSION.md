@@ -118,12 +118,42 @@ CLAUDE.md §8'de bahsedilen mekanizma budur). 3 yeni step-animation:
 - Section 06 (Rebase & Advanced): `git log <branch> --oneline -N` başka bir branch'in geçmişini nasıl listeler (cherry-pick hazırlık adımı)
 
 **Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
-git` deficit:0 ✓ + `npm run build` (commit sonrası doğrulanacak).
+git` deficit:0 ✓ + `npm run build` yeşil ✓ (1dk 23sn).
 
-**Sıradaki:** bruno (3 açık) → llm-agents (3). python (17 açık) Fable'a
-ayrılmış, bu oturumun kapsamı dışında. Tüm sayfalar bitince kullanıcı
-talimatıyla `Documents/animation-per-topic-plan.md` incelenip yapılan işin
-plana uygunluğu doğrulanacak.
+**bruno (3 açık → 0):** `src/data/brunoData.js` (çift ağaç, EN/TR ayrı literal
+`sections`, kod yorumları TR ağacında zaten Türkçe). 3 yeni step-animation
+(hepsi section 3 "Test Automation — Assertions, CLI & CI/CD" içinde):
+- Assert tab (`res.status: eq 200` gibi no-JS satırlar) nasıl bir mini-dil olarak yorumlanır
+- `bru run` komutunun tek istek/klasör/tüm koleksiyon kapsamları arasındaki fark
+- `--reporter-junit`/`--reporter-html`/`--reporter-json` neden farklı hedef kitleler (CI/insan/dashboard) için var
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
+bruno` deficit:0 ✓ + `npm run build` yeşil ✓.
+
+**llm-agents (3 açık → 0):** `src/data/llmAgentsData.js` (çift ağaç, EN/TR ayrı
+literal `sections`, `code` alanları `{tr,en}` bilingual — `fillMissingCodeTrios`
+YOK, elle yazım). 3 yeni step-animation, paylaşılan const olarak dosya başında
+tanımlanıp iki ağaca da eklendi:
+- Section 09 (OpenAI API first call): statik örnek çıktının GERÇEK bir API çağrısından neden farklı olduğu (LLM determinizm eksikliği + esnek assertion yazma dersi)
+- Section 10 (Build Your Own Test Agent): `with open(...) as f:` dosya okuma mekanizması + LLM'in bir tool çağrısını "istemesi" ile kodun GERÇEKTEN çalıştırılması arasındaki fark (whitelist güvenlik sınırı)
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
+llm-agents` deficit:0 ✓ + `npm run build` (commit sonrası doğrulanacak).
+
+## 🎉 DALGA A8 TAMAMLANDI (2026-07-18) — animation-per-topic Haiku/Sonnet payı BİTTİ
+
+Bu oturumda sırayla kapatılan 9 sayfa: playwright(7) → sql(7) → linux(6) →
+javascript(5) → browserstack(5) → claude-ai(5) → git(3) → bruno(3) →
+llm-agents(3) = **44 kod-bloğu-başına animasyon açığı kapatıldı, tamamı
+deficit:0**. `node scripts/audit-animation-coverage.mjs` artık proje genelinde
+**SADECE python (17 açık, Fable'a ayrılmış)** gösteriyor — bu oturumun
+kapsamındaki HER şey bitti.
+
+**Kalan iş (plan §5 "Tamamlanma Tanımı"):**
+1. `pythonData.js` (17 açık) — SADECE Fable, applyTr index-kayması riski nedeniyle.
+2. Dalga B — 18 eksik `order-sort` bloğu (plan §1.2/§4.3), bu oturumda YAPILMADI.
+3. Kullanıcı talimatıyla: iş bitince `Documents/animation-per-topic-plan.md`
+   incelenip bu oturumdaki uygulamanın plana uygunluğu doğrulanacak (sıradaki adım).
 
 ---
 
