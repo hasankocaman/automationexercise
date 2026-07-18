@@ -87,8 +87,17 @@ step-animation:
 javascript` deficit:0 ✓ + `npm run build` yeşil ✓ (build bu oturumda bir kez
 10 dakika sürdü — sistem yükü nedeniyle, kalıcı bir regresyon değil).
 
-**Sıradaki:** browserstack (5 açık) → claude-ai (5) → git (3) → bruno (3) →
-llm-agents (3). python (17 açık) Fable'a ayrılmış, bu oturumun kapsamı dışında.
+**browserstack (5 açık → 0):** `src/data/browserstackData.js` (TEK ağaçlı,
+javascript ile aynı desen). 5 yeni step-animation:
+- Section 01 (Setup & Account Configuration): `.env` dosyasındaki credential'ların `os.environ` ile kod'a nasıl ulaştığı + neden asla git'e commit edilmemesi gerektiği
+- Section 02 (Selenium Integration): `browserstack-sdk pytest` komutunun WebDriver çağrısını nasıl intercept ettiği + manuel `RemoteWebDriver`/`bstack:options` akışı (2 animasyon)
+- Section 03 (Playwright Integration): `browserstack.yml`'deki `playwright-webkit`/`playwrightVersion` alanlarının anlamı + `-n auto` bayrağının paralel worker/session dağıtımı (2 animasyon)
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
+browserstack` deficit:0 ✓ + `npm run build` yeşil ✓.
+
+**Sıradaki:** claude-ai (5 açık) → git (3) → bruno (3) → llm-agents (3).
+python (17 açık) Fable'a ayrılmış, bu oturumun kapsamı dışında.
 
 ---
 

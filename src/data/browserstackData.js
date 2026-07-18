@@ -1079,6 +1079,18 @@ BROWSERSTACK_ACCESS_KEY=your_access_key    # BS erişim anahtarı
 # username = os.environ["BROWSERSTACK_USERNAME"]`
     },
     {
+      type: 'step-animation',
+      id: 'browserstack-env-secret-step-01',
+      title: { tr: '.env Dosyasındaki Değerler Koda Nasıl Ulaşır?', en: 'How Do .env Values Actually Reach the Code?' },
+      steps: [
+        { id: 1, icon: '1️⃣', label: { tr: '.env dosyası SADECE düz metin…', en: '.env is JUST a plain-text file…' }, detail: { tr: '.env dosyası SADECE düz metin KEY=value satırları içerir — kendi başına HİÇBİR ŞEY yapmaz, Python bunu otomatik OKUMAZ, bir kütüphane (örn. python-dotenv) veya CI sistemi tarafından YÜKLENMESİ gerekir.', en: '.env is JUST a plain-text file of KEY=value lines — it does NOTHING by itself, Python does NOT read it automatically, it must be LOADED by a library (e.g. python-dotenv) or the CI system.' } },
+        { id: 2, icon: '2️⃣', label: { tr: 'CI/CD ortamında bu değerler DOSYA olarak DEĞİL…', en: 'In CI/CD these values are NOT a file…' }, detail: { tr: 'CI/CD ortamında (GitHub Actions Secrets, Jenkins Credentials) bu değerler DOSYA olarak DEĞİL, doğrudan process\'in environment\'ına (os.environ) ENJEKTE edilir — .env dosyası genelde sadece LOCAL geliştirme için kullanılır.', en: 'In CI/CD (GitHub Actions Secrets, Jenkins Credentials), these values are INJECTED directly into the process\'s environment (os.environ), NOT as a file — .env is usually only used for LOCAL development.' } },
+        { id: 3, icon: '3️⃣', label: { tr: 'os.environ["BROWSERSTACK_USERNAME"] çağrıldığında…', en: 'Calling os.environ["BROWSERSTACK_USERNAME"]…' }, detail: { tr: 'Python kodunda os.environ["BROWSERSTACK_USERNAME"] çağrıldığında, işletim sistemi o ANDA process\'in ortam değişkenleri tablosuna BAKAR — değer KAYNAK KODUNDA hiçbir yerde YAZILI değildir.', en: 'Calling os.environ["BROWSERSTACK_USERNAME"] in Python makes the OS LOOK UP the process\'s environment table AT THAT MOMENT — the value is NEVER WRITTEN anywhere in the source code.' } },
+        { id: 4, icon: '4️⃣', label: { tr: '.env dosyası .gitignore\'a EKLENMEDİĞİNDE…', en: 'If .env is NOT added to .gitignore…' }, detail: { tr: '.env dosyası .gitignore\'a EKLENMEDİĞİNDE, git bu dosyayı TAKİP etmeye başlar ve bir sonraki commit\'te ACCESS_KEY GitHub\'a yüklenmiş olur — bu, gerçek dünyada en sık yaşanan credential sızıntısı senaryosudur.', en: 'If .env is NOT added to .gitignore, git starts TRACKING the file and the next commit UPLOADS the ACCESS_KEY to GitHub — this is the most common real-world credential leak scenario.' } },
+        { id: 5, icon: '5️⃣', label: { tr: 'Bir key SIZDIĞINDA…', en: 'When a key LEAKS…' }, detail: { tr: 'Bir key SIZDIĞINDA, BrowserStack Dashboard\'dan yenilemek ESKİ key\'i ANINDA geçersiz kılar — sızan key\'i "sonra değiştiririm" diye ERTELEMEK, o anahtarla sınırsız test dakikası HARCANABİLECEĞİ anlamına gelir.', en: 'When a key LEAKS, regenerating it from the BrowserStack Dashboard INVALIDATES the OLD key INSTANTLY — POSTPONING rotation of a leaked key means anyone holding it can BURN through your test minutes.' } },
+      ],
+    },
+    {
       type: 'callout',
       color: 'orange',
       emoji: '⚠️',
@@ -1230,6 +1242,18 @@ def test_login_page(driver):
     assert "Login" in title, f"Wrong title: {title}"  # Verify` }
     },
     {
+      type: 'step-animation',
+      id: 'browserstack-sdk-intercept-step-01',
+      title: { tr: 'Test Kodun Hiç Değişmeden Buluta Nasıl Taşınır?', en: 'How Does Your Test Code Move to the Cloud With Zero Changes?' },
+      steps: [
+        { id: 1, icon: '1️⃣', label: { tr: 'webdriver.Chrome(options=options) satırı…', en: 'webdriver.Chrome(options=options) LOOKS…' }, detail: { tr: 'webdriver.Chrome(options=options) satırı YEREL bir ChromeDriver başlatıyormuş gibi GÖRÜNÜR — kod SEVİYESİNDE hiçbir BrowserStack referansı YOKTUR.', en: 'webdriver.Chrome(options=options) LOOKS like it starts a LOCAL ChromeDriver — there is NO BrowserStack reference anywhere at the CODE level.' } },
+        { id: 2, icon: '2️⃣', label: { tr: 'browserstack-sdk pytest ... komutuyla…', en: 'Running via browserstack-sdk pytest ...…' }, detail: { tr: 'browserstack-sdk pytest ... komutuyla çalıştırıldığında SDK, pytest\'in İÇİNE bir "interceptor" olarak GİRER — webdriver.Chrome() çağrısını YAKALAR ve arkada RemoteWebDriver bağlantısına DÖNÜŞTÜRÜR.', en: 'Running via browserstack-sdk pytest ... makes the SDK INJECT itself as an "interceptor" INSIDE pytest — it CATCHES the webdriver.Chrome() call and TRANSFORMS it into a RemoteWebDriver connection behind the scenes.' } },
+        { id: 3, icon: '3️⃣', label: { tr: 'driver = webdriver.Chrome(...) satırı böylece…', en: 'driver = webdriver.Chrome(...) thus opens…' }, detail: { tr: 'driver = webdriver.Chrome(...) satırı böylece HİÇBİR ŞEY DEĞİŞMEDEN, gerçekte hub.browserstack.com\'a bir SESSION AÇAR — test kodu bunun FARKINDA bile DEĞİLDİR.', en: 'So driver = webdriver.Chrome(...) actually OPENS a SESSION against hub.browserstack.com WITHOUT anything changing — the test code isn\'t even AWARE of it.' } },
+        { id: 4, icon: '4️⃣', label: { tr: 'yield driver ile testin GÖVDESİ çalışır…', en: 'yield driver runs the test BODY…' }, detail: { tr: 'yield driver ile testin GÖVDESİ çalışır, driver.quit() çağrıldığında SDK bu session\'ı KAPATIR ve sonucu (PASS/FAIL) BrowserStack Dashboard\'a YAZAR.', en: 'yield driver runs the test BODY, and when driver.quit() is called the SDK CLOSES that session and WRITES the result (PASS/FAIL) to the BrowserStack Dashboard.' } },
+        { id: 5, icon: '5️⃣', label: { tr: 'Bu mekanizma sayesinde YÜZLERCE mevcut test…', en: 'Thanks to this mechanism, HUNDREDS of tests…' }, detail: { tr: 'Bu mekanizma sayesinde YÜZLERCE mevcut Selenium testi TEK satır komut değişikliğiyle (python -m pytest yerine browserstack-sdk pytest) buluta taşınabilir — test dosyalarının HİÇBİRİNE dokunulmaz.', en: 'Thanks to this mechanism, HUNDREDS of existing Selenium tests can move to the cloud with a ONE-LINE command change (browserstack-sdk pytest instead of python -m pytest) — NONE of the test files are ever touched.' } },
+      ],
+    },
+    {
       type: 'code',
       language: 'Bash',
       content: { tr: '# SDK ile çalıştır — test kodu değişmedi', en: '# Run with SDK — test code unchanged' },
@@ -1319,6 +1343,18 @@ driver = get_bs_driver("Checkout Flow Test")
 driver.get("https://shop.example.com")
 print(driver.title)
 driver.quit()` }
+    },
+    {
+      type: 'step-animation',
+      id: 'browserstack-remote-driver-step-01',
+      title: { tr: 'get_bs_driver() Fonksiyonu bstack:options\'ı Nasıl İletir?', en: 'How Does get_bs_driver() Actually Deliver bstack:options?' },
+      steps: [
+        { id: 1, icon: '1️⃣', label: { tr: 'bs_options sözlüğü, BrowserStack\'e ÖZEL…', en: 'The bs_options dict gathers ALL BrowserStack-specific…' }, detail: { tr: 'bs_options sözlüğü, BrowserStack\'e ÖZEL tüm ayarları (kullanıcı adı, işletim sistemi, video kaydı) TEK bir yapı altında TOPLAR — bunlar Selenium\'un standart capability\'leri DEĞİLDİR.', en: 'The bs_options dict GATHERS every BrowserStack-specific setting (username, OS, video recording) under ONE structure — these are NOT Selenium\'s standard capabilities.' } },
+        { id: 2, icon: '2️⃣', label: { tr: 'options.set_capability("bstack:options", bs_options)…', en: 'options.set_capability("bstack:options", bs_options)…' }, detail: { tr: 'options.set_capability("bstack:options", bs_options) çağrısı, bu sözlüğü Selenium\'un STANDART ChromeOptions nesnesine "bstack:options" adlı ÖZEL bir anahtar altında EKLER — BrowserStack sunucusu bu anahtarı TANIR, diğer sunucular YOK SAYAR.', en: 'options.set_capability("bstack:options", bs_options) ADDS this dict into Selenium\'s STANDARD ChromeOptions object under a SPECIAL key named "bstack:options" — the BrowserStack server RECOGNIZES this key, other servers just IGNORE it.' } },
+        { id: 3, icon: '3️⃣', label: { tr: 'webdriver.Remote(command_executor=...) çağrıldığında…', en: 'Calling webdriver.Remote(command_executor=...)…' }, detail: { tr: 'webdriver.Remote(command_executor="https://hub.browserstack.com/wd/hub", options=options) çağrıldığında, driver komutları ARTIK yerel bir tarayıcıya değil, BS hub\'ına HTTP üzerinden GÖNDERİLİR.', en: 'Calling webdriver.Remote(command_executor="https://hub.browserstack.com/wd/hub", options=options) makes every driver command GO over HTTP to the BS hub, NOT to a local browser anymore.' } },
+        { id: 4, icon: '4️⃣', label: { tr: 'Hub, gelen options+capabilities\'i OKUR…', en: 'The hub READS the incoming options+capabilities…' }, detail: { tr: 'Hub, gelen options+capabilities\'i OKUR, uygun İŞLETİM SİSTEMİ + TARAYICI kombinasyonunda bir bulut makine TAHSİS eder ve session\'ı ORADA başlatır.', en: 'The hub READS the incoming options+capabilities, ALLOCATES a cloud machine with the matching OS + BROWSER combination, and starts the session THERE.' } },
+        { id: 5, icon: '5️⃣', label: { tr: 'driver.get(...) ve driver.title gibi çağrılar…', en: 'Calls like driver.get(...) and driver.title…' }, detail: { tr: 'driver.get(...) ve driver.title gibi TÜM sonraki çağrılar, LOKAL bir tarayıcıymış gibi ÇALIŞIR ama gerçekte her komut ağ üzerinden BS\'in uzak makinesine GİDER — bu, RemoteWebDriver\'ın temel SOYUTLAMASIDIR.', en: 'Every subsequent call like driver.get(...) and driver.title WORKS as if it were a LOCAL browser, but each command actually TRAVELS over the network to BS\'s remote machine — this is RemoteWebDriver\'s core ABSTRACTION.' } },
+      ],
     },
     {
       type: 'heading',
@@ -1601,6 +1637,18 @@ framework: playwright                      # Playwright olduğunu belirt
 playwrightVersion: 1.40.0                 # Playwright sürümü`
     },
     {
+      type: 'step-animation',
+      id: 'browserstack-playwright-config-step-01',
+      title: { tr: "browserstack.yml'deki playwright-webkit Satırı Neyi Değiştirir?", en: "What Does the playwright-webkit Line in browserstack.yml Actually Change?" },
+      steps: [
+        { id: 1, icon: '1️⃣', label: { tr: 'framework: playwright satırı…', en: 'The framework: playwright line…' }, detail: { tr: "framework: playwright satırı, SDK'ya bu projenin Selenium DEĞİL Playwright kullandığını SÖYLER — SDK bu bilgiye göre HANGİ bağlantı protokolünü (CDP vs W3C WebDriver) kuracağına KARAR verir.", en: "The framework: playwright line TELLS the SDK this project uses Playwright, NOT Selenium — the SDK DECIDES which connection protocol (CDP vs W3C WebDriver) to establish based on this." } },
+        { id: 2, icon: '2️⃣', label: { tr: 'browserName: playwright-webkit YAZILDIĞINDA…', en: 'Writing browserName: playwright-webkit…' }, detail: { tr: "browserName: playwright-webkit YAZILDIĞINDA, BrowserStack Chrome/Firefox gibi normal bir tarayıcı DEĞİL, Playwright'ın kendi WebKit motorunu bulut makinede ÇALIŞTIRIR — bu, gerçek bir iOS Safari CİHAZI değildir, WebKit RENDERING motorunun simülasyonudur.", en: "Writing browserName: playwright-webkit makes BrowserStack RUN Playwright's own WebKit engine on the cloud machine, NOT a normal browser like Chrome/Firefox — this is NOT a real iOS Safari DEVICE, it's a simulation of the WebKit RENDERING engine." } },
+        { id: 3, icon: '3️⃣', label: { tr: 'playwrightVersion: 1.40.0 satırı…', en: 'The playwrightVersion: 1.40.0 line…' }, detail: { tr: "playwrightVersion: 1.40.0 satırı, bulut tarafındaki Playwright sürümünü LOKAL projendeki package.json'daki sürümle EŞLEŞTİRİR — sürümler UYUŞMAZSA API farklılıkları nedeniyle testler beklenmedik şekilde FAIL olabilir.", en: "The playwrightVersion: 1.40.0 line MATCHES the cloud-side Playwright version to the one in your LOCAL project's package.json — if the versions MISMATCH, API differences can make tests FAIL unexpectedly." } },
+        { id: 4, icon: '4️⃣', label: { tr: 'parallelsPerPlatform: 2 ile 3 tarayıcı tanımlandığında…', en: 'With parallelsPerPlatform: 2 and 3 browsers defined…' }, detail: { tr: "parallelsPerPlatform: 2 ile 3 tarayıcı tanımlandığında (chrome/webkit/firefox), TOPLAM 6 paralel session AÇILABİLİR — bu sayı hesap PLANININ izin verdiği eşzamanlı oturum limitini AŞMAMALIDIR.", en: "With parallelsPerPlatform: 2 and 3 browsers defined (chrome/webkit/firefox), a TOTAL of 6 parallel sessions can OPEN — this number must NOT EXCEED the concurrent session limit your account PLAN allows." } },
+        { id: 5, icon: '5️⃣', label: { tr: 'Bu YAML dosyası, Selenium bölümündekiyle…', en: 'This YAML file is the SAME FILE…' }, detail: { tr: "Bu YAML dosyası, Selenium bölümünde gördüğün browserstack.yml ile AYNI DOSYADIR — framework: playwright satırı EKLENDİĞİNDE aynı SDK hem Selenium hem Playwright testlerini AYNI PROJEDE yönetebilir.", en: "This YAML file is the SAME FILE as the browserstack.yml you saw in the Selenium section — once the framework: playwright line is ADDED, the same SDK can manage BOTH Selenium and Playwright tests in the SAME project." } },
+      ],
+    },
+    {
       type: 'heading',
       text: { tr: 'Playwright Test Kodu — Değişiklik Yok', en: 'Playwright Test Code — No Changes Needed' }
     },
@@ -1645,6 +1693,18 @@ browserstack-sdk pytest tests/test_search.py -v -k "test_search_product"
 
 # Paralel mod (browserstack.yml'deki ayarlar devreye girer)
 browserstack-sdk pytest tests/ -n auto`
+    },
+    {
+      type: 'step-animation',
+      id: 'browserstack-parallel-run-step-01',
+      title: { tr: '-n auto Bayrağı Paralel Testleri Nasıl Dağıtır?', en: 'How Does the -n auto Flag Distribute Parallel Tests?' },
+      steps: [
+        { id: 1, icon: '1️⃣', label: { tr: 'browserstack-sdk pytest tests/ -v komutu…', en: 'browserstack-sdk pytest tests/ -v sends…' }, detail: { tr: "browserstack-sdk pytest tests/ -v komutu, tests/ klasöründeki TÜM test dosyalarını SIRAYLA (tek bir session akışında) BS'e gönderir — -v (verbose) her testin adını TEK TEK ekrana yazar.", en: "browserstack-sdk pytest tests/ -v SENDS every test file in tests/ to BS SEQUENTIALLY (a single session flow) — -v (verbose) PRINTS each test's name individually to the screen." } },
+        { id: 2, icon: '2️⃣', label: { tr: '-k "test_search_product" filtresi…', en: 'The -k "test_search_product" filter…' }, detail: { tr: 'SADECE ismi bu deseni İÇEREN testleri ÇALIŞTIRIR — diğer testler (örn. test_add_to_cart) tamamen ATLANIR, session bile AÇILMAZ.', en: 'RUNS ONLY the tests whose name CONTAINS this pattern — other tests (e.g. test_add_to_cart) are completely SKIPPED, a session isn\'t even OPENED for them.' } },
+        { id: 3, icon: '3️⃣', label: { tr: '-n auto bayrağı (pytest-xdist)…', en: 'The -n auto flag (pytest-xdist)…' }, detail: { tr: 'mevcut CPU çekirdek sayısına göre KAÇ paralel worker açılacağına OTOMATİK karar verir — her worker KENDİ BrowserStack session\'ını BAĞIMSIZ açar.', en: 'AUTOMATICALLY decides HOW MANY parallel workers to spawn based on the available CPU core count — each worker opens its OWN BrowserStack session INDEPENDENTLY.' } },
+        { id: 4, icon: '4️⃣', label: { tr: "browserstack.yml'deki parallelsPerPlatform ayarı…", en: "The parallelsPerPlatform setting in browserstack.yml…" }, detail: { tr: "browserstack.yml'deki parallelsPerPlatform ayarı, -n auto'nun açtığı worker'ların BrowserStack tarafında KAÇ eşzamanlı bulut oturumuna karşılık geldiğini SINIRLAR — yerel worker sayısı bu limiti AŞARSA fazlalar SIRAYA girer.", en: "The parallelsPerPlatform setting in browserstack.yml LIMITS how many concurrent cloud sessions the workers spawned by -n auto correspond to on BrowserStack's side — if the local worker count EXCEEDS this limit, the extras get QUEUED." } },
+        { id: 5, icon: '5️⃣', label: { tr: 'Tüm worker\'lar bittiğinde pytest…', en: 'When all workers finish, pytest…' }, detail: { tr: 'Tüm worker\'lar bittiğinde pytest, HER BİRİNİN PASS/FAIL sonucunu TEK bir birleşik raporda TOPLAR — Dashboard\'da ise her session AYRI bir video/log kaydıyla GÖRÜNÜR.', en: 'When all workers finish, pytest COLLECTS every one\'s PASS/FAIL result into ONE unified report — on the Dashboard, each session APPEARS with its own separate video/log recording.' } },
+      ],
     },
     {
       type: 'heading',
