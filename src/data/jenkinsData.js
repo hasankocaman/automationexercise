@@ -1,5 +1,25 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+const jenkinsJavaVersionStep = {
+  type: 'step-animation',
+  title: { tr: 'java -version, Jenkins\'in Çalıştığı JDK\'yi Neden Doğrular?', en: 'Why Does java -version Verify the JDK That Jenkins Runs On?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'java -version komutu, sistemde kurulu olan…', en: 'java -version checks the JDK…' }, detail: { tr: '`java -version` komutu sistemde KURULU OLAN JDK sürümünü ekrana yazdırır — Jenkins bu JDK\'yi kullanacağından, yükselme ÖNCESİNDE kontrol edilir.', en: '`java -version` prints the JDK version installed on your system — Jenkins will run on this same JDK, so it\'s checked BEFORE installation.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Beklenen çıktı Java 17 veya 21…', en: 'Expected output: Java 17 or 21…' }, detail: { tr: 'Çıktı `"openjdk version \"17.0.9\""` gibi görünmelidir — Jenkins 17 LTS\'yi ZORUNLU kıldığından daha eski sürüm varsa hata oluşur (Java 8 gibi) ve kurulum başarısız KALIR.', en: 'The output should look like `"openjdk version \"17.0.9\""` — Jenkins REQUIRES Java 17 LTS or newer, so if an older version like Java 8 is installed, the installation will FAIL.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Java yüklü değilse, adoptium.net…', en: 'If Java is not installed…' }, detail: { tr: 'Komut "command not found" hatası döndürürse Java HIÇBIR ZAMAN yüklenmemiştir — kullanıcı adoptium.net\'ten Java 17+ (LTS sürüm) indirip install etmelidir (Jenkins kurulumu bunu OTOMATIK yapmaz).', en: 'If the command returns "command not found", Java is NOT installed at all — the user must download and install Java 17+ (LTS release) from adoptium.net manually; Jenkins installation does NOT do this AUTOMATICALLY.' } },
+  ],
+}
+
+const jenkinsPytestPipelineStep = {
+  type: 'step-animation',
+  title: { tr: 'pytest Jenkinsfile\'ı Neden `--junitxml` VE `--html` Bayrağı Birden Kullanır?', en: 'Why Does the pytest Jenkinsfile Use BOTH `--junitxml` AND `--html` Flags?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: '`--html`, insan için okunabilir…', en: '`--html` creates human-readable…' }, detail: { tr: '`--html=reports/report.html` bayrağı, test sonuçlarını renkli, tıklanabilir, modern HTML raporu olarak yazdırır — bir KIŞI bu raporları açıp tüm hataları, stacktrace\'leri okur.', en: '`--html=reports/report.html` generates a colorful, clickable, modern HTML report of test results — a PERSON opens this report to read all failures and stacktraces.' } },
+    { id: 2, icon: '2️⃣', label: { tr: '`--junitxml`, Jenkins\'in PARSING…', en: '`--junitxml` generates results…' }, detail: { tr: '`--junitxml=reports/junit.xml` sonuçları makinenin OKUYABİLECEĞİ XML formatında yazdırır — Jenkins bu XML\'i PARSE eder ve kendi UI\'sinde trend grafikleri (pass/fail sayıları) + geçmiş runları gösteren tablo oluşturur.', en: '`--junitxml=reports/junit.xml` writes results in machine-readable XML format — Jenkins PARSES this XML to build its own UI trend graphs (pass/fail counts) and historical tables.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'İki rapor farklı müşterilere…', en: 'Two reports, two audiences…' }, detail: { tr: 'HTML insan için, XML Jenkins\'in sistemi için — ayrı formatlar ayrı tüketicilerin ihtiyaçlarını karşılar. Sadece HTML yapılırsa Jenkins grafikleri çizememesi, sadece XML yapılırsa insan hata detaylarını okuyamaması KÖTÜ bir CI deneyimi demektir.', en: 'HTML for humans, XML for Jenkins\' automation — separate formats serve separate consumers. Using only HTML means Jenkins can\'t draw trend graphs; using only XML means humans can\'t read error details. Both are REQUIRED for good CI.' } },
+  ],
+}
+
 const jenkinsIntroInteractiveBlocks = [
   {
     type: 'code-playground',
@@ -1998,6 +2018,7 @@ export const jenkinsData = {
 # Expected output: openjdk version "17.0.9" 2023-10-17
 # If not installed, download from: https://adoptium.net/`,
           },
+          jenkinsJavaVersionStep,
           { type: 'heading', text: 'Option 1: Install on Windows' },
           {
             type: 'installation',
@@ -2508,6 +2529,7 @@ pipeline {
     }
 }`,
           },
+          jenkinsPytestPipelineStep,
           { type: 'heading', text: 'Running JMeter Load Tests in Jenkins' },
           {
             type: 'code',
@@ -3673,6 +3695,7 @@ pipeline {
 # Beklenen çıktı: openjdk version "17.0.9" 2023-10-17
 # Kurulu değilse: https://adoptium.net/ adresinden indir`,
           },
+          jenkinsJavaVersionStep,
           { type: 'heading', text: 'Seçenek 1: Windows\'a Kurulum' },
           {
             type: 'installation',
@@ -4143,6 +4166,7 @@ pipeline {
     }
 }`,
           },
+          jenkinsPytestPipelineStep,
           { type: 'heading', text: 'Jenkins\'te JMeter Load Testleri' },
           {
             type: 'code',
