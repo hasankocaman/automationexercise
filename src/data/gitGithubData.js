@@ -3908,6 +3908,18 @@ git pull origin main
 # Merge made by the 'ort' strategy. -> extra "Merge branch 'main'" commit appears`,
           },
           {
+            type: 'step-animation',
+            id: 'git-fetch-vs-pull-step-01',
+            title: { tr: "git fetch Neden Branch'ine HİÇ Dokunmaz, git pull Neden Dokunur?", en: 'Why Does git fetch NEVER Touch Your Branch, But git pull Does?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'git fetch origin çalıştırıldığında…', en: 'Running git fetch origin…' }, detail: { tr: "git fetch origin çalıştırıldığında, uzak sunucudaki YENİ commit'ler senin LOKAL .git veritabanına İNDİRİLİR (örn. origin/main güncellenir) — ama senin ÇALIŞMA dizinindeki hiçbir dosya DEĞİŞMEZ.", en: "Running git fetch origin DOWNLOADS the remote's new commits into your LOCAL .git database (e.g. origin/main gets updated) — but NOT a single file in your WORKING directory CHANGES." } },
+              { id: 2, icon: '2️⃣', label: { tr: 'fetch sonrası git log origin/main çalıştırırsan…', en: 'Running git log origin/main after fetch…' }, detail: { tr: "fetch sonrası git log origin/main --oneline çalıştırırsan YENİ commit'leri GÖREBİLİRSİN, ama git log (kendi main'in) HİÇBİR YENİ commit GÖSTERMEZ — indirilen veri sadece \"referans\" olarak DURUR, henüz BİRLEŞTİRİLMEMİŞTİR.", en: "Running git log origin/main --oneline after fetch lets you SEE the new commits, but git log (your own main) shows NO new commits — the downloaded data just SITS there as a \"reference\", not yet MERGED." } },
+              { id: 3, icon: '3️⃣', label: { tr: 'git pull origin main ise…', en: 'git pull origin main instead…' }, detail: { tr: "git pull origin main ise İKİ işlemi TEK komutta yapar: ÖNCE fetch ile aynı indirmeyi yapar, SONRA otomatik olarak bir merge (veya rebase, ayara göre) ÇALIŞTIRIR.", en: "git pull origin main does TWO things in ONE command: it FIRST downloads exactly like fetch, THEN automatically RUNS a merge (or rebase, depending on config)." } },
+              { id: 4, icon: '4️⃣', label: { tr: 'İki geçmiş BİRBİRİNDEN AYRIŞMIŞSA…', en: 'If the two histories have DIVERGED…' }, detail: { tr: "İki geçmiş (senin commit'lerin ve uzaktaki yeni commit'ler) BİRBİRİNDEN AYRIŞMIŞSA, bu otomatik merge fazladan bir \"Merge branch 'main'\" COMMIT'i OLUŞTURUR — bu, git log geçmişinde EKSTRA bir düğüm olarak GÖRÜNÜR.", en: "If the two histories (your commits and the new remote ones) have DIVERGED, this automatic merge CREATES an extra \"Merge branch 'main'\" COMMIT — it SHOWS UP as an EXTRA node in the git log history." } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Bu yüzden CI/CD script\'lerinde…', en: 'This is why CI/CD scripts…' }, detail: { tr: 'Bu yüzden CI/CD script\'lerinde veya sadece "durumu KONTROL etmek" istediğinde git fetch TERCİH edilir — çalışma dizinini DEĞİŞTİRMEDEN neyin değiştiğini görmeni sağlar, git pull ise SENİ hazır olmadan bir merge\'e SOKABİLİR.', en: 'This is why git fetch is PREFERRED in CI/CD scripts or when you just want to CHECK status — it lets you see what changed WITHOUT touching your working directory, while git pull can PULL you into a merge before you\'re READY.' } },
+            ],
+          },
+          {
             type: 'challenge',
             variant: 'order-sort',
             id: 'git-fetch-vs-pull-order-01',
@@ -4070,6 +4082,18 @@ git pull --rebase origin main
 git switch main                          # Move to local main
 git pull --ff-only origin main            # Update main without surprise merge commits
 git switch -c feature/checkout-tests      # Create a feature branch`,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-ff-only-sync-step-01',
+            title: { tr: "git pull --ff-only Neden \"Sürpriz\" Bir Merge Commit'i Engeller?", en: 'Why Does git pull --ff-only Prevent a "Surprise" Merge Commit?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'git fetch origin çalıştırıldığında…', en: 'Running git fetch origin…' }, detail: { tr: 'git fetch origin çalıştırıldığında SADECE uzaktaki branch referansları (origin/main gibi) GÜNCELLENİR — local main dalın HİÇBİR satırı henüz DEĞİŞMEZ.', en: 'Running git fetch origin ONLY updates the remote branch references (like origin/main) — NOT a single line of your local main branch CHANGES yet.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'git switch main ile…', en: 'git switch main moves…' }, detail: { tr: "git switch main ile local main'e GEÇİLİR — artık sonraki komutlar main dalı ÜZERİNDE çalışır, feature branch'in ETKİLENMEZ.", en: "git switch main MOVES you to local main — subsequent commands now operate ON the main branch, your feature branch is UNAFFECTED." } },
+              { id: 3, icon: '3️⃣', label: { tr: 'git pull --ff-only origin main, SADECE…', en: 'git pull --ff-only origin main works ONLY…' }, detail: { tr: "git pull --ff-only origin main, SADECE local main'in origin/main'in TAM OLARAK GERİSİNDE (hiçbir kendi commit'i olmadan) olduğu durumda ÇALIŞIR — pointer'ı basitçe İLERİ SÜRÜKLER, yeni bir merge commit'i OLUŞTURMAZ.", en: "git pull --ff-only origin main works ONLY when local main is EXACTLY BEHIND origin/main (with no commits of its own) — it just SLIDES the pointer FORWARD, it never CREATES a new merge commit." } },
+              { id: 4, icon: '4️⃣', label: { tr: "Eğer local main'de kendi commit'lerin varsa…", en: 'If local main has its own commits…' }, detail: { tr: "Eğer local main'de origin/main'de OLMAYAN kendi commit'lerin varsa (dallar AYRIŞMIŞSA), --ff-only bu durumu ALGILAR ve KOMUTU REDDEDER — sessizce bir merge commit'i oluşturmak yerine sana AÇIKÇA hata verir.", en: "If local main has commits of its own that origin/main doesn't (the histories have DIVERGED), --ff-only DETECTS this and REJECTS the command — instead of silently creating a merge commit, it gives you an EXPLICIT error." } },
+              { id: 5, icon: '5️⃣', label: { tr: "git switch -c feature/checkout-tests ise…", en: 'git switch -c feature/checkout-tests then…' }, detail: { tr: "git switch -c feature/checkout-tests ise main GÜNCEL haldeyken YENİ bir branch açar — bu sıralama sayesinde yeni feature branch'in TEMELİ her zaman en TAZE main'dir, gereksiz erken conflict RİSKİ azalır.", en: "git switch -c feature/checkout-tests then opens a NEW branch while main is UP TO DATE — this ordering guarantees the new feature branch's BASE is always the FRESHEST main, reducing the risk of an unnecessary early conflict." } },
+            ],
           },
           {
             type: 'challenge',
@@ -4281,6 +4305,18 @@ git log feature/hasan --oneline -5
 
 # 2. Switch to the branch that needs that single fix
 git switch hotfix/release-1.4`,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-cherry-pick-find-step-01',
+            title: { tr: 'git log feature/hasan --oneline -5 Aslında Neyi Listeler?', en: 'What Does git log feature/hasan --oneline -5 Actually List?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'git log feature/hasan --oneline -5, SENİN…', en: 'git log feature/hasan --oneline -5 shows…' }, detail: { tr: "git log feature/hasan --oneline -5, SENİN o an bulunduğun branch'i DEĞİL, feature/hasan branch'inin GEÇMİŞİNİ görüntüler — checkout yapmadan BAŞKA bir branch'in commit'lerine BAKABİLİRSİN.", en: "git log feature/hasan --oneline -5 shows the HISTORY of the feature/hasan branch, NOT the branch you're currently on — you can LOOK at another branch's commits WITHOUT checking it out." } },
+              { id: 2, icon: '2️⃣', label: { tr: '--oneline bayrağı her commit\'i…', en: 'The --oneline flag compresses…' }, detail: { tr: "--oneline bayrağı her commit'i TEK satıra (kısa hash + mesaj) SIKIŞTIRIR, -5 ise SADECE en SON 5 commit'i GÖSTERİR — büyük bir geçmişte hızlıca TARAMA yapmanı sağlar.", en: "The --oneline flag COMPRESSES each commit into ONE line (short hash + message), and -5 shows ONLY the LAST 5 commits — this lets you SCAN a large history quickly." } },
+              { id: 3, icon: '3️⃣', label: { tr: 'Listede görünen d4e5f6a gibi kısa hash…', en: 'A short hash like d4e5f6a in the list…' }, detail: { tr: "Listede görünen d4e5f6a gibi kısa hash, o commit'in TAM İÇERİĞİNİN (diff, yazar, mesaj) BENZERSİZ bir PARMAK İZİDİR — bu hash'i bir SONRAKİ adımda cherry-pick'e VERECEKSİN.", en: "A short hash like d4e5f6a in the list is a UNIQUE FINGERPRINT of that commit's FULL content (diff, author, message) — you'll PASS this hash to cherry-pick in the NEXT step." } },
+              { id: 4, icon: '4️⃣', label: { tr: 'git switch hotfix/release-1.4 çalıştırıldığında…', en: 'Running git switch hotfix/release-1.4…' }, detail: { tr: "git switch hotfix/release-1.4 çalıştırıldığında AKTİF branch DEĞİŞİR — artık bir SONRAKİ komut (cherry-pick) bu branch'in ÜZERİNE yeni bir commit EKLEYECEK, feature/hasan ETKİLENMEYECEK.", en: "Running git switch hotfix/release-1.4 CHANGES the ACTIVE branch — the NEXT command (cherry-pick) will ADD a new commit ON TOP OF this branch, feature/hasan stays UNAFFECTED." } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Bu iki adımın SIRASI önemlidir…', en: 'The ORDER of these two steps matters…' }, detail: { tr: "Bu iki adımın SIRASI önemlidir: ÖNCE hangi commit'in taşınacağını BUL, SONRA hedef branch'e GEÇ — ters sırada gidersen yanlış branch'teyken hash arama RİSKİ oluşur.", en: "The ORDER of these two steps matters: FIRST FIND which commit to move, THEN SWITCH to the target branch — reversing the order risks searching for the hash while on the WRONG branch." } },
+            ],
           },
           {
             type: 'challenge',
@@ -6299,6 +6335,18 @@ git pull origin main
 # Merge made by the 'ort' strategy. -> ekstra "Merge branch 'main'" commit'i çıkar`,
           },
           {
+            type: 'step-animation',
+            id: 'git-fetch-vs-pull-step-01',
+            title: { tr: "git fetch Neden Branch'ine HİÇ Dokunmaz, git pull Neden Dokunur?", en: 'Why Does git fetch NEVER Touch Your Branch, But git pull Does?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'git fetch origin çalıştırıldığında…', en: 'Running git fetch origin…' }, detail: { tr: "git fetch origin çalıştırıldığında, uzak sunucudaki YENİ commit'ler senin LOKAL .git veritabanına İNDİRİLİR (örn. origin/main güncellenir) — ama senin ÇALIŞMA dizinindeki hiçbir dosya DEĞİŞMEZ.", en: "Running git fetch origin DOWNLOADS the remote's new commits into your LOCAL .git database (e.g. origin/main gets updated) — but NOT a single file in your WORKING directory CHANGES." } },
+              { id: 2, icon: '2️⃣', label: { tr: 'fetch sonrası git log origin/main çalıştırırsan…', en: 'Running git log origin/main after fetch…' }, detail: { tr: "fetch sonrası git log origin/main --oneline çalıştırırsan YENİ commit'leri GÖREBİLİRSİN, ama git log (kendi main'in) HİÇBİR YENİ commit GÖSTERMEZ — indirilen veri sadece \"referans\" olarak DURUR, henüz BİRLEŞTİRİLMEMİŞTİR.", en: "Running git log origin/main --oneline after fetch lets you SEE the new commits, but git log (your own main) shows NO new commits — the downloaded data just SITS there as a \"reference\", not yet MERGED." } },
+              { id: 3, icon: '3️⃣', label: { tr: 'git pull origin main ise…', en: 'git pull origin main instead…' }, detail: { tr: "git pull origin main ise İKİ işlemi TEK komutta yapar: ÖNCE fetch ile aynı indirmeyi yapar, SONRA otomatik olarak bir merge (veya rebase, ayara göre) ÇALIŞTIRIR.", en: "git pull origin main does TWO things in ONE command: it FIRST downloads exactly like fetch, THEN automatically RUNS a merge (or rebase, depending on config)." } },
+              { id: 4, icon: '4️⃣', label: { tr: 'İki geçmiş BİRBİRİNDEN AYRIŞMIŞSA…', en: 'If the two histories have DIVERGED…' }, detail: { tr: "İki geçmiş (senin commit'lerin ve uzaktaki yeni commit'ler) BİRBİRİNDEN AYRIŞMIŞSA, bu otomatik merge fazladan bir \"Merge branch 'main'\" COMMIT'i OLUŞTURUR — bu, git log geçmişinde EKSTRA bir düğüm olarak GÖRÜNÜR.", en: "If the two histories (your commits and the new remote ones) have DIVERGED, this automatic merge CREATES an extra \"Merge branch 'main'\" COMMIT — it SHOWS UP as an EXTRA node in the git log history." } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Bu yüzden CI/CD script\'lerinde…', en: 'This is why CI/CD scripts…' }, detail: { tr: 'Bu yüzden CI/CD script\'lerinde veya sadece "durumu KONTROL etmek" istediğinde git fetch TERCİH edilir — çalışma dizinini DEĞİŞTİRMEDEN neyin değiştiğini görmeni sağlar, git pull ise SENİ hazır olmadan bir merge\'e SOKABİLİR.', en: 'This is why git fetch is PREFERRED in CI/CD scripts or when you just want to CHECK status — it lets you see what changed WITHOUT touching your working directory, while git pull can PULL you into a merge before you\'re READY.' } },
+            ],
+          },
+          {
             type: 'challenge',
             variant: 'order-sort',
             id: 'git-fetch-vs-pull-order-01',
@@ -6461,6 +6509,18 @@ git pull --rebase origin main
 git switch main                          # Local main'e geç
 git pull --ff-only origin main            # Sürpriz merge commit olmadan main'i güncelle
 git switch -c feature/checkout-tests      # Feature branch oluştur`,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-ff-only-sync-step-01',
+            title: { tr: "git pull --ff-only Neden \"Sürpriz\" Bir Merge Commit'i Engeller?", en: 'Why Does git pull --ff-only Prevent a "Surprise" Merge Commit?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'git fetch origin çalıştırıldığında…', en: 'Running git fetch origin…' }, detail: { tr: 'git fetch origin çalıştırıldığında SADECE uzaktaki branch referansları (origin/main gibi) GÜNCELLENİR — local main dalın HİÇBİR satırı henüz DEĞİŞMEZ.', en: 'Running git fetch origin ONLY updates the remote branch references (like origin/main) — NOT a single line of your local main branch CHANGES yet.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'git switch main ile…', en: 'git switch main moves…' }, detail: { tr: "git switch main ile local main'e GEÇİLİR — artık sonraki komutlar main dalı ÜZERİNDE çalışır, feature branch'in ETKİLENMEZ.", en: "git switch main MOVES you to local main — subsequent commands now operate ON the main branch, your feature branch is UNAFFECTED." } },
+              { id: 3, icon: '3️⃣', label: { tr: 'git pull --ff-only origin main, SADECE…', en: 'git pull --ff-only origin main works ONLY…' }, detail: { tr: "git pull --ff-only origin main, SADECE local main'in origin/main'in TAM OLARAK GERİSİNDE (hiçbir kendi commit'i olmadan) olduğu durumda ÇALIŞIR — pointer'ı basitçe İLERİ SÜRÜKLER, yeni bir merge commit'i OLUŞTURMAZ.", en: "git pull --ff-only origin main works ONLY when local main is EXACTLY BEHIND origin/main (with no commits of its own) — it just SLIDES the pointer FORWARD, it never CREATES a new merge commit." } },
+              { id: 4, icon: '4️⃣', label: { tr: "Eğer local main'de kendi commit'lerin varsa…", en: 'If local main has its own commits…' }, detail: { tr: "Eğer local main'de origin/main'de OLMAYAN kendi commit'lerin varsa (dallar AYRIŞMIŞSA), --ff-only bu durumu ALGILAR ve KOMUTU REDDEDER — sessizce bir merge commit'i oluşturmak yerine sana AÇIKÇA hata verir.", en: "If local main has commits of its own that origin/main doesn't (the histories have DIVERGED), --ff-only DETECTS this and REJECTS the command — instead of silently creating a merge commit, it gives you an EXPLICIT error." } },
+              { id: 5, icon: '5️⃣', label: { tr: "git switch -c feature/checkout-tests ise…", en: 'git switch -c feature/checkout-tests then…' }, detail: { tr: "git switch -c feature/checkout-tests ise main GÜNCEL haldeyken YENİ bir branch açar — bu sıralama sayesinde yeni feature branch'in TEMELİ her zaman en TAZE main'dir, gereksiz erken conflict RİSKİ azalır.", en: "git switch -c feature/checkout-tests then opens a NEW branch while main is UP TO DATE — this ordering guarantees the new feature branch's BASE is always the FRESHEST main, reducing the risk of an unnecessary early conflict." } },
+            ],
           },
           {
             type: 'challenge',
@@ -6672,6 +6732,18 @@ git log feature/hasan --oneline -5
 
 # 2. O tek fix'in gitmesi gereken branch'e geç
 git switch hotfix/release-1.4`,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-cherry-pick-find-step-01',
+            title: { tr: 'git log feature/hasan --oneline -5 Aslında Neyi Listeler?', en: 'What Does git log feature/hasan --oneline -5 Actually List?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'git log feature/hasan --oneline -5, SENİN…', en: 'git log feature/hasan --oneline -5 shows…' }, detail: { tr: "git log feature/hasan --oneline -5, SENİN o an bulunduğun branch'i DEĞİL, feature/hasan branch'inin GEÇMİŞİNİ görüntüler — checkout yapmadan BAŞKA bir branch'in commit'lerine BAKABİLİRSİN.", en: "git log feature/hasan --oneline -5 shows the HISTORY of the feature/hasan branch, NOT the branch you're currently on — you can LOOK at another branch's commits WITHOUT checking it out." } },
+              { id: 2, icon: '2️⃣', label: { tr: '--oneline bayrağı her commit\'i…', en: 'The --oneline flag compresses…' }, detail: { tr: "--oneline bayrağı her commit'i TEK satıra (kısa hash + mesaj) SIKIŞTIRIR, -5 ise SADECE en SON 5 commit'i GÖSTERİR — büyük bir geçmişte hızlıca TARAMA yapmanı sağlar.", en: "The --oneline flag COMPRESSES each commit into ONE line (short hash + message), and -5 shows ONLY the LAST 5 commits — this lets you SCAN a large history quickly." } },
+              { id: 3, icon: '3️⃣', label: { tr: 'Listede görünen d4e5f6a gibi kısa hash…', en: 'A short hash like d4e5f6a in the list…' }, detail: { tr: "Listede görünen d4e5f6a gibi kısa hash, o commit'in TAM İÇERİĞİNİN (diff, yazar, mesaj) BENZERSİZ bir PARMAK İZİDİR — bu hash'i bir SONRAKİ adımda cherry-pick'e VERECEKSİN.", en: "A short hash like d4e5f6a in the list is a UNIQUE FINGERPRINT of that commit's FULL content (diff, author, message) — you'll PASS this hash to cherry-pick in the NEXT step." } },
+              { id: 4, icon: '4️⃣', label: { tr: 'git switch hotfix/release-1.4 çalıştırıldığında…', en: 'Running git switch hotfix/release-1.4…' }, detail: { tr: "git switch hotfix/release-1.4 çalıştırıldığında AKTİF branch DEĞİŞİR — artık bir SONRAKİ komut (cherry-pick) bu branch'in ÜZERİNE yeni bir commit EKLEYECEK, feature/hasan ETKİLENMEYECEK.", en: "Running git switch hotfix/release-1.4 CHANGES the ACTIVE branch — the NEXT command (cherry-pick) will ADD a new commit ON TOP OF this branch, feature/hasan stays UNAFFECTED." } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Bu iki adımın SIRASI önemlidir…', en: 'The ORDER of these two steps matters…' }, detail: { tr: "Bu iki adımın SIRASI önemlidir: ÖNCE hangi commit'in taşınacağını BUL, SONRA hedef branch'e GEÇ — ters sırada gidersen yanlış branch'teyken hash arama RİSKİ oluşur.", en: "The ORDER of these two steps matters: FIRST FIND which commit to move, THEN SWITCH to the target branch — reversing the order risks searching for the hash while on the WRONG branch." } },
+            ],
           },
           {
             type: 'challenge',
