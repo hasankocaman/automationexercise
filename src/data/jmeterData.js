@@ -708,6 +708,93 @@ Loop Count = 5`,
   successMessage: { tr: 'Doğru! Bu ayarlarla JMeter 2 saniyede bir yeni kullanıcı başlatır (100 kullanıcı / 50 saniye).', en: 'Correct! With these settings JMeter starts one new user every 2 seconds (100 users / 50 seconds).' },
 }
 
+const jmeterMiniProjectStep = {
+  type: 'step-animation',
+  title: { tr: 'Bu Mini Proje Adımlarının Her Biri Rapordaki Neyi Etkiler?', en: 'What Does Each Step of This Mini Project Actually Affect in the Report?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: '20 threads, 10s ramp-up ayarı…', en: '20 threads, 10s ramp-up…' }, detail: { tr: "20 threads, 10s ramp-up, 1 loop AYARI, toplam 20 SANAL kullanıcının 10 saniyeye YAYILARAK başlamasını sağlar — hepsi AYNI ANDA değil, KADEMELİ olarak İSTEK göndermeye başlar.", en: "The 20 threads, 10s ramp-up, 1 loop setting SPREADS all 20 VIRTUAL users' start across 10 seconds — they don't all start AT ONCE, they begin sending requests GRADUALLY." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'HTTP Request Sampler alanları…', en: "The HTTP Request Sampler's fields…" }, detail: { tr: "HTTP Request Sampler'daki Method/Server/Path alanları, her BİR thread'in TAM OLARAK hangi isteği GÖNDERECEĞİNİ tanımlar — 20 thread AYNI bu tanımı KULLANIR.", en: "The HTTP Request Sampler's Method/Server/Path fields DEFINE EXACTLY which request each thread will SEND — all 20 threads USE this SAME definition." } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Response Assertion HER isteğin…', en: 'The Response Assertion checks EVERY…' }, detail: { tr: 'Response Assertion (Response Code = 200) HER isteğin yanıtını KONTROL eder — 200 DIŞINDA bir kod dönerse o istek rapor\'da HATA olarak İŞARETLENİR.', en: 'The Response Assertion (Response Code = 200) CHECKS every response — if a code OTHER than 200 comes back, that request gets FLAGGED as an ERROR in the report.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'jmeter -n -t ... -l results.jtl -e -o report/…', en: 'jmeter -n -t ... -l results.jtl -e -o report/…' }, detail: { tr: "jmeter -n -t ... -l results.jtl -e -o report/ komutu, GUI AÇMADAN testi çalıştırır, HAM sonuçları results.jtl'e YAZAR ve AYNI ANDA bir HTML dashboard (report/) ÜRETİR.", en: "jmeter -n -t ... -l results.jtl -e -o report/ RUNS the test WITHOUT opening the GUI, WRITES the raw results to results.jtl, and SIMULTANEOUSLY GENERATES an HTML dashboard (report/)." } },
+    { id: 5, icon: '5️⃣', label: { tr: "report/index.html'deki grafikler…", en: "The charts in report/index.html…" }, detail: { tr: "report/index.html'deki APDEX ve \"Response Times Over Time\" grafikleri, SADECE ortalama DEĞİL, P99 gibi UÇ değerleri de GÖSTERİR — 20 kullanıcıyla P99'un ortalamaya YAKIN çıkması, sistemin bu YÜKTE SAĞLIKLI olduğunun kanıtıdır.", en: "The APDEX and \"Response Times Over Time\" charts in report/index.html SHOW not JUST the average, but EDGE values like P99 too — a P99 CLOSE to the average with 20 users is PROOF the system is HEALTHY under this load." } },
+  ],
+}
+
+const jmeterInstallOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'jmeter-install-order-01',
+  question: { tr: "JMeter'ı sıfırdan çalışır hale getirme sırasını diz.", en: 'Order the steps for getting JMeter running from scratch.' },
+  items: [
+    { id: '1', text: { tr: 'java -version ile JDK\'nın kurulu olduğunu doğrula', en: "Verify the JDK is installed with java -version" }, order: 1 },
+    { id: '2', text: { tr: 'jmeter.apache.org\'dan .zip/.tgz arşivini indir', en: 'Download the .zip/.tgz archive from jmeter.apache.org' }, order: 2 },
+    { id: '3', text: { tr: 'Arşivi bir klasöre çıkar', en: 'Extract the archive into a folder' }, order: 3 },
+    { id: '4', text: { tr: 'JAVA_HOME ortam değişkenini ayarla', en: 'Set the JAVA_HOME environment variable' }, order: 4 },
+    { id: '5', text: { tr: 'bin/jmeter.sh (veya jmeter.bat) çalıştır ve GUI\'nin açıldığını doğrula', en: 'Run bin/jmeter.sh (or jmeter.bat) and verify the GUI opens' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const jmeterTestPlanBuildOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'jmeter-test-plan-build-order-01',
+  question: { tr: 'Bir JMeter test planını sıfırdan kurma sırasını diz.', en: 'Order the steps for building a JMeter test plan from scratch.' },
+  items: [
+    { id: '1', text: { tr: 'Thread Group ekle (sanal kullanıcı sayısı, ramp-up, loop count)', en: 'Add a Thread Group (virtual users, ramp-up, loop count)' }, order: 1 },
+    { id: '2', text: { tr: 'HTTP Request Sampler ekle (method, URL, parametreler)', en: 'Add an HTTP Request Sampler (method, URL, parameters)' }, order: 2 },
+    { id: '3', text: { tr: 'Veri odaklı test için CSV Data Set Config ekle', en: 'Add a CSV Data Set Config for data-driven testing' }, order: 3 },
+    { id: '4', text: { tr: 'Sonuçları görmek için bir Listener ekle', en: 'Add a Listener to see the results' }, order: 4 },
+    { id: '5', text: { tr: 'Testi çalıştır ve Listener\'daki sonuçları incele', en: "Run the test and review the results in the Listener" }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const jmeterGithubActionsOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'jmeter-github-actions-order-01',
+  question: { tr: "JMeter'ı GitHub Actions'a bağlama sırasını diz.", en: 'Order the steps for wiring JMeter into GitHub Actions.' },
+  items: [
+    { id: '1', text: { tr: 'actions/checkout ile kodu klonla', en: 'Clone the code with actions/checkout' }, order: 1 },
+    { id: '2', text: { tr: 'setup-java ile JDK kur', en: 'Install the JDK with setup-java' }, order: 2 },
+    { id: '3', text: { tr: "JMeter'ı indir ve çıkar", en: 'Download and extract JMeter' }, order: 3 },
+    { id: '4', text: { tr: 'Non-GUI modda testi çalıştır: -n -t -l -e -o', en: 'Run the test in non-GUI mode: -n -t -l -e -o' }, order: 4 },
+    { id: '5', text: { tr: 'HTML dashboard raporunu artifact olarak yükle', en: 'Upload the HTML dashboard report as an artifact' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const jmeterP99FixOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'jmeter-p99-fix-order-01',
+  question: { tr: "Flash-sale yük testinde P99 sorununu çözme sırasını diz.", en: 'Order the steps for fixing a P99 problem in a flash-sale load test.' },
+  items: [
+    { id: '1', text: { tr: 'Baseline yük testini çalıştır ve P99\'u ölç', en: 'Run the baseline load test and measure P99' }, order: 1 },
+    { id: '2', text: { tr: "Dashboard'da darboğazı tespit et (connection pool tükenmiş)", en: 'Identify the bottleneck in the dashboard (connection pool exhausted)' }, order: 2 },
+    { id: '3', text: { tr: 'Connection pool boyutunu artır', en: 'Increase the connection pool size' }, order: 3 },
+    { id: '4', text: { tr: 'Testi TEKRAR çalıştır', en: 'Run the test AGAIN' }, order: 4 },
+    { id: '5', text: { tr: "Yeni P99'un düştüğünü doğrula", en: 'Verify the new P99 has dropped' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const jmeterDockerGrafanaOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'jmeter-docker-grafana-order-01',
+  question: { tr: "JMeter'ı Docker + Grafana ile canlı izleme sırasını diz.", en: 'Order the steps for live-monitoring JMeter with Docker + Grafana.' },
+  items: [
+    { id: '1', text: { tr: "JMeter docker image'ını çek", en: 'Pull the JMeter docker image' }, order: 1 },
+    { id: '2', text: { tr: 'Test planını bir volume olarak mount et', en: 'Mount the test plan as a volume' }, order: 2 },
+    { id: '3', text: { tr: "Backend Listener'ı InfluxDB'ye yönlendirerek container'ı çalıştır", en: 'Run the container with the Backend Listener pointed at InfluxDB' }, order: 3 },
+    { id: '4', text: { tr: "Grafana'da canlı dashboard'ı aç", en: 'Open the live dashboard in Grafana' }, order: 4 },
+    { id: '5', text: { tr: '30 deploy boyunca trendi karşılaştır', en: 'Compare the trend across 30 deploys' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
 const jmeterJavaHomeStep = {
   type: 'step-animation',
   title: { tr: 'JAVA_HOME Neden Ayarlanır?', en: 'Why Set JAVA_HOME?' },
@@ -1053,6 +1140,7 @@ echo $JAVA_HOME`
           jmeterJdkLaunchFilm,
           jmeterJavaHomeStep,
           jmeterJavaHomePractice,
+          jmeterInstallOrder,
           {
             type: 'quiz',
             question: 'Why must Java (JDK 8+) be installed before JMeter, even though JMeter has its own installer-free zip download?',
@@ -1311,6 +1399,7 @@ diana,pass4
           jmeterCsvScopeFilm,
           jmeterRampUpCalcStep,
           jmeterRampUpPractice,
+          jmeterTestPlanBuildOrder,
           {
             type: 'quiz',
             question: 'A Thread Group is set to Number of Threads = 10 and Ramp-Up Period = 10 seconds. What actually happens when the test starts?',
@@ -1519,6 +1608,7 @@ jobs:
           fi`
           },
           jmeterCicdGithubActionsStep,
+          jmeterGithubActionsOrder,
           { type: 'heading', text: 'Understanding HTML Report Metrics' },
           {
             type: 'table',
@@ -1713,8 +1803,10 @@ jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
 #    and a P99 close to the average — that is what a HEALTHY
 #    system looks like under modest load.`
           },
+          jmeterMiniProjectStep,
           jmeterConnectionPoolFilm,
           jmeterCsvConfigPractice,
+          jmeterP99FixOrder,
           {
             type: 'quiz',
             question: 'A team has QA engineers with limited coding skills and needs to test non-HTTP protocols (JDBC, JMS). Why would JMeter be preferred over a code-first tool like k6 here?',
@@ -1803,6 +1895,7 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
           jmeterEcosystemChainFilm,
           jmeterDockerCiStep,
           jmeterDockerCiPractice,
+          jmeterDockerGrafanaOrder,
           {
             type: 'quiz',
             question: 'What is the core benefit of running JMeter as a Docker image (e.g. justb4/jmeter) instead of installing it directly on each CI runner?',
@@ -2279,6 +2372,7 @@ echo $JAVA_HOME`
           jmeterJdkLaunchFilm,
           jmeterJavaHomeStep,
           jmeterJavaHomePractice,
+          jmeterInstallOrder,
           {
             type: 'quiz',
             question: 'JMeter\'ın installer\'sız bir zip indirme olmasına rağmen kurulumdan önce Java (JDK 8+) kurulması neden zorunludur?',
@@ -2478,6 +2572,7 @@ ayse,sifre3
           jmeterCsvScopeFilm,
           jmeterRampUpCalcStep,
           jmeterRampUpPractice,
+          jmeterTestPlanBuildOrder,
           {
             type: 'quiz',
             question: 'Bir Thread Group\'ta Number of Threads=10 ve Ramp-Up Period=10 saniye ayarlandığında test başladığında gerçekte ne olur?',
@@ -2583,6 +2678,7 @@ jobs:
           path: sonuclar/html-rapor/`
           },
           jmeterCicdGithubActionsStep,
+          jmeterGithubActionsOrder,
           { type: 'heading', text: 'HTML Rapor Metrikleri' },
           {
             type: 'table',
@@ -2758,8 +2854,10 @@ jmeter -n -t public_api_test.jmx -l results.jtl -e -o report/
 #    yakın bir P99 görmelisin — SAĞLIKLI bir sistem makul yük
 #    altında böyle görünür.`
           },
+          jmeterMiniProjectStep,
           jmeterConnectionPoolFilm,
           jmeterCsvConfigPractice,
+          jmeterP99FixOrder,
           {
             type: 'quiz',
             question: 'Ekibinizde kodlama becerisi sınırlı QA mühendisleri varsa ve HTTP olmayan protokollere (JDBC, JMS) ihtiyacınız varsa, k6 gibi kod-öncelikli bir araç yerine neden JMeter tercih edilir?',
@@ -2849,6 +2947,7 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
           jmeterEcosystemChainFilm,
           jmeterDockerCiStep,
           jmeterDockerCiPractice,
+          jmeterDockerGrafanaOrder,
           {
             type: 'quiz',
             question: 'JMeter\'ı her CI runner\'a doğrudan kurmak yerine bir Docker image\'ı (örn. justb4/jmeter) olarak çalıştırmanın temel avantajı nedir?',

@@ -110,6 +110,45 @@ const commitJourneyFilm = {
 
 // ─── Hata Sözlüğü sekmesi tam paketi (film + animasyon + sandbox — EN + TR paylaşımlı) ───
 // Spesifikasyon: Documents/video-rollout-plan.md §7.3 (Fable payı)
+const gitPrPushPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'git-pr-checklist',
+  id: 'git-pr-push-practice-01',
+  label: { tr: 'Kendin Dene: Push Komutundaki Eksiği Tamamla', en: 'Try It Yourself: Complete the Missing Push Command' },
+  language: 'bash',
+  task: { tr: 'feature/login-tests branch\'ini upstream kurarak GitHub\'a yayınlayan komutu tamamla.', en: 'Complete the command that publishes the feature/login-tests branch to GitHub, setting upstream.' },
+  starterCode: { tr: '// TODO: branch\'i yayinla ve upstream kur\ngit push origin feature/login-tests', en: '// TODO: publish the branch and set upstream\ngit push origin feature/login-tests' },
+  solutionCode: { tr: 'git push -u origin feature/login-tests', en: 'git push -u origin feature/login-tests' },
+  hint: { tr: '-u (--set-upstream) bayrağı olmadan, bir SONRAKİ push\'ta hangi remote branch\'e gideceğini Git HATIRLAMAZ — her seferinde branch adını TEKRAR yazman gerekir.', en: 'Without the -u (--set-upstream) flag, Git does NOT REMEMBER which remote branch to push to NEXT time — you would have to TYPE the branch name AGAIN every time.' },
+  successMessage: { tr: '-u bayrağı sayesinde bundan sonraki push\'lar SADECE git push yazarak yapılabilir — Git artık hangi remote branch\'i KASTETTİĞİNİ BİLİR.', en: 'Correct! Thanks to -u, future pushes can be done with JUST git push — Git now KNOWS which remote branch you MEAN.' },
+}
+
+const gitGitignorePractice = {
+  type: 'code-playground',
+  relatedTopicId: 'git-gitignore-patterns',
+  id: 'git-gitignore-practice-01',
+  label: { tr: 'Kendin Dene: .gitignore Kalıbını Düzelt', en: 'Try It Yourself: Fix the .gitignore Pattern' },
+  language: 'bash',
+  task: { tr: 'node_modules klasörünü, kaç seviye derinlikte olursa olsun, doğru şekilde yok sayan satırı yaz.', en: 'Write the line that correctly ignores the node_modules folder at any depth.' },
+  starterCode: { tr: '// TODO: node_modules klasorunu (dosya degil, klasor) doğru sekilde yok say\nnode_modules', en: '// TODO: correctly ignore the node_modules folder (not a file)\nnode_modules' },
+  solutionCode: { tr: 'node_modules/', en: 'node_modules/' },
+  hint: { tr: 'Sonuna / eklemeden yazılan bir kural, AYNI isimde bir DOSYAYI da eşleyebilir — / eklemek bunun SADECE bir klasör olduğunu garanti eder.', en: 'A rule without a trailing / can also match a FILE with the same name — adding / guarantees it only matches a folder.' },
+  successMessage: { tr: "Doğru! node_modules/ (sonundaki / ile) SADECE klasörü eşler — kaç seviye derinlikte olursa olsun, node_modules adındaki HER klasörü yok sayar.", en: 'Correct! node_modules/ (with the trailing /) matches ONLY the folder — it ignores EVERY folder named node_modules at ANY depth.' },
+}
+
+const gitSshKeygenPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'git-ssh-setup',
+  id: 'git-ssh-keygen-practice-01',
+  label: { tr: 'Kendin Dene: SSH Anahtarı Oluşturma Komutunu Tamamla', en: 'Try It Yourself: Complete the SSH Key Generation Command' },
+  language: 'bash',
+  task: { tr: 'ed25519 tipinde bir SSH anahtarı oluşturan komutu, e-posta yorumuyla birlikte tamamla.', en: 'Complete the command that generates an ed25519 SSH key, including the email comment.' },
+  starterCode: { tr: '// TODO: ed25519 tipinde bir SSH anahtari olustur\nssh-keygen -C "hasan@example.com"', en: '// TODO: generate an ed25519 SSH key\nssh-keygen -C "hasan@example.com"' },
+  solutionCode: { tr: 'ssh-keygen -t ed25519 -C "hasan@example.com"', en: 'ssh-keygen -t ed25519 -C "hasan@example.com"' },
+  hint: { tr: '-t bayrağı anahtar TİPİNİ belirtir — ed25519, günümüzde önerilen modern ve hızlı bir algoritmadır.', en: 'The -t flag specifies the key TYPE — ed25519 is the modern, fast algorithm recommended today.' },
+  successMessage: { tr: 'Doğru! -t ed25519 olmadan ssh-keygen varsayılan (RSA) bir anahtar üretir — GitHub\'ın önerdiği modern tip için -t bayrağı ZORUNLUDUR.', en: 'Correct! Without -t ed25519, ssh-keygen generates a default (RSA) key — the -t flag is REQUIRED for the modern type GitHub recommends.' },
+}
+
 const gitErrorDiagnosisFilm = {
   type: 'video-scene',
   id: 'git-error-diagnosis-film',
@@ -3158,6 +3197,33 @@ export const gitGithubData = {
             code: `# 1. Generate an SSH key pair\nssh-keygen -t ed25519 -C "your-email@example.com"\n# Press Enter for default file location; set a passphrase if you wish\n\n# 2. Copy the PUBLIC key\n# Windows PowerShell:\nGet-Content ~\\.ssh\\id_ed25519.pub\n# macOS / Linux:\ncat ~/.ssh/id_ed25519.pub\n\n# 3. GitHub.com → Settings → SSH and GPG keys → New SSH key → paste\n\n# 4. Test the connection\nssh -T git@github.com\n# \"Hi username! You've successfully authenticated...\"`,
           },
           {
+            type: 'step-animation',
+            id: 'git-ssh-keygen-step-01',
+            title: { tr: "ssh-keygen Bir Anahtar Çiftini Nasıl Oluşturur ve GitHub Onu Nasıl Tanır?", en: 'How Does ssh-keygen Create a Key Pair, and How Does GitHub Recognize It?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'ssh-keygen -t ed25519 çalıştırıldığında…', en: 'Running ssh-keygen -t ed25519…' }, detail: { tr: 'ssh-keygen -t ed25519 çalıştırıldığında İKİ dosya oluşturulur: id_ed25519 (ÖZEL anahtar, asla paylaşılmaz) ve id_ed25519.pub (herkese AÇIK anahtar).', en: 'Running ssh-keygen -t ed25519 CREATES TWO files: id_ed25519 (the PRIVATE key, never shared) and id_ed25519.pub (the PUBLIC key).' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'cat ~/.ssh/id_ed25519.pub ile yazdırılan metin…', en: 'The text printed by cat ~/.ssh/id_ed25519.pub…' }, detail: { tr: "cat ~/.ssh/id_ed25519.pub ile ekrana yazdırılan metin, matematiksel olarak ÖZEL anahtarla EŞLEŞEN ama ondan GERİ HESAPLANAMAYAN bir açık anahtardır.", en: 'The text printed by cat ~/.ssh/id_ed25519.pub is a public key that MATHEMATICALLY MATCHES the private key but CANNOT be reverse-computed from it.' } },
+              { id: 3, icon: '3️⃣', label: { tr: "GitHub'a yapıştırılan bu AÇIK anahtar…", en: 'This PUBLIC key, once pasted into GitHub…' }, detail: { tr: "GitHub'a yapıştırılan bu AÇIK anahtar, GitHub tarafında hesabınla EŞLEŞTİRİLİR — artık GitHub \"bu genel anahtarla eşleşen özel anahtara sahip biri seninle konuşuyor\" diye DOĞRULAYABİLİR.", en: 'This PUBLIC key, once pasted into GitHub, gets LINKED to your account — GitHub can now VERIFY that "whoever is talking to me holds the private key matching this public key".' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'ssh -T git@github.com çalıştırıldığında…', en: 'Running ssh -T git@github.com…' }, detail: { tr: "ssh -T git@github.com çalıştırıldığında GERÇEK bir SSH el sıkışması olur: GitHub sana bir MEYDAN OKUMA gönderir, sadece özel anahtarın sahibi bunu doğru CEVAPLAYABİLİR.", en: 'Running ssh -T git@github.com triggers a REAL SSH handshake: GitHub sends you a CHALLENGE that only the holder of the private key can ANSWER correctly.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Bu doğrulandıktan sonra git push/pull…', en: 'Once verified, git push/pull…' }, detail: { tr: "Bu doğrulandıktan sonra git push/pull komutları ARTIK şifre SORMAZ — SSH anahtarı, her işlemde otomatik olarak KİMLİĞİNİ kanıtlar.", en: 'Once verified, git push/pull commands NEVER ask for a password again — the SSH key automatically PROVES your identity on every operation.' } },
+            ],
+          },
+          gitSshKeygenPractice,
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-ssh-setup-order-01',
+            question: { tr: 'SSH anahtarıyla GitHub kimlik doğrulamasını kurma sırasını diz.', en: 'Order the steps for setting up SSH authentication with GitHub.' },
+            items: [
+              { id: '1', text: { tr: 'ssh-keygen -t ed25519 ile anahtar çifti oluştur', en: 'Generate a key pair with ssh-keygen -t ed25519' }, order: 1 },
+              { id: '2', text: { tr: "cat ~/.ssh/id_ed25519.pub ile public key'i kopyala", en: "Copy the public key with cat ~/.ssh/id_ed25519.pub" }, order: 2 },
+              { id: '3', text: { tr: 'GitHub Settings → SSH and GPG keys → New SSH key → yapıştır', en: 'GitHub Settings → SSH and GPG keys → New SSH key → paste' }, order: 3 },
+              { id: '4', text: { tr: 'ssh -T git@github.com ile bağlantıyı test et', en: 'Test the connection with ssh -T git@github.com' }, order: 4 },
+              { id: '5', text: { tr: "git push -u origin main ile şifresiz push yap", en: 'Push without a password with git push -u origin main' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'warning',
             content: 'Pick one method and stick with it. HTTPS remotes look like `https://github.com/user/repo.git`, SSH remotes look like `git@github.com:user/repo.git`. If you switch later, update with `git remote set-url origin <new-url>`.',
           },
@@ -3496,6 +3562,33 @@ export const gitGithubData = {
             label: 'A realistic .gitignore for a QA automation project',
             language: 'bash',
             code: `# Dependencies\nnode_modules/\n\n# Build output\ndist/\nbuild/\ntarget/\n\n# Test reports and artifacts\nplaywright-report/\ntest-results/\ncypress/screenshots/\ncypress/videos/\nallure-results/\nscreenshots/*.png\nreports/\n\n# Environment and secrets\n.env*\n!.env.example\n\n# IDE and local machine files\n.idea/\n.vscode/\n*.iml\n\n# OS files\n.DS_Store\nThumbs.db\n\n# Logs and temp files\n*.log\nnpm-debug.log*\n*.tmp\n*.swp`,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-gitignore-patterns-step-01',
+            title: { tr: "node_modules/ ve .env* Satırları Git'e Ne Anlatır?", en: 'What Do node_modules/ and .env* Actually Tell Git?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'node_modules/ satırı SONUNDAKİ /…', en: 'The trailing / in node_modules/…' }, detail: { tr: "node_modules/ satırı SONUNDAKİ / ile bunun bir KLASÖR olduğunu belirtir — Git bu isimde bir klasörle KARŞILAŞTIĞI HER YERDE (kaç seviye derinlikte olursa olsun) onu YOK SAYAR.", en: "The trailing / in node_modules/ MARKS it as a FOLDER — Git IGNORES it EVERYWHERE it finds a folder with this name, no matter how DEEP." } },
+              { id: 2, icon: '2️⃣', label: { tr: '.env* satırındaki * joker karakteri…', en: 'The * wildcard in .env*…' }, detail: { tr: '.env* satırındaki * joker karakteri .env, .env.local, .env.production gibi TÜM varyasyonları TEK bir kuralla KAPSAR.', en: 'The * wildcard in .env* COVERS every variation like .env, .env.local, .env.production with ONE single rule.' } },
+              { id: 3, icon: '3️⃣', label: { tr: '!.env.example satırındaki ! işareti…', en: 'The ! mark in !.env.example…' }, detail: { tr: '!.env.example satırındaki ! işareti bir İSTİSNA tanımlar — bir önceki .env* kuralı BU dosyayı yok saysa bile, ! onu TEKRAR takip edilebilir yapar.', en: 'The ! mark in !.env.example DEFINES an EXCEPTION — even though the earlier .env* rule ignores this file, ! makes it TRACKABLE AGAIN.' } },
+              { id: 4, icon: '4️⃣', label: { tr: '*.log gibi bir desen…', en: 'A pattern like *.log…' }, detail: { tr: '*.log gibi bir desen, klasör derinliğine BAKMAKSIZIN o UZANTIYA sahip HER dosyayı eşler — src/logs/app.log da, kök dizindeki debug.log da AYNI kuralla yakalanır.', en: 'A pattern like *.log matches EVERY file with that EXTENSION regardless of folder depth — src/logs/app.log and root-level debug.log are BOTH caught by the SAME rule.' } },
+              { id: 5, icon: '5️⃣', label: { tr: '.gitignore SADECE henüz TAKİP EDİLMEYEN…', en: '.gitignore only affects files NOT YET…' }, detail: { tr: ".gitignore SADECE henüz TAKİP EDİLMEYEN dosyalar için çalışır — bir dosya ZATEN commit edilmişse, .gitignore'a eklemek onu OTOMATİK olarak silmez, git rm --cached ile AYRICA çıkarman gerekir.", en: '.gitignore only WORKS for files NOT YET tracked — if a file is ALREADY committed, adding it to .gitignore does NOT AUTOMATICALLY remove it, you must ALSO run git rm --cached.' } },
+            ],
+          },
+          gitGitignorePractice,
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-gitignore-setup-order-01',
+            question: { tr: 'Yeni bir projede .gitignore kurma sırasını diz.', en: 'Order the steps for setting up .gitignore in a new project.' },
+            items: [
+              { id: '1', text: { tr: 'touch .gitignore ile dosyayı proje kökünde oluştur', en: 'Create the file at the project root with touch .gitignore' }, order: 1 },
+              { id: '2', text: { tr: 'node_modules/, dist/, .env* gibi kalıpları ekle', en: 'Add patterns like node_modules/, dist/, .env*' }, order: 2 },
+              { id: '3', text: { tr: "git status ile artık İZLENMEYEN dosyaları doğrula", en: 'Verify the now-UNTRACKED files with git status' }, order: 3 },
+              { id: '4', text: { tr: 'git add .gitignore && git commit ile kaydet', en: 'Save it with git add .gitignore && git commit' }, order: 4 },
+              { id: '5', text: { tr: 'ZATEN takip edilen bir dosya varsa git rm --cached ile ayrıca çıkar', en: 'If a file was ALREADY tracked, also remove it with git rm --cached' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'warning',
@@ -4697,6 +4790,33 @@ git push -u origin feature/login-tests
 # 5. Wait for checks and review`,
           },
           {
+            type: 'step-animation',
+            id: 'git-pr-checklist-step-01',
+            title: { tr: 'PR Author Checklist\'indeki Her Adım Neyi Kanıtlar?', en: 'What Does Each Step of the PR Author Checklist Actually Prove?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'git status çalıştırılması…', en: 'Running git status…' }, detail: { tr: 'git status çalıştırılması, PUSH etmeden ÖNCE hangi dosyaların DEĞİŞTİĞİNİ ve stage\'de olduğunu GÖRMENİ sağlar — sürpriz bir dosyanın YANLIŞLIKLA PR\'a girmesini ÖNLER.', en: 'Running git status LETS you SEE which files CHANGED and are staged BEFORE pushing — it PREVENTS a surprise file from ACCIDENTALLY entering the PR.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'npm test -- login.spec.js…', en: 'npm test -- login.spec.js…' }, detail: { tr: "npm test -- login.spec.js İLGİLİ testin LOKALDE geçtiğini kanıtlar — CI'nin RED vermesini BEKLEMEDEN, hatayı KENDİ makinende YAKALARSIN.", en: "npm test -- login.spec.js PROVES the RELEVANT test passes LOCALLY — you CATCH the error on YOUR OWN machine WITHOUT waiting for CI to turn RED." } },
+              { id: 3, icon: '3️⃣', label: { tr: 'git push -u origin feature/login-tests…', en: 'git push -u origin feature/login-tests…' }, detail: { tr: 'git push -u origin feature/login-tests, LOKAL branch\'i GitHub\'da bir REMOTE branch olarak YAYINLAR — bu olmadan GitHub\'da bir PR açacak HİÇBİR ŞEY olmaz.', en: 'git push -u origin feature/login-tests PUBLISHES the LOCAL branch as a REMOTE branch on GitHub — without this, there is NOTHING to open a PR against.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'base: main / compare: feature/login-tests SEÇİMİ…', en: 'The base: main / compare: feature/login-tests choice…' }, detail: { tr: '"New pull request" ekranında base: main / compare: feature/login-tests SEÇİMİ, GitHub\'a "bu DEĞİŞİKLİĞİ NEREYE birleştirmek istiyorum" der.', en: 'On the "New pull request" screen, choosing base: main / compare: feature/login-tests TELLS GitHub "WHERE I want to merge this CHANGE INTO".' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Test kanıtı İÇEREN bir açıklama YAZMAK…', en: 'Writing a description WITH test evidence…' }, detail: { tr: 'Test kanıtı (screenshot/log) İÇEREN bir açıklama YAZMAK, reviewer\'ın "çalıştığını NASIL biliyorsun?" sorusunu SORMADAN cevaplamasını sağlar — review SÜRESİNİ kısaltır.', en: 'Writing a description WITH test evidence (screenshot/log) ANSWERS the reviewer\'s "HOW do you know it works?" question BEFORE it\'s ASKED — it SHORTENS the review time.' } },
+            ],
+          },
+          gitPrPushPractice,
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-pr-checklist-order-01',
+            question: { tr: 'Review istemeden önceki PR author checklist sırasını diz.', en: 'Order the PR author checklist before asking for review.' },
+            items: [
+              { id: '1', text: { tr: 'git status ile değişiklikleri kontrol et', en: 'Check the changes with git status' }, order: 1 },
+              { id: '2', text: { tr: 'İlgili testi lokalde çalıştır (npm test -- login.spec.js)', en: 'Run the relevant test locally (npm test -- login.spec.js)' }, order: 2 },
+              { id: '3', text: { tr: "git push -u origin feature/login-tests ile branch'i yayınla", en: 'Publish the branch with git push -u origin feature/login-tests' }, order: 3 },
+              { id: '4', text: { tr: "GitHub'da base/compare seçerek PR aç", en: 'Open a PR on GitHub by choosing base/compare' }, order: 4 },
+              { id: '5', text: { tr: 'Test kanıtıyla açıklama yaz ve reviewer iste', en: 'Write a description with test evidence and request a reviewer' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'quiz',
             question: 'A reviewer finds a missing negative login test that can let a bug reach main. Which review decision is correct?',
             options: [
@@ -5572,6 +5692,33 @@ git push origin feature/my-branch   # Push only your branch`,
             code: `# 1. SSH key çifti oluştur\nssh-keygen -t ed25519 -C "email@example.com"\n# Varsayılan konum için Enter; istersen passphrase belirle\n\n# 2. PUBLIC key\'i kopyala\n# Windows PowerShell:\nGet-Content ~\\.ssh\\id_ed25519.pub\n# macOS / Linux:\ncat ~/.ssh/id_ed25519.pub\n\n# 3. GitHub.com → Settings → SSH and GPG keys → New SSH key → yapıştır\n\n# 4. Bağlantıyı test et\nssh -T git@github.com\n# \"Hi username! You've successfully authenticated...\"`,
           },
           {
+            type: 'step-animation',
+            id: 'git-ssh-keygen-step-01',
+            title: { tr: "ssh-keygen Bir Anahtar Çiftini Nasıl Oluşturur ve GitHub Onu Nasıl Tanır?", en: 'How Does ssh-keygen Create a Key Pair, and How Does GitHub Recognize It?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'ssh-keygen -t ed25519 çalıştırıldığında…', en: 'Running ssh-keygen -t ed25519…' }, detail: { tr: 'ssh-keygen -t ed25519 çalıştırıldığında İKİ dosya oluşturulur: id_ed25519 (ÖZEL anahtar, asla paylaşılmaz) ve id_ed25519.pub (herkese AÇIK anahtar).', en: 'Running ssh-keygen -t ed25519 CREATES TWO files: id_ed25519 (the PRIVATE key, never shared) and id_ed25519.pub (the PUBLIC key).' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'cat ~/.ssh/id_ed25519.pub ile yazdırılan metin…', en: 'The text printed by cat ~/.ssh/id_ed25519.pub…' }, detail: { tr: "cat ~/.ssh/id_ed25519.pub ile ekrana yazdırılan metin, matematiksel olarak ÖZEL anahtarla EŞLEŞEN ama ondan GERİ HESAPLANAMAYAN bir açık anahtardır.", en: 'The text printed by cat ~/.ssh/id_ed25519.pub is a public key that MATHEMATICALLY MATCHES the private key but CANNOT be reverse-computed from it.' } },
+              { id: 3, icon: '3️⃣', label: { tr: "GitHub'a yapıştırılan bu AÇIK anahtar…", en: 'This PUBLIC key, once pasted into GitHub…' }, detail: { tr: "GitHub'a yapıştırılan bu AÇIK anahtar, GitHub tarafında hesabınla EŞLEŞTİRİLİR — artık GitHub \"bu genel anahtarla eşleşen özel anahtara sahip biri seninle konuşuyor\" diye DOĞRULAYABİLİR.", en: 'This PUBLIC key, once pasted into GitHub, gets LINKED to your account — GitHub can now VERIFY that "whoever is talking to me holds the private key matching this public key".' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'ssh -T git@github.com çalıştırıldığında…', en: 'Running ssh -T git@github.com…' }, detail: { tr: "ssh -T git@github.com çalıştırıldığında GERÇEK bir SSH el sıkışması olur: GitHub sana bir MEYDAN OKUMA gönderir, sadece özel anahtarın sahibi bunu doğru CEVAPLAYABİLİR.", en: 'Running ssh -T git@github.com triggers a REAL SSH handshake: GitHub sends you a CHALLENGE that only the holder of the private key can ANSWER correctly.' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Bu doğrulandıktan sonra git push/pull…', en: 'Once verified, git push/pull…' }, detail: { tr: "Bu doğrulandıktan sonra git push/pull komutları ARTIK şifre SORMAZ — SSH anahtarı, her işlemde otomatik olarak KİMLİĞİNİ kanıtlar.", en: 'Once verified, git push/pull commands NEVER ask for a password again — the SSH key automatically PROVES your identity on every operation.' } },
+            ],
+          },
+          gitSshKeygenPractice,
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-ssh-setup-order-01',
+            question: { tr: 'SSH anahtarıyla GitHub kimlik doğrulamasını kurma sırasını diz.', en: 'Order the steps for setting up SSH authentication with GitHub.' },
+            items: [
+              { id: '1', text: { tr: 'ssh-keygen -t ed25519 ile anahtar çifti oluştur', en: 'Generate a key pair with ssh-keygen -t ed25519' }, order: 1 },
+              { id: '2', text: { tr: "cat ~/.ssh/id_ed25519.pub ile public key'i kopyala", en: "Copy the public key with cat ~/.ssh/id_ed25519.pub" }, order: 2 },
+              { id: '3', text: { tr: 'GitHub Settings → SSH and GPG keys → New SSH key → yapıştır', en: 'GitHub Settings → SSH and GPG keys → New SSH key → paste' }, order: 3 },
+              { id: '4', text: { tr: 'ssh -T git@github.com ile bağlantıyı test et', en: 'Test the connection with ssh -T git@github.com' }, order: 4 },
+              { id: '5', text: { tr: "git push -u origin main ile şifresiz push yap", en: 'Push without a password with git push -u origin main' }, order: 5 },
+            ],
+            xpReward: 10,
+          },
+          {
             type: 'warning',
             content: 'Bir yöntem seç ve ona bağlı kal. HTTPS remote\'ları `https://github.com/user/repo.git`, SSH remote\'ları `git@github.com:user/repo.git` şeklindedir. Sonradan değiştirirsen `git remote set-url origin <yeni-url>` kullan.',
           },
@@ -5910,6 +6057,33 @@ git push origin feature/my-branch   # Push only your branch`,
             label: 'QA automation projesi için gerçekçi bir .gitignore',
             language: 'bash',
             code: `# Bağımlılıklar\nnode_modules/\n\n# Build çıktısı\ndist/\nbuild/\ntarget/\n\n# Test rapor ve artifact\nplaywright-report/\ntest-results/\ncypress/screenshots/\ncypress/videos/\nallure-results/\nscreenshots/*.png\nreports/\n\n# Ortam ve secret\n.env*\n!.env.example\n\n# IDE ve local makine dosyaları\n.idea/\n.vscode/\n*.iml\n\n# OS dosyaları\n.DS_Store\nThumbs.db\n\n# Log ve geçici dosyalar\n*.log\nnpm-debug.log*\n*.tmp\n*.swp`,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-gitignore-patterns-step-01',
+            title: { tr: "node_modules/ ve .env* Satırları Git'e Ne Anlatır?", en: 'What Do node_modules/ and .env* Actually Tell Git?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'node_modules/ satırı SONUNDAKİ /…', en: 'The trailing / in node_modules/…' }, detail: { tr: "node_modules/ satırı SONUNDAKİ / ile bunun bir KLASÖR olduğunu belirtir — Git bu isimde bir klasörle KARŞILAŞTIĞI HER YERDE (kaç seviye derinlikte olursa olsun) onu YOK SAYAR.", en: "The trailing / in node_modules/ MARKS it as a FOLDER — Git IGNORES it EVERYWHERE it finds a folder with this name, no matter how DEEP." } },
+              { id: 2, icon: '2️⃣', label: { tr: '.env* satırındaki * joker karakteri…', en: 'The * wildcard in .env*…' }, detail: { tr: '.env* satırındaki * joker karakteri .env, .env.local, .env.production gibi TÜM varyasyonları TEK bir kuralla KAPSAR.', en: 'The * wildcard in .env* COVERS every variation like .env, .env.local, .env.production with ONE single rule.' } },
+              { id: 3, icon: '3️⃣', label: { tr: '!.env.example satırındaki ! işareti…', en: 'The ! mark in !.env.example…' }, detail: { tr: '!.env.example satırındaki ! işareti bir İSTİSNA tanımlar — bir önceki .env* kuralı BU dosyayı yok saysa bile, ! onu TEKRAR takip edilebilir yapar.', en: 'The ! mark in !.env.example DEFINES an EXCEPTION — even though the earlier .env* rule ignores this file, ! makes it TRACKABLE AGAIN.' } },
+              { id: 4, icon: '4️⃣', label: { tr: '*.log gibi bir desen…', en: 'A pattern like *.log…' }, detail: { tr: '*.log gibi bir desen, klasör derinliğine BAKMAKSIZIN o UZANTIYA sahip HER dosyayı eşler — src/logs/app.log da, kök dizindeki debug.log da AYNI kuralla yakalanır.', en: 'A pattern like *.log matches EVERY file with that EXTENSION regardless of folder depth — src/logs/app.log and root-level debug.log are BOTH caught by the SAME rule.' } },
+              { id: 5, icon: '5️⃣', label: { tr: '.gitignore SADECE henüz TAKİP EDİLMEYEN…', en: '.gitignore only affects files NOT YET…' }, detail: { tr: ".gitignore SADECE henüz TAKİP EDİLMEYEN dosyalar için çalışır — bir dosya ZATEN commit edilmişse, .gitignore'a eklemek onu OTOMATİK olarak silmez, git rm --cached ile AYRICA çıkarman gerekir.", en: '.gitignore only WORKS for files NOT YET tracked — if a file is ALREADY committed, adding it to .gitignore does NOT AUTOMATICALLY remove it, you must ALSO run git rm --cached.' } },
+            ],
+          },
+          gitGitignorePractice,
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-gitignore-setup-order-01',
+            question: { tr: 'Yeni bir projede .gitignore kurma sırasını diz.', en: 'Order the steps for setting up .gitignore in a new project.' },
+            items: [
+              { id: '1', text: { tr: 'touch .gitignore ile dosyayı proje kökünde oluştur', en: 'Create the file at the project root with touch .gitignore' }, order: 1 },
+              { id: '2', text: { tr: 'node_modules/, dist/, .env* gibi kalıpları ekle', en: 'Add patterns like node_modules/, dist/, .env*' }, order: 2 },
+              { id: '3', text: { tr: "git status ile artık İZLENMEYEN dosyaları doğrula", en: 'Verify the now-UNTRACKED files with git status' }, order: 3 },
+              { id: '4', text: { tr: 'git add .gitignore && git commit ile kaydet', en: 'Save it with git add .gitignore && git commit' }, order: 4 },
+              { id: '5', text: { tr: 'ZATEN takip edilen bir dosya varsa git rm --cached ile ayrıca çıkar', en: 'If a file was ALREADY tracked, also remove it with git rm --cached' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'warning',
@@ -7122,6 +7296,33 @@ git push -u origin feature/login-tests
 # 3. Title + description + test evidence yaz
 # 4. Reviewer iste
 # 5. Checks ve review sonucunu bekle`,
+          },
+          {
+            type: 'step-animation',
+            id: 'git-pr-checklist-step-01',
+            title: { tr: 'PR Author Checklist\'indeki Her Adım Neyi Kanıtlar?', en: 'What Does Each Step of the PR Author Checklist Actually Prove?' },
+            steps: [
+              { id: 1, icon: '1️⃣', label: { tr: 'git status çalıştırılması…', en: 'Running git status…' }, detail: { tr: 'git status çalıştırılması, PUSH etmeden ÖNCE hangi dosyaların DEĞİŞTİĞİNİ ve stage\'de olduğunu GÖRMENİ sağlar — sürpriz bir dosyanın YANLIŞLIKLA PR\'a girmesini ÖNLER.', en: 'Running git status LETS you SEE which files CHANGED and are staged BEFORE pushing — it PREVENTS a surprise file from ACCIDENTALLY entering the PR.' } },
+              { id: 2, icon: '2️⃣', label: { tr: 'npm test -- login.spec.js…', en: 'npm test -- login.spec.js…' }, detail: { tr: "npm test -- login.spec.js İLGİLİ testin LOKALDE geçtiğini kanıtlar — CI'nin RED vermesini BEKLEMEDEN, hatayı KENDİ makinende YAKALARSIN.", en: "npm test -- login.spec.js PROVES the RELEVANT test passes LOCALLY — you CATCH the error on YOUR OWN machine WITHOUT waiting for CI to turn RED." } },
+              { id: 3, icon: '3️⃣', label: { tr: 'git push -u origin feature/login-tests…', en: 'git push -u origin feature/login-tests…' }, detail: { tr: 'git push -u origin feature/login-tests, LOKAL branch\'i GitHub\'da bir REMOTE branch olarak YAYINLAR — bu olmadan GitHub\'da bir PR açacak HİÇBİR ŞEY olmaz.', en: 'git push -u origin feature/login-tests PUBLISHES the LOCAL branch as a REMOTE branch on GitHub — without this, there is NOTHING to open a PR against.' } },
+              { id: 4, icon: '4️⃣', label: { tr: 'base: main / compare: feature/login-tests SEÇİMİ…', en: 'The base: main / compare: feature/login-tests choice…' }, detail: { tr: '"New pull request" ekranında base: main / compare: feature/login-tests SEÇİMİ, GitHub\'a "bu DEĞİŞİKLİĞİ NEREYE birleştirmek istiyorum" der.', en: 'On the "New pull request" screen, choosing base: main / compare: feature/login-tests TELLS GitHub "WHERE I want to merge this CHANGE INTO".' } },
+              { id: 5, icon: '5️⃣', label: { tr: 'Test kanıtı İÇEREN bir açıklama YAZMAK…', en: 'Writing a description WITH test evidence…' }, detail: { tr: 'Test kanıtı (screenshot/log) İÇEREN bir açıklama YAZMAK, reviewer\'ın "çalıştığını NASIL biliyorsun?" sorusunu SORMADAN cevaplamasını sağlar — review SÜRESİNİ kısaltır.', en: 'Writing a description WITH test evidence (screenshot/log) ANSWERS the reviewer\'s "HOW do you know it works?" question BEFORE it\'s ASKED — it SHORTENS the review time.' } },
+            ],
+          },
+          gitPrPushPractice,
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'git-pr-checklist-order-01',
+            question: { tr: 'Review istemeden önceki PR author checklist sırasını diz.', en: 'Order the PR author checklist before asking for review.' },
+            items: [
+              { id: '1', text: { tr: 'git status ile değişiklikleri kontrol et', en: 'Check the changes with git status' }, order: 1 },
+              { id: '2', text: { tr: 'İlgili testi lokalde çalıştır (npm test -- login.spec.js)', en: 'Run the relevant test locally (npm test -- login.spec.js)' }, order: 2 },
+              { id: '3', text: { tr: "git push -u origin feature/login-tests ile branch'i yayınla", en: 'Publish the branch with git push -u origin feature/login-tests' }, order: 3 },
+              { id: '4', text: { tr: "GitHub'da base/compare seçerek PR aç", en: 'Open a PR on GitHub by choosing base/compare' }, order: 4 },
+              { id: '5', text: { tr: 'Test kanıtıyla açıklama yaz ve reviewer iste', en: 'Write a description with test evidence and request a reviewer' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'quiz',

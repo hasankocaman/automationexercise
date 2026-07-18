@@ -471,6 +471,19 @@ const linuxErrors = [
 // Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
 
 // 🎯 Giriş — görünmez taşıyıcı duvar filmi
+const linuxWhoamiPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'linux-first-session-verify',
+  id: 'linux-whoami-practice-01',
+  label: { tr: 'Kendin Dene: Eksik Doğrulama Komutunu Tamamla', en: 'Try It Yourself: Complete the Missing Verification Command' },
+  language: 'bash',
+  task: { tr: 'Şu an hangi kullanıcı olarak oturum açtığını gösteren EKSİK komutu yaz.', en: 'Write the MISSING command that shows which user you are currently logged in as.' },
+  starterCode: { tr: 'uname -a\n// TODO: mevcut kullanici adini gosteren komutu yaz\npwd', en: 'uname -a\n// TODO: write the command that shows the current username\npwd' },
+  solutionCode: { tr: 'uname -a\nwhoami\npwd', en: 'uname -a\nwhoami\npwd' },
+  hint: { tr: 'whoami, terminale o an hangi KULLANICI olarak bağlı olduğunu YAZDIRIR — root musun yoksa sınırlı bir kullanıcı mısın, bunu HEMEN gösterir.', en: 'whoami PRINTS which USER you are currently connected as — it IMMEDIATELY shows whether you are root or a limited user.' },
+  successMessage: { tr: "Doğru! whoami özellikle sudo gerektiren bir komut BEKLENMEDİK şekilde 'permission denied' verdiğinde ilk kontrol ettiğin komutlardan biridir.", en: "Correct! whoami is one of the first commands you check when a command needing sudo UNEXPECTEDLY returns 'permission denied'." },
+}
+
 const linuxInvisibleWallFilm = {
   type: 'video-scene',
   id: 'linux-invisible-wall-film',
@@ -1802,6 +1815,21 @@ echo $SHELL            # Your default shell
 whoami                 # Your current username
 pwd                    # Your current working directory`,
             expected: 'Linux <hostname> 5.15.0-... x86_64\nDistributor ID: Ubuntu  Release: 22.04\n/bin/bash\nqa\n/home/qa',
+          },
+          linuxWhoamiPractice,
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'linux-wsl2-first-session-order-01',
+            question: { tr: 'WSL2 kurulumundan ilk Linux oturumuna kadarki sırayı diz.', en: 'Order the steps from installing WSL2 to your first Linux session.' },
+            items: [
+              { id: '1', text: { tr: 'wsl --install ile WSL2\'yi kur', en: 'Install WSL2 with wsl --install' }, order: 1 },
+              { id: '2', text: { tr: 'Bilgisayarı yeniden başlat', en: 'Restart the computer' }, order: 2 },
+              { id: '3', text: { tr: 'Bir Linux dağıtımı seç (örn. Ubuntu) ve kullanıcı oluştur', en: 'Choose a Linux distro (e.g. Ubuntu) and create a user' }, order: 3 },
+              { id: '4', text: { tr: 'Terminali aç', en: 'Open the terminal' }, order: 4 },
+              { id: '5', text: { tr: "uname -a ve whoami ile ortamı doğrula", en: 'Verify the environment with uname -a and whoami' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'git-practice',
@@ -3233,6 +3261,21 @@ echo $SHELL            # Varsayılan shell'in
 whoami                 # Şu anki kullanıcı adın
 pwd                    # Şu anki çalışma dizinin`,
             expected: 'Linux <hostname> 5.15.0-... x86_64\nDistributor ID: Ubuntu  Release: 22.04\n/bin/bash\nqa\n/home/qa',
+          },
+          linuxWhoamiPractice,
+          {
+            type: 'challenge',
+            variant: 'order-sort',
+            id: 'linux-wsl2-first-session-order-01',
+            question: { tr: 'WSL2 kurulumundan ilk Linux oturumuna kadarki sırayı diz.', en: 'Order the steps from installing WSL2 to your first Linux session.' },
+            items: [
+              { id: '1', text: { tr: 'wsl --install ile WSL2\'yi kur', en: 'Install WSL2 with wsl --install' }, order: 1 },
+              { id: '2', text: { tr: 'Bilgisayarı yeniden başlat', en: 'Restart the computer' }, order: 2 },
+              { id: '3', text: { tr: 'Bir Linux dağıtımı seç (örn. Ubuntu) ve kullanıcı oluştur', en: 'Choose a Linux distro (e.g. Ubuntu) and create a user' }, order: 3 },
+              { id: '4', text: { tr: 'Terminali aç', en: 'Open the terminal' }, order: 4 },
+              { id: '5', text: { tr: "uname -a ve whoami ile ortamı doğrula", en: 'Verify the environment with uname -a and whoami' }, order: 5 },
+            ],
+            xpReward: 10,
           },
           {
             type: 'git-practice',

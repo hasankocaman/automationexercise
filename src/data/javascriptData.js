@@ -2168,6 +2168,20 @@ npx playwright test
       jsNodeNpmSetupFilm,
       jsNodeNpmInstallPractice,
       {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'js-node-npm-setup-order-01',
+        question: { tr: 'Sıfırdan bir Node.js + Playwright test projesi kurulum sırasını diz.', en: 'Order the steps for setting up a Node.js + Playwright test project from scratch.' },
+        items: [
+          { id: '1', text: { tr: 'Node.js LTS sürümünü indir ve kur (nodejs.org)', en: 'Download and install the Node.js LTS version (nodejs.org)' }, order: 1 },
+          { id: '2', text: { tr: 'node --version ve npm --version ile kurulumu doğrula', en: 'Verify the install with node --version and npm --version' }, order: 2 },
+          { id: '3', text: { tr: 'mkdir my-qa-project && cd my-qa-project ile proje klasörü oluştur', en: 'Create the project folder with mkdir my-qa-project && cd my-qa-project' }, order: 3 },
+          { id: '4', text: { tr: 'npm init playwright@latest ile Playwright projesini kur', en: 'Set up the Playwright project with npm init playwright@latest' }, order: 4 },
+          { id: '5', text: { tr: 'npx playwright test ile ilk örnek testi çalıştır', en: 'Run the first example test with npx playwright test' }, order: 5 },
+        ],
+        xpReward: 10,
+      },
+      {
         type: "quiz",
         question: {
           tr: "JavaScript kütüphanelerini (Playwright vb.) projeye eklemek için hangi aracı kullanırız?",

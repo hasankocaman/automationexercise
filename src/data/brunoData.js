@@ -511,6 +511,21 @@ const brunoAnatomyFilm = {
   ],
 }
 
+const brunoBruFileAnatomyOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'bruno-bru-file-anatomy-order-01',
+  question: { tr: 'Bir .bru dosyasının bloklarını yukarıdan aşağıya doğru sırala.', en: 'Order the blocks of a .bru file from top to bottom.' },
+  items: [
+    { id: '1', text: { tr: 'meta { } — isteğin sidebar\'da görünen adı ve tipi', en: 'meta { } — the request\'s name and type shown in the sidebar' }, order: 1 },
+    { id: '2', text: { tr: 'get { } — HTTP metodu ve URL ({{baseUrl}} gibi değişkenlerle)', en: 'get { } — the HTTP method and URL (with variables like {{baseUrl}})' }, order: 2 },
+    { id: '3', text: { tr: 'headers { } — her istekle birlikte gönderilen başlıklar', en: 'headers { } — headers sent with every request' }, order: 3 },
+    { id: '4', text: { tr: 'assert { } — script yazmadan yapılan basit kontroller', en: 'assert { } — simple checks that need no script' }, order: 4 },
+    { id: '5', text: { tr: 'script:post-response { } — yanıt geldikten SONRA çalışan JavaScript', en: 'script:post-response { } — JavaScript that runs AFTER the response arrives' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
 const brunoEnvVarResolutionSteps = {
   type: 'step-animation',
   id: 'bruno-env-var-resolution-steps',
@@ -1501,6 +1516,7 @@ script:post-response {
           },
           brunoAnatomyFilm,
           brunoEnvVarResolutionSteps,
+          brunoBruFileAnatomyOrder,
           brunoCoreConceptsPractice,
           {
             type: 'quiz',
@@ -2233,6 +2249,7 @@ script:post-response {
           },
           brunoAnatomyFilm,
           brunoEnvVarResolutionSteps,
+          brunoBruFileAnatomyOrder,
           brunoCoreConceptsPractice,
           {
             type: 'quiz',

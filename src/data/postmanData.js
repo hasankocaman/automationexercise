@@ -779,6 +779,65 @@ fetch("/api/users/2", { method: "PUT", body: JSON.stringify({ email: "yeni@ornek
   successMessage: { tr: 'Doğru! PUT idempotenttir — bu isteği yanlışlıkla 2 kez gönderirsen bile sonuç değişmez.', en: 'Correct! PUT is idempotent — even if you accidentally send this request twice, the result stays the same.' },
 }
 
+const pmFirstRequestOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'pm-first-request-order-01',
+  question: { tr: 'Postman\'da ilk GET isteğini gönderme sırasını diz.', en: 'Order the steps for sending your first GET request in Postman.' },
+  items: [
+    { id: '1', text: { tr: 'Postman\'ı indir ve kur (postman.com/downloads)', en: 'Download and install Postman (postman.com/downloads)' }, order: 1 },
+    { id: '2', text: { tr: 'Yeni bir istek (Request) sekmesi aç', en: 'Open a new Request tab' }, order: 2 },
+    { id: '3', text: { tr: 'HTTP metodunu GET olarak seç ve URL\'i gir', en: 'Select the GET method and enter the URL' }, order: 3 },
+    { id: '4', text: { tr: 'Send butonuna tıkla', en: 'Click the Send button' }, order: 4 },
+    { id: '5', text: { tr: 'Status code, süre ve response body\'yi incele', en: 'Inspect the status code, time, and response body' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const pmMicroservicesRunOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'pm-microservices-run-order-01',
+  question: { tr: '4 mikroservisi sırayla, fail-fast ile Newman\'da test etme sırasını diz.', en: 'Order the sequence for testing 4 microservices in order with Newman, fail-fast.' },
+  items: [
+    { id: '1', text: { tr: 'newman run auth-service.collection.json -e env.staging.json', en: 'newman run auth-service.collection.json -e env.staging.json' }, order: 1 },
+    { id: '2', text: { tr: 'newman run user-service.collection.json -e env.staging.json', en: 'newman run user-service.collection.json -e env.staging.json' }, order: 2 },
+    { id: '3', text: { tr: 'newman run order-service.collection.json -e env.staging.json', en: 'newman run order-service.collection.json -e env.staging.json' }, order: 3 },
+    { id: '4', text: { tr: 'newman run payment-service.collection.json -e env.staging.json', en: 'newman run payment-service.collection.json -e env.staging.json' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+const pmGithubActionsOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'pm-github-actions-order-01',
+  question: { tr: 'GitHub Actions workflow\'unun Postman/Newman adım sırasını diz.', en: 'Order the steps of the GitHub Actions workflow for Postman/Newman.' },
+  items: [
+    { id: '1', text: { tr: 'actions/checkout@v3 ile repository\'yi klonla', en: 'Clone the repository with actions/checkout@v3' }, order: 1 },
+    { id: '2', text: { tr: 'actions/setup-node@v3 ile Node.js kur', en: 'Set up Node.js with actions/setup-node@v3' }, order: 2 },
+    { id: '3', text: { tr: 'npm install -g newman newman-reporter-htmlextra ile Newman\'ı kur', en: 'Install Newman with npm install -g newman newman-reporter-htmlextra' }, order: 3 },
+    { id: '4', text: { tr: 'newman run ile koleksiyonu ortam dosyasıyla çalıştır', en: 'Run the collection with newman run against the environment file' }, order: 4 },
+    { id: '5', text: { tr: 'actions/upload-artifact@v3 ile HTML raporunu yükle (if: always())', en: 'Upload the HTML report with actions/upload-artifact@v3 (if: always())' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+const pmChainedRequestOrder = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'pm-chained-request-order-01',
+  question: { tr: 'İki isteği zincirleme (chaining) ile çalıştırma sırasını diz.', en: 'Order the sequence for chaining two requests together.' },
+  items: [
+    { id: '1', text: { tr: 'İstek 1: GET /users/1 gönder ve status 200\'ü doğrula', en: 'Send Request 1: GET /users/1 and verify status 200' }, order: 1 },
+    { id: '2', text: { tr: 'pm.collectionVariables.set("userId", ...) ile yanıttaki id\'yi sakla', en: 'Store the response id with pm.collectionVariables.set("userId", ...)' }, order: 2 },
+    { id: '3', text: { tr: 'İstek 2: GET /posts?userId={{userId}} gönder', en: 'Send Request 2: GET /posts?userId={{userId}}' }, order: 3 },
+    { id: '4', text: { tr: 'Dönen tüm post\'ların userId\'sinin saklanan değerle eşleştiğini doğrula', en: 'Verify every returned post\'s userId matches the stored value' }, order: 4 },
+    { id: '5', text: { tr: 'Collection Runner ile ikisini tek tıkla art arda çalıştır', en: 'Run both back-to-back with a single click via Collection Runner' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
 const pmEnvSetupStep = {
   type: 'step-animation',
   title: { tr: 'İlk Ortam (Environment) Kurulumu — Adım Adım', en: 'Setting Up Your First Environment — Step by Step' },
@@ -1226,6 +1285,7 @@ export const postmanData = {
           pmFirstRequestFilm,
           pmEnvSetupStep,
           pmEnvSetupPractice,
+          pmFirstRequestOrder,
           {
             type: 'quiz',
             question: 'You send POST /api/users and the server responds 201. What should you verify next as a QA tester?',
@@ -1493,6 +1553,7 @@ newman run tests/postman/order-service.collection.json  -e env.staging.json &&
 newman run tests/postman/payment-service.collection.json -e env.staging.json`,
           },
           pmNewmanCliStep,
+          pmMicroservicesRunOrder,
           { type: 'heading', text: 'Variable Scope — Priority Order' },
           {
             type: 'diagram-svg',
@@ -1738,6 +1799,7 @@ jobs:
           path: report.html`,
           },
           pmNewmanCiCdStep,
+          pmGithubActionsOrder,
           { type: 'heading', text: 'Common Postman Errors & Solutions' },
           {
             type: 'error-dictionary',
@@ -1943,6 +2005,7 @@ pm.test("All posts belong to chained userId", () => {
           },
           pmNewmanCiFilm,
           pmCiGateStep,
+          pmChainedRequestOrder,
           pmCiGatePractice,
           {
             type: 'quiz',
@@ -2507,6 +2570,7 @@ pm.test("Status is active", () => {
           pmFirstRequestFilm,
           pmEnvSetupStep,
           pmEnvSetupPractice,
+          pmFirstRequestOrder,
           {
             type: 'quiz',
             question: 'POST /api/users gönderdin ve sunucu 201 döndürdü. QA test uzmanı olarak bundan sonra ne doğrulamalısın?',
@@ -2783,6 +2847,7 @@ newman run tests/postman/order-service.collection.json  -e env.staging.json &&
 newman run tests/postman/payment-service.collection.json -e env.staging.json`,
           },
           pmNewmanCliStep,
+          pmMicroservicesRunOrder,
           { type: 'heading', text: 'Variable Scope — Öncelik Sırası' },
           {
             type: 'diagram-svg',
@@ -3019,6 +3084,7 @@ jobs:
           path: report.html`,
           },
           pmNewmanCiCdStep,
+          pmGithubActionsOrder,
           { type: 'heading', text: 'Sık Karşılaşılan Postman Hataları ve Çözümleri' },
           {
             type: 'error-dictionary',
@@ -3190,6 +3256,7 @@ pm.test("Tüm postlar zincirlenen userId'ye ait", () => {
           },
           pmNewmanCiFilm,
           pmCiGateStep,
+          pmChainedRequestOrder,
           pmCiGatePractice,
           {
             type: 'quiz',

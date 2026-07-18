@@ -10,6 +10,86 @@
 
 ---
 
+## 🎉 OTURUM ÖZETİ — animation-per-topic PLANI TAMAMEN BİTTİ (2026-07-19, Sonnet oturumu devamı)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+
+Önceki oturum Dalga A8'in 9 sayfasını bitirmişti (playwright→llm-agents, aşağıdaki
+bölüme bakın). Kullanıcı bu oturumda **"proje geneli bütün açıkları düzelt"**
+talimatı verdi — kapsam dışı bırakılan `pythonData.js` (17 açık, Fable'a
+ayrılmıştı) ve hiç başlanmamış Dalga B (18 eksik order-sort + birkaç
+playground/step-anim açığı) dahil TÜM proje bu oturumda kapatıldı.
+
+### 1) `pythonData.js` — 17 animasyon açığı (yüksek riskli dosya, ÖZEL yöntemle)
+
+`pythonData.js`'in `applyTr(enSection, overrides)` mekanizması (satır ~7841)
+`sections[N].blocks` dizisindeki HER elemanı SAYISAL INDEX'e göre override eder;
+üstüne üstlük `finalEnSections`/`finalTrSections` (dosya sonu, ~10811) bu
+`sections[N].blocks`'u **çoklu `.slice(a,b)` parçalarıyla** birden fazla sekmeye
+dağıtıyor (örn. `sections[4]` tek başına Classes/Scope/Helper/Files/Exceptions/
+Advanced sekmelerinin HEPSİNE besleniyor). `sections[N]`/`trSections[N]`
+kaynağına TEK bir blok eklemek bile TÜM bu index/slice haritasını kaydırıp
+BAŞKA sekmelerin TR içeriğini sessizce bozabilirdi.
+
+**Uygulanan güvenli yöntem:** 17 yeni step-animation SADECE `finalEnSections`/
+`finalTrSections` dizi ifadelerindeki dış birleştirme noktalarına (`...sections[N]
+.blocks.slice(a,b), YENİ_SABİT, ...diğer parçalar`) eklendi — `sections[N]`
+veya `trSections[N]`'in KENDİSİNE hiç dokunulmadı. Böylece hiçbir sekmenin
+index haritası kaymadı (build + `check-content-integrity.mjs` + canlı TR/EN
+`node -e "import(...)"` spot-check ile üç kez doğrulandı — EN/TR blok sayıları
+sekme sekme BİREBİR eşleşiyor).
+
+Kapatılan sekmeler: Installation(1), Variables&Types(1), Conditions&Loops(1),
+Classes&OOP(1), Scope&Modules(1), Helper Modules(1), Files&JSON(2), Advanced
+Concepts(5: list comprehension/iterator protocol/context manager/type hints/
+argparse), Real World pytest(4: API assert/CSV parametrize/retry decorator/
+DB fixture scope) = **17/17 kapatıldı**.
+
+### 2) Dalga B — order-sort + playground/step-anim trio açıkları (`npm run audit:interactive`)
+
+Plandaki "18 eksik order-sort" tahmini güncel `audit:interactive.mjs --missing`
+ile **17 lokasyon** olarak doğrulandı (bazı git/java/linux sekmeleri SADECE
+order-sort değil, playground VE step-animation da eksikti — o sekmelerde
+üçünü birden eklemek gerekti):
+- **javascript** (1): Installation & Setup — Node/npm/Playwright kurulum sırası
+- **selenium** (1): Selenium IDE — `selenium-side-runner` CLI çalıştırma sırası
+- **bruno** (1): Core Concepts — `.bru` dosya blok anatomisi sırası
+- **postman** (4): İlk istek gönderme + 4 mikroservisi sırayla test etme +
+  GitHub Actions workflow adım sırası + request chaining sırası
+- **jmeter** (5): Kurulum sırası + test plan kurma sırası + GitHub Actions
+  sırası + P99 sorun giderme sırası + (section04'te ayrıca EKSİK olan bir
+  step-animation da eklendi — mini proje adımlarının rapor etkisini anlatan)
+- **git** (3 sekme, TAMAMEN boş — playground+step-anim+order-sort ÜÇÜ de
+  eklendi): Installation (SSH key kurulumu), .gitignore (pattern mekaniği),
+  Pull Request (author checklist)
+- **java** (1): Installation — `javac`/`java` komut sırası + fark code-playground
+- **linux** (1): Getting a Linux Environment — `whoami` code-playground +
+  WSL2-kurulumdan-ilk-oturuma sırası
+
+**Doğrulama:** `npm run audit:interactive -- --missing` → **Total gaps: 0**
+(proje geneli, 25 sayfa). `node scripts/audit-animation-coverage.mjs` → **Toplam
+açık: 0** (python dahil, 551 kod bloğu / 724 animasyon). Planın §5 Tamamlanma
+Tanımı'ndaki 1. ve 2. madde artık İKİSİ DE karşılanıyor.
+
+### 3) Bulunan ve düzeltilen yan hata: duplicate-hint ihlali
+
+git/java/linux'a EN+TR ağaçlarına aynı `code-playground` içeriğini İKİ KEZ
+LİTERAL (paylaşılan const yerine) yazmak, `check-content-integrity.mjs`'nin
+[C] "Benzer ipucu" kontrolünü TETİKLEDİ (checker sadece satır bazlı metin
+karşılaştırması yapıyor, TR/EN ağaç farkını `hint` alanında ayırt etmiyor).
+5 ihlalin TAMAMI, o 5 code-playground'u paylaşılan const'a çevirip (dosyada
+TEK yerde tanımlanıp iki ağaca da referansla eklenerek) düzeltildi — bu aynı
+zamanda planın §2.5 "aynı referansla" kuralına da tam uyum sağladı.
+
+**Doğrulama:** `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+(A=0 B=0 C=0 D=0) + `npm run build` (bu commit sonrası doğrulanacak).
+
+**Kalan iş:** YOK — animation-per-topic-plan.md'nin tanımladığı kapsam (python
+dahil TÜM sayfalar + Dalga B) TAMAMEN bitti. Branch main'e merge edilmeyi
+bekliyor (kullanıcı onayı gerekir, bu oturumda merge YAPILMADI).
+
+---
+
 ## OTURUM ÖZETİ — animation-per-topic Dalga A8 DEVAM EDİYOR (2026-07-18, Sonnet oturumu, playwright TAMAMLANDI)
 
 **Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).

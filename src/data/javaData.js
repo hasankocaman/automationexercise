@@ -70,6 +70,19 @@ const javaMacLinuxRunMainStep = {
   ],
 }
 
+const javaJavacRunPractice = {
+  type: 'code-playground',
+  relatedTopicId: 'java-manual-run-order',
+  id: 'java-javac-run-practice-01',
+  label: { tr: 'Kendin Dene: Terminal Komut Sırasını Tamamla', en: 'Try It Yourself: Complete the Terminal Command Sequence' },
+  language: 'bash',
+  task: { tr: 'Main.java dosyasını derleyip çalıştıran EKSİK komutu yaz.', en: 'Write the MISSING command that compiles and runs Main.java.' },
+  starterCode: { tr: 'javac Main.java\n// TODO: derlenen sinifi calistiran komutu yaz', en: 'javac Main.java\n// TODO: write the command that runs the compiled class' },
+  solutionCode: { tr: 'javac Main.java\njava Main', en: 'javac Main.java\njava Main' },
+  hint: { tr: 'javac dosya UZANTISIYLA (Main.java) çağrılır, java ise SADECE sınıf ADIYLA (Main), uzantı OLMADAN.', en: 'javac is called WITH the file EXTENSION (Main.java), while java is called with ONLY the class NAME (Main), WITHOUT the extension.' },
+  successMessage: { tr: 'Doğru! javac kaynak kodu .class bytecode\'a DERLER, java ise o bytecode\'u JVM üzerinde ÇALIŞTIRIR — iki AYRI adım, iki AYRI komut.', en: 'Correct! javac COMPILES the source into .class bytecode, java RUNS that bytecode on the JVM — two SEPARATE steps, two SEPARATE commands.' },
+}
+
 const javaMavenQuickstartStep = {
   type: 'step-animation',
   title: { tr: 'archetype:generate Tek Komutla Neyi Otomatik Kurar?', en: 'What Does archetype:generate Automatically Set Up in One Command?' },
@@ -2849,6 +2862,21 @@ cd java-qa-project
 mvn test`,
       },
       javaMavenQuickstartStep,
+      javaJavacRunPractice,
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'java-manual-run-order-01',
+        question: { tr: 'Bir Java dosyasını sıfırdan komut satırından çalıştırma sırasını diz.', en: 'Order the steps for running a Java file from the command line, from scratch.' },
+        items: [
+          { id: '1', text: { tr: "JDK'yı kur ve java -version ile doğrula", en: 'Install the JDK and verify with java -version' }, order: 1 },
+          { id: '2', text: { tr: 'JAVA_HOME ortam değişkenini ayarla', en: 'Set the JAVA_HOME environment variable' }, order: 2 },
+          { id: '3', text: { tr: 'Main.java dosyasını bir editörde yaz', en: 'Write Main.java in an editor' }, order: 3 },
+          { id: '4', text: { tr: 'javac Main.java ile derle', en: 'Compile it with javac Main.java' }, order: 4 },
+          { id: '5', text: { tr: 'java Main ile çalıştır', en: 'Run it with java Main' }, order: 5 },
+        ],
+        xpReward: 10,
+      },
       {
         type: 'callout', color: 'green', emoji: '✅',
         title: 'Output you should see:',
@@ -2994,6 +3022,21 @@ javac -version
 cd java-qa-project && mvn test`,
       },
       javaMavenQuickstartStep,
+      javaJavacRunPractice,
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'java-manual-run-order-01',
+        question: { tr: 'Bir Java dosyasını sıfırdan komut satırından çalıştırma sırasını diz.', en: 'Order the steps for running a Java file from the command line, from scratch.' },
+        items: [
+          { id: '1', text: { tr: "JDK'yı kur ve java -version ile doğrula", en: 'Install the JDK and verify with java -version' }, order: 1 },
+          { id: '2', text: { tr: 'JAVA_HOME ortam değişkenini ayarla', en: 'Set the JAVA_HOME environment variable' }, order: 2 },
+          { id: '3', text: { tr: 'Main.java dosyasını bir editörde yaz', en: 'Write Main.java in an editor' }, order: 3 },
+          { id: '4', text: { tr: 'javac Main.java ile derle', en: 'Compile it with javac Main.java' }, order: 4 },
+          { id: '5', text: { tr: 'java Main ile çalıştır', en: 'Run it with java Main' }, order: 5 },
+        ],
+        xpReward: 10,
+      },
       {
         type: 'callout', color: 'green', emoji: '✅',
         title: 'Output you should see:',

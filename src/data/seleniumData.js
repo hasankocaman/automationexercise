@@ -6507,6 +6507,19 @@ selenium-side-runner -c "browserName=chrome" -w 4 projem.side`,
       },
       seleniumSideRunnerStep,
       {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'selenium-ide-side-runner-order-01',
+        question: { tr: 'Bir .side dosyasını terminalden paralel çalıştırma sırasını diz.', en: 'Order the steps for running a .side file from the terminal in parallel.' },
+        items: [
+          { id: '1', text: { tr: 'npm install -g selenium-side-runner ile CLI aracını kur', en: 'Install the CLI tool with npm install -g selenium-side-runner' }, order: 1 },
+          { id: '2', text: { tr: 'npm install -g chromedriver ile tarayıcı driver\'ını kur', en: 'Install the browser driver with npm install -g chromedriver' }, order: 2 },
+          { id: '3', text: { tr: 'selenium-side-runner -c "browserName=chrome" -w 4 project.side komutunu çalıştır', en: 'Run selenium-side-runner -c "browserName=chrome" -w 4 project.side' }, order: 3 },
+          { id: '4', text: { tr: 'Terminaldeki pass/fail çıktısını ve exit code\'u incele', en: 'Review the terminal\'s pass/fail output and exit code' }, order: 4 },
+        ],
+        xpReward: 10,
+      },
+      {
         type: 'heading', text: '4. Kod Olarak Dışa Aktarma (Code Export)'
       },
       {
@@ -6624,6 +6637,19 @@ npm install -g chromedriver
 selenium-side-runner -c "browserName=chrome" -w 4 project.side`,
       },
       seleniumSideRunnerStep,
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'selenium-ide-side-runner-order-01',
+        question: { tr: 'Bir .side dosyasını terminalden paralel çalıştırma sırasını diz.', en: 'Order the steps for running a .side file from the terminal in parallel.' },
+        items: [
+          { id: '1', text: { tr: 'npm install -g selenium-side-runner ile CLI aracını kur', en: 'Install the CLI tool with npm install -g selenium-side-runner' }, order: 1 },
+          { id: '2', text: { tr: 'npm install -g chromedriver ile tarayıcı driver\'ını kur', en: 'Install the browser driver with npm install -g chromedriver' }, order: 2 },
+          { id: '3', text: { tr: 'selenium-side-runner -c "browserName=chrome" -w 4 project.side komutunu çalıştır', en: 'Run selenium-side-runner -c "browserName=chrome" -w 4 project.side' }, order: 3 },
+          { id: '4', text: { tr: 'Terminaldeki pass/fail çıktısını ve exit code\'u incele', en: 'Review the terminal\'s pass/fail output and exit code' }, order: 4 },
+        ],
+        xpReward: 10,
+      },
       {
         type: 'heading', text: '4. Code Export capabilities'
       },
