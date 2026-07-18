@@ -1,5 +1,65 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+const awsCliInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'aws --version Çıktısı Neden Kurulumun TEK Kanıtıdır?', en: 'Why Is the aws --version Output the ONLY Proof of Installation?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'winget/brew/curl, AWS CLI ikili dosyasını…', en: 'winget/brew/curl download the AWS CLI…' }, detail: { tr: '`winget install Amazon.AWSCLI` (ya da brew/curl), AWS CLI ikili dosyasını sisteme İNDİRİR ve PATH\'e EKLER — ama henüz HİÇBİR AWS kaynağına bağlanmadı.', en: '`winget install Amazon.AWSCLI` (or brew/curl) DOWNLOADS the AWS CLI binary and ADDS it to PATH — but it hasn\'t CONNECTED to any AWS resource yet.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'aws --version, terminalin PATH\'inin bu…', en: 'aws --version proves the terminal\'s PATH…' }, detail: { tr: '`aws --version`, terminalin PATH\'inin bu YENİ komutu BULABİLDİĞİNİ ve ikili dosyanın BOZULMADAN çalıştığını kanıtlayan TEK komuttur — henüz kimlik doğrulama İÇERMEZ.', en: '`aws --version` is the ONLY command that proves the terminal\'s PATH can FIND this NEW command and the binary runs WITHOUT being corrupted — it does NOT involve authentication yet.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '"command not found" hatası GENELDE…', en: 'A "command not found" error is USUALLY…' }, detail: { tr: '"command not found" hatası GENELDE kurulumun BAŞARISIZ olduğu anlamına gelmez — terminal oturumunun PATH DEĞİŞİKLİĞİNİ henüz OKUMADIĞI anlamına gelir; terminali yeniden BAŞLATMAK genelde ÇÖZÜMDÜR.', en: 'A "command not found" error USUALLY does NOT mean the install FAILED — it means the terminal session hasn\'t RE-READ the PATH change yet; RESTARTING the terminal is usually the FIX.' } },
+  ],
+}
+
+const awsConfigureStep = {
+  type: 'step-animation',
+  title: { tr: 'aws configure Sonrası Kimlik Bilgileri NEREDE Saklanır?', en: 'WHERE Are Credentials Stored After aws configure?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'aws configure, girdiğin Access Key\'i…', en: 'aws configure writes what you type…' }, detail: { tr: '`aws configure`, girdiğin Access Key ID/Secret\'ı GÖNDERMEZ — bunları YEREL olarak `~/.aws/credentials` dosyasına düz metin olarak YAZAR, sadece bu makinede KALICI olarak.', en: '`aws configure` does NOT send what you type anywhere — it WRITES the Access Key ID/Secret LOCALLY to `~/.aws/credentials` as plain text, PERSISTING only on this machine.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Sonraki HER aws komutu, bu dosyayı OKUYUP…', en: 'EVERY subsequent aws command reads this…' }, detail: { tr: 'Sonraki HER `aws` komutu, bu dosyayı OKUYUP her isteği SigV4 imzasıyla İMZALAR — kimlik bilgisi her komutta TEKRAR SORULMAZ, dosyadan OTOMATİK okunur.', en: 'EVERY subsequent `aws` command reads this file and SIGNS each request with a SigV4 signature — credentials are NOT re-asked at every command, they\'re read AUTOMATICALLY from the file.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'aws sts get-caller-identity, kimliğinin…', en: 'aws sts get-caller-identity is the way…' }, detail: { tr: '`aws sts get-caller-identity`, kimliğinin GERÇEKTEN doğru şekilde yapılandırıldığını ANINDA doğrulamanın YOLUDUR — bir S3 komutu deneyip 403 hatası ALMADAN önce bunu çalıştırmak, hatanın NEREDE olduğunu netleştirir.', en: '`aws sts get-caller-identity` is the way to INSTANTLY verify your identity is ACTUALLY configured correctly — running this BEFORE trying an S3 command and getting a 403 clarifies WHERE the problem is.' } },
+  ],
+}
+
+const awsS3TestStep = {
+  type: 'step-animation',
+  title: { tr: 'aws s3 mb Neden GLOBAL Olarak Benzersiz Bir İsim İster?', en: 'Why Does aws s3 mb Require a GLOBALLY Unique Name?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'aws s3 mb, S3 bucket\'ının ismini SADECE…', en: 'aws s3 mb reserves the bucket name…' }, detail: { tr: '`aws s3 mb s3://my-qa-test-bucket-$(date +%s)`, o ismi SADECE senin hesabında DEĞİL, TÜM AWS müşterileri arasında GLOBAL olarak REZERVE eder — bu yüzden isme bir timestamp EKLENİR.', en: '`aws s3 mb s3://my-qa-test-bucket-$(date +%s)` reserves that name GLOBALLY across ALL AWS customers, NOT just your account — this is why a timestamp is APPENDED to the name.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'aws s3 cp, dosyayı bucket\'IN İÇİNE gönderir…', en: 'aws s3 cp sends the file INTO the…' }, detail: { tr: '`aws s3 cp test.txt s3://.../`, dosyayı bucket\'IN İÇİNE GÖNDERİR — `aws s3 ls` ile bu yüklemenin GERÇEKTEN başarılı olup OLMADIĞINI hemen doğrulayabilirsin.', en: '`aws s3 cp test.txt s3://.../` sends the file INTO the bucket — `aws s3 ls` immediately verifies whether this upload ACTUALLY succeeded.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'aws s3 rb --force, hem bucket\'ı hem…', en: 'aws s3 rb --force removes both the…' }, detail: { tr: '`aws s3 rb ... --force`, hem bucket\'ı HEM içindeki dosyaları TEK komutla siler — `--force` OLMADAN, içi DOLU bir bucket "BucketNotEmpty" hatasıyla SİLİNMEYİ REDDEDER.', en: '`aws s3 rb ... --force` removes both the bucket AND its files with ONE command — WITHOUT `--force`, a bucket that still has files REFUSES to be deleted with a "BucketNotEmpty" error.' } },
+  ],
+}
+
+const awsEc2LaunchStep = {
+  type: 'step-animation',
+  title: { tr: 'run-instances Çalıştığında EC2, VM\'i ANINDA mı Hazır Eder?', en: 'When run-instances Runs, Is the EC2 VM Ready INSTANTLY?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'run-instances, VM\'i BAŞLATMA isteğini…', en: 'run-instances only SUBMITS the request…' }, detail: { tr: '`aws ec2 run-instances`, VM\'i BAŞLATMA isteğini AWS\'e sadece GÖNDERİR — komut ANINDA döner ama makine hâlâ "pending" durumundadır, SSH ile bağlanmaya HENÜZ HAZIR değildir.', en: '`aws ec2 run-instances` only SUBMITS the launch request to AWS — the command returns INSTANTLY but the machine is still in a "pending" state, NOT yet READY for an SSH connection.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'describe-instances, dinamik olarak ATANAN…', en: 'describe-instances is needed because the…' }, detail: { tr: '`aws ec2 describe-instances --query ... PublicIpAddress`, dinamik olarak ATANAN IP adresini SORGULAR — bu IP her `run-instances` çağrısında FARKLI olduğundan, ELLE bir yere yazılamaz.', en: '`aws ec2 describe-instances --query ... PublicIpAddress` QUERIES the dynamically ASSIGNED IP address — since this IP is DIFFERENT on every `run-instances` call, it cannot be HARDCODED anywhere.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'ssh komutu, --key-name\'de belirtilen ANAHTARLA…', en: 'The ssh command only succeeds with the…' }, detail: { tr: '`ssh -i my-qa-key.pem ec2-user@<PUBLIC_IP>` SADECE `--key-name`\'de belirtilen ANAHTARLA eşleşen `.pem` dosyasıyla ÇALIŞIR — yanlış anahtar dosyası "Permission denied (publickey)" hatası VERİR.', en: '`ssh -i my-qa-key.pem ec2-user@<PUBLIC_IP>` only SUCCEEDS with the `.pem` file matching the key specified in `--key-name` — the WRONG key file gives a "Permission denied (publickey)" error.' } },
+  ],
+}
+
+const awsS3SyncReportStep = {
+  type: 'step-animation',
+  title: { tr: 'aws s3 sync, aws s3 cp\'den Neden Farklı Davranır?', en: 'Why Does aws s3 sync Behave Differently from aws s3 cp?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'aws s3 sync, TÜM klasörü (Allure raporu…', en: 'aws s3 sync uploads the ENTIRE folder…' }, detail: { tr: '`aws s3 sync ./allure-report/ s3://.../`, TÜM klasörü (Allure raporundaki YÜZLERCE dosya) TEK komutla yükler — sadece DEĞİŞEN dosyaları göndererek `cp`\'den daha HIZLI çalışır.', en: '`aws s3 sync ./allure-report/ s3://.../` uploads the ENTIRE folder (HUNDREDS of files in an Allure report) with ONE command — it runs FASTER than `cp` by only sending CHANGED files.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'aws s3 website, bucket\'ı BİR statik web…', en: 'aws s3 website turns the bucket INTO…' }, detail: { tr: '`aws s3 website ... --index-document index.html`, bucket\'ı BİR statik web sunucusuna DÖNÜŞTÜRÜR — artık HTML raporu bir tarayıcıda DOĞRUDAN AÇILABİLİR bir URL kazanır.', en: '`aws s3 website ... --index-document index.html` turns the bucket INTO a static web server — the HTML report now gets a URL that opens DIRECTLY in a browser.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Bu URL\'i ekiple PAYLAŞMAK, "raporu HANGİ…', en: 'Sharing this URL removes the "which…' }, detail: { tr: 'Bu URL\'i ekiple e-posta/Slack\'te PAYLAŞMAK, "raporu HANGİ makinede kim çalıştırdı?" karmaşasını TAMAMEN ORTADAN KALDIRIR — herkes AYNI sonuca bakar.', en: 'Sharing this URL in email/Slack COMPLETELY REMOVES the "who ran the report on which machine?" confusion — everyone looks at the SAME result.' } },
+  ],
+}
+
+const awsCompletePipelineStep = {
+  type: 'step-animation',
+  title: { tr: 'Bu Script\'teki 3 Adım Neden BİRBİRİNE Bağımlıdır?', en: 'Why Are These 3 Steps in the Script Chained TOGETHER?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'npx playwright test, JUNİT/HTML rapor…', en: 'npx playwright test generates the report…' }, detail: { tr: '`npx playwright test`, sonraki adımların YÜKLEYECEĞİ raporu (playwright-report/ klasörünü) DİSKE ÜRETİR — bu adım BAŞARISIZ olsa bile devam edilir çünkü rapor YİNE de yüklenmelidir.', en: '`npx playwright test` GENERATES the report (the playwright-report/ folder) that the NEXT steps will upload — this step continuing even on FAILURE is intentional, because the report should STILL be uploaded.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'aws sts get-caller-identity, bucket ADINI…', en: 'aws sts get-caller-identity supplies the…' }, detail: { tr: '`aws sts get-caller-identity --query Account`, bucket ADINA eklenen AWS hesap numarasını SAĞLAR — böylece bucket ismi her hesap için OTOMATİK olarak GLOBAL benzersiz olur.', en: '`aws sts get-caller-identity --query Account` SUPPLIES the AWS account number appended to the bucket name — this makes the bucket name AUTOMATICALLY globally unique per account.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '2>/dev/null || true, bucket ZATEN varsa…', en: '2>/dev/null || true means an "already…' }, detail: { tr: '`aws s3 mb ... 2>/dev/null || true`, bucket ZATEN varsa gelecek "already exists" hatasını YUTAR — script\'in İKİNCİ kez çalıştırılabilir (idempotent) olmasını sağlayan KRİTİK bir satırdır.', en: '`aws s3 mb ... 2>/dev/null || true` SWALLOWS the "already exists" error if the bucket already exists — this is the CRITICAL line that makes the script safely RE-RUNNABLE (idempotent).' } },
+  ],
+}
+
 // ─── Dalga 18 film sabitleri (video-scene — EN + TR paylaşımlı) ─────────────
 // Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
 
@@ -579,6 +639,7 @@ sudo ./aws/install
 aws --version
 # Expected: aws-cli/2.x.x Python/3.x.x ...`,
           },
+          awsCliInstallStep,
           {
             type: 'text',
             content: 'Expected output: aws-cli/2.15.0 Python/3.11.6 Windows/10 exe/AMD64 prompt/off',
@@ -608,6 +669,7 @@ Default output format [None]: json
 # Verify configuration
 aws sts get-caller-identity`,
           },
+          awsConfigureStep,
           {
             type: 'code', language: 'json',
             code: `// Expected output of "aws sts get-caller-identity":
@@ -637,6 +699,7 @@ aws s3 ls s3://my-qa-test-bucket-<timestamp>/
 # Delete the bucket when done
 aws s3 rb s3://my-qa-test-bucket-<timestamp>/ --force`,
           },
+          awsS3TestStep,
           {
             type: 'diagram-svg',
             title: 'AWS CLI Configuration Flow',
@@ -729,6 +792,7 @@ aws ec2 describe-instances \\
 # 3. SSH into the hub
 ssh -i my-qa-key.pem ec2-user@<PUBLIC_IP>`,
           },
+          awsEc2LaunchStep,
           {
             type: 'code', language: 'bash',
             code: `# On the EC2 instance — install Docker + run Selenium Grid
@@ -760,6 +824,7 @@ aws s3 website s3://my-qa-reports/ \\
 # Share the report URL with your team
 echo "Report: https://my-qa-reports.s3-website-us-east-1.amazonaws.com/run-$(date +%Y%m%d-%H%M)/"`,
           },
+          awsS3SyncReportStep,
           { type: 'heading', text: 'Scenario: CI/CD with CodeBuild' },
           {
             type: 'code', language: 'yaml',
@@ -835,6 +900,7 @@ aws s3 sync playwright-report/ s3://$BUCKET/$(date +%Y-%m-%d_%H-%M)/
 # 3. Print shareable URL
 echo "✅ Report: https://$BUCKET.s3.amazonaws.com/$(date +%Y-%m-%d_%H-%M)/index.html"`,
           },
+          awsCompletePipelineStep,
           awsSeleniumEc2S3Film,
           {
             type: 'quiz',
@@ -1502,6 +1568,7 @@ sudo ./aws/install
 aws --version
 # Beklenen çıktı: aws-cli/2.x.x Python/3.x.x ...`,
           },
+          awsCliInstallStep,
           { type: 'heading', text: 'Adım 3 — IAM User & Access Key Oluştur' },
           {
             type: 'list', icon: '🔑',
@@ -1527,6 +1594,7 @@ Default output format [None]: json
 # Yapılandırmayı doğrula
 aws sts get-caller-identity`,
           },
+          awsConfigureStep,
           {
             type: 'code', language: 'json',
             code: `// "aws sts get-caller-identity" beklenen çıktısı:
@@ -1552,6 +1620,7 @@ aws s3 ls s3://my-qa-test-bucket-<timestamp>/
 # Bitince bucket'ı sil
 aws s3 rb s3://my-qa-test-bucket-<timestamp>/ --force`,
           },
+          awsS3TestStep,
           awsCliScriptedFilm,
           {
             type: 'quiz',
@@ -1606,6 +1675,7 @@ aws ec2 describe-instances \\
   --query 'Reservations[0].Instances[0].PublicIpAddress' \\
   --output text`,
           },
+          awsEc2LaunchStep,
           {
             type: 'code', language: 'bash',
             code: `# EC2 instance üzerinde Docker + Selenium Grid kur
@@ -1637,6 +1707,7 @@ aws s3 website s3://my-qa-reports/ \\
 # Ekiple paylaş
 echo "Rapor: https://my-qa-reports.s3-website-us-east-1.amazonaws.com/run-$(date +%Y%m%d-%H%M)/"`,
           },
+          awsS3SyncReportStep,
           { type: 'heading', text: 'Senaryo: CodeBuild ile CI/CD' },
           {
             type: 'code', language: 'yaml',
