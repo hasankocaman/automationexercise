@@ -1,5 +1,78 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+const azureCliInstallStep = {
+  type: 'step-animation',
+  title: { tr: 'az --version Çıktısı Kurulumun Gerçekten Bittiğini Nasıl Kanıtlar?', en: 'How Does the az --version Output Prove the Install Actually Finished?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'winget/brew/curl, Azure CLI\'ı sistemine…', en: 'winget/brew/curl download the Azure CLI…' }, detail: { tr: '`winget install Microsoft.AzureCLI` (veya brew/curl), Azure CLI ikili dosyasını sisteme İNDİRİR ve PATH\'e EKLER — ama bu, komutun ÇALIŞTIĞI anlamına GELMEZ.', en: '`winget install Microsoft.AzureCLI` (or brew/curl) DOWNLOADS the Azure CLI binary and ADDS it to PATH — but this does NOT mean the command WORKS yet.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'az --version, kurulumu GERÇEKTEN…', en: 'az --version is the command that…' }, detail: { tr: '`az --version` kurulumu GERÇEKTEN doğrulayan komuttur — terminal PATH\'i yeni yüklenen `az`\'ı BULABİLİYOR mu ve ikili dosya ÇALIŞABİLİR mi, ikisini birden test eder.', en: '`az --version` is the command that ACTUALLY verifies the install — it tests BOTH whether the terminal\'s PATH can FIND the newly installed `az` AND whether the binary can RUN.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '"azure-cli 2.x.x" çıktısı GELMEZSE…', en: 'If the "azure-cli 2.x.x" output does…' }, detail: { tr: '"azure-cli 2.x.x" çıktısı GELMEZSE (komut bulunamadı hatası), sorun genelde CLI\'ın KENDİSİNDE değil, terminal oturumunun YENİ PATH\'i henüz OKUMAMASINDADIR — terminali yeniden BAŞLATMAK çoğu zaman yeterlidir.', en: 'If the "azure-cli 2.x.x" output does NOT appear (command not found), the problem is usually NOT the CLI itself but the terminal session not having RE-READ the new PATH yet — RESTARTING the terminal usually fixes it.' } },
+  ],
+}
+
+const azureLoginSubscriptionStep = {
+  type: 'step-animation',
+  title: { tr: 'az login ile az account set Arasında Ne Değişir?', en: 'What Changes Between az login and az account set?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'az login, tarayıcı ÜZERİNDEN kimliğini…', en: 'az login authenticates your IDENTITY…' }, detail: { tr: '`az login`, tarayıcı ÜZERİNDEN kimliğini DOĞRULAR ve bir erişim TOKEN\'ı `~/.azure/` altına KAYDEDER — ama bu, HANGİ subscription\'ı kullanacağını SÖYLEMEZ.', en: '`az login` authenticates your IDENTITY through the browser and SAVES an access TOKEN under `~/.azure/` — but this does NOT tell it WHICH subscription to use.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bir Microsoft hesabı BİRDEN FAZLA…', en: 'A single Microsoft account can be…' }, detail: { tr: 'Bir Microsoft hesabı BİRDEN FAZLA subscription\'a (kişisel, şirket, deneme) erişebilir — `az account list` bunların HEPSİNİ listeler, ama CLI\'ın hangisini kullanacağı hâlâ BELİRSİZDİR.', en: 'A single Microsoft account can have access to MULTIPLE subscriptions (personal, company, trial) — `az account list` lists ALL of them, but the CLI still does NOT know which one to use.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'az account set --subscription, sonraki HER…', en: 'az account set --subscription pins EVERY…' }, detail: { tr: '`az account set --subscription "..."`, sonraki HER `az` komutunun HANGİ faturalandırma/kaynak grubu bağlamında çalışacağını SABİTLER — bu adım ATLANIRSA kaynaklar YANLIŞ subscription\'da OLUŞTURULABİLİR.', en: '`az account set --subscription "..."` PINS which billing/resource-group context EVERY subsequent `az` command runs in — SKIPPING this step can CREATE resources in the WRONG subscription.' } },
+  ],
+}
+
+const azureResourceGroupStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir Resource Group Silindiğinde İçindeki HER ŞEY Neden Gider?', en: 'Why Does EVERYTHING Inside a Resource Group Disappear When It\'s Deleted?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'az group create, fiziksel bir kaynak…', en: 'az group create does NOT create any…' }, detail: { tr: '`az group create`, fiziksel bir kaynak (VM, storage, veritabanı) OLUŞTURMAZ — sadece bir MANTIKSAL klasör açar; ondan SONRA oluşturulan HER kaynak bu klasörün İÇİNE konur.', en: '`az group create` does NOT create any physical resource (VM, storage, database) — it just opens a LOGICAL folder; EVERY resource created AFTER this goes INSIDE that folder.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'az group list, sana HANGİ gruplar…', en: 'az group list shows you which groups…' }, detail: { tr: '`az group list --output table`, o subscription\'da HANGİ resource group\'ların VAR olduğunu gösterir — --location gibi parametrelerin nereye BAĞLANDIĞINI görmek için birinci ADIMdır.', en: '`az group list --output table` shows you WHICH resource groups EXIST in that subscription — it\'s the FIRST STEP to see where parameters like --location are BOUND.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'az group delete, o grubun İÇİNDEKİ…', en: 'az group delete removes EVERY resource…' }, detail: { tr: '`az group delete --name qa-test-rg --yes`, o grubun İÇİNDEKİ TÜM kaynakları TEK komutla siler — bu yüzden test ortamlarını AYRI bir resource group\'ta tutmak, temizliği TEK komuta indirger.', en: '`az group delete --name qa-test-rg --yes` removes EVERY resource inside that group with ONE command — this is why keeping test environments in a SEPARATE resource group reduces cleanup to ONE command.' } },
+  ],
+}
+
+const azureVmCreateStep = {
+  type: 'step-animation',
+  title: { tr: 'az vm create Komutu Çalışırken Arka Planda Ne Kurulur?', en: 'What Gets Provisioned Behind the Scenes While az vm create Runs?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'İlk satır (az group create), VM\'in İÇİNE…', en: 'The first line (az group create) opens…' }, detail: { tr: 'İlk satır (`az group create`), VM\'in İÇİNE konacağı mantıksal klasörü açar — bu ADIM atlanırsa `az vm create` "resource group not found" hatasıyla BAŞARISIZ olur.', en: 'The first line (`az group create`) opens the logical folder the VM will go INSIDE — skipping this STEP makes `az vm create` FAIL with "resource group not found".' } },
+    { id: 2, icon: '2️⃣', label: { tr: '--image ve --size, VM\'in işletim sistemini…', en: '--image and --size choose the OS…' }, detail: { tr: '`--image Ubuntu2204` ve `--size Standard_D2s_v3`, VM\'in işletim sistemini VE donanım gücünü (CPU/RAM) SEÇER — Selenium Hub\'ın kaç paralel tarayıcı KALDIRACAĞI doğrudan bu boyuta bağlıdır.', en: '`--image Ubuntu2204` and `--size Standard_D2s_v3` CHOOSE the operating system AND the hardware power (CPU/RAM) — how many parallel browsers the Selenium Hub can HANDLE depends directly on this size.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'az vm open-port, sadece VM\'e bir…', en: 'az vm open-port only opens a…' }, detail: { tr: '`az vm open-port --port 4444`, sadece VM\'e bir kural EKLER (network security group\'ta) — bu komut olmadan Selenium Hub İÇERİDE çalışsa BİLE, DIŞARIDAN o porta hiç kimse ERİŞEMEZ.', en: '`az vm open-port --port 4444` only ADDS a rule (in the network security group) — without this command, even if the Selenium Hub runs INSIDE, NOBODY can REACH that port from OUTSIDE.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'az vm show -d, VM\'in DIŞARIDAN erişilebilir…', en: 'az vm show -d prints the EXTERNALLY…' }, detail: { tr: '`az vm show -d ... --query publicIps`, VM\'in DIŞARIDAN erişilebilir IP adresini yazdırır — bu adres, bir sonraki adımda `ssh qauser@<PUBLIC_IP>` ile BAĞLANMAK için gereklidir.', en: '`az vm show -d ... --query publicIps` prints the EXTERNALLY reachable IP address — this address is needed to CONNECT with `ssh qauser@<PUBLIC_IP>` in the next step.' } },
+  ],
+}
+
+const azureSeleniumGridSetupStep = {
+  type: 'step-animation',
+  title: { tr: 'Tek Bir VM Üzerinde Selenium Grid Hub + Node Nasıl Ayağa Kalkar?', en: 'How Does a Selenium Grid Hub + Node Come Up on a Single VM?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'ssh ile VM\'e bağlanmak, komutları ARTIK…', en: 'SSH-ing into the VM means every…' }, detail: { tr: '`ssh qauser@<PUBLIC_IP>` ile bağlanmak, sonraki HER komutun (docker kurulumu dahil) yerel makinende DEĞİL, o UZAK VM\'in İÇİNDE çalışacağı anlamına gelir.', en: 'Connecting with `ssh qauser@<PUBLIC_IP>` means every subsequent command (including the Docker install) runs INSIDE that REMOTE VM, not on your local machine.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'docker run ... selenium/hub, HUB rolündeki…', en: 'docker run ... selenium/hub starts the…' }, detail: { tr: '`docker run -d -p 4442-4444:4442-4444 selenium/hub`, HUB rolündeki container\'ı başlatır — Hub, gelen test isteklerini KABUL eden ama TARAYICIYI kendisi ÇALIŞTIRMAYAN merkezi yönlendiricidir.', en: '`docker run -d -p 4442-4444:4442-4444 selenium/hub` starts the container acting as the HUB — the Hub is the central router that ACCEPTS incoming test requests but does NOT run the BROWSER itself.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'selenium/node-chrome container\'ı, Hub\'a BAĞLANIP…', en: 'The selenium/node-chrome container CONNECTS…' }, detail: { tr: '`selenium/node-chrome` container\'ı, `SE_EVENT_BUS_HOST` ile Hub\'a BAĞLANIR ve GERÇEK Chrome tarayıcı örneklerini ÇALIŞTIRAN işçidir — testler HUB\'a değil, node\'a doğru YÖNLENDİRİLİR.', en: 'The `selenium/node-chrome` container CONNECTS to the Hub via `SE_EVENT_BUS_HOST` and is the worker that ACTUALLY RUNS the Chrome browser instances — tests get ROUTED to the node, not the Hub.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'İşin sonunda az group delete, HEM VM\'i…', en: 'az group delete at the end removes…' }, detail: { tr: 'İşin sonunda `az group delete --yes --no-wait`, HEM VM\'i HEM açık portu HEM de faturalandırmayı TEK komutla durdurur — bir Azure VM\'i AÇIK unutmak saatte ücret İŞLEMEYE devam eder.', en: 'At the end, `az group delete --yes --no-wait` stops the VM, the open port, AND the billing all with ONE command — forgetting an Azure VM RUNNING keeps CHARGING by the hour.' } },
+  ],
+}
+
+const azureBlobSasUrlStep = {
+  type: 'step-animation',
+  title: { tr: 'Bir SAS URL, Storage Account Şifresini Paylaşmadan Erişimi Nasıl Verir?', en: 'How Does a SAS URL Grant Access Without Sharing the Storage Account Password?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'upload-batch, TÜM playwright-report klasörünü…', en: 'upload-batch sends the ENTIRE…' }, detail: { tr: '`az storage blob upload-batch --source playwright-report/`, TÜM `playwright-report` klasörünü TEK komutla, `$RUN_ID` alt klasörüne YÜKLER — her dosyayı TEK TEK yüklemenin kısayolu.', en: '`az storage blob upload-batch --source playwright-report/` uploads the ENTIRE `playwright-report` folder with ONE command into the `$RUN_ID` subfolder — a shortcut for uploading each file ONE BY ONE.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'generate-sas, hesabın MASTER anahtarını…', en: 'generate-sas creates a TEMPORARY,…' }, detail: { tr: '`az storage blob generate-sas`, hesabın MASTER anahtarını PAYLAŞMADAN, SADECE o tek dosyaya, SADECE okuma (`--permissions r`) izniyle GEÇİCİ bir imzalı URL üretir.', en: '`az storage blob generate-sas` generates a TEMPORARY signed URL for JUST that one file, with ONLY read (`--permissions r`) permission, WITHOUT sharing the account\'s MASTER key.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '--expiry ile 7 gün sonra bu link…', en: 'The --expiry flag means this link…' }, detail: { tr: '`--expiry $(date -u -d \'+7 days\' ...)` ile bu link 7 gün SONRA KENDİLİĞİNDEN geçersiz olur — ekip bu raporu Slack\'te PAYLAŞABİLİR ama link SONSUZA kadar açık KALMAZ.', en: 'With `--expiry $(date -u -d \'+7 days\' ...)` this link INVALIDATES ITSELF after 7 days — the team can SHARE this report in Slack, but the link does NOT stay open FOREVER.' } },
+  ],
+}
+
+const azureBlobStorageStep = {
+  type: 'step-animation',
+  title: { tr: 'Storage Account → Container → Blob Hiyerarşisi Neden Bu Sırayla Kurulur?', en: 'Why Is the Storage Account → Container → Blob Hierarchy Built in This Order?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'az storage account create, GLOBAL olarak…', en: 'az storage account create reserves a…' }, detail: { tr: '`az storage account create`, GLOBAL olarak BENZERSİZ bir isim (`myqastorage$RANDOM`) rezerve eder — bu isim Azure\'ın DNS adresinin parçası olacağı için, dünyadaki BAŞKA hiçbir hesapla ÇAKIŞAMAZ.', en: '`az storage account create` reserves a GLOBALLY unique name (`myqastorage$RANDOM`) — since this name becomes part of Azure\'s DNS address, it CANNOT collide with ANY other account in the world.' } },
+    { id: 2, icon: '2️⃣', label: { tr: 'az storage container create, o hesabın…', en: 'az storage container create opens a…' }, detail: { tr: '`az storage container create`, o hesabın İÇİNDE bir "klasör" (container) açar — `--public-access blob` ile bu klasördeki dosyaların LİNKLE herkese açık OKUNABİLECEĞİNİ belirtir.', en: '`az storage container create` opens a "folder" (container) INSIDE that account — `--public-access blob` specifies that files in this folder can be PUBLICLY READ via a link.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'az storage blob upload, GERÇEK dosyayı…', en: 'az storage blob upload sends the ACTUAL…' }, detail: { tr: '`az storage blob upload`, GERÇEK dosyayı (test.txt) o container\'ın İÇİNE gönderir — QA\'da bu genelde bir Selenium/Playwright test raporunu, container\'ı PIPELINE\'IN sonunda ARŞİVLEMEK için kullanılır.', en: '`az storage blob upload` sends the ACTUAL file (test.txt) INTO that container — in QA this is usually used to ARCHIVE a Selenium/Playwright test report at the END of a pipeline.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'az storage blob list, o container\'da GERÇEKTEN…', en: 'az storage blob list confirms WHAT is…' }, detail: { tr: '`az storage blob list`, o container\'da GERÇEKTEN hangi dosyaların OLDUĞUNU doğrular — upload komutunun sessizce BAŞARISIZ olup olmadığını kontrol etmenin standart YOLUDUR.', en: '`az storage blob list` confirms WHAT files are ACTUALLY in that container — it is the standard WAY to check whether an upload command silently FAILED.' } },
+  ],
+}
+
 // ─── Dalga 18 film sabitleri (video-scene — EN + TR paylaşımlı) ─────────────
 // Spesifikasyon kalıbı: Documents/video-rollout-plan.md §2 · CLAUDE.md §9.5
 
@@ -581,6 +654,7 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 az --version
 # Expected: azure-cli 2.x.x ...`,
           },
+          azureCliInstallStep,
           { type: 'heading', text: 'Step 3 — Login & Set Subscription' },
           {
             type: 'code', language: 'bash',
@@ -596,6 +670,7 @@ az account set --subscription "My QA Subscription"
 # Verify current subscription
 az account show`,
           },
+          azureLoginSubscriptionStep,
           {
             type: 'code', language: 'json',
             code: `// Expected output of "az account show":
@@ -626,6 +701,7 @@ az group list --output table
 # Later — delete everything in the group (cleanup)
 az group delete --name qa-test-rg --yes --no-wait`,
           },
+          azureResourceGroupStep,
           { type: 'heading', text: 'Step 5 — Test with Blob Storage' },
           {
             type: 'code', language: 'bash',
@@ -656,6 +732,7 @@ az storage blob list \\
   --container-name test-reports \\
   --output table`,
           },
+          azureBlobStorageStep,
           {
             type: 'diagram-svg',
             title: 'Azure CLI Authentication Flow',
@@ -805,6 +882,7 @@ az vm open-port --resource-group selenium-grid-rg \\
 az vm show -d --resource-group selenium-grid-rg \\
   --name selenium-hub --query publicIps -o tsv`,
           },
+          azureVmCreateStep,
           {
             type: 'code', language: 'bash',
             code: `# SSH in and set up Docker + Selenium Grid
@@ -828,6 +906,7 @@ docker run -d \\
 # Cleanup when done — saves money
 az group delete --name selenium-grid-rg --yes --no-wait`,
           },
+          azureSeleniumGridSetupStep,
           { type: 'heading', text: 'Scenario: Store Reports in Azure Blob Storage' },
           {
             type: 'code', language: 'bash',
@@ -850,6 +929,7 @@ az storage blob generate-sas \\
   --expiry $(date -u -d '+7 days' +%Y-%m-%dT%H:%MZ) \\
   --full-uri`,
           },
+          azureBlobSasUrlStep,
           { type: 'heading', text: 'Azure vs AWS for QA — Head to Head' },
           {
             type: 'table',
@@ -1570,6 +1650,7 @@ curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 az --version
 # Beklenen çıktı: azure-cli 2.x.x ...`,
           },
+          azureCliInstallStep,
           { type: 'heading', text: 'Adım 3 — Login & Subscription Ayarla' },
           {
             type: 'code', language: 'bash',
@@ -1585,6 +1666,7 @@ az account set --subscription "My QA Subscription"
 # Mevcut subscription\'ı doğrula
 az account show`,
           },
+          azureLoginSubscriptionStep,
           { type: 'heading', text: 'Adım 4 — Resource Group Oluştur' },
           {
             type: 'code', language: 'bash',
@@ -1599,6 +1681,7 @@ az group list --output table
 # Sonradan — gruptaki her şeyi tek komutla sil (temizlik)
 az group delete --name qa-test-rg --yes --no-wait`,
           },
+          azureResourceGroupStep,
           { type: 'heading', text: 'Adım 5 — Blob Storage ile Test Et' },
           {
             type: 'code', language: 'bash',
@@ -1623,6 +1706,7 @@ az storage blob upload \\
   --name test.txt \\
   --file test.txt`,
           },
+          azureBlobStorageStep,
           azureServicePrincipalFilm,
           azureCliTrStep,
           azureCliTrPractice,
@@ -1744,6 +1828,7 @@ az vm open-port --resource-group selenium-grid-rg \\
 # Bitince temizle — para tasarrufu
 az group delete --name selenium-grid-rg --yes --no-wait`,
           },
+          azureVmCreateStep,
           { type: 'heading', text: 'Senaryo: Azure Blob Storage\'da Rapor Sakla' },
           {
             type: 'code', language: 'bash',
@@ -1766,6 +1851,7 @@ az storage blob generate-sas \\
   --expiry $(date -u -d '+7 days' +%Y-%m-%dT%H:%MZ) \\
   --full-uri`,
           },
+          azureBlobSasUrlStep,
           { type: 'heading', text: 'QA için Azure vs AWS — Karşılaştırma' },
           {
             type: 'table',
