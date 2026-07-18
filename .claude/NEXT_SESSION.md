@@ -72,6 +72,65 @@ Playwright ile hem `/java` (bu oturumun kendi eklediği içerik) hem `/postman`
 
 ---
 
+## OTURUM ÖZETİ — animation-per-topic Dalga A6 (Docker + Azure + AWS) TAMAMLANDI (2026-07-18, Sonnet oturumu 6)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+**Commit'ler:** `bbc145b` (docker), `46355c6` (azure), `f6c6c20` (aws) — üçü de build yeşil, content-check temiz.
+
+Plan §3.2 Dalga A6: docker (11 açık, 6 sekme), azure (7 açık, 2 sekme) ve aws
+(6 açık, 2 sekme) sayfalarındaki kod-bloğu-başına animasyon açıkları
+kapatıldı — planın Sonnet için tanımladığı SON dalgaydı (A7 pythonData
+sadece Fable'a ayrılmıştı).
+
+- **KRİTİK KEŞİF — `fillMissingCodeTrios` otomatik dolgu, deficit sayısını
+  ZATEN düşürüyor:** dockerData.js/azureData.js/awsData.js hepsi dosyanın
+  sonunda `fillMissingCodeTrios(xData, 'key')` çağırıyor. Bu fonksiyon
+  `type:'code'` bloklarının dili bash/shell/sh/powershell/cmd/text OLMAYANLARA
+  (dockerfile, yaml, json, javascript vb.) otomatik jenerik bir
+  step-animation + code-playground + order-sort EKLİYOR — ama SADECE
+  bölüm başına HER "profile" için BİR kez (`addedStepProfiles` dedup).
+  Yani ham kaynak dosyada HİÇ step-animation göremeyebilirsin ama
+  `node -e "import(...)"` ile RUNTIME'da import edince (audit script'in
+  okuduğu ŞEY budur) o bölümde zaten 1 tane var — geri kalan kod
+  bloklarının HİÇBİRİNE otomatik dolgu gelmez (aynı profile'a ikinci kez
+  eklenmez). **Bu yüzden ham kaynağı okuyup "hangi kod bloğunun yanında
+  animasyon yok" diye görsel karar vermek YANLIŞ sonuç verir — önce HER ZAMAN
+  `node -e "import('./src/data/xData.js').then(m=>{const s=m.xData.en.sections[N]; s.blocks.forEach((b,i)=>console.log(i,b.type,b.label))})"` ile
+  RUNTIME blok listesini yazdır, deficit sayısı kadar GERÇEKTEN eksik olan
+  kod bloğunu ORADAN belirle.** jmeterData.js/postmanData.js bu fonksiyonu
+  hiç çağırmıyordu (postman import bile etmiyor, jmeter import edip
+  çağırmıyor) — o yüzden A5'te bu sorun çıkmadı, A6'da ilk kez karşılaşıldı.
+- **docker:** ÇİFT ağaçlı, 11/11 açık kapatıldı, EN/TR birebir simetrik
+  (aynı kod içerik/sıra), 11 const'ın hepsi hem EN hem TR'ye eklendi.
+- **azure:** ÇİFT ağaçlı, 7/7 açık kapatıldı. TR ağacı EN'den DAHA KISA —
+  "SSH ile Docker + Selenium Grid kurulumu" konusu TR'de YOK (VM create
+  koduna cleanup direkt ekleniyor, ayrı SSH/Docker adımı atlanıyor). Bu
+  yüzden `azureSeleniumGridSetupStep` SADECE EN ağacına eklendi (TR: 12/13
+  step-animation, EN: 13/13) — kalıcı bir hata değil, TR içeriğinin
+  gerçekten daha özet olmasından kaynaklanıyor.
+- **aws:** ÇİFT ağaçlı, 6/6 açık kapatıldı. Aynı asimetri deseni: TR'de
+  "Hands-on Mini Project: run-tests-aws.sh" script'i YOK, bu yüzden
+  `awsCompletePipelineStep` sadece EN'e eklendi (TR: 11/12, EN: 12/12).
+
+**Doğrulama (3 sayfa için ayrı ayrı):** `node scripts/audit-animation-
+coverage.mjs <key>` → hepsi deficit 0; `node -e "import(...)"` ile EN+TR
+step-animation blok sayısı + `missing label` sayısı (0) doğrudan kontrol
+edildi; `check-content-integrity.mjs` → sıfır ihlal; `npm run build` → yeşil.
+
+**Proje geneli güncel durum:** `node scripts/audit-animation-coverage.mjs`
+→ 551 kod bloğu / 655 animasyon / **65 açık kaldı** (Dalga A5 sonrası 89
+idi). docker, azure, aws artık ✓ tam kapsam. Sonnet'e ayrılmış TÜM dalgalar
+(A1-A6) tamamlandı. Kalan açık plan §3.3'te Haiku'ya ayrılmış: sql(7),
+playwright(7), linux(6), browserstack(5), javascript(5), claude-ai(5),
+git(3), bruno(3), llm-agents(3), jenkins(2), cypress(2) — toplam ~48; artı
+Fable'a ayrılmış pythonData (17, applyTr index-kayması riski nedeniyle).
+Bu iki grup arasındaki fark (48 vs 65 toplamda 17 fazla) NEXT_SESSION.md'nin
+bir önceki sürümündeki tahminle güncel audit çıktısı arasındaki küçük
+sapmadır — yeni oturum başında `node scripts/audit-animation-coverage.mjs`
+tekrar çalıştırılıp güncel liste kesinleştirilmeli.
+
+---
+
 ## OTURUM ÖZETİ — animation-per-topic Dalga A5 (JMeter + Postman) TAMAMLANDI (2026-07-18, Sonnet oturumu 5)
 
 **Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
