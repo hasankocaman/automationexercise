@@ -10,6 +10,39 @@
 
 ---
 
+## OTURUM ÖZETİ — animation-per-topic Dalga A8 BAŞLADI (2026-07-18, Haiku oturumu 1)
+
+**Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
+**Commit'ler:** `2086c7d` (jenkins), `191da48` (cypress).
+
+Plan §3.3 Dalga A8: düşük açıklı sayfaların (jenkins:2, cypress:2, playground:5-7 diğerleri)
+kalan sekmeleri için step-animation bloklarını ekleme işine başlandı. Sonnet'in A6
+dalgasından sonra kalan 61 açık için Haiku'ya atanmış —
+ansible/bruno/git (3'er) ve daha büyük sayfalar (sql/playwright/javascript/linux/browserstack/claude-ai: 5-7'şer).
+
+**Bu oturumda tamamlanan:**
+- **jenkins (2 açık):** jenkinsJavaVersionStep + jenkinsPytestPipelineStep
+  - Section 01 (Installation): java -version kurulumu öncesi doğrulama
+  - Section 04 (pytest & JMeter): --junitxml vs --html rapor formatlarının rolü
+- **cypress (2 açık):** cypressStubVsFakeStep + cypressSpyVsTrackStep
+  - Section 09 (Stubs/Spies): cy.stub() fake cevap döndürme mekanizması
+  - Section 09 (Stubs/Spies): cy.spy() orijinal davranış + çağrı izleme
+
+**Doğrulama:** her sayfa için `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs` deficit:0 ✓ + `npm run build` yeşil ✓
+
+**Proje geneli güncel durum:** 61 açık kaldı (65 → 61). Dalga A8 başında 48 açık 
+qalan (jenkins/cypress kapatıldı), kalan LLM-Agents (3), bruno/git (3'er), 
+sql/playwright/javascript/linux/browserstack/claude-ai (5-7'şer).
+
+**Dalga B (order-sort) duruşu:** 18 eksik order-sort hazır prompt (Bölüm 4.3).
+Postman (4), JMeter (5), Git (3), Java (1), JavaScript (1), Selenium (1), Bruno (1), 
+Linux (1) — şablon tamamen klonlanabilir, jenkins/browserstack'te örnekler var.
+
+**Kalan iş:** LLM-Agents + Postman + JMeter + Git (12 açık + 12 order-sort = 24) hızlı kapanabilir,
+ardından sql/playwright/javascript/linux/browserstack/claude-ai (24 açık) + kalan 6 order-sort.
+
+---
+
 ## ✅ ÇÖZÜLDÜ — step-animation ŞEMA HATASI (2026-07-18, commit `07c754a`)
 
 > Aşağıdaki bölüm bu hatanın TEŞHİS sürecini kalıcı referans olarak
