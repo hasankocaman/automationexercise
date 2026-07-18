@@ -551,6 +551,45 @@ const apiKeyCrossCallout = {
   },
 }
 
+const llmStaticOutputStep = {
+  type: 'step-animation',
+  id: 'llm-static-output-step-01',
+  title: { tr: 'Bu Statik Örnek Çıktı Gerçek Bir API Çağrısından Neden Farklıdır?', en: 'Why Is This Static Example Output Different From a Real API Call?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Yukarıdaki kod BLOĞU gerçek bir print() çağrısı…', en: 'The code block above has a real print() call…' }, detail: { tr: "Yukarıdaki kod BLOĞU gerçek bir print(yanit...) çağrısı içerir, ama bu ÇIKTI bloğu sabit bir METİN dosyasıdır — SAYFA her yüklendiğinde AYNI 3 satırı gösterir, GERÇEK bir API isteği ASLA gönderilmez.", en: "The code block above has a real print(response...) call, but this OUTPUT block is a FIXED piece of text — it shows the SAME 3 lines every time the page loads, a REAL API request is NEVER sent." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Gerçek bir çağrıda system rolündeki talimat…', en: "In a real call, the system role's instruction…" }, detail: { tr: 'Gerçek bir çağrıda system rolündeki "Sen kıdemli bir QA mühendisisin" talimatı, modelin YANITININ TONUNU ve UZMANLIK seviyesini ŞEKİLLENDİRİR — bu STATİK örnek, modelin böyle bir talimata NASIL cevap VEREBİLECEĞİNİN bir TEMSİLİDİR.', en: 'In a real call, the system role\'s "You are a senior QA engineer" instruction SHAPES the TONE and expertise level of the model\'s response — this STATIC example is a REPRESENTATION of HOW the model MIGHT respond to such an instruction.' } },
+    { id: 3, icon: '3️⃣', label: { tr: 'user mesajındaki "3 sınır değer senaryosu yaz" isteği…', en: "The user message's request…" }, detail: { tr: 'user mesajındaki "3 sınır değer senaryosu yaz" isteği, çıktıdaki TAM OLARAK 3 maddeye KARŞILIK gelir — bu, promptun İSTEDİĞİ format ile modelin ÜRETTİĞİ format arasındaki DOĞRUDAN bağlantıyı gösterir.', en: 'The user message\'s "write 3 boundary-value scenarios" request CORRESPONDS to EXACTLY 3 items in the output — this shows the DIRECT link between the format the prompt ASKED for and the format the model PRODUCED.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'GERÇEK bir API çağrısında bu metin…', en: 'In a REAL API call, this text…' }, detail: { tr: "GERÇEK bir API çağrısında bu metin HER ÇALIŞTIRMADA farklı OLABİLİR (aynı model, aynı prompt olsa bile) — LLM'ler DETERMİNİSTİK değildir, bu yüzden bu sayfa GERÇEK bir çağrı yerine sabit bir örnek KULLANIR.", en: "In a REAL API call, this text CAN differ on EVERY run (even with the same model, same prompt) — LLMs are NOT deterministic, which is why this page USES a fixed example instead of a REAL call." } },
+    { id: 5, icon: '5️⃣', label: { tr: 'Bir test senaryosu YAZARKEN bu değişkenliği…', en: 'When WRITING a test scenario, this variability…' }, detail: { tr: 'Bir test senaryosu YAZARKEN bu değişkenliği HESABA KATMAK gerekir: "çıktı TAM OLARAK bu metne eşit olmalı" yerine "çıktı 3 sınır değer senaryosu İÇERMELİ" gibi daha ESNEK bir assertion YAZILMALIDIR.', en: 'When WRITING a test scenario, this variability must be ACCOUNTED for: instead of "output must EXACTLY equal this text", a more FLEXIBLE assertion like "output must CONTAIN 3 boundary-value scenarios" should be WRITTEN.' } },
+  ],
+}
+
+const llmLogSetupStep = {
+  type: 'step-animation',
+  id: 'llm-log-setup-step-01',
+  title: { tr: 'with open(...) as f: Satırı Dosyayı Neden Otomatik Kapatır?', en: 'Why Does with open(...) as f: Close the File Automatically?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'OpenAI() çağrısı BURADA henüz…', en: 'The OpenAI() call here doesn\'t send…' }, detail: { tr: 'OpenAI() çağrısı BURADA henüz HİÇBİR API isteği GÖNDERMEZ — sadece istemci NESNESİNİ hazırlar, API key\'i ortam değişkeninden OKUR ve BEKLER.', en: "The OpenAI() call here doesn't SEND any API request YET — it just PREPARES the client OBJECT, READS the API key from the environment variable, and WAITS." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'with open(...) as f: bloğu…', en: 'The with open(...) as f: block…' }, detail: { tr: 'with open(...) as f: bloğu Python\'un "context manager" MEKANİZMASINI kullanır — blok İÇİNDEKİ kod bittiğinde (veya bir HATA fırlatıldığında bile) dosya OTOMATİK olarak kapatılır, elle f.close() çağırmana GEREK kalmaz.', en: 'The with open(...) as f: block uses Python\'s "context manager" MECHANISM — the file gets CLOSED automatically once the code INSIDE the block finishes (even if an ERROR is thrown), you never NEED to call f.close() by hand.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '"r" modu dosyayı…', en: 'The "r" mode opens the file…' }, detail: { tr: '"r" modu dosyayı SADECE OKUMA için açar — YAZMA denemesi bir hata FIRLATIR, bu da agent\'ın bu dosyayı yanlışlıkla DEĞİŞTİRMESİNİ ENGELLEYEN bir güvenlik katmanıdır.', en: 'The "r" mode opens the file for READING ONLY — attempting to WRITE THROWS an error, which is a safety layer that PREVENTS the agent from accidentally MODIFYING this file.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'encoding="utf-8" AÇIKÇA belirtilmezse…', en: 'Without EXPLICITLY setting encoding="utf-8"…' }, detail: { tr: 'encoding="utf-8" AÇIKÇA belirtilmezse, işletim sistemine göre FARKLI bir varsayılan encoding KULLANILABİLİR — bu, log dosyasında Türkçe karakter (ı, ğ, ş) varsa SESSİZCE BOZUK okumaya yol açabilir.', en: 'Without EXPLICITLY setting encoding="utf-8", a DIFFERENT default encoding can be USED depending on the operating system — this can SILENTLY corrupt reading if the log file contains non-ASCII characters.' } },
+    { id: 5, icon: '5️⃣', label: { tr: 'f.read() TÜM dosya içeriğini…', en: 'f.read() loads the ENTIRE file…' }, detail: { tr: 'f.read() TÜM dosya içeriğini TEK bir string olarak BELLEĞE yükler — bu, agent\'ın az sonra bu içeriği system/user mesajlarına GÖMECEĞİ ham VERİDİR.', en: 'f.read() loads the ENTIRE file content into memory as ONE string — this is the raw DATA the agent will soon EMBED into its system/user messages.' } },
+  ],
+}
+
+const llmToolWhitelistStep = {
+  type: 'step-animation',
+  id: 'llm-tool-whitelist-step-01',
+  title: { tr: 'LLM Aracı ÇAĞIRMAK İster, Ama Kod\'u Kim ÇALIŞTIRIR?', en: 'The LLM WANTS to Call a Tool, But Who Actually RUNS the Code?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'araclar listesindeki JSON şeması…', en: "The JSON schema in the tools list…" }, detail: { tr: "araclar listesindeki JSON şeması, modele SADECE aracın ADINI, AÇIKLAMASINI ve hangi PARAMETRELERİ beklediğini ANLATIR — bu şema İÇİNDE gerçek ÇALIŞTIRILABİLİR hiçbir kod YOKTUR.", en: "The JSON schema in the tools list only TELLS the model the tool's NAME, DESCRIPTION, and which PARAMETERS it expects — there is NO actual executable CODE inside this schema." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'def report_flaky_test(...) ise…', en: 'def report_flaky_test(...) instead…' }, detail: { tr: 'def report_flaky_test(...) ise GERÇEK Python fonksiyonudur — dosyaya YAZAR, bu satırlar SENİN makinende ÇALIŞIR, LLM\'in sunucusunda DEĞİL.', en: "def report_flaky_test(...) instead is a REAL Python function — it WRITES to a file, these lines RUN on YOUR machine, NOT on the LLM's server." } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Model bir "tool call" İSTEDİĞİNDE…', en: 'When the model REQUESTS a "tool call"…' }, detail: { tr: 'Model bir "tool call" İSTEDİĞİNDE, aslında hiçbir şeyi KENDİSİ ÇALIŞTIRMAZ — sadece "report_flaky_test\'i şu parametrelerle ÇAĞIR" diyen bir JSON YANITI döndürür, KARARI verir ama İCRAYI SENİN kodun YAPAR.', en: 'When the model REQUESTS a "tool call", it doesn\'t actually RUN anything itself — it just RETURNS a JSON response saying "CALL report_flaky_test with these parameters", it makes the DECISION but YOUR code does the EXECUTION.' } },
+    { id: 4, icon: '4️⃣', label: { tr: 'KAYITLI_ARACLAR sözlüğü…', en: 'The REGISTERED_TOOLS dict…' }, detail: { tr: 'KAYITLI_ARACLAR sözlüğü, modelin İSTEYEBİLECEĞİ fonksiyon isimlerini SENİN elle YAZDIĞIN gerçek fonksiyonlarla EŞLEŞTİRİR — model burada OLMAYAN bir fonksiyon adı isteseydi, bu sözlükte BULUNAMAZDI ve ÇALIŞTIRILAMAZDI.', en: "The REGISTERED_TOOLS dict MAPS the function names the model MIGHT request to the real functions YOU wrote by hand — if the model requested a function name NOT in here, it wouldn't be FOUND and couldn't be EXECUTED." } },
+    { id: 5, icon: '5️⃣', label: { tr: 'Bu whitelist YAKLAŞIMI güvenlik SINIRIDIR…', en: 'This whitelist APPROACH is the security BOUNDARY…' }, detail: { tr: 'Bu whitelist YAKLAŞIMI güvenlik SINIRIDIR: model dosya SİLME veya rastgele kod ÇALIŞTIRMA isteseydi bile, KAYITLI_ARACLAR sözlüğünde böyle bir fonksiyon OLMADIĞI için o istek ASLA gerçekleşmez.', en: 'This whitelist APPROACH is the security BOUNDARY: even if the model REQUESTED file deletion or arbitrary code execution, that request NEVER happens because no such function EXISTS in the REGISTERED_TOOLS dict.' } },
+  ],
+}
+
 const apiCallStepAnimation = {
   type: 'step-animation',
   id: 'llm-api-call-step-01',
@@ -2450,6 +2489,7 @@ print(response.choices[0].message.content)`,
 3. Boundary: email field at the maximum allowed character count -> should be accepted`,
             },
           },
+          llmStaticOutputStep,
           { type: 'heading', text: `The Messages List: Three Roles` },
           {
             type: 'text',
@@ -2542,6 +2582,7 @@ with open("test_run_log.txt", "r", encoding="utf-8") as f:
     log_content = f.read()`,
             },
           },
+          llmLogSetupStep,
           { type: 'heading', text: `Piece 2: Registering the Tool and Its Real Implementation` },
           {
             type: 'code',
@@ -2601,6 +2642,7 @@ def report_flaky_test(test_name, reason):
 REGISTERED_TOOLS = {"report_flaky_test": report_flaky_test}`,
             },
           },
+          llmToolWhitelistStep,
           flakyAgentWhitelistCallout,
           { type: 'heading', text: `Piece 3: The Agent Loop` },
           {
@@ -4231,6 +4273,7 @@ print(response.choices[0].message.content)`,
 3. Boundary: email field at the maximum allowed character count -> should be accepted`,
             },
           },
+          llmStaticOutputStep,
           { type: 'heading', text: `Mesajlar Listesi: Üç Rol` },
           {
             type: 'text',
@@ -4323,6 +4366,7 @@ with open("test_run_log.txt", "r", encoding="utf-8") as f:
     log_content = f.read()`,
             },
           },
+          llmLogSetupStep,
           { type: 'heading', text: `2. Parça: Aracı Kaydetme ve Gerçek İmplementasyonu` },
           {
             type: 'code',
@@ -4382,6 +4426,7 @@ def report_flaky_test(test_name, reason):
 REGISTERED_TOOLS = {"report_flaky_test": report_flaky_test}`,
             },
           },
+          llmToolWhitelistStep,
           flakyAgentWhitelistCallout,
           { type: 'heading', text: `3. Parça: Agent Döngüsü` },
           {
