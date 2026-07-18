@@ -1515,6 +1515,66 @@ const claudeInterviewLayerPractice = {
   xpReward: 13,
 }
 
+const claudeMacLinuxSudoStep = {
+  type: 'step-animation', id: 'claude-mac-linux-sudo-step-01',
+  title: { tr: 'sudo npm install -g Neden Riskli, nvm Neden Daha Güvenli Bir Alternatif?', en: 'Why Is sudo npm install -g Risky, and Why Is nvm a Safer Alternative?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'sudo npm install -g ... komutu…', en: 'sudo npm install -g ... installs…' }, detail: { tr: "sudo npm install -g ... komutu paketi ROOT yetkisiyle kurar — bu, npm'in yazdığı TÜM dosyaların sahipliğini root'a ÇEVİRİR, normal kullanıcı hesabın DEĞİL.", en: "sudo npm install -g ... installs the package with ROOT privileges — this FLIPS ownership of every file npm writes to root, NOT to your regular user account." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bir SONRAKİ (sudo\'suz) npm install -g…', en: 'The NEXT (sudo-free) npm install -g…' }, detail: { tr: "Bir SONRAKİ (sudo'suz) npm install -g komutu çalıştırıldığında, önceki root-sahipli dosyalarla ÇAKIŞABİLİR ve EACCES hatası ORTAYA çıkabilir — sudo \"hızlı çözüm\" gibi görünse de yeni bir SORUN biriktirir.", en: "The NEXT (sudo-free) npm install -g command can CONFLICT with those previously root-owned files and PRODUCE an EACCES error — sudo may look like a \"quick fix\" but it stores up a new PROBLEM." } },
+    { id: 3, icon: '3️⃣', label: { tr: 'nvm (Node Version Manager) ise…', en: 'nvm (Node Version Manager) instead…' }, detail: { tr: "nvm (Node Version Manager) ise Node'u kullanıcının KENDİ home dizini altına kurar — bu sayede npm install -g'nin sudo GEREKMEDEN çalışması mümkün olur.", en: "nvm (Node Version Manager) instead installs Node under the user's OWN home directory — this makes npm install -g work WITHOUT needing sudo AT ALL." } },
+    { id: 4, icon: '4️⃣', label: { tr: 'nvm install --lts && nvm use --lts…', en: 'nvm install --lts && nvm use --lts…' }, detail: { tr: "nvm install --lts && nvm use --lts, birden fazla Node sürümünü YAN YANA tutmanı ve projeler arasında GEÇİŞ yapmanı sağlar — bir proje Node 18 isterken diğeri Node 22 isteyebilir.", en: "nvm install --lts && nvm use --lts lets you keep multiple Node versions SIDE BY SIDE and SWITCH between projects — one project may need Node 18 while another needs Node 22." } },
+    { id: 5, icon: '5️⃣', label: { tr: 'claude --version komutunun hatasız…', en: 'claude --version returning a version…' }, detail: { tr: "claude --version komutunun hatasız bir sürüm DÖNMESİ, hem kurulumun hem PATH'in DOĞRU yapılandırıldığının kanıtıdır — hata alırsan sorun genelde YANLIŞ Node sürümü veya npm global path'in PATH'e EKLENMEMİŞ olmasıdır.", en: "claude --version returning a version number with no error PROVES both the install and PATH are set up CORRECTLY — an error usually means the WRONG Node version is active, or npm's global path was never ADDED to PATH." } },
+  ],
+}
+
+const claudeEnvKeySecurityStep = {
+  type: 'step-animation', id: 'claude-env-key-security-step-01',
+  title: { tr: 'process.env.ANTHROPIC_API_KEY Satırı Gerçekte Neyi Değiştirir?', en: 'What Does process.env.ANTHROPIC_API_KEY Actually Change?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: "Kod içine YAZILAN bir key…", en: 'A key HARDCODED into the file…' }, detail: { tr: "apiKey: 'sk-ant-...' şeklinde kod içine YAZILAN bir key, o dosyayı GÖREN herkes (git geçmişi, code review, hatta bir ekran paylaşımı) tarafından OKUNABİLİR hale gelir.", en: "An apiKey: 'sk-ant-...' string HARDCODED into the file becomes READABLE by anyone who ever SEES that file — git history, a code review, even a screen share." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'process.env.ANTHROPIC_API_KEY ise…', en: 'process.env.ANTHROPIC_API_KEY instead…' }, detail: { tr: "process.env.ANTHROPIC_API_KEY ise kaynak koduna DEĞERİ değil, sadece DEĞİŞKENİN ADINI yazar — gerçek key HİÇBİR ZAMAN dosyada GÖRÜNMEZ.", en: "process.env.ANTHROPIC_API_KEY writes only the VARIABLE'S NAME into the source, never the VALUE — the real key NEVER appears in the file." } },
+    { id: 3, icon: '3️⃣', label: { tr: 'Değer, process ÇALIŞIRKEN…', en: 'The value is INJECTED…' }, detail: { tr: "Değer, process ÇALIŞIRKEN işletim sisteminin ortam değişkenleri tablosundan (bir .env dosyası veya CI secret'ından YÜKLENMİŞ) ENJEKTE edilir — kod bunu SADECE çalışma anında OKUR.", en: "The value is INJECTED from the OS's environment table AT RUNTIME (loaded from a .env file or a CI secret) — the code only READS it AT THE MOMENT it runs." } },
+    { id: 4, icon: '4️⃣', label: { tr: '.env dosyası .gitignore\'da OLMAZSA…', en: 'If .env is NOT in .gitignore…' }, detail: { tr: ".env dosyası .gitignore'da OLMAZSA, key yine git geçmişine SIZAR — process.env kullanmak YETMEZ, .env dosyasının kendisi de VERSİYON KONTROLÜNÜN DIŞINDA tutulmalıdır.", en: "If .env is NOT in .gitignore, the key still LEAKS into git history — using process.env alone is NOT enough, the .env file itself must also stay OUTSIDE version control." } },
+    { id: 5, icon: '5️⃣', label: { tr: 'Bir key Claude konuşmasına YAPIŞTIRILIRSA…', en: 'Pasting a key into a Claude conversation…' }, detail: { tr: "Bir key Claude konuşmasına YAPIŞTIRILIRSA — 'çalışıyor mu diye deneyeyim' dense bile — bu artık bir model transkriptidir, GÜVENLİ bir secret deposu DEĞİLDİR; şüpheli sızıntıda tek çözüm key'i DERHAL YENİLEMEKTİR.", en: "Pasting a key into a Claude conversation — even just to 'check if it works' — turns it into a model transcript, NOT a SECURE secrets store; the only fix for a suspected leak is to ROTATE the key IMMEDIATELY." } },
+  ],
+}
+
+const claudeJavaPomLocatorStep = {
+  type: 'step-animation', id: 'claude-java-pom-locator-step-01',
+  title: { tr: "By.cssSelector(\"[data-testid=...]\") Neden Konum/XPath'ten Daha Dayanıklı?", en: 'Why Is By.cssSelector("[data-testid=...]") More Resilient Than Position/XPath?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: "By.cssSelector(\"[data-testid='login-email']\") ifadesi…", en: "By.cssSelector(\"[data-testid='login-email']\") finds…" }, detail: { tr: "By.cssSelector(\"[data-testid='login-email']\") ifadesi, elementi DOM'daki KONUMUNA göre değil, geliştiricinin BİLEREK eklediği bir data-testid ATTRIBUTE'üne göre bulur — bu attribute SADECE test amaçlı vardır, hiçbir CSS/JS mantığı ona BAĞLI değildir.", en: "By.cssSelector(\"[data-testid='login-email']\") finds the element by a data-testid ATTRIBUTE the developer added ON PURPOSE, not by its POSITION in the DOM — this attribute exists ONLY for tests, no CSS/JS logic DEPENDS on it." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'Bir frontend refactor\'ü elementin YERİNİ…', en: 'A frontend refactor often changes POSITION…' }, detail: { tr: "Bir frontend refactor'ü elementin DOM ağacındaki YERİNİ (kaçıncı sıradaki div olduğunu) veya class isimlerini (CSS-module hash) SIK SIK değiştirir — ama data-testid gibi bir kontrat, ekip bunu BİLEREK bozmadıkça SABİT kalır.", en: "A frontend refactor often changes the element's POSITION in the DOM tree (which div index it is) or its class names (a CSS-module hash) — but a contract like data-testid stays STABLE unless the team breaks it ON PURPOSE." } },
+    { id: 3, icon: '3️⃣', label: { tr: "Constructor'da driver referansı SAKLANIR…", en: 'The constructor STORES the driver reference…' }, detail: { tr: "Constructor'da driver referansı SAKLANIR (private WebDriver driver), böylece login() metodu her çağrıldığında AYNI driver session'ı üzerinden elementleri ARAR — yeni bir bağlantı AÇILMAZ.", en: "The constructor STORES the driver reference (private WebDriver driver), so every call to login() SEARCHES for elements through the SAME driver session — no new connection is OPENED." } },
+    { id: 4, icon: '4️⃣', label: { tr: 'login(email, password) metodu…', en: 'The login(email, password) method…' }, detail: { tr: "login(email, password) metodu, 3 findElement + sendKeys/click çağrısını TEK bir okunabilir işlem haline GETİRİR — testin kendisi artık \"hangi CSS selector\" ile değil, \"login yap\" diye KONUŞUR.", en: "The login(email, password) method TURNS 3 findElement + sendKeys/click calls into ONE readable operation — the test itself now SPEAKS in terms of \"log in\", not \"which CSS selector\"." } },
+    { id: 5, icon: '5️⃣', label: { tr: "Claude'a bu POM'u ÜRETTİRDİĞİNDE…", en: 'When you have Claude GENERATE this POM…' }, detail: { tr: "Claude'a bu POM'u ÜRETTİRDİĞİNDE, HTML'i yapıştırırken \"data-testid'i XPath konumuna TERCİH et\" demek ZORUNDASIN — aksi halde model, HTML anlık görüntüsünden en KOLAY çalışan ama en KIRILGAN selector'ı (derin XPath) ÜRETEBİLİR.", en: "When you have Claude GENERATE this POM, you MUST say \"prefer data-testid over XPath position\" while pasting the HTML — otherwise the model may PRODUCE the EASIEST-working but MOST FRAGILE selector (a deep XPath) from that HTML snapshot." } },
+  ],
+}
+
+const claudeRestAssuredChainStep = {
+  type: 'step-animation', id: 'claude-restassured-chain-step-01',
+  title: { tr: 'given().when().then() Zinciri Aslında Ne Zaman Neyi Kontrol Eder?', en: 'When Does the given().when().then() Chain Actually Check What?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'given().header(...) satırı HENÜZ…', en: 'given().header(...) does NOT send…' }, detail: { tr: "given().header(...) satırı HENÜZ hiçbir İSTEK GÖNDERMEZ — sadece isteğin HAZIRLIK aşamasında hangi header/parametrelerin ekleneceğini TANIMLAR.", en: "given().header(...) does NOT SEND any request YET — it only DEFINES which headers/parameters get added during the request's SETUP phase." } },
+    { id: 2, icon: '2️⃣', label: { tr: 'when().get("/api/users/{id}", 42) çağrıldığı ANDA…', en: 'The moment when().get("/api/users/{id}", 42) is called…' }, detail: { tr: "when().get(\"/api/users/{id}\", 42) çağrıldığı ANDA gerçek HTTP isteği GÖNDERİLİR — {id} yer tutucusu 42 değeriyle DOLDURULUR ve istek /api/users/42'ye GİDER.", en: "The moment when().get(\"/api/users/{id}\", 42) is called, the real HTTP request is SENT — the {id} placeholder is FILLED with 42 and the request GOES to /api/users/42." } },
+    { id: 3, icon: '3️⃣', label: { tr: 'then().statusCode(200) YANIT geldikten SONRA…', en: 'then().statusCode(200) runs AFTER the response…' }, detail: { tr: "then().statusCode(200) YANIT geldikten SONRA çalışır ve HTTP durum kodunu KONTROL eder — bu kontrol FAIL olursa sonraki .body(...) satırları HİÇ ÇALIŞTIRILMADAN test başarısız SAYILIR.", en: "then().statusCode(200) runs AFTER the response arrives and CHECKS the HTTP status code — if this check FAILS, the test is marked FAILED WITHOUT the following .body(...) lines ever RUNNING." } },
+    { id: 4, icon: '4️⃣', label: { tr: '.body("id", equalTo(42)) ve .body("email", ...)…', en: '.body("id", equalTo(42)) and .body("email", ...)…' }, detail: { tr: '.body("id", equalTo(42)) ve .body("email", notNullValue()) ZİNCİRLEME olarak AYNI yanıt gövdesi üzerinde birden fazla bağımsız kontrol YAPAR — her biri kendi JSON path\'ini SORGULAR.', en: '.body("id", equalTo(42)) and .body("email", notNullValue()) CHAIN multiple independent checks against the SAME response body — each QUERIES its own JSON path.' } },
+    { id: 5, icon: '5️⃣', label: { tr: '// Not yet confirmed satırındaki yorum…', en: 'The // Not yet confirmed comment…' }, detail: { tr: "// Not yet confirmed satırındaki yorum, Claude'un ÜRETTİĞİ ama SENİN henüz GERÇEK bir 404 yanıtıyla DOĞRULAMADIĞIN bir varsayımı İŞARETLER — bu tür bir yorumu SİLMEDEN önce o senaryoyu GERÇEKTEN tetikleyip yanıt şeklini KANITLAMALISIN.", en: "The // Not yet confirmed comment FLAGS an assumption Claude GENERATED that YOU haven't yet VERIFIED against a real 404 response — before REMOVING such a comment, you must ACTUALLY trigger that scenario and PROVE the response shape." } },
+  ],
+}
+
+const claudeClaudeMdStep = {
+  type: 'step-animation', id: 'claude-claudemd-step-01',
+  title: { tr: 'CLAUDE.md Dosyası Ajanın Davranışını Nasıl Şekillendirir?', en: 'How Does CLAUDE.md Actually Shape the Agent\'s Behavior?' },
+  steps: [
+    { id: 1, icon: '1️⃣', label: { tr: 'Claude Code bir oturum BAŞLARKEN…', en: 'When a session STARTS…' }, detail: { tr: "Claude Code bir oturum BAŞLARKEN proje kökündeki CLAUDE.md dosyasını OTOMATİK okur — bu, HER prompt'ta aynı kuralları TEKRAR yazmak zorunda kalmamanı sağlar.", en: "When a session STARTS, Claude Code AUTOMATICALLY reads the CLAUDE.md file at the project root — this means you don't REWRITE the same rules in EVERY prompt." } },
+    { id: 2, icon: '2️⃣', label: { tr: '"İçerik değişikliği src/data/*.js dışına taşmaz" kuralı…', en: 'The "content changes stay within src/data/*.js" rule…' }, detail: { tr: '"İçerik değişikliği src/data/*.js dışına taşmaz" gibi bir kural, ajanın YANLIŞLIKLA component/config dosyalarına DOKUNMASINI önler — sınır, prompt\'ta değil DOSYADA tanımlıdır.', en: 'A rule like "content changes stay within src/data/*.js" PREVENTS the agent from ACCIDENTALLY touching component/config files — the boundary is defined in the FILE, not the prompt.' } },
+    { id: 3, icon: '3️⃣', label: { tr: '"Her yeni kod bloğu bir practice/animasyon ile eşleşmeli" kuralı…', en: 'The "every code block pairs with a practice/animation" rule…' }, detail: { tr: '"Her yeni kod bloğu bir practice/animasyon ile eşleşmeli" kuralı, ajan bir görevi TAMAMLADIĞINI düşünse bile KENDİ ÇIKTISINI bu kurala göre TEKRAR kontrol etmesini sağlar.', en: 'The "every code block pairs with a practice/animation" rule makes the agent RE-CHECK its OWN output against this rule even when it THINKS a task is DONE.' } },
+    { id: 4, icon: '4️⃣', label: { tr: '"Build\'i her değişiklikten sonra çalıştır" kuralı…', en: 'The "run the build after every change" rule…' }, detail: { tr: '"Build\'i her değişiklikten sonra çalıştır" kuralı, ajanın "değişikliği yaptım" ile "değişiklik GERÇEKTEN çalışıyor" arasındaki farkı KAPATAN bir doğrulama ADIMINI zorunlu kılar.', en: 'The "run the build after every change" rule FORCES a verification STEP that CLOSES the gap between "I made the change" and "the change ACTUALLY works".' } },
+    { id: 5, icon: '5️⃣', label: { tr: 'Bu dosya, bir CONTRIBUTING.md ile AYNI mantığı…', en: 'This file follows the SAME logic as a CONTRIBUTING.md…' }, detail: { tr: 'Bu dosya, ekiplerin bir CONTRIBUTING.md yazıp her PR review\'da aynı kod stilini TEKRAR anlatmamasıyla AYNI mantığı takip eder — kural BİR KEZ yazılır, HER oturumda sessizce UYGULANIR.', en: 'This file follows the SAME logic as a team writing a CONTRIBUTING.md instead of RE-EXPLAINING the same code style in every PR review — the rule is written ONCE and silently APPLIED in EVERY session.' } },
+  ],
+}
+
 // ─── Sayfa verisi ─────────────────────────────────────────────────────────────
 
 export const claudeAiData = {
@@ -1743,6 +1803,7 @@ claude --version
 # Verification: no error and a version number means the install succeeded`,
             },
           },
+          claudeMacLinuxSudoStep,
           { type: 'heading', text: `IDE Extensions` },
           {
             type: 'text',
@@ -1769,6 +1830,7 @@ const client = new Anthropic({ apiKey: 'sk-ant-api03-abc123...' })
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
             },
           },
+          claudeEnvKeySecurityStep,
           { type: 'heading', text: `Which Language Should You Write Prompts In?` },
           {
             type: 'text',
@@ -2103,6 +2165,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
 }`,
             },
           },
+          claudeJavaPomLocatorStep,
           {
             type: 'code',
             language: 'typescript',
@@ -2220,6 +2283,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
     .body("email", containsString("@"));`,
             },
           },
+          claudeRestAssuredChainStep,
           {
             type: 'code',
             language: 'javascript',
@@ -2305,6 +2369,7 @@ pm.test("email field is valid", function () {
 - Run the build after every change.`,
             },
           },
+          claudeClaudeMdStep,
           {
             type: 'text',
             content: `Reasoning: why write project rules into a file the agent reads, instead of repeating them in every prompt? Because a file like this is read ONCE per session and then silently informs every subsequent action — the same reason a team writes a CONTRIBUTING.md instead of re-explaining code style in every pull request review.`,
@@ -3402,6 +3467,7 @@ claude --version
 # Verification: no error and a version number means the install succeeded`,
             },
           },
+          claudeMacLinuxSudoStep,
           { type: 'heading', text: `IDE Eklentileri` },
           {
             type: 'text',
@@ -3428,6 +3494,7 @@ const client = new Anthropic({ apiKey: 'sk-ant-api03-abc123...' })
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })`,
             },
           },
+          claudeEnvKeySecurityStep,
           { type: 'heading', text: `Prompt'u Hangi Dilde Yazmalı?` },
           {
             type: 'text',
@@ -3762,6 +3829,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
 }`,
             },
           },
+          claudeJavaPomLocatorStep,
           {
             type: 'code',
             language: 'typescript',
@@ -3879,6 +3947,7 @@ INSERT INTO test_users (id, age, expected_result) VALUES
     .body("email", containsString("@"));`,
             },
           },
+          claudeRestAssuredChainStep,
           {
             type: 'code',
             language: 'javascript',
@@ -3964,6 +4033,7 @@ pm.test("email field is valid", function () {
 - Run the build after every change.`,
             },
           },
+          claudeClaudeMdStep,
           {
             type: 'text',
             content: `Akıl yürütme: proje kurallarını her prompt'ta tekrarlamak yerine neden ajanın okuduğu bir dosyaya yazasın? Çünkü böyle bir dosya oturum başına BİR KEZ okunur ve sonrasında sonraki her eylemi sessizce bilgilendirir — bir ekibin kod stilini her pull request incelemesinde yeniden anlatmak yerine bir CONTRIBUTING.md yazmasıyla aynı sebep.`,

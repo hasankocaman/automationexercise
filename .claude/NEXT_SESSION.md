@@ -96,8 +96,34 @@ javascript ile aynı desen). 5 yeni step-animation:
 **Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
 browserstack` deficit:0 ✓ + `npm run build` yeşil ✓.
 
-**Sıradaki:** claude-ai (5 açık) → git (3) → bruno (3) → llm-agents (3).
-python (17 açık) Fable'a ayrılmış, bu oturumun kapsamı dışında.
+**claude-ai (5 açık → 0):** `src/data/claudeAiData.js` (çift ağaç, `en:`/`tr:`
+kökleri ayrı literal `sections` dizileri — ama bazı `code` alanları zaten
+`{tr,en}` bilingual, `fillMissingCodeTrios` bu dosyada YOK, tüm step-animation
+içeriği elle yazılıyor). 5 yeni step-animation, dosya başında paylaşılan
+const olarak tanımlandı, iki ağaca da aynı referansla eklendi:
+- Section 02 (Access & Setup): macOS/Linux `sudo npm install -g` risk/nvm alternatifi + `process.env.ANTHROPIC_API_KEY` güvenlik mekanizması (2 animasyon)
+- Section 06 (UI Automation): Java Selenium POM'daki `data-testid` neden XPath konumundan daha dayanıklı
+- Section 07 (API Testing): REST Assured `given().when().then()` zincirinin ne zaman neyi kontrol ettiği
+- Section 08 (Claude Code Terminal): `CLAUDE.md` dosyasının ajan davranışını oturum başına nasıl şekillendirdiği
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
+claude-ai` deficit:0 ✓ + `npm run build` yeşil ✓ (4dk 29sn — sistem yükü).
+
+**git (3 açık → 0):** `src/data/gitGithubData.js` (çift ağaç, EN/TR ayrı
+literal `sections`, bazı `code` alanları `TopicPage.jsx`'teki
+`localizeCodeComments` ile çalışma zamanında TR'ye çevrilen düz string —
+CLAUDE.md §8'de bahsedilen mekanizma budur). 3 yeni step-animation:
+- Section 04 (Branch & Switch): `git fetch` neden branch'e hiç dokunmaz, `git pull` neden dokunur (fetch vs pull farkı)
+- Section 05 (Merge & Conflict): `git pull --ff-only` sürpriz merge commit'i nasıl engeller
+- Section 06 (Rebase & Advanced): `git log <branch> --oneline -N` başka bir branch'in geçmişini nasıl listeler (cherry-pick hazırlık adımı)
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
+git` deficit:0 ✓ + `npm run build` (commit sonrası doğrulanacak).
+
+**Sıradaki:** bruno (3 açık) → llm-agents (3). python (17 açık) Fable'a
+ayrılmış, bu oturumun kapsamı dışında. Tüm sayfalar bitince kullanıcı
+talimatıyla `Documents/animation-per-topic-plan.md` incelenip yapılan işin
+plana uygunluğu doğrulanacak.
 
 ---
 
