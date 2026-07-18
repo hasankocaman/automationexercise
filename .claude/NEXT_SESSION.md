@@ -76,9 +76,19 @@ yazılmıştı). 6 yeni step-animation:
 **Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
 linux` deficit:0 ✓ + `npm run build` yeşil ✓.
 
-**Sıradaki:** javascript (5 açık) → browserstack (5) → claude-ai (5) → git (3)
-→ bruno (3) → llm-agents (3). python (17 açık) Fable'a ayrılmış, bu oturumun
-kapsamı dışında.
+**javascript (5 açık → 0):** `src/data/javascriptData.js` (TEK ağaçlı, section
+title/content `{tr,en}` bilingual field — kafka/gauge deseni değil, Bölüm 2.5
+kuralı gereği animasyon sabiti TEK yere konur, iki ağaca kopyalanmaz). 5 yeni
+step-animation:
+- Section 01 (Installation & Setup): Windows doğrulama komutları (`node --version` zinciri) + npm `EACCES` izin hatası çözümü (`mkdir ~/.npm-global`) + `npm init playwright@latest` sihirbaz akışı (3 animasyon)
+- Section 10 (Real World QA & DOM): `await` olmadan flaky test oluşma mekanizması + `innerHTML` vs `textContent` XSS farkı (2 animasyon)
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
+javascript` deficit:0 ✓ + `npm run build` yeşil ✓ (build bu oturumda bir kez
+10 dakika sürdü — sistem yükü nedeniyle, kalıcı bir regresyon değil).
+
+**Sıradaki:** browserstack (5 açık) → claude-ai (5) → git (3) → bruno (3) →
+llm-agents (3). python (17 açık) Fable'a ayrılmış, bu oturumun kapsamı dışında.
 
 ---
 

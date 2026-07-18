@@ -1987,6 +1987,18 @@ npm init -y
         }
       },
       {
+        type: "step-animation",
+        id: "js-node-verify-step-01",
+        title: { tr: "node --version Çıktısı Aslında Neyi Doğrular?", en: "What Does the node --version Output Actually Verify?" },
+        steps: [
+          { id: 1, icon: "1️⃣", label: { tr: "node --version çalıştırıldığında…", en: "Running node --version…" }, detail: { tr: "node --version çalıştırıldığında terminal, PATH ortam değişkenindeki node.exe dosyasını BULUR ve içine gömülü sürüm bilgisini OKUR — kurulum başarısızsa \"command not found\" hatası bunun yerine gelir.", en: "Running node --version makes the terminal FIND node.exe via the PATH environment variable and READ the version baked into it — if the install failed, you get \"command not found\" instead." } },
+          { id: 2, icon: "2️⃣", label: { tr: "npm --version AYRI bir binary'i…", en: "npm --version runs a SEPARATE binary…" }, detail: { tr: "npm --version AYRI bir binary'i (npm.cmd) çalıştırır — Node.js kurulduğunda npm otomatik gelir ama İKİSİ de PATH'te doğru şekilde KAYITLI olmalıdır.", en: "npm --version runs a SEPARATE binary (npm.cmd) — npm ships automatically with Node.js, but BOTH must be correctly REGISTERED on PATH." } },
+          { id: 3, icon: "3️⃣", label: { tr: "node -e \"console.log(...)\" ifadesi…", en: "node -e \"console.log(...)\"…" }, detail: { tr: "node -e \"console.log(...)\" ifadesi, -e (evaluate) bayrağıyla dosyaya hiç yazmadan tek satır JavaScript'i DOĞRUDAN çalıştırır — bu, kurulumu bir .js dosyası oluşturmadan HIZLICA test etmenin yoludur.", en: "node -e \"console.log(...)\" uses the -e (evaluate) flag to run a single line of JavaScript DIRECTLY without ever writing a file — a QUICK way to test the install without creating a .js file." } },
+          { id: 4, icon: "4️⃣", label: { tr: "mkdir ... && cd ... ifadesindeki && operatörü…", en: "The && operator in mkdir ... && cd ...…" }, detail: { tr: "mkdir my-qa-project && cd my-qa-project ifadesindeki && operatörü, İLK komut BAŞARILI olursa (exit code 0) ikinciyi çalıştırır — mkdir başarısız olursa (klasör zaten varsa) cd hiç ÇALIŞMAZ.", en: "The && operator in mkdir my-qa-project && cd my-qa-project runs the SECOND command only if the FIRST succeeds (exit code 0) — if mkdir fails (folder already exists), cd NEVER runs." } },
+          { id: 5, icon: "5️⃣", label: { tr: "npm init -y komutu…", en: "npm init -y…" }, detail: { tr: "npm init -y komutu, HİÇBİR soru sormadan (-y = yes to all) varsayılan değerlerle bir package.json dosyası OLUŞTURUR — bu dosya artık projenin bağımlılık/script kayıt defteridir.", en: "npm init -y CREATES a package.json file with default values, asking NO questions (-y = yes to all) — this file is now the project's dependency/script ledger." } },
+        ],
+      },
+      {
         type: "code",
         language: "bash",
         label: { tr: "macOS (Homebrew)", en: "macOS (Homebrew)" },
@@ -2059,6 +2071,18 @@ npm config set prefix '~/.npm-global'
         }
       },
       {
+        type: "step-animation",
+        id: "js-npm-eacces-step-01",
+        title: { tr: "npm EACCES Hatası Aslında Neden Olur, mkdir Komutu Bunu Nasıl Çözer?", en: "Why Does npm EACCES Actually Happen, and How Does mkdir Fix It?" },
+        steps: [
+          { id: 1, icon: "1️⃣", label: { tr: "Varsayılan olarak npm, global paketleri…", en: "By default npm tries to install global packages…" }, detail: { tr: "Varsayılan olarak npm, global paketleri /usr/lib/node_modules gibi SİSTEM SAHİPLİ bir klasöre kurmaya çalışır — normal kullanıcı bu klasöre YAZMA izni olmadığı için npm install -g bir paket EACCES (permission denied) hatasıyla PATLAR.", en: "By default npm tries to install global packages into a SYSTEM-OWNED folder like /usr/lib/node_modules — a regular user has no WRITE permission there, so npm install -g EXPLODES with an EACCES (permission denied) error." } },
+          { id: 2, icon: "2️⃣", label: { tr: "mkdir ~/.npm-global komutu…", en: "mkdir ~/.npm-global…" }, detail: { tr: "mkdir ~/.npm-global komutu, kullanıcının KENDİ home dizini altında, kendisine ait (dolayısıyla yazma izni olan) yeni bir klasör OLUŞTURUR.", en: "mkdir ~/.npm-global CREATES a new folder under the user's OWN home directory, one they actually own (and can therefore write to)." } },
+          { id: 3, icon: "3️⃣", label: { tr: "npm config set prefix '~/.npm-global' ifadesi…", en: "npm config set prefix '~/.npm-global'…" }, detail: { tr: "npm config set prefix '~/.npm-global' ifadesi, npm'e GLOBAL paketleri artık NEREYE kuracağını söyler — npm'in kendi ayar dosyasına (~/.npmrc) bu tercihi KAYDEDER.", en: "npm config set prefix '~/.npm-global' tells npm WHERE to install global packages from now on — it SAVES this preference into npm's own config file (~/.npmrc)." } },
+          { id: 4, icon: "4️⃣", label: { tr: "PATH'e ~/.npm-global/bin EKLENMEDEN…", en: "Without adding ~/.npm-global/bin to PATH…" }, detail: { tr: "PATH'e ~/.npm-global/bin EKLENMEDEN, oraya kurulan komutlar (örn. bir CLI aracı) terminalde TANINMAZ — export PATH=... satırı shell'e \"bu klasördeki çalıştırılabilir dosyalara da BAK\" der.", en: "Without adding ~/.npm-global/bin to PATH, commands installed there (e.g. a CLI tool) are NOT recognized by the terminal — the export PATH=... line tells the shell \"also LOOK for executables in this folder\"." } },
+          { id: 5, icon: "5️⃣", label: { tr: "Bu ayar sudo KULLANMADAN…", en: "This setup allows installing global packages…" }, detail: { tr: "Bu ayar sudo KULLANMADAN global paket kurmayı mümkün kılar — sudo npm install -g ile \"hızlıca çözmek\" YAYGIN bir hatadır çünkü dosya sahipliğini root'a çevirir ve SONRAKİ normal npm install komutlarını bozabilir.", en: "This setup makes it possible to install global packages WITHOUT sudo — \"quickly fixing\" it with sudo npm install -g is a COMMON mistake, because it flips file ownership to root and can break SUBSEQUENT normal npm install commands." } },
+        ],
+      },
+      {
         type: "code",
         language: "bash",
         label: { tr: "Playwright Projesi Kurulumu (Tüm OS)", en: "Playwright Project Setup (All OS)" },
@@ -2094,6 +2118,18 @@ npx playwright test --list      # Lists all test files
 npx playwright test
 # Expected output: X passed (Xm Xs)`
         }
+      },
+      {
+        type: "step-animation",
+        id: "js-playwright-init-step-01",
+        title: { tr: "npm init playwright@latest Perde Arkasında Kaç Adım Atar?", en: "How Many Steps Does npm init playwright@latest Take Behind the Scenes?" },
+        steps: [
+          { id: 1, icon: "1️⃣", label: { tr: "npm init playwright@latest çalıştırıldığında…", en: "Running npm init playwright@latest…" }, detail: { tr: "npm init playwright@latest çalıştırıldığında npm, Playwright'ın kurulum SİHİRBAZI paketini npm registry'den GEÇİCİ olarak indirir ve ÇALIŞTIRIR — bu paket projene kalıcı olarak eklenmez, sadece kurulum ADIMLARINI yürütür.", en: "Running npm init playwright@latest makes npm TEMPORARILY download and RUN Playwright's setup WIZARD package from the npm registry — this package is not permanently added to your project, it just executes the setup STEPS." } },
+          { id: 2, icon: "2️⃣", label: { tr: "Sihirbaz \"Where to put your end-to-end tests?\" diye SORDUĞUNDA…", en: "When the wizard asks \"Where to put your end-to-end tests?\"…" }, detail: { tr: "Sihirbaz \"Where to put your end-to-end tests?\" diye SORDUĞUNDA verdiğin cevap (örn. tests/), playwright.config.ts içindeki testDir DEĞERİNİ belirler.", en: "When the wizard asks \"Where to put your end-to-end tests?\", your answer (e.g. tests/) sets the testDir VALUE inside playwright.config.ts." } },
+          { id: 3, icon: "3️⃣", label: { tr: "\"Install Playwright browsers?\" sorusuna Y cevabı verilirse…", en: "Answering Y to \"Install Playwright browsers?\"…" }, detail: { tr: "\"Install Playwright browsers?\" sorusuna Y cevabı verilirse, Chromium/Firefox/WebKit binary'leri ~/.cache/ms-playwright dizinine İNDİRİLİR — bu adım internet bağlantısı GEREKTİRİR ve birkaç dakika sürebilir.", en: "Answering Y to \"Install Playwright browsers?\" DOWNLOADS the Chromium/Firefox/WebKit binaries into ~/.cache/ms-playwright — this step REQUIRES an internet connection and can take a few minutes." } },
+          { id: 4, icon: "4️⃣", label: { tr: "npx playwright --version, npx'in ÖNCE…", en: "npx playwright --version shows that npx FIRST…" }, detail: { tr: "npx playwright --version, npx'in ÖNCE proje içindeki node_modules/.bin klasöründe Playwright CLI'ını ARADIĞINI, bulamazsa global kuruluma BAKTIĞINI gösterir — bu yüzden proje-bazlı sürüm çakışmaları önlenir.", en: "npx playwright --version shows that npx FIRST LOOKS for the Playwright CLI inside the project's node_modules/.bin folder, and only CHECKS the global install if it's not found there — this is why per-project version conflicts are avoided." } },
+          { id: 5, icon: "5️⃣", label: { tr: "npx playwright test çalıştırıldığında…", en: "Running npx playwright test…" }, detail: { tr: "npx playwright test çalıştırıldığında, sihirbazın oluşturduğu örnek test dosyaları (tests/example.spec.ts) OTOMATİK bulunur ve ÇALIŞTIRILIR — \"X passed\" çıktısı, hem kurulumun hem de test runner'ın DOĞRU çalıştığının kanıtıdır.", en: "Running npx playwright test AUTOMATICALLY finds and RUNS the example test files the wizard created (tests/example.spec.ts) — the \"X passed\" output is proof that both the install and the test runner are working CORRECTLY." } },
+        ],
       },
       {
         type: "installation",
@@ -4441,6 +4477,18 @@ test('Async data loading test', async ({ page }) => {
         }
       },
       {
+        type: "step-animation",
+        id: "js-await-flakiness-step-01",
+        title: { tr: "await Olmadan Bu Test Neden Rastgele Başarısız Olurdu?", en: "Why Would This Test Fail Randomly Without await?" },
+        steps: [
+          { id: 1, icon: "1️⃣", label: { tr: "await page.goto(...) çalıştığında…", en: "await page.goto(...) blocks…" }, detail: { tr: "await page.goto(...) çalıştığında JavaScript, sayfa TAMAMEN yüklenip Promise ÇÖZÜLENE kadar bir SONRAKİ satıra GEÇMEZ — await olmasaydı kod hemen devam eder, sayfa henüz açılmamış olabilirdi.", en: "await page.goto(...) makes JavaScript NOT MOVE to the next line until the page is FULLY loaded and the Promise RESOLVES — without await, the code would continue immediately, possibly before the page even opened." } },
+          { id: 2, icon: "2️⃣", label: { tr: "await page.click(...) çağrısı ÖNCE…", en: "await page.click(...) waits FIRST…" }, detail: { tr: "await page.click(...) çağrısı ÖNCE elementin actionability kontrolünü (görünür/enabled/stable) bekler, SONRA tıklar — bu bekleme Playwright'ın içinde OTOMATİK gerçekleşir, sen ayrıca bir \"sleep\" yazmazsın.", en: "await page.click(...) waits FIRST for the element's actionability check (visible/enabled/stable), THEN clicks — this wait happens AUTOMATICALLY inside Playwright, you never write a separate \"sleep\"." } },
+          { id: 3, icon: "3️⃣", label: { tr: "const welcomeText = page.locator(...) satırı…", en: "const welcomeText = page.locator(...) runs…" }, detail: { tr: "const welcomeText = page.locator(...) satırı HENÜZ hiçbir DOM sorgusu ÇALIŞTIRMAZ — locator'lar \"lazy\"dir, gerçek arama await expect(...) çağrılana kadar ERTELENİR.", en: "const welcomeText = page.locator(...) does NOT run any DOM query YET — locators are \"lazy\", the actual search is DEFERRED until await expect(...) is called." } },
+          { id: 4, icon: "4️⃣", label: { tr: "await expect(welcomeText).toBeVisible({ timeout: 5000 })…", en: "await expect(welcomeText).toBeVisible({ timeout: 5000 })…" }, detail: { tr: "await expect(welcomeText).toBeVisible({ timeout: 5000 }) BİR KEREYE mahsus kontrol DEĞİLDİR — element görünür olana kadar en fazla 5 saniye boyunca TEKRAR TEKRAR (polling) kontrol eder.", en: "await expect(welcomeText).toBeVisible({ timeout: 5000 }) is NOT a one-shot check — it POLLS repeatedly for up to 5 seconds until the element becomes visible." } },
+          { id: 5, icon: "5️⃣", label: { tr: "Eğer await'ler kaldırılsaydı…", en: "If the awaits were removed…" }, detail: { tr: "Eğer await'ler kaldırılsaydı, her satır Promise nesnesini HEMEN döndürür ve script sayfa yüklenmeden/tıklama gerçekleşmeden bir sonraki satıra geçerdi — test bazen geçer bazen RASTGELE FAIL olurdu (klasik \"flaky test\" senaryosu).", en: "If the awaits were removed, every line would return its Promise object IMMEDIATELY and the script would move on before the page loaded or the click happened — the test would pass sometimes and FAIL randomly (a classic flaky-test scenario)." } },
+        ],
+      },
+      {
         type: "editor",
         lang: "javascript",
         height: "220px",
@@ -4635,6 +4683,18 @@ el.textContent = userInput;     // ← SAFE: displayed as plain text
 const buttonText = document.querySelector('#submit').textContent.trim();
 // Java/Selenium: driver.findElement(By.id("submit")).getText()`
         }
+      },
+      {
+        type: "step-animation",
+        id: "js-innerhtml-xss-step-01",
+        title: { tr: "el.innerHTML = userInput Satırı Neden Tehlikeli, textContent Neden Değil?", en: "Why Is el.innerHTML = userInput Dangerous, But textContent Isn't?" },
+        steps: [
+          { id: 1, icon: "1️⃣", label: { tr: "el.innerHTML = '<b>Merhaba</b>' YAZILDIĞINDA…", en: "Writing el.innerHTML = '<b>Hello</b>'…" }, detail: { tr: "el.innerHTML = '<b>Merhaba</b>' YAZILDIĞINDA tarayıcı bu string'i HTML olarak PARSE eder ve gerçek <b> elementini DOM'A ekler — string sadece metin olarak DEĞİL, ÇALIŞTIRILABİLİR bir yapı olarak ele alınır.", en: "Writing el.innerHTML = '<b>Hello</b>' makes the browser PARSE that string as HTML and insert a real <b> element into the DOM — the string is treated as EXECUTABLE structure, NOT just text." } },
+          { id: 2, icon: "2️⃣", label: { tr: "el.textContent OKUNDUĞUNDA…", en: "Reading el.textContent…" }, detail: { tr: "el.textContent OKUNDUĞUNDA HTML etiketleri SOYULUR, sadece düz metin (\"Merhaba\") döner — el.innerHTML OKUNDUĞUNDA ise etiketler DAHİL tüm ham HTML metni döner.", en: "Reading el.textContent STRIPS the HTML tags and returns only plain text (\"Hello\") — reading el.innerHTML returns the raw HTML text INCLUDING the tags." } },
+          { id: 3, icon: "3️⃣", label: { tr: "el.textContent = '<b>Bold?</b>' YAZILDIĞINDA…", en: "Writing el.textContent = '<b>Bold?</b>'…" }, detail: { tr: "el.textContent = '<b>Bold?</b>' YAZILDIĞINDA bu string HİÇ parse edilmez, ekranda AYNEN \"<b>Bold?</b>\" yazısı GÖRÜNÜR — HTML olarak yorumlanmaz.", en: "Writing el.textContent = '<b>Bold?</b>' NEVER parses that string, the screen shows the LITERAL text \"<b>Bold?</b>\" — it's never interpreted as HTML." } },
+          { id: 4, icon: "4️⃣", label: { tr: "userInput değişkeni bir <img ... onerror=...> string'i içeriyorsa…", en: "If userInput holds an <img ... onerror=...> string…" }, detail: { tr: "userInput değişkeni bir <img src=x onerror=\"alert('XSS!')\"> string'i içeriyorsa, bunu innerHTML'e ATAMAK tarayıcının bu script'i GERÇEKTEN ÇALIŞTIRMASINA yol açar — bu klasik bir XSS (Cross-Site Scripting) açığıdır.", en: "If userInput holds an <img src=x onerror=\"alert('XSS!')\"> string, ASSIGNING it to innerHTML makes the browser ACTUALLY EXECUTE that script — this is a textbook XSS (Cross-Site Scripting) vulnerability." } },
+          { id: 5, icon: "5️⃣", label: { tr: "AYNI userInput'u textContent'e atamak ise…", en: "Assigning that SAME userInput to textContent instead…" }, detail: { tr: "AYNI userInput'u textContent'e atamak ise onu SADECE görünen bir metin string'i olarak BASAR — <img> etiketi HİÇBİR ZAMAN gerçek bir DOM elementine dönüşmez, onerror ASLA tetiklenmez.", en: "Assigning that SAME userInput to textContent instead just PRINTS it as a visible text string — the <img> tag NEVER becomes a real DOM element, onerror is NEVER triggered." } },
+        ],
       },
       {
         type: "heading",
