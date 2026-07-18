@@ -2577,6 +2577,17 @@ const finalEnSections = [
         "expected": "3.43.0"
       },
       {
+        "type": "step-animation",
+        "title": { "tr": "sqlite3 mytest.db Çalıştırınca Perde Arkasında Ne Olur?", "en": "What Actually Happens When You Run sqlite3 mytest.db?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "Komut çalıştırıldığı anda dosya YOKSA…", "en": "The moment the command runs, if the file DOESN'T exist…" }, "detail": { "tr": "sqlite3 mytest.db komutu çalıştırıldığı anda, eğer mytest.db dosyası diskte yoksa YENİ boş bir dosya oluşturulur — ayrı bir \"create database\" komutuna gerek yoktur.", "en": "The moment sqlite3 mytest.db runs, if mytest.db doesn't exist on disk yet, a brand-new empty file is created — there's no separate \"create database\" command." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "Nokta (.) ile başlayan komutlar…", "en": "Commands starting with a dot (.)…" }, "detail": { "tr": "Açılan shell'de nokta (.) ile başlayan komutlar (.tables, .schema, .headers) SQLite'ın KENDİ komutlarıdır — SQL standardının parçası değildir, MySQL/PostgreSQL'de ÇALIŞMAZ.", "en": "Commands starting with a dot (.tables, .schema, .headers) are SQLite's OWN commands — they are not part of the SQL standard and will NOT work in MySQL/PostgreSQL." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": ".headers on ve .mode column…", "en": ".headers on and .mode column…" }, "detail": { "tr": ".headers on ve .mode column ayarları SADECE terminal görünümünü değiştirir — veritabanındaki veriyi hiç etkilemez, sonuçları okunur hale getirir.", "en": ".headers on and .mode column only change how results are DISPLAYED in the terminal — they never touch the actual data, they just make output readable." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "SELECT sqlite_version(); ise noktasız…", "en": "SELECT sqlite_version(), without a dot…" }, "detail": { "tr": "SELECT sqlite_version(); ise noktasız, standart bir SQL sorgusudur — noktalı virgülle biter ve (farklı fonksiyon adıyla) tüm SQL motorlarında bir karşılığı vardır.", "en": "SELECT sqlite_version(), with no leading dot, is a standard SQL query — it ends with a semicolon and has an equivalent (under a different function name) in every SQL engine." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": ".quit shell'den çıkar ama…", "en": ".quit exits the shell, but…" }, "detail": { "tr": ".quit komutu shell'den çıkar ama mytest.db dosyası DİSKTE kalır — bir sonraki sqlite3 mytest.db çağrısında aynı veriler kaldığı yerden erişilir.", "en": ".quit exits the shell, but mytest.db stays on DISK — the next time you run sqlite3 mytest.db, the same data is right where you left it." } }
+        ]
+      },
+      {
         "type": "heading",
         "text": "Option C: MySQL Community Server"
       },
@@ -2593,6 +2604,17 @@ const finalEnSections = [
         "type": "code",
         "code": "-- Connect and verify:\nmysql -u root -p          -- connect with root user (enter password)\n\nSELECT VERSION();         -- check MySQL version",
         "expected": "+-----------+\n| VERSION() |\n+-----------+\n| 8.0.35    |\n+-----------+"
+      },
+      {
+        "type": "step-animation",
+        "title": { "tr": "mysql -u root -p Komutu Neyi Doğrular?", "en": "What Does mysql -u root -p Actually Verify?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "Komut çalıştırılınca terminal bir şifre İSTER…", "en": "Running the command makes the terminal PROMPT for a password…" }, "detail": { "tr": "mysql -u root -p çalıştırılınca terminal bir şifre İSTER — şifre komut satırına açık yazılmaz, bu yüzden bash geçmişinde (history) asla görünmez.", "en": "Running mysql -u root -p makes the terminal PROMPT for a password — the password is never typed on the command line itself, so it never shows up in bash history." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "Doğru şifreyle sunucuya bir TCP bağlantısı açılır…", "en": "A correct password opens a TCP connection to the server…" }, "detail": { "tr": "Doğru şifre girilirse MySQL sunucusuna bir TCP bağlantısı açılır (varsayılan port 3306) — SQLite'ın aksine burada ayrı bir sunucu PROCESS'i zaten ÇALIŞIYOR olmalıdır.", "en": "With the correct password, a TCP connection opens to the MySQL server (default port 3306) — unlike SQLite, a separate server PROCESS must already be RUNNING." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "mysql> prompt'u görününce…", "en": "Once the mysql> prompt appears…" }, "detail": { "tr": "Bağlantı başarılı olursa mysql> prompt'u görünür — bu, komutların artık sunucuya GÖNDERİLDİĞİ anlamına gelir, yerel bir dosyaya değil.", "en": "Once the connection succeeds, the mysql> prompt appears — this means commands are now being SENT to the server, not to a local file." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "SELECT VERSION(); çalıştırıldığında…", "en": "When SELECT VERSION(); runs…" }, "detail": { "tr": "SELECT VERSION(); çalıştırıldığında sorgu ağ üzerinden sunucuya gider, sunucu sonucu hesaplar ve geri gönderir — bu round-trip, SQLite'ın aynı process içinde çalışmasından farklı bir gecikme kaynağıdır.", "en": "When SELECT VERSION(); runs, the query travels over the network to the server, gets computed, and comes back — this round-trip is a latency source SQLite doesn't have, since SQLite runs in the same process." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "Şifre yanlışsa \"Access denied\" hatası…", "en": "A wrong password produces \"Access denied\"…" }, "detail": { "tr": "Şifre yanlışsa \"Access denied for user\" hatası alınır — bu, QA'nın CI/CD ortamında en sık karşılaştığı \"DB bağlantısı reddedildi\" sorunlarından biridir, genelde yanlış env variable/secret'tan kaynaklanır.", "en": "A wrong password produces \"Access denied for user\" — this is one of the most common \"DB connection refused\" issues QA engineers hit in CI/CD, usually caused by a wrong env variable or secret." } }
+        ]
       },
       {
         "type": "heading",
@@ -5342,6 +5364,17 @@ const finalEnSections = [
         "code": "-- Create indexes on columns used frequently in WHERE/JOIN:\nCREATE INDEX idx_results_status  ON test_results(status);\nCREATE INDEX idx_results_run_date ON test_results(run_date);\nCREATE INDEX idx_bugs_tester     ON bugs(tester_id);       -- FK columns always!\nCREATE INDEX idx_results_env_status ON test_results(environment, status);  -- composite\n\n-- Unique index (also enforces uniqueness):\nCREATE UNIQUE INDEX idx_users_email ON users(email);\n\n-- View indexes on a table:\nSHOW INDEX FROM test_results;      -- MySQL\ndi test_results                   -- PostgreSQL\n\n-- EXPLAIN: see how MySQL plans to execute a query\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- \"type: ALL\" = full table scan (slow, needs index)\n-- \"type: ref\" = using index (fast!)\n\n-- Add index and check improvement:\nCREATE INDEX idx_status ON test_results(status);\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- Now shows: key: idx_status, rows: ~10 (not all rows)"
       },
       {
+        "type": "step-animation",
+        "title": { "tr": "CREATE INDEX Aslında Diskte Ne İnşa Eder?", "en": "What Does CREATE INDEX Actually Build on Disk?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "CREATE INDEX çalıştırıldığında…", "en": "When CREATE INDEX runs…" }, "detail": { "tr": "CREATE INDEX çalıştırıldığında veritabanı o sütunun (örn. status) mevcut TÜM değerlerini okur ve ayrı, sıralı bir B-Tree yapısı diskte İNŞA eder — büyük tablolarda bu işlem saniyeler/dakikalar sürebilir.", "en": "When CREATE INDEX runs, the database reads EVERY existing value in that column (e.g. status) and BUILDS a separate, sorted B-Tree structure on disk — on large tables this can take seconds or minutes." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "İndeks oluşturulduktan SONRA…", "en": "AFTER the index exists…" }, "detail": { "tr": "İndeks oluşturulduktan SONRA yapılan her INSERT/UPDATE/DELETE, hem asıl tabloyu hem de bu B-Tree'yi GÜNCELLER — bu yüzden çok fazla index, yazma işlemlerini yavaşlatır.", "en": "AFTER the index exists, every INSERT/UPDATE/DELETE UPDATES both the base table and this B-Tree — this is why too many indexes slow down writes." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "EXPLAIN SELECT ... sorguyu ÇALIŞTIRMAZ…", "en": "EXPLAIN SELECT ... does NOT run the query…" }, "detail": { "tr": "EXPLAIN SELECT ... çalıştırıldığında veritabanı sorguyu ÇALIŞTIRMAZ — sadece \"type: ALL\" (tüm tabloyu tara) mı yoksa \"type: ref\" (indeksi kullan) mı planladığını GÖSTERİR.", "en": "When EXPLAIN SELECT ... runs, the database does NOT execute the query — it just SHOWS whether it plans \"type: ALL\" (scan the whole table) or \"type: ref\" (use the index)." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "İndeks eklenmeden önce EXPLAIN \"ALL\" derse…", "en": "Before the index, if EXPLAIN says \"ALL\"…" }, "detail": { "tr": "İndeks eklenmeden önce EXPLAIN \"ALL\" derse, veritabanı status='FAIL' eşleşmesini bulmak için TÜM satırları TEK TEK kontrol eder — tablo büyüdükçe bu süre DOĞRUSAL olarak artar.", "en": "Before the index, if EXPLAIN says \"ALL\", the database checks EVERY row ONE BY ONE to find status='FAIL' matches — this time grows LINEARLY as the table grows." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "İndeks eklendikten sonra aynı EXPLAIN…", "en": "After the index, the same EXPLAIN…" }, "detail": { "tr": "İndeks eklendikten sonra aynı EXPLAIN \"ref\" ve düşük bir \"rows\" sayısı gösterir — veritabanı artık B-Tree'de DOĞRUDAN o değere ATLAR, tıpkı bir kitabın arka indeksine bakmak gibi.", "en": "After the index, the same EXPLAIN shows \"ref\" and a low \"rows\" count — the database now JUMPS DIRECTLY to that value in the B-Tree, exactly like checking a book's back index." } }
+        ]
+      },
+      {
         "type": "heading",
         "text": "Views",
         "difficulty": "🔴 Advanced"
@@ -5737,12 +5770,34 @@ const finalEnSections = [
         "expected": "+-----------------+--------+-------------+\n| test_name       | status | duration_ms |\n+-----------------+--------+-------------+\n| Checkout Flow   | FAIL   |        5400 |\n| Search Feature  | FAIL   |        8200 |\n+-----------------+--------+-------------+"
       },
       {
+        "type": "step-animation",
+        "title": { "tr": "NOW() - INTERVAL 7 DAY Aslında Neyi Hesaplar?", "en": "What Does NOW() - INTERVAL 7 DAY Actually Compute?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "NOW() çalıştırıldığı ANDA…", "en": "The MOMENT NOW() runs…" }, "detail": { "tr": "NOW() çalıştırıldığı ANDA sunucunun güncel tarih/saatini döndürür — sorgu her çalıştığında bu değer YENİDEN hesaplanır, sabit bir tarih DEĞİLDİR.", "en": "The MOMENT NOW() runs, it returns the server's current date/time — this value is RECALCULATED every time the query runs, it's not a fixed date." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "NOW() - INTERVAL 7 DAY bu andan…", "en": "NOW() - INTERVAL 7 DAY produces…" }, "detail": { "tr": "NOW() - INTERVAL 7 DAY bu andan tam 7 gün ÖNCEKİ zaman damgasını üretir — örn. bugün 18 Temmuz'sa sonuç 11 Temmuz olur.", "en": "NOW() - INTERVAL 7 DAY produces the timestamp exactly 7 days BEFORE this moment — e.g. if today is July 18, the result is July 11." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "WHERE run_date >= ... koşulu…", "en": "The WHERE run_date >= ... condition…" }, "detail": { "tr": "WHERE run_date >= ... koşulu, bu eşik değerinden SONRAKİ (veya eşit) her satırı filtreler — 8 gün önceki bir kayıt bu sınırın DIŞINDA kalır, sonuca hiç girmez.", "en": "The WHERE run_date >= ... condition keeps every row AT OR AFTER this threshold — a record from 8 days ago falls OUTSIDE the boundary and never enters the result." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "status = 'FAIL' koşulu AYNI WHERE'de…", "en": "status = 'FAIL' combined in the SAME WHERE…" }, "detail": { "tr": "status = 'FAIL' koşulu AYNI WHERE'de AND ile birleşince, veritabanı HER İKİ koşulu da sağlayan satırları arar — sıra önemli değildir, optimizer ikisini birlikte değerlendirir.", "en": "When status = 'FAIL' is combined in the SAME WHERE with AND, the database looks for rows satisfying BOTH conditions — order doesn't matter, the optimizer evaluates them together." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "İkinci sorgudaki GROUP BY test_name…", "en": "The second query's GROUP BY test_name…" }, "detail": { "tr": "İkinci sorgudaki GROUP BY test_name, aynı test_name'e sahip TÜM FAIL satırlarını TEK bir gruba toplar; COUNT(*) o grubun satır sayısını, ORDER BY fail_count DESC en çok başarısız olan testi EN ÜSTE taşır.", "en": "The second query's GROUP BY test_name collapses ALL FAIL rows sharing the same test_name into ONE group; COUNT(*) counts that group's rows, and ORDER BY fail_count DESC puts the most-failing test AT THE TOP." } }
+        ]
+      },
+      {
         "type": "heading",
         "text": "Use Case 2: Find Duplicate Test Data Entries"
       },
       {
         "type": "code",
         "code": "-- Find duplicate email addresses in a users table:\nSELECT email, COUNT(*) AS count\nFROM users\nGROUP BY email\nHAVING COUNT(*) > 1\nORDER BY count DESC;\n\n-- See ALL rows that have a duplicate email:\nSELECT *\nFROM users\nWHERE email IN (\n    SELECT email FROM users\n    GROUP BY email\n    HAVING COUNT(*) > 1\n)\nORDER BY email;\n\n-- Find duplicates across multiple columns (exact duplicate records):\nSELECT test_name, environment, run_date, COUNT(*) AS count\nFROM test_results\nGROUP BY test_name, environment, run_date\nHAVING COUNT(*) > 1;"
+      },
+      {
+        "type": "step-animation",
+        "title": { "tr": "HAVING COUNT(*) > 1 Neden WHERE Değil?", "en": "Why HAVING COUNT(*) > 1 and Not WHERE?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "GROUP BY email, aynı email'e sahip…", "en": "GROUP BY email collapses rows…" }, "detail": { "tr": "GROUP BY email, aynı email değerine sahip TÜM satırları TEK bir grup haline getirir — 3 kullanıcı aynı email'i kullanıyorsa bu 3 satır BİR gruba düşer.", "en": "GROUP BY email collapses ALL rows sharing the same email value into ONE group — if 3 users share an email, those 3 rows fall into ONE group." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "COUNT(*) her grubun İÇİNDEKİ…", "en": "COUNT(*) counts rows INSIDE…" }, "detail": { "tr": "COUNT(*) her grubun İÇİNDEKİ satır sayısını hesaplar — bu hesaplama GRUPLAMA yapıldıktan SONRA çalışır.", "en": "COUNT(*) counts the rows INSIDE each group — this calculation runs AFTER grouping has already happened." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "HAVING COUNT(*) > 1, tam da bu…", "en": "HAVING COUNT(*) > 1 filters exactly…" }, "detail": { "tr": "HAVING COUNT(*) > 1, tam da bu grup bazlı sayıya göre filtre yapar — WHERE bunu YAPAMAZ çünkü WHERE gruplama OLUŞMADAN ÖNCE çalışır, COUNT(*) henüz hesaplanmamıştır.", "en": "HAVING COUNT(*) > 1 filters exactly on this per-group count — WHERE CANNOT do this because WHERE runs BEFORE grouping happens, so COUNT(*) doesn't exist yet." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "İkinci sorgudaki alt sorgu…", "en": "The second query's subquery…" }, "detail": { "tr": "İkinci sorgudaki alt sorgu önce \"hangi email'ler tekrarlı\" listesini üretir, dış sorgu SONRA bu listedeki email'lere sahip TÜM satırları (ilk kopya dahil) getirir — sadece sayıyı değil, kaydın KENDİSİNİ görmeni sağlar.", "en": "The second query's subquery first produces the list of \"which emails repeat\", then the outer query fetches EVERY row (including the first copy) matching those emails — showing you the actual record, not just a count." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "Üçüncü sorgu GROUP BY'ı birden fazla sütuna…", "en": "The third query extends GROUP BY…" }, "detail": { "tr": "Üçüncü sorgu GROUP BY'ı birden fazla sütuna (test_name, environment, run_date) genişletir — bu, \"aynı testin aynı ortamda aynı tarihte iki kez kaydedilmesi\" gibi TAM satır tekrarlarını yakalar.", "en": "The third query extends GROUP BY across multiple columns (test_name, environment, run_date) — this catches EXACT row duplicates, like the same test being recorded twice for the same environment on the same date." } }
+        ]
       },
       {
         "type": "heading",
@@ -7076,6 +7131,17 @@ const finalEnSections = [
         "code": "# Windows install (winget package manager)\nwinget install dbeaver.dbeaver\n\n# macOS install (Homebrew)\nbrew install --cask dbeaver-community\n\n# Ubuntu/Debian install\nwget -O - https://dbeaver.io/debs/dbeaver.gpg.key | sudo apt-key add -\necho 'deb https://dbeaver.io/debs/dbeaver-ce /' | sudo tee /etc/apt/sources.list.d/dbeaver.list\nsudo apt update && sudo apt install dbeaver-ce\n\n# Linux Snap (easiest route)\nsnap install dbeaver-ce\n\n# Verify version: Help → About DBeaver menu shows the version"
       },
       {
+        "type": "step-animation",
+        "title": { "tr": "DBeaver Kurulum Komutu Perde Arkasında Ne Yapar?", "en": "What Does the DBeaver Install Command Actually Do?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "winget/brew/apt komutlarının HER BİRİ…", "en": "EACH of winget/brew/apt…" }, "detail": { "tr": "winget/brew/apt komutlarının HER BİRİ, işletim sisteminin KENDİ paket yöneticisini kullanır — dbeaver.io'dan manuel .exe/.dmg indirmenin otomatikleştirilmiş hâlidir, sonuç AYNIDIR.", "en": "EACH of winget/brew/apt uses the operating system's OWN package manager — it's the automated version of manually downloading the .exe/.dmg from dbeaver.io, the end result is IDENTICAL." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "macOS'taki --cask bayrağı…", "en": "The --cask flag on macOS…" }, "detail": { "tr": "macOS'taki --cask bayrağı, Homebrew'e bunun bir GUI uygulaması (komut satırı aracı değil) olduğunu söyler — DBeaver.app klasörü Applications'a KOPYALANIR.", "en": "The --cask flag on macOS tells Homebrew this is a GUI app (not a command-line tool) — the DBeaver.app bundle gets COPIED into Applications." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "Ubuntu/Debian'da önce GPG anahtarı…", "en": "On Ubuntu/Debian, the GPG key…" }, "detail": { "tr": "Ubuntu/Debian'da önce GPG anahtarı eklenir (apt-key add) — bu, indirilecek paketin GERÇEKTEN DBeaver'ın resmi sunucusundan geldiğini KRİPTOGRAFİK olarak doğrular, sahte paket kurulumunu ENGELLER.", "en": "On Ubuntu/Debian, the GPG key gets added first (apt-key add) — this CRYPTOGRAPHICALLY verifies the package really comes from DBeaver's official server, PREVENTING a spoofed package install." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "İlk açılışta DBeaver kendi içine gömülü…", "en": "On first launch, DBeaver downloads…" }, "detail": { "tr": "İlk açılışta DBeaver kendi içine gömülü bir Java (JRE) İNDİRİR — bu yüzden ilk açılış internet bağlantısı GEREKTİRİR, sonraki açılışlar çevrimdışı çalışabilir.", "en": "On first launch, DBeaver DOWNLOADS a bundled Java runtime (JRE) — this is why the first launch REQUIRES an internet connection, later launches can work offline." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "Help → About DBeaver menüsü…", "en": "The Help → About DBeaver menu…" }, "detail": { "tr": "Help → About DBeaver menüsü kurulan versiyonu GÖSTERİR — bu, \"kurulum gerçekten başarılı oldu mu\" sorusuna dönen tek güvenilir doğrulama adımıdır.", "en": "The Help → About DBeaver menu SHOWS the installed version — this is the one reliable check that answers \"did the install actually succeed\"." } }
+        ]
+      },
+      {
         "type": "callout",
         "color": "blue",
         "emoji": "💡",
@@ -7239,6 +7305,17 @@ const finalEnSections = [
         "type": "code",
         "language": "bash",
         "code": "# .env.local file (do NOT commit — add it to .gitignore!)\n\n# PostgreSQL connection URL format\nDATABASE_URL=\"postgresql://user:password@localhost:5432/myapp_db?schema=app\"\n\n# For SQLite (dev environment — no server needed)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver connection settings (connects to the same database)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL default)\n# Database : myapp_db\n# Username : user\n# Password : password\n# Schema   : app"
+      },
+      {
+        "type": "step-animation",
+        "title": { "tr": "DATABASE_URL Tek Satırda Aslında 5 Bilgiyi Taşır", "en": "DATABASE_URL Actually Packs 5 Pieces of Info Into One Line" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "postgresql:// öneki…", "en": "The postgresql:// prefix…" }, "detail": { "tr": "postgresql:// öneki, sürücüye HANGİ veritabanı motoruna bağlanacağını söyler — pg paketi bu ön eki okuyup doğru protokolü SEÇER.", "en": "The postgresql:// prefix tells the driver WHICH database engine to connect to — the pg package reads this prefix and SELECTS the correct protocol." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "user:password@ kısmı…", "en": "The user:password@ portion…" }, "detail": { "tr": "user:password@ kısmı, DBeaver'da \"New Connection Wizard\"da AYRI AYRI girdiğin Username/Password alanlarının TEK satırda birleşmiş hâlidir.", "en": "The user:password@ portion is the Username/Password fields you enter SEPARATELY in DBeaver's \"New Connection Wizard\", merged into ONE line." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "localhost:5432 kısmı…", "en": "The localhost:5432 portion…" }, "detail": { "tr": "localhost:5432 kısmı sunucunun ADRESİNİ ve PORTUNU taşır — production'da bu genelde bir cloud sağlayıcının hostname'i olur, localhost DEĞİL.", "en": "The localhost:5432 portion carries the server's ADDRESS and PORT — in production this is usually a cloud provider's hostname, NOT localhost." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "/myapp_db kısmı…", "en": "The /myapp_db portion…" }, "detail": { "tr": "/myapp_db kısmı HANGİ veritabanına bağlanılacağını belirtir — aynı sunucuda birden fazla veritabanı olabilir, bu segment ARALARINDA SEÇİM yapar.", "en": "The /myapp_db portion specifies WHICH database to connect to — a single server can host multiple databases, and this segment SELECTS between them." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "?schema=app kısmı PostgreSQL'e özgüdür…", "en": "?schema=app is PostgreSQL-specific…" }, "detail": { "tr": "?schema=app kısmı PostgreSQL'e özgüdür — Java'daki paket (package) gibi, aynı veritabanı içinde tabloları isim çakışmasından KORUYAN bir NAMESPACE belirtir; bu satır DEĞİŞTİĞİNDE hem Next.js kodunun hem DBeaver bağlantısının GÜNCELLENMESİ gerekir.", "en": "?schema=app is PostgreSQL-specific — like a package in Java, it defines a NAMESPACE that PROTECTS tables in the same database from name collisions; when this line CHANGES, both the Next.js code and the DBeaver connection need UPDATING." } }
+        ]
       },
       sqlDbeaverFilm,
       {
@@ -7911,6 +7988,17 @@ const finalTrSections = [
         "expected": "3.43.0"
       },
       {
+        "type": "step-animation",
+        "title": { "tr": "sqlite3 mytest.db Çalıştırınca Perde Arkasında Ne Olur?", "en": "What Actually Happens When You Run sqlite3 mytest.db?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "Komut çalıştırıldığı anda dosya YOKSA…", "en": "The moment the command runs, if the file DOESN'T exist…" }, "detail": { "tr": "sqlite3 mytest.db komutu çalıştırıldığı anda, eğer mytest.db dosyası diskte yoksa YENİ boş bir dosya oluşturulur — ayrı bir \"create database\" komutuna gerek yoktur.", "en": "The moment sqlite3 mytest.db runs, if mytest.db doesn't exist on disk yet, a brand-new empty file is created — there's no separate \"create database\" command." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "Nokta (.) ile başlayan komutlar…", "en": "Commands starting with a dot (.)…" }, "detail": { "tr": "Açılan shell'de nokta (.) ile başlayan komutlar (.tables, .schema, .headers) SQLite'ın KENDİ komutlarıdır — SQL standardının parçası değildir, MySQL/PostgreSQL'de ÇALIŞMAZ.", "en": "Commands starting with a dot (.tables, .schema, .headers) are SQLite's OWN commands — they are not part of the SQL standard and will NOT work in MySQL/PostgreSQL." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": ".headers on ve .mode column…", "en": ".headers on and .mode column…" }, "detail": { "tr": ".headers on ve .mode column ayarları SADECE terminal görünümünü değiştirir — veritabanındaki veriyi hiç etkilemez, sonuçları okunur hale getirir.", "en": ".headers on and .mode column only change how results are DISPLAYED in the terminal — they never touch the actual data, they just make output readable." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "SELECT sqlite_version(); ise noktasız…", "en": "SELECT sqlite_version(), without a dot…" }, "detail": { "tr": "SELECT sqlite_version(); ise noktasız, standart bir SQL sorgusudur — noktalı virgülle biter ve (farklı fonksiyon adıyla) tüm SQL motorlarında bir karşılığı vardır.", "en": "SELECT sqlite_version(), with no leading dot, is a standard SQL query — it ends with a semicolon and has an equivalent (under a different function name) in every SQL engine." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": ".quit shell'den çıkar ama…", "en": ".quit exits the shell, but…" }, "detail": { "tr": ".quit komutu shell'den çıkar ama mytest.db dosyası DİSKTE kalır — bir sonraki sqlite3 mytest.db çağrısında aynı veriler kaldığı yerden erişilir.", "en": ".quit exits the shell, but mytest.db stays on DISK — the next time you run sqlite3 mytest.db, the same data is right where you left it." } }
+        ]
+      },
+      {
         "type": "heading",
         "text": "Seçenek C: MySQL Community Server"
       },
@@ -7927,6 +8015,17 @@ const finalTrSections = [
         "type": "code",
         "code": "-- Connect and verify:\nmysql -u root -p          -- connect with root user (enter password)\n\nSELECT VERSION();         -- check MySQL version",
         "expected": "+-----------+\n| VERSION() |\n+-----------+\n| 8.0.35    |\n+-----------+"
+      },
+      {
+        "type": "step-animation",
+        "title": { "tr": "mysql -u root -p Komutu Neyi Doğrular?", "en": "What Does mysql -u root -p Actually Verify?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "Komut çalıştırılınca terminal bir şifre İSTER…", "en": "Running the command makes the terminal PROMPT for a password…" }, "detail": { "tr": "mysql -u root -p çalıştırılınca terminal bir şifre İSTER — şifre komut satırına açık yazılmaz, bu yüzden bash geçmişinde (history) asla görünmez.", "en": "Running mysql -u root -p makes the terminal PROMPT for a password — the password is never typed on the command line itself, so it never shows up in bash history." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "Doğru şifreyle sunucuya bir TCP bağlantısı açılır…", "en": "A correct password opens a TCP connection to the server…" }, "detail": { "tr": "Doğru şifre girilirse MySQL sunucusuna bir TCP bağlantısı açılır (varsayılan port 3306) — SQLite'ın aksine burada ayrı bir sunucu PROCESS'i zaten ÇALIŞIYOR olmalıdır.", "en": "With the correct password, a TCP connection opens to the MySQL server (default port 3306) — unlike SQLite, a separate server PROCESS must already be RUNNING." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "mysql> prompt'u görününce…", "en": "Once the mysql> prompt appears…" }, "detail": { "tr": "Bağlantı başarılı olursa mysql> prompt'u görünür — bu, komutların artık sunucuya GÖNDERİLDİĞİ anlamına gelir, yerel bir dosyaya değil.", "en": "Once the connection succeeds, the mysql> prompt appears — this means commands are now being SENT to the server, not to a local file." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "SELECT VERSION(); çalıştırıldığında…", "en": "When SELECT VERSION(); runs…" }, "detail": { "tr": "SELECT VERSION(); çalıştırıldığında sorgu ağ üzerinden sunucuya gider, sunucu sonucu hesaplar ve geri gönderir — bu round-trip, SQLite'ın aynı process içinde çalışmasından farklı bir gecikme kaynağıdır.", "en": "When SELECT VERSION(); runs, the query travels over the network to the server, gets computed, and comes back — this round-trip is a latency source SQLite doesn't have, since SQLite runs in the same process." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "Şifre yanlışsa \"Access denied\" hatası…", "en": "A wrong password produces \"Access denied\"…" }, "detail": { "tr": "Şifre yanlışsa \"Access denied for user\" hatası alınır — bu, QA'nın CI/CD ortamında en sık karşılaştığı \"DB bağlantısı reddedildi\" sorunlarından biridir, genelde yanlış env variable/secret'tan kaynaklanır.", "en": "A wrong password produces \"Access denied for user\" — this is one of the most common \"DB connection refused\" issues QA engineers hit in CI/CD, usually caused by a wrong env variable or secret." } }
+        ]
       },
       {
         "type": "heading",
@@ -10678,6 +10777,17 @@ const finalTrSections = [
         "code": "-- Create indexes on columns used frequently in WHERE/JOIN:\nCREATE INDEX idx_results_status  ON test_results(status);\nCREATE INDEX idx_results_run_date ON test_results(run_date);\nCREATE INDEX idx_bugs_tester     ON bugs(tester_id);       -- FK columns always!\nCREATE INDEX idx_results_env_status ON test_results(environment, status);  -- composite\n\n-- Unique index (also enforces uniqueness):\nCREATE UNIQUE INDEX idx_users_email ON users(email);\n\n-- View indexes on a table:\nSHOW INDEX FROM test_results;      -- MySQL\ndi test_results                   -- PostgreSQL\n\n-- EXPLAIN: see how MySQL plans to execute a query\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- \"type: ALL\" = full table scan (slow, needs index)\n-- \"type: ref\" = using index (fast!)\n\n-- Add index and check improvement:\nCREATE INDEX idx_status ON test_results(status);\nEXPLAIN SELECT * FROM test_results WHERE status = 'FAIL';\n-- Now shows: key: idx_status, rows: ~10 (not all rows)"
       },
       {
+        "type": "step-animation",
+        "title": { "tr": "CREATE INDEX Aslında Diskte Ne İnşa Eder?", "en": "What Does CREATE INDEX Actually Build on Disk?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "CREATE INDEX çalıştırıldığında…", "en": "When CREATE INDEX runs…" }, "detail": { "tr": "CREATE INDEX çalıştırıldığında veritabanı o sütunun (örn. status) mevcut TÜM değerlerini okur ve ayrı, sıralı bir B-Tree yapısı diskte İNŞA eder — büyük tablolarda bu işlem saniyeler/dakikalar sürebilir.", "en": "When CREATE INDEX runs, the database reads EVERY existing value in that column (e.g. status) and BUILDS a separate, sorted B-Tree structure on disk — on large tables this can take seconds or minutes." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "İndeks oluşturulduktan SONRA…", "en": "AFTER the index exists…" }, "detail": { "tr": "İndeks oluşturulduktan SONRA yapılan her INSERT/UPDATE/DELETE, hem asıl tabloyu hem de bu B-Tree'yi GÜNCELLER — bu yüzden çok fazla index, yazma işlemlerini yavaşlatır.", "en": "AFTER the index exists, every INSERT/UPDATE/DELETE UPDATES both the base table and this B-Tree — this is why too many indexes slow down writes." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "EXPLAIN SELECT ... sorguyu ÇALIŞTIRMAZ…", "en": "EXPLAIN SELECT ... does NOT run the query…" }, "detail": { "tr": "EXPLAIN SELECT ... çalıştırıldığında veritabanı sorguyu ÇALIŞTIRMAZ — sadece \"type: ALL\" (tüm tabloyu tara) mı yoksa \"type: ref\" (indeksi kullan) mı planladığını GÖSTERİR.", "en": "When EXPLAIN SELECT ... runs, the database does NOT execute the query — it just SHOWS whether it plans \"type: ALL\" (scan the whole table) or \"type: ref\" (use the index)." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "İndeks eklenmeden önce EXPLAIN \"ALL\" derse…", "en": "Before the index, if EXPLAIN says \"ALL\"…" }, "detail": { "tr": "İndeks eklenmeden önce EXPLAIN \"ALL\" derse, veritabanı status='FAIL' eşleşmesini bulmak için TÜM satırları TEK TEK kontrol eder — tablo büyüdükçe bu süre DOĞRUSAL olarak artar.", "en": "Before the index, if EXPLAIN says \"ALL\", the database checks EVERY row ONE BY ONE to find status='FAIL' matches — this time grows LINEARLY as the table grows." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "İndeks eklendikten sonra aynı EXPLAIN…", "en": "After the index, the same EXPLAIN…" }, "detail": { "tr": "İndeks eklendikten sonra aynı EXPLAIN \"ref\" ve düşük bir \"rows\" sayısı gösterir — veritabanı artık B-Tree'de DOĞRUDAN o değere ATLAR, tıpkı bir kitabın arka indeksine bakmak gibi.", "en": "After the index, the same EXPLAIN shows \"ref\" and a low \"rows\" count — the database now JUMPS DIRECTLY to that value in the B-Tree, exactly like checking a book's back index." } }
+        ]
+      },
+      {
         "type": "heading",
         "text": "View'lar (Görünümler)",
         "difficulty": "🔴 İleri"
@@ -11073,12 +11183,34 @@ const finalTrSections = [
         "expected": "+-----------------+--------+-------------+\n| test_name       | status | duration_ms |\n+-----------------+--------+-------------+\n| Checkout Flow   | FAIL   |        5400 |\n| Search Feature  | FAIL   |        8200 |\n+-----------------+--------+-------------+"
       },
       {
+        "type": "step-animation",
+        "title": { "tr": "NOW() - INTERVAL 7 DAY Aslında Neyi Hesaplar?", "en": "What Does NOW() - INTERVAL 7 DAY Actually Compute?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "NOW() çalıştırıldığı ANDA…", "en": "The MOMENT NOW() runs…" }, "detail": { "tr": "NOW() çalıştırıldığı ANDA sunucunun güncel tarih/saatini döndürür — sorgu her çalıştığında bu değer YENİDEN hesaplanır, sabit bir tarih DEĞİLDİR.", "en": "The MOMENT NOW() runs, it returns the server's current date/time — this value is RECALCULATED every time the query runs, it's not a fixed date." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "NOW() - INTERVAL 7 DAY bu andan…", "en": "NOW() - INTERVAL 7 DAY produces…" }, "detail": { "tr": "NOW() - INTERVAL 7 DAY bu andan tam 7 gün ÖNCEKİ zaman damgasını üretir — örn. bugün 18 Temmuz'sa sonuç 11 Temmuz olur.", "en": "NOW() - INTERVAL 7 DAY produces the timestamp exactly 7 days BEFORE this moment — e.g. if today is July 18, the result is July 11." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "WHERE run_date >= ... koşulu…", "en": "The WHERE run_date >= ... condition…" }, "detail": { "tr": "WHERE run_date >= ... koşulu, bu eşik değerinden SONRAKİ (veya eşit) her satırı filtreler — 8 gün önceki bir kayıt bu sınırın DIŞINDA kalır, sonuca hiç girmez.", "en": "The WHERE run_date >= ... condition keeps every row AT OR AFTER this threshold — a record from 8 days ago falls OUTSIDE the boundary and never enters the result." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "status = 'FAIL' koşulu AYNI WHERE'de…", "en": "status = 'FAIL' combined in the SAME WHERE…" }, "detail": { "tr": "status = 'FAIL' koşulu AYNI WHERE'de AND ile birleşince, veritabanı HER İKİ koşulu da sağlayan satırları arar — sıra önemli değildir, optimizer ikisini birlikte değerlendirir.", "en": "When status = 'FAIL' is combined in the SAME WHERE with AND, the database looks for rows satisfying BOTH conditions — order doesn't matter, the optimizer evaluates them together." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "İkinci sorgudaki GROUP BY test_name…", "en": "The second query's GROUP BY test_name…" }, "detail": { "tr": "İkinci sorgudaki GROUP BY test_name, aynı test_name'e sahip TÜM FAIL satırlarını TEK bir gruba toplar; COUNT(*) o grubun satır sayısını, ORDER BY fail_count DESC en çok başarısız olan testi EN ÜSTE taşır.", "en": "The second query's GROUP BY test_name collapses ALL FAIL rows sharing the same test_name into ONE group; COUNT(*) counts that group's rows, and ORDER BY fail_count DESC puts the most-failing test AT THE TOP." } }
+        ]
+      },
+      {
         "type": "heading",
         "text": "Senaryo 2: Tekrarlanan Test Verisi Girişlerini Bul"
       },
       {
         "type": "code",
         "code": "-- Find duplicate email addresses in a users table:\nSELECT email, COUNT(*) AS count\nFROM users\nGROUP BY email\nHAVING COUNT(*) > 1\nORDER BY count DESC;\n\n-- See ALL rows that have a duplicate email:\nSELECT *\nFROM users\nWHERE email IN (\n    SELECT email FROM users\n    GROUP BY email\n    HAVING COUNT(*) > 1\n)\nORDER BY email;\n\n-- Find duplicates across multiple columns (exact duplicate records):\nSELECT test_name, environment, run_date, COUNT(*) AS count\nFROM test_results\nGROUP BY test_name, environment, run_date\nHAVING COUNT(*) > 1;"
+      },
+      {
+        "type": "step-animation",
+        "title": { "tr": "HAVING COUNT(*) > 1 Neden WHERE Değil?", "en": "Why HAVING COUNT(*) > 1 and Not WHERE?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "GROUP BY email, aynı email'e sahip…", "en": "GROUP BY email collapses rows…" }, "detail": { "tr": "GROUP BY email, aynı email değerine sahip TÜM satırları TEK bir grup haline getirir — 3 kullanıcı aynı email'i kullanıyorsa bu 3 satır BİR gruba düşer.", "en": "GROUP BY email collapses ALL rows sharing the same email value into ONE group — if 3 users share an email, those 3 rows fall into ONE group." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "COUNT(*) her grubun İÇİNDEKİ…", "en": "COUNT(*) counts rows INSIDE…" }, "detail": { "tr": "COUNT(*) her grubun İÇİNDEKİ satır sayısını hesaplar — bu hesaplama GRUPLAMA yapıldıktan SONRA çalışır.", "en": "COUNT(*) counts the rows INSIDE each group — this calculation runs AFTER grouping has already happened." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "HAVING COUNT(*) > 1, tam da bu…", "en": "HAVING COUNT(*) > 1 filters exactly…" }, "detail": { "tr": "HAVING COUNT(*) > 1, tam da bu grup bazlı sayıya göre filtre yapar — WHERE bunu YAPAMAZ çünkü WHERE gruplama OLUŞMADAN ÖNCE çalışır, COUNT(*) henüz hesaplanmamıştır.", "en": "HAVING COUNT(*) > 1 filters exactly on this per-group count — WHERE CANNOT do this because WHERE runs BEFORE grouping happens, so COUNT(*) doesn't exist yet." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "İkinci sorgudaki alt sorgu…", "en": "The second query's subquery…" }, "detail": { "tr": "İkinci sorgudaki alt sorgu önce \"hangi email'ler tekrarlı\" listesini üretir, dış sorgu SONRA bu listedeki email'lere sahip TÜM satırları (ilk kopya dahil) getirir — sadece sayıyı değil, kaydın KENDİSİNİ görmeni sağlar.", "en": "The second query's subquery first produces the list of \"which emails repeat\", then the outer query fetches EVERY row (including the first copy) matching those emails — showing you the actual record, not just a count." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "Üçüncü sorgu GROUP BY'ı birden fazla sütuna…", "en": "The third query extends GROUP BY…" }, "detail": { "tr": "Üçüncü sorgu GROUP BY'ı birden fazla sütuna (test_name, environment, run_date) genişletir — bu, \"aynı testin aynı ortamda aynı tarihte iki kez kaydedilmesi\" gibi TAM satır tekrarlarını yakalar.", "en": "The third query extends GROUP BY across multiple columns (test_name, environment, run_date) — this catches EXACT row duplicates, like the same test being recorded twice for the same environment on the same date." } }
+        ]
       },
       {
         "type": "heading",
@@ -12415,6 +12547,17 @@ const finalTrSections = [
         "code": "# Windows kurulum (winget paket yöneticisi)\nwinget install dbeaver.dbeaver\n\n# macOS kurulum (Homebrew)\nbrew install --cask dbeaver-community\n\n# Ubuntu/Debian kurulum\nwget -O - https://dbeaver.io/debs/dbeaver.gpg.key | sudo apt-key add -\necho 'deb https://dbeaver.io/debs/dbeaver-ce /' | sudo tee /etc/apt/sources.list.d/dbeaver.list\nsudo apt update && sudo apt install dbeaver-ce\n\n# Linux Snap (en kolay yol)\nsnap install dbeaver-ce\n\n# Sürüm doğrulama: Help → About DBeaver menüsünden versiyon görünür"
       },
       {
+        "type": "step-animation",
+        "title": { "tr": "DBeaver Kurulum Komutu Perde Arkasında Ne Yapar?", "en": "What Does the DBeaver Install Command Actually Do?" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "winget/brew/apt komutlarının HER BİRİ…", "en": "EACH of winget/brew/apt…" }, "detail": { "tr": "winget/brew/apt komutlarının HER BİRİ, işletim sisteminin KENDİ paket yöneticisini kullanır — dbeaver.io'dan manuel .exe/.dmg indirmenin otomatikleştirilmiş hâlidir, sonuç AYNIDIR.", "en": "EACH of winget/brew/apt uses the operating system's OWN package manager — it's the automated version of manually downloading the .exe/.dmg from dbeaver.io, the end result is IDENTICAL." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "macOS'taki --cask bayrağı…", "en": "The --cask flag on macOS…" }, "detail": { "tr": "macOS'taki --cask bayrağı, Homebrew'e bunun bir GUI uygulaması (komut satırı aracı değil) olduğunu söyler — DBeaver.app klasörü Applications'a KOPYALANIR.", "en": "The --cask flag on macOS tells Homebrew this is a GUI app (not a command-line tool) — the DBeaver.app bundle gets COPIED into Applications." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "Ubuntu/Debian'da önce GPG anahtarı…", "en": "On Ubuntu/Debian, the GPG key…" }, "detail": { "tr": "Ubuntu/Debian'da önce GPG anahtarı eklenir (apt-key add) — bu, indirilecek paketin GERÇEKTEN DBeaver'ın resmi sunucusundan geldiğini KRİPTOGRAFİK olarak doğrular, sahte paket kurulumunu ENGELLER.", "en": "On Ubuntu/Debian, the GPG key gets added first (apt-key add) — this CRYPTOGRAPHICALLY verifies the package really comes from DBeaver's official server, PREVENTING a spoofed package install." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "İlk açılışta DBeaver kendi içine gömülü…", "en": "On first launch, DBeaver downloads…" }, "detail": { "tr": "İlk açılışta DBeaver kendi içine gömülü bir Java (JRE) İNDİRİR — bu yüzden ilk açılış internet bağlantısı GEREKTİRİR, sonraki açılışlar çevrimdışı çalışabilir.", "en": "On first launch, DBeaver DOWNLOADS a bundled Java runtime (JRE) — this is why the first launch REQUIRES an internet connection, later launches can work offline." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "Help → About DBeaver menüsü…", "en": "The Help → About DBeaver menu…" }, "detail": { "tr": "Help → About DBeaver menüsü kurulan versiyonu GÖSTERİR — bu, \"kurulum gerçekten başarılı oldu mu\" sorusuna dönen tek güvenilir doğrulama adımıdır.", "en": "The Help → About DBeaver menu SHOWS the installed version — this is the one reliable check that answers \"did the install actually succeed\"." } }
+        ]
+      },
+      {
         "type": "callout",
         "color": "blue",
         "emoji": "💡",
@@ -12578,6 +12721,17 @@ const finalTrSections = [
         "type": "code",
         "language": "bash",
         "code": "# .env.local dosyası (git'e EKLEME — .gitignore'a ekle!)\n\n# PostgreSQL bağlantı URL formatı\nDATABASE_URL=\"postgresql://kullanici:sifre@localhost:5432/myapp_db?schema=app\"\n\n# SQLite için (geliştirme ortamı — sunucu gerekmez)\n# DATABASE_URL=\"file:./dev.db\"\n\n# DBeaver bağlantı ayarları (aynı veritabanına bağlanır)\n# Host     : localhost\n# Port     : 5432  (PostgreSQL varsayılanı)\n# Database : myapp_db\n# Username : kullanici\n# Password : sifre\n# Schema   : app"
+      },
+      {
+        "type": "step-animation",
+        "title": { "tr": "DATABASE_URL Tek Satırda Aslında 5 Bilgiyi Taşır", "en": "DATABASE_URL Actually Packs 5 Pieces of Info Into One Line" },
+        "steps": [
+          { "id": 1, "icon": "1️⃣", "label": { "tr": "postgresql:// öneki…", "en": "The postgresql:// prefix…" }, "detail": { "tr": "postgresql:// öneki, sürücüye HANGİ veritabanı motoruna bağlanacağını söyler — pg paketi bu ön eki okuyup doğru protokolü SEÇER.", "en": "The postgresql:// prefix tells the driver WHICH database engine to connect to — the pg package reads this prefix and SELECTS the correct protocol." } },
+          { "id": 2, "icon": "2️⃣", "label": { "tr": "kullanici:sifre@ kısmı…", "en": "The user:password@ portion…" }, "detail": { "tr": "kullanici:sifre@ kısmı, DBeaver'da \"New Connection Wizard\"da AYRI AYRI girdiğin Username/Password alanlarının TEK satırda birleşmiş hâlidir.", "en": "The user:password@ portion is the Username/Password fields you enter SEPARATELY in DBeaver's \"New Connection Wizard\", merged into ONE line." } },
+          { "id": 3, "icon": "3️⃣", "label": { "tr": "localhost:5432 kısmı…", "en": "The localhost:5432 portion…" }, "detail": { "tr": "localhost:5432 kısmı sunucunun ADRESİNİ ve PORTUNU taşır — production'da bu genelde bir cloud sağlayıcının hostname'i olur, localhost DEĞİL.", "en": "The localhost:5432 portion carries the server's ADDRESS and PORT — in production this is usually a cloud provider's hostname, NOT localhost." } },
+          { "id": 4, "icon": "4️⃣", "label": { "tr": "/myapp_db kısmı…", "en": "The /myapp_db portion…" }, "detail": { "tr": "/myapp_db kısmı HANGİ veritabanına bağlanılacağını belirtir — aynı sunucuda birden fazla veritabanı olabilir, bu segment ARALARINDA SEÇİM yapar.", "en": "The /myapp_db portion specifies WHICH database to connect to — a single server can host multiple databases, and this segment SELECTS between them." } },
+          { "id": 5, "icon": "5️⃣", "label": { "tr": "?schema=app kısmı PostgreSQL'e özgüdür…", "en": "?schema=app is PostgreSQL-specific…" }, "detail": { "tr": "?schema=app kısmı PostgreSQL'e özgüdür — Java'daki paket (package) gibi, aynı veritabanı içinde tabloları isim çakışmasından KORUYAN bir NAMESPACE belirtir; bu satır DEĞİŞTİĞİNDE hem Next.js kodunun hem DBeaver bağlantısının GÜNCELLENMESİ gerekir.", "en": "?schema=app is PostgreSQL-specific — like a package in Java, it defines a NAMESPACE that PROTECTS tables in the same database from name collisions; when this line CHANGES, both the Next.js code and the DBeaver connection need UPDATING." } }
+        ]
       },
       sqlDbeaverFilm,
       {

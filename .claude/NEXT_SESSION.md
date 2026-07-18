@@ -45,7 +45,29 @@ ile canlı doğrulanmalı, dosya sırasına güvenilmemeli.
 **Doğrulama:** `check-content-integrity.mjs` ✓ sıfır ihlal + `audit-animation-
 coverage.mjs playwright` deficit:0 ✓ + `npm run build` yeşil ✓.
 
-**Sıradaki:** sql (7 açık) → linux (6) → javascript (5) → browserstack (5) →
+**sql (7 açık → 0):** `src/data/sqlData.js` (12800+ satır, EN/TR **tamamen ayrı**
+`finalEnSections`/`finalTrSections` dizileri — section objeleri iki farklı
+yerde iki kez tanımlı, `sN.tr`/`sN.en` paylaşımı YOK). 7 yeni step-animation:
+- Section 01 (Installation): `sqlite3 mytest.db` dosya oluşturma mekanizması + `mysql -u root -p` bağlantı doğrulaması (2 animasyon)
+- Section 16 (Indexes & Views): `CREATE INDEX` + `EXPLAIN` ile B-Tree/full-table-scan farkı
+- Section 18 (SQL for QA): `NOW() - INTERVAL 7 DAY` tarih filtresi + `HAVING COUNT(*) > 1` neden `WHERE` değil (2 animasyon)
+- Section 23 (DBeaver): DBeaver kurulum komutu (winget/brew/apt) + `DATABASE_URL` connection string'in 5 parçası (2 animasyon — İKİSİ DE bash/shell dilinde, `fillMissingCodeTrios` bu yüzden atlamıştı, elle yazıldı)
+
+**Ek teknik not:** `sqlData.js`'te bazı `code` blokları düz string (bilingual
+değil) ve TR ağacındaki bazı `code` blokları hâlâ İNGİLİZCE yorum içeriyor
+(örn. Installation sekmesindeki SQLite/MySQL/Python kod blokları — bu ÖNCEDEN
+VAR OLAN bir durum, bu oturumda dokunulmadı, kapsam dışı bırakıldı). DBeaver
+section'ındaki `.env.local`/kurulum bash blokları ise TR'de zaten doğru
+şekilde Türkçe yorumlanmıştı, oraya eklenen yeni animasyon da bunu korudu.
+Section index'i ile `finalEnSections`/`finalTrSections` dizisindeki JSON-style
+(`"title":`, `"type":` çift tırnaklı) obje sırası BİREBİR aynı, ama başlıkla
+eşleştirme yine `grep -n '"title": "..."'` ile yapıldı (playwright'taki gibi
+karışık `sN` referans dizisi burada yok, düz sıralı array).
+
+**Doğrulama:** `check-content-integrity.mjs` ✓ + `audit-animation-coverage.mjs
+sql` deficit:0 ✓ + `npm run build` yeşil ✓.
+
+**Sıradaki:** linux (6 açık) → javascript (5) → browserstack (5) →
 claude-ai (5) → git (3) → bruno (3) → llm-agents (3). python (17 açık) Fable'a
 ayrılmış, bu oturumun kapsamı dışında.
 
