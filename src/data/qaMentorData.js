@@ -120,7 +120,7 @@ export const DIALOG = {
     },
     en: {
         welcome: {
-            bot: 'Hello! 👋 I\'m the QA Mentor AI of LearnQA.dev. I\'ll create a personalized **QA Career Mind Map** just for you.',
+            bot: 'Hello! 👋 I\'m LearnQA.dev\'s QA Mentor AI. I\'ll create a personalized **QA Career Mind Map** just for you.',
             bot2: 'I\'ll ask you a few short questions to get started. Ready? 🚀',
         },
         stepLevel: {

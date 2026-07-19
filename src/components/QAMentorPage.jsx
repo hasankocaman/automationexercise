@@ -789,7 +789,7 @@ function QAMentorPage() {
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 data-testid="back-to-top-btn"
                 className={`fixed bottom-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-full text-lg shadow-xl transition-all duration-200 hover:scale-110 ${darkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
-                title="Back to top"
+                title={lang === 'tr' ? 'Başa dön' : 'Back to top'}
             >
                 🏠
             </button>

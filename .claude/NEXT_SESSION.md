@@ -32,7 +32,7 @@ Fable/Sonnet görev dağılımı ve **kopyala-yapıştır hazır Sonnet promptla
 - Testler v2'ye güncellendi: `qa-mentor-roadmap-order` (4 tıklama akışı,
   data-testid bazlı sıra), `qa-mentor-progress-tracking` (migrasyon akışı).
 
-**Sonnet görevleri (sırayla, promptlar plan §10.3'te) — S1/S2 TAMAMLANDI:**
+**Sonnet görevleri (sırayla, promptlar plan §10.3'te) — S1/S2/S3 TAMAMLANDI:**
 1. ✅ S1: `estimatedHours` kalibrasyonu — sekme sayısı + blok/quiz/playground
    yoğunluğu ölçülüp site-geneli medyanla (%25 sapma eşiği) karşılaştırıldı.
    Değişenler: `git-github` 16→40, `sql` 30→50, `typescript` 40→55, `aws` 24→14
@@ -48,12 +48,28 @@ Fable/Sonnet görev dağılımı ve **kopyala-yapıştır hazır Sonnet promptla
    durumu, anonim ilerleme %). Mevcut `mentor-option-*`/`map-node-*`/
    `qa-mentor-banner`/`main-title` test-id'leri kullanıldı, yeni test-id
    eklenmedi. `npx playwright test tests/career-map.spec.ts` → 7/7 geçti.
-3. ⏳ S3 (sıradaki adım): DIALOG v2 EN metin cilası + i18n denetimi.
+3. ✅ S3: DIALOG v2 EN metin cilası + i18n denetimi — TR↔EN anahtar simetrisi
+   (78/78) node script ile doğrulandı, sessiz fallback riski yok. EN metin
+   kalitesi zaten iyiydi; `welcome.bot` iyelik yapısına cilalandı ("I'm
+   LearnQA.dev's QA Mentor AI"). Gerçek boşluk: `QAMentorPage.jsx`'teki sabit
+   ev butonu tooltip'i (`title="Back to top"`) diğer TÜM sayfalardan farklı
+   olarak tek dilliydi — `lang === 'tr' ? 'Başa dön' : 'Back to top'` kalıbına
+   getirildi. HomePage.jsx/QAMentorPage.jsx'te başka tek dilli v2 string yok.
 
-**Not:** Doğrulama (S1+S2, bu oturum): `node scripts/check-content-integrity.mjs`
-sıfır ihlal ✓, `npm run build` ✓ (2 kez, her prompt sonrası), `npx playwright
-test tests/career-map.spec.ts --reporter=line` 7/7 ✓. Önceki oturumdan:
-qa-mentor testleri 2/2 ✓ + geçici smoke (kalıcılık/geri/ana sayfa kutusu) ✓.
+**SIRADAKİ ADIM:** Plan §10.2/§10.3'teki Sonnet görev listesi (S1-S3) burada
+BİTTİ — plan dosyasında hazır bir "Prompt S4" YOK. Plan §8 MVP listesindeki
+7. madde ("Minimal event ölçümü: map_wizard_started/completed/
+first_lesson_clicked" — §9.1) hiç uygulanmadı; ama bu Supabase şema/mimari
+kararı gerektirdiği için plan'ın kendi ilkesine göre (§10 başlığı: "mimari
+kararlar Fable'da") Sonnet-promptu olarak yazılmamış — sıradaki oturumda
+önce bunun kapsamı netleştirilmeli (Fable mi yazacak, yoksa Sonnet'e mi
+basit bir şema verilip devredilecek).
+
+**Not:** Doğrulama (S1+S2+S3, bu oturum): `node scripts/check-content-integrity.mjs`
+sıfır ihlal ✓, `npm run build` ✓ (3 kez, her prompt sonrası), `npx playwright
+test tests/career-map.spec.ts tests/qa-mentor-roadmap-order.spec.ts
+--reporter=line` 8/8 ✓. Önceki oturumdan: qa-mentor testleri 2/2 ✓ + geçici
+smoke (kalıcılık/geri/ana sayfa kutusu) ✓.
 
 ---
 
