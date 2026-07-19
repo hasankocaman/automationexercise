@@ -10,7 +10,23 @@
 
 ---
 
-## 🚧 AKTİF İŞ — Kariyer Haritası v2 (2026-07-19, Fable oturumu)
+## 🚧 AKTİF İŞ — Learning OS Redesign (2026-07-19, Fable oturumu, YENİ)
+
+**Branch:** `feature/learning-os-redesign` (main'den açıldı; career-map-v2
+commit'leri main'de olduğu için onların üzerine kurulu).
+**Plan dokümanı:** `Documents/learning-os-redesign-plan.md` — kullanıcının
+"LearnQA Product Redesign" promptunun değerlendirmesi + 3 fazlı plan
+(Faz 1: Günlük Döngü dashboard/streak/heatmap; Faz 2: mastery/job-readiness;
+Faz 3: adaptif katman). §8'de Fable (F1-F6) / Sonnet (S1-S5) görev dağılımı,
+§9'da kopyala-yapıştır hazır Sonnet promptları.
+**Durum:** Sadece planlama yapıldı, kod YAZILMADI. Sıradaki adım: kullanıcı
+planı onaylarsa Fable F1 (`src/lib/progressStore.js` + `activityLog.js`).
+**Dikkat:** Önceki oturumdan sarkan iş — career-map-v2 tam suite teyidi
+(aşağıdaki bölüm) hâlâ bekliyor; Faz 1 commit'lerinden önce koşulması önerilir.
+
+---
+
+## 🚧 ÖNCEKİ İŞ — Kariyer Haritası v2 (2026-07-19, Fable oturumu)
 
 **Branch:** `feature/career-map-v2` — GitHub'a PUSH EDİLDİ (son commit
 `7bcff26` + bu doküman commit'i; main'e merge EDİLMEDİ, karar kullanıcıda).
