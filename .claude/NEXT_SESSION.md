@@ -101,8 +101,29 @@ yeşil görüldü ama TAM suite koşulmadı.
   4-worker kaynak rekabeti). Tüm 11 test tek tek/izole yeniden koşulduğunda
   (`/python` dahil, `fableplan.md`'de zaten belgeli "paralel-yük flakiness"
   kalıbıyla örtüşüyor) **hepsi TEMİZ GEÇTİ** — gerçek bir regresyon değil.
-- **Sıradaki adım:** S2 (`ActivityHeatmap.jsx`) → S3 (`tests/daily-loop.spec.ts`)
-  → S4 (i18n/erişilebilirlik denetimi) → S5 (event yayılımı). Bundan sonraki
+**S2 TAMAMLANDI (2026-07-20, Sonnet oturumu):** `ActivityHeatmap.jsx` (YENİ) —
+plan §8.2-S2 promptu uygulandı.
+- Saf CSS grid (`grid-auto-flow: column`, 7 satır × 12 sütun = 84 gün), dış
+  kütüphane yok. `getLastNDays(84)`'ten beslenir. 4 yoğunluk kademesi (0 / <5 /
+  <10 / ≥10 birim) — dark/light ayrı amber tonlu palet ("Bugün" şeridiyle
+  aynı renk ailesi). Hücre `title` tooltip'i bilingual ("12 Tem — 7 birim").
+  Hafta hizalaması Pazartesi başlangıçlı; ilk (kısmi) hafta boş hücrelerle
+  doldurulur. `overflow-x-auto` sarmalayıcı — sayfa değil, sadece widget
+  yatay kaydırılabilir (CLAUDE.md §12, sayfa geneli `overflow-x: hidden`
+  bozulmadı). Animasyon YOK — reduced-motion/focus-mode için ekstra iş
+  gerekmedi. `HomePage.jsx`'teki `{/* heatmap-slot */}` yorumunun yerine
+  `<ActivityHeatmap darkMode={darkMode} language={language} />` kondu.
+- **Doğrulama:** integrity ✓ · `npm run build` ✓ (1m13s) · el doğrulaması
+  (Playwright script, sahte 2 günlük `learnqa_activity_log` enjekte edildi):
+  84 hücre render oluyor, bugün (12 birim) → `data-level="3"` (1 hücre), dün
+  (3 birim) → `data-level="1"` (1 hücre) — hesaplama doğru; 375px mobil
+  viewport'ta sayfa geneli yatay taşma 0px.
+- **Not:** S2'nin kendi test maddesi ("daily-loop.spec.ts'e 1 test ekle") S3
+  adımına ertelendi — dosya henüz yoktu, S3 onu oluşturuyor ve heatmap testini
+  de aynı suite'e ekliyor (tek dosyada birleştirildi, ayrı dosya açılmadı).
+
+- **Sıradaki adım:** S3 (`tests/daily-loop.spec.ts`) → S4 (i18n/erişilebilirlik
+  denetimi) → S5 (event yayılımı). Bundan sonraki
   oturumda tam E2E suite'i TEK BAŞINA (paralel iş olmadan) koşup teyit etmek
   önerilir — hem bu S1 değişiklikleri hem sarkan career-map-v2 teyidi için.
 

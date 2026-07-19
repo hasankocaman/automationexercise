@@ -21,6 +21,7 @@ import MembershipPromo from './MembershipPromo'
 import TrendingSkillsWidget from './TrendingSkillsWidget'
 import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
+import ActivityHeatmap from './ActivityHeatmap'
 import { getQueueStats } from '../lib/reviewQueue'
 import { getDailyGoalProgress, getStreak, subscribeToActivityChanges } from '../lib/activityLog'
 import { readLastPosition } from '../lib/progressStore'
@@ -638,7 +639,7 @@ function HomePage() {
                         </div>
                     )
                 })()}
-                {/* heatmap-slot — Sonnet S2: ActivityHeatmap buraya takılır (plan §8.2-S2) */}
+                <ActivityHeatmap darkMode={darkMode} language={language} />
             </div>
 
             {/* ── QA Mentor AI Banner — Yeni misin? Buradan Başla ── */}
