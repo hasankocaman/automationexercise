@@ -64,8 +64,12 @@ Kullanıcı talimatıyla plan dokümanı baştan sona implementasyonla karşıla
    (insert-only RLS, user_id `auth.uid()` default). 5 event: map_wizard_started /
    map_wizard_completed(answers+mapId) / map_first_lesson_clicked (yalnız
    completedCount=0'da) / map_revisited / map_regenerated.
-   ⚠️ MANUEL ADIM: `supabase/map_events_schema.sql` Supabase SQL Editor'da bir
-   kez çalıştırılmalı — çalıştırılana dek insert'ler sessizce düşer (UX etkilenmez).
+   ✅ MANUEL ADIM TAMAMLANDI (2026-07-19): kullanıcı `map_events_schema.sql`'i
+   HEM test HEM prod Supabase projesinde SQL Editor'dan çalıştırdı ("Success").
+   Uçtan uca doğrulandı: sihirbaz akışı localhost'ta koşturuldu, kullanıcı
+   test projesinde `map_wizard_started/completed/first_lesson_clicked`
+   satırlarını dashboard'dan gördü — event zinciri ÇALIŞIYOR. Prod'a event
+   akışı, prod deploy'unun kendi VITE_SUPABASE_URL'i üzerinden otomatik.
 2. ✅ S2/S3 cevap onay balonları (§6.2): DIALOG'a `ackLang`/`ackTool` (tr+en);
    LANG_UNDECIDED'da ack yok (langRecommend balonu onay görevi görüyor).
 3. ✅ "Kararsızım" vurgusu (§2.2): S1=sıfır iken S2'de LANG_UNDECIDED seçeneğine
@@ -87,10 +91,11 @@ Kullanıcı talimatıyla plan dokümanı baştan sona implementasyonla karşıla
   (plan "öneri" diyor; prefix yaklaşımı Fable F1'de seçildi).
 - §4.1 ✅-düğüm konfetisi + §4.3 milestone'lar → Faz 2 kutlama paketi.
 
-**SIRADAKİ ADIM:** MVP artık plana tam uyumlu. Kalan işler Faz 2 (milestone/
-konfeti, ders→harita breadcrumb, uzmanlık dalları, paylaşılabilir görsel,
-streak) — plan §8. Merge kararı + map_events tablosunun Supabase'de
-oluşturulması kullanıcıda.
+**SIRADAKİ ADIM:** MVP artık plana tam uyumlu ve ölçüm altyapısı iki ortamda
+da canlı. Branch'te bekleyen tek karar **main'e merge** (kullanıcıda). Merge
+sonrası kalan işler Faz 2 (milestone/konfeti, ders→harita breadcrumb,
+uzmanlık dalları, paylaşılabilir görsel, streak) — plan §8; Faz 2'ye
+başlamadan önce plan §9.2 funnel metriklerinin birikmesi beklenebilir.
 
 **Not:** Doğrulama (S1+S2+S3, bu oturum): `node scripts/check-content-integrity.mjs`
 sıfır ihlal ✓, `npm run build` ✓ (3 kez, her prompt sonrası), `npx playwright
