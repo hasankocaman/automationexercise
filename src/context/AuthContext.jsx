@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
+import { recordLocalCompletedRoute } from '../utils/careerMapProfile'
 
 const AuthContext = createContext()
 
@@ -123,6 +124,11 @@ export function AuthProvider({ children }) {
     async function saveProgress({ lessonSlug, topicSlug, topicLabel, routePath, status = 'started' }) {
         const point = { lessonSlug, topicSlug, topicLabel, routePath, savedAt: new Date().toISOString() }
         try { localStorage.setItem(RESUME_KEY, JSON.stringify(point)) } catch { /* localStorage dolu/kapalı olabilir, sessizce geç */ }
+
+        // Kariyer Haritası anonim ilerlemesi: tamamlanan route local olarak da
+        // kaydedilir — üyedeki getCompletedRoutePaths ile aynı bar (en az bir
+        // konu completed ise route tamamlanmış sayılır), üyelik gerekmez (§5).
+        if (status === 'completed') recordLocalCompletedRoute(routePath)
 
         if (isSupabaseConfigured && session) {
             const row = {
@@ -249,9 +255,9 @@ export function AuthProvider({ children }) {
         return readLocalResume()
     }
 
-    // QA Mentor yol haritası seçimini kalıcı kılar — sonraki ziyaretlerde sihirbaz
-    // tekrar sorulmaz, doğrudan kayıtlı haritaya gidilir (sadece üyeler için; anonim
-    // kullanıcı her ziyarette sihirbazı yeniden cevaplar, CLAUDE.md §5'e uygun).
+    // QA Mentor yol haritası seçimini üye profilinde kalıcı kılar (cihazlar arası
+    // senkron). Anonim kullanıcının kalıcılığı localStorage'daki qaMentorProfile ile
+    // sağlanır (careerMapProfile.js) — üyelik senkron katmanıdır, ön koşul değil (§5).
     async function setCareerGoal(goalId) {
         if (!isSupabaseConfigured || !session) return
         const { data, error } = await supabase

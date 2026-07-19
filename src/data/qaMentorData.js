@@ -2,15 +2,22 @@
 // QA Mentor AI — Kişiselleştirilmiş Zihin Haritası Veri Dosyası
 
 export const MENTOR_STEPS = {
-    STEP_1: 'step1',
-    STEP_2: 'step2',
-    STEP_3: 'step3',
-    STEP_B_SELENIUM: 'step_b_selenium',  // Python/TS → Selenium istiyor mu?
+    STEP_LEVEL: 'step_level',   // S1: deneyim seviyesi (3 kademeli)
+    STEP_LANG: 'step_lang',     // S2: dil tercihi (Java / modern / kararsızım)
+    STEP_TOOL: 'step_tool',     // S3: UI otomasyon aracı (Selenium / Playwright / ikisi)
+    STEP_TIME: 'step_time',     // S4: haftalık zaman — süre tahmininin girdisi
     MAP_A: 'map_a',
     MAP_B: 'map_b',
     MAP_B_SEL: 'map_b_sel',              // Python/TS + Selenium dahil
     MAP_C1: 'map_c1',
     MAP_C2: 'map_c2',
+}
+
+// S4 cevabının süre hesabında kullanılan ortalama saat karşılığı
+export const WEEKLY_HOURS = {
+    TIME_LOW: 4,
+    TIME_MID: 8,
+    TIME_HIGH: 12,
 }
 
 // ─── Mülakat Diyalog Metinleri ─────────────────────────────────────────────
@@ -20,51 +27,78 @@ export const DIALOG = {
             bot: 'Merhaba! 👋 Ben LearnQA.dev\'in QA Akıl Hocasıyım. Sana özel bir **QA Kariyer Zihin Haritası** çıkaracağım.',
             bot2: 'Bunun için sana birkaç kısa soru soracağım. Hazır mısın? 🚀',
         },
-        step1: {
-            bot: 'Daha önce herhangi bir **yazılım veya kodlama** geçmişin ya da deneyimin var mı?',
+        stepLevel: {
+            bot: 'Şu anki durumunu en iyi hangisi anlatıyor?',
             options: [
-                { id: 'A', label: '🚫 Hayır, hiç yazılım geçmişim yok — tamamen sıfırım.' },
-                { id: 'B', label: '✅ Evet, yazılım geçmişim / deneyimim var.' },
+                { id: 'L_ZERO', label: '🌱 Tamamen sıfırım — yazılım/test geçmişim yok.' },
+                { id: 'L_MANUAL', label: '🧪 Manuel test yapıyorum / az kod biliyorum — otomasyona geçmek istiyorum.' },
+                { id: 'L_CODER', label: '💻 Kod yazabiliyorum — QA otomasyonunu sistemli öğrenmek istiyorum.' },
             ],
         },
-        step2: {
-            bot: 'Harika! Sitemizde ana dillerimizden biri **Java**. Yolculuğa direkt Java ile başlamak ister misin?',
+        ackLevel: {
+            L_ZERO: 'Harika bir başlangıç noktası! Sıfırdan başlamak dezavantaj değil — haritanı sağlam temellerden kuracağız. 💪',
+            L_MANUAL: 'Manuel test deneyimi otomasyonda en büyük avantajın — test senaryosu düşünmeyi zaten biliyorsun, şimdi onu koda çevireceğiz! 🎯',
+            L_CODER: 'Süper! Kod temelin olduğu için hızlı ilerleyeceğiz. 🚀',
+        },
+        stepLang: {
+            bot: 'Otomasyon dilin ne olsun?',
             options: [
-                { id: 'B1', label: '☕ Evet, Java ile başlamak istiyorum.' },
-                { id: 'B2', label: '🐍 Hayır, Python veya TypeScript ile ilerlemek istiyorum.' },
+                { id: 'LANG_JAVA', label: '☕ Java — kurumsal klasik' },
+                { id: 'LANG_MODERN', label: '🐍 Python / 🟦 TypeScript — modern ve hızlı başlangıç' },
+                { id: 'LANG_UNDECIDED', label: '🤷 Kararsızım — sen öner' },
             ],
         },
-        step3: {
-            bot: '**UI Otomasyon** tarafında hangi modern aracı deneyimlemek istersin?',
+        langRecommend: {
+            bot: '**Önerim: Java.** ☕\n\nTürkiye\'de banka, telekom ve kurumsal QA ilanlarının büyük çoğunluğu Java + Selenium stack\'i istiyor; ayrıca sitedeki en derin içerik hattımız Java üzerine kurulu. Java ile sağlam bir temel attıktan sonra Python veya TypeScript\'e geçmek çok kolay — tersi daha zordur. Bu yüzden haritanı **Java yolundan** kuruyorum. 👍',
+        },
+        stepTool: {
+            bot: '**UI otomasyon** tarafında hangi araçla ilerleyelim?',
             options: [
-                { id: 'C1', label: '🔵 Selenium — sektörün klasiği' },
-                { id: 'C2', label: '🎭 Playwright — modern ve hızlı' },
+                { id: 'TOOL_SELENIUM', label: '🔵 Selenium — sektörün klasiği' },
+                { id: 'TOOL_PLAYWRIGHT', label: '🎭 Playwright — modern ve hızlı' },
+                { id: 'TOOL_BOTH', label: '🏆 İkisi de — en geniş iş havuzu' },
             ],
         },
-        stepBSelenium: {
-            bot: 'Python/TypeScript yolunda **Selenium** da öğrenmek ister misin? Sektörün en köklü UI otomasyon aracı — CV\'inde güçlü bir yer tutar.',
+        stepTime: {
+            bot: 'Son soru: haftada kaç saat ayırabilirsin? Dürüst ol — haritanın süre tahmini buna göre hesaplanacak. 😊',
             options: [
-                { id: 'B_SEL_YES', label: '🔵 Evet, Selenium\'u da ana yoluma ekle.' },
-                { id: 'B_SEL_NO',  label: '⏭️ Hayır, modern araçlarla ilerlemek istiyorum.' },
+                { id: 'TIME_LOW', label: '🐢 3-5 saat — işin/okulun yanında' },
+                { id: 'TIME_MID', label: '🚶 6-10 saat — düzenli tempo' },
+                { id: 'TIME_HIGH', label: '🏃 10+ saat — tam odak / kariyer değişimi modu' },
             ],
         },
+        ackTime: {
+            TIME_LOW: 'Yavaş ama eksiksiz — az zaman içeriği kısmaz, sadece takvimi uzatır. Düzenli olmak hızdan daha önemlidir. 🌱',
+            TIME_MID: 'İdeal tempo! Haftalık düzenli çalışmayla şaşırtıcı hızda ilerleyeceksin. 💪',
+            TIME_HIGH: 'Tam odak modu! Bu tempoyla haritayı rekor sürede bitirebilirsin. 🔥',
+        },
+        preparing: '✨ Cevaplarını değerlendiriyorum, haritan hazırlanıyor...',
+        timeOnly: {
+            bot: 'Tekrar hoş geldin! 👋 Kayıtlı yol haritanı buldum. Süre tahminini hesaplayabilmem için tek bir sorum var:',
+        },
+        back: '↩ Geri',
         // Playwright vs Cypress karşılaştırma mesajı (B_SEL_NO seçilince)
         playwrightCypressCompare: {
             bot: `**Playwright vs Cypress — Kısa Tanıtım:**\n\n🎭 **Playwright** → Microsoft tarafından geliştirilen modern otomasyon çerçevesi. Python, TypeScript ve Java'yı destekler. Auto-wait, ağ stubbing, API testi, Trace Viewer ve paralel test koşusu ile öne çıkar. Büyük ve kurumsal projelerde tercih ediliyor.\n\n🌲 **Cypress** → Sadece JavaScript/TypeScript ile çalışır. Time-travel debugging, anlık screenshot ve kullanımı çok kolay arayüzü ile özellikle JS/TS ekipler arasında popüler. Ancak iframe ve multi-domain desteği kısıtlı.\n\n✅ **Tavsiyem: Playwright** — Hem Python hem TypeScript yoluna mükemmel entegre olur, daha geniş ekosistem ve kurumsal destek sunar.`,
         },
 
         userChoice: {
-            A: 'Hayır, yazılım geçmişim yok.',
-            B: 'Evet, yazılım geçmişim var.',
-            B1: 'Java ile başlamak istiyorum.',
-            B2: 'Python / TypeScript ile ilerlemek istiyorum.',
-            B_SEL_YES: 'Evet, Selenium da olsun.',
-            B_SEL_NO: 'Hayır, modern araçlarla ilerliyorum.',
-            C1: 'Selenium ile devam.',
-            C2: 'Playwright ile devam.',
+            L_ZERO: 'Tamamen sıfırım.',
+            L_MANUAL: 'Manuel test yapıyorum, otomasyona geçiyorum.',
+            L_CODER: 'Kod yazabiliyorum.',
+            LANG_JAVA: 'Java ile ilerlemek istiyorum.',
+            LANG_MODERN: 'Python / TypeScript ile ilerlemek istiyorum.',
+            LANG_UNDECIDED: 'Kararsızım — sen öner.',
+            TOOL_SELENIUM: 'Selenium ile devam.',
+            TOOL_PLAYWRIGHT: 'Playwright ile devam.',
+            TOOL_BOTH: 'İkisini de öğrenmek istiyorum.',
+            TIME_LOW: 'Haftada 3-5 saat ayırabilirim.',
+            TIME_MID: 'Haftada 6-10 saat ayırabilirim.',
+            TIME_HIGH: 'Haftada 10+ saat ayırabilirim.',
         },
         mapReady: '✨ Haritanı hazırladım! Seçimlerine göre kişiselleştirilmiş QA yol haritanı aşağıda görebilirsin.',
-        restart: 'Baştan Başla',
+        restart: 'Haritamı Yeniden Oluştur',
+        progressSafeNote: 'İlerlemen güvende — haritanı yeniden oluşturursan tamamladığın dersler korunur.',
         print: 'Haritamı Yazdır / PDF',
         optional: 'OPSİYONEL',
         mainPath: 'ANA YOL',
@@ -72,40 +106,73 @@ export const DIALOG = {
         viewTopic: 'Konuya Git →',
         mentorNoteTitle: '🎓 Mentor Notun',
         typing: 'yazılıyor...',
+        startCta: '🚀 İlk dersine başla',
+        continueCta: '🚀 Devam et',
+        estPerWeek: 'sa/hafta',
+        estRemaining: 'kalan',
+        estFinish: 'bu tempoda bitiş',
+        estTotal: 'tahmini toplam',
+        hoursShort: 'sa',
+        weeksShort: 'hf',
+        monthsShort: 'ay',
+        statusDone: 'tamamlandı',
+        reviewBadge: '✅ Biliyorsun — gözden geçir',
     },
     en: {
         welcome: {
             bot: 'Hello! 👋 I\'m the QA Mentor AI of LearnQA.dev. I\'ll create a personalized **QA Career Mind Map** just for you.',
             bot2: 'I\'ll ask you a few short questions to get started. Ready? 🚀',
         },
-        step1: {
-            bot: 'Do you have any prior **software or coding** background or experience?',
+        stepLevel: {
+            bot: 'Which of these best describes where you are right now?',
             options: [
-                { id: 'A', label: '🚫 No, I have no software background — I\'m starting from scratch.' },
-                { id: 'B', label: '✅ Yes, I have software / coding experience.' },
+                { id: 'L_ZERO', label: '🌱 Complete beginner — no software/testing background.' },
+                { id: 'L_MANUAL', label: '🧪 Manual tester / know a little code — moving into automation.' },
+                { id: 'L_CODER', label: '💻 I can code — I want to learn QA automation systematically.' },
             ],
         },
-        step2: {
-            bot: 'Great! One of our main languages is **Java**. Would you like to start your journey directly with Java?',
+        ackLevel: {
+            L_ZERO: 'A great starting point! Starting from scratch is not a disadvantage — we\'ll build your map on solid foundations. 💪',
+            L_MANUAL: 'Manual testing experience is your biggest advantage in automation — you already think in test scenarios, now we\'ll turn that into code! 🎯',
+            L_CODER: 'Awesome! With your coding background we\'ll move fast. 🚀',
+        },
+        stepLang: {
+            bot: 'Which automation language should we build on?',
             options: [
-                { id: 'B1', label: '☕ Yes, I want to start with Java.' },
-                { id: 'B2', label: '🐍 No, I prefer Python or TypeScript.' },
+                { id: 'LANG_JAVA', label: '☕ Java — the enterprise classic' },
+                { id: 'LANG_MODERN', label: '🐍 Python / 🟦 TypeScript — modern and fast to start' },
+                { id: 'LANG_UNDECIDED', label: '🤷 Not sure — you recommend' },
             ],
         },
-        step3: {
-            bot: 'Which modern **UI Automation** tool would you like to explore?',
+        langRecommend: {
+            bot: '**My recommendation: Java.** ☕\n\nThe vast majority of enterprise QA job postings (banking, telecom, corporate) ask for the Java + Selenium stack, and our deepest content track is built on Java. Once you have a solid Java foundation, switching to Python or TypeScript is easy — the reverse is harder. So I\'m building your map on the **Java path**. 👍',
+        },
+        stepTool: {
+            bot: 'On the **UI automation** side, which tool should we go with?',
             options: [
-                { id: 'C1', label: '🔵 Selenium — the industry classic' },
-                { id: 'C2', label: '🎭 Playwright — modern and fast' },
+                { id: 'TOOL_SELENIUM', label: '🔵 Selenium — the industry classic' },
+                { id: 'TOOL_PLAYWRIGHT', label: '🎭 Playwright — modern and fast' },
+                { id: 'TOOL_BOTH', label: '🏆 Both — the widest job pool' },
             ],
         },
-        stepBSelenium: {
-            bot: 'On the Python/TypeScript path, would you also like to learn **Selenium**? It\'s the most established UI automation tool in the industry — a great addition to your CV.',
+        stepTime: {
+            bot: 'Last question: how many hours per week can you commit? Be honest — your map\'s time estimate will be calculated from this. 😊',
             options: [
-                { id: 'B_SEL_YES', label: '🔵 Yes, add Selenium to my main path.' },
-                { id: 'B_SEL_NO',  label: '⏭️ No, I want to go with modern tools only.' },
+                { id: 'TIME_LOW', label: '🐢 3-5 hours — alongside work/school' },
+                { id: 'TIME_MID', label: '🚶 6-10 hours — steady pace' },
+                { id: 'TIME_HIGH', label: '🏃 10+ hours — full focus / career-change mode' },
             ],
         },
+        ackTime: {
+            TIME_LOW: 'Slow but complete — less time doesn\'t cut content, it just stretches the calendar. Consistency beats speed. 🌱',
+            TIME_MID: 'The ideal pace! With steady weekly work you\'ll progress surprisingly fast. 💪',
+            TIME_HIGH: 'Full focus mode! At this pace you could finish the map in record time. 🔥',
+        },
+        preparing: '✨ Evaluating your answers, preparing your map...',
+        timeOnly: {
+            bot: 'Welcome back! 👋 I found your saved roadmap. I just need one answer to calculate your time estimate:',
+        },
+        back: '↩ Back',
         // Playwright vs Cypress comparison message (when B_SEL_NO is selected)
         playwrightCypressCompare: {
             bot: `**Playwright vs Cypress — Quick Overview:**
@@ -117,17 +184,22 @@ export const DIALOG = {
 ✅ **My recommendation: Playwright** — Integrates beautifully with both your Python and TypeScript path, offering a wider ecosystem and enterprise-level support.`,
         },
         userChoice: {
-            A: 'No software background.',
-            B: 'Yes, I have software experience.',
-            B1: 'I want to start with Java.',
-            B2: 'I prefer Python / TypeScript.',
-            B_SEL_YES: 'Yes, add Selenium too.',
-            B_SEL_NO: 'No, going with modern tools.',
-            C1: 'Continue with Selenium.',
-            C2: 'Continue with Playwright.',
+            L_ZERO: 'Complete beginner.',
+            L_MANUAL: 'Manual tester, moving into automation.',
+            L_CODER: 'I can code.',
+            LANG_JAVA: 'I\'ll go with Java.',
+            LANG_MODERN: 'I\'ll go with Python / TypeScript.',
+            LANG_UNDECIDED: 'Not sure — you recommend.',
+            TOOL_SELENIUM: 'Continue with Selenium.',
+            TOOL_PLAYWRIGHT: 'Continue with Playwright.',
+            TOOL_BOTH: 'I want to learn both.',
+            TIME_LOW: 'I can commit 3-5 hours a week.',
+            TIME_MID: 'I can commit 6-10 hours a week.',
+            TIME_HIGH: 'I can commit 10+ hours a week.',
         },
         mapReady: '✨ Your map is ready! See your personalized QA roadmap below based on your choices.',
-        restart: 'Start Over',
+        restart: 'Rebuild My Map',
+        progressSafeNote: 'Your progress is safe — completed lessons are kept if you rebuild your map.',
         print: 'Print / Save as PDF',
         optional: 'OPTIONAL',
         mainPath: 'MAIN PATH',
@@ -135,10 +207,24 @@ export const DIALOG = {
         viewTopic: 'Go to Topic →',
         mentorNoteTitle: '🎓 Your Mentor Note',
         typing: 'typing...',
+        startCta: '🚀 Start your first lesson',
+        continueCta: '🚀 Continue',
+        estPerWeek: 'h/week',
+        estRemaining: 'remaining',
+        estFinish: 'finish at this pace',
+        estTotal: 'estimated total',
+        hoursShort: 'h',
+        weeksShort: 'wk',
+        monthsShort: 'mo',
+        statusDone: 'completed',
+        reviewBadge: '✅ You know this — review',
     },
 }
 
 // ─── Harita Düğümleri ──────────────────────────────────────────────────────
+// estimatedHours: modülün tahmini tamamlama eforu (quiz + pratikler dahil).
+// İlk geçiş değerleridir; gerçek içerik hacmine göre kalibrasyonu Sonnet görevi
+// S1'de yapılır (bkz. Documents/career-map-feature-plan.md §10).
 
 // SQL node (tüm haritalarda ortak kullanılan obje referansı)
 const SQL_NODE = (id) => ({
@@ -150,6 +236,7 @@ const SQL_NODE = (id) => ({
     color: '#0369a1',
     glow: 'rgba(3,105,161,0.4)',
     isMain: true,
+    estimatedHours: 30,
 })
 
 // Git & GitHub node
@@ -162,6 +249,7 @@ const GIT_GITHUB_NODE = (id) => ({
     color: '#059669',
     glow: 'rgba(5,150,105,0.4)',
     isMain: true,
+    estimatedHours: 16,
 })
 
 // Linux ana düğüm (tüm haritalarda Docker/Jenkins ana hatta olduğundan Linux artık her yerde ana düğüm)
@@ -174,6 +262,57 @@ const LINUX_MAIN_NODE = (id) => ({
     color: '#ea580c',
     glow: 'rgba(234,88,12,0.4)',
     isMain: true,
+    estimatedHours: 20,
+})
+
+// Sıfırdan başlayan kullanıcının temel ön eki (MAP_A'nın ilk üç düğümüyle aynı içerik)
+const TEST_FUNDAMENTALS_NODE = (id) => ({
+    id,
+    emoji: '🛡️',
+    title: { tr: 'Test Temelleri', en: 'Testing Fundamentals' },
+    desc: { tr: 'Yazılım testi nedir, QA vs QC, SDLC, test seviyeleri', en: 'What is software testing, QA vs QC, SDLC, test levels' },
+    route: '/what-is-testing',
+    color: '#0e7490',
+    glow: 'rgba(14,116,144,0.4)',
+    isMain: true,
+    estimatedHours: 12,
+})
+
+const ALGORITHMS_NODE = (id) => ({
+    id,
+    emoji: '🔢',
+    title: { tr: 'Algoritma Temeli', en: 'Algorithm Basics' },
+    desc: { tr: 'Mantıksal düşünme, pseudocode, flowchart', en: 'Logical thinking, pseudocode, flowcharts' },
+    route: '/algorithms',
+    color: '#7c3aed',
+    glow: 'rgba(124,58,237,0.4)',
+    isMain: true,
+    estimatedHours: 18,
+})
+
+const MANUAL_TESTING_NODE = (id) => ({
+    id,
+    emoji: '🧪',
+    title: { tr: 'Manuel Test', en: 'Manual Testing' },
+    desc: { tr: 'Test case, bug report, exploratory testing', en: 'Test cases, bug reports, exploratory testing' },
+    route: '/manual-testing',
+    color: '#0891b2',
+    glow: 'rgba(8,145,178,0.4)',
+    isMain: true,
+    estimatedHours: 16,
+})
+
+// Java + "ikisi de" seçiminde MAP_C1'e Selenium'dan sonra eklenen overlay düğümü
+const PLAYWRIGHT_OVERLAY_NODE = (id) => ({
+    id,
+    emoji: '🎭',
+    title: { tr: 'Playwright', en: 'Playwright' },
+    desc: { tr: 'Modern UI otomasyon, auto-wait, Trace Viewer', en: 'Modern UI automation, auto-wait, Trace Viewer' },
+    route: '/playwright',
+    color: '#7c3aed',
+    glow: 'rgba(124,58,237,0.4)',
+    isMain: true,
+    estimatedHours: 36,
 })
 
 // ─── MAP_A: Tamamen sıfırdan başlayanlar ───────────────────────────────────
@@ -183,36 +322,9 @@ export const MAP_A = {
     subtitle: { tr: 'Yazılım geçmişi olmadan, temelden mülakat seviyesine', en: 'From no coding background to interview level' },
     color: 'from-violet-600 to-fuchsia-600',
     nodes: [
-        {
-            id: 1,
-            emoji: '🛡️',
-            title: { tr: 'Test Temelleri', en: 'Testing Fundamentals' },
-            desc: { tr: 'Yazılım testi nedir, QA vs QC, SDLC, test seviyeleri', en: 'What is software testing, QA vs QC, SDLC, test levels' },
-            route: '/what-is-testing',
-            color: '#0e7490',
-            glow: 'rgba(14,116,144,0.4)',
-            isMain: true,
-        },
-        {
-            id: 2,
-            emoji: '🔢',
-            title: { tr: 'Algoritma Temeli', en: 'Algorithm Basics' },
-            desc: { tr: 'Mantıksal düşünme, pseudocode, flowchart', en: 'Logical thinking, pseudocode, flowcharts' },
-            route: '/algorithms',
-            color: '#7c3aed',
-            glow: 'rgba(124,58,237,0.4)',
-            isMain: true,
-        },
-        {
-            id: 3,
-            emoji: '🧪',
-            title: { tr: 'Manuel Test', en: 'Manual Testing' },
-            desc: { tr: 'Test case, bug report, exploratory testing', en: 'Test cases, bug reports, exploratory testing' },
-            route: '/manual-testing',
-            color: '#0891b2',
-            glow: 'rgba(8,145,178,0.4)',
-            isMain: true,
-        },
+        TEST_FUNDAMENTALS_NODE(1),
+        ALGORITHMS_NODE(2),
+        MANUAL_TESTING_NODE(3),
         {
             id: 4,
             emoji: '☕',
@@ -222,6 +334,7 @@ export const MAP_A = {
             color: '#d97706',
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
+            estimatedHours: 60,
         },
         GIT_GITHUB_NODE(5),
         {
@@ -233,6 +346,7 @@ export const MAP_A = {
             color: '#2563eb',
             glow: 'rgba(37,99,235,0.4)',
             isMain: true,
+            estimatedHours: 40,
         },
         {
             id: 7,
@@ -243,6 +357,7 @@ export const MAP_A = {
             color: '#ea580c',
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         SQL_NODE(8),
         {
@@ -254,6 +369,7 @@ export const MAP_A = {
             color: '#16a34a',
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         LINUX_MAIN_NODE(10),
         {
@@ -265,6 +381,7 @@ export const MAP_A = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         {
             id: 12,
@@ -275,6 +392,7 @@ export const MAP_A = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         {
             id: 13,
@@ -285,6 +403,7 @@ export const MAP_A = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         {
             id: 14,
@@ -295,6 +414,7 @@ export const MAP_A = {
             color: '#0f766e',
             glow: 'rgba(15,118,110,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
     ],
     extras: [
@@ -361,6 +481,7 @@ export const MAP_B = {
             color: '#15803d',
             glow: 'rgba(21,128,61,0.4)',
             isMain: true,
+            estimatedHours: 50,
         },
         {
             id: 2,
@@ -371,6 +492,7 @@ export const MAP_B = {
             color: '#1d4ed8',
             glow: 'rgba(29,78,216,0.4)',
             isMain: true,
+            estimatedHours: 40,
         },
         GIT_GITHUB_NODE(3),
         {
@@ -382,6 +504,7 @@ export const MAP_B = {
             color: '#7c3aed',
             glow: 'rgba(124,58,237,0.4)',
             isMain: true,
+            estimatedHours: 36,
         },
         {
             id: 5,
@@ -392,6 +515,7 @@ export const MAP_B = {
             color: '#ea580c',
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         SQL_NODE(6),   // ← SQL: Postman'dan sonra
         LINUX_MAIN_NODE(7),
@@ -404,6 +528,7 @@ export const MAP_B = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.35)',
             isMain: true,
+            estimatedHours: 24,
         },
         {
             id: 9,
@@ -414,6 +539,7 @@ export const MAP_B = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         {
             id: 10,
@@ -424,6 +550,7 @@ export const MAP_B = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
     ],
     extras: [
@@ -493,6 +620,7 @@ export const MAP_B_SEL = {
             color: '#15803d',
             glow: 'rgba(21,128,61,0.4)',
             isMain: true,
+            estimatedHours: 50,
         },
         {
             id: 2,
@@ -503,6 +631,7 @@ export const MAP_B_SEL = {
             color: '#1d4ed8',
             glow: 'rgba(29,78,216,0.4)',
             isMain: true,
+            estimatedHours: 40,
         },
         GIT_GITHUB_NODE(3),
         {
@@ -514,6 +643,7 @@ export const MAP_B_SEL = {
             color: '#2563eb',
             glow: 'rgba(37,99,235,0.4)',
             isMain: true,
+            estimatedHours: 40,
         },
         {
             id: 5,
@@ -524,6 +654,7 @@ export const MAP_B_SEL = {
             color: '#7c3aed',
             glow: 'rgba(124,58,237,0.4)',
             isMain: true,
+            estimatedHours: 36,
         },
         {
             id: 6,
@@ -534,6 +665,7 @@ export const MAP_B_SEL = {
             color: '#ea580c',
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         SQL_NODE(7),   // ← SQL: Postman'dan sonra
         LINUX_MAIN_NODE(8),
@@ -546,6 +678,7 @@ export const MAP_B_SEL = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.35)',
             isMain: true,
+            estimatedHours: 24,
         },
         {
             id: 10,
@@ -556,6 +689,7 @@ export const MAP_B_SEL = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         {
             id: 11,
@@ -566,6 +700,7 @@ export const MAP_B_SEL = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
     ],
     extras: [
@@ -635,6 +770,7 @@ export const MAP_C1 = {
             color: '#d97706',
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
+            estimatedHours: 60,
         },
         GIT_GITHUB_NODE(2),
         {
@@ -646,6 +782,7 @@ export const MAP_C1 = {
             color: '#2563eb',
             glow: 'rgba(37,99,235,0.4)',
             isMain: true,
+            estimatedHours: 40,
         },
         {
             id: 4,
@@ -656,6 +793,7 @@ export const MAP_C1 = {
             color: '#ea580c',
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         SQL_NODE(5),   // ← SQL: Postman'dan sonra, REST Assured'dan önce
         {
@@ -667,6 +805,7 @@ export const MAP_C1 = {
             color: '#16a34a',
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         LINUX_MAIN_NODE(7),
         {
@@ -678,6 +817,7 @@ export const MAP_C1 = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         {
             id: 9,
@@ -688,6 +828,7 @@ export const MAP_C1 = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         {
             id: 10,
@@ -698,6 +839,7 @@ export const MAP_C1 = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         {
             id: 11,
@@ -708,6 +850,7 @@ export const MAP_C1 = {
             color: '#0f766e',
             glow: 'rgba(15,118,110,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
     ],
     extras: [
@@ -770,6 +913,7 @@ export const MAP_C2 = {
             color: '#d97706',
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
+            estimatedHours: 60,
         },
         GIT_GITHUB_NODE(2),
         {
@@ -781,6 +925,7 @@ export const MAP_C2 = {
             color: '#7c3aed',
             glow: 'rgba(124,58,237,0.4)',
             isMain: true,
+            estimatedHours: 36,
         },
         {
             id: 4,
@@ -791,6 +936,7 @@ export const MAP_C2 = {
             color: '#16a34a',
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         SQL_NODE(5),   // ← SQL: REST Assured'dan sonra
         LINUX_MAIN_NODE(6),
@@ -803,6 +949,7 @@ export const MAP_C2 = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         {
             id: 8,
@@ -813,6 +960,7 @@ export const MAP_C2 = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
+            estimatedHours: 20,
         },
         {
             id: 9,
@@ -823,6 +971,7 @@ export const MAP_C2 = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
         {
             id: 10,
@@ -833,6 +982,7 @@ export const MAP_C2 = {
             color: '#0f766e',
             glow: 'rgba(15,118,110,0.4)',
             isMain: true,
+            estimatedHours: 24,
         },
     ],
     extras: [
@@ -892,4 +1042,72 @@ export const ALL_MAPS = {
     map_b_sel: MAP_B_SEL,
     map_c1: MAP_C1,
     map_c2: MAP_C2,
+}
+
+// ─── Parametrik Katman (v2) ────────────────────────────────────────────────
+// Kişiselleştirme = şablon (5 harita) + parametrik katman. Şablonlar sabit
+// kalır; seviye ön eki ve araç overlay'i çalışma zamanında bindirilir
+// (bkz. Documents/career-map-feature-plan.md §3 ve §5.2).
+
+// Sıfırdan başlayan kullanıcı için temel ön eki (MAP_A dışındaki haritaların başına eklenir)
+export const ZERO_PREFIX_NODES = [
+    TEST_FUNDAMENTALS_NODE(0),
+    ALGORITHMS_NODE(0),
+    MANUAL_TESTING_NODE(0),
+]
+
+// Manuel testçi ön eki: algoritma hızlı tempo + manuel test "gözden geçir" modunda
+export const MANUAL_PREFIX_NODES = [
+    {
+        ...ALGORITHMS_NODE(0),
+        desc: { tr: 'Mantıksal düşünme — hızlı tempo tekrarı', en: 'Logical thinking — fast-paced refresher' },
+        estimatedHours: 10,
+    },
+    {
+        ...MANUAL_TESTING_NODE(0),
+        desc: { tr: 'Zaten biliyorsun — mülakat sekmesiyle pekiştir', en: 'You already know this — reinforce via the interview tab' },
+        reviewOnly: true,
+        estimatedHours: 6,
+    },
+]
+
+// Sihirbaz cevaplarından temel şablonu seçer
+export function pickBaseMapId(answers) {
+    const { level, lang, uiTool } = answers || {}
+    if (lang === 'java') {
+        // MAP_A zaten "sıfır + Java + Selenium" yolunun tam halidir (temel ön eki içinde)
+        if (level === 'zero' && uiTool === 'selenium') return 'map_a'
+        return uiTool === 'playwright' ? 'map_c2' : 'map_c1'
+    }
+    // Modern dil yolu: Selenium isteği (tek ya da "ikisi de") MAP_B_SEL'e gider
+    return uiTool === 'playwright' ? 'map_b' : 'map_b_sel'
+}
+
+// Profildeki cevaplara göre nihai haritayı üretir: şablon + ön ek + overlay.
+// answers.lang yoksa (v1 career_goal migrasyonu) şablon olduğu gibi döner.
+export function resolveMap(profile) {
+    if (!profile) return null
+    const answers = profile.answers || {}
+    const baseId = answers.lang ? pickBaseMapId(answers) : profile.mapId
+    const base = ALL_MAPS[baseId]
+    if (!base) return null
+
+    let nodes = [...base.nodes]
+
+    // Java + "ikisi de": Selenium'dan hemen sonra Playwright düğümü bindirilir
+    if (answers.lang === 'java' && answers.uiTool === 'both' && !nodes.some((n) => n.route === '/playwright')) {
+        const selIdx = nodes.findIndex((n) => n.route === '/selenium')
+        if (selIdx !== -1) nodes.splice(selIdx + 1, 0, PLAYWRIGHT_OVERLAY_NODE(0))
+    }
+
+    // Seviye ön eki (MAP_A temeli zaten içerdiğinden ona uygulanmaz)
+    if (baseId !== 'map_a') {
+        if (answers.level === 'zero') nodes = [...ZERO_PREFIX_NODES, ...nodes]
+        else if (answers.level === 'manual') nodes = [...MANUAL_PREFIX_NODES, ...nodes]
+    }
+
+    // Adım numaraları baştan sona yeniden verilir (ön ek/overlay sonrası teklik)
+    nodes = nodes.map((n, i) => ({ ...n, id: i + 1 }))
+
+    return { ...base, nodes }
 }

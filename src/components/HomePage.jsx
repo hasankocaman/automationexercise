@@ -4,6 +4,7 @@ import { Save, ChevronDown, ChevronUp } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { search as searchContent } from '../utils/searchIndex'
+import { readMentorProfile, getLocalCompletedRoutes } from '../utils/careerMapProfile'
 import ZoomControls from './ZoomControls'
 import AccountMenu from './AccountMenu'
 import BasicElements from './BasicElements'
@@ -112,6 +113,23 @@ function HomePage() {
     useEffect(() => {
         setDueReviewCount(getQueueStats(Date.now()).dueCount)
     }, [])
+
+    // Kariyer Haritası kutusunun 3 durumu (plan §6.1): harita yok (davet) /
+    // ilerleme var (kişisel pano girişi) / ana yol bitti (uzmanlık dalları).
+    // Local-first: profil ve tamamlanan route'lar localStorage'dan senkron okunur;
+    // profil sihirbaz tamamlandığında düğüm görüntü kopyasıyla birlikte yazılır.
+    const [mentorMapState] = useState(() => {
+        const mentorProfile = readMentorProfile()
+        if (!mentorProfile || !Array.isArray(mentorProfile.nodes) || mentorProfile.nodes.length === 0) {
+            return { state: 'none' }
+        }
+        const completedRoutes = getLocalCompletedRoutes()
+        const total = mentorProfile.nodes.length
+        const done = mentorProfile.nodes.filter((n) => completedRoutes.has(n.route)).length
+        const nextNode = mentorProfile.nodes.find((n) => !completedRoutes.has(n.route))
+        if (!nextNode) return { state: 'done', total }
+        return { state: 'progress', done, total, percent: Math.round((done / total) * 100), nextNode }
+    })
 
     useEffect(() => {
         getResumePoint().then(setResumePoint).catch(() => setResumePoint(null))
@@ -521,24 +539,68 @@ function HomePage() {
                         <span className="text-2xl md:text-3xl">🧠</span>
                     </div>
 
-                    {/* Text */}
+                    {/* Text — 3 durumlu içerik (plan §6.1) */}
                     <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                            <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black ${
-                                darkMode ? 'bg-green-800/60 text-green-300' : 'bg-green-100 text-green-700'
-                            }`}>
-                                <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                                {language === 'tr' ? 'YENİ' : 'NEW'}
-                            </span>
-                            <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                {language === 'tr' ? '👋 Yeni misin? Kişisel QA Kariyer Haritanı Oluştur' : '👋 New Here? Build Your Personalized QA Career Map'}
-                            </h2>
-                        </div>
-                        <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
-                            {language === 'tr'
-                                ? '3 kısa soruyu yanıtla — sana özel öğrenme yolu ve zihin haritası hazırlansın. ✨'
-                                : 'Answer 3 quick questions — get a personalized learning path and mind map just for you. ✨'}
-                        </p>
+                        {mentorMapState.state === 'progress' ? (
+                            <>
+                                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black ${
+                                        darkMode ? 'bg-indigo-800/60 text-indigo-300' : 'bg-indigo-100 text-indigo-700'
+                                    }`}>
+                                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                                        {language === 'tr' ? 'HARİTAN' : 'YOUR MAP'}
+                                    </span>
+                                    <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {language === 'tr'
+                                            ? `🗺️ Haritan seni bekliyor — Kaldığın yer: ${mentorMapState.nextNode.emoji || ''} ${mentorMapState.nextNode.title?.tr || ''}`
+                                            : `🗺️ Your map is waiting — You're at: ${mentorMapState.nextNode.emoji || ''} ${mentorMapState.nextNode.title?.en || ''}`}
+                                    </h2>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className={`h-1.5 flex-1 max-w-[180px] rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-indigo-100'}`}>
+                                        <div
+                                            className="h-full rounded-full"
+                                            style={{ width: `${mentorMapState.percent}%`, background: 'linear-gradient(90deg, #6366f1, #a855f7)' }}
+                                        />
+                                    </div>
+                                    <p className={`text-xs font-bold ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
+                                        {language === 'tr'
+                                            ? `${mentorMapState.done}/${mentorMapState.total} adım · %${mentorMapState.percent}`
+                                            : `${mentorMapState.done}/${mentorMapState.total} steps · ${mentorMapState.percent}%`}
+                                    </p>
+                                </div>
+                            </>
+                        ) : mentorMapState.state === 'done' ? (
+                            <>
+                                <h2 className={`text-sm md:text-base font-black mb-0.5 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {language === 'tr' ? '🏆 Haritandaki ana yolu bitirdin!' : '🏆 You finished your map\'s main path!'}
+                                </h2>
+                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
+                                    {language === 'tr'
+                                        ? 'Ekstra dallarla uzmanlaş: Appium, JMeter, BrowserStack… ✨'
+                                        : 'Specialize with extra branches: Appium, JMeter, BrowserStack… ✨'}
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black ${
+                                        darkMode ? 'bg-green-800/60 text-green-300' : 'bg-green-100 text-green-700'
+                                    }`}>
+                                        <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                                        {language === 'tr' ? 'YENİ' : 'NEW'}
+                                    </span>
+                                    <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {language === 'tr' ? '👋 Yeni misin? Kişisel QA Kariyer Haritanı Oluştur' : '👋 New Here? Build Your Personalized QA Career Map'}
+                                    </h2>
+                                </div>
+                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
+                                    {language === 'tr'
+                                        ? '4 kısa soru · ~1 dakika — sana özel, süre tahminli öğrenme yolu ve zihin haritası hazırlansın. ✨'
+                                        : '4 quick questions · ~1 minute — get a personalized learning path and mind map with a time estimate. ✨'}
+                                </p>
+                            </>
+                        )}
                     </div>
 
                     {/* CTA arrow */}
@@ -547,7 +609,11 @@ function HomePage() {
                     }`}
                         style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}
                     >
-                        {language === 'tr' ? 'Başla' : 'Start'}
+                        {mentorMapState.state === 'progress'
+                            ? (language === 'tr' ? 'Devam et' : 'Continue')
+                            : mentorMapState.state === 'done'
+                                ? (language === 'tr' ? 'Haritana git' : 'View map')
+                                : (language === 'tr' ? 'Başla' : 'Start')}
                         <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
                     </div>
                 </Link>

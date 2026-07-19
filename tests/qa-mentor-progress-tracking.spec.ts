@@ -93,8 +93,13 @@ test.describe('AC09 — QA Mentor yol haritası ilerleme görselleştirmesi', ()
             await page.goto('/qa-mentor');
             await page.waitForSelector('h1', { timeout: 30_000 });
 
-            // career_goal set olduğu için sihirbaz atlanır, doğrudan MAP_A gösterilir.
-            await expect(page.getByText('🧠 Sıfırdan QA Mühendisi Yol Haritası')).toBeVisible({ timeout: 15_000 });
+            // v2 migrasyon akışı: career_goal kayıtlı ama local qaMentorProfile yok →
+            // tam sihirbaz yerine SADECE zaman mini-sorusu sorulur (plan §7 risk 6),
+            // cevaplanınca kayıtlı MAP_A doğrudan gösterilir.
+            const timeOption = page.getByTestId('mentor-option-TIME_MID');
+            await expect(timeOption).toBeVisible({ timeout: 30_000 });
+            await timeOption.click();
+            await expect(page.getByText('🧠 Sıfırdan QA Mühendisi Yol Haritası')).toBeVisible({ timeout: 30_000 });
 
             await expect(page.getByText(`${expectedPercent}%`)).toBeVisible({ timeout: 15_000 });
             await expect(page.getByText(`${expectedCount}/${total} ders tamamlandı`)).toBeVisible();
