@@ -12,9 +12,18 @@
 
 ## 🚧 AKTİF İŞ — Kariyer Haritası v2 (2026-07-19, Fable oturumu)
 
-**Branch:** `feature/career-map-v2` (main'den; commit `61aab82`, merge edilmedi).
+**Branch:** `feature/career-map-v2` — GitHub'a PUSH EDİLDİ (son commit
+`7bcff26` + bu doküman commit'i; main'e merge EDİLMEDİ, karar kullanıcıda).
 **Plan dokümanı:** `Documents/career-map-feature-plan.md` — ürün planı + §10'da
 Fable/Sonnet görev dağılımı ve **kopyala-yapıştır hazır Sonnet promptları**.
+
+**Test durumu (push anı):** Tam suite son olarak `7eef407` üzerinde
+**178/178 GEÇTİ** (10.5 dk). Son iki commit'in (`7bcff26` ders bitirme
+rozeti dahil) hedefli testleri geçti (lesson-completion 3/3, career-map
+13/13, integrity + build ✓); `7bcff26` üzerindeki TAM suite koşusu
+başlatılmıştı ama kullanıcı talimatıyla ("test yapmadan push") sonucu
+beklenmeden push yapıldı — bir sonraki oturumda tam suite'in yeşil
+olduğu teyit edilmeli.
 
 **Fable görevleri (F1-F6) TAMAMLANDI:**
 - Sihirbaz v2: 4 soru (3'lü seviye + dil/"kararsızım" Java önerisi + araç
