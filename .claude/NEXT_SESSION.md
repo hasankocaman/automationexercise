@@ -119,6 +119,27 @@ güncellendi; test 11 eklendi (python+selenium → playwright ana yolda yok,
 ekstrada link). Davranış matrisi 7 kombinasyonda doğrulandı (legacy
 'modern' dahil).
 
+**ÜRÜN KARARI 4 (2026-07-19, aynı oturum):** Ders bitirme rozeti. Başlangıç
+derslerinde (kariyer haritasının ilk düğümleri) kullanıcı dersi "bitirememe"
+sorunu yaşıyordu — /algorithms ve /manual-testing'de tamamlama mekanizması
+yoktu (manual'da vardı ama localStorage'a yazılmıyordu, yenileyince
+kayboluyordu). Eklenenler:
+- `LessonFinishBadge.jsx` (YENİ paylaşılan bileşen): son bölümün altında
+  ilerleme durumu (X/Y + bar) veya tüm bölümler bitince konfetili
+  "🎉 Tebrikler — bu dersi bitirdin!" rozeti. data-testid="lesson-finish-badge".
+- /algorithms: bölüm başına "✅ Bu bölümü tamamladım" butonu
+  (complete-section-<id>), nav'da ✓ + X/7 sayacı + ilerleme çubuğu,
+  localStorage `algorithms_completed_lessons`, markTopicCompleted → route
+  kariyer haritasına işlenir (anonim çalışır).
+- /manual-testing: oyun-tabanlı tamamlama artık KALICI
+  (`manual_testing_completed_lessons`) + markTopicCompleted + nav ✓ + rozet.
+- TopicPage (TÜM ders sayfaları): son sekmenin altındaki eski mini "Dersi
+  bitirdin!" kutusu kaldırıldı, yerine tüm-ders LessonFinishBadge geldi —
+  mülakat kilidi kapalıyken de görünür.
+- Test: `tests/lesson-completion.spec.ts` (3 test — /algorithms uçtan uca
+  7 bölüm tamamlama + route kaydı; /manual-testing ve /what-is-testing
+  rozet render/progress).
+
 **Bilinçli sapmalar (düzeltilmedi, gerekçeli):**
 - §6.1 "binlerce kullanıcı haritasını oluşturdu" sosyal kanıt metni EKLENMEDİ —
   gerçek kullanım verisi yokken uydurma sayı dürüst değil; "~1 dakika" kısmı

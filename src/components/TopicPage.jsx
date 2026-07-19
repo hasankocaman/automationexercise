@@ -4,6 +4,7 @@ import { useLocation, Link } from 'react-router-dom'
 import { Bookmark, BookmarkCheck, Loader2, AlertTriangle } from 'lucide-react'
 import TopicHeader from './TopicHeader'
 import CommentsSection from './CommentsSection'
+import LessonFinishBadge from './LessonFinishBadge'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import CssAnimationBlock from './CssAnimationBlock'
@@ -20552,29 +20553,35 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                                         !!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab],
                                         handleHardResetPage
                                     ))}
-                                    {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && (
-                                        activeTab < tabs.length - 1 ? (
-                                            <button
-                                                data-testid="tab-nav-next-suggestion"
-                                                onClick={() => setActiveTab(activeTab + 1)}
-                                                className={`mt-5 md:mt-6 w-full flex items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${darkMode ? 'bg-green-900/20 border-green-700 hover:bg-green-900/30' : 'bg-green-50 border-green-300 hover:bg-green-100'}`}
-                                            >
-                                                <span className={`text-xs md:text-sm font-semibold ${darkMode ? 'text-green-300' : 'text-green-800'}`}>
-                                                    ✅ {language === 'tr' ? 'Bu bölümü bitirdin' : 'You finished this section'}
-                                                </span>
-                                                <span className={`flex items-center gap-1.5 text-xs md:text-sm font-bold ${darkMode ? 'text-green-200' : 'text-green-900'}`}>
-                                                    {language === 'tr' ? 'Sıradaki:' : 'Next up:'} {tabs[activeTab + 1]} →
-                                                </span>
-                                            </button>
-                                        ) : (
-                                            <div className={`mt-5 md:mt-6 w-full rounded-xl border-2 px-4 py-3 text-center ${darkMode ? 'bg-purple-900/20 border-purple-700' : 'bg-purple-50 border-purple-300'}`}>
-                                                <span className={`text-xs md:text-sm font-bold ${darkMode ? 'text-purple-200' : 'text-purple-800'}`}>
-                                                    🎉 {language === 'tr' ? 'Dersi bitirdin!' : 'You completed the lesson!'}
-                                                </span>
-                                            </div>
-                                        )
+                                    {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && activeTab < tabs.length - 1 && (
+                                        <button
+                                            data-testid="tab-nav-next-suggestion"
+                                            onClick={() => setActiveTab(activeTab + 1)}
+                                            className={`mt-5 md:mt-6 w-full flex items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${darkMode ? 'bg-green-900/20 border-green-700 hover:bg-green-900/30' : 'bg-green-50 border-green-300 hover:bg-green-100'}`}
+                                        >
+                                            <span className={`text-xs md:text-sm font-semibold ${darkMode ? 'text-green-300' : 'text-green-800'}`}>
+                                                ✅ {language === 'tr' ? 'Bu bölümü bitirdin' : 'You finished this section'}
+                                            </span>
+                                            <span className={`flex items-center gap-1.5 text-xs md:text-sm font-bold ${darkMode ? 'text-green-200' : 'text-green-900'}`}>
+                                                {language === 'tr' ? 'Sıradaki:' : 'Next up:'} {tabs[activeTab + 1]} →
+                                            </span>
+                                        </button>
                                     )}
                                 </>
+                            )}
+                            {/* Ders bitirme rozeti (ürün kararı 2026-07-19): son sekmenin en
+                                altında TÜM dersin ilerlemesi görünür — tüm sekmeler bitince
+                                konfetili rozet açılır. Eski "Dersi bitirdin!" mini kutusunun
+                                (yalnız son sekme tamamlanınca görünüyordu) yerini alır ve
+                                mülakat kilidi kapalıyken de görünür (motivasyon kaybolmaz). */}
+                            {activeTab === tabs.length - 1 && (
+                                <LessonFinishBadge
+                                    language={language}
+                                    darkMode={darkMode}
+                                    completedCount={completedCount}
+                                    total={tabs.length}
+                                    lessonTitle={hero?.title}
+                                />
                             )}
                         </div>
 

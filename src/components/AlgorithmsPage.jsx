@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import TopicHeader from './TopicHeader'
 import VideoSceneBlock from './VideoSceneBlock'
+import LessonFinishBadge from './LessonFinishBadge'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
 
 const neuroLabels = {
@@ -988,7 +990,7 @@ function QuestionBank({ data, darkMode }) {
     )
 }
 
-function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRecallUpdate, nLabels, language }) {
+function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRecallUpdate, nLabels, language, complete, onToggleComplete }) {
     const isUnlocked = !neuroMode || recallProgress[lesson.id] === 'recalled';
 
     return (
@@ -1057,6 +1059,25 @@ function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRec
                             <DragDropChallenge lesson={lesson} labels={labels} darkMode={darkMode} />
                             <PracticeWorkspace lesson={lesson} labels={labels} darkMode={darkMode} />
                         </div>
+
+                        {/* Bölüm tamamlama (ürün kararı 2026-07-19): kullanıcı her bölümde
+                            ilerlemesini işaretleyebilmeli — hepsi bitince sayfa sonundaki
+                            bitirme rozeti açılır */}
+                        <button
+                            onClick={onToggleComplete}
+                            data-testid={`complete-section-${lesson.id}`}
+                            className={`mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 px-4 text-sm font-black transition hover:scale-[1.01] ${
+                                complete
+                                    ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                                    : darkMode
+                                        ? 'border-slate-600 bg-slate-950 text-slate-200 hover:border-emerald-500'
+                                        : 'border-slate-300 bg-slate-50 text-slate-700 hover:border-emerald-500'
+                            }`}
+                        >
+                            {complete
+                                ? (language === 'tr' ? '✓ Bu bölüm tamamlandı — geri almak için tıkla' : '✓ Section completed — click to undo')
+                                : (language === 'tr' ? '✅ Bu bölümü tamamladım' : '✅ Mark this section complete')}
+                        </button>
                     </div>
                 </div>
 
@@ -1103,6 +1124,32 @@ function AlgorithmsPage() {
         const saved = localStorage.getItem('algorithms_recall_progress')
         return saved ? JSON.parse(saved) : {}
     })
+
+    // Bölüm tamamlama (ürün kararı 2026-07-19): kullanıcı her dersi/bölümü
+    // tamamlandı işaretleyebilmeli, ilerlemesini görebilmeli ve hepsi bitince
+    // bitirme rozetini almalı. Tamamlama kariyer haritasına da işlenir
+    // (markTopicCompleted → recordLocalCompletedRoute, anonim de çalışır).
+    const { markTopicCompleted } = useAuth()
+    const [completedLessons, setCompletedLessons] = useState(() => {
+        try {
+            const saved = localStorage.getItem('algorithms_completed_lessons')
+            return saved ? JSON.parse(saved) : {}
+        } catch { return {} }
+    })
+    const completedLessonCount = data.lessons.filter(lesson => completedLessons[lesson.id]).length
+    const toggleLessonComplete = (lesson) => {
+        // Yan etkiler updater DIŞINDA — React StrictMode updater'ı iki kez çağırır
+        const wasDone = !!completedLessons[lesson.id]
+        const updated = { ...completedLessons }
+        if (wasDone) delete updated[lesson.id]
+        else updated[lesson.id] = true
+        setCompletedLessons(updated)
+        try { localStorage.setItem('algorithms_completed_lessons', JSON.stringify(updated)) } catch { /* localStorage kapalı olabilir */ }
+        if (!wasDone) {
+            markTopicCompleted({ lessonSlug: 'algorithms', topicSlug: lesson.id, topicLabel: lesson.shortTitle, routePath: '/algorithms' })
+                .catch(() => { /* progress senkronizasyonu başarısız olsa da UI bozulmaz */ })
+        }
+    }
 
     const handleRecallUpdate = (lessonId) => {
         const updated = { ...recallProgress, [lessonId]: 'recalled' }
@@ -1208,7 +1255,14 @@ function AlgorithmsPage() {
                 <div className="mt-6 grid gap-5 lg:grid-cols-[245px_1fr]">
                     <aside className="lg:sticky lg:top-24 lg:self-start">
                         <nav className={`rounded-lg border p-3 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`} aria-label={data.page.navTitle}>
-                            <div className={`mb-3 text-sm font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{data.page.navTitle}</div>
+                            <div className={`mb-2 flex items-center justify-between gap-2 text-sm font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>
+                                <span>{data.page.navTitle}</span>
+                                <span className={`text-xs ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>{completedLessonCount}/{data.lessons.length}</span>
+                            </div>
+                            {/* Bölüm ilerleme çubuğu — kullanıcı nerede olduğunu her an görür */}
+                            <div className={`mb-3 h-1.5 overflow-hidden rounded-full ${darkMode ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                                <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-[width] duration-500" style={{ width: `${(completedLessonCount / data.lessons.length) * 100}%` }} />
+                            </div>
                             <div className="grid gap-2">
                                 {interleavedLessons.map(lesson => (
                                     <button
@@ -1217,7 +1271,7 @@ function AlgorithmsPage() {
                                         className={`min-h-10 rounded-lg border px-3 text-left text-xs font-bold transition-all ${activeId === lesson.id ? 'text-white' : darkMode ? 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'}`}
                                         style={activeId === lesson.id ? { background: lesson.color, borderColor: lesson.color } : {}}
                                     >
-                                        {lesson.shortTitle}
+                                        {completedLessons[lesson.id] ? '✓ ' : ''}{lesson.shortTitle}
                                     </button>
                                 ))}
                             </div>
@@ -1245,6 +1299,8 @@ function AlgorithmsPage() {
                                 onRecallUpdate={handleRecallUpdate}
                                 nLabels={nLabels}
                                 language={language}
+                                complete={!!completedLessons[lesson.id]}
+                                onToggleComplete={() => toggleLessonComplete(lesson)}
                             />
                         ))}
 
@@ -1264,6 +1320,15 @@ function AlgorithmsPage() {
                                 {data.page.advancedCta}
                             </Link>
                         </section>
+
+                        {/* Ders bitirme rozeti — son bölümün altında, tüm dersler bitince açılır */}
+                        <LessonFinishBadge
+                            language={language}
+                            darkMode={darkMode}
+                            completedCount={completedLessonCount}
+                            total={data.lessons.length}
+                            lessonTitle={data.hero.title}
+                        />
                     </div>
                 </div>
             </main>

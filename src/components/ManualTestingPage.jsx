@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import TopicHeader from './TopicHeader'
 import VideoSceneBlock from './VideoSceneBlock'
+import LessonFinishBadge from './LessonFinishBadge'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 import { manualTestingData } from '../data/manualTestingData'
 
 function ScrollProgressBar() {
@@ -965,7 +967,25 @@ function ManualTestingPage() {
     }, [neuroMode])
 
     const [activeId, setActiveId] = useState(data.lessons[0].id)
-    const [completed, setCompleted] = useState({})
+    // Bölüm tamamlama artık KALICI (ürün kararı 2026-07-19): eskiden sadece
+    // component state'indeydi, sayfa yenilenince kayboluyordu. localStorage'a
+    // yazılır ve kariyer haritasına işlenir (markTopicCompleted, anonim de çalışır).
+    const { markTopicCompleted } = useAuth()
+    const [completed, setCompleted] = useState(() => {
+        try {
+            const saved = localStorage.getItem('manual_testing_completed_lessons')
+            return saved ? JSON.parse(saved) : {}
+        } catch { return {} }
+    })
+    const handleLessonComplete = (lesson) => {
+        // Yan etkiler updater DIŞINDA — React StrictMode updater'ı iki kez çağırır
+        if (completed[lesson.id]) return
+        const updated = { ...completed, [lesson.id]: true }
+        setCompleted(updated)
+        try { localStorage.setItem('manual_testing_completed_lessons', JSON.stringify(updated)) } catch { /* localStorage kapalı olabilir */ }
+        markTopicCompleted({ lessonSlug: 'manual-testing', topicSlug: lesson.id, topicLabel: lesson.shortTitle, routePath: '/manual-testing' })
+            .catch(() => { /* progress senkronizasyonu başarısız olsa da UI bozulmaz */ })
+    }
     const lessonIds = useMemo(() => data.lessons.map(lesson => lesson.id), [data.lessons])
     const completionCount = data.lessons.filter(lesson => completed[lesson.id]).length
 
@@ -1050,7 +1070,7 @@ function ManualTestingPage() {
                                         className={`min-h-10 rounded-lg border px-3 text-left text-sm font-bold transition-all ${activeId === lesson.id ? 'text-white' : darkMode ? 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400'}`}
                                         style={activeId === lesson.id ? { background: lesson.color, borderColor: lesson.color } : {}}
                                     >
-                                        {lesson.shortTitle}
+                                        {completed[lesson.id] ? '✓ ' : ''}{lesson.shortTitle}
                                     </button>
                                 ))}
                             </div>
@@ -1068,12 +1088,21 @@ function ManualTestingPage() {
                                 labels={data.ui}
                                 darkMode={darkMode}
                                 complete={Boolean(completed[lesson.id])}
-                                onComplete={() => setCompleted(current => current[lesson.id] ? current : { ...current, [lesson.id]: true })}
+                                onComplete={() => handleLessonComplete(lesson)}
                                 neuroMode={neuroMode}
                                 language={language}
                             />
                         ))}
                         <FinalQuiz quiz={data.quiz} labels={data.ui} darkMode={darkMode} />
+
+                        {/* Ders bitirme rozeti — son bölümün altında, tüm dersler bitince açılır */}
+                        <LessonFinishBadge
+                            language={language}
+                            darkMode={darkMode}
+                            completedCount={completionCount}
+                            total={data.lessons.length}
+                            lessonTitle={data.hero.title}
+                        />
                     </div>
                 </div>
             </main>
