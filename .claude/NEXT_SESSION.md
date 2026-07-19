@@ -56,18 +56,41 @@ Fable/Sonnet görev dağılımı ve **kopyala-yapıştır hazır Sonnet promptla
    olarak tek dilliydi — `lang === 'tr' ? 'Başa dön' : 'Back to top'` kalıbına
    getirildi. HomePage.jsx/QAMentorPage.jsx'te başka tek dilli v2 string yok.
 
-**SIRADAKİ ADIM:** Plan §10.2/§10.3'teki Sonnet görev listesi (S1-S3) burada
-BİTTİ — plan dosyasında hazır bir "Prompt S4" YOK. Plan §8 MVP listesindeki
-7. madde ("Minimal event ölçümü: map_wizard_started/completed/
-first_lesson_clicked" — §9.1) hiç uygulanmadı; ama bu Supabase şema/mimari
-kararı gerektirdiği için plan'ın kendi ilkesine göre (§10 başlığı: "mimari
-kararlar Fable'da") Sonnet-promptu olarak yazılmamış.
+**PLAN UYUM DENETİMİ (2026-07-19, Fable oturumu) — MVP eksikleri kapatıldı:**
+Kullanıcı talimatıyla plan dokümanı baştan sona implementasyonla karşılaştırıldı;
+5 gerçek MVP eksiği bulunup tamamlandı:
+1. ✅ Event ölçümü (§8-MVP-7/§9.1): `src/utils/mapEvents.js` (fire-and-forget,
+   `learnqa_anon_id` localStorage anonim ID) + `supabase/map_events_schema.sql`
+   (insert-only RLS, user_id `auth.uid()` default). 5 event: map_wizard_started /
+   map_wizard_completed(answers+mapId) / map_first_lesson_clicked (yalnız
+   completedCount=0'da) / map_revisited / map_regenerated.
+   ⚠️ MANUEL ADIM: `supabase/map_events_schema.sql` Supabase SQL Editor'da bir
+   kez çalıştırılmalı — çalıştırılana dek insert'ler sessizce düşer (UX etkilenmez).
+2. ✅ S2/S3 cevap onay balonları (§6.2): DIALOG'a `ackLang`/`ackTool` (tr+en);
+   LANG_UNDECIDED'da ack yok (langRecommend balonu onay görevi görüyor).
+3. ✅ "Kararsızım" vurgusu (§2.2): S1=sıfır iken S2'de LANG_UNDECIDED seçeneğine
+   `recommendedBadge` (✨ Önerilen/Recommended) + renkli çerçeve.
+4. ✅ Yarıda kalan sihirbaz devam (§7 risk 3): `qaMentorWizardDraft` localStorage
+   taslağı (careerMapProfile.js: read/save/clearWizardDraft) — her cevapta yazılır,
+   finalize/restart'ta temizlenir, handleBack'te geri alınan adıma senkronlanır;
+   dönüşte `resumeDraft.bot` + kaldığı soru sorulur.
+5. ✅ Süre tahmini aralığı (§7 risk 2): tek nokta ("~7 ay") yerine "~7-9 ay"
+   aralığı (üst sınır +%25 pay).
 
-Kullanıcıya "event ölçümünü ben üstleneyim mi / başka bekleyen iş mi var /
-kendi promptunu mu vereceksin / burada mı duralım" diye soruldu — cevap
-**"Burada dur"**. Yani `feature/career-map-v2` şu an S1-S3 ile TAMAMLANMIŞ
-durumda, bilinçli olarak bekletiliyor; merge veya event-ölçümü kararı
-kullanıcıdan yeni bir talimat gelmeden başlatılmamalı.
+**Bilinçli sapmalar (düzeltilmedi, gerekçeli):**
+- §6.1 "binlerce kullanıcı haritasını oluşturdu" sosyal kanıt metni EKLENMEDİ —
+  gerçek kullanım verisi yokken uydurma sayı dürüst değil; "~1 dakika" kısmı
+  zaten var. Gerçek veri birikince (map_events'ten) eklenebilir.
+- Plan §6.1'deki "3 kısa soru" metni eski — v2'de 4 soru var, kod doğru olarak
+  "4 kısa soru" yazıyor.
+- §5.3 `skipIfLevel` alanı yerine eşdeğer MANUAL_PREFIX/ZERO_PREFIX yaklaşımı
+  (plan "öneri" diyor; prefix yaklaşımı Fable F1'de seçildi).
+- §4.1 ✅-düğüm konfetisi + §4.3 milestone'lar → Faz 2 kutlama paketi.
+
+**SIRADAKİ ADIM:** MVP artık plana tam uyumlu. Kalan işler Faz 2 (milestone/
+konfeti, ders→harita breadcrumb, uzmanlık dalları, paylaşılabilir görsel,
+streak) — plan §8. Merge kararı + map_events tablosunun Supabase'de
+oluşturulması kullanıcıda.
 
 **Not:** Doğrulama (S1+S2+S3, bu oturum): `node scripts/check-content-integrity.mjs`
 sıfır ihlal ✓, `npm run build` ✓ (3 kez, her prompt sonrası), `npx playwright

@@ -51,6 +51,11 @@ export const DIALOG = {
         langRecommend: {
             bot: '**Önerim: Java.** ☕\n\nTürkiye\'de banka, telekom ve kurumsal QA ilanlarının büyük çoğunluğu Java + Selenium stack\'i istiyor; ayrıca sitedeki en derin içerik hattımız Java üzerine kurulu. Java ile sağlam bir temel attıktan sonra Python veya TypeScript\'e geçmek çok kolay — tersi daha zordur. Bu yüzden haritanı **Java yolundan** kuruyorum. 👍',
         },
+        // Plan §6.2: her cevaptan sonra mentorun 1 cümlelik onayı — S2 dil seçimi
+        ackLang: {
+            LANG_JAVA: 'Sağlam tercih! Java, kurumsal QA ilanlarının anahtarı — Selenium ve REST Assured ile doğal bir bütün oluşturur. ☕',
+            LANG_MODERN: 'Modern stack! Python ve TypeScript ile hızlı ilerleyecek, Playwright\'ın tüm gücünü kullanacaksın. ⚡',
+        },
         stepTool: {
             bot: '**UI otomasyon** tarafında hangi araçla ilerleyelim?',
             options: [
@@ -58,6 +63,12 @@ export const DIALOG = {
                 { id: 'TOOL_PLAYWRIGHT', label: '🎭 Playwright — modern ve hızlı' },
                 { id: 'TOOL_BOTH', label: '🏆 İkisi de — en geniş iş havuzu' },
             ],
+        },
+        // Plan §6.2: S3 araç seçimi onayı
+        ackTool: {
+            TOOL_SELENIUM: 'Sektörün klasiği! Selenium bilen QA mühendisi her zaman iş bulur — ilanların büyük bölümü hâlâ Selenium istiyor. 🔵',
+            TOOL_PLAYWRIGHT: 'Modern seçim! Auto-wait ve Trace Viewer ile flaky test derdini en aza indireceksin. 🎭',
+            TOOL_BOTH: 'En geniş iş havuzu! İki aracı da bilen mühendisler "Selenium\'dan Playwright\'a geçiş" projelerinde özellikle aranır. 🏆',
         },
         stepTime: {
             bot: 'Son soru: haftada kaç saat ayırabilirsin? Dürüst ol — haritanın süre tahmini buna göre hesaplanacak. 😊',
@@ -76,6 +87,12 @@ export const DIALOG = {
         timeOnly: {
             bot: 'Tekrar hoş geldin! 👋 Kayıtlı yol haritanı buldum. Süre tahminini hesaplayabilmem için tek bir sorum var:',
         },
+        // Plan §7 risk 3: yarıda kalan sihirbaz — dönüşte kaldığı sorudan devam
+        resumeDraft: {
+            bot: 'Tekrar hoş geldin! 👋 Sorulara kaldığın yerden devam edelim:',
+        },
+        // Plan §2.2: S1=sıfır iken S2'de "Kararsızım" seçeneğinin vurgu rozeti
+        recommendedBadge: '✨ Önerilen',
         back: '↩ Geri',
         // Playwright vs Cypress karşılaştırma mesajı (B_SEL_NO seçilince)
         playwrightCypressCompare: {
@@ -147,6 +164,11 @@ export const DIALOG = {
         langRecommend: {
             bot: '**My recommendation: Java.** ☕\n\nThe vast majority of enterprise QA job postings (banking, telecom, corporate) ask for the Java + Selenium stack, and our deepest content track is built on Java. Once you have a solid Java foundation, switching to Python or TypeScript is easy — the reverse is harder. So I\'m building your map on the **Java path**. 👍',
         },
+        // Plan §6.2: one-sentence mentor acknowledgment after every answer — S2 language choice
+        ackLang: {
+            LANG_JAVA: 'Solid choice! Java is the key to enterprise QA job postings — and it pairs naturally with Selenium and REST Assured. ☕',
+            LANG_MODERN: 'Modern stack! With Python and TypeScript you\'ll move fast and get the full power of Playwright. ⚡',
+        },
         stepTool: {
             bot: 'On the **UI automation** side, which tool should we go with?',
             options: [
@@ -154,6 +176,12 @@ export const DIALOG = {
                 { id: 'TOOL_PLAYWRIGHT', label: '🎭 Playwright — modern and fast' },
                 { id: 'TOOL_BOTH', label: '🏆 Both — the widest job pool' },
             ],
+        },
+        // Plan §6.2: S3 tool choice acknowledgment
+        ackTool: {
+            TOOL_SELENIUM: 'The industry classic! QA engineers who know Selenium always find work — most job postings still ask for it. 🔵',
+            TOOL_PLAYWRIGHT: 'A modern pick! Auto-wait and Trace Viewer will cut your flaky-test troubles to a minimum. 🎭',
+            TOOL_BOTH: 'The widest job pool! Engineers who know both tools are specifically sought out for "Selenium to Playwright migration" projects. 🏆',
         },
         stepTime: {
             bot: 'Last question: how many hours per week can you commit? Be honest — your map\'s time estimate will be calculated from this. 😊',
@@ -172,6 +200,12 @@ export const DIALOG = {
         timeOnly: {
             bot: 'Welcome back! 👋 I found your saved roadmap. I just need one answer to calculate your time estimate:',
         },
+        // Plan §7 risk 3: abandoned wizard — resume from the question the user left off at
+        resumeDraft: {
+            bot: 'Welcome back! 👋 Let\'s pick up the questions right where you left off:',
+        },
+        // Plan §2.2: emphasis badge on "Not sure" when S1 = complete beginner
+        recommendedBadge: '✨ Recommended',
         back: '↩ Back',
         // Playwright vs Cypress comparison message (when B_SEL_NO is selected)
         playwrightCypressCompare: {

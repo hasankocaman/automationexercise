@@ -5,6 +5,7 @@
 
 const PROFILE_KEY = 'qaMentorProfile'
 const COMPLETED_ROUTES_KEY = 'learnqa_completed_routes'
+const WIZARD_DRAFT_KEY = 'qaMentorWizardDraft'
 
 // Soru seti değişirse bu sürüm artırılır; eski sürümlü profil okunmaz ve
 // sihirbaz yeniden sorulur (sessiz bozulma yerine temiz yeniden başlangıç).
@@ -40,6 +41,37 @@ export function saveMentorProfile({ answers, mapId, nodes }) {
 
 export function clearMentorProfile() {
     try { localStorage.removeItem(PROFILE_KEY) } catch { /* localStorage kapalı olabilir */ }
+}
+
+// ─── Yarıda kalan sihirbaz taslağı (plan §7 risk 3) ─────────────────────────
+// Her cevaptan sonra {step, answers} yazılır; sihirbaz tamamlanınca veya
+// "yeniden oluştur" denince temizlenir. Dönen kullanıcı kaldığı sorudan devam eder.
+
+export function readWizardDraft() {
+    try {
+        const raw = localStorage.getItem(WIZARD_DRAFT_KEY)
+        if (!raw) return null
+        const parsed = JSON.parse(raw)
+        if (!parsed || parsed.version !== PROFILE_VERSION || !parsed.step) return null
+        return parsed
+    } catch {
+        return null
+    }
+}
+
+export function saveWizardDraft({ step, answers }) {
+    try {
+        localStorage.setItem(WIZARD_DRAFT_KEY, JSON.stringify({
+            version: PROFILE_VERSION,
+            step,
+            answers: answers || {},
+            updatedAt: new Date().toISOString(),
+        }))
+    } catch { /* localStorage kapalı/dolu olabilir */ }
+}
+
+export function clearWizardDraft() {
+    try { localStorage.removeItem(WIZARD_DRAFT_KEY) } catch { /* localStorage kapalı olabilir */ }
 }
 
 // ─── Anonim tamamlanan route kaydı ──────────────────────────────────────────

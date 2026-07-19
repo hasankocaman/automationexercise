@@ -11,11 +11,15 @@ import {
     readMentorProfile,
     saveMentorProfile,
     clearMentorProfile,
+    readWizardDraft,
+    saveWizardDraft,
+    clearWizardDraft,
     getLocalCompletedRoutes,
     totalEstimatedHours,
     weeksForHours,
     finishMonthLabel,
 } from '../utils/careerMapProfile'
+import { trackMapEvent } from '../utils/mapEvents'
 
 // ─── Scroll Progress Bar ────────────────────────────────────────────────────
 function ScrollProgressBar() {
@@ -119,7 +123,9 @@ function ChatBubble({ message, isBot, darkMode, visible }) {
 }
 
 // ─── Option Button ──────────────────────────────────────────────────────────
-function OptionButton({ option, onClick, darkMode, disabled }) {
+// badge: plan §2.2 — S1=sıfır iken S2'de "Kararsızım" seçeneği default vurgulu
+// gösterilir ("✨ Önerilen" rozeti + renkli çerçeve). Tıklamayı değiştirmez.
+function OptionButton({ option, onClick, darkMode, disabled, badge }) {
     return (
         <button
             onClick={() => onClick(option)}
@@ -127,12 +133,25 @@ function OptionButton({ option, onClick, darkMode, disabled }) {
             data-testid={`mentor-option-${option.id}`}
             className={`w-full text-left rounded-xl border-2 px-4 py-3 text-sm md:text-base font-medium transition-all duration-200
                 ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]'}
-                ${darkMode
-                    ? 'border-gray-600 bg-gray-800 text-gray-200 hover:border-purple-500 hover:bg-purple-900/30 hover:text-purple-200 hover:shadow-purple-500/20'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-indigo-200'
+                ${badge
+                    ? darkMode
+                        ? 'border-purple-500 bg-purple-900/20 text-purple-100 hover:bg-purple-900/40 hover:shadow-purple-500/20'
+                        : 'border-indigo-400 bg-indigo-50/70 text-indigo-800 hover:bg-indigo-50 hover:shadow-indigo-200'
+                    : darkMode
+                        ? 'border-gray-600 bg-gray-800 text-gray-200 hover:border-purple-500 hover:bg-purple-900/30 hover:text-purple-200 hover:shadow-purple-500/20'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-indigo-200'
                 }`}
         >
-            {option.label}
+            <span className="flex items-center justify-between gap-2">
+                <span>{option.label}</span>
+                {badge && (
+                    <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black ${
+                        darkMode ? 'bg-purple-700/70 text-purple-100' : 'bg-indigo-600 text-white'
+                    }`}>
+                        {badge}
+                    </span>
+                )}
+            </span>
         </button>
     )
 }
@@ -305,9 +324,13 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, cer
     let durationLine
     if (weeklyHours) {
         const totalWeeks = weeksForHours(totalHours, weeklyHours)
-        const months = Math.max(1, Math.round(totalWeeks / 4.345))
+        // Plan §7 risk 2: tahmin tek nokta değil ARALIK olarak verilir ("6-8 ay") —
+        // geride kalan kullanıcı "tarihi kaçırdım" hissine kapılmasın diye üst
+        // sınır ~%25 pay içerir.
+        const monthsLow = Math.max(1, Math.round(totalWeeks / 4.345))
+        const monthsHigh = monthsLow + Math.max(1, Math.round(monthsLow * 0.25))
         const remainingWeeks = weeksForHours(remainingHours, weeklyHours)
-        durationLine = `📅 ~${months} ${dialog.monthsShort} (${weeklyHours} ${dialog.estPerWeek}) · ${dialog.estRemaining}: ~${remainingWeeks} ${dialog.weeksShort} · ${dialog.estFinish}: ${finishMonthLabel(remainingWeeks, lang)}`
+        durationLine = `📅 ~${monthsLow}-${monthsHigh} ${dialog.monthsShort} (${weeklyHours} ${dialog.estPerWeek}) · ${dialog.estRemaining}: ~${remainingWeeks} ${dialog.weeksShort} · ${dialog.estFinish}: ${finishMonthLabel(remainingWeeks, lang)}`
     } else {
         durationLine = `⏱️ ${dialog.estTotal}: ~${totalHours} ${dialog.hoursShort}`
     }
@@ -374,7 +397,13 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, cer
             {/* Tek büyük CTA (plan §2.3): odak her zaman bir sonraki tek adım */}
             {nextNode && (
                 <button
-                    onClick={() => navigate(nextNode.route)}
+                    onClick={() => {
+                        // Plan §9.1 funnel: yalnız İLK ders tıklaması ölçülür (aktivasyon metriği)
+                        if (!progress || progress.completedCount === 0) {
+                            trackMapEvent('map_first_lesson_clicked', { route: nextNode.route, mapId: mapData.id })
+                        }
+                        navigate(nextNode.route)
+                    }}
                     data-testid="career-map-cta"
                     className="w-full flex items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm md:text-base font-black text-white shadow-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-indigo-500/40"
                     style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}
@@ -585,6 +614,7 @@ function QAMentorPage() {
                 setAnswers(savedProfile.answers || {})
                 setResolvedMap(resolved)
                 setStep(savedProfile.mapId)
+                trackMapEvent('map_revisited', { mapId: savedProfile.mapId })
                 return
             }
             clearMentorProfile()
@@ -603,6 +633,27 @@ function QAMentorPage() {
             return
         }
 
+        // Yarıda kalan sihirbaz (plan §7 risk 3): son cevaplanan sorunun taslağı
+        // varsa baştan başlatma — kaldığı sorudan devam ettir. map_wizard_started
+        // burada TEKRAR atılmaz (ilk başlangıçta zaten atıldı — çift sayım olmasın).
+        const draft = readWizardDraft()
+        const draftPromptKey = {
+            [MENTOR_STEPS.STEP_LANG]: 'stepLang.bot',
+            [MENTOR_STEPS.STEP_TOOL]: 'stepTool.bot',
+            [MENTOR_STEPS.STEP_TIME]: 'stepTime.bot',
+        }[draft?.step]
+        if (draft && draftPromptKey) {
+            setAnswers(draft.answers || {})
+            const initDraft = async () => {
+                await addBotMessage('resumeDraft.bot', 800)
+                await addBotMessage(draftPromptKey, 700)
+                setStep(draft.step)
+                setShowOptions(true)
+            }
+            initDraft()
+            return
+        }
+
         // Not: burada kasıtlı olarak bir "cancelled" guard'ı YOK. React 18
         // StrictMode (dev modu) bu efekti mount→cleanup→remount şeklinde iki kez
         // tetikler; eskiden buradaki cleanup zinciri "cancelled=true" yapıyordu ve
@@ -612,6 +663,7 @@ function QAMentorPage() {
         // resumedRef tek zincirin başlamasını garantilediği için burada ekstra
         // cancellation gerekmiyor; component gerçekten unmount olursa devam eden
         // setState çağrıları React 18'de sessizce yok sayılır, hata vermez.
+        trackMapEvent('map_wizard_started')
         const init = async () => {
             await addBotMessage('welcome.bot', 800)
             await addBotMessage('welcome.bot2', 900)
@@ -658,7 +710,9 @@ function QAMentorPage() {
     // Ders ilerlemesi (learnqa_completed_routes) bilinçli olarak SİLİNMEZ —
     // "İlerlemen güvende" vaadi (plan §7 risk 5).
     const handleRestart = useCallback(() => {
+        trackMapEvent('map_regenerated', { mapId: resolvedMap?.id || null })
         clearMentorProfile()
+        clearWizardDraft()
         pendingMapIdRef.current = null
         historyRef.current = []
         setStep(MENTOR_STEPS.STEP_LEVEL)
@@ -677,7 +731,7 @@ function QAMentorPage() {
             setShowOptions(true)
         }
         init()
-    }, [addBotMessage])
+    }, [addBotMessage, resolvedMap])
 
     // Sihirbaz tamamlandığında: harita çözülür, profil localStorage'a yazılır
     // (kalıcılık) ve üye ise career_goal senkronlanır.
@@ -686,6 +740,8 @@ function QAMentorPage() {
         const resolved = resolveMap({ answers: answersFinal, mapId })
         if (!resolved) return
         saveMentorProfile({ answers: answersFinal, mapId, nodes: resolved.nodes })
+        clearWizardDraft()
+        trackMapEvent('map_wizard_completed', { answers: answersFinal, mapId })
         setResolvedMap(resolved)
         setStep(mapId)
         if (session) setCareerGoal(mapId)
@@ -701,17 +757,28 @@ function QAMentorPage() {
         if (step === MENTOR_STEPS.STEP_LEVEL) {
             const level = option.id === 'L_ZERO' ? 'zero' : option.id === 'L_MANUAL' ? 'manual' : 'coder'
             setAnswers(prev => ({ ...prev, level }))
+            // Yarıda kalma taslağı (plan §7 risk 3): cevap alınır alınmaz, bot yazarken
+            // sekme kapansa bile bir sonraki soru adımı kayıtlı olsun
+            saveWizardDraft({ step: MENTOR_STEPS.STEP_LANG, answers: { ...answers, level } })
             await addBotMessage(`ackLevel.${option.id}`, 700)
             await addBotMessage('stepLang.bot', 800)
             setStep(MENTOR_STEPS.STEP_LANG)
             setShowOptions(true)
         } else if (step === MENTOR_STEPS.STEP_LANG) {
+            let answersNext
             if (option.id === 'LANG_UNDECIDED') {
-                // Karar felcindeki kullanıcı kaybedilmez: gerekçeli Java önerisi (plan §2.2)
+                answersNext = { ...answers, lang: 'java', langAuto: true }
+                setAnswers(answersNext)
+                saveWizardDraft({ step: MENTOR_STEPS.STEP_TOOL, answers: answersNext })
+                // Karar felcindeki kullanıcı kaybedilmez: gerekçeli Java önerisi (plan §2.2).
+                // Öneri balonunun kendisi onay görevi görür — ayrıca ack eklenmez.
                 await addBotMessage('langRecommend.bot', 1100)
-                setAnswers(prev => ({ ...prev, lang: 'java', langAuto: true }))
             } else {
-                setAnswers(prev => ({ ...prev, lang: option.id === 'LANG_JAVA' ? 'java' : 'modern' }))
+                answersNext = { ...answers, lang: option.id === 'LANG_JAVA' ? 'java' : 'modern' }
+                setAnswers(answersNext)
+                saveWizardDraft({ step: MENTOR_STEPS.STEP_TOOL, answers: answersNext })
+                // Plan §6.2: her cevaptan sonra 1 cümlelik mentor onayı
+                await addBotMessage(`ackLang.${option.id}`, 700)
             }
             await addBotMessage('stepTool.bot', 800)
             setStep(MENTOR_STEPS.STEP_TOOL)
@@ -719,6 +786,9 @@ function QAMentorPage() {
         } else if (step === MENTOR_STEPS.STEP_TOOL) {
             const uiTool = option.id === 'TOOL_SELENIUM' ? 'selenium' : option.id === 'TOOL_PLAYWRIGHT' ? 'playwright' : 'both'
             setAnswers(prev => ({ ...prev, uiTool }))
+            saveWizardDraft({ step: MENTOR_STEPS.STEP_TIME, answers: { ...answers, uiTool } })
+            // Plan §6.2: araç seçimi onayı
+            await addBotMessage(`ackTool.${option.id}`, 700)
             // Modern yol + Playwright: v1'deki Playwright vs Cypress gerekçesi korunur
             if (uiTool === 'playwright' && answers.lang === 'modern') {
                 await addBotMessage('playwrightCypressCompare.bot', 1200)
@@ -748,6 +818,10 @@ function QAMentorPage() {
         setAnswers(snap.answers)
         setStep(snap.step)
         setShowOptions(true)
+        // Taslağı da geri alınan adıma senkronla — yoksa reload'da kullanıcı
+        // geri aldığı cevabıyla bir ileri adımda "devam ettirilir"
+        if (snap.step === MENTOR_STEPS.STEP_LEVEL) clearWizardDraft()
+        else saveWizardDraft({ step: snap.step, answers: snap.answers })
     }, [])
 
     const isMapStep = [
@@ -902,6 +976,13 @@ function QAMentorPage() {
                                     onClick={handleOption}
                                     darkMode={darkMode}
                                     disabled={isTyping}
+                                    badge={
+                                        // Plan §2.2: sıfırdan başlayana dil sorusunda "Kararsızım"
+                                        // default vurgulu gösterilir — mentor önerisine yönlendirir
+                                        step === MENTOR_STEPS.STEP_LANG && answers.level === 'zero' && opt.id === 'LANG_UNDECIDED'
+                                            ? dialog.recommendedBadge
+                                            : null
+                                    }
                                 />
                             ))}
                         </div>

@@ -161,6 +161,41 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
         await context.close();
     });
 
+    test('7) Yarıda kalan sihirbaz: 1. soru cevaplanıp sayfa yeniden yüklenince kaldığı sorudan (S2) devam eder', async ({ page }) => {
+        test.setTimeout(60_000);
+        await page.goto('/qa-mentor');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        const levelOption = page.getByTestId('mentor-option-L_ZERO');
+        await expect(levelOption).toBeVisible({ timeout: 30_000 });
+        await levelOption.click();
+
+        // Taslak cevap alınır alınmaz yazılır (bot daha yazarken) — S2 seçeneklerini
+        // beklemeden reload etmek tam da test edilen senaryo (yarıda bırakma).
+        await page.reload();
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        // Kaldığı soru (S2 dil) doğrudan sorulmalı; S1 seçenekleri geri gelmemeli.
+        await expect(page.getByTestId('mentor-option-LANG_JAVA')).toBeVisible({ timeout: 30_000 });
+        await expect(page.getByTestId('mentor-option-L_ZERO')).toHaveCount(0);
+    });
+
+    test('8) Sıfır seviye vurgusu: S1\'de "Tamamen sıfırım" seçilince S2\'de Kararsızım seçeneğinde Önerilen rozeti görünür', async ({ page }) => {
+        test.setTimeout(60_000);
+        await page.goto('/qa-mentor');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        const levelOption = page.getByTestId('mentor-option-L_ZERO');
+        await expect(levelOption).toBeVisible({ timeout: 30_000 });
+        await levelOption.click();
+
+        const undecided = page.getByTestId('mentor-option-LANG_UNDECIDED');
+        await expect(undecided).toBeVisible({ timeout: 30_000 });
+        await expect(undecided).toContainText('Önerilen');
+        // Vurgu yalnızca Kararsızım'da — Java seçeneğinde rozet olmamalı.
+        await expect(page.getByTestId('mentor-option-LANG_JAVA')).not.toContainText('Önerilen');
+    });
+
     test('6) Anonim ilerleme: learnqa_completed_routes\'a ilk düğüm route\'u yazılınca /qa-mentor\'da ilerleme yüzdesi 0\'dan büyük gösterilir', async ({ browser }) => {
         test.setTimeout(30_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });
