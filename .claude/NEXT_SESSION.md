@@ -61,9 +61,13 @@ BİTTİ — plan dosyasında hazır bir "Prompt S4" YOK. Plan §8 MVP listesinde
 7. madde ("Minimal event ölçümü: map_wizard_started/completed/
 first_lesson_clicked" — §9.1) hiç uygulanmadı; ama bu Supabase şema/mimari
 kararı gerektirdiği için plan'ın kendi ilkesine göre (§10 başlığı: "mimari
-kararlar Fable'da") Sonnet-promptu olarak yazılmamış — sıradaki oturumda
-önce bunun kapsamı netleştirilmeli (Fable mi yazacak, yoksa Sonnet'e mi
-basit bir şema verilip devredilecek).
+kararlar Fable'da") Sonnet-promptu olarak yazılmamış.
+
+Kullanıcıya "event ölçümünü ben üstleneyim mi / başka bekleyen iş mi var /
+kendi promptunu mu vereceksin / burada mı duralım" diye soruldu — cevap
+**"Burada dur"**. Yani `feature/career-map-v2` şu an S1-S3 ile TAMAMLANMIŞ
+durumda, bilinçli olarak bekletiliyor; merge veya event-ölçümü kararı
+kullanıcıdan yeni bir talimat gelmeden başlatılmamalı.
 
 **Not:** Doğrulama (S1+S2+S3, bu oturum): `node scripts/check-content-integrity.mjs`
 sıfır ihlal ✓, `npm run build` ✓ (3 kez, her prompt sonrası), `npx playwright
