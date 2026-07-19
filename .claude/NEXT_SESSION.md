@@ -10,6 +10,39 @@
 
 ---
 
+## 🚧 AKTİF İŞ — Kariyer Haritası v2 (2026-07-19, Fable oturumu)
+
+**Branch:** `feature/career-map-v2` (main'den; commit `61aab82`, merge edilmedi).
+**Plan dokümanı:** `Documents/career-map-feature-plan.md` — ürün planı + §10'da
+Fable/Sonnet görev dağılımı ve **kopyala-yapıştır hazır Sonnet promptları**.
+
+**Fable görevleri (F1-F6) TAMAMLANDI:**
+- Sihirbaz v2: 4 soru (3'lü seviye + dil/"kararsızım" Java önerisi + araç
+  "ikisi de" dahil + haftalık zaman), geri düğmesi, cevap onay balonları.
+- Kalıcılık: `qaMentorProfile` localStorage (version:2, `careerMapProfile.js`);
+  dönen kullanıcı sihirbaz yerine doğrudan haritayı görür; v1 `career_goal`
+  üyesi için tek soruluk zaman migrasyonu.
+- Anonim ilerleme: `learnqa_completed_routes` local kaydı (AuthContext
+  `saveProgress`) + `/qa-mentor`'da session şartı kaldırıldı (CLAUDE.md §5 uyumu).
+- Parametrik katman: `resolveMap`/`pickBaseMapId` (seviye ön eki, Java+ikisi
+  Playwright overlay), tüm düğümlerde `estimatedHours` İLK-GEÇİŞ değerleri.
+- Harita v2: düğüm durumları (✓/SIRADAKİ pulse/soluk), süre chip'leri, toplam
+  süre + tahmini bitiş ayı, tek "Devam et/İlk dersine başla" CTA.
+- Ana sayfa kutusu 3 durumlu (davet / kaldığın yer + mini bar / bitti).
+- Testler v2'ye güncellendi: `qa-mentor-roadmap-order` (4 tıklama akışı,
+  data-testid bazlı sıra), `qa-mentor-progress-tracking` (migrasyon akışı).
+
+**SIRADAKİ ADIM — Sonnet görevleri (sırayla, promptlar plan §10.3'te):**
+1. S1: `estimatedHours` kalibrasyonu (gerçek içerik hacmine göre).
+2. S2: `tests/career-map.spec.ts` yeni suite (kalıcılık, geri, kutu durumları,
+   anonim progress).
+3. S3: DIALOG v2 EN metin cilası + i18n denetimi.
+
+**Not:** Doğrulama: check-content-integrity ✓, `npm run build` ✓, qa-mentor
+testleri 2/2 ✓ + geçici smoke (kalıcılık/geri/ana sayfa kutusu) ✓.
+
+---
+
 ## 🎉 OTURUM ÖZETİ — animation-per-topic PLANI TAMAMEN BİTTİ (2026-07-19, Sonnet oturumu devamı)
 
 **Branch:** `feature/animation-per-topic` (main'den, henüz merge edilmedi).
