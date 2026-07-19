@@ -64,6 +64,48 @@ S4 cilasında "bugün başladın" tonuna çevrilebilir.
 (aşağıdaki bölüm) hâlâ bekliyor; bu oturumda ana sayfayı etkileyen 4 suite
 yeşil görüldü ama TAM suite koşulmadı.
 
+**S1 TAMAMLANDI (2026-07-19, Sonnet oturumu):** `logActivity` yayılımı — plan
+§8.2-S1 promptu uygulandı.
+- **Kapsam denetimi:** CodePlaygroundBlock/ChallengeBlock/VideoSceneBlock
+  (dolayısıyla ChallengeBlock içindeki OrderSort variant'ı) zaten Fable'ın
+  F2'de `xp.js`'e eklediği `markExerciseComplete` üzerinden OTOMATİK
+  kapsanıyordu — bu üçüne dokunulmadı, sadece doğrulandı.
+- **Yeni entegrasyonlar:** `TopicPage.jsx`'e `handleExerciseCompleted(blockIndex)`
+  eklendi (id: `${pageKey}:${activeTab}:${blockIndex}`, `logActivity('exercise', ...)`
+  çağırır — activityLog kendi içinde tekilleştirdiği için ekstra state gerekmedi).
+  `renderBlock(...)` imzasına son parametre olarak `onExerciseCompleted` eklendi
+  (tek çağrı noktası, geriye dönük uyumlu — `onExerciseCompleted?.(i)` güvenli
+  varsayılan). Bağlanan bloklar: `case 'editor'` → PyodideEditor/TSEditor/
+  JSEditor/SQLEditor (`onFirstSuccess` prop, başarılı `run()` sonrası — catch
+  bloğunda ÇAĞRILMAZ), `case 'git-practice'` → GitPracticeBlock (`missing.length
+  === 0` anında), `case 'docker-sandbox'/'k8s-sandbox'/'jenkins-sandbox'` →
+  üç sandbox bloğu da (`missions.length > 0 && nd.size === missions.length`
+  anında — TEK tek görev değil, TÜM senaryo bitince 1 kez).
+- **Ayrı vaka — PythonFrameworksTab.jsx:** `/test-frameworks` sayfası TopicPage
+  block sistemini KULLANMIYOR (ayrı component), oradaki standalone `OrderSort`
+  (`onResult={() => {}}` idi) `logActivity('exercise', 'test-frameworks:ch-pytest-fixture-scope-01')`
+  ile doğrudan bağlandı.
+- **YAPILMADI (plan talimatına uygun):** Yeni localStorage anahtarı yok,
+  `activityLog.js` şeması değişmedi, XP miktarları değişmedi.
+- **Doğrulama:** integrity ✓ · `npm run build` ✓ · `docker-sandbox.spec.ts` +
+  `git-sandbox.spec.ts` yeşil (1 bilinen EN-mod flakiness retry'de geçti) ·
+  el doğrulaması (Playwright script): docker sandbox TÜM görevi tamamlayınca
+  `learnqa_activity_log`'da exercises 0→1, aynı komutu tekrar çalıştırınca
+  ARTMADI (çifte sayım korunuyor); `/python`'da bir Pyodide editor'ünde
+  başarılı `▶ Run` sonrası exercises 0→1.
+  **Regresyon taraması:** post-commit hook'un arka planda 1.1 saat süren TAM
+  suite koşusu (önceki F1-F5 commit'i için tetiklenmişti) 11 test başarısız
+  gösterdi (`topic-pages-ui.spec.ts` 9 route + `homepage-recommended-badges.spec.ts`
+  2 test) — ama bu koşu TAM OLARAK bu S1 oturumundaki TopicPage.jsx düzenlemeleri
+  ve kendi paralel Playwright doğrulamalarımla ÇAKIŞARAK çalıştı (dev server HMR +
+  4-worker kaynak rekabeti). Tüm 11 test tek tek/izole yeniden koşulduğunda
+  (`/python` dahil, `fableplan.md`'de zaten belgeli "paralel-yük flakiness"
+  kalıbıyla örtüşüyor) **hepsi TEMİZ GEÇTİ** — gerçek bir regresyon değil.
+- **Sıradaki adım:** S2 (`ActivityHeatmap.jsx`) → S3 (`tests/daily-loop.spec.ts`)
+  → S4 (i18n/erişilebilirlik denetimi) → S5 (event yayılımı). Bundan sonraki
+  oturumda tam E2E suite'i TEK BAŞINA (paralel iş olmadan) koşup teyit etmek
+  önerilir — hem bu S1 değişiklikleri hem sarkan career-map-v2 teyidi için.
+
 ---
 
 ## 🚧 ÖNCEKİ İŞ — Kariyer Haritası v2 (2026-07-19, Fable oturumu)

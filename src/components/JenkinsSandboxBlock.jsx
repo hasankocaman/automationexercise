@@ -165,7 +165,7 @@ function shResult(cmd) {
 
 const STAGE_GLYPH = { pending: '⬜', running: '🔷', success: '✅', failed: '❌', skipped: '⏭️' }
 
-export default function JenkinsSandboxBlock({ block, darkMode, language }) {
+export default function JenkinsSandboxBlock({ block, darkMode, language, onFirstSuccess }) {
     const isTr = language === 'tr'
     const starter = typeof block.starterFile === 'string' ? block.starterFile : pick(block.starterFile, isTr)
     const [editor, setEditor] = useState(starter)
@@ -218,6 +218,9 @@ export default function JenkinsSandboxBlock({ block, darkMode, language }) {
             pushLine('ok', `🎉 ${isTr ? 'Görev tamamlandı:' : 'Mission complete:'} ${pick(label?.text, isTr)}`)
             setCelebrate(newlyDone[0])
             setTimeout(() => { if (mountedRef.current) setCelebrate(null) }, 2200)
+            // Learning OS Faz 1 (plan §8.2-S1): senaryo tamamlama anı — TÜM
+            // görevler bitince günlük hedefe 1 egzersiz olarak sayılır.
+            if (missions.length > 0 && nd.size === missions.length) onFirstSuccess?.()
         }
     }
 

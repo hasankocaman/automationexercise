@@ -26,7 +26,7 @@ const MANIFEST_REGISTRY = {
     'service.yaml': { kind: 'service', name: 'nginx-service', type: 'ClusterIP', port: 80 },
 }
 
-export default function KubernetesSandboxBlock({ block, darkMode, language }) {
+export default function KubernetesSandboxBlock({ block, darkMode, language, onFirstSuccess }) {
     const isTr = language === 'tr'
     const [deployments, setDeployments] = useState([])
     const [pods, setPods] = useState([])
@@ -311,6 +311,9 @@ export default function KubernetesSandboxBlock({ block, darkMode, language }) {
             newLines.push({ t: 'ok', x: `🎉 ${isTr ? 'Görev tamamlandı:' : 'Mission complete:'} ${pick(label?.text, isTr)}` })
             setCelebrate(newlyDone[0])
             setTimeout(() => setCelebrate(null), 2200)
+            // Learning OS Faz 1 (plan §8.2-S1): senaryo tamamlama anı — TÜM
+            // görevler bitince günlük hedefe 1 egzersiz olarak sayılır.
+            if (missions.length > 0 && nd.size === missions.length) onFirstSuccess?.()
         }
 
         if (result.error) triggerFlash()

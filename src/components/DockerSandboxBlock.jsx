@@ -65,7 +65,7 @@ function padRow(cols, widths) {
     return cols.map((c, i) => String(c).padEnd(widths[i])).join('')
 }
 
-export default function DockerSandboxBlock({ block, darkMode, language }) {
+export default function DockerSandboxBlock({ block, darkMode, language, onFirstSuccess }) {
     const isTr = language === 'tr'
     const [images, setImages] = useState([])
     const [containers, setContainers] = useState([])
@@ -370,6 +370,9 @@ export default function DockerSandboxBlock({ block, darkMode, language }) {
             newLines.push({ t: 'ok', x: `🎉 ${isTr ? 'Görev tamamlandı:' : 'Mission complete:'} ${pick(label?.text, isTr)}` })
             setCelebrate(newlyDone[0])
             setTimeout(() => setCelebrate(null), 2200)
+            // Learning OS Faz 1 (plan §8.2-S1): senaryo tamamlama anı — TÜM
+            // görevler bitince günlük hedefe 1 egzersiz olarak sayılır.
+            if (missions.length > 0 && nd.size === missions.length) onFirstSuccess?.()
         }
 
         if (result.error) triggerFlash()

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import OrderSort from './challenges/OrderSort'
+import { logActivity } from '../lib/activityLog'
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -844,7 +845,12 @@ pytest -v -x`}</Code>
                     }}
                     isTr={tr}
                     darkMode={darkMode}
-                    onResult={() => {}}
+                    onResult={(result) => {
+                        // Learning OS Faz 1 (plan §8.2-S1): bu OrderSort ChallengeBlock
+                        // dışında, kendi XP/completed takibi yok — activityLog kendi
+                        // içinde id bazlı tekilleştirme yaptığından doğrudan çağrılır.
+                        if (result.success) logActivity('exercise', 'test-frameworks:ch-pytest-fixture-scope-01')
+                    }}
                 />
             </Section>
 

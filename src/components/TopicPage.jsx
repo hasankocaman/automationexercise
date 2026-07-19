@@ -2226,7 +2226,7 @@ function JavaCompareBlock({ block, darkMode }) {
 
 // ─── PyodideEditor ────────────────────────────────────────────────────────────
 
-function PyodideEditor({ defaultCode, height = '180px' }) {
+function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
     const [code, setCode] = useState(localizedDefaultCode)
@@ -2259,6 +2259,7 @@ function PyodideEditor({ defaultCode, height = '180px' }) {
             pyRef.current.runPython('import sys, io\nsys.stdout = io.StringIO()')
             pyRef.current.runPython(code)
             setOutput(pyRef.current.runPython('sys.stdout.getvalue()') || '(no output)')
+            onFirstSuccess?.()
         } catch (e) { setOutput('❌ ' + e.message) }
         setLoading(false)
     }
@@ -2279,7 +2280,7 @@ function PyodideEditor({ defaultCode, height = '180px' }) {
 
 // ─── TSEditor ─────────────────────────────────────────────────────────────────
 
-function TSEditor({ defaultCode, height = '180px' }) {
+function TSEditor({ defaultCode, height = '180px', onFirstSuccess }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
     const [code, setCode] = useState(localizedDefaultCode)
@@ -2306,6 +2307,7 @@ function TSEditor({ defaultCode, height = '180px' }) {
             const fn = new Function('console', js)
             fn({ log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x, null, 2) : String(x)).join(' ')), error: (...a) => logs.push('❌ ' + a.join(' ')) })
             setOutput(logs.join('\n') || '(no output)')
+            onFirstSuccess?.()
         } catch (e) { setOutput('❌ ' + e.message) }
     }
 
@@ -2323,7 +2325,7 @@ function TSEditor({ defaultCode, height = '180px' }) {
 
 // ─── JSEditor ─────────────────────────────────────────────────────────────────
 
-function JSEditor({ defaultCode, height = '180px' }) {
+function JSEditor({ defaultCode, height = '180px', onFirstSuccess }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
     const [code, setCode] = useState(localizedDefaultCode)
@@ -2343,6 +2345,7 @@ function JSEditor({ defaultCode, height = '180px' }) {
                 error: (...a) => logs.push('❌ ' + a.join(' '))
             })
             setOutput(logs.join('\n') || '(no output)')
+            onFirstSuccess?.()
         } catch (e) {
             setOutput('❌ ' + e.message)
         }
@@ -2363,7 +2366,7 @@ function JSEditor({ defaultCode, height = '180px' }) {
 
 // ─── SQLEditor ────────────────────────────────────────────────────────────────
 
-function SQLEditor({ defaultCode, schema, height = '120px' }) {
+function SQLEditor({ defaultCode, schema, height = '120px', onFirstSuccess }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
     const [code, setCode] = useState(localizedDefaultCode)
@@ -2402,6 +2405,7 @@ function SQLEditor({ defaultCode, schema, height = '120px' }) {
             db.close()
             if (!results.length) {
                 setOutput('✅ Query executed. No rows returned.')
+                onFirstSuccess?.()
                 return
             }
             const { columns, values } = results[0]
@@ -2411,6 +2415,7 @@ function SQLEditor({ defaultCode, schema, height = '120px' }) {
             const header = columns.map((c, i) => pad(c, colWidths[i])).join(' | ')
             const rows = values.map(r => r.map((v, i) => pad(v, colWidths[i])).join(' | ')).join('\n')
             setOutput(`${header}\n${sep}\n${rows}\n\n(${values.length} row${values.length !== 1 ? 's' : ''})`)
+            onFirstSuccess?.()
         } catch (e) {
             setOutput('❌ ' + e.message)
         }
@@ -5570,7 +5575,7 @@ function DragOrderBlock({ block, darkMode, language }) {
 
 // ─── GitPracticeBlock ────────────────────────────────────────────────────────
 
-function GitPracticeBlock({ block, darkMode, language }) {
+function GitPracticeBlock({ block, darkMode, language, onFirstSuccess }) {
     const starter = tx(block.starterCommands || block.defaultCommands || '', language)
     const [commands, setCommands] = useState(starter)
     const [result, setResult] = useState(null)
@@ -5628,6 +5633,7 @@ function GitPracticeBlock({ block, darkMode, language }) {
                 ? tx(block.successOutput, language)
                 : tx(block.retryOutput, language),
         })
+        if (missing.length === 0) onFirstSuccess?.()
     }
 
     const title = tx(block.title, language) || (language === 'tr' ? 'Kendin Dene' : 'Try It Yourself')
@@ -17246,7 +17252,7 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
 
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
-function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '', onInterviewMastery, isTabComplete = false, onHardReset) {
+function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '', onInterviewMastery, isTabComplete = false, onHardReset, onExerciseCompleted) {
     const textCls = `text-sm leading-relaxed mt-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`
     const h3Cls = `text-xl font-bold mt-8 mb-3 pb-2 border-b ${darkMode ? 'text-white border-gray-700' : 'text-gray-800 border-gray-200'}`
     const h4Cls = `text-base font-semibold mt-5 mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`
@@ -17426,16 +17432,16 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'editor':
             if (block.lang === 'typescript')
-                return <TSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} />
+                return <TSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
             if (block.lang === 'javascript')
-                return <JSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} />
+                return <JSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
             if (block.lang === 'sql')
-                return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} />
-            return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} />
+                return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+            return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
         case 'java-practice':
             return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'git-practice':
-            return <GitPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
+            return <GitPracticeBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
         case 'backend-practice':
             return <BackendPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'mock-backend-lab':
@@ -17678,13 +17684,13 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             return <ChallengeBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         case 'docker-sandbox':
-            return <DockerSandboxBlock key={i} block={block} darkMode={darkMode} language={language} />
+            return <DockerSandboxBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
 
         case 'k8s-sandbox':
-            return <KubernetesSandboxBlock key={i} block={block} darkMode={darkMode} language={language} />
+            return <KubernetesSandboxBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
 
         case 'jenkins-sandbox':
-            return <JenkinsSandboxBlock key={i} block={block} darkMode={darkMode} language={language} />
+            return <JenkinsSandboxBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
 
         case 'claude-prompt-lab':
             return <ClaudePromptLabBlock key={i} block={block} darkMode={darkMode} language={language} />
@@ -20368,6 +20374,15 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
         }
     }
 
+    // Learning OS Faz 1 (plan §8.2-S1): XP ödemeyen egzersiz blokları
+    // (editor/git-practice/sandbox'lar — tek "doğru cevap" yerine kendi
+    // başarı koşulu var) için günlük hedef sayacı. activityLog kendi içinde
+    // id bazlı tekilleştirme yapar, bu yüzden burada ekstra state gerekmez —
+    // aynı blok tekrar "başarılı" olsa da ikinci kez SAYILMAZ.
+    function handleExerciseCompleted(blockIndex) {
+        logActivity('exercise', `${pageKey}:${activeTab}:${blockIndex}`)
+    }
+
     // Mülakat Pratiği bloğu örneklenen soruların ortalaması ≥%80 olduğunda çağırır
     // (eşik kontrolü InterviewPracticeBlock içinde yapılıyor, burada sadece kaydeder).
     function handleInterviewMastery() {
@@ -20565,7 +20580,8 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                                         tx(sections[activeTab]?.title, language),
                                         handleInterviewMastery,
                                         !!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab],
-                                        handleHardResetPage
+                                        handleHardResetPage,
+                                        handleExerciseCompleted
                                     ))}
                                     {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && activeTab < tabs.length - 1 && (
                                         <button
