@@ -32,14 +32,28 @@ Fable/Sonnet görev dağılımı ve **kopyala-yapıştır hazır Sonnet promptla
 - Testler v2'ye güncellendi: `qa-mentor-roadmap-order` (4 tıklama akışı,
   data-testid bazlı sıra), `qa-mentor-progress-tracking` (migrasyon akışı).
 
-**SIRADAKİ ADIM — Sonnet görevleri (sırayla, promptlar plan §10.3'te):**
-1. S1: `estimatedHours` kalibrasyonu (gerçek içerik hacmine göre).
-2. S2: `tests/career-map.spec.ts` yeni suite (kalıcılık, geri, kutu durumları,
-   anonim progress).
-3. S3: DIALOG v2 EN metin cilası + i18n denetimi.
+**Sonnet görevleri (sırayla, promptlar plan §10.3'te) — S1/S2 TAMAMLANDI:**
+1. ✅ S1: `estimatedHours` kalibrasyonu — sekme sayısı + blok/quiz/playground
+   yoğunluğu ölçülüp site-geneli medyanla (%25 sapma eşiği) karşılaştırıldı.
+   Değişenler: `git-github` 16→40, `sql` 30→50, `typescript` 40→55, `aws` 24→14
+   (`SQL_NODE`/`GIT_GITHUB_NODE` factory'leri + tüm inline AWS/TypeScript
+   düğümleri). Diğerleri (java, selenium, python, docker, kubernetes, jenkins,
+   rest-assured, postman, linux, playwright, what-is-testing, algorithms,
+   manual-testing) sapma <%25 olduğu için değiştirilmedi. MAP_A toplamı 382h
+   (300-420 bandında), MAP_B toplamı 329h (200-300 bandının ~%10 üzerinde —
+   gerekçe: git-github/sql/typescript'teki gerçek içerik yoğunluğu düzeltmeleri;
+   bant zorlamak için rakamlar yapay küçültülmedi).
+2. ✅ S2: `tests/career-map.spec.ts` yeni suite — 7 test (mutlu yol MAP_C1,
+   "kararsızım"→MAP_C2, kalıcılık/reload, geri düğmesi, ana sayfa kutusu 2
+   durumu, anonim ilerleme %). Mevcut `mentor-option-*`/`map-node-*`/
+   `qa-mentor-banner`/`main-title` test-id'leri kullanıldı, yeni test-id
+   eklenmedi. `npx playwright test tests/career-map.spec.ts` → 7/7 geçti.
+3. ⏳ S3 (sıradaki adım): DIALOG v2 EN metin cilası + i18n denetimi.
 
-**Not:** Doğrulama: check-content-integrity ✓, `npm run build` ✓, qa-mentor
-testleri 2/2 ✓ + geçici smoke (kalıcılık/geri/ana sayfa kutusu) ✓.
+**Not:** Doğrulama (S1+S2, bu oturum): `node scripts/check-content-integrity.mjs`
+sıfır ihlal ✓, `npm run build` ✓ (2 kez, her prompt sonrası), `npx playwright
+test tests/career-map.spec.ts --reporter=line` 7/7 ✓. Önceki oturumdan:
+qa-mentor testleri 2/2 ✓ + geçici smoke (kalıcılık/geri/ana sayfa kutusu) ✓.
 
 ---
 

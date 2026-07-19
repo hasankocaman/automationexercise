@@ -236,7 +236,7 @@ const SQL_NODE = (id) => ({
     color: '#0369a1',
     glow: 'rgba(3,105,161,0.4)',
     isMain: true,
-    estimatedHours: 30,
+    estimatedHours: 50,
 })
 
 // Git & GitHub node
@@ -249,7 +249,7 @@ const GIT_GITHUB_NODE = (id) => ({
     color: '#059669',
     glow: 'rgba(5,150,105,0.4)',
     isMain: true,
-    estimatedHours: 16,
+    estimatedHours: 40,
 })
 
 // Linux ana düğüm (tüm haritalarda Docker/Jenkins ana hatta olduğundan Linux artık her yerde ana düğüm)
@@ -403,7 +403,7 @@ export const MAP_A = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 14,
         },
         {
             id: 14,
@@ -492,7 +492,7 @@ export const MAP_B = {
             color: '#1d4ed8',
             glow: 'rgba(29,78,216,0.4)',
             isMain: true,
-            estimatedHours: 40,
+            estimatedHours: 55,
         },
         GIT_GITHUB_NODE(3),
         {
@@ -550,7 +550,7 @@ export const MAP_B = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 14,
         },
     ],
     extras: [
@@ -631,7 +631,7 @@ export const MAP_B_SEL = {
             color: '#1d4ed8',
             glow: 'rgba(29,78,216,0.4)',
             isMain: true,
-            estimatedHours: 40,
+            estimatedHours: 55,
         },
         GIT_GITHUB_NODE(3),
         {
@@ -700,7 +700,7 @@ export const MAP_B_SEL = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 14,
         },
     ],
     extras: [
@@ -839,7 +839,7 @@ export const MAP_C1 = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 14,
         },
         {
             id: 11,
@@ -971,7 +971,7 @@ export const MAP_C2 = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 14,
         },
         {
             id: 10,
