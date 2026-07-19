@@ -1112,6 +1112,14 @@ const SINGLE_LANG_EXTRA_DESC = {
     en: 'Second automation language — career +1 after the main path',
 }
 
+// Modern yol + yalnız Selenium seçiminde Playwright ana yoldan çıkarılıp
+// ekstraya taşınırken kullanılan açıklama (araç dayatması yapılmaz — kullanıcı
+// "ikisi de" demedikçe tek UI aracı öğretilir).
+const SECOND_TOOL_EXTRA_DESC = {
+    tr: 'İkinci UI otomasyon aracı — Selenium temelin varken geçiş çok hızlı',
+    en: 'Second UI automation tool — a fast transition once you know Selenium',
+}
+
 const SINGLE_LANG_NOTES = {
     python: {
         map_b: {
@@ -1126,7 +1134,7 @@ With **Playwright**, the pytest ecosystem gives you modern powers like auto-wait
 
 💡 Don't worry about **TypeScript** for now — it's waiting in "Extra Growth Branches" as your second language once the main path is done.`,
         },
-        map_b_sel: {
+        map_b_sel_both: {
             tr: `**Güçlü bir seçim!** Python + Selenium, kurumsal projelerde hâlâ en yaygın ikililerden — pytest ile birleşince hem legacy hem modern projelerde iş görürsün.
 
 **Selenium** sana sektörün klasiğini, **Playwright** auto-wait ve Trace Viewer'lı modern dünyayı öğretir — iki aracı da bilen mühendis "Selenium'dan Playwright'a geçiş" projelerinde özellikle aranır. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciri seni CI/CD'ye taşır. 🏆
@@ -1137,6 +1145,18 @@ With **Playwright**, the pytest ecosystem gives you modern powers like auto-wait
 **Selenium** teaches you the industry classic, **Playwright** the modern world of auto-wait and Trace Viewer — engineers who know both are specifically sought for "Selenium to Playwright migration" projects. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain carries you into CI/CD. 🏆
 
 💡 **TypeScript** is waiting in "Extra Growth Branches" as your second language once the main path is done.`,
+        },
+        map_b_sel_selenium: {
+            tr: `**Sağlam bir seçim!** Python + Selenium, kurumsal test dünyasının kanıtlanmış ikilisi — pytest ile birleşince legacy projelerden modern altyapılara kadar her yerde iş görürsün.
+
+**Selenium** sana locator, wait stratejileri ve Page Object Model gibi HER UI aracına taşınan temelleri öğretir. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🏆
+
+💡 **Playwright** ve **TypeScript**'i şimdilik dert etme — ikisi de "Ekstra Gelişim Dalları"nda seni bekliyor; Selenium temelin varken Playwright'a geçiş çok hızlıdır.`,
+            en: `**A solid choice!** Python + Selenium is the proven pairing of the enterprise testing world — combined with pytest, it serves you everywhere from legacy projects to modern infrastructures.
+
+**Selenium** teaches you fundamentals that transfer to EVERY UI tool: locators, wait strategies, and the Page Object Model. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🏆
+
+💡 Don't worry about **Playwright** or **TypeScript** for now — both are waiting in "Extra Growth Branches"; with a Selenium foundation, the transition to Playwright is very fast.`,
         },
     },
     typescript: {
@@ -1152,7 +1172,7 @@ With **Playwright**, the pytest ecosystem gives you modern powers like auto-wait
 
 💡 Don't worry about **Python** for now — it's waiting in "Extra Growth Branches" as your second language once the main path is done.`,
         },
-        map_b_sel: {
+        map_b_sel_both: {
             tr: `**Cesur ve modern bir seçim!** TypeScript'in tip güvenliği büyük test projelerinde hataları daha yazarken yakalar; Selenium ile sektörün klasiğini de kapsıyorsun.
 
 **Selenium** sana köklü kurumsal dünyayı, **Playwright** TypeScript ile birinci sınıf çalışan modern otomasyonu öğretir — iki aracı da bilen mühendis geniş bir iş havuzuna hitap eder. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciri seni CI/CD'ye taşır. 🏆
@@ -1163,6 +1183,18 @@ With **Playwright**, the pytest ecosystem gives you modern powers like auto-wait
 **Selenium** teaches you the established enterprise world, **Playwright** the modern automation that works first-class with TypeScript — knowing both tools opens a wide job pool. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain carries you into CI/CD. 🏆
 
 💡 **Python** is waiting in "Extra Growth Branches" as your second language once the main path is done.`,
+        },
+        map_b_sel_selenium: {
+            tr: `**Kararlı bir seçim!** TypeScript + Selenium, tip güvenliğini sektörün en köklü aracıyla birleştirir — büyük kurumsal test altyapılarında sağlam bir profil çizer.
+
+**Selenium** sana locator, wait stratejileri ve Page Object Model gibi HER UI aracına taşınan temelleri öğretir; TypeScript'in tip güvenliği bu altyapıyı daha az kırılgan yapar. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🏆
+
+💡 **Playwright** ve **Python**'u şimdilik dert etme — ikisi de "Ekstra Gelişim Dalları"nda seni bekliyor; Selenium temelin varken Playwright'a geçiş çok hızlıdır.`,
+            en: `**A determined choice!** TypeScript + Selenium combines type safety with the industry's most established tool — a strong profile for large enterprise test infrastructures.
+
+**Selenium** teaches you fundamentals that transfer to EVERY UI tool: locators, wait strategies, and the Page Object Model; TypeScript's type safety makes that infrastructure less fragile. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🏆
+
+💡 Don't worry about **Playwright** or **Python** for now — both are waiting in "Extra Growth Branches"; with a Selenium foundation, the transition to Playwright is very fast.`,
         },
     },
 }
@@ -1218,15 +1250,27 @@ export function resolveMap(profile) {
     // Eski profillerdeki lang:'modern' bu bloğa girmez, iki dilli harita korunur.
     const singleLang = SINGLE_LANG_META[answers.lang]
     if (singleLang && (baseId === 'map_b' || baseId === 'map_b_sel')) {
-        const dropped = nodes.find((n) => n.route === singleLang.dropRoute)
+        const droppedLang = nodes.find((n) => n.route === singleLang.dropRoute)
         nodes = nodes.filter((n) => n.route !== singleLang.dropRoute)
-        if (dropped) {
-            extras = [
-                { emoji: dropped.emoji, title: dropped.title, desc: SINGLE_LANG_EXTRA_DESC, route: dropped.route, color: dropped.color },
-                ...base.extras,
-            ]
+        const extrasFront = []
+        if (droppedLang) {
+            extrasFront.push({ emoji: droppedLang.emoji, title: droppedLang.title, desc: SINGLE_LANG_EXTRA_DESC, route: droppedLang.route, color: droppedLang.color })
         }
-        const selPart = baseId === 'map_b_sel' ? ' + Selenium' : ''
+
+        // Yalnız Selenium seçildiyse Playwright DAYATILMAZ: ana yoldan çıkarılır,
+        // "ikinci UI aracı" olarak ekstraya taşınır. "İkisi de" bilinçli seçimdir —
+        // iki araç sıralı kalır (önce Selenium, sonra Playwright).
+        const seleniumOnly = baseId === 'map_b_sel' && answers.uiTool === 'selenium'
+        if (seleniumOnly) {
+            const droppedTool = nodes.find((n) => n.route === '/playwright')
+            nodes = nodes.filter((n) => n.route !== '/playwright')
+            if (droppedTool) {
+                extrasFront.push({ emoji: droppedTool.emoji, title: droppedTool.title, desc: SECOND_TOOL_EXTRA_DESC, route: droppedTool.route, color: droppedTool.color })
+            }
+        }
+        extras = [...extrasFront, ...base.extras]
+
+        const selPart = baseId === 'map_b_sel' ? (seleniumOnly ? ' + Selenium' : ' + Selenium & Playwright') : ''
         title = {
             tr: `${singleLang.emoji} ${singleLang.label}${selPart} QA Yol Haritası`,
             en: `${singleLang.emoji} ${singleLang.label}${selPart} QA Roadmap`,
@@ -1234,7 +1278,8 @@ export function resolveMap(profile) {
         if (baseId === 'map_b_sel') {
             subtitle = { tr: 'Modern dil + sektörün köklü klasiği', en: 'A modern language + the industry\'s established classic' }
         }
-        mentorNote = SINGLE_LANG_NOTES[answers.lang][baseId]
+        const noteKey = baseId === 'map_b' ? 'map_b' : (seleniumOnly ? 'map_b_sel_selenium' : 'map_b_sel_both')
+        mentorNote = SINGLE_LANG_NOTES[answers.lang][noteKey]
     }
 
     // Java + "ikisi de": Selenium'dan hemen sonra Playwright düğümü bindirilir

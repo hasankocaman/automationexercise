@@ -123,7 +123,7 @@ Sıralamayla ne gösterileceği (yukarıdan aşağı):
 |-------|-----------------|
 | S1 Deneyim seviyesi | **Harita ön eki:** Sıfır → Test Temelleri + Algoritma + Manuel Test blokları başa eklenir (mevcut MAP_A davranışı). Manuel testçi → Test Temelleri VE Manuel Test haritaya hiç eklenmez, yalnız "Algoritma (hızlı tempo)" ön eki gelir — **dersler kişinin seviyesine göre gösterilir, bildiği ders haritada yer almaz** (ürün kararı 2026-07-19; ilk plandaki "gözden geçir rozetiyle göster" yaklaşımı iptal edildi). Kod bilen → doğrudan dilden başlar (mevcut MAP_B/C davranışı). |
 | S2 Dil | **Ana omurga:** Java → REST Assured dahil Java hattı. Python → pytest hattı, TypeScript ekstra dala; TypeScript → Playwright TS hattı, Python ekstra dala (tek-dil kararı 2026-07-19; şablon MAP_B/MAP_B_SEL aynı kalır, seçilmeyen dil düğümü parametrik katmanda çıkarılır). |
-| S3 UI aracı | Selenium / Playwright / ikisi düğümleri (mevcut MAP_C1/C2/B_SEL ayrımı). |
+| S3 UI aracı | Selenium / Playwright / ikisi düğümleri (mevcut MAP_C1/C2/B_SEL ayrımı). **Tek-araç ilkesi (2026-07-19):** kullanıcı "ikisi de" DEMEDİKÇE ana yolda tek UI aracı bulunur — modern yolda yalnız Selenium seçilirse Playwright ana yoldan çıkarılıp "ikinci UI aracı — kariyer +1" ekstrasına taşınır. "İkisi de" bilinçli seçiminde araçlar sıralıdır: önce Selenium, hemen ardından Playwright. |
 | S4 Haftalık zaman | **Hiçbir düğümü değiştirmez** — yalnızca süre etiketlerini ve toplam tahmini hesaplar. Zaman azsa içerik kısılmaz; süre uzar. ("Az zamanın var, o zaman az öğren" mesajı verilmez — "yavaş ama tam" mesajı verilir.) |
 
 **Mimari ilke:** Kişiselleştirme = **şablon (5 mevcut harita) + parametrik katman (ön ek bloğu, süre etiketleri, durum işaretleri)**. Tam dinamik harita üretimi YAPILMAZ (bkz. §5.2).

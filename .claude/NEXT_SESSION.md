@@ -105,6 +105,20 @@ dilli haritasını korur (migrasyon gerekmez). Tek-dil MAP_B toplamı 274h —
 eklendi (Python seçimi → TS ana yolda yok, extras'ta link var). DIALOG
 simetrisi 88/88 doğrulandı.
 
+**ÜRÜN KARARI 3 (2026-07-19, aynı oturum):** Tek-ARAÇ ilkesi. Modern yolda
+yalnız Selenium seçen kullanıcıya MAP_B_SEL üzerinden Playwright da ana yolda
+dayatılıyordu — düzeltildi: `resolveMap`'te `uiTool === 'selenium'` iken
+Playwright düğümü ana yoldan çıkarılıp "ikinci UI aracı — kariyer +1"
+ekstrasına taşınır (SECOND_TOOL_EXTRA_DESC). "İkisi de" bilinçli seçiminde
+iki araç sıralı kalır (önce Selenium, sonra Playwright) ve başlık
+"+ Selenium & Playwright" olur. Mentor notları araç varyantına göre ayrıldı:
+SINGLE_LANG_NOTES anahtarları artık map_b / map_b_sel_selenium /
+map_b_sel_both (dil başına 3 varyant, tr+en). Genel ilke: kullanıcı "ikisi
+de" DEMEDİKÇE haritada TEK dil + TEK UI aracı bulunur. Plan §3.1 S3 satırı
+güncellendi; test 11 eklendi (python+selenium → playwright ana yolda yok,
+ekstrada link). Davranış matrisi 7 kombinasyonda doğrulandı (legacy
+'modern' dahil).
+
 **Bilinçli sapmalar (düzeltilmedi, gerekçeli):**
 - §6.1 "binlerce kullanıcı haritasını oluşturdu" sosyal kanıt metni EKLENMEDİ —
   gerçek kullanım verisi yokken uydurma sayı dürüst değil; "~1 dakika" kısmı
