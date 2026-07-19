@@ -40,21 +40,28 @@ export const DIALOG = {
             L_MANUAL: 'Manuel test deneyimi otomasyonda en büyük avantajın — test senaryosu düşünmeyi zaten biliyorsun, şimdi onu koda çevireceğiz! 🎯',
             L_CODER: 'Süper! Kod temelin olduğu için hızlı ilerleyeceğiz. 🚀',
         },
+        // Ürün kararı 2026-07-19: eski "Python / TypeScript" birleşik seçeneği
+        // ikiye bölündü — kullanıcı TEK dil seçer, seçilmeyen modern dil haritanın
+        // "Ekstra Gelişim Dalları"na taşınır (105 saatlik çifte dil yükü kalktı).
         stepLang: {
             bot: 'Otomasyon dilin ne olsun?',
             options: [
                 { id: 'LANG_JAVA', label: '☕ Java — kurumsal klasik' },
-                { id: 'LANG_MODERN', label: '🐍 Python / 🟦 TypeScript — modern ve hızlı başlangıç' },
+                { id: 'LANG_PYTHON', label: '🐍 Python — hızlı ve okunaklı başlangıç' },
+                { id: 'LANG_TYPESCRIPT', label: '🟦 TypeScript — tip güvenli modern stack' },
                 { id: 'LANG_UNDECIDED', label: '🤷 Kararsızım — sen öner' },
             ],
         },
         langRecommend: {
             bot: '**Önerim: Java.** ☕\n\nTürkiye\'de banka, telekom ve kurumsal QA ilanlarının büyük çoğunluğu Java + Selenium stack\'i istiyor; ayrıca sitedeki en derin içerik hattımız Java üzerine kurulu. Java ile sağlam bir temel attıktan sonra Python veya TypeScript\'e geçmek çok kolay — tersi daha zordur. Bu yüzden haritanı **Java yolundan** kuruyorum. 👍',
         },
-        // Plan §6.2: her cevaptan sonra mentorun 1 cümlelik onayı — S2 dil seçimi
+        // Plan §6.2: her cevaptan sonra mentorun 1 cümlelik onayı — S2 dil seçimi.
+        // DİKKAT: bu metinler ARAÇ-NÖTR olmalı — UI aracı (Selenium/Playwright)
+        // henüz SORULMADI, burada araç adı geçerse S3 sorusuyla çelişir.
         ackLang: {
-            LANG_JAVA: 'Sağlam tercih! Java, kurumsal QA ilanlarının anahtarı — Selenium ve REST Assured ile doğal bir bütün oluşturur. ☕',
-            LANG_MODERN: 'Modern stack! Python ve TypeScript ile hızlı ilerleyecek, Playwright\'ın tüm gücünü kullanacaksın. ⚡',
+            LANG_JAVA: 'Sağlam tercih! Kurumsal QA ilanlarının büyük bölümü Java istiyor — güçlü bir temele yatırım yapıyorsun. ☕',
+            LANG_PYTHON: 'Harika seçim! Python, QA otomasyonuna en hızlı giriş yapılan dil — okunaklı sözdizimiyle ilk haftadan test yazmaya başlarsın. 🐍',
+            LANG_TYPESCRIPT: 'Modern tercih! TypeScript, tip güvenliğiyle test kodundaki hataları daha sen yazarken yakalar. 🟦',
         },
         stepTool: {
             bot: '**UI otomasyon** tarafında hangi araçla ilerleyelim?',
@@ -104,7 +111,8 @@ export const DIALOG = {
             L_MANUAL: 'Manuel test yapıyorum, otomasyona geçiyorum.',
             L_CODER: 'Kod yazabiliyorum.',
             LANG_JAVA: 'Java ile ilerlemek istiyorum.',
-            LANG_MODERN: 'Python / TypeScript ile ilerlemek istiyorum.',
+            LANG_PYTHON: 'Python ile ilerlemek istiyorum.',
+            LANG_TYPESCRIPT: 'TypeScript ile ilerlemek istiyorum.',
             LANG_UNDECIDED: 'Kararsızım — sen öner.',
             TOOL_SELENIUM: 'Selenium ile devam.',
             TOOL_PLAYWRIGHT: 'Playwright ile devam.',
@@ -152,21 +160,28 @@ export const DIALOG = {
             L_MANUAL: 'Manual testing experience is your biggest advantage in automation — you already think in test scenarios, now we\'ll turn that into code! 🎯',
             L_CODER: 'Awesome! With your coding background we\'ll move fast. 🚀',
         },
+        // Product decision 2026-07-19: the combined "Python / TypeScript" option was
+        // split — the user picks ONE language; the other modern language moves to
+        // the map's "Extra Growth Branches" (no more 105-hour double-language load).
         stepLang: {
             bot: 'Which automation language should we build on?',
             options: [
                 { id: 'LANG_JAVA', label: '☕ Java — the enterprise classic' },
-                { id: 'LANG_MODERN', label: '🐍 Python / 🟦 TypeScript — modern and fast to start' },
+                { id: 'LANG_PYTHON', label: '🐍 Python — fast and readable start' },
+                { id: 'LANG_TYPESCRIPT', label: '🟦 TypeScript — type-safe modern stack' },
                 { id: 'LANG_UNDECIDED', label: '🤷 Not sure — you recommend' },
             ],
         },
         langRecommend: {
             bot: '**My recommendation: Java.** ☕\n\nThe vast majority of enterprise QA job postings (banking, telecom, corporate) ask for the Java + Selenium stack, and our deepest content track is built on Java. Once you have a solid Java foundation, switching to Python or TypeScript is easy — the reverse is harder. So I\'m building your map on the **Java path**. 👍',
         },
-        // Plan §6.2: one-sentence mentor acknowledgment after every answer — S2 language choice
+        // Plan §6.2: one-sentence mentor acknowledgment after every answer — S2 language
+        // choice. NOTE: these must stay TOOL-NEUTRAL — the UI tool (Selenium/Playwright)
+        // has NOT been asked yet; naming a tool here would contradict question S3.
         ackLang: {
-            LANG_JAVA: 'Solid choice! Java is the key to enterprise QA job postings — and it pairs naturally with Selenium and REST Assured. ☕',
-            LANG_MODERN: 'Modern stack! With Python and TypeScript you\'ll move fast and get the full power of Playwright. ⚡',
+            LANG_JAVA: 'Solid choice! The majority of enterprise QA job postings ask for Java — you\'re investing in a strong foundation. ☕',
+            LANG_PYTHON: 'Great pick! Python is the fastest on-ramp into QA automation — its readable syntax has you writing tests within the first week. 🐍',
+            LANG_TYPESCRIPT: 'A modern choice! TypeScript\'s type safety catches mistakes in your test code while you\'re still writing it. 🟦',
         },
         stepTool: {
             bot: 'On the **UI automation** side, which tool should we go with?',
@@ -221,7 +236,8 @@ export const DIALOG = {
             L_MANUAL: 'Manual tester, moving into automation.',
             L_CODER: 'I can code.',
             LANG_JAVA: 'I\'ll go with Java.',
-            LANG_MODERN: 'I\'ll go with Python / TypeScript.',
+            LANG_PYTHON: 'I\'ll go with Python.',
+            LANG_TYPESCRIPT: 'I\'ll go with TypeScript.',
             LANG_UNDECIDED: 'Not sure — you recommend.',
             TOOL_SELENIUM: 'Continue with Selenium.',
             TOOL_PLAYWRIGHT: 'Continue with Playwright.',
@@ -1081,6 +1097,76 @@ export const ALL_MAPS = {
 // kalır; seviye ön eki ve araç overlay'i çalışma zamanında bindirilir
 // (bkz. Documents/career-map-feature-plan.md §3 ve §5.2).
 
+// ─── Tek-dil modern yol katmanı (ürün kararı 2026-07-19) ───────────────────
+// Kullanıcı Python VEYA TypeScript seçer; MAP_B/MAP_B_SEL şablonundan
+// seçilmeyen dil düğümü çıkarılır, "kariyer +1" ekstrasına taşınır, başlık ve
+// mentor notu seçilen dile göre parametrik olarak değişir. Eski profillerdeki
+// lang:'modern' değeri bu katmana girmez — iki dilli haritası aynen korunur.
+const SINGLE_LANG_META = {
+    python: { emoji: '🐍', label: 'Python', dropRoute: '/typescript' },
+    typescript: { emoji: '🟦', label: 'TypeScript', dropRoute: '/python' },
+}
+
+const SINGLE_LANG_EXTRA_DESC = {
+    tr: 'İkinci otomasyon dili — ana yol bitince kariyer +1',
+    en: 'Second automation language — career +1 after the main path',
+}
+
+const SINGLE_LANG_NOTES = {
+    python: {
+        map_b: {
+            tr: `**Harika bir tercih!** Python, QA otomasyonuna en hızlı giriş yapılan dil — okunaklı sözdizimi sayesinde ilk haftadan test yazmaya başlayacaksın.
+
+**Playwright** ile pytest ekosistemi sana auto-wait, Trace Viewer ve paralel koşum gibi modern güçler verir; flaky test derdi en aza iner. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🚀
+
+💡 **TypeScript**'i şimdilik dert etme — ana yolu bitirdikten sonra "Ekstra Gelişim Dalları"nda ikinci dil olarak seni bekliyor.`,
+            en: `**An excellent choice!** Python is the fastest on-ramp into QA automation — its readable syntax has you writing tests within the first week.
+
+With **Playwright**, the pytest ecosystem gives you modern powers like auto-wait, Trace Viewer, and parallel runs — flaky-test pain drops to a minimum. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🚀
+
+💡 Don't worry about **TypeScript** for now — it's waiting in "Extra Growth Branches" as your second language once the main path is done.`,
+        },
+        map_b_sel: {
+            tr: `**Güçlü bir seçim!** Python + Selenium, kurumsal projelerde hâlâ en yaygın ikililerden — pytest ile birleşince hem legacy hem modern projelerde iş görürsün.
+
+**Selenium** sana sektörün klasiğini, **Playwright** auto-wait ve Trace Viewer'lı modern dünyayı öğretir — iki aracı da bilen mühendis "Selenium'dan Playwright'a geçiş" projelerinde özellikle aranır. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciri seni CI/CD'ye taşır. 🏆
+
+💡 **TypeScript** ana yolu bitirince "Ekstra Gelişim Dalları"nda ikinci dil olarak seni bekliyor.`,
+            en: `**A powerful choice!** Python + Selenium is still one of the most common pairings in enterprise projects — combined with pytest, you'll be useful on both legacy and modern codebases.
+
+**Selenium** teaches you the industry classic, **Playwright** the modern world of auto-wait and Trace Viewer — engineers who know both are specifically sought for "Selenium to Playwright migration" projects. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain carries you into CI/CD. 🏆
+
+💡 **TypeScript** is waiting in "Extra Growth Branches" as your second language once the main path is done.`,
+        },
+    },
+    typescript: {
+        map_b: {
+            tr: `**Modern bir tercih!** TypeScript, tip güvenliğiyle test kodundaki hataları daha sen yazarken yakalar — büyük test projelerinde bakım maliyetini ciddi düşürür.
+
+**Playwright** TypeScript ile birinci sınıf çalışır: auto-wait, Trace Viewer, paralel koşum ve tam IDE desteği. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🚀
+
+💡 **Python**'u şimdilik dert etme — ana yolu bitirdikten sonra "Ekstra Gelişim Dalları"nda ikinci dil olarak seni bekliyor.`,
+            en: `**A modern choice!** TypeScript's type safety catches mistakes in your test code while you're still writing it — dramatically cutting maintenance costs in large test projects.
+
+**Playwright** works first-class with TypeScript: auto-wait, Trace Viewer, parallel runs, and full IDE support. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🚀
+
+💡 Don't worry about **Python** for now — it's waiting in "Extra Growth Branches" as your second language once the main path is done.`,
+        },
+        map_b_sel: {
+            tr: `**Cesur ve modern bir seçim!** TypeScript'in tip güvenliği büyük test projelerinde hataları daha yazarken yakalar; Selenium ile sektörün klasiğini de kapsıyorsun.
+
+**Selenium** sana köklü kurumsal dünyayı, **Playwright** TypeScript ile birinci sınıf çalışan modern otomasyonu öğretir — iki aracı da bilen mühendis geniş bir iş havuzuna hitap eder. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciri seni CI/CD'ye taşır. 🏆
+
+💡 **Python** ana yolu bitirince "Ekstra Gelişim Dalları"nda ikinci dil olarak seni bekliyor.`,
+            en: `**A bold, modern choice!** TypeScript's type safety catches mistakes in large test projects as you write; with Selenium you also cover the industry classic.
+
+**Selenium** teaches you the established enterprise world, **Playwright** the modern automation that works first-class with TypeScript — knowing both tools opens a wide job pool. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain carries you into CI/CD. 🏆
+
+💡 **Python** is waiting in "Extra Growth Branches" as your second language once the main path is done.`,
+        },
+    },
+}
+
 // Sıfırdan başlayan kullanıcı için temel ön eki (MAP_A dışındaki haritaların başına eklenir)
 export const ZERO_PREFIX_NODES = [
     TEST_FUNDAMENTALS_NODE(0),
@@ -1122,6 +1208,34 @@ export function resolveMap(profile) {
     if (!base) return null
 
     let nodes = [...base.nodes]
+    let title = base.title
+    let subtitle = base.subtitle
+    let mentorNote = base.mentorNote
+    let extras = base.extras
+
+    // Tek-dil modern yol (ürün kararı 2026-07-19): seçilmeyen dil ana yoldan
+    // çıkarılıp ekstralara taşınır; başlık/mentor notu seçilen dile göre değişir.
+    // Eski profillerdeki lang:'modern' bu bloğa girmez, iki dilli harita korunur.
+    const singleLang = SINGLE_LANG_META[answers.lang]
+    if (singleLang && (baseId === 'map_b' || baseId === 'map_b_sel')) {
+        const dropped = nodes.find((n) => n.route === singleLang.dropRoute)
+        nodes = nodes.filter((n) => n.route !== singleLang.dropRoute)
+        if (dropped) {
+            extras = [
+                { emoji: dropped.emoji, title: dropped.title, desc: SINGLE_LANG_EXTRA_DESC, route: dropped.route, color: dropped.color },
+                ...base.extras,
+            ]
+        }
+        const selPart = baseId === 'map_b_sel' ? ' + Selenium' : ''
+        title = {
+            tr: `${singleLang.emoji} ${singleLang.label}${selPart} QA Yol Haritası`,
+            en: `${singleLang.emoji} ${singleLang.label}${selPart} QA Roadmap`,
+        }
+        if (baseId === 'map_b_sel') {
+            subtitle = { tr: 'Modern dil + sektörün köklü klasiği', en: 'A modern language + the industry\'s established classic' }
+        }
+        mentorNote = SINGLE_LANG_NOTES[answers.lang][baseId]
+    }
 
     // Java + "ikisi de": Selenium'dan hemen sonra Playwright düğümü bindirilir
     if (answers.lang === 'java' && answers.uiTool === 'both' && !nodes.some((n) => n.route === '/playwright')) {
@@ -1138,5 +1252,5 @@ export function resolveMap(profile) {
     // Adım numaraları baştan sona yeniden verilir (ön ek/overlay sonrası teklik)
     nodes = nodes.map((n, i) => ({ ...n, id: i + 1 }))
 
-    return { ...base, nodes }
+    return { ...base, title, subtitle, mentorNote, extras, nodes }
 }

@@ -769,10 +769,12 @@ function QAMentorPage() {
                 // Öneri balonunun kendisi onay görevi görür — ayrıca ack eklenmez.
                 await addBotMessage('langRecommend.bot', 1100)
             } else {
-                answersNext = { ...answers, lang: option.id === 'LANG_JAVA' ? 'java' : 'modern' }
+                // Tek dil seçimi (ürün kararı 2026-07-19): java | python | typescript
+                const lang = option.id === 'LANG_JAVA' ? 'java' : option.id === 'LANG_PYTHON' ? 'python' : 'typescript'
+                answersNext = { ...answers, lang }
                 setAnswers(answersNext)
                 saveWizardDraft({ step: MENTOR_STEPS.STEP_TOOL, answers: answersNext })
-                // Plan §6.2: her cevaptan sonra 1 cümlelik mentor onayı
+                // Plan §6.2: her cevaptan sonra 1 cümlelik mentor onayı (araç-nötr)
                 await addBotMessage(`ackLang.${option.id}`, 700)
             }
             await addBotMessage('stepTool.bot', 800)
@@ -785,7 +787,8 @@ function QAMentorPage() {
             // Plan §6.2: araç seçimi onayı
             await addBotMessage(`ackTool.${option.id}`, 700)
             // Modern yol + Playwright: v1'deki Playwright vs Cypress gerekçesi korunur
-            if (uiTool === 'playwright' && answers.lang === 'modern') {
+            // (java dışındaki tüm dillerde: python | typescript | legacy 'modern')
+            if (uiTool === 'playwright' && answers.lang !== 'java') {
                 await addBotMessage('playwrightCypressCompare.bot', 1200)
             }
             await addBotMessage('stepTime.bot', 800)

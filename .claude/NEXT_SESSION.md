@@ -90,6 +90,21 @@ kaldırıldı (yalnız algoritma hızlı-tempo kaldı), ölü kalan `reviewOnly`
 güncellendi, regresyon testi eklendi (career-map.spec test 9: L_MANUAL
 akışında `map-node-manual-testing` yok, ilk düğüm algorithms).
 
+**ÜRÜN KARARI 2 (2026-07-19, manuel test sırasında):** Modern yolda TEK dil.
+Eski "🐍 Python / 🟦 TypeScript" birleşik S2 seçeneği ikiye bölündü
+(LANG_PYTHON / LANG_TYPESCRIPT) — birleşik seçenek ~105 saatlik çifte dil
+yükünü ilk otomasyon aracından önce dayatıyordu. `resolveMap`'te yeni
+parametrik katman: seçilmeyen dil düğümü MAP_B/MAP_B_SEL'den çıkarılır,
+"ikinci dil — kariyer +1" olarak extras'ın başına taşınır; başlık
+("🐍 Python QA Yol Haritası" gibi) ve mentor notu (SINGLE_LANG_NOTES, 4
+varyant tr+en) seçilen dile göre değişir. Ack balonlarındaki çelişki de
+düzeltildi: S2 onayları artık ARAÇ-NÖTR (S3 sorulmadan Selenium/Playwright
+adı anılmaz — Java ack'i dahil). Eski profillerdeki `lang:'modern'` iki
+dilli haritasını korur (migrasyon gerekmez). Tek-dil MAP_B toplamı 274h —
+200-300 bandına geri döndü. Plan §2.2/§3.1/persona-3 güncellendi; test 10
+eklendi (Python seçimi → TS ana yolda yok, extras'ta link var). DIALOG
+simetrisi 88/88 doğrulandı.
+
 **Bilinçli sapmalar (düzeltilmedi, gerekçeli):**
 - §6.1 "binlerce kullanıcı haritasını oluşturdu" sosyal kanıt metni EKLENMEDİ —
   gerçek kullanım verisi yokken uydurma sayı dürüst değil; "~1 dakika" kısmı

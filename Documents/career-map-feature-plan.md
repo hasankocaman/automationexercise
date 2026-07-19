@@ -75,8 +75,11 @@ v1'in 2-4 soruluk ikili ağacı korunur ama iki kritik boyut eklenir: **seviye a
 
 > "Otomasyon dilin ne olsun?"
 - ☕ Java — kurumsal klasik *(Türkiye'de banka/telekom ilanlarının çoğunluğu)*
-- 🐍 Python / 🟦 TypeScript — modern ve hızlı başlangıç
+- 🐍 Python — hızlı ve okunaklı başlangıç
+- 🟦 TypeScript — tip güvenli modern stack
 - 🤷 **"Kararsızım — sen öner"** *(YENİ: karar felcindeki kullanıcıyı kaybetmemek için mentor 1 paragraf gerekçeyle öneri yapar; S1=sıfır ise öneri Java'dır — mevcut MAP_A gerekçesiyle)*
+
+*(Revizyon 2026-07-19 — ürün kararı: eski "Python / TypeScript" birleşik seçeneği ikiye bölündü. Kullanıcı TEK modern dil seçer; seçilmeyen dil ana yola girmez, haritanın "Ekstra Gelişim Dalları"na "ikinci dil — kariyer +1" olarak taşınır. Gerekçe: birleşik seçenek ~105 saatlik çifte dil yükünü daha ilk otomasyon aracından önce dayatıyordu. Cevap onay balonları araç-nötrdür — S3 sorulmadan Selenium/Playwright adı anılmaz. Eski profillerdeki `lang:'modern'` değeri iki dilli haritasını korur.)*
 
 S1 = "Tamamen sıfırım" ise bu soru v1'deki gibi atlanmaz; "Kararsızım" default vurgulu gösterilir.
 
@@ -119,7 +122,7 @@ Sıralamayla ne gösterileceği (yukarıdan aşağı):
 | Girdi | Neyi değiştirir |
 |-------|-----------------|
 | S1 Deneyim seviyesi | **Harita ön eki:** Sıfır → Test Temelleri + Algoritma + Manuel Test blokları başa eklenir (mevcut MAP_A davranışı). Manuel testçi → Test Temelleri VE Manuel Test haritaya hiç eklenmez, yalnız "Algoritma (hızlı tempo)" ön eki gelir — **dersler kişinin seviyesine göre gösterilir, bildiği ders haritada yer almaz** (ürün kararı 2026-07-19; ilk plandaki "gözden geçir rozetiyle göster" yaklaşımı iptal edildi). Kod bilen → doğrudan dilden başlar (mevcut MAP_B/C davranışı). |
-| S2 Dil | **Ana omurga:** Java → REST Assured dahil Java hattı; Python/TS → pytest/Playwright hattı (mevcut şablon seçimi). |
+| S2 Dil | **Ana omurga:** Java → REST Assured dahil Java hattı. Python → pytest hattı, TypeScript ekstra dala; TypeScript → Playwright TS hattı, Python ekstra dala (tek-dil kararı 2026-07-19; şablon MAP_B/MAP_B_SEL aynı kalır, seçilmeyen dil düğümü parametrik katmanda çıkarılır). |
 | S3 UI aracı | Selenium / Playwright / ikisi düğümleri (mevcut MAP_C1/C2/B_SEL ayrımı). |
 | S4 Haftalık zaman | **Hiçbir düğümü değiştirmez** — yalnızca süre etiketlerini ve toplam tahmini hesaplar. Zaman azsa içerik kısılmaz; süre uzar. ("Az zamanın var, o zaman az öğren" mesajı verilmez — "yavaş ama tam" mesajı verilir.) |
 
@@ -142,8 +145,8 @@ Sıralamayla ne gösterileceği (yukarıdan aşağı):
 - Mentor notu vurgusu: "Manuel test deneyimin otomasyonda en büyük avantajın — test senaryosu düşünmeyi zaten biliyorsun, şimdi onu koda çevireceğiz."
 
 **Persona 3 — "Deniz, 26, backend'den QA'e geçen developer" (orta seviye)**
-- Cevaplar: Kod yazabiliyorum / Python-TS / Playwright / haftada 3-5 saat.
-- Harita: MAP_B (10 düğüm).
+- Cevaplar: Kod yazabiliyorum / Python / Playwright / haftada 3-5 saat.
+- Harita: MAP_B tabanı, TypeScript düğümü çıkarılmış hali (9 düğüm; TypeScript "Ekstra Gelişim Dalları"nda).
 - Süre tahmini: ~6 ay ("yavaş tempo ama eksiksiz kapsam" etiketi).
 - İlk CTA: "Python → pytest".
 - Mentor notu vurgusu: mevcut MAP_B notu (modern stack gerekçesi).

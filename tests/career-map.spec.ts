@@ -221,6 +221,29 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
         expect(nodeIds[0]).toBe('map-node-algorithms');
     });
 
+    test('10) Tek dil: Python seçilince haritada TypeScript düğümü YER ALMAZ, TypeScript "kariyer +1" ekstrasına taşınır', async ({ page }) => {
+        test.setTimeout(60_000);
+        await page.goto('/qa-mentor');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        for (const optionId of ['L_CODER', 'LANG_PYTHON', 'TOOL_PLAYWRIGHT', 'TIME_MID']) {
+            const option = page.getByTestId(`mentor-option-${optionId}`);
+            await expect(option).toBeVisible({ timeout: 30_000 });
+            await option.click();
+        }
+
+        // Başlık parametrik: iki dilli "Python / TypeScript" değil, tek dilli olmalı.
+        await expect(page.getByText('🐍 Python QA Yol Haritası')).toBeVisible({ timeout: 30_000 });
+
+        // Seçilmeyen dil (TypeScript) ana yolda YOK (ürün kararı 2026-07-19:
+        // 105 saatlik çifte dil yükü kaldırıldı), Python ana yolda VAR.
+        await expect(page.getByTestId('map-node-python')).toBeVisible();
+        await expect(page.getByTestId('map-node-typescript')).toHaveCount(0);
+
+        // TypeScript ekstralara taşındı — extras düğümleri <Link> olarak render edilir.
+        await expect(page.locator('a[href="/typescript"]')).toHaveCount(1);
+    });
+
     test('6) Anonim ilerleme: learnqa_completed_routes\'a ilk düğüm route\'u yazılınca /qa-mentor\'da ilerleme yüzdesi 0\'dan büyük gösterilir', async ({ browser }) => {
         test.setTimeout(30_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });
