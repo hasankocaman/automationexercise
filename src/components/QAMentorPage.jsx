@@ -226,11 +226,6 @@ function MindMapNode({ node, index, lang, darkMode, animDelay, status, durationL
                                     {lang === 'tr' ? 'SIRADAKİ' : 'NEXT'}
                                 </span>
                             )}
-                            {node.reviewOnly && (
-                                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold ${darkMode ? 'bg-amber-900/50 text-amber-300' : 'bg-amber-100 text-amber-700'}`}>
-                                    {dialog.reviewBadge}
-                                </span>
-                            )}
                         </div>
                         <div className={`text-xs mt-0.5 leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                             {lang === 'tr' ? node.desc.tr : node.desc.en}

@@ -81,6 +81,15 @@ Kullanıcı talimatıyla plan dokümanı baştan sona implementasyonla karşıla
 5. ✅ Süre tahmini aralığı (§7 risk 2): tek nokta ("~7 ay") yerine "~7-9 ay"
    aralığı (üst sınır +%25 pay).
 
+**ÜRÜN KARARI (2026-07-19, manuel test sırasında):** "Manuel test yapıyorum"
+diyen kullanıcının haritasında Manuel Test dersi ÇIKMAMALI — dersler kişinin
+seviyesine göre gösterilir. Plandaki eski "gözden geçir rozetiyle göster"
+yaklaşımı (§3.1) İPTAL edildi: `MANUAL_PREFIX_NODES`'tan Manuel Test düğümü
+kaldırıldı (yalnız algoritma hızlı-tempo kaldı), ölü kalan `reviewOnly`/
+`reviewBadge` mekanizması söküldü, plan dokümanı (3 yer) yeni karara göre
+güncellendi, regresyon testi eklendi (career-map.spec test 9: L_MANUAL
+akışında `map-node-manual-testing` yok, ilk düğüm algorithms).
+
 **Bilinçli sapmalar (düzeltilmedi, gerekçeli):**
 - §6.1 "binlerce kullanıcı haritasını oluşturdu" sosyal kanıt metni EKLENMEDİ —
   gerçek kullanım verisi yokken uydurma sayı dürüst değil; "~1 dakika" kısmı

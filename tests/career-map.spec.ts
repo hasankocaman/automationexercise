@@ -196,6 +196,31 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
         await expect(page.getByTestId('mentor-option-LANG_JAVA')).not.toContainText('Önerilen');
     });
 
+    test('9) Seviyeye göre ders: "Manuel test yapıyorum" diyen kullanıcının haritasında Manuel Test düğümü YER ALMAZ, algoritma hızlı-tempo ön eki gelir', async ({ page }) => {
+        test.setTimeout(60_000);
+        await page.goto('/qa-mentor');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        for (const optionId of ['L_MANUAL', 'LANG_JAVA', 'TOOL_SELENIUM', 'TIME_MID']) {
+            const option = page.getByTestId(`mentor-option-${optionId}`);
+            await expect(option).toBeVisible({ timeout: 30_000 });
+            await option.click();
+        }
+
+        // Harita render oldu (manual+java+selenium → MAP_C1 tabanı + manuel ön eki)
+        await expect(page.getByText(MAP_C1.title.tr)).toBeVisible({ timeout: 30_000 });
+        const nodeLocator = page.locator('[data-testid^="map-node-"]');
+        await expect(nodeLocator.first()).toBeVisible({ timeout: 15_000 });
+
+        // Kullanıcı manuel test bildiğini söyledi — o ders haritada OLMAMALI
+        // (ürün kararı 2026-07-19: dersler kişinin seviyesine göre gösterilir).
+        await expect(page.getByTestId('map-node-manual-testing')).toHaveCount(0);
+        await expect(page.getByTestId('map-node-what-is-testing')).toHaveCount(0);
+        // Ön ek olarak yalnız algoritma hızlı-tempo tekrarı gelmeli, ilk sırada.
+        const nodeIds = await nodeLocator.evaluateAll((els) => els.map((el) => el.getAttribute('data-testid')));
+        expect(nodeIds[0]).toBe('map-node-algorithms');
+    });
+
     test('6) Anonim ilerleme: learnqa_completed_routes\'a ilk düğüm route\'u yazılınca /qa-mentor\'da ilerleme yüzdesi 0\'dan büyük gösterilir', async ({ browser }) => {
         test.setTimeout(30_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });

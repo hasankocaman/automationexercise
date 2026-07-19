@@ -133,7 +133,6 @@ export const DIALOG = {
         weeksShort: 'hf',
         monthsShort: 'ay',
         statusDone: 'tamamlandı',
-        reviewBadge: '✅ Biliyorsun — gözden geçir',
     },
     en: {
         welcome: {
@@ -251,7 +250,6 @@ export const DIALOG = {
         weeksShort: 'wk',
         monthsShort: 'mo',
         statusDone: 'completed',
-        reviewBadge: '✅ You know this — review',
     },
 }
 
@@ -1090,18 +1088,15 @@ export const ZERO_PREFIX_NODES = [
     MANUAL_TESTING_NODE(0),
 ]
 
-// Manuel testçi ön eki: algoritma hızlı tempo + manuel test "gözden geçir" modunda
+// Manuel testçi ön eki: yalnız algoritma hızlı tempo tekrarı. Manuel Test dersi
+// haritaya bilinçli olarak EKLENMEZ — kullanıcı zaten manuel test bildiğini
+// söyledi, dersler kişinin seviyesine göre gösterilir (ürün kararı 2026-07-19;
+// plan §3.1'deki eski "gözden geçir rozetiyle göster" yaklaşımı iptal edildi).
 export const MANUAL_PREFIX_NODES = [
     {
         ...ALGORITHMS_NODE(0),
         desc: { tr: 'Mantıksal düşünme — hızlı tempo tekrarı', en: 'Logical thinking — fast-paced refresher' },
         estimatedHours: 10,
-    },
-    {
-        ...MANUAL_TESTING_NODE(0),
-        desc: { tr: 'Zaten biliyorsun — mülakat sekmesiyle pekiştir', en: 'You already know this — reinforce via the interview tab' },
-        reviewOnly: true,
-        estimatedHours: 6,
     },
 ]
 

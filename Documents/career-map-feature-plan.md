@@ -118,7 +118,7 @@ Sıralamayla ne gösterileceği (yukarıdan aşağı):
 
 | Girdi | Neyi değiştirir |
 |-------|-----------------|
-| S1 Deneyim seviyesi | **Harita ön eki:** Sıfır → Test Temelleri + Algoritma + Manuel Test blokları başa eklenir (mevcut MAP_A davranışı). Manuel testçi → Test Temelleri atlanır, "hızlı özet" olarak işaretlenir, Manuel Test düğümü "✅ zaten biliyorsun — gözden geçir" durumunda başlar. Kod bilen → doğrudan dilden başlar (mevcut MAP_B/C davranışı). |
+| S1 Deneyim seviyesi | **Harita ön eki:** Sıfır → Test Temelleri + Algoritma + Manuel Test blokları başa eklenir (mevcut MAP_A davranışı). Manuel testçi → Test Temelleri VE Manuel Test haritaya hiç eklenmez, yalnız "Algoritma (hızlı tempo)" ön eki gelir — **dersler kişinin seviyesine göre gösterilir, bildiği ders haritada yer almaz** (ürün kararı 2026-07-19; ilk plandaki "gözden geçir rozetiyle göster" yaklaşımı iptal edildi). Kod bilen → doğrudan dilden başlar (mevcut MAP_B/C davranışı). |
 | S2 Dil | **Ana omurga:** Java → REST Assured dahil Java hattı; Python/TS → pytest/Playwright hattı (mevcut şablon seçimi). |
 | S3 UI aracı | Selenium / Playwright / ikisi düğümleri (mevcut MAP_C1/C2/B_SEL ayrımı). |
 | S4 Haftalık zaman | **Hiçbir düğümü değiştirmez** — yalnızca süre etiketlerini ve toplam tahmini hesaplar. Zaman azsa içerik kısılmaz; süre uzar. ("Az zamanın var, o zaman az öğren" mesajı verilmez — "yavaş ama tam" mesajı verilir.) |
@@ -136,7 +136,7 @@ Sıralamayla ne gösterileceği (yukarıdan aşağı):
 
 **Persona 2 — "Murat, 29, 3 yıllık manuel testçi, otomasyona geçiyor" (az bilen — YENİ persona)**
 - Cevaplar: Manuel test yapıyorum / Java / İkisi de / haftada 6-10 saat.
-- Harita: MAP_C1 tabanı + başa "Algoritma (hızlı tempo)" ön eki; Manuel Test düğümü "✅ biliyorsun — mülakat sekmesini çöz" durumuyla haritada görünür (atlamak yerine özgüven veren bir "zaten yol aldın" sinyali).
+- Harita: MAP_C1 tabanı + başa "Algoritma (hızlı tempo)" ön eki; Manuel Test düğümü haritada YER ALMAZ — Murat zaten manuel test biliyor (ürün kararı 2026-07-19).
 - Süre tahmini: ~5 ay.
 - İlk CTA: "Java → Kurulum".
 - Mentor notu vurgusu: "Manuel test deneyimin otomasyonda en büyük avantajın — test senaryosu düşünmeyi zaten biliyorsun, şimdi onu koda çevireceğiz."
@@ -315,7 +315,7 @@ Amaç: mevcut özelliği "her ziyarette sıfırlanan demo"dan "kalıcı kişisel
 2. **Ders sayfası → harita köprüsü:** ders başında "Haritanda 6/14. adım" breadcrumb'ı.
 3. **Uzmanlık dalları:** ana yol %60+ olan kullanıcıya haritanın sonunda seçilebilir dal paketleri (📱 Mobil: Appium+BrowserStack · ⚡ Performans: JMeter · 🔒 Güvenlik). "Hedef alan" kişiselleştirmesi burada, doğru zamanda devreye girer.
 4. **Paylaşılabilir harita:** "Haritamı paylaş" → inline SVG'den üretilen PNG/OG görseli — LinkedIn/X paylaşımı (Türk QA topluluğu LinkedIn'de çok aktif; organik edinim kanalı).
-5. Manuel-testçi ön eki için içerik rötuşu (Manuel Test düğümünün "gözden geçir" modu).
+5. ~~Manuel-testçi ön eki için içerik rötuşu (Manuel Test düğümünün "gözden geçir" modu).~~ İPTAL (2026-07-19): Manuel Test düğümü manuel-testçi haritasından tamamen çıkarıldı — dersler seviyeye göre gösterilir.
 
 ### Faz 3 (akıllı katman — Faz 2 sonrası)
 
