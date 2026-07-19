@@ -6,6 +6,8 @@
 // ids that already paid out XP, so re-running/re-fixing the same exercise
 // doesn't earn XP twice.
 
+import { logActivity, logXpEarned } from './activityLog'
+
 const XP_EVENT = 'learnqa-xp-changed'
 const LEGACY_LAB_KEY = 'manual_testing_lab_python'
 
@@ -64,6 +66,8 @@ export function addXP(amount) {
     const state = readState()
     const next = Math.max(0, state.xp + amount)
     writeState({ ...state, xp: next })
+    // Günlük istatistik (Learning OS Faz 1) — birim değil, hedef doldurmaz.
+    if (amount > 0) logXpEarned(amount)
     return next
 }
 
@@ -76,6 +80,9 @@ export function markExerciseComplete(id) {
     if (state.completed.includes(id)) return state.completed
     const next = [...state.completed, id]
     writeState({ ...state, completed: next })
+    // Günlük hedef (Learning OS Faz 1): egzersiz yalnız İLK tamamlanmada
+    // sayılır — yukarıdaki `completed` kontrolü çifte sayımı zaten engeller.
+    logActivity('exercise', `${getTopicKey()}:${id}`)
     return next
 }
 

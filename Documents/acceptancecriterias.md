@@ -172,6 +172,38 @@ kapsamında olduğundan **her commit sonrası `post-commit` hook'u ile otomatik
 
 ---
 
+#### AC 12 — Günlük Hedef, Streak ve Aktivite Takibi (Learning OS Faz 1)
+
+**Kapsam:** Ana sayfa "Bugün" şeridi + `src/lib/activityLog.js` +
+`src/lib/progressStore.js` (plan: `Documents/learning-os-redesign-plan.md`).
+
+- Günlük hedef/streak/heatmap **local-first** çalışmalıdır — üyelik/login
+  ÖN KOŞUL DEĞİLDİR (CLAUDE.md §5 ile tutarlı). localStorage anahtarları:
+  `learnqa_activity_log`, `learnqa_last_position`.
+- **Hedef birimi gerçek öğrenmedir:** günlük hedef (varsayılan 10 birim)
+  yalnızca cevaplanan quiz (1 birim) ve İLK kez tamamlanan
+  playground/challenge/film egzersizinden (2 birim) dolar. Pasif okuma,
+  scroll veya sayfa ziyareti hedefi DOLDURMAZ.
+- **Çifte sayım yasağı:** Aynı quiz bloğu tekrar cevaplandığında veya aynı
+  egzersiz tekrar çalıştırıldığında birim sayısı ARTMAZ (id bazlı
+  tekilleştirme; egzersizlerde XP'nin `completed` listesiyle aynı ilke).
+- **Streak grace kuralı:** 1 günlük boşluk streak'i sıfırlamaz — streak
+  "donmuş" (❄️) gösterilir ve o gün hedef tamamlanırsa devam eder; 2+ gün
+  boşluk streak'i sıfırlar.
+- **Şerit durumları:** Hiç aktivite ve streak yoksa davet modu
+  (`daily-strip-invite`); aktivite varsa streak rozeti + hedef barı
+  (`daily-strip`, `daily-streak`, `daily-goal-bar`); hedef dolunca kutlama
+  (`daily-goal-done`) görünür.
+- **Devam et CTA'sı** (`daily-continue`): varsa sekme-derinlikli son konuma
+  (`learnqa_last_position` → `openTab` state'i), yoksa kariyer haritasının
+  sıradaki düğümüne götürür.
+
+**Test dosyası:** `tests/daily-loop.spec.ts` (senaryolar planın §9-S3
+promptunda; `serviceWorkers: 'block'` zorunlu). §22.1 istisna sayfaları bu
+suite'e dahil edilmez.
+
+---
+
 ## ✅ Tamamlanan Geliştirmeler
 
 ### 1. Manual Testing Lab

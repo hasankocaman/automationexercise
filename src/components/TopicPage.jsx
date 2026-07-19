@@ -34,6 +34,8 @@ import EdgeCaseFactoryBlock from './EdgeCaseFactoryBlock'
 import VisualDiffDetectiveBlock from './VisualDiffDetectiveBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
+import { logActivity } from '../lib/activityLog'
+import { saveLastPosition } from '../lib/progressStore'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -20212,6 +20214,13 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
         tabsLayoutRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, [activeTab])
 
+    // Learning OS Faz 1 (plan §5-F4): ziyaret edilen her sekme "Devam et"
+    // CTA'sının sekme-derinlikli hedefi olarak yerel son-konum kaydına düşer.
+    useEffect(() => {
+        saveLastPosition(location.pathname, activeTab)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab, location.pathname])
+
     const content = data[language] || data['en']
     const { hero, tabs, sections, disableTabGating = false } = content
     const pageKey = (hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
@@ -20318,6 +20327,11 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     // bloğu ayrı sayılıyor). Yanlış cevaplar da "denendi" olarak kaydedilir ki
     // sidebar'da boş kutu (hiç denenmedi) ile ✗ (denendi, geçemedi) ayrılabilsin.
     const handleQuizAnswered = (blockIndex, isCorrect, questionSnapshot) => {
+        // Günlük hedef (Learning OS Faz 1): cevaplanan her quiz — doğru ya da
+        // yanlış — 1 birim sayılır; aynı blok tekrar cevaplanırsa activityLog
+        // id üzerinden yoksayar (çifte sayım koruması).
+        logActivity('quiz', `${pageKey}:${activeTab}:${blockIndex}`)
+
         const prevAttemptSet = quizAttempted[activeTab] || {}
         if (!prevAttemptSet[blockIndex]) {
             const updatedAttemptAll = { ...quizAttempted, [activeTab]: { ...prevAttemptSet, [blockIndex]: true } }

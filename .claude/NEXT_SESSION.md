@@ -19,10 +19,50 @@ commit'leri main'de olduğu için onların üzerine kurulu).
 (Faz 1: Günlük Döngü dashboard/streak/heatmap; Faz 2: mastery/job-readiness;
 Faz 3: adaptif katman). §8'de Fable (F1-F6) / Sonnet (S1-S5) görev dağılımı,
 §9'da kopyala-yapıştır hazır Sonnet promptları.
-**Durum:** Sadece planlama yapıldı, kod YAZILMADI. Sıradaki adım: kullanıcı
-planı onaylarsa Fable F1 (`src/lib/progressStore.js` + `activityLog.js`).
+**Durum:** Fable görevleri (F1-F5) TAMAMLANDI (2026-07-19, aynı oturum):
+- **F1:** `src/lib/activityLog.js` (YENİ) — `learnqa_activity_log` anahtarı;
+  günlük birim sayımı (quiz=1, egzersiz=2, hedef 10), streak/grace algoritması
+  (1 gün boşluk → ❄️ frozen, 2+ gün → 0; içerideki tek günlük boşluklar
+  köprülenir), `countedIds` ile çifte sayım koruması, `lastKnownStreak` +
+  `goalEventSent` rezerv alanları (Sonnet S5 için). `src/lib/progressStore.js`
+  (YENİ) — salt-okunur adaptör (getTotalXp/getCompletedRoutes/getReviewStats) +
+  TEK yazma istisnası `learnqa_last_position`.
+  **Plandan sapma:** `logActivity(kind, amount)` yerine imza
+  `logActivity(kind, id)` — id bazlı tekilleştirme çifte sayım koruması için
+  şart (S3 test 3), birim ağırlığı kind'dan türetilir.
+- **F2:** Yazma noktaları — `xp.js` `markExerciseComplete` (egzersiz, İLK
+  tamamlanma; playground/challenge/video-scene otomatik kapsandı çünkü hepsi
+  bu fonksiyondan geçiyor) + `addXP` (pozitif XP istatistiği) +
+  `TopicPage.handleQuizAnswered` (quiz, id: `pageKey:tab:block`).
+- **F3:** HomePage "Bugün" şeridi (qa-mentor banner'ının ÜSTÜNDE) — 3 durum:
+  `daily-strip-invite` (hiç aktivite+streak yok) / `daily-strip` (🔥-❄️ streak
+  rozeti + `daily-goal-bar` N/10 + `daily-goal-done` kutlama) / `daily-continue`
+  CTA (öncelik: `learnqa_last_position` sekme-derinlikli link → yoksa harita
+  sıradaki düğümü). `{/* heatmap-slot */}` yorumu Sonnet S2 için bırakıldı.
+  **Plandan sapma:** "Bugünkü Tekrar" kartı şeride TAŞINMADI — mevcut
+  `review-queue-card` testid'lerine 4 test bağlı, kart olduğu yerde kaldı
+  (şeridin hemen altında, davranış aynı).
+- **F4:** TopicPage'de `activeTab` değişiminde `saveLastPosition` (yalnız
+  TopicPage tabanlı sayfalar — Algorithms/ManualTesting gibi özel sayfalar
+  kapsam dışı, Faz 2 notu).
+- **F5:** `acceptancecriterias.md`'ye **AC 12** eklendi (günlük hedef/streak/
+  heatmap local-first kuralları + testid sözlüğü + `tests/daily-loop.spec.ts`
+  referansı).
+
+**Doğrulama:** integrity ✓ · `npm run build` ✓ (2m30s, bilinen chunk uyarıları) ·
+hedefli suite'ler (career-map + homepage-badges + review-queue + mobile-smoke)
+**20/20 GEÇTİ** (ilk koşumda 4 düşüş SOĞUK dev server yük flakiness'iydi; izole
++ sıcak tekrar koşumlarda tümü yeşil) · el doğrulaması (Playwright script):
+davet modu → quiz → 1/10 + Devam-et `/docker` href + çifte sayım korunuyor +
+hedef dolu kutlaması + streak 🔥1 — hepsi doğrulandı.
+
+**Sıradaki adım:** Sonnet S1-S5 (promptlar plan §9'da; S3 `tests/daily-loop.spec.ts`
+yazılırken şeritteki mevcut testid'ler kullanılacak, hepsi F3'te eklendi).
+Bilinen küçük UX notu: birim>0 ama streak 0 iken rozet "🔥 0 gün" gösteriyor —
+S4 cilasında "bugün başladın" tonuna çevrilebilir.
 **Dikkat:** Önceki oturumdan sarkan iş — career-map-v2 tam suite teyidi
-(aşağıdaki bölüm) hâlâ bekliyor; Faz 1 commit'lerinden önce koşulması önerilir.
+(aşağıdaki bölüm) hâlâ bekliyor; bu oturumda ana sayfayı etkileyen 4 suite
+yeşil görüldü ama TAM suite koşulmadı.
 
 ---
 

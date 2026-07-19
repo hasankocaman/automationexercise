@@ -22,6 +22,8 @@ import TrendingSkillsWidget from './TrendingSkillsWidget'
 import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
 import { getQueueStats } from '../lib/reviewQueue'
+import { getDailyGoalProgress, getStreak, subscribeToActivityChanges } from '../lib/activityLog'
+import { readLastPosition } from '../lib/progressStore'
 import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
 import '../homepage-effects.css'
 import '../night-sky-effects.css'
@@ -113,6 +115,17 @@ function HomePage() {
     useEffect(() => {
         setDueReviewCount(getQueueStats(Date.now()).dueCount)
     }, [])
+
+    // "Bugün" şeridi (Learning OS Faz 1, plan §5-F3) — activityLog'dan senkron
+    // okunur (mentorMapState kalıbı); aynı sekmede quiz/egzersiz tamamlanırsa
+    // subscribeToActivityChanges ile canlı güncellenir.
+    const readDailyLoop = () => ({
+        goal: getDailyGoalProgress(Date.now()),
+        streak: getStreak(Date.now()),
+        lastPos: readLastPosition(),
+    })
+    const [dailyLoop, setDailyLoop] = useState(readDailyLoop)
+    useEffect(() => subscribeToActivityChanges(() => setDailyLoop(readDailyLoop())), [])
 
     // Kariyer Haritası kutusunun 3 durumu (plan §6.1): harita yok (davet) /
     // ilerleme var (kişisel pano girişi) / ana yol bitti (uzmanlık dalları).
@@ -517,6 +530,116 @@ function HomePage() {
                     </div>
                 )
             })()}
+
+            {/* ── "Bugün" şeridi (Learning OS Faz 1, plan §5-F3) — günlük hedef + streak + Devam et ── */}
+            <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                {(() => {
+                    const { goal, streak, lastPos } = dailyLoop
+                    const isInvite = goal.units === 0 && streak.streak === 0
+                    // Devam-et hedefi tek kaynaktan: önce sekme-derinlikli son konum,
+                    // yoksa kariyer haritasının sıradaki düğümü (plan §4 öneri 4).
+                    const continueTarget = lastPos
+                        ? {
+                            to: lastPos.route,
+                            state: { openTab: lastPos.tabIndex },
+                            label: RESUME_LESSON_NAMES[lastPos.route]?.[language]
+                                || lastPos.route.replace(/^\//, '').replace(/-/g, ' '),
+                        }
+                        : mentorMapState.state === 'progress'
+                            ? {
+                                to: mentorMapState.nextNode.route,
+                                state: undefined,
+                                label: mentorMapState.nextNode.title?.[language] || '',
+                            }
+                            : null
+
+                    if (isInvite) {
+                        return (
+                            <div
+                                data-testid="daily-strip-invite"
+                                className={`flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-4 ${darkMode
+                                    ? 'border-amber-700/60 bg-gradient-to-r from-amber-900/40 via-orange-900/30 to-amber-900/40'
+                                    : 'border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50'
+                                    }`}
+                            >
+                                <div className={`flex-shrink-0 rounded-xl p-2.5 shadow-lg ${darkMode ? 'bg-amber-700/60' : 'bg-amber-500'}`}>
+                                    <span className="text-xl md:text-2xl">🎯</span>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {language === 'tr' ? 'Bugün 10 birimle başla' : 'Start today with 10 units'}
+                                    </h2>
+                                    <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-amber-200/80' : 'text-amber-700'}`}>
+                                        {language === 'tr'
+                                            ? 'Quiz cevapla, egzersiz bitir — günlük hedefini doldur, streak\'ini başlat. 🔥'
+                                            : 'Answer quizzes, finish exercises — hit your daily goal and start your streak. 🔥'}
+                                    </p>
+                                </div>
+                            </div>
+                        )
+                    }
+
+                    const percent = Math.min(100, Math.round((goal.units / goal.goal) * 100))
+                    return (
+                        <div
+                            data-testid="daily-strip"
+                            className={`flex flex-wrap items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-4 ${darkMode
+                                ? 'border-amber-700/60 bg-gradient-to-r from-amber-900/40 via-orange-900/30 to-amber-900/40'
+                                : 'border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50'
+                                }`}
+                        >
+                            {/* Streak — grace kuralı: dün hedefliyse ❄️ donmuş görünür (plan §4 öneri 3) */}
+                            <span
+                                data-testid="daily-streak"
+                                title={streak.frozen
+                                    ? (language === 'tr' ? 'Streak donmuş — bugün çalışırsan devam eder!' : 'Streak frozen — study today to keep it going!')
+                                    : (language === 'tr' ? 'Üst üste hedefli gün sayın' : 'Consecutive goal-met days')}
+                                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-black ${darkMode ? 'bg-amber-800/60 text-amber-200' : 'bg-amber-100 text-amber-800'}`}
+                            >
+                                {streak.frozen ? '❄️' : '🔥'} {streak.streak} {language === 'tr' ? 'gün' : streak.streak === 1 ? 'day' : 'days'}
+                            </span>
+
+                            {/* Günlük hedef barı */}
+                            <div className="flex items-center gap-2 flex-1 min-w-[140px]">
+                                <div
+                                    data-testid="daily-goal-bar"
+                                    className={`h-2.5 flex-1 max-w-[220px] rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-amber-100'}`}
+                                >
+                                    <div
+                                        className="h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${percent}%`, background: 'linear-gradient(90deg, #f59e0b, #f97316)' }}
+                                    />
+                                </div>
+                                <p className={`text-xs font-bold whitespace-nowrap ${darkMode ? 'text-amber-200/90' : 'text-amber-700'}`}>
+                                    {goal.units}/{goal.goal}
+                                </p>
+                                {goal.met && (
+                                    <span
+                                        data-testid="daily-goal-done"
+                                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black ${darkMode ? 'bg-emerald-800/60 text-emerald-200' : 'bg-emerald-100 text-emerald-700'}`}
+                                    >
+                                        🎉 {language === 'tr' ? 'Bugünkü hedef tamam!' : 'Daily goal done!'}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Devam et — sekme-derinlikli son konum ya da haritanın sıradaki düğümü */}
+                            {continueTarget && (
+                                <Link
+                                    to={continueTarget.to}
+                                    state={continueTarget.state}
+                                    data-testid="daily-continue"
+                                    className="flex-shrink-0 inline-flex min-h-[36px] items-center gap-1 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg transition-transform duration-200 hover:scale-105 whitespace-nowrap"
+                                    style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)' }}
+                                >
+                                    ▶️ {language === 'tr' ? 'Devam et' : 'Continue'}{continueTarget.label ? `: ${continueTarget.label}` : ''}
+                                </Link>
+                            )}
+                        </div>
+                    )
+                })()}
+                {/* heatmap-slot — Sonnet S2: ActivityHeatmap buraya takılır (plan §8.2-S2) */}
+            </div>
 
             {/* ── QA Mentor AI Banner — Yeni misin? Buradan Başla ── */}
             <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
