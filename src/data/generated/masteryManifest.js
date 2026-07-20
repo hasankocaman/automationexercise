@@ -6,18 +6,18 @@ export const MASTERY_MANIFEST = {
     "pageKey": "seleniumwebdriver",
     "tabCount": 14,
     "totalQuizBlocks": 13,
-    "totalExerciseBlocks": 80,
+    "totalExerciseBlocks": 111,
     "hasInterview": true
   },
   "/playwright": {
-    "pageKey": "playwrightmodernbrowserautomation",
+    "pageKey": "playwrightmoderntaraycotomasyonu",
     "tabCount": 18,
     "totalQuizBlocks": 17,
-    "totalExerciseBlocks": 72,
+    "totalExerciseBlocks": 85,
     "hasInterview": true
   },
   "/cypress": {
-    "pageKey": "cypressmodernendtoendtestautomation",
+    "pageKey": "cypressmodernutanucatestotomasyonu",
     "tabCount": 18,
     "totalQuizBlocks": 17,
     "totalExerciseBlocks": 70,
@@ -48,18 +48,18 @@ export const MASTERY_MANIFEST = {
     "pageKey": "sql",
     "tabCount": 25,
     "totalQuizBlocks": 28,
-    "totalExerciseBlocks": 94,
+    "totalExerciseBlocks": 95,
     "hasInterview": true
   },
   "/java": {
-    "pageKey": "javaqaengineersguide",
+    "pageKey": "javaqamhendisirehberi",
     "tabCount": 19,
     "totalQuizBlocks": 17,
-    "totalExerciseBlocks": 109,
+    "totalExerciseBlocks": 149,
     "hasInterview": true
   },
   "/git-github": {
-    "pageKey": "gitgithub",
+    "pageKey": "gitvegithub",
     "tabCount": 14,
     "totalQuizBlocks": 13,
     "totalExerciseBlocks": 70,
@@ -104,7 +104,7 @@ export const MASTERY_MANIFEST = {
     "pageKey": "docker",
     "tabCount": 14,
     "totalQuizBlocks": 7,
-    "totalExerciseBlocks": 53,
+    "totalExerciseBlocks": 51,
     "hasInterview": true
   },
   "/jenkins": {
@@ -118,14 +118,14 @@ export const MASTERY_MANIFEST = {
     "pageKey": "kubernetesk8s",
     "tabCount": 9,
     "totalQuizBlocks": 8,
-    "totalExerciseBlocks": 40,
+    "totalExerciseBlocks": 37,
     "hasInterview": true
   },
   "/kafka": {
     "pageKey": "apachekafka",
     "tabCount": 9,
     "totalQuizBlocks": 8,
-    "totalExerciseBlocks": 33,
+    "totalExerciseBlocks": 28,
     "hasInterview": true
   },
   "/appium": {
@@ -146,14 +146,14 @@ export const MASTERY_MANIFEST = {
     "pageKey": "amazonwebservicesaws",
     "tabCount": 6,
     "totalQuizBlocks": 5,
-    "totalExerciseBlocks": 15,
+    "totalExerciseBlocks": 14,
     "hasInterview": true
   },
   "/azure": {
     "pageKey": "microsoftazure",
     "tabCount": 6,
     "totalQuizBlocks": 5,
-    "totalExerciseBlocks": 15,
+    "totalExerciseBlocks": 13,
     "hasInterview": true
   },
   "/gauge": {
@@ -164,42 +164,42 @@ export const MASTERY_MANIFEST = {
     "hasInterview": true
   },
   "/what-is-testing": {
-    "pageKey": "softwaretestingqafundamentals",
+    "pageKey": "yazlmtestiveqatemelleri",
     "tabCount": 6,
     "totalQuizBlocks": 6,
     "totalExerciseBlocks": 14,
     "hasInterview": false
   },
   "/claude-ai": {
-    "pageKey": "claudeaifortesters",
+    "pageKey": "testeriinclaudeai",
     "tabCount": 16,
     "totalQuizBlocks": 17,
     "totalExerciseBlocks": 44,
     "hasInterview": true
   },
   "/llm-agents": {
-    "pageKey": "llmaiagents",
+    "pageKey": "llmaiagentlar",
     "tabCount": 18,
     "totalQuizBlocks": 20,
     "totalExerciseBlocks": 48,
     "hasInterview": true
   },
   "/backend": {
-    "pageKey": "simplebackend",
+    "pageKey": "basitbackend",
     "tabCount": 12,
     "totalQuizBlocks": 12,
-    "totalExerciseBlocks": 1,
+    "totalExerciseBlocks": 8,
     "hasInterview": false
   },
   "/basit-backend": {
-    "pageKey": "simplebackendecommercesqlandapilab",
+    "pageKey": "basitbackendeticaretsqlveapilab",
     "tabCount": 4,
-    "totalQuizBlocks": 0,
-    "totalExerciseBlocks": 0,
+    "totalQuizBlocks": 2,
+    "totalExerciseBlocks": 2,
     "hasInterview": false
   },
   "/security": {
-    "pageKey": "cybersecurity",
+    "pageKey": "sibergvenlik",
     "tabCount": 12,
     "totalQuizBlocks": 10,
     "totalExerciseBlocks": 0,

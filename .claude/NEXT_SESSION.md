@@ -133,6 +133,33 @@ widget da gizlendi (önceden ikisi de yanlışlıkla görünüyordu); (b)
 tamamlanmamış bir route (`/docker`) için aynı testler → HER İKİ widget da
 NORMAL ÇALIŞIYOR (regresyon yok). `npm run build` ✓.
 
+**🐛 KRİTİK BUG DÜZELTİLDİ — mastery manifest'in pageKey'i 10 sayfada YANLIŞ dilden
+türetiliyordu (kullanıcı: "what-is-testing dersini tamamladım ama değişiklik olmadı"):**
+Kök neden: `TopicPage.jsx` runtime'da HER ZAMAN `data['tr'] || data['en']`
+sırasını kullanır (tr ağacı varsa DAİMA onu seçer, dile bakmaksızın) — ama
+`scripts/generate-mastery-manifest.mjs`'teki `deriveSections()` bunun
+TERSİNİ yapıyordu (`.en` ağacını ÖNCE deniyordu). Hero title'ı TR/EN'de
+sadece özel isim olan sayfalarda (Docker, Selenium...) iki ağaç aynı metni
+taşıdığı için bu sapma gizli kaldı; ama hero title'ı GERÇEKTEN çevrilen
+sayfalarda (örn. "Yazılım Testi ve QA Temelleri" vs "Software Testing and
+QA Fundamentals") üretilen pageKey ile runtime'ın gerçekten yazdığı
+`quizScore_<pageKey>` / `quizAttempted_<pageKey>` anahtarı UYUŞMUYORDU —
+`getMastery()` o route için HER ZAMAN `null` dönüyordu, kullanıcı ne kadar
+quiz çözerse çözsün.
+**Etkilenen 10 sayfa** (pageKey manifest'te değişti): `/playwright`,
+`/cypress`, `/java`, `/git-github`, `/what-is-testing`, `/claude-ai`,
+`/llm-agents`, `/backend`, `/basit-backend`, `/security` — hepsinde Skill
+Radar/Job Readiness/mastery hesabı sessizce hep boş kalıyordu.
+Düzeltme: `deriveSections()` artık TopicPage.jsx ile BİREBİR aynı sırayı
+(`data.tr.sections` önce, yoksa `data.en.sections`) kullanıyor. Manifest
+yeniden üretildi (`src/data/generated/masteryManifest.js` — 10 pageKey +
+bazı totalQuizBlocks/totalExerciseBlocks sayıları düzeldi, çünkü TR/EN
+ağaçlarında blok sayısı bazen farklıydı).
+**Doğrulama (gerçek tarayıcı):** `/what-is-testing`'e gerçek pageKey'le
+(`yazlmtestiveqatemelleri`) sahte quiz verisi enjekte edildi →
+`getMastery('/what-is-testing')` artık **83** dönüyor (önceden HER ZAMAN
+`null`), Skill Radar'ın "Temel" ekseni artık doğru dolu görünüyor. Build ✓.
+
 **Kullanıcı isteği — Skill Radar görsel kalite yükseltmesi:** Kullanıcı bir
 referans PNG (dış bir mindmap aracının şık, temiz görünümü) paylaşıp
 "bu png gibi kaliteli gözükmeli, veri yok yazıları olmamalı" dedi.

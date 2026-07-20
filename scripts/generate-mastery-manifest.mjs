@@ -70,7 +70,16 @@ const EXERCISE_TYPES = new Set([
 // İki ağaçlı ({en:{...}, tr:{...}}) ve tek ağaçlı (TR runtime overlay ile üretilen,
 // örn. pythonData/sqlData/typescriptData) dosyaların HER İKİSİNİ de destekler —
 // blok SAYISI iki dilde de aynıdır, hangi ağaçtan okunduğu önemsizdir.
+// TopicPage.jsx runtime'da HER ZAMAN `data['tr'] || data['en']` sırasını
+// kullanır (satır ~20059/20238) — dile bakmaksızın, tr ağacı varsa daima
+// ONU seçer. Bu fonksiyon o sırayı BİREBİR taklit etmeli: en'i önce
+// denersek (önceki hata) ve tr/en hero.title'ı GERÇEKTEN farklıysa (salt
+// bir özel isim değil de çevrilmiş bir başlıksa, örn. "Yazılım Testi ve QA
+// Temelleri" vs "Software Testing and QA Fundamentals") üretilen pageKey
+// runtime'ın kullandığı anahtardan sapar ve getMastery() o route için HİÇBİR
+// ZAMAN veri bulamaz (gerçek bug, /what-is-testing'de yakalandı, 2026-07-20).
 function deriveSections(data) {
+  if (data?.tr?.sections) return { sections: data.tr.sections, hero: data.tr.hero }
   if (data?.en?.sections) return { sections: data.en.sections, hero: data.en.hero }
   if (data?.sections) return { sections: data.sections, hero: data.hero }
   return null
