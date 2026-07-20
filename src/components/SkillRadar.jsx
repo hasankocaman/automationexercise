@@ -8,9 +8,14 @@ import { getSkillRadarData, getJobReadiness } from '../lib/progressStore'
 // halka + italik "veri yok" etiketi) gerçek düşük skordan ayırt edilir —
 // eksik veri hiçbir zaman 0 gibi gösterilmez.
 
-const SIZE = 300
+// SIZE geniş tutulur (440) ki MAX_R + LABEL_OFFSET'ten SONRA eksen etiketleri
+// için yeterli pay kalsın — SVG'nin varsayılan `overflow: hidden` davranışı
+// viewBox sınırlarının DIŞINA taşan metni kırpar (ilk sürümde etiketler bu
+// yüzden kart kenarında kesiliyordu, bkz. NEXT_SESSION.md 2026-07-20 notu).
+const SIZE = 440
 const CENTER = SIZE / 2
-const MAX_R = 104
+const MAX_R = 86
+const LABEL_OFFSET = 24
 const RING_FRACTIONS = [0.25, 0.5, 0.75, 1]
 
 const STROKE_DARK = '#818cf8'
@@ -74,7 +79,7 @@ export function SkillRadar({ darkMode, language, routeFilter = null }) {
                 viewBox={`0 0 ${SIZE} ${SIZE}`}
                 role="img"
                 aria-label={isTr ? `Yetenek radarı — ${summary}` : `Skill radar — ${summary}`}
-                style={{ width: '100%', maxWidth: 360, height: 'auto' }}
+                style={{ width: '100%', maxWidth: 400, height: 'auto' }}
             >
                 {RING_FRACTIONS.map((frac) => (
                     <polygon
@@ -98,7 +103,7 @@ export function SkillRadar({ darkMode, language, routeFilter = null }) {
                 {data.map((d, i) => {
                     const hasData = d.value !== null
                     const [px, py] = axisPoint(i, n, MAX_R * ((d.value ?? 0) / 100))
-                    const [lx, ly] = axisPoint(i, n, MAX_R + 36)
+                    const [lx, ly] = axisPoint(i, n, MAX_R + LABEL_OFFSET)
                     const angle = axisAngle(i, n)
                     const anchor = Math.abs(Math.cos(angle)) < 0.2 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end'
                     return (
@@ -108,14 +113,14 @@ export function SkillRadar({ darkMode, language, routeFilter = null }) {
                             ) : (
                                 <circle cx={px} cy={py} r={4} fill="none" stroke={noDataColor} strokeWidth={1.5} strokeDasharray="2,2" />
                             )}
-                            <text x={lx} y={ly - 4} textAnchor={anchor} fontSize="10" fontWeight="700" fill={labelColor}>
+                            <text x={lx} y={ly - 3} textAnchor={anchor} fontSize="13" fontWeight="700" fill={labelColor}>
                                 {isTr ? d.label.tr : d.label.en}
                             </text>
                             <text
                                 x={lx}
-                                y={ly + 10}
+                                y={ly + 14}
                                 textAnchor={anchor}
-                                fontSize="10"
+                                fontSize="12"
                                 fontStyle={hasData ? 'normal' : 'italic'}
                                 fill={hasData ? stroke : noDataColor}
                             >

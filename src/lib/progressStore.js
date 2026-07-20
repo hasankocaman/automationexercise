@@ -159,17 +159,17 @@ export const SKILL_CATEGORIES = [
     },
     {
         id: 'api-backend',
-        label: { tr: 'API & Backend', en: 'API & Backend' },
+        label: { tr: 'API/Backend', en: 'API/Backend' },
         routes: ['/postman', '/bruno', '/rest-assured', '/kafka'],
     },
     {
         id: 'languages',
-        label: { tr: 'Programlama Dili', en: 'Programming Language' },
+        label: { tr: 'Diller', en: 'Languages' },
         routes: ['/python', '/typescript', '/javascript', '/java'],
     },
     {
         id: 'ci-infra',
-        label: { tr: 'CI/CD & Altyapı', en: 'CI/CD & Infra' },
+        label: { tr: 'CI/CD', en: 'CI/CD' },
         routes: ['/docker', '/jenkins', '/kubernetes', '/aws', '/azure'],
     },
     {
@@ -179,7 +179,7 @@ export const SKILL_CATEGORIES = [
     },
     {
         id: 'foundations',
-        label: { tr: 'Temel Kavramlar', en: 'Foundations' },
+        label: { tr: 'Temel', en: 'Basics' },
         routes: ['/what-is-testing', '/git-github', '/linux'],
     },
 ]
