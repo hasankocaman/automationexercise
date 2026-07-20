@@ -6,6 +6,8 @@
 // (cevaplanan quiz + İLK kez tamamlanan egzersiz) — pasif okuma/scroll sayılmaz,
 // aynı birim iki kez sayılmaz (countedIds ile tekilleştirme).
 
+import { trackMapEvent } from '../utils/mapEvents'
+
 const ACTIVITY_LOG_KEY = 'learnqa_activity_log'
 const ACTIVITY_EVENT = 'learnqa-activity-changed'
 
@@ -101,11 +103,37 @@ export function logActivity(kind, id, now = Date.now()) {
     const day = { ...emptyDay(), ...(log.days[key] || {}) }
     if (kind === 'quiz') day.quizzes += 1
     else day.exercises += 1
-    if (dayUnits(day) >= DAILY_GOAL_UNITS) day.goalMet = true
+    if (dayUnits(day) >= DAILY_GOAL_UNITS) {
+        day.goalMet = true
+        // Plan §8.2-S5: gün başına 1 kez — goalEventSent bayrağı ilk geçişte
+        // set edilir, aynı gün içinde tekrar tetiklenmez.
+        if (!day.goalEventSent) {
+            day.goalEventSent = true
+            trackMapEvent('daily_goal_met', { units: dayUnits(day) })
+        }
+    }
     log.days[key] = day
 
     writeLog(pruneOldDays(log, now))
     return true
+}
+
+// Plan §8.2-S5: streak zaman geçmesiyle (kullanıcı hiç dönmeden) de kırılabilir
+// — bu durumu yakalayacak tek yol, streak her OKUNDUĞUNDA önceki bilinen
+// değerle karşılaştırmaktır. HomePage mount'ta bir kez çağrılır; log.lastKnownStreak
+// güncellendiği için aynı "kırık" durum ikinci mount'ta tekrar event ATMAZ
+// (prev zaten 0 olur — doğal idempotentlik, ekstra ref gerekmez).
+export function checkStreakStatus(now = Date.now()) {
+    const log = readLog()
+    const current = getStreak(now).streak
+    const prev = log.lastKnownStreak || 0
+    if (prev > 0 && current === 0) {
+        trackMapEvent('streak_broken', { previousStreak: prev })
+    }
+    if (current !== prev) {
+        log.lastKnownStreak = current
+        writeLog(log)
+    }
 }
 
 // Kazanılan XP'yi günün istatistiğine ekler — birim DEĞİLDİR, hedefi doldurmaz;

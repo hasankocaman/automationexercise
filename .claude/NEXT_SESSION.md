@@ -122,10 +122,72 @@ plan §8.2-S2 promptu uygulandı.
   adımına ertelendi — dosya henüz yoktu, S3 onu oluşturuyor ve heatmap testini
   de aynı suite'e ekliyor (tek dosyada birleştirildi, ayrı dosya açılmadı).
 
-- **Sıradaki adım:** S3 (`tests/daily-loop.spec.ts`) → S4 (i18n/erişilebilirlik
-  denetimi) → S5 (event yayılımı). Bundan sonraki
-  oturumda tam E2E suite'i TEK BAŞINA (paralel iş olmadan) koşup teyit etmek
-  önerilir — hem bu S1 değişiklikleri hem sarkan career-map-v2 teyidi için.
+**S3+S4+S5 TAMAMLANDI (2026-07-20, Sonnet oturumu, tek oturumda ardışık):**
+
+**S3 — `tests/daily-loop.spec.ts` (YENİ dosya, 7 test):** Bugün şeridinin 3
+durumu (davet/aktif/dolu), streak grace (❄️ donmuş + 2+ gün boşlukta sıfırlama),
+/docker'da quiz cevaplayınca `learnqa_activity_log` güncellenmesi + çifte sayım
+koruması (reload + aynı bloğu tekrar cevaplama), `learnqa_last_position` →
+Devam-et CTA href doğruluğu, ActivityHeatmap'in sahte veriyle dolu hücre
+render etmesi (S2'nin kendi test maddesi buraya katlandı, ayrı dosya
+açılmadı). `serviceWorkers: 'block'` kullanıldı (bilinen MSW tuzağı).
+
+**S4 — i18n/erişilebilirlik denetimi:** Bu branch'te main'e göre değişen
+dosyalar (`git diff --name-only main...HEAD`) tarandı. Yeni KULLANICI METNİ
+sadece `HomePage.jsx` (Bugün şeridi) ve `ActivityHeatmap.jsx`'te vardı — ikisi
+de zaten tam bilingual (`language === 'tr' ? ... : ...`); tek dilli kalan
+string bulunmadı. Diğer değişen dosyalar (sandbox blokları, PythonFrameworksTab,
+TopicPage.jsx, activityLog/progressStore/xp.js) sadece Türkçe KOD YORUMU
+içeriyordu, yeni UI metni yoktu. 2 küçük erişilebilirlik iyileştirmesi
+eklendi (denetim sırasında bulunan gerçek eksik, plan promptunda YOKTU ama
+CLAUDE.md §12/dataviz ilkeleriyle uyumlu, kapsam dışına çıkmadan):
+- `daily-goal-bar`a `role="progressbar"` + `aria-valuenow/min/max` +
+  bilingual `aria-label`.
+- `ActivityHeatmap` sarmalayıcısına `role="img"` + özet `aria-label`
+  ("Son 12 hafta aktivite ısı haritası — N aktif gün").
+Touch target (`daily-continue` zaten `min-h-[36px]`), mobil taşma (0px,
+S2'de zaten doğrulanmıştı) ve TR yorum taraması (bu oturumda eklenen tüm
+yorumlar Türkçe) ayrıca teyit edildi.
+
+**S5 — event yayılımı (`mapEvents.js` kalıbı, YENİ SQL GEREKMEDİ —
+`map_events.event_name` serbest metin):**
+- `activityLog.js`: `logActivity()` içine `daily_goal_met` (gün başına 1 kez,
+  `day.goalEventSent` bayrağıyla — F1'de zaten rezerv edilmişti) + yeni
+  `checkStreakStatus(now)` fonksiyonu (`streak_broken`, `log.lastKnownStreak`
+  alanıyla — o da F1'de rezerv edilmişti) eklendi.
+- `HomePage.jsx`: mount effect'ine `dashboard_viewed` (yalnız "Bugün" şeridi
+  AKTİF/davet-değilken, oturum başına 1 kez) + `checkStreakStatus()` çağrısı.
+- `ReviewQueuePanel.jsx`: `review_session_completed` (`isDone && items.length > 0`
+  anında, ref korumalı).
+- **Bulunan ve düzeltilen gerçek bug:** İlk yazımda `dashboard_viewed`/
+  `checkStreakStatus` çağrısı düz `useEffect(() => {...}, [])` içindeydi —
+  React.StrictMode dev modda mount→cleanup→mount döngüsü yaptığından (bu
+  kalıp `JenkinsSandboxBlock.jsx`'teki `mountedRef` yorumunda zaten belgeli)
+  `streak_broken` ilk sayfa yüklemesinde YANLIŞLIKLA 2 kez atılıyordu. Ağ
+  isteklerini dinleyen bir Playwright script'iyle YAKALANDI (`fired` dizisi 2
+  eleman gösterdi, 1 bekleniyordu) ve `dailyLoopEventsFiredRef` guard'ıyla
+  düzeltildi — düzeltmeden sonra ilk yüklemede tam 1 kez ateşlendiği aynı
+  script'le teyit edildi. `daily_goal_met` (event handler içinde, StrictMode'dan
+  etkilenmez) ve `review_session_completed` (zaten kendi ref'i var, dependency
+  bazlı re-run StrictMode'un yalnız İLK mount'u etkilediği ilkesiyle güvenliydi)
+  bu sorunu YAŞAMADI — analiz edilip NEXT_SESSION'a not düşüldü, kod
+  değiştirilmedi.
+
+**Ortak doğrulama (S3+S4+S5, tek oturumda, önceki oturumun arka plan
+işleri süreç yeniden başlatılınca "stopped" olarak işaretlendiği için TEMİZ
+ortamda tekrarlandı):** integrity ✓ · `npm run build` ✓ (31.81s) · el
+doğrulaması (ağ isteği dinleyen Playwright script): `dashboard_viewed`
+aktif şeritte ateşleniyor + davet modunda ateşlenmiyor, `streak_broken`
+StrictMode düzeltmesinden sonra ilk yüklemede tam 1 kez, `daily_goal_met`
+10. birimde ateşleniyor · **27/27 birleşik suite geçti**
+(`daily-loop.spec.ts` 7 + `review-queue.spec.ts` 4 + `homepage-recommended-badges.spec.ts`
+2 + `career-map.spec.ts` 12 + `mobile-smoke.spec.ts` 2).
+
+**Learning OS Faz 1 (F1-F5 + S1-S5) TAMAMEN BİTTİ.** Sıradaki: Faz 2
+(mastery/skill-radar/job-readiness, plan §6) — kullanıcı onayı gerekir,
+şu an planlanmadı. Sarkan iş: career-map-v2'nin TAM E2E suite teyidi
+(paralel iş olmadan tek başına) hâlâ bu oturumda yapılmadı — bir sonraki
+oturumda önerilir.
 
 ---
 

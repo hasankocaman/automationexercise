@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getDueItems, recordReviewResult, REVIEW_QUEUE_SESSION_SIZE } from '../lib/reviewQueue'
+import { trackMapEvent } from '../utils/mapEvents'
 
 // WP4 "Bugünkü Tekrar" (fableplan.md) — Leitner-lite spaced repetition paneli.
 // Sadece daha önce yanlış cevaplanmış quiz sorularını, en fazla
@@ -13,6 +14,16 @@ function ReviewQueuePanel({ darkMode, language, onClose }) {
 
     const current = items[currentIndex]
     const isDone = items.length === 0 || currentIndex >= items.length
+
+    // Plan §8.2-S5: gerçek bir tekrar oturumu (items.length > 0) bitince 1 kez
+    // ölçülür — sadece boş panel açılışını saymamak için items.length şartı var.
+    const sessionCompletedFired = useRef(false)
+    useEffect(() => {
+        if (isDone && items.length > 0 && !sessionCompletedFired.current) {
+            sessionCompletedFired.current = true
+            trackMapEvent('review_session_completed', { count: items.length })
+        }
+    }, [isDone, items.length])
 
     function handleSubmit() {
         if (selected === null || !current) return

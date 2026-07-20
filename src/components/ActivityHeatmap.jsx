@@ -37,9 +37,13 @@ export default function ActivityHeatmap({ darkMode, language }) {
     const totalCols = Math.ceil(padded.length / 7)
     const colors = darkMode ? LEVEL_COLORS_DARK : LEVEL_COLORS_LIGHT
     const weekdayLabels = WEEKDAY_LABELS[language] || WEEKDAY_LABELS.en
+    const activeDays = days.filter((d) => d.units > 0).length
+    const summaryLabel = language === 'tr'
+        ? `Son ${WEEKS} hafta aktivite ısı haritası — ${activeDays} aktif gün`
+        : `Last ${WEEKS} weeks activity heatmap — ${activeDays} active days`
 
     return (
-        <div className="mt-3 overflow-x-auto" data-testid="activity-heatmap">
+        <div className="mt-3 overflow-x-auto" data-testid="activity-heatmap" role="img" aria-label={summaryLabel}>
             <div className="inline-flex gap-1 items-start">
                 <div className="flex flex-col gap-1 pr-1 pt-0.5">
                     {weekdayLabels.map((label, i) => (

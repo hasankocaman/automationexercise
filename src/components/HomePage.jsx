@@ -23,8 +23,9 @@ import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
 import ActivityHeatmap from './ActivityHeatmap'
 import { getQueueStats } from '../lib/reviewQueue'
-import { getDailyGoalProgress, getStreak, subscribeToActivityChanges } from '../lib/activityLog'
+import { getDailyGoalProgress, getStreak, subscribeToActivityChanges, checkStreakStatus } from '../lib/activityLog'
 import { readLastPosition } from '../lib/progressStore'
+import { trackMapEvent } from '../utils/mapEvents'
 import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
 import '../homepage-effects.css'
 import '../night-sky-effects.css'
@@ -127,6 +128,27 @@ function HomePage() {
     })
     const [dailyLoop, setDailyLoop] = useState(readDailyLoop)
     useEffect(() => subscribeToActivityChanges(() => setDailyLoop(readDailyLoop())), [])
+
+    // Plan §8.2-S5 — event ölçümü (fire-and-forget, mapEvents.js kalıbı):
+    // dashboard_viewed yalnızca "Bugün" şeridi AKTİF durumdayken (davet
+    // modunda DEĞİLKEN), oturum başına 1 kez tetiklenir — ilk mount'taki
+    // dailyLoop değeri kullanılır, sonraki state güncellemeleri tekrar
+    // TETİKLEMEZ. checkStreakStatus zaman geçmesiyle sessizce kırılan
+    // streak'leri (kullanıcı hiç dönmeden) mount başına yakalar.
+    // dailyLoopEventsFiredRef: React.StrictMode dev modda mount→cleanup→
+    // mount döngüsü yaptığından (bkz. JenkinsSandboxBlock.jsx mountedRef
+    // kalıbı) ref olmadan bu blok geliştirme ortamında 2 kez çalışıp
+    // streak_broken'ı yanlışlıkla iki kez atardı — üretimde StrictMode
+    // devre dışı olsa da ref korumasız bırakmak riskli.
+    const dailyLoopEventsFiredRef = useRef(false)
+    useEffect(() => {
+        if (dailyLoopEventsFiredRef.current) return
+        dailyLoopEventsFiredRef.current = true
+        const isInviteAtMount = dailyLoop.goal.units === 0 && dailyLoop.streak.streak === 0
+        if (!isInviteAtMount) trackMapEvent('dashboard_viewed')
+        checkStreakStatus(Date.now())
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     // Kariyer Haritası kutusunun 3 durumu (plan §6.1): harita yok (davet) /
     // ilerleme var (kişisel pano girişi) / ana yol bitti (uzmanlık dalları).
@@ -604,6 +626,11 @@ function HomePage() {
                             <div className="flex items-center gap-2 flex-1 min-w-[140px]">
                                 <div
                                     data-testid="daily-goal-bar"
+                                    role="progressbar"
+                                    aria-valuenow={goal.units}
+                                    aria-valuemin={0}
+                                    aria-valuemax={goal.goal}
+                                    aria-label={language === 'tr' ? `Günlük hedef: ${goal.units}/${goal.goal} birim` : `Daily goal: ${goal.units}/${goal.goal} units`}
                                     className={`h-2.5 flex-1 max-w-[220px] rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-amber-100'}`}
                                 >
                                     <div
