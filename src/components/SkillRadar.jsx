@@ -1,0 +1,193 @@
+import { Link } from 'react-router-dom'
+import { getSkillRadarData, getJobReadiness } from '../lib/progressStore'
+
+// Learning OS Faz 2 (Documents/learning-os-redesign-plan.md §6.2-6.3/F8-F9) —
+// saf inline SVG radar + iş hazırlık skoru kartı. Dış kütüphane yok
+// (CLAUDE.md §8). Tek seri (kullanıcının kendi profili) olduğundan legend
+// gerekmez; "veri yok" eksenler ayrı bir görsel/metinsel işaretle (kesikli
+// halka + italik "veri yok" etiketi) gerçek düşük skordan ayırt edilir —
+// eksik veri hiçbir zaman 0 gibi gösterilmez.
+
+const SIZE = 300
+const CENTER = SIZE / 2
+const MAX_R = 104
+const RING_FRACTIONS = [0.25, 0.5, 0.75, 1]
+
+const STROKE_DARK = '#818cf8'
+const FILL_DARK = 'rgba(129, 140, 248, 0.28)'
+const STROKE_LIGHT = '#4f46e5'
+const FILL_LIGHT = 'rgba(79, 70, 229, 0.16)'
+const GRID_DARK = '#374151'
+const GRID_LIGHT = '#e5e7eb'
+const NO_DATA_DARK = '#6b7280'
+const NO_DATA_LIGHT = '#9ca3af'
+const LABEL_DARK = '#e5e7eb'
+const LABEL_LIGHT = '#374151'
+
+function axisAngle(i, n) {
+    return -Math.PI / 2 + i * ((2 * Math.PI) / n)
+}
+
+function axisPoint(i, n, radius) {
+    const angle = axisAngle(i, n)
+    return [CENTER + radius * Math.cos(angle), CENTER + radius * Math.sin(angle)]
+}
+
+function polygonAt(n, radius) {
+    return Array.from({ length: n }, (_, i) => axisPoint(i, n, radius))
+}
+
+function pointsToString(points) {
+    return points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
+}
+
+function humanizeRoute(route) {
+    return route
+        .replace('/', '')
+        .split('-')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ')
+}
+
+export function SkillRadar({ darkMode, language, routeFilter = null }) {
+    const isTr = language === 'tr'
+    const data = getSkillRadarData(routeFilter)
+    const n = data.length
+    if (n === 0) return null
+
+    const gridColor = darkMode ? GRID_DARK : GRID_LIGHT
+    const noDataColor = darkMode ? NO_DATA_DARK : NO_DATA_LIGHT
+    const labelColor = darkMode ? LABEL_DARK : LABEL_LIGHT
+    const fill = darkMode ? FILL_DARK : FILL_LIGHT
+    const stroke = darkMode ? STROKE_DARK : STROKE_LIGHT
+
+    const dataPolygon = polygonAt(n, 0).map((_, i) => axisPoint(i, n, MAX_R * ((data[i].value ?? 0) / 100)))
+    const spokeEnds = polygonAt(n, MAX_R)
+
+    const summary = data
+        .map((d) => `${isTr ? d.label.tr : d.label.en}: ${d.value === null ? (isTr ? 'veri yok' : 'no data') : `%${d.value}`}`)
+        .join(', ')
+
+    return (
+        <div data-testid="skill-radar" className="flex flex-col items-center">
+            <svg
+                viewBox={`0 0 ${SIZE} ${SIZE}`}
+                role="img"
+                aria-label={isTr ? `Yetenek radarı — ${summary}` : `Skill radar — ${summary}`}
+                style={{ width: '100%', maxWidth: 360, height: 'auto' }}
+            >
+                {RING_FRACTIONS.map((frac) => (
+                    <polygon
+                        key={frac}
+                        points={pointsToString(polygonAt(n, MAX_R * frac))}
+                        fill="none"
+                        stroke={gridColor}
+                        strokeWidth={1}
+                    />
+                ))}
+                {spokeEnds.map(([x, y], i) => (
+                    <line key={i} x1={CENTER} y1={CENTER} x2={x} y2={y} stroke={gridColor} strokeWidth={1} />
+                ))}
+                <polygon
+                    points={pointsToString(dataPolygon)}
+                    fill={fill}
+                    stroke={stroke}
+                    strokeWidth={2}
+                    strokeLinejoin="round"
+                />
+                {data.map((d, i) => {
+                    const hasData = d.value !== null
+                    const [px, py] = axisPoint(i, n, MAX_R * ((d.value ?? 0) / 100))
+                    const [lx, ly] = axisPoint(i, n, MAX_R + 36)
+                    const angle = axisAngle(i, n)
+                    const anchor = Math.abs(Math.cos(angle)) < 0.2 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end'
+                    return (
+                        <g key={d.id}>
+                            {hasData ? (
+                                <circle cx={px} cy={py} r={4} fill={stroke} />
+                            ) : (
+                                <circle cx={px} cy={py} r={4} fill="none" stroke={noDataColor} strokeWidth={1.5} strokeDasharray="2,2" />
+                            )}
+                            <text x={lx} y={ly - 4} textAnchor={anchor} fontSize="10" fontWeight="700" fill={labelColor}>
+                                {isTr ? d.label.tr : d.label.en}
+                            </text>
+                            <text
+                                x={lx}
+                                y={ly + 10}
+                                textAnchor={anchor}
+                                fontSize="10"
+                                fontStyle={hasData ? 'normal' : 'italic'}
+                                fill={hasData ? stroke : noDataColor}
+                            >
+                                {hasData ? `%${d.value}` : (isTr ? 'veri yok' : 'no data')}
+                            </text>
+                        </g>
+                    )
+                })}
+            </svg>
+            {/* Erişilebilirlik: grafiğin metin karşılığı (dataviz standardı — tablo görünümü) */}
+            <ul className="sr-only">
+                {data.map((d) => (
+                    <li key={d.id}>
+                        {isTr ? d.label.tr : d.label.en}: {d.value === null ? (isTr ? 'veri yok' : 'no data') : `%${d.value}`}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
+}
+
+export function JobReadinessCard({ darkMode, language, routes, roadmapPercent }) {
+    const isTr = language === 'tr'
+    const readiness = getJobReadiness(routes, roadmapPercent)
+    const cardCls = `rounded-2xl p-4 md:p-5 border ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`
+
+    if (!readiness) {
+        return (
+            <div className={cardCls} data-testid="job-readiness-card">
+                <h3 className={`text-sm font-bold mb-1.5 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    {isTr ? '💼 İş Hazırlık Skoru' : '💼 Job Readiness Score'}
+                </h3>
+                <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {isTr
+                        ? 'Skoru görmek için haritandaki derslerden birkaçını tamamla.'
+                        : 'Complete a few lessons on your map to see your score.'}
+                </p>
+            </div>
+        )
+    }
+
+    return (
+        <div className={cardCls} data-testid="job-readiness-card">
+            <div className="flex items-center justify-between">
+                <h3 className={`text-sm font-bold ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    {isTr ? '💼 İş Hazırlık Skoru' : '💼 Job Readiness Score'}
+                </h3>
+                <span
+                    data-testid="job-readiness-score"
+                    className={`text-2xl font-black ${darkMode ? 'text-indigo-300' : 'text-indigo-600'}`}
+                >
+                    %{readiness.score}
+                </span>
+            </div>
+            {readiness.weakest.length > 0 && (
+                <div className="mt-3">
+                    <p className={`text-xs font-semibold mb-1.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {isTr ? 'Seni en çok ilerletecek 3 şey:' : 'Top 3 things that would move you forward:'}
+                    </p>
+                    <ul className="space-y-1">
+                        {readiness.weakest.map((w) => (
+                            <li
+                                key={w.route}
+                                className={`text-xs flex items-center justify-between rounded-lg px-2.5 py-1.5 ${darkMode ? 'bg-gray-900/50 text-gray-300' : 'bg-gray-50 text-gray-600'}`}
+                            >
+                                <Link to={w.route} className="hover:underline font-medium">{humanizeRoute(w.route)}</Link>
+                                <span className={darkMode ? 'text-amber-400' : 'text-amber-600'}>%{w.mastery}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </div>
+    )
+}

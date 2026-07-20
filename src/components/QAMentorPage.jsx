@@ -6,6 +6,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import TopicHeader from './TopicHeader'
 import CircularProgress from './CircularProgress'
+import { SkillRadar, JobReadinessCard } from './SkillRadar'
 import { DIALOG, MENTOR_STEPS, ALL_MAPS, WEEKLY_HOURS, pickBaseMapId, resolveMap } from '../data/qaMentorData'
 import {
     readMentorProfile,
@@ -388,6 +389,32 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, cer
                     )}
                 </div>
             </div>
+
+            {/* Learning OS Faz 2 (plan §6.2-6.3/F8-F9): Skill Radar + Job Readiness —
+                haritadaki route'lara göre kişiselleştirilmiş, en az 1 ders
+                tamamlanmadan (progress null iken) render edilmez. */}
+            {progress && (
+                <div className={`transition-all duration-700 delay-150 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className={`rounded-2xl p-4 md:p-6 shadow-xl border ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
+                            <h3 className={`text-sm font-bold mb-2 text-center ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                                {lang === 'tr' ? '🎯 Yetenek Radarı' : '🎯 Skill Radar'}
+                            </h3>
+                            <SkillRadar
+                                darkMode={darkMode}
+                                language={lang}
+                                routeFilter={mapData.nodes.map((n) => n.route)}
+                            />
+                        </div>
+                        <JobReadinessCard
+                            darkMode={darkMode}
+                            language={lang}
+                            routes={mapData.nodes.map((n) => n.route)}
+                            roadmapPercent={progress.percent}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Tek büyük CTA (plan §2.3): odak her zaman bir sonraki tek adım */}
             {nextNode && (

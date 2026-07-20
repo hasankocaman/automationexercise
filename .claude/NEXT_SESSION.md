@@ -338,14 +338,44 @@ onayı geldi ("main branchte başlat").
   ((45×66.67+20×42.86+20×3.77+15×85)/100=52.08→52) **birebir eşleşti** —
   formül ve manifest denominatörleri doğrulandı. TR yorum taraması: bu
   oturumda eklenen tüm yorumlar Türkçe.
-- **YAPILMADI (kuyrukta, F8/F9):** Skill radar SVG komponenti
-  (`/qa-mentor`, eksen tablosu plan §6.2'de) ve Job Readiness skoru + UI
-  (plan §6.3) henüz yazılmadı — plan §8 görev tablosunda F8/F9 olarak
-  net kapsamla kayıtlı, Sonnet promptları F8/F9 gerçek dosya/component
-  isimleri belli olunca (F8 bitince) yazılacak.
-- **Commit YAPILMADI** — kullanıcı onayı bekleniyor (bu oturumda önceki bir
-  işte "main branchte başlat" onayı geldi ama commit için ayrı onay
-  istenmedi).
+**F8+F9 de AYNI oturumda tamamlandı (kullanıcı: "commit yap bu geliştirmeyi
+tamamen bitir"):**
+- **F8 (skill radar):** `progressStore.js`'e `SKILL_CATEGORIES` (6 eksen:
+  UI Otomasyon/API&Backend/Dil/CI-CD&Altyapı/SQL&Veri/Temel Kavramlar) +
+  `getSkillRadarData(routeFilter)`. `src/components/SkillRadar.jsx` (YENİ)
+  — saf SVG poligon radar (dış kütüphane yok), "veri yok" eksenler kesikli
+  halka + italik etiketle gerçek düşük skordan ayrılıyor, `role="img"` +
+  `aria-label` + `sr-only` metin listesi (erişilebilirlik).
+- **F9 (job readiness):** `progressStore.getJobReadiness(routes, roadmapPercent)`
+  (roadmap %40 + mastery ort. %35 + mülakat ort. %25, ağırlıklı/eksik-veri-
+  cezasız) + `JobReadinessCard` (aynı dosya) — "seni en çok ilerletecek 3
+  şey" listesi, sadece BAŞLANMIŞ (null olmayan) route'lardan. `/qa-mentor`
+  `MindMapView`'a header'ın altına 2 sütunlu grid olarak entegre edildi.
+- **Doğrulama sırasında bulunan GERÇEK bug (düzeltildi):** `getMastery`
+  kapsam bileşenleri (quizCoverage/exerciseCoverage) sayfa içerik
+  içerdiği sürece HER ZAMAN hesaplanıyordu — hiç ziyaret edilmemiş
+  sayfalar yanlışlıkla "%0 mastery" gösteriyordu ("başlanmadı" değil).
+  Artık en az bir gerçek sinyal (deneme/tamamlanan egzersiz/mülakat puanı)
+  yoksa `null` dönüyor. Bu, gerçek sihirbaz akışı sürülüp (`L_CODER →
+  LANG_JAVA → TOOL_SELENIUM → TIME_MID`) `/java` (dokunulmamış) ile
+  `/selenium` (sahte veri enjekte edilmiş) karşılaştırılarak Playwright
+  script'iyle YAKALANDI ve düzeltmeden sonra ikisi ayrı ayrı doğru
+  davrandığı teyit edildi.
+- **Doğrulama:** `npm run build` ✓ · `node scripts/check-content-integrity.mjs`
+  ✓ (0 ihlal) · el doğrulaması (gerçek dev server + gerçek tarayıcı,
+  gerçek sihirbaz UI akışı): radar ve job-readiness kartı render oluyor,
+  konsol hatası yok (MSW service-worker uyarısı hariç — bilinen dev-mode
+  tuzağı, ilgisiz). TR yorum taraması: bu oturumda eklenen tüm yorumlar
+  Türkçe.
+- **YAPILMADI (bilinçli, Faz 2 dışı):** Retention v2 (§6.4, mastery<50
+  tamamlanmış konular için "tekrar önerisi") — kullanıcı onayıyla ayrı
+  ele alınacak, bu oturumda kapsam dışı bırakıldı.
+- **Commit:** F6+F7 `d9bb2eb`, F8+F9 bu oturumun sonunda ayrı commit
+  (hash bir sonraki oturumda `git log`'dan teyit edilebilir) — ikisi de
+  `main`'e DOĞRUDAN. **Diğer bir bilgisayarda** aynı anda `Claude`
+  `feature/sandbox-and-framework-arch` branch'i üzerinde çalışıyor
+  (bkz. `Documents/sandbox-and-framework-plan.md`) — kullanıcı ikisi
+  bitince bu bilgisayarda merge edecek, henüz merge YAPILMADI.
 
 ---
 

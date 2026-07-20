@@ -122,6 +122,15 @@ export function getMastery(route) {
 
     const interview = getInterviewStats(route)
 
+    // Kapsam bileşenleri (quizCoverage/exerciseCoverage) sayfa İÇERİK içerdiği
+    // sürece HER ZAMAN hesaplanabilir (manifest.total* > 0) — bu yüzden "hiç
+    // ziyaret edilmemiş" durumunu AYRI bir kapı ile yakalamak gerekir, yoksa
+    // hiç dokunulmamış her sayfa yanlışlıkla "%0 mastery" (gerçek bir başarısızlık
+    // gibi) döner, "başlanmadı" değil. En az bir GERÇEK sinyal (deneme, tamamlanan
+    // egzersiz veya mülakat puanı) yoksa null dönülür.
+    const hasAnySignal = attempted > 0 || exerciseCompleted > 0 || interview !== null
+    if (!hasAnySignal) return null // sayfa hiç ziyaret edilmemiş/denenmemiş
+
     const components = []
     if (attempted > 0) components.push({ weight: MASTERY_WEIGHTS.quizPrecision, value: (correct / attempted) * 100 })
     if (manifest.totalQuizBlocks > 0) {
@@ -132,11 +141,95 @@ export function getMastery(route) {
     }
     if (interview) components.push({ weight: MASTERY_WEIGHTS.interview, value: interview.avgPercent })
 
-    if (components.length === 0) return null // hiç etkileşim yok — "başlanmadı"
-
     const totalWeight = components.reduce((sum, c) => sum + c.weight, 0)
     const score = components.reduce((sum, c) => sum + c.weight * c.value, 0) / totalWeight
     return Math.round(score)
+}
+
+// ── Skill Radar (plan §6.2/F8) ──────────────────────────────────────────────
+// Route→kategori eşlemesi elle tutulur (qaMentorData.js'in kariyer haritası
+// node şemasına yeni bir alan eklemek yerine) — o dosya bambaşka bir amaca
+// (kişiselleştirilmiş yol haritası) hizmet ediyor, ustalık kategorisi ayrı bir
+// sınıflandırma ekseni.
+export const SKILL_CATEGORIES = [
+    {
+        id: 'ui-automation',
+        label: { tr: 'UI Otomasyon', en: 'UI Automation' },
+        routes: ['/selenium', '/playwright', '/cypress', '/appium', '/browserstack', '/gauge'],
+    },
+    {
+        id: 'api-backend',
+        label: { tr: 'API & Backend', en: 'API & Backend' },
+        routes: ['/postman', '/bruno', '/rest-assured', '/kafka'],
+    },
+    {
+        id: 'languages',
+        label: { tr: 'Programlama Dili', en: 'Programming Language' },
+        routes: ['/python', '/typescript', '/javascript', '/java'],
+    },
+    {
+        id: 'ci-infra',
+        label: { tr: 'CI/CD & Altyapı', en: 'CI/CD & Infra' },
+        routes: ['/docker', '/jenkins', '/kubernetes', '/aws', '/azure'],
+    },
+    {
+        id: 'sql-data',
+        label: { tr: 'SQL & Veri', en: 'SQL & Data' },
+        routes: ['/sql'],
+    },
+    {
+        id: 'foundations',
+        label: { tr: 'Temel Kavramlar', en: 'Foundations' },
+        routes: ['/what-is-testing', '/git-github', '/linux'],
+    },
+]
+
+// Her eksen için: routeFilter verilmişse (örn. kullanıcının kişisel kariyer
+// haritasındaki route'lar) SADECE o kesişimin ortalaması alınır — böylece
+// radar, kullanıcının hiç ilgilenmediği (haritasında olmayan) teknolojilerden
+// etkilenmez. Kategoride hiç mastery verisi yoksa value `null` döner (0 DEĞİL
+// — "veri yok" ile "gerçekten zayıf" ayrımı UI'da korunmalı).
+export function getSkillRadarData(routeFilter = null) {
+    return SKILL_CATEGORIES.map((cat) => {
+        const routes = routeFilter ? cat.routes.filter((r) => routeFilter.includes(r)) : cat.routes
+        const scores = routes.map((r) => getMastery(r)).filter((v) => typeof v === 'number')
+        const value = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null
+        return { id: cat.id, label: cat.label, value, sampleSize: scores.length, routeCount: cat.routes.length }
+    })
+}
+
+// ── Job Readiness (plan §6.3/F9) ────────────────────────────────────────────
+// Aynı "eksik bileşen dışlanır, kalanlar yeniden normalize edilir" ilkesi
+// (bkz. getMastery) — roadmap ilerlemesi her zaman mevcuttur (0 olsa bile),
+// mastery/mülakat bileşenleri kullanıcı hiç başlamadıysa devre dışı kalır.
+const JOB_READINESS_WEIGHTS = { roadmap: 40, mastery: 35, interview: 25 }
+
+export function getJobReadiness(routes, roadmapPercent) {
+    const routeList = Array.isArray(routes) ? routes : []
+    const masteryScores = routeList.map((r) => getMastery(r)).filter((v) => typeof v === 'number')
+    const interviewScores = routeList.map((r) => getInterviewStats(r)).filter(Boolean).map((s) => s.avgPercent)
+
+    const components = []
+    if (typeof roadmapPercent === 'number') components.push({ weight: JOB_READINESS_WEIGHTS.roadmap, value: roadmapPercent })
+    if (masteryScores.length) components.push({ weight: JOB_READINESS_WEIGHTS.mastery, value: masteryScores.reduce((a, b) => a + b, 0) / masteryScores.length })
+    if (interviewScores.length) components.push({ weight: JOB_READINESS_WEIGHTS.interview, value: interviewScores.reduce((a, b) => a + b, 0) / interviewScores.length })
+
+    if (components.length === 0) return null
+
+    const totalWeight = components.reduce((sum, c) => sum + c.weight, 0)
+    const score = Math.round(components.reduce((sum, c) => sum + c.weight * c.value, 0) / totalWeight)
+
+    // "Seni en çok ilerletecek 3 şey": başlanmış (mastery !== null) ama en
+    // düşük skorlu 3 route — hiç başlanmamış konular burada ÖNERİLMEZ, çünkü
+    // "en zayıf" değil "hiç bakılmamış" olmaları farklı bir öneri kategorisi
+    // (roadmap'teki "sıradaki düğüm" zaten bunu karşılıyor).
+    const weakest = routeList
+        .map((r) => ({ route: r, mastery: getMastery(r) }))
+        .filter((x) => typeof x.mastery === 'number')
+        .sort((a, b) => a.mastery - b.mastery)
+        .slice(0, 3)
+
+    return { score, weakest }
 }
 
 // ── Son konum ("Devam et" derin bağlantısı) ─────────────────────────────────

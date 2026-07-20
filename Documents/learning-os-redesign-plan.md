@@ -186,9 +186,10 @@ birleştirme ayrı karar), bildirim/e-posta, mobil mikro-oturum.
 
 ## 6. Faz 2 — "Ustalık ve İş-Hazırlık"
 
-**Durum (2026-07-20, main branch, Fable oturumu):** F7 (mastery motoru + core
-engine) TAMAMLANDI ve gerçek tarayıcıda doğrulandı. F8 (skill radar UI) ve F9
-(job readiness skoru + UI) henüz YAPILMADI — aşağıda net kapsamla kuyrukta.
+**Durum (2026-07-20, main branch, Fable oturumu):** F6-F9 TAMAMEN BİTTİ —
+mastery motoru, skill radar ve job readiness kartı gerçek tarayıcıda
+doğrulandı, `main`'e commit'lendi. Faz 2'nin geri kalanı (retention v2, §6.4)
+kullanıcı onayıyla ayrı ele alınacak.
 
 ### 6.1 Mastery Modeli — TASARIM KARARI (F7, uygulandı)
 
@@ -243,7 +244,7 @@ sahte veri enjekte edildi (3 quiz denendi/2 doğru, 2 egzersiz tamam, mülakat
 %85) → `getMastery('/docker')` **52** döndü; elle hesaplanan değerle
 (45×66.67 + 20×42.86 + 20×3.77 + 15×85) / 100 = 52.08 → 52) birebir eşleşti.
 
-### 6.2 Skill Radar (F8, YAPILMADI — kuyrukta)
+### 6.2 Skill Radar (F8, TAMAMLANDI)
 
 `/qa-mentor`'a inline SVG radar (dış kütüphane yok, CLAUDE.md §8). Eksen
 önerisi (6-8 eksen, route→eksen eşlemesi F8'de netleştirilecek):
@@ -258,14 +259,46 @@ Her eksenin değeri = o kategorideki route'ların `getMastery()` ortalaması
 (hiç mastery verisi olmayan route'lar ortalamaya katılmaz; kategori genelinde
 hiç veri yoksa eksen "veri yok" görünümünde/soluk render edilir, 0 DEĞİL).
 
-### 6.3 Job Readiness Skoru (F9, YAPILMADI — kuyrukta)
+**Uygulandı:** `progressStore.js`'e `SKILL_CATEGORIES` (6 eksen) +
+`getSkillRadarData(routeFilter)`. `src/components/SkillRadar.jsx` (YENİ, dış
+kütüphane yok) — saf SVG poligon radar, "veri yok" eksenler kesikli halka +
+italik etiketle ayrı gösterilir (dataviz standardı — kimlik/durum asla salt
+renkle taşınmaz), `role="img"` + `aria-label` özeti + `sr-only` metin listesi
+(tablo görünümü karşılığı). `/qa-mentor`'da `MindMapView` header'ının hemen
+altına, `mapData.nodes` route'larıyla filtrelenmiş olarak yerleştirildi.
 
-Tek yüzde = ağırlıklı ortalama: harita ilerlemesi (qa-mentor route
-tamamlanma oranı) × mastery ortalaması (tüm ziyaret edilmiş route'ların
-`getMastery()` ortalaması) × mülakat AI puan ortalaması
-(`learnqa_interview_scores` üzerinden). "Seni en çok ilerletecek 3 şey"
-listesi: mastery'si en düşük 3 BAŞLANMIŞ (null olmayan) route, AI'sız —
-salt eşik/sıralama mantığıyla.
+### 6.3 Job Readiness Skoru (F9, TAMAMLANDI)
+
+Tek yüzde = ağırlıklı ortalama (roadmap %40, mastery ortalaması %35, mülakat
+AI puan ortalaması %25 — `progressStore.getJobReadiness(routes, roadmapPercent)`).
+Mastery formülüyle AYNI ilke: bir bileşenin verisi yoksa dışlanır, kalanlar
+yeniden normalize edilir (roadmap her zaman mevcuttur, 0 olsa bile). "Seni en
+çok ilerletecek 3 şey" listesi: mastery'si en düşük 3 BAŞLANMIŞ (null olmayan)
+route, AI'sız — salt eşik/sıralama mantığıyla; hiç başlanmamış route'lar bu
+listeye ALINMAZ (onlar için zaten roadmap'teki "sıradaki düğüm" öneri
+görevini görüyor).
+
+**Uygulandı:** `src/components/SkillRadar.jsx` → `JobReadinessCard`
+(`data-testid="job-readiness-card"`/`"job-readiness-score"`), zayıf 3 route
+`react-router-dom` `Link` ile tıklanabilir. `/qa-mentor`'da radar'ın yanına
+(2 sütunlu grid, mobilde tek sütun) yerleştirildi.
+
+**Doğrulama (F8+F9, gerçek tarayıcı, Playwright script, 2026-07-20):** Gerçek
+sihirbaz akışı (`L_CODER → LANG_JAVA → TOOL_SELENIUM → TIME_MID` → MAP_C1)
+sürülüp harita çözüldükten sonra: (1) hiç etkileşim yokken `/java` ve
+`/selenium` mastery'si `null` (0 DEĞİL) — "başlanmadı" doğru ayırt ediliyor;
+(2) yalnız `/selenium`'a sahte veri enjekte edilince `/java` `null` KALIYOR,
+`/selenium` gerçek bir skor (39) alıyor, job readiness skoru buna göre
+güncelleniyor ve "en çok ilerletecek" listesinde SADECE `/selenium` beliriyor
+(`/java` başlanmadığı için önerilmiyor — tasarım kararına uygun); (3) UI'da
+radar ve skor kartı gerçekten render oluyor, konsol hatası yok. **Bu
+doğrulama sırasında gerçek bir tasarım hatası bulundu ve düzeltildi:**
+kapsam bileşenleri (quizCoverage/exerciseCoverage) sayfa içerik içerdiği
+sürece HER ZAMAN hesaplanıyordu — bu, hiç ziyaret edilmemiş sayfaların
+yanlışlıkla "%0 mastery" (gerçek başarısızlık) göstermesine yol açıyordu,
+"başlanmadı" değil. `getMastery` artık en az bir gerçek sinyal (deneme,
+tamamlanan egzersiz veya mülakat puanı) yoksa hesaplama yapmadan `null`
+döner.
 
 ### 6.4 Retention v2 (Faz 2 sonu, kullanıcı onayıyla)
 
@@ -303,8 +336,8 @@ i18n cilası, kalibrasyon.
 | F5 | AC güncellemesi + §22 senkron notu + NEXT_SESSION işleme | `Documents/acceptancecriterias.md`, `.claude/NEXT_SESSION.md` |
 | F6 | ✅ Mastery formülü + job readiness tasarım kararları (bu bölüm, §6.1-6.4) | `Documents/learning-os-redesign-plan.md` |
 | F7 | ✅ Mastery motoru: manifest generator + `getMastery`/`recordInterviewMastery`/`getInterviewStats` + build zinciri entegrasyonu | `scripts/generate-mastery-manifest.mjs` (YENİ), `src/data/generated/masteryManifest.js` (YENİ, otomatik üretilir), `src/lib/progressStore.js`, `src/components/TopicPage.jsx`, `package.json` |
-| F8 | Skill radar SVG komponenti + `/qa-mentor` entegrasyonu (§6.2 eksen tablosu) | `src/components/SkillRadar.jsx` (YENİ), `QAMentorPage.jsx` |
-| F9 | Job readiness formülü UI'ı + "seni en çok ilerletecek 3 şey" listesi (§6.3) | `QAMentorPage.jsx` veya `HomePage.jsx` |
+| F8 | ✅ Skill radar SVG komponenti + `/qa-mentor` entegrasyonu (§6.2 eksen tablosu) | `src/components/SkillRadar.jsx` (YENİ), `QAMentorPage.jsx` |
+| F9 | ✅ Job readiness formülü UI'ı + "seni en çok ilerletecek 3 şey" listesi (§6.3) | `src/components/SkillRadar.jsx` (`JobReadinessCard`), `QAMentorPage.jsx` |
 
 ### 8.2 Sonnet görevleri (Fable F1-F3 bittikten sonra, sırayla)
 
