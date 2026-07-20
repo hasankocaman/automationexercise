@@ -370,9 +370,8 @@ tamamen bitir"):**
 - **YAPILMADI (bilinçli, Faz 2 dışı):** Retention v2 (§6.4, mastery<50
   tamamlanmış konular için "tekrar önerisi") — kullanıcı onayıyla ayrı
   ele alınacak, bu oturumda kapsam dışı bırakıldı.
-- **Commit:** F6+F7 `d9bb2eb`, F8+F9 bu oturumun sonunda ayrı commit
-  (hash bir sonraki oturumda `git log`'dan teyit edilebilir) — ikisi de
-  `main`'e DOĞRUDAN. **Diğer bir bilgisayarda** aynı anda `Claude`
+- **Commit:** F6+F7 `d9bb2eb`, F8+F9 `927a09d` — ikisi de `main`'e
+  DOĞRUDAN. **Diğer bir bilgisayarda** aynı anda `Claude`
   `feature/sandbox-and-framework-arch` branch'i üzerinde çalışıyor
   (bkz. `Documents/sandbox-and-framework-plan.md`) — kullanıcı ikisi
   bitince bu bilgisayarda merge edecek, henüz merge YAPILMADI.
