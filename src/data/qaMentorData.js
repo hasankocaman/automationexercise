@@ -284,7 +284,7 @@ const SQL_NODE = (id) => ({
     color: '#0369a1',
     glow: 'rgba(3,105,161,0.4)',
     isMain: true,
-    estimatedHours: 50,
+    estimatedHours: 12,
 })
 
 // Git & GitHub node
@@ -297,7 +297,7 @@ const GIT_GITHUB_NODE = (id) => ({
     color: '#059669',
     glow: 'rgba(5,150,105,0.4)',
     isMain: true,
-    estimatedHours: 40,
+    estimatedHours: 8,
 })
 
 // Linux ana düğüm (tüm haritalarda Docker/Jenkins ana hatta olduğundan Linux artık her yerde ana düğüm)
@@ -310,7 +310,7 @@ const LINUX_MAIN_NODE = (id) => ({
     color: '#ea580c',
     glow: 'rgba(234,88,12,0.4)',
     isMain: true,
-    estimatedHours: 20,
+    estimatedHours: 5,
 })
 
 // Sıfırdan başlayan kullanıcının temel ön eki (MAP_A'nın ilk üç düğümüyle aynı içerik)
@@ -323,7 +323,7 @@ const TEST_FUNDAMENTALS_NODE = (id) => ({
     color: '#0e7490',
     glow: 'rgba(14,116,144,0.4)',
     isMain: true,
-    estimatedHours: 12,
+    estimatedHours: 2,
 })
 
 const ALGORITHMS_NODE = (id) => ({
@@ -335,7 +335,7 @@ const ALGORITHMS_NODE = (id) => ({
     color: '#7c3aed',
     glow: 'rgba(124,58,237,0.4)',
     isMain: true,
-    estimatedHours: 18,
+    estimatedHours: 6,
 })
 
 const MANUAL_TESTING_NODE = (id) => ({
@@ -347,7 +347,7 @@ const MANUAL_TESTING_NODE = (id) => ({
     color: '#0891b2',
     glow: 'rgba(8,145,178,0.4)',
     isMain: true,
-    estimatedHours: 16,
+    estimatedHours: 5,
 })
 
 // Java + "ikisi de" seçiminde MAP_C1'e Selenium'dan sonra eklenen overlay düğümü
@@ -360,7 +360,7 @@ const PLAYWRIGHT_OVERLAY_NODE = (id) => ({
     color: '#7c3aed',
     glow: 'rgba(124,58,237,0.4)',
     isMain: true,
-    estimatedHours: 36,
+    estimatedHours: 10,
 })
 
 // ─── MAP_A: Tamamen sıfırdan başlayanlar ───────────────────────────────────
@@ -382,7 +382,7 @@ export const MAP_A = {
             color: '#d97706',
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
-            estimatedHours: 60,
+            estimatedHours: 17.5,
         },
         GIT_GITHUB_NODE(5),
         {
@@ -394,7 +394,7 @@ export const MAP_A = {
             color: '#2563eb',
             glow: 'rgba(37,99,235,0.4)',
             isMain: true,
-            estimatedHours: 40,
+            estimatedHours: 13,
         },
         {
             id: 7,
@@ -405,7 +405,7 @@ export const MAP_A = {
             color: '#ea580c',
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 3,
         },
         SQL_NODE(8),
         {
@@ -417,7 +417,7 @@ export const MAP_A = {
             color: '#16a34a',
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 5.5,
         },
         LINUX_MAIN_NODE(10),
         {
@@ -429,7 +429,7 @@ export const MAP_A = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 6.5,
         },
         {
             id: 12,
@@ -440,7 +440,7 @@ export const MAP_A = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 5,
         },
         {
             id: 13,
@@ -451,7 +451,7 @@ export const MAP_A = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 14,
+            estimatedHours: 2,
         },
         {
             id: 14,
@@ -462,7 +462,7 @@ export const MAP_A = {
             color: '#0f766e',
             glow: 'rgba(15,118,110,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 5,
         },
     ],
     extras: [
@@ -529,7 +529,7 @@ export const MAP_B = {
             color: '#15803d',
             glow: 'rgba(21,128,61,0.4)',
             isMain: true,
-            estimatedHours: 50,
+            estimatedHours: 26.5,
         },
         {
             id: 2,
@@ -540,7 +540,7 @@ export const MAP_B = {
             color: '#1d4ed8',
             glow: 'rgba(29,78,216,0.4)',
             isMain: true,
-            estimatedHours: 55,
+            estimatedHours: 16.5,
         },
         GIT_GITHUB_NODE(3),
         {
@@ -552,7 +552,7 @@ export const MAP_B = {
             color: '#7c3aed',
             glow: 'rgba(124,58,237,0.4)',
             isMain: true,
-            estimatedHours: 36,
+            estimatedHours: 10,
         },
         {
             id: 5,
@@ -563,7 +563,7 @@ export const MAP_B = {
             color: '#ea580c',
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 3,
         },
         SQL_NODE(6),   // ← SQL: Postman'dan sonra
         LINUX_MAIN_NODE(7),
@@ -576,7 +576,7 @@ export const MAP_B = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.35)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 6.5,
         },
         {
             id: 9,
@@ -587,7 +587,7 @@ export const MAP_B = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 5,
         },
         {
             id: 10,
@@ -598,7 +598,7 @@ export const MAP_B = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 14,
+            estimatedHours: 2,
         },
     ],
     extras: [
@@ -668,7 +668,7 @@ export const MAP_B_SEL = {
             color: '#15803d',
             glow: 'rgba(21,128,61,0.4)',
             isMain: true,
-            estimatedHours: 50,
+            estimatedHours: 26.5,
         },
         {
             id: 2,
@@ -679,7 +679,7 @@ export const MAP_B_SEL = {
             color: '#1d4ed8',
             glow: 'rgba(29,78,216,0.4)',
             isMain: true,
-            estimatedHours: 55,
+            estimatedHours: 16.5,
         },
         GIT_GITHUB_NODE(3),
         {
@@ -691,7 +691,7 @@ export const MAP_B_SEL = {
             color: '#2563eb',
             glow: 'rgba(37,99,235,0.4)',
             isMain: true,
-            estimatedHours: 40,
+            estimatedHours: 13,
         },
         {
             id: 5,
@@ -702,7 +702,7 @@ export const MAP_B_SEL = {
             color: '#7c3aed',
             glow: 'rgba(124,58,237,0.4)',
             isMain: true,
-            estimatedHours: 36,
+            estimatedHours: 10,
         },
         {
             id: 6,
@@ -713,7 +713,7 @@ export const MAP_B_SEL = {
             color: '#ea580c',
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 3,
         },
         SQL_NODE(7),   // ← SQL: Postman'dan sonra
         LINUX_MAIN_NODE(8),
@@ -726,7 +726,7 @@ export const MAP_B_SEL = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.35)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 6.5,
         },
         {
             id: 10,
@@ -737,7 +737,7 @@ export const MAP_B_SEL = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 5,
         },
         {
             id: 11,
@@ -748,7 +748,7 @@ export const MAP_B_SEL = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 14,
+            estimatedHours: 2,
         },
     ],
     extras: [
@@ -818,7 +818,7 @@ export const MAP_C1 = {
             color: '#d97706',
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
-            estimatedHours: 60,
+            estimatedHours: 17.5,
         },
         GIT_GITHUB_NODE(2),
         {
@@ -830,7 +830,7 @@ export const MAP_C1 = {
             color: '#2563eb',
             glow: 'rgba(37,99,235,0.4)',
             isMain: true,
-            estimatedHours: 40,
+            estimatedHours: 13,
         },
         {
             id: 4,
@@ -841,7 +841,7 @@ export const MAP_C1 = {
             color: '#ea580c',
             glow: 'rgba(234,88,12,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 3,
         },
         SQL_NODE(5),   // ← SQL: Postman'dan sonra, REST Assured'dan önce
         {
@@ -853,7 +853,7 @@ export const MAP_C1 = {
             color: '#16a34a',
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 5.5,
         },
         LINUX_MAIN_NODE(7),
         {
@@ -865,7 +865,7 @@ export const MAP_C1 = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 6.5,
         },
         {
             id: 9,
@@ -876,7 +876,7 @@ export const MAP_C1 = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 5,
         },
         {
             id: 10,
@@ -887,7 +887,7 @@ export const MAP_C1 = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 14,
+            estimatedHours: 2,
         },
         {
             id: 11,
@@ -898,7 +898,7 @@ export const MAP_C1 = {
             color: '#0f766e',
             glow: 'rgba(15,118,110,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 5,
         },
     ],
     extras: [
@@ -961,7 +961,7 @@ export const MAP_C2 = {
             color: '#d97706',
             glow: 'rgba(217,119,6,0.4)',
             isMain: true,
-            estimatedHours: 60,
+            estimatedHours: 17.5,
         },
         GIT_GITHUB_NODE(2),
         {
@@ -973,7 +973,7 @@ export const MAP_C2 = {
             color: '#7c3aed',
             glow: 'rgba(124,58,237,0.4)',
             isMain: true,
-            estimatedHours: 36,
+            estimatedHours: 10,
         },
         {
             id: 4,
@@ -984,7 +984,7 @@ export const MAP_C2 = {
             color: '#16a34a',
             glow: 'rgba(22,163,74,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 5.5,
         },
         SQL_NODE(5),   // ← SQL: REST Assured'dan sonra
         LINUX_MAIN_NODE(6),
@@ -997,7 +997,7 @@ export const MAP_C2 = {
             color: '#0369a1',
             glow: 'rgba(3,105,161,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 6.5,
         },
         {
             id: 8,
@@ -1008,7 +1008,7 @@ export const MAP_C2 = {
             color: '#6d28d9',
             glow: 'rgba(109,40,217,0.4)',
             isMain: true,
-            estimatedHours: 20,
+            estimatedHours: 5,
         },
         {
             id: 9,
@@ -1019,7 +1019,7 @@ export const MAP_C2 = {
             color: '#b45309',
             glow: 'rgba(180,83,9,0.4)',
             isMain: true,
-            estimatedHours: 14,
+            estimatedHours: 2,
         },
         {
             id: 10,
@@ -1030,7 +1030,7 @@ export const MAP_C2 = {
             color: '#0f766e',
             glow: 'rgba(15,118,110,0.4)',
             isMain: true,
-            estimatedHours: 24,
+            estimatedHours: 5,
         },
     ],
     extras: [

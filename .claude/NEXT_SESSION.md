@@ -185,6 +185,29 @@ tamamlamıyor, quiz'e geçti — test bunu iki aşamada doğruluyor). `npm run
 build` ✓ · `career-map.spec.ts` 12/12 + `code-playground-completion.spec.ts`
 2/2 ✓ (ikisi de yeşil).
 
+**Kullanıcı bulgusu — süre tahminleri gerçek dışıydı (aynı gün, devam):**
+"şu tarihleri yeniden hesapla, what-is-testing en fazla 1 saat bakınca
+zaten bitiyor" — haklıydı: `qaMentorData.js`'teki `estimatedHours`
+değerleri dosyanın kendi yorumunda da itiraf edilen "ilk geçiş, hiç
+kalibre edilmemiş" placeholder'lardı (örn. what-is-testing: 12 saat,
+Java: 60 saat, SQL: 50 saat — sıfırdan başlayan haritada en düşük tempoda
+toplam **22-28 AY** gösteriyordu).
+**Düzeltme:** Her route için GERÇEK içerik hacmine (manifest'teki tabCount +
+quiz/pasif(video-scene,step-animation)/elle-yazılan(code-playground,challenge,
+editor,*-practice,*-sandbox) blok sayılarına) dayalı ağırlıklı-dakika formülü
+kuruldu: sekme başı 6dk (okuma) + quiz başı 2dk + pasif blok başı 1.5dk +
+elle-yazılan blok başı 6dk, saate çevrilip en yakın 0.5'e yuvarlandı.
+23 route için (tüm TopicPage sayfaları) otomatik hesaplandı; `/algorithms`
+ve `/manual-testing` (TopicPage değil, ayrı component) dosya
+büyüklüğü/soru sayısına göre orantılı elle değerlendirildi (18→6, 16→5).
+`qaMentorData.js`'teki 45 `estimatedHours` alanı (7 paylaşılan factory +
+tüm harita varyantlarındaki inline node'lar) route-bazlı bir codemod
+script'iyle güncellendi — örnekler: what-is-testing 12→2, Java 60→17.5,
+SQL 50→12, Selenium 40→13, Postman 20→3, AWS 14→2.
+**Doğrulama (gerçek tarayıcı):** "Tamamen sıfırım + Java + Selenium + 3-5
+saat/hafta" senaryosunda toplam süre artık **"~6-8 ay"** (önceden 22-28 ay).
+`npm run build` ✓ · `career-map.spec.ts` 12/12 ✓ (regresyon yok).
+
 **Kullanıcı isteği — Skill Radar görsel kalite yükseltmesi:** Kullanıcı bir
 referans PNG (dış bir mindmap aracının şık, temiz görünümü) paylaşıp
 "bu png gibi kaliteli gözükmeli, veri yok yazıları olmamalı" dedi.
