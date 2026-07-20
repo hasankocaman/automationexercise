@@ -278,7 +278,7 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
 // Adds Run / Show Expected Output / Fix the Failing Test / Hint controls under a code block.
 // Run (always shows the correct code's output) and a passing Fix both earn
 // block.xpReward XP — once per exercise id, reduced 5pts per hint revealed.
-export default function CodePlaygroundBlock({ block, darkMode, language }) {
+export default function CodePlaygroundBlock({ block, darkMode, language, onFirstSuccess }) {
     const isTr = language === 'tr'
 
     const codeText = pick(block.code, isTr)
@@ -324,6 +324,10 @@ export default function CodePlaygroundBlock({ block, darkMode, language }) {
         setXp(newTotal)
         setCompleted(getCompletedExercises())
         if (reward > 0) setXpPop({ amount: reward, at: Date.now() })
+        // TopicPage'e "bu blok ilk kez başarıyla bitti" sinyali — quiz'i olmayan
+        // sekmelerde (örn. "Site Haritası" gibi salt link-grid sekmeleri) sekme
+        // tamamlanmasının TEK yolu bu olabilir (bkz. handleExerciseCompleted).
+        onFirstSuccess?.()
     }
 
     const runClick = () => {

@@ -155,6 +155,7 @@ const bugCostStep = {
 const bugCostPractice = {
   type: 'code-playground',
   relatedTopicId: 'wit-intro',
+  id: 'wit-intro-practice-01',
   title: { tr: 'Kendin Dene: Hatayı En Ucuz Aşamada Yakala', en: 'Try It Yourself: Catch the Bug at the Cheapest Stage' },
   starterCode: `// Senaryo: gereksinim toplantisinda "kullanici sifresini sifirlayabilmeli" yaziyor
 // ama HANGI yontemle (email? SMS?) belirtilmemis
@@ -180,6 +181,7 @@ const istqbStep = {
 const istqbPractice = {
   type: 'code-playground',
   relatedTopicId: 'wit-istqb',
+  id: 'wit-istqb-practice-01',
   title: { tr: 'Kendin Dene: Doğru İlkeyi Eşleştir', en: 'Try It Yourself: Match the Right Principle' },
   starterCode: `// Senaryo: ayni regresyon suite'i 6 aydir hic degismedi,
 // son 20 kosumda hic yeni hata bulunmadi
@@ -205,6 +207,7 @@ const devopsStep = {
 const devopsPractice = {
   type: 'code-playground',
   relatedTopicId: 'wit-web-mobile-process',
+  id: 'wit-devops-practice-01',
   title: { tr: 'Kendin Dene: DevOps Döngüsündeki Doğru Aşamayı Bul', en: 'Try It Yourself: Find the Right DevOps Loop Phase' },
   starterCode: `// Senaryo: production'da bir hata sepete ekleme oranini dusuruyor,
 // bu veri bir sonraki sprint planlamasina giriyor
@@ -230,6 +233,7 @@ const roadmapStep = {
 const roadmapPractice = {
   type: 'code-playground',
   relatedTopicId: 'wit-site-map',
+  id: 'wit-site-map-practice-01',
   title: { tr: 'Kendin Dene: Öğrenme Sırasını Doğru Diz', en: 'Try It Yourself: Order the Learning Path Correctly' },
   starterCode: `// Hedef: Java bilen bir QA'nin dogru ogrenme sirasini yaz
 // TODO: dogru sirayi yaz (1, 2, 3)

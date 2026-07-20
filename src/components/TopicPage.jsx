@@ -17675,7 +17675,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             return <ManualTestingLabBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         case 'code-playground':
-            return <CodePlaygroundBlock key={i} block={block} darkMode={darkMode} language={language} />
+            return <CodePlaygroundBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
 
         case 'good-vs-bad':
             return <GoodVsBadBlock key={i} block={block} darkMode={darkMode} language={language} />
@@ -20385,8 +20385,21 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     // başarı koşulu var) için günlük hedef sayacı. activityLog kendi içinde
     // id bazlı tekilleştirme yapar, bu yüzden burada ekstra state gerekmez —
     // aynı blok tekrar "başarılı" olsa da ikinci kez SAYILMAZ.
+    //
+    // Kullanıcı bildirimi (2026-07-20): "Site Haritası" gibi hiç quiz bloğu
+    // içermeyen (sadece link-grid/simple-box + tek bir code-playground) bir
+    // sekme, mevcut %60-quiz-eşiği mantığıyla ASLA otomatik tamamlanamıyordu
+    // — sidebar'daki elle-işaretle checkbox'ı teknik olarak çalışıyordu ama
+    // küçük ve keşfedilemez olduğundan kullanıcı "tamamlamanın yolu yok"
+    // sandı. Kök çözüm: bu sekmede quiz VE mülakat bloğu YOKSA, bir egzersiz
+    // ilk kez başarıyla bitince sekme de otomatik tamamlanmış sayılır — aynı
+    // kalıp ileride benzer "sadece egzersizli" bir sekme başka bir sayfada
+    // eklenirse orada da otomatik çalışır.
     function handleExerciseCompleted(blockIndex) {
         logActivity('exercise', `${pageKey}:${activeTab}:${blockIndex}`)
+        if (countQuizBlocksInTab(activeTab) === 0 && !tabHasInterviewBlock(activeTab)) {
+            markTabAsVerifiedComplete(activeTab)
+        }
     }
 
     // Mülakat Pratiği bloğu örneklenen soruların ortalaması ≥%80 olduğunda çağırır

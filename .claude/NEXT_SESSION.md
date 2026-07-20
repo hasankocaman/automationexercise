@@ -10,6 +10,53 @@
 
 ---
 
+## 🐛 DÜZELTİLDİ + BÜYÜK BULGU — /what-is-testing "Site Haritası" sekmesi tamamlanamıyordu (2026-07-20, Fable oturumu)
+
+**Kullanıcı bildirimi:** "/what-is-testing sayfasında en alttaki sekmeyi (Site
+Haritası) tamamlamanın yolu yok."
+
+**Kök neden (iki katmanlı):**
+1. Bu sekmede hiç `quiz`/`quiz-fill` bloğu yok (sadece `simple-box`/`heading`/
+   `link-grid` + 1 `code-playground`) — `handleQuizAnswered`'daki %60 eşiği
+   hiç TETİKLENEMİYOR (quiz yok ki cevaplansın). Sidebar'daki elle-işaretle
+   checkbox'ı teknik olarak ÇALIŞIYORDU (`toggleTabComplete`, quiz/mülakat
+   bloğu olmayan sekmelerde zaten kilitsizdi) ama küçük ve keşfedilemezdi.
+2. **Daha derin, gerçek bug:** `roadmapPractice` code-playground bloğunun
+   `id` alanı YOKTU (sadece `relatedTopicId` vardı). `CodePlaygroundBlock.jsx`
+   `awardXpOnce()` fonksiyonu `if (!block.id || isDone) return` ile hemen
+   çıkıyor — yani bu egzersiz kullanıcıya "Doğru!" mesajı gösterse bile
+   XP/tamamlama HİÇBİR ZAMAN kaydedilmiyordu (sessiz veri kaybı).
+
+**Düzeltme:**
+- `whatIsTestingData.js`'teki 4 code-playground bloğunun TAMAMINA (`wit-intro`,
+  `wit-istqb`, `wit-web-mobile-process`, `wit-site-map`) `id` eklendi.
+- `CodePlaygroundBlock.jsx`: `awardXpOnce` artık yeni `onFirstSuccess` prop'unu
+  çağırıyor (ilk başarılı tamamlanmada).
+- `TopicPage.jsx`: `case 'code-playground'` → `onFirstSuccess={() =>
+  onExerciseCompleted?.(i)}` bağlandı. `handleExerciseCompleted`: sekmede
+  quiz VE mülakat bloğu YOKSA, egzersiz ilk kez bitince sekme de otomatik
+  tamamlanır (`markTabAsVerifiedComplete`) — genel bir düzeltme, başka
+  sayfalarda aynı kalıp (sadece egzersizli sekme) varsa orada da çalışır.
+- **Doğrulama (gerçek tarayıcı):** Site Haritası sekmesinde pratik doğru
+  çözülünce checkbox `aria-checked: false → true` — teyit edildi.
+  `docker-sandbox.spec.ts` + `docker-interview-mastery-flow.spec.ts`
+  **3/3 GEÇTİ** (regresyon yok, `handleExerciseCompleted` sitede paylaşılan
+  bir fonksiyon).
+
+**⚠️ BÜYÜK BULGU (henüz düzeltilmedi, kullanıcı onayı bekliyor):** Aynı `id`
+eksikliği taraması TÜM `src/data/*Data.js` üzerinde (gerçek dynamic-import
+ile, tahmin değil) çalıştırıldı: **83 code-playground bloğu, 10 farklı
+dosyada** aynı sessiz XP/tamamlama kaybı bug'ına sahip:
+`postmanData.js` (16/16 — TÜMÜ), `jmeterData.js` (14/14 — TÜMÜ),
+`appiumData.js` (12), `azureData.js` (9), `kafkaData.js` (8), `awsData.js`
+(7), `javaData.js` (7), `browserstackData.js` (4), `cypressData.js` (4),
+`restAssuredData.js` (2). Sadece kullanıcının bildirdiği sayfa (whatIsTesting)
+düzeltildi; kalan 83 blok ve kalıcı bir build-gate (check-content-integrity.mjs'e
+"code-playground id zorunlu" kontrolü — step-animation/quiz-id emsaliyle
+aynı desen) kullanıcı onayı ile ayrı bir iş paketi olarak ele alınmalı.
+
+---
+
 ## ✨ EKLENDİ — /qa-mentor haritasına eğrisel bağlantı + "buradasın" işareti (2026-07-20, Fable oturumu, kullanıcı isteğiyle)
 
 Kullanıcı bir dış araçtan (mindmap görsel örneği) esinlenip "kişi gideceği yeri
