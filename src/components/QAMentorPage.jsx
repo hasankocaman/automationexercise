@@ -157,6 +157,97 @@ function OptionButton({ option, onClick, darkMode, disabled, badge }) {
     )
 }
 
+// ─── Mind Map Path (eğrisel bağlantı + "buradasın" işareti) ────────────────
+// Mevcut düğüm listesine (space-y-3, testleri bozmayacak şekilde) SADECE
+// görsel bir SVG katmanı EKLER — hiçbir testid/metin/tıklama davranışı
+// değişmez. containerRef'in doğrudan çocuklarının gerçek DOM konumu ölçülüp
+// (ResizeObserver) düğümler arasından yumuşak bir S-eğrisi geçirilir; segment
+// rengi hedef düğümün durumuna göre değişir (done=yeşil dolu, next=vurgulu,
+// future=soluk kesik çizgi — kilit değil, sadece "henüz oraya gelmedin" hissi).
+function MindMapPath({ containerRef, statuses, darkMode }) {
+    const [anchors, setAnchors] = useState([])
+
+    useEffect(() => {
+        const container = containerRef.current
+        if (!container) return
+
+        function measure() {
+            const children = Array.from(container.children)
+            const containerRect = container.getBoundingClientRect()
+            const points = children.map((child, i) => {
+                const rect = child.getBoundingClientRect()
+                const wiggle = i % 2 === 0 ? -5 : 5
+                return { x: 7 + wiggle, y: rect.top - containerRect.top + rect.height / 2 }
+            })
+            setAnchors(points)
+        }
+
+        measure()
+        const ro = new ResizeObserver(measure)
+        ro.observe(container)
+        return () => ro.disconnect()
+    }, [containerRef, statuses.length])
+
+    if (anchors.length < 2) return null
+
+    const height = Math.max(...anchors.map((p) => p.y)) + 24
+    const hereIndex = statuses.findIndex((s) => s === 'next')
+    const here = hereIndex >= 0 ? anchors[hereIndex] : null
+    const hereColor = darkMode ? '#818cf8' : '#4f46e5'
+
+    function segmentStyle(toStatus) {
+        if (toStatus === 'done') return { stroke: '#22c55e', width: 3, dash: 'none', opacity: 0.9 }
+        if (toStatus === 'next') return { stroke: hereColor, width: 3, dash: 'none', opacity: 1 }
+        return { stroke: darkMode ? '#4b5563' : '#d1d5db', width: 2, dash: '5,6', opacity: 0.7 }
+    }
+
+    return (
+        <svg
+            className="absolute left-0 top-0 z-0"
+            width={40}
+            height={height}
+            style={{ overflow: 'visible' }}
+            aria-hidden="true"
+            data-testid="mind-map-path"
+        >
+            {anchors.slice(1).map((point, idx) => {
+                const prev = anchors[idx]
+                const style = segmentStyle(statuses[idx + 1])
+                const midY = (prev.y + point.y) / 2
+                const d = `M ${prev.x},${prev.y} C ${prev.x},${midY} ${point.x},${midY} ${point.x},${point.y}`
+                return (
+                    <path
+                        key={idx}
+                        d={d}
+                        fill="none"
+                        stroke={style.stroke}
+                        strokeWidth={style.width}
+                        strokeDasharray={style.dash}
+                        strokeLinecap="round"
+                        opacity={style.opacity}
+                    />
+                )
+            })}
+            {here && (
+                <g data-testid="mind-map-here-marker">
+                    <circle
+                        cx={here.x}
+                        cy={here.y}
+                        r={11}
+                        fill="none"
+                        stroke={hereColor}
+                        strokeWidth={2}
+                        opacity={0.55}
+                        className="animate-ping"
+                        style={{ transformOrigin: `${here.x}px ${here.y}px` }}
+                    />
+                    <circle cx={here.x} cy={here.y} r={6} fill={hereColor} stroke={darkMode ? '#1f2937' : '#ffffff'} strokeWidth={2} />
+                </g>
+            )}
+        </svg>
+    )
+}
+
 // ─── Mind Map Node ──────────────────────────────────────────────────────────
 // status: 'done' (tamamlandı) | 'next' (sıradaki, pulse vurgusu) | 'future' (soluk
 // ama tıklanabilir — kilit yok, meraklı kullanıcı ileriye bakabilmeli, plan §7 risk 4)
@@ -172,24 +263,17 @@ function MindMapNode({ node, index, lang, darkMode, animDelay, status, durationL
     const isDone = status === 'done'
     const isNext = status === 'next'
 
+    const isFuture = status === 'future'
+
     return (
         <div
             className={`relative transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-            {/* Connector line — left side indicator (tamamlananlarda yeşil omurga) */}
             <div
-                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-[60%] rounded-full"
-                style={{
-                    background: isDone ? '#22c55e' : node.color,
-                    boxShadow: `0 0 8px ${isDone ? 'rgba(34,197,94,0.5)' : node.glow}`,
-                }}
-            />
-
-            <div
-                className={`ml-3 group relative overflow-hidden rounded-xl border p-3 md:p-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-xl
+                className={`ml-3 group relative z-10 overflow-hidden rounded-xl border p-3 md:p-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-xl
                     ${darkMode ? 'bg-gray-800 border-gray-700 hover:border-gray-500' : 'bg-white border-gray-200 hover:border-gray-300'}
                     ${isNext ? 'ring-2 ring-indigo-400/80 shadow-lg shadow-indigo-500/20' : ''}
-                    ${status === 'future' ? 'opacity-75' : ''}`}
+                    ${isFuture ? 'opacity-75 border-dashed' : ''}`}
                 style={{
                     boxShadow: `0 0 0 0 ${node.glow}`,
                 }}
@@ -207,7 +291,7 @@ function MindMapNode({ node, index, lang, darkMode, animDelay, status, durationL
                     {/* Step number — tamamlananlarda yeşil onay */}
                     <div
                         className="flex-shrink-0 w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-white text-xs font-black shadow-lg"
-                        style={{ background: isDone ? '#16a34a' : node.color }}
+                        style={{ background: isDone ? '#16a34a' : isFuture ? (darkMode ? '#4b5563' : '#9ca3af') : node.color }}
                     >
                         {isDone ? '✓' : index + 1}
                     </div>
@@ -294,6 +378,7 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, cer
     const [headerVisible, setHeaderVisible] = useState(false)
     const [noteVisible, setNoteVisible] = useState(false)
     const navigate = useNavigate()
+    const pathContainerRef = useRef(null)
 
     useEffect(() => {
         const t1 = setTimeout(() => setHeaderVisible(true), 100)
@@ -449,7 +534,12 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, cer
                     </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="relative space-y-3" ref={pathContainerRef}>
+                    <MindMapPath
+                        containerRef={pathContainerRef}
+                        statuses={mapData.nodes.map(nodeStatus)}
+                        darkMode={darkMode}
+                    />
                     {mapData.nodes.map((node, i) => (
                         <MindMapNode
                             key={node.id}

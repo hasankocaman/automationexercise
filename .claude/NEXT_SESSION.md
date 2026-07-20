@@ -10,6 +10,37 @@
 
 ---
 
+## ✨ EKLENDİ — /qa-mentor haritasına eğrisel bağlantı + "buradasın" işareti (2026-07-20, Fable oturumu, kullanıcı isteğiyle)
+
+Kullanıcı bir dış araçtan (mindmap görsel örneği) esinlenip "kişi gideceği yeri
+ve nerede olduğunu görse güzel olmaz mı" diye sordu; **hafif orta yol**
+seçildi (tam radyal ağaç yeniden tasarımı DEĞİL — career-map-v2 zaten olgun
+ve 12 testli, riske atılmadı): mevcut dikey düğüm listesi (`space-y-3`,
+`MindMapNode`) korunarak SADECE üzerine bir SVG katmanı eklendi.
+
+**`QAMentorPage.jsx`:**
+- **`MindMapPath`** (YENİ component): `ResizeObserver` ile düğüm listesinin
+  gerçek DOM konumlarını ölçüp aralarından yumuşak S-eğrisi (cubic bezier)
+  geçirir. Segment rengi hedef düğümün durumuna göre değişir: done→yeşil dolu,
+  next→indigo dolu (vurgulu), future→gri kesik çizgi. "Buradasın" işareti:
+  `next` durumundaki düğümün konumunda pulse halka (`animate-ping`) + dolu
+  nokta.
+- Eski per-node düz bar (`absolute left-0 ... w-1`, testid YOKTU, salt
+  dekoratifti) kaldırıldı — yeni sürekli eğri onun yerini alıyor, ikisi
+  birden görsel kirlilik yaratırdı.
+- `future` düğümlerin ikon kutusu artık gri/soluk (`node.color` değil) +
+  kart kenarlığı `border-dashed` — "henüz oraya gelmedin" hissi net ama
+  kilit YOK (plan §7 risk 4 ilkesi korundu, tıklanabilir kalıyor).
+- **Hiçbir testid/metin/tıklama davranışı değişmedi** — sadece ekleme.
+
+**Doğrulama:** `npm run build` ✓ · `node scripts/check-content-integrity.mjs`
+✓ (0 ihlal) · `npx playwright test tests/career-map.spec.ts` **12/12 GEÇTİ**
+(regresyon yok) · el doğrulaması (gerçek tarayıcı ekran görüntüsü, hem dark
+hem light mod): eğri + pulse + kesikli gelecek segmentleri görsel olarak
+teyit edildi.
+
+---
+
 ## 🐛 DÜZELTİLDİ — /typescript sayfasında 35 quiz bloğu tamamen kırıktı (2026-07-20, Fable oturumu)
 
 **Bulan:** Kullanıcı ekran görüntüsüyle bildirdi — Kurulum sekmesindeki bir
