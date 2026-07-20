@@ -261,6 +261,98 @@ teyit edildi.
 
 ---
 
+## 🏗️ Sandbox + Framework Mimarisi planı başladı — Gauge pilotu bitti (2026-07-20, Fable oturumu, `feature/sandbox-and-framework-arch` — bu branch ana bilgisayardan merge edildi)
+
+**Bağlam:** Kullanıcı iki geliştirme konusunu (1. her sekmede her konudan
+sonra sandbox/practice ekleme, 2. Selenium/Playwright/Cypress/REST
+Assured/Appium/Gauge'a SOLID+POM mimari öğretim modülü ekleme) karşılaştırıp
+tek bir plana bağlamamı istedi. Plan `Documents/sandbox-and-framework-plan.md`
+dosyasında (kalıcı yayılım planı, `CLAUDE.md` §0 tablosuna eklendi).
+Karşılaştırma sonucu: Framework Mimarisi modülü (dar kapsam, 6 sayfa) daha
+kısa sürede biten bir teslim; Sandbox Evrenselleştirme ise zaten §9.2'nin
+tanımladığı kalıcı/kademeli hedef. Bu yüzden önce Faz A (Framework Mimarisi)
+başlatıldı.
+
+**Branch:** `feature/sandbox-and-framework-arch` (GitHub'dan lokale getirildi,
+üzerine geçildi — bu oturumda başka hiçbir dal değişikliği yok).
+
+**Bu oturumda yapılan (commit `ca8e165` + `a44ee38`):**
+1. `src/data/gaugeData.js`'e yeni "🏗️ Framework Mimarisi (SOLID + POM)"
+   sekmesi eklendi (JSON Locator Deposu ile Ekosistem & CI/CD arasına,
+   `sections` dizisinde yeni index 5 — sonraki index'ler ve
+   `gaugeFeynmanDefs`'teki `sectionIndex` değerleri kaydırıldı: 5→6, 6→7,
+   7→8). 5 adım: Büyük Resim Mindmap → Core/Base Katmanı (DriverFactory +
+   BaseTest, daha önce "Kurulum'da göreceğiz" denip hiç yazılmamıştı, ilk
+   kez burada yazıldı) → POM Katmanı (LoginPage artık `extends BasePage`) →
+   SOLID Uygulaması (5 prensip için İHLAL/UYGUN kod çiftleri + comparison
+   tablosu) → Test/Data Katmanı (CheckoutSteps: DriverFactory + Page
+   sınıfları + env/ + ScenarioDataStore hepsi birleşiyor). Her adımda §9.1
+   üçlüsü (step-animation + challenge order-sort + code-playground) ve
+   §9.3'ün 4 katmanlı analoji standardında simple-box.
+2. `Documents/sandbox-and-framework-plan.md` güncellendi: §4.0 olarak
+   pilotun tam referansı eklendi, §4.1'deki Sonnet promptu placeholder'ı
+   gerçek section başlığıyla dolduruldu + dosya iskeleti farkı uyarısı
+   eklendi (gaugeData/restAssuredData aynı `// ── N:` + sections + Feynman
+   kalıbını paylaşıyor, Selenium/Playwright/Cypress/Appium FARKLI bir iç
+   yapı kullanıyor — Sonnet önce dosyayı incelemeli). §2.2'ye Faz B için
+   sayfa başına somut ipucu teması tablosu eklendi (Faz A temalarıyla
+   KASITLI çakışmayacak şekilde, örn. Selenium Faz A: locator/wait, Faz B:
+   alert/frame/Actions class).
+
+**Doğrulama (ilk kod commit'i için, `ca8e165`):** `node
+scripts/check-content-integrity.mjs` 0 ihlal · `npm run build` başarılı ·
+eklenen TÜM TR/EN yorum satırları tek tek grep ile okunup dil ayrımı teyit
+edildi (TR satırlar Türkçe, EN satırlar İngilizce, çapraz sızıntı yok).
+Post-commit hook'un tetiklediği tam 188 testlik `npm run test:e2e` süiti bu
+oturumda **foreground'da 2 dakikalık araç zaman aşımına takılıp yarıda
+kesildi (exit 143)** — bunun yerine arka planda
+`SKIP_E2E_HOOK=1 npm run test:e2e -- --grep "gauge"` başlatıldı.
+
+**🐛 Bulunup düzeltilen gerçek bug:** Arka plan koşumu (`brfz8pes2`) 9/10
+testi geçirdi ama `tests/i18n-content-toggle.spec.ts` AC03 Koşul B
+(`/gauge` EN modda Türkçeye özgü karakter taraması) **KIRMIZI** çıktı:
+yeni eklediğim `comparison` bloğunun satır değerleri (`'anti-pattern'`/
+`solid` alanları) bilingual `{tr,en}` DEĞİL, düz Türkçe string'di —
+`ComparisonBlock` bu değerleri `tx()` ile çevirmiyor, olduğu gibi
+basıyor, sonuç: EN modda "sekme 5"te Türkçe cümle ("+ AssertJ + Logger —
+dört ayrı sınıf") sızıyordu. Kök neden: `comparison` block şeması sadece
+dil-bağımsız (kod parçacığı gibi) hücre değerleri için tasarlanmış,
+`table` block şeması ise her hücreyi `tx(cell, language)` ile çeviriyor.
+**Düzeltme (commit `7ba9419`, TEYİT EDİLDİ):** blok `type: 'table'`'a
+çevrildi, 5 satırın tümü `{tr,en}` bilingual hücrelere taşındı. Hedefli
+test (`npx playwright test tests/i18n-content-toggle.spec.ts -g gauge`)
+düzeltmeden sonra tek başına **GEÇTİ** (12.5s). `7ba9419` commit'inin
+post-commit hook'u tetiklediği TAM 188 testlik suite de tamamlandı
+(1.6 saat, 176 passed / 10 failed / 2 flaky) — i18n testi artık listede
+YOK (fix kalıcı). 10 başarısızlığın 9'u `/gauge` dışındaki alakasız
+sayfalarda (`typescript, python, bruno, jenkins, docker, rest-assured,
+java, claude-ai, llm-agents`) AYNI test tipinde (`topic-pages-ui.spec.ts
+— buton görünürlüğü`) art arda çıktı — bu suite sırasında ikinci bir
+Playwright koşumu (`b7gdytctq`) da paralel çalışıyordu, yani kaynak
+çakışması/timeout kaynaklı ortam gürültüsü. `/gauge` için bu testi tek
+başına izole çalıştırdım: **GEÇTİ** (14.3s) — gerçek bir regresyon değil.
+Framework Mimarisi pilotu artık tam anlamıyla doğrulanmış ve kapalı.
+
+**Sıradaki adım (sonraki oturum):**
+- Bu bug'ın YALNIZCA bu modüle mi özgü olduğunu, yoksa projede başka bir
+  yerde de `comparison` block'a yanlışlıkla düz string satır yazılmış olup
+  olmadığını `grep -n "type: 'comparison'"` ile TÜM `src/data/*.js`
+  dosyalarında tara (cypressData, jmeterData, linuxData, pythonData,
+  playwrightData, restAssuredData — 44 kullanım, sadece 2'si spot-check
+  edildi, ikisi de güvenli `left`/`right` varyantıydı) — aynı hata başka
+  bir sayfada da gizli olabilir. Zorunlu değil, due-diligence.
+- Faz A'nın kalan 5 sayfası (Selenium → Playwright → Cypress →
+  REST Assured → Appium sırasıyla, plan §1.1 önceliğine göre) için
+  `Documents/sandbox-and-framework-plan.md` §4.1'deki güncellenmiş promptla
+  ayrı Sonnet oturumları başlatılabilir — Sonnet'e bu i18n hatasını da
+  ÖRNEK olarak anlat (comparison yerine table kullan veya rows'u bilingual
+  yap).
+- Faz B (sandbox evrenselleştirme) henüz BAŞLAMADI — plan §2.2'deki ipucu
+  teması tablosu hazır, ilk sayfa Selenium (en büyük açık: 129 code/editor
+  bloğuna karşı 4 code-playground).
+
+---
+
 ## 🐛 DÜZELTİLDİ — /typescript sayfasında 35 quiz bloğu tamamen kırıktı (2026-07-20, Fable oturumu)
 
 **Bulan:** Kullanıcı ekran görüntüsüyle bildirdi — Kurulum sekmesindeki bir

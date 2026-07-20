@@ -158,9 +158,9 @@ export const MASTERY_MANIFEST = {
   },
   "/gauge": {
     "pageKey": "gauge",
-    "tabCount": 8,
-    "totalQuizBlocks": 14,
-    "totalExerciseBlocks": 34,
+    "tabCount": 9,
+    "totalQuizBlocks": 19,
+    "totalExerciseBlocks": 48,
     "hasInterview": true
   },
   "/what-is-testing": {
