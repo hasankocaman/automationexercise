@@ -3793,15 +3793,18 @@ public class LoginSteps {
         },
       },
       {
-        type: 'comparison',
-        title: { tr: 'God Object (Anti-Pattern) vs SOLID Framework — 5 Prensip', en: 'God Object (Anti-Pattern) vs SOLID Framework — 5 Principles' },
-        columns: ['Anti-Pattern', 'SOLID Çözümü'],
+        type: 'table',
+        headers: [
+          { tr: 'Prensip', en: 'Principle' },
+          { tr: 'Anti-Pattern (God Object)', en: 'Anti-Pattern (God Object)' },
+          { tr: 'SOLID Çözümü', en: 'SOLID Solution' },
+        ],
         rows: [
-          { concept: { tr: 'SRP', en: 'SRP' }, 'anti-pattern': 'LoginSteps: driver + locator + assertion + log hepsi bir arada', solid: 'DriverFactory + LoginPage + AssertJ + Logger — dört ayrı sınıf' },
-          { concept: { tr: 'OCP', en: 'OCP' }, 'anti-pattern': 'Yeni rapor kanalı için mevcut sınıfa if/else eklenir', solid: 'ReportListener arayüzüne yeni sınıf (SlackReportListener) eklenir' },
-          { concept: { tr: 'LSP', en: 'LSP' }, 'anti-pattern': 'Alt sınıf type() metodunu sessizce boş bırakır', solid: 'Her BasePage alt sınıfı wait/click/type sözleşmesine tam uyar' },
-          { concept: { tr: 'ISP', en: 'ISP' }, 'anti-pattern': 'Tek ElementActions arayüzü click+type+drag+upload zorunlu kılar', solid: 'Clickable/Typeable gibi küçük arayüzler, sadece gerekeni implement et' },
-          { concept: { tr: 'DIP', en: 'DIP' }, 'anti-pattern': 'Steps sınıfı içinde new ChromeDriver() sabit kodlanır', solid: 'Steps sınıfı DriverFactory soyutlamasına bağımlıdır' },
+          ['SRP', { tr: 'LoginSteps: driver + locator + assertion + log hepsi bir arada', en: 'LoginSteps: driver + locator + assertion + logging all mixed together' }, { tr: 'DriverFactory + LoginPage + AssertJ + Logger — dört ayrı sınıf', en: 'DriverFactory + LoginPage + AssertJ + Logger — four separate classes' }],
+          ['OCP', { tr: 'Yeni rapor kanalı için mevcut sınıfa if/else eklenir', en: 'A new report channel is added via if/else inside the existing class' }, { tr: 'ReportListener arayüzüne yeni sınıf (SlackReportListener) eklenir', en: 'A new class (SlackReportListener) is added implementing ReportListener' }],
+          ['LSP', { tr: 'Alt sınıf type() metodunu sessizce boş bırakır', en: 'A subclass silently leaves the type() method empty' }, { tr: 'Her BasePage alt sınıfı wait/click/type sözleşmesine tam uyar', en: 'Every BasePage subclass fully honors the wait/click/type contract' }],
+          ['ISP', { tr: 'Tek ElementActions arayüzü click+type+drag+upload zorunlu kılar', en: 'One ElementActions interface forces click+type+drag+upload on everyone' }, { tr: 'Clickable/Typeable gibi küçük arayüzler, sadece gerekeni implement et', en: 'Small interfaces like Clickable/Typeable — implement only what you need' }],
+          ['DIP', { tr: 'Steps sınıfı içinde new ChromeDriver() sabit kodlanır', en: 'new ChromeDriver() is hard-coded inside the Steps class' }, { tr: 'Steps sınıfı DriverFactory soyutlamasına bağımlıdır', en: 'The Steps class depends on the DriverFactory abstraction' }],
         ],
       },
       {
