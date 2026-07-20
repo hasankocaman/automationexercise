@@ -101,12 +101,27 @@ açığa göre, en büyük boşluktan başlanır):
 metinlerinin %85'ten fazla benzemesini yasaklıyor. Birden fazla paralel
 Sonnet oturumu birbirinden habersiz benzer ipucu yazarsa build kırılır. Bu
 yüzden:
-- Fable, her sayfaya özel bir "ipucu teması" belirler (örn. Selenium →
-  locator/wait senaryoları, Java → Collections/OOP senaryoları) ve bunu
-  ilgili Sonnet promptuna yazar.
+- Fable, her sayfaya özel bir "ipucu teması" belirler ve bunu ilgili Sonnet
+  promptuna yazar (aşağıdaki tablo).
 - Her Sonnet oturumu kendi dosyasını bitirdikten sonra
   `node scripts/check-content-integrity.mjs` çalıştırıp sıfır ihlal
   doğrulamadan "bitti" DEMEZ.
+
+**Faz B ipucu teması ataması (dedup çakışmasını önlemek için Faz A §4.1'deki
+temalardan KASITLI olarak farklı seçildi — aynı dosyada iki ayrı modül aynı
+temayı paylaşırsa iç-dosya benzerlik riski doğar):**
+
+| Sayfa | Faz B ipucu teması | Not |
+|---|---|---|
+| Selenium | Alert/frame/window handling + Actions class (drag&drop, hover) senaryoları | Faz A'nın locator/explicit-wait temasından KASITLI farklı |
+| Java | Collections/OOP (Stream API, generics, inheritance) senaryoları | — |
+| Playwright | Network interception (`page.route`) + trace/screenshot debugging senaryoları | Faz A'nın fixture/auto-waiting temasından KASITLI farklı |
+| Cypress | `cy.intercept` ile stub/mock senaryoları | Faz A'nın command chain/App Actions temasından KASITLI farklı |
+| Kubernetes | Pod/deployment troubleshooting (`kubectl describe`/`logs` okuma) senaryoları | — |
+| Backend | Supabase RPC/Edge Function çağrı + hata yönetimi senaryoları | — |
+| JavaScript | DOM event/async (Promise, callback) senaryoları | Block adlandırması önce doğrulanmalı (§2.1 not) |
+| SQL | JOIN/aggregate/subquery senaryoları | Block adlandırması önce doğrulanmalı (§2.1 not) |
+| TypeScript | Generic/type-narrowing/utility-type senaryoları | Block adlandırması önce doğrulanmalı (§2.1 not) |
 
 ---
 
@@ -140,6 +155,52 @@ yüzden:
 
 ## 4. Sonnet Promptları (kopyala-kullan)
 
+### 4.0 Pilot Tamamlandı — Referans (Fable, Gauge)
+
+`src/data/gaugeData.js` içine `sections` dizisinin JSON Locator Deposu (eski
+index 4) ile Ekosistem & CI/CD (eski index 5, yeni index 6) arasına yeni bir
+section eklendi: başlık `{ tr: '🏗️ Framework Mimarisi (SOLID + POM)', en:
+'🏗️ Framework Architecture (SOLID + POM)' }`, `// ── 5: Framework Mimarisi
+(SOLID + POM) ──` yorum etiketiyle. `trTabs`/`enTabs` dizilerine aynı
+konuma yeni tab metni eklendi; sonraki `// ── N:` yorumları ve
+`gaugeFeynmanDefs` içindeki `sectionIndex` değerleri (5→6, 6→7, 7→8)
+kaydırıldı, yeni section için `sectionIndex: 5` ile bir Feynman checkpoint
+eklendi.
+
+**İçerik deseni (5 adım, hepsi gaugeData.js'in ZATEN kurduğu
+`DriverFactory.getDriver()`/`LoginPage`/`ScenarioDataStore` sınıflarını
+temel aldı, çelişen yeni isim İCAT EDİLMEDİ):**
+1. Büyük Resim Mindmap — simple-box (4 katman) + `code`(language:'text')
+   ASCII mindmap + 1 quiz.
+2. Core/Base Katmanı — DriverFactory (ThreadLocal<WebDriver>, daha önce
+   sayfada "Kurulum'da göreceğiz" denip hiç gösterilmemişti, ilk kez burada
+   yazıldı) + BaseTest (@BeforeSuite/@BeforeScenario/@AfterSuite) + üçlü
+   (step-animation + challenge order-sort + code-playground) + quiz.
+3. POM Katmanı — BasePage (wait/click/type ortak metotları) + LoginPage
+   artık `extends BasePage` (öncesinde @FindBy'ı doğrudan kullanıyordu) +
+   üçlü + quiz.
+4. SOLID Uygulaması — SRP/OCP/LSP/ISP/DIP için ayrı ayrı "İHLAL" + "UYGUN"
+   kod çifti + `comparison` bloğu (columns: ['Anti-Pattern', 'SOLID
+   Çözümü']) + 1 challenge(multiple-choice, senaryo→prensip eşleştirme) +
+   1 code-playground(DIP) + quiz.
+5. Test/Data Katmanı — CheckoutSteps: DriverFactory + Page sınıfları +
+   `System.getProperty("base.url")` (env/ katmanına bağlı) +
+   `ScenarioDataStore` hepsi tek sınıfta birleşiyor + code-playground + son
+   senaryo-tabanlı quiz.
+
+**Yapısal not (kritik, Sonnet ATLAMAMALI):** `gaugeData.js` ve
+`restAssuredData.js` AYNI kalıbı kullanıyor (`const sections = [...]`
+literal dizi + `// ── N: Başlık ──` yorum + `trTabs`/`enTabs` + `sectionIndex`
+tabanlı Feynman dizisi) — bu ikisinde yukarıdaki kaydırma deseni birebir
+uygulanır. `seleniumData.js`, `playwrightData.js`, `cypressData.js`,
+`appiumData.js` FARKLI/daha büyük bir iç yapı kullanıyor (grep ile bu
+dosyalarda `// ── N:` yorum deseni VE sectionIndex tabanlı Feynman dizisi
+BULUNAMADI) — Sonnet bu 4 dosyada yeni sekmeyi eklemeden önce dosyanın
+KENDİ section/tab/(varsa) checkpoint kaydını incelemeli, gaugeData'nın
+literal yapısını körü körüne kopyalamamalıdır. Değişmeyen şey İÇERİK
+deseni (yukarıdaki 5 adım + blok tipleri), değişen şey o dosyanın hangi
+JS iskeletine oturduğudur.
+
 ### 4.1 Faz A — Framework Mimarisi Rollout Promptu (parametrik)
 
 ```
@@ -147,12 +208,24 @@ Sen QA Learning Platform projesinde çalışıyorsun (CLAUDE.md anayasa dosyası
 oku, özellikle §8, §9.1, §9.3, §9.4). Görevin: src/data/{{DOSYA}}.js
 dosyasına yeni bir "Framework Mimarisi" alt-modülü eklemek.
 
-Referans pilot: src/data/gaugeData.js içindeki [Fable'ın eklediği section
-başlığı/id'sini buraya yaz] bölümü — AYNI 5 adımlı yapıyı (Büyük Resim
-Mindmap → Core/Base Katmanı → POM Katmanı → SOLID Uygulaması → Test/Data
-Katmanı) kopyala AMA içeriği {{ARAÇ}}'ın kendi API'sine göre yeniden yaz.
-Kopya-yapıştır şablon metni YASAK — her adım {{ARAÇ}}'a özgü gerçek kod ve
-mekanizma içermeli.
+Referans pilot: src/data/gaugeData.js içindeki "🏗️ Framework Mimarisi
+(SOLID + POM)" bölümü (JSON Locator Deposu ile Ekosistem & CI/CD arasına
+eklendi, `// ── 5: Framework Mimarisi (SOLID + POM) ──` yorumuyla işaretli)
+— AYNI 5 adımlı yapıyı (Büyük Resim Mindmap → Core/Base Katmanı → POM
+Katmanı → SOLID Uygulaması → Test/Data Katmanı) ve AYNI blok bileşimini
+(bkz. §4.0 içerik deseni) kopyala AMA içeriği {{ARAÇ}}'ın kendi API'sine
+göre yeniden yaz. Kopya-yapıştır şablon metni YASAK — her adım {{ARAÇ}}'a
+özgü gerçek kod ve mekanizma içermeli.
+
+ÖNCE {{DOSYA}}.js'in kendi iç yapısını incele (sections nasıl tanımlı,
+trTabs/enTabs var mı, sectionIndex tabanlı bir Feynman/checkpoint dizisi
+var mı) — gaugeData.js'in literal `// ── N:` yorum + sections dizisi
+kalıbını KÖRÜ KÖRÜNE kopyalama, sadece restAssuredData.js bu kalıbı
+paylaşıyor; diğer dosyalar farklı bir iç yapıya sahip olabilir. Yeni
+sekmeyi mevcut yapıya uygun şekilde ekle; eğer dosyada sectionIndex tabanlı
+bir referans dizisi varsa, yeni section'ı ARAYA soktuğun için ondan SONRAKİ
+tüm sectionIndex değerlerini kaydırmayı UNUTMA (gaugeData.js pilotunda
+5→6, 6→7, 7→8 kaydırıldı, örnek olarak bak).
 
 Zorunlu kurallar:
 - Her adım: simple-box (§9.3'ün 4 katmanı: somut analoji + düşündürücü
@@ -166,7 +239,10 @@ Zorunlu kurallar:
   olduğunu doğrula, yoksa ekle; ya da {tr,en} bilingual formatına çevir.
 - İpucu teması: {{IPUCU_TEMASI}} — bu temaya bağlı kal, başka sayfalarda
   kullanılan ipucu metinlerini KOPYALAMA (check-content-integrity.mjs %85
-  benzerlik eşiğini kırar).
+  benzerlik eşiğini kırar). Gauge pilotunda kullanılan somut ipuçları
+  (ThreadLocal.remove() sızıntısı, BasePage extends pratiği, DIP constructor
+  injection, ScenarioDataStore put/get anahtar eşleşmesi) — bunlarla ayni
+  veya cok benzer bir ipucu YAZMA, {{ARAÇ}}'a özgü YENİ bir senaryo bul.
 
 Bitirmeden önce KENDİN çalıştır ve sıfır hata doğrula:
 1. node scripts/check-content-integrity.mjs
@@ -177,15 +253,15 @@ Bunlardan biri bile geçmeden "tamamladım" deme; "şunu kontrol etmen
 gerekebilir: ..." şeklinde raporla.
 ```
 
-Parametre tablosu (Fable tarafından pilot bitince doldurulacak):
+Parametre tablosu:
 
-| {{DOSYA}} | {{ARAÇ}} | {{IPUCU_TEMASI}} |
-|---|---|---|
-| seleniumData | Selenium WebDriver | locator/explicit-wait senaryoları |
-| playwrightData | Playwright | fixture/auto-waiting senaryoları |
-| cypressData | Cypress | command chain/App Actions senaryoları |
-| restAssuredData | REST Assured | endpoint wrapper/request spec senaryoları |
-| appiumData | Appium | mobile locator/driver capability senaryoları |
+| {{DOSYA}} | {{ARAÇ}} | {{IPUCU_TEMASI}} | Dosya iskeleti |
+|---|---|---|---|
+| seleniumData | Selenium WebDriver | locator/explicit-wait senaryoları (Gauge'daki ThreadLocal/BasePage temalarıyla ÇAKIŞMAYAN, WebDriverWait/FluentWait odaklı somut senaryolar) | gaugeData'dan FARKLI iç yapı — önce incele |
+| playwrightData | Playwright | fixture/auto-waiting senaryoları (`test.extend` tabanlı DI, Gauge'daki DriverFactory'den farklı bir mekanizma) | gaugeData'dan FARKLI iç yapı — önce incele |
+| cypressData | Cypress | command chain/App Actions senaryoları (custom command tabanlı POM, klasik POM'la gerilimi §1.1 tablosunda not edildi) | gaugeData'dan FARKLI iç yapı — önce incele |
+| restAssuredData | REST Assured | endpoint wrapper/request spec senaryoları (RequestSpecification/ResponseSpecification tabanlı, UI değil API katmanı) | gaugeData ile AYNI iskelet (`// ── N:` + sections + sectionIndex Feynman) — kaydırma deseni doğrudan uygulanabilir |
+| appiumData | Appium | mobile locator/driver capability senaryoları (AppiumDriver capability injection, WebDriver'dan farklı bir DriverFactory varyantı) | gaugeData'dan FARKLI iç yapı — önce incele |
 
 ### 4.2 Faz B — Sandbox Boşluk Doldurma Promptu (parametrik)
 
