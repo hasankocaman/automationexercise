@@ -611,15 +611,21 @@ function HomePage() {
                                 : 'border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50'
                                 }`}
                         >
-                            {/* Streak — grace kuralı: dün hedefliyse ❄️ donmuş görünür (plan §4 öneri 3) */}
+                            {/* Streak — grace kuralı: dün hedefliyse ❄️ donmuş görünür (plan §4 öneri 3).
+                                streak 0 iken "🔥 0 gün" yerine kazandıran ton (plan §10 risk 7):
+                                bugün aktivite var ama seri henüz başlamamışsa filiz mesajı gösterilir. */}
                             <span
                                 data-testid="daily-streak"
                                 title={streak.frozen
                                     ? (language === 'tr' ? 'Streak donmuş — bugün çalışırsan devam eder!' : 'Streak frozen — study today to keep it going!')
-                                    : (language === 'tr' ? 'Üst üste hedefli gün sayın' : 'Consecutive goal-met days')}
+                                    : streak.streak === 0
+                                        ? (language === 'tr' ? 'Bugünkü hedefi doldurunca serin başlar' : 'Hit today\'s goal to start your streak')
+                                        : (language === 'tr' ? 'Üst üste hedefli gün sayın' : 'Consecutive goal-met days')}
                                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-black ${darkMode ? 'bg-amber-800/60 text-amber-200' : 'bg-amber-100 text-amber-800'}`}
                             >
-                                {streak.frozen ? '❄️' : '🔥'} {streak.streak} {language === 'tr' ? 'gün' : streak.streak === 1 ? 'day' : 'days'}
+                                {streak.streak === 0 && !streak.frozen
+                                    ? <>🌱 {language === 'tr' ? 'Bugün başladın!' : 'You started today!'}</>
+                                    : <>{streak.frozen ? '❄️' : '🔥'} {streak.streak} {language === 'tr' ? 'gün' : streak.streak === 1 ? 'day' : 'days'}</>}
                             </span>
 
                             {/* Günlük hedef barı */}

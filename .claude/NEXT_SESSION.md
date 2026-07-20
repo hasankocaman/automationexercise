@@ -59,7 +59,8 @@ hedef dolu kutlaması + streak 🔥1 — hepsi doğrulandı.
 **Sıradaki adım:** Sonnet S1-S5 (promptlar plan §9'da; S3 `tests/daily-loop.spec.ts`
 yazılırken şeritteki mevcut testid'ler kullanılacak, hepsi F3'te eklendi).
 Bilinen küçük UX notu: birim>0 ama streak 0 iken rozet "🔥 0 gün" gösteriyor —
-S4 cilasında "bugün başladın" tonuna çevrilebilir.
+S4 cilasında "bugün başladın" tonuna çevrilebilir. → **KAPANDI** (2026-07-20
+denetim oturumu): rozet artık bu durumda "🌱 Bugün başladın!" gösteriyor.
 **Dikkat:** Önceki oturumdan sarkan iş — career-map-v2 tam suite teyidi
 (aşağıdaki bölüm) hâlâ bekliyor; bu oturumda ana sayfayı etkileyen 4 suite
 yeşil görüldü ama TAM suite koşulmadı.
@@ -182,6 +183,24 @@ StrictMode düzeltmesinden sonra ilk yüklemede tam 1 kez, `daily_goal_met`
 10. birimde ateşleniyor · **27/27 birleşik suite geçti**
 (`daily-loop.spec.ts` 7 + `review-queue.spec.ts` 4 + `homepage-recommended-badges.spec.ts`
 2 + `career-map.spec.ts` 12 + `mobile-smoke.spec.ts` 2).
+
+**Plan-uygunluk denetimi (2026-07-20, Fable oturumu):** Faz 1 çıktıları
+`Documents/learning-os-redesign-plan.md`'ye karşı satır satır denetlendi.
+Sonuç: uygulama plana uygun; tespit edilen 3 eksik giderildi:
+1. `getPageCompletion(route)` sapması (bilinçli atlama — route→pageKey
+   salt-okunur adaptörde türetilemiyor, Faz 2 `getMastery`'ye ertelendi)
+   plana işlendi.
+2. Streak-0 "🔥 0 gün" tonu düzeltildi (HomePage `daily-streak` rozeti:
+   birim>0 + streak 0 → "🌱 Bugün başladın!", bilingual + title güncellendi).
+3. Tüm Faz 1 sapmaları plan dokümanına yeni **§12 "Faz 1 Uygulama Sonucu —
+   Plandan Sapmalar"** bölümü olarak eklendi (eski §12 Kapanış Ritüeli §13
+   oldu) — kod ile plan artık çelişmiyor.
+Doğrulama: integrity ✓ · `npm run build` ✓ (4m9s) · `daily-loop.spec.ts`:
+paralel 4-worker soğuk koşumda 3 geçti + 2 retry'da geçti + 2 düştü; düşen
+2 test (hedef-dolu kutlaması + heatmap dolu hücre) izole `--workers=1`
+tekrar koşumda **2/2 GEÇTİ** (38.8s) — bilinen soğuk-server paralel-yük
+flakiness kalıbı, regresyon değil (ilk denemede locator "resolved to
+visible" logları da geç-yükleme teşhisini doğruluyor).
 
 **Learning OS Faz 1 (F1-F5 + S1-S5) TAMAMEN BİTTİ.** Sıradaki: Faz 2
 (mastery/skill-radar/job-readiness, plan §6) — kullanıcı onayı gerekir,

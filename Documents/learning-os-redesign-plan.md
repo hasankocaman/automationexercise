@@ -390,7 +390,35 @@ UI'ı bloklamaz (fire-and-forget, try/catch).
 - **Ders tamamlama:** ders bitirme rozeti event'lerinin (mevcut akış) artışı.
 - **Streak dağılımı:** `streak_broken` sıklığı — grace kuralı işe yarıyor mu?
 
-## 12. Kapanış Ritüeli (her iş paketi sonunda, fableplan.md ile aynı)
+## 12. Faz 1 Uygulama Sonucu — Plandan Sapmalar (2026-07-20 denetimi)
+
+Faz 1 (F1-F5 + S1-S5) tamamlandı ve koda karşı denetlendi. Aşağıdaki bilinçli
+sapmalar uygulandı — plan metniyle kod çelişik görünürse KOD doğrudur:
+
+1. **`logActivity(kind, amount)` → `logActivity(kind, id)` (§5-F1):** Çifte
+   sayım koruması (S3 test 3) id bazlı tekilleştirme gerektirdi; birim ağırlığı
+   `kind`'dan türetilir (quiz=1, exercise=2). İmza değişti, davranış plandaki
+   hedefle aynı.
+2. **`getPageCompletion(route)` YAZILMADI (§5-F1):** Sayfa tamamlanma yüzdesi
+   `progress_<pageKey>` anahtarlarında tutulur ve `pageKey` hero title'dan
+   türetilir — salt-okunur adaptör route→pageKey eşlemesini data dosyalarını
+   import etmeden bilemez. Faz 1'de hiçbir tüketicisi yoktu; Faz 2'deki
+   `getMastery(route)` tasarımıyla birlikte ele alınacak (bkz. §6).
+3. **"Bugünkü Tekrar" kartı şeride TAŞINMADI (§5-F3):** Mevcut
+   `review-queue-card` testid'lerine 4 test bağlı; kart şeridin hemen altında
+   yerinde kaldı, davranış aynı.
+4. **Heatmap mobilde 8 haftaya düşmez (§9-S2):** Bunun yerine widget kendi
+   `overflow-x-auto` sarmalayıcısında kaydırılır — sayfa geneli yatay taşma
+   0px (CLAUDE.md §12 ilkesiyle uyumlu, 375px viewport'ta doğrulandı).
+5. **S3 quiz senaryosu /python değil /docker üzerinde (§9-S3):** Davranış
+   aynı; /docker quiz'i test için daha deterministik seçildi.
+6. **Streak-0 tonu (§10 risk 7):** Birim>0 ama streak 0 iken rozet "🔥 0 gün"
+   yerine "🌱 Bugün başladın!" gösterir — kazandıran metin tonu kuralı
+   şeride de uygulandı.
+
+Detaylı uygulama notları ve doğrulama kayıtları: `.claude/NEXT_SESSION.md`.
+
+## 13. Kapanış Ritüeli (her iş paketi sonunda, fableplan.md ile aynı)
 
 ```
 1. node scripts/check-content-integrity.mjs   # 0 ihlal
