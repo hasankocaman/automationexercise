@@ -688,6 +688,7 @@ const raInterviewStep = {
 const raInterviewPractice = {
   type: 'code-playground',
   relatedTopicId: 'rest-assured-interview',
+  id: 'rest-assured-interview',
   title: { tr: 'Kendin Dene: Tekrar Eden İstek Ayarlarını RequestSpecification\'a Taşı', en: 'Try It Yourself: Move Repeated Request Settings into RequestSpecification' },
   starterCode: `// Her testte tekrar eden ayarlar:
 given().baseUri("https://reqres.in").header("Content-Type", "application/json")

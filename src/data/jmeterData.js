@@ -667,6 +667,7 @@ const jmeterAveragePercentileStep = {
 const jmeterAveragePercentilePractice = {
   type: 'code-playground',
   relatedTopicId: 'jmeter-interview-en',
+  id: 'jmeter-average-percentile-practice',
   title: { tr: 'Kendin Dene: P99 Anomalisini Yorumla', en: 'Try It Yourself: Interpret a P99 Anomaly' },
   starterCode: `// Aggregate Report:
 // Average: 250ms | P99: 9500ms | Error %: 0.1
@@ -695,6 +696,7 @@ const jmeterAggregateReportStep = {
 const jmeterThreadGroupPractice = {
   type: 'code-playground',
   relatedTopicId: 'jmeter-intro',
+  id: 'jmeter-intro',
   title: { tr: 'Kendin Dene: Thread Group Parametrelerini Ayarla', en: 'Try It Yourself: Configure Thread Group Parameters' },
   starterCode: `// Hedef: 100 kullanici, 50 saniyede kademeli baslasin, her biri 5 kez tekrar etsin
 // TODO: asagidaki degerleri doldur
@@ -808,6 +810,7 @@ const jmeterJavaHomeStep = {
 const jmeterJavaHomePractice = {
   type: 'code-playground',
   relatedTopicId: 'jmeter-installation',
+  id: 'jmeter-installation',
   title: { tr: 'Kendin Dene: JAVA_HOME Ayarla ve Doğrula', en: 'Try It Yourself: Set and Verify JAVA_HOME' },
   starterCode: `# BUG: JAVA_HOME yanlis yola isaret ediyor
 export JAVA_HOME=/opt/java/jdk-8
@@ -833,6 +836,7 @@ const jmeterRampUpCalcStep = {
 const jmeterRampUpPractice = {
   type: 'code-playground',
   relatedTopicId: 'jmeter-core-concepts',
+  id: 'jmeter-core-concepts',
   title: { tr: 'Kendin Dene: Gerçekçi Bir Ramp-Up Hesapla', en: 'Try It Yourself: Calculate a Realistic Ramp-Up' },
   starterCode: `// Hedef: 10 dakikalik (600s) bir test, 300 kullanici ile
 // TODO: altin kurala gore (Ramp-Up >= Duration'in %10'u) bir Ramp-Up degeri sec
@@ -859,6 +863,7 @@ const jmeterGroovyExtractStep = {
 const jmeterGroovyExtractPractice = {
   type: 'code-playground',
   relatedTopicId: 'jmeter-advanced',
+  id: 'jmeter-advanced',
   title: { tr: 'Kendin Dene: JSR223 ile Rastgele Test Verisi Üret', en: 'Try It Yourself: Generate Random Test Data with JSR223' },
   starterCode: `// TODO: rastgele bir kullanici ID'si uret ve JMeter degiskeni olarak sakla
 import java.util.UUID
@@ -875,6 +880,7 @@ log.info("Generated userId: " + userId)`,
 const jmeterCsvConfigPractice = {
   type: 'code-playground',
   relatedTopicId: 'jmeter-real-world',
+  id: 'jmeter-real-world',
   title: { tr: 'Kendin Dene: CSV Data Set Config\'i Doğru Kur', en: 'Try It Yourself: Configure CSV Data Set Config Correctly' },
   starterCode: `// BUG: her sanal kullanici AYNI hesapla test ediyor, row-locking bug'lari GIZLENIYOR
 // TODO: 500 farkli kullanici icin CSV config ayarla
@@ -903,6 +909,7 @@ const jmeterDockerCiStep = {
 const jmeterDockerCiPractice = {
   type: 'code-playground',
   relatedTopicId: 'jmeter-ecosystem',
+  id: 'jmeter-ecosystem',
   title: { tr: 'Kendin Dene: Docker ile JMeter Çalıştır', en: 'Try It Yourself: Run JMeter via Docker' },
   starterCode: `# TODO: docker run ile flashsale.jmx'i calistir, sonuclari results.jtl'e yaz
 docker run --rm -v $(pwd):/tests justb4/jmeter \\

@@ -2,7 +2,7 @@
 /**
  * check-content-integrity.mjs
  *
- * Scans src/data/*Data.js for five categories of violations:
+ * Scans src/data/*Data.js for six categories of violations:
  *   (a) English comments in TR-context code blocks (code, editor, code-playground,
  *       error-dictionary codeWrong/codeFixed, interview-questions code snippets)
  *   (b) Missing relatedTopicId on code-playground / interview-questions / error-dictionary blocks
@@ -11,6 +11,10 @@
  *   (e) quiz options missing 'id' (breaks correct/selected matching — ALL options
  *       render red/✗ regardless of the answer chosen; see typescriptData.js incident,
  *       .claude/NEXT_SESSION.md 2026-07-20)
+ *   (f) code-playground blocks missing 'id' (CodePlaygroundBlock.jsx's awardXpOnce
+ *       bails out silently with `if (!block.id) return` — the UI still shows a
+ *       "Doğru!" success message but XP/exercise-completion is NEVER recorded;
+ *       see /what-is-testing "Site Haritası" incident, .claude/NEXT_SESSION.md 2026-07-20)
  *
  * Exit code 1 when any violations found (breaks build/commit).
  * Follows the same reporting pattern as check-seo.mjs.
@@ -357,6 +361,61 @@ async function checkQuizOptionIdSchema(filepath, filename, violations) {
   }
 }
 
+// ─── Check (f): code-playground `id` schema ──────────────────────────────────
+//
+// CodePlaygroundBlock.jsx's awardXpOnce() does `if (!block.id || isDone) return`
+// BEFORE calling markExerciseComplete/addXP/onFirstSuccess — a block without an
+// `id` silently NEVER records XP or exercise completion, even though the UI
+// still shows a "Doğru!"/"Correct!" success message to the user. This is
+// DIFFERENT from relatedTopicId (Check B, a content-authoring/attribution
+// field) — `id` is the runtime identity key the XP/completion system keys on.
+// Discovered 2026-07-20 via a user report that /what-is-testing's "Site
+// Haritası" tab could never be marked complete; a site-wide scan then found
+// the same silent gap in 40 other blocks across 10 files.
+
+async function checkCodePlaygroundIdSchema(filepath, filename, violations) {
+  let mod
+  try {
+    mod = await import(pathToFileURL(filepath).href)
+  } catch {
+    return // file fails to import — not this check's concern
+  }
+
+  const seenBlocks = new Set()
+
+  function walkBlocks(blocks) {
+    for (const block of blocks || []) {
+      if (!block || block.type !== 'code-playground') continue
+      if (seenBlocks.has(block)) continue // aynı obje iki ağaca da (tr/en) eklenmiş olabilir
+      seenBlocks.add(block)
+      if (block.id) continue
+
+      const label = block.relatedTopicId
+        || (typeof block.title === 'string' ? block.title : (block.title?.tr || block.title?.en))
+        || '(relatedTopicId/title yok)'
+
+      violations.push({
+        type: 'code-playground-missing-id',
+        file: filename,
+        line: 0,
+        content: `code-playground "${label}" — 'id' alanı yok (awardXpOnce sessizce çıkar, XP/tamamlama hiç kaydedilmez)`,
+      })
+    }
+  }
+
+  function walkSections(sections) {
+    for (const section of sections || []) walkBlocks(section?.blocks)
+  }
+
+  for (const key of Object.keys(mod)) {
+    const data = mod[key]
+    if (!data || typeof data !== 'object') continue
+    if (data.sections) walkSections(data.sections)
+    if (data.en?.sections) walkSections(data.en.sections)
+    if (data.tr?.sections) walkSections(data.tr.sections)
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -377,6 +436,7 @@ async function main() {
     checkRelatedTopicId(source, filename, allViolations)
     await checkStepAnimationSchema(filepath, filename, allViolations)
     await checkQuizOptionIdSchema(filepath, filename, allViolations)
+    await checkCodePlaygroundIdSchema(filepath, filename, allViolations)
     allHints.push(...collectHints(source, filename))
   }
 
@@ -428,6 +488,7 @@ async function main() {
   const duplicateViolations = dedupedViolations.filter((v) => v.type === 'duplicate-hint')
   const stepSchemaViolations = dedupedViolations.filter((v) => v.type === 'step-animation-missing-label')
   const quizIdViolations = dedupedViolations.filter((v) => v.type === 'quiz-option-missing-id')
+  const playgroundIdViolations = dedupedViolations.filter((v) => v.type === 'code-playground-missing-id')
 
   console.log(`\nİçerik Bütünlük Kontrolü — ${files.length} dosya tarandı\n`)
   console.log(`${'─'.repeat(60)}`)
@@ -467,6 +528,13 @@ async function main() {
     }
   }
 
+  if (playgroundIdViolations.length > 0) {
+    console.error(`\n[F] code-playground bloğunda 'id' eksik (${playgroundIdViolations.length} ihlal):`)
+    for (const v of playgroundIdViolations) {
+      console.error(`  ${v.file}  →  ${v.content}`)
+    }
+  }
+
   const total = dedupedViolations.length
   console.log(`\n${'─'.repeat(60)}`)
 
@@ -474,7 +542,7 @@ async function main() {
     console.log(`İçerik bütünlüğü: TÜM KONTROLLER GEÇTİ ✓`)
     process.exit(0)
   } else {
-    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length} E=${quizIdViolations.length}`)
+    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length} E=${quizIdViolations.length} F=${playgroundIdViolations.length}`)
     console.error(`Build engellendi — lütfen yukarıdaki ihlalleri düzelt.`)
     process.exit(1)
   }

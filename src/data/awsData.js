@@ -369,6 +369,7 @@ const awsWhyQaFilmStep = {
 const awsWhyQaFilmPractice = {
   type: 'code-playground',
   relatedTopicId: 'aws-intro',
+  id: 'aws-intro',
   title: { tr: 'Kendin Dene: Doğru AWS Servisini Seç', en: 'Try It Yourself: Pick the Right AWS Service' },
   starterCode: `// Hedef: her CI kosumunda uretilen Allure raporunu URL ile paylasilabilir sakla
 // TODO: dogru servisi yaz
@@ -393,6 +394,7 @@ const awsAccessDeniedStep = {
 const awsAccessDeniedPractice = {
   type: 'code-playground',
   relatedTopicId: 'aws-errors',
+  id: 'aws-errors',
   title: { tr: 'Kendin Dene: Eksik IAM İznini Tespit Et', en: 'Try It Yourself: Identify the Missing IAM Permission' },
   starterCode: `// Hata: AccessDenied - s3:PutObject
 // TODO: dogru IAM action'i policy'ye ekle
@@ -416,6 +418,7 @@ const awsInterviewStep = {
 const awsInterviewPractice = {
   type: 'code-playground',
   relatedTopicId: 'aws-interview',
+  id: 'aws-interview',
   title: { tr: 'Kendin Dene: Least Privilege Policy Yaz', en: 'Try It Yourself: Write a Least Privilege Policy' },
   starterCode: `// Hedef: pipeline SADECE tek bir bucket'a yazabilsin, baska hicbir seye degil
 // TODO: policy'yi tamamla
@@ -439,6 +442,7 @@ const awsEcosystemTrStep = {
 const awsEcosystemTrPractice = {
   type: 'code-playground',
   relatedTopicId: 'aws-ecosystem-tr',
+  id: 'aws-ecosystem-tr',
   title: { tr: 'Kendin Dene: Health Check Başarısız Olunca Alarm Gönder', en: 'Try It Yourself: Send an Alert When Health Check Fails' },
   starterCode: `// Hedef: health check basarisiz olunca SNS uyarisi gonder
 // TODO: dogru servisi cagir

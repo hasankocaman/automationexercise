@@ -2979,6 +2979,7 @@ const cypressWaitAntiPatternStep = {
 const cypressFixtureCloneP = {
   type: 'code-playground',
   relatedTopicId: 'cypress-errors',
+  id: 'cypress-errors',
   title: { tr: 'Kendin Dene: Fixture Mutation Hatasını Düzelt', en: 'Try It Yourself: Fix the Fixture Mutation Bug' },
   starterCode: `cy.fixture('user.json').then((data) => {
   // BUG: data objesi doğrudan mutate ediliyor, sıradaki testi kirletiyor
@@ -3297,6 +3298,7 @@ const cypressApiVsUiLoginStep = {
 const cypressApiLoginP = {
   type: 'code-playground',
   relatedTopicId: 'cypress',
+  id: 'cypress-api-login-practice',
   title: { tr: 'Kendin Dene: UI Login\'i cy.request()\'e Çevir', en: 'Try It Yourself: Convert a UI Login to cy.request()' },
   starterCode: `// Bu test SADECE dashboard'daki veriyi kontrol ediyor, login akışını DEĞİL
 cy.visit('/login')

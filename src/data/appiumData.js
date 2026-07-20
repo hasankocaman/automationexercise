@@ -809,6 +809,7 @@ const appiumCommandJourneyStep = {
 const appiumCommandJourneyPractice = {
   type: 'code-playground',
   relatedTopicId: 'appium-intro',
+  id: 'appium-intro',
   title: { tr: 'Kendin Dene: Bir Appium Driver Nesnesi Kur', en: 'Try It Yourself: Build an Appium Driver Object' },
   starterCode: `// Hedef: Android icin bir AppiumDriver session'i baslat
 // TODO: dogru driver sinifini yaz
@@ -833,6 +834,7 @@ const appiumSessionNotCreatedStep = {
 const appiumSessionNotCreatedPractice = {
   type: 'code-playground',
   relatedTopicId: 'appium-errors',
+  id: 'appium-errors',
   title: { tr: 'Kendin Dene: Doğru Başlatma Sırasını Kur', en: 'Try It Yourself: Build the Correct Startup Order' },
   starterCode: `// Hedef: SessionNotCreatedException almadan test calistirmak
 // TODO: komutlari DOGRU siraya koy (1, 2, 3)
@@ -863,6 +865,7 @@ const appiumFlakyTestStep = {
 const appiumFlakyTestPractice = {
   type: 'code-playground',
   relatedTopicId: 'appium-interview',
+  id: 'appium-interview',
   title: { tr: 'Kendin Dene: implicitlyWait Yerine Explicit Wait Yaz', en: 'Try It Yourself: Write Explicit Wait Instead of implicitlyWait' },
   starterCode: `// Sorun: element bazen 200ms, bazen 2sn'de yukleniyor -- implicitlyWait(0) yeterli degil
 // TODO: dogru satiri yaz

@@ -835,6 +835,7 @@ const kafkaRetentionReplayStep = {
 const kafkaRetentionReplayPractice = {
   type: 'code-playground',
   relatedTopicId: 'kafka-intro',
+  id: 'kafka-intro',
   title: { tr: 'Kendin Dene: Baştan Replay İçin Consumer Ayarla', en: 'Try It Yourself: Configure a Consumer to Replay From the Start' },
   starterCode: `// Hedef: yeni bir consumer group, topic'in TÜM gecmisini bastan okusun
 // (henuz hic offset commit etmemis bir grup icin gecerlidir)
@@ -860,6 +861,7 @@ const kafkaLeaderElectionStep = {
 const kafkaLeaderElectionPractice = {
   type: 'code-playground',
   relatedTopicId: 'kafka-architecture',
+  id: 'kafka-architecture',
   title: { tr: 'Kendin Dene: Failover\'da Veri Kaybını Önle', en: 'Try It Yourself: Prevent Data Loss During Failover' },
   starterCode: `// Hedef: leader coktugunde HICBIR onaylanmis mesaj kaybolmasin
 // TODO: dogru degerleri yaz
@@ -888,6 +890,7 @@ const kafkaLogCompactionStep = {
 const kafkaLogCompactionPractice = {
   type: 'code-playground',
   relatedTopicId: 'kafka-topics-partitions',
+  id: 'kafka-topics-partitions',
   title: { tr: 'Kendin Dene: "Güncel Durum" Topic\'i İçin Doğru Policy', en: 'Try It Yourself: The Right Policy for a "Current State" Topic' },
   starterCode: `// Hedef: user-profiles topic'i her key icin SADECE en son degeri saklasin
 // (gecmis guncellemeler onemli degil, sadece "su an ne" onemli)
@@ -913,6 +916,7 @@ const kafkaLagDiagnosisStep = {
 const kafkaLagDiagnosisPractice = {
   type: 'code-playground',
   relatedTopicId: 'kafka-interview',
+  id: 'kafka-interview',
   title: { tr: 'Kendin Dene: Ham --describe Çıktısını Yorumla', en: 'Try It Yourself: Interpret Raw --describe Output' },
   starterCode: `// kafka-consumer-groups --describe ciktisi:
 // PARTITION  LOG-END-OFFSET  CURRENT-OFFSET  LAG

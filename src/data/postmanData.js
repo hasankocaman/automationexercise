@@ -743,6 +743,7 @@ const pmInterviewStep = {
 const pmInterviewPractice = {
   type: 'code-playground',
   relatedTopicId: 'postman-interview',
+  id: 'postman-interview',
   title: { tr: 'Kendin Dene: Eksik Assertion\'ı Tamamla', en: 'Try It Yourself: Complete the Missing Assertion' },
   starterCode: `pm.test("Response has valid user email", function () {
     const json = pm.response.json();
@@ -769,6 +770,7 @@ const pmMethodSemanticsStep = {
 const pmMethodSemanticsPractice = {
   type: 'code-playground',
   relatedTopicId: 'postman-introduction',
+  id: 'postman-introduction',
   title: { tr: 'Kendin Dene: Doğru HTTP Metodunu Seç', en: 'Try It Yourself: Pick the Right HTTP Method' },
   starterCode: `// Gereksinim: mevcut bir kullanicinin SADECE email alanini guncelle
 // TODO: Dogru metodu sec (GET/POST/PUT/DELETE)
@@ -851,6 +853,7 @@ const pmEnvSetupStep = {
 const pmEnvSetupPractice = {
   type: 'code-playground',
   relatedTopicId: 'postman-installation',
+  id: 'postman-installation',
   title: { tr: 'Kendin Dene: URL\'i Değişkenle Değiştir', en: 'Try It Yourself: Replace the URL with a Variable' },
   starterCode: `// BUG: URL hardcoded, farkli ortamlarda calismiyor
 GET https://staging.api.example.com/users/2`,
@@ -873,6 +876,7 @@ const pmCollectionHierarchyStep = {
 const pmCollectionHierarchyPractice = {
   type: 'code-playground',
   relatedTopicId: 'postman-core-concepts',
+  id: 'postman-core-concepts',
   title: { tr: 'Kendin Dene: Ortak Header\'ı Collection Seviyesine Taşı', en: 'Try It Yourself: Move a Shared Header to the Collection Level' },
   starterCode: `// BUG: Content-Type header'i HER istekte ayri ayri tekrar yaziliyor
 Request 1: headers = { "Content-Type": "application/json" }
@@ -898,6 +902,7 @@ const pmAssertionOrderStep = {
 const pmAssertionOrderPractice = {
   type: 'code-playground',
   relatedTopicId: 'postman-test-automation',
+  id: 'postman-test-automation',
   title: { tr: 'Kendin Dene: İkinci Bir Assertion Ekle', en: 'Try It Yourself: Add a Second Assertion' },
   starterCode: `pm.test("Status is 200", function () {
     pm.response.to.have.status(200);
@@ -926,6 +931,7 @@ const pmCiGateStep = {
 const pmCiGatePractice = {
   type: 'code-playground',
   relatedTopicId: 'postman-real-world',
+  id: 'postman-real-world',
   title: { tr: 'Kendin Dene: Newman Komutunu Düzelt', en: 'Try It Yourself: Fix the Newman Command' },
   starterCode: `# BUG: environment dosyasi belirtilmemis, degiskenler cozulemiyor
 newman run collection.json`,
@@ -949,6 +955,7 @@ const pmToolLandscapeStep = {
 const pmToolLandscapePractice = {
   type: 'code-playground',
   relatedTopicId: 'postman-ecosystem',
+  id: 'postman-ecosystem',
   title: { tr: 'Kendin Dene: Doğru Postman Aracını Seç', en: 'Try It Yourself: Pick the Right Postman Tool' },
   starterCode: `// Senaryo: production API'sinin her 15 dakikada bir ayakta oldugunu
 // dogrulamak istiyorsun, kimse tiklamadan
@@ -973,6 +980,7 @@ const pmDiagnosisFlowStep = {
 const pmDiagnosisFlowPractice = {
   type: 'code-playground',
   relatedTopicId: 'postman-common-errors',
+  id: 'postman-common-errors',
   title: { tr: 'Kendin Dene: Yanlış Değişken Adını Düzelt', en: 'Try It Yourself: Fix the Wrong Variable Name' },
   starterCode: `// BUG: environment'ta degisken "base_url" ama istekte "{{baseUrl}}" kullaniliyor
 GET {{baseUrl}}/api/users/2

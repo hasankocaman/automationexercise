@@ -748,6 +748,7 @@ const browserstackInvalidCredsStep = {
 const browserstackInvalidCredsPractice = {
   type: 'code-playground',
   relatedTopicId: 'browserstack-errors',
+  id: 'browserstack-errors',
   title: { tr: 'Kendin Dene: Credential\'ları Env\'den Oku', en: 'Try It Yourself: Read Credentials from Env' },
   starterCode: `# Yanlis: credential'lar koda sabit yazilmis
 # TODO: dogru satirlari yaz
@@ -774,6 +775,7 @@ const browserstackReliabilityLayersStep = {
 const browserstackReliabilityLayersPractice = {
   type: 'code-playground',
   relatedTopicId: 'browserstack-interview',
+  id: 'browserstack-interview',
   title: { tr: 'Kendin Dene: Session Cleanup\'ı Her Zaman Çalıştır', en: 'Try It Yourself: Always Run Session Cleanup' },
   starterCode: `# Hedef: test cokse dahi driver.quit() calissin
 # TODO: dogru pytest fixture yapisini yaz

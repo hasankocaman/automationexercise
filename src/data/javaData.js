@@ -366,6 +366,7 @@ const javaJvmChainFilm = {
 const javaJvmChainPractice = {
   type: 'code-playground',
   relatedTopicId: 'java-jvm-basics',
+  id: 'java-jvm-basics',
   title: { tr: 'Kendin Dene: İlk Java Programını Çalıştır', en: 'Try It Yourself: Run Your First Java Program' },
   starterCode: `public class Main {
     public static void main(String[] args) {
@@ -1563,6 +1564,7 @@ const javaMavenResolutionStep = {
 const javaMavenResolutionPractice = {
   type: 'code-playground',
   relatedTopicId: 'java-maven-ecosystem',
+  id: 'java-maven-ecosystem',
   title: { tr: 'Kendin Dene: pom.xml\'e Bağımlılık Ekle', en: 'Try It Yourself: Add a Dependency to pom.xml' },
   starterCode: `<dependencies>
     <!-- TODO: junit-jupiter bagimliligini 5.10.2 versiyonuyla ekle -->
@@ -1945,6 +1947,7 @@ const javaInterviewAnswerStructureStep = {
 const javaInterviewAnswerPractice = {
   type: 'code-playground',
   relatedTopicId: 'java-qa',
+  id: 'java-qa-interview-answer-practice',
   title: { tr: 'Kendin Dene: Thread.sleep() Yerine WebDriverWait Yaz', en: 'Try It Yourself: Replace Thread.sleep() with WebDriverWait' },
   starterCode: `// BUG: sabit bekleme -- yavas VEYA yetersiz olabilir
 Thread.sleep(3000);
@@ -17579,6 +17582,7 @@ const javaProblemSolvingStep = {
 const javaProblemSolvingPractice = {
   type: 'code-playground',
   relatedTopicId: 'java-problem-solving',
+  id: 'java-problem-solving',
   title: { tr: 'Kendin Dene: Doğru Koleksiyonu Seç', en: 'Try It Yourself: Pick the Right Collection' },
   starterCode: `// Gereksinim: kullanıcı ID'lerini SIRAYLA ekle, ama ayni ID iki kez EKLENMEMELI
 // TODO: List yerine dogru koleksiyonu sec

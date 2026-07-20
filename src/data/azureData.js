@@ -373,6 +373,7 @@ const azureIntroStep = {
 const azureIntroPractice = {
   type: 'code-playground',
   relatedTopicId: 'azure-intro',
+  id: 'azure-intro',
   title: { tr: 'Kendin Dene: Doğru Azure Servisini Seç', en: 'Try It Yourself: Pick the Right Azure Service' },
   starterCode: `// Hedef: repo + pipeline + manuel test + bug takibini TEK platformda topla
 // TODO: dogru servisi yaz
@@ -396,6 +397,7 @@ const azureEcosystemStep = {
 const azureEcosystemPractice = {
   type: 'code-playground',
   relatedTopicId: 'azure-ecosystem',
+  id: 'azure-ecosystem',
   title: { tr: 'Kendin Dene: Paralel Test Podlarını Ölçekle', en: 'Try It Yourself: Scale Parallel Test Pods' },
   starterCode: `// Hedef: AKS'te 20 paralel test podu calistir
 // TODO: dogru komutu yaz
@@ -419,6 +421,7 @@ const azureErrorsStep = {
 const azureErrorsPractice = {
   type: 'code-playground',
   relatedTopicId: 'azure-errors',
+  id: 'azure-errors',
   title: { tr: 'Kendin Dene: RBAC Rolünü Doğru Scope\'a Ata', en: 'Try It Yourself: Assign the RBAC Role to the Right Scope' },
   starterCode: `// Hata: AuthorizationFailed - Microsoft.Compute/virtualMachines/write
 // TODO: rolu SADECE qa-rg resource group'una ata (subscription'a degil)
@@ -442,6 +445,7 @@ const azureInterviewStep = {
 const azureInterviewPractice = {
   type: 'code-playground',
   relatedTopicId: 'azure-interview',
+  id: 'azure-interview',
   title: { tr: 'Kendin Dene: Least Privilege Service Principal Oluştur', en: 'Try It Yourself: Create a Least Privilege Service Principal' },
   starterCode: `// Hedef: pipeline SADECE qa-rg'de VM olusturabilsin, baska hicbir yere degil
 // TODO: dogru scope'u yaz
@@ -465,6 +469,7 @@ const azureCliTrStep = {
 const azureCliTrPractice = {
   type: 'code-playground',
   relatedTopicId: 'azure-cli-tr',
+  id: 'azure-cli-tr',
   title: { tr: 'Kendin Dene: Doğru Subscription\'a Geç', en: 'Try It Yourself: Switch to the Correct Subscription' },
   starterCode: `// Hedef: "My QA Subscription" adli subscription'i varsayilan yap
 // TODO: dogru komutu yaz

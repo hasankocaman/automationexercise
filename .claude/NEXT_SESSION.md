@@ -43,17 +43,39 @@ Haritası) tamamlamanın yolu yok."
   **3/3 GEÇTİ** (regresyon yok, `handleExerciseCompleted` sitede paylaşılan
   bir fonksiyon).
 
-**⚠️ BÜYÜK BULGU (henüz düzeltilmedi, kullanıcı onayı bekliyor):** Aynı `id`
-eksikliği taraması TÜM `src/data/*Data.js` üzerinde (gerçek dynamic-import
-ile, tahmin değil) çalıştırıldı: **83 code-playground bloğu, 10 farklı
-dosyada** aynı sessiz XP/tamamlama kaybı bug'ına sahip:
-`postmanData.js` (16/16 — TÜMÜ), `jmeterData.js` (14/14 — TÜMÜ),
-`appiumData.js` (12), `azureData.js` (9), `kafkaData.js` (8), `awsData.js`
-(7), `javaData.js` (7), `browserstackData.js` (4), `cypressData.js` (4),
-`restAssuredData.js` (2). Sadece kullanıcının bildirdiği sayfa (whatIsTesting)
-düzeltildi; kalan 83 blok ve kalıcı bir build-gate (check-content-integrity.mjs'e
-"code-playground id zorunlu" kontrolü — step-animation/quiz-id emsaliyle
-aynı desen) kullanıcı onayı ile ayrı bir iş paketi olarak ele alınmalı.
+**✅ TAMAMLANDI (aynı gün devam oturumu, kullanıcı onayıyla) — kalan 40 blok +
+kalıcı build-gate + Playwright regresyon testi:**
+
+- **Doğru sayım:** İlk kaba tarama "83 blok" demişti ama bu ölçüm objeleri
+  BİRDEN FAZLA erişim yolu (standalone export + `en.sections` + `tr.sections`
+  referansları) üzerinden TEKRAR sayıyordu. Obje-referansı bazlı dedup ile
+  gerçek sayı **40 DISTINCT blok, 10 dosya**: `postmanData.js` (8/8 tümü),
+  `jmeterData.js` (7/7 tümü), `azureData.js` (5), `appiumData.js` (3),
+  `awsData.js` (4), `javaData.js` (4), `kafkaData.js` (4),
+  `browserstackData.js` (2), `cypressData.js` (2), `restAssuredData.js` (1).
+  Hepsine `relatedTopicId` değeriyle aynı (veya değişkeninden türetilmiş,
+  relatedTopicId birden fazla blok tipiyle paylaşılıyorsa — örn. cypress/java/
+  jmeter/browserstack'te bazı `relatedTopicId` değerleri hem code-playground
+  hem error-dictionary/interview-questions'ta ortak kullanılıyor, o durumlarda
+  daha açıklayıcı benzersiz bir `id` verildi) `id` eklendi.
+- **Kalıcı build-gate:** `scripts/check-content-integrity.mjs`'e **Check (F)**
+  eklendi — step-animation (D) / quiz-option-id (E) ile AYNI desen: gerçek
+  dynamic-import ile `type:'code-playground'` bloklarını tarar, `id` eksikse
+  build'i kırar. Fix'ten ÖNCE test edildi (40 ihlal doğru yakalandı), fix'ten
+  SONRA 0 ihlal.
+- **Playwright regresyon testi (YENİ, kullanıcı talebi — "testlerde bu durum
+  mutlaka kontrol edilmeli"):** `tests/code-playground-completion.spec.ts` —
+  UI mesajını DEĞİL, ALTINDAKİ VERİYİ doğrular (tam bu bug sınıfının
+  yakalanma noktası): (1) `/what-is-testing` Site Haritası sekmesi — egzersiz
+  çözülünce checkbox `aria-checked` gerçekten `false→true` VE
+  `learnqa_xp_what-is-testing` içindeki `completed` dizisi gerçekten
+  `wit-site-map-practice-01` içeriyor; (2) `/postman` — en ağır etkilenen
+  sayfa, aynı doğrulama `postman-introduction` için. **2/2 GEÇTİ.**
+- **Doğrulama:** `npm run build` ✓ · content-integrity 0 ihlal ✓ ·
+  `code-playground-completion.spec.ts` 2/2 ✓ · el doğrulaması (gerçek
+  tarayıcı): `/postman`'da çözülen egzersiz sonrası
+  `learnqa_xp_postman.completed` gerçekten `["postman-introduction"]`
+  gösterdi (önceden, fix'ten önce, bu dizi HER ZAMAN boş kalıyordu).
 
 ---
 
