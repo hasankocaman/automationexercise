@@ -77,6 +77,22 @@ kalıcı build-gate + Playwright regresyon testi:**
   `learnqa_xp_postman.completed` gerçekten `["postman-introduction"]`
   gösterdi (önceden, fix'ten önce, bu dizi HER ZAMAN boş kalıyordu).
 
+**Kullanıcı geri bildirimi (aynı gün, devam):** Fix'ten sonra bile kullanıcı
+"hala son sekmeyi tamamlayamıyorum" dedi — kök neden: `roadmapPractice`
+egzersizi TAM METİN eşleşmesi istiyor (`normalizeCode(draft) ===
+normalizeCode(solutionCode)`), gerçek bir kullanıcının yorum satırları dahil
+birebir aynı metni yazması gerçekçi değil. Kullanıcı isteği: "son sekmenin
+en alt kısmına quiz sorusu koy, cevaplayım da ders/sekme tamamlansın."
+- `whatIsTestingData.js`'in Site Haritası section'ının SONUNA (`roadmapPractice`'ten
+  sonra) yeni bir `type:'quiz'` bloğu eklendi — tabın kendi içeriğiyle
+  (doğru öğrenme sırası: Python→pytest→Selenium) doğrudan ilişkili, bilingual,
+  `retryQuestion` alternatifi dahil (CLAUDE.md §18), seçenekler `id`'li.
+  Artık bu tab quiz'i olan normal tab'lar gibi %60 eşiğiyle (tek soru olduğu
+  için fiilen doğru cevap = tamamlanma) çalışıyor.
+- **Doğrulama (gerçek tarayıcı):** doğru seçenek seçilip "Cevabı Kontrol
+  Et"e basılınca checkbox `aria-checked` gerçekten `false→true` oldu.
+  `npm run build` ✓ · content-integrity 0 ihlal ✓.
+
 ---
 
 ## ✨ EKLENDİ — /qa-mentor haritasına eğrisel bağlantı + "buradasın" işareti (2026-07-20, Fable oturumu, kullanıcı isteğiyle)

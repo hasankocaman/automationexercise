@@ -166,7 +166,7 @@ export const MASTERY_MANIFEST = {
   "/what-is-testing": {
     "pageKey": "softwaretestingqafundamentals",
     "tabCount": 6,
-    "totalQuizBlocks": 5,
+    "totalQuizBlocks": 6,
     "totalExerciseBlocks": 14,
     "hasInterview": false
   },

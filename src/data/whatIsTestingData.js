@@ -1459,7 +1459,42 @@ class TestDiscountCalculation:
       },
       learningRoadmapFilm,
       roadmapStep,
-      roadmapPractice
+      roadmapPractice,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Java bilen bir QA, doğrudan Selenium öğrenmeye başlar ve Python\'u atlarsa en olası sonuç nedir?',
+          en: 'If a QA who knows Java jumps straight into Selenium and skips Python, what is the most likely outcome?'
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir sorun çıkmaz, Selenium tek başına yeterlidir', en: 'No problem at all, Selenium is self-sufficient' } },
+          { id: 'b', text: { tr: 'Selenium\'un çalışması için gereken Python sözdizimini de aynı anda öğrenmek zorunda kalır ve hangi hatanın Selenium\'dan hangisinin Python\'dan geldiğini ayırt edemez', en: 'They end up learning basic Python syntax at the same time Selenium requires it, and can\'t tell whether an error comes from Selenium or from Python itself' } },
+          { id: 'c', text: { tr: 'Sadece biraz daha yavaş öğrenir, sonuçta hiçbir fark olmaz', en: 'They just learn a bit slower, but it makes no real difference in the end' } },
+          { id: 'd', text: { tr: 'Java bilmesi zaten yeterlidir, Python\'a hiç ihtiyaç yoktur', en: 'Knowing Java is already enough, Python is never needed' } }
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Doğru sıra (Python → pytest → Selenium) tam olarak bu yüzden var: her katman bir öncekinin üzerine oturur. Sırayı atlayan kişi, Selenium\'un attığı bir hatanın aslında bilmediği bir Python söz dizimi hatası olduğunu fark edemez — iki farklı problemi tek bir "Selenium çalışmıyor" hissiyle karıştırır.',
+          en: 'The correct order (Python → pytest → Selenium) exists exactly for this reason: each layer builds on the previous one. Someone who skips the order can\'t tell that an error Selenium throws is actually a Python syntax mistake they don\'t recognize yet — they conflate two different problems into one vague "Selenium isn\'t working" feeling.'
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir Java QA mühendisi için önerilen otomasyon öğrenme sırası nedir?',
+            en: 'What is the recommended automation learning order for a Java QA engineer?'
+          },
+          options: [
+            { id: 'a', text: { tr: 'Selenium → Python → pytest', en: 'Selenium → Python → pytest' } },
+            { id: 'b', text: { tr: 'Python → Selenium → pytest', en: 'Python → Selenium → pytest' } },
+            { id: 'c', text: { tr: 'Python → pytest → Selenium', en: 'Python → pytest → Selenium' } },
+            { id: 'd', text: { tr: 'pytest → Selenium → Python', en: 'pytest → Selenium → Python' } }
+          ],
+          correct: 'c',
+          explanation: {
+            tr: 'Önce dil (Python), sonra o dilin test framework\'ü (pytest), en son da o framework üzerine kurulan araç (Selenium) öğrenilir — her adım bir öncekinin ön koşuludur.',
+            en: 'First the language (Python), then that language\'s test framework (pytest), and finally the tool built on top of it (Selenium) — each step is a prerequisite for the next.'
+          }
+        }
+      }
     ]
   }
 ]
