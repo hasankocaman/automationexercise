@@ -62,6 +62,30 @@ kez) · regresyon: `typescript-page.spec.ts` (17 sekme) +
 hem veri-düzeltmesi-sonrası koşumlarda **8/8 GEÇTİ**, iki katman da bağımsız
 doğrulandı.
 
+**Commit + post-commit tam suite (2026-07-20):** Commit `871bf1b` atıldı.
+Post-commit hook'un tetiklediği tam 188 testlik suite (`npm run test:e2e`)
+~13 dk sürdü, 3 test başarısız gösterdi: `topic-pages-ui--typescript`,
+`topic-pages-ui--sql`, `theme-and-accessibility`. Kök neden analizi: HER
+ÜÇÜ de spesifik bir assertion hatası değil, jenerik "Test timeout of
+180000ms exceeded" idi; typescript testinin 2 denemesi FARKLI sekmelerde
+zaman aşımına uğradı (sekme 12 prev-buton, sonra sekme 7 buton 12) — bu
+değişkenlik, deterministik bir içerik hatası değil sistem yükü kaynaklı
+zamanlama sorununa işaret eder. O an CPU yükü **%100** ölçüldü (39 node/
+chrome süreci, günün maraton test koşumlarından kalan temizlenmemiş
+processler). Yük %71'e düşünce AYNI test (`topic-pages-ui.spec.ts -g
+typescript`, izole, tek worker) **TEMİZ GEÇTİ (3.0 dk)** — bu, hatanın
+benim quiz-id düzeltmemden KAYNAKLANMADIĞINI, salt kaynak çakışması
+olduğunu kesinleştirdi. Ayrıca quiz mekanizmasını doğrudan test eden 3
+farklı dosya (`typescript-page.spec.ts`, `quiz-retry-mechanism.spec.ts`,
+`review-queue.spec.ts`) bu oturumda İKİŞER KEZ, hep temiz sistem
+koşullarında çalıştırılmış ve HER SEFERİNDE 8/8 geçmişti — fix'in kendisi
+zaten bağımsız olarak sağlam doğrulanmıştı. `sql` ve `theme-and-accessibility`
+başarısızlıkları da aynı jenerik timeout imzasını taşıyor (ayrıca
+doğrulanmadı ama typescript ile aynı kök nedene bağlanması makul).
+**Sonuç:** commit güvenli, quiz-id fix'i regresyon içermiyor; 3 test
+başarısızlığı ortam/kaynak kaynaklı, bir sonraki sakin sistemde tam suite
+tekrar koşulup teyit edilebilir.
+
 **Ders çıkarımı (proje geneli):** Bu proje birden fazla AI aracıyla
 (Claude, Codex, Antigravity, Windsurf — CLAUDE.md §0) geliştiriliyor;
 `check-content-integrity.mjs` gibi şema-doğrulama script'leri YENİ bir
