@@ -106,6 +106,33 @@ Java+Selenium'un Python'suz tamamen geçerli bir yol olduğu notu eklendi.
 Doğrulama: gerçek tarayıcıda düzeltilmiş soru da checkbox'ı
 `false→true` yapıyor, build + content-integrity geçti.
 
+**Kullanıcı bulduğu 2. tutarsızlık — düzeltildi:** Ana sayfada "Kaldığın
+yerden devam et" ve haritanın "sıradaki adım" önerisi ÇELİŞİYORDU (kullanıcı
+`/what-is-testing`'i tamamen bitirdiği halde ana sayfa hâlâ "Site Haritası
+sekmesinde kalmıştın, devam et" diyordu). Kök neden (koddan teyit edildi):
+3 bağımsız "kaldığın yer" mekanizması var —
+1. `learnqa_last_position` (otomatik, her sekme değişiminde yazılır,
+   tamamlanma durumunu HİÇ kontrol etmez),
+2. `learnqa_resume_point` (`SaveProgressButton`'daki "📍 Kaldığın yeri
+   kaydet" manuel butonuyla yazılır — `saveProgress()`'e store edilen point
+   objesi `status` alanı TAŞIMAZ, yani "başlanmış" mı "bitmiş" mi bilgisi
+   hiç saklanmıyor),
+3. `learnqa_completed_routes` (GERÇEKTEN güvenilir — `notifyTopicCompleted`
+   → `markTopicCompleted` → `saveProgress({status:'completed'})` her zaman
+   `recordLocalCompletedRoute()` çağırır, üye/anonim fark etmez).
+İlk ikisi asla 3.'yü kontrol etmiyordu. Düzeltme: `HomePage.jsx`'te hem
+`resume-banner` (manuel kayıt kartı) hem `daily-continue` (otomatik son-konum
+pill'i), hedef route `getLocalCompletedRoutes()`'ta zaten varsa
+GÖSTERİLMEZ — `daily-continue` bu durumda zaten var olan doğru fallback'e
+(`mentorMapState.nextNode`, kariyer haritasının sıradaki düğümü) düşer.
+Yeni bir şema/anahtar eklenmedi, sadece mevcut güvenilir sinyal (3) diğer
+ikisinin önüne kontrol olarak kondu.
+**Doğrulama (gerçek tarayıcı, iki senaryo):** (a) zaten tamamlanmış route'a
+işaret eden stale resume_point/last_position enjekte edildi → HER İKİ
+widget da gizlendi (önceden ikisi de yanlışlıkla görünüyordu); (b)
+tamamlanmamış bir route (`/docker`) için aynı testler → HER İKİ widget da
+NORMAL ÇALIŞIYOR (regresyon yok). `npm run build` ✓.
+
 ---
 
 ## ✨ EKLENDİ — /qa-mentor haritasına eğrisel bağlantı + "buradasın" işareti (2026-07-20, Fable oturumu, kullanıcı isteğiyle)

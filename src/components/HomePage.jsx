@@ -515,7 +515,16 @@ function HomePage() {
             {!session && <MembershipPromo darkMode={darkMode} />}
 
             {/* ── Kaldığın Yerden Devam Et Banner ── */}
-            {resumePoint?.routePath && (() => {
+            {/* resumePoint yalnızca "📍 Kaldığın yeri kaydet" butonuna EN SON ne zaman
+                basıldığını tutar — o route'un GERÇEKTEN tamamlanıp tamamlanmadığını
+                bilmez (saveProgress'in yazdığı point objesi status taşımaz). Kullanıcı
+                bir sekmeyi bitirdikten SONRA bu düğmeye basmışsa (ya da bitirmeden önce
+                basıp sonra bitirmişse), route zaten `learnqa_completed_routes`'a girmiş
+                olabilir — bu durumda "kaldığın yerden devam et" demek "Haritan seni
+                bekliyor" kartıyla ÇELİŞİR (bkz. 2026-07-20 kullanıcı bildirimi). Route
+                zaten tamamlanmışsa bu kart hiç gösterilmez, doğru öneri zaten aşağıdaki
+                kariyer haritası widget'ından gelir. */}
+            {resumePoint?.routePath && !getLocalCompletedRoutes().has(resumePoint.routePath) && (() => {
                 const lessonName = RESUME_LESSON_NAMES[resumePoint.routePath]?.[language]
                     || resumePoint.routePath.replace(/^\//, '').replace(/-/g, ' ')
                 const tabLabel = (resumePoint.topicLabel || '').replace(/^[^\p{L}\p{N}]+/u, '').trim()
@@ -561,7 +570,14 @@ function HomePage() {
                     const isInvite = goal.units === 0 && streak.streak === 0
                     // Devam-et hedefi tek kaynaktan: önce sekme-derinlikli son konum,
                     // yoksa kariyer haritasının sıradaki düğümü (plan §4 öneri 4).
-                    const continueTarget = lastPos
+                    // lastPos, o route ZATEN tamamlanmış olsa bile son ziyaret edilen
+                    // sekmeyi hatırlamaya devam eder (her sekme değişiminde otomatik
+                    // güncellenir, tamamlanma durumunu kontrol etmez) — bu yüzden
+                    // "zaten tamamlanmış route'a geri dön" gibi çelişkili bir öneriye
+                    // düşmemek için burada da tamamlanma kontrolü yapılır (bkz. yukarıdaki
+                    // resume-banner'daki aynı düzeltme, 2026-07-20 kullanıcı bildirimi).
+                    const lastPosCompleted = lastPos && getLocalCompletedRoutes().has(lastPos.route)
+                    const continueTarget = (lastPos && !lastPosCompleted)
                         ? {
                             to: lastPos.route,
                             state: { openTab: lastPos.tabIndex },
