@@ -10,6 +10,50 @@
 
 ---
 
+## ✨ EKLENDİ — /gauge Framework Mimarisi'ne "yapboz" ilerleme görseli (2026-07-21, Fable oturumu, kullanıcı isteğiyle)
+
+**Kullanıcı isteği:** "Framework Mimarisi sekmesinde daha fazla görsel olmalı.
+Kullanıcı önce büyük resmi görsel/animasyonla görmeli, sonra adım adım kendi
+inşa etmeli, sandbox ile pratik yaptıkça 'bu parçayı tamamladın' diye
+göstermeli — yapboz parçalarını tamamlıyor gibi anlaşılmalı."
+
+**Yeni bileşen:** `src/components/FrameworkPuzzleBlock.jsx` (YENİ, block tipi
+`framework-puzzle`, `TopicPage.jsx`'e kaydedildi) — sekmenin EN BAŞINA,
+"Adım 1" başlığından ÖNCE konur. 4 mimari parçayı (🧱 Core/Base, 📦 POM,
+⚖️ SOLID, 🔗 Test/Data) dikey bir zincirde gösterir:
+- Başlangıçta hepsi KİLİTLİ (kesikli kenarlık, 🔒 ikon, soluk).
+- Her parça, o adımın KENDİ `code-playground` egzersizinin `id`'si
+  (`gauge-arch-driverfactory-quit-practice` / `gauge-arch-cartpage-extends-
+  practice` / `gauge-arch-dip-constructor-injection-practice` /
+  `gauge-arch-scenario-datastore-practice`) `xp.js`'in `getCompletedExercises()`
+  listesinde ilk kez görününce KİLİTLİDEN İNŞA EDİLDİ'ye döner — dolu renk +
+  ✓ + kısa bir "az önce açıldı" büyüme/parıltı animasyonu
+  (`subscribeToXpChanges`, CodePlaygroundBlock ile AYNI veri kaynağı, yeni
+  bir XP/localStorage şeması İCAT EDİLMEDİ).
+- Üstte canlı "X/4 parça tamamlandı" rozeti; 4/4 olunca kutlama şeridi
+  ("🎉 Framework'ü uçtan uca inşa ettin!").
+- `gaugeData.js`'e bilingual `title`/`intro`/4 `pieces` verisi eklendi
+  (mevcut "Büyük Resim Mindmap" ASCII diyagramı ve quiz'i KALDIRILMADI,
+  bu blok onun ÜSTÜNE, ilk görülen şey olarak eklendi).
+
+**Doğrulama:** `npm run build` ✓ · content-integrity 0 ihlal ✓ ·
+`i18n-content-toggle.spec.ts -g gauge` ✓ (yeni bilingual metin EN modda
+Türkçe sızdırmıyor) · el doğrulaması —
+(a) sahte veriyle 4 durum (kilitli/2-4 kısmi/4-4 tamam) hem dark hem light
+modda ekran görüntüsüyle teyit edildi;
+(b) **gerçek kullanıcı akışı**: `/gauge` → Framework Mimarisi sekmesi →
+ilk parçanın gerçek `code-playground` egzersizi UI üzerinden (textarea'ya
+doğru çözüm yazılıp "Çalıştır ve Kontrol Et"e basılarak) çözüldü →
+`framework-piece-core-base` `data-done` gerçekten `false→true` oldu,
+rozet "1/4"e güncellendi, `learnqa_xp_gauge.completed` gerçekten
+`gauge-arch-driverfactory-quit-practice` içeriyordu.
+(Doğrulama sırasında test script'imin YANLIŞ textarea'yı hedeflediği bir
+kendi hatam bulundu ve düzeltildi — Adım 2'de bu pratikten ÖNCE, "TODO"
++ "quitDriver" kelimelerini de içeren BAŞKA bir Micro Lab daha var; bu
+FEATURE'da değil sadece doğrulama script'imde bir sorundu.)
+
+---
+
 ## 🐛 DÜZELTİLDİ + BÜYÜK BULGU — /what-is-testing "Site Haritası" sekmesi tamamlanamıyordu (2026-07-20, Fable oturumu)
 
 **Kullanıcı bildirimi:** "/what-is-testing sayfasında en alttaki sekmeyi (Site

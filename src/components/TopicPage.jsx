@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabaseClient'
 import CssAnimationBlock from './CssAnimationBlock'
 import ManualTestingLabBlock from './ManualTestingLabBlock'
 import CodePlaygroundBlock from './CodePlaygroundBlock'
+import FrameworkPuzzleBlock from './FrameworkPuzzleBlock'
 import GoodVsBadBlock from './GoodVsBadBlock'
 import StepAnimationBlock from './StepAnimationBlock'
 import InteractiveDiagramBlock from './InteractiveDiagramBlock'
@@ -17676,6 +17677,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'code-playground':
             return <CodePlaygroundBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+
+        case 'framework-puzzle':
+            return <FrameworkPuzzleBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         case 'good-vs-bad':
             return <GoodVsBadBlock key={i} block={block} darkMode={darkMode} language={language} />

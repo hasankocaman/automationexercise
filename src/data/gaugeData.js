@@ -2864,6 +2864,57 @@ public class JsonLocatorSteps {
       },
 
       {
+        type: 'framework-puzzle',
+        title: { tr: 'Framework\'ünü Adım Adım İnşa Et', en: 'Build Your Framework Step by Step' },
+        intro: {
+          tr: 'Aşağıdaki 4 parça, bu sekmede birazdan tek tek inşa edeceğin mimarinin BÜYÜK RESMİ. Şimdilik hepsi kilitli — her parçanın kendi adımındaki "Kendin Dene" pratiğini ilk kez doğru bitirdiğinde, o parça burada kilitliden İNŞA EDİLDİ\'ye döner. Aşağı indikçe yapbozu parça parça tamamlayacaksın.',
+          en: 'The 4 pieces below are the BIG PICTURE of the architecture you are about to build piece by piece in this tab. They all start locked — the first time you correctly finish that step\'s "Try It Yourself" practice, that piece flips from locked to BUILT. As you scroll down, you will complete the puzzle piece by piece.',
+        },
+        pieces: [
+          {
+            id: 'core-base',
+            emoji: '🧱',
+            label: { tr: 'Core / Base Katmanı', en: 'Core / Base Layer' },
+            desc: {
+              tr: 'DriverFactory (ThreadLocal driver yaşam döngüsü) + BaseTest (@BeforeSuite/@BeforeScenario/@AfterSuite)',
+              en: 'DriverFactory (ThreadLocal driver lifecycle) + BaseTest (@BeforeSuite/@BeforeScenario/@AfterSuite)',
+            },
+            exerciseId: 'gauge-arch-driverfactory-quit-practice',
+          },
+          {
+            id: 'pom',
+            emoji: '📦',
+            label: { tr: 'POM Katmanı', en: 'POM Layer' },
+            desc: {
+              tr: 'BasePage\'ten miras alan Page sınıfları (LoginPage, CartPage) — ortak wait/click/type mantığı TEK yerde',
+              en: 'Page classes inheriting BasePage (LoginPage, CartPage) — shared wait/click/type logic lives in ONE place',
+            },
+            exerciseId: 'gauge-arch-cartpage-extends-practice',
+          },
+          {
+            id: 'solid',
+            emoji: '⚖️',
+            label: { tr: 'SOLID Uygulaması', en: 'Applying SOLID' },
+            desc: {
+              tr: '5 prensip (SRP/OCP/LSP/ISP/DIP) gerçek Gauge/Selenium kodunda — örn. constructor injection ile DIP',
+              en: 'The 5 principles (SRP/OCP/LSP/ISP/DIP) in real Gauge/Selenium code — e.g. DIP via constructor injection',
+            },
+            exerciseId: 'gauge-arch-dip-constructor-injection-practice',
+          },
+          {
+            id: 'test-data',
+            emoji: '🔗',
+            label: { tr: 'Test / Data Katmanı', en: 'Test / Data Layer' },
+            desc: {
+              tr: 'Steps sınıfları + ScenarioDataStore/SpecDataStore/SuiteDataStore — her parça burada birbirine bağlanır',
+              en: 'Steps classes + ScenarioDataStore/SpecDataStore/SuiteDataStore — every piece connects here',
+            },
+            exerciseId: 'gauge-arch-scenario-datastore-practice',
+          },
+        ],
+      },
+
+      {
         type: 'heading',
         text: { tr: '🧭 Adım 1 — Büyük Resim: Framework Mindmap', en: '🧭 Step 1 — The Big Picture: Framework Mindmap' },
       },
