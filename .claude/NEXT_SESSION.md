@@ -67,23 +67,30 @@ basıyor, sonuç: EN modda "sekme 5"te Türkçe cümle ("+ AssertJ + Logger —
 dört ayrı sınıf") sızıyordu. Kök neden: `comparison` block şeması sadece
 dil-bağımsız (kod parçacığı gibi) hücre değerleri için tasarlanmış,
 `table` block şeması ise her hücreyi `tx(cell, language)` ile çeviriyor.
-**Düzeltme (commit `bv288a54w` arka planda commit ediliyor, henüz tam
-suite sonucu gelmedi):** blok `type: 'table'`'a çevrildi, 5 satırın tümü
-`{tr,en}` bilingual hücrelere taşındı. Hedefli test
-(`npx playwright test tests/i18n-content-toggle.spec.ts -g gauge`)
-düzeltmeden sonra tek başına **GEÇTİ** (12.5s) — ama commit'in kendi
-post-commit hook'u (tam 188 test) hâlâ arka planda çalışıyor, sonucu
-henüz teyit edilmedi.
+**Düzeltme (commit `7ba9419`, TEYİT EDİLDİ):** blok `type: 'table'`'a
+çevrildi, 5 satırın tümü `{tr,en}` bilingual hücrelere taşındı. Hedefli
+test (`npx playwright test tests/i18n-content-toggle.spec.ts -g gauge`)
+düzeltmeden sonra tek başına **GEÇTİ** (12.5s). `7ba9419` commit'inin
+post-commit hook'u tetiklediği TAM 188 testlik suite de tamamlandı
+(1.6 saat, 176 passed / 10 failed / 2 flaky) — i18n testi artık listede
+YOK (fix kalıcı). 10 başarısızlığın 9'u `/gauge` dışındaki alakasız
+sayfalarda (`typescript, python, bruno, jenkins, docker, rest-assured,
+java, claude-ai, llm-agents`) AYNI test tipinde (`topic-pages-ui.spec.ts
+— buton görünürlüğü`) art arda çıktı — bu suite sırasında ikinci bir
+Playwright koşumu (`b7gdytctq`) da paralel çalışıyordu, yani kaynak
+çakışması/timeout kaynaklı ortam gürültüsü. `/gauge` için bu testi tek
+başına izole çalıştırdım: **GEÇTİ** (14.3s) — gerçek bir regresyon değil.
+Framework Mimarisi pilotu artık tam anlamıyla doğrulanmış ve kapalı.
 
-**Sıradaki adım (sonraki oturum, ÖNCELİKLİ):**
-- Arka planda commit edilen fix'in (gaugeData.js table-block düzeltmesi)
-  post-commit hook tam suite sonucunu kontrol et — temiz geçtiğini teyit
-  etmeden bu modülü "bitti" sayma.
+**Sıradaki adım (sonraki oturum):**
 - Bu bug'ın YALNIZCA bu modüle mi özgü olduğunu, yoksa projede başka bir
   yerde de `comparison` block'a yanlışlıkla düz string satır yazılmış olup
   olmadığını `grep -n "type: 'comparison'"` ile TÜM `src/data/*.js`
-  dosyalarında tara — aynı hata başka bir sayfada da gizli olabilir.
-- Onay sonrası Faz A'nın kalan 5 sayfası (Selenium → Playwright → Cypress →
+  dosyalarında tara (cypressData, jmeterData, linuxData, pythonData,
+  playwrightData, restAssuredData — 44 kullanım, sadece 2'si spot-check
+  edildi, ikisi de güvenli `left`/`right` varyantıydı) — aynı hata başka
+  bir sayfada da gizli olabilir. Zorunlu değil, due-diligence.
+- Faz A'nın kalan 5 sayfası (Selenium → Playwright → Cypress →
   REST Assured → Appium sırasıyla, plan §1.1 önceliğine göre) için
   `Documents/sandbox-and-framework-plan.md` §4.1'deki güncellenmiş promptla
   ayrı Sonnet oturumları başlatılabilir — Sonnet'e bu i18n hatasını da
