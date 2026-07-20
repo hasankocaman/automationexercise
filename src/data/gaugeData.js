@@ -2850,7 +2850,1264 @@ public class JsonLocatorSteps {
     ],
   },
 
-  // ── 5: Ekosistem & CI/CD ─────────────────────────────────────────────────────
+  // ── 5: Framework Mimarisi (SOLID + POM) ─────────────────────────────────────
+  {
+    title: { tr: '🏗️ Framework Mimarisi (SOLID + POM)', en: '🏗️ Framework Architecture (SOLID + POM)' },
+    blocks: [
+      {
+        type: 'simple-box',
+        emoji: '🏙️',
+        content: {
+          tr: 'Bu sekmeye kadar yazdığın her parça (LoginSteps, LoginPage, LocatorRepository, env/ dosyaları) tek tek çalışıyor ama birbirine GEVŞEK bağlı — tıpkı plansız büyüyen bir gecekondu mahallesi gibi: her ev kendi kuyusunu kazar, kendi elektriğini çeker, sokak numaralandırması yoktur. İlk 20 evde sorun çıkmaz; 200. evde su borusu hangi evden geçiyor kimse bilmez. Şehir imar planı (mimari) tam burada devreye girer: ortak altyapı (su/elektrik şebekesi = DriverFactory, TEK yerden yönetilen driver yaşam döngüsü), standart bina kuralları (BasePage = her Page sınıfının uyduğu ortak iskelet), mahalle sınırları (Steps sınıfı SADECE orkestrasyon yapar, Page sınıfı SADECE element bilir). Peki her parça zaten DriverFactory.getDriver() ile aynı driver\'ı kullanıyorken, neden ayrı bir mimari sekmesi açıyoruz — parçalar zaten var değil mi? Çünkü VAR OLMAK ile DOĞRU İLİŞKİLENMEK aynı şey değildir: parçalar birbirine rastgele bağlanırsa (her Steps sınıfı kendi driver\'ını yaratırsa, her Page sınıfı kendi wait mantığını yeniden yazarsa) 50 dosyalık projede bir bekleme stratejisi değişikliği 50 yeri kırar. Karşılaştırma: kötü tasarlanmış bir Java projesinde "God Object" (her şeyi bilen dev sınıf) ile SOLID prensiplerine göre bölünmüş küçük, tek-sorumluluklu sınıflar arasındaki fark tam olarak budur — bu sekmede o farkı Gauge/Selenium bağlamında somut kod üzerinden göreceksin. QA bağlamı: flaky test suite\'lerinin çoğu zaman GERÇEK sebebi yanlış locator değil, mimarisizliktir — yeni bir QA mühendisinin projeye alışması haftalar sürüyorsa, suç genelde yeni katılanda değil, mimaride aranmalıdır.',
+          en: 'Every piece you have written up to this tab (LoginSteps, LoginPage, LocatorRepository, env/ files) works on its own but is LOOSELY connected — like a shantytown that grew without a plan: every house digs its own well, wires its own electricity, no street numbering exists. The first 20 houses cause no trouble; by house 200, nobody knows whose water pipe runs under whose yard. A city zoning plan (architecture) is exactly what fixes this: shared infrastructure (a water/power grid = DriverFactory, ONE place managing the driver lifecycle), standard building codes (BasePage = the shared skeleton every Page class follows), neighborhood boundaries (a Steps class does ONLY orchestration, a Page class knows ONLY its elements). But if every piece already uses the same driver via DriverFactory.getDriver(), why open a separate architecture tab — don\'t the pieces already exist? Because EXISTING and being CORRECTLY RELATED are not the same thing: if pieces connect randomly (every Steps class creates its own driver, every Page class reinvents its own wait logic), one wait-strategy change in a 50-file project breaks 50 places. Comparison: in a poorly designed Java project, the difference between a "God Object" (one class that knows everything) and classes properly split along SOLID principles is exactly this — this tab will show you that difference through concrete Gauge/Selenium code. QA context: the REAL cause of a flaky test suite is often not a wrong locator but the absence of architecture — if a new QA engineer takes weeks to feel at home in the project, the fault usually lies in the architecture, not the newcomer.',
+        },
+      },
+
+      {
+        type: 'heading',
+        text: { tr: '🧭 Adım 1 — Büyük Resim: Framework Mindmap', en: '🧭 Step 1 — The Big Picture: Framework Mindmap' },
+      },
+      {
+        type: 'code',
+        language: 'text',
+        code: {
+          tr: `.spec dosyasi (is dili, QA yazar)
+        |
+        | @Step baglamasi (metin BIREBIR eslesir, fuzzy match YOK)
+        v
+  XxxSteps  ── Steps Katmani: SADECE orkestrasyon yapar ──────────┐
+        |  kullanir (has-a: composition)                          |
+        v                                                          v
+  XxxPage (POM)                                          ScenarioDataStore
+        |  extends (is-a: inheritance)                    SpecDataStore
+        v                                                  SuiteDataStore
+     BasePage  ── ORTAK Selenium mantigi: wait / click / type ──   (senaryolar/
+        |  kullanir (WebDriver enjekte edilir)                     dosyalar arasi
+        v                                                          veri tasir)
+  DriverFactory  ── SRP: SADECE driver yasam dongusu ──
+   ThreadLocal<WebDriver>  (paralel kosumda her thread kendi driver'ina sahip)
+        ^
+        | yaratir (createDriver) / kapatir (quitDriver)
+        |
+     BaseTest  ── @BeforeSuite / @BeforeScenario / @AfterSuite ──
+        ^
+        | okur (System.getProperty)
+        |
+   env/*.properties  ── ortam konfigurasyonu: base.url vb. ──
+
+  Okuma yonu: yukaridan asagiya "kullanir/extends", asagidan yukariya
+  "yaratir/besler". Her ok, bir sonraki adimda GERCEK kod olarak gorecegin
+  bir SOLID prensibinin izini tasir (SRP: DriverFactory: is-a: BasePage --
+  LSP; composition: Steps -- ISP/DIP'e giden yol).`,
+          en: `.spec file (business language, QA writes it)
+        |
+        | @Step binding (EXACT text match, no fuzzy matching)
+        v
+  XxxSteps  ── Steps layer: orchestration ONLY ────────────────────┐
+        |  uses (has-a: composition)                                |
+        v                                                            v
+  XxxPage (POM)                                            ScenarioDataStore
+        |  extends (is-a: inheritance)                      SpecDataStore
+        v                                                    SuiteDataStore
+     BasePage  ── SHARED Selenium logic: wait / click / type ──     (carries data
+        |  uses (WebDriver is injected)                             across scenarios/
+        v                                                            files)
+  DriverFactory  ── SRP: driver lifecycle ONLY ──
+   ThreadLocal<WebDriver>  (under parallel runs, every thread gets its own driver)
+        ^
+        | creates (createDriver) / closes (quitDriver)
+        |
+     BaseTest  ── @BeforeSuite / @BeforeScenario / @AfterSuite ──
+        ^
+        | reads (System.getProperty)
+        |
+   env/*.properties  ── environment configuration: base.url etc. ──
+
+  Reading direction: top-to-bottom is "uses/extends", bottom-to-top is
+  "creates/feeds". Every arrow carries the trace of a SOLID principle you
+  will see as REAL code in the next steps (SRP: DriverFactory -- is-a:
+  BasePage -- LSP; composition: Steps -- the road to ISP/DIP).`,
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Yukarıdaki mimaride bir Steps sınıfı (örn. LoginSteps) WebDriver\'ı NEREDEN alır?',
+          en: 'In the architecture above, where does a Steps class (e.g. LoginSteps) get its WebDriver FROM?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Kendi içinde new ChromeDriver() ile yaratır', en: 'It creates it itself with new ChromeDriver()' } },
+          { id: 'b', text: { tr: 'DriverFactory.getDriver() ile ThreadLocal\'dan alır', en: 'It gets it from ThreadLocal via DriverFactory.getDriver()' } },
+          { id: 'c', text: { tr: 'LocatorRepository sınıfından okur', en: 'It reads it from the LocatorRepository class' } },
+          { id: 'd', text: { tr: 'Her .spec dosyasının başında elle tanımlanır', en: 'It is manually defined at the top of every .spec file' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Mimarinin can damarı budur: driver yaratma sorumluluğu TEK bir sınıfta (DriverFactory) toplanır, geri kalan her sınıf onu getDriver() ile İSTER — bu ayrım olmasaydı her Steps sınıfı kendi driver\'ını yaratır ve paralel koşumda çakışırdı.',
+          en: 'This is the artery of the architecture: driver-creation responsibility lives in ONE class (DriverFactory), and every other class simply ASKS for it via getDriver() — without this split, every Steps class would create its own driver and collide under parallel execution.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Mindmap\'te ScenarioDataStore/SpecDataStore/SuiteDataStore hangi sınıfa doğrudan bağlı gösteriliyor, DriverFactory\'ye değil?',
+            en: 'In the mindmap, which class are ScenarioDataStore/SpecDataStore/SuiteDataStore shown as directly connected to, instead of DriverFactory?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'XxxSteps (Steps Katmanı)', en: 'XxxSteps (the Steps layer)' } },
+            { id: 'b', text: { tr: 'BasePage', en: 'BasePage' } },
+            { id: 'c', text: { tr: 'env/*.properties', en: 'env/*.properties' } },
+            { id: 'd', text: { tr: 'BaseTest', en: 'BaseTest' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'DataStore\'lar veri paylaşım katmanıdır, driver yaşam döngüsüyle ilgisi yoktur — bu yüzden Steps katmanının yanında, DriverFactory zincirinden AYRI bir dal olarak durur.',
+            en: 'DataStores are the data-sharing layer, unrelated to the driver lifecycle — that is why they sit next to the Steps layer, as a branch SEPARATE from the DriverFactory chain.',
+          },
+        },
+      },
+
+      {
+        type: 'heading',
+        text: { tr: '🧱 Adım 2 — Core / Base Katmanı: DriverFactory & BaseTest', en: '🧱 Step 2 — Core / Base Layer: DriverFactory & BaseTest' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🚰',
+        content: {
+          tr: 'DriverFactory, bir apartmanın ana su vanasıdır: her dairenin (her Steps sınıfının) kendi vanasını döşemesine izin vermezsin — TEK bir ana vana vardır, açma/kapama yetkisi ordadır, dairelerin tek işi musluğu (getDriver()) kullanmaktır. İkinci benzetme: bu, bir restoranın MERKEZI gaz hattıdır — her ocak (her test) kendi tüpünü taşımaz, hepsi aynı hatta bağlanır ve hat kapatıldığında (quitDriver) HERKES aynı anda söner. Peki her Steps sınıfı zaten DriverFactory.getDriver() çağırıyorken, neden AYRICA bir BaseTest sınıfına ihtiyaç var — driver zaten erişilebilir değil mi? Sorun ŞU: driver\'ı kim NE ZAMAN yaratacak ve kim NE ZAMAN kapatacak sorusu hâlâ cevapsız — her Steps sınıfı "ilk çağrıldığımda ben yaratayım" derse, N tane senaryo N tane driver açar ve kapanmayan tarayıcı pencereleri CI agent\'ını çökertir. BaseTest, Gauge\'ün @BeforeSuite/@AfterSuite hook\'larına bağlanarak bu soruyu TEK bir yerde cevaplar. Java karşılaştırması: bu, JUnit\'te @BeforeAll/@AfterAll ile TestNG\'de @BeforeSuite/@AfterSuite\'in aynı görevidir — "pahalı kaynak KİM tarafından, KAÇ KEZ kurulacak" sorusunun çerçeve-seviyesi cevabı. QA bağlamı: quitDriver() içindeki ThreadLocal.remove() satırı atlanırsa, paralel koşumda thread pool yeniden kullanılan thread\'lerde KAPANMIŞ driver referansı sızar — "NoSuchSessionException: session deleted" gibi rastgele, teşhisi saatler süren bir flaky hatanın kök nedeni tam olarak budur.',
+          en: 'DriverFactory is the main water valve of an apartment building: you do not let every unit (every Steps class) install its own valve — there is ONE main valve, it holds the on/off authority, and each unit\'s only job is to use the tap (getDriver()). Second analogy: this is a restaurant\'s CENTRAL gas line — no stove (no test) carries its own tank, they all connect to the same line, and shutting the line (quitDriver) turns EVERYONE off at once. But if every Steps class already calls DriverFactory.getDriver(), why do we ALSO need a BaseTest class — isn\'t the driver already accessible? The unanswered question is THIS: who creates the driver and WHEN, and who closes it and WHEN — if every Steps class says "I\'ll create it on first call", N scenarios open N drivers and unclosed browser windows crash the CI agent. BaseTest answers this question in ONE place by hooking into Gauge\'s @BeforeSuite/@AfterSuite. Java comparison: this is the exact same job as JUnit\'s @BeforeAll/@AfterAll or TestNG\'s @BeforeSuite/@AfterSuite — the framework-level answer to "WHO sets up an expensive resource, and HOW MANY times". QA context: if the ThreadLocal.remove() line inside quitDriver() is skipped, under parallel execution a reused pool thread leaks a CLOSED driver reference — that is the exact root cause of a random, hours-to-diagnose flaky failure like "NoSuchSessionException: session deleted".',
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'DriverFactory ve BaseTest\'in AYRI sınıflar olmasının nedeni Single Responsibility Principle\'dır (SRP): DriverFactory sadece "driver nasıl yaratılır/kapatılır" sorusuna cevap verir (WebDriver API\'siyle konuşur), BaseTest ise sadece "bu yaratma/kapatma işlemi Gauge\'ün yaşam döngüsünde NE ZAMAN tetiklenir" sorusuna cevap verir (Gauge hook API\'siyle konuşur). İkisini tek sınıfta birleştirseydin, Gauge hook isimleri değiştiğinde (örn. bir sürüm güncellemesinde) driver yaratma mantığına da dokunman gerekirdi — oysa şimdi ikisi bağımsız değişebilir.',
+          en: 'DriverFactory and BaseTest are SEPARATE classes because of the Single Responsibility Principle (SRP): DriverFactory answers only "how is a driver created/closed" (it talks to the WebDriver API), while BaseTest answers only "WHEN does that creation/closing get triggered in Gauge\'s lifecycle" (it talks to the Gauge hook API). Had you merged them into one class, a change in Gauge\'s hook names (say, on a version bump) would force you to also touch the driver-creation logic — as it stands now, the two can change independently.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `package core;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class DriverFactory {
+
+    // ThreadLocal: paralel kosumda HER thread kendi driver'ina sahip olur
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
+
+    private DriverFactory() {} // utility sinif — instance uretilmesin (SRP siniri)
+
+    public static void createDriver() {
+        DRIVER.set(new ChromeDriver());
+    }
+
+    public static WebDriver getDriver() {
+        return DRIVER.get();
+    }
+
+    public static void quitDriver() {
+        WebDriver driver = DRIVER.get();
+        if (driver != null) {
+            driver.quit();
+            DRIVER.remove();   // ATLANIRSA: thread pool'da eski referans sizar
+        }
+    }
+}`,
+          en: `package core;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class DriverFactory {
+
+    // ThreadLocal: under parallel runs, EVERY thread gets its own driver
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
+
+    private DriverFactory() {} // utility class — no instances (SRP boundary)
+
+    public static void createDriver() {
+        DRIVER.set(new ChromeDriver());
+    }
+
+    public static WebDriver getDriver() {
+        return DRIVER.get();
+    }
+
+    public static void quitDriver() {
+        WebDriver driver = DRIVER.get();
+        if (driver != null) {
+            driver.quit();
+            DRIVER.remove();   // SKIP THIS: a stale reference leaks in the thread pool
+        }
+    }
+}`,
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `package core;
+
+import com.thoughtworks.gauge.BeforeSuite;
+import com.thoughtworks.gauge.AfterSuite;
+import com.thoughtworks.gauge.BeforeScenario;
+
+public class BaseTest {
+
+    @BeforeSuite
+    public void setUpSuite() {
+        DriverFactory.createDriver();   // pahali islem: BIR KEZ, tum kosum icin
+    }
+
+    @BeforeScenario
+    public void cleanSession() {
+        // her senaryo TEMIZ bir oturumla baslasin — birbirinin state'ini miras almasin
+        DriverFactory.getDriver().manage().deleteAllCookies();
+    }
+
+    @AfterSuite
+    public void tearDownSuite() {
+        DriverFactory.quitDriver();
+    }
+}`,
+          en: `package core;
+
+import com.thoughtworks.gauge.BeforeSuite;
+import com.thoughtworks.gauge.AfterSuite;
+import com.thoughtworks.gauge.BeforeScenario;
+
+public class BaseTest {
+
+    @BeforeSuite
+    public void setUpSuite() {
+        DriverFactory.createDriver();   // expensive operation: ONCE, for the whole run
+    }
+
+    @BeforeScenario
+    public void cleanSession() {
+        // every scenario starts with a CLEAN session — no inherited state
+        DriverFactory.getDriver().manage().deleteAllCookies();
+    }
+
+    @AfterSuite
+    public void tearDownSuite() {
+        DriverFactory.quitDriver();
+    }
+}`,
+        },
+      },
+      {
+        type: 'step-animation',
+        id: 'gauge-arch-driverfactory-lifecycle-steps',
+        title: { tr: 'Adım Adım: DriverFactory\'nin ThreadLocal Yaşam Döngüsü', en: 'Step by Step: the ThreadLocal Lifecycle of DriverFactory' },
+        steps: [
+          { id: 1, icon: '🚦', label: { tr: '@BeforeSuite tetiklenir', en: '@BeforeSuite fires' }, detail: { tr: 'Gauge, koşumun EN BAŞINDA BaseTest.setUpSuite() metodunu çağırır ve DriverFactory.createDriver() çalışır.', en: 'At the VERY START of the run, Gauge calls BaseTest.setUpSuite() and DriverFactory.createDriver() executes.' } },
+          { id: 2, icon: '🧵', label: { tr: 'ThreadLocal.set() çalışır', en: 'ThreadLocal.set() runs' }, detail: { tr: 'new ChromeDriver() bu thread\'in ThreadLocal kutusuna konur — paralel koşumda her thread kendi kutusunu doldurur, birbirininkine erişemez.', en: 'new ChromeDriver() is placed into this thread\'s ThreadLocal box — under parallel execution every thread fills its own box and cannot see another\'s.' } },
+          { id: 3, icon: '📖', label: { tr: 'Steps sınıfı getDriver() ile okur', en: 'A Steps class reads via getDriver()' }, detail: { tr: 'LoginSteps, DriverFactory.getDriver() çağırır — kendi thread\'inin kutusundaki driver\'ı alır, hangi thread\'de olduğunu BİLMEK ZORUNDA DEĞİLDİR.', en: 'LoginSteps calls DriverFactory.getDriver() — it gets the driver from its own thread\'s box, and does NOT need to know which thread it is on.' } },
+          { id: 4, icon: '🛑', label: { tr: '@AfterSuite tetiklenir', en: '@AfterSuite fires' }, detail: { tr: 'Koşum bitince BaseTest.tearDownSuite() çalışır, DriverFactory.quitDriver() driver.quit() + ThreadLocal.remove() yapar.', en: 'When the run ends, BaseTest.tearDownSuite() runs, and DriverFactory.quitDriver() performs driver.quit() + ThreadLocal.remove().' } },
+          { id: 5, icon: '💀', label: { tr: 'remove() atlanırsa: sızıntı', en: 'Skip remove(): a leak' }, detail: { tr: 'CI agent\'ı thread pool kullanıyorsa, aynı thread bir SONRAKİ suite\'te yeniden kullanılır — kutuda hâlâ KAPANMIŞ eski driver referansı durur ve NoSuchSessionException fırlar.', en: 'If the CI agent uses a thread pool, the same thread gets reused in the NEXT suite — the box still holds the OLD, closed driver reference, and NoSuchSessionException is thrown.' } },
+        ],
+      },
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'ch-gauge-arch-basetest-hooks-order',
+        question: {
+          tr: 'Tek bir .spec dosyası çalıştırıldığında BaseTest\'in hook\'larının koşma sırasını diz.',
+          en: 'Arrange the order in which BaseTest\'s hooks run when a single .spec file executes.',
+        },
+        items: [
+          { id: '1', text: { tr: '@BeforeSuite — setUpSuite() (driver bir kez oluşturulur)', en: '@BeforeSuite — setUpSuite() (driver created once)' }, order: 1 },
+          { id: '2', text: { tr: '@BeforeScenario — cleanSession() (cookie temizliği)', en: '@BeforeScenario — cleanSession() (cookies cleared)' }, order: 2 },
+          { id: '3', text: { tr: 'Senaryonun kendi @Step metotları çalışır', en: 'The scenario\'s own @Step methods run' }, order: 3 },
+          { id: '4', text: { tr: '(Dosyada başka senaryo varsa) bir sonraki @BeforeScenario', en: '(If another scenario exists in the file) the next @BeforeScenario' }, order: 4 },
+          { id: '5', text: { tr: '@AfterSuite — tearDownSuite() (driver bir kez kapatılır)', en: '@AfterSuite — tearDownSuite() (driver closed once)' }, order: 5 },
+        ],
+        xpReward: 20,
+      },
+      {
+        type: 'code-playground',
+        relatedTopicId: 'gauge-framework-driverfactory',
+        id: 'gauge-arch-driverfactory-quit-practice',
+        label: {
+          tr: 'Micro Lab: DriverFactory.quitDriver()\'ı sızıntısız tamamla',
+          en: 'Micro Lab: complete DriverFactory.quitDriver() without a leak',
+        },
+        language: 'java',
+        task: {
+          tr: 'Aşağıdaki quitDriver() metodu eksik: driver null değilse önce quit() çağrılmalı, SONRA ThreadLocal kutusu boşaltılmalı. TODO satırını tamamla — sıralamayı ters yaparsan (önce remove, sonra quit) elindeki referansı kaybedip driver\'ı hiç kapatamazsın.',
+          en: 'The quitDriver() method below is incomplete: if the driver is not null, quit() must be called FIRST, THEN the ThreadLocal box must be cleared. Complete the TODO line — reverse the order (remove first, then quit) and you lose your reference before ever closing the driver.',
+        },
+        explanation: {
+          tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç DriverFactory\'nin kapatma sırasını elle yazarak ThreadLocal sızıntısının NEDEN sıralamaya bağlı olduğunu pekiştirmektir.',
+          en: 'This is not a real browser session; the goal is to reinforce, by writing the shutdown order yourself, WHY a ThreadLocal leak depends on the exact sequence.',
+        },
+        code: {
+          tr: `public static void quitDriver() {
+    WebDriver driver = DRIVER.get();
+    if (driver != null) {
+        driver.quit();
+        DRIVER.remove();
+    }
+}`,
+          en: `public static void quitDriver() {
+    WebDriver driver = DRIVER.get();
+    if (driver != null) {
+        driver.quit();
+        DRIVER.remove();
+    }
+}`,
+        },
+        starterCode: {
+          tr: `public static void quitDriver() {
+    WebDriver driver = DRIVER.get();
+    if (driver != null) {
+        TODO
+        TODO
+    }
+}`,
+          en: `public static void quitDriver() {
+    WebDriver driver = DRIVER.get();
+    if (driver != null) {
+        TODO
+        TODO
+    }
+}`,
+        },
+        solutionCode: {
+          tr: `public static void quitDriver() {
+    WebDriver driver = DRIVER.get();
+    if (driver != null) {
+        driver.quit();
+        DRIVER.remove();
+    }
+}`,
+          en: `public static void quitDriver() {
+    WebDriver driver = DRIVER.get();
+    if (driver != null) {
+        driver.quit();
+        DRIVER.remove();
+    }
+}`,
+        },
+        expected: {
+          tr: 'İlk satır driver.quit() (tarayıcıyı kapat), ikinci satır DRIVER.remove() (ThreadLocal kutusunu boşalt) olmalı — bu sıra dışında yazılan kod sızıntıya açıktır.',
+          en: 'The first line must be driver.quit() (close the browser), the second DRIVER.remove() (clear the ThreadLocal box) — any other order is leak-prone.',
+        },
+        hints: [
+          { tr: 'quit() önce çağrılır çünkü elindeki "driver" değişkeni hâlâ geçerli bir referanstır; remove() ThreadLocal kutusundaki KAYDI siler, nesneyi değil.', en: 'quit() is called first because the local "driver" variable is still a valid reference; remove() deletes the ENTRY in the ThreadLocal box, not the object itself.' },
+          { tr: 'Sıra tersine çevrilirse (önce remove) DRIVER.get() artık null döner ama zaten elindeki "driver" değişkeni üzerinden yine quit() çağırabilirsin — asıl risk remove()\'u HİÇ çağırmamaktır, sıra kadar değil.', en: 'If reversed (remove first), DRIVER.get() now returns null, but you can still call quit() on your existing "driver" variable — the real risk is NEVER calling remove(), more than the exact order.' },
+          { tr: 'İki satır da DRIVER static alanına değil, yerel driver değişkenine ve DRIVER referansına ayrı ayrı işlem yapar: driver.quit() nesneyi kapatır, DRIVER.remove() kutuyu boşaltır.', en: 'Neither line touches the static DRIVER field the same way: driver.quit() closes the object, DRIVER.remove() empties the box.' },
+        ],
+        xpReward: 15,
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'DriverFactory.quitDriver() içinde ThreadLocal.remove() satırı ATLANIRSA, paralel koşumda (thread pool yeniden kullanıldığında) en olası sonuç nedir?',
+          en: 'If the ThreadLocal.remove() line inside DriverFactory.quitDriver() is SKIPPED, what is the most likely outcome under parallel execution (when the thread pool is reused)?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir fark olmaz, remove() sadece bellek temizliği için vardır', en: 'No difference, remove() only exists for memory cleanup' } },
+          { id: 'b', text: { tr: 'Bir sonraki suite aynı thread\'i alırsa kapanmış driver referansı sızar ve NoSuchSessionException gibi hatalar oluşur', en: 'If the next suite reuses the same thread, a closed driver reference leaks and errors like NoSuchSessionException occur' } },
+          { id: 'c', text: { tr: 'Gauge otomatik olarak yeni bir ThreadLocal örneği oluşturur', en: 'Gauge automatically creates a new ThreadLocal instance' } },
+          { id: 'd', text: { tr: 'Sadece derleme hatası verir', en: 'It only causes a compile error' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'ThreadLocal, thread bazında saklama yapar; thread pool\'daki thread\'ler ölmez, yeniden kullanılır. remove() çağrılmazsa eski (artık kapatılmış) driver referansı o thread\'in kutusunda kalır ve bir sonraki kullanımda "session deleted" tarzı hatalarla karşılaşılır.',
+          en: 'ThreadLocal stores data per thread; pool threads do not die, they get reused. Without remove(), the old (now-closed) driver reference stays in that thread\'s box, causing "session deleted"-style errors on its next use.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'BaseTest\'te @BeforeScenario yerine SADECE @BeforeSuite kullanılsaydı en olası problem ne olurdu?',
+            en: 'If BaseTest used ONLY @BeforeSuite instead of also @BeforeScenario, what would the most likely problem be?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Senaryolar birbirinin cookie/oturum durumunu miras alır, flaky testlere yol açar', en: 'Scenarios would inherit each other\'s cookie/session state, causing flaky tests' } },
+            { id: 'b', text: { tr: 'Driver hiç açılmaz', en: 'The driver would never open' } },
+            { id: 'c', text: { tr: 'Koşum derleme hatası verir', en: 'The run would fail to compile' } },
+            { id: 'd', text: { tr: 'Hiçbir fark olmaz', en: 'There would be no difference' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: '@BeforeSuite pahalı kurulumu (driver açma) bir kez yapar ama oturum temizliğini yapmaz; @BeforeScenario\'nun cleanSession() metodu olmadan bir senaryonun login state\'i sıradaki senaryoya sızar.',
+            en: '@BeforeSuite does the expensive setup (opening the driver) once but does not clean session state; without @BeforeScenario\'s cleanSession(), one scenario\'s login state leaks into the next.',
+          },
+        },
+      },
+
+      {
+        type: 'heading',
+        text: { tr: '📦 Adım 3 — Page Object Model (POM) Katmanı: BasePage Mirası', en: '📦 Step 3 — Page Object Model (POM) Layer: Inheriting BasePage' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🧬',
+        content: {
+          tr: '"By ile Locator Yazma" sekmesinde gördüğün LoginPage, elementlerini @FindBy ile buluyordu ama BEKLEME mantığını hiç yazmamıştı — doğrudan sendKeys/click çağırıyordu. BasePage, bir ailenin DNA\'sıdır: her çocuk (her Page sınıfı) kendi göz rengini yeniden icat etmez, ortak genetik koddan (waitForClickable/click/type) miras alır. İkinci benzetme: BasePage bir tiyatro sahnesinin ORTAK ışık/ses sistemidir — her oyun (her Page sınıfı) kendi ışık jeneratörünü kurmaz, sahneye çıkar ve ORTAK altyapıyı kullanır; sadece kendi repliklerini (kendi @FindBy alanlarını ve iş mantığını) getirir. Peki LoginPage zaten çalışıyorken, neden geriye dönüp BasePage\'den türetiyoruz — "çalışan koda dokunma" prensibine aykırı değil mi? Aykırı değil, çünkü ikinci bir Page sınıfı (CartPage, CheckoutPage) yazdığın AN, aynı wait mantığını KOPYALA-YAPIŞTIR yapman gerekir — ve o kopyalanan kod içinde biri WebDriverWait süresini 10\'dan 5\'e düşürürse, diğer Page sınıflarında bu değişiklik YANSIMAZ; tutarsız bekleme süreleri flaky testlerin klasik kaynağıdır. Java karşılaştırması: bu, Collections API\'de AbstractList\'in ArrayList/LinkedList\'e ortak iskelet sağlamasıyla birebir aynı motivasyondur — "tekrar eden davranışı YUKARI taşı, farklı olanı AŞAĞIDA bırak". QA bağlamı: BasePage\'deki TEK bir WebDriverWait süresi değişikliği, İZOLE bir "bekleme stratejimizi 8 saniyeye çıkaralım" kararını 50 Page sınıfının HEPSİNE aynı anda, tek satırlık bir PR ile yayar.',
+          en: 'The LoginPage you saw in the "Locators with By" tab found its elements via @FindBy but never wrote WAIT logic — it called sendKeys/click directly. BasePage is a family\'s DNA: no child (no Page class) reinvents its own eye color, each inherits the shared genetic code (waitForClickable/click/type). Second analogy: BasePage is the SHARED lighting/sound rig of a theater stage — no play (no Page class) builds its own light generator, it walks on stage and uses the SHARED infrastructure, bringing only its own lines (its own @FindBy fields and business logic). But if LoginPage already worked, why go back and derive it from BasePage — doesn\'t that violate "don\'t touch working code"? It does not, because the MOMENT you write a second Page class (CartPage, CheckoutPage), you must COPY-PASTE the same wait logic — and inside that copied code, if someone drops the WebDriverWait duration from 10 to 5, that change does NOT propagate to the other Page classes; inconsistent wait durations are a classic source of flaky tests. Java comparison: this is the exact same motivation as AbstractList giving ArrayList/LinkedList a shared skeleton in the Collections API — "push repeated behavior UP, leave what differs DOWN". QA context: one single WebDriverWait duration change in BasePage propagates an ISOLATED "let\'s bump our wait strategy to 8 seconds" decision to ALL 50 Page classes at once, through a one-line PR.',
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'Encapsulation burada iki katmanlı çalışır: BasePage, WebDriverWait nesnesini private tutar — hiçbir alt sınıf onu doğrudan görmez, sadece waitForClickable/click/type üzerinden dolaylı kullanır. Bu, "nasıl beklendiği" detayını Page sınıflarından GİZLER; LoginPage\'i yazan kişi ExpectedConditions API\'sini bilmek ZORUNDA değildir, sadece click(loginButton) çağırmayı bilir.',
+          en: 'Encapsulation works in two layers here: BasePage keeps the WebDriverWait object private — no subclass sees it directly, they only use it indirectly through waitForClickable/click/type. This HIDES the "how it waits" detail from Page classes; whoever writes LoginPage does NOT need to know the ExpectedConditions API, only that calling click(loginButton) works.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public abstract class BasePage {
+
+    protected final WebDriver driver;
+    private final WebDriverWait wait;   // encapsulation: alt siniflar goremez
+
+    protected BasePage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    // TUM alt siniflarin PAYLASTIGI TEK bekleme stratejisi
+    protected WebElement waitForClickable(WebElement element) {
+        return wait.until(ExpectedConditions.elementToBeClickable(element));
+    }
+
+    public void click(WebElement element) {
+        waitForClickable(element).click();
+    }
+
+    public void type(WebElement element, String text) {
+        waitForClickable(element).clear();
+        element.sendKeys(text);
+    }
+}`,
+          en: `package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public abstract class BasePage {
+
+    protected final WebDriver driver;
+    private final WebDriverWait wait;   // encapsulation: subclasses cannot see it
+
+    protected BasePage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    // the ONE wait strategy SHARED by every subclass
+    protected WebElement waitForClickable(WebElement element) {
+        return wait.until(ExpectedConditions.elementToBeClickable(element));
+    }
+
+    public void click(WebElement element) {
+        waitForClickable(element).click();
+    }
+
+    public void type(WebElement element, String text) {
+        waitForClickable(element).clear();
+        element.sendKeys(text);
+    }
+}`,
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class LoginPage extends BasePage {
+
+    @FindBy(id = "username") private WebElement usernameInput;
+    @FindBy(id = "password") private WebElement passwordInput;
+    @FindBy(css = "button[type='submit']") private WebElement loginButton;
+
+    public LoginPage(WebDriver driver) {
+        super(driver);                          // BasePage constructor'ini cagirir
+        PageFactory.initElements(driver, this);  // @FindBy proxy'lerini enjekte eder
+    }
+
+    public void loginAs(String user, String pass) {
+        type(usernameInput, user);   // BasePage.type() — bekleme HER YERDE ayni
+        type(passwordInput, pass);
+        click(loginButton);          // BasePage.click() — bekleme HER YERDE ayni
+    }
+}`,
+          en: `package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class LoginPage extends BasePage {
+
+    @FindBy(id = "username") private WebElement usernameInput;
+    @FindBy(id = "password") private WebElement passwordInput;
+    @FindBy(css = "button[type='submit']") private WebElement loginButton;
+
+    public LoginPage(WebDriver driver) {
+        super(driver);                          // calls the BasePage constructor
+        PageFactory.initElements(driver, this);  // injects the @FindBy proxies
+    }
+
+    public void loginAs(String user, String pass) {
+        type(usernameInput, user);   // BasePage.type() — the SAME wait everywhere
+        type(passwordInput, pass);
+        click(loginButton);          // BasePage.click() — the SAME wait everywhere
+    }
+}`,
+        },
+      },
+      {
+        type: 'step-animation',
+        id: 'gauge-arch-pom-call-chain-steps',
+        title: { tr: 'Adım Adım: loginPage.loginAs() Çağrıldığında Ne Olur?', en: 'Step by Step: What Happens When loginPage.loginAs() Is Called?' },
+        steps: [
+          { id: 1, icon: '☎️', label: { tr: 'Steps sınıfı metodu çağırır', en: 'The Steps class calls the method' }, detail: { tr: 'LoginSteps, loginPage.loginAs("admin", "Passw0rd!") çağırır — Selenium\'un tek bir detayını BİLMEZ, sadece iş kuralını çağırır.', en: 'LoginSteps calls loginPage.loginAs("admin", "Passw0rd!") — it knows NOTHING about Selenium internals, it just invokes the business rule.' } },
+          { id: 2, icon: '📄', label: { tr: 'LoginPage kendi alanlarına erişir', en: 'LoginPage touches its own fields' }, detail: { tr: 'loginAs() içinde type(usernameInput, ...) çağrılır — usernameInput hâlâ @FindBy proxy\'sidir, henüz DOM\'da aranmadı.', en: 'Inside loginAs(), type(usernameInput, ...) is called — usernameInput is still the @FindBy proxy, not yet searched in the DOM.' } },
+          { id: 3, icon: '⏳', label: { tr: 'BasePage.type() devreye girer', en: 'BasePage.type() takes over' }, detail: { tr: 'Miras alınan type() metodu önce waitForClickable(usernameInput) çağırır — burada proxy GERÇEKTEN aranır ve tıklanabilir olması beklenir.', en: 'The inherited type() method first calls waitForClickable(usernameInput) — HERE the proxy is actually searched and awaited to become clickable.' } },
+          { id: 4, icon: '⌨️', label: { tr: 'Element hazır olunca yazılır', en: 'Once ready, the value is typed' }, detail: { tr: 'clear() + sendKeys() çalışır — bu satıra kadar LoginPage, WebDriverWait\'in var olduğunu bile bilmiyordu.', en: 'clear() + sendKeys() run — up to this line, LoginPage did not even know WebDriverWait existed.' } },
+          { id: 5, icon: '🚨', label: { tr: 'Hazır olmazsa: TimeoutException BasePage\'de fırlar', en: 'If never ready: TimeoutException throws inside BasePage' }, detail: { tr: 'Element hiç tıklanabilir olmazsa hata BasePage katmanında fırlar — LoginSteps ve LoginPage Selenium detaylarından İZOLE kalır, sadece hatanın "kim" fırlattığını Base katmanından okursun.', en: 'If the element never becomes clickable, the error is thrown inside the BasePage layer — LoginSteps and LoginPage remain ISOLATED from Selenium details, and you read WHO threw it from the Base layer.' } },
+        ],
+      },
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'ch-gauge-arch-pom-chain-order',
+        question: {
+          tr: 'loginPage.loginAs() çağrısının katmanlar arası akışını doğru sıraya diz.',
+          en: 'Arrange the cross-layer flow of the loginPage.loginAs() call in the correct order.',
+        },
+        items: [
+          { id: '1', text: { tr: 'LoginSteps: loginPage.loginAs(user, pass) çağrılır', en: 'LoginSteps: loginPage.loginAs(user, pass) is called' }, order: 1 },
+          { id: '2', text: { tr: 'LoginPage: kendi @FindBy alanıyla BasePage.type() çağırır', en: 'LoginPage: calls BasePage.type() with its own @FindBy field' }, order: 2 },
+          { id: '3', text: { tr: 'BasePage: waitForClickable() ile WebDriverWait bekler', en: 'BasePage: waits via waitForClickable() using WebDriverWait' }, order: 3 },
+          { id: '4', text: { tr: 'Selenium: proxy gerçek WebElement\'i DOM\'da arar', en: 'Selenium: the proxy searches the DOM for the real WebElement' }, order: 4 },
+          { id: '5', text: { tr: 'WebElement: clear() + sendKeys() ile gerçek aksiyon çalışır', en: 'WebElement: the real action runs via clear() + sendKeys()' }, order: 5 },
+        ],
+        xpReward: 20,
+      },
+      {
+        type: 'code-playground',
+        relatedTopicId: 'gauge-framework-pom',
+        id: 'gauge-arch-cartpage-extends-practice',
+        label: {
+          tr: 'Micro Lab: CartPage\'i BasePage\'den türet',
+          en: 'Micro Lab: derive CartPage from BasePage',
+        },
+        language: 'java',
+        task: {
+          tr: 'CartPage sınıfı şu an BasePage\'i EXTENDS etmiyor ve kendi bekleme mantığını yazmamış — sadece @FindBy ile elementi bulup doğrudan .click() çağırıyor. TODO satırlarını, LoginPage\'deki kalıba uyacak şekilde tamamla: sınıf BasePage\'i extend etmeli, constructor super(driver) çağırmalı, removeButton BasePage.click() üzerinden tıklanmalı.',
+          en: 'The CartPage class currently does NOT extend BasePage and writes no wait logic of its own — it just finds the element via @FindBy and calls .click() directly. Complete the TODO lines to match the LoginPage pattern: the class must extend BasePage, the constructor must call super(driver), and removeButton must be clicked through BasePage.click().',
+        },
+        explanation: {
+          tr: 'Bu, POM katmanının asıl kazancını göstermek içindir: aynı miras zincirini ikinci bir Page sınıfına uyguladığında, BasePage\'deki gelecekteki HERHANGİ bir bekleme iyileştirmesi CartPage\'e de otomatik ulaşır.',
+          en: 'This shows the real payoff of the POM layer: apply the same inheritance chain to a second Page class, and ANY future wait improvement in BasePage automatically reaches CartPage too.',
+        },
+        code: {
+          tr: `public class CartPage extends BasePage {
+
+    @FindBy(css = "button.remove-item")
+    private WebElement removeButton;
+
+    public CartPage(WebDriver driver) {
+        super(driver);
+        PageFactory.initElements(driver, this);
+    }
+
+    public void removeFirstItem() {
+        click(removeButton);
+    }
+}`,
+          en: `public class CartPage extends BasePage {
+
+    @FindBy(css = "button.remove-item")
+    private WebElement removeButton;
+
+    public CartPage(WebDriver driver) {
+        super(driver);
+        PageFactory.initElements(driver, this);
+    }
+
+    public void removeFirstItem() {
+        click(removeButton);
+    }
+}`,
+        },
+        starterCode: {
+          tr: `public class CartPage TODO {
+
+    @FindBy(css = "button.remove-item")
+    private WebElement removeButton;
+
+    public CartPage(WebDriver driver) {
+        TODO
+        PageFactory.initElements(driver, this);
+    }
+
+    public void removeFirstItem() {
+        removeButton.click();   // BasePage kullanmiyor, dogrudan cagiriyor
+    }
+}`,
+          en: `public class CartPage TODO {
+
+    @FindBy(css = "button.remove-item")
+    private WebElement removeButton;
+
+    public CartPage(WebDriver driver) {
+        TODO
+        PageFactory.initElements(driver, this);
+    }
+
+    public void removeFirstItem() {
+        removeButton.click();   // not using BasePage, calling directly
+    }
+}`,
+        },
+        solutionCode: {
+          tr: `public class CartPage extends BasePage {
+
+    @FindBy(css = "button.remove-item")
+    private WebElement removeButton;
+
+    public CartPage(WebDriver driver) {
+        super(driver);
+        PageFactory.initElements(driver, this);
+    }
+
+    public void removeFirstItem() {
+        click(removeButton);
+    }
+}`,
+          en: `public class CartPage extends BasePage {
+
+    @FindBy(css = "button.remove-item")
+    private WebElement removeButton;
+
+    public CartPage(WebDriver driver) {
+        super(driver);
+        PageFactory.initElements(driver, this);
+    }
+
+    public void removeFirstItem() {
+        click(removeButton);
+    }
+}`,
+        },
+        expected: {
+          tr: 'Sınıf tanımı "extends BasePage" olmalı, constructor ilk satırda super(driver) çağırmalı, removeFirstItem() removeButton.click() yerine click(removeButton) kullanmalı — üçü de eksikse eski davranış (bekleme yok, flaky tıklama) devam eder.',
+          en: 'The class declaration must be "extends BasePage", the constructor must call super(driver) as its first line, and removeFirstItem() must use click(removeButton) instead of removeButton.click() — miss any of the three and the old behavior (no wait, flaky click) persists.',
+        },
+        hints: [
+          { tr: 'super(driver) SATIRI, BasePage constructor\'ını çağırıp WebDriverWait nesnesini kurar — bu satır olmadan waitForClickable/click/type metotları NullPointerException fırlatır.', en: 'The super(driver) line calls the BasePage constructor and sets up the WebDriverWait object — without it, waitForClickable/click/type throw a NullPointerException.' },
+          { tr: 'removeButton.click() ile click(removeButton) arasındaki fark: birincisi elementi hiç beklemeden tıklar (element henüz render olmamışsa ElementClickInterceptedException riski), ikincisi önce waitForClickable() ile bekler.', en: 'The difference between removeButton.click() and click(removeButton): the first clicks with no wait at all (risking ElementClickInterceptedException if the element has not rendered yet), the second waits via waitForClickable() first.' },
+          { tr: '"extends BasePage" olmadan CartPage, LoginPage ile HİÇBİR ortak davranışı paylaşmaz — iki Page sınıfı birbirinden habersiz, birbirinden bağımsız kod tabanına döner.', en: 'Without "extends BasePage", CartPage shares NO common behavior with LoginPage — the two Page classes become unaware of each other, independent codebases.' },
+        ],
+        xpReward: 15,
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Tüm Page sınıflarının BasePage\'den türetilmesinin (extends BasePage) en somut kazancı nedir?',
+          en: 'What is the most concrete benefit of having every Page class derive from BasePage (extends BasePage)?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Kod daha az satır görünür ama davranış aynı kalır', en: 'The code just looks shorter, behavior stays the same' } },
+          { id: 'b', text: { tr: 'BasePage\'deki bekleme stratejisi değişikliği TEK yerden tüm Page sınıflarına yayılır', en: 'A wait-strategy change in BasePage propagates from ONE place to every Page class' } },
+          { id: 'c', text: { tr: '@FindBy annotation\'ı sadece BasePage\'den türeyen sınıflarda çalışır', en: 'The @FindBy annotation only works on classes deriving from BasePage' } },
+          { id: 'd', text: { tr: 'PageFactory.initElements çağrısına artık gerek kalmaz', en: 'The PageFactory.initElements call is no longer needed' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '@FindBy her Page sınıfında bağımsız çalışır (b ve d yanlış, ilişkisiz iddialar) — asıl kazanç, ortak davranışın (wait/click/type) TEK bir sınıfta yaşaması ve orada yapılan bir iyileştirmenin tüm alt sınıflara otomatik yayılmasıdır.',
+          en: '@FindBy works independently on every Page class (b and d are unrelated, incorrect claims) — the real benefit is that shared behavior (wait/click/type) lives in ONE class, and an improvement there automatically propagates to every subclass.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'BasePage\'deki WebDriverWait alanı neden private tutulur, protected değil?',
+            en: 'Why is the WebDriverWait field in BasePage kept private, not protected?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Alt sınıfların "nasıl beklendiği" detayına doğrudan erişip onu bozmasını engellemek için (encapsulation)', en: 'To prevent subclasses from directly touching and breaking the "how it waits" detail (encapsulation)' } },
+            { id: 'b', text: { tr: 'Java\'da WebDriverWait tipi protected olamaz', en: 'Because the WebDriverWait type cannot be protected in Java' } },
+            { id: 'c', text: { tr: 'Performans için — private alanlar daha hızlı erişilir', en: 'For performance — private fields are accessed faster' } },
+            { id: 'd', text: { tr: 'Rastgele bir tercih, hiçbir teknik nedeni yok', en: 'A random choice with no technical reason' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'private, wait nesnesinin SADECE waitForClickable() üzerinden kontrollü şekilde kullanılmasını zorlar; protected olsaydı bir alt sınıf wait.until(...) çağrısını kendi mantığıyla değiştirip tüm sınıflar için tutarlı olması gereken bekleme davranışını kırabilirdi.',
+            en: 'private forces the wait object to be used ONLY in a controlled way through waitForClickable(); if it were protected, a subclass could override the wait.until(...) call with its own logic and break the wait behavior that is supposed to stay consistent across all classes.',
+          },
+        },
+      },
+
+      {
+        type: 'heading',
+        text: { tr: '⚖️ Adım 4 — SOLID Prensiplerinin Uygulanması', en: '⚖️ Step 4 — Applying the SOLID Principles' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🧩',
+        content: {
+          tr: 'Adım 2 ve 3\'te yazdığın DriverFactory + BasePage + LoginPage üçlüsü, aslında bir isim vermeden zaten SOLID\'in ilk iki harfini uygulamıştın: DriverFactory\'nin "sadece driver yaşam döngüsü" işi SRP, LoginPage\'in BasePage\'i extend edip onun yerine geçebilmesi ise LSP\'nin bir önizlemesiydi. Bu adımda 5 prensibi TEK TEK, her birine karşılık gelen GERÇEK kod ile göreceksin — soyut tanımla değil, "bu satırı böyle yazarsan hangi prensibi ihlal edersin" ile. LEGO benzetmesi: SOLID, bir LEGO seti TASARIM kılavuzudur — SRP her parçanın TEK bir işlevi olması (tekerlek sadece döner, kapı sadece açılır), OCP yeni bir parça TÜRÜ eklerken eski parçaları KIRMAMAK (yeni renkli tuğla eklemek diğer tuğlaları değiştirmez), LSP herhangi bir "2x4 tuğla" parçasının başka bir "2x4 tuğla" ile DEĞİŞTİRİLEBİLİR olması. Peki DriverFactory zaten çalışıyor, LoginPage zaten test geçiyorken, neden 5 prensibin HEPSİNİ tek tek öğrenmemiz gerekiyor — "çalışıyor" yeterli değil mi? Yeterli değil, çünkü "çalışıyor" bugünü anlatır, SOLID YARINI korur: proje 5 Page sınıfından 50\'ye çıktığında, yeni bir raporlama kanalı (Slack bildirimi) eklendiğinde, bir junior QA BasePage\'i yanlış override ettiğinde SOLID ihlalleri patlar — ve o zaman düzeltmek, baştan doğru kurmaktan 10 kat daha pahalıdır. Java karşılaştırması: her prensip aşağıda hem "İHLAL" (God Object tarzı, üyelik projelerinde sıkça görülen) hem "UYGUN" kod ile yan yana gösterilecek. QA bağlamı: SOLID ihlalleri genelde derleme hatası VERMEZ — sessizce birikir, ta ki bir gün "bu projeye yeni bir özellik eklemek neden 3 gün sürüyor?" sorusu sorulana kadar.',
+          en: 'The DriverFactory + BasePage + LoginPage trio you wrote in Steps 2 and 3 was already applying the first two letters of SOLID without naming them: DriverFactory\'s "driver lifecycle only" job is SRP, and LoginPage extending BasePage and being substitutable for it was a preview of LSP. In this step you will see all 5 principles ONE BY ONE, each with REAL matching code — not an abstract definition, but "write this line this way and you violate this principle". LEGO analogy: SOLID is a LEGO set\'s DESIGN guide — SRP means every brick has ONE function (a wheel only spins, a door only opens), OCP means adding a new brick TYPE without BREAKING old bricks (a new colored brick does not change the others), LSP means any "2x4 brick" is SWAPPABLE for another "2x4 brick". But if DriverFactory already works and LoginPage already passes its tests, why do we need to learn all 5 principles one by one — isn\'t "it works" enough? It is not, because "it works" describes today, while SOLID protects tomorrow: when the project grows from 5 Page classes to 50, when a new reporting channel (a Slack alert) gets added, when a junior QA overrides BasePage incorrectly, SOLID violations explode — and fixing them then is 10 times more expensive than building it right from the start. Java comparison: every principle below is shown side by side as both "VIOLATION" (God-Object style, common in real membership projects) and "COMPLIANT" code. QA context: SOLID violations usually do NOT throw a compile error — they accumulate silently, until someone finally asks "why does adding a feature to this project take 3 days?".',
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: '🅢 Single Responsibility — "bir sınıfın değişme nedeni TEK olmalı": aşağıdaki İHLAL örneğinde LoginSteps sınıfının DÖRT ayrı değişme nedeni var (driver konfigürasyonu, locator stratejisi, assertion kütüphanesi, log formatı) — bunlardan biri değişse bile TÜM sınıfı yeniden derlemen ve test etmen gerekir.',
+          en: '🅢 Single Responsibility — "a class should have only ONE reason to change": in the VIOLATION example below, the LoginSteps class has FOUR separate reasons to change (driver configuration, locator strategy, the assertion library, the log format) — if even one of them changes, you must recompile and retest the ENTIRE class.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `// SRP IHLALI (yapma): tek sinif hem driver yasam donguSU, hem locator,
+// hem assertion, hem loglama yapiyor — 4 AYRI degisme nedeni ayni sinifta
+public class LoginStepsGodObject {
+    private WebDriver driver;
+
+    public void run(String user, String pass) {
+        driver = new ChromeDriver();                          // 1) driver
+        driver.findElement(By.id("username")).sendKeys(user);  // 2) locator
+        driver.findElement(By.id("password")).sendKeys(pass);
+        if (!driver.getTitle().contains("Dashboard"))          // 3) assertion
+            throw new AssertionError("Giris basarisiz");
+        System.out.println("[LOG] login denendi: " + user);    // 4) loglama
+        driver.quit();
+    }
+}
+// UYGUN: her sorumluluk kendi sinifinda — DriverFactory (Adim 2),
+// LoginPage (Adim 3), AssertJ, ayri bir Logger sinifi`,
+          en: `// SRP VIOLATION (don't): one class does driver LIFECYCLE, locators,
+// assertions, AND logging — 4 SEPARATE reasons to change in one class
+public class LoginStepsGodObject {
+    private WebDriver driver;
+
+    public void run(String user, String pass) {
+        driver = new ChromeDriver();                          // 1) driver
+        driver.findElement(By.id("username")).sendKeys(user);  // 2) locator
+        driver.findElement(By.id("password")).sendKeys(pass);
+        if (!driver.getTitle().contains("Dashboard"))          // 3) assertion
+            throw new AssertionError("Login failed");
+        System.out.println("[LOG] login attempted: " + user);  // 4) logging
+        driver.quit();
+    }
+}
+// COMPLIANT: each responsibility in its own class — DriverFactory (Step 2),
+// LoginPage (Step 3), AssertJ, a separate Logger class`,
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: '🅞 Open/Closed — "yeni davranış EKLEMEK için mevcut sınıfı DEĞİŞTİRME": yeni bir rapor kanalı (Slack) eklerken, var olan hiçbir sınıfa dokunmadan sadece YENİ bir sınıf yazarsın.',
+          en: '🅞 Open/Closed — "ADD new behavior WITHOUT MODIFYING existing classes": when adding a new report channel (Slack), you write only a NEW class and touch nothing that already exists.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `public interface ReportListener {
+    void onScenarioComplete(String name, boolean passed);
+}
+
+public class HtmlReportListener implements ReportListener {
+    public void onScenarioComplete(String name, boolean passed) {
+        // reports/html-report/ altina satir yazar
+    }
+}
+
+// YENI kanal icin YENI SINIF — HtmlReportListener'a TEK SATIR bile dokunulmadi
+public class SlackReportListener implements ReportListener {
+    public void onScenarioComplete(String name, boolean passed) {
+        if (!passed) slackClient.post("#qa-alerts", name + " KIRILDI");
+    }
+}`,
+          en: `public interface ReportListener {
+    void onScenarioComplete(String name, boolean passed);
+}
+
+public class HtmlReportListener implements ReportListener {
+    public void onScenarioComplete(String name, boolean passed) {
+        // writes a line under reports/html-report/
+    }
+}
+
+// NEW channel gets a NEW CLASS — not a SINGLE line of HtmlReportListener touched
+public class SlackReportListener implements ReportListener {
+    public void onScenarioComplete(String name, boolean passed) {
+        if (!passed) slackClient.post("#qa-alerts", name + " FAILED");
+    }
+}`,
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: '🅛 Liskov Substitution — "bir alt sınıf, üst sınıfın YERİNE geçebilmeli, sözünü BOZMAMALI": aşağıdaki İHLAL örneğinde ReadOnlyReportPage, BasePage\'in "type() bir alanı doldurur" sözleşmesini SESSİZCE boşa çıkarıyor.',
+          en: '🅛 Liskov Substitution — "a subclass must be SUBSTITUTABLE for its parent, never BREAKING its contract": in the VIOLATION example below, ReadOnlyReportPage SILENTLY defeats BasePage\'s "type() fills a field" contract.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `// LSP IHLALI (yapma): alt sinif ust sinifin sozunu SESSIZCE bozuyor
+public class ReadOnlyReportPage extends BasePage {
+    public ReadOnlyReportPage(WebDriver driver) { super(driver); }
+
+    @Override
+    public void type(WebElement el, String text) {
+        // HICBIR SEY yapmiyor — ust sinifin "alani doldurur" sozunu tutmuyor
+        // cagiran kod hicbir hata almadan SESSIZCE yanlis calisir
+    }
+}
+// UYGUN: BasePage'i extend eden HER sinif waitForClickable/type/click
+// sozlesmesine TAM uyar (Adim 3'teki LoginPage/CartPage gibi) —
+// "yaziyorum" diyen bir metot GERCEKTEN yazmali, aksi halde extend etme`,
+          en: `// LSP VIOLATION (don't): the subclass SILENTLY breaks the parent's contract
+public class ReadOnlyReportPage extends BasePage {
+    public ReadOnlyReportPage(WebDriver driver) { super(driver); }
+
+    @Override
+    public void type(WebElement el, String text) {
+        // does NOTHING — breaks the parent's "fills the field" promise
+        // calling code runs SILENTLY wrong with no error at all
+    }
+}
+// COMPLIANT: EVERY class extending BasePage FULLY honors the
+// waitForClickable/type/click contract (like LoginPage/CartPage in Step 3) —
+// a method that claims "I type" must ACTUALLY type, or don't extend at all`,
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: '🅘 Interface Segregation — "kimseyi kullanmadığı metotları implement etmeye ZORLAMA": tek şişman bir arayüz yerine, ihtiyaca göre küçük arayüzler tanımlanır.',
+          en: '🅘 Interface Segregation — "never FORCE anyone to implement methods they don\'t use": instead of one fat interface, define small interfaces matched to actual need.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `// ISP IHLALI (yapma): SISMAN arayuz, HERKESI TUM metotlari implement etmeye zorlar
+public interface ElementActions {
+    void click(WebElement el);
+    void type(WebElement el, String text);
+    void dragAndDrop(WebElement from, WebElement to);
+    void uploadFile(WebElement el, String path);
+}
+// salt-okunur bir rapor sayfasi bile dragAndDrop/uploadFile'i (bos govdeyle)
+// implement etmek ZORUNDA kalir — LSP ihlaline davetiye cikarir
+
+// UYGUN: kucuk, odakli arayuzler — sadece ihtiyacini implement et
+public interface Clickable { void click(WebElement el); }
+public interface Typeable  { void type(WebElement el, String text); }
+
+public class ReadOnlyReportPage extends BasePage implements Clickable {
+    // sadece click() gerekiyor — type()'i implement etmeye ZORLANMADI
+}`,
+          en: `// ISP VIOLATION (don't): a FAT interface FORCES everyone to implement all of it
+public interface ElementActions {
+    void click(WebElement el);
+    void type(WebElement el, String text);
+    void dragAndDrop(WebElement from, WebElement to);
+    void uploadFile(WebElement el, String path);
+}
+// even a read-only report page is FORCED to implement dragAndDrop/uploadFile
+// (with an empty body) — an open invitation to an LSP violation
+
+// COMPLIANT: small, focused interfaces — implement only what you need
+public interface Clickable { void click(WebElement el); }
+public interface Typeable  { void type(WebElement el, String text); }
+
+public class ReadOnlyReportPage extends BasePage implements Clickable {
+    // only click() is needed — NOT forced to implement type()
+}`,
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: '🅓 Dependency Inversion — "somut sınıfa DEĞİL, soyutlamaya bağımlı ol": Steps sınıfı hangi tarayıcının kullanıldığını BİLMEMELİ, sadece DriverFactory\'nin sunduğu WebDriver arayüzüne güvenmeli.',
+          en: '🅓 Dependency Inversion — "depend on an ABSTRACTION, not a concrete class": a Steps class should not KNOW which browser is in use, it should trust only the WebDriver interface that DriverFactory hands it.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `// DIP IHLALI (yapma): somut sinifa DOGRUDAN bagimlilik
+public class LoginSteps {
+    private WebDriver driver = new ChromeDriver();  // hangi tarayici SABIT KODLANMIS
+    // Firefox'a gecmek istersen bu satiri BULUP DEGISTIRMEN gerekir
+}
+
+// UYGUN: soyutlamaya (DriverFactory) bagimli — somut tarayici serbestce degisebilir
+public class LoginSteps {
+    private final WebDriver driver = DriverFactory.getDriver();
+    // ChromeDriver mi FirefoxDriver mi oldugu LoginSteps'i HIC ilgilendirmez
+}`,
+          en: `// DIP VIOLATION (don't): a DIRECT dependency on a concrete class
+public class LoginSteps {
+    private WebDriver driver = new ChromeDriver();  // the browser is HARD-CODED
+    // switching to Firefox means HUNTING DOWN and editing this exact line
+}
+
+// COMPLIANT: depends on an abstraction (DriverFactory) — the concrete browser is free to change
+public class LoginSteps {
+    private final WebDriver driver = DriverFactory.getDriver();
+    // whether it is ChromeDriver or FirefoxDriver is of NO concern to LoginSteps
+}`,
+        },
+      },
+      {
+        type: 'comparison',
+        title: { tr: 'God Object (Anti-Pattern) vs SOLID Framework — 5 Prensip', en: 'God Object (Anti-Pattern) vs SOLID Framework — 5 Principles' },
+        columns: ['Anti-Pattern', 'SOLID Çözümü'],
+        rows: [
+          { concept: { tr: 'SRP', en: 'SRP' }, 'anti-pattern': 'LoginSteps: driver + locator + assertion + log hepsi bir arada', solid: 'DriverFactory + LoginPage + AssertJ + Logger — dört ayrı sınıf' },
+          { concept: { tr: 'OCP', en: 'OCP' }, 'anti-pattern': 'Yeni rapor kanalı için mevcut sınıfa if/else eklenir', solid: 'ReportListener arayüzüne yeni sınıf (SlackReportListener) eklenir' },
+          { concept: { tr: 'LSP', en: 'LSP' }, 'anti-pattern': 'Alt sınıf type() metodunu sessizce boş bırakır', solid: 'Her BasePage alt sınıfı wait/click/type sözleşmesine tam uyar' },
+          { concept: { tr: 'ISP', en: 'ISP' }, 'anti-pattern': 'Tek ElementActions arayüzü click+type+drag+upload zorunlu kılar', solid: 'Clickable/Typeable gibi küçük arayüzler, sadece gerekeni implement et' },
+          { concept: { tr: 'DIP', en: 'DIP' }, 'anti-pattern': 'Steps sınıfı içinde new ChromeDriver() sabit kodlanır', solid: 'Steps sınıfı DriverFactory soyutlamasına bağımlıdır' },
+        ],
+      },
+      {
+        type: 'challenge',
+        variant: 'multiple-choice',
+        id: 'ch-gauge-arch-lsp-violation-01',
+        question: {
+          tr: 'BasePage\'den türeyen bir ReadOnlyReportPage sınıfı, miras aldığı type(element, text) metodunu hiçbir şey yapmadan boş bırakan bir override ile eziyor. Bu hangi SOLID prensibinin ihlalidir?',
+          en: 'A ReadOnlyReportPage class deriving from BasePage overrides the inherited type(element, text) method with an empty body that does nothing. Which SOLID principle does this violate?',
+        },
+        options: [
+          { id: 'a', text: 'Single Responsibility (SRP)', correct: false, explanation: { tr: 'SRP, bir sınıfın kaç DEĞİŞME NEDENİ olduğuyla ilgilidir — burada sorun tek bir metodun sözleşmeyi bozmasıdır, sınıfın sorumluluk sayısı değil.', en: 'SRP is about how many REASONS TO CHANGE a class has — here the problem is one method breaking a contract, not the number of responsibilities.' } },
+          { id: 'b', text: 'Liskov Substitution (LSP)', correct: true, explanation: { tr: 'Doğru — LSP, bir alt sınıfın üst sınıfın YERİNE sorunsuzca geçebilmesini şart koşar. type() çağıran hiçbir kod "acaba bu BasePage örneği aslında hiçbir şey yapmıyor mu?" diye kontrol etmez; ReadOnlyReportPage bu beklentiyi SESSİZCE bozar.', en: 'Correct — LSP requires that a subclass be SUBSTITUTABLE for its parent without surprises. No caller of type() checks "is this BasePage instance secretly a no-op?"; ReadOnlyReportPage SILENTLY breaks that expectation.' } },
+          { id: 'c', text: 'Open/Closed (OCP)', correct: false, explanation: { tr: 'OCP, yeni davranış eklerken ESKİ kodu değiştirmemekle ilgilidir — burada eski kod (BasePage) değişmedi, yeni bir alt sınıfın davranışı sözleşmeyi bozdu.', en: 'OCP is about adding new behavior WITHOUT modifying old code — here the old code (BasePage) was not changed; a new subclass\'s behavior broke the contract.' } },
+          { id: 'd', text: 'Dependency Inversion (DIP)', correct: false, explanation: { tr: 'DIP, somut sınıflara değil soyutlamalara bağımlı olmakla ilgilidir — burada bir bağımlılık zinciri değil, doğrudan bir metot sözleşmesi ihlali var.', en: 'DIP is about depending on abstractions rather than concrete classes — here there is no dependency chain, just a direct method-contract violation.' } },
+        ],
+        xpReward: 20,
+      },
+      {
+        type: 'code-playground',
+        relatedTopicId: 'gauge-framework-dip',
+        id: 'gauge-arch-dip-constructor-injection-practice',
+        label: {
+          tr: 'Micro Lab: DIP İhlalini Constructor Injection ile Düzelt',
+          en: 'Micro Lab: fix a DIP violation with constructor injection',
+        },
+        language: 'java',
+        task: {
+          tr: 'CheckoutSteps sınıfı şu an new ChromeDriver() ile SOMUT bir sınıfa doğrudan bağımlı (DIP ihlali). TODO satırını, DriverFactory soyutlamasına bağımlı olacak şekilde tamamla — LoginSteps ile aynı kalıbı kullan.',
+          en: 'The CheckoutSteps class currently depends DIRECTLY on a concrete class via new ChromeDriver() (a DIP violation). Complete the TODO line so it depends on the DriverFactory abstraction instead — use the same pattern as LoginSteps.',
+        },
+        explanation: {
+          tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç DIP\'in "hangi satırı nasıl yazarsan bağımlılığı tersine çevirdiğini" elle deneyerek pekiştirmektir.',
+          en: 'This does not open a real browser; the goal is to reinforce, hands-on, exactly which line and how it inverts the dependency under DIP.',
+        },
+        code: {
+          tr: `public class CheckoutSteps {
+    private final WebDriver driver = DriverFactory.getDriver();
+}`,
+          en: `public class CheckoutSteps {
+    private final WebDriver driver = DriverFactory.getDriver();
+}`,
+        },
+        starterCode: {
+          tr: `public class CheckoutSteps {
+    private final WebDriver driver = TODO;   // suan somut siniftan yaratiliyor
+}`,
+          en: `public class CheckoutSteps {
+    private final WebDriver driver = TODO;   // currently created from a concrete class
+}`,
+        },
+        solutionCode: {
+          tr: `public class CheckoutSteps {
+    private final WebDriver driver = DriverFactory.getDriver();
+}`,
+          en: `public class CheckoutSteps {
+    private final WebDriver driver = DriverFactory.getDriver();
+}`,
+        },
+        expected: {
+          tr: 'TODO yerine DriverFactory.getDriver() gelmeli — new ChromeDriver() (veya başka bir somut sürücü sınıfı) burada asla doğrudan çağrılmamalı.',
+          en: 'The TODO must become DriverFactory.getDriver() — new ChromeDriver() (or any other concrete driver class) must never be called directly here.',
+        },
+        hints: [
+          { tr: 'DIP\'in özü: yüksek seviyeli modül (CheckoutSteps) düşük seviyeli bir DETAYA (ChromeDriver) değil, bir SOYUTLAMAYA (DriverFactory\'nin sunduğu WebDriver arayüzü) bağımlı olmalı.', en: 'The essence of DIP: the high-level module (CheckoutSteps) must depend on an ABSTRACTION (the WebDriver interface DriverFactory hands out), not a low-level DETAIL (ChromeDriver).' },
+          { tr: 'Adım 2\'de yazdığın DriverFactory.getDriver() metodu tam olarak bu iş için var — ThreadLocal\'dan aynı thread\'in driver\'ını döndürür.', en: 'The DriverFactory.getDriver() method you wrote in Step 2 exists exactly for this — it returns the same thread\'s driver from ThreadLocal.' },
+          { tr: 'new ChromeDriver() burada kalırsa, hem paralel koşumda ThreadLocal izolasyonunu KAYBEDERSİN hem de tarayıcı değişimi için bu sınıfı elle bulup düzenlemen gerekir.', en: 'If new ChromeDriver() stays here, you both LOSE ThreadLocal isolation under parallel execution and must hunt down and edit this class by hand to change browsers.' },
+        ],
+        xpReward: 15,
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Open/Closed Principle\'a göre, yeni bir Slack raporlama kanalı eklerken en DOĞRU yaklaşım hangisidir?',
+          en: 'According to the Open/Closed Principle, what is the CORRECT approach when adding a new Slack reporting channel?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'HtmlReportListener sınıfına if (kanal.equals("slack")) bloğu eklemek', en: 'Adding an if (channel.equals("slack")) block inside HtmlReportListener' } },
+          { id: 'b', text: { tr: 'ReportListener arayüzünü implement eden yeni bir SlackReportListener sınıfı yazmak', en: 'Writing a new SlackReportListener class that implements the ReportListener interface' } },
+          { id: 'c', text: { tr: 'Tüm rapor mantığını tek bir dev metoda taşımak', en: 'Moving all report logic into one giant method' } },
+          { id: 'd', text: { tr: 'HtmlReportListener\'ı silip yeniden yazmak', en: 'Deleting and rewriting HtmlReportListener' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '"Open for extension, closed for modification": mevcut, çalışan ve test edilmiş HtmlReportListener\'a HİÇ dokunmadan, aynı arayüzü implement eden yeni bir sınıf yazarsın — eskisi kırılma riskine hiç girmez.',
+          en: '"Open for extension, closed for modification": without touching the existing, working, tested HtmlReportListener AT ALL, you write a new class implementing the same interface — the old one is never at risk of breaking.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Interface Segregation Principle\'a göre, salt-okunur bir sayfa sınıfının dragAndDrop() metodunu implement etmeye ZORLANMAMASI için ne yapılmalı?',
+            en: 'According to the Interface Segregation Principle, what should be done so a read-only page class is NOT forced to implement a dragAndDrop() method?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'dragAndDrop() metodunu boş bırakıp implement etmek', en: 'Implement dragAndDrop() with an empty body' } },
+            { id: 'b', text: { tr: 'Sisman ElementActions arayüzü yerine Clickable/Typeable gibi küçük, odaklı arayüzler kullanmak', en: 'Use small, focused interfaces like Clickable/Typeable instead of a fat ElementActions interface' } },
+            { id: 'c', text: { tr: 'dragAndDrop() metodunu static yapmak', en: 'Make dragAndDrop() static' } },
+            { id: 'd', text: { tr: 'Sayfayı BasePage\'den türetmemek', en: 'Not deriving the page from BasePage at all' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'ISP tam olarak bunu söyler: bir sınıf sadece GERÇEKTEN kullandığı davranışları implement etmeli — küçük arayüzlere bölmek, ihtiyaç duyulmayan metotlara zorlanmayı ortadan kaldırır.',
+            en: 'ISP says exactly this: a class should implement only the behaviors it ACTUALLY uses — splitting into small interfaces removes the forced implementation of unneeded methods.',
+          },
+        },
+      },
+
+      {
+        type: 'heading',
+        text: { tr: '🔗 Adım 5 — Test ve Data Katmanı: Her Şeyi Birbirine Bağlamak', en: '🔗 Step 5 — Test and Data Layer: Wiring It All Together' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎼',
+        content: {
+          tr: 'Buraya kadar yazdığın her parça (DriverFactory, BaseTest, BasePage, LoginPage/CartPage, ReportListener, LocatorRepository, env/ dosyaları, ScenarioDataStore) bir orkestra üyesidir — her biri kendi enstrümanında ustadır ama TEK BAŞINA bir senfoni çalmaz. Steps sınıfı, bu adımda orkestra ŞEFİ rolünü üstlenir: hiçbir enstrümanı KENDİ ÇALMAZ (driver yaratmaz, element bulmaz, wait yazmaz), sadece "şimdi sen gir" diyerek doğru parçayı doğru anda çağırır. İkinci benzetme: bu bir restoran servisidir — garson (Steps) yemeği KENDİSİ pişirmez, mutfağa (Page sınıflarına) sipariş iletir, hangi masada (env/ ortam ayarı) hangi menünün (base.url) geçerli olduğunu bilir, hesap fişini (ScenarioDataStore) bir sonraki adıma taşır. Peki bunca ayrı sınıf varken Steps sınıfının işi neden "sadece orkestrasyon" ile sınırlı — biraz mantık da içine katsa olmaz mı? Olmaz, çünkü Steps sınıfına iş mantığı (örn. "sipariş numarası nasıl doğrulanır") sızdığın an, o mantığı SADECE o .spec dosyasından tetikleyebilirsin; oysa CartPage\'deki bir metot olarak kalırsa, hem UI testinde hem farklı bir entegrasyon testinde YENİDEN KULLANILABİLİR. Java karşılaştırması: bu, MVC\'deki Controller\'ın iş mantığını Service katmanına DELEGE edip kendisi sadece HTTP isteğini yönlendirmesiyle aynı disiplindir. QA bağlamı: bir Steps sınıfı "ince" (thin) kaldığı sürece, bir .spec senaryosunu okuyan HERKES (geliştirici, PM, yeni QA) hangi adımın NE yaptığını satır satır Java kodunu okumadan, sadece spec\'i okuyarak anlayabilir — mimarinin nihai hedefi budur.',
+          en: 'Every piece you have written so far (DriverFactory, BaseTest, BasePage, LoginPage/CartPage, ReportListener, LocatorRepository, env/ files, ScenarioDataStore) is an orchestra member — each a virtuoso on its own instrument, but none plays a symphony ALONE. In this step, the Steps class takes on the role of the CONDUCTOR: it plays NO instrument itself (creates no driver, finds no element, writes no wait), it just points and says "now you come in" at the right moment. Second analogy: this is restaurant service — the waiter (Steps) does NOT cook the food themselves, relays the order to the kitchen (Page classes), knows which menu (base.url) applies at which table (the env/ setting), and carries the check (ScenarioDataStore) to the next step. But with so many separate classes already, why must the Steps class\'s job stay limited to "orchestration only" — couldn\'t it hold a bit of logic too? No, because the moment business logic (e.g. "how is an order number validated") leaks into the Steps class, you can only trigger that logic from that ONE .spec file; kept as a method on CartPage instead, it becomes REUSABLE in both a UI test and a separate integration test. Java comparison: this is the same discipline as an MVC Controller DELEGATING business logic to the Service layer and itself just routing the HTTP request. QA context: as long as a Steps class stays "thin", ANYONE reading a .spec scenario (developer, PM, new QA) can understand WHAT each step does just by reading the spec, without reading a single line of Java — that is the ultimate goal of the architecture.',
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'Aşağıdaki CheckoutSteps sınıfı, bu sekmede öğrendiğin HER katmanı tek bir yerde birleştirir: driver DriverFactory\'den (Adım 2), sayfalar BasePage\'den türeyen Page sınıflarından (Adım 3), tarayıcı bağımlılığı DIP ile soyutlanmış (Adım 4), ve son olarak sipariş numarası "Ekosistem" sekmesinde tanıdığın ScenarioDataStore ile bir adımdan diğerine taşınıyor.',
+          en: 'The CheckoutSteps class below combines EVERY layer you learned in this tab into one place: the driver comes from DriverFactory (Step 2), the pages come from BasePage-derived Page classes (Step 3), the browser dependency is abstracted via DIP (Step 4), and finally the order number travels from one step to the next via ScenarioDataStore, which you already met in the "Ecosystem" tab.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `package steps;
+
+import com.thoughtworks.gauge.Step;
+import com.thoughtworks.gauge.datastore.ScenarioDataStore;
+import core.DriverFactory;
+import pages.LoginPage;
+import pages.CheckoutPage;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class CheckoutSteps {
+
+    // DIP: somut tarayiciya degil, DriverFactory soyutlamasina bagimli
+    private final LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
+    private final CheckoutPage checkoutPage = new CheckoutPage(DriverFactory.getDriver());
+
+    @Step("Kullanici <kullaniciAdi> ile giris yapar")
+    public void login(String kullaniciAdi) {
+        // base.url, env/ klasorundeki .properties dosyasindan okunur —
+        // Steps sinifi HANGI ortamda kostugunu HIC bilmez
+        DriverFactory.getDriver().get(System.getProperty("base.url") + "/login");
+        loginPage.loginAs(kullaniciAdi, "Passw0rd!");
+    }
+
+    @Step("Kullanici siparisi tamamlar")
+    public void checkout() {
+        String orderId = checkoutPage.completeOrder();
+        // dogrulama adimina TASINACAK veri — SADECE bu senaryo icinde yasar
+        ScenarioDataStore.put("orderId", orderId);
+    }
+
+    @Step("Siparis numarasi onaylanir")
+    public void verifyOrder() {
+        String orderId = (String) ScenarioDataStore.get("orderId");
+        assertThat(orderId).isNotBlank();
+    }
+}`,
+          en: `package steps;
+
+import com.thoughtworks.gauge.Step;
+import com.thoughtworks.gauge.datastore.ScenarioDataStore;
+import core.DriverFactory;
+import pages.LoginPage;
+import pages.CheckoutPage;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class CheckoutSteps {
+
+    // DIP: depends on the DriverFactory abstraction, not a concrete browser
+    private final LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
+    private final CheckoutPage checkoutPage = new CheckoutPage(DriverFactory.getDriver());
+
+    @Step("User logs in as <username>")
+    public void login(String username) {
+        // base.url is read from the .properties file under env/ —
+        // the Steps class has NO idea which environment it is running in
+        DriverFactory.getDriver().get(System.getProperty("base.url") + "/login");
+        loginPage.loginAs(username, "Passw0rd!");
+    }
+
+    @Step("User completes the order")
+    public void checkout() {
+        String orderId = checkoutPage.completeOrder();
+        // data to CARRY to the verification step — lives ONLY within this scenario
+        ScenarioDataStore.put("orderId", orderId);
+    }
+
+    @Step("The order number is confirmed")
+    public void verifyOrder() {
+        String orderId = (String) ScenarioDataStore.get("orderId");
+        assertThat(orderId).isNotBlank();
+    }
+}`,
+        },
+      },
+      {
+        type: 'code-playground',
+        relatedTopicId: 'gauge-framework-testdata',
+        id: 'gauge-arch-scenario-datastore-practice',
+        label: {
+          tr: 'Micro Lab: ScenarioDataStore ile Veri Taşımayı Tamamla',
+          en: 'Micro Lab: complete data carrying with ScenarioDataStore',
+        },
+        language: 'java',
+        task: {
+          tr: 'checkout() adımı orderId\'yi ScenarioDataStore\'a KOYUYOR ama verifyOrder() adımı henüz onu GERİ ALMIYOR — TODO satırını, checkout() içinde kullanılan AYNI anahtarla (put/get anahtarı birebir eşleşmeli) tamamla.',
+          en: 'The checkout() step PUTS orderId into ScenarioDataStore, but verifyOrder() does not yet READ it back — complete the TODO line using the SAME key used in checkout() (the put/get key must match exactly).',
+        },
+        explanation: {
+          tr: 'Bu pratik gerçek bir Gauge koşumu yapmaz; amaç ScenarioDataStore\'un put/get anahtar EŞLEŞMESİNE ne kadar bağımlı olduğunu elle deneyerek pekiştirmektir — anahtar yazım hatası (örn. "orderId" yerine "order_id") sessizce null döner, derleme hatası VERMEZ.',
+          en: 'This does not run a real Gauge suite; the goal is to reinforce, hands-on, how much ScenarioDataStore depends on the put/get key MATCHING exactly — a key typo (e.g. "order_id" instead of "orderId") silently returns null, it does NOT throw a compile error.',
+        },
+        code: {
+          tr: `@Step("Siparis numarasi onaylanir")
+public void verifyOrder() {
+    String orderId = (String) ScenarioDataStore.get("orderId");
+    assertThat(orderId).isNotBlank();
+}`,
+          en: `@Step("The order number is confirmed")
+public void verifyOrder() {
+    String orderId = (String) ScenarioDataStore.get("orderId");
+    assertThat(orderId).isNotBlank();
+}`,
+        },
+        starterCode: {
+          tr: `@Step("Siparis numarasi onaylanir")
+public void verifyOrder() {
+    String orderId = (String) TODO;
+    assertThat(orderId).isNotBlank();
+}`,
+          en: `@Step("The order number is confirmed")
+public void verifyOrder() {
+    String orderId = (String) TODO;
+    assertThat(orderId).isNotBlank();
+}`,
+        },
+        solutionCode: {
+          tr: `@Step("Siparis numarasi onaylanir")
+public void verifyOrder() {
+    String orderId = (String) ScenarioDataStore.get("orderId");
+    assertThat(orderId).isNotBlank();
+}`,
+          en: `@Step("The order number is confirmed")
+public void verifyOrder() {
+    String orderId = (String) ScenarioDataStore.get("orderId");
+    assertThat(orderId).isNotBlank();
+}`,
+        },
+        expected: {
+          tr: 'TODO yerine ScenarioDataStore.get("orderId") gelmeli — checkout() adımındaki ScenarioDataStore.put("orderId", ...) çağrısıyla anahtar BİREBİR aynı olmalı, yoksa get() sessizce null döner.',
+          en: 'The TODO must become ScenarioDataStore.get("orderId") — the key must EXACTLY match the ScenarioDataStore.put("orderId", ...) call in the checkout() step, otherwise get() silently returns null.',
+        },
+        hints: [
+          { tr: 'ScenarioDataStore bir Map gibi çalışır: put(anahtar, deger) ile yazarsın, get(anahtar) ile aynı SENARYO içinde geri okursun — anahtar string\'i harf harf eşleşmelidir.', en: 'ScenarioDataStore works like a Map: you write with put(key, value) and read back within the SAME scenario with get(key) — the key string must match letter for letter.' },
+          { tr: 'checkout() adımına geri dön: hangi string\'i put()\'un ilk argümanı olarak kullandın? verifyOrder() içindeki get() de AYNI string\'i almalı.', en: 'Go back to the checkout() step: which string did you use as put()\'s first argument? The get() call in verifyOrder() must take that SAME string.' },
+          { tr: 'Anahtar yanlış yazılırsa (örn. "order_id") derleyici hata VERMEZ — orderId değişkeni null olur ve assertThat(orderId).isNotBlank() koşumda kırmızı hata verir, ama hata mesajı "yanlış anahtar" DEMEZ, sadece "blank/null" der.', en: 'A misspelled key (e.g. "order_id") does NOT throw a compile error — orderId becomes null, and assertThat(orderId).isNotBlank() fails red at runtime, but the message will NOT say "wrong key", only "blank/null".' },
+        ],
+        xpReward: 15,
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Projeye yeni katılan bir QA mühendisi, checkout akışı için yeni bir CheckoutConfirmationPage sınıfı yazacak. Bu sekmede öğrendiğin mimariye göre, bu sınıf MUTLAKA hangi sınıfı extend etmeli ve WebDriver\'ı NEREDEN almalı?',
+          en: 'A QA engineer new to the project needs to write a new CheckoutConfirmationPage class for the checkout flow. Based on the architecture you learned in this tab, which class MUST it extend, and WHERE should it get its WebDriver from?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir sınıfı extend etmemeli, kendi new ChromeDriver() örneğini yaratmalı', en: 'It should extend nothing and create its own new ChromeDriver() instance' } },
+          { id: 'b', text: { tr: 'BasePage\'i extend etmeli, WebDriver\'ı constructor\'da DriverFactory.getDriver() ile almalı', en: 'It should extend BasePage and get its WebDriver via DriverFactory.getDriver() in the constructor' } },
+          { id: 'c', text: { tr: 'BaseTest\'i extend etmeli, driver\'ı @BeforeSuite içinde yaratmalı', en: 'It should extend BaseTest and create the driver inside @BeforeSuite' } },
+          { id: 'd', text: { tr: 'LocatorRepository\'i extend etmeli', en: 'It should extend LocatorRepository' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'BaseTest yaşam döngüsü (hook) sınıfıdır, Page sınıfları onu extend etmez (c yanlış); LocatorRepository elementlerin JSON karşılığını sağlar, kalıtım kaynağı değildir (d yanlış); kendi driver\'ını yaratmak DIP\'i ve ThreadLocal izolasyonunu bozar (a yanlış). Doğru yol Adım 3\'te gördüğün LoginPage/CartPage kalıbının BİREBİR aynısıdır: BasePage\'i extend et, DriverFactory.getDriver()\'ı constructor\'a enjekte et.',
+          en: 'BaseTest is the lifecycle (hook) class, Page classes do not extend it (c is wrong); LocatorRepository provides the JSON counterpart of elements, it is not an inheritance source (d is wrong); creating your own driver breaks DIP and ThreadLocal isolation (a is wrong). The correct path is EXACTLY the LoginPage/CartPage pattern from Step 3: extend BasePage, inject DriverFactory.getDriver() into the constructor.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'CheckoutSteps sınıfındaki login() metodu base URL\'i System.getProperty("base.url") ile okuyor. Bu satırı doğrudan "https://demo.learnqa.dev" gibi sabit bir string ile değiştirseydin en olası problem ne olurdu?',
+            en: 'The login() method in CheckoutSteps reads the base URL via System.getProperty("base.url"). What would most likely go wrong if you replaced that line with a hard-coded string like "https://demo.learnqa.dev"?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Test ortamlar arasında (dev/staging/prod) hiç çalışmaz, her ortam için kod DEĞİŞTİRMEN gerekir', en: 'The test would not work across environments (dev/staging/prod) — you would have to EDIT the code for each environment' } },
+            { id: 'b', text: { tr: 'Derleme hatası verir', en: 'It would cause a compile error' } },
+            { id: 'c', text: { tr: 'Hiçbir fark olmaz, ikisi de aynı sonucu verir', en: 'No difference, both produce the same result' } },
+            { id: 'd', text: { tr: 'DriverFactory çalışmaz hale gelir', en: 'DriverFactory would stop working' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'env/ katmanının (Ekosistem sekmesinde gördüğün) tüm amacı budur: base.url gibi ortam bazlı değerleri KODDAN AYIRMAK. Sabit string yazmak bu ayrımı geri alır — gauge run --env test dediğinde artık hiçbir şey değişmez, çünkü kod zaten TEK bir ortama kilitlenmiştir.',
+            en: 'This is the entire point of the env/ layer (which you saw in the Ecosystem tab): SEPARATING environment-based values like base.url FROM the code. Hard-coding the string undoes that separation — running gauge run --env test now changes nothing, because the code is already locked to ONE environment.',
+          },
+        },
+      },
+    ],
+  },
+
+  // ── 6: Ekosistem & CI/CD ─────────────────────────────────────────────────────
   {
     title: { tr: '🌍 Ekosistem & CI/CD', en: '🌍 Ecosystem & CI/CD' },
     blocks: [
@@ -3445,7 +4702,7 @@ gauge docs spectacle specs`,
     ],
   },
 
-  // ── 6: Gerçek Hayat Sorunları ───────────────────────────────────────────────
+  // ── 7: Gerçek Hayat Sorunları ───────────────────────────────────────────────
   {
     title: { tr: '🚨 Gerçek Hayat Sorunları', en: '🚨 Real-Life Issues' },
     blocks: [
@@ -3802,7 +5059,7 @@ public void clickButton(String button) {
     ],
   },
 
-  // ── 7: Mülakat Soruları ─────────────────────────────────────────────────────
+  // ── 8: Mülakat Soruları ─────────────────────────────────────────────────────
   {
     title: { tr: '💼 Mülakat Soruları', en: '💼 Interview Q&A' },
     blocks: [
@@ -4370,13 +5627,15 @@ const enHero = {
 
 const trTabs = [
   '🏠 Neden Gauge?', '⚙️ Kurulum', '📝 Spec & Step Temelleri',
-  '🎯 By ile Locator Yazma', '🗂️ JSON Locator Deposu', '🌍 Ekosistem & CI/CD',
+  '🎯 By ile Locator Yazma', '🗂️ JSON Locator Deposu',
+  '🏗️ Framework Mimarisi (SOLID + POM)', '🌍 Ekosistem & CI/CD',
   '🚨 Gerçek Hayat Sorunları', '💼 Mülakat Soruları',
 ]
 
 const enTabs = [
   '🏠 Why Gauge?', '⚙️ Setup', '📝 Spec & Step Basics',
-  '🎯 Locators with By', '🗂️ JSON Locator Repository', '🌍 Ecosystem & CI/CD',
+  '🎯 Locators with By', '🗂️ JSON Locator Repository',
+  '🏗️ Framework Architecture (SOLID + POM)', '🌍 Ecosystem & CI/CD',
   '🚨 Real-Life Issues', '💼 Interview Q&A',
 ]
 
@@ -4438,6 +5697,15 @@ const gaugeFeynmanDefs = [
   },
   {
     sectionIndex: 5,
+    promptTr: 'DriverFactory + BasePage + LoginPage üçlüsünün SOLID\'in hangi prensiplerini uyguladığını, ve bir SOLID ihlalinin bu framework\'te NASIL göründüğünü somut bir örnekle anlat.',
+    promptEn: 'Explain which SOLID principles the DriverFactory + BasePage + LoginPage trio applies, and what a SOLID violation looks like in this framework, with a concrete example.',
+    keywords: [['srp', 'single responsibility', 'driverfactory'], ['lsp', 'liskov', 'basepage', 'extends'], ['dip', 'dependency inversion', 'soyutlama'], ['threadlocal', 'paralel', 'parallel'], ['ihlal', 'violation', 'god object']],
+    minScore: 3,
+    modelAnswerTr: 'DriverFactory\'nin sadece driver yaşam döngüsüyle ilgilenmesi SRP\'dir — bir sınıfın TEK değişme nedeni olmalı. LoginPage\'in BasePage\'i extend edip onun waitForClickable/click/type sözleşmesini tam olarak yerine getirmesi LSP\'dir — alt sınıf üst sınıfın YERİNE sorunsuzca geçebilmelidir. Steps sınıfının driver\'ı new ChromeDriver() ile değil DriverFactory.getDriver() ile alması DIP\'tir — somut sınıfa değil soyutlamaya bağımlılık. Somut bir ihlal örneği: bir alt sınıf BasePage.type() metodunu boş bir override ile ezerse (hiçbir şey yapmadan dönerse), bu LSP\'yi bozar — çağıran kod hiçbir hata almadan sessizce yanlış çalışır, çünkü "alanı doldurur" sözleşmesi tutulmamıştır.',
+    modelAnswerEn: 'DriverFactory caring only about the driver lifecycle is SRP — a class should have only ONE reason to change. LoginPage extending BasePage and fully honoring its waitForClickable/click/type contract is LSP — a subclass must be substitutable for its parent without surprises. A Steps class getting its driver via DriverFactory.getDriver() instead of new ChromeDriver() is DIP — depending on an abstraction, not a concrete class. A concrete violation example: if a subclass overrides BasePage.type() with an empty body (returning without doing anything), it breaks LSP — calling code runs silently wrong with no error, because the "fills the field" contract was never honored.',
+  },
+  {
+    sectionIndex: 6,
     promptTr: 'env/ klasörünün konfigürasyonu koddan nasıl ayırdığını ve ScenarioDataStore/SpecDataStore/SuiteDataStore\'un paralel koşumda neden static alanlardan daha güvenli olduğunu anlat.',
     promptEn: 'Explain how the env/ folder separates configuration from code, and why ScenarioDataStore/SpecDataStore/SuiteDataStore are safer than static fields under parallel execution.',
     keywords: [['env', 'ortam', 'environment'], ['properties', 'base.url', 'default'], ['datastore', 'scenariodatastore', 'specdatastore', 'suitedatastore'], ['static', 'paralel', 'parallel'], ['izolasyon', 'isolation', 'threadlocal']],
@@ -4446,7 +5714,7 @@ const gaugeFeynmanDefs = [
     modelAnswerEn: 'The env/ folder keeps environment-based settings like base URL in separate .properties files such as env/default/ and env/test/, instead of baking them into Java code; when gauge run --env test is used, Gauge loads default first, then test (overriding it), and Java code reads it transparently via System.getProperty — the same philosophy as Maven\'s -P profiles mechanism. Under parallel execution (--parallel -n 4), if two scenarios write to the same static Map, the data gets corrupted; ScenarioDataStore/SpecDataStore/SuiteDataStore instead provide isolated data spaces scoped to scenario/file/run respectively, and clear automatically when their scope ends — the same isolation need that motivates using ThreadLocal in Java.',
   },
   {
-    sectionIndex: 6,
+    sectionIndex: 7,
     promptTr: 'Gauge + Selenium yığınında kırmızı bir testi katman katman nasıl teşhis edersin? İki örnek hata üzerinden anlat.',
     promptEn: 'How do you diagnose a red test layer by layer in the Gauge + Selenium stack? Explain with two example errors.',
     keywords: [['katman', 'layer', 'teshis', 'teşhis'], ['step', 'not found', 'plugin'], ['nosuchelement', 'stale', 'selector'], ['wait', 'bekle', 'timing', 'zamanlama'], ['flaky', 'devtools']],
@@ -4455,7 +5723,7 @@ const gaugeFeynmanDefs = [
     modelAnswerEn: 'First I identify which layer is speaking: "Plugin java not installed" is the Gauge core layer (gauge install java), "Step implementation not found" is the spec-code binding layer (make the annotation text match the spec exactly), NoSuchElementException is the Selenium layer, "Element not found: ..." is our own JSON repository layer. Example 1: for NoSuchElementException I test the locator in DevTools — if it is found, the problem is timing, so I add WebDriverWait + ExpectedConditions. Example 2: for StaleElementReferenceException I drop the stored reference and re-find the element right before the action, removing @CacheLookup on dynamic pages.',
   },
   {
-    sectionIndex: 7,
+    sectionIndex: 8,
     promptTr: 'Gauge mülakat sorularının neden "X nedir?" yerine senaryo tabanlı olduğunu, uçuş simülatörü benzetmesini kullanarak anlat.',
     promptEn: 'Explain why Gauge interview questions are scenario-based instead of "What is X?", using the flight-simulator analogy.',
     keywords: [['senaryo', 'scenario', 'production'], ['simulator', 'simülatör', 'ariza', 'arıza', 'failure'], ['ezber', 'memoriz', 'recall'], ['teshis', 'teşhis', 'diagnos'], ['java', 'karsilastirma', 'karşılaştırma']],
