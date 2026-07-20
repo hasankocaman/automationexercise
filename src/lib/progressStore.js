@@ -20,11 +20,24 @@ const INTERVIEW_SCORES_KEY = 'learnqa_interview_scores'
 // Mastery formülündeki bileşen ağırlıkları (toplamı 100 — bir bileşenin verisi
 // yoksa o bileşen devre dışı kalır ve kalanlar kendi aralarında yeniden
 // normalize edilir, bkz. getMastery). Plan §6/F7'deki tasarım kararı.
+//
+// v2 (2026-07-20, kullanıcı bildirimi): İlk sürümde "quizCoverage" (kaç quiz
+// DENENDİ) ve "exerciseCoverage" (kaç egzersiz İLK KEZ bitirildi) ayrı ayrı
+// ölçülüyordu — ama sitenin KENDİ "sekme tamamlandı" tanımı sadece bir
+// sekmedeki quizlerin %60'ını doğru cevaplamayı ister, o sekmedeki HER
+// egzersizi çalıştırmayı ZORUNLU KILMAZ. Sonuç: kullanıcı sayfanın TÜM
+// sekmelerini (6/6) tamamladığı halde, hiç code-playground çalıştırmadıysa
+// exerciseCoverage=0 kalıyor ve mastery yanlışlıkla %76'da kilitleniyordu —
+// "bitirdim" dediği bir sayfada "bitirmedin" gibi görünen bir çelişki.
+// Düzeltme: exerciseCoverage/quizCoverage yerine `tabCompletion` — sitenin
+// HER YERDE gösterdiği "X/Y sekme tamamlandı" ile BİREBİR aynı sinyal
+// (bkz. getCompletedTabCount). Sekmelerin TAMAMI bitince mastery de %100'e
+// ulaşabilir; egzersiz/quiz denemesi ayrı bir "derinlik" metriği olarak
+// zorunlu tutulmuyor (isteğe bağlı pratik hâlâ quizPrecision'ı iyileştirir).
 const MASTERY_WEIGHTS = {
-  quizPrecision: 45,   // denenen sorularda doğru oranı (correct / attempted)
-  quizCoverage: 20,    // sayfadaki TÜM quiz bloklarının ne kadarı denendi
-  exerciseCoverage: 20, // sayfadaki TÜM egzersiz bloklarının ne kadarı bitti
-  interview: 15,       // mülakat AI puan ortalaması
+  quizPrecision: 45,  // denenen sorularda doğru oranı (correct / attempted)
+  tabCompletion: 35,  // sayfadaki sekmelerin kaçı GERÇEKTEN tamamlandı (X/Y)
+  interview: 20,      // mülakat AI puan ortalaması
 }
 
 // Tüm konuların yerel XP toplamı (learnqa_xp_* anahtarlarının taraması).
@@ -101,6 +114,23 @@ export function getInterviewStats(route) {
 // sekmesine hiç gelmediyse) o bileşen dışlanır ve kalan bileşenler kendi
 // ağırlıklarına göre yeniden normalize edilir — eksik veri asla 0 gibi
 // cezalandırılmaz.
+// Bir sayfada GERÇEKTEN tamamlanmış (quiz %60 eşiği veya elle işaretleme —
+// bkz. TopicPage.jsx markTabAsVerifiedComplete/toggleTabComplete) sekme
+// sayısı. `progress_<pageKey>` (completedTabs) VE `quizProgress_<pageKey>`
+// (quizVerifiedTabs) BİRLİKTE kontrol edilir çünkü TopicPage.jsx'teki
+// `isCompleted` kontrolü de ikisinin OR'udur — sadece birine bakmak bazı
+// tamamlanmış sekmeleri kaçırır.
+function getCompletedTabCount(pageKey) {
+    const completed = readJsonObject(`progress_${pageKey}`)
+    const quizVerified = readJsonObject(`quizProgress_${pageKey}`)
+    const allKeys = new Set([...Object.keys(completed), ...Object.keys(quizVerified)])
+    let count = 0
+    for (const key of allKeys) {
+        if (completed[key] || quizVerified[key]) count++
+    }
+    return count
+}
+
 export function getMastery(route) {
     const manifest = MASTERY_MANIFEST[route]
     if (!manifest) return null
@@ -113,31 +143,20 @@ export function getMastery(route) {
     for (const tab of Object.keys(attemptedByTab)) attempted += Object.keys(attemptedByTab[tab] || {}).length
     for (const tab of Object.keys(correctByTab)) correct += Object.keys(correctByTab[tab] || {}).length
 
-    let exerciseCompleted = 0
-    try {
-        const raw = localStorage.getItem(`learnqa_xp_${pageKey}`)
-        const parsed = raw ? JSON.parse(raw) : null
-        exerciseCompleted = Array.isArray(parsed?.completed) ? parsed.completed.length : 0
-    } catch { /* localStorage kapalı olabilir */ }
-
+    const completedTabCount = getCompletedTabCount(pageKey)
     const interview = getInterviewStats(route)
 
-    // Kapsam bileşenleri (quizCoverage/exerciseCoverage) sayfa İÇERİK içerdiği
-    // sürece HER ZAMAN hesaplanabilir (manifest.total* > 0) — bu yüzden "hiç
-    // ziyaret edilmemiş" durumunu AYRI bir kapı ile yakalamak gerekir, yoksa
-    // hiç dokunulmamış her sayfa yanlışlıkla "%0 mastery" (gerçek bir başarısızlık
-    // gibi) döner, "başlanmadı" değil. En az bir GERÇEK sinyal (deneme, tamamlanan
-    // egzersiz veya mülakat puanı) yoksa null dönülür.
-    const hasAnySignal = attempted > 0 || exerciseCompleted > 0 || interview !== null
+    // "Hiç ziyaret edilmemiş" durumunu AYRI bir kapı ile yakalamak gerekir,
+    // yoksa hiç dokunulmamış her sayfa yanlışlıkla "%0 mastery" (gerçek bir
+    // başarısızlık gibi) döner, "başlanmadı" değil. En az bir GERÇEK sinyal
+    // (quiz denemesi, tamamlanmış sekme veya mülakat puanı) yoksa null döner.
+    const hasAnySignal = attempted > 0 || completedTabCount > 0 || interview !== null
     if (!hasAnySignal) return null // sayfa hiç ziyaret edilmemiş/denenmemiş
 
     const components = []
     if (attempted > 0) components.push({ weight: MASTERY_WEIGHTS.quizPrecision, value: (correct / attempted) * 100 })
-    if (manifest.totalQuizBlocks > 0) {
-        components.push({ weight: MASTERY_WEIGHTS.quizCoverage, value: Math.min(100, (attempted / manifest.totalQuizBlocks) * 100) })
-    }
-    if (manifest.totalExerciseBlocks > 0) {
-        components.push({ weight: MASTERY_WEIGHTS.exerciseCoverage, value: Math.min(100, (exerciseCompleted / manifest.totalExerciseBlocks) * 100) })
+    if (manifest.tabCount > 0) {
+        components.push({ weight: MASTERY_WEIGHTS.tabCompletion, value: Math.min(100, (completedTabCount / manifest.tabCount) * 100) })
     }
     if (interview) components.push({ weight: MASTERY_WEIGHTS.interview, value: interview.avgPercent })
 

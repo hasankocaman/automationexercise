@@ -160,6 +160,31 @@ ağaçlarında blok sayısı bazen farklıydı).
 `getMastery('/what-is-testing')` artık **83** dönüyor (önceden HER ZAMAN
 `null`), Skill Radar'ın "Temel" ekseni artık doğru dolu görünüyor. Build ✓.
 
+**🐛 2. BUG DÜZELTİLDİ (aynı gün, devam) — mastery formülü "6/6 tamamlandı"
+bir sayfada %76'da kilitleniyordu (kullanıcı: "what-is-testing %76 yazıyor
+halbuki ben bitirdim"):** pageKey fix'inden sonra `getMastery` GERÇEKTEN
+veri buluyordu ama formülün kendisi yanlıştı. Matematiksel olarak teyit
+edildi: (45×100 quizPrecision + 20×100 quizCoverage + 20×0 exerciseCoverage)/85
+= 76.47→76 — kullanıcı sayfanın TÜM sekmelerini (6/6) quiz ile tamamlamıştı
+ama hiçbir code-playground "Çalıştır" butonuna basmamıştı; eski formül
+"exerciseCoverage" bileşenini sitenin KENDİ "sekme tamamlandı" tanımından
+BAĞIMSIZ ölçüyordu (bir sekme sadece quizin %60'ını doğru cevaplayarak
+tamamlanabilir, o sekmedeki HER egzersizi çalıştırmak ZORUNLU DEĞİL).
+Düzeltme: `quizCoverage`+`exerciseCoverage` (weight 20+20) kaldırıldı,
+yerine sitenin HER YERDE gösterdiği "X/Y sekme tamamlandı" sinyaliyle
+BİREBİR aynı `tabCompletion` (weight 35, YENİ `getCompletedTabCount()`
+fonksiyonu — `progress_<pageKey>` VE `quizProgress_<pageKey>`'i OR'layarak
+sayar, TopicPage.jsx'teki `isCompleted` kontrolüyle aynı mantık) kondu.
+Ağırlıklar: quizPrecision 45, tabCompletion 35, interview 20 (toplam 100).
+**Doğrulama:** gerçek tarayıcıda "6/6 tamamlandı" senaryosu (tüm sekmeler
+completed+quizVerified, tüm quizler ilk denemede doğru) enjekte edildi →
+`getMastery('/what-is-testing')` artık **100** (önceden 76). `code-playground-
+completion.spec.ts`'teki ilgili test de GÜNCELLENDİ (Site Haritası'na
+sonradan eklenen quiz nedeniyle artık egzersiz TEK BAŞINA sekmeyi
+tamamlamıyor, quiz'e geçti — test bunu iki aşamada doğruluyor). `npm run
+build` ✓ · `career-map.spec.ts` 12/12 + `code-playground-completion.spec.ts`
+2/2 ✓ (ikisi de yeşil).
+
 **Kullanıcı isteği — Skill Radar görsel kalite yükseltmesi:** Kullanıcı bir
 referans PNG (dış bir mindmap aracının şık, temiz görünümü) paylaşıp
 "bu png gibi kaliteli gözükmeli, veri yok yazıları olmamalı" dedi.
