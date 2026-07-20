@@ -10,6 +10,69 @@
 
 ---
 
+## 🐛 DÜZELTİLDİ — /typescript sayfasında 35 quiz bloğu tamamen kırıktı (2026-07-20, Fable oturumu)
+
+**Bulan:** Kullanıcı ekran görüntüsüyle bildirdi — Kurulum sekmesindeki bir
+quizde doğru şıkkı (A) seçmesine rağmen 4 şık da kırmızı/✗ gösteriliyordu.
+
+**Kök neden:** `TopicPage.jsx`'teki `QuizBlock.normalizeOption`, nesne-tipi
+seçeneklerde (`{text:{tr,en}}`) `id` alanı yoksa fallback atamıyordu (sadece
+düz string seçeneklerde atıyordu). `typescriptData.js`'teki 35 quiz bloğu
+(140 şık, commit `798e9fd4`, "codex2" tarafından 2026-06-29'da eklendi —
+`check-content-integrity.mjs` ondan SONRA gelen `136e4a0` commit'inde
+yazıldığı için bu şema sapması hiç yakalanmadı) `id` alanı içermiyordu.
+Sonuç: `opt.id` her seçenek için `undefined` → hangi şıkka tıklanırsa
+tıklansın `selected` state'i `undefined` kalıyor → 4 şık da "seçilmiş ama
+yanlış" (kırmızı/✗) render ediliyor, doğru şık asla yeşil/✓ göstermiyordu.
+Sadece görsel değildi: `isCorrect` bu sayfada HER ZAMAN `false` dönüyordu —
+CLAUDE.md §10'daki %60 quiz-doğruluğu eşiği `/typescript`'te asla
+sağlanamıyordu (mülakat sekmesi kalıcı kilitli), doğru cevaplar bile
+"Bugünkü Tekrar" (WP4) kuyruğuna yanlış olarak düşüyordu.
+
+**İki katmanlı kalıcı düzeltme (tek seferlik masaj DEĞİL — bir daha
+tekrarlanmaması için):**
+1. **Kod (savunma katmanı):** `TopicPage.jsx` `normalizeOption` artık `id`
+   eksik nesne seçeneklerde pozisyonel harf (a/b/c/d) atıyor — gelecekte
+   benzer eksik veri gelse bile UI hiçbir zaman "4 şık da kırmızı" durumuna
+   düşmeyecek.
+2. **Veri (kök düzeltme):** `typescriptData.js`'teki 140 seçeneğin tümüne
+   hedefli bir codemod ile (sayı doğrulamalı, 35 blok × 4 = 140 eşleşmedi
+   diye script kendini durdurma güvenliğiyle) `id:'a'/'b'/'c'/'d'` eklendi —
+   içerik artık projenin geri kalanıyla (örn. `pythonData.js`) aynı şemaya
+   uyuyor.
+3. **Build-gate (asıl "bir daha olmasın" önlemi):** `check-content-integrity.mjs`'e
+   yeni **Check (E)** eklendi — `step-animation` şema kontrolü (Check D,
+   §feedback_step_animation_schema hafızası) ile AYNI felsefe: her `type:'quiz'`
+   bloğunun (main + retryQuestion) options[]'ını gerçekten import edip
+   nesne-tipi seçeneklerden `id` eksik olanı bulur, build'i kırar. Uygulanmadan
+   önce test edildi: fix'ten ÖNCEKİ veriyle tam 35 ihlal (35 gerçek blok,
+   70 ham tarama = `_afterCode`'un aynı objeyi hem `.en` hem `.tr` ağacına
+   splice etmesinden kaynaklanan çift sayım, dedup ile 35'e indi) doğru
+   yakalandı; fix'ten SONRA 0 ihlal.
+
+**Kapsam doğrulaması:** Tüm `src/data/*Data.js` dosyaları gerçek import ile
+taranıp SADECE `typescriptData.js`'in etkilendiği teyit edildi (878 quiz
+bloğu tarandı, sadece bu dosyada eksik `id`).
+
+**Doğrulama:** integrity ✓ (Check E dahil, 0 ihlal) · `npm run build` ✓ ·
+gerçek tarayıcıda hem doğru hem yanlış cevap senaryosu ekran görüntüsüyle
+teyit edildi (önce runtime fallback'le, sonra veri düzeltmesiyle iki ayrı
+kez) · regresyon: `typescript-page.spec.ts` (17 sekme) +
+`quiz-retry-mechanism.spec.ts` + `review-queue.spec.ts` — hem fallback-only
+hem veri-düzeltmesi-sonrası koşumlarda **8/8 GEÇTİ**, iki katman da bağımsız
+doğrulandı.
+
+**Ders çıkarımı (proje geneli):** Bu proje birden fazla AI aracıyla
+(Claude, Codex, Antigravity, Windsurf — CLAUDE.md §0) geliştiriliyor;
+`check-content-integrity.mjs` gibi şema-doğrulama script'leri YENİ bir
+kural eklendiğinde SADECE ileriye dönük değil, MEVCUT tüm içerik üzerinde
+de çalıştırılıp sıfır ihlale getirilmeli — aksi halde önceki bir oturumda
+(hangi araçla yazıldığından bağımsız) sessizce giren şema sapmaları
+build'i hiç kırmadan production'a kadar ilerleyebiliyor (bu vakada ~3
+hafta boyunca fark edilmeden kaldı).
+
+---
+
 ## 🚧 AKTİF İŞ — Learning OS Redesign (2026-07-19, Fable oturumu, YENİ)
 
 **Branch:** `feature/learning-os-redesign` (main'den açıldı; career-map-v2

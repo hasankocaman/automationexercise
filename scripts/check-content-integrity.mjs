@@ -2,11 +2,15 @@
 /**
  * check-content-integrity.mjs
  *
- * Scans src/data/*Data.js for three categories of violations:
+ * Scans src/data/*Data.js for five categories of violations:
  *   (a) English comments in TR-context code blocks (code, editor, code-playground,
  *       error-dictionary codeWrong/codeFixed, interview-questions code snippets)
  *   (b) Missing relatedTopicId on code-playground / interview-questions / error-dictionary blocks
  *   (c) Duplicate hint/practice text (≥85% word overlap) across different topicIds
+ *   (d) step-animation steps missing the required 'label' field (renders as empty box)
+ *   (e) quiz options missing 'id' (breaks correct/selected matching — ALL options
+ *       render red/✗ regardless of the answer chosen; see typescriptData.js incident,
+ *       .claude/NEXT_SESSION.md 2026-07-20)
  *
  * Exit code 1 when any violations found (breaks build/commit).
  * Follows the same reporting pattern as check-seo.mjs.
@@ -289,6 +293,70 @@ async function checkStepAnimationSchema(filepath, filename, violations) {
   }
 }
 
+// ─── Check (e): quiz option `id` schema ──────────────────────────────────────
+//
+// QuizBlock (TopicPage.jsx) matches selected/correct options by `opt.id`.
+// If an object-shaped option has no `id`, every option normalizes to the SAME
+// undefined id — clicking ANY option marks it "selected", none ever matches
+// the correct answer, so ALL FOUR render red/✗ regardless of what the user
+// picked (real bug found on /typescript, 35 quiz blocks, discovered 2026-07-20
+// via a user screenshot). TopicPage.jsx now has a defensive fallback (assigns
+// positional a/b/c/d when `id` is missing), but that only masks the symptom —
+// this check stops the root cause (malformed content) from being written
+// again, mirroring the step-animation schema check (D) above.
+
+async function checkQuizOptionIdSchema(filepath, filename, violations) {
+  let mod
+  try {
+    mod = await import(pathToFileURL(filepath).href)
+  } catch {
+    return // file fails to import — not this check's concern
+  }
+
+  const seenQuestions = new Set()
+
+  function checkOptions(options) {
+    if (!Array.isArray(options)) return false
+    return options.some((o) => o && typeof o === 'object' && o.id == null)
+  }
+
+  function walkBlocks(blocks) {
+    for (const block of blocks || []) {
+      if (!block || block.type !== 'quiz') continue
+      const questionKey = JSON.stringify(block.question)
+      if (seenQuestions.has(questionKey)) continue // aynı obje iki ağaca da eklenmiş olabilir (typescriptData.js _afterCode kalıbı)
+      seenQuestions.add(questionKey)
+
+      const mainBroken = checkOptions(block.options)
+      const retryBroken = block.retryQuestion && checkOptions(block.retryQuestion.options)
+      if (!mainBroken && !retryBroken) continue
+
+      const questionText = typeof block.question === 'string'
+        ? block.question
+        : (block.question?.tr || block.question?.en || '(sorusuz)')
+
+      violations.push({
+        type: 'quiz-option-missing-id',
+        file: filename,
+        line: 0,
+        content: `quiz "${questionText.slice(0, 70)}" — seçeneklerden en az biri 'id' alanı içermiyor (tüm şıklar seçilse de yanlış/✗ render eder, doğru cevap asla yeşil görünmez)`,
+      })
+    }
+  }
+
+  function walkSections(sections) {
+    for (const section of sections || []) walkBlocks(section?.blocks)
+  }
+
+  for (const key of Object.keys(mod)) {
+    const data = mod[key]
+    if (!data || typeof data !== 'object') continue
+    if (data.sections) walkSections(data.sections)
+    if (data.en?.sections) walkSections(data.en.sections)
+    if (data.tr?.sections) walkSections(data.tr.sections)
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -308,6 +376,7 @@ async function main() {
     checkEnglishComments(source, filename, mappedPatterns, allViolations)
     checkRelatedTopicId(source, filename, allViolations)
     await checkStepAnimationSchema(filepath, filename, allViolations)
+    await checkQuizOptionIdSchema(filepath, filename, allViolations)
     allHints.push(...collectHints(source, filename))
   }
 
@@ -358,6 +427,7 @@ async function main() {
   const missingIdViolations = dedupedViolations.filter((v) => v.type === 'missing-related-topic-id')
   const duplicateViolations = dedupedViolations.filter((v) => v.type === 'duplicate-hint')
   const stepSchemaViolations = dedupedViolations.filter((v) => v.type === 'step-animation-missing-label')
+  const quizIdViolations = dedupedViolations.filter((v) => v.type === 'quiz-option-missing-id')
 
   console.log(`\nİçerik Bütünlük Kontrolü — ${files.length} dosya tarandı\n`)
   console.log(`${'─'.repeat(60)}`)
@@ -390,6 +460,13 @@ async function main() {
     }
   }
 
+  if (quizIdViolations.length > 0) {
+    console.error(`\n[E] Quiz seçeneğinde 'id' eksik (${quizIdViolations.length} ihlal):`)
+    for (const v of quizIdViolations) {
+      console.error(`  ${v.file}  →  ${v.content}`)
+    }
+  }
+
   const total = dedupedViolations.length
   console.log(`\n${'─'.repeat(60)}`)
 
@@ -397,7 +474,7 @@ async function main() {
     console.log(`İçerik bütünlüğü: TÜM KONTROLLER GEÇTİ ✓`)
     process.exit(0)
   } else {
-    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length}`)
+    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length} E=${quizIdViolations.length}`)
     console.error(`Build engellendi — lütfen yukarıdaki ihlalleri düzelt.`)
     process.exit(1)
   }

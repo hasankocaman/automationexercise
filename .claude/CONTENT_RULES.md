@@ -191,6 +191,16 @@ Her konu bölümünün sonunda `quiz` tipli block zorunludur.
 }
 ```
 
+**`options[]` içindeki her nesnede `id` alanı ZORUNLUDUR** (yukarıdaki
+`{ id: 'a', text: ... }` formatı) — `text` doğrudan string ise `TopicPage.jsx`
+otomatik pozisyonel id atar, ama nesne (`{tr, en}` bilingual) formatındaysa VE
+`id` eksikse `QuizBlock` doğru/seçili şık eşleşmesini yapamaz: hangi şık
+seçilirse seçilsin TÜM şıklar "seçilmiş ama yanlış" (kırmızı/✗) render edilir,
+doğru şık asla yeşil/✓ göstermez (gerçek prod bug, `typescriptData.js`, 35
+blok, 2026-07-20'de bulundu — bkz. `.claude/NEXT_SESSION.md`). Bu artık
+`scripts/check-content-integrity.mjs` Check (E) tarafından build-time'da
+otomatik denetleniyor — `id` eksik bırakılırsa build kırılır.
+
 **Kod tamamlama quiz:**
 ```js
 {

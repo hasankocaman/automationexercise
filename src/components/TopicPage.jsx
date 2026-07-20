@@ -1592,9 +1592,15 @@ function QuizBlock({ block, darkMode, language = 'en', onAnswered }) {
         ? String.fromCharCode(97 + activeQuestion.correct)
         : activeQuestion.correct
     const isCorrect = selected === normalizedCorrect
-    // Support both plain string options and {id, text} object options
+    // Support both plain string options and {id, text} object options. Bazı
+    // veri dosyalarındaki (örn. typescriptData.js) nesne seçeneklerinde `id`
+    // alanı hiç yoktu — bu durumda opt.id undefined kalıp TÜM şıklar aynı
+    // (undefined) "selected" değerine eşleşiyor, hiçbiri normalizedCorrect'e
+    // eşleşmiyordu (4 şık da kırmızı/✗ görünen gerçek bug). id eksikse
+    // pozisyonel harfle (a/b/c/d) tamamla — correct:0 zaten bu sırayı bekliyor.
     const normalizeOption = (opt, i) => {
         if (typeof opt === 'string') return { id: String.fromCharCode(97 + i), text: opt }
+        if (opt && opt.id == null) return { ...opt, id: String.fromCharCode(97 + i) }
         return opt
     }
     const options = (activeQuestion.options || []).map(normalizeOption)
