@@ -133,6 +133,26 @@ widget da gizlendi (önceden ikisi de yanlışlıkla görünüyordu); (b)
 tamamlanmamış bir route (`/docker`) için aynı testler → HER İKİ widget da
 NORMAL ÇALIŞIYOR (regresyon yok). `npm run build` ✓.
 
+**Kullanıcı isteği — Skill Radar görsel kalite yükseltmesi:** Kullanıcı bir
+referans PNG (dış bir mindmap aracının şık, temiz görünümü) paylaşıp
+"bu png gibi kaliteli gözükmeli, veri yok yazıları olmamalı" dedi.
+`SkillRadar.jsx` yeniden tasarlandı:
+- **"veri yok" TAMAMEN kaldırıldı** — hiç veri yoksa (profil yepyeni)
+  JobReadinessCard'ın boş-durum kalıbıyla AYNI tonda TEK bir karşılama
+  mesajı gösterilir (🎯 + "Bir dersi tamamladığında radar burada dolmaya
+  başlayacak"); kısmi veri varsa eksik eksenler sadece değer satırını
+  atlar (etiket soluk renkte kalır), ayrı "yok" metni asla eklenmez.
+- **Görsel kalite:** radyal gradient dolgu (düz renk yerine merkezden dışa
+  soluklaşan), veri noktalarında yumuşak glow halkası + kontrast kenarlıklı
+  nokta, dış halka biraz daha belirgin (iç halkalar daha soluk — derinlik
+  hissi), `feDropShadow` ile dolgu şekline hafif parıltı, daha büyük/kalın
+  etiket tipografisi.
+- **Doğrulama:** gerçek tarayıcıda 3 durum (boş / kısmi / çok-eksenli dolu)
+  × 2 tema (dark/light) ekran görüntüsüyle teyit edildi — hiçbir "veri yok"
+  metni yok, şekil net ve okunaklı. `npm run build` ✓ ·
+  `career-map.spec.ts` 12/12 ✓ (regresyon yok — sadece SkillRadar.jsx
+  değişti, QAMentorPage.jsx'e dokunulmadı).
+
 ---
 
 ## ✨ EKLENDİ — /qa-mentor haritasına eğrisel bağlantı + "buradasın" işareti (2026-07-20, Fable oturumu, kullanıcı isteğiyle)

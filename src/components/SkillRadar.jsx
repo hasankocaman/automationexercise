@@ -4,30 +4,33 @@ import { getSkillRadarData, getJobReadiness } from '../lib/progressStore'
 // Learning OS Faz 2 (Documents/learning-os-redesign-plan.md §6.2-6.3/F8-F9) —
 // saf inline SVG radar + iş hazırlık skoru kartı. Dış kütüphane yok
 // (CLAUDE.md §8). Tek seri (kullanıcının kendi profili) olduğundan legend
-// gerekmez; "veri yok" eksenler ayrı bir görsel/metinsel işaretle (kesikli
-// halka + italik "veri yok" etiketi) gerçek düşük skordan ayırt edilir —
-// eksik veri hiçbir zaman 0 gibi gösterilmez.
+// gerekmez. "Veri yok" hiçbir zaman eksen başına tekrarlanan bir metin
+// olarak gösterilmez (2026-07-20 kullanıcı geri bildirimi — 6 kez tekrar
+// eden "veri yok" yazısı dağınık/düşük kaliteli görünüyordu): hiç veri
+// yoksa JobReadinessCard'ın boş-durum kalıbıyla AYNI tonda tek bir
+// karşılama mesajı gösterilir; kısmi veri varsa eksik eksenler sadece
+// değer satırını atlar, ayrı bir "yok" etiketi eklenmez.
 
-// SIZE geniş tutulur (440) ki MAX_R + LABEL_OFFSET'ten SONRA eksen etiketleri
-// için yeterli pay kalsın — SVG'nin varsayılan `overflow: hidden` davranışı
-// viewBox sınırlarının DIŞINA taşan metni kırpar (ilk sürümde etiketler bu
-// yüzden kart kenarında kesiliyordu, bkz. NEXT_SESSION.md 2026-07-20 notu).
 const SIZE = 440
 const CENTER = SIZE / 2
 const MAX_R = 86
-const LABEL_OFFSET = 24
+const LABEL_OFFSET = 26
 const RING_FRACTIONS = [0.25, 0.5, 0.75, 1]
 
 const STROKE_DARK = '#818cf8'
-const FILL_DARK = 'rgba(129, 140, 248, 0.28)'
+const FILL_DARK_FROM = 'rgba(129, 140, 248, 0.38)'
+const FILL_DARK_TO = 'rgba(129, 140, 248, 0.08)'
 const STROKE_LIGHT = '#4f46e5'
-const FILL_LIGHT = 'rgba(79, 70, 229, 0.16)'
-const GRID_DARK = '#374151'
-const GRID_LIGHT = '#e5e7eb'
-const NO_DATA_DARK = '#6b7280'
-const NO_DATA_LIGHT = '#9ca3af'
-const LABEL_DARK = '#e5e7eb'
-const LABEL_LIGHT = '#374151'
+const FILL_LIGHT_FROM = 'rgba(79, 70, 229, 0.24)'
+const FILL_LIGHT_TO = 'rgba(79, 70, 229, 0.05)'
+const GRID_DARK = 'rgba(148, 163, 184, 0.22)'
+const GRID_LIGHT = 'rgba(100, 116, 139, 0.18)'
+const RING_EDGE_DARK = 'rgba(148, 163, 184, 0.38)'
+const RING_EDGE_LIGHT = 'rgba(100, 116, 139, 0.32)'
+const LABEL_DARK = '#f1f5f9'
+const LABEL_LIGHT = '#1e293b'
+const MUTED_LABEL_DARK = '#64748b'
+const MUTED_LABEL_LIGHT = '#94a3b8'
 
 function axisAngle(i, n) {
     return -Math.PI / 2 + i * ((2 * Math.PI) / n)
@@ -60,17 +63,35 @@ export function SkillRadar({ darkMode, language, routeFilter = null }) {
     const n = data.length
     if (n === 0) return null
 
+    const hasAnyData = data.some((d) => d.value !== null)
+
+    if (!hasAnyData) {
+        return (
+            <div data-testid="skill-radar" className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+                <span className="text-4xl" aria-hidden="true">🎯</span>
+                <p className={`max-w-[240px] text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {isTr
+                        ? 'Bir dersi tamamladığında radar burada dolmaya başlayacak.'
+                        : 'Once you complete a lesson, the radar will start filling in here.'}
+                </p>
+            </div>
+        )
+    }
+
     const gridColor = darkMode ? GRID_DARK : GRID_LIGHT
-    const noDataColor = darkMode ? NO_DATA_DARK : NO_DATA_LIGHT
+    const ringEdgeColor = darkMode ? RING_EDGE_DARK : RING_EDGE_LIGHT
     const labelColor = darkMode ? LABEL_DARK : LABEL_LIGHT
-    const fill = darkMode ? FILL_DARK : FILL_LIGHT
+    const mutedLabelColor = darkMode ? MUTED_LABEL_DARK : MUTED_LABEL_LIGHT
     const stroke = darkMode ? STROKE_DARK : STROKE_LIGHT
+    const fillFrom = darkMode ? FILL_DARK_FROM : FILL_LIGHT_FROM
+    const fillTo = darkMode ? FILL_DARK_TO : FILL_LIGHT_TO
+    const gradientId = darkMode ? 'skill-radar-fill-dark' : 'skill-radar-fill-light'
 
     const dataPolygon = polygonAt(n, 0).map((_, i) => axisPoint(i, n, MAX_R * ((data[i].value ?? 0) / 100)))
     const spokeEnds = polygonAt(n, MAX_R)
 
     const summary = data
-        .map((d) => `${isTr ? d.label.tr : d.label.en}: ${d.value === null ? (isTr ? 'veri yok' : 'no data') : `%${d.value}`}`)
+        .map((d) => `${isTr ? d.label.tr : d.label.en}${d.value === null ? '' : `: %${d.value}`}`)
         .join(', ')
 
     return (
@@ -81,13 +102,23 @@ export function SkillRadar({ darkMode, language, routeFilter = null }) {
                 aria-label={isTr ? `Yetenek radarı — ${summary}` : `Skill radar — ${summary}`}
                 style={{ width: '100%', maxWidth: 400, height: 'auto' }}
             >
-                {RING_FRACTIONS.map((frac) => (
+                <defs>
+                    <radialGradient id={gradientId} cx="50%" cy="50%" r="65%">
+                        <stop offset="0%" stopColor={fillFrom} />
+                        <stop offset="100%" stopColor={fillTo} />
+                    </radialGradient>
+                    <filter id="skill-radar-glow" x="-40%" y="-40%" width="180%" height="180%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor={stroke} floodOpacity="0.35" />
+                    </filter>
+                </defs>
+
+                {RING_FRACTIONS.map((frac, i) => (
                     <polygon
                         key={frac}
                         points={pointsToString(polygonAt(n, MAX_R * frac))}
                         fill="none"
-                        stroke={gridColor}
-                        strokeWidth={1}
+                        stroke={i === RING_FRACTIONS.length - 1 ? ringEdgeColor : gridColor}
+                        strokeWidth={i === RING_FRACTIONS.length - 1 ? 1.5 : 1}
                     />
                 ))}
                 {spokeEnds.map(([x, y], i) => (
@@ -95,37 +126,43 @@ export function SkillRadar({ darkMode, language, routeFilter = null }) {
                 ))}
                 <polygon
                     points={pointsToString(dataPolygon)}
-                    fill={fill}
+                    fill={`url(#${gradientId})`}
                     stroke={stroke}
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     strokeLinejoin="round"
+                    filter="url(#skill-radar-glow)"
                 />
                 {data.map((d, i) => {
                     const hasData = d.value !== null
-                    const [px, py] = axisPoint(i, n, MAX_R * ((d.value ?? 0) / 100))
                     const [lx, ly] = axisPoint(i, n, MAX_R + LABEL_OFFSET)
                     const angle = axisAngle(i, n)
                     const anchor = Math.abs(Math.cos(angle)) < 0.2 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end'
                     return (
                         <g key={d.id}>
-                            {hasData ? (
-                                <circle cx={px} cy={py} r={4} fill={stroke} />
-                            ) : (
-                                <circle cx={px} cy={py} r={4} fill="none" stroke={noDataColor} strokeWidth={1.5} strokeDasharray="2,2" />
-                            )}
-                            <text x={lx} y={ly - 3} textAnchor={anchor} fontSize="13" fontWeight="700" fill={labelColor}>
-                                {isTr ? d.label.tr : d.label.en}
-                            </text>
+                            {hasData && (() => {
+                                const [px, py] = axisPoint(i, n, MAX_R * (d.value / 100))
+                                return (
+                                    <>
+                                        <circle cx={px} cy={py} r={7} fill={stroke} opacity={0.18} />
+                                        <circle cx={px} cy={py} r={4} fill={stroke} stroke={darkMode ? '#1e293b' : '#ffffff'} strokeWidth={1.5} />
+                                    </>
+                                )
+                            })()}
                             <text
                                 x={lx}
-                                y={ly + 14}
+                                y={hasData ? ly - 3 : ly + 4}
                                 textAnchor={anchor}
-                                fontSize="12"
-                                fontStyle={hasData ? 'normal' : 'italic'}
-                                fill={hasData ? stroke : noDataColor}
+                                fontSize="13"
+                                fontWeight="700"
+                                fill={hasData ? labelColor : mutedLabelColor}
                             >
-                                {hasData ? `%${d.value}` : (isTr ? 'veri yok' : 'no data')}
+                                {isTr ? d.label.tr : d.label.en}
                             </text>
+                            {hasData && (
+                                <text x={lx} y={ly + 14} textAnchor={anchor} fontSize="12" fontWeight="600" fill={stroke}>
+                                    %{d.value}
+                                </text>
+                            )}
                         </g>
                     )
                 })}
@@ -134,7 +171,7 @@ export function SkillRadar({ darkMode, language, routeFilter = null }) {
             <ul className="sr-only">
                 {data.map((d) => (
                     <li key={d.id}>
-                        {isTr ? d.label.tr : d.label.en}: {d.value === null ? (isTr ? 'veri yok' : 'no data') : `%${d.value}`}
+                        {isTr ? d.label.tr : d.label.en}{d.value === null ? '' : `: %${d.value}`}
                     </li>
                 ))}
             </ul>
