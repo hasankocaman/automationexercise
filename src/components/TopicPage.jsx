@@ -35,7 +35,7 @@ import VisualDiffDetectiveBlock from './VisualDiffDetectiveBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 import { logActivity } from '../lib/activityLog'
-import { saveLastPosition } from '../lib/progressStore'
+import { saveLastPosition, recordInterviewMastery } from '../lib/progressStore'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -20391,8 +20391,12 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
 
     // Mülakat Pratiği bloğu örneklenen soruların ortalaması ≥%80 olduğunda çağırır
     // (eşik kontrolü InterviewPracticeBlock içinde yapılıyor, burada sadece kaydeder).
-    function handleInterviewMastery() {
+    // avgPercent Learning OS Faz 2 (plan §6/F7) için kalıcı hale getirilir —
+    // önceden bu değer sadece React state'inde yaşıyordu, job readiness/mastery
+    // formülü sayfadan ayrılınca hiçbir zaman göremiyordu.
+    function handleInterviewMastery(_blockIndex, avgPercent) {
         markTabAsVerifiedComplete(activeTab)
+        if (typeof avgPercent === 'number') recordInterviewMastery(location.pathname, avgPercent)
     }
 
     // AC07 "Reset": kullanıcı mülakatta %80 barajını geçemeyip onayladığında, sayfadaki

@@ -7,8 +7,9 @@
   "scripts": {
     "dev": "vite --host",
     "dev:prod": "vite --host --mode prodtest",
-    "build": "node scripts/check-seo.mjs && node scripts/check-content-integrity.mjs && node scripts/audit-interview-questions.mjs && node scripts/generate-seo-files.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
+    "build": "node scripts/check-seo.mjs && node scripts/check-content-integrity.mjs && node scripts/audit-interview-questions.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-mastery-manifest.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
     "content:check": "node scripts/check-content-integrity.mjs",
+    "mastery:manifest": "node scripts/generate-mastery-manifest.mjs",
     "seo:check": "node scripts/check-seo.mjs",
     "seo:check-dist": "node scripts/check-dist-seo.mjs",
     "seo:files": "node scripts/generate-seo-files.mjs",

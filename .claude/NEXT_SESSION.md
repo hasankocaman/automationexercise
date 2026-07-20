@@ -295,6 +295,58 @@ visible" logları da geç-yükleme teşhisini doğruluyor).
 (paralel iş olmadan tek başına) hâlâ bu oturumda yapılmadı — bir sonraki
 oturumda önerilir.
 
+**Faz 2 BAŞLADI — F6+F7 TAMAMLANDI (2026-07-20, aynı gün devam oturumu,
+Fable, DOĞRUDAN `main` branch'inde — kullanıcı talimatı).** Kullanıcı
+onayı geldi ("main branchte başlat").
+- **F6 (tasarım):** Mastery formülü + job readiness tasarım kararları
+  `Documents/learning-os-redesign-plan.md` §6.1-6.4'e yazıldı. Kod
+  gerçeğine bakılarak 3 gerçek engel bulundu ve çözüldü — detay planda:
+  (1) "ilk deneme ağırlıklı" quiz doğruluğu şema kısıtı nedeniyle
+  basitleştirildi (bilinçli sapma, gerekçesi planda), (2) sayfa
+  kapsamı/coverage için toplam blok sayısı gerekiyordu ama
+  `progressStore.js` ağır `*Data.js` dosyalarını import EDEMEZ →
+  build-time manifest script çözümü, (3) mülakat AI puanı
+  (`avg`) hiç kalıcı tutulmuyordu — `handleInterviewMastery()` parametre
+  bile almıyordu, `onInterviewMastery?.(i, avg)`'daki `avg` sessizce
+  atılıyordu (gerçek, önceden fark edilmemiş bir bug).
+- **F7 (motor, uygulandı):**
+  - `scripts/generate-mastery-manifest.mjs` (YENİ) — `check-content-integrity.mjs`
+    ile AYNI dynamic-import deseni; 29 TopicPage route'unu tarar, her
+    route için `{pageKey, tabCount, totalQuizBlocks, totalExerciseBlocks,
+    hasInterview}` üretir → `src/data/generated/masteryManifest.js`
+    (OTOMATİK ÜRETİLİR, commit'lenir — `public/sitemap.xml` ile aynı
+    kalıp). `package.json` build zincirine `generate-seo-files`'tan
+    SONRA `vite build`'ten ÖNCE eklendi; ayrıca `npm run mastery:manifest`
+    kısayolu eklendi.
+  - `src/lib/progressStore.js`: `getMastery(route)` (ağırlıklı, veri
+    olmayan bileşen dışlanıp kalanlar yeniden normalize edilir — eksik
+    veri asla 0 cezası almaz), `recordInterviewMastery(route, avgPercent)`
+    (YENİ yazma istisnası — `learnqa_interview_scores`), `getInterviewStats(route)`.
+    Dosya başı yorumu "TEK yazma istisnası" → "iki yazma istisnası"
+    olarak güncellendi.
+  - `src/components/TopicPage.jsx`: `handleInterviewMastery()` →
+    `handleInterviewMastery(_blockIndex, avgPercent)` — artık
+    `recordInterviewMastery(location.pathname, avgPercent)` çağırıyor
+    (yukarıdaki bug'ın gerçek düzeltmesi). Import satırına
+    `recordInterviewMastery` eklendi.
+- **Doğrulama:** `npm run build` ✓ (tam zincir: SEO + content-integrity +
+  mülakat denetimi + manifest generator + vite build + static routes +
+  dist SEO, hepsi PASS) · el doğrulaması (Playwright script, gerçek dev
+  server + gerçek tarayıcı): `/docker`'a sahte quiz/egzersiz/mülakat verisi
+  enjekte edildi (3 quiz denendi/2 doğru, 2 egzersiz tamam, mülakat %85) →
+  `getMastery('/docker')` **52** döndü, elle hesaplanan değerle
+  ((45×66.67+20×42.86+20×3.77+15×85)/100=52.08→52) **birebir eşleşti** —
+  formül ve manifest denominatörleri doğrulandı. TR yorum taraması: bu
+  oturumda eklenen tüm yorumlar Türkçe.
+- **YAPILMADI (kuyrukta, F8/F9):** Skill radar SVG komponenti
+  (`/qa-mentor`, eksen tablosu plan §6.2'de) ve Job Readiness skoru + UI
+  (plan §6.3) henüz yazılmadı — plan §8 görev tablosunda F8/F9 olarak
+  net kapsamla kayıtlı, Sonnet promptları F8/F9 gerçek dosya/component
+  isimleri belli olunca (F8 bitince) yazılacak.
+- **Commit YAPILMADI** — kullanıcı onayı bekleniyor (bu oturumda önceki bir
+  işte "main branchte başlat" onayı geldi ama commit için ayrı onay
+  istenmedi).
+
 ---
 
 ## 🚧 ÖNCEKİ İŞ — Kariyer Haritası v2 (2026-07-19, Fable oturumu)

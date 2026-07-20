@@ -184,19 +184,94 @@ birleştirme ayrı karar), bildirim/e-posta, mobil mikro-oturum.
 
 ---
 
-## 6. Faz 2 — "Ustalık ve İş-Hazırlık" (özet; detay planı Faz 1 bitince)
+## 6. Faz 2 — "Ustalık ve İş-Hazırlık"
 
-- **Mastery modeli:** konu başına 0-100 skor = quiz doğruluğu (ilk deneme
-  ağırlıklı) + tekrar mezuniyeti (reviewQueue streak=3) + playground/challenge
-  tamamlama. `progressStore.js`'e `getMastery(route)`.
-- **Skill radar:** `/qa-mentor`'a inline SVG radar (dataviz kurallarına uygun,
-  6-8 eksen: UI otomasyon, API, SQL, CI/CD, dil, temel kavramlar).
-- **Job Readiness skoru:** harita ilerlemesi × mastery ortalaması × mülakat AI
-  puan ortalaması → tek yüzde + "seni en çok ilerletecek 3 şey" listesi
-  (zayıf konu önerisi, AI'sız — mastery eşiği ile).
-- **Retention v2:** mastery < 50 olan tamamlanmış konular dashboard'da "tekrar
-  önerisi" olarak döner; fableplan WP5 (rozet sınavına karışık soru /
-  interleaving) burada, kullanıcı onayıyla ele alınır.
+**Durum (2026-07-20, main branch, Fable oturumu):** F7 (mastery motoru + core
+engine) TAMAMLANDI ve gerçek tarayıcıda doğrulandı. F8 (skill radar UI) ve F9
+(job readiness skoru + UI) henüz YAPILMADI — aşağıda net kapsamla kuyrukta.
+
+### 6.1 Mastery Modeli — TASARIM KARARI (F7, uygulandı)
+
+Orijinal prompt "ilk deneme ağırlıklı quiz doğruluğu" istiyordu — kod
+gerçeğine bakıldığında bu **tam olarak** uygulanamaz: `quizScore_${pageKey}`/
+`quizAttempted_${pageKey}` şeması yalnızca "şu an doğru mu" tutar, "ilk
+denemede mi doğruydu" ayrımını hiç tutmuyor (retry sonrası düzeltilen cevap da
+"doğru" görünür). Bu, veri modelini genişletmeden çözülemeyen gerçek bir
+kısıt — bilinçli olarak basitleştirildi ve burada belgeleniyor (gelecekte biri
+"neden ilk-deneme-ağırlıklı değil" diye sorarsa cevap burada olsun).
+
+**İkinci gerçek engel:** "sayfanın % kaçını bitirdin" (coverage) hesaplamak
+için sayfadaki TOPLAM quiz/egzersiz blok sayısını bilmek gerekir, ama
+`progressStore.js` HomePage/qa-mentor'da ERKEN yüklenen salt-okunur bir
+adaptördür — 30 sayfanın `*Data.js` dosyalarını (bazıları 600KB-1MB+)
+runtime'da import etmesi bundle'ı patlatır. Çözüm: **build-time manifest**
+(`scripts/generate-mastery-manifest.mjs`, `check-content-integrity.mjs`'le
+AYNI dynamic-import deseni) — Node'da her `*Data.js`'i okuyup küçük bir sayısal
+özet (`src/data/generated/masteryManifest.js`) üretir, `npm run build`
+zincirine `generate-seo-files`'tan SONRA `vite build`'ten ÖNCE eklendi.
+`progressStore.js` sadece bu küçük dosyayı import eder, ağır veri
+dosyalarına hiç dokunmaz.
+
+**Üçüncü gerçek engel (bulundu ve kapatıldı):** Mülakat AI puan ortalaması
+(`avg`, `InterviewPracticeBlock` içinde hesaplanıyordu) hiçbir zaman kalıcı
+tutulmuyordu — sadece React state'inde yaşıyor, sayfadan ayrılınca kayboluyordu
+(`renderBlock`'taki `onInterviewMastery?.(i, avg)` çağrısı `avg`'ı
+`handleInterviewMastery()`'ye taşıyordu ama o fonksiyon parametre bile
+almıyordu — sessizce atılıyordu). Yeni `learnqa_interview_scores` anahtarı
+(`{ [route]: { avgPercent, gradedAt } }`) eklendi; `progressStore.js`'in
+"TEK yazma istisnası" artık İKİ yazma istisnasına çıktı (dosya başı yorumu
+güncellendi).
+
+**Nihai formül** (`src/lib/progressStore.js` → `getMastery(route)`):
+
+```
+mastery = round( Σ(weight_i × value_i) / Σ(weight_i) )   — sadece VERİSİ olan bileşenler
+  quizPrecision   (weight 45): correct / attempted × 100      (quizScore_/quizAttempted_)
+  quizCoverage    (weight 20): min(100, attempted / manifest.totalQuizBlocks × 100)
+  exerciseCoverage(weight 20): min(100, completed / manifest.totalExerciseBlocks × 100)
+  interview       (weight 15): learnqa_interview_scores[route].avgPercent
+```
+
+Bir bileşenin verisi yoksa (örn. kullanıcı mülakat sekmesine hiç gelmediyse)
+o bileşen **dışlanır**, kalanlar kendi ağırlıklarına göre yeniden normalize
+edilir — eksik veri asla 0 olarak cezalandırılmaz. Hiç etkileşim yoksa
+`getMastery` `null` döner ("başlanmadı", 0 değil — dashboard bunu ayırt
+etmeli).
+
+**Doğrulama (gerçek tarayıcı, Playwright script, 2026-07-20):** `/docker`'a
+sahte veri enjekte edildi (3 quiz denendi/2 doğru, 2 egzersiz tamam, mülakat
+%85) → `getMastery('/docker')` **52** döndü; elle hesaplanan değerle
+(45×66.67 + 20×42.86 + 20×3.77 + 15×85) / 100 = 52.08 → 52) birebir eşleşti.
+
+### 6.2 Skill Radar (F8, YAPILMADI — kuyrukta)
+
+`/qa-mentor`'a inline SVG radar (dış kütüphane yok, CLAUDE.md §8). Eksen
+önerisi (6-8 eksen, route→eksen eşlemesi F8'de netleştirilecek):
+- UI Otomasyon: selenium, playwright, cypress, appium, browserstack, gauge
+- API/Backend: postman, bruno, rest-assured, kafka
+- Dil/Programlama: python, typescript, javascript, java
+- CI/CD & Altyapı: docker, jenkins, kubernetes, aws, azure
+- SQL & Veri: sql
+- Temel Kavramlar: what-is-testing, git-github, linux
+
+Her eksenin değeri = o kategorideki route'ların `getMastery()` ortalaması
+(hiç mastery verisi olmayan route'lar ortalamaya katılmaz; kategori genelinde
+hiç veri yoksa eksen "veri yok" görünümünde/soluk render edilir, 0 DEĞİL).
+
+### 6.3 Job Readiness Skoru (F9, YAPILMADI — kuyrukta)
+
+Tek yüzde = ağırlıklı ortalama: harita ilerlemesi (qa-mentor route
+tamamlanma oranı) × mastery ortalaması (tüm ziyaret edilmiş route'ların
+`getMastery()` ortalaması) × mülakat AI puan ortalaması
+(`learnqa_interview_scores` üzerinden). "Seni en çok ilerletecek 3 şey"
+listesi: mastery'si en düşük 3 BAŞLANMIŞ (null olmayan) route, AI'sız —
+salt eşik/sıralama mantığıyla.
+
+### 6.4 Retention v2 (Faz 2 sonu, kullanıcı onayıyla)
+
+`getMastery(route) < 50` olan TAMAMLANMIŞ (`getCompletedRoutes()` içindeki)
+konular dashboard'da "tekrar önerisi" olarak döner. fableplan WP5 (rozet
+sınavına karışık soru/interleaving) bu kapsamda, ayrı onayla ele alınır.
 
 ## 7. Faz 3 — "Adaptif Katman" (özet)
 
@@ -226,7 +301,10 @@ i18n cilası, kalibrasyon.
 | F3 | Dashboard "Bugün" şeridi iskeleti + davet/aktif/dolu durum makinesi + Devam-et CTA birleşimi | `HomePage.jsx` |
 | F4 | `learnqa_last_position` yazma/okuma (sekme değişiminde kayıt) | `TopicPage.jsx` |
 | F5 | AC güncellemesi + §22 senkron notu + NEXT_SESSION işleme | `Documents/acceptancecriterias.md`, `.claude/NEXT_SESSION.md` |
-| F6 | (Faz 2 başlarken) mastery formülü + job readiness tasarım kararları | ayrı plan güncellemesi |
+| F6 | ✅ Mastery formülü + job readiness tasarım kararları (bu bölüm, §6.1-6.4) | `Documents/learning-os-redesign-plan.md` |
+| F7 | ✅ Mastery motoru: manifest generator + `getMastery`/`recordInterviewMastery`/`getInterviewStats` + build zinciri entegrasyonu | `scripts/generate-mastery-manifest.mjs` (YENİ), `src/data/generated/masteryManifest.js` (YENİ, otomatik üretilir), `src/lib/progressStore.js`, `src/components/TopicPage.jsx`, `package.json` |
+| F8 | Skill radar SVG komponenti + `/qa-mentor` entegrasyonu (§6.2 eksen tablosu) | `src/components/SkillRadar.jsx` (YENİ), `QAMentorPage.jsx` |
+| F9 | Job readiness formülü UI'ı + "seni en çok ilerletecek 3 şey" listesi (§6.3) | `QAMentorPage.jsx` veya `HomePage.jsx` |
 
 ### 8.2 Sonnet görevleri (Fable F1-F3 bittikten sonra, sırayla)
 
