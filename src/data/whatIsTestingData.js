@@ -1463,24 +1463,24 @@ class TestDiscountCalculation:
       {
         type: 'quiz',
         question: {
-          tr: 'Java bilen bir QA, doğrudan Selenium öğrenmeye başlar ve Python\'u atlarsa en olası sonuç nedir?',
-          en: 'If a QA who knows Java jumps straight into Selenium and skips Python, what is the most likely outcome?'
+          tr: 'Bir QA, Python ile otomasyon yapmaya karar verip Python\'un temel söz dizimini hiç öğrenmeden doğrudan pytest + Selenium öğrenmeye başlarsa en olası sonuç nedir?',
+          en: 'If a QA decides to automate with Python and jumps straight into pytest + Selenium without ever learning Python\'s basic syntax first, what is the most likely outcome?'
         },
         options: [
-          { id: 'a', text: { tr: 'Hiçbir sorun çıkmaz, Selenium tek başına yeterlidir', en: 'No problem at all, Selenium is self-sufficient' } },
-          { id: 'b', text: { tr: 'Selenium\'un çalışması için gereken Python sözdizimini de aynı anda öğrenmek zorunda kalır ve hangi hatanın Selenium\'dan hangisinin Python\'dan geldiğini ayırt edemez', en: 'They end up learning basic Python syntax at the same time Selenium requires it, and can\'t tell whether an error comes from Selenium or from Python itself' } },
+          { id: 'a', text: { tr: 'Hiçbir sorun çıkmaz, pytest ve Selenium kendi başına yeterlidir', en: 'No problem at all, pytest and Selenium are self-sufficient' } },
+          { id: 'b', text: { tr: 'pytest\'in veya Selenium\'un verdiği bir hatanın aslında temel bir Python söz dizimi hatası olduğunu fark edemez, iki farklı problemi birbirine karıştırır', en: 'They can\'t tell that an error from pytest or Selenium is actually a basic Python syntax mistake — they conflate two different problems' } },
           { id: 'c', text: { tr: 'Sadece biraz daha yavaş öğrenir, sonuçta hiçbir fark olmaz', en: 'They just learn a bit slower, but it makes no real difference in the end' } },
-          { id: 'd', text: { tr: 'Java bilmesi zaten yeterlidir, Python\'a hiç ihtiyaç yoktur', en: 'Knowing Java is already enough, Python is never needed' } }
+          { id: 'd', text: { tr: 'Selenium\'un kendi söz dizimi vardır, Python bilgisine hiç gerek kalmaz', en: 'Selenium has its own syntax anyway, so Python knowledge is never needed' } }
         ],
         correct: 'b',
         explanation: {
-          tr: 'Doğru sıra (Python → pytest → Selenium) tam olarak bu yüzden var: her katman bir öncekinin üzerine oturur. Sırayı atlayan kişi, Selenium\'un attığı bir hatanın aslında bilmediği bir Python söz dizimi hatası olduğunu fark edemez — iki farklı problemi tek bir "Selenium çalışmıyor" hissiyle karıştırır.',
-          en: 'The correct order (Python → pytest → Selenium) exists exactly for this reason: each layer builds on the previous one. Someone who skips the order can\'t tell that an error Selenium throws is actually a Python syntax mistake they don\'t recognize yet — they conflate two different problems into one vague "Selenium isn\'t working" feeling.'
+          tr: 'Doğru sıra (dil → framework → araç) tam olarak bu yüzden var: Python\'u SEÇTİYSEN önce onun temel söz dizimini öğrenmen gerekir, çünkü pytest ve Selenium\'un Python API\'leri sıradan Python koduyla yazılır — bu temel olmadan "Selenium çalışmıyor" sandığın şey aslında unuttuğun bir Python kuralı olabilir. Not: bu sıralama SADECE Python yolunu seçenler için geçerlidir — Java bilen bir QA, Selenium\'un Java binding\'leriyle Python\'a hiç dokunmadan da tamamen çalışan bir otomasyon kurabilir; dil seçimi kişiye bağlıdır, zorunlu tek bir yol yoktur.',
+          en: 'The correct order (language → framework → tool) exists exactly for this: if you CHOOSE Python, you need its basic syntax first, because pytest\'s and Selenium\'s Python APIs are written in ordinary Python code — without that base, what looks like "Selenium isn\'t working" might actually be a Python rule you haven\'t learned yet. Note: this order only applies to whoever picks the Python track — a QA who already knows Java can build a fully working automation setup using Selenium\'s Java bindings without ever touching Python; the language choice is up to the person, there is no single mandatory path.'
         },
         retryQuestion: {
           question: {
-            tr: 'Bir Java QA mühendisi için önerilen otomasyon öğrenme sırası nedir?',
-            en: 'What is the recommended automation learning order for a Java QA engineer?'
+            tr: 'Python ile otomasyon yapmayı seçen bir QA için önerilen öğrenme sırası nedir?',
+            en: 'What is the recommended learning order for a QA who chooses to automate with Python?'
           },
           options: [
             { id: 'a', text: { tr: 'Selenium → Python → pytest', en: 'Selenium → Python → pytest' } },
@@ -1490,8 +1490,8 @@ class TestDiscountCalculation:
           ],
           correct: 'c',
           explanation: {
-            tr: 'Önce dil (Python), sonra o dilin test framework\'ü (pytest), en son da o framework üzerine kurulan araç (Selenium) öğrenilir — her adım bir öncekinin ön koşuludur.',
-            en: 'First the language (Python), then that language\'s test framework (pytest), and finally the tool built on top of it (Selenium) — each step is a prerequisite for the next.'
+            tr: 'Önce dil (Python), sonra o dilin test framework\'ü (pytest), en son da o framework üzerine kurulan araç (Selenium) öğrenilir — bu sıralama sadece Python yolunu seçenler içindir; Java veya TypeScript yolunu seçen birinde sıralama aynı mantıkla ama kendi diliyle işler.',
+            en: 'First the language (Python), then that language\'s test framework (pytest), and finally the tool built on top of it (Selenium) — this order applies only to whoever picks the Python track; someone on the Java or TypeScript track follows the same logic with their own language instead.'
           }
         }
       }

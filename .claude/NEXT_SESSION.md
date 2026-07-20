@@ -93,6 +93,19 @@ en alt kısmına quiz sorusu koy, cevaplayım da ders/sekme tamamlansın."
   Et"e basılınca checkbox `aria-checked` gerçekten `false→true` oldu.
   `npm run build` ✓ · content-integrity 0 ihlal ✓.
 
+**Kullanıcı bulduğu içerik hatası (aynı gün, devam) — düzeltildi:** İlk
+quiz metni yanlış bir öncül kuruyordu ("Java bilen bir QA Selenium'a
+doğrudan başlar, Python'u atlarsa" → sanki Python zorunluymuş gibi) —
+kullanıcı haklı olarak "bir tester sadece Java ve Selenium kullanamaz mı"
+diye sordu. Gerçek: Selenium'un Java binding'leri var, Python'a hiç gerek
+yok; `roadmapPractice` egzersizinin "Python→pytest→Selenium" sırası SADECE
+Python yolunu SEÇENLER için geçerli, herkes için zorunlu değil. Soru ve
+`retryQuestion` her ikisi de düzeltildi: öncül artık "Python ile otomasyon
+yapmaya KARAR VERİRSEN" şeklinde doğru şekilde sınırlandırıldı, açıklamaya
+Java+Selenium'un Python'suz tamamen geçerli bir yol olduğu notu eklendi.
+Doğrulama: gerçek tarayıcıda düzeltilmiş soru da checkbox'ı
+`false→true` yapıyor, build + content-integrity geçti.
+
 ---
 
 ## ✨ EKLENDİ — /qa-mentor haritasına eğrisel bağlantı + "buradasın" işareti (2026-07-20, Fable oturumu, kullanıcı isteğiyle)
