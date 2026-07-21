@@ -990,7 +990,115 @@ function QuestionBank({ data, darkMode }) {
     )
 }
 
-function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRecallUpdate, nLabels, language, complete, onToggleComplete }) {
+// Bölüm sonu mini quiz — §18: yanlışta moral bozan kırmızı ekran YOK;
+// cesaretlendirici mikro-geri bildirim + (varsa) alternatif "yedek soru".
+// Doğru cevap bölümü otomatik tamamlar (onPass).
+function LessonQuiz({ quiz, labels, darkMode, color, passed, onPass }) {
+    const [useRetry, setUseRetry] = useState(false)
+    const [selected, setSelected] = useState(null)
+    const [status, setStatus] = useState('idle') // 'idle' | 'correct' | 'wrong'
+
+    const active = useRetry && quiz.retry ? quiz.retry : quiz
+    const hasRetry = Boolean(quiz.retry)
+
+    const handleSelect = (optionId) => {
+        if (status === 'correct') return
+        setSelected(optionId)
+        if (optionId === active.correct) {
+            setStatus('correct')
+            onPass?.()
+        } else {
+            setStatus('wrong')
+        }
+    }
+
+    const switchToRetry = () => {
+        setUseRetry(true)
+        setSelected(null)
+        setStatus('idle')
+    }
+
+    // Zaten geçilmiş bölüm: kısa "tamamlandı" özeti göster
+    if (passed && status !== 'correct') {
+        return (
+            <div className={`rounded-lg border-2 p-4 ${darkMode ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-emerald-200 bg-emerald-50'}`}>
+                <div className={`flex items-center gap-2 text-sm font-black ${darkMode ? 'text-emerald-300' : 'text-emerald-700'}`}>
+                    <span className="text-lg">🏅</span>
+                    {labels.quizPassed || 'Bu bölümün quiz\'ini geçtin!'}
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950/60' : 'border-slate-200 bg-slate-50'}`}>
+            <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-wide" style={{ color }}>
+                <span>🧠</span>{labels.quizTitle || 'Mini Quiz'}
+            </div>
+            <p className={`text-sm font-bold ${darkMode ? 'text-slate-200' : 'text-slate-800'}`}>{active.question}</p>
+
+            <div className="mt-3 grid gap-2">
+                {active.options.map(option => {
+                    const isSelected = selected === option.id
+                    const isCorrectOption = option.id === active.correct
+                    const showCorrect = status !== 'idle' && isCorrectOption
+                    const showWrong = status === 'wrong' && isSelected && !isCorrectOption
+                    return (
+                        <button
+                            key={option.id}
+                            onClick={() => handleSelect(option.id)}
+                            disabled={status === 'correct'}
+                            data-testid={`quiz-opt-${option.id}`}
+                            className={`min-h-11 rounded-lg border-2 px-3 py-2 text-left text-sm font-bold transition ${
+                                showCorrect
+                                    ? 'border-emerald-500 bg-emerald-500/15 text-emerald-500'
+                                    : showWrong
+                                        ? 'border-amber-500 bg-amber-500/10 text-amber-500 animate-pulse'
+                                        : isSelected
+                                            ? 'border-cyan-400 bg-cyan-500/10'
+                                            : darkMode
+                                                ? 'border-slate-700 bg-slate-900 text-slate-200 hover:border-cyan-500/50'
+                                                : 'border-slate-200 bg-white text-slate-700 hover:border-cyan-500/50'
+                            }`}
+                        >
+                            {showCorrect ? '✓ ' : showWrong ? '✗ ' : ''}{option.text}
+                        </button>
+                    )
+                })}
+            </div>
+
+            {status === 'correct' && (
+                <div className={`mt-3 rounded-lg border-2 border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-bold ${darkMode ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                    <div className="font-black">🎉 {labels.quizCorrect || 'Doğru!'}</div>
+                    <div className="mt-1 opacity-90">{active.explanation}</div>
+                </div>
+            )}
+
+            {status === 'wrong' && (
+                <div className={`mt-3 rounded-lg border-2 border-amber-500/40 bg-amber-500/10 p-3 text-sm font-bold ${darkMode ? 'text-amber-200' : 'text-amber-700'}`}>
+                    <div className="font-black">💡 {labels.quizWrong || 'Neredeyse! Bir daha düşün.'}</div>
+                    {hasRetry && !useRetry ? (
+                        <button
+                            onClick={switchToRetry}
+                            className="mt-2 min-h-9 rounded-lg bg-amber-500 px-4 text-xs font-black text-white transition hover:bg-amber-600"
+                        >
+                            {labels.quizRetry || 'Başka bir soru dene →'}
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => { setSelected(null); setStatus('idle') }}
+                            className="mt-2 min-h-9 rounded-lg bg-amber-500 px-4 text-xs font-black text-white transition hover:bg-amber-600"
+                        >
+                            {labels.quizTryAgain || 'Tekrar dene →'}
+                        </button>
+                    )}
+                </div>
+            )}
+        </div>
+    )
+}
+
+function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRecallUpdate, nLabels, language, complete, onToggleComplete, quizPassed, onQuizPass }) {
     const isUnlocked = !neuroMode || recallProgress[lesson.id] === 'recalled';
 
     return (
@@ -1060,24 +1168,50 @@ function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRec
                             <PracticeWorkspace lesson={lesson} labels={labels} darkMode={darkMode} />
                         </div>
 
-                        {/* Bölüm tamamlama (ürün kararı 2026-07-19): kullanıcı her bölümde
-                            ilerlemesini işaretleyebilmeli — hepsi bitince sayfa sonundaki
-                            bitirme rozeti açılır */}
-                        <button
-                            onClick={onToggleComplete}
-                            data-testid={`complete-section-${lesson.id}`}
-                            className={`mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 px-4 text-sm font-black transition hover:scale-[1.01] ${
-                                complete
-                                    ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
-                                    : darkMode
-                                        ? 'border-slate-600 bg-slate-950 text-slate-200 hover:border-emerald-500'
-                                        : 'border-slate-300 bg-slate-50 text-slate-700 hover:border-emerald-500'
-                            }`}
-                        >
-                            {complete
-                                ? (language === 'tr' ? '✓ Bu bölüm tamamlandı — geri almak için tıkla' : '✓ Section completed — click to undo')
-                                : (language === 'tr' ? '✅ Bu bölümü tamamladım' : '✅ Mark this section complete')}
-                        </button>
+                        {/* Quiz-gating (ürün kararı 2026-07-21): konu anlatımı + film +
+                            oyun + sürükle-bırak + practice'ten SONRA gelir (§9.1). Doğru
+                            cevaplanınca bölüm otomatik tamamlanır; quiz geçilmeden manuel
+                            tamamlama butonu kilitli kalır. */}
+                        {lesson.quiz && (
+                            <div className="mt-5">
+                                <LessonQuiz
+                                    quiz={lesson.quiz}
+                                    labels={labels}
+                                    darkMode={darkMode}
+                                    color={lesson.color}
+                                    passed={quizPassed || complete}
+                                    onPass={onQuizPass}
+                                />
+                            </div>
+                        )}
+
+                        {/* Bölüm tamamlama: quiz varsa quiz geçilene kadar kilitli;
+                            quiz yoksa (defansif) eski manuel davranış korunur */}
+                        {(() => {
+                            const gated = !!lesson.quiz && !quizPassed && !complete
+                            return (
+                                <button
+                                    onClick={gated ? undefined : onToggleComplete}
+                                    disabled={gated}
+                                    data-testid={`complete-section-${lesson.id}`}
+                                    className={`mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-2 px-4 text-sm font-black transition ${
+                                        gated
+                                            ? `cursor-not-allowed opacity-60 ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-500' : 'border-slate-200 bg-slate-100 text-slate-400'}`
+                                            : complete
+                                                ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400 hover:scale-[1.01]'
+                                                : darkMode
+                                                    ? 'border-slate-600 bg-slate-950 text-slate-200 hover:border-emerald-500 hover:scale-[1.01]'
+                                                    : 'border-slate-300 bg-slate-50 text-slate-700 hover:border-emerald-500 hover:scale-[1.01]'
+                                    }`}
+                                >
+                                    {gated
+                                        ? (language === 'tr' ? '🔒 Önce yukarıdaki quiz\'i doğru cevapla' : '🔒 Answer the quiz above correctly first')
+                                        : complete
+                                            ? (language === 'tr' ? '✓ Bu bölüm tamamlandı — geri almak için tıkla' : '✓ Section completed — click to undo')
+                                            : (language === 'tr' ? '✅ Bu bölümü tamamladım' : '✅ Mark this section complete')}
+                                </button>
+                            )
+                        })()}
                     </div>
                 </div>
 
@@ -1149,6 +1283,25 @@ function AlgorithmsPage() {
             markTopicCompleted({ lessonSlug: 'algorithms', topicSlug: lesson.id, topicLabel: lesson.shortTitle, routePath: '/algorithms' })
                 .catch(() => { /* progress senkronizasyonu başarısız olsa da UI bozulmaz */ })
         }
+    }
+
+    // Quiz-gating (ürün kararı 2026-07-21): bir bölüm ancak quiz'i doğru
+    // cevaplanınca "tamamlandı" sayılabilir. Quiz geçilince bölüm otomatik
+    // işaretlenir; quiz geçilmeden manuel tamamlama butonu kilitli kalır.
+    const [quizPassed, setQuizPassed] = useState(() => {
+        try {
+            const saved = localStorage.getItem('algorithms_quiz_passed')
+            return saved ? JSON.parse(saved) : {}
+        } catch { return {} }
+    })
+    const handleQuizPass = (lesson) => {
+        if (!quizPassed[lesson.id]) {
+            const updated = { ...quizPassed, [lesson.id]: true }
+            setQuizPassed(updated)
+            try { localStorage.setItem('algorithms_quiz_passed', JSON.stringify(updated)) } catch { /* localStorage kapalı olabilir */ }
+        }
+        // Quiz ilk kez geçildiğinde bölümü otomatik tamamla (henüz değilse)
+        if (!completedLessons[lesson.id]) toggleLessonComplete(lesson)
     }
 
     const handleRecallUpdate = (lessonId) => {
@@ -1301,6 +1454,8 @@ function AlgorithmsPage() {
                                 language={language}
                                 complete={!!completedLessons[lesson.id]}
                                 onToggleComplete={() => toggleLessonComplete(lesson)}
+                                quizPassed={!!quizPassed[lesson.id]}
+                                onQuizPass={() => handleQuizPass(lesson)}
                             />
                         ))}
 

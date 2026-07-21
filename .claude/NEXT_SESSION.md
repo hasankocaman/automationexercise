@@ -10,6 +10,56 @@
 
 ---
 
+## ✨ EKLENDİ — /algorithms bitirme rozeti artık quiz-gating ile (her bölüme quiz + otomatik tamamlama) (2026-07-21, Sonnet oturumu, kullanıcı isteğiyle)
+
+**Branch:** `feature/algorithms-quiz-gating` (main'den açıldı — Selenium Framework
+Mimarisi branch'inden BAĞIMSIZ ayrı bir özellik; NEXT_SESSION'ın Selenium girişi
+o branch'te, burada yok).
+
+**Kullanıcı bildirimi:** "/algorithms dersinde bitirme rozetini kullanıcı nasıl
+alacak? Quiz sorusu yok; ölçen-değerlendiren sürükle-bırak var ama quiz kullanıcı
+için daha kolay olurdu." Kullanıcı "Her bölüme quiz ekle" seçeneğini seçti.
+
+**Eski durum (bulgu):** `/algorithms` (component `AlgorithmsPage.jsx`, veri
+`beginnerAlgorithmsData.js`, 7 bölüm) tamamlaması TAMAMEN manuel "✅ Bu bölümü
+tamamladım" butonuna dayalıydı (`data-testid=complete-section-{id}`, localStorage
+`algorithms_completed_lessons`). Ne quiz ne sürükle-bırak bir şeyi KİLİTLEMİYORDU
+— kullanıcı hiçbir şey çözmeden 7 butona basıp rozeti alabiliyordu.
+
+**Yapıldı:**
+- **Veri (`beginnerAlgorithmsData.js`):** 7 dersin HER birine (recipe, input-output,
+  decision, loop, memory, debug, flowchart) TR + EN `quiz` alanı eklendi (14 quiz).
+  Her quiz senaryo-tabanlı: `question` + 4 `options` + `correct` + `explanation` +
+  **`retry`** (alternatif yedek soru, §18). `page` objesine (TR+EN) quiz label'ları
+  eklendi (quizTitle/quizCorrect/quizWrong/quizRetry/quizTryAgain/quizPassed).
+- **Bileşen (`AlgorithmsPage.jsx`):** Yeni `LessonQuiz` bileşeni — §18 uyumlu:
+  yanlışta moral bozan kırmızı ekran YOK, cesaretlendirici amber mikro-geri bildirim
+  + "başka soru dene" (retry) / "tekrar dene". Doğruda 🎉 kutlama + explanation.
+  Quiz; konu anlatımı/film/oyun/sürükle-bırak/practice'ten SONRA render edilir
+  (§9.1 quiz sıralama kuralı).
+- **Gating:** Yeni `quizPassed` state (localStorage `algorithms_quiz_passed`) +
+  `handleQuizPass`. Quiz ilk kez doğru cevaplanınca bölüm OTOMATİK tamamlanır. Manuel
+  "tamamladım" butonu quiz geçilene kadar DISABLED ("🔒 Önce yukarıdaki quiz'i doğru
+  cevapla"). Quiz'i olmayan bölümlerde (defansif) eski davranış korunur; daha önce
+  tamamlamış kullanıcılar quiz'e zorlanmaz.
+- **E2E testi (`tests/lesson-completion.spec.ts`) güncellendi:** Artık disabled
+  butona tıklamak yerine her bölümün doğru quiz şıkkına (`quiz-opt-{correct}`,
+  section `#{lesson.id}` scope'lu) tıklıyor → bölüm otomatik tamamlanıyor → buton ✓.
+  Quiz option butonlarına `data-testid=quiz-opt-{optionId}` eklendi.
+
+**Doğrulama (bu oturumda):** `node -e` import TR+EN 7/7 quiz + 7/7 retry, correct-id
+0 uyumsuzluk ✓ · `npx esbuild AlgorithmsPage.jsx` exit 0 ✓ · `other-pages-ui`
+sadece toBeVisible kontrol ediyor (disabled buton görünür) → kırılmaz.
+**NOT (kullanıcı isteğiyle e2e/Playwright + build KOŞULMADI):** commit "test etmeden"
+atıldı; sonraki oturumda `lesson-completion.spec.ts -g algorithms` ile
+quiz→otomatik-tamamlama→rozet akışı gerçek tarayıcıda doğrulanmalı.
+
+**Sıradaki adım ( opsiyonel):** Aynı quiz-gating kalıbı `/advanced-algorithms`
+(`AdvancedAlgorithmsPage.jsx` + `algorithmsData.js`) ve oyun-tabanlı `/manual-testing`
+için de değerlendirilebilir — şu an sadece `/algorithms` (beginner) kapsandı.
+
+---
+
 ## 🛠️ EKLENDİ — Zombi test/dev süreçlerini otomatik temizleyen script + topic-pages-ui timeout düzeltmesi + main push edildi (2026-07-21, Fable oturumu, aynı gün devam)
 
 **Bağlam:** Bir önceki maddedeki (aşağıda) gauge içerik değişikliğini commit'ledikten

@@ -26,10 +26,16 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
         await badge.scrollIntoViewIfNeeded();
         await expect(badge).toHaveAttribute('data-state', 'progress');
 
+        // Quiz-gating (ürün kararı 2026-07-21): bir bölüm ancak quiz'i doğru
+        // cevaplanınca "tamamlandı" sayılır. Doğru şıkka tıklamak bölümü OTOMATİK
+        // tamamlar (manuel butona artık gerek yok, buton quiz geçilmeden disabled).
         for (const lesson of beginnerAlgorithmsData.tr.lessons) {
+            const section = page.locator(`#${lesson.id}`);
+            const correctOption = section.getByTestId(`quiz-opt-${lesson.quiz.correct}`);
+            await correctOption.scrollIntoViewIfNeeded();
+            await correctOption.click();
+            // Doğru cevap sonrası bölüm otomatik tamamlanır → buton ✓ gösterir
             const btn = page.getByTestId(`complete-section-${lesson.id}`);
-            await btn.scrollIntoViewIfNeeded();
-            await btn.click();
             await expect(btn).toContainText('✓');
         }
 
