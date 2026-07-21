@@ -505,6 +505,23 @@ test.describe('Video-Scene — Dalga 7 Batch 1 (/playwright, Playwright Nedir?/L
 
         await context.close();
     });
+
+    test('/playwright — 🏗️ Framework Mimarisi sekmesinde film render olur (playwright-arch-fixture-chain-film)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/playwright');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
 });
 
 test.describe('Video-Scene — Dalga 7 Batch 2 (/playwright, Debugging & Trace/Paralel & CI-CD/Yaygın Hatalar)', () => {

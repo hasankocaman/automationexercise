@@ -15,44 +15,67 @@
 | | |
 |---|---|
 | **Aktif branch** | `feature/framework-arch-selenium-multiview` (tüm iş burada) |
-| **Son commit** | `f5b0ad2` — bu doğrulama turu commit edilince güncellenecek |
-| **Çalışma ağacı** | temiz |
-| **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. aşağıdaki branch temizliği maddesi) |
+| **Son commit** | bu bölüm commit edilince güncellenecek (bkz. ayrı docs commit kuralı altta) |
+| **Çalışma ağacı** | commit edilecek |
+| **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. branch temizliği maddesi) |
 
-### ✅ DOĞRULAMA BORCU TAMAMEN KAPANDI (bu oturumda gerçekten koşuldu, 49 test)
-1. `npx playwright test tests/video-scene.spec.ts -g "Framework Mimarisi"` → **1 passed** ✓
-2. `npx playwright test tests/i18n-content-toggle.spec.ts` → **31 passed** ✓ (EN modda TR
-   sızıntısı YOK — sql, bruno, javascript, python, selenium, cypress, azure, jenkins,
-   kubernetes, playwright, postman dahil tüm sayfalar temiz)
-3. `npx playwright test -g "git-github"` → **12 passed** ✓
-4. `npx playwright test -g "appium"` → **6 passed** ✓
+### 🔁 §9.6 ROLLOUT LOOP AKTİF (kullanıcı isteği: onay beklemeden devam et)
+Kullanıcı talimatı: Playwright/Cypress/REST Assured/Appium'a sırayla Framework
+Mimarisi ekle; her sayfa bitince ONAY BEKLEMEDEN NEXT_SESSION.md güncelle,
+`SKIP_E2E_HOOK=1` ile commit at, sıradaki sayfaya geç. Döngü: **kodlama →
+NEXT_SESSION.md güncelleme → test etmeden commit**. Playwright doğrulama borcu
+(önceki bölüm) BİR KEZ gerçekten koşulup kapatıldı — bu rollout'un kendisi
+kullanıcı isteğiyle Playwright koşulmadan ilerliyor, sadece `check-content-
+integrity.mjs` + `npm run build` (hızlı, zorunlu) her adımda çalıştırılıyor.
 
-**Sonuç:** Önceki oturumlardan birikmiş TÜM doğrulama borcu kapandı, hiçbir
-regresyon bulunmadı. Selenium Framework Mimarisi + video-scene eklentisi
-prodüksiyon kalitesinde doğrulanmış durumda.
-
-**⚠️ chunk boyutu notu (devam ediyor):** `seleniumData` chunk'ı **620.95 kB**
-(gzip 197.15 kB) — Playwright/Cypress/REST Assured/Appium'a aynı Framework
-Mimarisi içeriği eklenince o dosyaların chunk boyutu da izlenmeli.
-
-### 🔜 SIRADAKİ İŞ (öncelik sırasıyla) — §9.6 rollout, kullanıcı "loop" istedi
-Kullanıcı talimatı: her sayfa bitince ONAY BEKLEMEDEN NEXT_SESSION.md güncelle,
-`SKIP_E2E_HOOK=1` ile commit at, sıradaki sayfaya geç (kodlama → NEXT_SESSION.md
-→ test etmeden commit döngüsü). Sıra:
-1. **`/playwright`** — Framework Mimarisi (SOLID + POM) eklenecek. Sayfanın iç
-   yapısı önce incelenmeli (selenium gibi mi, gauge gibi mi?).
-2. **`/cypress`** — aynı standart.
-3. **`/rest-assured`** — `restAssuredData` gauge ile AYNI iskelete sahip
+**Sıra ve durum:**
+1. ✅ **`/playwright`** — TAMAMLANDI bu oturumda. `sFwArch` (`playwrightArchBlocks`,
+   `src/data/playwrightData.js`), "📦 Page Object Model" sekmesinin HEMEN
+   ardına eklendi (tabs/sections index 8, 19 sekmeye çıktı). 48 blok, 1
+   video-scene (`playwright-arch-fixture-chain-film`), 4 code-playground, tüm
+   id'ler tekil. **Selenium'un KÖRÜ KÖRÜNE kopyası DEĞİL** — Playwright'ın
+   gerçek mimarisine göre yeniden düşünüldü: Core katmanı DriverManager/
+   ThreadLocal yerine `test.extend` custom fixture'ları etrafında kurulu
+   (Playwright'ın worker-based izolasyonu zaten ThreadLocal ihtiyacını ortadan
+   kaldırıyor — bu KONTRAST videoda ve simple-box'ta açıkça işlendi). POM
+   katmanı BasePage'i "auto-wait zaten varken BasePage'in rolü nereye kayar"
+   sorusuyla ele aldı (retry+screenshot+okunabilir hata mesajı). SOLID/OCP
+   örneği AuthStrategy (form/SSO/magic-link). Test/Data katmanı TestNG
+   @DataProvider yerine storageState fixture + düz for-loop kullandı (Playwright'ta
+   annotation YOK, dilin kendi iterasyonu yeterli — bu fark quiz'de de soruldu).
+   `tests/video-scene.spec.ts`'e "🏗️ Framework Mimarisi" render testi eklendi
+   (Dalga 7 Batch 1 grubunun sonuna) — **henüz KOŞULMADI**.
+   Doğrulama (gerçekten çalıştırıldı): parse OK · `check-content-integrity.mjs`
+   TÜM KONTROLLER GEÇTİ ✓ · `npm run build` exit 0 ✓ (`playwrightData` chunk
+   569.69 kB, gzip 162.56 kB) · `git diff -U0` → sadece 2 beklenen `sections:`
+   satırı değişti, mevcut içerik kaybı YOK.
+2. ⏳ **`/cypress`** — SIRADA. Aynı standart uygulanacak; sayfanın iç yapısı
+   (ayrı sN const'ları mı, tek ağaç mı) önce incelenmeli.
+3. ⏳ **`/rest-assured`** — `restAssuredData` gauge ile AYNI iskelete sahip
    (`// ── N:` + sectionIndex/Feynman deseni) — kaydırma doğrudan uygulanabilir.
-4. **`/appium`** — aynı standart, iskelet önce incelenmeli.
+4. ⏳ **`/appium`** — aynı standart, iskelet önce incelenmeli.
 
-Her sayfada uygulanacak kalıp (Selenium'da doğrulanmış): simple-box (4 katman)
+**Genel kalıp (Selenium + şimdi Playwright'ta doğrulandı, ama HER sayfada
+mimariye göre YENİDEN düşünülmeli, kör kopya YASAK):** simple-box (4 katman)
 + 5 görünüm (Ana Akış/Kurulum Akışı `python-flow-diagram`, Paralel Çalışma/Veri
-Paylaşım/Kim Ne Yapar `grid`) + quiz → Core/Base adımı (trio+quiz) → POM adımı
-(trio+quiz) → SOLID adımı (comparison+trio+quiz) → Test/Data adımı (trio+quiz)
-+ 1 video-scene (Adım 1 mindmap'ini canlandıran, konudan KOPUK OLMAYAN film,
-quiz'den önce). İpucu temaları her sayfada gauge/selenium'dan KASITLI farklı
-seçilmeli (dedup çakışması olmasın, `check-content-integrity.mjs` yakalar).
+Paylaşım/Kim Ne Yapar `grid`) + video-scene (mindmap'i canlandıran, quiz'den
+önce) + quiz → Core adımı (trio+quiz) → POM adımı (trio+quiz) → SOLID adımı
+(comparison+trio+quiz) → Test/Data adımı (trio+quiz). `comparison` bloğunun
+`code` alanı **bilingual `{tr,en}` yazılmalı** (ComparisonBlock `getLocalizedCode`
+ile destekliyor) — Selenium'un comparison bloğu plain-string + ASCII-Türkçe
+yorum kullanmıştı, bu EN modda Türkçe metin sızdırma riski taşıyan bir kısayoldu,
+YENİ sayfalarda TEKRARLANMAMALI. İpucu temaları her sayfada diğerlerinden
+KASITLI farklı seçilmeli (dedup çakışması olmasın, `check-content-integrity.mjs`
+yakalar).
+
+**⚠️ chunk boyutu takibi:** seleniumData 620.95 kB (gzip 197.15 kB) ·
+playwrightData 569.69 kB (gzip 162.56 kB) — cypress/rest-assured/appium'a
+eklenince de not edilmeli.
+
+**⚠️ Biriken doğrulama borcu (rollout bitince toplu koşulacak):**
+`npx playwright test tests/video-scene.spec.ts -g "Framework Mimarisi"` —
+Selenium'un testi geçmişti, Playwright'ınki (ve sonra cypress/rest-assured/
+appium'unkiler) HENÜZ koşulmadı.
 
 **Branch/remote temizliği (yarım kaldı, düşük öncelik):** `git push origin
 --delete feature/sandbox-and-framework-arch` DNS hatası yüzünden işlenmedi, ağ

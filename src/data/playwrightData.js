@@ -7568,6 +7568,1238 @@ claude mcp add playwright npx @playwright/mcp@latest
   },
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// 🏗️ Framework Mimarisi (SOLID + POM) — CLAUDE.md §9.6 çoklu görünüm standardı
+// Referans pilot: gaugeData.js + seleniumData.js "Framework Mimarisi" bölümü.
+// Playwright'a KÖRÜ KÖRÜNE kopyalanmadı: Selenium'un DriverManager/ThreadLocal
+// sorununu Playwright'ın built-in worker izolasyonu zaten çözer — bu yüzden
+// Core katmanı burada "custom fixtures (test.extend)" etrafında kurulu.
+// Bloklar bilingual {tr,en} tek dizide (playwrightArchBlocks), sFwArch.tr ve
+// sFwArch.en AYNI diziyi referanslar (fillMissingCodeTrios WeakSet ile tek kez
+// işler). Her adımın kod bloğu kendi trio'suyla (step-animation + challenge +
+// code-playground) izlenir → filler jenerik blok EKLEMEZ.
+// ══════════════════════════════════════════════════════════════════════════
+const playwrightArchBlocks = [
+  {
+    type: 'simple-box',
+    emoji: '🛎️',
+    content: {
+      tr: 'Selenium\'da bu noktada "her thread kendi driver\'ını nasıl alır?" sorusuna DriverManager + ThreadLocal ile cevap verirdin. Playwright\'ta bu soru hiç SORULMAZ çünkü her worker zaten kendi işletim sistemi process\'ine ve kendi tarayıcı örneğine sahiptir — izolasyon senin yazdığın kodun değil, test runner\'ın garantisidir. Peki o zaman Playwright\'ta "framework mimarisi" neden hâlâ ayrı bir konu — her şey otomatik değil mi? Otomatik olan SADECE izolasyon; her testin `new LoginPage(page)` yazması, login akışının 80 dosyaya kopyalanması, "önce çerez bannerını kapat" gibi tekrarlayan kurulum adımlarının HER spec dosyasında yeniden yazılması otomatik ÇÖZÜLMEZ. İkinci benzetme: `test.extend` ile kurduğun custom fixture\'lar bir otelin vale park hizmetidir — sen anahtarı (page nesnesini) elden ele taşımazsın (Selenium\'daki ThreadLocal gibi), resepsiyona (test fonksiyonunun parametre listesine) sadece ihtiyacın olan şeyin adını (`loginPage`) söylersin, vale (fixture resolver) arabayı (nesneyi) HAZIR biçimde kapıya getirir. Java karşılaştırması: bu tam olarak Spring\'in `@Autowired` / constructor injection felsefesidir — nesneyi elle `new` yapmak yerine container\'a "bana bunu ver" dersin, container bağımlılık zincirini SENİN yerine çözer. QA bağlamı: fixture\'sız bir Playwright projesinde "login ol, cookie bannerını kapat, dashboard\'a git" gibi 6 satırlık kurulum kodu 80 spec dosyasının HER birinde tekrarlanır; login akışı değişince 80 dosya elle taranır. Fixture ile bu kurulum TEK dosyada durur, 80 spec hiç değişmeden yeni davranışı otomatik alır.',
+      en: 'In Selenium, at this exact point you would answer "how does each thread get its own driver?" with DriverManager + ThreadLocal. In Playwright this question is never ASKED, because every worker already owns its own OS process and its own browser instance — isolation is a guarantee from the test runner, not something your code has to build. So why is "framework architecture" still a separate topic in Playwright — isn\'t everything automatic? Only isolation is automatic; every test writing `new LoginPage(page)`, the login flow being copy-pasted into 80 files, repeated setup steps like "close the cookie banner first" being rewritten in EVERY spec file — none of that is solved automatically. Second analogy: the custom fixtures you build with `test.extend` are a hotel\'s valet parking service — you do not carry the key (the page object) from hand to hand yourself (like ThreadLocal in Selenium); you just tell the front desk (the test function\'s parameter list) the name of what you need (`loginPage`), and the valet (the fixture resolver) brings the car (the object) to the door, ALREADY ready. Java comparison: this is exactly the philosophy of Spring\'s `@Autowired` / constructor injection — instead of manually `new`-ing an object, you tell a container "give me this", and the container resolves the dependency chain FOR you. QA context: in a Playwright project without fixtures, a 6-line setup ("log in, close the cookie banner, go to dashboard") gets repeated in EVERY one of 80 spec files; when the login flow changes, all 80 files must be scanned by hand. With a fixture, that setup lives in ONE file, and all 80 specs pick up the new behavior automatically, unchanged.',
+    },
+  },
+  {
+    type: 'framework-puzzle',
+    title: { tr: 'Playwright Framework\'ünü Adım Adım İnşa Et', en: 'Build Your Playwright Framework Step by Step' },
+    intro: {
+      tr: 'Aşağıdaki 4 parça, bu sekmede birazdan tek tek inşa edeceğin mimarinin BÜYÜK RESMİ. Şimdilik hepsi kilitli — her parçanın kendi adımındaki "Kendin Dene" pratiğini ilk kez doğru bitirdiğinde, o parça burada kilitliden İNŞA EDİLDİ\'ye döner.',
+      en: 'The 4 pieces below are the BIG PICTURE of the architecture you are about to build piece by piece in this tab. They all start locked — the first time you correctly finish that step\'s "Try It Yourself" practice, that piece flips from locked to BUILT.',
+    },
+    pieces: [
+      {
+        id: 'fixture-core',
+        emoji: '🧩',
+        label: { tr: 'Fixture / Core Katmanı', en: 'Fixture / Core Layer' },
+        desc: {
+          tr: 'test.extend ile custom fixture\'lar (loginPage) — Page Object\'i test parametresine OTOMATİK enjekte eder',
+          en: 'Custom fixtures via test.extend (loginPage) — AUTOMATICALLY injects the Page Object into the test parameter',
+        },
+        exerciseId: 'playwright-arch-fixture-extend-practice',
+      },
+      {
+        id: 'pom',
+        emoji: '📦',
+        label: { tr: 'POM Katmanı', en: 'POM Layer' },
+        desc: {
+          tr: 'BasePage ortak assert/retry yardımcıları + LoginPage extends BasePage',
+          en: 'BasePage shared assert/retry helpers + LoginPage extends BasePage',
+        },
+        exerciseId: 'playwright-arch-basepage-practice',
+      },
+      {
+        id: 'solid',
+        emoji: '⚖️',
+        label: { tr: 'SOLID Uygulaması', en: 'Applying SOLID' },
+        desc: {
+          tr: '5 prensip gerçek Playwright kodunda — örn. OCP: yeni bir AuthStrategy eklemek için mevcut kodu DEĞİŞTİRMEDEN genişlet',
+          en: 'The 5 principles in real Playwright code — e.g. OCP: extend with a new AuthStrategy WITHOUT modifying existing code',
+        },
+        exerciseId: 'playwright-arch-ocp-authstrategy-practice',
+      },
+      {
+        id: 'test-data',
+        emoji: '🔗',
+        label: { tr: 'Test / Data Katmanı', en: 'Test / Data Layer' },
+        desc: {
+          tr: 'storageState fixture (login\'i bir kez yap, paylaş) + data-driven for-loop',
+          en: 'storageState fixture (log in once, reuse) + data-driven for-loop',
+        },
+        exerciseId: 'playwright-arch-datadriven-practice',
+      },
+    ],
+  },
+
+  {
+    type: 'heading',
+    text: { tr: '🧭 Adım 1 — Büyük Resim: Fixture Zinciri Mindmap', en: '🧭 Step 1 — The Big Picture: The Fixture Chain Mindmap' },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Aynı mimari burada beş ayrı açıdan gösteriliyor: önce ana akış (bir test çalışırken loginPage nesnesi nereden gelir), sonra kurulum akışı (config\'ten fixture dosyasına, oradan spec\'e), sonra paralel çalışma (worker izolasyonu ThreadLocal\'a neden ihtiyaç BIRAKMAZ), sonra veri paylaşım kapsamı (test/worker fixture scope + storageState) ve son olarak her dosyanın "yapar/yapmaz" listesi.',
+      en: 'The same architecture is shown here from five angles: first the main flow (where the loginPage object comes from while a test runs), then the setup flow (from config to the fixture file, then to the spec), then parallel execution (why worker isolation removes the NEED for ThreadLocal), then the data-sharing scope (test/worker fixture scope + storageState), and finally a "does / does not" list for every file.',
+    },
+  },
+  {
+    type: 'python-flow-diagram',
+    titleTr: '1️⃣ Ana Akış — Bir Test loginPage Nesnesini Nasıl Alır?',
+    titleEn: '1️⃣ Main Flow — How Does a Test Get Its loginPage Object?',
+    steps: [
+      { type: 'action', code: "test('...', async ({ loginPage }) => {...})", desc: 'declares which fixtures it needs — orchestration ONLY, no locators', descTr: 'hangi fixture\'lara ihtiyacı olduğunu bildirir — SADECE orkestrasyon, locator içermez' },
+      { type: 'action', code: 'loginPage fixture (test.extend)', desc: 'resolves LoginPage lazily, only when the test actually requests it', descTr: 'LoginPage\'i sadece test gerçekten istediğinde, tembel şekilde çözer' },
+      { type: 'action', code: 'LoginPage extends BasePage', desc: 'knows only its own locators, inherits shared assert/retry helpers', descTr: 'sadece kendi locator\'larını bilir, ortak assert/retry yardımcılarını miras alır' },
+      { type: 'action', code: 'page fixture (built-in)', desc: "Playwright's own fixture — an ISOLATED browser context per test", descTr: 'Playwright\'ın kendi fixture\'ı — her test için İZOLE bir browser context' },
+      { type: 'end', code: 'browser (worker-scoped)', desc: 'SRP: one browser instance PER WORKER, reused across that worker\'s tests', descTr: 'SRP: HER worker için TEK browser örneği, o worker\'ın testleri arasında yeniden kullanılır' },
+    ],
+  },
+  {
+    type: 'python-flow-diagram',
+    titleTr: '2️⃣ Kurulum Akışı — fixtures.ts Her Spec\'e Nasıl Ulaşır?',
+    titleEn: '2️⃣ Setup Flow — How Does fixtures.ts Reach Every Spec?',
+    steps: [
+      { type: 'action', code: 'playwright.config.ts', desc: 'project/browser/baseURL config, worker count', descTr: 'proje/tarayıcı/baseURL config\'i, worker sayısı' },
+      { type: 'action', code: 'fixtures.ts (base.extend)', desc: 'defines custom fixtures BEFORE any spec file even runs', descTr: 'herhangi bir spec dosyası çalışmadan ÖNCE custom fixture\'ları tanımlar' },
+      { type: 'end', code: "import { test } from './fixtures'", desc: 'every spec imports the EXTENDED test, never @playwright/test directly', descTr: 'her spec GENİŞLETİLMİŞ test\'i import eder, @playwright/test\'i asla doğrudan değil' },
+    ],
+  },
+  {
+    type: 'subheading',
+    text: { tr: '3️⃣ Paralel Çalışma — Worker İzolasyonu ThreadLocal\'ın Yerini Nasıl Alır?', en: '3️⃣ Parallel Execution — How Does Worker Isolation Replace ThreadLocal?' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '👷', label: { tr: 'Worker-1', en: 'Worker-1' }, desc: { tr: 'Kendi Node.js process\'i + kendi tarayıcı örneği — bellek bile paylaşılmaz', en: 'Its own Node.js process + its own browser instance — not even memory is shared' } },
+      { icon: '👷', label: { tr: 'Worker-2', en: 'Worker-2' }, desc: { tr: 'Worker-1\'den TAMAMEN bağımsız process — ThreadLocal GEREKMEZ', en: 'A process COMPLETELY independent from Worker-1 — ThreadLocal is NOT needed' } },
+      { icon: '👷', label: { tr: 'Worker-3', en: 'Worker-3' }, desc: { tr: 'Kendi test dosyalarını sırayla işler, diğer worker\'larla hiçbir shared state yoktur', en: 'Processes its own test files in order, with zero shared state with other workers' } },
+    ],
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Selenium\'da paralel koşum, AYNI process içinde birden fazla thread çalıştırır — bu yüzden "hangi thread\'in hangi driver\'ı kullandığı" karışmasın diye ThreadLocal\'a ihtiyaç vardı. Playwright\'ta her worker AYRI bir process olduğu için bu karışma DAHA BAŞTAN imkânsızdır: Worker-2\'nin belleğine Worker-1\'in hiçbir değişkeni sızamaz. Bu, framework mimarisini kolaylaştırır ama ORTADAN KALDIRMAZ — fixture\'ların kendisi hâlâ doğru kurulmalı, çünkü her worker KENDİ İÇİNDE birden fazla testi sırayla (veya `fullyParallel` ile paralel) çalıştırır.',
+      en: 'In Selenium, parallel execution runs multiple threads inside the SAME process — that is why ThreadLocal was needed, so "which thread uses which driver" never gets mixed up. In Playwright, since every worker is a SEPARATE process, that mix-up is impossible from the start: none of Worker-1\'s variables can leak into Worker-2\'s memory. This simplifies framework architecture but does NOT eliminate it — fixtures still need to be built correctly, because each worker still runs multiple tests inside itself, either sequentially or in parallel with `fullyParallel`.',
+    },
+  },
+  {
+    type: 'subheading',
+    text: { tr: '4️⃣ Veri Paylaşım Kapsamı — Fixture\'ın Ömrü Ne Kadar?', en: '4️⃣ Data-Sharing Scope — How Long Does a Fixture Live?' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🧪', label: { tr: "scope: 'test'", en: "scope: 'test'" }, desc: { tr: 'HER test için yeniden oluşturulur (örn. page, loginPage) — testler arası state SIZMAZ', en: 'Recreated for EVERY test (e.g. page, loginPage) — state does NOT leak between tests' } },
+      { icon: '👷', label: { tr: "scope: 'worker'", en: "scope: 'worker'" }, desc: { tr: 'Worker başına BİR KEZ oluşturulur, o worker\'ın tüm testleri paylaşır (örn. paylaşılan API client)', en: 'Created ONCE per worker, shared by all of that worker\'s tests (e.g. a shared API client)' } },
+      { icon: '💾', label: { tr: 'storageState', en: 'storageState' }, desc: { tr: 'Login oturumunu dosyaya kaydeder, sonraki testlere fixture ile enjekte eder — her testte yeniden login OLMAZ', en: 'Saves the login session to a file, injects it into later tests via a fixture — you do NOT log in again for every test' } },
+    ],
+  },
+  {
+    type: 'subheading',
+    text: { tr: '5️⃣ Kim Ne Yapar? — Dosya Sorumlulukları', en: '5️⃣ Who Does What? — File Responsibilities' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🧪', label: { tr: 'test dosyası (*.spec.ts)', en: 'test file (*.spec.ts)' }, desc: { tr: '✔ Senaryo akışı · ✔ Assertion · ✘ Locator/fixture kurulum kodu içermez', en: '✔ Scenario flow · ✔ Assertions · ✘ Contains no locator/fixture setup code' } },
+      { icon: '🖱️', label: { tr: 'LoginPage (POM)', en: 'LoginPage (POM)' }, desc: { tr: '✔ Locator · ✔ Business action · ✘ Assertion içermez', en: '✔ Locators · ✔ Business actions · ✘ Contains no assertions' } },
+      { icon: '🧱', label: { tr: 'BasePage', en: 'BasePage' }, desc: { tr: '✔ Ortak assert/retry yardımcıları · ✔ Navigasyon guard\'ları', en: '✔ Shared assert/retry helpers · ✔ Navigation guards' } },
+      { icon: '🧩', label: { tr: 'fixtures.ts', en: 'fixtures.ts' }, desc: { tr: '✔ Page Object\'leri INSTANTIATE eder · ✔ teste ENJEKTE eder', en: '✔ INSTANTIATES Page Objects · ✔ INJECTS them into the test' } },
+      { icon: '⚙️', label: { tr: 'playwright.config.ts', en: 'playwright.config.ts' }, desc: { tr: '✔ Worker sayısı · ✔ baseURL · ✔ proje/tarayıcı matrisi', en: '✔ Worker count · ✔ baseURL · ✔ project/browser matrix' } },
+    ],
+  },
+  {
+    type: 'video-scene',
+    id: 'playwright-arch-fixture-chain-film',
+    title: {
+      tr: '🎬 loginPage Fixture\'ı Bir Teste Nasıl Ulaşır? (ve Worker-2 Kontrastı)',
+      en: '🎬 How Does the loginPage Fixture Reach a Test? (and the Worker-2 Contrast)',
+    },
+    xpReward: 15,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+      { id: 'test',      emoji: '🧪', label: { tr: "test('login', ...)",     en: "test('login', ...)" },     color: '#0ea5e9' },
+      { id: 'fixture',   emoji: '🧩', label: { tr: 'loginPage fixture',       en: 'loginPage fixture' },       color: '#f59e0b' },
+      { id: 'pageFx',    emoji: '📄', label: { tr: 'page fixture (built-in)', en: 'page fixture (built-in)' }, color: '#8b5cf6' },
+      { id: 'context',   emoji: '🌐', label: { tr: 'Browser Context',        en: 'Browser Context' },         color: '#6366f1' },
+      { id: 'loginPage', emoji: '🖱️', label: { tr: 'LoginPage (POM)',        en: 'LoginPage (POM)' },         color: '#22c55e' },
+      { id: 'worker2',   emoji: '👷', label: { tr: 'Worker-2 (paralel test)', en: 'Worker-2 (parallel test)' }, color: '#ef4444' },
+    ],
+    scenes: [
+      {
+        caption: {
+          tr: 'Test fonksiyonu parametre listesinde `{ loginPage }` istiyor. Bu satır HENÜZ hiçbir tarayıcı açmadı — sadece "bana bu fixture\'ı ver" talebini bildirdi.',
+          en: 'The test function\'s parameter list asks for `{ loginPage }`. This line has NOT opened any browser yet — it just declared "give me this fixture".',
+        },
+        code: { tr: "test('gecerli girisle dashboard\\'a gider', async ({ loginPage }) => {...})", en: "test('valid login navigates to dashboard', async ({ loginPage }) => {...})" },
+        positions: { test: { x: 12, y: 50, scale: 1.15, pulse: true } },
+      },
+      {
+        caption: {
+          tr: 'Adım 1 — Playwright, `loginPage` fixture tanımını fixtures.ts\'de bulur. Fixture HENÜZ çalışmadı, sadece "bu isim şu fonksiyonla üretilir" eşleşmesi yapıldı.',
+          en: 'Step 1 — Playwright finds the `loginPage` fixture definition in fixtures.ts. The fixture has NOT run yet, only the match "this name is produced by this function" was made.',
+        },
+        code: { tr: 'loginPage: async ({ page }, use) => {...}', en: 'loginPage: async ({ page }, use) => {...}' },
+        positions: {
+          test: { x: 10, y: 50, opacity: 0.5, scale: 0.85 },
+          fixture: { x: 32, y: 50, scale: 1.15, pulse: true },
+        },
+        beams: [{ from: 'test', to: 'fixture' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 2 — loginPage fixture\'ının KENDİSİ `page` fixture\'ına bağımlı. Playwright bu bağımlılığı otomatik fark eder ve page fixture\'ını ÖNCE çözer.',
+          en: 'Step 2 — the loginPage fixture ITSELF depends on the `page` fixture. Playwright automatically detects this dependency and resolves the page fixture FIRST.',
+        },
+        code: { tr: 'async ({ page }, use) => { /* page HAZIR olmalı */ }', en: 'async ({ page }, use) => { /* page must be READY */ }' },
+        positions: {
+          fixture: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+          pageFx: { x: 40, y: 50, scale: 1.2, pulse: true },
+        },
+        beams: [{ from: 'fixture', to: 'pageFx', color: '#8b5cf6' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 3 — page fixture, bu test için İZOLE bir Browser Context açar: kendi çerezleri, kendi localStorage\'ı, önceki testten hiçbir iz taşımaz.',
+          en: 'Step 3 — the page fixture opens an ISOLATED Browser Context for this test: its own cookies, its own localStorage, carrying no trace of any previous test.',
+        },
+        code: { tr: 'browser.newContext() → context.newPage()', en: 'browser.newContext() → context.newPage()' },
+        positions: {
+          pageFx: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+          context: { x: 46, y: 50, scale: 1.2, pulse: true },
+        },
+        beams: [{ from: 'pageFx', to: 'context', color: '#6366f1' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 4 — page hazır olunca loginPage fixture devam eder: `new LoginPage(page)` ile POM nesnesini kurar ve `use(loginPage)` ile TESTE teslim eder.',
+          en: 'Step 4 — once page is ready, the loginPage fixture continues: it builds the POM object with `new LoginPage(page)` and hands it to the TEST via `use(loginPage)`.',
+        },
+        code: { tr: 'const loginPage = new LoginPage(page);\nawait use(loginPage);', en: 'const loginPage = new LoginPage(page);\nawait use(loginPage);' },
+        positions: {
+          context: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+          loginPage: { x: 50, y: 50, scale: 1.25, pulse: true },
+        },
+        beams: [{ from: 'context', to: 'loginPage', color: '#22c55e' }],
+      },
+      {
+        caption: {
+          tr: 'Final (kontrast) — Worker-2 AYNI spec\'i paralel çalıştırıyor: kendi ayrı process\'inde kendi loginPage → page → context zincirini SIFIRDAN kurar. Selenium\'da bu izolasyonu ThreadLocal sağlardı; Playwright\'ta bunu SAĞLAYAN şey worker\'ın kendisi — fixture kodun bunu hiç DÜŞÜNMESİ bile gerekmez.',
+          en: 'Final (the contrast) — Worker-2 runs the SAME spec in parallel: in its own separate process, it builds its own loginPage → page → context chain from SCRATCH. In Selenium, ThreadLocal provided this isolation; in Playwright, the worker itself PROVIDES it — the fixture code does not even need to THINK about it.',
+        },
+        positions: {
+          loginPage: { x: 20, y: 30, scale: 0.9 },
+          context: { x: 48, y: 50, scale: 1.05 },
+          worker2: { x: 76, y: 50, scale: 1.25, pulse: true },
+        },
+        beams: [{ from: 'loginPage', to: 'context' }, { from: 'context', to: 'worker2', color: '#ef4444' }],
+      },
+    ],
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Yukarıdaki mimaride bir test, loginPage nesnesini NEREDEN alır?',
+      en: 'In the architecture above, where does a test get its loginPage object FROM?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Kendi içinde new LoginPage(page) yazarak yaratır', en: 'It creates it itself by writing new LoginPage(page)' } },
+      { id: 'b', text: { tr: 'test.extend ile tanımlanan bir fixture\'dan, parametre olarak enjekte edilir', en: 'It is injected as a parameter from a fixture defined via test.extend' } },
+      { id: 'c', text: { tr: 'playwright.config.ts dosyasından okur', en: 'It reads it from playwright.config.ts' } },
+      { id: 'd', text: { tr: 'globalSetup.ts içinde elle atanır', en: 'It is manually assigned inside globalSetup.ts' } },
+    ],
+    correct: 'b',
+    explanation: {
+      tr: 'Mimarinin can damarı budur: loginPage nesnesinin kurulum sorumluluğu TEK bir fixture fonksiyonunda toplanır, test sadece parametre listesinde adını İSTER — bu ayrım olmasaydı her spec dosyası kendi "new LoginPage(page)" satırını kopyalar ve login akışı değiştiğinde onlarca dosya elle güncellenirdi.',
+      en: 'This is the artery of the architecture: the responsibility for building loginPage lives in ONE fixture function, and the test just ASKS for it by name in its parameter list — without this split, every spec file would copy its own "new LoginPage(page)" line, and dozens of files would need manual updates whenever the login flow changed.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Worker izolasyonu, Selenium\'daki ThreadLocal\'a kıyasla NE FARK yaratır?',
+        en: 'Compared to ThreadLocal in Selenium, what DIFFERENCE does worker isolation make?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'İzolasyonu process seviyesinde sağlar — ThreadLocal\'a hiç gerek kalmaz', en: 'It provides isolation at the process level — ThreadLocal is never needed' } },
+        { id: 'b', text: { tr: 'Hiçbir fark yaratmaz, ikisi de aynı mekanizmadır', en: 'It makes no difference, both are the same mechanism' } },
+        { id: 'c', text: { tr: 'Worker\'lar aynı browser instance\'ını paylaşır', en: 'Workers share the same browser instance' } },
+        { id: 'd', text: { tr: 'Sadece CI ortamında devreye girer', en: 'It only kicks in inside a CI environment' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'Selenium aynı process içinde çoklu thread çalıştırdığı için ThreadLocal\'a ihtiyaç duyar; Playwright her worker\'ı AYRI bir process olarak başlattığı için karışma daha en baştan imkânsızdır — bu güvence framework kodunun değil, test runner\'ın sorumluluğundadır.',
+        en: 'Selenium needs ThreadLocal because it runs multiple threads inside the same process; Playwright starts every worker as a SEPARATE process, so mixing is impossible from the start — this guarantee belongs to the test runner, not to framework code.',
+      },
+    },
+  },
+
+  // ── Adım 2 — Fixture / Core Katmanı: test.extend ──
+  {
+    type: 'heading',
+    text: { tr: '🧩 Adım 2 — Fixture / Core Katmanı: test.extend', en: '🧩 Step 2 — Fixture / Core Layer: test.extend' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🛎️',
+    content: {
+      tr: 'fixtures.ts bir otelin concierge masasıdır: sen sadece "loginPage istiyorum" dersin, concierge (fixture resolver) arkada page nesnesini açar, LoginPage\'i kurar ve sana KAPIDA teslim eder — page\'in nasıl açıldığıyla hiç uğraşmazsın. İkinci benzetme: bir tarif kitabındaki "önce hamuru hazırla" notu gibi — fixture\'lar birbirine BAĞIMLI olabilir (loginPage fixture\'ı, page fixture\'ına ihtiyaç duyar), Playwright bu bağımlılık zincirini SENİN yerine, doğru sırayla çözer. Peki page zaten built-in bir fixture\'ken, neden ayrıca loginPage fixture\'ı yazalım — test içinde `new LoginPage(page)` yazmak yetmez mi? Yeter, ama SADECE bir test için; 80 spec dosyasının her birinde bu satırı TEKRAR yazarsan, LoginPage\'in constructor\'ı değiştiğinde (örn. yeni bir zorunlu parametre eklenince) 80 dosya kırılır. Fixture ile bu satır TEK yerde durur. Java karşılaştırması: Spring\'in `@Autowired` alanı gibi — sınıfın kendisi bağımlılığını nasıl kuracağını bilmez, container ona hazır halde verir; burada test.extend o container\'ın rolünü oynar. QA bağlamı: fixture\'sız bir projede "login akışına yeni bir 2FA adımı eklendi" haberi geldiğinde 80 dosya taranır; fixture\'lı projede TEK dosya (fixtures.ts) güncellenir, 80 test hiç değişmeden yeni akışı otomatik kullanır.',
+      en: 'fixtures.ts is a hotel\'s concierge desk: you simply say "I want loginPage", and the concierge (the fixture resolver) opens the page object behind the scenes, builds LoginPage, and hands it to you AT THE DOOR — you never deal with how page was opened. Second analogy: like a recipe\'s "first prepare the dough" note — fixtures can DEPEND on each other (the loginPage fixture needs the page fixture), and Playwright resolves that dependency chain FOR you, in the right order. But since page is already a built-in fixture, why write a separate loginPage fixture — isn\'t writing `new LoginPage(page)` inside the test enough? It is, but ONLY for one test; if you repeat that line in every one of 80 spec files, when LoginPage\'s constructor changes (say, a new required parameter is added) all 80 files break. With a fixture, that line lives in ONE place. Java comparison: like a Spring `@Autowired` field — the class itself does not know how to build its dependency, a container hands it over ready-made; here test.extend plays that container\'s role. QA context: in a project without fixtures, news that "a new 2FA step was added to the login flow" means scanning 80 files; in a project with fixtures, ONE file (fixtures.ts) is updated, and all 80 tests pick up the new flow automatically, unchanged.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'fixtures.ts\'in fixtures.ts olmasının nedeni de Single Responsibility Principle\'dır (SRP): bu dosya SADECE nesne kurulum/söküm sorumluluğu taşır — hiçbir assertion, hiçbir iş senaryosu içermez. Assertion\'ları buraya yazsaydın, "test mantığı nerede yaşıyor?" sorusunun cevabı iki dosyaya bölünürdü; şimdi fixtures.ts sadece "neyin nasıl kurulduğu"na, spec dosyaları ise "ne test edildiğine" cevap verir.',
+      en: 'The reason fixtures.ts is fixtures.ts is also the Single Responsibility Principle (SRP): this file carries ONLY the responsibility of building/tearing down objects — it contains no assertions, no business scenarios. Had you put assertions here, the answer to "where does the test logic live?" would be split across two files; now fixtures.ts answers only "how is what built", while spec files answer "what is being tested".',
+    },
+  },
+  {
+    type: 'code',
+    language: 'typescript',
+    code: {
+      tr: `// ─── fixtures.ts — SADECE nesne kurulum/sokum sorumlulugu (SRP) ───
+import { test as base } from '@playwright/test';
+import { LoginPage } from './pages/LoginPage';
+
+type MyFixtures = {
+  loginPage: LoginPage;
+};
+
+// base.extend: page fixture'ina BAGIMLI yeni bir fixture tanimlar
+export const test = base.extend<MyFixtures>({
+  loginPage: async ({ page }, use) => {
+    const loginPage = new LoginPage(page);  // page HAZIR olunca kurulur
+    await use(loginPage);                   // teste TESLIM et
+    // use() sonrasi buraya donulur — istenirse temizlik kodu buraya yazilir
+  },
+});
+export { expect } from '@playwright/test';
+
+// ─── tests/login.spec.ts — GENISLETILMIS test'i import eder ───
+import { test, expect } from '../fixtures';
+
+test('gecerli girisle dashboard\\'a yonlendirilir', async ({ loginPage, page }) => {
+  await loginPage.goto();
+  await loginPage.login('qa_user', 'S3cret!');
+  await expect(page).toHaveURL('/dashboard');
+});`,
+      en: `// ─── fixtures.ts — ONLY the object build/teardown responsibility (SRP) ───
+import { test as base } from '@playwright/test';
+import { LoginPage } from './pages/LoginPage';
+
+type MyFixtures = {
+  loginPage: LoginPage;
+};
+
+// base.extend: defines a new fixture that DEPENDS ON the page fixture
+export const test = base.extend<MyFixtures>({
+  loginPage: async ({ page }, use) => {
+    const loginPage = new LoginPage(page);  // built once page is READY
+    await use(loginPage);                   // HAND it to the test
+    // execution resumes here after use() — teardown code would go here if needed
+  },
+});
+export { expect } from '@playwright/test';
+
+// ─── tests/login.spec.ts — imports the EXTENDED test ───
+import { test, expect } from '../fixtures';
+
+test('valid login redirects to dashboard', async ({ loginPage, page }) => {
+  await loginPage.goto();
+  await loginPage.login('qa_user', 'S3cret!');
+  await expect(page).toHaveURL('/dashboard');
+});`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'playwright-arch-fixture-resolve-steps',
+    title: { tr: 'Adım Adım: loginPage Fixture\'ı Nasıl Çözülür?', en: 'Step by Step: How the loginPage Fixture Resolves' },
+    steps: [
+      { id: 1, icon: '📝', label: { tr: 'Test parametrede { loginPage } ister', en: 'The test asks for { loginPage } in its parameter' }, detail: { tr: 'Test fonksiyonu çalışmaya başlamadan önce Playwright, parametre listesindeki her ismi bir fixture tanımıyla eşleştirir.', en: 'Before the test function starts running, Playwright matches every name in its parameter list to a fixture definition.' } },
+      { id: 2, icon: '🔎', label: { tr: 'fixtures.ts\'de tanım bulunur', en: 'The definition is found in fixtures.ts' }, detail: { tr: 'base.extend içindeki loginPage anahtarı, onu üretecek async fonksiyona işaret eder — henüz ÇALIŞTIRILMADI.', en: 'The loginPage key inside base.extend points to the async function that will produce it — it has NOT been RUN yet.' } },
+      { id: 3, icon: '🔗', label: { tr: 'Kendi bağımlılığı önce çözülür', en: 'Its own dependency resolves first' }, detail: { tr: 'loginPage fonksiyonu { page } parametresi istediği için Playwright ÖNCE page fixture\'ını (izole browser context) hazırlar.', en: 'Because the loginPage function requests a { page } parameter, Playwright prepares the page fixture (an isolated browser context) FIRST.' } },
+      { id: 4, icon: '🏗️', label: { tr: 'new LoginPage(page) çalışır', en: 'new LoginPage(page) runs' }, detail: { tr: 'page hazır olunca fixture gövdesi çalışır: LoginPage nesnesi kurulur, await use(loginPage) ile teste geçirilir.', en: 'Once page is ready, the fixture body runs: the LoginPage object is built, and passed to the test via await use(loginPage).' } },
+      { id: 5, icon: '🧹', label: { tr: 'Test biter, use() sonrası devam eder', en: 'The test ends, execution resumes after use()' }, detail: { tr: 'Test tamamlanınca kontrol tekrar fixture fonksiyonuna, use() satırının HEMEN ardına döner — burada varsa temizlik kodu çalışır.', en: 'When the test finishes, control returns to the fixture function, right AFTER the use() line — any teardown code runs here if present.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-playwright-arch-fixture-order',
+    question: {
+      tr: 'base.extend ile loginPage fixture\'ını kurmanın adımlarını mantıklı sıraya diz.',
+      en: 'Arrange the steps of building the loginPage fixture with base.extend in a logical order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'MyFixtures tipiyle fixture\'ın şeklini (hangi isim, hangi tip) tanımla', en: 'Define the fixture\'s shape (which name, which type) with the MyFixtures type' }, order: 1 },
+      { id: '2', text: { tr: 'base.extend<MyFixtures>({...}) ile test\'i genişlet', en: 'Extend test with base.extend<MyFixtures>({...})' }, order: 2 },
+      { id: '3', text: { tr: 'loginPage fonksiyonunda { page } fixture\'ını parametre olarak iste', en: 'Request the { page } fixture as a parameter inside the loginPage function' }, order: 3 },
+      { id: '4', text: { tr: 'new LoginPage(page) ile POM nesnesini kur', en: 'Build the POM object with new LoginPage(page)' }, order: 4 },
+      { id: '5', text: { tr: 'await use(loginPage) ile nesneyi teste teslim et', en: 'Hand the object to the test with await use(loginPage)' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'playwright-framework-fixtures',
+    id: 'playwright-arch-fixture-extend-practice',
+    label: {
+      tr: 'Micro Lab: loginPage fixture\'ını teste teslim edecek şekilde tamamla',
+      en: 'Micro Lab: complete the loginPage fixture so it hands off to the test',
+    },
+    language: 'typescript',
+    task: {
+      tr: 'Aşağıdaki fixture, page fixture\'ını alıp bir LoginPage nesnesi kuruyor — ama TODO satırı eksik olduğu için nesneyi teste hiç TESLİM ETMİYOR, test çalıştığında loginPage undefined kalır. TODO satırını, LoginPage nesnesini use() ile teste geçirecek şekilde tamamla.',
+      en: 'The fixture below takes the page fixture and builds a LoginPage object — but because the TODO line is missing, it never HANDS the object to the test, so loginPage stays undefined when the test runs. Complete the TODO line so it passes the LoginPage object to the test via use().',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç use() çağrısının fixture zincirinde "nesneyi teste devret" anlamına geldiğini elle yazarak pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to reinforce, by writing it yourself, that the use() call means "hand the object to the test" in the fixture chain.',
+    },
+    code: {
+      tr: `loginPage: async ({ page }, use) => {
+  const loginPage = new LoginPage(page);
+  await use(loginPage);
+},`,
+      en: `loginPage: async ({ page }, use) => {
+  const loginPage = new LoginPage(page);
+  await use(loginPage);
+},`,
+    },
+    starterCode: {
+      tr: `loginPage: async ({ page }, use) => {
+  const loginPage = new LoginPage(page);
+  TODO   // nesneyi teste devret
+},`,
+      en: `loginPage: async ({ page }, use) => {
+  const loginPage = new LoginPage(page);
+  TODO   // hand the object to the test
+},`,
+    },
+    solutionCode: {
+      tr: `loginPage: async ({ page }, use) => {
+  const loginPage = new LoginPage(page);
+  await use(loginPage);
+},`,
+      en: `loginPage: async ({ page }, use) => {
+  const loginPage = new LoginPage(page);
+  await use(loginPage);
+},`,
+    },
+    expected: {
+      tr: 'TODO satırı await use(loginPage) olmalı — use() çağrılmadan fixture fonksiyonu asla teste bir değer döndürmez, test parametresinde loginPage undefined kalır.',
+      en: 'The TODO line must be await use(loginPage) — without calling use(), the fixture function never returns a value to the test, and loginPage stays undefined in the test parameter.',
+    },
+    hints: [
+      { tr: 'use() Playwright\'ın fixture API\'sinin kalbidir: parametre olarak verdiğin değer, testin parametre listesindeki isimle EŞLEŞİR — burada use(loginPage) demek "loginPage parametresi bu nesne olsun" demektir.', en: 'use() is the heart of Playwright\'s fixture API: the value you pass as a parameter MATCHES the name in the test\'s parameter list — here use(loginPage) means "let the loginPage parameter be this object".' },
+      { tr: 'use() çağrısından SONRAKİ kod, test bittikten sonra çalışır — bu yüzden temizlik (teardown) kodu genelde await use(...) satırının ALTINA yazılır.', en: 'Code AFTER the use() call runs once the test has finished — this is why teardown code is usually written BELOW the await use(...) line.' },
+      { tr: 'loginPage fixture\'ı { page } parametresi istediği için, page fixture\'ı otomatik olarak ÖNCE çözülür — bu satırı senin elle çağırman gerekmez.', en: 'Because the loginPage fixture requests a { page } parameter, the page fixture is automatically resolved FIRST — you do not need to call it by hand.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'loginPage fixture\'ı çalıştığında, { page } fixture\'ı NE ZAMAN hazır olur?',
+      en: 'When the loginPage fixture runs, WHEN does the { page } fixture become ready?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'loginPage onu parametre olarak istediği anda, Playwright otomatik olarak ÖNCE çözer', en: 'The moment loginPage requests it as a parameter, Playwright automatically resolves it FIRST' } },
+      { id: 'b', text: { tr: 'Test dosyası import edildiğinde', en: 'When the test file is imported' } },
+      { id: 'c', text: { tr: 'playwright.config.ts okunduğunda', en: 'When playwright.config.ts is read' } },
+      { id: 'd', text: { tr: 'Test bittikten sonra', en: 'After the test finishes' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'Playwright\'ın fixture sistemi bağımlılık grafiğini kendisi çözer: bir fixture başka bir fixture\'ı parametre olarak istediğinde, Playwright önce O bağımlılığı hazırlar, sonra isteyen fixture\'ı çalıştırır — sen bu sırayı elle yönetmezsin.',
+      en: 'Playwright\'s fixture system resolves the dependency graph itself: when a fixture requests another fixture as a parameter, Playwright prepares THAT dependency first, then runs the requesting fixture — you never manage this order by hand.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'fixtures.ts içine bir assertion (örn. expect(...).toBeVisible()) yazmak neden yanlış bir tasarımdır?',
+        en: 'Why is writing an assertion (e.g. expect(...).toBeVisible()) inside fixtures.ts a poor design choice?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'SRP\'yi ihlal eder — fixtures.ts SADECE kurulum/söküm yapmalı, doğrulama testin işidir', en: 'It violates SRP — fixtures.ts should ONLY build/tear down, verification is the test\'s job' } },
+        { id: 'b', text: { tr: 'Playwright bunu teknik olarak engeller, kod hiç çalışmaz', en: 'Playwright technically blocks it, the code never runs' } },
+        { id: 'c', text: { tr: 'Hiçbir sorun yaratmaz, tam tersine önerilir', en: 'It causes no problem, it is actually recommended' } },
+        { id: 'd', text: { tr: 'Sadece performansı yavaşlatır', en: 'It only slows down performance' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'fixtures.ts\'e assertion yazarsan, farklı testler farklı doğrulama isteyebilirken hepsi AYNI zorunlu kontrolden geçer — bir test sadece "sayfa açıldı mı" bilmek isterken, fixture\'daki assertion onu gereksiz yere fail edebilir. Doğrulama HER ZAMAN testin kendi sorumluluğunda kalmalı.',
+        en: 'If you put an assertion in fixtures.ts, every test is forced through the SAME mandatory check even though different tests may want different verification — a test that only wants to know "did the page open" can be needlessly failed by the fixture\'s assertion. Verification should ALWAYS stay the test\'s own responsibility.',
+      },
+    },
+  },
+
+  // ── Adım 3 — POM Katmanı: BasePage & LoginPage extends BasePage ──
+  {
+    type: 'heading',
+    text: { tr: '📦 Adım 3 — POM Katmanı: BasePage & LoginPage', en: '📦 Step 3 — POM Layer: BasePage & LoginPage' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🏨',
+    content: {
+      tr: 'BasePage, bir restoran ZİNCİRİNİN tüm şubelerinde uygulanan ortak servis standardıdır: şikayeti nasıl karşılayacağın, bekleme masasına nasıl yaklaşacağın HER şubede aynıdır; her şube (her PageObject) sadece kendi menüsünü (kendi locator\'larını) bilir. İkinci benzetme: Playwright\'ın kendi auto-wait\'i zaten "elementin görünür/tıklanabilir olmasını bekle" işini yapıyor — o zaman BasePage\'in görevi NEREYE kayar? Selenium\'da BasePage bekleme mantığını taşırdı (waitVisible); Playwright\'ta bu iş dahili olduğu için BasePage\'in rolü İKİNCİL ama hâlâ gerçek bir sorumluluğa kayar: retry-with-screenshot yardımcıları, tutarlı hata mesajları üreten custom assertion\'lar, "önce çerez bannerını kapat" gibi ortak navigasyon guard\'ları. Peki auto-wait varken BasePage\'e gerçekten ihtiyaç var mı? Evet — çünkü "element görünür olsun" ile "element görünür olduğunda ekran görüntüsü alıp anlamlı bir hata mesajıyla fail et" AYNI şey değildir; ikincisi HER sayfada tekrar yazılırsa 30 sayfa 30 farklı hata mesajı formatı üretir. Java karşılaştırması: bu, Selenium projelerindeki soyut BasePage sınıfıyla AYNI motivasyon — ortak davranışı tek yere topla, alt sınıflar sadece kendi farkını eklesin. QA bağlamı: BasePage\'siz bir projede bir test "Element bulunamadı: css=.btn-primary" gibi teknik bir hatayla fail eder; BasePage\'li projede aynı hata "LoginPage: signInButton 5000ms içinde tıklanabilir olmadı, ekran görüntüsü: /screenshots/login-fail.png" gibi OKUNABİLİR bir mesaja dönüşür.',
+      en: 'BasePage is the common service standard applied at every branch of a restaurant CHAIN: how you handle a complaint, how you approach the waiting table is the SAME everywhere; each branch (each PageObject) only knows its own menu (its own locators). Second analogy: Playwright\'s own auto-wait already does the job of "wait for the element to be visible/clickable" — so where does BasePage\'s job SHIFT to? In Selenium, BasePage carried the wait logic (waitVisible); since that is built-in in Playwright, BasePage\'s role becomes SECONDARY but still a real responsibility: retry-with-screenshot helpers, custom assertions that produce consistent error messages, shared navigation guards like "close the cookie banner first". But if auto-wait already exists, is BasePage really needed? Yes — because "let the element be visible" and "when the element is visible, take a screenshot and fail with a meaningful error message" are NOT the same thing; if the latter is rewritten on every page, 30 pages produce 30 different error message formats. Java comparison: this is the SAME motivation as the abstract BasePage class in Selenium projects — centralize shared behavior, let subclasses add only their own difference. QA context: in a project without BasePage, a test fails with a technical error like "Element not found: css=.btn-primary"; in a project with BasePage, the same failure becomes a READABLE message like "LoginPage: signInButton was not clickable within 5000ms, screenshot: /screenshots/login-fail.png".',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'BasePage ile LoginPage\'in AYRI dosyalar olmasının nedeni de SRP\'dir: BasePage sadece "bir hata olduğunda ne yapılır" sorusuna cevap verir (screenshot al, okunabilir mesaj üret), LoginPage ise sadece "login sayfasında hangi elementler var ve hangi iş kuralı uygulanır" sorusuna cevap verir. LoginPage, BasePage\'i EXTENDS ederek bu ortak davranışı bedava kazanır — kendi kod tekrarı yazmaz.',
+      en: 'The reason BasePage and LoginPage are SEPARATE files is also SRP: BasePage answers only "what happens when there is a failure" (take a screenshot, produce a readable message), while LoginPage answers only "what elements exist on the login page and what business rule applies". LoginPage EXTENDS BasePage and gets this shared behavior for free — it writes no duplicated code of its own.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'typescript',
+    code: {
+      tr: `// ─── pages/BasePage.ts — SADECE ortak hata/dogrulama yardimcilari (SRP) ───
+import { Page, Locator, expect } from '@playwright/test';
+
+export abstract class BasePage {
+  constructor(protected readonly page: Page) {}
+
+  // auto-wait zaten calisiyor; bu yardimci SADECE hata anini OKUNABILIR yapar
+  async expectVisibleThen(locator: Locator, action: () => Promise<void>, label: string) {
+    try {
+      await expect(locator).toBeVisible({ timeout: 5000 });
+      await action();
+    } catch (err) {
+      await this.page.screenshot({ path: \`screenshots/\${label}-fail.png\` });
+      throw new Error(\`\${label}: element 5000ms icinde hazir olmadi, ekran goruntusu alindi\`);
+    }
+  }
+}
+
+// ─── pages/LoginPage.ts — SADECE kendi elementlerini bilir (POM) ───
+import { Page, Locator } from '@playwright/test';
+import { BasePage } from './BasePage';
+
+export class LoginPage extends BasePage {
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly signInButton: Locator;
+
+  constructor(page: Page) {
+    super(page);   // BasePage'in ortak yardimcilarini miras al
+    this.emailInput = page.getByLabel('E-posta');
+    this.passwordInput = page.getByLabel('Sifre');
+    this.signInButton = page.getByRole('button', { name: 'Giris Yap' });
+  }
+
+  async goto() {
+    await this.page.goto('/login');
+  }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    // BasePage'in ortak yardimcisi: hata anini OKUNABILIR yapar
+    await this.expectVisibleThen(
+      this.signInButton,
+      () => this.signInButton.click(),
+      'LoginPage.signInButton',
+    );
+  }
+}`,
+      en: `// ─── pages/BasePage.ts — ONLY shared error/verification helpers (SRP) ───
+import { Page, Locator, expect } from '@playwright/test';
+
+export abstract class BasePage {
+  constructor(protected readonly page: Page) {}
+
+  // auto-wait already runs; this helper ONLY makes the failure moment READABLE
+  async expectVisibleThen(locator: Locator, action: () => Promise<void>, label: string) {
+    try {
+      await expect(locator).toBeVisible({ timeout: 5000 });
+      await action();
+    } catch (err) {
+      await this.page.screenshot({ path: \`screenshots/\${label}-fail.png\` });
+      throw new Error(\`\${label}: element was not ready within 5000ms, screenshot taken\`);
+    }
+  }
+}
+
+// ─── pages/LoginPage.ts — knows ONLY its own elements (POM) ───
+import { Page, Locator } from '@playwright/test';
+import { BasePage } from './BasePage';
+
+export class LoginPage extends BasePage {
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly signInButton: Locator;
+
+  constructor(page: Page) {
+    super(page);   // inherit BasePage's shared helpers
+    this.emailInput = page.getByLabel('Email');
+    this.passwordInput = page.getByLabel('Password');
+    this.signInButton = page.getByRole('button', { name: 'Sign in' });
+  }
+
+  async goto() {
+    await this.page.goto('/login');
+  }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    // BasePage's shared helper: makes the failure moment READABLE
+    await this.expectVisibleThen(
+      this.signInButton,
+      () => this.signInButton.click(),
+      'LoginPage.signInButton',
+    );
+  }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'playwright-arch-basepage-steps',
+    title: { tr: 'Adım Adım: expectVisibleThen Bir Hatayı Nasıl Okunabilir Yapar?', en: 'Step by Step: How expectVisibleThen Makes a Failure Readable' },
+    steps: [
+      { id: 1, icon: '☎️', label: { tr: 'LoginPage.login() çağrılır', en: 'LoginPage.login() is called' }, detail: { tr: 'Test, loginPage.login(email, pass) çağırır — Playwright\'ın auto-wait mekanizmasını hiç BİLMEZ, sadece iş kuralını tetikler.', en: 'The test calls loginPage.login(email, pass) — it knows NOTHING about Playwright\'s auto-wait mechanism, it just triggers the business rule.' } },
+      { id: 2, icon: '🔍', label: { tr: 'expectVisibleThen çağrılır', en: 'expectVisibleThen is called' }, detail: { tr: 'LoginPage, signInButton\'ı BasePage\'in ortak yardımcısına geçirir — bekleme/hata mantığı burada TEK yerdedir.', en: 'LoginPage passes signInButton to BasePage\'s shared helper — the wait/error logic lives in ONE place here.' } },
+      { id: 3, icon: '⏳', label: { tr: 'expect(...).toBeVisible() bekler', en: 'expect(...).toBeVisible() waits' }, detail: { tr: 'Playwright\'ın auto-wait\'i devreye girer — element 5 saniye içinde görünür olursa action() çalışır ve akış normal devam eder.', en: 'Playwright\'s auto-wait kicks in — if the element becomes visible within 5 seconds, action() runs and the flow continues normally.' } },
+      { id: 4, icon: '📸', label: { tr: 'Görünmezse: catch bloğu screenshot alır', en: 'If not visible: the catch block takes a screenshot' }, detail: { tr: 'Timeout dolarsa catch bloğu tetiklenir, page.screenshot() ile o ANKİ ekran durumu kaydedilir — bu, hatayı sonradan teşhis etmek için altın değerindedir.', en: 'If the timeout expires, the catch block fires, and page.screenshot() records the screen state AT THAT MOMENT — this is invaluable for diagnosing the failure later.' } },
+      { id: 5, icon: '🚨', label: { tr: 'OKUNABİLİR bir Error fırlatılır', en: 'A READABLE Error is thrown' }, detail: { tr: 'Ham "Timeout 5000ms exceeded" yerine "LoginPage.signInButton: element 5000ms içinde hazır olmadı, ekran görüntüsü alındı" fırlar — hatayı ilk okuyan kişi hangi sayfada, hangi elementte olduğunu ANINDA anlar.', en: 'Instead of a raw "Timeout 5000ms exceeded", "LoginPage.signInButton: element was not ready within 5000ms, screenshot taken" is thrown — whoever reads the failure first understands INSTANTLY which page, which element.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-playwright-arch-basepage-order',
+    question: {
+      tr: 'loginPage.login() çağrısının katmanlar arası akışını doğru sıraya diz.',
+      en: 'Arrange the cross-layer flow of the loginPage.login() call in the correct order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'Test: loginPage.login(email, pass) çağrılır', en: 'Test: loginPage.login(email, pass) is called' }, order: 1 },
+      { id: '2', text: { tr: 'LoginPage: kendi locator\'ıyla BasePage.expectVisibleThen() çağırır', en: 'LoginPage: calls BasePage.expectVisibleThen() with its own locator' }, order: 2 },
+      { id: '3', text: { tr: 'BasePage: expect(locator).toBeVisible() ile auto-wait\'i kullanır', en: 'BasePage: uses auto-wait via expect(locator).toBeVisible()' }, order: 3 },
+      { id: '4', text: { tr: 'Görünürse: action() çalışır (signInButton.click())', en: 'If visible: action() runs (signInButton.click())' }, order: 4 },
+      { id: '5', text: { tr: 'Görünmezse: screenshot alınır ve okunabilir Error fırlatılır', en: 'If not: a screenshot is taken and a readable Error is thrown' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'playwright-framework-basepage',
+    id: 'playwright-arch-basepage-practice',
+    label: {
+      tr: 'Micro Lab: BasePage.expectVisibleThen\'i hata anında screenshot alacak şekilde tamamla',
+      en: 'Micro Lab: complete BasePage.expectVisibleThen so it screenshots on failure',
+    },
+    language: 'typescript',
+    task: {
+      tr: 'Aşağıdaki expectVisibleThen metodu catch bloğunda screenshot ALMIYOR — element görünmezse ham bir Playwright timeout hatası fırlıyor, hangi sayfada/elementte olduğu belli olmuyor. TODO satırını, page.screenshot(...) çağrısını tamamlayacak şekilde doldur.',
+      en: 'The expectVisibleThen method below does NOT take a screenshot in the catch block — if the element is not visible, a raw Playwright timeout error is thrown with no clue which page/element it was. Complete the TODO line to fill in the page.screenshot(...) call.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç BasePage\'in "hata anını okunabilir yap" sorumluluğunu elle yazarak, bu tek metodun neden 30 sayfayı aynı anda koruduğunu pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to reinforce, by writing it yourself, why centralizing "make the failure moment readable" in BasePage protects 30 pages at once.',
+    },
+    code: {
+      tr: `catch (err) {
+  await this.page.screenshot({ path: \`screenshots/\${label}-fail.png\` });
+  throw new Error(\`\${label}: element 5000ms icinde hazir olmadi\`);
+}`,
+      en: `catch (err) {
+  await this.page.screenshot({ path: \`screenshots/\${label}-fail.png\` });
+  throw new Error(\`\${label}: element was not ready within 5000ms\`);
+}`,
+    },
+    starterCode: {
+      tr: `catch (err) {
+  TODO   // page.screenshot ile o anki ekrani kaydet
+  throw new Error(\`\${label}: element 5000ms icinde hazir olmadi\`);
+}`,
+      en: `catch (err) {
+  TODO   // save the current screen with page.screenshot
+  throw new Error(\`\${label}: element was not ready within 5000ms\`);
+}`,
+    },
+    solutionCode: {
+      tr: `catch (err) {
+  await this.page.screenshot({ path: \`screenshots/\${label}-fail.png\` });
+  throw new Error(\`\${label}: element 5000ms icinde hazir olmadi\`);
+}`,
+      en: `catch (err) {
+  await this.page.screenshot({ path: \`screenshots/\${label}-fail.png\` });
+  throw new Error(\`\${label}: element was not ready within 5000ms\`);
+}`,
+    },
+    expected: {
+      tr: 'TODO satırı await this.page.screenshot({ path: `screenshots/${label}-fail.png` }) olmalı — label parametresi sayesinde her hata KENDİ dosya adıyla kaydedilir.',
+      en: 'The TODO line must be await this.page.screenshot({ path: `screenshots/${label}-fail.png` }) — thanks to the label parameter, every failure is saved under ITS OWN file name.',
+    },
+    hints: [
+      { tr: 'page.screenshot({ path: ... }) çağrısı, o anki tarayıcı ekranının bir PNG dosyasına kaydedilmesini sağlar — bunu try bloğu HATA verdikten hemen sonra, catch içinde çağırırsın.', en: 'The page.screenshot({ path: ... }) call saves the current browser screen to a PNG file — you call it inside catch, right after the try block FAILS.' },
+      { tr: 'label parametresi (örn. "LoginPage.signInButton") dosya adına gömülür — bu sayede 30 farklı hata 30 farklı, tanımlanabilir dosya üretir, hepsi aynı isme YAZILMAZ.', en: 'The label parameter (e.g. "LoginPage.signInButton") is embedded in the file name — so 30 different failures produce 30 different, identifiable files, none overWRITE each other.' },
+      { tr: 'screenshot alma işlemi de await gerektirir — Playwright\'ın çoğu API\'si Promise döner, atlanan bir await bazen sessizce yarım kalmış bir dosyaya yol açar.', en: 'Taking a screenshot also requires await — most of Playwright\'s API returns a Promise, and a skipped await can sometimes silently leave a half-written file.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'BasePage.expectVisibleThen içindeki try/catch, auto-wait ZATEN varken hangi ek değeri katar?',
+      en: 'Given that auto-wait ALREADY exists, what extra value does the try/catch inside BasePage.expectVisibleThen add?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Hiçbir şey — auto-wait tek başına yeterlidir', en: 'Nothing — auto-wait alone is sufficient' } },
+      { id: 'b', text: { tr: 'Hata anında screenshot alıp okunabilir bir mesajla fırlatarak teşhisi kolaylaştırır', en: 'It eases diagnosis by taking a screenshot and throwing a readable message on failure' } },
+      { id: 'c', text: { tr: 'Elementi daha hızlı bulur', en: 'It finds the element faster' } },
+      { id: 'd', text: { tr: 'Testleri paralel çalıştırır', en: 'It runs the tests in parallel' } },
+    ],
+    correct: 'b',
+    explanation: {
+      tr: 'Auto-wait "bekle ve elementi bul" işini zaten yapar; try/catch bu mekanizmanın ÜSTÜNE, hata anında neyin nerede yanlış gittiğini net biçimde kaydeden bir katman ekler — bu ikisi rakip değil, TAMAMLAYICIdır.',
+      en: 'Auto-wait already does the "wait and find the element" job; the try/catch adds a layer ON TOP of that mechanism, clearly recording what went wrong and where at the moment of failure — the two are not competitors, they are COMPLEMENTARY.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'LoginPage\'in BasePage\'i extends etmesi hangi tekrarı önler?',
+        en: 'What repetition does LoginPage extending BasePage prevent?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Her PageObject\'in kendi screenshot/hata-mesajı mantığını ayrı ayrı yazmasını', en: 'Every PageObject writing its own screenshot/error-message logic separately' } },
+        { id: 'b', text: { tr: 'Locator tanımlarının kopyalanmasını', en: 'Locator definitions being duplicated' } },
+        { id: 'c', text: { tr: 'Testlerin paralel koşmasını', en: 'Tests running in parallel' } },
+        { id: 'd', text: { tr: 'fixtures.ts\'in çalışmasını', en: 'fixtures.ts running' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'BasePage extends edilmeden her PageObject kendi try/catch + screenshot mantığını yazsaydı, 30 sayfa 30 farklı hata formatı üretirdi — extends ile bu mantık TEK yerde durur, her sayfa sadece kendi locator\'ını ekler.',
+        en: 'Without extending BasePage, if every PageObject wrote its own try/catch + screenshot logic, 30 pages would produce 30 different failure formats — with extends, that logic lives in ONE place, and every page just adds its own locators.',
+      },
+    },
+  },
+
+  // ── Adım 4 — SOLID Uygulaması (OCP odaklı): AuthStrategy ──
+  {
+    type: 'heading',
+    text: { tr: '⚖️ Adım 4 — SOLID Prensipleri Playwright Kodunda', en: '⚖️ Step 4 — SOLID Principles in Playwright Code' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🔌',
+    content: {
+      tr: 'SOLID beş prensip, modüler bir mutfak dolabı sistemidir: her modül tek bir işi yapar (SRP — çekmece sadece çatal-kaşık tutar), yeni bir modül eklemek için mevcut dolabı SÖKMEZSİN, yanına takarsın (OCP), aynı boy her modül aynı rayda durur (LSP), fırının düğmeleri sadece fırının işlevlerini gösterir buzdolabının ayarlarını değil (ISP), ve modüller duvara değil ortak bir raya monte edilir (DIP). İkinci benzetme: OCP bir USB-C hub\'a benzer — yeni bir cihaz (yeni bir giriş yöntemi) bağlamak için hub\'ın İÇİNİ AÇMAZSIN, standart bir porta yeni bir kablo takarsın. Peki testler zaten çalışıyorken, neden bu prensiplere uğraşıyoruz — proje SSO girişini de destekleyecekse loginPage fixture\'ına "if useSSO ise..." eklemek daha hızlı değil mi? Kısa vadede evet; ama fixture içine her yeni giriş yöntemi için if/else eklemek, o fixture\'ı her değişiklikte yeniden test etmeni ve mevcut form-login senaryolarını kırma riskini getirir. Java karşılaştırması: bu tam olarak bir `PaymentStrategy` arayüzüdür — `Checkout` sınıfının içini değiştirmeden yeni ödeme yöntemleri eklersin; burada da giriş yöntemlerini aynı şekilde takılabilir hale getirebilirsin. QA bağlamı: OCP\'ye uyan bir auth katmanında "bu proje için SSO girişini de destekleyelim" kararı, mevcut 40 form-login testinin hiçbirine dokunmadan tek bir yeni sınıfla çözülür — dokunmadığın kod, kıramadığın koddur.',
+      en: 'The five SOLID principles are a modular kitchen cabinet system: each module does one job (SRP — a drawer only holds cutlery), to add a new module you do not DISMANTLE the existing cabinet, you attach it alongside (OCP), every module of the same size fits the same rail (LSP), the oven\'s dials show only the oven\'s functions, not the fridge\'s settings (ISP), and modules mount onto a shared rail, not the wall itself (DIP). Second analogy: OCP is like a USB-C hub — to plug in a new device (a new login method) you do not OPEN UP the hub, you plug a new cable into a standard port. But if the tests already work, why bother with these principles — if the project needs to support SSO login too, isn\'t adding "if useSSO..." to the loginPage fixture faster? Short-term yes; but adding if/else inside the fixture for every new login method forces you to retest that fixture on every change and risks breaking the existing form-login scenarios. Java comparison: this is exactly a `PaymentStrategy` interface — you add new payment methods without changing the inside of the `Checkout` class; here you can make login methods just as pluggable. QA context: in an auth layer that respects OCP, the decision to "let\'s also support SSO login for this project" is solved with a single new class, without touching any of the existing 40 form-login tests — the code you do not touch is the code you cannot break.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Beş prensibin Playwright karşılığı: SRP — fixtures.ts sadece kurulum, BasePage sadece hata/doğrulama (Adım 2-3). OCP — yeni bir giriş stratejisi eklemek için mevcut kodu değiştirmeden yeni sınıf ekle (aşağıda). LSP — her AuthStrategy uygulaması, AuthStrategy beklenen her yerde sorunsuz kullanılabilir olmalı. ISP — loginPage fixture\'ına kullanmayacağı metotları içeren şişkin bir arayüz dayatma. DIP — loginPage fixture, somut FormAuthStrategy\'ye değil bir soyutlamaya (arayüz) bağlı olmalı. Aşağıda OCP\'yi somut bir "Anti-Pattern vs SOLID" çiftiyle inceliyoruz.',
+      en: 'The Playwright mapping of the five principles: SRP — fixtures.ts only builds, BasePage only handles errors/verification (Steps 2-3). OCP — add a new login strategy by adding a new class without modifying existing code (below). LSP — every AuthStrategy implementation must be usable wherever an AuthStrategy is expected. ISP — do not impose a bloated interface with methods the loginPage fixture will not use. DIP — the loginPage fixture should depend on an abstraction (interface), not on the concrete FormAuthStrategy. Below we examine OCP through a concrete "Anti-Pattern vs SOLID" pair.',
+    },
+  },
+  {
+    type: 'comparison',
+    left: {
+      label: { tr: '❌ OCP İhlali (if/else şişmesi)', en: '❌ OCP Violation (if/else bloat)' },
+      code: {
+        tr: `// Her yeni giris yontemi bu fixture'i DEGISTIRIR
+loginPage: async ({ page }, use, testInfo) => {
+  if (testInfo.project.name === 'sso') {
+    await page.goto('/sso-login');
+    // ... SSO'ya ozgu adimlar burada birikir
+  } else {
+    await page.goto('/login');
+    // ... form-login adimlari
+  }
+  await use(new LoginPage(page));
+},`,
+        en: `// Every new login method MODIFIES this fixture
+loginPage: async ({ page }, use, testInfo) => {
+  if (testInfo.project.name === 'sso') {
+    await page.goto('/sso-login');
+    // ... SSO-specific steps pile up here
+  } else {
+    await page.goto('/login');
+    // ... form-login steps
+  }
+  await use(new LoginPage(page));
+},`,
+      },
+      note: { tr: 'Yeni davranış = mevcut fixture\'ı değiştir = regresyon riski.', en: 'New behavior = modify the existing fixture = regression risk.' },
+    },
+    right: {
+      label: { tr: '✅ OCP Uygun (Strategy)', en: '✅ OCP-Compliant (Strategy)' },
+      code: {
+        tr: `// Yeni yontem = mevcut kodu DEGISTIRMEDEN yeni sinif ekle
+export interface AuthStrategy {
+  login(page: Page): Promise<void>;
+}
+
+export class SsoAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/sso-login');
+    // ... SSO'ya ozgu adimlar KENDI dosyasinda
+  }
+}`,
+        en: `// New method = add a new class WITHOUT modifying existing code
+export interface AuthStrategy {
+  login(page: Page): Promise<void>;
+}
+
+export class SsoAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/sso-login');
+    // ... SSO-specific steps live in their OWN file
+  }
+}`,
+      },
+      note: { tr: 'Yeni strateji = yeni dosya; eski kod hiç açılmaz.', en: 'New strategy = new file; existing code is never opened.' },
+    },
+  },
+  {
+    type: 'code',
+    language: 'typescript',
+    code: {
+      tr: `// ─── auth/AuthStrategy.ts — OCP: davranisi arayuz uzerinden takilabilir yap ───
+import { Page } from '@playwright/test';
+
+export interface AuthStrategy {
+  login(page: Page): Promise<void>;
+}
+
+// Strateji 1 — normal form girisi
+export class FormAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/login');
+    await page.getByLabel('E-posta').fill('qa_user@example.com');
+    await page.getByLabel('Sifre').fill('S3cret!');
+    await page.getByRole('button', { name: 'Giris Yap' }).click();
+  }
+}
+
+// Strateji 2 — SSO girisi (mevcut FormAuthStrategy'ye HIC dokunulmadi)
+export class SsoAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/sso-login');
+    await page.getByRole('button', { name: 'Google ile devam et' }).click();
+    // ... SSO akisina ozgu adimlar
+  }
+}`,
+      en: `// ─── auth/AuthStrategy.ts — OCP: make behavior pluggable via an interface ───
+import { Page } from '@playwright/test';
+
+export interface AuthStrategy {
+  login(page: Page): Promise<void>;
+}
+
+// Strategy 1 — normal form login
+export class FormAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/login');
+    await page.getByLabel('Email').fill('qa_user@example.com');
+    await page.getByLabel('Password').fill('S3cret!');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+  }
+}
+
+// Strategy 2 — SSO login (existing FormAuthStrategy was NEVER touched)
+export class SsoAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/sso-login');
+    await page.getByRole('button', { name: 'Continue with Google' }).click();
+    // ... steps specific to the SSO flow
+  }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'playwright-arch-ocp-strategy-steps',
+    title: { tr: 'Adım Adım: OCP ile Yeni Bir Giriş Yöntemi Nasıl Eklenir?', en: 'Step by Step: How a New Login Method Is Added with OCP' },
+    steps: [
+      { id: 1, icon: '📐', label: { tr: 'Arayüz sözleşmeyi sabitler', en: 'The interface fixes the contract' }, detail: { tr: 'AuthStrategy arayüzü tek bir metot tanımlar: login(page). Bu sözleşme bir kez yazılır ve bir daha değişmez.', en: 'The AuthStrategy interface defines one method: login(page). This contract is written once and never changes again.' } },
+      { id: 2, icon: '🧱', label: { tr: 'Her yöntem ayrı sınıf', en: 'Each method is its own class' }, detail: { tr: 'FormAuthStrategy ve SsoAuthStrategy arayüzü ayrı ayrı uygular — biri diğerinin kodunu bilmez, birbirini kırmaz.', en: 'FormAuthStrategy and SsoAuthStrategy each implement the interface separately — neither knows the other\'s code, neither can break the other.' } },
+      { id: 3, icon: '➕', label: { tr: 'Yeni ihtiyaç = yeni sınıf', en: 'New need = new class' }, detail: { tr: '"Magic link ile giriş" ihtiyacı gelirse MagicLinkAuthStrategy adında YENİ bir dosya açarsın; mevcut iki sınıfa DOKUNMAZSIN.', en: 'If a "magic link login" need arises, you open a NEW file named MagicLinkAuthStrategy; you do NOT touch the existing two classes.' } },
+      { id: 4, icon: '🔌', label: { tr: 'Fixture stratejiyi enjekte alır', en: 'The fixture receives the strategy injected' }, detail: { tr: 'loginPage fixture\'ı hangi somut stratejiyi kullandığını bilmez, sadece AuthStrategy arayüzüne bağlıdır — istediğin stratejiyi dışarıdan verirsin (DIP ile birlikte çalışır).', en: 'The loginPage fixture does not know which concrete strategy it uses, it depends only on the AuthStrategy interface — you supply the desired strategy from outside (works together with DIP).' } },
+      { id: 5, icon: '🛡️', label: { tr: 'Eski testler dokunulmadan geçer', en: 'Old tests pass untouched' }, detail: { tr: 'Yeni strateji eklenince mevcut 40 form-login testinin hiçbiri değişmediği için hiçbiri kırılamaz — OCP\'nin regresyon güvencesi tam olarak budur.', en: 'When the new strategy is added, none of the existing 40 form-login tests changed, so none can break — this is exactly OCP\'s regression guarantee.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-playwright-arch-ocp-order',
+    question: {
+      tr: '"SSO girişini de destekleyelim" ihtiyacını OCP\'ye uygun şekilde çözme adımlarını sıraya diz.',
+      en: 'Arrange the OCP-compliant steps for the need "let\'s also support SSO login".',
+    },
+    items: [
+      { id: '1', text: { tr: 'Mevcut AuthStrategy arayüzünü (sözleşmeyi) incele — değiştirme', en: 'Inspect the existing AuthStrategy interface (the contract) — do not change it' }, order: 1 },
+      { id: '2', text: { tr: 'Yeni bir SsoAuthStrategy dosyası oluştur, arayüzü implement et', en: 'Create a new SsoAuthStrategy file, implement the interface' }, order: 2 },
+      { id: '3', text: { tr: 'login() metodunu SSO akışına özgü adımlarla doldur', en: 'Fill the login() method with SSO-specific steps' }, order: 3 },
+      { id: '4', text: { tr: 'İlgili fixture\'a bu stratejiyi dışarıdan enjekte et', en: 'Inject this strategy into the relevant fixture from outside' }, order: 4 },
+      { id: '5', text: { tr: 'Mevcut testleri çalıştır — hiçbiri değişmediği için hepsi geçer', en: 'Run the existing tests — since none changed, they all pass' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'playwright-framework-ocp',
+    id: 'playwright-arch-ocp-authstrategy-practice',
+    label: {
+      tr: 'Micro Lab: OCP\'ye uygun yeni bir AuthStrategy ekle',
+      en: 'Micro Lab: add a new OCP-compliant AuthStrategy',
+    },
+    language: 'typescript',
+    task: {
+      tr: 'Proje artık "magic link" ile giriş de destekliyor. OCP kuralı gereği MEVCUT AuthStrategy arayüzünü veya FormAuthStrategy sınıfını DEĞİŞTİRMEDEN, yeni bir MagicLinkAuthStrategy sınıfı yaz. TODO satırlarını tamamla: sınıf AuthStrategy\'yi implement etmeli ve login() içinde /magic-login sayfasına gitmeli.',
+      en: 'The project now also supports "magic link" login. Per OCP, WITHOUT modifying the existing AuthStrategy interface or the FormAuthStrategy class, write a new MagicLinkAuthStrategy class. Complete the TODO lines: the class must implement AuthStrategy and, inside login(), navigate to the /magic-login page.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç OCP\'nin "genişlet ama değiştirme" ilkesini elle uygulayarak, yeni davranışı mevcut sınıflara dokunmadan eklemenin regresyonu nasıl önlediğini pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to apply OCP\'s "extend but do not modify" principle by hand, reinforcing how adding new behavior without touching existing classes prevents regression.',
+    },
+    code: {
+      tr: `export class MagicLinkAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/magic-login');
+  }
+}`,
+      en: `export class MagicLinkAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/magic-login');
+  }
+}`,
+    },
+    starterCode: {
+      tr: `export class MagicLinkAuthStrategy TODO {
+  async login(page: Page) {
+    TODO   // /magic-login sayfasina git
+  }
+}`,
+      en: `export class MagicLinkAuthStrategy TODO {
+  async login(page: Page) {
+    TODO   // navigate to the /magic-login page
+  }
+}`,
+    },
+    solutionCode: {
+      tr: `export class MagicLinkAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/magic-login');
+  }
+}`,
+      en: `export class MagicLinkAuthStrategy implements AuthStrategy {
+  async login(page: Page) {
+    await page.goto('/magic-login');
+  }
+}`,
+    },
+    expected: {
+      tr: 'İlk TODO "implements AuthStrategy" olmalı; ikinci TODO await page.goto(\'/magic-login\') olmalı — mevcut arayüz ve FormAuthStrategy\'ye hiç dokunmadan yeni davranış eklenir.',
+      en: 'The first TODO must be "implements AuthStrategy"; the second TODO must be await page.goto(\'/magic-login\') — new behavior is added without touching the existing interface or FormAuthStrategy.',
+    },
+    hints: [
+      { tr: 'OCP\'nin özü: yeni sınıf, mevcut arayüzü (AuthStrategy) implement eder; böylece loginPage fixture\'ı değişmeden yeni davranışı kullanabilir. Arayüzü veya eski sınıfı ASLA açma.', en: 'The essence of OCP: the new class implements the existing interface (AuthStrategy); this lets the loginPage fixture use the new behavior unchanged. NEVER open the interface or the old class.' },
+      { tr: 'implements anahtar kelimesi bir sınıfın bir arayüzün sözleşmesine UYACAĞINI bildirir — login(page) metodunu tanımlamak ZORUNDADIR, aksi halde derleyici hata verir.', en: 'The implements keyword declares that a class will HONOR an interface\'s contract — it is REQUIRED to define the login(page) method, otherwise the compiler errors.' },
+      { tr: 'page.goto() bir Promise döner, bu yüzden await gerekir — atlanan bir await, navigasyon tamamlanmadan sonraki satırın çalışmasına yol açabilir.', en: 'page.goto() returns a Promise, so it requires await — a skipped await can let the next line run before navigation completes.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Bir Playwright fixture\'ında her yeni giriş yöntemi için var olan loginPage fonksiyonuna if/else eklemek hangi SOLID prensibini ihlal eder?',
+      en: 'In a Playwright fixture, adding an if/else to the existing loginPage function for every new login method violates which SOLID principle?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Open/Closed Principle (OCP) — sınıf/fonksiyon genişlemeye açık, değişikliğe kapalı olmalı', en: 'Open/Closed Principle (OCP) — a class/function should be open to extension, closed to modification' } },
+      { id: 'b', text: { tr: 'Sadece Single Responsibility (SRP)', en: 'Only Single Responsibility (SRP)' } },
+      { id: 'c', text: { tr: 'Hiçbirini — if/else her zaman iyi pratiktir', en: 'None — if/else is always good practice' } },
+      { id: 'd', text: { tr: 'Liskov Substitution (LSP)', en: 'Liskov Substitution (LSP)' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'Her yeni yöntem için mevcut fixture\'ı değiştirmek (yeni else-if) OCP ihlalidir: fonksiyon "değişikliğe kapalı" olmalıydı. Strategy pattern ile davranışı arayüz arkasına alırsan, yeni yöntem eklemek mevcut kodu değiştirmeyi değil, yeni bir sınıf eklemeyi gerektirir — eski testler dokunulmadan güvende kalır.',
+      en: 'Modifying the existing fixture (a new else-if) for every new method violates OCP: the function should have been "closed to modification". With the Strategy pattern behind an interface, adding a new method requires adding a new class, not changing existing code — old tests stay safe, untouched.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'loginPage fixture\'ının somut FormAuthStrategy yerine bir AuthStrategy arayüzüne bağlı olması hangi prensibi uygular?',
+        en: 'The loginPage fixture depending on an AuthStrategy interface instead of the concrete FormAuthStrategy applies which principle?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Dependency Inversion (DIP) — yüksek seviye modül soyutlamaya bağlı olmalı', en: 'Dependency Inversion (DIP) — high-level modules should depend on abstractions' } },
+        { id: 'b', text: { tr: 'Interface Segregation (ISP)', en: 'Interface Segregation (ISP)' } },
+        { id: 'c', text: { tr: 'Hiçbiri', en: 'None' } },
+        { id: 'd', text: { tr: 'Sadece OCP', en: 'Only OCP' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'DIP, yüksek seviye kodun (fixture) düşük seviye somut sınıfa değil, bir soyutlamaya (arayüz) bağlı olmasını söyler. Fixture bir AuthStrategy arayüzüne bağlıysa, farklı implementasyonlar (form, SSO, magic link) sorunsuz değiştirilebilir — bu, testlerin daha esnek ve izole olmasını sağlar.',
+        en: 'DIP says high-level code (the fixture) should depend on an abstraction (interface), not a low-level concrete class. If the fixture depends on an AuthStrategy interface, different implementations (form, SSO, magic link) can be swapped freely — making tests more flexible and isolated.',
+      },
+    },
+  },
+
+  // ── Adım 5 — Test / Data Katmanı: storageState & data-driven testler ──
+  {
+    type: 'heading',
+    text: { tr: '🔗 Adım 5 — Test / Data Katmanı: storageState & Data-Driven Testler', en: '🔗 Step 5 — Test / Data Layer: storageState & Data-Driven Tests' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '💳',
+    content: {
+      tr: 'storageState, bir konferans katılımcı kartıdır: girişte KİMLİĞİNİ bir kere gösterirsin, sana bir kart (cookie + localStorage anlık görüntüsü) verirler; sonraki her odaya (her teste) o kartı göstererek girersin, kapıda tekrar kimlik kontrolüne takılmazsın. İkinci benzetme: data-driven for-loop bir şablon mektubun mail-merge\'üdür — TEK bir mektup şablonu (tek test fonksiyonu) yazarsın, alıcı listesi (veri satırları) o şablonu N kez, farklı isimlerle doldurur. Peki TestNG\'deki @DataProvider gibi bir annotation Playwright\'ta yokken data-driven test nasıl yazılır — özel bir API mi gerekiyor? Hayır, çünkü JavaScript/TypeScript\'in KENDİSİ zaten iterasyon sağlıyor: `for (const c of cases) { test(...) }` düz bir döngüdür, ek bir annotation\'a ihtiyaç duymaz. Java karşılaştırması: bu, JUnit 5\'in `@ParameterizedTest` + `@MethodSource` yapısıyla AYNI "test mantığını veriden AYIR" ilkesidir — sadece Playwright bunu dilin kendi döngü sözdizimiyle çözer. QA bağlamı: her testte yeniden login olmak, 50 testlik bir suite\'i saniyeler yerine dakikalar sürdürür; storageState ile "login ol" işlemi SADECE bir kez (genelde `globalSetup`\'ta) çalışır, 50 test o hazır oturumu paylaşır — CI süresi dramatik şekilde kısalır.',
+      en: 'storageState is a conference attendee badge: you show your IDENTITY once at check-in, they hand you a badge (a cookie + localStorage snapshot); you enter every subsequent room (every test) by showing that badge, without being stopped for identity checks at every door. Second analogy: a data-driven for-loop is a template letter\'s mail-merge — you write ONE letter template (one test function), and a recipient list (data rows) fills that template N times with different names. But without an annotation like TestNG\'s @DataProvider in Playwright, how do you write a data-driven test — do you need a special API? No, because JavaScript/TypeScript ITSELF already provides iteration: `for (const c of cases) { test(...) }` is a plain loop, requiring no extra annotation. Java comparison: this is the SAME "separate test logic from data" principle as JUnit 5\'s `@ParameterizedTest` + `@MethodSource` — Playwright just solves it with the language\'s own loop syntax. QA context: logging in again for every test turns a 50-test suite into minutes instead of seconds; with storageState, "log in" runs ONLY ONCE (usually in `globalSetup`), and 50 tests share that ready-made session — CI time drops dramatically.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Bu son katmanda tüm parçalar birleşir: global-setup.ts, testler başlamadan ÖNCE bir kez AuthStrategy (Adım 4) ile login olur ve storageState\'i dosyaya kaydeder; playwright.config.ts bu dosyayı her testin başlangıç durumu olarak tanır; test dosyaları LoginPage (Adım 3, POM) yerine artık zaten-giriş-yapılmış bir sayfayla başlar ve for-loop ile aynı senaryoyu farklı verilerle koşturur.',
+      en: 'In this final layer, all pieces come together: global-setup.ts logs in ONCE via AuthStrategy (Step 4) before any test starts and saves storageState to a file; playwright.config.ts recognizes this file as every test\'s starting state; test files start with an already-logged-in page instead of using LoginPage (Step 3, POM) each time, and a for-loop runs the same scenario with different data.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'typescript',
+    code: {
+      tr: `// ─── global-setup.ts — login SADECE BIR KEZ, testler baslamadan once ───
+import { chromium, FullConfig } from '@playwright/test';
+import { FormAuthStrategy } from './auth/AuthStrategy';
+
+export default async function globalSetup(config: FullConfig) {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await new FormAuthStrategy().login(page);   // Adim 4'teki strateji
+  await page.context().storageState({ path: 'storageState.json' });
+  await browser.close();
+}
+
+// ─── playwright.config.ts — kaydedilen oturumu HER testin baslangici yap ───
+export default {
+  globalSetup: require.resolve('./global-setup'),
+  use: { storageState: 'storageState.json' },
+};
+
+// ─── tests/checkout.data.spec.ts — data-driven: mantik TEK, veri COK ───
+import { test, expect } from '@playwright/test';
+
+const cases = [
+  { coupon: 'INDIRIM10', expectedTotal: '₺90.00' },
+  { coupon: 'GECERSIZ',  expectedTotal: '₺100.00' },
+  { coupon: '',           expectedTotal: '₺100.00' },
+];
+
+for (const c of cases) {
+  test(\`kupon "\${c.coupon}" toplami \${c.expectedTotal} yapmali\`, async ({ page }) => {
+    await page.goto('/checkout');       // storageState sayesinde ZATEN giris yapilmis
+    await page.getByLabel('Kupon Kodu').fill(c.coupon);
+    await page.getByRole('button', { name: 'Uygula' }).click();
+    await expect(page.getByTestId('cart-total')).toHaveText(c.expectedTotal);
+  });
+}`,
+      en: `// ─── global-setup.ts — login ONLY ONCE, before any test starts ───
+import { chromium, FullConfig } from '@playwright/test';
+import { FormAuthStrategy } from './auth/AuthStrategy';
+
+export default async function globalSetup(config: FullConfig) {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await new FormAuthStrategy().login(page);   // the Step 4 strategy
+  await page.context().storageState({ path: 'storageState.json' });
+  await browser.close();
+}
+
+// ─── playwright.config.ts — make the saved session EVERY test's starting state ───
+export default {
+  globalSetup: require.resolve('./global-setup'),
+  use: { storageState: 'storageState.json' },
+};
+
+// ─── tests/checkout.data.spec.ts — data-driven: logic ONE, data MANY ───
+import { test, expect } from '@playwright/test';
+
+const cases = [
+  { coupon: 'SAVE10',   expectedTotal: '$90.00' },
+  { coupon: 'INVALID',  expectedTotal: '$100.00' },
+  { coupon: '',          expectedTotal: '$100.00' },
+];
+
+for (const c of cases) {
+  test(\`coupon "\${c.coupon}" total should be \${c.expectedTotal}\`, async ({ page }) => {
+    await page.goto('/checkout');       // ALREADY logged in, thanks to storageState
+    await page.getByLabel('Coupon Code').fill(c.coupon);
+    await page.getByRole('button', { name: 'Apply' }).click();
+    await expect(page.getByTestId('cart-total')).toHaveText(c.expectedTotal);
+  });
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'playwright-arch-datadriven-steps',
+    title: { tr: 'Adım Adım: for-loop Aynı Testi Nasıl 3 Kez Koşturur?', en: 'Step by Step: How the for-loop Runs the Same Test 3 Times' },
+    steps: [
+      { id: 1, icon: '📋', label: { tr: 'cases dizisi veri matrisini tutar', en: 'The cases array holds the data matrix' }, detail: { tr: 'cases sabiti 3 nesne içerir: her biri bir kupon kodu + beklenen toplam. Bu, dosya import edildiğinde HAZIRDIR, Playwright test toplarken zaten bilinir.', en: 'The cases constant holds 3 objects: each a coupon code + expected total. This is READY when the file is imported, already known while Playwright collects tests.' } },
+      { id: 2, icon: '🔁', label: { tr: 'for-loop her satır için test() çağırır', en: 'The for-loop calls test() for each row' }, detail: { tr: 'Döngü, cases dizisindeki HER nesne için AYRI bir test(...) çağrısı yapar — bu, dosya TOPLANIRKEN (test çalışmadan önce) olur, 3 ayrı test kaydı oluşturur.', en: 'The loop makes a SEPARATE test(...) call for EVERY object in cases — this happens while the file is being COLLECTED (before any test runs), creating 3 separate test entries.' } },
+      { id: 3, icon: '🎯', label: { tr: 'Her test kendi c değerini closure\'da tutar', en: 'Each test holds its own c value in a closure' }, detail: { tr: 'JavaScript\'in closure\'ı sayesinde her test(...) çağrısı KENDİ c nesnesini "hatırlar" — 3 test birbirinin verisini karıştırmaz.', en: 'Thanks to JavaScript\'s closures, each test(...) call "remembers" ITS OWN c object — the 3 tests never mix up each other\'s data.' } },
+      { id: 4, icon: '🔓', label: { tr: 'storageState sayesinde login atlanır', en: 'Login is skipped thanks to storageState' }, detail: { tr: 'Her 3 test de page.goto(\'/checkout\') ile başlar ve ZATEN giriş yapılmış olarak açılır — login akışı (Adım 3-4) 3 kez değil, global-setup\'ta 1 kez çalıştı.', en: 'All 3 tests start with page.goto(\'/checkout\') and open ALREADY logged in — the login flow (Steps 3-4) ran once in global-setup, not 3 times.' } },
+      { id: 5, icon: '📊', label: { tr: 'Rapor: 3 ayrı sonuç, mantık TEK', en: 'Report: 3 separate results, logic is ONE' }, detail: { tr: 'Test raporunda "kupon INDIRIM10...", "kupon GECERSIZ..." gibi 3 AYRI satır görünür — biri fail olursa hangi VERİ satırının patladığını net görürsün, kopyalanmış 3 testte bu netlik olmazdı.', en: 'In the report, 3 SEPARATE rows appear like "coupon SAVE10...", "coupon INVALID..." — if one fails, you clearly see which DATA row broke; with 3 copied tests you would not have that clarity.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-playwright-arch-datadriven-order',
+    question: {
+      tr: 'storageState + for-loop ile data-driven bir checkout testi kurmanın adımlarını doğru sıraya diz.',
+      en: 'Arrange the steps of building a data-driven checkout test with storageState + a for-loop in the correct order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'global-setup.ts: AuthStrategy ile BİR KEZ login ol, storageState.json\'a kaydet', en: 'global-setup.ts: log in ONCE via AuthStrategy, save to storageState.json' }, order: 1 },
+      { id: '2', text: { tr: 'playwright.config.ts: use.storageState ile dosyayı her testin başlangıcı yap', en: 'playwright.config.ts: make the file every test\'s starting state via use.storageState' }, order: 2 },
+      { id: '3', text: { tr: 'cases dizisinde veri satırlarını (kupon + beklenen sonuç) tanımla', en: 'Define the data rows (coupon + expected result) in the cases array' }, order: 3 },
+      { id: '4', text: { tr: 'for (const c of cases) döngüsüyle her satır için test() çağır', en: 'Call test() for each row with a for (const c of cases) loop' }, order: 4 },
+      { id: '5', text: { tr: 'Test gövdesinde /checkout\'a git — login GEREKMEZ, ZATEN giriş yapılmış', en: 'In the test body, navigate to /checkout — login is NOT needed, ALREADY logged in' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'playwright-framework-datadriven',
+    id: 'playwright-arch-datadriven-practice',
+    label: {
+      tr: 'Micro Lab: cases dizisini data-driven testlere bağla',
+      en: 'Micro Lab: bind the cases array to data-driven tests',
+    },
+    language: 'typescript',
+    task: {
+      tr: 'cases dizisi 3 satırlık veri matrisini hazır tutuyor ama TODO satırı eksik olduğu için hiçbir test() çağrısı ÜRETİLMİYOR — dosya çalıştığında sıfır test toplanır. TODO satırını, cases dizisindeki HER satır için bir test() çağıran bir for-loop ile tamamla.',
+      en: 'The cases array already holds a 3-row data matrix, but because the TODO line is missing, no test() calls are PRODUCED — zero tests get collected when the file runs. Complete the TODO line with a for-loop that calls test() for EVERY row in cases.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç Playwright\'ta @DataProvider\'a eşdeğer bir mekanizmanın, dilin KENDİ döngü sözdiziminden başka bir şey olmadığını elle yazarak pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to reinforce, by writing it yourself, that Playwright\'s equivalent of @DataProvider is nothing more than the language\'s OWN loop syntax.',
+    },
+    code: {
+      tr: `for (const c of cases) {
+  test(\`kupon "\${c.coupon}" toplami \${c.expectedTotal} yapmali\`, async ({ page }) => {
+    await page.goto('/checkout');
+    await page.getByLabel('Kupon Kodu').fill(c.coupon);
+    await expect(page.getByTestId('cart-total')).toHaveText(c.expectedTotal);
+  });
+}`,
+      en: `for (const c of cases) {
+  test(\`coupon "\${c.coupon}" total should be \${c.expectedTotal}\`, async ({ page }) => {
+    await page.goto('/checkout');
+    await page.getByLabel('Coupon Code').fill(c.coupon);
+    await expect(page.getByTestId('cart-total')).toHaveText(c.expectedTotal);
+  });
+}`,
+    },
+    starterCode: {
+      tr: `TODO {
+  test(\`kupon "\${c.coupon}" toplami \${c.expectedTotal} yapmali\`, async ({ page }) => {
+    await page.goto('/checkout');
+    await page.getByLabel('Kupon Kodu').fill(c.coupon);
+    await expect(page.getByTestId('cart-total')).toHaveText(c.expectedTotal);
+  });
+}`,
+      en: `TODO {
+  test(\`coupon "\${c.coupon}" total should be \${c.expectedTotal}\`, async ({ page }) => {
+    await page.goto('/checkout');
+    await page.getByLabel('Coupon Code').fill(c.coupon);
+    await expect(page.getByTestId('cart-total')).toHaveText(c.expectedTotal);
+  });
+}`,
+    },
+    solutionCode: {
+      tr: `for (const c of cases) {
+  test(\`kupon "\${c.coupon}" toplami \${c.expectedTotal} yapmali\`, async ({ page }) => {
+    await page.goto('/checkout');
+    await page.getByLabel('Kupon Kodu').fill(c.coupon);
+    await expect(page.getByTestId('cart-total')).toHaveText(c.expectedTotal);
+  });
+}`,
+      en: `for (const c of cases) {
+  test(\`coupon "\${c.coupon}" total should be \${c.expectedTotal}\`, async ({ page }) => {
+    await page.goto('/checkout');
+    await page.getByLabel('Coupon Code').fill(c.coupon);
+    await expect(page.getByTestId('cart-total')).toHaveText(c.expectedTotal);
+  });
+}`,
+    },
+    expected: {
+      tr: 'TODO satırı for (const c of cases) olmalı — bu döngü, cases dizisindeki HER nesne için ayrı bir test(...) çağrısı üretir, mantık TEK kalır, sadece veri değişir.',
+      en: 'The TODO line must be for (const c of cases) — this loop produces a separate test(...) call for EVERY object in cases, the logic stays ONE, only the data changes.',
+    },
+    hints: [
+      { tr: 'test() çağrıları dosya TOPLANIRKEN (test çalışmadan ÖNCE) kaydedilir — bu yüzden test()\'i bir for-loop içine koymak, TestNG\'nin @DataProvider\'ının yaptığı işi görür.', en: 'test() calls are registered while the file is being COLLECTED (BEFORE any test runs) — this is why putting test() inside a for-loop does the same job as TestNG\'s @DataProvider.' },
+      { tr: 'Döngü değişkeni (c) her test() çağrısının callback\'i içinde KULLANILABİLİR olmalı — JavaScript\'in closure\'ı bunu senin için otomatik sağlar, elle bir şey yapmana gerek yok.', en: 'The loop variable (c) must be USABLE inside each test() call\'s callback — JavaScript\'s closures provide this for you automatically, you do not need to do anything by hand.' },
+      { tr: 'for...of, bir dizinin (cases) HER elemanı üzerinde sırayla gezinir — for (const c of cases) ifadesi "cases\'teki her c için" anlamına gelir.', en: 'for...of iterates over EVERY element of an array (cases) in order — the expression for (const c of cases) means "for every c in cases".' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'storageState.json dosyası, checkout testlerinin HER birinde login akışını neden atlamayı sağlar?',
+      en: 'Why does the storageState.json file allow EVERY checkout test to skip the login flow?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'global-setup\'ta bir kez kaydedilen oturum (cookie+localStorage) her testin başlangıç durumu olarak yüklenir', en: 'The session (cookies+localStorage) saved once in global-setup is loaded as every test\'s starting state' } },
+      { id: 'b', text: { tr: 'Playwright login ekranlarını otomatik tanır ve atlar', en: 'Playwright automatically recognizes and skips login screens' } },
+      { id: 'c', text: { tr: 'Her test kendi içinde login\'i paralel olarak çalıştırır', en: 'Each test runs login internally in parallel' } },
+      { id: 'd', text: { tr: 'storageState sadece CI ortamında devreye girer', en: 'storageState only kicks in inside a CI environment' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'playwright.config.ts\'teki use.storageState ayarı, global-setup\'ta bir kez kaydedilen cookie/localStorage anlık görüntüsünü her yeni browser context\'in başlangıç durumu yapar — testler bu yüzden sanki zaten giriş yapılmış gibi başlar, ayrıca login akışı çalıştırmaz.',
+      en: 'The use.storageState setting in playwright.config.ts makes the cookie/localStorage snapshot saved once in global-setup the starting state of every new browser context — tests therefore start as if already logged in, without running the login flow again.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Aynı checkout senaryosu için 3 ayrı test() fonksiyonu kopyalamak yerine for-loop kullanmanın en büyük avantajı nedir?',
+        en: 'What is the biggest advantage of using a for-loop instead of copying 3 separate test() functions for the same checkout scenario?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Senaryo mantığı değiştiğinde TEK yer güncellenir, veri satırları ayrı kalır', en: 'When the scenario logic changes, only ONE place is updated, the data rows stay separate' } },
+        { id: 'b', text: { tr: 'Testler daha hızlı çalışır', en: 'The tests run faster' } },
+        { id: 'c', text: { tr: 'storageState\'e gerek kalmaz', en: 'storageState is no longer needed' } },
+        { id: 'd', text: { tr: 'Playwright bunu zorunlu kılar', en: 'Playwright requires this' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: '3 kopyalanmış test() fonksiyonunda checkout akışı değişirse (örn. yeni bir adım eklenirse) 3 yeri elle güncellersin ve biri unutulabilir. for-loop ile mantık TEK fonksiyonda durur, cases dizisine yeni bir satır eklemek yeni bir senaryoyu kod yazmadan kapsar.',
+        en: 'With 3 copied test() functions, if the checkout flow changes (e.g. a new step is added) you update 3 places by hand and one can be missed. With a for-loop, the logic lives in ONE function, and adding a new row to the cases array covers a new scenario without writing code.',
+      },
+    },
+  },
+]
+
+const sFwArch = {
+  tr: { title: '🏗️ Framework Mimarisi (SOLID + POM)', blocks: playwrightArchBlocks },
+  en: { title: '🏗️ Framework Architecture (SOLID + POM)', blocks: playwrightArchBlocks },
+}
+
 export const playwrightData = {
   tr: {
     hero: {
@@ -7584,6 +8816,7 @@ export const playwrightData = {
       '✅ Assertions',
       '🗂️ Test Organizasyonu',
       '📦 Page Object Model',
+      '🏗️ Framework Mimarisi',
       '🖼️ iframe · Alert · Popup',
       '📁 Dosya · Network · API',
       '🐞 Debugging & Trace',
@@ -7595,7 +8828,7 @@ export const playwrightData = {
       '🚨 Yaygın Hatalar',
       '💼 50 Mülakat Sorusu',
     ],
-    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s10.tr, s11.tr, s12.tr, s5.tr, s6.tr, s13.tr, s16.tr, s17.tr, s14.tr, s15.tr, s7.tr, s8.tr, s9.tr],
+    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s10.tr, s11.tr, s12.tr, sFwArch.tr, s5.tr, s6.tr, s13.tr, s16.tr, s17.tr, s14.tr, s15.tr, s7.tr, s8.tr, s9.tr],
   },
   en: {
     hero: {
@@ -7612,6 +8845,7 @@ export const playwrightData = {
       '✅ Assertions',
       '🗂️ Test Organization',
       '📦 Page Object Model',
+      '🏗️ Framework Architecture',
       '🖼️ iframe · Alert · Popup',
       '📁 File · Network · API',
       '🐞 Debugging & Trace',
@@ -7623,7 +8857,7 @@ export const playwrightData = {
       '🚨 Common Errors',
       '💼 50 Interview Questions',
     ],
-    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s10.en, s11.en, s12.en, s5.en, s6.en, s13.en, s16.en, s17.en, s14.en, s15.en, s7.en, s8.en, s9.en],
+    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s10.en, s11.en, s12.en, sFwArch.en, s5.en, s6.en, s13.en, s16.en, s17.en, s14.en, s15.en, s7.en, s8.en, s9.en],
   },
 }
 

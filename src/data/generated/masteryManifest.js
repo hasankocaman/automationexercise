@@ -11,9 +11,9 @@ export const MASTERY_MANIFEST = {
   },
   "/playwright": {
     "pageKey": "playwrightmoderntaraycotomasyonu",
-    "tabCount": 18,
-    "totalQuizBlocks": 17,
-    "totalExerciseBlocks": 85,
+    "tabCount": 19,
+    "totalQuizBlocks": 22,
+    "totalExerciseBlocks": 94,
     "hasInterview": true
   },
   "/cypress": {
