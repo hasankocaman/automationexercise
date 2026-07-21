@@ -15,8 +15,8 @@
 | | |
 |---|---|
 | **Aktif branch** | `feature/framework-arch-selenium-multiview` (tüm iş burada) |
-| **Son commit** | bu bölüm commit edilince güncellenecek |
-| **Çalışma ağacı** | commit edilecek |
+| **Son commit** | `d657a88` — Appium Framework Mimarisi (SOLID + POM) sekmesi eklendi, §9.6 rollout TAMAMLANDI |
+| **Çalışma ağacı** | temiz |
 | **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. branch temizliği maddesi) |
 
 ### ✅ §9.6 ROLLOUT LOOP TAMAMLANDI (Playwright + Cypress + REST Assured + Appium)
