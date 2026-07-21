@@ -15,8 +15,8 @@
 | | |
 |---|---|
 | **Aktif branch** | `feature/framework-arch-selenium-multiview` (tüm iş burada) |
-| **Son commit** | `12b3a64` (bu oturum öncesi) — bu oturumun kendi commiti'nin hash'i bir sonraki oturumda `git log -1` ile teyit edilmeli |
-| **Çalışma ağacı** | bu oturumun değişiklikleri commit edildi |
+| **Son commit** | `1fc550f` — Selenium Framework Mimarisi'ne §9.5 video-scene eklendi |
+| **Çalışma ağacı** | temiz |
 | **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. aşağıdaki branch temizliği maddesi) |
 
 **Bu oturumda bitenler:** Selenium Framework Mimarisi sekmesine **§9.5 video-scene
