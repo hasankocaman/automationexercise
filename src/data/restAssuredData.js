@@ -2851,7 +2851,1321 @@ Scenario: Create user with POST
     ],
   },
 
-  // ── 10: Interview Questions ───────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════════
+  // 🏗️ Framework Mimarisi (SOLID + POM) — CLAUDE.md §9.6 çoklu görünüm standardı
+  // Referans pilot: gaugeData.js + seleniumData.js/playwrightData.js/cypressData.js
+  // "Framework Mimarisi" bölümleri. restAssuredData GAUGE İLE AYNI iskelete sahip
+  // (tek ağaç, sectionIndex deseni) — ama içerik REST Assured'a özgü yeniden
+  // düşünüldü: Core katmanı DriverManager/ThreadLocal DEĞİL, RequestSpecBuilder
+  // ile paylaşılan RequestSpecification'dır (BaseTest @BeforeAll static, dosya
+  // başındaki raBaseTestStep zaten bu deseni tanıtıyordu — burada ÜZERİNE inşa
+  // edildi). "POM" karşılığı klasik PageObject değil "Service Object" (UserService).
+  // ══════════════════════════════════════════════════════════════════════════
+  // ── 10: Framework Mimarisi (SOLID + POM) ────────────────────────────────────
+  {
+    title: { tr: '🏗️ Framework Mimarisi (SOLID + POM)', en: '🏗️ Framework Architecture (SOLID + POM)' },
+    blocks: [
+      {
+        type: 'simple-box',
+        emoji: '🧾',
+        content: {
+          tr: 'Bu sekmeye kadar öğrendiğin her parça (given/when/then, POJO, auth, JSON path, test zinciri) tek başına çalışıyor ama HENÜZ bir mimariye bağlanmadı — dosyanın en başındaki `raBaseTestStep`\'te gördüğün "@BeforeAll static RequestSpecification spec" deseni tam olarak bu sekmenin temelidir, şimdi onu tüm katmanlarıyla inşa ediyoruz. RequestSpecBuilder, bir matbaanın antetli kağıt şablonudur: her belge (her istek) aynı logoyu/adresi (baseURI, ortak header\'lar, filtreler) yeniden çizmez, TEK bir şablonu kullanır. İkinci benzetme: Selenium\'daki DriverManager/WaitFactory ile karşılaştır — orada "hangi thread hangi driver\'ı alır" sorunu vardı, burada öyle bir sorun YOK çünkü HTTP isteği state\'siz (stateless) bir çağrıdır, paylaşılacak olan tarayıcı oturumu değil sadece İSTEK YAPILANDIRMASIdır (baseURI, content-type, filtreler). Peki given().baseUri(...).header(...) zaten her testte yazılabiliyorken, neden RequestSpecBuilder\'a ihtiyaç var — dört-beş satırı kopyalamak yetmez mi? Yeter, ama SADECE bir test sınıfı için; 30 test sınıfının HER birinde bu satırları tekrar yazarsan, ortam değiştiğinde (staging→prod baseURI) 30 dosya elle taranır. Java karşılaştırması: bu, Spring\'te paylaşılan bir `RestTemplate`/`WebClient` bean\'i kurmakla AYNI motivasyon — pahalı/tekrar eden yapılandırmayı merkezileştir. QA bağlamı: RequestSpecBuilder olmadan 30 test sınıfı varken API\'ye yeni bir zorunlu header eklenirse (örn. `X-API-Version`) 30 dosya kırılır; merkezi bir spec\'te bu TEK satırlık bir değişikliktir.',
+          en: 'Every piece you have learned up to this tab (given/when/then, POJO, auth, JSON path, test chaining) works on its own but has NOT yet been wired into an architecture — the "@BeforeAll static RequestSpecification spec" pattern you saw in `raBaseTestStep` at the top of this file is EXACTLY the foundation of this tab; now we build all its layers. RequestSpecBuilder is a print shop\'s letterhead template: no document (no request) redraws the same logo/address (baseURI, shared headers, filters) from scratch, they all use ONE template. Second analogy: compare it to Selenium\'s DriverManager/WaitFactory — there, the problem was "which thread gets which driver"; here that problem does NOT exist, because an HTTP request is stateless — what gets shared is not a browser session, it is the REQUEST CONFIGURATION (baseURI, content-type, filters). But since given().baseUri(...).header(...) can already be written in every test, why do you need RequestSpecBuilder — isn\'t copying those four-five lines enough? It is, but ONLY for one test class; if you rewrite those lines in EVERY one of 30 test classes, an environment change (staging→prod baseURI) means scanning 30 files by hand. Java comparison: this is the SAME motivation as setting up a shared `RestTemplate`/`WebClient` bean in Spring — centralize expensive, repeated configuration. QA context: without RequestSpecBuilder, adding a new required header to the API (e.g. `X-API-Version`) breaks 30 files; with a centralized spec, it is a ONE-line change.',
+        },
+      },
+      {
+        type: 'framework-puzzle',
+        title: { tr: 'REST Assured Framework\'ünü Adım Adım İnşa Et', en: 'Build Your REST Assured Framework Step by Step' },
+        intro: {
+          tr: 'Aşağıdaki 4 parça, bu sekmede birazdan tek tek inşa edeceğin mimarinin BÜYÜK RESMİ. Şimdilik hepsi kilitli — her parçanın kendi adımındaki "Kendin Dene" pratiğini ilk kez doğru bitirdiğinde, o parça burada kilitliden İNŞA EDİLDİ\'ye döner.',
+          en: 'The 4 pieces below are the BIG PICTURE of the architecture you are about to build piece by piece in this tab. They all start locked — the first time you correctly finish that step\'s "Try It Yourself" practice, that piece flips from locked to BUILT.',
+        },
+        pieces: [
+          {
+            id: 'core-spec',
+            emoji: '🧩',
+            label: { tr: 'Core / RequestSpec Katmanı', en: 'Core / RequestSpec Layer' },
+            desc: {
+              tr: 'RequestSpecBuilder ile TEK bir paylaşılan RequestSpecification (baseURI + header + filtreler)',
+              en: 'RequestSpecBuilder builds ONE shared RequestSpecification (baseURI + headers + filters)',
+            },
+            exerciseId: 'restassured-arch-requestspec-practice',
+          },
+          {
+            id: 'service-object',
+            emoji: '📦',
+            label: { tr: '"POM" Yerine Service Object', en: 'Service Object Instead of "POM"' },
+            desc: {
+              tr: 'UserService, /users endpoint\'inin TÜM detaylarını gizler — test sadece iş metodunu çağırır',
+              en: 'UserService hides ALL details of the /users endpoint — the test just calls a business method',
+            },
+            exerciseId: 'restassured-arch-service-object-practice',
+          },
+          {
+            id: 'solid',
+            emoji: '⚖️',
+            label: { tr: 'SOLID Uygulaması', en: 'Applying SOLID' },
+            desc: {
+              tr: '5 prensip gerçek REST Assured kodunda — örn. OCP: yeni bir AuthProvider eklemek için mevcut kodu DEĞİŞTİRMEDEN genişlet',
+              en: 'The 5 principles in real REST Assured code — e.g. OCP: extend with a new AuthProvider WITHOUT modifying existing code',
+            },
+            exerciseId: 'restassured-arch-ocp-authprovider-practice',
+          },
+          {
+            id: 'test-data',
+            emoji: '🔗',
+            label: { tr: 'Test / Data Katmanı', en: 'Test / Data Layer' },
+            desc: {
+              tr: '@ParameterizedTest + @MethodSource ile data-driven API testleri',
+              en: 'Data-driven API tests via @ParameterizedTest + @MethodSource',
+            },
+            exerciseId: 'restassured-arch-dataprovider-practice',
+          },
+        ],
+      },
+
+      {
+        type: 'heading',
+        text: { tr: '🧭 Adım 1 — Büyük Resim: RequestSpec Zinciri Mindmap', en: '🧭 Step 1 — The Big Picture: The RequestSpec Chain Mindmap' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'Aynı mimari burada beş ayrı açıdan gösteriliyor: önce ana akış (bir test çağrıldığında istek nasıl kurulur), sonra kurulum akışı (pom.xml\'den BaseTest\'e, oradan test sınıfına), sonra "paralel çalışma" (JUnit5\'te static spec\'in sınıf seviyesindeki izolasyonu Selenium\'un ThreadLocal\'ından NEDEN farklıdır), sonra veri paylaşım kapsamı (static/instance/parametre scope\'u) ve son olarak her sınıfın "yapar/yapmaz" listesi.',
+          en: 'The same architecture is shown here from five angles: first the main flow (how a request gets built when a test runs), then the setup flow (from pom.xml to BaseTest, then to the test class), then "parallel execution" (why the class-level isolation of a static spec in JUnit5 DIFFERS from Selenium\'s ThreadLocal), then the data-sharing scope (static/instance/parameter scope), and finally a "does / does not" list for every class.',
+        },
+      },
+      {
+        type: 'python-flow-diagram',
+        titleTr: '1️⃣ Ana Akış — Bir @Test İsteği Nasıl Kurar?',
+        titleEn: '1️⃣ Main Flow — How Does a @Test Build a Request?',
+        steps: [
+          { type: 'action', code: '@Test getUserReturnsCorrectEmail()', desc: 'declares the scenario — orchestration ONLY, no request config', descTr: 'senaryoyu bildirir — SADECE orkestrasyon, request config içermez' },
+          { type: 'action', code: 'UserService.getUser(2)', desc: 'the Service Object — knows only its own endpoint and its own POJO', descTr: 'Service Object — sadece kendi endpoint\'ini ve kendi POJO\'sunu bilir' },
+          { type: 'action', code: 'given().spec(sharedSpec)', desc: 'reuses the ONE RequestSpecification built once in BaseTest', descTr: 'BaseTest\'te BİR KEZ kurulan TEK RequestSpecification\'ı yeniden kullanır' },
+          { type: 'action', code: '.when().get("/users/2")', desc: 'the real HTTP call — this is where the network request actually fires', descTr: 'gerçek HTTP çağrısı — ağ isteği TAM OLARAK burada tetiklenir' },
+          { type: 'end', code: '.then().extract().as(User.class)', desc: 'SRP: response deserializes into a type-safe POJO, ready for assertion', descTr: 'SRP: yanıt tip-güvenli bir POJO\'ya dönüşür, assertion\'a hazırdır' },
+        ],
+      },
+      {
+        type: 'python-flow-diagram',
+        titleTr: '2️⃣ Kurulum Akışı — BaseTest Her Test Sınıfına Nasıl Ulaşır?',
+        titleEn: '2️⃣ Setup Flow — How Does BaseTest Reach Every Test Class?',
+        steps: [
+          { type: 'action', code: 'pom.xml', desc: 'rest-assured/json-path/jackson-databind dependencies — read once at build time', descTr: 'rest-assured/json-path/jackson-databind bağımlılıkları — build zamanında bir kez okunur' },
+          { type: 'action', code: 'BaseTest (@BeforeAll static)', desc: 'builds the shared RequestSpecification ONCE per test class', descTr: 'paylaşılan RequestSpecification\'ı test sınıfı başına BİR KEZ kurar' },
+          { type: 'end', code: 'class UserServiceTest extends BaseTest', desc: 'every test class EXTENDS BaseTest, never rebuilds the spec itself', descTr: 'her test sınıfı BaseTest\'i EXTENDS eder, spec\'i asla kendisi yeniden kurmaz' },
+        ],
+      },
+      {
+        type: 'subheading',
+        text: { tr: '3️⃣ Paralel Çalışma — static spec, Selenium\'un ThreadLocal\'ından NEDEN Farklı?', en: '3️⃣ Parallel Execution — Why Does a static spec DIFFER from Selenium\'s ThreadLocal?' },
+      },
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          { icon: '🧱', label: { tr: 'Sınıf Seviyesi İzolasyon', en: 'Class-Level Isolation' }, desc: { tr: 'static alan, HER test sınıfının KENDİ kopyasına sahiptir — UserServiceTest.spec, OrderServiceTest.spec\'i asla göremez', en: 'A static field belongs to EACH test class\'s OWN copy — UserServiceTest.spec can never see OrderServiceTest.spec' } },
+          { icon: '🔌', label: { tr: 'Stateless İstek', en: 'Stateless Request' }, desc: { tr: 'HTTP isteği kendi başına state taşımaz — paylaşılan şey bir "oturum" değil, sadece bir yapılandırma şablonudur', en: 'An HTTP request carries no state on its own — what is shared is not a "session", just a configuration template' } },
+          { icon: '🧵', label: { tr: 'JUnit5 Paralel Sınıflar', en: 'JUnit5 Parallel Classes' }, desc: { tr: 'junit-platform.properties ile paralel sınıf koşumu açılırsa her sınıf kendi @BeforeAll\'unu bağımsız çalıştırır — ThreadLocal\'a hiç GEREK yoktur', en: 'If parallel class execution is enabled via junit-platform.properties, every class runs its own @BeforeAll independently — ThreadLocal is NOT needed at all' } },
+        ],
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'Selenium\'da ThreadLocal\'a ihtiyaç vardı çünkü paylaşılan şey bir WebDriver OTURUMUYDU — aynı process içindeki farklı thread\'ler aynı tarayıcıyı KARIŞTIRMASIN diye izolasyon gerekiyordu. REST Assured\'da paylaşılan şey ise bir RequestSpecification YAPILANDIRMASIdır — HTTP isteği doğası gereği stateless olduğu için, aynı spec\'i aynı anda 10 farklı test metodu KULLANSA bile birbirine karışmaz (her `given().spec(spec)` çağrısı kendi bağımsız isteğini oluşturur). Bu yüzden framework mimarin AÇISINDAN önemli olan şey ThreadLocal değil, static alanın SINIF seviyesinde doğru kurulmasıdır (her sınıf kendi @BeforeAll\'unda spec\'ini kendi kurar).',
+          en: 'In Selenium, ThreadLocal was needed because what was shared was a WebDriver SESSION — isolation was required so different threads in the same process would not MIX UP the same browser. In REST Assured, what is shared is a RequestSpecification CONFIGURATION — since an HTTP request is stateless by nature, even if 10 different test methods USE the same spec at the same time, they never interfere with each other (every `given().spec(spec)` call builds its own independent request). So what matters FOR your framework architecture is not ThreadLocal, but the static field being set up correctly at the CLASS level (each class builds its own spec in its own @BeforeAll).',
+        },
+      },
+      {
+        type: 'subheading',
+        text: { tr: '4️⃣ Veri Paylaşım Kapsamı — Neyin Ömrü Ne Kadar?', en: '4️⃣ Data-Sharing Scope — How Long Does Each Thing Live?' },
+      },
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          { icon: '🏛️', label: { tr: 'static (sınıf seviyesi)', en: 'static (class level)' }, desc: { tr: 'Kapsam: TÜM test sınıfı — RequestSpecification, @BeforeAll\'da BİR KEZ kurulur, tüm @Test metotları paylaşır', en: 'Scope: the WHOLE test class — RequestSpecification is built ONCE in @BeforeAll, shared by all @Test methods' } },
+          { icon: '🧪', label: { tr: 'instance (metot seviyesi)', en: 'instance (method level)' }, desc: { tr: 'Kapsam: tek bir @Test metodu — bir POJO nesnesi (örn. User) o test için yeniden oluşturulur', en: 'Scope: a single @Test method — a POJO object (e.g. User) is recreated for that test' } },
+          { icon: '📋', label: { tr: '@MethodSource', en: '@MethodSource' }, desc: { tr: 'Kapsam: parametreli test — bir veri akışı (Stream) her satır için testi BİR KEZ tetikler', en: 'Scope: a parameterized test — a data stream triggers the test ONCE per row' } },
+        ],
+      },
+      {
+        type: 'subheading',
+        text: { tr: '5️⃣ Kim Ne Yapar? — Sınıf Sorumlulukları', en: '5️⃣ Who Does What? — Class Responsibilities' },
+      },
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          { icon: '🧪', label: { tr: '@Test metodu', en: '@Test method' }, desc: { tr: '✔ Senaryo akışı · ✔ Assertion · ✘ RequestSpec kurulumu içermez', en: '✔ Scenario flow · ✔ Assertions · ✘ Contains no RequestSpec setup' } },
+          { icon: '📦', label: { tr: 'UserService (Service Object)', en: 'UserService (Service Object)' }, desc: { tr: '✔ Endpoint bilgisi · ✔ İş metodu · ✘ Assertion içermez', en: '✔ Endpoint knowledge · ✔ Business methods · ✘ Contains no assertions' } },
+          { icon: '🧱', label: { tr: 'BaseTest', en: 'BaseTest' }, desc: { tr: '✔ @BeforeAll static spec kurulumu · ✔ Filtreler', en: '✔ @BeforeAll static spec setup · ✔ Filters' } },
+          { icon: '📄', label: { tr: 'POJO (User, Order...)', en: 'POJO (User, Order...)' }, desc: { tr: '✔ Alan tanımları · ✔ Jackson serialize/deserialize · ✘ Mantık İÇERMEZ', en: '✔ Field definitions · ✔ Jackson serialize/deserialize · ✘ Contains NO logic' } },
+          { icon: '🔌', label: { tr: 'AuthProvider', en: 'AuthProvider' }, desc: { tr: '✔ Kimlik doğrulama stratejisi · ✔ RequestSpecification\'a auth ekler', en: '✔ Authentication strategy · ✔ Adds auth to the RequestSpecification' } },
+        ],
+      },
+      {
+        type: 'video-scene',
+        id: 'restassured-arch-requestspec-chain-film',
+        title: {
+          tr: '🎬 Bir @Test İsteği Nasıl Kurar? (ve Sınıf Seviyesi İzolasyon Kontrastı)',
+          en: '🎬 How Does a @Test Build a Request? (and the Class-Level Isolation Contrast)',
+        },
+        xpReward: 15,
+        sceneDurationMs: 3400,
+        stageHeight: 260,
+        actors: [
+          { id: 'test',    emoji: '🧪', label: { tr: '@Test (getUserReturnsEmail)', en: '@Test (getUserReturnsEmail)' }, color: '#0ea5e9' },
+          { id: 'service', emoji: '📦', label: { tr: 'UserService (Service Object)',  en: 'UserService (Service Object)' },  color: '#f59e0b' },
+          { id: 'spec',    emoji: '🧩', label: { tr: 'RequestSpecification (static)', en: 'RequestSpecification (static)' }, color: '#8b5cf6' },
+          { id: 'http',    emoji: '🌐', label: { tr: 'Gerçek HTTP İsteği',            en: 'Real HTTP Request' },            color: '#22c55e' },
+          { id: 'pojo',    emoji: '📄', label: { tr: 'User.class (POJO)',             en: 'User.class (POJO)' },            color: '#10b981' },
+          { id: 'otherClass', emoji: '🏛️', label: { tr: 'OrderServiceTest (ayrı sınıf)', en: 'OrderServiceTest (separate class)' }, color: '#ef4444' },
+        ],
+        scenes: [
+          {
+            caption: {
+              tr: '@Test metodu çalışmaya başlıyor. Bu metot SADECE senaryoyu anlatır — hiçbir RequestSpecification kurulumu veya endpoint detayı içermez.',
+              en: 'The @Test method starts running. This method ONLY narrates the scenario — it contains no RequestSpecification setup or endpoint detail.',
+            },
+            code: { tr: 'User user = userService.getUser(2);', en: 'User user = userService.getUser(2);' },
+            positions: { test: { x: 12, y: 50, scale: 1.15, pulse: true } },
+          },
+          {
+            caption: {
+              tr: 'Adım 1 — UserService (Service Object) devreye girer: kendi endpoint\'ini (/users/{id}) bilir ama RequestSpecification\'ı SIFIRDAN kurmaz, BaseTest\'te HAZIR olanı ister.',
+              en: 'Step 1 — UserService (the Service Object) takes over: it knows its own endpoint (/users/{id}) but does NOT build the RequestSpecification from scratch, it asks for the one that is ALREADY ready in BaseTest.',
+            },
+            code: { tr: 'given().spec(BaseTest.spec)', en: 'given().spec(BaseTest.spec)' },
+            positions: {
+              test: { x: 10, y: 50, opacity: 0.5, scale: 0.85 },
+              service: { x: 32, y: 50, scale: 1.15, pulse: true },
+            },
+            beams: [{ from: 'test', to: 'service' }],
+          },
+          {
+            caption: {
+              tr: 'Adım 2 — Bu spec, TESTLERİN HİÇBİRİNİN yeniden kurmadığı, sınıf başlarken @BeforeAll\'da BİR KEZ inşa edilmiş TEK bir yapılandırmadır: baseURI + ortak header\'lar + loglama filtreleri.',
+              en: 'Step 2 — this spec is the ONE configuration that NONE of the tests rebuild, built ONCE in @BeforeAll when the class starts: baseURI + shared headers + logging filters.',
+            },
+            code: { tr: 'new RequestSpecBuilder().setBaseUri(...).build()', en: 'new RequestSpecBuilder().setBaseUri(...).build()' },
+            positions: {
+              service: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+              spec: { x: 38, y: 50, scale: 1.2, pulse: true },
+            },
+            beams: [{ from: 'service', to: 'spec', color: '#8b5cf6' }],
+          },
+          {
+            caption: {
+              tr: 'Adım 3 — Spec hazır olunca gerçek HTTP isteği tetiklenir: GET /users/2 ağa çıkar, backend\'den GERÇEK bir yanıt döner.',
+              en: 'Step 3 — once the spec is ready, the real HTTP request fires: GET /users/2 goes out over the network, and a REAL response comes back from the backend.',
+            },
+            code: { tr: '.when().get("/users/2")', en: '.when().get("/users/2")' },
+            positions: {
+              spec: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+              http: { x: 46, y: 50, scale: 1.25, pulse: true },
+            },
+            beams: [{ from: 'spec', to: 'http', color: '#22c55e' }],
+          },
+          {
+            caption: {
+              tr: 'Adım 4 — Ham JSON yanıt, .as(User.class) ile tip-güvenli bir POJO\'ya dönüşür — test artık string parse etmez, gerçek Java alanlarıyla (user.getEmail()) çalışır.',
+              en: 'Step 4 — the raw JSON response becomes a type-safe POJO via .as(User.class) — the test no longer parses strings, it works with real Java fields (user.getEmail()).',
+            },
+            code: { tr: '.then().extract().as(User.class)', en: '.then().extract().as(User.class)' },
+            positions: {
+              http: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+              pojo: { x: 52, y: 50, scale: 1.2, pulse: true },
+            },
+            beams: [{ from: 'http', to: 'pojo', color: '#10b981' }],
+          },
+          {
+            caption: {
+              tr: 'Final (kontrast) — AYNI paket içindeki OrderServiceTest sınıfı KENDİ static spec\'ini KENDİ @BeforeAll\'unda kurar; bu iki sınıfın spec\'leri asla birbirine karışmaz. Selenium\'da bu izolasyonu ThreadLocal sağlardı; burada bunu sağlayan şey Java\'nın static alanının SINIF seviyesinde zaten izole olmasıdır — HTTP isteği stateless olduğu için ekstra bir mekanizmaya hiç GEREK yoktur.',
+              en: 'Final (the contrast) — the OrderServiceTest class in the SAME package builds ITS OWN static spec in ITS OWN @BeforeAll; the two classes\' specs never mix. In Selenium, ThreadLocal provided this isolation; here, it comes from Java\'s static field already being isolated at the CLASS level — since an HTTP request is stateless, no extra mechanism is NEEDED at all.',
+            },
+            positions: {
+              pojo: { x: 20, y: 30, scale: 0.9 },
+              spec: { x: 48, y: 50, scale: 1.05 },
+              otherClass: { x: 76, y: 50, scale: 1.25, pulse: true },
+            },
+            beams: [{ from: 'pojo', to: 'spec' }, { from: 'spec', to: 'otherClass', color: '#ef4444' }],
+          },
+        ],
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Yukarıdaki mimaride bir @Test metodu, RequestSpecification\'ı NEREDEN alır?',
+          en: 'In the architecture above, where does a @Test method get its RequestSpecification FROM?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Kendi içinde new RequestSpecBuilder() ile sıfırdan kurar', en: 'It builds it from scratch itself with new RequestSpecBuilder()' } },
+          { id: 'b', text: { tr: 'BaseTest\'in @BeforeAll static alanından, Service Object aracılığıyla', en: 'From BaseTest\'s @BeforeAll static field, via the Service Object' } },
+          { id: 'c', text: { tr: 'pom.xml dosyasından doğrudan okur', en: 'It reads it directly from the pom.xml file' } },
+          { id: 'd', text: { tr: 'Her @Test metodunun başında elle tanımlanır', en: 'It is manually defined at the top of every @Test method' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Mimarinin can damarı budur: RequestSpecification kurulum sorumluluğu TEK bir yerde (BaseTest\'in @BeforeAll\'u) toplanır, Service Object onu SADECE kullanır — bu ayrım olmasaydı her test sınıfı kendi spec\'ini kurar ve ortam değiştiğinde onlarca dosya elle güncellenirdi.',
+          en: 'This is the artery of the architecture: RequestSpecification setup responsibility lives in ONE place (BaseTest\'s @BeforeAll), and the Service Object just USES it — without this split, every test class would build its own spec, and dozens of files would need manual updates whenever the environment changed.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir RequestSpecification\'ın static olarak paylaşılması, Selenium\'daki ThreadLocal\'a kıyasla NE FARK yaratır?',
+            en: 'Compared to ThreadLocal in Selenium, what DIFFERENCE does sharing a RequestSpecification as static make?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'HTTP isteği stateless olduğu için ekstra bir izolasyon mekanizmasına (ThreadLocal gibi) gerek kalmaz', en: 'Since an HTTP request is stateless, no extra isolation mechanism (like ThreadLocal) is needed' } },
+            { id: 'b', text: { tr: 'Hiçbir fark yaratmaz, ikisi de aynı mekanizmadır', en: 'It makes no difference, both are the same mechanism' } },
+            { id: 'c', text: { tr: 'Tüm test sınıfları AYNI static spec\'i paylaşır', en: 'All test classes share the SAME static spec' } },
+            { id: 'd', text: { tr: 'Sadece CI ortamında devreye girer', en: 'It only kicks in inside a CI environment' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Selenium\'da paylaşılan şey durumlu (stateful) bir WebDriver oturumuydu, bu yüzden ThreadLocal gerekiyordu. REST Assured\'da paylaşılan şey stateless bir yapılandırmadır (RequestSpecification) — aynı anda kullanılsa bile isteklerin birbirine karışması söz konusu değildir, ayrıca her sınıfın kendi static kopyası zaten bağımsızdır.',
+            en: 'In Selenium, what was shared was a stateful WebDriver session, which is why ThreadLocal was needed. In REST Assured, what is shared is a stateless configuration (RequestSpecification) — even used concurrently, requests cannot interfere with each other, and each class\'s own static copy is already independent.',
+          },
+        },
+      },
+
+      // ── Adım 2 — Core / RequestSpec Katmanı ──
+      {
+        type: 'heading',
+        text: { tr: '🧩 Adım 2 — Core / RequestSpec Katmanı: RequestSpecBuilder', en: '🧩 Step 2 — Core / RequestSpec Layer: RequestSpecBuilder' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📜',
+        content: {
+          tr: 'RequestSpecBuilder, bir restoran zincirinin TÜM şubelerinde kullanılan standart menü şablonudur: her şube (her test sınıfı) kendi menüsünü baştan tasarlamaz, TEK bir merkezi şablonu (baseURI, ortak header\'lar, loglama filtreleri) miras alır. İkinci benzetme: bir zarfın üzerindeki HAZIR pul ve adres şablonu gibi — her mektup (her istek) aynı bilgiyi elle yazmaz, zarfın KENDİSİ bu bilgiyi zaten taşır. Peki her testte given().baseUri(...).header(...) yazmak zaten mümkünken, neden ayrı bir RequestSpecBuilder sınıfı gerekiyor? Çünkü polling aralığını değiştirmek gibi (Selenium\'daki WaitFactory örneğini hatırla), API\'nin base URL\'ini veya bir zorunlu header\'ı değiştirmek HER teste kopyalanırsa, biri bir yerde eski URL\'i unutur ve suite tutarsızlaşır. Java karşılaştırması: bu, her sınıfın kendi `HttpClient`\'ını yaratması yerine tek bir merkezi client factory kullanmasıyla AYNI motivasyondur — pahalı/tekrar eden yapılandırmayı merkezileştir. QA bağlamı: RequestSpecBuilder\'daki `addFilter(new RequestLoggingFilter())` satırı atlanırsa, bir test CI\'da fail olduğunda hangi isteğin GERÇEKTEN gönderildiğini görmek için kod tekrar tekrar debug edilir — merkezi loglama bu israfı TEK satırla önler.',
+          en: 'RequestSpecBuilder is the standard menu template used at every branch of a restaurant chain: no branch (no test class) designs its own menu from scratch, they all inherit ONE central template (baseURI, shared headers, logging filters). Second analogy: like the pre-printed stamp and address template on an envelope — no letter (no request) writes that information by hand, the envelope ITSELF already carries it. But since given().baseUri(...).header(...) can already be written in every test, why do you need a separate RequestSpecBuilder class? Because — just like changing the polling interval in Selenium\'s WaitFactory example — if changing the API\'s base URL or a required header is copied into EVERY test, someone forgets the old URL somewhere and the suite drifts into inconsistency. Java comparison: this is the SAME motivation as using one central client factory instead of every class creating its own `HttpClient` — centralize expensive, repeated configuration. QA context: if the `addFilter(new RequestLoggingFilter())` line in RequestSpecBuilder is skipped, when a test fails in CI, the code gets debugged over and over just to see what request was ACTUALLY sent — centralized logging prevents this waste with ONE line.',
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'BaseTest ile Service Object\'lerin AYRI olmasının nedeni de Single Responsibility Principle\'dır (SRP): BaseTest sadece "istek yapılandırması NASIL kurulur" sorusuna cevap verir, Service Object\'ler ise sadece "bu endpoint HANGİ iş kuralını uygular" sorusuna cevap verir. İkisini tek sınıfta birleştirseydin, bir ortam değişikliği (yeni bir zorunlu header) iş mantığı kodunu da değiştirmeni gerektirirdi.',
+          en: 'The reason BaseTest and Service Objects are SEPARATE is also the Single Responsibility Principle (SRP): BaseTest answers only "HOW is the request configuration set up", while Service Objects answer only "WHICH business rule does this endpoint apply". Had you merged them into one class, an environment change (a new required header) would also force you to touch the business logic code.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `// ─── BaseTest.java — SADECE paylasilan RequestSpecification kurulumu (SRP) ───
+package tests;
+
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.BeforeAll;
+
+public abstract class BaseTest {
+
+    protected static RequestSpecification spec;   // TUM sinif icin TEK kopya
+
+    @BeforeAll
+    static void setUpSpec() {
+        spec = new RequestSpecBuilder()
+            .setBaseUri(System.getProperty("baseUri", "https://reqres.in"))
+            .setContentType("application/json")
+            .addFilter(new RequestLoggingFilter())   // her istegi konsola yaz
+            .addFilter(new ResponseLoggingFilter())  // her yaniti konsola yaz
+            .build();
+    }
+}
+
+// ─── UserServiceTest.java — BaseTest'i extends eder, spec'i YENIDEN KURMAZ ───
+package tests;
+
+import static io.restassured.RestAssured.given;
+import org.junit.jupiter.api.Test;
+
+class UserServiceTest extends BaseTest {
+
+    @Test
+    void getUserReturns200() {
+        given().spec(spec)             // paylasilan spec YENIDEN KULLANILIR
+            .when().get("/api/users/2")
+            .then().statusCode(200);
+    }
+}`,
+          en: `// ─── BaseTest.java — ONLY the shared RequestSpecification setup (SRP) ───
+package tests;
+
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.BeforeAll;
+
+public abstract class BaseTest {
+
+    protected static RequestSpecification spec;   // ONE copy for the WHOLE class
+
+    @BeforeAll
+    static void setUpSpec() {
+        spec = new RequestSpecBuilder()
+            .setBaseUri(System.getProperty("baseUri", "https://reqres.in"))
+            .setContentType("application/json")
+            .addFilter(new RequestLoggingFilter())   // print every request to console
+            .addFilter(new ResponseLoggingFilter())  // print every response to console
+            .build();
+    }
+}
+
+// ─── UserServiceTest.java — extends BaseTest, NEVER rebuilds the spec ───
+package tests;
+
+import static io.restassured.RestAssured.given;
+import org.junit.jupiter.api.Test;
+
+class UserServiceTest extends BaseTest {
+
+    @Test
+    void getUserReturns200() {
+        given().spec(spec)             // the shared spec is REUSED
+            .when().get("/api/users/2")
+            .then().statusCode(200);
+    }
+}`,
+        },
+      },
+      {
+        type: 'step-animation',
+        id: 'restassured-arch-requestspec-steps',
+        title: { tr: 'Adım Adım: setUpSpec() Kaç Kez Çalışır?', en: 'Step by Step: How Many Times Does setUpSpec() Run?' },
+        steps: [
+          { id: 1, icon: '🏁', label: { tr: 'JUnit5 sınıfı yüklüyor', en: 'JUnit5 loads the class' }, detail: { tr: 'UserServiceTest çalışmaya başlamadan önce JUnit5, sınıftaki @BeforeAll işaretli static metodu ARAR.', en: 'Before UserServiceTest starts running, JUnit5 SEARCHES the class for a static method marked @BeforeAll.' } },
+          { id: 2, icon: '1️⃣', label: { tr: 'setUpSpec() TAM OLARAK BİR KEZ çalışır', en: 'setUpSpec() runs EXACTLY ONCE' }, detail: { tr: '@BeforeAll static olduğu için, sınıftaki KAÇ TANE @Test metodu olursa olsun setUpSpec() sadece bir kez, tüm testlerden ÖNCE çalışır.', en: 'Because @BeforeAll is static, no matter HOW MANY @Test methods the class has, setUpSpec() runs only once, BEFORE all of them.' } },
+          { id: 3, icon: '🧩', label: { tr: 'spec static alana atanır', en: 'spec is assigned to the static field' }, detail: { tr: 'RequestSpecBuilder().build() sonucu, sınıf seviyesindeki static spec alanına yazılır — artık HER @Test metodu buna erişebilir.', en: 'The result of RequestSpecBuilder().build() is written into the class-level static spec field — now EVERY @Test method can access it.' } },
+          { id: 4, icon: '🔁', label: { tr: 'Her @Test AYNI spec\'i kullanır', en: 'Every @Test uses the SAME spec' }, detail: { tr: 'getUserReturns200() ve deleteUserReturns204() gibi farklı testler, given().spec(spec) ile AYNI nesneyi paylaşır — hiçbiri kendi spec\'ini kurmaz.', en: 'Different tests like getUserReturns200() and deleteUserReturns204() share the SAME object via given().spec(spec) — none of them builds its own spec.' } },
+          { id: 5, icon: '🏛️', label: { tr: 'Başka bir sınıf KENDİ kopyasını kurar', en: 'Another class builds ITS OWN copy' }, detail: { tr: 'OrderServiceTest de BaseTest\'i extends ederse, KENDİ @BeforeAll\'unda KENDİ spec\'ini kurar — iki sınıfın static alanları asla karışmaz.', en: 'If OrderServiceTest also extends BaseTest, it builds ITS OWN spec in ITS OWN @BeforeAll — the two classes\' static fields never mix.' } },
+        ],
+      },
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'ch-restassured-arch-requestspec-order',
+        question: {
+          tr: 'RequestSpecBuilder ile paylaşılan bir spec kurmanın adımlarını mantıklı sıraya diz.',
+          en: 'Arrange the steps of building a shared spec with RequestSpecBuilder in a logical order.',
+        },
+        items: [
+          { id: '1', text: { tr: 'BaseTest\'te protected static RequestSpecification spec alanını tanımla', en: 'Define the protected static RequestSpecification spec field in BaseTest' }, order: 1 },
+          { id: '2', text: { tr: '@BeforeAll static bir metotta new RequestSpecBuilder() başlat', en: 'Start new RequestSpecBuilder() inside a @BeforeAll static method' }, order: 2 },
+          { id: '3', text: { tr: 'setBaseUri(...) ve setContentType(...) ile temel ayarları ekle', en: 'Add the basics with setBaseUri(...) and setContentType(...)' }, order: 3 },
+          { id: '4', text: { tr: 'addFilter(...) ile request/response loglamayı ekle', en: 'Add request/response logging with addFilter(...)' }, order: 4 },
+          { id: '5', text: { tr: 'Test sınıfında given().spec(spec) ile paylaşılan spec\'i kullan', en: 'Use the shared spec in the test class with given().spec(spec)' }, order: 5 },
+        ],
+        xpReward: 20,
+      },
+      {
+        type: 'code-playground',
+        relatedTopicId: 'restassured-framework-requestspec',
+        id: 'restassured-arch-requestspec-practice',
+        label: {
+          tr: 'Micro Lab: setUpSpec()\'i loglama filtreleriyle tamamla',
+          en: 'Micro Lab: complete setUpSpec() with logging filters',
+        },
+        language: 'java',
+        task: {
+          tr: 'Aşağıdaki setUpSpec() metodu baseURI ve content-type\'ı ayarlıyor ama TODO satırları eksik olduğu için hiçbir request/response loglaması YAPMIYOR — bir test CI\'da fail olduğunda hangi isteğin gönderildiğini görmenin yolu yok. TODO satırlarını, RequestLoggingFilter VE ResponseLoggingFilter\'ı ekleyecek şekilde tamamla.',
+          en: 'The setUpSpec() method below sets baseURI and content-type, but because the TODO lines are missing, it does NOT log any request/response — when a test fails in CI, there is no way to see which request was sent. Complete the TODO lines to add BOTH RequestLoggingFilter AND ResponseLoggingFilter.',
+        },
+        explanation: {
+          tr: 'Bu pratik gerçek bir HTTP isteği göndermez; amaç RequestSpecBuilder\'ın filtre zincirini elle tamamlayarak, merkezi loglamanın NEDEN debug süresini kısalttığını pekiştirmektir.',
+          en: 'This is not a real HTTP session; the goal is to reinforce, by completing RequestSpecBuilder\'s filter chain yourself, WHY centralized logging shortens debugging time.',
+        },
+        code: {
+          tr: `spec = new RequestSpecBuilder()
+    .setBaseUri(System.getProperty("baseUri", "https://reqres.in"))
+    .setContentType("application/json")
+    .addFilter(new RequestLoggingFilter())
+    .addFilter(new ResponseLoggingFilter())
+    .build();`,
+          en: `spec = new RequestSpecBuilder()
+    .setBaseUri(System.getProperty("baseUri", "https://reqres.in"))
+    .setContentType("application/json")
+    .addFilter(new RequestLoggingFilter())
+    .addFilter(new ResponseLoggingFilter())
+    .build();`,
+        },
+        starterCode: {
+          tr: `spec = new RequestSpecBuilder()
+    .setBaseUri(System.getProperty("baseUri", "https://reqres.in"))
+    .setContentType("application/json")
+    TODO   // istek loglamayi ekle
+    TODO   // yanit loglamayi ekle
+    .build();`,
+          en: `spec = new RequestSpecBuilder()
+    .setBaseUri(System.getProperty("baseUri", "https://reqres.in"))
+    .setContentType("application/json")
+    TODO   // add request logging
+    TODO   // add response logging
+    .build();`,
+        },
+        solutionCode: {
+          tr: `spec = new RequestSpecBuilder()
+    .setBaseUri(System.getProperty("baseUri", "https://reqres.in"))
+    .setContentType("application/json")
+    .addFilter(new RequestLoggingFilter())
+    .addFilter(new ResponseLoggingFilter())
+    .build();`,
+          en: `spec = new RequestSpecBuilder()
+    .setBaseUri(System.getProperty("baseUri", "https://reqres.in"))
+    .setContentType("application/json")
+    .addFilter(new RequestLoggingFilter())
+    .addFilter(new ResponseLoggingFilter())
+    .build();`,
+        },
+        expected: {
+          tr: 'İki TODO satırı .addFilter(new RequestLoggingFilter()) ve .addFilter(new ResponseLoggingFilter()) olmalı — bu iki filtre, her isteğin/yanıtın TAM içeriğini konsola yazar.',
+          en: 'The two TODO lines must be .addFilter(new RequestLoggingFilter()) and .addFilter(new ResponseLoggingFilter()) — these two filters print the FULL content of every request/response to the console.',
+        },
+        hints: [
+          { tr: 'addFilter() metodu zincire istediğin kadar filtre EKLEYEBİLİR — her filtre, isteğin/yanıtın belirli bir anında devreye girer.', en: 'The addFilter() method lets you CHAIN as many filters as you like — each filter kicks in at a specific moment of the request/response.' },
+          { tr: 'RequestLoggingFilter GİDEN isteği (URL, header, body), ResponseLoggingFilter ise DÖNEN yanıtı (statusCode, body) konsola yazar — ikisi birbirini TAMAMLAR, biri diğerinin yerini tutmaz.', en: 'RequestLoggingFilter logs the OUTGOING request (URL, headers, body), ResponseLoggingFilter logs the RETURNED response (statusCode, body) — they COMPLEMENT each other, neither replaces the other.' },
+          { tr: 'Bu filtreler BaseTest\'te bir kez eklendiğinde, o sınıfı extend eden HER test sınıfı otomatik olarak loglamaya sahip olur — tekrar eklemeye gerek yoktur.', en: 'Once these filters are added in BaseTest, EVERY test class extending it automatically gets logging — no need to add them again.' },
+        ],
+        xpReward: 15,
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: '@BeforeAll static setUpSpec() metodu, bir test sınıfındaki KAÇ TANE @Test metodu için çalışır?',
+          en: 'For HOW MANY @Test methods in a test class does the @BeforeAll static setUpSpec() method run?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Her @Test metodu için ayrı ayrı bir kez', en: 'Once separately for every @Test method' } },
+          { id: 'b', text: { tr: 'Tüm sınıf için TAM OLARAK bir kez, testlerden önce', en: 'EXACTLY once for the whole class, before the tests' } },
+          { id: 'c', text: { tr: 'Hiç çalışmaz, elle çağrılması gerekir', en: 'It never runs, it must be called manually' } },
+          { id: 'd', text: { tr: 'Sadece ilk test fail olursa çalışır', en: 'It only runs if the first test fails' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '@BeforeAll, JUnit5\'te SADECE static metotlarla çalışır ve sınıftaki TÜM @Test metotları başlamadan ÖNCE tam olarak BİR KEZ tetiklenir — bu, spec\'in her testte yeniden kurulmasının ÖNÜNE geçer.',
+          en: '@BeforeAll in JUnit5 works ONLY with static methods and fires EXACTLY once, BEFORE all @Test methods in the class begin — this PREVENTS the spec from being rebuilt on every test.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'BaseTest\'e bir assertion (örn. statusCode kontrolü) yazmak neden yanlış bir tasarımdır?',
+            en: 'Why is writing an assertion (e.g. a statusCode check) inside BaseTest a poor design choice?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'SRP\'yi ihlal eder — BaseTest SADECE kurulum yapmalı, doğrulama testin işidir', en: 'It violates SRP — BaseTest should ONLY set things up, verification is the test\'s job' } },
+            { id: 'b', text: { tr: 'Java bunu teknik olarak engeller', en: 'Java technically blocks it' } },
+            { id: 'c', text: { tr: 'Hiçbir sorun yaratmaz', en: 'It causes no problem' } },
+            { id: 'd', text: { tr: 'Sadece performansı yavaşlatır', en: 'It only slows down performance' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'BaseTest\'e assertion yazarsan, farklı testler farklı doğrulama isteyebilirken hepsi AYNI zorunlu kontrolden geçer. Doğrulama HER ZAMAN @Test metodunun kendi sorumluluğunda kalmalı, BaseTest sadece paylaşılan yapılandırmayı KURMALI.',
+            en: 'If you put an assertion in BaseTest, every test is forced through the SAME mandatory check even though different tests may want different verification. Verification should ALWAYS stay the @Test method\'s own responsibility, BaseTest should only SET UP the shared configuration.',
+          },
+        },
+      },
+
+      // ── Adım 3 — "POM" Yerine Service Object ──
+      {
+        type: 'heading',
+        text: { tr: '📦 Adım 3 — "POM" Yerine Service Object: UserService', en: '📦 Step 3 — Service Object Instead of "POM": UserService' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🗂️',
+        content: {
+          tr: 'Service Object, Selenium\'daki LoginPage\'in API dünyasındaki karşılığıdır: LoginPage "#email" locator\'ının nerede olduğunu gizlerken, UserService "/users/{id}" endpoint\'inin tam yolunu, HTTP metodunu ve yanıtın hangi POJO\'ya dönüşeceğini gizler — test SADECE `userService.getUser(2)` çağırır. İkinci benzetme: bir bankanın "gişe memuru" gibi — müşteri (test) bankanın hangi hesap tablosunu, hangi SQL sorgusunu kullandığını BİLMEZ, sadece "bakiyemi göster" der; gişe memuru (Service Object) arka plandaki TÜM teknik detayı yönetir. Peki given().spec(spec).get("/users/2") zaten TEK satırken, neden ayrı bir UserService sınıfı yazalım — bu satırı olduğu gibi kopyalamak yetmez mi? Yeter, ama SADECE bir test için; 40 test metodunun HER birinde bu satırı tekrar yazarsan, endpoint path\'i değiştiğinde (`/users/{id}` → `/api/v2/users/{id}`) 40 dosya elle taranır. Java karşılaştırması: bu, bir DAO (Data Access Object) sınıfının veritabanı sorgularını iş mantığından İZOLE etmesiyle AYNI motivasyondur — "nasıl erişilir" ile "ne yapılır" ayrılır. QA bağlamı: Service Object\'siz bir projede API versiyon geçişi (v1→v2) 40 test dosyasını kırar; Service Object kullanan bir projede TEK dosya (UserService.java) güncellenir, 40 test hiç değişmeden yeni endpoint\'i kullanır.',
+          en: 'A Service Object is Selenium\'s LoginPage counterpart in the API world: while LoginPage hides where the "#email" locator lives, UserService hides the exact path of the "/users/{id}" endpoint, its HTTP method, and which POJO the response becomes — the test just calls `userService.getUser(2)`. Second analogy: like a bank\'s teller — the customer (the test) does NOT KNOW which account table or SQL query the bank uses, they just say "show my balance"; the teller (the Service Object) manages ALL the technical detail behind the scenes. But since given().spec(spec).get("/users/2") is already ONE line, why write a separate UserService class — isn\'t copying that line as-is enough? It is, but ONLY for one test; if you rewrite that line in EVERY one of 40 test methods, when the endpoint path changes (`/users/{id}` → `/api/v2/users/{id}`) 40 files must be scanned by hand. Java comparison: this is the SAME motivation as a DAO (Data Access Object) class ISOLATING database queries from business logic — "how to access" is separated from "what to do". QA context: without a Service Object, an API version migration (v1→v2) breaks 40 test files; with one, ONE file (UserService.java) is updated, and 40 tests pick up the new endpoint automatically, unchanged.',
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'UserService ile POJO\'ların (User.java) AYRI olmasının nedeni de SRP\'dir: UserService SADECE "bu endpoint\'e NASIL erişilir" sorusuna cevap verir, POJO ise SADECE "yanıt HANGİ alanlardan oluşur" sorusuna cevap verir. UserService, POJO\'yu kullanır ama onun İÇİNDE mantık taşımaz — POJO sadece veri taşıyıcısıdır (data holder).',
+          en: 'The reason UserService and POJOs (User.java) are SEPARATE is also SRP: UserService answers only "HOW is this endpoint accessed", while the POJO answers only "WHAT fields does the response consist of". UserService uses the POJO but carries no logic INSIDE it — the POJO is just a data holder.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `// ─── model/User.java — SADECE alan tanimlari, mantik ICERMEZ (POJO) ───
+package model;
+
+public class User {
+    private int id;
+    private String email;
+    private String firstName;
+    // getter/setter (Lombok @Data ile otomatik uretilebilir)
+}
+
+// ─── service/UserService.java — SADECE "bu endpoint'e NASIL erisilir" (Service Object) ───
+package service;
+
+import io.restassured.specification.RequestSpecification;
+import model.User;
+import static io.restassured.RestAssured.given;
+
+public class UserService {
+
+    private final RequestSpecification spec;
+
+    public UserService(RequestSpecification spec) {
+        this.spec = spec;   // BaseTest'ten paylasilan spec ENJEKTE edilir
+    }
+
+    public User getUser(int id) {
+        return given().spec(spec)
+            .when().get("/api/users/" + id)
+            .then().statusCode(200)
+            .extract().as(User.class);   // POJO'ya donusum BURADA olur
+    }
+
+    public User createUser(User newUser) {
+        return given().spec(spec).body(newUser)
+            .when().post("/api/users")
+            .then().statusCode(201)
+            .extract().as(User.class);
+    }
+}
+
+// ─── UserServiceTest.java — SADECE senaryo, endpoint detayi BILMEZ ───
+class UserServiceTest extends BaseTest {
+    private final UserService userService = new UserService(spec);
+
+    @Test
+    void getUserReturnsCorrectEmail() {
+        User user = userService.getUser(2);         // TEK satir, detay gizli
+        assertThat(user.getEmail()).contains("@");
+    }
+}`,
+          en: `// ─── model/User.java — ONLY field definitions, contains NO logic (POJO) ───
+package model;
+
+public class User {
+    private int id;
+    private String email;
+    private String firstName;
+    // getters/setters (can be auto-generated with Lombok @Data)
+}
+
+// ─── service/UserService.java — ONLY "HOW is this endpoint accessed" (Service Object) ───
+package service;
+
+import io.restassured.specification.RequestSpecification;
+import model.User;
+import static io.restassured.RestAssured.given;
+
+public class UserService {
+
+    private final RequestSpecification spec;
+
+    public UserService(RequestSpecification spec) {
+        this.spec = spec;   // the spec shared from BaseTest is INJECTED
+    }
+
+    public User getUser(int id) {
+        return given().spec(spec)
+            .when().get("/api/users/" + id)
+            .then().statusCode(200)
+            .extract().as(User.class);   // conversion to POJO happens HERE
+    }
+
+    public User createUser(User newUser) {
+        return given().spec(spec).body(newUser)
+            .when().post("/api/users")
+            .then().statusCode(201)
+            .extract().as(User.class);
+    }
+}
+
+// ─── UserServiceTest.java — ONLY the scenario, does NOT know endpoint details ───
+class UserServiceTest extends BaseTest {
+    private final UserService userService = new UserService(spec);
+
+    @Test
+    void getUserReturnsCorrectEmail() {
+        User user = userService.getUser(2);         // ONE line, detail hidden
+        assertThat(user.getEmail()).contains("@");
+    }
+}`,
+        },
+      },
+      {
+        type: 'step-animation',
+        id: 'restassured-arch-service-object-steps',
+        title: { tr: 'Adım Adım: userService.getUser(2) Ham Yanıtı POJO\'ya Nasıl Dönüştürür?', en: 'Step by Step: How Does userService.getUser(2) Turn the Raw Response into a POJO?' },
+        steps: [
+          { id: 1, icon: '☎️', label: { tr: 'Test getUser(2) çağırır', en: 'The test calls getUser(2)' }, detail: { tr: 'Test, userService.getUser(2) çağırır — endpoint path\'ini, HTTP metodunu veya JSON şeklini hiç BİLMEZ, sadece bir kullanıcı ID\'si verir.', en: 'The test calls userService.getUser(2) — it does not KNOW the endpoint path, HTTP method, or JSON shape, it just provides a user ID.' } },
+          { id: 2, icon: '🧩', label: { tr: 'UserService paylaşılan spec\'i kullanır', en: 'UserService uses the shared spec' }, detail: { tr: 'given().spec(spec) çağrısı, constructor\'da enjekte edilen AYNI RequestSpecification\'ı kullanır — BaseTest\'in kurduğu şey burada TEKRAR KULLANILIR.', en: 'The given().spec(spec) call uses the SAME RequestSpecification injected in the constructor — what BaseTest set up gets REUSED here.' } },
+          { id: 3, icon: '🌐', label: { tr: 'Gerçek GET isteği gönderilir', en: 'The real GET request is sent' }, detail: { tr: '.when().get("/api/users/2") ağa çıkar — backend GERÇEK bir JSON yanıtı döner: {"id":2,"email":"...","first_name":"..."}.', en: '.when().get("/api/users/2") goes out over the network — the backend returns a REAL JSON response: {"id":2,"email":"...","first_name":"..."}.' } },
+          { id: 4, icon: '✅', label: { tr: '.then().statusCode(200) doğrulanır', en: '.then().statusCode(200) is verified' }, detail: { tr: 'UserService, POJO\'ya dönüşmeden ÖNCE statusCode\'un 200 olduğunu doğrular — yanlış bir statüde POJO dönüşümüne HİÇ geçilmez.', en: 'Before converting to a POJO, UserService verifies the statusCode is 200 — with a wrong status, POJO conversion is NEVER even attempted.' } },
+          { id: 5, icon: '📄', label: { tr: '.extract().as(User.class) POJO üretir', en: '.extract().as(User.class) produces the POJO' }, detail: { tr: 'Jackson, JSON alanlarını User sınıfının alanlarına eşler — test artık user.getEmail() gibi GERÇEK Java metotlarıyla çalışır, string parse etmez.', en: 'Jackson maps the JSON fields onto the User class\'s fields — the test now works with REAL Java methods like user.getEmail(), not string parsing.' } },
+        ],
+      },
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'ch-restassured-arch-service-object-order',
+        question: {
+          tr: 'userService.getUser(id) çağrısının katmanlar arası akışını doğru sıraya diz.',
+          en: 'Arrange the cross-layer flow of the userService.getUser(id) call in the correct order.',
+        },
+        items: [
+          { id: '1', text: { tr: 'Test: userService.getUser(2) çağrılır', en: 'Test: userService.getUser(2) is called' }, order: 1 },
+          { id: '2', text: { tr: 'UserService: constructor\'da enjekte edilen spec\'i given().spec() ile kullanır', en: 'UserService: uses the spec injected in the constructor via given().spec()' }, order: 2 },
+          { id: '3', text: { tr: 'Gerçek GET isteği /api/users/2\'ye gönderilir', en: 'The real GET request is sent to /api/users/2' }, order: 3 },
+          { id: '4', text: { tr: '.then().statusCode(200) ile yanıt doğrulanır', en: 'The response is verified with .then().statusCode(200)' }, order: 4 },
+          { id: '5', text: { tr: '.extract().as(User.class) ile POJO\'ya dönüştürülür', en: 'It is converted to a POJO with .extract().as(User.class)' }, order: 5 },
+        ],
+        xpReward: 20,
+      },
+      {
+        type: 'code-playground',
+        relatedTopicId: 'restassured-framework-service-object',
+        id: 'restassured-arch-service-object-practice',
+        label: {
+          tr: 'Micro Lab: UserService.createUser()\'ı POJO döndürecek şekilde tamamla',
+          en: 'Micro Lab: complete UserService.createUser() so it returns a POJO',
+        },
+        language: 'java',
+        task: {
+          tr: 'Aşağıdaki createUser() metodu isteği doğru gönderiyor ama TODO satırı eksik olduğu için yanıtı hiçbir POJO\'ya DÖNÜŞTÜRMÜYOR — metot derlenmiyor çünkü User dönmesi gerekiyor. TODO satırını, yanıtı User.class\'a dönüştürecek şekilde tamamla.',
+          en: 'The createUser() method below sends the request correctly, but because the TODO line is missing, it never CONVERTS the response into a POJO — the method does not compile because it must return a User. Complete the TODO line so it converts the response into User.class.',
+        },
+        explanation: {
+          tr: 'Bu pratik gerçek bir HTTP isteği göndermez; amaç Service Object\'in "ham yanıtı tip-güvenli bir nesneye çevir" sorumluluğunu elle tamamlayarak pekiştirmektir.',
+          en: 'This is not a real HTTP session; the goal is to reinforce, by completing it yourself, the Service Object\'s responsibility of "converting the raw response into a type-safe object".',
+        },
+        code: {
+          tr: `public User createUser(User newUser) {
+    return given().spec(spec).body(newUser)
+        .when().post("/api/users")
+        .then().statusCode(201)
+        .extract().as(User.class);
+}`,
+          en: `public User createUser(User newUser) {
+    return given().spec(spec).body(newUser)
+        .when().post("/api/users")
+        .then().statusCode(201)
+        .extract().as(User.class);
+}`,
+        },
+        starterCode: {
+          tr: `public User createUser(User newUser) {
+    return given().spec(spec).body(newUser)
+        .when().post("/api/users")
+        .then().statusCode(201)
+        TODO;   // yaniti User.class'a donustur
+}`,
+          en: `public User createUser(User newUser) {
+    return given().spec(spec).body(newUser)
+        .when().post("/api/users")
+        .then().statusCode(201)
+        TODO;   // convert the response into User.class
+}`,
+        },
+        solutionCode: {
+          tr: `public User createUser(User newUser) {
+    return given().spec(spec).body(newUser)
+        .when().post("/api/users")
+        .then().statusCode(201)
+        .extract().as(User.class);
+}`,
+          en: `public User createUser(User newUser) {
+    return given().spec(spec).body(newUser)
+        .when().post("/api/users")
+        .then().statusCode(201)
+        .extract().as(User.class);
+}`,
+        },
+        expected: {
+          tr: 'TODO satırı .extract().as(User.class) olmalı — extract() yanıt gövdesini çıkarır, as(User.class) ise Jackson ile onu User nesnesine dönüştürür.',
+          en: 'The TODO line must be .extract().as(User.class) — extract() pulls out the response body, and as(User.class) uses Jackson to convert it into a User object.',
+        },
+        hints: [
+          { tr: '.extract() yanıt gövdesine erişim sağlar; .as(SinifAdi.class) ise Jackson kütüphanesini kullanarak JSON\'ı o sınıfın bir örneğine dönüştürür.', en: '.extract() gives access to the response body; .as(ClassName.class) uses the Jackson library to convert the JSON into an instance of that class.' },
+          { tr: 'Metodun dönüş tipi User olduğu için, zincirin SONUNDA bir User nesnesi üretilmesi gerekir — statusCode(201) sadece doğrulama yapar, bir değer DÖNDÜRMEZ.', en: 'Since the method\'s return type is User, the chain must produce a User object at the END — statusCode(201) only verifies, it does NOT return a value.' },
+          { tr: 'Jackson, JSON alan adlarını (örn. "first_name") POJO\'nun alan adlarıyla (firstName) otomatik eşler — alan adı UYUŞMAZSA dönüşüm sessizce null bırakabilir.', en: 'Jackson automatically maps JSON field names (e.g. "first_name") to the POJO\'s field names (firstName) — if the field name does NOT match, the conversion can silently leave it null.' },
+        ],
+        xpReward: 15,
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'UserService.getUser() metodu neden bir POJO (User) döndürür, ham bir JSON string DEĞİL?',
+          en: 'Why does the UserService.getUser() method return a POJO (User), NOT a raw JSON string?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Test kodunun tip-güvenli Java alanlarıyla (user.getEmail()) çalışmasını sağlar, string parse etmesini ÖNLER', en: 'It lets test code work with type-safe Java fields (user.getEmail()), PREVENTING string parsing' } },
+          { id: 'b', text: { tr: 'REST Assured JSON string döndürmeyi teknik olarak engeller', en: 'REST Assured technically blocks returning a JSON string' } },
+          { id: 'c', text: { tr: 'Performansı artırmak için', en: 'To improve performance' } },
+          { id: 'd', text: { tr: 'Sadece POST istekleri için gereklidir', en: 'It is only necessary for POST requests' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: 'Ham bir JSON string ile çalışsaydın, her alan adı bir string literal olurdu ve bir typo (örn. "emial") derleme zamanında YAKALANMAZDI. POJO ile IDE otomatik tamamlama sağlar ve yanlış alan adı DERLEME HATASI verir — bu, Selenium\'da @FindBy proxy\'lerinin sağladığı tip güvenliğiyle AYNI motivasyondur.',
+          en: 'If you worked with a raw JSON string, every field name would be a string literal, and a typo (e.g. "emial") would NOT be CAUGHT at compile time. With a POJO, the IDE offers autocomplete and a wrong field name gives a COMPILE ERROR — this is the SAME motivation as the type safety Selenium\'s @FindBy proxies provide.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'UserService\'in RequestSpecification\'ı constructor üzerinden ENJEKTE alması (kendi başına kurmaması) hangi prensibi uygular?',
+            en: 'UserService receiving its RequestSpecification via constructor INJECTION (instead of building it itself) applies which principle?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Dependency Inversion (DIP) — yüksek seviye kod somut kuruluma değil dışarıdan verilen bir soyutlamaya bağlı olmalı', en: 'Dependency Inversion (DIP) — high-level code should depend on an externally supplied abstraction, not concrete construction' } },
+            { id: 'b', text: { tr: 'Interface Segregation (ISP)', en: 'Interface Segregation (ISP)' } },
+            { id: 'c', text: { tr: 'Hiçbiri', en: 'None' } },
+            { id: 'd', text: { tr: 'Sadece OCP', en: 'Only OCP' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'UserService kendi RequestSpecification\'ını yaratmak yerine dışarıdan (BaseTest\'ten) alır — bu, UserService\'in test ortamına (staging, prod, mock) bağımlı olmadan, sadece "bir spec verilecek" varsayımıyla çalışmasını sağlar.',
+            en: 'UserService receives its RequestSpecification from outside (from BaseTest) instead of creating it itself — this lets UserService work without depending on the test environment (staging, prod, mock), just assuming "a spec will be provided".',
+          },
+        },
+      },
+
+      // ── Adım 4 — SOLID Uygulaması (OCP odaklı): AuthProvider ──
+      {
+        type: 'heading',
+        text: { tr: '⚖️ Adım 4 — SOLID Prensipleri REST Assured Kodunda', en: '⚖️ Step 4 — SOLID Principles in REST Assured Code' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🔑',
+        content: {
+          tr: 'SOLID beş prensip, bir otel anahtar kartı sistemidir: her kart tipi TEK bir yetki seviyesini taşır (SRP — misafir kartı sadece odaya girer), yeni bir yetki seviyesi (personel, yönetici) eklemek için mevcut kart okuyucuları SÖKMEZSİN, yeni bir kart TİPİ tanımlarsın (OCP), aynı okuyucu HER kart tipini aynı şekilde kabul eder (LSP), oda kartının arayüzü sadece kapı açmayı gösterir asansör yetkisini değil (ISP), ve kart okuyucular belirli bir kart markasına değil ORTAK bir standarda (RFID) bağlıdır (DIP). İkinci benzetme: OCP bir elektrik prizine yeni bir cihaz takmak gibidir — prizin İÇİNİ AÇMAZSIN, standart bir soketi kullanırsın. Peki testler zaten Basic Auth ile çalışıyorken, neden bu prensiplere uğraşıyoruz — proje Bearer token da destekleyecekse UserService\'e "if useBearer ise..." eklemek daha hızlı değil mi? Kısa vadede evet; ama Service Object içine her yeni auth türü için if/else eklemek, o sınıfı her değişiklikte yeniden test etmeni ve mevcut Basic Auth senaryolarını kırma riskini getirir. Java karşılaştırması: bu tam olarak bir `PaymentStrategy` arayüzüdür — `Checkout` sınıfının içini değiştirmeden yeni ödeme yöntemleri eklersin; burada da auth yöntemlerini aynı şekilde takılabilir hale getirebilirsin. QA bağlamı: OCP\'ye uyan bir auth katmanında "bu proje için OAuth2\'yi de destekleyelim" kararı, mevcut 30 Basic-Auth testinin hiçbirine dokunmadan tek bir yeni sınıfla çözülür — dokunmadığın kod, kıramadığın koddur.',
+          en: 'The five SOLID principles are a hotel key card system: each card type carries ONE authority level (SRP — a guest card only opens a room), to add a new authority level (staff, manager) you do not DISMANTLE the existing card readers, you define a new card TYPE (OCP), the same reader accepts every card type the same way (LSP), a room card\'s interface shows only door access, not elevator authority (ISP), and card readers depend on a COMMON standard (RFID), not one specific card brand (DIP). Second analogy: OCP is like plugging a new device into a power outlet — you do not OPEN UP the outlet, you use a standard socket. But if the tests already work with Basic Auth, why bother with these principles — if the project needs to support Bearer tokens too, isn\'t adding "if useBearer..." to UserService faster? Short-term yes; but adding if/else inside the Service Object for every new auth type forces you to retest that class on every change and risks breaking the existing Basic Auth scenarios. Java comparison: this is exactly a `PaymentStrategy` interface — you add new payment methods without changing the inside of the `Checkout` class; here you can make auth methods just as pluggable. QA context: in an auth layer that respects OCP, the decision to "let\'s also support OAuth2 for this project" is solved with a single new class, without touching any of the existing 30 Basic-Auth tests — the code you do not touch is the code you cannot break.',
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'Beş prensibin REST Assured karşılığı: SRP — BaseTest sadece kurulum, UserService sadece endpoint mantığı (Adım 2-3). OCP — yeni bir auth türü eklemek için mevcut kodu değiştirmeden yeni sınıf ekle (aşağıda). LSP — her AuthProvider, "isteğe kimlik ekleyen bir şey" beklenen her yerde sorunsuz kullanılabilir olmalı. ISP — bir Service Object\'e kullanmayacağı metotları içeren şişkin bir arayüz dayatma. DIP — Service Object somut bir auth mekanizmasına değil bir soyutlamaya (arayüz) bağlı olmalı. Aşağıda OCP\'yi somut bir "Anti-Pattern vs SOLID" çiftiyle inceliyoruz.',
+          en: 'The REST Assured mapping of the five principles: SRP — BaseTest only sets up, UserService only holds endpoint logic (Steps 2-3). OCP — add a new auth type by adding a new class without modifying existing code (below). LSP — every AuthProvider must be usable wherever "something that adds identity to a request" is expected. ISP — do not impose a bloated interface with methods a Service Object will not use. DIP — the Service Object should depend on an abstraction (interface), not a concrete auth mechanism. Below we examine OCP through a concrete "Anti-Pattern vs SOLID" pair.',
+        },
+      },
+      {
+        type: 'comparison',
+        left: {
+          label: { tr: '❌ OCP İhlali (if/else şişmesi)', en: '❌ OCP Violation (if/else bloat)' },
+          code: {
+            tr: `// Her yeni auth turu bu metodu DEGISTIRIR
+public RequestSpecification applyAuth(RequestSpecification req, String type) {
+    if (type.equals("basic")) {
+        return req.auth().basic("user", "pass");
+    } else if (type.equals("bearer")) {
+        return req.header("Authorization", "Bearer " + token);
+    }
+    // yeni tur = yeni else-if = eski kodu yeniden test et
+    return req;
+}`,
+            en: `// Every new auth type MODIFIES this method
+public RequestSpecification applyAuth(RequestSpecification req, String type) {
+    if (type.equals("basic")) {
+        return req.auth().basic("user", "pass");
+    } else if (type.equals("bearer")) {
+        return req.header("Authorization", "Bearer " + token);
+    }
+    // new type = new else-if = retest the old code
+    return req;
+}`,
+          },
+          note: { tr: 'Yeni davranış = mevcut metodu değiştir = regresyon riski.', en: 'New behavior = modify the existing method = regression risk.' },
+        },
+        right: {
+          label: { tr: '✅ OCP Uygun (Strategy)', en: '✅ OCP-Compliant (Strategy)' },
+          code: {
+            tr: `// Yeni tur = mevcut kodu DEGISTIRMEDEN yeni sinif ekle
+public interface AuthProvider {
+    RequestSpecification apply(RequestSpecification req);
+}
+
+public class BearerAuthProvider implements AuthProvider {
+    public RequestSpecification apply(RequestSpecification req) {
+        return req.header("Authorization", "Bearer " + token);
+    }
+}`,
+            en: `// New type = add a new class WITHOUT modifying existing code
+public interface AuthProvider {
+    RequestSpecification apply(RequestSpecification req);
+}
+
+public class BearerAuthProvider implements AuthProvider {
+    public RequestSpecification apply(RequestSpecification req) {
+        return req.header("Authorization", "Bearer " + token);
+    }
+}`,
+          },
+          note: { tr: 'Yeni strateji = yeni dosya; eski kod hiç açılmaz.', en: 'New strategy = new file; existing code is never opened.' },
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `// ─── auth/AuthProvider.java — OCP: davranisi arayuz uzerinden takilabilir yap ───
+package auth;
+
+import io.restassured.specification.RequestSpecification;
+
+public interface AuthProvider {
+    RequestSpecification apply(RequestSpecification request);
+}
+
+// Strateji 1 — Basic Auth (mevcut, degismedi)
+public class BasicAuthProvider implements AuthProvider {
+    private final String username, password;
+
+    public BasicAuthProvider(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        return request.auth().basic(username, password);
+    }
+}
+
+// Strateji 2 — Bearer Token (YENI, eskiye HIC dokunulmadi)
+public class BearerAuthProvider implements AuthProvider {
+    private final String token;
+
+    public BearerAuthProvider(String token) {
+        this.token = token;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        return request.header("Authorization", "Bearer " + token);
+    }
+}`,
+          en: `// ─── auth/AuthProvider.java — OCP: make behavior pluggable via an interface ───
+package auth;
+
+import io.restassured.specification.RequestSpecification;
+
+public interface AuthProvider {
+    RequestSpecification apply(RequestSpecification request);
+}
+
+// Strategy 1 — Basic Auth (existing, unchanged)
+public class BasicAuthProvider implements AuthProvider {
+    private final String username, password;
+
+    public BasicAuthProvider(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        return request.auth().basic(username, password);
+    }
+}
+
+// Strategy 2 — Bearer Token (NEW, the old one was NEVER touched)
+public class BearerAuthProvider implements AuthProvider {
+    private final String token;
+
+    public BearerAuthProvider(String token) {
+        this.token = token;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        return request.header("Authorization", "Bearer " + token);
+    }
+}`,
+        },
+      },
+      {
+        type: 'step-animation',
+        id: 'restassured-arch-ocp-authprovider-steps',
+        title: { tr: 'Adım Adım: OCP ile Yeni Bir Auth Türü Nasıl Eklenir?', en: 'Step by Step: How a New Auth Type Is Added with OCP' },
+        steps: [
+          { id: 1, icon: '📐', label: { tr: 'Arayüz sözleşmeyi sabitler', en: 'The interface fixes the contract' }, detail: { tr: 'AuthProvider arayüzü tek bir metot tanımlar: apply(request). Bu sözleşme bir kez yazılır ve bir daha değişmez.', en: 'The AuthProvider interface defines one method: apply(request). This contract is written once and never changes again.' } },
+          { id: 2, icon: '🧱', label: { tr: 'Her tür ayrı sınıf', en: 'Each type is its own class' }, detail: { tr: 'BasicAuthProvider ve BearerAuthProvider arayüzü ayrı ayrı uygular — biri diğerinin kodunu bilmez, birbirini kırmaz.', en: 'BasicAuthProvider and BearerAuthProvider each implement the interface separately — neither knows the other\'s code, neither can break the other.' } },
+          { id: 3, icon: '➕', label: { tr: 'Yeni ihtiyaç = yeni sınıf', en: 'New need = new class' }, detail: { tr: '"OAuth2 desteği" ihtiyacı gelirse OAuth2AuthProvider adında YENİ bir dosya açarsın; mevcut iki sınıfa DOKUNMAZSIN.', en: 'If an "OAuth2 support" need arises, you open a NEW file named OAuth2AuthProvider; you do NOT touch the existing two classes.' } },
+          { id: 4, icon: '🔌', label: { tr: 'Service Object stratejiyi enjekte alır', en: 'The Service Object receives the strategy injected' }, detail: { tr: 'UserService hangi somut AuthProvider\'ı kullandığını bilmez, sadece arayüze bağlıdır — istediğin stratejiyi dışarıdan verirsin (DIP ile birlikte çalışır).', en: 'UserService does not know which concrete AuthProvider it uses, it depends only on the interface — you supply the desired strategy from outside (works together with DIP).' } },
+          { id: 5, icon: '🛡️', label: { tr: 'Eski testler dokunulmadan geçer', en: 'Old tests pass untouched' }, detail: { tr: 'Yeni provider eklenince mevcut 30 Basic-Auth testinin hiçbiri değişmediği için hiçbiri kırılamaz — OCP\'nin regresyon güvencesi tam olarak budur.', en: 'When the new provider is added, none of the existing 30 Basic-Auth tests changed, so none can break — this is exactly OCP\'s regression guarantee.' } },
+        ],
+      },
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'ch-restassured-arch-ocp-order',
+        question: {
+          tr: '"OAuth2 desteği ekleyelim" ihtiyacını OCP\'ye uygun şekilde çözme adımlarını sıraya diz.',
+          en: 'Arrange the OCP-compliant steps for the need "let\'s add OAuth2 support".',
+        },
+        items: [
+          { id: '1', text: { tr: 'Mevcut AuthProvider arayüzünü (sözleşmeyi) incele — değiştirme', en: 'Inspect the existing AuthProvider interface (the contract) — do not change it' }, order: 1 },
+          { id: '2', text: { tr: 'Yeni bir OAuth2AuthProvider dosyası oluştur, arayüzü implement et', en: 'Create a new OAuth2AuthProvider file, implement the interface' }, order: 2 },
+          { id: '3', text: { tr: 'apply() metodunu OAuth2\'ye özgü token mantığıyla doldur', en: 'Fill the apply() method with OAuth2-specific token logic' }, order: 3 },
+          { id: '4', text: { tr: 'İlgili Service Object\'e bu stratejiyi dışarıdan enjekte et', en: 'Inject this strategy into the relevant Service Object from outside' }, order: 4 },
+          { id: '5', text: { tr: 'Mevcut testleri çalıştır — hiçbiri değişmediği için hepsi geçer', en: 'Run the existing tests — since none changed, they all pass' }, order: 5 },
+        ],
+        xpReward: 20,
+      },
+      {
+        type: 'code-playground',
+        relatedTopicId: 'restassured-framework-ocp',
+        id: 'restassured-arch-ocp-authprovider-practice',
+        label: {
+          tr: 'Micro Lab: OCP\'ye uygun yeni bir AuthProvider ekle',
+          en: 'Micro Lab: add a new OCP-compliant AuthProvider',
+        },
+        language: 'java',
+        task: {
+          tr: 'Proje artık API-Key ile kimlik doğrulamayı da destekliyor. OCP kuralı gereği MEVCUT AuthProvider arayüzünü veya BasicAuthProvider sınıfını DEĞİŞTİRMEDEN, yeni bir ApiKeyAuthProvider sınıfı yaz. TODO satırlarını tamamla: sınıf AuthProvider\'ı implement etmeli ve apply() içinde "X-API-Key" header\'ını eklemeli.',
+          en: 'The project now also supports API-Key authentication. Per OCP, WITHOUT modifying the existing AuthProvider interface or the BasicAuthProvider class, write a new ApiKeyAuthProvider class. Complete the TODO lines: the class must implement AuthProvider and, inside apply(), add the "X-API-Key" header.',
+        },
+        explanation: {
+          tr: 'Bu pratik gerçek bir HTTP isteği göndermez; amaç OCP\'nin "genişlet ama değiştirme" ilkesini elle uygulayarak, yeni davranışı mevcut sınıflara dokunmadan eklemenin regresyonu nasıl önlediğini pekiştirmektir.',
+          en: 'This is not a real HTTP session; the goal is to apply OCP\'s "extend but do not modify" principle by hand, reinforcing how adding new behavior without touching existing classes prevents regression.',
+        },
+        code: {
+          tr: `public class ApiKeyAuthProvider implements AuthProvider {
+    private final String apiKey;
+
+    public ApiKeyAuthProvider(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        return request.header("X-API-Key", apiKey);
+    }
+}`,
+          en: `public class ApiKeyAuthProvider implements AuthProvider {
+    private final String apiKey;
+
+    public ApiKeyAuthProvider(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        return request.header("X-API-Key", apiKey);
+    }
+}`,
+        },
+        starterCode: {
+          tr: `public class ApiKeyAuthProvider TODO {
+    private final String apiKey;
+
+    public ApiKeyAuthProvider(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        TODO   // X-API-Key header'ini ekle
+    }
+}`,
+          en: `public class ApiKeyAuthProvider TODO {
+    private final String apiKey;
+
+    public ApiKeyAuthProvider(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        TODO   // add the X-API-Key header
+    }
+}`,
+        },
+        solutionCode: {
+          tr: `public class ApiKeyAuthProvider implements AuthProvider {
+    private final String apiKey;
+
+    public ApiKeyAuthProvider(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        return request.header("X-API-Key", apiKey);
+    }
+}`,
+          en: `public class ApiKeyAuthProvider implements AuthProvider {
+    private final String apiKey;
+
+    public ApiKeyAuthProvider(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    @Override
+    public RequestSpecification apply(RequestSpecification request) {
+        return request.header("X-API-Key", apiKey);
+    }
+}`,
+        },
+        expected: {
+          tr: 'İlk TODO "implements AuthProvider" olmalı; ikinci TODO return request.header("X-API-Key", apiKey) olmalı — mevcut arayüz ve BasicAuthProvider\'a hiç dokunmadan yeni davranış eklenir.',
+          en: 'The first TODO must be "implements AuthProvider"; the second TODO must be return request.header("X-API-Key", apiKey) — new behavior is added without touching the existing interface or BasicAuthProvider.',
+        },
+        hints: [
+          { tr: 'OCP\'nin özü: yeni sınıf, mevcut arayüzü (AuthProvider) implement eder; böylece Service Object değişmeden yeni davranışı kullanabilir. Arayüzü veya eski sınıfı ASLA açma.', en: 'The essence of OCP: the new class implements the existing interface (AuthProvider); this lets the Service Object use the new behavior unchanged. NEVER open the interface or the old class.' },
+          { tr: 'RequestSpecification.header(isim, değer) metodu, isteğe yeni bir HTTP header EKLER ve güncellenmiş bir RequestSpecification döner — zincirlenebilir bir yapıdır.', en: 'The RequestSpecification.header(name, value) method ADDS a new HTTP header to the request and returns an updated RequestSpecification — it is chainable.' },
+          { tr: 'API-Key kimlik doğrulaması genelde özel bir header (örn. "X-API-Key") ile yapılır — Bearer token\'ın "Authorization" header\'ından FARKLI bir header adı kullanır.', en: 'API-Key authentication is usually done with a custom header (e.g. "X-API-Key") — it uses a DIFFERENT header name from Bearer token\'s "Authorization" header.' },
+        ],
+        xpReward: 15,
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir REST Assured yardımcı metodunda her yeni auth türü için var olan applyAuth() metoduna if/else eklemek hangi SOLID prensibini ihlal eder?',
+          en: 'In a REST Assured helper method, adding an if/else to the existing applyAuth() method for every new auth type violates which SOLID principle?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Open/Closed Principle (OCP) — metot genişlemeye açık, değişikliğe kapalı olmalı', en: 'Open/Closed Principle (OCP) — a method should be open to extension, closed to modification' } },
+          { id: 'b', text: { tr: 'Sadece Single Responsibility (SRP)', en: 'Only Single Responsibility (SRP)' } },
+          { id: 'c', text: { tr: 'Hiçbirini — if/else her zaman iyi pratiktir', en: 'None — if/else is always good practice' } },
+          { id: 'd', text: { tr: 'Liskov Substitution (LSP)', en: 'Liskov Substitution (LSP)' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: 'Her yeni tür için mevcut metodu değiştirmek (yeni else-if) OCP ihlalidir: metot "değişikliğe kapalı" olmalıydı. Strategy pattern ile davranışı arayüz arkasına alırsan, yeni tür eklemek mevcut kodu değiştirmeyi değil, yeni bir sınıf eklemeyi gerektirir — eski testler dokunulmadan güvende kalır.',
+          en: 'Modifying the existing method (a new else-if) for every new type violates OCP: the method should have been "closed to modification". With the Strategy pattern behind an interface, adding a new type requires adding a new class, not changing existing code — old tests stay safe, untouched.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir UserService\'in somut BasicAuthProvider yerine bir AuthProvider arayüzüne bağlı olması hangi prensibi uygular?',
+            en: 'A UserService depending on an AuthProvider interface instead of the concrete BasicAuthProvider applies which principle?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Dependency Inversion (DIP) — yüksek seviye modül soyutlamaya bağlı olmalı', en: 'Dependency Inversion (DIP) — high-level modules should depend on abstractions' } },
+            { id: 'b', text: { tr: 'Interface Segregation (ISP)', en: 'Interface Segregation (ISP)' } },
+            { id: 'c', text: { tr: 'Hiçbiri', en: 'None' } },
+            { id: 'd', text: { tr: 'Sadece OCP', en: 'Only OCP' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'DIP, yüksek seviye kodun (Service Object) düşük seviye somut sınıfa değil, bir soyutlamaya (arayüz) bağlı olmasını söyler. Service Object bir AuthProvider arayüzüne bağlıysa, farklı implementasyonlar (Basic, Bearer, API-Key) sorunsuz değiştirilebilir.',
+            en: 'DIP says high-level code (the Service Object) should depend on an abstraction (interface), not a low-level concrete class. If the Service Object depends on an AuthProvider interface, different implementations (Basic, Bearer, API-Key) can be swapped freely.',
+          },
+        },
+      },
+
+      // ── Adım 5 — Test / Data Katmanı: @ParameterizedTest & @MethodSource ──
+      {
+        type: 'heading',
+        text: { tr: '🔗 Adım 5 — Test / Data Katmanı: @ParameterizedTest & @MethodSource', en: '🔗 Step 5 — Test / Data Layer: @ParameterizedTest & @MethodSource' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎛️',
+        content: {
+          tr: '@ParameterizedTest + @MethodSource, bir fabrika bandıdır — tıpkı Selenium\'daki TestNG @DataProvider gibi: aynı test metodunu (aynı montaj istasyonunu) farklı parçalarla (farklı kullanıcı ID\'leriyle) tekrar tekrar besler; sen tek bir test yazarsın, JUnit5 onu N farklı veriyle N kez koşturur. İkinci benzetme: bir sınavın çoktan seçmeli soru bankası gibi — aynı SORU FORMATI (aynı doğrulama mantığı), farklı SORU İÇERİĞİYLE (farklı kullanıcı ID\'leriyle) tekrar kullanılır. Peki Playwright/Cypress\'te @DataProvider yokken düz bir for-loop yeterliydi — Java\'da neden ayrı bir annotation gerekiyor? Çünkü Java, JavaScript\'in aksine, test toplama (test discovery) işini ÇALIŞMA ZAMANINDA değil YANSIMA (reflection) ile yapar — JUnit5\'in test\'i "kaç kez, hangi veriyle" koşacağını BİLMESİ için resmi bir annotation\'a ihtiyacı vardır; JavaScript\'te ise test() çağrısının KENDİSİ zaten dosya toplanırken çalışan bir fonksiyon olduğu için düz bir for-loop yeterlidir. Java karşılaştırması: bu, TestNG\'nin @DataProvider\'ıyla AYNI ilke, sadece annotation adı ve mekanizması farklı (JUnit5 @MethodSource bir Stream/List döndüren static bir metoda işaret eder). QA bağlamı: geçerli/geçersiz/boş/SQL-injection denemesi gibi 20 senaryoyu tek bir data-driven testle kapsarsın; yeni bir sınır durumu çıkınca kod değil, sadece veri satırı eklersin.',
+          en: '@ParameterizedTest + @MethodSource is a factory conveyor — just like TestNG\'s @DataProvider in Selenium: it feeds the same test method (the same assembly station) over and over with different parts (different user IDs); you write one test, and JUnit5 runs it N times with N different data sets. Second analogy: like an exam\'s multiple-choice question bank — the same QUESTION FORMAT (the same verification logic) is reused with different QUESTION CONTENT (different user IDs). But in Playwright/Cypress, without @DataProvider, a plain for-loop was enough — why does Java need a separate annotation? Because, unlike JavaScript, Java does test discovery via REFLECTION, not at RUNTIME — JUnit5 needs a formal annotation to KNOW "how many times, with what data" a test should run; in JavaScript, the test() call ITSELF is already a function that runs while the file is being collected, so a plain for-loop suffices. Java comparison: this is the SAME principle as TestNG\'s @DataProvider, just with a different annotation name and mechanism (JUnit5\'s @MethodSource points to a static method returning a Stream/List). QA context: you cover 20 scenarios like valid/invalid/empty/SQL-injection attempts with a single data-driven test; when a new edge case appears, you add a data row, not code.',
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'Bu son katmanda tüm parçalar birleşir: BaseTest (Adım 2) paylaşılan spec\'i kurar; UserService (Adım 3) endpoint mantığını kapsüller; AuthProvider (Adım 4) kimlik doğrulamayı takılabilir hale getirir; @MethodSource ile beslenen bir test metodu, her veri satırı için AYNI Service Object çağrısını farklı ID\'lerle tekrarlar.',
+          en: 'In this final layer, all pieces come together: BaseTest (Step 2) sets up the shared spec; UserService (Step 3) encapsulates endpoint logic; AuthProvider (Step 4) makes authentication pluggable; a test method fed by @MethodSource repeats the SAME Service Object call with different IDs for each data row.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'java',
+        code: {
+          tr: `// ─── UserServiceDataTest.java — data-driven: mantik TEK, veri COK ───
+package tests;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import java.util.stream.Stream;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class UserServiceDataTest extends BaseTest {
+    private final UserService userService = new UserService(spec);
+
+    // ayni testi besleyecek veri satirlari — mantik TEK, veri COK
+    static Stream<Integer> validUserIds() {
+        return Stream.of(1, 2, 3);   // gecerli 3 kullanici ID'si
+    }
+
+    @ParameterizedTest
+    @MethodSource("validUserIds")
+    void getUserReturnsValidEmailForEachId(int userId) {
+        User user = userService.getUser(userId);
+        assertThat(user.getEmail()).contains("@");
+    }
+}`,
+          en: `// ─── UserServiceDataTest.java — data-driven: logic ONE, data MANY ───
+package tests;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import java.util.stream.Stream;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class UserServiceDataTest extends BaseTest {
+    private final UserService userService = new UserService(spec);
+
+    // data rows that feed the same test — logic ONE, data MANY
+    static Stream<Integer> validUserIds() {
+        return Stream.of(1, 2, 3);   // 3 valid user IDs
+    }
+
+    @ParameterizedTest
+    @MethodSource("validUserIds")
+    void getUserReturnsValidEmailForEachId(int userId) {
+        User user = userService.getUser(userId);
+        assertThat(user.getEmail()).contains("@");
+    }
+}`,
+        },
+      },
+      {
+        type: 'step-animation',
+        id: 'restassured-arch-dataprovider-steps',
+        title: { tr: 'Adım Adım: @MethodSource Aynı Testi Nasıl 3 Kez Koşturur?', en: 'Step by Step: How @MethodSource Runs the Same Test 3 Times' },
+        steps: [
+          { id: 1, icon: '📋', label: { tr: 'validUserIds() veri akışını üretir', en: 'validUserIds() produces the data stream' }, detail: { tr: 'Bu static metot bir Stream<Integer> döner: 1, 2, 3. JUnit5 bu akışı test başlamadan önce OKUR.', en: 'This static method returns a Stream<Integer>: 1, 2, 3. JUnit5 READS this stream before the test starts.' } },
+          { id: 2, icon: '🔁', label: { tr: 'Her değer için AYRI bir test örneği', en: 'A SEPARATE test instance for each value' }, detail: { tr: 'JUnit5 her değer için getUserReturnsValidEmailForEachId\'yi AYRI bir test örneği sayar — üçü de bağımsız çalışır, biri fail olsa diğerleri ETKİLENMEZ.', en: 'JUnit5 treats getUserReturnsValidEmailForEachId per value as a SEPARATE test instance — all three run independently, if one fails the others are NOT affected.' } },
+          { id: 3, icon: '🎯', label: { tr: 'Değer parametreye enjekte edilir', en: 'The value is injected into the parameter' }, detail: { tr: '1. koşum: userId=1, 2. koşum: userId=2, 3. koşum: userId=3 — her koşumda tek bir int değeri metot parametresine geçirilir.', en: 'Run 1: userId=1, run 2: userId=2, run 3: userId=3 — each run injects a single int value into the method parameter.' } },
+          { id: 4, icon: '🧪', label: { tr: 'Service Object + assertion çalışır', en: 'Service Object + assertion run' }, detail: { tr: 'userService.getUser(userId) çağrılır (Adım 3), sonuç assertThat ile beklenen kalıpla karşılaştırılır — mantık her koşumda AYNI.', en: 'userService.getUser(userId) is called (Step 3), and the result is compared against the expected pattern via assertThat — the logic is the SAME every run.' } },
+          { id: 5, icon: '📊', label: { tr: 'Rapor: 3 ayrı sonuç', en: 'Report: 3 separate results' }, detail: { tr: 'Test raporunda tek metot 3 satır olarak görünür — biri fail olursa hangi ID\'nin patladığını net görürsün, kopyalanmış 3 testte bu netlik olmazdı.', en: 'In the report, the single method appears as 3 rows — if one fails, you clearly see which ID broke; with 3 copied tests you would not have that clarity.' } },
+        ],
+      },
+      {
+        type: 'challenge',
+        variant: 'order-sort',
+        id: 'ch-restassured-arch-dataprovider-order',
+        question: {
+          tr: '@ParameterizedTest + @MethodSource ile data-driven bir test kurmanın adımlarını doğru sıraya diz.',
+          en: 'Arrange the steps of building a data-driven test with @ParameterizedTest + @MethodSource in the correct order.',
+        },
+        items: [
+          { id: '1', text: { tr: 'static bir metotta Stream<Integer> döndüren veri kaynağını tanımla', en: 'Define the data source returning a Stream<Integer> in a static method' }, order: 1 },
+          { id: '2', text: { tr: '@ParameterizedTest ile test metodunu işaretle', en: 'Mark the test method with @ParameterizedTest' }, order: 2 },
+          { id: '3', text: { tr: '@MethodSource("validUserIds") ile veri kaynağına bağla', en: 'Bind it to the data source with @MethodSource("validUserIds")' }, order: 3 },
+          { id: '4', text: { tr: 'Test gövdesinde userService.getUser(userId) çağır', en: 'Call userService.getUser(userId) in the test body' }, order: 4 },
+          { id: '5', text: { tr: 'assertThat ile beklenen sonucu doğrula', en: 'Verify the expected result with assertThat' }, order: 5 },
+        ],
+        xpReward: 20,
+      },
+      {
+        type: 'code-playground',
+        relatedTopicId: 'restassured-framework-dataprovider',
+        id: 'restassured-arch-dataprovider-practice',
+        label: {
+          tr: 'Micro Lab: testi @MethodSource veri kaynağına bağla',
+          en: 'Micro Lab: bind the test to a @MethodSource data source',
+        },
+        language: 'java',
+        task: {
+          tr: 'validUserIds() metodu 3 değerlik veri akışını hazır döndürüyor ama TODO satırı eksik olduğu için test bu veriye BAĞLI DEĞİL — şu an parametresini nereden alacağını bilmiyor. TODO satırını tamamla: @MethodSource("validUserIds") annotation\'ını ekleyerek testi veri kaynağına bağla. Bağlandıktan sonra JUnit5 aynı testi 3 değer için 3 kez koşturur.',
+          en: 'The validUserIds() method already returns a 3-value data stream, but the test is NOT BOUND to it because the TODO line is missing — right now it does not know where its parameter comes from. Complete the TODO line: bind the test to the data source by adding the @MethodSource("validUserIds") annotation. Once bound, JUnit5 runs the same test 3 times for the 3 values.',
+        },
+        explanation: {
+          tr: 'Bu pratik gerçek bir HTTP isteği göndermez; amaç JUnit5\'in data-driven mekanizmasını, TestNG\'nin @DataProvider\'ına eşdeğer bir annotation zinciri olarak elle tamamlayarak pekiştirmektir.',
+          en: 'This is not a real HTTP session; the goal is to reinforce, by completing it yourself, that JUnit5\'s data-driven mechanism is an annotation chain equivalent to TestNG\'s @DataProvider.',
+        },
+        code: {
+          tr: `@ParameterizedTest
+@MethodSource("validUserIds")
+void getUserReturnsValidEmailForEachId(int userId) {
+    User user = userService.getUser(userId);
+    assertThat(user.getEmail()).contains("@");
+}`,
+          en: `@ParameterizedTest
+@MethodSource("validUserIds")
+void getUserReturnsValidEmailForEachId(int userId) {
+    User user = userService.getUser(userId);
+    assertThat(user.getEmail()).contains("@");
+}`,
+        },
+        starterCode: {
+          tr: `@ParameterizedTest
+TODO   // veri kaynagina bagla
+void getUserReturnsValidEmailForEachId(int userId) {
+    User user = userService.getUser(userId);
+    assertThat(user.getEmail()).contains("@");
+}`,
+          en: `@ParameterizedTest
+TODO   // bind to the data source
+void getUserReturnsValidEmailForEachId(int userId) {
+    User user = userService.getUser(userId);
+    assertThat(user.getEmail()).contains("@");
+}`,
+        },
+        solutionCode: {
+          tr: `@ParameterizedTest
+@MethodSource("validUserIds")
+void getUserReturnsValidEmailForEachId(int userId) {
+    User user = userService.getUser(userId);
+    assertThat(user.getEmail()).contains("@");
+}`,
+          en: `@ParameterizedTest
+@MethodSource("validUserIds")
+void getUserReturnsValidEmailForEachId(int userId) {
+    User user = userService.getUser(userId);
+    assertThat(user.getEmail()).contains("@");
+}`,
+        },
+        expected: {
+          tr: 'TODO satırı @MethodSource("validUserIds") olmalı — bu annotation, testi validUserIds() metodunun ürettiği veri akışına BAĞLAR, JUnit5 her değer için testi bir kez koşturur.',
+          en: 'The TODO line must be @MethodSource("validUserIds") — this annotation BINDS the test to the data stream produced by validUserIds(), and JUnit5 runs the test once per value.',
+        },
+        hints: [
+          { tr: '@MethodSource, parametre olarak bir METOT ADI (string) alır — bu isim, aynı sınıftaki static bir metoda işaret etmelidir.', en: '@MethodSource takes a METHOD NAME (string) as its parameter — this name must point to a static method in the same class.' },
+          { tr: '@ParameterizedTest TEK BAŞINA yeterli değildir — mutlaka bir veri kaynağı annotation\'ıyla (örn. @MethodSource, @ValueSource) EŞLEŞTİRİLMELİDİR.', en: '@ParameterizedTest is NOT enough on its own — it MUST be PAIRED with a data source annotation (e.g. @MethodSource, @ValueSource).' },
+          { tr: 'validUserIds() metodunun static olması ZORUNLUDUR — JUnit5 bu metodu bir test SINIFI örneği yaratmadan, yansıma (reflection) ile çağırır.', en: 'The validUserIds() method being static is REQUIRED — JUnit5 calls this method via reflection, without creating a test class instance.' },
+        ],
+        xpReward: 15,
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Playwright/Cypress\'te data-driven test için düz bir for-loop yeterliyken, Java/JUnit5\'in NEDEN ayrı bir @MethodSource annotation\'ına ihtiyacı var?',
+          en: 'While a plain for-loop is enough for data-driven testing in Playwright/Cypress, WHY does Java/JUnit5 need a separate @MethodSource annotation?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Java test toplamayı yansıma (reflection) ile yapar; JUnit5\'in "kaç kez, hangi veriyle" koşacağını bilmesi için resmi bir annotation gerekir', en: 'Java does test discovery via reflection; JUnit5 needs a formal annotation to know "how many times, with what data" to run' } },
+          { id: 'b', text: { tr: 'Java\'da döngü (for/while) sözdizimi yoktur', en: 'Java has no loop (for/while) syntax' } },
+          { id: 'c', text: { tr: '@MethodSource performansı artırmak için vardır', en: '@MethodSource exists to improve performance' } },
+          { id: 'd', text: { tr: 'Sadece CI ortamında gereklidir', en: 'It is only necessary in a CI environment' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: 'JavaScript\'te test() çağrısının kendisi dosya toplanırken (collection sırasında) çalışan bir fonksiyondur, bu yüzden düz bir for-loop yeterlidir. Java\'da ise JUnit5 testleri yansıma (reflection) ile keşfeder — bir testin "parametreli" olduğunu ve hangi veri kaynağını kullanacağını bilmesi için resmi bir annotation (@ParameterizedTest + @MethodSource) ZORUNLUDUR.',
+          en: 'In JavaScript, the test() call itself is a function that runs while the file is being collected, so a plain for-loop is enough. In Java, JUnit5 discovers tests via reflection — a formal annotation (@ParameterizedTest + @MethodSource) is REQUIRED for it to know a test is "parameterized" and which data source to use.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Aynı senaryo için 3 ayrı @Test metodu kopyalamak yerine @ParameterizedTest kullanmanın en büyük avantajı nedir?',
+            en: 'What is the biggest advantage of using @ParameterizedTest instead of copying 3 separate @Test methods for the same scenario?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Senaryo mantığı değiştiğinde TEK yer güncellenir, veri satırları ayrı kalır', en: 'When the scenario logic changes, only ONE place is updated, the data rows stay separate' } },
+            { id: 'b', text: { tr: 'Testler daha hızlı çalışır', en: 'The tests run faster' } },
+            { id: 'c', text: { tr: 'Jackson\'a gerek kalmaz', en: 'Jackson is no longer needed' } },
+            { id: 'd', text: { tr: 'JUnit5 bunu zorunlu kılar', en: 'JUnit5 requires this' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: '3 kopyalanmış @Test metodunda getUser çağrısı veya assertion mantığı değişirse 3 yeri elle güncellersin ve biri unutulabilir. @ParameterizedTest ile mantık TEK metotta durur, validUserIds() akışına yeni bir değer eklemek yeni bir senaryoyu kod yazmadan kapsar.',
+            en: 'With 3 copied @Test methods, if the getUser call or assertion logic changes, you update 3 places by hand and one can be missed. With @ParameterizedTest, the logic lives in ONE method, and adding a new value to the validUserIds() stream covers a new scenario without writing code.',
+          },
+        },
+      },
+    ],
+  },
+
+  // ── 11: Interview Questions ───────────────────────────────────────────────────
   {
     title: { tr: '💼 Mülakat Soruları', en: '💼 Interview Questions' },
     blocks: [
@@ -3306,13 +4620,15 @@ const enHero = {
 const trTabs = [
   '🏠 Neden REST Assured?', '⚙️ Kurulum', '📡 Temel İstekler', '🔐 Authentication',
   '📦 POJO & Jackson', '✅ Assertions', '🗂️ JSON Path & Schema',
-  '🔗 Test Zinciri', '🚨 Gerçek Hayat Sorunları', '🆚 Araç Karşılaştırması', '💼 Mülakat Soruları',
+  '🔗 Test Zinciri', '🚨 Gerçek Hayat Sorunları', '🆚 Araç Karşılaştırması',
+  '🏗️ Framework Mimarisi', '💼 Mülakat Soruları',
 ]
 
 const enTabs = [
   '🏠 Why REST Assured?', '⚙️ Setup', '📡 Basic Requests', '🔐 Authentication',
   '📦 POJO & Jackson', '✅ Assertions', '🗂️ JSON Path & Schema',
-  '🔗 Test Chaining', '🚨 Real-Life Issues', '🆚 Tool Comparison', '💼 Interview Q&A',
+  '🔗 Test Chaining', '🚨 Real-Life Issues', '🆚 Tool Comparison',
+  '🏗️ Framework Architecture', '💼 Interview Q&A',
 ]
 
 // ─── Export ───────────────────────────────────────────────────────────────────
@@ -3408,7 +4724,7 @@ const restAssuredFeynmanDefs = [
     modelAnswerEn: 'REST Assured: Java code-based, excellent JUnit/TestNG integration, CI/CD-friendly, best choice for Java-background QA. Postman: UI-based, ideal for quick exploration and prototypes, integrates with CI via Newman, good for those who dislike coding. Karate DSL: Gherkin-like syntax, allows writing API tests without deep Java knowledge but can be hard to maintain. Choice: REST Assured for Java teams, Postman for quick discovery/team communication, Karate for non-coders.',
   },
   {
-    sectionIndex: 10,
+    sectionIndex: 11,
     promptTr: 'REST Assured mülakat sorusunda "given/when/then nedir ve neden bu yapıyı kullanıyorsunuz?" deseler ne dersin?',
     promptEn: 'In a REST Assured interview if asked "What is given/when/then and why do you use this structure?", what would you say?',
     keywords: [['given','precondition','önceden'], ['when','action','eylem'], ['then','verify','doğrula'], ['bdd','gherkin'], ['readable','okunabilir']],

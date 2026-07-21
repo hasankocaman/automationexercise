@@ -95,9 +95,9 @@ export const MASTERY_MANIFEST = {
   },
   "/rest-assured": {
     "pageKey": "restassured",
-    "tabCount": 11,
-    "totalQuizBlocks": 10,
-    "totalExerciseBlocks": 45,
+    "tabCount": 12,
+    "totalQuizBlocks": 15,
+    "totalExerciseBlocks": 54,
     "hasInterview": true
   },
   "/docker": {

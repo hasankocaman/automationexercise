@@ -758,6 +758,23 @@ test.describe('Video-Scene — Dalga 14 (postman/bruno/rest-assured Giriş sekme
 
         await context.close();
     });
+
+    test('/rest-assured — 🏗️ Framework Mimarisi sekmesinde film render olur (restassured-arch-requestspec-chain-film)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/rest-assured');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
 });
 
 test.describe('Video-Scene — Dalga 15-16 (jenkins/kubernetes/jmeter/kafka Giriş sekmeleri)', () => {
