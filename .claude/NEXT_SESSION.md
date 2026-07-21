@@ -10,6 +10,85 @@
 
 ---
 
+## ✅ DOĞRULANDI + 🔍 YENİ DENETİM ARACI — /algorithms quiz-gating gerçek tarayıcıda geçti · §9.3 analoji taraması otomatikleştirildi (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
+
+**Branch:** `feature/algorithms-quiz-gating` (devam).
+
+### 1. /algorithms quiz-gating akışı DOĞRULANDI (önceki oturumun açık bıraktığı iş)
+Bir önceki madde "test edilmeden commit edildi, sonraki oturumda doğrulanmalı" notuyla
+kapanmıştı. Bu oturumda gerçekten koşuldu:
+- `npx playwright test tests/lesson-completion.spec.ts -g "algorithms"` → **1 passed (31.7s)** ✓
+  (quiz doğru şık → bölüm otomatik tamamlanır → 7/7 → bitirme rozeti "done" → route
+  kariyer haritasına işlenir zinciri gerçek tarayıcıda çalışıyor).
+- `npm run build` → exit 0 ✓.
+- Zombi-süreç temizleme scripti (`pretest:e2e`) bu koşumda sorunsuz çalıştı — bir önceki
+  maddenin "henüz teyit edilmedi" notu da böylece kapandı.
+
+### 2. YENİ: `scripts/audit-analogy-depth.mjs` — §9.3 4-katmanlı analoji denetimi
+CLAUDE.md §9.3 standardı bugüne dek elle/göz kararıyla denetleniyordu. Artık script var:
+`node scripts/audit-analogy-depth.mjs [--missing] [sayfa...]` — 24 sayfayı tarar, her
+bölümün açılış blok kümesinde 4 katmanı (analoji / düşündürücü soru / karşılaştırma /
+QA bağlamı) arar ve eksik bölümleri listeler.
+
+**Kalibrasyon sırasında çıkan 3 önemli bulgu (kalıcı bilgi):**
+1. **4 katman tek bloğa değil, bölümün AÇILIŞ BLOK KÜMESİNE yayılmış durumda.** Referans
+   sayfa `/bruno`'da düşündürücü "neden" sorusu çoğu yerde `simple-box`'ın İÇİNDE değil,
+   hemen ardındaki `heading`/`text` bloğundadır (örn. heading: "Why Does a 'New Postman'
+   Even Need to Exist?"). Bu yüzden denetim birimi tek blok DEĞİL, bölümün ilk
+   simple-box'ı + onu izleyen ≤6 anlatım bloğudur.
+2. **Önceki oturumun "Selenium/Playwright/Cypress 41/41 standardı karşılıyor" yargısı
+   fazla cömertmiş.** Ayrıca referans kabul edilen `/bruno`'nun kendisi de her bölümde
+   standardı karşılamıyor (örn. "🔗 Ecosystem" kutusu tam metin okundu: analoji yok,
+   düşündürücü soru yok, QA bağlamı zayıf). Yani §9.3 bir "bitmiş iş" değil.
+3. **Script bir TRIAJ aracıdır, hakem değildir.** Bilinen zayıflığı: analoji katmanını
+   sözcük ipuçlarıyla ("gibi", "like", "hayal et"...) arar; "Consider how a Formula 1
+   team..." gibi sözcüksüz metaforlarda YANLIŞ POZİTİF verir. Bayrağı kaldırılan bir
+   bölümü düzeltmeden ÖNCE metni oku — bu oturumda bayraklıların bir kısmı zaten
+   zengindi ve dokunulmadı.
+
+### 3. Tarama sonucu (24 sayfa, 479 bölüm)
+Tarama sonrası **119 bölüm** standart altı işaretlendi. Sayfa bazında (0 = temiz):
+`java 0 · rest-assured 0 · kafka 0 · appium 0 · browserstack 0 · aws 0 ·
+what-is-testing 0 · typescript 0` — kullanıcının listesindeki sayfaların bir kısmı
+zaten standardı karşılıyormuş.
+**Kalan eksikler (öncelik sırası):** `sql 40` · `bruno 11` · `docker 10` ·
+`javascript 10` · `python 9` · `jenkins 9` · `kubernetes 4` · `selenium 4` ·
+`playwright 4` · `cypress 3` · `azure 2` · `postman 1` · `jmeter 1` · `linux 1` ·
+`gauge 1`.
+
+**SQL'in profili not edilmeye değer:** ilk bölümleri (What is SQL, Installation,
+CREATE TABLE, INSERT, SELECT) referans kalitede 4 katmanlı; asıl boşluk DERİNDEKİ
+bölümlerde (Subqueries 436 char, LIKE/BETWEEN/IN 393, CTEs 442, Window Functions 675) —
+telgraf üslubu kısa notlar. En büyük tek kalem bu.
+
+### 4. Bu oturumda kapatılan boşluklar — /appium (6) + /git-github (9) = 15 bölüm
+İkisi de kullanıcının istediği listedeydi ve gerçek ihlaldi (CLAUDE.md §11'in yasakladığı
+"tek cümlelik yüzeysel analoji" / "bu bölümde şunu yapacağız" giriş paragrafları):
+- **`appiumData.js`** — Gerçek Senaryo, Yaygın Hatalar, Mülakat Simülasyonu bölümlerinin
+  TR+EN kutuları yeniden yazıldı (kurye/adres tarifi, araba gösterge paneli uyarı ışığı,
+  harita-vs-yolu-yürümek analojileri + Java karşılaştırması + flaky/nightly-build bağlamı).
+- **`gitGithubData.js`** — 8 TR + 1 EN kutu yeniden yazıldı: staging (kargo kutusu),
+  branch (servis yolu), PR (şantiyede imzalı teslimat), Actions (montaj hattı),
+  Pages (vitrin), tehlikeli komutlar (ekskavatör), hata sözlüğü (yol tabelası),
+  mülakat (trafik levhası ezberi).
+- Doğrulama: `audit-analogy-depth.mjs git-github appium` → **0 eksik** ✓ ·
+  `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ · `npm run build` ✓.
+
+### Sıradaki adım
+Kalan 104 bölüm sıradaki oturumlara kalıyor. Önerilen sıra: **sql (40) → docker (10) →
+javascript (10) → bruno (11) → python (9) → jenkins (9)**, sonra kuyruk. Her partiden
+sonra `node scripts/audit-analogy-depth.mjs <sayfa>` ile 0'a indiğini doğrula.
+**UYARI:** Bayraklı her bölümü körlemesine yeniden yazma — §3'teki yanlış pozitif
+uyarısı gereği önce metni oku; zaten 4 katmanlı olanlara dokunma.
+
+**NOT (kullanıcı isteğiyle e2e KOŞULMADI):** Bu maddenin commit'i kullanıcı talebiyle
+"test etmeden" atıldı. Koşulanlar: hedefli `lesson-completion` testi, content-integrity
+ve tam `npm run build`. Koşulmayan: 190 testlik tam Playwright paketi — içerik metni
+değişikliği `i18n-content-toggle.spec.ts`'i etkileyebilir (EN modda TR sızıntısı
+kontrolü), sonraki oturumda `-g "git-github"` ve `-g "appium"` ile teyit edilmeli.
+
+---
+
 ## ✨ EKLENDİ — /algorithms bitirme rozeti artık quiz-gating ile (her bölüme quiz + otomatik tamamlama) (2026-07-21, Sonnet oturumu, kullanıcı isteğiyle)
 
 **Branch:** `feature/algorithms-quiz-gating` (main'den açıldı — Selenium Framework
@@ -7916,17 +7995,20 @@ Explore taramasindaki bulguya sadik kalinarak manuel muhendislik yapildi:
      manual-testing icin "code-playground sayfanin no-code felsefesiyle celisir mi"
      sorusu kullaniciya soruldu, cevap bekleniyor.
 
-5. **§9.3 4-katmanli analoji standardi — Selenium/Playwright/Cypress taramasi (2026-07-09):**
-   - ✅ TAMAMLANDI — 41 `simple-box` blogunun (14 Selenium + 18 Playwright + 9 Cypress)
-     TAMAMI zaten 4 katmanli standardi (somut analoji + dusundurucu "neden" sorusu +
-     Java karsilastirmasi + is/QA baglami) karsiliyor, `brunoData.js` referans kalitesiyle
-     esdeger. Yukseltme gerektiren blok bulunamadi.
-   - **Henuz taranmamis/dogrulanmamis sayfalar (bilinmiyor, kontrol edilmeli):**
-     Java, JavaScript, SQL, Postman, REST Assured, JMeter, Kafka, Appium, BrowserStack,
-     AWS, Azure, Git & GitHub, Linux, test-frameworks, what-is-testing, manual-testing,
-     algorithms, advanced-algorithms.
-   - Python/Bruno/TypeScript/Docker/Jenkins/Kubernetes daha once tamamlandigi bilinen
-     sayfalar (Selenium/Playwright/Cypress de artik bu listeye eklendi).
+5. **§9.3 4-katmanli analoji standardi — ARTIK OTOMATIK DENETLENIYOR (2026-07-21'de guncellendi):**
+   - Denetim araci: `node scripts/audit-analogy-depth.mjs [--missing] [sayfa...]`.
+     24 sayfa / 479 bolum taranir. Kullanim ve bilinen yanlis-pozitif uyarisi icin bu
+     dosyanin en ustundeki "YENİ DENETİM ARACI" maddesine bak.
+   - ⚠️ **2026-07-09'daki "Selenium/Playwright/Cypress 41/41 karsiliyor" yargisi GECERSIZ**
+     — script bu sayfalarda hala eksik bolum buluyor (selenium 4, playwright 4, cypress 3).
+     Ayni sekilde "tamamlandi" sayilan Python/Bruno/Docker/Jenkins/Kubernetes de temiz degil.
+   - ✅ Temiz (0 eksik): java, rest-assured, kafka, appium, browserstack, aws,
+     what-is-testing, typescript, git-github.
+   - ❌ Kalan is (104 bolum): sql 40 · bruno 11 · docker 10 · javascript 10 · python 9 ·
+     jenkins 9 · kubernetes 4 · selenium 4 · playwright 4 · cypress 3 · azure 2 ·
+     postman 1 · jmeter 1 · linux 1 · gauge 1.
+   - Script kapsaminda OLMAYAN sayfalar (veri dosyasi farkli yapida): test-frameworks,
+     manual-testing, algorithms, advanced-algorithms — elle kontrol gerekir.
 
 6. **Stale test dosyalari duzeltilmeli (testcoverage.md paragraf 7 referansi).**
    - `python-page.spec.ts`: hash URL kullaniyordu — SILINDI.
