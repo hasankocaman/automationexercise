@@ -47,7 +47,15 @@ const PAGES = {
   kubernetes: 'kubernetesData.js',
 };
 
-const ANALOGY = /(gibi|gibidir|düşün|dusun|hayal et|sanki|benzet|benzer|analoji|analogy|lego|imagine|think of|picture |\blike\b|as if|tıpkı|tipki|misali|kadar basit|sahne|senaryo gibi)/i;
+const ANALOGY_CUE = /(gibi|gibidir|düşün|dusun|hayal et|sanki|benzet|benzer|analoji|analogy|lego|imagine|think of|picture |\blike\b|as if|tıpkı|tipki|misali|kadar basit|sahne|senaryo gibi)/i;
+// Metaforun KOPULA biçimi ("X, kiralık odadaki beyaz tahtadır" / "A Dockerfile is a
+// recipe") benzetme sözcüğü içermez ve yalnızca ANALOGY_CUE ile aranırsa YANLIŞ
+// POZİTİF verir (bkz. /docker — 10 bölümün tamamı bu yüzden bayraklanmıştı).
+// Bu yüzden ikinci bir sinyal: gündelik hayattan somut "taşıyıcı" nesne/rol
+// sözcükleri. Liste bilinçli olarak DAR ve teknoloji-dışıdır — teknik bir tanım
+// cümlesi ("Docker bir container platformudur") bu sözcüklerin hiçbirini içermez.
+const METAPHOR_VEHICLE = /(tarif|mutfak|çorba|corba|aşçı|asci|beyaz tahta|rehber|fabrika|montaj|kütüphane|kutuphane|kütüphaneci|kutuphaneci|postac|kurye|kargo|nakliye|bakkal|market|kasa|arşiv|arsiv|memur|sekreter|tercüman|tercuman|muhasebeci|müfettiş|mufettis|doktor|hastane|reçete|recete|çamaşırhane|camasirhane|gömlek|gomlek|terzi|şantiye|santiye|ekskavatör|ekskavator|trafik|otoyol|servis yolu|tabela|ehliyet|direksiyon|bisiklet|kamyon|tır\b|tir\b|araba|gösterge paneli|gosterge paneli|uyarı ışığ|uyari isig|banka|havale|nikâh|nikah|tören|toren|okul|sınıf|sinif|öğrenci|ogrenci|not defteri|ders kitab|kitabın arkas|kitabin arkas|dizin|ayraç|ayrac|adres defteri|telefon rehberi|restoran|garson|müşteri masas|musteri masas|buzdolab|yemek|kağıt bardak|kagit bardak|laboratuvar|tiyatro|yönetmen|yonetmen|orkestra|şef\b|sef\b|nakliyeci|taşınmak|tasinmak|ev sahibi|kiralık|kiralik|apartman|anket|form|kutu|zarf|dosya dolab|klasör|klasor|whiteboard|recipe|kitchen|soup|chef|cook|directory|phone book|factory|assembly line|librarian|library|postman |courier|shipping|warehouse|archive|clerk|receptionist|interpreter|accountant|inspector|doctor|hospital|prescription|laundry|shirt|tailor|construction site|excavator|traffic|highway|road sign|driving (test|licence|license)|bicycle|lorry|truck|dashboard|warning light|bank|wedding|ceremony|school|classroom|student|notebook|bookmark|index at the back|address book|restaurant|waiter|fridge|paper cup|laboratory|theatre|theater|director|orchestra|conductor|removals|moving house|landlord|rented|survey|envelope|filing cabinet|folder)/i;
+const ANALOGY = { test: (t) => ANALOGY_CUE.test(t) || METAPHOR_VEHICLE.test(t) };
 const QUESTION = /\?/;
 const WHY = /(neden|niçin|nicin|niye|peki|why|what if|ne olur|ne olurdu|how come|hangi|nasıl|nasil|what happens|how does|how do|what makes|isn'?t|aren'?t|shouldn'?t|doesn'?t|wouldn'?t)/i;
 // Soru işareti olmayan retorik "asıl soru şu ..." kalıpları da düşündürücü soru sayılır

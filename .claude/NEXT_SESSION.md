@@ -64,18 +64,52 @@ paneli uyarı ışığı: belirti ≠ sebep) · Java→SQL (JDBC = tercüman, N+
 `i18n-content-toggle.spec.ts`'i (EN modda TR sızıntısı) etkileyebilir — sonraki
 oturumda `-g "sql"` ile teyit edilmeli.
 
+### /bruno — 11 eksikten 0'a (içerik yazılarak)
+6 bölümün TR+EN kutusuna eksik katmanlar EKLENDİ (mevcut metin silinmedi, üzerine
+yazıldı): Kurulum (login ekranı → veri kimin sunucusunda durur, IDE lisans sunucusu
+karşılaştırması) · Test Otomasyonu (println vs assertEquals) · Gerçek Hayat/Git
+(sözlü koordinasyon ölçeklenmez, diff = review) · Ekosistem (nakliyeciyle taşınmak,
+"import yolu yoksa bu bir migration projesidir") · Yaygın Hatalar (semptom ≠ sebep,
+NPE refleksi) · Mülakat (aşçılık mülakatı, "bedeli adlandır" kuralı).
+`audit-analogy-depth.mjs bruno` → **0 eksik** ✓
+
+### 🔧 DENETİM ARACI DÜZELTİLDİ — kopula biçimli metaforlar artık yakalanıyor
+**Bulgu:** `/docker`'ın 10 bölümünün TAMAMI yalnızca `analogy` katmanından
+bayraklıydı — ama hepsinde güçlü, 4 katmanlı metafor VARDI ("container'ın dosya
+sistemi, kiralık toplantı odasındaki beyaz tahtadır", "Docker network bir ofis
+telefon rehberidir"). Sebep: `ANALOGY` regex'i yalnızca benzetme SÖZCÜĞÜ arıyordu
+(`gibi`, `like`, `hayal et`); metaforun **kopula biçimi** ("X, Y'dir" / "X is a Y")
+hiç yakalanmıyordu. Bu, önceki oturumun not ettiği yanlış-pozitif zayıflığının
+tam olarak kendisiydi.
+
+**Çözüm (`scripts/audit-analogy-depth.mjs`):** İkinci bir sinyal eklendi —
+`METAPHOR_VEHICLE`, gündelik hayattan somut "taşıyıcı" nesne/rol sözcüklerinden
+oluşan DAR ve teknoloji-dışı bir liste (tarif, beyaz tahta, telefon rehberi,
+fabrika, kütüphaneci, tercüman, gösterge paneli, çamaşırhane, ehliyet, whiteboard,
+recipe, assembly line, dashboard...). Teknik bir tanım cümlesi ("Docker bir
+container platformudur") bu sözcüklerin hiçbirini içermediği için liste yeni
+yanlış-negatif üretmez. `ANALOGY` artık `ANALOGY_CUE || METAPHOR_VEHICLE`.
+
+**Bu düzeltmenin İÇERİK YAZILMADAN temizlediği sayfalar** (hepsi elle okunup
+gerçekten 4 katmanlı olduğu doğrulandı, örn. jenkins "fabrika montaj hattı
+ustabaşı" kutusu tam metin okundu): `docker 10→0 · jmeter 1→0 · linux 1→0 ·
+gauge 1→0 · jenkins 9→2 · kubernetes 4→2 · playwright 4→2`.
+**Not:** Bu sayfalarda içerik DEĞİŞMEDİ; yalnızca ölçüm düzeldi.
+
 ### §9.3 kalan tablo (bu oturumdan sonra, 481 bölüm)
-`bruno 11 · docker 10 · javascript 10 · python 9 · jenkins 9 · kubernetes 4 ·
-selenium 4 · playwright 4 · cypress 3 · azure 2 · postman 1 · jmeter 1 ·
-linux 1 · gauge 1` → **toplam 70 bölüm**.
-Temiz sayfalar: `sql ✓ java ✓ rest-assured ✓ kafka ✓ appium ✓ browserstack ✓ aws ✓
-what-is-testing ✓ typescript ✓ git-github ✓`.
-**Sıradaki:** `bruno (11)` → `docker (10)` → `javascript (10)` → `python (9)` →
-`jenkins (9)`. Her partiden sonra `node scripts/audit-analogy-depth.mjs <sayfa>` ile 0'a
-indiğini doğrula. **UYARI:** Script triaj aracıdır, hakem değildir — bayraklı her
-bölümü körlemesine yeniden yazma, önce metni oku (sözcüksüz metaforlarda yanlış
-pozitif verir). Ayrıca sayfanın veri dosyası TEK ağaçlı mı ÇİFT ağaçlı mı, işe
-başlamadan tespit et (sql çift ağaçlıydı ve drift oradan doğmuştu).
+`javascript 10 · python 9 · selenium 4 · cypress 3 · azure 2 · jenkins 2 ·
+kubernetes 2 · playwright 2 · postman 1` → **toplam 35 bölüm** (oturum başında 119,
+önceki oturum sonunda 110 idi).
+Temiz sayfalar: `sql ✓ bruno ✓ docker ✓ java ✓ rest-assured ✓ kafka ✓ appium ✓
+browserstack ✓ aws ✓ what-is-testing ✓ typescript ✓ git-github ✓ jmeter ✓ linux ✓
+gauge ✓`.
+**Sıradaki:** `javascript (10)` → `python (9)` → `selenium (4)` → `cypress (3)` →
+kuyruk. Her partiden sonra `node scripts/audit-analogy-depth.mjs <sayfa>` ile 0'a
+indiğini doğrula. **UYARI:** Script hâlâ triaj aracıdır, hakem değildir — bayraklı
+her bölümü körlemesine yeniden yazma, ÖNCE metni tam oku; zaten 4 katmanlıysa
+dokunma, gerekiyorsa script'i düzelt (docker'da yapılan tam olarak buydu). Ayrıca
+sayfanın veri dosyası TEK ağaçlı mı ÇİFT ağaçlı mı, işe başlamadan tespit et
+(sql çift ağaçlıydı ve drift oradan doğmuştu).
 
 ---
 

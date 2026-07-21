@@ -1353,7 +1353,13 @@ export const brunoData = {
           {
             type: 'simple-box',
             emoji: '⬇️',
-            content: `Installing Bruno is like installing any notebook app — download it, open it, start typing. There's no database server to configure and no account you're forced to create. The only extra piece, if you want automation later, is a small command-line tool (the "CLI") that you can install with one line whenever you're ready for that step.`,
+            content: `Installing Bruno is like installing any notebook app — download it, open it, start typing. There's no database server to configure and no account you're forced to create. The only extra piece, if you want automation later, is a small command-line tool (the "CLI") that you can install with one line whenever you're ready for that step.
+
+But why should a login screen at install time matter to you at all — isn't an account just a formality you click past once? Consider what the account actually implies: it means your requests live on someone else's server by default. Postman starts you in a workspace that syncs to the cloud; Bruno starts you in a folder on your disk. That single difference decides whether an API key you paste while debugging ends up in a company-approved location or in a vendor's storage — a question your security team will eventually ask you, usually right before an audit.
+
+The Java parallel is worth holding onto: this is the difference between an IDE that needs a licence server to open your project and one that reads a plain \`pom.xml\` from disk. Both edit code; only one still works when the network is down or the vendor changes its pricing.
+
+For a QA engineer the practical payoff shows up on day one of a new job: onboarding to an API test suite becomes \`git clone\` plus opening a folder — no invite, no seat licence, no waiting for someone with admin rights to add you to a workspace.`,
           },
           { type: 'heading', text: `Where to Download Bruno` },
           {
@@ -1549,7 +1555,13 @@ script:post-response {
           {
             type: 'simple-box',
             emoji: '✅',
-            content: `Clicking "Send" and eyeballing the response is like tasting soup once while cooking. Automated assertions are a kitchen timer and a thermometer that check the soup every single time, automatically, even at 3am when nobody's awake to taste it — that's what lets a computer (CI) decide pass/fail instead of a human.`,
+            content: `Clicking "Send" and eyeballing the response is like tasting soup once while cooking. Automated assertions are a kitchen timer and a thermometer that check the soup every single time, automatically, even at 3am when nobody's awake to taste it — that's what lets a computer (CI) decide pass/fail instead of a human.
+
+But if you already looked at the response and it was clearly correct, why write an assertion for it? Because what you verified was this response, on this day, with this data — and the thing that breaks an API is almost never the part you were watching. A field quietly changes type from number to string, a nullable field starts arriving as null, the status code stays 200 while the body loses half its contents. Your eye scans for what it expects to see; an assertion checks what must be true. That gap is where most production API bugs live.
+
+The Java parallel is exact: this is \`System.out.println(result)\` versus \`assertEquals(expected, result)\`. Both show you the value; only one fails the build when the value is wrong six months from now, in a run nobody is watching.
+
+For QA the CLI is what turns this from a personal habit into team infrastructure: the same collection you click through by hand runs headless in the pipeline on every pull request. A broken contract then fails at the merge, not in the release call — and \"it worked on my machine\" stops being a defensible sentence.`,
           },
           { type: 'heading', text: `Writing Checks — Assert Tab vs Script Tab` },
           {
@@ -1673,7 +1685,11 @@ jobs:
           {
             type: 'simple-box',
             emoji: '👀',
-            content: `Picture two QA engineers, Ada and Sam, both editing API tests for the same "orders" service in the same week. With Bruno, their changes are just two Git branches — if they touch the same file, Git shows a normal merge conflict they resolve like any code conflict. With a cloud-synced tool, whoever saves last can silently overwrite the other's edits unless the team has a separate, manual coordination process.`,
+            content: `Picture two QA engineers, Ada and Sam, both editing API tests for the same "orders" service in the same week. With Bruno, their changes are just two Git branches — if they touch the same file, Git shows a normal merge conflict they resolve like any code conflict. With a cloud-synced tool, whoever saves last can silently overwrite the other's edits unless the team has a separate, manual coordination process.
+
+So why does that matter, if the team is small enough that Ada and Sam simply tell each other what they changed? Because the guarantee you actually need isn't \"we remembered to talk\" — it's \"the tool refuses to lose work even when we forget\". Verbal coordination scales to two people on a good week; it does not survive a third engineer, a vacation, or a hotfix at 6pm. Git's merge conflict is annoying precisely because it is loud, and loud is the correct behaviour when two people edited the same assertion.
+
+There is a second thing plain-text files buy you that a cloud workspace cannot: review. An API test change becomes a pull request diff a colleague can read line by line — the same code review muscle your team already uses for Java or Python, now applied to the tests guarding your endpoints. \"Why did this assertion get deleted?\" becomes an answerable question with a name and a date attached, instead of a mystery nobody can reconstruct.`,
           },
           { type: 'heading', text: `API Tests Living Next to the Code` },
           {
@@ -1734,7 +1750,13 @@ jobs:
           {
             type: 'simple-box',
             emoji: '🌐',
-            content: `Bruno doesn't ask you to throw away tools you already use — it plugs into them. Already have 200 requests in Postman? Import them in one step. Have an OpenAPI/Swagger spec? Generate a whole collection from it. Live in VS Code all day? There's an extension so you barely have to leave it.`,
+            content: `Bruno doesn't ask you to throw away tools you already use — it plugs into them. Think of it like moving house with a removals company rather than starting from an empty flat: your furniture comes with you, it just ends up in a building you own instead of one you rent. Already have 200 requests in Postman? Import them in one step. Have an OpenAPI/Swagger spec? Generate a whole collection from it. Live in VS Code all day? There's an extension so you barely have to leave it.
+
+But why should a tool's ecosystem weigh into your decision at all — surely the tool that tests best wins? Because in practice nobody adopts a tool in isolation; they adopt it into a team that already has 200 requests, a Swagger spec, a CI pipeline and a Jira board. A tool with no import path is not \"a different choice\", it is a migration project — and migration projects get postponed forever. The ecosystem is what decides whether adopting something takes an afternoon or a quarter.
+
+The comparison worth making is with Selenium and Playwright: neither won on raw browser control alone. They won because they fit into Maven/npm, into Jenkins, into the reporting tools teams already ran. Bruno's story is the same shape one layer up — it fits into Git, and therefore into every review and CI process built on Git.
+
+For a QA engineer the payoff is concrete: you can adopt it for one service without a big-bang migration, keep Postman running for the collections nobody has moved yet, and still have your new API tests gated in the pipeline this sprint.`,
           },
           { type: 'heading', text: `Migrating From Postman or OpenAPI` },
           {
@@ -1801,7 +1823,13 @@ jobs:
           {
             type: 'simple-box',
             emoji: '🚨',
-            content: `Every error message is a clue, not a dead end — like a doctor reading symptoms instead of guessing. "Could not resolve variable" means "you forgot to pick an environment", "command not found" means "the tool isn't on your PATH", and "ECONNREFUSED" means "nobody picked up the phone on the other end." Learn to read the symptom and you skip straight to the cure.`,
+            content: `Every error message is a clue, not a dead end — like a doctor reading symptoms instead of guessing. "Could not resolve variable" means "you forgot to pick an environment", "command not found" means "the tool isn't on your PATH", and "ECONNREFUSED" means "nobody picked up the phone on the other end." Learn to read the symptom and you skip straight to the cure.
+
+But if the message already names the problem, why does anyone still get stuck on these? Because a symptom and a cause are not the same thing, and the message only ever gives you the first. "ECONNREFUSED" tells you nobody answered; it does not tell you whether the service is down, whether you typed the wrong port, or whether you are pointing at a staging URL that stopped existing last month. Treat the message as the first line of the investigation, not the conclusion — otherwise you fix the symptom (bump the timeout, disable SSL verification) and hand the real cause a longer fuse.
+
+That reflex is the same one you already use in Java: a \`NullPointerException\` never means "add a null check", it means "why was this null?". The difference here is that an API failure has one extra suspect list — network, environment, credentials, contract — and the error message tells you which of those four to open first.
+
+For QA this matters most when a test that passed yesterday fails today with no code change in between. The temptation is to call it flaky and rerun. The message is usually already telling you it isn't: "Could not resolve variable" means the environment was not selected, and that is a real defect in your test setup, not noise to retry away.`,
           },
           { type: 'heading', text: `8 Real Errors You Will Hit — and How to Fix Them` },
           {
@@ -1909,7 +1937,15 @@ jobs:
           {
             type: 'simple-box',
             emoji: '💼',
-            content: `These questions span everything above: basic onboarding knowledge, intermediate day-to-day usage and trade-offs, and advanced production/architecture scenarios. Basic ≠ "definition trivia" here — even the easy ones are framed around a real decision you'd actually make on the job.`,
+            content: `These questions span everything above: basic onboarding knowledge, intermediate day-to-day usage and trade-offs, and advanced production/architecture scenarios. Basic ≠ "definition trivia" here — even the easy ones are framed around a real decision you'd actually make on the job.
+
+Think of it like a cooking interview: nobody asks a chef to recite the boiling point of water. They hand them ingredients and watch what gets reached for first. The knowledge is assumed; the ordering of decisions is what is being measured.
+
+So why do so many candidates who "know Bruno" still stumble here? Because knowing a tool and being able to justify choosing it are different skills. "Bruno stores collections as files" is a fact anyone can repeat. "We moved to file-based collections because our API tests needed to go through code review like the rest of our repo, and cloud sync gave us no diff" is an argument — and the second one is what tells an interviewer you have actually run this in a team.
+
+The same split exists in Java interviews: reciting what \`PreparedStatement\` does separates fewer candidates than explaining why you would reject string concatenation in a code review. In both cases the discriminator is not the definition but the reasoning attached to it.
+
+For QA there is a practical rule buried here: for every answer, be ready with the trade-off you accepted. Every tool choice costs something — Bruno's cost is that secret management becomes your team's responsibility rather than a vendor's. A candidate who names the cost sounds like someone who has shipped; a candidate who claims there is none sounds like someone who has read a landing page.`,
           },
           {
             type: 'diagram-svg',
@@ -2086,7 +2122,13 @@ jobs:
           {
             type: 'simple-box',
             emoji: '⬇️',
-            content: `Bruno kurmak, herhangi bir not defteri uygulaması kurmak gibidir — indir, aç, yazmaya başla. Yapılandırılacak bir veritabanı sunucusu yoktur ve seni zorla hesap açtıran bir şey yoktur. Tek ek parça, ileride otomasyon istersen, hazır olduğunda tek satırla kurabileceğin küçük bir komut satırı aracıdır ("CLI").`,
+            content: `Bruno kurmak, herhangi bir not defteri uygulaması kurmak gibidir — indir, aç, yazmaya başla. Yapılandırılacak bir veritabanı sunucusu yoktur ve seni zorla hesap açtıran bir şey yoktur. Tek ek parça, ileride otomasyon istersen, hazır olduğunda tek satırla kurabileceğin küçük bir komut satırı aracıdır ("CLI").
+
+Peki kurulum ekranındaki bir login kutusu neden bu kadar önemli olsun — hesap açmak bir kez tıklanıp geçilen formalite değil mi? Şuna dikkat et: hesap, isteklerinin varsayılan olarak **başkasının sunucusunda** yaşayacağı anlamına gelir. Postman seni cloud'a senkronlanan bir workspace'te başlatır; Bruno ise diskindeki bir klasörde. Bu tek fark, debug ederken yapıştırdığın bir API key'in şirketin onayladığı bir yerde mi yoksa bir vendor'ın deposunda mı duracağını belirler — ve güvenlik ekibi bu soruyu er ya da geç, genellikle bir denetimden hemen önce sorar.
+
+Java tarafından bakınca fark tanıdıktır: projeyi açmak için lisans sunucusuna bağlanması gereken bir IDE ile diskteki düz bir \`pom.xml\`'i okuyan IDE arasındaki fark. İkisi de kod düzenler; ama sadece biri internet yokken veya vendor fiyatlandırmasını değiştirdiğinde çalışmaya devam eder.
+
+QA mühendisi için pratik getirisi işe başladığın ilk gün görünür: bir API test suite'ine dahil olmak \`git clone\` + klasörü açmaya iner — davet beklemek, seat lisansı istemek veya seni workspace'e eklemesi için admin yetkili birini beklemek yok.`,
           },
           { type: 'heading', text: `Bruno Nereden İndirilir` },
           {
@@ -2282,7 +2324,13 @@ script:post-response {
           {
             type: 'simple-box',
             emoji: '✅',
-            content: `"Send" tıklayıp response'a göz gezdirmek, pişirirken çorbayı bir kez tatmak gibidir. Otomatik assertion'lar ise çorbayı her seferinde, otomatik olarak, hatta kimsenin uyanık olmadığı sabahın 3'ünde bile kontrol eden bir mutfak zamanlayıcısı ve termometredir — pass/fail kararını bir insan yerine bilgisayarın (CI) verebilmesini sağlayan şey budur.`,
+            content: `"Send" tıklayıp response'a göz gezdirmek, pişirirken çorbayı bir kez tatmak gibidir. Otomatik assertion'lar ise çorbayı her seferinde, otomatik olarak, hatta kimsenin uyanık olmadığı sabahın 3'ünde bile kontrol eden bir mutfak zamanlayıcısı ve termometredir — pass/fail kararını bir insan yerine bilgisayarın (CI) verebilmesini sağlayan şey budur.
+
+Peki response'a zaten baktıysan ve gayet doğru göründüyse, neden ayrıca assertion yazasın? Çünkü doğruladığın şey **bu** response'tu, **bu** gün, **bu** veriyle — ve bir API'yi bozan şey neredeyse hiçbir zaman senin baktığın kısım değildir. Bir alan sessizce number'dan string'e döner, nullable bir alan null gelmeye başlar, status code 200 kalırken body'nin yarısı kaybolur. Göz, görmeyi beklediği şeyi tarar; assertion ise doğru OLMASI GEREKEN şeyi kontrol eder. Production'daki API bug'larının çoğu tam bu boşlukta yaşar.
+
+Java karşılığı birebir aynıdır: bu, \`System.out.println(result)\` ile \`assertEquals(expected, result)\` arasındaki farktır. İkisi de değeri gösterir; ama sadece biri, altı ay sonra kimsenin izlemediği bir koşumda değer bozulduğunda build'i kırar.
+
+QA için CLI, bunu kişisel bir alışkanlıktan ekip altyapısına çeviren parçadır: elle tıklayarak gezdiğin collection'ın aynısı, her pull request'te pipeline içinde headless koşar. Bozulan bir contract artık release toplantısında değil, merge anında düşer — ve "benim makinemde çalışıyordu" savunulabilir bir cümle olmaktan çıkar.`,
           },
           { type: 'heading', text: `Kontrol Yazmak — Assert Tab vs Script Tab` },
           {
@@ -2467,7 +2515,13 @@ jobs:
           {
             type: 'simple-box',
             emoji: '🌐',
-            content: `Bruno, zaten kullandığın araçları çöpe atmanı istemiyor — onlarla entegre oluyor. Postman'da 200 isteğin mi var? Tek adımda import et. Bir OpenAPI/Swagger spec'in mi var? Ondan bütün bir collection üret. Gününün tamamını VS Code'da mı geçiriyorsun? Çıkmana gerek kalmaması için bir extension var.`,
+            content: `Bruno, zaten kullandığın araçları çöpe atmanı istemiyor — onlarla entegre oluyor. Bunu, boş bir eve sıfırdan taşınmak yerine nakliyeciyle taşınmak gibi düşün: eşyaların seninle geliyor, sadece kiraladığın bir binada değil sahibi olduğun bir binada duruyorlar. Postman'da 200 isteğin mi var? Tek adımda import et. Bir OpenAPI/Swagger spec'in mi var? Ondan bütün bir collection üret. Gününün tamamını VS Code'da mı geçiriyorsun? Çıkmana gerek kalmaması için bir extension var.
+
+Peki bir aracın ekosistemi kararında neden bu kadar ağırlık taşısın — en iyi test eden araç kazanmaz mı? Çünkü pratikte kimse bir aracı boşlukta benimsemez; onu zaten 200 isteği, bir Swagger spec'i, bir CI pipeline'ı ve bir Jira board'u olan bir ekibe sokar. Import yolu olmayan bir araç "farklı bir tercih" değil, bir **migration projesi**dir — ve migration projeleri sonsuza kadar ertelenir. Ekosistem, bir aracı benimsemenin bir öğleden sonra mı yoksa bir çeyrek mi süreceğini belirleyen şeydir.
+
+Karşılaştırmaya değer örnek Selenium ve Playwright: ikisi de sadece ham tarayıcı kontrolüyle kazanmadı. Maven/npm'e, Jenkins'e, ekiplerin zaten koştuğu raporlama araçlarına oturdukları için kazandılar. Bruno'nun hikâyesi bir katman yukarıda aynı biçimdedir — Git'e oturur, dolayısıyla Git üzerine kurulu her review ve CI sürecine oturur.
+
+QA mühendisi için getirisi somuttur: büyük patlama tarzı bir migration olmadan tek bir servis için benimseyebilir, henüz kimsenin taşımadığı collection'lar için Postman'ı çalışır tutabilir ve yeni API testlerini yine de bu sprint içinde pipeline'da gate'e bağlayabilirsin.`,
           },
           { type: 'heading', text: `Postman'dan veya OpenAPI'den Geçiş` },
           {
@@ -2534,7 +2588,13 @@ jobs:
           {
             type: 'simple-box',
             emoji: '🚨',
-            content: `Her hata mesajı bir tahmin değil, bir ipucudur — semptomlara bakan bir doktor gibi. "Could not resolve variable" şu demektir: "environment seçmeyi unuttun", "command not found" şu demektir: "araç PATH'te değil", ve "ECONNREFUSED" şu demektir: "karşı taraf telefonu açmadı." Semptomu okumayı öğren, doğrudan çözüme atla.`,
+            content: `Her hata mesajı bir tahmin değil, bir ipucudur — semptomlara bakan bir doktor gibi. "Could not resolve variable" şu demektir: "environment seçmeyi unuttun", "command not found" şu demektir: "araç PATH'te değil", ve "ECONNREFUSED" şu demektir: "karşı taraf telefonu açmadı." Semptomu okumayı öğren, doğrudan çözüme atla.
+
+Peki mesaj sorunu zaten adlandırıyorsa, insanlar neden hâlâ bu hatalarda takılıyor? Çünkü semptom ile sebep aynı şey değildir ve mesaj sana yalnızca ilkini verir. "ECONNREFUSED" karşı tarafın açmadığını söyler; ama servisin kapalı mı olduğunu, yanlış port mu yazdığını, yoksa geçen ay ortadan kalkmış bir staging URL'sine mi baktığını söylemez. Mesajı soruşturmanın **ilk satırı** olarak gör, sonucu olarak değil — aksi hâlde semptomu düzeltir (timeout'u artırmak, SSL doğrulamasını kapatmak), gerçek sebebe ise daha uzun bir fitil takarsın.
+
+Bu refleks Java'da zaten var olanla aynıdır: bir \`NullPointerException\` hiçbir zaman "null kontrolü ekle" demek değildir, "bu neden null geldi?" demektir. Buradaki fark, bir API hatasının fazladan bir şüpheli listesi olmasıdır — network, environment, credential, contract — ve hata mesajı bu dördünden hangisini önce açacağını söyler.
+
+QA açısından bu en çok dün geçen bir testin bugün, arada hiçbir kod değişikliği olmadan kırıldığı durumda önemlidir. Kolay yol, "flaky" deyip tekrar koşturmaktır. Oysa mesaj çoğu zaman bunun flaky OLMADIĞINI zaten söylüyordur: "Could not resolve variable", environment'ın seçilmediği anlamına gelir — ve bu, retry ile susturulacak bir gürültü değil, test kurulumundaki gerçek bir defect'tir.`,
           },
           { type: 'heading', text: `Karşılaşacağın 8 Gerçek Hata — ve Çözümleri` },
           {
@@ -2642,7 +2702,15 @@ jobs:
           {
             type: 'simple-box',
             emoji: '💼',
-            content: `Bu sorular yukarıdaki her şeyi kapsıyor: temel onboarding bilgisi, günlük kullanım ve trade-off'lara dair orta seviye, ve production/mimari senaryolarına dair ileri seviye. Burada basic ≠ "tanım ezberi" — kolay sorular bile işte gerçekten alacağın bir karar etrafında kurulu.`,
+            content: `Bu sorular yukarıdaki her şeyi kapsıyor: temel onboarding bilgisi, günlük kullanım ve trade-off'lara dair orta seviye, ve production/mimari senaryolarına dair ileri seviye. Burada basic ≠ "tanım ezberi" — kolay sorular bile işte gerçekten alacağın bir karar etrafında kurulu.
+
+Bunu bir aşçılık mülakatı gibi düşün: kimse şefe suyun kaç derecede kaynadığını sormaz. Eline malzemeleri verir ve önce neye uzandığını izler. Bilgi zaten varsayılır; ölçülen şey kararların sırasıdır.
+
+Peki "Bruno'yu bilen" bunca aday neden yine de burada tökezliyor? Çünkü bir aracı bilmek ile onu seçmeyi savunabilmek farklı becerilerdir. "Bruno collection'ları dosya olarak saklar" cümlesi herkesin tekrarlayabileceği bir bilgidir. "Dosya tabanlı collection'a geçtik çünkü API testlerimizin de repo'nun geri kalanı gibi code review'dan geçmesi gerekiyordu ve cloud sync bize hiçbir diff vermiyordu" ise bir **argüman**dır — ve mülakatçıya bunu gerçekten bir ekipte koşturduğunu söyleyen şey ikincisidir.
+
+Aynı ayrım Java mülakatlarında da vardır: \`PreparedStatement\`'ın ne yaptığını ezberden söylemek, string birleştirmeyi bir code review'da neden reddedeceğini açıklamaktan daha az ayırt edicidir. Her iki durumda da ayırt edici olan tanım değil, ona bağlanan akıl yürütmedir.
+
+QA için burada gömülü pratik bir kural var: her cevabın yanında kabul ettiğin trade-off'u da hazır tut. Her araç seçimi bir bedel öder — Bruno'nun bedeli, secret yönetiminin bir vendor'ın değil senin ekibinin sorumluluğuna geçmesidir. Bedeli adlandıran aday, ürün çıkarmış birine benzer; bedeli yok diyen aday ise bir tanıtım sayfası okumuş birine.`,
           },
           {
             type: 'diagram-svg',
