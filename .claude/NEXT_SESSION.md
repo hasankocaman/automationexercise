@@ -10,6 +10,49 @@
 
 ---
 
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-21 sonu — önce BURAYI oku)
+
+| | |
+|---|---|
+| **Aktif branch** | `feature/framework-arch-selenium-multiview` (tüm iş burada) |
+| **Son commit** | `fd68072` — §9.3 analoji denetimi kapandı |
+| **Çalışma ağacı** | temiz |
+| **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. aşağıdaki branch temizliği maddesi) |
+
+**Bu oturumda bitenler:** (1) `feature/algorithms-quiz-gating` bu branch'e merge
+edildi · (2) **§9.3 analoji denetimi 119 → 0** (24/24 sayfa temiz, 481 bölüm) ·
+(3) `audit-analogy-depth.mjs` kopula metaforlarını yakalayacak şekilde düzeltildi.
+
+### ⚠️ AÇIK DOĞRULAMA BORCU (bir sonraki oturumun İLK işi)
+Bu oturumdaki 4 commit **kullanıcı isteğiyle Playwright koşulmadan** atıldı.
+Koşulanlar: `audit-analogy-depth.mjs`, `check-content-integrity.mjs`, `npm run build`
+(hepsi ✓). **Koşulmayan:** 191 testlik paket. Yalnızca `simple-box` metinleri
+değişti, ama bu metinler TR+EN olduğu için risk `i18n-content-toggle.spec.ts`
+(EN modda Türkçe sızıntısı) üzerindedir. Teyit komutu:
+`npx playwright test tests/i18n-content-toggle.spec.ts` — kırılırsa bakılacak
+sayfalar: sql, bruno, javascript, python, selenium, cypress, azure, jenkins,
+kubernetes, playwright, postman.
+Ayrıca daha eski bir borç: `-g "git-github"` ve `-g "appium"` teyidi (önceki oturum).
+
+### 🔜 SIRADAKİ İŞ (öncelik sırasıyla)
+1. **Yukarıdaki doğrulama borcunu kapat.**
+2. **Selenium Framework Mimarisi sekmesini bitir** — §9.6'nın 5 görünümü eklendi
+   ama **§9.5 video-scene o yeni sekmeye HENÜZ eklenmedi** ve sekme için render
+   testi yazılmadı (`tests/video-scene.spec.ts`).
+3. **§9.6 rollout'a devam** — Playwright / Cypress / REST Assured / Appium.
+   `restAssuredData` gauge ile AYNI iskelete sahip (kaydırma deseni doğrudan
+   uygulanabilir); diğerleri önce incelenmeli.
+4. **Branch/remote temizliği (yarım kaldı)** — `git push origin --delete
+   feature/sandbox-and-framework-arch` DNS hatası yüzünden işlenmedi, ağ gelince
+   tekrar denenmeli.
+
+### 🔧 BU BRANCH'TE COMMIT KURALI
+Kullanıcı "test etmeden commit" dediğinde **`SKIP_E2E_HOOK=1 git commit ...`**
+kullan. Aksi hâlde post-commit hook 191 testlik paketi başlatır ve komut zaman
+aşımına uğrar (bu oturumda bir kez oldu).
+
+---
+
 ## 🔀 BRANCH BİRLEŞTİRİLDİ + 🎉 §9.3 ANALOJİ DENETİMİ TAMAMEN KAPANDI (119 → 0) (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
 
 **AKTİF BRANCH ARTIK: `feature/framework-arch-selenium-multiview`** — bundan sonraki
