@@ -10,6 +10,52 @@
 
 ---
 
+## ✨ EKLENDİ — /manual-testing bitirme rozetine quiz yolu (6 bölüm quizi + otomatik tamamlama) (2026-07-21, Opus oturumu, kullanıcı bildirimiyle)
+
+**Branch:** `feature/algorithms-quiz-gating` (devam).
+
+**Kullanıcı bildirimi:** "`/manual-testing` sayfasında da bitirmenin yolu yok. Her
+konuya quizler ekle, son quiz cevaplandığında kullanıcı bitirmiş sayılsın."
+
+**Bulgu (kök neden):** Sayfada tamamlamanın TEK yolu her dersin içindeki `game`
+bloğunu çözmekti (`ChecklistGame`/`SequenceGame`/`ChoiceGame`/`SeverityGame` →
+`onComplete`). Oyunlar `checked && solved` koşuluyla tetiklendiğinden pratikte
+kullanıcı 0/6'da takılıyordu — rozet açılmıyor, kariyer haritasına da işlenmiyordu.
+Sayfa sonundaki `FinalQuiz` (ekran görüntüsündeki "Sonuc: 3/3") ise HİÇBİR
+tamamlamayı tetiklemiyordu, tamamen dekoratifti.
+
+**Yapıldı (`/algorithms` quiz-gating kalıbı birebir taşındı):**
+- **Veri (`manualTestingData.js`):** 6 dersin (mindset, test-case, exploratory,
+  bug-report, severity, regression) HER birine TR + EN `quiz` eklendi (12 quiz).
+  Hepsi senaryo-tabanlı ("sprint bitmek üzere, sıradaki en değerli adımın ne?"),
+  `question` + `options` + `correct` + `explanation` + **`retry`** (§18 yedek soru).
+  `ui`'ye `lessonQuiz*` etiketleri eklendi — sayfa sonundaki `FinalQuiz`'in
+  `quizTitle` etiketiyle ÇAKIŞMAMASI için bilinçli olarak ayrı isimler.
+- **Bileşen (`ManualTestingPage.jsx`):** Yeni `LessonQuiz` bileşeni (§18: yanlışta
+  kırmızı ekran yok, amber mikro-geri bildirim + "başka soru dene"). §9.1 gereği
+  quiz kartın EN SONUNDA — konu anlatımı, film, oyun, drag-drop, practice'ten SONRA.
+- **Gating:** Yeni `quizPassed` state (localStorage `manual_testing_quiz_passed`) +
+  `handleQuizPass` → quiz doğru cevaplanınca bölüm OTOMATİK tamamlanır
+  (`handleLessonComplete`, kariyer haritasına da işlenir).
+- **Oyun yolu KALDIRILMADI:** `game` → `onComplete` bağı aynen duruyor. Quiz, oyunu
+  çözemeyen kullanıcı için GARANTİLİ ikinci yol olarak eklendi — davranış kaybı yok.
+
+**E2E testi genişletildi (`tests/lesson-completion.spec.ts`):** `/manual-testing`
+testi artık sadece "rozet 0/6 render oluyor mu" bakmıyor; 6 bölümün doğru quiz
+şıkkına tıklayıp rozetin `data-state=done` olduğunu ve `/manual-testing` route'unun
+`learnqa_completed_routes`'a düştüğünü uçtan uca doğruluyor.
+
+**Doğrulama (bu oturumda gerçekten koşuldu):**
+`lesson-completion.spec.ts -g manual-testing` → **1 passed (19.7s)** ✓ ·
+`other-pages-ui` + `video-scene` `-g manual` → **4 passed** ✓ ·
+`npm run build` → exit 0 ✓ · TR+EN 6/6 quiz + 6/6 retry, correct-id 0 uyumsuzluk ✓.
+
+**Sıradaki adım (opsiyonel):** Aynı kalıp `/advanced-algorithms`
+(`AdvancedAlgorithmsPage.jsx` + `algorithmsData.js`) için hâlâ uygulanmadı —
+quiz-gating şu an `/algorithms` ve `/manual-testing`'de var.
+
+---
+
 ## ✅ DOĞRULANDI + 🔍 YENİ DENETİM ARACI — /algorithms quiz-gating gerçek tarayıcıda geçti · §9.3 analoji taraması otomatikleştirildi (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
 
 **Branch:** `feature/algorithms-quiz-gating` (devam).
