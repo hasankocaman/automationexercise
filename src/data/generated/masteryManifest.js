@@ -4,9 +4,9 @@
 export const MASTERY_MANIFEST = {
   "/selenium": {
     "pageKey": "seleniumwebdriver",
-    "tabCount": 14,
-    "totalQuizBlocks": 13,
-    "totalExerciseBlocks": 111,
+    "tabCount": 15,
+    "totalQuizBlocks": 18,
+    "totalExerciseBlocks": 119,
     "hasInterview": true
   },
   "/playwright": {

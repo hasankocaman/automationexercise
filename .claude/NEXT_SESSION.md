@@ -10,6 +10,75 @@
 
 ---
 
+## 🔀 BRANCH BİRLEŞTİRİLDİ + ✅ §9.3 ANALOJİ: /sql BİTTİ (40 → 0) (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
+
+**AKTİF BRANCH ARTIK: `feature/framework-arch-selenium-multiview`** — bundan sonraki
+tüm iş bu branch üzerinde. `feature/algorithms-quiz-gating` buraya merge edildi
+(merge commit `1e28e06`); iki branch de `1bce7b2`'den ayrılmıştı, tek çakışma
+`NEXT_SESSION.md` başındaki iki yeni bölümdü ve **ikisi de korunarak** çözüldü
+(Selenium bölümü üstte, quiz-gating bölümleri altında). Kod dosyalarında çakışma
+YOKTU — quiz-gating dosyaları (algorithms/manual-testing/advanced-algorithms +
+`audit-analogy-depth.mjs`) ile Selenium `seleniumData.js` değişikliği ayrık kümeler.
+
+### ⚠️ POST-COMMIT HOOK TUZAĞI (kalıcı bilgi)
+Merge commit'i atılırken post-commit hook **191 testlik tam Playwright paketini**
+başlattı ve komut 2 dk'da zaman aşımına uğradı (commit yine de atıldı). Kullanıcı
+"test etmeden commit" istediğinde **`SKIP_E2E_HOOK=1 git commit ...`** kullanılmalı;
+aksi hâlde her commit tam suite'i tetikler. Zombi süreçler `kill-stale-test-processes.mjs`
+"yeni, dokunulmadı" dediği için elle (`Stop-Process`) temizlendi.
+
+### /sql — §9.3 analoji denetimi 40 eksikten 0'a indi
+Kullanıcının verdiği öncelik sırasının ilk kalemi (`sql 40`) **tamamen kapandı**.
+`node scripts/audit-analogy-depth.mjs sql` → **0 eksik** ✓
+
+**BÜYÜK BULGU — TR ağacı ile EN ağacı arasında içerik kayması vardı (kalıcı bilgi):**
+`sqlData.js` iki AYRI literal ağaç taşır (`finalEnSections` ~2174, `finalTrSections` ~7585)
+ve her `simple-box` ikisinde de bilingual `{tr,en}` içerir. Temel bölümlerin
+(Kurulum, CREATE TABLE, INSERT INTO, SELECT, UPDATE&DELETE, NULL, Sorgu Sırası,
+Aggregate, GROUP BY, JOINs) zengin 4-katmanlı hâli geçmişte **yalnızca EN ağacına**
+yazılmış, TR ağacı eski telgraf metinlerinde kalmıştı — yani TR sayfası aylardır
+kısa/yüzeysel sürümü gösteriyordu. Bu oturumda TR ağacı EN ağacındaki zengin
+metinlerle hizalandı. **Yeni bölüm eklerken/güncellerken metni İKİ ağaca da yaz.**
+
+**Ek gerçek içerik bug'ı:** TR ağacındaki `🟡 Aggregate Fonksiyonlar` bölümünün
+`simple-box`'ı yanlışlıkla **JOIN** metnini taşıyordu (konu uyuşmazlığı). Doğru
+Aggregate metniyle değiştirildi.
+
+**Yeniden yazılan bölümler (TR+EN, 4 katman: analoji + düşündürücü soru +
+Java karşılaştırması + QA bağlamı):** Subqueries (soruşturma zinciri) ·
+LIKE/BETWEEN/IN (arşiv memurunun üç refleksi) · Window Functions (sınıf fotoğrafı
+vs özet kâğıdı) · CTEs (tarifin "ön hazırlık" bölümü) · Transactions (nikâh töreni +
+WAL/redo argümanı) · Indexes & Views (kitap dizini vs ayraç, yazma maliyeti) ·
+SQL Injection (telefonda sekretere talimat dikte etmek) · UPDATE&DELETE (silgi +
+tarif ederek seçme) · NULL (boş kutu ≠ 0 yazılmış kutu) · QA için SQL (restoran
+müfettişinin mutfağa girme yetkisi) · Pratik&Referans (SQL'in "sessiz yanlışları") ·
+DBeaver (veritabanının dosya yöneticisi) · Mülakat (ehliyet direksiyon sınavı) ·
+Ekosistem (araç filosu + dialect/testcontainer argümanı) · Yaygın Hatalar (gösterge
+paneli uyarı ışığı: belirti ≠ sebep) · Java→SQL (JDBC = tercüman, N+1 argümanı).
+
+**Doğrulama (bu oturumda gerçekten koşuldu):**
+`audit-analogy-depth.mjs sql` → **0 eksik** ✓ ·
+`check-content-integrity.mjs` → **TÜM KONTROLLER GEÇTİ** ✓ ·
+`npm run build` → **exit 0** ✓ (sqlData chunk 812 kB / gzip 272 kB — büyüdü, izlenmeli).
+**Koşulmadı (kullanıcı isteğiyle):** Playwright paketi. Metin değişikliği
+`i18n-content-toggle.spec.ts`'i (EN modda TR sızıntısı) etkileyebilir — sonraki
+oturumda `-g "sql"` ile teyit edilmeli.
+
+### §9.3 kalan tablo (bu oturumdan sonra, 481 bölüm)
+`bruno 11 · docker 10 · javascript 10 · python 9 · jenkins 9 · kubernetes 4 ·
+selenium 4 · playwright 4 · cypress 3 · azure 2 · postman 1 · jmeter 1 ·
+linux 1 · gauge 1` → **toplam 70 bölüm**.
+Temiz sayfalar: `sql ✓ java ✓ rest-assured ✓ kafka ✓ appium ✓ browserstack ✓ aws ✓
+what-is-testing ✓ typescript ✓ git-github ✓`.
+**Sıradaki:** `bruno (11)` → `docker (10)` → `javascript (10)` → `python (9)` →
+`jenkins (9)`. Her partiden sonra `node scripts/audit-analogy-depth.mjs <sayfa>` ile 0'a
+indiğini doğrula. **UYARI:** Script triaj aracıdır, hakem değildir — bayraklı her
+bölümü körlemesine yeniden yazma, önce metni oku (sözcüksüz metaforlarda yanlış
+pozitif verir). Ayrıca sayfanın veri dosyası TEK ağaçlı mı ÇİFT ağaçlı mı, işe
+başlamadan tespit et (sql çift ağaçlıydı ve drift oradan doğmuştu).
+
+---
+
 ## 🚧 DEVAM EDİYOR — Framework Mimarisi 5-görünüm standardı (§9.6) Selenium'a rollout edildi (Faz A, 2. sayfa) (2026-07-21, Sonnet oturumu)
 
 **Bağlam:** Kullanıcı, Gauge pilotunda (§9.6, `gaugeData.js`) tamamlanan
