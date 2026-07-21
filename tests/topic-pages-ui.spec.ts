@@ -47,7 +47,11 @@ const CRASH_MARKERS = ['[object Object]'];
 
 for (const route of TOPIC_ROUTES) {
     test(`${route} — her sekme render olur, içerik butonları görünür`, async ({ page }) => {
-        test.setTimeout(180_000);
+        // 180_000ms marji, 4 paralel worker altinda en agir veri dosyalarinda
+        // (java/typescript/python/selenium) ~1/190 oraninda rastgele zaman
+        // asimina yol aciyordu (izole kosumda hep gecer, sadece tam pakette
+        // sinirda kaliyordu) — 2026-07-21'de 240_000ms'ye yukseltildi.
+        test.setTimeout(240_000);
 
         const pageErrors: string[] = [];
         page.on('pageerror', (e) => pageErrors.push(e.message));
