@@ -15,8 +15,8 @@
 | | |
 |---|---|
 | **Aktif branch** | `feature/framework-arch-selenium-multiview` (tüm iş burada) |
-| **Son commit** | bu bölüm commit edilince güncellenecek (bkz. ayrı docs commit kuralı altta) |
-| **Çalışma ağacı** | commit edilecek |
+| **Son commit** | `c4245f9` — Playwright Framework Mimarisi (SOLID + POM) sekmesi eklendi |
+| **Çalışma ağacı** | temiz |
 | **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. branch temizliği maddesi) |
 
 ### 🔁 §9.6 ROLLOUT LOOP AKTİF (kullanıcı isteği: onay beklemeden devam et)
