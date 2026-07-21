@@ -18,9 +18,9 @@ export const MASTERY_MANIFEST = {
   },
   "/cypress": {
     "pageKey": "cypressmodernutanucatestotomasyonu",
-    "tabCount": 18,
-    "totalQuizBlocks": 17,
-    "totalExerciseBlocks": 70,
+    "tabCount": 19,
+    "totalQuizBlocks": 22,
+    "totalExerciseBlocks": 79,
     "hasInterview": true
   },
   "/python": {

@@ -638,6 +638,23 @@ test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescr
         await context.close();
     });
 
+    test('/cypress — 🏗️ Framework Mimarisi sekmesinde film render olur (cypress-arch-command-chain-film)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/cypress');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
     test('/javascript — 🎯 Intro & Why sekmesinde film render olur', async ({ browser }) => {
         test.setTimeout(60_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });

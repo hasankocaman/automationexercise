@@ -6399,6 +6399,1175 @@ cy.get('[data-cy=cherry-item]').click()`,
   },
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// 🏗️ Framework Mimarisi (SOLID + POM) — CLAUDE.md §9.6 çoklu görünüm standardı
+// Referans pilot: gaugeData.js + seleniumData.js/playwrightData.js "Framework
+// Mimarisi" bölümleri. Cypress'e KÖRÜ KÖRÜNE kopyalanmadı: Cypress'in resmi
+// dokümantasyonu klasik Page Object Model'i ÖNERMEZ — bunun yerine Custom
+// Commands + "App Actions" (UI'ı atlayıp uygulamanın kendi fonksiyonunu/API'sini
+// çağırma) önerir, çünkü Cypress kodu tarayıcının İÇİNDE, uygulamayla AYNI
+// process'te çalışır. Bu bölüm o gerilimi doğrudan işler.
+// Bloklar bilingual {tr,en} tek dizide (cypressArchBlocks), sFwArch.tr ve
+// sFwArch.en AYNI diziyi referanslar. Her adımın kod bloğu kendi trio'suyla
+// (step-animation + challenge + code-playground) izlenir.
+// ══════════════════════════════════════════════════════════════════════════
+const cypressArchBlocks = [
+  {
+    type: 'simple-box',
+    emoji: '🚪',
+    content: {
+      tr: 'Selenium ve Playwright\'ta bu noktada bir "Page Object Model" sınıfı yazardın — Cypress\'in resmi dokümantasyonu ise bunu TAM TERSİNE önerir: klasik POM sınıfları yerine "Custom Commands" ve "App Actions" kullanmayı tavsiye eder. Neden? Çünkü Cypress, Selenium gibi tarayıcıya UZAKTAN komut GÖNDERMEZ — test kodun, uygulamanın çalıştığı AYNI process\'in, AYNI event loop\'unun içine enjekte edilir. Bu yüzden "UI üzerinden login ol" akışını her testte tekrar tekrar UI\'dan geçirmek yerine, uygulamanın kendi login fonksiyonunu veya API\'sini DOĞRUDAN çağırmak hem daha hızlı hem daha az kırılgandır. İkinci benzetme: bir restoranın arka kapısı gibi — müşteri (test) her seferinde ön kapıdan (UI) sıraya girip masaya oturmak yerine, mutfağa bağlı arka kapıdan (API/App Action) doğrudan girip masasına oturabilir; sonuç aynıdır ("müşteri masada, sipariş verebilir") ama yol çok daha kısa ve öngörülebilirdir. Peki UI login testi zaten bir yerde yazılmışken, diğer 79 testte NEDEN yine UI\'dan login geçelim — sadece "login çalışıyor mu" testinde UI\'ı kullanmak, geri kalan 79 testte arka kapıyı kullanmak yeterli değil mi? Tam olarak öyle: UI login\'in KENDİSİ bir kez test edilir, geri kalan senaryolar "kullanıcı zaten giriş yapmış olsun" varsayımıyla başlar. Java karşılaştırması: bu, entegrasyon testlerinde `@Sql` ile veritabanını doğrudan hazırlamakla, HER testte UI üzerinden kayıt oluşturmak arasındaki farkla AYNI motivasyon — durumu hazırlamak senaryo DEĞİLDİR, senaryonun ÖN KOŞULUDUR. QA bağlamı: UI üzerinden login yapan 80 spec dosyası varken login formuna bir CAPTCHA eklenirse 80 dosya aynı anda kırılır; App Actions kullanan bir suite\'te SADECE 1 fonksiyon (loginByApi) güncellenir, 80 test hiç değişmeden devam eder.',
+      en: 'In Selenium and Playwright, at this point you would write a "Page Object Model" class — Cypress\'s official documentation recommends the OPPOSITE: instead of classic POM classes, it recommends "Custom Commands" and "App Actions". Why? Because Cypress does not send commands to the browser REMOTELY like Selenium does — your test code is injected INSIDE the same process, the same event loop, that the application runs in. This is why, instead of driving the "log in via UI" flow through the UI on every test, calling the application\'s own login function or API DIRECTLY is both faster and less fragile. Second analogy: like a restaurant\'s back door — instead of the customer (the test) queuing at the front door (the UI) every time to sit at the table, they can enter directly through the kitchen\'s back door (an API/App Action) and sit down; the result is the same ("the customer is at the table, ready to order") but the path is far shorter and more predictable. But if the UI login test is already written somewhere, why NOT go through the UI in the other 79 tests too — isn\'t using the UI only for the "does login work" test and the back door for the rest enough? Exactly that: UI login is tested ONCE, by itself; the remaining scenarios start from the assumption "the user is already logged in". Java comparison: this is the SAME motivation as preparing the database directly with `@Sql` in integration tests versus creating a record through the UI in EVERY test — preparing state is NOT the scenario, it is the scenario\'s PRECONDITION. QA context: with 80 spec files logging in through the UI, adding a CAPTCHA to the login form breaks all 80 files at once; in a suite using App Actions, ONLY 1 function (loginByApi) is updated, and all 80 tests continue unchanged.',
+    },
+  },
+  {
+    type: 'framework-puzzle',
+    title: { tr: 'Cypress Framework\'ünü Adım Adım İnşa Et', en: 'Build Your Cypress Framework Step by Step' },
+    intro: {
+      tr: 'Aşağıdaki 4 parça, bu sekmede birazdan tek tek inşa edeceğin mimarinin BÜYÜK RESMİ. Şimdilik hepsi kilitli — her parçanın kendi adımındaki "Kendin Dene" pratiğini ilk kez doğru bitirdiğinde, o parça burada kilitliden İNŞA EDİLDİ\'ye döner.',
+      en: 'The 4 pieces below are the BIG PICTURE of the architecture you are about to build piece by piece in this tab. They all start locked — the first time you correctly finish that step\'s "Try It Yourself" practice, that piece flips from locked to BUILT.',
+    },
+    pieces: [
+      {
+        id: 'command-core',
+        emoji: '🧩',
+        label: { tr: 'Custom Command / Core Katmanı', en: 'Custom Command / Core Layer' },
+        desc: {
+          tr: 'Cypress.Commands.add ile tekrar eden akışları TEK bir cy. komutunda toplar',
+          en: 'Cypress.Commands.add gathers repeated flows into ONE cy. command',
+        },
+        exerciseId: 'cypress-arch-custom-command-practice',
+      },
+      {
+        id: 'app-actions',
+        emoji: '🚪',
+        label: { tr: '"POM" Yerine App Actions', en: 'App Actions Instead of "POM"' },
+        desc: {
+          tr: 'UI\'ı atlayıp cy.request() ile uygulamanın kendi API\'sini/durumunu doğrudan kurar',
+          en: 'Bypasses the UI and sets up the application\'s own API/state directly via cy.request()',
+        },
+        exerciseId: 'cypress-arch-app-actions-practice',
+      },
+      {
+        id: 'solid',
+        emoji: '⚖️',
+        label: { tr: 'SOLID Uygulaması', en: 'Applying SOLID' },
+        desc: {
+          tr: '5 prensip gerçek Cypress kodunda — örn. OCP: yeni bir login komutu eklemek için mevcut komutu DEĞİŞTİRMEDEN genişlet',
+          en: 'The 5 principles in real Cypress code — e.g. OCP: extend with a new login command WITHOUT modifying the existing one',
+        },
+        exerciseId: 'cypress-arch-ocp-login-command-practice',
+      },
+      {
+        id: 'test-data',
+        emoji: '🔗',
+        label: { tr: 'Test / Data Katmanı', en: 'Test / Data Layer' },
+        desc: {
+          tr: 'cy.fixture + Cypress.env ile data-driven forEach testleri',
+          en: 'Data-driven forEach tests via cy.fixture + Cypress.env',
+        },
+        exerciseId: 'cypress-arch-datadriven-practice',
+      },
+    ],
+  },
+
+  {
+    type: 'heading',
+    text: { tr: '🧭 Adım 1 — Büyük Resim: Custom Command Zinciri Mindmap', en: '🧭 Step 1 — The Big Picture: The Custom Command Chain Mindmap' },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Aynı mimari burada beş ayrı açıdan gösteriliyor: önce ana akış (bir test cy.login() çağırdığında ne olur), sonra kurulum akışı (config\'ten support dosyasına, oradan spec\'e), sonra paralel çalışma (Cypress\'in "aynı process" mimarisi Selenium/Playwright\'tan NEDEN farklı paralelleşir), sonra veri paylaşım kapsamı (Cypress.env / fixture / custom command scope\'u) ve son olarak her dosyanın "yapar/yapmaz" listesi.',
+      en: 'The same architecture is shown here from five angles: first the main flow (what happens when a test calls cy.login()), then the setup flow (from config to the support file, then to the spec), then parallel execution (why Cypress\'s "same process" architecture parallelizes DIFFERENTLY from Selenium/Playwright), then the data-sharing scope (Cypress.env / fixture / custom command scope), and finally a "does / does not" list for every file.',
+    },
+  },
+  {
+    type: 'python-flow-diagram',
+    titleTr: '1️⃣ Ana Akış — cy.login() Çağrıldığında Ne Olur?',
+    titleEn: '1️⃣ Main Flow — What Happens When cy.login() Is Called?',
+    steps: [
+      { type: 'action', code: "it('...', () => { cy.login(user, pass) })", desc: 'declares the scenario — orchestration ONLY, no request/API details', descTr: 'senaryoyu bildirir — SADECE orkestrasyon, request/API detayı içermez' },
+      { type: 'action', code: 'cy.login (Cypress.Commands.add)', desc: 'resolves to whichever login strategy is registered under this name', descTr: 'bu isim altında kayıtlı HANGİ login stratejisiyse ona çözülür' },
+      { type: 'action', code: 'loginByApi(username, password)', desc: 'calls cy.request() directly — bypasses the UI entirely', descTr: 'doğrudan cy.request() çağırır — UI\'ı TAMAMEN atlar' },
+      { type: 'action', code: 'cy.setCookie(...) / cy.session(...)', desc: "writes the returned session into THIS spec's browser state", descTr: 'dönen oturumu BU spec\'in tarayıcı durumuna yazar' },
+      { type: 'end', code: "cy.visit('/dashboard')", desc: 'the test continues as an ALREADY logged-in user, in the SAME process', descTr: 'test ZATEN giriş yapılmış bir kullanıcı olarak, AYNI process içinde devam eder' },
+    ],
+  },
+  {
+    type: 'python-flow-diagram',
+    titleTr: '2️⃣ Kurulum Akışı — support/e2e.js Her Spec\'e Nasıl Ulaşır?',
+    titleEn: '2️⃣ Setup Flow — How Does support/e2e.js Reach Every Spec?',
+    steps: [
+      { type: 'action', code: 'cypress.config.ts', desc: 'baseUrl/env/retries config — read once when Cypress starts', descTr: 'baseUrl/env/retries config\'i — Cypress başlarken bir kez okunur' },
+      { type: 'action', code: 'support/commands.js', desc: 'Cypress.Commands.add(...) definitions live here', descTr: 'Cypress.Commands.add(...) tanımları burada durur' },
+      { type: 'end', code: "support/e2e.js: import './commands'", desc: 'Cypress loads this file AUTOMATICALLY before every spec — no manual import per file', descTr: 'Cypress bu dosyayı HER spec\'ten önce OTOMATİK yükler — dosya başına elle import GEREKMEZ' },
+    ],
+  },
+  {
+    type: 'subheading',
+    text: { tr: '3️⃣ Paralel Çalışma — Cypress Neden Selenium/Playwright\'tan Farklı Paralelleşir?', en: '3️⃣ Parallel Execution — Why Does Cypress Parallelize Differently from Selenium/Playwright?' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🧬', label: { tr: 'Aynı Process', en: 'Same Process' }, desc: { tr: 'Test kodu tarayıcının İÇİNDE, uygulamayla AYNI event loop\'ta çalışır — ThreadLocal/Worker izolasyonu KAVRAMI hiç yok', en: "Test code runs INSIDE the browser, in the SAME event loop as the app — the ThreadLocal/Worker isolation CONCEPT does not exist at all" } },
+      { icon: '📄', label: { tr: 'Spec Dosyası = İzolasyon Birimi', en: 'Spec File = Isolation Unit' }, desc: { tr: 'Her .cy.js dosyası TAM bir tarayıcı reload\'uyla başlar — izolasyon test BAŞINA değil dosya BAŞINA sağlanır', en: 'Every .cy.js file starts with a FULL browser reload — isolation is guaranteed PER FILE, not per test' } },
+      { icon: '🖥️', label: { tr: 'CI Paralelliği = Makine Seviyesi', en: 'CI Parallelism = Machine Level' }, desc: { tr: 'Cypress Cloud, farklı spec dosyalarını FARKLI CI makinelerine dağıtır (--parallel) — thread/worker değil MAKİNE seviyesinde paralellik', en: 'Cypress Cloud distributes different spec files across DIFFERENT CI machines (--parallel) — parallelism at the MACHINE level, not thread/worker' } },
+    ],
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Selenium\'da ThreadLocal, Playwright\'ta worker process\'i AYNI koşum içindeki paralelliği yönetirdi. Cypress varsayılan olarak TEK bir tarayıcıda, spec dosyalarını SIRAYLA çalıştırır — "paralellik" burada farklı bir katmana taşınır: Cypress Cloud/Dashboard, bir suite\'in spec dosyalarını N farklı CI makinesine böler (`cypress run --record --parallel`), her makine kendi tarayıcısını AYRI process olarak açar. Yani framework mimarin AÇISINDAN önemli olan şey ThreadLocal değil, her spec dosyasının BAŞINDAN SONUNA kendi kendine yetebilmesidir (bir önceki dosyanın state\'ine bağımlı olmamalı) — çünkü hangi dosyanın hangi makineye düşeceğini SEN seçmezsin.',
+      en: 'In Selenium, ThreadLocal, and in Playwright, the worker process managed parallelism within the same run. Cypress by default runs spec files SEQUENTIALLY in a single browser — "parallelism" here moves to a different layer: Cypress Cloud/Dashboard splits a suite\'s spec files across N different CI machines (`cypress run --record --parallel`), and each machine opens its own browser as a SEPARATE process. So what matters FOR your framework architecture is not ThreadLocal, but that every spec file can stand on its own from start to finish (it must not depend on the previous file\'s state) — because YOU do not choose which file lands on which machine.',
+    },
+  },
+  {
+    type: 'subheading',
+    text: { tr: '4️⃣ Veri Paylaşım Kapsamı — Neyin Ömrü Ne Kadar?', en: '4️⃣ Data-Sharing Scope — How Long Does Each Thing Live?' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🌍', label: { tr: 'Cypress.env()', en: 'Cypress.env()' }, desc: { tr: 'Kapsam: TÜM suite — apiUrl, ortam sabitleri her spec\'ten okunabilir', en: 'Scope: the ENTIRE suite — apiUrl, environment constants are readable from every spec' } },
+      { icon: '📦', label: { tr: 'cy.fixture(...)', en: 'cy.fixture(...)' }, desc: { tr: 'Kapsam: onu çağıran test/hook — bir JSON dosyasını o an için belleğe yükler', en: 'Scope: the test/hook that calls it — loads a JSON file into memory for that moment' } },
+      { icon: '🧩', label: { tr: 'Cypress.Commands.add(...)', en: 'Cypress.Commands.add(...)' }, desc: { tr: 'Kapsam: TÜM .cy.js dosyaları — bir kez tanımlanır, her spec\'te otomatik kullanılabilir', en: 'Scope: ALL .cy.js files — defined once, automatically usable in every spec' } },
+    ],
+  },
+  {
+    type: 'subheading',
+    text: { tr: '5️⃣ Kim Ne Yapar? — Dosya Sorumlulukları', en: '5️⃣ Who Does What? — File Responsibilities' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🧪', label: { tr: 'spec dosyası (*.cy.js)', en: 'spec file (*.cy.js)' }, desc: { tr: '✔ Senaryo akışı · ✔ Assertion · ✘ Custom command tanımı içermez', en: '✔ Scenario flow · ✔ Assertions · ✘ Contains no custom command definitions' } },
+      { icon: '🧩', label: { tr: 'support/commands.js', en: 'support/commands.js' }, desc: { tr: '✔ Cypress.Commands.add tanımları · ✘ Assertion içermez', en: '✔ Cypress.Commands.add definitions · ✘ Contains no assertions' } },
+      { icon: '🪝', label: { tr: 'support/e2e.js', en: 'support/e2e.js' }, desc: { tr: '✔ Global before/after hook\'ları · ✔ commands.js\'i OTOMATİK import eder', en: '✔ Global before/after hooks · ✔ AUTOMATICALLY imports commands.js' } },
+      { icon: '⚙️', label: { tr: 'cypress.config.ts', en: 'cypress.config.ts' }, desc: { tr: '✔ baseUrl · ✔ env değişkenleri · ✔ retries/timeout ayarları', en: '✔ baseUrl · ✔ env variables · ✔ retries/timeout settings' } },
+      { icon: '📦', label: { tr: 'fixtures/*.json', en: 'fixtures/*.json' }, desc: { tr: '✔ Sabit test verisi · ✘ Mantık İÇERMEZ', en: '✔ Static test data · ✘ Contains NO logic' } },
+    ],
+  },
+  {
+    type: 'video-scene',
+    id: 'cypress-arch-command-chain-film',
+    title: {
+      tr: '🎬 cy.login() Bir Testi Nasıl "Zaten Giriş Yapılmış" Yapar? (ve CI Paralelliği Kontrastı)',
+      en: '🎬 How Does cy.login() Make a Test "Already Logged In"? (and the CI Parallelism Contrast)',
+    },
+    xpReward: 15,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+      { id: 'test',    emoji: '🧪', label: { tr: "it('sepete ekle', ...)", en: "it('adds to cart', ...)" }, color: '#0ea5e9' },
+      { id: 'command', emoji: '🧩', label: { tr: 'cy.login (custom command)', en: 'cy.login (custom command)' }, color: '#f59e0b' },
+      { id: 'api',     emoji: '🚪', label: { tr: 'cy.request() (App Action)', en: 'cy.request() (App Action)' }, color: '#8b5cf6' },
+      { id: 'session', emoji: '🍪', label: { tr: 'cy.session() / cookie', en: 'cy.session() / cookie' }, color: '#22c55e' },
+      { id: 'app',     emoji: '🌐', label: { tr: 'Uygulama (aynı process)', en: 'Application (same process)' }, color: '#6366f1' },
+      { id: 'machine2', emoji: '🖥️', label: { tr: 'CI Makinesi #2 (paralel)', en: 'CI Machine #2 (parallel)' }, color: '#ef4444' },
+    ],
+    scenes: [
+      {
+        caption: {
+          tr: 'Test, beforeEach içinde `cy.login(\'qa_user\', \'S3cret!\')` çağırıyor. Bu satır HENÜZ hiçbir UI elementine dokunmadı — sadece bir custom command\'i tetikledi.',
+          en: 'The test calls `cy.login(\'qa_user\', \'S3cret!\')` inside beforeEach. This line has NOT touched any UI element yet — it just triggered a custom command.',
+        },
+        code: { tr: "beforeEach(() => cy.login('qa_user', 'S3cret!'))", en: "beforeEach(() => cy.login('qa_user', 'S3cret!'))" },
+        positions: { test: { x: 12, y: 50, scale: 1.15, pulse: true } },
+      },
+      {
+        caption: {
+          tr: 'Adım 1 — Cypress, `login` adının support/commands.js\'de HANGİ fonksiyona kayıtlı olduğunu bulur. Bu tanım, testin kendisinden TAMAMEN habersiz.',
+          en: 'Step 1 — Cypress finds WHICH function the name `login` is registered to in support/commands.js. This definition is COMPLETELY unaware of the test itself.',
+        },
+        code: { tr: "Cypress.Commands.add('login', (u, p) => {...})", en: "Cypress.Commands.add('login', (u, p) => {...})" },
+        positions: {
+          test: { x: 10, y: 50, opacity: 0.5, scale: 0.85 },
+          command: { x: 32, y: 50, scale: 1.15, pulse: true },
+        },
+        beams: [{ from: 'test', to: 'command' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 2 — Bu komut, UI\'dan geçmek YERİNE doğrudan bir App Action çalıştırır: cy.request() ile login API\'sine POST atar. Tarayıcıda tek bir tıklama bile olmaz.',
+          en: 'Step 2 — INSTEAD of going through the UI, this command runs an App Action directly: it POSTs to the login API via cy.request(). Not a single click happens in the browser.',
+        },
+        code: { tr: "cy.request('POST', '/api/login', { u, p })", en: "cy.request('POST', '/api/login', { u, p })" },
+        positions: {
+          command: { x: 16, y: 50, opacity: 0.5, scale: 0.85 },
+          api: { x: 40, y: 50, scale: 1.2, pulse: true },
+        },
+        beams: [{ from: 'command', to: 'api', color: '#8b5cf6' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 3 — API dönen oturum bilgisini cy.session() ile ÖNBELLEĞE alır: aynı spec dosyasındaki SONRAKİ testler bu oturumu tekrar login OLMADAN yeniden kullanır.',
+          en: 'Step 3 — cy.session() CACHES the session info the API returns: SUBSEQUENT tests in the same spec file reuse this session WITHOUT logging in again.',
+        },
+        code: { tr: 'cy.session([u], () => { /* cookie ayarla */ })', en: 'cy.session([u], () => { /* set cookie */ })' },
+        positions: {
+          api: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+          session: { x: 46, y: 50, scale: 1.2, pulse: true },
+        },
+        beams: [{ from: 'api', to: 'session', color: '#22c55e' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 4 — Test artık uygulamayı ziyaret ettiğinde (cy.visit), tarayıcı ZATEN bu oturumla açılır — test kodu ile uygulama AYNI process\'te olduğu için bu geçiş anlık olur.',
+          en: 'Step 4 — When the test now visits the application (cy.visit), the browser opens ALREADY carrying this session — since the test code and the app share the SAME process, this handoff is instant.',
+        },
+        code: { tr: "cy.visit('/dashboard')  // zaten giris yapilmis", en: "cy.visit('/dashboard')  // already logged in" },
+        positions: {
+          session: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+          app: { x: 50, y: 50, scale: 1.25, pulse: true },
+        },
+        beams: [{ from: 'session', to: 'app', color: '#6366f1' }],
+      },
+      {
+        caption: {
+          tr: 'Final (kontrast) — bu spec dosyası CI Makinesi #1\'de koşarken, AYNI suite\'in başka bir spec dosyası CI Makinesi #2\'ye (Cypress Cloud --parallel ile) dağıtılmış olabilir. Selenium\'da bu izolasyonu ThreadLocal, Playwright\'ta worker process\'i sağlardı; Cypress\'te bunu sağlayan şey spec dosyasının KENDİ KENDİNE yetebilmesi ve CI\'ın makine seviyesinde bölüşmesidir.',
+          en: 'Final (the contrast) — while this spec file runs on CI Machine #1, another spec file from the SAME suite may have been distributed to CI Machine #2 (via Cypress Cloud --parallel). In Selenium, ThreadLocal provided this isolation, in Playwright the worker process did; in Cypress, it comes from the spec file being able to stand on its OWN and the CI splitting work at the machine level.',
+        },
+        positions: {
+          app: { x: 20, y: 30, scale: 0.9 },
+          session: { x: 48, y: 50, scale: 1.05 },
+          machine2: { x: 76, y: 50, scale: 1.25, pulse: true },
+        },
+        beams: [{ from: 'app', to: 'session' }, { from: 'session', to: 'machine2', color: '#ef4444' }],
+      },
+    ],
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Yukarıdaki mimaride cy.login() custom command\'ı, bir kullanıcıyı sisteme NASIL sokar?',
+      en: 'In the architecture above, HOW does the cy.login() custom command get a user into the system?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'UI\'dan email/şifre alanlarını doldurup butona tıklayarak', en: 'By filling the email/password fields and clicking the button through the UI' } },
+      { id: 'b', text: { tr: 'cy.request() ile login API\'sine doğrudan istek atarak (App Action)', en: 'By sending a direct request to the login API via cy.request() (an App Action)' } },
+      { id: 'c', text: { tr: 'cypress.config.ts\'de sabit bir oturum tanımlayarak', en: 'By defining a fixed session in cypress.config.ts' } },
+      { id: 'd', text: { tr: 'Tarayıcıyı yeniden başlatarak', en: 'By restarting the browser' } },
+    ],
+    correct: 'b',
+    explanation: {
+      tr: 'Mimarinin can damarı budur: login\'in KENDİSİ UI üzerinden ayrı bir testte doğrulanır, ama diğer TÜM senaryolar için "kullanıcı zaten giriş yapmış olsun" durumu bir App Action (cy.request) ile DOĞRUDAN kurulur — bu ayrım olmasaydı her test dosyası UI login\'e bağımlı, yavaş ve kırılgan olurdu.',
+      en: 'This is the artery of the architecture: login ITSELF is verified once through the UI in its own test, but for ALL other scenarios, the "user is already logged in" state is set up DIRECTLY via an App Action (cy.request) — without this split, every test file would depend on UI login, and be slow and fragile.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Cypress\'in paralel koşumu, Selenium\'daki ThreadLocal\'a kıyasla NE FARK yaratır?',
+        en: 'Compared to ThreadLocal in Selenium, what DIFFERENCE does Cypress\'s parallel execution make?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Paralellik MAKİNE seviyesine taşınır — Cypress Cloud spec dosyalarını farklı CI makinelerine dağıtır', en: 'Parallelism moves to the MACHINE level — Cypress Cloud distributes spec files across different CI machines' } },
+        { id: 'b', text: { tr: 'Hiçbir fark yaratmaz, ikisi de aynı mekanizmadır', en: 'It makes no difference, both are the same mechanism' } },
+        { id: 'c', text: { tr: 'Cypress hiçbir zaman paralel koşamaz', en: 'Cypress can never run in parallel' } },
+        { id: 'd', text: { tr: 'Sadece yerel makinede çalışır', en: 'It only works on a local machine' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'Cypress varsayılan olarak bir koşumda spec dosyalarını sırayla, tek bir tarayıcıda çalıştırır; gerçek paralellik Cypress Cloud/Dashboard üzerinden spec dosyalarının FARKLI CI makinelerine bölünmesiyle sağlanır — bu, Selenium\'un aynı process içindeki thread seviyesindeki ThreadLocal çözümünden TAMAMEN farklı bir katmandır.',
+        en: 'By default, Cypress runs spec files sequentially in a single browser within one run; real parallelism comes from Cypress Cloud/Dashboard splitting spec files across DIFFERENT CI machines — this is a COMPLETELY different layer from Selenium\'s thread-level ThreadLocal solution within the same process.',
+      },
+    },
+  },
+
+  // ── Adım 2 — Custom Command / Core Katmanı ──
+  {
+    type: 'heading',
+    text: { tr: '🧩 Adım 2 — Custom Command / Core Katmanı', en: '🧩 Step 2 — Custom Command / Core Layer' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🍔',
+    content: {
+      tr: 'Cypress.Commands.add, bir restoran menüsündeki "combo" seçeneğidir: garson (test) her seferinde "burger, patates, kola" diye üç ayrı sipariş vermek yerine "3 numaralı combo" der — TEK isim, ÜÇ adımı temsil eder. İkinci benzetme: bir üniversitenin öğrenci işleri ofisindeki hazır form şablonu gibi — her öğrenci (her spec) aynı kayıt prosedürünü sıfırdan icat etmez, standart forma (custom command\'a) başvurur. Peki cy.get() ile elementi bulup zaten tıklayabiliyorken, neden ayrı bir custom command yazalım — dört satırı olduğu gibi kopyalamak yetmez mi? Yeter, ama SADECE bir test için; 80 spec dosyasının HER birinde bu dört satırı tekrar yazarsan, login formuna bir alan eklendiğinde 80 dosya elle taranır. Custom command ile bu dört satır TEK yerde durur. Java karşılaştırması: bir "test yardımcı sınıfı" (`TestUtils.login()`) ile AYNI motivasyon — tekrar eden adımları tek bir çağrıya sıkıştır. QA bağlamı: custom command\'sız bir projede "login akışına yeni bir zorunlu onay kutusu eklendi" haberi geldiğinde 80 dosya taranır; custom command\'lı projede TEK dosya (commands.js) güncellenir, 80 test hiç değişmeden yeni akışı otomatik kullanır.',
+      en: 'Cypress.Commands.add is a restaurant menu\'s "combo" option: instead of the waiter (the test) placing three separate orders every time — "burger, fries, cola" — they just say "combo number 3" — ONE name representing THREE steps. Second analogy: like a university registrar\'s ready-made form template — every student (every spec) does not reinvent the same registration procedure, they use the standard form (the custom command). But since cy.get() can already find and click an element, why write a separate custom command — isn\'t copying those four lines as-is enough? It is, but ONLY for one test; if you rewrite those four lines in EVERY one of 80 spec files, adding one required field to the login form means scanning 80 files by hand. With a custom command, those four lines live in ONE place. Java comparison: the SAME motivation as a "test helper class" (`TestUtils.login()`) — compress repeated steps into a single call. QA context: in a project without custom commands, news that "a new required checkbox was added to the login flow" means scanning 80 files; in a project with custom commands, ONE file (commands.js) is updated, and all 80 tests pick up the new flow automatically, unchanged.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'commands.js\'in ayrı bir dosya olmasının nedeni de Single Responsibility Principle\'dır (SRP): bu dosya SADECE komut TANIMLARINI barındırır — hiçbir assertion, hiçbir spec-özel senaryo içermez. support/e2e.js ise SADECE bu dosyayı (ve global hook\'ları) yükler; spec dosyaları ise SADECE "ne test edildiğine" cevap verir.',
+      en: 'The reason commands.js is a separate file is also the Single Responsibility Principle (SRP): this file holds ONLY command DEFINITIONS — no assertions, no spec-specific scenarios. support/e2e.js ONLY loads this file (and global hooks); spec files ONLY answer "what is being tested".',
+    },
+  },
+  {
+    type: 'code',
+    language: 'javascript',
+    code: {
+      tr: `// ─── cypress/support/commands.js — SADECE komut tanimlari (SRP) ───
+Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  cy.get('[data-cy=submit]').click()
+})
+
+// ─── cypress/support/e2e.js — commands.js'i OTOMATIK yukler ───
+import './commands'
+
+// ─── cypress/e2e/cart.cy.js — GENISLETILMIS 'cy' nesnesini kullanir ───
+beforeEach(() => {
+  cy.login('qa_user', 'S3cret!')   // 4 satir yerine TEK cagri
+})
+
+it('urun sepete eklenir', () => {
+  cy.visit('/products/42')
+  cy.get('[data-cy=add-to-cart]').click()
+  cy.get('[data-cy=cart-count]').should('have.text', '1')
+})`,
+      en: `// ─── cypress/support/commands.js — ONLY command definitions (SRP) ───
+Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  cy.get('[data-cy=submit]').click()
+})
+
+// ─── cypress/support/e2e.js — AUTOMATICALLY loads commands.js ───
+import './commands'
+
+// ─── cypress/e2e/cart.cy.js — uses the EXTENDED 'cy' object ───
+beforeEach(() => {
+  cy.login('qa_user', 'S3cret!')   // ONE call instead of 4 lines
+})
+
+it('adds a product to the cart', () => {
+  cy.visit('/products/42')
+  cy.get('[data-cy=add-to-cart]').click()
+  cy.get('[data-cy=cart-count]').should('have.text', '1')
+})`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'cypress-arch-custom-command-steps',
+    title: { tr: 'Adım Adım: cy.login() Bir Custom Command Olarak Nasıl Kayıt Olur?', en: 'Step by Step: How Does cy.login() Register as a Custom Command?' },
+    steps: [
+      { id: 1, icon: '📝', label: { tr: 'Cypress.Commands.add tanımı çalışır', en: 'The Cypress.Commands.add definition runs' }, detail: { tr: 'support/commands.js Cypress başlarken bir kez yüklenir — "login" ismi burada global cy nesnesine EKLENİR.', en: 'support/commands.js is loaded once when Cypress starts — the name "login" is ADDED to the global cy object here.' } },
+      { id: 2, icon: '🔗', label: { tr: 'support/e2e.js commands.js\'i import eder', en: 'support/e2e.js imports commands.js' }, detail: { tr: 'Bu import satırı HER spec dosyasından önce OTOMATİK çalışır — sen hiçbir .cy.js dosyasına elle import yazmazsın.', en: 'This import line runs AUTOMATICALLY before every spec file — you never write a manual import in any .cy.js file.' } },
+      { id: 3, icon: '☎️', label: { tr: 'Spec cy.login(...) çağırır', en: 'The spec calls cy.login(...)' }, detail: { tr: 'Test, cy.login(\'qa_user\', \'S3cret!\') çağırır — komutun İÇİNDE ne olduğunu hiç BİLMEZ, sadece bir isim kullanır.', en: 'The test calls cy.login(\'qa_user\', \'S3cret!\') — it does not KNOW what is inside the command, it just uses a name.' } },
+      { id: 4, icon: '⚙️', label: { tr: 'Komut gövdesi çalışır', en: 'The command body runs' }, detail: { tr: 'Cypress, "login" ismine kayıtlı fonksiyonu çalıştırır — cy.visit/type/click zinciri devreye girer.', en: 'Cypress runs the function registered under the name "login" — the cy.visit/type/click chain kicks in.' } },
+      { id: 5, icon: '✅', label: { tr: 'Test kaldığı yerden devam eder', en: 'The test continues where it left off' }, detail: { tr: 'Komut bitince kontrol beforeEach\'e döner, test gövdesi çalışmaya başlar — TÜM login detayları testin GÖRÜŞ ALANI dışındadır.', en: 'Once the command finishes, control returns to beforeEach, and the test body starts running — ALL login details stay OUT of the test\'s view.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-cypress-arch-custom-command-order',
+    question: {
+      tr: 'Cypress.Commands.add ile bir login komutu kurmanın adımlarını mantıklı sıraya diz.',
+      en: 'Arrange the steps of building a login command with Cypress.Commands.add in a logical order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'support/commands.js dosyasında Cypress.Commands.add(\'login\', ...) tanımla', en: 'Define Cypress.Commands.add(\'login\', ...) in support/commands.js' }, order: 1 },
+      { id: '2', text: { tr: 'Fonksiyon gövdesinde cy.visit(\'/login\') ile sayfaya git', en: 'Inside the function body, navigate with cy.visit(\'/login\')' }, order: 2 },
+      { id: '3', text: { tr: 'cy.get(...).type(...) ile kullanıcı adı/şifre alanlarını doldur', en: 'Fill the username/password fields with cy.get(...).type(...)' }, order: 3 },
+      { id: '4', text: { tr: 'cy.get(...).click() ile submit butonuna bas', en: 'Click the submit button with cy.get(...).click()' }, order: 4 },
+      { id: '5', text: { tr: 'Herhangi bir .cy.js dosyasında cy.login(user, pass) olarak çağır', en: 'Call it as cy.login(user, pass) in any .cy.js file' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'cypress-framework-commands',
+    id: 'cypress-arch-custom-command-practice',
+    label: {
+      tr: 'Micro Lab: cy.login() custom command\'ını tamamla',
+      en: 'Micro Lab: complete the cy.login() custom command',
+    },
+    language: 'javascript',
+    task: {
+      tr: 'Aşağıdaki Cypress.Commands.add çağrısı bir isim ve parametre alıyor ama TODO satırı eksik olduğu için submit butonuna hiç TIKLAMIYOR — form doldurulur ama gönderilmez. TODO satırını, submit butonuna tıklayacak şekilde tamamla.',
+      en: 'The Cypress.Commands.add call below takes a name and parameters, but because the TODO line is missing, it never CLICKS the submit button — the form gets filled but never submitted. Complete the TODO line so it clicks the submit button.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç custom command\'ın "adımları TEK bir isim altında toplama" mantığını elle tamamlayarak pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to reinforce, by completing it yourself, the custom command\'s logic of "gathering steps under ONE name".',
+    },
+    code: {
+      tr: `Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  cy.get('[data-cy=submit]').click()
+})`,
+      en: `Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  cy.get('[data-cy=submit]').click()
+})`,
+    },
+    starterCode: {
+      tr: `Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  TODO   // submit butonuna tikla
+})`,
+      en: `Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  TODO   // click the submit button
+})`,
+    },
+    solutionCode: {
+      tr: `Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  cy.get('[data-cy=submit]').click()
+})`,
+      en: `Cypress.Commands.add('login', (username, password) => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type(username)
+  cy.get('[data-cy=password]').type(password)
+  cy.get('[data-cy=submit]').click()
+})`,
+    },
+    expected: {
+      tr: 'TODO satırı cy.get(\'[data-cy=submit]\').click() olmalı — komut zinciri, elementi bulup üzerine tıklayarak formu GÖNDERİR.',
+      en: 'The TODO line must be cy.get(\'[data-cy=submit]\').click() — the command chain SUBMITS the form by finding the element and clicking it.',
+    },
+    hints: [
+      { tr: 'cy.get(selector) bir elementi bulur, .click() ona zincirlenerek tıklama eylemini uygular — Cypress\'in komut zinciri (chaining) mantığı budur.', en: 'cy.get(selector) finds an element, and .click() chained onto it performs the click action — this is Cypress\'s command chaining logic.' },
+      { tr: 'Cypress.Commands.add\'in ikinci parametresi bir fonksiyondur — bu fonksiyonun İÇİNDEKİ her cy. çağrısı, komutu kullanan spec dosyasında SIRAYLA çalışır.', en: 'The second parameter of Cypress.Commands.add is a function — every cy. call INSIDE that function runs IN ORDER, in whichever spec file uses the command.' },
+      { tr: 'data-cy attribute\'leri Cypress\'in önerdiği locator stratejisidir — CSS/class değişse bile testin kırılmamasını sağlar.', en: 'data-cy attributes are Cypress\'s recommended locator strategy — they keep the test from breaking even if CSS/classes change.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'support/e2e.js dosyasındaki `import \'./commands\'` satırı NE ZAMAN çalışır?',
+      en: 'When does the `import \'./commands\'` line inside support/e2e.js run?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'HER spec dosyasından önce otomatik olarak', en: 'Automatically, before EVERY spec file' } },
+      { id: 'b', text: { tr: 'Sadece cy.login() ilk kez çağrıldığında', en: 'Only the first time cy.login() is called' } },
+      { id: 'c', text: { tr: 'Sadece CI ortamında', en: 'Only in a CI environment' } },
+      { id: 'd', text: { tr: 'Hiçbir zaman — elle her spec dosyasına eklenmelidir', en: 'Never — it must be added manually to every spec file' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'Cypress, support/e2e.js dosyasını yapılandırma gereği HER spec çalışmadan önce otomatik yükler — bu dosyadaki import, commands.js\'teki TÜM tanımların, elle import edilmeden, her .cy.js dosyasında hazır olmasını sağlar.',
+      en: 'By configuration, Cypress automatically loads support/e2e.js before EVERY spec runs — the import in this file makes ALL definitions in commands.js available in every .cy.js file, without a manual import.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'commands.js\'e bir assertion (örn. cy.get(...).should(...)) yazmak neden yanlış bir tasarımdır?',
+        en: 'Why is writing an assertion (e.g. cy.get(...).should(...)) inside commands.js a poor design choice?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'SRP\'yi ihlal eder — commands.js SADECE kurulum yapmalı, doğrulama spec\'in işidir', en: 'It violates SRP — commands.js should ONLY set things up, verification is the spec\'s job' } },
+        { id: 'b', text: { tr: 'Cypress bunu teknik olarak engeller', en: 'Cypress technically blocks it' } },
+        { id: 'c', text: { tr: 'Hiçbir sorun yaratmaz', en: 'It causes no problem' } },
+        { id: 'd', text: { tr: 'Sadece performansı yavaşlatır', en: 'It only slows down performance' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'commands.js\'e assertion yazarsan, farklı spec\'ler farklı doğrulama isteyebilirken hepsi AYNI zorunlu kontrolden geçer. Doğrulama HER ZAMAN spec dosyasının kendi sorumluluğunda kalmalı, komut sadece durumu KURMALI.',
+        en: 'If you put an assertion in commands.js, every spec is forced through the SAME mandatory check even though different specs may want different verification. Verification should ALWAYS stay the spec file\'s own responsibility, the command should only SET UP state.',
+      },
+    },
+  },
+
+  // ── Adım 3 — "POM" Yerine App Actions ──
+  {
+    type: 'heading',
+    text: { tr: '🚪 Adım 3 — "POM" Yerine App Actions: UI\'ı Atlayarak Durum Kurmak', en: '🚪 Step 3 — App Actions Instead of "POM": Setting Up State by Bypassing the UI' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '⏩',
+    content: {
+      tr: 'App Actions bir filmi izlerken "ileri sar" tuşuna basmaya benzer: giriş sahnesini (login akışını) HER seferinde baştan izlemek yerine, doğrudan izlemek istediğin sahneye (sepet sayfasına, zaten giriş yapılmış halde) atlarsın. İkinci benzetme: bir hastanenin arka koridorundan geçmek gibi — hasta (test) her seferinde ana giriş kapısından (UI) resepsiyona kayıt olmak yerine, daha önce zaten kayıt olduğunu KANITLAYAN bir bileklikle (session token\'la) doğrudan servis koridorundan (API) odaya girer. Peki UI login testi zaten var ve çalışıyorken, cy.request() ile "arka kapıdan" girmek GERÇEKTEN daha mı güvenilir — ya API, UI\'ın davranışını yanlış temsil ederse? Haklı bir endişe, ama çözüm UI\'ı HİÇ kullanmamak değil, UI login\'i TEK bir yerde (kendi testinde) doğrulayıp, geri kalan YÜZLERCE testte "giriş yapılmış durumu" varsaymaktır — API\'nin kendisi zaten backend\'in kontrat testleriyle ayrıca doğrulanır. Java karşılaştırması: entegrasyon testlerinde `@Sql` script\'iyle veritabanına doğrudan veri koymak, HER testte UI\'dan kayıt oluşturmaktan daha hızlı ve güvenilirdir — durum kurmak SENARYO değildir. QA bağlamı: UI login\'e bağımlı 200 testlik bir suite, login sayfası 3 saniye yavaşladığında suite\'in TAMAMINI 10 dakika daha uzatır; App Actions kullanan bir suite bu yavaşlıktan hiç ETKİLENMEZ çünkü login sayfasını hiç ZİYARET ETMEZ.',
+      en: 'App Actions are like pressing "fast forward" while watching a film: instead of watching the opening scene (the login flow) from the start EVERY time, you jump directly to the scene you want to watch (the cart page, already logged in). Second analogy: like walking through a hospital\'s back corridor — instead of the patient (the test) registering at the main entrance (the UI) every time, they enter the room directly through the service corridor (the API) with a wristband (session token) that already PROVES they registered earlier. But if the UI login test already exists and works, is entering through the "back door" via cy.request() REALLY more reliable — what if the API misrepresents the UI\'s behavior? A fair concern, but the solution is not to NEVER use the UI, it is to verify UI login in ONE place (its own test) and ASSUME the "logged in" state in the remaining HUNDREDS of tests — the API itself is separately verified through the backend\'s own contract tests. Java comparison: putting data directly into the database with an `@Sql` script in integration tests is faster and more reliable than creating a record through the UI in EVERY test — setting up state is NOT the scenario. QA context: a 200-test suite that depends on UI login gets 10 minutes SLOWER in total the moment the login page slows down by 3 seconds; a suite using App Actions is not AFFECTED at all, because it never VISITS the login page.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'loginByApi ile UI login\'in AYRI komutlar olmasının nedeni de SRP\'dir: loginByApi SADECE "oturumu en hızlı yoldan kur" sorusuna cevap verir, UI login testi ise SADECE "login formu gerçekten çalışıyor mu" sorusuna cevap verir. İkisi karıştırılırsa, "login formunu test ediyorum" sanılan bir testin aslında hiç UI\'a dokunmadığı fark edilmeyebilir.',
+      en: 'The reason loginByApi and UI login are SEPARATE commands is also SRP: loginByApi answers only "set up the session the fastest way", while the UI login test answers only "does the login form actually work". If the two get mixed up, a test believed to be "testing the login form" might never actually touch the UI, unnoticed.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'javascript',
+    code: {
+      tr: `// ─── cypress/support/commands.js — App Action: UI'i ATLAYARAK oturum kur ───
+Cypress.Commands.add('loginByApi', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => {
+      // API'nin dondugu oturum bilgisini DOGRUDAN cookie'ye yaz
+      cy.setCookie('session_id', response.body.sessionId)
+    })
+})
+
+// ─── cypress/e2e/login.cy.js — UI login SADECE burada, TEK testte dogrulanir ───
+it('gecerli bilgilerle UI uzerinden giris yapilabilir', () => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type('qa_user')
+  cy.get('[data-cy=password]').type('S3cret!')
+  cy.get('[data-cy=submit]').click()
+  cy.url().should('include', '/dashboard')
+})
+
+// ─── cypress/e2e/cart.cy.js — geri kalan 79 test UI'i HIC ziyaret etmez ───
+beforeEach(() => {
+  cy.loginByApi('qa_user', 'S3cret!')   // arka kapidan gir
+  cy.visit('/cart')                      // dogrudan hedef sayfaya git
+})
+
+it('urun sepetten cikarilir', () => {
+  cy.get('[data-cy=remove-item]').click()
+  cy.get('[data-cy=cart-count]').should('have.text', '0')
+})`,
+      en: `// ─── cypress/support/commands.js — App Action: sets up a session BYPASSING the UI ───
+Cypress.Commands.add('loginByApi', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => {
+      // write the session info returned by the API DIRECTLY into a cookie
+      cy.setCookie('session_id', response.body.sessionId)
+    })
+})
+
+// ─── cypress/e2e/login.cy.js — UI login is verified ONLY here, in ONE test ───
+it('can log in via the UI with valid credentials', () => {
+  cy.visit('/login')
+  cy.get('[data-cy=username]').type('qa_user')
+  cy.get('[data-cy=password]').type('S3cret!')
+  cy.get('[data-cy=submit]').click()
+  cy.url().should('include', '/dashboard')
+})
+
+// ─── cypress/e2e/cart.cy.js — the remaining 79 tests NEVER visit the UI ───
+beforeEach(() => {
+  cy.loginByApi('qa_user', 'S3cret!')   // enter through the back door
+  cy.visit('/cart')                      // go straight to the target page
+})
+
+it('removes a product from the cart', () => {
+  cy.get('[data-cy=remove-item]').click()
+  cy.get('[data-cy=cart-count]').should('have.text', '0')
+})`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'cypress-arch-app-actions-steps',
+    title: { tr: 'Adım Adım: loginByApi UI\'ı Nasıl Tamamen Atlar?', en: 'Step by Step: How Does loginByApi Bypass the UI Entirely?' },
+    steps: [
+      { id: 1, icon: '☎️', label: { tr: 'beforeEach cy.loginByApi() çağırır', en: 'beforeEach calls cy.loginByApi()' }, detail: { tr: 'Her testten ÖNCE çalışan bu hook, oturumu kurmak için App Action\'ı tetikler — henüz hiçbir tarayıcı sayfası ziyaret edilmedi.', en: 'This hook, running BEFORE every test, triggers the App Action to set up the session — no browser page has been visited yet.' } },
+      { id: 2, icon: '📮', label: { tr: 'cy.request POST atar', en: 'cy.request sends a POST' }, detail: { tr: 'cy.request(\'POST\', \'/api/login\', ...) tarayıcı arayüzünü hiç kullanmadan doğrudan HTTP isteği gönderir — bu, cy.visit\'ten TAMAMEN farklı bir mekanizmadır.', en: 'cy.request(\'POST\', \'/api/login\', ...) sends an HTTP request directly, without ever using the browser UI — this is a COMPLETELY different mechanism from cy.visit.' } },
+      { id: 3, icon: '📦', label: { tr: 'API bir sessionId döner', en: 'The API returns a sessionId' }, detail: { tr: 'response.body.sessionId, backend\'in ÜRETTİĞİ gerçek oturum kimliğidir — sahte/mock bir değer DEĞİLDİR.', en: 'response.body.sessionId is the real session identifier the backend PRODUCES — it is NOT a fake/mock value.' } },
+      { id: 4, icon: '🍪', label: { tr: 'cy.setCookie oturumu yazar', en: 'cy.setCookie writes the session' }, detail: { tr: 'Bu sessionId, tarayıcının çerezine DOĞRUDAN yazılır — sanki kullanıcı UI\'dan giriş yapmış gibi bir durum, UI hiç kullanılmadan elde edilir.', en: 'This sessionId is written DIRECTLY into the browser\'s cookie — a state as if the user logged in via the UI is achieved without ever using the UI.' } },
+      { id: 5, icon: '🎯', label: { tr: 'cy.visit hedef sayfayı zaten-girişli açar', en: 'cy.visit opens the target page already logged in' }, detail: { tr: 'cy.visit(\'/cart\') çalıştığında tarayıcı bu çerezi taşır — sayfa sanki kullanıcı zaten oradaymış gibi, hiçbir login ekranı görmeden açılır.', en: 'When cy.visit(\'/cart\') runs, the browser carries this cookie — the page opens as if the user was already there, with no login screen ever seen.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-cypress-arch-app-actions-order',
+    question: {
+      tr: 'UI login\'i test eden bir suite\'ten "App Actions ile hızlandırılmış" bir suite\'e geçmenin adımlarını sırala.',
+      en: 'Arrange the steps of moving from a suite that tests UI login to one "sped up with App Actions".',
+    },
+    items: [
+      { id: '1', text: { tr: 'UI login akışını TEK bir özel testte doğrula (login.cy.js)', en: 'Verify the UI login flow in ONE dedicated test (login.cy.js)' }, order: 1 },
+      { id: '2', text: { tr: 'loginByApi custom command\'ını cy.request() ile yaz', en: 'Write the loginByApi custom command with cy.request()' }, order: 2 },
+      { id: '3', text: { tr: 'API\'nin döndüğü oturum bilgisini cy.setCookie ile yaz', en: 'Write the session info the API returns with cy.setCookie' }, order: 3 },
+      { id: '4', text: { tr: 'Diğer tüm spec dosyalarının beforeEach\'inde cy.loginByApi() çağır', en: 'Call cy.loginByApi() in the beforeEach of all other spec files' }, order: 4 },
+      { id: '5', text: { tr: 'Bu spec\'lerde artık cy.visit ile doğrudan hedef sayfaya git', en: 'In these specs, navigate directly to the target page with cy.visit' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'cypress-framework-app-actions',
+    id: 'cypress-arch-app-actions-practice',
+    label: {
+      tr: 'Micro Lab: loginByApi\'yi oturumu cookie\'ye yazacak şekilde tamamla',
+      en: 'Micro Lab: complete loginByApi so it writes the session into a cookie',
+    },
+    language: 'javascript',
+    task: {
+      tr: 'Aşağıdaki loginByApi komutu API\'ye isteği atıyor ama TODO satırı eksik olduğu için dönen sessionId\'yi hiçbir yere YAZMIYOR — tarayıcı hâlâ giriş yapılmamış durumda kalır. TODO satırını, cy.setCookie ile sessionId\'yi yazacak şekilde tamamla.',
+      en: 'The loginByApi command below sends the request to the API, but because the TODO line is missing, it never WRITES the returned sessionId anywhere — the browser stays logged out. Complete the TODO line so it writes the sessionId via cy.setCookie.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç App Actions\'ın "API\'den dönen durumu tarayıcıya elle taşı" adımını yazarak, UI\'ı atlamanın NASIL çalıştığını pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to reinforce, by writing the "manually carry the state returned by the API into the browser" step, HOW bypassing the UI actually works.',
+    },
+    code: {
+      tr: `Cypress.Commands.add('loginByApi', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => {
+      cy.setCookie('session_id', response.body.sessionId)
+    })
+})`,
+      en: `Cypress.Commands.add('loginByApi', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => {
+      cy.setCookie('session_id', response.body.sessionId)
+    })
+})`,
+    },
+    starterCode: {
+      tr: `Cypress.Commands.add('loginByApi', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => {
+      TODO   // response.body.sessionId'yi cookie'ye yaz
+    })
+})`,
+      en: `Cypress.Commands.add('loginByApi', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => {
+      TODO   // write response.body.sessionId into a cookie
+    })
+})`,
+    },
+    solutionCode: {
+      tr: `Cypress.Commands.add('loginByApi', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => {
+      cy.setCookie('session_id', response.body.sessionId)
+    })
+})`,
+      en: `Cypress.Commands.add('loginByApi', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => {
+      cy.setCookie('session_id', response.body.sessionId)
+    })
+})`,
+    },
+    expected: {
+      tr: 'TODO satırı cy.setCookie(\'session_id\', response.body.sessionId) olmalı — bu satır olmadan API\'den dönen oturum tarayıcıya hiç TAŞINMAZ.',
+      en: 'The TODO line must be cy.setCookie(\'session_id\', response.body.sessionId) — without this line, the session returned by the API is never CARRIED into the browser.',
+    },
+    hints: [
+      { tr: 'cy.request() bir Promise benzeri nesne döner; .then((response) => ...) ile o nesnenin İÇİNDEKİ veriye (response.body) erişirsin.', en: 'cy.request() returns a Promise-like object; you access the data INSIDE it (response.body) via .then((response) => ...).' },
+      { tr: 'cy.setCookie(isim, değer) tarayıcıya DOĞRUDAN bir çerez yazar — bu, kullanıcı UI\'dan login olmuş gibi bir durumu, UI hiç kullanılmadan üretir.', en: 'cy.setCookie(name, value) writes a cookie DIRECTLY into the browser — this produces a state as if the user logged in via the UI, without ever using the UI.' },
+      { tr: 'response.body, API\'nin JSON yanıtına karşılık gelir — sessionId alanı, backend\'in o istek için ürettiği GERÇEK oturum kimliğidir.', en: 'response.body corresponds to the API\'s JSON response — the sessionId field is the REAL session identifier the backend produced for that request.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'loginByApi ile giriş yapan bir test, UI login formuna HİÇ dokunmadan neden "giriş yapılmış" sayılır?',
+      en: 'Why is a test that logs in via loginByApi considered "logged in" without EVER touching the UI login form?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'API\'den dönen gerçek oturum kimliği doğrudan tarayıcı çerezine yazılır', en: 'The real session identifier returned by the API is written directly into the browser cookie' } },
+      { id: 'b', text: { tr: 'Cypress otomatik olarak "giriş yapılmış" varsayar', en: 'Cypress automatically assumes "logged in"' } },
+      { id: 'c', text: { tr: 'API her zaman sahte bir yanıt döner', en: 'The API always returns a fake response' } },
+      { id: 'd', text: { tr: 'UI login testi arka planda otomatik çalışır', en: 'The UI login test runs automatically in the background' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'App Actions "sahte" bir durum üretmez — backend\'in GERÇEK login endpoint\'ine gerçek bir istek atılır, dönen GERÇEK oturum kimliği tarayıcıya yazılır. UI\'ın atlanması, sonucun sahte olduğu anlamına gelmez, sadece ORAYA ULAŞMA yolunun kısaldığı anlamına gelir.',
+      en: 'App Actions do not produce a "fake" state — a real request is sent to the backend\'s REAL login endpoint, and the REAL session identifier it returns is written into the browser. Bypassing the UI does not mean the result is fake, it just means the PATH to get there is shorter.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'UI login akışının ayrıca, kendi özel testinde (login.cy.js) doğrulanması NEDEN hâlâ gereklidir?',
+        en: 'Why is it STILL necessary to separately verify the UI login flow in its own dedicated test (login.cy.js)?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Çünkü App Actions login FORMUNUN kendisini test etmez — form kırılırsa bunu SADECE bu test yakalar', en: 'Because App Actions do not test the login FORM itself — only this test catches it if the form breaks' } },
+        { id: 'b', text: { tr: 'Gerekli değildir, App Actions her şeyi kapsar', en: 'It is not necessary, App Actions cover everything' } },
+        { id: 'c', text: { tr: 'Sadece CI\'da gereklidir', en: 'It is only necessary in CI' } },
+        { id: 'd', text: { tr: 'Sadece yeni geliştiriciler için gereklidir', en: 'It is only necessary for new developers' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'App Actions login API\'sini test eder, login FORMUNU değil — form\'daki bir buton kırılsa bile loginByApi bunu HİÇ fark etmez. Bu yüzden UI login akışı, gerçek kullanıcı deneyimini garanti eden TEK bir özel testte hâlâ doğrulanmalıdır.',
+        en: 'App Actions test the login API, not the login FORM — even if a button in the form breaks, loginByApi would NEVER notice. This is why the UI login flow must still be verified in ONE dedicated test that guarantees the real user experience.',
+      },
+    },
+  },
+
+  // ── Adım 4 — SOLID Uygulaması (OCP odaklı): Login Komutları ──
+  {
+    type: 'heading',
+    text: { tr: '⚖️ Adım 4 — SOLID Prensipleri Cypress Kodunda', en: '⚖️ Step 4 — SOLID Principles in Cypress Code' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🎛️',
+    content: {
+      tr: 'SOLID beş prensip, bir ses mikser masasının kanal düzenidir: her kanal tek bir enstrümanı taşır (SRP — vokal kanalı sadece vokali taşır), yeni bir enstrüman eklemek için mevcut kanalları SÖKMEZSİN, yeni bir kanal AÇARSIN (OCP), aynı tip her sinyal aynı kanala takılır (LSP), mikser masasının EQ düğmeleri sadece ses ayarlarını gösterir ışık kontrolünü değil (ISP), ve kanallar sabit kabloya değil TAKILABİLİR jack\'lere bağlanır (DIP). İkinci benzetme: OCP bir elektrik çoklu prizi gibidir — yeni bir cihaz (yeni bir login yöntemi) bağlamak için prizin İÇİNİ AÇMAZSIN, standart bir yuvaya yeni bir fiş takarsın. Peki testler zaten çalışıyorken, neden bu prensiplere uğraşıyoruz — proje SSO girişini de destekleyecekse cy.login()\'e "if useSSO ise..." eklemek daha hızlı değil mi? Kısa vadede evet; ama komut içine her yeni giriş yöntemi için if/else eklemek, o komutu her değişiklikte yeniden test etmeni ve mevcut form-login senaryolarını kırma riskini getirir. Java karşılaştırması: bu tam olarak bir `PaymentStrategy` arayüzüdür — `Checkout` sınıfının içini değiştirmeden yeni ödeme yöntemleri eklersin; burada da giriş yöntemlerini aynı şekilde takılabilir hale getirebilirsin. QA bağlamı: OCP\'ye uyan bir komut katmanında "bu proje için SSO girişini de destekleyelim" kararı, mevcut 40 form-login testinin hiçbirine dokunmadan tek bir yeni komutla çözülür — dokunmadığın kod, kıramadığın koddur.',
+      en: 'The five SOLID principles are a sound mixer\'s channel layout: each channel carries one instrument (SRP — the vocal channel carries only vocals), to add a new instrument you do not DISMANTLE the existing channels, you OPEN a new one (OCP), every signal of the same type plugs into the same channel (LSP), the mixer\'s EQ knobs show only sound settings, not lighting control (ISP), and channels connect through PLUGGABLE jacks, not fixed wiring (DIP). Second analogy: OCP is like a power strip — to plug in a new device (a new login method) you do not OPEN UP the strip, you plug a new plug into a standard socket. But if the tests already work, why bother with these principles — if the project needs to support SSO login too, isn\'t adding "if useSSO..." to cy.login() faster? Short-term yes; but adding if/else inside the command for every new login method forces you to retest that command on every change and risks breaking the existing form-login scenarios. Java comparison: this is exactly a `PaymentStrategy` interface — you add new payment methods without changing the inside of the `Checkout` class; here you can make login methods just as pluggable. QA context: in a command layer that respects OCP, the decision to "let\'s also support SSO login for this project" is solved with a single new command, without touching any of the existing 40 form-login tests — the code you do not touch is the code you cannot break.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Beş prensibin Cypress karşılığı: SRP — commands.js sadece komut tanımı, spec dosyası sadece senaryo (Adım 2-3). OCP — yeni bir login yöntemi eklemek için mevcut komutu değiştirmeden yeni bir komut ekle (aşağıda). LSP — her login komutu, "kullanıcıyı sisteme sokan bir şey" beklenen her yerde sorunsuz kullanılabilir olmalı. ISP — bir spec dosyasına kullanmayacağı komutları içeren şişkin bir arayüz dayatma. DIP — spec dosyası, somut bir login mekanizmasına değil "cy.login gibi bir şeye" bağlı olmalı. Aşağıda OCP\'yi somut bir "Anti-Pattern vs SOLID" çiftiyle inceliyoruz.',
+      en: 'The Cypress mapping of the five principles: SRP — commands.js only defines commands, the spec file only holds scenarios (Steps 2-3). OCP — add a new login method by adding a new command without modifying the existing one (below). LSP — every login command must be usable wherever "something that logs the user into the system" is expected. ISP — do not impose a bloated interface with commands a spec file will not use. DIP — the spec file should depend on "something like cy.login", not a concrete login mechanism. Below we examine OCP through a concrete "Anti-Pattern vs SOLID" pair.',
+    },
+  },
+  {
+    type: 'comparison',
+    left: {
+      label: { tr: '❌ OCP İhlali (if/else şişmesi)', en: '❌ OCP Violation (if/else bloat)' },
+      code: {
+        tr: `// Her yeni giris yontemi bu komutu DEGISTIRIR
+Cypress.Commands.add('login', (user, pass, method) => {
+  if (method === 'sso') {
+    cy.request('POST', '/api/sso-login', { user })
+      .then(r => cy.setCookie('session_id', r.body.sessionId))
+  } else {
+    cy.request('POST', '/api/login', { user, pass })
+      .then(r => cy.setCookie('session_id', r.body.sessionId))
+  }
+  // yeni yontem = yeni else-if = eski kodu yeniden test et
+})`,
+        en: `// Every new login method MODIFIES this command
+Cypress.Commands.add('login', (user, pass, method) => {
+  if (method === 'sso') {
+    cy.request('POST', '/api/sso-login', { user })
+      .then(r => cy.setCookie('session_id', r.body.sessionId))
+  } else {
+    cy.request('POST', '/api/login', { user, pass })
+      .then(r => cy.setCookie('session_id', r.body.sessionId))
+  }
+  // new method = new else-if = retest the old code
+})`,
+      },
+      note: { tr: 'Yeni davranış = mevcut komutu değiştir = regresyon riski.', en: 'New behavior = modify the existing command = regression risk.' },
+    },
+    right: {
+      label: { tr: '✅ OCP Uygun (ayrı komutlar)', en: '✅ OCP-Compliant (separate commands)' },
+      code: {
+        tr: `// Yeni yontem = mevcut komutu DEGISTIRMEDEN yeni komut ekle
+Cypress.Commands.add('loginByForm', (user, pass) => {
+  cy.request('POST', '/api/login', { user, pass })
+    .then(r => cy.setCookie('session_id', r.body.sessionId))
+})
+
+Cypress.Commands.add('loginBySso', (user) => {
+  cy.request('POST', '/api/sso-login', { user })
+    .then(r => cy.setCookie('session_id', r.body.sessionId))
+})`,
+        en: `// New method = add a new command WITHOUT modifying the existing one
+Cypress.Commands.add('loginByForm', (user, pass) => {
+  cy.request('POST', '/api/login', { user, pass })
+    .then(r => cy.setCookie('session_id', r.body.sessionId))
+})
+
+Cypress.Commands.add('loginBySso', (user) => {
+  cy.request('POST', '/api/sso-login', { user })
+    .then(r => cy.setCookie('session_id', r.body.sessionId))
+})`,
+      },
+      note: { tr: 'Yeni komut = yeni tanım; eski komut hiç açılmaz.', en: 'New command = new definition; the existing command is never opened.' },
+    },
+  },
+  {
+    type: 'code',
+    language: 'javascript',
+    code: {
+      tr: `// ─── support/commands.js — OCP: her login yontemi KENDI komutunda ───
+
+// Yontem 1 — normal form girisi (mevcut, degismedi)
+Cypress.Commands.add('loginByForm', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => cy.setCookie('session_id', response.body.sessionId))
+})
+
+// Yontem 2 — SSO girisi (YENI komut, eskiye HIC dokunulmadi)
+Cypress.Commands.add('loginBySso', (username) => {
+  cy.request('POST', '/api/sso-login', { username })
+    .then((response) => cy.setCookie('session_id', response.body.sessionId))
+})
+
+// ─── spec dosyasi somut yontemi DEGIL, "bir login komutu" fikrini kullanir ───
+beforeEach(() => {
+  cy.loginByForm('qa_user', 'S3cret!')   // veya: cy.loginBySso('qa_user')
+})`,
+      en: `// ─── support/commands.js — OCP: every login method in ITS OWN command ───
+
+// Method 1 — normal form login (existing, unchanged)
+Cypress.Commands.add('loginByForm', (username, password) => {
+  cy.request('POST', '/api/login', { username, password })
+    .then((response) => cy.setCookie('session_id', response.body.sessionId))
+})
+
+// Method 2 — SSO login (NEW command, the old one was NEVER touched)
+Cypress.Commands.add('loginBySso', (username) => {
+  cy.request('POST', '/api/sso-login', { username })
+    .then((response) => cy.setCookie('session_id', response.body.sessionId))
+})
+
+// ─── the spec file uses "a login command" idea, NOT a concrete method ───
+beforeEach(() => {
+  cy.loginByForm('qa_user', 'S3cret!')   // or: cy.loginBySso('qa_user')
+})`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'cypress-arch-ocp-login-steps',
+    title: { tr: 'Adım Adım: OCP ile Yeni Bir Login Yöntemi Nasıl Eklenir?', en: 'Step by Step: How a New Login Method Is Added with OCP' },
+    steps: [
+      { id: 1, icon: '📐', label: { tr: 'Sözleşme örtük kalır', en: 'The contract stays implicit' }, detail: { tr: 'Cypress\'te resmi bir arayüz/interface yoktur ama "bir login komutu, oturumu cy.setCookie ile kurar" ÖRTÜK sözleşmesi her komutta AYNI kalır.', en: 'Cypress has no formal interface, but the IMPLICIT contract "a login command sets up the session via cy.setCookie" stays THE SAME across every command.' } },
+      { id: 2, icon: '🧱', label: { tr: 'Her yöntem ayrı komut', en: 'Each method is its own command' }, detail: { tr: 'loginByForm ve loginBySso ayrı ayrı tanımlanır — biri diğerinin kodunu bilmez, birbirini kırmaz.', en: 'loginByForm and loginBySso are defined separately — neither knows the other\'s code, neither can break the other.' } },
+      { id: 3, icon: '➕', label: { tr: 'Yeni ihtiyaç = yeni komut', en: 'New need = new command' }, detail: { tr: '"Magic link ile giriş" ihtiyacı gelirse loginByMagicLink adında YENİ bir komut eklersin; mevcut iki komuta DOKUNMAZSIN.', en: 'If a "magic link login" need arises, you add a NEW command named loginByMagicLink; you do NOT touch the existing two commands.' } },
+      { id: 4, icon: '🔌', label: { tr: 'Spec hangi komutu kullanacağını seçer', en: 'The spec chooses which command to use' }, detail: { tr: 'Spec dosyası somut bir mekanizmaya değil, "bir login komutuna" bağlıdır — hangi komutu çağıracağını dışarıdan sen seçersin (DIP ile birlikte çalışır).', en: 'The spec file depends on "a login command", not a concrete mechanism — you choose which one to call from outside (works together with DIP).' } },
+      { id: 5, icon: '🛡️', label: { tr: 'Eski testler dokunulmadan geçer', en: 'Old tests pass untouched' }, detail: { tr: 'Yeni komut eklenince mevcut 40 form-login testinin hiçbiri değişmediği için hiçbiri kırılamaz — OCP\'nin regresyon güvencesi tam olarak budur.', en: 'When the new command is added, none of the existing 40 form-login tests changed, so none can break — this is exactly OCP\'s regression guarantee.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-cypress-arch-ocp-order',
+    question: {
+      tr: '"SSO girişini de destekleyelim" ihtiyacını OCP\'ye uygun şekilde çözme adımlarını sıraya diz.',
+      en: 'Arrange the OCP-compliant steps for the need "let\'s also support SSO login".',
+    },
+    items: [
+      { id: '1', text: { tr: 'Mevcut loginByForm komutunu incele — değiştirme', en: 'Inspect the existing loginByForm command — do not change it' }, order: 1 },
+      { id: '2', text: { tr: 'Yeni bir loginBySso komutu tanımla', en: 'Define a new loginBySso command' }, order: 2 },
+      { id: '3', text: { tr: 'Komut gövdesini SSO\'ya özgü API isteğiyle doldur', en: 'Fill the command body with the SSO-specific API request' }, order: 3 },
+      { id: '4', text: { tr: 'İlgili spec dosyalarına bu yeni komutu çağırt', en: 'Have the relevant spec files call this new command' }, order: 4 },
+      { id: '5', text: { tr: 'Mevcut testleri çalıştır — hiçbiri değişmediği için hepsi geçer', en: 'Run the existing tests — since none changed, they all pass' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'cypress-framework-ocp',
+    id: 'cypress-arch-ocp-login-command-practice',
+    label: {
+      tr: 'Micro Lab: OCP\'ye uygun yeni bir loginBySso komutu ekle',
+      en: 'Micro Lab: add a new OCP-compliant loginBySso command',
+    },
+    language: 'javascript',
+    task: {
+      tr: 'Proje artık SSO ile giriş de destekliyor. OCP kuralı gereği MEVCUT loginByForm komutunu DEĞİŞTİRMEDEN, yeni bir loginBySso komutu yaz. TODO satırlarını tamamla: komut /api/sso-login\'e istek atmalı ve dönen sessionId\'yi cy.setCookie ile yazmalı.',
+      en: 'The project now also supports SSO login. Per OCP, WITHOUT modifying the existing loginByForm command, write a new loginBySso command. Complete the TODO lines: the command must request /api/sso-login and write the returned sessionId via cy.setCookie.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç OCP\'nin "genişlet ama değiştirme" ilkesini elle uygulayarak, yeni davranışı mevcut komutlara dokunmadan eklemenin regresyonu nasıl önlediğini pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to apply OCP\'s "extend but do not modify" principle by hand, reinforcing how adding new behavior without touching existing commands prevents regression.',
+    },
+    code: {
+      tr: `Cypress.Commands.add('loginBySso', (username) => {
+  cy.request('POST', '/api/sso-login', { username })
+    .then((response) => cy.setCookie('session_id', response.body.sessionId))
+})`,
+      en: `Cypress.Commands.add('loginBySso', (username) => {
+  cy.request('POST', '/api/sso-login', { username })
+    .then((response) => cy.setCookie('session_id', response.body.sessionId))
+})`,
+    },
+    starterCode: {
+      tr: `Cypress.Commands.add('loginBySso', (username) => {
+  TODO   // /api/sso-login'e istek at
+    .then((response) => TODO)   // sessionId'yi cookie'ye yaz
+})`,
+      en: `Cypress.Commands.add('loginBySso', (username) => {
+  TODO   // request /api/sso-login
+    .then((response) => TODO)   // write the sessionId into a cookie
+})`,
+    },
+    solutionCode: {
+      tr: `Cypress.Commands.add('loginBySso', (username) => {
+  cy.request('POST', '/api/sso-login', { username })
+    .then((response) => cy.setCookie('session_id', response.body.sessionId))
+})`,
+      en: `Cypress.Commands.add('loginBySso', (username) => {
+  cy.request('POST', '/api/sso-login', { username })
+    .then((response) => cy.setCookie('session_id', response.body.sessionId))
+})`,
+    },
+    expected: {
+      tr: 'İlk TODO cy.request(\'POST\', \'/api/sso-login\', { username }) olmalı; ikinci TODO cy.setCookie(\'session_id\', response.body.sessionId) olmalı — mevcut loginByForm komutuna hiç dokunmadan yeni davranış eklenir.',
+      en: 'The first TODO must be cy.request(\'POST\', \'/api/sso-login\', { username }); the second TODO must be cy.setCookie(\'session_id\', response.body.sessionId) — new behavior is added without touching the existing loginByForm command.',
+    },
+    hints: [
+      { tr: 'OCP\'nin özü: yeni komut, mevcut loginByForm\'un YANINA eklenir, İÇİNE değil; böylece spec dosyaları değişmeden yeni davranışı kullanabilir.', en: 'The essence of OCP: the new command is added ALONGSIDE the existing loginByForm, not INSIDE it; this lets spec files use the new behavior unchanged.' },
+      { tr: 'cy.request bir Promise benzeri nesne döner; .then((response) => ...) ile API\'nin JSON gövdesine (response.body) erişirsin.', en: 'cy.request returns a Promise-like object; you access the API\'s JSON body (response.body) via .then((response) => ...).' },
+      { tr: 'İki login komutu da AYNI örtük sözleşmeyi (cy.setCookie ile oturum kurmayı) uygular — bu yüzden spec dosyaları hangisini çağırdığına bakılmaksızın aynı şekilde devam edebilir.', en: 'Both login commands follow the SAME implicit contract (setting up the session via cy.setCookie) — this is why spec files can continue the same way regardless of which one they call.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Bir Cypress custom command\'ında her yeni login yöntemi için var olan komuta if/else eklemek hangi SOLID prensibini ihlal eder?',
+      en: 'In a Cypress custom command, adding an if/else to the existing command for every new login method violates which SOLID principle?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Open/Closed Principle (OCP) — komut genişlemeye açık, değişikliğe kapalı olmalı', en: 'Open/Closed Principle (OCP) — a command should be open to extension, closed to modification' } },
+      { id: 'b', text: { tr: 'Sadece Single Responsibility (SRP)', en: 'Only Single Responsibility (SRP)' } },
+      { id: 'c', text: { tr: 'Hiçbirini — if/else her zaman iyi pratiktir', en: 'None — if/else is always good practice' } },
+      { id: 'd', text: { tr: 'Liskov Substitution (LSP)', en: 'Liskov Substitution (LSP)' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'Her yeni yöntem için mevcut komutu değiştirmek (yeni else-if) OCP ihlalidir: komut "değişikliğe kapalı" olmalıydı. Ayrı komutlarla davranışı böldüğünde, yeni yöntem eklemek mevcut kodu değiştirmeyi değil, yeni bir komut eklemeyi gerektirir — eski testler dokunulmadan güvende kalır.',
+      en: 'Modifying the existing command (a new else-if) for every new method violates OCP: the command should have been "closed to modification". When you split behavior into separate commands, adding a new method requires adding a new command, not changing existing code — old tests stay safe, untouched.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Bir spec dosyasının cy.loginByForm() yerine "bir login komutu çağır" fikrine bağlı olması hangi prensibi uygular?',
+        en: 'A spec file depending on the idea of "call a login command" instead of cy.loginByForm() specifically applies which principle?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Dependency Inversion (DIP) — yüksek seviye kod soyutlamaya bağlı olmalı', en: 'Dependency Inversion (DIP) — high-level code should depend on abstractions' } },
+        { id: 'b', text: { tr: 'Interface Segregation (ISP)', en: 'Interface Segregation (ISP)' } },
+        { id: 'c', text: { tr: 'Hiçbiri', en: 'None' } },
+        { id: 'd', text: { tr: 'Sadece OCP', en: 'Only OCP' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'DIP, yüksek seviye kodun (spec) düşük seviye somut bir mekanizmaya değil, bir soyutlamaya bağlı olmasını söyler. Spec dosyası "hangi login komutunu kullanacağı" konusunda esnek kalırsa, farklı implementasyonlar (form, SSO, magic link) sorunsuz değiştirilebilir.',
+        en: 'DIP says high-level code (the spec) should depend on an abstraction, not a low-level concrete mechanism. If the spec file stays flexible about "which login command to use", different implementations (form, SSO, magic link) can be swapped freely.',
+      },
+    },
+  },
+
+  // ── Adım 5 — Test / Data Katmanı: cy.fixture & Cypress.env ──
+  {
+    type: 'heading',
+    text: { tr: '🔗 Adım 5 — Test / Data Katmanı: cy.fixture & Cypress.env', en: '🔗 Step 5 — Test / Data Layer: cy.fixture & Cypress.env' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '📇',
+    content: {
+      tr: 'cy.fixture, bir kütüphanenin ödünç verme fişleridir: her kitap için ayrı bir hikaye uydurmazsın, standart bir fiş şablonunu (JSON dosyasını) doldurur, ihtiyaç oldukça çekmeceden çıkarırsın. İkinci benzetme: Cypress.env(), binanın SANTRAL numarasıdır — her katın (her spec\'in) kendi telefon hattını kurmasına gerek yoktur, TEK bir santral numarası (apiUrl, ortam sabitleri) tüm binaya AYNI şekilde ulaşılabilir. Peki her test verisini doğrudan kod içinde yazabiliyorken, neden ayrı bir fixture dosyası kullanalım — `{ email: "a@b.com" }` yazmak yetmez mi? Yeter, ama SADECE bir test için; aynı kullanıcı verisi 15 farklı spec dosyasında kopyalanırsa, test ortamı değiştiğinde (örn. domain adı değişince) 15 dosya elle güncellenir. Java karşılaştırması: bu, JUnit\'in `@MethodSource` ile harici bir veri kaynağından test parametresi okumasıyla AYNI ilke — "test verisini kod dışına TAŞI". QA bağlamı: sabit kodlanmış (`hardcoded`) test verisi kullanan bir suite, staging ortamı yeni bir e-posta domaini kullanmaya başladığında SESSİZCE 15 yerde kırılır; fixture kullanan bir suite\'te TEK dosya (users.json) güncellenir, tüm testler otomatik düzelir.',
+      en: 'cy.fixture is a library\'s lending slips: you do not invent a separate story for every book, you fill out a standard slip template (a JSON file) and pull it out of the drawer whenever needed. Second analogy: Cypress.env() is the building\'s SWITCHBOARD number — no floor (no spec) needs to set up its own phone line, ONE switchboard number (apiUrl, environment constants) reaches the whole building the SAME way. But since you can write test data directly in code, why use a separate fixture file — isn\'t writing `{ email: "a@b.com" }` enough? It is, but ONLY for one test; if the same user data is duplicated across 15 different spec files, changing the test environment (e.g. the domain name changes) means updating 15 files by hand. Java comparison: the SAME principle as JUnit reading test parameters from an external data source via `@MethodSource` — "MOVE test data out of the code". QA context: a suite using hardcoded test data SILENTLY breaks in 15 places the moment staging starts using a new email domain; a suite using fixtures updates ONE file (users.json), and all tests fix themselves automatically.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Bu son katmanda tüm parçalar birleşir: cypress.config.ts, Cypress.env() ile ortam sabitlerini (apiUrl gibi) tüm suite\'e açar; fixtures/*.json dosyaları sabit test verisini barındırır; spec dosyası bu veriyi cy.fixture(...).then(...) ile yükler ve forEach ile aynı senaryoyu farklı verilerle koşturur. Böylece Adım 2 (Custom Command), Adım 3 (App Actions) ve Adım 4 (SOLID/OCP) burada tek bir çalışan akışta buluşur.',
+      en: 'In this final layer, all pieces come together: cypress.config.ts exposes environment constants (like apiUrl) to the whole suite via Cypress.env(); fixtures/*.json files hold static test data; the spec file loads this data with cy.fixture(...).then(...) and runs the same scenario with different data via forEach. Thus Step 2 (Custom Command), Step 3 (App Actions), and Step 4 (SOLID/OCP) meet here in one working flow.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'javascript',
+    code: {
+      tr: `// ─── cypress/fixtures/checkout-cases.json — sabit veri, mantik ICERMEZ ───
+[
+  { "coupon": "INDIRIM10", "expectedTotal": "₺90.00" },
+  { "coupon": "GECERSIZ",  "expectedTotal": "₺100.00" },
+  { "coupon": "",           "expectedTotal": "₺100.00" }
+]
+
+// ─── cypress.config.ts — ortam sabitleri TUM suite'e acilir ───
+export default {
+  e2e: { baseUrl: 'https://shop.example.com' },
+  env: { apiUrl: 'https://api.example.com' },
+}
+
+// ─── cypress/e2e/checkout.data.cy.js — data-driven: mantik TEK, veri COK ───
+beforeEach(() => {
+  cy.loginByApi('qa_user', 'S3cret!')
+})
+
+cy.fixture('checkout-cases').then((cases) => {
+  cases.forEach((c) => {
+    it(\`kupon "\${c.coupon}" toplami \${c.expectedTotal} yapmali\`, () => {
+      cy.visit('/checkout')
+      cy.get('[data-cy=coupon]').type(c.coupon)
+      cy.get('[data-cy=apply]').click()
+      cy.get('[data-cy=cart-total]').should('have.text', c.expectedTotal)
+    })
+  })
+})`,
+      en: `// ─── cypress/fixtures/checkout-cases.json — static data, NO logic ───
+[
+  { "coupon": "SAVE10",  "expectedTotal": "$90.00" },
+  { "coupon": "INVALID", "expectedTotal": "$100.00" },
+  { "coupon": "",         "expectedTotal": "$100.00" }
+]
+
+// ─── cypress.config.ts — environment constants opened to the WHOLE suite ───
+export default {
+  e2e: { baseUrl: 'https://shop.example.com' },
+  env: { apiUrl: 'https://api.example.com' },
+}
+
+// ─── cypress/e2e/checkout.data.cy.js — data-driven: logic ONE, data MANY ───
+beforeEach(() => {
+  cy.loginByApi('qa_user', 'S3cret!')
+})
+
+cy.fixture('checkout-cases').then((cases) => {
+  cases.forEach((c) => {
+    it(\`coupon "\${c.coupon}" total should be \${c.expectedTotal}\`, () => {
+      cy.visit('/checkout')
+      cy.get('[data-cy=coupon]').type(c.coupon)
+      cy.get('[data-cy=apply]').click()
+      cy.get('[data-cy=cart-total]').should('have.text', c.expectedTotal)
+    })
+  })
+})`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'cypress-arch-datadriven-steps',
+    title: { tr: 'Adım Adım: fixture + forEach Aynı Testi Nasıl 3 Kez Koşturur?', en: 'Step by Step: How fixture + forEach Runs the Same Test 3 Times' },
+    steps: [
+      { id: 1, icon: '📋', label: { tr: 'cy.fixture veri dosyasını yükler', en: 'cy.fixture loads the data file' }, detail: { tr: 'checkout-cases.json dosyası okunur ve .then callback\'ine bir JavaScript dizisi olarak geçirilir — bu, dosya sistemine erişen ASENKRON bir işlemdir.', en: 'The checkout-cases.json file is read and passed into the .then callback as a JavaScript array — this is an ASYNCHRONOUS operation that reads the file system.' } },
+      { id: 2, icon: '🔁', label: { tr: 'forEach her satır için it() üretir', en: 'forEach produces it() for each row' }, detail: { tr: 'cases.forEach döngüsü, dizideki HER nesne için AYRI bir it(...) çağrısı yapar — bu, dosya TOPLANIRKEN olur, 3 ayrı test kaydı oluşturur.', en: 'The cases.forEach loop makes a SEPARATE it(...) call for EVERY object in the array — this happens while the file is being COLLECTED, creating 3 separate test entries.' } },
+      { id: 3, icon: '🎯', label: { tr: 'Her it() kendi c değerini closure\'da tutar', en: 'Each it() holds its own c value in a closure' }, detail: { tr: 'JavaScript\'in closure\'ı sayesinde her it(...) çağrısı KENDİ c nesnesini "hatırlar" — 3 test birbirinin verisini karıştırmaz.', en: 'Thanks to JavaScript\'s closures, each it(...) call "remembers" ITS OWN c object — the 3 tests never mix up each other\'s data.' } },
+      { id: 4, icon: '🔓', label: { tr: 'beforeEach login\'i AYRICA çalıştırır', en: 'beforeEach runs login SEPARATELY' }, detail: { tr: 'Cypress\'te storageState kavramı yok — her spec dosyası kendi state\'ini KORUR ama her it() İÇİN beforeEach yine de çalışır, cy.loginByApi() her testte tekrar tetiklenir (hızlı olduğu için sorun değildir).', en: 'Cypress has no storageState concept — each spec file KEEPS its own state, but beforeEach still runs FOR every it(), and cy.loginByApi() fires again each time (not a problem since it is fast).' } },
+      { id: 5, icon: '📊', label: { tr: 'Rapor: 3 ayrı sonuç, mantık TEK', en: 'Report: 3 separate results, logic is ONE' }, detail: { tr: 'Test raporunda "kupon INDIRIM10...", "kupon GECERSIZ..." gibi 3 AYRI satır görünür — biri fail olursa hangi VERİ satırının patladığını net görürsün.', en: 'In the report, 3 SEPARATE rows appear like "coupon SAVE10...", "coupon INVALID..." — if one fails, you clearly see which DATA row broke.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-cypress-arch-datadriven-order',
+    question: {
+      tr: 'cy.fixture + forEach ile data-driven bir checkout testi kurmanın adımlarını doğru sıraya diz.',
+      en: 'Arrange the steps of building a data-driven checkout test with cy.fixture + forEach in the correct order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'fixtures/checkout-cases.json dosyasında veri satırlarını tanımla', en: 'Define the data rows in fixtures/checkout-cases.json' }, order: 1 },
+      { id: '2', text: { tr: 'cy.fixture(\'checkout-cases\') ile dosyayı yükle', en: 'Load the file with cy.fixture(\'checkout-cases\')' }, order: 2 },
+      { id: '3', text: { tr: '.then((cases) => ...) içinde diziyi yakala', en: 'Capture the array inside .then((cases) => ...)' }, order: 3 },
+      { id: '4', text: { tr: 'cases.forEach ile her satır için it() üret', en: 'Produce it() for each row with cases.forEach' }, order: 4 },
+      { id: '5', text: { tr: 'it() gövdesinde kuponu uygula ve toplamı doğrula', en: 'In the it() body, apply the coupon and verify the total' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'cypress-framework-datadriven',
+    id: 'cypress-arch-datadriven-practice',
+    label: {
+      tr: 'Micro Lab: fixture verisini data-driven testlere bağla',
+      en: 'Micro Lab: bind fixture data to data-driven tests',
+    },
+    language: 'javascript',
+    task: {
+      tr: 'cy.fixture(\'checkout-cases\') veri dosyasını hazır yüklüyor ama TODO satırı eksik olduğu için hiçbir it() çağrısı ÜRETİLMİYOR — sıfır test toplanır. TODO satırını, cases dizisindeki HER satır için bir it() çağıran bir forEach ile tamamla.',
+      en: 'cy.fixture(\'checkout-cases\') already loads the data file, but because the TODO line is missing, no it() calls are PRODUCED — zero tests get collected. Complete the TODO line with a forEach that calls it() for EVERY row in cases.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç Cypress\'te data-driven testin, fixture yüklemesi + dilin kendi forEach\'i olduğunu elle yazarak pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to reinforce, by writing it yourself, that data-driven testing in Cypress is just a fixture load + the language\'s own forEach.',
+    },
+    code: {
+      tr: `cases.forEach((c) => {
+  it(\`kupon "\${c.coupon}" toplami \${c.expectedTotal} yapmali\`, () => {
+    cy.visit('/checkout')
+    cy.get('[data-cy=coupon]').type(c.coupon)
+    cy.get('[data-cy=cart-total]').should('have.text', c.expectedTotal)
+  })
+})`,
+      en: `cases.forEach((c) => {
+  it(\`coupon "\${c.coupon}" total should be \${c.expectedTotal}\`, () => {
+    cy.visit('/checkout')
+    cy.get('[data-cy=coupon]').type(c.coupon)
+    cy.get('[data-cy=cart-total]').should('have.text', c.expectedTotal)
+  })
+})`,
+    },
+    starterCode: {
+      tr: `TODO((c) => {
+  it(\`kupon "\${c.coupon}" toplami \${c.expectedTotal} yapmali\`, () => {
+    cy.visit('/checkout')
+    cy.get('[data-cy=coupon]').type(c.coupon)
+    cy.get('[data-cy=cart-total]').should('have.text', c.expectedTotal)
+  })
+})`,
+      en: `TODO((c) => {
+  it(\`coupon "\${c.coupon}" total should be \${c.expectedTotal}\`, () => {
+    cy.visit('/checkout')
+    cy.get('[data-cy=coupon]').type(c.coupon)
+    cy.get('[data-cy=cart-total]').should('have.text', c.expectedTotal)
+  })
+})`,
+    },
+    solutionCode: {
+      tr: `cases.forEach((c) => {
+  it(\`kupon "\${c.coupon}" toplami \${c.expectedTotal} yapmali\`, () => {
+    cy.visit('/checkout')
+    cy.get('[data-cy=coupon]').type(c.coupon)
+    cy.get('[data-cy=cart-total]').should('have.text', c.expectedTotal)
+  })
+})`,
+      en: `cases.forEach((c) => {
+  it(\`coupon "\${c.coupon}" total should be \${c.expectedTotal}\`, () => {
+    cy.visit('/checkout')
+    cy.get('[data-cy=coupon]').type(c.coupon)
+    cy.get('[data-cy=cart-total]').should('have.text', c.expectedTotal)
+  })
+})`,
+    },
+    expected: {
+      tr: 'TODO satırı cases.forEach olmalı — bu döngü, cases dizisindeki HER nesne için ayrı bir it(...) çağrısı üretir, mantık TEK kalır, sadece veri değişir.',
+      en: 'The TODO line must be cases.forEach — this loop produces a separate it(...) call for EVERY object in cases, the logic stays ONE, only the data changes.',
+    },
+    hints: [
+      { tr: 'forEach bir dizinin HER elemanı için verdiğin callback\'i çalıştırır — it() çağrısını bu callback\'in İÇİNE koymak, her elemanı bir test haline getirir.', en: 'forEach runs the callback you provide for EVERY element of an array — putting the it() call INSIDE that callback turns every element into a test.' },
+      { tr: 'it() çağrıları dosya TOPLANIRKEN kaydedilir — forEach İÇİNDE olsalar bile, Cypress bunları normal it() çağrıları gibi ele alır.', en: 'it() calls are registered while the file is being COLLECTED — even INSIDE a forEach, Cypress treats them just like normal it() calls.' },
+      { tr: 'Döngü değişkeni (c) her it() çağrısının callback\'i içinde KULLANILABİLİR olmalı — JavaScript\'in closure\'ı bunu senin için otomatik sağlar.', en: 'The loop variable (c) must be USABLE inside each it() call\'s callback — JavaScript\'s closures provide this for you automatically.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'cy.fixture(\'checkout-cases\').then((cases) => {...}) yapısı NEDEN forEach ile birlikte kullanılır?',
+      en: 'Why is the cy.fixture(\'checkout-cases\').then((cases) => {...}) structure used together with forEach?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'fixture dosyası bir dizi döner, forEach ise o dizideki HER satır için ayrı bir it() üretir', en: 'The fixture file returns an array, and forEach produces a separate it() for EVERY row in that array' } },
+      { id: 'b', text: { tr: 'Cypress\'te @DataProvider annotation\'ı bunu zorunlu kılar', en: 'A @DataProvider annotation in Cypress requires this' } },
+      { id: 'c', text: { tr: 'forEach olmadan fixture hiç çalışmaz', en: 'The fixture does not work at all without forEach' } },
+      { id: 'd', text: { tr: 'Sadece CI ortamında gereklidir', en: 'It is only necessary in a CI environment' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'cy.fixture bir JSON dosyasını okur ve JavaScript nesnesine/dizisine çevirir; forEach ise JavaScript\'in KENDİ iterasyon mekanizmasıdır — Cypress\'in özel bir data-driven API\'si yoktur, dilin döngüsü zaten yeterlidir.',
+      en: 'cy.fixture reads a JSON file and converts it into a JavaScript object/array; forEach is JavaScript\'s OWN iteration mechanism — Cypress has no special data-driven API, the language\'s loop is already enough.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'checkout-cases.json dosyasındaki veriyi doğrudan spec dosyasına kod olarak yazmak yerine ayrı bir fixture dosyasında tutmanın en büyük avantajı nedir?',
+        en: 'What is the biggest advantage of keeping the checkout-cases.json data in a separate fixture file instead of writing it directly as code in the spec file?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Aynı veri birden fazla spec dosyasında paylaşılabilir, tek yerde güncellenir', en: 'The same data can be shared across multiple spec files, updated in one place' } },
+        { id: 'b', text: { tr: 'Testler daha hızlı çalışır', en: 'The tests run faster' } },
+        { id: 'c', text: { tr: 'JSON dosyaları JavaScript\'ten daha az hataya sahiptir', en: 'JSON files have fewer errors than JavaScript' } },
+        { id: 'd', text: { tr: 'Cypress bunu zorunlu kılar', en: 'Cypress requires this' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'Veri koddan ayrıldığında, aynı checkout-cases.json birden fazla spec dosyası (örn. hem checkout hem sepet testleri) tarafından paylaşılabilir; ortam değişince (örn. para birimi formatı) TEK dosya güncellenir, ona bağlı TÜM testler otomatik düzelir.',
+        en: 'Once data is separated from code, the same checkout-cases.json can be shared by multiple spec files (e.g. both checkout and cart tests); when the environment changes (e.g. the currency format), ONE file is updated, and ALL tests depending on it fix themselves automatically.',
+      },
+    },
+  },
+]
+
+const sFwArch = {
+  tr: { title: '🏗️ Framework Mimarisi (SOLID + POM)', blocks: cypressArchBlocks },
+  en: { title: '🏗️ Framework Architecture (SOLID + POM)', blocks: cypressArchBlocks },
+}
+
 export const cypressData = {
   tr: {
     hero: {
@@ -6406,8 +7575,8 @@ export const cypressData = {
       subtitle: 'JavaScript/TypeScript ile öğren, Selenium ve Playwright ile karşılaştır',
       intro: 'Cypress, test kodunu tarayıcının içinde çalıştıran, time-travel debugging ve otomatik retry-ability sunan modern bir E2E test framework\'üdür. Network stubbing, component testing ve gerçek zamanlı görsel geri bildirimle QA mühendislerinin en sevdiği araçlardan biridir.',
     },
-    tabs: ['🌲 Cypress Nedir?', '⚙️ Kurulum', '🖱️ Temel Komutlar', '🧩 Aksiyonlar & Drag-Drop', '🕐 Zaman Yolculuğu', '🌐 Network & Intercept', '🗂️ Test Organizasyonu', '🔗 Aliases & Isolation', '🧩 Component Testing', '🎭 Stub/Spy/Clock', '🐞 Debugging', '⚙️ CI/CD & Cross Browser', '🦄 Sadece Cypress\'te', '🌍 Gerçek Hayat', '🔗 Ekosistem', '🆚 Karşılaştırma', '🚨 Yaygın Hatalar', '💼 50 Mülakat Sorusu'],
-    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s11.tr, s12.tr, s13.tr, s14.tr, s15.tr, s16.tr, s17.tr, s6.tr, s7.tr, s8.tr, s9.tr, s10.tr],
+    tabs: ['🌲 Cypress Nedir?', '⚙️ Kurulum', '🖱️ Temel Komutlar', '🧩 Aksiyonlar & Drag-Drop', '🕐 Zaman Yolculuğu', '🌐 Network & Intercept', '🗂️ Test Organizasyonu', '🏗️ Framework Mimarisi', '🔗 Aliases & Isolation', '🧩 Component Testing', '🎭 Stub/Spy/Clock', '🐞 Debugging', '⚙️ CI/CD & Cross Browser', '🦄 Sadece Cypress\'te', '🌍 Gerçek Hayat', '🔗 Ekosistem', '🆚 Karşılaştırma', '🚨 Yaygın Hatalar', '💼 50 Mülakat Sorusu'],
+    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s11.tr, sFwArch.tr, s12.tr, s13.tr, s14.tr, s15.tr, s16.tr, s17.tr, s6.tr, s7.tr, s8.tr, s9.tr, s10.tr],
   },
   en: {
     hero: {
@@ -6415,8 +7584,8 @@ export const cypressData = {
       subtitle: 'Learn with JavaScript/TypeScript, compare with Selenium and Playwright',
       intro: 'Cypress is a modern E2E testing framework that runs test code inside the browser, offering time-travel debugging and automatic retry-ability. With network stubbing, component testing and real-time visual feedback, it is one of QA engineers\' favorite tools.',
     },
-    tabs: ['🌲 What is Cypress?', '⚙️ Installation', '🖱️ Basic Commands', '🧩 Actions & Drag-Drop', '🕐 Time Travel', '🌐 Network & Intercept', '🗂️ Test Organization', '🔗 Aliases & Isolation', '🧩 Component Testing', '🎭 Stub/Spy/Clock', '🐞 Debugging', '⚙️ CI/CD & Cross Browser', '🦄 Cypress-Only', '🌍 Real World', '🔗 Ecosystem', '🆚 Comparison', '🚨 Common Errors', '💼 50 Interview Questions'],
-    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s11.en, s12.en, s13.en, s14.en, s15.en, s16.en, s17.en, s6.en, s7.en, s8.en, s9.en, s10.en],
+    tabs: ['🌲 What is Cypress?', '⚙️ Installation', '🖱️ Basic Commands', '🧩 Actions & Drag-Drop', '🕐 Time Travel', '🌐 Network & Intercept', '🗂️ Test Organization', '🏗️ Framework Architecture', '🔗 Aliases & Isolation', '🧩 Component Testing', '🎭 Stub/Spy/Clock', '🐞 Debugging', '⚙️ CI/CD & Cross Browser', '🦄 Cypress-Only', '🌍 Real World', '🔗 Ecosystem', '🆚 Comparison', '🚨 Common Errors', '💼 50 Interview Questions'],
+    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s11.en, sFwArch.en, s12.en, s13.en, s14.en, s15.en, s16.en, s17.en, s6.en, s7.en, s8.en, s9.en, s10.en],
   },
 }
 
