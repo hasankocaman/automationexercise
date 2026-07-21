@@ -15,7 +15,7 @@
 | | |
 |---|---|
 | **Aktif branch** | `feature/framework-arch-selenium-multiview` (tüm iş burada) |
-| **Son commit** | bu bölüm commit edilince güncellenecek |
+| **Son commit** | `322166d` — REST Assured Framework Mimarisi (SOLID + POM) sekmesi eklendi |
 | **Çalışma ağacı** | temiz |
 | **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. branch temizliği maddesi) |
 
