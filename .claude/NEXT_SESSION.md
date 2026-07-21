@@ -8037,6 +8037,25 @@ Explore taramasindaki bulguya sadik kalinarak manuel muhendislik yapildi:
 
 ## Eksikler / Riskler / Yapilacaklar (Oncelik Sirasi)
 
+> **0. AKTIF BRANCH — `feature/algorithms-quiz-gating` (2026-07-21, main'e MERGE EDILMEDI).**
+> 4 commit birikti: `4df22b7` (/algorithms quiz-gating) · `8c740c5` (§9.3 denetim
+> scripti + appium/git-github) · `578e7cf` (/manual-testing quiz) · `db7ff7f`
+> (/advanced-algorithms opsiyonel + quiz). Hicbiri main'e gitmedi ve **tam 190
+> testlik Playwright paketi bu branch'te hic kosulmadi** (kullanici istegiyle
+> hedefli testlerle yetinildi). Merge/push oncesi yapilmasi gerekenler:
+> 1. `npm run test:e2e` (tam paket) — ozellikle `i18n-content-toggle.spec.ts`
+>    (appium/git-github/manual-testing/advanced-algorithms icerik metni degisti,
+>    EN modda TR sizintisi kontrolu) ve `topic-pages-ui.spec.ts`.
+> 2. Gecerse `git checkout main && git merge feature/algorithms-quiz-gating`.
+> Not: pre-push hook zaten build + tam paketi zorunlu kosuyor; zombi-surec
+> temizleme scripti (`pretest:e2e`) bu oturumda sorunsuz calisti.
+>
+> **Quiz-gating haritasi (hangi sayfada ne var):** `/algorithms` kati gating
+> (quiz gecilmeden tamamlama butonu disabled) · `/manual-testing` quiz =
+> garantili ikinci yol (oyun yolu da acik) · `/advanced-algorithms` quiz =
+> kolay yol, tamamlama OPSIYONEL (sayfa basinda "zorunlu degil" notu var).
+> Baska hicbir sayfada quiz-gating YOK.
+
 1. **`git push origin main` — ✅ TAMAMLANDI (2026-07-09).**
    - Local main ve remote origin/main aynı commit'te (`f72feeb`). Sync'te.
 
@@ -8077,6 +8096,9 @@ Explore taramasindaki bulguya sadik kalinarak manuel muhendislik yapildi:
      `sections/blocks` var ama kod `blocks` disinda bagimsiz `code:` string olarak
      tutuluyor, `fillMissingCodeTrios` bunu gormuyor. Kod verisini `blocks` icine
      `type:'code'` olarak tasimak (veri modeli refactor) gerekir.
+     ⚠️ **ONCELIK DUSTU (2026-07-21):** Bu sayfa artik resmen OPSIYONEL bir derstir
+     (hero'da `optionalNote`, bkz. en ustteki madde) — refactor yatirimi yapmadan
+     once zorunlu sayfalar bitirilmelidir.
    - **test-frameworks** → hic `src/data/*.js` dosyasi yok, icerik 3 alt component'te
      (`FrameworkComparison.jsx`, `PlaywrightLangCompare.jsx`, `PythonFrameworksTab.jsx`)
      hardcoded JSX. En buyuk manuel muhendislik gerektiren — once bir veri modeline
@@ -8086,6 +8108,12 @@ Explore taramasindaki bulguya sadik kalinarak manuel muhendislik yapildi:
      ekle" gibi basit bir is degil. Hangi sayfadan baslanacagi ve algorithms/
      manual-testing icin "code-playground sayfanin no-code felsefesiyle celisir mi"
      sorusu kullaniciya soruldu, cevap bekleniyor.
+   - **2026-07-21 guncellemesi:** Bu uc no-code sayfada (`/algorithms`,
+     `/manual-testing`, `/advanced-algorithms`) olcme/degerlendirme ihtiyaci
+     `code-playground` yerine **quiz** ile karsilandi (bkz. en ustteki
+     quiz-gating haritasi). Yani "no-code felsefesiyle celisir mi" sorusu
+     pratikte quiz lehine cozuldu; kalan `code-playground` refactor'u
+     `test-frameworks` icin hala acik.
 
 5. **§9.3 4-katmanli analoji standardi — ARTIK OTOMATIK DENETLENIYOR (2026-07-21'de guncellendi):**
    - Denetim araci: `node scripts/audit-analogy-depth.mjs [--missing] [sayfa...]`.
