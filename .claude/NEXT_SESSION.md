@@ -10,60 +10,53 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-21, Haiku/Sonnet oturumu sonu — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-21, Haiku/Sonnet oturumu devam — önce BURAYI oku)
 
 | | |
 |---|---|
 | **Aktif branch** | `feature/framework-arch-selenium-multiview` (tüm iş burada) |
-| **Son commit** | `1fc550f` — Selenium Framework Mimarisi'ne §9.5 video-scene eklendi |
+| **Son commit** | `f5b0ad2` — bu doğrulama turu commit edilince güncellenecek |
 | **Çalışma ağacı** | temiz |
 | **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. aşağıdaki branch temizliği maddesi) |
 
-**Bu oturumda bitenler:** Selenium Framework Mimarisi sekmesine **§9.5 video-scene
-eklendi** — `seleniumArchTestChainFilm` (id: `selenium-arch-test-chain-film`,
-`src/data/seleniumData.js`), Adım 1'in mindmap/grid bloklarının hemen ardına,
-quiz'den ÖNCE yerleştirildi (47 → 48 blok, section[6], hem TR hem EN section aynı
-referansı paylaşıyor çünkü bu dosya tek `seleniumArchBlocks` dizisi kullanıyor).
-Film, sekmenin GERÇEK içeriğini görselleştiriyor — konudan kopuk değil: Adım 1'deki
-"Ana Akış" (@Test → LoginPage → BasePage → WaitFactory → DriverManager → Browser)
-ve Adım 3'teki "Neden ThreadLocal" (Thread-2 kontrastı) aynı zincirin animasyonu.
-`tests/video-scene.spec.ts`'e "Dalga 6 Batch 2" grubunun sonuna temsili render
-testi eklendi (`/selenium — 🏗️ Framework Mimarisi sekmesinde film render olur`).
+### ✅ DOĞRULAMA BORCU TAMAMEN KAPANDI (bu oturumda gerçekten koşuldu, 49 test)
+1. `npx playwright test tests/video-scene.spec.ts -g "Framework Mimarisi"` → **1 passed** ✓
+2. `npx playwright test tests/i18n-content-toggle.spec.ts` → **31 passed** ✓ (EN modda TR
+   sızıntısı YOK — sql, bruno, javascript, python, selenium, cypress, azure, jenkins,
+   kubernetes, playwright, postman dahil tüm sayfalar temiz)
+3. `npx playwright test -g "git-github"` → **12 passed** ✓
+4. `npx playwright test -g "appium"` → **6 passed** ✓
 
-**Doğrulama (bu oturumda gerçekten koşuldu):** `node --input-type=module -e
-"import('./src/data/seleniumData.js')"` → parse OK · `node
-scripts/check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ · `npm run build`
-→ exit 0 ✓ (SEO zinciri dahil, 41 static route shell üretildi) · `git diff -U0
-src/data/seleniumData.js | grep "^-"` → BOŞ (mevcut içerikten hiçbir şey
-kaybedilmedi, saf ekleme) · section[6] block sayısı node ile doğrulandı: 48 blok,
-1 video-scene, 0 auto-injected jenerik blok.
-**Koşulmadı (kullanıcı isteğiyle "test etmeden commit"):** Playwright paketi —
-yeni eklenen `tests/video-scene.spec.ts` testi dahil hiçbir e2e testi
-ÇALIŞTIRILMADI. Bir sonraki oturumun ilk işi bunu teyit etmek olmalı.
+**Sonuç:** Önceki oturumlardan birikmiş TÜM doğrulama borcu kapandı, hiçbir
+regresyon bulunmadı. Selenium Framework Mimarisi + video-scene eklentisi
+prodüksiyon kalitesinde doğrulanmış durumda.
 
-**⚠️ chunk boyutu notu:** `seleniumData` chunk'ı build çıktısında **620.95 kB**
-(gzip 197.15 kB) — video-scene bloğu eklenmeden önceki boyut bu oturumda
-ölçülmedi, bir sonraki oturumda büyüme trendini görmek için not edilsin.
+**⚠️ chunk boyutu notu (devam ediyor):** `seleniumData` chunk'ı **620.95 kB**
+(gzip 197.15 kB) — Playwright/Cypress/REST Assured/Appium'a aynı Framework
+Mimarisi içeriği eklenince o dosyaların chunk boyutu da izlenmeli.
 
-### ⚠️ AÇIK DOĞRULAMA BORCU (bir sonraki oturumun İLK işi)
-Birikmiş, hiç koşulmamış testler:
-1. `npx playwright test tests/video-scene.spec.ts -g "Framework Mimarisi"` — bu
-   oturumda YAZILDI ama hiç ÇALIŞTIRILMADI, önce bu koşulmalı (yeni yazılan test
-   selector/timing hatası içeriyor olabilir).
-2. `npx playwright test tests/i18n-content-toggle.spec.ts` — önceki oturumdan
-   kalan borç (EN modda TR sızıntısı riski): sql, bruno, javascript, python,
-   selenium, cypress, azure, jenkins, kubernetes, playwright, postman.
-3. `-g "git-github"` ve `-g "appium"` teyidi — daha eski bir borç.
+### 🔜 SIRADAKİ İŞ (öncelik sırasıyla) — §9.6 rollout, kullanıcı "loop" istedi
+Kullanıcı talimatı: her sayfa bitince ONAY BEKLEMEDEN NEXT_SESSION.md güncelle,
+`SKIP_E2E_HOOK=1` ile commit at, sıradaki sayfaya geç (kodlama → NEXT_SESSION.md
+→ test etmeden commit döngüsü). Sıra:
+1. **`/playwright`** — Framework Mimarisi (SOLID + POM) eklenecek. Sayfanın iç
+   yapısı önce incelenmeli (selenium gibi mi, gauge gibi mi?).
+2. **`/cypress`** — aynı standart.
+3. **`/rest-assured`** — `restAssuredData` gauge ile AYNI iskelete sahip
+   (`// ── N:` + sectionIndex/Feynman deseni) — kaydırma doğrudan uygulanabilir.
+4. **`/appium`** — aynı standart, iskelet önce incelenmeli.
 
-### 🔜 SIRADAKİ İŞ (öncelik sırasıyla)
-1. **Yukarıdaki doğrulama borcunu kapat** (özellikle yeni yazılan video-scene testi).
-2. **§9.6 rollout'a devam** — Playwright / Cypress / REST Assured / Appium.
-   `restAssuredData` gauge ile AYNI iskelete sahip (kaydırma deseni doğrudan
-   uygulanabilir); diğerleri önce incelenmeli. Selenium artık gauge ile birlikte
-   TAMAMLANMIŞ referans sayfa (5-görünüm + video-scene).
-3. **Branch/remote temizliği (yarım kaldı)** — `git push origin --delete
-   feature/sandbox-and-framework-arch` DNS hatası yüzünden işlenmedi, ağ gelince
-   tekrar denenmeli.
+Her sayfada uygulanacak kalıp (Selenium'da doğrulanmış): simple-box (4 katman)
++ 5 görünüm (Ana Akış/Kurulum Akışı `python-flow-diagram`, Paralel Çalışma/Veri
+Paylaşım/Kim Ne Yapar `grid`) + quiz → Core/Base adımı (trio+quiz) → POM adımı
+(trio+quiz) → SOLID adımı (comparison+trio+quiz) → Test/Data adımı (trio+quiz)
++ 1 video-scene (Adım 1 mindmap'ini canlandıran, konudan KOPUK OLMAYAN film,
+quiz'den önce). İpucu temaları her sayfada gauge/selenium'dan KASITLI farklı
+seçilmeli (dedup çakışması olmasın, `check-content-integrity.mjs` yakalar).
+
+**Branch/remote temizliği (yarım kaldı, düşük öncelik):** `git push origin
+--delete feature/sandbox-and-framework-arch` DNS hatası yüzünden işlenmedi, ağ
+gelince tekrar denenmeli.
 
 ### 🔧 BU BRANCH'TE COMMIT KURALI
 Kullanıcı "test etmeden commit" dediğinde **`SKIP_E2E_HOOK=1 git commit ...`**
