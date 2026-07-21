@@ -10,6 +10,52 @@
 
 ---
 
+## ✨ EKLENDİ — /advanced-algorithms quiz-gating + "OPSİYONEL DERS" notu (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
+
+**Branch:** `feature/algorithms-quiz-gating` (devam).
+
+**Kullanıcı isteği:** "advanced-algorithms sayfasına da quiz ekle. Ama sayfanın başına
+bu sayfanın öncelikli olmadığını, kullanıcı advanced algoritma bilmese de herhangi bir
+programlama dilini öğrenebileceğini not olarak yaz. Bu dersi bitirmek zorunlu olmamalı."
+
+**Bulgu:** Sayfada 6 bölümün HER birinde zaten `QuizCard` (section.quiz) VARDI — ama
+hiçbir şeyi tetiklemiyordu; tamamlama tamamen manuel checkbox'a (`CompletionToggle`,
+localStorage `qa-platform-completed`, `algorithms-{id}`) bağlıydı. Ayrıca quiz yanlış
+cevapta §18'e aykırı biçimde kırmızı ❌ ekranı gösteriyordu ve yedek soru yoktu.
+Bu sayfada `LessonFinishBadge` YOK — bitirme rozeti zaten hiç olmamıştı.
+
+**Yapıldı:**
+- **KALICI ÜRÜN KARARI — sayfa opsiyonel:** `algorithmsData.js` `hero.optionalNote`
+  (TR+EN) eklendi; sayfanın başında amber "Opsiyonel ders" bloğu olarak render edilir
+  (`data-testid=optional-lesson-note`). İçerik: ileri algoritma bilmeden de herhangi
+  bir dil öğrenilebileceği, Selenium/Playwright ile otomasyon yazılabileceği, buradaki
+  konuların günlük QA işinin ÖN KOŞULU OLMADIĞI ve **hiçbir bölümün başka bir dersi
+  kilitlemediği** yazılı. Yeni bir sayfa/route eklerken bu sayfa "zorunlu yol"a
+  konmamalıdır.
+- **Quiz → otomatik tamamlama:** `QuizCard`'a `onPass` eklendi; doğru cevap bölümü
+  otomatik işaretler. `SectionCard`'da `quizPassed` state (localStorage
+  `advanced_algorithms_quiz_passed`), `CompletionToggle`'a yeni `autoDone` prop'u.
+  Kullanıcı checkbox ile geri alabilir — tamamlama ZORUNLU değil.
+- **§18 uyumu:** 6 bölümün TR+EN quizine **`retry` (yedek soru)** eklendi (12 retry).
+  Yanlış cevapta kırmızı ❌ ekranı KALDIRILDI, yerine amber cesaretlendirici
+  mikro-geri bildirim + "başka soru dene" düğmesi geldi. `page`'e `quizHint`,
+  `quizWrong`, `quizRetry`, `quizTryAgain` etiketleri eklendi.
+
+**E2E testi (`tests/lesson-completion.spec.ts`):** Yeni test — opsiyonel not görünür mü
++ ilk bölümün quizi doğru cevaplanınca checkbox otomatik işaretleniyor mu.
+**Not:** Test, `/algorithms`'daki gibi `advanced_algorithms_neuro_mode=false` init
+script'i ister; aksi hâlde Nöro-Optimizasyon recall-kilidi overlay'i tıklamayı
+engelliyor (ilk koşumda bu yüzden kırıldı, düzeltildi).
+
+**Doğrulama:** `lesson-completion.spec.ts` tam dosya → **4 passed** ✓ ·
+`other-pages-ui` + `video-scene` `-g algorithms` → **5 passed** ✓ · `npm run build` ✓.
+
+**Quiz-gating durumu (özet):** `/algorithms` (katı gating) · `/manual-testing`
+(quiz = garantili ikinci yol, oyun yolu da açık) · `/advanced-algorithms`
+(quiz = kolay yol, tamamlama opsiyonel). Başka sayfada quiz-gating yok.
+
+---
+
 ## ✨ EKLENDİ — /manual-testing bitirme rozetine quiz yolu (6 bölüm quizi + otomatik tamamlama) (2026-07-21, Opus oturumu, kullanıcı bildirimiyle)
 
 **Branch:** `feature/algorithms-quiz-gating` (devam).

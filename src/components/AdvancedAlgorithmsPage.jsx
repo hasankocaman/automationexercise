@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { algorithmsData } from '../data/algorithmsData'
 import { useLanguage } from '../context/LanguageContext'
 import TopicHeader from './TopicHeader'
@@ -467,7 +467,7 @@ function CodeBlock({ code, darkMode }) {
     )
 }
 
-function CompletionToggle({ id, label, doneLabel, darkMode }) {
+function CompletionToggle({ id, label, doneLabel, darkMode, autoDone }) {
     const storageKey = 'qa-platform-completed'
     const topicId = `algorithms-${id}`
     const [done, setDone] = useState(() => {
@@ -477,6 +477,20 @@ function CompletionToggle({ id, label, doneLabel, darkMode }) {
             return false
         }
     })
+
+    // Quiz dogru cevaplandiginda bolum otomatik isaretlenir. Kullanici yine de
+    // checkbox ile geri alabilir — bu sayfada tamamlama ZORUNLU degildir.
+    useEffect(() => {
+        if (!autoDone || done) return
+        let saved = []
+        try {
+            saved = JSON.parse(localStorage.getItem(storageKey) || '[]')
+        } catch {
+            saved = []
+        }
+        localStorage.setItem(storageKey, JSON.stringify([...new Set([...saved, topicId])]))
+        setDone(true)
+    }, [autoDone, done, topicId])
 
     const toggle = () => {
         let saved = []
@@ -498,25 +512,37 @@ function CompletionToggle({ id, label, doneLabel, darkMode }) {
     )
 }
 
-function QuizCard({ quiz, labels, darkMode }) {
+function QuizCard({ quiz, labels, darkMode, onPass }) {
     const [selected, setSelected] = useState('')
     const [checked, setChecked] = useState(false)
-    const correct = checked && selected === quiz.correct
-    const incorrect = checked && selected && selected !== quiz.correct
+    // §18: yanlis cevapta moral bozan kirmizi ekran yerine alternatif (yedek) soru
+    const [useRetry, setUseRetry] = useState(false)
+    const activeQuiz = useRetry && quiz.retry ? quiz.retry : quiz
+    const hasRetry = Boolean(quiz.retry)
+    const correct = checked && selected === activeQuiz.correct
+    const incorrect = checked && selected && selected !== activeQuiz.correct
 
     useEffect(() => {
         setSelected('')
         setChecked(false)
+        setUseRetry(false)
     }, [quiz])
+
+    // Dogru cevap bolumu OTOMATIK tamamlar (bu sayfada tamamlama zorunlu degildir,
+    // bkz. hero'daki optionalNote — quiz sadece daha kolay bir yol sunar).
+    useEffect(() => {
+        if (correct) onPass?.()
+    }, [correct, onPass])
 
     return (
         <div className={`mt-5 rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950/60' : 'border-slate-200 bg-slate-50'}`}>
-            <div className="mb-3 text-sm font-bold">{labels.quizTitle}</div>
-            <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{quiz.question}</p>
+            <div className="mb-1 text-sm font-bold">{labels.quizTitle}</div>
+            <p className={`mb-3 text-xs font-bold ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{labels.quizHint}</p>
+            <p className={`text-sm ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{activeQuiz.question}</p>
             <div className="mt-3 grid gap-2">
-                {quiz.options.map(option => {
+                {activeQuiz.options.map(option => {
                     const isPicked = selected === option.id
-                    const isCorrectOption = option.id === quiz.correct
+                    const isCorrectOption = option.id === activeQuiz.correct
                     
                     let buttonStyle = darkMode 
                         ? 'border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500' 
@@ -535,7 +561,8 @@ function QuizCard({ quiz, labels, darkMode }) {
                     return (
                         <button
                             key={option.id}
-                            disabled={checked}
+                            disabled={checked && correct}
+                            data-testid={`quiz-opt-${option.id}`}
                             onClick={() => {
                                 setSelected(option.id)
                                 setChecked(false)
@@ -562,22 +589,36 @@ function QuizCard({ quiz, labels, darkMode }) {
                     <div className="flex flex-col gap-2 w-full">
                         {correct ? (
                             <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs leading-relaxed font-bold text-emerald-400">
-                                🎉 {labels.correct}: {quiz.explanation}
+                                🎉 {labels.correct}: {activeQuiz.explanation}
                             </div>
                         ) : (
-                            <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 p-3 text-xs leading-relaxed font-bold text-rose-400">
-                                ❌ {quiz.explanation}
+                            /* §18: kirmizi "hata" ekrani yok — cesaretlendirici amber geri bildirim */
+                            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-relaxed font-bold text-amber-400">
+                                💡 {labels.quizWrong}
                             </div>
                         )}
-                        <button
-                            onClick={() => {
-                                setSelected('')
-                                setChecked(false)
-                            }}
-                            className={`self-start min-h-8 rounded px-3 text-[11px] font-black transition ${darkMode ? 'bg-slate-800 text-slate-350 hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
-                        >
-                            {labels.reset || 'Reset'}
-                        </button>
+                        {incorrect && hasRetry && !useRetry ? (
+                            <button
+                                onClick={() => {
+                                    setUseRetry(true)
+                                    setSelected('')
+                                    setChecked(false)
+                                }}
+                                className="self-start min-h-8 rounded bg-amber-500 px-3 text-[11px] font-black text-white transition hover:bg-amber-600"
+                            >
+                                {labels.quizRetry} →
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => {
+                                    setSelected('')
+                                    setChecked(false)
+                                }}
+                                className={`self-start min-h-8 rounded px-3 text-[11px] font-black transition ${darkMode ? 'bg-slate-800 text-slate-350 hover:bg-slate-700' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
+                            >
+                                {incorrect ? labels.quizTryAgain : (labels.reset || 'Reset')}
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
@@ -1022,6 +1063,22 @@ function VisualLab({ section, labels, darkMode, data }) {
 }
 
 function SectionCard({ section, labels, darkMode, data, neuroMode, recallProgress, onRecallUpdate, nLabels, language }) {
+    // Quiz gecildi bilgisi kalici: sayfa yenilenince bolum isaretli kalir.
+    const [quizPassed, setQuizPassed] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('advanced_algorithms_quiz_passed') || '{}')[section.id] === true
+        } catch { return false }
+    })
+    const handleQuizPass = useCallback(() => {
+        setQuizPassed(prev => {
+            if (prev) return prev
+            try {
+                const saved = JSON.parse(localStorage.getItem('advanced_algorithms_quiz_passed') || '{}')
+                localStorage.setItem('advanced_algorithms_quiz_passed', JSON.stringify({ ...saved, [section.id]: true }))
+            } catch { /* localStorage kapali olabilir */ }
+            return true
+        })
+    }, [section.id])
     const accent = accents[section.accent] || accents.violet
     const isUnlocked = !neuroMode || recallProgress[section.id] === 'recalled';
 
@@ -1058,7 +1115,7 @@ function SectionCard({ section, labels, darkMode, data, neuroMode, recallProgres
                                 {section.tag}
                             </span>
                             <DifficultyBadge level={section.difficulty} />
-                            <CompletionToggle id={section.id} label={labels.markDone} doneLabel={labels.done} darkMode={darkMode} />
+                            <CompletionToggle id={section.id} label={labels.markDone} doneLabel={labels.done} darkMode={darkMode} autoDone={quizPassed} />
                         </div>
 
                         <h2 className={`text-xl font-black leading-tight md:text-2xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{section.title}</h2>
@@ -1111,7 +1168,7 @@ function SectionCard({ section, labels, darkMode, data, neuroMode, recallProgres
                                 <VideoSceneBlock block={section.film} darkMode={darkMode} language={language} />
                             </div>
                         )}
-                        <QuizCard quiz={section.quiz} labels={labels} darkMode={darkMode} />
+                        <QuizCard quiz={section.quiz} labels={labels} darkMode={darkMode} onPass={handleQuizPass} />
                     </div>
                 </div>
 
@@ -1226,6 +1283,28 @@ function AdvancedAlgorithmsPage() {
                             <p className={`mt-3 max-w-3xl text-sm leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                                 {data.hero.intro}
                             </p>
+
+                            {/* Opsiyonel ders uyarisi (urun karari 2026-07-21): bu sayfa
+                                hicbir dersin on kosulu degildir, bitirmek zorunlu degildir. */}
+                            {data.hero.optionalNote && (
+                                <div
+                                    data-testid="optional-lesson-note"
+                                    className={`mt-5 max-w-3xl rounded-lg border-l-4 border-amber-500 p-4 ${darkMode ? 'bg-amber-500/10' : 'bg-amber-50'}`}
+                                >
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="inline-flex min-h-7 items-center rounded-lg bg-amber-500 px-2.5 text-[11px] font-black uppercase text-white">
+                                            {data.hero.optionalNote.badge}
+                                        </span>
+                                        <span className={`text-sm font-black ${darkMode ? 'text-amber-200' : 'text-amber-800'}`}>
+                                            {data.hero.optionalNote.title}
+                                        </span>
+                                    </div>
+                                    <p className={`mt-2 text-sm leading-relaxed ${darkMode ? 'text-amber-100/80' : 'text-amber-900/90'}`}>
+                                        {data.hero.optionalNote.body}
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="mt-5 flex flex-wrap gap-3">
                                 <button 
                                     onClick={() => setNeuroMode(!neuroMode)} 
