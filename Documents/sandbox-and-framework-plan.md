@@ -54,7 +54,7 @@ sayfada o ARACIN GERÇEK API'sine göre uyarlanarak uygulanır — kopya-yapış
 
 Yeni component YAZILMAZ. Var olan bloklarla kurulur:
 
-1. **Adım 1 — Büyük Resim Mindmap:** `simple-box` (§9.3'ün 4 katmanına uygun analoji) + ardından ASCII mindmap'i taşıyan `code` bloğu (`language: 'text'`, TR açıklama satırları ile).
+1. **Adım 1 — Büyük Resim Mindmap:** `simple-box` (§9.3'ün 4 katmanına uygun analoji) + ardından mimariyi **beş ayrı görünüme** bölen bloklar — tek bir devasa ASCII `code`(`language:'text'`) bloğu ARTIK KULLANILMAZ (2026-07-21'de Gauge pilotunda kaldırıldı, CLAUDE.md §9.6'ya kalıcı standart olarak işlendi): (a) Ana Akış — `python-flow-diagram` (▶ Animasyon butonlu zincir), (b) Kurulum Akışı — ayrı bir `python-flow-diagram` (config→driver), (c) Paralel Çalışma — `grid`(cols:3) ThreadLocal/paralel çalışma birimi kartları, (d) Veri Paylaşım Kapsamı — `grid` scope kartları (senaryo/dosya/suite), (e) Kim Ne Yapar — `grid` ✔/✘ sorumluluk kartları. Detaylı şema ve zorunlu kısıtlar için CLAUDE.md §9.6'ya bak, burada tekrar edilmez.
 2. **Adım 2 — Core/Base Katmanı:** `text` (neden ayrıldığı anlatımı) + `code` (BasePage/BaseTest iskeleti) + **zorunlu üçlü** (§9.1): `step-animation` + `challenge` (order-sort) + `code-playground`.
 3. **Adım 3 — POM Katmanı:** aynı üçlü kalıp, sayfa class'ı örneği ile.
 4. **Adım 4 — SOLID Uygulaması:** her prensip (SRP/OCP/LSP/ISP/DIP) için kısa `text` + o sayfanın API'sinden somut `code` örneği; `comparison` block ile Java karşılaştırması.
@@ -170,8 +170,16 @@ eklendi.
 **İçerik deseni (5 adım, hepsi gaugeData.js'in ZATEN kurduğu
 `DriverFactory.getDriver()`/`LoginPage`/`ScenarioDataStore` sınıflarını
 temel aldı, çelişen yeni isim İCAT EDİLMEDİ):**
-1. Büyük Resim Mindmap — simple-box (4 katman) + `code`(language:'text')
-   ASCII mindmap + 1 quiz.
+1. Büyük Resim Mindmap — simple-box (4 katman) + 5 görünüm (Ana Akış /
+   Kurulum Akışı / Paralel Çalışma / Veri Paylaşım Kapsamı / Kim Ne Yapar —
+   `python-flow-diagram` + `grid` blokları, CLAUDE.md §9.6) + 1 quiz.
+   **Revizyon notu (2026-07-21):** bu adım başlangıçta tek bir ASCII
+   `code`(language:'text') mindmap bloğuydu; kullanıcı geri bildirimiyle
+   ("göz akışıyla takip etmek zorunda kalıyor") yukarıdaki 5 görünüme
+   bölündü, quiz KORUNDU. Kalan 5 sayfaya (Selenium, Playwright, Cypress,
+   REST Assured, Appium) rollout yapılırken referans olarak ASCII versiyon
+   DEĞİL, bu revize edilmiş 5 görünümlü versiyon (`gaugeData.js`'in güncel
+   hali) kullanılmalıdır.
 2. Core/Base Katmanı — DriverFactory (ThreadLocal<WebDriver>, daha önce
    sayfada "Kurulum'da göreceğiz" denip hiç gösterilmemişti, ilk kez burada
    yazıldı) + BaseTest (@BeforeSuite/@BeforeScenario/@AfterSuite) + üçlü

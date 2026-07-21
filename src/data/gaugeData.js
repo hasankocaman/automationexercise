@@ -2919,66 +2919,82 @@ public class JsonLocatorSteps {
         text: { tr: '🧭 Adım 1 — Büyük Resim: Framework Mindmap', en: '🧭 Step 1 — The Big Picture: Framework Mindmap' },
       },
       {
-        type: 'code',
-        language: 'text',
-        code: {
-          tr: `.spec dosyasi (is dili, QA yazar)
-        |
-        | @Step baglamasi (metin BIREBIR eslesir, fuzzy match YOK)
-        v
-  XxxSteps  ── Steps Katmani: SADECE orkestrasyon yapar ──────────┐
-        |  kullanir (has-a: composition)                          |
-        v                                                          v
-  XxxPage (POM)                                          ScenarioDataStore
-        |  extends (is-a: inheritance)                    SpecDataStore
-        v                                                  SuiteDataStore
-     BasePage  ── ORTAK Selenium mantigi: wait / click / type ──   (senaryolar/
-        |  kullanir (WebDriver enjekte edilir)                     dosyalar arasi
-        v                                                          veri tasir)
-  DriverFactory  ── SRP: SADECE driver yasam dongusu ──
-   ThreadLocal<WebDriver>  (paralel kosumda her thread kendi driver'ina sahip)
-        ^
-        | yaratir (createDriver) / kapatir (quitDriver)
-        |
-     BaseTest  ── @BeforeSuite / @BeforeScenario / @AfterSuite ──
-        ^
-        | okur (System.getProperty)
-        |
-   env/*.properties  ── ortam konfigurasyonu: base.url vb. ──
-
-  Okuma yonu: yukaridan asagiya "kullanir/extends", asagidan yukariya
-  "yaratir/besler". Her ok, bir sonraki adimda GERCEK kod olarak gorecegin
-  bir SOLID prensibinin izini tasir (SRP: DriverFactory: is-a: BasePage --
-  LSP; composition: Steps -- ISP/DIP'e giden yol).`,
-          en: `.spec file (business language, QA writes it)
-        |
-        | @Step binding (EXACT text match, no fuzzy matching)
-        v
-  XxxSteps  ── Steps layer: orchestration ONLY ────────────────────┐
-        |  uses (has-a: composition)                                |
-        v                                                            v
-  XxxPage (POM)                                            ScenarioDataStore
-        |  extends (is-a: inheritance)                      SpecDataStore
-        v                                                    SuiteDataStore
-     BasePage  ── SHARED Selenium logic: wait / click / type ──     (carries data
-        |  uses (WebDriver is injected)                             across scenarios/
-        v                                                            files)
-  DriverFactory  ── SRP: driver lifecycle ONLY ──
-   ThreadLocal<WebDriver>  (under parallel runs, every thread gets its own driver)
-        ^
-        | creates (createDriver) / closes (quitDriver)
-        |
-     BaseTest  ── @BeforeSuite / @BeforeScenario / @AfterSuite ──
-        ^
-        | reads (System.getProperty)
-        |
-   env/*.properties  ── environment configuration: base.url etc. ──
-
-  Reading direction: top-to-bottom is "uses/extends", bottom-to-top is
-  "creates/feeds". Every arrow carries the trace of a SOLID principle you
-  will see as REAL code in the next steps (SRP: DriverFactory -- is-a:
-  BasePage -- LSP; composition: Steps -- the road to ISP/DIP).`,
+        type: 'text',
+        content: {
+          tr: 'Aynı mimari burada beş ayrı açıdan gösteriliyor: önce ana akış (bir step çalışırken kim kimi çağırır), sonra kurulum akışı (config nereden gelip driver\'a nasıl ulaşır), sonra paralel çalışma (ThreadLocal neden var), sonra veri paylaşım kapsamı (DataStore\'lar) ve son olarak her sınıfın "yapar / yapmaz" listesi. İlk iki kutuda ▶ Animasyon butonuna basarak akışın adım adım nasıl ilerlediğini izleyebilirsin.',
+          en: 'The same architecture is shown here from five angles: first the main flow (who calls whom while a step runs), then the setup flow (how config reaches the driver), then parallel execution (why ThreadLocal exists), then the data-sharing scope (the DataStores), and finally a "does / does not" list for every class. Press ▶ Animate on the first two boxes to watch the flow advance step by step.',
         },
+      },
+      {
+        type: 'python-flow-diagram',
+        titleTr: '1️⃣ Ana Akış — Bir Step Nasıl Çalışır?',
+        titleEn: '1️⃣ Main Flow — How Does a Step Execute?',
+        steps: [
+          { type: 'action', code: '.spec', desc: 'Business step sentence — QA writes it', descTr: 'İş dilinde step cümlesi — QA yazar' },
+          { type: 'action', code: 'XxxSteps', desc: '@Step binding, EXACT text match — orchestration ONLY', descTr: '@Step bağlaması, metin BİREBİR eşleşir — SADECE orkestrasyon yapar' },
+          { type: 'action', code: 'XxxPage (POM)', desc: 'extends BasePage — is-a relationship (inheritance)', descTr: 'BasePage\'i extends eder — is-a ilişkisi (inheritance)' },
+          { type: 'action', code: 'BasePage', desc: 'SHARED Selenium logic: wait / click / type', descTr: 'ORTAK Selenium mantığı: wait / click / type' },
+          { type: 'end', code: 'DriverFactory.getDriver()', desc: 'SRP: driver lifecycle ONLY — ThreadLocal<WebDriver>', descTr: 'SRP: SADECE driver yaşam döngüsü — ThreadLocal<WebDriver>' },
+        ],
+      },
+      {
+        type: 'python-flow-diagram',
+        titleTr: '2️⃣ Kurulum Akışı — Config, Driver\'a Nasıl Ulaşır?',
+        titleEn: '2️⃣ Setup Flow — How Does Config Reach the Driver?',
+        steps: [
+          { type: 'action', code: 'env/*.properties', desc: 'environment configuration: base.url etc.', descTr: 'ortam konfigürasyonu: base.url vb.' },
+          { type: 'action', code: 'BaseTest', desc: 'reads via System.getProperty, hooks @BeforeSuite / @BeforeScenario / @AfterSuite', descTr: 'System.getProperty ile okur, @BeforeSuite / @BeforeScenario / @AfterSuite\'e bağlanır' },
+          { type: 'end', code: 'DriverFactory.createDriver()', desc: 'creates the driver BEFORE the main flow above even starts', descTr: 'yukarıdaki ana akış başlamadan ÖNCE driver\'ı yaratır' },
+        ],
+      },
+      {
+        type: 'subheading',
+        text: { tr: '3️⃣ Paralel Çalışma — Neden ThreadLocal?', en: '3️⃣ Parallel Execution — Why ThreadLocal?' },
+      },
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          { icon: '🧵', label: { tr: 'Thread-1', en: 'Thread-1' }, desc: { tr: 'DriverFactory → Chrome Driver #1 (bağımsız oturum)', en: 'DriverFactory → Chrome Driver #1 (independent session)' } },
+          { icon: '🧵', label: { tr: 'Thread-2', en: 'Thread-2' }, desc: { tr: 'DriverFactory → Chrome Driver #2 (bağımsız oturum)', en: 'DriverFactory → Chrome Driver #2 (independent session)' } },
+          { icon: '🧵', label: { tr: 'Thread-3', en: 'Thread-3' }, desc: { tr: 'DriverFactory → Chrome Driver #3 (bağımsız oturum)', en: 'DriverFactory → Chrome Driver #3 (independent session)' } },
+        ],
+      },
+      {
+        type: 'text',
+        content: {
+          tr: 'Aynı DriverFactory sınıfı her thread\'e HİZMET eder ama ThreadLocal sayesinde her thread kendi WebDriver referansını tutar — bir thread quitDriver() çağırdığında diğerlerinin oturumu ETKİLENMEZ.',
+          en: 'The same DriverFactory class serves every thread, but thanks to ThreadLocal each thread holds its own WebDriver reference — when one thread calls quitDriver(), the others\' sessions are NOT affected.',
+        },
+      },
+      {
+        type: 'subheading',
+        text: { tr: '4️⃣ Veri Paylaşım Kapsamı — DataStore\'lar', en: '4️⃣ Data-Sharing Scope — The DataStores' },
+      },
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          { icon: '🎬', label: { tr: 'ScenarioDataStore', en: 'ScenarioDataStore' }, desc: { tr: 'Kapsam: SADECE mevcut senaryo — bir sonraki senaryoda sıfırlanır', en: 'Scope: the CURRENT scenario ONLY — resets on the next scenario' } },
+          { icon: '📄', label: { tr: 'SpecDataStore', en: 'SpecDataStore' }, desc: { tr: 'Kapsam: aynı .spec dosyası — o dosyadaki tüm senaryolar paylaşır', en: 'Scope: the same .spec file — every scenario in that file shares it' } },
+          { icon: '📦', label: { tr: 'SuiteDataStore', en: 'SuiteDataStore' }, desc: { tr: 'Kapsam: TÜM test çalışması — tüm .spec dosyaları paylaşır', en: 'Scope: the ENTIRE test run — every .spec file shares it' } },
+        ],
+      },
+      {
+        type: 'subheading',
+        text: { tr: '5️⃣ Kim Ne Yapar? — Sınıf Sorumlulukları', en: '5️⃣ Who Does What? — Class Responsibilities' },
+      },
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          { icon: '📜', label: { tr: '.spec', en: '.spec' }, desc: { tr: '✔ İş dili · ✔ Acceptance Criteria · ✘ Selenium kodu içermez', en: '✔ Business language · ✔ Acceptance criteria · ✘ Contains no Selenium code' } },
+          { icon: '🧭', label: { tr: 'XxxSteps', en: 'XxxSteps' }, desc: { tr: '✔ Orkestrasyon · ✔ Page çağırır · ✘ Locator içermez', en: '✔ Orchestration · ✔ Calls Page objects · ✘ Contains no locators' } },
+          { icon: '🖱️', label: { tr: 'XxxPage', en: 'XxxPage' }, desc: { tr: '✔ Locator · ✔ Business action · ✘ Assertion içermez', en: '✔ Locators · ✔ Business actions · ✘ Contains no assertions' } },
+          { icon: '🧱', label: { tr: 'BasePage', en: 'BasePage' }, desc: { tr: '✔ wait · ✔ click · ✔ type · ✔ scroll · ✔ jsClick', en: '✔ wait · ✔ click · ✔ type · ✔ scroll · ✔ jsClick' } },
+          { icon: '🚰', label: { tr: 'DriverFactory', en: 'DriverFactory' }, desc: { tr: '✔ Driver yaratır · ✔ Driver kapatır · ✔ Thread yönetir', en: '✔ Creates driver · ✔ Closes driver · ✔ Manages threads' } },
+          { icon: '🪝', label: { tr: 'BaseTest', en: 'BaseTest' }, desc: { tr: '✔ Hook · ✔ Setup · ✔ Teardown', en: '✔ Hooks · ✔ Setup · ✔ Teardown' } },
+        ],
       },
       {
         type: 'quiz',

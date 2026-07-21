@@ -10,6 +10,57 @@
 
 ---
 
+## ♻️ DEĞİŞTİRİLDİ + KALICI STANDART — /gauge Framework Mimarisi "Büyük Resim Mindmap" ASCII'den 5-görünümlü diyagrama çevrildi (2026-07-21, Fable oturumu, kullanıcı isteğiyle)
+
+**Kullanıcı isteği:** Framework Mimarisi → Adım 1'deki tek parça devasa ASCII
+mindmap ("okurken göz akışıyla takip etmek zorunda kalıyor") yerine, aynı
+mimariyi çoklu diyagram açısından (katmanlı akış, sequence, paralel çalışma,
+DataStore yaşam döngüsü, sorumluluk kartları) gösteren bir yapı önerdi ve
+uygulanmasını istedi. Ardından bu anlatım yönteminin TÜM Framework Mimarisi
+sekmelerinde (Selenium/Playwright/Cypress/REST Assured/Appium/Gauge) kalıcı
+standart olarak uygulanmasını istedi.
+
+**Ne yapıldı (`src/data/gaugeData.js`, "Adım 1 — Büyük Resim: Framework
+Mindmap"):** Tek `code`(`language:'text'`) ASCII bloğu kaldırıldı, yerine
+YENİ component YAZILMADAN, hazır bileşenlerle 5 görünüm eklendi:
+1. Ana Akış — `python-flow-diagram` (▶ Animasyon butonlu): `.spec → XxxSteps
+   → XxxPage → BasePage → DriverFactory.getDriver()`.
+2. Kurulum Akışı — ayrı bir `python-flow-diagram`: `env/*.properties →
+   BaseTest → DriverFactory.createDriver()`.
+3. Paralel Çalışma — `grid`(cols:3): Thread-1/2/3 → kendi Chrome Driver'ı
+   (ThreadLocal açıklaması).
+4. Veri Paylaşım Kapsamı — `grid`(cols:3): ScenarioDataStore/SpecDataStore/
+   SuiteDataStore kapsam kartları.
+5. Kim Ne Yapar — `grid`(cols:3): `.spec`/XxxSteps/XxxPage/BasePage/
+   DriverFactory/BaseTest için ✔/✘ sorumluluk listesi.
+
+Mevcut quiz bloğu (WebDriver'ın nereden alındığı + DataStore sorusu)
+DOKUNULMADAN korundu, hâlâ aynı ilişkileri sorguluyor. Mermaid.js veya başka
+bir CDN diyagram kütüphanesi EKLENMEDİ (CLAUDE.md §8 dışa bağımlılık
+yasağına uygun) — sadece zaten kayıtlı `python-flow-diagram` ve `grid` blok
+tipleri kullanıldı.
+
+**Kalıcı standarda işlendi:**
+- `CLAUDE.md` — yeni **§9.6 "Framework Mimarisi Sekmelerinde Çoklu Görünüm
+  Standardı"** eklendi (5 görünüm + zorunlu kısıtlar), §11'e ilgili yasak
+  maddesi eklendi.
+- `Documents/sandbox-and-framework-plan.md` — §1.2 (İçerik Şeması, Adım 1) ve
+  §4.0 (Pilot Tamamlandı — Referans) bu yeni yapıya göre revize edildi;
+  kalan 5 sayfaya (Selenium, Playwright, Cypress, REST Assured, Appium)
+  rollout yapılırken referansın ASCII DEĞİL, bu 5-görünümlü versiyon olduğu
+  not edildi.
+
+**Sıradaki adım:** Faz A rollout'u (§4.1 promptu) Selenium/Playwright/
+Cypress/REST Assured/Appium'a uygulanırken artık güncellenmiş §4.0/§9.6
+referans alınmalı — henüz hiçbiri bu 5-görünüm standardına yükseltilmedi.
+
+**Doğrulama:** `node scripts/check-content-integrity.mjs` 0 ihlal ✓ ·
+`npm run build` ✓ (GaugePage chunk 383KB, bilinen chunk-size uyarıları
+dışında hata yok) · mevcut quiz bloğu değişmeden kaldığı için ek Playwright
+regresyonu gerekmedi.
+
+---
+
 ## ✨ EKLENDİ — /gauge Framework Mimarisi'ne "yapboz" ilerleme görseli (2026-07-21, Fable oturumu, kullanıcı isteğiyle)
 
 **Kullanıcı isteği:** "Framework Mimarisi sekmesinde daha fazla görsel olmalı.

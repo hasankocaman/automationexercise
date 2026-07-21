@@ -363,6 +363,44 @@ gating'i açan yardımcıyla test edilir). Bölüm 22.1'deki sayfalar bu testler
 eklenmez. Çok büyük veri dosyalarında (örn. `javaData`, `typescriptData`)
 build sonrası chunk boyutu izlenir ve `NEXT_SESSION.md`'ye not edilir.
 
+### 9.6. Framework Mimarisi Sekmelerinde Çoklu Görünüm Standardı
+
+Framework kurulması gereken sayfalardaki (Selenium, Playwright, Cypress, REST
+Assured, Appium, Gauge — hedef sayfa listesi ve yayılım sırası
+`Documents/sandbox-and-framework-plan.md` Faz A'da) "Adım 1 — Büyük Resim
+Mindmap" anlatımı, tek bir devasa ASCII `code` (`language: 'text'`) bloğu
+OLARAK YAZILAMAZ — okuyucu göz akışıyla bunu takip edemez, mimari tek
+bakışta kavranamaz. Bunun yerine mimari EN AZ şu beş görünüme bölünerek
+anlatılır (referans/pilot uygulama: `/gauge` → Framework Mimarisi → Adım 1,
+`gaugeData.js`):
+
+1. **Ana Akış** — `python-flow-diagram` bloğu (▶ Animasyon butonlu, adım adım
+   renklenen zincir): bir isteğin/step'in hangi sınıftan hangi sınıfa geçtiği.
+2. **Kurulum Akışı** — ayrı bir `python-flow-diagram`: config/ortam
+   değişkenlerinin driver'a/instance'a nasıl ulaştığı (ana akıştan AYRI bir
+   kutu, çünkü ondan ÖNCE ve ters yönde kurulur).
+3. **Paralel Çalışma** — `grid` bloğu (`cols: 3`): ThreadLocal/paralel koşum
+   mekanizması varsa her çalışma biriminin (thread/worker/context) bağımsız
+   örneğini gösteren kartlar.
+4. **Veri Paylaşım Kapsamı** — `grid` bloğu: DataStore/context/fixture-scope
+   benzeri kapsam farklarını (senaryo/dosya/suite gibi) karşılaştıran kartlar.
+5. **Kim Ne Yapar** — `grid` bloğu: her sınıfın ✔ (yapar) / ✘ (yapmaz)
+   sorumluluk listesi.
+
+**Zorunlu kısıtlar:**
+- Yeni component YAZILMAZ — `python-flow-diagram` ve `grid` (veya o sayfada
+  zaten kayıtlı eşdeğer bir görsel bileşen) kullanılır; bu blok tipleri hazır
+  ve `TopicPage.jsx`'te kayıtlıdır (Bölüm 5'teki "sadece data ekle" ilkesi).
+- Mermaid.js veya başka bir CDN tabanlı diyagram kütüphanesi EKLENMEZ —
+  Bölüm 8'in "dışa bağımlı görsel dosyası ekleme, diyagram gerekiyorsa inline
+  SVG veya CSS kullan" kuralına aykırı düşer.
+- Her görünüm bilingual (`{tr, en}`) olmalı; TR açıklamalarda teknik terimler
+  İngilizce kalır (Bölüm 8).
+- Bu görünümlerin ardından gelen `quiz` bloğu (Bölüm 9.1 sıralama kuralı)
+  KORUNUR, silinmez veya konu anlatımından önce gelmez.
+- Hangi sayfanın bu standarda ne zaman yükseltildiği `NEXT_SESSION.md`'de
+  takip edilir, bu dosyada değil (Bölüm 0).
+
 ---
 
 ## 10. KESİN KURAL — Mülakat Soruları (Esnek Değildir)
@@ -405,6 +443,7 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Yeni bir sekme/sayfa eklerken veya mevcut sekmeyi güncellerken Bölüm 9.5 standardını (her dikey sekmede ≥1 video + ≥1 animasyon + ≥1 sandbox) atlamak — standart yalnızca pilot sayfalara (`/git-github`, `/gauge`) özgü değildir.
 - ❌ EN+TR ayrı ağaçlı bir veri dosyasına `video-scene` film sabitini SADECE bir ağaca koymak — öbür dilde film görünmez; sabit iki section ağacına da aynı referansla konur (tek ağaçlı dosyalarda ise tam tersi: yalnızca bir yere) (Bölüm 9.5).
 - ❌ Sekmenin gerçek içeriğiyle bağı olmayan, konudan kopuk bir film uydurmak — her film o sekmedeki kod/simulation'ın anlattığı mekanizmayı görselleştirmelidir (Bölüm 9.5).
+- ❌ Framework Mimarisi sekmelerinde "Büyük Resim Mindmap"i tek bir devasa ASCII `code` bloğunda anlatmak — Bölüm 9.6'daki beş görünüme (Ana Akış / Kurulum Akışı / Paralel Çalışma / Veri Paylaşım Kapsamı / Kim Ne Yapar) bölünmeli, hazır `python-flow-diagram`/`grid` bileşenleri kullanılmalıdır.
 - ❌ Bölüm 1.1'deki 4 maddelik doğruluk checklist'ini çalıştırmadan "tamamladım", "hazır", "bitti" demek.
 
 ---
