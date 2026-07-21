@@ -10,7 +10,7 @@
 
 ---
 
-## 🔀 BRANCH BİRLEŞTİRİLDİ + ✅ §9.3 ANALOJİ: /sql BİTTİ (40 → 0) (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
+## 🔀 BRANCH BİRLEŞTİRİLDİ + 🎉 §9.3 ANALOJİ DENETİMİ TAMAMEN KAPANDI (119 → 0) (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
 
 **AKTİF BRANCH ARTIK: `feature/framework-arch-selenium-multiview`** — bundan sonraki
 tüm iş bu branch üzerinde. `feature/algorithms-quiz-gating` buraya merge edildi
@@ -124,14 +124,41 @@ Toplu backtick temizliği yaparken de dikkat: ilk denemede MEVCUT içerikteki ik
 kutuyu tek tırnaklı string'e çevir ya da vurgusuz yaz. Düzenleme sonrası
 `git diff -U0 <dosya> | grep "^-"` ile mevcut içerikten ne kaybettiğini KONTROL ET.
 
-### §9.3 kalan tablo (bu oturumdan sonra, 481 bölüm)
-`selenium 4 · cypress 3 · azure 2 · jenkins 2 · kubernetes 2 · playwright 2 ·
-postman 1` → **toplam 16 bölüm** (oturum başında 119, önceki oturum sonunda 110 idi).
-Temiz sayfalar: `sql ✓ bruno ✓ docker ✓ javascript ✓ python ✓ java ✓ rest-assured ✓
-kafka ✓ appium ✓ browserstack ✓ aws ✓ what-is-testing ✓ typescript ✓ git-github ✓
-jmeter ✓ linux ✓ gauge ✓`.
-**Sıradaki:** `selenium (4)` → `cypress (3)` → `azure/jenkins/kubernetes/playwright
-(2'şer)` → `postman (1)`. Her partiden sonra `node scripts/audit-analogy-depth.mjs <sayfa>` ile 0'a
+### Son parti — selenium 4 · cypress 3 · azure 2 · jenkins 2 · kubernetes 2 · playwright 2 · postman 1
+Tamamı tek katman eksikti; mevcut metinler KORUNDU, sadece eksik katman eklendi
+veya var olan soru cümlesi denetimin gördüğü biçime getirildi:
+- **selenium:** wait (havaalanına karşılama: saate göre vs varış tabelasına göre) ·
+  E2E (tezgâhta parça muayenesi vs arabayı sürmek) · ekosistem TR+EN (mutfak: bıçak
+  tek başına yemek yapmaz).
+- **cypress:** mülakat (satranç mülakatı) · describe/it TR+EN (soru "ne fark var"dan
+  "Cypress neden ikisini birden tanımlamış"a çevrildi).
+- **azure TR+EN:** "ikisi de aynı API'ye çıkıyorsa neden CLI öğrenelim" sorusu eklendi.
+- **jenkins:** Advanced (tek ocak vs servis saatindeki mutfak) · credentials
+  (soru "çökmez mi"den "neden çökmüyor"a).
+- **kubernetes:** minikube (sürücü kursu otoparkı vs otoyol) · kubectl (QA katmanı:
+  `describe pod` / `logs --previous` → OOMKilled, liveness, image pull).
+- **playwright:** paralel (süpermarket kasa kuyruğu: tek çekmeceyi paylaşan kasiyer) ·
+  hata sözlüğü (soru yeniden yazıldı).
+- **postman:** "kod yazılmayan araç neden ciddi bir otomasyon yığınına ait" sorusu.
+
+### 🎉 §9.3 ANALOJİ DENETİMİ TAMAMEN KAPANDI — 481 bölüm, 0 eksik
+`node scripts/audit-analogy-depth.mjs` → **24/24 sayfa ✓, Toplam: 481 bölüm,
+0 standart altı.** (Oturum başında 119 eksik vardı; önceki oturum 110'a indirmişti.)
+
+**Bu bir "bitmiş iş" DEĞİL, bir taban çizgisidir.** Script sezgisel bir triaj
+aracıdır: 4 katmanın VARLIĞINI ölçer, KALİTESİNİ değil. Yeni bölüm/sayfa eklerken
+§9.3 baştan uygulanmalı ve `audit-analogy-depth.mjs` build öncesi tekrar
+koşulmalıdır. Bir sayfaya yeni içerik girdiğinde bu sayı yeniden yükselir.
+
+### ⚠️ Tırnak/backtick kaçış tuzakları (bu oturumda 3 kez dosya kırıldı)
+1. **Template literal içine backtick** (`pythonData.js`) — string erken kapanır.
+2. **Tek tırnaklı string içinde kaçırılmamış kesme işareti** — `'...API'ye...'`
+   yazmak `Unexpected identifier 'ye'` verir; `API\'ye` yazılmalı (`azureData.js`).
+3. **Kapanış tırnağını iki kez yazmak** (`kubernetesData.js`) — metnin sonuna
+   görünmez bir `'` sızdı, `JSON.stringify` ile yakalandı.
+**Kural:** her veri dosyası düzenlemesinden sonra
+`node --input-type=module -e "import('./src/data/<dosya>.js')"` ile parse et ve
+`git diff -U0 <dosya> | grep "^-"` ile mevcut içerikten ne kaybettiğini kontrol et. Her partiden sonra `node scripts/audit-analogy-depth.mjs <sayfa>` ile 0'a
 indiğini doğrula. **UYARI:** Script hâlâ triaj aracıdır, hakem değildir — bayraklı
 her bölümü körlemesine yeniden yazma, ÖNCE metni tam oku; zaten 4 katmanlıysa
 dokunma, gerekiyorsa script'i düzelt (docker'da yapılan tam olarak buydu). Ayrıca
