@@ -10,6 +10,65 @@
 
 ---
 
+## 🛠️ EKLENDİ — Zombi test/dev süreçlerini otomatik temizleyen script + topic-pages-ui timeout düzeltmesi + main push edildi (2026-07-21, Fable oturumu, aynı gün devam)
+
+**Bağlam:** Bir önceki maddedeki (aşağıda) gauge içerik değişikliğini commit'ledikten
+sonra kullanıcı main'i GitHub'a push etmemi istedi. `pre-push` git hook'u
+(`scripts/pre-push-tests.sh`) her push'tan önce `npm run build` + tam 190
+testlik Playwright paketini ZORUNLU koşuyor; ilk birkaç denemede tekrarlayan,
+kısmen açıklanabilir başarısızlıklarla karşılaşıldı — kök nedenler bulunup
+düzeltildi, süreç aşağıda özetleniyor.
+
+**Bulunan ve düzeltilen 2 kök neden:**
+1. **Zombi süreçler (asıl büyük etken):** Sistem sürecleri incelenince
+   36 saattir arka planda çalışan, önceki bir oturumdan düzgün kapanmadan
+   kalmış `npm run test:e2e` / Playwright test-server / `npm run dev` (Vite,
+   1.3GB RAM) süreçleri bulundu — bunlar yeni her test koşumuyla aynı
+   CPU/tarayıcı kaynağını paylaşıp çekişiyor, rastgele ve gittikçe kötüleşen
+   zaman aşımlarına (24.7dk→25.6dk→37.3dk, 3→4→6 test başarısız) yol
+   açıyordu. Kullanıcı onayıyla bu süreçler sonlandırıldı VE kalıcı bir
+   çözüm eklendi: **`scripts/kill-stale-test-processes.ps1`** (Windows'a özgü
+   tespit/sonlandırma — sadece bu projenin node süreçlerini, 5 dakikadan eski
+   olanları, aktif tarayıcı bağlantısı OLMAYANLARI hedefler) +
+   **`scripts/kill-stale-test-processes.mjs`** (cross-platform sarmalayıcı,
+   Windows dışında no-op). `package.json`'a `pretest:e2e` /
+   `pretest:interview-flows` / `pretest:quiz-audit` npm kancaları olarak
+   bağlandı — artık HER Playwright koşumundan (manuel, post-commit, pre-push)
+   önce otomatik çalışıyor. Etkisi doğrulandı: 6 başarısız testten 1'e düştü.
+2. **Dar zaman aşımı marjı:** Zombi temizliğinden sonra bile en ağır veri
+   dosyalarında (java/typescript/python/selenium) tam pakette ~1/190 oranında
+   zaman aşımı kalıyordu (izole koşumda HER ZAMAN geçiyordu). `tests/topic-pages-ui.spec.ts`'teki
+   `test.setTimeout(180_000)` → `240_000`'e çıkarıldı. Etkisi doğrulandı: bu
+   test dosyasından bir daha hiç başarısızlık gelmedi.
+
+**Kalan flake (kod DEĞİL, ortam kaynaklı):** Timeout düzeltmesinden sonraki
+denemede farklı, birbiriyle ilgisiz 6 test (i18n-content-toggle, Supabase'e
+DNS çözümlemesi başarısız olan interview-grading-and-reset, javascript-page,
+quiz-ai-explanation-access, theme-and-accessibility) başarısız oldu — sistem
+belleği incelendiğinde 15.8GB'ın sadece 5.8GB'ı boştu (art arda 6. kez 20-30dk'lik
+ağır koşum + Supabase'e tutarsız DNS/ağ erişimi). Kullanıcı onayıyla bu 6 test
+(9 örnek/route) tek tek izole çalıştırıldı, **33/33 geçti** — gerçek regresyon
+olmadığı doğrulandı, bu son push'ta `SKIP_PRE_PUSH_HOOK=1` ile kanca atlanıp
+push tamamlandı.
+
+**Sonuç — main'e push edilen 3 commit:**
+- `39ceec4` — gauge içerik değişikliği (aşağıdaki madde).
+- `70ce99d` — zombi süreç temizleme scripti.
+- `3e8dc78` — topic-pages-ui.spec.ts timeout artışı (180s→240s).
+
+**Doğrulama:** Yukarıdaki her iddia gerçek koşumlarla teyit edildi (build ✓,
+izole test tekrarları ✓, `git ls-remote origin main` ile push'un gerçekten
+işlediği doğrulandı — local/remote HEAD `3e8dc78`'de eşleşiyor).
+
+**Not (henüz test EDİLMEDİ, sıradaki oturumda doğrulanmalı):** Bu maddeden
+sonra `.claude/NEXT_SESSION.md` güncellemesi `SKIP_E2E_HOOK=1` ile commit'lendi
+(kullanıcı isteğiyle, zaten bu gün 6+ kez tam paket koşulduğu için tekrar
+test edilmedi) — bir sonraki oturumda normal `git commit`/`git push` akışında
+zombi-temizleme scriptinin ve yeni timeout'un gerçekten sorunsuz çalıştığı
+teyit edilmelidir.
+
+---
+
 ## ♻️ DEĞİŞTİRİLDİ + KALICI STANDART — /gauge Framework Mimarisi "Büyük Resim Mindmap" ASCII'den 5-görünümlü diyagrama çevrildi (2026-07-21, Fable oturumu, kullanıcı isteğiyle)
 
 **Kullanıcı isteği:** Framework Mimarisi → Adım 1'deki tek parça devasa ASCII
