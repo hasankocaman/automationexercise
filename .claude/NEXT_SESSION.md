@@ -164,15 +164,12 @@ yakalar).
 620.95 kB (gzip 197.15 kB) · playwrightData 569.69 kB (gzip 162.56 kB) ·
 cypressData ~499 KB · restAssuredData ~325 KB · appiumData ~372 KB.
 
-### ⚠️ AÇIK DOĞRULAMA BORCU (bir sonraki oturumun İLK işi)
-`npx playwright test tests/video-scene.spec.ts -g "Framework Mimarisi"` —
-Selenium'unki geçmişti (49 testlik önceki turda); **Playwright, Cypress,
-REST Assured ve Appium'un 4 yeni testi HENÜZ koşulmadı** (bu oturumda
-`check-content-integrity.mjs` + `npm run build` ile doğrulandı ama gerçek
-tarayıcıda hiç render edilmedi — user isteğiyle rollout boyunca atlandı).
-Beklenen: 4 passed. Kırılırsa bakılacak ilk şey: her sayfada tab buton adı
-regex'inin (`🏗️ Framework Architecture|🏗️ Framework Mimarisi`) gerçek tabs
-dizisindeki metinle birebir eşleştiği (emoji varyant/boşluk farkı olabilir).
+### ✅ DOĞRULAMA BORCU KAPANDI (2026-07-21, Sonnet oturumu)
+`npx playwright test tests/video-scene.spec.ts -g "Framework Mimarisi"` koşuldu
+→ **5 passed (53.2s)**: Selenium (önceden geçmişti) + Playwright + Cypress +
+REST Assured + Appium'un 4 yeni testi HEPSİ geçti. Tab buton adı regex/emoji
+eşleşme sorunu YOKTU. §9.6 rollout artık hem içerik hem test tarafında
+tamamen doğrulanmış durumda; açık borç kalmadı.
 
 **Branch/remote temizliği (yarım kaldı, düşük öncelik):** `git push origin
 --delete feature/sandbox-and-framework-arch` DNS hatası yüzünden işlenmedi, ağ
