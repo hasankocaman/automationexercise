@@ -8195,6 +8195,1246 @@ Assert.assertEquals(violations.size(), 0, "Accessibility violations found!");` }
   },
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// 🏗️ Framework Mimarisi (SOLID + POM) — CLAUDE.md §9.6 çoklu görünüm standardı
+// Referans pilot: gaugeData.js "Framework Mimarisi" bölümü. Selenium'a özgü
+// yeniden yazıldı: DriverManager/BasePage/PageFactory + WebDriverWait/FluentWait.
+// İpucu teması (§4.1): explicit-wait/FluentWait/OCP/@DataProvider — gauge'un
+// ThreadLocal.remove/BasePage-extends/DIP/DataStore temalarından KASITLI farklı.
+// Bloklar bilingual {tr,en}; sFwArch.tr ve sFwArch.en AYNI diziyi referanslar
+// (fillMissingCodeTrios WeakSet ile tek kez işler). Her java code bloğu kendi
+// trio'suyla (step-animation + challenge + code-playground) izlenir → filler
+// jenerik blok EKLEMEZ.
+// ══════════════════════════════════════════════════════════════════════════
+const seleniumArchBlocks = [
+  {
+    type: 'simple-box',
+    emoji: '🏙️',
+    content: {
+      tr: 'Bu sekmeye kadar yazdığın her parça (findElement çağrıları, WebDriverWait blokları, @Test metotları) tek tek çalışıyor ama birbirine GEVŞEK bağlı — tıpkı imar planı olmadan büyüyen bir sanayi sitesi gibi: her atölye kendi jeneratörünü kurar, kendi su hattını çeker, kimse ortak bir standarda uymaz. İlk 10 testte sorun çıkmaz; 200. testte "acaba bu bekleme kaç saniye?" sorusunun cevabı 200 ayrı yerde saklıdır. Framework mimarisi tam burada devreye girer: TEK bir DriverManager driver yaşam döngüsünü yönetir (ana elektrik şebekesi), TEK bir BasePage tüm bekleme/tıklama mantığını barındırır (ortak bina yönetmeliği), her PageObject SADECE kendi elementlerini bilir (mahalle sınırı). Peki her test zaten WebDriverWait kullanıyorken, neden ayrı bir mimari sekmesi açıyoruz — parçalar zaten var değil mi? Çünkü VAR OLMAK ile DOĞRU İLİŞKİLENMEK aynı şey değildir: her @Test kendi `new WebDriverWait(driver, Duration.ofSeconds(10))` satırını kopyalarsa, "bekleme süremizi 15 saniyeye çıkaralım" kararı 200 dosyayı elle değiştirmek demektir. Java karşılaştırması: kötü tasarlanmış bir projede her sınıfın kendi `SimpleDateFormat`\'ını yaratmasıyla, tek bir merkezi utility sınıfının bunu yönetmesi arasındaki fark tam olarak budur — SOLID prensipleri bu farkı disipline eder. QA bağlamı: flaky test suite\'lerinin çoğu zaman GERÇEK sebebi yanlış locator değil, mimarisizliktir; tutarsız bekleme süreleri, kopyalanmış driver kurulumları ve dağınık locator\'lar bir araya gelince "bende geçiyor, CI\'da patlıyor" kabusu doğar.',
+      en: 'Every piece you have written up to this tab (findElement calls, WebDriverWait blocks, @Test methods) works on its own but is LOOSELY connected — like an industrial park that grew without a zoning plan: every workshop installs its own generator, runs its own water line, nobody follows a shared standard. The first 10 tests cause no trouble; by test 200, the answer to "how many seconds is this wait?" is hidden in 200 separate places. Framework architecture is exactly what fixes this: ONE DriverManager owns the driver lifecycle (the main power grid), ONE BasePage holds all wait/click logic (the shared building code), and each PageObject knows ONLY its own elements (a neighborhood boundary). But if every test already uses WebDriverWait, why open a separate architecture tab — don\'t the pieces already exist? Because EXISTING and being CORRECTLY RELATED are not the same thing: if every @Test copies its own `new WebDriverWait(driver, Duration.ofSeconds(10))` line, the decision to "bump our wait to 15 seconds" means editing 200 files by hand. Java comparison: in a poorly designed project, the difference between every class creating its own `SimpleDateFormat` and one central utility class managing it is exactly this — the SOLID principles discipline that difference. QA context: the REAL cause of a flaky suite is often not a wrong locator but the absence of architecture; inconsistent wait durations, copy-pasted driver setup, and scattered locators together produce the "passes on my machine, explodes in CI" nightmare.',
+    },
+  },
+  {
+    type: 'framework-puzzle',
+    title: { tr: 'Selenium Framework\'ünü Adım Adım İnşa Et', en: 'Build Your Selenium Framework Step by Step' },
+    intro: {
+      tr: 'Aşağıdaki 4 parça, bu sekmede birazdan tek tek inşa edeceğin mimarinin BÜYÜK RESMİ. Şimdilik hepsi kilitli — her parçanın kendi adımındaki "Kendin Dene" pratiğini ilk kez doğru bitirdiğinde, o parça burada kilitliden İNŞA EDİLDİ\'ye döner. Aşağı indikçe yapbozu parça parça tamamlayacaksın.',
+      en: 'The 4 pieces below are the BIG PICTURE of the architecture you are about to build piece by piece in this tab. They all start locked — the first time you correctly finish that step\'s "Try It Yourself" practice, that piece flips from locked to BUILT. As you scroll down, you will complete the puzzle piece by piece.',
+    },
+    pieces: [
+      {
+        id: 'core-base',
+        emoji: '🧱',
+        label: { tr: 'Core / Base Katmanı', en: 'Core / Base Layer' },
+        desc: {
+          tr: 'DriverManager (ThreadLocal driver) + merkezi WaitFactory (FluentWait: polling + ignoring)',
+          en: 'DriverManager (ThreadLocal driver) + a central WaitFactory (FluentWait: polling + ignoring)',
+        },
+        exerciseId: 'selenium-arch-fluentwait-factory-practice',
+      },
+      {
+        id: 'pom',
+        emoji: '📦',
+        label: { tr: 'POM Katmanı', en: 'POM Layer' },
+        desc: {
+          tr: 'PageFactory @FindBy + BasePage\'ten miras alan sayfa sınıfları — bekleme mantığı TEK yerde',
+          en: 'PageFactory @FindBy + page classes inheriting BasePage — wait logic lives in ONE place',
+        },
+        exerciseId: 'selenium-arch-basepage-waitclick-practice',
+      },
+      {
+        id: 'solid',
+        emoji: '⚖️',
+        label: { tr: 'SOLID Uygulaması', en: 'Applying SOLID' },
+        desc: {
+          tr: '5 prensip gerçek Selenium kodunda — örn. OCP: yeni bir WaitStrategy eklemek için mevcut kodu DEĞİŞTİRMEDEN genişlet',
+          en: 'The 5 principles in real Selenium code — e.g. OCP: extend with a new WaitStrategy WITHOUT modifying existing code',
+        },
+        exerciseId: 'selenium-arch-ocp-waitstrategy-practice',
+      },
+      {
+        id: 'test-data',
+        emoji: '🔗',
+        label: { tr: 'Test / Data Katmanı', en: 'Test / Data Layer' },
+        desc: {
+          tr: 'BaseTest hooks + TestNG @DataProvider — her parça test metodunda birbirine bağlanır',
+          en: 'BaseTest hooks + TestNG @DataProvider — every piece connects inside the test method',
+        },
+        exerciseId: 'selenium-arch-dataprovider-practice',
+      },
+    ],
+  },
+
+  {
+    type: 'heading',
+    text: { tr: '🧭 Adım 1 — Büyük Resim: Framework Mindmap', en: '🧭 Step 1 — The Big Picture: Framework Mindmap' },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Aynı mimari burada beş ayrı açıdan gösteriliyor: önce ana akış (bir test çalışırken kim kimi çağırır), sonra kurulum akışı (config nereden gelip driver\'a nasıl ulaşır), sonra paralel çalışma (ThreadLocal neden var), sonra veri paylaşım kapsamı (@DataProvider / ITestContext / config) ve son olarak her sınıfın "yapar / yapmaz" listesi. İlk iki kutuda ▶ Animasyon butonuna basarak akışın adım adım nasıl ilerlediğini izleyebilirsin.',
+      en: 'The same architecture is shown here from five angles: first the main flow (who calls whom while a test runs), then the setup flow (how config reaches the driver), then parallel execution (why ThreadLocal exists), then the data-sharing scope (@DataProvider / ITestContext / config), and finally a "does / does not" list for every class. Press ▶ Animate on the first two boxes to watch the flow advance step by step.',
+    },
+  },
+  {
+    type: 'python-flow-diagram',
+    titleTr: '1️⃣ Ana Akış — Bir @Test Nasıl Çalışır?',
+    titleEn: '1️⃣ Main Flow — How Does a @Test Execute?',
+    steps: [
+      { type: 'action', code: '@Test method', desc: 'business scenario — orchestration ONLY, no locators', descTr: 'iş senaryosu — SADECE orkestrasyon, locator içermez' },
+      { type: 'action', code: 'LoginPage (POM)', desc: 'extends BasePage — knows only its own @FindBy elements', descTr: 'BasePage\'i extends eder — sadece kendi @FindBy elementlerini bilir' },
+      { type: 'action', code: 'BasePage', desc: 'SHARED logic: waitVisible / click / type via explicit wait', descTr: 'ORTAK mantık: explicit wait ile waitVisible / click / type' },
+      { type: 'action', code: 'WaitFactory', desc: 'builds the ONE FluentWait config: polling + ignored exceptions', descTr: 'TEK FluentWait config\'ini kurar: polling + yok sayılan exception\'lar' },
+      { type: 'end', code: 'DriverManager.getDriver()', desc: 'SRP: driver lifecycle ONLY — ThreadLocal<WebDriver>', descTr: 'SRP: SADECE driver yaşam döngüsü — ThreadLocal<WebDriver>' },
+    ],
+  },
+  {
+    type: 'python-flow-diagram',
+    titleTr: '2️⃣ Kurulum Akışı — Config, Driver\'a Nasıl Ulaşır?',
+    titleEn: '2️⃣ Setup Flow — How Does Config Reach the Driver?',
+    steps: [
+      { type: 'action', code: 'config.properties', desc: 'environment config: base.url, browser, timeout', descTr: 'ortam konfigürasyonu: base.url, browser, timeout' },
+      { type: 'action', code: 'BaseTest', desc: 'reads config, hooks @BeforeMethod / @AfterMethod (TestNG)', descTr: 'config okur, @BeforeMethod / @AfterMethod hook\'larına bağlanır (TestNG)' },
+      { type: 'end', code: 'DriverManager.createDriver()', desc: 'creates the driver BEFORE the main flow above even starts', descTr: 'yukarıdaki ana akış başlamadan ÖNCE driver\'ı yaratır' },
+    ],
+  },
+  {
+    type: 'subheading',
+    text: { tr: '3️⃣ Paralel Çalışma — Neden ThreadLocal?', en: '3️⃣ Parallel Execution — Why ThreadLocal?' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🧵', label: { tr: 'Thread-1', en: 'Thread-1' }, desc: { tr: 'DriverManager → Chrome Driver #1 (bağımsız oturum)', en: 'DriverManager → Chrome Driver #1 (independent session)' } },
+      { icon: '🧵', label: { tr: 'Thread-2', en: 'Thread-2' }, desc: { tr: 'DriverManager → Chrome Driver #2 (bağımsız oturum)', en: 'DriverManager → Chrome Driver #2 (independent session)' } },
+      { icon: '🧵', label: { tr: 'Thread-3', en: 'Thread-3' }, desc: { tr: 'DriverManager → Chrome Driver #3 (bağımsız oturum)', en: 'DriverManager → Chrome Driver #3 (independent session)' } },
+    ],
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'TestNG `parallel="methods"` ile testleri aynı anda koşturduğunda, statik tek bir WebDriver alanı OLSAYDI üç thread aynı tarayıcıya yazardı ve testler birbirinin sayfasını bozardı. ThreadLocal sayesinde aynı DriverManager sınıfı her thread\'e HİZMET eder ama her thread kendi WebDriver referansını tutar — bir thread bittiğinde diğerlerinin oturumu ETKİLENMEZ.',
+      en: 'When you run tests concurrently with TestNG `parallel="methods"`, a single static WebDriver field WOULD let three threads write to the same browser and tests would corrupt each other\'s page. Thanks to ThreadLocal, the same DriverManager class serves every thread, but each thread holds its own WebDriver reference — when one thread finishes, the others\' sessions are NOT affected.',
+    },
+  },
+  {
+    type: 'subheading',
+    text: { tr: '4️⃣ Veri Paylaşım Kapsamı — Test Verisi Nereden Gelir?', en: '4️⃣ Data-Sharing Scope — Where Does Test Data Come From?' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🎬', label: { tr: '@DataProvider', en: '@DataProvider' }, desc: { tr: 'Kapsam: tek test metodu — her satır AYNI testi farklı veriyle çalıştırır (data-driven)', en: 'Scope: a single test method — each row runs the SAME test with different data (data-driven)' } },
+      { icon: '📄', label: { tr: 'ITestContext', en: 'ITestContext' }, desc: { tr: 'Kapsam: aynı <test> etiketi — setAttribute/getAttribute ile testler arası veri taşınır', en: 'Scope: the same <test> tag — data is carried across tests via setAttribute/getAttribute' } },
+      { icon: '📦', label: { tr: 'config.properties', en: 'config.properties' }, desc: { tr: 'Kapsam: TÜM suite — base.url, browser gibi ortam sabitleri tek yerden okunur', en: 'Scope: the ENTIRE suite — environment constants like base.url, browser are read from one place' } },
+    ],
+  },
+  {
+    type: 'subheading',
+    text: { tr: '5️⃣ Kim Ne Yapar? — Sınıf Sorumlulukları', en: '5️⃣ Who Does What? — Class Responsibilities' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🧪', label: { tr: '@Test method', en: '@Test method' }, desc: { tr: '✔ Senaryo akışı · ✔ Assertion · ✘ Locator/wait içermez', en: '✔ Scenario flow · ✔ Assertions · ✘ Contains no locators/waits' } },
+      { icon: '🖱️', label: { tr: 'LoginPage (POM)', en: 'LoginPage (POM)' }, desc: { tr: '✔ @FindBy locator · ✔ Business action · ✘ Assertion içermez', en: '✔ @FindBy locators · ✔ Business actions · ✘ Contains no assertions' } },
+      { icon: '🧱', label: { tr: 'BasePage', en: 'BasePage' }, desc: { tr: '✔ waitVisible · ✔ click · ✔ type · ✔ scroll · ✔ jsClick', en: '✔ waitVisible · ✔ click · ✔ type · ✔ scroll · ✔ jsClick' } },
+      { icon: '⏳', label: { tr: 'WaitFactory', en: 'WaitFactory' }, desc: { tr: '✔ FluentWait kurar · ✔ polling ayarlar · ✔ exception ignore eder', en: '✔ Builds FluentWait · ✔ Sets polling · ✔ Ignores exceptions' } },
+      { icon: '🚰', label: { tr: 'DriverManager', en: 'DriverManager' }, desc: { tr: '✔ Driver yaratır · ✔ Driver kapatır · ✔ Thread yönetir', en: '✔ Creates driver · ✔ Closes driver · ✔ Manages threads' } },
+      { icon: '🪝', label: { tr: 'BaseTest', en: 'BaseTest' }, desc: { tr: '✔ Hook · ✔ config okur · ✔ Setup/Teardown', en: '✔ Hooks · ✔ Reads config · ✔ Setup/Teardown' } },
+    ],
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Yukarıdaki mimaride bir @Test metodu (örn. loginTest) WebDriver\'ı NEREDEN alır?',
+      en: 'In the architecture above, where does a @Test method (e.g. loginTest) get its WebDriver FROM?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Kendi içinde new ChromeDriver() ile yaratır', en: 'It creates it itself with new ChromeDriver()' } },
+      { id: 'b', text: { tr: 'DriverManager.getDriver() ile ThreadLocal\'dan alır', en: 'It gets it from ThreadLocal via DriverManager.getDriver()' } },
+      { id: 'c', text: { tr: 'config.properties dosyasından okur', en: 'It reads it from the config.properties file' } },
+      { id: 'd', text: { tr: 'Her @Test metodunun başında elle tanımlanır', en: 'It is manually defined at the top of every @Test method' } },
+    ],
+    correct: 'b',
+    explanation: {
+      tr: 'Mimarinin can damarı budur: driver yaratma sorumluluğu TEK bir sınıfta (DriverManager) toplanır, geri kalan her katman onu getDriver() ile İSTER — bu ayrım olmasaydı paralel koşumda her test kendi driver\'ını yaratır ve ThreadLocal olmadan çakışırdı.',
+      en: 'This is the artery of the architecture: driver-creation responsibility lives in ONE class (DriverManager), and every other layer simply ASKS for it via getDriver() — without this split, under parallel execution each test would create its own driver and, without ThreadLocal, they would collide.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Mindmap\'te ana bekleme mantığı (waitVisible/click/type) hangi sınıfta toplanır?',
+        en: 'In the mindmap, which class centralizes the main wait logic (waitVisible/click/type)?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'BasePage', en: 'BasePage' } },
+        { id: 'b', text: { tr: 'Her @Test metodu ayrı ayrı', en: 'Each @Test method separately' } },
+        { id: 'c', text: { tr: 'DriverManager', en: 'DriverManager' } },
+        { id: 'd', text: { tr: 'config.properties', en: 'config.properties' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'BasePage, tüm PageObject\'lerin miras aldığı ortak bekleme/tıklama katmanıdır — bekleme mantığı burada TEK yerde durur, böylece "wait süremizi değiştirelim" kararı tek satırlık bir değişiklikle tüm sayfalara yayılır.',
+        en: 'BasePage is the shared wait/click layer every PageObject inherits — wait logic lives here in ONE place, so a "let\'s change our wait" decision propagates to every page through a single-line edit.',
+      },
+    },
+  },
+
+  // ── Adım 2 — Core / Base Katmanı: DriverManager & WaitFactory ──
+  {
+    type: 'heading',
+    text: { tr: '🧱 Adım 2 — Core / Base Katmanı: DriverManager & WaitFactory', en: '🧱 Step 2 — Core / Base Layer: DriverManager & WaitFactory' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '⏳',
+    content: {
+      tr: 'WaitFactory, bir hastanenin merkezi triyaj masasıdır: her doktor (her test) hastayı (elementi) kendi kafasına göre "biraz bekle" diye geri göndermez — TEK bir kural vardır (kaç saniyede bir kontrol edilir, hangi durumlar "henüz hazır değil, sabret" sayılır), triyaj masası bu kuralı uygular. İkinci benzetme: FluentWait, bir garsonun masayı KONTROL EDİŞ ritmidir — WebDriverWait "10 saniye boyunca sürekli bak" der, FluentWait ise "her 500 ms\'de bir bak, üstelik masa boşsa (NoSuchElement) kızma, tekrar dene" diyerek nabız hızını ve hangi hataların "normal, devam et" sayılacağını AYARLAR. Peki her test zaten `new WebDriverWait(driver, ...)` yazabiliyorken, neden ayrı bir WaitFactory sınıfı gerekiyor — bekleme zaten çalışıyor değil mi? Sorun şu: polling aralığını 500 ms yapmak, `StaleElementReferenceException`\'ı yok saymak ve timeout mesajını anlamlı hale getirmek gibi kararlar HER teste kopyalanırsa, biri bir yerde 250 ms yazar, başkası ignore listesini unutur ve suite tutarsızlaşır. WaitFactory bu kararı TEK yerde dondurur. Java karşılaştırması: bu, her sınıfın kendi `ExecutorService`\'ini yaratması yerine tek bir merkezi thread-pool factory kullanmasıyla aynı motivasyondur — pahalı/hassas yapılandırmayı merkezileştir. QA bağlamı: FluentWait\'in `ignoring(StaleElementReferenceException.class)` satırı atlanırsa, DOM yeniden render olan (React/Angular) sayfalarda test rastgele patlar — "element vardı, sonra yoktu" tipi flaky hatanın en sık kök nedeni budur.',
+      en: 'WaitFactory is a hospital\'s central triage desk: no doctor (no test) sends the patient (element) back with an ad-hoc "wait a bit" — there is ONE rule (how often to re-check, which states count as "not ready yet, be patient"), and the triage desk enforces it. Second analogy: FluentWait is a waiter\'s rhythm for CHECKING a table — WebDriverWait says "keep looking for 10 seconds", while FluentWait says "look every 500 ms, and if the table is empty (NoSuchElement) don\'t get upset, try again", TUNING both the pulse rate and which errors count as "normal, keep going". But if every test can already write `new WebDriverWait(driver, ...)`, why do we need a separate WaitFactory class — isn\'t waiting already working? The problem: if decisions like setting the polling interval to 500 ms, ignoring `StaleElementReferenceException`, and making the timeout message meaningful are copied into EVERY test, someone writes 250 ms somewhere, someone else forgets the ignore list, and the suite drifts into inconsistency. WaitFactory freezes that decision in ONE place. Java comparison: this is the same motivation as using one central thread-pool factory instead of every class creating its own `ExecutorService` — centralize the expensive/sensitive configuration. QA context: if FluentWait\'s `ignoring(StaleElementReferenceException.class)` line is skipped, tests randomly explode on pages that re-render the DOM (React/Angular) — that is the single most common root cause of the "the element was there, then it was gone" flaky failure.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'DriverManager ve WaitFactory\'nin AYRI sınıflar olmasının nedeni Single Responsibility Principle\'dır (SRP): DriverManager sadece "driver nasıl yaratılır/kapatılır ve hangi thread\'e ait" sorusuna cevap verir, WaitFactory ise sadece "bir bekleme koşulu HANGİ ritimle ve hangi hataları yok sayarak beklenir" sorusuna cevap verir. İkisini tek sınıfta birleştirseydin, bir Chrome sürüm güncellemesi driver kurulumunu değiştirdiğinde bekleme mantığına da dokunmak zorunda kalırdın — oysa şimdi ikisi bağımsız değişebilir.',
+      en: 'DriverManager and WaitFactory are SEPARATE classes because of the Single Responsibility Principle (SRP): DriverManager answers only "how is a driver created/closed and which thread owns it", while WaitFactory answers only "with WHAT rhythm and ignoring which errors does a wait condition get awaited". Had you merged them into one class, a Chrome version bump that changes driver setup would force you to also touch the wait logic — as it stands now, the two can change independently.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'java',
+    code: {
+      tr: `// ─── core/DriverManager.java — SADECE driver yasam dongusu (SRP) ───
+package core;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public final class DriverManager {
+
+    // ThreadLocal: paralel kosumda HER thread kendi driver'ina sahip olur
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
+
+    private DriverManager() {} // utility sinif — instance uretilmesin (SRP siniri)
+
+    public static void createDriver() {
+        DRIVER.set(new ChromeDriver());
+    }
+
+    public static WebDriver getDriver() {
+        return DRIVER.get();   // her katman driver'i BURADAN ister
+    }
+
+    public static void quitDriver() {
+        WebDriver driver = DRIVER.get();
+        if (driver != null) {
+            driver.quit();
+            DRIVER.remove();   // thread pool'da eski referans sizmasin diye
+        }
+    }
+}
+
+// ─── core/WaitFactory.java — SADECE bekleme ritmi + hata politikasi (SRP) ───
+package core;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import java.time.Duration;
+
+public final class WaitFactory {
+
+    private WaitFactory() {}
+
+    // TUM testlerin PAYLASTIGI TEK bekleme ritmi ve hata politikasi
+    public static Wait<WebDriver> fluentWait() {
+        return new FluentWait<>(DriverManager.getDriver())
+            .withTimeout(Duration.ofSeconds(10))     // en fazla 10 sn bekle
+            .pollingEvery(Duration.ofMillis(500))    // her 500 ms'de bir kontrol et
+            // asagidaki iki hata "henuz hazir degil" sayilir, patlamaz:
+            .ignoring(NoSuchElementException.class)
+            .ignoring(StaleElementReferenceException.class);
+    }
+}`,
+      en: `// ─── core/DriverManager.java — ONLY the driver lifecycle (SRP) ───
+package core;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public final class DriverManager {
+
+    // ThreadLocal: under parallel runs, EVERY thread gets its own driver
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
+
+    private DriverManager() {} // utility class — no instances (SRP boundary)
+
+    public static void createDriver() {
+        DRIVER.set(new ChromeDriver());
+    }
+
+    public static WebDriver getDriver() {
+        return DRIVER.get();   // every layer ASKS for the driver HERE
+    }
+
+    public static void quitDriver() {
+        WebDriver driver = DRIVER.get();
+        if (driver != null) {
+            driver.quit();
+            DRIVER.remove();   // so no stale reference leaks in the thread pool
+        }
+    }
+}
+
+// ─── core/WaitFactory.java — ONLY the wait rhythm + error policy (SRP) ───
+package core;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import java.time.Duration;
+
+public final class WaitFactory {
+
+    private WaitFactory() {}
+
+    // the ONE wait rhythm and error policy SHARED by every test
+    public static Wait<WebDriver> fluentWait() {
+        return new FluentWait<>(DriverManager.getDriver())
+            .withTimeout(Duration.ofSeconds(10))     // wait at most 10s
+            .pollingEvery(Duration.ofMillis(500))    // re-check every 500 ms
+            // the two errors below count as "not ready yet", they do not blow up:
+            .ignoring(NoSuchElementException.class)
+            .ignoring(StaleElementReferenceException.class);
+    }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'selenium-arch-fluentwait-lifecycle-steps',
+    title: { tr: 'Adım Adım: FluentWait Bir Elementi Nasıl Bekler?', en: 'Step by Step: How FluentWait Waits for an Element' },
+    steps: [
+      { id: 1, icon: '🏁', label: { tr: 'fluentWait() çağrılır', en: 'fluentWait() is called' }, detail: { tr: 'WaitFactory.fluentWait(), DriverManager.getDriver() ile o thread\'in driver\'ını alır ve 10 sn timeout + 500 ms polling ayarlı bir Wait nesnesi kurar.', en: 'WaitFactory.fluentWait() takes that thread\'s driver via DriverManager.getDriver() and builds a Wait with a 10s timeout + 500 ms polling.' } },
+      { id: 2, icon: '🔁', label: { tr: 'İlk kontrol: element yok', en: 'First poll: element missing' }, detail: { tr: 'Sayfa henüz render olmadıysa NoSuchElementException fırlar — ama ignoring() listesinde olduğu için FluentWait patlamaz, sadece 500 ms bekleyip TEKRAR dener.', en: 'If the page has not rendered yet, NoSuchElementException is thrown — but since it is in the ignoring() list, FluentWait does not blow up, it just waits 500 ms and RETRIES.' } },
+      { id: 3, icon: '♻️', label: { tr: 'DOM değişti: stale referans', en: 'DOM changed: stale reference' }, detail: { tr: 'React/Angular elementi yeniden render ederse StaleElementReferenceException oluşur — bu da ignore listesinde olduğu için bir sonraki polling\'de element yeniden bulunur.', en: 'If React/Angular re-renders the element, a StaleElementReferenceException occurs — it is also ignored, so the next poll finds the element afresh.' } },
+      { id: 4, icon: '✅', label: { tr: 'Element hazır: koşul döner', en: 'Element ready: condition returns' }, detail: { tr: 'Element görünür/tıklanabilir olduğunda beklenen koşul true döner ve akış devam eder — çoğu zaman 10 saniyenin çok altında, örn. 700 ms\'de.', en: 'When the element becomes visible/clickable, the awaited condition returns true and the flow continues — usually far below 10 seconds, e.g. 700 ms.' } },
+      { id: 5, icon: '🚨', label: { tr: 'Süre dolarsa: TimeoutException', en: 'On timeout: TimeoutException' }, detail: { tr: '10 sn içinde koşul hiç sağlanmazsa TimeoutException fırlar — ve ignore edilmediği için burada DURUR; bu, "beklediğim şey gerçekten gelmedi" sinyalidir.', en: 'If the condition is never met within 10s, a TimeoutException is thrown — and since it is not ignored, it STOPS here; this is the "the thing I waited for really never came" signal.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-selenium-arch-fluentwait-order',
+    question: {
+      tr: 'WaitFactory.fluentWait() bir FluentWait kurarken zincirdeki yapılandırma adımlarını mantıklı sıraya diz.',
+      en: 'Arrange the configuration steps in the chain when WaitFactory.fluentWait() builds a FluentWait, in a logical order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'DriverManager.getDriver() ile bu thread\'in driver\'ını al', en: 'Take this thread\'s driver via DriverManager.getDriver()' }, order: 1 },
+      { id: '2', text: { tr: 'new FluentWait<>(driver) ile bekleme nesnesini oluştur', en: 'Create the wait object with new FluentWait<>(driver)' }, order: 2 },
+      { id: '3', text: { tr: 'withTimeout(10 sn) ile üst sınırı belirle', en: 'Set the upper bound with withTimeout(10s)' }, order: 3 },
+      { id: '4', text: { tr: 'pollingEvery(500 ms) ile kontrol ritmini ayarla', en: 'Set the check rhythm with pollingEvery(500 ms)' }, order: 4 },
+      { id: '5', text: { tr: 'ignoring(...) ile hangi hataların "henüz hazır değil" sayılacağını belirt', en: 'Declare which errors count as "not ready yet" with ignoring(...)' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'selenium-framework-waitfactory',
+    id: 'selenium-arch-fluentwait-factory-practice',
+    label: {
+      tr: 'Micro Lab: WaitFactory.fluentWait()\'i stale-güvenli tamamla',
+      en: 'Micro Lab: complete WaitFactory.fluentWait() to be stale-safe',
+    },
+    language: 'java',
+    task: {
+      tr: 'Aşağıdaki fluentWait() metodu eksik: timeout ve polling ayarlanmış ama ignore listesi boş. React tabanlı bir sayfada elementler sürekli yeniden render olduğu için StaleElementReferenceException alıyorsun. TODO satırlarını, NoSuchElementException VE StaleElementReferenceException\'ı yok sayacak şekilde tamamla — bu iki satır olmadan FluentWait, ilk "element yok" anında patlar.',
+      en: 'The fluentWait() method below is incomplete: timeout and polling are set, but the ignore list is empty. On a React-based page where elements constantly re-render, you keep getting StaleElementReferenceException. Complete the TODO lines to ignore BOTH NoSuchElementException AND StaleElementReferenceException — without these two lines, FluentWait blows up the first moment the "element is missing".',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç FluentWait\'in ignoring() zincirini elle yazarak, dinamik sayfalardaki flaky\'liğin NEDEN doğru exception politikasıyla çözüldüğünü pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to reinforce, by writing FluentWait\'s ignoring() chain yourself, WHY flakiness on dynamic pages is solved by the correct exception policy.',
+    },
+    code: {
+      tr: `public static Wait<WebDriver> fluentWait() {
+    return new FluentWait<>(DriverManager.getDriver())
+        .withTimeout(Duration.ofSeconds(10))
+        .pollingEvery(Duration.ofMillis(500))
+        .ignoring(NoSuchElementException.class)
+        .ignoring(StaleElementReferenceException.class);
+}`,
+      en: `public static Wait<WebDriver> fluentWait() {
+    return new FluentWait<>(DriverManager.getDriver())
+        .withTimeout(Duration.ofSeconds(10))
+        .pollingEvery(Duration.ofMillis(500))
+        .ignoring(NoSuchElementException.class)
+        .ignoring(StaleElementReferenceException.class);
+}`,
+    },
+    starterCode: {
+      tr: `public static Wait<WebDriver> fluentWait() {
+    return new FluentWait<>(DriverManager.getDriver())
+        .withTimeout(Duration.ofSeconds(10))
+        .pollingEvery(Duration.ofMillis(500))
+        TODO   // element henuz yoksa patlama
+        TODO;  // DOM yeniden render olursa patlama
+}`,
+      en: `public static Wait<WebDriver> fluentWait() {
+    return new FluentWait<>(DriverManager.getDriver())
+        .withTimeout(Duration.ofSeconds(10))
+        .pollingEvery(Duration.ofMillis(500))
+        TODO   // do not blow up if the element is missing yet
+        TODO;  // do not blow up if the DOM re-renders
+}`,
+    },
+    solutionCode: {
+      tr: `public static Wait<WebDriver> fluentWait() {
+    return new FluentWait<>(DriverManager.getDriver())
+        .withTimeout(Duration.ofSeconds(10))
+        .pollingEvery(Duration.ofMillis(500))
+        .ignoring(NoSuchElementException.class)
+        .ignoring(StaleElementReferenceException.class);
+}`,
+      en: `public static Wait<WebDriver> fluentWait() {
+    return new FluentWait<>(DriverManager.getDriver())
+        .withTimeout(Duration.ofSeconds(10))
+        .pollingEvery(Duration.ofMillis(500))
+        .ignoring(NoSuchElementException.class)
+        .ignoring(StaleElementReferenceException.class);
+}`,
+    },
+    expected: {
+      tr: 'İki TODO satırı .ignoring(NoSuchElementException.class) ve .ignoring(StaleElementReferenceException.class) olmalı — bu iki hata "henüz hazır değil, tekrar dene" sayılır, timeout dolana kadar polling devam eder.',
+      en: 'The two TODO lines must be .ignoring(NoSuchElementException.class) and .ignoring(StaleElementReferenceException.class) — these two errors count as "not ready yet, retry", and polling continues until the timeout.',
+    },
+    hints: [
+      { tr: 'ignoring() metodu bir exception sınıfı alır ve o exception olduğunda beklemeyi SONLANDIRMAZ, sadece bir sonraki polling\'e geçer — zincire istediğin kadar ignoring() ekleyebilirsin.', en: 'The ignoring() method takes an exception class and, when that exception occurs, does NOT end the wait, it just moves to the next poll — you can chain as many ignoring() calls as you like.' },
+      { tr: 'NoSuchElementException "element henüz DOM\'da yok" demektir; StaleElementReferenceException "element vardı ama DOM yeniden render oldu" demektir — dinamik sayfalarda ikisi de normaldir, ikisini de ignore et.', en: 'NoSuchElementException means "the element is not in the DOM yet"; StaleElementReferenceException means "the element was there but the DOM re-rendered" — on dynamic pages both are normal, ignore both.' },
+      { tr: 'TimeoutException\'ı ASLA ignore etme — o, "10 saniye doldu ve beklediğim koşul hiç sağlanmadı" gerçek sinyalidir; ignore edersen test sonsuza kadar sessizce başarısız olur.', en: 'NEVER ignore TimeoutException — it is the real "10 seconds elapsed and my condition was never met" signal; ignoring it makes the test silently fail forever.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'FluentWait\'in ignoring(StaleElementReferenceException.class) satırı ATLANIRSA, sürekli yeniden render olan (React) bir sayfada en olası sonuç nedir?',
+      en: 'If FluentWait\'s ignoring(StaleElementReferenceException.class) line is SKIPPED, what is the most likely outcome on a constantly re-rendering (React) page?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Hiçbir fark olmaz, ignoring() sadece performans içindir', en: 'No difference, ignoring() is only for performance' } },
+      { id: 'b', text: { tr: 'Element render sırasında değişirse test rastgele StaleElementReferenceException ile patlar (flaky)', en: 'If the element changes during re-render, the test randomly fails with StaleElementReferenceException (flaky)' } },
+      { id: 'c', text: { tr: 'Tüm testler derleme hatası verir', en: 'All tests fail to compile' } },
+      { id: 'd', text: { tr: 'Timeout süresi otomatik olarak iki katına çıkar', en: 'The timeout duration automatically doubles' } },
+    ],
+    correct: 'b',
+    explanation: {
+      tr: 'StaleElementReferenceException, bulduğun element referansının DOM yeniden render olunca geçersizleşmesiyle oluşur. ignoring() listesinde değilse FluentWait ilk stale anında hatayı yukarı fırlatır ve test, aslında element birkaç ms sonra hazır olacakken başarısız olur — bu, dinamik sayfalardaki flaky\'liğin klasik kaynağıdır.',
+      en: 'StaleElementReferenceException occurs when the element reference you found is invalidated by a DOM re-render. If it is not in the ignoring() list, FluentWait rethrows on the first stale moment and the test fails even though the element would have been ready a few ms later — this is the classic source of flakiness on dynamic pages.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'WaitFactory\'yi ayrı bir sınıf yapmak yerine her testte `new WebDriverWait(driver, ...)` yazsaydın en olası uzun vadeli problem ne olurdu?',
+        en: 'If instead of a separate WaitFactory class you wrote `new WebDriverWait(driver, ...)` in every test, what would the most likely long-term problem be?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Bekleme süresi/polling/ignore politikası testler arası tutarsızlaşır, tek bir değişiklik 200 dosyaya yayılmaz', en: 'The timeout/polling/ignore policy drifts across tests, and one change cannot propagate to 200 files' } },
+        { id: 'b', text: { tr: 'Driver hiç açılmaz', en: 'The driver would never open' } },
+        { id: 'c', text: { tr: 'Testler derlenmez', en: 'The tests would not compile' } },
+        { id: 'd', text: { tr: 'Hiçbir fark olmaz', en: 'There would be no difference' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'Merkezi WaitFactory olmadan her test kendi bekleme yapılandırmasını taşır; biri 250 ms, biri 1000 ms yazar, biri ignore listesini unutur. "Bekleme stratejimizi değiştirelim" kararı tek satırlık bir PR yerine 200 dosyalık bir arama-değiştirme işine dönüşür.',
+        en: 'Without a central WaitFactory, every test carries its own wait configuration; one writes 250 ms, another 1000 ms, another forgets the ignore list. The "let\'s change our wait strategy" decision turns from a one-line PR into a 200-file find-and-replace chore.',
+      },
+    },
+  },
+
+  // ── Adım 3 — POM Katmanı: PageFactory @FindBy + BasePage Mirası ──
+  {
+    type: 'heading',
+    text: { tr: '📦 Adım 3 — Page Object Model (POM): PageFactory & BasePage Mirası', en: '📦 Step 3 — Page Object Model (POM): PageFactory & BasePage Inheritance' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🧬',
+    content: {
+      tr: 'BasePage, bir aracın ORTAK şasisidir: her model (LoginPage, ProductPage, CartPage) kendi motorunu ve gövdesini (kendi @FindBy elementlerini) getirir ama fren sistemi, direksiyon ve süspansiyon (waitVisible/click/type) ortak platformdan gelir — Toyota\'nın onlarca modeli aynı TNGA platformunu paylaşması gibi. İkinci benzetme: PageFactory\'nin @FindBy alanları, henüz doldurulmamış zarf etiketleridir; `PageFactory.initElements()` çağrılana kadar element DOM\'da ARANMAZ, sadece "bu alanı sorduğunda şu locator ile ara" talimatı yazılıdır (lazy proxy). Peki LoginPage doğrudan `driver.findElement(...)` ile de çalışabiliyorken, neden @FindBy + BasePage mirası kuruyoruz — fazladan katman değil mi? Değil, çünkü ikinci bir sayfa sınıfı (CartPage) yazdığın AN, aynı `wait → click` mantığını KOPYALARSIN; o kopyada biri bekleme koşulunu `presenceOf` yaparsa (görünür değil, sadece DOM\'da var) tıklama görünmez elemente gider ve sessizce başarısız olur. BasePage bu mantığı TEK yerde tutar. Java karşılaştırması: bu, `AbstractList`\'in `ArrayList`/`LinkedList`\'e ortak iskelet vermesiyle birebir aynıdır — "tekrar eden davranışı YUKARI taşı, farklı olanı AŞAĞIDA bırak". QA bağlamı: BasePage\'deki tek bir "önce görünürlüğü bekle, sonra tıkla" kararı, 50 sayfa sınıfının HEPSİNİ aynı anda "erken tıklama" (element henüz aktif değilken click) hatasına karşı korur.',
+      en: 'BasePage is a car\'s SHARED chassis: every model (LoginPage, ProductPage, CartPage) brings its own engine and body (its own @FindBy elements), but the brakes, steering, and suspension (waitVisible/click/type) come from the shared platform — like Toyota\'s dozens of models sharing the same TNGA platform. Second analogy: PageFactory\'s @FindBy fields are envelope labels not yet filled; until `PageFactory.initElements()` is called, the element is NOT searched in the DOM, only the instruction "when you ask for this field, look with this locator" is written (a lazy proxy). But if LoginPage can also work with a direct `driver.findElement(...)`, why set up @FindBy + BasePage inheritance — isn\'t it an extra layer? It is not, because the MOMENT you write a second page class (CartPage), you COPY the same `wait → click` logic; and in that copy, if someone makes the wait `presenceOf` (present in DOM, not visible), the click goes to an invisible element and silently fails. BasePage keeps that logic in ONE place. Java comparison: this is exactly `AbstractList` giving `ArrayList`/`LinkedList` a shared skeleton — "push repeated behavior UP, leave what differs DOWN". QA context: one "wait for visibility first, then click" decision in BasePage protects ALL 50 page classes at once against the "early click" bug (clicking while the element is not yet actionable).',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Encapsulation burada devrededir: BasePage, WaitFactory\'yi ve bekleme detayını kendi içinde tutar — hiçbir sayfa sınıfı `FluentWait` veya `ExpectedConditions` API\'sini görmek ZORUNDA değildir, sadece click(element) veya type(element, "metin") çağırır. LoginPage\'i yazan kişi "nasıl beklendiğini" bilmeden iş kuralını (loginAs) yazabilir; bekleme stratejisi tamamen alt katmanda gizlidir.',
+      en: 'Encapsulation is at work here: BasePage keeps WaitFactory and the wait detail inside itself — no page class MUST see the `FluentWait` or `ExpectedConditions` API, it just calls click(element) or type(element, "text"). Whoever writes LoginPage can write the business rule (loginAs) without knowing "how it waits"; the wait strategy is fully hidden in the lower layer.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'java',
+    code: {
+      tr: `// ─── pages/BasePage.java — ortak bekle-ve-tikla katmani ───
+package pages;
+
+import core.WaitFactory;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+public abstract class BasePage {
+
+    protected final WebDriver driver;
+
+    protected BasePage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // TUM sayfa siniflarinin PAYLASTIGI ortak bekle-ve-tikla mantigi
+    protected WebElement waitVisible(WebElement element) {
+        return WaitFactory.fluentWait()
+            .until(ExpectedConditions.visibilityOf(element));
+    }
+
+    public void click(WebElement element) {
+        waitVisible(element).click();   // once gorunur olmasini bekle, SONRA tikla
+    }
+
+    public void type(WebElement element, String text) {
+        WebElement el = waitVisible(element);
+        el.clear();          // onceki metni temizle
+        el.sendKeys(text);
+    }
+}
+
+// ─── pages/LoginPage.java — sadece kendi elementlerini bilir (POM) ───
+package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class LoginPage extends BasePage {
+
+    @FindBy(id = "username") private WebElement usernameInput;
+    @FindBy(id = "password") private WebElement passwordInput;
+    @FindBy(css = "button[type='submit']") private WebElement loginButton;
+
+    public LoginPage(WebDriver driver) {
+        super(driver);                          // BasePage constructor'ini cagirir
+        PageFactory.initElements(driver, this);  // @FindBy proxy'lerini enjekte eder
+    }
+
+    public void loginAs(String user, String pass) {
+        type(usernameInput, user);   // BasePage.type() — bekleme HER YERDE ayni
+        type(passwordInput, pass);
+        click(loginButton);          // BasePage.click() — bekleme HER YERDE ayni
+    }
+}`,
+      en: `// ─── pages/BasePage.java — the shared wait-and-act layer ───
+package pages;
+
+import core.WaitFactory;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+public abstract class BasePage {
+
+    protected final WebDriver driver;
+
+    protected BasePage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // the shared wait-then-act logic SHARED by every page class
+    protected WebElement waitVisible(WebElement element) {
+        return WaitFactory.fluentWait()
+            .until(ExpectedConditions.visibilityOf(element));
+    }
+
+    public void click(WebElement element) {
+        waitVisible(element).click();   // wait until visible FIRST, THEN click
+    }
+
+    public void type(WebElement element, String text) {
+        WebElement el = waitVisible(element);
+        el.clear();          // clear the previous text
+        el.sendKeys(text);
+    }
+}
+
+// ─── pages/LoginPage.java — knows only its own elements (POM) ───
+package pages;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class LoginPage extends BasePage {
+
+    @FindBy(id = "username") private WebElement usernameInput;
+    @FindBy(id = "password") private WebElement passwordInput;
+    @FindBy(css = "button[type='submit']") private WebElement loginButton;
+
+    public LoginPage(WebDriver driver) {
+        super(driver);                          // calls the BasePage constructor
+        PageFactory.initElements(driver, this);  // injects the @FindBy proxies
+    }
+
+    public void loginAs(String user, String pass) {
+        type(usernameInput, user);   // BasePage.type() — the SAME wait everywhere
+        type(passwordInput, pass);
+        click(loginButton);          // BasePage.click() — the SAME wait everywhere
+    }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'selenium-arch-pom-findby-steps',
+    title: { tr: 'Adım Adım: @FindBy Proxy\'si Gerçek Elemente Ne Zaman Dönüşür?', en: 'Step by Step: When Does the @FindBy Proxy Become a Real Element?' },
+    steps: [
+      { id: 1, icon: '🏷️', label: { tr: 'initElements() proxy\'leri kurar', en: 'initElements() sets up proxies' }, detail: { tr: 'LoginPage constructor\'ında PageFactory.initElements(driver, this) çağrılır — usernameInput henüz DOM\'da aranmadı, sadece "id=username ile ara" talimatını tutan bir proxy oldu.', en: 'In the LoginPage constructor, PageFactory.initElements(driver, this) is called — usernameInput is not searched in the DOM yet, it just became a proxy holding the instruction "look by id=username".' } },
+      { id: 2, icon: '☎️', label: { tr: '@Test loginAs() çağırır', en: 'The @Test calls loginAs()' }, detail: { tr: 'Test, loginPage.loginAs("admin", "Passw0rd!") çağırır — Selenium\'un tek bir detayını BİLMEZ, sadece iş kuralını tetikler.', en: 'The test calls loginPage.loginAs("admin", "Passw0rd!") — it knows NOTHING about Selenium internals, it just triggers the business rule.' } },
+      { id: 3, icon: '⏳', label: { tr: 'BasePage.type() beklemeyi başlatır', en: 'BasePage.type() starts the wait' }, detail: { tr: 'type(usernameInput, ...) içinde waitVisible() çağrılır — İŞTE BURADA proxy gerçekten DOM\'da aranır ve görünür olması FluentWait ile beklenir.', en: 'Inside type(usernameInput, ...), waitVisible() is called — RIGHT HERE the proxy is actually searched in the DOM and its visibility is awaited via FluentWait.' } },
+      { id: 4, icon: '⌨️', label: { tr: 'Görünür olunca yazılır', en: 'Once visible, the value is typed' }, detail: { tr: 'Element görünür olunca clear() + sendKeys() çalışır — bu satıra kadar LoginPage, FluentWait\'in var olduğunu bile bilmiyordu.', en: 'Once the element is visible, clear() + sendKeys() run — up to this line, LoginPage did not even know FluentWait existed.' } },
+      { id: 5, icon: '🚨', label: { tr: 'Görünmezse: hata BasePage\'de fırlar', en: 'If never visible: error throws in BasePage' }, detail: { tr: 'Element hiç görünür olmazsa TimeoutException BasePage katmanında fırlar — LoginSteps ve LoginPage Selenium detaylarından İZOLE kalır, hatayı hangi katmanın fırlattığını net okursun.', en: 'If the element never becomes visible, TimeoutException throws inside the BasePage layer — the test and LoginPage stay ISOLATED from Selenium details, and you clearly read which layer threw it.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-selenium-arch-pom-chain-order',
+    question: {
+      tr: 'loginPage.loginAs() çağrısının katmanlar arası akışını doğru sıraya diz.',
+      en: 'Arrange the cross-layer flow of the loginPage.loginAs() call in the correct order.',
+    },
+    items: [
+      { id: '1', text: { tr: '@Test: loginPage.loginAs(user, pass) çağrılır', en: '@Test: loginPage.loginAs(user, pass) is called' }, order: 1 },
+      { id: '2', text: { tr: 'LoginPage: kendi @FindBy alanıyla BasePage.type() çağırır', en: 'LoginPage: calls BasePage.type() with its own @FindBy field' }, order: 2 },
+      { id: '3', text: { tr: 'BasePage: waitVisible() ile WaitFactory FluentWait\'ini kullanır', en: 'BasePage: uses WaitFactory\'s FluentWait via waitVisible()' }, order: 3 },
+      { id: '4', text: { tr: 'PageFactory proxy: gerçek WebElement\'i DOM\'da arar', en: 'PageFactory proxy: searches the DOM for the real WebElement' }, order: 4 },
+      { id: '5', text: { tr: 'WebElement: clear() + sendKeys() ile gerçek aksiyon çalışır', en: 'WebElement: the real action runs via clear() + sendKeys()' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'selenium-framework-basepage',
+    id: 'selenium-arch-basepage-waitclick-practice',
+    label: {
+      tr: 'Micro Lab: BasePage.click()\'i "önce bekle, sonra tıkla" yap',
+      en: 'Micro Lab: make BasePage.click() "wait first, then click"',
+    },
+    language: 'java',
+    task: {
+      tr: 'Aşağıdaki BasePage.click() metodu doğrudan element.click() çağırıyor — element henüz görünür/aktif değilken tıklanırsa ElementNotInteractableException alırsın veya tıklama boşa gider. TODO satırını, LoginPage\'deki kalıba uyacak şekilde tamamla: önce waitVisible(element) ile görünürlüğü bekle, DÖNEN elemente .click() uygula. Böylece bu tek metot tüm sayfaların tıklamalarını "erken tıklama" hatasına karşı korur.',
+      en: 'The BasePage.click() method below calls element.click() directly — clicking while the element is not yet visible/actionable gives you ElementNotInteractableException or a wasted click. Complete the TODO line to match the pattern: first wait for visibility with waitVisible(element), then apply .click() to the RETURNED element. This one method then protects every page\'s clicks against the "early click" bug.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç "bekle-sonra-tıkla" mantığını BasePage\'de tek yerde toplamanın, neden 50 sayfayı aynı anda koruduğunu elle yazarak pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to reinforce, by writing it yourself, why centralizing "wait-then-click" in BasePage protects 50 pages at once.',
+    },
+    code: {
+      tr: `public void click(WebElement element) {
+    waitVisible(element).click();
+}`,
+      en: `public void click(WebElement element) {
+    waitVisible(element).click();
+}`,
+    },
+    starterCode: {
+      tr: `public void click(WebElement element) {
+    TODO   // once gorunur olmasini bekle, DONEN elemente tikla
+}`,
+      en: `public void click(WebElement element) {
+    TODO   // wait for visibility first, click the RETURNED element
+}`,
+    },
+    solutionCode: {
+      tr: `public void click(WebElement element) {
+    waitVisible(element).click();
+}`,
+      en: `public void click(WebElement element) {
+    waitVisible(element).click();
+}`,
+    },
+    expected: {
+      tr: 'TODO satırı waitVisible(element).click() olmalı — waitVisible görünür WebElement\'i döndürür, ona zincirlenen .click() ise ancak element hazır olduğunda tıklar.',
+      en: 'The TODO line must be waitVisible(element).click() — waitVisible returns the visible WebElement, and the chained .click() only clicks once the element is ready.',
+    },
+    hints: [
+      { tr: 'waitVisible(element) bir WebElement döndürür (visibilityOf koşulu görünür elementi geri verir) — bu yüzden dönen değere doğrudan .click() zincirleyebilirsin.', en: 'waitVisible(element) returns a WebElement (the visibilityOf condition returns the visible element) — so you can chain .click() directly onto the returned value.' },
+      { tr: 'Doğrudan element.click() (waitVisible olmadan) çağırmak, sayfa animasyonu veya geç yüklenen buton durumunda "erken tıklama" yapar; önce bekleme koşulundan geçirmek bunu engeller.', en: 'Calling element.click() directly (without waitVisible) does an "early click" when there is a page animation or a late-loading button; passing it through the wait condition first prevents this.' },
+      { tr: 'Aynı kalıbı type() de kullanır: önce waitVisible, sonra clear()+sendKeys — bekleme mantığı BasePage\'de tek yerde durduğu için tüm PageObject\'ler tutarlı davranır.', en: 'type() uses the same pattern: waitVisible first, then clear()+sendKeys — since wait logic lives in one place in BasePage, all PageObjects behave consistently.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'PageFactory.initElements(driver, this) çağrıldığı ANDA @FindBy elementleri için ne olur?',
+      en: 'The MOMENT PageFactory.initElements(driver, this) is called, what happens to the @FindBy elements?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Hemen DOM\'da aranır ve WebElement referansları doldurulur', en: 'They are immediately searched in the DOM and WebElement references are filled' } },
+      { id: 'b', text: { tr: 'Sadece lazy proxy kurulur; element DOM\'da ancak ilk kullanıldığında aranır', en: 'Only lazy proxies are set up; the element is searched in the DOM only on first use' } },
+      { id: 'c', text: { tr: 'Tüm elementler kopyalanıp önbelleğe alınır ve bir daha değişmez', en: 'All elements are copied and cached, never changing again' } },
+      { id: 'd', text: { tr: 'Driver kapatılır ve yeniden açılır', en: 'The driver is closed and reopened' } },
+    ],
+    correct: 'b',
+    explanation: {
+      tr: 'PageFactory.initElements() alanlara "bu locator ile ara" talimatı taşıyan lazy proxy\'ler enjekte eder — gerçek DOM araması ancak elemente ilk erişildiğinde (örn. waitVisible içinde) yapılır. Bu yüzden constructor\'da element henüz görünmese bile hata almazsın; hata ancak kullanım anında bekleme koşulu sağlanmazsa oluşur.',
+      en: 'PageFactory.initElements() injects lazy proxies into the fields carrying the instruction "look with this locator" — the real DOM search happens only on first access to the element (e.g. inside waitVisible). That is why you get no error in the constructor even if the element is not visible yet; the error occurs only if the wait condition fails at use time.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Bekleme mantığını BasePage\'de değil de her PageObject\'in kendi metodunda tekrar yazsaydın en olası problem ne olurdu?',
+        en: 'If you rewrote the wait logic in each PageObject\'s own method instead of in BasePage, what would the most likely problem be?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Bir sayfada bekleme koşulu yanlış seçilirse (örn. presenceOf) o sayfa görünmez elemente tıklar, diğerleri etkilenmez — tutarsız davranış', en: 'If a page picks the wrong wait condition (e.g. presenceOf), that page clicks an invisible element while others are unaffected — inconsistent behavior' } },
+        { id: 'b', text: { tr: 'Hiçbir @FindBy çalışmaz', en: 'No @FindBy would work' } },
+        { id: 'c', text: { tr: 'PageFactory devre dışı kalır', en: 'PageFactory would be disabled' } },
+        { id: 'd', text: { tr: 'Testler paralel koşamaz', en: 'Tests could not run in parallel' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'Bekleme mantığı her sayfada ayrı yazılırsa, biri visibilityOf, biri presenceOf, biri hiç beklemeden click yazar. Ortak BasePage olmadan "erken tıklama" hatası bazı sayfalarda çıkar bazılarında çıkmaz — teşhisi en zor flaky türlerinden biridir.',
+        en: 'If wait logic is written separately per page, one uses visibilityOf, one presenceOf, one clicks with no wait at all. Without a shared BasePage, the "early click" bug appears on some pages and not others — one of the hardest flaky types to diagnose.',
+      },
+    },
+  },
+
+  // ── Adım 4 — SOLID Uygulaması (OCP odaklı) ──
+  {
+    type: 'heading',
+    text: { tr: '⚖️ Adım 4 — SOLID Prensipleri Selenium Kodunda', en: '⚖️ Step 4 — SOLID Principles in Selenium Code' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🧩',
+    content: {
+      tr: 'SOLID beş prensip, bir mağazanın raf düzeni kurallarıdır: her raf tek tür ürün tutar (SRP), yeni ürün geldiğinde rafı SÖKMEZSİN yenisini eklersin (OCP), aynı boydaki her ürün aynı rafa sığar (LSP), kasiyer sadece kasa arayüzünü görür manav terazisini değil (ISP), ve raflar dükkânın betonuna değil taşınabilir ayaklara dayanır (DIP). İkinci benzetme: OCP, bir prizin üzerine yeni bir cihaz takmaya benzer — duvarı kırıp kablo çekmezsin, standart bir arayüze (soket) yeni bir fiş takarsın; kod da yeni davranışı MEVCUT dosyayı değiştirmeden, yeni bir sınıf ekleyerek kazanmalıdır. Peki testler zaten çalışıyorken, neden bu prensiplere uğraşıyoruz — "if/else ekle, geç" demek daha hızlı değil mi? Kısa vadede evet; ama her yeni bekleme türü için var olan bir metoda if/else eklemek, o metodu her değişiklikte yeniden test etmeni ve eski senaryoları kırma riskini getirir (regresyon). Java karşılaştırması: bu tam olarak `Comparator` arayüzüdür — `Collections.sort()`\'un içini değiştirmeden yeni sıralama kuralları eklersin; Selenium\'da da bekleme/tıklama stratejilerini aynı şekilde takılabilir hale getirebilirsin. QA bağlamı: OCP\'ye uyan bir wait katmanında "bu proje için JS-click stratejisi ekleyelim" kararı, mevcut 200 testin hiçbirine dokunmadan tek bir yeni sınıfla çözülür — dokunmadığın kod, kıramadığın koddur.',
+      en: 'The five SOLID principles are a store\'s shelving rules: each shelf holds one product type (SRP), when a new product arrives you do not DISMANTLE the shelf, you add to it (OCP), every product of the same size fits the same shelf (LSP), the cashier sees only the register interface, not the produce scale (ISP), and shelves rest on movable feet, not the store\'s concrete (DIP). Second analogy: OCP is like plugging a new device into an outlet — you do not break the wall and run cable, you plug a new plug into a standard interface (the socket); code should likewise gain new behavior by ADDING a new class WITHOUT modifying the existing file. But if the tests already work, why bother with these principles — isn\'t "add an if/else and move on" faster? Short-term yes; but adding if/else to an existing method for every new wait type forces you to retest that method on every change and risks breaking old scenarios (regression). Java comparison: this is exactly the `Comparator` interface — you add new sort rules without changing the inside of `Collections.sort()`; in Selenium you can make wait/click strategies just as pluggable. QA context: in a wait layer that respects OCP, the decision to "add a JS-click strategy for this project" is solved with a single new class, without touching any of the existing 200 tests — the code you do not touch is the code you cannot break.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Beş prensibin Selenium karşılığı: SRP — DriverManager sadece driver, WaitFactory sadece bekleme (Adım 2). OCP — yeni bir bekleme/tıklama stratejisi eklemek için mevcut kodu değiştirmeden yeni sınıf ekle (aşağıda). LSP — her BasePage alt sınıfı, BasePage beklenen her yerde sorunsuz kullanılabilir olmalı. ISP — bir sayfaya kullanmayacağı metotları içeren şişkin bir arayüz dayatma; küçük, amaca özel arayüzler tanımla. DIP — @Test yüksek seviyesi somut LoginPage\'e değil, bir soyutlamaya (arayüz) bağlı olmalı. Aşağıda OCP\'yi somut bir "Anti-Pattern vs SOLID" çiftiyle inceliyoruz.',
+      en: 'The Selenium mapping of the five principles: SRP — DriverManager only driver, WaitFactory only waiting (Step 2). OCP — add a new wait/click strategy by adding a new class without modifying existing code (below). LSP — every BasePage subclass must be usable wherever a BasePage is expected. ISP — do not impose a bloated interface with methods a page will not use; define small, purpose-specific interfaces. DIP — the high-level @Test should depend on an abstraction (interface), not on the concrete LoginPage. Below we examine OCP through a concrete "Anti-Pattern vs SOLID" pair.',
+    },
+  },
+  {
+    type: 'comparison',
+    left: {
+      label: { tr: '❌ OCP İhlali (if/else şişmesi)', en: '❌ OCP Violation (if/else bloat)' },
+      code: `// Her yeni tiklama turu bu metodu DEGISTIRIR
+public void clickBy(WebElement el, String type) {
+    if (type.equals("normal")) {
+        waitVisible(el).click();
+    } else if (type.equals("js")) {
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].click();", el);
+    }
+    // yeni tur = yeni else-if = eski kodu yeniden test et
+}`,
+      note: { tr: 'Yeni davranış = mevcut metodu değiştir = regresyon riski.', en: 'New behavior = modify the existing method = regression risk.' },
+    },
+    right: {
+      label: { tr: '✅ OCP Uygun (Strategy)', en: '✅ OCP-Compliant (Strategy)' },
+      code: `// Yeni tur = mevcut kodu DEGISTIRMEDEN yeni sinif ekle
+public interface ClickStrategy {
+    void click(WebDriver driver, WebElement el);
+}
+
+public class JsClickStrategy implements ClickStrategy {
+    public void click(WebDriver driver, WebElement el) {
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].click();", el);
+    }
+}`,
+      note: { tr: 'Yeni strateji = yeni dosya; eski kod hiç açılmaz.', en: 'New strategy = new file; existing code is never opened.' },
+    },
+  },
+  {
+    type: 'code',
+    language: 'java',
+    code: {
+      tr: `package actions;
+
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+// OCP: davranisi arayuz uzerinden takilabilir yap
+public interface ClickStrategy {
+    void click(WebDriver driver, WebElement element);
+}
+
+// Strateji 1 — normal Selenium tiklama
+public class NativeClickStrategy implements ClickStrategy {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        element.click();
+    }
+}
+
+// Strateji 2 — JS ile tiklama (overlay/animasyon sorunlarinda)
+public class JsClickStrategy implements ClickStrategy {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].click();", element);
+    }
+}`,
+      en: `package actions;
+
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+// OCP: make behavior pluggable through an interface
+public interface ClickStrategy {
+    void click(WebDriver driver, WebElement element);
+}
+
+// Strategy 1 — normal Selenium click
+public class NativeClickStrategy implements ClickStrategy {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        element.click();
+    }
+}
+
+// Strategy 2 — JS click (for overlay/animation issues)
+public class JsClickStrategy implements ClickStrategy {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].click();", element);
+    }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'selenium-arch-ocp-strategy-steps',
+    title: { tr: 'Adım Adım: OCP ile Yeni Strateji Nasıl Eklenir?', en: 'Step by Step: How a New Strategy Is Added with OCP' },
+    steps: [
+      { id: 1, icon: '📐', label: { tr: 'Arayüz sözleşmeyi sabitler', en: 'The interface fixes the contract' }, detail: { tr: 'ClickStrategy arayüzü tek bir metot tanımlar: click(driver, element). Bu sözleşme bir kez yazılır ve bir daha değişmez.', en: 'The ClickStrategy interface defines one method: click(driver, element). This contract is written once and never changes again.' } },
+      { id: 2, icon: '🧱', label: { tr: 'Her davranış ayrı sınıf', en: 'Each behavior is its own class' }, detail: { tr: 'NativeClickStrategy ve JsClickStrategy, arayüzü ayrı ayrı uygular — biri diğerinin kodunu bilmez, birbirini kırmaz.', en: 'NativeClickStrategy and JsClickStrategy each implement the interface separately — neither knows the other\'s code, neither can break the other.' } },
+      { id: 3, icon: '➕', label: { tr: 'Yeni ihtiyaç = yeni sınıf', en: 'New need = new class' }, detail: { tr: '"Shadow DOM elementine tıkla" ihtiyacı gelirse ShadowClickStrategy adında YENİ bir dosya açarsın; mevcut iki sınıfa DOKUNMAZSIN.', en: 'If a "click a Shadow DOM element" need arises, you open a NEW file named ShadowClickStrategy; you do NOT touch the existing two classes.' } },
+      { id: 4, icon: '🔌', label: { tr: 'BasePage stratejiyi enjekte alır', en: 'BasePage receives the strategy injected' }, detail: { tr: 'BasePage hangi somut stratejiyi kullandığını bilmez, sadece ClickStrategy arayüzüne bağlıdır — istediğin stratejiyi dışarıdan verirsin (DIP ile birlikte çalışır).', en: 'BasePage does not know which concrete strategy it uses, it depends only on the ClickStrategy interface — you supply the desired strategy from outside (works together with DIP).' } },
+      { id: 5, icon: '🛡️', label: { tr: 'Eski testler dokunulmadan geçer', en: 'Old tests pass untouched' }, detail: { tr: 'Yeni strateji eklenince mevcut 200 testin hiçbiri değişmediği için hiçbiri kırılamaz — OCP\'nin regresyon güvencesi tam olarak budur.', en: 'When the new strategy is added, none of the existing 200 tests changed, so none can break — this is exactly OCP\'s regression guarantee.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-selenium-arch-ocp-order',
+    question: {
+      tr: '"Overlay yüzünden normal click çalışmıyor, JS-click stratejisi ekleyelim" ihtiyacını OCP\'ye uygun şekilde çözme adımlarını sıraya diz.',
+      en: 'Arrange the OCP-compliant steps for the need "normal click fails due to an overlay, let\'s add a JS-click strategy".',
+    },
+    items: [
+      { id: '1', text: { tr: 'Mevcut ClickStrategy arayüzünü (sözleşmeyi) incele — değiştirme', en: 'Inspect the existing ClickStrategy interface (the contract) — do not change it' }, order: 1 },
+      { id: '2', text: { tr: 'Yeni bir JsClickStrategy dosyası oluştur, arayüzü implement et', en: 'Create a new JsClickStrategy file, implement the interface' }, order: 2 },
+      { id: '3', text: { tr: 'click() metodunu JavascriptExecutor ile doldur', en: 'Fill the click() method with JavascriptExecutor' }, order: 3 },
+      { id: '4', text: { tr: 'İlgili PageObject\'e bu stratejiyi dışarıdan enjekte et', en: 'Inject this strategy into the relevant PageObject from outside' }, order: 4 },
+      { id: '5', text: { tr: 'Mevcut testleri çalıştır — hiçbiri değişmediği için hepsi geçer', en: 'Run the existing tests — since none changed, they all pass' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'selenium-framework-ocp',
+    id: 'selenium-arch-ocp-waitstrategy-practice',
+    label: {
+      tr: 'Micro Lab: OCP\'ye uygun yeni bir ClickStrategy ekle',
+      en: 'Micro Lab: add a new OCP-compliant ClickStrategy',
+    },
+    language: 'java',
+    task: {
+      tr: 'Overlay/animasyon yüzünden bazı butonlar normal click ile tıklanamıyor; JavaScript ile tıklaman gerekiyor. OCP kuralı gereği MEVCUT ClickStrategy arayüzünü veya NativeClickStrategy sınıfını DEĞİŞTİRMEDEN, yeni bir JsClickStrategy sınıfı yaz. TODO satırlarını tamamla: sınıf ClickStrategy\'yi implement etmeli ve click() içinde JavascriptExecutor ile arguments[0].click() çalıştırmalı.',
+      en: 'Because of an overlay/animation, some buttons cannot be clicked normally; you need to click via JavaScript. Per OCP, WITHOUT modifying the existing ClickStrategy interface or NativeClickStrategy class, write a new JsClickStrategy class. Complete the TODO lines: the class must implement ClickStrategy and, inside click(), run arguments[0].click() via JavascriptExecutor.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç OCP\'nin "genişlet ama değiştirme" ilkesini elle uygulayarak, yeni davranışı mevcut sınıflara dokunmadan eklemenin regresyonu nasıl önlediğini pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to apply OCP\'s "extend but do not modify" principle by hand, reinforcing how adding new behavior without touching existing classes prevents regression.',
+    },
+    code: {
+      tr: `public class JsClickStrategy implements ClickStrategy {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].click();", element);
+    }
+}`,
+      en: `public class JsClickStrategy implements ClickStrategy {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].click();", element);
+    }
+}`,
+    },
+    starterCode: {
+      tr: `public class JsClickStrategy TODO {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        TODO   // JavascriptExecutor ile arguments[0].click() calistir
+    }
+}`,
+      en: `public class JsClickStrategy TODO {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        TODO   // run arguments[0].click() via JavascriptExecutor
+    }
+}`,
+    },
+    solutionCode: {
+      tr: `public class JsClickStrategy implements ClickStrategy {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].click();", element);
+    }
+}`,
+      en: `public class JsClickStrategy implements ClickStrategy {
+    @Override
+    public void click(WebDriver driver, WebElement element) {
+        ((JavascriptExecutor) driver)
+            .executeScript("arguments[0].click();", element);
+    }
+}`,
+    },
+    expected: {
+      tr: 'İlk TODO "implements ClickStrategy" olmalı; ikinci TODO ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element) olmalı — mevcut arayüz ve NativeClickStrategy\'ye hiç dokunmadan yeni davranış eklenir.',
+      en: 'The first TODO must be "implements ClickStrategy"; the second TODO must be ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element) — new behavior is added without touching the existing interface or NativeClickStrategy.',
+    },
+    hints: [
+      { tr: 'OCP\'nin özü: yeni sınıf, mevcut arayüzü (ClickStrategy) implement eder; böylece BasePage değişmeden yeni davranışı kullanabilir. Arayüzü veya eski sınıfı ASLA açma.', en: 'The essence of OCP: the new class implements the existing interface (ClickStrategy); this lets BasePage use the new behavior unchanged. NEVER open the interface or the old class.' },
+      { tr: 'JavaScript ile tıklama için driver\'ı JavascriptExecutor\'a cast eder, executeScript("arguments[0].click();", element) çağırırsın — arguments[0], ikinci parametre olarak verdiğin element\'e karşılık gelir.', en: 'To click via JavaScript, you cast the driver to JavascriptExecutor and call executeScript("arguments[0].click();", element) — arguments[0] corresponds to the element you pass as the second parameter.' },
+      { tr: 'JS-click, görünürlük/overlay engelini atlar ama gerçek kullanıcı etkileşimini taklit etmez; bu yüzden sadece normal click gerçekten mümkün olmadığında son çare olarak bir strateji olarak eklenir.', en: 'A JS-click bypasses the visibility/overlay barrier but does not mimic a real user interaction; that is why it is added as a strategy of last resort, only when a normal click is genuinely impossible.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Bir Selenium framework\'ünde her yeni tıklama türü için var olan clickBy() metoduna if/else eklemek hangi SOLID prensibini ihlal eder?',
+      en: 'In a Selenium framework, adding an if/else to an existing clickBy() method for every new click type violates which SOLID principle?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Open/Closed Principle (OCP) — sınıf genişlemeye açık, değişikliğe kapalı olmalı', en: 'Open/Closed Principle (OCP) — a class should be open to extension, closed to modification' } },
+      { id: 'b', text: { tr: 'Sadece Single Responsibility (SRP)', en: 'Only Single Responsibility (SRP)' } },
+      { id: 'c', text: { tr: 'Hiçbirini — if/else her zaman iyi pratiktir', en: 'None — if/else is always good practice' } },
+      { id: 'd', text: { tr: 'Liskov Substitution (LSP)', en: 'Liskov Substitution (LSP)' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'Her yeni tür için mevcut metodu değiştirmek (yeni else-if) OCP ihlalidir: sınıf "değişikliğe kapalı" olmalıydı. Strategy pattern ile davranışı arayüz arkasına alırsan, yeni tür eklemek mevcut kodu değiştirmeyi değil, yeni bir sınıf eklemeyi gerektirir — eski testler dokunulmadan güvende kalır.',
+      en: 'Modifying the existing method (a new else-if) for every new type violates OCP: the class should have been "closed to modification". With the Strategy pattern behind an interface, adding a new type requires adding a new class, not changing existing code — old tests stay safe, untouched.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Bir @Test metodunun somut LoginPage yerine bir Page arayüzüne bağlı olması hangi prensibi uygular?',
+        en: 'A @Test method depending on a Page interface instead of the concrete LoginPage applies which principle?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Dependency Inversion (DIP) — yüksek seviye modül soyutlamaya bağlı olmalı', en: 'Dependency Inversion (DIP) — high-level modules should depend on abstractions' } },
+        { id: 'b', text: { tr: 'Interface Segregation (ISP)', en: 'Interface Segregation (ISP)' } },
+        { id: 'c', text: { tr: 'Hiçbiri', en: 'None' } },
+        { id: 'd', text: { tr: 'Sadece OCP', en: 'Only OCP' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'DIP, yüksek seviye kodun (test) düşük seviye somut sınıfa değil, bir soyutlamaya (arayüz) bağlı olmasını söyler. Test bir Page arayüzüne bağlıysa, farklı implementasyonlar (gerçek sayfa, mock sayfa) sorunsuz değiştirilebilir — bu, testlerin daha esnek ve izole olmasını sağlar.',
+        en: 'DIP says high-level code (the test) should depend on an abstraction (interface), not a low-level concrete class. If the test depends on a Page interface, different implementations (a real page, a mock page) can be swapped freely — making tests more flexible and isolated.',
+      },
+    },
+  },
+
+  // ── Adım 5 — Test / Data Katmanı: BaseTest + @DataProvider ──
+  {
+    type: 'heading',
+    text: { tr: '🔗 Adım 5 — Test / Data Katmanı: BaseTest & @DataProvider', en: '🔗 Step 5 — Test / Data Layer: BaseTest & @DataProvider' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🎛️',
+    content: {
+      tr: 'Test/Data katmanı, bir orkestranın şefidir: tek tek çalgıları (DriverManager, WaitFactory, PageObject\'ler) çalmaz ama HANGİSİNİN NE ZAMAN gireceğini yönetir — @BeforeMethod\'da driver açılır, @Test\'te sayfa akışı çalınır, @AfterMethod\'da driver kapanır. İkinci benzetme: @DataProvider bir fabrika bandıdır — aynı test metodunu (aynı montaj istasyonunu) farklı parçalarla (farklı kullanıcı adı/şifre satırlarıyla) tekrar tekrar besler; sen tek bir test yazarsın, band onu 5 farklı veriyle 5 kez koşturur. Peki her senaryo için ayrı bir @Test metodu yazabiliyorken, neden @DataProvider gerekiyor — kopyala-yapıştır daha basit değil mi? Değil, çünkü 5 kopyalanmış testte login akışı değişirse 5 yeri elle güncellersin ve biri unutulur; @DataProvider ile mantık TEK, veri ÇOK olur. Java karşılaştırması: bu, JUnit 5\'in @ParameterizedTest + @MethodSource yapısıyla birebir aynıdır — "test mantığını veriden AYIR" ilkesi. QA bağlamı: geçerli/geçersiz/boş/SQL-injection denemesi gibi 20 login senaryosunu tek bir data-driven testle kapsarsın; yeni bir sınır durumu çıkınca kod değil, sadece veri satırı eklersin — test bakımı dakikalar yerine saniyeler alır.',
+      en: 'The Test/Data layer is an orchestra\'s conductor: it does not play the individual instruments (DriverManager, WaitFactory, PageObjects) but manages WHICH plays WHEN — @BeforeMethod opens the driver, @Test plays the page flow, @AfterMethod closes the driver. Second analogy: @DataProvider is a factory conveyor — it feeds the same test method (the same assembly station) over and over with different parts (different username/password rows); you write one test, the belt runs it 5 times with 5 different data sets. But if you can write a separate @Test method per scenario, why do you need @DataProvider — isn\'t copy-paste simpler? It is not, because if the login flow changes across 5 copied tests you update 5 places by hand and one gets missed; with @DataProvider the logic is ONE, the data is MANY. Java comparison: this is exactly JUnit 5\'s @ParameterizedTest + @MethodSource — the "separate test logic from data" principle. QA context: you cover 20 login scenarios like valid/invalid/empty/SQL-injection attempts with a single data-driven test; when a new edge case appears, you add a data row, not code — test maintenance takes seconds instead of minutes.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Bu son katmanda tüm parçalar birleşir: BaseTest, @BeforeMethod hook\'unda DriverManager.createDriver() ile driver\'ı açar ve config\'ten base.url okuyup sayfaya gider; test metodu @DataProvider\'dan gelen her satır için LoginPage\'i (POM) kullanır; @AfterMethod driver\'ı kapatır. Böylece Adım 2 (Core), Adım 3 (POM), Adım 4 (SOLID) burada tek bir çalışan akışta buluşur.',
+      en: 'In this final layer, all pieces come together: BaseTest opens the driver via DriverManager.createDriver() in the @BeforeMethod hook and navigates to base.url read from config; the test method uses LoginPage (POM) for each row from @DataProvider; @AfterMethod closes the driver. Thus Step 2 (Core), Step 3 (POM), and Step 4 (SOLID) meet here in one working flow.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'java',
+    code: {
+      tr: `// ─── tests/BaseTest.java — hook'lar: her test icin driver ac/kapat ───
+package tests;
+
+import core.DriverManager;
+import org.testng.annotations.*;
+
+public class BaseTest {
+
+    @BeforeMethod
+    public void setUp() {
+        DriverManager.createDriver();   // her test icin taze driver
+        DriverManager.getDriver().get(
+            System.getProperty("base.url", "https://example.com/login"));
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        DriverManager.quitDriver();     // driver'i kapat + ThreadLocal temizle
+    }
+}
+
+// ─── tests/LoginTest.java — @DataProvider ile data-driven (mantik TEK) ───
+package tests;
+
+import pages.LoginPage;
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+public class LoginTest extends BaseTest {
+
+    // ayni testi besleyecek veri satirlari — mantik TEK, veri COK
+    @DataProvider(name = "loginData")
+    public Object[][] loginData() {
+        return new Object[][] {
+            { "admin",  "Passw0rd!", true  },   // gecerli
+            { "admin",  "wrong",     false },   // yanlis sifre
+            { "",       "",          false },   // bos alan
+        };
+    }
+
+    @Test(dataProvider = "loginData")
+    public void loginScenarios(String user, String pass, boolean shouldPass) {
+        LoginPage login = new LoginPage(DriverManager.getDriver());
+        login.loginAs(user, pass);
+        // beklenen sonuca gore dogrula (ornek amacli basitlestirildi)
+        Assert.assertEquals(login.isLoggedIn(), shouldPass);
+    }
+}`,
+      en: `// ─── tests/BaseTest.java — hooks: open/close a driver per test ───
+package tests;
+
+import core.DriverManager;
+import org.testng.annotations.*;
+
+public class BaseTest {
+
+    @BeforeMethod
+    public void setUp() {
+        DriverManager.createDriver();   // a fresh driver per test
+        DriverManager.getDriver().get(
+            System.getProperty("base.url", "https://example.com/login"));
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        DriverManager.quitDriver();     // close the driver + clear ThreadLocal
+    }
+}
+
+// ─── tests/LoginTest.java — data-driven via @DataProvider (logic is ONE) ───
+package tests;
+
+import pages.LoginPage;
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+public class LoginTest extends BaseTest {
+
+    // data rows that feed the same test — logic ONE, data MANY
+    @DataProvider(name = "loginData")
+    public Object[][] loginData() {
+        return new Object[][] {
+            { "admin",  "Passw0rd!", true  },   // valid
+            { "admin",  "wrong",     false },   // wrong password
+            { "",       "",          false },   // empty fields
+        };
+    }
+
+    @Test(dataProvider = "loginData")
+    public void loginScenarios(String user, String pass, boolean shouldPass) {
+        LoginPage login = new LoginPage(DriverManager.getDriver());
+        login.loginAs(user, pass);
+        // verify against the expected result (simplified for the example)
+        Assert.assertEquals(login.isLoggedIn(), shouldPass);
+    }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'selenium-arch-dataprovider-steps',
+    title: { tr: 'Adım Adım: @DataProvider Aynı Testi Nasıl 3 Kez Koşturur?', en: 'Step by Step: How @DataProvider Runs the Same Test 3 Times' },
+    steps: [
+      { id: 1, icon: '📋', label: { tr: 'DataProvider veri matrisini üretir', en: 'The DataProvider produces the data matrix' }, detail: { tr: 'loginData() metodu Object[][] döndürür: 3 satır, her satırda kullanıcı+şifre+beklenen sonuç. TestNG bu matrisi test başlamadan önce okur.', en: 'The loginData() method returns Object[][]: 3 rows, each with username+password+expected result. TestNG reads this matrix before the test starts.' } },
+      { id: 2, icon: '🔁', label: { tr: 'Her satır için @BeforeMethod', en: '@BeforeMethod for each row' }, detail: { tr: 'TestNG her satır için loginScenarios\'u AYRI bir test örneği sayar — her birinden önce @BeforeMethod çalışır, taze bir driver açılır (izolasyon).', en: 'TestNG treats loginScenarios per row as a SEPARATE test instance — @BeforeMethod runs before each, opening a fresh driver (isolation).' } },
+      { id: 3, icon: '🎯', label: { tr: 'Satır değerleri parametreye geçer', en: 'Row values pass into parameters' }, detail: { tr: '1. satır: user="admin", pass="Passw0rd!", shouldPass=true — bu üç değer metot parametrelerine sırayla enjekte edilir.', en: 'Row 1: user="admin", pass="Passw0rd!", shouldPass=true — these three values are injected into the method parameters in order.' } },
+      { id: 4, icon: '🧪', label: { tr: 'POM + assertion çalışır', en: 'POM + assertion run' }, detail: { tr: 'LoginPage.loginAs() çağrılır (Adım 3 POM), sonuç Assert.assertEquals ile beklenen değerle karşılaştırılır — mantık her satırda AYNI.', en: 'LoginPage.loginAs() is called (Step 3 POM), and the result is compared to the expected value via Assert.assertEquals — the logic is the SAME every row.' } },
+      { id: 5, icon: '📊', label: { tr: 'Rapor: 3 ayrı sonuç', en: 'Report: 3 separate results' }, detail: { tr: 'Test raporunda tek metot 3 satır olarak görünür — biri fail olursa hangi VERİ satırının patladığını net görürsün, kopyalanmış 3 testte bu netlik olmazdı.', en: 'In the report, the single method appears as 3 rows — if one fails, you clearly see which DATA row broke; with 3 copied tests you would not have that clarity.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-selenium-arch-dataprovider-order',
+    question: {
+      tr: '@DataProvider ile data-driven bir login testi kurmanın adımlarını doğru sıraya diz.',
+      en: 'Arrange the steps of building a data-driven login test with @DataProvider in the correct order.',
+    },
+    items: [
+      { id: '1', text: { tr: '@DataProvider(name="loginData") ile Object[][] veri matrisi tanımla', en: 'Define an Object[][] data matrix with @DataProvider(name="loginData")' }, order: 1 },
+      { id: '2', text: { tr: '@Test(dataProvider="loginData") ile testi veri kaynağına bağla', en: 'Bind the test to the data source with @Test(dataProvider="loginData")' }, order: 2 },
+      { id: '3', text: { tr: '@BeforeMethod: DriverManager.createDriver() ile taze driver aç', en: '@BeforeMethod: open a fresh driver with DriverManager.createDriver()' }, order: 3 },
+      { id: '4', text: { tr: 'Test gövdesinde LoginPage (POM) ile loginAs(user, pass) çağır', en: 'In the test body, call loginAs(user, pass) via LoginPage (POM)' }, order: 4 },
+      { id: '5', text: { tr: '@AfterMethod: DriverManager.quitDriver() ile driver\'ı kapat', en: '@AfterMethod: close the driver with DriverManager.quitDriver()' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'selenium-framework-dataprovider',
+    id: 'selenium-arch-dataprovider-practice',
+    label: {
+      tr: 'Micro Lab: @DataProvider ile testi veri kaynağına bağla',
+      en: 'Micro Lab: bind the test to a data source with @DataProvider',
+    },
+    language: 'java',
+    task: {
+      tr: 'loginData() metodu 3 satırlık veri matrisini hazır döndürüyor ama loginScenarios testi bu veriye BAĞLI DEĞİL — şu an parametreleri nereden alacağını bilmiyor. TODO satırını tamamla: @Test annotation\'ına dataProvider = "loginData" ekleyerek testi veri kaynağına bağla. Bağlandıktan sonra TestNG aynı testi 3 satır için 3 kez koşturur.',
+      en: 'The loginData() method already returns a 3-row data matrix, but the loginScenarios test is NOT BOUND to it — right now it does not know where its parameters come from. Complete the TODO line: bind the test to the data source by adding dataProvider = "loginData" to the @Test annotation. Once bound, TestNG runs the same test 3 times for the 3 rows.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir tarayıcı açmaz; amaç data-driven testin can damarını (dataProvider bağı) elle kurarak, tek metodun nasıl çok senaryoya dönüştüğünü pekiştirmektir.',
+      en: 'This is not a real browser session; the goal is to wire the artery of a data-driven test (the dataProvider binding) by hand, reinforcing how one method becomes many scenarios.',
+    },
+    code: {
+      tr: `@Test(dataProvider = "loginData")
+public void loginScenarios(String user, String pass, boolean shouldPass) {
+    LoginPage login = new LoginPage(DriverManager.getDriver());
+    login.loginAs(user, pass);
+    Assert.assertEquals(login.isLoggedIn(), shouldPass);
+}`,
+      en: `@Test(dataProvider = "loginData")
+public void loginScenarios(String user, String pass, boolean shouldPass) {
+    LoginPage login = new LoginPage(DriverManager.getDriver());
+    login.loginAs(user, pass);
+    Assert.assertEquals(login.isLoggedIn(), shouldPass);
+}`,
+    },
+    starterCode: {
+      tr: `@Test(TODO)   // testi loginData veri kaynagina bagla
+public void loginScenarios(String user, String pass, boolean shouldPass) {
+    LoginPage login = new LoginPage(DriverManager.getDriver());
+    login.loginAs(user, pass);
+    Assert.assertEquals(login.isLoggedIn(), shouldPass);
+}`,
+      en: `@Test(TODO)   // bind the test to the loginData source
+public void loginScenarios(String user, String pass, boolean shouldPass) {
+    LoginPage login = new LoginPage(DriverManager.getDriver());
+    login.loginAs(user, pass);
+    Assert.assertEquals(login.isLoggedIn(), shouldPass);
+}`,
+    },
+    solutionCode: {
+      tr: `@Test(dataProvider = "loginData")
+public void loginScenarios(String user, String pass, boolean shouldPass) {
+    LoginPage login = new LoginPage(DriverManager.getDriver());
+    login.loginAs(user, pass);
+    Assert.assertEquals(login.isLoggedIn(), shouldPass);
+}`,
+      en: `@Test(dataProvider = "loginData")
+public void loginScenarios(String user, String pass, boolean shouldPass) {
+    LoginPage login = new LoginPage(DriverManager.getDriver());
+    login.loginAs(user, pass);
+    Assert.assertEquals(login.isLoggedIn(), shouldPass);
+}`,
+    },
+    expected: {
+      tr: 'TODO, dataProvider = "loginData" olmalı — bu isim @DataProvider(name="loginData") ile birebir eşleşmeli; eşleşmezse TestNG veri kaynağını bulamaz ve test hiç koşmaz.',
+      en: 'The TODO must be dataProvider = "loginData" — this name must match @DataProvider(name="loginData") exactly; if it does not match, TestNG cannot find the data source and the test never runs.',
+    },
+    hints: [
+      { tr: '@Test annotation\'ının dataProvider attribute\'u, kullanılacak @DataProvider metodunun name değerine (String) işaret eder — iki isim birebir aynı olmalı.', en: 'The @Test annotation\'s dataProvider attribute points to the name (String) of the @DataProvider method to use — the two names must match exactly.' },
+      { tr: 'Veri matrisindeki her satırın uzunluğu (3 kolon) test metodunun parametre sayısıyla (user, pass, shouldPass) eşleşmeli; eşleşmezse TestNG parametre enjeksiyon hatası verir.', en: 'Each row length in the data matrix (3 columns) must match the test method\'s parameter count (user, pass, shouldPass); if not, TestNG throws a parameter-injection error.' },
+      { tr: 'DataProvider farklı bir sınıfta ise @Test(dataProvider="x", dataProviderClass=OtherClass.class) yazman gerekir; aynı sınıftaysa sadece isim yeter.', en: 'If the DataProvider is in a different class, you must write @Test(dataProvider="x", dataProviderClass=OtherClass.class); if it is in the same class, the name alone is enough.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Production senaryosu: 20 farklı login sınır durumunu (geçerli, boş, yanlış şifre, SQL-injection denemesi...) test etmen gerekiyor. En sürdürülebilir yaklaşım hangisidir?',
+      en: 'Production scenario: you must test 20 different login edge cases (valid, empty, wrong password, SQL-injection attempt...). Which is the most maintainable approach?',
+    },
+    options: [
+      { id: 'a', text: { tr: '20 ayrı @Test metodu kopyala-yapıştır ile yaz', en: 'Copy-paste 20 separate @Test methods' } },
+      { id: 'b', text: { tr: 'Tek bir @Test + @DataProvider ile 20 satırlık veri matrisi kullan', en: 'Use a single @Test + @DataProvider with a 20-row data matrix' } },
+      { id: 'c', text: { tr: 'Tek metotta 20 senaryoyu tek tek if/else ile kontrol et', en: 'Check all 20 scenarios one by one with if/else in a single method' } },
+      { id: 'd', text: { tr: 'Her senaryo için ayrı bir test sınıfı oluştur', en: 'Create a separate test class for each scenario' } },
+    ],
+    correct: 'b',
+    explanation: {
+      tr: 'Data-driven yaklaşım (tek @Test + @DataProvider) mantığı bir kez yazar, veriyi 20 satır olarak besler. Login akışı değişirse tek metodu güncellersin; yeni sınır durumu çıkınca kod değil sadece veri satırı eklersin. Kopyala-yapıştır (a) 20 yeri elle günceller, if/else (c) tek metodu şişirir ve OCP\'yi ihlal eder, ayrı sınıflar (d) gereksiz karmaşa yaratır.',
+      en: 'The data-driven approach (single @Test + @DataProvider) writes the logic once and feeds the data as 20 rows. If the login flow changes you update one method; when a new edge case appears you add a data row, not code. Copy-paste (a) updates 20 places by hand, if/else (c) bloats one method and violates OCP, and separate classes (d) create needless clutter.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'BaseTest\'te @BeforeMethod yerine @BeforeClass kullanıp driver\'ı tüm sınıf için bir kez açsaydın, data-driven testte en olası problem ne olurdu?',
+        en: 'If in BaseTest you used @BeforeClass instead of @BeforeMethod and opened the driver once for the whole class, what would the most likely problem be in a data-driven test?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Bir satırın bıraktığı oturum/cookie durumu sonraki satıra sızar, testler birbirini etkiler', en: 'The session/cookie state one row leaves behind leaks into the next row, and tests affect each other' } },
+        { id: 'b', text: { tr: 'Driver hiç açılmaz', en: 'The driver would never open' } },
+        { id: 'c', text: { tr: '@DataProvider çalışmaz', en: '@DataProvider would not work' } },
+        { id: 'd', text: { tr: 'Hiçbir fark olmaz', en: 'There would be no difference' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: '@BeforeClass driver\'ı sınıf başına bir kez açar; tüm veri satırları AYNI tarayıcı oturumunu paylaşır. Bir "başarılı login" satırı oturum bırakırsa, sonraki "boş alan" satırı zaten login olmuş bir sayfada başlar ve yanlış sonuç verir. @BeforeMethod her satıra taze bir driver vererek bu sızıntıyı önler (izolasyon).',
+        en: '@BeforeClass opens the driver once per class; all data rows share the SAME browser session. If a "successful login" row leaves a session, the next "empty fields" row starts on an already-logged-in page and yields a wrong result. @BeforeMethod gives each row a fresh driver, preventing this leak (isolation).',
+      },
+    },
+  },
+]
+
+// Bilingual bloklar tek dizide; her iki ağaç AYNI referansı paylaşır.
+const sFwArch = {
+  tr: { title: '🏗️ Framework Mimarisi (SOLID + POM)', blocks: seleniumArchBlocks },
+  en: { title: '🏗️ Framework Architecture (SOLID + POM)', blocks: seleniumArchBlocks },
+}
+
 // ─── EXPORT — TopicPage formatı: { tr: { hero, tabs, sections }, en: {...} } ──
 export const seleniumData = {
   tr: {
@@ -8210,6 +9450,7 @@ export const seleniumData = {
       '⚡ Aksiyonlar',
       '⏳ Wait',
       '🪟 Frames & Alert',
+      '🏗️ Framework Mimarisi',
       '🛠️ Gerçek Hayat',
       '🔗 Ekosistem',
       '🌐 CDP & BiDi',
@@ -8219,7 +9460,7 @@ export const seleniumData = {
       '🚨 Yaygın Hatalar',
       '💼 Mülakat Soruları',
     ],
-    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, s6.tr, s7.tr, s8.tr, s9.tr, s10.tr, s11.tr, s12.tr, s13.tr],
+    sections: [s0.tr, s1.tr, s2.tr, s3.tr, s4.tr, s5.tr, sFwArch.tr, s6.tr, s7.tr, s8.tr, s9.tr, s10.tr, s11.tr, s12.tr, s13.tr],
   },
   en: {
     hero: {
@@ -8234,6 +9475,7 @@ export const seleniumData = {
       '⚡ Actions',
       '⏳ Wait Strategies',
       '🪟 Frames & Alerts',
+      '🏗️ Framework Architecture',
       '🛠️ Real World',
       '🔗 Ecosystem',
       '🌐 CDP & BiDi',
@@ -8243,7 +9485,7 @@ export const seleniumData = {
       '🚨 Common Errors',
       '💼 Interview Questions',
     ],
-    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, s6.en, s7.en, s8.en, s9.en, s10.en, s11.en, s12.en, s13.en],
+    sections: [s0.en, s1.en, s2.en, s3.en, s4.en, s5.en, sFwArch.en, s6.en, s7.en, s8.en, s9.en, s10.en, s11.en, s12.en, s13.en],
   },
 }
 

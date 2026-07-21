@@ -10,6 +10,74 @@
 
 ---
 
+## 🚧 DEVAM EDİYOR — Framework Mimarisi 5-görünüm standardı (§9.6) Selenium'a rollout edildi (Faz A, 2. sayfa) (2026-07-21, Sonnet oturumu)
+
+**Bağlam:** Kullanıcı, Gauge pilotunda (§9.6, `gaugeData.js`) tamamlanan
+5-görünümlü "Framework Mimarisi" standardının Selenium'a taşınmasını istedi.
+Bunun için yeni bir branch açıldı ve orada çalışıldı.
+
+**Branch:** `feature/framework-arch-selenium-multiview` (main'den açıldı, bu
+oturumda aktif).
+
+**Yapıldı — `src/data/seleniumData.js`:**
+- Yeni bir section eklendi: `const sFwArch` (başlık `🏗️ Framework Mimarisi
+  (SOLID + POM)`). seleniumData'nın iç yapısı gauge'dan FARKLI (ayrı `sN` const'ları
+  + `sections: [s0.tr, ...]` dizisi, `// ── N:` yorum deseni ve sectionIndex/Feynman
+  YOK) — bu yüzden gauge'un literal kalıbı KÖRÜ KÖRÜNE kopyalanmadı. Bloklar
+  bilingual `{tr,en}` tek dizide (`seleniumArchBlocks`), `sFwArch.tr` ve `sFwArch.en`
+  AYNI referansı paylaşır (fillMissingCodeTrios WeakSet ile tek kez işler).
+- Konum: `s5` (Frames & Alert) ile `s6` (Gerçek Hayat) arasına, hem `tabs`
+  (index 6, TR `🏗️ Framework Mimarisi` / EN `🏗️ Framework Architecture`) hem
+  `sections` dizilerine (TR+EN) eklendi. s-const'ları yeniden numaralanmadı.
+- İçerik: §9.6'nın 5 görünümü + 4 adım (§4.0/§4.1 deseni):
+  1. **Adım 1** — simple-box (4 katman) + 5 görünüm (Ana Akış / Kurulum Akışı
+     `python-flow-diagram`; Paralel Çalışma / Veri Paylaşım Kapsamı / Kim Ne
+     Yapar `grid`) + quiz.
+  2. **Adım 2** — Core/Base: `DriverManager` (ThreadLocal) + `WaitFactory`
+     (FluentWait: polling + ignoring) + trio + quiz.
+  3. **Adım 3** — POM: `BasePage` (waitVisible/click/type) + `LoginPage`
+     (PageFactory @FindBy, extends) + trio + quiz.
+  4. **Adım 4** — SOLID (OCP odaklı): 5 prensip özeti + `comparison`
+     (if/else şişmesi vs `ClickStrategy` Strategy) + code + trio + quiz.
+  5. **Adım 5** — Test/Data: `BaseTest` (@BeforeMethod/@AfterMethod) +
+     TestNG `@DataProvider` data-driven login + trio + quiz.
+- **İpucu teması (§4.1):** explicit-wait/FluentWait/OCP/@DataProvider —
+  gauge'un ThreadLocal.remove / BasePage-extends / DIP-constructor-injection /
+  ScenarioDataStore temalarından KASITLI farklı seçildi (dedup çakışması yok).
+- **fillMissingCodeTrios tuzağı çözüldü:** İlk yazımda Adım 2/3/5'te ardışık
+  İKİ kod bloğu vardı; filler aralarındaki boş segmente jenerik `selenium-auto-*`
+  blok enjekte etti (18, 28, 47-49). Her adımdaki iki sınıf TEK kod bloğunda
+  birleştirildi (yorum ayraçlı) → filler artık hiçbir jenerik blok EKLEMİYOR
+  (doğrulandı: 47 blok, 0 auto-injected).
+
+**Doğrulama (bu oturumda çalıştırıldı):**
+- `node -e` import: TR/EN 15 tab / 15 section, section[6] = Framework Mimarisi
+  47 blok ✓.
+- `node scripts/check-content-integrity.mjs`: TÜM KONTROLLER GEÇTİ ✓
+  (relatedTopicId + dedup, 36 dosya).
+- TR yorumlar bilingual bloklarda Türkçe yazıldı (teknik terimler İngilizce).
+- **NOT (kullanıcı isteğiyle e2e/Playwright KOŞULMADI):** `npm run build` tam
+  zinciri ve Playwright regresyonu bu oturumda çalıştırılMADI — commit "test
+  etmeden" atıldı. Sonraki oturumda `npm run build` + `tests/video-scene.spec.ts`
+  benzeri bir render testiyle Selenium Framework Mimarisi sekmesi doğrulanmalı;
+  ayrıca §9.5 (video-scene) bu yeni sekmeye HENÜZ eklenmedi.
+
+**Sıradaki adım (§4.1 rollout devam):** Aynı 5-görünüm standardı henüz
+Playwright / Cypress / REST Assured / Appium'a uygulanMADI. Referans artık
+gauge + selenium (bu iki sayfa 5-görünüm standardında). restAssuredData gauge
+ile AYNI iskeleti (`// ── N:` + sectionIndex Feynman) kullanır — orada kaydırma
+deseni doğrudan uygulanabilir; diğerleri (playwright/cypress/appium) selenium
+gibi FARKLI iskelete sahip olabilir, önce incelenmeli.
+
+**Branch/remote temizliği (YARIM KALDI):** Kullanıcı "main dışındaki branch'leri
+localde+GitHub'da sil" dedi. Local'de zaten sadece `main` vardı; remote
+`origin/feature/sandbox-and-framework-arch` silinmek istendi ama GitHub'a DNS
+çözümlemesi başarısız oldu ("Could not resolve host: github.com" — NEXT_SESSION'daki
+aralıklı ağ sorununun aynısı). Bu silme İŞLENMEDİ, sonraki oturumda ağ gelince
+`git push origin --delete feature/sandbox-and-framework-arch` tekrar denenmeli.
+
+---
+
 ## 🛠️ EKLENDİ — Zombi test/dev süreçlerini otomatik temizleyen script + topic-pages-ui timeout düzeltmesi + main push edildi (2026-07-21, Fable oturumu, aynı gün devam)
 
 **Bağlam:** Bir önceki maddedeki (aşağıda) gauge içerik değişikliğini commit'ledikten
