@@ -3328,6 +3328,1406 @@ WebElement title = driver.findElement(
   },
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// 🏗️ Framework Mimarisi (SOLID + POM) — CLAUDE.md §9.6 çoklu görünüm standardı
+// Referans pilot: gaugeData.js + seleniumData.js/playwrightData.js/cypressData.js/
+// restAssuredData.js "Framework Mimarisi" bölümleri. Appium'a KÖR KOPYA değil
+// ama Selenium ile GERÇEK bir benzerlik var: Appium Java client WebDriver'ı
+// EXTENDS eder, bu yüzden DriverManager/ThreadLocal deseni burada da GEÇERLİ.
+// Asıl Appium'a ÖZGÜ katman SOLID/OCP'de: cross-platform soyutlama (Android/iOS
+// aynı ekranı FARKLI locator'larla temsil eder) — bu, web'de hiç olmayan bir
+// problem. Test/Data katmanı da cihaz MATRİSİ etrafında (aynı test N cihazda).
+// Bloklar bilingual {tr,en} tek dizide (appiumArchBlocks), sectionFwArch.tr ve
+// sectionFwArch.en AYNI diziyi referanslar.
+// ══════════════════════════════════════════════════════════════════════════
+const appiumArchBlocks = [
+  {
+    type: 'simple-box',
+    emoji: '🧳',
+    content: {
+      tr: 'Appium\'un Java client\'ı Selenium\'un WebDriver arayüzünü EXTENDS eder — bu yüzden bu sekmeye kadar yazdığın her parça (AppiumBy locator\'ları, AppiumFluentWait, @Test metotları) Selenium\'daki AYNI mimari sorunla karşı karşıyadır: DriverManager olmadan her test kendi driver\'ını yaratır, paralel koşumda thread\'ler karışır. Ama burada İKİNCİ bir katman daha var ki Selenium\'da hiç YOKTUR: aynı "Giriş Ekranı" senaryosu Android\'de `resource-id` ile, iOS\'ta `accessibility id` ile TAMAMEN farklı locator\'lara sahiptir — kod aynı iş kuralını (login) uygularken, İKİ platformda İKİ farklı teknik gerçekle karşılaşır. İkinci benzetme: bir uluslararası şirketin aynı ürünü farklı ülkelerde satması gibi — ürün (senaryo) AYNIDIR ("giriş yap"), ama ambalaj/dil/fiş tipi (locator\'lar, native SDK) ülkeye (platforma) göre DEĞİŞİR; satış ekibi (test) "ürünü sat" der, hangi ambalajın kullanılacağına lojistik katman (POM) karar verir. Peki Android testleri zaten çalışıyorken, neden iOS için AYRI bir sınıf yazmak yerine if/else eklemiyoruz? Çünkü platform sayısı ikiden fazla olabilir (Android + iOS + tablet varyantları) ve her yeni platform için mevcut sınıfı değiştirmek, diğer platformların testlerini kırma riski taşır — tam olarak OCP\'nin çözdüğü problem. Java karşılaştırması: bu, bir `PaymentGateway` arayüzünün `StripeGateway`/`PaypalGateway` ile ayrı ayrı uygulanmasıyla AYNI motivasyondur. QA bağlamı: cross-platform soyutlama olmadan bir "giriş akışı değişti" haberi HEM Android HEM iOS test dosyalarını ayrı ayrı kırar; doğru soyutlamada TEK arayüz sözleşmesi sabit kalır, sadece platforma özgü implementasyon güncellenir.',
+      en: 'Appium\'s Java client EXTENDS Selenium\'s WebDriver interface — which is why every piece you have written up to this tab (AppiumBy locators, AppiumFluentWait, @Test methods) faces the SAME architectural problem as Selenium: without a DriverManager, every test creates its own driver, and threads collide under parallel execution. But there is a SECOND layer here that does NOT exist in Selenium at all: the same "Login Screen" scenario has COMPLETELY different locators on Android (`resource-id`) versus iOS (`accessibility id`) — the code implements the same business rule (login) while facing TWO different technical realities on TWO platforms. Second analogy: like an international company selling the same product in different countries — the product (the scenario) is THE SAME ("log in"), but the packaging/language/plug type (locators, native SDK) CHANGES by country (platform); the sales team (the test) says "sell the product", and a logistics layer (POM) decides which packaging to use. But since Android tests already work, why not just add if/else instead of writing a SEPARATE class for iOS? Because the number of platforms can exceed two (Android + iOS + tablet variants), and modifying the existing class for every new platform risks breaking the other platforms\' tests — exactly the problem OCP solves. Java comparison: this is the SAME motivation as a `PaymentGateway` interface implemented separately by `StripeGateway`/`PaypalGateway`. QA context: without cross-platform abstraction, news that "the login flow changed" breaks BOTH Android AND iOS test files separately; with the right abstraction, the ONE interface contract stays fixed, only the platform-specific implementation is updated.',
+    },
+  },
+  {
+    type: 'framework-puzzle',
+    title: { tr: 'Appium Framework\'ünü Adım Adım İnşa Et', en: 'Build Your Appium Framework Step by Step' },
+    intro: {
+      tr: 'Aşağıdaki 4 parça, bu sekmede birazdan tek tek inşa edeceğin mimarinin BÜYÜK RESMİ. Şimdilik hepsi kilitli — her parçanın kendi adımındaki "Kendin Dene" pratiğini ilk kez doğru bitirdiğinde, o parça burada kilitliden İNŞA EDİLDİ\'ye döner.',
+      en: 'The 4 pieces below are the BIG PICTURE of the architecture you are about to build piece by piece in this tab. They all start locked — the first time you correctly finish that step\'s "Try It Yourself" practice, that piece flips from locked to BUILT.',
+    },
+    pieces: [
+      {
+        id: 'core-base',
+        emoji: '🧱',
+        label: { tr: 'Core / Base Katmanı', en: 'Core / Base Layer' },
+        desc: {
+          tr: 'AppiumDriverManager (ThreadLocal AppiumDriver) + CapabilitiesFactory (UiAutomator2Options/XCUITestOptions)',
+          en: 'AppiumDriverManager (ThreadLocal AppiumDriver) + a CapabilitiesFactory (UiAutomator2Options/XCUITestOptions)',
+        },
+        exerciseId: 'appium-arch-capabilities-factory-practice',
+      },
+      {
+        id: 'pom',
+        emoji: '📦',
+        label: { tr: 'POM Katmanı', en: 'POM Layer' },
+        desc: {
+          tr: 'BasePage (AppiumFluentWait) + @AndroidFindBy ile ekran sınıfları — bekleme mantığı TEK yerde',
+          en: 'BasePage (AppiumFluentWait) + screen classes via @AndroidFindBy — wait logic lives in ONE place',
+        },
+        exerciseId: 'appium-arch-basepage-wait-practice',
+      },
+      {
+        id: 'solid',
+        emoji: '⚖️',
+        label: { tr: 'SOLID Uygulaması', en: 'Applying SOLID' },
+        desc: {
+          tr: '5 prensip gerçek Appium kodunda — örn. OCP: iOS desteği eklemek için Android kodunu DEĞİŞTİRMEDEN genişlet',
+          en: 'The 5 principles in real Appium code — e.g. OCP: add iOS support WITHOUT modifying the Android code',
+        },
+        exerciseId: 'appium-arch-ocp-platform-practice',
+      },
+      {
+        id: 'test-data',
+        emoji: '🔗',
+        label: { tr: 'Test / Data Katmanı', en: 'Test / Data Layer' },
+        desc: {
+          tr: 'TestNG @Factory + cihaz matrisi — AYNI test senaryosu BİRDEN FAZLA cihazda',
+          en: 'TestNG @Factory + a device matrix — the SAME test scenario across MULTIPLE devices',
+        },
+        exerciseId: 'appium-arch-device-matrix-practice',
+      },
+    ],
+  },
+
+  {
+    type: 'heading',
+    text: { tr: '🧭 Adım 1 — Büyük Resim: Cross-Platform Framework Mindmap', en: '🧭 Step 1 — The Big Picture: The Cross-Platform Framework Mindmap' },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Aynı mimari burada beş ayrı açıdan gösteriliyor: önce ana akış (bir test çalışırken kim kimi çağırır), sonra kurulum akışı (capabilities\'ten driver\'a), sonra "cihaz paralelliği" (Selenium\'un thread paralelliğine EK OLARAK burada bir de cihaz/emulator boyutu var), sonra veri paylaşım kapsamı (device matrix / capabilities) ve son olarak her sınıfın "yapar/yapmaz" listesi.',
+      en: 'The same architecture is shown here from five angles: first the main flow (who calls whom while a test runs), then the setup flow (from capabilities to the driver), then "device parallelism" (IN ADDITION to Selenium\'s thread parallelism, there is also a device/emulator dimension here), then the data-sharing scope (device matrix / capabilities), and finally a "does / does not" list for every class.',
+    },
+  },
+  {
+    type: 'python-flow-diagram',
+    titleTr: '1️⃣ Ana Akış — Bir @Test Nasıl Çalışır?',
+    titleEn: '1️⃣ Main Flow — How Does a @Test Execute?',
+    steps: [
+      { type: 'action', code: '@Test method', desc: 'business scenario — orchestration ONLY, no locators', descTr: 'iş senaryosu — SADECE orkestrasyon, locator içermez' },
+      { type: 'action', code: 'LoginScreen (interface)', desc: 'the cross-platform CONTRACT — "log in" without saying HOW', descTr: 'platformlar-arası SÖZLEŞME — NASIL demeden "giriş yap"' },
+      { type: 'action', code: 'AndroidLoginScreen (POM)', desc: 'implements the contract — knows only its own @AndroidFindBy elements', descTr: 'sözleşmeyi uygular — sadece kendi @AndroidFindBy elementlerini bilir' },
+      { type: 'action', code: 'BasePage.waitVisible()', desc: 'SHARED wait logic via AppiumFluentWait — same as Selenium\'s BasePage', descTr: 'AppiumFluentWait ile ORTAK bekleme mantığı — Selenium\'daki BasePage ile AYNI' },
+      { type: 'end', code: 'AppiumDriverManager.getDriver()', desc: 'SRP: driver lifecycle ONLY — ThreadLocal<AppiumDriver>', descTr: 'SRP: SADECE driver yaşam döngüsü — ThreadLocal<AppiumDriver>' },
+    ],
+  },
+  {
+    type: 'python-flow-diagram',
+    titleTr: '2️⃣ Kurulum Akışı — Capabilities, Driver\'a Nasıl Ulaşır?',
+    titleEn: '2️⃣ Setup Flow — How Do Capabilities Reach the Driver?',
+    steps: [
+      { type: 'action', code: 'device-matrix.json', desc: 'platform/OS version/device name per row — the DEVICE dimension', descTr: 'satır başına platform/OS sürümü/cihaz adı — CİHAZ boyutu' },
+      { type: 'action', code: 'CapabilitiesFactory', desc: 'builds UiAutomator2Options or XCUITestOptions from that row', descTr: 'o satırdan UiAutomator2Options veya XCUITestOptions kurar' },
+      { type: 'end', code: 'AppiumDriverManager.createDriver()', desc: 'creates the driver BEFORE the main flow above even starts', descTr: 'yukarıdaki ana akış başlamadan ÖNCE driver\'ı yaratır' },
+    ],
+  },
+  {
+    type: 'subheading',
+    text: { tr: '3️⃣ Cihaz Paralelliği — Selenium\'un Thread Paralelliğine EK OLARAK', en: '3️⃣ Device Parallelism — IN ADDITION TO Selenium\'s Thread Parallelism' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '📱', label: { tr: 'Thread-1 → Pixel 7 (Android 14)', en: 'Thread-1 → Pixel 7 (Android 14)' }, desc: { tr: 'AppiumDriverManager → bu thread\'in AndroidDriver\'ı, BU cihaza bağlı', en: 'AppiumDriverManager → this thread\'s AndroidDriver, bound to THIS device' } },
+      { icon: '📱', label: { tr: 'Thread-2 → iPhone 15 (iOS 17)', en: 'Thread-2 → iPhone 15 (iOS 17)' }, desc: { tr: 'AppiumDriverManager → bu thread\'in IOSDriver\'ı, BAŞKA bir cihaza bağlı', en: 'AppiumDriverManager → this thread\'s IOSDriver, bound to a DIFFERENT device' } },
+      { icon: '📱', label: { tr: 'Thread-3 → Samsung S23 (Android 13)', en: 'Thread-3 → Samsung S23 (Android 13)' }, desc: { tr: 'AppiumDriverManager → bu thread\'in AndroidDriver\'ı, ÜÇÜNCÜ bir cihaza bağlı', en: 'AppiumDriverManager → this thread\'s AndroidDriver, bound to a THIRD device' } },
+    ],
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Selenium\'da ThreadLocal sadece "hangi thread hangi tarayıcı sekmesine sahip" sorusunu çözerdi. Appium\'da AYNI ThreadLocal deseni geçerlidir ama bir boyut daha eklenir: her thread\'in driver\'ı FARKLI bir FİZİKSEL cihaza veya emulator\'e bağlanabilir — CapabilitiesFactory, hangi thread\'in hangi cihaz/OS sürümü kombinasyonunu alacağını belirler. Bir device farm\'da (örn. BrowserStack App Automate) bu, AYNI test senaryosunun 20 farklı gerçek cihazda EŞ ZAMANLI koşmasını sağlar — ThreadLocal olmadan bu 20 cihaz birbirinin komutlarını KARIŞTIRIRDI.',
+      en: 'In Selenium, ThreadLocal only solved "which thread owns which browser tab". In Appium, the SAME ThreadLocal pattern applies, but one more dimension is added: each thread\'s driver can connect to a DIFFERENT PHYSICAL device or emulator — the CapabilitiesFactory determines which device/OS version combination each thread receives. On a device farm (e.g. BrowserStack App Automate), this lets the SAME test scenario run on 20 different real devices SIMULTANEOUSLY — without ThreadLocal, those 20 devices would MIX UP each other\'s commands.',
+    },
+  },
+  {
+    type: 'subheading',
+    text: { tr: '4️⃣ Veri Paylaşım Kapsamı — Test Verisi Nereden Gelir?', en: '4️⃣ Data-Sharing Scope — Where Does Test Data Come From?' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '📱', label: { tr: 'device-matrix.json', en: 'device-matrix.json' }, desc: { tr: 'Kapsam: TÜM suite — hangi platform/OS/cihaz kombinasyonlarının koşulacağını tanımlar', en: 'Scope: the ENTIRE suite — defines which platform/OS/device combinations will run' } },
+      { icon: '🎬', label: { tr: '@Factory (TestNG)', en: '@Factory (TestNG)' }, desc: { tr: 'Kapsam: test sınıfı örnekleri — her cihaz satırı için AYRI bir test sınıfı örneği üretir', en: 'Scope: test class instances — produces a SEPARATE test class instance per device row' } },
+      { icon: '🧩', label: { tr: 'LoginScreen arayüzü', en: 'LoginScreen interface' }, desc: { tr: 'Kapsam: TÜM platformlar — sözleşme sabit, sadece implementasyon platforma göre değişir', en: 'Scope: ALL platforms — the contract is fixed, only the implementation varies by platform' } },
+    ],
+  },
+  {
+    type: 'subheading',
+    text: { tr: '5️⃣ Kim Ne Yapar? — Sınıf Sorumlulukları', en: '5️⃣ Who Does What? — Class Responsibilities' },
+  },
+  {
+    type: 'grid',
+    cols: 3,
+    items: [
+      { icon: '🧪', label: { tr: '@Test method', en: '@Test method' }, desc: { tr: '✔ Senaryo akışı · ✔ Assertion · ✘ Locator/capability içermez', en: '✔ Scenario flow · ✔ Assertions · ✘ Contains no locators/capabilities' } },
+      { icon: '🧩', label: { tr: 'LoginScreen (arayüz)', en: 'LoginScreen (interface)' }, desc: { tr: '✔ Platformlar-arası sözleşme · ✘ Hiçbir locator İÇERMEZ', en: '✔ Cross-platform contract · ✘ Contains NO locators' } },
+      { icon: '🖱️', label: { tr: 'AndroidLoginScreen / IOSLoginScreen', en: 'AndroidLoginScreen / IOSLoginScreen' }, desc: { tr: '✔ Platforma özgü @FindBy · ✔ Business action · ✘ Assertion içermez', en: '✔ Platform-specific @FindBy · ✔ Business actions · ✘ Contains no assertions' } },
+      { icon: '🧱', label: { tr: 'BasePage', en: 'BasePage' }, desc: { tr: '✔ waitVisible · ✔ tap · ✔ AppiumFluentWait sarmalayıcı', en: '✔ waitVisible · ✔ tap · ✔ AppiumFluentWait wrapper' } },
+      { icon: '🚰', label: { tr: 'AppiumDriverManager', en: 'AppiumDriverManager' }, desc: { tr: '✔ Driver yaratır · ✔ Driver kapatır · ✔ Thread+cihaz yönetir', en: '✔ Creates driver · ✔ Closes driver · ✔ Manages threads+devices' } },
+    ],
+  },
+  {
+    type: 'video-scene',
+    id: 'appium-arch-cross-platform-chain-film',
+    title: {
+      tr: '🎬 Aynı Senaryo, İki Platform: LoginScreen Zinciri (ve Cihaz Paralelliği Kontrastı)',
+      en: '🎬 Same Scenario, Two Platforms: The LoginScreen Chain (and the Device Parallelism Contrast)',
+    },
+    xpReward: 15,
+    sceneDurationMs: 3400,
+    stageHeight: 260,
+    actors: [
+      { id: 'test',      emoji: '🧪', label: { tr: '@Test (loginTest)',        en: '@Test (loginTest)' },        color: '#0ea5e9' },
+      { id: 'contract',  emoji: '🧩', label: { tr: 'LoginScreen (arayüz)',      en: 'LoginScreen (interface)' },  color: '#f59e0b' },
+      { id: 'android',   emoji: '🤖', label: { tr: 'AndroidLoginScreen (POM)', en: 'AndroidLoginScreen (POM)' }, color: '#8b5cf6' },
+      { id: 'basePage',  emoji: '🧱', label: { tr: 'BasePage (AppiumFluentWait)', en: 'BasePage (AppiumFluentWait)' }, color: '#6366f1' },
+      { id: 'driverMgr', emoji: '🚰', label: { tr: 'AppiumDriverManager',       en: 'AppiumDriverManager' },      color: '#22c55e' },
+      { id: 'ios',       emoji: '📱', label: { tr: 'IOSLoginScreen (paralel)',  en: 'IOSLoginScreen (parallel)' }, color: '#ef4444' },
+    ],
+    scenes: [
+      {
+        caption: {
+          tr: '`loginTest` metodu çalışmaya başlıyor. Bu metot SADECE senaryoyu anlatır — hangi platformda çalıştığını bile bilmez.',
+          en: 'The `loginTest` method starts running. This method ONLY narrates the scenario — it does not even know which platform it is running on.',
+        },
+        code: { tr: 'loginScreen.login("qa_user", "S3cret!")', en: 'loginScreen.login("qa_user", "S3cret!")' },
+        positions: { test: { x: 12, y: 50, scale: 1.15, pulse: true } },
+      },
+      {
+        caption: {
+          tr: 'Adım 1 — LoginScreen ARAYÜZÜ devreye girer: "login(user, pass)" sözleşmesini tanımlar ama HİÇBİR locator veya platform detayı içermez.',
+          en: 'Step 1 — the LoginScreen INTERFACE takes over: it defines the "login(user, pass)" contract but contains NO locator or platform detail at all.',
+        },
+        code: { tr: 'interface LoginScreen { void login(String u, String p); }', en: 'interface LoginScreen { void login(String u, String p); }' },
+        positions: {
+          test: { x: 10, y: 50, opacity: 0.5, scale: 0.85 },
+          contract: { x: 32, y: 50, scale: 1.15, pulse: true },
+        },
+        beams: [{ from: 'test', to: 'contract' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 2 — Bu cihazda çalışan somut implementasyon AndroidLoginScreen\'dir: kendi @AndroidFindBy elementlerini bilir, bekleme mantığını BasePage\'e bırakır.',
+          en: 'Step 2 — the concrete implementation running on this device is AndroidLoginScreen: it knows its own @AndroidFindBy elements, leaving wait logic to BasePage.',
+        },
+        code: { tr: 'class AndroidLoginScreen implements LoginScreen', en: 'class AndroidLoginScreen implements LoginScreen' },
+        positions: {
+          contract: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+          android: { x: 36, y: 50, scale: 1.15 },
+        },
+        beams: [{ from: 'contract', to: 'android' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 3 — AndroidLoginScreen, elementi tıklamadan ÖNCE BasePage.waitVisible()\'ı çağırır — bu, Selenium\'daki AYNI "önce bekle, sonra tıkla" deseni.',
+          en: 'Step 3 — before tapping the element, AndroidLoginScreen calls BasePage.waitVisible() — this is the SAME "wait first, then tap" pattern as in Selenium.',
+        },
+        code: { tr: 'basePage.waitVisible(usernameField).sendKeys(user)', en: 'basePage.waitVisible(usernameField).sendKeys(user)' },
+        positions: {
+          android: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+          basePage: { x: 46, y: 50, scale: 1.2, pulse: true },
+        },
+        beams: [{ from: 'android', to: 'basePage', color: '#6366f1' }],
+      },
+      {
+        caption: {
+          tr: 'Adım 4 — BasePage, o thread\'in driver\'ını AppiumDriverManager\'dan ister — driver artık GERÇEK bir Android cihazda/emulatorde komutu çalıştırır.',
+          en: 'Step 4 — BasePage asks AppiumDriverManager for that thread\'s driver — the driver now executes the command on a REAL Android device/emulator.',
+        },
+        code: { tr: 'AppiumDriverManager.getDriver()', en: 'AppiumDriverManager.getDriver()' },
+        positions: {
+          basePage: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+          driverMgr: { x: 50, y: 50, scale: 1.25, pulse: true },
+        },
+        beams: [{ from: 'basePage', to: 'driverMgr', color: '#22c55e' }],
+      },
+      {
+        caption: {
+          tr: 'Final (kontrast) — AYNI LoginScreen arayüzünü kullanan bir IOSLoginScreen, PARALEL bir thread\'de FARKLI bir gerçek cihazda (iPhone) çalışıyor. Selenium\'un ThreadLocal\'ı burada da izolasyonu sağlar, ama EK OLARAK her thread FARKLI bir CİHAZA bağlıdır — bu, Appium mimarisinin web\'de hiç olmayan ikinci boyutudur.',
+          en: 'Final (the contrast) — an IOSLoginScreen using the SAME LoginScreen interface runs on a DIFFERENT real device (an iPhone) on a PARALLEL thread. Selenium\'s ThreadLocal still provides isolation here, but IN ADDITION, each thread is bound to a DIFFERENT DEVICE — this is Appium\'s architecture\'s second dimension, one that does not exist on the web at all.',
+        },
+        positions: {
+          driverMgr: { x: 20, y: 30, scale: 0.9 },
+          contract: { x: 48, y: 50, scale: 1.05 },
+          ios: { x: 76, y: 50, scale: 1.25, pulse: true },
+        },
+        beams: [{ from: 'driverMgr', to: 'contract' }, { from: 'contract', to: 'ios', color: '#ef4444' }],
+      },
+    ],
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Yukarıdaki mimaride bir @Test metodu, hangi platformda (Android/iOS) çalıştığını NASIL bilir?',
+      en: 'In the architecture above, HOW does a @Test method know which platform (Android/iOS) it is running on?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Bilmez — sadece LoginScreen arayüzüne bağlıdır, platform detayını hiç görmez', en: 'It does not — it only depends on the LoginScreen interface, never seeing the platform detail' } },
+      { id: 'b', text: { tr: 'Her @Test metodunun içinde if (platform == "android") kontrolü vardır', en: 'Every @Test method contains an if (platform == "android") check' } },
+      { id: 'c', text: { tr: 'AppiumDriverManager\'dan platform ismini okur', en: 'It reads the platform name from AppiumDriverManager' } },
+      { id: 'd', text: { tr: 'Her platform için ayrı bir @Test metodu yazılır', en: 'A separate @Test method is written for each platform' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'Mimarinin can damarı budur: @Test metodu SADECE LoginScreen arayüzüne (sözleşmeye) bağlıdır, hangi somut sınıfın (AndroidLoginScreen/IOSLoginScreen) enjekte edildiğini asla bilmez — bu ayrım (DIP) olmasaydı her yeni platform TÜM test metotlarına if/else eklemeni gerektirirdi.',
+      en: 'This is the artery of the architecture: the @Test method depends ONLY on the LoginScreen interface (the contract), never knowing which concrete class (AndroidLoginScreen/IOSLoginScreen) was injected — without this split (DIP), every new platform would require adding if/else to ALL test methods.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Appium\'da ThreadLocal, Selenium\'a kıyasla EK olarak hangi boyutu yönetir?',
+        en: 'In Appium, what EXTRA dimension does ThreadLocal manage compared to Selenium?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Her thread\'in HANGİ fiziksel cihaza/emulator\'e bağlı olduğunu', en: 'WHICH physical device/emulator each thread is bound to' } },
+        { id: 'b', text: { tr: 'Hiçbir ek boyut yoktur, ikisi aynıdır', en: 'There is no extra dimension, both are the same' } },
+        { id: 'c', text: { tr: 'Sadece test verisini yönetir', en: 'It only manages test data' } },
+        { id: 'd', text: { tr: 'Sadece CI ortamında devreye girer', en: 'It only kicks in inside a CI environment' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'Selenium\'da ThreadLocal sadece "hangi thread hangi tarayıcı sekmesine sahip" sorusunu çözer. Appium\'da AYNI mekanizma ayrıca "hangi thread hangi FİZİKSEL cihaza/emulator\'e bağlı" sorusunu da çözer — bu, mobil otomasyona özgü bir cihaz-paralelliği boyutudur.',
+        en: 'In Selenium, ThreadLocal only solves "which thread owns which browser tab". In Appium, the SAME mechanism also solves "which thread is bound to which PHYSICAL device/emulator" — a device-parallelism dimension unique to mobile automation.',
+      },
+    },
+  },
+
+  // ── Adım 2 — Core / Base Katmanı: AppiumDriverManager & CapabilitiesFactory ──
+  {
+    type: 'heading',
+    text: { tr: '🧱 Adım 2 — Core / Base Katmanı: AppiumDriverManager & CapabilitiesFactory', en: '🧱 Step 2 — Core / Base Layer: AppiumDriverManager & CapabilitiesFactory' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🎫',
+    content: {
+      tr: 'CapabilitiesFactory, bir seyahat acentesinin uçuş bileti düzenleme masasıdır: her yolcu (her test thread\'i) kendi bileti biçimini kendisi tasarlamaz — TEK bir standart şablon (hangi alan zorunlu, hangi format geçerli) vardır, acente (factory) bu şablonu doldurup sana verir. İkinci benzetme: AppiumDriverManager bir hava trafik kontrol kulesidir — her uçağa (her thread\'e) hangi pistin (hangi cihazın) ayrıldığını takip eder, iki uçağın AYNI piste inmesini (iki thread\'in aynı cihaza çakışmasını) engeller. Peki her testte `new UiAutomator2Options().setDeviceName(...)` yazabiliyorken, neden ayrı bir CapabilitiesFactory sınıfı gerekiyor — capabilities zaten çalışıyor değil mi? Sorun şu: `appium:automationName` gibi bir capability\'i yanlış yazmak (veya unutmak) HER teste kopyalanırsa, biri bir yerde eski bir Appium sürümüne özgü bir alan bırakır ve suite tutarsızlaşır. Java karşılaştırması: bu, her sınıfın kendi `ConnectionPool`\'unu yaratması yerine tek bir merkezi factory kullanmasıyla AYNI motivasyondur — pahalı/hassas yapılandırmayı merkezileştir. QA bağlamı: CapabilitiesFactory\'nin `appium:noReset` ayarı atlanırsa, her test ÖNCEKİ testin bıraktığı uygulama state\'iyle (login oturumu, sepet içeriği) başlar — bu, teşhisi en zor flaky test türlerinden biridir.',
+      en: 'CapabilitiesFactory is a travel agency\'s flight ticket issuing desk: no passenger (no test thread) designs their own ticket format — there is ONE standard template (which field is required, which format is valid), and the agency (the factory) fills it out and hands it to you. Second analogy: AppiumDriverManager is an air traffic control tower — it tracks which runway (which device) is assigned to each plane (each thread), preventing two planes from landing on the SAME runway (two threads colliding on the same device). But since you can already write `new UiAutomator2Options().setDeviceName(...)` in every test, why do you need a separate CapabilitiesFactory class — aren\'t capabilities already working? The problem: if writing (or forgetting) a capability like `appium:automationName` incorrectly is copied into EVERY test, someone leaves a field specific to an old Appium version somewhere and the suite drifts into inconsistency. Java comparison: this is the SAME motivation as using one central factory instead of every class creating its own `ConnectionPool` — centralize expensive/sensitive configuration. QA context: if CapabilitiesFactory\'s `appium:noReset` setting is skipped, every test starts with the PREVIOUS test\'s leftover app state (login session, cart contents) — one of the hardest flaky test types to diagnose.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'AppiumDriverManager ve CapabilitiesFactory\'nin AYRI sınıflar olmasının nedeni Single Responsibility Principle\'dır (SRP): AppiumDriverManager sadece "driver nasıl yaratılır/kapatılır ve hangi thread\'e ait" sorusuna cevap verir, CapabilitiesFactory ise sadece "hangi cihaz/OS/otomasyon motoru seçilir" sorusuna cevap verir. İkisini tek sınıfta birleştirseydin, bir yeni Appium sürümü capability formatını değiştirdiğinde driver yaşam döngüsü koduna da dokunmak zorunda kalırdın.',
+      en: 'The reason AppiumDriverManager and CapabilitiesFactory are SEPARATE classes is the Single Responsibility Principle (SRP): AppiumDriverManager answers only "how is a driver created/closed and which thread owns it", while CapabilitiesFactory answers only "which device/OS/automation engine is chosen". Had you merged them into one class, a new Appium version changing the capability format would force you to also touch the driver lifecycle code.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'java',
+    code: {
+      tr: `// ─── core/AppiumDriverManager.java — SADECE driver yasam dongusu (SRP) ───
+package core;
+
+import io.appium.java_client.AppiumDriver;
+
+public final class AppiumDriverManager {
+
+    // ThreadLocal: paralel cihaz kosumunda HER thread kendi driver'ina sahip olur
+    private static final ThreadLocal<AppiumDriver> DRIVER = new ThreadLocal<>();
+
+    private AppiumDriverManager() {} // utility sinif — instance uretilmesin
+
+    public static void createDriver(AppiumDriver driver) {
+        DRIVER.set(driver);
+    }
+
+    public static AppiumDriver getDriver() {
+        return DRIVER.get();   // her katman driver'i BURADAN ister
+    }
+
+    public static void quitDriver() {
+        AppiumDriver driver = DRIVER.get();
+        if (driver != null) {
+            driver.quit();
+            DRIVER.remove();   // thread pool'da eski referans sizmasin diye
+        }
+    }
+}
+
+// ─── core/CapabilitiesFactory.java — SADECE cihaz/OS secimi (SRP) ───
+package core;
+
+import io.appium.java_client.android.options.UiAutomator2Options;
+
+public final class CapabilitiesFactory {
+
+    private CapabilitiesFactory() {}
+
+    // TUM testlerin PAYLASTIGI TEK capability kurulum mantigi
+    public static UiAutomator2Options android(String deviceName, String osVersion) {
+        return new UiAutomator2Options()
+            .setDeviceName(deviceName)
+            .setPlatformVersion(osVersion)
+            .setAutomationName("UiAutomator2")
+            .setNoReset(false)           // her testte TEMIZ bir uygulama state'i
+            .setNewCommandTimeout(java.time.Duration.ofSeconds(60));
+    }
+}`,
+      en: `// ─── core/AppiumDriverManager.java — ONLY the driver lifecycle (SRP) ───
+package core;
+
+import io.appium.java_client.AppiumDriver;
+
+public final class AppiumDriverManager {
+
+    // ThreadLocal: under parallel device runs, EVERY thread gets its own driver
+    private static final ThreadLocal<AppiumDriver> DRIVER = new ThreadLocal<>();
+
+    private AppiumDriverManager() {} // utility class — no instances
+
+    public static void createDriver(AppiumDriver driver) {
+        DRIVER.set(driver);
+    }
+
+    public static AppiumDriver getDriver() {
+        return DRIVER.get();   // every layer ASKS for the driver HERE
+    }
+
+    public static void quitDriver() {
+        AppiumDriver driver = DRIVER.get();
+        if (driver != null) {
+            driver.quit();
+            DRIVER.remove();   // so no stale reference leaks in the thread pool
+        }
+    }
+}
+
+// ─── core/CapabilitiesFactory.java — ONLY device/OS selection (SRP) ───
+package core;
+
+import io.appium.java_client.android.options.UiAutomator2Options;
+
+public final class CapabilitiesFactory {
+
+    private CapabilitiesFactory() {}
+
+    // the ONE capability setup logic SHARED by every test
+    public static UiAutomator2Options android(String deviceName, String osVersion) {
+        return new UiAutomator2Options()
+            .setDeviceName(deviceName)
+            .setPlatformVersion(osVersion)
+            .setAutomationName("UiAutomator2")
+            .setNoReset(false)           // a CLEAN app state on every test
+            .setNewCommandTimeout(java.time.Duration.ofSeconds(60));
+    }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'appium-arch-capabilities-lifecycle-steps',
+    title: { tr: 'Adım Adım: createDriver() Bir Cihazı Nasıl Ayağa Kaldırır?', en: 'Step by Step: How createDriver() Boots a Device' },
+    steps: [
+      { id: 1, icon: '🏁', label: { tr: 'CapabilitiesFactory.android() çağrılır', en: 'CapabilitiesFactory.android() is called' }, detail: { tr: 'Cihaz adı ve OS sürümü parametre olarak geçirilir — UiAutomator2Options bu ikisiyle DOLDURULUR, henüz hiçbir cihaza bağlanılmadı.', en: 'The device name and OS version are passed as parameters — UiAutomator2Options is FILLED with these two, no device is connected yet.' } },
+      { id: 2, icon: '🔌', label: { tr: 'AndroidDriver(url, options) kurulur', en: 'AndroidDriver(url, options) is constructed' }, detail: { tr: 'Bu satır, Appium server\'a (genelde localhost:4723) bir HTTP isteği gönderir — server bu capabilities\'i alır ve GERÇEK cihaza/emulatore oturum açar.', en: 'This line sends an HTTP request to the Appium server (usually localhost:4723) — the server takes these capabilities and opens a REAL session on the device/emulator.' } },
+      { id: 3, icon: '📦', label: { tr: 'AppiumDriverManager.createDriver() saklar', en: 'AppiumDriverManager.createDriver() stores it' }, detail: { tr: 'Kurulan driver, o thread\'in ThreadLocal alanına yazılır — artık aynı thread içindeki HER çağrı bu driver\'a erişebilir.', en: 'The built driver is written into that thread\'s ThreadLocal field — now EVERY call within the same thread can access this driver.' } },
+      { id: 4, icon: '✅', label: { tr: 'Uygulama açılır: noReset=false devreye girer', en: 'The app launches: noReset=false kicks in' }, detail: { tr: 'setNoReset(false) sayesinde uygulama TEMİZ bir state\'te açılır — önceki testin login oturumu veya sepet içeriği SIZMAZ.', en: 'Thanks to setNoReset(false), the app launches in a CLEAN state — the previous test\'s login session or cart contents do NOT leak in.' } },
+      { id: 5, icon: '🚨', label: { tr: 'Süre dolarsa: NewCommandTimeout devreye girer', en: 'On timeout: NewCommandTimeout kicks in' }, detail: { tr: '60 saniye içinde hiçbir komut gelmezse Appium server oturumu OTOMATİK kapatır — "unutulmuş" bir oturumun cihazı sonsuza kadar meşgul tutmasını engeller.', en: 'If no command arrives within 60 seconds, the Appium server AUTOMATICALLY closes the session — preventing a "forgotten" session from occupying the device forever.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-appium-arch-capabilities-order',
+    question: {
+      tr: 'CapabilitiesFactory ile bir Android driver kurmanın adımlarını mantıklı sıraya diz.',
+      en: 'Arrange the steps of building an Android driver with CapabilitiesFactory in a logical order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'CapabilitiesFactory.android(deviceName, osVersion) ile options kur', en: 'Build options with CapabilitiesFactory.android(deviceName, osVersion)' }, order: 1 },
+      { id: '2', text: { tr: 'new AndroidDriver(appiumServerUrl, options) ile Appium server\'a bağlan', en: 'Connect to the Appium server with new AndroidDriver(appiumServerUrl, options)' }, order: 2 },
+      { id: '3', text: { tr: 'AppiumDriverManager.createDriver(driver) ile ThreadLocal\'a kaydet', en: 'Store it in ThreadLocal with AppiumDriverManager.createDriver(driver)' }, order: 3 },
+      { id: '4', text: { tr: 'Test bitince AppiumDriverManager.quitDriver() ile kapat', en: 'Close it with AppiumDriverManager.quitDriver() when the test ends' }, order: 4 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'appium-framework-capabilities',
+    id: 'appium-arch-capabilities-factory-practice',
+    label: {
+      tr: 'Micro Lab: CapabilitiesFactory.android()\'ı temiz state ile tamamla',
+      en: 'Micro Lab: complete CapabilitiesFactory.android() with a clean state',
+    },
+    language: 'java',
+    task: {
+      tr: 'Aşağıdaki android() metodu cihaz adını ve OS sürümünü ayarlıyor ama TODO satırı eksik olduğu için setNoReset(false) çağrılmıyor — her test ÖNCEKİ testin uygulama state\'iyle (eski login oturumu) başlıyor. TODO satırını, her testin temiz bir uygulama state\'iyle başlamasını sağlayacak şekilde tamamla.',
+      en: 'The android() method below sets the device name and OS version, but because the TODO line is missing, setNoReset(false) is never called — every test starts with the PREVIOUS test\'s app state (an old login session). Complete the TODO line so every test starts with a clean app state.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir cihaza bağlanmaz; amaç CapabilitiesFactory\'nin "her testin izole bir uygulama state\'inde başlaması" sorumluluğunu elle yazarak, bunun NEDEN flaky testleri önlediğini pekiştirmektir.',
+      en: 'This is not a real device session; the goal is to reinforce, by writing it yourself, why CapabilitiesFactory\'s responsibility of "every test starts with an isolated app state" prevents flaky tests.',
+    },
+    code: {
+      tr: `public static UiAutomator2Options android(String deviceName, String osVersion) {
+    return new UiAutomator2Options()
+        .setDeviceName(deviceName)
+        .setPlatformVersion(osVersion)
+        .setAutomationName("UiAutomator2")
+        .setNoReset(false);
+}`,
+      en: `public static UiAutomator2Options android(String deviceName, String osVersion) {
+    return new UiAutomator2Options()
+        .setDeviceName(deviceName)
+        .setPlatformVersion(osVersion)
+        .setAutomationName("UiAutomator2")
+        .setNoReset(false);
+}`,
+    },
+    starterCode: {
+      tr: `public static UiAutomator2Options android(String deviceName, String osVersion) {
+    return new UiAutomator2Options()
+        .setDeviceName(deviceName)
+        .setPlatformVersion(osVersion)
+        .setAutomationName("UiAutomator2")
+        TODO;   // her testte temiz uygulama state'i garanti et
+}`,
+      en: `public static UiAutomator2Options android(String deviceName, String osVersion) {
+    return new UiAutomator2Options()
+        .setDeviceName(deviceName)
+        .setPlatformVersion(osVersion)
+        .setAutomationName("UiAutomator2")
+        TODO;   // guarantee a clean app state on every test
+}`,
+    },
+    solutionCode: {
+      tr: `public static UiAutomator2Options android(String deviceName, String osVersion) {
+    return new UiAutomator2Options()
+        .setDeviceName(deviceName)
+        .setPlatformVersion(osVersion)
+        .setAutomationName("UiAutomator2")
+        .setNoReset(false);
+}`,
+      en: `public static UiAutomator2Options android(String deviceName, String osVersion) {
+    return new UiAutomator2Options()
+        .setDeviceName(deviceName)
+        .setPlatformVersion(osVersion)
+        .setAutomationName("UiAutomator2")
+        .setNoReset(false);
+}`,
+    },
+    expected: {
+      tr: 'TODO satırı .setNoReset(false) olmalı — bu ayar, her yeni oturumda uygulamanın önceki testten kalan hiçbir veriyi TAŞIMAMASINI garanti eder.',
+      en: 'The TODO line must be .setNoReset(false) — this setting guarantees that every new session carries NO leftover data from a previous test.',
+    },
+    hints: [
+      { tr: 'setNoReset(false), Appium\'a "her oturumda uygulamayı temiz bir state\'e SIFIRLA" der — true olsaydı önceki state korunurdu, bu da testler arası kirlenmeye yol açardı.', en: 'setNoReset(false) tells Appium to "RESET the app to a clean state on every session" — if it were true, the previous state would be preserved, causing contamination between tests.' },
+      { tr: 'UiAutomator2Options zincirlenebilir (fluent) bir builder\'dır — her .setXxx(...) çağrısı güncellenmiş options nesnesini döner, bu yüzden zincire istediğin kadar ayar ekleyebilirsin.', en: 'UiAutomator2Options is a chainable (fluent) builder — every .setXxx(...) call returns the updated options object, so you can chain as many settings as you like.' },
+      { tr: 'Bu ayarın atlanması "flaky ama sadece bazen" türü hatalara yol açar: bir test bir öncekinin oturumunu MİRAS alırsa, sadece o SIRAYLA çalıştığında geçer, izole çalıştırıldığında FAIL olur.', en: 'Skipping this setting causes "flaky but only sometimes" bugs: if a test INHERITS the previous one\'s session, it only passes when run in that ORDER, and FAILS when run in isolation.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'AppiumDriverManager.getDriver() çağrıldığında, hangi cihazın driver\'ı DÖNER?',
+      en: 'When AppiumDriverManager.getDriver() is called, WHICH device\'s driver is RETURNED?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'O ANKİ thread\'in ThreadLocal\'ına daha önce yazılmış olan driver — yani O thread\'in bağlı olduğu cihaz', en: 'The driver previously written to the CURRENT thread\'s ThreadLocal — i.e. the device THAT thread is bound to' } },
+      { id: 'b', text: { tr: 'Her zaman ilk açılan cihazın driver\'ı', en: 'Always the driver of the first device that was opened' } },
+      { id: 'c', text: { tr: 'device-matrix.json\'daki ilk satırın cihazı', en: 'The device from the first row in device-matrix.json' } },
+      { id: 'd', text: { tr: 'Rastgele bir cihaz seçilir', en: 'A random device is chosen' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'ThreadLocal\'ın can damarı budur: her thread kendi createDriver() çağrısıyla KENDİ driver\'ını ThreadLocal\'a yazar, getDriver() ise SADECE o anki thread\'in yazdığı değeri okur — bu yüzden 20 paralel thread, 20 farklı cihazın driver\'ına birbirine karışmadan erişebilir.',
+      en: 'This is the artery of ThreadLocal: every thread writes ITS OWN driver into ThreadLocal via its own createDriver() call, and getDriver() reads ONLY the value written by the current thread — this is why 20 parallel threads can access 20 different devices\' drivers without mixing them up.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'CapabilitiesFactory\'nin `appium:noReset` gibi ayarları TEK bir yerde toplaması hangi problemi çözer?',
+        en: 'What problem does CapabilitiesFactory centralizing settings like `appium:noReset` solve?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Bir ayarın HER teste kopyalanıp bazı testlerde unutulmasını ve tutarsız (flaky) davranışı önler', en: 'It prevents a setting from being copied into EVERY test and forgotten in some, causing inconsistent (flaky) behavior' } },
+        { id: 'b', text: { tr: 'Sadece derleme hızını artırır', en: 'It only speeds up compilation' } },
+        { id: 'c', text: { tr: 'Hiçbir problem çözmez, sadece kod tekrarını azaltır', en: 'It solves no problem, it only reduces code duplication' } },
+        { id: 'd', text: { tr: 'Sadece iOS testlerinde geçerlidir', en: 'It only applies to iOS tests' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'Capability ayarları her teste kopyalanırsa, biri bir yerde `noReset`\'i unutur veya yanlış değer yazar — sonuç, "bazı testler flaky, bazıları değil" türü bir tutarsızlıktır. Merkezi bir factory bu ayarı TEK yerde dondurur.',
+        en: 'If capability settings are copied into every test, someone somewhere forgets `noReset` or writes the wrong value — the result is a "some tests are flaky, some are not" inconsistency. A centralized factory freezes this setting in ONE place.',
+      },
+    },
+  },
+
+  // ── Adım 3 — POM Katmanı: BasePage & @AndroidFindBy ──
+  {
+    type: 'heading',
+    text: { tr: '📦 Adım 3 — POM Katmanı: BasePage & @AndroidFindBy', en: '📦 Step 3 — POM Layer: BasePage & @AndroidFindBy' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🏗️',
+    content: {
+      tr: 'BasePage, Selenium\'daki karşılığıyla NEREDEYSE birebir aynı rolü oynar: "önce bekle, sonra dokun" mantığını TEK yerde toplar, her ekran sınıfı (her POM) bunu miras alır. İkinci benzetme: bir inşaat sahasındaki ortak güvenlik protokolü gibi — her işçi (her ekran sınıfı) kendi güvenlik kuralını icat etmez, TEK bir standart prosedürü (BasePage\'in waitVisible/tap metotları) izler. Peki AppiumFluentWait zaten "bekle" işini yapıyorsa, BasePage\'in EK bir görevi var mı? Evet — mobilde element bulma, web\'den daha SIK başarısız olur (uygulama animasyonları, native splash screen\'ler, klavye açılma gecikmesi); BasePage bu mobile-özgü bekleme senaryolarını (örn. "klavye kapanana kadar bekle") TEK yerde standartlaştırır. Java karşılaştırması: bu, Selenium projelerindeki soyut BasePage sınıfıyla AYNI motivasyon — ortak davranışı tek yere topla, alt sınıflar sadece kendi farkını eklesin. QA bağlamı: BasePage\'siz bir projede bir test "Element bulunamadı" gibi teknik bir hatayla fail eder; BasePage\'li projede aynı hata "LoginScreen: passwordField 8000ms içinde görünür olmadı, ekran görüntüsü alındı" gibi OKUNABİLİR bir mesaja dönüşür.',
+      en: 'BasePage plays NEARLY the identical role to its Selenium counterpart: it centralizes the "wait first, then tap" logic in ONE place, and every screen class (every POM) inherits it. Second analogy: like a construction site\'s shared safety protocol — no worker (no screen class) invents their own safety rule, they all follow ONE standard procedure (BasePage\'s waitVisible/tap methods). But if AppiumFluentWait already does the "wait" job, does BasePage have an EXTRA role? Yes — finding elements on mobile fails MORE OFTEN than on the web (app animations, native splash screens, keyboard-open delays); BasePage standardizes these mobile-specific wait scenarios (e.g. "wait until the keyboard closes") in ONE place. Java comparison: this is the SAME motivation as the abstract BasePage class in Selenium projects — centralize shared behavior, let subclasses add only their own difference. QA context: without BasePage, a test fails with a technical error like "Element not found"; with BasePage, the same failure becomes a READABLE message like "LoginScreen: passwordField was not visible within 8000ms, screenshot taken".',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'BasePage ile AndroidLoginScreen\'in AYRI olmasının nedeni de SRP\'dir: BasePage sadece "bir elemente NASIL güvenli erişilir" sorusuna cevap verir, AndroidLoginScreen ise sadece "login ekranında HANGİ elementler var ve hangi iş kuralı uygulanır" sorusuna cevap verir. AndroidLoginScreen, BasePage\'i EXTENDS ederek bu ortak davranışı bedava kazanır.',
+      en: 'The reason BasePage and AndroidLoginScreen are SEPARATE is also SRP: BasePage answers only "HOW is an element safely accessed", while AndroidLoginScreen answers only "WHAT elements exist on the login screen and what business rule applies". AndroidLoginScreen EXTENDS BasePage and gets this shared behavior for free.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'java',
+    code: {
+      tr: `// ─── pages/BasePage.java — ortak bekleme/dokunma mantigi (SRP) ───
+package pages;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.pagefactory.AppiumFieldDecorator;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.FluentWait;
+import java.time.Duration;
+
+public abstract class BasePage {
+
+    protected final AppiumDriver driver;
+
+    protected BasePage(AppiumDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
+    }
+
+    // mobilde element bulma web'den daha SIK basarisiz olur — TEK yerde standartlastir
+    protected WebElement waitVisible(WebElement element) {
+        return new FluentWait<>(element)
+            .withTimeout(Duration.ofSeconds(8))
+            .pollingEvery(Duration.ofMillis(300))
+            .until(el -> el.isDisplayed() ? el : null);
+    }
+
+    public void tap(WebElement element) {
+        waitVisible(element).click();   // once GORUNUR olmasini bekle, SONRA dokun
+    }
+}
+
+// ─── pages/AndroidLoginScreen.java — sadece KENDI elementlerini bilir (POM) ───
+package pages;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.pagefactory.AndroidFindBy;
+import org.openqa.selenium.WebElement;
+
+public class AndroidLoginScreen extends BasePage implements LoginScreen {
+
+    @AndroidFindBy(id = "com.example:id/et_username") private WebElement usernameField;
+    @AndroidFindBy(id = "com.example:id/et_password") private WebElement passwordField;
+    @AndroidFindBy(id = "com.example:id/btn_login")   private WebElement loginButton;
+
+    public AndroidLoginScreen(AppiumDriver driver) {
+        super(driver);   // BasePage constructor'ini cagirir
+    }
+
+    @Override
+    public void login(String user, String pass) {
+        waitVisible(usernameField).sendKeys(user);
+        waitVisible(passwordField).sendKeys(pass);
+        tap(loginButton);   // BasePage.tap() — AYNI bekleme her ekranda
+    }
+}`,
+      en: `// ─── pages/BasePage.java — shared wait/tap logic (SRP) ───
+package pages;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.pagefactory.AppiumFieldDecorator;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.FluentWait;
+import java.time.Duration;
+
+public abstract class BasePage {
+
+    protected final AppiumDriver driver;
+
+    protected BasePage(AppiumDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
+    }
+
+    // finding elements on mobile fails MORE OFTEN than on the web — standardize in ONE place
+    protected WebElement waitVisible(WebElement element) {
+        return new FluentWait<>(element)
+            .withTimeout(Duration.ofSeconds(8))
+            .pollingEvery(Duration.ofMillis(300))
+            .until(el -> el.isDisplayed() ? el : null);
+    }
+
+    public void tap(WebElement element) {
+        waitVisible(element).click();   // wait for VISIBILITY first, THEN tap
+    }
+}
+
+// ─── pages/AndroidLoginScreen.java — knows ONLY its own elements (POM) ───
+package pages;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.pagefactory.AndroidFindBy;
+import org.openqa.selenium.WebElement;
+
+public class AndroidLoginScreen extends BasePage implements LoginScreen {
+
+    @AndroidFindBy(id = "com.example:id/et_username") private WebElement usernameField;
+    @AndroidFindBy(id = "com.example:id/et_password") private WebElement passwordField;
+    @AndroidFindBy(id = "com.example:id/btn_login")   private WebElement loginButton;
+
+    public AndroidLoginScreen(AppiumDriver driver) {
+        super(driver);   // calls the BasePage constructor
+    }
+
+    @Override
+    public void login(String user, String pass) {
+        waitVisible(usernameField).sendKeys(user);
+        waitVisible(passwordField).sendKeys(pass);
+        tap(loginButton);   // BasePage.tap() — the SAME wait on every screen
+    }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'appium-arch-basepage-wait-steps',
+    title: { tr: 'Adım Adım: waitVisible() Bir Elementi Nasıl Bekler?', en: 'Step by Step: How waitVisible() Waits for an Element' },
+    steps: [
+      { id: 1, icon: '☎️', label: { tr: 'AndroidLoginScreen.login() çağrılır', en: 'AndroidLoginScreen.login() is called' }, detail: { tr: 'Test, loginScreen.login("qa_user", "S3cret!") çağırır — Appium\'un bekleme detaylarını hiç BİLMEZ, sadece iş kuralını tetikler.', en: 'The test calls loginScreen.login("qa_user", "S3cret!") — it knows NOTHING about Appium\'s wait internals, it just triggers the business rule.' } },
+      { id: 2, icon: '🏷️', label: { tr: '@AndroidFindBy proxy\'si kurulur', en: 'The @AndroidFindBy proxy is set up' }, detail: { tr: 'PageFactory.initElements(...), usernameField\'ı lazy bir proxy yapar — element HENÜZ ekranda aranmadı.', en: 'PageFactory.initElements(...) turns usernameField into a lazy proxy — the element has NOT been searched on screen yet.' } },
+      { id: 3, icon: '⏳', label: { tr: 'waitVisible() FluentWait başlatır', en: 'waitVisible() starts a FluentWait' }, detail: { tr: 'FluentWait, elementin isDisplayed() true dönene kadar her 300ms\'de bir kontrol eder — splash screen veya animasyon bitene kadar SABIRLA bekler.', en: 'FluentWait checks every 300ms until isDisplayed() returns true — it PATIENTLY waits until the splash screen or animation finishes.' } },
+      { id: 4, icon: '⌨️', label: { tr: 'Görünür olunca sendKeys() çalışır', en: 'Once visible, sendKeys() runs' }, detail: { tr: 'Element görünür olunca native klavye açılır ve metin girilir — bu satıra kadar AndroidLoginScreen, FluentWait\'in var olduğunu bile bilmiyordu.', en: 'Once the element is visible, the native keyboard opens and text is entered — up to this line, AndroidLoginScreen did not even know FluentWait existed.' } },
+      { id: 5, icon: '🚨', label: { tr: 'Görünmezse: hata BasePage\'de fırlar', en: 'If never visible: the error throws in BasePage' }, detail: { tr: 'Element 8 saniye içinde hiç görünür olmazsa hata BasePage katmanında fırlar — LoginScreen ve AndroidLoginScreen Appium detaylarından İZOLE kalır.', en: 'If the element never becomes visible within 8 seconds, the error throws inside the BasePage layer — LoginScreen and AndroidLoginScreen stay ISOLATED from Appium details.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-appium-arch-basepage-order',
+    question: {
+      tr: 'loginScreen.login() çağrısının katmanlar arası akışını doğru sıraya diz.',
+      en: 'Arrange the cross-layer flow of the loginScreen.login() call in the correct order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'Test: loginScreen.login(user, pass) çağrılır', en: 'Test: loginScreen.login(user, pass) is called' }, order: 1 },
+      { id: '2', text: { tr: 'AndroidLoginScreen: kendi @AndroidFindBy alanıyla waitVisible() çağırır', en: 'AndroidLoginScreen: calls waitVisible() with its own @AndroidFindBy field' }, order: 2 },
+      { id: '3', text: { tr: 'BasePage: FluentWait ile elementin görünür olmasını bekler', en: 'BasePage: waits for the element to become visible via FluentWait' }, order: 3 },
+      { id: '4', text: { tr: '@AndroidFindBy proxy: gerçek WebElement\'i ekranda arar', en: '@AndroidFindBy proxy: searches the screen for the real WebElement' }, order: 4 },
+      { id: '5', text: { tr: 'WebElement: sendKeys()/click() ile gerçek aksiyon çalışır', en: 'WebElement: the real action runs via sendKeys()/click()' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'appium-framework-basepage',
+    id: 'appium-arch-basepage-wait-practice',
+    label: {
+      tr: 'Micro Lab: BasePage.tap()\'i "önce bekle, sonra dokun" yap',
+      en: 'Micro Lab: make BasePage.tap() "wait first, then tap"',
+    },
+    language: 'java',
+    task: {
+      tr: 'Aşağıdaki BasePage.tap() metodu doğrudan element.click() çağırıyor — element henüz görünür olmadan dokunulursa StaleElementReferenceException veya sessiz bir "tıklama boşa gitti" hatası alırsın. TODO satırını, LoginScreen\'deki kalıba uyacak şekilde tamamla: önce waitVisible(element) ile görünürlüğü bekle, DÖNEN elemente .click() uygula.',
+      en: 'The BasePage.tap() method below calls element.click() directly — tapping while the element is not yet visible gives you a StaleElementReferenceException or a silent "the tap did nothing" bug. Complete the TODO line to match the pattern used in LoginScreen: first wait for visibility with waitVisible(element), then apply .click() to the RETURNED element.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir cihaza bağlanmaz; amaç "bekle-sonra-dokun" mantığını BasePage\'de tek yerde toplamanın, neden TÜM ekranları aynı anda korduğunu elle yazarak pekiştirmektir.',
+      en: 'This is not a real device session; the goal is to reinforce, by writing it yourself, why centralizing "wait-then-tap" in BasePage protects ALL screens at once.',
+    },
+    code: {
+      tr: `public void tap(WebElement element) {
+    waitVisible(element).click();
+}`,
+      en: `public void tap(WebElement element) {
+    waitVisible(element).click();
+}`,
+    },
+    starterCode: {
+      tr: `public void tap(WebElement element) {
+    TODO   // once gorunur olmasini bekle, DONEN elemente dokun
+}`,
+      en: `public void tap(WebElement element) {
+    TODO   // wait for visibility first, tap the RETURNED element
+}`,
+    },
+    solutionCode: {
+      tr: `public void tap(WebElement element) {
+    waitVisible(element).click();
+}`,
+      en: `public void tap(WebElement element) {
+    waitVisible(element).click();
+}`,
+    },
+    expected: {
+      tr: 'TODO satırı waitVisible(element).click() olmalı — waitVisible görünür WebElement\'i döndürür, ona zincirlenen .click() ise ancak element hazır olduğunda dokunur.',
+      en: 'The TODO line must be waitVisible(element).click() — waitVisible returns the visible WebElement, and the chained .click() only taps once the element is ready.',
+    },
+    hints: [
+      { tr: 'waitVisible(element) bir WebElement döndürür — bu yüzden dönen değere doğrudan .click() zincirleyebilirsin.', en: 'waitVisible(element) returns a WebElement — so you can chain .click() directly onto the returned value.' },
+      { tr: 'Doğrudan element.click() (waitVisible olmadan) çağırmak, splash screen veya native animasyon bitmeden "erken dokunma" yapar; önce bekleme koşulundan geçirmek bunu engeller.', en: 'Calling element.click() directly (without waitVisible) does an "early tap" before a splash screen or native animation finishes; passing it through the wait condition first prevents this.' },
+      { tr: 'Aynı kalıbı sendKeys() de kullanır: önce waitVisible, sonra klavye girişi — bekleme mantığı BasePage\'de tek yerde durduğu için tüm ekranlar tutarlı davranır.', en: 'sendKeys() uses the same pattern: waitVisible first, then keyboard input — since wait logic lives in one place in BasePage, all screens behave consistently.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Mobilde element bulma web\'den NEDEN daha sık başarısız olur — BasePage\'in EK rolü bununla nasıl ilgili?',
+      en: 'WHY does finding elements on mobile fail more often than on the web — how does BasePage\'s EXTRA role relate to this?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Uygulama animasyonları, native splash screen\'ler ve klavye gecikmeleri gibi mobile-özgü senaryolar; BasePage bunları TEK yerde standartlaştırır', en: 'Mobile-specific scenarios like app animations, native splash screens, and keyboard delays; BasePage standardizes these in ONE place' } },
+      { id: 'b', text: { tr: 'Mobil cihazlar web tarayıcılarından daha yavaştır, başka hiçbir sebep yoktur', en: 'Mobile devices are just slower than web browsers, there is no other reason' } },
+      { id: 'c', text: { tr: 'Appium\'un locator sistemi kusurludur', en: "Appium's locator system is flawed" } },
+      { id: 'd', text: { tr: 'Bu bir efsanedir, mobil ve web arasında fark yoktur', en: 'This is a myth, there is no difference between mobile and web' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'Native splash screen\'ler, geçiş animasyonları ve klavye açılma gecikmesi gibi mobile-özgü davranışlar, elementlerin görünür olma zamanını web\'e göre daha ÖNGÖRÜLEMEZ yapar. BasePage bu senaryoları TEK bir waitVisible() metodunda standartlaştırdığı için, her yeni ekran bu korumayı otomatik miras alır.',
+      en: 'Mobile-specific behaviors like native splash screens, transition animations, and keyboard-open delays make element visibility timing LESS PREDICTABLE than on the web. Because BasePage standardizes these scenarios in ONE waitVisible() method, every new screen automatically inherits this protection.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Bekleme mantığını BasePage\'de değil de her ekran sınıfının kendi metodunda tekrar yazsaydın en olası problem ne olurdu?',
+        en: 'If you rewrote the wait logic in each screen class\'s own method instead of in BasePage, what would the most likely problem be?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Bazı ekranlar farklı bir bekleme süresi/koşulu kullanır, diğerleri etkilenmez — tutarsız davranış', en: 'Some screens use a different wait duration/condition while others are unaffected — inconsistent behavior' } },
+        { id: 'b', text: { tr: 'Hiçbir @AndroidFindBy çalışmaz', en: 'No @AndroidFindBy would work' } },
+        { id: 'c', text: { tr: 'CapabilitiesFactory devre dışı kalır', en: 'CapabilitiesFactory would be disabled' } },
+        { id: 'd', text: { tr: 'Testler paralel koşamaz', en: 'Tests could not run in parallel' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'Bekleme mantığı her ekranda ayrı yazılırsa, biri 5 saniye biri 15 saniye bekler, biri hiç beklemeden dokunur. Ortak BasePage olmadan "erken dokunma" hatası bazı ekranlarda çıkar bazılarında çıkmaz — teşhisi en zor flaky türlerinden biridir.',
+        en: 'If wait logic is written separately per screen, one waits 5 seconds, one waits 15, one taps with no wait at all. Without a shared BasePage, the "early tap" bug appears on some screens and not others — one of the hardest flaky types to diagnose.',
+      },
+    },
+  },
+
+  // ── Adım 4 — SOLID Uygulaması (OCP odaklı): Cross-Platform Soyutlama ──
+  {
+    type: 'heading',
+    text: { tr: '⚖️ Adım 4 — SOLID Prensipleri Appium Kodunda', en: '⚖️ Step 4 — SOLID Principles in Appium Code' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🌉',
+    content: {
+      tr: 'SOLID beş prensip, iki farklı ülkede aynı elçiliği temsil eden büyükelçilerdir: her büyükelçi (her Screen implementasyonu) TEK bir görevi temsil eder (SRP — Android elçisi sadece Android\'i temsil eder), yeni bir ülke (yeni bir platform) eklemek için mevcut elçiliği KAPATMAZSIN, yeni bir elçilik AÇARSIN (OCP), her elçi AYNI diplomatik protokole (arayüze) uyar (LSP), elçinin yetkisi sadece diplomatik konularla sınırlıdır askeri komuta değil (ISP), ve dışişleri bakanlığı (test kodu) belirli bir elçiye değil "elçilik" kavramına bağlıdır (DIP). İkinci benzetme: OCP bir üniversal fiş adaptörüne benzer — yeni bir ülkeye (platforma) gittiğinde prizi SÖKMEZSİN, standart adaptörüne yeni bir uç TAKARSIN. Peki Android testleri zaten çalışıyorken, neden iOS için LoginScreen arayüzünü implement eden AYRI bir sınıf yazalım — AndroidLoginScreen\'e "if platform == ios ise..." eklemek daha hızlı değil mi? Kısa vadede evet; ama bir ekran sınıfı içine platform kontrolü eklemek, o sınıfı HER platform değişikliğinde yeniden test etmeni ve diğer platformun senaryolarını kırma riskini getirir. Java karşılaştırması: bu tam olarak bir `PaymentGateway` arayüzüdür — `Checkout` sınıfının içini değiştirmeden yeni ödeme sağlayıcıları eklersin; burada da platformları aynı şekilde takılabilir hale getirebilirsin. QA bağlamı: OCP\'ye uyan bir Screen katmanında "bu projeye tablet desteği de ekleyelim" kararı, mevcut Android/iOS testlerinin hiçbirine dokunmadan tek bir yeni sınıfla (TabletLoginScreen) çözülür — dokunmadığın kod, kıramadığın koddur.',
+      en: 'The five SOLID principles are ambassadors representing the same embassy in two different countries: each ambassador (each Screen implementation) represents ONE role (SRP — the Android ambassador represents only Android), to add a new country (a new platform) you do not CLOSE the existing embassy, you OPEN a new one (OCP), every ambassador follows the SAME diplomatic protocol (the interface) (LSP), an ambassador\'s authority is limited to diplomatic matters, not military command (ISP), and the foreign ministry (the test code) depends on the CONCEPT of "an embassy", not one specific ambassador (DIP). Second analogy: OCP is like a universal plug adapter — when you travel to a new country (platform) you do not DISMANTLE the outlet, you PLUG a new tip into your standard adapter. But if Android tests already work, why write a SEPARATE class implementing the LoginScreen interface for iOS — isn\'t adding "if platform == ios..." to AndroidLoginScreen faster? Short-term yes; but adding a platform check inside a screen class forces you to retest that class on every platform change and risks breaking the other platform\'s scenarios. Java comparison: this is exactly a `PaymentGateway` interface — you add new payment providers without changing the inside of the `Checkout` class; here you can make platforms just as pluggable. QA context: in a Screen layer that respects OCP, the decision to "let\'s also add tablet support to this project" is solved with a single new class (TabletLoginScreen), without touching any of the existing Android/iOS tests — the code you do not touch is the code you cannot break.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Beş prensibin Appium karşılığı: SRP — AppiumDriverManager sadece driver, CapabilitiesFactory sadece cihaz seçimi (Adım 2). OCP — yeni bir platform eklemek için mevcut ekran sınıfını değiştirmeden yeni sınıf ekle (aşağıda). LSP — her Screen implementasyonu, LoginScreen beklenen her yerde sorunsuz kullanılabilir olmalı. ISP — bir Screen\'e kullanmayacağı metotları içeren şişkin bir arayüz dayatma. DIP — @Test yüksek seviyesi somut AndroidLoginScreen\'e değil bir soyutlamaya (arayüz) bağlı olmalı. Aşağıda OCP\'yi somut bir "Anti-Pattern vs SOLID" çiftiyle inceliyoruz.',
+      en: 'The Appium mapping of the five principles: SRP — AppiumDriverManager only driver, CapabilitiesFactory only device selection (Step 2). OCP — add a new platform by adding a new class without modifying the existing screen class (below). LSP — every Screen implementation must be usable wherever a LoginScreen is expected. ISP — do not impose a bloated interface with methods a Screen will not use. DIP — the high-level @Test should depend on an abstraction (interface), not on the concrete AndroidLoginScreen. Below we examine OCP through a concrete "Anti-Pattern vs SOLID" pair.',
+    },
+  },
+  {
+    type: 'comparison',
+    left: {
+      label: { tr: '❌ OCP İhlali (if/else şişmesi)', en: '❌ OCP Violation (if/else bloat)' },
+      code: {
+        tr: `// Her yeni platform bu sinifi DEGISTIRIR
+public class LoginScreenImpl {
+    public void login(String user, String pass, String platform) {
+        if (platform.equals("android")) {
+            driver.findElement(By.id("et_username")).sendKeys(user);
+        } else if (platform.equals("ios")) {
+            driver.findElement(AppiumBy.accessibilityId("username")).sendKeys(user);
+        }
+        // yeni platform = yeni else-if = eski kodu yeniden test et
+    }
+}`,
+        en: `// Every new platform MODIFIES this class
+public class LoginScreenImpl {
+    public void login(String user, String pass, String platform) {
+        if (platform.equals("android")) {
+            driver.findElement(By.id("et_username")).sendKeys(user);
+        } else if (platform.equals("ios")) {
+            driver.findElement(AppiumBy.accessibilityId("username")).sendKeys(user);
+        }
+        // new platform = new else-if = retest the old code
+    }
+}`,
+      },
+      note: { tr: 'Yeni platform = mevcut sınıfı değiştir = regresyon riski.', en: 'New platform = modify the existing class = regression risk.' },
+    },
+    right: {
+      label: { tr: '✅ OCP Uygun (Cross-Platform Soyutlama)', en: '✅ OCP-Compliant (Cross-Platform Abstraction)' },
+      code: {
+        tr: `// Yeni platform = mevcut kodu DEGISTIRMEDEN yeni sinif ekle
+public interface LoginScreen {
+    void login(String user, String pass);
+}
+
+public class IOSLoginScreen extends BasePage implements LoginScreen {
+    @iOSXCUITFindBy(accessibility = "username") private WebElement usernameField;
+
+    public void login(String user, String pass) {
+        waitVisible(usernameField).sendKeys(user);
+        // ... iOS'a ozgu geri kalan adimlar
+    }
+}`,
+        en: `// New platform = add a new class WITHOUT modifying existing code
+public interface LoginScreen {
+    void login(String user, String pass);
+}
+
+public class IOSLoginScreen extends BasePage implements LoginScreen {
+    @iOSXCUITFindBy(accessibility = "username") private WebElement usernameField;
+
+    public void login(String user, String pass) {
+        waitVisible(usernameField).sendKeys(user);
+        // ... the rest of the iOS-specific steps
+    }
+}`,
+      },
+      note: { tr: 'Yeni platform = yeni dosya; eski kod hiç açılmaz.', en: 'New platform = new file; existing code is never opened.' },
+    },
+  },
+  {
+    type: 'code',
+    language: 'java',
+    code: {
+      tr: `// ─── screens/LoginScreen.java — OCP: platformu arayuz uzerinden takilabilir yap ───
+package screens;
+
+public interface LoginScreen {
+    void login(String username, String password);
+}
+
+// ─── screens/IOSLoginScreen.java — YENI platform, Android'e HIC dokunulmadi ───
+package screens;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.pagefactory.iOSXCUITFindBy;
+import org.openqa.selenium.WebElement;
+
+public class IOSLoginScreen extends BasePage implements LoginScreen {
+
+    @iOSXCUITFindBy(accessibility = "username-field") private WebElement usernameField;
+    @iOSXCUITFindBy(accessibility = "password-field") private WebElement passwordField;
+    @iOSXCUITFindBy(accessibility = "login-button")   private WebElement loginButton;
+
+    public IOSLoginScreen(AppiumDriver driver) {
+        super(driver);
+    }
+
+    @Override
+    public void login(String username, String password) {
+        waitVisible(usernameField).sendKeys(username);
+        waitVisible(passwordField).sendKeys(password);
+        tap(loginButton);   // AYNI BasePage.tap() — Android ile ORTAK
+    }
+}
+
+// ─── LoginTest.java — SOMUT sinifa degil ARAYUZE bagli (DIP) ───
+public class LoginTest {
+    private LoginScreen loginScreen;   // hangi platform oldugunu BILMEZ
+
+    @BeforeMethod
+    public void setUp() {
+        // hangi somut sinifin enjekte edilecegini SADECE burasi bilir
+        loginScreen = isAndroid()
+            ? new AndroidLoginScreen(driver)
+            : new IOSLoginScreen(driver);
+    }
+
+    @Test
+    public void loginWorks() {
+        loginScreen.login("qa_user", "S3cret!");   // platform-bagimsiz cagri
+    }
+}`,
+      en: `// ─── screens/LoginScreen.java — OCP: make the platform pluggable via an interface ───
+package screens;
+
+public interface LoginScreen {
+    void login(String username, String password);
+}
+
+// ─── screens/IOSLoginScreen.java — NEW platform, Android was NEVER touched ───
+package screens;
+
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.pagefactory.iOSXCUITFindBy;
+import org.openqa.selenium.WebElement;
+
+public class IOSLoginScreen extends BasePage implements LoginScreen {
+
+    @iOSXCUITFindBy(accessibility = "username-field") private WebElement usernameField;
+    @iOSXCUITFindBy(accessibility = "password-field") private WebElement passwordField;
+    @iOSXCUITFindBy(accessibility = "login-button")   private WebElement loginButton;
+
+    public IOSLoginScreen(AppiumDriver driver) {
+        super(driver);
+    }
+
+    @Override
+    public void login(String username, String password) {
+        waitVisible(usernameField).sendKeys(username);
+        waitVisible(passwordField).sendKeys(password);
+        tap(loginButton);   // the SAME BasePage.tap() — SHARED with Android
+    }
+}
+
+// ─── LoginTest.java — depends on the INTERFACE, not a CONCRETE class (DIP) ───
+public class LoginTest {
+    private LoginScreen loginScreen;   // does NOT know which platform
+
+    @BeforeMethod
+    public void setUp() {
+        // ONLY this line knows which concrete class gets injected
+        loginScreen = isAndroid()
+            ? new AndroidLoginScreen(driver)
+            : new IOSLoginScreen(driver);
+    }
+
+    @Test
+    public void loginWorks() {
+        loginScreen.login("qa_user", "S3cret!");   // platform-agnostic call
+    }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'appium-arch-ocp-platform-steps',
+    title: { tr: 'Adım Adım: OCP ile Yeni Bir Platform Nasıl Eklenir?', en: 'Step by Step: How a New Platform Is Added with OCP' },
+    steps: [
+      { id: 1, icon: '📐', label: { tr: 'Arayüz sözleşmeyi sabitler', en: 'The interface fixes the contract' }, detail: { tr: 'LoginScreen arayüzü tek bir metot tanımlar: login(user, pass). Bu sözleşme bir kez yazılır ve bir daha değişmez.', en: 'The LoginScreen interface defines one method: login(user, pass). This contract is written once and never changes again.' } },
+      { id: 2, icon: '🧱', label: { tr: 'Her platform ayrı sınıf', en: 'Each platform is its own class' }, detail: { tr: 'AndroidLoginScreen ve IOSLoginScreen arayüzü ayrı ayrı uygular — biri diğerinin kodunu bilmez, birbirini kırmaz.', en: 'AndroidLoginScreen and IOSLoginScreen each implement the interface separately — neither knows the other\'s code, neither can break the other.' } },
+      { id: 3, icon: '➕', label: { tr: 'Yeni ihtiyaç = yeni sınıf', en: 'New need = new class' }, detail: { tr: '"Tablet desteği" ihtiyacı gelirse TabletLoginScreen adında YENİ bir dosya açarsın; mevcut iki sınıfa DOKUNMAZSIN.', en: 'If a "tablet support" need arises, you open a NEW file named TabletLoginScreen; you do NOT touch the existing two classes.' } },
+      { id: 4, icon: '🔌', label: { tr: 'Test stratejiyi enjekte alır', en: 'The test receives the strategy injected' }, detail: { tr: '@Test hangi somut Screen\'in kullanıldığını bilmez, sadece LoginScreen arayüzüne bağlıdır — hangi platformun test edileceğini dışarıdan (setUp) belirlersin (DIP ile birlikte çalışır).', en: 'The @Test does not know which concrete Screen is used, it depends only on the LoginScreen interface — you determine which platform is tested from outside (setUp) (works together with DIP).' } },
+      { id: 5, icon: '🛡️', label: { tr: 'Eski testler dokunulmadan geçer', en: 'Old tests pass untouched' }, detail: { tr: 'Yeni platform eklenince mevcut Android testlerinin hiçbiri değişmediği için hiçbiri kırılamaz — OCP\'nin regresyon güvencesi tam olarak budur.', en: 'When the new platform is added, none of the existing Android tests changed, so none can break — this is exactly OCP\'s regression guarantee.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-appium-arch-ocp-order',
+    question: {
+      tr: '"Tablet desteği ekleyelim" ihtiyacını OCP\'ye uygun şekilde çözme adımlarını sıraya diz.',
+      en: 'Arrange the OCP-compliant steps for the need "let\'s add tablet support".',
+    },
+    items: [
+      { id: '1', text: { tr: 'Mevcut LoginScreen arayüzünü (sözleşmeyi) incele — değiştirme', en: 'Inspect the existing LoginScreen interface (the contract) — do not change it' }, order: 1 },
+      { id: '2', text: { tr: 'Yeni bir TabletLoginScreen dosyası oluştur, arayüzü implement et', en: 'Create a new TabletLoginScreen file, implement the interface' }, order: 2 },
+      { id: '3', text: { tr: 'login() metodunu tablet\'e özgü locator\'larla doldur', en: 'Fill the login() method with tablet-specific locators' }, order: 3 },
+      { id: '4', text: { tr: 'setUp() içindeki platform seçimine tablet dalını ekle', en: 'Add the tablet branch to the platform selection inside setUp()' }, order: 4 },
+      { id: '5', text: { tr: 'Mevcut Android/iOS testlerini çalıştır — hiçbiri değişmediği için hepsi geçer', en: 'Run the existing Android/iOS tests — since none changed, they all pass' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'appium-framework-ocp',
+    id: 'appium-arch-ocp-platform-practice',
+    label: {
+      tr: 'Micro Lab: OCP\'ye uygun yeni bir IOSLoginScreen ekle',
+      en: 'Micro Lab: add a new OCP-compliant IOSLoginScreen',
+    },
+    language: 'java',
+    task: {
+      tr: 'Proje artık iOS desteği de gerektiriyor. OCP kuralı gereği MEVCUT LoginScreen arayüzünü veya AndroidLoginScreen sınıfını DEĞİŞTİRMEDEN, yeni bir IOSLoginScreen sınıfı yaz. TODO satırlarını tamamla: sınıf LoginScreen\'i implement etmeli ve BasePage\'i extends etmelidir.',
+      en: 'The project now also requires iOS support. Per OCP, WITHOUT modifying the existing LoginScreen interface or the AndroidLoginScreen class, write a new IOSLoginScreen class. Complete the TODO lines: the class must implement LoginScreen and extend BasePage.',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir cihaza bağlanmaz; amaç OCP\'nin "genişlet ama değiştirme" ilkesini elle uygulayarak, yeni bir platformu mevcut sınıflara dokunmadan eklemenin regresyonu nasıl önlediğini pekiştirmektir.',
+      en: 'This is not a real device session; the goal is to apply OCP\'s "extend but do not modify" principle by hand, reinforcing how adding a new platform without touching existing classes prevents regression.',
+    },
+    code: {
+      tr: `public class IOSLoginScreen extends BasePage implements LoginScreen {
+    public IOSLoginScreen(AppiumDriver driver) {
+        super(driver);
+    }
+}`,
+      en: `public class IOSLoginScreen extends BasePage implements LoginScreen {
+    public IOSLoginScreen(AppiumDriver driver) {
+        super(driver);
+    }
+}`,
+    },
+    starterCode: {
+      tr: `public class IOSLoginScreen TODO {
+    public IOSLoginScreen(AppiumDriver driver) {
+        TODO;
+    }
+}`,
+      en: `public class IOSLoginScreen TODO {
+    public IOSLoginScreen(AppiumDriver driver) {
+        TODO;
+    }
+}`,
+    },
+    solutionCode: {
+      tr: `public class IOSLoginScreen extends BasePage implements LoginScreen {
+    public IOSLoginScreen(AppiumDriver driver) {
+        super(driver);
+    }
+}`,
+      en: `public class IOSLoginScreen extends BasePage implements LoginScreen {
+    public IOSLoginScreen(AppiumDriver driver) {
+        super(driver);
+    }
+}`,
+    },
+    expected: {
+      tr: 'İlk TODO "extends BasePage implements LoginScreen" olmalı; ikinci TODO super(driver) olmalı — mevcut arayüz ve AndroidLoginScreen\'e hiç dokunmadan yeni platform eklenir.',
+      en: 'The first TODO must be "extends BasePage implements LoginScreen"; the second TODO must be super(driver) — a new platform is added without touching the existing interface or AndroidLoginScreen.',
+    },
+    hints: [
+      { tr: 'OCP\'nin özü: yeni sınıf, hem BasePage\'i extends eder (ortak wait/tap davranışını miras almak için) HEM DE LoginScreen\'i implement eder (test kodunun onu tanıması için).', en: 'The essence of OCP: the new class BOTH extends BasePage (to inherit shared wait/tap behavior) AND implements LoginScreen (so test code recognizes it).' },
+      { tr: 'Java\'da bir sınıf AYNI ANDA hem bir sınıfı extends edebilir hem bir arayüzü implement edebilir — sözdizimi: class X extends Y implements Z.', en: 'In Java, a class can SIMULTANEOUSLY extend a class and implement an interface — syntax: class X extends Y implements Z.' },
+      { tr: 'super(driver) çağrısı, BasePage\'in constructor\'ını tetikler — bu, PageFactory.initElements(...) gibi ortak kurulum kodunu çalıştırır, kendi başına tekrar yazmana gerek KALMAZ.', en: 'The super(driver) call triggers BasePage\'s constructor — this runs shared setup code like PageFactory.initElements(...), so you do NOT need to rewrite it yourself.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: 'Bir Appium screen sınıfına her yeni platform için var olan login() metoduna if/else eklemek hangi SOLID prensibini ihlal eder?',
+      en: 'In an Appium screen class, adding an if/else to the existing login() method for every new platform violates which SOLID principle?',
+    },
+    options: [
+      { id: 'a', text: { tr: 'Open/Closed Principle (OCP) — sınıf genişlemeye açık, değişikliğe kapalı olmalı', en: 'Open/Closed Principle (OCP) — a class should be open to extension, closed to modification' } },
+      { id: 'b', text: { tr: 'Sadece Single Responsibility (SRP)', en: 'Only Single Responsibility (SRP)' } },
+      { id: 'c', text: { tr: 'Hiçbirini — if/else her zaman iyi pratiktir', en: 'None — if/else is always good practice' } },
+      { id: 'd', text: { tr: 'Liskov Substitution (LSP)', en: 'Liskov Substitution (LSP)' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: 'Her yeni platform için mevcut metodu değiştirmek (yeni else-if) OCP ihlalidir: sınıf "değişikliğe kapalı" olmalıydı. Cross-platform soyutlama ile davranışı arayüz arkasına alırsan, yeni platform eklemek mevcut kodu değiştirmeyi değil, yeni bir sınıf eklemeyi gerektirir.',
+      en: 'Modifying the existing method (a new else-if) for every new platform violates OCP: the class should have been "closed to modification". With cross-platform abstraction behind an interface, adding a new platform requires adding a new class, not changing existing code.',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Bir @Test metodunun somut AndroidLoginScreen yerine bir LoginScreen arayüzüne bağlı olması hangi prensibi uygular?',
+        en: 'A @Test method depending on a LoginScreen interface instead of the concrete AndroidLoginScreen applies which principle?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Dependency Inversion (DIP) — yüksek seviye modül soyutlamaya bağlı olmalı', en: 'Dependency Inversion (DIP) — high-level modules should depend on abstractions' } },
+        { id: 'b', text: { tr: 'Interface Segregation (ISP)', en: 'Interface Segregation (ISP)' } },
+        { id: 'c', text: { tr: 'Hiçbiri', en: 'None' } },
+        { id: 'd', text: { tr: 'Sadece OCP', en: 'Only OCP' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: 'DIP, yüksek seviye kodun (test) düşük seviye somut sınıfa değil, bir soyutlamaya (arayüz) bağlı olmasını söyler. Test bir LoginScreen arayüzüne bağlıysa, hangi platformun test edildiği TEK bir setUp() satırıyla değişebilir — test gövdesi hiç değişmez.',
+        en: 'DIP says high-level code (the test) should depend on an abstraction (interface), not a low-level concrete class. If the test depends on a LoginScreen interface, which platform is tested can change with ONE setUp() line — the test body never changes.',
+      },
+    },
+  },
+
+  // ── Adım 5 — Test / Data Katmanı: @Factory + Cihaz Matrisi ──
+  {
+    type: 'heading',
+    text: { tr: '🔗 Adım 5 — Test / Data Katmanı: @Factory & Cihaz Matrisi', en: '🔗 Step 5 — Test / Data Layer: @Factory & Device Matrix' },
+  },
+  {
+    type: 'simple-box',
+    emoji: '🏭',
+    content: {
+      tr: 'Test/Data katmanı, bir dizi konser turunun prodüksiyon yöneticisidir: AYNI şovu (aynı test senaryosunu) tek tek her şehirde (her cihazda) baştan kurmaz — TEK bir yapım (test sınıfı) tanımlar, turne planı (device matrix) bu yapımı N farklı şehirde (cihazda) sahneler. İkinci benzetme: TestNG\'nin `@Factory` annotation\'ı bir "seri üretim hattı" başlatıcısıdır — `@DataProvider` AYNI testi farklı VERİYLE (kullanıcı adı/şifre) besliyorken, `@Factory` AYNI test SINIFININ birden fazla ÖRNEĞİNİ (her biri farklı bir cihaza bağlı) üretir. Peki her cihaz için AYRI bir test sınıfı yazabiliyorken, neden @Factory + cihaz matrisi gerekiyor — 5 cihaz için 5 kopya sınıf yazmak daha basit değil mi? Değil, çünkü 5 kopyalanmış sınıfta senaryo değişirse 5 yeri elle güncellersin ve biri unutulur; @Factory ile mantık TEK, cihaz matrisi ÇOK olur. Java karşılaştırması: bu, JUnit 5\'in `@ParameterizedTest` + `@MethodSource`\'unun (REST Assured sekmesinde gördüğün) SINIF seviyesindeki karşılığıdır — "test mantığını veriden AYIR" ilkesi burada "test SINIFINI cihazdan AYIR"a genişler. QA bağlamı: 15 farklı Android/iOS cihaz+OS kombinasyonunda aynı login senaryosunu tek bir cihaz matrisiyle kapsarsın; yeni bir cihaz (örn. yeni bir Samsung modeli) çıkınca kod değil, sadece matrise bir satır eklersin.',
+      en: 'The Test/Data layer is a concert tour\'s production manager: it does not set up the SAME show (the same test scenario) from scratch in each city (each device) individually — it defines ONE production (a test class), and a tour plan (the device matrix) stages that production in N different cities (devices). Second analogy: TestNG\'s `@Factory` annotation is a "mass production line" starter — while `@DataProvider` feeds the SAME test with different DATA (username/password), `@Factory` produces multiple INSTANCES of the SAME test CLASS (each bound to a different device). But since you can write a SEPARATE test class per device, why do you need @Factory + a device matrix — isn\'t writing 5 copied classes for 5 devices simpler? It is not, because if the scenario changes across 5 copied classes, you update 5 places by hand and one gets missed; with @Factory the logic is ONE, the device matrix is MANY. Java comparison: this is the CLASS-level counterpart of JUnit 5\'s `@ParameterizedTest` + `@MethodSource` (which you saw in the REST Assured tab) — the "separate test logic from data" principle expands here to "separate the test CLASS from the device". QA context: you cover the same login scenario across 15 different Android/iOS device+OS combinations with a single device matrix; when a new device appears (e.g. a new Samsung model), you add a row to the matrix, not code.',
+    },
+  },
+  {
+    type: 'text',
+    content: {
+      tr: 'Bu son katmanda tüm parçalar birleşir: device-matrix.json her satırda bir platform/OS/cihaz kombinasyonu tanımlar; @Factory ile işaretli bir metot bu matristeki HER satır için AYRI bir test sınıfı örneği üretir; her örnek kendi CapabilitiesFactory + AppiumDriverManager (Adım 2) çağrısını yapar, kendi platformuna uygun LoginScreen implementasyonunu (Adım 4) enjekte eder.',
+      en: 'In this final layer, all pieces come together: device-matrix.json defines a platform/OS/device combination on each row; a method marked with @Factory produces a SEPARATE test class instance for EVERY row in that matrix; each instance makes its own CapabilitiesFactory + AppiumDriverManager (Step 2) call, injecting the LoginScreen implementation (Step 4) appropriate for its platform.',
+    },
+  },
+  {
+    type: 'code',
+    language: 'java',
+    code: {
+      tr: `// ─── DeviceMatrixFactory.java — @Factory ile AYNI test sinifinin N ornegi ───
+package tests;
+
+import org.testng.annotations.Factory;
+
+public class DeviceMatrixFactory {
+
+    // cihaz matrisi — mantik TEK, cihaz COK
+    @Factory
+    public Object[] createInstances() {
+        return new Object[] {
+            new LoginTest("android", "Pixel 7", "14"),
+            new LoginTest("android", "Samsung S23", "13"),
+            new LoginTest("ios", "iPhone 15", "17"),
+        };
+    }
+}
+
+// ─── LoginTest.java — HER cihaz icin AYRI bir ornek, mantik AYNI ───
+package tests;
+
+import org.testng.annotations.*;
+
+public class LoginTest {
+    private final String platform, deviceName, osVersion;
+    private LoginScreen loginScreen;
+
+    public LoginTest(String platform, String deviceName, String osVersion) {
+        this.platform = platform;
+        this.deviceName = deviceName;
+        this.osVersion = osVersion;
+    }
+
+    @BeforeClass
+    public void setUp() {
+        var options = platform.equals("android")
+            ? CapabilitiesFactory.android(deviceName, osVersion)
+            : CapabilitiesFactory.ios(deviceName, osVersion);
+        AppiumDriverManager.createDriver(newDriverFor(platform, options));
+
+        loginScreen = platform.equals("android")
+            ? new AndroidLoginScreen(AppiumDriverManager.getDriver())
+            : new IOSLoginScreen(AppiumDriverManager.getDriver());
+    }
+
+    @Test
+    public void loginWorks() {
+        loginScreen.login("qa_user", "S3cret!");   // mantik HER cihazda AYNI
+    }
+
+    @AfterClass
+    public void tearDown() {
+        AppiumDriverManager.quitDriver();
+    }
+}`,
+      en: `// ─── DeviceMatrixFactory.java — @Factory produces N instances of the SAME test class ───
+package tests;
+
+import org.testng.annotations.Factory;
+
+public class DeviceMatrixFactory {
+
+    // device matrix — logic ONE, devices MANY
+    @Factory
+    public Object[] createInstances() {
+        return new Object[] {
+            new LoginTest("android", "Pixel 7", "14"),
+            new LoginTest("android", "Samsung S23", "13"),
+            new LoginTest("ios", "iPhone 15", "17"),
+        };
+    }
+}
+
+// ─── LoginTest.java — a SEPARATE instance per device, the SAME logic ───
+package tests;
+
+import org.testng.annotations.*;
+
+public class LoginTest {
+    private final String platform, deviceName, osVersion;
+    private LoginScreen loginScreen;
+
+    public LoginTest(String platform, String deviceName, String osVersion) {
+        this.platform = platform;
+        this.deviceName = deviceName;
+        this.osVersion = osVersion;
+    }
+
+    @BeforeClass
+    public void setUp() {
+        var options = platform.equals("android")
+            ? CapabilitiesFactory.android(deviceName, osVersion)
+            : CapabilitiesFactory.ios(deviceName, osVersion);
+        AppiumDriverManager.createDriver(newDriverFor(platform, options));
+
+        loginScreen = platform.equals("android")
+            ? new AndroidLoginScreen(AppiumDriverManager.getDriver())
+            : new IOSLoginScreen(AppiumDriverManager.getDriver());
+    }
+
+    @Test
+    public void loginWorks() {
+        loginScreen.login("qa_user", "S3cret!");   // logic is THE SAME on every device
+    }
+
+    @AfterClass
+    public void tearDown() {
+        AppiumDriverManager.quitDriver();
+    }
+}`,
+    },
+  },
+  {
+    type: 'step-animation',
+    id: 'appium-arch-device-matrix-steps',
+    title: { tr: 'Adım Adım: @Factory Aynı Testi Nasıl 3 Cihazda Koşturur?', en: 'Step by Step: How @Factory Runs the Same Test on 3 Devices' },
+    steps: [
+      { id: 1, icon: '📋', label: { tr: 'createInstances() cihaz matrisini üretir', en: 'createInstances() produces the device matrix' }, detail: { tr: 'Object[] dizisi 3 LoginTest örneği içerir: her biri farklı platform+cihaz+OS kombinasyonuyla oluşturulmuş. TestNG bu diziyi testler başlamadan önce OKUR.', en: 'The Object[] array holds 3 LoginTest instances: each built with a different platform+device+OS combination. TestNG READS this array before the tests start.' } },
+      { id: 2, icon: '🔁', label: { tr: 'Her örnek için AYRI @BeforeClass', en: 'A SEPARATE @BeforeClass for each instance' }, detail: { tr: 'TestNG her LoginTest örneğini BAĞIMSIZ bir test sınıfı sayar — her birinden önce KENDİ @BeforeClass\'ı çalışır, KENDİ cihazına bağlanır.', en: 'TestNG treats each LoginTest instance as an INDEPENDENT test class — its OWN @BeforeClass runs before it, connecting to ITS OWN device.' } },
+      { id: 3, icon: '🎯', label: { tr: 'Platform değeri constructor\'a geçer', en: 'The platform value passes into the constructor' }, detail: { tr: '1. örnek: platform="android", deviceName="Pixel 7" — bu değerler constructor parametrelerine sırayla enjekte edilir.', en: 'Instance 1: platform="android", deviceName="Pixel 7" — these values are injected into the constructor parameters in order.' } },
+      { id: 4, icon: '🧪', label: { tr: 'Cross-Platform Screen + assertion çalışır', en: 'Cross-Platform Screen + assertion run' }, detail: { tr: 'loginScreen.login() çağrılır (Adım 4, LoginScreen arayüzü), sonuç doğrulanır — mantık her cihazda AYNI, sadece somut Screen implementasyonu değişir.', en: 'loginScreen.login() is called (Step 4, the LoginScreen interface), and the result is verified — the logic is the SAME on every device, only the concrete Screen implementation changes.' } },
+      { id: 5, icon: '📊', label: { tr: 'Rapor: 3 ayrı sonuç, cihaz bazında', en: 'Report: 3 separate results, per device' }, detail: { tr: 'Test raporunda tek senaryo 3 satır olarak görünür — biri fail olursa hangi CİHAZIN patladığını net görürsün, kopyalanmış 3 sınıfta bu netlik olmazdı.', en: 'In the report, the single scenario appears as 3 rows — if one fails, you clearly see which DEVICE broke; with 3 copied classes you would not have that clarity.' } },
+    ],
+  },
+  {
+    type: 'challenge',
+    variant: 'order-sort',
+    id: 'ch-appium-arch-device-matrix-order',
+    question: {
+      tr: '@Factory ile bir cihaz matrisi kurmanın adımlarını doğru sıraya diz.',
+      en: 'Arrange the steps of building a device matrix with @Factory in the correct order.',
+    },
+    items: [
+      { id: '1', text: { tr: 'LoginTest sınıfında platform/deviceName/osVersion alan+constructor tanımla', en: 'Define platform/deviceName/osVersion fields+constructor in the LoginTest class' }, order: 1 },
+      { id: '2', text: { tr: '@Factory ile işaretli createInstances() metodunda Object[] döndür', en: 'Return an Object[] in a createInstances() method marked @Factory' }, order: 2 },
+      { id: '3', text: { tr: 'Her cihaz için new LoginTest(platform, device, os) ekle', en: 'Add new LoginTest(platform, device, os) for each device' }, order: 3 },
+      { id: '4', text: { tr: '@BeforeClass: CapabilitiesFactory + AppiumDriverManager ile driver aç', en: '@BeforeClass: open the driver with CapabilitiesFactory + AppiumDriverManager' }, order: 4 },
+      { id: '5', text: { tr: '@Test gövdesinde LoginScreen (arayüz) ile login() çağır', en: 'In the @Test body, call login() via LoginScreen (the interface)' }, order: 5 },
+    ],
+    xpReward: 20,
+  },
+  {
+    type: 'code-playground',
+    relatedTopicId: 'appium-framework-dataprovider',
+    id: 'appium-arch-device-matrix-practice',
+    label: {
+      tr: 'Micro Lab: DeviceMatrixFactory\'i 3 cihaz üretecek şekilde tamamla',
+      en: 'Micro Lab: complete DeviceMatrixFactory so it produces 3 devices',
+    },
+    language: 'java',
+    task: {
+      tr: 'createInstances() metodu bir Object[] dizisi döndürüyor ama TODO satırı eksik olduğu için sadece 2 cihaz üretiyor — iOS cihazı listeye HİÇ eklenmemiş. TODO satırını, "ios", "iPhone 15", "17" parametreleriyle üçüncü bir LoginTest örneği ekleyecek şekilde tamamla.',
+      en: 'The createInstances() method returns an Object[] array, but because the TODO line is missing, it only produces 2 devices — the iOS device was NEVER added to the list. Complete the TODO line to add a third LoginTest instance with the parameters "ios", "iPhone 15", "17".',
+    },
+    explanation: {
+      tr: 'Bu pratik gerçek bir cihaza bağlanmaz; amaç @Factory\'nin "AYNI test sınıfının BİRDEN FAZLA örneğini üret" mekanizmasını elle tamamlayarak pekiştirmektir.',
+      en: 'This is not a real device session; the goal is to reinforce, by completing it yourself, @Factory\'s mechanism of "producing MULTIPLE instances of the SAME test class".',
+    },
+    code: {
+      tr: `@Factory
+public Object[] createInstances() {
+    return new Object[] {
+        new LoginTest("android", "Pixel 7", "14"),
+        new LoginTest("android", "Samsung S23", "13"),
+        new LoginTest("ios", "iPhone 15", "17"),
+    };
+}`,
+      en: `@Factory
+public Object[] createInstances() {
+    return new Object[] {
+        new LoginTest("android", "Pixel 7", "14"),
+        new LoginTest("android", "Samsung S23", "13"),
+        new LoginTest("ios", "iPhone 15", "17"),
+    };
+}`,
+    },
+    starterCode: {
+      tr: `@Factory
+public Object[] createInstances() {
+    return new Object[] {
+        new LoginTest("android", "Pixel 7", "14"),
+        new LoginTest("android", "Samsung S23", "13"),
+        TODO,   // iOS cihazini ekle
+    };
+}`,
+      en: `@Factory
+public Object[] createInstances() {
+    return new Object[] {
+        new LoginTest("android", "Pixel 7", "14"),
+        new LoginTest("android", "Samsung S23", "13"),
+        TODO,   // add the iOS device
+    };
+}`,
+    },
+    solutionCode: {
+      tr: `@Factory
+public Object[] createInstances() {
+    return new Object[] {
+        new LoginTest("android", "Pixel 7", "14"),
+        new LoginTest("android", "Samsung S23", "13"),
+        new LoginTest("ios", "iPhone 15", "17"),
+    };
+}`,
+      en: `@Factory
+public Object[] createInstances() {
+    return new Object[] {
+        new LoginTest("android", "Pixel 7", "14"),
+        new LoginTest("android", "Samsung S23", "13"),
+        new LoginTest("ios", "iPhone 15", "17"),
+    };
+}`,
+    },
+    expected: {
+      tr: 'TODO satırı new LoginTest("ios", "iPhone 15", "17") olmalı — bu satır, cihaz matrisine ÜÇÜNCÜ bir platform+cihaz kombinasyonu ekler.',
+      en: 'The TODO line must be new LoginTest("ios", "iPhone 15", "17") — this line adds a THIRD platform+device combination to the device matrix.',
+    },
+    hints: [
+      { tr: '@Factory ile işaretli bir metot, TESTLERİ değil test SINIFI ÖRNEKLERİNİ üretir — dizideki her eleman, o sınıfın YENİ bir örneğidir.', en: 'A method marked @Factory produces test CLASS INSTANCES, not tests — every element in the array is a NEW instance of that class.' },
+      { tr: 'Constructor parametreleri (platform, deviceName, osVersion) sırayla geçirilir — "ios" birinci, "iPhone 15" ikinci, "17" üçüncü parametredir.', en: 'Constructor parameters (platform, deviceName, osVersion) are passed in order — "ios" is the first, "iPhone 15" the second, "17" the third parameter.' },
+      { tr: 'TestNG, döndürülen Object[] dizisindeki HER örneği bağımsız bir test sınıfı gibi çalıştırır — üçüncü elemanı eklemek otomatik olarak üçüncü bir cihazda koşum sağlar.', en: 'TestNG runs EVERY instance in the returned Object[] array as an independent test class — adding the third element automatically provides a run on a third device.' },
+    ],
+    xpReward: 15,
+  },
+  {
+    type: 'quiz',
+    question: {
+      tr: '@Factory ile @ParameterizedTest/@DataProvider arasındaki temel fark nedir?',
+      en: 'What is the fundamental difference between @Factory and @ParameterizedTest/@DataProvider?',
+    },
+    options: [
+      { id: 'a', text: { tr: '@Factory AYNI test sınıfının BİRDEN FAZLA örneğini üretir; @DataProvider ise AYNI test metodunu farklı VERİYLE besler', en: '@Factory produces MULTIPLE instances of the SAME test class; @DataProvider feeds the SAME test method with different DATA' } },
+      { id: 'b', text: { tr: 'İkisi birebir aynı şeydir, sadece isimleri farklıdır', en: 'They are exactly the same thing, only the names differ' } },
+      { id: 'c', text: { tr: '@Factory sadece mobil testlerde çalışır', en: '@Factory only works in mobile tests' } },
+      { id: 'd', text: { tr: '@DataProvider TestNG\'de yoktur, sadece JUnit5\'te vardır', en: '@DataProvider does not exist in TestNG, only in JUnit5' } },
+    ],
+    correct: 'a',
+    explanation: {
+      tr: '@DataProvider bir test METODUNU farklı veri satırlarıyla tekrar tekrar çalıştırır (aynı sınıf örneği içinde); @Factory ise SINIF seviyesinde çalışır — test SINIFININ kendisinden birden fazla ÖRNEK üretir, her örnek kendi constructor parametreleriyle (platform, cihaz, OS) farklı bir kurulum yapabilir.',
+      en: '@DataProvider runs a test METHOD repeatedly with different data rows (within the same class instance); @Factory operates at the CLASS level — it produces multiple INSTANCES of the test CLASS itself, each instance able to set up differently via its own constructor parameters (platform, device, OS).',
+    },
+    retryQuestion: {
+      question: {
+        tr: 'Aynı login senaryosu için 3 ayrı test sınıfı (AndroidPixelTest, AndroidSamsungTest, IOSTest) kopyalamak yerine @Factory + cihaz matrisi kullanmanın en büyük avantajı nedir?',
+        en: 'What is the biggest advantage of using @Factory + a device matrix instead of copying 3 separate test classes (AndroidPixelTest, AndroidSamsungTest, IOSTest) for the same login scenario?',
+      },
+      options: [
+        { id: 'a', text: { tr: 'Senaryo mantığı değiştiğinde TEK sınıf güncellenir, cihaz satırları ayrı kalır', en: 'When the scenario logic changes, only ONE class is updated, the device rows stay separate' } },
+        { id: 'b', text: { tr: 'Testler daha hızlı çalışır', en: 'The tests run faster' } },
+        { id: 'c', text: { tr: 'CapabilitiesFactory\'ye gerek kalmaz', en: 'CapabilitiesFactory is no longer needed' } },
+        { id: 'd', text: { tr: 'TestNG bunu zorunlu kılar', en: 'TestNG requires this' } },
+      ],
+      correct: 'a',
+      explanation: {
+        tr: '3 kopyalanmış sınıfta login senaryosu değişirse (örn. yeni bir doğrulama adımı eklenirse) 3 yeri elle güncellersin ve biri unutulabilir. @Factory ile mantık TEK sınıfta durur, device-matrix\'e yeni bir satır eklemek yeni bir cihazı kod yazmadan kapsar.',
+        en: 'With 3 copied classes, if the login scenario changes (e.g. a new verification step is added), you update 3 places by hand and one can be missed. With @Factory, the logic lives in ONE class, and adding a new row to the device matrix covers a new device without writing code.',
+      },
+    },
+  },
+]
+
+const sectionFwArch = {
+  tr: { title: '🏗️ Framework Mimarisi (SOLID + POM)', blocks: appiumArchBlocks },
+  en: { title: '🏗️ Framework Architecture (SOLID + POM)', blocks: appiumArchBlocks },
+}
+
 // ─── SECTION 4: GERÇEK SENARYO ───────────────────────────────────────────────
 const section4 = {
   tr: {
@@ -5010,10 +6410,10 @@ const buildLang = (lang) => ({
     },
   }[lang],
   tabs: {
-    tr: ['🎯 Giriş & Mimari', '⚙️ Kurulum', '🔧 Capabilities', '🔍 Locator & POM', '🧪 Gerçek Senaryo', '🚨 Yaygın Hatalar', '💼 50 Mülakat Sorusu'],
-    en: ['🎯 Intro & Architecture', '⚙️ Installation', '🔧 Capabilities', '🔍 Locator & POM', '🧪 Real Scenario', '🚨 Common Errors', '💼 50 Interview Questions'],
+    tr: ['🎯 Giriş & Mimari', '⚙️ Kurulum', '🔧 Capabilities', '🔍 Locator & POM', '🏗️ Framework Mimarisi', '🧪 Gerçek Senaryo', '🚨 Yaygın Hatalar', '💼 50 Mülakat Sorusu'],
+    en: ['🎯 Intro & Architecture', '⚙️ Installation', '🔧 Capabilities', '🔍 Locator & POM', '🏗️ Framework Architecture', '🧪 Real Scenario', '🚨 Common Errors', '💼 50 Interview Questions'],
   }[lang],
-  sections: [section0, section1, section2, section3, section4, section5, section6].map(s => s[lang]),
+  sections: [section0, section1, section2, section3, sectionFwArch, section4, section5, section6].map(s => s[lang]),
 })
 
 export const appiumData = {

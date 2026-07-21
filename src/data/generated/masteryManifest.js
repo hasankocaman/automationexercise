@@ -130,9 +130,9 @@ export const MASTERY_MANIFEST = {
   },
   "/appium": {
     "pageKey": "appium3x",
-    "tabCount": 7,
-    "totalQuizBlocks": 11,
-    "totalExerciseBlocks": 26,
+    "tabCount": 8,
+    "totalQuizBlocks": 16,
+    "totalExerciseBlocks": 35,
     "hasInterview": true
   },
   "/browserstack": {
