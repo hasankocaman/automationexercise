@@ -10,39 +10,58 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-21 sonu — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-21, Haiku/Sonnet oturumu sonu — önce BURAYI oku)
 
 | | |
 |---|---|
 | **Aktif branch** | `feature/framework-arch-selenium-multiview` (tüm iş burada) |
-| **Son commit** | `fd68072` — §9.3 analoji denetimi kapandı |
-| **Çalışma ağacı** | temiz |
+| **Son commit** | `12b3a64` (bu oturum öncesi) — bu oturumun kendi commiti'nin hash'i bir sonraki oturumda `git log -1` ile teyit edilmeli |
+| **Çalışma ağacı** | bu oturumun değişiklikleri commit edildi |
 | **Push durumu** | **LOCAL — henüz push edilmedi** (ağ sorunu geçmişi var, bkz. aşağıdaki branch temizliği maddesi) |
 
-**Bu oturumda bitenler:** (1) `feature/algorithms-quiz-gating` bu branch'e merge
-edildi · (2) **§9.3 analoji denetimi 119 → 0** (24/24 sayfa temiz, 481 bölüm) ·
-(3) `audit-analogy-depth.mjs` kopula metaforlarını yakalayacak şekilde düzeltildi.
+**Bu oturumda bitenler:** Selenium Framework Mimarisi sekmesine **§9.5 video-scene
+eklendi** — `seleniumArchTestChainFilm` (id: `selenium-arch-test-chain-film`,
+`src/data/seleniumData.js`), Adım 1'in mindmap/grid bloklarının hemen ardına,
+quiz'den ÖNCE yerleştirildi (47 → 48 blok, section[6], hem TR hem EN section aynı
+referansı paylaşıyor çünkü bu dosya tek `seleniumArchBlocks` dizisi kullanıyor).
+Film, sekmenin GERÇEK içeriğini görselleştiriyor — konudan kopuk değil: Adım 1'deki
+"Ana Akış" (@Test → LoginPage → BasePage → WaitFactory → DriverManager → Browser)
+ve Adım 3'teki "Neden ThreadLocal" (Thread-2 kontrastı) aynı zincirin animasyonu.
+`tests/video-scene.spec.ts`'e "Dalga 6 Batch 2" grubunun sonuna temsili render
+testi eklendi (`/selenium — 🏗️ Framework Mimarisi sekmesinde film render olur`).
+
+**Doğrulama (bu oturumda gerçekten koşuldu):** `node --input-type=module -e
+"import('./src/data/seleniumData.js')"` → parse OK · `node
+scripts/check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ · `npm run build`
+→ exit 0 ✓ (SEO zinciri dahil, 41 static route shell üretildi) · `git diff -U0
+src/data/seleniumData.js | grep "^-"` → BOŞ (mevcut içerikten hiçbir şey
+kaybedilmedi, saf ekleme) · section[6] block sayısı node ile doğrulandı: 48 blok,
+1 video-scene, 0 auto-injected jenerik blok.
+**Koşulmadı (kullanıcı isteğiyle "test etmeden commit"):** Playwright paketi —
+yeni eklenen `tests/video-scene.spec.ts` testi dahil hiçbir e2e testi
+ÇALIŞTIRILMADI. Bir sonraki oturumun ilk işi bunu teyit etmek olmalı.
+
+**⚠️ chunk boyutu notu:** `seleniumData` chunk'ı build çıktısında **620.95 kB**
+(gzip 197.15 kB) — video-scene bloğu eklenmeden önceki boyut bu oturumda
+ölçülmedi, bir sonraki oturumda büyüme trendini görmek için not edilsin.
 
 ### ⚠️ AÇIK DOĞRULAMA BORCU (bir sonraki oturumun İLK işi)
-Bu oturumdaki 4 commit **kullanıcı isteğiyle Playwright koşulmadan** atıldı.
-Koşulanlar: `audit-analogy-depth.mjs`, `check-content-integrity.mjs`, `npm run build`
-(hepsi ✓). **Koşulmayan:** 191 testlik paket. Yalnızca `simple-box` metinleri
-değişti, ama bu metinler TR+EN olduğu için risk `i18n-content-toggle.spec.ts`
-(EN modda Türkçe sızıntısı) üzerindedir. Teyit komutu:
-`npx playwright test tests/i18n-content-toggle.spec.ts` — kırılırsa bakılacak
-sayfalar: sql, bruno, javascript, python, selenium, cypress, azure, jenkins,
-kubernetes, playwright, postman.
-Ayrıca daha eski bir borç: `-g "git-github"` ve `-g "appium"` teyidi (önceki oturum).
+Birikmiş, hiç koşulmamış testler:
+1. `npx playwright test tests/video-scene.spec.ts -g "Framework Mimarisi"` — bu
+   oturumda YAZILDI ama hiç ÇALIŞTIRILMADI, önce bu koşulmalı (yeni yazılan test
+   selector/timing hatası içeriyor olabilir).
+2. `npx playwright test tests/i18n-content-toggle.spec.ts` — önceki oturumdan
+   kalan borç (EN modda TR sızıntısı riski): sql, bruno, javascript, python,
+   selenium, cypress, azure, jenkins, kubernetes, playwright, postman.
+3. `-g "git-github"` ve `-g "appium"` teyidi — daha eski bir borç.
 
 ### 🔜 SIRADAKİ İŞ (öncelik sırasıyla)
-1. **Yukarıdaki doğrulama borcunu kapat.**
-2. **Selenium Framework Mimarisi sekmesini bitir** — §9.6'nın 5 görünümü eklendi
-   ama **§9.5 video-scene o yeni sekmeye HENÜZ eklenmedi** ve sekme için render
-   testi yazılmadı (`tests/video-scene.spec.ts`).
-3. **§9.6 rollout'a devam** — Playwright / Cypress / REST Assured / Appium.
+1. **Yukarıdaki doğrulama borcunu kapat** (özellikle yeni yazılan video-scene testi).
+2. **§9.6 rollout'a devam** — Playwright / Cypress / REST Assured / Appium.
    `restAssuredData` gauge ile AYNI iskelete sahip (kaydırma deseni doğrudan
-   uygulanabilir); diğerleri önce incelenmeli.
-4. **Branch/remote temizliği (yarım kaldı)** — `git push origin --delete
+   uygulanabilir); diğerleri önce incelenmeli. Selenium artık gauge ile birlikte
+   TAMAMLANMIŞ referans sayfa (5-görünüm + video-scene).
+3. **Branch/remote temizliği (yarım kaldı)** — `git push origin --delete
    feature/sandbox-and-framework-arch` DNS hatası yüzünden işlenmedi, ağ gelince
    tekrar denenmeli.
 
@@ -210,7 +229,7 @@ sayfanın veri dosyası TEK ağaçlı mı ÇİFT ağaçlı mı, işe başlamadan
 
 ---
 
-## 🚧 DEVAM EDİYOR — Framework Mimarisi 5-görünüm standardı (§9.6) Selenium'a rollout edildi (Faz A, 2. sayfa) (2026-07-21, Sonnet oturumu)
+## ✅ TAMAMLANDI — Framework Mimarisi 5-görünüm standardı (§9.6) + video-scene (§9.5) Selenium'a rollout edildi (Faz A, 2. sayfa) (2026-07-21, Sonnet oturumu + Haiku/Sonnet devam oturumu)
 
 **Bağlam:** Kullanıcı, Gauge pilotunda (§9.6, `gaugeData.js`) tamamlanan
 5-görünümlü "Framework Mimarisi" standardının Selenium'a taşınmasını istedi.
@@ -256,11 +275,12 @@ oturumda aktif).
 - `node scripts/check-content-integrity.mjs`: TÜM KONTROLLER GEÇTİ ✓
   (relatedTopicId + dedup, 36 dosya).
 - TR yorumlar bilingual bloklarda Türkçe yazıldı (teknik terimler İngilizce).
-- **NOT (kullanıcı isteğiyle e2e/Playwright KOŞULMADI):** `npm run build` tam
-  zinciri ve Playwright regresyonu bu oturumda çalıştırılMADI — commit "test
-  etmeden" atıldı. Sonraki oturumda `npm run build` + `tests/video-scene.spec.ts`
-  benzeri bir render testiyle Selenium Framework Mimarisi sekmesi doğrulanmalı;
-  ayrıca §9.5 (video-scene) bu yeni sekmeye HENÜZ eklenmedi.
+
+**GÜNCELLEME (Haiku/Sonnet devam oturumu, aynı gün):** §9.5 video-scene eksiği
+kapatıldı — `seleniumArchTestChainFilm` eklendi (48 blok oldu) ve `npm run build`
+bu kez ÇALIŞTIRILDI (exit 0 ✓). `tests/video-scene.spec.ts`'e render testi
+eklendi ama Playwright hâlâ hiç KOŞULMADI — detay için yukarıdaki "ŞU AN NE
+DURUMDAYIZ" bölümüne bak.
 
 **Sıradaki adım (§4.1 rollout devam):** Aynı 5-görünüm standardı henüz
 Playwright / Cypress / REST Assured / Appium'a uygulanMADI. Referans artık

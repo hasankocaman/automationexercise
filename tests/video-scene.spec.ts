@@ -435,6 +435,23 @@ test.describe('Video-Scene — Dalga 6 Batch 2 (/selenium, Ekosistem/CDP & BiDi/
 
         await context.close();
     });
+
+    test('/selenium — 🏗️ Framework Mimarisi sekmesinde film render olur (selenium-arch-test-chain-film)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/selenium');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
 });
 
 test.describe('Video-Scene — Dalga 7 Batch 1 (/playwright, Playwright Nedir?/Locator Stratejileri/Page Object Model)', () => {

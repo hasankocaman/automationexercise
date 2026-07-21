@@ -8206,6 +8206,103 @@ Assert.assertEquals(violations.size(), 0, "Accessibility violations found!");` }
 // trio'suyla (step-animation + challenge + code-playground) izlenir → filler
 // jenerik blok EKLEMEZ.
 // ══════════════════════════════════════════════════════════════════════════
+// ─── Framework Mimarisi film bloğu (video-scene, §9.5) — Adım 1'in mindmap'ini
+// (Ana Akış + Neden ThreadLocal) canlandırır: konudan bağımsız DEĞİL, doğrudan
+// yukarıdaki python-flow-diagram + grid'lerin anlattığı zinciri gösterir.
+const seleniumArchTestChainFilm = {
+  type: 'video-scene',
+  id: 'selenium-arch-test-chain-film',
+  title: {
+    tr: '🎬 Bir @Test Çağrısının Zinciri (ve Thread-2 Kontrastı)',
+    en: '🎬 The Journey of a @Test Call (and the Thread-2 Contrast)',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test',          emoji: '🧪', label: { tr: '@Test (loginTest)',      en: '@Test (loginTest)' },      color: '#0ea5e9' },
+    { id: 'loginPage',     emoji: '🖱️', label: { tr: 'LoginPage (POM)',        en: 'LoginPage (POM)' },        color: '#f59e0b' },
+    { id: 'basePage',      emoji: '🧱', label: { tr: 'BasePage',               en: 'BasePage' },               color: '#8b5cf6' },
+    { id: 'waitFactory',   emoji: '⏳', label: { tr: 'WaitFactory',            en: 'WaitFactory' },            color: '#6366f1' },
+    { id: 'driverManager', emoji: '🚰', label: { tr: 'DriverManager',          en: 'DriverManager' },          color: '#22c55e' },
+    { id: 'browser',       emoji: '🌐', label: { tr: 'WebDriver / Browser',    en: 'WebDriver / Browser' },    color: '#10b981' },
+    { id: 'thread2',       emoji: '🧵', label: { tr: 'Thread-2 (paralel test)', en: 'Thread-2 (parallel test)' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`loginTest` metodu çalışmaya başlıyor. Bu metot SADECE senaryoyu anlatır — hiçbir locator veya bekleme kodu içermez, işi doğrudan LoginPage\'e devreder.',
+        en: 'The `loginTest` method starts running. This method ONLY narrates the scenario — it contains no locators or wait code, it hands the work straight to LoginPage.',
+      },
+      code: { tr: `loginPage.login("qa_user", "S3cret!")`, en: `loginPage.login("qa_user", "S3cret!")` },
+      positions: {
+        test: { x: 12, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — LoginPage (POM) devreye girer: kendi `@FindBy` locator\'larını bilir ama tıklama/bekleme mantığına HİÇ dokunmaz, onu miras aldığı BasePage\'e bırakır.',
+        en: 'Step 1 — LoginPage (POM) takes over: it knows its own `@FindBy` locators but NEVER touches click/wait logic, leaving that to the BasePage it extends.',
+      },
+      code: { tr: `basePage.type(usernameField, "qa_user")`, en: `basePage.type(usernameField, "qa_user")` },
+      positions: {
+        test: { x: 10, y: 50, opacity: 0.5, scale: 0.85 },
+        loginPage: { x: 32, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'loginPage' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — BasePage, elemente dokunmadan ÖNCE ortak bekleme kuralını WaitFactory\'den ister. Bu SRP sınırıdır: BasePage "nasıl beklenir"i bilmez, sadece "ne zaman beklemesi gerektiğini" bilir.',
+        en: 'Step 2 — Before touching the element, BasePage asks WaitFactory for the shared wait rule. This is the SRP boundary: BasePage does not know HOW to wait, only WHEN it must wait.',
+      },
+      code: { tr: `WaitFactory.fluentWait().until(...)`, en: `WaitFactory.fluentWait().until(...)` },
+      positions: {
+        loginPage: { x: 14, y: 50, opacity: 0.5, scale: 0.85 },
+        basePage: { x: 36, y: 50, scale: 1.15 },
+        waitFactory: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'loginPage', to: 'basePage' }, { from: 'basePage', to: 'waitFactory', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — WaitFactory, polling ritmini kurmadan ÖNCE hangi thread\'de çalıştığını bilmesi gerekir: bunun için DriverManager.getDriver()\'ı çağırır.',
+        en: 'Step 3 — Before setting up the polling rhythm, WaitFactory needs to know which thread it is running on: it calls DriverManager.getDriver() for that.',
+      },
+      code: { tr: `DriverManager.getDriver()`, en: `DriverManager.getDriver()` },
+      positions: {
+        waitFactory: { x: 22, y: 50, opacity: 0.5, scale: 0.85 },
+        driverManager: { x: 48, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'waitFactory', to: 'driverManager', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — DriverManager, ThreadLocal\'dan BU thread\'e ait WebDriver örneğini döndürür. Artık zincir gerçek tarayıcıya ulaştı — sıradaki adım GERÇEK bir DOM etkileşimi.',
+        en: 'Step 4 — DriverManager returns the WebDriver instance that belongs to THIS thread from ThreadLocal. The chain has now reached the real browser — the next step is a REAL DOM interaction.',
+      },
+      code: { tr: `driver.findElement(usernameField).sendKeys(...)`, en: `driver.findElement(usernameField).sendKeys(...)` },
+      positions: {
+        driverManager: { x: 20, y: 50, opacity: 0.5, scale: 0.85 },
+        browser: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'driverManager', to: 'browser', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Final (kontrast) — Thread-2 AYNI zinciri paralel çalıştırıyor: kendi DriverManager.getDriver() çağrısı ThreadLocal sayesinde FARKLI bir WebDriver döndürür. Statik tek bir alan olsaydı, iki thread aynı tarayıcıya yazar ve testler birbirini bozardı — ThreadLocal bu çakışmayı MİMARİ düzeyde engeller.',
+        en: 'Final (the contrast) — Thread-2 runs the SAME chain in parallel: thanks to ThreadLocal, its own DriverManager.getDriver() call returns a DIFFERENT WebDriver. Had there been one static field, the two threads would write to the same browser and the tests would corrupt each other — ThreadLocal prevents this collision at the ARCHITECTURE level.',
+      },
+      positions: {
+        browser: { x: 20, y: 30, scale: 0.9 },
+        driverManager: { x: 48, y: 50, scale: 1.05 },
+        thread2: { x: 76, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'browser', to: 'driverManager' }, { from: 'driverManager', to: 'thread2', color: '#ef4444' }],
+    },
+  ],
+}
+
 const seleniumArchBlocks = [
   {
     type: 'simple-box',
@@ -8348,6 +8445,7 @@ const seleniumArchBlocks = [
       { icon: '🪝', label: { tr: 'BaseTest', en: 'BaseTest' }, desc: { tr: '✔ Hook · ✔ config okur · ✔ Setup/Teardown', en: '✔ Hooks · ✔ Reads config · ✔ Setup/Teardown' } },
     ],
   },
+  seleniumArchTestChainFilm,
   {
     type: 'quiz',
     question: {
