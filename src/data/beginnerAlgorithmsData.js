@@ -287,6 +287,12 @@ export const beginnerAlgorithmsData = {
             practiceKeywords: 'Değinmen gereken anahtar noktalar:',
             practiceModelLabel: 'Örnek Cevap',
             practiceSuccess: 'Kendi cevabını örnek cevapla karşılaştır — birebir aynı olmak zorunda değil, mantığı yakalaman yeterli.',
+            quizTitle: 'Mini Quiz — bölümü tamamlamak için doğru cevapla',
+            quizCorrect: 'Doğru! Bu bölümü tamamladın.',
+            quizWrong: 'Neredeyse! Bu doğru değildi ama sorun değil — bir daha düşün.',
+            quizRetry: 'Başka bir soru dene →',
+            quizTryAgain: 'Tekrar dene →',
+            quizPassed: 'Bu bölümün quiz\'ini geçtin! 🏅',
             heroSteps: {
                 input: 'Input',
                 process: 'Adımlar',
@@ -318,6 +324,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'recipe',
                 shortTitle: 'Tarif',
+                quiz: {
+                    question: 'Bir tost tarifinde "önce makineyi ısıt, SONRA ekmeği koy" gibi sırayı karıştırdın. Bilgisayar bu algoritmayı çalıştırınca ne yapar?',
+                    options: [
+                        { id: 'a', text: 'Sıranın yanlış olduğunu anlar ve kendi kendine düzeltir' },
+                        { id: 'b', text: 'Adımları verdiğin sırada aynen uygular — hatayı düzeltmez, boş makineyi ısıtır' },
+                        { id: 'c', text: 'Eksik adımı tahmin edip tamamlar' },
+                        { id: 'd', text: 'Hata verip hiçbir şey yapmaz' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Bilgisayar bir aşçı ustası gibi tahmin yürütemez; algoritmayı yazdığın sırada birebir uygular. Bu yüzden test case yazarken de adımların sırası kritiktir — "Login test et" yetmez, hangi adımın hangi sırayla geleceğini yazman gerekir.',
+                    retry: {
+                        question: 'Algoritma kelimesi en iyi hangisiyle açıklanır?',
+                        options: [
+                            { id: 'a', text: 'Bilgisayarın rastgele verdiği kararlar' },
+                            { id: 'b', text: 'Bir işi kaybolmadan bitirmek için izlenen sıralı adımlar' },
+                            { id: 'c', text: 'Sadece Python\'a özel bir komut' },
+                        ],
+                        correct: 'b',
+                        explanation: 'Algoritma, dilden bağımsız olarak bir işi doğru bitirmek için izlenen sıralı adımlar tarifidir — tıpkı tost yaparken izlediğin sıra gibi.',
+                    },
+                },
                 film: recipeOrderFilm,
                 title: '1. Algoritma = Kaybolmadan izlenen tarif',
                 color: '#7c3aed',
@@ -367,6 +394,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'input-output',
                 shortTitle: 'Girdi/Çıktı',
+                quiz: {
+                    question: 'Sadece sayı toplayan bir makineye girdi olarak "Ali + Ayşe" (iki isim) verirsen ne olması beklenir?',
+                    options: [
+                        { id: 'a', text: 'Makine isimleri sayıya çevirip toplar' },
+                        { id: 'b', text: 'Makine tanımlı girdi tipini (sayı) almadığı için anlamsız çıktı verir veya hata üretir' },
+                        { id: 'c', text: 'Makine otomatik olarak "7" döndürür' },
+                        { id: 'd', text: 'Girdi tipi önemsizdir, her zaman doğru çalışır' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Her makine (fonksiyon) belirli bir girdi tipi bekler. Yanlış tip girdi verilince çıktı ya anlamsız olur ya da hata fırlar. QA\'da "geçersiz girdi (invalid input) testi" tam olarak bu yüzden yapılır: makine beklenmedik girdiye nasıl tepki veriyor?',
+                    retry: {
+                        question: 'Bir girdi-işlem-çıktı (input-process-output) makinesinde "işlem" adımı ne yapar?',
+                        options: [
+                            { id: 'a', text: 'Girdiyi alıp bir kurala göre çıktıya dönüştürür' },
+                            { id: 'b', text: 'Sadece girdiyi ekrana yazar' },
+                            { id: 'c', text: 'Hiçbir şey yapmaz, girdi doğrudan çıktı olur' },
+                        ],
+                        correct: 'a',
+                        explanation: 'İşlem (process) adımı, girdiyi bir kurala göre çıktıya dönüştüren beyin kısmıdır — portakalı sıkıp meyve suyuna çevirmek gibi.',
+                    },
+                },
                 film: inputOutputMachineFilm,
                 title: '2. Input → İşlem → Output',
                 color: '#0891b2',
@@ -414,6 +462,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'decision',
                 shortTitle: 'Karar',
+                quiz: {
+                    question: 'Bir if/else kararı yazdın ama sadece "koşul doğru (if)" dalını test ettin, "koşul yanlış (else)" dalını hiç test etmedin. En büyük risk nedir?',
+                    options: [
+                        { id: 'a', text: 'Risk yok, bir dalı test etmek yeterlidir' },
+                        { id: 'b', text: 'Test edilmeyen else dalında gizli bir hata production\'a kaçabilir' },
+                        { id: 'c', text: 'Program derlenmez' },
+                        { id: 'd', text: 'if dalı da otomatik bozulur' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Her kararın iki dalı da bir davranıştır. Sadece "evet" durumunu test edip "hayır" durumunu atlarsan, kullanıcı o yola girdiğinde ortaya çıkacak bug hiç yakalanmaz — QA\'da buna "branch coverage" (dal kapsama) eksikliği denir.',
+                    retry: {
+                        question: 'Yazılımda karar (condition) yapısı hangi kelimelerle kurulur?',
+                        options: [
+                            { id: 'a', text: '"eğer" (if) ve "değilse" (else)' },
+                            { id: 'b', text: '"başla" ve "bitir"' },
+                            { id: 'c', text: 'sadece "tekrar et"' },
+                        ],
+                        correct: 'a',
+                        explanation: 'Karar yapısı "eğer (if) ... değilse (else)" ile kurulur — tıpkı "yağmur varsa şemsiye al, değilse güneş gözlüğü al" gibi.',
+                    },
+                },
                 film: decisionBranchFilm,
                 title: '3. Eğer böyleyse şunu yap, değilse bunu yap',
                 color: '#f59e0b',
@@ -460,6 +529,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'loop',
                 shortTitle: 'Tekrar',
+                quiz: {
+                    question: 'Bir döngü (loop) yazdın ama durma koşulu (bitiş şartı) hiçbir zaman sağlanmıyor. Ne olur?',
+                    options: [
+                        { id: 'a', text: 'Döngü bir kez çalışıp durur' },
+                        { id: 'b', text: 'Sonsuz döngü oluşur; program takılır veya donar' },
+                        { id: 'c', text: 'Bilgisayar otomatik olarak döngüyü sonlandırır' },
+                        { id: 'd', text: 'Hiçbir şey olmaz, döngü atlanır' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Her döngünün mutlaka sağlanabilir bir durma koşulu olmalı. Koşul hiç sağlanmazsa döngü sonsuza kadar döner (infinite loop) ve program yanıt vermez — otomasyon testlerinde donan/takılan testlerin sık sebebidir.',
+                    retry: {
+                        question: 'Döngü (loop) yapısı temelde ne işe yarar?',
+                        options: [
+                            { id: 'a', text: 'Aynı adımı bir koşul sağlanana kadar tekrar etmek' },
+                            { id: 'b', text: 'Sadece bir kez karar vermek' },
+                            { id: 'c', text: 'Veriyi kalıcı olarak saklamak' },
+                        ],
+                        correct: 'a',
+                        explanation: 'Döngü, aynı işi elle tekrar tekrar yazmadan, bir koşul sağlanana kadar otomatik tekrarlatmamızı sağlar — 100 satırlık bir tabloyu tek döngüyle gezmek gibi.',
+                    },
+                },
                 title: '4. Loop = Aynı işi gerektiği kadar tekrar etmek',
                 color: '#10b981',
                 analogy: 'Öğretmen yoklama yaparken sınıftaki her öğrenciye tek tek "burada mısın?" diye sorar. 30 öğrenci varsa 30 kez aynı soruyu sorar — her seferinde aynı işlem, sadece hedef değişir. Düşündürücü soru: bunun yerine öğretmen bir anda tüm sınıfa birden soramaz mıydı? Hayır — bilgisayar da aynı anda birden fazla şeyi işleyemez. Onun yerine listeyi baştan sona tek tek gezer ve her elemana aynı işlemi uygular. Ama dikkat: öğretmen "herkes var" diyebilmesi için listeyi bitirmek zorundadır — yani loop\'un ne zaman duracağını bilmesi gerekir.',
@@ -503,6 +593,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'memory',
                 shortTitle: 'Hafıza',
+                quiz: {
+                    question: '"skor = skor + 1" satırı çalıştığında, skor kutusunda (değişkeninde) ne olur?',
+                    options: [
+                        { id: 'a', text: 'Kutunun mevcut değeri okunur, 1 eklenir, sonuç aynı kutuya geri yazılır' },
+                        { id: 'b', text: 'Yeni bir "skor1" kutusu oluşturulur' },
+                        { id: 'c', text: 'skor her zaman 1 olur' },
+                        { id: 'd', text: 'Hiçbir şey değişmez' },
+                    ],
+                    correct: 'a',
+                    explanation: 'Değişken, üzeri silinip yeniden yazılabilen bir hafıza kutusudur. "skor = skor + 1" önce kutunun içindeki değeri okur, 1 ekler ve sonucu AYNI kutuya yazar — bu yüzden test sırasında sayaçların (counter) doğru güncellendiğini kontrol etmek önemlidir.',
+                    retry: {
+                        question: 'Programlamada değişken (variable) en iyi neye benzetilir?',
+                        options: [
+                            { id: 'a', text: 'İçine bilgi koyup sonra değiştirebildiğimiz, üzeri etiketli bir hafıza kutusu' },
+                            { id: 'b', text: 'Değeri asla değişmeyen sabit bir taş' },
+                            { id: 'c', text: 'Ekrandaki bir buton' },
+                        ],
+                        correct: 'a',
+                        explanation: 'Değişken, bir etiketi (adı) olan ve içindeki değeri değiştirebildiğimiz bir hafıza kutusudur — "skor" kutusuna sırayla 0, 1, 2 yazabiliriz.',
+                    },
+                },
                 film: memoryBoxFilm,
                 title: '5. Hafıza kutusu = Bilgiyi saklamak',
                 color: '#3b82f6',
@@ -546,6 +657,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'debug',
                 shortTitle: 'Hata Bul',
+                quiz: {
+                    question: 'Beklenen çıktı "altın rengi tost" ama gözlenen çıktı "yanmış tost". İyi bir debug refleksinin İLK adımı nedir?',
+                    options: [
+                        { id: 'a', text: 'Kodun rastgele yerlerini değiştirip tekrar denemek' },
+                        { id: 'b', text: 'Beklenen ile gözlenen sonucu netleştirip şüphelileri daraltarak kök nedeni aramak' },
+                        { id: 'c', text: 'Bütün programı silip baştan yazmak' },
+                        { id: 'd', text: 'Hatayı görmezden gelip devam etmek' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Debug rastgele deneme değil, sistematik bir daraltmadır: "ne bekliyordum, ne gördüm?" sorusundan başlayıp şüphelileri (bayat ekmek mi, fazla süre mi?) tek tek eleyerek kök nedene (root cause) ulaşırsın — QA\'da bir bug raporu da tam bu yapıyı taşır.',
+                    retry: {
+                        question: 'Debug (hata ayıklama) temelde ne demektir?',
+                        options: [
+                            { id: 'a', text: 'Hatanın hangi adımda oluştuğunu bulup nedenini anlamak' },
+                            { id: 'b', text: 'Yeni özellik eklemek' },
+                            { id: 'c', text: 'Programı daha hızlı çalıştırmak' },
+                        ],
+                        correct: 'a',
+                        explanation: 'Debug, bir hatanın tam olarak hangi adımda ve neden oluştuğunu bulma sürecidir — "yanmış tost"un sebebinin fazla süre olduğunu keşfetmek gibi.',
+                    },
+                },
                 film: debugRootCauseFilm,
                 title: '6. Debug = Tarifin nerede bozulduğunu bulmak',
                 color: '#e11d48',
@@ -594,6 +726,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'flowchart',
                 shortTitle: 'Akış',
+                quiz: {
+                    question: 'Bir flowchart\'ta (akış şeması) elmas/baklava şeklindeki karar noktası (decision) neyi temsil eder?',
+                    options: [
+                        { id: 'a', text: 'Algoritmanın başladığı yeri' },
+                        { id: 'b', text: 'Bir koşula göre akışın iki farklı yola ayrıldığı dallanmayı' },
+                        { id: 'c', text: 'Ekrana bir şey yazma adımını' },
+                        { id: 'd', text: 'Programın bittiği yeri' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Flowchart\'ta elmas şekli bir karar noktasıdır: "koşul doğru mu?" sorusuna göre akış Yol A veya Yol B\'ye ayrılır. Bir algoritmayı kutu ve oklarla çizmek, test senaryolarındaki tüm yolları (path) görselleştirip hangi dalın test edilmediğini fark etmeni sağlar.',
+                    retry: {
+                        question: 'Flowchart (akış şeması) ne işe yarar?',
+                        options: [
+                            { id: 'a', text: 'Bir algoritmayı kutu ve oklarla görsel olarak çizmek' },
+                            { id: 'b', text: 'Kodu daha hızlı çalıştırmak' },
+                            { id: 'c', text: 'Veriyi veritabanına kaydetmek' },
+                        ],
+                        correct: 'a',
+                        explanation: 'Flowchart, bir algoritmanın adımlarını ve karar noktalarını kutu-ok diliyle çizerek akışı gözle takip edilebilir hale getirir.',
+                    },
+                },
                 film: flowchartMapFilm,
                 title: '7. Flowchart = Algoritmayı resimle çizmek',
                 color: '#8b5cf6',
@@ -744,6 +897,12 @@ export const beginnerAlgorithmsData = {
             practiceKeywords: 'Key points you should cover:',
             practiceModelLabel: 'Model Answer',
             practiceSuccess: 'Compare your answer with the model answer — it does not need to match word for word, just capture the reasoning.',
+            quizTitle: 'Mini Quiz — answer correctly to complete the section',
+            quizCorrect: 'Correct! You have completed this section.',
+            quizWrong: 'Almost! That was not right, but no worries — think again.',
+            quizRetry: 'Try another question →',
+            quizTryAgain: 'Try again →',
+            quizPassed: 'You passed this section\'s quiz! 🏅',
             heroSteps: {
                 input: 'Input',
                 process: 'Steps',
@@ -775,6 +934,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'recipe',
                 shortTitle: 'Recipe',
+                quiz: {
+                    question: 'You scrambled a toast recipe into "heat the machine first, THEN put the bread in". What does the computer do when it runs this algorithm?',
+                    options: [
+                        { id: 'a', text: 'It realizes the order is wrong and fixes it itself' },
+                        { id: 'b', text: 'It runs the steps exactly in the order you gave — it does not fix the error, it heats an empty machine' },
+                        { id: 'c', text: 'It guesses and fills in the missing step' },
+                        { id: 'd', text: 'It errors out and does nothing at all' },
+                    ],
+                    correct: 'b',
+                    explanation: 'A computer cannot improvise like a chef; it runs the algorithm exactly in the order you wrote. That is why step order matters when writing test cases too — "test login" is not enough, you must state which step happens in which order.',
+                    retry: {
+                        question: 'Which best describes the word "algorithm"?',
+                        options: [
+                            { id: 'a', text: 'Random decisions the computer makes' },
+                            { id: 'b', text: 'An ordered set of steps followed to finish a task without getting lost' },
+                            { id: 'c', text: 'A command specific only to Python' },
+                        ],
+                        correct: 'b',
+                        explanation: 'An algorithm is a language-independent recipe of ordered steps to complete a task correctly — just like the order you follow to make toast.',
+                    },
+                },
                 film: recipeOrderFilm,
                 title: '1. Algorithm = A recipe you can follow without getting lost',
                 color: '#7c3aed',
@@ -824,6 +1004,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'input-output',
                 shortTitle: 'Input/Output',
+                quiz: {
+                    question: 'You feed "Ali + Ayşe" (two names) as input into a machine that only adds numbers. What should happen?',
+                    options: [
+                        { id: 'a', text: 'The machine converts the names to numbers and adds them' },
+                        { id: 'b', text: 'Since it did not get its defined input type (a number), it produces meaningless output or an error' },
+                        { id: 'c', text: 'The machine automatically returns "7"' },
+                        { id: 'd', text: 'Input type does not matter, it always works correctly' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Every machine (function) expects a specific input type. Given the wrong type, the output is either meaningless or an error is thrown. That is exactly why QA does "invalid input testing": how does the machine react to unexpected input?',
+                    retry: {
+                        question: 'In an input-process-output machine, what does the "process" step do?',
+                        options: [
+                            { id: 'a', text: 'It takes the input and transforms it into output by a rule' },
+                            { id: 'b', text: 'It only prints the input to the screen' },
+                            { id: 'c', text: 'It does nothing, input becomes output directly' },
+                        ],
+                        correct: 'a',
+                        explanation: 'The process step is the brain that turns input into output by a rule — like squeezing an orange into juice.',
+                    },
+                },
                 film: inputOutputMachineFilm,
                 title: '2. Input -> Process -> Output',
                 color: '#0891b2',
@@ -871,6 +1072,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'decision',
                 shortTitle: 'Decision',
+                quiz: {
+                    question: 'You wrote an if/else decision but only tested the "condition true (if)" branch, never the "condition false (else)" branch. What is the biggest risk?',
+                    options: [
+                        { id: 'a', text: 'No risk, testing one branch is enough' },
+                        { id: 'b', text: 'A hidden bug in the untested else branch can slip into production' },
+                        { id: 'c', text: 'The program will not compile' },
+                        { id: 'd', text: 'The if branch breaks automatically too' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Both branches of every decision are a behavior. If you test only the "yes" case and skip the "no" case, the bug that appears when a user takes that path is never caught — in QA this is a lack of "branch coverage".',
+                    retry: {
+                        question: 'Which keywords build a decision (condition) structure in software?',
+                        options: [
+                            { id: 'a', text: '"if" and "else"' },
+                            { id: 'b', text: '"start" and "end"' },
+                            { id: 'c', text: 'only "repeat"' },
+                        ],
+                        correct: 'a',
+                        explanation: 'A decision is built with "if ... else" — just like "if it rains take an umbrella, else take sunglasses".',
+                    },
+                },
                 film: decisionBranchFilm,
                 title: '3. If this happens, do that; otherwise do something else',
                 color: '#f59e0b',
@@ -917,6 +1139,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'loop',
                 shortTitle: 'Repeat',
+                quiz: {
+                    question: 'You wrote a loop, but its stop condition (exit condition) is never met. What happens?',
+                    options: [
+                        { id: 'a', text: 'The loop runs once and stops' },
+                        { id: 'b', text: 'An infinite loop occurs; the program hangs or freezes' },
+                        { id: 'c', text: 'The computer automatically ends the loop' },
+                        { id: 'd', text: 'Nothing happens, the loop is skipped' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Every loop must have a reachable stop condition. If it is never met, the loop runs forever (an infinite loop) and the program stops responding — a common cause of hanging/stuck automation tests.',
+                    retry: {
+                        question: 'What is a loop fundamentally for?',
+                        options: [
+                            { id: 'a', text: 'Repeating the same step until a condition is met' },
+                            { id: 'b', text: 'Making a single decision only' },
+                            { id: 'c', text: 'Storing data permanently' },
+                        ],
+                        correct: 'a',
+                        explanation: 'A loop lets us repeat the same work automatically until a condition is met, instead of writing it by hand over and over — like walking a 100-row table with one loop.',
+                    },
+                },
                 title: '4. Loop = Repeat the same action as many times as needed',
                 color: '#10b981',
                 analogy: 'A teacher taking attendance asks each student one by one: "Are you here?" — the same action repeats for every student, only the target changes. The thought-provoking question: could the teacher just ask the whole class at once? No — and neither can a computer. Software processes items one at a time, looping through them. The critical thing about a loop is knowing when to stop: the teacher stops when the list is finished. A loop without a stopping condition runs forever — this is one of the most common bugs in software.',
@@ -960,6 +1203,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'memory',
                 shortTitle: 'Memory',
+                quiz: {
+                    question: 'When the line "score = score + 1" runs, what happens to the score box (variable)?',
+                    options: [
+                        { id: 'a', text: 'The box\'s current value is read, 1 is added, and the result is written back to the same box' },
+                        { id: 'b', text: 'A new "score1" box is created' },
+                        { id: 'c', text: 'score always becomes 1' },
+                        { id: 'd', text: 'Nothing changes' },
+                    ],
+                    correct: 'a',
+                    explanation: 'A variable is a memory box you can erase and rewrite. "score = score + 1" first reads the value inside the box, adds 1, and writes the result back to the SAME box — which is why checking that counters update correctly matters during testing.',
+                    retry: {
+                        question: 'What is a variable best compared to in programming?',
+                        options: [
+                            { id: 'a', text: 'A labeled memory box whose contents we can put in and change later' },
+                            { id: 'b', text: 'A constant stone whose value never changes' },
+                            { id: 'c', text: 'A button on the screen' },
+                        ],
+                        correct: 'a',
+                        explanation: 'A variable is a memory box with a label (name) whose contents we can change — we can write 0, then 1, then 2 into the "score" box.',
+                    },
+                },
                 film: memoryBoxFilm,
                 title: '5. Memory box = Store information',
                 color: '#3b82f6',
@@ -1003,6 +1267,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'debug',
                 shortTitle: 'Debug',
+                quiz: {
+                    question: 'Expected output is "golden toast" but observed output is "burnt toast". What is the FIRST step of a good debugging reflex?',
+                    options: [
+                        { id: 'a', text: 'Randomly change parts of the code and retry' },
+                        { id: 'b', text: 'Clarify expected vs observed, then narrow down suspects to find the root cause' },
+                        { id: 'c', text: 'Delete the whole program and rewrite it' },
+                        { id: 'd', text: 'Ignore the error and move on' },
+                    ],
+                    correct: 'b',
+                    explanation: 'Debugging is systematic narrowing, not random trial: you start from "what did I expect, what did I see?" and eliminate suspects (stale bread? too much time?) one by one to reach the root cause — a QA bug report follows the same structure.',
+                    retry: {
+                        question: 'What does debugging fundamentally mean?',
+                        options: [
+                            { id: 'a', text: 'Finding which step an error occurs at and understanding why' },
+                            { id: 'b', text: 'Adding a new feature' },
+                            { id: 'c', text: 'Making the program run faster' },
+                        ],
+                        correct: 'a',
+                        explanation: 'Debugging is the process of finding exactly which step an error occurs at and why — like discovering that the "burnt toast" was caused by too much time.',
+                    },
+                },
                 film: debugRootCauseFilm,
                 title: '6. Debug = Find where the recipe broke',
                 color: '#e11d48',
@@ -1051,6 +1336,27 @@ export const beginnerAlgorithmsData = {
             {
                 id: 'flowchart',
                 shortTitle: 'Flow',
+                quiz: {
+                    question: 'In a flowchart, what does the diamond-shaped decision node represent?',
+                    options: [
+                        { id: 'a', text: 'Where the algorithm starts' },
+                        { id: 'b', text: 'A branch where the flow splits into two paths based on a condition' },
+                        { id: 'c', text: 'A step that prints something to the screen' },
+                        { id: 'd', text: 'Where the program ends' },
+                    ],
+                    correct: 'b',
+                    explanation: 'The diamond in a flowchart is a decision node: based on "is the condition true?" the flow splits into Path A or Path B. Drawing an algorithm with boxes and arrows lets you visualize every path in your test scenarios and notice which branch is untested.',
+                    retry: {
+                        question: 'What is a flowchart for?',
+                        options: [
+                            { id: 'a', text: 'Drawing an algorithm visually with boxes and arrows' },
+                            { id: 'b', text: 'Making code run faster' },
+                            { id: 'c', text: 'Saving data to a database' },
+                        ],
+                        correct: 'a',
+                        explanation: 'A flowchart draws an algorithm\'s steps and decision points in a box-and-arrow language so the flow can be followed by eye.',
+                    },
+                },
                 film: flowchartMapFilm,
                 title: '7. Flowchart = Draw the algorithm as a picture',
                 color: '#8b5cf6',

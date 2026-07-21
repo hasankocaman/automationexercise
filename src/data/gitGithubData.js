@@ -5321,7 +5321,7 @@ git push origin feature/my-branch   # Push only your branch`,
           {
             type: 'simple-box',
             emoji: '🎤',
-            content: 'A good Git interview answer is not just a command. It explains team safety, history, rollback, review and how you avoid breaking other people’s work.',
+            content: 'Listing Git commands in an interview is like asking a driver to recite road signs from memory: knowing the signs is necessary, but nobody hands over the keys for that — what they actually want to know is which call you make at a crowded junction. So if you already know what `git revert` and `git reset` do, why isn\'t saying that enough? Because the real question is not "which one is correct" but "do you see what rewriting history on a shared branch costs your team" — the command is the threshold, the reasoning is the differentiator. Java works the same way: explaining how a `HashMap` works is mid-level, explaining what silently disappears in production when the `equals`/`hashCode` contract is broken is senior-level. In QA terms the competency being measured is clear: you are accountable not only for your own commits but for the team\'s history, for whether a change can be rolled back, and for whether the origin of a regression can still be proven six months later. So build every answer on three legs: what you did, why you chose that route, and how you get back if it goes wrong.',
           },
           gitInterviewAnswerFilm,
           gitInterviewAnswerSteps,
@@ -5753,7 +5753,7 @@ git push origin feature/my-branch   # Push only your branch`,
           {
             type: 'simple-box',
             emoji: '🧺',
-            content: 'Staging, teslimat kutusuna hangi eşyaların gireceğini seçmek gibidir. Masada on değişen dosya olabilir ama bir sonraki commit kutusuna sadece staging’e koydukların girer.',
+            content: 'Staging area, kargoya vereceğin kutuyu kapatmadan önce masanın üstünden hangi eşyaları içine koyacağını tek tek seçmen gibidir: masada on değişen dosya durabilir ama kutuya (commit) yalnızca staging’e koyduklarım girer, gerisi masada bekler. Peki madem dosyaları zaten kaydettim, neden Git ayrıca bir "staging" adımı dayatıyor — doğrudan commit etse olmaz mıydı? Çünkü commit bir yedekleme değil, bir ANLATIDIR: "login bug’ını düzelttim" commit’i ile "yarım kalan deneme kodu" aynı kutuya girerse, altı ay sonra o hatayı `git log` ile arayan kişi hangi satırın neyi düzelttiğini ayıramaz. Java tarafında buna en yakın alışkanlık, bir PR’ı göndermeden önce IDE’de değişiklikleri gözden geçirmendir — fark şu ki Git bunu isteğe bağlı bir alışkanlık değil, akışın zorunlu bir adımı yapar. QA açısından karşılığı çok somuttur: `git add .` alışkanlığıyla staging’i atlayan bir mühendis, er ya da geç `.env` dosyasını, kişisel API token’ını veya yarım kalan bir `test.only()` satırını repoya iter — ve bu satır CI’da değil, gece build’inde ya da production’da fark edilir.',
           },
           {
             type: 'simulation',
@@ -6173,7 +6173,7 @@ git push origin feature/my-branch   # Push only your branch`,
           {
             type: 'simple-box',
             emoji: '🌱',
-            content: 'Branch güvenli yan yol gibidir. Önce yolun main’den nasıl ayrıldığını gör, sonra tekrar nasıl birleştiğini izle, en sonda iki kişi aynı yeri değiştirince conflict’i adım adım çöz.',
+            content: 'Branch, ana yoldan ayrılan güvenli bir servis yolu gibidir: ana yolda (main) trafik akmaya devam ederken sen kendi şeridinde kazı yapar, asfaltı söker, denersin — ve işin bittiğinde şeridini ana yola geri bağlarsın. Peki madem değişikliği doğrudan main’de de yapabiliyorsun, neden ayrı bir branch açma zahmetine giresin? Çünkü main yalnızca senin değil, ekibin ve çoğu zaman CI/deploy hattının da üstünde durduğu yoldur; orada yarım kalmış bir kazı, senin işin bitene kadar herkesin ilerlemesini durdurur. Java’da bir sınıfı doğrudan `master` kopyanda değil, kendi kopyanda refactor edip sonra birleştirmen ne kadar doğalsa Git branch’i de odur — fark şu ki Git bu ayrımı dosya kopyalayarak değil, aynı geçmişin iki farklı ucunu işaret ederek yapar (bu yüzden branch açmak neredeyse bedavadır). QA açısından bunun bedeli nettir: test suite’ini doğrudan main’de düzenleyen bir ekipte, yarım kalan bir locator değişikliği gece regresyon koşumunu kırar ve sabah kimse "bu gerçek bir bug mı, yoksa yarım iş mi" sorusuna cevap veremez. İki kişi aynı satıra dokunduğunda çıkan conflict ise bir arıza değil, Git’in "burada iki farklı niyet var, kararı insan versin" demesidir.',
           },
           {
             type: 'simulation',
@@ -7215,7 +7215,7 @@ git push -u origin feature/login-tests
           {
             type: 'simple-box',
             emoji: '🧾',
-            content: 'Pull Request, kodun main branch’e girmeden önce kontrollü şekilde konuşulduğu kalite kapısıdır. Diff’i gösterir, değişikliğin nedenini anlatır, testleri koşturur, reviewer kararını toplar ve geriye okunabilir bir kayıt bırakır.',
+            content: 'Pull Request, bir binaya çıkılan iskele malzemesinin kapıda imzayla teslim alınması gibidir: malzeme (kod) sahaya girmeden önce ne getirdiğin (diff), neden getirdiğin (açıklama) ve testten geçip geçmediği (CI) kayda geçer, sonra yetkili bir kişi imzalar. Peki testler zaten yeşilse, insan review’u neden hâlâ gerekli — makine onayladıysa iş bitmedi mi? Çünkü CI yalnızca "kod çalışıyor mu" sorusunu yanıtlar; "bu doğru çözüm mü, altı ay sonra bakımı yapılabilir mi, yanlışlıkla bir güvenlik kapısı mı açtık" sorularını yanıtlamaz — bunlar bağlam gerektirir. Java dünyasında buna en yakın şey, bir kütüphaneyi merkezî repoya yayınlamadan önce yapılan sürüm gözden geçirmesidir; fark şu ki PR bu tartışmayı toplantıya değil, satır satır kodun yanına iliştirir ve kalıcı bir kayıt bırakır. QA açısından PR’ın asıl değeri şudur: yıllar sonra bir regresyonun kökünü aradığında, `git blame` seni yalnızca satırı değiştiren kişiye değil, o değişikliğin NEDEN yapıldığını tartışan konuşmaya götürür. Conflict çıktığında ise PR, iki niyeti aynı ekranda yan yana koyar ve kararı tahmine değil, konuşmaya bırakır.',
           },
           {
             type: 'simulation',
@@ -7368,7 +7368,7 @@ git push -u origin feature/login-tests
           {
             type: 'simple-box',
             emoji: '🏭',
-            content: 'GitHub Actions fabrika hattı gibidir. Kod geldiği anda makineler dependency kurar, testleri çalıştırır, build alır ve raporları yayınlar; senin laptopına güvenmez.',
+            content: 'GitHub Actions, kendi kendine çalışan bir fabrika montaj hattı gibidir: bant başına bir parça (commit) düştüğü anda makineler sırayla devreye girer — bağımlılıkları kurar, testleri koşar, build alır, raporu yayınlar — ve hiçbir adım "ustanın keyfine" bırakılmaz. Peki testleri kendi bilgisayarında zaten çalıştırıyorsan, aynı testleri bir de CI’da koşmak neden gereksin? Çünkü senin makinen dünyadaki tek makine değildir: sende kurulu olan bir Chrome sürümü, bir ortam değişkeni ya da yıllar önce kurduğun bir global paket testi yeşil gösterirken, temiz bir makinede aynı test kırmızı yanabilir — CI’ın asıl işi testi koşmak değil, testi SIFIRDAN ve TEKRARLANABİLİR biçimde koşmaktır. Java tarafında bunun karşılığı, projeyi kendi IDE’nde değil temiz bir `mvn clean verify` ile doğrulamandır; Actions bunu her push’ta, senin hatırlamana gerek kalmadan yapar. QA açısından bu farkın adı vardır: "bende çalışıyordu" cümlesi bir mühendislik açıklaması değildir — CI, o cümleyi tartışmadan çıkarıp yerine herkesin görebildiği bir kanıt (log, rapor, artifact) koyar.',
           },
           {
             type: 'simulation',
@@ -7493,7 +7493,7 @@ jobs:
           {
             type: 'simple-box',
             emoji: '🏡',
-            content: 'GitHub Pages, build edilmiş web sitene halka açık bir adres vermek gibidir. Hazır dosyaları servis eder ama kapının arkasında backend mutfağı çalıştırmaz.',
+            content: 'GitHub Pages, hazırladığın bir sergiyi vitrine koymak gibidir: ziyaretçi vitrindeki her şeyi görebilir, ama vitrinin arkasında yemek pişiren bir mutfak yoktur — yalnızca önceden hazırlanmış (build edilmiş) dosyalar servis edilir. Peki site tarayıcıda sorunsuz açılıyorsa, "backend yok" olması pratikte neyi değiştirir? Şunu değiştirir: kullanıcı adı/parola doğrulamak, veritabanına yazmak veya bir API anahtarını gizli tutmak için sunucu tarafında çalışan bir kod gerekir — Pages’te böyle bir yer olmadığı için JavaScript’e gömdüğün her "gizli" anahtar aslında herkese açıktır. Java tarafında bunu şöyle düşün: Pages, çalışan bir Spring Boot uygulaması değil, `target/` altındaki statik çıktının yayınlanmış hâlidir. QA açısından en sık ısıran ayrıntı ise routing’dir: `/selenium` gibi temiz bir URL’e doğrudan girildiğinde sunucu o adı taşıyan bir dosya arar, bulamaz ve 404 döner — bu yüzden SPA’larda `404.html` fallback’i kurulmazsa, siteyi kendi laptop’unda kusursuz gezerken gerçek kullanıcı ilk paylaşılan linkte boş sayfa görür.',
           },
           {
             type: 'simulation',
@@ -7637,7 +7637,7 @@ jobs:
           {
             type: 'simple-box',
             emoji: '🚧',
-            content: 'Bazı Git komutları ağır iş makinesi gibidir. Doğru elde çok işe yarar ama çalıştırmadan önce etrafı kontrol eder, takımı uyarır ve yedek alırsın.',
+            content: '`git push --force`, `git reset --hard` ve `git clean -fd` gibi komutlar, şantiyedeki bir ekskavatör gibidir: doğru elde saatler kazandırır, ama operatör çalıştırmadan önce etrafa bakmazsa altında ne olduğunu ancak kırdıktan sonra öğrenir — ve kırdığı şey çoğu zaman kendi işi değil, başkasının işidir. Peki Git her şeyi kaydediyorsa, bu komutlar neden gerçekten tehlikeli olsun — nasılsa geri alınmaz mı? Kısmen: `reflog` yerel geçmişi bir süre tutar, ama HİÇ commit edilmemiş değişiklikler (`reset --hard` sonrası) ve başkasının makinesindeki tarih (`push --force` sonrası) bu ağın dışındadır — yani Git seni kendi hatandan korur, ekibin geçmişini ezmenden korumaz. Java tarafında en yakın his, paylaşılan bir kütüphanenin yayınlanmış bir sürümünü aynı numarayla yeniden yayınlamaktır: derleyici itiraz etmez, ama o sürümü çeken herkesin elindeki şey sessizce değişir. QA açısından gerçek senaryo şudur: force push’lanan bir branch’te, dün yeşil olan bir testin bugün var olmayan bir commit’e ait olduğu ortaya çıkar — regresyonun ne zaman girdiğini kimse kanıtlayamaz. Kuralı basit tut: paylaşılan branch’te force kullanma, kullanacaksan `--force-with-lease` seç, ekibi önceden haberdar et ve önce bir yedek branch aç.',
           },
           gitRecoveryPractice,
           {
@@ -7787,7 +7787,7 @@ git push origin feature/my-branch   # Sadece kendi branch'ini push et`,
           {
             type: 'simple-box',
             emoji: '🧯',
-            content: 'Git hataları çoğu zaman felaket değil, yol tabelasıdır. İlk satırı oku, nerede olduğunu kontrol et, sonra en küçük güvenli düzeltmeyi seç.',
+            content: 'Git hata mesajları bir felaket bildirimi değil, yol kenarındaki tabelalar gibidir: "yanlış yoldasın" demezler, "şu anda BURADASIN ve gitmek istediğin yere buradan şöyle gidilir" derler — `rejected (non-fast-forward)` mesajı bir arıza değil, "senin geçmişin ile uzaktaki geçmiş ayrışmış" bilgisidir. Peki mesaj sorunu bu kadar açık söylüyorsa, mühendisler neden çoğu zaman panikle rastgele komut denemeye başlar? Çünkü Git’in hatası bir DURUM anlatır, çözüm ise o an nerede durduğuna bağlıdır: aynı `rejected` mesajının doğru cevabı bazen `pull --rebase`, bazen yeni bir branch açmaktır — ezberlenmiş tek bir komut değil. Java’da bir `NullPointerException`’ın satır numarasını okumadan çözmeye çalışmak ne kadar verimsizse, Git hatasını `git status` yazmadan çözmeye çalışmak da odur. QA açısından bunun bedeli somuttur: paniğe kapılıp `reset --hard` çeken bir mühendis, bir saatlik test düzeltmesini geri getirilemez biçimde silebilir. Sırayı bozma: önce ilk satırı oku, sonra `git status` ile nerede olduğunu doğrula, en sonda mümkün olan EN KÜÇÜK güvenli düzeltmeyi seç.',
           },
           gitErrorDiagnosisFilm,
           gitErrorDiagnosisSteps,
@@ -7829,7 +7829,7 @@ git push origin feature/my-branch   # Sadece kendi branch'ini push et`,
           {
             type: 'simple-box',
             emoji: '🎤',
-            content: 'İyi bir Git mülakat cevabı sadece komut söylemez. Takım güvenliğini, history’yi, rollback’i, review’u ve başkasının işini bozmamayı da açıklar.',
+            content: 'Git mülakatında komut saymak, bir şoföre trafik levhalarını ezberden okutmaya benzer: levhaları bilmek gereklidir ama kimse bu yüzden onu yola çıkarmaz — asıl merak edilen, sıkışık bir kavşakta hangi kararı vereceğidir. Peki `git revert` ile `git reset`’in ne yaptığını zaten biliyorsan, mülakatta bunu söylemek neden yetmiyor? Çünkü soru aslında "hangisi doğru" değil, "paylaşılan bir branch’te geçmişi ezmenin ekibe maliyetini görüyor musun" sorusudur — teknik bilgi eşiktir, ayrıştırıcı olan muhakemedir. Java tarafında da fark buna benzer: `HashMap`’in nasıl çalıştığını anlatmak orta seviyedir, `equals`/`hashCode` sözleşmesi bozulduğunda production’da neyin sessizce kaybolacağını anlatmak kıdemli seviyedir. QA açısından ölçülen yetkinlik nettir: sen yalnızca kendi commit’lerinden değil, ekibin history’sinden, rollback yapılabilirliğinden ve bir regresyonun kökeninin altı ay sonra kanıtlanabilmesinden de sorumlusun. Bu yüzden her cevabı üç ayakla kur: ne yaptığın, neden o yolu seçtiğin ve yanlış giderse nasıl geri döneceğin.',
           },
           gitInterviewAnswerFilm,
           gitInterviewAnswerSteps,

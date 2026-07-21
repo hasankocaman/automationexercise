@@ -3336,7 +3336,7 @@ const section4 = {
       {
         type: 'simple-box',
         emoji: '🛒',
-        content: 'Bu bölümde Automation Exercise uygulamasını Android emülatörde açıp tam bir E2E akışı test edeceğiz: Uygulama başlat → Ürün ara → Detaya git → Sepete ekle → Sepeti doğrula. Java (JUnit 5 + Appium) ve TypeScript (WebdriverIO) ile tam test dosyaları yazıyoruz.',
+        content: 'Bir E2E mobil akışı yazmak, bir kuryeye adres tarif etmek gibidir: "Caddeden sağa dön" dersen kurye yolu bulur, ama "45. metreden sağa dön" dersen kaldırım bir gün değiştiğinde kurye kaybolur. Uygulama başlat → Ürün ara → Detaya git → Sepete ekle → Sepeti doğrula akışında her adımda locator seçerken tam olarak bu kararı verirsin: anlamlı bir işaret mi (accessibility id), yoksa kırılgan bir koordinat mı (XPath index)? Peki madem test yeşil yanıyor, hangi locator ile yazdığın neden bu kadar önemli? Java (JUnit 5 + Appium) tarafında bir `WebElement`\'i Selenium\'daki gibi düşünebilirsin — ama Selenium\'un aksine burada ekran DÖNEBİLİR, klavye elementin ÜSTÜNÜ KAPATABİLİR ve aynı ekran farklı cihazda farklı yerleşir; TypeScript (WebdriverIO) tarafında da aynı fark geçerlidir. QA açısından karşılığı nettir: index tabanlı locator\'larla yazılmış bir sepet testi, uygulamaya tek bir yeni banner eklendiğinde gece build\'inde patlar ve ekip sabah gerçek bir bug\'ı değil, kendi testinin bakımını konuşur.',
       },
       { type: 'heading', text: 'Test Senaryosu & Proje Yapısı' },
       {
@@ -3753,7 +3753,7 @@ driver.perform(Collections.singletonList(swipe));
       {
         type: 'simple-box',
         emoji: '🛒',
-        content: 'In this section we will open the Automation Exercise app on an Android emulator and run a complete E2E flow: Launch app → Search product → View detail → Add to cart → Verify cart. Full test files in both Java (JUnit 5 + Appium) and TypeScript (WebdriverIO).',
+        content: 'Writing an E2E mobile flow is like giving directions to a courier: say "turn right at the bakery" and they will find it, but say "turn right after 45 metres" and they get lost the day the pavement changes. Across Launch app → Search product → View detail → Add to cart → Verify cart you make exactly that call at every step: a meaningful landmark (accessibility id) or a brittle coordinate (XPath index)? So if the test goes green either way, why does the choice of locator matter so much? On the Java (JUnit 5 + Appium) side a `WebElement` feels just like Selenium — but unlike Selenium the screen can ROTATE, the keyboard can COVER the element, and the same screen lays out differently on another device; the same holds on the TypeScript (WebdriverIO) side. In QA terms the cost is concrete: a cart test built on index-based locators breaks in the nightly build the moment one banner is added to the app, and next morning the team debates test maintenance instead of a real bug.',
       },
       { type: 'heading', text: 'Test Scenario & Project Structure' },
       {
@@ -4174,7 +4174,7 @@ const section5 = {
       {
         type: 'simple-box',
         emoji: '🔧',
-        content: 'Appium hataları ilk bakışta korkutucu görünür ama hepsinin belirli bir sebebi ve kesin çözümü vardır. Bu bölümdeki hataları bir kere gördüğünüzde bir daha aynı tuzağa düşmezsiniz. Her hata için: neden olur → nasıl çözülür → doğru kod nasıl yazılır.',
+        content: 'Appium hata mesajlarını okumak, arabanın gösterge panelindeki uyarı ışıklarını okumak gibidir: ışık arızanın KENDİSİ değil, arızanın bıraktığı izdir — motor lambası yanınca kaputu açarsın, ampulü değiştirmezsin. `SessionNotCreatedException` da böyledir; hata cümlesi "session kurulamadı" der ama gerçek sebep neredeyse her zaman daha aşağıdadır (yanlış `appPackage`, kapalı emülatör, uyumsuz UiAutomator2 sürümü). Peki hata mesajı sorunu bu kadar net söylüyorsa, neden çözüm için mesajın kendisine değil altındaki `Caused by` zincirine bakmak gerekir? Java\'da bir stack trace\'in en alt satırını okumaya alışkınsın — Appium\'da fark şudur ki zincir iki makineye yayılır: hatanın yarısı senin test JVM\'inde, yarısı Appium server log\'unda durur. QA açısından bunun bedeli şudur: mesajın yüzeyine göre "flaky test" deyip retry ekleyen bir ekip, aslında yanlış capability yüzünden çöken bir suite\'i haftalarca yeşile boyar ve gerçek regresyonu production\'da görür. Her hata için: neden olur → nasıl çözülür → doğru kod nasıl yazılır.',
       },
       {
         type: 'error-dictionary',
@@ -4414,7 +4414,7 @@ stage('Run Appium Tests') {
       {
         type: 'simple-box',
         emoji: '🔧',
-        content: 'Appium errors look scary at first but each has a specific cause and definite solution. Once you\'ve seen these errors, you won\'t fall into the same traps again. For each error: why it happens → how to fix → correct code.',
+        content: 'Reading Appium errors is like reading the warning lights on a car dashboard: the light is not the fault itself, it is the trace the fault left behind — when the engine light comes on you open the bonnet, you do not replace the bulb. `SessionNotCreatedException` works the same way; the sentence says "could not create session" but the real cause almost always sits further down (wrong `appPackage`, a stopped emulator, an incompatible UiAutomator2 version). So if the message states the problem so plainly, why must you read the `Caused by` chain beneath it rather than the message itself? In Java you are used to reading the bottom line of a stack trace — the difference in Appium is that the chain spans two machines: half of it lives in your test JVM, half in the Appium server log. The QA cost is concrete: a team that reads only the surface, calls it a "flaky test" and adds a retry will paint a suite green for weeks while a wrong capability quietly breaks it — and meet the real regression in production. For each error: why it happens → how to fix → correct code.',
       },
       {
         type: 'error-dictionary',
@@ -4657,7 +4657,7 @@ const section6 = {
       {
         type: 'simple-box',
         emoji: '🎯',
-        content: 'Bu bölümde 50 mülakat sorusu kademeli zorlukta verilmiştir: 1-15 Temel, 16-35 Orta, 36-50 İleri Seviye. Her soruya tıklayarak cevabı görün. Gerçek mülakata hazırlanmak için kendinizi sınayın: önce cevabı kendiniz düşünün, sonra açın.',
+        content: 'Mülakat sorusu okumak ile cevabı önce kendi cümlelerinle kurmak arasındaki fark, bir yolu haritada izlemek ile o yolu bir kez kendin yürümek arasındaki farktır: harita sana yolu TANIDIK hissettirir, yürümek ise gerçekten BİLDİRİR — ve mülakat masasında ikisi apayrı şeydir. Bu yüzden 50 soru kademeli verilmiştir: 1-15 Temel, 16-35 Orta, 36-50 İleri Seviye. Peki cevabı zaten okuyup anlıyorsan, önce kendin düşünmen neden bu kadar önemli? Çünkü Java\'da bir konuyu "biliyorum" demek genelde sözdizimini hatırlamaktır; Appium tarafında ise sorular neredeyse hep karar sorularıdır ("implicit wait mi explicit wait mi", "gerçek cihaz mı emülatör mü") ve karar, ezberle değil gerekçeyle savunulur. QA kariyeri açısından ölçtüğü şey nettir: mülakatta da sprint planlamada da senden beklenen, doğru cevabı bilmek kadar o cevabı ekibe gerekçesiyle anlatabilmektir. Her soruya tıklayarak cevabı görün — ama önce kendi cevabınızı kurun.',
       },
       {
         type: 'interview-questions',
@@ -4827,7 +4827,7 @@ class ProductPage {
       {
         type: 'simple-box',
         emoji: '🎯',
-        content: 'This section contains 50 interview questions in increasing difficulty: 1-15 Basic, 16-35 Intermediate, 36-50 Advanced. Click each question to reveal the answer. Challenge yourself: think of the answer first, then check.',
+        content: 'Reading an interview answer is like tracing a route on a map; forming that answer in your own words first is like walking the road yourself: the map makes it feel FAMILIAR, walking it makes you actually KNOW it — and at the interview table those are two different things. That is why the 50 questions are staged: 1-15 Basic, 16-35 Intermediate, 36-50 Advanced. So if you already read and understand the answer, why does thinking it through yourself first matter so much? Because in Java, saying "I know this" usually means recalling syntax; in Appium the questions are almost always decision questions ("implicit or explicit wait", "real device or emulator") — and a decision is defended with reasoning, not memory. What it measures for a QA career is clear: in interviews and in sprint planning alike, you are expected not just to know the right answer but to explain to your team why it is right. Click each question to reveal the answer — but build your own answer first.',
       },
       {
         type: 'interview-questions',

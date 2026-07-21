@@ -147,6 +147,12 @@ export const algorithmsData = {
             title: "Algoritmalar: QA Muhendisinin Gorsel Problem Cozme Atolyesi",
             subtitle: "Sorting, binary search, graph traversal, state machine ve complexity kavramlarini test otomasyonu senaryolariyla ogren.",
             intro: "Algoritma, bir isi yaparken izledigin net tarif gibidir. QA'da bu tarif; flaky test bulmak, hata onceliklendirmek, checkout akislarini gezmek ve test suite'i hizlandirmak icin kullanilir.",
+            // Bu sayfa opsiyoneldir — kullanici karari 2026-07-21
+            optionalNote: {
+                badge: "Opsiyonel ders",
+                title: "Bu sayfa oncelikli degil — bitirmek zorunda degilsin",
+                body: "Ileri seviye algoritma bilmeden de Python, Java, JavaScript veya herhangi bir programlama dilini ogrenebilir, Selenium/Playwright ile test otomasyonu yazabilir ve QA muhendisi olarak calisabilirsin. Buradaki konular (sorting, binary search, graph traversal, complexity) gunluk QA isinin on kosulu DEGILDIR; problem cozme refleksini guclendiren ve mulakatlarda ise yarayan bir bonustur. Sirali bir yol ariyorsan once dil sayfalarindan ve test framework'lerinden basla; bu sayfaya canin istedigi zaman don. Buradaki hicbir bolum baska bir dersi kilitlemez.",
+            },
         },
         tabs: ["Baslangic", "Sorting", "Binary Search", "Graph Traversal", "State Machine", "Complexity"],
         page: {
@@ -167,6 +173,10 @@ export const algorithmsData = {
             complexity: "Complexity",
             quizTitle: "Mini kontrol",
             answer: "Cevapla",
+            quizHint: "Bu quizi dogru cevaplayinca bolum otomatik tamamlanir (zorunlu degil).",
+            quizWrong: "Neredeyse! Bir daha dusun.",
+            quizRetry: "Baska bir soru dene",
+            quizTryAgain: "Tekrar dene",
             glossaryTitle: "Algoritma sozlugu",
             visualTitle: "Gorsel lab",
         },
@@ -236,6 +246,16 @@ export const algorithmsData = {
                     ],
                     correct: "b",
                     explanation: "QA'da algorithm sonucu genellikle karar veya kanittir: hangi bug once cozulmeli, hangi commit sorunlu, hangi flow eksik gezildi gibi.",
+                    retry: {
+                        question: "Algoritmik dusunmenin QA'daki ilk adimi hangisidir?",
+                        options: [
+                            { id: 'a', text: 'Hemen kod yazmaya baslamak' },
+                            { id: 'b', text: 'Problemi girdi, adimlar ve beklenen cikti olarak parcalara ayirmak' },
+                            { id: 'c', text: 'Daha hizli bir bilgisayar istemek' },
+                        ],
+                        correct: 'b',
+                        explanation: 'Once problem parcalara ayrilir: elimde ne var (girdi), ne yapacagim (adimlar), neyi kanit sayacagim (cikti). Cozum bundan sonra gelir.',
+                    },
                 },
             },
             {
@@ -331,6 +351,16 @@ assert bugs.get(0).isReleaseBlocker();                   // Ilk siradaki bug rel
                     ],
                     correct: "b",
                     explanation: "QA onceligi kullanici etkisi, siklik ve alternatif cozum olup olmadigina gore savunulur.",
+                    retry: {
+                        question: 'Iki bug ayni etkiye sahip; biri her kullanicida, digeri sadece Safari 14 kullanicilarinda goruluyor. Hangisi once cozulmeli?',
+                        options: [
+                            { id: 'a', text: 'Her kullanicida gorulen — frequency oncelige dogrudan etki eder' },
+                            { id: 'b', text: 'Safari 14 olan — daha nadir oldugu icin daha zordur' },
+                            { id: 'c', text: 'Once acilan bug' },
+                        ],
+                        correct: 'a',
+                        explanation: 'Impact esitse frequency belirleyici olur. Onceligi "kim actigi" veya "ne zaman acildigi" degil, kullaniciya toplam maliyeti belirler.',
+                    },
                 },
             },
             {
@@ -395,6 +425,16 @@ Commit firstBadCommit = commits.get(low);               // Ilk bozan commit bulu
                     ],
                     correct: "a",
                     explanation: "Pass -> fail gecisi gibi sirali ve monotonic bir davranis yoksa binary search yanlis tarafi eleyebilir.",
+                    retry: {
+                        question: 'Testi bozan commit\'i 100 commit arasinda ariyorsun. Binary search yaklasimi kac denemede sonuca ulasir?',
+                        options: [
+                            { id: 'a', text: 'Yaklasik 100 — hepsini tek tek denemek gerekir' },
+                            { id: 'b', text: 'Yaklasik 7 — her adimda arama alani yariya iner' },
+                            { id: 'c', text: 'Tek denemede' },
+                        ],
+                        correct: 'b',
+                        explanation: 'log2(100) ≈ 7. `git bisect` tam olarak bunu yapar: her adimda kalan aralik yariya iner, bu yuzden 100 commit 7 denemeye duser.',
+                    },
                 },
             },
             {
@@ -480,6 +520,16 @@ while (!queue.isEmpty()) {                              // Kuyruk bosalana kadar
                     ],
                     correct: "b",
                     explanation: "Graph modeli coverage'i node ve edge olarak gosterir; eksik path'ler kolay fark edilir.",
+                    retry: {
+                        question: 'Checkout akisini graph olarak cizdin. Test coverage acisindan "edge" neye karsilik gelir?',
+                        options: [
+                            { id: 'a', text: 'Sayfanin kendisi' },
+                            { id: 'b', text: 'Iki sayfa/state arasindaki gecis — yani kullanicinin attigi adim' },
+                            { id: 'c', text: 'Sayfadaki buton sayisi' },
+                        ],
+                        correct: 'b',
+                        explanation: 'Node = state (sepet, adres, odeme), edge = gecis. Cogu bug sayfanin kendisinde degil, GECISTE saklanir — bu yuzden edge coverage node coverage\'dan degerlidir.',
+                    },
                 },
             },
             {
@@ -548,6 +598,16 @@ assertEquals(LoginState.SUBMITTED, state);              // Beklenen son state do
                     ],
                     correct: "b",
                     explanation: "Test artik '2 saniye bekle' demez; 'button enabled olana kadar bekle' der. Bu daha deterministiktir.",
+                    retry: {
+                        question: 'CI\'da rastgele kirilan bir testte `Thread.sleep(2000)` var. State machine bakis acisiyla asil sorun nedir?',
+                        options: [
+                            { id: 'a', text: 'Bekleme suresi kisa; 5 saniye yapilmali' },
+                            { id: 'b', text: 'Test SUREYE bagli; oysa beklenen STATE\'e (button enabled) baglanmali' },
+                            { id: 'c', text: 'Sorun yok, CI makinesi yavas' },
+                        ],
+                        correct: 'b',
+                        explanation: 'Sabit bekleme, hizli makinede zaman kaybi yavas makinede flaky demektir. Dogru cozum sureyi uzatmak degil, kosulu state\'e baglamaktir.',
+                    },
                 },
             },
             {
@@ -610,6 +670,16 @@ for (String dbId : databaseIds) {                         // Ilk liste tekrar ge
                     ],
                     correct: "b",
                     explanation: "HashSet lookup buyuk veri setlerinde nested loop'a gore cok daha iyi olceklenir.",
+                    retry: {
+                        question: 'Nested loop ile yazilmis bir dogrulama 100 kayitta 1 saniye suruyor. Veri 10 kat artarsa (1000 kayit) yaklasik ne olur?',
+                        options: [
+                            { id: 'a', text: 'Yaklasik 10 saniye — sure veriyle dogru orantili artar' },
+                            { id: 'b', text: 'Yaklasik 100 saniye — O(n²) oldugu icin sure karesiyle artar' },
+                            { id: 'c', text: 'Yine 1 saniye' },
+                        ],
+                        correct: 'b',
+                        explanation: 'Nested loop O(n²)\'dir: veri 10 kat artinca sure 100 kat artar. Test suite\'lerin "bir anda" yavaslamasinin en yaygin sebebi budur.',
+                    },
                 },
             },
         ],
@@ -629,6 +699,12 @@ for (String dbId : databaseIds) {                         // Ilk liste tekrar ge
             title: "Algorithms: A Visual Problem-Solving Workshop for QA Engineers",
             subtitle: "Learn sorting, binary search, graph traversal, state machines, and complexity through test automation scenarios.",
             intro: "An algorithm is a clear recipe for solving a task. In QA, that recipe helps you find flaky tests, prioritize defects, cover user flows, and speed up a growing test suite.",
+            // This page is optional — product decision 2026-07-21
+            optionalNote: {
+                badge: "Optional lesson",
+                title: "This page is not a priority — you do not have to finish it",
+                body: "You can learn Python, Java, JavaScript or any other programming language, write test automation with Selenium/Playwright, and work as a QA engineer without knowing advanced algorithms. The topics here (sorting, binary search, graph traversal, complexity) are NOT a prerequisite for day-to-day QA work; they are a bonus that sharpens your problem-solving reflex and helps in interviews. If you want a sequential path, start with the language pages and the test frameworks, and come back here whenever you feel like it. No section on this page locks any other lesson.",
+            },
         },
         tabs: ["Start", "Sorting", "Binary Search", "Graph Traversal", "State Machine", "Complexity"],
         page: {
@@ -649,6 +725,10 @@ for (String dbId : databaseIds) {                         // Ilk liste tekrar ge
             complexity: "Complexity",
             quizTitle: "Mini check",
             answer: "Answer",
+            quizHint: "Answering this quiz correctly completes the section automatically (not mandatory).",
+            quizWrong: "Almost! Think it through once more.",
+            quizRetry: "Try a different question",
+            quizTryAgain: "Try again",
             glossaryTitle: "Algorithm glossary",
             visualTitle: "Visual lab",
         },
@@ -703,6 +783,16 @@ for (String dbId : databaseIds) {                         // Ilk liste tekrar ge
                     ],
                     correct: "b",
                     explanation: "In QA, the result is often a decision or evidence: which bug is first, which commit broke the flow, or which path remains untested.",
+                    retry: {
+                        question: 'What is the first step of algorithmic thinking in QA?',
+                        options: [
+                            { id: 'a', text: 'Start writing code immediately' },
+                            { id: 'b', text: 'Break the problem into input, steps and expected output' },
+                            { id: 'c', text: 'Ask for a faster computer' },
+                        ],
+                        correct: 'b',
+                        explanation: 'First split the problem: what do I have (input), what will I do (steps), what counts as proof (output). The solution comes after that.',
+                    },
                 },
             },
             {
@@ -762,6 +852,16 @@ assert bugs.get(0).isReleaseBlocker();                   // The first bug must b
                     ],
                     correct: "b",
                     explanation: "QA priority is defensible when it is based on user impact, frequency, and available workaround.",
+                    retry: {
+                        question: 'Two bugs have the same impact; one hits every user, the other only Safari 14 users. Which is fixed first?',
+                        options: [
+                            { id: 'a', text: 'The one hitting every user — frequency feeds directly into priority' },
+                            { id: 'b', text: 'The Safari 14 one — rarer means harder' },
+                            { id: 'c', text: 'Whichever was reported first' },
+                        ],
+                        correct: 'a',
+                        explanation: 'When impact ties, frequency decides. Priority is set by total cost to users, not by who filed it or when.',
+                    },
                 },
             },
             {
@@ -820,6 +920,16 @@ Commit firstBadCommit = commits.get(low);               // First bad commit is f
                     ],
                     correct: "a",
                     explanation: "Without an ordered and monotonic pass/fail boundary, binary search can discard the wrong half.",
+                    retry: {
+                        question: 'You are hunting the commit that broke a test among 100 commits. Roughly how many checks does a binary search need?',
+                        options: [
+                            { id: 'a', text: 'About 100 — you must try each one' },
+                            { id: 'b', text: 'About 7 — each step halves the search space' },
+                            { id: 'c', text: 'Just one' },
+                        ],
+                        correct: 'b',
+                        explanation: 'log2(100) ≈ 7. This is exactly what `git bisect` does: every step halves the remaining range, so 100 commits collapse to 7 checks.',
+                    },
                 },
             },
             {
@@ -899,6 +1009,16 @@ while (!queue.isEmpty()) {                              // Continue until the qu
                     ],
                     correct: "b",
                     explanation: "A graph shows coverage as nodes and edges, so missing paths are easier to spot.",
+                    retry: {
+                        question: 'You drew the checkout flow as a graph. In coverage terms, what does an "edge" represent?',
+                        options: [
+                            { id: 'a', text: 'The page itself' },
+                            { id: 'b', text: 'A transition between two pages/states — the step the user takes' },
+                            { id: 'c', text: 'The number of buttons on the page' },
+                        ],
+                        correct: 'b',
+                        explanation: 'Node = state (cart, address, payment), edge = transition. Most bugs hide in the TRANSITION rather than the page, which is why edge coverage beats node coverage.',
+                    },
                 },
             },
             {
@@ -961,6 +1081,16 @@ assertEquals(LoginState.SUBMITTED, state);              // Assert the expected f
                     ],
                     correct: "b",
                     explanation: "The test no longer says 'wait 2 seconds'; it says 'wait until the button is enabled'. That is more deterministic.",
+                    retry: {
+                        question: 'A test that breaks randomly in CI contains `Thread.sleep(2000)`. From a state-machine view, what is the real problem?',
+                        options: [
+                            { id: 'a', text: 'The wait is too short; make it 5 seconds' },
+                            { id: 'b', text: 'The test is tied to TIME when it should be tied to the expected STATE (button enabled)' },
+                            { id: 'c', text: 'Nothing is wrong, the CI machine is just slow' },
+                        ],
+                        correct: 'b',
+                        explanation: 'A fixed wait is wasted time on a fast machine and flakiness on a slow one. The fix is not a longer wait but binding the condition to state.',
+                    },
                 },
             },
             {
@@ -1017,6 +1147,16 @@ for (String dbId : databaseIds) {                         // Loop through the fi
                     ],
                     correct: "b",
                     explanation: "HashSet lookup scales far better than a nested loop for large data sets.",
+                    retry: {
+                        question: 'A nested-loop verification takes 1 second for 100 records. What happens at 1000 records?',
+                        options: [
+                            { id: 'a', text: 'About 10 seconds — time grows with the data' },
+                            { id: 'b', text: 'About 100 seconds — it is O(n²), so time grows with the square' },
+                            { id: 'c', text: 'Still 1 second' },
+                        ],
+                        correct: 'b',
+                        explanation: 'A nested loop is O(n²): ten times the data means a hundred times the runtime. This is the most common reason a test suite "suddenly" gets slow.',
+                    },
                 },
             },
         ],

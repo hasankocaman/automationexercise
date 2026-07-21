@@ -78,6 +78,227 @@ aralıklı ağ sorununun aynısı). Bu silme İŞLENMEDİ, sonraki oturumda ağ 
 
 ---
 
+## ✨ EKLENDİ — /advanced-algorithms quiz-gating + "OPSİYONEL DERS" notu (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
+
+**Branch:** `feature/algorithms-quiz-gating` (devam).
+
+**Kullanıcı isteği:** "advanced-algorithms sayfasına da quiz ekle. Ama sayfanın başına
+bu sayfanın öncelikli olmadığını, kullanıcı advanced algoritma bilmese de herhangi bir
+programlama dilini öğrenebileceğini not olarak yaz. Bu dersi bitirmek zorunlu olmamalı."
+
+**Bulgu:** Sayfada 6 bölümün HER birinde zaten `QuizCard` (section.quiz) VARDI — ama
+hiçbir şeyi tetiklemiyordu; tamamlama tamamen manuel checkbox'a (`CompletionToggle`,
+localStorage `qa-platform-completed`, `algorithms-{id}`) bağlıydı. Ayrıca quiz yanlış
+cevapta §18'e aykırı biçimde kırmızı ❌ ekranı gösteriyordu ve yedek soru yoktu.
+Bu sayfada `LessonFinishBadge` YOK — bitirme rozeti zaten hiç olmamıştı.
+
+**Yapıldı:**
+- **KALICI ÜRÜN KARARI — sayfa opsiyonel:** `algorithmsData.js` `hero.optionalNote`
+  (TR+EN) eklendi; sayfanın başında amber "Opsiyonel ders" bloğu olarak render edilir
+  (`data-testid=optional-lesson-note`). İçerik: ileri algoritma bilmeden de herhangi
+  bir dil öğrenilebileceği, Selenium/Playwright ile otomasyon yazılabileceği, buradaki
+  konuların günlük QA işinin ÖN KOŞULU OLMADIĞI ve **hiçbir bölümün başka bir dersi
+  kilitlemediği** yazılı. Yeni bir sayfa/route eklerken bu sayfa "zorunlu yol"a
+  konmamalıdır.
+- **Quiz → otomatik tamamlama:** `QuizCard`'a `onPass` eklendi; doğru cevap bölümü
+  otomatik işaretler. `SectionCard`'da `quizPassed` state (localStorage
+  `advanced_algorithms_quiz_passed`), `CompletionToggle`'a yeni `autoDone` prop'u.
+  Kullanıcı checkbox ile geri alabilir — tamamlama ZORUNLU değil.
+- **§18 uyumu:** 6 bölümün TR+EN quizine **`retry` (yedek soru)** eklendi (12 retry).
+  Yanlış cevapta kırmızı ❌ ekranı KALDIRILDI, yerine amber cesaretlendirici
+  mikro-geri bildirim + "başka soru dene" düğmesi geldi. `page`'e `quizHint`,
+  `quizWrong`, `quizRetry`, `quizTryAgain` etiketleri eklendi.
+
+**E2E testi (`tests/lesson-completion.spec.ts`):** Yeni test — opsiyonel not görünür mü
++ ilk bölümün quizi doğru cevaplanınca checkbox otomatik işaretleniyor mu.
+**Not:** Test, `/algorithms`'daki gibi `advanced_algorithms_neuro_mode=false` init
+script'i ister; aksi hâlde Nöro-Optimizasyon recall-kilidi overlay'i tıklamayı
+engelliyor (ilk koşumda bu yüzden kırıldı, düzeltildi).
+
+**Doğrulama:** `lesson-completion.spec.ts` tam dosya → **4 passed** ✓ ·
+`other-pages-ui` + `video-scene` `-g algorithms` → **5 passed** ✓ · `npm run build` ✓.
+
+**Quiz-gating durumu (özet):** `/algorithms` (katı gating) · `/manual-testing`
+(quiz = garantili ikinci yol, oyun yolu da açık) · `/advanced-algorithms`
+(quiz = kolay yol, tamamlama opsiyonel). Başka sayfada quiz-gating yok.
+
+---
+
+## ✨ EKLENDİ — /manual-testing bitirme rozetine quiz yolu (6 bölüm quizi + otomatik tamamlama) (2026-07-21, Opus oturumu, kullanıcı bildirimiyle)
+
+**Branch:** `feature/algorithms-quiz-gating` (devam).
+
+**Kullanıcı bildirimi:** "`/manual-testing` sayfasında da bitirmenin yolu yok. Her
+konuya quizler ekle, son quiz cevaplandığında kullanıcı bitirmiş sayılsın."
+
+**Bulgu (kök neden):** Sayfada tamamlamanın TEK yolu her dersin içindeki `game`
+bloğunu çözmekti (`ChecklistGame`/`SequenceGame`/`ChoiceGame`/`SeverityGame` →
+`onComplete`). Oyunlar `checked && solved` koşuluyla tetiklendiğinden pratikte
+kullanıcı 0/6'da takılıyordu — rozet açılmıyor, kariyer haritasına da işlenmiyordu.
+Sayfa sonundaki `FinalQuiz` (ekran görüntüsündeki "Sonuc: 3/3") ise HİÇBİR
+tamamlamayı tetiklemiyordu, tamamen dekoratifti.
+
+**Yapıldı (`/algorithms` quiz-gating kalıbı birebir taşındı):**
+- **Veri (`manualTestingData.js`):** 6 dersin (mindset, test-case, exploratory,
+  bug-report, severity, regression) HER birine TR + EN `quiz` eklendi (12 quiz).
+  Hepsi senaryo-tabanlı ("sprint bitmek üzere, sıradaki en değerli adımın ne?"),
+  `question` + `options` + `correct` + `explanation` + **`retry`** (§18 yedek soru).
+  `ui`'ye `lessonQuiz*` etiketleri eklendi — sayfa sonundaki `FinalQuiz`'in
+  `quizTitle` etiketiyle ÇAKIŞMAMASI için bilinçli olarak ayrı isimler.
+- **Bileşen (`ManualTestingPage.jsx`):** Yeni `LessonQuiz` bileşeni (§18: yanlışta
+  kırmızı ekran yok, amber mikro-geri bildirim + "başka soru dene"). §9.1 gereği
+  quiz kartın EN SONUNDA — konu anlatımı, film, oyun, drag-drop, practice'ten SONRA.
+- **Gating:** Yeni `quizPassed` state (localStorage `manual_testing_quiz_passed`) +
+  `handleQuizPass` → quiz doğru cevaplanınca bölüm OTOMATİK tamamlanır
+  (`handleLessonComplete`, kariyer haritasına da işlenir).
+- **Oyun yolu KALDIRILMADI:** `game` → `onComplete` bağı aynen duruyor. Quiz, oyunu
+  çözemeyen kullanıcı için GARANTİLİ ikinci yol olarak eklendi — davranış kaybı yok.
+
+**E2E testi genişletildi (`tests/lesson-completion.spec.ts`):** `/manual-testing`
+testi artık sadece "rozet 0/6 render oluyor mu" bakmıyor; 6 bölümün doğru quiz
+şıkkına tıklayıp rozetin `data-state=done` olduğunu ve `/manual-testing` route'unun
+`learnqa_completed_routes`'a düştüğünü uçtan uca doğruluyor.
+
+**Doğrulama (bu oturumda gerçekten koşuldu):**
+`lesson-completion.spec.ts -g manual-testing` → **1 passed (19.7s)** ✓ ·
+`other-pages-ui` + `video-scene` `-g manual` → **4 passed** ✓ ·
+`npm run build` → exit 0 ✓ · TR+EN 6/6 quiz + 6/6 retry, correct-id 0 uyumsuzluk ✓.
+
+**Sıradaki adım (opsiyonel):** Aynı kalıp `/advanced-algorithms`
+(`AdvancedAlgorithmsPage.jsx` + `algorithmsData.js`) için hâlâ uygulanmadı —
+quiz-gating şu an `/algorithms` ve `/manual-testing`'de var.
+
+---
+
+## ✅ DOĞRULANDI + 🔍 YENİ DENETİM ARACI — /algorithms quiz-gating gerçek tarayıcıda geçti · §9.3 analoji taraması otomatikleştirildi (2026-07-21, Opus oturumu, kullanıcı isteğiyle)
+
+**Branch:** `feature/algorithms-quiz-gating` (devam).
+
+### 1. /algorithms quiz-gating akışı DOĞRULANDI (önceki oturumun açık bıraktığı iş)
+Bir önceki madde "test edilmeden commit edildi, sonraki oturumda doğrulanmalı" notuyla
+kapanmıştı. Bu oturumda gerçekten koşuldu:
+- `npx playwright test tests/lesson-completion.spec.ts -g "algorithms"` → **1 passed (31.7s)** ✓
+  (quiz doğru şık → bölüm otomatik tamamlanır → 7/7 → bitirme rozeti "done" → route
+  kariyer haritasına işlenir zinciri gerçek tarayıcıda çalışıyor).
+- `npm run build` → exit 0 ✓.
+- Zombi-süreç temizleme scripti (`pretest:e2e`) bu koşumda sorunsuz çalıştı — bir önceki
+  maddenin "henüz teyit edilmedi" notu da böylece kapandı.
+
+### 2. YENİ: `scripts/audit-analogy-depth.mjs` — §9.3 4-katmanlı analoji denetimi
+CLAUDE.md §9.3 standardı bugüne dek elle/göz kararıyla denetleniyordu. Artık script var:
+`node scripts/audit-analogy-depth.mjs [--missing] [sayfa...]` — 24 sayfayı tarar, her
+bölümün açılış blok kümesinde 4 katmanı (analoji / düşündürücü soru / karşılaştırma /
+QA bağlamı) arar ve eksik bölümleri listeler.
+
+**Kalibrasyon sırasında çıkan 3 önemli bulgu (kalıcı bilgi):**
+1. **4 katman tek bloğa değil, bölümün AÇILIŞ BLOK KÜMESİNE yayılmış durumda.** Referans
+   sayfa `/bruno`'da düşündürücü "neden" sorusu çoğu yerde `simple-box`'ın İÇİNDE değil,
+   hemen ardındaki `heading`/`text` bloğundadır (örn. heading: "Why Does a 'New Postman'
+   Even Need to Exist?"). Bu yüzden denetim birimi tek blok DEĞİL, bölümün ilk
+   simple-box'ı + onu izleyen ≤6 anlatım bloğudur.
+2. **Önceki oturumun "Selenium/Playwright/Cypress 41/41 standardı karşılıyor" yargısı
+   fazla cömertmiş.** Ayrıca referans kabul edilen `/bruno`'nun kendisi de her bölümde
+   standardı karşılamıyor (örn. "🔗 Ecosystem" kutusu tam metin okundu: analoji yok,
+   düşündürücü soru yok, QA bağlamı zayıf). Yani §9.3 bir "bitmiş iş" değil.
+3. **Script bir TRIAJ aracıdır, hakem değildir.** Bilinen zayıflığı: analoji katmanını
+   sözcük ipuçlarıyla ("gibi", "like", "hayal et"...) arar; "Consider how a Formula 1
+   team..." gibi sözcüksüz metaforlarda YANLIŞ POZİTİF verir. Bayrağı kaldırılan bir
+   bölümü düzeltmeden ÖNCE metni oku — bu oturumda bayraklıların bir kısmı zaten
+   zengindi ve dokunulmadı.
+
+### 3. Tarama sonucu (24 sayfa, 479 bölüm)
+Tarama sonrası **119 bölüm** standart altı işaretlendi. Sayfa bazında (0 = temiz):
+`java 0 · rest-assured 0 · kafka 0 · appium 0 · browserstack 0 · aws 0 ·
+what-is-testing 0 · typescript 0` — kullanıcının listesindeki sayfaların bir kısmı
+zaten standardı karşılıyormuş.
+**Kalan eksikler (öncelik sırası):** `sql 40` · `bruno 11` · `docker 10` ·
+`javascript 10` · `python 9` · `jenkins 9` · `kubernetes 4` · `selenium 4` ·
+`playwright 4` · `cypress 3` · `azure 2` · `postman 1` · `jmeter 1` · `linux 1` ·
+`gauge 1`.
+
+**SQL'in profili not edilmeye değer:** ilk bölümleri (What is SQL, Installation,
+CREATE TABLE, INSERT, SELECT) referans kalitede 4 katmanlı; asıl boşluk DERİNDEKİ
+bölümlerde (Subqueries 436 char, LIKE/BETWEEN/IN 393, CTEs 442, Window Functions 675) —
+telgraf üslubu kısa notlar. En büyük tek kalem bu.
+
+### 4. Bu oturumda kapatılan boşluklar — /appium (6) + /git-github (9) = 15 bölüm
+İkisi de kullanıcının istediği listedeydi ve gerçek ihlaldi (CLAUDE.md §11'in yasakladığı
+"tek cümlelik yüzeysel analoji" / "bu bölümde şunu yapacağız" giriş paragrafları):
+- **`appiumData.js`** — Gerçek Senaryo, Yaygın Hatalar, Mülakat Simülasyonu bölümlerinin
+  TR+EN kutuları yeniden yazıldı (kurye/adres tarifi, araba gösterge paneli uyarı ışığı,
+  harita-vs-yolu-yürümek analojileri + Java karşılaştırması + flaky/nightly-build bağlamı).
+- **`gitGithubData.js`** — 8 TR + 1 EN kutu yeniden yazıldı: staging (kargo kutusu),
+  branch (servis yolu), PR (şantiyede imzalı teslimat), Actions (montaj hattı),
+  Pages (vitrin), tehlikeli komutlar (ekskavatör), hata sözlüğü (yol tabelası),
+  mülakat (trafik levhası ezberi).
+- Doğrulama: `audit-analogy-depth.mjs git-github appium` → **0 eksik** ✓ ·
+  `check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓ · `npm run build` ✓.
+
+### Sıradaki adım
+Kalan 104 bölüm sıradaki oturumlara kalıyor. Önerilen sıra: **sql (40) → docker (10) →
+javascript (10) → bruno (11) → python (9) → jenkins (9)**, sonra kuyruk. Her partiden
+sonra `node scripts/audit-analogy-depth.mjs <sayfa>` ile 0'a indiğini doğrula.
+**UYARI:** Bayraklı her bölümü körlemesine yeniden yazma — §3'teki yanlış pozitif
+uyarısı gereği önce metni oku; zaten 4 katmanlı olanlara dokunma.
+
+**NOT (kullanıcı isteğiyle e2e KOŞULMADI):** Bu maddenin commit'i kullanıcı talebiyle
+"test etmeden" atıldı. Koşulanlar: hedefli `lesson-completion` testi, content-integrity
+ve tam `npm run build`. Koşulmayan: 190 testlik tam Playwright paketi — içerik metni
+değişikliği `i18n-content-toggle.spec.ts`'i etkileyebilir (EN modda TR sızıntısı
+kontrolü), sonraki oturumda `-g "git-github"` ve `-g "appium"` ile teyit edilmeli.
+
+---
+
+## ✨ EKLENDİ — /algorithms bitirme rozeti artık quiz-gating ile (her bölüme quiz + otomatik tamamlama) (2026-07-21, Sonnet oturumu, kullanıcı isteğiyle)
+
+**Branch:** `feature/algorithms-quiz-gating` (main'den açıldı — Selenium Framework
+Mimarisi branch'inden BAĞIMSIZ ayrı bir özellik; NEXT_SESSION'ın Selenium girişi
+o branch'te, burada yok).
+
+**Kullanıcı bildirimi:** "/algorithms dersinde bitirme rozetini kullanıcı nasıl
+alacak? Quiz sorusu yok; ölçen-değerlendiren sürükle-bırak var ama quiz kullanıcı
+için daha kolay olurdu." Kullanıcı "Her bölüme quiz ekle" seçeneğini seçti.
+
+**Eski durum (bulgu):** `/algorithms` (component `AlgorithmsPage.jsx`, veri
+`beginnerAlgorithmsData.js`, 7 bölüm) tamamlaması TAMAMEN manuel "✅ Bu bölümü
+tamamladım" butonuna dayalıydı (`data-testid=complete-section-{id}`, localStorage
+`algorithms_completed_lessons`). Ne quiz ne sürükle-bırak bir şeyi KİLİTLEMİYORDU
+— kullanıcı hiçbir şey çözmeden 7 butona basıp rozeti alabiliyordu.
+
+**Yapıldı:**
+- **Veri (`beginnerAlgorithmsData.js`):** 7 dersin HER birine (recipe, input-output,
+  decision, loop, memory, debug, flowchart) TR + EN `quiz` alanı eklendi (14 quiz).
+  Her quiz senaryo-tabanlı: `question` + 4 `options` + `correct` + `explanation` +
+  **`retry`** (alternatif yedek soru, §18). `page` objesine (TR+EN) quiz label'ları
+  eklendi (quizTitle/quizCorrect/quizWrong/quizRetry/quizTryAgain/quizPassed).
+- **Bileşen (`AlgorithmsPage.jsx`):** Yeni `LessonQuiz` bileşeni — §18 uyumlu:
+  yanlışta moral bozan kırmızı ekran YOK, cesaretlendirici amber mikro-geri bildirim
+  + "başka soru dene" (retry) / "tekrar dene". Doğruda 🎉 kutlama + explanation.
+  Quiz; konu anlatımı/film/oyun/sürükle-bırak/practice'ten SONRA render edilir
+  (§9.1 quiz sıralama kuralı).
+- **Gating:** Yeni `quizPassed` state (localStorage `algorithms_quiz_passed`) +
+  `handleQuizPass`. Quiz ilk kez doğru cevaplanınca bölüm OTOMATİK tamamlanır. Manuel
+  "tamamladım" butonu quiz geçilene kadar DISABLED ("🔒 Önce yukarıdaki quiz'i doğru
+  cevapla"). Quiz'i olmayan bölümlerde (defansif) eski davranış korunur; daha önce
+  tamamlamış kullanıcılar quiz'e zorlanmaz.
+- **E2E testi (`tests/lesson-completion.spec.ts`) güncellendi:** Artık disabled
+  butona tıklamak yerine her bölümün doğru quiz şıkkına (`quiz-opt-{correct}`,
+  section `#{lesson.id}` scope'lu) tıklıyor → bölüm otomatik tamamlanıyor → buton ✓.
+  Quiz option butonlarına `data-testid=quiz-opt-{optionId}` eklendi.
+
+**Doğrulama (bu oturumda):** `node -e` import TR+EN 7/7 quiz + 7/7 retry, correct-id
+0 uyumsuzluk ✓ · `npx esbuild AlgorithmsPage.jsx` exit 0 ✓ · `other-pages-ui`
+sadece toBeVisible kontrol ediyor (disabled buton görünür) → kırılmaz.
+**NOT (kullanıcı isteğiyle e2e/Playwright + build KOŞULMADI):** commit "test etmeden"
+atıldı; sonraki oturumda `lesson-completion.spec.ts -g algorithms` ile
+quiz→otomatik-tamamlama→rozet akışı gerçek tarayıcıda doğrulanmalı.
+
+**Sıradaki adım ( opsiyonel):** Aynı quiz-gating kalıbı `/advanced-algorithms`
+(`AdvancedAlgorithmsPage.jsx` + `algorithmsData.js`) ve oyun-tabanlı `/manual-testing`
+için de değerlendirilebilir — şu an sadece `/algorithms` (beginner) kapsandı.
+
+---
+
 ## 🛠️ EKLENDİ — Zombi test/dev süreçlerini otomatik temizleyen script + topic-pages-ui timeout düzeltmesi + main push edildi (2026-07-21, Fable oturumu, aynı gün devam)
 
 **Bağlam:** Bir önceki maddedeki (aşağıda) gauge içerik değişikliğini commit'ledikten
@@ -7884,6 +8105,25 @@ Explore taramasindaki bulguya sadik kalinarak manuel muhendislik yapildi:
 
 ## Eksikler / Riskler / Yapilacaklar (Oncelik Sirasi)
 
+> **0. AKTIF BRANCH — `feature/algorithms-quiz-gating` (2026-07-21, main'e MERGE EDILMEDI).**
+> 4 commit birikti: `4df22b7` (/algorithms quiz-gating) · `8c740c5` (§9.3 denetim
+> scripti + appium/git-github) · `578e7cf` (/manual-testing quiz) · `db7ff7f`
+> (/advanced-algorithms opsiyonel + quiz). Hicbiri main'e gitmedi ve **tam 190
+> testlik Playwright paketi bu branch'te hic kosulmadi** (kullanici istegiyle
+> hedefli testlerle yetinildi). Merge/push oncesi yapilmasi gerekenler:
+> 1. `npm run test:e2e` (tam paket) — ozellikle `i18n-content-toggle.spec.ts`
+>    (appium/git-github/manual-testing/advanced-algorithms icerik metni degisti,
+>    EN modda TR sizintisi kontrolu) ve `topic-pages-ui.spec.ts`.
+> 2. Gecerse `git checkout main && git merge feature/algorithms-quiz-gating`.
+> Not: pre-push hook zaten build + tam paketi zorunlu kosuyor; zombi-surec
+> temizleme scripti (`pretest:e2e`) bu oturumda sorunsuz calisti.
+>
+> **Quiz-gating haritasi (hangi sayfada ne var):** `/algorithms` kati gating
+> (quiz gecilmeden tamamlama butonu disabled) · `/manual-testing` quiz =
+> garantili ikinci yol (oyun yolu da acik) · `/advanced-algorithms` quiz =
+> kolay yol, tamamlama OPSIYONEL (sayfa basinda "zorunlu degil" notu var).
+> Baska hicbir sayfada quiz-gating YOK.
+
 1. **`git push origin main` — ✅ TAMAMLANDI (2026-07-09).**
    - Local main ve remote origin/main aynı commit'te (`f72feeb`). Sync'te.
 
@@ -7924,6 +8164,9 @@ Explore taramasindaki bulguya sadik kalinarak manuel muhendislik yapildi:
      `sections/blocks` var ama kod `blocks` disinda bagimsiz `code:` string olarak
      tutuluyor, `fillMissingCodeTrios` bunu gormuyor. Kod verisini `blocks` icine
      `type:'code'` olarak tasimak (veri modeli refactor) gerekir.
+     ⚠️ **ONCELIK DUSTU (2026-07-21):** Bu sayfa artik resmen OPSIYONEL bir derstir
+     (hero'da `optionalNote`, bkz. en ustteki madde) — refactor yatirimi yapmadan
+     once zorunlu sayfalar bitirilmelidir.
    - **test-frameworks** → hic `src/data/*.js` dosyasi yok, icerik 3 alt component'te
      (`FrameworkComparison.jsx`, `PlaywrightLangCompare.jsx`, `PythonFrameworksTab.jsx`)
      hardcoded JSX. En buyuk manuel muhendislik gerektiren — once bir veri modeline
@@ -7933,18 +8176,27 @@ Explore taramasindaki bulguya sadik kalinarak manuel muhendislik yapildi:
      ekle" gibi basit bir is degil. Hangi sayfadan baslanacagi ve algorithms/
      manual-testing icin "code-playground sayfanin no-code felsefesiyle celisir mi"
      sorusu kullaniciya soruldu, cevap bekleniyor.
+   - **2026-07-21 guncellemesi:** Bu uc no-code sayfada (`/algorithms`,
+     `/manual-testing`, `/advanced-algorithms`) olcme/degerlendirme ihtiyaci
+     `code-playground` yerine **quiz** ile karsilandi (bkz. en ustteki
+     quiz-gating haritasi). Yani "no-code felsefesiyle celisir mi" sorusu
+     pratikte quiz lehine cozuldu; kalan `code-playground` refactor'u
+     `test-frameworks` icin hala acik.
 
-5. **§9.3 4-katmanli analoji standardi — Selenium/Playwright/Cypress taramasi (2026-07-09):**
-   - ✅ TAMAMLANDI — 41 `simple-box` blogunun (14 Selenium + 18 Playwright + 9 Cypress)
-     TAMAMI zaten 4 katmanli standardi (somut analoji + dusundurucu "neden" sorusu +
-     Java karsilastirmasi + is/QA baglami) karsiliyor, `brunoData.js` referans kalitesiyle
-     esdeger. Yukseltme gerektiren blok bulunamadi.
-   - **Henuz taranmamis/dogrulanmamis sayfalar (bilinmiyor, kontrol edilmeli):**
-     Java, JavaScript, SQL, Postman, REST Assured, JMeter, Kafka, Appium, BrowserStack,
-     AWS, Azure, Git & GitHub, Linux, test-frameworks, what-is-testing, manual-testing,
-     algorithms, advanced-algorithms.
-   - Python/Bruno/TypeScript/Docker/Jenkins/Kubernetes daha once tamamlandigi bilinen
-     sayfalar (Selenium/Playwright/Cypress de artik bu listeye eklendi).
+5. **§9.3 4-katmanli analoji standardi — ARTIK OTOMATIK DENETLENIYOR (2026-07-21'de guncellendi):**
+   - Denetim araci: `node scripts/audit-analogy-depth.mjs [--missing] [sayfa...]`.
+     24 sayfa / 479 bolum taranir. Kullanim ve bilinen yanlis-pozitif uyarisi icin bu
+     dosyanin en ustundeki "YENİ DENETİM ARACI" maddesine bak.
+   - ⚠️ **2026-07-09'daki "Selenium/Playwright/Cypress 41/41 karsiliyor" yargisi GECERSIZ**
+     — script bu sayfalarda hala eksik bolum buluyor (selenium 4, playwright 4, cypress 3).
+     Ayni sekilde "tamamlandi" sayilan Python/Bruno/Docker/Jenkins/Kubernetes de temiz degil.
+   - ✅ Temiz (0 eksik): java, rest-assured, kafka, appium, browserstack, aws,
+     what-is-testing, typescript, git-github.
+   - ❌ Kalan is (104 bolum): sql 40 · bruno 11 · docker 10 · javascript 10 · python 9 ·
+     jenkins 9 · kubernetes 4 · selenium 4 · playwright 4 · cypress 3 · azure 2 ·
+     postman 1 · jmeter 1 · linux 1 · gauge 1.
+   - Script kapsaminda OLMAYAN sayfalar (veri dosyasi farkli yapida): test-frameworks,
+     manual-testing, algorithms, advanced-algorithms — elle kontrol gerekir.
 
 6. **Stale test dosyalari duzeltilmeli (testcoverage.md paragraf 7 referansi).**
    - `python-page.spec.ts`: hash URL kullaniyordu — SILINDI.
