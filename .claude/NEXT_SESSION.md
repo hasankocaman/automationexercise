@@ -14,9 +14,18 @@
 
 | | |
 |---|---|
-| **Aktif branch** | `feature/retention-and-motivation` (yeni açıldı, `main`'den) |
-| **Son commit** | henüz yok — bu oturumda ilk commit atılacak |
-| **Plan dosyası** | `Documents/retention-and-motivation-plan.md` (YENİ) |
+| **Aktif branch** | `main` — `feature/retention-and-motivation` içine fast-forward merge edildi (`9064f9e`), tek branch kaldı |
+| **Son commit** | `9064f9e` — onboarding turu üst-orta konum + `role=dialog` CSS çakışma düzeltmesi |
+| **Plan dosyası** | `Documents/retention-and-motivation-plan.md` |
+| **Push durumu** | Henüz push edilmedi — tam test paketi geçtikten sonra push edilecek |
+
+### ✅ `feature/retention-and-motivation` main'e merge edildi (2026-07-22)
+14 commit, fast-forward (`git merge --ff-only`, main hiç sapmamıştı) — hiçbir
+çakışma yok. Kapsam: retention-and-motivation-plan.md'nin tüm 4 aşaması
+(A/B/C/D) + 2. tur dış geri bildirim (C.2/A.1/Aşama E) + onboarding turu
+konum düzeltmesi. Branch silinmedi (kullanıcı onayı gerekir), ama artık
+main ile aynı commit'i gösteriyor. **Sıradaki adım: tam `npm run test:e2e`
+paketi main'de koşulacak, geçerse `git push origin main`.**
 
 ### 🎯 Yeni iş: dış "eğitim psikolojisi" yorumunun incelenmesi + plan
 Kullanıcı, learnqa.dev'e dair dışarıdan alınmış bir motivasyon/gamification
