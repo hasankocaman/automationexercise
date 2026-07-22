@@ -14,16 +14,30 @@
 
 | | |
 |---|---|
-| **Aktif branch** | `main` — `feature/code-practice-ai-feedback` `--no-ff` merge edildi, henüz push edilmedi |
+| **Aktif branch** | `main` — `feature/code-practice-ai-feedback` `--no-ff` merge edildi, tam E2E koşuldu, push edilmeye hazır |
 | **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) ✅ TAMAMLANDI |
-| **Kullanıcı talimatı** | Sırada: main'de tam `npm run test:e2e` paketi bir kez çalıştırılacak → geçerse `git push origin main`. |
-| **Sırada ne var** | (1) main'de tam E2E paketi (pre-push hook otomatik tetikler ya da elle çalıştırılır), (2) sonuç NEXT_SESSION.md'ye yazılır, (3) push. Faz 2 (runtime editörlere `expected` alanı) ayrı bir sonraki iş. |
+| **Kullanıcı talimatı** | Sırada: `git push origin main`. |
+| **Sırada ne var** | (1) push. Faz 2 (runtime editörlere `expected` alanı) ayrı bir sonraki iş. |
 
 ### 🔀 `feature/code-practice-ai-feedback` main'e merge edildi (2026-07-22)
 `git merge --no-ff` ile main'e alındı (fast-forward değil, ayrı merge commit) —
 main hiç sapmamıştı, çakışma yok. 4 dosya değişti: `CodePlaygroundBlock.jsx`,
 yeni `supabase/functions/explain-code-practice/index.ts`, plan dosyası,
 `NEXT_SESSION.md`. Branch silinmedi (kullanıcı onayı gerekir).
+
+### ✅ Main'de tam test paketi koşuldu (196 test, ~23 dk)
+Sonuç: 191 passed, 2 failed, 3 flaky (retry'de geçti) —
+`topic-pages-ui.spec.ts` ("her sekme render olur, içerik butonları görünür")
+`/selenium` ve `/git-github`'de "buton görünür değil" hatasıyla düştü.
+
+Kök neden (regresyon değil, izole doğrulandı): bu projede daha önce de
+görülen bilinen örüntü — tam paket kaynak baskısı altında her seferinde
+farklı ağır bir sayfada aynı testte rastgele düşme (önceki oturumlarda
+python/java/rest-assured/sql/typescript sırayla düşmüştü). İzole çalıştırıldı:
+`npx playwright test tests/topic-pages-ui.spec.ts -g "selenium|git-github"`
+→ 2/2 geçti (37s). Bu branch `/selenium` veya `/git-github` içeriğine hiç
+dokunmadı (sadece `CodePlaygroundBlock.jsx` + yeni edge function değişti),
+ilgisiz olduğu doğrulandı.
 
 ### 🚧 Devam ediyor — `feature/code-practice-ai-feedback` (2026-07-22, Fable oturumu #2)
 Kullanıcı isteği: kod pratiği bloklarında doğru cevapta konfeti, yanlış
