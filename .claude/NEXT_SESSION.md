@@ -43,7 +43,31 @@ ATLANIR) → bu dosyayı güncelle → `SKIP_E2E_HOOK=1 git commit` → sıradak
 aşama. Tüm aşamalar bitince tam `npm run test:e2e` paketi BİR KEZ koşulacak
 (§9.6 rollout kapanış deseniyle aynı).
 
-**Aşama durumu:** A ✅ · B ✅ TAMAMLANDI bu oturumda (aşağıya bak) · C/D ⏳ bekliyor.
+**Aşama durumu:** A ✅ · B ✅ · C ✅ (kod tarafı TAMAMLANDI, MANUEL SQL adımı
+kullanıcıyı bekliyor — aşağıya bak) · D ⏳ bekliyor.
+
+### ✅ Aşama C tamamlandı (kod tarafı) — Ambient sosyal kanıt sayacı
+Yeni dosyalar: `supabase/social_proof_schema.sql` (RPC —
+`get_lesson_completion_count(p_route text)`, `security definer`, mevcut
+`map_events` tablosunu okur, `count(distinct anon_id)` döner — ham satır/anon_id
+asla client'a sızmaz), `src/lib/socialProof.js` (`getLessonCompletionCount`,
+`mapEvents.js` ile AYNI fire-and-forget/sessizce-null kalıbı). `LessonFinishBadge.jsx`
+artık `route` prop'u alıyor (`TopicPage.jsx`'te `LessonFinishBadge`'e
+`route={location.pathname}` eklendi), "done" durumuna girince
+`trackMapEvent('lesson_completed', { route })` atıyor ve agregat sayıyı
+çekip **5'in altındaysa hiç göstermiyor** (`data-testid="lesson-social-proof"`).
+
+**⚠️ MANUEL ADIM GEREKİYOR (credential gerektirir, CLAUDE.md §13):**
+Kullanıcı `supabase/social_proof_schema.sql`'i Supabase SQL Editor'da BİR KEZ
+elle çalıştırmalı (ön koşul: `map_events_schema.sql` zaten çalıştırılmış
+olmalı — değilse önce o). Bu adım atlanırsa/gecikirse sitenin geri kalanı
+ETKİLENMEZ: RPC yoksa `getLessonCompletionCount` sessizce `null` döner,
+sayaç satırı hiç render olmaz (fire-and-forget tasarım gereği).
+
+Doğrulama (gerçekten çalıştırıldı): `check-content-integrity.mjs` TÜM
+KONTROLLER GEÇTİ ✓ · `npm run build` exit 0 ✓. RPC henüz Supabase'e
+uygulanmadığı için canlı ortamda sayaç şu an zaten gizli (beklenen davranış).
+Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
 
 ### ✅ Aşama B tamamlandı — Retention v2 (zayıf tamamlanmış konu önerisi)
 `src/lib/progressStore.js`'e `getWeakCompletedTopics(limit=2)` eklendi:

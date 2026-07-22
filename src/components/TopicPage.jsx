@@ -20638,6 +20638,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                                     completedCount={completedCount}
                                     total={tabs.length}
                                     lessonTitle={hero?.title}
+                                    route={location.pathname}
                                 />
                             )}
                         </div>

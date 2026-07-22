@@ -5,14 +5,20 @@
 // bitirme rozeti görünür (CLAUDE.md §20 kutlama standardı). Bileşen sunumsaldır:
 // tamamlama verisini tutmaz, sayfanın kendi ilerleme state'ini gösterir.
 import { useEffect, useState } from 'react'
+import { trackMapEvent } from '../utils/mapEvents'
+import { getLessonCompletionCount } from '../lib/socialProof'
 
 const CONFETTI_COLORS = ['#f59e0b', '#22c55e', '#6366f1', '#ec4899', '#06b6d4', '#a855f7']
+// Küçük sayılar motive etmez, tam tersi izlenim verir (retention-and-motivation-plan.md
+// Aşama C) — sayaç bu eşiğin altında hiç render edilmez.
+const SOCIAL_PROOF_MIN_COUNT = 5
 
-function LessonFinishBadge({ language, darkMode, completedCount, total, lessonTitle }) {
+function LessonFinishBadge({ language, darkMode, completedCount, total, lessonTitle, route }) {
     const isTr = language === 'tr'
     const done = total > 0 && completedCount >= total
     const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0
     const [celebrate, setCelebrate] = useState(false)
+    const [completionCount, setCompletionCount] = useState(null)
 
     // "Bitti" durumuna her girişte kısa bir konfeti patlaması — dönüşte de küçük
     // bir kutlama göstermek motive eder, 2.5 sn sonra kendiliğinden durur.
@@ -22,6 +28,20 @@ function LessonFinishBadge({ language, darkMode, completedCount, total, lessonTi
         const t = setTimeout(() => setCelebrate(false), 2500)
         return () => clearTimeout(t)
     }, [done])
+
+    // Ambient sosyal kanıt: agregat tamamlama sayısı (kişisel veri yok, sadece
+    // count). Fire-and-forget — RPC henüz yoksa/hata verirse sessizce gizli
+    // kalır. Aynı anon_id birden çok kez bitirse bile DB tarafı COUNT(DISTINCT
+    // anon_id) kullandığı için sayı şişmez (supabase/social_proof_schema.sql).
+    useEffect(() => {
+        if (!done || !route) return
+        trackMapEvent('lesson_completed', { route })
+        let cancelled = false
+        getLessonCompletionCount(route).then((count) => {
+            if (!cancelled) setCompletionCount(count)
+        })
+        return () => { cancelled = true }
+    }, [done, route])
 
     return (
         <div
@@ -76,6 +96,16 @@ function LessonFinishBadge({ language, darkMode, completedCount, total, lessonTi
                             ? 'Tüm bölümleri tamamladın — ilerlemen kariyer haritana işlendi. Sıradaki derse geçebilirsin. 🚀'
                             : 'You completed every section — your progress is recorded on your career map. On to the next lesson! 🚀'}
                     </p>
+                    {typeof completionCount === 'number' && completionCount >= SOCIAL_PROOF_MIN_COUNT && (
+                        <p
+                            data-testid="lesson-social-proof"
+                            className={`mt-2 text-xs font-semibold ${darkMode ? 'text-amber-400/90' : 'text-amber-600'}`}
+                        >
+                            {isTr
+                                ? `🙌 ${completionCount} kişi bu dersi tamamladı`
+                                : `🙌 ${completionCount} people finished this lesson`}
+                        </p>
+                    )}
                 </>
             ) : (
                 <>

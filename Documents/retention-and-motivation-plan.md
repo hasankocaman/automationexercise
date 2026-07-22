@@ -146,9 +146,9 @@ rollout'unun kapanışında yapıldığı gibi.
 
 | Aşama | Durum |
 |---|---|
-| A — Job Readiness kademeli metin | ⏳ Sırada |
-| B — Retention v2 (zayıf konu önerisi) | ⏳ Bekliyor |
-| C — Ambient sosyal kanıt | ⏳ Bekliyor (manuel Supabase adımı içerir) |
+| A — Job Readiness kademeli metin | ✅ Tamamlandı |
+| B — Retention v2 (zayıf konu önerisi) | ✅ Tamamlandı |
+| C — Ambient sosyal kanıt | ✅ Kod tarafı tamam — Supabase SQL Editor'da `social_proof_schema.sql`'in elle çalıştırılması bekleniyor |
 | D — Mobil mikro-oturum kartı | ⏳ Bekliyor |
 
 Güncel durum ve doğrulama kayıtları için tek kaynak: `.claude/NEXT_SESSION.md`.
