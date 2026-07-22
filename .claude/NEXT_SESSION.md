@@ -133,6 +133,27 @@ tema (tuğla ikonu, teal/amber renkler, konfeti) DOKUNULMADI — sadece metin
 sadeleşti. Gerçek tarayıcıda doğrulandı: kart artık sadece rozet + tek
 başlık satırı gösteriyor.
 
+### ✅ VerticalBrickPlacementCard TAMAMEN kaldırıldı — sadece konfeti kaldı
+Kullanıcı bir önceki sadeleştirmeyi (Aşama 8) de görüp "bu yazıları tamamen
+çıkart" dedi. `AskUserQuestion` ile netleştirildi (2 seçenek: kartı tamamen
+kaldır+sadece konfeti vs. kartı koru+sadece metni kaldır) — kullanıcı
+**"kartı tamamen kaldır, sadece konfeti kalsın"**ı seçti.
+
+**Değişiklik:** `VerticalBrickPlacementCard.jsx` dosyası SİLİNDİ.
+`TopicPage.jsx` artık `ConfettiExplosion`'ı DOĞRUDAN render ediyor (kart/rozet/
+başlık YOK) — mevcut "✅ Bu bölümü bitirdin → Sıradaki: X →" butonu zaten
+tamamlanma bilgisini veriyor. **Teknik not (regresyon riski fark edilip
+düzeltildi):** Konfeti tekrarını önleme mantığı önceden `celebratedTabsRef`'e
+inline bakan bir JSX koşuluydu — bu, parent başka bir sebeple re-render
+olursa (örn. XP toast) konfetinin animasyon ORTASINDA kesilmesine yol
+açabilirdi. Bunun yerine yeni bir `celebratingTab` STATE'i eklendi — hangi
+sekme için konfeti oynatıldığını tutar, `ConfettiExplosion`'ın kendi
+`onComplete`'ıyla temiz kapanır, parent re-render'larından etkilenmez.
+
+**Doğrulama:** Gerçek tarayıcıda doğrulandı — kart hiç yok, "hakkında bilgi
+sahibi oldun" metni hiç geçmiyor, tek CTA hâlâ duruyor, konfeti tam ekran
+patlıyor. `check-content-integrity.mjs` ✓ · `npm run build` ✓.
+
 Plan dosyasında tanımlı başka bir "sıradaki adım" YOK — kullanıcıdan yeni bir
 yön beklenmiyorsa bu branch main'e merge edilmeye hazır.
 

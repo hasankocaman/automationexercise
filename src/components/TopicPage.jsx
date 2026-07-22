@@ -5,7 +5,7 @@ import { Bookmark, BookmarkCheck, Loader2, AlertTriangle } from 'lucide-react'
 import TopicHeader from './TopicHeader'
 import CommentsSection from './CommentsSection'
 import LessonFinishBadge from './LessonFinishBadge'
-import VerticalBrickPlacementCard from './VerticalBrickPlacementCard'
+import ConfettiExplosion from './ConfettiExplosion'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import CssAnimationBlock from './CssAnimationBlock'
@@ -20160,13 +20160,14 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     const isInitialTabRender = useRef(true)
     const tabsLayoutRef = useRef(null)
     // qa-builder-construction-theme-plan.md §Revizyon, bug fix "Konfeti tekrarı":
-    // VerticalBrickPlacementCard'ın konfetisi bir sekme başına SADECE bu sayfa
-    // görüntüleme oturumunda İLK KEZ tamamlandığında patlar — aynı sekmeye
-    // tekrar tekrar dönmek (örn. içeriği gözden geçirmek için) konfetiyi
-    // TEKRARLAMAZ. Ref kullanılır çünkü component activeTab değiştikçe
-    // unmount/remount OLABİLİR (bkz. plan notu), ama TopicPage'in kendisi
-    // sekme değişiminde unmount olmaz — bu yüzden burası güvenilir kayıt yeri.
+    // Sekme tamamlama konfetisi bir sekme başına SADECE bu sayfa görüntüleme
+    // oturumunda İLK KEZ tamamlandığında patlar — aynı sekmeye tekrar tekrar
+    // dönmek (örn. içeriği gözden geçirmek için) konfetiyi TEKRARLAMAZ.
     const celebratedTabsRef = useRef(new Set())
+    // Hangi sekme İÇİN şu an konfeti oynatılıyor — `null` ise hiçbiri. State
+    // olması (ref değil) confetti'nin JSX'te doğrudan koşullu render edilebilmesini
+    // ve `ConfettiExplosion`'ın kendi `onComplete`'ıyla temiz kapatılabilmesini sağlar.
+    const [celebratingTab, setCelebratingTab] = useState(null)
     // Aşağıdaki dört useState initializer'ı localStorage'ı OKUMADAN ÖNCE, sekme
     // yapısı değişmiş sayfalarda eski index-bazlı veriyi yeni düzene çevir
     // (idempotent — bkz. migrateTabProgress tanımı).
@@ -20189,10 +20190,14 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     })
     // celebratedTabsRef'in gerçek yazma noktası — completedTabs/quizVerifiedTabs
     // buradan SONRA tanımlandığı için bu effect onlardan sonra durmalı (aksi halde
-    // "before initialization" hatası verir).
+    // "before initialization" hatası verir). `celebratingTab` STATE'tir (ref
+    // DEĞİL) — konfetinin JSX koşulu buna bağlı olduğu için, parent başka bir
+    // sebeple re-render olsa bile (örn. XP toast) konfeti animasyonu ortasında
+    // KESİLMEZ; ref'e bakarak inline koşul yazmak bu riski taşırdı.
     useEffect(() => {
-        if (completedTabs[activeTab] || quizVerifiedTabs[activeTab]) {
+        if ((completedTabs[activeTab] || quizVerifiedTabs[activeTab]) && !celebratedTabsRef.current.has(activeTab)) {
             celebratedTabsRef.current.add(activeTab)
+            setCelebratingTab(activeTab)
         }
     }, [activeTab, completedTabs, quizVerifiedTabs])
     // Sekme içindeki hangi quiz/quiz-fill bloğunun (blockIndex) doğru cevaplandığını
@@ -20628,12 +20633,14 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                                         handleHardResetPage,
                                         handleExerciseCompleted
                                     ))}
-                                    {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && (
-                                        <VerticalBrickPlacementCard
-                                            tabTitle={tabs?.[activeTab]}
-                                            isTr={language === 'tr'}
-                                            celebrate={!celebratedTabsRef.current.has(activeTab)}
-                                        />
+                                    {/* Kullanıcı bildirimi (2026-07-22): önceki "VerticalBrickPlacementCard"
+                                        (ikon + rozet + "...hakkında bilgi sahibi oldun!" metni) kart olarak
+                                        TAMAMEN kaldırıldı — mevcut "✅ Bu bölümü bitirdin → Sıradaki" butonu
+                                        zaten tamamlanma bilgisini veriyor, ayrı bir kart gerekmiyor. Konfeti
+                                        (motive edici, tek seferlik) KORUNDU — `celebratingTab` state'i sayesinde
+                                        parent başka bir sebeple re-render olsa bile animasyon ortasında kesilmez. */}
+                                    {celebratingTab === activeTab && (
+                                        <ConfettiExplosion duration={3500} particleCount={50} onComplete={() => setCelebratingTab(null)} />
                                     )}
                                     {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && activeTab < tabs.length - 1 && (
                                         <button
