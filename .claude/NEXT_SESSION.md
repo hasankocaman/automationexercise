@@ -26,6 +26,16 @@ cevapta üyelere özel AI açıklaması. Detaylı analiz ve kapsam
 işlendikçe altına eklenecek — henüz `npm run test:e2e` tam paketi
 ÇALIŞTIRILMADI (kural gereği main'e push öncesine bırakıldı).
 
+**Adım 1/3 bitti — `explain-code-practice` edge function eklendi**
+(`supabase/functions/explain-code-practice/index.ts`), `explain-quiz-answer`
+ile birebir aynı iskelet: CORS, `auth.getUser()` ile ÜYE-ONLY kontrol, Groq
+çağrısı, kesin TR/EN dil kuralı (Latin dışı alfabe yasak). Girdi:
+`{task, solutionCode, userCode, diagnosticLine, lang}`, çıktı: `{explanation}`.
+Henüz frontend'e bağlanmadı (sıradaki adım) ve henüz Supabase'e deploy
+edilmedi — kullanıcı diğer fonksiyonlar gibi `supabase functions deploy
+explain-code-practice --project-ref <ref>` ile deploy etmeli, `GROQ_API_KEY`
+secret'i zaten mevcut fonksiyonlarla paylaşılıyor.
+
 ---
 
 ## 📌 (2026-07-22, Fable oturumu #1)
