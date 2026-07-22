@@ -122,6 +122,15 @@ devreye girmez.
 Doğrulama: `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm run
 build` exit 0 ✓. Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
 
+### ✅ A.1 tamamlandı — Job Readiness metin cilası
+`progressStore.js`'teki `JOB_READINESS_TIERS`: üst iki kademenin (`junior`
+min:75, `mid-ready` min:90) `message` metni emir kipine çekildi —
+"Junior Automation Engineer pozisyonlarına başvurmaya hazırsın" /
+"Mid-level mülakatlarına girebilirsin". Diğer 3 kademeye (`starting`,
+`foundations`, `approaching-junior`) dokunulmadı (§6.1'de zaten uygun
+bulunmuştu). Doğrulama: `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ
+✓ · `npm run build` exit 0 ✓. Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
+
 ### ✅ Aşama D tamamlandı — Faz 3 dilimi: mikro-oturum zaman çerçevelemesi
 `HomePage.jsx`'teki mevcut "Bugünkü Tekrar" kartına (`review-queue-card`)
 `REVIEW_QUEUE_SESSION_SIZE` import edilerek bir süre tahmini rozeti eklendi
