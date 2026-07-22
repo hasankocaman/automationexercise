@@ -143,6 +143,34 @@ dokunulmadı (zaten `t('header.subtitle')` üzerinden okunuyor). Doğrulama:
 `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm run build`
 exit 0 ✓. Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
 
+### ✅ Aşama E.3 tamamlandı — Onboarding turu (gerçek tarayıcıda doğrulandı)
+Yeni dosyalar: `src/lib/onboarding.js` (`hasSeenOnboarding()`/`markOnboardingSeen()`,
+tek localStorage bayrağı `learnqa_onboarding_seen`), `src/components/
+OnboardingTour.jsx` (3 adımlık, ENGELLEMEYEN — tam ekran modal DEĞİL, sabit
+konumlu küçük kart, arkadaki sayfa her zaman etkileşilebilir kalır). **Bilinçli
+kapsam kararı:** belirli DOM elemanlarına işaret eden "spotlight" tur
+YAZILMADI (ref/pozisyon hesaplama gerektirir, düşük öncelikli bir özellik
+için orantısız); yerine kendi içinde adımlanan sabit bir kart kullanıldı —
+karar `retention-and-motivation-plan.md`'ye NOT DÜŞÜLDÜ (dosyanın kendi
+üstündeki yorumda). `HomePage.jsx`'e mount'ta `hasSeenOnboarding()` kontrolü
++ koşullu render eklendi.
+
+**Gerçek tarayıcıda doğrulandı (Playwright ile, geçici script — commit'e
+dahil değil):** localStorage temizlenmiş bir profilde tur gerçekten
+görünüyor, 3 adım arasında "İleri" ile geçiş çalışıyor, son adımda
+"Başlayalım" tıklanınca kayboluyor ve `learnqa_onboarding_seen=true`
+yazılıyor, sayfa yenilenince BİR DAHA GÖRÜNMÜYOR. İlk deneme "cold start"
+zamanlama sorunuyla yanlış pozitif başarısız görünmüştü (dev server ilk
+isteğinde büyük SPA'yı derlerken varsayılan test timeout'unu aştı) — sıcak
+sunucuyla tekrar edilince sorunsuz çalıştığı doğrulandı, kod hatası değildi.
+Doğrulama: `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm run
+build` exit 0 ✓. Playwright E2E tam paketi bu turda da BİLİNÇLİ ATLANDI
+(tekil manuel tarayıcı doğrulaması yapıldı, yukarıya bak).
+
+**§6/Aşama E TAMAMEN BİTTİ** (E.1 banner sıralaması + E.2 subtitle cilası +
+E.3 onboarding turu). C.2 ve A.1 de tamamlandı — 2. tur dış geri bildirimin
+TAMAMI (backlog/red işaretlenenler hariç) uygulandı.
+
 ### ✅ A.1 tamamlandı — Job Readiness metin cilası
 `progressStore.js`'teki `JOB_READINESS_TIERS`: üst iki kademenin (`junior`
 min:75, `mid-ready` min:90) `message` metni emir kipine çekildi —

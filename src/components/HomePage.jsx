@@ -22,6 +22,8 @@ import TrendingSkillsWidget from './TrendingSkillsWidget'
 import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
 import ActivityHeatmap from './ActivityHeatmap'
+import OnboardingTour from './OnboardingTour'
+import { hasSeenOnboarding, markOnboardingSeen } from '../lib/onboarding'
 import { getQueueStats, REVIEW_QUEUE_SESSION_SIZE } from '../lib/reviewQueue'
 import { getDailyGoalProgress, getStreak, subscribeToActivityChanges, checkStreakStatus } from '../lib/activityLog'
 import { readLastPosition, getWeakCompletedTopics } from '../lib/progressStore'
@@ -113,6 +115,17 @@ function HomePage() {
     })
     const audioNodesRef = useRef(null) // { ctx, rain: {source, gain} }
     const thunderTimerRef = useRef(null)
+    // İlk ziyaretçi hoş geldin turu (retention-and-motivation-plan.md §6.4
+    // Aşama E.3) — localStorage bayrağı `false` dönene kadar (SSR/ilk render
+    // güvenliği için) gösterilmez, mount sonrası bir kez kontrol edilir.
+    const [showOnboarding, setShowOnboarding] = useState(false)
+    useEffect(() => {
+        if (!hasSeenOnboarding()) setShowOnboarding(true)
+    }, [])
+    function dismissOnboarding() {
+        markOnboardingSeen()
+        setShowOnboarding(false)
+    }
 
     useEffect(() => {
         setDueReviewCount(getQueueStats(Date.now()).dueCount)
@@ -357,6 +370,10 @@ function HomePage() {
     return (
         <div className="homepage-page">
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-gray-900' : 'bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50'}`}>
+
+            {showOnboarding && (
+                <OnboardingTour darkMode={darkMode} language={language} onDone={dismissOnboarding} />
+            )}
 
             {/* Header */}
             <header className={`shadow-2xl transition-colors duration-300 sticky top-0 z-50 ${darkMode ? 'bg-gray-800' : 'bg-gradient-to-r from-indigo-600 to-purple-600'}`}>

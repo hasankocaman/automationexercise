@@ -159,9 +159,9 @@ rollout'unun kapanışında yapıldığı gibi.
 | B — Retention v2 (zayıf konu önerisi) | ✅ Tamamlandı |
 | C — Ambient sosyal kanıt | ✅ Tamamlandı — manuel SQL adımı hem prod hem test ortamında çalıştırıldı |
 | D — Mikro-oturum zaman çerçevesi | ✅ Tamamlandı (2. alternatif bilinçli olarak backlog'da bırakıldı) |
-| C.2 — Zaman bazlı sosyal kanıt + fallback | ⏳ Kabul edildi, HENÜZ UYGULANMADI (bkz. §6.1) |
-| A.1 — Job Readiness metin cilası | ⏳ Kabul edildi, HENÜZ UYGULANMADI (bkz. §6.1) |
-| E — Homepage hero cilası + Onboarding turu | ⏳ Kabul edildi (yumuşatılmış), HENÜZ UYGULANMADI (bkz. §6.4) |
+| C.2 — Zaman bazlı sosyal kanıt + fallback | ✅ Tamamlandı — manuel SQL adımı (RPC imzası değişti) yeniden çalıştırılmayı bekliyor |
+| A.1 — Job Readiness metin cilası | ✅ Tamamlandı |
+| E — Homepage hero cilası + Onboarding turu | ✅ Tamamlandı (E.1 banner sıralaması + E.2 subtitle + E.3 onboarding turu, gerçek tarayıcıda doğrulandı) |
 
 Güncel durum ve doğrulama kayıtları için tek kaynak: `.claude/NEXT_SESSION.md`.
 
