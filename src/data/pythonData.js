@@ -2419,7 +2419,8 @@ else:
     print("Junior:", name)
 
 for skill in ["Python", "pytest", "Selenium"]:
-    print("Skill:", skill)` },
+    print("Skill:", skill)`,
+        expected: 'Senior: QA Engineer\nYears: 3\nSkill: Python\nSkill: pytest\nSkill: Selenium' },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Syntax' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Blok açma', en: 'Open block' }, java: 'if (x > 0) {', python: 'if x > 0:' },
         { concept: { tr: 'Blok kapama', en: 'Close block' }, java: '}', python: '(dedent — no symbol needed)' },

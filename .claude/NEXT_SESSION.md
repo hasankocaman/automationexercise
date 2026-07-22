@@ -16,8 +16,45 @@
 |---|---|
 | **Aktif branch** | `feature/code-practice-ai-feedback` — main'den fast-forward ile senkronize edildi (`8416850..695b6d8`), Faz 2 çalışması bu branch'te devam ediyor |
 | **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` §3 — Faz 2 (runtime editörlere `expected` alanı + gerçek stdout karşılaştırması). Henüz plan dosyasına Faz 2 detay bölümü eklenmedi, kapsam burada takip ediliyor. |
-| **Sırada ne var** | (1) ✅ bitti — `type:'editor', lang:'java'` yönlendirme bug'ı düzeltildi (aşağıya bak). (2) Sırada: PyodideEditor için tek bir `pythonData.js` bloğunda `expected` alanı + stdout karşılaştırma + UI geri bildirim (confetti/AI panel) ile uçtan uca kanıt (proof-of-concept) — kullanıcı onayı: önce TEK blokta kanıtla, sonra 40 bloğun tamamına yay. |
+| **Sırada ne var** | (1) ✅ bitti — `type:'editor', lang:'java'` yönlendirme bug'ı düzeltildi. (2) ✅ bitti — PyodideEditor `expected` alanı + stdout karşılaştırma proof-of-concept (aşağıya bak), tek blokta gerçek tarayıcıda doğrulandı. (3) Sırada: kullanıcıdan "kalan 39 bloğa da `expected` yaz" onayı al, sonra AI açıklama paneli (yanlış çıktıda) için ayrı bir tasarım kararı — mevcut `explain-code-practice` fonksiyonu kaynak-kodu kıyaslamaya göre yazılmış, çıktı-kıyaslama için prompt/alan uyarlaması gerekir. |
 | **Test politikası (bu branch'te)** | Plan §4: her commit'te sadece `check-content-integrity.mjs` + `npm run build`. Tam `npm run test:e2e` SADECE main'e push'tan hemen önce bir kez. Commit'ler `SKIP_E2E_HOOK=1` ile atılıyor. |
+
+### 🧪 Faz 2 proof-of-concept — PyodideEditor `expected` alanı (2026-07-22, Claude Code)
+`PyodideEditor` (`TopicPage.jsx`) artık opsiyonel `expected` prop'u alıyor —
+verilmemişse (39 blokta hâlâ öyle) davranış BİREBİR eskisi gibi (her başarılı
+çalıştırmada `onFirstSuccess`, kıyaslama yok). Verilmişse: `run()` içinde
+yakalanan stdout, yeni `normalizeOutputForComparison` (boşluk/satır sonu
+farklarını yok sayan, `CodePlaygroundBlock.jsx`'teki `normalizeForComparison`
+ile aynı fikir ama ayrı küçük fonksiyon — döngüsel import'tan kaçınmak için
+kasıtlı olarak paylaşılmadı) ile `expected` (bilingual olabilir, `tx()` ile
+çözülüyor) karşılaştırılıyor:
+- Eşleşirse: yeşil "✅ Doğru! Çıktı bekleneni karşılıyor." + mikro-confetti
+  (`ConfettiExplosion duration={1800} particleCount={16}`, Faz 1'deki mikro
+  confetti ile aynı aile) + `onFirstSuccess`.
+- Eşleşmezse: amber "⚠️ Çıktı henüz beklenenle eşleşmiyor." + "Beklenen: ..."
+  metni (deterministik, AI YOK — bkz. aşağıdaki not).
+`case 'editor':` switch'inde `block.expected` artık `PyodideEditor`'a
+geçiriliyor. Kanıt bloğu: `pythonData.js` — "Sözdizimi & Yorumlar" sekmesi,
+QA Engineer/experience örneği, `expected: 'Senior: QA Engineer\nYears:
+3\nSkill: Python\nSkill: pytest\nSkill: Selenium'`.
+
+**Bilinçli olarak YAPILMADI (kapsam dışı bırakıldı):** Yanlış çıktıda üye-only
+AI açıklama paneli EKLENMEDİ. Sebep: mevcut `explain-code-practice` edge
+function'ın sistem promptu "beklenen ÇÖZÜM KODU (solutionCode) vs öğrencinin
+KODU" kıyaslaması için yazılmış (satır bazlı kod farkı anlatıyor) — runtime
+editörlerde asıl fark KOD değil ÇALIŞTIRILAN PROGRAMIN ÇIKTISI, bu farklı bir
+prompt/alan tasarımı gerektiriyor (yeni fonksiyon mu, mevcut fonksiyona yeni
+bir mod mu — kullanıcıyla netleştirilmeli). Bu YENİ bir tasarım kararı,
+"tek blokla kanıtla" onayının kapsamına girmiyordu.
+
+**Doğrulama (2026-07-22):** `node scripts/check-content-integrity.mjs` ✅ 0
+ihlal, `npm run build` ✅ PASS (41 static route, dist SEO PASS). Ayrıca `npm
+run dev` + gerçek Chromium (Playwright, yaz-koş-sil script) ile MANUEL uçtan
+uca doğrulandı: doğru kod → yeşil "Doğru!" + confetti DOM'da; kodu bozunca
+("WRONG OUTPUT" yazdıracak şekilde) → amber "eşleşmiyor" + çok satırlı
+"Beklenen:" metni doğru gösterildi; konsol/page hatası YOK (Pyodide yükleme
+logları hariç). Tam Playwright regresyon paketi HENÜZ koşulmadı (plan §4
+politikası gereği main'e push öncesine bırakıldı).
 
 ### 🐛 Java editor yönlendirme bug'ı düzeltildi (2026-07-22, Claude Code)
 Faz 2 scoping araştırması sırasında bulundu: `TopicPage.jsx`'teki `case 'editor':`

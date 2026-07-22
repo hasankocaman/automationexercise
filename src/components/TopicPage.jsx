@@ -2234,11 +2234,20 @@ function JavaCompareBlock({ block, darkMode }) {
 
 // ─── PyodideEditor ────────────────────────────────────────────────────────────
 
-function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess }) {
+// Kod string diff'i DEĞİL — gerçek çalıştırılan Python programının stdout
+// çıktısı karşılaştırılır. Girinti/boşluk gibi biçimsel farkları yok sayar.
+function normalizeOutputForComparison(text) {
+    return (text || '').replace(/\s+/g, ' ').trim()
+}
+
+function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess, expected }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const localizedExpected = expected != null ? tx(expected, language) : null
     const [code, setCode] = useState(localizedDefaultCode)
     const [output, setOutput] = useState('')
+    const [passed, setPassed] = useState(null)
+    const [celebrating, setCelebrating] = useState(false)
     const [loading, setLoading] = useState(false)
     const [pyReady, setPyReady] = useState(!!window._pyodideInstance)
     const pyRef = useRef(null)
@@ -2258,22 +2267,36 @@ function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess }) {
 
     useEffect(() => {
         setCode(localizedDefaultCode)
+        setPassed(null)
     }, [localizedDefaultCode])
 
     const run = async () => {
         if (!pyRef.current) return
-        setLoading(true); setOutput('')
+        setLoading(true); setOutput(''); setPassed(null)
         try {
             pyRef.current.runPython('import sys, io\nsys.stdout = io.StringIO()')
             pyRef.current.runPython(code)
-            setOutput(pyRef.current.runPython('sys.stdout.getvalue()') || '(no output)')
-            onFirstSuccess?.()
-        } catch (e) { setOutput('❌ ' + e.message) }
+            const captured = pyRef.current.runPython('sys.stdout.getvalue()') || ''
+            setOutput(captured || '(no output)')
+            if (localizedExpected != null) {
+                const isMatch = normalizeOutputForComparison(captured) === normalizeOutputForComparison(localizedExpected)
+                setPassed(isMatch)
+                if (isMatch) { setCelebrating(true); onFirstSuccess?.() }
+            } else {
+                onFirstSuccess?.()
+            }
+        } catch (e) {
+            setOutput('❌ ' + e.message)
+            if (localizedExpected != null) setPassed(false)
+        }
         setLoading(false)
     }
 
+    const isTr = language === 'tr'
+
     return (
-        <div className="mt-4 rounded-xl overflow-hidden border border-purple-800/40">
+        <div className="mt-4 rounded-xl overflow-hidden border border-purple-800/40" style={{ position: 'relative' }}>
+            {celebrating && <ConfettiExplosion duration={1800} particleCount={16} onComplete={() => setCelebrating(false)} />}
             <div style={{ background: '#12121f' }} className="flex items-center justify-between px-3 py-2">
                 <span className="text-xs font-mono" style={{ color: '#6c7086' }}>{pyReady ? '🐍 Python — Try it yourself' : '⏳ Loading Python...'}</span>
                 <button onClick={run} disabled={!pyReady || loading} style={{ background: pyReady ? '#7c3aed' : '#313148', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 16px', fontSize: '12px', fontWeight: 600, cursor: pyReady ? 'pointer' : 'not-allowed' }}>
@@ -2281,7 +2304,20 @@ function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess }) {
                 </button>
             </div>
             <textarea value={code} onChange={e => setCode(e.target.value)} style={{ display: 'block', width: '100%', minHeight: height, background: '#12121f', color: '#cdd6f4', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', border: 'none', padding: '14px 16px', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} spellCheck={false} />
-            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : '#10b981', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : (passed === false ? '#f59e0b' : '#10b981'), fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+            {passed === true && (
+                <div style={{ padding: '8px 16px', background: '#0d0d1a', borderTop: '1px solid #1e1e3a', color: '#10b981', fontSize: '12px', fontWeight: 700 }}>
+                    ✅ {isTr ? 'Doğru! Çıktı bekleneni karşılıyor.' : 'Correct! Output matches what is expected.'}
+                </div>
+            )}
+            {passed === false && (
+                <div style={{ padding: '10px 16px', background: '#1a1206', borderTop: '1px solid #1e1e3a', color: '#f59e0b', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'pre-wrap' }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, marginBottom: 4 }}>
+                        {isTr ? '⚠️ Çıktı henüz beklenenle eşleşmiyor.' : '⚠️ Output does not match yet.'}
+                    </div>
+                    <div>{isTr ? 'Beklenen' : 'Expected'}: {localizedExpected}</div>
+                </div>
+            )}
         </div>
     )
 }
@@ -17449,7 +17485,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                 return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
             if (block.lang === 'java')
                 return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
-            return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+            return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} expected={block.expected} onFirstSuccess={() => onExerciseCompleted?.(i)} />
         case 'java-practice':
             return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'git-practice':
