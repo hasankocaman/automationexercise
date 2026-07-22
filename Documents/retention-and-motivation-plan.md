@@ -159,5 +159,118 @@ rollout'unun kapanışında yapıldığı gibi.
 | B — Retention v2 (zayıf konu önerisi) | ✅ Tamamlandı |
 | C — Ambient sosyal kanıt | ✅ Tamamlandı — manuel SQL adımı hem prod hem test ortamında çalıştırıldı |
 | D — Mikro-oturum zaman çerçevesi | ✅ Tamamlandı (2. alternatif bilinçli olarak backlog'da bırakıldı) |
+| C.2 — Zaman bazlı sosyal kanıt + fallback | ⏳ Kabul edildi, HENÜZ UYGULANMADI (bkz. §6.1) |
+| A.1 — Job Readiness metin cilası | ⏳ Kabul edildi, HENÜZ UYGULANMADI (bkz. §6.1) |
+| E — Homepage hero cilası + Onboarding turu | ⏳ Kabul edildi (yumuşatılmış), HENÜZ UYGULANMADI (bkz. §6.4) |
 
 Güncel durum ve doğrulama kayıtları için tek kaynak: `.claude/NEXT_SESSION.md`.
+
+---
+
+## 6. Dış Geri Bildirim İncelemesi — 2. Tur (2026-07-22)
+
+> A/B/C/D uygulanıp kapanış testi geçtikten sonra kullanıcı iki ayrı geri
+> bildirim yapıştırdı: (1) mevcut C/A/B aşamalarına somut iyileştirme
+> önerileri, (2) önceki konuşmalardan bağımsız, yeni bir bakış açısıyla
+> homepage/onboarding fikri. Her madde kod gerçeğine karşı denetlendi —
+> körü körüne kabul edilmedi (learning-os-redesign-plan.md §3'teki
+> "kabul/red/yumuşatma" disiplini burada da uygulanır).
+
+### 6.1 Kabul edilen — sıradaki artırımlar (henüz kodlanmadı)
+
+**C.2 — Zaman bazlı sosyal kanıt ("Son 7 günde N kişi tamamladı"):** Fikir
+sağlam — bir "tüm zamanlar" sayısından daha canlı/güncel hissettirir
+(momentum sinyali). Ama körü körüne eklenirse gerçek bir tasarım sorunu
+yaratır: haftalık pencere doğal olarak tüm-zamanlar toplamından KÜÇÜKTÜR,
+bu yüzden mevcut `SOCIAL_PROOF_MIN_COUNT = 5` eşiği düşük trafikli
+derslerde haftalık sayıyı neredeyse hiç göstermez hale getirir. Doğru
+uygulama: RPC'ye `p_window_days` parametresi eklenir (`created_at >
+now() - interval`), **önce haftalık sayı denenir, o eşiği geçemezse
+tüm-zamanlar sayısına sessizce düşülür** (aynı "eksik veri asla 0 gibi
+cezalandırılmaz" ilkesi, `progressStore.js::getMastery` ile aynı ruh).
+Dosyalar: `supabase/social_proof_schema.sql` (yeni parametreli RPC veya
+ikinci fonksiyon), `src/lib/socialProof.js`, `LessonFinishBadge.jsx`.
+
+**A.1 — Job Readiness metin cilası:** Önerilen "Junior pozisyonlara
+başvurmaya hazırsın" (75-89%) ve "Mid-level mülakatlara girebilirsin" (90+%)
+ifadeleri, mevcut `JOB_READINESS_TIERS`'taki (`progressStore.js`) metinlerden
+DAHA GÜÇLÜ — emir kipi ("başvur", "gir") betimleyici anlatımdan ("bilgiye
+sahipsin") daha eyleme geçirici. Kabul edildi: iki üst kademenin `message`
+alanı bu emir kipi tonuna çekilecek; diğer 3 kademe zaten aynı ruhta,
+dokunulmayacak.
+
+### 6.2 Reddedilen / yumuşatılan
+
+**A/B testi altyapısı (sosyal kanıt kopyası için) → RED.** Projede HİÇBİR
+deney/feature-flag altyapısı yok (bucketing, dönüşüm ölçümü, karşılaştırma
+paneli — hiçbiri kurulu değil; `map_events` fire-and-forget bir funnel
+tablosu, deney motoru değil). Tek bir metin varyasyonu için bunu sıfırdan
+kurmak, CLAUDE.md'nin "ihtiyaç duyulmayan soyutlama ekleme" ilkesiyle
+doğrudan çelişir. **Yumuşatılmış karşılık:** iki metin arasında GERÇEK bir
+deney yapmak yerine, doğrudan daha sıcak olanı seç — "X kişi bu dersi
+seninle birlikte tamamladı" ifadesi Bandura'nın sosyal öğrenme çerçevesine
+("yalnız değilsin") "X kişi bitirdi" istatistiğinden daha uygun; C.2 ile
+birlikte bu kopya da güncellenebilir, ayrı bir deney sistemi kurulmadan.
+
+**Haftalık özet e-postası → Backlog, kapsam dışı.** Fikir kullanıcının
+kendisi tarafından da "opsiyonel, ileride" olarak işaretlenmiş. Gerçek bir
+gerilim var: e-posta göndermek bir e-posta adresi ister, e-posta adresi
+üyelik ister — bu, CLAUDE.md §5'in "progress/rozet üyelik zorunlu değildir"
+ilkesiyle DOĞRUDAN ÇELİŞMEZ (üyelik zaten opsiyonel bir senkron katmanı) ama
+bu özelliğin doğası gereği SADECE üye kullanıcılara sunulabileceği açıkça
+not düşülmeli. Ayrıca e-posta sağlayıcı seçimi, şablon, unsubscribe/rıza
+yönetimi gibi ayrı bir altyapı kurulumu gerektirir — bu planın "ince
+çerçeveleme" kapsamının tamamen dışında, ayrı bir plan dosyası/karar
+gerektiren bir iş. Backlog'da tutulur, bu planın aşamalarına dahil EDİLMEDİ.
+
+### 6.3 Zaten karşılanmış (yeni iş gerekmiyor)
+
+**"Bu konuyu tekrar et butonu direkt ilgili derse link versin" (Retention
+v2):** Bu ZATEN Aşama B'nin uygulanma şekli — `HomePage.jsx`'teki
+`weak-topic-reminder` kartındaki her `<Link to={w.route}>` doğrudan ilgili
+dersin route'una gider (bkz. §2 Aşama B, commit `4ab2388`). Ek iş yok.
+
+### 6.4 Yeni fikir değerlendirmesi — Homepage Hero & Onboarding Turu
+
+Kod okunarak denetlendi (varsayımla değil): `HomePage.jsx`'teki üst header
+(`t('header.title')` → "🧭 QA Learning Platform", `t('header.subtitle')` →
+"Python, SQL, otomasyon araçları ve DevOps konularını QA odaklı yollarla
+öğren") küçük, sticky bir navbar'dır — araç listesi anlatır, bir KİMLİK/
+hedef vaadi vermez ("Sıfırdan Otomasyon Test Uzmanı Ol" tarzı). Ayrıca yeni
+ziyaretçi için ZATEN bir CTA banner'ı var (`mentorMapState.state` default
+dalı: "👋 Yeni misin? Kişisel QA Kariyer Haritanı Oluştur", 4 soru/~1 dk,
+"Başla" butonu — §1.1 hero fikrinin bir kısmını zaten karşılıyor) AMA bu
+banner `TrendingSkillsWidget` ve `MembershipPromo`'nun ALTINDA render
+ediliyor — yani ilk kez gelen bir ziyaretçi "bu site ne işe yarar"dan önce
+trend widget'ı ve üyelik promosunu görüyor. Onboarding turu tarafında ise
+gerçek bir boşluk doğrulandı: kod tabanında `tour`/`onboarding`/"hoş geldin"
+adında hiçbir bileşen YOK (grep sonucu — eşleşen 49 dosya sadece mülakat
+içeriğinde "onboarding" kelimesinin HR/QA terimi olarak geçtiği veri
+dosyalarıydı, gerçek bir tur bileşeni değil).
+
+**Değerlendirme — kısmen kabul, yumuşatılmış:**
+- ❌ **"Büyük yeni hero bölümü" olduğu gibi RED.** `learning-os-redesign-plan.md`
+  §3.2 zaten bunu reddetmişti: "Görsel dilin baştan tasarımı → RED... redesign
+  değil, yeni yüzeyler aynı dille eklenir." Yeni, büyük bir hero bloğu
+  eklemek bu kalıcı kararla çelişir ve mevcut header/banner hiyerarşisini
+  bozma riski taşır.
+- ✅ **Yumuşatılmış karşılık — mevcut yüzeylerin YENİDEN SIRALANMASI + metin
+  cilası:** Yeni component yazılmadan, sadece (1) anonim/yeni ziyaretçi için
+  "👋 Yeni misin?" banner'ı `TrendingSkillsWidget`/`MembershipPromo`'nun
+  ÜSTÜNE taşımak, (2) `header.subtitle` metnine araç listesi yanında bir
+  kimlik/hedef cümlesi eklemek (örn. "...QA odaklı yollarla öğren, sıfırdan
+  otomasyon test mühendisliğine ilerle") — CLAUDE.md'nin "mevcut tasarıma
+  sadık kal" ilkesiyle uyumlu, düşük riskli bir değişiklik.
+- ✅ **Onboarding turu — kabul, yeni ama küçük kapsamlı:** 3-4 adımlık,
+  ENGELLEMEYEN (modal değil, dismissible tooltip/spotlight dizisi — Bölüm
+  20'deki "büyüleyici ama pürüzsüz" ilkesiyle uyumlu, akışı KESMEZ) bir tur:
+  "Bu site ne işe yarar? → Nasıl ilerlerim? (kariyer haritası) → İlk ne
+  yapmalıyım? (Devam et / Yeni misin banner'ı)". `learnqa_onboarding_seen`
+  localStorage anahtarı (local-first, üyelik gerekmez, CLAUDE.md §5/§7 ile
+  uyumlu) ile bir kez gösterilir. Yeni dış kütüphane YOK (CLAUDE.md §8) —
+  saf CSS/inline SVG spotlight + `position: fixed` tooltip kartları.
+
+**Aşama E olarak plana eklendi** (henüz kodlanmadı): `src/lib/onboarding.js`
+(yeni, `hasSeenOnboarding()`/`markOnboardingSeen()`) + `src/components/
+OnboardingTour.jsx` (yeni) + `HomePage.jsx`'te banner sıralaması değişikliği
++ `src/locales/*.json`'da `header.subtitle` cilası.

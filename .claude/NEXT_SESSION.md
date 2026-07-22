@@ -69,6 +69,36 @@ adaylar — istenirse ayrı bir iyileştirme olarak `topic-pages-ui.spec.ts`'tek
 240s timeout'u büyütmek veya bu spesifik route'lar için buton taramasını
 parçalara bölmek düşünülebilir; bu PLAN KAPSAMINDA DEĞİL, ayrı bir görev.
 
+### 📝 2. tur dış geri bildirim incelendi, plana işlendi (henüz KODLANMADI)
+Kullanıcı iki geri bildirim daha yapıştırdı: (1) C/A/B'ye somut iyileştirme
+önerileri, (2) yeni bir bakış açısıyla homepage hero + onboarding turu fikri.
+`retention-and-motivation-plan.md`'nin yeni **§6** bölümünde kod gerçeğine
+karşı denetlenip kabul/red/yumuşatma kararına bağlandı — henüz HİÇBİRİ
+kodlanmadı, sadece plana işlendi:
+- **C.2 (kabul):** zaman bazlı sosyal kanıt ("son 7 günde N kişi"), eşiği
+  geçemezse tüm-zamanlar sayısına sessizce düşen fallback ile.
+- **A.1 (kabul):** Job Readiness üst 2 kademenin metni emir kipine çekilecek.
+- **A/B test altyapısı (RED):** projede deney/feature-flag altyapısı yok,
+  orantısız; yerine doğrudan daha sıcak kopya seçilecek.
+- **Haftalık özet e-postası (backlog, kapsam dışı):** üyelik-bağımlı, ayrı
+  bir e-posta altyapısı gerektirir, bu plana dahil edilmedi.
+- **"Tekrar et butonu derse link versin" → zaten karşılanmış:** Aşama B
+  (`4ab2388`) zaten `<Link to={w.route}>` ile bunu yapıyor.
+- **Homepage hero (yumuşatıldı):** büyük yeni hero bloğu REDDEDİLDİ
+  (learning-os-redesign-plan.md §3.2 "redesign yok" kararıyla çelişir);
+  bunun yerine mevcut "Yeni misin?" banner'ının `TrendingSkillsWidget`/
+  `MembershipPromo`'nun ÜSTÜNE taşınması + `header.subtitle` metin cilası
+  kabul edildi.
+- **Onboarding turu (kabul, yeni Aşama E):** 3-4 adımlık, engellemeyen,
+  dismissible bir tur; `learnqa_onboarding_seen` localStorage anahtarı,
+  yeni dış kütüphane yok. Kod gerçeği doğrulandı: proje genelinde hiçbir
+  onboarding/tur bileşeni YOK (grep'teki 49 eşleşme yalnız mülakat
+  içeriğindeki "onboarding" HR terimiydi).
+
+Kullanıcı henüz "uygula" demedi — bu sadece bir inceleme/plan turu, kodlama
+YAPILMADI. Sıradaki oturumun ilk işi: kullanıcı onaylarsa C.2/A.1/Aşama E'yi
+aynı döngüyle (kodla → NEXT_SESSION güncelle → commit → sıradaki) uygulamak.
+
 ### ✅ Aşama D tamamlandı — Faz 3 dilimi: mikro-oturum zaman çerçevelemesi
 `HomePage.jsx`'teki mevcut "Bugünkü Tekrar" kartına (`review-queue-card`)
 `REVIEW_QUEUE_SESSION_SIZE` import edilerek bir süre tahmini rozeti eklendi
