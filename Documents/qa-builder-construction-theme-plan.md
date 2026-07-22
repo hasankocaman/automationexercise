@@ -41,17 +41,16 @@ bir bileşen. **Aşama 1'de QA Mentor sayfasına bağlanır.**
 
 | Aşama | İş | Durum |
 |---|---|---|
-| **1** | `VerticalBrickTower.jsx`'i `QAMentorPage.jsx`'e bağla (mevcut `MindMapNode` kişiselleştirilmiş yol haritasının YANINA, site-geneli "kaç tuğla örüldü" özeti olarak — birbirinin YERİNE değil, ikisi FARKLI şeyi gösteriyor: MindMapNode = kullanıcının seçtiği kariyer yolu, Tower = TÜM site genelindeki ilerleme) | ⏳ Bu oturumda yapılıyor |
-| **2** | 5 kullanılmayan dosyayı sil: `BrickBadge.jsx`, `BrickProgressBar.jsx`, `BuildingRoadmap.jsx`, `ConstructionLamp.jsx`, `InspectionReportQuizResult.jsx` + `index.css`'teki karşılık gelen kullanılmayan class'lar (`.inspection-stamp-passed`, `.inspection-stamp-failed`, `.brick-card` — hiçbir component'te uygulanmamıştı) | ⏳ Bu oturumda yapılıyor |
-| **3** | **Bug fix — Çift CTA:** `TopicPage.jsx`'te bir sekme bitince hem `VerticalBrickPlacementCard`'ın kendi "Sıradaki Tuğlaya Geç →" butonu HEM DE önceden var olan `tab-nav-next-suggestion` butonu üst üste render oluyordu — aynı işi yapan iki buton. Çözüm: `VerticalBrickPlacementCard`'dan `onContinue`/kendi buton mantığı çıkarılır, bileşen SADECE kutlama kartı olur; navigasyon tek kaynaktan (`tab-nav-next-suggestion`, zaten AC11 prev/next testleriyle korunan mevcut mekanizma) gelir. | ⏳ Bu oturumda yapılıyor |
-| **4** | **Bug fix — Konfeti tekrarı:** `VerticalBrickPlacementCard`'ın `showConfetti` state'i her zaman `true` başlıyordu ve component'in kendisi `activeTab` değiştikçe muhtemelen yeniden mount oluyordu (React, sekme içeriği tamamen değiştiği için bu pozisyondaki elemanı yeniden kullanmıyor) — yani tamamlanmış bir sekmeye HER dönüşte tam ekran konfeti tekrar patlıyordu. Kullanıcının isteği "bir defalık" konfeti (motive edici, spam değil). Çözüm: `TopicPage.jsx`'te sekme başına "bu oturumda zaten kutlandı mı" bilgisini tutan bir `useRef(new Set())` eklenir (parent component sekme değişiminde UNMOUNT OLMAZ, bu yüzden güvenilir bir kayıt yeri) — kart her zaman görünür ama konfeti SADECE ilk kez "tamamlandı" durumuna girildiğinde patlar. | ⏳ Bu oturumda yapılıyor |
+| **1** | `VerticalBrickTower.jsx`'i `QAMentorPage.jsx`'e bağla (mevcut `MindMapNode` kişiselleştirilmiş yol haritasının YANINA, site-geneli "kaç tuğla örüldü" özeti olarak — birbirinin YERİNE değil, ikisi FARKLI şeyi gösteriyor: MindMapNode = kullanıcının seçtiği kariyer yolu, Tower = TÜM site genelindeki ilerleme) | ✅ Tamamlandı |
+| **2** | 5 kullanılmayan dosyayı sil: `BrickBadge.jsx`, `BrickProgressBar.jsx`, `BuildingRoadmap.jsx`, `ConstructionLamp.jsx`, `InspectionReportQuizResult.jsx` + `index.css`'teki karşılık gelen kullanılmayan class'lar | ✅ Tamamlandı |
+| **3** | **Bug fix — Çift CTA:** `VerticalBrickPlacementCard`'ın kendi "Sıradaki Tuğlaya Geç →" butonu kaldırıldı, tek navigasyon kaynağı `tab-nav-next-suggestion` (AC11 testleriyle korunuyor) | ✅ Tamamlandı |
+| **4** | **Bug fix — Konfeti tekrarı:** `TopicPage.jsx`'e `celebratedTabsRef` (`useRef(new Set())`) eklendi — konfeti sekme başına bu sayfa görüntüleme oturumunda SADECE ilk tamamlamada patlar | ✅ Tamamlandı |
+| **5** | Test borcu: `tests/lesson-completion.spec.ts`'teki `'bitirdin'` beklentisi `'dizdin'`e güncellendi | ✅ Tamamlandı |
+| **6** | **Bug fix — Tower sıralaması ("gözü korkutuyordu"):** `VerticalBrickTower.jsx`'teki `.reverse()` kaldırıldı — liste artık DOĞAL sırada (Temel önce), kullanıcı harita oluşur oluşmaz Java/Git/Linux gibi tanıdık konuları görür, Kafka/JMeter gibi ileri seviye konulara ancak aşağı kaydırınca ulaşır. "Zemin Temeli" banner'ı başa, "Kule Yükseliyor" banner'ı sona taşındı. | ✅ Tamamlandı |
 
 ### Kısıtlar (değişmedi)
 - Dış kütüphane/CDN yok (CLAUDE.md §8) — tüm görsel efektler inline CSS/SVG.
 - Bilingual (`{tr, en}` veya `isTr` dalı) — tüm yeni/değişen metinler.
-- Mevcut testler (`tests/lesson-completion.spec.ts` "bitirdin" substring'i arıyor,
-  yeni metin "tuğlalarını dizdin") bu oturumun kapsamında GÜNCELLENMEDİ — ayrı
-  bir görev olarak not düşülür, kullanıcı onayıyla ele alınabilir.
 
 ---
 

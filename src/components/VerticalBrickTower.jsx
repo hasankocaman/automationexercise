@@ -10,7 +10,8 @@ export default function VerticalBrickTower({ language = 'tr', className = '' }) 
   const isTr = language === 'tr'
   const completedRoutes = getCompletedRoutes()
 
-  // Tüm müfredat ders tuğlaları (Aşağıdan yukarıya doğru üst üste dizilir)
+  // Tüm müfredat ders tuğlaları — doğal (Temel → ileri seviye) sırayla render edilir,
+  // temel konular İLK görülür (bkz. aşağıdaki bug fix yorumu).
   const topicBricks = [
     { route: '/java', title: 'Java Core', icon: '☕', level: 'Temel' },
     { route: '/git-github', title: 'Git & GitHub', icon: '🐙', level: 'Temel' },
@@ -41,9 +42,6 @@ export default function VerticalBrickTower({ language = 'tr', className = '' }) 
   const completedCount = topicBricks.filter((b) => completedRoutes.includes(b.route)).length
   const heightPercentage = Math.round((completedCount / total) * 100)
 
-  // Kule dizilimi: En son/en yüksek dersler üstte, temeller altta (reverse array for visual stacking)
-  const stackedBricks = [...topicBricks].reverse()
-
   return (
     <div className={`p-4 md:p-6 rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-teal-500/30 text-slate-100 shadow-2xl brick-pattern-bg ${className}`}>
       {/* Kule Başlığı ve Metrikler */}
@@ -72,19 +70,27 @@ export default function VerticalBrickTower({ language = 'tr', className = '' }) 
         </div>
       </div>
 
-      {/* Dikey 3D Tuğla Sütunu (Vertical Stack) */}
+      {/* Dikey 3D Tuğla Sütunu (Vertical Stack) — bug fix (kullanıcı bildirimi
+          2026-07-22): liste ÖNCEDEN ters çevriliyordu ("en gelişmiş ders üstte,
+          temel altta" — gerçek bir binanın fiziksel mantığı) ama bu, harita
+          oluşur oluşmaz kullanıcının İLK gördüğü şeyin Kafka/JMeter/Azure gibi
+          gözünü korkutan ileri seviye konular olmasına yol açıyordu. Artık liste
+          DOĞAL sırada (Temel → Web → API → DevOps → Mobil → Cloud → Streaming →
+          Performans) — kullanıcı ilk açılışta Java/Git/Linux gibi tanıdık,
+          rahatlatıcı konuları görür; ileri seviye konulara ancak aşağı
+          kaydırınca ulaşır. "Zemin Temeli" banner'ı bu yüzden yukarı, "Kule
+          Yükseliyor" banner'ı aşağı taşındı (okuma yönüyle tutarlı: temelden
+          başla, yukarı doğru inşa et). */}
       <div className="relative max-w-xl mx-auto flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-950/90 border border-slate-800 shadow-inner">
-        {/* Çatı / İnşaat Tepesi */}
-        <div className="text-center py-1.5 text-xs font-extrabold font-mono text-amber-400 bg-amber-500/10 rounded-lg border border-amber-500/30 flex items-center justify-center gap-2">
-          <span>🚩</span>
-          <span>{heightPercentage === 100 ? (isTr ? 'ÇATILAR ÖRÜLDÜ - TAMAMLANDI!' : 'ROOF COMPLETED!') : (isTr ? 'KULE YÜKSELİYOR' : 'TOWER RISING')}</span>
-          <span>🚩</span>
+        {/* Zemin / Temel Etiketi — artık İLK görülen şey */}
+        <div className="text-center py-2 text-xs font-bold font-mono text-slate-400 bg-slate-900 rounded-lg border border-slate-800">
+          🏛️ {isTr ? 'ZEMİN TEMELİ (JAVA & BASH & GIT) — BURADAN BAŞLA' : 'GROUND FOUNDATION — START HERE'}
         </div>
 
-        {/* 3D Tuğlalar (Üst üste dikey dizim) */}
-        {stackedBricks.map((brick, index) => {
+        {/* 3D Tuğlalar (doğal sırayla, temelden yukarı doğru) */}
+        {topicBricks.map((brick, index) => {
           const isDone = completedRoutes.includes(brick.route)
-          const brickNumber = total - index
+          const brickNumber = index + 1
 
           return (
             <Link
@@ -135,9 +141,11 @@ export default function VerticalBrickTower({ language = 'tr', className = '' }) 
           )
         })}
 
-        {/* Zemin / Temel Etiketi */}
-        <div className="text-center py-2 text-xs font-bold font-mono text-slate-400 bg-slate-900 rounded-lg border border-slate-800">
-          🏛️ {isTr ? 'ZEMİN TEMELİ (JAVA & BASH & GIT)' : 'GROUND FOUNDATION'}
+        {/* Çatı / İnşaat Tepesi — artık SON görülen şey (aşağı kaydırınca ulaşılır) */}
+        <div className="text-center py-1.5 text-xs font-extrabold font-mono text-amber-400 bg-amber-500/10 rounded-lg border border-amber-500/30 flex items-center justify-center gap-2">
+          <span>🚩</span>
+          <span>{heightPercentage === 100 ? (isTr ? 'ÇATILAR ÖRÜLDÜ - TAMAMLANDI!' : 'ROOF COMPLETED!') : (isTr ? 'KULE YÜKSELİYOR' : 'TOWER RISING')}</span>
+          <span>🚩</span>
         </div>
       </div>
     </div>

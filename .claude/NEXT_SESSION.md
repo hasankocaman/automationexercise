@@ -80,9 +80,30 @@ sıradaki adım** — onay beklemeden devam edilir.
 
 **`feature/qa-builder-metaphor` plan durumu:** `Documents/qa-builder-construction-theme-plan.md`
 §Revizyon'daki 4 aşama (Tower entegrasyonu, dead code temizliği, çift CTA fix,
-konfeti fix) + bu test borcu artık TAMAMEN BİTTİ. Plan dosyasında tanımlı
-başka bir "sıradaki adım" YOK — kullanıcıdan yeni bir yön beklenmiyorsa bu
-branch main'e merge edilmeye hazır.
+konfeti fix) + test borcu artık TAMAMEN BİTTİ.
+
+### ✅ Bug fix — Tower sıralaması "gözü korkutuyordu" (kullanıcı bildirimi, ekran görüntüsüyle)
+Kullanıcı iki ekran görüntüsünü yan yana verdi: kişiselleştirilmiş "ANA YOL"
+listesi #1'den başlayıp (Test Temelleri) doğal sırayla ilerlerken,
+`VerticalBrickTower` DERS'İ TERS sırayla gösteriyordu (`[...topicBricks].reverse()`
+— "gerçek bina" mantığı: en gelişmiş ders üstte, temel altta). Sonuç: kullanıcı
+harita oluşur oluşmaz İLK GÖRDÜĞÜ şey Kafka/JMeter/Azure DevOps gibi ileri
+seviye, gözünü korkutan konular oluyordu.
+
+**Düzeltme (`VerticalBrickTower.jsx`):** `.reverse()` kaldırıldı, liste artık
+DOĞAL sırada (Temel → Web → API → DevOps → Mobil → Cloud → Streaming →
+Performans) — `brickNumber` de `total - index` yerine `index + 1`. "🏛️ ZEMİN
+TEMELİ — BURADAN BAŞLA" banner'ı listenin BAŞINA (ilk görülen), "🚩 KULE
+YÜKSELİYOR" banner'ı SONUNA (aşağı kaydırınca ulaşılan) taşındı — okuma
+yönüyle tutarlı: temelden başla, yukarı doğru inşa et.
+
+**Doğrulama:** Gerçek tarayıcıda (Playwright, sihirbaz tıklanarak) ekran
+görüntüsüyle doğrulandı — ilk görünen şey artık "ZEMİN TEMELİ — BURADAN BAŞLA"
++ #1 Java Core / #2 Git & GitHub / #3 Linux Bash. `check-content-integrity.mjs`
+✓ · `npm run build` ✓. Tam E2E paketi çalıştırılmadı (yeni kural).
+
+Plan dosyasında tanımlı başka bir "sıradaki adım" YOK — kullanıcıdan yeni bir
+yön beklenmiyorsa bu branch main'e merge edilmeye hazır.
 
 ---
 
