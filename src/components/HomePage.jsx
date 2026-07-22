@@ -22,7 +22,7 @@ import TrendingSkillsWidget from './TrendingSkillsWidget'
 import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
 import ActivityHeatmap from './ActivityHeatmap'
-import { getQueueStats } from '../lib/reviewQueue'
+import { getQueueStats, REVIEW_QUEUE_SESSION_SIZE } from '../lib/reviewQueue'
 import { getDailyGoalProgress, getStreak, subscribeToActivityChanges, checkStreakStatus } from '../lib/activityLog'
 import { readLastPosition, getWeakCompletedTopics } from '../lib/progressStore'
 import { trackMapEvent } from '../utils/mapEvents'
@@ -843,9 +843,24 @@ function HomePage() {
                             <span className="text-2xl md:text-3xl">🔄</span>
                         </div>
                         <div className="min-w-0 flex-1">
-                            <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                {language === 'tr' ? '🔄 Bugünkü Tekrar' : '🔄 Today\'s Review'}
-                            </h2>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {language === 'tr' ? '🔄 Bugünkü Tekrar' : '🔄 Today\'s Review'}
+                                </h2>
+                                {/* Mikro-oturum zaman çerçevesi (retention-and-motivation-plan.md Aşama D,
+                                    learning-os-redesign-plan.md §7 Faz 3 dilimi) — "Flow State" endişesine
+                                    cevap: açık bir süre taahhüdü, düşük bağlılık hissi verir. Panel zaten
+                                    en fazla REVIEW_QUEUE_SESSION_SIZE soru gösterdiği için (bkz.
+                                    ReviewQueuePanel.jsx) tahmin buna göre hesaplanır, ~30sn/soru. */}
+                                <span
+                                    data-testid="review-queue-time-estimate"
+                                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black ${darkMode ? 'bg-emerald-800/60 text-emerald-200' : 'bg-emerald-100 text-emerald-700'}`}
+                                >
+                                    ⏱ {language === 'tr'
+                                        ? `~${Math.max(1, Math.round(Math.min(dueReviewCount, REVIEW_QUEUE_SESSION_SIZE) * 0.5))} dk`
+                                        : `~${Math.max(1, Math.round(Math.min(dueReviewCount, REVIEW_QUEUE_SESSION_SIZE) * 0.5))} min`}
+                                </span>
+                            </div>
                             <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-emerald-200/80' : 'text-emerald-700'}`}>
                                 {language === 'tr'
                                     ? `${dueReviewCount} soru seni bekliyor — daha önce yanlış yaptıkların.`

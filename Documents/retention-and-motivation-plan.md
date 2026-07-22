@@ -93,16 +93,25 @@ anlamlı çerçeveleme hiç yok.
   → sayaç hiç render olmaz), yani sitenin geri kalanı bu adımdan bağımsız
   çalışır.
 
-### Aşama D — Faz 3'ten bir dilim: Mobil Mikro-Oturum Kartı (learning-os-redesign-plan.md §7)
-**Dosyalar:** `src/components/HomePage.jsx`, `src/lib/reviewQueue.js` (okuma amaçlı)
+### Aşama D — Faz 3'ten bir dilim: Mobil Mikro-Oturum Çerçevelemesi (learning-os-redesign-plan.md §7)
+**Dosyalar:** `src/components/HomePage.jsx`
 
 - Dış yorumun "Flow State — dersler çok uzun/kısa olmamalı" endişesine
-  doğrudan cevap: "Bugün" şeridine küçük bir "5 Dakikalık Görev" kartı —
-  ya bekleyen tekrar kuyruğundan `REVIEW_QUEUE_SESSION_SIZE` kadar soru
-  (zaten var olan `getDueItems`/`ReviewQueuePanel` akışına link) ya da
-  kaldığı sekmenin kalan quiz sayısı küçükse (`≤3`) o sekmeye direkt link.
-- Yeni bir oturum motoru/zamanlayıcı YAZILMAZ — var olan review-queue ve
-  last-position altyapısının üstüne ince bir çerçeveleme/kopya katmanıdır.
+  doğrudan cevap: mevcut "Bugünkü Tekrar" kartına (`review-queue-card`)
+  açık bir süre tahmini rozeti eklenir (`~N dk`, `Math.min(dueReviewCount,
+  REVIEW_QUEUE_SESSION_SIZE) × ~30sn`) — açık bir zaman taahhüdü, düşük
+  bağlılık hissi verir ve kullanıcının "bu ne kadar sürer" belirsizliğini
+  kaldırır.
+- **Bilinçli kapsam daraltması (uygulama sırasında bulundu):** Planın
+  ikinci alternatifi ("kaldığı sekmenin kalan quiz sayısı ≤3 ise o sekmeye
+  link") `progressStore.js`'in mevcut `MASTERY_MANIFEST`'inde SADECE
+  sayfa-seviyesi toplam quiz/egzersiz sayısını tutuyor, **sekme-seviyesi
+  kalan quiz sayısını TUTMUYOR** — bunu eklemek manifest şemasını
+  genişletmeyi gerektirir (yeni bir mühendislik işi, bu aşamanın "ince
+  çerçeveleme" hedefinin dışına taşar). Bu yüzden SADECE review-queue
+  tabanlı mikro-oturum çerçevelemesi uygulandı; ikinci alternatif backlog'da
+  kalır. Yeni bir oturum motoru/zamanlayıcı YAZILMADI — var olan review-queue
+  altyapısının üstüne ince bir kopya/çerçeveleme katmanıdır.
 
 ---
 
@@ -149,6 +158,6 @@ rollout'unun kapanışında yapıldığı gibi.
 | A — Job Readiness kademeli metin | ✅ Tamamlandı |
 | B — Retention v2 (zayıf konu önerisi) | ✅ Tamamlandı |
 | C — Ambient sosyal kanıt | ✅ Kod tarafı tamam — Supabase SQL Editor'da `social_proof_schema.sql`'in elle çalıştırılması bekleniyor |
-| D — Mobil mikro-oturum kartı | ⏳ Bekliyor |
+| D — Mikro-oturum zaman çerçevesi | ✅ Tamamlandı (2. alternatif bilinçli olarak backlog'da bırakıldı) |
 
 Güncel durum ve doğrulama kayıtları için tek kaynak: `.claude/NEXT_SESSION.md`.

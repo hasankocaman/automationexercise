@@ -44,7 +44,23 @@ aşama. Tüm aşamalar bitince tam `npm run test:e2e` paketi BİR KEZ koşulacak
 (§9.6 rollout kapanış deseniyle aynı).
 
 **Aşama durumu:** A ✅ · B ✅ · C ✅ (kod tarafı TAMAMLANDI, MANUEL SQL adımı
-kullanıcıyı bekliyor — aşağıya bak) · D ⏳ bekliyor.
+kullanıcıyı bekliyor — aşağıya bak) · D ✅ TAMAMLANDI bu oturumda (aşağıya bak).
+**4 aşamanın tamamı bitti — sıradaki adım kapanış: tam `npm run test:e2e`.**
+
+### ✅ Aşama D tamamlandı — Faz 3 dilimi: mikro-oturum zaman çerçevelemesi
+`HomePage.jsx`'teki mevcut "Bugünkü Tekrar" kartına (`review-queue-card`)
+`REVIEW_QUEUE_SESSION_SIZE` import edilerek bir süre tahmini rozeti eklendi
+(`data-testid="review-queue-time-estimate"`, `~N dk`, `Math.min(dueReviewCount,
+REVIEW_QUEUE_SESSION_SIZE) × ~30sn` formülü) — "Flow State" endişesine
+(dış yorum) cevap: açık süre taahhüdü düşük bağlılık hissi verir.
+**Bilinçli kapsam daraltması:** Planın ikinci alternatifi ("kaldığı sekmenin
+kalan quiz sayısı ≤3 ise link") UYGULANMADI — `MASTERY_MANIFEST` sekme
+seviyesinde kalan quiz sayısını tutmuyor, bunu eklemek manifest şemasını
+genişletmeyi gerektirirdi (ayrı bir mühendislik işi). Karar
+`retention-and-motivation-plan.md` Aşama D'ye işlendi, backlog'da kalıyor.
+Doğrulama (gerçekten çalıştırıldı): `check-content-integrity.mjs` TÜM
+KONTROLLER GEÇTİ ✓ · `npm run build` exit 0 ✓. Playwright E2E bu turda da
+BİLİNÇLİ ATLANDI.
 
 ### ✅ Aşama C tamamlandı (kod tarafı) — Ambient sosyal kanıt sayacı
 Yeni dosyalar: `supabase/social_proof_schema.sql` (RPC —
