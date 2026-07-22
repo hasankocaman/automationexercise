@@ -14,9 +14,19 @@
 
 | | |
 |---|---|
-| **Aktif branch** | `feature/qa-builder-metaphor` |
-| **Plan dosyası** | `Documents/qa-builder-construction-theme-plan.md` (§Revizyon bölümü eklendi) |
-| **Test Durumu** | `check-content-integrity.mjs` PASSED ✓ · `npm run build` PASSED ✓ · gerçek tarayıcıda Playwright ile manuel doğrulandı (aşağıya bak) |
+| **Aktif branch** | `feature/qa-builder-metaphor` — main'e merge edilmek üzere, 9 commit ileride |
+| **Plan dosyası** | `Documents/qa-builder-construction-theme-plan.md` (§Revizyon — 9 aşama, TAMAMI ✅) |
+| **Test Durumu** | `check-content-integrity.mjs` PASSED ✓ · `npm run build` PASSED ✓ · her adım gerçek tarayıcıda Playwright ile manuel doğrulandı · tam E2E paketi HENÜZ koşulmadı (yeni kural: main'e push öncesi bir kere) |
+
+### 🏁 Branch tamamlandı, main'e merge edilmeye hazır
+`feature/qa-builder-metaphor` §Revizyon'daki 9 aşamanın tamamı bitti — özet:
+Tower entegrasyonu → dead code temizliği → çift CTA fix → konfeti-tekrar fix →
+test borcu kapatma → tower sıralama fix → **tower tamamen kaldırıldı**
+(kullanıcı kararı) → kart metni sadeleştirildi → **kart tamamen kaldırıldı,
+sadece konfeti kaldı** (kullanıcı kararı, `AskUserQuestion` ile netleştirildi).
+Net sonuç: `/qa-mentor` sadece kişiselleştirilmiş `MindMapNode` yol haritası +
+Skill Radar + Job Readiness gösteriyor; `TopicPage`'de sekme bitince sadece
+tek seferlik konfeti + mevcut "Sıradaki" butonu var, ekstra kart/metin yok.
 
 ### ✅ Kapsam netleştirildi + temizlik + 2 bug fix (2026-07-22, Fable oturumu)
 
