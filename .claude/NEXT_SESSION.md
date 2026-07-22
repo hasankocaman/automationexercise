@@ -44,6 +44,36 @@ sekme-tamamlama konfetisiyle (duration 3500/particleCount 50) aynı bileşen,
 daha kısa/az parçacıklı "mikro" versiyon, karışmasınlar diye. `npm run build`
 geçti (check-content-integrity + vite build + static routes + dist SEO check).
 
+**Adım 3/3 bitti — üye-only AI açıklama paneli bağlandı** (`src/components/CodePlaygroundBlock.jsx`):
+`AiPracticeExplanationPanel` bileşeni eklendi — `TopicPage.jsx`'teki
+`AiExplanationPanel` deseninin birebir kopyası (`useAuth()` → `session` yoksa
+🔒 kilit mesajı, buton YOK; varsa "🤖 AI'dan kodum için ek açıklama iste" butonu
+→ `supabase.functions.invoke('explain-code-practice', ...)` → `sanitizeAiText`
+→ yükleniyor/hata/sonuç). `FixThePanel` ve `PracticePanel`'de `result==='fail'`
+durumunda, mevcut deterministik `DiagnosticPanel`'in HEMEN ALTINA ekleniyor —
+`DiagnosticPanel` HERKESE (üye olmayana da) aynen görünmeye devam ediyor, AI
+paneli EK bir katman. `key={attempts}` ile her yeni yanlış denemede panel
+sıfırdan mount olup önceki AI cevabını göstermeye devam etmiyor. Ana bileşene
+`taskText` türetildi (`block.task || block.explanation || block.label`) ve
+her iki panele `task` prop'u olarak geçirildi. `npm run build` geçti.
+
+**Faz 1 TAMAMLANDI** (plan: `Documents/code-practice-ai-feedback-plan.md`).
+Henüz YAPILMAYANLAR:
+- `explain-code-practice` fonksiyonu Supabase'e deploy EDİLMEDİ — kullanıcı
+  `supabase functions deploy explain-code-practice --project-ref <ref>`
+  çalıştırmalı (GROQ_API_KEY secret zaten mevcut fonksiyonlarla paylaşılıyor).
+- Gerçek tarayıcıda üye/anonim iki senaryo da MANUEL doğrulanmadı (bu oturumda
+  kullanıcı talimatıyla test/E2E atlandı — sadece build/content-integrity
+  koşuldu). Merge/push öncesi mutlaka: (1) anonim kullanıcı yanlış cevapta 🔒
+  mesajını görüyor mu, (2) üye kullanıcı AI butonuna basınca gerçek açıklama
+  alıyor mu (fonksiyon deploy edildikten sonra), (3) confetti çift tetiklenmiyor
+  mu — kontrol edilmeli.
+- Faz 2 (runtime editörlere `expected` alanı + site geneli içerik rollout'u)
+  bu oturuma dahil DEĞİL, plan dosyasının §3'ünde ayrı bir gelecek iş olarak
+  duruyor.
+- `npm run test:e2e` tam paketi bu branch'te HİÇ çalıştırılmadı — main'e
+  merge/push öncesi kalıcı kural gereği bir kez çalıştırılmalı.
+
 ---
 
 ## 📌 (2026-07-22, Fable oturumu #1)

@@ -3,6 +3,9 @@ import { CodeBlock } from './TopicPage'
 import { getXP, addXP, getCompletedExercises, markExerciseComplete, subscribeToXpChanges } from '../lib/xp'
 import { XpSummaryBar } from './XpStat'
 import ConfettiExplosion from './ConfettiExplosion'
+import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabaseClient'
+import { sanitizeAiText } from '../lib/sanitizeAiText'
 
 const HINT_PENALTY = 5
 
@@ -77,6 +80,78 @@ function DiagnosticPanel({ diff, isTr, darkMode }) {
     )
 }
 
+async function extractFunctionErrorDetail(error) {
+    if (error?.context && typeof error.context.json === 'function') {
+        try {
+            const body = await error.context.json()
+            if (body?.error) return body.error
+        } catch { /* gövde JSON değilse sessizce geç */ }
+    }
+    return error?.message || ''
+}
+
+// Yanlış cevapta gösterilen AI açıklama paneli — SADECE üyelere özel
+// (explain-code-practice edge function, diğer AI özellikleriyle aynı politika:
+// explain-quiz-answer/judge-eval/grade-interview-answer). Otomatik tetiklenmez,
+// kullanıcı butona basınca çağrılır — ücretsiz Groq kotasını her yanlış
+// denemede otomatik tüketmemek için (bkz. AiExplanationPanel, TopicPage.jsx).
+function AiPracticeExplanationPanel({ task, solutionCode, userCode, diff, isTr, darkMode }) {
+    const { session } = useAuth()
+    const [explanation, setExplanation] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const [requested, setRequested] = useState(false)
+
+    if (!session) {
+        return (
+            <div className={`mt-2 text-xs italic ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                🔒 {isTr ? 'AI açıklaması için giriş yapmalısın.' : 'Sign in to see the AI explanation.'}
+            </div>
+        )
+    }
+
+    function handleRequest() {
+        if (requested) return
+        setRequested(true)
+        setLoading(true)
+        const diagnosticLine = diff
+            ? `Line ${diff.line}: expected "${diff.expected}" vs got "${diff.actual}"`
+            : ''
+        supabase.functions.invoke('explain-code-practice', {
+            body: { task, solutionCode, userCode, diagnosticLine, lang: isTr ? 'tr' : 'en' },
+        }).then(({ data, error: invokeError }) => {
+            if (invokeError) throw invokeError
+            if (data?.error) throw new Error(data.error)
+            setExplanation(sanitizeAiText(data.explanation))
+        }).catch(async (err) => {
+            console.error('explain-code-practice failed:', err)
+            const detail = await extractFunctionErrorDetail(err)
+            setError((isTr ? 'AI açıklaması şu anda yüklenemedi.' : 'Could not load AI explanation right now.')
+                + (detail ? ` (${detail})` : ''))
+        }).finally(() => setLoading(false))
+    }
+
+    if (!requested) {
+        return (
+            <button
+                onClick={handleRequest}
+                className={`mt-2 text-xs font-semibold underline ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}
+            >
+                🤖 {isTr ? "AI'dan kodum için ek açıklama iste" : 'Ask AI for an explanation of my code'}
+            </button>
+        )
+    }
+
+    return (
+        <div className={`mt-2 rounded-lg border-l-4 border-purple-500 p-3 text-xs leading-relaxed ${darkMode ? 'bg-purple-900/20 text-purple-200' : 'bg-purple-50 text-purple-800'}`}>
+            <div className="font-bold mb-1 flex items-center gap-1.5">🤖 {isTr ? 'AI Açıklama' : 'AI Explanation'}</div>
+            {loading && <span className="opacity-70">{isTr ? 'Yükleniyor...' : 'Loading...'}</span>}
+            {error && <span className="text-red-400">{error}</span>}
+            {explanation && <p>{explanation}</p>}
+        </div>
+    )
+}
+
 // Types out `text` line by line into a terminal-styled panel, like a live run.
 function TerminalRun({ text, isTr, runId }) {
     const [shown, setShown] = useState('')
@@ -141,7 +216,7 @@ function HintPanel({ hints, isTr, darkMode, onReveal }) {
     )
 }
 
-function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass }) {
+function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass, task }) {
     const [draft, setDraft] = useState(buggyCode)
     const [attempts, setAttempts] = useState(0)
     const [result, setResult] = useState(null) // null | 'pass' | 'fail'
@@ -205,11 +280,22 @@ function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass }) {
                 </div>
             )}
             <DiagnosticPanel diff={diff} isTr={isTr} darkMode={darkMode} />
+            {result === 'fail' && (
+                <AiPracticeExplanationPanel
+                    key={attempts}
+                    task={task}
+                    solutionCode={fixedCode}
+                    userCode={draft}
+                    diff={diff}
+                    isTr={isTr}
+                    darkMode={darkMode}
+                />
+            )}
         </div>
     )
 }
 
-function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, onPass, language }) {
+function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, onPass, language, task }) {
     const [draft, setDraft] = useState(starterCode)
     const [attempts, setAttempts] = useState(0)
     const [result, setResult] = useState(null) // null | 'pass' | 'fail'
@@ -284,6 +370,15 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
                         {isTr ? 'Henüz değil. Önce farklı satırı düzelt, sonra tekrar çalıştır.' : 'Not yet. Fix the different line first, then run again.'}
                     </div>
                     <DiagnosticPanel diff={diff} isTr={isTr} darkMode={darkMode} />
+                    <AiPracticeExplanationPanel
+                        key={attempts}
+                        task={task}
+                        solutionCode={solutionCode}
+                        userCode={draft}
+                        diff={diff}
+                        isTr={isTr}
+                        darkMode={darkMode}
+                    />
                 </>
             )}
         </div>
@@ -298,6 +393,7 @@ export default function CodePlaygroundBlock({ block, darkMode, language, onFirst
 
     const codeText = pick(block.code, isTr)
     const expectedText = pick(block.expected, isTr)
+    const taskText = pick(block.task, isTr) || pick(block.explanation, isTr) || pick(block.label, isTr) || ''
     const buggyCode = pick(block.buggyCode, isTr)
     const fixedCode = pick(block.fixedCode, isTr)
     const starterCode = pick(block.starterCode, isTr) || buggyCode || codeText
@@ -428,6 +524,7 @@ export default function CodePlaygroundBlock({ block, darkMode, language, onFirst
                     darkMode={darkMode}
                     onPass={awardXpOnce}
                     language={block.language}
+                    task={taskText}
                 />
             )}
 
@@ -448,7 +545,7 @@ export default function CodePlaygroundBlock({ block, darkMode, language, onFirst
             )}
 
             {activePanel === 'fix' && (
-                <FixThePanel buggyCode={buggyCode} fixedCode={fixedCode} isTr={isTr} darkMode={darkMode} onPass={awardXpOnce} />
+                <FixThePanel buggyCode={buggyCode} fixedCode={fixedCode} isTr={isTr} darkMode={darkMode} onPass={awardXpOnce} task={taskText} />
             )}
 
             {activePanel === 'hint' && <HintPanel hints={block.hints} isTr={isTr} darkMode={darkMode} onReveal={setHintsUsed} />}
