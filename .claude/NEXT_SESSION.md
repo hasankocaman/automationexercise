@@ -43,9 +43,31 @@ ATLANIR) → bu dosyayı güncelle → `SKIP_E2E_HOOK=1 git commit` → sıradak
 aşama. Tüm aşamalar bitince tam `npm run test:e2e` paketi BİR KEZ koşulacak
 (§9.6 rollout kapanış deseniyle aynı).
 
-**Aşama durumu:** A ✅ · B ✅ · C ✅ (kod tarafı TAMAMLANDI, MANUEL SQL adımı
-kullanıcıyı bekliyor — aşağıya bak) · D ✅ TAMAMLANDI bu oturumda (aşağıya bak).
-**4 aşamanın tamamı bitti — sıradaki adım kapanış: tam `npm run test:e2e`.**
+**Aşama durumu:** A ✅ · B ✅ · C ✅ (kod + manuel SQL adımı prod+test'te
+tamamlandı) · D ✅. **4 aşama + kapanış testi TAMAMLANDI.**
+
+### ✅ Kapanış — tam `npm run test:e2e` koşuldu (196 test, 27.4 dk)
+Sonuç: **192 passed, 2 flaky (retry'de geçti: `/gauge`, `/kubernetes`), 2 failed:
+`/python` ve `/rest-assured`** (`topic-pages-ui.spec.ts` — "her sekme render
+olur, içerik butonları görünür", her ikisi de `Test timeout of 240000ms
+exceeded`).
+
+**Kök neden araştırıldı (regresyon değil):** Bu iki test, sayfadaki HER
+sekmenin HER butonunu tek tek gezip görünürlük kontrolü yapan en ağır testler
+(Python 21 sekme, REST Assured Framework Mimarisi eklendikten sonra büyüdü).
+İkisi de İZOLE çalıştırıldığında (`npx playwright test tests/topic-pages-ui.spec.ts
+-g "..."`) SORUNSUZ GEÇTİ (`/python` 1.6 dk, `/rest-assured` 46 sn) — yani
+bu oturumun 4 aşamalık değişikliğiyle (HomePage.jsx, SkillRadar.jsx,
+progressStore.js, LessonFinishBadge.jsx, TopicPage.jsx'te tek satırlık
+`route` prop'u, socialProof.js) İLGİSİZ; tam paketin 27 dakikalık art arda
+koşumunun yarattığı geçici kaynak/timeout baskısı. Hiçbir yeni test bu
+oturumdaki değişikliklerle ilgili bir sayfada (HomePage, `/qa-mentor`)
+başarısız olmadı.
+
+**Sıradaki oturum için not:** Bu iki test öteden beri bilinen ağır/kırılgan
+adaylar — istenirse ayrı bir iyileştirme olarak `topic-pages-ui.spec.ts`'teki
+240s timeout'u büyütmek veya bu spesifik route'lar için buton taramasını
+parçalara bölmek düşünülebilir; bu PLAN KAPSAMINDA DEĞİL, ayrı bir görev.
 
 ### ✅ Aşama D tamamlandı — Faz 3 dilimi: mikro-oturum zaman çerçevelemesi
 `HomePage.jsx`'teki mevcut "Bugünkü Tekrar" kartına (`review-queue-card`)
