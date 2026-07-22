@@ -34,28 +34,25 @@ export default function VerticalBrickPlacementCard({ tabTitle = '', isTr = true,
           <div className="text-[10px] font-black text-slate-950 uppercase font-mono">DİKEY</div>
         </div>
 
-        {/* İçerik Metni */}
+        {/* İçerik Metni — kullanıcı bildirimi (2026-07-22): önceki "tuğla örüldü/
+            kuleye eklendi/konfetiler patlatıldı" anlatımı gereksiz ve çocuksu
+            bulundu. Artık sadece ne öğrenildiğini söyleyen tek bir başlık var,
+            ekstra açıklama paragrafı YOK. */}
         <div className="flex-1 text-center sm:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs font-bold uppercase tracking-wider mb-2">
-            <span>🎉</span>
-            <span>{isTr ? 'Sekme Tuğlası Yerleştirildi!' : 'Tab Brick Laid Vertically!'}</span>
+            <span>✅</span>
+            <span>{isTr ? 'Tamamlandı' : 'Completed'}</span>
           </div>
 
           <h3 className="text-lg md:text-xl font-extrabold text-white">
             {tabTitle
               ? isTr
-                ? `"${tabTitle}" Sekmesinin Tuğlası Sağlamca Örüldü!`
-                : `"${tabTitle}" Brick Placed Successfully!`
+                ? `"${tabTitle}" hakkında bilgi sahibi oldun!`
+                : `You now know "${tabTitle}"!`
               : isTr
-              ? 'Tebrikler! Bu Sekmenin Tuğlası Dikey Olarak Yerleştirildi!'
-              : 'Congratulations! This Tab Brick is Vertically Installed!'}
+              ? 'Bu sekmeyi tamamladın!'
+              : 'You completed this section!'}
           </h3>
-
-          <p className="text-xs md:text-sm text-slate-300 mt-1 leading-relaxed">
-            {isTr
-              ? 'Bu sekmedeki tüm quizi doğru tamamladın. Tuğlan bina kulesine dikey olarak eklendi ve konfetiler patlatıldı!'
-              : 'You completed all quizzes in this section. Your brick was added vertically to the tower and confetti exploded!'}
-          </p>
         </div>
       </div>
     </div>

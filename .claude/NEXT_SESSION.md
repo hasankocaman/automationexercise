@@ -119,6 +119,20 @@ metninde "TUĞLA KULESI" hiç geçmediği, "ANA YOL" bölümünün sorunsuz çal
 doğrulandı. `check-content-integrity.mjs` ✓ · `npm run build` ✓. Tam E2E
 paketi çalıştırılmadı (yeni kural — main'e push öncesi bir kere).
 
+### ✅ VerticalBrickPlacementCard metni sadeleştirildi — "çocukça" bulundu
+Kullanıcı ekran görüntüsüyle bildirdi: "🎉 Sekme Tuğlası Yerleştirildi!" rozeti
++ "...Tuğlası Sağlamca Örüldü!" başlığı + "Tuğlan bina kulesine dikey olarak
+eklendi ve konfetiler patlatıldı!" açıklama paragrafı gereksiz/çocuksu.
+İstek: "tuğla örüldü" yerine örneğin "ISTQB hakkında bilgi sahibi oldun"
+gibi anlamlı, konuya bağlı bir ifade yeterli — ekstra açıklamaya gerek yok.
+
+**Değişiklik (`VerticalBrickPlacementCard.jsx`):** Rozet "✅ Tamamlandı"ya
+sadeleşti; başlık `"{tabTitle}" hakkında bilgi sahibi oldun!` oldu (gerçek
+sekme adına bağlı, anlamlı); açıklama paragrafı TAMAMEN KALDIRILDI. Görsel
+tema (tuğla ikonu, teal/amber renkler, konfeti) DOKUNULMADI — sadece metin
+sadeleşti. Gerçek tarayıcıda doğrulandı: kart artık sadece rozet + tek
+başlık satırı gösteriyor.
+
 Plan dosyasında tanımlı başka bir "sıradaki adım" YOK — kullanıcıdan yeni bir
 yön beklenmiyorsa bu branch main'e merge edilmeye hazır.
 
