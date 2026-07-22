@@ -16,8 +16,70 @@
 |---|---|
 | **Aktif branch** | `feature/code-practice-ai-feedback` — main'den fast-forward ile senkronize edildi (`8416850..695b6d8`), Faz 2 çalışması bu branch'te devam ediyor |
 | **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` §3 — Faz 2 (runtime editörlere `expected` alanı + gerçek stdout karşılaştırması). Henüz plan dosyasına Faz 2 detay bölümü eklenmedi, kapsam burada takip ediliyor. |
-| **Sırada ne var** | (1) ✅ bitti — `type:'editor', lang:'java'` yönlendirme bug'ı düzeltildi. (2) ✅ bitti — PyodideEditor `expected` alanı + stdout karşılaştırma proof-of-concept (aşağıya bak), tek blokta gerçek tarayıcıda doğrulandı. (3) Sırada: kullanıcıdan "kalan 39 bloğa da `expected` yaz" onayı al, sonra AI açıklama paneli (yanlış çıktıda) için ayrı bir tasarım kararı — mevcut `explain-code-practice` fonksiyonu kaynak-kodu kıyaslamaya göre yazılmış, çıktı-kıyaslama için prompt/alan uyarlaması gerekir. |
+| **Sırada ne var** | (1) ✅ bitti — `type:'editor', lang:'java'` yönlendirme bug'ı düzeltildi. (2) ✅ bitti — PyodideEditor `expected` alanı + stdout karşılaştırma proof-of-concept, tek blokta doğrulandı. (3) ✅ bitti — kullanıcı onayıyla kalan 34 uygun `pythonData.js` bloğuna `expected` yazıldı (5 blok kasıtlı hariç, aşağıya bak). (4) Sırada: AI açıklama paneli (yanlış çıktıda) için ayrı bir tasarım kararı — mevcut `explain-code-practice` fonksiyonu kaynak-kodu kıyaslamaya göre yazılmış, çıktı-kıyaslama için prompt/alan uyarlaması gerekir. (5) Ayrıca bkz. aşağıdaki "sitewide risk" notu — ayrı bir oturumda araştırılmalı. |
 | **Test politikası (bu branch'te)** | Plan §4: her commit'te sadece `check-content-integrity.mjs` + `npm run build`. Tam `npm run test:e2e` SADECE main'e push'tan hemen önce bir kez. Commit'ler `SKIP_E2E_HOOK=1` ile atılıyor. |
+
+### 🧪 Faz 2 rollout — pythonData.js'teki 34 editor bloğuna `expected` yazıldı (2026-07-23, Claude Code)
+Kullanıcı onayıyla (bkz. yukarıdaki proof-of-concept), pythonData.js'teki 40
+`type:'editor', lang:'python'` bloğunun kalan 39'u tek tek incelendi. Yöntem:
+her bloğun `defaultCode`'u Node ile `pythonData.js`'ten gerçek JS-parse edilmiş
+haliyle çıkarıldı (regex değil, doğrudan `import`), yerel `python3` ile
+çalıştırılıp GERÇEK stdout yakalandı, sonra bu çıktı `expected` alanı olarak
+programatik biçimde ilgili bloğun ardına eklendi (34 blok, tek script,
+manuel kopyala-yapıştır hatası riski olmadan).
+
+**5 blok kasıtlı olarak `expected` ALMADI** (mevcut davranış korunuyor —
+serbest "dene ve gör", doğrulama yok):
+- **Setler & Sözlükler** — "Set use case: finding duplicate test IDs": ham
+  `set` (string) print'i CPython'da PYTHONHASHSEED'e bağlı olarak HER
+  ÇALIŞTIRMADA farklı sırada basılıyor (5 yerel çalıştırmada 5 farklı sıra
+  gözlemlendi) — kesin string eşleşmesi doğru cevabı bile "yanlış" işaretler.
+- **Koşul & Döngüler** — "Retry pattern": `random.choice` kullanıyor, çıktı
+  her çalıştırmada değişir.
+- **Kapsam & Modüller** — `import random` (test kullanıcı üretici): aynı sebep.
+- **Yardımcı Modüller** — `datetime.now()` ile gerçek zaman damgalı dosya adı
+  üretiyor, deterministik olamaz.
+- **İleri Seviye Kavramlar** — `time.perf_counter()` ile GERÇEK çalışma
+  süresi ölçüyor (yerelde 3.0-3.2ms arası bile dalgalandı, Pyodide/WASM'da
+  çok daha farklı olacaktır).
+
+**Yan bulgu — 2 gerçek içerik bug'ı düzeltildi (mevcut, benimle ilgisiz,
+ama `expected` eklemek için çalışır kod gerekiyordu):**
+1. "For loop QA examples" ve "Lambda sorting exercise" bloklarında
+   `print(f"\nTotal: ...")` / `print("\nFailures: ...")` içindeki `\n` JS
+   template literal içinde TEK ters slash ile yazılmıştı — JS motoru bunu
+   GERÇEK bir satır sonu karakterine çeviriyor (Python'un kendi `\n` kaçış
+   dizisine ulaşmadan), bu da Python'da "EOL while scanning string literal"
+   ile bloğun ÇALIŞMASINI engelliyordu (kullanıcı "Run"a bassa bile hep kırmızı
+   hata görüyordu, `onFirstSuccess` hiç tetiklenmiyordu). Düzeltme: `\\n`
+   (çift ters slash) — JS artık doğru şekilde tek `\n` karakteri üretiyor.
+2. "Practice: handle multiple errors gracefully" sekmesindeki telefon
+   regex bloğunda `phone_pattern = r'^(\+90-\d{3}-\d{3}-\d{4}|0\d{10})$'`
+   AYNI sebepten `+90-d{3}-d{3}-d{4}|0d{10}` haline geliyordu (ters slash'lar
+   JS tarafından yutuluyordu) — `re.error: nothing to repeat` ile bloğu
+   tamamen çökertiyordu. Düzeltme: aynı çift ters slash tekniği.
+
+**⚠️ SITEWIDE RİSK (bu oturumda ARAŞTIRILMADI, sadece tespit edildi):** Yukarıdaki
+bug'ların kök nedeni ("tek ters slash + JS template literal" kombinasyonu
+`\d`, `\+`, `\n` gibi kaçış dizilerini sessizce yiyor) SADECE editor
+bloklarına özgü değil — aynı desen, SADECE GÖRÜNTÜLENEN (çalıştırılmayan)
+`type: 'code'` bloklarında da bulundu (örnek: pythonData.js içinde
+`re.findall(r'TC-\d+', text)` görüntüleme bloğu — kullanıcıya YANLIŞ regex
+sözdizimi gösteriyor olabilir, ama hiç çalıştırılmadığı için build/test
+BUNU YAKALAMAZ). Bu, potansiyel olarak `\d`/`\s`/`\w`/`\n`/`\+` gibi Python
+kaçış dizileri içeren HER `code:`/`defaultCode:` template literal'ini
+etkileyebilir — sadece pythonData.js'te değil, regex/string-escape kullanan
+diğer sayfalarda da (örn. javascriptData, typescriptData). Bu, kapsamı
+büyük, AYRI bir keşif+düzeltme oturumu gerektirir — bu oturumun kapsamı
+DIŞINDA tutuldu (Faz 2'nin görevi sadece pythonData.js editor bloklarıydı).
+
+**Doğrulama (2026-07-23):** `node scripts/check-content-integrity.mjs` ✅ 0
+ihlal, `npm run build` ✅ PASS (41 static route, dist SEO PASS). Gerçek
+Chromium'da (Playwright, yaz-koş-sil script) 3 farklı sekmeden örnek blok
+test edildi ("Sözdizimi & Yorumlar", "Setler & Sözlükler", "Dosya & JSON" —
+emoji/tablo formatlı çıktı dahil): üçü de "✅ Doğru!" mesajını doğru
+gösterdi, konsol hatası YOK. Tam Playwright regresyon paketi HENÜZ
+koşulmadı (plan §4 politikası gereği main'e push öncesine bırakıldı).
 
 ### 🧪 Faz 2 proof-of-concept — PyodideEditor `expected` alanı (2026-07-22, Claude Code)
 `PyodideEditor` (`TopicPage.jsx`) artık opsiyonel `expected` prop'u alıyor —
