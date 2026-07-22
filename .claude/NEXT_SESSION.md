@@ -10,7 +10,39 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-21, Haiku/Sonnet oturumu devam — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Sonnet oturumu — önce BURAYI oku)
+
+| | |
+|---|---|
+| **Aktif branch** | `main` (tek branch — tüm feature branch'ler main'e merge edilip silindi) |
+| **Son commit** | `0aed81e` — NEXT_SESSION.md video-scene doğrulama borcu kapatma commit'i, main'e fast-forward merge edildi |
+| **Çalışma ağacı** | temiz |
+| **Branch durumu** | `feature/framework-arch-selenium-multiview` ve `feature/algorithms-quiz-gating` (local+remote) ve `feature/sandbox-and-framework-arch` (remote) hepsi main'e tam merge olduğu doğrulanıp silindi. Sadece `main`/`origin/main` kaldı. |
+
+### ✅ Tam test paketi main'e merge öncesi koşuldu, sıfır hata
+`npx playwright test tests/video-scene.spec.ts -g "Framework Mimarisi"` → 5 passed
+(Selenium+Playwright+Cypress+REST Assured+Appium). Ardından tam paket
+`npm run test:e2e` → **196 passed (19.6m)**. Sonra `main` → feature branch'e
+fast-forward merge edildi, `git push origin main` (pre-push hook build+test'i
+tekrar geçti) ile GitHub'a işlendi.
+
+### 🔧 DÜZELTME: pre-push hook artık sadece main'e GERÇEK push'ta çalışıyor
+**Sorun:** `scripts/pre-push-tests.sh` her `git push` çağrısında (branch silme
+dahil!) koşulsuz `npm run build && npm run test:e2e` (~10-15 dk) çalıştırıyordu.
+`git push origin --delete <feature-branch>` gibi zararsız bir temizlik işlemi
+bile tam build+test paketini tetikliyordu — gereksiz ve yanıltıcı.
+**Çözüm:** Script artık git'in pre-push stdin protokolünü (`<local ref> <local
+sha1> <remote ref> <remote sha1>`) okuyor; `should_run_tests` sadece
+`remote_ref == refs/heads/main` VE `local_sha != 0000...0` (yani gerçek bir
+commit push'u, silme değil) olduğunda 1 olur. Branch silme veya main dışı
+branch push'larında doğrulama anında atlanır (~2-3 sn). main'e gerçek push'ta
+davranış AYNEN korunuyor (build+test hâlâ zorunlu ve engelleyici).
+Doğrulandı: `git push origin --delete feature/framework-arch-selenium-multiview`
+2.4 saniyede tamamlandı, test tetiklenmedi. Dosya: `scripts/pre-push-tests.sh`.
+
+---
+
+## 📌 (ÖNCEKİ) 2026-07-21, Haiku/Sonnet oturumu devam
 
 | | |
 |---|---|
