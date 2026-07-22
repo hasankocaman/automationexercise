@@ -10,14 +10,41 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Claude Code oturumu — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-23, Claude Code oturumu — Faz 2 kodlama tarafı TAMAMLANDI, önce BURAYI oku)
 
 | | |
 |---|---|
-| **Aktif branch** | `feature/code-practice-ai-feedback` — main'den fast-forward ile senkronize edildi (`8416850..695b6d8`), Faz 2 çalışması bu branch'te devam ediyor |
-| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` §3 — Faz 2 (runtime editörlere `expected` alanı + gerçek stdout karşılaştırması). Henüz plan dosyasına Faz 2 detay bölümü eklenmedi, kapsam burada takip ediliyor. |
-| **Sırada ne var** | (1)-(4) ✅ bitti (Java routing fix, PyodideEditor PoC, pythonData.js 34 blok rollout, AI açıklama paneli — deploy hâlâ bekliyor, aşağıya bak). (5) ✅ bitti — TSEditor/JSEditor/SQLEditor'a da AYNI `expected`+stdout karşılaştırma+confetti+AI panel mekanizması eklendi (plan §3'ün tam kapsamı: "PyodideEditor/TSEditor/JSEditor/SQLEditor"). (6) Sırada: bu 3 editöre gerçek `expected` verisi yazılacak sayfa/blok taraması (pythonData.js'teki gibi) — hangi `*Data.js` dosyalarında `type:'editor', lang:'typescript'\|'javascript'\|'sql'` blokları var, taranacak. |
+| **Aktif branch** | `feature/code-practice-ai-feedback` — main'den fast-forward ile senkronize edildi (`8416850..695b6d8`), Faz 2 bu branch'te tamamlandı |
+| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 ✅ (main'e merge edilmiş) + Faz 2 (§3'te taslak, kapsam burada işlendi) ✅ kodlama tarafı bitti. |
+| **Sırada ne var (SADECE kullanıcı adımı)** | `explain-code-output` edge function'ı iki Supabase projesine de deploy et (komut aşağıda) — bu YAPILMADAN üye+AI-buton akışı gerçek Groq ile test edilemez. Deploy sonrası: main'e merge → main'de tam `npm run test:e2e` bir kez → push. |
 | **Test politikası (bu branch'te)** | Plan §4: her commit'te sadece `check-content-integrity.mjs` + `npm run build`. Tam `npm run test:e2e` SADECE main'e push'tan hemen önce bir kez. Commit'ler `SKIP_E2E_HOOK=1` ile atılıyor. |
+
+### ✅ Faz 2 kodlama tarafı TAMAMLANDI (2026-07-23, Claude Code) — TS/JS/SQL editörlerinde rollout hedefi YOK
+`case 'editor':` ile ulaşılabilen 4 runtime editörün (Pyodide/TS/JS/SQL)
+TAMAMI artık opsiyonel `expected` alanını destekliyor (bkz. aşağıdaki iki
+bölüm). pythonData.js'teki 39 blok tek tek işlendi. **TSEditor/JSEditor/
+SQLEditor'a rollout YAPILAMADI çünkü yapılacak bir şey YOK** — tüm
+`src/data/*.js` dosyaları taranarak doğrulandı:
+- `type: 'editor'` blokları SADECE `javaData.js` (22, lang:'java', zaten
+  `JavaPracticeBlock`'a yönlendirilmiş durumda) ve `pythonData.js`'te (40)
+  var. `lang: 'typescript'`/`'javascript'`/`'sql'` ile TEK BİR `type:'editor'`
+  bloğu YOK sitede.
+- Sebebi: `/typescript` ve `/sql` sayfaları interaktif pratik için zaten
+  `code-playground` (Faz 1'in CodePlaygroundBlock mekanizması — kaynak-kod
+  diff'i, kendi `expected`/confetti/AI-panel'i çoktan var) kullanıyor.
+  `/javascript` sayfasında ise HİÇ interaktif pratik yok (tek bir `challenge`
+  bloğu) — bu, Bölüm 9.2'nin site geneli "interaktif üçlü" yayılım hedefinin
+  bir parçası, BU PLANIN kapsamı DIŞINDA, ayrı bir görev.
+- Sonuç: TS/JS/SQL runtime editörlerine (`<TSEditor>`/`<JSEditor>`/
+  `<SQLEditor>`) eklenen `expected` mekanizması şu an için altyapısal
+  hazırlık — kullanılacağı yeni bir `type:'editor'` bloğu (TypeScript/
+  JavaScript/SQL için) yazılırsa otomatik çalışacak, ama bugün itibariyle
+  hiçbir sayfa bunu göstermiyor. Bu NORMAL ve BEKLENEN bir durum, hata değil.
+
+**Sonuç olarak bu planın (`code-practice-ai-feedback-plan.md`) kodlama
+tarafı TAMAMEN BİTTİ.** Kalan TEK adım kullanıcının `explain-code-output`'u
+deploy etmesi (yukarıya bak) — bu, kod değişikliği DEĞİL, harici bir
+altyapı adımı.
 
 ### 🧩 Faz 2 — TSEditor/JSEditor/SQLEditor'a expected+AI panel mekanizması (2026-07-23, Claude Code)
 Kullanıcı talimatı: "sıradaki kodlamaya devam et, sorma" — plan §3'ün
