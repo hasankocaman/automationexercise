@@ -10,7 +10,25 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu #2 — önce BURAYI oku)
+
+| | |
+|---|---|
+| **Aktif branch** | `feature/code-practice-ai-feedback` (main'den açıldı, henüz merge edilmedi) |
+| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) |
+| **Kullanıcı talimatı** | Bu branch'te döngü: kodla → bu dosyayı güncelle → `SKIP_E2E_HOOK=1 git commit` → sıradaki adım. Tam E2E paketi bu branch'te ÇALIŞTIRILMIYOR (aşağıdaki 2026-07-22 #1 oturumundaki kalıcı kurala göre zaten sadece main'e push'tan önce çalışır). |
+| **Sırada ne var** | Plan dosyasındaki Faz 1 adımları: (1) `explain-code-practice` edge function, (2) confetti-on-pass, (3) üye-only AI açıklama paneli. Faz 2 (runtime editörlere `expected` alanı) bu oturumun kapsamı DIŞINDA. |
+
+### 🚧 Devam ediyor — `feature/code-practice-ai-feedback` (2026-07-22, Fable oturumu #2)
+Kullanıcı isteği: kod pratiği bloklarında doğru cevapta konfeti, yanlış
+cevapta üyelere özel AI açıklaması. Detaylı analiz ve kapsam
+`Documents/code-practice-ai-feedback-plan.md`'de. Bu oturumdaki adımlar
+işlendikçe altına eklenecek — henüz `npm run test:e2e` tam paketi
+ÇALIŞTIRILMADI (kural gereği main'e push öncesine bırakıldı).
+
+---
+
+## 📌 (2026-07-22, Fable oturumu #1)
 
 | | |
 |---|---|
