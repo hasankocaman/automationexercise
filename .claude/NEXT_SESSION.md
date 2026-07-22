@@ -5,19 +5,45 @@
 > SEO mimarisi `codexSeo.md`, deploy/GSC adimlari `DEPLOY.md`; guncel is
 > listesi ve son inceleme sonucu sadece bu dosyadadir.
 >
-> Bu dosyada commit hash ve anlik durum tutulabilir; kalici kural dosyalarina
+> Bu dosyada commit hash/anlik durum tutulabilir; kalici kural dosyalarina
 > commit hash/anlik not yazilmaz.
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Antigravity oturumu — önce BURAYI oku)
 
 | | |
 |---|---|
-| **Aktif branch** | `main` — `feature/retention-and-motivation` içine fast-forward merge edildi (`9064f9e`), tek branch kaldı |
-| **Son commit** | `9064f9e` — onboarding turu üst-orta konum + `role=dialog` CSS çakışma düzeltmesi |
-| **Plan dosyası** | `Documents/retention-and-motivation-plan.md` |
-| **Push durumu** | Henüz push edilmedi — tam test paketi geçtikten sonra push edilecek |
+| **Aktif branch** | `feature/qa-builder-metaphor` |
+| **Plan dosyası** | `Documents/qa-builder-construction-theme-plan.md` |
+| **Kapsam** | QA Mühendisi "Bina İnşa Etmek / Tuğla Örmek" görsel ve bileşen dili geliştirmeleri |
+| **Test Durumu** | `check-content-integrity.mjs` PASSED ✓ · `npm run build` PASSED ✓ (E2E testler kullanıcı isteği üzerine bilinçli atlandı) |
+
+### ✅ `feature/qa-builder-metaphor` Tamamlandı (2026-07-22)
+
+Kullanıcının ilettiği **“QA mühendisi olarak bina inşa etmek / Tuğla örmek”** bütüncül tasarım dili önerisine göre aşağıdaki bileşenler ve tasarım sistem güncellemeleri tamamlandı:
+
+1. **`src/index.css` Tasarım Sistemi & Animasyonlar:**
+   - `.brick-card`, `.brick-bevel`, `.brick-pattern-bg` tuğla dokusu ve 3D bevel sınıfları.
+   - `@keyframes siteLampPulse`, `@keyframes brickDrop`, `@keyframes brickShine`, `@keyframes stampBounce` animasyonları.
+   - `.site-lamp-glow`, `.inspection-stamp-passed`, `.inspection-stamp-failed` sınıfları.
+
+2. **Yenilikçi Bileşenler:**
+   - **`BrickProgressBar.jsx`**: Segmented 3D tuğla progress barı (Teal/Cyan gradient dolgulu tuğlalar + harç çizgileri).
+   - **`ConstructionLamp.jsx`**: Günlük streak için dairesel sarı/amber parıltılı İnşaat Lambası / Şantiye Feneri widget'ı.
+   - **`BuildingRoadmap.jsx`**: Katmanlı Bina İnşaatı Yol Haritası (Zemin Kat, 1. Kat Web, 2. Kat API, 3. Kat DevOps/Mobil) ve overall % bina tamamlanma durumu.
+   - **`InspectionReportQuizResult.jsx`**: QA Yapı Denetimi Raporu (Statik İnceleme) quiz sonuç kartı + kauçuk damga (`✓ DENETİMDEN GEÇTİ` / `⚠️ REVİZYON GEREKLİ`).
+   - **`BrickBadge.jsx`**: Kabartmalı teal/altın tuğla madalyonu rozet bileşeni.
+
+3. **Sayfa Entegrasyonları:**
+   - **`HomePage.jsx`**: Daily Strip'e `ConstructionLamp` ve `BrickProgressBar` entegrasyonu, `ActivityHeatmap` altına `BuildingRoadmap` eklenmesi.
+   - **`TopicPage.jsx`**: Üst okuma progress bar'ına Teal/Cyan/Amber inşaat gradyanı eklenmesi (`ScrollProgressBar`).
+   - **`LessonFinishBadge.jsx`**: Tuğla katmanı bitirme rozeti ve segmented bar görselleri.
+
+4. **Doğrulama:**
+   - `node scripts/check-content-integrity.mjs` → TÜM KONTROLLER GEÇTİ ✓
+   - `npm run build` → 41 statik HTML shell üretildi, build hatasız tamamlandı ✓
+   - Kullanıcının talimatı doğrultusunda E2E testler çalıştırılmadan doğrudan commit yapıldı.
 
 ### ✅ `feature/retention-and-motivation` main'e merge edildi (2026-07-22)
 14 commit, fast-forward (`git merge --ff-only`, main hiç sapmamıştı) — hiçbir

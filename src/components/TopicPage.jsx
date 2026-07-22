@@ -3427,10 +3427,11 @@ function ScrollProgressBar() {
         return () => window.removeEventListener('scroll', update)
     }, [])
     return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '3px', background: 'transparent', zIndex: 9999 }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'transparent', zIndex: 9999 }}>
             <div style={{
                 height: '100%', width: `${progress}%`,
-                background: 'linear-gradient(90deg, #7c3aed, #10b981)',
+                background: 'linear-gradient(90deg, #14b8a6, #06b6d4, #f59e0b)',
+                boxShadow: '0 0 10px rgba(20, 184, 166, 0.6)',
                 transition: 'width 0.1s linear',
             }} />
         </div>

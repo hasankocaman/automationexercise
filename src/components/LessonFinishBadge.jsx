@@ -85,15 +85,15 @@ function LessonFinishBadge({ language, darkMode, completedCount, total, lessonTi
             {done ? (
                 <>
                     <div className={`mt-2 text-lg font-black md:text-xl ${darkMode ? 'text-amber-300' : 'text-amber-700'}`}>
-                        {isTr ? '🎉 Tebrikler — bu dersi bitirdin!' : '🎉 Congratulations — you finished this lesson!'}
+                        {isTr ? '🎉 Tebrikler — bu dersin tüm tuğlalarını dizdin!' : '🎉 Congratulations — you laid all bricks for this lesson!'}
                     </div>
                     {lessonTitle && (
-                        <div className={`mt-1 text-sm font-bold ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{lessonTitle}</div>
+                        <div className={`mt-1 text-sm font-bold ${darkMode ? 'text-teal-300' : 'text-teal-700'}`}>🧱 {lessonTitle}</div>
                     )}
                     <p className={`mx-auto mt-2 max-w-md text-xs leading-relaxed md:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {isTr
-                            ? 'Tüm bölümleri tamamladın — ilerlemen kariyer haritana işlendi. Sıradaki derse geçebilirsin. 🚀'
-                            : 'You completed every section — your progress is recorded on your career map. On to the next lesson! 🚀'}
+                            ? 'Tüm bölümleri tamamladın — sağlam tuğlan bina haritana işlendi. Sıradaki katmanı inşa etmeye hazırsın! 🚀'
+                            : 'You completed every section — your solid brick is placed on your building map. On to the next floor! 🚀'}
                     </p>
                     {socialProof && (
                         <p
@@ -102,34 +102,36 @@ function LessonFinishBadge({ language, darkMode, completedCount, total, lessonTi
                         >
                             {socialProof.windowDays
                                 ? (isTr
-                                    ? `🙌 Son 7 günde ${socialProof.count} kişi bu dersi seninle birlikte tamamladı`
-                                    : `🙌 ${socialProof.count} people finished this lesson alongside you this week`)
+                                    ? `🙌 Son 7 günde ${socialProof.count} yapı ustası bu dersi seninle birlikte tamamladı`
+                                    : `🙌 ${socialProof.count} builders finished this lesson alongside you this week`)
                                 : (isTr
-                                    ? `🙌 ${socialProof.count} kişi bu dersi seninle birlikte tamamladı`
-                                    : `🙌 ${socialProof.count} people have finished this lesson alongside you`)}
+                                    ? `🙌 ${socialProof.count} yapı ustası bu dersi seninle birlikte tamamladı`
+                                    : `🙌 ${socialProof.count} builders have finished this lesson alongside you`)}
                         </p>
                     )}
                 </>
             ) : (
                 <>
                     <div className={`mt-2 text-sm font-black md:text-base ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                        {isTr ? '🏅 Bitirme Rozeti' : '🏅 Completion Badge'}
+                        {isTr ? '🧱 Tuğla Katmanı Rozeti' : '🧱 Layer Badge'}
                     </div>
                     <div className={`mt-1 text-xs font-bold md:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {isTr
-                            ? `${completedCount}/${total} bölüm tamamlandı`
-                            : `${completedCount}/${total} sections completed`}
+                            ? `${completedCount}/${total} tuğla dizildi`
+                            : `${completedCount}/${total} bricks laid`}
                     </div>
-                    <div className={`mx-auto mt-3 h-2 max-w-xs overflow-hidden rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-                        <div
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #f59e0b, #22c55e)' }}
-                        />
+                    <div className="mx-auto mt-3 max-w-xs">
+                        <div className={`h-3 w-full rounded-full overflow-hidden p-0.5 border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-gray-200 border-gray-300'}`}>
+                            <div
+                                className="h-full rounded-full transition-all duration-500 brick-bevel"
+                                style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #14b8a6, #06b6d4, #f59e0b)' }}
+                            />
+                        </div>
                     </div>
                     <p className={`mx-auto mt-2 max-w-md text-xs leading-relaxed ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                         {isTr
-                            ? 'Tüm bölümleri tamamlayınca bu rozet senin — ilerlemen kariyer haritana da işlenir. 💪'
-                            : 'Complete every section to earn this badge — your progress also counts toward your career map. 💪'}
+                            ? 'Tüm tuğlaları tamamlayınca bu katman rozeti senin — ilerlemen bina inşaatına da işlenir. 💪'
+                            : 'Lay all bricks to earn this badge — your progress builds your structure. 💪'}
                     </p>
                 </>
             )}
