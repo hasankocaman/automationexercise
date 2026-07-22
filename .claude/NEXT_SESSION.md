@@ -16,7 +16,7 @@
 |---|---|
 | **Aktif branch** | `feature/code-practice-ai-feedback` — main'den fast-forward ile senkronize edildi (`8416850..695b6d8`), Faz 2 çalışması bu branch'te devam ediyor |
 | **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` §3 — Faz 2 (runtime editörlere `expected` alanı + gerçek stdout karşılaştırması). Henüz plan dosyasına Faz 2 detay bölümü eklenmedi, kapsam burada takip ediliyor. |
-| **Sırada ne var** | (1) ✅ bitti — `type:'editor', lang:'java'` yönlendirme bug'ı düzeltildi. (2) ✅ bitti — PyodideEditor `expected` alanı + stdout karşılaştırma proof-of-concept, tek blokta doğrulandı. (3) ✅ bitti — kullanıcı onayıyla kalan 34 uygun `pythonData.js` bloğuna `expected` yazıldı (5 blok kasıtlı hariç, aşağıya bak). (4) Sırada: AI açıklama paneli (yanlış çıktıda) için ayrı bir tasarım kararı — mevcut `explain-code-practice` fonksiyonu kaynak-kodu kıyaslamaya göre yazılmış, çıktı-kıyaslama için prompt/alan uyarlaması gerekir. (5) Ayrıca bkz. aşağıdaki "sitewide risk" notu — ayrı bir oturumda araştırılmalı. |
+| **Sırada ne var** | (1) ✅ bitti — `type:'editor', lang:'java'` yönlendirme bug'ı düzeltildi. (2) ✅ bitti — PyodideEditor `expected` alanı + stdout karşılaştırma proof-of-concept, tek blokta doğrulandı. (3) ✅ bitti — kullanıcı onayıyla kalan 34 uygun `pythonData.js` bloğuna `expected` yazıldı (5 blok kasıtlı hariç). (4) ✅ bitti — yanlış çıktıda üye-only AI açıklama paneli (aşağıya bak), YENİ `explain-code-output` edge function ile — **HENÜZ SUPABASE'E DEPLOY EDİLMEDİ, kullanıcı deploy etmeli (aşağıdaki komut).** (5) Sırada: TS/JS/SQL editörlerine aynı mekanizmanın yayılması VEYA sitewide ters-slash riskinin araştırılması — kullanıcıyla netleştirilecek. |
 | **Test politikası (bu branch'te)** | Plan §4: her commit'te sadece `check-content-integrity.mjs` + `npm run build`. Tam `npm run test:e2e` SADECE main'e push'tan hemen önce bir kez. Commit'ler `SKIP_E2E_HOOK=1` ile atılıyor. |
 
 ### 🧪 Faz 2 rollout — pythonData.js'teki 34 editor bloğuna `expected` yazıldı (2026-07-23, Claude Code)
@@ -80,6 +80,61 @@ test edildi ("Sözdizimi & Yorumlar", "Setler & Sözlükler", "Dosya & JSON" —
 emoji/tablo formatlı çıktı dahil): üçü de "✅ Doğru!" mesajını doğru
 gösterdi, konsol hatası YOK. Tam Playwright regresyon paketi HENÜZ
 koşulmadı (plan §4 politikası gereği main'e push öncesine bırakıldı).
+
+### 🤖 Faz 2 — yanlış çıktıda üye-only AI açıklama paneli (2026-07-23, Claude Code)
+**Tasarım kararı:** `explain-code-practice`'i (Faz 1, kaynak-kod kıyaslaması
+için yazılmış) YENİDEN KULLANMADIM — bunun yerine **yeni** bir edge function
+yazdım: `supabase/functions/explain-code-output/index.ts`. Sebep: runtime
+editörde öğrencinin kodu GERÇEKTEN çalıştırılıyor, kıyaslanan şey KAYNAK KOD
+değil ÇIKTI. `explain-code-practice`'e "expected output"u `solutionCode` diye
+göndermek yanlış temsil olurdu (AI'ya "bu senin çözüm kodun" diye sahte bir
+kod göstermiş olurduk) ve prompt'u da tamamen değiştirmek gerekirdi — bu da
+mevcut fonksiyonu ÇAĞIRAN CodePlaygroundBlock'un davranışını bozma riski
+taşırdı. Yeni fonksiyon, projenin var olan deseniyle (her AI kaygısı için
+ayrı, dar kapsamlı fonksiyon: explain-quiz-answer / explain-code-practice /
+judge-eval / grade-interview-answer) tutarlı.
+
+**`explain-code-output` girdi:** `{task, expectedOutput, userCode,
+actualOutput, lang}` — çıktı: `{explanation}`. Sistem promptu AI'ya "fark
+zaten gösteriliyor, tekrar etme; KOD MANTIĞINDAKİ hatayı açıkla" diyor (aynı
+"tekrar etme, üzerine inşa et" deseni `explain-quiz-answer`/
+`explain-code-practice` ile aynı). Aynı üye-only kontrol (`auth.getUser()`),
+aynı KESİN TR/EN dil kuralı (Latin dışı alfabe yasak), aynı `GROQ_API_KEY`
+secret'ı paylaşılıyor — yeni secret gerekmiyor.
+
+**Frontend (`TopicPage.jsx`):** Yeni `AiEditorExplanationPanel` bileşeni
+(mevcut `AiExplanationPanel`/`AiPracticeExplanationPanel` ile birebir aynı
+görsel dil: `session` yoksa 🔒 kilit mesajı buton YOK, varsa "🤖 AI'dan kodum
+için ek açıklama iste" butonu → tıklanınca çağrı). `PyodideEditor`'a yeni
+`task` prop'u eklendi (`block.task || block.label`, opsiyonel — pythonData.js
+editor bloklarının hiçbirinde şu an `task`/`label` yok, fonksiyon bunu
+opsiyonel kabul ediyor). `passed === false` durumunda deterministik "Beklenen:
+..." mesajının HEMEN ALTINA ekleniyor. Yeni `attempts` sayacı + `key=
+{attempts}` ile her yeni yanlış denemede panel sıfırdan mount olup önceki AI
+cevabını göstermeye devam etmiyor (Faz 1'deki `CodePlaygroundBlock` deseniyle
+aynı). `darkMode` sabit `true` geçiliyor çünkü PyodideEditor'ün kendi UI'ı
+(terminal görünümü) site temasından bağımsız hep koyu.
+
+**⚠️ HENÜZ YAPILMAYAN — kullanıcı adımı gerekiyor:** `explain-code-output`
+fonksiyonu bu ortamda `supabase` CLI kurulu/login'li olmadığı için DEPLOY
+EDİLEMEDİ. Kullanıcı, `explain-code-practice`'te yaptığı gibi iki projeye de
+deploy etmeli:
+```
+supabase functions deploy explain-code-output --project-ref qtwargbbwuvrupfyowbg   # learnqa-test
+supabase functions deploy explain-code-output --project-ref qmvurwmcuexvuwvaiuhj   # learnqa-prod
+```
+`GROQ_API_KEY` secret'ı zaten her iki projede de mevcut (diğer AI
+fonksiyonlarıyla paylaşılıyor), ek secret gerekmiyor. Deploy edilmeden önce
+üye+AI-buton akışı gerçek Groq çağrısıyla test EDİLEMEZ (Faz 1'de de aynı
+sıra izlenmişti: kod yazılıp deploy edildikten SONRA kullanıcı manuel
+doğruladı).
+
+**Doğrulama (2026-07-23):** `node scripts/check-content-integrity.mjs` ✅ 0
+ihlal, `npm run build` ✅ PASS. Gerçek Chromium'da (Playwright, yaz-koş-sil
+script) SADECE anonim/kilit yolu doğrulandı: yanlış çıktıda deterministik
+uyarı + "🔒 AI açıklaması için giriş yapmalısın" mesajı doğru göründü, AI
+butonu anonim kullanıcıya HİÇ görünmüyor, konsol hatası yok. Üye+gerçek-Groq
+yolu deploy sonrası kullanıcı tarafından doğrulanmalı (yukarıdaki not).
 
 ### 🧪 Faz 2 proof-of-concept — PyodideEditor `expected` alanı (2026-07-22, Claude Code)
 `PyodideEditor` (`TopicPage.jsx`) artık opsiyonel `expected` prop'u alıyor —

@@ -2232,6 +2232,67 @@ function JavaCompareBlock({ block, darkMode }) {
     )
 }
 
+// Yanlış çıktıda gösterilen AI açıklama paneli — SADECE üyelere özel
+// (explain-code-output edge function). `AiExplanationPanel` ile aynı görsel
+// dil, ama farklı bir fonksiyonu çağırır: burada öğrencinin kodu GERÇEKTEN
+// çalıştırıldı (kaynak kod diff'i değil, ÇIKTI farkı var) — bkz. plan notu.
+// Otomatik tetiklenmez, ücretsiz Groq kotasını her yanlış denemede otomatik
+// tüketmemek için kullanıcı butona basınca çağrılır (diğer AI panelleriyle
+// aynı politika).
+function AiEditorExplanationPanel({ task, expectedOutput, userCode, actualOutput, isTr, darkMode }) {
+    const { session } = useAuth()
+    const [explanation, setExplanation] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const [requested, setRequested] = useState(false)
+
+    if (!session) {
+        return (
+            <div className={`mt-2 text-xs italic ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                🔒 {isTr ? 'AI açıklaması için giriş yapmalısın.' : 'Sign in to see the AI explanation.'}
+            </div>
+        )
+    }
+
+    function handleRequest() {
+        if (requested) return
+        setRequested(true)
+        setLoading(true)
+        supabase.functions.invoke('explain-code-output', {
+            body: { task, expectedOutput, userCode, actualOutput, lang: isTr ? 'tr' : 'en' },
+        }).then(({ data, error: invokeError }) => {
+            if (invokeError) throw invokeError
+            if (data?.error) throw new Error(data.error)
+            setExplanation(sanitizeAiText(data.explanation))
+        }).catch(async (err) => {
+            console.error('explain-code-output failed:', err)
+            const detail = await extractFunctionErrorDetail(err)
+            setError((isTr ? 'AI açıklaması şu anda yüklenemedi.' : 'Could not load AI explanation right now.')
+                + (detail ? ` (${detail})` : ''))
+        }).finally(() => setLoading(false))
+    }
+
+    if (!requested) {
+        return (
+            <button
+                onClick={handleRequest}
+                className={`mt-2 text-xs font-semibold underline ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}
+            >
+                🤖 {isTr ? "AI'dan kodum için ek açıklama iste" : 'Ask AI for an explanation of my code'}
+            </button>
+        )
+    }
+
+    return (
+        <div className={`mt-2 rounded-lg border-l-4 border-purple-500 p-3 text-xs leading-relaxed ${darkMode ? 'bg-purple-900/20 text-purple-200' : 'bg-purple-50 text-purple-800'}`}>
+            <div className="font-bold mb-1 flex items-center gap-1.5">🤖 {isTr ? 'AI Açıklama' : 'AI Explanation'}</div>
+            {loading && <span className="opacity-70">{isTr ? 'Yükleniyor...' : 'Loading...'}</span>}
+            {error && <span className="text-red-400">{error}</span>}
+            {explanation && <p>{explanation}</p>}
+        </div>
+    )
+}
+
 // ─── PyodideEditor ────────────────────────────────────────────────────────────
 
 // Kod string diff'i DEĞİL — gerçek çalıştırılan Python programının stdout
@@ -2240,7 +2301,7 @@ function normalizeOutputForComparison(text) {
     return (text || '').replace(/\s+/g, ' ').trim()
 }
 
-function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess, expected }) {
+function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess, expected, task }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
     const localizedExpected = expected != null ? tx(expected, language) : null
@@ -2250,6 +2311,7 @@ function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess, expected
     const [celebrating, setCelebrating] = useState(false)
     const [loading, setLoading] = useState(false)
     const [pyReady, setPyReady] = useState(!!window._pyodideInstance)
+    const [attempts, setAttempts] = useState(0)
     const pyRef = useRef(null)
 
     useEffect(() => {
@@ -2282,12 +2344,13 @@ function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess, expected
                 const isMatch = normalizeOutputForComparison(captured) === normalizeOutputForComparison(localizedExpected)
                 setPassed(isMatch)
                 if (isMatch) { setCelebrating(true); onFirstSuccess?.() }
+                else setAttempts(a => a + 1)
             } else {
                 onFirstSuccess?.()
             }
         } catch (e) {
             setOutput('❌ ' + e.message)
-            if (localizedExpected != null) setPassed(false)
+            if (localizedExpected != null) { setPassed(false); setAttempts(a => a + 1) }
         }
         setLoading(false)
     }
@@ -2316,6 +2379,15 @@ function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess, expected
                         {isTr ? '⚠️ Çıktı henüz beklenenle eşleşmiyor.' : '⚠️ Output does not match yet.'}
                     </div>
                     <div>{isTr ? 'Beklenen' : 'Expected'}: {localizedExpected}</div>
+                    <AiEditorExplanationPanel
+                        key={attempts}
+                        task={task}
+                        expectedOutput={localizedExpected}
+                        userCode={code}
+                        actualOutput={output}
+                        isTr={isTr}
+                        darkMode
+                    />
                 </div>
             )}
         </div>
@@ -17485,7 +17557,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                 return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
             if (block.lang === 'java')
                 return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
-            return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} expected={block.expected} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+            return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} expected={block.expected} task={tx(block.task || block.label, language)} onFirstSuccess={() => onExerciseCompleted?.(i)} />
         case 'java-practice':
             return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'git-practice':
