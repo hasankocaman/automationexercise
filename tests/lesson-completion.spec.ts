@@ -43,7 +43,9 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
 
         await badge.scrollIntoViewIfNeeded();
         await expect(badge).toHaveAttribute('data-state', 'done');
-        await expect(badge).toContainText('bitirdin');
+        // qa-builder-construction-theme-plan.md: LessonFinishBadge metni tuğla
+        // metaforuna çevrildi ("bu dersi bitirdin!" → "tüm tuğlalarını dizdin!").
+        await expect(badge).toContainText('dizdin');
 
         // Anonim kariyer haritası kaydı: route learnqa_completed_routes'a düşmüş olmalı.
         const routes = await page.evaluate(() => JSON.parse(localStorage.getItem('learnqa_completed_routes') || '[]'));
