@@ -14,10 +14,9 @@
 
 | | |
 |---|---|
-| **Aktif branch** | `main` — `feature/code-practice-ai-feedback` `--no-ff` merge edildi, tam E2E koşuldu, push edilmeye hazır |
-| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) ✅ TAMAMLANDI |
-| **Kullanıcı talimatı** | Sırada: `git push origin main`. |
-| **Sırada ne var** | (1) push. Faz 2 (runtime editörlere `expected` alanı) ayrı bir sonraki iş. |
+| **Aktif branch** | `main` — `feature/code-practice-ai-feedback` merge edildi, tam E2E koşuldu, **GitHub'a push edildi** (`e3085ec..7f37896`) |
+| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) ✅ TAMAMLANDI VE PUSH EDİLDİ |
+| **Sırada ne var** | Faz 2 (runtime editörlere `expected` alanı + site geneli içerik rollout'u) — plan dosyası §3, ayrı bir sonraki oturumun işi. `feature/code-practice-ai-feedback` branch'i main'e merge edildi, silinmedi (kullanıcı onayı gerekir). |
 
 ### 🔀 `feature/code-practice-ai-feedback` main'e merge edildi (2026-07-22)
 `git merge --no-ff` ile main'e alındı (fast-forward değil, ayrı merge commit) —
