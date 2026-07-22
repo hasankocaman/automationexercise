@@ -507,6 +507,114 @@ function HomePage() {
                 </div>
             )}
 
+            {/* ── QA Mentor AI Banner — Yeni misin? Buradan Başla ──
+                retention-and-motivation-plan.md §6.4 Aşama E: bu banner önceden
+                TrendingSkillsWidget/MembershipPromo'nun ALTINDA render ediliyordu
+                — yeni bir ziyaretçi "bu site ne işe yarar"dan önce trend
+                widget'ını ve üyelik promosunu görüyordu. Component YENİDEN
+                YAZILMADI, sadece render sırası yukarı taşındı; learning-os-
+                redesign-plan.md §3.2'deki "büyük yeni hero bloğu yazma, mevcut
+                yüzeyleri aynı dille yeniden düzenle" kararıyla uyumlu. ── */}
+            <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                <Link
+                    to="/qa-mentor"
+                    data-testid="qa-mentor-banner"
+                    className={`group flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl overflow-hidden relative ${
+                        darkMode
+                            ? 'border-purple-700/60 bg-gradient-to-r from-purple-900/50 via-indigo-900/40 to-fuchsia-900/40 hover:border-purple-500/80 hover:shadow-purple-900/40'
+                            : 'border-indigo-300 bg-gradient-to-r from-indigo-50 via-purple-50 to-fuchsia-50 hover:border-indigo-400 hover:shadow-indigo-200/60'
+                    }`}
+                >
+                    {/* Animated background sweep */}
+                    <span className="pointer-events-none absolute -left-20 top-0 h-full w-16 rotate-12 bg-white/20 blur-xl transition-transform duration-700 group-hover:translate-x-[800%]" />
+
+                    {/* Icon */}
+                    <div className={`flex-shrink-0 rounded-xl p-2.5 md:p-3 shadow-lg transition-transform duration-200 group-hover:scale-110 ${
+                        darkMode ? 'bg-purple-700/60' : 'bg-indigo-600'
+                    }`}>
+                        <span className="text-2xl md:text-3xl">🧠</span>
+                    </div>
+
+                    {/* Text — 3 durumlu içerik (plan §6.1) */}
+                    <div className="min-w-0 flex-1">
+                        {mentorMapState.state === 'progress' ? (
+                            <>
+                                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black ${
+                                        darkMode ? 'bg-indigo-800/60 text-indigo-300' : 'bg-indigo-100 text-indigo-700'
+                                    }`}>
+                                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                                        {language === 'tr' ? 'HARİTAN' : 'YOUR MAP'}
+                                    </span>
+                                    <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {language === 'tr'
+                                            ? `🗺️ Haritan seni bekliyor — Kaldığın yer: ${mentorMapState.nextNode.emoji || ''} ${mentorMapState.nextNode.title?.tr || ''}`
+                                            : `🗺️ Your map is waiting — You're at: ${mentorMapState.nextNode.emoji || ''} ${mentorMapState.nextNode.title?.en || ''}`}
+                                    </h2>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className={`h-1.5 flex-1 max-w-[180px] rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-indigo-100'}`}>
+                                        <div
+                                            className="h-full rounded-full"
+                                            style={{ width: `${mentorMapState.percent}%`, background: 'linear-gradient(90deg, #6366f1, #a855f7)' }}
+                                        />
+                                    </div>
+                                    <p className={`text-xs font-bold ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
+                                        {language === 'tr'
+                                            ? `${mentorMapState.done}/${mentorMapState.total} adım · %${mentorMapState.percent}`
+                                            : `${mentorMapState.done}/${mentorMapState.total} steps · ${mentorMapState.percent}%`}
+                                    </p>
+                                </div>
+                            </>
+                        ) : mentorMapState.state === 'done' ? (
+                            <>
+                                <h2 className={`text-sm md:text-base font-black mb-0.5 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {language === 'tr' ? '🏆 Haritandaki ana yolu bitirdin!' : '🏆 You finished your map\'s main path!'}
+                                </h2>
+                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
+                                    {language === 'tr'
+                                        ? 'Ekstra dallarla uzmanlaş: Appium, JMeter, BrowserStack… ✨'
+                                        : 'Specialize with extra branches: Appium, JMeter, BrowserStack… ✨'}
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black ${
+                                        darkMode ? 'bg-green-800/60 text-green-300' : 'bg-green-100 text-green-700'
+                                    }`}>
+                                        <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                                        {language === 'tr' ? 'YENİ' : 'NEW'}
+                                    </span>
+                                    <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        {language === 'tr' ? '👋 Yeni misin? Kişisel QA Kariyer Haritanı Oluştur' : '👋 New Here? Build Your Personalized QA Career Map'}
+                                    </h2>
+                                </div>
+                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
+                                    {language === 'tr'
+                                        ? '4 kısa soru · ~1 dakika — sana özel, süre tahminli öğrenme yolu ve zihin haritası hazırlansın. ✨'
+                                        : '4 quick questions · ~1 minute — get a personalized learning path and mind map with a time estimate. ✨'}
+                                </p>
+                            </>
+                        )}
+                    </div>
+
+                    {/* CTA arrow */}
+                    <div className={`flex-shrink-0 flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:gap-2 whitespace-nowrap ${
+                        darkMode ? 'bg-purple-600 hover:bg-purple-500' : 'bg-indigo-600 hover:bg-indigo-700'
+                    }`}
+                        style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}
+                    >
+                        {mentorMapState.state === 'progress'
+                            ? (language === 'tr' ? 'Devam et' : 'Continue')
+                            : mentorMapState.state === 'done'
+                                ? (language === 'tr' ? 'Haritana git' : 'View map')
+                                : (language === 'tr' ? 'Başla' : 'Start')}
+                        <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+                    </div>
+                </Link>
+            </div>
+
             {/* ── Trend Skill Widget — sayfayı açan herkes hemen görsün ── */}
             <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
                 <TrendingSkillsWidget darkMode={darkMode} />
@@ -725,107 +833,6 @@ function HomePage() {
                 )}
 
                 <ActivityHeatmap darkMode={darkMode} language={language} />
-            </div>
-
-            {/* ── QA Mentor AI Banner — Yeni misin? Buradan Başla ── */}
-            <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
-                <Link
-                    to="/qa-mentor"
-                    data-testid="qa-mentor-banner"
-                    className={`group flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl overflow-hidden relative ${
-                        darkMode
-                            ? 'border-purple-700/60 bg-gradient-to-r from-purple-900/50 via-indigo-900/40 to-fuchsia-900/40 hover:border-purple-500/80 hover:shadow-purple-900/40'
-                            : 'border-indigo-300 bg-gradient-to-r from-indigo-50 via-purple-50 to-fuchsia-50 hover:border-indigo-400 hover:shadow-indigo-200/60'
-                    }`}
-                >
-                    {/* Animated background sweep */}
-                    <span className="pointer-events-none absolute -left-20 top-0 h-full w-16 rotate-12 bg-white/20 blur-xl transition-transform duration-700 group-hover:translate-x-[800%]" />
-
-                    {/* Icon */}
-                    <div className={`flex-shrink-0 rounded-xl p-2.5 md:p-3 shadow-lg transition-transform duration-200 group-hover:scale-110 ${
-                        darkMode ? 'bg-purple-700/60' : 'bg-indigo-600'
-                    }`}>
-                        <span className="text-2xl md:text-3xl">🧠</span>
-                    </div>
-
-                    {/* Text — 3 durumlu içerik (plan §6.1) */}
-                    <div className="min-w-0 flex-1">
-                        {mentorMapState.state === 'progress' ? (
-                            <>
-                                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black ${
-                                        darkMode ? 'bg-indigo-800/60 text-indigo-300' : 'bg-indigo-100 text-indigo-700'
-                                    }`}>
-                                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                                        {language === 'tr' ? 'HARİTAN' : 'YOUR MAP'}
-                                    </span>
-                                    <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        {language === 'tr'
-                                            ? `🗺️ Haritan seni bekliyor — Kaldığın yer: ${mentorMapState.nextNode.emoji || ''} ${mentorMapState.nextNode.title?.tr || ''}`
-                                            : `🗺️ Your map is waiting — You're at: ${mentorMapState.nextNode.emoji || ''} ${mentorMapState.nextNode.title?.en || ''}`}
-                                    </h2>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className={`h-1.5 flex-1 max-w-[180px] rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-indigo-100'}`}>
-                                        <div
-                                            className="h-full rounded-full"
-                                            style={{ width: `${mentorMapState.percent}%`, background: 'linear-gradient(90deg, #6366f1, #a855f7)' }}
-                                        />
-                                    </div>
-                                    <p className={`text-xs font-bold ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
-                                        {language === 'tr'
-                                            ? `${mentorMapState.done}/${mentorMapState.total} adım · %${mentorMapState.percent}`
-                                            : `${mentorMapState.done}/${mentorMapState.total} steps · ${mentorMapState.percent}%`}
-                                    </p>
-                                </div>
-                            </>
-                        ) : mentorMapState.state === 'done' ? (
-                            <>
-                                <h2 className={`text-sm md:text-base font-black mb-0.5 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                    {language === 'tr' ? '🏆 Haritandaki ana yolu bitirdin!' : '🏆 You finished your map\'s main path!'}
-                                </h2>
-                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
-                                    {language === 'tr'
-                                        ? 'Ekstra dallarla uzmanlaş: Appium, JMeter, BrowserStack… ✨'
-                                        : 'Specialize with extra branches: Appium, JMeter, BrowserStack… ✨'}
-                                </p>
-                            </>
-                        ) : (
-                            <>
-                                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-black ${
-                                        darkMode ? 'bg-green-800/60 text-green-300' : 'bg-green-100 text-green-700'
-                                    }`}>
-                                        <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                                        {language === 'tr' ? 'YENİ' : 'NEW'}
-                                    </span>
-                                    <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        {language === 'tr' ? '👋 Yeni misin? Kişisel QA Kariyer Haritanı Oluştur' : '👋 New Here? Build Your Personalized QA Career Map'}
-                                    </h2>
-                                </div>
-                                <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-purple-200/80' : 'text-indigo-700'}`}>
-                                    {language === 'tr'
-                                        ? '4 kısa soru · ~1 dakika — sana özel, süre tahminli öğrenme yolu ve zihin haritası hazırlansın. ✨'
-                                        : '4 quick questions · ~1 minute — get a personalized learning path and mind map with a time estimate. ✨'}
-                                </p>
-                            </>
-                        )}
-                    </div>
-
-                    {/* CTA arrow */}
-                    <div className={`flex-shrink-0 flex items-center gap-1 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:gap-2 whitespace-nowrap ${
-                        darkMode ? 'bg-purple-600 hover:bg-purple-500' : 'bg-indigo-600 hover:bg-indigo-700'
-                    }`}
-                        style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}
-                    >
-                        {mentorMapState.state === 'progress'
-                            ? (language === 'tr' ? 'Devam et' : 'Continue')
-                            : mentorMapState.state === 'done'
-                                ? (language === 'tr' ? 'Haritana git' : 'View map')
-                                : (language === 'tr' ? 'Başla' : 'Start')}
-                        <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
-                    </div>
-                </Link>
             </div>
 
             {/* ── "Bugünkü Tekrar" kartı (WP4) — sadece tekrar zamanı gelmiş soru varsa görünür ── */}

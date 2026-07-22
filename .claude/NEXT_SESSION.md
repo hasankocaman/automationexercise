@@ -122,6 +122,18 @@ devreye girmez.
 Doğrulama: `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm run
 build` exit 0 ✓. Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
 
+### ✅ Aşama E.1 tamamlandı — QA Mentor banner'ı yukarı taşındı
+`HomePage.jsx`'teki "QA Mentor AI Banner" bloğu (data-testid="qa-mentor-banner",
+~100 satır, `mentorMapState` 3-durumlu içerik) OLDUĞU GİBİ (component
+yeniden yazılmadı, sadece kesilip taşındı) `TrendingSkillsWidget`/
+`MembershipPromo`'nun HEMEN ÜSTÜNE alındı — önceden daily-strip/heatmap'in
+altında render ediliyordu, yeni bir ziyaretçi "bu site ne işe yarar"dan
+önce trend widget'ı görüyordu. `mentorMapState` zaten component'in en
+üstünde `useState` ile hesaplandığından (satır 158) taşıma güvenli —
+render sırası JS hesaplama sırasını etkilemez. Doğrulama:
+`check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm run build`
+exit 0 ✓. Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
+
 ### ✅ A.1 tamamlandı — Job Readiness metin cilası
 `progressStore.js`'teki `JOB_READINESS_TIERS`: üst iki kademenin (`junior`
 min:75, `mid-ready` min:90) `message` metni emir kipine çekildi —
