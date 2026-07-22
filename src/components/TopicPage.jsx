@@ -5,6 +5,7 @@ import { Bookmark, BookmarkCheck, Loader2, AlertTriangle } from 'lucide-react'
 import TopicHeader from './TopicHeader'
 import CommentsSection from './CommentsSection'
 import LessonFinishBadge from './LessonFinishBadge'
+import VerticalBrickPlacementCard from './VerticalBrickPlacementCard'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabaseClient'
 import CssAnimationBlock from './CssAnimationBlock'
@@ -20611,16 +20612,23 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                                         handleHardResetPage,
                                         handleExerciseCompleted
                                     ))}
+                                    {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && (
+                                        <VerticalBrickPlacementCard
+                                            tabTitle={tabs?.[activeTab]}
+                                            isTr={language === 'tr'}
+                                            onContinue={activeTab < tabs.length - 1 ? () => setActiveTab(activeTab + 1) : null}
+                                        />
+                                    )}
                                     {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && activeTab < tabs.length - 1 && (
                                         <button
                                             data-testid="tab-nav-next-suggestion"
                                             onClick={() => setActiveTab(activeTab + 1)}
-                                            className={`mt-5 md:mt-6 w-full flex items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${darkMode ? 'bg-green-900/20 border-green-700 hover:bg-green-900/30' : 'bg-green-50 border-green-300 hover:bg-green-100'}`}
+                                            className={`mt-3 w-full flex items-center justify-between gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${darkMode ? 'bg-teal-900/20 border-teal-700 hover:bg-teal-900/30' : 'bg-teal-50 border-teal-300 hover:bg-teal-100'}`}
                                         >
-                                            <span className={`text-xs md:text-sm font-semibold ${darkMode ? 'text-green-300' : 'text-green-800'}`}>
+                                            <span className={`text-xs md:text-sm font-semibold ${darkMode ? 'text-teal-300' : 'text-teal-800'}`}>
                                                 ✅ {language === 'tr' ? 'Bu bölümü bitirdin' : 'You finished this section'}
                                             </span>
-                                            <span className={`flex items-center gap-1.5 text-xs md:text-sm font-bold ${darkMode ? 'text-green-200' : 'text-green-900'}`}>
+                                            <span className={`flex items-center gap-1.5 text-xs md:text-sm font-bold ${darkMode ? 'text-teal-200' : 'text-teal-900'}`}>
                                                 {language === 'tr' ? 'Sıradaki:' : 'Next up:'} {tabs[activeTab + 1]} →
                                             </span>
                                         </button>

@@ -262,7 +262,6 @@ function MindMapNode({ node, index, lang, darkMode, animDelay, status, durationL
     const navigate = useNavigate()
     const isDone = status === 'done'
     const isNext = status === 'next'
-
     const isFuture = status === 'future'
 
     return (
@@ -270,13 +269,12 @@ function MindMapNode({ node, index, lang, darkMode, animDelay, status, durationL
             className={`relative transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
             <div
-                className={`ml-3 group relative z-10 overflow-hidden rounded-xl border p-3 md:p-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-xl
-                    ${darkMode ? 'bg-gray-800 border-gray-700 hover:border-gray-500' : 'bg-white border-gray-200 hover:border-gray-300'}
-                    ${isNext ? 'ring-2 ring-indigo-400/80 shadow-lg shadow-indigo-500/20' : ''}
-                    ${isFuture ? 'opacity-75 border-dashed' : ''}`}
-                style={{
-                    boxShadow: `0 0 0 0 ${node.glow}`,
-                }}
+                className={`ml-3 group relative z-10 overflow-hidden rounded-xl border-2 p-3.5 md:p-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-xl
+                    ${isDone
+                        ? darkMode ? 'bg-slate-900 border-teal-500/60 shadow-lg shadow-teal-950/40 brick-bevel' : 'bg-teal-50/60 border-teal-400 shadow-md brick-bevel'
+                        : isNext
+                        ? darkMode ? 'bg-amber-950/30 border-amber-500 ring-2 ring-amber-500/50 site-lamp-glow' : 'bg-amber-50 border-amber-400 ring-2 ring-amber-400/50 site-lamp-glow'
+                        : darkMode ? 'bg-slate-900/80 border-slate-800 opacity-75 border-dashed' : 'bg-white border-slate-200 opacity-75 border-dashed'}`}
                 onClick={() => navigate(node.route)}
                 title={lang === 'tr' ? node.title.tr : node.title.en}
                 data-testid={`map-node-${node.route.replace(/\//g, '')}`}
@@ -284,16 +282,21 @@ function MindMapNode({ node, index, lang, darkMode, animDelay, status, durationL
                 {/* Glow overlay on hover */}
                 <div
                     className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
-                    style={{ background: `radial-gradient(circle at 30% 50%, ${node.glow}, transparent 70%)` }}
+                    style={{ background: `radial-gradient(circle at 30% 50%, ${isDone ? 'rgba(20, 184, 166, 0.25)' : node.glow}, transparent 70%)` }}
                 />
 
                 <div className="relative z-10 flex items-center gap-3">
-                    {/* Step number — tamamlananlarda yeşil onay */}
+                    {/* 3D Tuğla Kat Numarası Badge */}
                     <div
-                        className="flex-shrink-0 w-8 h-8 md:w-9 md:h-9 rounded-lg flex items-center justify-center text-white text-xs font-black shadow-lg"
-                        style={{ background: isDone ? '#16a34a' : isFuture ? (darkMode ? '#4b5563' : '#9ca3af') : node.color }}
+                        className={`flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-xs font-black shadow-lg border brick-bevel ${
+                            isDone
+                                ? 'bg-gradient-to-tr from-teal-600 to-cyan-400 text-slate-950 border-teal-300'
+                                : isNext
+                                ? 'bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 border-amber-300 animate-pulse'
+                                : darkMode ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-slate-200 text-slate-600 border-slate-300'
+                        }`}
                     >
-                        {isDone ? '✓' : index + 1}
+                        {isDone ? '🧱 ✓' : `#${index + 1}`}
                     </div>
 
                     {/* Emoji */}
@@ -305,10 +308,15 @@ function MindMapNode({ node, index, lang, darkMode, animDelay, status, durationL
                     <div className="min-w-0 flex-1">
                         <div className={`font-bold text-sm md:text-base flex items-center gap-2 flex-wrap ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                             {lang === 'tr' ? node.title.tr : node.title.en}
+                            {isDone && (
+                                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black bg-teal-500/20 text-teal-300 border border-teal-400/40">
+                                    🧱 {lang === 'tr' ? 'TUĞLA ÖRÜLDÜ' : 'BRICK LAID'}
+                                </span>
+                            )}
                             {isNext && (
-                                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black ${darkMode ? 'bg-indigo-900/60 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
-                                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                                    {lang === 'tr' ? 'SIRADAKİ' : 'NEXT'}
+                                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black ${darkMode ? 'bg-amber-900/60 text-amber-300' : 'bg-amber-100 text-amber-800'}`}>
+                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                    🚧 {lang === 'tr' ? 'ŞANTİYE KATI ÖRÜLÜYOR' : 'BUILDING FLOOR'}
                                 </span>
                             )}
                         </div>
@@ -322,10 +330,10 @@ function MindMapNode({ node, index, lang, darkMode, animDelay, status, durationL
                         {durationLabel && (
                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                                 isDone
-                                    ? darkMode ? 'bg-green-900/50 text-green-300' : 'bg-green-100 text-green-700'
+                                    ? darkMode ? 'bg-teal-900/50 text-teal-300' : 'bg-teal-100 text-teal-700'
                                     : darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
                             }`}>
-                                {isDone ? `✅ ${dialog.statusDone}` : `⏱ ${durationLabel}`}
+                                {isDone ? `🧱 ${dialog.statusDone}` : `⏱ ${durationLabel}`}
                             </span>
                         )}
                         <div

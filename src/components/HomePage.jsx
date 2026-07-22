@@ -26,6 +26,7 @@ import OnboardingTour from './OnboardingTour'
 import ConstructionLamp from './ConstructionLamp'
 import BrickProgressBar from './BrickProgressBar'
 import BuildingRoadmap from './BuildingRoadmap'
+import VerticalBrickTower from './VerticalBrickTower'
 import BrickBadge from './BrickBadge'
 import { hasSeenOnboarding, markOnboardingSeen } from '../lib/onboarding'
 import { getQueueStats, REVIEW_QUEUE_SESSION_SIZE } from '../lib/reviewQueue'
@@ -830,9 +831,14 @@ function HomePage() {
 
                 <ActivityHeatmap darkMode={darkMode} language={language} />
 
-                {/* Katmanlı Bina / Tuğla Yol Haritası (Building Roadmap Visualizer) */}
-                <div className="mt-6">
-                    <BuildingRoadmap language={language} />
+                {/* Katmanlı Bina & Dikey 3D Tuğla Kulesi (Building Roadmap Visualizer) */}
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2">
+                        <BuildingRoadmap language={language} />
+                    </div>
+                    <div className="lg:col-span-1">
+                        <VerticalBrickTower language={language} />
+                    </div>
                 </div>
             </div>
 

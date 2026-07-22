@@ -92,61 +92,60 @@
 */
 .dark-mode,
 [data-theme="dark"] {
-  /* — Arka Planlar (sıcak antrasit — saf siyah değil, halation yok) — */
-  --bg-base:        #1A1816;   /* Ana zemin — ılık kömür */
-  --bg-surface:     #242220;   /* Kart, panel */
-  --bg-subtle:      #2D2B28;   /* Sidebar, kod bloğu */
-  --bg-overlay:     #161412;   /* Modal karartma */
-  --bg-inset:       #38352F;   /* Input, basılı */
+  /* — Arka Planlar (Zengin Midnight Slate & Koyu Gece Mavisi) — */
+  --bg-base:        #080c16;   /* Ana zemin — Derin Gece Mavisi / Siyah */
+  --bg-surface:     #0f172a;   /* Kart, panel — Slate-900 */
+  --bg-subtle:      #1e293b;   /* Sidebar, kod bloğu — Slate-800 */
+  --bg-overlay:     #030712;   /* Modal karartma */
+  --bg-inset:       #1e293b;   /* Input, basılı */
 
   /* — Kenarlıklar — */
-  --border-subtle:  #363330;
-  --border-default: #4C4945;
-  --border-strong:  #625E59;
+  --border-subtle:  #1e293b;
+  --border-default: #334155;
+  --border-strong:  #0d9488;   /* Teal vurgulu belirgin kenarlık */
 
-  /* — Metinler (bg-base üstü kontrast oranları) — */
-  --text-primary:   #F0EDE4;   /* 15.2:1 — WCAG AAA ✅ */
-  --text-secondary: #B5B0A7;   /*  8.3:1 — WCAG AAA ✅ */
-  --text-muted:     #88837B;   /*  4.6:1 — WCAG AA  (yardımcı) */
-  --text-link:      #A5B4FC;   /*  8.8:1 — WCAG AAA ✅ */
-  --text-inverted:  #1A1816;
-  --text-on-accent: #1A1816;
+  /* — Metinler (Zengin Kontrastlı Font Renkleri) — */
+  --text-primary:   #F8FAFC;   /* 16.5:1 — Kristal Beyaz */
+  --text-secondary: #CBD5E1;   /* 10.2:1 — Açık Gümüş Slate */
+  --text-muted:     #94A3B8;   /*  6.5:1 — Yardımcı Metin */
+  --text-link:      #38BDF8;   /*  9.2:1 — Elektrik Mavisi */
+  --text-inverted:  #080c16;
+  --text-on-accent: #080c16;
 
-  /* — Accent: Indigo — */
-  --accent-primary:        #818CF8;  /* 6.2:1 — buton yüzeyi (büyük), AA+ */
-  --accent-primary-hover:  #6366F1;
-  --accent-primary-active: #4F46E5;
-  --accent-primary-subtle: #1E1B4B;
-  --accent-primary-ring:   #818CF8;
-  /* Küçük inline text için: */
-  --accent-primary-text:   #A5B4FC;  /* 8.8:1 AAA */
+  /* — Accent: Cyan / Teal (Yapı Mühendisi Vurgusu) — */
+  --accent-primary:        #14B8A6;
+  --accent-primary-hover:  #0D9488;
+  --accent-primary-active: #0f766e;
+  --accent-primary-subtle: #134e4a;
+  --accent-primary-ring:   #2dd4bf;
+  --accent-primary-text:   #2dd4bf;
 
   /* — Accent: Emerald (Başarı) — */
-  --accent-success:        #34D399;  /*  8.1:1 ✅ */
+  --accent-success:        #34D399;
   --accent-success-hover:  #10B981;
-  --accent-success-subtle: #022C22;
+  --accent-success-subtle: #064e3b;
   --accent-success-text:   #34D399;
 
-  /* — Accent: Amber (Uyarı) — */
-  --accent-warn:           #FCD34D;  /* 10.2:1 ✅ */
+  /* — Accent: Amber (Uyarı / Şantiye Lambası) — */
+  --accent-warn:           #FBBF24;
   --accent-warn-hover:     #F59E0B;
-  --accent-warn-subtle:    #2D1A00;
-  --accent-warn-text:      #FCD34D;
+  --accent-warn-subtle:    #78350f;
+  --accent-warn-text:      #FBBF24;
 
   /* — Accent: Rose (Hata) — */
-  --accent-danger:         #FCA5A5;  /*  8.7:1 ✅ */
+  --accent-danger:         #FCA5A5;
   --accent-danger-hover:   #F87171;
-  --accent-danger-subtle:  #450A0A;
+  --accent-danger-subtle:  #7f1d1d;
   --accent-danger-text:    #FCA5A5;
 
   /* — Kod — */
-  --accent-code:           #F9A8D4;  /*  8.0:1 ✅ */
-  --accent-code-bg:        #2D1830;
+  --accent-code:           #38BDF8;
+  --accent-code-bg:        #0f172a;
 
   /* — Gölgeler — */
-  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.30), 0 1px 2px rgba(0, 0, 0, 0.20);
-  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.40), 0 2px 6px rgba(0, 0, 0, 0.25);
-  --shadow-lg:  0 12px 32px rgba(0, 0, 0, 0.50), 0 4px 12px rgba(0, 0, 0, 0.30);
+  --shadow-sm:  0 2px 8px rgba(0, 0, 0, 0.50);
+  --shadow-md:  0 8px 24px rgba(0, 0, 0, 0.60), 0 0 15px rgba(20, 184, 166, 0.10);
+  --shadow-lg:  0 16px 40px rgba(0, 0, 0, 0.75), 0 0 30px rgba(20, 184, 166, 0.15);
 }
 
 /* OS tercihini de destekle (kullanıcı el ile toggle etmediyse) */
