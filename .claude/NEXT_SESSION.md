@@ -14,10 +14,16 @@
 
 | | |
 |---|---|
-| **Aktif branch** | `feature/code-practice-ai-feedback` — Faz 1 TAMAMEN bitti ve manuel doğrulandı, main'e merge edilmeye hazır |
+| **Aktif branch** | `main` — `feature/code-practice-ai-feedback` `--no-ff` merge edildi, henüz push edilmedi |
 | **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) ✅ TAMAMLANDI |
-| **Kullanıcı talimatı** | Merge öncesi son adım: main'e merge → main'de tam `npm run test:e2e` paketi bir kez çalıştırılacak → geçerse `git push origin main`. |
-| **Sırada ne var** | (1) main'e merge, (2) main'de tam E2E paketi (pre-push hook otomatik tetikler), (3) push. Faz 2 (runtime editörlere `expected` alanı) ayrı bir sonraki iş, bu oturumun kapsamı DIŞINDA. |
+| **Kullanıcı talimatı** | Sırada: main'de tam `npm run test:e2e` paketi bir kez çalıştırılacak → geçerse `git push origin main`. |
+| **Sırada ne var** | (1) main'de tam E2E paketi (pre-push hook otomatik tetikler ya da elle çalıştırılır), (2) sonuç NEXT_SESSION.md'ye yazılır, (3) push. Faz 2 (runtime editörlere `expected` alanı) ayrı bir sonraki iş. |
+
+### 🔀 `feature/code-practice-ai-feedback` main'e merge edildi (2026-07-22)
+`git merge --no-ff` ile main'e alındı (fast-forward değil, ayrı merge commit) —
+main hiç sapmamıştı, çakışma yok. 4 dosya değişti: `CodePlaygroundBlock.jsx`,
+yeni `supabase/functions/explain-code-practice/index.ts`, plan dosyası,
+`NEXT_SESSION.md`. Branch silinmedi (kullanıcı onayı gerekir).
 
 ### 🚧 Devam ediyor — `feature/code-practice-ai-feedback` (2026-07-22, Fable oturumu #2)
 Kullanıcı isteği: kod pratiği bloklarında doğru cevapta konfeti, yanlış
