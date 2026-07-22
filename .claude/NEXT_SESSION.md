@@ -14,10 +14,10 @@
 
 | | |
 |---|---|
-| **Aktif branch** | `feature/code-practice-ai-feedback` (main'den açıldı, henüz merge edilmedi) |
-| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) |
-| **Kullanıcı talimatı** | Bu branch'te döngü: kodla → bu dosyayı güncelle → `SKIP_E2E_HOOK=1 git commit` → sıradaki adım. Tam E2E paketi bu branch'te ÇALIŞTIRILMIYOR (aşağıdaki 2026-07-22 #1 oturumundaki kalıcı kurala göre zaten sadece main'e push'tan önce çalışır). |
-| **Sırada ne var** | Plan dosyasındaki Faz 1 adımları: (1) `explain-code-practice` edge function, (2) confetti-on-pass, (3) üye-only AI açıklama paneli. Faz 2 (runtime editörlere `expected` alanı) bu oturumun kapsamı DIŞINDA. |
+| **Aktif branch** | `feature/code-practice-ai-feedback` — Faz 1 TAMAMEN bitti ve manuel doğrulandı, main'e merge edilmeye hazır |
+| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) ✅ TAMAMLANDI |
+| **Kullanıcı talimatı** | Merge öncesi son adım: main'e merge → main'de tam `npm run test:e2e` paketi bir kez çalıştırılacak → geçerse `git push origin main`. |
+| **Sırada ne var** | (1) main'e merge, (2) main'de tam E2E paketi (pre-push hook otomatik tetikler), (3) push. Faz 2 (runtime editörlere `expected` alanı) ayrı bir sonraki iş, bu oturumun kapsamı DIŞINDA. |
 
 ### 🚧 Devam ediyor — `feature/code-practice-ai-feedback` (2026-07-22, Fable oturumu #2)
 Kullanıcı isteği: kod pratiği bloklarında doğru cevapta konfeti, yanlış
@@ -96,15 +96,20 @@ gerektirdiği için otomatik doğrulanamadı, kullanıcıya manuel adımlar veri
    Playwright ile doğrulandı: süslü parantez ayrı satırda + fazladan girinti +
    boş satır içeren kod artık "Doğru!" kabul ediliyor.
 
+**✅ Üye + AI-buton akışı kullanıcı tarafından manuel doğrulandı (2026-07-22):**
+Kullanıcı gerçek hesabıyla giriş yapıp yanlış cevap sonrası "🤖 AI'dan kodum
+için ek açıklama iste" butonuna bastı — `explain-code-practice` çağrısı
+başarılı döndü, kodun kendisine özel açıklama doğru dilde göründü. Kullanıcı
+sonucu "çalışıyor" olarak onayladı. **Faz 1'in tüm maddeleri artık tam
+doğrulanmış durumda** (deterministik ipucu, confetti, anonim kilit mesajı,
+üye AI açıklaması).
+
 Henüz YAPILMAYANLAR:
-- Üye kullanıcı + AI butonuna basınca gerçek açıklama alması hâlâ MANUEL
-  doğrulanmadı (gerçek login gerektiriyor, otomatik test edilemedi) — kullanıcı
-  kendi hesabıyla denemeli.
 - Faz 2 (runtime editörlere `expected` alanı + site geneli içerik rollout'u)
   bu oturuma dahil DEĞİL, plan dosyasının §3'ünde ayrı bir gelecek iş olarak
   duruyor.
 - `npm run test:e2e` tam paketi bu branch'te HİÇ çalıştırılmadı — main'e
-  merge/push öncesi kalıcı kural gereği bir kez çalıştırılmalı.
+  merge/push öncesi kalıcı kural gereği bir kez çalıştırılacak (sıradaki adım).
 
 ---
 
