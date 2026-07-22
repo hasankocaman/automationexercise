@@ -251,6 +251,30 @@ export function getJobReadiness(routes, roadmapPercent) {
     return { score, weakest }
 }
 
+// ── Job Readiness kademeli motivasyon metni (retention-and-motivation-plan.md
+// Aşama A) ─────────────────────────────────────────────────────────────────
+// Ham yüzde tek başına self-efficacy'yi (Bandura) desteklemiyor — "%42"
+// kullanıcıya ne anlama geldiğini söylemiyor. Eşikler, hedef kitlenin
+// (CLAUDE.md §1) kariyer aşamalarına göre named const olarak tutulur; her
+// tier "başarısızsın" değil "buradasın, sıradaki adım şu" tonunda yazılır
+// (learning-os-redesign-plan.md §10 risk 7 ile aynı ilke).
+const JOB_READINESS_TIERS = [
+    { min: 0, id: 'starting', label: { tr: 'Yeni Başlıyorsun', en: 'Just Getting Started' }, message: { tr: 'Haritandaki ilk birkaç dersi bitirdiğinde skorun hızla yükselmeye başlayacak.', en: 'Finish the first few lessons on your map and your score will start climbing fast.' } },
+    { min: 25, id: 'foundations', label: { tr: 'Temelleri Atıyorsun', en: 'Building Your Foundations' }, message: { tr: 'Temel konular oturuyor — bu tempoyla devam edersen kısa sürede Junior seviyesine yaklaşırsın.', en: 'Your foundations are settling in — keep this pace and you\'ll approach Junior level soon.' } },
+    { min: 50, id: 'approaching-junior', label: { tr: "Junior'a Yaklaşıyorsun", en: 'Approaching Junior Level' }, message: { tr: 'Bir QA Automation Engineer mülakatına girecek olsan artık elin boş dönmezdi.', en: 'If you walked into a QA Automation Engineer interview today, you wouldn\'t come back empty-handed.' } },
+    { min: 75, id: 'junior', label: { tr: 'Junior Seviyesindesin', en: "You're at Junior Level" }, message: { tr: 'Junior Automation Engineer olarak işe başlayacak bilgiye sahipsin — zayıf noktalarını güçlendirmek Mid-level\'a açılan kapı.', en: 'You have what it takes to start as a Junior Automation Engineer — closing your weak spots is the door to Mid-level.' } },
+    { min: 90, id: 'mid-ready', label: { tr: "Mid-level'a Hazırsın", en: 'Ready for Mid-level' }, message: { tr: 'Kapsam genişliğin ve derinliğin Mid-level bir pozisyonu hak ediyor — mülakat pratiğine ağırlık ver.', en: 'Your breadth and depth earn a Mid-level role — now double down on interview practice.' } },
+]
+
+export function getJobReadinessTier(score) {
+    if (typeof score !== 'number' || Number.isNaN(score)) return null
+    let tier = JOB_READINESS_TIERS[0]
+    for (const t of JOB_READINESS_TIERS) {
+        if (score >= t.min) tier = t
+    }
+    return tier
+}
+
 // ── Son konum ("Devam et" derin bağlantısı) ─────────────────────────────────
 
 // Kayıt şeması: { route: '/docker', tabIndex: 3, updatedAt: epoch_ms }

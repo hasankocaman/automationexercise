@@ -43,7 +43,20 @@ ATLANIR) → bu dosyayı güncelle → `SKIP_E2E_HOOK=1 git commit` → sıradak
 aşama. Tüm aşamalar bitince tam `npm run test:e2e` paketi BİR KEZ koşulacak
 (§9.6 rollout kapanış deseniyle aynı).
 
-**Aşama durumu:** A ⏳ sırada · B/C/D ⏳ bekliyor.
+**Aşama durumu:** A ✅ TAMAMLANDI bu oturumda (aşağıya bak) · B/C/D ⏳ bekliyor.
+
+### ✅ Aşama A tamamlandı — Job Readiness kademeli motivasyon metni
+`src/lib/progressStore.js`'e `JOB_READINESS_TIERS` (5 kademe: Yeni Başlıyorsun
+→ Temelleri Atıyorsun → Junior'a Yaklaşıyorsun → Junior Seviyesindesin →
+Mid-level'a Hazırsın) + `getJobReadinessTier(score)` eklendi — her kademe
+bilingual etiket + kazandıran tonda bir motivasyon cümlesi taşıyor.
+`SkillRadar.jsx`'teki `JobReadinessCard` bu tier'ı ham yüzdenin altına
+ekliyor (`data-testid="job-readiness-tier"`), mevcut kart düzeni/testid'leri
+bozulmadı. Doğrulama (gerçekten çalıştırıldı): `check-content-integrity.mjs`
+TÜM KONTROLLER GEÇTİ ✓ · `npm run build` exit 0 ✓ (41 static route shell
+üretildi, chunk boyutları önceki oturumlarla aynı aralıkta, yeni uyarı yok).
+Playwright E2E bu turda BİLİNÇLİ ATLANDI (kullanıcı talimatı — kapanışta
+tam paket koşulacak).
 
 ---
 

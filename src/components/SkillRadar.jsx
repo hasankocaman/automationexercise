@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { getSkillRadarData, getJobReadiness } from '../lib/progressStore'
+import { getSkillRadarData, getJobReadiness, getJobReadinessTier } from '../lib/progressStore'
 
 // Learning OS Faz 2 (Documents/learning-os-redesign-plan.md §6.2-6.3/F8-F9) —
 // saf inline SVG radar + iş hazırlık skoru kartı. Dış kütüphane yok
@@ -182,6 +182,7 @@ export function SkillRadar({ darkMode, language, routeFilter = null }) {
 export function JobReadinessCard({ darkMode, language, routes, roadmapPercent }) {
     const isTr = language === 'tr'
     const readiness = getJobReadiness(routes, roadmapPercent)
+    const tier = readiness ? getJobReadinessTier(readiness.score) : null
     const cardCls = `rounded-2xl p-4 md:p-5 border ${darkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`
 
     if (!readiness) {
@@ -212,6 +213,19 @@ export function JobReadinessCard({ darkMode, language, routes, roadmapPercent })
                     %{readiness.score}
                 </span>
             </div>
+            {tier && (
+                <div className="mt-2">
+                    <p
+                        data-testid="job-readiness-tier"
+                        className={`text-xs font-bold ${darkMode ? 'text-indigo-300' : 'text-indigo-600'}`}
+                    >
+                        {isTr ? tier.label.tr : tier.label.en}
+                    </p>
+                    <p className={`mt-0.5 text-xs leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {isTr ? tier.message.tr : tier.message.en}
+                    </p>
+                </div>
+            )}
             {readiness.weakest.length > 0 && (
                 <div className="mt-3">
                     <p className={`text-xs font-semibold mb-1.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
