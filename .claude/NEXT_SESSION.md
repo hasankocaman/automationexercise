@@ -10,13 +10,33 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu #2 — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Claude Code oturumu — önce BURAYI oku)
 
 | | |
 |---|---|
-| **Aktif branch** | `main` — `feature/code-practice-ai-feedback` merge edildi, tam E2E koşuldu, **GitHub'a push edildi** (`e3085ec..7f37896`) |
-| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) ✅ TAMAMLANDI VE PUSH EDİLDİ |
-| **Sırada ne var** | Faz 2 (runtime editörlere `expected` alanı + site geneli içerik rollout'u) — plan dosyası §3, ayrı bir sonraki oturumun işi. `feature/code-practice-ai-feedback` branch'i main'e merge edildi, silinmedi (kullanıcı onayı gerekir). |
+| **Aktif branch** | `feature/code-practice-ai-feedback` — main'den fast-forward ile senkronize edildi (`8416850..695b6d8`), Faz 2 çalışması bu branch'te devam ediyor |
+| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` §3 — Faz 2 (runtime editörlere `expected` alanı + gerçek stdout karşılaştırması). Henüz plan dosyasına Faz 2 detay bölümü eklenmedi, kapsam burada takip ediliyor. |
+| **Sırada ne var** | (1) ✅ bitti — `type:'editor', lang:'java'` yönlendirme bug'ı düzeltildi (aşağıya bak). (2) Sırada: PyodideEditor için tek bir `pythonData.js` bloğunda `expected` alanı + stdout karşılaştırma + UI geri bildirim (confetti/AI panel) ile uçtan uca kanıt (proof-of-concept) — kullanıcı onayı: önce TEK blokta kanıtla, sonra 40 bloğun tamamına yay. |
+| **Test politikası (bu branch'te)** | Plan §4: her commit'te sadece `check-content-integrity.mjs` + `npm run build`. Tam `npm run test:e2e` SADECE main'e push'tan hemen önce bir kez. Commit'ler `SKIP_E2E_HOOK=1` ile atılıyor. |
+
+### 🐛 Java editor yönlendirme bug'ı düzeltildi (2026-07-22, Claude Code)
+Faz 2 scoping araştırması sırasında bulundu: `TopicPage.jsx`'teki `case 'editor':`
+switch'i sadece `typescript`/`javascript`/`sql` için özel dallanıyordu, `lang: 'java'`
+(javaData.js'teki 22 blok) default dala düşüp **Java kodunu Pyodide (Python
+yorumlayıcısı) ile çalıştırıyordu** — bu her zaman syntax hatasıyla patlıyor ve
+`onFirstSuccess` hiç tetiklenmiyordu (egzersiz tamamlama/streak kaydı hiç
+işlemiyordu). Düzeltme: `lang === 'java'` artık zaten var olan
+`JavaPracticeBlock` bileşenine yönlendiriliyor (deterministik statik analiz:
+class/main/parantez/noktalı virgül kontrolü — gerçek bir Java runtime olmadığı
+için zaten bu proje bu yaklaşımı `java-practice` blok tipinde kullanıyordu).
+`JavaPracticeBlock`'a `onFirstSuccess` prop'u eklendi, `runCheck` içinde hata
+yoksa (`errors.length === 0`) çağrılıyor — diğer editörlerle aynı "her
+başarılı çalıştırmada tetikle" semantiği (parent taraf idempotent).
+Değişen dosya: `src/components/TopicPage.jsx` (JavaPracticeBlock component +
+`case 'editor'` switch). Yeni dosya/bileşen YOK. Doğrulama:
+`node scripts/check-content-integrity.mjs` ✅ 0 ihlal, `npm run build` ✅ PASS
+(41 static route, dist SEO PASS). Tam Playwright paketi henüz koşulmadı (plan
+§4 politikası gereği main'e push öncesine bırakıldı).
 
 ### 🔀 `feature/code-practice-ai-feedback` main'e merge edildi (2026-07-22)
 `git merge --no-ff` ile main'e alındı (fast-forward değil, ayrı merge commit) —

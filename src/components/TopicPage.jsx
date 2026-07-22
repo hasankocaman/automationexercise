@@ -2453,7 +2453,7 @@ function SQLEditor({ defaultCode, schema, height = '120px', onFirstSuccess }) {
 
 // ─── JavaPracticeBlock ───────────────────────────────────────────────────────
 
-function JavaPracticeBlock({ block, darkMode, language }) {
+function JavaPracticeBlock({ block, darkMode, language, onFirstSuccess }) {
     const starter = tx(block.starterCode || block.defaultCode || '', language)
     const [code, setCode] = useState(starter)
     const [result, setResult] = useState(null)
@@ -2529,6 +2529,7 @@ function JavaPracticeBlock({ block, darkMode, language }) {
         }
 
         setResult({ checks, errors, warnings, output: output.trimEnd() })
+        if (errors.length === 0) onFirstSuccess?.()
     }
 
     const isOk = result && result.errors.length === 0
@@ -17446,6 +17447,8 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                 return <JSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
             if (block.lang === 'sql')
                 return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+            if (block.lang === 'java')
+                return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
             return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
         case 'java-practice':
             return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
