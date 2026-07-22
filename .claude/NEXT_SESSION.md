@@ -134,6 +134,15 @@ render sırası JS hesaplama sırasını etkilemez. Doğrulama:
 `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm run build`
 exit 0 ✓. Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
 
+### ✅ Aşama E.2 tamamlandı — header.subtitle metin cilası
+`src/locales/tr.json` ve `en.json`'daki `header.subtitle` cümlesine kimlik/
+hedef vaadi eklendi: TR "...QA odaklı yollarla öğren — sıfırdan otomasyon
+test mühendisliğine ilerle", EN "...hands-on QA paths — go from zero to
+automation test engineer". Sadece bu iki string değişti, `HomePage.jsx`'e
+dokunulmadı (zaten `t('header.subtitle')` üzerinden okunuyor). Doğrulama:
+`check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm run build`
+exit 0 ✓. Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
+
 ### ✅ A.1 tamamlandı — Job Readiness metin cilası
 `progressStore.js`'teki `JOB_READINESS_TIERS`: üst iki kademenin (`junior`
 min:75, `mid-ready` min:90) `message` metni emir kipine çekildi —
