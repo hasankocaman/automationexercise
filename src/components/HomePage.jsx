@@ -24,7 +24,7 @@ import ReviewQueuePanel from './ReviewQueuePanel'
 import ActivityHeatmap from './ActivityHeatmap'
 import { getQueueStats } from '../lib/reviewQueue'
 import { getDailyGoalProgress, getStreak, subscribeToActivityChanges, checkStreakStatus } from '../lib/activityLog'
-import { readLastPosition } from '../lib/progressStore'
+import { readLastPosition, getWeakCompletedTopics } from '../lib/progressStore'
 import { trackMapEvent } from '../utils/mapEvents'
 import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
 import '../homepage-effects.css'
@@ -125,6 +125,7 @@ function HomePage() {
         goal: getDailyGoalProgress(Date.now()),
         streak: getStreak(Date.now()),
         lastPos: readLastPosition(),
+        weakTopics: getWeakCompletedTopics(2),
     })
     const [dailyLoop, setDailyLoop] = useState(readDailyLoop)
     useEffect(() => subscribeToActivityChanges(() => setDailyLoop(readDailyLoop())), [])
@@ -688,6 +689,41 @@ function HomePage() {
                         </div>
                     )
                 })()}
+
+                {/* ── Zayıf konu tekrar önerisi (Retention v2, learning-os-redesign-plan.md
+                    §6.4 / retention-and-motivation-plan.md Aşama B) — sadece GERÇEKTEN
+                    tamamlanmış ama mastery skoru düşük (<50) kalan konular önerilir;
+                    hiç bitirilmemiş konular buraya karışmaz (onlar için roadmap'in
+                    "sıradaki düğüm" önerisi zaten var). ── */}
+                {dailyLoop.weakTopics.length > 0 && (
+                    <div
+                        data-testid="weak-topic-reminder"
+                        className={`mt-3 flex flex-wrap items-center gap-2.5 rounded-2xl border p-3 md:p-3.5 ${darkMode ? 'border-indigo-800/60 bg-indigo-950/30' : 'border-indigo-200 bg-indigo-50'
+                            }`}
+                    >
+                        <span className="flex-shrink-0 text-lg" aria-hidden="true">🔄</span>
+                        <p className={`text-xs font-bold ${darkMode ? 'text-indigo-200' : 'text-indigo-800'}`}>
+                            {language === 'tr' ? 'Bir tekrar iyi gelir:' : 'A quick refresher would help:'}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                            {dailyLoop.weakTopics.map((w) => (
+                                <Link
+                                    key={w.route}
+                                    to={w.route}
+                                    data-testid="weak-topic-link"
+                                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold transition-colors ${darkMode
+                                        ? 'bg-indigo-900/60 text-indigo-200 hover:bg-indigo-800/70'
+                                        : 'bg-white text-indigo-700 hover:bg-indigo-100'
+                                        }`}
+                                >
+                                    {RESUME_LESSON_NAMES[w.route]?.[language] || w.route.replace(/^\//, '').replace(/-/g, ' ')}
+                                    <span className={darkMode ? 'text-indigo-400' : 'text-indigo-500'}>%{w.mastery}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <ActivityHeatmap darkMode={darkMode} language={language} />
             </div>
 

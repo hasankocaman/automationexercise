@@ -43,7 +43,23 @@ ATLANIR) → bu dosyayı güncelle → `SKIP_E2E_HOOK=1 git commit` → sıradak
 aşama. Tüm aşamalar bitince tam `npm run test:e2e` paketi BİR KEZ koşulacak
 (§9.6 rollout kapanış deseniyle aynı).
 
-**Aşama durumu:** A ✅ TAMAMLANDI bu oturumda (aşağıya bak) · B/C/D ⏳ bekliyor.
+**Aşama durumu:** A ✅ · B ✅ TAMAMLANDI bu oturumda (aşağıya bak) · C/D ⏳ bekliyor.
+
+### ✅ Aşama B tamamlandı — Retention v2 (zayıf tamamlanmış konu önerisi)
+`src/lib/progressStore.js`'e `getWeakCompletedTopics(limit=2)` eklendi:
+`getCompletedRoutes()` içindeki route'lardan `getMastery(route) < 50`
+(`WEAK_MASTERY_THRESHOLD`) olanları mastery'ye göre artan sırayla döner —
+hiç bitirilmemiş konular asla bu listeye girmez (roadmap'in "sıradaki düğüm"
+görevine karışmaz, learning-os-redesign-plan.md §6.4 tasarım kararıyla
+birebir). `HomePage.jsx`'teki `dailyLoop` state'ine `weakTopics` eklendi
+(diğer alanlarla aynı `subscribeToActivityChanges` ile canlı güncellenir),
+"Bugün" şeridinin hemen altına, `ActivityHeatmap`'ten önce koşullu bir kart
+eklendi (`data-testid="weak-topic-reminder"`/`"weak-topic-link"`) — sadece
+liste boş değilken görünür, route etiketleri mevcut `RESUME_LESSON_NAMES`
+kalıbıyla aynı fallback mantığını kullanıyor. Doğrulama (gerçekten
+çalıştırıldı): `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ ·
+`npm run build` exit 0 ✓ (chunk boyutları değişmedi). Playwright E2E bu
+turda da BİLİNÇLİ ATLANDI.
 
 ### ✅ Aşama A tamamlandı — Job Readiness kademeli motivasyon metni
 `src/lib/progressStore.js`'e `JOB_READINESS_TIERS` (5 kademe: Yeni Başlıyorsun

@@ -275,6 +275,23 @@ export function getJobReadinessTier(score) {
     return tier
 }
 
+// ── Retention v2 — zayıf tamamlanmış konu önerisi (learning-os-redesign-plan.md
+// §6.4, retention-and-motivation-plan.md Aşama B) ──────────────────────────
+// "Tamamlandı" ama mastery skoru düşük kalan konular — kullanıcı sekmeleri
+// bitirdi ama quiz/mülakat performansı zayıf, yani bilgi kalıcı olmamış
+// olabilir (Ebbinghaus unutma eğrisi). Sadece GERÇEKTEN tamamlanmış
+// (getCompletedRoutes) route'lar arasından seçilir — hiç bitirilmemiş bir
+// konuyu "zayıf" diye önermek roadmap'in "sıradaki düğüm" görevine karışır.
+const WEAK_MASTERY_THRESHOLD = 50
+
+export function getWeakCompletedTopics(limit = 2) {
+    return getCompletedRoutes()
+        .map((route) => ({ route, mastery: getMastery(route) }))
+        .filter((x) => typeof x.mastery === 'number' && x.mastery < WEAK_MASTERY_THRESHOLD)
+        .sort((a, b) => a.mastery - b.mastery)
+        .slice(0, limit)
+}
+
 // ── Son konum ("Devam et" derin bağlantısı) ─────────────────────────────────
 
 // Kayıt şeması: { route: '/docker', tabIndex: 3, updatedAt: epoch_ms }
