@@ -10,7 +10,65 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Antigravity oturumu — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu — önce BURAYI oku)
+
+| | |
+|---|---|
+| **Aktif branch** | `feature/qa-builder-metaphor` |
+| **Plan dosyası** | `Documents/qa-builder-construction-theme-plan.md` (§Revizyon bölümü eklendi) |
+| **Test Durumu** | `check-content-integrity.mjs` PASSED ✓ · `npm run build` PASSED ✓ · gerçek tarayıcıda Playwright ile manuel doğrulandı (aşağıya bak) |
+
+### ✅ Kapsam netleştirildi + temizlik + 2 bug fix (2026-07-22, Fable oturumu)
+
+Kullanıcı önceki "Antigravity oturumu" tarafından uygulanan geniş plan
+(5 temalı bileşen: BrickBadge/BrickProgressBar/BuildingRoadmap/ConstructionLamp/
+InspectionReportQuizResult) yerine asıl vizyonunu netleştirdi: **(1)** QA Mentor
+sayfasında 3D tuğla — ilerledikçe tuğlaları üst üste koyma + sevinme, **(2)**
+derslerde sekme bitince motive edici **tek seferlik** konfeti. Kod denetiminde
+o 5 bileşenden HİÇBİRİNİN hiçbir yerde kullanılmadığı (dead code) doğrulandı.
+
+**Yapılanlar:**
+1. **Plan güncellendi** — `Documents/qa-builder-construction-theme-plan.md`'ye
+   §Revizyon bölümü eklendi (Fable'ın gerekçeli önerisi: 5 dosya silinsin,
+   `VerticalBrickTower.jsx` — kullanıcının tarif ettiği "üst üste tuğla"
+   vizyonuna BİREBİR uyduğu için — silinmeyip merkeze alınsın).
+2. **5 kullanılmayan dosya silindi:** `BrickBadge.jsx`, `BrickProgressBar.jsx`,
+   `BuildingRoadmap.jsx`, `ConstructionLamp.jsx`, `InspectionReportQuizResult.jsx`
+   + `index.css`'teki karşılık gelen kullanılmayan class'lar (`.brick-card`,
+   `.brick-shine`, `.inspection-stamp-passed/failed` ve `stampBounce`/`brickShine`
+   keyframes) temizlendi.
+3. **`VerticalBrickTower.jsx` `QAMentorPage.jsx`'e bağlandı** — `MindMapView`
+   içine (sihirbaz tamamlanıp harita çözüldükten SONRA görünür), kişiselleştirilmiş
+   `MindMapNode` yol haritasının YANINDA, site-geneli 23 konuluk "kaç tuğla
+   örüldü" özeti olarak. Gerçek tarayıcıda (Playwright, sihirbaz UI'dan
+   tıklanarak) doğrulandı — kule doğru render oluyor, %0'dan başlıyor,
+   `getCompletedRoutes()`'a göre dolacak.
+4. **Bug fix — Çift CTA:** `VerticalBrickPlacementCard`'ın kendi "Sıradaki
+   Tuğlaya Geç →" butonu kaldırıldı (artık `celebrate` prop'u alıyor,
+   navigasyon butonu yok) — tek CTA kaynağı `tab-nav-next-suggestion`
+   (AC11 prev/next testleriyle korunan mevcut mekanizma). Gerçek tarayıcıda
+   doğrulandı: `tab-nav-next-suggestion` sayısı ≤1, kartın içinde kendi
+   butonu YOK.
+5. **Bug fix — Konfeti tekrarı:** `TopicPage.jsx`'e `celebratedTabsRef`
+   (`useRef(new Set())`) + bir `useEffect` eklendi — bir sekme bu SAYFA
+   GÖRÜNTÜLEME OTURUMUNDA İLK KEZ tamamlandığında konfeti patlar, aynı sekmeye
+   tekrar dönüldüğünde (kart hâlâ görünür ama) konfeti TEKRARLANMAZ. Gerçek
+   tarayıcıda doğrulandı: sekme değiştirilip geri dönüldüğünde kart görünür
+   kalıyor, ikinci patlama tetiklenmiyor.
+
+**Doğrulama:** `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ ·
+`npm run build` exit 0 ✓ · yukarıdaki 4 madde gerçek tarayıcıda (Playwright,
+geçici script — commit'e dahil değil) manuel doğrulandı. Playwright E2E
+tam paketi bu turda BİLİNÇLİ ATLANDI (kullanıcı talimatı).
+
+**Bilinen, bu oturumda ele alınmayan test borcu:** `tests/lesson-completion.spec.ts`
+hâlâ eski "bitirdin" metnini bekliyor (yeni metin "tuğlalarını dizdin") —
+Antigravity oturumunun LessonFinishBadge metin değişikliğinden kaynaklanan
+ÖNCEDEN VAR OLAN bir test borcu, bu oturumda dokunulmadı.
+
+---
+
+## 📌 (ÖNCEKİ) 2026-07-22, Antigravity oturumu
 
 | | |
 |---|---|

@@ -522,29 +522,7 @@ button, a, [role="button"] {
    QA BUILDER (TUĞLA ÖRME & YAPI MÜHENDİSİ) THEME SYSTEM
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Tuğla Dokusu & 3D Bevel Efektleri */
-.brick-card {
-  position: relative;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-bottom: 3px solid rgba(20, 184, 166, 0.4);
-  border-radius: 0.75rem;
-  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.dark-mode .brick-card,
-[data-theme="dark"] .brick-card {
-  background: #0f172a;
-  border-color: #1e293b;
-  border-bottom: 3px solid rgba(20, 184, 166, 0.4);
-}
-
-.brick-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(20, 184, 166, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  border-color: rgba(20, 184, 166, 0.5);
-}
-
+/* Tuğla 3D Bevel Efekti */
 .brick-bevel {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 0 rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15);
 }
@@ -590,44 +568,8 @@ button, a, [role="button"] {
   animation: brickDrop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* Tuğla Parlama Efekti */
-@keyframes brickShine {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.brick-shine {
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-  background-size: 200% 100%;
-  animation: brickShine 2.5s infinite;
-}
-
-/* Yapı Denetimi Damga Efekti */
-@keyframes stampBounce {
-  0% { opacity: 0; transform: scale(1.8) rotate(-12deg); }
-  60% { opacity: 1; transform: scale(0.95) rotate(-6deg); }
-  100% { transform: scale(1) rotate(-6deg); }
-}
-
-.inspection-stamp-passed {
-  animation: stampBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  border: 3px dashed #10b981;
-  color: #10b981;
-  text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
-}
-
-.inspection-stamp-failed {
-  animation: stampBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  border: 3px dashed #ef4444;
-  color: #ef4444;
-  text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .site-lamp-glow,
-  .brick-drop-anim,
-  .brick-shine,
-  .inspection-stamp-passed,
-  .inspection-stamp-failed { animation: none; }
+  .brick-drop-anim { animation: none; }
 }
 

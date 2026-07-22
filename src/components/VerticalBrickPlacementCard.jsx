@@ -4,16 +4,23 @@ import ConfettiExplosion from './ConfettiExplosion'
 /**
  * VerticalBrickPlacementCard Component
  * Bir ders sekmesi tamamlandığında dikey tuğla yerleştirme animasyonu ve konfeti patlaması gösterir.
+ *
+ * Not (qa-builder-construction-theme-plan.md §Revizyon, bug fix "Çift CTA"):
+ * Bu kart kendi "sonraki sekmeye geç" butonunu İÇERMEZ — TopicPage.jsx'te bu
+ * kartın hemen altında zaten var olan `tab-nav-next-suggestion` butonu tek
+ * navigasyon kaynağıdır (AC11 prev/next testleriyle korunuyor). Bu kart SADECE
+ * kutlama/görsel geri bildirimdir, `celebrate` prop'u `false` ise (kullanıcı
+ * bu sekmeyi bu oturumda DAHA ÖNCE tamamlamışsa) konfeti tekrar patlamaz.
  */
-export default function VerticalBrickPlacementCard({ tabTitle = '', isTr = true, onContinue = null }) {
-  const [showConfetti, setShowConfetti] = useState(true)
+export default function VerticalBrickPlacementCard({ tabTitle = '', isTr = true, celebrate = true }) {
+  const [showConfetti, setShowConfetti] = useState(celebrate)
 
   return (
     <div
       data-testid="vertical-brick-placement-card"
       className="relative my-6 p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-teal-950/60 to-slate-900 border-2 border-teal-400/80 shadow-2xl text-slate-100 brick-pattern-bg overflow-hidden brick-drop-anim"
     >
-      {/* Konfeti Efekti */}
+      {/* Konfeti Efekti — sadece bu sekme bu oturumda İLK KEZ tamamlandıysa (bkz. celebrate prop) */}
       {showConfetti && (
         <ConfettiExplosion duration={3500} particleCount={50} onComplete={() => setShowConfetti(false)} />
       )}
@@ -50,16 +57,6 @@ export default function VerticalBrickPlacementCard({ tabTitle = '', isTr = true,
               : 'You completed all quizzes in this section. Your brick was added vertically to the tower and confetti exploded!'}
           </p>
         </div>
-
-        {/* Sıradaki Sekmeye Geç Butonu */}
-        {onContinue && (
-          <button
-            onClick={onContinue}
-            className="flex-shrink-0 px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold bg-gradient-to-r from-teal-400 to-cyan-400 text-slate-950 hover:from-teal-300 hover:to-cyan-300 shadow-lg brick-bevel transition-all"
-          >
-            {isTr ? 'Sıradaki Tuğlaya Geç →' : 'Next Brick →'}
-          </button>
-        )}
       </div>
     </div>
   )

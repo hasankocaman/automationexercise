@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext'
 import TopicHeader from './TopicHeader'
 import CircularProgress from './CircularProgress'
 import { SkillRadar, JobReadinessCard } from './SkillRadar'
+import VerticalBrickTower from './VerticalBrickTower'
 import { DIALOG, MENTOR_STEPS, ALL_MAPS, WEEKLY_HOURS, pickBaseMapId, resolveMap } from '../data/qaMentorData'
 import {
     readMentorProfile,
@@ -508,6 +509,17 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, cer
                     </div>
                 </div>
             )}
+
+            {/* qa-builder-construction-theme-plan.md Aşama 1 — dikey 3D tuğla kulesi:
+                MindMapNode'daki KİŞİSELLEŞTİRİLMİŞ kariyer yolundan farklı olarak,
+                TÜM site genelindeki (23 konu) ilerlemeyi tek bir kulede gösterir —
+                kullanıcı ilerledikçe tuğlaları üst üste koyduğunu görür. `progress`
+                şartına bağlı DEĞİL (mastery/roadmap verisi gerekmez, sadece
+                `learnqa_completed_routes`) — hiç ders bitirmemiş kullanıcıya da boş
+                kule gösterip başlangıcı teşvik eder. */}
+            <div className={`transition-all duration-700 delay-200 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                <VerticalBrickTower language={lang} />
+            </div>
 
             {/* Tek büyük CTA (plan §2.3): odak her zaman bir sonraki tek adım */}
             {nextNode && (

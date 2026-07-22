@@ -20159,6 +20159,14 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     const [activeTab, setActiveTab] = useState(() => location.state?.openTab ?? 0)
     const isInitialTabRender = useRef(true)
     const tabsLayoutRef = useRef(null)
+    // qa-builder-construction-theme-plan.md §Revizyon, bug fix "Konfeti tekrarı":
+    // VerticalBrickPlacementCard'ın konfetisi bir sekme başına SADECE bu sayfa
+    // görüntüleme oturumunda İLK KEZ tamamlandığında patlar — aynı sekmeye
+    // tekrar tekrar dönmek (örn. içeriği gözden geçirmek için) konfetiyi
+    // TEKRARLAMAZ. Ref kullanılır çünkü component activeTab değiştikçe
+    // unmount/remount OLABİLİR (bkz. plan notu), ama TopicPage'in kendisi
+    // sekme değişiminde unmount olmaz — bu yüzden burası güvenilir kayıt yeri.
+    const celebratedTabsRef = useRef(new Set())
     // Aşağıdaki dört useState initializer'ı localStorage'ı OKUMADAN ÖNCE, sekme
     // yapısı değişmiş sayfalarda eski index-bazlı veriyi yeni düzene çevir
     // (idempotent — bkz. migrateTabProgress tanımı).
@@ -20179,6 +20187,14 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
             return saved ? JSON.parse(saved) : {}
         } catch { return {} }
     })
+    // celebratedTabsRef'in gerçek yazma noktası — completedTabs/quizVerifiedTabs
+    // buradan SONRA tanımlandığı için bu effect onlardan sonra durmalı (aksi halde
+    // "before initialization" hatası verir).
+    useEffect(() => {
+        if (completedTabs[activeTab] || quizVerifiedTabs[activeTab]) {
+            celebratedTabsRef.current.add(activeTab)
+        }
+    }, [activeTab, completedTabs, quizVerifiedTabs])
     // Sekme içindeki hangi quiz/quiz-fill bloğunun (blockIndex) doğru cevaplandığını
     // tutar — { [tabIndex]: { [blockIndex]: true } }. %60 eşiği bu sayım üzerinden hesaplanır.
     const [quizCorrectBlocks, setQuizCorrectBlocks] = useState(() => {
@@ -20616,7 +20632,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                                         <VerticalBrickPlacementCard
                                             tabTitle={tabs?.[activeTab]}
                                             isTr={language === 'tr'}
-                                            onContinue={activeTab < tabs.length - 1 ? () => setActiveTab(activeTab + 1) : null}
+                                            celebrate={!celebratedTabsRef.current.has(activeTab)}
                                         />
                                     )}
                                     {(!!completedTabs[activeTab] || !!quizVerifiedTabs[activeTab]) && activeTab < tabs.length - 1 && (
