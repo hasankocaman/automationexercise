@@ -71,13 +71,35 @@ ek secret oluşturulmadı. CLI zaten local'de login'liydi (`supabase login`
 kullanıcı tarafından önceden yapılmış), proje link'lenmemiş olsa da
 `--project-ref` flag'i ile deploy sorunsuz çalıştı.
 
+**✅ Playwright ile gerçek tarayıcıda manuel doğrulama yapıldı (2026-07-22):**
+`/linux` ve `/java` sayfalarında headless Chromium ile sürüldü: anonim kullanıcı
+yanlış cevapta 🔒 kilit mesajı görüyor (AI butonu YOK) ✓, deterministik
+satır-farkı ipucu herkese görünmeye devam ediyor ✓, doğru cevapta confetti DOM'a
+render oluyor ✓, konsol/sayfa hatası yok ✓. Üye+AI-buton akışı gerçek login
+gerektirdiği için otomatik doğrulanamadı, kullanıcıya manuel adımlar verildi.
+
+**🐛 Kullanıcı manuel testte 2 bug buldu, ikisi de düzeltildi:**
+1. **Confetti hiç görünmüyordu** — `ConfettiExplosion` her parçacığa 1.5-3sn
+   rastgele düşme animasyonu + 0-0.4sn gecikme veriyor, ama mikro-confetti için
+   `duration={1200}` verilmişti (bu prop SADECE bileşenin ne zaman unmount
+   olacağını kontrolü ediyor) — parçacıklar görünür olmadan bileşen kapanıyordu.
+   Düzeltme: `duration={1200}` → `duration={2500}` (2 yerde, `PracticePanel` +
+   `FixThePanel`). Playwright ile doğrulandı: 300ms VE 1800ms'de hâlâ 16
+   parçacık DOM'da, 2800ms'de düzgünce kayboluyor.
+2. **Süslü parantez alt satırda olunca "yanlış" sayılıyordu** — `normalizeCode`
+   sadece satır sonu boşluğunu temizliyordu, girinti derinliği/boş satır/parantez
+   konumu farkını yakalayamıyordu. Yeni `normalizeForComparison(code)` eklendi
+   (TÜM boşluk+satır sonu karakterlerini tek boşluğa indirger) — SADECE
+   doğru/yanlış KARARI için kullanılıyor (`handleCheck`/`handleRun`),
+   `firstDifferentLine` ipucu hâlâ eski satır-bazlı `normalizeCode` ile çalışıyor
+   (değişmedi). Java/JS/SQL gibi boşluğun anlam taşımadığı diller için güvenli.
+   Playwright ile doğrulandı: süslü parantez ayrı satırda + fazladan girinti +
+   boş satır içeren kod artık "Doğru!" kabul ediliyor.
+
 Henüz YAPILMAYANLAR:
-- Gerçek tarayıcıda üye/anonim iki senaryo da MANUEL doğrulanmadı (bu oturumda
-  kullanıcı talimatıyla test/E2E atlandı — sadece build/content-integrity
-  koşuldu). Merge/push öncesi mutlaka: (1) anonim kullanıcı yanlış cevapta 🔒
-  mesajını görüyor mu, (2) üye kullanıcı AI butonuna basınca gerçek açıklama
-  alıyor mu (fonksiyon artık deploy edildi, test edilebilir), (3) confetti çift
-  tetiklenmiyor mu — kontrol edilmeli.
+- Üye kullanıcı + AI butonuna basınca gerçek açıklama alması hâlâ MANUEL
+  doğrulanmadı (gerçek login gerektiriyor, otomatik test edilemedi) — kullanıcı
+  kendi hesabıyla denemeli.
 - Faz 2 (runtime editörlere `expected` alanı + site geneli içerik rollout'u)
   bu oturuma dahil DEĞİL, plan dosyasının §3'ünde ayrı bir gelecek iş olarak
   duruyor.

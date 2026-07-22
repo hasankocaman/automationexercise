@@ -27,6 +27,19 @@ function normalizeCode(code) {
         .trim()
 }
 
+// Doğru/yanlış KARARI için kullanılır (satır bazlı `firstDifferentLine` ipucu için
+// DEĞİL — o hâlâ normalizeCode ile satır satır çalışır). Girinti derinliği, boş
+// satırlar ve süslü parantezin aynı satırda mı bir alt satırda mı olduğu (K&R vs
+// Allman stili) gibi salt biçimsel farkları yok sayar — tüm boşluk/satır sonu
+// karakterlerini tek boşluğa indirger. Java/JS/SQL gibi boşluğun anlam taşımadığı
+// dillerde bu güvenlidir; öğrencinin yazdığı kod ANLAMCA aynıysa biçim yüzünden
+// "yanlış" sayılmamalı (kullanıcı bildirimi: süslü parantez alt satırda da çalışmalı).
+function normalizeForComparison(code) {
+    return (code || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+}
+
 function firstDifferentLine(actual, expected) {
     const actualLines = normalizeCode(actual).split('\n')
     const expectedLines = normalizeCode(expected).split('\n')
@@ -230,7 +243,7 @@ function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass, task }) {
     }, [buggyCode, fixedCode])
 
     const handleCheck = () => {
-        const isCorrect = normalizeCode(draft) === normalizeCode(fixedCode)
+        const isCorrect = normalizeForComparison(draft) === normalizeForComparison(fixedCode)
         setResult(isCorrect ? 'pass' : 'fail')
         setAttempts(a => a + 1)
         if (isCorrect) {
@@ -244,7 +257,7 @@ function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass, task }) {
     return (
         <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
             {celebrating && (
-                <ConfettiExplosion duration={1200} particleCount={16} onComplete={() => setCelebrating(false)} />
+                <ConfettiExplosion duration={2500} particleCount={16} onComplete={() => setCelebrating(false)} />
             )}
             <div className="mb-2 text-xs font-bold opacity-70">
                 {isTr
@@ -311,7 +324,7 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
     }, [starterCode, solutionCode])
 
     const handleRun = () => {
-        const isCorrect = normalizeCode(draft) === normalizeCode(solutionCode)
+        const isCorrect = normalizeForComparison(draft) === normalizeForComparison(solutionCode)
         setResult(isCorrect ? 'pass' : 'fail')
         setAttempts(a => a + 1)
         if (isCorrect) {
@@ -327,7 +340,7 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
     return (
         <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
             {celebrating && (
-                <ConfettiExplosion duration={1200} particleCount={16} onComplete={() => setCelebrating(false)} />
+                <ConfettiExplosion duration={2500} particleCount={16} onComplete={() => setCelebrating(false)} />
             )}
             <div className="mb-2 text-xs font-bold opacity-70">
                 {isTr
