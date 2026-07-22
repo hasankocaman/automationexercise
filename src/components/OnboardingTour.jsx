@@ -50,9 +50,14 @@ function OnboardingTour({ darkMode, language, onDone }) {
     return (
         <div
             data-testid="onboarding-tour"
-            role="dialog"
+            // role="region" (not "dialog"): bu bileşen focus-trap yapmaz, engellemez —
+            // "dialog" semantiği yanıltıcı olurdu. Ayrıca index.css'teki
+            // `[role="dialog"] { transform: none !important }` kuralı (modallardaki
+            // hover-scale sızıntısını önlemek için) top-center konumlama transform'unu
+            // (-translate-x-1/2) ezerdi — "region" bu çakışmayı da bypass eder.
+            role="region"
             aria-label={isTr ? 'Hoş geldin turu' : 'Welcome tour'}
-            className={`fixed bottom-4 left-1/2 z-[150] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-2xl border-2 p-4 shadow-2xl md:bottom-6 md:left-auto md:right-6 md:translate-x-0 ${
+            className={`fixed top-16 left-1/2 z-[150] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-2xl border-2 p-4 shadow-2xl md:top-20 ${
                 darkMode ? 'border-indigo-700/60 bg-gray-800' : 'border-indigo-300 bg-white'
             }`}
         >

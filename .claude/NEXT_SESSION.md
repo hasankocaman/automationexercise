@@ -167,6 +167,32 @@ Doğrulama: `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm ru
 build` exit 0 ✓. Playwright E2E tam paketi bu turda da BİLİNÇLİ ATLANDI
 (tekil manuel tarayıcı doğrulaması yapıldı, yukarıya bak).
 
+### 🔧 Düzeltme: Onboarding turu üst-ortaya taşındı + gerçek bir CSS çakışması bulundu
+Kullanıcı turun sayfa açılır açılmaz **üst ortada** görünmesini istedi (önceden
+mobilde alt-orta, masaüstünde sağ-alt köşedeydi). `OnboardingTour.jsx`'teki
+konum class'ı `fixed top-16 left-1/2 -translate-x-1/2 ... md:top-20`'ye
+çekildi (sticky header'ın altında, tüm ekran boyutlarında tutarlı).
+
+**Gerçek bir bug bulundu ve düzeltildi:** İlk denemede kart `left-1/2` ile
+doğru noktaya gidiyordu ama `-translate-x-1/2` transform'u hiç UYGULANMIYORDU
+(`getComputedStyle().transform` → `"none"`, kart merkezden sağa kaymış
+görünüyordu). Kök neden: `src/index.css`'teki global bir kural —
+`[role="dialog"], .modal, .modal *, ... { transform: none !important; }`
+(modallarda hover-scale sızıntısını önlemek için var olan bir istisna listesi)
+— bileşenin kök elemanındaki `role="dialog"` attribute'unu hedefleyip
+transform'u eziyordu. Çözüm: `role="dialog"` → **`role="region"`** —
+bileşen zaten focus-trap yapmayan, engellemeyen bir widget olduğundan
+"dialog" semantik olarak da yanlıştı; "region" hem doğru ARIA semantiği
+hem de bu CSS çakışmasının bypass'ı oldu. Gerçek tarayıcıda (production
+preview build, 1280px ve 390px viewport) screenshot ile doğrulandı — kart
+artık tam ortalanmış görünüyor.
+
+**Ders:** Bu proje `role="dialog"`/`.modal` class'larına global bir
+transform-reset uyguluyor — ileride `fixed`/`absolute` + transform tabanlı
+konumlama yapan yeni bir bileşen bu role/class'ları kullanırsa aynı tuzağa
+düşebilir; `role="region"` veya class'sız bir dialog-benzeri widget tercih
+edilmeli, ya da pozisyon transform'u ayrı bir sarmalayıcı elemana taşınmalı.
+
 **§6/Aşama E TAMAMEN BİTTİ** (E.1 banner sıralaması + E.2 subtitle cilası +
 E.3 onboarding turu). C.2 ve A.1 de tamamlandı — 2. tur dış geri bildirimin
 TAMAMI (backlog/red işaretlenenler hariç) uygulandı.
