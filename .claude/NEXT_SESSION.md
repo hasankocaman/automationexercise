@@ -16,8 +16,40 @@
 |---|---|
 | **Aktif branch** | `feature/code-practice-ai-feedback` — main'den fast-forward ile senkronize edildi (`8416850..695b6d8`), Faz 2 çalışması bu branch'te devam ediyor |
 | **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` §3 — Faz 2 (runtime editörlere `expected` alanı + gerçek stdout karşılaştırması). Henüz plan dosyasına Faz 2 detay bölümü eklenmedi, kapsam burada takip ediliyor. |
-| **Sırada ne var** | (1) ✅ bitti — `type:'editor', lang:'java'` yönlendirme bug'ı düzeltildi. (2) ✅ bitti — PyodideEditor `expected` alanı + stdout karşılaştırma proof-of-concept, tek blokta doğrulandı. (3) ✅ bitti — kullanıcı onayıyla kalan 34 uygun `pythonData.js` bloğuna `expected` yazıldı (5 blok kasıtlı hariç). (4) ✅ bitti — yanlış çıktıda üye-only AI açıklama paneli (aşağıya bak), YENİ `explain-code-output` edge function ile — **HENÜZ SUPABASE'E DEPLOY EDİLMEDİ, kullanıcı deploy etmeli (aşağıdaki komut).** (5) Sırada: TS/JS/SQL editörlerine aynı mekanizmanın yayılması VEYA sitewide ters-slash riskinin araştırılması — kullanıcıyla netleştirilecek. |
+| **Sırada ne var** | (1)-(4) ✅ bitti (Java routing fix, PyodideEditor PoC, pythonData.js 34 blok rollout, AI açıklama paneli — deploy hâlâ bekliyor, aşağıya bak). (5) ✅ bitti — TSEditor/JSEditor/SQLEditor'a da AYNI `expected`+stdout karşılaştırma+confetti+AI panel mekanizması eklendi (plan §3'ün tam kapsamı: "PyodideEditor/TSEditor/JSEditor/SQLEditor"). (6) Sırada: bu 3 editöre gerçek `expected` verisi yazılacak sayfa/blok taraması (pythonData.js'teki gibi) — hangi `*Data.js` dosyalarında `type:'editor', lang:'typescript'\|'javascript'\|'sql'` blokları var, taranacak. |
 | **Test politikası (bu branch'te)** | Plan §4: her commit'te sadece `check-content-integrity.mjs` + `npm run build`. Tam `npm run test:e2e` SADECE main'e push'tan hemen önce bir kez. Commit'ler `SKIP_E2E_HOOK=1` ile atılıyor. |
+
+### 🧩 Faz 2 — TSEditor/JSEditor/SQLEditor'a expected+AI panel mekanizması (2026-07-23, Claude Code)
+Kullanıcı talimatı: "sıradaki kodlamaya devam et, sorma" — plan §3'ün
+literal kapsamı ("PyodideEditor/TSEditor/JSEditor" gövdede, başlıkta ayrıca
+SQLEditor) baz alınarak PyodideEditor'daki AYNI desen 3 editöre de
+uygulandı, sitewide ters-slash riski (ayrı, plan dışı bir konu) bu adımda
+İŞLENMEDİ.
+
+- **TSEditor/JSEditor**: `console.log` çıktısı zaten `logs.join('\n')` olarak
+  toplanıyordu — `normalizeOutputForComparison` ile `expected`'a karşı
+  kıyaslanıyor, eşleşince mikro-confetti + `onFirstSuccess`, eşleşmezse amber
+  "Beklenen: ..." + `AiEditorExplanationPanel` (aynı bileşen, `explain-code-output`
+  fonksiyonunu tekrar çağırıyor — yeni fonksiyon YOK).
+- **SQLEditor**: `run()` içindeki sonuç-tablosu render mantığı DEĞİŞMEDİ,
+  sadece formatlanmış tablo string'i (`header\nsep\nrows\n\n(N rows)`) veya
+  "No rows returned." mesajı artık `captured` değişkenine alınıp `expected`
+  ile aynı normalize kıyaslamasından geçiyor. `expected` yazılacaksa blok
+  yazarı BEKLENEN ÇIKTIYI TAM OLARAK BU FORMATTA (padded columns + row count)
+  vermeli — ham SQL sonucu değil, render edilmiş tabloyu.
+- `expected` verilmezse (şu an TÜM TS/JS/SQL blokları) davranış BİREBİR eskisi
+  gibi — hiçbir mevcut blok regresyona uğramadı.
+- `case 'editor':` switch'i her üç dal için de `block.expected`/`block.task`
+  (`block.task || block.label`) geçiriyor artık (PyodideEditor ile simetrik).
+
+**Doğrulama (2026-07-23):** `node scripts/check-content-integrity.mjs` ✅ 0
+ihlal, `npm run build` ✅ PASS (41 static route, dist SEO PASS). Bu adımda
+kullanıcı talimatı gereği ("test edilmeden commit atılır") gerçek tarayıcı
+doğrulaması YAPILMADI — sadece hızlı zorunlu kontroller (plan §4). Henüz
+hiçbir `*Data.js` dosyasında `type:'editor', lang:'typescript'|'javascript'|
+'sql'` bloğuna gerçek `expected` verisi YAZILMADI (sıradaki adım, yukarıya
+bak) — bu commit SADECE altyapı, pythonData.js'teki gibi bir içerik rollout'u
+henüz yok.
 
 ### 🧪 Faz 2 rollout — pythonData.js'teki 34 editor bloğuna `expected` yazıldı (2026-07-23, Claude Code)
 Kullanıcı onayıyla (bkz. yukarıdaki proof-of-concept), pythonData.js'teki 40
