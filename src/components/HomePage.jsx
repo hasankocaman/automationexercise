@@ -23,11 +23,6 @@ import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
 import ActivityHeatmap from './ActivityHeatmap'
 import OnboardingTour from './OnboardingTour'
-import ConstructionLamp from './ConstructionLamp'
-import BrickProgressBar from './BrickProgressBar'
-import BuildingRoadmap from './BuildingRoadmap'
-import VerticalBrickTower from './VerticalBrickTower'
-import BrickBadge from './BrickBadge'
 import { hasSeenOnboarding, markOnboardingSeen } from '../lib/onboarding'
 import { getQueueStats, REVIEW_QUEUE_SESSION_SIZE } from '../lib/reviewQueue'
 import { getDailyGoalProgress, getStreak, subscribeToActivityChanges, checkStreakStatus } from '../lib/activityLog'
@@ -753,32 +748,51 @@ function HomePage() {
                     return (
                         <div
                             data-testid="daily-strip"
-                            className={`flex flex-wrap items-center justify-between gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-4 brick-card ${darkMode
-                                ? 'border-amber-700/60 bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/40'
+                            className={`flex flex-wrap items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-4 ${darkMode
+                                ? 'border-amber-700/60 bg-gradient-to-r from-amber-900/40 via-orange-900/30 to-amber-900/40'
                                 : 'border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50'
                                 }`}
                         >
-                            {/* İnşaat Lambası (Construction Lamp Streak) */}
-                            <ConstructionLamp streak={streak} isTr={language === 'tr'} />
+                            {/* Streak — grace kuralı: dün hedefliyse ❄️ donmuş görünür. */}
+                            <span
+                                data-testid="daily-streak"
+                                title={streak.frozen
+                                    ? (language === 'tr' ? 'Streak donmuş — bugün çalışırsan devam eder!' : 'Streak frozen — study today to keep it going!')
+                                    : streak.streak === 0
+                                        ? (language === 'tr' ? 'Bugünkü hedefi doldurunca serin başlar' : 'Hit today\'s goal to start your streak')
+                                        : (language === 'tr' ? 'Üst üste hedefli gün sayın' : 'Consecutive goal-met days')}
+                                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-black ${darkMode ? 'bg-amber-800/60 text-amber-200' : 'bg-amber-100 text-amber-800'}`}
+                            >
+                                {streak.streak === 0 && !streak.frozen
+                                    ? <>🌱 {language === 'tr' ? 'Bugün başladın!' : 'You started today!'}</>
+                                    : <>{streak.frozen ? '❄️' : '🔥'} {streak.streak} {language === 'tr' ? 'gün' : streak.streak === 1 ? 'day' : 'days'}</>}
+                            </span>
 
-                            {/* Segmented Tuğla Duvarı (Brick Progress Bar) */}
-                            <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-                                <BrickProgressBar
-                                    value={goal.units}
-                                    total={goal.goal}
-                                    label={language === 'tr' ? 'Günün Tuğla Hedefi' : 'Daily Brick Goal'}
-                                    showPercentage={false}
-                                    size="md"
-                                />
-                                <p className={`text-xs font-bold font-mono whitespace-nowrap ${darkMode ? 'text-amber-200/90' : 'text-amber-700'}`}>
-                                    {goal.units}/{goal.goal} 🧱
+                            {/* Günlük hedef barı */}
+                            <div className="flex items-center gap-2 flex-1 min-w-[140px]">
+                                <div
+                                    data-testid="daily-goal-bar"
+                                    role="progressbar"
+                                    aria-valuenow={goal.units}
+                                    aria-valuemin={0}
+                                    aria-valuemax={goal.goal}
+                                    aria-label={language === 'tr' ? `Günlük hedef: ${goal.units}/${goal.goal} birim` : `Daily goal: ${goal.units}/${goal.goal} units`}
+                                    className={`h-2.5 flex-1 max-w-[220px] rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-amber-100'}`}
+                                >
+                                    <div
+                                        className="h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${percent}%`, background: 'linear-gradient(90deg, #f59e0b, #f97316)' }}
+                                    />
+                                </div>
+                                <p className={`text-xs font-bold whitespace-nowrap ${darkMode ? 'text-amber-200/90' : 'text-amber-700'}`}>
+                                    {goal.units}/{goal.goal}
                                 </p>
                                 {goal.met && (
                                     <span
                                         data-testid="daily-goal-done"
                                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black ${darkMode ? 'bg-emerald-800/60 text-emerald-200' : 'bg-emerald-100 text-emerald-700'}`}
                                     >
-                                        🎉 {language === 'tr' ? 'Hedef Katman Örüldü!' : 'Daily Layer Complete!'}
+                                        🎉 {language === 'tr' ? 'Bugünkü hedef tamam!' : 'Daily goal done!'}
                                     </span>
                                 )}
                             </div>
@@ -789,9 +803,10 @@ function HomePage() {
                                     to={continueTarget.to}
                                     state={continueTarget.state}
                                     data-testid="daily-continue"
-                                    className="flex-shrink-0 inline-flex min-h-[36px] items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold text-slate-950 shadow-lg transition-transform duration-200 hover:scale-105 whitespace-nowrap brick-bevel bg-gradient-to-r from-teal-400 to-cyan-400"
+                                    className="flex-shrink-0 inline-flex min-h-[36px] items-center gap-1 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg transition-transform duration-200 hover:scale-105 whitespace-nowrap"
+                                    style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)' }}
                                 >
-                                    <span>🧱</span> {language === 'tr' ? 'İnşaata Devam Et' : 'Continue Building'}{continueTarget.label ? `: ${continueTarget.label}` : ''}
+                                    ▶️ {language === 'tr' ? 'Devam et' : 'Continue'}{continueTarget.label ? `: ${continueTarget.label}` : ''}
                                 </Link>
                             )}
                         </div>
@@ -830,16 +845,6 @@ function HomePage() {
                 )}
 
                 <ActivityHeatmap darkMode={darkMode} language={language} />
-
-                {/* Katmanlı Bina & Dikey 3D Tuğla Kulesi (Building Roadmap Visualizer) */}
-                <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
-                        <BuildingRoadmap language={language} />
-                    </div>
-                    <div className="lg:col-span-1">
-                        <VerticalBrickTower language={language} />
-                    </div>
-                </div>
             </div>
 
             {/* ── "Bugünkü Tekrar" kartı (WP4) — sadece tekrar zamanı gelmiş soru varsa görünür ── */}
