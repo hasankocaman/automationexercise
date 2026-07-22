@@ -73,12 +73,12 @@ artık `route` prop'u alıyor (`TopicPage.jsx`'te `LessonFinishBadge`'e
 `trackMapEvent('lesson_completed', { route })` atıyor ve agregat sayıyı
 çekip **5'in altındaysa hiç göstermiyor** (`data-testid="lesson-social-proof"`).
 
-**⚠️ MANUEL ADIM GEREKİYOR (credential gerektirir, CLAUDE.md §13):**
-Kullanıcı `supabase/social_proof_schema.sql`'i Supabase SQL Editor'da BİR KEZ
-elle çalıştırmalı (ön koşul: `map_events_schema.sql` zaten çalıştırılmış
-olmalı — değilse önce o). Bu adım atlanırsa/gecikirse sitenin geri kalanı
-ETKİLENMEZ: RPC yoksa `getLessonCompletionCount` sessizce `null` döner,
-sayaç satırı hiç render olmaz (fire-and-forget tasarım gereği).
+**✅ MANUEL ADIM TAMAMLANDI (kullanıcı bildirimi):** `supabase/social_proof_schema.sql`
+hem `learnqa-prod` hem `learnqa-test` Supabase projelerinde SQL Editor'dan
+çalıştırıldı ("Success. No rows returned" — RPC başarıyla oluşturuldu, her
+iki ortamda da). Sayaç artık canlı ortamda aktif; ilk gösterim için bir
+route'ta ≥5 farklı anon_id'nin o dersi bitirmesi gerekiyor (eşik altı sessizce
+gizli kalmaya devam eder, bu beklenen davranış).
 
 Doğrulama (gerçekten çalıştırıldı): `check-content-integrity.mjs` TÜM
 KONTROLLER GEÇTİ ✓ · `npm run build` exit 0 ✓. RPC henüz Supabase'e

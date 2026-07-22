@@ -157,7 +157,7 @@ rollout'unun kapanışında yapıldığı gibi.
 |---|---|
 | A — Job Readiness kademeli metin | ✅ Tamamlandı |
 | B — Retention v2 (zayıf konu önerisi) | ✅ Tamamlandı |
-| C — Ambient sosyal kanıt | ✅ Kod tarafı tamam — Supabase SQL Editor'da `social_proof_schema.sql`'in elle çalıştırılması bekleniyor |
+| C — Ambient sosyal kanıt | ✅ Tamamlandı — manuel SQL adımı hem prod hem test ortamında çalıştırıldı |
 | D — Mikro-oturum zaman çerçevesi | ✅ Tamamlandı (2. alternatif bilinçli olarak backlog'da bırakıldı) |
 
 Güncel durum ve doğrulama kayıtları için tek kaynak: `.claude/NEXT_SESSION.md`.
