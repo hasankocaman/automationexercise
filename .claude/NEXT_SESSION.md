@@ -10,7 +10,44 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Sonnet oturumu — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu — önce BURAYI oku)
+
+| | |
+|---|---|
+| **Aktif branch** | `feature/retention-and-motivation` (yeni açıldı, `main`'den) |
+| **Son commit** | henüz yok — bu oturumda ilk commit atılacak |
+| **Plan dosyası** | `Documents/retention-and-motivation-plan.md` (YENİ) |
+
+### 🎯 Yeni iş: dış "eğitim psikolojisi" yorumunun incelenmesi + plan
+Kullanıcı, learnqa.dev'e dair dışarıdan alınmış bir motivasyon/gamification
+değerlendirmesi yapıştırdı (rozet, streak, spaced repetition, mastery
+learning, sosyal kanıt eksikliği iddiaları). İnceleme sonucu: bu iddiaların
+BÜYÜK KISMI ZATEN karşılanmış durumda —
+`Documents/learning-os-redesign-plan.md`'nin Faz 1 (günlük döngü/streak/
+heatmap) ve Faz 2'si (mastery/skill radar/job readiness) 2026-07-19→20
+arasında tamamlanmış ama dış yorum bundan habersiz yazılmış. Gerçek boşluklar:
+o planın bitmemiş **Faz 2.4 (Retention v2)** ve **Faz 3**'ünün bir dilimi,
+artı hiç planlanmamış bir yeni fikir (ambient sosyal kanıt — "bu dersi X kişi
+bitirdi").
+
+**Yeni plan dosyası** (`Documents/retention-and-motivation-plan.md`) 4 aşama
+tanımlıyor:
+- **A — Job Readiness kademeli motivasyon metni** (düşük risk, `progressStore.js`+`SkillRadar.jsx`)
+- **B — Retention v2**: zayıf tamamlanmış konu önerisi (`getWeakCompletedTopics()`, HomePage kartı)
+- **C — Ambient sosyal kanıt**: agregat "X kişi bitirdi" sayacı (yeni Supabase RPC — MANUEL adım gerektirir, kullanıcı SQL Editor'da elle çalıştıracak)
+- **D — Faz 3 dilimi**: mobil "5 dakikalık görev" kartı (mevcut review-queue/last-position üstüne ince katman)
+
+**Kullanıcının istediği döngü (her aşama için):** kodla → hızlı doğrulama
+(`check-content-integrity.mjs` + `npm run build`, Playwright E2E BİLİNÇLİ
+ATLANIR) → bu dosyayı güncelle → `SKIP_E2E_HOOK=1 git commit` → sıradaki
+aşama. Tüm aşamalar bitince tam `npm run test:e2e` paketi BİR KEZ koşulacak
+(§9.6 rollout kapanış deseniyle aynı).
+
+**Aşama durumu:** A ⏳ sırada · B/C/D ⏳ bekliyor.
+
+---
+
+## 📌 (ÖNCEKİ) 2026-07-22, Sonnet oturumu
 
 | | |
 |---|---|
