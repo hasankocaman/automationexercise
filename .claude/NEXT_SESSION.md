@@ -10,7 +10,110 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu #2 — önce BURAYI oku)
+
+| | |
+|---|---|
+| **Aktif branch** | `feature/code-practice-ai-feedback` — Faz 1 TAMAMEN bitti ve manuel doğrulandı, main'e merge edilmeye hazır |
+| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) ✅ TAMAMLANDI |
+| **Kullanıcı talimatı** | Merge öncesi son adım: main'e merge → main'de tam `npm run test:e2e` paketi bir kez çalıştırılacak → geçerse `git push origin main`. |
+| **Sırada ne var** | (1) main'e merge, (2) main'de tam E2E paketi (pre-push hook otomatik tetikler), (3) push. Faz 2 (runtime editörlere `expected` alanı) ayrı bir sonraki iş, bu oturumun kapsamı DIŞINDA. |
+
+### 🚧 Devam ediyor — `feature/code-practice-ai-feedback` (2026-07-22, Fable oturumu #2)
+Kullanıcı isteği: kod pratiği bloklarında doğru cevapta konfeti, yanlış
+cevapta üyelere özel AI açıklaması. Detaylı analiz ve kapsam
+`Documents/code-practice-ai-feedback-plan.md`'de. Bu oturumdaki adımlar
+işlendikçe altına eklenecek — henüz `npm run test:e2e` tam paketi
+ÇALIŞTIRILMADI (kural gereği main'e push öncesine bırakıldı).
+
+**Adım 1/3 bitti — `explain-code-practice` edge function eklendi**
+(`supabase/functions/explain-code-practice/index.ts`), `explain-quiz-answer`
+ile birebir aynı iskelet: CORS, `auth.getUser()` ile ÜYE-ONLY kontrol, Groq
+çağrısı, kesin TR/EN dil kuralı (Latin dışı alfabe yasak). Girdi:
+`{task, solutionCode, userCode, diagnosticLine, lang}`, çıktı: `{explanation}`.
+Henüz frontend'e bağlanmadı (sıradaki adım) ve henüz Supabase'e deploy
+edilmedi — kullanıcı diğer fonksiyonlar gibi `supabase functions deploy
+explain-code-practice --project-ref <ref>` ile deploy etmeli, `GROQ_API_KEY`
+secret'i zaten mevcut fonksiyonlarla paylaşılıyor.
+
+**Adım 2/3 bitti — doğru cevapta mikro-confetti** (`src/components/CodePlaygroundBlock.jsx`):
+`FixThePanel` ve `PracticePanel`'e `celebrating` state'i eklendi, doğru cevapta
+(`onPass` tetiklenirken) `<ConfettiExplosion duration={1200} particleCount={16}
+onComplete={() => setCelebrating(false)} />` render ediliyor — `TopicPage.jsx`'teki
+sekme-tamamlama konfetisiyle (duration 3500/particleCount 50) aynı bileşen,
+daha kısa/az parçacıklı "mikro" versiyon, karışmasınlar diye. `npm run build`
+geçti (check-content-integrity + vite build + static routes + dist SEO check).
+
+**Adım 3/3 bitti — üye-only AI açıklama paneli bağlandı** (`src/components/CodePlaygroundBlock.jsx`):
+`AiPracticeExplanationPanel` bileşeni eklendi — `TopicPage.jsx`'teki
+`AiExplanationPanel` deseninin birebir kopyası (`useAuth()` → `session` yoksa
+🔒 kilit mesajı, buton YOK; varsa "🤖 AI'dan kodum için ek açıklama iste" butonu
+→ `supabase.functions.invoke('explain-code-practice', ...)` → `sanitizeAiText`
+→ yükleniyor/hata/sonuç). `FixThePanel` ve `PracticePanel`'de `result==='fail'`
+durumunda, mevcut deterministik `DiagnosticPanel`'in HEMEN ALTINA ekleniyor —
+`DiagnosticPanel` HERKESE (üye olmayana da) aynen görünmeye devam ediyor, AI
+paneli EK bir katman. `key={attempts}` ile her yeni yanlış denemede panel
+sıfırdan mount olup önceki AI cevabını göstermeye devam etmiyor. Ana bileşene
+`taskText` türetildi (`block.task || block.explanation || block.label`) ve
+her iki panele `task` prop'u olarak geçirildi. `npm run build` geçti.
+
+**Faz 1 TAMAMLANDI** (plan: `Documents/code-practice-ai-feedback-plan.md`).
+
+**✅ `explain-code-practice` her iki Supabase projesine de deploy edildi (2026-07-22):**
+```
+supabase functions deploy explain-code-practice --project-ref qtwargbbwuvrupfyowbg   # learnqa-test
+supabase functions deploy explain-code-practice --project-ref qmvurwmcuexvuwvaiuhj   # learnqa-prod
+```
+İkisi de "Deployed Functions" ile başarılı döndü. `GROQ_API_KEY` secret'ı
+`supabase secrets list` ile her iki projede de zaten mevcut olduğu doğrulandı
+(qa-assistant/explain-quiz-answer/judge-eval ile paylaşılan aynı secret) —
+ek secret oluşturulmadı. CLI zaten local'de login'liydi (`supabase login`
+kullanıcı tarafından önceden yapılmış), proje link'lenmemiş olsa da
+`--project-ref` flag'i ile deploy sorunsuz çalıştı.
+
+**✅ Playwright ile gerçek tarayıcıda manuel doğrulama yapıldı (2026-07-22):**
+`/linux` ve `/java` sayfalarında headless Chromium ile sürüldü: anonim kullanıcı
+yanlış cevapta 🔒 kilit mesajı görüyor (AI butonu YOK) ✓, deterministik
+satır-farkı ipucu herkese görünmeye devam ediyor ✓, doğru cevapta confetti DOM'a
+render oluyor ✓, konsol/sayfa hatası yok ✓. Üye+AI-buton akışı gerçek login
+gerektirdiği için otomatik doğrulanamadı, kullanıcıya manuel adımlar verildi.
+
+**🐛 Kullanıcı manuel testte 2 bug buldu, ikisi de düzeltildi:**
+1. **Confetti hiç görünmüyordu** — `ConfettiExplosion` her parçacığa 1.5-3sn
+   rastgele düşme animasyonu + 0-0.4sn gecikme veriyor, ama mikro-confetti için
+   `duration={1200}` verilmişti (bu prop SADECE bileşenin ne zaman unmount
+   olacağını kontrolü ediyor) — parçacıklar görünür olmadan bileşen kapanıyordu.
+   Düzeltme: `duration={1200}` → `duration={2500}` (2 yerde, `PracticePanel` +
+   `FixThePanel`). Playwright ile doğrulandı: 300ms VE 1800ms'de hâlâ 16
+   parçacık DOM'da, 2800ms'de düzgünce kayboluyor.
+2. **Süslü parantez alt satırda olunca "yanlış" sayılıyordu** — `normalizeCode`
+   sadece satır sonu boşluğunu temizliyordu, girinti derinliği/boş satır/parantez
+   konumu farkını yakalayamıyordu. Yeni `normalizeForComparison(code)` eklendi
+   (TÜM boşluk+satır sonu karakterlerini tek boşluğa indirger) — SADECE
+   doğru/yanlış KARARI için kullanılıyor (`handleCheck`/`handleRun`),
+   `firstDifferentLine` ipucu hâlâ eski satır-bazlı `normalizeCode` ile çalışıyor
+   (değişmedi). Java/JS/SQL gibi boşluğun anlam taşımadığı diller için güvenli.
+   Playwright ile doğrulandı: süslü parantez ayrı satırda + fazladan girinti +
+   boş satır içeren kod artık "Doğru!" kabul ediliyor.
+
+**✅ Üye + AI-buton akışı kullanıcı tarafından manuel doğrulandı (2026-07-22):**
+Kullanıcı gerçek hesabıyla giriş yapıp yanlış cevap sonrası "🤖 AI'dan kodum
+için ek açıklama iste" butonuna bastı — `explain-code-practice` çağrısı
+başarılı döndü, kodun kendisine özel açıklama doğru dilde göründü. Kullanıcı
+sonucu "çalışıyor" olarak onayladı. **Faz 1'in tüm maddeleri artık tam
+doğrulanmış durumda** (deterministik ipucu, confetti, anonim kilit mesajı,
+üye AI açıklaması).
+
+Henüz YAPILMAYANLAR:
+- Faz 2 (runtime editörlere `expected` alanı + site geneli içerik rollout'u)
+  bu oturuma dahil DEĞİL, plan dosyasının §3'ünde ayrı bir gelecek iş olarak
+  duruyor.
+- `npm run test:e2e` tam paketi bu branch'te HİÇ çalıştırılmadı — main'e
+  merge/push öncesi kalıcı kural gereği bir kez çalıştırılacak (sıradaki adım).
+
+---
+
+## 📌 (2026-07-22, Fable oturumu #1)
 
 | | |
 |---|---|
