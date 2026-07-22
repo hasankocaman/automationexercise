@@ -36,6 +36,14 @@ edilmedi — kullanıcı diğer fonksiyonlar gibi `supabase functions deploy
 explain-code-practice --project-ref <ref>` ile deploy etmeli, `GROQ_API_KEY`
 secret'i zaten mevcut fonksiyonlarla paylaşılıyor.
 
+**Adım 2/3 bitti — doğru cevapta mikro-confetti** (`src/components/CodePlaygroundBlock.jsx`):
+`FixThePanel` ve `PracticePanel`'e `celebrating` state'i eklendi, doğru cevapta
+(`onPass` tetiklenirken) `<ConfettiExplosion duration={1200} particleCount={16}
+onComplete={() => setCelebrating(false)} />` render ediliyor — `TopicPage.jsx`'teki
+sekme-tamamlama konfetisiyle (duration 3500/particleCount 50) aynı bileşen,
+daha kısa/az parçacıklı "mikro" versiyon, karışmasınlar diye. `npm run build`
+geçti (check-content-integrity + vite build + static routes + dist SEO check).
+
 ---
 
 ## 📌 (2026-07-22, Fable oturumu #1)

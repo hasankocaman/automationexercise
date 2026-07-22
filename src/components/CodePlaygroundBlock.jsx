@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { CodeBlock } from './TopicPage'
 import { getXP, addXP, getCompletedExercises, markExerciseComplete, subscribeToXpChanges } from '../lib/xp'
 import { XpSummaryBar } from './XpStat'
+import ConfettiExplosion from './ConfettiExplosion'
 
 const HINT_PENALTY = 5
 
@@ -144,24 +145,32 @@ function FixThePanel({ buggyCode, fixedCode, isTr, darkMode, onPass }) {
     const [draft, setDraft] = useState(buggyCode)
     const [attempts, setAttempts] = useState(0)
     const [result, setResult] = useState(null) // null | 'pass' | 'fail'
+    const [celebrating, setCelebrating] = useState(false)
 
     useEffect(() => {
         setDraft(buggyCode || '')
         setAttempts(0)
         setResult(null)
+        setCelebrating(false)
     }, [buggyCode, fixedCode])
 
     const handleCheck = () => {
         const isCorrect = normalizeCode(draft) === normalizeCode(fixedCode)
         setResult(isCorrect ? 'pass' : 'fail')
         setAttempts(a => a + 1)
-        if (isCorrect) onPass()
+        if (isCorrect) {
+            setCelebrating(true)
+            onPass()
+        }
     }
 
     const diff = result === 'fail' ? firstDifferentLine(draft, fixedCode) : null
 
     return (
         <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
+            {celebrating && (
+                <ConfettiExplosion duration={1200} particleCount={16} onComplete={() => setCelebrating(false)} />
+            )}
             <div className="mb-2 text-xs font-bold opacity-70">
                 {isTr
                     ? 'Aşağıdaki kutu, yukarıdaki bozuk kodun düzenlenebilir bir kopyası. Hatayı bul, kodu burada düzelt ve "Kontrol Et"e bas — "Beklenen Çıktı" ile eşleşince yeşil onayı göreceksin:'
@@ -205,12 +214,14 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
     const [attempts, setAttempts] = useState(0)
     const [result, setResult] = useState(null) // null | 'pass' | 'fail'
     const [runId, setRunId] = useState(0)
+    const [celebrating, setCelebrating] = useState(false)
 
     useEffect(() => {
         setDraft(starterCode || '')
         setAttempts(0)
         setResult(null)
         setRunId(0)
+        setCelebrating(false)
     }, [starterCode, solutionCode])
 
     const handleRun = () => {
@@ -219,6 +230,7 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
         setAttempts(a => a + 1)
         if (isCorrect) {
             setRunId(id => id + 1)
+            setCelebrating(true)
             onPass()
         }
     }
@@ -228,6 +240,9 @@ function PracticePanel({ starterCode, solutionCode, expected, isTr, darkMode, on
 
     return (
         <div className={`mt-3 rounded-lg border p-3 ${panelCls(darkMode)}`}>
+            {celebrating && (
+                <ConfettiExplosion duration={1200} particleCount={16} onComplete={() => setCelebrating(false)} />
+            )}
             <div className="mb-2 text-xs font-bold opacity-70">
                 {isTr
                     ? `Bu alanda kodu veya komutu kendin yazıp kontrollü şekilde sonucu görebilirsin. Gerçek ${language || 'kod'} derleyici/yorumlayıcısı/terminali değildir; bu egzersizin beklenen çözümüyle karşılaştırır.`
