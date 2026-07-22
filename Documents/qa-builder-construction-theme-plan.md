@@ -47,6 +47,7 @@ bir bileşen. **Aşama 1'de QA Mentor sayfasına bağlanır.**
 | **4** | **Bug fix — Konfeti tekrarı:** `TopicPage.jsx`'e `celebratedTabsRef` (`useRef(new Set())`) eklendi — konfeti sekme başına bu sayfa görüntüleme oturumunda SADECE ilk tamamlamada patlar | ✅ Tamamlandı |
 | **5** | Test borcu: `tests/lesson-completion.spec.ts`'teki `'bitirdin'` beklentisi `'dizdin'`e güncellendi | ✅ Tamamlandı |
 | **6** | **Bug fix — Tower sıralaması ("gözü korkutuyordu"):** `VerticalBrickTower.jsx`'teki `.reverse()` kaldırıldı — liste artık DOĞAL sırada (Temel önce), kullanıcı harita oluşur oluşmaz Java/Git/Linux gibi tanıdık konuları görür, Kafka/JMeter gibi ileri seviye konulara ancak aşağı kaydırınca ulaşır. "Zemin Temeli" banner'ı başa, "Kule Yükseliyor" banner'ı sona taşındı. | ✅ Tamamlandı |
+| **7** | **Geri alındı — Tower tamamen kaldırıldı:** Kullanıcı `/qa-mentor`'daki "ANA YOL" (kişiselleştirilmiş `MindMapNode` listesi) ekran görüntüsünü verip "bu tuğlaları tamamen kaldır, sadece bu kalsın" dedi — `VerticalBrickTower` bölümü (Aşama 1'de eklenmişti, Aşama 6'da sıralaması düzeltilmişti) `QAMentorPage.jsx`'ten SÖKÜLDÜ, `VerticalBrickTower.jsx` dosyası SİLİNDİ (artık kullanılmıyordu, ölü kod bırakılmadı — geçmişi git history'de duruyor, istenirse geri getirilebilir). `/qa-mentor` artık SADECE kişiselleştirilmiş `MindMapNode` yol haritasını (kendi tuğla rozetleri/renkleriyle, o KALDI) + Skill Radar + Job Readiness kartlarını gösteriyor. | ✅ Tamamlandı |
 
 ### Kısıtlar (değişmedi)
 - Dış kütüphane/CDN yok (CLAUDE.md §8) — tüm görsel efektler inline CSS/SVG.

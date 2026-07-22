@@ -102,6 +102,23 @@ görüntüsüyle doğrulandı — ilk görünen şey artık "ZEMİN TEMELİ — 
 + #1 Java Core / #2 Git & GitHub / #3 Linux Bash. `check-content-integrity.mjs`
 ✓ · `npm run build` ✓. Tam E2E paketi çalıştırılmadı (yeni kural).
 
+### ✅ Tower tamamen kaldırıldı — kullanıcı kararı
+Kullanıcı "ANA YOL" (kişiselleştirilmiş `MindMapNode` listesi) ekran
+görüntüsünü verip "bu tuğlaları tamamen kaldır, sadece bu kalsın" dedi.
+Yapılanlar:
+- `QAMentorPage.jsx`'ten `<VerticalBrickTower .../>` kullanımı VE import'u
+  söküldü.
+- `VerticalBrickTower.jsx` dosyası SİLİNDİ (artık kullanılmıyordu — bu
+  branch'in kendi "ölü kod bırakma" ilkesine uygun, git history'de duruyor).
+- `/qa-mentor` artık SADECE kişiselleştirilmiş `MindMapNode` yol haritası
+  (kendi tuğla rozetleri/teal-amber renkleri KORUNDU) + Skill Radar + Job
+  Readiness kartlarını gösteriyor.
+
+**Doğrulama:** Gerçek tarayıcıda (Playwright, sihirbaz tıklanarak) sayfa
+metninde "TUĞLA KULESI" hiç geçmediği, "ANA YOL" bölümünün sorunsuz çalıştığı
+doğrulandı. `check-content-integrity.mjs` ✓ · `npm run build` ✓. Tam E2E
+paketi çalıştırılmadı (yeni kural — main'e push öncesi bir kere).
+
 Plan dosyasında tanımlı başka bir "sıradaki adım" YOK — kullanıcıdan yeni bir
 yön beklenmiyorsa bu branch main'e merge edilmeye hazır.
 
