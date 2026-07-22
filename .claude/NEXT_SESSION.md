@@ -95,9 +95,32 @@ kodlanmadı, sadece plana işlendi:
   onboarding/tur bileşeni YOK (grep'teki 49 eşleşme yalnız mülakat
   içeriğindeki "onboarding" HR terimiydi).
 
-Kullanıcı henüz "uygula" demedi — bu sadece bir inceleme/plan turu, kodlama
-YAPILMADI. Sıradaki oturumun ilk işi: kullanıcı onaylarsa C.2/A.1/Aşama E'yi
-aynı döngüyle (kodla → NEXT_SESSION güncelle → commit → sıradaki) uygulamak.
+Kullanıcı "kodla → NEXT_SESSION → commit → sıradaki" diyerek onayladı —
+C.2/A.1/Aşama E şimdi bu döngüyle uygulanıyor.
+
+### ✅ C.2 tamamlandı — Zaman bazlı sosyal kanıt + fallback
+`supabase/social_proof_schema.sql`: eski tek-parametreli
+`get_lesson_completion_count(text)` DROP edilip yerine `get_lesson_completion_count(p_route
+text, p_window_days integer default null)` kondu — `p_window_days` NULL ise
+tüm-zamanlar, sayı verilirse (`created_at >= now() - interval`) sadece o
+pencere. `src/lib/socialProof.js`'e `SOCIAL_PROOF_MIN_COUNT`/`SOCIAL_PROOF_WINDOW_DAYS`
+(7) const'ları + `getLessonSocialProof(route)` eklendi: önce haftalık sayıyı
+dener, eşiği (5) geçerse onu döner, geçemezse SESSİZCE tüm-zamanlar sayısına
+düşer (`{count, windowDays}` | `null`). `LessonFinishBadge.jsx` artık bu
+fonksiyonu kullanıyor, kopya da §6.2'deki karara göre ısındırıldı ("X kişi
+bu dersi seninle birlikte tamamladı" — haftalık/tüm-zamanlar için ayrı
+cümle).
+
+**⚠️ MANUEL ADIM GEREKİYOR (tekrar):** `supabase/social_proof_schema.sql`
+DEĞİŞTİ (imza değişti: artık 2 parametreli) — kullanıcının bunu hem
+`learnqa-prod` hem `learnqa-test`'te TEKRAR SQL Editor'da çalıştırması
+gerekiyor (dosyadaki `drop function` satırı eski imzayı temizliyor, çakışma
+olmaz). Çalıştırılana kadar mevcut (Aşama C'deki) eski RPC aktif kalmaya
+devam eder — sayaç kırılmaz, sadece zaman bazlı pencere/ısındırılmış kopya
+devreye girmez.
+
+Doğrulama: `check-content-integrity.mjs` TÜM KONTROLLER GEÇTİ ✓ · `npm run
+build` exit 0 ✓. Playwright E2E bu turda da BİLİNÇLİ ATLANDI.
 
 ### ✅ Aşama D tamamlandı — Faz 3 dilimi: mikro-oturum zaman çerçevelemesi
 `HomePage.jsx`'teki mevcut "Bugünkü Tekrar" kartına (`review-queue-card`)
