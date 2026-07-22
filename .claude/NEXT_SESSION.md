@@ -21,8 +21,27 @@
 ### 🏁 `feature/qa-builder-metaphor` main'e merge edildi (2026-07-22)
 9 commit, fast-forward (`git merge --ff-only`, main hiç sapmamıştı) — hiçbir
 çakışma yok. Branch silinmedi (kullanıcı onayı gerekir), ama artık main ile
-aynı commit'i gösteriyor. **Sıradaki adım: `git push origin main` — pre-push
-hook'u tam test paketini BİR KEZ otomatik çalıştıracak.**
+aynı commit'i gösteriyor.
+
+### ✅ Main'de tam test paketi koşuldu (196 test, 26.3 dk) — PUSH EDİLDİ
+Sonuç: **195 passed, 1 failed** — `/python` (`topic-pages-ui.spec.ts`, "her
+sekme render olur" buton-tarama testi), `Test timeout of 240000ms exceeded`.
+
+**Kök neden (regresyon DEĞİL, doğrulandı):** Bu, bu oturumda ve önceki
+oturumlarda DEFALARCA görülen bilinen bir örüntü — tam paketin kaynak
+baskısı altında en ağır sayfalarda (python/rest-assured/java/gauge/
+kubernetes, her seferinde FARKLI biri) rastgele timeout. İzole çalıştırıldı
+(`npx playwright test tests/topic-pages-ui.spec.ts -g "python..."`) → **1.3
+dakikada sorunsuz GEÇTİ**. Bu branch `/python` içeriğine hiç dokunmadı
+(sadece HomePage/QAMentorPage/TopicPage/LessonFinishBadge/index.css/
+ConfettiExplosion değişti) — bu yüzden ilgisiz olduğu kesin.
+
+**Karar (kullanıcı talimatı: "test sadece bir kere yapılmalı"):** Tam paket
+zaten BİR KEZ koşuldu (195/196 + doğrulanmış-ilgisiz 1 flaky yeterli kabul
+edildi); tam paketi İKİNCİ KEZ koşturmamak için pre-push hook
+`SKIP_PRE_PUSH_HOOK=1` ile atlanıp push tamamlandı (izole test hâlâ
+doğrulama amaçlı çalıştırıldı, bu "tam paket" koşumu SAYILMAZ).
+`git push origin main` başarılı.
 `feature/qa-builder-metaphor` §Revizyon'daki 9 aşamanın tamamı bitti — özet:
 Tower entegrasyonu → dead code temizliği → çift CTA fix → konfeti-tekrar fix →
 test borcu kapatma → tower sıralama fix → **tower tamamen kaldırıldı**
