@@ -14,11 +14,15 @@
 
 | | |
 |---|---|
-| **Aktif branch** | `feature/qa-builder-metaphor` — main'e merge edilmek üzere, 9 commit ileride |
+| **Aktif branch** | `main` — `feature/qa-builder-metaphor` fast-forward merge edildi (`acac692..4b7086b`), tek branch kaldı |
 | **Plan dosyası** | `Documents/qa-builder-construction-theme-plan.md` (§Revizyon — 9 aşama, TAMAMI ✅) |
-| **Test Durumu** | `check-content-integrity.mjs` PASSED ✓ · `npm run build` PASSED ✓ · her adım gerçek tarayıcıda Playwright ile manuel doğrulandı · tam E2E paketi HENÜZ koşulmadı (yeni kural: main'e push öncesi bir kere) |
+| **Push durumu** | Henüz push edilmedi — tam test paketi (main'e push'ta pre-push hook otomatik, BİR KEZ) geçtikten sonra push edilecek |
 
-### 🏁 Branch tamamlandı, main'e merge edilmeye hazır
+### 🏁 `feature/qa-builder-metaphor` main'e merge edildi (2026-07-22)
+9 commit, fast-forward (`git merge --ff-only`, main hiç sapmamıştı) — hiçbir
+çakışma yok. Branch silinmedi (kullanıcı onayı gerekir), ama artık main ile
+aynı commit'i gösteriyor. **Sıradaki adım: `git push origin main` — pre-push
+hook'u tam test paketini BİR KEZ otomatik çalıştıracak.**
 `feature/qa-builder-metaphor` §Revizyon'daki 9 aşamanın tamamı bitti — özet:
 Tower entegrasyonu → dead code temizliği → çift CTA fix → konfeti-tekrar fix →
 test borcu kapatma → tower sıralama fix → **tower tamamen kaldırıldı**
