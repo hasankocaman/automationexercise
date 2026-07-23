@@ -415,7 +415,8 @@
         }
     },
     "pages": {
-        "backButton": "← QA Learning Platform Ana Sayfasına Dön"
+        "backButton": "← QA Learning Platform Ana Sayfasına Dön",
+        "qaMentorButton": "🗺️ QA Mentor Haritana Git"
     },
     "jmeter": {
         "navButton": "⚡ JMeter",

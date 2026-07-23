@@ -17,8 +17,36 @@
 | **Aktif branch** | `feature/code-practice-ai-feedback` — Faz 2 tamamlandı + main'deki qa-mentor bug fix commit'i (`63b0e79`) merge edildi (`96d2323`). GitHub'a push edilecek. |
 | **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 ✅ (main'e merge edilmiş) + Faz 2 (§3'te taslak, kapsam burada işlendi) ✅ kodlama tarafı bitti. Manuel test adımları artık plan dosyasının sonunda. |
 | **Bu oturumda ayrıca bulunan/düzeltilen bug** | `/qa-mentor` yol haritasında bir ders sadece İLK sekmesi bitince TAMAMI "tamamlandı" görünüyordu (kullanıcı bug raporu) — düzeltildi, aşağıya bak. Bu fix önce `main`'de commit edildi (`63b0e79`), sonra bu branch'e merge edildi — kullanıcı talimatı: "main'deki fix dahil her şey feature branch'te olmalı, çünkü push edilecek olan bu branch". |
-| **Sırada ne var (SADECE kullanıcı adımı)** | (1) Bu branch GitHub'a push edilecek (bu oturumda yapılıyor). (2) `explain-code-output` edge function'ı iki Supabase projesine deploy et (komut aşağıda) — bu YAPILMADAN üye+AI-buton akışı gerçek Groq ile test edilemez. (3) Deploy sonrası: main'e merge → main'de tam `npm run test:e2e` bir kez → push. |
+| **Sırada ne var (SADECE kullanıcı adımı)** | (1) Bu branch GitHub'a push edilecek. (2) ✅ `explain-code-output` edge function'ı iki Supabase projesine deploy edildi (2026-07-23, Claude Code — `supabase functions deploy explain-code-output --project-ref qtwargbbwuvrupfyowbg` ve `--project-ref qmvurwmcuexvuwvaiuhj`, ikisi de "Deployed Functions" ile başarılı döndü, `GROQ_API_KEY` zaten mevcuttu). (3) Deploy tamamlandı → 5.2 madde 4 (üye+AI-buton akışı) artık gerçek Groq ile test edilebilir. (4) main'e merge → main'de tam `npm run test:e2e` bir kez → push. |
 | **Test politikası (bu branch'te)** | Kullanıcı talimatı (2026-07-23): bu oturumda HİÇBİR aşamada manuel test/build çalıştırılmadı — sadece otomatik pre-commit hook (`check-content-integrity.mjs`) çalıştı. Tam test SADECE main'e push anında (pre-push hook, otomatik). |
+
+### 🗺️ "QA Mentor Haritana Git" butonu — Test Temelleri / Algoritma Temeli / Manuel Test (2026-07-23, Claude Code)
+Kullanıcı isteği: `/what-is-testing`, `/algorithms`, `/manual-testing` sayfalarında
+üstteki "← QA Learning Platform Ana Sayfasına Dön" butonunun **hemen altına**,
+kullanıcıyı `/qa-mentor` roadmap'ine yönlendiren ikinci bir buton eklendi —
+ilk kez gelen kullanıcının muhtemelen haritayı takip edeceği varsayımıyla.
+
+- `TopicHeader.jsx`: yeni opsiyonel `showQaMentorLink` prop'u eklendi. `true`
+  ise back-button'ın altına (aynı sütunda, flex-col) sarı/amber vurgulu ikinci
+  bir buton render ediyor, `navigate('/qa-mentor')` çağırıyor. Prop
+  verilmezse (site genelindeki diğer TÜM teknoloji sayfaları) davranış
+  BİREBİR eskisi gibi — TopicHeader zaten `TopicPage.jsx` üzerinden site
+  genelinde kullanıldığı için varsayılan `false`/`undefined` kritik.
+- `TopicPage.jsx`: `showQaMentorLink` prop'u eklendi, `TopicHeader`'a
+  pass-through ediliyor (diğer `TopicPage` tüketicileri bu prop'u
+  vermediğinden etkilenmiyor).
+- Çağıran taraf — SADECE 3 sayfa `showQaMentorLink` geçiyor:
+  - `WhatIsTestingPage.jsx` (`/what-is-testing` = "Test Temelleri") — `TopicPage`'e prop.
+  - `AlgorithmsPage.jsx` (`/algorithms` = "Algoritma Temeli") — kendi `TopicHeader` çağrısına prop (bu sayfa `TopicPage` kullanmıyor, kendi layout'u var).
+  - `ManualTestingPage.jsx` (`/manual-testing` = "Manuel Test") — aynı şekilde kendi `TopicHeader` çağrısına prop.
+- Buton metni `locales/tr.json` + `locales/en.json`'da yeni `pages.qaMentorButton`
+  key'i olarak eklendi (`t('pages.qaMentorButton')`): TR "🗺️ QA Mentor Haritana
+  Git", EN "🗺️ Go to Your QA Mentor Map" — dil toggle'a otomatik uyuyor.
+- **Test edilmedi (kullanıcı talimatı: "test etmeden sadece commit yap").**
+  Sıradaki oturumda gerçek tarayıcıda doğrulanmalı: (1) her 3 sayfada buton
+  görünüyor mu, (2) tıklayınca `/qa-mentor`'a gidiyor mu, (3) EN modda metin
+  doğru mu, (4) diğer teknoloji sayfalarında (örn. `/python`, `/selenium`)
+  bu buton YANLIŞLIKLA görünmüyor mu (prop verilmediği için görünmemeli).
 
 ### 🐛 qa-mentor route-completion bug fix — main'de commit edildi, feature branch'e merge edildi (2026-07-23, Claude Code)
 main'de `63b0e79` olarak commit edildi, sonra `git merge main` ile bu

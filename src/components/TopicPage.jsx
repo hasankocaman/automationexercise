@@ -20357,7 +20357,7 @@ function migrateTabProgress(data) {
     } catch { /* migrasyon başarısız olsa da sayfa normal açılmaya devam etmeli */ }
 }
 
-function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
+function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMentorLink }) {
     const { language } = useLanguage()
     const location = useLocation()
     const { markTopicCompleted, markRouteFullyCompleted, resetLessonProgress } = useAuth()
@@ -20737,7 +20737,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                     </div>
                 </div>
             )}
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={focusMode} setFocusMode={setFocusMode} soundToggle={headerExtra} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={focusMode} setFocusMode={setFocusMode} soundToggle={headerExtra} showQaMentorLink={showQaMentorLink} />
 
             <main className="container mx-auto px-3 py-4 md:px-4 md:py-8 max-w-7xl">
                 {/* Hero */}
