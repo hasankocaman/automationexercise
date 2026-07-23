@@ -24,6 +24,7 @@ jobs:
       VITE_ENABLE_PREMIUM: ${{ secrets.VITE_ENABLE_PREMIUM }}
       TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,6 +65,27 @@ jobs:
               console.log('PROBE_RESULT: LOGIN_FAILED');
               console.log('error_code:', r.error_code || r.code || '(none)');
               console.log('msg:', r.msg || r.error_description || r.message || '(none)');
+            }
+          "
+
+      - name: Admin API probe (tests if service_role bypasses the block — no key printed)
+        run: |
+          HTTP_CODE=$(curl -s -o /tmp/admin_probe.json -w "%{http_code}" -G "$VITE_SUPABASE_URL/auth/v1/admin/users" \
+            --data-urlencode "email=$TEST_USER_EMAIL" \
+            -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY")
+          echo "ADMIN_HTTP_CODE=$HTTP_CODE"
+          node -e "
+            const fs = require('fs');
+            let r;
+            try { r = JSON.parse(fs.readFileSync('/tmp/admin_probe.json', 'utf8')); } catch (e) { console.log('ADMIN_PROBE_RESULT: PARSE_ERROR'); process.exit(0); }
+            const users = r.users || (Array.isArray(r) ? r : null);
+            if (users) {
+              console.log('ADMIN_PROBE_RESULT: OK — admin API reachable, bulundu:', users.length, 'kullanıcı');
+            } else {
+              console.log('ADMIN_PROBE_RESULT: FAILED');
+              console.log('error_code:', r.error_code || r.code || '(none)');
+              console.log('msg:', r.msg || r.message || '(none)');
             }
           "
 
