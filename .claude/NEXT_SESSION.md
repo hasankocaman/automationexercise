@@ -10,14 +10,67 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-23, Claude Code oturumu — Faz 2 kodlama tarafı TAMAMLANDI, önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-23, Claude Code oturumu — Faz 2 + qa-mentor bug fix TAMAMLANDI, önce BURAYI oku)
 
 | | |
 |---|---|
-| **Aktif branch** | `feature/code-practice-ai-feedback` — main'den fast-forward ile senkronize edildi (`8416850..695b6d8`), Faz 2 bu branch'te tamamlandı |
-| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 ✅ (main'e merge edilmiş) + Faz 2 (§3'te taslak, kapsam burada işlendi) ✅ kodlama tarafı bitti. |
-| **Sırada ne var (SADECE kullanıcı adımı)** | `explain-code-output` edge function'ı iki Supabase projesine de deploy et (komut aşağıda) — bu YAPILMADAN üye+AI-buton akışı gerçek Groq ile test edilemez. Deploy sonrası: main'e merge → main'de tam `npm run test:e2e` bir kez → push. |
-| **Test politikası (bu branch'te)** | Plan §4: her commit'te sadece `check-content-integrity.mjs` + `npm run build`. Tam `npm run test:e2e` SADECE main'e push'tan hemen önce bir kez. Commit'ler `SKIP_E2E_HOOK=1` ile atılıyor. |
+| **Aktif branch** | `feature/code-practice-ai-feedback` — Faz 2 tamamlandı + main'deki qa-mentor bug fix commit'i (`63b0e79`) merge edildi (`96d2323`). GitHub'a push edilecek. |
+| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 ✅ (main'e merge edilmiş) + Faz 2 (§3'te taslak, kapsam burada işlendi) ✅ kodlama tarafı bitti. Manuel test adımları artık plan dosyasının sonunda. |
+| **Bu oturumda ayrıca bulunan/düzeltilen bug** | `/qa-mentor` yol haritasında bir ders sadece İLK sekmesi bitince TAMAMI "tamamlandı" görünüyordu (kullanıcı bug raporu) — düzeltildi, aşağıya bak. Bu fix önce `main`'de commit edildi (`63b0e79`), sonra bu branch'e merge edildi — kullanıcı talimatı: "main'deki fix dahil her şey feature branch'te olmalı, çünkü push edilecek olan bu branch". |
+| **Sırada ne var (SADECE kullanıcı adımı)** | (1) Bu branch GitHub'a push edilecek (bu oturumda yapılıyor). (2) `explain-code-output` edge function'ı iki Supabase projesine deploy et (komut aşağıda) — bu YAPILMADAN üye+AI-buton akışı gerçek Groq ile test edilemez. (3) Deploy sonrası: main'e merge → main'de tam `npm run test:e2e` bir kez → push. |
+| **Test politikası (bu branch'te)** | Kullanıcı talimatı (2026-07-23): bu oturumda HİÇBİR aşamada manuel test/build çalıştırılmadı — sadece otomatik pre-commit hook (`check-content-integrity.mjs`) çalıştı. Tam test SADECE main'e push anında (pre-push hook, otomatik). |
+
+### 🐛 qa-mentor route-completion bug fix — main'de commit edildi, feature branch'e merge edildi (2026-07-23, Claude Code)
+main'de `63b0e79` olarak commit edildi, sonra `git merge main` ile bu
+branch'e taşındı (merge commit `96d2323`, TopicPage.jsx'te otomatik/
+çakışmasız merge oldu — qa-mentor fix'in dokunduğu satırlar Faz 2'nin
+editör bileşenlerinden tamamen farklı bölgelerde).
+
+**Bug:** `/qa-mentor` yol haritasında bir ders (örn. "Test Temelleri" =
+`/what-is-testing`), kullanıcı sadece İLK sekmenin quiz eşiğini (%60)
+geçince TAMAMI "tamamlandı" gösteriyordu — kalan 5 sekme boş olsa bile.
+Aynı bug `/algorithms` ve `/manual-testing` için de geçerliydi (sadece
+ilk ders/bölüm bitince tüm route tamamlandı sayılıyordu).
+
+**Kök neden:** `TopicPage.jsx`/`AlgorithmsPage.jsx`/`ManualTestingPage.jsx`
+her sekme/ders bitince `markTopicCompleted(...)` çağırıyordu (XP/rozet için
+doğru davranış), ama bu fonksiyonun içindeki `saveProgress` çağrısı
+`status==='completed'` her tetiklendiğinde OTOMATİK olarak
+`recordLocalCompletedRoute(routePath)` çağırıyordu — yani route, İLK
+completed sekme/derste anında "tamamlandı" işaretleniyordu. Üye tarafında
+da aynı bug: `getCompletedRoutePaths()` "bu route için status=completed olan
+HERHANGİ bir satır var mı" diye bakıyordu, "TÜMÜ mü completed" değil.
+
+**Düzeltme (`AuthContext.jsx`):**
+- `saveProgress`'ten otomatik `recordLocalCompletedRoute` çağrısı KALDIRILDI
+  (artık per-sekme/ders `markTopicCompleted` route'u ERKEN tamamlanmış
+  işaretlemiyor).
+- Yeni `markRouteFullyCompleted({ lessonSlug, routePath })`: anonim için
+  `recordLocalCompletedRoute`, üye için sentinel `topic_slug:
+  '__route_complete__'` ile `user_progress`'e ayrı bir satır yazıyor — XP/
+  rozet VERMİYOR (sadece `saveProgress` çağırıyor, `markTopicCompleted`
+  değil).
+- `getCompletedRoutePaths()` artık SADECE bu sentinel satırları sayıyor.
+- `markTopicCompleted`'daki rozet-eşiği sayım sorgusuna
+  `.neq('topic_slug', '__route_complete__')` eklendi — sentinel satırlar
+  rozet sayımını ŞİŞİRMESİN diye.
+
+**Çağıran taraf değişikliği (3 dosya):**
+- `TopicPage.jsx`: yeni `useEffect` — `completedCount === tabs.length` olunca
+  `markRouteFullyCompleted` çağırıyor (tüm `*Data.js` sayfalarını kapsar,
+  TopicPage üzerinden render edilen HER sayfa otomatik düzeldi).
+- `AlgorithmsPage.jsx` / `ManualTestingPage.jsx`: `toggleLessonComplete`/
+  `handleLessonComplete` içinde, güncellenmiş tamamlanan-ders sayısı TÜM
+  ders sayısına eşit olunca aynı fonksiyon çağrılıyor.
+
+**Doğrulama (önceki oturumda, main'e commit edilmeden ÖNCE yapıldı):**
+Gerçek Chromium'da (Playwright, yaz-koş-sil script) `/what-is-testing`
+(6 sekme) üzerinde: 1/6 sekme tamamlanınca `learnqa_completed_routes`
+localStorage'ına route EKLENMEDİ (eski davranışta eklerdi — bu bug'ın
+ta kendisiydi); 6/6 sekme tamamlanınca DOĞRU şekilde eklendi. Konsol hatası
+yok. **Bu oturumda main'e commit ve feature'a merge sonrası TEKRAR test
+edilmedi** (kullanıcı talimatı: hiçbir aşamada test yapma) — mantık
+değişmedi, sadece commit edildi.
 
 ### ✅ Faz 2 kodlama tarafı TAMAMLANDI (2026-07-23, Claude Code) — TS/JS/SQL editörlerinde rollout hedefi YOK
 `case 'editor':` ile ulaşılabilen 4 runtime editörün (Pyodide/TS/JS/SQL)
