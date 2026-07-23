@@ -20129,7 +20129,7 @@ function migrateTabProgress(data) {
 function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
     const { language } = useLanguage()
     const location = useLocation()
-    const { markTopicCompleted, resetLessonProgress } = useAuth()
+    const { markTopicCompleted, markRouteFullyCompleted, resetLessonProgress } = useAuth()
     const [newBadge, setNewBadge] = useState(null)
     const [xpToast, setXpToast] = useState(null)
     const [darkMode, setDarkMode] = useState(() => {
@@ -20286,6 +20286,20 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
             }
         }).catch(() => { /* progress/badge/XP senkronizasyonu başarısız olsa da UI'ı bozma */ })
     }
+
+    // Kariyer Haritasında bu route'u (sayfayı) SADECE sayfadaki TÜM sekmeler
+    // bitince "tamamlandı" işaretler — tek bir sekme bitince DEĞİL (gerçek
+    // kullanıcı bug raporu, 2026-07-23: /qa-mentor'da bir ders sadece ilk quiz
+    // sorusu doğru cevaplanınca "tamamlandı" görünüyordu). markRouteFullyCompleted
+    // idempotent (recordLocalCompletedRoute + upsert onConflict), tekrar tekrar
+    // çağrılması güvenli.
+    useEffect(() => {
+        if (tabs?.length > 0 && completedCount === tabs.length) {
+            markRouteFullyCompleted({ lessonSlug: pageKey, routePath: location.pathname })
+                .catch(() => { /* senkronizasyon başarısız olsa da UI'ı bozma */ })
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [completedCount, tabs?.length, pageKey, location.pathname])
 
     // Bir sekmenin "gerçek" tamamlanma yolu var mı (quiz/quiz-fill ya da
     // interview-questions bloğu) — varsa manuel checkbox devre dışı kalır, çünkü

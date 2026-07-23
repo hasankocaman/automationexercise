@@ -75,8 +75,11 @@ export function clearWizardDraft() {
 }
 
 // ─── Anonim tamamlanan route kaydı ──────────────────────────────────────────
-// Üyedeki getCompletedRoutePaths ile aynı bar: bir route'ta en az bir konu
-// "completed" işaretlendiyse o route tamamlanmış sayılır.
+// `recordLocalCompletedRoute` sadece bir routePath EKLER — "bu route ne zaman
+// tamamlanmış sayılır" kararını KENDİSİ VERMEZ. Çağıran taraf (AuthContext'teki
+// markRouteFullyCompleted) bunu SADECE sayfanın TÜM sekmeleri/dersleri bitince
+// çağırmalı; tek bir sekme/ders bitince çağırmak route'u erken "tamamlandı"
+// gösterir (gerçek kullanıcı bug raporu, 2026-07-23).
 
 export function getLocalCompletedRoutes() {
     try {
