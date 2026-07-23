@@ -35,7 +35,14 @@ const configured = Boolean(
     !SUPABASE_URL.includes('YOUR_PROJECT_REF') && !SUPABASE_ANON_KEY.includes('xxxx')
 );
 
-const AC09_TOPIC_SLUG = 'ac09-progress-test';
+// AuthContext.jsx'teki ROUTE_COMPLETE_TOPIC_SLUG ile birebir aynı sentinel —
+// getCompletedRoutePaths() SADECE bu topic_slug'a sahip satırları "route
+// tamamlandı" sayıyor (2026-07-23 qa-mentor route-completion bug fix'i
+// sonrası). Eskiden bu test rastgele bir topic_slug ile satır ekleyip
+// "herhangi bir completed satır = route tamamlandı" varsayardı — fix
+// sonrası bu artık gerçek kullanıcı davranışını yansıtmıyor, sentinel
+// kullanmak zorunlu.
+const ROUTE_COMPLETE_TOPIC_SLUG = '__route_complete__';
 
 test.describe('AC09 — QA Mentor yol haritası ilerleme görselleştirmesi', () => {
     test.skip(!configured, '.env.local içinde VITE_SUPABASE_URL/KEY veya TEST_USER_EMAIL/PASSWORD eksik');
@@ -50,12 +57,15 @@ test.describe('AC09 — QA Mentor yol haritası ilerleme görselleştirmesi', ()
         const { session } = authData;
         const userId = authData.user!.id;
 
-        // ── Baseline'ı GERÇEKTEN oku (AuthContext.getCompletedRoutePaths ile aynı sorgu).
+        // ── Baseline'ı GERÇEKTEN oku (AuthContext.getCompletedRoutePaths ile aynı sorgu —
+        // topic_slug filtresi dahil, aksi halde herhangi bir sekme/ders completed
+        // satırı yanlışlıkla "route tamamlandı" sayılır).
         const { data: rows, error: readError } = await authClient
             .from('user_progress')
             .select('last_position')
             .eq('user_id', userId)
-            .eq('status', 'completed');
+            .eq('status', 'completed')
+            .eq('topic_slug', ROUTE_COMPLETE_TOPIC_SLUG);
         if (readError) throw new Error(`Baseline okunamadı: ${readError.message}`);
         const completedRoutes = new Set((rows ?? []).map((r: any) => r.last_position?.routePath).filter(Boolean));
         const mapRoutes: string[] = MAP_A.nodes.map((n: any) => n.route);
@@ -76,7 +86,7 @@ test.describe('AC09 — QA Mentor yol haritası ilerleme görselleştirmesi', ()
         const { error: upsertError } = await authClient
             .from('user_progress')
             .upsert(
-                { user_id: userId, lesson_slug: missingLessonSlug, topic_slug: AC09_TOPIC_SLUG, status: 'completed', last_position: { routePath: missingRoute } },
+                { user_id: userId, lesson_slug: missingLessonSlug, topic_slug: ROUTE_COMPLETE_TOPIC_SLUG, status: 'completed', last_position: { routePath: missingRoute } },
                 { onConflict: 'user_id,lesson_slug,topic_slug' }
             );
         if (upsertError) throw new Error(`Test node'u eklenemedi: ${upsertError.message}`);
@@ -117,7 +127,7 @@ test.describe('AC09 — QA Mentor yol haritası ilerleme görselleştirmesi', ()
                 .delete()
                 .eq('user_id', userId)
                 .eq('lesson_slug', missingLessonSlug)
-                .eq('topic_slug', AC09_TOPIC_SLUG);
+                .eq('topic_slug', ROUTE_COMPLETE_TOPIC_SLUG);
         }
     });
 });
