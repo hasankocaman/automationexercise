@@ -1261,9 +1261,12 @@ function AlgorithmsPage() {
 
     // Bölüm tamamlama (ürün kararı 2026-07-19): kullanıcı her dersi/bölümü
     // tamamlandı işaretleyebilmeli, ilerlemesini görebilmeli ve hepsi bitince
-    // bitirme rozetini almalı. Tamamlama kariyer haritasına da işlenir
-    // (markTopicCompleted → recordLocalCompletedRoute, anonim de çalışır).
-    const { markTopicCompleted } = useAuth()
+    // bitirme rozetini almalı. Her ders tamamlanması markTopicCompleted ile XP/
+    // rozet kazandırır; kariyer haritasında route'un TAMAMEN bitmesi ise AYRI
+    // olarak markRouteFullyCompleted ile işaretlenir (aşağıya bak) — SADECE tek
+    // bir ders bitince değil (gerçek kullanıcı bug raporu, 2026-07-23: önceden
+    // ilk ders bitince /algorithms tüm route "tamamlandı" görünüyordu).
+    const { markTopicCompleted, markRouteFullyCompleted } = useAuth()
     const [completedLessons, setCompletedLessons] = useState(() => {
         try {
             const saved = localStorage.getItem('algorithms_completed_lessons')
@@ -1282,6 +1285,10 @@ function AlgorithmsPage() {
         if (!wasDone) {
             markTopicCompleted({ lessonSlug: 'algorithms', topicSlug: lesson.id, topicLabel: lesson.shortTitle, routePath: '/algorithms' })
                 .catch(() => { /* progress senkronizasyonu başarısız olsa da UI bozulmaz */ })
+            if (Object.keys(updated).length === data.lessons.length) {
+                markRouteFullyCompleted({ lessonSlug: 'algorithms', routePath: '/algorithms' })
+                    .catch(() => { /* senkronizasyon başarısız olsa da UI bozulmaz */ })
+            }
         }
     }
 

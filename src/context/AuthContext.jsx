@@ -4,6 +4,12 @@ import { recordLocalCompletedRoute } from '../utils/careerMapProfile'
 
 const AuthContext = createContext()
 
+// Kariyer haritasında bir route'un GERÇEKTEN tamamlandığını işaretlemek için
+// ayrılmış sentinel topic_slug. Gerçek bir sekme/ders topicSlug'ı ile ASLA
+// çakışmaz (tab index'leri ve lesson.id'ler bu formatta olamaz) — bkz.
+// markRouteFullyCompleted / getCompletedRoutePaths.
+const ROUTE_COMPLETE_TOPIC_SLUG = '__route_complete__'
+
 export function AuthProvider({ children }) {
     const [session, setSession] = useState(null)
     const [profile, setProfile] = useState(null)
@@ -125,10 +131,11 @@ export function AuthProvider({ children }) {
         const point = { lessonSlug, topicSlug, topicLabel, routePath, savedAt: new Date().toISOString() }
         try { localStorage.setItem(RESUME_KEY, JSON.stringify(point)) } catch { /* localStorage dolu/kapalı olabilir, sessizce geç */ }
 
-        // Kariyer Haritası anonim ilerlemesi: tamamlanan route local olarak da
-        // kaydedilir — üyedeki getCompletedRoutePaths ile aynı bar (en az bir
-        // konu completed ise route tamamlanmış sayılır), üyelik gerekmez (§5).
-        if (status === 'completed') recordLocalCompletedRoute(routePath)
+        // NOT: burada route'u Kariyer Haritasında "tamamlandı" işaretlemiyoruz —
+        // bu fonksiyon TEK bir sekme/ders için çağrılır, route'un TAMAMI bitti
+        // anlamına gelmez. Route'un tamamı bitince ayrıca markRouteFullyCompleted
+        // çağrılmalı (gerçek kullanıcı bug raporu, 2026-07-23: eskiden ilk sekme
+        // bitince tüm route yanlışlıkla "tamamlandı" görünüyordu).
 
         if (isSupabaseConfigured && session) {
             const row = {
@@ -191,6 +198,9 @@ export function AuthProvider({ children }) {
             .select('id', { count: 'exact', head: true })
             .eq('user_id', session.user.id)
             .eq('status', 'completed')
+            // markRouteFullyCompleted'in yazdığı sentinel satır GERÇEK bir konu
+            // değildir — rozet eşiğini şişirmemek için sayıma dahil edilmez.
+            .neq('topic_slug', ROUTE_COMPLETE_TOPIC_SLUG)
         if (countError) {
             console.error('markTopicCompleted count failed:', countError)
             return { badges: [], xpAwarded }
@@ -227,6 +237,21 @@ export function AuthProvider({ children }) {
             return merged
         })
         return { badges: newlyAwarded ?? [], xpAwarded }
+    }
+
+    // Kariyer Haritasında bir route'un (sayfanın) TAMAMEN tamamlandığını işaretler.
+    // ÇAĞIRAN TARAF (TopicPage/AlgorithmsPage/ManualTestingPage) bunu SADECE
+    // sayfadaki TÜM sekmeler/dersler bitince çağırmalı — tek bir sekme bitince
+    // DEĞİL. Gerçek kullanıcı bug raporu (2026-07-23): önceden markTopicCompleted
+    // her sekme/ders için çağrıldığında saveProgress otomatik olarak
+    // recordLocalCompletedRoute çağırıyordu, bu yüzden İLK sekme bitince tüm
+    // route (dolayısıyla /qa-mentor yol haritasında tüm ders) yanlışlıkla
+    // "tamamlandı" görünüyordu. Bu fonksiyon saveProgress'i sentinel bir
+    // topic_slug ile çağırır — markTopicCompleted'in aksine XP/rozet VERMEZ
+    // (bunlar zaten her gerçek sekme/ders tamamlandığında ayrıca veriliyor).
+    async function markRouteFullyCompleted({ lessonSlug, routePath }) {
+        recordLocalCompletedRoute(routePath)
+        await saveProgress({ lessonSlug, topicSlug: ROUTE_COMPLETE_TOPIC_SLUG, topicLabel: null, routePath, status: 'completed' })
     }
 
     // Ana sayfada "kaldığın yerden devam et" göstermek için: üye ise en son güncellenen
@@ -270,8 +295,10 @@ export function AuthProvider({ children }) {
         if (data) setProfile((prev) => (prev ? { ...prev, career_goal: data.career_goal } : prev))
     }
 
-    // Bir yol haritasındaki tamamlanma yüzdesini hesaplamak için, üyenin tamamladığı
-    // (status='completed') derslerin route'larını tek seferde okur.
+    // Bir yol haritasındaki tamamlanma yüzdesini hesaplamak için, üyenin TÜM
+    // sekmelerini/derslerini bitirdiği route'ları okur. SADECE markRouteFullyCompleted'in
+    // yazdığı sentinel satırları sayar — tek bir sekme/ders completed olması
+    // YETMEZ (gerçek kullanıcı bug raporu, 2026-07-23: bkz. markRouteFullyCompleted).
     async function getCompletedRoutePaths() {
         if (!isSupabaseConfigured || !session) return new Set()
         const { data, error } = await supabase
@@ -279,6 +306,7 @@ export function AuthProvider({ children }) {
             .select('last_position')
             .eq('user_id', session.user.id)
             .eq('status', 'completed')
+            .eq('topic_slug', ROUTE_COMPLETE_TOPIC_SLUG)
         if (error) { console.error('getCompletedRoutePaths failed:', error); return new Set() }
         return new Set((data ?? []).map((row) => row.last_position?.routePath).filter(Boolean))
     }
@@ -387,6 +415,7 @@ export function AuthProvider({ children }) {
         signOut,
         saveProgress,
         markTopicCompleted,
+        markRouteFullyCompleted,
         resetLessonProgress,
         getResumePoint,
         earnedBadges,

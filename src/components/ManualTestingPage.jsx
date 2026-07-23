@@ -1084,8 +1084,12 @@ function ManualTestingPage() {
     const [activeId, setActiveId] = useState(data.lessons[0].id)
     // Bölüm tamamlama artık KALICI (ürün kararı 2026-07-19): eskiden sadece
     // component state'indeydi, sayfa yenilenince kayboluyordu. localStorage'a
-    // yazılır ve kariyer haritasına işlenir (markTopicCompleted, anonim de çalışır).
-    const { markTopicCompleted } = useAuth()
+    // yazılır ve kariyer haritasına işlenir. Her ders tamamlanması markTopicCompleted
+    // ile XP/rozet kazandırır; kariyer haritasında route'un TAMAMEN bitmesi ise
+    // AYRI olarak markRouteFullyCompleted ile işaretlenir (aşağıya bak) — SADECE
+    // tek bir ders bitince değil (gerçek kullanıcı bug raporu, 2026-07-23: önceden
+    // ilk ders bitince /manual-testing tüm route "tamamlandı" görünüyordu).
+    const { markTopicCompleted, markRouteFullyCompleted } = useAuth()
     const [completed, setCompleted] = useState(() => {
         try {
             const saved = localStorage.getItem('manual_testing_completed_lessons')
@@ -1100,6 +1104,10 @@ function ManualTestingPage() {
         try { localStorage.setItem('manual_testing_completed_lessons', JSON.stringify(updated)) } catch { /* localStorage kapalı olabilir */ }
         markTopicCompleted({ lessonSlug: 'manual-testing', topicSlug: lesson.id, topicLabel: lesson.shortTitle, routePath: '/manual-testing' })
             .catch(() => { /* progress senkronizasyonu başarısız olsa da UI bozulmaz */ })
+        if (Object.keys(updated).length === data.lessons.length) {
+            markRouteFullyCompleted({ lessonSlug: 'manual-testing', routePath: '/manual-testing' })
+                .catch(() => { /* senkronizasyon başarısız olsa da UI bozulmaz */ })
+        }
     }
     // Bolum quizi durumu ayri tutulur: "quiz gecildi" bilgisi, bolum tamamlanmis
     // olsa bile quiz kutusunun dogru ozeti gostermesi icin gerekir.
