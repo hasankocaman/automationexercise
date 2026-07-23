@@ -43,7 +43,29 @@ jobs:
           echo "TEST_USER_PASSWORD length: ${#TEST_USER_PASSWORD}"
           echo "TEST_USER_EMAIL sha256: $(printf '%s' "$TEST_USER_EMAIL" | sha256sum | cut -d' ' -f1)"
           echo "TEST_USER_PASSWORD sha256: $(printf '%s' "$TEST_USER_PASSWORD" | sha256sum | cut -d' ' -f1)"
-          echo "VITE_SUPABASE_URL: $VITE_SUPABASE_URL"
+          echo "VITE_SUPABASE_URL sha256: $(printf '%s' "$VITE_SUPABASE_URL" | sha256sum | cut -d' ' -f1)"
+          echo "VITE_SUPABASE_PUBLISHABLE_KEY sha256: $(printf '%s' "$VITE_SUPABASE_PUBLISHABLE_KEY" | sha256sum | cut -d' ' -f1)"
+
+      - name: Live Supabase login probe from CI runner (safe — no token/secret printed)
+        run: |
+          HTTP_CODE=$(curl -s -o /tmp/probe.json -w "%{http_code}" -X POST "$VITE_SUPABASE_URL/auth/v1/token?grant_type=password" \
+            -H "apikey: $VITE_SUPABASE_PUBLISHABLE_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"$TEST_USER_EMAIL\",\"password\":\"$TEST_USER_PASSWORD\"}")
+          echo "HTTP_CODE=$HTTP_CODE"
+          node -e "
+            const fs = require('fs');
+            const r = JSON.parse(fs.readFileSync('/tmp/probe.json', 'utf8'));
+            if (r.access_token) {
+              console.log('PROBE_RESULT: LOGIN_OK');
+              console.log('user_id:', r.user.id);
+              console.log('email_confirmed_at:', r.user.email_confirmed_at);
+            } else {
+              console.log('PROBE_RESULT: LOGIN_FAILED');
+              console.log('error_code:', r.error_code || r.code || '(none)');
+              console.log('msg:', r.msg || r.error_description || r.message || '(none)');
+            }
+          "
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
