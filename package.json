@@ -29,7 +29,6 @@
   },
   "simple-git-hooks": {
     "pre-commit": "node scripts/check-content-integrity.mjs",
-    "post-commit": "bash scripts/post-commit-tests.sh",
     "pre-push": "bash scripts/pre-push-tests.sh"
   },
   "dependencies": {

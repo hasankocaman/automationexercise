@@ -542,7 +542,7 @@ AI Geliştirme araçları (Antigravity, Claude, Windsurf vb.) arayüz bileşenle
 
 ---
 
-## 22. KESİN KURAL — Her Commit'te Zorunlu E2E Test Kontrolleri
+## 22. KESİN KURAL — Her Push/PR'de Zorunlu E2E Test Kontrolleri
 
 > Bu bölümdeki kontroller `Documents/acceptancecriterias.md`'deki resmi kabul
 > kriterlerinin (AC 01-07) operasyonel/test karşılığıdır. AC dokümanı "ne"
@@ -552,9 +552,13 @@ AI Geliştirme araçları (Antigravity, Claude, Windsurf vb.) arayüz bileşenle
 > senkronize edilir — iki dosya birbirine çelişmemelidir.
 
 Bu proje kullanıcıya somut vaatlerde bulunur (bkz. Bölüm 9, 10, 17, 19). Bu vaatlerin
-her commit'te hâlâ doğru çalıştığından emin olunmalıdır — `npm run test:e2e`
-(post-commit hook ile otomatik tetiklenir, `simple-git-hooks` + `scripts/post-commit-tests.sh`)
-aşağıdaki 6 kontrolü **mutlaka** kapsamalıdır. Yeni bir sayfa/özellik eklenirken veya
+her push/PR'de hâlâ doğru çalıştığından emin olunmalıdır — `npm run test:e2e`
+GitHub Actions üzerinde otomatik koşar: `main`'e push'ta `.github/workflows/deploy.yml`
+içindeki `test` job'ı (testler kırmızıysa `build`/`deploy` hiç çalışmaz), `main`'e açılan
+PR'larda ise `.github/workflows/ci-tests.yml`. Yerel `pre-push` hook'u sadece hızlı
+build/içerik-bütünlüğü doğrulaması yapar, tarayıcı açan E2E testlerini artık lokalde
+çalıştırmaz (bkz. `scripts/pre-push-tests.sh`). Bu testler aşağıdaki 6 kontrolü
+**mutlaka** kapsamalıdır. Yeni bir sayfa/özellik eklenirken veya
 mevcut test suite'i değiştirilirken bu liste referans alınmalı, kapsam dışı kalan
 kontrol varsa ilgili Playwright test dosyasına eklenmelidir:
 
@@ -575,15 +579,16 @@ kontrol varsa ilgili Playwright test dosyasına eklenmelidir:
    belirlenen kullanıcıya bitirme rozetinin verildiği doğrulanmalı.
 
 **Not:** 2-6 arası kontroller her gerçek AI çağrısı gerektirdiğinden (Groq rate
-limit riski), post-commit hook'ta **temsili bir sayfa** üzerinden hızlı koşulabilir;
-**tüm sayfalar için tam koşum** ayrı bir suite'te (`npm run test:interview-flows`
-gibi) tutulabilir — ama bu ayrım ve o an hangi sayfaların kapsam içinde/dışında
+limit riski), CI'daki `test:e2e` job'ında **temsili bir sayfa** üzerinden hızlı
+koşulabilir; **tüm sayfalar için tam koşum** ayrı bir suite'te (`npm run
+test:interview-flows` gibi, gerekirse ayrı bir GitHub Actions job'ı/workflow'u
+olarak) tutulabilir — ama bu ayrım ve o an hangi sayfaların kapsam içinde/dışında
 olduğu `NEXT_SESSION.md`'de güncel tutulmalıdır, bu dosyada değil (bkz. Bölüm 0).
 
 ### 22.1 Test Kapsamı Dışı Sayfalar (Kalıcı İstisna Listesi)
 
-Aşağıdaki sayfalar hiçbir otomatik E2E/Playwright test suite'ine (post-commit,
-`test:interview-flows`, `test:quiz-audit` vb.) dahil edilmez. Yeni bir test
+Aşağıdaki sayfalar hiçbir otomatik E2E/Playwright test suite'ine (CI'daki
+`test:e2e` job'ı, `test:interview-flows`, `test:quiz-audit` vb.) dahil edilmez. Yeni bir test
 dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
 
 - **`/basit-backend`** — kullanıcı isteğiyle test kapsamı dışında tutuluyor.

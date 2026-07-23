@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 # git push öncesi simple-git-hooks tarafından tetiklenir (bkz. package.json
-# "simple-git-hooks"."pre-push"). post-commit-tests.sh'ın aksine bu hook
-# GERÇEKTEN ENGELLEYİCİDİR — herhangi bir adım başarısız olursa push İPTAL edilir.
+# "simple-git-hooks"."pre-push"). GERÇEKTEN ENGELLEYİCİDİR — build adımı
+# başarısız olursa push İPTAL edilir.
+#
+# NOT: Playwright E2E testleri (test:e2e) artık burada ÇALIŞMAZ — tarayıcı
+# açan testler CPU/RAM yükü ve yetim (orphan) chrome süreçlerine yol açtığı
+# için GitHub Actions'a taşındı: push main'e ulaştığında
+# .github/workflows/deploy.yml içindeki `test` job'ı (build başarısız/testler
+# kırmızıysa deploy hiç çalışmaz), PR'larda ise .github/workflows/ci-tests.yml
+# çalışır. Bu script sadece hızlı, tarayıcısız build doğrulamasını (SEO +
+# içerik bütünlüğü + mülakat denetimi) lokalde tutar.
 #
 # Bu doğrulama SADECE refs/heads/main'e GERÇEK bir push (yeni commit) varsa
 # çalışır. Branch silme (git push origin --delete ...) ve main DIŞINDAKİ
 # branch'lere yapılan push'lar git'in pre-push stdin protokolü üzerinden
 # tespit edilip ATLANIR — aksi halde basit bir remote branch silme işlemi
-# bile 10-15 dk'lık build+test paketini gereksiz yere tetikler.
+# bile build paketini gereksiz yere tetikler.
 #
 # Acil durumda atlamak için: SKIP_PRE_PUSH_HOOK=1 git push ...
 set -euo pipefail
@@ -33,8 +41,7 @@ if [ "$should_run_tests" = "0" ]; then
     exit 0
 fi
 
-echo "[pre-push] main branch'e push tespit edildi — zorunlu doğrulama: build (SEO + içerik bütünlüğü + mülakat denetimi dahil) + Playwright testleri (tests/, ~10-15 dk)..."
+echo "[pre-push] main branch'e push tespit edildi — zorunlu doğrulama: build (SEO + içerik bütünlüğü + mülakat denetimi dahil). Playwright E2E testleri GitHub Actions'ta koşacak."
 npm run build
-npm run test:e2e
 
-echo "[pre-push] Tüm doğrulamalar PASS — push devam ediyor."
+echo "[pre-push] Build doğrulaması PASS — push devam ediyor (E2E testleri GitHub Actions'ta koşacak)."
