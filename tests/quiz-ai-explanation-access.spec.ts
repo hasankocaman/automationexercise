@@ -63,6 +63,7 @@ test.describe('AC05 — anonim kullanıcı için AI açıklama kilitli (TR/EN)',
 
 test.describe('AC05 — üye kullanıcı için AI açıklama akışı', () => {
     test.skip(!configured, '.env.local içinde VITE_SUPABASE_URL/KEY veya TEST_USER_EMAIL/PASSWORD eksik');
+    test.skip(process.env.GITHUB_ACTIONS === 'true', 'GitHub Actions runner IP\'sinden bu Supabase projesinin /auth/v1/* yolu engelleniyor (hash-doğrulanmış doğru credential\'lar dahi reddediliyor, Auth Logs\'ta kayıt yok — altyapı kısıtlaması). Detay: NEXT_SESSION.md. Yerelde/pre-push\'ta çalışır.');
 
     test('üye: buton görünür → çağrı simüle edilen hatayla başarısız olursa hata mesajı gösterilir', async ({ browser }) => {
         const authClient = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!);

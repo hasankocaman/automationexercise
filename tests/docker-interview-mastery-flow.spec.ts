@@ -59,6 +59,7 @@ async function answerActiveTabQuizCorrectly(page: Page, tabIndex: number) {
 
 test.describe('Docker — quiz gating + mülakat AI değerlendirme akışı (happy path)', () => {
     test.skip(!configured, '.env.local içinde VITE_SUPABASE_URL/KEY veya TEST_USER_EMAIL/PASSWORD eksik');
+    test.skip(process.env.GITHUB_ACTIONS === 'true', 'GitHub Actions runner IP\'sinden bu Supabase projesinin /auth/v1/* yolu engelleniyor (hash-doğrulanmış doğru credential\'lar dahi reddediliyor, Auth Logs\'ta kayıt yok — altyapı kısıtlaması). Detay: NEXT_SESSION.md. Yerelde/pre-push\'ta çalışır.');
     test.setTimeout(120_000);
 
     test('quiz <%60 kilitli → >=%60 açılır → AI değerlendirir → sekme tamamlanır', async ({ browser }) => {

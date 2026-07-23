@@ -10,6 +10,58 @@
 
 ---
 
+## 🚧 GitHub Actions CI'da Supabase Auth engeli — 7 test CI'da skip ediliyor (2026-07-23, Claude Code, bkz. CLAUDE.md §22)
+
+`.github/workflows/deploy.yml`'in `test` job'ı (E2E suite) art arda birkaç
+run'da (`#120`-`#126`) `Invalid login credentials` hatasıyla fail oldu.
+Uzun bir teşhis turu sonucunda kök neden netleşti:
+
+**Bulgular (sırayla elenen teoriler):**
+1. Secrets yanlış/eksik mi? → Hayır. `TEST_USER_EMAIL`/`TEST_USER_PASSWORD`/
+   `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY`/`SUPABASE_SERVICE_ROLE_KEY`
+   hepsi CI'da hash (sha256) ile yerel `.env.local` ile birebir aynı doğrulandı.
+2. Supabase Rate Limits (Authentication → Rate Limits → "sign-ups and sign-ins")
+   30/5dk'dan 1000/5dk'ya çıkarıldı → etkisiz.
+3. Attack Protection (Captcha) → zaten kapalıydı, etkisiz.
+4. Auth Logs (Authentication → Logs, "auth" tipi) → CI'nın başarısız
+   isteklerine dair **HİÇ kayıt yok** — istek Supabase'in GoTrue servisine
+   hiç ulaşmıyor/loglanmıyor.
+5. Admin API (`service_role`/legacy JWT key ile `/auth/v1/admin/users`) da
+   aynı şekilde CI'dan reddedildi (`401 Invalid API key`), ama **yerelden
+   aynı key ile 200 OK** (tam kullanıcı listesi döndü).
+
+**Sonuç:** Bu Supabase projesinde (`learnqa-test`, `qtwargbbwuvrupfyowbg`),
+GitHub Actions'ın paylaşımlı runner IP'sinden gelen **tüm `/auth/v1/*`
+istekleri** (hem public `/token` hem `service_role` ile `/admin/*`),
+muhtemelen Supabase'in önündeki Cloudflare edge katmanında, endpoint'e göre
+farklı ama gerçekçi görünen sahte hata mesajlarıyla engelleniyor. Bu, proje
+ayarlarından (Rate Limits/Attack Protection/doğru key) düzeltilemeyen bir
+**altyapı kısıtlaması** — kullanıcının Supabase Support'a yazması veya
+self-hosted runner kullanması gerekir (henüz yapılmadı).
+
+**Uygulanan geçici çözüm:** Canlı Supabase Auth (`signInWithPassword`)
+gerektiren 5 test dosyasındaki 7 test, `process.env.GITHUB_ACTIONS === 'true'`
+koşuluyla **sadece GitHub Actions'ta** skip ediliyor (yerelde/pre-push'ta
+normal çalışır, 196/196 PASS doğrulandı):
+- `tests/api-endpoints.spec.ts` — "AI Edge Functions (üyelik gerektirir...)" describe'ı
+- `tests/quiz-ai-explanation-access.spec.ts` — "AC05 — üye kullanıcı..." describe'ı
+- `tests/docker-interview-mastery-flow.spec.ts` — tüm describe
+- `tests/interview-grading-and-reset.spec.ts` — tüm describe
+- `tests/qa-mentor-progress-tracking.spec.ts` — tüm describe
+
+`.github/workflows/deploy.yml`'e eklenen geçici teşhis adımları (hash-check,
+live probe, admin probe) teşhis bitince temizlendi — sadece kalıcı fix'ler
+(Node 22, `playwright install chromium webkit`) kaldı. `SUPABASE_SERVICE_ROLE_KEY`
+secret'ı GitHub'da duruyor ama artık workflow'da kullanılmıyor (ileride bu
+kısıtlama Supabase tarafından çözülürse veya self-hosted runner'a geçilirse
+tekrar devreye alınabilir).
+
+**Sıradaki adım (opsiyonel, kullanıcı kararına bağlı):** Supabase Support'a
+bu bulgularla bir destek talebi açılırsa engel kalkabilir, o zaman yukarıdaki
+5 dosyadaki `GITHUB_ACTIONS` skip'leri kaldırılabilir.
+
+---
+
 ## 📌 ŞU AN NE DURUMDAYIZ (2026-07-23, Claude Code oturumu — feature/code-practice-ai-feedback main'e merge edildi VE push edildi, önce BURAYI oku)
 
 | | |

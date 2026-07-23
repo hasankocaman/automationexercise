@@ -55,6 +55,7 @@ async function answerActiveTabQuizCorrectly(page: Page, tabIndex: number) {
 
 test.describe('AC06 (dayanıklılık) + AC07 (reset) — /docker temsili sayfası', () => {
     test.skip(!configured, '.env.local içinde VITE_SUPABASE_URL/KEY veya TEST_USER_EMAIL/PASSWORD eksik');
+    test.skip(process.env.GITHUB_ACTIONS === 'true', 'GitHub Actions runner IP\'sinden bu Supabase projesinin /auth/v1/* yolu engelleniyor (hash-doğrulanmış doğru credential\'lar dahi reddediliyor, Auth Logs\'ta kayıt yok — altyapı kısıtlaması). Detay: NEXT_SESSION.md. Yerelde/pre-push\'ta çalışır.');
     test.setTimeout(120_000);
 
     test('mülakat grading hatası → boş/eksik cevap engeli → düşük skor → reset (vazgeç + onay) → Supabase doğrulaması', async ({ browser }) => {

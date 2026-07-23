@@ -46,6 +46,7 @@ const ROUTE_COMPLETE_TOPIC_SLUG = '__route_complete__';
 
 test.describe('AC09 — QA Mentor yol haritası ilerleme görselleştirmesi', () => {
     test.skip(!configured, '.env.local içinde VITE_SUPABASE_URL/KEY veya TEST_USER_EMAIL/PASSWORD eksik');
+    test.skip(process.env.GITHUB_ACTIONS === 'true', 'GitHub Actions runner IP\'sinden bu Supabase projesinin /auth/v1/* yolu engelleniyor (hash-doğrulanmış doğru credential\'lar dahi reddediliyor, Auth Logs\'ta kayıt yok — altyapı kısıtlaması). Detay: NEXT_SESSION.md. Yerelde/pre-push\'ta çalışır.');
     test.setTimeout(60_000);
 
     test('bir node daha completed işaretlenince CircularProgress ve "X/14 ders tamamlandı" sayacı tam olarak +1 artar', async ({ browser }) => {
