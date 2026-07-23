@@ -10,7 +10,7 @@
 
 ---
 
-## 🚧 GitHub Actions CI'da Supabase Auth engeli — 7 test CI'da skip ediliyor (2026-07-23, Claude Code, bkz. CLAUDE.md §22)
+## ✅ GitHub Actions CI'da Supabase Auth engeli — 7 test CI'da skip ediliyor, CI YEŞİL (2026-07-23/24, Claude Code, bkz. CLAUDE.md §22)
 
 `.github/workflows/deploy.yml`'in `test` job'ı (E2E suite) art arda birkaç
 run'da (`#120`-`#126`) `Invalid login credentials` hatasıyla fail oldu.
@@ -59,6 +59,13 @@ tekrar devreye alınabilir).
 **Sıradaki adım (opsiyonel, kullanıcı kararına bağlı):** Supabase Support'a
 bu bulgularla bir destek talebi açılırsa engel kalkabilir, o zaman yukarıdaki
 5 dosyadaki `GITHUB_ACTIONS` skip'leri kaldırılabilir.
+
+**Doğrulama — commit `28567c9` push edildi, CI run #127 tamamen YEŞİL
+oldu:** `test` job'ı 21m32s'de PASS (kalan ~189 test CI'da normal çalıştı,
+7 test skip edildi), `build` PASS, `deploy` PASS — `learnqa.dev`'e yayınlandı.
+Bu konu bu haliyle çözülmüş/kararlı kabul edilebilir; sonraki oturumda tekrar
+teşhis etmeye gerek yok, sadece Supabase Support'tan haber gelirse veya
+self-hosted runner'a geçilirse yukarıdaki skip'ler gözden geçirilir.
 
 ---
 
