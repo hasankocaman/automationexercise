@@ -2232,15 +2232,86 @@ function JavaCompareBlock({ block, darkMode }) {
     )
 }
 
+// Yanlış çıktıda gösterilen AI açıklama paneli — SADECE üyelere özel
+// (explain-code-output edge function). `AiExplanationPanel` ile aynı görsel
+// dil, ama farklı bir fonksiyonu çağırır: burada öğrencinin kodu GERÇEKTEN
+// çalıştırıldı (kaynak kod diff'i değil, ÇIKTI farkı var) — bkz. plan notu.
+// Otomatik tetiklenmez, ücretsiz Groq kotasını her yanlış denemede otomatik
+// tüketmemek için kullanıcı butona basınca çağrılır (diğer AI panelleriyle
+// aynı politika).
+function AiEditorExplanationPanel({ task, expectedOutput, userCode, actualOutput, isTr, darkMode }) {
+    const { session } = useAuth()
+    const [explanation, setExplanation] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const [requested, setRequested] = useState(false)
+
+    if (!session) {
+        return (
+            <div className={`mt-2 text-xs italic ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                🔒 {isTr ? 'AI açıklaması için giriş yapmalısın.' : 'Sign in to see the AI explanation.'}
+            </div>
+        )
+    }
+
+    function handleRequest() {
+        if (requested) return
+        setRequested(true)
+        setLoading(true)
+        supabase.functions.invoke('explain-code-output', {
+            body: { task, expectedOutput, userCode, actualOutput, lang: isTr ? 'tr' : 'en' },
+        }).then(({ data, error: invokeError }) => {
+            if (invokeError) throw invokeError
+            if (data?.error) throw new Error(data.error)
+            setExplanation(sanitizeAiText(data.explanation))
+        }).catch(async (err) => {
+            console.error('explain-code-output failed:', err)
+            const detail = await extractFunctionErrorDetail(err)
+            setError((isTr ? 'AI açıklaması şu anda yüklenemedi.' : 'Could not load AI explanation right now.')
+                + (detail ? ` (${detail})` : ''))
+        }).finally(() => setLoading(false))
+    }
+
+    if (!requested) {
+        return (
+            <button
+                onClick={handleRequest}
+                className={`mt-2 text-xs font-semibold underline ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}
+            >
+                🤖 {isTr ? "AI'dan kodum için ek açıklama iste" : 'Ask AI for an explanation of my code'}
+            </button>
+        )
+    }
+
+    return (
+        <div className={`mt-2 rounded-lg border-l-4 border-purple-500 p-3 text-xs leading-relaxed ${darkMode ? 'bg-purple-900/20 text-purple-200' : 'bg-purple-50 text-purple-800'}`}>
+            <div className="font-bold mb-1 flex items-center gap-1.5">🤖 {isTr ? 'AI Açıklama' : 'AI Explanation'}</div>
+            {loading && <span className="opacity-70">{isTr ? 'Yükleniyor...' : 'Loading...'}</span>}
+            {error && <span className="text-red-400">{error}</span>}
+            {explanation && <p>{explanation}</p>}
+        </div>
+    )
+}
+
 // ─── PyodideEditor ────────────────────────────────────────────────────────────
 
-function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess }) {
+// Kod string diff'i DEĞİL — gerçek çalıştırılan Python programının stdout
+// çıktısı karşılaştırılır. Girinti/boşluk gibi biçimsel farkları yok sayar.
+function normalizeOutputForComparison(text) {
+    return (text || '').replace(/\s+/g, ' ').trim()
+}
+
+function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess, expected, task }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const localizedExpected = expected != null ? tx(expected, language) : null
     const [code, setCode] = useState(localizedDefaultCode)
     const [output, setOutput] = useState('')
+    const [passed, setPassed] = useState(null)
+    const [celebrating, setCelebrating] = useState(false)
     const [loading, setLoading] = useState(false)
     const [pyReady, setPyReady] = useState(!!window._pyodideInstance)
+    const [attempts, setAttempts] = useState(0)
     const pyRef = useRef(null)
 
     useEffect(() => {
@@ -2258,22 +2329,37 @@ function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess }) {
 
     useEffect(() => {
         setCode(localizedDefaultCode)
+        setPassed(null)
     }, [localizedDefaultCode])
 
     const run = async () => {
         if (!pyRef.current) return
-        setLoading(true); setOutput('')
+        setLoading(true); setOutput(''); setPassed(null)
         try {
             pyRef.current.runPython('import sys, io\nsys.stdout = io.StringIO()')
             pyRef.current.runPython(code)
-            setOutput(pyRef.current.runPython('sys.stdout.getvalue()') || '(no output)')
-            onFirstSuccess?.()
-        } catch (e) { setOutput('❌ ' + e.message) }
+            const captured = pyRef.current.runPython('sys.stdout.getvalue()') || ''
+            setOutput(captured || '(no output)')
+            if (localizedExpected != null) {
+                const isMatch = normalizeOutputForComparison(captured) === normalizeOutputForComparison(localizedExpected)
+                setPassed(isMatch)
+                if (isMatch) { setCelebrating(true); onFirstSuccess?.() }
+                else setAttempts(a => a + 1)
+            } else {
+                onFirstSuccess?.()
+            }
+        } catch (e) {
+            setOutput('❌ ' + e.message)
+            if (localizedExpected != null) { setPassed(false); setAttempts(a => a + 1) }
+        }
         setLoading(false)
     }
 
+    const isTr = language === 'tr'
+
     return (
-        <div className="mt-4 rounded-xl overflow-hidden border border-purple-800/40">
+        <div className="mt-4 rounded-xl overflow-hidden border border-purple-800/40" style={{ position: 'relative' }}>
+            {celebrating && <ConfettiExplosion duration={1800} particleCount={16} onComplete={() => setCelebrating(false)} />}
             <div style={{ background: '#12121f' }} className="flex items-center justify-between px-3 py-2">
                 <span className="text-xs font-mono" style={{ color: '#6c7086' }}>{pyReady ? '🐍 Python — Try it yourself' : '⏳ Loading Python...'}</span>
                 <button onClick={run} disabled={!pyReady || loading} style={{ background: pyReady ? '#7c3aed' : '#313148', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 16px', fontSize: '12px', fontWeight: 600, cursor: pyReady ? 'pointer' : 'not-allowed' }}>
@@ -2281,18 +2367,44 @@ function PyodideEditor({ defaultCode, height = '180px', onFirstSuccess }) {
                 </button>
             </div>
             <textarea value={code} onChange={e => setCode(e.target.value)} style={{ display: 'block', width: '100%', minHeight: height, background: '#12121f', color: '#cdd6f4', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', border: 'none', padding: '14px 16px', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} spellCheck={false} />
-            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : '#10b981', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : (passed === false ? '#f59e0b' : '#10b981'), fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+            {passed === true && (
+                <div style={{ padding: '8px 16px', background: '#0d0d1a', borderTop: '1px solid #1e1e3a', color: '#10b981', fontSize: '12px', fontWeight: 700 }}>
+                    ✅ {isTr ? 'Doğru! Çıktı bekleneni karşılıyor.' : 'Correct! Output matches what is expected.'}
+                </div>
+            )}
+            {passed === false && (
+                <div style={{ padding: '10px 16px', background: '#1a1206', borderTop: '1px solid #1e1e3a', color: '#f59e0b', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'pre-wrap' }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, marginBottom: 4 }}>
+                        {isTr ? '⚠️ Çıktı henüz beklenenle eşleşmiyor.' : '⚠️ Output does not match yet.'}
+                    </div>
+                    <div>{isTr ? 'Beklenen' : 'Expected'}: {localizedExpected}</div>
+                    <AiEditorExplanationPanel
+                        key={attempts}
+                        task={task}
+                        expectedOutput={localizedExpected}
+                        userCode={code}
+                        actualOutput={output}
+                        isTr={isTr}
+                        darkMode
+                    />
+                </div>
+            )}
         </div>
     )
 }
 
 // ─── TSEditor ─────────────────────────────────────────────────────────────────
 
-function TSEditor({ defaultCode, height = '180px', onFirstSuccess }) {
+function TSEditor({ defaultCode, height = '180px', onFirstSuccess, expected, task }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const localizedExpected = expected != null ? tx(expected, language) : null
     const [code, setCode] = useState(localizedDefaultCode)
     const [output, setOutput] = useState('')
+    const [passed, setPassed] = useState(null)
+    const [celebrating, setCelebrating] = useState(false)
+    const [attempts, setAttempts] = useState(0)
     const [babelReady, setBabelReady] = useState(!!window.Babel)
 
     useEffect(() => {
@@ -2305,46 +2417,88 @@ function TSEditor({ defaultCode, height = '180px', onFirstSuccess }) {
 
     useEffect(() => {
         setCode(localizedDefaultCode)
+        setPassed(null)
     }, [localizedDefaultCode])
 
     const run = () => {
-        setOutput('')
+        setOutput(''); setPassed(null)
         try {
             const js = window.Babel.transform(code, { filename: 'x.ts', presets: ['typescript'] }).code
             const logs = []
             const fn = new Function('console', js)
             fn({ log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x, null, 2) : String(x)).join(' ')), error: (...a) => logs.push('❌ ' + a.join(' ')) })
-            setOutput(logs.join('\n') || '(no output)')
-            onFirstSuccess?.()
-        } catch (e) { setOutput('❌ ' + e.message) }
+            const captured = logs.join('\n')
+            setOutput(captured || '(no output)')
+            if (localizedExpected != null) {
+                const isMatch = normalizeOutputForComparison(captured) === normalizeOutputForComparison(localizedExpected)
+                setPassed(isMatch)
+                if (isMatch) { setCelebrating(true); onFirstSuccess?.() }
+                else setAttempts(a => a + 1)
+            } else {
+                onFirstSuccess?.()
+            }
+        } catch (e) {
+            setOutput('❌ ' + e.message)
+            if (localizedExpected != null) { setPassed(false); setAttempts(a => a + 1) }
+        }
     }
 
+    const isTr = language === 'tr'
+
     return (
-        <div className="mt-4 rounded-xl overflow-hidden border border-blue-800/40">
+        <div className="mt-4 rounded-xl overflow-hidden border border-blue-800/40" style={{ position: 'relative' }}>
+            {celebrating && <ConfettiExplosion duration={1800} particleCount={16} onComplete={() => setCelebrating(false)} />}
             <div style={{ background: '#12121f' }} className="flex items-center justify-between px-3 py-2">
                 <span className="text-xs font-mono" style={{ color: '#6c7086' }}>{babelReady ? '🔷 TypeScript — Try it yourself' : '⏳ Loading TypeScript...'}</span>
                 <button onClick={run} disabled={!babelReady} style={{ background: babelReady ? '#2563eb' : '#313148', color: '#fff', border: 'none', borderRadius: '6px', padding: '5px 16px', fontSize: '12px', fontWeight: 600, cursor: babelReady ? 'pointer' : 'not-allowed' }}>▶ Run</button>
             </div>
             <textarea value={code} onChange={e => setCode(e.target.value)} style={{ display: 'block', width: '100%', minHeight: height, background: '#12121f', color: '#cdd6f4', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', border: 'none', padding: '14px 16px', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} spellCheck={false} />
-            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : '#10b981', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : (passed === false ? '#f59e0b' : '#10b981'), fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+            {passed === true && (
+                <div style={{ padding: '8px 16px', background: '#0d0d1a', borderTop: '1px solid #1e1e3a', color: '#10b981', fontSize: '12px', fontWeight: 700 }}>
+                    ✅ {isTr ? 'Doğru! Çıktı bekleneni karşılıyor.' : 'Correct! Output matches what is expected.'}
+                </div>
+            )}
+            {passed === false && (
+                <div style={{ padding: '10px 16px', background: '#1a1206', borderTop: '1px solid #1e1e3a', color: '#f59e0b', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'pre-wrap' }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, marginBottom: 4 }}>
+                        {isTr ? '⚠️ Çıktı henüz beklenenle eşleşmiyor.' : '⚠️ Output does not match yet.'}
+                    </div>
+                    <div>{isTr ? 'Beklenen' : 'Expected'}: {localizedExpected}</div>
+                    <AiEditorExplanationPanel
+                        key={attempts}
+                        task={task}
+                        expectedOutput={localizedExpected}
+                        userCode={code}
+                        actualOutput={output}
+                        isTr={isTr}
+                        darkMode
+                    />
+                </div>
+            )}
         </div>
     )
 }
 
 // ─── JSEditor ─────────────────────────────────────────────────────────────────
 
-function JSEditor({ defaultCode, height = '180px', onFirstSuccess }) {
+function JSEditor({ defaultCode, height = '180px', onFirstSuccess, expected, task }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const localizedExpected = expected != null ? tx(expected, language) : null
     const [code, setCode] = useState(localizedDefaultCode)
     const [output, setOutput] = useState('')
+    const [passed, setPassed] = useState(null)
+    const [celebrating, setCelebrating] = useState(false)
+    const [attempts, setAttempts] = useState(0)
 
     useEffect(() => {
         setCode(localizedDefaultCode)
+        setPassed(null)
     }, [localizedDefaultCode])
 
     const run = () => {
-        setOutput('')
+        setOutput(''); setPassed(null)
         try {
             const logs = []
             const fn = new Function('console', code)
@@ -2352,21 +2506,55 @@ function JSEditor({ defaultCode, height = '180px', onFirstSuccess }) {
                 log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x, null, 2) : String(x)).join(' ')),
                 error: (...a) => logs.push('❌ ' + a.join(' '))
             })
-            setOutput(logs.join('\n') || '(no output)')
-            onFirstSuccess?.()
+            const captured = logs.join('\n')
+            setOutput(captured || '(no output)')
+            if (localizedExpected != null) {
+                const isMatch = normalizeOutputForComparison(captured) === normalizeOutputForComparison(localizedExpected)
+                setPassed(isMatch)
+                if (isMatch) { setCelebrating(true); onFirstSuccess?.() }
+                else setAttempts(a => a + 1)
+            } else {
+                onFirstSuccess?.()
+            }
         } catch (e) {
             setOutput('❌ ' + e.message)
+            if (localizedExpected != null) { setPassed(false); setAttempts(a => a + 1) }
         }
     }
 
+    const isTr = language === 'tr'
+
     return (
-        <div className="mt-4 rounded-xl overflow-hidden border border-yellow-500/40">
+        <div className="mt-4 rounded-xl overflow-hidden border border-yellow-500/40" style={{ position: 'relative' }}>
+            {celebrating && <ConfettiExplosion duration={1800} particleCount={16} onComplete={() => setCelebrating(false)} />}
             <div style={{ background: '#12121f' }} className="flex items-center justify-between px-3 py-2">
                 <span className="text-xs font-mono" style={{ color: '#f59e0b' }}>🟨 JavaScript — Try it yourself</span>
                 <button onClick={run} style={{ background: '#f59e0b', color: '#000', border: 'none', borderRadius: '6px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>▶ Run</button>
             </div>
             <textarea value={code} onChange={e => setCode(e.target.value)} style={{ display: 'block', width: '100%', minHeight: height, background: '#12121f', color: '#cdd6f4', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', border: 'none', padding: '14px 16px', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} spellCheck={false} />
-            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : '#10b981', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+            {output && <pre style={{ margin: 0, padding: '10px 16px', background: '#0d0d1a', color: output.startsWith('❌') ? '#ef4444' : (passed === false ? '#f59e0b' : '#10b981'), fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e1e3a', whiteSpace: 'pre-wrap' }}>{output}</pre>}
+            {passed === true && (
+                <div style={{ padding: '8px 16px', background: '#0d0d1a', borderTop: '1px solid #1e1e3a', color: '#10b981', fontSize: '12px', fontWeight: 700 }}>
+                    ✅ {isTr ? 'Doğru! Çıktı bekleneni karşılıyor.' : 'Correct! Output matches what is expected.'}
+                </div>
+            )}
+            {passed === false && (
+                <div style={{ padding: '10px 16px', background: '#1a1206', borderTop: '1px solid #1e1e3a', color: '#f59e0b', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'pre-wrap' }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, marginBottom: 4 }}>
+                        {isTr ? '⚠️ Çıktı henüz beklenenle eşleşmiyor.' : '⚠️ Output does not match yet.'}
+                    </div>
+                    <div>{isTr ? 'Beklenen' : 'Expected'}: {localizedExpected}</div>
+                    <AiEditorExplanationPanel
+                        key={attempts}
+                        task={task}
+                        expectedOutput={localizedExpected}
+                        userCode={code}
+                        actualOutput={output}
+                        isTr={isTr}
+                        darkMode
+                    />
+                </div>
+            )}
         </div>
     )
 }
@@ -2374,11 +2562,15 @@ function JSEditor({ defaultCode, height = '180px', onFirstSuccess }) {
 
 // ─── SQLEditor ────────────────────────────────────────────────────────────────
 
-function SQLEditor({ defaultCode, schema, height = '120px', onFirstSuccess }) {
+function SQLEditor({ defaultCode, schema, height = '120px', onFirstSuccess, expected, task }) {
     const { language } = useLanguage()
     const localizedDefaultCode = getLocalizedCode(defaultCode, language)
+    const localizedExpected = expected != null ? tx(expected, language) : null
     const [code, setCode] = useState(localizedDefaultCode)
     const [output, setOutput] = useState('')
+    const [passed, setPassed] = useState(null)
+    const [celebrating, setCelebrating] = useState(false)
+    const [attempts, setAttempts] = useState(0)
     const [ready, setReady] = useState(!!window._sqlJsInstance)
 
     useEffect(() => {
@@ -2402,35 +2594,49 @@ function SQLEditor({ defaultCode, schema, height = '120px', onFirstSuccess }) {
 
     useEffect(() => {
         setCode(localizedDefaultCode)
+        setPassed(null)
     }, [localizedDefaultCode])
 
     const run = () => {
         if (!window._sqlJsInstance) return
+        setPassed(null)
         try {
             const db = new window._sqlJsInstance.Database()
             if (schema) db.run(schema)
             const results = db.exec(code.trim())
             db.close()
+            let captured
             if (!results.length) {
-                setOutput('✅ Query executed. No rows returned.')
-                onFirstSuccess?.()
-                return
+                captured = '✅ Query executed. No rows returned.'
+            } else {
+                const { columns, values } = results[0]
+                const colWidths = columns.map((c, i) => Math.max(c.length, ...values.map(r => String(r[i] ?? '').length)))
+                const pad = (s, w) => String(s ?? '').padEnd(w)
+                const sep = colWidths.map(w => '-'.repeat(w)).join('-+-')
+                const header = columns.map((c, i) => pad(c, colWidths[i])).join(' | ')
+                const rows = values.map(r => r.map((v, i) => pad(v, colWidths[i])).join(' | ')).join('\n')
+                captured = `${header}\n${sep}\n${rows}\n\n(${values.length} row${values.length !== 1 ? 's' : ''})`
             }
-            const { columns, values } = results[0]
-            const colWidths = columns.map((c, i) => Math.max(c.length, ...values.map(r => String(r[i] ?? '').length)))
-            const pad = (s, w) => String(s ?? '').padEnd(w)
-            const sep = colWidths.map(w => '-'.repeat(w)).join('-+-')
-            const header = columns.map((c, i) => pad(c, colWidths[i])).join(' | ')
-            const rows = values.map(r => r.map((v, i) => pad(v, colWidths[i])).join(' | ')).join('\n')
-            setOutput(`${header}\n${sep}\n${rows}\n\n(${values.length} row${values.length !== 1 ? 's' : ''})`)
-            onFirstSuccess?.()
+            setOutput(captured)
+            if (localizedExpected != null) {
+                const isMatch = normalizeOutputForComparison(captured) === normalizeOutputForComparison(localizedExpected)
+                setPassed(isMatch)
+                if (isMatch) { setCelebrating(true); onFirstSuccess?.() }
+                else setAttempts(a => a + 1)
+            } else {
+                onFirstSuccess?.()
+            }
         } catch (e) {
             setOutput('❌ ' + e.message)
+            if (localizedExpected != null) { setPassed(false); setAttempts(a => a + 1) }
         }
     }
 
+    const isTr = language === 'tr'
+
     return (
-        <div className="mt-4 rounded-xl overflow-hidden border border-cyan-800/40">
+        <div className="mt-4 rounded-xl overflow-hidden border border-cyan-800/40" style={{ position: 'relative' }}>
+            {celebrating && <ConfettiExplosion duration={1800} particleCount={16} onComplete={() => setCelebrating(false)} />}
             <div style={{ background: '#0c1a2e' }} className="flex items-center justify-between px-3 py-2">
                 <span className="text-xs font-mono" style={{ color: '#6c7086' }}>
                     {ready ? '🗄️ SQL — Try it yourself' : '⏳ Loading SQL engine...'}
@@ -2443,9 +2649,31 @@ function SQLEditor({ defaultCode, schema, height = '120px', onFirstSuccess }) {
             <textarea value={code} onChange={e => setCode(e.target.value)} spellCheck={false}
                 style={{ display: 'block', width: '100%', minHeight: height, background: '#0c1a2e', color: '#7dd3fc', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', border: 'none', padding: '14px 16px', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
             {output && (
-                <pre style={{ margin: 0, padding: '10px 16px', background: '#060f1e', color: output.startsWith('❌') ? '#ef4444' : '#10b981', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e3a5f', whiteSpace: 'pre-wrap', overflowX: 'auto' }}>
+                <pre style={{ margin: 0, padding: '10px 16px', background: '#060f1e', color: output.startsWith('❌') ? '#ef4444' : (passed === false ? '#f59e0b' : '#10b981'), fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', borderTop: '1px solid #1e3a5f', whiteSpace: 'pre-wrap', overflowX: 'auto' }}>
                     {output}
                 </pre>
+            )}
+            {passed === true && (
+                <div style={{ padding: '8px 16px', background: '#060f1e', borderTop: '1px solid #1e3a5f', color: '#10b981', fontSize: '12px', fontWeight: 700 }}>
+                    ✅ {isTr ? 'Doğru! Çıktı bekleneni karşılıyor.' : 'Correct! Output matches what is expected.'}
+                </div>
+            )}
+            {passed === false && (
+                <div style={{ padding: '10px 16px', background: '#1a1206', borderTop: '1px solid #1e3a5f', color: '#f59e0b', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'pre-wrap' }}>
+                    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, marginBottom: 4 }}>
+                        {isTr ? '⚠️ Çıktı henüz beklenenle eşleşmiyor.' : '⚠️ Output does not match yet.'}
+                    </div>
+                    <div>{isTr ? 'Beklenen' : 'Expected'}: {localizedExpected}</div>
+                    <AiEditorExplanationPanel
+                        key={attempts}
+                        task={task}
+                        expectedOutput={localizedExpected}
+                        userCode={code}
+                        actualOutput={output}
+                        isTr={isTr}
+                        darkMode
+                    />
+                </div>
             )}
         </div>
     )
@@ -2453,7 +2681,7 @@ function SQLEditor({ defaultCode, schema, height = '120px', onFirstSuccess }) {
 
 // ─── JavaPracticeBlock ───────────────────────────────────────────────────────
 
-function JavaPracticeBlock({ block, darkMode, language }) {
+function JavaPracticeBlock({ block, darkMode, language, onFirstSuccess }) {
     const starter = tx(block.starterCode || block.defaultCode || '', language)
     const [code, setCode] = useState(starter)
     const [result, setResult] = useState(null)
@@ -2529,6 +2757,7 @@ function JavaPracticeBlock({ block, darkMode, language }) {
         }
 
         setResult({ checks, errors, warnings, output: output.trimEnd() })
+        if (errors.length === 0) onFirstSuccess?.()
     }
 
     const isOk = result && result.errors.length === 0
@@ -17441,12 +17670,14 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'editor':
             if (block.lang === 'typescript')
-                return <TSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+                return <TSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} expected={block.expected} task={tx(block.task || block.label, language)} onFirstSuccess={() => onExerciseCompleted?.(i)} />
             if (block.lang === 'javascript')
-                return <JSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+                return <JSEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} expected={block.expected} task={tx(block.task || block.label, language)} onFirstSuccess={() => onExerciseCompleted?.(i)} />
             if (block.lang === 'sql')
-                return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
-            return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+                return <SQLEditor key={i} defaultCode={block.defaultCode || block.code || ''} schema={block.schema} height={block.height} expected={block.expected} task={tx(block.task || block.label, language)} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+            if (block.lang === 'java')
+                return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+            return <PyodideEditor key={i} defaultCode={block.defaultCode || block.code || ''} height={block.height} expected={block.expected} task={tx(block.task || block.label, language)} onFirstSuccess={() => onExerciseCompleted?.(i)} />
         case 'java-practice':
             return <JavaPracticeBlock key={i} block={block} darkMode={darkMode} language={language} />
         case 'git-practice':
@@ -20126,10 +20357,10 @@ function migrateTabProgress(data) {
     } catch { /* migrasyon başarısız olsa da sayfa normal açılmaya devam etmeli */ }
 }
 
-function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
+function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMentorLink }) {
     const { language } = useLanguage()
     const location = useLocation()
-    const { markTopicCompleted, resetLessonProgress } = useAuth()
+    const { markTopicCompleted, markRouteFullyCompleted, resetLessonProgress } = useAuth()
     const [newBadge, setNewBadge] = useState(null)
     const [xpToast, setXpToast] = useState(null)
     const [darkMode, setDarkMode] = useState(() => {
@@ -20286,6 +20517,20 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
             }
         }).catch(() => { /* progress/badge/XP senkronizasyonu başarısız olsa da UI'ı bozma */ })
     }
+
+    // Kariyer Haritasında bu route'u (sayfayı) SADECE sayfadaki TÜM sekmeler
+    // bitince "tamamlandı" işaretler — tek bir sekme bitince DEĞİL (gerçek
+    // kullanıcı bug raporu, 2026-07-23: /qa-mentor'da bir ders sadece ilk quiz
+    // sorusu doğru cevaplanınca "tamamlandı" görünüyordu). markRouteFullyCompleted
+    // idempotent (recordLocalCompletedRoute + upsert onConflict), tekrar tekrar
+    // çağrılması güvenli.
+    useEffect(() => {
+        if (tabs?.length > 0 && completedCount === tabs.length) {
+            markRouteFullyCompleted({ lessonSlug: pageKey, routePath: location.pathname })
+                .catch(() => { /* senkronizasyon başarısız olsa da UI'ı bozma */ })
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [completedCount, tabs?.length, pageKey, location.pathname])
 
     // Bir sekmenin "gerçek" tamamlanma yolu var mı (quiz/quiz-fill ya da
     // interview-questions bloğu) — varsa manuel checkbox devre dışı kalır, çünkü
@@ -20492,7 +20737,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra }) {
                     </div>
                 </div>
             )}
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={focusMode} setFocusMode={setFocusMode} soundToggle={headerExtra} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={focusMode} setFocusMode={setFocusMode} soundToggle={headerExtra} showQaMentorLink={showQaMentorLink} />
 
             <main className="container mx-auto px-3 py-4 md:px-4 md:py-8 max-w-7xl">
                 {/* Hero */}

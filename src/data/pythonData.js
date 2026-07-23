@@ -2419,7 +2419,8 @@ else:
     print("Junior:", name)
 
 for skill in ["Python", "pytest", "Selenium"]:
-    print("Skill:", skill)` },
+    print("Skill:", skill)`,
+        expected: 'Senior: QA Engineer\nYears: 3\nSkill: Python\nSkill: pytest\nSkill: Selenium' },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Syntax' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Blok açma', en: 'Open block' }, java: 'if (x > 0) {', python: 'if x > 0:' },
         { concept: { tr: 'Blok kapama', en: 'Close block' }, java: '}', python: '(dedent — no symbol needed)' },
@@ -2495,7 +2496,8 @@ total_tests = 100       # How many tests were run
 passed_tests = 87       # How many passed
 
 pass_rate = (passed_tests / total_tests) * 100
-print("Pass rate:", pass_rate, "%")` },
+print("Pass rate:", pass_rate, "%")`,
+        expected: `Pass rate: 87.0 %` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Comments' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Tek satır yorum', en: 'Single-line comment' }, java: '// comment', python: '# comment' },
         { concept: { tr: 'Çok satır yorum', en: 'Multi-line comment' }, java: '/* comment */', python: '"""comment"""' },
@@ -2581,7 +2583,12 @@ print("Test:", test_name)
 print("Passed:", passed)
 print("Duration:", duration_ms, "ms")
 print("Errors:", error_count)
-print("Type of passed:", type(passed))` },
+print("Type of passed:", type(passed))`,
+        expected: `Test: Login Test
+Passed: True
+Duration: 234 ms
+Errors: 0
+Type of passed: <class 'bool'>` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Variables' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'int değişken', en: 'Integer variable' }, java: 'int x = 5;', python: 'x = 5' },
         { concept: { tr: 'String değişken', en: 'String variable' }, java: 'String s = "hi";', python: 's = "hi"' },
@@ -2673,7 +2680,15 @@ d = {"key": "val"}  # dict
 st = {1, 2, 3}      # set
 
 for var in [x, y, s, b, lst, tpl, d, st]:
-    print(type(var).__name__, ":", var)` },
+    print(type(var).__name__, ":", var)`,
+        expected: `int : 42
+float : 3.14
+str : hello
+bool : True
+list : [1, 2, 3]
+tuple : (1, 2)
+dict : {'key': 'val'}
+set : {1, 2, 3}` },
       { type: 'quiz', question: { tr: "Python\'da hangi veri tipi değiştirilemez (immutable)?", en: 'Which Python data type is immutable (cannot be changed after creation)?' }, options: [{ id: 'a', text: 'list' }, { id: 'b', text: 'dict' }, { id: 'c', text: 'tuple' }, { id: 'd', text: 'set' }], correct: 'c', explanation: { tr: "Tuple immutable\'dır — oluşturduktan sonra eleman ekleyip çıkaramazsınız. Java\'daki List.of() gibi.", en: "Tuples are immutable — you cannot add or remove elements after creation. Like Java\'s List.of()." } ,
         retryQuestion: {
       "question": {
@@ -2739,7 +2754,12 @@ print("Total:", total)
 print("Passed:", passed)
 print("Failed:", failed)
 print(f"Pass rate: {pass_rate:.1f}%")  # 1 decimal place
-print("Is 100% pass:", pass_rate == 100)` },
+print("Is 100% pass:", pass_rate == 100)`,
+        expected: `Total: 250
+Passed: 223
+Failed: 27
+Pass rate: 89.2%
+Is 100% pass: False` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Numbers' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Tam bölme', en: 'Integer division' }, java: '10 / 3  // = 3', python: '10 // 3  # = 3' },
         { concept: { tr: 'Gerçek bölme', en: 'True division' }, java: '10.0 / 3  // = 3.333', python: '10 / 3  # = 3.333 (always!)' },
@@ -2811,7 +2831,17 @@ print("Next year:", age_int + 1)
 # Truthy/Falsy
 values = [0, 1, "", "hello", [], [1,2], None]
 for v in values:
-    print(f"bool({repr(v)}) = {bool(v)}")` },
+    print(f"bool({repr(v)}) = {bool(v)}")`,
+        expected: `Age as string: 25 str
+Age as int: 25 int
+Next year: 26
+bool(0) = False
+bool(1) = True
+bool('') = False
+bool('hello') = True
+bool([]) = False
+bool([1, 2]) = True
+bool(None) = False` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Casting' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'String → int', en: 'String to int' }, java: 'Integer.parseInt("5")', python: 'int("5")' },
         { concept: { tr: 'int → String', en: 'int to String' }, java: 'String.valueOf(5)', python: 'str(5)' },
@@ -2895,7 +2925,13 @@ print("Upper:", url.upper())
 print("Contains 'api':", "api" in url)
 print("Split path:", url.split("/"))
 print("Starts with https:", url.startswith("https"))
-print("Replace:", url.replace("api", "v2"))` },
+print("Replace:", url.replace("api", "v2"))`,
+        expected: `[GET] https://automationexercise.com/api/users → 200
+Upper: HTTPS://AUTOMATIONEXERCISE.COM/API/USERS
+Contains 'api': True
+Split path: ['https:', '', 'automationexercise.com', 'api', 'users']
+Starts with https: True
+Replace: https://automationexercise.com/v2/users` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Strings' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'İlk karakter', en: 'First character' }, java: 's.charAt(0)', python: 's[0]' },
         { concept: { tr: 'Alt string', en: 'Substring' }, java: 's.substring(0,5)', python: 's[0:5]' },
@@ -2982,7 +3018,11 @@ errors = []  # empty list
 if not errors:
     print("No errors — all clear!")
 else:
-    print("Errors found:", errors)` },
+    print("Errors found:", errors)`,
+        expected: `Test passed: True
+Is fast: True
+Both OK: True
+No errors — all clear!` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Booleans' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Boolean değerleri', en: 'Boolean values' }, java: 'true, false', python: 'True, False (capital!)' },
         { concept: { tr: 'VE operatörü', en: 'AND operator' }, java: '&&', python: 'and' },
@@ -3074,7 +3114,11 @@ print("OK:", is_ok, "| Critical zone:", is_critical)
 # Membership
 allowed_methods = ["GET", "POST", "PUT", "DELETE"]
 method = "PATCH"
-print("Method allowed:", method in allowed_methods)` },
+print("Method allowed:", method in allowed_methods)`,
+        expected: `Margin: 50 ms
+50% of threshold: 100
+OK: True | Critical zone: False
+Method allowed: False` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Operators' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Üs alma', en: 'Power/Exponent' }, java: 'Math.pow(2, 8)', python: '2 ** 8' },
         { concept: { tr: 'Tam bölme', en: 'Floor division' }, java: '7 / 2  // = 3', python: '7 // 2  # = 3' },
@@ -3334,7 +3378,12 @@ print("Sorted:", failed_tests)
 
 # Remove resolved test
 failed_tests.remove("test_checkout")
-print("After fix:", failed_tests)` },
+print("After fix:", failed_tests)`,
+        expected: `Failed tests: 3
+After append: ['test_login', 'test_checkout', 'test_payment', 'test_search']
+ALERT: Login test failed!
+Sorted: ['test_checkout', 'test_login', 'test_payment', 'test_search']
+After fix: ['test_login', 'test_payment', 'test_search']` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Lists' }, columns: ['Java (ArrayList)', 'Python (list)'], rows: [
         { concept: { tr: 'Oluştur', en: 'Create' }, java: 'new ArrayList<>()', python: '[]' },
         { concept: { tr: 'Ekle (sona)', en: 'Append (end)' }, java: 'list.add("x")', python: 'list.append("x")' },
@@ -3429,7 +3478,11 @@ print("Message:", message)
 # Tuple in comparison
 result = ("PASS", 200)
 if result[0] == "PASS":
-    print("Test OK with status", result[1])` },
+    print("Test OK with status", result[1])`,
+        expected: `Passed: True
+Duration: 145 ms
+Message: Element found successfully
+Test OK with status 200` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Tuples' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Immutable liste', en: 'Immutable sequence' }, java: 'List.of(1, 2, 3)', python: '(1, 2, 3)' },
         { concept: { tr: 'Çift döndür', en: 'Return pair' }, java: 'return new int[]{a, b}; or Pair', python: 'return a, b  # tuple implicitly' },
@@ -3601,7 +3654,13 @@ for key in required_keys:
     if key not in api_response:
         print(f"MISSING KEY: {key}")
     else:
-        print(f"✓ {key} present")` },
+        print(f"✓ {key} present")`,
+        expected: `Status: 200
+Message: OK
+User ID: 42
+✓ status present
+✓ message present
+✓ data present` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Dictionaries' }, columns: ['Java (HashMap)', 'Python (dict)'], rows: [
         { concept: { tr: 'Oluştur', en: 'Create' }, java: 'new HashMap<>()', python: '{}  or  dict()' },
         { concept: { tr: 'Ekle / güncelle', en: 'Put / update' }, java: 'map.put("k", v)', python: 'map["k"] = v' },
@@ -3713,7 +3772,11 @@ def validate_response(status_code, body):
 print(validate_response(200, {"data": "ok"}))
 print(validate_response(200, {"error": "oops"}))
 print(validate_response(401, {}))
-print(validate_response(503, {}))` },
+print(validate_response(503, {}))`,
+        expected: `PASS
+FAIL — body has error key
+FAIL — Unauthorized
+FAIL — Server Error` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Conditions' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Else-if', en: 'Else-if' }, java: 'else if (cond)', python: 'elif cond:' },
         { concept: { tr: 'Ternary', en: 'Ternary operator' }, java: 'cond ? a : b', python: 'a if cond else b' },
@@ -3894,7 +3957,14 @@ for i, endpoint in enumerate(api_endpoints, start=1):
 # Count failures
 results = ["PASS", "FAIL", "PASS", "PASS", "FAIL"]
 failures = [r for r in results if r == "FAIL"]
-print(f"\nTotal: {len(results)}, Failed: {len(failures)}")` },
+print(f"\\nTotal: {len(results)}, Failed: {len(failures)}")`,
+        expected: `Testing endpoints:
+  1. GET /users → PASS
+  2. GET /products → PASS
+  3. GET /orders → PASS
+  4. GET /cart → FAIL
+
+Total: 5, Failed: 2` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — For Loops' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'For-each', en: 'For-each' }, java: 'for (String s : list)', python: 'for s in list:' },
         { concept: { tr: 'Sayaçlı döngü', en: 'Indexed loop' }, java: 'for(int i=0; i<n; i++)', python: 'for i in range(n):' },
@@ -4014,7 +4084,13 @@ for email in emails:
 
 print()
 print(f"Pass rate: {calculate_pass_rate(87, 100)}%")
-print(f"Pass rate: {calculate_pass_rate(0, 50)}%")` },
+print(f"Pass rate: {calculate_pass_rate(0, 50)}%")`,
+        expected: `user@test.com: True
+bad-email: False
+admin@example.co.uk: True
+
+Pass rate: 87.0%
+Pass rate: 0.0%` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Functions' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Metod tanımla', en: 'Define method' }, java: 'public String greet(String name)', python: 'def greet(name: str) -> str:' },
         { concept: { tr: 'Default parametre', en: 'Default parameter' }, java: 'Overloading only', python: 'def f(x=10):' },
@@ -4119,7 +4195,14 @@ for r in by_time:
 
 # Filter only failures
 failures = list(filter(lambda r: r["status"] == "FAIL", test_results))
-print("\nFailures:", [r["test"] for r in failures])` },
+print("\\nFailures:", [r["test"] for r in failures])`,
+        expected: `By speed:
+  test_db: 150ms
+  test_api: 200ms
+  test_login: 1500ms
+  test_ui: 3200ms
+
+Failures: ['test_login', 'test_ui']` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Lambda' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Lambda sözdizimi', en: 'Lambda syntax' }, java: 'x -> x * 2', python: 'lambda x: x * 2' },
         { concept: { tr: 'İki parametre', en: 'Two params' }, java: '(x, y) -> x + y', python: 'lambda x, y: x + y' },
@@ -4228,7 +4311,10 @@ class BankAccount:
 acc = BankAccount("Alice", 1000)
 acc.deposit(500)
 acc.withdraw(200)
-acc.withdraw(2000)` },
+acc.withdraw(2000)`,
+        expected: `Deposited 500. Balance: 1500
+Withdrew 200. Balance: 1300
+Insufficient funds!` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Classes' }, columns: ['Java', 'Python'], rows: [
         { concept: 'Constructor', java: 'public MyClass(int x) { this.x = x; }', python: 'def __init__(self, x): self.x = x' },
         { concept: 'Instance method', java: 'public void doIt() { ... }', python: 'def do_it(self): ...' },
@@ -4325,7 +4411,10 @@ class Cat(Animal):
 
 animals = [Dog("Rex"), Cat("Whiskers"), Animal("Unknown")]
 for a in animals:
-    print(a.speak())` },
+    print(a.speak())`,
+        expected: `Rex says: Woof!
+Whiskers says: Meow!
+Unknown makes a sound` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Inheritance' }, columns: ['Java', 'Python'], rows: [
         { concept: 'Extend class', java: 'class Dog extends Animal {}', python: 'class Dog(Animal): ...' },
         { concept: 'Call parent', java: 'super(name);', python: 'super().__init__(name)' },
@@ -4418,7 +4507,8 @@ def add(n):
 add(5)
 add(3)
 add(2)
-print(f"Total: {total}")        # Should print 10` },
+print(f"Total: {total}")        # Should print 10`,
+        expected: `Total: 10` },
       { type: 'quiz', question: { tr: "Python'da LEGB kuralında 'E' neyi temsil eder?", en: "In Python's LEGB rule, what does 'E' stand for?" }, options: [{ id: 'a', text: 'External' }, { id: 'b', text: 'Enclosing' }, { id: 'c', text: 'Exported' }, { id: 'd', text: 'Extended' }], correct: 'b', explanation: { tr: "LEGB = Local, Enclosing, Global, Built-in. Python değişkeni bu sırayla arar. Enclosing, iç içe fonksiyonlarda dıştaki fonksiyonun kapsamını ifade eder.", en: "LEGB = Local, Enclosing, Global, Built-in. Python searches for variables in this order. Enclosing refers to the scope of outer functions in nested function definitions." } ,
         retryQuestion: {
       "question": {
@@ -4611,7 +4701,12 @@ def get_user_age(data, key):
 
 print(get_user_age({"age": "25"}, "age"))         # 25
 print(get_user_age({"age": "abc"}, "age"))        # ValueError
-print(get_user_age({"name": "Ali"}, "age"))       # KeyError` },
+print(get_user_age({"name": "Ali"}, "age"))       # KeyError`,
+        expected: `25
+Cannot convert 'abc' to integer
+-1
+Key 'age' not found in data
+-1` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Error Handling' }, columns: ['Java', 'Python'], rows: [
         { concept: 'Try block', java: 'try { ... }', python: 'try: ...' },
         { concept: 'Catch', java: 'catch (IOException e) { }', python: 'except IOError as e:' },
@@ -4734,7 +4829,10 @@ print(f"Suite: {data['suite']}")
 print(f"Total: {len(data['results'])}, Failed: {len(failed)}")
 if failed:
     for f in failed:
-        print(f"  FAIL: {f['name']} ({f['ms']}ms)")` },
+        print(f"  FAIL: {f['name']} ({f['ms']}ms)")`,
+        expected: `Suite: Regression Suite
+Total: 3, Failed: 1
+  FAIL: profile (1205ms)` },
       { type: 'quiz', question: { tr: "Python'da dict'i JSON string'e dönüştüren fonksiyon hangisidir?", en: 'Which function converts a Python dict to a JSON string?' }, options: [{ id: 'a', text: 'json.stringify()' }, { id: 'b', text: 'json.encode()' }, { id: 'c', text: 'json.dumps()' }, { id: 'd', text: 'json.serialize()' }], correct: 'c', explanation: { tr: "json.dumps() (dump string) Python nesnesini JSON string'e çevirir. json.loads() (load string) tersini yapar. JavaScript'teki JSON.stringify() ve JSON.parse() gibi.", en: "json.dumps() (dump string) converts Python objects to JSON string. json.loads() (load string) does the reverse. Like JavaScript's JSON.stringify() and JSON.parse()." } ,
         retryQuestion: {
       "question": {
@@ -4806,12 +4904,16 @@ print(masked)                                     # Card: **** expires ****` },
       { type: 'editor', lang: 'python', defaultCode: `import re
 
 # Validate phone numbers: format must be +90-555-123-4567 or 05551234567
-phone_pattern = r'^(\+90-\d{3}-\d{3}-\d{4}|0\d{10})$'
+phone_pattern = r'^(\\+90-\\d{3}-\\d{3}-\\d{4}|0\\d{10})$'
 
 phones = ["+90-555-123-4567", "05551234567", "5551234", "+1-555-123-4567"]
 for phone in phones:
     valid = bool(re.match(phone_pattern, phone))
-    print(f"{phone}: {'VALID' if valid else 'INVALID'}")` },
+    print(f"{phone}: {'VALID' if valid else 'INVALID'}")`,
+        expected: `+90-555-123-4567: VALID
+05551234567: VALID
+5551234: INVALID
++1-555-123-4567: INVALID` },
       { type: 'quiz', question: { tr: "re.findall() ve re.search() arasındaki fark nedir?", en: 'What is the difference between re.findall() and re.search()?' }, options: [{ id: 'a', text: { tr: 'Hiçbir fark yok', en: 'No difference' } }, { id: 'b', text: { tr: 'findall tüm eşleşmeleri listeler, search ilkini bulur', en: 'findall returns all matches as list, search returns first match object' } }, { id: 'c', text: { tr: 'search sadece başlangıçta arar', en: 'search only checks at the start' } }, { id: 'd', text: { tr: 'findall büyük/küçük harf duyarsız', en: 'findall is case-insensitive' } }], correct: 'b', explanation: { tr: "re.findall() tüm eşleşmeleri string listesi olarak döner. re.search() ilk eşleşmeyi Match nesnesi olarak döner — veya None. .group() ile eşleşen metni alırsın.", en: "re.findall() returns all matches as a list of strings. re.search() returns the first match as a Match object — or None. Use .group() to get the matched text." } ,
         retryQuestion: {
       "question": {
@@ -4913,7 +5015,9 @@ passed = [t["duration"] for t in tests if t["passed"]]
 avg = sum(passed) / len(passed) if passed else 0
 
 print(f"Failed: {failed}")
-print(f"Avg duration of passed tests: {avg:.0f}ms")` },
+print(f"Avg duration of passed tests: {avg:.0f}ms")`,
+        expected: `Failed: ['TC-002', 'TC-004']
+Avg duration of passed tests: 184ms` },
       { type: 'quiz', question: { tr: "[x*2 for x in range(5) if x % 2 == 0] ne üretir?", en: 'What does [x*2 for x in range(5) if x % 2 == 0] produce?' }, options: [{ id: 'a', text: '[0, 2, 4, 6, 8]' }, { id: 'b', text: '[0, 4, 8]' }, { id: 'c', text: '[0, 2, 4]' }, { id: 'd', text: '[2, 4, 6, 8, 10]' }], correct: 'b', explanation: { tr: "range(5) = 0,1,2,3,4. x%2==0 filtrelemesi: 0,2,4 kalır. x*2 işlemi: 0,4,8. Sonuç: [0, 4, 8].", en: "range(5) = 0,1,2,3,4. Filter x%2==0 keeps 0,2,4. Then x*2 gives 0,4,8. Result: [0, 4, 8]." } ,
         retryQuestion: {
       "question": {
@@ -4998,7 +5102,12 @@ def generate_test_users(count):
 
 # Only processes one user at a time — memory efficient!
 for user in generate_test_users(5):
-    print(user)` },
+    print(user)`,
+        expected: `{'id': 1, 'email': 'user001@test.com', 'role': 'admin'}
+{'id': 2, 'email': 'user002@test.com', 'role': 'user'}
+{'id': 3, 'email': 'user003@test.com', 'role': 'user'}
+{'id': 4, 'email': 'user004@test.com', 'role': 'user'}
+{'id': 5, 'email': 'user005@test.com', 'role': 'user'}` },
       { type: 'quiz', question: { tr: "Python'da bir generator fonksiyonu oluşturmak için hangi keyword kullanılır?", en: 'Which keyword is used to create a generator function in Python?' }, options: [{ id: 'a', text: 'return' }, { id: 'b', text: 'generate' }, { id: 'c', text: 'yield' }, { id: 'd', text: 'next' }], correct: 'c', explanation: { tr: "'yield' ile normal fonksiyon generator'a dönüşür. Her yield çağrısında değer döner ve fonksiyon duraklar. Java'da bu pattern için Iterator interface'i implement edilir.", en: "'yield' turns a normal function into a generator. Each yield returns a value and pauses the function. In Java, you'd implement the Iterator interface for this pattern." } ,
         retryQuestion: {
       "question": {
@@ -5233,7 +5342,9 @@ with assert_raises(ZeroDivisionError):
     result = 1 / 0
 
 with assert_raises(ValueError):
-    int("not a number")` },
+    int("not a number")`,
+        expected: `OK: ZeroDivisionError was raised as expected
+OK: ValueError was raised as expected` },
       { type: 'quiz', question: { tr: "Python'da with statement kullanmanın temel avantajı nedir?", en: 'What is the main advantage of using a with statement in Python?' }, options: [{ id: 'a', text: { tr: 'Daha hızlı çalışır', en: 'It runs faster' } }, { id: 'b', text: { tr: 'Exception olsa bile cleanup kodu garanti çalışır', en: 'Cleanup code runs guaranteed even if an exception occurs' } }, { id: 'c', text: { tr: 'Sadece dosya işlemleri için kullanılır', en: 'Can only be used with files' } }, { id: 'd', text: { tr: "try/except'e gerek bırakmaz", en: "Eliminates the need for try/except" } }], correct: 'b', explanation: { tr: "with statement, __exit__ metodunun exception durumunda bile çalışmasını garanti eder. Java'daki try-with-resources gibi: try (Resource r = new Resource()). Kaynak sızıntısını önler.", en: "The with statement guarantees __exit__ runs even if an exception occurs. Like Java's try-with-resources: try (Resource r = new Resource()). Prevents resource leaks." } ,
         retryQuestion: {
       "question": {
@@ -5342,7 +5453,10 @@ suite.add_test("test_login")
 suite.add_test("test_checkout")
 print(suite.summary())
 print(suite.get_test(0))
-print(suite.get_test(99))   # Should return None` },
+print(suite.get_test(99))   # Should return None`,
+        expected: `Suite 'Regression': 2 tests
+test_login
+None` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Type System' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Tip zorunlu mu?', en: 'Types required?' }, java: 'Yes — compile error if missing', python: 'No — hints are optional' },
         { concept: 'Optional', java: 'Optional<String>', python: 'Optional[str] or str | None' },
@@ -5466,7 +5580,9 @@ class PlaywrightRunner(TestRunner):
 
 runners = [SeleniumRunner(), PlaywrightRunner()]
 for runner in runners:
-    print(runner.run("test_login"))` },
+    print(runner.run("test_login"))`,
+        expected: `Selenium: test_login → PASS
+Playwright: test_login → PASS` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Polymorphism' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Polimorfizm mekanizması', en: 'Polymorphism mechanism' }, java: 'interface / abstract class required', python: 'Duck typing — no interface needed' },
         { concept: { tr: 'Abstract metod', en: 'Abstract method' }, java: 'abstract void speak();', python: '@abstractmethod def speak(self): pass' },
@@ -5564,7 +5680,13 @@ print("Average:", sum(durations) / len(durations))
 
 # Add new measurement
 durations.append(295)
-print("After append:", list(durations))` },
+print("After append:", list(durations))`,
+        expected: `Durations: [120, 340, 89, 450, 220, 180]
+Count: 6
+Min: 89
+Max: 450
+Average: 233.16666666666666
+After append: [120, 340, 89, 450, 220, 180, 295]` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Arrays' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Primitive dizi', en: 'Primitive array' }, java: 'int[] arr = {1, 2, 3};', python: "array.array('i', [1, 2, 3])" },
         { concept: { tr: 'Dinamik dizi', en: 'Dynamic array' }, java: 'ArrayList<Integer>', python: 'list (built-in, use this)' },
@@ -5767,7 +5889,13 @@ print(f"Max: {max(response_times)} ms")
 # SLA check: all times must be under 500ms
 sla_threshold = 500
 violations = [t for t in response_times if t > sla_threshold]
-print(f"SLA violations: {len(violations)}")` },
+print(f"SLA violations: {len(violations)}")`,
+        expected: `Count: 8
+Average: 250.5 ms
+Std deviation: 153.4 ms
+Min: 89 ms
+Max: 510 ms
+SLA violations: 1` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Math' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Karekök', en: 'Square root' }, java: 'Math.sqrt(16)', python: 'math.sqrt(16)' },
         { concept: { tr: 'Yuvarla yukarı', en: 'Round up' }, java: 'Math.ceil(4.2)', python: 'math.ceil(4.2)' },
@@ -5876,7 +6004,13 @@ print("Packages from requirements.txt:")
 for line in requirements_txt.strip().split("\\n"):
     if line and not line.startswith("#"):
         name, version = line.split("==")
-        print(f"  {name} version {version}")` },
+        print(f"  {name} version {version}")`,
+        expected: `Packages from requirements.txt:
+  pytest version 7.4.3
+  requests version 2.31.0
+  playwright version 1.40.0
+  faker version 20.1.0
+  allure-pytest version 2.13.2` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Package Management' }, columns: ['Java (Maven)', 'Python (pip)'], rows: [
         { concept: { tr: 'Bağımlılık dosyası', en: 'Dependency file' }, java: 'pom.xml', python: 'requirements.txt' },
         { concept: { tr: 'Paket indir', en: 'Install package' }, java: 'mvn install', python: 'pip install package' },
@@ -5990,7 +6124,14 @@ def simulate_qa_config():
     return config
 
 config = simulate_qa_config()
-print(f"\\nReady to run {config['workers']} parallel tests!")` },
+print(f"\\nReady to run {config['workers']} parallel tests!")`,
+        expected: `Test Configuration:
+  url: https://automationexercise.com
+  browser: chromium
+  workers: 4
+  headless: True
+
+Ready to run 4 parallel tests!` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — User Input' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Kullanıcıdan oku', en: 'Read from user' }, java: 'Scanner sc = new Scanner(System.in); sc.nextLine()', python: 'input("prompt: ")' },
         { concept: { tr: 'Integer oku', en: 'Read integer' }, java: 'sc.nextInt()', python: 'int(input("prompt: "))' },
@@ -6100,7 +6241,13 @@ print("-" * 42)
 for r in test_results:
     icon = icons[r["status"]]
     ms_str = f"{r['ms']}ms" if r["ms"] > 0 else "-"
-    print(f"{r['name']:<20} {icon} {r['status']:<6} {ms_str:>10}")` },
+    print(f"{r['name']:<20} {icon} {r['status']:<6} {ms_str:>10}")`,
+        expected: `Test Name            Status     Duration
+------------------------------------------
+test_login           ✅ PASS        234ms
+test_checkout        ❌ FAIL        891ms
+test_search          ✅ PASS        156ms
+test_register        ⏭️ SKIP            -` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — String Formatting' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Modern format', en: 'Modern format' }, java: 'String.format("Hi %s", name)', python: 'f"Hi {name}"' },
         { concept: { tr: 'Math içinde', en: 'Math in template' }, java: 'String.format("n=%d", n+1)', python: 'f"n={n+1}"' },
@@ -6215,7 +6362,12 @@ for row in reader:
         failed += 1
     print(f"  {row['test_name']}: {status} ({row['duration_ms']}ms)")
 
-print(f"\\nTotal: {passed + failed}, Passed: {passed}, Failed: {failed}")` },
+print(f"\\nTotal: {passed + failed}, Passed: {passed}, Failed: {failed}")`,
+        expected: `  test_login: PASS (234ms)
+  test_checkout: FAIL (891ms)
+  test_search: PASS (156ms)
+
+Total: 3, Passed: 2, Failed: 1` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — File Handling' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Dosya aç ve oku', en: 'Open and read file' }, java: 'Files.readString(Path.of("f.txt"))', python: 'open("f.txt").read() or with open()' },
         { concept: { tr: 'Dosyaya yaz', en: 'Write to file' }, java: 'Files.writeString(path, content)', python: 'open("f.txt", "w").write(content)' },
@@ -6345,7 +6497,10 @@ cases = [
 
 for case in cases:
     auth_label = "🔐" if case.is_auth_required() else "🌍"
-    print(f"{auth_label} {case}")` },
+    print(f"{auth_label} {case}")`,
+        expected: `🔐 [GET] /api/users → 200
+🔐 [POST] /api/users → 201
+🌍 [POST] /api/login → 200` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — Dataclasses' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'Veri sınıfı', en: 'Data class' }, java: 'record (Java 16+) or POJO with Lombok', python: '@dataclass' },
         { concept: { tr: 'Constructor otomatik', en: 'Auto constructor' }, java: 'record auto / @AllArgsConstructor (Lombok)', python: '@dataclass auto __init__' },
@@ -6477,7 +6632,12 @@ print("Test Runner Config:")
 print(f"  Base URL: {args.base_url}")
 print(f"  Timeout:  {args.timeout}s")
 print(f"  Verbose:  {args.verbose}")
-print(f"  Output:   {args.output}")` },
+print(f"  Output:   {args.output}")`,
+        expected: `Test Runner Config:
+  Base URL: https://automationexercise.com
+  Timeout:  60s
+  Verbose:  True
+  Output:   html` },
       { type: 'comparison', title: { tr: 'Java ile Karşılaştırma', en: 'Java vs Python — CLI Arguments' }, columns: ['Java', 'Python'], rows: [
         { concept: { tr: 'CLI parsing kütüphanesi', en: 'CLI parsing library' }, java: 'Apache Commons CLI or picocli', python: 'argparse (built-in, no install)' },
         { concept: { tr: 'Argüman tanımlama', en: 'Define arguments' }, java: 'options.addOption("b", "browser", true, "desc")', python: 'parser.add_argument("--browser", ...)' },

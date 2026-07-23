@@ -1261,9 +1261,12 @@ function AlgorithmsPage() {
 
     // Bölüm tamamlama (ürün kararı 2026-07-19): kullanıcı her dersi/bölümü
     // tamamlandı işaretleyebilmeli, ilerlemesini görebilmeli ve hepsi bitince
-    // bitirme rozetini almalı. Tamamlama kariyer haritasına da işlenir
-    // (markTopicCompleted → recordLocalCompletedRoute, anonim de çalışır).
-    const { markTopicCompleted } = useAuth()
+    // bitirme rozetini almalı. Her ders tamamlanması markTopicCompleted ile XP/
+    // rozet kazandırır; kariyer haritasında route'un TAMAMEN bitmesi ise AYRI
+    // olarak markRouteFullyCompleted ile işaretlenir (aşağıya bak) — SADECE tek
+    // bir ders bitince değil (gerçek kullanıcı bug raporu, 2026-07-23: önceden
+    // ilk ders bitince /algorithms tüm route "tamamlandı" görünüyordu).
+    const { markTopicCompleted, markRouteFullyCompleted } = useAuth()
     const [completedLessons, setCompletedLessons] = useState(() => {
         try {
             const saved = localStorage.getItem('algorithms_completed_lessons')
@@ -1282,6 +1285,10 @@ function AlgorithmsPage() {
         if (!wasDone) {
             markTopicCompleted({ lessonSlug: 'algorithms', topicSlug: lesson.id, topicLabel: lesson.shortTitle, routePath: '/algorithms' })
                 .catch(() => { /* progress senkronizasyonu başarısız olsa da UI bozulmaz */ })
+            if (Object.keys(updated).length === data.lessons.length) {
+                markRouteFullyCompleted({ lessonSlug: 'algorithms', routePath: '/algorithms' })
+                    .catch(() => { /* senkronizasyon başarısız olsa da UI bozulmaz */ })
+            }
         }
     }
 
@@ -1353,7 +1360,7 @@ function AlgorithmsPage() {
     return (
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-slate-950 text-slate-100' : 'bg-gradient-to-br from-emerald-50 via-white to-cyan-50 text-slate-900'}`}>
             <ScrollProgressBar />
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} showQaMentorLink />
 
             <main className="mx-auto max-w-7xl px-3 py-5 md:px-6 md:py-8">
                 <section className={`overflow-hidden rounded-lg border p-4 shadow-xl md:p-7 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>

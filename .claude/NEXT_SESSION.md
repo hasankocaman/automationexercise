@@ -10,13 +10,327 @@
 
 ---
 
-## 📌 ŞU AN NE DURUMDAYIZ (2026-07-22, Fable oturumu #2 — önce BURAYI oku)
+## 📌 ŞU AN NE DURUMDAYIZ (2026-07-23, Claude Code oturumu — Faz 2 + qa-mentor bug fix TAMAMLANDI, önce BURAYI oku)
 
 | | |
 |---|---|
-| **Aktif branch** | `main` — `feature/code-practice-ai-feedback` merge edildi, tam E2E koşuldu, **GitHub'a push edildi** (`e3085ec..7f37896`) |
-| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 (CodePlaygroundBlock: confetti + üyelere özel AI açıklama) ✅ TAMAMLANDI VE PUSH EDİLDİ |
-| **Sırada ne var** | Faz 2 (runtime editörlere `expected` alanı + site geneli içerik rollout'u) — plan dosyası §3, ayrı bir sonraki oturumun işi. `feature/code-practice-ai-feedback` branch'i main'e merge edildi, silinmedi (kullanıcı onayı gerekir). |
+| **Aktif branch** | `feature/code-practice-ai-feedback` — Faz 2 tamamlandı + main'deki qa-mentor bug fix commit'i (`63b0e79`) merge edildi (`96d2323`). GitHub'a push edilecek. |
+| **Plan dosyası** | `Documents/code-practice-ai-feedback-plan.md` — Faz 1 ✅ (main'e merge edilmiş) + Faz 2 (§3'te taslak, kapsam burada işlendi) ✅ kodlama tarafı bitti. Manuel test adımları artık plan dosyasının sonunda. |
+| **Bu oturumda ayrıca bulunan/düzeltilen bug** | `/qa-mentor` yol haritasında bir ders sadece İLK sekmesi bitince TAMAMI "tamamlandı" görünüyordu (kullanıcı bug raporu) — düzeltildi, aşağıya bak. Bu fix önce `main`'de commit edildi (`63b0e79`), sonra bu branch'e merge edildi — kullanıcı talimatı: "main'deki fix dahil her şey feature branch'te olmalı, çünkü push edilecek olan bu branch". |
+| **Sırada ne var (SADECE kullanıcı adımı)** | (1) Bu branch GitHub'a push edilecek. (2) ✅ `explain-code-output` edge function'ı iki Supabase projesine deploy edildi (2026-07-23, Claude Code — `supabase functions deploy explain-code-output --project-ref qtwargbbwuvrupfyowbg` ve `--project-ref qmvurwmcuexvuwvaiuhj`, ikisi de "Deployed Functions" ile başarılı döndü, `GROQ_API_KEY` zaten mevcuttu). (3) Deploy tamamlandı → 5.2 madde 4 (üye+AI-buton akışı) artık gerçek Groq ile test edilebilir. (4) main'e merge → main'de tam `npm run test:e2e` bir kez → push. |
+| **Test politikası (bu branch'te)** | Kullanıcı talimatı (2026-07-23): bu oturumda HİÇBİR aşamada manuel test/build çalıştırılmadı — sadece otomatik pre-commit hook (`check-content-integrity.mjs`) çalıştı. Tam test SADECE main'e push anında (pre-push hook, otomatik). |
+
+### 🗺️ "QA Mentor Haritana Git" butonu — Test Temelleri / Algoritma Temeli / Manuel Test (2026-07-23, Claude Code)
+Kullanıcı isteği: `/what-is-testing`, `/algorithms`, `/manual-testing` sayfalarında
+üstteki "← QA Learning Platform Ana Sayfasına Dön" butonunun **hemen altına**,
+kullanıcıyı `/qa-mentor` roadmap'ine yönlendiren ikinci bir buton eklendi —
+ilk kez gelen kullanıcının muhtemelen haritayı takip edeceği varsayımıyla.
+
+- `TopicHeader.jsx`: yeni opsiyonel `showQaMentorLink` prop'u eklendi. `true`
+  ise back-button'ın altına (aynı sütunda, flex-col) sarı/amber vurgulu ikinci
+  bir buton render ediyor, `navigate('/qa-mentor')` çağırıyor. Prop
+  verilmezse (site genelindeki diğer TÜM teknoloji sayfaları) davranış
+  BİREBİR eskisi gibi — TopicHeader zaten `TopicPage.jsx` üzerinden site
+  genelinde kullanıldığı için varsayılan `false`/`undefined` kritik.
+- `TopicPage.jsx`: `showQaMentorLink` prop'u eklendi, `TopicHeader`'a
+  pass-through ediliyor (diğer `TopicPage` tüketicileri bu prop'u
+  vermediğinden etkilenmiyor).
+- Çağıran taraf — SADECE 3 sayfa `showQaMentorLink` geçiyor:
+  - `WhatIsTestingPage.jsx` (`/what-is-testing` = "Test Temelleri") — `TopicPage`'e prop.
+  - `AlgorithmsPage.jsx` (`/algorithms` = "Algoritma Temeli") — kendi `TopicHeader` çağrısına prop (bu sayfa `TopicPage` kullanmıyor, kendi layout'u var).
+  - `ManualTestingPage.jsx` (`/manual-testing` = "Manuel Test") — aynı şekilde kendi `TopicHeader` çağrısına prop.
+- Buton metni `locales/tr.json` + `locales/en.json`'da yeni `pages.qaMentorButton`
+  key'i olarak eklendi (`t('pages.qaMentorButton')`): TR "🗺️ QA Mentor Haritana
+  Git", EN "🗺️ Go to Your QA Mentor Map" — dil toggle'a otomatik uyuyor.
+- **Test edilmedi (kullanıcı talimatı: "test etmeden sadece commit yap").**
+  Sıradaki oturumda gerçek tarayıcıda doğrulanmalı: (1) her 3 sayfada buton
+  görünüyor mu, (2) tıklayınca `/qa-mentor`'a gidiyor mu, (3) EN modda metin
+  doğru mu, (4) diğer teknoloji sayfalarında (örn. `/python`, `/selenium`)
+  bu buton YANLIŞLIKLA görünmüyor mu (prop verilmediği için görünmemeli).
+
+### 🐛 qa-mentor route-completion bug fix — main'de commit edildi, feature branch'e merge edildi (2026-07-23, Claude Code)
+main'de `63b0e79` olarak commit edildi, sonra `git merge main` ile bu
+branch'e taşındı (merge commit `96d2323`, TopicPage.jsx'te otomatik/
+çakışmasız merge oldu — qa-mentor fix'in dokunduğu satırlar Faz 2'nin
+editör bileşenlerinden tamamen farklı bölgelerde).
+
+**Bug:** `/qa-mentor` yol haritasında bir ders (örn. "Test Temelleri" =
+`/what-is-testing`), kullanıcı sadece İLK sekmenin quiz eşiğini (%60)
+geçince TAMAMI "tamamlandı" gösteriyordu — kalan 5 sekme boş olsa bile.
+Aynı bug `/algorithms` ve `/manual-testing` için de geçerliydi (sadece
+ilk ders/bölüm bitince tüm route tamamlandı sayılıyordu).
+
+**Kök neden:** `TopicPage.jsx`/`AlgorithmsPage.jsx`/`ManualTestingPage.jsx`
+her sekme/ders bitince `markTopicCompleted(...)` çağırıyordu (XP/rozet için
+doğru davranış), ama bu fonksiyonun içindeki `saveProgress` çağrısı
+`status==='completed'` her tetiklendiğinde OTOMATİK olarak
+`recordLocalCompletedRoute(routePath)` çağırıyordu — yani route, İLK
+completed sekme/derste anında "tamamlandı" işaretleniyordu. Üye tarafında
+da aynı bug: `getCompletedRoutePaths()` "bu route için status=completed olan
+HERHANGİ bir satır var mı" diye bakıyordu, "TÜMÜ mü completed" değil.
+
+**Düzeltme (`AuthContext.jsx`):**
+- `saveProgress`'ten otomatik `recordLocalCompletedRoute` çağrısı KALDIRILDI
+  (artık per-sekme/ders `markTopicCompleted` route'u ERKEN tamamlanmış
+  işaretlemiyor).
+- Yeni `markRouteFullyCompleted({ lessonSlug, routePath })`: anonim için
+  `recordLocalCompletedRoute`, üye için sentinel `topic_slug:
+  '__route_complete__'` ile `user_progress`'e ayrı bir satır yazıyor — XP/
+  rozet VERMİYOR (sadece `saveProgress` çağırıyor, `markTopicCompleted`
+  değil).
+- `getCompletedRoutePaths()` artık SADECE bu sentinel satırları sayıyor.
+- `markTopicCompleted`'daki rozet-eşiği sayım sorgusuna
+  `.neq('topic_slug', '__route_complete__')` eklendi — sentinel satırlar
+  rozet sayımını ŞİŞİRMESİN diye.
+
+**Çağıran taraf değişikliği (3 dosya):**
+- `TopicPage.jsx`: yeni `useEffect` — `completedCount === tabs.length` olunca
+  `markRouteFullyCompleted` çağırıyor (tüm `*Data.js` sayfalarını kapsar,
+  TopicPage üzerinden render edilen HER sayfa otomatik düzeldi).
+- `AlgorithmsPage.jsx` / `ManualTestingPage.jsx`: `toggleLessonComplete`/
+  `handleLessonComplete` içinde, güncellenmiş tamamlanan-ders sayısı TÜM
+  ders sayısına eşit olunca aynı fonksiyon çağrılıyor.
+
+**Doğrulama (önceki oturumda, main'e commit edilmeden ÖNCE yapıldı):**
+Gerçek Chromium'da (Playwright, yaz-koş-sil script) `/what-is-testing`
+(6 sekme) üzerinde: 1/6 sekme tamamlanınca `learnqa_completed_routes`
+localStorage'ına route EKLENMEDİ (eski davranışta eklerdi — bu bug'ın
+ta kendisiydi); 6/6 sekme tamamlanınca DOĞRU şekilde eklendi. Konsol hatası
+yok. **Bu oturumda main'e commit ve feature'a merge sonrası TEKRAR test
+edilmedi** (kullanıcı talimatı: hiçbir aşamada test yapma) — mantık
+değişmedi, sadece commit edildi.
+
+### ✅ Faz 2 kodlama tarafı TAMAMLANDI (2026-07-23, Claude Code) — TS/JS/SQL editörlerinde rollout hedefi YOK
+`case 'editor':` ile ulaşılabilen 4 runtime editörün (Pyodide/TS/JS/SQL)
+TAMAMI artık opsiyonel `expected` alanını destekliyor (bkz. aşağıdaki iki
+bölüm). pythonData.js'teki 39 blok tek tek işlendi. **TSEditor/JSEditor/
+SQLEditor'a rollout YAPILAMADI çünkü yapılacak bir şey YOK** — tüm
+`src/data/*.js` dosyaları taranarak doğrulandı:
+- `type: 'editor'` blokları SADECE `javaData.js` (22, lang:'java', zaten
+  `JavaPracticeBlock`'a yönlendirilmiş durumda) ve `pythonData.js`'te (40)
+  var. `lang: 'typescript'`/`'javascript'`/`'sql'` ile TEK BİR `type:'editor'`
+  bloğu YOK sitede.
+- Sebebi: `/typescript` ve `/sql` sayfaları interaktif pratik için zaten
+  `code-playground` (Faz 1'in CodePlaygroundBlock mekanizması — kaynak-kod
+  diff'i, kendi `expected`/confetti/AI-panel'i çoktan var) kullanıyor.
+  `/javascript` sayfasında ise HİÇ interaktif pratik yok (tek bir `challenge`
+  bloğu) — bu, Bölüm 9.2'nin site geneli "interaktif üçlü" yayılım hedefinin
+  bir parçası, BU PLANIN kapsamı DIŞINDA, ayrı bir görev.
+- Sonuç: TS/JS/SQL runtime editörlerine (`<TSEditor>`/`<JSEditor>`/
+  `<SQLEditor>`) eklenen `expected` mekanizması şu an için altyapısal
+  hazırlık — kullanılacağı yeni bir `type:'editor'` bloğu (TypeScript/
+  JavaScript/SQL için) yazılırsa otomatik çalışacak, ama bugün itibariyle
+  hiçbir sayfa bunu göstermiyor. Bu NORMAL ve BEKLENEN bir durum, hata değil.
+
+**Sonuç olarak bu planın (`code-practice-ai-feedback-plan.md`) kodlama
+tarafı TAMAMEN BİTTİ.** Kalan TEK adım kullanıcının `explain-code-output`'u
+deploy etmesi (yukarıya bak) — bu, kod değişikliği DEĞİL, harici bir
+altyapı adımı.
+
+### 🧩 Faz 2 — TSEditor/JSEditor/SQLEditor'a expected+AI panel mekanizması (2026-07-23, Claude Code)
+Kullanıcı talimatı: "sıradaki kodlamaya devam et, sorma" — plan §3'ün
+literal kapsamı ("PyodideEditor/TSEditor/JSEditor" gövdede, başlıkta ayrıca
+SQLEditor) baz alınarak PyodideEditor'daki AYNI desen 3 editöre de
+uygulandı, sitewide ters-slash riski (ayrı, plan dışı bir konu) bu adımda
+İŞLENMEDİ.
+
+- **TSEditor/JSEditor**: `console.log` çıktısı zaten `logs.join('\n')` olarak
+  toplanıyordu — `normalizeOutputForComparison` ile `expected`'a karşı
+  kıyaslanıyor, eşleşince mikro-confetti + `onFirstSuccess`, eşleşmezse amber
+  "Beklenen: ..." + `AiEditorExplanationPanel` (aynı bileşen, `explain-code-output`
+  fonksiyonunu tekrar çağırıyor — yeni fonksiyon YOK).
+- **SQLEditor**: `run()` içindeki sonuç-tablosu render mantığı DEĞİŞMEDİ,
+  sadece formatlanmış tablo string'i (`header\nsep\nrows\n\n(N rows)`) veya
+  "No rows returned." mesajı artık `captured` değişkenine alınıp `expected`
+  ile aynı normalize kıyaslamasından geçiyor. `expected` yazılacaksa blok
+  yazarı BEKLENEN ÇIKTIYI TAM OLARAK BU FORMATTA (padded columns + row count)
+  vermeli — ham SQL sonucu değil, render edilmiş tabloyu.
+- `expected` verilmezse (şu an TÜM TS/JS/SQL blokları) davranış BİREBİR eskisi
+  gibi — hiçbir mevcut blok regresyona uğramadı.
+- `case 'editor':` switch'i her üç dal için de `block.expected`/`block.task`
+  (`block.task || block.label`) geçiriyor artık (PyodideEditor ile simetrik).
+
+**Doğrulama (2026-07-23):** `node scripts/check-content-integrity.mjs` ✅ 0
+ihlal, `npm run build` ✅ PASS (41 static route, dist SEO PASS). Bu adımda
+kullanıcı talimatı gereği ("test edilmeden commit atılır") gerçek tarayıcı
+doğrulaması YAPILMADI — sadece hızlı zorunlu kontroller (plan §4). Henüz
+hiçbir `*Data.js` dosyasında `type:'editor', lang:'typescript'|'javascript'|
+'sql'` bloğuna gerçek `expected` verisi YAZILMADI (sıradaki adım, yukarıya
+bak) — bu commit SADECE altyapı, pythonData.js'teki gibi bir içerik rollout'u
+henüz yok.
+
+### 🧪 Faz 2 rollout — pythonData.js'teki 34 editor bloğuna `expected` yazıldı (2026-07-23, Claude Code)
+Kullanıcı onayıyla (bkz. yukarıdaki proof-of-concept), pythonData.js'teki 40
+`type:'editor', lang:'python'` bloğunun kalan 39'u tek tek incelendi. Yöntem:
+her bloğun `defaultCode`'u Node ile `pythonData.js`'ten gerçek JS-parse edilmiş
+haliyle çıkarıldı (regex değil, doğrudan `import`), yerel `python3` ile
+çalıştırılıp GERÇEK stdout yakalandı, sonra bu çıktı `expected` alanı olarak
+programatik biçimde ilgili bloğun ardına eklendi (34 blok, tek script,
+manuel kopyala-yapıştır hatası riski olmadan).
+
+**5 blok kasıtlı olarak `expected` ALMADI** (mevcut davranış korunuyor —
+serbest "dene ve gör", doğrulama yok):
+- **Setler & Sözlükler** — "Set use case: finding duplicate test IDs": ham
+  `set` (string) print'i CPython'da PYTHONHASHSEED'e bağlı olarak HER
+  ÇALIŞTIRMADA farklı sırada basılıyor (5 yerel çalıştırmada 5 farklı sıra
+  gözlemlendi) — kesin string eşleşmesi doğru cevabı bile "yanlış" işaretler.
+- **Koşul & Döngüler** — "Retry pattern": `random.choice` kullanıyor, çıktı
+  her çalıştırmada değişir.
+- **Kapsam & Modüller** — `import random` (test kullanıcı üretici): aynı sebep.
+- **Yardımcı Modüller** — `datetime.now()` ile gerçek zaman damgalı dosya adı
+  üretiyor, deterministik olamaz.
+- **İleri Seviye Kavramlar** — `time.perf_counter()` ile GERÇEK çalışma
+  süresi ölçüyor (yerelde 3.0-3.2ms arası bile dalgalandı, Pyodide/WASM'da
+  çok daha farklı olacaktır).
+
+**Yan bulgu — 2 gerçek içerik bug'ı düzeltildi (mevcut, benimle ilgisiz,
+ama `expected` eklemek için çalışır kod gerekiyordu):**
+1. "For loop QA examples" ve "Lambda sorting exercise" bloklarında
+   `print(f"\nTotal: ...")` / `print("\nFailures: ...")` içindeki `\n` JS
+   template literal içinde TEK ters slash ile yazılmıştı — JS motoru bunu
+   GERÇEK bir satır sonu karakterine çeviriyor (Python'un kendi `\n` kaçış
+   dizisine ulaşmadan), bu da Python'da "EOL while scanning string literal"
+   ile bloğun ÇALIŞMASINI engelliyordu (kullanıcı "Run"a bassa bile hep kırmızı
+   hata görüyordu, `onFirstSuccess` hiç tetiklenmiyordu). Düzeltme: `\\n`
+   (çift ters slash) — JS artık doğru şekilde tek `\n` karakteri üretiyor.
+2. "Practice: handle multiple errors gracefully" sekmesindeki telefon
+   regex bloğunda `phone_pattern = r'^(\+90-\d{3}-\d{3}-\d{4}|0\d{10})$'`
+   AYNI sebepten `+90-d{3}-d{3}-d{4}|0d{10}` haline geliyordu (ters slash'lar
+   JS tarafından yutuluyordu) — `re.error: nothing to repeat` ile bloğu
+   tamamen çökertiyordu. Düzeltme: aynı çift ters slash tekniği.
+
+**⚠️ SITEWIDE RİSK (bu oturumda ARAŞTIRILMADI, sadece tespit edildi):** Yukarıdaki
+bug'ların kök nedeni ("tek ters slash + JS template literal" kombinasyonu
+`\d`, `\+`, `\n` gibi kaçış dizilerini sessizce yiyor) SADECE editor
+bloklarına özgü değil — aynı desen, SADECE GÖRÜNTÜLENEN (çalıştırılmayan)
+`type: 'code'` bloklarında da bulundu (örnek: pythonData.js içinde
+`re.findall(r'TC-\d+', text)` görüntüleme bloğu — kullanıcıya YANLIŞ regex
+sözdizimi gösteriyor olabilir, ama hiç çalıştırılmadığı için build/test
+BUNU YAKALAMAZ). Bu, potansiyel olarak `\d`/`\s`/`\w`/`\n`/`\+` gibi Python
+kaçış dizileri içeren HER `code:`/`defaultCode:` template literal'ini
+etkileyebilir — sadece pythonData.js'te değil, regex/string-escape kullanan
+diğer sayfalarda da (örn. javascriptData, typescriptData). Bu, kapsamı
+büyük, AYRI bir keşif+düzeltme oturumu gerektirir — bu oturumun kapsamı
+DIŞINDA tutuldu (Faz 2'nin görevi sadece pythonData.js editor bloklarıydı).
+
+**Doğrulama (2026-07-23):** `node scripts/check-content-integrity.mjs` ✅ 0
+ihlal, `npm run build` ✅ PASS (41 static route, dist SEO PASS). Gerçek
+Chromium'da (Playwright, yaz-koş-sil script) 3 farklı sekmeden örnek blok
+test edildi ("Sözdizimi & Yorumlar", "Setler & Sözlükler", "Dosya & JSON" —
+emoji/tablo formatlı çıktı dahil): üçü de "✅ Doğru!" mesajını doğru
+gösterdi, konsol hatası YOK. Tam Playwright regresyon paketi HENÜZ
+koşulmadı (plan §4 politikası gereği main'e push öncesine bırakıldı).
+
+### 🤖 Faz 2 — yanlış çıktıda üye-only AI açıklama paneli (2026-07-23, Claude Code)
+**Tasarım kararı:** `explain-code-practice`'i (Faz 1, kaynak-kod kıyaslaması
+için yazılmış) YENİDEN KULLANMADIM — bunun yerine **yeni** bir edge function
+yazdım: `supabase/functions/explain-code-output/index.ts`. Sebep: runtime
+editörde öğrencinin kodu GERÇEKTEN çalıştırılıyor, kıyaslanan şey KAYNAK KOD
+değil ÇIKTI. `explain-code-practice`'e "expected output"u `solutionCode` diye
+göndermek yanlış temsil olurdu (AI'ya "bu senin çözüm kodun" diye sahte bir
+kod göstermiş olurduk) ve prompt'u da tamamen değiştirmek gerekirdi — bu da
+mevcut fonksiyonu ÇAĞIRAN CodePlaygroundBlock'un davranışını bozma riski
+taşırdı. Yeni fonksiyon, projenin var olan deseniyle (her AI kaygısı için
+ayrı, dar kapsamlı fonksiyon: explain-quiz-answer / explain-code-practice /
+judge-eval / grade-interview-answer) tutarlı.
+
+**`explain-code-output` girdi:** `{task, expectedOutput, userCode,
+actualOutput, lang}` — çıktı: `{explanation}`. Sistem promptu AI'ya "fark
+zaten gösteriliyor, tekrar etme; KOD MANTIĞINDAKİ hatayı açıkla" diyor (aynı
+"tekrar etme, üzerine inşa et" deseni `explain-quiz-answer`/
+`explain-code-practice` ile aynı). Aynı üye-only kontrol (`auth.getUser()`),
+aynı KESİN TR/EN dil kuralı (Latin dışı alfabe yasak), aynı `GROQ_API_KEY`
+secret'ı paylaşılıyor — yeni secret gerekmiyor.
+
+**Frontend (`TopicPage.jsx`):** Yeni `AiEditorExplanationPanel` bileşeni
+(mevcut `AiExplanationPanel`/`AiPracticeExplanationPanel` ile birebir aynı
+görsel dil: `session` yoksa 🔒 kilit mesajı buton YOK, varsa "🤖 AI'dan kodum
+için ek açıklama iste" butonu → tıklanınca çağrı). `PyodideEditor`'a yeni
+`task` prop'u eklendi (`block.task || block.label`, opsiyonel — pythonData.js
+editor bloklarının hiçbirinde şu an `task`/`label` yok, fonksiyon bunu
+opsiyonel kabul ediyor). `passed === false` durumunda deterministik "Beklenen:
+..." mesajının HEMEN ALTINA ekleniyor. Yeni `attempts` sayacı + `key=
+{attempts}` ile her yeni yanlış denemede panel sıfırdan mount olup önceki AI
+cevabını göstermeye devam etmiyor (Faz 1'deki `CodePlaygroundBlock` deseniyle
+aynı). `darkMode` sabit `true` geçiliyor çünkü PyodideEditor'ün kendi UI'ı
+(terminal görünümü) site temasından bağımsız hep koyu.
+
+**⚠️ HENÜZ YAPILMAYAN — kullanıcı adımı gerekiyor:** `explain-code-output`
+fonksiyonu bu ortamda `supabase` CLI kurulu/login'li olmadığı için DEPLOY
+EDİLEMEDİ. Kullanıcı, `explain-code-practice`'te yaptığı gibi iki projeye de
+deploy etmeli:
+```
+supabase functions deploy explain-code-output --project-ref qtwargbbwuvrupfyowbg   # learnqa-test
+supabase functions deploy explain-code-output --project-ref qmvurwmcuexvuwvaiuhj   # learnqa-prod
+```
+`GROQ_API_KEY` secret'ı zaten her iki projede de mevcut (diğer AI
+fonksiyonlarıyla paylaşılıyor), ek secret gerekmiyor. Deploy edilmeden önce
+üye+AI-buton akışı gerçek Groq çağrısıyla test EDİLEMEZ (Faz 1'de de aynı
+sıra izlenmişti: kod yazılıp deploy edildikten SONRA kullanıcı manuel
+doğruladı).
+
+**Doğrulama (2026-07-23):** `node scripts/check-content-integrity.mjs` ✅ 0
+ihlal, `npm run build` ✅ PASS. Gerçek Chromium'da (Playwright, yaz-koş-sil
+script) SADECE anonim/kilit yolu doğrulandı: yanlış çıktıda deterministik
+uyarı + "🔒 AI açıklaması için giriş yapmalısın" mesajı doğru göründü, AI
+butonu anonim kullanıcıya HİÇ görünmüyor, konsol hatası yok. Üye+gerçek-Groq
+yolu deploy sonrası kullanıcı tarafından doğrulanmalı (yukarıdaki not).
+
+### 🧪 Faz 2 proof-of-concept — PyodideEditor `expected` alanı (2026-07-22, Claude Code)
+`PyodideEditor` (`TopicPage.jsx`) artık opsiyonel `expected` prop'u alıyor —
+verilmemişse (39 blokta hâlâ öyle) davranış BİREBİR eskisi gibi (her başarılı
+çalıştırmada `onFirstSuccess`, kıyaslama yok). Verilmişse: `run()` içinde
+yakalanan stdout, yeni `normalizeOutputForComparison` (boşluk/satır sonu
+farklarını yok sayan, `CodePlaygroundBlock.jsx`'teki `normalizeForComparison`
+ile aynı fikir ama ayrı küçük fonksiyon — döngüsel import'tan kaçınmak için
+kasıtlı olarak paylaşılmadı) ile `expected` (bilingual olabilir, `tx()` ile
+çözülüyor) karşılaştırılıyor:
+- Eşleşirse: yeşil "✅ Doğru! Çıktı bekleneni karşılıyor." + mikro-confetti
+  (`ConfettiExplosion duration={1800} particleCount={16}`, Faz 1'deki mikro
+  confetti ile aynı aile) + `onFirstSuccess`.
+- Eşleşmezse: amber "⚠️ Çıktı henüz beklenenle eşleşmiyor." + "Beklenen: ..."
+  metni (deterministik, AI YOK — bkz. aşağıdaki not).
+`case 'editor':` switch'inde `block.expected` artık `PyodideEditor`'a
+geçiriliyor. Kanıt bloğu: `pythonData.js` — "Sözdizimi & Yorumlar" sekmesi,
+QA Engineer/experience örneği, `expected: 'Senior: QA Engineer\nYears:
+3\nSkill: Python\nSkill: pytest\nSkill: Selenium'`.
+
+**Bilinçli olarak YAPILMADI (kapsam dışı bırakıldı):** Yanlış çıktıda üye-only
+AI açıklama paneli EKLENMEDİ. Sebep: mevcut `explain-code-practice` edge
+function'ın sistem promptu "beklenen ÇÖZÜM KODU (solutionCode) vs öğrencinin
+KODU" kıyaslaması için yazılmış (satır bazlı kod farkı anlatıyor) — runtime
+editörlerde asıl fark KOD değil ÇALIŞTIRILAN PROGRAMIN ÇIKTISI, bu farklı bir
+prompt/alan tasarımı gerektiriyor (yeni fonksiyon mu, mevcut fonksiyona yeni
+bir mod mu — kullanıcıyla netleştirilmeli). Bu YENİ bir tasarım kararı,
+"tek blokla kanıtla" onayının kapsamına girmiyordu.
+
+**Doğrulama (2026-07-22):** `node scripts/check-content-integrity.mjs` ✅ 0
+ihlal, `npm run build` ✅ PASS (41 static route, dist SEO PASS). Ayrıca `npm
+run dev` + gerçek Chromium (Playwright, yaz-koş-sil script) ile MANUEL uçtan
+uca doğrulandı: doğru kod → yeşil "Doğru!" + confetti DOM'da; kodu bozunca
+("WRONG OUTPUT" yazdıracak şekilde) → amber "eşleşmiyor" + çok satırlı
+"Beklenen:" metni doğru gösterildi; konsol/page hatası YOK (Pyodide yükleme
+logları hariç). Tam Playwright regresyon paketi HENÜZ koşulmadı (plan §4
+politikası gereği main'e push öncesine bırakıldı).
+
+### 🐛 Java editor yönlendirme bug'ı düzeltildi (2026-07-22, Claude Code)
+Faz 2 scoping araştırması sırasında bulundu: `TopicPage.jsx`'teki `case 'editor':`
+switch'i sadece `typescript`/`javascript`/`sql` için özel dallanıyordu, `lang: 'java'`
+(javaData.js'teki 22 blok) default dala düşüp **Java kodunu Pyodide (Python
+yorumlayıcısı) ile çalıştırıyordu** — bu her zaman syntax hatasıyla patlıyor ve
+`onFirstSuccess` hiç tetiklenmiyordu (egzersiz tamamlama/streak kaydı hiç
+işlemiyordu). Düzeltme: `lang === 'java'` artık zaten var olan
+`JavaPracticeBlock` bileşenine yönlendiriliyor (deterministik statik analiz:
+class/main/parantez/noktalı virgül kontrolü — gerçek bir Java runtime olmadığı
+için zaten bu proje bu yaklaşımı `java-practice` blok tipinde kullanıyordu).
+`JavaPracticeBlock`'a `onFirstSuccess` prop'u eklendi, `runCheck` içinde hata
+yoksa (`errors.length === 0`) çağrılıyor — diğer editörlerle aynı "her
+başarılı çalıştırmada tetikle" semantiği (parent taraf idempotent).
+Değişen dosya: `src/components/TopicPage.jsx` (JavaPracticeBlock component +
+`case 'editor'` switch). Yeni dosya/bileşen YOK. Doğrulama:
+`node scripts/check-content-integrity.mjs` ✅ 0 ihlal, `npm run build` ✅ PASS
+(41 static route, dist SEO PASS). Tam Playwright paketi henüz koşulmadı (plan
+§4 politikası gereği main'e push öncesine bırakıldı).
 
 ### 🔀 `feature/code-practice-ai-feedback` main'e merge edildi (2026-07-22)
 `git merge --no-ff` ile main'e alındı (fast-forward değil, ayrı merge commit) —

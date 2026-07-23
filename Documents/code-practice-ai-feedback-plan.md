@@ -88,13 +88,37 @@ buradaki değişiklik ekstra içerik yazmadan otomatik yayılır.
 - Yeni bileşen/dosya YOK — `ConfettiExplosion`, `useAuth`, `supabase`,
   `sanitizeAiText` zaten var, sadece `CodePlaygroundBlock.jsx`'e import edilir.
 
-## 3. Faz 2 (bu planın kapsamı DIŞINDA, sonraki oturum/lara bırakılır)
+## 3. Faz 2 — ✅ KODLAMA TARAFI TAMAMLANDI (2026-07-23)
 
-- Runtime editörlere (`PyodideEditor`/`TSEditor`/`JSEditor`/`SQLEditor`)
-  opsiyonel `expected` alanı + gerçek stdout karşılaştırması eklemek — bu,
-  her blok için içerik yazımı gerektirir, tek commit'te bitmez.
-- Faz 1 tamamlandıktan sonra hangi sayfaların/blokların Faz 2'ye taşındığı
-  `NEXT_SESSION.md`'de sayfa sayfa takip edilir, bu dosyada değil (§0).
+> Bu bölüm başlangıçta "bu planın kapsamı DIŞINDA, sonraki oturum/lara
+> bırakılır" olarak yazılmıştı — kullanıcı sonraki bir oturumda aynı
+> branch'te devam edilmesini istedi ve aşağıdaki tamamı bitti.
+
+- Runtime editörlerin (`PyodideEditor`/`TSEditor`/`JSEditor`/`SQLEditor`)
+  TAMAMINA opsiyonel `expected` alanı + gerçek stdout karşılaştırması +
+  mikro-confetti + üye-only AI açıklama paneli eklendi.
+- `pythonData.js`'teki 40 `type:'editor'` bloğunun 35'ine gerçek `expected`
+  yazıldı (5'i kasıtlı hariç — set sıralaması/`random`/`datetime.now()`/
+  `time.perf_counter()` nedeniyle deterministik olamaz, `NEXT_SESSION.md`'de
+  liste var).
+- TSEditor/JSEditor/SQLEditor'a aynı mekanizma eklendi ama **rollout hedefi
+  YOK** — site genelinde `lang:'typescript'/'javascript'/'sql'` ile TEK BİR
+  `type:'editor'` bloğu yok (`/typescript` ve `/sql` zaten `code-playground`
+  kullanıyor, `/javascript`'te hiç interaktif pratik yok — bu ayrı, bu
+  planın kapsamı dışında bir görev). Mekanizma altyapısal hazırlık olarak
+  duruyor, ileride bir blok yazılırsa otomatik çalışacak.
+- Yeni `explain-code-output` edge function'ı (üye-only, `explain-code-practice`
+  ile aynı desende ama ÇIKTI kıyaslaması için) yazıldı — **HENÜZ DEPLOY
+  EDİLMEDİ**, kullanıcı adımı gerekiyor (bkz. §5 Manuel Test Adımları).
+- Yan bulgu: `javaData.js`'teki 22 `type:'editor', lang:'java'` bloğu yanlış
+  bileşene (Pyodide/Python yorumlayıcısı) yönleniyordu, her zaman hata
+  veriyordu — düzeltildi (artık `JavaPracticeBlock`'a yönleniyor).
+- Ayrı bir kullanıcı bug raporu üzerine (bu planın kapsamı dışında ama aynı
+  branch'te düzeltildi): `/qa-mentor` yol haritasında bir ders sadece İLK
+  sekmesi/dersi bitince TAMAMI "tamamlandı" gösteriyordu — düzeltildi,
+  detay `NEXT_SESSION.md`'de.
+- Detaylı teknik anlatım ve hangi dosyaların değiştiği için `NEXT_SESSION.md`
+  (bu dosyanın §0 kuralı gereği anlık durum burada değil orada tutulur).
 
 ## 4. Test/Doğrulama Politikası (bu planın branch'inde geçerli)
 
@@ -103,3 +127,69 @@ commit'te sadece `check-content-integrity.mjs` + `npm run build` (hızlı)
 zorunlu; tam `npm run test:e2e` paketi SADECE main'e push'tan hemen önce, bir
 kere çalıştırılır. Döngü: kodla → `NEXT_SESSION.md` güncelle →
 `SKIP_E2E_HOOK=1 git commit` → sıradaki adım.
+
+## 5. Manuel Test Adımları (kullanıcı için — bu plan kapsamındaki her özellik)
+
+> Bu bölüm, Faz 1 + Faz 2 + yan bulgu olarak düzeltilen qa-mentor bug'ının
+> nasıl elle doğrulanacağını anlatır. `npm run dev` ile local sunucuyu
+> başlattıktan sonra sırasıyla uygulanabilir.
+
+### 5.1 Faz 1 — Kod pratiğinde konfeti + üye-only AI açıklama
+Herhangi bir sayfada (örn. `/linux`, `/java`) bir `code-playground` bloğu bul.
+1. Doğru cevabı yaz, kontrol et → yeşil onay + mikro-konfeti görülmeli.
+2. Yanlış cevap yaz, kontrol et → satır bazlı "Beklenen/Senin kodun" ipucu +
+   altında (anonimken) 🔒 kilit mesajı, AI butonu YOK.
+3. Gerçek hesapla giriş yap, aynı yanlış cevabı tekrar dene → "🤖 AI'dan kodum
+   için ek açıklama iste" butonu görünmeli, tıklayınca kodun özel açıklama
+   dönmeli (Groq çağrısı — birkaç saniye sürebilir).
+
+### 5.2 Faz 2 — Python runtime editöründe gerçek çıktı doğrulama
+1. `/python` → sol menüden **"Sözdizimi & Yorumlar"** sekmesi.
+2. İlk "Try it yourself" editöründe **▶ Run** → yeşil "✅ Doğru! Çıktı
+   bekleneni karşılıyor." + mikro-konfeti görülmeli.
+3. Kodu boz (bir `print` satırını sil/değiştir), tekrar Run → amber "⚠️ Çıktı
+   henüz beklenenle eşleşmiyor." + "Beklenen: ..." metni görülmeli.
+4. Anonimken amber kutunun altında sadece 🔒 kilit mesajı olmalı; gerçek
+   hesapla giriş yapınca (deploy sonrası, bkz. 5.3) AI butonu görünmeli.
+5. Diğer sekmelerde de (örn. "Değişkenler & Tipler", "Dosya & JSON") aynı
+   deseni birkaç editörde tekrarla — pythonData.js'teki 35 blok bu şekilde
+   çalışıyor olmalı. **İstisna:** "Setler & Sözlükler" (set örneği),
+   "Koşul & Döngüler" (retry pattern), "Kapsam & Modüller" (`random` kullanıcı
+   üretici), "Yardımcı Modüller" (`datetime.now()`), "İleri Seviye Kavramlar"
+   (`time.perf_counter()` timer örneği) bloklarında `expected` KASITLI OLARAK
+   yok — bu 5 blokta Run'a basınca sadece çıktı gösterilir, doğru/yanlış
+   değerlendirmesi YAPILMAZ (bu bir hata değil, tasarım gereği).
+
+### 5.3 `explain-code-output` deploy (ZORUNLU — deploy edilmeden 5.2 madde 4 test edilemez)
+```bash
+supabase functions deploy explain-code-output --project-ref qtwargbbwuvrupfyowbg   # learnqa-test
+supabase functions deploy explain-code-output --project-ref qmvurwmcuexvuwvaiuhj   # learnqa-prod
+```
+`GROQ_API_KEY` secret'ı zaten her iki projede de mevcut, ek secret gerekmiyor.
+Deploy sonrası 5.2 madde 4'ü gerçek hesapla tekrar dene.
+
+### 5.4 Java editör yönlendirme düzeltmesi
+1. `/java` sayfasında herhangi bir `type:'editor'` bloğu bul (örn. "Temel
+   Sözdizimi" pratiği — 22 tane var, hepsi aynı bileşeni kullanıyor).
+2. Görülmesi gereken: Python değil, **Java statik-analiz kontrolcüsü**
+   (turuncu "Kendin Dene" kutusu, `▶ Kontrol Et` butonu, class/main/parantez/
+   noktalı virgül kontrolleri). Öncesinde bu blok "her zaman kırmızı hata"
+   veriyordu (Java kodu Python yorumlayıcısından geçmeye çalışıyordu).
+
+### 5.5 QA Mentor "tamamlandı" bug fix (yan bulgu, aynı branch'te düzeltildi)
+1. `/what-is-testing` sayfasına git, SADECE ilk sekmenin ("Giriş & Neden")
+   quiz'ini geç (diğer 5 sekmeye dokunma).
+2. `/qa-mentor`'a git (daha önce sihirbazı tamamladıysan roadmap görünür,
+   tamamlamadıysan önce 4 soruluk sihirbazı bir kez geç).
+3. "Test Temelleri" düğümünün **HALA "tamamlandı" göstermediğini** doğrula
+   (bug varken burada yanlışlıkla "tamamlandı" görünüyordu).
+4. `/what-is-testing`'e dönüp KALAN tüm sekmelerin quiz'lerini de geç.
+5. `/qa-mentor`'a dön → şimdi "Test Temelleri" doğru şekilde "tamamlandı"
+   görünmeli. Aynı senaryo `/algorithms` ve `/manual-testing` için de
+   tekrarlanabilir (aynı bug, aynı düzeltme oradaki derslere de uygulandı).
+
+### 5.6 TS/JS/SQL editör altyapısı
+Şu an test edilecek bir şey YOK — hiçbir sayfada `type:'editor',
+lang:'typescript'/'javascript'/'sql'` bloğu yok (bkz. §3). Bu bölüm, ileride
+böyle bir blok eklenirse (örn. `/javascript` sayfasına interaktif pratik
+yazılırken) 5.2'deki adımların aynısı uygulanabilir demek içindir.

@@ -415,7 +415,8 @@
         }
     },
     "pages": {
-        "backButton": "← Back to QA Learning Platform Main Page"
+        "backButton": "← Back to QA Learning Platform Main Page",
+        "qaMentorButton": "🗺️ Go to Your QA Mentor Map"
     },
     "jmeter": {
         "navButton": "⚡ JMeter",

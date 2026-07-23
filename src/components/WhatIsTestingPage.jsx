@@ -7,6 +7,7 @@ function WhatIsTestingPage() {
             data={whatIsTestingData}
             gradient="from-violet-600 to-fuchsia-600"
             bgLight="bg-gradient-to-br from-violet-50 via-fuchsia-50 to-pink-50"
+            showQaMentorLink
         />
     )
 }
