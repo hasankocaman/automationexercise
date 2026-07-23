@@ -46,6 +46,8 @@ jobs:
           echo "TEST_USER_PASSWORD sha256: $(printf '%s' "$TEST_USER_PASSWORD" | sha256sum | cut -d' ' -f1)"
           echo "VITE_SUPABASE_URL sha256: $(printf '%s' "$VITE_SUPABASE_URL" | sha256sum | cut -d' ' -f1)"
           echo "VITE_SUPABASE_PUBLISHABLE_KEY sha256: $(printf '%s' "$VITE_SUPABASE_PUBLISHABLE_KEY" | sha256sum | cut -d' ' -f1)"
+          echo "SUPABASE_SERVICE_ROLE_KEY length: ${#SUPABASE_SERVICE_ROLE_KEY}"
+          echo "SUPABASE_SERVICE_ROLE_KEY sha256: $(printf '%s' "$SUPABASE_SERVICE_ROLE_KEY" | sha256sum | cut -d' ' -f1)"
 
       - name: Live Supabase login probe from CI runner (safe — no token/secret printed)
         run: |
