@@ -2474,22 +2474,1851 @@ public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
   ],
 }
 
-const groupC = [
-  ['C1', '🟢', 'Kurulum: npm init, express, nodemon', 'Setup: npm init, express, nodemon'],
-  ['C2', '🛣️', 'Route Tanımı: app.get/post, req.params/query', 'Route Definition: app.get/post, req.params/query'],
-  ['C3', '⛓️', 'Middleware Zinciri: express.json(), sıra', 'Middleware Chain: express.json(), order'],
-  ['C4', '🛡️', 'Validation: express-validator / zod', 'Validation: express-validator / zod'],
-  ['C5', '🚨', 'Error Handling Middleware: (err, req, res, next)', 'Error Handling Middleware: (err, req, res, next)'],
-  ['C6', '⚖️', 'Java ↔ Express Karşılaştırma', 'Java ↔ Express Comparison'],
+// ═══════════════════════════════════════════════════════════════════════════
+// GRUP C — Aynı API'yi Express.js ile Yazmak (KODLU + Defect şablonu, kısa/öz)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const C1 = {
+  title: { tr: '🟢 C1 · Kurulum: npm init, express, nodemon', en: '🟢 C1 · Setup: npm init, express, nodemon' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🟢',
+      content: {
+        tr: 'Bir Express projesi kurmak, **boş bir dükkan kiralamak** gibidir: Spring Boot\'un "starter"ı sana döşenmiş bir mutfak verirken (Bölüm B1), Express sana sadece anahtarı verir — tezgahı, ocağı, tabelayı sen kurarsın. `npm init` boş bir sözleşme (package.json) açar, `npm install express` tek bir minik kütüphane ekler (yönlendirme + HTTP yardımcıları), gerisi (validation, ORM, loglama) senin seçimindir. Peki Spring\'de tek satır her şeyi getirirken Express\'te neden bu kadar "çıplak" başlıyoruz? Çünkü Node ekosisteminin felsefesi **un-opinionated**\'dır — sana dayatma yapmaz, sen neye ihtiyacın olduğuna karar verirsin; küçük bir servis için bu hız kazandırır, büyük bir takımda ise disiplin gerektirir (herkes farklı bir validation kütüphanesi seçebilir). Java\'da bunun en yakın karşılığı çıplak bir Servlet projesi kurmaktır — Spring Boot bunu senin için otomatikleştirir, Express otomatikleştirmez. Tester için sonuç aynı: kurulum kırıksa test edilecek bir sunucu yoktur; ilk smoke test yine "uygulama hatasız başlıyor ve bir portu dinliyor mu?" sorusudur.',
+        en: 'Setting up an Express project is like **renting an empty shop**: while Spring Boot\'s "starter" (Chapter B1) hands you a fully furnished kitchen, Express only hands you the key — you build the counter, the stove, the sign yourself. `npm init` opens an empty contract (package.json), `npm install express` adds one small library (routing + HTTP helpers), the rest (validation, ORM, logging) is your choice. So why does Spring bring everything in one line while Express starts this "bare"? Because the Node ecosystem\'s philosophy is **un-opinionated** — it does not impose, you decide what you need; for a small service this is fast, for a large team it demands discipline (everyone might pick a different validation library). In Java the closest equivalent is setting up a bare Servlet project — Spring Boot automates that for you, Express does not. For a tester the outcome is the same: if setup is broken there is no server to test; the first smoke test is still "does the app start without error and listen on a port?"',
+      },
+    },
+    { type: 'heading', text: { tr: 'İlk Sunucu: 5 Satırda Ayakta', en: 'The First Server: Up in 5 Lines' } },
+    {
+      type: 'code',
+      language: 'bash',
+      code: {
+        tr: `# Yeni proje: bos bir package.json olusturur
+npm init -y
+
+# Express kutuphanesini ekler
+npm install express
+
+# Kod her degistiginde sunucuyu otomatik yeniden baslatir (gelistirme icin)
+npm install --save-dev nodemon`,
+        en: `# New project: creates an empty package.json
+npm init -y
+
+# Adds the Express library
+npm install express
+
+# Restarts the server automatically on every code change (for development)
+npm install --save-dev nodemon`,
+      },
+    },
+    {
+      type: 'code',
+      language: 'javascript',
+      code: {
+        tr: `// index.js — Bug Tracker API'sinin ilk hali
+const express = require('express')
+const app = express()
+const PORT = process.env.PORT || 3000
+
+app.get('/api/v1/bugs', (req, res) => {
+  res.json([])   // simdilik bos liste — B'deki Java servisiyle ayni sozlesme
+})
+
+// TODO: sunucuyu bir porta baglamadan calisan bir Express uygulamasi YOKTUR
+app.listen(PORT, () => {
+  console.log(\`Bug Tracker API port \${PORT} dinliyor\`)
+})`,
+        en: `// index.js — the Bug Tracker API's first version
+const express = require('express')
+const app = express()
+const PORT = process.env.PORT || 3000
+
+app.get('/api/v1/bugs', (req, res) => {
+  res.json([])   // empty list for now — same contract as the Java service in Group B
+})
+
+// TODO: there is NO running Express app without binding to a port
+app.listen(PORT, () => {
+  console.log(\`Bug Tracker API listening on port \${PORT}\`)
+})`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — `app.listen(...)` unutulursa**\n\n**Kod:** `app.get(...)` yazıldı, route tanımlandı, ama dosyanın sonunda `app.listen(PORT, ...)` satırı YOK.\n\n**Ne olur:** `node index.js` çalıştırılır, script hatasız biter, terminal sessizce komut istemine döner — hiçbir hata mesajı YOKTUR. Hiçbir port dinlenmediği için `curl http://localhost:3000/api/v1/bugs` `ECONNREFUSED` verir.\n\n**Neden sinsi:** Kodda syntax hatası yok, route doğru yazılmış, derleme/parse aşaması sorunsuz geçer. Bir stack trace bile yoktur — sadece "hiçbir şey olmaz". Yeni başlayan bir geliştirici bunu "sunucu çöktü" sanıp saatlerce route kodunda hata arayabilir.\n\n**Tester nerede yakalar:** Otomasyonun ilk isteğinde bağlantı reddi (`ECONNREFUSED`) alınca — bu GRUP J\'deki "sunucuya hiç ulaşılamıyor" hata kategorisinin köküdür.',
+        en: '**🐞 Defect Birth — if `app.listen(...)` is forgotten**\n\n**Code:** `app.get(...)` was written, the route is defined, but the file has no `app.listen(PORT, ...)` line at the end.\n\n**What happens:** `node index.js` runs, the script ends without error, the terminal silently returns to the prompt — there is NO error message. Because no port is listening, `curl http://localhost:3000/api/v1/bugs` returns `ECONNREFUSED`.\n\n**Why sneaky:** there is no syntax error, the route is written correctly, parsing passes cleanly. There is not even a stack trace — just "nothing happens". A beginner developer may assume "the server crashed" and hunt for bugs in the route code for hours.\n\n**Where the tester catches it:** on automation\'s very first request, getting a connection refusal (`ECONNREFUSED`) — this is the root of the "cannot reach the server at all" error category in GROUP J.',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-c1-setup-film',
+      title: { tr: '🎬 Boş Dükkandan Dinleyen Sunucuya', en: '🎬 From an Empty Shop to a Listening Server' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'empty', emoji: '📭', label: { tr: 'Boş Proje', en: 'Empty Project' }, color: '#94a3b8' },
+        { id: 'express', emoji: '🟢', label: { tr: 'express', en: 'express' }, color: '#22c55e' },
+        { id: 'route', emoji: '🛣️', label: { tr: 'app.get(...)', en: 'app.get(...)' }, color: '#f59e0b' },
+        { id: 'listen', emoji: '👂', label: { tr: 'app.listen()', en: 'app.listen()' }, color: '#0ea5e9' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'curl ile smoke test', en: 'curl smoke test' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: '`npm init -y` ile boş bir package.json açtın — henüz tek satır sunucu kodu yok.', en: '`npm init -y` opened an empty package.json — there is not a single line of server code yet.' },
+          positions: { empty: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: '`npm install express` — küçük ama yönlendirme + HTTP yardımcılarını getiren tek kütüphane eklendi.', en: '`npm install express` — one small library was added, bringing routing + HTTP helpers.' },
+          positions: { empty: { x: 20, y: 40 }, express: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'empty', to: 'express', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: '`app.get(\'/api/v1/bugs\', ...)` — bir yol tanımlandı, ama bu SADECE tanımdır, sunucu henüz hiçbir portu dinlemiyor.', en: '`app.get(\'/api/v1/bugs\', ...)` — a path was defined, but this is ONLY a definition, the server is not listening on any port yet.' },
+          positions: { express: { x: 22, y: 40 }, route: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'express', to: 'route', color: '#f59e0b' }],
+        },
+        {
+          caption: { tr: '`app.listen(PORT, ...)` çağrılmadan Express uygulaması "canlı" sayılmaz — bu satır olmadan tanımlı route\'lar da erişilemez kalır.', en: 'Without calling `app.listen(PORT, ...)` an Express app is not considered "alive" — without this line, even defined routes stay unreachable.' },
+          positions: { route: { x: 22, y: 40 }, listen: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'route', to: 'listen', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Ders — `node index.js` hatasız bitmesi "çalışıyor" anlamına gelmez; tester ilk kanıtı gerçek bir istekle (`curl`/Postman) ister.', en: 'The lesson — `node index.js` ending without error does not mean "it works"; the tester wants the first proof from a real request (`curl`/Postman).' },
+          positions: { listen: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'listen', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Boş Klasörden İlk Yanıta', en: 'From an Empty Folder to the First Response' },
+      steps: [
+        { id: 1, icon: '📭', label: { tr: 'Proje aç…', en: 'Open project…' }, detail: { tr: 'npm init -y ile boş package.json oluştur, npm install express ile kütüphaneyi ekle.', en: 'Create an empty package.json with npm init -y, add the library with npm install express.' } },
+        { id: 2, icon: '🛣️', label: { tr: 'Route yaz…', en: 'Write route…' }, detail: { tr: 'app.get(\'/api/v1/bugs\', ...) ile ilk yolu tanımla — bu henüz sunucuyu ayağa kaldırmaz.', en: 'Define the first path with app.get(\'/api/v1/bugs\', ...) — this does not start the server yet.' } },
+        { id: 3, icon: '👂', label: { tr: 'Dinlemeye başla…', en: 'Start listening…' }, detail: { tr: 'app.listen(PORT, ...) çağrısı olmadan hiçbir istek sunucuya ulaşamaz.', en: 'Without calling app.listen(PORT, ...) no request can ever reach the server.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-c1-order-01',
+      question: { tr: 'Express API\'sini sıfırdan ayağa kaldırma sırasını diz.', en: 'Order the steps to bring up an Express API from scratch.' },
+      items: [
+        { id: '1', text: { tr: 'npm init -y ile package.json oluştur', en: 'Create package.json with npm init -y' }, order: 1 },
+        { id: '2', text: { tr: 'npm install express ile kütüphaneyi ekle', en: 'Add the library with npm install express' }, order: 2 },
+        { id: '3', text: { tr: 'app.get(...) ile ilk route\'u tanımla', en: 'Define the first route with app.get(...)' }, order: 3 },
+        { id: '4', text: { tr: 'app.listen(PORT, ...) ile sunucuyu başlat', en: 'Start the server with app.listen(PORT, ...)' }, order: 4 },
+        { id: '5', text: { tr: 'curl ile smoke test at, yanıt geldiğini doğrula', en: 'Run a smoke test with curl, verify a response arrives' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-c1-setup',
+      id: 'api-c1-setup',
+      title: { tr: 'Kendin Dene: Sunucuyu Dinlemeye Al', en: 'Try It Yourself: Make the Server Listen' },
+      starterCode: `const express = require('express')
+const app = express()
+
+app.get('/api/v1/bugs', (req, res) => {
+  res.json([])
+})
+
+// BUG: sunucu hicbir portu dinlemiyor
+console.log('Bugs API hazir')`,
+      solutionCode: `const express = require('express')
+const app = express()
+
+app.get('/api/v1/bugs', (req, res) => {
+  res.json([])
+})
+
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(\`Bugs API port \${PORT} dinliyor\`)
+})`,
+      hint: { tr: 'Route tanımlamak sunucuyu başlatmaz. Bir Express uygulamasının istek kabul edebilmesi için mutlaka `app.listen(port, callback)` çağrısı gerekir; bu satır yoksa süreç sessizce sonlanır.', en: 'Defining a route does not start the server. An Express app must call `app.listen(port, callback)` before it can accept requests; without this line the process ends silently.' },
+      successMessage: { tr: 'Doğru! Artık process sonlanmaz, port dinlenir ve curl/Postman gerçek bir yanıt alır.', en: 'Correct! Now the process does not exit, the port is listened on, and curl/Postman get a real response.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`app.listen(PORT, ...)` çağrısı olmadan `node index.js` çalıştırılırsa ne olur?', en: 'What happens if `node index.js` is run without calling `app.listen(PORT, ...)`?' },
+      options: [
+        { id: 'a', text: { tr: 'Node bir syntax hatası fırlatır', en: 'Node throws a syntax error' } },
+        { id: 'b', text: { tr: 'Script sessizce biter; hiçbir port dinlenmez, istekler ECONNREFUSED alır', en: 'The script ends silently; no port is listened on, requests get ECONNREFUSED' } },
+        { id: 'c', text: { tr: 'Route\'lar varsayılan olarak 80 portunda çalışır', en: 'Routes automatically run on port 80' } },
+        { id: 'd', text: { tr: 'Express otomatik olarak boş bir port bulur', en: 'Express automatically finds an empty port' } },
+      ],
+      correct: 'b',
+      explanation: { tr: '`app.get(...)` sadece bir yol TANIMLAR; sunucunun bir portu dinlemeye başlaması için ayrıca `app.listen(...)` çağrılması gerekir. Bu satır eksikse hata fırlatılmaz, script normal biter ve hiçbir istemci sunucuya ulaşamaz.', en: '`app.get(...)` only DEFINES a path; the server must separately call `app.listen(...)` to start listening on a port. Without this line no error is thrown, the script ends normally, and no client can reach the server.' },
+      retryQuestion: {
+        question: { tr: 'Express\'te `npm init -y` komutunun tek başına yaptığı şey nedir?', en: 'What does the `npm init -y` command do on its own in Express?' },
+        options: [
+          { id: 'a', text: { tr: 'Boş bir package.json oluşturur — henüz hiçbir kütüphane eklenmez', en: 'Creates an empty package.json — no library is added yet' } },
+          { id: 'b', text: { tr: 'Express kütüphanesini indirir ve kurar', en: 'Downloads and installs the Express library' } },
+          { id: 'c', text: { tr: 'Bir sunucu başlatır', en: 'Starts a server' } },
+          { id: 'd', text: { tr: 'nodemon\'u otomatik ekler', en: 'Automatically adds nodemon' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`npm init -y` sadece proje sözleşmesini (package.json) varsayılan değerlerle oluşturur; Express veya başka bir kütüphane bu adımda EKLENMEZ, o `npm install express` ile ayrı bir adımdır.', en: '`npm init -y` only creates the project contract (package.json) with default values; Express or any other library is NOT added in this step — that is the separate `npm install express` step.' },
+      },
+    },
+  ],
+}
+
+const C2 = {
+  title: { tr: '🛣️ C2 · Route Tanımı: app.get/post, req.params/query', en: '🛣️ C2 · Route Definition: app.get/post, req.params/query' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🛣️',
+      content: {
+        tr: 'Bir Express route\'u, otelde **oda numarası ve resepsiyon talimatı** gibidir: `app.get(\'/api/v1/bugs/:id\', ...)` yazdığında `:id` kısmı değişken bir "oda numarası" (path parameter), `?status=OPEN` gibi bir sorgu ise resepsiyona bırakılan bir "not" (query parameter) — biri **yolun kendisinin bir parçası**, diğeri **isteğe bağlı bir ek bilgi**dir. Spring\'de bu ikisi `@PathVariable` ve `@RequestParam` annotation\'larıyla imzada açıkça görünür; Express\'te ise `req.params.id` ve `req.query.status` ile fonksiyon gövdesinde elle okunur — annotation yerine sözleşme, fonksiyonun İÇİNDE yaşar. Peki neden bazı bilgi yola (`/bugs/42`), bazısı sorguya (`?status=OPEN`) konur? Çünkü yol bir **kaynağın kimliğini** taşır (42 numaralı bug olmadan bu istek anlamsızdır), sorgu ise bir **filtreleme/isteğe bağlı davranışı** taşır (status olmadan da liste isteği geçerlidir). Tester için bunun anlamı: `req.params` HER ZAMAN string gelir — JavaScript\'in tip sistemi zayıf olduğundan `"1" === 1` FALSE\'tur; bu, ID karşılaştırmalarında sinsi bir hata kaynağıdır ve az sonra göreceğin gibi gerçek bir defect doğurur.',
+        en: 'An Express route is like a **room number and a note left at reception**: writing `app.get(\'/api/v1/bugs/:id\', ...)` makes `:id` a variable "room number" (path parameter), while something like `?status=OPEN` is a "note" left at reception (query parameter) — one is **part of the path itself**, the other is **optional extra information**. In Spring these two are visible right in the signature via `@PathVariable` and `@RequestParam`; in Express they are read by hand in the function body with `req.params.id` and `req.query.status` — the contract lives INSIDE the function instead of the annotation. So why does some information go in the path (`/bugs/42`) and some in the query (`?status=OPEN`)? Because the path carries a resource\'s **identity** (this request is meaningless without bug number 42), while the query carries **optional filtering/behavior** (a list request is still valid without status). For a tester this means: `req.params` ALWAYS arrives as a string — since JavaScript has weak typing, `"1" === 1` is FALSE; this is a sneaky source of bugs in ID comparisons, and, as you will see next, a real defect.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Liste, Filtre ve Tek Kayıt', en: 'List, Filter, and a Single Record' } },
+    {
+      type: 'code',
+      language: 'javascript',
+      code: {
+        tr: `const bugs = [
+  { id: 1, title: 'Login butonu donuyor', severity: 'HIGH', status: 'OPEN' },
+  { id: 2, title: 'Logo hizasi bozuk', severity: 'LOW', status: 'CLOSED' },
 ]
 
-const groupD = [
-  ['D1', '🐈', 'Nest CLI ve Modül Mimarisi', 'Nest CLI and Module Architecture'],
-  ['D2', '🎀', "Controller Decorator'ları: @Get, @Post, @Body", 'Controller Decorators: @Get, @Post, @Body'],
-  ['D3', '📦', 'DTO + class-validator + ValidationPipe', 'DTO + class-validator + ValidationPipe'],
-  ['D4', '🧱', 'Exception Filter ve HttpException', 'Exception Filter and HttpException'],
-  ['D5', '🔀', 'NestJS ↔ Spring Boot Karşılaştırması', 'NestJS ↔ Spring Boot Comparison'],
+// GET /api/v1/bugs?status=OPEN&page=1&size=20
+app.get('/api/v1/bugs', (req, res) => {
+  const { status, severity, page = 1, size = 20 } = req.query
+  let result = bugs
+  if (status) result = result.filter(b => b.status === status)
+  if (severity) result = result.filter(b => b.severity === severity)
+  res.json({ page: Number(page), size: Number(size), items: result })
+})
+
+// GET /api/v1/bugs/42
+app.get('/api/v1/bugs/:id', (req, res) => {
+  const bug = bugs.find(b => b.id === req.params.id)   // BUG: asagida acikliyoruz
+  if (!bug) return res.status(404).json({ error: 'Bug bulunamadi' })
+  res.json(bug)
+})`,
+        en: `const bugs = [
+  { id: 1, title: 'Login button freezes', severity: 'HIGH', status: 'OPEN' },
+  { id: 2, title: 'Logo alignment broken', severity: 'LOW', status: 'CLOSED' },
 ]
+
+// GET /api/v1/bugs?status=OPEN&page=1&size=20
+app.get('/api/v1/bugs', (req, res) => {
+  const { status, severity, page = 1, size = 20 } = req.query
+  let result = bugs
+  if (status) result = result.filter(b => b.status === status)
+  if (severity) result = result.filter(b => b.severity === severity)
+  res.json({ page: Number(page), size: Number(size), items: result })
+})
+
+// GET /api/v1/bugs/42
+app.get('/api/v1/bugs/:id', (req, res) => {
+  const bug = bugs.find(b => b.id === req.params.id)   // BUG: explained below
+  if (!bug) return res.status(404).json({ error: 'Bug not found' })
+  res.json(bug)
+})`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — `req.params.id` tip dönüşümü unutulursa**\n\n**Kod:** `bugs.find(b => b.id === req.params.id)` — `b.id` bir **number** (1, 2, ...), `req.params.id` her zaman bir **string** (`"1"`, `"2"`, ...).\n\n**Ne olur:** `GET /api/v1/bugs/1` isteği gönderilir, kayıt VERİTABANINDA vardır, ama `1 === "1"` JavaScript\'te `false` olduğu için `find` hiçbir zaman eşleşme bulamaz — sonuç her zaman 404\'tür, kayıt var olsa bile.\n\n**Neden sinsi:** Kod okunduğunda mantık tamamen doğru görünür ("id\'leri karşılaştırıyoruz"). Hata bir syntax veya runtime exception değil, sessiz bir mantık hatasıdır — sadece testerin "bu ID kesinlikle var, neden 404 alıyorum?" diye şaşırmasıyla ortaya çıkar.\n\n**Tester nerede yakalar:** Var olduğu bilinen bir ID ile GET isteği atıp 200 yerine 404 alınca — bu, JS\'in zayıf tipleme tuzağının klasik bir örneğidir; düzeltme `Number(req.params.id)` ile tip dönüşümü yapmaktır.',
+        en: '**🐞 Defect Birth — if the `req.params.id` type conversion is forgotten**\n\n**Code:** `bugs.find(b => b.id === req.params.id)` — `b.id` is a **number** (1, 2, ...), `req.params.id` always arrives as a **string** (`"1"`, `"2"`, ...).\n\n**What happens:** a `GET /api/v1/bugs/1` request is sent, the record EXISTS in the data, but since `1 === "1"` is `false` in JavaScript, `find` never matches — the result is always 404, even though the record exists.\n\n**Why sneaky:** reading the code, the logic looks entirely correct ("we are comparing IDs"). The failure is not a syntax or runtime exception, it is a silent logic bug — it only surfaces when a tester is confused: "this ID definitely exists, why am I getting 404?"\n\n**Where the tester catches it:** sending a GET request with a known-existing ID and getting 404 instead of 200 — a classic example of JavaScript\'s weak-typing trap; the fix is converting the type with `Number(req.params.id)`.',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-c2-params-film',
+      title: { tr: '🎬 "1" ≠ 1: Path Parameter Neden Her Zaman String Gelir?', en: '🎬 "1" ≠ 1: Why a Path Parameter Always Arrives as a String' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'url', emoji: '🔗', label: { tr: '/bugs/1', en: '/bugs/1' }, color: '#f59e0b' },
+        { id: 'params', emoji: '📦', label: { tr: 'req.params.id = "1"', en: 'req.params.id = "1"' }, color: '#0ea5e9' },
+        { id: 'data', emoji: '🗄️', label: { tr: 'bug.id = 1 (number)', en: 'bug.id = 1 (number)' }, color: '#a78bfa' },
+        { id: 'compare', emoji: '⚖️', label: { tr: '"1" === 1 → false', en: '"1" === 1 → false' }, color: '#ef4444' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Beklenmeyen 404', en: 'Unexpected 404' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'İstemci `/api/v1/bugs/1` isteği gönderiyor — URL her zaman metin karakterlerinden oluşur.', en: 'The client sends a request to `/api/v1/bugs/1` — a URL is always made of text characters.' },
+          positions: { url: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Express, `:id` kısmını `req.params.id` içine STRING olarak koyar: `"1"`, sayı değil.', en: 'Express places the `:id` part into `req.params.id` as a STRING: `"1"`, not a number.' },
+          positions: { url: { x: 22, y: 40 }, params: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'url', to: 'params', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Ama bellekteki bug kaydının `id` alanı bir NUMBER\'dır: `1`.', en: 'But the bug record in memory has an `id` field that is a NUMBER: `1`.' },
+          positions: { params: { x: 22, y: 40 }, data: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'params', to: 'data', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'JavaScript\'te `===` tip dönüşümü YAPMAZ: `"1" === 1` her zaman `false`\'tur.', en: 'In JavaScript, `===` does NOT coerce types: `"1" === 1` is always `false`.' },
+          positions: { data: { x: 22, y: 40 }, compare: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'data', to: 'compare', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Ders — `find` hiç eşleşme bulamaz, kayıt var olsa bile 404 döner. Tester `Number(req.params.id)` dönüşümünün yapıldığını doğrulamalıdır.', en: 'The lesson — `find` never matches, 404 is returned even though the record exists. The tester must verify that `Number(req.params.id)` conversion is done.' },
+          positions: { compare: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'compare', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'req.params vs req.query: Kim Nereden Gelir?', en: 'req.params vs req.query: Where Does Each Come From?' },
+      steps: [
+        { id: 1, icon: '🔗', label: { tr: 'Yolu ayrıştır…', en: 'Parse the path…' }, detail: { tr: '/bugs/:id kalıbındaki :id, req.params.id olarak STRING gelir.', en: 'The :id in /bugs/:id arrives as req.params.id, a STRING.' } },
+        { id: 2, icon: '❓', label: { tr: 'Sorguyu ayrıştır…', en: 'Parse the query…' }, detail: { tr: '?status=OPEN&page=1 gibi ekler req.query nesnesine STRING olarak konur.', en: 'Suffixes like ?status=OPEN&page=1 are placed on the req.query object, also as STRINGs.' } },
+        { id: 3, icon: '🔢', label: { tr: 'Tipini dönüştür…', en: 'Convert the type…' }, detail: { tr: 'Sayısal karşılaştırma öncesi Number(...) ile dönüştür, aksi halde === her zaman false döner.', en: 'Convert with Number(...) before numeric comparison, otherwise === always returns false.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-c2-order-01',
+      question: { tr: 'Tek bir bug kaydını ID ile getirme akışını sırala.', en: 'Order the flow for fetching a single bug record by ID.' },
+      items: [
+        { id: '1', text: { tr: 'İstemci GET /api/v1/bugs/1 gönderir', en: 'Client sends GET /api/v1/bugs/1' }, order: 1 },
+        { id: '2', text: { tr: 'Express :id kısmını req.params.id\'ye STRING olarak koyar', en: 'Express places the :id part into req.params.id as a STRING' }, order: 2 },
+        { id: '3', text: { tr: 'Handler req.params.id\'yi Number() ile sayıya çevirir', en: 'The handler converts req.params.id to a number with Number()' }, order: 3 },
+        { id: '4', text: { tr: 'bugs.find ile sayısal id eşleşmesi aranır', en: 'bugs.find searches for a matching numeric id' }, order: 4 },
+        { id: '5', text: { tr: 'Eşleşme varsa 200 + kayıt, yoksa 404 döner', en: 'If matched, 200 + record; otherwise 404 is returned' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-c2-routes',
+      id: 'api-c2-routes',
+      title: { tr: 'Kendin Dene: ID Karşılaştırmasını Düzelt', en: 'Try It Yourself: Fix the ID Comparison' },
+      starterCode: `app.get('/api/v1/bugs/:id', (req, res) => {
+  // BUG: req.params.id daima string, b.id ise number
+  const bug = bugs.find(b => b.id === req.params.id)
+  if (!bug) return res.status(404).json({ error: 'Bug bulunamadi' })
+  res.json(bug)
+})`,
+      solutionCode: `app.get('/api/v1/bugs/:id', (req, res) => {
+  const numericId = Number(req.params.id)
+  const bug = bugs.find(b => b.id === numericId)
+  if (!bug) return res.status(404).json({ error: 'Bug bulunamadi' })
+  res.json(bug)
+})`,
+      hint: { tr: '`req.params.id` her zaman string olarak gelir; kayıtlardaki `id` alanı ise number\'dır. Karşılaştırmadan önce `Number(req.params.id)` ile dönüştür, aksi halde `===` asla eşleşmez.', en: '`req.params.id` always arrives as a string; the `id` field in records is a number. Convert with `Number(req.params.id)` before comparing, otherwise `===` never matches.' },
+      successMessage: { tr: 'Doğru! Artık var olan bir ID her zaman 200 + kayıt döner, sessiz 404 kaybolur.', en: 'Correct! Now an existing ID always returns 200 + the record, the silent 404 disappears.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Kayıt gerçekten var olduğu halde `GET /api/v1/bugs/1` neden 404 dönebilir?', en: 'Why might `GET /api/v1/bugs/1` return 404 even though the record really exists?' },
+      options: [
+        { id: 'a', text: { tr: 'req.params.id string gelir, kayıttaki id number\'dır; === tip dönüşümü yapmadığı için eşleşmez', en: 'req.params.id arrives as a string, the record\'s id is a number; === does not coerce types so they never match' } },
+        { id: 'b', text: { tr: 'Express 404\'ü rastgele üretir', en: 'Express generates 404 randomly' } },
+        { id: 'c', text: { tr: 'GET istekleri asla path parametresi kabul etmez', en: 'GET requests never accept path parameters' } },
+        { id: 'd', text: { tr: 'bugs dizisi her istekte sıfırlanır', en: 'The bugs array resets on every request' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'JavaScript\'in `===` operatörü tip dönüşümü yapmaz; `"1" === 1` daima `false`\'tur. `req.params` her zaman string olduğundan, sayısal `id` alanıyla dönüşümsüz karşılaştırma sessizce başarısız olur ve `find` hiçbir zaman eşleşme bulamaz.', en: 'JavaScript\'s `===` operator does not coerce types; `"1" === 1` is always `false`. Since `req.params` is always a string, comparing it against a numeric `id` field without conversion silently fails, and `find` never matches.' },
+      retryQuestion: {
+        question: { tr: '`req.query` ile `req.params` arasındaki temel fark nedir?', en: 'What is the fundamental difference between `req.query` and `req.params`?' },
+        options: [
+          { id: 'a', text: { tr: 'params yolun bir parçasıdır (kaynak kimliği), query isteğe bağlı filtre/ek bilgidir', en: 'params is part of the path (resource identity), query is optional filter/extra info' } },
+          { id: 'b', text: { tr: 'İkisi de aynı şeydir, birbirinin yerine kullanılabilir', en: 'They are the same thing and interchangeable' } },
+          { id: 'c', text: { tr: 'params sadece POST isteklerinde, query sadece GET isteklerinde çalışır', en: 'params only works on POST requests, query only on GET requests' } },
+          { id: 'd', text: { tr: 'query her zaman sayı, params her zaman metin döner', en: 'query always returns a number, params always returns text' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`/bugs/:id` gibi bir path parametresi kaynağın kimliğini taşır — onsuz istek anlamsızdır. `?status=OPEN` gibi bir query parametresi ise isteğe bağlı bir filtre/davranıştır — olmadan da istek geçerlidir.', en: 'A path parameter like `/bugs/:id` carries a resource\'s identity — the request is meaningless without it. A query parameter like `?status=OPEN` is an optional filter/behavior — the request is still valid without it.' },
+      },
+    },
+  ],
+}
+
+const C3 = {
+  title: { tr: '⛓️ C3 · Middleware Zinciri: express.json(), sıra', en: '⛓️ C3 · Middleware Chain: express.json(), order' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '⛓️',
+      content: {
+        tr: 'Middleware zinciri, bir **havalimanı güvenlik koridoru** gibidir: yolcu (istek) sırayla check-in, bagaj taraması, pasaport kontrolü kontrol noktalarından geçer; her kontrol noktası (`function(req, res, next)`) yolcuyu inceleyebilir, üzerine bir şey ekleyebilir (bagaj etiketi) veya durdurabilir — ve bir sonraki noktaya SADECE `next()` çağrılırsa geçilir. `express.json()` de tam olarak böyle bir kontrol noktasıdır: gelen JSON gövdesini okuyup `req.body`\'ye "etiketler", route handler\'a devretmeden önce. Peki Spring\'de bu iş neden tek bir `@RequestBody` annotation\'ıyla otomatik olurken Express\'te ayrı bir adım gerekiyor? Çünkü Spring MVC\'nin arkasında hazır bir istek işleme hattı (dispatcher servlet) vardır ve gövde ayrıştırma bu hattın standart bir parçasıdır; Express\'te böyle bir hat YOKTUR — sen zinciri elle, sırayla kurarsın; en yakın Java karşılığı Servlet **Filter** zinciridir (her filter `chain.doFilter()` çağırana kadar bir sonrakine geçilmez). Tester için kritik nokta: middleware\'lerin SIRASI davranışı belirler — `express.json()` route\'lardan sonra tanımlanırsa, route\'lar asla ayrıştırılmış bir gövde göremez; bu, "kod doğru ama sıra yanlış" kategorisindeki en sinsi hata türüdür.',
+        en: 'A middleware chain is like an **airport security corridor**: a passenger (request) passes through check-in, baggage scan, and passport control in order; each checkpoint (`function(req, res, next)`) can inspect the passenger, attach something (a baggage tag), or stop them — and moving to the next checkpoint happens ONLY if `next()` is called. `express.json()` is exactly such a checkpoint: it reads the incoming JSON body and "tags" it onto `req.body` before handing off to the route handler. So why does Spring do this automatically with a single `@RequestBody` annotation while Express needs a separate step? Because behind Spring MVC there is a ready-made request-processing pipeline (the dispatcher servlet) and body parsing is a standard part of that pipeline; Express has NO such pipeline — you build the chain by hand, in order; the closest Java equivalent is the Servlet **Filter** chain (each filter blocks the next until `chain.doFilter()` is called). The critical point for a tester: the ORDER of middleware determines behavior — if `express.json()` is defined after the routes, the routes never see a parsed body; this is the sneakiest kind of bug, the "code is correct but the order is wrong" category.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Zincir Kurmak: Sıra Neden Kritik?', en: 'Building the Chain: Why Order Is Critical' } },
+    {
+      type: 'code',
+      language: 'javascript',
+      code: {
+        tr: `const express = require('express')
+const app = express()
+
+// Middleware 1: JSON govdesini ayristirir, req.body'yi doldurur.
+// TODO: bu satir mutlaka route tanimlarindan ONCE gelmeli.
+app.use(express.json())
+
+// Middleware 2: her istegi loglar, sonra next() ile devreder
+app.use((req, res, next) => {
+  console.log(\`\${req.method} \${req.path}\`)
+  next()   // cagrilmazsa istek burada TAKILIR KALIR
+})
+
+// Route: zincirin en sonunda, artik req.body dolu gelir
+app.post('/api/v1/bugs', (req, res) => {
+  const { title, severity } = req.body
+  res.status(201).json({ id: 1, title, severity })
+})`,
+        en: `const express = require('express')
+const app = express()
+
+// Middleware 1: parses the JSON body, fills req.body.
+// TODO: this line must always come BEFORE the route definitions.
+app.use(express.json())
+
+// Middleware 2: logs every request, then hands off with next()
+app.use((req, res, next) => {
+  console.log(\`\${req.method} \${req.path}\`)
+  next()   // if not called, the request gets STUCK here
+})
+
+// Route: at the end of the chain, req.body arrives already filled
+app.post('/api/v1/bugs', (req, res) => {
+  const { title, severity } = req.body
+  res.status(201).json({ id: 1, title, severity })
+})`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — `express.json()` route\'lardan SONRA tanımlanırsa**\n\n**Kod:** `app.post(\'/api/v1/bugs\', ...)` önce, `app.use(express.json())` en altta.\n\n**Ne olur:** `POST /api/v1/bugs { "title": "...", "severity": "HIGH" }` isteği gönderilir; handler çalıştığında `req.body` HÂLÂ `undefined`\'dır çünkü ayrıştırıcı middleware zincirde daha SONRAKI bir noktada. `const { title, severity } = req.body` çökmez (destructuring `undefined`\'dan `undefined` üretir), sunucu `201 Created` döner ama `title: undefined, severity: undefined` ile bir kayıt oluşturulur.\n\n**Neden sinsi:** İstek 201 ile "başarılı" görünür, sunucu çökmez, hata log\'u yoktur — ama veritabanında (bellekte) tamamen boş bir bug kaydı oluşur. Kodun KENDİSİ (`express.json()` çağrısı) doğrudur, tek sorun SIRASIDIR.\n\n**Tester nerede yakalar:** POST sonrası dönen kaydı GET ile tekrar okuyup `title` alanının `null`/`undefined` geldiğini görünce — bu, "201 aldım ama içerik boş" sınıfındaki en klasik middleware sıralama hatasıdır.',
+        en: '**🐞 Defect Birth — if `express.json()` is defined AFTER the routes**\n\n**Code:** `app.post(\'/api/v1/bugs\', ...)` comes first, `app.use(express.json())` sits at the bottom.\n\n**What happens:** a `POST /api/v1/bugs { "title": "...", "severity": "HIGH" }` request is sent; when the handler runs, `req.body` is STILL `undefined` because the parser middleware sits LATER in the chain. `const { title, severity } = req.body` does not crash (destructuring `undefined` yields `undefined`), the server returns `201 Created` but creates a record with `title: undefined, severity: undefined`.\n\n**Why sneaky:** the request looks "successful" with 201, the server does not crash, there is no error log — yet an entirely empty bug record is created in the data store. The code ITSELF (the `express.json()` call) is correct, the only problem is its ORDER.\n\n**Where the tester catches it:** reading the record back with a GET after the POST and seeing `title` come back as `null`/`undefined` — this is the classic "got 201 but the content is empty" middleware-ordering bug.',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-c3-middleware-chain-film',
+      title: { tr: '🎬 Middleware Zinciri: Sıra Bozulunca Ne Olur?', en: '🎬 The Middleware Chain: What Happens When the Order Breaks?' },
+      xpReward: 14,
+      sceneDurationMs: 3400,
+      stageHeight: 280,
+      actors: [
+        { id: 'request', emoji: '📤', label: { tr: 'POST isteği', en: 'POST request' }, color: '#f59e0b' },
+        { id: 'json', emoji: '📦', label: { tr: 'express.json()', en: 'express.json()' }, color: '#0ea5e9' },
+        { id: 'logger', emoji: '📝', label: { tr: 'Logger middleware', en: 'Logger middleware' }, color: '#a78bfa' },
+        { id: 'route', emoji: '🛣️', label: { tr: 'Route handler', en: 'Route handler' }, color: '#22c55e' },
+        { id: 'broken', emoji: '💥', label: { tr: 'Sıra bozuk: req.body = undefined', en: 'Order broken: req.body = undefined' }, color: '#ef4444' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'GET ile kanıt: title boş geldi', en: 'GET evidence: title arrived empty' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'İstemci `POST /api/v1/bugs` isteğini `{ "title": "Login donuyor", "severity": "HIGH" }` gövdesiyle gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with the body `{ "title": "Login freezes", "severity": "HIGH" }`.' },
+          positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'DOĞRU SIRADA: istek önce `express.json()`\'a uğrar — ham JSON metni ayrıştırılıp `req.body` nesnesine dönüştürülür.', en: 'IN THE CORRECT ORDER: the request first hits `express.json()` — the raw JSON text is parsed into the `req.body` object.' },
+          positions: { request: { x: 18, y: 35 }, json: { x: 55, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'request', to: 'json', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Sonra logger middleware isteği loglar ve `next()` ile bir sonraki halkaya devreder — zincir kırılmadan devam eder.', en: 'Then the logger middleware logs the request and hands off with `next()` to the next link — the chain continues unbroken.' },
+          positions: { json: { x: 18, y: 35 }, logger: { x: 55, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'json', to: 'logger', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Route handler çalışır — `req.body.title` doludur, kayıt doğru oluşur, 201 ve gerçek veri döner.', en: 'The route handler runs — `req.body.title` is filled, the record is created correctly, 201 with real data is returned.' },
+          positions: { logger: { x: 18, y: 35 }, route: { x: 55, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'logger', to: 'route', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'YANLIŞ SIRADA: `express.json()` route\'lardan SONRA tanımlanırsa handler çalıştığında `req.body` HÂLÂ `undefined`\'dır.', en: 'IN THE WRONG ORDER: if `express.json()` is defined AFTER the routes, `req.body` is STILL `undefined` when the handler runs.' },
+          positions: { route: { x: 20, y: 42 }, broken: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'route', to: 'broken', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Sunucu yine de `201 Created` döner — kod çökmez, ama `title: undefined` ile boş bir kayıt oluşur.', en: 'The server still returns `201 Created` — the code does not crash, but an empty record is created with `title: undefined`.' },
+          positions: { broken: { x: 20, y: 42 }, tester: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'broken', to: 'tester', color: '#8b5cf6' }],
+        },
+        {
+          caption: { tr: 'Ders — Middleware zincirinde SIRA, koddan bağımsız bir davranış belirleyicidir. Tester "201 aldım" ile yetinmez, dönen/kaydedilen veriyi de doğrular.', en: 'The lesson — ORDER in a middleware chain determines behavior independently of the code itself. A tester does not settle for "I got 201"; they also verify the returned/stored data.' },
+          positions: { tester: { x: 40, y: 48, scale: 1.15, pulse: true } },
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Bir POST İsteğinin Zincirdeki Yolculuğu', en: 'A POST Request\'s Journey Through the Chain' },
+      steps: [
+        { id: 1, icon: '📤', label: { tr: 'İstek gelir…', en: 'Request arrives…' }, detail: { tr: 'Ham HTTP isteği (JSON metin gövdeli) Express\'e ulaşır.', en: 'The raw HTTP request (with a JSON text body) reaches Express.' } },
+        { id: 2, icon: '📦', label: { tr: 'express.json() çalışır…', en: 'express.json() runs…' }, detail: { tr: 'Ham metni ayrıştırıp req.body\'ye JavaScript nesnesi olarak koyar; next() ile devreder.', en: 'It parses the raw text and places it on req.body as a JavaScript object; hands off with next().' } },
+        { id: 3, icon: '📝', label: { tr: 'Logger çalışır…', en: 'Logger runs…' }, detail: { tr: 'İsteği kaydeder, next() ile bir sonraki halkaya geçer.', en: 'It logs the request, moves to the next link with next().' } },
+        { id: 4, icon: '🛣️', label: { tr: 'Route handler çalışır…', en: 'Route handler runs…' }, detail: { tr: 'req.body artık doludur — zincirin SIRASI doğruysa handler doğru veriyi görür.', en: 'req.body is now filled — if the chain\'s ORDER is correct, the handler sees the right data.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-c3-order-01',
+      question: { tr: 'Bir Express middleware zincirini DOĞRU sırada diz.', en: 'Order an Express middleware chain CORRECTLY.' },
+      items: [
+        { id: '1', text: { tr: 'app.use(express.json()) — govde ayristirici en once', en: 'app.use(express.json()) — body parser goes first' }, order: 1 },
+        { id: '2', text: { tr: 'app.use(logger) — loglama middleware\'i ikinci', en: 'app.use(logger) — logging middleware second' }, order: 2 },
+        { id: '3', text: { tr: 'app.post(\'/api/v1/bugs\', handler) — route en sonda', en: 'app.post(\'/api/v1/bugs\', handler) — route last' }, order: 3 },
+        { id: '4', text: { tr: 'handler icinde req.body okunur — artik doludur', en: 'req.body is read inside the handler — it is now filled' }, order: 4 },
+        { id: '5', text: { tr: '201 Created + gercek veriyle yanit doner', en: '201 Created + response with real data' }, order: 5 },
+      ],
+      xpReward: 12,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-c3-middleware',
+      id: 'api-c3-middleware',
+      title: { tr: 'Kendin Dene: Middleware Sırasını Düzelt', en: 'Try It Yourself: Fix the Middleware Order' },
+      starterCode: `const express = require('express')
+const app = express()
+
+// BUG: govde ayristirici route'lardan SONRA tanimlanmis
+app.post('/api/v1/bugs', (req, res) => {
+  const { title, severity } = req.body   // undefined gelir
+  res.status(201).json({ id: 1, title, severity })
+})
+
+app.use(express.json())`,
+      solutionCode: `const express = require('express')
+const app = express()
+
+// FIX: govde ayristirici HER ZAMAN route'lardan ONCE tanimlanir
+app.use(express.json())
+
+app.post('/api/v1/bugs', (req, res) => {
+  const { title, severity } = req.body   // artik dolu gelir
+  res.status(201).json({ id: 1, title, severity })
+})`,
+      hint: { tr: 'Express middleware\'leri kayıt sırasına göre çalışır. `express.json()` route tanımlarından SONRA gelirse, o route\'lar `req.body`\'yi hiçbir zaman ayrıştırılmış görmez.', en: 'Express middlewares run in registration order. If `express.json()` comes AFTER route definitions, those routes never see a parsed `req.body`.' },
+      successMessage: { tr: 'Doğru! Artık req.body her zaman dolu gelir, kayıtlar boş title ile oluşmaz.', en: 'Correct! Now req.body always arrives filled, records are not created with an empty title.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`express.json()` route tanımlarından SONRA çağrılırsa, POST handler\'da `req.body` ne olur?', en: 'If `express.json()` is called AFTER the route definitions, what happens to `req.body` in a POST handler?' },
+      options: [
+        { id: 'a', text: { tr: 'Sunucu 500 hatasıyla çöker', en: 'The server crashes with a 500 error' } },
+        { id: 'b', text: { tr: 'req.body undefined kalır; destructuring da undefined üretir, sunucu 201 ile boş kayıt oluşturur', en: 'req.body stays undefined; destructuring also yields undefined, the server creates an empty record with 201' } },
+        { id: 'c', text: { tr: 'Express otomatik olarak sırayı düzeltir', en: 'Express automatically fixes the order' } },
+        { id: 'd', text: { tr: 'İstek 400 Bad Request ile reddedilir', en: 'The request is rejected with 400 Bad Request' } },
+      ],
+      correct: 'b',
+      explanation: { tr: 'Middleware\'ler kayıt sırasına göre çalışır. Ayrıştırıcı henüz çalışmamışsa `req.body` `undefined` kalır; `const { title } = undefined` çökmeden `undefined` üretir, bu yüzden sunucu 201 ile ama tamamen boş alanlarla bir kayıt oluşturur — sessiz bir veri bütünlüğü hatası.', en: 'Middlewares run in registration order. If the parser has not run yet, `req.body` stays `undefined`; `const { title } = undefined` yields `undefined` without crashing, so the server creates a record with 201 but entirely empty fields — a silent data-integrity bug.' },
+      retryQuestion: {
+        question: { tr: 'Bir middleware fonksiyonu `next()` çağırmazsa ne olur?', en: 'What happens if a middleware function never calls `next()`?' },
+        options: [
+          { id: 'a', text: { tr: 'İstek o middleware\'de takılı kalır, zincirdeki sonraki adım hiç çalışmaz', en: 'The request gets stuck at that middleware, the next step in the chain never runs' } },
+          { id: 'b', text: { tr: 'Express otomatik olarak bir sonraki middleware\'e geçer', en: 'Express automatically moves to the next middleware' } },
+          { id: 'c', text: { tr: 'İstek 200 ile hemen tamamlanır', en: 'The request completes immediately with 200' } },
+          { id: 'd', text: { tr: 'Sunucu yeniden başlatılır', en: 'The server restarts' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`next()` çağrılmazsa Express bir sonraki middleware/route\'a geçmez — istek o noktada asılı kalır ve sonunda zaman aşımına uğrayabilir. Bu, unutulan bir `next()` çağrısının neden ciddi bir kesinti sebebi olduğunu açıklar.', en: 'Without calling `next()`, Express never proceeds to the next middleware/route — the request hangs at that point and may eventually time out. This explains why a forgotten `next()` call is a serious source of outages.' },
+      },
+    },
+  ],
+}
+
+const C4 = {
+  title: { tr: '🛡️ C4 · Validation: express-validator / zod', en: '🛡️ C4 · Validation: express-validator / zod' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🛡️',
+      content: {
+        tr: 'Express\'te validation, **kapıdaki güvenlik görevlisini işe alıp eğitmek** gibidir: Spring\'de `@Valid` + `@NotBlank` yazdığında güvenlik zaten binanın bir parçasıdır (framework hallediyor); Express\'te önce bir güvenlik firması seçersin (`express-validator` veya `zod`), sonra ona hangi kuralları uygulayacağını TEK TEK öğretirsin (`body(\'title\').isLength({min:3, max:120})`). Peki JavaScript\'in kendi tip sistemi zaten yokken (hatta TypeScript bile derleme zamanı korur, çalışma zamanında değil), neden ayrı bir kütüphane şart? Çünkü `req.body` HTTP üzerinden gelen ham JSON\'dur — tarayıcı konsolunda `typeof` yazsan bile "object" görürsün, ama içindeki `title` alanının GERÇEKTEN 3-120 karakter bir string olduğunu hiçbir derleyici garanti etmez; bunu ancak çalışma zamanında AÇIKÇA kontrol eden bir kütüphane garanti edebilir. Java\'da Bean Validation (`@NotBlank`, `@Size`) sınıf alanına "yapışık" dururken, Express\'te validation bir "muhafız" olarak route\'un ÖNÜNE (middleware olarak) konur — mantık aynı (sözleşmeyi ÇALIŞMA ZAMANINDA doğrula), sözdizimi farklı. Tester için sonuç yine aynı: doğrulama kuralları tanımlanmış GÖRÜNSE bile, sonucu OKUYAN bir kod satırı yoksa kurallar hiçbir işe yaramaz — az sonra bunu göreceksin.',
+        en: 'Validation in Express is like **hiring and training the security guard at the door**: in Spring, writing `@Valid` + `@NotBlank` means security is already part of the building (the framework handles it); in Express you first pick a security firm (`express-validator` or `zod`), then teach it exactly which rules to enforce ONE BY ONE (`body(\'title\').isLength({min:3, max:120})`). So why is a separate library required when JavaScript has no type system of its own (and even TypeScript only guards at compile time, not runtime)? Because `req.body` is raw JSON arriving over HTTP — even if you print `typeof` in a browser console you just see "object", but no compiler guarantees that the `title` field inside it is REALLY a 3-120 character string; only a library that EXPLICITLY checks at runtime can guarantee that. In Java, Bean Validation (`@NotBlank`, `@Size`) is "glued" to the class field; in Express, validation sits as a "guard" IN FRONT OF the route (as middleware) — same logic (validate the contract AT RUNTIME), different syntax. The outcome for a tester is the same: even if validation rules LOOK defined, if no code line actually READS the result, the rules do nothing at all — as you will see next.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Kuralları Tanımlamak ve SONUCU Okumak', en: 'Defining Rules and READING the Result' } },
+    {
+      type: 'code',
+      language: 'javascript',
+      code: {
+        tr: `const { body, validationResult } = require('express-validator')
+
+app.post(
+  '/api/v1/bugs',
+  // Kural listesi: her biri bir "muhafiz talimati"dir
+  body('title').isLength({ min: 3, max: 120 }).withMessage('title 3-120 karakter olmali'),
+  body('severity').isIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  body('reporter').isEmail(),
+  (req, res) => {
+    // TODO: kurallar tanimlanmis olmasi yetmez, SONUC okunmali
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+    const { title, severity, reporter } = req.body
+    res.status(201).json({ id: 1, title, severity, reporter })
+  }
+)`,
+        en: `const { body, validationResult } = require('express-validator')
+
+app.post(
+  '/api/v1/bugs',
+  // rule list: each one is a "guard instruction"
+  body('title').isLength({ min: 3, max: 120 }).withMessage('title must be 3-120 chars'),
+  body('severity').isIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  body('reporter').isEmail(),
+  (req, res) => {
+    // TODO: defining rules is not enough, the RESULT must be read
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+    const { title, severity, reporter } = req.body
+    res.status(201).json({ id: 1, title, severity, reporter })
+  }
+)`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — `validationResult(req)` kontrolü unutulursa**\n\n**Kod:** `body(\'title\').isLength(...)` kuralları TANIMLANDI, ama handler içinde `validationResult(req)` çağrısı ve `if (!errors.isEmpty())` kontrolü YOK.\n\n**Ne olur:** `express-validator` kuralları arka planda ÇALIŞIR ve hataları biriktirir, ama hiç kimse bu sonucu OKUMADIĞI için hatalar sessizce göz ardı edilir. `POST /api/v1/bugs { "title": "" }` isteği 400 yerine 201 döner ve boş başlıklı bug kaydedilir.\n\n**Neden sinsi:** Kod incelendiğinde validation kuralları GERÇEKTEN oradadır — bir code review\'da "validation var" denip geçilebilir. Ama kural TANIMLAMAK ile kuralın SONUCUNU okumak iki ayrı adımdır; ilkini yapıp ikincisini unutmak, Spring\'deki `starter-validation` eksikliğinden (B1) FARKLI bir kök nedenle AYNI sonucu (sessiz 201) doğurur.\n\n**Tester nerede yakalar:** Geçersiz veriyle (boş title, geçersiz e-posta) negatif test atıp 201 alınca — "kural var ama okunmuyor" defect ailesinin Express\'teki karşılığı budur.',
+        en: '**🐞 Defect Birth — if the `validationResult(req)` check is forgotten**\n\n**Code:** `body(\'title\').isLength(...)` rules WERE defined, but the handler has no `validationResult(req)` call and no `if (!errors.isEmpty())` check.\n\n**What happens:** `express-validator` rules RUN in the background and collect errors, but since nobody READS the result, the errors are silently ignored. A `POST /api/v1/bugs { "title": "" }` request returns 201 instead of 400 and an empty-title bug gets saved.\n\n**Why sneaky:** on inspection the validation rules are REALLY there — a code review might say "validation exists" and move on. But DEFINING a rule and READING its result are two separate steps; doing the first and forgetting the second produces the SAME outcome (silent 201) from a DIFFERENT root cause than the missing `starter-validation` in Spring (B1).\n\n**Where the tester catches it:** sending invalid data (empty title, invalid email) as a negative test and getting 201 — this is the Express counterpart of the "rule exists but is never read" defect family.',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-c4-validation-film',
+      title: { tr: '🎬 Kural Var, Ama Kimse Okumuyor', en: '🎬 The Rule Exists, But Nobody Reads It' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'rules', emoji: '📋', label: { tr: 'body(...).isLength(...)', en: 'body(...).isLength(...)' }, color: '#f59e0b' },
+        { id: 'run', emoji: '⚙️', label: { tr: 'Kurallar arka planda çalışır', en: 'Rules run in the background' }, color: '#0ea5e9' },
+        { id: 'errors', emoji: '📦', label: { tr: 'errors nesnesi doldu', en: 'errors object filled' }, color: '#a78bfa' },
+        { id: 'unread', emoji: '🙈', label: { tr: 'Hiç okunmadı!', en: 'Never read!' }, color: '#ef4444' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Boş title ile 201 aldı', en: 'Got 201 with empty title' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Geliştirici `body(\'title\').isLength({min:3,max:120})` kuralını yazıyor — kural TANIMLANDI.', en: 'The developer writes the rule `body(\'title\').isLength({min:3,max:120})` — the rule is DEFINED.' },
+          positions: { rules: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'İstek geldiğinde bu kural gerçekten ÇALIŞIR ve `title` alanını kontrol eder.', en: 'When a request arrives, this rule REALLY RUNS and checks the `title` field.' },
+          positions: { rules: { x: 20, y: 40 }, run: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'rules', to: 'run', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Boş `title` kuralı ihlal eder, `errors` nesnesi hata bilgisiyle dolar.', en: 'An empty `title` violates the rule, the `errors` object fills with error info.' },
+          positions: { run: { x: 20, y: 40 }, errors: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'run', to: 'errors', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Ama handler `validationResult(req)` çağırmıyor — dolu `errors` nesnesi HİÇ okunmuyor, sessizce yok sayılıyor.', en: 'But the handler never calls `validationResult(req)` — the filled `errors` object is NEVER read, silently ignored.' },
+          positions: { errors: { x: 20, y: 40 }, unread: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'errors', to: 'unread', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Ders — Kural tanımlamak yetmez, SONUCU okuyup handler\'ı erken sonlandırmak (return) şarttır. Tester her zaman "kural var mı" değil, "kural gerçekten UYGULANIYOR mu" diye sorar.', en: 'The lesson — Defining a rule is not enough, reading the RESULT and short-circuiting the handler (return) is mandatory. A tester always asks not "does a rule exist" but "is the rule really ENFORCED?"' },
+          positions: { unread: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'unread', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Kural Tanımlamaktan Reddetmeye', en: 'From Defining a Rule to Rejecting a Request' },
+      steps: [
+        { id: 1, icon: '📋', label: { tr: 'Kuralı tanımla…', en: 'Define the rule…' }, detail: { tr: 'body(\'title\').isLength({min:3,max:120}) gibi kurallar route zincirine eklenir.', en: 'Rules like body(\'title\').isLength({min:3,max:120}) are added to the route chain.' } },
+        { id: 2, icon: '⚙️', label: { tr: 'Kural çalışsın…', en: 'Let the rule run…' }, detail: { tr: 'İstek geldiğinde her kural otomatik çalışır ve hataları errors nesnesinde biriktirir.', en: 'When a request arrives, every rule runs automatically and collects errors into the errors object.' } },
+        { id: 3, icon: '📖', label: { tr: 'Sonucu OKU…', en: 'READ the result…' }, detail: { tr: 'validationResult(req) ile errors okunur; boş değilse handler 400 ile erken döner.', en: 'validationResult(req) reads the errors; if not empty, the handler returns 400 early.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-c4-order-01',
+      question: { tr: 'express-validator ile bir POST isteğini doğrulama akışını sırala.', en: 'Order the flow for validating a POST request with express-validator.' },
+      items: [
+        { id: '1', text: { tr: 'body(\'title\').isLength(...) gibi kuralları route zincirine ekle', en: 'Add rules like body(\'title\').isLength(...) to the route chain' }, order: 1 },
+        { id: '2', text: { tr: 'İstek gelince kurallar otomatik çalışır', en: 'Rules run automatically when the request arrives' }, order: 2 },
+        { id: '3', text: { tr: 'Handler icinde validationResult(req) cagir', en: 'Call validationResult(req) inside the handler' }, order: 3 },
+        { id: '4', text: { tr: 'errors.isEmpty() false ise 400 ile erken don', en: 'If errors.isEmpty() is false, return early with 400' }, order: 4 },
+        { id: '5', text: { tr: 'Hata yoksa req.body ile kaydı oluştur, 201 dön', en: 'If no errors, create the record with req.body, return 201' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-c4-validation',
+      id: 'api-c4-validation',
+      title: { tr: 'Kendin Dene: Doğrulama Sonucunu Oku', en: 'Try It Yourself: Read the Validation Result' },
+      starterCode: `app.post('/api/v1/bugs',
+  body('title').isLength({ min: 3, max: 120 }),
+  body('severity').isIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  (req, res) => {
+    // BUG: kurallar tanimlandi ama sonuc hic okunmuyor
+    const { title, severity } = req.body
+    res.status(201).json({ id: 1, title, severity })
+  }
+)`,
+      solutionCode: `app.post('/api/v1/bugs',
+  body('title').isLength({ min: 3, max: 120 }),
+  body('severity').isIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+    const { title, severity } = req.body
+    res.status(201).json({ id: 1, title, severity })
+  }
+)`,
+      hint: { tr: 'Kuralları tanımlamak onları OTOMATİK olarak uygulamaz. Handler içinde `validationResult(req)` çağırıp boş değilse `return res.status(400)...` ile erken çıkmak zorunludur.', en: 'Defining rules does not AUTOMATICALLY enforce them. Inside the handler you must call `validationResult(req)` and, if not empty, exit early with `return res.status(400)...`.' },
+      successMessage: { tr: 'Doğru! Artık geçersiz veri gerçekten 400 ile reddediliyor, boş kayıt oluşmuyor.', en: 'Correct! Now invalid data is really rejected with 400, no empty record is created.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`body(\'title\').isLength(...)` kuralı tanımlanmış ama `validationResult(req)` hiç çağrılmamışsa ne olur?', en: 'What happens if the `body(\'title\').isLength(...)` rule is defined but `validationResult(req)` is never called?' },
+      options: [
+        { id: 'a', text: { tr: 'express-validator kuralı otomatik uygular, ekstra kod gerekmez', en: 'express-validator enforces the rule automatically, no extra code needed' } },
+        { id: 'b', text: { tr: 'Kural arka planda çalışır ama sonucu okunmadığı için etkisizdir; geçersiz veri de 201 alır', en: 'The rule runs in the background but has no effect since its result is never read; invalid data also gets 201' } },
+        { id: 'c', text: { tr: 'Sunucu başlatılamaz', en: 'The server fails to start' } },
+        { id: 'd', text: { tr: 'İstek otomatik olarak reddedilir', en: 'The request is automatically rejected' } },
+      ],
+      correct: 'b',
+      explanation: { tr: 'express-validator kuralları middleware zincirinde çalışıp hataları biriktirir, ama bu hataları OKUYUP karar veren kod SENDEN beklenir. `validationResult(req)` çağrılmazsa, biriken hatalar hiçbir zaman handler\'ın davranışını etkilemez.', en: 'express-validator rules run in the middleware chain and collect errors, but the code that READS those errors and decides is expected FROM YOU. Without calling `validationResult(req)`, the collected errors never affect the handler\'s behavior.' },
+      retryQuestion: {
+        question: { tr: 'Spring\'deki `@Valid` ile Express\'teki `express-validator` arasındaki temel fark nedir?', en: 'What is the fundamental difference between Spring\'s `@Valid` and Express\'s `express-validator`?' },
+        options: [
+          { id: 'a', text: { tr: '@Valid framework tarafından otomatik tetiklenir; express-validator\'da sonucu OKUMAK geliştiricinin sorumluluğudur', en: '@Valid is triggered automatically by the framework; in express-validator, READING the result is the developer\'s responsibility' } },
+          { id: 'b', text: { tr: 'İkisi de tamamen otomatiktir, fark yoktur', en: 'Both are fully automatic, there is no difference' } },
+          { id: 'c', text: { tr: '@Valid sadece GET isteklerinde çalışır', en: '@Valid only works on GET requests' } },
+          { id: 'd', text: { tr: 'express-validator veritabanı doğrulaması yapar, @Valid yapmaz', en: 'express-validator does database validation, @Valid does not' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Spring MVC, `@Valid` gördüğünde doğrulamayı ve hata fırlatmayı OTOMATİK yapar (dispatcher\'ın bir parçası). Express\'te ise doğrulama kütüphanesi sadece hataları TOPLAR; bu hataları okuyup 400 döndürmek geliştiricinin elle yazması gereken bir adımdır.', en: 'Spring MVC AUTOMATICALLY validates and throws when it sees `@Valid` (part of the dispatcher). In Express the validation library only COLLECTS errors; reading them and returning 400 is a step the developer must write by hand.' },
+      },
+    },
+  ],
+}
+
+const C5 = {
+  title: { tr: '🚨 C5 · Error Handling Middleware: (err, req, res, next)', en: '🚨 C5 · Error Handling Middleware: (err, req, res, next)' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🚨',
+      content: {
+        tr: 'Express\'in hata yakalayan middleware\'i, **binadaki tek bir yangın çıkışı** gibidir: normal middleware\'ler 3 parametre alır (`req, res, next`), ama Express\'e "ben bir hata yakalayıcıyım" demenin TEK yolu tam olarak **4 parametre** almaktır (`err, req, res, next`) — bu bir kural değil, Express\'in kodunu okuyup parametre SAYISINA bakarak ayrım yapmasıdır (`fn.length === 4`). Route içinde `next(err)` çağırdığında, Express normal zinciri bırakır ve bir sonraki 4-parametreli middleware\'i arar. Spring\'de bunun karşılığı `@RestControllerAdvice` + `@ExceptionHandler`\'dır — orada exception TİPİNE göre eşleştirme annotation ile yapılır, Express\'te ise TEK bir catch-all middleware\'e her hata `next(err)` ile elle yönlendirilir. Peki neden Express bunu bu kadar "gizli" bir kuralla (parametre sayısı) yapıyor? Çünkü framework\'ün kendisi minimal — ayrı bir "hata sınıfı" kavramı dayatmaz, senin JavaScript\'in kendi mekanizmalarını (fonksiyon imzası) kullanmanı bekler. Tester için kritik nokta: bu middleware\'in KAYIT SIRASI da C3\'teki gibi kritiktir — route\'lardan ÖNCE tanımlanırsa Express ona hiçbir zaman ulaşamaz, çünkü henüz hiçbir hata `next(err)` ile fırlatılmamışken sırada değildir.',
+        en: 'Express\'s error-catching middleware is like the **single fire exit in a building**: normal middlewares take 3 parameters (`req, res, next`), but the ONLY way to tell Express "I am an error handler" is by taking exactly **4 parameters** (`err, req, res, next`) — this is not a keyword, Express distinguishes it purely by reading the parameter COUNT of your function (`fn.length === 4`). When you call `next(err)` inside a route, Express abandons the normal chain and looks for the next 4-parameter middleware. In Spring the equivalent is `@RestControllerAdvice` + `@ExceptionHandler` — there, matching is done by exception TYPE via annotation; in Express, every error is manually routed to ONE catch-all middleware via `next(err)`. So why does Express hide this behind such a "quiet" rule (parameter count)? Because the framework itself is minimal — it does not impose a separate "error class" concept, it expects you to use JavaScript\'s own mechanisms (function signature). The critical point for a tester: this middleware\'s REGISTRATION ORDER is just as critical as in C3 — if it is defined BEFORE the routes, Express can never reach it, because at that point in the chain no error has been thrown with `next(err)` yet.',
+      },
+    },
+    { type: 'heading', text: { tr: '4 Parametreli "Gizli" İmza', en: 'The 4-Parameter "Secret" Signature' } },
+    {
+      type: 'code',
+      language: 'javascript',
+      code: {
+        tr: `app.get('/api/v1/bugs/:id', (req, res, next) => {
+  const bug = bugs.find(b => b.id === Number(req.params.id))
+  if (!bug) {
+    // hatayi FIRLATMAK yerine next(err) ile devret
+    return next({ status: 404, message: 'Bug bulunamadi' })
+  }
+  res.json(bug)
+})
+
+// TUM route'lardan SONRA tanimlanmali — 4 parametre Express'e "ben hata yakalayiciyim" der
+app.use((err, req, res, next) => {
+  const status = err.status || 500
+  console.error(\`[HATA] \${status}: \${err.message}\`)
+  res.status(status).json({ error: err.message || 'Sunucu hatasi' })
+})`,
+        en: `app.get('/api/v1/bugs/:id', (req, res, next) => {
+  const bug = bugs.find(b => b.id === Number(req.params.id))
+  if (!bug) {
+    // hand off with next(err) instead of THROWING the error
+    return next({ status: 404, message: 'Bug not found' })
+  }
+  res.json(bug)
+})
+
+// must be defined AFTER all routes — 4 parameters tell Express "I am the error handler"
+app.use((err, req, res, next) => {
+  const status = err.status || 500
+  console.error(\`[ERROR] \${status}: \${err.message}\`)
+  res.status(status).json({ error: err.message || 'Internal server error' })
+})`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — hata yakalayıcı middleware route\'lardan ÖNCE tanımlanırsa**\n\n**Kod:** 4 parametreli `(err, req, res, next)` middleware\'i dosyanın EN ÜSTÜNE, route tanımlarından önce konmuş.\n\n**Ne olur:** `GET /api/v1/bugs/999` (var olmayan id) isteği atılır; route içinde `next({status:404, ...})` çağrılır ama Express, kayıt SIRASINDA bu noktadan SONRA gelen bir hata middleware\'i arar — geriye doğru bakmaz. Hiçbiri bulunamadığı için Express kendi VARSAYILAN hata sayfasını (HTML, stack trace içeren) döner.\n\n**Neden sinsi:** Geliştirici "hata yakalayıcımı yazdım" der ve code review\'dan geçer — kod GERÇEKTEN doğru yazılmıştır, sadece dosyadaki KONUMU yanlıştır. Sonuç, beklenen `{"error": "Bug bulunamadi"}` JSON\'u yerine HTML bir hata sayfasıdır.\n\n**Tester nerede yakalar:** Otomasyon `response.json()` ile gövdeyi ayrıştırmaya çalıştığında `SyntaxError: Unexpected token \'<\'` alınca — HTML\'i JSON sanıp parse etmeye çalışmak, bu hata sınıfının imzasıdır (bkz. GRUP J).',
+        en: '**🐞 Defect Birth — if the error-catching middleware is defined BEFORE the routes**\n\n**Code:** the 4-parameter `(err, req, res, next)` middleware was placed at the VERY TOP of the file, before the route definitions.\n\n**What happens:** a `GET /api/v1/bugs/999` request (a non-existent id) is sent; the route calls `next({status:404, ...})`, but Express looks for an error middleware that comes AFTER this point in registration order — it never looks backward. Since none is found, Express returns its own DEFAULT error page (HTML, containing a stack trace).\n\n**Why sneaky:** the developer says "I wrote my error handler" and it passes code review — the code IS genuinely correct, only its POSITION in the file is wrong. The result is an HTML error page instead of the expected `{"error": "Bug not found"}` JSON.\n\n**Where the tester catches it:** when automation tries to parse the body with `response.json()` and gets `SyntaxError: Unexpected token \'<\'` — mistaking HTML for JSON and trying to parse it is the signature of this error class (see GROUP J).',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-c5-error-handler-film',
+      title: { tr: '🎬 4 Parametrenin Sihri: Express Bir Hata Yakalayıcıyı Nasıl Tanır?', en: '🎬 The Magic of 4 Parameters: How Express Recognizes an Error Handler' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'route', emoji: '🛣️', label: { tr: 'Route: next(err)', en: 'Route: next(err)' }, color: '#f59e0b' },
+        { id: 'search', emoji: '🔎', label: { tr: 'Express: 4-param arıyor', en: 'Express: searching for 4-param' }, color: '#0ea5e9' },
+        { id: 'found', emoji: '✅', label: { tr: 'Bulundu: JSON hata', en: 'Found: JSON error' }, color: '#22c55e' },
+        { id: 'notfound', emoji: '❌', label: { tr: 'Bulunamadı: HTML sayfa', en: 'Not found: HTML page' }, color: '#ef4444' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'JSON.parse çöktü', en: 'JSON.parse crashed' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Route handler var olmayan bir bug için `next({status:404, ...})` çağırıyor — hatayı zincire devrediyor.', en: 'The route handler calls `next({status:404, ...})` for a non-existent bug — handing the error into the chain.' },
+          positions: { route: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Express, kayıt sırasında BU NOKTADAN SONRA gelen, tam olarak 4 parametre alan bir middleware arar.', en: 'Express looks for a middleware that comes AFTER THIS POINT in registration order, taking exactly 4 parameters.' },
+          positions: { route: { x: 20, y: 40 }, search: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'route', to: 'search', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'DOĞRU SIRADA: hata yakalayıcı route\'lardan SONRA tanımlıysa bulunur — düzgün JSON hata gövdesi döner.', en: 'IN THE CORRECT ORDER: if the error handler is defined AFTER the routes, it is found — a proper JSON error body is returned.' },
+          positions: { search: { x: 20, y: 40 }, found: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'search', to: 'found', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'YANLIŞ SIRADA: hata yakalayıcı route\'lardan ÖNCE tanımlıysa Express onu asla ARAMAZ — kendi varsayılan HTML sayfasına düşer.', en: 'IN THE WRONG ORDER: if the error handler is defined BEFORE the routes, Express never SEARCHES it — it falls back to its own default HTML page.' },
+          positions: { found: { x: 20, y: 40, opacity: 0.4 }, notfound: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'search', to: 'notfound', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Ders — Otomasyon `response.json()` çağırdığında HTML\'i ayrıştırmaya çalışır ve çöker. Tester için bu, "kayıt sırası hatası"nın en somut kanıtıdır.', en: 'The lesson — when automation calls `response.json()` it tries to parse HTML and crashes. For a tester this is the most concrete evidence of a "registration order" bug.' },
+          positions: { notfound: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'notfound', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'next(err)\'ten JSON Hata Gövdesine', en: 'From next(err) to a JSON Error Body' },
+      steps: [
+        { id: 1, icon: '🛣️', label: { tr: 'Route hatayı devret…', en: 'Route hands off the error…' }, detail: { tr: 'Bulunamama/yetkisiz gibi bir durumda next(err) ile normal zincirden çıkılır.', en: 'On a not-found/unauthorized case, next(err) exits the normal chain.' } },
+        { id: 2, icon: '🔎', label: { tr: 'Express 4-param arasın…', en: 'Express searches 4-param…' }, detail: { tr: 'Kayıt sırasında SONRAKİ 4 parametreli middleware bulunmaya çalışılır.', en: 'It tries to find the NEXT 4-parameter middleware in registration order.' } },
+        { id: 3, icon: '📤', label: { tr: 'JSON hata dönsün…', en: 'Return a JSON error…' }, detail: { tr: 'Bulunursa status + { error } JSON döner; bulunamazsa Express\'in varsayılan HTML sayfası döner.', en: 'If found, status + { error } JSON is returned; if not, Express\'s default HTML page is returned.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-c5-order-01',
+      question: { tr: 'Express\'te DOĞRU hata yönetimi kurulum sırasını diz.', en: 'Order the CORRECT error-handling setup sequence in Express.' },
+      items: [
+        { id: '1', text: { tr: 'Normal route\'ları tanımla (GET, POST, ...)', en: 'Define the normal routes (GET, POST, ...)' }, order: 1 },
+        { id: '2', text: { tr: 'Bir route içinde next(err) ile hata devret', en: 'Hand off an error with next(err) inside a route' }, order: 2 },
+        { id: '3', text: { tr: 'TÜM route\'lardan sonra 4 parametreli middleware\'i tanımla', en: 'Define the 4-parameter middleware AFTER all routes' }, order: 3 },
+        { id: '4', text: { tr: 'Express bu middleware\'i parametre sayısından tanır', en: 'Express recognizes this middleware by its parameter count' }, order: 4 },
+        { id: '5', text: { tr: 'status + { error } ile JSON hata gövdesi döner', en: 'A JSON error body is returned with status + { error }' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-c5-errors',
+      id: 'api-c5-errors',
+      title: { tr: 'Kendin Dene: Hata Yakalayıcının Yerini Düzelt', en: 'Try It Yourself: Fix the Error Handler\'s Position' },
+      starterCode: `const express = require('express')
+const app = express()
+
+// BUG: hata yakalayici route'lardan ONCE tanimlanmis
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({ error: err.message })
+})
+
+app.get('/api/v1/bugs/:id', (req, res, next) => {
+  const bug = findBug(req.params.id)
+  if (!bug) return next({ status: 404, message: 'Bug bulunamadi' })
+  res.json(bug)
+})`,
+      solutionCode: `const express = require('express')
+const app = express()
+
+app.get('/api/v1/bugs/:id', (req, res, next) => {
+  const bug = findBug(req.params.id)
+  if (!bug) return next({ status: 404, message: 'Bug bulunamadi' })
+  res.json(bug)
+})
+
+// FIX: hata yakalayici HER ZAMAN TUM route'lardan SONRA tanimlanir
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({ error: err.message })
+})`,
+      hint: { tr: 'Express, hata yakalayıcı middleware\'i sadece kayıt sırasında SONRAKİ konumlarda arar. Route\'lardan önce tanımlanan bir hata yakalayıcıya asla ulaşılmaz.', en: 'Express only looks for the error-catching middleware in positions that come AFTER the current one in registration order. An error handler defined before the routes is never reached.' },
+      successMessage: { tr: 'Doğru! Artık next(err) çağrıları düzgün JSON hata gövdesine ulaşır, HTML sayfasına düşmez.', en: 'Correct! Now next(err) calls reach a proper JSON error body instead of falling back to the HTML page.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Express bir middleware\'in "hata yakalayıcı" olduğunu nasıl anlar?', en: 'How does Express know a middleware is an "error handler"?' },
+      options: [
+        { id: 'a', text: { tr: 'Fonksiyon adının "error" içermesinden', en: 'From the function name containing "error"' } },
+        { id: 'b', text: { tr: 'Fonksiyonun tam olarak 4 parametre almasından: (err, req, res, next)', en: 'From the function taking exactly 4 parameters: (err, req, res, next)' } },
+        { id: 'c', text: { tr: 'Ayrı bir app.error() metodu çağrılmasından', en: 'From calling a separate app.error() method' } },
+        { id: 'd', text: { tr: 'try/catch bloğu içinde tanımlanmasından', en: 'From being defined inside a try/catch block' } },
+      ],
+      correct: 'b',
+      explanation: { tr: 'Express, bir middleware fonksiyonunun parametre SAYISINA bakar; tam olarak 4 parametre alan fonksiyonlar hata yakalayıcı olarak işaretlenir. Bu, isim veya özel bir metoda değil, tamamen fonksiyon imzasına dayanan bir kuraldır.', en: 'Express inspects a middleware function\'s parameter COUNT; functions taking exactly 4 parameters are marked as error handlers. This rule relies entirely on the function signature, not on a name or a special method.' },
+      retryQuestion: {
+        question: { tr: 'Hata yakalayıcı middleware route tanımlarından ÖNCE konursa ne olur?', en: 'What happens if the error-catching middleware is placed BEFORE the route definitions?' },
+        options: [
+          { id: 'a', text: { tr: 'Express ona asla ulaşamaz; hatalar kendi varsayılan HTML sayfasına düşer', en: 'Express never reaches it; errors fall back to its own default HTML page' } },
+          { id: 'b', text: { tr: 'Express konumdan bağımsız her zaman bulur', en: 'Express always finds it regardless of position' } },
+          { id: 'c', text: { tr: 'Uygulama başlarken hata verir', en: 'The application throws an error on startup' } },
+          { id: 'd', text: { tr: 'Sadece POST isteklerinde çalışmaz', en: 'It only fails to work for POST requests' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Express middleware arama işlemini kayıt SIRASINA göre, sadece İLERİYE doğru yapar. Hata yakalayıcı route\'lardan önce tanımlıysa, `next(err)` çağrıldığı noktadan sonra bu middleware yoktur — Express kendi varsayılan HTML hata sayfasına döner.', en: 'Express performs its middleware search by registration ORDER, only moving FORWARD. If the error handler is defined before the routes, it does not exist after the point where `next(err)` is called — Express falls back to its own default HTML error page.' },
+      },
+    },
+  ],
+}
+
+const C6 = {
+  title: { tr: '⚖️ C6 · Java ↔ Express Karşılaştırma', en: '⚖️ C6 · Java ↔ Express Comparison' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '⚖️',
+      content: {
+        tr: 'Aynı `/api/v1/bugs` restoranını iki farklı ekiple kurmak gibiydi: Spring Boot ekibi **hazır bir brigade sistemiyle** geldi (her aşçının rolü annotation ile önceden atanmış — starter, `@Valid`, `@RestControllerAdvice`); Express ekibi ise **serbest çalışan bir şef** gibiydi — hiçbir kural dayatılmadı, her adımı (middleware sırası, validation kütüphanesi, hata yakalayıcı) sen elle kurdun. Peki bu "özgürlük" gerçekten bir avantaj mı? Küçük, hızlı prototipler için EVET — az kod, az karar; ama C3-C5\'te gördüğün gibi (middleware sırası, validation sonucu okuma, hata yakalayıcı konumu) her "elle kurulan" adım aynı zamanda bir "elle unutulabilecek" adımdır — Spring\'de framework SENİN yerine hatırlar, Express\'te SEN hatırlarsın. Bu, "hangisi daha iyi" sorusu değil, **"hangi hatanın senin sorumluluğunda olduğu"** sorusudur — ve bir tester için bu, "bu framework\'te hangi sessiz hata SIK görülür" sorusuna dönüşür: Spring\'de eksik annotation/dependency, Express\'te yanlış SIRA.',
+        en: 'It was like building the same `/api/v1/bugs` restaurant with two different teams: the Spring Boot team arrived with a **ready-made brigade system** (every chef\'s role pre-assigned via annotations — the starter, `@Valid`, `@RestControllerAdvice`); the Express team was like a **freelance chef** — nothing was imposed, you built every step by hand (middleware order, validation library, error handler). Is this "freedom" really an advantage? For small, fast prototypes, YES — less code, fewer decisions; but as you saw in C3-C5 (middleware order, reading a validation result, error handler position), every "hand-built" step is also a step that can be "hand-forgotten" — in Spring the framework remembers FOR you, in Express YOU remember. This is not a "which is better" question, it is a **"whose responsibility is this bug"** question — and for a tester it becomes "which silent bug is COMMON in this framework": in Spring it is a missing annotation/dependency, in Express it is the wrong ORDER.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Üç Framework, Aynı Sözleşme', en: 'Three Frameworks, One Contract' } },
+    {
+      type: 'table',
+      headers: ['Konu / Topic', 'Spring Boot (Java)', 'Express.js', 'NestJS'],
+      rows: [
+        ['Route tanımı / Route definition', '@GetMapping("/bugs")', "app.get('/bugs', handler)", '@Get()'],
+        ['Body okuma / Reading body', '@RequestBody BugRequest req', 'req.body (express.json() şart)', '@Body() dto: CreateBugDto'],
+        ['Validation', '@Valid + Bean Validation', 'express-validator / zod (elle okunur)', 'ValidationPipe + class-validator'],
+        ['Hata yönetimi / Error handling', '@RestControllerAdvice', '4 parametreli (err,req,res,next)', '@Catch() Exception Filter'],
+        ['DI (bağımlılık enjeksiyonu)', 'Spring IoC container', 'manuel / factory fonksiyon', 'Nest IoC container'],
+        ['Sıra hassasiyeti / Order sensitivity', 'Düşük — annotation tabanlı', 'YÜKSEK — middleware SIRASI kritik', 'Orta — modül/pipe kaydı önemli'],
+        ['En sık sessiz hata / Most common silent bug', 'Eksik starter/annotation', 'Yanlış middleware sırası', 'Unutulan global pipe/filter kaydı'],
+      ],
+    },
+    {
+      type: 'video-scene',
+      id: 'api-c6-compare-film',
+      title: { tr: '🎬 Üç Mutfak, Aynı Menü', en: '🎬 Three Kitchens, One Menu' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'request', emoji: '📤', label: { tr: 'Aynı POST isteği', en: 'The same POST request' }, color: '#f59e0b' },
+        { id: 'spring', emoji: '☕', label: { tr: 'Spring: @Valid otomatik', en: 'Spring: @Valid automatic' }, color: '#22c55e' },
+        { id: 'express', emoji: '🟢', label: { tr: 'Express: elle sıralı zincir', en: 'Express: hand-ordered chain' }, color: '#0ea5e9' },
+        { id: 'nest', emoji: '🐈', label: { tr: 'Nest: decorator + pipe', en: 'Nest: decorator + pipe' }, color: '#a78bfa' },
+        { id: 'response', emoji: '📥', label: { tr: 'Aynı JSON sözleşmesi', en: 'The same JSON contract' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Aynı `POST /api/v1/bugs { "title": "" }` isteği üç farklı sunucuya gönderiliyor.', en: 'The same `POST /api/v1/bugs { "title": "" }` request is sent to three different servers.' },
+          positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Spring: `@Valid` framework tarafından otomatik tetiklenir, 400 döner — geliştirici ekstra kod yazmaz.', en: 'Spring: `@Valid` is triggered automatically by the framework, 400 is returned — the developer writes no extra code.' },
+          positions: { request: { x: 20, y: 30 }, spring: { x: 62, y: 30, scale: 1.15, pulse: true } },
+          beams: [{ from: 'request', to: 'spring', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'Express: doğrulama sadece `validationResult(req)` OKUNURSA 400 döner — okunmazsa 201 sızar.', en: 'Express: validation returns 400 only if `validationResult(req)` is READ — if not, 201 leaks through.' },
+          positions: { spring: { x: 20, y: 45 }, express: { x: 62, y: 45, scale: 1.15, pulse: true } },
+          beams: [{ from: 'request', to: 'express', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Nest: `ValidationPipe` global olarak KAYITLIYSA DTO decorator\'ları otomatik çalışır — kayıtlı değilse decorator\'lar süstür.', en: 'Nest: if `ValidationPipe` is registered GLOBALLY, DTO decorators run automatically — if not, decorators are just decoration.' },
+          positions: { express: { x: 20, y: 60 }, nest: { x: 62, y: 60, scale: 1.15, pulse: true } },
+          beams: [{ from: 'request', to: 'nest', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Ders — Üçü de AYNI sözleşmeyi (400 + hata mesajı) hedefler, ama "otomatik mi, elle mi" ekseni farklıdır. Tester her framework\'te "bu güvenlik gerçekten TETİKLENİYOR mu?" diye sorar.', en: 'The lesson — all three target the SAME contract (400 + error message), but the "automatic vs. manual" axis differs. In every framework, a tester asks "is this safeguard REALLY triggered?"' },
+          positions: { spring: { x: 30, y: 40 }, express: { x: 50, y: 55 }, nest: { x: 70, y: 40 }, response: { x: 50, y: 30, scale: 1.15, pulse: true } },
+          beams: [{ from: 'spring', to: 'response', color: '#8b5cf6' }, { from: 'express', to: 'response', color: '#8b5cf6' }, { from: 'nest', to: 'response', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Tabloyu Okuma Stratejisi', en: 'A Strategy for Reading the Table' },
+      steps: [
+        { id: 1, icon: '🎯', label: { tr: 'Sözleşmeyi sabit tut…', en: 'Keep the contract fixed…' }, detail: { tr: '/api/v1/bugs modeli, alanları ve status kodları HER ÜÇ satırda da aynı kalır.', en: 'The /api/v1/bugs model, fields, and status codes stay the same across all three rows.' } },
+        { id: 2, icon: '🔀', label: { tr: 'Sözdizimini karşılaştır…', en: 'Compare the syntax…' }, detail: { tr: 'Aynı işi hangi anahtar kelime/decorator/fonksiyon yapıyor — annotation mı, middleware mi, decorator mı?', en: 'Which keyword/decorator/function does the same job — an annotation, a middleware, or a decorator?' } },
+        { id: 3, icon: '🐞', label: { tr: 'Sessiz hata riskini sor…', en: 'Ask about the silent-bug risk…' }, detail: { tr: 'Bu framework\'te bu adım UNUTULURSA ne olur — otomatik mi engellenir, yoksa sessizce mi geçer?', en: 'If this step is FORGOTTEN in this framework, what happens — is it blocked automatically, or does it silently pass?' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-c6-order-01',
+      question: { tr: 'Bir POST /api/v1/bugs isteğinin üç frameworkte de takip ettiği ORTAK adımları sırala.', en: 'Order the COMMON steps a POST /api/v1/bugs request follows in all three frameworks.' },
+      items: [
+        { id: '1', text: { tr: 'İstek route/controller katmanına ulaşır', en: 'The request reaches the route/controller layer' }, order: 1 },
+        { id: '2', text: { tr: 'Gövde (body) ayrıştırılıp bir nesneye dönüştürülür', en: 'The body is parsed and converted into an object' }, order: 2 },
+        { id: '3', text: { tr: 'Doğrulama kuralları çalıştırılır', en: 'Validation rules are run' }, order: 3 },
+        { id: '4', text: { tr: 'Hata varsa merkezi bir hata yönetimine devredilir', en: 'If there is an error, it is handed to a central error handler' }, order: 4 },
+        { id: '5', text: { tr: 'Başarılıysa 201 + JSON kayıt döner', en: 'If successful, 201 + a JSON record is returned' }, order: 5 },
+      ],
+      xpReward: 12,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-c6-compare',
+      id: 'api-c6-compare',
+      title: { tr: 'Kendin Dene: Spring Kod Satırını Express\'e Çevir', en: 'Try It Yourself: Translate the Spring Line to Express' },
+      starterCode: `// Spring Boot (Java):
+// @GetMapping("/api/v1/bugs/{id}")
+// public Bug getBug(@PathVariable Long id) { ... }
+
+// TODO: ayni isi yapan Express satirini yaz
+`,
+      solutionCode: `// Express (JavaScript):
+app.get('/api/v1/bugs/:id', (req, res) => {
+  const id = Number(req.params.id)
+  // ...
+})`,
+      hint: { tr: 'Spring\'de `@PathVariable` bir metod parametresidir; Express\'te aynı bilgi `req.params` nesnesinden elle okunur ve path\'te `:id` ile işaretlenir.', en: 'In Spring, `@PathVariable` is a method parameter; in Express the same information is read by hand from the `req.params` object and marked in the path with `:id`.' },
+      successMessage: { tr: 'Doğru! İki framework de aynı bilgiyi taşıyor, sadece biri annotation ile biri fonksiyon parametresiyle okuyor.', en: 'Correct! Both frameworks carry the same information, one reads it via annotation, the other via a function parameter.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Spring ve Express arasındaki en temel mimari fark nedir?', en: 'What is the most fundamental architectural difference between Spring and Express?' },
+      options: [
+        { id: 'a', text: { tr: 'Spring opinionated\'dır (framework çoğu kararı verir), Express un-opinionated\'dır (geliştirici çoğu kararı verir)', en: 'Spring is opinionated (the framework makes most decisions), Express is un-opinionated (the developer makes most decisions)' } },
+        { id: 'b', text: { tr: 'Express sadece test amaçlı kullanılır, production\'da kullanılmaz', en: 'Express is only for testing, never used in production' } },
+        { id: 'c', text: { tr: 'Spring JSON desteklemez', en: 'Spring does not support JSON' } },
+        { id: 'd', text: { tr: 'İkisi arasında hiçbir fark yoktur', en: 'There is no difference between the two' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Spring Boot "opinionated" bir framework\'tür — starter\'lar, annotation\'lar ve otomatik konfigürasyonla birçok kararı senin yerine verir. Express "un-opinionated"dır — minimal bir çekirdek sunar, validation/hata yönetimi gibi her kararı geliştiriciye bırakır. Bu fark, hangi hataların "framework tarafından engellendiği" hangilerinin "geliştiricinin sorumluluğunda kaldığı"nı belirler.', en: 'Spring Boot is an "opinionated" framework — starters, annotations, and auto-configuration make many decisions for you. Express is "un-opinionated" — it offers a minimal core and leaves every decision, like validation or error handling, to the developer. This difference determines which bugs are "blocked by the framework" and which remain "the developer\'s responsibility".' },
+      retryQuestion: {
+        question: { tr: 'Express\'te en sık görülen "sessiz hata" kategorisi neye dayanır?', en: 'What does the most common "silent bug" category in Express stem from?' },
+        options: [
+          { id: 'a', text: { tr: 'Middleware/route KAYIT SIRASININ yanlış olmasına', en: 'The middleware/route REGISTRATION ORDER being wrong' } },
+          { id: 'b', text: { tr: 'Node.js\'in JSON desteklememesine', en: 'Node.js not supporting JSON' } },
+          { id: 'c', text: { tr: 'Express\'in HTTP\'yi desteklememesine', en: 'Express not supporting HTTP' } },
+          { id: 'd', text: { tr: 'npm\'in çalışmamasına', en: 'npm not working' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'C3-C5\'te gördüğün gibi (express.json() sırası, hata yakalayıcının konumu) Express\'in minimal doğası, doğru kodun bile YANLIŞ SIRADA yazılmasından doğan sessiz hatalara açıktır — bu, Spring\'in annotation-tabanlı, sıraya daha az duyarlı yapısından temel farkıdır.', en: 'As seen in C3-C5 (express.json() order, error handler position), Express\'s minimal nature is open to silent bugs born from even correct code being written in the WRONG ORDER — this is its key difference from Spring\'s annotation-based, less order-sensitive structure.' },
+      },
+    },
+  ],
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GRUP D — Aynı API'yi NestJS ile Yazmak (KODLU + Defect şablonu, kısa/öz)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const D1 = {
+  title: { tr: '🐈 D1 · Nest CLI ve Modül Mimarisi', en: '🐈 D1 · Nest CLI and Module Architecture' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🐈',
+      content: {
+        tr: 'NestJS, **TypeScript dünyasındaki Spring Boot\'un ikizi** gibidir: Express\'in "her şeyi elle kur" felsefesinin tam tersine, Nest yeniden "opinionated" bir yapıya döner — `@Module`, `@Controller`, `@Injectable` decorator\'ları, Java\'daki `@Configuration`, `@RestController`, `@Service`\'in neredeyse birebir çevirisidir. Bir modül (`AppModule`), hangi controller\'ların ve provider\'ların (servislerin) birbirine bağlı olduğunu bir Spring `@Configuration` sınıfı gibi bildirir; Nest\'in kendi DI (dependency injection) container\'ı bunları senin yerine "bağlar". Peki Express\'ten sonra neden tekrar bir "iskelet/disiplin" katmanına dönülüyor? Çünkü küçük bir prototipte özgürlük hız kazandırır, ama büyük bir takımda (5, 10, 50 geliştirici) HERKESİN aynı klasör yapısını, aynı hata yönetimini, aynı DI mantığını kullanması gerekir — Nest bunu bir framework kararı olarak dayatır, tıpkı Spring\'in yaptığı gibi. Bir Java geliştiricisi Nest\'i ilk gördüğünde kendini EVİNDE hisseder: sınıflar, decorator\'lar, constructor injection — hepsi tanıdıktır. Tester için önemli olan: modül kaydı (bir controller\'ın `@Module`\'e EKLENMESİ) Express\'teki route tanımından FARKLI bir hata sınıfı doğurur — kodun kendisi doğru olsa bile, modüle kayıtlı değilse o route hiç VAR OLMAZ.',
+        en: 'NestJS is like **Spring Boot\'s twin in the TypeScript world**: opposite to Express\'s "build everything by hand" philosophy, Nest returns to an "opinionated" structure — the `@Module`, `@Controller`, `@Injectable` decorators are nearly a direct translation of Java\'s `@Configuration`, `@RestController`, `@Service`. A module (`AppModule`) declares which controllers and providers (services) are wired together, much like a Spring `@Configuration` class; Nest\'s own DI (dependency injection) container "wires" them for you. So why return to a "skeleton/discipline" layer after Express? Because freedom speeds up a small prototype, but in a large team (5, 10, 50 developers) EVERYONE needs the same folder structure, the same error handling, the same DI logic — Nest imposes this as a framework decision, just like Spring does. A Java developer seeing Nest for the first time feels right AT HOME: classes, decorators, constructor injection — all familiar. What matters for a tester: module registration (a controller being ADDED to `@Module`) produces a DIFFERENT bug class than an Express route definition — even if the code itself is correct, if it is not registered in the module, that route simply does not EXIST.',
+      },
+    },
+    { type: 'heading', text: { tr: 'İskelet: Modül + Bootstrap', en: 'Skeleton: Module + Bootstrap' } },
+    {
+      type: 'code',
+      language: 'bash',
+      code: {
+        tr: `# Nest CLI kurulumu ve yeni proje
+npm i -g @nestjs/cli
+nest new bug-tracker`,
+        en: `# Install the Nest CLI and create a new project
+npm i -g @nestjs/cli
+nest new bug-tracker`,
+      },
+    },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `// app.module.ts — hangi controller/provider'larin birbirine bagli oldugunu bildirir
+import { Module } from '@nestjs/common'
+import { BugsController } from './bugs.controller'
+import { BugsService } from './bugs.service'
+
+@Module({
+  controllers: [BugsController],   // TODO: buraya eklenmeyen controller HIC calismaz
+  providers: [BugsService],
+})
+export class AppModule {}
+
+// main.ts — uygulamanin giris noktasi
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  await app.listen(3000)
+}
+bootstrap()`,
+        en: `// app.module.ts — declares which controllers/providers are wired together
+import { Module } from '@nestjs/common'
+import { BugsController } from './bugs.controller'
+import { BugsService } from './bugs.service'
+
+@Module({
+  controllers: [BugsController],   // TODO: a controller not added here NEVER works
+  providers: [BugsService],
+})
+export class AppModule {}
+
+// main.ts — the application entry point
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  await app.listen(3000)
+}
+bootstrap()`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — `BugsController` `@Module`\'e eklenmezse**\n\n**Kod:** `bugs.controller.ts` dosyası tamamen doğru yazıldı (`@Controller`, `@Get()` decorator\'ları hepsi doğru), ama `app.module.ts`\'teki `controllers: [...]` dizisine EKLENMEDİ.\n\n**Ne olur:** Uygulama HATASIZ başlar (TypeScript derleyicisi bunu bir hata olarak görmez — sınıf hâlâ geçerli bir sınıftır), ama Nest\'in DI container\'ı bu controller\'dan HİÇ haberdar olmaz. `GET /api/v1/bugs` isteği atıldığında Nest\'in kendi varsayılan 404\'ü döner — sanki route hiç yazılmamış gibi.\n\n**Neden sinsi:** Bir code review\'da dosyayı açan biri "controller doğru yazılmış" der ve geçer — çünkü dosyanın İÇİ gerçekten doğrudur. Eksik olan tek satır, başka bir dosyadaki (`app.module.ts`) bir DİZİ elemanıdır; bu, "doğru kod, yanlış yerde kayıtlı değil" kategorisinin NestJS\'teki karşılığıdır.\n\n**Tester nerede yakalar:** Code review "her şey doğru görünüyor" dese bile, gerçek bir istek atıp 404 alınca — bu, "kod incelemesi yeterli değildir, çalışan sistemde doğrulama şarttır" prensibinin somut kanıtıdır.',
+        en: '**🐞 Defect Birth — if `BugsController` is not added to `@Module`**\n\n**Code:** `bugs.controller.ts` was written entirely correctly (all the `@Controller`, `@Get()` decorators are right), but it was NOT added to the `controllers: [...]` array in `app.module.ts`.\n\n**What happens:** the app starts WITHOUT error (the TypeScript compiler does not see this as an error — the class is still a valid class), but Nest\'s DI container never learns about this controller at all. A `GET /api/v1/bugs` request gets Nest\'s own default 404 — as if the route was never written.\n\n**Why sneaky:** someone opening the file in a code review says "the controller is written correctly" and moves on — because the file\'s CONTENTS really are correct. The missing piece is a single ARRAY entry in a different file (`app.module.ts`); this is the NestJS counterpart of the "correct code, just not registered in the right place" category.\n\n**Where the tester catches it:** even if code review says "everything looks correct", sending a real request and getting 404 — concrete proof of the principle that "code review is not enough, verification on a running system is mandatory".',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-d1-module-film',
+      title: { tr: '🎬 Doğru Kod, Kayıtsız Controller', en: '🎬 Correct Code, Unregistered Controller' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'controller', emoji: '📄', label: { tr: 'BugsController (doğru kod)', en: 'BugsController (correct code)' }, color: '#f59e0b' },
+        { id: 'module', emoji: '🧩', label: { tr: '@Module({ controllers })', en: '@Module({ controllers })' }, color: '#a78bfa' },
+        { id: 'di', emoji: '🔌', label: { tr: 'Nest DI Container', en: 'Nest DI Container' }, color: '#0ea5e9' },
+        { id: 'missing', emoji: '❓', label: { tr: 'Route hiç yok!', en: 'Route does not exist!' }, color: '#ef4444' },
+        { id: 'tester', emoji: '🕵️', label: { tr: '404 aldı, koda baktı: doğruydu', en: 'Got 404, checked the code: it was correct' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Geliştirici `bugs.controller.ts`\'i baştan sona doğru yazıyor — decorator\'lar, metotlar, hepsi tamam.', en: 'The developer writes `bugs.controller.ts` correctly from start to end — decorators, methods, all fine.' },
+          positions: { controller: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Normalde bu controller `@Module({ controllers: [BugsController] })` dizisine EKLENMELİ.', en: 'Normally this controller MUST be ADDED to the `@Module({ controllers: [BugsController] })` array.' },
+          positions: { controller: { x: 20, y: 40 }, module: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'controller', to: 'module', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Bu adım ATLANIRSA, Nest\'in DI container\'ı bu controller\'dan HİÇ haberdar olmaz — TypeScript derleyicisi de bunu bir hata saymaz.', en: 'If this step is SKIPPED, Nest\'s DI container never learns about this controller — TypeScript\'s compiler does not consider this an error either.' },
+          positions: { module: { x: 22, y: 40, opacity: 0.4 }, di: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'controller', to: 'di', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: '`GET /api/v1/bugs` isteği atılır — route TANIMLI olsa da DI container\'a KAYITLI olmadığı için Nest 404 döner.', en: 'A `GET /api/v1/bugs` request is sent — even though the route is DEFINED, since it is not REGISTERED with the DI container, Nest returns 404.' },
+          positions: { di: { x: 22, y: 40 }, missing: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'di', to: 'missing', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Ders — Kod incelemesi "dosya doğru yazılmış" der ama çalışan sistemde route yoktur. Tester her zaman gerçek bir istekle doğrular.', en: 'The lesson — code review says "the file is written correctly" but the route does not exist in the running system. A tester always verifies with a real request.' },
+          positions: { missing: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'missing', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Bir Controller\'ın "Var Olma" Yolculuğu', en: 'A Controller\'s Journey to "Existing"' },
+      steps: [
+        { id: 1, icon: '📄', label: { tr: 'Sınıfı yaz…', en: 'Write the class…' }, detail: { tr: '@Controller() ve @Get() decorator\'larıyla BugsController\'ı yaz — bu TEK BAŞINA yeterli değildir.', en: 'Write BugsController with @Controller() and @Get() decorators — this ALONE is not enough.' } },
+        { id: 2, icon: '🧩', label: { tr: 'Modüle kaydet…', en: 'Register with the module…' }, detail: { tr: '@Module({ controllers: [BugsController] }) dizisine EKLE — bu adım olmadan Nest sınıftan haberdar olmaz.', en: 'ADD it to the @Module({ controllers: [BugsController] }) array — without this step Nest never learns about the class.' } },
+        { id: 3, icon: '🔌', label: { tr: 'DI container bağlasın…', en: 'Let the DI container wire it…' }, detail: { tr: 'Kayıtlı olan controller artık gerçek isteklere yanıt verebilir.', en: 'Once registered, the controller can now respond to real requests.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-d1-order-01',
+      question: { tr: 'Bir Nest controller\'ının çalışır hale gelme sırasını diz.', en: 'Order the steps for a Nest controller to become functional.' },
+      items: [
+        { id: '1', text: { tr: 'nest new ile proje iskeletini oluştur', en: 'Create the project skeleton with nest new' }, order: 1 },
+        { id: '2', text: { tr: '@Controller() decorator\'ı ile BugsController sınıfını yaz', en: 'Write the BugsController class with the @Controller() decorator' }, order: 2 },
+        { id: '3', text: { tr: 'Controller\'ı @Module({ controllers: [...] }) dizisine ekle', en: 'Add the controller to the @Module({ controllers: [...] }) array' }, order: 3 },
+        { id: '4', text: { tr: 'main.ts NestFactory.create(AppModule) ile uygulamayı başlatır', en: 'main.ts starts the app with NestFactory.create(AppModule)' }, order: 4 },
+        { id: '5', text: { tr: 'GET isteği artık DI container üzerinden controller\'a ulaşır', en: 'A GET request now reaches the controller through the DI container' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-d1-module',
+      id: 'api-d1-module',
+      title: { tr: 'Kendin Dene: Controller\'ı Modüle Kaydet', en: 'Try It Yourself: Register the Controller with the Module' },
+      starterCode: `import { Module } from '@nestjs/common'
+import { BugsController } from './bugs.controller'
+import { BugsService } from './bugs.service'
+
+// BUG: BugsController dizide yok, kod dogru ama route hic calismayacak
+@Module({
+  controllers: [],
+  providers: [BugsService],
+})
+export class AppModule {}`,
+      solutionCode: `import { Module } from '@nestjs/common'
+import { BugsController } from './bugs.controller'
+import { BugsService } from './bugs.service'
+
+@Module({
+  controllers: [BugsController],
+  providers: [BugsService],
+})
+export class AppModule {}`,
+      hint: { tr: 'Bir sınıfın `@Controller()` decorator\'ıyla doğru yazılmış olması yetmez; Nest\'in DI container\'ının onu tanıması için `@Module({ controllers: [...] })` dizisine EKLENMESİ gerekir.', en: 'A class being correctly written with `@Controller()` is not enough; for Nest\'s DI container to recognize it, it must be ADDED to the `@Module({ controllers: [...] })` array.' },
+      successMessage: { tr: 'Doğru! Artık DI container BugsController\'ı tanır, GET /api/v1/bugs gerçekten yanıt döner.', en: 'Correct! Now the DI container recognizes BugsController, GET /api/v1/bugs actually responds.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Bir controller sınıfı doğru yazılmış ama `@Module`\'ün `controllers` dizisine eklenmemişse ne olur?', en: 'What happens if a controller class is written correctly but is not added to `@Module`\'s `controllers` array?' },
+      options: [
+        { id: 'a', text: { tr: 'TypeScript derleme hatası verir', en: 'TypeScript throws a compile error' } },
+        { id: 'b', text: { tr: 'Uygulama hatasız başlar ama o controller\'ın route\'ları hiç var olmaz; istekler 404 alır', en: 'The app starts without error but that controller\'s routes never exist; requests get 404' } },
+        { id: 'c', text: { tr: 'Nest otomatik olarak dosyayı tarayıp ekler', en: 'Nest automatically scans and adds the file' } },
+        { id: 'd', text: { tr: 'Sadece POST route\'ları etkilenir', en: 'Only POST routes are affected' } },
+      ],
+      correct: 'b',
+      explanation: { tr: 'TypeScript sınıfın kendisini geçerli bulur, derleme hatası vermez. Ama Nest\'in DI container\'ı SADECE `@Module`\'e kayıtlı sınıfları bilir; kayıtsız bir controller\'ın route\'ları hiçbir zaman gerçek bir isteğe yanıt vermez — sanki hiç yazılmamış gibi 404 döner.', en: 'TypeScript finds the class itself valid and throws no compile error. But Nest\'s DI container ONLY knows classes registered with `@Module`; an unregistered controller\'s routes never respond to a real request — they return 404 as if never written.' },
+      retryQuestion: {
+        question: { tr: 'NestJS\'te `@Module` decorator\'ının Spring Boot\'taki en yakın karşılığı nedir?', en: 'What is the closest Spring Boot equivalent of the `@Module` decorator in NestJS?' },
+        options: [
+          { id: 'a', text: { tr: '@Configuration sınıfı — hangi bean/controller\'ların birbirine bağlı olduğunu bildirir', en: 'A @Configuration class — declares which beans/controllers are wired together' } },
+          { id: 'b', text: { tr: '@Entity sınıfı', en: 'An @Entity class' } },
+          { id: 'c', text: { tr: 'pom.xml dosyası', en: 'The pom.xml file' } },
+          { id: 'd', text: { tr: 'application.properties dosyası', en: 'The application.properties file' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Spring\'de `@Configuration` (ve component tarama) hangi sınıfların container\'a dahil olacağını bildirir; Nest\'te bu iş `@Module`\'ün `controllers`/`providers` dizileriyle yapılır — ikisi de "bu sınıflar birbirine bağlı" bildirimidir.', en: 'In Spring, `@Configuration` (and component scanning) declares which classes join the container; in Nest this is done through `@Module`\'s `controllers`/`providers` arrays — both are declarations of "these classes are wired together".' },
+      },
+    },
+  ],
+}
+
+const D2 = {
+  title: { tr: '🎀 D2 · Controller Decorator\'ları: @Get, @Post, @Body', en: '🎀 D2 · Controller Decorators: @Get, @Post, @Body' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🎀',
+      content: {
+        tr: 'Nest\'in controller decorator\'ları, Spring annotation\'larının **neredeyse birebir TypeScript çevirisi** gibidir: Spring\'de `@RestController` + `@RequestMapping("/bugs")` + `@GetMapping` bir sınıf ve metot etiketlerken, Nest\'te `@Controller(\'bugs\')` + `@Get()` AYNI işi yapar; `@RequestBody` yerine `@Body()`, `@PathVariable` yerine `@Param()` gelir. Peki bu kadar benzerken Express\'ten sonra Nest\'i neden ayrı öğreniyoruz? Çünkü Express\'te (C2) `req.params`/`req.query` fonksiyon GÖVDESİNDE elle okunurken, Nest\'te bu bilgi decorator\'lar sayesinde doğrudan METOT PARAMETRESİ olarak gelir — sözleşme, imzanın kendisinde görünür kılınır, tıpkı Spring\'de olduğu gibi. Bu, "okunabilirlik" tercihinden fazlasıdır: parametre bir decorator ile İŞARETLENMEZSE (örn. `@Body()` unutulursa), Nest o parametreyi `undefined` bırakır — Express\'teki `express.json()` sırası hatasına BENZER ama kök nedeni farklı bir sessiz hata sınıfı doğurur.',
+        en: 'Nest\'s controller decorators are like an **almost direct TypeScript translation** of Spring annotations: in Spring, `@RestController` + `@RequestMapping("/bugs")` + `@GetMapping` label a class and method; in Nest, `@Controller(\'bugs\')` + `@Get()` do the SAME job; `@RequestBody` becomes `@Body()`, `@PathVariable` becomes `@Param()`. So with such similarity, why learn Nest separately after Express? Because in Express (C2), `req.params`/`req.query` are read by hand INSIDE the function body, while in Nest this information arrives directly as a METHOD PARAMETER thanks to decorators — the contract is made visible right in the signature, just like in Spring. This is more than a "readability" preference: if a parameter is NOT MARKED with a decorator (e.g., `@Body()` is forgotten), Nest leaves that parameter `undefined` — SIMILAR to Express\'s `express.json()` order bug, but born from a different root cause.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Aynı Endpoint\'ler, Decorator ile', en: 'The Same Endpoints, via Decorators' } },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `// bugs.controller.ts
+import { Controller, Get, Post, Param, Query, Body } from '@nestjs/common'
+import { BugsService } from './bugs.service'
+
+@Controller('api/v1/bugs')
+export class BugsController {
+  constructor(private readonly bugsService: BugsService) {}
+
+  @Get()
+  findAll(@Query('status') status?: string) {
+    return this.bugsService.findAll(status)
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.bugsService.findOne(Number(id))
+  }
+
+  @Post()
+  create(@Body() body: any) {
+    // TODO: @Body() unutulursa body her zaman undefined gelir
+    return this.bugsService.create(body)
+  }
+}`,
+        en: `// bugs.controller.ts
+import { Controller, Get, Post, Param, Query, Body } from '@nestjs/common'
+import { BugsService } from './bugs.service'
+
+@Controller('api/v1/bugs')
+export class BugsController {
+  constructor(private readonly bugsService: BugsService) {}
+
+  @Get()
+  findAll(@Query('status') status?: string) {
+    return this.bugsService.findAll(status)
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.bugsService.findOne(Number(id))
+  }
+
+  @Post()
+  create(@Body() body: any) {
+    // TODO: forgetting @Body() means body always arrives as undefined
+    return this.bugsService.create(body)
+  }
+}`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — `@Body()` decorator\'ı unutulursa**\n\n**Kod:** `create(body: any)` — parametre var, tipi de yazılmış, ama başına `@Body()` decorator\'ı KONMAMIŞ.\n\n**Ne olur:** Nest\'in HTTP adaptörü (Express) gövdeyi zaten ayrıştırmıştır, ama decorator olmadan Nest bu veriyi metoda HANGİ parametreye bağlayacağını bilemez — `body` parametresi `undefined` kalır. `POST /api/v1/bugs { "title": "..." }` isteği 201 döner ama kayıt tamamen boştur.\n\n**Neden sinsi:** TypeScript hiçbir hata vermez (`body: any` geçerli bir parametredir), Nest de çalışma zamanında sessizce `undefined` geçer — tıpkı C3\'teki `express.json()` sıra hatasının SONUCU gibi görünür ama kök nedeni tamamen farklıdır (orada middleware sırası, burada eksik decorator).\n\n**Tester nerede yakalar:** POST sonrası GET ile kaydı tekrar okuyup tüm alanların boş geldiğini görünce — "201 aldım ama içerik boş" ailesinin NestJS\'teki üçüncü örneği (bkz. B1, C3).',
+        en: '**🐞 Defect Birth — if the `@Body()` decorator is forgotten**\n\n**Code:** `create(body: any)` — the parameter exists, its type is written, but the `@Body()` decorator was NOT placed in front of it.\n\n**What happens:** Nest\'s HTTP adapter (Express) has already parsed the body, but without the decorator Nest cannot know WHICH parameter to bind that data to — the `body` parameter stays `undefined`. A `POST /api/v1/bugs { "title": "..." }` request returns 201 but the record is entirely empty.\n\n**Why sneaky:** TypeScript throws no error (`body: any` is a valid parameter), and Nest silently passes `undefined` at runtime — it LOOKS like the same result as C3\'s `express.json()` order bug, but its root cause is entirely different (there it was middleware order, here it is a missing decorator).\n\n**Where the tester catches it:** reading the record back with a GET after the POST and seeing all fields come back empty — the third example, in NestJS, of the "got 201 but the content is empty" family (see B1, C3).',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-d2-decorators-film',
+      title: { tr: '🎬 Decorator Yoksa, Parametre Yok', en: '🎬 No Decorator, No Parameter' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'http', emoji: '📤', label: { tr: 'POST + JSON gövde', en: 'POST + JSON body' }, color: '#f59e0b' },
+        { id: 'adapter', emoji: '⚙️', label: { tr: 'HTTP adaptörü ayrıştırır', en: 'HTTP adapter parses it' }, color: '#0ea5e9' },
+        { id: 'decorator', emoji: '🏷️', label: { tr: '@Body() bağlar', en: '@Body() binds it' }, color: '#a78bfa' },
+        { id: 'missing', emoji: '❓', label: { tr: 'Decorator yok → undefined', en: 'No decorator → undefined' }, color: '#ef4444' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Boş kayıt kanıtı', en: 'Evidence of an empty record' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'İstemci `POST /api/v1/bugs` isteğini JSON gövdeyle gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with a JSON body.' },
+          positions: { http: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Nest\'in altındaki HTTP adaptörü (Express) gövdeyi zaten bir JavaScript nesnesine ayrıştırdı.', en: 'The HTTP adapter under Nest (Express) has already parsed the body into a JavaScript object.' },
+          positions: { http: { x: 20, y: 40 }, adapter: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'http', to: 'adapter', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'DOĞRU YOLDA: `@Body()` decorator\'ı bu ayrıştırılmış veriyi metot parametresine BAĞLAR.', en: 'ON THE CORRECT PATH: the `@Body()` decorator BINDS this parsed data to the method parameter.' },
+          positions: { adapter: { x: 20, y: 40 }, decorator: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'adapter', to: 'decorator', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'DECORATOR EKSİKSE: Nest veriyi hangi parametreye bağlayacağını bilemez, parametre `undefined` kalır.', en: 'IF THE DECORATOR IS MISSING: Nest cannot know which parameter to bind the data to, the parameter stays `undefined`.' },
+          positions: { decorator: { x: 22, y: 40, opacity: 0.4 }, missing: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'adapter', to: 'missing', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Ders — Ayrıştırma ile bağlama iki AYRI adımdır. Tester yine "201 aldım" ile yetinmez, dönen veriyi doğrular.', en: 'The lesson — parsing and binding are two SEPARATE steps. Again, a tester does not settle for "I got 201"; they verify the returned data.' },
+          positions: { missing: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'missing', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'İstekten Metot Parametresine', en: 'From Request to Method Parameter' },
+      steps: [
+        { id: 1, icon: '📤', label: { tr: 'İstek gelir…', en: 'Request arrives…' }, detail: { tr: 'HTTP adaptörü gövdeyi/parametreleri ayrıştırır — bu Express katmanının işidir.', en: 'The HTTP adapter parses the body/params — this is the Express layer\'s job.' } },
+        { id: 2, icon: '🏷️', label: { tr: 'Decorator bağlar…', en: 'Decorator binds it…' }, detail: { tr: '@Body()/@Param()/@Query() ayrıştırılmış veriyi doğru metot parametresine yerleştirir.', en: '@Body()/@Param()/@Query() place the parsed data into the correct method parameter.' } },
+        { id: 3, icon: '⚙️', label: { tr: 'Metot çalışır…', en: 'Method runs…' }, detail: { tr: 'Parametre doluysa handler doğru veriyle çalışır; decorator eksikse undefined ile çalışır.', en: 'If the parameter is filled, the handler runs with correct data; if the decorator is missing, it runs with undefined.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-d2-order-01',
+      question: { tr: 'Bir Nest POST isteğinde veri akışını sırala.', en: 'Order the data flow for a Nest POST request.' },
+      items: [
+        { id: '1', text: { tr: 'İstemci JSON gövdeyle POST isteği gönderir', en: 'Client sends a POST request with a JSON body' }, order: 1 },
+        { id: '2', text: { tr: 'HTTP adaptörü gövdeyi JavaScript nesnesine ayrıştırır', en: 'The HTTP adapter parses the body into a JavaScript object' }, order: 2 },
+        { id: '3', text: { tr: '@Body() decorator\'ı veriyi metot parametresine bağlar', en: 'The @Body() decorator binds the data to the method parameter' }, order: 3 },
+        { id: '4', text: { tr: 'Controller metodu servis katmanını çağırır', en: 'The controller method calls the service layer' }, order: 4 },
+        { id: '5', text: { tr: 'Servis kaydı oluşturur, controller 201 döner', en: 'The service creates the record, the controller returns 201' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-d2-decorators',
+      id: 'api-d2-decorators',
+      title: { tr: 'Kendin Dene: Eksik @Body() Decorator\'ını Ekle', en: 'Try It Yourself: Add the Missing @Body() Decorator' },
+      starterCode: `@Post()
+// BUG: parametrenin basinda decorator yok, body her zaman undefined gelir
+create(body: any) {
+  return this.bugsService.create(body)
+}`,
+      solutionCode: `@Post()
+create(@Body() body: any) {
+  return this.bugsService.create(body)
+}`,
+      hint: { tr: 'Nest, metot parametrelerine hangi verinin bağlanacağını yalnızca decorator\'lardan (`@Body()`, `@Param()`, `@Query()`) anlar. Decorator yoksa parametre HTTP adaptörü veriyi ayrıştırmış olsa bile `undefined` kalır.', en: 'Nest only understands which data binds to a method parameter through decorators (`@Body()`, `@Param()`, `@Query()`). Without a decorator the parameter stays `undefined` even if the HTTP adapter already parsed the data.' },
+      successMessage: { tr: 'Doğru! Artık body doğru şekilde bağlanır, kayıt boş alanlarla oluşmaz.', en: 'Correct! Now the body binds correctly, records are not created with empty fields.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`@Body()` decorator\'ı unutulup parametre sadece `body: any` yazılırsa ne olur?', en: 'What happens if the `@Body()` decorator is forgotten and the parameter is just written as `body: any`?' },
+      options: [
+        { id: 'a', text: { tr: 'TypeScript derleme hatası verir', en: 'TypeScript throws a compile error' } },
+        { id: 'b', text: { tr: 'Derleme geçer ama Nest veriyi bağlayamaz; body çalışma zamanında undefined kalır', en: 'Compilation passes but Nest cannot bind the data; body stays undefined at runtime' } },
+        { id: 'c', text: { tr: 'İstek otomatik olarak 400 ile reddedilir', en: 'The request is automatically rejected with 400' } },
+        { id: 'd', text: { tr: 'Nest decorator\'ı otomatik olarak varsayar', en: 'Nest automatically assumes the decorator' } },
+      ],
+      correct: 'b',
+      explanation: { tr: '`body: any` TypeScript için geçerli bir parametre bildirimidir, derleme hatası vermez. Ama Nest çalışma zamanında veriyi parametreye bağlamak için decorator\'a ihtiyaç duyar; decorator yoksa parametre HTTP adaptörü tarafından ayrıştırılmış olsa bile `undefined` kalır.', en: '`body: any` is a valid parameter declaration for TypeScript, it throws no compile error. But at runtime Nest needs the decorator to bind data to the parameter; without it the parameter stays `undefined` even though the HTTP adapter already parsed it.' },
+      retryQuestion: {
+        question: { tr: 'Nest\'te `@Param(\'id\')` decorator\'ının Express\'teki en yakın karşılığı nedir?', en: 'What is the closest Express equivalent of the `@Param(\'id\')` decorator in Nest?' },
+        options: [
+          { id: 'a', text: { tr: 'req.params.id — ikisi de path parametresini okur', en: 'req.params.id — both read the path parameter' } },
+          { id: 'b', text: { tr: 'req.query.id', en: 'req.query.id' } },
+          { id: 'c', text: { tr: 'req.headers.id', en: 'req.headers.id' } },
+          { id: 'd', text: { tr: 'req.body.id', en: 'req.body.id' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Her ikisi de yolun `:id` kısmını okur; Express\'te bu elle `req.params.id` ile, Nest\'te ise `@Param(\'id\')` decorator\'ıyla metot parametresi olarak okunur.', en: 'Both read the `:id` part of the path; in Express this is done by hand with `req.params.id`, in Nest it is read as a method parameter via the `@Param(\'id\')` decorator.' },
+      },
+    },
+  ],
+}
+
+const D3 = {
+  title: { tr: '📦 D3 · DTO + class-validator + ValidationPipe', en: '📦 D3 · DTO + class-validator + ValidationPipe' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '📦',
+      content: {
+        tr: 'DTO (Data Transfer Object) + `class-validator` + `ValidationPipe` üçlüsü, Spring\'in Bean Validation\'ının **TAM YAPISAL karşılığıdır**: Java\'da `@NotBlank`/`@Size` bir sınıf alanına yapıştırılır ve `@Valid` bunu tetikler; Nest\'te `@IsNotEmpty()`/`@Length()` bir DTO sınıfının alanına yapıştırılır ve `ValidationPipe` bunu tetikler. Bu, Express\'teki (C4) "kuralları tanımla, SONUCU elle oku" modelinden TAMAMEN farklıdır — burada framework, Spring\'deki gibi, doğrulamayı SENİN İÇİN otomatik yapar. Peki neden Nest, Express\'in aksine bu otomasyona geri dönüyor? Çünkü Nest zaten "opinionated" bir seçim yaptı (D1) — decorator tabanlı bir yapıyı benimseyince, validation da doğal olarak aynı decorator mantığına oturur. Ama burada YENİ bir tuzak var: `ValidationPipe`, Spring\'deki gibi "her zaman açık" değildir — `main.ts`\'te `app.useGlobalPipes(new ValidationPipe())` ile AÇIKÇA etkinleştirilmesi gerekir. DTO\'daki decorator\'lar süs kalabilir, tıpkı B1\'deki eksik `starter-validation` gibi — ama bu sefer kök neden "eksik kütüphane" değil, "kütüphane kurulu ama devreye ALINMAMIŞ".',
+        en: 'The DTO (Data Transfer Object) + `class-validator` + `ValidationPipe` trio is the **STRUCTURALLY EXACT** counterpart of Spring\'s Bean Validation: in Java, `@NotBlank`/`@Size` are glued to a class field and `@Valid` triggers them; in Nest, `@IsNotEmpty()`/`@Length()` are glued to a DTO class field and `ValidationPipe` triggers them. This is COMPLETELY different from Express\'s (C4) "define rules, READ the result by hand" model — here the framework, like Spring, does validation automatically FOR you. So why does Nest return to this automation unlike Express? Because Nest already made an "opinionated" choice (D1) — once it adopted a decorator-based structure, validation naturally settles into the same decorator logic. But there is a NEW trap here: `ValidationPipe` is NOT "always on" like in Spring — it must be EXPLICITLY enabled in `main.ts` with `app.useGlobalPipes(new ValidationPipe())`. The DTO\'s decorators can remain decoration only, much like the missing `starter-validation` in B1 — except this time the root cause is not "missing library" but "library installed, just never ACTIVATED".',
+      },
+    },
+    { type: 'heading', text: { tr: 'DTO Yazmak ve Pipe\'ı Etkinleştirmek', en: 'Writing the DTO and Activating the Pipe' } },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `// create-bug.dto.ts — Spring'deki BugRequest.java'nin Nest karsiligi
+import { IsString, Length, IsIn, IsEmail } from 'class-validator'
+
+export class CreateBugDto {
+  @IsString()
+  @Length(3, 120)
+  title: string
+
+  @IsIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'])
+  severity: string
+
+  @IsEmail()
+  reporter: string
+}`,
+        en: `// create-bug.dto.ts — the Nest counterpart of Spring's BugRequest.java
+import { IsString, Length, IsIn, IsEmail } from 'class-validator'
+
+export class CreateBugDto {
+  @IsString()
+  @Length(3, 120)
+  title: string
+
+  @IsIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'])
+  severity: string
+
+  @IsEmail()
+  reporter: string
+}`,
+      },
+    },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `// bugs.controller.ts — artik DTO tipiyle @Body()
+@Post()
+create(@Body() dto: CreateBugDto) {
+  return this.bugsService.create(dto)
+}
+
+// main.ts — TODO: bu satir olmadan yukaridaki decorator'lar SUSTUR
+import { ValidationPipe } from '@nestjs/common'
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  app.useGlobalPipes(new ValidationPipe())   // DTO dogrulamasini GERCEKTEN tetikler
+  await app.listen(3000)
+}`,
+        en: `// bugs.controller.ts — now with the DTO type via @Body()
+@Post()
+create(@Body() dto: CreateBugDto) {
+  return this.bugsService.create(dto)
+}
+
+// main.ts — TODO: without this line the decorators above are just DECORATION
+import { ValidationPipe } from '@nestjs/common'
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  app.useGlobalPipes(new ValidationPipe())   // REALLY triggers DTO validation
+  await app.listen(3000)
+}`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — `app.useGlobalPipes(new ValidationPipe())` unutulursa**\n\n**Kod:** `CreateBugDto` tüm `class-validator` decorator\'larıyla KUSURSUZ yazıldı, controller `@Body() dto: CreateBugDto` ile DOĞRU tip kullanıyor — ama `main.ts`\'te `app.useGlobalPipes(new ValidationPipe())` satırı YOK.\n\n**Ne olur:** Nest, DTO\'yu sadece bir TypeScript TİPİ olarak kullanır (derleme zamanı bilgisi, JavaScript\'e derlenince kaybolur); `class-validator` decorator\'larını kimse ÇALIŞTIRMAZ. `POST /api/v1/bugs { "title": "" }` isteği 400 yerine 201 döner.\n\n**Neden sinsi:** DTO dosyası açıldığında decorator\'lar tamamen doğru görünür — bir code review "validation var" der ve geçer. Ama decorator\'ların ÇALIŞMASI için global bir pipe\'ın etkinleştirilmesi gerekir; bu, B1\'deki eksik dependency\'den ve C4\'teki okunmayan sonuçtan FARKLI bir üçüncü kök nedendir: "kurallar var, ama hiç TETİKLENMİYOR".\n\n**Tester nerede yakalar:** Boş title ile POST atıp 201 alınca — DTO dosyasını incelemek yeterli değildir, `main.ts`\'te `useGlobalPipes` çağrısının GERÇEKTEN var olduğu ayrıca doğrulanmalıdır.',
+        en: '**🐞 Defect Birth — if `app.useGlobalPipes(new ValidationPipe())` is forgotten**\n\n**Code:** `CreateBugDto` was written FLAWLESSLY with all `class-validator` decorators, the controller uses the CORRECT type with `@Body() dto: CreateBugDto` — but `main.ts` has no `app.useGlobalPipes(new ValidationPipe())` line.\n\n**What happens:** Nest treats the DTO as just a TypeScript TYPE (compile-time information, gone once compiled to JavaScript); nobody RUNS the `class-validator` decorators. A `POST /api/v1/bugs { "title": "" }` request returns 201 instead of 400.\n\n**Why sneaky:** opening the DTO file, the decorators look entirely correct — a code review says "validation exists" and moves on. But for the decorators to ACTUALLY run, a global pipe must be activated; this is a third root cause, DIFFERENT from B1\'s missing dependency and C4\'s unread result: "the rules exist, but are never TRIGGERED".\n\n**Where the tester catches it:** sending a POST with an empty title and getting 201 — reviewing the DTO file is not enough, the presence of the `useGlobalPipes` call in `main.ts` must be separately verified.',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-d3-pipe-film',
+      title: { tr: '🎬 Nest\'in Pipe Hattı', en: '🎬 The Pipe Hall of Nest' },
+      xpReward: 15,
+      sceneDurationMs: 3400,
+      stageHeight: 280,
+      actors: [
+        { id: 'request', emoji: '📤', label: { tr: 'POST { title: "" }', en: 'POST { title: "" }' }, color: '#f59e0b' },
+        { id: 'dto', emoji: '📋', label: { tr: 'CreateBugDto decorator\'ları', en: 'CreateBugDto decorators' }, color: '#0ea5e9' },
+        { id: 'pipe', emoji: '🚰', label: { tr: 'ValidationPipe', en: 'ValidationPipe' }, color: '#a78bfa' },
+        { id: 'controller', emoji: '🎀', label: { tr: 'Controller', en: 'Controller' }, color: '#22c55e' },
+        { id: 'filter', emoji: '🧱', label: { tr: 'Exception Filter', en: 'Exception Filter' }, color: '#8b5cf6' },
+        { id: 'silent', emoji: '🙈', label: { tr: 'Pipe kayıtsız → sessizce geçer', en: 'Pipe unregistered → passes silently' }, color: '#ef4444' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'İstemci geçersiz bir gövdeyle (`title: ""`) `POST /api/v1/bugs` isteği gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with an invalid body (`title: ""`).' },
+          positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'İstek `CreateBugDto`\'nun sınırından geçer — bu sınıfta `@Length(3,120)` gibi kurallar TANIMLIDIR.', en: 'The request passes through the `CreateBugDto` boundary — this class has rules like `@Length(3,120)` DEFINED on it.' },
+          positions: { request: { x: 18, y: 35 }, dto: { x: 55, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'request', to: 'dto', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'DOĞRU KURULUMDA: `ValidationPipe` global olarak etkinse, controller\'a ulaşmadan ÖNCE isteği durdurup 400 döner.', en: 'IN THE CORRECT SETUP: if `ValidationPipe` is globally active, it stops the request and returns 400 BEFORE it reaches the controller.' },
+          positions: { dto: { x: 18, y: 35 }, pipe: { x: 55, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'dto', to: 'pipe', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Pipe geçerse controller çalışır, servis kaydı oluşturur, `Exception Filter` sadece GERÇEK hatalarda devreye girer.', en: 'If the pipe passes, the controller runs, the service creates the record, the `Exception Filter` only engages on REAL errors.' },
+          positions: { pipe: { x: 18, y: 35 }, controller: { x: 45, y: 50, scale: 1.1 }, filter: { x: 68, y: 60, scale: 1.1, pulse: true } },
+          beams: [{ from: 'pipe', to: 'controller', color: '#22c55e' }, { from: 'controller', to: 'filter', color: '#8b5cf6' }],
+        },
+        {
+          caption: { tr: 'YANLIŞ KURULUMDA: `main.ts`\'te `useGlobalPipes` YOKSA, DTO decorator\'ları hiçbir zaman ÇALIŞMAZ — geçersiz veri sessizce controller\'a ULAŞIR.', en: 'IN THE WRONG SETUP: if `useGlobalPipes` is MISSING in `main.ts`, the DTO decorators NEVER run — invalid data silently REACHES the controller.' },
+          positions: { pipe: { x: 25, y: 45, opacity: 0.35 }, silent: { x: 60, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'dto', to: 'silent', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Ders — DTO\'da decorator YAZMAK, pipe\'ı ETKİNLEŞTİRMEKTEN farklı bir adımdır. Tester ikisini AYRI AYRI doğrular: DTO var mı, pipe global olarak kayıtlı mı?', en: 'The lesson — WRITING decorators on the DTO is a different step from ACTIVATING the pipe. A tester verifies both SEPARATELY: does the DTO exist, and is the pipe globally registered?' },
+          positions: { silent: { x: 40, y: 48, scale: 1.15, pulse: true } },
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'DTO\'dan Reddedilen İsteğe', en: 'From a DTO to a Rejected Request' },
+      steps: [
+        { id: 1, icon: '📋', label: { tr: 'DTO yaz…', en: 'Write the DTO…' }, detail: { tr: 'class-validator decorator\'larıyla (@IsString, @Length, @IsIn) kuralları sınıf alanlarına yapıştır.', en: 'Glue rules to class fields with class-validator decorators (@IsString, @Length, @IsIn).' } },
+        { id: 2, icon: '🚰', label: { tr: 'Pipe\'ı etkinleştir…', en: 'Activate the pipe…' }, detail: { tr: 'main.ts\'te app.useGlobalPipes(new ValidationPipe()) YAZILMADAN decorator\'lar asla çalışmaz.', en: 'WITHOUT app.useGlobalPipes(new ValidationPipe()) in main.ts, the decorators never run.' } },
+        { id: 3, icon: '🛑', label: { tr: 'Geçersiz veri durur…', en: 'Invalid data is stopped…' }, detail: { tr: 'Pipe etkinse, geçersiz gövde controller\'a ULAŞMADAN 400 ile reddedilir.', en: 'If the pipe is active, an invalid body is rejected with 400 BEFORE reaching the controller.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-d3-order-01',
+      question: { tr: 'Nest\'te DTO doğrulamasının gerçekten çalışması için sırayı diz.', en: 'Order the steps for DTO validation to actually work in Nest.' },
+      items: [
+        { id: '1', text: { tr: 'CreateBugDto sınıfını class-validator decorator\'larıyla yaz', en: 'Write the CreateBugDto class with class-validator decorators' }, order: 1 },
+        { id: '2', text: { tr: 'Controller\'da @Body() dto: CreateBugDto kullan', en: 'Use @Body() dto: CreateBugDto in the controller' }, order: 2 },
+        { id: '3', text: { tr: 'main.ts\'te app.useGlobalPipes(new ValidationPipe()) ekle', en: 'Add app.useGlobalPipes(new ValidationPipe()) in main.ts' }, order: 3 },
+        { id: '4', text: { tr: 'Geçersiz istek gönder, pipe onu controller\'a ULAŞMADAN durdurur', en: 'Send an invalid request, the pipe stops it BEFORE reaching the controller' }, order: 4 },
+        { id: '5', text: { tr: 'Geçerli istek 201 ile kaydı oluşturur', en: 'A valid request creates the record with 201' }, order: 5 },
+      ],
+      xpReward: 13,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-d3-pipe',
+      id: 'api-d3-pipe',
+      title: { tr: 'Kendin Dene: ValidationPipe\'ı Etkinleştir', en: 'Try It Yourself: Activate the ValidationPipe' },
+      starterCode: `import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+
+// BUG: DTO decorator'lari yazildi ama hicbir zaman calismayacak
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  await app.listen(3000)
+}
+bootstrap()`,
+      solutionCode: `import { NestFactory } from '@nestjs/core'
+import { ValidationPipe } from '@nestjs/common'
+import { AppModule } from './app.module'
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  app.useGlobalPipes(new ValidationPipe())
+  await app.listen(3000)
+}
+bootstrap()`,
+      hint: { tr: 'DTO sınıfındaki `class-validator` decorator\'ları TEK BAŞINA hiçbir şey doğrulamaz. Bunların çalışması için `main.ts`\'te `app.useGlobalPipes(new ValidationPipe())` çağrısı ZORUNLUDUR.', en: 'The `class-validator` decorators on a DTO class validate NOTHING on their own. For them to run, calling `app.useGlobalPipes(new ValidationPipe())` in `main.ts` is MANDATORY.' },
+      successMessage: { tr: 'Doğru! Artık DTO decorator\'ları gerçekten tetiklenir, geçersiz veri 400 ile durdurulur.', en: 'Correct! Now the DTO decorators are really triggered, invalid data is stopped with 400.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'DTO sınıfı `class-validator` decorator\'larıyla doğru yazılmış ama `app.useGlobalPipes(new ValidationPipe())` çağrılmamışsa ne olur?', en: 'What happens if the DTO class is correctly written with `class-validator` decorators but `app.useGlobalPipes(new ValidationPipe())` is never called?' },
+      options: [
+        { id: 'a', text: { tr: 'Decorator\'lar otomatik olarak devreye girer', en: 'The decorators kick in automatically' } },
+        { id: 'b', text: { tr: 'DTO sadece bir TypeScript tipi olarak kalır; decorator\'lar hiç çalıştırılmaz, geçersiz veri 201 ile kabul edilir', en: 'The DTO remains just a TypeScript type; the decorators never run, invalid data is accepted with 201' } },
+        { id: 'c', text: { tr: 'Uygulama başlamayı reddeder', en: 'The application refuses to start' } },
+        { id: 'd', text: { tr: 'Sadece GET isteklerinde doğrulama devre dışı kalır', en: 'Validation is only disabled for GET requests' } },
+      ],
+      correct: 'b',
+      explanation: { tr: '`ValidationPipe` global olarak etkinleştirilmeden, `class-validator` decorator\'ları Nest\'in istek işleme hattına HİÇ dahil edilmez — DTO sadece derleme zamanı bir TypeScript tipi olarak kalır. Bu yüzden geçersiz veri de tıpkı geçerli veri gibi controller\'a ulaşır.', en: 'Without `ValidationPipe` being globally activated, `class-validator` decorators are NEVER wired into Nest\'s request pipeline — the DTO remains merely a compile-time TypeScript type. So invalid data reaches the controller just like valid data would.' },
+      retryQuestion: {
+        question: { tr: 'Nest\'teki DTO + ValidationPipe ikilisi, Spring\'deki hangi ikiliye karşılık gelir?', en: 'Which Spring pair does Nest\'s DTO + ValidationPipe pair correspond to?' },
+        options: [
+          { id: 'a', text: { tr: 'Bean Validation annotation\'ları (@NotBlank vb.) + @Valid', en: 'Bean Validation annotations (@NotBlank etc.) + @Valid' } },
+          { id: 'b', text: { tr: '@Entity + @Repository', en: '@Entity + @Repository' } },
+          { id: 'c', text: { tr: '@Configuration + @Bean', en: '@Configuration + @Bean' } },
+          { id: 'd', text: { tr: 'application.yml + pom.xml', en: 'application.yml + pom.xml' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'DTO alanlarındaki `class-validator` decorator\'ları, Spring\'deki `@NotBlank`/`@Size` gibi Bean Validation annotation\'larının; `ValidationPipe` ise bunları tetikleyen `@Valid`\'in Nest\'teki karşılığıdır.', en: 'The `class-validator` decorators on DTO fields correspond to Spring\'s Bean Validation annotations like `@NotBlank`/`@Size`; `ValidationPipe` is Nest\'s counterpart of `@Valid`, which triggers them.' },
+      },
+    },
+  ],
+}
+
+const D4 = {
+  title: { tr: '🧱 D4 · Exception Filter ve HttpException', en: '🧱 D4 · Exception Filter and HttpException' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🧱',
+      content: {
+        tr: 'Nest\'in Exception Filter\'ı, Spring\'in `@RestControllerAdvice`\'inin **decorator ile işaretlenmiş TAM karşılığıdır**: Spring\'de `@ExceptionHandler(NotFoundException.class)` bir metoda "bu exception tipini SEN yakala" der; Nest\'te `@Catch(HttpException)` bir sınıfa AYNI şeyi söyler — hangi hata TİPİNİN bu filtreye düşeceği decorator\'da AÇIKÇA yazılıdır (Express\'teki C5\'in aksine, burada parametre SAYISI değil, decorator TİPİ belirleyicidir). `HttpException` (ve `NotFoundException`, `BadRequestException` gibi alt sınıfları) Nest\'in kendi hazır hata sınıflarıdır — `throw new NotFoundException(\'Bug bulunamadi\')` yazman, Spring\'de özel bir exception sınıfı fırlatmana denktir. Peki Nest\'in kendi VARSAYILAN exception davranışı zaten JSON döndürüyorken (Express\'in HTML\'ine kıyasla bir adım öndedir), neden hâlâ özel bir filter yazıyoruz? Çünkü tester\'ın beklediği hata gövdesinin ŞEKLİ (`{ error: "..." }` mi, `{ message: "...", statusCode: ... }` mi) projenin SÖZLEŞMESİNE göre değişir — varsayılan davranış "bir şey" döner ama SÖZLEŞMEYE UYAN şeyi döndürmesi GARANTİ değildir; bu garantiyi filter\'ı hem yazıp hem KAYDETMEK verir.',
+        en: 'Nest\'s Exception Filter is the **decorator-marked EXACT counterpart** of Spring\'s `@RestControllerAdvice`: in Spring, `@ExceptionHandler(NotFoundException.class)` tells a method "YOU catch this exception type"; in Nest, `@Catch(HttpException)` tells a class the SAME thing — which error TYPE falls into this filter is EXPLICITLY written in the decorator (unlike Express\'s C5, where it is the parameter COUNT, not a decorator TYPE, that decides). `HttpException` (and its subclasses like `NotFoundException`, `BadRequestException`) are Nest\'s own ready-made error classes — writing `throw new NotFoundException(\'Bug not found\')` is equivalent to throwing a custom exception class in Spring. So if Nest\'s own DEFAULT exception behavior already returns JSON (a step ahead of Express\'s HTML), why still write a custom filter? Because the SHAPE of the error body a tester expects (`{ error: "..." }` or `{ message: "...", statusCode: ... }`) depends on the project\'s CONTRACT — the default behavior returns "something" but returning something that MATCHES THE CONTRACT is not GUARANTEED; writing AND registering the filter is what provides that guarantee.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Özel Filter Yazmak ve Global Kaydetmek', en: 'Writing a Custom Filter and Registering It Globally' } },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `// bugs.service.ts — is kurali burada, HttpException firlatir
+import { NotFoundException } from '@nestjs/common'
+
+findOne(id: number) {
+  const bug = this.bugs.find(b => b.id === id)
+  if (!bug) {
+    throw new NotFoundException('Bug bulunamadi')   // Spring'deki custom exception'a esdeger
+  }
+  return bug
+}`,
+        en: `// bugs.service.ts — the business rule lives here, throws HttpException
+import { NotFoundException } from '@nestjs/common'
+
+findOne(id: number) {
+  const bug = this.bugs.find(b => b.id === id)
+  if (!bug) {
+    throw new NotFoundException('Bug not found')   // equivalent of a custom exception in Spring
+  }
+  return bug
+}`,
+      },
+    },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `// http-exception.filter.ts — sozlesmeye uygun sabit hata govdesi
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException } from '@nestjs/common'
+
+@Catch(HttpException)   // sadece HttpException ve alt siniflarini yakalar
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp()
+    const response = ctx.getResponse()
+    const status = exception.getStatus()
+    response.status(status).json({ error: exception.message })   // proje sozlesmesi: { error }
+  }
+}
+
+// main.ts — TODO: bu satir olmadan filter HICBIR ZAMAN calismaz
+app.useGlobalFilters(new HttpExceptionFilter())`,
+        en: `// http-exception.filter.ts — a fixed, contract-compliant error body
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException } from '@nestjs/common'
+
+@Catch(HttpException)   // catches only HttpException and its subclasses
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp()
+    const response = ctx.getResponse()
+    const status = exception.getStatus()
+    response.status(status).json({ error: exception.message })   // project contract: { error }
+  }
+}
+
+// main.ts — TODO: without this line the filter NEVER runs
+app.useGlobalFilters(new HttpExceptionFilter())`,
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: '**🐞 Defect Doğum Anı — `app.useGlobalFilters(...)` unutulursa**\n\n**Kod:** `HttpExceptionFilter` sınıfı `@Catch(HttpException)` ile KUSURSUZ yazıldı, `{ error: exception.message }` sözleşmeye tam uyuyor — ama `main.ts`\'te `app.useGlobalFilters(new HttpExceptionFilter())` çağrısı YOK.\n\n**Ne olur:** `GET /api/v1/bugs/999` isteği için `throw new NotFoundException(...)` çalışır, ama özel filter kayıtlı olmadığı için Nest kendi VARSAYILAN hata işleyicisine düşer — bu da JSON döner ama proje sözleşmesindeki `{ error: "..." }` yerine Nest\'in kendi şekli olan `{ statusCode: 404, message: "...", error: "Not Found" }`\'u döndürür.\n\n**Neden sinsi:** İstek yine JSON döner (Express\'teki HTML sürprizinden farklı olarak SUNUCU tarafında "çökmüş" görünmez), hatta 404 status kodu da doğrudur — ama gövdenin ŞEKLİ projenin beklediğinden farklıdır. Bir tester sadece status kodunu kontrol ediyorsa bu farkı HİÇ fark etmez.\n\n**Tester nerede yakalar:** Hata gövdesinin TAM ŞEKLİNİ (`error` alanının varlığını, `statusCode`/`message` gibi fazladan alanların olup olmadığını) doğrulayan bir assertion yazınca — sadece "404 mü?" diye sormak yetersizdir, "gövde SÖZLEŞMEYE uyuyor mu?" sorusu şarttır.',
+        en: '**🐞 Defect Birth — if `app.useGlobalFilters(...)` is forgotten**\n\n**Code:** the `HttpExceptionFilter` class was written FLAWLESSLY with `@Catch(HttpException)`, `{ error: exception.message }` matches the contract exactly — but `main.ts` has no `app.useGlobalFilters(new HttpExceptionFilter())` call.\n\n**What happens:** for a `GET /api/v1/bugs/999` request, `throw new NotFoundException(...)` runs, but since the custom filter is not registered, Nest falls back to its own DEFAULT exception handler — this also returns JSON, but instead of the project contract\'s `{ error: "..." }`, it returns Nest\'s own shape: `{ statusCode: 404, message: "...", error: "Not Found" }`.\n\n**Why sneaky:** the request still returns JSON (unlike Express\'s HTML surprise, the server does not look "crashed"), even the 404 status code is correct — but the body\'s SHAPE differs from what the project expects. A tester checking only the status code never notices this at all.\n\n**Where the tester catches it:** writing an assertion that verifies the EXACT SHAPE of the error body (the presence of the `error` field, whether extra fields like `statusCode`/`message` exist) — asking only "is it 404?" is insufficient, the question "does the body MATCH THE CONTRACT?" is mandatory.',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-d4-exception-filter-film',
+      title: { tr: '🎬 Doğru Filter, Kayıtsız — Yanlış Şekilli JSON', en: '🎬 Correct Filter, Unregistered — the Wrong JSON Shape' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'throw', emoji: '🚨', label: { tr: 'throw new NotFoundException()', en: 'throw new NotFoundException()' }, color: '#f59e0b' },
+        { id: 'custom', emoji: '🧱', label: { tr: 'Özel filter: { error }', en: 'Custom filter: { error }' }, color: '#22c55e' },
+        { id: 'default', emoji: '📐', label: { tr: 'Nest varsayılanı: farklı şekil', en: 'Nest default: different shape' }, color: '#ef4444' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Gövde şekli sözleşmeye uymuyor', en: 'Body shape does not match the contract' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Servis katmanında `throw new NotFoundException(\'Bug bulunamadi\')` çalışıyor — bir hata fırlatıldı.', en: 'In the service layer, `throw new NotFoundException(\'Bug not found\')` runs — an error is thrown.' },
+          positions: { throw: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'DOĞRU KURULUMDA: `@Catch(HttpException)` filtresi KAYITLIYSA hatayı yakalar, proje sözleşmesine uygun `{ error }` gövdesi döner.', en: 'IN THE CORRECT SETUP: if the `@Catch(HttpException)` filter is REGISTERED, it catches the error and returns a `{ error }` body matching the project contract.' },
+          positions: { throw: { x: 20, y: 35 }, custom: { x: 58, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'throw', to: 'custom', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'YANLIŞ KURULUMDA: `useGlobalFilters` çağrılmadıysa Nest kendi VARSAYILAN işleyicisine düşer.', en: 'IN THE WRONG SETUP: if `useGlobalFilters` was never called, Nest falls back to its own DEFAULT handler.' },
+          positions: { throw: { x: 20, y: 60 }, default: { x: 58, y: 65, scale: 1.15, pulse: true } },
+          beams: [{ from: 'throw', to: 'default', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'İkisi de JSON döner, ikisi de 404 status kodu taşır — ama GÖVDENİN ŞEKLİ farklıdır: `{ error }` mi, `{ statusCode, message, error }` mı?', en: 'Both return JSON, both carry a 404 status code — but the BODY SHAPE differs: `{ error }` or `{ statusCode, message, error }`?' },
+          positions: { custom: { x: 30, y: 40 }, default: { x: 30, y: 65 }, tester: { x: 65, y: 52, scale: 1.15, pulse: true } },
+          beams: [{ from: 'custom', to: 'tester', color: '#8b5cf6' }, { from: 'default', to: 'tester', color: '#8b5cf6' }],
+        },
+        {
+          caption: { tr: 'Ders — "404 döndü" doğrulaması yeterli değildir. Tester gövdenin TAM ŞEKLİNİ, sözleşmedeki alan adlarını doğrulamalıdır.', en: 'The lesson — verifying "it returned 404" is not enough. A tester must verify the body\'s EXACT SHAPE, the field names in the contract.' },
+          positions: { tester: { x: 45, y: 48, scale: 1.15, pulse: true } },
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Fırlatılan Hatadan Sözleşmeye Uygun Gövdeye', en: 'From a Thrown Error to a Contract-Compliant Body' },
+      steps: [
+        { id: 1, icon: '🚨', label: { tr: 'Hata fırlat…', en: 'Throw the error…' }, detail: { tr: 'Servis katmanı throw new NotFoundException(...) ile iş kuralını ihlal eden durumu bildirir.', en: 'The service layer reports the rule-violating case with throw new NotFoundException(...).' } },
+        { id: 2, icon: '🧱', label: { tr: 'Filter yakalasın…', en: 'Let the filter catch it…' }, detail: { tr: '@Catch(HttpException) ile işaretli sınıf bu tip hataları yakalamaya adaydır.', en: 'The class marked with @Catch(HttpException) is a candidate to catch this error type.' } },
+        { id: 3, icon: '🌐', label: { tr: 'Global kaydet…', en: 'Register it globally…' }, detail: { tr: 'app.useGlobalFilters(...) olmadan filter asla devreye girmez, Nest\'in varsayılan şekli döner.', en: 'Without app.useGlobalFilters(...) the filter never engages, Nest\'s default shape is returned instead.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-d4-order-01',
+      question: { tr: 'Nest\'te özel bir hata gövdesinin gerçekten dönmesi için sırayı diz.', en: 'Order the steps for a custom error body to actually be returned in Nest.' },
+      items: [
+        { id: '1', text: { tr: 'Servis katmanında throw new NotFoundException(...) çağır', en: 'Call throw new NotFoundException(...) in the service layer' }, order: 1 },
+        { id: '2', text: { tr: '@Catch(HttpException) ile filter sınıfını yaz', en: 'Write the filter class with @Catch(HttpException)' }, order: 2 },
+        { id: '3', text: { tr: 'main.ts\'te app.useGlobalFilters(new HttpExceptionFilter()) ekle', en: 'Add app.useGlobalFilters(new HttpExceptionFilter()) in main.ts' }, order: 3 },
+        { id: '4', text: { tr: 'Nest artık hatayı ÖZEL filtreye yönlendirir', en: 'Nest now routes the error to the CUSTOM filter' }, order: 4 },
+        { id: '5', text: { tr: 'Sözleşmeye uygun { error } gövdesiyle yanıt döner', en: 'A contract-compliant { error } body is returned' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-d4-filter',
+      id: 'api-d4-filter',
+      title: { tr: 'Kendin Dene: Filtreyi Global Olarak Kaydet', en: 'Try It Yourself: Register the Filter Globally' },
+      starterCode: `import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+import { HttpExceptionFilter } from './http-exception.filter'
+
+// BUG: filter yazildi ama hicbir yerde kayitli degil
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  await app.listen(3000)
+}
+bootstrap()`,
+      solutionCode: `import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+import { HttpExceptionFilter } from './http-exception.filter'
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  app.useGlobalFilters(new HttpExceptionFilter())
+  await app.listen(3000)
+}
+bootstrap()`,
+      hint: { tr: '`@Catch(HttpException)` ile işaretli bir sınıf yazmak onu OTOMATİK devreye sokmaz. Nest\'in bu filtreyi her hata için kullanması için `app.useGlobalFilters(...)` ile AÇIKÇA kaydedilmesi gerekir.', en: 'Writing a class marked with `@Catch(HttpException)` does not AUTOMATICALLY activate it. For Nest to use this filter on every error, it must be EXPLICITLY registered with `app.useGlobalFilters(...)`.' },
+      successMessage: { tr: 'Doğru! Artık tüm HttpException hataları sözleşmeye uygun { error } gövdesiyle döner.', en: 'Correct! Now every HttpException error returns with the contract-compliant { error } body.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`@Catch(HttpException)` ile yazılmış bir filter, `app.useGlobalFilters(...)` ile kaydedilmezse ne olur?', en: 'What happens to a filter written with `@Catch(HttpException)` if it is never registered with `app.useGlobalFilters(...)`?' },
+      options: [
+        { id: 'a', text: { tr: 'Nest bunu otomatik olarak tarayıp bulur', en: 'Nest automatically scans and finds it' } },
+        { id: 'b', text: { tr: 'Filter hiç devreye girmez; hatalar Nest\'in varsayılan (farklı şekilli) hata gövdesiyle döner', en: 'The filter never engages; errors return with Nest\'s default (differently shaped) error body' } },
+        { id: 'c', text: { tr: 'Uygulama başlamayı reddeder', en: 'The application refuses to start' } },
+        { id: 'd', text: { tr: 'Filter sadece POST isteklerinde çalışır', en: 'The filter only works on POST requests' } },
+      ],
+      correct: 'b',
+      explanation: { tr: 'Bir Exception Filter sınıfının VAR OLMASI onu otomatik devreye sokmaz — `app.useGlobalFilters(...)` (veya controller/method seviyesinde `@UseFilters(...)`) ile AÇIKÇA bağlanması gerekir. Kayıtsız bir filter hiçbir zaman çalışmaz, Nest kendi varsayılan hata gövdesini döner — bu, projenin beklediği sözleşmeden farklı olabilir.', en: 'A filter class EXISTING does not automatically activate it — it must be EXPLICITLY wired with `app.useGlobalFilters(...)` (or `@UseFilters(...)` at the controller/method level). An unregistered filter never runs, Nest returns its own default error body — which may differ from what the project\'s contract expects.' },
+      retryQuestion: {
+        question: { tr: 'Nest\'teki `@Catch(HttpException)` decorator\'ının Spring\'deki en yakın karşılığı nedir?', en: 'What is the closest Spring equivalent of the `@Catch(HttpException)` decorator in Nest?' },
+        options: [
+          { id: 'a', text: { tr: '@ExceptionHandler(SomeException.class) — hangi exception tipinin yakalanacağını bildirir', en: '@ExceptionHandler(SomeException.class) — declares which exception type is caught' } },
+          { id: 'b', text: { tr: '@Entity', en: '@Entity' } },
+          { id: 'c', text: { tr: '@Autowired', en: '@Autowired' } },
+          { id: 'd', text: { tr: '@Component', en: '@Component' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Her ikisi de "bu sınıf/metot, şu exception TİPİNİ yakalasın" bildirimidir — Spring\'de `@RestControllerAdvice` içindeki `@ExceptionHandler`, Nest\'te `@Catch()` ile işaretli bir `ExceptionFilter` sınıfı olarak karşılık bulur.', en: 'Both are declarations of "this class/method catches this exception TYPE" — Spring\'s `@ExceptionHandler` inside `@RestControllerAdvice` finds its counterpart in an `ExceptionFilter` class marked with `@Catch()` in Nest.' },
+      },
+    },
+  ],
+}
 
 const groupE = [
   ['E1', '🔍', 'Network Paneli Anatomisi', 'Network Panel Anatomy'],

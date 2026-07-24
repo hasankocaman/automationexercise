@@ -10,6 +10,46 @@
 
 ---
 
+## 🚧 `/api-testing` Faz 4 — GRUP C (Express) TAMAM, GRUP D (NestJS) D1-D4 TAMAM, D5 + wiring + Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+
+Plan: `Documents/api-testing-page-plan.md` §D.1 (Faz 4). Şablon: GRUP A/B (Opus,
+önceki oturum). Kullanıcı talimatı bu oturumda: **test etmeden adım adım commit
+et** (normalde CLAUDE.md §1.1 checklist zorunlu, ama bu oturumda kullanıcı
+açıkça "test etmeden commit yap" dedi — checklist bu FAZ bitince toplu
+çalıştırılacak, ara commit'lerde DEĞİL).
+
+**Bu adımda yazılanlar (`src/data/apiTestingData.js`):**
+- `C1`..`C6` (Express.js) tam içerikle yazıldı: her biri simple-box(4 katman) +
+  kod + 🐞 Defect Doğum Anı + video-scene + step-animation + challenge(order-sort)
+  + code-playground + quiz. C3 amiral film ("Middleware Zinciri"). C6'da
+  Spring|Express|NestJS 3-framework karşılaştırma tablosu.
+- `D1`..`D4` (NestJS) aynı kalıpla yazıldı. D3 amiral film ("Nest'in Pipe
+  Hattı"). D5 (NestJS↔Spring karşılaştırma + aynı 3-framework tablo) **HENÜZ
+  YAZILMADI**.
+- Eski `groupC`/`groupD` id-array + `mk()` placeholder tanımları SİLİNDİ (C1-C6/
+  D1-D4 artık tam literal section objesi).
+
+**⚠️ KRİTİK — dosya şu an ÇALIŞMAZ durumda (bilerek, sonraki adımda düzelecek):**
+`sections` dizisi hâlâ `...groupC.map(mk), ...groupD.map(mk), ...groupE.map(mk)`
+satırını kullanıyor ama `groupC`/`groupD` sabitleri artık YOK (silindi) —
+bu bir `ReferenceError` fırlatır, `npm run build` bu haliyle KIRIKTIR. Sonraki
+adımda `sections` dizisi `C1, C2, C3, C4, C5, C6, D1, D2, D3, D4, D5,
+...groupE.map(mk), ...` şeklinde güncellenecek. **Bu commit'ten sonra ASLA
+`npm run build`/dev server çalıştırma — D5 + wiring bitmeden kırık.**
+
+**Sıradaki adımlar (bu oturumda sırayla):**
+1. D5 (NestJS↔Spring Boot karşılaştırma + 3-framework tablo) yaz.
+2. `sections` dizisini C1-C6/D1-D5 literal referanslarıyla güncelle (groupC/
+   groupD.map(mk) satırını değiştir).
+3. `apiFeynmanDefs`'e GRUP C sonu (C6, sectionIndex hesaplanacak) ve GRUP D
+   sonu (D5) için birer feynman-checkpoint tanımı ekle.
+4. Faz bitince TOPLU doğrulama: `node scripts/check-content-integrity.mjs`
+   (0 ihlal) + `npm run build` (yeşil) — CLAUDE.md §1.1. Şu ana kadar HİÇ
+   çalıştırılmadı, ihlal/hata riski var (özellikle relatedTopicId, quiz option
+   id, step-animation label şeması — elle yazıldı ama doğrulanmadı).
+
+---
+
 ## ✅ GitHub Actions CI'da Supabase Auth engeli — 7 test CI'da skip ediliyor, CI YEŞİL (2026-07-23/24, Claude Code, bkz. CLAUDE.md §22)
 
 `.github/workflows/deploy.yml`'in `test` job'ı (E2E suite) art arda birkaç
