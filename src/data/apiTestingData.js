@@ -6276,14 +6276,715 @@ Eksik senaryolar: cok kisa title (minLength altinda) ve cok uzun title (maxLengt
   ],
 }
 
-const groupG = [
-  ['G1', '📁', 'Collection ve Klasör Yapısı', 'Collection and Folder Structure'],
-  ['G2', '🌍', 'Environment + Variable: {{baseUrl}}, {{bugId}}', 'Environment + Variable: {{baseUrl}}, {{bugId}}'],
-  ['G3', '🧪', 'pm.test ile Assertion', 'Assertions with pm.test'],
-  ['G4', '🔗', 'Pre-request Script ve Test Zinciri', 'Pre-request Script and Test Chaining'],
-  ['G5', '🚫', 'Negatif Test Setleri', 'Negative Test Sets'],
-  ['G6', '⚡', 'Collection Runner + Newman ile CI', 'Collection Runner + Newman in CI'],
-]
+// ═══════════════════════════════════════════════════════════════════════════
+// GRUP G — Postman ile Test (ÇAKIŞMA KURALI: derin anlatım → /postman'e link,
+// burada sadece "/api/v1/bugs'u şimdi bu araçla test edelim" seviyesi)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const G1 = {
+  title: { tr: '📁 G1 · Collection ve Klasör Yapısı', en: '📁 G1 · Collection and Folder Structure' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '📁',
+      content: {
+        tr: 'Bir Postman Collection, `/api/v1/bugs` için yazılmış tüm istekleri saklayan bir **test klasörüdür** — ama bunları ENDPOINT\'e göre değil, gerçek bir kullanım AKIŞINA göre grupladığında ("Bug Oluşturma Akışı", "Bug Yaşam Döngüsü") anlamlı olur. Java\'da en yakın karşılığı, `src/test/java` altında paketleri özelliğe göre (`bugcreation`, `buglifecycle`) ayırmaktır — teknik katmana göre değil, iş akışına göre. **Derin Collection/klasör mimarisi rehberi için → `/postman` sayfasına bak; burada sadece Bug Tracker\'ı Postman\'e taşıyoruz.**',
+        en: 'A Postman Collection is a **test folder** holding all requests written for `/api/v1/bugs` — but it only makes sense when grouped not by endpoint, but by a real usage FLOW ("Bug Creation Flow", "Bug Lifecycle"). The closest Java equivalent is splitting packages under `src/test/java` by feature (`bugcreation`, `buglifecycle`), not by technical layer. **For a deep Collection/folder architecture guide → see the `/postman` page; here we are just carrying the Bug Tracker into Postman.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'json',
+      code: {
+        tr: `// Bug Tracker koleksiyonu — akisa gore gruplanmis klasorler
+{
+  "info": { "name": "Bug Tracker API" },
+  "item": [
+    { "name": "Bug Olusturma Akisi", "item": ["POST /bugs", "GET /bugs/{id}"] },
+    { "name": "Bug Yasam Dongusu", "item": ["PATCH /bugs/{id}/status", "DELETE /bugs/{id}"] }
+  ]
+}`,
+        en: `// Bug Tracker collection — folders grouped by flow
+{
+  "info": { "name": "Bug Tracker API" },
+  "item": [
+    { "name": "Bug Creation Flow", "item": ["POST /bugs", "GET /bugs/{id}"] },
+    { "name": "Bug Lifecycle", "item": ["PATCH /bugs/{id}/status", "DELETE /bugs/{id}"] }
+  ]
+}`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-g1-collection-film',
+      title: { tr: '🎬 Bug Tracker\'ı Postman\'e Taşımak', en: '🎬 Carrying the Bug Tracker into Postman' },
+      xpReward: 10,
+      sceneDurationMs: 3400,
+      stageHeight: 240,
+      actors: [
+        { id: 'endpoints', emoji: '🔌', label: { tr: '6 endpoint', en: '6 endpoints' }, color: '#f59e0b' },
+        { id: 'flow', emoji: '🔀', label: { tr: 'Akışa göre grupla', en: 'Group by flow' }, color: '#0ea5e9' },
+        { id: 'collection', emoji: '📁', label: { tr: 'Bug Tracker Collection', en: 'Bug Tracker Collection' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'GRUP B-D\'de kurduğumuz 6 endpoint\'i (`/api/v1/bugs`) şimdi Postman\'e taşıyacağız.', en: 'We now carry the 6 endpoints (`/api/v1/bugs`) we built in GROUP B-D into Postman.' }, positions: { endpoints: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Onları endpoint listesi olarak değil, gerçek bir akış olarak grupluyoruz: önce oluştur, sonra yaşam döngüsünü yönet.', en: 'We group them not as an endpoint list, but as a real flow: create first, then manage the lifecycle.' }, positions: { endpoints: { x: 20, y: 40 }, flow: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'endpoints', to: 'flow', color: '#0ea5e9' }] },
+        { caption: { tr: 'Sonuç: bir bakışta okunabilir, akışa dayalı bir Collection.', en: 'The result: a flow-based Collection, readable at a glance.' }, positions: { flow: { x: 20, y: 40 }, collection: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'flow', to: 'collection', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Endpoint\'ten Collection\'a', en: 'From Endpoints to a Collection' },
+      steps: [
+        { id: 1, icon: '🔌', label: { tr: 'Endpoint\'leri listele…', en: 'List the endpoints…' }, detail: { tr: '/api/v1/bugs\'un 6 endpoint\'ini gözden geçir (GRUP B-D).', en: 'Review the 6 endpoints of /api/v1/bugs (GROUP B-D).' } },
+        { id: 2, icon: '🔀', label: { tr: 'Akışlara ayır…', en: 'Split into flows…' }, detail: { tr: 'Endpoint yerine "oluşturma", "yaşam döngüsü" gibi gerçek kullanım akışlarına grupla.', en: 'Group by real usage flows like "creation", "lifecycle" instead of by endpoint.' } },
+        { id: 3, icon: '📁', label: { tr: 'Klasörleri kur…', en: 'Set up the folders…' }, detail: { tr: 'Her akış bir klasör, her istek o klasörün altında bir öğe olur.', en: 'Each flow is a folder, each request an item under it.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-g1-order-01',
+      question: { tr: 'Bir Postman collection\'ı akışa göre kurma sırasını diz.', en: 'Order the steps for setting up a Postman collection by flow.' },
+      items: [
+        { id: '1', text: { tr: 'Endpoint listesini gözden geçir', en: 'Review the endpoint list' }, order: 1 },
+        { id: '2', text: { tr: 'Gerçek kullanım akışlarını belirle', en: 'Identify real usage flows' }, order: 2 },
+        { id: '3', text: { tr: 'Her akış için bir klasör oluştur', en: 'Create a folder for each flow' }, order: 3 },
+        { id: '4', text: { tr: 'İstekleri ilgili klasöre yerleştir', en: 'Place requests into the relevant folder' }, order: 4 },
+        { id: '5', text: { tr: 'Collection\'ı takımla paylaş', en: 'Share the collection with the team' }, order: 5 },
+      ],
+      xpReward: 9,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-g1-collection-structure',
+      id: 'api-g1-collection-structure',
+      title: { tr: 'Kendin Dene: Doğru Klasörü Seç', en: 'Try It Yourself: Pick the Right Folder' },
+      starterCode: `// Istekler: POST /bugs, GET /bugs/{id}, PATCH /bugs/{id}/status, DELETE /bugs/{id}
+// TODO: "PATCH /bugs/{id}/status" hangi akis klasorune ait?
+Klasor: ???`,
+      solutionCode: `// Status guncelleme, bir bug'in YASAM DONGUSUNUN parcasidir (olusturma degil)
+Klasor: Bug Yasam Dongusu`,
+      hint: { tr: 'Klasörler ENDPOINT\'e değil AKIŞA göre kurulur. `PATCH /bugs/{id}/status`, bir bug oluşturulduktan SONRAKİ bir aşamayı (durum değişimi) temsil eder — yaşam döngüsü akışına aittir.', en: 'Folders are built by FLOW, not by endpoint. `PATCH /bugs/{id}/status` represents a stage AFTER a bug is created (status change) — it belongs to the lifecycle flow.' },
+      successMessage: { tr: 'Doğru! Akışa göre gruplama, koleksiyonu bir bakışta anlaşılır kılar.', en: 'Correct! Grouping by flow makes the collection understandable at a glance.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Postman collection\'larını endpoint yerine akışa göre gruplamanın avantajı nedir?', en: 'What is the advantage of grouping Postman collections by flow instead of by endpoint?' },
+      options: [
+        { id: 'a', text: { tr: 'Koleksiyon gerçek kullanım senaryolarını yansıtır, ekip bir bakışta iş akışını anlar', en: 'The collection reflects real usage scenarios, the team understands the workflow at a glance' } },
+        { id: 'b', text: { tr: 'Postman daha hızlı çalışır', en: 'Postman runs faster' } },
+        { id: 'c', text: { tr: 'Sunucu daha az yük alır', en: 'The server takes less load' } },
+        { id: 'd', text: { tr: 'Hiçbir farkı yoktur', en: 'It makes no difference' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Endpoint bazlı gruplama teknik bir listedir; akış bazlı gruplama ("önce oluştur, sonra yönet") gerçek kullanım senaryosunu yansıtır ve yeni bir takım üyesinin koleksiyonu hızla anlamasını sağlar.', en: 'Endpoint-based grouping is a technical list; flow-based grouping ("create first, then manage") reflects the real usage scenario and lets a new team member quickly understand the collection.' },
+      retryQuestion: {
+        question: { tr: 'Postman Collection\'ların Java\'daki en yakın karşılığı nedir?', en: 'What is the closest Java equivalent of Postman Collections?' },
+        options: [
+          { id: 'a', text: { tr: 'src/test/java altında özelliğe göre gruplanan test paketleri', en: 'Test packages under src/test/java grouped by feature' } },
+          { id: 'b', text: { tr: 'pom.xml dosyası', en: 'The pom.xml file' } },
+          { id: 'c', text: { tr: 'Bir Dockerfile', en: 'A Dockerfile' } },
+          { id: 'd', text: { tr: 'application.properties', en: 'application.properties' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Tıpkı bir Java projesinde test paketlerinin teknik katmana değil özelliğe göre gruplanması gibi, Postman collection\'ları da endpoint\'e değil gerçek kullanım akışına göre gruplanır.', en: 'Just as Java test packages are grouped by feature rather than technical layer, Postman collections are grouped by real usage flow rather than by endpoint.' },
+      },
+    },
+  ],
+}
+
+const G2 = {
+  title: { tr: '🌍 G2 · Environment + Variable: {{baseUrl}}, {{bugId}}', en: '🌍 G2 · Environment + Variable: {{baseUrl}}, {{bugId}}' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🌍',
+      content: {
+        tr: '`{{baseUrl}}` gibi bir Postman değişkeni, Java\'daki `application.properties`\'teki `${server.url}` gibi bir **yer tutucudur** — isteğin İÇİNE sabit bir değer yazmak yerine, ortam DEĞİŞİNCE (dev/staging/prod) tek bir yerden değişen bir referans kullanırsın. `{{bugId}}` ise bir isteğin SONUCUNU bir SONRAKİ isteğe TAŞIYAN bir köprüdür (G4\'te bunu aktif olarak kuracaksın). **Derin environment/variable scope rehberi için → `/postman` sayfasına bak.**',
+        en: 'A Postman variable like `{{baseUrl}}` is a **placeholder**, much like `${server.url}` in Java\'s `application.properties` — instead of hardcoding a value INSIDE the request, you use a single reference that changes when the environment (dev/staging/prod) changes. `{{bugId}}` is a bridge that CARRIES one request\'s RESULT into the NEXT request (you will build this actively in G4). **For a deep environment/variable scope guide → see the `/postman` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'text',
+      code: {
+        tr: `# Environment: "Bug Tracker - Local"
+baseUrl = http://localhost:3000
+
+# Istek artik sabit degil, degiskenle yazilir:
+GET {{baseUrl}}/api/v1/bugs/{{bugId}}`,
+        en: `# Environment: "Bug Tracker - Local"
+baseUrl = http://localhost:3000
+
+# The request is no longer hardcoded, it uses a variable:
+GET {{baseUrl}}/api/v1/bugs/{{bugId}}`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-g2-env-film',
+      title: { tr: '🎬 Tek Tıkla dev\'den staging\'e Geçmek', en: '🎬 Switching from dev to staging with One Click' },
+      xpReward: 10,
+      sceneDurationMs: 3400,
+      stageHeight: 240,
+      actors: [
+        { id: 'hardcoded', emoji: '🔒', label: { tr: 'Sabit URL (kırılgan)', en: 'Hardcoded URL (fragile)' }, color: '#ef4444' },
+        { id: 'variable', emoji: '🌍', label: { tr: '{{baseUrl}} değişkeni', en: '{{baseUrl}} variable' }, color: '#0ea5e9' },
+        { id: 'switch', emoji: '🔀', label: { tr: 'Environment değiştir', en: 'Switch environment' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'İstekte URL sabit yazılırsa, her ortam değişiminde ONLARCA isteği elle düzeltmek gerekir.', en: 'If the URL is hardcoded in the request, dozens of requests must be fixed by hand on every environment change.' }, positions: { hardcoded: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: '`{{baseUrl}}` değişkenine geçince istek artık ortamdan BAĞIMSIZ yazılmış olur.', en: 'Switching to the `{{baseUrl}}` variable, the request is now written INDEPENDENT of the environment.' }, positions: { hardcoded: { x: 20, y: 40 }, variable: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'hardcoded', to: 'variable', color: '#0ea5e9' }] },
+        { caption: { tr: 'Environment\'ı "Local"dan "Staging"e değiştirmek TEK tıkla TÜM istekleri günceller.', en: 'Switching the environment from "Local" to "Staging" updates ALL requests with ONE click.' }, positions: { variable: { x: 20, y: 40 }, switch: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'variable', to: 'switch', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Sabit Değerden Ortam Değişkenine', en: 'From a Hardcoded Value to an Environment Variable' },
+      steps: [
+        { id: 1, icon: '🌍', label: { tr: 'Environment oluştur…', en: 'Create an environment…' }, detail: { tr: '"Bug Tracker - Local" gibi bir environment aç, baseUrl değişkenini tanımla.', en: 'Open an environment like "Bug Tracker - Local", define the baseUrl variable.' } },
+        { id: 2, icon: '✏️', label: { tr: 'İsteklerde kullan…', en: 'Use it in requests…' }, detail: { tr: 'URL\'i sabit yazmak yerine {{baseUrl}} referansıyla yaz.', en: 'Instead of hardcoding the URL, write it as a {{baseUrl}} reference.' } },
+        { id: 3, icon: '🔀', label: { tr: 'Ortamı değiştir…', en: 'Switch the environment…' }, detail: { tr: 'Sağ üstteki environment seçiciyle dev/staging arasında tek tıkla geçiş yap.', en: 'Switch between dev/staging with one click via the environment selector top-right.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-g2-order-01',
+      question: { tr: 'Sabit URL\'den ortam değişkenine geçiş sırasını diz.', en: 'Order the steps for moving from a hardcoded URL to an environment variable.' },
+      items: [
+        { id: '1', text: { tr: 'Yeni bir Environment oluştur', en: 'Create a new Environment' }, order: 1 },
+        { id: '2', text: { tr: 'baseUrl değişkenini tanımla', en: 'Define the baseUrl variable' }, order: 2 },
+        { id: '3', text: { tr: 'İsteklerdeki sabit URL\'i {{baseUrl}} ile değiştir', en: 'Replace hardcoded URLs in requests with {{baseUrl}}' }, order: 3 },
+        { id: '4', text: { tr: 'Environment\'ı seçiciden aktif et', en: 'Activate the environment from the selector' }, order: 4 },
+        { id: '5', text: { tr: 'İsteği çalıştır, doğru ortama gittiğini doğrula', en: 'Run the request, verify it hit the right environment' }, order: 5 },
+      ],
+      xpReward: 9,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-g2-environment-variable',
+      id: 'api-g2-environment-variable',
+      title: { tr: 'Kendin Dene: Sabit URL\'i Değişkene Çevir', en: 'Try It Yourself: Turn the Hardcoded URL into a Variable' },
+      starterCode: `// BUG: URL sabit yazilmis, ortam degisince elle duzeltmek gerekir
+GET http://localhost:3000/api/v1/bugs/42`,
+      solutionCode: `// FIX: baseUrl degiskeni kullanildi, ortam degisince otomatik guncellenir
+GET {{baseUrl}}/api/v1/bugs/{{bugId}}`,
+      hint: { tr: 'Sabit yazılan her URL, ortam değişince ELLE düzeltilmesi gereken bir bakım yüküdür. `{{baseUrl}}` ve `{{bugId}}` gibi değişkenler bu yükü ortadan kaldırır.', en: 'Every hardcoded URL is a maintenance burden that must be fixed by hand when the environment changes. Variables like `{{baseUrl}}` and `{{bugId}}` remove that burden.' },
+      successMessage: { tr: 'Doğru! Artık environment değişince istek otomatik doğru ortama gider.', en: 'Correct! Now the request automatically goes to the right environment when it switches.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`{{baseUrl}}` gibi bir Postman değişkeni kullanmanın en büyük avantajı nedir?', en: 'What is the biggest advantage of using a Postman variable like `{{baseUrl}}`?' },
+      options: [
+        { id: 'a', text: { tr: 'Ortam (dev/staging/prod) değişince tüm istekler TEK bir yerden güncellenir', en: 'When the environment (dev/staging/prod) changes, all requests update from ONE place' } },
+        { id: 'b', text: { tr: 'İstekleri daha hızlı gönderir', en: 'It sends requests faster' } },
+        { id: 'c', text: { tr: 'Sunucuyu otomatik başlatır', en: 'It automatically starts the server' } },
+        { id: 'd', text: { tr: 'JSON gövdesini otomatik doğrular', en: 'It automatically validates the JSON body' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Sabit yazılan bir URL her ortam değişiminde onlarca isteği elle güncellemeyi gerektirir; bir değişken kullanmak bu güncellemeyi TEK bir yere (Environment tanımına) indirger.', en: 'A hardcoded URL requires manually updating dozens of requests on every environment change; using a variable reduces this update to ONE place (the Environment definition).' },
+      retryQuestion: {
+        question: { tr: '`{{bugId}}` gibi bir değişkenin G4\'teki rolü ne olacak?', en: 'What role will a variable like `{{bugId}}` play in G4?' },
+        options: [
+          { id: 'a', text: { tr: 'Bir POST isteğinin sonucundaki id\'yi bir sonraki GET isteğine taşıyan köprü olacak', en: 'It will be the bridge carrying a POST request\'s resulting id into the next GET request' } },
+          { id: 'b', text: { tr: 'Sadece dokümantasyon amaçlı olacak', en: 'It will be purely for documentation purposes' } },
+          { id: 'c', text: { tr: 'Hiçbir işlevi olmayacak', en: 'It will have no function' } },
+          { id: 'd', text: { tr: 'Sadece hata mesajlarında görünecek', en: 'It will only appear in error messages' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'G4\'te bir Pre-request/Test script, POST yanıtından gelen `id`\'yi `pm.environment.set(\'bugId\', ...)` ile bu değişkene yazacak — sonraki istekler bu değeri `{{bugId}}` ile okuyacak.', en: 'In G4, a Pre-request/Test script will write the `id` from the POST response into this variable with `pm.environment.set(\'bugId\', ...)` — subsequent requests will read that value via `{{bugId}}`.' },
+      },
+    },
+  ],
+}
+
+const G3 = {
+  title: { tr: '🧪 G3 · pm.test ile Assertion', en: '🧪 G3 · Assertions with pm.test' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🧪',
+      content: {
+        tr: '`pm.test(...)`, Postman\'in JavaScript ile yazılan **assertion cümlesidir** — Java\'da JUnit\'teki `assertEquals`/`assertThat`\'in birebir karşılığı, sadece dil ve syntax farklı. `pm.response.to.have.status(201)` demek, JUnit\'te `assertEquals(201, response.getStatus())` demekle AYNI işi yapar. Peki neden sadece "isteği gönder, gözle bak" yetmiyor? Çünkü göz kontrolü ÖLÇEKLENMEZ ve TEKRARLANAMAZ — `pm.test` yazınca bu kontrol her koşumda OTOMATİK ve TUTARLI çalışır. **Derin `pm.test`/Chai assertion rehberi için → `/postman` sayfasına bak.**',
+        en: '`pm.test(...)` is Postman\'s JavaScript-written **assertion statement** — the direct counterpart of JUnit\'s `assertEquals`/`assertThat` in Java, only the language and syntax differ. Saying `pm.response.to.have.status(201)` does the SAME job as `assertEquals(201, response.getStatus())` in JUnit. So why isn\'t "send the request, eyeball it" enough? Because eyeballing does not SCALE and is not REPEATABLE — writing `pm.test` makes this check run AUTOMATICALLY and CONSISTENTLY on every run. **For a deep `pm.test`/Chai assertion guide → see the `/postman` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'javascript',
+      code: {
+        tr: `// POST /api/v1/bugs sonrasi Tests sekmesine yazilir
+pm.test('Status 201 doner', () => {
+  pm.response.to.have.status(201)
+})
+
+pm.test('Yanit title alanini icerir', () => {
+  const body = pm.response.json()
+  pm.expect(body.title).to.eql('Login butonu donuyor')
+})`,
+        en: `// written in the Tests tab after POST /api/v1/bugs
+pm.test('Status is 201', () => {
+  pm.response.to.have.status(201)
+})
+
+pm.test('Response contains the title field', () => {
+  const body = pm.response.json()
+  pm.expect(body.title).to.eql('Login button freezes')
+})`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-g3-assertion-film',
+      title: { tr: '🎬 Gözle Bakmaktan Otomatik Doğrulamaya', en: '🎬 From Eyeballing to Automated Verification' },
+      xpReward: 10,
+      sceneDurationMs: 3400,
+      stageHeight: 240,
+      actors: [
+        { id: 'eye', emoji: '👁️', label: { tr: 'Gözle kontrol (ölçeklenmez)', en: 'Eyeball check (does not scale)' }, color: '#ef4444' },
+        { id: 'test', emoji: '🧪', label: { tr: 'pm.test yazılır', en: 'pm.test is written' }, color: '#0ea5e9' },
+        { id: 'auto', emoji: '✅', label: { tr: 'Her koşumda otomatik', en: 'Automatic on every run' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'Bir tester her istekten sonra yanıtı gözle kontrol ediyor — yorucu ve hataya açık.', en: 'A tester eyeballs the response after every request — tiring and error-prone.' }, positions: { eye: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: '`Tests` sekmesine `pm.test(...)` yazılır — kontrol artık KOD haline gelir.', en: '`pm.test(...)` is written in the `Tests` tab — the check becomes CODE.' }, positions: { eye: { x: 20, y: 40 }, test: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'eye', to: 'test', color: '#0ea5e9' }] },
+        { caption: { tr: 'Artık her koşumda status ve gövde OTOMATİK doğrulanır — tekrar tekrar aynı titizlikle.', en: 'Now status and body are AUTOMATICALLY verified on every run — repeatedly, with the same rigor.' }, positions: { test: { x: 20, y: 40 }, auto: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'test', to: 'auto', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Bir Assertion Yazma Sırası', en: 'The Order for Writing an Assertion' },
+      steps: [
+        { id: 1, icon: '📤', label: { tr: 'İsteği gönder…', en: 'Send the request…' }, detail: { tr: 'POST /api/v1/bugs isteğini çalıştır, yanıtı gözlemle.', en: 'Run the POST /api/v1/bugs request, observe the response.' } },
+        { id: 2, icon: '🧪', label: { tr: 'Tests sekmesine yaz…', en: 'Write in the Tests tab…' }, detail: { tr: 'pm.test(...) ile status ve gövde kontrolünü koda döktür.', en: 'Turn the status and body check into code with pm.test(...).' } },
+        { id: 3, icon: '✅', label: { tr: 'Sonucu doğrula…', en: 'Verify the result…' }, detail: { tr: 'Test Results sekmesinde yeşil/kırmızı sonucu oku.', en: 'Read the green/red result in the Test Results tab.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-g3-order-01',
+      question: { tr: 'Bir pm.test yazma ve doğrulama sürecini sırala.', en: 'Order the process for writing and verifying a pm.test.' },
+      items: [
+        { id: '1', text: { tr: 'İsteği gönder, ham yanıtı gör', en: 'Send the request, see the raw response' }, order: 1 },
+        { id: '2', text: { tr: 'Tests sekmesini aç', en: 'Open the Tests tab' }, order: 2 },
+        { id: '3', text: { tr: 'pm.test(...) ile status kontrolü yaz', en: 'Write a status check with pm.test(...)' }, order: 3 },
+        { id: '4', text: { tr: 'pm.expect(...) ile gövde kontrolü ekle', en: 'Add a body check with pm.expect(...)' }, order: 4 },
+        { id: '5', text: { tr: 'Test Results\'ta yeşil/kırmızı sonucu doğrula', en: 'Verify the green/red result in Test Results' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-g3-pm-test-assertion',
+      id: 'api-g3-pm-test-assertion',
+      title: { tr: 'Kendin Dene: Eksik Assertion\'ı Tamamla', en: 'Try It Yourself: Complete the Missing Assertion' },
+      starterCode: `pm.test('Status 201 doner', () => {
+  pm.response.to.have.status(201)
+})
+// TODO: yanitin "severity" alaninin "HIGH" oldugunu dogrulayan testi ekle`,
+      solutionCode: `pm.test('Status 201 doner', () => {
+  pm.response.to.have.status(201)
+})
+
+pm.test('severity alani HIGH', () => {
+  const body = pm.response.json()
+  pm.expect(body.severity).to.eql('HIGH')
+})`,
+      hint: { tr: 'Sadece status kodu kontrolü, gövdenin İÇERİĞİNİ doğrulamaz. `pm.response.json()` ile gövdeyi ayrıştırıp `pm.expect(...)` ile belirli bir alanı kontrol etmen gerekir.', en: 'Checking only the status code does not verify the body\'s CONTENT. You need to parse the body with `pm.response.json()` and check a specific field with `pm.expect(...)`.' },
+      successMessage: { tr: 'Doğru! Artık hem status hem gövde içeriği otomatik doğrulanıyor.', en: 'Correct! Now both the status and body content are automatically verified.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`pm.test(...)` yazmanın "yanıtı gözle kontrol etmeye" göre en büyük avantajı nedir?', en: 'What is the biggest advantage of writing `pm.test(...)` over "eyeballing the response"?' },
+      options: [
+        { id: 'a', text: { tr: 'Kontrol koda dönüşür — her koşumda otomatik ve tutarlı çalışır, ölçeklenir', en: 'The check becomes code — it runs automatically and consistently on every run, and scales' } },
+        { id: 'b', text: { tr: 'İsteği daha hızlı gönderir', en: 'It sends the request faster' } },
+        { id: 'c', text: { tr: 'Sunucu yükünü azaltır', en: 'It reduces server load' } },
+        { id: 'd', text: { tr: 'Hiçbir farkı yoktur', en: 'It makes no difference' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Gözle kontrol her koşumda tekrar edilmesi gereken, yorucu ve tutarsız bir eylemdir. `pm.test` yazınca bu kontrol KOD haline gelir — her koşumda otomatik çalışır, insan hatasına açık değildir ve CI\'da (G6) ölçeklenir.', en: 'Eyeballing is a tiring, inconsistent action that must be repeated every run. Writing `pm.test` turns the check into CODE — it runs automatically every time, is not open to human error, and scales in CI (G6).' },
+      retryQuestion: {
+        question: { tr: '`pm.test(...)`\'in Java\'daki en yakın karşılığı nedir?', en: 'What is the closest Java equivalent of `pm.test(...)`?' },
+        options: [
+          { id: 'a', text: { tr: 'JUnit\'teki bir @Test metodu içindeki assertEquals/assertThat çağrısı', en: 'An assertEquals/assertThat call inside a JUnit @Test method' } },
+          { id: 'b', text: { tr: 'Bir @Entity sınıfı', en: 'An @Entity class' } },
+          { id: 'c', text: { tr: 'Bir Dockerfile komutu', en: 'A Dockerfile command' } },
+          { id: 'd', text: { tr: 'Bir application.properties satırı', en: 'An application.properties line' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'İkisi de aynı fikri taşır: bir beklentiyi (status/alan değeri) koda döküp otomatik, tekrarlanabilir bir doğrulama yapmak — sadece dil (Java/JavaScript) ve syntax farklıdır.', en: 'Both carry the same idea: turning an expectation (status/field value) into code for automatic, repeatable verification — only the language (Java/JavaScript) and syntax differ.' },
+      },
+    },
+  ],
+}
+
+const G4 = {
+  title: { tr: '🔗 G4 · Pre-request Script ve Test Zinciri', en: '🔗 G4 · Pre-request Script and Test Chaining' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔗',
+      content: {
+        tr: 'Test zincirleme, bir POST isteğinin ÜRETTİĞİ `id`\'yi bir sonraki GET isteğine TAŞIMAKTIR — Java\'da bir metodun dönüş değerini bir sonraki metoda PARAMETRE olarak geçirmenin Postman\'deki karşılığıdır. `Tests` sekmesinde `pm.environment.set(\'bugId\', body.id)` yazınca, POST\'un yanıtından gelen id G2\'de tanımladığın `{{bugId}}` değişkenine YAZILIR; bir sonraki istek bu değeri OKUYUP kullanır. Peki bu neden tek bir istekte her şeyi test etmekten daha iyi? Çünkü gerçek bir kullanıcı akışı da TAM OLARAK böyledir: önce bir bug OLUŞTURULUR, SONRA o bug'a REFERANSLA işlem yapılır — zincirleme test bu gerçek akışı BİREBİR simüle eder. **Derin pre-request script rehberi için → `/postman` sayfasına bak.**',
+        en: 'Test chaining CARRIES the `id` PRODUCED by a POST request into the next GET request — the Postman counterpart of passing a method\'s return value as a PARAMETER to the next method in Java. Writing `pm.environment.set(\'bugId\', body.id)` in the `Tests` tab WRITES the id from the POST response into the `{{bugId}}` variable you defined in G2; the next request READS and uses that value. So why is this better than testing everything in one request? Because a real user flow is EXACTLY like this: a bug is FIRST created, THEN acted upon BY REFERENCE — test chaining EXACTLY simulates this real flow. **For a deep pre-request script guide → see the `/postman` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'javascript',
+      code: {
+        tr: `// POST /api/v1/bugs -> Tests sekmesi
+pm.test('Bug olusturuldu', () => {
+  pm.response.to.have.status(201)
+  const body = pm.response.json()
+  // TODO: id'yi bir sonraki istege TASI
+  pm.environment.set('bugId', body.id)
+})
+
+// Sonraki istek: GET {{baseUrl}}/api/v1/bugs/{{bugId}}
+// bugId artik onceki POST'tan gelen GERCEK id'dir`,
+        en: `// POST /api/v1/bugs -> Tests tab
+pm.test('Bug was created', () => {
+  pm.response.to.have.status(201)
+  const body = pm.response.json()
+  // TODO: CARRY the id into the next request
+  pm.environment.set('bugId', body.id)
+})
+
+// Next request: GET {{baseUrl}}/api/v1/bugs/{{bugId}}
+// bugId is now the REAL id that came from the previous POST`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-g4-chain-film',
+      title: { tr: '🎬 Zincirleme Test', en: '🎬 Chained Testing' },
+      xpReward: 14,
+      sceneDurationMs: 3400,
+      stageHeight: 270,
+      actors: [
+        { id: 'post', emoji: '📤', label: { tr: 'POST /bugs → id: 42', en: 'POST /bugs → id: 42' }, color: '#f59e0b' },
+        { id: 'set', emoji: '💾', label: { tr: 'pm.environment.set("bugId", 42)', en: 'pm.environment.set("bugId", 42)' }, color: '#0ea5e9' },
+        { id: 'var', emoji: '🌍', label: { tr: '{{bugId}} = 42', en: '{{bugId}} = 42' }, color: '#a78bfa' },
+        { id: 'get', emoji: '📥', label: { tr: 'GET /bugs/{{bugId}}', en: 'GET /bugs/{{bugId}}' }, color: '#22c55e' },
+        { id: 'proof', emoji: '✅', label: { tr: 'Gerçek akış test edildi', en: 'The real flow was tested' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        { caption: { tr: '`POST /api/v1/bugs` çalıştırılır — sunucu YENİ bir kayıt oluşturur, `id: 42` döner.', en: '`POST /api/v1/bugs` runs — the server creates a NEW record, returns `id: 42`.' }, positions: { post: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Tests sekmesindeki script bu id\'yi YAKALAR ve `pm.environment.set(...)` ile kaydeder.', en: 'The script in the Tests tab CAPTURES this id and saves it with `pm.environment.set(...)`.' }, positions: { post: { x: 18, y: 35 }, set: { x: 55, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'post', to: 'set', color: '#0ea5e9' }] },
+        { caption: { tr: '`{{bugId}}` değişkeni artık GERÇEK id (42) değerini taşıyor — bir sonraki isteğe HAZIR.', en: 'The `{{bugId}}` variable now carries the REAL id value (42) — READY for the next request.' }, positions: { set: { x: 18, y: 35 }, var: { x: 55, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'set', to: 'var', color: '#a78bfa' }] },
+        { caption: { tr: '`GET /api/v1/bugs/{{bugId}}` çalıştırıldığında Postman bunu OTOMATİK `/api/v1/bugs/42`\'ye çevirir.', en: 'When `GET /api/v1/bugs/{{bugId}}` runs, Postman AUTOMATICALLY turns it into `/api/v1/bugs/42`.' }, positions: { var: { x: 18, y: 35 }, get: { x: 55, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'var', to: 'get', color: '#22c55e' }] },
+        { caption: { tr: 'Ders — İki istek artık BİRBİRİNE BAĞLIDIR; bu, "önce oluştur, sonra referansla işlem yap" gerçek kullanıcı akışının BİREBİR testidir.', en: 'The lesson — the two requests are now LINKED; this is an EXACT test of the real user flow "create first, then act by reference".' }, positions: { get: { x: 30, y: 45 }, proof: { x: 62, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'get', to: 'proof', color: '#8b5cf6' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'İki İsteği Zincirleme Sırası', en: 'The Order for Chaining Two Requests' },
+      steps: [
+        { id: 1, icon: '📤', label: { tr: 'POST çalıştır…', en: 'Run POST…' }, detail: { tr: 'Yeni bug oluştur, yanıttaki id\'yi gözlemle.', en: 'Create a new bug, observe the id in the response.' } },
+        { id: 2, icon: '💾', label: { tr: 'id\'yi kaydet…', en: 'Save the id…' }, detail: { tr: 'Tests sekmesinde pm.environment.set(\'bugId\', body.id) yaz.', en: 'Write pm.environment.set(\'bugId\', body.id) in the Tests tab.' } },
+        { id: 3, icon: '📥', label: { tr: 'GET ile kullan…', en: 'Use it in GET…' }, detail: { tr: 'Sonraki istekte {{bugId}} değişkenini kullanarak aynı kaydı sorgula.', en: 'In the next request, query the same record using the {{bugId}} variable.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-g4-order-01',
+      question: { tr: 'Postman\'de bir test zinciri kurma sırasını diz.', en: 'Order the steps for building a test chain in Postman.' },
+      items: [
+        { id: '1', text: { tr: 'POST /api/v1/bugs isteğini çalıştır', en: 'Run the POST /api/v1/bugs request' }, order: 1 },
+        { id: '2', text: { tr: 'Tests sekmesinde yanıttan id\'yi oku', en: 'Read the id from the response in the Tests tab' }, order: 2 },
+        { id: '3', text: { tr: 'pm.environment.set ile id\'yi değişkene yaz', en: 'Write the id into a variable with pm.environment.set' }, order: 3 },
+        { id: '4', text: { tr: 'GET isteğinde {{bugId}} değişkenini kullan', en: 'Use the {{bugId}} variable in the GET request' }, order: 4 },
+        { id: '5', text: { tr: 'GET isteğinin AYNI kaydı döndürdüğünü doğrula', en: 'Verify the GET request returns the SAME record' }, order: 5 },
+      ],
+      xpReward: 13,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-g4-test-chaining',
+      id: 'api-g4-test-chaining',
+      title: { tr: 'Kendin Dene: Eksik Zincirleme Satırını Ekle', en: 'Try It Yourself: Add the Missing Chaining Line' },
+      starterCode: `pm.test('Bug olusturuldu', () => {
+  pm.response.to.have.status(201)
+  const body = pm.response.json()
+  // BUG: id hicbir yere kaydedilmiyor, sonraki istek bosta kalir
+})`,
+      solutionCode: `pm.test('Bug olusturuldu', () => {
+  pm.response.to.have.status(201)
+  const body = pm.response.json()
+  pm.environment.set('bugId', body.id)
+})`,
+      hint: { tr: 'Yanıttan `id`\'yi okumak yetmez — bir sonraki isteğin `{{bugId}}` değişkenini kullanabilmesi için bu id\'yi `pm.environment.set(...)` ile KAYDETMEK gerekir.', en: 'Reading the `id` from the response is not enough — it must be SAVED with `pm.environment.set(...)` so the next request can use the `{{bugId}}` variable.' },
+      successMessage: { tr: 'Doğru! Artık POST ile GET isteği gerçek bir akışta zincirlendi.', en: 'Correct! Now the POST and GET requests are chained into a real flow.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Test zincirleme (pre-request/test script ile değişken taşıma) neden gerçekçi bir test yöntemidir?', en: 'Why is test chaining (carrying a variable via pre-request/test scripts) a realistic testing method?' },
+      options: [
+        { id: 'a', text: { tr: 'Gerçek kullanıcı akışını (önce oluştur, sonra referansla işlem yap) birebir simüle eder', en: 'It exactly simulates the real user flow (create first, then act by reference)' } },
+        { id: 'b', text: { tr: 'Testleri daha hızlı çalıştırır', en: 'It makes tests run faster' } },
+        { id: 'c', text: { tr: 'Sunucuyu otomatik yeniden başlatır', en: 'It automatically restarts the server' } },
+        { id: 'd', text: { tr: 'Hiçbir gerçekçilik katmaz, sadece bir kısayoldur', en: 'It adds no realism, it is just a shortcut' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Gerçek bir kullanıcı önce bir kaynak oluşturur, sonra o kaynağa REFERANSLA (id ile) işlem yapar. Test zincirleme, POST\'un ürettiği id\'yi GET\'e taşıyarak bu gerçek akışı test eder — sabit/uydurma bir id ile test etmekten çok daha güvenilirdir.', en: 'A real user first creates a resource, then acts on it BY REFERENCE (with an id). Test chaining tests this real flow by carrying the id POST produced into GET — far more reliable than testing with a fixed/made-up id.' },
+      retryQuestion: {
+        question: { tr: '`pm.environment.set(\'bugId\', body.id)` çağrısı hangi sekmede yazılır?', en: 'In which tab is the `pm.environment.set(\'bugId\', body.id)` call written?' },
+        options: [
+          { id: 'a', text: { tr: 'Tests sekmesinde — yanıt geldikten SONRA çalışır', en: 'In the Tests tab — it runs AFTER the response arrives' } },
+          { id: 'b', text: { tr: 'Headers sekmesinde', en: 'In the Headers tab' } },
+          { id: 'c', text: { tr: 'Body sekmesinde', en: 'In the Body tab' } },
+          { id: 'd', text: { tr: 'Params sekmesinde', en: 'In the Params tab' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`Tests` sekmesindeki script, isteğin YANITI geldikten sonra çalışır — bu yüzden yanıttan `body.id`\'yi okuyup bir sonraki isteğe taşımak için doğru yer burasıdır.', en: 'The script in the `Tests` tab runs after the request\'s RESPONSE arrives — this is why it is the right place to read `body.id` from the response and carry it to the next request.' },
+      },
+    },
+  ],
+}
+
+const G5 = {
+  title: { tr: '🚫 G5 · Negatif Test Setleri', en: '🚫 G5 · Negative Test Sets' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🚫',
+      content: {
+        tr: 'Negatif test setleri, F4/F6\'da şemadan TÜRETTİĞİN checklist\'in Postman\'de HAYATA GEÇİRİLMESİDİR: her `required`/`type`/`enum` ihlali artık bir Postman klasöründe AYRI bir istektir. Java\'da bunun karşılığı, bir metodun her geçersiz girdi kombinasyonu için AYRI bir `@Test` yazmaktır (`@ParameterizedTest` ile bile). Peki neden bunları AYRI istekler olarak tutuyoruz, tek bir istekte birleştirmiyoruz? Çünkü her negatif senaryo AYRI bir kanıt üretmelidir — biri başarısız olduğunda HANGİSİNİN başarısız olduğu belirsiz kalmamalıdır; birleştirilmiş bir istek "bir şey yanlış" der, ayrı istekler "TAM OLARAK bu kural ihlal edildi" der. **Derin negatif test tasarımı için → `/postman` sayfasına bak.**',
+        en: 'Negative test sets are F4/F6\'s schema-DERIVED checklist BROUGHT TO LIFE in Postman: every `required`/`type`/`enum` violation is now a SEPARATE request in a Postman folder. The Java equivalent is writing a SEPARATE `@Test` for every invalid input combination of a method (even with `@ParameterizedTest`). So why keep these as SEPARATE requests instead of merging them into one? Because every negative scenario should produce SEPARATE evidence — when one fails, it should not stay unclear WHICH one failed; a merged request says "something is wrong", separate requests say "EXACTLY this rule was violated". **For deep negative test design → see the `/postman` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'javascript',
+      code: {
+        tr: `// Klasor: "Negatif Testler"
+// Istek 1: POST /bugs { severity: "HIGH" } (title EKSIK)
+pm.test('title eksikken 400 doner', () => {
+  pm.response.to.have.status(400)
+})
+
+// Istek 2: POST /bugs { title: "x", severity: "URGENT" } (enum DISI)
+pm.test('enum disi severity 400 doner', () => {
+  pm.response.to.have.status(400)
+})`,
+        en: `// Folder: "Negative Tests"
+// Request 1: POST /bugs { severity: "HIGH" } (title MISSING)
+pm.test('400 when title is missing', () => {
+  pm.response.to.have.status(400)
+})
+
+// Request 2: POST /bugs { title: "x", severity: "URGENT" } (out of enum)
+pm.test('400 for out-of-enum severity', () => {
+  pm.response.to.have.status(400)
+})`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-g5-negative-film',
+      title: { tr: '🎬 Bir Şema Kısıtından Bir Postman Klasörüne', en: '🎬 From a Schema Constraint to a Postman Folder' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'schema', emoji: '📐', label: { tr: 'F6: şema checklist\'i', en: 'F6: schema checklist' }, color: '#f59e0b' },
+        { id: 'folder', emoji: '🚫', label: { tr: '"Negatif Testler" klasörü', en: '"Negative Tests" folder' }, color: '#0ea5e9' },
+        { id: 'proof', emoji: '📋', label: { tr: 'Her ihlal için ayrı kanıt', en: 'Separate evidence per violation' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'F6\'da şemadan türetilen checklist elimizde: eksik title, enum dışı severity, geçersiz email...', en: 'We have the checklist derived from the schema in F6: missing title, out-of-enum severity, invalid email...' }, positions: { schema: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Her checklist maddesi Postman\'de AYRI bir istek/klasör öğesi olur — "Negatif Testler" klasörü doğar.', en: 'Each checklist item becomes a SEPARATE request/folder item in Postman — the "Negative Tests" folder is born.' }, positions: { schema: { x: 20, y: 40 }, folder: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'schema', to: 'folder', color: '#0ea5e9' }] },
+        { caption: { tr: 'Koşum sonrası hangi kuralın ihlal edildiğinde sunucunun HATA VERDİĞİ, hangisinde SESSİZCE KABUL ETTİĞİ netleşir.', en: 'After the run it becomes clear which rule violation the server ERRORS on, and which it SILENTLY ACCEPTS.' }, positions: { folder: { x: 20, y: 40 }, proof: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'folder', to: 'proof', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Şemadan Negatif Test Klasörüne', en: 'From Schema to Negative Test Folder' },
+      steps: [
+        { id: 1, icon: '📐', label: { tr: 'Checklist\'i al…', en: 'Take the checklist…' }, detail: { tr: 'F6\'da şemadan türetilen negatif senaryo listesini kullan.', en: 'Use the negative scenario list derived from the schema in F6.' } },
+        { id: 2, icon: '🚫', label: { tr: 'Her madde bir istek olsun…', en: 'Each item becomes a request…' }, detail: { tr: 'Her ihlal için ayrı bir Postman isteği oluştur, ilgili pm.test\'i yaz.', en: 'Create a separate Postman request for each violation, write the relevant pm.test.' } },
+        { id: 3, icon: '📋', label: { tr: 'Sonuçları karşılaştır…', en: 'Compare the results…' }, detail: { tr: 'Hangi kuralın gerçekten uygulandığını, hangisinin sessizce geçtiğini gör.', en: 'See which rule is really enforced, and which silently passes.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-g5-order-01',
+      question: { tr: 'Bir negatif test setini kurma sırasını diz.', en: 'Order the steps for building a negative test set.' },
+      items: [
+        { id: '1', text: { tr: 'F6\'daki şema checklist\'ini gözden geçir', en: 'Review the schema checklist from F6' }, order: 1 },
+        { id: '2', text: { tr: '"Negatif Testler" klasörünü oluştur', en: 'Create a "Negative Tests" folder' }, order: 2 },
+        { id: '3', text: { tr: 'Her ihlal için ayrı bir istek ekle', en: 'Add a separate request for each violation' }, order: 3 },
+        { id: '4', text: { tr: 'Her isteğe "400 beklenir" assertion\'ı yaz', en: 'Write an "expect 400" assertion for each request' }, order: 4 },
+        { id: '5', text: { tr: 'Koşum sonrası hangi kuralın uygulanmadığını raporla', en: 'Report which rule was not enforced after the run' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-g5-negative-tests',
+      id: 'api-g5-negative-tests',
+      title: { tr: 'Kendin Dene: Eksik Negatif Senaryoyu Ekle', en: 'Try It Yourself: Add the Missing Negative Scenario' },
+      starterCode: `// Yazilan istekler: title eksik, severity enum disi
+// TODO: F4'teki "reporter format" kisitindan hangi istek EKSIK?
+Eksik istek: ???`,
+      solutionCode: `// reporter alaninin email formatinda OLMADIGI bir istek eksik
+Eksik istek: POST /bugs { title: "x", severity: "HIGH", reporter: "gecersiz-string" } -> 400 beklenir`,
+      hint: { tr: 'F4\'te `reporter` alanının `format: email` kısıtı olduğunu görmüştün. Bu kısıtın da diğerleri gibi (required, enum) AYRI bir negatif test senaryosu olması gerekir.', en: 'You saw in F4 that the `reporter` field has a `format: email` constraint. This constraint, like the others (required, enum), needs its own SEPARATE negative test scenario.' },
+      successMessage: { tr: 'Doğru! Şemadaki her kısıt, negatif test setinde ayrı bir kanıt satırı olmalı.', en: 'Correct! Every constraint in the schema deserves its own evidence line in the negative test set.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Negatif test senaryolarını TEK bir istekte birleştirmek yerine AYRI istekler olarak tutmanın avantajı nedir?', en: 'What is the advantage of keeping negative test scenarios as SEPARATE requests instead of merging them into ONE?' },
+      options: [
+        { id: 'a', text: { tr: 'Bir istek başarısız olduğunda, TAM OLARAK hangi kuralın ihlal edildiği belirsiz kalmaz', en: 'When a request fails, it stays clear EXACTLY which rule was violated' } },
+        { id: 'b', text: { tr: 'Postman daha hızlı çalışır', en: 'Postman runs faster' } },
+        { id: 'c', text: { tr: 'Daha az disk alanı kaplar', en: 'It takes up less disk space' } },
+        { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Birleştirilmiş bir istek başarısız olduğunda "bir şey yanlış" der ama HANGİ kuralın ihlal edildiği net değildir. Ayrı istekler her biri TEK bir kuralı test eder — başarısızlık doğrudan o kurala işaret eder.', en: 'A merged request failing says "something is wrong" but it is not clear WHICH rule was violated. Separate requests each test ONE rule — a failure points directly to that rule.' },
+      retryQuestion: {
+        question: { tr: 'Negatif test setlerinin kaynağı nereden gelir?', en: 'Where do negative test sets come from?' },
+        options: [
+          { id: 'a', text: { tr: 'F4/F6\'da OpenAPI şemasından sistematik olarak türetilen checklist\'ten', en: 'From the checklist systematically derived from the OpenAPI schema in F4/F6' } },
+          { id: 'b', text: { tr: 'Testerın rastgele aklına gelen fikirlerden', en: 'From whatever ideas randomly come to the tester\'s mind' } },
+          { id: 'c', text: { tr: 'Sadece UI\'da görülen hatalardan', en: 'Only from errors seen in the UI' } },
+          { id: 'd', text: { tr: 'Rastgele sayı üreticisinden', en: 'From a random number generator' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'GRUP F\'te öğrendiğin gibi, bir şemadaki her `required`/`type`/`enum`/`format` kısıtı sistematik olarak bir negatif senaryo doğurur; G5 bu checklist\'i Postman isteklerine dönüştürür.', en: 'As you learned in GROUP F, every `required`/`type`/`enum`/`format` constraint in a schema systematically births a negative scenario; G5 turns this checklist into Postman requests.' },
+      },
+    },
+  ],
+}
+
+const G6 = {
+  title: { tr: '⚡ G6 · Collection Runner + Newman ile CI', en: '⚡ G6 · Collection Runner + Newman in CI' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '⚡',
+      content: {
+        tr: 'Newman, bir Postman koleksiyonunu **komut satırından çalıştıran** bir motordur — Java\'da `mvn test`in bir Maven projesindeki TÜM testleri komut satırından koşturmasıyla birebir aynı rolü oynar. `Collection Runner`, koleksiyonu Postman ARAYÜZÜNDEN manuel çalıştırırken, `newman run collection.json` AYNI koleksiyonu CI sunucusunda (GitHub Actions) İNSAN olmadan çalıştırır. Peki neden bu adım "son" adımdır — G1-G5\'i elle Postman\'de kurduktan sonra neden CI\'ya taşıyoruz? Çünkü elle koşulan bir test koleksiyonu, unutulabilir/atlanabilir; CI\'ya bağlanan bir koleksiyon HER PUSH\'ta OTOMATİK çalışır — GRUP B-D\'de yazdığın kodda bir regresyon olduğunda, kimse "test etmeyi unutmadan önce" bunu YAKALAR. **Derin Newman/CI kurulumu için → `/postman` sayfasına bak.**',
+        en: 'Newman is an engine that **runs a Postman collection from the command line** — it plays the exact same role in Postman as `mvn test` running ALL tests in a Maven project from the command line. `Collection Runner` runs the collection manually from the Postman INTERFACE, while `newman run collection.json` runs the SAME collection on a CI server (GitHub Actions) WITHOUT a human. So why is this the "final" step — why move to CI after setting up G1-G5 by hand in Postman? Because a manually run test collection can be forgotten/skipped; a collection wired into CI runs AUTOMATICALLY on EVERY push — when a regression appears in the code you wrote in GROUP B-D, it gets CAUGHT before anyone "forgets to test". **For a deep Newman/CI setup guide → see the `/postman` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'yaml',
+      code: {
+        tr: `# .github/workflows/api-tests.yml
+name: Bug Tracker API Testleri
+on: [push]
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g newman
+      # TODO: koleksiyon ve environment dosyasi PUSH'ta otomatik calisir
+      - run: newman run bug-tracker.postman_collection.json -e local.postman_environment.json`,
+        en: `# .github/workflows/api-tests.yml
+name: Bug Tracker API Tests
+on: [push]
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g newman
+      # TODO: the collection and environment file run automatically on PUSH
+      - run: newman run bug-tracker.postman_collection.json -e local.postman_environment.json`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-g6-newman-ci-film',
+      title: { tr: '🎬 Elle Koşumdan CI\'da Otomatik Koşuma', en: '🎬 From a Manual Run to an Automatic CI Run' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'manual', emoji: '🖱️', label: { tr: 'Elle "Run Collection"', en: 'Manual "Run Collection"' }, color: '#94a3b8' },
+        { id: 'newman', emoji: '⚡', label: { tr: 'newman run ...', en: 'newman run ...' }, color: '#0ea5e9' },
+        { id: 'push', emoji: '📤', label: { tr: 'Her push tetikler', en: 'Every push triggers it' }, color: '#f59e0b' },
+        { id: 'gate', emoji: '🚧', label: { tr: 'Regresyon yakalanır', en: 'Regression is caught' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'Tester koleksiyonu Postman\'de elle "Run Collection"a basarak çalıştırıyor — unutulabilir bir adım.', en: 'The tester runs the collection manually by pressing "Run Collection" in Postman — a step that can be forgotten.' }, positions: { manual: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Aynı koleksiyon `newman run` komutuyla komut satırından ÇALIŞABİLİR hale gelir.', en: 'The same collection becomes RUNNABLE from the command line with `newman run`.' }, positions: { manual: { x: 20, y: 40 }, newman: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'manual', to: 'newman', color: '#0ea5e9' }] },
+        { caption: { tr: 'Bu komut bir CI pipeline\'ına (GitHub Actions) bağlanır — artık HER push otomatik tetikler.', en: 'This command is wired into a CI pipeline (GitHub Actions) — now EVERY push triggers it automatically.' }, positions: { newman: { x: 20, y: 40 }, push: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'newman', to: 'push', color: '#f59e0b' }] },
+        { caption: { tr: 'Ders — Bir geliştirici GRUP B-D\'deki koda yanlışlıkla bir regresyon sokarsa, bunu bir insan değil CI YAKALAR.', en: 'The lesson — if a developer accidentally introduces a regression into the code from GROUP B-D, it is CI that CATCHES it, not a human.' }, positions: { push: { x: 30, y: 45 }, gate: { x: 62, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'push', to: 'gate', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Koleksiyondan CI\'a Taşıma Sırası', en: 'The Order for Moving a Collection into CI' },
+      steps: [
+        { id: 1, icon: '📦', label: { tr: 'Koleksiyon/environment\'ı dışa aktar…', en: 'Export the collection/environment…' }, detail: { tr: 'Postman\'den .json dosyaları olarak indir, repoya ekle.', en: 'Download as .json files from Postman, add them to the repo.' } },
+        { id: 2, icon: '⚡', label: { tr: 'Newman ile test et…', en: 'Test with Newman…' }, detail: { tr: 'newman run collection.json -e environment.json komutunu yerelde doğrula.', en: 'Verify the newman run collection.json -e environment.json command locally.' } },
+        { id: 3, icon: '🚧', label: { tr: 'CI\'a bağla…', en: 'Wire into CI…' }, detail: { tr: 'Aynı komutu bir GitHub Actions workflow\'una ekle, her push\'ta çalışsın.', en: 'Add the same command to a GitHub Actions workflow, run it on every push.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-g6-order-01',
+      question: { tr: 'Bir koleksiyonu CI\'a bağlama sürecini sırala.', en: 'Order the process for wiring a collection into CI.' },
+      items: [
+        { id: '1', text: { tr: 'Koleksiyonu ve environment\'ı .json olarak dışa aktar', en: 'Export the collection and environment as .json' }, order: 1 },
+        { id: '2', text: { tr: 'newman\'i kur, yerelde çalıştır', en: 'Install newman, run it locally' }, order: 2 },
+        { id: '3', text: { tr: 'GitHub Actions workflow dosyasını yaz', en: 'Write the GitHub Actions workflow file' }, order: 3 },
+        { id: '4', text: { tr: 'newman run komutunu workflow\'a ekle', en: 'Add the newman run command to the workflow' }, order: 4 },
+        { id: '5', text: { tr: 'Push at, CI\'ın otomatik çalıştığını doğrula', en: 'Push, verify CI runs automatically' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-g6-newman-ci',
+      id: 'api-g6-newman-ci',
+      title: { tr: 'Kendin Dene: Eksik Newman Komutunu Tamamla', en: 'Try It Yourself: Complete the Missing Newman Command' },
+      starterCode: `# newman kuruldu ama koleksiyonu CALISTIRAN komut eksik
+npm install -g newman
+# TODO: bug-tracker.postman_collection.json'i local environment ile calistir`,
+      solutionCode: `npm install -g newman
+newman run bug-tracker.postman_collection.json -e local.postman_environment.json`,
+      hint: { tr: '`newman run <collection.json>` koleksiyonu çalıştırır; `-e <environment.json>` bayrağı hangi environment\'ın (baseUrl gibi değişkenlerin) kullanılacağını belirtir.', en: '`newman run <collection.json>` runs the collection; the `-e <environment.json>` flag specifies which environment (variables like baseUrl) to use.' },
+      successMessage: { tr: 'Doğru! Artık bu komut CI\'da her push\'ta koleksiyonu otomatik çalıştırabilir.', en: 'Correct! Now this command can automatically run the collection on every push in CI.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Bir Postman koleksiyonunu Newman ile CI\'a bağlamanın en büyük faydası nedir?', en: 'What is the biggest benefit of wiring a Postman collection into CI with Newman?' },
+      options: [
+        { id: 'a', text: { tr: 'Testler her push\'ta OTOMATİK çalışır — elle koşmayı unutma riski ortadan kalkar', en: 'Tests run AUTOMATICALLY on every push — the risk of forgetting to run them manually disappears' } },
+        { id: 'b', text: { tr: 'Postman arayüzüne artık hiç gerek kalmaz', en: 'The Postman interface is no longer needed at all' } },
+        { id: 'c', text: { tr: 'Sunucu performansı otomatik artar', en: 'Server performance automatically improves' } },
+        { id: 'd', text: { tr: 'Veritabanı otomatik yedeklenir', en: 'The database is automatically backed up' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Elle çalıştırılan bir koleksiyon insan hafızasına bağımlıdır — unutulabilir. Newman ile CI\'a bağlanan bir koleksiyon HER push\'ta otomatik çalışır, bir regresyonu insan onu test etmeyi hatırlamadan YAKALAR.', en: 'A manually run collection depends on human memory — it can be forgotten. A collection wired into CI with Newman runs automatically on EVERY push, catching a regression before a human remembers to test it.' },
+      retryQuestion: {
+        question: { tr: 'Newman\'in Java dünyasındaki en yakın karşılığı nedir?', en: 'What is Newman\'s closest counterpart in the Java world?' },
+        options: [
+          { id: 'a', text: { tr: 'mvn test — bir projedeki tüm testleri komut satırından/CI\'da çalıştıran araç', en: 'mvn test — the tool that runs all tests in a project from the command line/in CI' } },
+          { id: 'b', text: { tr: 'pom.xml dosyası', en: 'The pom.xml file' } },
+          { id: 'c', text: { tr: 'Bir @Entity sınıfı', en: 'An @Entity class' } },
+          { id: 'd', text: { tr: 'Spring Boot starter\'ı', en: 'A Spring Boot starter' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Tıpkı `mvn test`in bir Maven projesindeki tüm testleri insan müdahalesi olmadan komut satırından/CI\'da çalıştırması gibi, Newman de bir Postman koleksiyonunu aynı şekilde komut satırından/CI\'da çalıştırır.', en: 'Just as `mvn test` runs all tests in a Maven project from the command line/in CI without human intervention, Newman runs a Postman collection the same way from the command line/in CI.' },
+      },
+    },
+  ],
+}
 
 const groupH = [
   ['H1', '🎬', 'Bağımlılıklar ve İlk Test: given/when/then', 'Dependencies and First Test: given/when/then'],

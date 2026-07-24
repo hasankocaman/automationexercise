@@ -10,6 +10,41 @@
 
 ---
 
+## 🚧 `/api-testing` Faz 7 — GRUP G (Postman) TAMAM, H+I+wiring+Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+
+Plan: `Documents/api-testing-page-plan.md` §D.4 (Faz 7). **ÇAKIŞMA KURALI
+uygulandı:** her G/H/I konusu kendi simple-box'ında "Derin ... rehberi için
+→ /postman|/rest-assured|/bruno sayfasına bak" notu taşıyor, derin araç
+anatomisi (klasör mimarisi detayları, DSL derinliği vb.) burada
+TEKRARLANMADI — sadece "/api/v1/bugs'u şimdi bu araçla test edelim" seviyesi.
+
+**Yazılanlar:** `G1` (Collection/klasör — akışa göre), `G2` (Environment +
+`{{baseUrl}}`/`{{bugId}}`), `G3` (`pm.test` assertion), `G4` (**AMİRAL FİLM
+"Zincirleme Test"**, `api-g4-chain-film`, xpReward 14 — POST'tan dönen id'nin
+`pm.environment.set` ile GET'e taşınması), `G5` (Negatif Test Setleri — F6'nın
+şema-checklist'inin Postman'e taşınması), `G6` (Collection Runner + Newman ile
+CI, GitHub Actions workflow örneği) — hepsi tam trio (video-scene+step-
+animation+challenge+code-playground+quiz) ile.
+
+**⚠️ Dosya şu an ÇALIŞMAZ (bilerek, önceki fazlardaki aynı ara-durum):**
+`sections` hâlâ `...groupG.map(mk)` kullanıyor ama `groupG` artık YOK.
+
+**Sıradaki adımlar:**
+1. GRUP H (REST Assured, Java) H1-H6 yaz — AMİRAL FİLM "given/when/then" (H1).
+2. GRUP I (Playwright, TS) I1-I5 yaz — AMİRAL FİLM "API ile Kur, UI'da
+   Doğrula" (I3); I5 REST Assured↔Playwright karşılaştırması.
+3. `sections` dizisini `G1..G6, H1..H6, I1..I5,` ile güncelle (G=38-43,
+   H=44-49, I=50-54 — toplam yine 57 section olmalı, E/F ile aynı taban).
+4. `apiFeynmanDefs`'e GRUP G sonu (G6), H sonu (H6), I sonu (I5) için 3 ayrı
+   feynman-checkpoint ekle.
+5. `/postman` ve `/rest-assured` sayfalarına "önce API'nin nasıl
+   geliştirildiğini gör → /api-testing" iç linki eklenmeli (plan §5, SEO +
+   pedagojik akış) — henüz yapılmadı, ayrı bir adım olarak takip edilecek.
+6. Faz bitince TOPLU doğrulama: `node scripts/check-content-integrity.mjs` +
+   `npm run build`.
+
+---
+
 ## ✅ `/api-testing` Faz 6 — GRUP F (Swagger/OpenAPI) TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.3 (Faz 6). Şablon: kısmen kodsuz
