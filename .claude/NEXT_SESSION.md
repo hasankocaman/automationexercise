@@ -10,6 +10,63 @@
 
 ---
 
+## ✅ `/api-testing` Faz 9 — GRUP K (Mülakat, 50 soru) TAMAM — GRUP A-K İÇERİK ÜRETİMİ BİTTİ (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+
+Plan: `Documents/api-testing-page-plan.md` §D.6 (Faz 9, plan'daki SON içerik
+fazı). Tek sekme (`K`, sectionIndex 56).
+
+**Yazılanlar:**
+- `simple-box` (mülakat sekmesinin tüm sayfayı özetleyen 4 katman) +
+  `step-animation` + `code-playground` (ısınma turu) + **`interview-questions`
+  bloğu (relatedTopicId: `api-testing-interview`) — TAM 50 soru: 15 basic /
+  20 intermediate / 15 advanced** (`node` ile sayıldı, doğrulandı). "X nedir?"
+  tarzı soru YOK — hepsi "production'da/code review'da şunu gördün, ne
+  yaparsın?" senaryosu, her biri A-J'deki gerçek bir defect/karara geri bağlı
+  (B1 eksik dependency, C3 middleware sırası, D1 modül kaydı, F5 contract
+  defect, G4 test zinciri, H/I framework seçimi, J katman teşhisi vb.),
+  3-6 cümle + Java/Spring karşılaştırması içeriyor.
+- **İki syntax hatası bulundu ve düzeltildi** (her ikisi de `node --check`
+  ile teşhis edildi): (1) GRUP K'nin 18. sorusunda kaçırılmamış tırnak
+  (`` `@Get(':id')` `` içindeki `'` işaretleri escape edilmemişti). Ders:
+  soru/cevap metinlerinde ters tık (`` ` ``) içine kod yazarken, o kodun
+  İÇİNDEKİ tek tırnaklar da (tıpkı önceki fazlardaki apostrof hatası gibi)
+  escape edilmeli.
+- **Temizlik:** Artık hiçbir yerde kullanılmayan `mk()` yardımcı fonksiyonu
+  ve boş `const groupK = []` satırı silindi — tüm gruplar (A-K) artık
+  `sections` dizisinde literal referanslarla duruyor, placeholder/`mk()`
+  mekanizması tamamen devre dışı.
+- `apiFeynmanDefs`'e GRUP K için (`sectionIndex: 56`) son feynman-checkpoint
+  eklendi — toplamda apiFeynmanDefs artık A,A,B,C,D,E,F,G,H,I,J,K için
+  (13 tanım) checkpoint içeriyor.
+
+**TOPLU doğrulama TAMAMLANDI:** `node scripts/check-content-integrity.mjs` →
+**TÜM KONTROLLER GEÇTİ** (0 ihlal — 50 soruluk interview-questions bloğu
+dahil, duplicate-hint kontrolü de false-positive üretmedi). `npm run build`
+→ **yeşil**, `apiTestingData-*.js` ~762 kB (beklenen, büyük chunk uyarısı
+listesinde — CLAUDE.md §14), 42 static route, dist SEO PASS.
+
+**🎉 GRUP A-K içerik üretimi (Faz 2-9) TAMAMEN BİTTİ.** 57 atomik sekme, hepsi
+tam içerikli: video-scene + step-animation + code-playground/challenge +
+quiz trio'su her sekmede var; 13 Feynman checkpoint; GRUP J'de 12 hata;
+GRUP K'de 50 mülakat sorusu; `/postman` ve `/rest-assured`'dan iç link.
+
+**Kalan iş (Faz 10 — henüz BAŞLANMADI, plana göre Opus yapacak):**
+- Bölüm 9.5 tam denetimi: 57 sekmenin HER BİRİNDE gerçekten ≥1 video-scene +
+  ≥1 animasyon + ≥1 sandbox olduğunun sistematik doğrulanması (bu oturumda
+  yazım sırasında elle sağlandı ama bağımsız bir denetim turu YAPILMADI).
+- `tests/video-scene.spec.ts`'e `/api-testing` için en az 1 temsili render
+  testi eklenmesi (mülakat sekmesi gating nedeniyle testin nasıl ele
+  alınacağına dikkat — CLAUDE.md §9.5 "Doğrulama" notu).
+- `Documents/api-testing-page-plan.md`'nin durumunun "TAMAMLANDI" olarak
+  güncellenmesi.
+- Kullanıcıya sayfanın tarayıcıda gerçek bir gezinme testi (sidebar, dil
+  toggle, quiz-gating, XP) ile doğrulanması ÖNERİLMELİ — bu oturumda hiç
+  tarayıcı testi yapılmadı, sadece script tabanlı doğrulama (content-
+  integrity + build) yapıldı.
+- `main`'e merge/PR henüz açılmadı — branch hâlâ `feature/api-testing-page`.
+
+---
+
 ## ✅ `/api-testing` Faz 8 — GRUP J (error-dictionary) TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.5 (Faz 8). Kodsuz tek sekme
