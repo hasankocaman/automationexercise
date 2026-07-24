@@ -4320,6 +4320,144 @@ bootstrap()`,
   ],
 }
 
+const D5 = {
+  title: { tr: '🔀 D5 · NestJS ↔ Spring Boot Karşılaştırması', en: '🔀 D5 · NestJS ↔ Spring Boot Comparison' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔀',
+      content: {
+        tr: 'D1-D4\'ü bitirdikten sonra bir Java geliştiricisi şunu fark eder: Nest, Express\'in aksine, Spring\'in **neredeyse doğrudan TypeScript çevirisidir** — `@Module` ≈ `@Configuration`, `@Controller`/`@Get` ≈ `@RestController`/`@GetMapping`, DTO+`class-validator`+`ValidationPipe` ≈ Bean Validation+`@Valid`, Exception Filter ≈ `@RestControllerAdvice`, constructor injection ≈ Spring\'in DI\'ı. Peki üç framework\'ü de gördükten sonra hangi soruyu sormalısın? "Hangisi daha iyi" değil — **"bu projenin ekibi ve ölçeği için hangi disiplin seviyesi doğru"** sorusunu. Küçük bir mikroservis/prototip için Express\'in özgürlüğü hıza dönüşür; büyük, çok kişili bir takımda Nest\'in (ve Spring\'in) dayattığı yapı, "herkes aynı yerde arasın" tutarlılığı sağlar — bu, C6\'daki "hangi hatanın kimin sorumluluğunda olduğu" sorusunun doğal devamıdır. Bir Java geliştiricisi için pratik sonuç: Nest\'e geçiş, Express\'e geçişten çok daha az "zihniyet değişikliği" gerektirir çünkü sınıflar, decorator\'lar ve DI zaten TANIDIK kavramlardır — ama her ikisinde de gördüğün gibi, "decorator/annotation YAZMAK" ile "o decorator/annotation\'ın GERÇEKTEN devrede olması" (global pipe/filter kaydı, modül kaydı) arasındaki fark, testerin asıl doğrulaması gereken şeydir.',
+        en: 'After finishing D1-D4 a Java developer notices: unlike Express, Nest is an **almost direct TypeScript translation** of Spring — `@Module` ≈ `@Configuration`, `@Controller`/`@Get` ≈ `@RestController`/`@GetMapping`, DTO+`class-validator`+`ValidationPipe` ≈ Bean Validation+`@Valid`, Exception Filter ≈ `@RestControllerAdvice`, constructor injection ≈ Spring\'s DI. After seeing all three frameworks, which question should you ask? Not "which is better" — but **"which discipline level is right for this project\'s team and scale"**. For a small microservice/prototype, Express\'s freedom turns into speed; in a large, multi-person team, the structure Nest (and Spring) impose provides "everyone looks in the same place" consistency — this is the natural continuation of C6\'s "whose responsibility is this bug" question. The practical takeaway for a Java developer: moving to Nest requires far less "mindset shift" than moving to Express because classes, decorators, and DI are already FAMILIAR concepts — but as you saw in both, the gap between "WRITING a decorator/annotation" and that decorator/annotation being "REALLY active" (global pipe/filter registration, module registration) is exactly what a tester must verify.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Üç Framework, Aynı Sözleşme (Tekrar)', en: 'Three Frameworks, One Contract (Again)' } },
+    {
+      type: 'table',
+      headers: ['Konu / Topic', 'Spring Boot (Java)', 'Express.js', 'NestJS'],
+      rows: [
+        ['Route tanımı / Route definition', '@GetMapping("/bugs")', "app.get('/bugs', handler)", '@Get()'],
+        ['Body okuma / Reading body', '@RequestBody BugRequest req', 'req.body (express.json() şart)', '@Body() dto: CreateBugDto'],
+        ['Validation', '@Valid + Bean Validation', 'express-validator / zod (elle okunur)', 'ValidationPipe + class-validator'],
+        ['Hata yönetimi / Error handling', '@RestControllerAdvice', '4 parametreli (err,req,res,next)', '@Catch() Exception Filter'],
+        ['DI (bağımlılık enjeksiyonu)', 'Spring IoC container', 'manuel / factory fonksiyon', 'Nest IoC container'],
+        ['Modül/kayıt kaygısı / Registration', 'Component scan otomatik', 'Yok — dosya import edilince aktif', '@Module dizisine EKLENMEZSE controller yok sayılır'],
+        ['En sık sessiz hata / Most common silent bug', 'Eksik starter/annotation', 'Yanlış middleware sırası', 'Unutulan global pipe/filter/modül kaydı'],
+      ],
+    },
+    {
+      type: 'video-scene',
+      id: 'api-d5-compare-film',
+      title: { tr: '🎬 Java Geliştiricisi Nest\'te Evinde Hissediyor', en: '🎬 A Java Developer Feels at Home in Nest' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'java', emoji: '☕', label: { tr: 'Spring: @Controller/@Service', en: 'Spring: @Controller/@Service' }, color: '#22c55e' },
+        { id: 'nest', emoji: '🐈', label: { tr: 'Nest: @Controller/@Injectable', en: 'Nest: @Controller/@Injectable' }, color: '#a78bfa' },
+        { id: 'express', emoji: '🟢', label: { tr: 'Express: fonksiyon zinciri', en: 'Express: function chain' }, color: '#0ea5e9' },
+        { id: 'gap', emoji: '📏', label: { tr: 'Zihniyet mesafesi', en: 'Mindset distance' }, color: '#f59e0b' },
+        { id: 'tester', emoji: '🕵️', label: { tr: '"Kayıtlı mı?" her zaman sorulur', en: '"Is it registered?" is always asked' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Bir Java geliştiricisi Spring\'deki `@Controller`, `@Service`, `@Valid` kavramlarına zaten alışkındır.', en: 'A Java developer is already used to Spring\'s `@Controller`, `@Service`, `@Valid` concepts.' },
+          positions: { java: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Nest\'e geçince AYNI kavramları decorator adlarıyla görür — `@Controller`, `@Injectable`, `@Body()` — zihniyet mesafesi ÇOK KISADIR.', en: 'Moving to Nest, they see the SAME concepts under decorator names — `@Controller`, `@Injectable`, `@Body()` — the mindset distance is VERY SHORT.' },
+          positions: { java: { x: 20, y: 35 }, nest: { x: 58, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'java', to: 'nest', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Express\'e geçince ise "her şeyi elle kur" felsefesiyle karşılaşır — zihniyet mesafesi DAHA UZUNDUR (middleware sırası, elle okunan validation).', en: 'Moving to Express, they meet the "build everything by hand" philosophy — the mindset distance is LONGER (middleware order, manually read validation).' },
+          positions: { java: { x: 20, y: 65 }, express: { x: 58, y: 65, scale: 1.15, pulse: true } },
+          beams: [{ from: 'java', to: 'express', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Ama HER üç framework\'te de tekrar eden bir örüntü var: "yazmak" ile "gerçekten devrede olmak" arasında bir boşluk.', en: 'But there is a repeating pattern across ALL three frameworks: a gap between "writing" and "really being active".' },
+          positions: { nest: { x: 30, y: 40 }, express: { x: 30, y: 60 }, gap: { x: 62, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'nest', to: 'gap', color: '#f59e0b' }, { from: 'express', to: 'gap', color: '#f59e0b' }],
+        },
+        {
+          caption: { tr: 'Ders — Framework ne olursa olsun tester her zaman "bu güvenlik/kural GERÇEKTEN kayıtlı/tetikleniyor mu?" diye sorar; sözdizimine değil, DAVRANIŞA güvenir.', en: 'The lesson — regardless of framework, a tester always asks "is this safeguard/rule REALLY registered/triggered?"; they trust BEHAVIOR, not syntax.' },
+          positions: { gap: { x: 40, y: 45 }, tester: { x: 68, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'gap', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Üç Frameworkte "Kayıt" Kavramını Karşılaştır', en: 'Comparing the "Registration" Concept Across Three Frameworks' },
+      steps: [
+        { id: 1, icon: '☕', label: { tr: 'Spring: otomatik…', en: 'Spring: automatic…' }, detail: { tr: 'Component scan sınıfları otomatik bulur — genelde elle bir diziye eklemen gerekmez.', en: 'Component scan finds classes automatically — you usually do not need to add them to an array by hand.' } },
+        { id: 2, icon: '🐈', label: { tr: 'Nest: elle ama açık…', en: 'Nest: manual but explicit…' }, detail: { tr: '@Module({ controllers, providers }) dizisine EKLEMEK zorunludur — unutulursa sınıf yok sayılır.', en: '@Module({ controllers, providers }) requires EXPLICIT addition to the array — if forgotten, the class is ignored.' } },
+        { id: 3, icon: '🟢', label: { tr: 'Express: kayıt yok, sıra var…', en: 'Express: no registration, but order…' }, detail: { tr: 'Ayrı bir "kayıt" kavramı yoktur, ama middleware/route SIRASI davranışı belirler.', en: 'There is no separate "registration" concept, but middleware/route ORDER determines behavior.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-d5-order-01',
+      question: { tr: 'Üç frameworkü "opinionated" seviyesine göre en AZDAN en ÇOKA sırala.', en: 'Order the three frameworks from LEAST to MOST "opinionated".' },
+      items: [
+        { id: '1', text: { tr: 'Express — un-opinionated, her karar elle verilir', en: 'Express — un-opinionated, every decision is made by hand' }, order: 1 },
+        { id: '2', text: { tr: 'NestJS — decorator/modül disiplini dayatır ama açık kayıt gerektirir', en: 'NestJS — imposes decorator/module discipline but requires explicit registration' }, order: 2 },
+        { id: '3', text: { tr: 'Spring Boot — component scan + starter ile en otomatik seviye', en: 'Spring Boot — the most automatic level with component scan + starters' }, order: 3 },
+      ],
+      xpReward: 12,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-d5-compare',
+      id: 'api-d5-compare',
+      title: { tr: 'Kendin Dene: Spring Annotation\'ını Nest Decorator\'ına Çevir', en: 'Try It Yourself: Translate the Spring Annotation to a Nest Decorator' },
+      starterCode: `// Spring Boot (Java):
+// @RestControllerAdvice
+// public class GlobalExceptionHandler {
+//   @ExceptionHandler(NotFoundException.class)
+//   public ResponseEntity<?> handle(NotFoundException ex) { ... }
+// }
+
+// TODO: ayni isi yapan Nest yapisinin decorator'larini yaz
+`,
+      solutionCode: `// NestJS (TypeScript):
+@Catch(HttpException)
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost) {
+    // ...
+  }
+}
+// main.ts: app.useGlobalFilters(new HttpExceptionFilter())`,
+      hint: { tr: 'Spring\'de `@RestControllerAdvice` + `@ExceptionHandler` bir sınıfın hangi exception TİPİNİ yakalayacağını bildirir; Nest\'te aynı bildirim `@Catch(HttpException)` ile yapılır — ama unutma, Nest\'te ayrıca `app.useGlobalFilters(...)` ile KAYIT şarttır.', en: 'In Spring, `@RestControllerAdvice` + `@ExceptionHandler` declares which exception TYPE a class catches; in Nest the same declaration is made with `@Catch(HttpException)` — but remember, in Nest REGISTRATION with `app.useGlobalFilters(...)` is also mandatory.' },
+      successMessage: { tr: 'Doğru! İki framework de aynı "merkezi hata yönetimi" fikrini taşıyor, sadece kayıt adımı farklı.', en: 'Correct! Both frameworks carry the same "centralized error handling" idea, only the registration step differs.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Nest\'in Spring\'e en çok benzediği alan hangisidir?', en: 'In which area does Nest resemble Spring the most?' },
+      options: [
+        { id: 'a', text: { tr: 'Decorator tabanlı yapı ve DI container — sınıflar, annotation/decorator\'lar ve constructor injection ile bağlanır', en: 'The decorator-based structure and DI container — classes are wired together via annotations/decorators and constructor injection' } },
+        { id: 'b', text: { tr: 'İkisi de aynı programlama dilini kullanır', en: 'Both use the same programming language' } },
+        { id: 'c', text: { tr: 'İkisi de veritabanı sürücüsü içerir', en: 'Both bundle a database driver' } },
+        { id: 'd', text: { tr: 'Hiçbir ortak yönleri yoktur', en: 'They have nothing in common' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Nest, Spring\'in decorator/annotation tabanlı mimarisini (Controller/Service/Module ayrımı, DI container, constructor injection) TypeScript\'e neredeyse birebir taşır. Bu yüzden bir Java/Spring geliştiricisi Nest\'e geçişte Express\'e göre çok daha az kavramsal fark yaşar.', en: 'Nest carries Spring\'s decorator/annotation-based architecture (Controller/Service/Module separation, DI container, constructor injection) into TypeScript almost one-to-one. This is why a Java/Spring developer experiences far less conceptual difference moving to Nest than moving to Express.' },
+      retryQuestion: {
+        question: { tr: 'Üç frameworkte de ortak olan, testerin HER ZAMAN sorması gereken soru nedir?', en: 'What is the common question, present in all three frameworks, that a tester must ALWAYS ask?' },
+        options: [
+          { id: 'a', text: { tr: 'Bu güvenlik/kural (validation, hata yönetimi) koddan GÖRÜNSE bile GERÇEKTEN devrede mi?', en: 'Even if this safeguard/rule (validation, error handling) is VISIBLE in the code, is it REALLY active?' } },
+          { id: 'b', text: { tr: 'Hangi framework daha hızlı derleniyor?', en: 'Which framework compiles faster?' } },
+          { id: 'c', text: { tr: 'Hangi framework daha az dosya kullanıyor?', en: 'Which framework uses fewer files?' } },
+          { id: 'd', text: { tr: 'Hangi framework daha eski?', en: 'Which framework is older?' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'B1 (eksik starter), C3-C5 (yanlış middleware sırası), D1-D4 (kayıtsız controller/pipe/filter) — hepsi AYNI köke iner: doğru görünen kod, framework tarafından GERÇEKTEN devreye alınmadıkça hiçbir şey garanti etmez. Bu yüzden tester her zaman gerçek bir istekle davranışı doğrular, kod incelemesiyle yetinmez.', en: 'B1 (missing starter), C3-C5 (wrong middleware order), D1-D4 (unregistered controller/pipe/filter) — all trace back to the SAME root: code that looks correct guarantees nothing until it is REALLY activated by the framework. This is why a tester always verifies behavior with a real request, never settling for a code review alone.' },
+      },
+    },
+  ],
+}
+
 const groupE = [
   ['E1', '🔍', 'Network Paneli Anatomisi', 'Network Panel Anatomy'],
   ['E2', '🎚️', 'Fetch/XHR Filtresi: gürültüyü ayıklamak', 'Fetch/XHR Filter: cutting the noise'],

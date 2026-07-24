@@ -10,7 +10,7 @@
 
 ---
 
-## 🚧 `/api-testing` Faz 4 — GRUP C (Express) TAMAM, GRUP D (NestJS) D1-D4 TAMAM, D5 + wiring + Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+## 🚧 `/api-testing` Faz 4 — GRUP C+D (Express+NestJS) İÇERİK TAMAM, wiring + Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.1 (Faz 4). Şablon: GRUP A/B (Opus,
 önceki oturum). Kullanıcı talimatı bu oturumda: **test etmeden adım adım commit
@@ -23,11 +23,12 @@ açıkça "test etmeden commit yap" dedi — checklist bu FAZ bitince toplu
   kod + 🐞 Defect Doğum Anı + video-scene + step-animation + challenge(order-sort)
   + code-playground + quiz. C3 amiral film ("Middleware Zinciri"). C6'da
   Spring|Express|NestJS 3-framework karşılaştırma tablosu.
-- `D1`..`D4` (NestJS) aynı kalıpla yazıldı. D3 amiral film ("Nest'in Pipe
-  Hattı"). D5 (NestJS↔Spring karşılaştırma + aynı 3-framework tablo) **HENÜZ
-  YAZILMADI**.
+- `D1`..`D5` (NestJS) aynı kalıpla yazıldı — TAMAM. D3 amiral film ("Nest'in
+  Pipe Hattı"). D5, NestJS↔Spring karşılaştırması + Spring|Express|NestJS
+  3-framework tablosunu (C6'daki ile aynı iskelet + registration/kayıt satırı
+  eklenmiş hali) içeriyor.
 - Eski `groupC`/`groupD` id-array + `mk()` placeholder tanımları SİLİNDİ (C1-C6/
-  D1-D4 artık tam literal section objesi).
+  D1-D5 artık tam literal section objesi).
 
 **⚠️ KRİTİK — dosya şu an ÇALIŞMAZ durumda (bilerek, sonraki adımda düzelecek):**
 `sections` dizisi hâlâ `...groupC.map(mk), ...groupD.map(mk), ...groupE.map(mk)`
@@ -38,9 +39,9 @@ adımda `sections` dizisi `C1, C2, C3, C4, C5, C6, D1, D2, D3, D4, D5,
 `npm run build`/dev server çalıştırma — D5 + wiring bitmeden kırık.**
 
 **Sıradaki adımlar (bu oturumda sırayla):**
-1. D5 (NestJS↔Spring Boot karşılaştırma + 3-framework tablo) yaz.
+1. ~~D5 (NestJS↔Spring Boot karşılaştırma + 3-framework tablo) yaz.~~ ✅ BİTTİ.
 2. `sections` dizisini C1-C6/D1-D5 literal referanslarıyla güncelle (groupC/
-   groupD.map(mk) satırını değiştir).
+   groupD.map(mk) satırını değiştir). **SIRADA.**
 3. `apiFeynmanDefs`'e GRUP C sonu (C6, sectionIndex hesaplanacak) ve GRUP D
    sonu (D5) için birer feynman-checkpoint tanımı ekle.
 4. Faz bitince TOPLU doğrulama: `node scripts/check-content-integrity.mjs`
