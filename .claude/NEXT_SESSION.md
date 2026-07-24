@@ -10,7 +10,7 @@
 
 ---
 
-## 🚧 `/api-testing` Faz 4 — GRUP C+D (Express+NestJS) İÇERİK TAMAM, wiring + Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+## 🚧 `/api-testing` Faz 4 — GRUP C+D içerik + sections wiring TAMAM, Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.1 (Faz 4). Şablon: GRUP A/B (Opus,
 önceki oturum). Kullanıcı talimatı bu oturumda: **test etmeden adım adım commit
@@ -30,20 +30,17 @@ açıkça "test etmeden commit yap" dedi — checklist bu FAZ bitince toplu
 - Eski `groupC`/`groupD` id-array + `mk()` placeholder tanımları SİLİNDİ (C1-C6/
   D1-D5 artık tam literal section objesi).
 
-**⚠️ KRİTİK — dosya şu an ÇALIŞMAZ durumda (bilerek, sonraki adımda düzelecek):**
-`sections` dizisi hâlâ `...groupC.map(mk), ...groupD.map(mk), ...groupE.map(mk)`
-satırını kullanıyor ama `groupC`/`groupD` sabitleri artık YOK (silindi) —
-bu bir `ReferenceError` fırlatır, `npm run build` bu haliyle KIRIKTIR. Sonraki
-adımda `sections` dizisi `C1, C2, C3, C4, C5, C6, D1, D2, D3, D4, D5,
-...groupE.map(mk), ...` şeklinde güncellenecek. **Bu commit'ten sonra ASLA
-`npm run build`/dev server çalıştırma — D5 + wiring bitmeden kırık.**
+**✅ Wiring düzeltildi:** `sections` dizisi artık `C1, C2, C3, C4, C5, C6, D1,
+D2, D3, D4, D5, ...groupE.map(mk), ...` şeklinde — modül artık hatasız import
+ediliyor, doğrulandı (`node --input-type=module -e "import(...)"`, toplam 57
+section, `sections[20]` = C6, `sections[25]` = D5, `sections[26]` = E1).
 
 **Sıradaki adımlar (bu oturumda sırayla):**
-1. ~~D5 (NestJS↔Spring Boot karşılaştırma + 3-framework tablo) yaz.~~ ✅ BİTTİ.
-2. `sections` dizisini C1-C6/D1-D5 literal referanslarıyla güncelle (groupC/
-   groupD.map(mk) satırını değiştir). **SIRADA.**
-3. `apiFeynmanDefs`'e GRUP C sonu (C6, sectionIndex hesaplanacak) ve GRUP D
-   sonu (D5) için birer feynman-checkpoint tanımı ekle.
+1. ~~D5 yaz.~~ ✅ BİTTİ.
+2. ~~sections dizisini C1-C6/D1-D5 literal referanslarıyla güncelle.~~ ✅ BİTTİ.
+3. `apiFeynmanDefs`'e GRUP C sonu (`sectionIndex: 20` = C6) ve GRUP D sonu
+   (`sectionIndex: 25` = D5) için birer feynman-checkpoint tanımı ekle.
+   **SIRADA.**
 4. Faz bitince TOPLU doğrulama: `node scripts/check-content-integrity.mjs`
    (0 ihlal) + `npm run build` (yeşil) — CLAUDE.md §1.1. Şu ana kadar HİÇ
    çalıştırılmadı, ihlal/hata riski var (özellikle relatedTopicId, quiz option
