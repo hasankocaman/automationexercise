@@ -10,6 +10,49 @@
 
 ---
 
+## ✅ `/api-testing` Faz 8 — GRUP J (error-dictionary) TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+
+Plan: `Documents/api-testing-page-plan.md` §D.5 (Faz 8). Kodsuz tek sekme
+(`J`, sectionIndex 55) — GRUP A şablonu + elle yazılan trio (Bölüm 9.5,
+`fillMissingCodeTrios` burada devreye girmez çünkü error-dictionary'de
+`type:'code'` bloğu yok).
+
+**Yazılanlar:**
+- 1 yeni inline SVG (`errorDiagnosisSvg`) — katman teşhis akışı.
+- `simple-box` (4 katman: differential-diagnosis/runbook analojisi) + `text`
+  + `diagram-svg` + `video-scene` ("Bir Hatanın Teşhis Sırası",
+  `api-j-diagnosis-order-film`) + **`error-dictionary` bloğu (relatedTopicId:
+  `api-testing-common-errors`) — TAM OLARAK 12 hata**: 415, 400 vs 422, CORS
+  preflight, ECONNREFUSED, 401 vs 403, trailing slash 404, Content-Type
+  eksikliği (boş body), tarih formatı parse hatası, null vs alan yokluğu,
+  timeout, gzip/encoding, "Postman'de PASS/CI'da FAIL". Her hata
+  `cause`+`solution` (`{tr,en}`) + `codeWrong`/`codeFixed` (TR yorum,
+  ASCII-normalize) + "tester hangi katmanda yakalar" içeriyor, önceki
+  gruplara (B1/C1/C3/C4/E4/E5/F5/G4) geri referans veriyor.
+- `step-animation` + `challenge`(order-sort) + `code-playground` (katman
+  seçme modu) + `quiz`.
+- **Dikkat:** `groupJ` placeholder id-array'i tamamen kaldırıldı, `sections`
+  dizisinde artık `J` (tam literal section) doğrudan referanslanıyor —
+  `...groupJ.map(mk)` YOK. `apiFeynmanDefs`'e `sectionIndex: 55` eklendi.
+
+**TOPLU doğrulama TAMAMLANDI:** `node scripts/check-content-integrity.mjs` →
+**TÜM KONTROLLER GEÇTİ** (0 ihlal). `npm run build` → **yeşil**,
+`apiTestingData-*.js` ~698 kB, 42 static route, dist SEO PASS. `node --check`
+ile sözdizimi de ayrıca doğrulandı (bu fazda hata çıkmadı).
+
+**Kalan iş (Faz 9-10 — henüz BAŞLANMADI):**
+- Faz 9: GRUP K (mülakat ≥50 soru: 15 Basic/20 Intermediate/15 Advanced,
+  §D.6) — `interview-questions` bloğu, quiz-gating (%60) arkasında kalması
+  BEKLENEN davranış, "X nedir?" tarzı sorular YASAK.
+- Faz 10 (Opus): Bölüm 9.5 denetimi (57 sekmenin tamamında video+animasyon+
+  sandbox var mı) + `tests/video-scene.spec.ts`'e temsili render testi +
+  NEXT_SESSION özet güncellemesi.
+
+`/api-testing` sayfası GRUP K hâlâ placeholder olduğundan HENÜZ production'a
+hazır değil — ama tüm içerik grupları (A-J) artık TAM.
+
+---
+
 ## ✅ `/api-testing` Faz 7 — GRUP G+H+I (Postman/REST Assured/Playwright) TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.4 (Faz 7). **ÇAKIŞMA KURALI

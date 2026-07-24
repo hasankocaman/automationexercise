@@ -8408,7 +8408,369 @@ expect(body.title).toBe('Login butonu donuyor')`,
   ],
 }
 
-const groupJ = [['J', '🚨', 'Yaygın Hatalar ve Çözümleri', 'Common Errors and Fixes']]
+// ═══════════════════════════════════════════════════════════════════════════
+// GRUP J — Yaygın Hatalar (error-dictionary, kodsuz sekme — elle trio)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const errorDiagnosisSvg = `<svg viewBox='0 0 680 170' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <rect x='16' y='20' width='150' height='40' rx='8' fill='#3a1a1a'/><text x='30' y='45' fill='#f87171' font-size='12'>Hata mesajı</text>
+  <path d='M 172 40 L 220 40' stroke='#f59e0b' stroke-width='2' marker-end='url(#arrowJ)'/>
+  <defs><marker id='arrowJ' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L6,3 L0,6 z' fill='#f59e0b'/></marker></defs>
+  <rect x='224' y='20' width='150' height='40' rx='8' fill='#242640'/><text x='236' y='45' fill='#e5e7eb' font-size='12'>Hangi katman?</text>
+  <path d='M 224 70 L 130 100' stroke='#0ea5e9' stroke-width='2'/>
+  <path d='M 300 70 L 300 100' stroke='#0ea5e9' stroke-width='2'/>
+  <path d='M 374 70 L 470 100' stroke='#0ea5e9' stroke-width='2'/>
+  <rect x='60' y='108' width='140' height='40' rx='8' fill='#1a2e22'/><text x='72' y='132' fill='#4ade80' font-size='11'>İstemci/Network</text>
+  <rect x='230' y='108' width='140' height='40' rx='8' fill='#1a2e22'/><text x='250' y='132' fill='#4ade80' font-size='11'>Sunucu/Kod</text>
+  <rect x='420' y='108' width='140' height='40' rx='8' fill='#1a2e22'/><text x='438' y='132' fill='#4ade80' font-size='11'>Sözleşme/Spec</text>
+</svg>`
+
+const J = {
+  title: { tr: '🚨 J · Yaygın Hatalar ve Çözümleri', en: '🚨 J · Common Errors and Fixes' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🚨',
+      content: {
+        tr: 'Bu sözlük, bir **doktorun ayırıcı tanı (differential diagnosis) el kitabı** gibidir: AYNI belirti (örn. "istek başarısız oldu") onlarca FARKLI kök nedenden gelebilir, ve yanlış teşhis yanlış tedaviye (yanlış ekibe escalate) yol açar. GRUP A-I boyunca (B1\'deki eksik dependency, C3\'teki middleware sırası, F5\'teki contract defect, G4\'teki test zinciri) HER GRUP kendi hata sınıfını doğurdu — bu sözlük onları TEK bir referans noktasında TOPLAR. Java\'da bunun karşılığı bir "runbook"tur — production\'da bir alarm çaldığında hangi log\'a, hangi metriğe bakılacağını önceden yazılı olarak bilmek, panikle rastgele arama yapmaktan ÇOK daha hızlıdır. Peki bu sözlük neden ezberlemek yerine BAŞVURU kaynağı olarak kullanılmalı? Çünkü gerçek bir production ortamında karşılaşacağın hata mesajı BİREBİR burada olmayabilir — ama BURADAKİ 12 kalıp, "belirtiden kök nedene, kök nedenden doğru ekibe" giden DÜŞÜNME BİÇİMİNİ öğretir; bu düşünme biçimi her yeni, hiç görmediğin hataya da uygulanabilir.',
+        en: 'This dictionary is like a **doctor\'s differential diagnosis handbook**: the SAME symptom (e.g. "the request failed") can come from dozens of DIFFERENT root causes, and a wrong diagnosis leads to wrong treatment (escalating to the wrong team). Throughout GROUP A-I (the missing dependency in B1, the middleware order in C3, the contract defect in F5, the test chain in G4), EVERY group birthed its own error class — this dictionary GATHERS them at ONE reference point. The Java equivalent is a "runbook" — knowing in advance which log, which metric to check when a production alarm fires is FAR faster than panicked random searching. So why should this dictionary be used as a REFERENCE rather than memorized? Because the exact error message you meet in a real production environment may NOT be EXACTLY here — but the 12 patterns HERE teach the WAY OF THINKING that goes "from symptom to root cause, from root cause to the right team"; this way of thinking applies to any new error you have never seen too.',
+      },
+    },
+    {
+      type: 'text',
+      content: {
+        tr: 'Aşağıdaki 12 hata, bu sayfa boyunca gördüğün gerçek senaryolara dayanır. Her giriş: belirti (gerçek hata mesajı), kök neden, bozuk/düzeltilmiş kod örneği ve testerın bunu HANGİ katmanda (istemci/network, sunucu/kod, sözleşme/spec) yakaladığını içerir.',
+        en: 'The 12 errors below are based on real scenarios you saw throughout this page. Each entry includes: the symptom (the real error message), the root cause, a broken/fixed code example, and WHICH layer (client/network, server/code, contract/spec) the tester catches it in.',
+      },
+    },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'Bir Hatayı Katmana Göre Teşhis Etmek', en: 'Diagnosing an Error by Layer' },
+      svg: errorDiagnosisSvg,
+    },
+    {
+      type: 'video-scene',
+      id: 'api-j-diagnosis-order-film',
+      title: { tr: '🎬 Bir Hatanın Teşhis Sırası', en: '🎬 The Diagnosis Order for an Error' },
+      xpReward: 13,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'symptom', emoji: '🚨', label: { tr: 'Belirti: istek başarısız', en: 'Symptom: request failed' }, color: '#f59e0b' },
+        { id: 'layer', emoji: '🔍', label: { tr: 'Hangi katman?', en: 'Which layer?' }, color: '#0ea5e9' },
+        { id: 'client', emoji: '🌐', label: { tr: 'İstemci/Network mü?', en: 'Client/Network?' }, color: '#a78bfa' },
+        { id: 'server', emoji: '🖥️', label: { tr: 'Sunucu/Kod mu?', en: 'Server/Code?' }, color: '#ef4444' },
+        { id: 'contract', emoji: '📜', label: { tr: 'Sözleşme/Spec mi?', en: 'Contract/Spec?' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'Bir istek başarısız oldu — ama "başarısız" tek başına HANGİ EKİBE gideceğini söylemez.', en: 'A request failed — but "failed" alone does not tell you WHICH TEAM to go to.' }, positions: { symptom: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'İlk soru: bu HANGİ KATMANDA doğdu? Network paneli (GRUP E) ilk bakılacak yerdir.', en: 'First question: WHICH LAYER did this originate in? The Network panel (GROUP E) is the first place to check.' }, positions: { symptom: { x: 20, y: 35 }, layer: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'symptom', to: 'layer', color: '#0ea5e9' }] },
+        { caption: { tr: 'İstek sunucuya HİÇ ULAŞMADIYSA (ECONNREFUSED, CORS, timeout) → İstemci/Network katmanı.', en: 'If the request NEVER REACHED the server (ECONNREFUSED, CORS, timeout) → Client/Network layer.' }, positions: { layer: { x: 20, y: 65 }, client: { x: 58, y: 65, scale: 1.15, pulse: true } }, beams: [{ from: 'layer', to: 'client', color: '#a78bfa' }] },
+        { caption: { tr: 'İstek ULAŞTI ama yanlış/sessiz bir sonuç döndüyse (400 yerine 201, boş body) → Sunucu/Kod katmanı.', en: 'If the request REACHED but returned a wrong/silent result (201 instead of 400, empty body) → Server/Code layer.' }, positions: { layer: { x: 35, y: 40 }, server: { x: 62, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'layer', to: 'server', color: '#ef4444' }] },
+        { caption: { tr: 'Ders — Sunucu doğru çalıştı ama DOKÜMANLA uyuşmuyorsa (F5) → Sözleşme/Spec katmanı. Doğru katmanı bulmak, doğru ekibe escalate etmenin ilk adımıdır.', en: 'The lesson — if the server worked correctly but does NOT match the DOCUMENT (F5) → Contract/Spec layer. Finding the right layer is the first step to escalating to the right team.' }, positions: { server: { x: 30, y: 45 }, contract: { x: 62, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'server', to: 'contract', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'error-dictionary',
+      relatedTopicId: 'api-testing-common-errors',
+      framework: 'API Testing',
+      errors: [
+        {
+          error: '415 Unsupported Media Type',
+          fullMessage: 'POST /api/v1/bugs -> 415 Unsupported Media Type',
+          cause: {
+            tr: 'İstek gövdesi JSON olmasına rağmen `Content-Type` header\'ı eksik veya `text/plain` gibi yanlış — sunucu gövdeyi hangi formatta ayrıştıracağını bilemiyor.',
+            en: 'The request body is JSON, but the `Content-Type` header is missing or wrong (like `text/plain`) — the server cannot know what format to parse the body as.',
+          },
+          solution: {
+            tr: '`Content-Type: application/json` header\'ını EKLE. Tester bunu E3\'teki Headers sekmesinde, giden isteğin header\'larını kontrol ederek yakalar — istemci/network katmanı.',
+            en: 'ADD the `Content-Type: application/json` header. The tester catches this by checking the outgoing request\'s headers in E3\'s Headers tab — client/network layer.',
+          },
+          codeWrong: `// BUG: Content-Type header'i eksik
+fetch('/api/v1/bugs', {
+  method: 'POST',
+  body: JSON.stringify({ title: 'Login butonu donuyor' }),
+})`,
+          codeFixed: `// FIX: govdenin JSON oldugu ACIKCA belirtiliyor
+fetch('/api/v1/bugs', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ title: 'Login butonu donuyor' }),
+})`,
+        },
+        {
+          error: '400 Bad Request vs 422 Unprocessable Entity karışıklığı',
+          fullMessage: 'POST /api/v1/bugs { "title": "ab" } -> 400 mü 422 mi dönmeli?',
+          cause: {
+            tr: '400, gövde HİÇ ayrıştırılamadığında (bozuk JSON); 422, gövde ayrıştırıldı ama bir İŞ KURALINI (minLength gibi) ihlal ettiğinde kullanılır. Çoğu API bu ayrımı yapmadan HER İKİ durumu da 400 döner — bu bir standart hatası değil ama sözleşmede AÇIKÇA belirtilmesi gerekir.',
+            en: '400 is used when the body could NOT be parsed AT ALL (broken JSON); 422 is used when the body was parsed but violates a BUSINESS RULE (like minLength). Most APIs return 400 for BOTH cases without distinguishing — not a standards violation, but it must be EXPLICITLY stated in the contract.',
+          },
+          solution: {
+            tr: 'F1/F4\'teki spec\'te hangi durumda hangi kodun döneceği NETLEŞTİRİLMELİDİR. Tester bu ayrımı F5\'teki contract testinde doğrular — sözleşme/spec katmanı.',
+            en: 'F1/F4\'s spec must CLARIFY which code is returned in which case. The tester verifies this distinction in F5\'s contract test — contract/spec layer.',
+          },
+          codeWrong: `// BUG: sozlesmede hangi kodun donecegi belirtilmemis
+// "gecersiz istek" -> 400 mi 422 mi? Belirsiz.`,
+          codeFixed: `// FIX: spec'te acikca ayristirilir
+// bozuk JSON (parse hatasi) -> 400 Bad Request
+// gecerli JSON ama is kurali ihlali (title cok kisa) -> 422 Unprocessable Entity`,
+        },
+        {
+          error: 'CORS preflight isteği başarısız',
+          fullMessage: "Access to fetch at 'http://localhost:3000/api/v1/bugs' from origin 'http://localhost:5173' has been blocked by CORS policy",
+          cause: {
+            tr: 'Tarayıcı, farklı bir origin\'e (portlar bile farklı origin sayılır) istek atmadan önce bir `OPTIONS` isteği (preflight) gönderir; sunucu bu isteğe `Access-Control-Allow-Origin` header\'ıyla CEVAP VERMEZSE tarayıcı GERÇEK isteği hiç göndermez.',
+            en: 'Before sending a request to a different origin (even a different port counts as a different origin), the browser sends an `OPTIONS` request (preflight); if the server does NOT RESPOND with an `Access-Control-Allow-Origin` header, the browser never sends the REAL request at all.',
+          },
+          solution: {
+            tr: 'Backend\'e bir CORS middleware/config eklenmelidir. Tester bunu E grubundaki Network panelinde `OPTIONS` isteğinin yanıt header\'larını inceleyerek yakalar — istemci/network katmanı (ama kök neden sunucu tarafı bir eksik konfigürasyondur).',
+            en: 'A CORS middleware/config must be added to the backend. The tester catches this by inspecting the `OPTIONS` request\'s response headers in the GROUP E Network panel — client/network layer (though the root cause is a missing server-side configuration).',
+          },
+          codeWrong: `// BUG: sunucuda CORS middleware'i yok
+const app = express()
+app.post('/api/v1/bugs', handler)   // Access-Control-Allow-Origin HIC gonderilmiyor`,
+          codeFixed: `// FIX: CORS middleware'i eklendi
+const cors = require('cors')
+const app = express()
+app.use(cors({ origin: 'http://localhost:5173' }))
+app.post('/api/v1/bugs', handler)`,
+        },
+        {
+          error: 'ECONNREFUSED',
+          fullMessage: 'Error: connect ECONNREFUSED 127.0.0.1:3000',
+          cause: {
+            tr: 'Sunucu o portta HİÇ dinlemiyor — ya hiç başlatılmamış, ya çökmüş, ya da yanlış porta bağlanmaya çalışılıyor (bkz. C1\'deki unutulan `app.listen`).',
+            en: 'The server is NOT listening on that port at all — either it was never started, it crashed, or the wrong port is being connected to (see C1\'s forgotten `app.listen`).',
+          },
+          solution: {
+            tr: 'Sunucunun GERÇEKTEN çalıştığını (`curl`/tarayıcı ile smoke test) doğrula, doğru portu kullandığını kontrol et. Tester bunu ilk istekte, HİÇBİR yanıt gelmeden yakalar — istemci/network katmanı.',
+            en: 'Verify the server is REALLY running (a `curl`/browser smoke test), check it is using the right port. The tester catches this on the very first request, with NO response arriving at all — client/network layer.',
+          },
+          codeWrong: `// BUG: sunucu hicbir zaman baslatilmadi (app.listen eksik, bkz. C1)
+const app = express()
+app.get('/api/v1/bugs', handler)
+// app.listen(3000) SATIRI YOK`,
+          codeFixed: `const app = express()
+app.get('/api/v1/bugs', handler)
+app.listen(3000, () => console.log('Port 3000 dinleniyor'))`,
+        },
+        {
+          error: '401 Unauthorized vs 403 Forbidden karışıklığı',
+          fullMessage: 'DELETE /api/v1/bugs/42 -> beklenen 403, gelen 401 (veya tam tersi)',
+          cause: {
+            tr: 'Backend, "kimlik yok" (401) ile "kimlik var ama yetki yok" (403) senaryolarını AYNI kod ile karıştırıyor — genelde auth middleware\'i her iki durumda da 401 döndürüyor.',
+            en: 'The backend confuses "no identity" (401) with "identity exists but no permission" (403) scenarios using the SAME code — usually the auth middleware returns 401 for both cases.',
+          },
+          solution: {
+            tr: 'Backend\'de kimlik doğrulama (authentication) ve yetkilendirme (authorization) katmanları AYRI kontrol edilmeli (bkz. A5). Tester bunu iki AYRI negatif testle (token yok / token var ama yetki yok) doğrular — sunucu/kod katmanı.',
+            en: 'Authentication and authorization checks must be SEPARATE layers on the backend (see A5). The tester verifies this with two SEPARATE negative tests (no token / token exists but no permission) — server/code layer.',
+          },
+          codeWrong: `// BUG: yetki kontrolu YOK, sadece token varligi kontrol ediliyor
+if (!token) return res.status(401).send()
+// TODO: token gecerli ama BU KAYNAGA yetkisi var mi kontrolu eksik
+next()`,
+          codeFixed: `if (!token) return res.status(401).send()   // kimlik yok
+if (!userCanDelete(token, bugId)) return res.status(403).send()   // yetki yok
+next()`,
+        },
+        {
+          error: 'Trailing slash 404',
+          fullMessage: 'GET /api/v1/bugs/ (sonda slash ile) -> 404 Not Found',
+          cause: {
+            tr: 'Bazı framework\'lerde (özellikle strict routing açıksa) `/api/v1/bugs` ile `/api/v1/bugs/` FARKLI route\'lar sayılır — sonda slash olan istek TANIMSIZ kalır.',
+            en: 'In some frameworks (especially with strict routing enabled), `/api/v1/bugs` and `/api/v1/bugs/` are counted as DIFFERENT routes — the request with a trailing slash stays UNDEFINED.',
+          },
+          solution: {
+            tr: 'Framework\'ün strict routing ayarı kapatılmalı veya her iki varyant da tanımlanmalıdır. Tester bunu hem slash\'li hem slash\'sız versiyonu deneyerek yakalar — istemci/network katmanı (ama kök neden sunucu route yapılandırmasıdır).',
+            en: 'The framework\'s strict routing setting must be disabled, or both variants defined. The tester catches this by trying both the with-slash and without-slash versions — client/network layer (though the root cause is server route configuration).',
+          },
+          codeWrong: `// BUG: strict routing acik, sadece TEK varyant calisiyor
+const app = express()
+app.set('strict routing', true)
+app.get('/api/v1/bugs', handler)   // /api/v1/bugs/ 404 doner`,
+          codeFixed: `const app = express()
+app.set('strict routing', false)   // her iki varyant da calisir
+app.get('/api/v1/bugs', handler)`,
+        },
+        {
+          error: "Content-Type eksikliğinden boş body (req.body undefined)",
+          fullMessage: "POST /api/v1/bugs -> 201 Created ama title: undefined ile kayıt oluştu",
+          cause: {
+            tr: 'İstemci `Content-Type: application/json` göndermeden JSON gövde yolladı; sunucudaki gövde ayrıştırıcı (`express.json()`) bu isteği JSON olarak TANIMAZ, `req.body` boş kalır — ama validation da yoksa sunucu yine de 201 döner (bkz. C3, C4).',
+            en: 'The client sent a JSON body without `Content-Type: application/json`; the server\'s body parser (`express.json()`) does NOT RECOGNIZE this request as JSON, `req.body` stays empty — but if there is no validation either, the server still returns 201 (see C3, C4).',
+          },
+          solution: {
+            tr: 'İstemci tarafında `Content-Type` header\'ı eklenmeli, sunucu tarafında ise boş/eksik zorunlu alanlar için validation (B6/C4/D3) devrede olmalıdır. Tester bunu POST sonrası GET ile kaydı okuyup boş alanları görerek yakalar — hem istemci hem sunucu/kod katmanı.',
+            en: 'The client must add the `Content-Type` header, and the server must have validation (B6/C4/D3) active for empty/missing required fields. The tester catches this by reading the record back with a GET after POST and seeing empty fields — both client AND server/code layer.',
+          },
+          codeWrong: `// BUG: Content-Type eksik + sunucuda validation yok
+fetch('/api/v1/bugs', { method: 'POST', body: JSON.stringify({ title: 'x' }) })`,
+          codeFixed: `fetch('/api/v1/bugs', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ title: 'x' }),
+})`,
+        },
+        {
+          error: 'Tarih formatı parse hatası',
+          fullMessage: "createdAt: \"24/07/2026\" -> istemci Date.parse() ile 'Invalid Date' üretir",
+          cause: {
+            tr: 'Backend, F4\'teki spec\'in vaat ettiği ISO-8601 (`2026-07-24T10:00:00Z`) yerine yerel bir formatta (`gün/ay/yıl`) tarih dönüyor — bu bir F5 tarzı contract defect\'idir (alan tipi/format uyumsuzluğu).',
+            en: 'Instead of the ISO-8601 format promised by F4\'s spec (`2026-07-24T10:00:00Z`), the backend returns a date in a local format (`day/month/year`) — this is an F5-style contract defect (field type/format mismatch).',
+          },
+          solution: {
+            tr: 'Backend\'de tarih serialization\'ı ISO-8601 olarak SABİTLENMELİDİR (JSON\'da tarih standardı budur). Tester bunu H4\'teki JSON Schema Validation\'ın `format: date-time` kontrolüyle otomatik yakalar — sözleşme/spec katmanı.',
+            en: 'Date serialization on the backend must be PINNED to ISO-8601 (the JSON standard for dates). The tester catches this automatically with H4\'s JSON Schema Validation `format: date-time` check — contract/spec layer.',
+          },
+          codeWrong: `// BUG: yerel format donuluyor, spec ISO-8601 vaat ediyor
+res.json({ ...bug, createdAt: '24/07/2026' })`,
+          codeFixed: `res.json({ ...bug, createdAt: new Date().toISOString() })   // 2026-07-24T10:00:00.000Z`,
+        },
+        {
+          error: 'null vs alan yokluğu',
+          fullMessage: '{ "reporter": null } vs { } (reporter alanı hiç yok)',
+          cause: {
+            tr: '`null`, alanın VAR olduğu ama değerinin bilinçli olarak boş olduğu anlamına gelir; alanın HİÇ olmaması ise anahtarın kaybolduğu (olası bir contract regresyonu) anlamına gelir — ikisi AYNI şey DEĞİLDİR ama zayıf bir kontrol (`if (!bug.reporter)`) ikisini de aynı sayar.',
+            en: '`null` means the field EXISTS but its value is intentionally empty; the field being ENTIRELY absent means the key vanished (a possible contract regression) — the two are NOT the SAME thing, but a weak check (`if (!bug.reporter)`) treats them identically.',
+          },
+          solution: {
+            tr: 'İstemci kodu `hasOwnProperty`/`in` operatörüyle alanın VARLIĞINI, ayrı bir kontrolle DEĞERİNİ kontrol etmelidir. Tester bunu iki AYRI senaryo (null gönder / alanı hiç gönderme) ile test eder — sözleşme/spec katmanı.',
+            en: 'Client code should check the field\'s EXISTENCE with `hasOwnProperty`/the `in` operator, and its VALUE with a separate check. The tester tests this with two SEPARATE scenarios (send null / never send the field) — contract/spec layer.',
+          },
+          codeWrong: `// BUG: null ile "alan yok" ayni sayiliyor
+if (!bug.reporter) {
+  console.log('reporter eksik')   // null icin de, alan yoksa da AYNI davranir
+}`,
+          codeFixed: `if (!('reporter' in bug)) {
+  console.log('reporter alani HIC YOK — olasi contract regresyonu')
+} else if (bug.reporter === null) {
+  console.log('reporter bilincli olarak bos birakilmis')
+}`,
+        },
+        {
+          error: 'Request timeout',
+          fullMessage: 'Error: timeout of 5000ms exceeded / 504 Gateway Timeout',
+          cause: {
+            tr: 'Sunucu belirlenen sürede yanıt VERMİYOR — ya işlem gerçekten çok yavaş (E4\'teki gibi büyük bir `Waiting` süresi), ya da sunucu bir yerde SONSUZ DÖNGÜYE girmiş/kilitlenmiştir.',
+            en: 'The server does NOT respond within the given time — either the operation is genuinely very slow (a large `Waiting` duration like in E4), or the server is stuck in an INFINITE LOOP/deadlock somewhere.',
+          },
+          solution: {
+            tr: 'E4\'teki Timing sekmesiyle HANGİ fazın (Waiting mi, Content Download mu) uzun sürdüğü belirlenmelidir. Tester bunu timeout hatası aldığında ilk elden Timing verisiyle teşhis eder — sunucu/kod katmanı.',
+            en: 'E4\'s Timing tab must be used to identify WHICH phase (Waiting or Content Download) is taking long. The tester diagnoses this firsthand with Timing data when a timeout error occurs — server/code layer.',
+          },
+          codeWrong: `// BUG: sorgu N+1 sorunu yuzunden asiri yavas (bkz. E5)
+const bugs = await Bug.findAll()
+for (const bug of bugs) {
+  bug.details = await Detail.findOne({ bugId: bug.id })   // HER kayit icin ayri sorgu
+}`,
+          codeFixed: `// FIX: tek sorguda JOIN ile getir
+const bugs = await Bug.findAll({ include: [Detail] })`,
+        },
+        {
+          error: 'gzip/encoding sorunu',
+          fullMessage: 'Yanıt gövdesi bozuk karakterlerle geliyor / JSON.parse() SyntaxError verir',
+          cause: {
+            tr: 'Sunucu yanıtı `Content-Encoding: gzip` ile sıkıştırıp gönderiyor ama istemci (veya aradaki bir proxy) bunu doğru DECODE etmiyor — ham, sıkıştırılmış baytlar metin olarak okunmaya çalışılıyor.',
+            en: 'The server sends the response compressed with `Content-Encoding: gzip`, but the client (or an intermediate proxy) does not DECODE it correctly — raw, compressed bytes are being read as text.',
+          },
+          solution: {
+            tr: 'İstemcinin `Accept-Encoding` header\'ı ve otomatik decode desteği doğrulanmalıdır. Tester bunu Headers sekmesinde `Content-Encoding` alanını kontrol edip, gövdenin GERÇEKTEN doğru decode edildiğini doğrulayarak yakalar — istemci/network katmanı.',
+            en: 'The client\'s `Accept-Encoding` header and automatic decode support must be verified. The tester catches this by checking the `Content-Encoding` field in the Headers tab and verifying the body is REALLY decoded correctly — client/network layer.',
+          },
+          codeWrong: `// BUG: gzip yanit elle, decode ETMEDEN okunuyor
+const raw = await response.arrayBuffer()
+const text = new TextDecoder().decode(raw)   // sikistirilmis baytlar CIG olarak okunuyor`,
+          codeFixed: `// FIX: fetch/http kutuphanesi gzip'i OTOMATIK decode eder, elle mudahale etme
+const body = await response.json()   // dogru sekilde decode edilmis veri`,
+        },
+        {
+          error: "Postman'de çalışıp otomasyonda düşen test",
+          fullMessage: 'Postman: tüm istekler PASS. CI\'daki Newman/Playwright koşumu: aynı senaryo FAIL.',
+          cause: {
+            tr: 'Postman\'de istekler genelde ELLE, SIRAYLA çalıştırılır ve önceki bir koşumdan kalan veriye (sabit bir `id`, önceden oluşturulmuş bir kayıt) SESSİZCE güvenilir; CI\'da ise her koşum TEMİZ bir ortamda, bazen PARALEL çalışır — o "hazır" veri artık YOKTUR.',
+            en: 'In Postman, requests are usually run MANUALLY, IN ORDER, and SILENTLY rely on data left over from a previous run (a fixed `id`, a pre-created record); in CI, every run happens in a CLEAN environment, sometimes PARALLEL — that "ready" data no longer EXISTS.',
+          },
+          solution: {
+            tr: 'Her testin KENDİ bağımsız verisini oluşturması gerekir (G4\'teki test zincirleme mantığı) — sabit/varsayılan id\'lere GÜVENİLMEMELİDİR. Tester bunu testi TEMİZ bir ortamda (veya CI\'da) tekrar çalıştırarak yakalar — sunucu/kod katmanı değil, TEST TASARIMI katmanı.',
+            en: 'Every test must create its OWN independent data (the test-chaining logic from G4) — fixed/default ids must NOT be TRUSTED. The tester catches this by re-running the test in a CLEAN environment (or in CI) — not the server/code layer, the TEST DESIGN layer.',
+          },
+          codeWrong: `// BUG: sabit id'ye guveniliyor, oncesinde MANUEL olusturulmus varsayiliyor
+pm.test('bug detayi dogru', () => {
+  pm.sendRequest('{{baseUrl}}/api/v1/bugs/1', (err, res) => {   // id=1 HER ZAMAN var mi?
+    pm.expect(res.code).to.eql(200)
+  })
+})`,
+          codeFixed: `// FIX: test KENDI verisini olusturup ONA referansla calisir (G4'teki zincirleme)
+pm.test('bug olustur ve detayini dogrula', () => {
+  // 1. once POST ile YENI bir bug olustur, id'yi {{bugId}}'e kaydet
+  // 2. GET {{baseUrl}}/api/v1/bugs/{{bugId}} ile SADECE kendi olusturdugunu sorgula
+})`,
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Belirtiden Doğru Ekibe', en: 'From Symptom to the Right Team' },
+      steps: [
+        { id: 1, icon: '🚨', label: { tr: 'Belirtiyi topla…', en: 'Gather the symptom…' }, detail: { tr: 'Gerçek hata mesajını, status kodunu, hangi istekte olduğunu not al.', en: 'Note the real error message, status code, and which request it occurred on.' } },
+        { id: 2, icon: '🔍', label: { tr: 'Katmanı belirle…', en: 'Identify the layer…' }, detail: { tr: 'İstek sunucuya ulaştı mı (Network paneli)? Ulaştıysa yanıt sözleşmeye uyuyor mu (spec)?', en: 'Did the request reach the server (Network panel)? If so, does the response match the contract (spec)?' } },
+        { id: 3, icon: '📋', label: { tr: 'Bu sözlükle eşleştir…', en: 'Match against this dictionary…' }, detail: { tr: '12 kalıptan biriyle örtüşüyor mu, örtüşmüyorsa aynı DÜŞÜNME BİÇİMİNİ yeni hataya uygula.', en: 'Does it match one of the 12 patterns? If not, apply the same WAY OF THINKING to the new error.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-j-order-01',
+      question: { tr: 'Bir API hatasını teşhis etme sırasını diz.', en: 'Order the steps for diagnosing an API error.' },
+      items: [
+        { id: '1', text: { tr: 'Gerçek hata mesajını ve status kodunu kaydet', en: 'Record the real error message and status code' }, order: 1 },
+        { id: '2', text: { tr: 'İsteğin sunucuya ulaşıp ulaşmadığını Network panelinde kontrol et', en: 'Check in the Network panel whether the request reached the server' }, order: 2 },
+        { id: '3', text: { tr: 'Ulaştıysa yanıtın sözleşmeye (spec) uyup uymadığını kontrol et', en: 'If it reached, check whether the response matches the contract (spec)' } , order: 3 },
+        { id: '4', text: { tr: 'Bu sözlükteki 12 kalıptan biriyle eşleştir', en: 'Match it against one of the 12 patterns in this dictionary' }, order: 4 },
+        { id: '5', text: { tr: 'Doğru ekibe (istemci/sunucu/spec sahibi) escalate et', en: 'Escalate to the right team (client/server/spec owner)' }, order: 5 },
+      ],
+      xpReward: 12,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-j-error-layer-diagnosis',
+      id: 'api-j-error-layer-diagnosis',
+      title: { tr: 'Kendin Dene: Hatayı Doğru Katmana Yönlendir', en: 'Try It Yourself: Route the Error to the Right Layer' },
+      starterCode: `// Hata: "Access to fetch at '...' has been blocked by CORS policy"
+// TODO: bu hata hangi katmanda dogar - istemci/network mi, sunucu/kod mu, sozlesme/spec mi?
+Katman: ???`,
+      solutionCode: `// CORS, sunucunun OPTIONS istegine dogru header ile cevap vermemesinden dogar
+// ama tester bunu Network panelinde (istemci/network katmaninda) GOZLEMLER
+Katman: Istemci/Network (Network panelinde gozlemlenir, kok neden sunucu config eksikligi)`,
+      hint: { tr: 'Bazı hataların kök nedeni bir katmanda (sunucu config), ama testerın onu İLK GÖZLEMLEDİĞİ yer başka bir katman (Network paneli) olabilir. Bu sözlükteki her giriş ikisini de ayırt eder.', en: 'Some errors have their root cause in one layer (server config), but the layer a tester FIRST OBSERVES them in can be different (the Network panel). Every entry in this dictionary distinguishes between the two.' },
+      successMessage: { tr: 'Doğru! Katman teşhisi, doğru ekibe hızlı escalate etmenin anahtarıdır.', en: 'Correct! Layer diagnosis is the key to fast, correct escalation.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Postman\'de PASS olan bir test CI\'da neden FAIL olabilir?', en: 'Why might a test that PASSes in Postman FAIL in CI?' },
+      options: [
+        { id: 'a', text: { tr: 'Postman\'de sabit/önceden var olan veriye sessizce güvenilmiş olabilir; CI temiz bir ortamda çalışır ve o veri yoktur', en: 'Postman may have silently relied on fixed/pre-existing data; CI runs in a clean environment where that data does not exist' } },
+        { id: 'b', text: { tr: 'CI her zaman yanlış sonuç üretir', en: 'CI always produces wrong results' } },
+        { id: 'c', text: { tr: 'Postman testleri hiçbir zaman güvenilir değildir', en: 'Postman tests are never reliable' } },
+        { id: 'd', text: { tr: 'Bu asla olmaz', en: 'This never happens' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Postman\'de elle, sırayla çalıştırılan testler önceki koşumdan kalan veriye (sabit id gibi) sessizce güvenebilir. CI temiz/paralel bir ortamda çalıştığından bu veri yoktur — çözüm her testin G4\'teki gibi kendi verisini oluşturmasıdır.', en: 'Tests run manually, in order, in Postman can silently rely on data left from a previous run (like a fixed id). Since CI runs in a clean/parallel environment, that data does not exist — the fix is for every test to create its own data, as in G4.' },
+      retryQuestion: {
+        question: { tr: '`null` bir alan değeri ile alanın HİÇ olmaması arasındaki fark neden önemlidir?', en: 'Why does the difference between a `null` field value and the field being entirely absent matter?' },
+        options: [
+          { id: 'a', text: { tr: 'null bilinçli bir veri durumudur, alanın yokluğu ise bir contract regresyonu olabilir — zayıf bir kontrol ikisini karıştırabilir', en: 'null is an intentional data state, absence of the field can be a contract regression — a weak check can conflate the two' } },
+          { id: 'b', text: { tr: 'Hiçbir farkı yoktur', en: 'There is no difference' } },
+          { id: 'c', text: { tr: 'null her zaman bir hatadır', en: 'null is always an error' } },
+          { id: 'd', text: { tr: 'Alanın yokluğu her zaman güvenlidir', en: 'A field\'s absence is always safe' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`if (!bug.reporter)` gibi zayıf bir kontrol hem `null` hem "alan yok" durumunu aynı sayar; oysa biri bilinçli bir veri durumu, diğeri sessiz bir sözleşme kaybı olabilir — ayırt etmek için `hasOwnProperty`/`in` gerekir.', en: 'A weak check like `if (!bug.reporter)` treats both `null` and "field absent" the same; but one is an intentional data state, the other can be a silent contract loss — `hasOwnProperty`/`in` is needed to distinguish them.' },
+      },
+    },
+  ],
+}
+
 const groupK = [['K', '💼', 'Mülakat Soruları', 'Interview Questions']]
 
 // ─── sections: düz liste (sidebar bunu birebir sekme olarak render eder) ─────
@@ -8422,7 +8784,8 @@ const sections = [
   G1, G2, G3, G4, G5, G6,
   H1, H2, H3, H4, H5, H6,
   I1, I2, I3, I4, I5,
-  ...groupJ.map(mk), ...groupK.map(mk),
+  J,
+  ...groupK.map(mk),
 ]
 
 // ─── Hero + tabs ─────────────────────────────────────────────────────────────
@@ -8538,6 +8901,15 @@ const apiFeynmanDefs = [
     minScore: 3,
     modelAnswerTr: '"Hangisi daha iyi" yanlış sorudur; doğru soru "takım hangi dilde/ekosistemde yaşıyor" ve "API+UI\'ı aynı dosyada birleştirmeye ihtiyacım var mı"dır. Takım zaten Java/Selenium/REST Assured ile çalışıyorsa REST Assured sürtünmesizdir. Takım TypeScript/Playwright ile UI testi yazıyorsa ve I3\'teki gibi hibrit teste ihtiyaç varsa Playwright daha tutarlıdır.',
     modelAnswerEn: '"Which is better" is the wrong question; the right question is "which language/ecosystem does the team live in" and "do I need to combine API+UI in the same file". If the team already works in Java/Selenium/REST Assured, REST Assured is frictionless. If the team writes UI tests in TypeScript/Playwright and needs hybrid testing like I3, Playwright is more consistent.',
+  },
+  {
+    sectionIndex: 55,
+    promptTr: 'Bu sayfadaki bir hata sözlüğünün "ezberlenecek liste" değil "başvuru kaynağı" olarak kullanılması gerektiğini — hiç görmediğin yeni bir hatayla karşılaşan bir tester örneğiyle — kendi cümlelerinle anlat.',
+    promptEn: 'Explain, in your own words, why an error dictionary like this should be used as a "reference resource" rather than a "list to memorize" — using the example of a tester facing a brand-new error they have never seen — to a newcomer.',
+    keywords: ['katman', 'teshis', 'belirti', 'kok neden', 'network', 'sozlesme', 'escalate'],
+    minScore: 3,
+    modelAnswerTr: 'Gerçek production hataları burada BİREBİR olmayabilir, ama sözlükteki her giriş aynı düşünme biçimini öğretir: önce belirtiyi (hata mesajı, status kodu) topla, sonra isteğin sunucuya ulaşıp ulaşmadığını Network panelinde kontrol ederek katmanı (istemci/network, sunucu/kod, sözleşme/spec) belirle, sonra o katmanın sahibine escalate et. Hiç görmediğim yeni bir hatada da bu ÜÇ ADIMI (belirti → katman → escalate) uygularım, listeyi ezbere bilmeme gerek kalmaz.',
+    modelAnswerEn: 'A real production error may not be EXACTLY here, but every entry in the dictionary teaches the same way of thinking: first gather the symptom (error message, status code), then determine the layer (client/network, server/code, contract/spec) by checking in the Network panel whether the request reached the server, then escalate to that layer\'s owner. For a brand-new error I have never seen, I apply the same THREE STEPS (symptom → layer → escalate), without needing to memorize the list.',
   },
 ]
 
