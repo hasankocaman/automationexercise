@@ -4928,6 +4928,434 @@ Sekme: Response (veya Preview)`,
   ],
 }
 
+const E4 = {
+  title: { tr: '⏱️ E4 · Timing Sekmesi: TTFB, Waiting, Download', en: '⏱️ E4 · Timing Tab: TTFB, Waiting, Download' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '⏱️',
+      content: {
+        tr: 'Timing sekmesi, bir **kargo takip sayfası** gibidir: bir istek "yola çıktığında" tek bir "2.9 saniye sürdü" sayısı sana hiçbir şey ANLATMAZ, ama kargo takibi gibi süreyi aşamalara bölersen ("depoda bekledi", "yolda gitti", "kapıya teslim edildi") gecikmenin TAM OLARAK nerede olduğunu görürsün. `TTFB` (Time To First Byte) = sunucunun ilk baytı göndermesi ne kadar sürdü, `Waiting` = sunucunun isteği İŞLEMESİ ne kadar sürdü (genelde en büyük dilim), `Content Download` = yanıt verisinin İNMESİ ne kadar sürdü. Peki neden bu ayrım bu kadar önemli — "3 saniye yavaş" demek yetmez mi? Çünkü çözüm TAMAMEN farklıdır: `Waiting` büyükse suçlu SUNUCUdur (yavaş bir SQL sorgusu, N+1 problemi — geliştiriciye escalate edilir), `Content Download` büyükse suçlu VERİ BOYUTU/AĞdır (gereksiz büyük bir JSON, sıkıştırma eksikliği). Java\'da bunun karşılığı bir metodun içine konan `System.currentTimeMillis()` ile yapılan elle profiling\'dir — ama orada SEN segmentleri elle ölçersin, tarayıcı Timing sekmesinde bunu SENİN için otomatik yapar. QA açısından "yavaş" bir performans bug raporu Timing verisi olmadan neredeyse değersizdir — geliştirici "hangi katman yavaş?" diye sorduğunda "bilmiyorum, genel olarak yavaştı" cevabı, raporu geri gönderilmeye mahkûm eder.',
+        en: 'The Timing tab is like a **package tracking page**: a single number saying a request "took 2.9 seconds" TELLS YOU NOTHING, but like package tracking, if you split the time into phases ("waited in the warehouse", "was in transit", "delivered to the door") you see EXACTLY where the delay is. `TTFB` (Time To First Byte) = how long the server took to send its first byte, `Waiting` = how long the server took to PROCESS the request (usually the biggest slice), `Content Download` = how long the response data took to DOWNLOAD. So why does this split matter so much — isn\'t "3 seconds slow" enough to say? Because the fix is COMPLETELY different: if `Waiting` is large the culprit is the SERVER (a slow SQL query, an N+1 problem — escalate to the developer); if `Content Download` is large the culprit is DATA SIZE/NETWORK (an unnecessarily huge JSON, missing compression). The Java equivalent is manual profiling with `System.currentTimeMillis()` inside a method — but there YOU measure the segments by hand, in the browser the Timing tab does it automatically FOR you. For QA, a "slow" performance bug report is nearly worthless without Timing data — when a developer asks "which layer is slow?", answering "I don\'t know, it was generally slow" gets the report bounced back.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Bir İsteğin Üç Aşaması', en: 'A Request\'s Three Phases' } },
+    {
+      type: 'text',
+      content: {
+        tr: 'Timing sekmesindeki yatay çubuk, bir isteğin süresini renkli dilimlere ayırır. `TTFB` genelde küçüktür (sunucunun "aldım" demesi hızlıdır); `Waiting` isteğin GERÇEKTEN işlendiği süredir — burada bir veritabanı sorgusu, bir dış servis çağrısı veya kötü bir algoritma zaman harcayabilir; `Content Download` ise büyük bir yanıt gövdesinin (örn. binlerce bug kaydı) inmesi için geçen süredir.',
+        en: 'The horizontal bar in the Timing tab splits a request\'s duration into colored slices. `TTFB` is usually small (the server saying "got it" is fast); `Waiting` is the time the request is REALLY being processed — a database query, an external service call, or a bad algorithm can eat time here; `Content Download` is how long a large response body (e.g. thousands of bug records) takes to download.',
+      },
+    },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'Timing Çubuğu — TTFB / Waiting / Content Download', en: 'Timing Bar — TTFB / Waiting / Content Download' },
+      svg: timingBarSvg,
+    },
+    {
+      type: 'video-scene',
+      id: 'api-e4-timing-film',
+      title: { tr: '🎬 3 Saniyelik Gecikme: Ağ mı, Sunucu mu?', en: '🎬 A 3-Second Delay: Network or Server?' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'req', emoji: '📤', label: { tr: 'GET /bugs/42 — 2.9s', en: 'GET /bugs/42 — 2.9s' }, color: '#f59e0b' },
+        { id: 'ttfb', emoji: '🚀', label: { tr: 'TTFB: 0.1s', en: 'TTFB: 0.1s' }, color: '#a78bfa' },
+        { id: 'waiting', emoji: '🐢', label: { tr: 'Waiting: 2.7s', en: 'Waiting: 2.7s' }, color: '#f59e0b' },
+        { id: 'download', emoji: '📥', label: { tr: 'Download: 0.1s', en: 'Download: 0.1s' }, color: '#22c55e' },
+        { id: 'verdict', emoji: '⚖️', label: { tr: 'Suçlu: SUNUCU', en: 'Culprit: SERVER' }, color: '#ef4444' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Bir istek toplamda 2.9 saniye sürüyor — tester tek başına bu sayı ile hiçbir şey diyemez.', en: 'A request takes 2.9 seconds total — alone, this number tells the tester nothing.' },
+          positions: { req: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Timing sekmesi süreyi üçe böler. `TTFB` sadece 0.1s — sunucuya ulaşmak ve ilk yanıtı almak hızlı.', en: 'The Timing tab splits the duration into three. `TTFB` is only 0.1s — reaching the server and getting the first byte is fast.' },
+          positions: { req: { x: 18, y: 35 }, ttfb: { x: 55, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'req', to: 'ttfb', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: '`Waiting` 2.7s — toplam sürenin neredeyse tamamı burada. Sunucu isteği işlerken (bir sorgu, bir hesaplama) zaman harcıyor.', en: '`Waiting` is 2.7s — almost the entire total duration is here. The server spends time processing the request (a query, a calculation).' },
+          positions: { ttfb: { x: 18, y: 35 }, waiting: { x: 55, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'ttfb', to: 'waiting', color: '#f59e0b' }],
+        },
+        {
+          caption: { tr: '`Content Download` sadece 0.1s — yanıt verisi küçük, indirme hızlı. Ağ/veri boyutu SUÇLU DEĞİL.', en: '`Content Download` is only 0.1s — the response data is small, download is fast. Network/data size is NOT the culprit.' },
+          positions: { waiting: { x: 18, y: 35 }, download: { x: 55, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'waiting', to: 'download', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'Ders — 2.7s / 2.9s Waiting\'e ait: gecikme AĞDA değil SUNUCUDA. Bug raporu "genel olarak yavaş" değil, "Waiting fazında 2.7s, muhtemel N+1/yavaş sorgu" diye açılmalı.', en: 'The lesson — 2.7s of 2.9s belongs to Waiting: the delay is in the SERVER, not the NETWORK. The bug report should not say "generally slow" but "2.7s in the Waiting phase, likely N+1/slow query".' },
+          positions: { download: { x: 25, y: 45 }, verdict: { x: 60, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'download', to: 'verdict', color: '#ef4444' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Yavaşlığın Suçlusunu Teşhis Etme Sırası', en: 'The Order for Diagnosing the Cause of Slowness' },
+      steps: [
+        { id: 1, icon: '🚀', label: { tr: 'TTFB\'ye bak…', en: 'Check TTFB…' }, detail: { tr: 'Büyükse sunucuya ulaşmak/ilk yanıt bile gecikiyordur (ağ/DNS/sunucu yükü).', en: 'If large, even reaching the server/first response is delayed (network/DNS/server load).' } },
+        { id: 2, icon: '🐢', label: { tr: 'Waiting\'e bak…', en: 'Check Waiting…' }, detail: { tr: 'Büyükse sunucu isteği İŞLERKEN yavaş — bir sorgu/hesaplama şüphelidir, geliştiriciye escalate edilir.', en: 'If large, the server is slow while PROCESSING — a query/calculation is suspect, escalate to the developer.' } },
+        { id: 3, icon: '📥', label: { tr: 'Content Download\'a bak…', en: 'Check Content Download…' }, detail: { tr: 'Büyükse yanıt verisi/ağ suçlu — gereksiz büyük JSON, sıkıştırma eksikliği şüphelidir.', en: 'If large, response data/network is the culprit — an unnecessarily large JSON, missing compression is suspect.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-e4-order-01',
+      question: { tr: 'Bir isteğin toplam süresini oluşturan aşamaları kronolojik sırala.', en: 'Order the phases that make up a request\'s total duration chronologically.' },
+      items: [
+        { id: '1', text: { tr: 'İstek gönderilir', en: 'The request is sent' }, order: 1 },
+        { id: '2', text: { tr: 'TTFB — sunucudan ilk bayt gelir', en: 'TTFB — the first byte arrives from the server' }, order: 2 },
+        { id: '3', text: { tr: 'Waiting — sunucu isteği işler', en: 'Waiting — the server processes the request' }, order: 3 },
+        { id: '4', text: { tr: 'Content Download — yanıt gövdesi iner', en: 'Content Download — the response body downloads' }, order: 4 },
+        { id: '5', text: { tr: 'İstek tamamlanır, toplam süre kaydedilir', en: 'The request completes, total time is recorded' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-e4-timing',
+      id: 'api-e4-timing',
+      title: { tr: 'Kendin Dene: Yavaşlığın Suçlusunu Bul', en: 'Try It Yourself: Find the Cause of the Slowness' },
+      starterCode: `// Timing: TTFB 0.1s, Waiting 2.7s, Content Download 0.1s (toplam 2.9s)
+// TODO: bu degerlere gore yavasligin suclusu kim: SUNUCU mu AG mi?
+Suclu: ???`,
+      solutionCode: `// Toplam surenin buyuk kismi Waiting'te -> sunucu istegi islerken yavas
+Suclu: SUNUCU (yavas sorgu/islem suphesi, gelistiriciye escalate)`,
+      hint: { tr: '`Waiting`, sunucunun isteği işlediği süredir. Toplam sürenin büyük kısmı `Waiting`\'e aitse, gecikme ağda/veri boyutunda değil sunucunun İŞLEM mantığındadır.', en: '`Waiting` is the time the server spends processing the request. If most of the total time belongs to `Waiting`, the delay is in the server\'s PROCESSING logic, not the network/data size.' },
+      successMessage: { tr: 'Doğru! Waiting ağırlıklı bir gecikme, bug raporunu doğrudan geliştiriciye ve muhtemel bir sorguya yönlendirir.', en: 'Correct! A Waiting-heavy delay routes the bug report straight to the developer and a likely query issue.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Bir isteğin `Content Download` süresi büyükse, en olası suçlu nedir?', en: 'If a request\'s `Content Download` time is large, what is the most likely culprit?' },
+      options: [
+        { id: 'a', text: { tr: 'Yanıt verisinin boyutu (gereksiz büyük JSON, sıkıştırma eksikliği) veya ağ hızı', en: 'The response data\'s size (unnecessarily large JSON, missing compression) or network speed' } },
+        { id: 'b', text: { tr: 'Sunucudaki yavaş bir SQL sorgusu', en: 'A slow SQL query on the server' } },
+        { id: 'c', text: { tr: 'İstemcinin CPU\'su', en: 'The client\'s CPU' } },
+        { id: 'd', text: { tr: 'Tarayıcının önbelleği', en: 'The browser\'s cache' } },
+      ],
+      correct: 'a',
+      explanation: { tr: '`Content Download`, yanıt gövdesinin İNDİRİLME süresidir — büyük bir yanıt gövdesi veya yavaş bir bağlantı bu süreyi uzatır. Bu, sunucunun isteği İŞLEME süresi olan `Waiting`\'den TAMAMEN farklı bir sorun kaynağıdır.', en: '`Content Download` is the time the response body takes to DOWNLOAD — a large response body or a slow connection extends this. This is a COMPLETELY different problem source from `Waiting`, which is the server\'s PROCESSING time.' },
+      retryQuestion: {
+        question: { tr: '`TTFB` (Time To First Byte) neyi ölçer?', en: 'What does `TTFB` (Time To First Byte) measure?' },
+        options: [
+          { id: 'a', text: { tr: 'İstek gönderildikten sonra sunucudan ilk baytın gelmesine kadar geçen süreyi', en: 'The time from sending the request until the first byte arrives from the server' } },
+          { id: 'b', text: { tr: 'Yanıt gövdesinin tamamının indirilme süresini', en: 'The time to download the entire response body' } },
+          { id: 'c', text: { tr: 'Kullanıcının sayfayı okuma süresini', en: 'How long the user takes to read the page' } },
+          { id: 'd', text: { tr: 'Tarayıcının açılma süresini', en: 'How long the browser takes to open' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'TTFB, isteğin gönderilmesinden sunucudan gelen ilk baytın alınmasına kadar geçen süredir — sunucuya ulaşmanın ve ilk tepkinin ne kadar hızlı olduğunu gösterir, yanıtın TAMAMININ inmesini değil.', en: 'TTFB is the time from sending the request to receiving the first byte from the server — it shows how fast reaching the server and the first response is, not how long the ENTIRE response takes to download.' },
+      },
+    },
+  ],
+}
+
+const E5 = {
+  title: { tr: '🐞 E5 · Network\'ten Defect Yakalama', en: '🐞 E5 · Catching Defects from Network' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🐞',
+      content: {
+        tr: 'E1-E4\'te öğrendiğin her şey (sütunlar, filtre, sekmeler, Timing) tek bir amaç için var: **Network paneli, UI\'nın SÖYLEDİĞİ ile sunucunun GERÇEKTEN YAPTIĞI arasındaki farkı ortaya çıkaran bir yalan makinesidir.** UI her zaman geliştiricinin YAZDIĞI metni gösterir ("Başarılı!"), Network paneli ise sunucunun GERÇEKTEN döndürdüğünü gösterir (500, boş body, sızan bir alan) — ikisi arasındaki uyumsuzluk tam olarak bir defect\'in doğduğu yerdir. Peki neden bu kadar sık UI ile gerçeklik arasında fark olur — geliştirici bilerek mi yalan söylüyor? Hayır — çoğu zaman geliştirici sadece "mutlu yol"u (happy path) test eder, hata durumunu (`catch` bloğunu) ya hiç yazmaz ya da orada da yanlışlıkla "başarılı" mesajı gösterir; bu bir kasıt değil, bir GÖZDEN KAÇMADIR. Java\'da bunun karşılığı, bir `try` bloğunun `catch (Exception e) { }` ile SESSİZCE yutulmasıdır — hata gerçekten olur ama hiçbir yere loglanmaz/bildirilmez, tıpkı UI\'nın 500\'ü "başarılı" göstermesi gibi. QA açısından bu sekme, sayfanın tüm GRUP E\'sinin doruk noktasıdır: artık sadece paneli OKUMUYORSUN, panelde SAKLI olan gerçek bug\'ları AVLIYORSUN.',
+        en: 'Everything you learned in E1-E4 (columns, filter, tabs, Timing) exists for one purpose: **the Network panel is a lie detector that reveals the gap between what the UI SAYS and what the server REALLY DID.** The UI always shows text the developer WROTE ("Success!"), the Network panel shows what the server REALLY returned (500, an empty body, a leaked field) — the mismatch between the two is exactly where a defect is born. So why is there so often a gap between UI and reality — is the developer lying on purpose? No — most of the time the developer only tests the happy path, and either never writes the error case (the `catch` block) or mistakenly shows a "success" message there too; this is not intent, it is an OVERSIGHT. The Java equivalent is a `try` block SILENTLY swallowed by `catch (Exception e) { }` — the error really happens but is never logged/reported anywhere, just like the UI showing a 500 as "success". For QA, this tab is the peak of the entire GROUP E — you are no longer just READING the panel, you are HUNTING for real bugs HIDDEN inside it.',
+      },
+    },
+    { type: 'heading', text: { tr: '5 Gerçek Defect Senaryosu ve Hangi Katmanda Yakalanır', en: '5 Real Defect Scenarios and Which Layer Catches Them' } },
+    {
+      type: 'text',
+      content: {
+        tr: 'Aşağıdaki 5 senaryo, Network panelinden yakalanan gerçek defect kategorileridir. Her biri farklı bir "UI ile gerçeklik arasındaki fark" türünü temsil eder.',
+        en: 'The 5 scenarios below are real defect categories caught from the Network panel. Each represents a different kind of "gap between UI and reality".',
+      },
+    },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'UI "Başarılı" Diyor, Network "500" Diyor', en: 'The UI Says "Success", the Network Says "500"' },
+      svg: silentBugSvg,
+    },
+    {
+      type: 'simple-box',
+      emoji: '1️⃣',
+      content: {
+        tr: '**1. Sessiz 500 (Silent 500)** — UI hiçbir hata göstermeden "İşlem tamamlandı" der, ama Network panelinde ilgili istek `500 Internal Server Error` döner. **Kök neden:** frontend kodu yanıtın status kodunu HİÇ kontrol etmeden `.then()` bloğunu çalıştırır. **Tester nerede yakalar:** Network panelinde Status sütununu UI mesajından BAĞIMSIZ olarak her zaman kontrol ederek.',
+        en: '**1. Silent 500** — the UI says "Operation complete" with no visible error, but in the Network panel the request returns `500 Internal Server Error`. **Root cause:** the frontend code runs its `.then()` block without EVER checking the response status code. **Where the tester catches it:** always checking the Status column in the Network panel, INDEPENDENTLY of the UI message.',
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '2️⃣',
+      content: {
+        tr: '**2. Çift POST (Double POST)** — Kullanıcı "Kaydet" butonuna sabırsızca iki kez tıklar; buton devre dışı bırakılmadığı için Network panelinde AYNI `POST /api/v1/bugs` isteği İKİ KEZ görünür, iki ayrı bug kaydı oluşur. **Kök neden:** buton, istek devam ederken `disabled` yapılmamış. **Tester nerede yakalar:** hızlı çift tıklama sonrası Network panelinde aynı isteğin tekrarını sayarak.',
+        en: '**2. Double POST** — the user impatiently clicks "Save" twice; since the button is not disabled, the SAME `POST /api/v1/bugs` request appears TWICE in the Network panel, creating two separate bug records. **Root cause:** the button is not made `disabled` while the request is in flight. **Where the tester catches it:** counting the repeat of the same request in the Network panel after a rapid double-click.',
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '3️⃣',
+      content: {
+        tr: '**3. N+1 İstek** — Bug listesi sayfası ÖNCE `GET /api/v1/bugs` ile 10 kayıt çeker, sonra HER kayıt için ayrı ayrı `GET /api/v1/bugs/{id}/details` çağırır — 1 yerine 11 istek. **Kök neden:** liste endpoint\'i zaten ihtiyaç duyulan detayı döndürmüyor, frontend her satır için ayrı istek atmak ZORUNDA kalıyor. **Tester nerede yakalar:** Network panelinde AYNI URL kalıbının kayıt sayısı kadar tekrarlandığını görerek.',
+        en: '**3. N+1 requests** — the bug list page FIRST fetches 10 records with `GET /api/v1/bugs`, then calls `GET /api/v1/bugs/{id}/details` separately for EACH record — 11 requests instead of 1. **Root cause:** the list endpoint does not already return the needed detail, forcing the frontend to fire a separate request per row. **Where the tester catches it:** seeing the SAME URL pattern repeated as many times as there are records in the Network panel.',
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '4️⃣',
+      content: {
+        tr: '**4. Response\'ta Sızan `passwordHash`** — Bir kullanıcı listesi isteğinin `Response`/`Preview` sekmesinde, UI hiç göstermese bile, JSON gövdesinde `passwordHash` gibi ASLA dönmemesi gereken bir alan görülür. **Kök neden:** backend, veritabanı entity\'sini (tüm alanlarıyla) doğrudan JSON\'a çeviriyor, bir DTO/response modeliyle alan filtrelemiyor. **Tester nerede yakalar:** Response/Preview sekmesinde JSON\'u UI\'da GÖRÜNMEYEN alanlar için de tarayarak — bu bir güvenlik açığıdır, sadece bir "kozmetik" fazlalık değil.',
+        en: '**4. Leaked `passwordHash` in the Response** — in a user list request\'s `Response`/`Preview` tab, even though the UI never displays it, the JSON body contains a field like `passwordHash` that should NEVER be returned. **Root cause:** the backend serializes the database entity (with all its fields) directly to JSON, without filtering fields through a DTO/response model. **Where the tester catches it:** scanning the JSON in the Response/Preview tab even for fields NOT VISIBLE in the UI — this is a security hole, not just a "cosmetic" extra.',
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '5️⃣',
+      content: {
+        tr: '**5. Cache-Control Eksikliği** — Bir kullanıcı hassas bir bug detayını görüntüler, çıkış yapar; tarayıcının GERİ tuşuna basınca aynı sayfa, YENİ bir istek atmadan, ÖNBELLEKTEN eski (ve artık yetkisiz olması gereken) veriyi gösterir. **Kök neden:** yanıt header\'larında `Cache-Control: no-store` YOK, tarayıcı hassas yanıtı serbestçe önbelleğe alıyor. **Tester nerede yakalar:** Headers sekmesinde `Cache-Control` alanının varlığını/değerini kontrol ederek, sonra geri tuşu senaryosunu deneyerek.',
+        en: '**5. Missing Cache-Control** — a user views a sensitive bug detail, logs out; pressing the browser\'s BACK button shows the same page with the old (now supposed-to-be-unauthorized) data FROM CACHE, without firing a new request. **Root cause:** the response headers have NO `Cache-Control: no-store`, so the browser freely caches the sensitive response. **Where the tester catches it:** checking the presence/value of the `Cache-Control` field in the Headers tab, then trying the back-button scenario.',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-e5-bug-hunt-film',
+      title: { tr: '🎬 Network Panelinde Bir Bug', en: '🎬 A Bug in the Network Panel' },
+      xpReward: 15,
+      sceneDurationMs: 3400,
+      stageHeight: 280,
+      actors: [
+        { id: 'user', emoji: '🧑‍💻', label: { tr: 'Kullanıcı: "Kaydet"e basar', en: 'User: clicks "Save"' }, color: '#f59e0b' },
+        { id: 'ui', emoji: '✅', label: { tr: 'UI: "Başarıyla oluşturuldu"', en: 'UI: "Created successfully"' }, color: '#22c55e' },
+        { id: 'network', emoji: '📡', label: { tr: 'Network: 500 Internal Error', en: 'Network: 500 Internal Error' }, color: '#ef4444' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Tester Network\'ü açar', en: 'Tester opens Network' }, color: '#8b5cf6' },
+        { id: 'proof', emoji: '📸', label: { tr: 'Kanıt: satır + Response gövdesi', en: 'Evidence: row + Response body' }, color: '#a78bfa' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Kullanıcı yeni bir bug kaydetmek için "Kaydet" butonuna basar.', en: 'The user clicks "Save" to create a new bug.' },
+          positions: { user: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'UI anında yeşil bir mesaj gösterir: "Bug başarıyla oluşturuldu" — kullanıcı memnun ayrılır.', en: 'The UI instantly shows a green message: "Bug created successfully" — the user leaves satisfied.' },
+          positions: { user: { x: 18, y: 35 }, ui: { x: 55, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'user', to: 'ui', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'Ama tester aynı anda Network panelini açık tutuyordu — orada isteğin GERÇEK sonucu görünür: `500 Internal Server Error`.', en: 'But the tester had the Network panel open at the same time — there the request\'s REAL outcome shows: `500 Internal Server Error`.' },
+          positions: { ui: { x: 18, y: 35, opacity: 0.5 }, network: { x: 55, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'user', to: 'network', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Tester Network satırına tıklar, `Response` sekmesini açar — sunucudaki gerçek hata mesajını okur.', en: 'The tester clicks the Network row, opens the `Response` tab — reads the real error message from the server.' },
+          positions: { network: { x: 20, y: 65 }, tester: { x: 55, y: 65, scale: 1.15, pulse: true } },
+          beams: [{ from: 'network', to: 'tester', color: '#8b5cf6' }],
+        },
+        {
+          caption: { tr: 'Tester ekran görüntüsünü DEĞİL, Network satırını ve Response gövdesini kanıt olarak bug raporuna ekler.', en: 'The tester attaches NOT a screenshot, but the Network row and Response body to the bug report as evidence.' },
+          positions: { tester: { x: 30, y: 45 }, proof: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'tester', to: 'proof', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Ders — "UI\'da her şey normal görünüyordu" bir savunma değildir. Bir tester için Network paneli her zaman AÇIK kalmalı, UI\'nın söylediği her zaman doğrulanmalıdır.', en: 'The lesson — "everything looked normal in the UI" is not a defense. For a tester, the Network panel should always stay OPEN, and what the UI says must always be verified.' },
+          positions: { proof: { x: 40, y: 48, scale: 1.15, pulse: true } },
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Bir Defect\'i Network\'ten Rapor Etme Sırası', en: 'The Order for Reporting a Defect from Network' },
+      steps: [
+        { id: 1, icon: '📡', label: { tr: 'Network\'ü açık tut…', en: 'Keep Network open…' }, detail: { tr: 'Her test eyleminde Network paneli AÇIK olmalı — sadece UI\'ya bakmak yeterli değildir.', en: 'The Network panel should be OPEN during every test action — looking at the UI alone is not enough.' } },
+        { id: 2, icon: '🔍', label: { tr: 'Uyumsuzluğu yakala…', en: 'Catch the mismatch…' }, detail: { tr: 'UI mesajı ile Status/Response arasında bir çelişki var mı diye her zaman karşılaştır.', en: 'Always compare whether there is a contradiction between the UI message and Status/Response.' } },
+        { id: 3, icon: '📸', label: { tr: 'Kanıtla raporla…', en: 'Report with evidence…' }, detail: { tr: 'Ekran görüntüsü yerine Network satırını + Response gövdesini kanıt olarak ekle.', en: 'Attach the Network row + Response body as evidence instead of a screenshot.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-e5-order-01',
+      question: { tr: 'Network\'ten bir defect avlama sürecini sırala.', en: 'Order the process for hunting a defect from Network.' },
+      items: [
+        { id: '1', text: { tr: 'Test eylemini yap, Network panelini açık tut', en: 'Perform the test action, keep the Network panel open' }, order: 1 },
+        { id: '2', text: { tr: 'UI mesajı ile Status kodunu karşılaştır', en: 'Compare the UI message with the Status code' }, order: 2 },
+        { id: '3', text: { tr: 'Uyumsuzluk varsa Response/Headers sekmesini incele', en: 'If there is a mismatch, inspect the Response/Headers tab' }, order: 3 },
+        { id: '4', text: { tr: 'Kök nedeni (sessiz 500, sızan alan, vb.) belirle', en: 'Identify the root cause (silent 500, leaked field, etc.)' }, order: 4 },
+        { id: '5', text: { tr: 'Network satırı + Response gövdesiyle bug raporu aç', en: 'File the bug report with the Network row + Response body' }, order: 5 },
+      ],
+      xpReward: 13,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-e5-network-defects',
+      id: 'api-e5-network-defects',
+      title: { tr: 'Kendin Dene: Defect\'i Doğru Katmana Yönlendir', en: 'Try It Yourself: Route the Defect to the Right Layer' },
+      starterCode: `// Senaryo: Kullanici listesi yanitinda "passwordHash" alani goruluyor (UI bunu HIC gostermiyor)
+// TODO: bu bir guvenlik acigi mi, sadece kozmetik bir sorun mu? Hangi ekibe escalate edilir?
+Karar: ???`,
+      solutionCode: `// Hassas bir alanin API yanitinda sizmasi GUVENLIK acigidir (kozmetik degil)
+// Backend ekibine (DTO/response model ile alan filtrelemesi icin) escalate edilir
+Karar: GUVENLIK ACIGI -> backend ekibine escalate`,
+      hint: { tr: 'Bir alanın UI\'da GÖRÜNMEMESİ onun güvenli olduğu anlamına gelmez — API yanıtı tarayıcı DevTools\'u ile herkes tarafından okunabilir. `passwordHash` gibi bir alanın sızması her zaman bir güvenlik açığıdır.', en: 'A field not being VISIBLE in the UI does not mean it is safe — the API response can be read by anyone via browser DevTools. A leaked field like `passwordHash` is always a security hole.' },
+      successMessage: { tr: 'Doğru! "UI\'da görünmüyor" güvenlik savunması değildir — API yanıtı her zaman erişilebilirdir.', en: 'Correct! "It is not visible in the UI" is not a security defense — the API response is always reachable.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Kullanıcı bir butona hızlıca iki kez tıklıyor ve Network panelinde AYNI POST isteği iki kez görünüyor. Bu neyin işaretidir?', en: 'A user rapidly double-clicks a button and the SAME POST request appears twice in the Network panel. What is this a sign of?' },
+      options: [
+        { id: 'a', text: { tr: 'Buton, istek devam ederken devre dışı bırakılmamış — çift kayıt riski (Çift POST defect\'i)', en: 'The button was not disabled while the request was in flight — a double-record risk (the Double POST defect)' } },
+        { id: 'b', text: { tr: 'Tarayıcı bir hata yaptı, önemli değil', en: 'The browser made a mistake, not important' } },
+        { id: 'c', text: { tr: 'Bu normal ve beklenen bir davranıştır', en: 'This is normal and expected behavior' } },
+        { id: 'd', text: { tr: 'Sunucu isteği otomatik olarak iki kez işler', en: 'The server automatically processes the request twice' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Network panelinde aynı isteğin tekrarı, genelde butonun istek devam ederken `disabled` yapılmadığının kanıtıdır. Bu, kullanıcı deneyimi sorunundan öte, veritabanında GERÇEK bir çift-kayıt defect\'idir.', en: 'A repeated request in the Network panel is usually evidence that the button was not made `disabled` while the request was in flight. Beyond a UX issue, this is a REAL double-record defect in the database.' },
+      retryQuestion: {
+        question: { tr: '"Sessiz 500" defect\'inin tanımı nedir?', en: 'What defines a "Silent 500" defect?' },
+        options: [
+          { id: 'a', text: { tr: 'UI hiçbir hata göstermeden başarı mesajı verirken, Network panelinde istek gerçekte 500 dönmesi', en: 'The UI shows a success message with no visible error, while the Network panel shows the request actually returned 500' } },
+          { id: 'b', text: { tr: 'Sunucunun hiç yanıt vermemesi', en: 'The server not responding at all' } },
+          { id: 'c', text: { tr: 'İsteğin 5 dakika sürmesi', en: 'The request taking 5 minutes' } },
+          { id: 'd', text: { tr: 'Tarayıcının sessize alınması', en: 'The browser being muted' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Sessiz 500, frontend kodunun yanıtın status kodunu kontrol etmeden başarı akışını çalıştırmasından doğar — kullanıcı ve hatta manuel test eden biri UI\'ya bakarak hiçbir sorun görmez, sadece Network panelini kontrol eden biri gerçeği yakalar.', en: 'A silent 500 is born when the frontend code runs its success flow without checking the response status code — a user, or even someone manually testing by watching the UI, sees no problem at all; only someone checking the Network panel catches the truth.' },
+      },
+    },
+  ],
+}
+
+const E6 = {
+  title: { tr: '🔗 E6 · Copy as cURL → Postman Import', en: '🔗 E6 · Copy as cURL → Postman Import' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔗',
+      content: {
+        tr: '"Copy as cURL", bir Network satırını **fotokopi çeken bir tarif kartı makinesi** gibidir: gözlemlediğin bir isteği (method, URL, header\'lar, body dahil) tek tıkla, TEKRARLANABİLİR bir metin komutuna dönüştürür — artık o isteği elle yeniden yazmana gerek kalmaz, aynı "tarifi" başka bir mutfakta (Postman, terminal, bir script) pişirebilirsin. Bu, GRUP E\'yi (gözlem) GRUP G\'ye (Postman ile aktif test) bağlayan KÖPRÜdür. Peki neden doğrudan Postman\'de sıfırdan yazmak yerine Network\'ten kopyalıyoruz? Çünkü UI zaten isteği DOĞRU header\'lar ve auth token\'la göndermiştir — bunu elle yeniden yazmaya kalkarsan bir header\'ı unutabilir, yanlış yazabilirsin; `Copy as cURL`, GERÇEKTEN gönderilen isteğin BİREBİR kopyasını verir, tahmin gerektirmez. Java\'da bunun karşılığı bir `HttpRequest` nesnesini serialize edip başka bir ortamda replay etmektir — burada tarayıcı bu serialize işlemini senin için otomatik yapar. QA açısından bu, "UI\'da gördüğüm bug\'ı nasıl tekrarlarım/paylaşırım" sorusunun cevabıdır: bir cURL komutu, bir geliştiriciye "şu isteği şu şekilde gönder, aynı hatayı sen de göreceksin" demenin en kesin yoludur — ekran görüntüsünden çok daha güçlü bir kanıttır.',
+        en: '"Copy as cURL" is like a **photocopier for a recipe card**: with one click it turns an observed request (method, URL, headers, body included) into a REPEATABLE text command — you no longer need to rewrite that request by hand, you can "cook" the same recipe in another kitchen (Postman, a terminal, a script). This is the BRIDGE connecting GROUP E (observation) to GROUP G (active testing with Postman). So why copy from Network instead of writing it fresh in Postman? Because the UI already sent the request with the CORRECT headers and auth token — rewriting it by hand risks forgetting or mistyping a header; `Copy as cURL` gives an EXACT copy of the request that was REALLY sent, no guessing required. The Java equivalent is serializing an `HttpRequest` object and replaying it in another environment — here the browser does that serialization automatically for you. For QA, this answers the question "how do I reproduce/share the bug I saw in the UI": a cURL command is the most precise way to tell a developer "send this exact request, you will see the same error" — far stronger evidence than a screenshot.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Gözlemden Aktif Teste Köprü', en: 'The Bridge from Observation to Active Testing' } },
+    {
+      type: 'text',
+      content: {
+        tr: 'Bir Network satırına sağ tıklayıp `Copy → Copy as cURL` seçince, isteğin tam bir metin komutu panoya kopyalanır. Postman\'de `Import → Raw text` ile bu metni yapıştırdığında, Postman method/URL/header/body\'yi otomatik ayrıştırıp bir istek olarak kurar — artık o isteği Postman\'in tüm gücüyle (environment, assertion, koleksiyon) test edebilirsin.',
+        en: 'Right-clicking a Network row and choosing `Copy → Copy as cURL` copies the request as a full text command to the clipboard. Pasting this text in Postman via `Import → Raw text`, Postman automatically parses the method/URL/headers/body and sets it up as a request — now you can test it with Postman\'s full power (environments, assertions, collections).',
+      },
+    },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'Network Satırı → cURL → Postman İmport', en: 'Network Row → cURL → Postman Import' },
+      svg: curlImportFlowSvg,
+    },
+    {
+      type: 'video-scene',
+      id: 'api-e6-curl-import-film',
+      title: { tr: '🎬 Gördüğün İsteği Postman\'e Taşımak', en: '🎬 Carrying the Request You Saw into Postman' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'row', emoji: '📡', label: { tr: 'Network satırı (gözlemlendi)', en: 'Network row (observed)' }, color: '#f59e0b' },
+        { id: 'curl', emoji: '📋', label: { tr: 'Copy as cURL', en: 'Copy as cURL' }, color: '#0ea5e9' },
+        { id: 'clipboard', emoji: '📎', label: { tr: 'Pano: tam metin komut', en: 'Clipboard: full text command' }, color: '#a78bfa' },
+        { id: 'postman', emoji: '📮', label: { tr: 'Postman → Import', en: 'Postman → Import' }, color: '#22c55e' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Artık aktif test edilebilir', en: 'Now actively testable' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Tester Network panelinde şüpheli bir istek satırı buldu — bunu başka bir araçta tekrar etmek istiyor.', en: 'The tester found a suspicious request row in the Network panel — they want to repeat it in another tool.' },
+          positions: { row: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Satıra sağ tıklayıp `Copy → Copy as cURL` seçer — method, URL, header, body TEK metin komutuna dönüşür.', en: 'They right-click the row and choose `Copy → Copy as cURL` — method, URL, headers, body turn into ONE text command.' },
+          positions: { row: { x: 20, y: 35 }, curl: { x: 58, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'row', to: 'curl', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Komut panoya kopyalanır — artık taşınabilir, paylaşılabilir bir metindir.', en: 'The command is copied to the clipboard — now it is a portable, shareable piece of text.' },
+          positions: { curl: { x: 20, y: 35 }, clipboard: { x: 58, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'curl', to: 'clipboard', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Postman\'de `Import → Raw text` ile yapıştırılır — Postman method/URL/header/body\'yi OTOMATİK ayrıştırır.', en: 'It is pasted in Postman via `Import → Raw text` — Postman AUTOMATICALLY parses method/URL/headers/body.' },
+          positions: { clipboard: { x: 20, y: 35 }, postman: { x: 58, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'clipboard', to: 'postman', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'Ders — Artık bu istek Postman\'in tüm gücüyle (environment, `pm.test` assertion, koleksiyon) test edilebilir; bu, GRUP E\'den GRUP G\'ye giden köprüdür.', en: 'The lesson — this request can now be tested with Postman\'s full power (environments, `pm.test` assertions, collections); this is the bridge from GROUP E to GROUP G.' },
+          positions: { postman: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'postman', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Gözlemden Postman\'e Taşıma Sırası', en: 'The Order for Moving from Observation to Postman' },
+      steps: [
+        { id: 1, icon: '📡', label: { tr: 'İsteği Network\'te bul…', en: 'Find the request in Network…' }, detail: { tr: 'Şüpheli/incelenmek istenen isteğin satırını bul, üzerine tıkla.', en: 'Find the row of the suspicious/interesting request, click on it.' } },
+        { id: 2, icon: '📋', label: { tr: 'cURL olarak kopyala…', en: 'Copy as cURL…' }, detail: { tr: 'Sağ tık → Copy → Copy as cURL ile tam istek metnini panoya al.', en: 'Right-click → Copy → Copy as cURL to grab the full request text to the clipboard.' } },
+        { id: 3, icon: '📮', label: { tr: 'Postman\'e import et…', en: 'Import into Postman…' }, detail: { tr: 'Import → Raw text ile yapıştır; Postman isteği otomatik ayrıştırıp kurar.', en: 'Paste via Import → Raw text; Postman automatically parses and sets up the request.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-e6-order-01',
+      question: { tr: 'Network\'te gözlemlenen bir isteği Postman\'e taşıma sırasını diz.', en: 'Order the steps to carry a request observed in Network into Postman.' },
+      items: [
+        { id: '1', text: { tr: 'Network panelinde ilgili satırı bul', en: 'Find the relevant row in the Network panel' }, order: 1 },
+        { id: '2', text: { tr: 'Sağ tık → Copy → Copy as cURL', en: 'Right-click → Copy → Copy as cURL' }, order: 2 },
+        { id: '3', text: { tr: 'Postman\'de Import → Raw text\'i aç', en: 'Open Import → Raw text in Postman' }, order: 3 },
+        { id: '4', text: { tr: 'Kopyalanan metni yapıştır', en: 'Paste the copied text' }, order: 4 },
+        { id: '5', text: { tr: 'Postman isteği otomatik kurar, artık test edilebilir', en: 'Postman sets up the request automatically, now testable' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-e6-curl-import',
+      id: 'api-e6-curl-import',
+      title: { tr: 'Kendin Dene: cURL\'ün Neden Elle Yazmaktan Daha Güvenilir Olduğunu Belirle', en: 'Try It Yourself: Determine Why cURL Is More Reliable Than Writing by Hand' },
+      starterCode: `// Senaryo: UI bir Authorization header'i ile istek gonderiyor
+// Sen bu istegi Postman'de SIFIRDAN elle yazacaksin
+// TODO: bu yaklasimin en buyuk riski nedir?
+Risk: ???`,
+      solutionCode: `// Elle yazarken bir header'i (ozellikle Authorization/Content-Type) unutabilir
+// veya yanlis yazabilirsin -> Copy as cURL bu riski ORTADAN KALDIRIR
+Risk: header/deger unutma veya yanlis yazma -> Copy as cURL bunu engeller`,
+      hint: { tr: 'UI, isteği doğru header\'lar ve token\'la GERÇEKTEN göndermiştir — bunu elle yeniden yazmaya kalkışmak insan hatasına (unutulan bir header, yanlış yazılan bir değer) açıktır. `Copy as cURL` bu riski tamamen ortadan kaldırır.', en: 'The UI has REALLY sent the request with the correct headers and token — trying to rewrite it by hand is open to human error (a forgotten header, a mistyped value). `Copy as cURL` removes this risk entirely.' },
+      successMessage: { tr: 'Doğru! Copy as cURL, tahmine değil gerçekten gönderilen isteğe dayanır.', en: 'Correct! Copy as cURL relies on the request that was really sent, not a guess.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`Copy as cURL` özelliği GRUP E ile GRUP G (Postman) arasında nasıl bir rol oynar?', en: 'What role does the `Copy as cURL` feature play between GROUP E and GROUP G (Postman)?' },
+      options: [
+        { id: 'a', text: { tr: 'Gözlemlenen bir isteği elle yeniden yazmadan, birebir kopyasıyla Postman\'e taşıyan bir köprüdür', en: 'It is a bridge that carries an observed request into Postman as an exact copy, without hand-rewriting it' } },
+        { id: 'b', text: { tr: 'Sadece bir dekorasyon özelliğidir, işlevi yoktur', en: 'It is purely decorative, with no function' } },
+        { id: 'c', text: { tr: 'Postman\'i tamamen devre dışı bırakır', en: 'It completely disables Postman' } },
+        { id: 'd', text: { tr: 'Sadece GET isteklerinde çalışır', en: 'It only works for GET requests' } },
+      ],
+      correct: 'a',
+      explanation: { tr: '`Copy as cURL`, tarayıcının GERÇEKTEN gönderdiği isteği (method/URL/header/body dahil) tam bir metin komutuna çevirir; bu metin Postman\'e import edilerek, elle yeniden yazmanın insan hatası riskini taşımadan aynı isteğin AKTİF test edilmesine imkân verir.', en: '`Copy as cURL` turns the request the browser REALLY sent (method/URL/headers/body included) into a complete text command; importing this text into Postman lets the same request be ACTIVELY tested without the human-error risk of rewriting it by hand.' },
+      retryQuestion: {
+        question: { tr: 'Bir isteği elle Postman\'de sıfırdan yeniden yazmanın en büyük riski nedir?', en: 'What is the biggest risk of rewriting a request from scratch by hand in Postman?' },
+        options: [
+          { id: 'a', text: { tr: 'Bir header\'ı veya değeri unutmak/yanlış yazmak, gerçek isteği tam yansıtmamak', en: 'Forgetting or mistyping a header or value, not fully reflecting the real request' } },
+          { id: 'b', text: { tr: 'Postman\'in çökmesi', en: 'Postman crashing' } },
+          { id: 'c', text: { tr: 'İnternetin kesilmesi', en: 'Losing internet' } },
+          { id: 'd', text: { tr: 'Hiçbir risk yoktur', en: 'There is no risk at all' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Elle yeniden yazmak insan hatasına açıktır — bir `Authorization` header\'ı, bir query parametresi veya body\'deki bir alan unutulabilir/yanlış yazılabilir; bu da Postman\'deki isteğin tarayıcıda GÖZLEMLENEN gerçek istekten farklı davranmasına yol açar.', en: 'Rewriting by hand is open to human error — an `Authorization` header, a query parameter, or a field in the body can be forgotten/mistyped; this makes the Postman request behave differently from the real request OBSERVED in the browser.' },
+      },
+    },
+  ],
+}
+
 const groupF = [
   ['F1', '📜', 'OpenAPI Spec Nedir? Sözleşme kavramı', 'What Is an OpenAPI Spec? The contract concept'],
   ['F2', '🏭', 'Swagger Üretimi: springdoc / @nestjs/swagger', 'Swagger Generation: springdoc / @nestjs/swagger'],
@@ -4972,7 +5400,7 @@ const sections = [
   B1, B2, B3, B4, B5, B6, B7, B8,
   C1, C2, C3, C4, C5, C6,
   D1, D2, D3, D4, D5,
-  ...groupE.map(mk),
+  E1, E2, E3, E4, E5, E6,
   ...groupF.map(mk), ...groupG.map(mk), ...groupH.map(mk), ...groupI.map(mk),
   ...groupJ.map(mk), ...groupK.map(mk),
 ]
@@ -5045,6 +5473,15 @@ const apiFeynmanDefs = [
     minScore: 3,
     modelAnswerTr: 'Nest, Spring gibi decorator tabanlı bir yapı kullanır ama Spring\'in aksine bileşenleri otomatik taramaz: bir controller @Module\'ün controllers dizisine EKLENMEZSE hiç çalışmaz, bir DTO\'nun class-validator decorator\'ları main.ts\'te app.useGlobalPipes(new ValidationPipe()) çağrılmazsa asla tetiklenmez, bir Exception Filter da app.useGlobalFilters(...) ile kaydedilmezse devreye girmez. Yani decorator YAZMAK ile onu GLOBAL olarak KAYDETMEK iki ayrı adımdır; tester her ikisinin de yapıldığını gerçek bir istekle doğrular, sadece dosyayı okumakla yetinmez.',
     modelAnswerEn: 'Nest uses a decorator-based structure like Spring, but unlike Spring it does not scan components automatically: a controller never works if it is not ADDED to @Module\'s controllers array, a DTO\'s class-validator decorators never trigger unless app.useGlobalPipes(new ValidationPipe()) is called in main.ts, and an Exception Filter never engages unless registered with app.useGlobalFilters(...). So WRITING a decorator and GLOBALLY REGISTERING it are two separate steps; a tester verifies both were done with a real request, never settling for just reading the file.',
+  },
+  {
+    sectionIndex: 31,
+    promptTr: 'UI\'da "her şey normal görünüyor" olması neden bir testere yeterli bir kanıt değildir — Network panelinin bunu nasıl çürüttüğünü sektöre yeni giren birine kendi cümlelerinle anlat.',
+    promptEn: 'Explain, in your own words, why the UI "looking fine" is not sufficient evidence for a tester — how the Network panel disproves it — to a newcomer.',
+    keywords: ['network', 'ui', 'status', 'sessiz', 'response', 'panel', 'gercek'],
+    minScore: 3,
+    modelAnswerTr: 'UI ekranında gösterilen mesaj geliştiricinin YAZDIĞI bir metindir, sunucunun GERÇEKTEN döndürdüğü cevap değildir; hata durumu (catch bloğu) yanlışlıkla veya hiç yazılmamışsa UI "başarılı" der ama sunucu aslında 500 dönmüş, boş bir veri göndermiş veya olmaması gereken bir alan (passwordHash gibi) sızdırmış olabilir. Network paneli bu ikisi arasındaki farkı ortaya çıkaran tek yerdir; bu yüzden tester her zaman UI mesajına değil Network panelindeki gerçek Status/Response\'a güvenir.',
+    modelAnswerEn: 'The message shown in the UI is text the developer WROTE, not the server\'s REAL answer; if the error case (the catch block) is mistakenly or never written, the UI says "success" while the server actually returned 500, sent empty data, or leaked a field that should not exist (like passwordHash). The Network panel is the only place that reveals the gap between the two; that is why a tester always trusts the real Status/Response in the Network panel, not the UI message.',
   },
 ]
 

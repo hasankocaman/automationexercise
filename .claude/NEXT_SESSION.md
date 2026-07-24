@@ -10,7 +10,7 @@
 
 ---
 
-## 🚧 `/api-testing` Faz 5 — GRUP E (DevTools Network) E1-E3 TAMAM, E4-E6+wiring+Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+## ✅ `/api-testing` Faz 5 — GRUP E (DevTools Network) TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.2 (Faz 5). Şablon: GRUP A
 (kodsuz). Kullanıcı talimatı (bu oturum boyunca geçerli): **test etmeden adım
@@ -31,22 +31,39 @@ adım commit et**, toplu doğrulama faz sonunda.
   + code-playground (seç/tamamla modu, GRUP A'daki `??? ` kalıbı) + quiz.
 - Eski `groupE` id-array + `mk()` placeholder tanımı SİLİNDİ.
 
-**⚠️ Dosya şu an ÇALIŞMAZ (bilerek):** `sections` hâlâ `...groupE.map(mk)`
-kullanıyor ama `groupE` artık YOK — `ReferenceError`. Doğrulandı:
-`node --input-type=module -e "import(...)"` → `groupE is not defined`.
+**✅ Tamamlandı:**
+1. E4 (Timing Sekmesi, `timingBarSvg`), E5 (Network'ten Defect Yakalama —
+   AMİRAL FİLM "Network Panelinde Bir Bug" + 5 defect senaryosu: sessiz 500,
+   çift POST, N+1 istek, sızan passwordHash, Cache-Control eksikliği —
+   `silentBugSvg`), E6 (Copy as cURL → Postman, `curlImportFlowSvg`) tam
+   içerikle yazıldı.
+2. `sections` dizisi `E1, E2, E3, E4, E5, E6,` ile güncellendi — doğrulandı
+   (57 section, `sections[26]`=E1, `sections[31]`=E6, `sections[32]`=F1).
+3. `apiFeynmanDefs`'e GRUP E sonu (`sectionIndex: 31` = E6) için
+   feynman-checkpoint eklendi, `type: 'feynman-checkpoint'` bloğu doğrulandı.
+4. TOPLU doğrulama TAMAMLANDI: `node scripts/check-content-integrity.mjs` →
+   **TÜM KONTROLLER GEÇTİ** (0 ihlal). `npm run build` → **yeşil**,
+   `apiTestingData-*.js` chunk'ı 437.99 kB'a çıktı (büyük chunk uyarısı
+   listesinde, build'i bozmuyor — CLAUDE.md §14), 42 static route shell,
+   dist SEO check PASS.
 
-**Sıradaki adımlar:**
-1. E4 (Timing Sekmesi — `timingBarSvg` kullan), E5 (Network'ten Defect
-   Yakalama — AMİRAL FİLM "Network Panelinde Bir Bug", ≥5 defect senaryosu:
-   sessiz 500, çift POST, N+1, sızan passwordHash, Cache-Control eksikliği —
-   `silentBugSvg` kullan), E6 (Copy as cURL → Postman — `curlImportFlowSvg`
-   kullan) yaz.
-2. `sections` dizisini `E1, E2, E3, E4, E5, E6,` ile güncelle (E grubu index
-   26-31 olacak: A=0-6, B=7-14, C=15-20, D=21-25, E=26-31).
-3. `apiFeynmanDefs`'e GRUP E sonu (E6, `sectionIndex: 31`) için bir
-   feynman-checkpoint ekle.
-4. Faz bitince TOPLU doğrulama: `node scripts/check-content-integrity.mjs`
-   (0 ihlal beklenir) + `npm run build` (yeşil).
+**Faz 5 (GRUP E) CLAUDE.md §1.1 + §9.5 açısından TAMAMLANDI:** her sekmede
+≥1 video-scene + ≥1 step-animation + ≥1 code-playground (kodsuz "seç/tamamla"
+modu) var; E5'te 5 defect senaryosu simple-box kartları olarak (her biri
+"hangi katmanda yakalanır" ile) yazıldı; tüm diyagramlar inline SVG (dış
+görsel yok, §8) ve sadece teknik terim/sayı içeriyor (TR/EN ortak `svg`
+string'i güvenli).
+
+**Kalan işler (plan §C/§D, Faz 6-10 — henüz BAŞLANMADI):**
+- Faz 6: GRUP F (Swagger/OpenAPI, §D.3)
+- Faz 7: GRUP G+H+I (Postman/REST Assured/Playwright, §D.4)
+- Faz 8: GRUP J (error-dictionary ≥12 hata, §D.5)
+- Faz 9: GRUP K (mülakat ≥50 soru, §D.6)
+- Faz 10 (Opus): Bölüm 9.5 denetimi + `tests/video-scene.spec.ts`'e temsili
+  render testi + NEXT_SESSION özet güncellemesi.
+
+`/api-testing` sayfası GRUP F-K hâlâ placeholder olduğundan HENÜZ production'a
+hazır değil.
 
 ---
 
