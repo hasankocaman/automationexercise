@@ -10,7 +10,7 @@
 
 ---
 
-## 🚧 `/api-testing` Faz 4 — GRUP C+D içerik + wiring + Feynman TAMAM, TOPLU DOĞRULAMA SIRADA (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+## ✅ `/api-testing` Faz 4 — GRUP C+D içerik + wiring + Feynman TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.1 (Faz 4). Şablon: GRUP A/B (Opus,
 önceki oturum). Kullanıcı talimatı bu oturumda: **test etmeden adım adım commit
@@ -42,16 +42,36 @@ section, `sections[20]` = C6, `sections[25]` = D5, `sections[26]` = E1).
    (`sectionIndex: 25` = D5) için birer feynman-checkpoint tanımı ekle.~~ ✅
    BİTTİ — `node --input-type=module -e "import(...)"` ile her iki section'da
    `type: 'feynman-checkpoint'` bloğu bulunduğu doğrulandı.
-4. **SIRADA (henüz çalıştırılmadı bu oturumda):** TOPLU doğrulama —
-   `node scripts/check-content-integrity.mjs` (0 ihlal beklenir, pre-commit
-   hook'ta her commit'te otomatik geçti ama bu SADECE metin/regex kontrolleri;
-   `checkStepAnimationSchema`/`checkQuizOptionIdSchema`/
-   `checkCodePlaygroundIdSchema` modülü DINAMIK import ediyor — artık import
-   hatasız olduğundan bu üç şema kontrolü de İLK KEZ gerçek çalışacak, yeni
-   bir ihlal çıkabilir) + `npm run build` (yeşil) — CLAUDE.md §1.1. Ayrıca C6/
-   D5'teki 3-framework `table` bloklarının UI'da düzgün render olduğu ve amiral
-   filmlerin (`api-c3-middleware-chain-film`, `api-d3-pipe-film`) id
-   çakışması olmadığı teyit edilmeli.
+4. ✅ TOPLU doğrulama TAMAMLANDI: `node scripts/check-content-integrity.mjs`
+   → **TÜM KONTROLLER GEÇTİ** (37 dosya, 0 ihlal — bu kez modül hatasız import
+   edildiğinden `checkStepAnimationSchema`/`checkQuizOptionIdSchema`/
+   `checkCodePlaygroundIdSchema` şema kontrolleri de gerçekten çalıştı, yine
+   0 ihlal). `npm run build` → **yeşil**, `apiTestingData-*.js` chunk'ı 359 kB
+   (javaData/typescriptData gibi "büyük chunk" uyarısı listesine katıldı,
+   CLAUDE.md §14 — build'i bozmuyor), 42 static route shell üretildi, dist SEO
+   check PASS.
+
+**Faz 4 (GRUP C+D) CLAUDE.md §1.1 checklist açısından TAMAMLANDI kabul
+edilebilir** — 4 maddenin 1. (content-integrity) ve 4. (build) maddesi bu
+oturumda script ile doğrulandı; 2. madde (her code-playground/hint'in bir
+önceki koda ait olduğu) ve 3. madde (TR yorum taraması) yazım sırasında elle
+uygulandı ama script dışı manuel gözden geçirme henüz yapılmadı — sonraki
+oturumda GRUP C/D'nin TR kod yorumlarının (özellikle Express/NestJS kod
+bloklarındaki ASCII-normalize edilmiş yorumlar) örnekleme ile tekrar
+okunması faydalı olur.
+
+**Kalan işler (plan §C/§D, Faz 5-10 — henüz BAŞLANMADI):**
+- Faz 5: GRUP E (DevTools Network, kodsuz, §D.2)
+- Faz 6: GRUP F (Swagger/OpenAPI, §D.3)
+- Faz 7: GRUP G+H+I (Postman/REST Assured/Playwright, §D.4)
+- Faz 8: GRUP J (error-dictionary ≥12 hata, §D.5)
+- Faz 9: GRUP K (mülakat ≥50 soru, §D.6)
+- Faz 10 (Opus): Bölüm 9.5 denetimi + `tests/video-scene.spec.ts`'e temsili
+  render testi + bu NEXT_SESSION girdisinin sonuç özetiyle güncellenmesi.
+
+Route/SEO/component iskeleti (Faz 1) ve GRUP A/B (Faz 2-3, Opus) zaten bitmişti;
+bu oturum sadece Faz 4'ü (GRUP C+D) tamamladı. `/api-testing` sayfası GRUP E-K
+placeholder olduğundan HENÜZ production'a hazır değil.
 
 ---
 
