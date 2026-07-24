@@ -6629,7 +6629,7 @@ const G4 = {
       type: 'simple-box',
       emoji: '🔗',
       content: {
-        tr: 'Test zincirleme, bir POST isteğinin ÜRETTİĞİ `id`\'yi bir sonraki GET isteğine TAŞIMAKTIR — Java\'da bir metodun dönüş değerini bir sonraki metoda PARAMETRE olarak geçirmenin Postman\'deki karşılığıdır. `Tests` sekmesinde `pm.environment.set(\'bugId\', body.id)` yazınca, POST\'un yanıtından gelen id G2\'de tanımladığın `{{bugId}}` değişkenine YAZILIR; bir sonraki istek bu değeri OKUYUP kullanır. Peki bu neden tek bir istekte her şeyi test etmekten daha iyi? Çünkü gerçek bir kullanıcı akışı da TAM OLARAK böyledir: önce bir bug OLUŞTURULUR, SONRA o bug'a REFERANSLA işlem yapılır — zincirleme test bu gerçek akışı BİREBİR simüle eder. **Derin pre-request script rehberi için → `/postman` sayfasına bak.**',
+        tr: 'Test zincirleme, bir POST isteğinin ÜRETTİĞİ `id`\'yi bir sonraki GET isteğine TAŞIMAKTIR — Java\'da bir metodun dönüş değerini bir sonraki metoda PARAMETRE olarak geçirmenin Postman\'deki karşılığıdır. `Tests` sekmesinde `pm.environment.set(\'bugId\', body.id)` yazınca, POST\'un yanıtından gelen id G2\'de tanımladığın `{{bugId}}` değişkenine YAZILIR; bir sonraki istek bu değeri OKUYUP kullanır. Peki bu neden tek bir istekte her şeyi test etmekten daha iyi? Çünkü gerçek bir kullanıcı akışı da TAM OLARAK böyledir: önce bir bug OLUŞTURULUR, SONRA o bug\'a REFERANSLA işlem yapılır — zincirleme test bu gerçek akışı BİREBİR simüle eder. **Derin pre-request script rehberi için → `/postman` sayfasına bak.**',
         en: 'Test chaining CARRIES the `id` PRODUCED by a POST request into the next GET request — the Postman counterpart of passing a method\'s return value as a PARAMETER to the next method in Java. Writing `pm.environment.set(\'bugId\', body.id)` in the `Tests` tab WRITES the id from the POST response into the `{{bugId}}` variable you defined in G2; the next request READS and uses that value. So why is this better than testing everything in one request? Because a real user flow is EXACTLY like this: a bug is FIRST created, THEN acted upon BY REFERENCE — test chaining EXACTLY simulates this real flow. **For a deep pre-request script guide → see the `/postman` page.**',
       },
     },
@@ -6986,22 +6986,1427 @@ newman run bug-tracker.postman_collection.json -e local.postman_environment.json
   ],
 }
 
-const groupH = [
-  ['H1', '🎬', 'Bağımlılıklar ve İlk Test: given/when/then', 'Dependencies and First Test: given/when/then'],
-  ['H2', '✔️', 'Response Doğrulama: statusCode, jsonPath', 'Response Validation: statusCode, jsonPath'],
-  ['H3', '🔄', 'POJO Serialization/Deserialization', 'POJO Serialization/Deserialization'],
-  ['H4', '📐', 'JSON Schema Validation ile contract testi', 'Contract Testing with JSON Schema Validation'],
-  ['H5', '♻️', 'RequestSpecification ile tekrarı yok etmek', 'Removing Duplication with RequestSpecification'],
-  ['H6', '🔁', 'JUnit 5/TestNG entegrasyonu + CI', 'JUnit 5/TestNG Integration + CI'],
-]
+// ═══════════════════════════════════════════════════════════════════════════
+// GRUP H — REST Assured ile Otomasyon (Java) (ÇAKIŞMA KURALI: derin anlatım
+// → /rest-assured'e link, burada "/api/v1/bugs'u şimdi bununla test edelim")
+// ═══════════════════════════════════════════════════════════════════════════
 
-const groupI = [
-  ['I1', '🎭', 'request fixture ve APIRequestContext', 'request fixture and APIRequestContext'],
-  ['I2', '🟩', 'expect(response).toBeOK() ve JSON assertion', 'expect(response).toBeOK() and JSON assertion'],
-  ['I3', '🔀', "Hibrit Güç: API ile kur, UI'da doğrula", 'Hybrid Power: set up with API, verify in UI'],
-  ['I4', '🔑', 'storageState ile API üzerinden login', 'Login via API with storageState'],
-  ['I5', '⚔️', 'REST Assured ↔ Playwright Karşılaştırması', 'REST Assured ↔ Playwright Comparison'],
-]
+const H1 = {
+  title: { tr: '🎬 H1 · Bağımlılıklar ve İlk Test: given/when/then', en: '🎬 H1 · Dependencies and First Test: given/when/then' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🎬',
+      content: {
+        tr: 'REST Assured\'un `given().when().then()` zinciri, çıplak `HttpClient` + JUnit `assert` kodunu bir **cümleye** dönüştürür: "GİVEN şu ön koşullar VARKEN, WHEN şu isteği ATTIĞIMDA, THEN şunu BEKLERİM" — İngilizce okunduğunda bile anlaşılır. Java\'da `HttpClient` ile aynı testi yazmak onlarca satır boilerplate (bağlantı kurma, header ekleme, gövdeyi ayrıştırma) gerektirirken, REST Assured bunu ÜÇ okunabilir satıra indirger — Bean Validation\'ın `@Valid` ile validation boilerplate\'ini yok etmesine benzer bir sadeleştirme. Peki bu "cümle" yapısı neden sadece sözdizimsel bir şeker değil? Çünkü bir test raporu okuyan bir PAYDAŞ (yönetici, ürün sahibi), `given/when/then` yapısındaki bir test ADINI okuyarak SENARYOYU anlayabilir — çıplak bir `assertEquals` satırı bunu sağlamaz. **Derin REST Assured rehberi için → `/rest-assured` sayfasına bak; burada sadece Bug Tracker\'ı REST Assured ile test etmeye başlıyoruz.**',
+        en: 'REST Assured\'s `given().when().then()` chain turns bare `HttpClient` + JUnit `assert` code into a **sentence**: "GIVEN these preconditions, WHEN I make this request, THEN I expect this" — understandable even read as plain English. Writing the same test with `HttpClient` in Java takes dozens of boilerplate lines (connecting, adding headers, parsing the body), while REST Assured reduces it to THREE readable lines — a simplification similar to how `@Valid` removes Bean Validation boilerplate. So why is this "sentence" structure more than syntactic sugar? Because a STAKEHOLDER (a manager, a product owner) reading a test report can understand the SCENARIO just by reading a `given/when/then`-structured test name — a bare `assertEquals` line does not provide that. **For a deep REST Assured guide → see the `/rest-assured` page; here we are just starting to test the Bug Tracker with REST Assured.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'xml',
+      code: {
+        tr: `<!-- pom.xml -->
+<dependency>
+  <groupId>io.rest-assured</groupId>
+  <artifactId>rest-assured</artifactId>
+  <version>5.4.0</version>
+  <scope>test</scope>
+</dependency>`,
+        en: `<!-- pom.xml -->
+<dependency>
+  <groupId>io.rest-assured</groupId>
+  <artifactId>rest-assured</artifactId>
+  <version>5.4.0</version>
+  <scope>test</scope>
+</dependency>`,
+      },
+    },
+    {
+      type: 'code',
+      language: 'java',
+      code: {
+        tr: `import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+
+class BugsApiTest {
+    @Test
+    void bugListesiBasariyla200Doner() {
+        given()
+            .baseUri("http://localhost:3000")
+        .when()
+            .get("/api/v1/bugs")
+        .then()
+            // TODO: sadece status degil govdeyi de dogrula
+            .statusCode(200);
+    }
+}`,
+        en: `import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+
+class BugsApiTest {
+    @Test
+    void bugListReturns200Successfully() {
+        given()
+            .baseUri("http://localhost:3000")
+        .when()
+            .get("/api/v1/bugs")
+        .then()
+            // TODO: verify the body too, not just the status
+            .statusCode(200);
+    }
+}`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-h1-given-when-then-film',
+      title: { tr: '🎬 given / when / then', en: '🎬 given / when / then' },
+      xpReward: 14,
+      sceneDurationMs: 3400,
+      stageHeight: 270,
+      actors: [
+        { id: 'given', emoji: '⚙️', label: { tr: 'GIVEN: ön koşullar', en: 'GIVEN: preconditions' }, color: '#f59e0b' },
+        { id: 'when', emoji: '📤', label: { tr: 'WHEN: isteği at', en: 'WHEN: make the request' }, color: '#0ea5e9' },
+        { id: 'then', emoji: '✅', label: { tr: 'THEN: beklentiyi doğrula', en: 'THEN: verify the expectation' }, color: '#22c55e' },
+        { id: 'stakeholder', emoji: '👔', label: { tr: 'Paydaş test adını okur', en: 'Stakeholder reads the test name' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        { caption: { tr: '`given()` bloğu ön koşulları kurar: `baseUri`, header\'lar, auth token — sahnenin dekoru hazırlanır.', en: 'The `given()` block sets up preconditions: `baseUri`, headers, auth token — the stage\'s scenery is set.' }, positions: { given: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: '`when()` bloğu GERÇEK eylemi tanımlar: `get("/api/v1/bugs")` — sahnede olay gerçekleşir.', en: 'The `when()` block defines the REAL action: `get("/api/v1/bugs")` — the event happens on stage.' }, positions: { given: { x: 18, y: 35 }, when: { x: 55, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'given', to: 'when', color: '#0ea5e9' }] },
+        { caption: { tr: '`then()` bloğu SONUCU denetler: `statusCode(200)`, `body(...)` — beklenti gerçekle karşılaştırılır.', en: 'The `then()` block checks the RESULT: `statusCode(200)`, `body(...)` — expectation meets reality.' }, positions: { when: { x: 18, y: 35 }, then: { x: 55, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'when', to: 'then', color: '#22c55e' }] },
+        { caption: { tr: 'Ders — Bu üçlü sadece kod değil, İNGİLİZCE bir cümledir; kod OKUNMADAN bile testin ne yaptığı anlaşılır, teknik olmayan bir paydaş bile senaryoyu takip edebilir.', en: 'The lesson — this trio is not just code, it is an ENGLISH sentence; the test\'s intent is understood even WITHOUT reading the code, even a non-technical stakeholder can follow the scenario.' }, positions: { then: { x: 30, y: 45 }, stakeholder: { x: 62, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'then', to: 'stakeholder', color: '#8b5cf6' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'İlk REST Assured Testini Yazma Sırası', en: 'The Order for Writing the First REST Assured Test' },
+      steps: [
+        { id: 1, icon: '📦', label: { tr: 'Bağımlılığı ekle…', en: 'Add the dependency…' }, detail: { tr: 'rest-assured\'ı pom.xml\'e test scope\'unda ekle.', en: 'Add rest-assured to pom.xml in test scope.' } },
+        { id: 2, icon: '⚙️', label: { tr: 'given() ile kur…', en: 'Set up with given()…' }, detail: { tr: 'baseUri gibi ön koşulları tanımla.', en: 'Define preconditions like baseUri.' } },
+        { id: 3, icon: '✅', label: { tr: 'when/then ile doğrula…', en: 'Verify with when/then…' }, detail: { tr: 'İsteği at, statusCode ve gövdeyi kontrol et.', en: 'Make the request, check statusCode and the body.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-h1-order-01',
+      question: { tr: 'given/when/then zincirinin doğru sırasını diz.', en: 'Order the given/when/then chain correctly.' },
+      items: [
+        { id: '1', text: { tr: 'given() — ön koşulları (baseUri, header) kur', en: 'given() — set up preconditions (baseUri, headers)' }, order: 1 },
+        { id: '2', text: { tr: 'when() — gerçek isteği tanımla (get/post)', en: 'when() — define the real request (get/post)' }, order: 2 },
+        { id: '3', text: { tr: 'then() — beklenen sonucu doğrula (statusCode/body)', en: 'then() — verify the expected result (statusCode/body)' }, order: 3 },
+        { id: '4', text: { tr: 'Testi çalıştır', en: 'Run the test' }, order: 4 },
+        { id: '5', text: { tr: 'Test raporunu oku', en: 'Read the test report' }, order: 5 },
+      ],
+      xpReward: 12,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-h1-given-when-then',
+      id: 'api-h1-given-when-then',
+      title: { tr: 'Kendin Dene: Gövde Doğrulamasını Ekle', en: 'Try It Yourself: Add the Body Verification' },
+      starterCode: `given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs")
+.then()
+    .statusCode(200);
+    // TODO: govdenin bir dizi oldugunu da dogrula`,
+      solutionCode: `given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs")
+.then()
+    .statusCode(200)
+    .body("size()", greaterThanOrEqualTo(0));`,
+      hint: { tr: 'Sadece `statusCode(200)` kontrolü, gövdenin GERÇEKTEN beklenen şekilde olduğunu KANITLAMAZ. `.body(...)` ile Hamcrest matcher\'ları (`greaterThanOrEqualTo` gibi) ekleyerek gövdeyi de doğrula.', en: 'Checking only `statusCode(200)` does not PROVE the body is REALLY in the expected shape. Add Hamcrest matchers (like `greaterThanOrEqualTo`) with `.body(...)` to verify the body too.' },
+      successMessage: { tr: 'Doğru! Artık sadece status değil, gövdenin şekli de doğrulanıyor.', en: 'Correct! Now not just the status, but the body\'s shape is verified too.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`given().when().then()` yapısının çıplak `HttpClient` koduna göre en büyük avantajı nedir?', en: 'What is the biggest advantage of `given().when().then()` over bare `HttpClient` code?' },
+      options: [
+        { id: 'a', text: { tr: 'Testi okunabilir bir cümleye dönüştürür — teknik olmayan biri bile senaryoyu anlayabilir', en: 'It turns the test into a readable sentence — even a non-technical person can understand the scenario' } },
+        { id: 'b', text: { tr: 'Sunucuyu otomatik başlatır', en: 'It automatically starts the server' } },
+        { id: 'c', text: { tr: 'Veritabanı bağlantısını yönetir', en: 'It manages the database connection' } },
+        { id: 'd', text: { tr: 'Testleri daha hızlı çalıştırır', en: 'It makes tests run faster' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Çıplak `HttpClient` kodu onlarca satır bağlantı/ayrıştırma boilerplate\'i içerir ve okuması zordur. `given/when/then` bunu üç okunabilir bölüme ayırır — test raporu bir İngilizce cümle gibi okunur.', en: 'Bare `HttpClient` code contains dozens of lines of connection/parsing boilerplate and is hard to read. `given/when/then` splits it into three readable sections — the test report reads like an English sentence.' },
+      retryQuestion: {
+        question: { tr: '`then()` bloğunun rolü nedir?', en: 'What is the role of the `then()` block?' },
+        options: [
+          { id: 'a', text: { tr: 'İsteğin sonucunu (status, gövde, header) beklenenle karşılaştırıp doğrular', en: 'It verifies the request\'s result (status, body, headers) against expectations' } },
+          { id: 'b', text: { tr: 'İsteği gönderir', en: 'It sends the request' } },
+          { id: 'c', text: { tr: 'Bağlantı bilgilerini tanımlar', en: 'It defines connection info' } },
+          { id: 'd', text: { tr: 'Veritabanını sıfırlar', en: 'It resets the database' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`given()` hazırlar, `when()` eylemi yapar, `then()` SONUCU denetler — tıpkı bir JUnit testindeki `assert` satırları gibi, ama okunabilir bir zincirde.', en: '`given()` prepares, `when()` performs the action, `then()` checks the RESULT — just like `assert` lines in a JUnit test, but in a readable chain.' },
+      },
+    },
+  ],
+}
+
+const H2 = {
+  title: { tr: '✔️ H2 · Response Doğrulama: statusCode, jsonPath', en: '✔️ H2 · Response Validation: statusCode, jsonPath' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '✔️',
+      content: {
+        tr: '`jsonPath()`, bir JSON gövdesinde belirli bir alana GİTMEK için bir **harita koordinatı** gibidir — `"title"` demek yeterlidir, elle `JSONObject` ayrıştırma yazmana GEREK KALMAZ. Hamcrest matcher\'ları (`hasItem`, `equalTo`, `hasSize`) ise bu değeri KARŞILAŞTIRAN cümlelerdir. Java\'da bunun karşılığı, elle `ObjectMapper` ile bir `Map<String,Object>`\'e dönüştürüp iç içe `get()` çağırmaktır — çalışır ama KIRILGANdır (bir alan adı yanlış yazılırsa derleme zamanında YAKALANMAZ). `jsonPath()` bunu TEK satıra indirger. **Derin jsonPath/Hamcrest rehberi için → `/rest-assured` sayfasına bak.**',
+        en: '`jsonPath()` is like a **map coordinate** for GOING to a specific field in a JSON body — saying `"title"` is enough, you do NOT need to write manual `JSONObject` parsing. Hamcrest matchers (`hasItem`, `equalTo`, `hasSize`) are the sentences that COMPARE this value. The Java equivalent is manually converting to a `Map<String,Object>` with `ObjectMapper` and calling nested `get()`s — it works but is FRAGILE (a misspelled field name is NOT caught at compile time). `jsonPath()` reduces this to ONE line. **For a deep jsonPath/Hamcrest guide → see the `/rest-assured` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'java',
+      code: {
+        tr: `given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs/42")
+.then()
+    .statusCode(200)
+    .body("title", equalTo("Login butonu donuyor"))
+    .body("severity", oneOf("LOW", "MEDIUM", "HIGH", "CRITICAL"))
+    // TODO: reporter alaninin e-posta formatinda oldugunu dogrula
+    ;`,
+        en: `given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs/42")
+.then()
+    .statusCode(200)
+    .body("title", equalTo("Login button freezes"))
+    .body("severity", oneOf("LOW", "MEDIUM", "HIGH", "CRITICAL"))
+    // TODO: verify the reporter field is in email format
+    ;`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-h2-jsonpath-film',
+      title: { tr: '🎬 Elle Ayrıştırmadan Tek Satır Koordinata', en: '🎬 From Manual Parsing to a One-Line Coordinate' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'manual', emoji: '🗺️', label: { tr: 'Elle Map/get() zinciri', en: 'Manual Map/get() chain' }, color: '#ef4444' },
+        { id: 'jsonpath', emoji: '📍', label: { tr: 'jsonPath("title")', en: 'jsonPath("title")' }, color: '#0ea5e9' },
+        { id: 'matcher', emoji: '⚖️', label: { tr: 'equalTo(...) ile karşılaştır', en: 'compare with equalTo(...)' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'Elle yaklaşım: ObjectMapper ile Map\'e çevir, iç içe get("bugs").get(0).get("title") yaz — kırılgan.', en: 'Manual approach: convert to a Map with ObjectMapper, write nested get("bugs").get(0).get("title") — fragile.' }, positions: { manual: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: '`jsonPath("title")` aynı alana TEK satırda, okunabilir bir koordinatla gider.', en: '`jsonPath("title")` reaches the same field in ONE readable-coordinate line.' }, positions: { manual: { x: 20, y: 40 }, jsonpath: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'manual', to: 'jsonpath', color: '#0ea5e9' }] },
+        { caption: { tr: 'Hamcrest `equalTo(...)`/`hasItem(...)` ile değeri karşılaştırır — okunabilir bir doğrulama cümlesi tamamlanır.', en: 'Hamcrest `equalTo(...)`/`hasItem(...)` compares the value — a readable verification sentence completes.' }, positions: { jsonpath: { x: 20, y: 40 }, matcher: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'jsonpath', to: 'matcher', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'jsonPath ile Doğrulama Sırası', en: 'The Order for Verifying with jsonPath' },
+      steps: [
+        { id: 1, icon: '📍', label: { tr: 'Alanın yolunu belirle…', en: 'Identify the field\'s path…' }, detail: { tr: 'JSON gövdesindeki alan adını (title, severity) not al.', en: 'Note the field name (title, severity) in the JSON body.' } },
+        { id: 2, icon: '⚖️', label: { tr: 'Matcher seç…', en: 'Choose a matcher…' }, detail: { tr: 'equalTo, hasItem, oneOf gibi Hamcrest matcher\'larından uygun olanı seç.', en: 'Pick the right Hamcrest matcher, like equalTo, hasItem, oneOf.' } },
+        { id: 3, icon: '✅', label: { tr: '.body(...) ile bağla…', en: 'Bind with .body(...)…' }, detail: { tr: 'then() zincirine .body("alan", matcher) ekleyerek doğrulamayı tamamla.', en: 'Complete the verification by adding .body("field", matcher) to the then() chain.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-h2-order-01',
+      question: { tr: 'jsonPath ile bir alanı doğrulama sürecini sırala.', en: 'Order the process for verifying a field with jsonPath.' },
+      items: [
+        { id: '1', text: { tr: 'İsteği gönder, yanıtı al', en: 'Send the request, get the response' }, order: 1 },
+        { id: '2', text: { tr: 'Doğrulanacak alanın adını belirle', en: 'Identify the field name to verify' }, order: 2 },
+        { id: '3', text: { tr: 'Uygun Hamcrest matcher\'ını seç', en: 'Choose the appropriate Hamcrest matcher' }, order: 3 },
+        { id: '4', text: { tr: '.body("alan", matcher) ile bağla', en: 'Bind with .body("field", matcher)' }, order: 4 },
+        { id: '5', text: { tr: 'Testi çalıştır, sonucu doğrula', en: 'Run the test, verify the result' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-h2-response-verification',
+      id: 'api-h2-response-verification',
+      title: { tr: 'Kendin Dene: Eksik jsonPath Doğrulamasını Ekle', en: 'Try It Yourself: Add the Missing jsonPath Verification' },
+      starterCode: `.then()
+    .statusCode(200)
+    .body("title", equalTo("Login butonu donuyor"))
+    // TODO: reporter alaninin "tester@learnqa.dev" oldugunu dogrula`,
+      solutionCode: `.then()
+    .statusCode(200)
+    .body("title", equalTo("Login butonu donuyor"))
+    .body("reporter", equalTo("tester@learnqa.dev"))`,
+      hint: { tr: 'Aynı `.body("alan", matcher)` kalıbı zincire eklenerek her yeni alan doğrulaması eklenir — `jsonPath` her alan için AYRI bir koordinattır.', en: 'The same `.body("field", matcher)` pattern is added to the chain for each new field verification — `jsonPath` is a SEPARATE coordinate for each field.' },
+      successMessage: { tr: 'Doğru! Artık title yanında reporter alanı da doğrulanıyor.', en: 'Correct! Now the reporter field is verified alongside title.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`jsonPath`, elle `ObjectMapper` + `Map<String,Object>` yaklaşımına göre en büyük avantajı nedir?', en: 'What is `jsonPath`\'s biggest advantage over the manual `ObjectMapper` + `Map<String,Object>` approach?' },
+      options: [
+        { id: 'a', text: { tr: 'Bir alana TEK, okunabilir bir satırla erişir — iç içe get() zincirinin kırılganlığı yoktur', en: 'It reaches a field in ONE readable line — without the fragility of a nested get() chain' } },
+        { id: 'b', text: { tr: 'Veritabanına doğrudan erişir', en: 'It accesses the database directly' } },
+        { id: 'c', text: { tr: 'Sunucuyu otomatik yeniden başlatır', en: 'It automatically restarts the server' } },
+        { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Elle `Map`\'e dönüştürüp iç içe `get()` çağırmak hem uzun hem kırılgandır (bir adım yanlış yazılırsa derleme zamanında yakalanmaz). `jsonPath("title")` aynı işi tek, okunabilir bir satırda yapar.', en: 'Manually converting to a `Map` and calling nested `get()`s is both long and fragile (a misspelled step is not caught at compile time). `jsonPath("title")` does the same job in one readable line.' },
+      retryQuestion: {
+        question: { tr: 'Hamcrest `oneOf("LOW", "MEDIUM", "HIGH", "CRITICAL")` matcher\'ı ne test eder?', en: 'What does the Hamcrest `oneOf("LOW", "MEDIUM", "HIGH", "CRITICAL")` matcher test?' },
+        options: [
+          { id: 'a', text: { tr: 'Değerin, listelenen değerlerden BİRİNE eşit olduğunu — enum kısıtını doğrular', en: 'That the value equals ONE of the listed values — it verifies an enum constraint' } },
+          { id: 'b', text: { tr: 'Değerin tüm listedeki değerlere eşit olduğunu', en: 'That the value equals all values in the list' } },
+          { id: 'c', text: { tr: 'Değerin bir sayı olduğunu', en: 'That the value is a number' } },
+          { id: 'd', text: { tr: 'Değerin boş olduğunu', en: 'That the value is empty' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`oneOf(...)`, F4\'te gördüğün `enum` şema kısıtının REST Assured\'daki karşılığıdır — değerin verilen listeden SADECE birine eşit olmasını doğrular.', en: '`oneOf(...)` is REST Assured\'s counterpart of the `enum` schema constraint you saw in F4 — it verifies the value equals ONLY one of the given list.' },
+      },
+    },
+  ],
+}
+
+const H3 = {
+  title: { tr: '🔄 H3 · POJO Serialization/Deserialization', en: '🔄 H3 · POJO Serialization/Deserialization' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔄',
+      content: {
+        tr: 'POJO (Plain Old Java Object) deserialization, B2\'de tanımladığın `Bug` sınıfını ÖDÜNÇ ALIP test kodunda YENİDEN KULLANMAKTIR — API\'nin ÜRETTİĞİ JSON\'u elle alan alan okumak yerine, `.as(Bug.class)` ile TEK satırda bir Java nesnesine dönüştürürsün. Bu, DRY (Don\'t Repeat Yourself) prensibinin API testindeki en somut örneğidir: uygulama kodu ile test kodu AYNI sınıfı (`Bug`) paylaşır, ikisi arasında bir tutarsızlık riski YOKTUR — `Bug` sınıfına bir alan eklenirse, test kodu da otomatik olarak bunu "görür" (derleme zamanında). Peki bu neden sadece bir kolaylık değil? Çünkü `Bug bug = response.as(Bug.class)` satırı, yanıtın Java\'nın TİP SİSTEMİNE uyduğunu da DOLAYLI olarak test eder — alan tipi uyuşmuyorsa (F5\'teki "alan tipi uyumsuzluğu" contract defect\'i gibi) bu satır ÇALIŞMA ZAMANINDA hata fırlatır. **Derin POJO/serialization rehberi için → `/rest-assured` sayfasına bak.**',
+        en: 'POJO (Plain Old Java Object) deserialization BORROWS the `Bug` class you defined in B2 and REUSES it in test code — instead of manually reading the JSON the API PRODUCES field by field, you convert it to a Java object in ONE line with `.as(Bug.class)`. This is the most concrete example of the DRY (Don\'t Repeat Yourself) principle in API testing: the application code and test code SHARE the SAME class (`Bug`), so there is NO risk of inconsistency between them — if a field is added to the `Bug` class, the test code automatically "sees" it too (at compile time). So why is this more than just convenience? Because the line `Bug bug = response.as(Bug.class)` also INDIRECTLY tests that the response matches Java\'s TYPE SYSTEM — if a field type mismatches (like the "field type mismatch" contract defect from F5), this line throws an error AT RUNTIME. **For a deep POJO/serialization guide → see the `/rest-assured` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'java',
+      code: {
+        tr: `// Bug.java — B2'de yazilan sinifin AYNISI, test kodunda TEKRAR KULLANILIYOR
+public class Bug {
+    public Long id;
+    public String title;
+    public String severity;
+    public String status;
+    public String reporter;
+}`,
+        en: `// Bug.java — the SAME class written in B2, REUSED in test code
+public class Bug {
+    public Long id;
+    public String title;
+    public String severity;
+    public String status;
+    public String reporter;
+}`,
+      },
+    },
+    {
+      type: 'code',
+      language: 'java',
+      code: {
+        tr: `Bug bug = given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs/42")
+.then()
+    .statusCode(200)
+.extract()
+    // TODO: JSON govdesini elle okumak yerine POJO'ya donustur
+    .as(Bug.class);
+
+assertEquals("Login butonu donuyor", bug.title);`,
+        en: `Bug bug = given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs/42")
+.then()
+    .statusCode(200)
+.extract()
+    // TODO: convert to a POJO instead of manually reading the JSON body
+    .as(Bug.class);
+
+assertEquals("Login button freezes", bug.title);`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-h3-pojo-film',
+      title: { tr: '🎬 Aynı Bug Sınıfı, İki Dünyada', en: '🎬 The Same Bug Class, in Two Worlds' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'app', emoji: '🖥️', label: { tr: 'Uygulama: Bug.java', en: 'App: Bug.java' }, color: '#f59e0b' },
+        { id: 'json', emoji: '📄', label: { tr: 'API yanıtı: JSON', en: 'API response: JSON' }, color: '#0ea5e9' },
+        { id: 'test', emoji: '🧪', label: { tr: 'Test: .as(Bug.class)', en: 'Test: .as(Bug.class)' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'B2\'de yazılan `Bug` sınıfı uygulamanın İÇİNDE, veriyi taşımak için kullanılıyor.', en: 'The `Bug` class written in B2 is used INSIDE the app, to carry data.' }, positions: { app: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'API bu sınıfı JSON\'a çevirip yanıt olarak döner.', en: 'The API converts this class to JSON and returns it as the response.' }, positions: { app: { x: 20, y: 40 }, json: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'app', to: 'json', color: '#0ea5e9' }] },
+        { caption: { tr: 'Test kodu AYNI `Bug` sınıfını ÖDÜNÇ alıp `.as(Bug.class)` ile JSON\'u GERİ bir Java nesnesine çevirir — döngü tamamlanır.', en: 'The test code BORROWS the SAME `Bug` class and converts the JSON BACK into a Java object with `.as(Bug.class)` — the loop closes.' }, positions: { json: { x: 20, y: 40 }, test: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'json', to: 'test', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'JSON\'dan POJO\'ya Dönüşüm Sırası', en: 'The Order for Converting JSON to a POJO' },
+      steps: [
+        { id: 1, icon: '📄', label: { tr: 'Yanıtı al…', en: 'Get the response…' }, detail: { tr: 'İsteği gönder, ham JSON yanıtını .extract() ile yakala.', en: 'Send the request, capture the raw JSON response with .extract().' } },
+        { id: 2, icon: '🔄', label: { tr: 'POJO\'ya dönüştür…', en: 'Convert to a POJO…' }, detail: { tr: '.as(Bug.class) ile JSON\'u B2\'deki AYNI Bug sınıfına deserialize et.', en: 'Deserialize the JSON into the SAME Bug class from B2 with .as(Bug.class).' } },
+        { id: 3, icon: '✅', label: { tr: 'Alanları doğrula…', en: 'Verify the fields…' }, detail: { tr: 'Artık bug.title gibi tip-güvenli Java alanlarıyla assert yaz.', en: 'Now write asserts with type-safe Java fields like bug.title.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-h3-order-01',
+      question: { tr: 'JSON\'dan POJO\'ya dönüşüm sürecini sırala.', en: 'Order the process for converting JSON to a POJO.' },
+      items: [
+        { id: '1', text: { tr: 'Uygulamadaki Bug sınıfını test moduluyle paylaş', en: 'Share the app\'s Bug class with the test module' }, order: 1 },
+        { id: '2', text: { tr: 'İsteği gönder, yanıtı al', en: 'Send the request, get the response' }, order: 2 },
+        { id: '3', text: { tr: '.extract().as(Bug.class) ile POJO\'ya dönüştür', en: 'Convert to a POJO with .extract().as(Bug.class)' }, order: 3 },
+        { id: '4', text: { tr: 'bug.title gibi tip-güvenli alanlarla assert yaz', en: 'Write asserts with type-safe fields like bug.title' }, order: 4 },
+        { id: '5', text: { tr: 'Testi çalıştır, sonucu doğrula', en: 'Run the test, verify the result' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-h3-pojo-deserialization',
+      id: 'api-h3-pojo-deserialization',
+      title: { tr: 'Kendin Dene: JSON\'u POJO\'ya Dönüştür', en: 'Try It Yourself: Convert JSON to a POJO' },
+      starterCode: `// BUG: yanit .as(Bug.class) ile POJO'ya CEVRILMIYOR, ham Response kaliyor
+Response response = given().baseUri("http://localhost:3000")
+    .when().get("/api/v1/bugs/42")
+    .then().statusCode(200).extract().response();`,
+      solutionCode: `Bug bug = given().baseUri("http://localhost:3000")
+    .when().get("/api/v1/bugs/42")
+    .then().statusCode(200).extract().as(Bug.class);`,
+      hint: { tr: '`.extract().response()` ham bir `Response` nesnesi verir — alanları hâlâ elle okumak gerekir. `.extract().as(Bug.class)` ise doğrudan tip-güvenli bir `Bug` nesnesi verir.', en: '`.extract().response()` gives a raw `Response` object — fields must still be read manually. `.extract().as(Bug.class)` directly gives a type-safe `Bug` object.' },
+      successMessage: { tr: 'Doğru! Artık bug.title gibi alanlara doğrudan, tip-güvenli erişebilirsin.', en: 'Correct! Now you can access fields like bug.title directly, type-safely.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Test kodunda uygulamadaki AYNI `Bug` sınıfını yeniden kullanmanın en büyük avantajı nedir?', en: 'What is the biggest advantage of reusing the SAME `Bug` class from the app in test code?' },
+      options: [
+        { id: 'a', text: { tr: 'Uygulama ile test arasında bir tutarsızlık riski olmaz — sınıfa alan eklenirse test kodu bunu derleme zamanında görür', en: 'There is no inconsistency risk between app and test — if a field is added to the class, the test code sees it at compile time' } },
+        { id: 'b', text: { tr: 'Testler daha hızlı çalışır', en: 'Tests run faster' } },
+        { id: 'c', text: { tr: 'Sunucu daha az bellek kullanır', en: 'The server uses less memory' } },
+        { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Test kodu KENDİ ayrı bir `Bug` sınıfı tanımlasaydı, uygulama sınıfı değiştiğinde iki sınıf birbirinden SESSİZCE ayrışabilirdi. Aynı sınıfı paylaşmak bu riski ORTADAN KALDIRIR — DRY prensibinin doğrudan bir uygulamasıdır.', en: 'If test code defined its OWN separate `Bug` class, the two classes could SILENTLY diverge when the app class changes. Sharing the same class REMOVES this risk — a direct application of the DRY principle.' },
+      retryQuestion: {
+        question: { tr: '`.as(Bug.class)` çağrısı çalışma zamanında ne zaman hata fırlatır?', en: 'When does the `.as(Bug.class)` call throw an error at runtime?' },
+        options: [
+          { id: 'a', text: { tr: 'Yanıttaki bir alanın tipi, Bug sınıfındaki karşılığıyla uyuşmadığında', en: 'When a field\'s type in the response does not match its counterpart in the Bug class' } },
+          { id: 'b', text: { tr: 'Asla hata fırlatmaz', en: 'It never throws an error' } },
+          { id: 'c', text: { tr: 'Sadece sunucu kapalıyken', en: 'Only when the server is down' } },
+          { id: 'd', text: { tr: 'Sadece GET isteklerinde', en: 'Only on GET requests' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Deserialization, yanıtın Java tip sistemine UYMASINI dolaylı olarak test eder — F5\'teki "alan tipi uyumsuzluğu" gibi bir contract defect varsa (örn. sayı yerine metin), `.as(Bug.class)` çalışma zamanında bir istisna fırlatır.', en: 'Deserialization indirectly tests that the response MATCHES Java\'s type system — if there is a contract defect like the "field type mismatch" from F5 (e.g. text instead of a number), `.as(Bug.class)` throws an exception at runtime.' },
+      },
+    },
+  ],
+}
+
+const H4 = {
+  title: { tr: '📐 H4 · JSON Schema Validation ile contract testi', en: '📐 H4 · Contract Testing with JSON Schema Validation' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '📐',
+      content: {
+        tr: 'H2\'de her alanı TEK TEK doğrulamıştın (`title`, `severity`, ...); JSON Schema Validation ise F4\'te gördüğün ŞEMANIN TAMAMINI TEK bir satırda doğrular: `matchesJsonSchemaInClasspath("bug-schema.json")`. Bu, F5\'teki "contract defect" avcılığını OTOMATİKLEŞTİRİR — artık her yanıtı elle karşılaştırmak yerine, spec\'ten üretilen bir JSON Schema dosyasını REST Assured\'a "bunu her zaman kontrol et" dersin. Peki neden hâlâ H2\'deki tek tek `.body(...)` doğrulamalarını da kullanıyoruz, sadece şema doğrulaması YETMEZ mi? Çünkü şema doğrulaması sadece ŞEKLİ (tip, zorunlu alan) kontrol eder — belirli bir DEĞERİ (örn. "title tam olarak bu metin olmalı") kontrol ETMEZ; ikisi TAMAMLAYICIDIR: şema "yapı doğru mu", tek tek `.body()` "içerik doğru mu" sorusuna cevap verir. **Derin JSON Schema Validation rehberi için → `/rest-assured` sayfasına bak.**',
+        en: 'In H2 you verified each field ONE BY ONE (`title`, `severity`, ...); JSON Schema Validation verifies the ENTIRE schema you saw in F4 in ONE line: `matchesJsonSchemaInClasspath("bug-schema.json")`. This AUTOMATES the "contract defect" hunt from F5 — instead of manually comparing every response, you tell REST Assured "always check this" using a JSON Schema file generated from the spec. So why still use H2\'s individual `.body(...)` checks too, isn\'t schema validation ENOUGH alone? Because schema validation only checks the SHAPE (type, required field) — it does NOT check a SPECIFIC value (e.g. "title must be exactly this text"); the two are COMPLEMENTARY: schema answers "is the structure correct", individual `.body()` answers "is the content correct". **For a deep JSON Schema Validation guide → see the `/rest-assured` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'java',
+      code: {
+        tr: `// pom.xml'e json-schema-validator bagimliligi eklendi (rest-assured'in bir modulu)
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+
+given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs/42")
+.then()
+    .statusCode(200)
+    // TODO: F4'teki semanin TAMAMINI tek satirda dogrula
+    .body(matchesJsonSchemaInClasspath("bug-schema.json"));`,
+        en: `// json-schema-validator dependency added to pom.xml (a rest-assured module)
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+
+given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs/42")
+.then()
+    .statusCode(200)
+    // TODO: verify the ENTIRE schema from F4 in one line
+    .body(matchesJsonSchemaInClasspath("bug-schema.json"));`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-h4-schema-validation-film',
+      title: { tr: '🎬 F5\'teki Avı Otomatikleştirmek', en: '🎬 Automating the Hunt from F5' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'manual', emoji: '🕵️', label: { tr: 'Elle karşılaştırma (F5)', en: 'Manual comparison (F5)' }, color: '#94a3b8' },
+        { id: 'schema', emoji: '📐', label: { tr: 'bug-schema.json', en: 'bug-schema.json' }, color: '#0ea5e9' },
+        { id: 'auto', emoji: '🤖', label: { tr: 'Her koşumda otomatik kontrol', en: 'Automatic check on every run' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'F5\'te contract defect\'leri ELLE, spec\'i gerçek yanıtla karşılaştırarak buluyordun.', en: 'In F5 you found contract defects by MANUALLY comparing the spec against real responses.' }, positions: { manual: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'F4/F6\'daki şema bir `bug-schema.json` dosyasına dönüştürülür.', en: 'The schema from F4/F6 is turned into a `bug-schema.json` file.' }, positions: { manual: { x: 20, y: 40 }, schema: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'manual', to: 'schema', color: '#0ea5e9' }] },
+        { caption: { tr: '`matchesJsonSchemaInClasspath(...)` bu dosyayı HER test koşumunda otomatik kontrol eder — elle karşılaştırma artık geçmişte kaldı.', en: '`matchesJsonSchemaInClasspath(...)` automatically checks this file on EVERY test run — manual comparison is now history.' }, positions: { schema: { x: 20, y: 40 }, auto: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'schema', to: 'auto', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Şemadan Otomatik Contract Testine', en: 'From Schema to Automated Contract Testing' },
+      steps: [
+        { id: 1, icon: '📐', label: { tr: 'Şemayı dosyaya al…', en: 'Put the schema into a file…' }, detail: { tr: 'F4/F6\'daki JSON şemasını bir .json dosyası olarak projeye ekle.', en: 'Add the JSON schema from F4/F6 to the project as a .json file.' } },
+        { id: 2, icon: '📦', label: { tr: 'Doğrulayıcıyı ekle…', en: 'Add the validator…' }, detail: { tr: 'json-schema-validator bağımlılığını ekle, matchesJsonSchemaInClasspath\'i import et.', en: 'Add the json-schema-validator dependency, import matchesJsonSchemaInClasspath.' } },
+        { id: 3, icon: '🤖', label: { tr: 'then() zincirine ekle…', en: 'Add to the then() chain…' }, detail: { tr: '.body(matchesJsonSchemaInClasspath(...)) ile her koşumda otomatik kontrol kur.', en: 'Set up automatic checking on every run with .body(matchesJsonSchemaInClasspath(...)).' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-h4-order-01',
+      question: { tr: 'JSON Schema Validation kurma sürecini sırala.', en: 'Order the process for setting up JSON Schema Validation.' },
+      items: [
+        { id: '1', text: { tr: 'F4/F6\'daki şemayı bir .json dosyasına aktar', en: 'Export the schema from F4/F6 into a .json file' }, order: 1 },
+        { id: '2', text: { tr: 'json-schema-validator bağımlılığını ekle', en: 'Add the json-schema-validator dependency' }, order: 2 },
+        { id: '3', text: { tr: 'matchesJsonSchemaInClasspath\'i import et', en: 'Import matchesJsonSchemaInClasspath' }, order: 3 },
+        { id: '4', text: { tr: 'then() zincirine .body(matchesJsonSchemaInClasspath(...)) ekle', en: 'Add .body(matchesJsonSchemaInClasspath(...)) to the then() chain' }, order: 4 },
+        { id: '5', text: { tr: 'Testi çalıştır, şema uyumunu doğrula', en: 'Run the test, verify schema compliance' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-h4-json-schema-validation',
+      id: 'api-h4-json-schema-validation',
+      title: { tr: 'Kendin Dene: Eksik Şema Doğrulamasını Ekle', en: 'Try It Yourself: Add the Missing Schema Verification' },
+      starterCode: `given().baseUri("http://localhost:3000")
+    .when().get("/api/v1/bugs/42")
+    .then().statusCode(200);
+    // BUG: govdenin semaya UYDUGU hic dogrulanmiyor`,
+      solutionCode: `given().baseUri("http://localhost:3000")
+    .when().get("/api/v1/bugs/42")
+    .then().statusCode(200)
+    .body(matchesJsonSchemaInClasspath("bug-schema.json"));`,
+      hint: { tr: 'Sadece `statusCode(200)` kontrolü, gövdenin ŞEKLİNİN (required/type/enum) doğru olduğunu KANITLAMAZ. `matchesJsonSchemaInClasspath(...)` ile bu şekli TEK satırda doğrula.', en: 'Checking only `statusCode(200)` does not PROVE the body\'s SHAPE (required/type/enum) is correct. Verify this shape in ONE line with `matchesJsonSchemaInClasspath(...)`.' },
+      successMessage: { tr: 'Doğru! Artık her koşumda gövde F4/F6\'daki şemayla otomatik karşılaştırılıyor.', en: 'Correct! Now the body is automatically compared against the schema from F4/F6 on every run.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'JSON Schema Validation ile H2\'deki tek tek `.body("alan", matcher)` doğrulamaları arasındaki ilişki nedir?', en: 'What is the relationship between JSON Schema Validation and H2\'s individual `.body("field", matcher)` verifications?' },
+      options: [
+        { id: 'a', text: { tr: 'Tamamlayıcıdırlar — şema "yapı doğru mu", tek tek doğrulama "içerik doğru mu" sorusuna cevap verir', en: 'They are complementary — schema answers "is the structure correct", individual checks answer "is the content correct"' } },
+        { id: 'b', text: { tr: 'Birbirinin YERİNE geçer, ikisini birden kullanmaya gerek yoktur', en: 'They REPLACE each other, there is no need to use both' } },
+        { id: 'c', text: { tr: 'Şema doğrulaması sadece GET isteklerinde çalışır', en: 'Schema validation only works on GET requests' } },
+        { id: 'd', text: { tr: 'Hiçbir ilişkileri yoktur', en: 'They have no relationship' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Şema doğrulaması sadece ŞEKLİ (tip, zorunlu alan, enum) kontrol eder, belirli bir DEĞERİ kontrol etmez. Tek tek `.body()` doğrulamaları ise belirli bir değeri kontrol eder ama tüm şemayı KAPSAMAZ — ikisi birlikte hem yapıyı hem içeriği güvence altına alır.', en: 'Schema validation only checks the SHAPE (type, required field, enum), not a specific VALUE. Individual `.body()` checks verify a specific value but do NOT cover the entire schema — together they secure both structure and content.' },
+      retryQuestion: {
+        question: { tr: 'JSON Schema Validation, GRUP F\'teki hangi kavramla doğrudan bağlantılıdır?', en: 'Which concept from GROUP F is JSON Schema Validation directly linked to?' },
+        options: [
+          { id: 'a', text: { tr: 'F4\'teki schema (required/type/enum) ve F5\'teki contract defect kavramlarıyla', en: 'With F4\'s schema (required/type/enum) and F5\'s contract defect concepts' } },
+          { id: 'b', text: { tr: 'E4\'teki Timing sekmesiyle', en: 'With E4\'s Timing tab' } },
+          { id: 'c', text: { tr: 'C3\'teki middleware zinciriyle', en: 'With C3\'s middleware chain' } },
+          { id: 'd', text: { tr: 'Hiçbir GRUP F konusuyla ilgisi yoktur', en: 'It has nothing to do with any GROUP F topic' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'JSON Schema Validation, F4\'te öğrendiğin şema kavramını bir dosyaya (`bug-schema.json`) döker ve F5\'teki contract defect avcılığını her test koşumunda OTOMATİK hale getirir.', en: 'JSON Schema Validation pours the schema concept you learned in F4 into a file (`bug-schema.json`) and makes the contract defect hunt from F5 AUTOMATIC on every test run.' },
+      },
+    },
+  ],
+}
+
+const H5 = {
+  title: { tr: '♻️ H5 · RequestSpecification ile tekrarı yok etmek', en: '♻️ H5 · Removing Duplication with RequestSpecification' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '♻️',
+      content: {
+        tr: '`RequestSpecification`, API testinin **Page Object Model** karşılığıdır: Selenium\'da her sayfa için locator\'ları TEK bir sınıfta toplayıp tekrarı önlerken, `RequestSpecification` her testte tekrarlanan `baseUri`, ortak header\'lar (`Content-Type`), auth token gibi bilgileri TEK bir yerde toplar. H1-H4\'teki her test `given().baseUri("http://localhost:3000")` satırını TEKRAR TEKRAR yazdı — `baseUri` değişirse (örn. staging\'e geçilirse) HER TEST dosyasını elle güncellemek gerekirdi. Peki bu neden sadece bir "kısayol" değil? Çünkü tekrarlanan kurulum kodu, F5\'teki gibi bir "sessiz ayrışma" kaynağıdır — bir testte `baseUri` güncellenip diğerinde UNUTULURSA, testler birbirinden SESSİZCE farklı ortamlara karşı çalışmaya başlar. **Derin RequestSpecification rehberi için → `/rest-assured` sayfasına bak.**',
+        en: '`RequestSpecification` is the **Page Object Model** counterpart in API testing: just as Selenium gathers locators for a page into ONE class to avoid duplication, `RequestSpecification` gathers information repeated across every test — `baseUri`, common headers (`Content-Type`), auth token — into ONE place. Every test in H1-H4 wrote the `given().baseUri("http://localhost:3000")` line OVER AND OVER — if `baseUri` changes (e.g. moving to staging), EVERY test file would need manual updating. So why is this more than just a "shortcut"? Because duplicated setup code is a source of "silent divergence" like the one in F5 — if `baseUri` is updated in one test and FORGOTTEN in another, tests SILENTLY start running against different environments. **For a deep RequestSpecification guide → see the `/rest-assured` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'java',
+      code: {
+        tr: `// BugApiSpec.java — TUM testlerin PAYLASTIGI tek bir kurulum
+public class BugApiSpec {
+    public static RequestSpecification spec() {
+        return new RequestSpecBuilder()
+            .setBaseUri("http://localhost:3000")
+            .setContentType("application/json")
+            // TODO: auth token da buraya EKLENEBILIR
+            .build();
+    }
+}
+
+// Kullanim: HER testte tekrar yazilmiyor
+given().spec(BugApiSpec.spec())
+    .when().get("/api/v1/bugs")
+    .then().statusCode(200);`,
+        en: `// BugApiSpec.java — the ONE setup ALL tests SHARE
+public class BugApiSpec {
+    public static RequestSpecification spec() {
+        return new RequestSpecBuilder()
+            .setBaseUri("http://localhost:3000")
+            .setContentType("application/json")
+            // TODO: an auth token could also be ADDED here
+            .build();
+    }
+}
+
+// Usage: no longer rewritten in EVERY test
+given().spec(BugApiSpec.spec())
+    .when().get("/api/v1/bugs")
+    .then().statusCode(200);`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-h5-request-spec-film',
+      title: { tr: '🎬 API Testinin Page Object Model\'i', en: '🎬 API Testing\'s Page Object Model' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'repeated', emoji: '📋', label: { tr: 'Her testte tekrarlanan kurulum', en: 'Setup repeated in every test' }, color: '#ef4444' },
+        { id: 'spec', emoji: '♻️', label: { tr: 'RequestSpecification', en: 'RequestSpecification' }, color: '#0ea5e9' },
+        { id: 'shared', emoji: '✅', label: { tr: 'Tek yerden yönetilen kurulum', en: 'Setup managed from one place' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'H1-H4\'teki her test AYNI `baseUri`/header kurulumunu tekrar tekrar yazıyordu.', en: 'Every test in H1-H4 wrote the SAME `baseUri`/header setup over and over.' }, positions: { repeated: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Bu tekrar bir `RequestSpecification` sınıfına TAŞINIR — tıpkı Selenium\'da locator\'ların bir Page Object\'e taşınması gibi.', en: 'This repetition is MOVED into a `RequestSpecification` class — just like moving locators into a Page Object in Selenium.' }, positions: { repeated: { x: 20, y: 40 }, spec: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'repeated', to: 'spec', color: '#0ea5e9' }] },
+        { caption: { tr: 'Artık `baseUri` değişirse TEK bir yer (BugApiSpec) güncellenir, TÜM testler otomatik doğru ortama gider.', en: 'Now if `baseUri` changes, ONE place (BugApiSpec) is updated, ALL tests automatically hit the right environment.' }, positions: { spec: { x: 20, y: 40 }, shared: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'spec', to: 'shared', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Tekrarı Yok Etme Sırası', en: 'The Order for Removing Duplication' },
+      steps: [
+        { id: 1, icon: '📋', label: { tr: 'Tekrarı fark et…', en: 'Notice the duplication…' }, detail: { tr: 'Her testte aynı baseUri/header/token satırlarının yazıldığını gözlemle.', en: 'Observe the same baseUri/header/token lines written in every test.' } },
+        { id: 2, icon: '♻️', label: { tr: 'Spec\'i çıkar…', en: 'Extract the spec…' }, detail: { tr: 'RequestSpecBuilder ile ortak kurulumu TEK bir sınıfa topla.', en: 'Gather the common setup into ONE class with RequestSpecBuilder.' } },
+        { id: 3, icon: '✅', label: { tr: 'Testlerde kullan…', en: 'Use it in tests…' }, detail: { tr: 'given().spec(BugApiSpec.spec()) ile her testte AYNI kurulumu paylaş.', en: 'Share the SAME setup in every test with given().spec(BugApiSpec.spec()).' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-h5-order-01',
+      question: { tr: 'Bir RequestSpecification çıkarma sürecini sırala.', en: 'Order the process for extracting a RequestSpecification.' },
+      items: [
+        { id: '1', text: { tr: 'Testlerdeki tekrarlanan kurulum satırlarını belirle', en: 'Identify the repeated setup lines across tests' }, order: 1 },
+        { id: '2', text: { tr: 'RequestSpecBuilder ile ortak bir spec() metodu yaz', en: 'Write a shared spec() method with RequestSpecBuilder' }, order: 2 },
+        { id: '3', text: { tr: 'Her testte given().spec(...) ile bu metodu kullan', en: 'Use this method in every test with given().spec(...)' }, order: 3 },
+        { id: '4', text: { tr: 'Tekrarlanan eski kurulum satırlarını sil', en: 'Delete the old repeated setup lines' }, order: 4 },
+        { id: '5', text: { tr: 'Tüm testlerin hâlâ geçtiğini doğrula', en: 'Verify all tests still pass' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-h5-request-specification',
+      id: 'api-h5-request-specification',
+      title: { tr: 'Kendin Dene: Tekrarlanan Kurulumu Spec\'e Taşı', en: 'Try It Yourself: Move the Repeated Setup into a Spec' },
+      starterCode: `// BUG: baseUri her testte AYRI AYRI yaziliyor
+@Test void test1() { given().baseUri("http://localhost:3000")...; }
+@Test void test2() { given().baseUri("http://localhost:3000")...; }`,
+      solutionCode: `// FIX: TEK bir spec, her testte paylasiliyor
+RequestSpecification spec = BugApiSpec.spec();
+@Test void test1() { given().spec(spec)...; }
+@Test void test2() { given().spec(spec)...; }`,
+      hint: { tr: 'İki testte de AYNI `baseUri` yazılıyorsa, bu bir tekrar sinyalidir. `RequestSpecification` bu ortak kurulumu TEK bir yere taşır, her test onu PAYLAŞIR.', en: 'If the SAME `baseUri` is written in two tests, that is a duplication signal. `RequestSpecification` moves this common setup to ONE place, every test SHARES it.' },
+      successMessage: { tr: 'Doğru! Artık baseUri değişirse tek bir yer güncellenir, testler otomatik senkron kalır.', en: 'Correct! Now if baseUri changes, one place is updated, tests stay automatically in sync.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`RequestSpecification` kullanmamanın en büyük riski nedir?', en: 'What is the biggest risk of not using `RequestSpecification`?' },
+      options: [
+        { id: 'a', text: { tr: 'Bir testte kurulum (baseUri/header) güncellenip diğerinde unutulursa, testler sessizce farklı ortamlara karşı çalışır', en: 'If setup (baseUri/header) is updated in one test and forgotten in another, tests silently run against different environments' } },
+        { id: 'b', text: { tr: 'Testler daha yavaş çalışır', en: 'Tests run slower' } },
+        { id: 'c', text: { tr: 'Sunucu çöker', en: 'The server crashes' } },
+        { id: 'd', text: { tr: 'Hiçbir risk yoktur', en: 'There is no risk' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Tekrarlanan kurulum kodu, GÜNCELLEME sırasında bir yerin unutulmasına açıktır — bu, testlerin sessizce birbirinden farklı ortamlara/ayarlara karşı çalışmasına, yani güvenilmez bir test paketine yol açar.', en: 'Duplicated setup code is open to a spot being forgotten during an UPDATE — this leads to tests silently running against different environments/settings, i.e. an unreliable test suite.' },
+      retryQuestion: {
+        question: { tr: '`RequestSpecification`\'ın Selenium\'daki en yakın karşılığı nedir?', en: 'What is the closest Selenium equivalent of `RequestSpecification`?' },
+        options: [
+          { id: 'a', text: { tr: 'Page Object Model — tekrarlanan bilgiyi (locator\'lar/kurulum) tek bir sınıfta toplamak', en: 'The Page Object Model — gathering repeated information (locators/setup) into one class' } },
+          { id: 'b', text: { tr: 'WebDriverWait', en: 'WebDriverWait' } },
+          { id: 'c', text: { tr: 'By.cssSelector', en: 'By.cssSelector' } },
+          { id: 'd', text: { tr: 'ChromeOptions', en: 'ChromeOptions' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'İkisi de aynı prensibi taşır: tekrarlanan bir bilgiyi (Selenium\'da locator\'lar, REST Assured\'da baseUri/header) TEK bir yere toplayıp bakımı kolaylaştırmak ve tutarsızlık riskini azaltmak.', en: 'Both carry the same principle: gathering repeated information (locators in Selenium, baseUri/headers in REST Assured) into ONE place to ease maintenance and reduce inconsistency risk.' },
+      },
+    },
+  ],
+}
+
+const H6 = {
+  title: { tr: '🔁 H6 · JUnit 5/TestNG entegrasyonu + CI', en: '🔁 H6 · JUnit 5/TestNG Integration + CI' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔁',
+      content: {
+        tr: 'REST Assured yalnızca bir HTTP İSTEMCİSİDİR — isteği kim ÇALIŞTIRACAK, kim RAPORLAYACAK sorusunun cevabı JUnit 5 veya TestNG\'dir. Bu, G6\'da gördüğün Newman\'ın rolüyle AYNIDIR: Newman bir Postman koleksiyonunu ÇALIŞTIRIR/RAPORLAR, JUnit/TestNG ise bir REST Assured test SINIFINI çalıştırır/raporlar. `mvn test` (veya `mvn verify`) bu testleri komut satırından/CI\'da tetikler — GRUP B\'de yazdığın uygulama koduyla AYNI Maven projesinde yaşarlar. Peki bu neden önemli — testler ayrı bir proje olamaz mıydı? Çünkü aynı projede yaşamak, kod DEĞİŞTİĞİNDE testin AYNI `mvn install`/CI adımında OTOMATİK çalışmasını garanti eder; ayrı bir proje olsaydı, "testleri de çalıştırmayı unutma" riski (G4\'teki gibi) geri dönerdi. **Derin JUnit/TestNG+CI kurulumu için → `/rest-assured` sayfasına bak.**',
+        en: 'REST Assured is ONLY an HTTP CLIENT — the answer to "who RUNS the request, who REPORTS it" is JUnit 5 or TestNG. This is the EXACT same role as Newman from G6: Newman RUNS/REPORTS a Postman collection, JUnit/TestNG runs/reports a REST Assured test CLASS. `mvn test` (or `mvn verify`) triggers these tests from the command line/in CI — they live in the SAME Maven project as the app code you wrote in GROUP B. So why does this matter — couldn\'t tests be a separate project? Because living in the same project GUARANTEES the test runs AUTOMATICALLY in the SAME `mvn install`/CI step when the code CHANGES; if it were a separate project, the "forgetting to run tests too" risk (like in G4) would return. **For a deep JUnit/TestNG+CI setup guide → see the `/rest-assured` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'yaml',
+      code: {
+        tr: `# .github/workflows/api-tests.yml
+name: Bug Tracker API Testleri (REST Assured)
+on: [push]
+jobs:
+  rest-assured:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { java-version: '17', distribution: 'temurin' }
+      # TODO: uygulamayi baslat, SONRA testleri calistir
+      - run: mvn spring-boot:run &
+      - run: mvn test`,
+        en: `# .github/workflows/api-tests.yml
+name: Bug Tracker API Tests (REST Assured)
+on: [push]
+jobs:
+  rest-assured:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { java-version: '17', distribution: 'temurin' }
+      # TODO: start the app, THEN run the tests
+      - run: mvn spring-boot:run &
+      - run: mvn test`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-h6-junit-ci-film',
+      title: { tr: '🎬 REST Assured\'un Newman Karşılığı', en: '🎬 REST Assured\'s Newman Counterpart' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'ra', emoji: '📡', label: { tr: 'REST Assured: sadece istemci', en: 'REST Assured: just a client' }, color: '#f59e0b' },
+        { id: 'junit', emoji: '🔁', label: { tr: 'JUnit/TestNG çalıştırır', en: 'JUnit/TestNG runs it' }, color: '#0ea5e9' },
+        { id: 'ci', emoji: '🚧', label: { tr: 'mvn test → CI', en: 'mvn test → CI' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'REST Assured tek başına sadece bir istek gönderme aracıdır — onu KİM çalıştıracak?', en: 'REST Assured alone is just a request-sending tool — WHO will run it?' }, positions: { ra: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'JUnit 5/TestNG, `@Test` metotlarını bulup ÇALIŞTIRIR ve sonucu RAPORLAR — G6\'daki Newman\'ın REST Assured karşılığı.', en: 'JUnit 5/TestNG finds `@Test` methods, RUNS them, and REPORTS the result — the REST Assured counterpart of G6\'s Newman.' }, positions: { ra: { x: 20, y: 40 }, junit: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'ra', to: 'junit', color: '#0ea5e9' }] },
+        { caption: { tr: '`mvn test` bunu CI\'a bağlar — GRUP B kodunun bulunduğu AYNI projede, her push\'ta OTOMATİK çalışır.', en: '`mvn test` wires this into CI — in the SAME project as the GROUP B code, running AUTOMATICALLY on every push.' }, positions: { junit: { x: 20, y: 40 }, ci: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'junit', to: 'ci', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'REST Assured Testini CI\'a Bağlama Sırası', en: 'The Order for Wiring a REST Assured Test into CI' },
+      steps: [
+        { id: 1, icon: '🔁', label: { tr: 'JUnit/TestNG ile yaz…', en: 'Write with JUnit/TestNG…' }, detail: { tr: '@Test annotation\'ı ile REST Assured kodunu bir test metoduna sar.', en: 'Wrap the REST Assured code in a test method with the @Test annotation.' } },
+        { id: 2, icon: '▶️', label: { tr: 'mvn test ile doğrula…', en: 'Verify with mvn test…' }, detail: { tr: 'Yerelde mvn test çalıştırıp testin geçtiğini doğrula.', en: 'Run mvn test locally and verify the test passes.' } },
+        { id: 3, icon: '🚧', label: { tr: 'CI\'a ekle…', en: 'Add to CI…' }, detail: { tr: 'Uygulamayı başlatan adımdan SONRA mvn test\'i workflow\'a ekle.', en: 'Add mvn test to the workflow AFTER the step that starts the app.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-h6-order-01',
+      question: { tr: 'REST Assured testlerini CI\'a bağlama sürecini sırala.', en: 'Order the process for wiring REST Assured tests into CI.' },
+      items: [
+        { id: '1', text: { tr: 'Testleri @Test ile JUnit 5/TestNG metoduna sar', en: 'Wrap tests in a JUnit 5/TestNG @Test method' }, order: 1 },
+        { id: '2', text: { tr: 'mvn test ile yerelde doğrula', en: 'Verify locally with mvn test' }, order: 2 },
+        { id: '3', text: { tr: 'CI workflow\'unda önce uygulamayı başlat', en: 'Start the app first in the CI workflow' }, order: 3 },
+        { id: '4', text: { tr: 'Sonra mvn test adımını ekle', en: 'Then add the mvn test step' }, order: 4 },
+        { id: '5', text: { tr: 'Push at, testlerin CI\'da otomatik çalıştığını doğrula', en: 'Push, verify tests run automatically in CI' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-h6-junit-ci',
+      id: 'api-h6-junit-ci',
+      title: { tr: 'Kendin Dene: CI Adım Sırasını Düzelt', en: 'Try It Yourself: Fix the CI Step Order' },
+      starterCode: `# BUG: testler uygulama BASLAMADAN calisiyor -> baglanti hatasi
+steps:
+  - run: mvn test
+  - run: mvn spring-boot:run &`,
+      solutionCode: `steps:
+  - run: mvn spring-boot:run &
+  - run: mvn test`,
+      hint: { tr: 'REST Assured testleri, sunucuya GERÇEK bir HTTP isteği atar — sunucu henüz başlamamışsa istek bağlantı hatasıyla başarısız olur. Uygulamayı başlatan adım her zaman ÖNCE gelmelidir.', en: 'REST Assured tests send a REAL HTTP request to the server — if the server has not started yet, the request fails with a connection error. The step that starts the app must always come FIRST.' },
+      successMessage: { tr: 'Doğru! Artık testler sunucu ayaktayken çalışıyor.', en: 'Correct! Now tests run while the server is up.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'REST Assured testlerini uygulamanın AYNI Maven projesinde tutmanın avantajı nedir?', en: 'What is the advantage of keeping REST Assured tests in the SAME Maven project as the app?' },
+      options: [
+        { id: 'a', text: { tr: 'Kod değiştiğinde testler AYNI mvn install/CI adımında otomatik çalışır — "testleri unutma" riski kalmaz', en: 'When the code changes, tests run automatically in the SAME mvn install/CI step — no "forgetting the tests" risk' } },
+        { id: 'b', text: { tr: 'Uygulama daha hızlı başlar', en: 'The app starts faster' } },
+        { id: 'c', text: { tr: 'Veritabanı otomatik yedeklenir', en: 'The database is automatically backed up' } },
+        { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Testler ayrı bir projede olsaydı, ayrı bir adımda ELLE tetiklenmesi gerekirdi ve unutulabilirdi (G4\'teki çift-tıklama defect\'i gibi bir "unutma" riski). Aynı projede olmak, testin build\'in AYRILMAZ bir parçası olmasını garanti eder.', en: 'If tests were in a separate project, they would need to be triggered MANUALLY in a separate step and could be forgotten (a "forgetting" risk like the double-click defect from G4). Being in the same project guarantees the test is an INSEPARABLE part of the build.' },
+      retryQuestion: {
+        question: { tr: 'REST Assured ile JUnit 5/TestNG arasındaki iş bölümü nedir?', en: 'What is the division of labor between REST Assured and JUnit 5/TestNG?' },
+        options: [
+          { id: 'a', text: { tr: 'REST Assured isteği gönderir/doğrular, JUnit/TestNG testi çalıştırır ve raporlar', en: 'REST Assured sends/verifies the request, JUnit/TestNG runs and reports the test' } },
+          { id: 'b', text: { tr: 'İkisi aynı işi yapar, biri gereksizdir', en: 'They do the same job, one is redundant' } },
+          { id: 'c', text: { tr: 'JUnit/TestNG isteği gönderir, REST Assured raporlar', en: 'JUnit/TestNG sends the request, REST Assured reports it' } },
+          { id: 'd', text: { tr: 'REST Assured sadece veritabanı testleri içindir', en: 'REST Assured is only for database tests' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'REST Assured bir HTTP istemci KÜTÜPHANESİdir (isteği gönderir, `given/when/then` ile doğrular); JUnit 5/TestNG ise bir test ÇALIŞTIRICISI ve RAPORLAYICISIDIR (`@Test` metotlarını bulur, çalıştırır, sonucu raporlar) — G6\'daki Postman/Newman ayrımıyla birebir aynı mantık.', en: 'REST Assured is an HTTP client LIBRARY (sends the request, verifies with `given/when/then`); JUnit 5/TestNG is a test RUNNER and REPORTER (finds `@Test` methods, runs them, reports the result) — the exact same logic as the Postman/Newman split in G6.' },
+      },
+    },
+  ],
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GRUP I — Playwright ile API Testi (TypeScript) (ÇAKIŞMA KURALI: derin
+// Playwright anlatımı yok, burada API+UI hibrit gücü öne çıkar)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const I1 = {
+  title: { tr: '🎭 I1 · request fixture ve APIRequestContext', en: '🎭 I1 · request fixture and APIRequestContext' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🎭',
+      content: {
+        tr: 'Playwright\'ın `request` fixture\'ı, H1\'de gördüğün REST Assured\'un `given()`\'ının TypeScript karşılığıdır — `APIRequestContext`, tarayıcı AÇMADAN doğrudan HTTP istekleri gönderen bir istemcidir. Peki Playwright zaten bir TARAYICI otomasyon aracıyken, neden ayrı bir API istemcisi taşıyor? Çünkü GRUP I\'nin asıl gücü (I3\'te göreceğin gibi) API ile UI\'yı AYNI test dosyasında BİRLEŞTİREBİLMEKTİR — ayrı bir araca (REST Assured) geçmeden, aynı TypeScript test dosyasında hem `/api/v1/bugs`\'a istek atabilir hem tarayıcıyı kontrol edebilirsin. Java\'da bunun karşılığı, bir Selenium testi içinde HttpClient\'ı da enjekte edip kullanmaktır — mümkündür ama Playwright bunu framework\'ün DOĞAL bir parçası yapar. **Derin Playwright rehberi için → `/playwright` sayfasına bak; burada sadece API tarafını görüyoruz.**',
+        en: 'Playwright\'s `request` fixture is the TypeScript counterpart of the `given()` you saw in REST Assured in H1 — `APIRequestContext` is a client that sends HTTP requests directly WITHOUT opening a browser. So why does Playwright, already a BROWSER automation tool, carry a separate API client? Because GROUP I\'s real power (as you will see in I3) is being able to COMBINE API and UI in the SAME test file — without switching to a separate tool (REST Assured), you can both hit `/api/v1/bugs` and control the browser in the same TypeScript test file. The Java equivalent is injecting and using an HttpClient inside a Selenium test — possible, but Playwright makes it a NATURAL part of the framework. **For a deep Playwright guide → see the `/playwright` page; here we only see the API side.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `import { test, expect } from '@playwright/test'
+
+test('bug listesi getirilir', async ({ request }) => {
+  // TODO: tarayici ACMADAN dogrudan HTTP istegi
+  const response = await request.get('http://localhost:3000/api/v1/bugs')
+  expect(response.ok()).toBeTruthy()
+})`,
+        en: `import { test, expect } from '@playwright/test'
+
+test('fetches the bug list', async ({ request }) => {
+  // TODO: a direct HTTP request WITHOUT opening a browser
+  const response = await request.get('http://localhost:3000/api/v1/bugs')
+  expect(response.ok()).toBeTruthy()
+})`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-i1-request-fixture-film',
+      title: { tr: '🎬 Tarayıcı Açmadan Bir İstek Atmak', en: '🎬 Sending a Request Without Opening a Browser' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'test', emoji: '🎭', label: { tr: 'test(\'...\', async ({ request }) =>', en: 'test(\'...\', async ({ request }) =>' }, color: '#f59e0b' },
+        { id: 'ctx', emoji: '🎯', label: { tr: 'APIRequestContext', en: 'APIRequestContext' }, color: '#0ea5e9' },
+        { id: 'api', emoji: '🖥️', label: { tr: '/api/v1/bugs', en: '/api/v1/bugs' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'Playwright testi `request` fixture\'ını parametre olarak ister.', en: 'A Playwright test asks for the `request` fixture as a parameter.' }, positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Playwright bir `APIRequestContext` sağlar — HİÇBİR tarayıcı sekmesi açılmaz.', en: 'Playwright provides an `APIRequestContext` — NO browser tab opens.' }, positions: { test: { x: 20, y: 40 }, ctx: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'test', to: 'ctx', color: '#0ea5e9' }] },
+        { caption: { tr: '`request.get(...)` doğrudan `/api/v1/bugs`\'a bir HTTP isteği atar — hızlı ve tarayıcı yükünden bağımsız.', en: '`request.get(...)` sends an HTTP request directly to `/api/v1/bugs` — fast and independent of browser overhead.' }, positions: { ctx: { x: 20, y: 40 }, api: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'ctx', to: 'api', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'İlk Playwright API Testini Yazma Sırası', en: 'The Order for Writing the First Playwright API Test' },
+      steps: [
+        { id: 1, icon: '📦', label: { tr: '@playwright/test\'i kur…', en: 'Set up @playwright/test…' }, detail: { tr: 'Proje zaten kuruluysa ekstra kurulum gerekmez.', en: 'No extra setup needed if the project is already set up.' } },
+        { id: 2, icon: '🎯', label: { tr: 'request fixture\'ını al…', en: 'Get the request fixture…' }, detail: { tr: 'Test fonksiyonunun parametresinde { request } destructuring\'i yap.', en: 'Destructure { request } in the test function\'s parameter.' } },
+        { id: 3, icon: '📤', label: { tr: 'İsteği gönder…', en: 'Send the request…' }, detail: { tr: 'request.get/post ile /api/v1/bugs\'a doğrudan istek at.', en: 'Send a direct request to /api/v1/bugs with request.get/post.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-i1-order-01',
+      question: { tr: 'Playwright ile bir API testi yazma sırasını diz.', en: 'Order the steps for writing an API test with Playwright.' },
+      items: [
+        { id: '1', text: { tr: 'test fonksiyonunda { request } parametresini al', en: 'Take the { request } parameter in the test function' }, order: 1 },
+        { id: '2', text: { tr: 'request.get/post ile isteği gönder', en: 'Send the request with request.get/post' }, order: 2 },
+        { id: '3', text: { tr: 'response.ok() ile status\'u kontrol et', en: 'Check the status with response.ok()' }, order: 3 },
+        { id: '4', text: { tr: 'response.json() ile gövdeyi ayrıştır', en: 'Parse the body with response.json()' }, order: 4 },
+        { id: '5', text: { tr: 'expect(...) ile beklentiyi doğrula', en: 'Verify the expectation with expect(...)' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-i1-request-fixture',
+      id: 'api-i1-request-fixture',
+      title: { tr: 'Kendin Dene: Eksik Fixture Parametresini Ekle', en: 'Try It Yourself: Add the Missing Fixture Parameter' },
+      starterCode: `// BUG: request fixture'i parametre olarak alinmiyor
+test('bug listesi getirilir', async () => {
+  const response = await request.get('http://localhost:3000/api/v1/bugs')
+})`,
+      solutionCode: `test('bug listesi getirilir', async ({ request }) => {
+  const response = await request.get('http://localhost:3000/api/v1/bugs')
+  expect(response.ok()).toBeTruthy()
+})`,
+      hint: { tr: 'Playwright\'ta `request` global bir değişken DEĞİLDİR — her testin kendi izole `APIRequestContext`\'i olması için test fonksiyonunun PARAMETRESİNDEN `{ request }` olarak alınması gerekir.', en: 'In Playwright, `request` is NOT a global variable — it must be taken from the test function\'s PARAMETER as `{ request }` so each test gets its own isolated `APIRequestContext`.' },
+      successMessage: { tr: 'Doğru! Artık her test kendi izole API context\'iyle çalışıyor.', en: 'Correct! Now each test runs with its own isolated API context.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Playwright\'ın `request` fixture\'ı ile bir HTTP isteği göndermenin tarayıcı üzerinden gitmeye göre avantajı nedir?', en: 'What is the advantage of sending an HTTP request with Playwright\'s `request` fixture over going through the browser?' },
+      options: [
+        { id: 'a', text: { tr: 'Tarayıcı açma/render yükü olmadan, doğrudan ve hızlı bir istek gönderir', en: 'It sends a direct, fast request without browser-opening/rendering overhead' } },
+        { id: 'b', text: { tr: 'Sunucuyu otomatik başlatır', en: 'It automatically starts the server' } },
+        { id: 'c', text: { tr: 'Veritabanını sıfırlar', en: 'It resets the database' } },
+        { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
+      ],
+      correct: 'a',
+      explanation: { tr: '`APIRequestContext`, bir tarayıcı sekmesi açıp render etmeden doğrudan HTTP isteği gönderir — bu, sadece API\'yi test etmek istediğinde çok daha hızlı ve hafiftir.', en: '`APIRequestContext` sends an HTTP request directly, without opening and rendering a browser tab — much faster and lighter when you only want to test the API.' },
+      retryQuestion: {
+        question: { tr: 'Playwright\'ın `request` fixture\'ının REST Assured\'daki en yakın karşılığı nedir?', en: 'What is the closest REST Assured equivalent of Playwright\'s `request` fixture?' },
+        options: [
+          { id: 'a', text: { tr: '`given()` — bir HTTP isteği göndermek için hazırlık/istemci sağlar', en: '`given()` — provides the setup/client for sending an HTTP request' } },
+          { id: 'b', text: { tr: '`@Test` annotation\'ı', en: 'The `@Test` annotation' } },
+          { id: 'c', text: { tr: 'Bir POJO sınıfı', en: 'A POJO class' } },
+          { id: 'd', text: { tr: 'Bir Maven bağımlılığı', en: 'A Maven dependency' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'İkisi de bir HTTP isteği göndermek için gereken istemci/bağlamı sağlar — REST Assured\'da `given()` ile başlanır, Playwright\'ta `request` fixture\'ı ile.', en: 'Both provide the client/context needed to send an HTTP request — in REST Assured you start with `given()`, in Playwright with the `request` fixture.' },
+      },
+    },
+  ],
+}
+
+const I2 = {
+  title: { tr: '🟩 I2 · expect(response).toBeOK() ve JSON assertion', en: '🟩 I2 · expect(response).toBeOK() and JSON Assertion' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🟩',
+      content: {
+        tr: '`expect(response).toBeOK()`, Playwright\'ın 2xx status kontrolü için yazdığı bir KISAYOLDUR — H1\'deki `.statusCode(200)`\'ün TypeScript\'e çevirisi, ama tek bir kod yerine TÜM 2xx aralığını (200-299) kontrol eder. JSON gövdesini doğrulamak için ise `await response.json()` ile ayrıştırıp normal Playwright `expect(...)` assertion\'larını (`toBe`, `toEqual`, `toContain`) kullanırsın — UI testlerinde `expect(locator).toBeVisible()` yazmanla AYNI `expect` API\'sidir, sadece nesne bir DOM elementi değil bir veri parçasıdır. Peki bu neden önemli bir tutarlılık? Çünkü GRUP I\'nin gücü (I3) API ve UI assertion\'larını AYNI sözdizimiyle YAZDIRTMASINDA yatar — testerın zihninde "API modu" ile "UI modu" arasında geçiş yükü OLMAZ. **Derin Playwright assertion rehberi için → `/playwright` sayfasına bak.**',
+        en: '`expect(response).toBeOK()` is a SHORTCUT Playwright wrote for checking a 2xx status — the TypeScript translation of H1\'s `.statusCode(200)`, but checking the ENTIRE 2xx range (200-299) instead of a single code. To verify the JSON body, you parse it with `await response.json()` and use normal Playwright `expect(...)` assertions (`toBe`, `toEqual`, `toContain`) — the SAME `expect` API you use writing `expect(locator).toBeVisible()` in UI tests, only the object is a piece of data instead of a DOM element. Why does this consistency matter? Because GROUP I\'s power (I3) lies in making API and UI assertions WRITTEN with the SAME syntax — there is NO context-switching burden in the tester\'s mind between "API mode" and "UI mode". **For a deep Playwright assertion guide → see the `/playwright` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `test('bug detayi dogru donuyor', async ({ request }) => {
+  const response = await request.get('http://localhost:3000/api/v1/bugs/42')
+  expect(response.ok()).toBeTruthy()   // toBeOK() ile ayni: 2xx araligi
+
+  const body = await response.json()
+  // TODO: severity alaninin gecerli bir enum degeri oldugunu dogrula
+  expect(body.title).toBe('Login butonu donuyor')`,
+        en: `test('bug details return correctly', async ({ request }) => {
+  const response = await request.get('http://localhost:3000/api/v1/bugs/42')
+  expect(response.ok()).toBeTruthy()   // same as toBeOK(): the 2xx range
+
+  const body = await response.json()
+  // TODO: verify severity is a valid enum value
+  expect(body.title).toBe('Login button freezes')`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-i2-json-assertion-film',
+      title: { tr: '🎬 Aynı expect(), İki Farklı Nesne', en: '🎬 The Same expect(), Two Different Objects' },
+      xpReward: 10,
+      sceneDurationMs: 3400,
+      stageHeight: 240,
+      actors: [
+        { id: 'ui', emoji: '🖱️', label: { tr: 'expect(locator).toBeVisible()', en: 'expect(locator).toBeVisible()' }, color: '#f59e0b' },
+        { id: 'api', emoji: '📡', label: { tr: 'expect(body.title).toBe(...)', en: 'expect(body.title).toBe(...)' }, color: '#0ea5e9' },
+        { id: 'unified', emoji: '🎯', label: { tr: 'Tek zihinsel model', en: 'One mental model' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'Bir UI testinde `expect(locator).toBeVisible()` yazarsın — bir DOM elementini doğrularsın.', en: 'In a UI test you write `expect(locator).toBeVisible()` — verifying a DOM element.' }, positions: { ui: { x: 50, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Bir API testinde `expect(body.title).toBe(...)` yazarsın — AYNI `expect` fonksiyonu, farklı bir nesne.', en: 'In an API test you write `expect(body.title).toBe(...)` — the SAME `expect` function, a different object.' }, positions: { api: { x: 50, y: 55, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Ders — Zihinsel model AYNIDIR; sadece kontrol ettiğin şey (DOM mu, JSON mu) değişir. Bu, I3\'teki hibrit testlerin TEMELİDİR.', en: 'The lesson — the mental model is the SAME; only what you check (DOM or JSON) changes. This is the FOUNDATION of the hybrid tests in I3.' }, positions: { ui: { x: 25, y: 45 }, api: { x: 25, y: 60 }, unified: { x: 65, y: 52, scale: 1.15, pulse: true } }, beams: [{ from: 'ui', to: 'unified', color: '#22c55e' }, { from: 'api', to: 'unified', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Status ve Gövde Doğrulama Sırası', en: 'The Order for Verifying Status and Body' },
+      steps: [
+        { id: 1, icon: '🟩', label: { tr: 'Status kontrol et…', en: 'Check the status…' }, detail: { tr: 'expect(response.ok()).toBeTruthy() veya toBeOK() ile 2xx aralığını doğrula.', en: 'Verify the 2xx range with expect(response.ok()).toBeTruthy() or toBeOK().' } },
+        { id: 2, icon: '📄', label: { tr: 'Gövdeyi ayrıştır…', en: 'Parse the body…' }, detail: { tr: 'await response.json() ile ham JSON\'u bir JavaScript nesnesine çevir.', en: 'Convert the raw JSON to a JavaScript object with await response.json().' } },
+        { id: 3, icon: '🎯', label: { tr: 'Alanları doğrula…', en: 'Verify the fields…' }, detail: { tr: 'expect(body.alan).toBe(...)/toContain(...) ile içeriği kontrol et.', en: 'Check the content with expect(body.field).toBe(...)/toContain(...).' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-i2-order-01',
+      question: { tr: 'Bir Playwright API yanıtını doğrulama sırasını diz.', en: 'Order the steps for verifying a Playwright API response.' },
+      items: [
+        { id: '1', text: { tr: 'İsteği gönder, response nesnesini al', en: 'Send the request, get the response object' }, order: 1 },
+        { id: '2', text: { tr: 'response.ok()/toBeOK() ile status\'u kontrol et', en: 'Check the status with response.ok()/toBeOK()' }, order: 2 },
+        { id: '3', text: { tr: 'await response.json() ile gövdeyi ayrıştır', en: 'Parse the body with await response.json()' }, order: 3 },
+        { id: '4', text: { tr: 'expect(body.alan).toBe(...) ile içeriği doğrula', en: 'Verify the content with expect(body.field).toBe(...)' }, order: 4 },
+        { id: '5', text: { tr: 'Test sonucunu oku', en: 'Read the test result' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-i2-json-assertion',
+      id: 'api-i2-json-assertion',
+      title: { tr: 'Kendin Dene: Eksik JSON Doğrulamasını Ekle', en: 'Try It Yourself: Add the Missing JSON Verification' },
+      starterCode: `const body = await response.json()
+expect(body.title).toBe('Login butonu donuyor')
+// TODO: body.severity'nin gecerli enum degerlerinden biri oldugunu dogrula`,
+      solutionCode: `const body = await response.json()
+expect(body.title).toBe('Login butonu donuyor')
+expect(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).toContain(body.severity)`,
+      hint: { tr: 'Bir dizinin belirli bir değeri İÇERDİĞİNİ doğrulamak için `expect(dizi).toContain(deger)` kullanılır — bu, F4\'teki `enum` kısıtının Playwright karşılığıdır.', en: 'To verify an array CONTAINS a specific value, use `expect(array).toContain(value)` — this is the Playwright counterpart of F4\'s `enum` constraint.' },
+      successMessage: { tr: 'Doğru! Artık severity alanı da geçerli enum listesine karşı doğrulanıyor.', en: 'Correct! Now the severity field is also verified against the valid enum list.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Playwright\'ta hem UI hem API testlerinde AYNI `expect(...)` fonksiyonunu kullanmanın avantajı nedir?', en: 'What is the advantage of using the SAME `expect(...)` function in both UI and API tests in Playwright?' },
+      options: [
+        { id: 'a', text: { tr: 'Testerın zihninde "API modu"/"UI modu" arasında geçiş yükü olmaz — tek bir tutarlı sözdizimi öğrenilir', en: 'There is no context-switching burden between "API mode"/"UI mode" in the tester\'s mind — one consistent syntax is learned' } },
+        { id: 'b', text: { tr: 'Testler daha hızlı çalışır', en: 'Tests run faster' } },
+        { id: 'c', text: { tr: 'Sunucu yükü azalır', en: 'Server load decreases' } },
+        { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Aynı `expect` API\'si hem `locator` hem `response`/JSON nesneleri üzerinde çalışır; bu tutarlılık, testerın iki farklı araç/sözdizimi arasında geçiş yapma yükünü ortadan kaldırır — I3\'teki hibrit testlerin temelini oluşturur.', en: 'The same `expect` API works on both `locator` and `response`/JSON objects; this consistency removes the burden of switching between two different tools/syntaxes — it is the foundation of the hybrid tests in I3.' },
+      retryQuestion: {
+        question: { tr: '`expect(response).toBeOK()` tam olarak neyi kontrol eder?', en: 'What exactly does `expect(response).toBeOK()` check?' },
+        options: [
+          { id: 'a', text: { tr: 'Status kodunun 200-299 (2xx) aralığında olduğunu', en: 'That the status code is in the 200-299 (2xx) range' } },
+          { id: 'b', text: { tr: 'Sadece status kodunun tam olarak 200 olduğunu', en: 'Only that the status code is exactly 200' } },
+          { id: 'c', text: { tr: 'Gövdenin boş olduğunu', en: 'That the body is empty' } },
+          { id: 'd', text: { tr: 'İsteğin 1 saniyeden hızlı olduğunu', en: 'That the request is faster than 1 second' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`toBeOK()`, H1\'deki tek bir `.statusCode(200)` kontrolünden farklı olarak, TÜM başarı aralığını (200, 201, 204 dahil 2xx) kontrol eden bir kısayoldur.', en: 'Unlike H1\'s single `.statusCode(200)` check, `toBeOK()` is a shortcut that checks the ENTIRE success range (2xx, including 200, 201, 204).' },
+      },
+    },
+  ],
+}
+
+const I3 = {
+  title: { tr: '🔀 I3 · Hibrit Güç: API ile kur, UI\'da doğrula', en: '🔀 I3 · Hybrid Power: Set Up with API, Verify in UI' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔀',
+      content: {
+        tr: 'Hibrit test, GRUP I\'nin (ve bu sayfanın) en güçlü fikirlerinden biridir: bir bug\'ı UI\'DAN OLUŞTURMAK (form doldur, butona tıkla — YAVAŞ ve KIRILGAN) yerine, `request.post(...)` ile API\'DEN doğrudan oluşturursun (HIZLI ve GÜVENİLİR), sonra SADECE test etmek istediğin şeyi (bug\'ın listede göründüğünü) tarayıcıda DOĞRULARSIN. Bu, bir tiyatro provasına benzer: her sahneyi baştan sona OYNAMAK yerine, sadece test etmek istediğin SAHNEYE ışıkları AÇARSIN — geri kalan dekor (10 bug kaydı) API ile SANİYELER içinde kurulur. Peki neden HER ŞEYİ UI ile kurmuyoruz — daha "gerçekçi" olmaz mıydı? Çünkü UI\'dan 10 bug oluşturmak dakikalar sürer ve HER adımda kırılma riski taşır (bir buton kayarsa TÜM test çöker); oysa test SENARYOSUNUN amacı genelde "listeleme özelliğinin doğru çalıştığını" görmektir, "bug oluşturma formunun" DEĞİL — o zaten B6/C4/D3\'te ayrıca test edildi. Java\'da bunun karşılığı, bir Selenium testinde veritabanına doğrudan test verisi ENJEKTE etmektir (`@Sql` script\'i gibi) — API burada o "hızlı veri kurma" katmanının GÜVENİLİR, sözleşmeye uygun (F GRUP) versiyonudur. **Derin Playwright UI otomasyonu için → `/playwright` sayfasına bak.**',
+        en: 'Hybrid testing is one of GROUP I\'s (and this page\'s) most powerful ideas: instead of CREATING a bug FROM THE UI (fill a form, click a button — SLOW and FRAGILE), you create it directly FROM THE API with `request.post(...)` (FAST and RELIABLE), then ONLY VERIFY in the browser the thing you actually want to test (that the bug appears in the list). This is like a theater rehearsal: instead of PLAYING every scene start to finish, you turn the LIGHTS ON only for the SCENE you want to test — the rest of the set (10 bug records) is built with the API in SECONDS. So why not build EVERYTHING through the UI — wouldn\'t that be more "realistic"? Because creating 10 bugs from the UI takes minutes and carries a break risk at EVERY step (if one button shifts, the WHOLE test collapses); yet the test SCENARIO\'s goal is usually to see "the listing feature works correctly", NOT "the bug creation form" — that was already tested separately in B6/C4/D3. The Java equivalent is directly INJECTING test data into the database in a Selenium test (like an `@Sql` script) — here the API is the RELIABLE, contract-compliant (GROUP F) version of that "fast data setup" layer. **For deep Playwright UI automation → see the `/playwright` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `test('yeni bug listede gorunur', async ({ request, page }) => {
+  // 1. KURULUM: API ile HIZLICA bir bug olustur (UI'dan GECME)
+  const created = await request.post('http://localhost:3000/api/v1/bugs', {
+    data: { title: 'Odeme sayfasi 500 veriyor', severity: 'CRITICAL', reporter: 'tester@learnqa.dev' },
+  })
+  const bug = await created.json()
+
+  // 2. DOGRULAMA: SADECE test edilen seyi tarayicida kontrol et
+  await page.goto('http://localhost:3000/bugs')
+  // TODO: yeni olusturulan bug'in listede GORUNDUGUNU dogrula
+  await expect(page.getByText(bug.title)).toBeVisible()
+})`,
+        en: `test('new bug appears in the list', async ({ request, page }) => {
+  // 1. SETUP: create a bug QUICKLY with the API (SKIP the UI)
+  const created = await request.post('http://localhost:3000/api/v1/bugs', {
+    data: { title: 'Payment page returns 500', severity: 'CRITICAL', reporter: 'tester@learnqa.dev' },
+  })
+  const bug = await created.json()
+
+  // 2. VERIFICATION: check ONLY the thing under test, in the browser
+  await page.goto('http://localhost:3000/bugs')
+  // TODO: verify the newly created bug APPEARS in the list
+  await expect(page.getByText(bug.title)).toBeVisible()
+})`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-i3-hybrid-power-film',
+      title: { tr: '🎬 API ile Kur, UI\'da Doğrula', en: '🎬 Set Up with API, Verify in UI' },
+      xpReward: 15,
+      sceneDurationMs: 3400,
+      stageHeight: 280,
+      actors: [
+        { id: 'uiSlow', emoji: '🐢', label: { tr: 'UI ile kurulum: dakikalar', en: 'UI setup: minutes' }, color: '#ef4444' },
+        { id: 'apiSetup', emoji: '⚡', label: { tr: 'API ile kurulum: saniyeler', en: 'API setup: seconds' }, color: '#f59e0b' },
+        { id: 'bug', emoji: '🐛', label: { tr: 'Bug oluştu (id: 99)', en: 'Bug created (id: 99)' }, color: '#a78bfa' },
+        { id: 'navigate', emoji: '🌐', label: { tr: 'Sadece listeye git', en: 'Only navigate to the list' }, color: '#0ea5e9' },
+        { id: 'verify', emoji: '✅', label: { tr: 'Sadece bunu DOĞRULA', en: 'ONLY VERIFY this' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'YAVAŞ YOL: UI\'dan 10 bug oluşturmak — her biri form doldurma + tıklama + bekleme, dakikalar sürer ve KIRILGANdır.', en: 'THE SLOW PATH: creating 10 bugs from the UI — each one filling a form + clicking + waiting, taking minutes and being FRAGILE.' }, positions: { uiSlow: { x: 50, y: 40, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'HIZLI YOL: `request.post(...)` ile AYNI veri SANİYELER içinde, UI\'ya HİÇ dokunmadan oluşturulur.', en: 'THE FAST PATH: the SAME data is created in SECONDS with `request.post(...)`, WITHOUT touching the UI at all.' }, positions: { uiSlow: { x: 20, y: 30 }, apiSetup: { x: 58, y: 45, scale: 1.15, pulse: true } }, beams: [{ from: 'uiSlow', to: 'apiSetup', color: '#f59e0b' }] },
+        { caption: { tr: 'API yanıtından gerçek bir `bug` nesnesi (id: 99) elde edilir — test verisi HAZIRDIR.', en: 'A real `bug` object (id: 99) is obtained from the API response — the test data is READY.' }, positions: { apiSetup: { x: 20, y: 35 }, bug: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'apiSetup', to: 'bug', color: '#a78bfa' }] },
+        { caption: { tr: 'ANCAK ŞİMDİ tarayıcı açılır — `page.goto(...)` ile DOĞRUDAN bug listesine gidilir, kurulum adımları ATLANIR.', en: 'ONLY NOW does the browser open — `page.goto(...)` navigates DIRECTLY to the bug list, setup steps are SKIPPED.' }, positions: { bug: { x: 20, y: 35 }, navigate: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'bug', to: 'navigate', color: '#0ea5e9' }] },
+        { caption: { tr: 'Ders — Test SADECE gerçekten test edilmek istenen şeyi (bug\'ın listede görünmesi) doğrular; kurulum HIZLI ve GÜVENİLİR API ile, doğrulama GERÇEK kullanıcı deneyimiyle (UI) yapılır.', en: 'The lesson — the test verifies ONLY the thing actually under test (the bug appearing in the list); setup happens via the FAST, RELIABLE API, verification happens via the REAL user experience (UI).' }, positions: { navigate: { x: 30, y: 45 }, verify: { x: 62, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'navigate', to: 'verify', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Hibrit Bir Test Kurma Sırası', en: 'The Order for Building a Hybrid Test' },
+      steps: [
+        { id: 1, icon: '⚡', label: { tr: 'API ile kur…', en: 'Set up with the API…' }, detail: { tr: 'request.post(...) ile ihtiyaç duyulan veriyi (bug kaydı) hızlıca oluştur.', en: 'Quickly create the needed data (a bug record) with request.post(...).' } },
+        { id: 2, icon: '🌐', label: { tr: 'Doğrudan hedefe git…', en: 'Navigate straight to the target…' }, detail: { tr: 'page.goto(...) ile gereksiz UI adımlarını atlayarak test edilecek sayfaya git.', en: 'Skip unnecessary UI steps and go straight to the page under test with page.goto(...).' } },
+        { id: 3, icon: '✅', label: { tr: 'Sadece hedefi doğrula…', en: 'Verify only the target…' }, detail: { tr: 'expect(page...).toBeVisible() ile SADECE test edilmek istenen davranışı kontrol et.', en: 'Check ONLY the behavior actually under test with expect(page...).toBeVisible().' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-i3-order-01',
+      question: { tr: 'Bir hibrit (API+UI) testin doğru akışını sırala.', en: 'Order the correct flow of a hybrid (API+UI) test.' },
+      items: [
+        { id: '1', text: { tr: 'request.post(...) ile API üzerinden test verisini oluştur', en: 'Create the test data via the API with request.post(...)' }, order: 1 },
+        { id: '2', text: { tr: 'API yanıtından oluşturulan kaydın bilgilerini al', en: 'Get the created record\'s info from the API response' }, order: 2 },
+        { id: '3', text: { tr: 'page.goto(...) ile doğrudan ilgili sayfaya git', en: 'Navigate directly to the relevant page with page.goto(...)' }, order: 3 },
+        { id: '4', text: { tr: 'Sadece test edilen davranışı (görünürlük) doğrula', en: 'Verify only the behavior under test (visibility)' }, order: 4 },
+        { id: '5', text: { tr: 'Testi tamamla, sonucu raporla', en: 'Complete the test, report the result' }, order: 5 },
+      ],
+      xpReward: 13,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-i3-hybrid-setup',
+      id: 'api-i3-hybrid-setup',
+      title: { tr: 'Kendin Dene: UI Kurulumunu API\'ye Taşı', en: 'Try It Yourself: Move the UI Setup to the API' },
+      starterCode: `// BUG: her test bug'i UI'DAN olusturuyor - yavas ve kirilgan
+test('yeni bug listede gorunur', async ({ page }) => {
+  await page.goto('http://localhost:3000/bugs/new')
+  await page.getByLabel('Title').fill('Odeme sayfasi 500 veriyor')
+  await page.getByRole('button', { name: 'Kaydet' }).click()
+  await page.goto('http://localhost:3000/bugs')
+  await expect(page.getByText('Odeme sayfasi 500 veriyor')).toBeVisible()
+})`,
+      solutionCode: `test('yeni bug listede gorunur', async ({ request, page }) => {
+  const created = await request.post('http://localhost:3000/api/v1/bugs', {
+    data: { title: 'Odeme sayfasi 500 veriyor', severity: 'CRITICAL', reporter: 'tester@learnqa.dev' },
+  })
+  const bug = await created.json()
+  await page.goto('http://localhost:3000/bugs')
+  await expect(page.getByText(bug.title)).toBeVisible()
+})`,
+      hint: { tr: 'Form doldurma/tıklama adımları YAVAŞ ve KIRILGANDIR; bu adımların amacı test SENARYOSUNUN parçası değilse (burada amaç "listeleme" çalışıyor mu), API ile hızlıca kurulup sadece doğrulama UI\'da yapılmalıdır.', en: 'Form-filling/clicking steps are SLOW and FRAGILE; if these steps are not part of the test SCENARIO (here the goal is "does listing work"), setup should be done quickly via the API, with only verification happening in the UI.' },
+      successMessage: { tr: 'Doğru! Artık test çok daha hızlı ve sadece listeleme davranışına odaklanıyor.', en: 'Correct! Now the test is much faster and focused only on the listing behavior.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Bir bug\'ı test verisi olarak UI yerine API ile oluşturmanın en büyük avantajı nedir?', en: 'What is the biggest advantage of creating a bug as test data via the API instead of the UI?' },
+      options: [
+        { id: 'a', text: { tr: 'Çok daha hızlı ve güvenilirdir; test SADECE gerçekten test edilmek istenen davranışa (ör. listeleme) odaklanabilir', en: 'It is much faster and more reliable; the test can focus ONLY on the behavior actually under test (e.g. listing)' } },
+        { id: 'b', text: { tr: 'UI testleri artık hiç gerekmez', en: 'UI tests are no longer needed at all' } },
+        { id: 'c', text: { tr: 'Sunucu performansı artar', en: 'Server performance improves' } },
+        { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Form doldurma/tıklama adımları yavaştır ve her adımda kırılma riski taşır. Test verisini API ile kurmak bu riski ortadan kaldırır ve testin SADECE gerçekten doğrulanmak istenen davranışa odaklanmasını sağlar — UI testleri hâlâ gereklidir, ama form/kurulum akışlarını AYRICA test etmek için (B6/C4/D3\'te olduğu gibi).', en: 'Form-filling/clicking steps are slow and carry a break risk at every step. Setting up test data via the API removes this risk and lets the test focus ONLY on the behavior actually being verified — UI tests are still necessary, but to test form/setup flows SEPARATELY (as in B6/C4/D3).' },
+      retryQuestion: {
+        question: { tr: 'Hibrit testin Java/Selenium dünyasındaki en yakın karşılığı nedir?', en: 'What is the closest Java/Selenium-world equivalent of a hybrid test?' },
+        options: [
+          { id: 'a', text: { tr: 'Test verisini bir @Sql script\'i veya doğrudan veritabanı enjeksiyonuyla hızlıca kurup, sadece UI davranışını Selenium ile doğrulamak', en: 'Quickly setting up test data with an @Sql script or direct database injection, then verifying only the UI behavior with Selenium' } },
+          { id: 'b', text: { tr: 'Tüm testleri sadece UI ile yazmak', en: 'Writing all tests only through the UI' } },
+          { id: 'c', text: { tr: 'Testleri hiç otomatikleştirmemek', en: 'Not automating tests at all' } },
+          { id: 'd', text: { tr: 'Sadece manuel test yapmak', en: 'Only doing manual testing' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'İkisi de aynı fikri taşır: yavaş/kırılgan bir kurulum katmanını (UI form doldurma) hızlı, güvenilir bir alternatifle (API çağrısı, DB script\'i) değiştirip, otomasyonun kısıtlı zamanını SADECE gerçek test hedefine ayırmak.', en: 'Both carry the same idea: replacing a slow/fragile setup layer (UI form filling) with a fast, reliable alternative (an API call, a DB script), spending automation\'s limited time ONLY on the real test target.' },
+      },
+    },
+  ],
+}
+
+const I4 = {
+  title: { tr: '🔑 I4 · storageState ile API üzerinden login', en: '🔑 I4 · Login via API with storageState' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔑',
+      content: {
+        tr: '`storageState`, I3\'teki hibrit fikrin LOGIN\'e uygulanmış hâlidir: her testte UI\'dan kullanıcı adı/şifre yazıp "Giriş Yap"a tıklamak yerine (YAVAŞ, HER testte TEKRARLANAN bir adım), API üzerinden bir kez login olup dönen oturum bilgisini (cookie/token) bir DOSYAYA kaydedersin — sonraki her test bu dosyayı YÜKLEYEREK, sanki kullanıcı ZATEN giriş yapmış gibi başlar. Bu, Java\'da bir test SÜİTİNİN başında BİR KEZ oturum açıp o oturumu tüm testler arasında PAYLAŞMasına benzer (`@BeforeAll` ile bir kez kurup paylaşmak). Peki neden bu kadar önemli — login testi zaten I3\'te AYRICA test edilmedi mi? Çünkü GRUP I\'deki DİĞER testlerin (bug listesi, detay sayfası) AMACI login akışını test etmek DEĞİLDİR — her testin başında login formunu YENİDEN doldurmak, o testin ASIL amacından SAPMAK ve gereksiz kırılganlık eklemektir. **Derin Playwright auth/storageState rehberi için → `/playwright` sayfasına bak.**',
+        en: '`storageState` is I3\'s hybrid idea applied to LOGIN: instead of typing a username/password in the UI and clicking "Log In" in every test (SLOW, a step REPEATED in every test), you log in ONCE via the API and save the resulting session info (cookie/token) to a FILE — every subsequent test LOADS this file and starts as if the user is ALREADY logged in. In Java this is similar to logging in ONCE at the start of a test SUITE and SHARING that session across all tests (setting it up once with `@BeforeAll` and sharing it). So why does this matter so much — wasn\'t login already tested SEPARATELY in I3? Because the OTHER tests in GROUP I (bug list, detail page) do NOT aim to test the login flow — REFILLING the login form at the start of every test DEVIATES from that test\'s ACTUAL purpose and adds needless fragility. **For a deep Playwright auth/storageState guide → see the `/playwright` page.**',
+      },
+    },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `// auth.setup.ts — TESTLERDEN ONCE BIR KEZ calisir
+import { test as setup } from '@playwright/test'
+
+setup('API ile giris yap', async ({ request }) => {
+  const response = await request.post('http://localhost:3000/api/v1/login', {
+    data: { email: 'tester@learnqa.dev', password: 'secret' },
+  })
+  // TODO: donen oturum bilgisini dosyaya kaydet
+  await request.storageState({ path: 'auth.json' })
+})
+
+// bugs.spec.ts — auth.json KULLANARAK, login formunu HIC gormeden baslar
+test.use({ storageState: 'auth.json' })
+test('giris yapmis kullanici bug listesini gorur', async ({ page }) => {
+  await page.goto('http://localhost:3000/bugs')  // zaten giris yapilmis
+})`,
+        en: `// auth.setup.ts — runs ONCE BEFORE the tests
+import { test as setup } from '@playwright/test'
+
+setup('log in via the API', async ({ request }) => {
+  const response = await request.post('http://localhost:3000/api/v1/login', {
+    data: { email: 'tester@learnqa.dev', password: 'secret' },
+  })
+  // TODO: save the returned session info to a file
+  await request.storageState({ path: 'auth.json' })
+})
+
+// bugs.spec.ts — starts USING auth.json, NEVER seeing the login form
+test.use({ storageState: 'auth.json' })
+test('logged-in user sees the bug list', async ({ page }) => {
+  await page.goto('http://localhost:3000/bugs')  // already logged in
+})`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-i4-storage-state-film',
+      title: { tr: '🎬 Bir Kez Giriş, Yüzlerce Test', en: '🎬 One Login, Hundreds of Tests' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'repeat', emoji: '🔁', label: { tr: 'Her testte form + tıkla', en: 'Fill form + click in every test' }, color: '#ef4444' },
+        { id: 'once', emoji: '🔑', label: { tr: 'API ile BİR KEZ login', en: 'ONE-TIME API login' }, color: '#f59e0b' },
+        { id: 'save', emoji: '💾', label: { tr: 'auth.json\'a kaydet', en: 'Save to auth.json' }, color: '#0ea5e9' },
+        { id: 'reuse', emoji: '♻️', label: { tr: 'Her test bunu YÜKLER', en: 'Every test LOADS it' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'YAVAŞ YOL: 50 test dosyası, HER BİRİ kendi login formunu doldurup butona tıklıyor — 50 kez tekrarlanan yavaş bir adım.', en: 'THE SLOW PATH: 50 test files, EACH filling its own login form and clicking — a slow step repeated 50 times.' }, positions: { repeat: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'HIZLI YOL: API üzerinden `POST /login` ile BİR KEZ giriş yapılır.', en: 'THE FAST PATH: log in ONCE via the API with `POST /login`.' }, positions: { repeat: { x: 20, y: 35 }, once: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'repeat', to: 'once', color: '#f59e0b' }] },
+        { caption: { tr: 'Dönen oturum bilgisi (cookie/token) `auth.json` dosyasına kaydedilir.', en: 'The returned session info (cookie/token) is saved to `auth.json`.' }, positions: { once: { x: 20, y: 35 }, save: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'once', to: 'save', color: '#0ea5e9' }] },
+        { caption: { tr: 'Ders — 50 test dosyasının HER BİRİ, artık `auth.json`\'u YÜKLEYEREK, login formunu HİÇ görmeden "zaten giriş yapmış" başlar.', en: 'The lesson — EACH of the 50 test files now starts "already logged in" by LOADING `auth.json`, NEVER seeing the login form.' }, positions: { save: { x: 30, y: 45 }, reuse: { x: 62, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'save', to: 'reuse', color: '#22c55e' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'API ile Login Paylaşma Sırası', en: 'The Order for Sharing an API Login' },
+      steps: [
+        { id: 1, icon: '🔑', label: { tr: 'Setup dosyası yaz…', en: 'Write a setup file…' }, detail: { tr: 'Testlerden önce çalışan bir setup projesi/dosyası oluştur.', en: 'Create a setup project/file that runs before the tests.' } },
+        { id: 2, icon: '💾', label: { tr: 'Oturumu kaydet…', en: 'Save the session…' }, detail: { tr: 'API login sonrası storageState({ path: ... }) ile oturum bilgisini dosyaya yaz.', en: 'After API login, write the session info to a file with storageState({ path: ... }).' } },
+        { id: 3, icon: '♻️', label: { tr: 'Testlerde yeniden kullan…', en: 'Reuse in tests…' }, detail: { tr: 'test.use({ storageState: ... }) ile bu dosyayı her test dosyasında paylaş.', en: 'Share this file across every test file with test.use({ storageState: ... }).' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-i4-order-01',
+      question: { tr: 'storageState ile API login paylaşımını kurma sırasını diz.', en: 'Order the steps for setting up shared API login with storageState.' },
+      items: [
+        { id: '1', text: { tr: 'auth.setup.ts dosyasında API ile login isteği gönder', en: 'Send the API login request in auth.setup.ts' }, order: 1 },
+        { id: '2', text: { tr: 'Dönen oturumu storageState ile auth.json\'a kaydet', en: 'Save the returned session to auth.json with storageState' }, order: 2 },
+        { id: '3', text: { tr: 'Test dosyalarında test.use({ storageState: ... }) yaz', en: 'Write test.use({ storageState: ... }) in test files' }, order: 3 },
+        { id: '4', text: { tr: 'Testler artık login formunu görmeden başlar', en: 'Tests now start without seeing the login form' }, order: 4 },
+        { id: '5', text: { tr: 'Giriş gerektiren sayfaları doğrudan test et', en: 'Test pages that require login directly' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-i4-storage-state-login',
+      id: 'api-i4-storage-state-login',
+      title: { tr: 'Kendin Dene: Tekrarlanan Login Adımlarını Kaldır', en: 'Try It Yourself: Remove the Repeated Login Steps' },
+      starterCode: `// BUG: her test dosyasi login formunu AYRI AYRI dolduruyor
+test('bug listesi gorunur', async ({ page }) => {
+  await page.goto('/login')
+  await page.getByLabel('Email').fill('tester@learnqa.dev')
+  await page.getByLabel('Sifre').fill('secret')
+  await page.getByRole('button', { name: 'Giris' }).click()
+  await page.goto('/bugs')
+})`,
+      solutionCode: `// FIX: auth.json PAYLASILIYOR, login formu hic gorulmuyor
+test.use({ storageState: 'auth.json' })
+test('bug listesi gorunur', async ({ page }) => {
+  await page.goto('/bugs')
+})`,
+      hint: { tr: 'Login formunu her test dosyasında ayrı ayrı doldurmak, o testin ASIL amacından (bug listesini test etmek) SAPAR ve gereksiz kırılganlık ekler. `storageState` bu tekrarı ortadan kaldırır.', en: 'Filling the login form separately in every test file DEVIATES from that test\'s ACTUAL purpose (testing the bug list) and adds needless fragility. `storageState` removes this repetition.' },
+      successMessage: { tr: 'Doğru! Artık test sadece bug listesine odaklanıyor, login formunu tekrar tekrar doldurmuyor.', en: 'Correct! Now the test focuses only on the bug list, no longer refilling the login form repeatedly.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`storageState` ile API üzerinden bir kez login olup oturumu paylaşmanın en büyük avantajı nedir?', en: 'What is the biggest advantage of logging in once via the API and sharing the session with `storageState`?' },
+      options: [
+        { id: 'a', text: { tr: 'Her test dosyasının login formunu tekrar tekrar doldurma yükünden ve kırılganlığından kurtulur', en: 'It removes the burden and fragility of every test file refilling the login form repeatedly' } },
+        { id: 'b', text: { tr: 'Kullanıcı şifresini değiştirir', en: 'It changes the user\'s password' } },
+        { id: 'c', text: { tr: 'Veritabanını sıfırlar', en: 'It resets the database' } },
+        { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Login formunu her test dosyasında ayrı ayrı doldurmak hem yavaştır hem de o testin gerçek amacından sapar. `storageState`, I3\'teki "sadece gerekeni kur" fikrini login\'e uygulayarak bu tekrarı ortadan kaldırır.', en: 'Filling the login form separately in every test file is both slow and deviates from that test\'s real purpose. `storageState` applies I3\'s "set up only what is needed" idea to login, removing this repetition.' },
+      retryQuestion: {
+        question: { tr: '`storageState` dosyasında tipik olarak ne saklanır?', en: 'What is typically stored in a `storageState` file?' },
+        options: [
+          { id: 'a', text: { tr: 'Oturum bilgisi: cookie\'ler ve/veya token\'lar', en: 'Session info: cookies and/or tokens' } },
+          { id: 'b', text: { tr: 'Veritabanı şeması', en: 'The database schema' } },
+          { id: 'c', text: { tr: 'Sunucunun kaynak kodu', en: 'The server\'s source code' } },
+          { id: 'd', text: { tr: 'Test raporunun HTML çıktısı', en: 'The test report\'s HTML output' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`storageState`, bir tarayıcı oturumunun kimlik durumunu (cookie\'ler, `localStorage`, token\'lar) bir dosyaya kaydeder — bu dosya yüklendiğinde tarayıcı sanki o kullanıcı ZATEN giriş yapmış gibi davranır.', en: '`storageState` saves a browser session\'s identity state (cookies, `localStorage`, tokens) to a file — when this file is loaded, the browser behaves as if that user is ALREADY logged in.' },
+      },
+    },
+  ],
+}
+
+const I5 = {
+  title: { tr: '⚔️ I5 · REST Assured ↔ Playwright Karşılaştırması', en: '⚔️ I5 · REST Assured ↔ Playwright Comparison' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '⚔️',
+      content: {
+        tr: 'GRUP H ve I\'yi bitirdikten sonra bir Java geliştiricisi olarak şu soruyu sormalısın: `/api/v1/bugs`\'u test etmek için REST Assured mü, Playwright mü? Cevap "ikisi de" ile başlar ama NEDEN\'i önemlidir: REST Assured, Java ekosisteminin İÇİNDE kalıp `Bug` POJO\'sunu (H3), `RequestSpecification`\'ı (H5) ve JUnit/TestNG raporlamasını (H6) DOĞRUDAN paylaşır — eğer takımın Selenium/REST Assured ile Java\'da yaşıyorsa, sürtünme SIFIRA yakındır. Playwright ise TypeScript\'te yaşar ve I3\'teki hibrit gücü (API+UI AYNI dosyada) sağlar — eğer takım zaten Playwright ile UI test yazıyorsa, API testlerini AYRI bir Java projesine (REST Assured) taşımak yerine AYNI TypeScript projesinde tutmak tutarlılık sağlar. Bu, "hangisi daha iyi" değil, **"takımın hangi dilde/ekosistemde yaşadığı"** sorusudur — tıpkı C6/D5\'teki Express/Nest kararı gibi. **Derin Playwright rehberi için → `/playwright` sayfasına bak.**',
+        en: 'After finishing GROUP H and I, as a Java developer you should ask: to test `/api/v1/bugs`, REST Assured or Playwright? The answer starts with "both", but the WHY matters: REST Assured stays INSIDE the Java ecosystem and directly shares the `Bug` POJO (H3), `RequestSpecification` (H5), and JUnit/TestNG reporting (H6) — if your team lives in Java with Selenium/REST Assured, the friction is near ZERO. Playwright lives in TypeScript and provides I3\'s hybrid power (API+UI in the SAME file) — if the team already writes UI tests with Playwright, keeping API tests in the SAME TypeScript project instead of moving them to a separate Java project (REST Assured) provides consistency. This is not "which is better", it is the **"which language/ecosystem does the team live in"** question — just like the Express/Nest decision in C6/D5. **For a deep Playwright guide → see the `/playwright` page.**',
+      },
+    },
+    { type: 'heading', text: { tr: 'Aynı Test, İki Dilde', en: 'The Same Test, in Two Languages' } },
+    {
+      type: 'table',
+      headers: ['Konu / Topic', 'REST Assured (Java)', 'Playwright (TypeScript)'],
+      rows: [
+        ['Sözdizim başlangıcı / Syntax start', 'given().when().then()', 'const response = await request.get(...)'],
+        ['Status doğrulama / Status check', '.statusCode(200)', 'expect(response.ok()).toBeTruthy()'],
+        ['Alan doğrulama / Field check', '.body("title", equalTo(...))', 'expect(body.title).toBe(...)'],
+        ['Şema doğrulama / Schema check', 'matchesJsonSchemaInClasspath(...)', 'ayrı bir kütüphane (örn. ajv) gerekir'],
+        ['UI ile hibrit / Hybrid with UI', 'Ayrı araç gerekir (Selenium + REST Assured)', 'AYNI dosyada { request, page } — doğal'],
+        ['Ekosistem / Ecosystem', 'Java/Maven — Selenium ile aynı dil', 'TypeScript/npm — UI testleriyle aynı dil'],
+        ['Çalıştırıcı / Runner', 'JUnit 5/TestNG + mvn test', 'Playwright Test Runner (dahili)'],
+      ],
+    },
+    {
+      type: 'video-scene',
+      id: 'api-i5-compare-film',
+      title: { tr: '🎬 Aynı Bug, İki Test Ekosistemi', en: '🎬 The Same Bug, Two Test Ecosystems' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 250,
+      actors: [
+        { id: 'request', emoji: '📤', label: { tr: 'GET /api/v1/bugs/42', en: 'GET /api/v1/bugs/42' }, color: '#f59e0b' },
+        { id: 'ra', emoji: '☕', label: { tr: 'REST Assured (Java)', en: 'REST Assured (Java)' }, color: '#22c55e' },
+        { id: 'pw', emoji: '🎭', label: { tr: 'Playwright (TypeScript)', en: 'Playwright (TypeScript)' }, color: '#0ea5e9' },
+        { id: 'choice', emoji: '🤔', label: { tr: 'Takımın dili karar verir', en: 'The team\'s language decides' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        { caption: { tr: 'Aynı `GET /api/v1/bugs/42` isteği iki farklı ekosistemde test edilecek.', en: 'The same `GET /api/v1/bugs/42` request will be tested in two different ecosystems.' }, positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'REST Assured: `given/when/then`, `Bug` POJO\'su, JUnit raporu — Java ekosisteminin İÇİNDE.', en: 'REST Assured: `given/when/then`, the `Bug` POJO, a JUnit report — INSIDE the Java ecosystem.' }, positions: { request: { x: 20, y: 30 }, ra: { x: 62, y: 30, scale: 1.15, pulse: true } }, beams: [{ from: 'request', to: 'ra', color: '#22c55e' }] },
+        { caption: { tr: 'Playwright: `request`/`expect`, AYNI dosyada `page` ile UI\'a geçiş — TypeScript ekosisteminin İÇİNDE.', en: 'Playwright: `request`/`expect`, switching to `page` for UI in the SAME file — INSIDE the TypeScript ecosystem.' }, positions: { request: { x: 20, y: 65 }, pw: { x: 62, y: 65, scale: 1.15, pulse: true } }, beams: [{ from: 'request', to: 'pw', color: '#0ea5e9' }] },
+        { caption: { tr: 'Ders — İkisi de AYNI endpoint\'i doğru test eder; seçim "hangisi daha iyi" değil, "takım hangi dilde yaşıyor, hibrit güç mü Java ekosistem entegrasyonu mu öncelikli" sorusuna bağlıdır.', en: 'The lesson — both correctly test the SAME endpoint; the choice is not "which is better", it depends on "which language the team lives in, is hybrid power or Java ecosystem integration the priority".' }, positions: { ra: { x: 30, y: 45 }, pw: { x: 50, y: 55 }, choice: { x: 68, y: 48, scale: 1.15, pulse: true } }, beams: [{ from: 'ra', to: 'choice', color: '#8b5cf6' }, { from: 'pw', to: 'choice', color: '#8b5cf6' }] },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Doğru Aracı Seçme Sırası', en: 'The Order for Choosing the Right Tool' },
+      steps: [
+        { id: 1, icon: '👥', label: { tr: 'Takımın ekosistemine bak…', en: 'Look at the team\'s ecosystem…' }, detail: { tr: 'Takım zaten Java/Selenium mı yoksa TypeScript/Playwright ile mi çalışıyor?', en: 'Does the team already work in Java/Selenium or TypeScript/Playwright?' } },
+        { id: 2, icon: '🔀', label: { tr: 'Hibrit ihtiyacı sor…', en: 'Ask about hybrid needs…' }, detail: { tr: 'API+UI aynı dosyada mı gerekli (I3), yoksa saf API testi mi yeterli?', en: 'Is API+UI needed in the same file (I3), or is pure API testing enough?' } },
+        { id: 3, icon: '⚖️', label: { tr: 'Karar ver…', en: 'Decide…' }, detail: { tr: 'İkisi de doğru sonuca ulaşır; seçim ekosistem tutarlılığına dayanır.', en: 'Both reach the correct result; the choice rests on ecosystem consistency.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-i5-order-01',
+      question: { tr: 'Aynı GET isteğinin REST Assured ve Playwright\'ta ORTAK doğrulama adımlarını sırala.', en: 'Order the COMMON verification steps for the same GET request in REST Assured and Playwright.' },
+      items: [
+        { id: '1', text: { tr: 'İsteği gönder', en: 'Send the request' }, order: 1 },
+        { id: '2', text: { tr: 'Status kodunu doğrula (2xx)', en: 'Verify the status code (2xx)' }, order: 2 },
+        { id: '3', text: { tr: 'Gövdeyi ayrıştır (POJO veya JSON nesnesi)', en: 'Parse the body (POJO or JSON object)' }, order: 3 },
+        { id: '4', text: { tr: 'Belirli alanları doğrula', en: 'Verify specific fields' }, order: 4 },
+        { id: '5', text: { tr: 'Test çalıştırıcısı (JUnit/Playwright Runner) sonucu raporlar', en: 'The test runner (JUnit/Playwright Runner) reports the result' }, order: 5 },
+      ],
+      xpReward: 12,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-i5-comparison',
+      id: 'api-i5-comparison',
+      title: { tr: 'Kendin Dene: REST Assured Satırını Playwright\'a Çevir', en: 'Try It Yourself: Translate the REST Assured Line to Playwright' },
+      starterCode: `// REST Assured (Java):
+// given().baseUri("http://localhost:3000")
+//   .when().get("/api/v1/bugs/42")
+//   .then().statusCode(200).body("title", equalTo("Login butonu donuyor"));
+
+// TODO: ayni dogrulamayi Playwright/TypeScript'te yaz
+`,
+      solutionCode: `// Playwright (TypeScript):
+const response = await request.get('http://localhost:3000/api/v1/bugs/42')
+expect(response.ok()).toBeTruthy()
+const body = await response.json()
+expect(body.title).toBe('Login butonu donuyor')`,
+      hint: { tr: '`given/when/then` zinciri Playwright\'ta üç adıma bölünür: `request.get(...)` ile isteği gönder, `response.ok()` ile status\'u, `response.json()` sonrası `expect(body.alan)` ile içeriği doğrula.', en: 'The `given/when/then` chain splits into three steps in Playwright: send the request with `request.get(...)`, verify status with `response.ok()`, verify content with `expect(body.field)` after `response.json()`.' },
+      successMessage: { tr: 'Doğru! İki framework de aynı doğrulamayı taşıyor, sadece sözdizimi farklı.', en: 'Correct! Both frameworks carry the same verification, only the syntax differs.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'REST Assured ile Playwright arasında seçim yaparken en belirleyici faktör nedir?', en: 'What is the most decisive factor when choosing between REST Assured and Playwright?' },
+      options: [
+        { id: 'a', text: { tr: 'Takımın hangi dil/ekosistemde yaşadığı ve API+UI hibrit testine ihtiyaç olup olmadığı', en: 'Which language/ecosystem the team lives in, and whether API+UI hybrid testing is needed' } },
+        { id: 'b', text: { tr: 'Hangisinin adı daha kısa olduğu', en: 'Which one has a shorter name' } },
+        { id: 'c', text: { tr: 'Hangisinin daha eski olduğu', en: 'Which one is older' } },
+        { id: 'd', text: { tr: 'Hiçbir fark yoktur, rastgele seçilebilir', en: 'There is no difference, either can be chosen at random' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'REST Assured, Java/Selenium ekosisteminde yaşayan bir takım için sürtünmesizdir (aynı POJO\'lar, aynı JUnit raporlama). Playwright, TypeScript\'te UI testi yazan bir takım için I3\'teki hibrit gücü doğal olarak sağlar. Seçim, "hangisi daha iyi" değil, ekosistem uyumuna dayanır.', en: 'REST Assured is frictionless for a team living in the Java/Selenium ecosystem (same POJOs, same JUnit reporting). Playwright naturally provides I3\'s hybrid power for a team writing UI tests in TypeScript. The choice is not "which is better", it rests on ecosystem fit.' },
+      retryQuestion: {
+        question: { tr: 'Playwright\'ın REST Assured\'a göre en büyük farkı nedir?', en: 'What is Playwright\'s biggest difference from REST Assured?' },
+        options: [
+          { id: 'a', text: { tr: 'API ve UI testlerini AYNI dosyada, aynı test çalıştırıcısıyla birleştirebilmesi (I3)', en: 'Being able to combine API and UI tests in the SAME file, with the same test runner (I3)' } },
+          { id: 'b', text: { tr: 'JSON desteklememesi', en: 'Not supporting JSON' } },
+          { id: 'c', text: { tr: 'Sadece GET isteklerini desteklemesi', en: 'Only supporting GET requests' } },
+          { id: 'd', text: { tr: 'HTTP\'yi desteklememesi', en: 'Not supporting HTTP' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'REST Assured saf bir API test kütüphanesidir; UI testi için ayrı bir araca (Selenium) geçmen gerekir. Playwright ise `request` ve `page` fixture\'larını AYNI dosyada, AYNI test çalıştırıcısıyla sunar — I3\'teki hibrit testlerin temeli budur.', en: 'REST Assured is a pure API testing library; you need to switch to a separate tool (Selenium) for UI testing. Playwright offers `request` and `page` fixtures in the SAME file, with the SAME test runner — this is the foundation of I3\'s hybrid tests.' },
+      },
+    },
+  ],
+}
 
 const groupJ = [['J', '🚨', 'Yaygın Hatalar ve Çözümleri', 'Common Errors and Fixes']]
 const groupK = [['K', '💼', 'Mülakat Soruları', 'Interview Questions']]
@@ -7014,7 +8419,9 @@ const sections = [
   D1, D2, D3, D4, D5,
   E1, E2, E3, E4, E5, E6,
   F1, F2, F3, F4, F5, F6,
-  ...groupG.map(mk), ...groupH.map(mk), ...groupI.map(mk),
+  G1, G2, G3, G4, G5, G6,
+  H1, H2, H3, H4, H5, H6,
+  I1, I2, I3, I4, I5,
   ...groupJ.map(mk), ...groupK.map(mk),
 ]
 
@@ -7104,6 +8511,33 @@ const apiFeynmanDefs = [
     minScore: 3,
     modelAnswerTr: 'Bir API spec\'i sadece bir not değil, başka sistemlerin (mobil uygulama, üçüncü taraf entegrasyon, otomasyon testi) GÜVENDİĞİ bir sözleşmedir. Kod değişip spec güncellenmezse, spec\'e güvenerek yazılmış bir istemci hâlâ ESKİ vaade göre çalışır — örneğin dokümanda 200 yazarken kod 201 dönerse, "sadece 200 = başarı" mantığıyla yazılmış bir mobil uygulama gerçek başarıyı hata sanır. Bu yüzden "kod doğru, doküman eski" bir açıklama olabilir ama SORUNU çözmez; spec de kodla birlikte güncellenmelidir.',
     modelAnswerEn: 'An API spec is not just a note, it is a contract other systems (a mobile app, a third-party integration, an automation test) TRUST. If the code changes and the spec is not updated, a client written trusting the spec still operates on the OLD promise — for example, if the doc says 200 while the code returns 201, a mobile app written with "only 200 = success" logic mistakes a real success for an error. So "the code is right, the doc is old" can be an explanation, but it does not FIX the problem; the spec must be updated along with the code.',
+  },
+  {
+    sectionIndex: 43,
+    promptTr: 'Postman\'de bir test koleksiyonunu Newman ile CI\'a bağlamak neden elle koşmaktan daha güvenilirdir — sektöre yeni giren birine kendi cümlelerinle anlat.',
+    promptEn: 'Explain, in your own words, why wiring a Postman test collection into CI with Newman is more reliable than running it manually, to a newcomer.',
+    keywords: ['newman', 'ci', 'otomatik', 'push', 'unutma', 'regresyon', 'mvn'],
+    minScore: 3,
+    modelAnswerTr: 'Elle çalıştırılan bir koleksiyon insan hafızasına bağımlıdır — bir geliştirici testleri koşmayı unutabilir. Newman, koleksiyonu komut satırından çalıştırabilir hale getirir; bunu bir CI pipeline\'ına (GitHub Actions) bağlayınca testler HER push\'ta otomatik çalışır. Böylece GRUP B-D\'deki kodda bir regresyon olduğunda, bunu bir insanın hatırlaması değil CI\'ın otomatik koşumu yakalar.',
+    modelAnswerEn: 'A manually run collection depends on human memory — a developer can forget to run the tests. Newman makes the collection runnable from the command line; wiring this into a CI pipeline (GitHub Actions) makes the tests run automatically on EVERY push. So when a regression appears in the GROUP B-D code, it is CI\'s automatic run that catches it, not a human remembering.',
+  },
+  {
+    sectionIndex: 49,
+    promptTr: 'REST Assured ile JUnit 5/TestNG arasındaki iş bölümünü — kim isteği gönderir, kim testi çalıştırıp raporlar — sektöre yeni giren birine kendi cümlelerinle anlat.',
+    promptEn: 'Explain, in your own words, the division of labor between REST Assured and JUnit 5/TestNG — who sends the request, who runs and reports the test — to a newcomer.',
+    keywords: ['restassured', 'junit', 'testng', 'calistir', 'rapor', 'given', 'mvn'],
+    minScore: 3,
+    modelAnswerTr: 'REST Assured sadece bir HTTP istemci kütüphanesidir — given/when/then ile isteği gönderir ve doğrular. Ama bu kodu KİMİN çalıştıracağı ve sonucu KİMİN raporlayacağı ayrı bir sorudur; bunun cevabı JUnit 5 veya TestNG\'dir. @Test annotation\'ı ile işaretlenen metodu bu çalıştırıcılar bulur, çalıştırır ve bir rapor üretir; mvn test bu ikisini CI\'da tetikler.',
+    modelAnswerEn: 'REST Assured is just an HTTP client library — it sends and verifies the request with given/when/then. But WHO runs this code and WHO reports the result is a separate question; the answer is JUnit 5 or TestNG. These runners find the method marked with @Test, run it, and produce a report; mvn test triggers both in CI.',
+  },
+  {
+    sectionIndex: 54,
+    promptTr: 'REST Assured ile Playwright arasında seçim yaparken "hangisi daha iyi" yerine hangi soruyu sormak gerekir — sektöre yeni giren birine kendi cümlelerinle anlat.',
+    promptEn: 'Explain, in your own words, what question to ask instead of "which is better" when choosing between REST Assured and Playwright, to a newcomer.',
+    keywords: ['ekosistem', 'takim', 'dil', 'hibrit', 'java', 'typescript', 'sectiing'],
+    minScore: 3,
+    modelAnswerTr: '"Hangisi daha iyi" yanlış sorudur; doğru soru "takım hangi dilde/ekosistemde yaşıyor" ve "API+UI\'ı aynı dosyada birleştirmeye ihtiyacım var mı"dır. Takım zaten Java/Selenium/REST Assured ile çalışıyorsa REST Assured sürtünmesizdir. Takım TypeScript/Playwright ile UI testi yazıyorsa ve I3\'teki gibi hibrit teste ihtiyaç varsa Playwright daha tutarlıdır.',
+    modelAnswerEn: '"Which is better" is the wrong question; the right question is "which language/ecosystem does the team live in" and "do I need to combine API+UI in the same file". If the team already works in Java/Selenium/REST Assured, REST Assured is frictionless. If the team writes UI tests in TypeScript/Playwright and needs hybrid testing like I3, Playwright is more consistent.',
   },
 ]
 

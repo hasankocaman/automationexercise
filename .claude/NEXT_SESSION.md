@@ -10,7 +10,7 @@
 
 ---
 
-## 🚧 `/api-testing` Faz 7 — GRUP G (Postman) TAMAM, H+I+wiring+Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+## ✅ `/api-testing` Faz 7 — GRUP G+H+I (Postman/REST Assured/Playwright) TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.4 (Faz 7). **ÇAKIŞMA KURALI
 uygulandı:** her G/H/I konusu kendi simple-box'ında "Derin ... rehberi için
@@ -26,22 +26,51 @@ TEKRARLANMADI — sadece "/api/v1/bugs'u şimdi bu araçla test edelim" seviyesi
 CI, GitHub Actions workflow örneği) — hepsi tam trio (video-scene+step-
 animation+challenge+code-playground+quiz) ile.
 
-**⚠️ Dosya şu an ÇALIŞMAZ (bilerek, önceki fazlardaki aynı ara-durum):**
-`sections` hâlâ `...groupG.map(mk)` kullanıyor ama `groupG` artık YOK.
+**✅ Tamamlandı:**
+1. GRUP H (REST Assured, Java) H1-H6 yazıldı — AMİRAL FİLM "given/when/then"
+   (H1, `api-h1-given-when-then-film`, xpReward 14). H3'te B2'deki `Bug` POJO
+   sınıfının test kodunda YENİDEN KULLANILMASI vurgulandı (DRY). H4 F4/F6'daki
+   şemayı `matchesJsonSchemaInClasspath` ile otomatikleştiriyor.
+2. GRUP I (Playwright, TS) I1-I5 yazıldı — AMİRAL FİLM "API ile Kur, UI'da
+   Doğrula" (I3, `api-i3-hybrid-power-film`, xpReward 15). I4 `storageState`
+   ile tek seferlik API login paylaşımı. I5 REST Assured↔Playwright
+   karşılaştırma tablosu (Java geliştiricisi gözüyle, "hangi ekosistemde
+   yaşıyorsun" sorusu).
+3. **Bir syntax hatası bulundu ve düzeltildi:** G4'teki bir TR simple-box
+   metninde kaçırılmamış apostrof (`bug'a` yerine `bug\'a` olmalıydı) —
+   `node --check` ile teşhis edildi, düzeltildi. Ders: her yeni içerik
+   parçasından sonra `node --check src/data/apiTestingData.js` hızlı bir
+   ön-doğrulama olarak koşulabilir (tam `import()` denemeden önce ucuz bir
+   sinyal).
+4. `sections` dizisi `G1..G6, H1..H6, I1..I5,` ile güncellendi — doğrulandı
+   (57 section: G=38-43, H=44-49, I=50-54, J=55, K=56).
+5. `apiFeynmanDefs`'e GRUP G sonu (`sectionIndex: 43`=G6), H sonu
+   (`sectionIndex: 49`=H6), I sonu (`sectionIndex: 54`=I5) için 3 ayrı
+   feynman-checkpoint eklendi, doğrulandı.
+6. `/postman` ve `/rest-assured` hero `intro` metinlerine (TR+EN, her ikisi
+   de) "önce API'nin nasıl geliştirildiğini gör → /api-testing" cümlesi
+   eklendi (plan §5, SEO iç bağlantı + pedagojik akış). Not: bu düz metin bir
+   cümledir, tıklanabilir bir `<Link>` değildir — `TopicPage.jsx`'te
+   `simple-box`/`text`/`callout` blokları markdown link render ETMEZ (kontrol
+   edildi), bu yüzden route adı metin içinde anılıyor.
 
-**Sıradaki adımlar:**
-1. GRUP H (REST Assured, Java) H1-H6 yaz — AMİRAL FİLM "given/when/then" (H1).
-2. GRUP I (Playwright, TS) I1-I5 yaz — AMİRAL FİLM "API ile Kur, UI'da
-   Doğrula" (I3); I5 REST Assured↔Playwright karşılaştırması.
-3. `sections` dizisini `G1..G6, H1..H6, I1..I5,` ile güncelle (G=38-43,
-   H=44-49, I=50-54 — toplam yine 57 section olmalı, E/F ile aynı taban).
-4. `apiFeynmanDefs`'e GRUP G sonu (G6), H sonu (H6), I sonu (I5) için 3 ayrı
-   feynman-checkpoint ekle.
-5. `/postman` ve `/rest-assured` sayfalarına "önce API'nin nasıl
-   geliştirildiğini gör → /api-testing" iç linki eklenmeli (plan §5, SEO +
-   pedagojik akış) — henüz yapılmadı, ayrı bir adım olarak takip edilecek.
-6. Faz bitince TOPLU doğrulama: `node scripts/check-content-integrity.mjs` +
-   `npm run build`.
+**TOPLU doğrulama TAMAMLANDI:** `node scripts/check-content-integrity.mjs` →
+**TÜM KONTROLLER GEÇTİ** (0 ihlal). `npm run build` → **yeşil**,
+`apiTestingData-*.js` chunk'ı ~668 kB'a çıktı (beklenen büyüme, büyük chunk
+uyarısı listesinde — CLAUDE.md §14, build'i bozmuyor), 42 static route, dist
+SEO check PASS.
+
+**Kalan işler (Faz 8-10 — henüz BAŞLANMADI):**
+- Faz 8: GRUP J (error-dictionary ≥12 hata, §D.5) — 415/400 vs 422/CORS/
+  ECONNREFUSED/401 vs 403/trailing slash 404/Content-Type eksikliği/tarih
+  formatı/null vs alan yokluğu/timeout/gzip/"Postman'de çalışıp otomasyonda
+  düşen test" — ELLE video-scene+animasyon+sandbox gerekir (kodsuz sekme).
+- Faz 9: GRUP K (mülakat ≥50 soru: 15 Basic/20 Intermediate/15 Advanced, §D.6)
+  — quiz-gating (%60) arkasında kalması BEKLENEN davranış.
+- Faz 10 (Opus): Bölüm 9.5 denetimi + `tests/video-scene.spec.ts` + özet.
+
+`/api-testing` sayfası GRUP J-K hâlâ placeholder olduğundan HENÜZ
+production'a hazır değil.
 
 ---
 

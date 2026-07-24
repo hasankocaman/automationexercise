@@ -4608,13 +4608,13 @@ void getUserReturnsValidEmailForEachId(int userId) {
 const trHero = {
   title: '🧪 REST Assured',
   subtitle: 'Java ile API Test Otomasyonu — Sıfırdan Gerçek Projeye',
-  intro: 'REST Assured, Java\'da REST API testleri yazmak için kullanılan DSL kütüphanesidir. given().when().then() sözdizimi, POJO desteği, JSON Schema validation ve CI/CD entegrasyonu ile kurumsal projelerde sektör standardı haline gelmiştir.',
+  intro: 'REST Assured, Java\'da REST API testleri yazmak için kullanılan DSL kütüphanesidir. given().when().then() sözdizimi, POJO desteği, JSON Schema validation ve CI/CD entegrasyonu ile kurumsal projelerde sektör standardı haline gelmiştir. Test ettiğin API\'nin REST Assured\'a ulaşmadan önce Java/Spring, Express, NestJS ile nasıl geliştirildiğini görmek ister misin? /api-testing sayfasına bak.',
 }
 
 const enHero = {
   title: '🧪 REST Assured',
   subtitle: 'Java API Test Automation — Zero to Real Projects',
-  intro: 'REST Assured is a DSL library for writing REST API tests in Java. With given().when().then() syntax, POJO support, JSON Schema validation, and CI/CD integration, it has become the industry standard in enterprise API testing.',
+  intro: 'REST Assured is a DSL library for writing REST API tests in Java. With given().when().then() syntax, POJO support, JSON Schema validation, and CI/CD integration, it has become the industry standard in enterprise API testing. Want to see how the API you are testing gets built first with Java/Spring, Express, NestJS? Visit /api-testing.',
 }
 
 const trTabs = [

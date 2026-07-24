@@ -1100,7 +1100,7 @@ export const postmanData = {
     hero: {
       title: '📮 Postman',
       subtitle: 'API Testing & Collaboration Platform',
-      intro: 'From zero to interview-level Postman mastery. Learn to send requests, write automated test scripts, manage environments, chain requests, run collections with Newman, and integrate into CI/CD pipelines — with real QA scenarios throughout.',
+      intro: 'From zero to interview-level Postman mastery. Learn to send requests, write automated test scripts, manage environments, chain requests, run collections with Newman, and integrate into CI/CD pipelines — with real QA scenarios throughout. Want to see how the API you are testing gets built first (Java/Spring, Express, NestJS) before it reaches Postman? Visit /api-testing.',
     },
     tabs: ['🎯 Introduction', '📦 Installation', '📚 Core Concepts', '🔥 Test Automation', '🛠️ Real World', '🔗 Ecosystem', '🚨 Common Errors', '💼 Interview Q&A'],
     sections: [
@@ -2344,7 +2344,7 @@ GET https://api.example.com/data
     hero: {
       title: '📮 Postman',
       subtitle: 'API Test ve İşbirliği Platformu',
-      intro: 'Sıfırdan mülakat seviyesine Postman uzmanlığı. İstek göndermeyi, otomatik test yazmayı, ortamları yönetmeyi, Newman ile CI/CD\'ye entegre etmeyi gerçek QA senaryolarıyla öğren.',
+      intro: 'Sıfırdan mülakat seviyesine Postman uzmanlığı. İstek göndermeyi, otomatik test yazmayı, ortamları yönetmeyi, Newman ile CI/CD\'ye entegre etmeyi gerçek QA senaryolarıyla öğren. Test ettiğin API\'nin Postman\'e ulaşmadan önce (Java/Spring, Express, NestJS ile) nasıl geliştirildiğini görmek ister misin? /api-testing sayfasına bak.',
     },
     tabs: ['🎯 Giriş', '📦 Kurulum', '📚 Temel Kavramlar', '🔥 Test Otomasyonu', '🛠️ Gerçek Hayat', '🔗 Ekosistem', '🚨 Yaygın Hatalar', '💼 Mülakat Q&A'],
     sections: [
