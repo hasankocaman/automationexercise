@@ -5356,14 +5356,925 @@ Risk: header/deger unutma veya yanlis yazma -> Copy as cURL bunu engeller`,
   ],
 }
 
-const groupF = [
-  ['F1', '📜', 'OpenAPI Spec Nedir? Sözleşme kavramı', 'What Is an OpenAPI Spec? The contract concept'],
-  ['F2', '🏭', 'Swagger Üretimi: springdoc / @nestjs/swagger', 'Swagger Generation: springdoc / @nestjs/swagger'],
-  ['F3', '👆', 'Swagger UI "Try it out": ilk elle test', 'Swagger UI "Try it out": first manual test'],
-  ['F4', '🔎', 'Schema Okuma: required, type, enum, example', 'Reading Schema: required, type, enum, example'],
-  ['F5', '⚠️', "Contract Defect'leri", 'Contract Defects'],
-  ['F6', '🧾', "Swagger'dan Test Senaryosu Türetmek", 'Deriving Test Scenarios from Swagger'],
-]
+// ═══════════════════════════════════════════════════════════════════════════
+// GRUP F — Swagger / OpenAPI (kısmen kodsuz: spec/şema okuma şablonu)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const swaggerUiFlowSvg = `<svg viewBox='0 0 680 150' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <rect x='16' y='50' width='140' height='50' rx='8' fill='#242640'/><text x='30' y='80' fill='#e5e7eb' font-size='12'>openapi.yaml</text>
+  <path d='M 162 75 L 210 75' stroke='#f59e0b' stroke-width='2' marker-end='url(#arrowF)'/>
+  <defs><marker id='arrowF' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L6,3 L0,6 z' fill='#f59e0b'/></marker></defs>
+  <rect x='214' y='50' width='140' height='50' rx='8' fill='#1a2e22'/><text x='230' y='80' fill='#4ade80' font-size='12'>Swagger UI</text>
+  <path d='M 360 75 L 408 75' stroke='#f59e0b' stroke-width='2' marker-end='url(#arrowF)'/>
+  <rect x='412' y='50' width='140' height='50' rx='8' fill='#3b3220'/><text x='424' y='80' fill='#f59e0b' font-size='12'>Try it out</text>
+  <path d='M 558 75 L 606 75' stroke='#f59e0b' stroke-width='2' marker-end='url(#arrowF)'/>
+  <rect x='610' y='50' width='58' height='50' rx='8' fill='#242640'/><text x='618' y='80' fill='#e5e7eb' font-size='12'>API</text>
+</svg>`
+
+const contractBreakSvg = `<svg viewBox='0 0 680 170' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <text x='20' y='28' fill='#94a3b8' font-size='12' font-weight='bold'>Dokuman (openapi.yaml)</text>
+  <rect x='16' y='36' width='300' height='60' rx='8' fill='#142314'/>
+  <text x='36' y='60' fill='#4ade80' font-size='12' font-family='monospace'>responses: 200</text>
+  <text x='36' y='80' fill='#4ade80' font-size='12' font-family='monospace'>severity: enum[LOW,MED,HIGH]</text>
+  <text x='360' y='28' fill='#94a3b8' font-size='12' font-weight='bold'>Gercek API</text>
+  <rect x='356' y='36' width='308' height='60' rx='8' fill='#3a1a1a'/>
+  <text x='372' y='60' fill='#f87171' font-size='12' font-family='monospace'>status: 201</text>
+  <text x='372' y='80' fill='#f87171' font-size='12' font-family='monospace'>severity: "CRITICAL" (yeni deger!)</text>
+  <path d='M 320 66 L 352 66' stroke='#ef4444' stroke-width='2' stroke-dasharray='4 3'/>
+  <text x='170' y='140' fill='#f59e0b' font-size='12' font-weight='bold'>Sozlesme BOZULDU — dokuman ile gercek AYRISIYOR</text>
+</svg>`
+
+const F1 = {
+  title: { tr: '📜 F1 · OpenAPI Spec Nedir? Sözleşme kavramı', en: '📜 F1 · What Is an OpenAPI Spec? The Contract Concept' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '📜',
+      content: {
+        tr: 'Bir OpenAPI spec\'i (`openapi.yaml`/`.json`), bir binanın **mimari çizimidir** — bina (kod) zaten var ve çalışıyor, ama bir elektrikçinin (başka bir ekibin, bir test aracının) binayı anlamak için içeri girip her odayı elle dolaşmasına gerek yoktur; çizime bakması yeterlidir. GRUP A\'da "sözleşme" kavramını görmüştün (A1) — OpenAPI spec, o soyut sözleşmeyi **makine-okunur, standart bir formata** döker: hangi yol (`/api/v1/bugs`) hangi metodu (GET/POST) kabul eder, hangi alanlar zorunludur, yanıt nasıl görünür — hepsi TEK bir dosyada, İngilizce açıklama okumaya gerek kalmadan. Peki kod zaten varken (Java\'da bir `Controller` sınıfı, TypeScript\'te bir DTO) neden ayrı bir spec dosyasına ihtiyaç var? Çünkü kod SADECE o dili bilen bir geliştiricinin okuyabileceği bir formattadır; spec ise Postman, Swagger UI, kod üretici araçlar, sözleşme testleri gibi ONLARCA farklı aracın AYNI ANDA okuyabileceği ORTAK bir dildir. Java\'da bunun en yakın karşılığı bir `interface` + JavaDoc birleşimidir: `interface` metodun İMZASINI (ne alır, ne döner) garanti eder, JavaDoc bunu İNSAN tarafından okunur açıklar; OpenAPI spec ikisini birden, hem makine hem insan için, TEK dosyada yapar. QA açısından bu spec, kod okumadan bir API\'nin sözleşmesini öğrenmenin en hızlı yoludur — ve GRUP F boyunca göreceğin gibi, bu sözleşme ile GERÇEĞİN AYRIŞTIĞI an, tam olarak bir "contract defect"in doğduğu andır.',
+        en: 'An OpenAPI spec (`openapi.yaml`/`.json`) is a building\'s **architectural blueprint** — the building (the code) already exists and works, but an electrician (another team, a test tool) does not need to walk through every room by hand to understand the building; looking at the blueprint is enough. You saw the "contract" concept in GROUP A (A1) — the OpenAPI spec puts that abstract contract into a **machine-readable, standard format**: which path (`/api/v1/bugs`) accepts which method (GET/POST), which fields are required, what the response looks like — all in ONE file, with no need to read prose. So if the code already exists (a `Controller` class in Java, a DTO in TypeScript), why is a separate spec file needed? Because code is a format only a developer who knows that language can read; the spec is a COMMON language that DOZENS of different tools — Postman, Swagger UI, code generators, contract tests — can read SIMULTANEOUSLY. The closest Java equivalent is an `interface` combined with JavaDoc: the `interface` guarantees the method\'s SIGNATURE (what it takes, what it returns), the JavaDoc explains it for a HUMAN; an OpenAPI spec does both, for machine and human, in ONE file. For QA, this spec is the fastest way to learn an API\'s contract without reading code — and as you will see throughout GROUP F, the moment this contract DIVERGES from REALITY is exactly the moment a "contract defect" is born.',
+      },
+    },
+    { type: 'heading', text: { tr: '/api/v1/bugs — Minimum Bir Spec', en: '/api/v1/bugs — A Minimal Spec' } },
+    {
+      type: 'code',
+      language: 'yaml',
+      code: {
+        tr: `# openapi.yaml — /api/v1/bugs sozlesmesinin cekirdegi
+openapi: 3.0.0
+info:
+  title: Bug Tracker API
+  version: 1.0.0
+paths:
+  /api/v1/bugs:
+    get:
+      summary: Bug listesini getir
+      responses:
+        '200':
+          description: Basarili liste yaniti
+    post:
+      summary: Yeni bug olustur
+      responses:
+        '201':
+          description: Bug olusturuldu
+        '400':
+          description: Gecersiz istek (ornegin bos title)`,
+        en: `# openapi.yaml — the core of the /api/v1/bugs contract
+openapi: 3.0.0
+info:
+  title: Bug Tracker API
+  version: 1.0.0
+paths:
+  /api/v1/bugs:
+    get:
+      summary: Get the bug list
+      responses:
+        '200':
+          description: Successful list response
+    post:
+      summary: Create a new bug
+      responses:
+        '201':
+          description: Bug created
+        '400':
+          description: Invalid request (e.g. empty title)`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-f1-spec-film',
+      title: { tr: '🎬 Kod Var, Ama Kimse Onu Okumak Zorunda Değil', en: '🎬 The Code Exists, but Nobody Has to Read It' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'code', emoji: '💻', label: { tr: 'Controller kodu', en: 'Controller code' }, color: '#f59e0b' },
+        { id: 'spec', emoji: '📜', label: { tr: 'openapi.yaml', en: 'openapi.yaml' }, color: '#0ea5e9' },
+        { id: 'tools', emoji: '🧰', label: { tr: 'Postman / Swagger UI / Testler', en: 'Postman / Swagger UI / Tests' }, color: '#a78bfa' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Tester kod okumadan öğrenir', en: 'Tester learns without reading code' }, color: '#22c55e' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Bir geliştirici `/api/v1/bugs` için Controller kodunu yazar — sözleşme kodun İÇİNDE gömülüdür.', en: 'A developer writes the Controller code for `/api/v1/bugs` — the contract is embedded INSIDE the code.' },
+          positions: { code: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Bu sözleşme `openapi.yaml`\'e DÖKÜLÜR — artık kod okumadan da okunabilir bir formattadır.', en: 'This contract is POURED into `openapi.yaml` — now it is readable without reading code.' },
+          positions: { code: { x: 20, y: 40 }, spec: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'code', to: 'spec', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Postman, Swagger UI, sözleşme testleri — ONLARCA araç bu TEK dosyayı AYNI ANDA okuyabilir.', en: 'Postman, Swagger UI, contract tests — DOZENS of tools can read this ONE file SIMULTANEOUSLY.' },
+          positions: { spec: { x: 20, y: 40 }, tools: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'spec', to: 'tools', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Ders — Tester, Java/TypeScript bilmese bile spec\'i okuyarak API\'nin ne kabul ettiğini, ne döndürdüğünü öğrenir.', en: 'The lesson — even without knowing Java/TypeScript, a tester learns what the API accepts and returns by reading the spec.' },
+          positions: { tools: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'tools', to: 'tester', color: '#22c55e' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Bir Sözleşmenin Kaynak Kod → Spec Yolculuğu', en: 'A Contract\'s Journey from Source Code to Spec' },
+      steps: [
+        { id: 1, icon: '💻', label: { tr: 'Kod yazılır…', en: 'Code is written…' }, detail: { tr: 'Controller/DTO sınıfları sözleşmeyi kodun içinde taşır — ama sadece geliştirici okuyabilir.', en: 'Controller/DTO classes carry the contract inside the code — but only a developer can read it.' } },
+        { id: 2, icon: '📜', label: { tr: 'Spec üretilir/yazılır…', en: 'Spec is generated/written…' }, detail: { tr: 'openapi.yaml, aynı sözleşmeyi standart, makine-okunur bir formata döker (F2\'de otomatik üretimi göreceksin).', en: 'openapi.yaml pours the same contract into a standard, machine-readable format (you will see auto-generation in F2).' } },
+        { id: 3, icon: '🧰', label: { tr: 'Araçlar okur…', en: 'Tools read it…' }, detail: { tr: 'Swagger UI, Postman, test araçları kod OKUMADAN spec\'ten API\'yi anlar.', en: 'Swagger UI, Postman, and test tools understand the API from the spec, WITHOUT reading code.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-f1-order-01',
+      question: { tr: 'Bir sözleşmenin kod yazımından araçlara ulaşmasına kadarki yolculuğunu sırala.', en: 'Order a contract\'s journey from writing code to reaching tools.' },
+      items: [
+        { id: '1', text: { tr: 'Geliştirici Controller/DTO kodunu yazar', en: 'The developer writes the Controller/DTO code' }, order: 1 },
+        { id: '2', text: { tr: 'Sözleşme openapi.yaml formatına dökülür', en: 'The contract is poured into openapi.yaml format' }, order: 2 },
+        { id: '3', text: { tr: 'Swagger UI spec\'i okuyup görsel bir arayüz üretir', en: 'Swagger UI reads the spec and generates a visual interface' }, order: 3 },
+        { id: '4', text: { tr: 'Tester spec/Swagger UI\'dan API\'yi öğrenir', en: 'The tester learns the API from the spec/Swagger UI' }, order: 4 },
+        { id: '5', text: { tr: 'Tester bu bilgiyle test senaryoları yazar', en: 'The tester writes test scenarios with this knowledge' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-f1-openapi-spec',
+      id: 'api-f1-openapi-spec',
+      title: { tr: 'Kendin Dene: Spec\'te Eksik Metodu Tamamla', en: 'Try It Yourself: Complete the Missing Method in the Spec' },
+      starterCode: `# /api/v1/bugs/{id} icin sadece GET tanimli
+# TODO: bug'i SILMEK icin hangi HTTP metodu eksik?
+paths:
+  /api/v1/bugs/{id}:
+    get:
+      summary: Tek bir bug getir
+    ???:
+      summary: Bug'i sil`,
+      solutionCode: `paths:
+  /api/v1/bugs/{id}:
+    get:
+      summary: Tek bir bug getir
+    delete:
+      summary: Bug'i sil`,
+      hint: { tr: 'Bug Tracker omurgasında silme işlemi `DELETE /api/v1/bugs/{id}` olarak tanımlanmıştı (Bölüm A4). OpenAPI spec\'inde her HTTP metodu path altında ayrı bir anahtardır.', en: 'In the Bug Tracker backbone, deletion was defined as `DELETE /api/v1/bugs/{id}` (Section A4). In an OpenAPI spec, each HTTP method is a separate key under the path.' },
+      successMessage: { tr: 'Doğru! Spec artık silme işlemini de doğru şekilde belgeliyor.', en: 'Correct! The spec now correctly documents the delete operation too.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Bir OpenAPI spec dosyasının en temel amacı nedir?', en: 'What is the core purpose of an OpenAPI spec file?' },
+      options: [
+        { id: 'a', text: { tr: 'API sözleşmesini kod okumadan anlaşılabilir, makine-okunur standart bir formata dökmek', en: 'To pour the API contract into a standard, machine-readable format understandable without reading code' } },
+        { id: 'b', text: { tr: 'Veritabanı şemasını tanımlamak', en: 'To define the database schema' } },
+        { id: 'c', text: { tr: 'Sunucunun donanım gereksinimlerini belirtmek', en: 'To specify the server\'s hardware requirements' } },
+        { id: 'd', text: { tr: 'Kullanıcı arayüzünün renk paletini belirlemek', en: 'To determine the UI\'s color palette' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'OpenAPI spec, bir API\'nin sözleşmesini (yollar, metodlar, zorunlu alanlar, yanıt şekilleri) standart, makine-okunur bir formatta tanımlar — Postman, Swagger UI, test araçları gibi onlarca farklı araç bu TEK dosyayı okuyarak API\'yi anlayabilir.', en: 'An OpenAPI spec defines an API\'s contract (paths, methods, required fields, response shapes) in a standard, machine-readable format — dozens of tools like Postman, Swagger UI, and test tools can understand the API by reading this ONE file.' },
+      retryQuestion: {
+        question: { tr: 'OpenAPI spec\'in Java\'daki en yakın karşılığı nedir?', en: 'What is the closest Java equivalent of an OpenAPI spec?' },
+        options: [
+          { id: 'a', text: { tr: 'Bir interface + JavaDoc birleşimi (imza + insan tarafından okunur açıklama)', en: 'A combination of an interface + JavaDoc (signature + human-readable description)' } },
+          { id: 'b', text: { tr: 'Bir pom.xml dosyası', en: 'A pom.xml file' } },
+          { id: 'c', text: { tr: 'Bir .gitignore dosyası', en: 'A .gitignore file' } },
+          { id: 'd', text: { tr: 'Bir Dockerfile', en: 'A Dockerfile' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Bir `interface` metodun imzasını (ne alır, ne döner) garanti eder, JavaDoc bunu insan için açıklar; OpenAPI spec her ikisini de, hem makine hem insan için, tek dosyada birleştirir.', en: 'An `interface` guarantees a method\'s signature (what it takes, what it returns), JavaDoc explains it for humans; an OpenAPI spec merges both, for machine and human, into one file.' },
+      },
+    },
+  ],
+}
+
+const F2 = {
+  title: { tr: '🏭 F2 · Swagger Üretimi: springdoc / @nestjs/swagger', en: '🏭 F2 · Swagger Generation: springdoc / @nestjs/swagger' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🏭',
+      content: {
+        tr: 'Elle yazılan bir `openapi.yaml`, bir **fotokopisi eskiyen belge** gibidir: geliştirici kodu değiştirir (yeni bir alan ekler, bir status kodunu değiştirir) ama dokümanı güncellemeyi UNUTUR — zamanla doküman gerçeği yansıtmaz olur. `springdoc-openapi` (Spring/Java) ve `@nestjs/swagger` (NestJS), bu riski ortadan kaldıran bir **otomatik fotokopi makinesidir**: spec\'i elle yazmazsın, KODUN KENDİSİNDEN (annotation\'lardan/decorator\'lardan) her build\'de otomatik üretilir — kod ile doküman ASLA birbirinden kopamaz, çünkü doküman kodun bir YANSIMASIdır. Peki neden Express\'in (GRUP C) bu tür bir otomatik üretici KÜTÜPHANESİ yoktur (ya da manuel kurulum gerektirir) — çünkü kod zaten sözleşmeyi annotation/decorator olarak İÇERMİYOR: Express\'te route tanımı ve validation kuralı ayrı ayrı fonksiyonlarda yaşar, üretici bunlardan "sözleşmeyi" çıkaracak sabit bir kalıp bulamaz; Spring/Nest\'te ise `@GetMapping`/`@Get()`, `@RequestBody`/`@Body()` zaten sözleşmeyi yapısal olarak TAŞIR, üretici bunu OKUYUP spec\'e çevirir. QA açısından bu fark kritiktir: springdoc/`@nestjs/swagger` ile üretilen bir spec, koddan SAPMASI mimarî olarak daha ZOR olan bir spec\'tir — ama F5\'te göreceğin gibi, "daha zor" imkânsız demek değildir.',
+        en: 'A hand-written `openapi.yaml` is like a **photocopy that goes stale**: the developer changes the code (adds a new field, changes a status code) but FORGETS to update the doc — over time the doc stops reflecting reality. `springdoc-openapi` (Spring/Java) and `@nestjs/swagger` (NestJS) are an **automatic photocopier** that removes this risk: you do not write the spec by hand, it is auto-generated FROM THE CODE ITSELF (from annotations/decorators) on every build — code and doc can NEVER drift apart, because the doc is a REFLECTION of the code. So why does Express (GROUP C) not have such an auto-generator library (or it requires manual setup)? Because the code does not already CONTAIN the contract as annotations/decorators: in Express, route definitions and validation rules live in separate functions, so a generator finds no fixed pattern to extract "the contract" from; in Spring/Nest, `@GetMapping`/`@Get()`, `@RequestBody`/`@Body()` already CARRY the contract structurally, and the generator READS it into a spec. For QA this difference matters: a spec generated by springdoc/`@nestjs/swagger` is architecturally HARDER to drift from the code — but as you will see in F5, "harder" does not mean impossible.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Aynı Kod, Otomatik Doğan Spec', en: 'The Same Code, an Auto-Born Spec' } },
+    {
+      type: 'code',
+      language: 'xml',
+      code: {
+        tr: `<!-- pom.xml — Spring'de tek bagimlilik, spec otomatik dogar -->
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+  <version>2.5.0</version>
+</dependency>
+<!-- Ayaga kalkinca /swagger-ui.html otomatik hazir olur -->`,
+        en: `<!-- pom.xml — one dependency in Spring, the spec is born automatically -->
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+  <version>2.5.0</version>
+</dependency>
+<!-- Once started, /swagger-ui.html is ready automatically -->`,
+      },
+    },
+    {
+      type: 'code',
+      language: 'typescript',
+      code: {
+        tr: `// main.ts — NestJS'te @nestjs/swagger kurulumu
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+
+const config = new DocumentBuilder()
+  .setTitle('Bug Tracker API')
+  .setVersion('1.0')
+  .build()
+
+const document = SwaggerModule.createDocument(app, config)
+// TODO: bu satir olmadan /api-docs hic acilmaz
+SwaggerModule.setup('api-docs', app, document)`,
+        en: `// main.ts — setting up @nestjs/swagger in NestJS
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+
+const config = new DocumentBuilder()
+  .setTitle('Bug Tracker API')
+  .setVersion('1.0')
+  .build()
+
+const document = SwaggerModule.createDocument(app, config)
+// TODO: without this line /api-docs never opens
+SwaggerModule.setup('api-docs', app, document)`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-f2-autogen-film',
+      title: { tr: '🎬 Kod Değişir, Doküman Kendiliğinden Güncellenir', en: '🎬 Code Changes, the Doc Updates Itself' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'annotation', emoji: '🏷️', label: { tr: '@Get()/@GetMapping', en: '@Get()/@GetMapping' }, color: '#f59e0b' },
+        { id: 'build', emoji: '🏗️', label: { tr: 'Build/başlatma', en: 'Build/startup' }, color: '#0ea5e9' },
+        { id: 'gen', emoji: '🏭', label: { tr: 'springdoc/@nestjs/swagger', en: 'springdoc/@nestjs/swagger' }, color: '#a78bfa' },
+        { id: 'doc', emoji: '📜', label: { tr: 'Güncel spec', en: 'Up-to-date spec' }, color: '#22c55e' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Geliştirici bir controller\'a yeni bir `@Get(\'stats\')` metodu ekler.', en: 'The developer adds a new `@Get(\'stats\')` method to a controller.' },
+          positions: { annotation: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Uygulama yeniden başlar/build alınır.', en: 'The application restarts/is rebuilt.' },
+          positions: { annotation: { x: 20, y: 40 }, build: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'annotation', to: 'build', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'springdoc/`@nestjs/swagger` bu YENİ annotation\'ı OKUR ve spec\'e otomatik ekler — hiçbir manuel yazım gerekmez.', en: 'springdoc/`@nestjs/swagger` READS this NEW annotation and adds it to the spec automatically — no manual writing needed.' },
+          positions: { build: { x: 20, y: 40 }, gen: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'build', to: 'gen', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Ders — Doküman kodla AYNI ANDA doğar; elle yazılan bir spec\'te olası "unutma" riski burada mimari olarak yoktur.', en: 'The lesson — the doc is born AT THE SAME TIME as the code; the "forgetting" risk possible with a hand-written spec does not architecturally exist here.' },
+          positions: { gen: { x: 30, y: 45 }, doc: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'gen', to: 'doc', color: '#22c55e' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Annotation\'dan Otomatik Spec\'e', en: 'From Annotation to Auto-Generated Spec' },
+      steps: [
+        { id: 1, icon: '🏷️', label: { tr: 'Annotation/decorator yaz…', en: 'Write annotation/decorator…' }, detail: { tr: '@GetMapping/@Get() gibi zaten yazdığın kod, sözleşmeyi yapısal olarak taşır.', en: 'Code you already wrote, like @GetMapping/@Get(), structurally carries the contract.' } },
+        { id: 2, icon: '🏭', label: { tr: 'Üretici okusun…', en: 'Let the generator read it…' }, detail: { tr: 'springdoc/@nestjs/swagger başlangıçta/build\'de bu annotation\'ları tarar.', en: 'springdoc/@nestjs/swagger scans these annotations at startup/build.' } },
+        { id: 3, icon: '📜', label: { tr: 'Spec otomatik doğsun…', en: 'The spec is born automatically…' }, detail: { tr: '/swagger-ui.html veya /api-docs her zaman KODUN GÜNCEL hâlini yansıtır.', en: '/swagger-ui.html or /api-docs always reflects the CURRENT state of the code.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-f2-order-01',
+      question: { tr: 'Otomatik Swagger üretiminin kurulum sırasını diz.', en: 'Order the setup steps for automatic Swagger generation.' },
+      items: [
+        { id: '1', text: { tr: 'springdoc/@nestjs/swagger bağımlılığını ekle', en: 'Add the springdoc/@nestjs/swagger dependency' }, order: 1 },
+        { id: '2', text: { tr: 'Controller/DTO\'lardaki mevcut annotation/decorator\'ları KORU', en: 'KEEP the existing annotations/decorators on Controllers/DTOs' }, order: 2 },
+        { id: '3', text: { tr: 'Uygulamayı başlat/build al', en: 'Start the app/build it' }, order: 3 },
+        { id: '4', text: { tr: 'Üretici bu annotation\'ları tarar', en: 'The generator scans these annotations' }, order: 4 },
+        { id: '5', text: { tr: '/swagger-ui.html veya /api-docs güncel spec\'i gösterir', en: '/swagger-ui.html or /api-docs shows the up-to-date spec' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-f2-swagger-generation',
+      id: 'api-f2-swagger-generation',
+      title: { tr: 'Kendin Dene: Eksik Kurulum Satırını Tamamla', en: 'Try It Yourself: Complete the Missing Setup Line' },
+      starterCode: `const document = SwaggerModule.createDocument(app, config)
+// BUG: document olusturuldu ama hicbir yere BAGLANMADI
+// TODO: /api-docs'un acilmasi icin eksik cagriyi ekle`,
+      solutionCode: `const document = SwaggerModule.createDocument(app, config)
+SwaggerModule.setup('api-docs', app, document)`,
+      hint: { tr: '`createDocument` sadece spec nesnesini bellekte OLUŞTURUR; onu bir URL\'e (`/api-docs`) BAĞLAYAN ayrı bir `SwaggerModule.setup(...)` çağrısı gerekir.', en: '`createDocument` only CREATES the spec object in memory; a separate `SwaggerModule.setup(...)` call is needed to BIND it to a URL (`/api-docs`).' },
+      successMessage: { tr: 'Doğru! Artık /api-docs gerçekten tarayıcıda açılabilir.', en: 'Correct! Now /api-docs can actually be opened in the browser.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'springdoc/@nestjs/swagger ile otomatik üretilen bir spec, elle yazılan bir spec\'e göre en büyük avantajı nedir?', en: 'What is the biggest advantage of a spec auto-generated by springdoc/@nestjs/swagger over a hand-written spec?' },
+      options: [
+        { id: 'a', text: { tr: 'Kod değiştiğinde spec de OTOMATİK güncellenir — elle yazılan bir spec\'in "eskime" riski yoktur', en: 'The spec updates AUTOMATICALLY when the code changes — a hand-written spec\'s "staleness" risk does not exist' } },
+        { id: 'b', text: { tr: 'Daha az disk alanı kaplar', en: 'It takes up less disk space' } },
+        { id: 'c', text: { tr: 'Sunucuyu daha hızlı başlatır', en: 'It starts the server faster' } },
+        { id: 'd', text: { tr: 'Veritabanı bağlantısını otomatik kurar', en: 'It automatically sets up the database connection' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Otomatik üretim, spec\'i kodun kendisinden (annotation/decorator) çıkardığı için kod ile doküman arasında bir "senkronizasyon kaybı" mimari olarak zorlaşır — elle yazılan bir spec\'te ise geliştirici dokümanı güncellemeyi unutabilir.', en: 'Because auto-generation extracts the spec from the code itself (annotations/decorators), a "sync loss" between code and doc becomes architecturally harder — with a hand-written spec, the developer can forget to update the doc.' },
+      retryQuestion: {
+        question: { tr: 'Express\'in (GRUP C) springdoc/@nestjs/swagger gibi bir otomatik üreticisi neden daha zayıftır/yoktur?', en: 'Why is Express\'s (GROUP C) auto-generator weaker/absent compared to springdoc/@nestjs/swagger?' },
+        options: [
+          { id: 'a', text: { tr: 'Route/validation kuralı ayrı fonksiyonlarda yaşar, kod sözleşmeyi annotation gibi yapısal taşımaz', en: 'Routes/validation rules live in separate functions, the code does not structurally carry the contract like an annotation' } },
+          { id: 'b', text: { tr: 'Express JSON desteklemez', en: 'Express does not support JSON' } },
+          { id: 'c', text: { tr: 'Express HTTP\'yi desteklemez', en: 'Express does not support HTTP' } },
+          { id: 'd', text: { tr: 'Node.js YAML dosyalarını okuyamaz', en: 'Node.js cannot read YAML files' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Spring/Nest\'te annotation/decorator\'lar (`@GetMapping`/`@Get()`) sözleşmeyi kodun yapısında SABİT bir kalıpla taşır; bir üretici bunu güvenle okuyabilir. Express\'te route ve validation ayrı fonksiyonlarda yaşadığından, aynı sabit kalıp yoktur — otomatik üretim için ekstra kurulum/kütüphane gerekir.', en: 'In Spring/Nest, annotations/decorators (`@GetMapping`/`@Get()`) carry the contract in a FIXED pattern in the code\'s structure; a generator can safely read it. In Express, routes and validation live in separate functions, so the same fixed pattern does not exist — auto-generation needs extra setup/libraries.' },
+      },
+    },
+  ],
+}
+
+const F3 = {
+  title: { tr: '👆 F3 · Swagger UI "Try it out": ilk elle test', en: '👆 F3 · Swagger UI "Try it out": First Manual Test' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '👆',
+      content: {
+        tr: 'Swagger UI, spec dosyasından otomatik oluşan bir **showroom**dur: bir araba showroom\'unda arabanın teknik özelliklerini kağıttan okumak yerine direksiyona oturup gaza basabilirsin — Swagger UI de spec\'teki her endpoint\'i "Try it out" butonuyla GERÇEKTEN çağırmana izin verir, hiçbir kod yazmadan, hiçbir Postman kurulumu olmadan. Peki Postman zaten varken bu neden ayrı bir araç? Çünkü Swagger UI, spec\'in kendisinden DOĞAR — Postman\'de bir isteği elle kurman gerekirken (endpoint\'i, alanları biliyor olman gerekir), Swagger UI spec\'i okuyup SANA formu otomatik hazırlar: hangi alanın zorunlu olduğunu, hangi değerlerin geçerli olduğunu (enum) ÖNCEDEN gösterir. Java\'da bunun karşılığı bir REPL (`jshell`) gibidir — kodu derleyip paketlemeden, doğrudan DENEYEBİLDİĞİN bir ortam. QA açısından Swagger UI, bir API\'yi ilk kez gören bir testerın "önce anla, sonra otomasyona geç" akışındaki İLK elle test aracıdır — derin otomasyon (GRUP G-I) buradan SONRA gelir.',
+        en: 'Swagger UI is a **showroom** auto-built from the spec file: instead of reading a car\'s technical specs on paper in a showroom, you can sit in the driver\'s seat and press the gas — Swagger UI lets you REALLY call every endpoint in the spec with the "Try it out" button, without writing any code, without setting up Postman. So why is this a separate tool when Postman already exists? Because Swagger UI is BORN from the spec itself — while in Postman you must set up a request by hand (you need to already know the endpoint, the fields), Swagger UI reads the spec and auto-prepares the form FOR YOU: it shows in advance which field is required, which values are valid (enum). The Java equivalent is a REPL (`jshell`) — an environment where you can TRY code directly without compiling and packaging. For QA, Swagger UI is the FIRST hands-on test tool in a tester\'s "understand first, automate later" flow when seeing an API for the first time — deep automation (GROUP G-I) comes AFTER this.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Formdan Gerçek İsteğe', en: 'From a Form to a Real Request' } },
+    {
+      type: 'text',
+      content: {
+        tr: 'Swagger UI\'da bir endpoint\'e tıkladığında `Try it out` butonu belirir. Bu butona basınca alanlar DÜZENLENEBİLİR hale gelir, `Execute` butonu ise GERÇEK bir HTTP isteği gönderir — sonucu (status kodu, yanıt gövdesi) tam olarak DevTools Network panelinde (GRUP E) göreceğinle aynı şekilde gösterir.',
+        en: 'Clicking an endpoint in Swagger UI reveals a `Try it out` button. Pressing it makes the fields EDITABLE, and the `Execute` button sends a REAL HTTP request — showing the result (status code, response body) exactly as you would see it in the DevTools Network panel (GROUP E).',
+      },
+    },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'Spec → Swagger UI → Try it out → Gerçek İstek', en: 'Spec → Swagger UI → Try it out → Real Request' },
+      svg: swaggerUiFlowSvg,
+    },
+    {
+      type: 'video-scene',
+      id: 'api-f3-tryitout-film',
+      title: { tr: '🎬 Kod Yazmadan İlk API Çağrısı', en: '🎬 The First API Call Without Writing Code' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'ui', emoji: '🖥️', label: { tr: 'Swagger UI açılır', en: 'Swagger UI opens' }, color: '#f59e0b' },
+        { id: 'try', emoji: '👆', label: { tr: '"Try it out" tıklanır', en: '"Try it out" clicked' }, color: '#0ea5e9' },
+        { id: 'fill', emoji: '✏️', label: { tr: 'Alanlar doldurulur', en: 'Fields are filled' }, color: '#a78bfa' },
+        { id: 'exec', emoji: '▶️', label: { tr: '"Execute" tıklanır', en: '"Execute" clicked' }, color: '#22c55e' },
+        { id: 'result', emoji: '📥', label: { tr: 'Gerçek status + gövde', en: 'Real status + body' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Tester `/swagger-ui.html`\'i açar — spec\'teki tüm endpoint\'ler görsel bir listede belirir.', en: 'The tester opens `/swagger-ui.html` — all endpoints from the spec appear in a visual list.' },
+          positions: { ui: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: '`POST /api/v1/bugs` üzerinde `Try it out` butonuna basar — form artık DÜZENLENEBİLİR.', en: 'They press `Try it out` on `POST /api/v1/bugs` — the form is now EDITABLE.' },
+          positions: { ui: { x: 20, y: 35 }, try: { x: 58, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'ui', to: 'try', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Spec\'in zaten bildiği alanları (title, severity) doldurur — enum değerleri bile ÖNCEDEN listelenmiştir.', en: 'They fill the fields the spec already knows (title, severity) — even enum values are PRE-LISTED.' },
+          positions: { try: { x: 20, y: 35 }, fill: { x: 58, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'try', to: 'fill', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: '`Execute`\'e basınca GERÇEK bir HTTP isteği sunucuya gider — bu bir simülasyon değildir.', en: 'Pressing `Execute` sends a REAL HTTP request to the server — this is not a simulation.' },
+          positions: { fill: { x: 20, y: 35 }, exec: { x: 58, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'fill', to: 'exec', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'Ders — Sonuç (status + gövde) DevTools\'ta göreceğinle aynıdır; Swagger UI kod yazmadan yapılan bir "gerçek" ilk testtir, süs değildir.', en: 'The lesson — the result (status + body) is the same as what you would see in DevTools; Swagger UI is a "real" first test without writing code, not a nicety.' },
+          positions: { exec: { x: 30, y: 45 }, result: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'exec', to: 'result', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Swagger UI\'da İlk Elle Test Sırası', en: 'The Order for a First Hands-On Test in Swagger UI' },
+      steps: [
+        { id: 1, icon: '🖥️', label: { tr: 'Swagger UI\'ı aç…', en: 'Open Swagger UI…' }, detail: { tr: 'Genelde /swagger-ui.html veya /api-docs adresinde çalışır.', en: 'Usually runs at /swagger-ui.html or /api-docs.' } },
+        { id: 2, icon: '👆', label: { tr: 'Endpoint seç, Try it out\'a bas…', en: 'Pick an endpoint, press Try it out…' }, detail: { tr: 'Form düzenlenebilir hale gelir, spec\'teki alan kuralları (required/enum) görünür.', en: 'The form becomes editable, the spec\'s field rules (required/enum) become visible.' } },
+        { id: 3, icon: '▶️', label: { tr: 'Execute et, sonucu oku…', en: 'Execute, read the result…' }, detail: { tr: 'Gerçek status + gövde gelir — DevTools Network panelindekiyle aynı gerçekliktir.', en: 'A real status + body arrives — the same reality as in the DevTools Network panel.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-f3-order-01',
+      question: { tr: 'Swagger UI ile ilk elle testi yapma sırasını diz.', en: 'Order the steps for making the first hands-on test with Swagger UI.' },
+      items: [
+        { id: '1', text: { tr: '/swagger-ui.html\'i tarayıcıda aç', en: 'Open /swagger-ui.html in the browser' }, order: 1 },
+        { id: '2', text: { tr: 'Test etmek istediğin endpoint\'i bul', en: 'Find the endpoint you want to test' }, order: 2 },
+        { id: '3', text: { tr: '"Try it out" tıkla, alanları doldur', en: 'Click "Try it out", fill the fields' }, order: 3 },
+        { id: '4', text: { tr: '"Execute" ile gerçek isteği gönder', en: 'Send the real request with "Execute"' }, order: 4 },
+        { id: '5', text: { tr: 'Dönen status/gövdeyi spec\'in vaadiyle karşılaştır', en: 'Compare the returned status/body with the spec\'s promise' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-f3-try-it-out',
+      id: 'api-f3-try-it-out',
+      title: { tr: 'Kendin Dene: Swagger UI\'da Ne Zaman "Execute" Aktif Olur?', en: 'Try It Yourself: When Does "Execute" Become Active in Swagger UI?' },
+      starterCode: `// Durum: bir endpoint sayfasi acildi ama alanlar DUZENLENEMEZ, Execute butonu YOK
+// TODO: hangi butona basilmadan bu durum degismez?
+Eksik adim: ???`,
+      solutionCode: `// "Try it out" tiklanmadan form salt-okunur kalir, Execute gorunmez
+Eksik adim: "Try it out" butonuna basmak`,
+      hint: { tr: 'Swagger UI varsayılan olarak spec\'i SALT-OKUNUR gösterir (dokümantasyon modu). `Try it out` butonuna basmadan form düzenlenemez ve `Execute` görünmez.', en: 'Swagger UI shows the spec READ-ONLY by default (documentation mode). Without pressing `Try it out`, the form cannot be edited and `Execute` does not appear.' },
+      successMessage: { tr: 'Doğru! "Try it out" olmadan Swagger UI sadece bir doküman görüntüleyicidir, test aracı değil.', en: 'Correct! Without "Try it out", Swagger UI is just a doc viewer, not a test tool.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Swagger UI\'daki "Execute" butonuna basmak neye karşılık gelir?', en: 'What does pressing the "Execute" button in Swagger UI correspond to?' },
+      options: [
+        { id: 'a', text: { tr: 'Sunucuya GERÇEK bir HTTP isteği gönderir — bir simülasyon değildir', en: 'It sends a REAL HTTP request to the server — it is not a simulation' } },
+        { id: 'b', text: { tr: 'Sadece spec dosyasını yeniden yükler', en: 'It only reloads the spec file' } },
+        { id: 'c', text: { tr: 'Sunucuyu yeniden başlatır', en: 'It restarts the server' } },
+        { id: 'd', text: { tr: 'Hiçbir şey yapmaz, sadece görsel bir animasyondur', en: 'It does nothing, it is just a visual animation' } },
+      ],
+      correct: 'a',
+      explanation: { tr: '`Execute`, tarayıcının doğrudan sunucuya gönderdiği gerçek bir HTTP isteğidir; dönen status kodu ve gövde, DevTools Network panelinde göreceğinle birebir aynı gerçekliktir.', en: '`Execute` is a real HTTP request the browser sends directly to the server; the returned status code and body are the exact same reality you would see in the DevTools Network panel.' },
+      retryQuestion: {
+        question: { tr: 'Swagger UI, spec\'teki `enum` alanlarını "Try it out" formunda nasıl gösterir?', en: 'How does Swagger UI show a spec\'s `enum` fields in the "Try it out" form?' },
+        options: [
+          { id: 'a', text: { tr: 'Geçerli değerleri önceden listeleyen bir seçim kutusu olarak', en: 'As a dropdown that pre-lists the valid values' } },
+          { id: 'b', text: { tr: 'Boş bir metin kutusu olarak, hiçbir ipucu vermeden', en: 'As an empty text box, with no hints' } },
+          { id: 'c', text: { tr: 'Enum alanlarını hiç göstermez', en: 'It does not show enum fields at all' } },
+          { id: 'd', text: { tr: 'Sadece sayısal alanlarda çalışır', en: 'It only works on numeric fields' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Swagger UI, spec\'teki `enum` tanımını okuyup formu buna göre kurar — geçerli değerleri (örn. LOW/MEDIUM/HIGH/CRITICAL) önceden bir seçim kutusunda listeler, kullanıcının tahmin etmesine gerek bırakmaz.', en: 'Swagger UI reads the spec\'s `enum` definition and builds the form accordingly — it pre-lists the valid values (e.g. LOW/MEDIUM/HIGH/CRITICAL) in a dropdown, so the user does not need to guess.' },
+      },
+    },
+  ],
+}
+
+const F4 = {
+  title: { tr: '🔎 F4 · Schema Okuma: required, type, enum, example', en: '🔎 F4 · Reading Schema: required, type, enum, example' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔎',
+      content: {
+        tr: 'Bir OpenAPI şeması, bir **başvuru formunun kılavuzudur**: `required` hangi alanları BOŞ bırakamayacağını söyler (kırmızı yıldızlı alanlar), `type` her alanın hangi tür veri beklediğini söyler (isim mi, sayı mı), `enum` bir alanın sadece BELİRLİ değerleri kabul ettiğini söyler (bir açılır liste gibi), `example` ise formun nasıl doldurulacağına dair örnek bir doldurulmuş kopyadır. Peki bu 4 kelimeyi neden tek tek bilmek gerekiyor — "şemaya bak" demek yeterli değil mi? Çünkü her biri FARKLI bir test senaryosu DOĞURUR: `required` eksikse "bu alan olmadan ne olur?" testi, `type` yanlışsa "yanlış tipte veri gönderirsem ne olur?" testi, `enum` dışı bir değer "tanımsız bir değer gönderirsem ne olur?" testi. Java\'da bunun karşılığı Bean Validation annotation\'larıdır: `required` ≈ `@NotNull`/`@NotBlank`, `type` ≈ alanın Java tipi (`String`, `Integer`), `enum` ≈ bir Java `enum` sınıfı veya `@Pattern`. QA açısından bir şemayı OKUMAK, bir test senaryosu LİSTESİ üretmenin en hızlı yoludur — F6\'da tam olarak bunu, sistematik bir şekilde yapacaksın.',
+        en: 'An OpenAPI schema is a **guide to a signup form**: `required` says which fields cannot be left BLANK (the red-starred fields), `type` says what kind of data each field expects (a name or a number), `enum` says a field only accepts SPECIFIC values (like a dropdown), and `example` is a sample filled-in copy showing how to fill the form. So why know these 4 words individually — isn\'t "look at the schema" enough? Because each one BIRTHS a DIFFERENT test scenario: a missing `required` births the "what happens without this field?" test, a wrong `type` births the "what happens if I send the wrong data type?" test, an out-of-`enum` value births the "what happens if I send an undefined value?" test. The Java equivalent is Bean Validation annotations: `required` ≈ `@NotNull`/`@NotBlank`, `type` ≈ the field\'s Java type (`String`, `Integer`), `enum` ≈ a Java `enum` class or `@Pattern`. For QA, READING a schema is the fastest way to produce a LIST of test scenarios — in F6 you will do exactly this, systematically.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Bug Kaydının Şeması', en: 'The Bug Record\'s Schema' } },
+    {
+      type: 'code',
+      language: 'json',
+      code: {
+        tr: `{
+  "Bug": {
+    "type": "object",
+    "required": ["title", "severity", "reporter"],
+    "properties": {
+      "title": { "type": "string", "minLength": 3, "maxLength": 120, "example": "Login butonu donuyor" },
+      "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"], "example": "HIGH" },
+      "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "CLOSED"], "example": "OPEN" },
+      "reporter": { "type": "string", "format": "email", "example": "tester@learnqa.dev" },
+      "createdAt": { "type": "string", "format": "date-time" }
+    }
+  }
+}`,
+        en: `{
+  "Bug": {
+    "type": "object",
+    "required": ["title", "severity", "reporter"],
+    "properties": {
+      "title": { "type": "string", "minLength": 3, "maxLength": 120, "example": "Login button freezes" },
+      "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"], "example": "HIGH" },
+      "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "CLOSED"], "example": "OPEN" },
+      "reporter": { "type": "string", "format": "email", "example": "tester@learnqa.dev" },
+      "createdAt": { "type": "string", "format": "date-time" }
+    }
+  }
+}`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-f4-schema-film',
+      title: { tr: '🎬 Bir Şema Satırından Bir Test Senaryosuna', en: '🎬 From a Schema Line to a Test Scenario' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'required', emoji: '⭐', label: { tr: 'required: [title]', en: 'required: [title]' }, color: '#ef4444' },
+        { id: 'type', emoji: '🔤', label: { tr: 'type: string', en: 'type: string' }, color: '#0ea5e9' },
+        { id: 'enum', emoji: '📋', label: { tr: 'enum: [LOW..CRITICAL]', en: 'enum: [LOW..CRITICAL]' }, color: '#a78bfa' },
+        { id: 'tests', emoji: '🧪', label: { tr: '3 test senaryosu doğar', en: '3 test scenarios are born' }, color: '#22c55e' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Tester şemayı okur: `required: ["title", "severity", "reporter"]`.', en: 'The tester reads the schema: `required: ["title", "severity", "reporter"]`.' },
+          positions: { required: { x: 50, y: 40, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Bu satır tek başına bir test senaryosu doğurur: "title olmadan POST atarsam 400 mü alırım?"', en: 'This line alone births a test scenario: "if I POST without title, do I get 400?"' },
+          positions: { required: { x: 20, y: 30 }, tests: { x: 60, y: 65, scale: 1.1, pulse: true } },
+          beams: [{ from: 'required', to: 'tests', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: '`type: "string"` başka bir senaryo doğurur: "title yerine bir sayı gönderirsem ne olur?"', en: '`type: "string"` births another scenario: "what if I send a number instead of title?"' },
+          positions: { type: { x: 50, y: 45, scale: 1.1, pulse: true } },
+          beams: [{ from: 'type', to: 'tests', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: '`enum: [LOW,MEDIUM,HIGH,CRITICAL]` bir üçüncü senaryo doğurur: "severity: \'URGENT\' gönderirsem ne olur (tanımsız değer)?"', en: '`enum: [LOW,MEDIUM,HIGH,CRITICAL]` births a third scenario: "what if I send severity: \'URGENT\' (an undefined value)?"' },
+          positions: { enum: { x: 50, y: 50, scale: 1.1, pulse: true } },
+          beams: [{ from: 'enum', to: 'tests', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Ders — Şemadaki her kısıt, sistematik olarak en az bir negatif test senaryosuna dönüşür; şema okumak aslında bir test tasarım tekniğidir.', en: 'The lesson — every constraint in the schema systematically turns into at least one negative test scenario; reading a schema is really a test design technique.' },
+          positions: { tests: { x: 50, y: 50, scale: 1.2, pulse: true } },
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Bir Şemayı Test Senaryosuna Çevirme Sırası', en: 'The Order for Turning a Schema into Test Scenarios' },
+      steps: [
+        { id: 1, icon: '⭐', label: { tr: 'required alanlarını listele…', en: 'List required fields…' }, detail: { tr: 'Her zorunlu alan için "onsuz gönderirsem?" negatif testi tasarla.', en: 'Design a "what if I send without it?" negative test for each required field.' } },
+        { id: 2, icon: '🔤', label: { tr: 'type uyumsuzluğunu dene…', en: 'Try type mismatches…' }, detail: { tr: 'Beklenen tipin dışında bir değer (sayı yerine metin) göndererek test et.', en: 'Test by sending a value outside the expected type (text instead of number).' } },
+        { id: 3, icon: '📋', label: { tr: 'enum dışı değer dene…', en: 'Try an out-of-enum value…' }, detail: { tr: 'Tanımlı olmayan bir değer göndererek sunucunun tepkisini gözlemle.', en: 'Observe the server\'s reaction by sending an undefined value.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-f4-order-01',
+      question: { tr: 'Bir şema alanını incelerken sorulacak soruların sırasını diz.', en: 'Order the questions to ask when examining a schema field.' },
+      items: [
+        { id: '1', text: { tr: 'Bu alan required listesinde mi?', en: 'Is this field in the required list?' }, order: 1 },
+        { id: '2', text: { tr: 'type alanı hangi veri türünü bekliyor?', en: 'What data type does the type field expect?' }, order: 2 },
+        { id: '3', text: { tr: 'Bir enum kısıtı var mı, hangi değerler geçerli?', en: 'Is there an enum constraint, which values are valid?' }, order: 3 },
+        { id: '4', text: { tr: 'example alanı doğru/gerçekçi bir değer mi gösteriyor?', en: 'Does the example field show a correct/realistic value?' }, order: 4 },
+        { id: '5', text: { tr: 'Bu bilgilerden negatif test senaryoları türet', en: 'Derive negative test scenarios from this information' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-f4-schema-reading',
+      id: 'api-f4-schema-reading',
+      title: { tr: 'Kendin Dene: Şemadan Eksik Test Senaryosunu Bul', en: 'Try It Yourself: Find the Missing Test Scenario from the Schema' },
+      starterCode: `// Sema: "severity": { "type": "string", "enum": ["LOW","MEDIUM","HIGH","CRITICAL"] }
+// Yazilan testler: gecerli deger (HIGH), bos deger
+// TODO: enum kisitina gore hangi ONEMLI negatif test EKSIK?
+Eksik test: ???`,
+      solutionCode: `// enum LISTESI DISINDA bir deger (ornegin "URGENT") gonderme testi eksik
+Eksik test: severity: "URGENT" (tanimsiz enum degeri) gonderip sunucunun tepkisini dogrula`,
+      hint: { tr: '`enum` kısıtı sadece belirli değerlere izin verir. Geçerli bir değer ve boş değer test edilmiş olsa da, listede OLMAYAN bir değerin (tanımsız enum) sunucuyu nasıl etkilediği ayrı ve kritik bir negatif testtir.', en: 'An `enum` constraint only allows specific values. Even if a valid value and an empty value are tested, how a value NOT in the list (an undefined enum) affects the server is a separate, critical negative test.' },
+      successMessage: { tr: 'Doğru! enum dışı değer testi, şema kısıtlarının GERÇEKTEN uygulandığını kanıtlayan kritik bir senaryodur.', en: 'Correct! An out-of-enum test is a critical scenario that proves the schema constraint is REALLY enforced.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Bir şemadaki `enum: ["LOW","MEDIUM","HIGH","CRITICAL"]` kısıtı hangi test senaryosunu DOĞRUDAN doğurur?', en: 'Which test scenario does an `enum: ["LOW","MEDIUM","HIGH","CRITICAL"]` schema constraint DIRECTLY birth?' },
+      options: [
+        { id: 'a', text: { tr: 'Listede olmayan bir değer (örn. "URGENT") gönderilirse sunucunun nasıl tepki verdiğini test etmek', en: 'Testing how the server reacts if a value not in the list (e.g. "URGENT") is sent' } },
+        { id: 'b', text: { tr: 'Sunucunun ne kadar hızlı yanıt verdiğini test etmek', en: 'Testing how fast the server responds' } },
+        { id: 'c', text: { tr: 'Veritabanı bağlantısını test etmek', en: 'Testing the database connection' } },
+        { id: 'd', text: { tr: 'CSS stillerinin doğru yüklendiğini test etmek', en: 'Testing that CSS styles load correctly' } },
+      ],
+      correct: 'a',
+      explanation: { tr: '`enum`, bir alanın sadece belirli değerleri kabul ettiğini bildirir; bunun doğal test senaryosu, listede OLMAYAN bir değer göndererek sunucunun bunu reddedip reddetmediğini (400 dönüp dönmediğini) doğrulamaktır.', en: '`enum` declares that a field only accepts specific values; the natural test scenario is sending a value NOT in the list and verifying whether the server rejects it (returns 400 or not).' },
+      retryQuestion: {
+        question: { tr: 'Bir şemada `required` listesinde olmayan bir alan ne anlama gelir?', en: 'What does a field NOT in a schema\'s `required` list mean?' },
+        options: [
+          { id: 'a', text: { tr: 'Alan opsiyoneldir — onsuz gönderilen bir istek de geçerli olmalıdır', en: 'The field is optional — a request sent without it should still be valid' } },
+          { id: 'b', text: { tr: 'Alan asla gönderilemez', en: 'The field can never be sent' } },
+          { id: 'c', text: { tr: 'Alan sadece GET isteklerinde geçerlidir', en: 'The field is only valid on GET requests' } },
+          { id: 'd', text: { tr: 'Şema bu alanı yok sayar', en: 'The schema ignores this field' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`required` listesinde OLMAYAN bir alan opsiyoneldir; sözleşmeye göre bu alan olmadan gönderilen bir istek de geçerli kabul edilmelidir — testerın doğrulayacağı şey tam olarak budur.', en: 'A field NOT in the `required` list is optional; per the contract, a request sent without it should still be accepted as valid — this is exactly what a tester verifies.' },
+      },
+    },
+  ],
+}
+
+const F5 = {
+  title: { tr: '⚠️ F5 · Contract Defect\'leri', en: '⚠️ F5 · Contract Defects' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '⚠️',
+      content: {
+        tr: 'Bir contract defect, F1\'de öğrendiğin "mimari çizim" analojisine geri döner: çizimde "bu oda 20 metrekare" yazarken gerçekte 15 metrekare olması gibi — bina (kod) ÇALIŞIYOR, çizim (spec) de VAR, ama ikisi birbirini YALANLIYOR. F2\'de gördüğün otomatik üretim bu riski AZALTIR ama SIFIRLAMAZ: spec üretilirken bile bir geliştirici yanlış bir `@ApiResponse` annotation\'ı yazabilir, veya spec elle düzenlendiyse kod değişince güncellenmemiş olabilir. Peki bu neden özellikle SİNSİ bir defect kategorisidir — normal bir fonksiyonel bug\'dan farkı ne? Çünkü UI\'daki manuel test veya fonksiyonel bir otomasyon testi genelde SADECE "istek başarılı mı?" sorar, "yanıt tam olarak DOKÜMANDAKİ ŞEKİLDE mi?" sorusunu SORMAZ — bu yüzden bir contract defect, aylarca fark edilmeden production\'da yaşayabilir, ta ki spec\'e güvenen bir mobil uygulama veya üçüncü taraf entegrasyonu YANLIŞ varsayımla çökene kadar. Java\'da bunun karşılığı, bir `interface`\'in JavaDoc\'unun kodla senkronize kalmaması gibidir — derleyici bunu YAKALAMAZ, çünkü JavaDoc derlemenin bir parçası değildir; tıpkı bir spec\'in "derlemenin" (build\'in) bir parçası olmasına rağmen İÇERİĞİNİN doğruluğunun ayrıca test EDİLMESİ gerektiği gibi. QA açısından contract testing, tam olarak bu boşluğu kapatan disiplindir.',
+        en: 'A contract defect returns to the "architectural blueprint" analogy from F1: the blueprint says "this room is 20 square meters" while it is really 15 — the building (the code) WORKS, the blueprint (the spec) EXISTS, but the two CONTRADICT each other. The auto-generation you saw in F2 REDUCES this risk but does not ZERO it out: even while generating a spec, a developer can write a wrong `@ApiResponse` annotation, or if the spec was hand-edited it may not have been updated when the code changed. So why is this an especially SNEAKY defect category — how does it differ from a normal functional bug? Because manual testing in the UI or a functional automation test usually ONLY asks "did the request succeed?", it does NOT ask "does the response EXACTLY match the DOCUMENTED shape?" — so a contract defect can live in production unnoticed for months, until a mobile app or a third-party integration trusting the spec crashes on a WRONG assumption. The Java equivalent is an `interface`\'s JavaDoc falling out of sync with the code — the compiler does NOT catch this, because JavaDoc is not part of compilation; just as a spec being part of the "build" does not mean its CONTENT\'s accuracy is separately TESTED. For QA, contract testing is exactly the discipline that closes this gap.',
+      },
+    },
+    { type: 'heading', text: { tr: '4 Gerçek Contract Defect Senaryosu', en: '4 Real Contract Defect Scenarios' } },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'Doküman Diyor ki... — Gerçek API Diyor ki...', en: 'The Doc Says... — The Real API Says...' },
+      svg: contractBreakSvg,
+    },
+    {
+      type: 'simple-box',
+      emoji: '1️⃣',
+      content: {
+        tr: '**1. Status Kodu Uyumsuzluğu** — Spec `POST /api/v1/bugs` için `200` döndüğünü söyler, ama gerçek API `201 Created` döner. **Kök neden:** geliştirici kod tarafında doğru pratiğe (`201` = oluşturma) geçmiş ama spec\'i güncellemeyi UNUTMUŞ. **Tester nasıl yakalar:** Swagger UI\'da `Try it out` ile gerçek isteği çalıştırıp dönen status kodunu dokümandaki ile birebir karşılaştırarak.',
+        en: '**1. Status code mismatch** — the spec says `POST /api/v1/bugs` returns `200`, but the real API returns `201 Created`. **Root cause:** the developer moved to the correct practice on the code side (`201` = creation) but FORGOT to update the spec. **How the tester catches it:** running the real request with `Try it out` in Swagger UI and comparing the returned status code exactly against the doc.',
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '2️⃣',
+      content: {
+        tr: '**2. Enum Drift** — Spec `severity` için `[LOW, MEDIUM, HIGH]` üç değer listeler, ama geliştirici kod tarafına yeni bir `CRITICAL` değeri EKLEMİŞ ve spec\'e YANSITMAMIŞ. **Kök neden:** enum bir Java/TS sabitler listesinde kolayca genişletilebilir ama spec\'teki karşılığı elle güncellenmesi gereken AYRI bir liste. **Tester nasıl yakalar:** gerçek yanıtlarda dokümanda OLMAYAN bir değer görerek, veya negatif testte "CRITICAL reddedilmeli" beklerken kabul edildiğini fark ederek.',
+        en: '**2. Enum drift** — the spec lists three `severity` values `[LOW, MEDIUM, HIGH]`, but the developer ADDED a new `CRITICAL` value on the code side and did NOT reflect it in the spec. **Root cause:** an enum can easily expand in a Java/TS constants list, but its counterpart in the spec is a SEPARATE list that must be updated by hand. **How the tester catches it:** seeing a value NOT in the doc in real responses, or expecting "CRITICAL should be rejected" in a negative test and noticing it is accepted instead.',
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '3️⃣',
+      content: {
+        tr: '**3. Required Yalanı** — Spec `reporter` alanını `required` listesinde gösterir, ama gerçek API bu alan OLMADAN gönderilen bir isteği de kabul edip `201` döner. **Kök neden:** backend\'deki doğrulama kuralı (`@NotBlank`/`@IsNotEmpty`) ya hiç yazılmamış ya da bir yerde SESSİZCE devre dışı (bkz. B1/D3\'teki eksik pipe/starter defect\'leri) — spec doğru yazılmış ama koddaki GERÇEK davranış farklı. **Tester nasıl yakalar:** "zorunlu" işaretli her alanı bilerek BOŞ bırakarak deneyip 400 yerine 201 alındığında.',
+        en: '**3. The required lie** — the spec lists `reporter` in the `required` list, but the real API also accepts a request sent WITHOUT this field and returns `201`. **Root cause:** the backend validation rule (`@NotBlank`/`@IsNotEmpty`) was either never written or is SILENTLY disabled somewhere (see the missing pipe/starter defects in B1/D3) — the spec is written correctly, but the code\'s REAL behavior differs. **How the tester catches it:** deliberately leaving every field marked "required" empty and getting 201 instead of 400.',
+      },
+    },
+    {
+      type: 'simple-box',
+      emoji: '4️⃣',
+      content: {
+        tr: '**4. Alan Tipi Uyumsuzluğu** — Spec `createdAt` alanının `type: string, format: date-time` (ISO-8601, örn. `2026-07-24T10:00:00Z`) olduğunu söyler, ama gerçek API bunu bir UNIX timestamp sayısı (`1753350000`) olarak döner. **Kök neden:** backend\'de serialization ayarı değişmiş (örn. farklı bir JSON kütüphanesi/konfigürasyon) ama spec bu değişikliği YAKALAMAMIŞ. **Tester nasıl yakalar:** gerçek yanıtta bir alanın TİPİNİ (string mi sayı mı) spec\'teki `type`/`format` ile birebir karşılaştırarak — özellikle spec\'e güvenerek otomatik parse eden bir istemci (mobil uygulama) bu farkta ÇÖKER.',
+        en: '**4. Field type mismatch** — the spec says `createdAt` is `type: string, format: date-time` (ISO-8601, e.g. `2026-07-24T10:00:00Z`), but the real API returns it as a UNIX timestamp number (`1753350000`). **Root cause:** a serialization setting changed on the backend (e.g. a different JSON library/config) but the spec did NOT catch this change. **How the tester catches it:** comparing a real response field\'s TYPE (string or number) exactly against the spec\'s `type`/`format` — a client (mobile app) that trusts the spec and auto-parses will CRASH on this mismatch.',
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-f5-contract-broken-film',
+      title: { tr: '🎬 Sözleşme Bozuldu', en: '🎬 The Contract Broke' },
+      xpReward: 15,
+      sceneDurationMs: 3400,
+      stageHeight: 280,
+      actors: [
+        { id: 'doc', emoji: '📜', label: { tr: 'Doküman: 200 diyor', en: 'Doc: says 200' }, color: '#22c55e' },
+        { id: 'dev', emoji: '👨‍💻', label: { tr: 'Geliştirici kodu değiştirdi', en: 'Developer changed the code' }, color: '#f59e0b' },
+        { id: 'api', emoji: '🖥️', label: { tr: 'Gerçek API: 201 dönüyor', en: 'Real API: returns 201' }, color: '#ef4444' },
+        { id: 'client', emoji: '📱', label: { tr: 'Mobil uygulama dokümana güveniyor', en: 'Mobile app trusts the doc' }, color: '#a78bfa' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Tester ayrışmayı yakalar', en: 'Tester catches the divergence' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Doküman aylarca doğruydu: `POST /api/v1/bugs` başarıyla `200` döner diyordu, ve öyleydi.', en: 'The doc was correct for months: it said `POST /api/v1/bugs` returns `200` on success, and it did.' },
+          positions: { doc: { x: 50, y: 45, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Bir geliştirici kodu "doğru pratiğe" (`201 Created`) taşır — ama spec\'i güncellemeyi UNUTUR.', en: 'A developer moves the code to "correct practice" (`201 Created`) — but FORGETS to update the spec.' },
+          positions: { doc: { x: 20, y: 30 }, dev: { x: 58, y: 45, scale: 1.15, pulse: true } },
+          beams: [{ from: 'doc', to: 'dev', color: '#f59e0b' }],
+        },
+        {
+          caption: { tr: 'Gerçek API artık `201` dönüyor — ama doküman HÂLÂ `200` diyor. Sözleşme SESSİZCE bozuldu.', en: 'The real API now returns `201` — but the doc STILL says `200`. The contract SILENTLY broke.' },
+          positions: { dev: { x: 20, y: 30 }, api: { x: 58, y: 45, scale: 1.2, pulse: true } },
+          beams: [{ from: 'dev', to: 'api', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Dokümana güvenen bir mobil uygulama "sadece 200 = başarı" mantığıyla yazılmıştı — `201`\'i TANIMAZ, kullanıcıya hata gösterir.', en: 'A mobile app that trusts the doc was written with "only 200 = success" logic — it does NOT recognize `201`, shows the user an error.' },
+          positions: { api: { x: 20, y: 65 }, client: { x: 58, y: 65, scale: 1.15, pulse: true } },
+          beams: [{ from: 'api', to: 'client', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Tester, Swagger UI\'da `Try it out` çalıştırıp dönen `201`\'i dokümanın vaat ettiği `200` ile KARŞILAŞTIRIR — ayrışmayı bulur.', en: 'The tester runs `Try it out` in Swagger UI and COMPARES the returned `201` against the doc\'s promised `200` — finds the divergence.' },
+          positions: { client: { x: 30, y: 50 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'client', to: 'tester', color: '#8b5cf6' }],
+        },
+        {
+          caption: { tr: 'Ders — "Kod doğru, doküman eski" bir mazeret DEĞİL, bir bug\'dır: sözleşmeye güvenen HERKES (mobil, entegrasyon, test) yanlış varsayımla çalışır.', en: 'The lesson — "the code is right, the doc is old" is NOT an excuse, it is a bug: EVERYONE trusting the contract (mobile, integrations, tests) operates on a wrong assumption.' },
+          positions: { tester: { x: 40, y: 48, scale: 1.15, pulse: true } },
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Bir Contract Defect\'i Kanıtlama Sırası', en: 'The Order for Proving a Contract Defect' },
+      steps: [
+        { id: 1, icon: '📜', label: { tr: 'Spec\'in vaadini oku…', en: 'Read the spec\'s promise…' }, detail: { tr: 'Status kodu, alan tipi, enum listesi gibi somut bir iddiayı not al.', en: 'Note a concrete claim like status code, field type, or enum list.' } },
+        { id: 2, icon: '▶️', label: { tr: 'Gerçek isteği çalıştır…', en: 'Run the real request…' }, detail: { tr: 'Swagger UI Try it out veya Postman ile gerçek yanıtı al.', en: 'Get the real response with Swagger UI Try it out or Postman.' } },
+        { id: 3, icon: '⚖️', label: { tr: 'Vaat ile gerçeği karşılaştır…', en: 'Compare the promise with reality…' }, detail: { tr: 'Uyumsuzluk varsa bunu "kod doğru, doküman eski" savunmasına karşı BUG olarak raporla.', en: 'If there is a mismatch, report it as a BUG against the "code is right, doc is old" defense.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-f5-order-01',
+      question: { tr: 'Bir contract defect\'i tespit etme ve raporlama sürecini sırala.', en: 'Order the process for detecting and reporting a contract defect.' },
+      items: [
+        { id: '1', text: { tr: 'Spec\'teki somut bir iddiayı (status/type/enum) not al', en: 'Note a concrete claim in the spec (status/type/enum)' }, order: 1 },
+        { id: '2', text: { tr: 'Aynı isteği gerçek API\'ye gönder', en: 'Send the same request to the real API' }, order: 2 },
+        { id: '3', text: { tr: 'Gerçek sonucu spec\'in vaadiyle satır satır karşılaştır', en: 'Compare the real result against the spec\'s promise line by line' }, order: 3 },
+        { id: '4', text: { tr: 'Uyumsuzluğu (varsa) kanıtla', en: 'Prove the mismatch (if any)' }, order: 4 },
+        { id: '5', text: { tr: 'Bug olarak aç, "doküman eski" mazeretini kabul etme', en: 'File it as a bug, do not accept the "the doc is old" excuse' }, order: 5 },
+      ],
+      xpReward: 13,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-f5-contract-defects',
+      id: 'api-f5-contract-defects',
+      title: { tr: 'Kendin Dene: Contract Defect\'i Sınıflandır', en: 'Try It Yourself: Classify the Contract Defect' },
+      starterCode: `// Spec: "severity" enum'i [LOW, MEDIUM, HIGH] (3 deger)
+// Gercek API yaniti: "severity": "CRITICAL" (spec'te olmayan 4. deger)
+// TODO: bu hangi contract defect kategorisidir?
+Kategori: ???`,
+      solutionCode: `// Kodda enum genisletilmis (yeni deger eklenmis) ama spec guncellenmemis
+Kategori: Enum drift`,
+      hint: { tr: 'Spec\'te tanımlı olmayan yeni bir değerin gerçek yanıtta belirmesi, kodun spec\'ten daha "ileride" olduğu, yani enum listesinin spec\'te GÜNCELLENMEDİĞİ anlamına gelir — bu "enum drift"tir.', en: 'A new value not defined in the spec appearing in the real response means the code is "ahead" of the spec — the enum list was NOT UPDATED in the spec — this is "enum drift".' },
+      successMessage: { tr: 'Doğru! Enum drift, spec\'in en sık gözden kaçan ayrışma türlerinden biridir.', en: 'Correct! Enum drift is one of the most commonly overlooked divergence types in a spec.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Swagger dokümanı `200` diyor ama gerçek API `201` dönüyor; geliştirici "kod doğru, doküman eski" diyor. Bunu bug olarak açar mısın, neden?', en: 'The Swagger doc says `200` but the real API returns `201`; the developer says "the code is right, the doc is old". Do you file this as a bug, and why?' },
+      options: [
+        { id: 'a', text: { tr: 'Evet — sözleşmeye güvenen HERKES (mobil, entegrasyon, otomasyon) yanlış varsayımla çalışır; doküman eskiyse GÜNCELLENMELİDİR', en: 'Yes — EVERYONE trusting the contract (mobile, integrations, automation) operates on a wrong assumption; if the doc is stale it MUST be updated' } },
+        { id: 'b', text: { tr: 'Hayır, kod doğruysa sorun yoktur', en: 'No, if the code is correct there is no problem' } },
+        { id: 'c', text: { tr: 'Hayır, status kodu önemli değildir', en: 'No, the status code does not matter' } },
+        { id: 'd', text: { tr: 'Evet ama sadece görsel bir sorundur, ciddiyeti düşüktür', en: 'Yes but it is only a cosmetic issue, low severity' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Bir spec sadece bir "not" değil, diğer ekiplerin/araçların GÜVENDİĞİ bir sözleşmedir. "Kod doğru, doküman eski" ifadesi sorunu ÇÖZMEZ, sadece nedenini açıklar — sözleşmeye güvenen mobil uygulama, entegrasyon veya otomasyon testi hâlâ YANLIŞ varsayımla çalışıyor olur.', en: 'A spec is not just a "note", it is a contract that OTHER teams/tools TRUST. "The code is right, the doc is old" does not FIX the problem, it only explains its cause — a mobile app, integration, or automation test trusting the contract still operates on a WRONG assumption.' },
+      retryQuestion: {
+        question: { tr: '"Required yalanı" contract defect\'inin tanımı nedir?', en: 'What defines a "required lie" contract defect?' },
+        options: [
+          { id: 'a', text: { tr: 'Spec bir alanı zorunlu gösterirken, gerçek API bu alan olmadan da isteği kabul etmesi', en: 'The spec marks a field as required, but the real API accepts the request without it too' } },
+          { id: 'b', text: { tr: 'Bir alanın hiç var olmaması', en: 'A field not existing at all' } },
+          { id: 'c', text: { tr: 'Sunucunun yavaş yanıt vermesi', en: 'The server responding slowly' } },
+          { id: 'd', text: { tr: 'Spec dosyasının bulunamaması', en: 'The spec file not being found' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '"Required yalanı", spec\'in bir alanı zorunlu (`required`) olarak BİLDİRMESİNE rağmen, backend\'deki gerçek doğrulama kuralının eksik/devre dışı olması nedeniyle o alan olmadan da isteğin kabul edilmesidir — spec ile GERÇEK davranış arasındaki bir uyumsuzluktur.', en: 'A "required lie" is when the spec DECLARES a field as required, but because the real validation rule on the backend is missing/disabled, a request is accepted without that field too — a mismatch between the spec and REAL behavior.' },
+      },
+    },
+  ],
+}
+
+const F6 = {
+  title: { tr: '🧾 F6 · Swagger\'dan Test Senaryosu Türetmek', en: '🧾 F6 · Deriving Test Scenarios from Swagger' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🧾',
+      content: {
+        tr: 'F1-F5\'te öğrendiğin her şey (sözleşme kavramı, otomatik üretim, Try it out, şema okuma, contract defect\'leri) tek bir BECERİDE birleşir: bir spec dosyasından SİSTEMATİK bir test senaryosu ÇEKLİSTESİ türetmek. Bu, bir mimari çizimden bir **denetim listesi** çıkarmaya benzer: elektrikçi çizime bakıp "her prizin doğru yerde olduğunu, her kablonun doğru kalınlıkta olduğunu" TEK TEK kontrol eder — rastgele dolaşmaz. Peki bu neden "rastgele test etmekten" DAHA İYİdir? Çünkü şemadaki her `required`/`type`/`enum` kısıtı GARANTİLİ bir test senaryosu üretir (F4), ve her endpoint için 2xx/4xx/5xx olasılıkları BELLİDİR (A5) — bu ikisini birleştirdiğinde, "aklına ne gelirse test et" yerine "spec\'in İZİN VERDİĞİ ve YASAKLADIĞI her durumu sistematik olarak dene" checklist\'ine geçersin. Java\'da bunun karşılığı bir `interface`\'in tüm implementasyonlarını test eden bir "contract test" paketidir — her implementasyon AYNI davranış sözleşmesini karşılamalıdır. QA açısından bu, GRUP F\'in doruk noktasıdır: artık spec sadece OKUDUĞUN bir belge değil, test PLANLADIĞIN bir kaynak kod.',
+        en: 'Everything you learned in F1-F5 (the contract concept, auto-generation, Try it out, schema reading, contract defects) merges into ONE SKILL: deriving a SYSTEMATIC test scenario CHECKLIST from a spec file. This is like extracting an **inspection checklist** from an architectural blueprint: an electrician looks at the blueprint and checks ONE BY ONE that "every outlet is in the right place, every wire is the right gauge" — they do not wander randomly. So why is this BETTER than "testing randomly"? Because every `required`/`type`/`enum` constraint in the schema GUARANTEES a test scenario (F4), and every endpoint\'s 2xx/4xx/5xx possibilities are KNOWN (A5) — combining the two, you move from "test whatever comes to mind" to a checklist of "systematically try every case the spec ALLOWS and FORBIDS". The Java equivalent is a "contract test" suite that tests all implementations of an `interface` — every implementation must satisfy the SAME behavior contract. For QA, this is the peak of GROUP F: the spec is no longer just a document you READ, it is source material you PLAN tests from.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Bir Şemadan Bir Checklist\'e', en: 'From a Schema to a Checklist' } },
+    {
+      type: 'code',
+      language: 'yaml',
+      code: {
+        tr: `# POST /api/v1/bugs icin sema ozeti
+required: [title, severity, reporter]
+title: { type: string, minLength: 3, maxLength: 120 }
+severity: { enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+reporter: { format: email }
+
+# Bu semadan TURETILEN checklist (ornek):
+# 1. Tum alanlar gecerliyken -> 201 beklenir
+# 2. title eksikken -> 400 beklenir (required)
+# 3. title 2 karakterken -> 400 beklenir (minLength ihlali)
+# 4. title 121 karakterken -> 400 beklenir (maxLength ihlali)
+# 5. severity: "URGENT" (enum disi) -> 400 beklenir
+# 6. reporter: "gecersiz-email" (format ihlali) -> 400 beklenir`,
+        en: `# schema summary for POST /api/v1/bugs
+required: [title, severity, reporter]
+title: { type: string, minLength: 3, maxLength: 120 }
+severity: { enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+reporter: { format: email }
+
+# checklist DERIVED from this schema (example):
+# 1. all fields valid -> expect 201
+# 2. title missing -> expect 400 (required)
+# 3. title 2 chars -> expect 400 (minLength violation)
+# 4. title 121 chars -> expect 400 (maxLength violation)
+# 5. severity: "URGENT" (out of enum) -> expect 400
+# 6. reporter: "invalid-email" (format violation) -> expect 400`,
+      },
+    },
+    {
+      type: 'video-scene',
+      id: 'api-f6-checklist-film',
+      title: { tr: '🎬 Bir Şemadan 6 Test Senaryosu Doğar', en: '🎬 6 Test Scenarios Are Born from One Schema' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'schema', emoji: '📐', label: { tr: 'Şema kısıtları', en: 'Schema constraints' }, color: '#f59e0b' },
+        { id: 'happy', emoji: '✅', label: { tr: 'Mutlu yol: 1 senaryo', en: 'Happy path: 1 scenario' }, color: '#22c55e' },
+        { id: 'negative', emoji: '🚫', label: { tr: 'Negatif: 5 senaryo', en: 'Negative: 5 scenarios' }, color: '#ef4444' },
+        { id: 'checklist', emoji: '📋', label: { tr: 'Tam checklist', en: 'Complete checklist' }, color: '#a78bfa' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Tester bir endpoint\'in şemasına bakar: `required`, `minLength`/`maxLength`, `enum`, `format` kısıtları listelenir.', en: 'The tester looks at an endpoint\'s schema: `required`, `minLength`/`maxLength`, `enum`, `format` constraints are listed.' },
+          positions: { schema: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Tüm kısıtlara uyan TEK bir "mutlu yol" senaryosu türer: geçerli veri → 201 beklenir.', en: 'ONE "happy path" scenario that satisfies all constraints emerges: valid data → expect 201.' },
+          positions: { schema: { x: 20, y: 35 }, happy: { x: 58, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'schema', to: 'happy', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'Her kısıtın İHLALİ ayrı bir negatif senaryo doğurur: eksik alan, çok kısa/uzun metin, enum dışı değer, geçersiz format — 5 senaryo.', en: 'VIOLATING each constraint births a separate negative scenario: missing field, too-short/long text, out-of-enum value, invalid format — 5 scenarios.' },
+          positions: { happy: { x: 20, y: 35 }, negative: { x: 58, y: 50, scale: 1.2, pulse: true } },
+          beams: [{ from: 'happy', to: 'negative', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Ders — Bu 6 senaryo tahmin değil, DOĞRUDAN şemadan türetildi; bu sistematik yöntem, "aklına gelen" testten çok daha kapsamlıdır.', en: 'The lesson — these 6 scenarios are not guesses, they were DIRECTLY derived from the schema; this systematic method is far more thorough than "whatever comes to mind" testing.' },
+          positions: { negative: { x: 30, y: 45 }, checklist: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'negative', to: 'checklist', color: '#a78bfa' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Şemadan Checklist\'e Türetme Sırası', en: 'The Order for Deriving a Checklist from a Schema' },
+      steps: [
+        { id: 1, icon: '✅', label: { tr: 'Mutlu yolu yaz…', en: 'Write the happy path…' }, detail: { tr: 'Tüm kısıtlara uyan geçerli veriyle bir senaryo: beklenen 2xx.', en: 'One scenario with data satisfying all constraints: expect 2xx.' } },
+        { id: 2, icon: '⭐', label: { tr: 'required ihlallerini ekle…', en: 'Add required violations…' }, detail: { tr: 'Her zorunlu alanı tek tek eksik bırakan ayrı senaryolar: beklenen 400.', en: 'A separate scenario for each required field left out one at a time: expect 400.' } },
+        { id: 3, icon: '📋', label: { tr: 'type/enum/format ihlallerini ekle…', en: 'Add type/enum/format violations…' }, detail: { tr: 'Yanlış tip, enum dışı değer, geçersiz format için ayrı senaryolar: beklenen 400.', en: 'Separate scenarios for wrong type, out-of-enum value, invalid format: expect 400.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-f6-order-01',
+      question: { tr: 'Bir checklist\'i şemadan türetme sürecini önem/kapsam sırasına göre diz.', en: 'Order the process for deriving a checklist from a schema by importance/scope.' },
+      items: [
+        { id: '1', text: { tr: 'Şemayı oku: required/type/enum/format kısıtlarını listele', en: 'Read the schema: list required/type/enum/format constraints' }, order: 1 },
+        { id: '2', text: { tr: 'Mutlu yol senaryosunu yaz (tüm kısıtlara uyan veri)', en: 'Write the happy-path scenario (data satisfying all constraints)' }, order: 2 },
+        { id: '3', text: { tr: 'Her required alanı için "eksikken" senaryosu ekle', en: 'Add a "when missing" scenario for each required field' }, order: 3 },
+        { id: '4', text: { tr: 'Her type/enum/format kısıtı için ihlal senaryosu ekle', en: 'Add a violation scenario for each type/enum/format constraint' }, order: 4 },
+        { id: '5', text: { tr: 'Checklist\'i otomasyona (Postman/REST Assured/Playwright) taşı', en: 'Move the checklist into automation (Postman/REST Assured/Playwright)' }, order: 5 },
+      ],
+      xpReward: 12,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-f6-derive-checklist',
+      id: 'api-f6-derive-checklist',
+      title: { tr: 'Kendin Dene: Şemadan Eksik Senaryoyu Türet', en: 'Try It Yourself: Derive the Missing Scenario from the Schema' },
+      starterCode: `// Sema: "title": { "type": "string", "minLength": 3, "maxLength": 120 }
+// Yazilan senaryolar: gecerli title, title eksik (required ihlali)
+// TODO: minLength/maxLength kisitindan hangi 2 senaryo daha turemeli?
+Eksik senaryolar: ???`,
+      solutionCode: `// minLength ihlali: 2 karakterlik title -> 400 beklenir
+// maxLength ihlali: 121 karakterlik title -> 400 beklenir
+Eksik senaryolar: cok kisa title (minLength altinda) ve cok uzun title (maxLength ustunde)`,
+      hint: { tr: '`minLength`/`maxLength` kısıtları iki AYRI sınırı tanımlar — her sınırın İKİ tarafında (sınırın altında ve üstünde) ayrı bir negatif senaryo test edilmelidir, sadece "eksik alan" senaryosu bu kısıtları KAPSAMAZ.', en: '`minLength`/`maxLength` constraints define two SEPARATE boundaries — a separate negative scenario must be tested on EITHER side of each boundary (below and above); the "missing field" scenario alone does NOT cover these constraints.' },
+      successMessage: { tr: 'Doğru! Sınır değer (boundary) testleri, şemadan türetilen checklist\'in vazgeçilmez bir parçasıdır.', en: 'Correct! Boundary-value tests are an indispensable part of a schema-derived checklist.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Bir şemadan sistematik test senaryosu türetmenin "rastgele test etmeye" göre en büyük avantajı nedir?', en: 'What is the biggest advantage of systematically deriving test scenarios from a schema over "testing randomly"?' },
+      options: [
+        { id: 'a', text: { tr: 'Şemadaki her kısıt garantili bir senaryo üretir — hiçbir required/type/enum kuralı test EDİLMEDEN atlanmaz', en: 'Every constraint in the schema guarantees a scenario — no required/type/enum rule is skipped WITHOUT being tested' } },
+        { id: 'b', text: { tr: 'Testler daha hızlı çalışır', en: 'Tests run faster' } },
+        { id: 'c', text: { tr: 'Sunucu daha az yük alır', en: 'The server takes less load' } },
+        { id: 'd', text: { tr: 'Kod daha az satır olur', en: 'The code has fewer lines' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Rastgele test etmek testerın aklına gelenle sınırlıdır ve kısıtları atlayabilir; şemadan sistematik türetme ise her `required`/`type`/`enum`/`format` kısıtının EN AZ bir test senaryosuna dönüşmesini GARANTİ eder — kapsam tahmine değil şemaya dayanır.', en: 'Random testing is limited to what comes to the tester\'s mind and can skip constraints; systematic derivation from the schema GUARANTEES every `required`/`type`/`enum`/`format` constraint turns into AT LEAST one test scenario — coverage is based on the schema, not guesswork.' },
+      retryQuestion: {
+        question: { tr: 'GRUP F\'in (Swagger/OpenAPI) sayfanın genel akışındaki rolü nedir?', en: 'What is GROUP F\'s (Swagger/OpenAPI) role in the page\'s overall flow?' },
+        options: [
+          { id: 'a', text: { tr: 'Geliştirmede (GRUP B-D) yazılan sözleşmeyi makine-okunur hale getirip, aktif test araçlarına (GRUP G-I) sistematik bir checklist olarak köprü kurar', en: 'It makes the contract written in development (GROUP B-D) machine-readable and bridges it to active test tools (GROUP G-I) as a systematic checklist' } },
+          { id: 'b', text: { tr: 'Sadece görsel bir dokümantasyon aracıdır, teste hiç katkısı yoktur', en: 'It is purely a visual documentation tool with no contribution to testing' } },
+          { id: 'c', text: { tr: 'GRUP E (DevTools Network) ile hiçbir ilgisi yoktur', en: 'It has no relation to GROUP E (DevTools Network)' } },
+          { id: 'd', text: { tr: 'Sadece Java geliştiriciler için geçerlidir', en: 'It only applies to Java developers' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'GRUP F, GRUP B-D\'de kodun İÇİNDE yazılan sözleşmeyi bir spec\'e döker, F4-F6\'da bu spec\'i sistematik bir test checklist\'ine çevirir — bu checklist doğrudan GRUP G (Postman), H (REST Assured) ve I (Playwright)\'a taşınır.', en: 'GROUP F pours the contract written INSIDE the code in GROUP B-D into a spec, and in F4-F6 turns this spec into a systematic test checklist — this checklist is carried directly into GROUP G (Postman), H (REST Assured), and I (Playwright).' },
+      },
+    },
+  ],
+}
 
 const groupG = [
   ['G1', '📁', 'Collection ve Klasör Yapısı', 'Collection and Folder Structure'],
@@ -5401,7 +6312,8 @@ const sections = [
   C1, C2, C3, C4, C5, C6,
   D1, D2, D3, D4, D5,
   E1, E2, E3, E4, E5, E6,
-  ...groupF.map(mk), ...groupG.map(mk), ...groupH.map(mk), ...groupI.map(mk),
+  F1, F2, F3, F4, F5, F6,
+  ...groupG.map(mk), ...groupH.map(mk), ...groupI.map(mk),
   ...groupJ.map(mk), ...groupK.map(mk),
 ]
 
@@ -5482,6 +6394,15 @@ const apiFeynmanDefs = [
     minScore: 3,
     modelAnswerTr: 'UI ekranında gösterilen mesaj geliştiricinin YAZDIĞI bir metindir, sunucunun GERÇEKTEN döndürdüğü cevap değildir; hata durumu (catch bloğu) yanlışlıkla veya hiç yazılmamışsa UI "başarılı" der ama sunucu aslında 500 dönmüş, boş bir veri göndermiş veya olmaması gereken bir alan (passwordHash gibi) sızdırmış olabilir. Network paneli bu ikisi arasındaki farkı ortaya çıkaran tek yerdir; bu yüzden tester her zaman UI mesajına değil Network panelindeki gerçek Status/Response\'a güvenir.',
     modelAnswerEn: 'The message shown in the UI is text the developer WROTE, not the server\'s REAL answer; if the error case (the catch block) is mistakenly or never written, the UI says "success" while the server actually returned 500, sent empty data, or leaked a field that should not exist (like passwordHash). The Network panel is the only place that reveals the gap between the two; that is why a tester always trusts the real Status/Response in the Network panel, not the UI message.',
+  },
+  {
+    sectionIndex: 37,
+    promptTr: 'Bir geliştiricinin "kod doğru, doküman eski" demesi neden bir mazeret değil bir bug\'dır — sektöre yeni giren birine, sözleşmeye güvenen başka sistemleri örnek göstererek kendi cümlelerinle anlat.',
+    promptEn: 'Explain, in your own words, why a developer saying "the code is right, the doc is old" is not an excuse but a bug — using other systems that trust the contract as an example, to a newcomer.',
+    keywords: ['sozlesme', 'spec', 'dokuman', 'guven', 'mobil', 'contract', 'ayrisma'],
+    minScore: 3,
+    modelAnswerTr: 'Bir API spec\'i sadece bir not değil, başka sistemlerin (mobil uygulama, üçüncü taraf entegrasyon, otomasyon testi) GÜVENDİĞİ bir sözleşmedir. Kod değişip spec güncellenmezse, spec\'e güvenerek yazılmış bir istemci hâlâ ESKİ vaade göre çalışır — örneğin dokümanda 200 yazarken kod 201 dönerse, "sadece 200 = başarı" mantığıyla yazılmış bir mobil uygulama gerçek başarıyı hata sanır. Bu yüzden "kod doğru, doküman eski" bir açıklama olabilir ama SORUNU çözmez; spec de kodla birlikte güncellenmelidir.',
+    modelAnswerEn: 'An API spec is not just a note, it is a contract other systems (a mobile app, a third-party integration, an automation test) TRUST. If the code changes and the spec is not updated, a client written trusting the spec still operates on the OLD promise — for example, if the doc says 200 while the code returns 201, a mobile app written with "only 200 = success" logic mistakes a real success for an error. So "the code is right, the doc is old" can be an explanation, but it does not FIX the problem; the spec must be updated along with the code.',
   },
 ]
 

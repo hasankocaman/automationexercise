@@ -10,6 +10,48 @@
 
 ---
 
+## ✅ `/api-testing` Faz 6 — GRUP F (Swagger/OpenAPI) TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+
+Plan: `Documents/api-testing-page-plan.md` §D.3 (Faz 6). Şablon: kısmen kodsuz
+(GRUP A) + kodlu spec/şema örnekleri (GRUP B tarzı `code` blokları, YAML/JSON).
+
+**Yazılanlar (`src/data/apiTestingData.js`):**
+- 2 yeni inline SVG (`swaggerUiFlowSvg`, `contractBreakSvg`) — sadece teknik
+  terim/HTTP jargonu, dış görsel yok (§8).
+- `F1` (OpenAPI Spec Nedir), `F2` (springdoc/@nestjs/swagger otomatik
+  üretim), `F3` (Swagger UI "Try it out"), `F4` (Schema Okuma: required/
+  type/enum/example) — kodsuz+YAML/JSON `code` örnekli, tam trio (video-scene
+  + step-animation + challenge + code-playground + quiz).
+- `F5` — **AMİRAL FİLM "Sözleşme Bozuldu"** (`api-f5-contract-broken-film`,
+  xpReward 15) + 4 contract defect senaryosu (simple-box kartları): status
+  kodu uyumsuzluğu, enum drift, required yalanı, alan tipi uyumsuzluğu —
+  her biri "tester nasıl yakalar" ile. Kalite barı örneği (plan'daki "Swagger
+  200 diyor, API 201 dönüyor" senaryosu) F5'in amiral filminde birebir
+  işlendi.
+- `F6` — Swagger'dan test senaryosu checklist türetme (drag-and-drop
+  order-sort + code-playground boundary-value senaryosu).
+- Eski `groupF` id-array + `mk()` placeholder SİLİNDİ; `sections` dizisi
+  `F1..F6` ile güncellendi (index 32-37: E biter 31'de, F1=32, F6=37, G1=38).
+- `apiFeynmanDefs`'e GRUP F sonu (`sectionIndex: 37` = F6) eklendi.
+
+**TOPLU doğrulama TAMAMLANDI:** `node scripts/check-content-integrity.mjs` →
+**TÜM KONTROLLER GEÇTİ** (0 ihlal). `npm run build` → **yeşil**, 42 static
+route, dist SEO PASS.
+
+**Kalan işler (Faz 7-10 — henüz BAŞLANMADI):**
+- Faz 7: GRUP G+H+I (Postman/REST Assured/Playwright, §D.4) — ÇAKIŞMA
+  KURALI zorunlu: `/postman`,`/rest-assured`,`/bruno` derin anlatımı BURADA
+  TEKRARLANMAZ, sadece "aynı endpoint'i şimdi bu araçla test edelim" +
+  ilgili sayfaya link. O sayfalardan da BURAYA link eklenmeli.
+- Faz 8: GRUP J (error-dictionary ≥12 hata, §D.5)
+- Faz 9: GRUP K (mülakat ≥50 soru, §D.6)
+- Faz 10 (Opus): Bölüm 9.5 denetimi + `tests/video-scene.spec.ts` + özet.
+
+`/api-testing` sayfası GRUP G-K hâlâ placeholder olduğundan HENÜZ
+production'a hazır değil.
+
+---
+
 ## ✅ `/api-testing` Faz 5 — GRUP E (DevTools Network) TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.2 (Faz 5). Şablon: GRUP A
