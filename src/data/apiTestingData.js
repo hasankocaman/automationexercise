@@ -34,55 +34,55 @@ const A1 = {
     {
       type: 'text',
       content: {
-        tr: 'Bu sayfa boyunca tek bir örnek API kullanacağız: **`/api/v1/bugs` — Bug Tracker**. Tester\'ın kendi dünyası olduğu için öğrenme yükü sıfır. İstemci (Postman, tarayıcı, mobil uygulama, test kodu) bir **istek** gönderir; sunucu (Java/Spring, Express veya NestJS ile yazacağımız uygulama) **sözleşmeye** göre bir **yanıt** döner. Sözleşme = hangi yolun (`/api/v1/bugs`) hangi metodu (GET/POST/...) kabul ettiği, hangi alanların zorunlu olduğu ve yanıtın şekli. Sözleşmeyi ileride Swagger/OpenAPI ile makine-okunur hale getireceğiz (GRUP F).',
+        tr: 'Bu sayfa boyunca tek bir örnek API kullanacağız: **`/api/v1/bugs` — Bug Tracker**. Tester\'ın kendi dünyası olduğu için öğrenme yükü sıfır. İstemci (Postman, tarayıcı, mobil uygulama, test kodu) bir **request** gönderir; sunucu (Java/Spring, Express veya NestJS ile yazacağımız uygulama) **sözleşmeye** göre bir **response** döner. Sözleşme = hangi yolun (`/api/v1/bugs`) hangi metodu (GET/POST/...) kabul ettiği, hangi alanların zorunlu olduğu ve response\'un şekli. Sözleşmeyi ileride Swagger/OpenAPI ile makine-okunur hale getireceğiz (GRUP F).',
         en: 'Throughout this page we use a single example API: **`/api/v1/bugs` — Bug Tracker**. Being the tester\'s own world, its learning cost is zero. A client (Postman, a browser, a mobile app, test code) sends a **request**; the server (the app we\'ll write in Java/Spring, Express, or NestJS) returns a **response** according to the **contract**. The contract = which path (`/api/v1/bugs`) accepts which method (GET/POST/...), which fields are required, and the shape of the response. Later we\'ll make the contract machine-readable with Swagger/OpenAPI (GROUP F).',
       },
     },
     {
       type: 'grid', cols: 3,
       items: [
-        { icon: '🧑‍💻', label: { tr: 'İstemci (Client)', en: 'Client' }, desc: { tr: 'İsteği başlatan taraf: Postman, tarayıcı, mobil uygulama veya test kodu.', en: 'The side initiating the request: Postman, browser, mobile app, or test code.' } },
-        { icon: '🖥️', label: { tr: 'Sunucu (Server)', en: 'Server' }, desc: { tr: 'İsteği işleyip yanıt üreten uygulama: bizim /api/v1/bugs servisimiz.', en: 'The app that processes the request and produces a response: our /api/v1/bugs service.' } },
-        { icon: '📜', label: { tr: 'Sözleşme (Contract)', en: 'Contract' }, desc: { tr: 'Kuralların tanımı: yol, metod, zorunlu alanlar, yanıt şekli. Test ettiğin şey budur.', en: 'The rules: path, method, required fields, response shape. This is what you test.' } },
+        { icon: '🧑‍💻', label: { tr: 'İstemci (Client)', en: 'Client' }, desc: { tr: 'Request\'i başlatan taraf: Postman, tarayıcı, mobil uygulama veya test kodu.', en: 'The side initiating the request: Postman, browser, mobile app, or test code.' } },
+        { icon: '🖥️', label: { tr: 'Sunucu (Server)', en: 'Server' }, desc: { tr: 'Request\'i işleyip response üreten uygulama: bizim /api/v1/bugs servisimiz.', en: 'The app that processes the request and produces a response: our /api/v1/bugs service.' } },
+        { icon: '📜', label: { tr: 'Sözleşme (Contract)', en: 'Contract' }, desc: { tr: 'Kuralların tanımı: yol, metod, zorunlu alanlar, response şekli. Test ettiğin şey budur.', en: 'The rules: path, method, required fields, response shape. This is what you test.' } },
       ],
     },
     {
       type: 'video-scene',
       id: 'api-a1-request-journey-film',
-      title: { tr: '🎬 Bir İsteğin Yolculuğu: İstemciden Sunucuya ve Geri', en: '🎬 The Journey of a Request: From Client to Server and Back' },
+      title: { tr: '🎬 Bir Request\'in Yolculuğu: İstemciden Sunucuya ve Geri', en: '🎬 The Journey of a Request: From Client to Server and Back' },
       xpReward: 12,
       sceneDurationMs: 3400,
       stageHeight: 260,
       actors: [
         { id: 'client', emoji: '🧑‍💻', label: { tr: 'İstemci (Tester)', en: 'Client (Tester)' }, color: '#0ea5e9' },
-        { id: 'request', emoji: '📤', label: { tr: 'HTTP İsteği', en: 'HTTP Request' }, color: '#f59e0b' },
+        { id: 'request', emoji: '📤', label: { tr: 'HTTP Request', en: 'HTTP Request' }, color: '#f59e0b' },
         { id: 'contract', emoji: '📜', label: { tr: 'Sözleşme', en: 'Contract' }, color: '#a78bfa' },
         { id: 'server', emoji: '🖥️', label: { tr: 'API Sunucusu', en: 'API Server' }, color: '#8b5cf6' },
-        { id: 'response', emoji: '📥', label: { tr: 'JSON Yanıt', en: 'JSON Response' }, color: '#22c55e' },
+        { id: 'response', emoji: '📥', label: { tr: 'JSON Response', en: 'JSON Response' }, color: '#22c55e' },
       ],
       scenes: [
         {
-          caption: { tr: 'Bir tester olarak `GET /api/v1/bugs` istemek istiyorsun — ama bu istek sunucuya varana kadar hangi duraklardan geçer?', en: 'As a tester you want to request `GET /api/v1/bugs` — but which stops does this request pass through before it reaches the server?' },
+          caption: { tr: 'Bir tester olarak `GET /api/v1/bugs` request\'ini göndermek istiyorsun — peki bu request, sunucuya ulaşana kadar hangi duraklardan geçer?', en: 'As a tester you want to send the `GET /api/v1/bugs` request — but which stops does this request pass through before it reaches the server?' },
           positions: { client: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
-          caption: { tr: 'Adım 1 — İstemci, method + yol + header\'ları gerçek bir HTTP isteğine paketler. Sunucunun iç yapısını (Java mı Express mi) BİLMEZ; sadece sözleşmeyi bilir.', en: 'Step 1 — The client packs method + path + headers into a real HTTP request. It does NOT know the server internals (Java or Express); it only knows the contract.' },
+          caption: { tr: 'Adım 1 — İstemci, method + yol + header\'ları gerçek bir HTTP request\'ine paketler. Sunucunun iç yapısını (Java mı Express mi) BİLMEZ; sadece sözleşmeyi bilir.', en: 'Step 1 — The client packs method + path + headers into a real HTTP request. It does NOT know the server internals (Java or Express); it only knows the contract.' },
           code: { tr: 'GET /api/v1/bugs\nAccept: application/json', en: 'GET /api/v1/bugs\nAccept: application/json' },
           positions: { client: { x: 20, y: 40 }, request: { x: 55, y: 55, scale: 1.2, pulse: true } },
           beams: [{ from: 'client', to: 'request', color: '#f59e0b' }],
         },
         {
-          caption: { tr: 'Adım 2 — İstek önce SÖZLEŞMEYE çarpar: yol tanımlı mı, metod destekleniyor mu? Sözleşme bir kapı bekçisi gibidir — uymayan istek daha sunucuya varmadan reddedilebilir.', en: 'Step 2 — The request first hits the CONTRACT: is the path defined, is the method supported? The contract is a gatekeeper — a non-conforming request can be rejected before it even reaches the server.' },
+          caption: { tr: 'Adım 2 — Request önce SÖZLEŞMEYE çarpar: yol tanımlı mı, metod destekleniyor mu? Sözleşme bir kapı bekçisi gibidir — uymayan request daha sunucuya varmadan reddedilebilir.', en: 'Step 2 — The request first hits the CONTRACT: is the path defined, is the method supported? The contract is a gatekeeper — a non-conforming request can be rejected before it even reaches the server.' },
           positions: { request: { x: 22, y: 40 }, contract: { x: 58, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'request', to: 'contract', color: '#a78bfa' }],
         },
         {
-          caption: { tr: 'Adım 3 — Sözleşmeye uyan istek sunucuya ulaşır, sunucu bug listesini hazırlar ve JSON\'a çevirir.', en: 'Step 3 — A conforming request reaches the server, which prepares the bug list and serializes it to JSON.' },
+          caption: { tr: 'Adım 3 — Sözleşmeye uyan request sunucuya ulaşır, sunucu bug listesini hazırlar ve JSON\'a çevirir.', en: 'Step 3 — A conforming request reaches the server, which prepares the bug list and serializes it to JSON.' },
           positions: { contract: { x: 22, y: 40, opacity: 0.6 }, server: { x: 58, y: 55, scale: 1.2, pulse: true } },
           beams: [{ from: 'contract', to: 'server', color: '#8b5cf6' }],
         },
         {
-          caption: { tr: 'Ders — İstemci ve sunucu birbirinin içini bilmez, aralarındaki tek bağ sözleşmedir. Tester olarak sen bu sözleşmeyi test edersin: yanıt söz verilen şekle uyuyor mu?', en: 'The lesson — Client and server do not know each other\'s internals; their only bond is the contract. As a tester you test that contract: does the response match the promised shape?' },
+          caption: { tr: 'Ders — İstemci ve sunucu birbirinin içini bilmez, aralarındaki tek bağ sözleşmedir. Tester olarak sen bu sözleşmeyi test edersin: response söz verilen şekle uyuyor mu?', en: 'The lesson — Client and server do not know each other\'s internals; their only bond is the contract. As a tester you test that contract: does the response match the promised shape?' },
           positions: { server: { x: 35, y: 50 }, response: { x: 65, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'server', to: 'response', color: '#22c55e' }],
         },
@@ -92,22 +92,22 @@ const A1 = {
       type: 'step-animation',
       title: { tr: 'İstemci–Sunucu–Sözleşme: Zincir Nasıl İşler?', en: 'Client–Server–Contract: How the Chain Works' },
       steps: [
-        { id: 1, icon: '🧑‍💻', label: { tr: 'İstemci isteği başlatır…', en: 'Client starts the request…' }, detail: { tr: 'İstemci (Postman/test kodu) method + yol + gövdeyi hazırlar. Sunucunun dilini/mimarisini bilmesi GEREKMEZ.', en: 'The client (Postman/test code) prepares method + path + body. It does NOT need to know the server\'s language/architecture.' } },
-        { id: 2, icon: '📜', label: { tr: 'Sözleşme kapıyı tutar…', en: 'Contract holds the gate…' }, detail: { tr: 'Yol/metod/zorunlu alanlar sözleşmeye uyuyor mu? Uymuyorsa istek 4xx ile reddedilir — bu bir hata değil, sözleşmenin çalışmasıdır.', en: 'Do path/method/required fields match the contract? If not, the request is rejected with 4xx — that is not a failure, it is the contract working.' } },
-        { id: 3, icon: '📥', label: { tr: 'Sunucu sözleşmeye göre yanıtlar…', en: 'Server responds per contract…' }, detail: { tr: 'Sunucu işi yapar ve söz verilen şekilde (status + JSON) döner. Tester bu şekli doğrular — mutfağın içini değil.', en: 'The server does the work and returns in the promised shape (status + JSON). The tester verifies that shape — not the kitchen internals.' } },
+        { id: 1, icon: '🧑‍💻', label: { tr: 'İstemci request\'i başlatır…', en: 'Client starts the request…' }, detail: { tr: 'İstemci (Postman/test kodu) method + yol + gövdeyi hazırlar. Sunucunun dilini/mimarisini bilmesi GEREKMEZ.', en: 'The client (Postman/test code) prepares method + path + body. It does NOT need to know the server\'s language/architecture.' } },
+        { id: 2, icon: '📜', label: { tr: 'Sözleşme kapıyı tutar…', en: 'Contract holds the gate…' }, detail: { tr: 'Yol/metod/zorunlu alanlar sözleşmeye uyuyor mu? Uymuyorsa request 4xx ile reddedilir — bu bir hata değil, sözleşmenin çalışmasıdır.', en: 'Do path/method/required fields match the contract? If not, the request is rejected with 4xx — that is not a failure, it is the contract working.' } },
+        { id: 3, icon: '📥', label: { tr: 'Sunucu sözleşmeye göre response döner…', en: 'Server responds per contract…' }, detail: { tr: 'Sunucu işi yapar ve söz verilen şekilde (status + JSON) döner. Tester bu şekli doğrular — mutfağın içini değil.', en: 'The server does the work and returns in the promised shape (status + JSON). The tester verifies that shape — not the kitchen internals.' } },
       ],
     },
     {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-a1-order-01',
-      question: { tr: 'Bir API isteğinin istemciden yanıta kadar geçtiği sırayı diz.', en: 'Order the stages an API request passes through from client to response.' },
+      question: { tr: 'Bir API request\'inin istemciden response\'a kadar geçtiği sırayı diz.', en: 'Order the stages an API request passes through from client to response.' },
       items: [
-        { id: '1', text: { tr: 'İstemci method + yol + header/gövdeyi HTTP isteğine paketler', en: 'Client packs method + path + headers/body into an HTTP request' }, order: 1 },
-        { id: '2', text: { tr: 'İstek sözleşmeye çarpar: yol/metod tanımlı mı?', en: 'Request hits the contract: is the path/method defined?' }, order: 2 },
-        { id: '3', text: { tr: 'Sunucu isteği işler ve veriyi hazırlar', en: 'Server processes the request and prepares the data' }, order: 3 },
-        { id: '4', text: { tr: 'Sunucu status kodu + JSON gövdeyle yanıt döner', en: 'Server returns a status code + JSON body response' }, order: 4 },
-        { id: '5', text: { tr: 'İstemci yanıtı okur; tester şekli/sözleşmeyi doğrular', en: 'Client reads the response; tester verifies the shape/contract' }, order: 5 },
+        { id: '1', text: { tr: 'İstemci method + yol + header/gövdeyi HTTP request\'ine paketler', en: 'Client packs method + path + headers/body into an HTTP request' }, order: 1 },
+        { id: '2', text: { tr: 'Request sözleşmeye çarpar: yol/metod tanımlı mı?', en: 'Request hits the contract: is the path/method defined?' }, order: 2 },
+        { id: '3', text: { tr: 'Sunucu request\'i işler ve veriyi hazırlar', en: 'Server processes the request and prepares the data' }, order: 3 },
+        { id: '4', text: { tr: 'Sunucu status kodu + JSON gövdeyle response döner', en: 'Server returns a status code + JSON body response' }, order: 4 },
+        { id: '5', text: { tr: 'İstemci response\'u okur; tester şekli/sözleşmeyi doğrular', en: 'Client reads the response; tester verifies the shape/contract' }, order: 5 },
       ],
       xpReward: 10,
     },
@@ -116,7 +116,7 @@ const A1 = {
       relatedTopicId: 'api-a1-what-is-api',
       id: 'api-a1-what-is-api',
       title: { tr: 'Kendin Dene: Sözleşmenin Zorunlu Alanını Tamamla', en: 'Try It Yourself: Complete the Contract\'s Required Field' },
-      starterCode: `// Bug Tracker sözleşmesi: yeni bug oluşturma isteği
+      starterCode: `// Bug Tracker sözleşmesi: yeni bug oluşturma request\'i
 // TODO: sözleşmeye göre ZORUNLU olan alanı ekle (ipucuna bak)
 POST /api/v1/bugs
 {
@@ -129,21 +129,21 @@ POST /api/v1/bugs
   "severity": "HIGH"
 }`,
       hint: { tr: 'Bug Tracker modelinde `title` (3-120 karakter) zorunludur; onsuz sunucu 400 dönmelidir. `severity` tek başına yeterli değildir — sözleşme neyi zorunlu kılıyorsa onu göndermelisin.', en: 'In the Bug Tracker model `title` (3-120 chars) is required; without it the server should return 400. `severity` alone is not enough — you must send whatever the contract makes mandatory.' },
-      successMessage: { tr: 'Doğru! Sözleşmenin zorunlu alanını göndermezsen sunucu isteği reddeder — tester olarak bu kuralı ISTEDEN test edersin.', en: 'Correct! Omit a required field and the server rejects the request — as a tester you deliberately test this rule.' },
+      successMessage: { tr: 'Doğru! Sözleşmenin zorunlu alanını göndermezsen sunucu request\'i reddeder — tester olarak bu kuralı İSTEYEREK test edersin.', en: 'Correct! Omit a required field and the server rejects the request — as a tester you deliberately test this rule.' },
     },
     {
       type: 'quiz',
       question: { tr: 'API\'yi "istemci ile sunucu arasındaki sözleşme" olarak tanımlarsak, tester olarak asıl test ettiğin şey nedir?', en: 'If we define an API as "the contract between client and server", what do you as a tester actually test?' },
       options: [
         { id: 'a', text: { tr: 'Sunucunun veritabanı tablo isimleri ve indeksleri', en: 'The server\'s database table names and indexes' } },
-        { id: 'b', text: { tr: 'Sözleşme: yolun, metodun, zorunlu alanların ve yanıt şeklinin söz verildiği gibi davranması', en: 'The contract: that the path, method, required fields, and response shape behave as promised' } },
+        { id: 'b', text: { tr: 'Sözleşme: yolun, metodun, zorunlu alanların ve response şeklinin söz verildiği gibi davranması', en: 'The contract: that the path, method, required fields, and response shape behave as promised' } },
         { id: 'c', text: { tr: 'Sunucunun hangi programlama diliyle yazıldığı', en: 'Which programming language the server is written in' } },
         { id: 'd', text: { tr: 'Sadece UI\'daki butonların rengi', en: 'Only the color of the buttons in the UI' } },
       ],
       correct: 'b',
       explanation: { tr: 'Tester sözleşmeyi test eder: aynı sözleşme Java, Express veya NestJS ile karşılanabilir — mutfağın içi değişse de test aynı kalır. İç detaylar (tablo, dil) sözleşmenin parçası değildir.', en: 'The tester tests the contract: the same contract can be fulfilled by Java, Express, or NestJS — the test stays the same even if the kitchen changes. Internals (tables, language) are not part of the contract.' },
       retryQuestion: {
-        question: { tr: 'Bir geliştirici yanıttaki `title` alanını sessizce `name` olarak değiştirdi. UI hâlâ çalışıyor ama mobil uygulama çöktü. Bu neyin kırılmasıdır?', en: 'A developer silently renamed the response field `title` to `name`. The UI still works but the mobile app crashed. What broke?' },
+        question: { tr: 'Bir geliştirici response\'taki `title` alanını sessizce `name` olarak değiştirdi. UI hâlâ çalışıyor ama mobil uygulama çöktü. Bu neyin kırılmasıdır?', en: 'A developer silently renamed the response field `title` to `name`. The UI still works but the mobile app crashed. What broke?' },
         options: [
           { id: 'a', text: { tr: 'Veritabanı bağlantısı', en: 'The database connection' } },
           { id: 'b', text: { tr: 'Sözleşme (contract) — istemcilerin güvendiği alan adı değişti', en: 'The contract — the field name clients relied on changed' } },
@@ -164,18 +164,18 @@ const A2 = {
       type: 'simple-box',
       emoji: '📤',
       content: {
-        tr: 'Bir HTTP isteği, **kargo gönderisine** benzer: bir **eylem etiketi** (method — al/gönder/sil), bir **adres** (URL — kime), **gönderi notları** (header\'lar — nasıl paketlensin, kim gönderiyor) ve varsa **kutunun içindeki paket** (body — taşınan veri). Peki adresi zaten yazdıysak, neden ayrıca method\'a ihtiyaç var? Çünkü aynı adrese (`/api/v1/bugs`) hem "listeyi getir" (GET) hem "yeni ekle" (POST) diyebilirsin — adres NEREYE, method ise NE YAPILACAĞINI söyler. Java\'da bunun karşılığı bir metot çağrısıdır: URL nesnenin adı, method çağırdığın fonksiyon, header\'lar `@RequestHeader`, body ise `@RequestBody` parametresidir. QA açısından önemi: bir bug\'ın kaynağı çoğu zaman body\'de değil, gözden kaçan bir header\'dadır — `Content-Type: application/json` göndermezsen sunucu JSON\'ı ayrıştıramaz ve body\'yi boş sanır; istek "gönderildi" ama sunucu "boş kutu aldım" der. Bu, testerların en sık düştüğü sessiz tuzaklardan biridir.',
+        tr: 'Bir HTTP request\'i, **kargo gönderisine** benzer: bir **eylem etiketi** (method — al/gönder/sil), bir **adres** (URL — kime), **gönderi notları** (header\'lar — nasıl paketlensin, kim gönderiyor) ve varsa **kutunun içindeki paket** (body — taşınan veri). Peki adresi zaten yazdıysak, neden ayrıca method\'a ihtiyaç var? Çünkü aynı adrese (`/api/v1/bugs`) hem "listeyi getir" (GET) hem "yeni ekle" (POST) diyebilirsin — adres NEREYE, method ise NE YAPILACAĞINI söyler. Java\'da bunun karşılığı bir metot çağrısıdır: URL nesnenin adı, method çağırdığın fonksiyon, header\'lar `@RequestHeader`, body ise `@RequestBody` parametresidir. QA açısından önemi: bir bug\'ın kaynağı çoğu zaman body\'de değil, gözden kaçan bir header\'dadır — `Content-Type: application/json` göndermezsen sunucu JSON\'ı ayrıştıramaz ve body\'yi boş sanır; request "gönderildi" ama sunucu "boş kutu aldım" der. Bu, testerların en sık düştüğü sessiz tuzaklardan biridir.',
         en: 'An HTTP request is like a **shipping parcel**: an **action label** (method — fetch/send/delete), an **address** (URL — to whom), **shipping notes** (headers — how to pack it, who is sending), and, when present, the **package inside the box** (body — the data being carried). But if we already wrote the address, why also need a method? Because to the same address (`/api/v1/bugs`) you can say both "fetch the list" (GET) and "add a new one" (POST) — the address says WHERE, the method says WHAT TO DO. In Java the equivalent is a method call: the URL is the object\'s name, the method is the function you call, headers are `@RequestHeader`, and the body is the `@RequestBody` parameter. Its QA importance: a bug\'s source is often not in the body but in an overlooked header — omit `Content-Type: application/json` and the server cannot parse the JSON and treats the body as empty; the request was "sent" but the server says "I received an empty box." This is one of the silent traps testers fall into most.',
       },
     },
-    { type: 'heading', text: { tr: 'Bir İsteğin Dört Parçası', en: 'The Four Parts of a Request' } },
+    { type: 'heading', text: { tr: 'Bir Request\'in Dört Parçası', en: 'The Four Parts of a Request' } },
     {
       type: 'table',
       headers: ['Parça / Part', 'Ne işe yarar / Purpose', 'Örnek / Example'],
       rows: [
         ['Method', 'Ne yapılacak (fiil) / What to do (verb)', 'POST'],
         ['URL', 'Nereye / Where', '/api/v1/bugs'],
-        ['Header', 'İsteğin meta bilgisi / Request metadata', 'Content-Type: application/json'],
+        ['Header', 'Request\'in meta bilgisi / Request metadata', 'Content-Type: application/json'],
         ['Body', 'Taşınan veri (yalnız POST/PUT/PATCH) / Carried data (POST/PUT/PATCH only)', '{ "title": "..." }'],
       ],
     },
@@ -208,7 +208,7 @@ Authorization: Bearer <token>    # my identity (if any)
     {
       type: 'video-scene',
       id: 'api-a2-request-anatomy-film',
-      title: { tr: '🎬 Bir İsteğin Dört Parçası: Kargo Kutusu Açılıyor', en: '🎬 The Four Parts of a Request: Opening the Parcel' },
+      title: { tr: '🎬 Bir Request\'in Dört Parçası: Kargo Kutusu Açılıyor', en: '🎬 The Four Parts of a Request: Opening the Parcel' },
       xpReward: 11,
       sceneDurationMs: 3400,
       stageHeight: 260,
@@ -221,7 +221,7 @@ Authorization: Bearer <token>    # my identity (if any)
       ],
       scenes: [
         {
-          caption: { tr: 'Bir POST isteği gönderiyorsun. Sunucuya varan bu tek kutunun içinde aslında dört ayrı parça var — hangisi ne işe yarar?', en: 'You send a POST request. Inside this single parcel that reaches the server there are actually four parts — which does what?' },
+          caption: { tr: 'Bir POST request\'i gönderiyorsun. Sunucuya varan bu tek kutunun içinde aslında dört ayrı parça var — hangisi ne işe yarar?', en: 'You send a POST request. Inside this single parcel that reaches the server there are actually four parts — which does what?' },
           positions: { method: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
@@ -261,13 +261,13 @@ Authorization: Bearer <token>    # my identity (if any)
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-a2-order-01',
-      question: { tr: 'Geçerli bir POST isteğini oluşturma sırasını diz.', en: 'Order the steps to build a valid POST request.' },
+      question: { tr: 'Geçerli bir POST request\'ini oluşturma sırasını diz.', en: 'Order the steps to build a valid POST request.' },
       items: [
         { id: '1', text: { tr: 'Method\'u POST, URL\'i /api/v1/bugs seç', en: 'Choose method POST, URL /api/v1/bugs' }, order: 1 },
         { id: '2', text: { tr: 'Content-Type: application/json header\'ını ekle', en: 'Add the Content-Type: application/json header' }, order: 2 },
         { id: '3', text: { tr: 'Gerekiyorsa Authorization header\'ını ekle', en: 'Add the Authorization header if required' }, order: 3 },
         { id: '4', text: { tr: 'Body\'ye zorunlu alanları içeren JSON yaz', en: 'Write JSON with required fields into the body' }, order: 4 },
-        { id: '5', text: { tr: 'İsteği gönder ve status + yanıtı incele', en: 'Send the request and inspect status + response' }, order: 5 },
+        { id: '5', text: { tr: 'Request\'i gönder ve status + response\'u incele', en: 'Send the request and inspect status + response' }, order: 5 },
       ],
       xpReward: 10,
     },
@@ -290,7 +290,7 @@ Content-Type: application/json
     },
     {
       type: 'quiz',
-      question: { tr: 'Bir POST /api/v1/bugs isteği gövdesinde geçerli JSON var ama sunucu "title zorunlu" diyerek 400 dönüyor. En olası sessiz neden?', en: 'A POST /api/v1/bugs request has valid JSON in the body, but the server returns 400 saying "title required". Most likely silent cause?' },
+      question: { tr: 'Bir POST /api/v1/bugs request\'i gövdesinde geçerli JSON var ama sunucu "title zorunlu" diyerek 400 dönüyor. En olası sessiz neden?', en: 'A POST /api/v1/bugs request has valid JSON in the body, but the server returns 400 saying "title required". Most likely silent cause?' },
       options: [
         { id: 'a', text: { tr: 'Sunucu çökmüş', en: 'The server crashed' } },
         { id: 'b', text: { tr: 'Content-Type header\'ı eksik/yanlış — sunucu gövdeyi ayrıştıramadı, boş sandı', en: 'The Content-Type header is missing/wrong — the server couldn\'t parse the body and treated it as empty' } },
@@ -300,15 +300,15 @@ Content-Type: application/json
       correct: 'b',
       explanation: { tr: 'JSON geçerli olsa bile `Content-Type: application/json` yoksa sunucu gövdeyi JSON olarak ayrıştırmaz; `title` dahil tüm alanları boş görür ve "zorunlu alan yok" der. Belirti body gibi görünür ama kök neden header\'dır.', en: 'Even with valid JSON, without `Content-Type: application/json` the server does not parse the body as JSON; it sees all fields including `title` as empty and says "required field missing". The symptom looks like the body but the root cause is the header.' },
       retryQuestion: {
-        question: { tr: 'Aynı URL\'e (`/api/v1/bugs`) hem "listeyi getir" hem "yeni ekle" diyebiliyorsak, iki isteği birbirinden ne ayırır?', en: 'If to the same URL (`/api/v1/bugs`) we can say both "fetch the list" and "add a new one", what distinguishes the two requests?' },
+        question: { tr: 'Aynı URL\'e (`/api/v1/bugs`) hem "listeyi getir" hem "yeni ekle" diyebiliyorsak, iki request\'i birbirinden ne ayırır?', en: 'If to the same URL (`/api/v1/bugs`) we can say both "fetch the list" and "add a new one", what distinguishes the two requests?' },
         options: [
           { id: 'a', text: { tr: 'HTTP method (GET vs POST)', en: 'The HTTP method (GET vs POST)' } },
           { id: 'b', text: { tr: 'Sunucunun IP adresi', en: 'The server\'s IP address' } },
-          { id: 'c', text: { tr: 'İsteğin gönderildiği saat', en: 'The time the request was sent' } },
+          { id: 'c', text: { tr: 'Request\'in gönderildiği saat', en: 'The time the request was sent' } },
           { id: 'd', text: { tr: 'Tarayıcının sürümü', en: 'The browser version' } },
         ],
         correct: 'a',
-        explanation: { tr: 'URL NEREYE, method NE YAPILACAĞINI söyler. Aynı URL\'e GET "oku", POST "oluştur" der — method isteğin niyetini belirleyen parçadır.', en: 'The URL says WHERE, the method says WHAT TO DO. To the same URL, GET means "read", POST means "create" — the method is the part that defines the request\'s intent.' },
+        explanation: { tr: 'URL NEREYE, method NE YAPILACAĞINI söyler. Aynı URL\'e GET "oku", POST "oluştur" der — method request\'in niyetini belirleyen parçadır.', en: 'The URL says WHERE, the method says WHAT TO DO. To the same URL, GET means "read", POST means "create" — the method is the part that defines the request\'s intent.' },
       },
     },
   ],
@@ -321,11 +321,11 @@ const A3 = {
       type: 'simple-box',
       emoji: '📥',
       content: {
-        tr: 'Bir HTTP yanıtı, bir **teslimat makbuzu + paket** gibidir: en üstte büyük bir **damga** (status code — işlem başarılı mı, 200/201/404/500) vardır, altında **teslimat notları** (header\'lar — içerik tipi, önbellek, boyut) ve en sonda **paketin kendisi** (body — asıl veri) bulunur. Peki status kodu zaten "başarılı" diyorsa, neden body\'yi de kontrol edelim? Çünkü status yalnızca isteğin sunucuya ULAŞIP İŞLENDİĞİNİ söyler, içindeki verinin DOĞRU olduğunu değil: sunucu 200 döner ama `severity` alanı beklenenden farklı olabilir — yeşil ışık yanar ama araç yanlış yola gitmektedir. Java\'da bunun karşılığı bir metodun `return` değeridir: metot exception atmadan döndü diye (200) dönen nesnenin alanları doğru demek değildir; `assertEquals` ile içeriği de doğrularsın. QA açısından bu, "yanlış PASS"in doğduğu yerdir: sadece status koduna bakan bir test yeşil görünür ama gerçekte hatalı veriyi geçirir — production\'da sessiz bir bug olarak patlar.',
+        tr: 'Bir HTTP response\'u, bir **teslimat makbuzu + paket** gibidir: en üstte büyük bir **damga** (status code — işlem başarılı mı, 200/201/404/500) vardır, altında **teslimat notları** (header\'lar — içerik tipi, önbellek, boyut) ve en sonda **paketin kendisi** (body — asıl veri) bulunur. Peki status kodu zaten "başarılı" diyorsa, neden body\'yi de kontrol edelim? Çünkü status yalnızca request\'in sunucuya ULAŞIP İŞLENDİĞİNİ söyler, içindeki verinin DOĞRU olduğunu değil: sunucu 200 döner ama `severity` alanı beklenenden farklı olabilir — yeşil ışık yanar ama araç yanlış yola gitmektedir. Java\'da bunun karşılığı bir metodun `return` değeridir: metot exception atmadan döndü diye (200) dönen nesnenin alanları doğru demek değildir; `assertEquals` ile içeriği de doğrularsın. QA açısından bu, "yanlış PASS"in doğduğu yerdir: sadece status koduna bakan bir test yeşil görünür ama gerçekte hatalı veriyi geçirir — production\'da sessiz bir bug olarak patlar.',
         en: 'An HTTP response is like a **delivery receipt + package**: at the top a big **stamp** (status code — did it succeed, 200/201/404/500), below it **delivery notes** (headers — content type, cache, size), and at the very end **the package itself** (body — the actual data). But if the status code already says "success", why also check the body? Because the status only tells you the request REACHED and was PROCESSED by the server, not that the data inside is CORRECT: the server returns 200 but the `severity` field may differ from what was expected — the light is green but the vehicle took the wrong road. In Java the equivalent is a method\'s `return` value: a method returning without throwing (200) does not mean the returned object\'s fields are right; you also verify the content with `assertEquals`. In QA this is where the "false PASS" is born: a test that only checks the status code looks green but actually lets wrong data through — it detonates as a silent bug in production.',
       },
     },
-    { type: 'heading', text: { tr: 'Bir Yanıtın Üç Parçası', en: 'The Three Parts of a Response' } },
+    { type: 'heading', text: { tr: 'Bir Response\'un Üç Parçası', en: 'The Three Parts of a Response' } },
     {
       type: 'code',
       language: 'http',
@@ -383,7 +383,7 @@ Location: /api/v1/bugs/42    # HEADER: address of the new record
           beams: [{ from: 'server', to: 'status', color: '#22c55e' }],
         },
         {
-          caption: { tr: 'Status kodu yalnızca "istek işlendi" der. Asıl veri body\'dedir — ve orada `severity` beklenen `CRITICAL` yerine `LOW` dönmüş.', en: 'The status code only says "request processed". The actual data is in the body — and there `severity` came back `LOW` instead of the expected `CRITICAL`.' },
+          caption: { tr: 'Status kodu yalnızca "request işlendi" der. Asıl veri body\'dedir — ve orada `severity` beklenen `CRITICAL` yerine `LOW` dönmüş.', en: 'The status code only says "request processed". The actual data is in the body — and there `severity` came back `LOW` instead of the expected `CRITICAL`.' },
           code: { tr: '{ "id": 42, "severity": "LOW" } // beklenen: CRITICAL', en: '{ "id": 42, "severity": "LOW" } // expected: CRITICAL' },
           positions: { status: { x: 25, y: 40, opacity: 0.6 }, body: { x: 58, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'status', to: 'body', color: '#0ea5e9' }],
@@ -417,7 +417,7 @@ Location: /api/v1/bugs/42    # HEADER: address of the new record
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-a3-order-01',
-      question: { tr: 'Bir yanıtı DOĞRU şekilde doğrulama sırasını diz (yalnız status yeterli değil).', en: 'Order the correct way to verify a response (status alone is not enough).' },
+      question: { tr: 'Bir response\'u DOĞRU şekilde doğrulama sırasını diz (yalnız status yeterli değil).', en: 'Order the correct way to verify a response (status alone is not enough).' },
       items: [
         { id: '1', text: { tr: 'Status kodunu kontrol et (ör. 201 bekleniyor)', en: 'Check the status code (e.g. expect 201)' }, order: 1 },
         { id: '2', text: { tr: 'Content-Type header\'ının application/json olduğunu doğrula', en: 'Verify the Content-Type header is application/json' }, order: 2 },
@@ -478,7 +478,7 @@ const A4 = {
       type: 'simple-box',
       emoji: '🔧',
       content: {
-        tr: 'HTTP metotları, bir bug kaydı üzerindeki **eylem fiilleridir**; tıpkı bir dosya dolabındaki hareketler gibi: **GET** = klasörü aç ve OKU (hiçbir şeyi değiştirmeden), **POST** = yeni bir kağıt EKLE, **PUT** = kağıdı komple YENİSİYLE DEĞİŞTİR, **PATCH** = kağıdın tek satırını DÜZELT, **DELETE** = kağıdı ÇÖPE AT. Peki hepsi "veriye dokunuyorsa" neden ayrı fiillere ihtiyaç var? Çünkü her fiilin **güvenlik ve tekrarlanabilirlik** sözü farklıdır: GET güvenlidir (100 kez çağır, hiçbir şey değişmez), POST idempotent DEĞİLDİR (iki kez çağırırsan iki kayıt), PUT/DELETE ise idempotenttir (beş kez çağır, sonuç bir kezki ile aynı). Java\'da bunun karşılığı bir metodun yan etkisidir: `getBug()` saf bir okuyucudur, `createBug()` her çağrıda listeyi büyütür, `deleteBug(id)` ilk çağrıda siler, sonrakiler zaten silinmişi bulur. QA açısından kritik: bir "ödeme" endpoint\'i POST ile yazıldıysa ve kullanıcı butona iki kez basarsa, idempotency yoksa **çift tahsilat** olur — testerın "aynı isteği iki kez göndererek" bu sınıf hataları avlaması gerekir.',
+        tr: 'HTTP metotları, bir bug kaydı üzerindeki **eylem fiilleridir**; tıpkı bir dosya dolabındaki hareketler gibi: **GET** = klasörü aç ve OKU (hiçbir şeyi değiştirmeden), **POST** = yeni bir kağıt EKLE, **PUT** = kağıdı komple YENİSİYLE DEĞİŞTİR, **PATCH** = kağıdın tek satırını DÜZELT, **DELETE** = kağıdı ÇÖPE AT. Peki hepsi "veriye dokunuyorsa" neden ayrı fiillere ihtiyaç var? Çünkü her fiilin **güvenlik ve tekrarlanabilirlik** sözü farklıdır: GET güvenlidir (100 kez çağır, hiçbir şey değişmez), POST idempotent DEĞİLDİR (iki kez çağırırsan iki kayıt), PUT/DELETE ise idempotenttir (beş kez çağır, sonuç bir kezki ile aynı). Java\'da bunun karşılığı bir metodun yan etkisidir: `getBug()` saf bir okuyucudur, `createBug()` her çağrıda listeyi büyütür, `deleteBug(id)` ilk çağrıda siler, sonrakiler zaten silinmişi bulur. QA açısından kritik: bir "ödeme" endpoint\'i POST ile yazıldıysa ve kullanıcı butona iki kez basarsa, idempotency yoksa **çift tahsilat** olur — testerın "aynı request\'i iki kez göndererek" bu sınıf hataları avlaması gerekir.',
         en: 'HTTP methods are the **action verbs** on a bug record; like moves on a filing cabinet: **GET** = open the folder and READ (changing nothing), **POST** = ADD a new sheet, **PUT** = REPLACE the sheet entirely with a new one, **PATCH** = FIX a single line of the sheet, **DELETE** = THROW the sheet away. But if they all "touch data", why need separate verbs? Because each verb\'s **safety and repeatability** promise differs: GET is safe (call it 100 times, nothing changes), POST is NOT idempotent (call it twice, two records), while PUT/DELETE are idempotent (call five times, same result as once). In Java the equivalent is a method\'s side effect: `getBug()` is a pure reader, `createBug()` grows the list on every call, `deleteBug(id)` deletes on the first call and finds it already gone afterwards. The QA crux: if a "payment" endpoint is written with POST and the user double-clicks, without idempotency you get a **double charge** — the tester must hunt this class of bugs by "sending the same request twice".',
       },
     },
@@ -520,7 +520,7 @@ const A4 = {
           beams: [{ from: 'post1', to: 'db', color: '#0ea5e9' }],
         },
         {
-          caption: { tr: 'İkinci POST de gider — sunucu bunun aynı istek olduğunu BİLMEZ, çünkü POST idempotent değildir. İkinci bir kayıt daha oluşturur (id: 43).', en: 'The second POST goes too — the server does NOT know it is the same request, because POST is not idempotent. It creates a second record (id: 43).' },
+          caption: { tr: 'İkinci POST de gider — sunucu bunun aynı request olduğunu BİLMEZ, çünkü POST idempotent değildir. İkinci bir kayıt daha oluşturur (id: 43).', en: 'The second POST goes too — the server does NOT know it is the same request, because POST is not idempotent. It creates a second record (id: 43).' },
           code: { tr: 'POST /api/v1/bugs -> 201 Created (id: 43)', en: 'POST /api/v1/bugs -> 201 Created (id: 43)' },
           positions: { post2: { x: 45, y: 45 }, db: { x: 72, y: 55, scale: 1.1, pulse: true } },
           beams: [{ from: 'post2', to: 'db', color: '#a78bfa' }],
@@ -549,11 +549,11 @@ const A4 = {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-a4-order-01',
-      question: { tr: 'Idempotency\'yi test etmek için "aynı isteği iki kez gönderme" senaryosunu diz.', en: 'Order the "send the same request twice" scenario to test idempotency.' },
+      question: { tr: 'Idempotency\'yi test etmek için "aynı request\'i iki kez gönderme" senaryosunu diz.', en: 'Order the "send the same request twice" scenario to test idempotency.' },
       items: [
         { id: '1', text: { tr: 'Başlangıç durumunu kaydet (kaç bug var?)', en: 'Record the initial state (how many bugs?)' }, order: 1 },
-        { id: '2', text: { tr: 'İsteği bir kez gönder ve sonucu gözle', en: 'Send the request once and observe the result' }, order: 2 },
-        { id: '3', text: { tr: 'AYNI isteği ikinci kez gönder', en: 'Send the SAME request a second time' }, order: 3 },
+        { id: '2', text: { tr: 'Request\'i bir kez gönder ve sonucu gözle', en: 'Send the request once and observe the result' }, order: 2 },
+        { id: '3', text: { tr: 'AYNI request\'i ikinci kez gönder', en: 'Send the SAME request a second time' }, order: 3 },
         { id: '4', text: { tr: 'Son durumu tekrar oku (kaç bug var?)', en: 'Read the final state again (how many bugs?)' }, order: 4 },
         { id: '5', text: { tr: 'Fark 1 mi 2 mi? POST=2 (idempotent değil), PUT=1', en: 'Is the diff 1 or 2? POST=2 (not idempotent), PUT=1' }, order: 5 },
       ],
@@ -578,15 +578,15 @@ PATCH /api/v1/bugs/42/status
       type: 'quiz',
       question: { tr: 'Bir ödeme "Öde" butonu POST ile çalışıyor ve idempotency yok. Kullanıcı butona iki kez basarsa ne olur, tester bunu nasıl yakalar?', en: 'A payment "Pay" button uses POST with no idempotency. What happens on a double-click, and how does the tester catch it?' },
       options: [
-        { id: 'a', text: { tr: 'Hiçbir şey; POST idempotenttir, ikinci istek yok sayılır', en: 'Nothing; POST is idempotent, the second request is ignored' } },
+        { id: 'a', text: { tr: 'Hiçbir şey; POST idempotenttir, ikinci request yok sayılır', en: 'Nothing; POST is idempotent, the second request is ignored' } },
         { id: 'b', text: { tr: 'Çift tahsilat olur; tester aynı POST\'u iki kez gönderip kayıt sayısını karşılaştırarak yakalar', en: 'A double charge occurs; the tester catches it by sending the same POST twice and comparing record counts' } },
         { id: 'c', text: { tr: 'Sunucu çöker (500)', en: 'The server crashes (500)' } },
         { id: 'd', text: { tr: 'URL 404 döner', en: 'The URL returns 404' } },
       ],
       correct: 'b',
-      explanation: { tr: 'POST idempotent değildir: aynı isteği iki kez göndermek iki ayrı kayıt/işlem yaratır — ödemede çift tahsilat. Tester bunu "aynı isteği iki kez gönder, durumu karşılaştır" ile avlar; çözüm PUT veya idempotency-key\'dir.', en: 'POST is not idempotent: sending the same request twice creates two separate records/operations — a double charge in payments. The tester hunts it with "send twice, compare state"; the fix is PUT or an idempotency key.' },
+      explanation: { tr: 'POST idempotent değildir: aynı request\'i iki kez göndermek iki ayrı kayıt/işlem yaratır — ödemede çift tahsilat. Tester bunu "aynı request\'i iki kez gönder, durumu karşılaştır" ile avlar; çözüm PUT veya idempotency-key\'dir.', en: 'POST is not idempotent: sending the same request twice creates two separate records/operations — a double charge in payments. The tester hunts it with "send twice, compare state"; the fix is PUT or an idempotency key.' },
       retryQuestion: {
-        question: { tr: 'Bir GET /api/v1/bugs isteğini 100 kez gönderdin. Sunucudaki bug sayısı nasıl değişir?', en: 'You sent a GET /api/v1/bugs request 100 times. How does the bug count on the server change?' },
+        question: { tr: 'Bir GET /api/v1/bugs request\'ini 100 kez gönderdin. Sunucudaki bug sayısı nasıl değişir?', en: 'You sent a GET /api/v1/bugs request 100 times. How does the bug count on the server change?' },
         options: [
           { id: 'a', text: { tr: 'Hiç değişmez — GET güvenlidir, sadece okur', en: 'It does not change — GET is safe, it only reads' } },
           { id: 'b', text: { tr: '100 yeni kayıt oluşur', en: '100 new records are created' } },
@@ -607,7 +607,7 @@ const A5 = {
       type: 'simple-box',
       emoji: '🚦',
       content: {
-        tr: 'Status kodları, sunucunun **trafik lambası**dır ama üç renkli değil, dört mahalleli: **2xx** = yeşil (başardım), **3xx** = tabela (başka yola git — yönlendirme), **4xx** = "senin hatan" (istek yanlış: eksik alan, yanlış yol, yetkisiz), **5xx** = "benim hatam" (sunucu çöktü). Peki neden yüzlerce kod var, "başardı/başaramadı" iki değer yetmez mi? Çünkü bir testerın bir sonraki adımı **koda bağlıdır**: 4xx görürsen test verini/isteğini düzeltirsin (bu senin işin), 5xx görürsen geliştiriciye escalate edersin (bu onların bug\'ı) — kodu yanlış okursan yanlış kişiyi suçlarsın. Java\'da bunun karşılığı exception türüdür: `IllegalArgumentException` (4xx, çağıran yanlış girdi verdi) ile `NullPointerException`/`SQLException` (5xx, kodun içi patladı) farkı; birini çağıran düzeltir, diğerini kodu yazan. QA açısından en pahalı karışıklık 401 (kimliğin yok) ile 403 (kimliğin var ama yetkin yok) arasındadır: birini diğeri sanmak, bir güvenlik açığını "login bug\'ı" diye kapatmana yol açar.',
+        tr: 'Status kodları, sunucunun **trafik lambası**dır ama üç renkli değil, dört mahalleli: **2xx** = yeşil (başardım), **3xx** = tabela (başka yola git — yönlendirme), **4xx** = "senin hatan" (request yanlış: eksik alan, yanlış yol, yetkisiz), **5xx** = "benim hatam" (sunucu çöktü). Peki neden yüzlerce kod var, "başardı/başaramadı" iki değer yetmez mi? Çünkü bir testerın bir sonraki adımı **koda bağlıdır**: 4xx görürsen test verini/request\'ini düzeltirsin (bu senin işin), 5xx görürsen geliştiriciye escalate edersin (bu onların bug\'ı) — kodu yanlış okursan yanlış kişiyi suçlarsın. Java\'da bunun karşılığı exception türüdür: `IllegalArgumentException` (4xx, çağıran yanlış girdi verdi) ile `NullPointerException`/`SQLException` (5xx, kodun içi patladı) farkı; birini çağıran düzeltir, diğerini kodu yazan. QA açısından en pahalı karışıklık 401 (kimliğin yok) ile 403 (kimliğin var ama yetkin yok) arasındadır: birini diğeri sanmak, bir güvenlik açığını "login bug\'ı" diye kapatmana yol açar.',
         en: 'Status codes are the server\'s **traffic light**, but not three colors — four districts: **2xx** = green (I did it), **3xx** = a sign (go another way — redirect), **4xx** = "your fault" (bad request: missing field, wrong path, unauthorized), **5xx** = "my fault" (the server crashed). But why hundreds of codes — aren\'t two values, "succeeded/failed", enough? Because a tester\'s next move **depends on the code**: see 4xx and you fix your test data/request (your job), see 5xx and you escalate to the developer (their bug) — misread the code and you blame the wrong person. In Java the equivalent is the exception type: `IllegalArgumentException` (4xx, the caller passed bad input) vs `NullPointerException`/`SQLException` (5xx, the code blew up inside); the caller fixes one, the author fixes the other. In QA the costliest confusion is 401 (you have no identity) vs 403 (you have identity but no permission): mistaking one for the other makes you close a security hole as a "login bug".',
       },
     },
@@ -617,11 +617,11 @@ const A5 = {
       title: { tr: 'HTTP Status Grupları', en: 'HTTP Status Groups' },
       levels: [
         { label: { tr: '5xx — Sunucu Hatası (escalate)', en: '5xx — Server Error (escalate)' }, color: 'red', desc: { tr: '500 Internal · 502 Bad Gateway · 503 Unavailable', en: '500 Internal · 502 Bad Gateway · 503 Unavailable' } },
-        { label: { tr: '4xx — İstemci Hatası (isteği düzelt)', en: '4xx — Client Error (fix the request)' }, color: 'orange', desc: { tr: '400 · 401 kimlik yok · 403 yetki yok · 404 · 422', en: '400 · 401 no identity · 403 no permission · 404 · 422' } },
+        { label: { tr: '4xx — İstemci Hatası (request\'i düzelt)', en: '4xx — Client Error (fix the request)' }, color: 'orange', desc: { tr: '400 · 401 kimlik yok · 403 yetki yok · 404 · 422', en: '400 · 401 no identity · 403 no permission · 404 · 422' } },
         { label: { tr: '3xx — Yönlendirme', en: '3xx — Redirection' }, color: 'yellow', desc: { tr: '301 kalıcı · 302 geçici · 304 değişmedi', en: '301 permanent · 302 temporary · 304 not modified' } },
         { label: { tr: '2xx — Başarı', en: '2xx — Success' }, color: 'green', desc: { tr: '200 OK · 201 Created · 204 No Content', en: '200 OK · 201 Created · 204 No Content' } },
       ],
-      note: { tr: '2xx = geç. 4xx = istek/veri/yetki senin tarafında yanlış. 5xx = sunucu bug\'ı, geliştiriciye escalate et.', en: '2xx = pass. 4xx = request/data/auth wrong on your side. 5xx = server bug, escalate to the developer.' },
+      note: { tr: '2xx = geç. 4xx = request/veri/yetki senin tarafında yanlış. 5xx = sunucu bug\'ı, geliştiriciye escalate et.', en: '2xx = pass. 4xx = request/data/auth wrong on your side. 5xx = server bug, escalate to the developer.' },
     },
     {
       type: 'video-scene',
@@ -670,8 +670,8 @@ const A5 = {
       type: 'step-animation',
       title: { tr: '4xx mı 5xx mi? Bug Kime Düşer?', en: '4xx or 5xx? Whose Bug Is It?' },
       steps: [
-        { id: 1, icon: '🟠', label: { tr: '4xx görürsen…', en: 'If you see 4xx…' }, detail: { tr: '4xx = istek senin tarafında yanlış: eksik alan (400), kimlik yok (401), yetki yok (403), yol yok (404). Önce isteğini/verini düzelt.', en: '4xx = the request is wrong on your side: missing field (400), no identity (401), no permission (403), no path (404). Fix your request/data first.' } },
-        { id: 2, icon: '🔴', label: { tr: '5xx görürsen…', en: 'If you see 5xx…' }, detail: { tr: '5xx = sunucu içi patladı (500) veya erişilemez (503). İsteğin doğruydu; bu geliştiricinin bug\'ıdır, escalate et.', en: '5xx = the server blew up inside (500) or is unreachable (503). Your request was fine; this is the developer\'s bug, escalate.' } },
+        { id: 1, icon: '🟠', label: { tr: '4xx görürsen…', en: 'If you see 4xx…' }, detail: { tr: '4xx = request senin tarafında yanlış: eksik alan (400), kimlik yok (401), yetki yok (403), yol yok (404). Önce request\'ini/verini düzelt.', en: '4xx = the request is wrong on your side: missing field (400), no identity (401), no permission (403), no path (404). Fix your request/data first.' } },
+        { id: 2, icon: '🔴', label: { tr: '5xx görürsen…', en: 'If you see 5xx…' }, detail: { tr: '5xx = sunucu içi patladı (500) veya erişilemez (503). Request\'in doğruydu; bu geliştiricinin bug\'ıdır, escalate et.', en: '5xx = the server blew up inside (500) or is unreachable (503). Your request was fine; this is the developer\'s bug, escalate.' } },
         { id: 3, icon: '📝', label: { tr: 'Raporu buna göre yaz…', en: 'Write the report accordingly…' }, detail: { tr: 'Kodu yanlış okursan yanlış ekibi suçlarsın: 500\'ü "test verim yanlış" sanmak gerçek bug\'ı gizler.', en: 'Misread the code and you blame the wrong team: treating a 500 as "my test data is wrong" hides a real bug.' } },
       ],
     },
@@ -683,8 +683,8 @@ const A5 = {
       items: [
         { id: '1', text: { tr: 'Kodun grubunu belirle (2xx/3xx/4xx/5xx)', en: 'Identify the code group (2xx/3xx/4xx/5xx)' }, order: 1 },
         { id: '2', text: { tr: '2xx ise body\'yi de doğrula (yanlış PASS riski)', en: 'If 2xx, also verify the body (false-PASS risk)' }, order: 2 },
-        { id: '3', text: { tr: '4xx ise isteği/veriyi/yetkiyi kontrol et', en: 'If 4xx, check the request/data/permission' }, order: 3 },
-        { id: '4', text: { tr: '5xx ise isteğinin doğruluğunu teyit et, sonra escalate', en: 'If 5xx, confirm your request is valid, then escalate' }, order: 4 },
+        { id: '3', text: { tr: '4xx ise request\'i/veriyi/yetkiyi kontrol et', en: 'If 4xx, check the request/data/permission' }, order: 3 },
+        { id: '4', text: { tr: '5xx ise request\'inin doğruluğunu teyit et, sonra escalate', en: 'If 5xx, confirm your request is valid, then escalate' }, order: 4 },
         { id: '5', text: { tr: 'Bulguyu doğru ekibe yönlendirerek raporla', en: 'Report by routing the finding to the right team' }, order: 5 },
       ],
       xpReward: 10,
@@ -704,15 +704,15 @@ DELETE /api/v1/bugs/42  ->  403 Forbidden`,
     },
     {
       type: 'quiz',
-      question: { tr: 'Bir POST /api/v1/bugs isteği 500 Internal Server Error döndü. Tester\'ın doğru ilk hamlesi nedir?', en: 'A POST /api/v1/bugs request returned 500 Internal Server Error. What is the tester\'s correct first move?' },
+      question: { tr: 'Bir POST /api/v1/bugs request\'i 500 Internal Server Error döndü. Tester\'ın doğru ilk hamlesi nedir?', en: 'A POST /api/v1/bugs request returned 500 Internal Server Error. What is the tester\'s correct first move?' },
       options: [
         { id: 'a', text: { tr: 'Test verisini değiştirip tekrar dener, çünkü hata onun tarafındadır', en: 'Change the test data and retry, since the error is on their side' } },
-        { id: 'b', text: { tr: 'İsteğinin geçerliliğini teyit eder, sonra geliştiriciye escalate eder — 5xx sunucu bug\'ıdır', en: 'Confirms the request is valid, then escalates to the developer — 5xx is a server bug' } },
+        { id: 'b', text: { tr: 'Request\'inin geçerliliğini teyit eder, sonra geliştiriciye escalate eder — 5xx sunucu bug\'ıdır', en: 'Confirms the request is valid, then escalates to the developer — 5xx is a server bug' } },
         { id: 'c', text: { tr: 'Hatayı görmezden gelir', en: 'Ignores the error' } },
         { id: 'd', text: { tr: 'Bug\'ı "kullanıcı hatası" olarak kapatır', en: 'Closes the bug as "user error"' } },
       ],
       correct: 'b',
-      explanation: { tr: '5xx = sunucu içi patladı; isteğin geçerliyse bu geliştiricinin bug\'ıdır. 4xx olsaydı isteği/veriyi düzeltmek testerın işi olurdu. Kodu yanlış okuyup 500\'ü "kendi hatam" sanmak gerçek bug\'ı gizler.', en: '5xx = the server blew up inside; if your request is valid this is the developer\'s bug. A 4xx would make fixing the request/data the tester\'s job. Misreading it and treating a 500 as "my fault" hides a real bug.' },
+      explanation: { tr: '5xx = sunucu içi patladı; request\'in geçerliyse bu geliştiricinin bug\'ıdır. 4xx olsaydı request\'i/veriyi düzeltmek testerın işi olurdu. Kodu yanlış okuyup 500\'ü "kendi hatam" sanmak gerçek bug\'ı gizler.', en: '5xx = the server blew up inside; if your request is valid this is the developer\'s bug. A 4xx would make fixing the request/data the tester\'s job. Misreading it and treating a 500 as "my fault" hides a real bug.' },
       retryQuestion: {
         question: { tr: '401 ile 403 arasındaki temel fark nedir?', en: 'What is the fundamental difference between 401 and 403?' },
         options: [
@@ -735,7 +735,7 @@ const A6 = {
       type: 'simple-box',
       emoji: '📋',
       content: {
-        tr: 'Header\'lar, bir kargonun üstündeki **etiketler ve gümrük evraklarıdır**: paketin içine (body) dokunmadan "bu ne, nasıl açılmalı, kim gönderiyor, saklanabilir mi" sorularını cevaplarlar. **Content-Type** = "içerideki paket JSON\'dır" (sunucu böyle ayrıştırır), **Accept** = "bana JSON dilinde cevap ver" (istemcinin tercihi), **Authorization** = "kimliğim bu" (Bearer token), **Cache-Control** = "bu paketi saklama / şu kadar sakla". Peki veri zaten body\'de gidiyorsa, bu görünmez etiketler neden bu kadar önemli? Çünkü header yanlış/eksikse body doğru olsa bile işlem çöker: `Content-Type` eksikse sunucu JSON\'ı düz metin sanır, `Authorization` eksikse 401 alırsın, `Cache-Control` yanlışsa eski veri önbellekten döner ve testin "phantom" bir bug görür. Java\'da bunun karşılığı `@RequestHeader` ve `HttpHeaders`\'tır; header\'lar metot parametresi gibi davranışı yönlendirir. QA açısından header\'lar en sinsi bug kaynağıdır çünkü GÖRÜNMEZLER: Postman\'de çalışan bir istek, otomasyonda header unutulduğu için düşer ve saatlerce "kod aynı ama sonuç farklı" diye debug edilir.',
+        tr: 'Header\'lar, bir kargonun üstündeki **etiketler ve gümrük evraklarıdır**: paketin içine (body) dokunmadan "bu ne, nasıl açılmalı, kim gönderiyor, saklanabilir mi" sorularını cevaplarlar. **Content-Type** = "içerideki paket JSON\'dır" (sunucu böyle ayrıştırır), **Accept** = "bana JSON dilinde cevap ver" (istemcinin tercihi), **Authorization** = "kimliğim bu" (Bearer token), **Cache-Control** = "bu paketi saklama / şu kadar sakla". Peki veri zaten body\'de gidiyorsa, bu görünmez etiketler neden bu kadar önemli? Çünkü header yanlış/eksikse body doğru olsa bile işlem çöker: `Content-Type` eksikse sunucu JSON\'ı düz metin sanır, `Authorization` eksikse 401 alırsın, `Cache-Control` yanlışsa eski veri önbellekten döner ve testin "phantom" bir bug görür. Java\'da bunun karşılığı `@RequestHeader` ve `HttpHeaders`\'tır; header\'lar metot parametresi gibi davranışı yönlendirir. QA açısından header\'lar en sinsi bug kaynağıdır çünkü GÖRÜNMEZLER: Postman\'de çalışan bir request, otomasyonda header unutulduğu için düşer ve saatlerce "kod aynı ama sonuç farklı" diye debug edilir.',
         en: 'Headers are the **labels and customs paperwork** on a parcel: without touching the contents (body), they answer "what is this, how should it be opened, who sends it, can it be cached". **Content-Type** = "the package inside is JSON" (so the server parses it that way), **Accept** = "reply to me in JSON" (the client\'s preference), **Authorization** = "this is my identity" (Bearer token), **Cache-Control** = "don\'t cache this / cache for this long". But if the data already travels in the body, why do these invisible labels matter so much? Because if a header is wrong/missing, the operation fails even with a correct body: missing `Content-Type` and the server treats JSON as plain text, missing `Authorization` and you get 401, wrong `Cache-Control` and stale data returns from cache so the test sees a "phantom" bug. In Java the equivalent is `@RequestHeader` and `HttpHeaders`; headers steer behavior like method parameters. In QA headers are the most insidious bug source because they are INVISIBLE: a request that works in Postman fails in automation because a header was forgotten, and gets debugged for hours as "same code, different result".',
       },
     },
@@ -744,8 +744,8 @@ const A6 = {
       type: 'table',
       headers: ['Header', 'Anlam / Meaning', 'Eksikse / If missing'],
       rows: [
-        ['Content-Type', 'Gövdenin tipi (istek) / body type (request)', 'JSON ayrıştırılamaz, boş body / JSON unparsed, empty body'],
-        ['Accept', 'İstenen yanıt tipi / desired response type', '406 veya beklenmeyen format / 406 or unexpected format'],
+        ['Content-Type', 'Gövdenin tipi (request) / body type (request)', 'JSON ayrıştırılamaz, boş body / JSON unparsed, empty body'],
+        ['Accept', 'İstenen response tipi / desired response type', '406 veya beklenmeyen format / 406 or unexpected format'],
         ['Authorization', 'Kimlik (Bearer token) / identity', '401 Unauthorized'],
         ['Cache-Control', 'Önbellek politikası / cache policy', 'Eski veri döner (phantom bug) / stale data (phantom bug)'],
       ],
@@ -753,7 +753,7 @@ const A6 = {
     {
       type: 'video-scene',
       id: 'api-a6-headers-film',
-      title: { tr: '🎬 Görünmez Suçlu: Postman\'de Çalışıp Otomasyonda Düşen İstek', en: '🎬 The Invisible Culprit: Works in Postman, Fails in Automation' },
+      title: { tr: '🎬 Görünmez Suçlu: Postman\'de Çalışıp Otomasyonda Düşen Request', en: '🎬 The Invisible Culprit: Works in Postman, Fails in Automation' },
       xpReward: 12,
       sceneDurationMs: 3400,
       stageHeight: 260,
@@ -766,7 +766,7 @@ const A6 = {
       ],
       scenes: [
         {
-          caption: { tr: 'Aynı POST /api/v1/bugs isteği Postman\'de 201 döner ama otomasyon testinde 400 verir. Kod aynı — fark ne?', en: 'The same POST /api/v1/bugs returns 201 in Postman but 400 in the automation test. The code is identical — what differs?' },
+          caption: { tr: 'Aynı POST /api/v1/bugs request\'i Postman\'de 201 döner ama otomasyon testinde 400 verir. Kod aynı — fark ne?', en: 'The same POST /api/v1/bugs returns 201 in Postman but 400 in the automation test. The code is identical — what differs?' },
           positions: { postman: { x: 30, y: 40, scale: 1.05 }, auto: { x: 30, y: 62, scale: 1.05, pulse: true } },
         },
         {
@@ -796,7 +796,7 @@ const A6 = {
       type: 'step-animation',
       title: { tr: 'Authorization Header\'ı Neden 401\'in Anahtarıdır?', en: 'Why the Authorization Header Is the Key to 401' },
       steps: [
-        { id: 1, icon: '🔑', label: { tr: 'Bearer token gönderilir…', en: 'Bearer token is sent…' }, detail: { tr: '`Authorization: Bearer <token>` header\'ı isteğin kimliğini taşır — sunucu bununla "sen kimsin"i bilir.', en: 'The `Authorization: Bearer <token>` header carries the request\'s identity — with it the server knows "who you are".' } },
+        { id: 1, icon: '🔑', label: { tr: 'Bearer token gönderilir…', en: 'Bearer token is sent…' }, detail: { tr: '`Authorization: Bearer <token>` header\'ı request\'in kimliğini taşır — sunucu bununla "sen kimsin"i bilir.', en: 'The `Authorization: Bearer <token>` header carries the request\'s identity — with it the server knows "who you are".' } },
         { id: 2, icon: '🚫', label: { tr: 'Header eksikse 401…', en: 'Missing header = 401…' }, detail: { tr: 'Header yoksa sunucu kimliği çözemez ve 401 döner — body ne kadar doğru olursa olsun.', en: 'Without the header the server cannot resolve identity and returns 401 — no matter how correct the body is.' } },
         { id: 3, icon: '⏰', label: { tr: 'Token süresi dolmuşsa da 401…', en: 'Expired token = 401 too…' }, detail: { tr: 'Token varsa ama süresi dolmuşsa yine 401 gelir — tester "eksik mi, süresi mi doldu?" ayrımını yapmalıdır.', en: 'If the token is present but expired you still get 401 — the tester must distinguish "missing vs expired".' } },
       ],
@@ -809,7 +809,7 @@ const A6 = {
       items: [
         { id: '1', text: { tr: 'İki ortamın status kodunu karşılaştır (201 vs 400)', en: 'Compare the status codes of the two environments (201 vs 400)' }, order: 1 },
         { id: '2', text: { tr: 'Postman\'in gönderdiği TÜM header\'ları (Console) incele', en: 'Inspect ALL headers Postman sends (Console)' }, order: 2 },
-        { id: '3', text: { tr: 'Otomasyon isteğinin header\'larını yan yana koy', en: 'Put the automation request\'s headers side by side' }, order: 3 },
+        { id: '3', text: { tr: 'Otomasyon request\'inin header\'larını yan yana koy', en: 'Put the automation request\'s headers side by side' }, order: 3 },
         { id: '4', text: { tr: 'Eksik header\'ı bul (ör. Content-Type)', en: 'Find the missing header (e.g. Content-Type)' }, order: 4 },
         { id: '5', text: { tr: 'Eksik header\'ı koda ELLE ekle ve tekrar koş', en: 'Add the missing header BY HAND in code and re-run' }, order: 5 },
       ],
@@ -820,7 +820,7 @@ const A6 = {
       relatedTopicId: 'api-a6-headers',
       id: 'api-a6-headers',
       title: { tr: 'Kendin Dene: Eksik Authorization Header\'ını Ekle', en: 'Try It Yourself: Add the Missing Authorization Header' },
-      starterCode: `// BUG: korumali endpoint'e header'siz istek -> 401 doner
+      starterCode: `// BUG: korumali endpoint'e header'siz request -> 401 doner
 DELETE /api/v1/bugs/42
 Content-Type: application/json`,
       solutionCode: `// FIX: Authorization header'i kimligi tasir -> yetki kontrolu yapilabilir
@@ -832,7 +832,7 @@ Authorization: Bearer <token>`,
     },
     {
       type: 'quiz',
-      question: { tr: 'Bir istek Postman\'de 201, otomasyonda 400 ("title zorunlu") dönüyor ama iki tarafta da title gönderiliyor. En olası kök neden?', en: 'A request returns 201 in Postman but 400 ("title required") in automation, yet title is sent in both. Most likely root cause?' },
+      question: { tr: 'Bir request Postman\'de 201, otomasyonda 400 ("title zorunlu") dönüyor ama iki tarafta da title gönderiliyor. En olası kök neden?', en: 'A request returns 201 in Postman but 400 ("title required") in automation, yet title is sent in both. Most likely root cause?' },
       options: [
         { id: 'a', text: { tr: 'Sunucu sadece Postman\'i tanıyor', en: 'The server only recognizes Postman' } },
         { id: 'b', text: { tr: 'Otomasyonda Content-Type header\'ı eksik; sunucu gövdeyi JSON olarak ayrıştıramıyor', en: 'The Content-Type header is missing in automation; the server can\'t parse the body as JSON' } },
@@ -844,13 +844,13 @@ Authorization: Bearer <token>`,
       retryQuestion: {
         question: { tr: 'Accept header\'ı ne işe yarar?', en: 'What does the Accept header do?' },
         options: [
-          { id: 'a', text: { tr: 'İstemcinin hangi formatta yanıt istediğini söyler (ör. application/json)', en: 'Tells which format the client wants back (e.g. application/json)' } },
-          { id: 'b', text: { tr: 'İsteğin gövdesini şifreler', en: 'Encrypts the request body' } },
+          { id: 'a', text: { tr: 'İstemcinin hangi formatta response istediğini söyler (ör. application/json)', en: 'Tells which format the client wants back (e.g. application/json)' } },
+          { id: 'b', text: { tr: 'Request\'in gövdesini şifreler', en: 'Encrypts the request body' } },
           { id: 'c', text: { tr: 'Sunucuyu yeniden başlatır', en: 'Restarts the server' } },
           { id: 'd', text: { tr: 'Token üretir', en: 'Generates a token' } },
         ],
         correct: 'a',
-        explanation: { tr: 'Accept, istemcinin tercih ettiği yanıt formatını belirtir. Content-Type isteğin gövde tipini, Accept ise beklenen yanıt tipini söyler — ikisi farklı yönlerdir.', en: 'Accept states the client\'s preferred response format. Content-Type describes the request body type, while Accept states the expected response type — two different directions.' },
+        explanation: { tr: 'Accept, istemcinin tercih ettiği response formatını belirtir. Content-Type request\'in gövde tipini, Accept ise beklenen response tipini söyler — ikisi farklı yönlerdir.', en: 'Accept states the client\'s preferred response format. Content-Type describes the request body type, while Accept states the expected response type — two different directions.' },
       },
     },
   ],
@@ -921,7 +921,7 @@ const A7 = {
       ],
       scenes: [
         {
-          caption: { tr: 'İki farklı yanıt: birinde `reporter: null`, diğerinde reporter alanı HİÇ yok. Gözle bakınca ikisi de "boş" görünür.', en: 'Two different responses: one has `reporter: null`, the other has NO reporter field at all. To the eye both look "empty".' },
+          caption: { tr: 'İki farklı response: birinde `reporter: null`, diğerinde reporter alanı HİÇ yok. Gözle bakınca ikisi de "boş" görünür.', en: 'Two different responses: one has `reporter: null`, the other has NO reporter field at all. To the eye both look "empty".' },
           positions: { v1: { x: 30, y: 40, scale: 1.05 }, v2: { x: 30, y: 62, scale: 1.05, pulse: true } },
         },
         {
@@ -960,9 +960,9 @@ const A7 = {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-a7-order-01',
-      question: { tr: 'Bir JSON yanıtında bir alanın "null mı, yok mu" olduğunu doğru test etme sırasını diz.', en: 'Order the correct way to test whether a field is "null or missing" in a JSON response.' },
+      question: { tr: 'Bir JSON response\'unda bir alanın "null mı, yok mu" olduğunu doğru test etme sırasını diz.', en: 'Order the correct way to test whether a field is "null or missing" in a JSON response.' },
       items: [
-        { id: '1', text: { tr: 'Yanıtı JSON olarak ayrıştır', en: 'Parse the response as JSON' }, order: 1 },
+        { id: '1', text: { tr: 'Response\'u JSON olarak ayrıştır', en: 'Parse the response as JSON' }, order: 1 },
         { id: '2', text: { tr: 'Anahtarın VAR OLUP OLMADIĞINI kontrol et ("reporter" in bug)', en: 'Check whether the KEY EXISTS ("reporter" in bug)' }, order: 2 },
         { id: '3', text: { tr: 'Anahtar varsa değerinin null olup olmadığına bak', en: 'If the key exists, check whether its value is null' }, order: 3 },
         { id: '4', text: { tr: '"anahtar yok" ile "null" durumlarını farklı raporla', en: 'Report "key missing" and "null" as different states' }, order: 4 },
@@ -989,7 +989,7 @@ function hasReporterField(bug) {
     },
     {
       type: 'quiz',
-      question: { tr: 'Bir API yanıtında `reporter` alanı bir gün tamamen kayboldu (önceden null dönüyordu). `if (bug.reporter)` yazan test hâlâ yeşil. Bu neden tehlikeli?', en: 'In an API response the `reporter` field vanished one day (it used to return null). A test writing `if (bug.reporter)` still passes green. Why is this dangerous?' },
+      question: { tr: 'Bir API response\'unda `reporter` alanı bir gün tamamen kayboldu (önceden null dönüyordu). `if (bug.reporter)` yazan test hâlâ yeşil. Bu neden tehlikeli?', en: 'In an API response the `reporter` field vanished one day (it used to return null). A test writing `if (bug.reporter)` still passes green. Why is this dangerous?' },
       options: [
         { id: 'a', text: { tr: 'Tehlikeli değil, çünkü test geçiyor', en: 'It is not dangerous, because the test passes' } },
         { id: 'b', text: { tr: 'Zayıf kontrol null ile "yok"u ayıramaz; bir contract regresyonu (alanın kaybı) sessizce gizlenir', en: 'The weak check can\'t separate null from "missing"; a contract regression (the field\'s loss) is silently hidden' } },
@@ -1025,7 +1025,7 @@ const B1 = {
       type: 'simple-box',
       emoji: '☕',
       content: {
-        tr: 'Bir Spring Boot projesi kurmak, bir **restoran açmadan önce mutfağı döşemek** gibidir: henüz tek bir yemek (endpoint) yapmadan önce ocağı, tezgahı ve elektriği (web sunucusu, dependency\'ler, çalıştırma mekanizması) hazırlarsın. `spring-boot-starter-web` bir "başlangıç paketi"dir — tek satır bağımlılık eklersin, arkasında gömülü bir Tomcat sunucusu, JSON dönüştürücü (Jackson) ve tüm web altyapısı gelir. Peki neden her parçayı tek tek eklemek yerine bir "starter" kullanıyoruz? Çünkü uyumlu sürümleri elle eşleştirmek (Tomcat X, Jackson Y, Spring Z) saatler alır ve bir sürüm çakışması tüm uygulamayı çökertir; starter bu uyumlu seti tek kararla getirir. Bunun tester için anlamı: API henüz "iş" yapmasa da `mvn spring-boot:run` ile ayağa kalkmalı ve boş bir `/api/v1/bugs` bile bir yanıt dönebilmelidir — kurulum kırıksa hiçbir test koşamaz. QA açısından ilk "smoke test", uygulamanın hiç hata vermeden başlayıp bir port dinlemesidir; bu geçmeden fonksiyonel testlere geçmek zaman kaybıdır.',
+        tr: 'Bir Spring Boot projesi kurmak, bir **restoran açmadan önce mutfağı döşemek** gibidir: henüz tek bir yemek (endpoint) yapmadan önce ocağı, tezgahı ve elektriği (web sunucusu, dependency\'ler, çalıştırma mekanizması) hazırlarsın. `spring-boot-starter-web` bir "başlangıç paketi"dir — tek satır bağımlılık eklersin, arkasında gömülü bir Tomcat sunucusu, JSON dönüştürücü (Jackson) ve tüm web altyapısı gelir. Peki neden her parçayı tek tek eklemek yerine bir "starter" kullanıyoruz? Çünkü uyumlu sürümleri elle eşleştirmek (Tomcat X, Jackson Y, Spring Z) saatler alır ve bir sürüm çakışması tüm uygulamayı çökertir; starter bu uyumlu seti tek kararla getirir. Bunun tester için anlamı: API henüz "iş" yapmasa da `mvn spring-boot:run` ile ayağa kalkmalı ve boş bir `/api/v1/bugs` bile bir response dönebilmelidir — kurulum kırıksa hiçbir test koşamaz. QA açısından ilk "smoke test", uygulamanın hiç hata vermeden başlayıp bir port dinlemesidir; bu geçmeden fonksiyonel testlere geçmek zaman kaybıdır.',
         en: 'Setting up a Spring Boot project is like **fitting out a kitchen before opening a restaurant**: before cooking a single dish (endpoint) you prepare the stove, counter, and electricity (web server, dependencies, run mechanism). `spring-boot-starter-web` is a "starter pack" — you add one dependency line and behind it come an embedded Tomcat server, a JSON converter (Jackson), and the whole web stack. But why use a "starter" instead of adding each piece by hand? Because manually matching compatible versions (Tomcat X, Jackson Y, Spring Z) takes hours and one version clash crashes the whole app; the starter brings that compatible set in a single decision. Its meaning for a tester: even before the API does any "work", `mvn spring-boot:run` must bring it up and even an empty `/api/v1/bugs` should return a response — if setup is broken, no test can run. In QA the first "smoke test" is that the app starts without error and listens on a port; moving to functional tests before that passes is a waste of time.',
       },
     },
@@ -1082,7 +1082,7 @@ public class BugTrackerApplication {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `spring-boot-starter-validation` unutulursa**\n\n**Kod:** `pom.xml`\'e sadece `starter-web` eklendi, `starter-validation` YOK.\n\n**Ne olur:** B6\'da `@Valid` ile `@NotBlank` yazarsın ama sınıf yolunda validation kütüphanesi olmadığı için Spring bu annotation\'ları SESSİZCE görmezden gelir. `POST /api/v1/bugs { "title": "" }` isteği 400 yerine 201 döner ve boş başlıklı bug kaydedilir.\n\n**Neden sinsi:** Kod derlenir, uygulama başlar, `@Valid` orada durur — hiçbir hata yok. Sadece çalışma zamanında "doğrulama hiç tetiklenmiyor" fark edilir, o da ancak biri boş title göndermeyi denerse.\n\n**Tester nerede yakalar:** Kurulum sonrası ilk negatif testte — boş `title` gönderip 400 beklerken 201 alınca. Bu, "dependency eksikliğinin sessiz davranış değişikliğine" yol açtığının kanıtıdır.',
+        tr: '**🐞 Defect Doğum Anı — `spring-boot-starter-validation` unutulursa**\n\n**Kod:** `pom.xml`\'e sadece `starter-web` eklendi, `starter-validation` YOK.\n\n**Ne olur:** B6\'da `@Valid` ile `@NotBlank` yazarsın ama sınıf yolunda validation kütüphanesi olmadığı için Spring bu annotation\'ları SESSİZCE görmezden gelir. `POST /api/v1/bugs { "title": "" }` request\'i 400 yerine 201 döner ve boş başlıklı bug kaydedilir.\n\n**Neden sinsi:** Kod derlenir, uygulama başlar, `@Valid` orada durur — hiçbir hata yok. Sadece çalışma zamanında "doğrulama hiç tetiklenmiyor" fark edilir, o da ancak biri boş title göndermeyi denerse.\n\n**Tester nerede yakalar:** Kurulum sonrası ilk negatif testte — boş `title` gönderip 400 beklerken 201 alınca. Bu, "dependency eksikliğinin sessiz davranış değişikliğine" yol açtığının kanıtıdır.',
         en: '**🐞 Defect Birth — if `spring-boot-starter-validation` is forgotten**\n\n**Code:** only `starter-web` was added to `pom.xml`, `starter-validation` is MISSING.\n\n**What happens:** in B6 you write `@Valid` with `@NotBlank`, but with no validation library on the classpath Spring SILENTLY ignores those annotations. A `POST /api/v1/bugs { "title": "" }` returns 201 instead of 400 and an empty-title bug is saved.\n\n**Why sneaky:** the code compiles, the app starts, `@Valid` sits there — no error. Only at runtime is "validation never fires" noticeable, and only if someone tries sending an empty title.\n\n**Where the tester catches it:** on the first negative test after setup — sending an empty `title` and getting 201 while expecting 400. It proves a "missing dependency causing a silent behavior change".',
       },
     },
@@ -1116,7 +1116,7 @@ public class BugTrackerApplication {
           beams: [{ from: 'tomcat', to: 'jackson', color: '#a78bfa' }],
         },
         {
-          caption: { tr: '`mvn spring-boot:run` — uygulama 8080 portunu dinlemeye başlar. Artık istemciler istek gönderebilir.', en: '`mvn spring-boot:run` — the app starts listening on port 8080. Clients can now send requests.' },
+          caption: { tr: '`mvn spring-boot:run` — uygulama 8080 portunu dinlemeye başlar. Artık istemciler request gönderebilir.', en: '`mvn spring-boot:run` — the app starts listening on port 8080. Clients can now send requests.' },
           positions: { jackson: { x: 22, y: 40 }, port: { x: 58, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'jackson', to: 'port', color: '#22c55e' }],
         },
@@ -1129,7 +1129,7 @@ public class BugTrackerApplication {
     },
     {
       type: 'step-animation',
-      title: { tr: 'Kurulumdan İlk Yanıta', en: 'From Setup to First Response' },
+      title: { tr: 'Kurulumdan İlk Response\'a', en: 'From Setup to First Response' },
       steps: [
         { id: 1, icon: '📦', label: { tr: 'Bağımlılıkları ekle…', en: 'Add dependencies…' }, detail: { tr: 'pom.xml\'e starter-web (+ ileride starter-validation) ekle. Maven bunları indirir.', en: 'Add starter-web (+ later starter-validation) to pom.xml. Maven downloads them.' } },
         { id: 2, icon: '▶️', label: { tr: 'Uygulamayı çalıştır…', en: 'Run the app…' }, detail: { tr: 'mvn spring-boot:run gömülü Tomcat\'i başlatır; log\'da "Started ... on port 8080" görürsün.', en: 'mvn spring-boot:run starts embedded Tomcat; the log shows "Started ... on port 8080".' } },
@@ -1146,7 +1146,7 @@ public class BugTrackerApplication {
         { id: '2', text: { tr: '@SpringBootApplication ile main sınıfını yaz', en: 'Write the main class with @SpringBootApplication' }, order: 2 },
         { id: '3', text: { tr: 'mvn spring-boot:run ile uygulamayı başlat', en: 'Start the app with mvn spring-boot:run' }, order: 3 },
         { id: '4', text: { tr: 'Log\'da "Started on port 8080" satırını gör', en: 'See "Started on port 8080" in the log' }, order: 4 },
-        { id: '5', text: { tr: 'curl ile smoke test at, uygulamanın yanıt verdiğini doğrula', en: 'Run a smoke test with curl, verify the app responds' }, order: 5 },
+        { id: '5', text: { tr: 'curl ile smoke test at, uygulamanın response verdiğini doğrula', en: 'Run a smoke test with curl, verify the app responds' }, order: 5 },
       ],
       xpReward: 10,
     },
@@ -1178,8 +1178,8 @@ public class BugTrackerApplication {
       options: [
         { id: 'a', text: { tr: 'Derleme hatası verir, uygulama başlamaz', en: 'A compile error, the app won\'t start' } },
         { id: 'b', text: { tr: 'Annotation\'lar sessizce yok sayılır; boş title 400 yerine 201 döner', en: 'The annotations are silently ignored; empty title returns 201 instead of 400' } },
-        { id: 'c', text: { tr: 'Sunucu her istekte çöker', en: 'The server crashes on every request' } },
-        { id: 'd', text: { tr: 'Tüm istekler 401 döner', en: 'All requests return 401' } },
+        { id: 'c', text: { tr: 'Sunucu her request\'te çöker', en: 'The server crashes on every request' } },
+        { id: 'd', text: { tr: 'Tüm request\'ler 401 döner', en: 'All requests return 401' } },
       ],
       correct: 'b',
       explanation: { tr: 'Validation kütüphanesi sınıf yolunda yoksa Spring `@Valid`\'i işleyemez ve annotation\'ları sessizce atlar. Kod derlenir, uygulama başlar, ama doğrulama hiç tetiklenmez — boş title kaydedilir. Bu, kurulum eksikliğinin çalışma zamanı davranışını sessizce değiştirmesidir.', en: 'Without the validation library on the classpath, Spring cannot process `@Valid` and silently skips the annotations. The code compiles, the app starts, but validation never fires — an empty title is saved. This is a setup gap silently changing runtime behavior.' },
@@ -1252,7 +1252,7 @@ public enum Status { OPEN, IN_PROGRESS, CLOSED }`,
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `severity` enum yerine `String` bırakılırsa**\n\n**Kod:** `private String severity;` (enum DEĞİL).\n\n**Ne olur:** `POST /api/v1/bugs { "severity": "acil" }` isteği 400 yerine 201 döner; veritabanına geçersiz bir öncelik yazılır. Bir gün sonra "kritik bugları getir" filtresi (`severity == "CRITICAL"`) bu kaydı ISKALAR — kritik bir bug rapor ekranında hiç görünmez.\n\n**Neden sinsi:** Kayıt başarıyla oluşur (201), UI onu listeler, hiçbir hata yoktur. Sorun ancak bir filtre/rapor çalışınca, hem de sessizce ortaya çıkar: yanlış yazılmış öncelik bir "hayalet kayıt" olur.\n\n**Tester nerede yakalar:** Negatif testte — geçersiz bir `severity` değeri (`"acil"`, `"critical"`, `"5"`) gönderip 400 beklerken 201 alınca. Enum olsaydı sunucu bu değeri deserialization\'da reddederdi.',
+        tr: '**🐞 Defect Doğum Anı — `severity` enum yerine `String` bırakılırsa**\n\n**Kod:** `private String severity;` (enum DEĞİL).\n\n**Ne olur:** `POST /api/v1/bugs { "severity": "acil" }` request\'i 400 yerine 201 döner; veritabanına geçersiz bir öncelik yazılır. Bir gün sonra "kritik bugları getir" filtresi (`severity == "CRITICAL"`) bu kaydı ISKALAR — kritik bir bug rapor ekranında hiç görünmez.\n\n**Neden sinsi:** Kayıt başarıyla oluşur (201), UI onu listeler, hiçbir hata yoktur. Sorun ancak bir filtre/rapor çalışınca, hem de sessizce ortaya çıkar: yanlış yazılmış öncelik bir "hayalet kayıt" olur.\n\n**Tester nerede yakalar:** Negatif testte — geçersiz bir `severity` değeri (`"acil"`, `"critical"`, `"5"`) gönderip 400 beklerken 201 alınca. Enum olsaydı sunucu bu değeri deserialization\'da reddederdi.',
         en: '**🐞 Defect Birth — if `severity` is left a `String` instead of an enum**\n\n**Code:** `private String severity;` (NOT an enum).\n\n**What happens:** `POST /api/v1/bugs { "severity": "urgent" }` returns 201 instead of 400; an invalid priority is written to the database. A day later the "fetch critical bugs" filter (`severity == "CRITICAL"`) MISSES this record — a critical bug never appears on the report screen.\n\n**Why sneaky:** the record is created successfully (201), the UI lists it, there is no error. The problem surfaces only when a filter/report runs, and silently: a mistyped priority becomes a "ghost record".\n\n**Where the tester catches it:** in a negative test — sending an invalid `severity` (`"urgent"`, `"critical"`, `"5"`) and getting 201 while expecting 400. As an enum, the server would reject the value during deserialization.',
       },
     },
@@ -1272,17 +1272,17 @@ public enum Status { OPEN, IN_PROGRESS, CLOSED }`,
       ],
       scenes: [
         {
-          caption: { tr: 'Bir istek geçersiz bir öncelikle geliyor: `severity: "acil"` — bu dört geçerli değerden biri değil. Ne olacak, modele bağlı.', en: 'A request arrives with an invalid priority: `severity: "urgent"` — not one of the four valid values. What happens depends on the model.' },
+          caption: { tr: 'Bir request geçersiz bir öncelikle geliyor: `severity: "acil"` — bu dört geçerli değerden biri değil. Ne olacak, modele bağlı.', en: 'A request arrives with an invalid priority: `severity: "urgent"` — not one of the four valid values. What happens depends on the model.' },
           positions: { req: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
-          caption: { tr: 'Model enum ise: deserialization bir kapı gibi çalışır, "acil" tanınmaz ve istek 400 ile REDDEDİLİR. Geçersiz veri hiç içeri girmez.', en: 'If the model is an enum: deserialization acts like a gate, "urgent" is unrecognized, and the request is REJECTED with 400. Invalid data never gets in.' },
+          caption: { tr: 'Model enum ise: deserialization bir kapı gibi çalışır, "acil" tanınmaz ve request 400 ile REDDEDİLİR. Geçersiz veri hiç içeri girmez.', en: 'If the model is an enum: deserialization acts like a gate, "urgent" is unrecognized, and the request is REJECTED with 400. Invalid data never gets in.' },
           code: { tr: '400 Bad Request -> gecersiz severity', en: '400 Bad Request -> invalid severity' },
           positions: { req: { x: 22, y: 40 }, enumGate: { x: 58, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'req', to: 'enumGate', color: '#22c55e' }],
         },
         {
-          caption: { tr: 'Ama model String ise kapı YOKTUR: "acil" olduğu gibi kabul edilir ve veritabanına yazılır. İstek 201 döner — sorun görünmez.', en: 'But if the model is a String there is NO gate: "urgent" is accepted as-is and written to the database. The request returns 201 — the problem is invisible.' },
+          caption: { tr: 'Ama model String ise kapı YOKTUR: "acil" olduğu gibi kabul edilir ve veritabanına yazılır. Request 201 döner — sorun görünmez.', en: 'But if the model is a String there is NO gate: "urgent" is accepted as-is and written to the database. The request returns 201 — the problem is invisible.' },
           positions: { req: { x: 22, y: 40 }, strGate: { x: 45, y: 50 }, db: { x: 72, y: 55, scale: 1.1, pulse: true } },
           beams: [{ from: 'req', to: 'strGate', color: '#ef4444' }, { from: 'strGate', to: 'db', color: '#ef4444' }],
         },
@@ -1341,7 +1341,7 @@ public enum Severity { LOW, MEDIUM, HIGH, CRITICAL }`,
     },
     {
       type: 'quiz',
-      question: { tr: '`severity` alanı `String` olarak bırakılırsa, `POST { "severity": "acil" }` isteği ne döner ve asıl risk nedir?', en: 'If `severity` is left as a `String`, what does `POST { "severity": "urgent" }` return, and what is the real risk?' },
+      question: { tr: '`severity` alanı `String` olarak bırakılırsa, `POST { "severity": "acil" }` request\'i ne döner ve asıl risk nedir?', en: 'If `severity` is left as a `String`, what does `POST { "severity": "urgent" }` return, and what is the real risk?' },
       options: [
         { id: 'a', text: { tr: '400 döner, risk yok', en: '400, no risk' } },
         { id: 'b', text: { tr: '201 döner; geçersiz değer kaydedilir ve "kritik" filtreleri onu ıskalar (hayalet kayıt)', en: '201; the invalid value is saved and "critical" filters miss it (a ghost record)' } },
@@ -1349,7 +1349,7 @@ public enum Severity { LOW, MEDIUM, HIGH, CRITICAL }`,
         { id: 'd', text: { tr: 'Kayıt hiç oluşmaz', en: 'No record is created' } },
       ],
       correct: 'b',
-      explanation: { tr: 'String her metni kabul eder, bu yüzden istek 201 döner ve geçersiz "acil" değeri kaydedilir. Sonrasında `severity == "CRITICAL"` filtresi bu kaydı ıskalar; kritik bir bug raporlarda görünmez. Enum kullanmak geçersiz değeri deserialization\'da 400 ile reddederdi.', en: 'A String accepts any text, so the request returns 201 and the invalid "urgent" value is saved. Later a `severity == "CRITICAL"` filter misses this record; a critical bug is invisible in reports. Using an enum would reject the invalid value with 400 during deserialization.' },
+      explanation: { tr: 'String her metni kabul eder, bu yüzden request 201 döner ve geçersiz "acil" değeri kaydedilir. Sonrasında `severity == "CRITICAL"` filtresi bu kaydı ıskalar; kritik bir bug raporlarda görünmez. Enum kullanmak geçersiz değeri deserialization\'da 400 ile reddederdi.', en: 'A String accepts any text, so the request returns 201 and the invalid "urgent" value is saved. Later a `severity == "CRITICAL"` filter misses this record; a critical bug is invisible in reports. Using an enum would reject the invalid value with 400 during deserialization.' },
       retryQuestion: {
         question: { tr: 'Model sınıfı bir tester için öncelikle neye yarar?', en: 'What is the model class primarily useful for to a tester?' },
         options: [
@@ -1435,7 +1435,7 @@ public class BugRepository {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `findById` `null` yerine boş `Optional` dönmezse**\n\n**Kod:** `public Bug findById(Long id) { return store.get(id); }` — kayıt yoksa doğrudan `null` döner (Optional yok).\n\n**Ne olur:** Servis katmanı `repository.findById(999).getSeverity()` çağırdığında, olmayan kayıt `null` döner ve `.getSeverity()` bir **NullPointerException** fırlatır. Sonuç: `GET /api/v1/bugs/999` isteği 404 yerine **500 Internal Server Error** döner.\n\n**Neden sinsi:** "Kayıt bulunamadı" aslında normal, beklenen bir durumdur (404) — ama `null` döndürmek onu bir sunucu çökmesine (500) çevirir. Belirtiye bakan tester "sunucu bug\'ı" der, oysa kök neden eksik bir null-güvenliğidir.\n\n**Tester nerede yakalar:** Olmayan bir id ile `GET /api/v1/bugs/999` gönderip 404 beklerken 500 alınca. `Optional` döndürmek, üst katmanı "yoksa 404 dön" demeye zorlar ve çökmeyi engeller.',
+        tr: '**🐞 Defect Doğum Anı — `findById` `null` yerine boş `Optional` dönmezse**\n\n**Kod:** `public Bug findById(Long id) { return store.get(id); }` — kayıt yoksa doğrudan `null` döner (Optional yok).\n\n**Ne olur:** Servis katmanı `repository.findById(999).getSeverity()` çağırdığında, olmayan kayıt `null` döner ve `.getSeverity()` bir **NullPointerException** fırlatır. Sonuç: `GET /api/v1/bugs/999` request\'i 404 yerine **500 Internal Server Error** döner.\n\n**Neden sinsi:** "Kayıt bulunamadı" aslında normal, beklenen bir durumdur (404) — ama `null` döndürmek onu bir sunucu çökmesine (500) çevirir. Belirtiye bakan tester "sunucu bug\'ı" der, oysa kök neden eksik bir null-güvenliğidir.\n\n**Tester nerede yakalar:** Olmayan bir id ile `GET /api/v1/bugs/999` gönderip 404 beklerken 500 alınca. `Optional` döndürmek, üst katmanı "yoksa 404 dön" demeye zorlar ve çökmeyi engeller.',
         en: '**🐞 Defect Birth — if `findById` returns `null` instead of an empty `Optional`**\n\n**Code:** `public Bug findById(Long id) { return store.get(id); }` — returns `null` directly when the record is absent (no Optional).\n\n**What happens:** when the service calls `repository.findById(999).getSeverity()`, the missing record returns `null` and `.getSeverity()` throws a **NullPointerException**. Result: `GET /api/v1/bugs/999` returns **500 Internal Server Error** instead of 404.\n\n**Why sneaky:** "record not found" is actually a normal, expected case (404) — but returning `null` turns it into a server crash (500). A tester looking at the symptom says "server bug", while the root cause is a missing null-safety.\n\n**Where the tester catches it:** sending `GET /api/v1/bugs/999` with a nonexistent id and getting 500 while expecting 404. Returning `Optional` forces the upper layer to say "return 404 if absent" and prevents the crash.',
       },
     },
@@ -1455,7 +1455,7 @@ public class BugRepository {
       ],
       scenes: [
         {
-          caption: { tr: 'Bir istek olmayan bir kaydı istiyor: GET /api/v1/bugs/999. Repository ne dönerse sonuç ona bağlı.', en: 'A request wants a nonexistent record: GET /api/v1/bugs/999. The outcome depends on what the repository returns.' },
+          caption: { tr: 'Bir request olmayan bir kaydı istiyor: GET /api/v1/bugs/999. Repository ne dönerse sonuç ona bağlı.', en: 'A request wants a nonexistent record: GET /api/v1/bugs/999. The outcome depends on what the repository returns.' },
           positions: { req: { x: 25, y: 50 }, repo: { x: 60, y: 50, scale: 1.1, pulse: true } },
           beams: [{ from: 'req', to: 'repo', color: '#0ea5e9' }],
         },
@@ -1472,7 +1472,7 @@ public class BugRepository {
           beams: [{ from: 'repo', to: 'opt', color: '#22c55e' }],
         },
         {
-          caption: { tr: 'Boş Optional üst katmanı "yoksa 404 dön" demeye zorlar. İstemci doğru, beklenen yanıtı alır: 404 Not Found.', en: 'An empty Optional forces the upper layer to say "return 404 if absent". The client gets the correct, expected response: 404 Not Found.' },
+          caption: { tr: 'Boş Optional üst katmanı "yoksa 404 dön" demeye zorlar. İstemci doğru, beklenen response\'u alır: 404 Not Found.', en: 'An empty Optional forces the upper layer to say "return 404 if absent". The client gets the correct, expected response: 404 Not Found.' },
           positions: { opt: { x: 25, y: 40 }, resp: { x: 60, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'opt', to: 'resp', color: '#a78bfa' }],
         },
@@ -1554,7 +1554,7 @@ const B4 = {
       type: 'simple-box',
       emoji: '⚙️',
       content: {
-        tr: 'Service katmanı, API\'nin **karar veren yöneticisidir**: repository ham depolamayı yapar, controller isteği karşılar — ama "bir CLOSED bug tekrar açılabilir mi?", "aynı başlıkla iki bug oluşturulabilir mi?" gibi **iş kuralları** burada yaşar. Peki bu kuralları neden controller\'a ya da repository\'ye koymuyoruz, orada da çalışmaz mı? Çünkü iş kuralı controller\'a girerse her yeni giriş noktası (REST, mesaj kuyruğu, zamanlanmış görev) aynı kuralı tekrar yazmak zorunda kalır ve biri sessizce farklılaşır; repository\'ye girerse depolama teknolojisiyle iş mantığı birbirine yapışır. Service, kuralların **tek doğru kaynağıdır**. Java\'da bunun karşılığı, bir `@Service` sınıfında toplanan ve `@Transactional` ile korunan iş mantığıdır; controller sadece "bunu yap" der, nasıl yapıldığını bilmez. QA açısından service katmanı, en değerli hataların yaşadığı yerdir: bir alan validasyonu değil, bir **iş kuralı ihlali** (kapalı bug\'ın yeniden açılması, çift kayıt) çoğu zaman UI\'dan görünmez ama veriyi sessizce bozar — testerın bu kuralları senaryo bazlı (state geçişleri) test etmesi gerekir.',
+        tr: 'Service katmanı, API\'nin **karar veren yöneticisidir**: repository ham depolamayı yapar, controller request\'i karşılar — ama "bir CLOSED bug tekrar açılabilir mi?", "aynı başlıkla iki bug oluşturulabilir mi?" gibi **iş kuralları** burada yaşar. Peki bu kuralları neden controller\'a ya da repository\'ye koymuyoruz, orada da çalışmaz mı? Çünkü iş kuralı controller\'a girerse her yeni giriş noktası (REST, mesaj kuyruğu, zamanlanmış görev) aynı kuralı tekrar yazmak zorunda kalır ve biri sessizce farklılaşır; repository\'ye girerse depolama teknolojisiyle iş mantığı birbirine yapışır. Service, kuralların **tek doğru kaynağıdır**. Java\'da bunun karşılığı, bir `@Service` sınıfında toplanan ve `@Transactional` ile korunan iş mantığıdır; controller sadece "bunu yap" der, nasıl yapıldığını bilmez. QA açısından service katmanı, en değerli hataların yaşadığı yerdir: bir alan validasyonu değil, bir **iş kuralı ihlali** (kapalı bug\'ın yeniden açılması, çift kayıt) çoğu zaman UI\'dan görünmez ama veriyi sessizce bozar — testerın bu kuralları senaryo bazlı (state geçişleri) test etmesi gerekir.',
         en: 'The service layer is the API\'s **decision-making manager**: the repository does raw storage, the controller receives the request — but **business rules** like "can a CLOSED bug be reopened?", "can two bugs be created with the same title?" live here. But why not put these rules in the controller or the repository — wouldn\'t they work there too? Because if a rule enters the controller, every new entry point (REST, message queue, scheduled job) must re-implement it and one silently diverges; if it enters the repository, storage tech and business logic get glued together. The service is the **single source of truth** for rules. In Java the equivalent is business logic gathered in a `@Service` class and guarded with `@Transactional`; the controller just says "do this" without knowing how. In QA the service layer is where the most valuable defects live: not a field validation but a **business-rule violation** (reopening a closed bug, duplicate records) is often invisible from the UI yet silently corrupts data — the tester must test these rules scenario-based (state transitions).',
       },
     },
@@ -1615,7 +1615,7 @@ public class BugService {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — "zaten CLOSED" kuralı unutulursa**\n\n**Kod:** `closeBug` içindeki `if (bug.getStatus() == Status.CLOSED) throw ...` kontrolü YOK; metot doğrudan status\'u CLOSED yapıp kaydediyor.\n\n**Ne olur:** Zaten kapalı bir bug\'a tekrar `PATCH /api/v1/bugs/42/status {"status":"CLOSED"}` gönderilince istek 409/400 yerine 200 döner. Görünürde sorun yok ama eğer kapatma işlemi bir sayaç artırıyor, bildirim gönderiyor veya bir SLA kronometresi durduruyorsa, bu işlemler İKİNCİ kez tetiklenir — çift bildirim, yanlış metrik.\n\n**Neden sinsi:** Tek bir istekte hiçbir şey görünmez; kayıt zaten CLOSED\'du, yine CLOSED. Yan etkiler (bildirim, metrik) sessizce tekrarlanır ve ancak raporlar tutarsızlaşınca fark edilir.\n\n**Tester nerede yakalar:** State-geçiş testinde — bir bug\'ı kapat, sonra AYNI kapatmayı tekrar gönder; ikinci istekte hata (409 Conflict) bekle. İş kuralı yoksa ikinci kapatma sessizce geçer.',
+        tr: '**🐞 Defect Doğum Anı — "zaten CLOSED" kuralı unutulursa**\n\n**Kod:** `closeBug` içindeki `if (bug.getStatus() == Status.CLOSED) throw ...` kontrolü YOK; metot doğrudan status\'u CLOSED yapıp kaydediyor.\n\n**Ne olur:** Zaten kapalı bir bug\'a tekrar `PATCH /api/v1/bugs/42/status {"status":"CLOSED"}` gönderilince request 409/400 yerine 200 döner. Görünürde sorun yok ama eğer kapatma işlemi bir sayaç artırıyor, bildirim gönderiyor veya bir SLA kronometresi durduruyorsa, bu işlemler İKİNCİ kez tetiklenir — çift bildirim, yanlış metrik.\n\n**Neden sinsi:** Tek bir request\'te hiçbir şey görünmez; kayıt zaten CLOSED\'du, yine CLOSED. Yan etkiler (bildirim, metrik) sessizce tekrarlanır ve ancak raporlar tutarsızlaşınca fark edilir.\n\n**Tester nerede yakalar:** State-geçiş testinde — bir bug\'ı kapat, sonra AYNI kapatmayı tekrar gönder; ikinci request\'te hata (409 Conflict) bekle. İş kuralı yoksa ikinci kapatma sessizce geçer.',
         en: '**🐞 Defect Birth — if the "already CLOSED" rule is forgotten**\n\n**Code:** the `if (bug.getStatus() == Status.CLOSED) throw ...` check inside `closeBug` is MISSING; the method directly sets status to CLOSED and saves.\n\n**What happens:** sending `PATCH /api/v1/bugs/42/status {"status":"CLOSED"}` again to an already-closed bug returns 200 instead of 409/400. It looks fine, but if closing increments a counter, sends a notification, or stops an SLA timer, those side effects fire a SECOND time — duplicate notifications, wrong metrics.\n\n**Why sneaky:** in a single request nothing shows; the record was already CLOSED and is CLOSED again. The side effects (notification, metric) repeat silently and are noticed only when reports become inconsistent.\n\n**Where the tester catches it:** in a state-transition test — close a bug, then send the SAME close again; expect an error (409 Conflict) on the second request. Without the business rule the second close passes silently.',
       },
     },
@@ -1640,12 +1640,12 @@ public class BugService {
           beams: [{ from: 'close1', to: 'sideFx', color: '#0ea5e9' }],
         },
         {
-          caption: { tr: 'Aynı kapatma isteği tekrar geliyor (çift tık, retry, race). Kayıt zaten CLOSED. Şimdi iş kuralı devreye girmeli.', en: 'The same close request arrives again (double click, retry, race). The record is already CLOSED. Now the business rule must step in.' },
+          caption: { tr: 'Aynı kapatma request\'i tekrar geliyor (çift tık, retry, race). Kayıt zaten CLOSED. Şimdi iş kuralı devreye girmeli.', en: 'The same close request arrives again (double click, retry, race). The record is already CLOSED. Now the business rule must step in.' },
           positions: { close2: { x: 30, y: 50, pulse: true }, rule: { x: 62, y: 50, scale: 1.1 } },
           beams: [{ from: 'close2', to: 'rule', color: '#f59e0b' }],
         },
         {
-          caption: { tr: 'Kural VARSA: "zaten CLOSED" kontrolü ikinci isteği 409 Conflict ile reddeder. Yan etki bir kez çalışır. Sistem tutarlı kalır.', en: 'If the rule EXISTS: the "already CLOSED" check rejects the second request with 409 Conflict. The side effect runs once. The system stays consistent.' },
+          caption: { tr: 'Kural VARSA: "zaten CLOSED" kontrolü ikinci request\'i 409 Conflict ile reddeder. Yan etki bir kez çalışır. Sistem tutarlı kalır.', en: 'If the rule EXISTS: the "already CLOSED" check rejects the second request with 409 Conflict. The side effect runs once. The system stays consistent.' },
           code: { tr: 'if (status == CLOSED) throw -> 409', en: 'if (status == CLOSED) throw -> 409' },
           positions: { rule: { x: 25, y: 40, scale: 1.15, pulse: true } },
           beams: [],
@@ -1665,7 +1665,7 @@ public class BugService {
       type: 'step-animation',
       title: { tr: 'İş Kuralı Neden Controller\'da Değil Service\'te?', en: 'Why the Rule Belongs in the Service, Not the Controller' },
       steps: [
-        { id: 1, icon: '🎛️', label: { tr: 'Controller sadece kapı…', en: 'Controller is just a door…' }, detail: { tr: 'Controller isteği alır ve service\'e devreder; iş kuralı bilmez. Farklı giriş noktaları aynı service\'i kullanır.', en: 'The controller receives the request and delegates to the service; it knows no rule. Different entry points use the same service.' } },
+        { id: 1, icon: '🎛️', label: { tr: 'Controller sadece kapı…', en: 'Controller is just a door…' }, detail: { tr: 'Controller request\'i alır ve service\'e devreder; iş kuralı bilmez. Farklı giriş noktaları aynı service\'i kullanır.', en: 'The controller receives the request and delegates to the service; it knows no rule. Different entry points use the same service.' } },
         { id: 2, icon: '⚙️', label: { tr: 'Service tek doğru kaynak…', en: 'Service is the single source…' }, detail: { tr: 'Kural service\'te tek yerde durursa REST, kuyruk, zamanlanmış görev — hepsi aynı kuralı uygular.', en: 'With the rule in one place in the service, REST, queue, scheduled job — all apply the same rule.' } },
         { id: 3, icon: '🐞', label: { tr: 'Dağıtılırsa sessiz sapma…', en: 'Scatter it = silent drift…' }, detail: { tr: 'Kural birden çok yere kopyalanırsa biri güncellenmez ve sessizce farklılaşır — en zor bulunan bug sınıfı.', en: 'Copy the rule to many places and one is not updated and silently diverges — the hardest bug class to find.' } },
       ],
@@ -1678,8 +1678,8 @@ public class BugService {
       items: [
         { id: '1', text: { tr: 'OPEN bir bug oluştur', en: 'Create an OPEN bug' }, order: 1 },
         { id: '2', text: { tr: 'Bug\'ı kapat, 200 ve status CLOSED doğrula', en: 'Close the bug, verify 200 and status CLOSED' }, order: 2 },
-        { id: '3', text: { tr: 'AYNI kapatma isteğini tekrar gönder', en: 'Send the SAME close request again' }, order: 3 },
-        { id: '4', text: { tr: 'İkinci istekte 409 Conflict bekle', en: 'Expect 409 Conflict on the second request' }, order: 4 },
+        { id: '3', text: { tr: 'AYNI kapatma request\'ini tekrar gönder', en: 'Send the SAME close request again' }, order: 3 },
+        { id: '4', text: { tr: 'İkinci request\'te 409 Conflict bekle', en: 'Expect 409 Conflict on the second request' }, order: 4 },
         { id: '5', text: { tr: 'Yan etkinin (bildirim/metrik) tek kez çalıştığını doğrula', en: 'Verify the side effect (notification/metric) ran only once' }, order: 5 },
       ],
       xpReward: 10,
@@ -1709,7 +1709,7 @@ public Bug closeBug(Long id) {
     },
     {
       type: 'quiz',
-      question: { tr: 'Service\'te "zaten CLOSED reddedilir" kuralı yoksa, kapalı bir bug\'a ikinci kez kapatma isteği gelince asıl risk nedir?', en: 'Without the "reject if already CLOSED" rule in the service, what is the real risk when a second close request hits a closed bug?' },
+      question: { tr: 'Service\'te "zaten CLOSED reddedilir" kuralı yoksa, kapalı bir bug\'a ikinci kez kapatma request\'i gelince asıl risk nedir?', en: 'Without the "reject if already CLOSED" rule in the service, what is the real risk when a second close request hits a closed bug?' },
       options: [
         { id: 'a', text: { tr: 'Hiç risk yok, status zaten CLOSED', en: 'No risk, the status is already CLOSED' } },
         { id: 'b', text: { tr: 'Kapatmanın yan etkileri (bildirim, SLA, metrik) ikinci kez tetiklenir — sessiz veri/metrik bozulması', en: 'The close\'s side effects (notification, SLA, metric) fire a second time — silent data/metric corruption' } },
@@ -1717,7 +1717,7 @@ public Bug closeBug(Long id) {
         { id: 'd', text: { tr: 'URL 404 döner', en: 'The URL returns 404' } },
       ],
       correct: 'b',
-      explanation: { tr: 'Status görünürde değişmese de, kapatma işlemine bağlı yan etkiler (bildirim gönderme, metrik artırma, SLA durdurma) ikinci istekte tekrar çalışır. İş kuralı (zaten CLOSED ise 409) bu tekrarı engeller. Tester bunu state-geçiş senaryosuyla yakalar.', en: 'Even if the status seems unchanged, side effects tied to closing (sending notifications, incrementing metrics, stopping SLA) run again on the second request. The business rule (409 if already CLOSED) prevents the repeat. The tester catches it with a state-transition scenario.' },
+      explanation: { tr: 'Status görünürde değişmese de, kapatma işlemine bağlı yan etkiler (bildirim gönderme, metrik artırma, SLA durdurma) ikinci request\'te tekrar çalışır. İş kuralı (zaten CLOSED ise 409) bu tekrarı engeller. Tester bunu state-geçiş senaryosuyla yakalar.', en: 'Even if the status seems unchanged, side effects tied to closing (sending notifications, incrementing metrics, stopping SLA) run again on the second request. The business rule (409 if already CLOSED) prevents the repeat. The tester catches it with a state-transition scenario.' },
       retryQuestion: {
         question: { tr: 'Bir iş kuralı neden repository veya controller yerine service katmanında yaşamalıdır?', en: 'Why should a business rule live in the service layer rather than the repository or controller?' },
         options: [
@@ -1739,7 +1739,7 @@ const B5 = {
       type: 'simple-box',
       emoji: '🎛️',
       content: {
-        tr: 'Controller katmanı, API\'nin **resepsiyon görevlisidir**: gelen HTTP isteğini karşılar, "hangi yol, hangi metod, hangi parametreler" diye ayrıştırır ve doğru service metoduna yönlendirir — kendisi iş yapmaz, yönlendirir. İki tür parametreyi ayırt eder: **path variable** (yolun İÇİNDE, bir kaynağı KİMLİKLER — `/api/v1/bugs/42`\'deki `42`) ve **query param** (yolun SONUNDA `?` ile, listeyi SÜZER/sayfalar — `?status=OPEN&page=2`). Peki ikisi de "parametre" ise neden ayrı kavramlar? Çünkü niyetleri farklıdır: path variable "hangi kaydı" (tekil, zorunlu), query param "nasıl filtreleyeyim" (opsiyonel, çoğul) der — birini diğerinin yerine koymak URL tasarımını ve testleri bozar. Java\'da bunun karşılığı `@PathVariable Long id` ile `@RequestParam(required=false) String status` ayrımıdır; Spring bu annotation\'larla URL parçalarını metot parametrelerine bağlar. QA açısından controller, **sınır testlerinin** kapısıdır: eksik/yanlış tipte path variable (`/bugs/abc`), tanımsız query param, sayfalama sınırları (`page=-1`, `size=99999`) — bu girdiler çoğu bug\'ın doğduğu yerdir ve controller seviyesinde test edilir.',
+        tr: 'Controller katmanı, API\'nin **resepsiyon görevlisidir**: gelen HTTP request\'ini karşılar, "hangi yol, hangi metod, hangi parametreler" diye ayrıştırır ve doğru service metoduna yönlendirir — kendisi iş yapmaz, yönlendirir. İki tür parametreyi ayırt eder: **path variable** (yolun İÇİNDE, bir kaynağı KİMLİKLER — `/api/v1/bugs/42`\'deki `42`) ve **query param** (yolun SONUNDA `?` ile, listeyi SÜZER/sayfalar — `?status=OPEN&page=2`). Peki ikisi de "parametre" ise neden ayrı kavramlar? Çünkü niyetleri farklıdır: path variable "hangi kaydı" (tekil, zorunlu), query param "nasıl filtreleyeyim" (opsiyonel, çoğul) der — birini diğerinin yerine koymak URL tasarımını ve testleri bozar. Java\'da bunun karşılığı `@PathVariable Long id` ile `@RequestParam(required=false) String status` ayrımıdır; Spring bu annotation\'larla URL parçalarını metot parametrelerine bağlar. QA açısından controller, **sınır testlerinin** kapısıdır: eksik/yanlış tipte path variable (`/bugs/abc`), tanımsız query param, sayfalama sınırları (`page=-1`, `size=99999`) — bu girdiler çoğu bug\'ın doğduğu yerdir ve controller seviyesinde test edilir.',
         en: 'The controller layer is the API\'s **receptionist**: it receives the incoming HTTP request, parses "which path, which method, which parameters", and routes to the right service method — it does no work itself, it routes. It distinguishes two parameter kinds: a **path variable** (INSIDE the path, IDENTIFIES a resource — the `42` in `/api/v1/bugs/42`) and a **query param** (at the END with `?`, FILTERS/paginates the list — `?status=OPEN&page=2`). But if both are "parameters", why separate concepts? Because their intents differ: a path variable says "which record" (singular, required), a query param says "how do I filter" (optional, plural) — swapping one for the other breaks URL design and tests. In Java the equivalent is the `@PathVariable Long id` vs `@RequestParam(required=false) String status` distinction; Spring binds URL parts to method parameters via these annotations. In QA the controller is the gate of **boundary tests**: missing/wrong-typed path variable (`/bugs/abc`), undefined query param, pagination bounds (`page=-1`, `size=99999`) — these inputs are where most bugs are born and are tested at the controller level.',
       },
     },
@@ -1748,7 +1748,7 @@ const B5 = {
       type: 'code',
       language: 'java',
       code: {
-        tr: `// BugController.java — istekleri karsilar ve service'e yonlendirir
+        tr: `// BugController.java — request\'leri karsilar ve service'e yonlendirir
 @RestController
 @RequestMapping("/api/v1/bugs")     // tum yollar bu prefix ile baslar
 public class BugController {
@@ -1798,7 +1798,7 @@ public class BugController {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — sayfalama `size` sınırlanmazsa**\n\n**Kod:** `@RequestParam(defaultValue = "20") int size` — üst sınır yok; `size` doğrudan service\'e/DB\'ye geçiyor.\n\n**Ne olur:** `GET /api/v1/bugs?size=1000000` isteği milyonlarca kaydı tek yanıtta çekmeye çalışır. Sunucu belleği şişer, yanıt saniyelerce sürer veya OutOfMemory ile 500 döner. Kötü niyetli tek bir istek servisi yavaşlatabilir (DoS).\n\n**Neden sinsi:** Normal kullanımda (`size=20`) her şey mükemmel çalışır, testler geçer. Sorun yalnızca sınır-dışı bir değerle ortaya çıkar — kimse "ya biri size=1000000 gönderirse?" diye düşünmediği için production\'a kadar gizli kalır.\n\n**Tester nerede yakalar:** Sınır testinde — `size=0`, `size=-1`, `size=999999` gönderip makul bir davranış (400 veya sabit üst sınıra kırpma) beklerken sunucunun zorlandığını/500 döndüğünü görünce. Controller, bu tür girdi sınırlarının test edildiği katmandır.',
+        tr: '**🐞 Defect Doğum Anı — sayfalama `size` sınırlanmazsa**\n\n**Kod:** `@RequestParam(defaultValue = "20") int size` — üst sınır yok; `size` doğrudan service\'e/DB\'ye geçiyor.\n\n**Ne olur:** `GET /api/v1/bugs?size=1000000` request\'i milyonlarca kaydı tek response\'ta çekmeye çalışır. Sunucu belleği şişer, response saniyelerce sürer veya OutOfMemory ile 500 döner. Kötü niyetli tek bir request servisi yavaşlatabilir (DoS).\n\n**Neden sinsi:** Normal kullanımda (`size=20`) her şey mükemmel çalışır, testler geçer. Sorun yalnızca sınır-dışı bir değerle ortaya çıkar — kimse "ya biri size=1000000 gönderirse?" diye düşünmediği için production\'a kadar gizli kalır.\n\n**Tester nerede yakalar:** Sınır testinde — `size=0`, `size=-1`, `size=999999` gönderip makul bir davranış (400 veya sabit üst sınıra kırpma) beklerken sunucunun zorlandığını/500 döndüğünü görünce. Controller, bu tür girdi sınırlarının test edildiği katmandır.',
         en: '**🐞 Defect Birth — if pagination `size` is not capped**\n\n**Code:** `@RequestParam(defaultValue = "20") int size` — no upper bound; `size` flows straight to the service/DB.\n\n**What happens:** `GET /api/v1/bugs?size=1000000` tries to pull millions of records in one response. Server memory balloons, the response takes seconds or returns 500 with OutOfMemory. A single malicious request can slow the service (DoS).\n\n**Why sneaky:** in normal use (`size=20`) everything works perfectly and tests pass. The problem only appears with an out-of-bound value — since nobody thinks "what if someone sends size=1000000?", it stays hidden until production.\n\n**Where the tester catches it:** in a boundary test — sending `size=0`, `size=-1`, `size=999999` and expecting sane behavior (400 or clamping to a fixed max) while seeing the server struggle/return 500. The controller is the layer where such input bounds are tested.',
       },
     },
@@ -1863,7 +1863,7 @@ public class BugController {
         { id: '2', text: { tr: 'Yanlış tip gönder (/bugs/abc), 400 bekle', en: 'Send a wrong type (/bugs/abc), expect 400' }, order: 2 },
         { id: '3', text: { tr: 'Query paramların sınırlarını belirle (page, size)', en: 'Identify query param bounds (page, size)' }, order: 3 },
         { id: '4', text: { tr: 'Sınır-dışı değerler gönder (size=-1, size=999999)', en: 'Send out-of-bound values (size=-1, size=999999)' }, order: 4 },
-        { id: '5', text: { tr: 'Her durumda makul bir yanıt (400/kırpma) doğrula', en: 'Verify a sane response (400/clamp) in each case' }, order: 5 },
+        { id: '5', text: { tr: 'Her durumda makul bir response (400/kırpma) doğrula', en: 'Verify a sane response (400/clamp) in each case' }, order: 5 },
       ],
       xpReward: 10,
     },
@@ -1884,11 +1884,11 @@ public List<Bug> list(@RequestParam(defaultValue = "20") int size) {
     return service.list(safeSize);
 }`,
       hint: { tr: '`size` doğrudan service\'e geçerse `size=1000000` sunucuyu boğabilir. `Math.min(size, 100)` gibi bir üst sınırla (ve alt sınırla) kırparak sınır-dışı değerleri güvenli hale getir.', en: 'If `size` flows straight to the service, `size=1000000` can overwhelm the server. Clamp with an upper (and lower) bound like `Math.min(size, 100)` to make out-of-bound values safe.' },
-      successMessage: { tr: 'Doğru! Artık aşırı büyük size değerleri güvenli sınıra kırpılır — tek bir istekle DoS riski kalkar.', en: 'Correct! Now oversized size values are clamped to a safe bound — the single-request DoS risk is gone.' },
+      successMessage: { tr: 'Doğru! Artık aşırı büyük size değerleri güvenli sınıra kırpılır — tek bir request\'le DoS riski kalkar.', en: 'Correct! Now oversized size values are clamped to a safe bound — the single-request DoS risk is gone.' },
     },
     {
       type: 'quiz',
-      question: { tr: '`GET /api/v1/bugs?size=1000000` isteği neden bir bug kaynağıdır ve tester bunu nasıl yakalar?', en: 'Why is `GET /api/v1/bugs?size=1000000` a bug source, and how does the tester catch it?' },
+      question: { tr: '`GET /api/v1/bugs?size=1000000` request\'i neden bir bug kaynağıdır ve tester bunu nasıl yakalar?', en: 'Why is `GET /api/v1/bugs?size=1000000` a bug source, and how does the tester catch it?' },
       options: [
         { id: 'a', text: { tr: 'Değildir; büyük size iyidir', en: 'It is not; a large size is good' } },
         { id: 'b', text: { tr: 'Sınırsız size sunucuyu boğabilir (bellek/yavaşlık/DoS); tester sınır testiyle (size=-1, 999999) yakalar', en: 'An uncapped size can overwhelm the server (memory/slowness/DoS); the tester catches it with boundary tests (size=-1, 999999)' } },
@@ -1896,7 +1896,7 @@ public List<Bug> list(@RequestParam(defaultValue = "20") int size) {
         { id: 'd', text: { tr: 'Token gerektirir', en: 'It requires a token' } },
       ],
       correct: 'b',
-      explanation: { tr: 'Üst sınırı olmayan `size` milyonlarca kaydı tek yanıtta çekmeye çalışır; bellek şişer, yanıt yavaşlar veya 500 gelir — tek istekle DoS. Normal değerlerde (20) her şey iyi görünür, bu yüzden yalnızca sınır testleri (size=-1, 0, 999999) bunu ortaya çıkarır. Çözüm: size\'ı makul bir üst sınıra kırpmak.', en: 'An uncapped `size` tries to pull millions of records in one response; memory balloons, responses slow, or 500 appears — a single-request DoS. With normal values (20) all looks fine, so only boundary tests (size=-1, 0, 999999) reveal it. The fix: clamp size to a sane maximum.' },
+      explanation: { tr: 'Üst sınırı olmayan `size` milyonlarca kaydı tek response\'ta çekmeye çalışır; bellek şişer, response yavaşlar veya 500 gelir — tek request\'le DoS. Normal değerlerde (20) her şey iyi görünür, bu yüzden yalnızca sınır testleri (size=-1, 0, 999999) bunu ortaya çıkarır. Çözüm: size\'ı makul bir üst sınıra kırpmak.', en: 'An uncapped `size` tries to pull millions of records in one response; memory balloons, responses slow, or 500 appears — a single-request DoS. With normal values (20) all looks fine, so only boundary tests (size=-1, 0, 999999) reveal it. The fix: clamp size to a sane maximum.' },
       retryQuestion: {
         question: { tr: '`/api/v1/bugs/42` içindeki `42` ile `?status=OPEN` arasındaki fark nedir?', en: 'What is the difference between the `42` in `/api/v1/bugs/42` and `?status=OPEN`?' },
         options: [
@@ -1919,7 +1919,7 @@ const B6 = {
       type: 'simple-box',
       emoji: '✅',
       content: {
-        tr: '`@Valid`, API\'nin **kapı bekçisidir**: bir POST isteği içeri girmeden önce gövdedeki her alanı kurallara göre yoklar — `title` boş mu, 3-120 karakter mi, `reporter` gerçek bir email mi? Kurala uymayan istek daha service\'e VARMADAN 400 ile geri çevrilir. Peki UI zaten boş başlığı JavaScript ile engelliyorsa, sunucuda ayrıca doğrulamaya neden gerek var? Çünkü UI sadece BİR istemcidir: mobil uygulama, Postman, başka bir servis veya kötü niyetli bir script doğrudan API\'ye vurabilir ve UI\'nın JS kontrolünü tamamen atlar — sunucu doğrulaması, güvenilebilecek TEK savunma hattıdır. Java\'da bunun karşılığı Bean Validation\'dır: DTO alanlarına `@NotBlank`, `@Size(min=3,max=120)`, `@Email` annotation\'ları koyarsın ve `@Valid` bunları tetikler; controller metodu hiç çalışmadan hatalı istek reddedilir. QA açısından bu, en klasik "yanlış güven" tuzağının panzehiridir: "UI valide ediyor, o yüzden API güvenli" varsayımı yanlıştır — tester UI\'yı bypass edip doğrudan API\'ye geçersiz veri göndererek sunucu doğrulamasını KANITLAMALIDIR.',
+        tr: '`@Valid`, API\'nin **kapı bekçisidir**: bir POST request\'i içeri girmeden önce gövdedeki her alanı kurallara göre yoklar — `title` boş mu, 3-120 karakter mi, `reporter` gerçek bir email mi? Kurala uymayan request daha service\'e VARMADAN 400 ile geri çevrilir. Peki UI zaten boş başlığı JavaScript ile engelliyorsa, sunucuda ayrıca doğrulamaya neden gerek var? Çünkü UI sadece BİR istemcidir: mobil uygulama, Postman, başka bir servis veya kötü niyetli bir script doğrudan API\'ye vurabilir ve UI\'nın JS kontrolünü tamamen atlar — sunucu doğrulaması, güvenilebilecek TEK savunma hattıdır. Java\'da bunun karşılığı Bean Validation\'dır: DTO alanlarına `@NotBlank`, `@Size(min=3,max=120)`, `@Email` annotation\'ları koyarsın ve `@Valid` bunları tetikler; controller metodu hiç çalışmadan hatalı request reddedilir. QA açısından bu, en klasik "yanlış güven" tuzağının panzehiridir: "UI valide ediyor, o yüzden API güvenli" varsayımı yanlıştır — tester UI\'yı bypass edip doğrudan API\'ye geçersiz veri göndererek sunucu doğrulamasını KANITLAMALIDIR.',
         en: '`@Valid` is the API\'s **gatekeeper**: before a POST request gets in, it checks every field in the body against rules — is `title` blank, is it 3-120 chars, is `reporter` a real email? A non-conforming request is turned back with 400 BEFORE it even reaches the service. But if the UI already blocks an empty title with JavaScript, why validate again on the server? Because the UI is just ONE client: a mobile app, Postman, another service, or a malicious script can hit the API directly and bypass the UI\'s JS check entirely — server validation is the ONLY defense line you can trust. In Java the equivalent is Bean Validation: you put `@NotBlank`, `@Size(min=3,max=120)`, `@Email` annotations on DTO fields and `@Valid` fires them; the bad request is rejected before the controller method even runs. In QA this is the antidote to the classic "false trust" trap: the assumption "the UI validates, so the API is safe" is wrong — the tester must PROVE server validation by bypassing the UI and sending invalid data straight to the API.',
       },
     },
@@ -1976,7 +1976,7 @@ public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `@Valid` annotation\'ı unutulursa**\n\n**Kod:** `public ResponseEntity<Bug> create(@RequestBody BugRequest req)` — `@Valid` YOK (yalnızca `@RequestBody`).\n\n**Ne olur:** DTO\'daki `@NotBlank`/`@Size` kuralları TANIMLI ama tetiklenmez. `POST /api/v1/bugs { "title": "" }` isteği 400 yerine **201 Created** döner ve veritabanına boş başlıklı bir bug yazılır.\n\n**Neden sinsi:** UI\'daki JavaScript zaten boş başlığı engelliyor, bu yüzden manuel/UI testi PASS verir — hata hiç görünmez. Ama mobil uygulama veya Postman doğrudan API\'ye vurunca boş kayıt açılır: production\'da "boş bug" kirliliği. Kurallar kodda DURUYOR ama bekçi olmadan hiçbir işe yaramıyor.\n\n**Tester nerede yakalar:** Postman\'de UI\'yı bypass edip boş `title` göndererek — 400 beklerken 201 alınca. Bu, "UI valide ediyor" güveninin neden yanlış olduğunun doğrudan kanıtıdır.',
+        tr: '**🐞 Defect Doğum Anı — `@Valid` annotation\'ı unutulursa**\n\n**Kod:** `public ResponseEntity<Bug> create(@RequestBody BugRequest req)` — `@Valid` YOK (yalnızca `@RequestBody`).\n\n**Ne olur:** DTO\'daki `@NotBlank`/`@Size` kuralları TANIMLI ama tetiklenmez. `POST /api/v1/bugs { "title": "" }` request\'i 400 yerine **201 Created** döner ve veritabanına boş başlıklı bir bug yazılır.\n\n**Neden sinsi:** UI\'daki JavaScript zaten boş başlığı engelliyor, bu yüzden manuel/UI testi PASS verir — hata hiç görünmez. Ama mobil uygulama veya Postman doğrudan API\'ye vurunca boş kayıt açılır: production\'da "boş bug" kirliliği. Kurallar kodda DURUYOR ama bekçi olmadan hiçbir işe yaramıyor.\n\n**Tester nerede yakalar:** Postman\'de UI\'yı bypass edip boş `title` göndererek — 400 beklerken 201 alınca. Bu, "UI valide ediyor" güveninin neden yanlış olduğunun doğrudan kanıtıdır.',
         en: '**🐞 Defect Birth — if the `@Valid` annotation is forgotten**\n\n**Code:** `public ResponseEntity<Bug> create(@RequestBody BugRequest req)` — `@Valid` is MISSING (only `@RequestBody`).\n\n**What happens:** the `@NotBlank`/`@Size` rules on the DTO are DEFINED but never fire. `POST /api/v1/bugs { "title": "" }` returns **201 Created** instead of 400 and an empty-title bug is written to the database.\n\n**Why sneaky:** the UI\'s JavaScript already blocks an empty title, so manual/UI testing PASSES — the defect never shows. But when a mobile app or Postman hits the API directly, an empty record is created: "empty bug" pollution in production. The rules SIT in the code but without the gatekeeper they do nothing.\n\n**Where the tester catches it:** in Postman, bypassing the UI and sending an empty `title` — getting 201 while expecting 400. This is the direct proof of why "the UI validates" trust is wrong.',
       },
     },
@@ -2006,7 +2006,7 @@ public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
           beams: [{ from: 'postman', to: 'gate', color: '#f59e0b' }],
         },
         {
-          caption: { tr: '@Valid VARSA: kapı bekçisi boş title\'ı yakalar ve isteği 400 ile geri çevirir. Sunucu, güvenilebilecek son savunma hattı olarak çalışır.', en: 'If @Valid EXISTS: the gatekeeper catches the empty title and turns the request back with 400. The server acts as the trustworthy last line of defense.' },
+          caption: { tr: '@Valid VARSA: kapı bekçisi boş title\'ı yakalar ve request\'i 400 ile geri çevirir. Sunucu, güvenilebilecek son savunma hattı olarak çalışır.', en: 'If @Valid EXISTS: the gatekeeper catches the empty title and turns the request back with 400. The server acts as the trustworthy last line of defense.' },
           code: { tr: '400 Bad Request -> title zorunludur', en: '400 Bad Request -> title required' },
           positions: { gate: { x: 40, y: 50, scale: 1.2, pulse: true } },
           beams: [],
@@ -2038,7 +2038,7 @@ public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
       question: { tr: 'Sunucu doğrulamasını (@Valid) kanıtlama sırasını diz.', en: 'Order the steps to prove server validation (@Valid).' },
       items: [
         { id: '1', text: { tr: 'DTO\'daki kuralları oku (@NotBlank, @Size, @Email)', en: 'Read the DTO rules (@NotBlank, @Size, @Email)' }, order: 1 },
-        { id: '2', text: { tr: 'UI\'yı bypass ederek doğrudan API\'ye istek hazırla (Postman)', en: 'Prepare a direct API request bypassing the UI (Postman)' }, order: 2 },
+        { id: '2', text: { tr: 'UI\'yı bypass ederek doğrudan API\'ye request hazırla (Postman)', en: 'Prepare a direct API request bypassing the UI (Postman)' }, order: 2 },
         { id: '3', text: { tr: 'Her kural için geçersiz veri gönder (boş title, kısa title, hatalı email)', en: 'Send invalid data per rule (empty title, short title, bad email)' }, order: 3 },
         { id: '4', text: { tr: 'Her durumda 400 ve anlamlı hata mesajı bekle', en: 'Expect 400 and a meaningful error message in each case' }, order: 4 },
         { id: '5', text: { tr: '400 gelmiyorsa @Valid eksikliğini bug olarak raporla', en: 'If no 400 arrives, report the missing @Valid as a bug' }, order: 5 },
@@ -2055,7 +2055,7 @@ public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
 public ResponseEntity<Bug> create(@RequestBody BugRequest req) {
     return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
 }`,
-      solutionCode: `// FIX: @Valid kurallari kapida tetikler -> gecersiz istek otomatik 400
+      solutionCode: `// FIX: @Valid kurallari kapida tetikler -> gecersiz request otomatik 400
 @PostMapping
 public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
     return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
@@ -2077,10 +2077,10 @@ public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
       retryQuestion: {
         question: { tr: '`@Valid`\'in görevi tam olarak nedir?', en: 'What exactly is the job of `@Valid`?' },
         options: [
-          { id: 'a', text: { tr: 'DTO\'daki Bean Validation kurallarını (@NotBlank, @Size, @Email) tetikler; geçersiz istek controller\'a girmeden 400 döner', en: 'It fires the Bean Validation rules on the DTO (@NotBlank, @Size, @Email); an invalid request returns 400 before entering the controller' } },
+          { id: 'a', text: { tr: 'DTO\'daki Bean Validation kurallarını (@NotBlank, @Size, @Email) tetikler; geçersiz request controller\'a girmeden 400 döner', en: 'It fires the Bean Validation rules on the DTO (@NotBlank, @Size, @Email); an invalid request returns 400 before entering the controller' } },
           { id: 'b', text: { tr: 'Veritabanını temizler', en: 'It cleans the database' } },
           { id: 'c', text: { tr: 'Token üretir', en: 'It generates a token' } },
-          { id: 'd', text: { tr: 'Yanıtı JSON\'a çevirir', en: 'It converts the response to JSON' } },
+          { id: 'd', text: { tr: 'Response\'u JSON\'a çevirir', en: 'It converts the response to JSON' } },
         ],
         correct: 'a',
         explanation: { tr: '`@Valid`, `@RequestBody` ile bağlanan DTO üzerindeki doğrulama annotation\'larını tetikler. Kural ihlali varsa Spring controller metodunu hiç çalıştırmadan otomatik 400 döner. Kurallar DTO\'da dursa da `@Valid` olmadan tetiklenmezler.', en: '`@Valid` triggers the validation annotations on the DTO bound via `@RequestBody`. On a rule violation Spring automatically returns 400 without ever running the controller method. The rules sit on the DTO but do not fire without `@Valid`.' },
@@ -2095,7 +2095,7 @@ const B7 = {
       type: 'simple-box',
       emoji: '🧯',
       content: {
-        tr: 'Exception handling, API\'nin **itfaiye ve tercüman ekibidir**: kodun içinde bir şey ters gittiğinde (kayıt yok, iş kuralı ihlali, beklenmeyen çökme) ham Java exception\'ını istemcinin anlayacağı temiz bir HTTP yanıtına ÇEVİRİR. `@RestControllerAdvice`, tüm controller\'lar için tek merkezî hata çevirmenidir: `BugNotFoundException` → 404, `IllegalStateException` → 409, geri kalan her şey → 500. Peki her metotta try-catch yazsak olmaz mı, neden merkezî bir yapı? Çünkü hata çevirisi controller\'lara dağılırsa biri 404 döner, biri 500, biri hiç yakalamaz ve istemci tutarsız yanıtlarla karşılaşır; merkezî advice, hata→status eşlemesinin TEK doğru kaynağıdır. Java\'da bunun karşılığı global bir `try-catch` değil, `@ExceptionHandler` metotlarıdır; her exception türü kendi status kodu ve gövdesiyle eşlenir. QA açısından bu katman, **hata yanıtlarının sözleşmesidir**: bir tester yalnızca "mutlu yol"u değil, hata durumlarının da doğru status + anlamlı mesaj döndüğünü test etmelidir — çünkü kötü bir hata yanıtı (500 yerine 200, ya da stack trace sızması) hem istemciyi yanıltır hem güvenlik açığı olur.',
+        tr: 'Exception handling, API\'nin **itfaiye ve tercüman ekibidir**: kodun içinde bir şey ters gittiğinde (kayıt yok, iş kuralı ihlali, beklenmeyen çökme) ham Java exception\'ını istemcinin anlayacağı temiz bir HTTP response\'una ÇEVİRİR. `@RestControllerAdvice`, tüm controller\'lar için tek merkezî hata çevirmenidir: `BugNotFoundException` → 404, `IllegalStateException` → 409, geri kalan her şey → 500. Peki her metotta try-catch yazsak olmaz mı, neden merkezî bir yapı? Çünkü hata çevirisi controller\'lara dağılırsa biri 404 döner, biri 500, biri hiç yakalamaz ve istemci tutarsız response\'larla karşılaşır; merkezî advice, hata→status eşlemesinin TEK doğru kaynağıdır. Java\'da bunun karşılığı global bir `try-catch` değil, `@ExceptionHandler` metotlarıdır; her exception türü kendi status kodu ve gövdesiyle eşlenir. QA açısından bu katman, **hata response\'larının sözleşmesidir**: bir tester yalnızca "mutlu yol"u değil, hata durumlarının da doğru status + anlamlı mesaj döndüğünü test etmelidir — çünkü kötü bir hata response\'u (500 yerine 200, ya da stack trace sızması) hem istemciyi yanıltır hem güvenlik açığı olur.',
         en: 'Exception handling is the API\'s **fire brigade and translator crew**: when something goes wrong inside the code (record missing, rule violation, unexpected crash), it TRANSLATES the raw Java exception into a clean HTTP response the client understands. `@RestControllerAdvice` is the single central error translator for all controllers: `BugNotFoundException` → 404, `IllegalStateException` → 409, everything else → 500. But couldn\'t we write try-catch in each method — why a central structure? Because if error translation is scattered across controllers, one returns 404, another 500, another catches nothing, and the client meets inconsistent responses; the central advice is the single source of truth for the error→status mapping. In Java the equivalent is not a global `try-catch` but `@ExceptionHandler` methods; each exception type maps to its own status code and body. In QA this layer is the **contract of error responses**: a tester must test not just the "happy path" but that error cases return the right status + a meaningful message — because a bad error response (200 instead of 500, or a leaked stack trace) both misleads the client and becomes a security hole.',
       },
     },
@@ -2164,7 +2164,7 @@ public class GlobalExceptionHandler {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — ham exception istemciye sızarsa**\n\n**Kod:** `@RestControllerAdvice` YOK ya da genel bir handler tüm exception\'ları yakalayıp `ex.getMessage()`\'ı olduğu gibi 500 gövdesine koyuyor.\n\n**Ne olur:** Bir `SQLException` veya `NullPointerException` istemciye ham haliyle döner: yanıt gövdesinde tam **stack trace**, veritabanı tablo/sütun adları, hatta dosya yolları görünür. Kötü niyetli biri için bu bir hazine haritasıdır (sistem içini ifşa eder); ayrıca istemci "ne oldu" diye net bir mesaj alamaz.\n\n**Neden sinsi:** Mutlu yol testlerinde hiç görünmez — her şey 200/201 döner. Sızıntı yalnızca bir hata tetiklendiğinde ortaya çıkar ve çoğu ekip hata yanıtlarını hiç test etmez.\n\n**Tester nerede yakalar:** Kasıtlı olarak hata tetikleyerek (olmayan id, geçersiz veri, bozuk JSON) yanıt gövdesini inceleyince — stack trace, SQL, iç yol görürse bu hem bir bilgi sızıntısı (güvenlik) hem de kötü bir hata sözleşmesidir.',
+        tr: '**🐞 Defect Doğum Anı — ham exception istemciye sızarsa**\n\n**Kod:** `@RestControllerAdvice` YOK ya da genel bir handler tüm exception\'ları yakalayıp `ex.getMessage()`\'ı olduğu gibi 500 gövdesine koyuyor.\n\n**Ne olur:** Bir `SQLException` veya `NullPointerException` istemciye ham haliyle döner: response gövdesinde tam **stack trace**, veritabanı tablo/sütun adları, hatta dosya yolları görünür. Kötü niyetli biri için bu bir hazine haritasıdır (sistem içini ifşa eder); ayrıca istemci "ne oldu" diye net bir mesaj alamaz.\n\n**Neden sinsi:** Mutlu yol testlerinde hiç görünmez — her şey 200/201 döner. Sızıntı yalnızca bir hata tetiklendiğinde ortaya çıkar ve çoğu ekip hata response\'larını hiç test etmez.\n\n**Tester nerede yakalar:** Kasıtlı olarak hata tetikleyerek (olmayan id, geçersiz veri, bozuk JSON) response gövdesini inceleyince — stack trace, SQL, iç yol görürse bu hem bir bilgi sızıntısı (güvenlik) hem de kötü bir hata sözleşmesidir.',
         en: '**🐞 Defect Birth — if a raw exception leaks to the client**\n\n**Code:** `@RestControllerAdvice` is MISSING, or a generic handler catches all exceptions and dumps `ex.getMessage()` as-is into a 500 body.\n\n**What happens:** a `SQLException` or `NullPointerException` returns to the client raw: the response body shows the full **stack trace**, database table/column names, even file paths. For a malicious actor this is a treasure map (it exposes internals); the client also gets no clear "what happened" message.\n\n**Why sneaky:** it never shows in happy-path tests — everything returns 200/201. The leak appears only when an error is triggered, and most teams never test error responses.\n\n**Where the tester catches it:** by deliberately triggering errors (nonexistent id, invalid data, malformed JSON) and inspecting the response body — seeing a stack trace, SQL, or internal path is both an information leak (security) and a bad error contract.',
       },
     },
@@ -2188,13 +2188,13 @@ public class GlobalExceptionHandler {
           positions: { ex: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
-          caption: { tr: 'Merkezî advice VARSA: exception yakalanır ve temiz bir 404 + anlamlı mesaja çevrilir. İstemci "kayıt yok" diye net bir yanıt alır.', en: 'If the central advice EXISTS: the exception is caught and translated into a clean 404 + meaningful message. The client gets a clear "record not found" response.' },
+          caption: { tr: 'Merkezî advice VARSA: exception yakalanır ve temiz bir 404 + anlamlı mesaja çevrilir. İstemci "kayıt yok" diye net bir response alır.', en: 'If the central advice EXISTS: the exception is caught and translated into a clean 404 + meaningful message. The client gets a clear "record not found" response.' },
           code: { tr: '404 { "code": "BUG_NOT_FOUND" }', en: '404 { "code": "BUG_NOT_FOUND" }' },
           positions: { ex: { x: 22, y: 40 }, advice: { x: 45, y: 50 }, clean: { x: 72, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'ex', to: 'advice', color: '#22c55e' }, { from: 'advice', to: 'clean', color: '#0ea5e9' }],
         },
         {
-          caption: { tr: 'Advice YOKSA: ham exception istemciye sızar — yanıt gövdesinde tam stack trace, SQL, tablo adları, dosya yolları görünür.', en: 'If the advice is MISSING: the raw exception leaks to the client — the response body shows the full stack trace, SQL, table names, file paths.' },
+          caption: { tr: 'Advice YOKSA: ham exception istemciye sızar — response gövdesinde tam stack trace, SQL, tablo adları, dosya yolları görünür.', en: 'If the advice is MISSING: the raw exception leaks to the client — the response body shows the full stack trace, SQL, table names, file paths.' },
           code: { tr: '500 ...SQLException: SELECT * FROM bugs...', en: '500 ...SQLException: SELECT * FROM bugs...' },
           positions: { ex: { x: 25, y: 40 }, leak: { x: 60, y: 55, scale: 1.2, pulse: true } },
           beams: [{ from: 'ex', to: 'leak', color: '#f59e0b' }],
@@ -2205,7 +2205,7 @@ public class GlobalExceptionHandler {
           beams: [{ from: 'leak', to: 'attacker', color: '#a78bfa' }],
         },
         {
-          caption: { tr: 'Ders — Hata yanıtları da bir sözleşmedir: doğru status + anlamlı mesaj, ham iç detay SIZDIRMADAN. Tester hataları kasıtlı tetikleyip gövdeyi denetler.', en: 'The lesson — Error responses are a contract too: the right status + a meaningful message, WITHOUT leaking raw internals. The tester triggers errors deliberately and audits the body.' },
+          caption: { tr: 'Ders — Hata response\'ları da bir sözleşmedir: doğru status + anlamlı mesaj, ham iç detay SIZDIRMADAN. Tester hataları kasıtlı tetikleyip gövdeyi denetler.', en: 'The lesson — Error responses are a contract too: the right status + a meaningful message, WITHOUT leaking raw internals. The tester triggers errors deliberately and audits the body.' },
           positions: { advice: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
       ],
@@ -2223,12 +2223,12 @@ public class GlobalExceptionHandler {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-b7-order-01',
-      question: { tr: 'Hata yanıtlarını test etme sırasını diz.', en: 'Order the steps to test error responses.' },
+      question: { tr: 'Hata response\'larını test etme sırasını diz.', en: 'Order the steps to test error responses.' },
       items: [
-        { id: '1', text: { tr: 'Her hata türü için tetikleyici bir istek hazırla (yok id, geçersiz veri)', en: 'Prepare a trigger request per error type (missing id, invalid data)' }, order: 1 },
+        { id: '1', text: { tr: 'Her hata türü için tetikleyici bir request hazırla (yok id, geçersiz veri)', en: 'Prepare a trigger request per error type (missing id, invalid data)' }, order: 1 },
         { id: '2', text: { tr: 'Beklenen status kodunu belirle (404/409/400/500)', en: 'Determine the expected status code (404/409/400/500)' }, order: 2 },
-        { id: '3', text: { tr: 'İsteği gönder ve gerçek status\'u karşılaştır', en: 'Send the request and compare the actual status' }, order: 3 },
-        { id: '4', text: { tr: 'Yanıt gövdesinde anlamlı mesaj VAR, stack trace YOK doğrula', en: 'Verify the body HAS a meaningful message and NO stack trace' }, order: 4 },
+        { id: '3', text: { tr: 'Request\'i gönder ve gerçek status\'u karşılaştır', en: 'Send the request and compare the actual status' }, order: 3 },
+        { id: '4', text: { tr: 'Response gövdesinde anlamlı mesaj VAR, stack trace YOK doğrula', en: 'Verify the body HAS a meaningful message and NO stack trace' }, order: 4 },
         { id: '5', text: { tr: 'İç detay (SQL, yol, tablo) sızıntısı varsa güvenlik bug\'ı olarak raporla', en: 'If internals (SQL, path, table) leak, report a security bug' }, order: 5 },
       ],
       xpReward: 10,
@@ -2257,7 +2257,7 @@ public class GlobalExceptionHandler {
     },
     {
       type: 'quiz',
-      question: { tr: 'Bir API, hata durumunda yanıt gövdesinde tam stack trace ve SQL sorgusunu döndürüyor. Bu neden iki katmanlı bir problemdir?', en: 'On errors, an API returns the full stack trace and SQL query in the response body. Why is this a two-layer problem?' },
+      question: { tr: 'Bir API, hata durumunda response gövdesinde tam stack trace ve SQL sorgusunu döndürüyor. Bu neden iki katmanlı bir problemdir?', en: 'On errors, an API returns the full stack trace and SQL query in the response body. Why is this a two-layer problem?' },
       options: [
         { id: 'a', text: { tr: 'Problem değil, ayrıntı iyidir', en: 'Not a problem, detail is good' } },
         { id: 'b', text: { tr: 'Hem kötü hata sözleşmesi (istemci net mesaj alamaz) hem güvenlik sızıntısı (iç yapı/DB ifşa olur)', en: 'Both a bad error contract (client gets no clear message) and a security leak (internals/DB exposed)' } },
@@ -2288,7 +2288,7 @@ const B8 = {
       type: 'simple-box',
       emoji: '🔢',
       content: {
-        tr: '`ResponseEntity`, geliştiricinin **yanıtın tam kontrolünü** eline aldığı araçtır: sadece gövdeyi değil, status kodunu ve header\'ları da bilinçli seçer. Başarı bile tek bir kod değildir: **200 OK** = "işte sonuç" (GET), **201 Created** = "yeni kaynak oluşturdum, adresi de Location header\'ında" (POST), **204 No Content** = "yaptım ama dönecek gövde yok" (DELETE/bazı PUT). Peki hepsi "başarı" ise 200 dönsek olmaz mı, istemci nasılsa çalışır? Çoğu zaman "çalışır" ama sözleşme bozulur: bir POST 201 yerine 200 dönerse, istemci `Location` header\'ından yeni kaydın adresini alan otomasyon zinciri kırılır; bir DELETE 204 yerine 200 + boş gövde dönerse, gövdeyi ayrıştırmaya çalışan istemci hata verebilir. Java\'da bunun karşılığı `return bug;` (Spring 200 varsayar) ile `ResponseEntity.status(201).header("Location", ...).body(bug)` arasındaki bilinçli farktır. QA açısından status kodu **anlamsal bir sözleşmedir**: tester yalnızca "başarılı mı" değil, "DOĞRU başarı kodu mu" diye test eder — çünkü yanlış ama 2xx bir kod, istemci otomasyonlarını sessizce bozan bir contract hatasıdır.',
+        tr: '`ResponseEntity`, geliştiricinin **response\'un tam kontrolünü** eline aldığı araçtır: sadece gövdeyi değil, status kodunu ve header\'ları da bilinçli seçer. Başarı bile tek bir kod değildir: **200 OK** = "işte sonuç" (GET), **201 Created** = "yeni kaynak oluşturdum, adresi de Location header\'ında" (POST), **204 No Content** = "yaptım ama dönecek gövde yok" (DELETE/bazı PUT). Peki hepsi "başarı" ise 200 dönsek olmaz mı, istemci nasılsa çalışır? Çoğu zaman "çalışır" ama sözleşme bozulur: bir POST 201 yerine 200 dönerse, istemci `Location` header\'ından yeni kaydın adresini alan otomasyon zinciri kırılır; bir DELETE 204 yerine 200 + boş gövde dönerse, gövdeyi ayrıştırmaya çalışan istemci hata verebilir. Java\'da bunun karşılığı `return bug;` (Spring 200 varsayar) ile `ResponseEntity.status(201).header("Location", ...).body(bug)` arasındaki bilinçli farktır. QA açısından status kodu **anlamsal bir sözleşmedir**: tester yalnızca "başarılı mı" değil, "DOĞRU başarı kodu mu" diye test eder — çünkü yanlış ama 2xx bir kod, istemci otomasyonlarını sessizce bozan bir contract hatasıdır.',
         en: '`ResponseEntity` is the tool with which the developer takes **full control of the response**: it consciously chooses not just the body but the status code and headers. Even success is not a single code: **200 OK** = "here is the result" (GET), **201 Created** = "I created a new resource, its address is in the Location header" (POST), **204 No Content** = "I did it but there\'s no body to return" (DELETE/some PUT). But if all are "success", couldn\'t we just return 200 — the client works anyway? Often it "works" but the contract breaks: if a POST returns 200 instead of 201, an automation chain that reads the new record\'s address from the `Location` header breaks; if a DELETE returns 200 + empty body instead of 204, a client trying to parse the body may error. In Java the equivalent is the conscious difference between `return bug;` (Spring assumes 200) and `ResponseEntity.status(201).header("Location", ...).body(bug)`. In QA the status code is a **semantic contract**: the tester tests not just "did it succeed" but "is it the CORRECT success code" — because a wrong-but-2xx code is a contract defect that silently breaks client automations.',
       },
     },
@@ -2356,7 +2356,7 @@ public ResponseEntity<Void> delete(@PathVariable Long id) {
         { id: 'post', emoji: '📤', label: { tr: 'POST /bugs', en: 'POST /bugs' }, color: '#f59e0b' },
         { id: 'code201', emoji: '🏷️', label: { tr: '201 + Location', en: '201 + Location' }, color: '#22c55e' },
         { id: 'code200', emoji: '⚠️', label: { tr: '200 (Location yok)', en: '200 (no Location)' }, color: '#ef4444' },
-        { id: 'next', emoji: '🔗', label: { tr: 'Sonraki istek', en: 'Next request' }, color: '#0ea5e9' },
+        { id: 'next', emoji: '🔗', label: { tr: 'Sonraki request', en: 'Next request' }, color: '#0ea5e9' },
         { id: 'broken', emoji: '⛓️‍💥', label: { tr: 'Kırık zincir', en: 'Broken chain' }, color: '#a78bfa' },
       ],
       scenes: [
@@ -2377,7 +2377,7 @@ public ResponseEntity<Void> delete(@PathVariable Long id) {
           beams: [{ from: 'post', to: 'code200', color: '#ef4444' }],
         },
         {
-          caption: { tr: 'Sonraki istek Location\'dan adresi almaya çalışır ama header yok — zincir kırılır. Test "oluşturma başarısız" gibi görünmez, "sonraki adım null" der.', en: 'The next request tries to read the address from Location but there is none — the chain breaks. The test does not look like "create failed", it says "next step is null".' },
+          caption: { tr: 'Sonraki request Location\'dan adresi almaya çalışır ama header yok — zincir kırılır. Test "oluşturma başarısız" gibi görünmez, "sonraki adım null" der.', en: 'The next request tries to read the address from Location but there is none — the chain breaks. The test does not look like "create failed", it says "next step is null".' },
           positions: { code200: { x: 22, y: 40 }, next: { x: 45, y: 50 }, broken: { x: 72, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'next', to: 'broken', color: '#a78bfa' }],
         },
@@ -2530,7 +2530,7 @@ app.listen(PORT, () => {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `app.listen(...)` unutulursa**\n\n**Kod:** `app.get(...)` yazıldı, route tanımlandı, ama dosyanın sonunda `app.listen(PORT, ...)` satırı YOK.\n\n**Ne olur:** `node index.js` çalıştırılır, script hatasız biter, terminal sessizce komut istemine döner — hiçbir hata mesajı YOKTUR. Hiçbir port dinlenmediği için `curl http://localhost:3000/api/v1/bugs` `ECONNREFUSED` verir.\n\n**Neden sinsi:** Kodda syntax hatası yok, route doğru yazılmış, derleme/parse aşaması sorunsuz geçer. Bir stack trace bile yoktur — sadece "hiçbir şey olmaz". Yeni başlayan bir geliştirici bunu "sunucu çöktü" sanıp saatlerce route kodunda hata arayabilir.\n\n**Tester nerede yakalar:** Otomasyonun ilk isteğinde bağlantı reddi (`ECONNREFUSED`) alınca — bu GRUP J\'deki "sunucuya hiç ulaşılamıyor" hata kategorisinin köküdür.',
+        tr: '**🐞 Defect Doğum Anı — `app.listen(...)` unutulursa**\n\n**Kod:** `app.get(...)` yazıldı, route tanımlandı, ama dosyanın sonunda `app.listen(PORT, ...)` satırı YOK.\n\n**Ne olur:** `node index.js` çalıştırılır, script hatasız biter, terminal sessizce komut istemine döner — hiçbir hata mesajı YOKTUR. Hiçbir port dinlenmediği için `curl http://localhost:3000/api/v1/bugs` `ECONNREFUSED` verir.\n\n**Neden sinsi:** Kodda syntax hatası yok, route doğru yazılmış, derleme/parse aşaması sorunsuz geçer. Bir stack trace bile yoktur — sadece "hiçbir şey olmaz". Yeni başlayan bir geliştirici bunu "sunucu çöktü" sanıp saatlerce route kodunda hata arayabilir.\n\n**Tester nerede yakalar:** Otomasyonun ilk request\'inde bağlantı reddi (`ECONNREFUSED`) alınca — bu GRUP J\'deki "sunucuya hiç ulaşılamıyor" hata kategorisinin köküdür.',
         en: '**🐞 Defect Birth — if `app.listen(...)` is forgotten**\n\n**Code:** `app.get(...)` was written, the route is defined, but the file has no `app.listen(PORT, ...)` line at the end.\n\n**What happens:** `node index.js` runs, the script ends without error, the terminal silently returns to the prompt — there is NO error message. Because no port is listening, `curl http://localhost:3000/api/v1/bugs` returns `ECONNREFUSED`.\n\n**Why sneaky:** there is no syntax error, the route is written correctly, parsing passes cleanly. There is not even a stack trace — just "nothing happens". A beginner developer may assume "the server crashed" and hunt for bugs in the route code for hours.\n\n**Where the tester catches it:** on automation\'s very first request, getting a connection refusal (`ECONNREFUSED`) — this is the root of the "cannot reach the server at all" error category in GROUP J.',
       },
     },
@@ -2569,7 +2569,7 @@ app.listen(PORT, () => {
           beams: [{ from: 'route', to: 'listen', color: '#0ea5e9' }],
         },
         {
-          caption: { tr: 'Ders — `node index.js` hatasız bitmesi "çalışıyor" anlamına gelmez; tester ilk kanıtı gerçek bir istekle (`curl`/Postman) ister.', en: 'The lesson — `node index.js` ending without error does not mean "it works"; the tester wants the first proof from a real request (`curl`/Postman).' },
+          caption: { tr: 'Ders — `node index.js` hatasız bitmesi "çalışıyor" anlamına gelmez; tester ilk kanıtı gerçek bir request\'le (`curl`/Postman) ister.', en: 'The lesson — `node index.js` ending without error does not mean "it works"; the tester wants the first proof from a real request (`curl`/Postman).' },
           positions: { listen: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'listen', to: 'tester', color: '#8b5cf6' }],
         },
@@ -2577,11 +2577,11 @@ app.listen(PORT, () => {
     },
     {
       type: 'step-animation',
-      title: { tr: 'Boş Klasörden İlk Yanıta', en: 'From an Empty Folder to the First Response' },
+      title: { tr: 'Boş Klasörden İlk Response\'a', en: 'From an Empty Folder to the First Response' },
       steps: [
         { id: 1, icon: '📭', label: { tr: 'Proje aç…', en: 'Open project…' }, detail: { tr: 'npm init -y ile boş package.json oluştur, npm install express ile kütüphaneyi ekle.', en: 'Create an empty package.json with npm init -y, add the library with npm install express.' } },
         { id: 2, icon: '🛣️', label: { tr: 'Route yaz…', en: 'Write route…' }, detail: { tr: 'app.get(\'/api/v1/bugs\', ...) ile ilk yolu tanımla — bu henüz sunucuyu ayağa kaldırmaz.', en: 'Define the first path with app.get(\'/api/v1/bugs\', ...) — this does not start the server yet.' } },
-        { id: 3, icon: '👂', label: { tr: 'Dinlemeye başla…', en: 'Start listening…' }, detail: { tr: 'app.listen(PORT, ...) çağrısı olmadan hiçbir istek sunucuya ulaşamaz.', en: 'Without calling app.listen(PORT, ...) no request can ever reach the server.' } },
+        { id: 3, icon: '👂', label: { tr: 'Dinlemeye başla…', en: 'Start listening…' }, detail: { tr: 'app.listen(PORT, ...) çağrısı olmadan hiçbir request sunucuya ulaşamaz.', en: 'Without calling app.listen(PORT, ...) no request can ever reach the server.' } },
       ],
     },
     {
@@ -2594,7 +2594,7 @@ app.listen(PORT, () => {
         { id: '2', text: { tr: 'npm install express ile kütüphaneyi ekle', en: 'Add the library with npm install express' }, order: 2 },
         { id: '3', text: { tr: 'app.get(...) ile ilk route\'u tanımla', en: 'Define the first route with app.get(...)' }, order: 3 },
         { id: '4', text: { tr: 'app.listen(PORT, ...) ile sunucuyu başlat', en: 'Start the server with app.listen(PORT, ...)' }, order: 4 },
-        { id: '5', text: { tr: 'curl ile smoke test at, yanıt geldiğini doğrula', en: 'Run a smoke test with curl, verify a response arrives' }, order: 5 },
+        { id: '5', text: { tr: 'curl ile smoke test at, response geldiğini doğrula', en: 'Run a smoke test with curl, verify a response arrives' }, order: 5 },
       ],
       xpReward: 10,
     },
@@ -2623,15 +2623,15 @@ const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(\`Bugs API port \${PORT} dinliyor\`)
 })`,
-      hint: { tr: 'Route tanımlamak sunucuyu başlatmaz. Bir Express uygulamasının istek kabul edebilmesi için mutlaka `app.listen(port, callback)` çağrısı gerekir; bu satır yoksa süreç sessizce sonlanır.', en: 'Defining a route does not start the server. An Express app must call `app.listen(port, callback)` before it can accept requests; without this line the process ends silently.' },
-      successMessage: { tr: 'Doğru! Artık process sonlanmaz, port dinlenir ve curl/Postman gerçek bir yanıt alır.', en: 'Correct! Now the process does not exit, the port is listened on, and curl/Postman get a real response.' },
+      hint: { tr: 'Route tanımlamak sunucuyu başlatmaz. Bir Express uygulamasının request kabul edebilmesi için mutlaka `app.listen(port, callback)` çağrısı gerekir; bu satır yoksa süreç sessizce sonlanır.', en: 'Defining a route does not start the server. An Express app must call `app.listen(port, callback)` before it can accept requests; without this line the process ends silently.' },
+      successMessage: { tr: 'Doğru! Artık process sonlanmaz, port dinlenir ve curl/Postman gerçek bir response alır.', en: 'Correct! Now the process does not exit, the port is listened on, and curl/Postman get a real response.' },
     },
     {
       type: 'quiz',
       question: { tr: '`app.listen(PORT, ...)` çağrısı olmadan `node index.js` çalıştırılırsa ne olur?', en: 'What happens if `node index.js` is run without calling `app.listen(PORT, ...)`?' },
       options: [
         { id: 'a', text: { tr: 'Node bir syntax hatası fırlatır', en: 'Node throws a syntax error' } },
-        { id: 'b', text: { tr: 'Script sessizce biter; hiçbir port dinlenmez, istekler ECONNREFUSED alır', en: 'The script ends silently; no port is listened on, requests get ECONNREFUSED' } },
+        { id: 'b', text: { tr: 'Script sessizce biter; hiçbir port dinlenmez, request\'ler ECONNREFUSED alır', en: 'The script ends silently; no port is listened on, requests get ECONNREFUSED' } },
         { id: 'c', text: { tr: 'Route\'lar varsayılan olarak 80 portunda çalışır', en: 'Routes automatically run on port 80' } },
         { id: 'd', text: { tr: 'Express otomatik olarak boş bir port bulur', en: 'Express automatically finds an empty port' } },
       ],
@@ -2659,7 +2659,7 @@ const C2 = {
       type: 'simple-box',
       emoji: '🛣️',
       content: {
-        tr: 'Bir Express route\'u, otelde **oda numarası ve resepsiyon talimatı** gibidir: `app.get(\'/api/v1/bugs/:id\', ...)` yazdığında `:id` kısmı değişken bir "oda numarası" (path parameter), `?status=OPEN` gibi bir sorgu ise resepsiyona bırakılan bir "not" (query parameter) — biri **yolun kendisinin bir parçası**, diğeri **isteğe bağlı bir ek bilgi**dir. Spring\'de bu ikisi `@PathVariable` ve `@RequestParam` annotation\'larıyla imzada açıkça görünür; Express\'te ise `req.params.id` ve `req.query.status` ile fonksiyon gövdesinde elle okunur — annotation yerine sözleşme, fonksiyonun İÇİNDE yaşar. Peki neden bazı bilgi yola (`/bugs/42`), bazısı sorguya (`?status=OPEN`) konur? Çünkü yol bir **kaynağın kimliğini** taşır (42 numaralı bug olmadan bu istek anlamsızdır), sorgu ise bir **filtreleme/isteğe bağlı davranışı** taşır (status olmadan da liste isteği geçerlidir). Tester için bunun anlamı: `req.params` HER ZAMAN string gelir — JavaScript\'in tip sistemi zayıf olduğundan `"1" === 1` FALSE\'tur; bu, ID karşılaştırmalarında sinsi bir hata kaynağıdır ve az sonra göreceğin gibi gerçek bir defect doğurur.',
+        tr: 'Bir Express route\'u, otelde **oda numarası ve resepsiyon talimatı** gibidir: `app.get(\'/api/v1/bugs/:id\', ...)` yazdığında `:id` kısmı değişken bir "oda numarası" (path parameter), `?status=OPEN` gibi bir sorgu ise resepsiyona bırakılan bir "not" (query parameter) — biri **yolun kendisinin bir parçası**, diğeri **isteğe bağlı bir ek bilgi**dir. Spring\'de bu ikisi `@PathVariable` ve `@RequestParam` annotation\'larıyla imzada açıkça görünür; Express\'te ise `req.params.id` ve `req.query.status` ile fonksiyon gövdesinde elle okunur — annotation yerine sözleşme, fonksiyonun İÇİNDE yaşar. Peki neden bazı bilgi yola (`/bugs/42`), bazısı sorguya (`?status=OPEN`) konur? Çünkü yol bir **kaynağın kimliğini** taşır (42 numaralı bug olmadan bu request anlamsızdır), sorgu ise bir **filtreleme/isteğe bağlı davranışı** taşır (status olmadan da liste request\'i geçerlidir). Tester için bunun anlamı: `req.params` HER ZAMAN string gelir — JavaScript\'in tip sistemi zayıf olduğundan `"1" === 1` FALSE\'tur; bu, ID karşılaştırmalarında sinsi bir hata kaynağıdır ve az sonra göreceğin gibi gerçek bir defect doğurur.',
         en: 'An Express route is like a **room number and a note left at reception**: writing `app.get(\'/api/v1/bugs/:id\', ...)` makes `:id` a variable "room number" (path parameter), while something like `?status=OPEN` is a "note" left at reception (query parameter) — one is **part of the path itself**, the other is **optional extra information**. In Spring these two are visible right in the signature via `@PathVariable` and `@RequestParam`; in Express they are read by hand in the function body with `req.params.id` and `req.query.status` — the contract lives INSIDE the function instead of the annotation. So why does some information go in the path (`/bugs/42`) and some in the query (`?status=OPEN`)? Because the path carries a resource\'s **identity** (this request is meaningless without bug number 42), while the query carries **optional filtering/behavior** (a list request is still valid without status). For a tester this means: `req.params` ALWAYS arrives as a string — since JavaScript has weak typing, `"1" === 1` is FALSE; this is a sneaky source of bugs in ID comparisons, and, as you will see next, a real defect.',
       },
     },
@@ -2714,7 +2714,7 @@ app.get('/api/v1/bugs/:id', (req, res) => {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `req.params.id` tip dönüşümü unutulursa**\n\n**Kod:** `bugs.find(b => b.id === req.params.id)` — `b.id` bir **number** (1, 2, ...), `req.params.id` her zaman bir **string** (`"1"`, `"2"`, ...).\n\n**Ne olur:** `GET /api/v1/bugs/1` isteği gönderilir, kayıt VERİTABANINDA vardır, ama `1 === "1"` JavaScript\'te `false` olduğu için `find` hiçbir zaman eşleşme bulamaz — sonuç her zaman 404\'tür, kayıt var olsa bile.\n\n**Neden sinsi:** Kod okunduğunda mantık tamamen doğru görünür ("id\'leri karşılaştırıyoruz"). Hata bir syntax veya runtime exception değil, sessiz bir mantık hatasıdır — sadece testerin "bu ID kesinlikle var, neden 404 alıyorum?" diye şaşırmasıyla ortaya çıkar.\n\n**Tester nerede yakalar:** Var olduğu bilinen bir ID ile GET isteği atıp 200 yerine 404 alınca — bu, JS\'in zayıf tipleme tuzağının klasik bir örneğidir; düzeltme `Number(req.params.id)` ile tip dönüşümü yapmaktır.',
+        tr: '**🐞 Defect Doğum Anı — `req.params.id` tip dönüşümü unutulursa**\n\n**Kod:** `bugs.find(b => b.id === req.params.id)` — `b.id` bir **number** (1, 2, ...), `req.params.id` her zaman bir **string** (`"1"`, `"2"`, ...).\n\n**Ne olur:** `GET /api/v1/bugs/1` request\'i gönderilir, kayıt VERİTABANINDA vardır, ama `1 === "1"` JavaScript\'te `false` olduğu için `find` hiçbir zaman eşleşme bulamaz — sonuç her zaman 404\'tür, kayıt var olsa bile.\n\n**Neden sinsi:** Kod okunduğunda mantık tamamen doğru görünür ("id\'leri karşılaştırıyoruz"). Hata bir syntax veya runtime exception değil, sessiz bir mantık hatasıdır — sadece testerin "bu ID kesinlikle var, neden 404 alıyorum?" diye şaşırmasıyla ortaya çıkar.\n\n**Tester nerede yakalar:** Var olduğu bilinen bir ID ile GET request\'i atıp 200 yerine 404 alınca — bu, JS\'in zayıf tipleme tuzağının klasik bir örneğidir; düzeltme `Number(req.params.id)` ile tip dönüşümü yapmaktır.',
         en: '**🐞 Defect Birth — if the `req.params.id` type conversion is forgotten**\n\n**Code:** `bugs.find(b => b.id === req.params.id)` — `b.id` is a **number** (1, 2, ...), `req.params.id` always arrives as a **string** (`"1"`, `"2"`, ...).\n\n**What happens:** a `GET /api/v1/bugs/1` request is sent, the record EXISTS in the data, but since `1 === "1"` is `false` in JavaScript, `find` never matches — the result is always 404, even though the record exists.\n\n**Why sneaky:** reading the code, the logic looks entirely correct ("we are comparing IDs"). The failure is not a syntax or runtime exception, it is a silent logic bug — it only surfaces when a tester is confused: "this ID definitely exists, why am I getting 404?"\n\n**Where the tester catches it:** sending a GET request with a known-existing ID and getting 404 instead of 200 — a classic example of JavaScript\'s weak-typing trap; the fix is converting the type with `Number(req.params.id)`.',
       },
     },
@@ -2734,7 +2734,7 @@ app.get('/api/v1/bugs/:id', (req, res) => {
       ],
       scenes: [
         {
-          caption: { tr: 'İstemci `/api/v1/bugs/1` isteği gönderiyor — URL her zaman metin karakterlerinden oluşur.', en: 'The client sends a request to `/api/v1/bugs/1` — a URL is always made of text characters.' },
+          caption: { tr: 'İstemci `/api/v1/bugs/1` request\'i gönderiyor — URL her zaman metin karakterlerinden oluşur.', en: 'The client sends a request to `/api/v1/bugs/1` — a URL is always made of text characters.' },
           positions: { url: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
@@ -2808,8 +2808,8 @@ app.get('/api/v1/bugs/:id', (req, res) => {
       options: [
         { id: 'a', text: { tr: 'req.params.id string gelir, kayıttaki id number\'dır; === tip dönüşümü yapmadığı için eşleşmez', en: 'req.params.id arrives as a string, the record\'s id is a number; === does not coerce types so they never match' } },
         { id: 'b', text: { tr: 'Express 404\'ü rastgele üretir', en: 'Express generates 404 randomly' } },
-        { id: 'c', text: { tr: 'GET istekleri asla path parametresi kabul etmez', en: 'GET requests never accept path parameters' } },
-        { id: 'd', text: { tr: 'bugs dizisi her istekte sıfırlanır', en: 'The bugs array resets on every request' } },
+        { id: 'c', text: { tr: 'GET request\'leri asla path parametresi kabul etmez', en: 'GET requests never accept path parameters' } },
+        { id: 'd', text: { tr: 'bugs dizisi her request\'te sıfırlanır', en: 'The bugs array resets on every request' } },
       ],
       correct: 'a',
       explanation: { tr: 'JavaScript\'in `===` operatörü tip dönüşümü yapmaz; `"1" === 1` daima `false`\'tur. `req.params` her zaman string olduğundan, sayısal `id` alanıyla dönüşümsüz karşılaştırma sessizce başarısız olur ve `find` hiçbir zaman eşleşme bulamaz.', en: 'JavaScript\'s `===` operator does not coerce types; `"1" === 1` is always `false`. Since `req.params` is always a string, comparing it against a numeric `id` field without conversion silently fails, and `find` never matches.' },
@@ -2818,11 +2818,11 @@ app.get('/api/v1/bugs/:id', (req, res) => {
         options: [
           { id: 'a', text: { tr: 'params yolun bir parçasıdır (kaynak kimliği), query isteğe bağlı filtre/ek bilgidir', en: 'params is part of the path (resource identity), query is optional filter/extra info' } },
           { id: 'b', text: { tr: 'İkisi de aynı şeydir, birbirinin yerine kullanılabilir', en: 'They are the same thing and interchangeable' } },
-          { id: 'c', text: { tr: 'params sadece POST isteklerinde, query sadece GET isteklerinde çalışır', en: 'params only works on POST requests, query only on GET requests' } },
+          { id: 'c', text: { tr: 'params sadece POST request\'lerinde, query sadece GET request\'lerinde çalışır', en: 'params only works on POST requests, query only on GET requests' } },
           { id: 'd', text: { tr: 'query her zaman sayı, params her zaman metin döner', en: 'query always returns a number, params always returns text' } },
         ],
         correct: 'a',
-        explanation: { tr: '`/bugs/:id` gibi bir path parametresi kaynağın kimliğini taşır — onsuz istek anlamsızdır. `?status=OPEN` gibi bir query parametresi ise isteğe bağlı bir filtre/davranıştır — olmadan da istek geçerlidir.', en: 'A path parameter like `/bugs/:id` carries a resource\'s identity — the request is meaningless without it. A query parameter like `?status=OPEN` is an optional filter/behavior — the request is still valid without it.' },
+        explanation: { tr: '`/bugs/:id` gibi bir path parametresi kaynağın kimliğini taşır — onsuz request anlamsızdır. `?status=OPEN` gibi bir query parametresi ise isteğe bağlı bir filtre/davranıştır — olmadan da request geçerlidir.', en: 'A path parameter like `/bugs/:id` carries a resource\'s identity — the request is meaningless without it. A query parameter like `?status=OPEN` is an optional filter/behavior — the request is still valid without it.' },
       },
     },
   ],
@@ -2835,7 +2835,7 @@ const C3 = {
       type: 'simple-box',
       emoji: '⛓️',
       content: {
-        tr: 'Middleware zinciri, bir **havalimanı güvenlik koridoru** gibidir: yolcu (istek) sırayla check-in, bagaj taraması, pasaport kontrolü kontrol noktalarından geçer; her kontrol noktası (`function(req, res, next)`) yolcuyu inceleyebilir, üzerine bir şey ekleyebilir (bagaj etiketi) veya durdurabilir — ve bir sonraki noktaya SADECE `next()` çağrılırsa geçilir. `express.json()` de tam olarak böyle bir kontrol noktasıdır: gelen JSON gövdesini okuyup `req.body`\'ye "etiketler", route handler\'a devretmeden önce. Peki Spring\'de bu iş neden tek bir `@RequestBody` annotation\'ıyla otomatik olurken Express\'te ayrı bir adım gerekiyor? Çünkü Spring MVC\'nin arkasında hazır bir istek işleme hattı (dispatcher servlet) vardır ve gövde ayrıştırma bu hattın standart bir parçasıdır; Express\'te böyle bir hat YOKTUR — sen zinciri elle, sırayla kurarsın; en yakın Java karşılığı Servlet **Filter** zinciridir (her filter `chain.doFilter()` çağırana kadar bir sonrakine geçilmez). Tester için kritik nokta: middleware\'lerin SIRASI davranışı belirler — `express.json()` route\'lardan sonra tanımlanırsa, route\'lar asla ayrıştırılmış bir gövde göremez; bu, "kod doğru ama sıra yanlış" kategorisindeki en sinsi hata türüdür.',
+        tr: 'Middleware zinciri, bir **havalimanı güvenlik koridoru** gibidir: yolcu (request) sırayla check-in, bagaj taraması, pasaport kontrolü kontrol noktalarından geçer; her kontrol noktası (`function(req, res, next)`) yolcuyu inceleyebilir, üzerine bir şey ekleyebilir (bagaj etiketi) veya durdurabilir — ve bir sonraki noktaya SADECE `next()` çağrılırsa geçilir. `express.json()` de tam olarak böyle bir kontrol noktasıdır: gelen JSON gövdesini okuyup `req.body`\'ye "etiketler", route handler\'a devretmeden önce. Peki Spring\'de bu iş neden tek bir `@RequestBody` annotation\'ıyla otomatik olurken Express\'te ayrı bir adım gerekiyor? Çünkü Spring MVC\'nin arkasında hazır bir request işleme hattı (dispatcher servlet) vardır ve gövde ayrıştırma bu hattın standart bir parçasıdır; Express\'te böyle bir hat YOKTUR — sen zinciri elle, sırayla kurarsın; en yakın Java karşılığı Servlet **Filter** zinciridir (her filter `chain.doFilter()` çağırana kadar bir sonrakine geçilmez). Tester için kritik nokta: middleware\'lerin SIRASI davranışı belirler — `express.json()` route\'lardan sonra tanımlanırsa, route\'lar asla ayrıştırılmış bir gövde göremez; bu, "kod doğru ama sıra yanlış" kategorisindeki en sinsi hata türüdür.',
         en: 'A middleware chain is like an **airport security corridor**: a passenger (request) passes through check-in, baggage scan, and passport control in order; each checkpoint (`function(req, res, next)`) can inspect the passenger, attach something (a baggage tag), or stop them — and moving to the next checkpoint happens ONLY if `next()` is called. `express.json()` is exactly such a checkpoint: it reads the incoming JSON body and "tags" it onto `req.body` before handing off to the route handler. So why does Spring do this automatically with a single `@RequestBody` annotation while Express needs a separate step? Because behind Spring MVC there is a ready-made request-processing pipeline (the dispatcher servlet) and body parsing is a standard part of that pipeline; Express has NO such pipeline — you build the chain by hand, in order; the closest Java equivalent is the Servlet **Filter** chain (each filter blocks the next until `chain.doFilter()` is called). The critical point for a tester: the ORDER of middleware determines behavior — if `express.json()` is defined after the routes, the routes never see a parsed body; this is the sneakiest kind of bug, the "code is correct but the order is wrong" category.',
       },
     },
@@ -2854,7 +2854,7 @@ app.use(express.json())
 // Middleware 2: her istegi loglar, sonra next() ile devreder
 app.use((req, res, next) => {
   console.log(\`\${req.method} \${req.path}\`)
-  next()   // cagrilmazsa istek burada TAKILIR KALIR
+  next()   // cagrilmazsa request burada TAKILIR KALIR
 })
 
 // Route: zincirin en sonunda, artik req.body dolu gelir
@@ -2886,7 +2886,7 @@ app.post('/api/v1/bugs', (req, res) => {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `express.json()` route\'lardan SONRA tanımlanırsa**\n\n**Kod:** `app.post(\'/api/v1/bugs\', ...)` önce, `app.use(express.json())` en altta.\n\n**Ne olur:** `POST /api/v1/bugs { "title": "...", "severity": "HIGH" }` isteği gönderilir; handler çalıştığında `req.body` HÂLÂ `undefined`\'dır çünkü ayrıştırıcı middleware zincirde daha SONRAKI bir noktada. `const { title, severity } = req.body` çökmez (destructuring `undefined`\'dan `undefined` üretir), sunucu `201 Created` döner ama `title: undefined, severity: undefined` ile bir kayıt oluşturulur.\n\n**Neden sinsi:** İstek 201 ile "başarılı" görünür, sunucu çökmez, hata log\'u yoktur — ama veritabanında (bellekte) tamamen boş bir bug kaydı oluşur. Kodun KENDİSİ (`express.json()` çağrısı) doğrudur, tek sorun SIRASIDIR.\n\n**Tester nerede yakalar:** POST sonrası dönen kaydı GET ile tekrar okuyup `title` alanının `null`/`undefined` geldiğini görünce — bu, "201 aldım ama içerik boş" sınıfındaki en klasik middleware sıralama hatasıdır.',
+        tr: '**🐞 Defect Doğum Anı — `express.json()` route\'lardan SONRA tanımlanırsa**\n\n**Kod:** `app.post(\'/api/v1/bugs\', ...)` önce, `app.use(express.json())` en altta.\n\n**Ne olur:** `POST /api/v1/bugs { "title": "...", "severity": "HIGH" }` request\'i gönderilir; handler çalıştığında `req.body` HÂLÂ `undefined`\'dır çünkü ayrıştırıcı middleware zincirde daha SONRAKI bir noktada. `const { title, severity } = req.body` çökmez (destructuring `undefined`\'dan `undefined` üretir), sunucu `201 Created` döner ama `title: undefined, severity: undefined` ile bir kayıt oluşturulur.\n\n**Neden sinsi:** Request 201 ile "başarılı" görünür, sunucu çökmez, hata log\'u yoktur — ama veritabanında (bellekte) tamamen boş bir bug kaydı oluşur. Kodun KENDİSİ (`express.json()` çağrısı) doğrudur, tek sorun SIRASIDIR.\n\n**Tester nerede yakalar:** POST sonrası dönen kaydı GET ile tekrar okuyup `title` alanının `null`/`undefined` geldiğini görünce — bu, "201 aldım ama içerik boş" sınıfındaki en klasik middleware sıralama hatasıdır.',
         en: '**🐞 Defect Birth — if `express.json()` is defined AFTER the routes**\n\n**Code:** `app.post(\'/api/v1/bugs\', ...)` comes first, `app.use(express.json())` sits at the bottom.\n\n**What happens:** a `POST /api/v1/bugs { "title": "...", "severity": "HIGH" }` request is sent; when the handler runs, `req.body` is STILL `undefined` because the parser middleware sits LATER in the chain. `const { title, severity } = req.body` does not crash (destructuring `undefined` yields `undefined`), the server returns `201 Created` but creates a record with `title: undefined, severity: undefined`.\n\n**Why sneaky:** the request looks "successful" with 201, the server does not crash, there is no error log — yet an entirely empty bug record is created in the data store. The code ITSELF (the `express.json()` call) is correct, the only problem is its ORDER.\n\n**Where the tester catches it:** reading the record back with a GET after the POST and seeing `title` come back as `null`/`undefined` — this is the classic "got 201 but the content is empty" middleware-ordering bug.',
       },
     },
@@ -2898,7 +2898,7 @@ app.post('/api/v1/bugs', (req, res) => {
       sceneDurationMs: 3400,
       stageHeight: 280,
       actors: [
-        { id: 'request', emoji: '📤', label: { tr: 'POST isteği', en: 'POST request' }, color: '#f59e0b' },
+        { id: 'request', emoji: '📤', label: { tr: 'POST request', en: 'POST request' }, color: '#f59e0b' },
         { id: 'json', emoji: '📦', label: { tr: 'express.json()', en: 'express.json()' }, color: '#0ea5e9' },
         { id: 'logger', emoji: '📝', label: { tr: 'Logger middleware', en: 'Logger middleware' }, color: '#a78bfa' },
         { id: 'route', emoji: '🛣️', label: { tr: 'Route handler', en: 'Route handler' }, color: '#22c55e' },
@@ -2907,16 +2907,16 @@ app.post('/api/v1/bugs', (req, res) => {
       ],
       scenes: [
         {
-          caption: { tr: 'İstemci `POST /api/v1/bugs` isteğini `{ "title": "Login donuyor", "severity": "HIGH" }` gövdesiyle gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with the body `{ "title": "Login freezes", "severity": "HIGH" }`.' },
+          caption: { tr: 'İstemci `POST /api/v1/bugs` request\'ini `{ "title": "Login donuyor", "severity": "HIGH" }` gövdesiyle gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with the body `{ "title": "Login freezes", "severity": "HIGH" }`.' },
           positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
-          caption: { tr: 'DOĞRU SIRADA: istek önce `express.json()`\'a uğrar — ham JSON metni ayrıştırılıp `req.body` nesnesine dönüştürülür.', en: 'IN THE CORRECT ORDER: the request first hits `express.json()` — the raw JSON text is parsed into the `req.body` object.' },
+          caption: { tr: 'DOĞRU SIRADA: request önce `express.json()`\'a uğrar — ham JSON metni ayrıştırılıp `req.body` nesnesine dönüştürülür.', en: 'IN THE CORRECT ORDER: the request first hits `express.json()` — the raw JSON text is parsed into the `req.body` object.' },
           positions: { request: { x: 18, y: 35 }, json: { x: 55, y: 50, scale: 1.2, pulse: true } },
           beams: [{ from: 'request', to: 'json', color: '#0ea5e9' }],
         },
         {
-          caption: { tr: 'Sonra logger middleware isteği loglar ve `next()` ile bir sonraki halkaya devreder — zincir kırılmadan devam eder.', en: 'Then the logger middleware logs the request and hands off with `next()` to the next link — the chain continues unbroken.' },
+          caption: { tr: 'Sonra logger middleware request\'i loglar ve `next()` ile bir sonraki halkaya devreder — zincir kırılmadan devam eder.', en: 'Then the logger middleware logs the request and hands off with `next()` to the next link — the chain continues unbroken.' },
           positions: { json: { x: 18, y: 35 }, logger: { x: 55, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'json', to: 'logger', color: '#a78bfa' }],
         },
@@ -2943,11 +2943,11 @@ app.post('/api/v1/bugs', (req, res) => {
     },
     {
       type: 'step-animation',
-      title: { tr: 'Bir POST İsteğinin Zincirdeki Yolculuğu', en: 'A POST Request\'s Journey Through the Chain' },
+      title: { tr: 'Bir POST Request\'inin Zincirdeki Yolculuğu', en: 'A POST Request\'s Journey Through the Chain' },
       steps: [
-        { id: 1, icon: '📤', label: { tr: 'İstek gelir…', en: 'Request arrives…' }, detail: { tr: 'Ham HTTP isteği (JSON metin gövdeli) Express\'e ulaşır.', en: 'The raw HTTP request (with a JSON text body) reaches Express.' } },
+        { id: 1, icon: '📤', label: { tr: 'Request gelir…', en: 'Request arrives…' }, detail: { tr: 'Ham HTTP request\'i (JSON metin gövdeli) Express\'e ulaşır.', en: 'The raw HTTP request (with a JSON text body) reaches Express.' } },
         { id: 2, icon: '📦', label: { tr: 'express.json() çalışır…', en: 'express.json() runs…' }, detail: { tr: 'Ham metni ayrıştırıp req.body\'ye JavaScript nesnesi olarak koyar; next() ile devreder.', en: 'It parses the raw text and places it on req.body as a JavaScript object; hands off with next().' } },
-        { id: 3, icon: '📝', label: { tr: 'Logger çalışır…', en: 'Logger runs…' }, detail: { tr: 'İsteği kaydeder, next() ile bir sonraki halkaya geçer.', en: 'It logs the request, moves to the next link with next().' } },
+        { id: 3, icon: '📝', label: { tr: 'Logger çalışır…', en: 'Logger runs…' }, detail: { tr: 'Request\'i kaydeder, next() ile bir sonraki halkaya geçer.', en: 'It logs the request, moves to the next link with next().' } },
         { id: 4, icon: '🛣️', label: { tr: 'Route handler çalışır…', en: 'Route handler runs…' }, detail: { tr: 'req.body artık doludur — zincirin SIRASI doğruysa handler doğru veriyi görür.', en: 'req.body is now filled — if the chain\'s ORDER is correct, the handler sees the right data.' } },
       ],
     },
@@ -3000,20 +3000,20 @@ app.post('/api/v1/bugs', (req, res) => {
         { id: 'a', text: { tr: 'Sunucu 500 hatasıyla çöker', en: 'The server crashes with a 500 error' } },
         { id: 'b', text: { tr: 'req.body undefined kalır; destructuring da undefined üretir, sunucu 201 ile boş kayıt oluşturur', en: 'req.body stays undefined; destructuring also yields undefined, the server creates an empty record with 201' } },
         { id: 'c', text: { tr: 'Express otomatik olarak sırayı düzeltir', en: 'Express automatically fixes the order' } },
-        { id: 'd', text: { tr: 'İstek 400 Bad Request ile reddedilir', en: 'The request is rejected with 400 Bad Request' } },
+        { id: 'd', text: { tr: 'Request 400 Bad Request ile reddedilir', en: 'The request is rejected with 400 Bad Request' } },
       ],
       correct: 'b',
       explanation: { tr: 'Middleware\'ler kayıt sırasına göre çalışır. Ayrıştırıcı henüz çalışmamışsa `req.body` `undefined` kalır; `const { title } = undefined` çökmeden `undefined` üretir, bu yüzden sunucu 201 ile ama tamamen boş alanlarla bir kayıt oluşturur — sessiz bir veri bütünlüğü hatası.', en: 'Middlewares run in registration order. If the parser has not run yet, `req.body` stays `undefined`; `const { title } = undefined` yields `undefined` without crashing, so the server creates a record with 201 but entirely empty fields — a silent data-integrity bug.' },
       retryQuestion: {
         question: { tr: 'Bir middleware fonksiyonu `next()` çağırmazsa ne olur?', en: 'What happens if a middleware function never calls `next()`?' },
         options: [
-          { id: 'a', text: { tr: 'İstek o middleware\'de takılı kalır, zincirdeki sonraki adım hiç çalışmaz', en: 'The request gets stuck at that middleware, the next step in the chain never runs' } },
+          { id: 'a', text: { tr: 'Request o middleware\'de takılı kalır, zincirdeki sonraki adım hiç çalışmaz', en: 'The request gets stuck at that middleware, the next step in the chain never runs' } },
           { id: 'b', text: { tr: 'Express otomatik olarak bir sonraki middleware\'e geçer', en: 'Express automatically moves to the next middleware' } },
-          { id: 'c', text: { tr: 'İstek 200 ile hemen tamamlanır', en: 'The request completes immediately with 200' } },
+          { id: 'c', text: { tr: 'Request 200 ile hemen tamamlanır', en: 'The request completes immediately with 200' } },
           { id: 'd', text: { tr: 'Sunucu yeniden başlatılır', en: 'The server restarts' } },
         ],
         correct: 'a',
-        explanation: { tr: '`next()` çağrılmazsa Express bir sonraki middleware/route\'a geçmez — istek o noktada asılı kalır ve sonunda zaman aşımına uğrayabilir. Bu, unutulan bir `next()` çağrısının neden ciddi bir kesinti sebebi olduğunu açıklar.', en: 'Without calling `next()`, Express never proceeds to the next middleware/route — the request hangs at that point and may eventually time out. This explains why a forgotten `next()` call is a serious source of outages.' },
+        explanation: { tr: '`next()` çağrılmazsa Express bir sonraki middleware/route\'a geçmez — request o noktada asılı kalır ve sonunda zaman aşımına uğrayabilir. Bu, unutulan bir `next()` çağrısının neden ciddi bir kesinti sebebi olduğunu açıklar.', en: 'Without calling `next()`, Express never proceeds to the next middleware/route — the request hangs at that point and may eventually time out. This explains why a forgotten `next()` call is a serious source of outages.' },
       },
     },
   ],
@@ -3077,7 +3077,7 @@ app.post(
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `validationResult(req)` kontrolü unutulursa**\n\n**Kod:** `body(\'title\').isLength(...)` kuralları TANIMLANDI, ama handler içinde `validationResult(req)` çağrısı ve `if (!errors.isEmpty())` kontrolü YOK.\n\n**Ne olur:** `express-validator` kuralları arka planda ÇALIŞIR ve hataları biriktirir, ama hiç kimse bu sonucu OKUMADIĞI için hatalar sessizce göz ardı edilir. `POST /api/v1/bugs { "title": "" }` isteği 400 yerine 201 döner ve boş başlıklı bug kaydedilir.\n\n**Neden sinsi:** Kod incelendiğinde validation kuralları GERÇEKTEN oradadır — bir code review\'da "validation var" denip geçilebilir. Ama kural TANIMLAMAK ile kuralın SONUCUNU okumak iki ayrı adımdır; ilkini yapıp ikincisini unutmak, Spring\'deki `starter-validation` eksikliğinden (B1) FARKLI bir kök nedenle AYNI sonucu (sessiz 201) doğurur.\n\n**Tester nerede yakalar:** Geçersiz veriyle (boş title, geçersiz e-posta) negatif test atıp 201 alınca — "kural var ama okunmuyor" defect ailesinin Express\'teki karşılığı budur.',
+        tr: '**🐞 Defect Doğum Anı — `validationResult(req)` kontrolü unutulursa**\n\n**Kod:** `body(\'title\').isLength(...)` kuralları TANIMLANDI, ama handler içinde `validationResult(req)` çağrısı ve `if (!errors.isEmpty())` kontrolü YOK.\n\n**Ne olur:** `express-validator` kuralları arka planda ÇALIŞIR ve hataları biriktirir, ama hiç kimse bu sonucu OKUMADIĞI için hatalar sessizce göz ardı edilir. `POST /api/v1/bugs { "title": "" }` request\'i 400 yerine 201 döner ve boş başlıklı bug kaydedilir.\n\n**Neden sinsi:** Kod incelendiğinde validation kuralları GERÇEKTEN oradadır — bir code review\'da "validation var" denip geçilebilir. Ama kural TANIMLAMAK ile kuralın SONUCUNU okumak iki ayrı adımdır; ilkini yapıp ikincisini unutmak, Spring\'deki `starter-validation` eksikliğinden (B1) FARKLI bir kök nedenle AYNI sonucu (sessiz 201) doğurur.\n\n**Tester nerede yakalar:** Geçersiz veriyle (boş title, geçersiz e-posta) negatif test atıp 201 alınca — "kural var ama okunmuyor" defect ailesinin Express\'teki karşılığı budur.',
         en: '**🐞 Defect Birth — if the `validationResult(req)` check is forgotten**\n\n**Code:** `body(\'title\').isLength(...)` rules WERE defined, but the handler has no `validationResult(req)` call and no `if (!errors.isEmpty())` check.\n\n**What happens:** `express-validator` rules RUN in the background and collect errors, but since nobody READS the result, the errors are silently ignored. A `POST /api/v1/bugs { "title": "" }` request returns 201 instead of 400 and an empty-title bug gets saved.\n\n**Why sneaky:** on inspection the validation rules are REALLY there — a code review might say "validation exists" and move on. But DEFINING a rule and READING its result are two separate steps; doing the first and forgetting the second produces the SAME outcome (silent 201) from a DIFFERENT root cause than the missing `starter-validation` in Spring (B1).\n\n**Where the tester catches it:** sending invalid data (empty title, invalid email) as a negative test and getting 201 — this is the Express counterpart of the "rule exists but is never read" defect family.',
       },
     },
@@ -3101,7 +3101,7 @@ app.post(
           positions: { rules: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
-          caption: { tr: 'İstek geldiğinde bu kural gerçekten ÇALIŞIR ve `title` alanını kontrol eder.', en: 'When a request arrives, this rule REALLY RUNS and checks the `title` field.' },
+          caption: { tr: 'Request geldiğinde bu kural gerçekten ÇALIŞIR ve `title` alanını kontrol eder.', en: 'When a request arrives, this rule REALLY RUNS and checks the `title` field.' },
           positions: { rules: { x: 20, y: 40 }, run: { x: 58, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'rules', to: 'run', color: '#0ea5e9' }],
         },
@@ -3127,7 +3127,7 @@ app.post(
       title: { tr: 'Kural Tanımlamaktan Reddetmeye', en: 'From Defining a Rule to Rejecting a Request' },
       steps: [
         { id: 1, icon: '📋', label: { tr: 'Kuralı tanımla…', en: 'Define the rule…' }, detail: { tr: 'body(\'title\').isLength({min:3,max:120}) gibi kurallar route zincirine eklenir.', en: 'Rules like body(\'title\').isLength({min:3,max:120}) are added to the route chain.' } },
-        { id: 2, icon: '⚙️', label: { tr: 'Kural çalışsın…', en: 'Let the rule run…' }, detail: { tr: 'İstek geldiğinde her kural otomatik çalışır ve hataları errors nesnesinde biriktirir.', en: 'When a request arrives, every rule runs automatically and collects errors into the errors object.' } },
+        { id: 2, icon: '⚙️', label: { tr: 'Kural çalışsın…', en: 'Let the rule run…' }, detail: { tr: 'Request geldiğinde her kural otomatik çalışır ve hataları errors nesnesinde biriktirir.', en: 'When a request arrives, every rule runs automatically and collects errors into the errors object.' } },
         { id: 3, icon: '📖', label: { tr: 'Sonucu OKU…', en: 'READ the result…' }, detail: { tr: 'validationResult(req) ile errors okunur; boş değilse handler 400 ile erken döner.', en: 'validationResult(req) reads the errors; if not empty, the handler returns 400 early.' } },
       ],
     },
@@ -3135,10 +3135,10 @@ app.post(
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-c4-order-01',
-      question: { tr: 'express-validator ile bir POST isteğini doğrulama akışını sırala.', en: 'Order the flow for validating a POST request with express-validator.' },
+      question: { tr: 'express-validator ile bir POST request\'ini doğrulama akışını sırala.', en: 'Order the flow for validating a POST request with express-validator.' },
       items: [
         { id: '1', text: { tr: 'body(\'title\').isLength(...) gibi kuralları route zincirine ekle', en: 'Add rules like body(\'title\').isLength(...) to the route chain' }, order: 1 },
-        { id: '2', text: { tr: 'İstek gelince kurallar otomatik çalışır', en: 'Rules run automatically when the request arrives' }, order: 2 },
+        { id: '2', text: { tr: 'Request gelince kurallar otomatik çalışır', en: 'Rules run automatically when the request arrives' }, order: 2 },
         { id: '3', text: { tr: 'Handler icinde validationResult(req) cagir', en: 'Call validationResult(req) inside the handler' }, order: 3 },
         { id: '4', text: { tr: 'errors.isEmpty() false ise 400 ile erken don', en: 'If errors.isEmpty() is false, return early with 400' }, order: 4 },
         { id: '5', text: { tr: 'Hata yoksa req.body ile kaydı oluştur, 201 dön', en: 'If no errors, create the record with req.body, return 201' }, order: 5 },
@@ -3181,7 +3181,7 @@ app.post(
         { id: 'a', text: { tr: 'express-validator kuralı otomatik uygular, ekstra kod gerekmez', en: 'express-validator enforces the rule automatically, no extra code needed' } },
         { id: 'b', text: { tr: 'Kural arka planda çalışır ama sonucu okunmadığı için etkisizdir; geçersiz veri de 201 alır', en: 'The rule runs in the background but has no effect since its result is never read; invalid data also gets 201' } },
         { id: 'c', text: { tr: 'Sunucu başlatılamaz', en: 'The server fails to start' } },
-        { id: 'd', text: { tr: 'İstek otomatik olarak reddedilir', en: 'The request is automatically rejected' } },
+        { id: 'd', text: { tr: 'Request otomatik olarak reddedilir', en: 'The request is automatically rejected' } },
       ],
       correct: 'b',
       explanation: { tr: 'express-validator kuralları middleware zincirinde çalışıp hataları biriktirir, ama bu hataları OKUYUP karar veren kod SENDEN beklenir. `validationResult(req)` çağrılmazsa, biriken hatalar hiçbir zaman handler\'ın davranışını etkilemez.', en: 'express-validator rules run in the middleware chain and collect errors, but the code that READS those errors and decides is expected FROM YOU. Without calling `validationResult(req)`, the collected errors never affect the handler\'s behavior.' },
@@ -3190,7 +3190,7 @@ app.post(
         options: [
           { id: 'a', text: { tr: '@Valid framework tarafından otomatik tetiklenir; express-validator\'da sonucu OKUMAK geliştiricinin sorumluluğudur', en: '@Valid is triggered automatically by the framework; in express-validator, READING the result is the developer\'s responsibility' } },
           { id: 'b', text: { tr: 'İkisi de tamamen otomatiktir, fark yoktur', en: 'Both are fully automatic, there is no difference' } },
-          { id: 'c', text: { tr: '@Valid sadece GET isteklerinde çalışır', en: '@Valid only works on GET requests' } },
+          { id: 'c', text: { tr: '@Valid sadece GET request\'lerinde çalışır', en: '@Valid only works on GET requests' } },
           { id: 'd', text: { tr: 'express-validator veritabanı doğrulaması yapar, @Valid yapmaz', en: 'express-validator does database validation, @Valid does not' } },
         ],
         correct: 'a',
@@ -3252,7 +3252,7 @@ app.use((err, req, res, next) => {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — hata yakalayıcı middleware route\'lardan ÖNCE tanımlanırsa**\n\n**Kod:** 4 parametreli `(err, req, res, next)` middleware\'i dosyanın EN ÜSTÜNE, route tanımlarından önce konmuş.\n\n**Ne olur:** `GET /api/v1/bugs/999` (var olmayan id) isteği atılır; route içinde `next({status:404, ...})` çağrılır ama Express, kayıt SIRASINDA bu noktadan SONRA gelen bir hata middleware\'i arar — geriye doğru bakmaz. Hiçbiri bulunamadığı için Express kendi VARSAYILAN hata sayfasını (HTML, stack trace içeren) döner.\n\n**Neden sinsi:** Geliştirici "hata yakalayıcımı yazdım" der ve code review\'dan geçer — kod GERÇEKTEN doğru yazılmıştır, sadece dosyadaki KONUMU yanlıştır. Sonuç, beklenen `{"error": "Bug bulunamadi"}` JSON\'u yerine HTML bir hata sayfasıdır.\n\n**Tester nerede yakalar:** Otomasyon `response.json()` ile gövdeyi ayrıştırmaya çalıştığında `SyntaxError: Unexpected token \'<\'` alınca — HTML\'i JSON sanıp parse etmeye çalışmak, bu hata sınıfının imzasıdır (bkz. GRUP J).',
+        tr: '**🐞 Defect Doğum Anı — hata yakalayıcı middleware route\'lardan ÖNCE tanımlanırsa**\n\n**Kod:** 4 parametreli `(err, req, res, next)` middleware\'i dosyanın EN ÜSTÜNE, route tanımlarından önce konmuş.\n\n**Ne olur:** `GET /api/v1/bugs/999` (var olmayan id) request\'i atılır; route içinde `next({status:404, ...})` çağrılır ama Express, kayıt SIRASINDA bu noktadan SONRA gelen bir hata middleware\'i arar — geriye doğru bakmaz. Hiçbiri bulunamadığı için Express kendi VARSAYILAN hata sayfasını (HTML, stack trace içeren) döner.\n\n**Neden sinsi:** Geliştirici "hata yakalayıcımı yazdım" der ve code review\'dan geçer — kod GERÇEKTEN doğru yazılmıştır, sadece dosyadaki KONUMU yanlıştır. Sonuç, beklenen `{"error": "Bug bulunamadi"}` JSON\'u yerine HTML bir hata sayfasıdır.\n\n**Tester nerede yakalar:** Otomasyon `response.json()` ile gövdeyi ayrıştırmaya çalıştığında `SyntaxError: Unexpected token \'<\'` alınca — HTML\'i JSON sanıp parse etmeye çalışmak, bu hata sınıfının imzasıdır (bkz. GRUP J).',
         en: '**🐞 Defect Birth — if the error-catching middleware is defined BEFORE the routes**\n\n**Code:** the 4-parameter `(err, req, res, next)` middleware was placed at the VERY TOP of the file, before the route definitions.\n\n**What happens:** a `GET /api/v1/bugs/999` request (a non-existent id) is sent; the route calls `next({status:404, ...})`, but Express looks for an error middleware that comes AFTER this point in registration order — it never looks backward. Since none is found, Express returns its own DEFAULT error page (HTML, containing a stack trace).\n\n**Why sneaky:** the developer says "I wrote my error handler" and it passes code review — the code IS genuinely correct, only its POSITION in the file is wrong. The result is an HTML error page instead of the expected `{"error": "Bug not found"}` JSON.\n\n**Where the tester catches it:** when automation tries to parse the body with `response.json()` and gets `SyntaxError: Unexpected token \'<\'` — mistaking HTML for JSON and trying to parse it is the signature of this error class (see GROUP J).',
       },
     },
@@ -3371,7 +3371,7 @@ app.use((err, req, res, next) => {
           { id: 'a', text: { tr: 'Express ona asla ulaşamaz; hatalar kendi varsayılan HTML sayfasına düşer', en: 'Express never reaches it; errors fall back to its own default HTML page' } },
           { id: 'b', text: { tr: 'Express konumdan bağımsız her zaman bulur', en: 'Express always finds it regardless of position' } },
           { id: 'c', text: { tr: 'Uygulama başlarken hata verir', en: 'The application throws an error on startup' } },
-          { id: 'd', text: { tr: 'Sadece POST isteklerinde çalışmaz', en: 'It only fails to work for POST requests' } },
+          { id: 'd', text: { tr: 'Sadece POST request\'lerinde çalışmaz', en: 'It only fails to work for POST requests' } },
         ],
         correct: 'a',
         explanation: { tr: 'Express middleware arama işlemini kayıt SIRASINA göre, sadece İLERİYE doğru yapar. Hata yakalayıcı route\'lardan önce tanımlıysa, `next(err)` çağrıldığı noktadan sonra bu middleware yoktur — Express kendi varsayılan HTML hata sayfasına döner.', en: 'Express performs its middleware search by registration ORDER, only moving FORWARD. If the error handler is defined before the routes, it does not exist after the point where `next(err)` is called — Express falls back to its own default HTML error page.' },
@@ -3413,7 +3413,7 @@ const C6 = {
       sceneDurationMs: 3400,
       stageHeight: 260,
       actors: [
-        { id: 'request', emoji: '📤', label: { tr: 'Aynı POST isteği', en: 'The same POST request' }, color: '#f59e0b' },
+        { id: 'request', emoji: '📤', label: { tr: 'Aynı POST request', en: 'The same POST request' }, color: '#f59e0b' },
         { id: 'spring', emoji: '☕', label: { tr: 'Spring: @Valid otomatik', en: 'Spring: @Valid automatic' }, color: '#22c55e' },
         { id: 'express', emoji: '🟢', label: { tr: 'Express: elle sıralı zincir', en: 'Express: hand-ordered chain' }, color: '#0ea5e9' },
         { id: 'nest', emoji: '🐈', label: { tr: 'Nest: decorator + pipe', en: 'Nest: decorator + pipe' }, color: '#a78bfa' },
@@ -3421,7 +3421,7 @@ const C6 = {
       ],
       scenes: [
         {
-          caption: { tr: 'Aynı `POST /api/v1/bugs { "title": "" }` isteği üç farklı sunucuya gönderiliyor.', en: 'The same `POST /api/v1/bugs { "title": "" }` request is sent to three different servers.' },
+          caption: { tr: 'Aynı `POST /api/v1/bugs { "title": "" }` request\'i üç farklı sunucuya gönderiliyor.', en: 'The same `POST /api/v1/bugs { "title": "" }` request is sent to three different servers.' },
           positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
@@ -3459,9 +3459,9 @@ const C6 = {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-c6-order-01',
-      question: { tr: 'Bir POST /api/v1/bugs isteğinin üç frameworkte de takip ettiği ORTAK adımları sırala.', en: 'Order the COMMON steps a POST /api/v1/bugs request follows in all three frameworks.' },
+      question: { tr: 'Bir POST /api/v1/bugs request\'inin üç frameworkte de takip ettiği ORTAK adımları sırala.', en: 'Order the COMMON steps a POST /api/v1/bugs request follows in all three frameworks.' },
       items: [
-        { id: '1', text: { tr: 'İstek route/controller katmanına ulaşır', en: 'The request reaches the route/controller layer' }, order: 1 },
+        { id: '1', text: { tr: 'Request route/controller katmanına ulaşır', en: 'The request reaches the route/controller layer' }, order: 1 },
         { id: '2', text: { tr: 'Gövde (body) ayrıştırılıp bir nesneye dönüştürülür', en: 'The body is parsed and converted into an object' }, order: 2 },
         { id: '3', text: { tr: 'Doğrulama kuralları çalıştırılır', en: 'Validation rules are run' }, order: 3 },
         { id: '4', text: { tr: 'Hata varsa merkezi bir hata yönetimine devredilir', en: 'If there is an error, it is handed to a central error handler' }, order: 4 },
@@ -3592,7 +3592,7 @@ bootstrap()`,
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `BugsController` `@Module`\'e eklenmezse**\n\n**Kod:** `bugs.controller.ts` dosyası tamamen doğru yazıldı (`@Controller`, `@Get()` decorator\'ları hepsi doğru), ama `app.module.ts`\'teki `controllers: [...]` dizisine EKLENMEDİ.\n\n**Ne olur:** Uygulama HATASIZ başlar (TypeScript derleyicisi bunu bir hata olarak görmez — sınıf hâlâ geçerli bir sınıftır), ama Nest\'in DI container\'ı bu controller\'dan HİÇ haberdar olmaz. `GET /api/v1/bugs` isteği atıldığında Nest\'in kendi varsayılan 404\'ü döner — sanki route hiç yazılmamış gibi.\n\n**Neden sinsi:** Bir code review\'da dosyayı açan biri "controller doğru yazılmış" der ve geçer — çünkü dosyanın İÇİ gerçekten doğrudur. Eksik olan tek satır, başka bir dosyadaki (`app.module.ts`) bir DİZİ elemanıdır; bu, "doğru kod, yanlış yerde kayıtlı değil" kategorisinin NestJS\'teki karşılığıdır.\n\n**Tester nerede yakalar:** Code review "her şey doğru görünüyor" dese bile, gerçek bir istek atıp 404 alınca — bu, "kod incelemesi yeterli değildir, çalışan sistemde doğrulama şarttır" prensibinin somut kanıtıdır.',
+        tr: '**🐞 Defect Doğum Anı — `BugsController` `@Module`\'e eklenmezse**\n\n**Kod:** `bugs.controller.ts` dosyası tamamen doğru yazıldı (`@Controller`, `@Get()` decorator\'ları hepsi doğru), ama `app.module.ts`\'teki `controllers: [...]` dizisine EKLENMEDİ.\n\n**Ne olur:** Uygulama HATASIZ başlar (TypeScript derleyicisi bunu bir hata olarak görmez — sınıf hâlâ geçerli bir sınıftır), ama Nest\'in DI container\'ı bu controller\'dan HİÇ haberdar olmaz. `GET /api/v1/bugs` request\'i atıldığında Nest\'in kendi varsayılan 404\'ü döner — sanki route hiç yazılmamış gibi.\n\n**Neden sinsi:** Bir code review\'da dosyayı açan biri "controller doğru yazılmış" der ve geçer — çünkü dosyanın İÇİ gerçekten doğrudur. Eksik olan tek satır, başka bir dosyadaki (`app.module.ts`) bir DİZİ elemanıdır; bu, "doğru kod, yanlış yerde kayıtlı değil" kategorisinin NestJS\'teki karşılığıdır.\n\n**Tester nerede yakalar:** Code review "her şey doğru görünüyor" dese bile, gerçek bir request atıp 404 alınca — bu, "kod incelemesi yeterli değildir, çalışan sistemde doğrulama şarttır" prensibinin somut kanıtıdır.',
         en: '**🐞 Defect Birth — if `BugsController` is not added to `@Module`**\n\n**Code:** `bugs.controller.ts` was written entirely correctly (all the `@Controller`, `@Get()` decorators are right), but it was NOT added to the `controllers: [...]` array in `app.module.ts`.\n\n**What happens:** the app starts WITHOUT error (the TypeScript compiler does not see this as an error — the class is still a valid class), but Nest\'s DI container never learns about this controller at all. A `GET /api/v1/bugs` request gets Nest\'s own default 404 — as if the route was never written.\n\n**Why sneaky:** someone opening the file in a code review says "the controller is written correctly" and moves on — because the file\'s CONTENTS really are correct. The missing piece is a single ARRAY entry in a different file (`app.module.ts`); this is the NestJS counterpart of the "correct code, just not registered in the right place" category.\n\n**Where the tester catches it:** even if code review says "everything looks correct", sending a real request and getting 404 — concrete proof of the principle that "code review is not enough, verification on a running system is mandatory".',
       },
     },
@@ -3626,12 +3626,12 @@ bootstrap()`,
           beams: [{ from: 'controller', to: 'di', color: '#0ea5e9' }],
         },
         {
-          caption: { tr: '`GET /api/v1/bugs` isteği atılır — route TANIMLI olsa da DI container\'a KAYITLI olmadığı için Nest 404 döner.', en: 'A `GET /api/v1/bugs` request is sent — even though the route is DEFINED, since it is not REGISTERED with the DI container, Nest returns 404.' },
+          caption: { tr: '`GET /api/v1/bugs` request\'i atılır — route TANIMLI olsa da DI container\'a KAYITLI olmadığı için Nest 404 döner.', en: 'A `GET /api/v1/bugs` request is sent — even though the route is DEFINED, since it is not REGISTERED with the DI container, Nest returns 404.' },
           positions: { di: { x: 22, y: 40 }, missing: { x: 58, y: 55, scale: 1.2, pulse: true } },
           beams: [{ from: 'di', to: 'missing', color: '#ef4444' }],
         },
         {
-          caption: { tr: 'Ders — Kod incelemesi "dosya doğru yazılmış" der ama çalışan sistemde route yoktur. Tester her zaman gerçek bir istekle doğrular.', en: 'The lesson — code review says "the file is written correctly" but the route does not exist in the running system. A tester always verifies with a real request.' },
+          caption: { tr: 'Ders — Kod incelemesi "dosya doğru yazılmış" der ama çalışan sistemde route yoktur. Tester her zaman gerçek bir request\'le doğrular.', en: 'The lesson — code review says "the file is written correctly" but the route does not exist in the running system. A tester always verifies with a real request.' },
           positions: { missing: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'missing', to: 'tester', color: '#8b5cf6' }],
         },
@@ -3643,7 +3643,7 @@ bootstrap()`,
       steps: [
         { id: 1, icon: '📄', label: { tr: 'Sınıfı yaz…', en: 'Write the class…' }, detail: { tr: '@Controller() ve @Get() decorator\'larıyla BugsController\'ı yaz — bu TEK BAŞINA yeterli değildir.', en: 'Write BugsController with @Controller() and @Get() decorators — this ALONE is not enough.' } },
         { id: 2, icon: '🧩', label: { tr: 'Modüle kaydet…', en: 'Register with the module…' }, detail: { tr: '@Module({ controllers: [BugsController] }) dizisine EKLE — bu adım olmadan Nest sınıftan haberdar olmaz.', en: 'ADD it to the @Module({ controllers: [BugsController] }) array — without this step Nest never learns about the class.' } },
-        { id: 3, icon: '🔌', label: { tr: 'DI container bağlasın…', en: 'Let the DI container wire it…' }, detail: { tr: 'Kayıtlı olan controller artık gerçek isteklere yanıt verebilir.', en: 'Once registered, the controller can now respond to real requests.' } },
+        { id: 3, icon: '🔌', label: { tr: 'DI container bağlasın…', en: 'Let the DI container wire it…' }, detail: { tr: 'Kayıtlı olan controller artık gerçek request\'lere response verebilir.', en: 'Once registered, the controller can now respond to real requests.' } },
       ],
     },
     {
@@ -3656,7 +3656,7 @@ bootstrap()`,
         { id: '2', text: { tr: '@Controller() decorator\'ı ile BugsController sınıfını yaz', en: 'Write the BugsController class with the @Controller() decorator' }, order: 2 },
         { id: '3', text: { tr: 'Controller\'ı @Module({ controllers: [...] }) dizisine ekle', en: 'Add the controller to the @Module({ controllers: [...] }) array' }, order: 3 },
         { id: '4', text: { tr: 'main.ts NestFactory.create(AppModule) ile uygulamayı başlatır', en: 'main.ts starts the app with NestFactory.create(AppModule)' }, order: 4 },
-        { id: '5', text: { tr: 'GET isteği artık DI container üzerinden controller\'a ulaşır', en: 'A GET request now reaches the controller through the DI container' }, order: 5 },
+        { id: '5', text: { tr: 'GET request\'i artık DI container üzerinden controller\'a ulaşır', en: 'A GET request now reaches the controller through the DI container' }, order: 5 },
       ],
       xpReward: 11,
     },
@@ -3685,19 +3685,19 @@ import { BugsService } from './bugs.service'
 })
 export class AppModule {}`,
       hint: { tr: 'Bir sınıfın `@Controller()` decorator\'ıyla doğru yazılmış olması yetmez; Nest\'in DI container\'ının onu tanıması için `@Module({ controllers: [...] })` dizisine EKLENMESİ gerekir.', en: 'A class being correctly written with `@Controller()` is not enough; for Nest\'s DI container to recognize it, it must be ADDED to the `@Module({ controllers: [...] })` array.' },
-      successMessage: { tr: 'Doğru! Artık DI container BugsController\'ı tanır, GET /api/v1/bugs gerçekten yanıt döner.', en: 'Correct! Now the DI container recognizes BugsController, GET /api/v1/bugs actually responds.' },
+      successMessage: { tr: 'Doğru! Artık DI container BugsController\'ı tanır, GET /api/v1/bugs gerçekten response döner.', en: 'Correct! Now the DI container recognizes BugsController, GET /api/v1/bugs actually responds.' },
     },
     {
       type: 'quiz',
       question: { tr: 'Bir controller sınıfı doğru yazılmış ama `@Module`\'ün `controllers` dizisine eklenmemişse ne olur?', en: 'What happens if a controller class is written correctly but is not added to `@Module`\'s `controllers` array?' },
       options: [
         { id: 'a', text: { tr: 'TypeScript derleme hatası verir', en: 'TypeScript throws a compile error' } },
-        { id: 'b', text: { tr: 'Uygulama hatasız başlar ama o controller\'ın route\'ları hiç var olmaz; istekler 404 alır', en: 'The app starts without error but that controller\'s routes never exist; requests get 404' } },
+        { id: 'b', text: { tr: 'Uygulama hatasız başlar ama o controller\'ın route\'ları hiç var olmaz; request\'ler 404 alır', en: 'The app starts without error but that controller\'s routes never exist; requests get 404' } },
         { id: 'c', text: { tr: 'Nest otomatik olarak dosyayı tarayıp ekler', en: 'Nest automatically scans and adds the file' } },
         { id: 'd', text: { tr: 'Sadece POST route\'ları etkilenir', en: 'Only POST routes are affected' } },
       ],
       correct: 'b',
-      explanation: { tr: 'TypeScript sınıfın kendisini geçerli bulur, derleme hatası vermez. Ama Nest\'in DI container\'ı SADECE `@Module`\'e kayıtlı sınıfları bilir; kayıtsız bir controller\'ın route\'ları hiçbir zaman gerçek bir isteğe yanıt vermez — sanki hiç yazılmamış gibi 404 döner.', en: 'TypeScript finds the class itself valid and throws no compile error. But Nest\'s DI container ONLY knows classes registered with `@Module`; an unregistered controller\'s routes never respond to a real request — they return 404 as if never written.' },
+      explanation: { tr: 'TypeScript sınıfın kendisini geçerli bulur, derleme hatası vermez. Ama Nest\'in DI container\'ı SADECE `@Module`\'e kayıtlı sınıfları bilir; kayıtsız bir controller\'ın route\'ları hiçbir zaman gerçek bir request\'e response vermez — sanki hiç yazılmamış gibi 404 döner.', en: 'TypeScript finds the class itself valid and throws no compile error. But Nest\'s DI container ONLY knows classes registered with `@Module`; an unregistered controller\'s routes never respond to a real request — they return 404 as if never written.' },
       retryQuestion: {
         question: { tr: 'NestJS\'te `@Module` decorator\'ının Spring Boot\'taki en yakın karşılığı nedir?', en: 'What is the closest Spring Boot equivalent of the `@Module` decorator in NestJS?' },
         options: [
@@ -3783,7 +3783,7 @@ export class BugsController {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `@Body()` decorator\'ı unutulursa**\n\n**Kod:** `create(body: any)` — parametre var, tipi de yazılmış, ama başına `@Body()` decorator\'ı KONMAMIŞ.\n\n**Ne olur:** Nest\'in HTTP adaptörü (Express) gövdeyi zaten ayrıştırmıştır, ama decorator olmadan Nest bu veriyi metoda HANGİ parametreye bağlayacağını bilemez — `body` parametresi `undefined` kalır. `POST /api/v1/bugs { "title": "..." }` isteği 201 döner ama kayıt tamamen boştur.\n\n**Neden sinsi:** TypeScript hiçbir hata vermez (`body: any` geçerli bir parametredir), Nest de çalışma zamanında sessizce `undefined` geçer — tıpkı C3\'teki `express.json()` sıra hatasının SONUCU gibi görünür ama kök nedeni tamamen farklıdır (orada middleware sırası, burada eksik decorator).\n\n**Tester nerede yakalar:** POST sonrası GET ile kaydı tekrar okuyup tüm alanların boş geldiğini görünce — "201 aldım ama içerik boş" ailesinin NestJS\'teki üçüncü örneği (bkz. B1, C3).',
+        tr: '**🐞 Defect Doğum Anı — `@Body()` decorator\'ı unutulursa**\n\n**Kod:** `create(body: any)` — parametre var, tipi de yazılmış, ama başına `@Body()` decorator\'ı KONMAMIŞ.\n\n**Ne olur:** Nest\'in HTTP adaptörü (Express) gövdeyi zaten ayrıştırmıştır, ama decorator olmadan Nest bu veriyi metoda HANGİ parametreye bağlayacağını bilemez — `body` parametresi `undefined` kalır. `POST /api/v1/bugs { "title": "..." }` request\'i 201 döner ama kayıt tamamen boştur.\n\n**Neden sinsi:** TypeScript hiçbir hata vermez (`body: any` geçerli bir parametredir), Nest de çalışma zamanında sessizce `undefined` geçer — tıpkı C3\'teki `express.json()` sıra hatasının SONUCU gibi görünür ama kök nedeni tamamen farklıdır (orada middleware sırası, burada eksik decorator).\n\n**Tester nerede yakalar:** POST sonrası GET ile kaydı tekrar okuyup tüm alanların boş geldiğini görünce — "201 aldım ama içerik boş" ailesinin NestJS\'teki üçüncü örneği (bkz. B1, C3).',
         en: '**🐞 Defect Birth — if the `@Body()` decorator is forgotten**\n\n**Code:** `create(body: any)` — the parameter exists, its type is written, but the `@Body()` decorator was NOT placed in front of it.\n\n**What happens:** Nest\'s HTTP adapter (Express) has already parsed the body, but without the decorator Nest cannot know WHICH parameter to bind that data to — the `body` parameter stays `undefined`. A `POST /api/v1/bugs { "title": "..." }` request returns 201 but the record is entirely empty.\n\n**Why sneaky:** TypeScript throws no error (`body: any` is a valid parameter), and Nest silently passes `undefined` at runtime — it LOOKS like the same result as C3\'s `express.json()` order bug, but its root cause is entirely different (there it was middleware order, here it is a missing decorator).\n\n**Where the tester catches it:** reading the record back with a GET after the POST and seeing all fields come back empty — the third example, in NestJS, of the "got 201 but the content is empty" family (see B1, C3).',
       },
     },
@@ -3803,7 +3803,7 @@ export class BugsController {
       ],
       scenes: [
         {
-          caption: { tr: 'İstemci `POST /api/v1/bugs` isteğini JSON gövdeyle gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with a JSON body.' },
+          caption: { tr: 'İstemci `POST /api/v1/bugs` request\'ini JSON gövdeyle gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with a JSON body.' },
           positions: { http: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
@@ -3830,9 +3830,9 @@ export class BugsController {
     },
     {
       type: 'step-animation',
-      title: { tr: 'İstekten Metot Parametresine', en: 'From Request to Method Parameter' },
+      title: { tr: 'Request\'ten Metot Parametresine', en: 'From Request to Method Parameter' },
       steps: [
-        { id: 1, icon: '📤', label: { tr: 'İstek gelir…', en: 'Request arrives…' }, detail: { tr: 'HTTP adaptörü gövdeyi/parametreleri ayrıştırır — bu Express katmanının işidir.', en: 'The HTTP adapter parses the body/params — this is the Express layer\'s job.' } },
+        { id: 1, icon: '📤', label: { tr: 'Request gelir…', en: 'Request arrives…' }, detail: { tr: 'HTTP adaptörü gövdeyi/parametreleri ayrıştırır — bu Express katmanının işidir.', en: 'The HTTP adapter parses the body/params — this is the Express layer\'s job.' } },
         { id: 2, icon: '🏷️', label: { tr: 'Decorator bağlar…', en: 'Decorator binds it…' }, detail: { tr: '@Body()/@Param()/@Query() ayrıştırılmış veriyi doğru metot parametresine yerleştirir.', en: '@Body()/@Param()/@Query() place the parsed data into the correct method parameter.' } },
         { id: 3, icon: '⚙️', label: { tr: 'Metot çalışır…', en: 'Method runs…' }, detail: { tr: 'Parametre doluysa handler doğru veriyle çalışır; decorator eksikse undefined ile çalışır.', en: 'If the parameter is filled, the handler runs with correct data; if the decorator is missing, it runs with undefined.' } },
       ],
@@ -3841,9 +3841,9 @@ export class BugsController {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-d2-order-01',
-      question: { tr: 'Bir Nest POST isteğinde veri akışını sırala.', en: 'Order the data flow for a Nest POST request.' },
+      question: { tr: 'Bir Nest POST request\'inde veri akışını sırala.', en: 'Order the data flow for a Nest POST request.' },
       items: [
-        { id: '1', text: { tr: 'İstemci JSON gövdeyle POST isteği gönderir', en: 'Client sends a POST request with a JSON body' }, order: 1 },
+        { id: '1', text: { tr: 'İstemci JSON gövdeyle POST request\'i gönderir', en: 'Client sends a POST request with a JSON body' }, order: 1 },
         { id: '2', text: { tr: 'HTTP adaptörü gövdeyi JavaScript nesnesine ayrıştırır', en: 'The HTTP adapter parses the body into a JavaScript object' }, order: 2 },
         { id: '3', text: { tr: '@Body() decorator\'ı veriyi metot parametresine bağlar', en: 'The @Body() decorator binds the data to the method parameter' }, order: 3 },
         { id: '4', text: { tr: 'Controller metodu servis katmanını çağırır', en: 'The controller method calls the service layer' }, order: 4 },
@@ -3874,7 +3874,7 @@ create(@Body() body: any) {
       options: [
         { id: 'a', text: { tr: 'TypeScript derleme hatası verir', en: 'TypeScript throws a compile error' } },
         { id: 'b', text: { tr: 'Derleme geçer ama Nest veriyi bağlayamaz; body çalışma zamanında undefined kalır', en: 'Compilation passes but Nest cannot bind the data; body stays undefined at runtime' } },
-        { id: 'c', text: { tr: 'İstek otomatik olarak 400 ile reddedilir', en: 'The request is automatically rejected with 400' } },
+        { id: 'c', text: { tr: 'Request otomatik olarak 400 ile reddedilir', en: 'The request is automatically rejected with 400' } },
         { id: 'd', text: { tr: 'Nest decorator\'ı otomatik olarak varsayar', en: 'Nest automatically assumes the decorator' } },
       ],
       correct: 'b',
@@ -3978,7 +3978,7 @@ async function bootstrap() {
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `app.useGlobalPipes(new ValidationPipe())` unutulursa**\n\n**Kod:** `CreateBugDto` tüm `class-validator` decorator\'larıyla KUSURSUZ yazıldı, controller `@Body() dto: CreateBugDto` ile DOĞRU tip kullanıyor — ama `main.ts`\'te `app.useGlobalPipes(new ValidationPipe())` satırı YOK.\n\n**Ne olur:** Nest, DTO\'yu sadece bir TypeScript TİPİ olarak kullanır (derleme zamanı bilgisi, JavaScript\'e derlenince kaybolur); `class-validator` decorator\'larını kimse ÇALIŞTIRMAZ. `POST /api/v1/bugs { "title": "" }` isteği 400 yerine 201 döner.\n\n**Neden sinsi:** DTO dosyası açıldığında decorator\'lar tamamen doğru görünür — bir code review "validation var" der ve geçer. Ama decorator\'ların ÇALIŞMASI için global bir pipe\'ın etkinleştirilmesi gerekir; bu, B1\'deki eksik dependency\'den ve C4\'teki okunmayan sonuçtan FARKLI bir üçüncü kök nedendir: "kurallar var, ama hiç TETİKLENMİYOR".\n\n**Tester nerede yakalar:** Boş title ile POST atıp 201 alınca — DTO dosyasını incelemek yeterli değildir, `main.ts`\'te `useGlobalPipes` çağrısının GERÇEKTEN var olduğu ayrıca doğrulanmalıdır.',
+        tr: '**🐞 Defect Doğum Anı — `app.useGlobalPipes(new ValidationPipe())` unutulursa**\n\n**Kod:** `CreateBugDto` tüm `class-validator` decorator\'larıyla KUSURSUZ yazıldı, controller `@Body() dto: CreateBugDto` ile DOĞRU tip kullanıyor — ama `main.ts`\'te `app.useGlobalPipes(new ValidationPipe())` satırı YOK.\n\n**Ne olur:** Nest, DTO\'yu sadece bir TypeScript TİPİ olarak kullanır (derleme zamanı bilgisi, JavaScript\'e derlenince kaybolur); `class-validator` decorator\'larını kimse ÇALIŞTIRMAZ. `POST /api/v1/bugs { "title": "" }` request\'i 400 yerine 201 döner.\n\n**Neden sinsi:** DTO dosyası açıldığında decorator\'lar tamamen doğru görünür — bir code review "validation var" der ve geçer. Ama decorator\'ların ÇALIŞMASI için global bir pipe\'ın etkinleştirilmesi gerekir; bu, B1\'deki eksik dependency\'den ve C4\'teki okunmayan sonuçtan FARKLI bir üçüncü kök nedendir: "kurallar var, ama hiç TETİKLENMİYOR".\n\n**Tester nerede yakalar:** Boş title ile POST atıp 201 alınca — DTO dosyasını incelemek yeterli değildir, `main.ts`\'te `useGlobalPipes` çağrısının GERÇEKTEN var olduğu ayrıca doğrulanmalıdır.',
         en: '**🐞 Defect Birth — if `app.useGlobalPipes(new ValidationPipe())` is forgotten**\n\n**Code:** `CreateBugDto` was written FLAWLESSLY with all `class-validator` decorators, the controller uses the CORRECT type with `@Body() dto: CreateBugDto` — but `main.ts` has no `app.useGlobalPipes(new ValidationPipe())` line.\n\n**What happens:** Nest treats the DTO as just a TypeScript TYPE (compile-time information, gone once compiled to JavaScript); nobody RUNS the `class-validator` decorators. A `POST /api/v1/bugs { "title": "" }` request returns 201 instead of 400.\n\n**Why sneaky:** opening the DTO file, the decorators look entirely correct — a code review says "validation exists" and moves on. But for the decorators to ACTUALLY run, a global pipe must be activated; this is a third root cause, DIFFERENT from B1\'s missing dependency and C4\'s unread result: "the rules exist, but are never TRIGGERED".\n\n**Where the tester catches it:** sending a POST with an empty title and getting 201 — reviewing the DTO file is not enough, the presence of the `useGlobalPipes` call in `main.ts` must be separately verified.',
       },
     },
@@ -3999,16 +3999,16 @@ async function bootstrap() {
       ],
       scenes: [
         {
-          caption: { tr: 'İstemci geçersiz bir gövdeyle (`title: ""`) `POST /api/v1/bugs` isteği gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with an invalid body (`title: ""`).' },
+          caption: { tr: 'İstemci geçersiz bir gövdeyle (`title: ""`) `POST /api/v1/bugs` request\'i gönderiyor.', en: 'The client sends a `POST /api/v1/bugs` request with an invalid body (`title: ""`).' },
           positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
-          caption: { tr: 'İstek `CreateBugDto`\'nun sınırından geçer — bu sınıfta `@Length(3,120)` gibi kurallar TANIMLIDIR.', en: 'The request passes through the `CreateBugDto` boundary — this class has rules like `@Length(3,120)` DEFINED on it.' },
+          caption: { tr: 'Request `CreateBugDto`\'nun sınırından geçer — bu sınıfta `@Length(3,120)` gibi kurallar TANIMLIDIR.', en: 'The request passes through the `CreateBugDto` boundary — this class has rules like `@Length(3,120)` DEFINED on it.' },
           positions: { request: { x: 18, y: 35 }, dto: { x: 55, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'request', to: 'dto', color: '#0ea5e9' }],
         },
         {
-          caption: { tr: 'DOĞRU KURULUMDA: `ValidationPipe` global olarak etkinse, controller\'a ulaşmadan ÖNCE isteği durdurup 400 döner.', en: 'IN THE CORRECT SETUP: if `ValidationPipe` is globally active, it stops the request and returns 400 BEFORE it reaches the controller.' },
+          caption: { tr: 'DOĞRU KURULUMDA: `ValidationPipe` global olarak etkinse, controller\'a ulaşmadan ÖNCE request\'i durdurup 400 döner.', en: 'IN THE CORRECT SETUP: if `ValidationPipe` is globally active, it stops the request and returns 400 BEFORE it reaches the controller.' },
           positions: { dto: { x: 18, y: 35 }, pipe: { x: 55, y: 50, scale: 1.2, pulse: true } },
           beams: [{ from: 'dto', to: 'pipe', color: '#a78bfa' }],
         },
@@ -4030,7 +4030,7 @@ async function bootstrap() {
     },
     {
       type: 'step-animation',
-      title: { tr: 'DTO\'dan Reddedilen İsteğe', en: 'From a DTO to a Rejected Request' },
+      title: { tr: 'DTO\'dan Reddedilen Request\'e', en: 'From a DTO to a Rejected Request' },
       steps: [
         { id: 1, icon: '📋', label: { tr: 'DTO yaz…', en: 'Write the DTO…' }, detail: { tr: 'class-validator decorator\'larıyla (@IsString, @Length, @IsIn) kuralları sınıf alanlarına yapıştır.', en: 'Glue rules to class fields with class-validator decorators (@IsString, @Length, @IsIn).' } },
         { id: 2, icon: '🚰', label: { tr: 'Pipe\'ı etkinleştir…', en: 'Activate the pipe…' }, detail: { tr: 'main.ts\'te app.useGlobalPipes(new ValidationPipe()) YAZILMADAN decorator\'lar asla çalışmaz.', en: 'WITHOUT app.useGlobalPipes(new ValidationPipe()) in main.ts, the decorators never run.' } },
@@ -4046,8 +4046,8 @@ async function bootstrap() {
         { id: '1', text: { tr: 'CreateBugDto sınıfını class-validator decorator\'larıyla yaz', en: 'Write the CreateBugDto class with class-validator decorators' }, order: 1 },
         { id: '2', text: { tr: 'Controller\'da @Body() dto: CreateBugDto kullan', en: 'Use @Body() dto: CreateBugDto in the controller' }, order: 2 },
         { id: '3', text: { tr: 'main.ts\'te app.useGlobalPipes(new ValidationPipe()) ekle', en: 'Add app.useGlobalPipes(new ValidationPipe()) in main.ts' }, order: 3 },
-        { id: '4', text: { tr: 'Geçersiz istek gönder, pipe onu controller\'a ULAŞMADAN durdurur', en: 'Send an invalid request, the pipe stops it BEFORE reaching the controller' }, order: 4 },
-        { id: '5', text: { tr: 'Geçerli istek 201 ile kaydı oluşturur', en: 'A valid request creates the record with 201' }, order: 5 },
+        { id: '4', text: { tr: 'Geçersiz request gönder, pipe onu controller\'a ULAŞMADAN durdurur', en: 'Send an invalid request, the pipe stops it BEFORE reaching the controller' }, order: 4 },
+        { id: '5', text: { tr: 'Geçerli request 201 ile kaydı oluşturur', en: 'A valid request creates the record with 201' }, order: 5 },
       ],
       xpReward: 13,
     },
@@ -4085,10 +4085,10 @@ bootstrap()`,
         { id: 'a', text: { tr: 'Decorator\'lar otomatik olarak devreye girer', en: 'The decorators kick in automatically' } },
         { id: 'b', text: { tr: 'DTO sadece bir TypeScript tipi olarak kalır; decorator\'lar hiç çalıştırılmaz, geçersiz veri 201 ile kabul edilir', en: 'The DTO remains just a TypeScript type; the decorators never run, invalid data is accepted with 201' } },
         { id: 'c', text: { tr: 'Uygulama başlamayı reddeder', en: 'The application refuses to start' } },
-        { id: 'd', text: { tr: 'Sadece GET isteklerinde doğrulama devre dışı kalır', en: 'Validation is only disabled for GET requests' } },
+        { id: 'd', text: { tr: 'Sadece GET request\'lerinde doğrulama devre dışı kalır', en: 'Validation is only disabled for GET requests' } },
       ],
       correct: 'b',
-      explanation: { tr: '`ValidationPipe` global olarak etkinleştirilmeden, `class-validator` decorator\'ları Nest\'in istek işleme hattına HİÇ dahil edilmez — DTO sadece derleme zamanı bir TypeScript tipi olarak kalır. Bu yüzden geçersiz veri de tıpkı geçerli veri gibi controller\'a ulaşır.', en: 'Without `ValidationPipe` being globally activated, `class-validator` decorators are NEVER wired into Nest\'s request pipeline — the DTO remains merely a compile-time TypeScript type. So invalid data reaches the controller just like valid data would.' },
+      explanation: { tr: '`ValidationPipe` global olarak etkinleştirilmeden, `class-validator` decorator\'ları Nest\'in request işleme hattına HİÇ dahil edilmez — DTO sadece derleme zamanı bir TypeScript tipi olarak kalır. Bu yüzden geçersiz veri de tıpkı geçerli veri gibi controller\'a ulaşır.', en: 'Without `ValidationPipe` being globally activated, `class-validator` decorators are NEVER wired into Nest\'s request pipeline — the DTO remains merely a compile-time TypeScript type. So invalid data reaches the controller just like valid data would.' },
       retryQuestion: {
         question: { tr: 'Nest\'teki DTO + ValidationPipe ikilisi, Spring\'deki hangi ikiliye karşılık gelir?', en: 'Which Spring pair does Nest\'s DTO + ValidationPipe pair correspond to?' },
         options: [
@@ -4182,7 +4182,7 @@ app.useGlobalFilters(new HttpExceptionFilter())`,
       type: 'simple-box',
       emoji: '🐞',
       content: {
-        tr: '**🐞 Defect Doğum Anı — `app.useGlobalFilters(...)` unutulursa**\n\n**Kod:** `HttpExceptionFilter` sınıfı `@Catch(HttpException)` ile KUSURSUZ yazıldı, `{ error: exception.message }` sözleşmeye tam uyuyor — ama `main.ts`\'te `app.useGlobalFilters(new HttpExceptionFilter())` çağrısı YOK.\n\n**Ne olur:** `GET /api/v1/bugs/999` isteği için `throw new NotFoundException(...)` çalışır, ama özel filter kayıtlı olmadığı için Nest kendi VARSAYILAN hata işleyicisine düşer — bu da JSON döner ama proje sözleşmesindeki `{ error: "..." }` yerine Nest\'in kendi şekli olan `{ statusCode: 404, message: "...", error: "Not Found" }`\'u döndürür.\n\n**Neden sinsi:** İstek yine JSON döner (Express\'teki HTML sürprizinden farklı olarak SUNUCU tarafında "çökmüş" görünmez), hatta 404 status kodu da doğrudur — ama gövdenin ŞEKLİ projenin beklediğinden farklıdır. Bir tester sadece status kodunu kontrol ediyorsa bu farkı HİÇ fark etmez.\n\n**Tester nerede yakalar:** Hata gövdesinin TAM ŞEKLİNİ (`error` alanının varlığını, `statusCode`/`message` gibi fazladan alanların olup olmadığını) doğrulayan bir assertion yazınca — sadece "404 mü?" diye sormak yetersizdir, "gövde SÖZLEŞMEYE uyuyor mu?" sorusu şarttır.',
+        tr: '**🐞 Defect Doğum Anı — `app.useGlobalFilters(...)` unutulursa**\n\n**Kod:** `HttpExceptionFilter` sınıfı `@Catch(HttpException)` ile KUSURSUZ yazıldı, `{ error: exception.message }` sözleşmeye tam uyuyor — ama `main.ts`\'te `app.useGlobalFilters(new HttpExceptionFilter())` çağrısı YOK.\n\n**Ne olur:** `GET /api/v1/bugs/999` request\'i için `throw new NotFoundException(...)` çalışır, ama özel filter kayıtlı olmadığı için Nest kendi VARSAYILAN hata işleyicisine düşer — bu da JSON döner ama proje sözleşmesindeki `{ error: "..." }` yerine Nest\'in kendi şekli olan `{ statusCode: 404, message: "...", error: "Not Found" }`\'u döndürür.\n\n**Neden sinsi:** Request yine JSON döner (Express\'teki HTML sürprizinden farklı olarak SUNUCU tarafında "çökmüş" görünmez), hatta 404 status kodu da doğrudur — ama gövdenin ŞEKLİ projenin beklediğinden farklıdır. Bir tester sadece status kodunu kontrol ediyorsa bu farkı HİÇ fark etmez.\n\n**Tester nerede yakalar:** Hata gövdesinin TAM ŞEKLİNİ (`error` alanının varlığını, `statusCode`/`message` gibi fazladan alanların olup olmadığını) doğrulayan bir assertion yazınca — sadece "404 mü?" diye sormak yetersizdir, "gövde SÖZLEŞMEYE uyuyor mu?" sorusu şarttır.',
         en: '**🐞 Defect Birth — if `app.useGlobalFilters(...)` is forgotten**\n\n**Code:** the `HttpExceptionFilter` class was written FLAWLESSLY with `@Catch(HttpException)`, `{ error: exception.message }` matches the contract exactly — but `main.ts` has no `app.useGlobalFilters(new HttpExceptionFilter())` call.\n\n**What happens:** for a `GET /api/v1/bugs/999` request, `throw new NotFoundException(...)` runs, but since the custom filter is not registered, Nest falls back to its own DEFAULT exception handler — this also returns JSON, but instead of the project contract\'s `{ error: "..." }`, it returns Nest\'s own shape: `{ statusCode: 404, message: "...", error: "Not Found" }`.\n\n**Why sneaky:** the request still returns JSON (unlike Express\'s HTML surprise, the server does not look "crashed"), even the 404 status code is correct — but the body\'s SHAPE differs from what the project expects. A tester checking only the status code never notices this at all.\n\n**Where the tester catches it:** writing an assertion that verifies the EXACT SHAPE of the error body (the presence of the `error` field, whether extra fields like `statusCode`/`message` exist) — asking only "is it 404?" is insufficient, the question "does the body MATCH THE CONTRACT?" is mandatory.',
       },
     },
@@ -4244,7 +4244,7 @@ app.useGlobalFilters(new HttpExceptionFilter())`,
         { id: '2', text: { tr: '@Catch(HttpException) ile filter sınıfını yaz', en: 'Write the filter class with @Catch(HttpException)' }, order: 2 },
         { id: '3', text: { tr: 'main.ts\'te app.useGlobalFilters(new HttpExceptionFilter()) ekle', en: 'Add app.useGlobalFilters(new HttpExceptionFilter()) in main.ts' }, order: 3 },
         { id: '4', text: { tr: 'Nest artık hatayı ÖZEL filtreye yönlendirir', en: 'Nest now routes the error to the CUSTOM filter' }, order: 4 },
-        { id: '5', text: { tr: 'Sözleşmeye uygun { error } gövdesiyle yanıt döner', en: 'A contract-compliant { error } body is returned' }, order: 5 },
+        { id: '5', text: { tr: 'Sözleşmeye uygun { error } gövdesiyle response döner', en: 'A contract-compliant { error } body is returned' }, order: 5 },
       ],
       xpReward: 11,
     },
@@ -4283,7 +4283,7 @@ bootstrap()`,
         { id: 'a', text: { tr: 'Nest bunu otomatik olarak tarayıp bulur', en: 'Nest automatically scans and finds it' } },
         { id: 'b', text: { tr: 'Filter hiç devreye girmez; hatalar Nest\'in varsayılan (farklı şekilli) hata gövdesiyle döner', en: 'The filter never engages; errors return with Nest\'s default (differently shaped) error body' } },
         { id: 'c', text: { tr: 'Uygulama başlamayı reddeder', en: 'The application refuses to start' } },
-        { id: 'd', text: { tr: 'Filter sadece POST isteklerinde çalışır', en: 'The filter only works on POST requests' } },
+        { id: 'd', text: { tr: 'Filter sadece POST request\'lerinde çalışır', en: 'The filter only works on POST requests' } },
       ],
       correct: 'b',
       explanation: { tr: 'Bir Exception Filter sınıfının VAR OLMASI onu otomatik devreye sokmaz — `app.useGlobalFilters(...)` (veya controller/method seviyesinde `@UseFilters(...)`) ile AÇIKÇA bağlanması gerekir. Kayıtsız bir filter hiçbir zaman çalışmaz, Nest kendi varsayılan hata gövdesini döner — bu, projenin beklediği sözleşmeden farklı olabilir.', en: 'A filter class EXISTING does not automatically activate it — it must be EXPLICITLY wired with `app.useGlobalFilters(...)` (or `@UseFilters(...)` at the controller/method level). An unregistered filter never runs, Nest returns its own default error body — which may differ from what the project\'s contract expects.' },
@@ -4434,7 +4434,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           { id: 'd', text: { tr: 'Hangi framework daha eski?', en: 'Which framework is older?' } },
         ],
         correct: 'a',
-        explanation: { tr: 'B1 (eksik starter), C3-C5 (yanlış middleware sırası), D1-D4 (kayıtsız controller/pipe/filter) — hepsi AYNI köke iner: doğru görünen kod, framework tarafından GERÇEKTEN devreye alınmadıkça hiçbir şey garanti etmez. Bu yüzden tester her zaman gerçek bir istekle davranışı doğrular, kod incelemesiyle yetinmez.', en: 'B1 (missing starter), C3-C5 (wrong middleware order), D1-D4 (unregistered controller/pipe/filter) — all trace back to the SAME root: code that looks correct guarantees nothing until it is REALLY activated by the framework. This is why a tester always verifies behavior with a real request, never settling for a code review alone.' },
+        explanation: { tr: 'B1 (eksik starter), C3-C5 (yanlış middleware sırası), D1-D4 (kayıtsız controller/pipe/filter) — hepsi AYNI köke iner: doğru görünen kod, framework tarafından GERÇEKTEN devreye alınmadıkça hiçbir şey garanti etmez. Bu yüzden tester her zaman gerçek bir request\'le davranışı doğrular, kod incelemesiyle yetinmez.', en: 'B1 (missing starter), C3-C5 (wrong middleware order), D1-D4 (unregistered controller/pipe/filter) — all trace back to the SAME root: code that looks correct guarantees nothing until it is REALLY activated by the framework. This is why a tester always verifies behavior with a real request, never settling for a code review alone.' },
       },
     },
   ],
@@ -4538,15 +4538,15 @@ const E1 = {
       type: 'simple-box',
       emoji: '🔍',
       content: {
-        tr: 'DevTools Network paneli, bir **hava trafik kontrol kulesinin radar ekranı** gibidir: her uçuş (istek) ekranda bir satır olarak belirir — nereye gittiği (Name), inişinin başarılı olup olmadığı (Status), ne taşıdığı (Type), ne kadar yer kapladığı (Size) ve ne kadar sürdüğü (Time) tek bakışta görünür. Peki Postman zaten varken, tarayıcının kendi radarına neden bakıyoruz? Çünkü Postman SEN isteği gönderdiğinde çalışır — ama gerçek kullanıcı deneyiminde istekler UI\'nın kendisi (JavaScript) tarafından, senin haberin olmadan tetiklenir; Network paneli UI\'nın ARKASINDA gerçekten ne olduğunu gösteren TEK yerdir. Java\'da bunun en yakın karşılığı bir `HttpClient` loglama interceptor\'ıdır — `OkHttp`\'nin `HttpLoggingInterceptor`\'ı gibi, her giden isteği ve gelen yanıtı konsola yazar; DevTools Network de tarayıcının GUI\'li, otomatik interceptor\'ıdır. QA açısından bu panel, kariyerinin en sık kullanacağın araçlarından biri olur çünkü şu senaryoyu SIK yaşarsın: ekranda her şey normal görünür, buton "Başarılı!" der — ama Network panelini açtığında kırmızı bir 500 satırı seni bekliyordur. UI seni yanıltabilir, Network paneli yanıltmaz.',
+        tr: 'DevTools Network paneli, bir **hava trafik kontrol kulesinin radar ekranı** gibidir: her uçuş (request) ekranda bir satır olarak belirir — nereye gittiği (Name), inişinin başarılı olup olmadığı (Status), ne taşıdığı (Type), ne kadar yer kapladığı (Size) ve ne kadar sürdüğü (Time) tek bakışta görünür. Peki Postman zaten varken, tarayıcının kendi radarına neden bakıyoruz? Çünkü Postman SEN request\'i gönderdiğinde çalışır — ama gerçek kullanıcı deneyiminde request\'ler UI\'nın kendisi (JavaScript) tarafından, senin haberin olmadan tetiklenir; Network paneli UI\'nın ARKASINDA gerçekten ne olduğunu gösteren TEK yerdir. Java\'da bunun en yakın karşılığı bir `HttpClient` loglama interceptor\'ıdır — `OkHttp`\'nin `HttpLoggingInterceptor`\'ı gibi, her giden request\'i ve gelen response\'u konsola yazar; DevTools Network de tarayıcının GUI\'li, otomatik interceptor\'ıdır. QA açısından bu panel, kariyerinin en sık kullanacağın araçlarından biri olur çünkü şu senaryoyu SIK yaşarsın: ekranda her şey normal görünür, buton "Başarılı!" der — ama Network panelini açtığında kırmızı bir 500 satırı seni bekliyordur. UI seni yanıltabilir, Network paneli yanıltmaz.',
         en: 'The DevTools Network panel is like an **air traffic control tower\'s radar screen**: every flight (request) appears as a row on screen — where it is going (Name), whether it landed successfully (Status), what it is carrying (Type), how much space it takes (Size), and how long it took (Time) are all visible at a glance. So if Postman already exists, why look at the browser\'s own radar? Because Postman runs when YOU send the request — but in a real user experience, requests are triggered by the UI itself (JavaScript), without you knowing; the Network panel is the ONLY place that shows what REALLY happens BEHIND the UI. The closest Java equivalent is an `HttpClient` logging interceptor — like OkHttp\'s `HttpLoggingInterceptor`, which writes every outgoing request and incoming response to the console; DevTools Network is the browser\'s GUI-based, automatic interceptor. For QA this panel becomes one of the most-used tools in your career because you WILL repeatedly face this scenario: everything looks normal on screen, the button says "Success!" — but opening the Network panel, a red 500 row is waiting for you. The UI can mislead you, the Network panel does not.',
       },
     },
-    { type: 'heading', text: { tr: 'Beş Sütun: Tek Bakışta Bir İsteğin Özeti', en: 'Five Columns: A Request\'s Summary at a Glance' } },
+    { type: 'heading', text: { tr: 'Beş Sütun: Tek Bakışta Bir Request\'in Özeti', en: 'Five Columns: A Request\'s Summary at a Glance' } },
     {
       type: 'text',
       content: {
-        tr: 'Her satır bir HTTP isteğidir. **Name** yolu/dosya adını, **Status** sunucunun cevabını (200/404/500...), **Type** isteğin türünü (`fetch`/`xhr`/`img`/`css`), **Size** yanıtın boyutunu, **Time** ne kadar sürdüğünü gösterir. `/api/v1/bugs` gibi bir API isteği genelde `fetch` veya `xhr` tipindedir — bu, E2\'de kullanacağın filtrenin temelidir.',
+        tr: 'Her satır bir HTTP request\'tir. **Name** yolu/dosya adını, **Status** sunucunun cevabını (200/404/500...), **Type** request\'in türünü (`fetch`/`xhr`/`img`/`css`), **Size** response\'un boyutunu, **Time** ne kadar sürdüğünü gösterir. `/api/v1/bugs` gibi bir API request\'i genelde `fetch` veya `xhr` tipindedir — bu, E2\'de kullanacağın filtrenin temelidir.',
         en: 'Each row is one HTTP request. **Name** shows the path/filename, **Status** the server\'s answer (200/404/500...), **Type** the request kind (`fetch`/`xhr`/`img`/`css`), **Size** the response size, **Time** how long it took. An API request like `/api/v1/bugs` is usually of type `fetch` or `xhr` — this is the basis of the filter you will use in E2.',
       },
     },
@@ -4558,7 +4558,7 @@ const E1 = {
     {
       type: 'video-scene',
       id: 'api-e1-panel-film',
-      title: { tr: '🎬 Bir İstek Network Panelinde Nasıl Belirir?', en: '🎬 How a Request Appears in the Network Panel' },
+      title: { tr: '🎬 Bir Request Network Panelinde Nasıl Belirir?', en: '🎬 How a Request Appears in the Network Panel' },
       xpReward: 11,
       sceneDurationMs: 3400,
       stageHeight: 260,
@@ -4585,7 +4585,7 @@ const E1 = {
           beams: [{ from: 'js', to: 'panel', color: '#a78bfa' }],
         },
         {
-          caption: { tr: 'Sunucudan yanıt gelince Status (200/500), Size ve Time sütunları anında güncellenir.', en: 'When the server responds, the Status (200/500), Size, and Time columns update instantly.' },
+          caption: { tr: 'Sunucudan response gelince Status (200/500), Size ve Time sütunları anında güncellenir.', en: 'When the server responds, the Status (200/500), Size, and Time columns update instantly.' },
           positions: { panel: { x: 20, y: 40 }, status: { x: 58, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'panel', to: 'status', color: '#22c55e' }],
         },
@@ -4598,24 +4598,24 @@ const E1 = {
     },
     {
       type: 'step-animation',
-      title: { tr: 'DevTools\'u Açıp İlk İsteği Görmek', en: 'Opening DevTools and Seeing the First Request' },
+      title: { tr: 'DevTools\'u Açıp İlk Request\'i Görmek', en: 'Opening DevTools and Seeing the First Request' },
       steps: [
         { id: 1, icon: '⌨️', label: { tr: 'DevTools\'u aç…', en: 'Open DevTools…' }, detail: { tr: 'F12 veya sağ tık → İncele, sonra Network sekmesine geç.', en: 'F12 or right-click → Inspect, then switch to the Network tab.' } },
         { id: 2, icon: '🔄', label: { tr: 'Bir eylem tetikle…', en: 'Trigger an action…' }, detail: { tr: 'Sayfayı yenile veya bir API çağrısı yapan bir butona tıkla.', en: 'Refresh the page or click a button that triggers an API call.' } },
-        { id: 3, icon: '👀', label: { tr: 'Satırı oku…', en: 'Read the row…' }, detail: { tr: 'Name/Status/Type/Size/Time sütunlarına bakarak isteğin özetini çıkar.', en: 'Read Name/Status/Type/Size/Time to get the request\'s summary.' } },
+        { id: 3, icon: '👀', label: { tr: 'Satırı oku…', en: 'Read the row…' }, detail: { tr: 'Name/Status/Type/Size/Time sütunlarına bakarak request\'in özetini çıkar.', en: 'Read Name/Status/Type/Size/Time to get the request\'s summary.' } },
       ],
     },
     {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-e1-order-01',
-      question: { tr: 'Network panelinde bir isteği ilk kez incelerken izlenecek sırayı diz.', en: 'Order the steps for inspecting a request in the Network panel for the first time.' },
+      question: { tr: 'Network panelinde bir request\'i ilk kez incelerken izlenecek sırayı diz.', en: 'Order the steps for inspecting a request in the Network panel for the first time.' },
       items: [
         { id: '1', text: { tr: 'DevTools\'u aç, Network sekmesine geç', en: 'Open DevTools, switch to the Network tab' }, order: 1 },
         { id: '2', text: { tr: 'Eylemi tetikle (yenile/butona tıkla)', en: 'Trigger the action (refresh/click button)' }, order: 2 },
         { id: '3', text: { tr: 'Yeni satırın Name sütununu oku', en: 'Read the new row\'s Name column' }, order: 3 },
         { id: '4', text: { tr: 'Status sütununa bak — 2xx mi 4xx/5xx mi?', en: 'Check the Status column — 2xx or 4xx/5xx?' }, order: 4 },
-        { id: '5', text: { tr: 'Size ve Time ile isteğin ağırlığını/hızını değerlendir', en: 'Assess the request\'s weight/speed via Size and Time' }, order: 5 },
+        { id: '5', text: { tr: 'Size ve Time ile request\'in ağırlığını/hızını değerlendir', en: 'Assess the request\'s weight/speed via Size and Time' }, order: 5 },
       ],
       xpReward: 10,
     },
@@ -4629,15 +4629,15 @@ const E1 = {
 Sutun adi: ???`,
       solutionCode: `// Sunucunun cevabini (basarili/basarisiz) gosteren sutun STATUS'tur
 Sutun adi: Status`,
-      hint: { tr: 'Name yolu, Type isteğin türünü, Size yanıt boyutunu, Time süreyi gösterir. Sunucunun "başardım/başaramadım" cevabını taşıyan tek sütun Status\'tur.', en: 'Name shows the path, Type the request kind, Size the response size, Time the duration. The only column carrying the server\'s "I succeeded/failed" answer is Status.' },
-      successMessage: { tr: 'Doğru! Status sütunu, bir isteğin gerçekten başarılı olup olmadığının tek güvenilir kanıtıdır.', en: 'Correct! The Status column is the only reliable evidence of whether a request truly succeeded.' },
+      hint: { tr: 'Name yolu, Type request\'in türünü, Size response boyutunu, Time süreyi gösterir. Sunucunun "başardım/başaramadım" cevabını taşıyan tek sütun Status\'tur.', en: 'Name shows the path, Type the request kind, Size the response size, Time the duration. The only column carrying the server\'s "I succeeded/failed" answer is Status.' },
+      successMessage: { tr: 'Doğru! Status sütunu, bir request\'in gerçekten başarılı olup olmadığının tek güvenilir kanıtıdır.', en: 'Correct! The Status column is the only reliable evidence of whether a request truly succeeded.' },
     },
     {
       type: 'quiz',
       question: { tr: 'UI ekranda "Bug başarıyla oluşturuldu" mesajı gösteriyor. Bunun gerçekten doğru olduğunu nasıl doğrularsın?', en: 'The UI shows "Bug created successfully" on screen. How do you verify this is really true?' },
       options: [
         { id: 'a', text: { tr: 'Mesaja güvenip geçerim, UI zaten doğru söylüyordur', en: 'Trust the message and move on, the UI is surely telling the truth' } },
-        { id: 'b', text: { tr: 'Network panelini açıp isteğin GERÇEK Status kodunu kontrol ederim', en: 'Open the Network panel and check the request\'s REAL Status code' } },
+        { id: 'b', text: { tr: 'Network panelini açıp request\'in GERÇEK Status kodunu kontrol ederim', en: 'Open the Network panel and check the request\'s REAL Status code' } },
         { id: 'c', text: { tr: 'Sayfayı yeniden başlatırım', en: 'Restart the page' } },
         { id: 'd', text: { tr: 'Sadece ekran görüntüsü alırım', en: 'Just take a screenshot' } },
       ],
@@ -4646,13 +4646,13 @@ Sutun adi: Status`,
       retryQuestion: {
         question: { tr: 'Network panelindeki "Type" sütunu ne gösterir?', en: 'What does the "Type" column in the Network panel show?' },
         options: [
-          { id: 'a', text: { tr: 'İsteğin türünü (fetch, xhr, img, css gibi)', en: 'The kind of request (fetch, xhr, img, css, etc.)' } },
+          { id: 'a', text: { tr: 'Request\'in türünü (fetch, xhr, img, css gibi)', en: 'The kind of request (fetch, xhr, img, css, etc.)' } },
           { id: 'b', text: { tr: 'Sunucunun IP adresini', en: 'The server\'s IP address' } },
           { id: 'c', text: { tr: 'Kullanıcının tarayıcı sürümünü', en: 'The user\'s browser version' } },
-          { id: 'd', text: { tr: 'İsteğin ne zaman gönderildiğini', en: 'When the request was sent' } },
+          { id: 'd', text: { tr: 'Request\'in ne zaman gönderildiğini', en: 'When the request was sent' } },
         ],
         correct: 'a',
-        explanation: { tr: 'Type sütunu isteğin kaynağını/türünü gösterir — bir API çağrısı genelde `fetch`/`xhr`, bir resim `img`, bir stil dosyası `css`\'tir. Bu ayrım, E2\'de göreceğin filtrelemenin temelidir.', en: 'The Type column shows the request\'s source/kind — an API call is usually `fetch`/`xhr`, an image is `img`, a stylesheet is `css`. This distinction is the basis of the filtering you will see in E2.' },
+        explanation: { tr: 'Type sütunu request\'in kaynağını/türünü gösterir — bir API çağrısı genelde `fetch`/`xhr`, bir resim `img`, bir stil dosyası `css`\'tir. Bu ayrım, E2\'de göreceğin filtrelemenin temelidir.', en: 'The Type column shows the request\'s source/kind — an API call is usually `fetch`/`xhr`, an image is `img`, a stylesheet is `css`. This distinction is the basis of the filtering you will see in E2.' },
       },
     },
   ],
@@ -4665,7 +4665,7 @@ const E2 = {
       type: 'simple-box',
       emoji: '🎚️',
       content: {
-        tr: 'Fetch/XHR filtresi, bir **radyo istasyonu ayar düğmesi** gibidir: eter (tüm ağ trafiği) yüzlerce frekansla (resim, CSS, font, reklam scripti, API isteği) doludur; filtre olmadan bir sayfa yüklemesi onlarca satır üretir ve aradığın TEK API isteğini bulmak saman yığınında iğne aramaya döner. Filtreyi "Fetch/XHR"a çevirdiğinde, sadece JavaScript\'in kod içinden başlattığı istekler (tam da API çağrıların) kalır — statik dosyalar (resim, font, stil) sessizleşir. Peki neden tarayıcı varsayılan olarak HER ŞEYİ göstersin ki, API testerının işini zorlaştırsın? Çünkü Network paneli SADECE testerlar için değildir — bir frontend geliştirici performans optimizasyonu yaparken TÜM kaynakları (resimler dahil) görmek ister; filtre, senin ROLÜNE göre gürültüyü SEN ayıklarsın. Java\'da bunun karşılığı log seviyesi filtrelemedir: `DEBUG` seviyesinde HER ŞEY loglanır, ama sen sadece `ERROR` seviyesini görmek istersin — log4j/logback\'te seviyeyi süzersin, DevTools\'ta da istek TÜRÜNÜ süzersin. QA açısından bu filtre olmadan çalışmak ciddi bir risktir: 50 satırlık bir sayfa yüklemesinde gerçek API isteğini KAÇIRMAK, bir defect\'i hiç görmeden geçmek anlamına gelir.',
+        tr: 'Fetch/XHR filtresi, bir **radyo istasyonu ayar düğmesi** gibidir: eter (tüm ağ trafiği) yüzlerce frekansla (resim, CSS, font, reklam scripti, API request\'i) doludur; filtre olmadan bir sayfa yüklemesi onlarca satır üretir ve aradığın TEK API request\'ini bulmak saman yığınında iğne aramaya döner. Filtreyi "Fetch/XHR"a çevirdiğinde, sadece JavaScript\'in kod içinden başlattığı request\'ler (tam da API çağrıların) kalır — statik dosyalar (resim, font, stil) sessizleşir. Peki neden tarayıcı varsayılan olarak HER ŞEYİ göstersin ki, API testerının işini zorlaştırsın? Çünkü Network paneli SADECE testerlar için değildir — bir frontend geliştirici performans optimizasyonu yaparken TÜM kaynakları (resimler dahil) görmek ister; filtre, senin ROLÜNE göre gürültüyü SEN ayıklarsın. Java\'da bunun karşılığı log seviyesi filtrelemedir: `DEBUG` seviyesinde HER ŞEY loglanır, ama sen sadece `ERROR` seviyesini görmek istersin — log4j/logback\'te seviyeyi süzersin, DevTools\'ta da request TÜRÜNÜ süzersin. QA açısından bu filtre olmadan çalışmak ciddi bir risktir: 50 satırlık bir sayfa yüklemesinde gerçek API request\'ini KAÇIRMAK, bir defect\'i hiç görmeden geçmek anlamına gelir.',
         en: 'The Fetch/XHR filter is like a **radio tuning dial**: the ether (all network traffic) is full of hundreds of frequencies (images, CSS, fonts, ad scripts, API calls); without a filter, loading one page produces dozens of rows and finding the ONE API request you want becomes finding a needle in a haystack. Turning the filter to "Fetch/XHR" leaves only the requests JavaScript itself started from code (exactly your API calls) — static files (images, fonts, styles) go quiet. So why does the browser show EVERYTHING by default, making an API tester\'s job harder? Because the Network panel is NOT only for testers — a frontend developer doing performance work wants to see ALL resources (images included); the filter lets YOU cut the noise according to YOUR role. The Java equivalent is log-level filtering: at `DEBUG` level EVERYTHING is logged, but you only want to see `ERROR` — you filter by level in log4j/logback, and in DevTools you filter by request TYPE. For QA, working without this filter is a real risk: MISSING the real API request in a 50-row page load means walking right past a defect without ever seeing it.',
       },
     },
@@ -4673,7 +4673,7 @@ const E2 = {
     {
       type: 'text',
       content: {
-        tr: 'Network panelinin üstündeki filtre çubuğunda `Fetch/XHR` seçeneğine tıklamak, listeyi sadece JavaScript kodunun (`fetch()`/`XMLHttpRequest`) başlattığı isteklere indirger. Bir metin araması (`bugs`) ile de daraltabilirsin. Bu ikisi birlikte, düzinelerce statik dosya arasından tam olarak aradığın API isteğine saniyeler içinde ulaştırır.',
+        tr: 'Network panelinin üstündeki filtre çubuğunda `Fetch/XHR` seçeneğine tıklamak, listeyi sadece JavaScript kodunun (`fetch()`/`XMLHttpRequest`) başlattığı request\'lere indirger. Bir metin araması (`bugs`) ile de daraltabilirsin. Bu ikisi birlikte, düzinelerce statik dosya arasından tam olarak aradığın API request\'ine saniyeler içinde ulaştırır.',
         en: 'Clicking the `Fetch/XHR` option in the filter bar above the Network panel reduces the list to only the requests started by JavaScript code (`fetch()`/`XMLHttpRequest`). You can narrow it further with a text search (`bugs`). Together these get you to exactly the API request you want, in seconds, out of dozens of static files.',
       },
     },
@@ -4685,7 +4685,7 @@ const E2 = {
     {
       type: 'video-scene',
       id: 'api-e2-filter-film',
-      title: { tr: '🎬 50 Satır Arasında Kaybolan Tek API İsteği', en: '🎬 The One API Request Lost Among 50 Rows' },
+      title: { tr: '🎬 50 Satır Arasında Kaybolan Tek API Request', en: '🎬 The One API Request Lost Among 50 Rows' },
       xpReward: 11,
       sceneDurationMs: 3400,
       stageHeight: 260,
@@ -4697,7 +4697,7 @@ const E2 = {
       ],
       scenes: [
         {
-          caption: { tr: 'Sayfa yüklenir: resimler, fontlar, stiller, reklam scriptleri ve BİR API isteği — toplam 50 satır.', en: 'The page loads: images, fonts, styles, ad scripts, and ONE API request — 50 rows total.' },
+          caption: { tr: 'Sayfa yüklenir: resimler, fontlar, stiller, reklam scriptleri ve BİR API request\'i — toplam 50 satır.', en: 'The page loads: images, fonts, styles, ad scripts, and ONE API request — 50 rows total.' },
           positions: { load: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
@@ -4706,7 +4706,7 @@ const E2 = {
           beams: [{ from: 'load', to: 'search', color: '#f59e0b' }],
         },
         {
-          caption: { tr: 'Filtre çubuğunda "Fetch/XHR" seçilir — sadece JavaScript\'in başlattığı istekler kalır.', en: 'The "Fetch/XHR" option is selected in the filter bar — only JavaScript-started requests remain.' },
+          caption: { tr: 'Filtre çubuğunda "Fetch/XHR" seçilir — sadece JavaScript\'in başlattığı request\'ler kalır.', en: 'The "Fetch/XHR" option is selected in the filter bar — only JavaScript-started requests remain.' },
           positions: { search: { x: 20, y: 40 }, filter: { x: 58, y: 55, scale: 1.15, pulse: true } },
           beams: [{ from: 'search', to: 'filter', color: '#0ea5e9' }],
         },
@@ -4726,7 +4726,7 @@ const E2 = {
       title: { tr: 'Gürültüyü Ayıklama Sırası', en: 'The Order for Cutting the Noise' },
       steps: [
         { id: 1, icon: '📄', label: { tr: 'Filtresiz listeye bak…', en: 'Look at the unfiltered list…' }, detail: { tr: 'Sayfa yüklendiğinde resim/font/CSS/API karışık onlarca satır görünür.', en: 'When the page loads, dozens of mixed image/font/CSS/API rows appear.' } },
-        { id: 2, icon: '🎚️', label: { tr: 'Fetch/XHR\'ı seç…', en: 'Select Fetch/XHR…' }, detail: { tr: 'Filtre çubuğunda Fetch/XHR\'a tıkla — sadece JS kaynaklı istekler kalır.', en: 'Click Fetch/XHR in the filter bar — only JS-originated requests remain.' } },
+        { id: 2, icon: '🎚️', label: { tr: 'Fetch/XHR\'ı seç…', en: 'Select Fetch/XHR…' }, detail: { tr: 'Filtre çubuğunda Fetch/XHR\'a tıkla — sadece JS kaynaklı request\'ler kalır.', en: 'Click Fetch/XHR in the filter bar — only JS-originated requests remain.' } },
         { id: 3, icon: '🔎', label: { tr: 'Metinle daralt…', en: 'Narrow with text…' }, detail: { tr: 'Gerekirse "bugs" gibi bir arama terimiyle listeyi tek satıra indir.', en: 'If needed, narrow to a single row with a search term like "bugs".' } },
       ],
     },
@@ -4734,13 +4734,13 @@ const E2 = {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-e2-order-01',
-      question: { tr: 'Kalabalık bir sayfa yüklemesinde tek bir API isteğini bulma sırasını diz.', en: 'Order the steps to find one API request in a crowded page load.' },
+      question: { tr: 'Kalabalık bir sayfa yüklemesinde tek bir API request\'ini bulma sırasını diz.', en: 'Order the steps to find one API request in a crowded page load.' },
       items: [
         { id: '1', text: { tr: 'Sayfayı yükle, Network panelini gözlemle', en: 'Load the page, observe the Network panel' }, order: 1 },
         { id: '2', text: { tr: 'Filtre çubuğunda Fetch/XHR\'ı seç', en: 'Select Fetch/XHR in the filter bar' }, order: 2 },
         { id: '3', text: { tr: 'Kalan listeyi metin aramasıyla daralt', en: 'Narrow the remaining list with a text search' }, order: 3 },
-        { id: '4', text: { tr: 'Hedef API isteğini tek satırda bul', en: 'Find the target API request in a single row' }, order: 4 },
-        { id: '5', text: { tr: 'Status/Time üzerinden isteği değerlendir', en: 'Evaluate the request via Status/Time' }, order: 5 },
+        { id: '4', text: { tr: 'Hedef API request\'ini tek satırda bul', en: 'Find the target API request in a single row' }, order: 4 },
+        { id: '5', text: { tr: 'Status/Time üzerinden request\'i değerlendir', en: 'Evaluate the request via Status/Time' }, order: 5 },
       ],
       xpReward: 10,
     },
@@ -4752,45 +4752,45 @@ const E2 = {
       starterCode: `// Filtrelenmemis liste: logo.svg (img), style.css, /api/v1/bugs (fetch), font.woff2
 // TODO: Fetch/XHR filtresi acildiginda listede SADECE hangisi kalir?
 Kalan: ???`,
-      solutionCode: `// Sadece JavaScript'in baslattigi istek (fetch/xhr turu) kalir
+      solutionCode: `// Sadece JavaScript'in baslattigi request (fetch/xhr turu) kalir
 Kalan: /api/v1/bugs (fetch)`,
       hint: { tr: '`img`, `css` ve `font` türündeki dosyalar tarayıcının kendisi tarafından sayfa render edilirken istenir — bunlar JavaScript kodundan değildir, bu yüzden Fetch/XHR filtresinde ELENİR.', en: '`img`, `css`, and `font` type files are requested by the browser itself while rendering the page — these do not come from JavaScript code, so they are FILTERED OUT by the Fetch/XHR filter.' },
-      successMessage: { tr: 'Doğru! Fetch/XHR filtresi tam olarak API isteklerinin yaşadığı yerdir.', en: 'Correct! Fetch/XHR is exactly where API requests live in the filter.' },
+      successMessage: { tr: 'Doğru! Fetch/XHR filtresi tam olarak API request\'lerinin yaşadığı yerdir.', en: 'Correct! Fetch/XHR is exactly where API requests live in the filter.' },
     },
     {
       type: 'quiz',
       question: { tr: 'Fetch/XHR filtresi neden tercih edilir?', en: 'Why is the Fetch/XHR filter preferred?' },
       options: [
-        { id: 'a', text: { tr: 'Sadece JavaScript kodunun başlattığı istekleri (API çağrıları) gösterip statik dosya gürültüsünü eler', en: 'It shows only requests started by JavaScript code (API calls) and cuts static-file noise' } },
-        { id: 'b', text: { tr: 'Tüm isteklerin hızını otomatik artırır', en: 'It automatically speeds up all requests' } },
-        { id: 'c', text: { tr: 'Sadece HTTPS isteklerini gösterir', en: 'It shows only HTTPS requests' } },
+        { id: 'a', text: { tr: 'Sadece JavaScript kodunun başlattığı request\'leri (API çağrıları) gösterip statik dosya gürültüsünü eler', en: 'It shows only requests started by JavaScript code (API calls) and cuts static-file noise' } },
+        { id: 'b', text: { tr: 'Tüm request\'lerin hızını otomatik artırır', en: 'It automatically speeds up all requests' } },
+        { id: 'c', text: { tr: 'Sadece HTTPS request\'lerini gösterir', en: 'It shows only HTTPS requests' } },
         { id: 'd', text: { tr: 'Sunucudaki hataları otomatik düzeltir', en: 'It automatically fixes server-side errors' } },
       ],
       correct: 'a',
-      explanation: { tr: 'Fetch/XHR filtresi, isteğin TÜRÜNE göre süzer: resim/font/CSS gibi statik kaynak istekleri (tarayıcı tarafından otomatik başlatılır) elenir, sadece JavaScript\'in `fetch()`/`XMLHttpRequest` ile başlattığı — yani genelde API — istekler kalır.', en: 'The Fetch/XHR filter sieves by request TYPE: static resource requests like images/fonts/CSS (auto-started by the browser) are filtered out, leaving only requests JavaScript started with `fetch()`/`XMLHttpRequest` — typically API calls.' },
+      explanation: { tr: 'Fetch/XHR filtresi, request\'in TÜRÜNE göre süzer: resim/font/CSS gibi statik kaynak request\'leri (tarayıcı tarafından otomatik başlatılır) elenir, sadece JavaScript\'in `fetch()`/`XMLHttpRequest` ile başlattığı — yani genelde API — request\'ler kalır.', en: 'The Fetch/XHR filter sieves by request TYPE: static resource requests like images/fonts/CSS (auto-started by the browser) are filtered out, leaving only requests JavaScript started with `fetch()`/`XMLHttpRequest` — typically API calls.' },
       retryQuestion: {
-        question: { tr: 'Filtre kullanmadan Network panelinde API isteği aramanın en büyük riski nedir?', en: 'What is the biggest risk of searching for an API request in the Network panel without a filter?' },
+        question: { tr: 'Filtre kullanmadan Network panelinde API request\'i aramanın en büyük riski nedir?', en: 'What is the biggest risk of searching for an API request in the Network panel without a filter?' },
         options: [
-          { id: 'a', text: { tr: 'Onlarca alakasız satır arasında gerçek isteği/defect\'i kaçırmak', en: 'Missing the real request/defect among dozens of unrelated rows' } },
+          { id: 'a', text: { tr: 'Onlarca alakasız satır arasında gerçek request\'i/defect\'i kaçırmak', en: 'Missing the real request/defect among dozens of unrelated rows' } },
           { id: 'b', text: { tr: 'Tarayıcının çökmesi', en: 'Crashing the browser' } },
-          { id: 'c', text: { tr: 'Sunucunun isteği reddetmesi', en: 'The server rejecting the request' } },
+          { id: 'c', text: { tr: 'Sunucunun request\'i reddetmesi', en: 'The server rejecting the request' } },
           { id: 'd', text: { tr: 'İnternet bağlantısının kesilmesi', en: 'Losing the internet connection' } },
         ],
         correct: 'a',
-        explanation: { tr: 'Filtre olmadan bir sayfa yüklemesi onlarca satır üretebilir; bu kalabalıkta gerçek API isteğini (ve içindeki olası bir 500/boş body defect\'ini) atlamak kolaydır — filtre bu riski ortadan kaldırır.', en: 'Without a filter, one page load can produce dozens of rows; in that crowd it is easy to skip the real API request (and a possible 500/empty-body defect inside it) — the filter removes that risk.' },
+        explanation: { tr: 'Filtre olmadan bir sayfa yüklemesi onlarca satır üretebilir; bu kalabalıkta gerçek API request\'ini (ve içindeki olası bir 500/boş body defect\'ini) atlamak kolaydır — filtre bu riski ortadan kaldırır.', en: 'Without a filter, one page load can produce dozens of rows; in that crowd it is easy to skip the real API request (and a possible 500/empty-body defect inside it) — the filter removes that risk.' },
       },
     },
   ],
 }
 
 const E3 = {
-  title: { tr: '📖 E3 · Bir İsteği Okumak: Headers / Payload / Preview / Response / Timing', en: '📖 E3 · Reading a Request: Headers / Payload / Preview / Response / Timing' },
+  title: { tr: '📖 E3 · Bir Request\'i Okumak: Headers / Payload / Preview / Response / Timing', en: '📖 E3 · Reading a Request: Headers / Payload / Preview / Response / Timing' },
   blocks: [
     {
       type: 'simple-box',
       emoji: '📖',
       content: {
-        tr: 'Bir Network satırına tıklayıp açılan 5 sekme (`Headers`, `Payload`, `Preview`, `Response`, `Timing`), bir **zarfı katman katman açmak** gibidir: `Headers` zarfın dışındaki adres/pul bilgisidir (meta veri — Content-Type, Authorization); `Payload` içindeki mektubun SEN gönderdiğin hâlidir (istek gövdesi); `Response` sunucudan gelen mektubun HAM hâlidir (ayrıştırılmamış metin); `Preview` ise aynı mektubun OKUNAKLI, biçimlendirilmiş hâlidir (JSON güzelce girintili); `Timing` ise mektubun postalanmasından teslimine kadar geçen süredir. Peki `Response` varken `Preview`\'e neden ihtiyaç var — ikisi aynı veriyi göstermiyor mu? Evet aynı veriyi gösterirler ama `Response` ham metindir (büyük bir JSON\'da okumak gözünü yorar), `Preview` ise tarayıcının senin için AYRIŞTIRIP güzelce sunduğu hâlidir — küçük farkları (bir alanın eksikliği, yanlış tipte bir değer) `Preview`\'de çok daha hızlı yakalarsın. Java\'da bunun karşılığı bir `HttpResponse` nesnesinin `headers()`, `body()` alanlarıdır — `Payload` bir `HttpRequest.BodyPublisher`\'a, `Response` bir `HttpResponse<String>`\'e karşılık gelir; `Timing` ise bir profiler\'ın ölçtüğü süreye. QA açısından bu 5 sekmeyi ayrı ayrı bilmek kritiktir çünkü bir hata farklı sekmelerde farklı görünür: yanlış `Content-Type` `Headers`\'da, eksik bir alan `Payload`\'da, beklenmeyen bir `passwordHash` alanı `Response`\'ta saklıdır.',
+        tr: 'Bir Network satırına tıklayıp açılan 5 sekme (`Headers`, `Payload`, `Preview`, `Response`, `Timing`), bir **zarfı katman katman açmak** gibidir: `Headers` zarfın dışındaki adres/pul bilgisidir (meta veri — Content-Type, Authorization); `Payload` içindeki mektubun SEN gönderdiğin hâlidir (request gövdesi); `Response` sunucudan gelen mektubun HAM hâlidir (ayrıştırılmamış metin); `Preview` ise aynı mektubun OKUNAKLI, biçimlendirilmiş hâlidir (JSON güzelce girintili); `Timing` ise mektubun postalanmasından teslimine kadar geçen süredir. Peki `Response` varken `Preview`\'e neden ihtiyaç var — ikisi aynı veriyi göstermiyor mu? Evet aynı veriyi gösterirler ama `Response` ham metindir (büyük bir JSON\'da okumak gözünü yorar), `Preview` ise tarayıcının senin için AYRIŞTIRIP güzelce sunduğu hâlidir — küçük farkları (bir alanın eksikliği, yanlış tipte bir değer) `Preview`\'de çok daha hızlı yakalarsın. Java\'da bunun karşılığı bir `HttpResponse` nesnesinin `headers()`, `body()` alanlarıdır — `Payload` bir `HttpRequest.BodyPublisher`\'a, `Response` bir `HttpResponse<String>`\'e karşılık gelir; `Timing` ise bir profiler\'ın ölçtüğü süreye. QA açısından bu 5 sekmeyi ayrı ayrı bilmek kritiktir çünkü bir hata farklı sekmelerde farklı görünür: yanlış `Content-Type` `Headers`\'da, eksik bir alan `Payload`\'da, beklenmeyen bir `passwordHash` alanı `Response`\'ta saklıdır.',
         en: 'The 5 tabs (`Headers`, `Payload`, `Preview`, `Response`, `Timing`) that open when you click a Network row are like **opening an envelope layer by layer**: `Headers` is the address/stamp info on the outside of the envelope (metadata — Content-Type, Authorization); `Payload` is the letter inside as YOU sent it (the request body); `Response` is the RAW form of the letter that came back from the server (unparsed text); `Preview` is the same letter\'s READABLE, formatted form (JSON nicely indented); `Timing` is how long it took from posting to delivery. So why do we need `Preview` when `Response` exists — don\'t they show the same data? Yes, they show the same data, but `Response` is raw text (tiring on the eyes in a large JSON), while `Preview` is the browser PARSING and presenting it nicely for you — small differences (a missing field, a wrongly typed value) are caught much faster in `Preview`. The Java equivalent is an `HttpResponse` object\'s `headers()`, `body()` fields — `Payload` maps to an `HttpRequest.BodyPublisher`, `Response` to an `HttpResponse<String>`, `Timing` to what a profiler measures. For QA, knowing these 5 tabs separately is critical because a bug shows up differently in different tabs: a wrong `Content-Type` hides in `Headers`, a missing field in `Payload`, an unexpected `passwordHash` field in `Response`.',
       },
     },
@@ -4798,13 +4798,13 @@ const E3 = {
     {
       type: 'text',
       content: {
-        tr: 'Bir satıra tıkladığında yan panelde bu 5 sekme açılır. `Preview` sekmesi, sunucunun döndürdüğü JSON\'u okunaklı ağaç yapısında gösterir — özellikle büyük yanıtlarda ilk bakılacak sekme budur.',
+        tr: 'Bir satıra tıkladığında yan panelde bu 5 sekme açılır. `Preview` sekmesi, sunucunun döndürdüğü JSON\'u okunaklı ağaç yapısında gösterir — özellikle büyük response\'larda ilk bakılacak sekme budur.',
         en: 'Clicking a row opens these 5 tabs in the side panel. The `Preview` tab shows the JSON the server returned in a readable tree structure — this is the first tab to check, especially for large responses.',
       },
     },
     {
       type: 'diagram-svg',
-      title: { tr: 'Bir İsteğin 5 Sekmesi (Preview seçili)', en: 'A Request\'s 5 Tabs (Preview selected)' },
+      title: { tr: 'Bir Request\'in 5 Sekmesi (Preview seçili)', en: 'A Request\'s 5 Tabs (Preview selected)' },
       svg: requestTabsSvg,
     },
     {
@@ -4832,7 +4832,7 @@ const E3 = {
           beams: [{ from: 'row', to: 'headers', color: '#0ea5e9' }],
         },
         {
-          caption: { tr: '`Payload` sekmesi testerın gönderdiği isteği aynen gösterir — "ben ne yolladım?" sorusunun cevabı.', en: 'The `Payload` tab shows exactly what the tester sent — the answer to "what did I send?"' },
+          caption: { tr: '`Payload` sekmesi testerın gönderdiği request\'i aynen gösterir — "ben ne yolladım?" sorusunun cevabı.', en: 'The `Payload` tab shows exactly what the tester sent — the answer to "what did I send?"' },
           positions: { headers: { x: 20, y: 50 }, payload: { x: 58, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'headers', to: 'payload', color: '#a78bfa' }],
         },
@@ -4850,10 +4850,10 @@ const E3 = {
     },
     {
       type: 'step-animation',
-      title: { tr: 'Bir İsteği Baştan Sona Okuma Sırası', en: 'The Order for Reading a Request End to End' },
+      title: { tr: 'Bir Request\'i Baştan Sona Okuma Sırası', en: 'The Order for Reading a Request End to End' },
       steps: [
         { id: 1, icon: '📇', label: { tr: 'Headers\'a bak…', en: 'Check Headers…' }, detail: { tr: 'Content-Type, Authorization gibi meta bilgilerin doğru olduğunu doğrula.', en: 'Verify metadata like Content-Type, Authorization is correct.' } },
-        { id: 2, icon: '📝', label: { tr: 'Payload\'ı doğrula…', en: 'Verify Payload…' }, detail: { tr: 'POST/PUT isteklerinde gerçekten göndermeyi düşündüğün veriyi gönderdiğini kontrol et.', en: 'On POST/PUT requests, check you really sent the data you intended.' } },
+        { id: 2, icon: '📝', label: { tr: 'Payload\'ı doğrula…', en: 'Verify Payload…' }, detail: { tr: 'POST/PUT request\'lerinde gerçekten göndermeyi düşündüğün veriyi gönderdiğini kontrol et.', en: 'On POST/PUT requests, check you really sent the data you intended.' } },
         { id: 3, icon: '📥', label: { tr: 'Preview/Response\'u incele…', en: 'Inspect Preview/Response…' }, detail: { tr: 'Sunucunun döndürdüğü gerçek veriyi (ve olmaması gereken alanları) kontrol et, sonra Timing\'e bak.', en: 'Check the real data the server returned (and any field that should not be there), then check Timing.' } },
       ],
     },
@@ -4861,7 +4861,7 @@ const E3 = {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-e3-order-01',
-      question: { tr: 'Bir isteği baştan sona incelerken sekmeleri sırala.', en: 'Order the tabs when inspecting a request end to end.' },
+      question: { tr: 'Bir request\'i baştan sona incelerken sekmeleri sırala.', en: 'Order the tabs when inspecting a request end to end.' },
       items: [
         { id: '1', text: { tr: 'Headers — meta veri doğru mu', en: 'Headers — is the metadata correct' }, order: 1 },
         { id: '2', text: { tr: 'Payload — ben ne gönderdim', en: 'Payload — what did I send' }, order: 2 },
@@ -4889,22 +4889,22 @@ Sekme: Response (veya Preview)`,
       question: { tr: '`Response` ile `Preview` sekmeleri arasındaki fark nedir?', en: 'What is the difference between the `Response` and `Preview` tabs?' },
       options: [
         { id: 'a', text: { tr: 'Response ham/ayrıştırılmamış metni, Preview aynı veriyi okunaklı/biçimlendirilmiş gösterir', en: 'Response shows the raw/unparsed text, Preview shows the same data readably/formatted' } },
-        { id: 'b', text: { tr: 'İkisi tamamen farklı isteklere aittir', en: 'They belong to completely different requests' } },
+        { id: 'b', text: { tr: 'İkisi tamamen farklı request\'lere aittir', en: 'They belong to completely different requests' } },
         { id: 'c', text: { tr: 'Preview sadece hata durumunda görünür', en: 'Preview only appears on errors' } },
-        { id: 'd', text: { tr: 'Response sadece GET isteklerinde vardır', en: 'Response only exists for GET requests' } },
+        { id: 'd', text: { tr: 'Response sadece GET request\'lerinde vardır', en: 'Response only exists for GET requests' } },
       ],
       correct: 'a',
-      explanation: { tr: 'Her iki sekme de AYNI yanıt verisini gösterir; `Response` sunucudan geldiği ham hâliyle, `Preview` ise tarayıcının ayrıştırıp okunaklı bir ağaç yapısında sunduğu hâliyle. Küçük farkları (eksik alan, sızan alan) yakalamak için `Preview` genelde daha hızlıdır.', en: 'Both tabs show the SAME response data; `Response` in its raw form as it came from the server, `Preview` as the browser parses and presents it in a readable tree. `Preview` is usually faster for catching small differences (a missing field, a leaked field).' },
+      explanation: { tr: 'Her iki sekme de AYNI response verisini gösterir; `Response` sunucudan geldiği ham hâliyle, `Preview` ise tarayıcının ayrıştırıp okunaklı bir ağaç yapısında sunduğu hâliyle. Küçük farkları (eksik alan, sızan alan) yakalamak için `Preview` genelde daha hızlıdır.', en: 'Both tabs show the SAME response data; `Response` in its raw form as it came from the server, `Preview` as the browser parses and presents it in a readable tree. `Preview` is usually faster for catching small differences (a missing field, a leaked field).' },
       retryQuestion: {
         question: { tr: '`Payload` sekmesi neyi gösterir?', en: 'What does the `Payload` tab show?' },
         options: [
-          { id: 'a', text: { tr: 'İstemcinin (senin) sunucuya gönderdiği istek gövdesini', en: 'The request body the client (you) sent to the server' } },
+          { id: 'a', text: { tr: 'İstemcinin (senin) sunucuya gönderdiği request gövdesini', en: 'The request body the client (you) sent to the server' } },
           { id: 'b', text: { tr: 'Sunucunun döndürdüğü veriyi', en: 'The data the server returned' } },
-          { id: 'c', text: { tr: 'İsteğin ne kadar sürdüğünü', en: 'How long the request took' } },
+          { id: 'c', text: { tr: 'Request\'in ne kadar sürdüğünü', en: 'How long the request took' } },
           { id: 'd', text: { tr: 'Tarayıcının önbelleğini', en: 'The browser\'s cache' } },
         ],
         correct: 'a',
-        explanation: { tr: '`Payload`, POST/PUT/PATCH gibi bir gövde taşıyan isteklerde SENİN gönderdiğin veriyi gösterir — sunucunun cevabı değil. "Ben gerçekten doğru veriyi mi gönderdim?" sorusunu bu sekmede cevaplarsın.', en: '`Payload` shows the data YOU sent on requests carrying a body, like POST/PUT/PATCH — not the server\'s answer. You answer "did I really send the right data?" in this tab.' },
+        explanation: { tr: '`Payload`, POST/PUT/PATCH gibi bir gövde taşıyan request\'lerde SENİN gönderdiğin veriyi gösterir — sunucunun cevabı değil. "Ben gerçekten doğru veriyi mi gönderdim?" sorusunu bu sekmede cevaplarsın.', en: '`Payload` shows the data YOU sent on requests carrying a body, like POST/PUT/PATCH — not the server\'s answer. You answer "did I really send the right data?" in this tab.' },
       },
     },
   ],
@@ -4917,15 +4917,15 @@ const E4 = {
       type: 'simple-box',
       emoji: '⏱️',
       content: {
-        tr: 'Timing sekmesi, bir **kargo takip sayfası** gibidir: bir istek "yola çıktığında" tek bir "2.9 saniye sürdü" sayısı sana hiçbir şey ANLATMAZ, ama kargo takibi gibi süreyi aşamalara bölersen ("depoda bekledi", "yolda gitti", "kapıya teslim edildi") gecikmenin TAM OLARAK nerede olduğunu görürsün. `TTFB` (Time To First Byte) = sunucunun ilk baytı göndermesi ne kadar sürdü, `Waiting` = sunucunun isteği İŞLEMESİ ne kadar sürdü (genelde en büyük dilim), `Content Download` = yanıt verisinin İNMESİ ne kadar sürdü. Peki neden bu ayrım bu kadar önemli — "3 saniye yavaş" demek yetmez mi? Çünkü çözüm TAMAMEN farklıdır: `Waiting` büyükse suçlu SUNUCUdur (yavaş bir SQL sorgusu, N+1 problemi — geliştiriciye escalate edilir), `Content Download` büyükse suçlu VERİ BOYUTU/AĞdır (gereksiz büyük bir JSON, sıkıştırma eksikliği). Java\'da bunun karşılığı bir metodun içine konan `System.currentTimeMillis()` ile yapılan elle profiling\'dir — ama orada SEN segmentleri elle ölçersin, tarayıcı Timing sekmesinde bunu SENİN için otomatik yapar. QA açısından "yavaş" bir performans bug raporu Timing verisi olmadan neredeyse değersizdir — geliştirici "hangi katman yavaş?" diye sorduğunda "bilmiyorum, genel olarak yavaştı" cevabı, raporu geri gönderilmeye mahkûm eder.',
+        tr: 'Timing sekmesi, bir **kargo takip sayfası** gibidir: bir request "yola çıktığında" tek bir "2.9 saniye sürdü" sayısı sana hiçbir şey ANLATMAZ, ama kargo takibi gibi süreyi aşamalara bölersen ("depoda bekledi", "yolda gitti", "kapıya teslim edildi") gecikmenin TAM OLARAK nerede olduğunu görürsün. `TTFB` (Time To First Byte) = sunucunun ilk baytı göndermesi ne kadar sürdü, `Waiting` = sunucunun request\'i İŞLEMESİ ne kadar sürdü (genelde en büyük dilim), `Content Download` = response verisinin İNMESİ ne kadar sürdü. Peki neden bu ayrım bu kadar önemli — "3 saniye yavaş" demek yetmez mi? Çünkü çözüm TAMAMEN farklıdır: `Waiting` büyükse suçlu SUNUCUdur (yavaş bir SQL sorgusu, N+1 problemi — geliştiriciye escalate edilir), `Content Download` büyükse suçlu VERİ BOYUTU/AĞdır (gereksiz büyük bir JSON, sıkıştırma eksikliği). Java\'da bunun karşılığı bir metodun içine konan `System.currentTimeMillis()` ile yapılan elle profiling\'dir — ama orada SEN segmentleri elle ölçersin, tarayıcı Timing sekmesinde bunu SENİN için otomatik yapar. QA açısından "yavaş" bir performans bug raporu Timing verisi olmadan neredeyse değersizdir — geliştirici "hangi katman yavaş?" diye sorduğunda "bilmiyorum, genel olarak yavaştı" cevabı, raporu geri gönderilmeye mahkûm eder.',
         en: 'The Timing tab is like a **package tracking page**: a single number saying a request "took 2.9 seconds" TELLS YOU NOTHING, but like package tracking, if you split the time into phases ("waited in the warehouse", "was in transit", "delivered to the door") you see EXACTLY where the delay is. `TTFB` (Time To First Byte) = how long the server took to send its first byte, `Waiting` = how long the server took to PROCESS the request (usually the biggest slice), `Content Download` = how long the response data took to DOWNLOAD. So why does this split matter so much — isn\'t "3 seconds slow" enough to say? Because the fix is COMPLETELY different: if `Waiting` is large the culprit is the SERVER (a slow SQL query, an N+1 problem — escalate to the developer); if `Content Download` is large the culprit is DATA SIZE/NETWORK (an unnecessarily huge JSON, missing compression). The Java equivalent is manual profiling with `System.currentTimeMillis()` inside a method — but there YOU measure the segments by hand, in the browser the Timing tab does it automatically FOR you. For QA, a "slow" performance bug report is nearly worthless without Timing data — when a developer asks "which layer is slow?", answering "I don\'t know, it was generally slow" gets the report bounced back.',
       },
     },
-    { type: 'heading', text: { tr: 'Bir İsteğin Üç Aşaması', en: 'A Request\'s Three Phases' } },
+    { type: 'heading', text: { tr: 'Bir Request\'in Üç Aşaması', en: 'A Request\'s Three Phases' } },
     {
       type: 'text',
       content: {
-        tr: 'Timing sekmesindeki yatay çubuk, bir isteğin süresini renkli dilimlere ayırır. `TTFB` genelde küçüktür (sunucunun "aldım" demesi hızlıdır); `Waiting` isteğin GERÇEKTEN işlendiği süredir — burada bir veritabanı sorgusu, bir dış servis çağrısı veya kötü bir algoritma zaman harcayabilir; `Content Download` ise büyük bir yanıt gövdesinin (örn. binlerce bug kaydı) inmesi için geçen süredir.',
+        tr: 'Timing sekmesindeki yatay çubuk, bir request\'in süresini renkli dilimlere ayırır. `TTFB` genelde küçüktür (sunucunun "aldım" demesi hızlıdır); `Waiting` request\'in GERÇEKTEN işlendiği süredir — burada bir veritabanı sorgusu, bir dış servis çağrısı veya kötü bir algoritma zaman harcayabilir; `Content Download` ise büyük bir response gövdesinin (örn. binlerce bug kaydı) inmesi için geçen süredir.',
         en: 'The horizontal bar in the Timing tab splits a request\'s duration into colored slices. `TTFB` is usually small (the server saying "got it" is fast); `Waiting` is the time the request is REALLY being processed — a database query, an external service call, or a bad algorithm can eat time here; `Content Download` is how long a large response body (e.g. thousands of bug records) takes to download.',
       },
     },
@@ -4950,21 +4950,21 @@ const E4 = {
       ],
       scenes: [
         {
-          caption: { tr: 'Bir istek toplamda 2.9 saniye sürüyor — tester tek başına bu sayı ile hiçbir şey diyemez.', en: 'A request takes 2.9 seconds total — alone, this number tells the tester nothing.' },
+          caption: { tr: 'Bir request toplamda 2.9 saniye sürüyor — tester tek başına bu sayı ile hiçbir şey diyemez.', en: 'A request takes 2.9 seconds total — alone, this number tells the tester nothing.' },
           positions: { req: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
-          caption: { tr: 'Timing sekmesi süreyi üçe böler. `TTFB` sadece 0.1s — sunucuya ulaşmak ve ilk yanıtı almak hızlı.', en: 'The Timing tab splits the duration into three. `TTFB` is only 0.1s — reaching the server and getting the first byte is fast.' },
+          caption: { tr: 'Timing sekmesi süreyi üçe böler. `TTFB` sadece 0.1s — sunucuya ulaşmak ve ilk response\'u almak hızlı.', en: 'The Timing tab splits the duration into three. `TTFB` is only 0.1s — reaching the server and getting the first byte is fast.' },
           positions: { req: { x: 18, y: 35 }, ttfb: { x: 55, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'req', to: 'ttfb', color: '#a78bfa' }],
         },
         {
-          caption: { tr: '`Waiting` 2.7s — toplam sürenin neredeyse tamamı burada. Sunucu isteği işlerken (bir sorgu, bir hesaplama) zaman harcıyor.', en: '`Waiting` is 2.7s — almost the entire total duration is here. The server spends time processing the request (a query, a calculation).' },
+          caption: { tr: '`Waiting` 2.7s — toplam sürenin neredeyse tamamı burada. Sunucu request\'i işlerken (bir sorgu, bir hesaplama) zaman harcıyor.', en: '`Waiting` is 2.7s — almost the entire total duration is here. The server spends time processing the request (a query, a calculation).' },
           positions: { ttfb: { x: 18, y: 35 }, waiting: { x: 55, y: 50, scale: 1.2, pulse: true } },
           beams: [{ from: 'ttfb', to: 'waiting', color: '#f59e0b' }],
         },
         {
-          caption: { tr: '`Content Download` sadece 0.1s — yanıt verisi küçük, indirme hızlı. Ağ/veri boyutu SUÇLU DEĞİL.', en: '`Content Download` is only 0.1s — the response data is small, download is fast. Network/data size is NOT the culprit.' },
+          caption: { tr: '`Content Download` sadece 0.1s — response verisi küçük, indirme hızlı. Ağ/veri boyutu SUÇLU DEĞİL.', en: '`Content Download` is only 0.1s — the response data is small, download is fast. Network/data size is NOT the culprit.' },
           positions: { waiting: { x: 18, y: 35 }, download: { x: 55, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'waiting', to: 'download', color: '#22c55e' }],
         },
@@ -4979,22 +4979,22 @@ const E4 = {
       type: 'step-animation',
       title: { tr: 'Yavaşlığın Suçlusunu Teşhis Etme Sırası', en: 'The Order for Diagnosing the Cause of Slowness' },
       steps: [
-        { id: 1, icon: '🚀', label: { tr: 'TTFB\'ye bak…', en: 'Check TTFB…' }, detail: { tr: 'Büyükse sunucuya ulaşmak/ilk yanıt bile gecikiyordur (ağ/DNS/sunucu yükü).', en: 'If large, even reaching the server/first response is delayed (network/DNS/server load).' } },
-        { id: 2, icon: '🐢', label: { tr: 'Waiting\'e bak…', en: 'Check Waiting…' }, detail: { tr: 'Büyükse sunucu isteği İŞLERKEN yavaş — bir sorgu/hesaplama şüphelidir, geliştiriciye escalate edilir.', en: 'If large, the server is slow while PROCESSING — a query/calculation is suspect, escalate to the developer.' } },
-        { id: 3, icon: '📥', label: { tr: 'Content Download\'a bak…', en: 'Check Content Download…' }, detail: { tr: 'Büyükse yanıt verisi/ağ suçlu — gereksiz büyük JSON, sıkıştırma eksikliği şüphelidir.', en: 'If large, response data/network is the culprit — an unnecessarily large JSON, missing compression is suspect.' } },
+        { id: 1, icon: '🚀', label: { tr: 'TTFB\'ye bak…', en: 'Check TTFB…' }, detail: { tr: 'Büyükse sunucuya ulaşmak/ilk response bile gecikiyordur (ağ/DNS/sunucu yükü).', en: 'If large, even reaching the server/first response is delayed (network/DNS/server load).' } },
+        { id: 2, icon: '🐢', label: { tr: 'Waiting\'e bak…', en: 'Check Waiting…' }, detail: { tr: 'Büyükse sunucu request\'i İŞLERKEN yavaş — bir sorgu/hesaplama şüphelidir, geliştiriciye escalate edilir.', en: 'If large, the server is slow while PROCESSING — a query/calculation is suspect, escalate to the developer.' } },
+        { id: 3, icon: '📥', label: { tr: 'Content Download\'a bak…', en: 'Check Content Download…' }, detail: { tr: 'Büyükse response verisi/ağ suçlu — gereksiz büyük JSON, sıkıştırma eksikliği şüphelidir.', en: 'If large, response data/network is the culprit — an unnecessarily large JSON, missing compression is suspect.' } },
       ],
     },
     {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-e4-order-01',
-      question: { tr: 'Bir isteğin toplam süresini oluşturan aşamaları kronolojik sırala.', en: 'Order the phases that make up a request\'s total duration chronologically.' },
+      question: { tr: 'Bir request\'in toplam süresini oluşturan aşamaları kronolojik sırala.', en: 'Order the phases that make up a request\'s total duration chronologically.' },
       items: [
-        { id: '1', text: { tr: 'İstek gönderilir', en: 'The request is sent' }, order: 1 },
+        { id: '1', text: { tr: 'Request gönderilir', en: 'The request is sent' }, order: 1 },
         { id: '2', text: { tr: 'TTFB — sunucudan ilk bayt gelir', en: 'TTFB — the first byte arrives from the server' }, order: 2 },
-        { id: '3', text: { tr: 'Waiting — sunucu isteği işler', en: 'Waiting — the server processes the request' }, order: 3 },
-        { id: '4', text: { tr: 'Content Download — yanıt gövdesi iner', en: 'Content Download — the response body downloads' }, order: 4 },
-        { id: '5', text: { tr: 'İstek tamamlanır, toplam süre kaydedilir', en: 'The request completes, total time is recorded' }, order: 5 },
+        { id: '3', text: { tr: 'Waiting — sunucu request\'i işler', en: 'Waiting — the server processes the request' }, order: 3 },
+        { id: '4', text: { tr: 'Content Download — response gövdesi iner', en: 'Content Download — the response body downloads' }, order: 4 },
+        { id: '5', text: { tr: 'Request tamamlanır, toplam süre kaydedilir', en: 'The request completes, total time is recorded' }, order: 5 },
       ],
       xpReward: 11,
     },
@@ -5008,30 +5008,30 @@ const E4 = {
 Suclu: ???`,
       solutionCode: `// Toplam surenin buyuk kismi Waiting'te -> sunucu istegi islerken yavas
 Suclu: SUNUCU (yavas sorgu/islem suphesi, gelistiriciye escalate)`,
-      hint: { tr: '`Waiting`, sunucunun isteği işlediği süredir. Toplam sürenin büyük kısmı `Waiting`\'e aitse, gecikme ağda/veri boyutunda değil sunucunun İŞLEM mantığındadır.', en: '`Waiting` is the time the server spends processing the request. If most of the total time belongs to `Waiting`, the delay is in the server\'s PROCESSING logic, not the network/data size.' },
+      hint: { tr: '`Waiting`, sunucunun request\'i işlediği süredir. Toplam sürenin büyük kısmı `Waiting`\'e aitse, gecikme ağda/veri boyutunda değil sunucunun İŞLEM mantığındadır.', en: '`Waiting` is the time the server spends processing the request. If most of the total time belongs to `Waiting`, the delay is in the server\'s PROCESSING logic, not the network/data size.' },
       successMessage: { tr: 'Doğru! Waiting ağırlıklı bir gecikme, bug raporunu doğrudan geliştiriciye ve muhtemel bir sorguya yönlendirir.', en: 'Correct! A Waiting-heavy delay routes the bug report straight to the developer and a likely query issue.' },
     },
     {
       type: 'quiz',
-      question: { tr: 'Bir isteğin `Content Download` süresi büyükse, en olası suçlu nedir?', en: 'If a request\'s `Content Download` time is large, what is the most likely culprit?' },
+      question: { tr: 'Bir request\'in `Content Download` süresi büyükse, en olası suçlu nedir?', en: 'If a request\'s `Content Download` time is large, what is the most likely culprit?' },
       options: [
-        { id: 'a', text: { tr: 'Yanıt verisinin boyutu (gereksiz büyük JSON, sıkıştırma eksikliği) veya ağ hızı', en: 'The response data\'s size (unnecessarily large JSON, missing compression) or network speed' } },
+        { id: 'a', text: { tr: 'Response verisinin boyutu (gereksiz büyük JSON, sıkıştırma eksikliği) veya ağ hızı', en: 'The response data\'s size (unnecessarily large JSON, missing compression) or network speed' } },
         { id: 'b', text: { tr: 'Sunucudaki yavaş bir SQL sorgusu', en: 'A slow SQL query on the server' } },
         { id: 'c', text: { tr: 'İstemcinin CPU\'su', en: 'The client\'s CPU' } },
         { id: 'd', text: { tr: 'Tarayıcının önbelleği', en: 'The browser\'s cache' } },
       ],
       correct: 'a',
-      explanation: { tr: '`Content Download`, yanıt gövdesinin İNDİRİLME süresidir — büyük bir yanıt gövdesi veya yavaş bir bağlantı bu süreyi uzatır. Bu, sunucunun isteği İŞLEME süresi olan `Waiting`\'den TAMAMEN farklı bir sorun kaynağıdır.', en: '`Content Download` is the time the response body takes to DOWNLOAD — a large response body or a slow connection extends this. This is a COMPLETELY different problem source from `Waiting`, which is the server\'s PROCESSING time.' },
+      explanation: { tr: '`Content Download`, response gövdesinin İNDİRİLME süresidir — büyük bir response gövdesi veya yavaş bir bağlantı bu süreyi uzatır. Bu, sunucunun request\'i İŞLEME süresi olan `Waiting`\'den TAMAMEN farklı bir sorun kaynağıdır.', en: '`Content Download` is the time the response body takes to DOWNLOAD — a large response body or a slow connection extends this. This is a COMPLETELY different problem source from `Waiting`, which is the server\'s PROCESSING time.' },
       retryQuestion: {
         question: { tr: '`TTFB` (Time To First Byte) neyi ölçer?', en: 'What does `TTFB` (Time To First Byte) measure?' },
         options: [
-          { id: 'a', text: { tr: 'İstek gönderildikten sonra sunucudan ilk baytın gelmesine kadar geçen süreyi', en: 'The time from sending the request until the first byte arrives from the server' } },
-          { id: 'b', text: { tr: 'Yanıt gövdesinin tamamının indirilme süresini', en: 'The time to download the entire response body' } },
+          { id: 'a', text: { tr: 'Request gönderildikten sonra sunucudan ilk baytın gelmesine kadar geçen süreyi', en: 'The time from sending the request until the first byte arrives from the server' } },
+          { id: 'b', text: { tr: 'Response gövdesinin tamamının indirilme süresini', en: 'The time to download the entire response body' } },
           { id: 'c', text: { tr: 'Kullanıcının sayfayı okuma süresini', en: 'How long the user takes to read the page' } },
           { id: 'd', text: { tr: 'Tarayıcının açılma süresini', en: 'How long the browser takes to open' } },
         ],
         correct: 'a',
-        explanation: { tr: 'TTFB, isteğin gönderilmesinden sunucudan gelen ilk baytın alınmasına kadar geçen süredir — sunucuya ulaşmanın ve ilk tepkinin ne kadar hızlı olduğunu gösterir, yanıtın TAMAMININ inmesini değil.', en: 'TTFB is the time from sending the request to receiving the first byte from the server — it shows how fast reaching the server and the first response is, not how long the ENTIRE response takes to download.' },
+        explanation: { tr: 'TTFB, request\'in gönderilmesinden sunucudan gelen ilk baytın alınmasına kadar geçen süredir — sunucuya ulaşmanın ve ilk tepkinin ne kadar hızlı olduğunu gösterir, response\'un TAMAMININ inmesini değil.', en: 'TTFB is the time from sending the request to receiving the first byte from the server — it shows how fast reaching the server and the first response is, not how long the ENTIRE response takes to download.' },
       },
     },
   ],
@@ -5065,7 +5065,7 @@ const E5 = {
       type: 'simple-box',
       emoji: '1️⃣',
       content: {
-        tr: '**1. Sessiz 500 (Silent 500)** — UI hiçbir hata göstermeden "İşlem tamamlandı" der, ama Network panelinde ilgili istek `500 Internal Server Error` döner. **Kök neden:** frontend kodu yanıtın status kodunu HİÇ kontrol etmeden `.then()` bloğunu çalıştırır. **Tester nerede yakalar:** Network panelinde Status sütununu UI mesajından BAĞIMSIZ olarak her zaman kontrol ederek.',
+        tr: '**1. Sessiz 500 (Silent 500)** — UI hiçbir hata göstermeden "İşlem tamamlandı" der, ama Network panelinde ilgili request `500 Internal Server Error` döner. **Kök neden:** frontend kodu response\'un status kodunu HİÇ kontrol etmeden `.then()` bloğunu çalıştırır. **Tester nerede yakalar:** Network panelinde Status sütununu UI mesajından BAĞIMSIZ olarak her zaman kontrol ederek.',
         en: '**1. Silent 500** — the UI says "Operation complete" with no visible error, but in the Network panel the request returns `500 Internal Server Error`. **Root cause:** the frontend code runs its `.then()` block without EVER checking the response status code. **Where the tester catches it:** always checking the Status column in the Network panel, INDEPENDENTLY of the UI message.',
       },
     },
@@ -5073,7 +5073,7 @@ const E5 = {
       type: 'simple-box',
       emoji: '2️⃣',
       content: {
-        tr: '**2. Çift POST (Double POST)** — Kullanıcı "Kaydet" butonuna sabırsızca iki kez tıklar; buton devre dışı bırakılmadığı için Network panelinde AYNI `POST /api/v1/bugs` isteği İKİ KEZ görünür, iki ayrı bug kaydı oluşur. **Kök neden:** buton, istek devam ederken `disabled` yapılmamış. **Tester nerede yakalar:** hızlı çift tıklama sonrası Network panelinde aynı isteğin tekrarını sayarak.',
+        tr: '**2. Çift POST (Double POST)** — Kullanıcı "Kaydet" butonuna sabırsızca iki kez tıklar; buton devre dışı bırakılmadığı için Network panelinde AYNI `POST /api/v1/bugs` request\'i İKİ KEZ görünür, iki ayrı bug kaydı oluşur. **Kök neden:** buton, request devam ederken `disabled` yapılmamış. **Tester nerede yakalar:** hızlı çift tıklama sonrası Network panelinde aynı request\'in tekrarını sayarak.',
         en: '**2. Double POST** — the user impatiently clicks "Save" twice; since the button is not disabled, the SAME `POST /api/v1/bugs` request appears TWICE in the Network panel, creating two separate bug records. **Root cause:** the button is not made `disabled` while the request is in flight. **Where the tester catches it:** counting the repeat of the same request in the Network panel after a rapid double-click.',
       },
     },
@@ -5081,7 +5081,7 @@ const E5 = {
       type: 'simple-box',
       emoji: '3️⃣',
       content: {
-        tr: '**3. N+1 İstek** — Bug listesi sayfası ÖNCE `GET /api/v1/bugs` ile 10 kayıt çeker, sonra HER kayıt için ayrı ayrı `GET /api/v1/bugs/{id}/details` çağırır — 1 yerine 11 istek. **Kök neden:** liste endpoint\'i zaten ihtiyaç duyulan detayı döndürmüyor, frontend her satır için ayrı istek atmak ZORUNDA kalıyor. **Tester nerede yakalar:** Network panelinde AYNI URL kalıbının kayıt sayısı kadar tekrarlandığını görerek.',
+        tr: '**3. N+1 Request** — Bug listesi sayfası ÖNCE `GET /api/v1/bugs` ile 10 kayıt çeker, sonra HER kayıt için ayrı ayrı `GET /api/v1/bugs/{id}/details` çağırır — 1 yerine 11 request. **Kök neden:** liste endpoint\'i zaten ihtiyaç duyulan detayı döndürmüyor, frontend her satır için ayrı request atmak ZORUNDA kalıyor. **Tester nerede yakalar:** Network panelinde AYNI URL kalıbının kayıt sayısı kadar tekrarlandığını görerek.',
         en: '**3. N+1 requests** — the bug list page FIRST fetches 10 records with `GET /api/v1/bugs`, then calls `GET /api/v1/bugs/{id}/details` separately for EACH record — 11 requests instead of 1. **Root cause:** the list endpoint does not already return the needed detail, forcing the frontend to fire a separate request per row. **Where the tester catches it:** seeing the SAME URL pattern repeated as many times as there are records in the Network panel.',
       },
     },
@@ -5089,7 +5089,7 @@ const E5 = {
       type: 'simple-box',
       emoji: '4️⃣',
       content: {
-        tr: '**4. Response\'ta Sızan `passwordHash`** — Bir kullanıcı listesi isteğinin `Response`/`Preview` sekmesinde, UI hiç göstermese bile, JSON gövdesinde `passwordHash` gibi ASLA dönmemesi gereken bir alan görülür. **Kök neden:** backend, veritabanı entity\'sini (tüm alanlarıyla) doğrudan JSON\'a çeviriyor, bir DTO/response modeliyle alan filtrelemiyor. **Tester nerede yakalar:** Response/Preview sekmesinde JSON\'u UI\'da GÖRÜNMEYEN alanlar için de tarayarak — bu bir güvenlik açığıdır, sadece bir "kozmetik" fazlalık değil.',
+        tr: '**4. Response\'ta Sızan `passwordHash`** — Bir kullanıcı listesi request\'inin `Response`/`Preview` sekmesinde, UI hiç göstermese bile, JSON gövdesinde `passwordHash` gibi ASLA dönmemesi gereken bir alan görülür. **Kök neden:** backend, veritabanı entity\'sini (tüm alanlarıyla) doğrudan JSON\'a çeviriyor, bir DTO/response modeliyle alan filtrelemiyor. **Tester nerede yakalar:** Response/Preview sekmesinde JSON\'u UI\'da GÖRÜNMEYEN alanlar için de tarayarak — bu bir güvenlik açığıdır, sadece bir "kozmetik" fazlalık değil.',
         en: '**4. Leaked `passwordHash` in the Response** — in a user list request\'s `Response`/`Preview` tab, even though the UI never displays it, the JSON body contains a field like `passwordHash` that should NEVER be returned. **Root cause:** the backend serializes the database entity (with all its fields) directly to JSON, without filtering fields through a DTO/response model. **Where the tester catches it:** scanning the JSON in the Response/Preview tab even for fields NOT VISIBLE in the UI — this is a security hole, not just a "cosmetic" extra.',
       },
     },
@@ -5097,7 +5097,7 @@ const E5 = {
       type: 'simple-box',
       emoji: '5️⃣',
       content: {
-        tr: '**5. Cache-Control Eksikliği** — Bir kullanıcı hassas bir bug detayını görüntüler, çıkış yapar; tarayıcının GERİ tuşuna basınca aynı sayfa, YENİ bir istek atmadan, ÖNBELLEKTEN eski (ve artık yetkisiz olması gereken) veriyi gösterir. **Kök neden:** yanıt header\'larında `Cache-Control: no-store` YOK, tarayıcı hassas yanıtı serbestçe önbelleğe alıyor. **Tester nerede yakalar:** Headers sekmesinde `Cache-Control` alanının varlığını/değerini kontrol ederek, sonra geri tuşu senaryosunu deneyerek.',
+        tr: '**5. Cache-Control Eksikliği** — Bir kullanıcı hassas bir bug detayını görüntüler, çıkış yapar; tarayıcının GERİ tuşuna basınca aynı sayfa, YENİ bir request atmadan, ÖNBELLEKTEN eski (ve artık yetkisiz olması gereken) veriyi gösterir. **Kök neden:** response header\'larında `Cache-Control: no-store` YOK, tarayıcı hassas response\'u serbestçe önbelleğe alıyor. **Tester nerede yakalar:** Headers sekmesinde `Cache-Control` alanının varlığını/değerini kontrol ederek, sonra geri tuşu senaryosunu deneyerek.',
         en: '**5. Missing Cache-Control** — a user views a sensitive bug detail, logs out; pressing the browser\'s BACK button shows the same page with the old (now supposed-to-be-unauthorized) data FROM CACHE, without firing a new request. **Root cause:** the response headers have NO `Cache-Control: no-store`, so the browser freely caches the sensitive response. **Where the tester catches it:** checking the presence/value of the `Cache-Control` field in the Headers tab, then trying the back-button scenario.',
       },
     },
@@ -5126,7 +5126,7 @@ const E5 = {
           beams: [{ from: 'user', to: 'ui', color: '#22c55e' }],
         },
         {
-          caption: { tr: 'Ama tester aynı anda Network panelini açık tutuyordu — orada isteğin GERÇEK sonucu görünür: `500 Internal Server Error`.', en: 'But the tester had the Network panel open at the same time — there the request\'s REAL outcome shows: `500 Internal Server Error`.' },
+          caption: { tr: 'Ama tester aynı anda Network panelini açık tutuyordu — orada request\'in GERÇEK sonucu görünür: `500 Internal Server Error`.', en: 'But the tester had the Network panel open at the same time — there the request\'s REAL outcome shows: `500 Internal Server Error`.' },
           positions: { ui: { x: 18, y: 35, opacity: 0.5 }, network: { x: 55, y: 50, scale: 1.2, pulse: true } },
           beams: [{ from: 'user', to: 'network', color: '#ef4444' }],
         },
@@ -5180,30 +5180,30 @@ Karar: ???`,
       solutionCode: `// Hassas bir alanin API yanitinda sizmasi GUVENLIK acigidir (kozmetik degil)
 // Backend ekibine (DTO/response model ile alan filtrelemesi icin) escalate edilir
 Karar: GUVENLIK ACIGI -> backend ekibine escalate`,
-      hint: { tr: 'Bir alanın UI\'da GÖRÜNMEMESİ onun güvenli olduğu anlamına gelmez — API yanıtı tarayıcı DevTools\'u ile herkes tarafından okunabilir. `passwordHash` gibi bir alanın sızması her zaman bir güvenlik açığıdır.', en: 'A field not being VISIBLE in the UI does not mean it is safe — the API response can be read by anyone via browser DevTools. A leaked field like `passwordHash` is always a security hole.' },
-      successMessage: { tr: 'Doğru! "UI\'da görünmüyor" güvenlik savunması değildir — API yanıtı her zaman erişilebilirdir.', en: 'Correct! "It is not visible in the UI" is not a security defense — the API response is always reachable.' },
+      hint: { tr: 'Bir alanın UI\'da GÖRÜNMEMESİ onun güvenli olduğu anlamına gelmez — API response\'u tarayıcı DevTools\'u ile herkes tarafından okunabilir. `passwordHash` gibi bir alanın sızması her zaman bir güvenlik açığıdır.', en: 'A field not being VISIBLE in the UI does not mean it is safe — the API response can be read by anyone via browser DevTools. A leaked field like `passwordHash` is always a security hole.' },
+      successMessage: { tr: 'Doğru! "UI\'da görünmüyor" güvenlik savunması değildir — API response\'u her zaman erişilebilirdir.', en: 'Correct! "It is not visible in the UI" is not a security defense — the API response is always reachable.' },
     },
     {
       type: 'quiz',
-      question: { tr: 'Kullanıcı bir butona hızlıca iki kez tıklıyor ve Network panelinde AYNI POST isteği iki kez görünüyor. Bu neyin işaretidir?', en: 'A user rapidly double-clicks a button and the SAME POST request appears twice in the Network panel. What is this a sign of?' },
+      question: { tr: 'Kullanıcı bir butona hızlıca iki kez tıklıyor ve Network panelinde AYNI POST request\'i iki kez görünüyor. Bu neyin işaretidir?', en: 'A user rapidly double-clicks a button and the SAME POST request appears twice in the Network panel. What is this a sign of?' },
       options: [
-        { id: 'a', text: { tr: 'Buton, istek devam ederken devre dışı bırakılmamış — çift kayıt riski (Çift POST defect\'i)', en: 'The button was not disabled while the request was in flight — a double-record risk (the Double POST defect)' } },
+        { id: 'a', text: { tr: 'Buton, request devam ederken devre dışı bırakılmamış — çift kayıt riski (Çift POST defect\'i)', en: 'The button was not disabled while the request was in flight — a double-record risk (the Double POST defect)' } },
         { id: 'b', text: { tr: 'Tarayıcı bir hata yaptı, önemli değil', en: 'The browser made a mistake, not important' } },
         { id: 'c', text: { tr: 'Bu normal ve beklenen bir davranıştır', en: 'This is normal and expected behavior' } },
-        { id: 'd', text: { tr: 'Sunucu isteği otomatik olarak iki kez işler', en: 'The server automatically processes the request twice' } },
+        { id: 'd', text: { tr: 'Sunucu request\'i otomatik olarak iki kez işler', en: 'The server automatically processes the request twice' } },
       ],
       correct: 'a',
-      explanation: { tr: 'Network panelinde aynı isteğin tekrarı, genelde butonun istek devam ederken `disabled` yapılmadığının kanıtıdır. Bu, kullanıcı deneyimi sorunundan öte, veritabanında GERÇEK bir çift-kayıt defect\'idir.', en: 'A repeated request in the Network panel is usually evidence that the button was not made `disabled` while the request was in flight. Beyond a UX issue, this is a REAL double-record defect in the database.' },
+      explanation: { tr: 'Network panelinde aynı request\'in tekrarı, genelde butonun request devam ederken `disabled` yapılmadığının kanıtıdır. Bu, kullanıcı deneyimi sorunundan öte, veritabanında GERÇEK bir çift-kayıt defect\'idir.', en: 'A repeated request in the Network panel is usually evidence that the button was not made `disabled` while the request was in flight. Beyond a UX issue, this is a REAL double-record defect in the database.' },
       retryQuestion: {
         question: { tr: '"Sessiz 500" defect\'inin tanımı nedir?', en: 'What defines a "Silent 500" defect?' },
         options: [
-          { id: 'a', text: { tr: 'UI hiçbir hata göstermeden başarı mesajı verirken, Network panelinde istek gerçekte 500 dönmesi', en: 'The UI shows a success message with no visible error, while the Network panel shows the request actually returned 500' } },
-          { id: 'b', text: { tr: 'Sunucunun hiç yanıt vermemesi', en: 'The server not responding at all' } },
-          { id: 'c', text: { tr: 'İsteğin 5 dakika sürmesi', en: 'The request taking 5 minutes' } },
+          { id: 'a', text: { tr: 'UI hiçbir hata göstermeden başarı mesajı verirken, Network panelinde request gerçekte 500 dönmesi', en: 'The UI shows a success message with no visible error, while the Network panel shows the request actually returned 500' } },
+          { id: 'b', text: { tr: 'Sunucunun hiç response vermemesi', en: 'The server not responding at all' } },
+          { id: 'c', text: { tr: 'Request\'in 5 dakika sürmesi', en: 'The request taking 5 minutes' } },
           { id: 'd', text: { tr: 'Tarayıcının sessize alınması', en: 'The browser being muted' } },
         ],
         correct: 'a',
-        explanation: { tr: 'Sessiz 500, frontend kodunun yanıtın status kodunu kontrol etmeden başarı akışını çalıştırmasından doğar — kullanıcı ve hatta manuel test eden biri UI\'ya bakarak hiçbir sorun görmez, sadece Network panelini kontrol eden biri gerçeği yakalar.', en: 'A silent 500 is born when the frontend code runs its success flow without checking the response status code — a user, or even someone manually testing by watching the UI, sees no problem at all; only someone checking the Network panel catches the truth.' },
+        explanation: { tr: 'Sessiz 500, frontend kodunun response\'un status kodunu kontrol etmeden başarı akışını çalıştırmasından doğar — kullanıcı ve hatta manuel test eden biri UI\'ya bakarak hiçbir sorun görmez, sadece Network panelini kontrol eden biri gerçeği yakalar.', en: 'A silent 500 is born when the frontend code runs its success flow without checking the response status code — a user, or even someone manually testing by watching the UI, sees no problem at all; only someone checking the Network panel catches the truth.' },
       },
     },
   ],
@@ -5216,7 +5216,7 @@ const E6 = {
       type: 'simple-box',
       emoji: '🔗',
       content: {
-        tr: '"Copy as cURL", bir Network satırını **fotokopi çeken bir tarif kartı makinesi** gibidir: gözlemlediğin bir isteği (method, URL, header\'lar, body dahil) tek tıkla, TEKRARLANABİLİR bir metin komutuna dönüştürür — artık o isteği elle yeniden yazmana gerek kalmaz, aynı "tarifi" başka bir mutfakta (Postman, terminal, bir script) pişirebilirsin. Bu, GRUP E\'yi (gözlem) GRUP G\'ye (Postman ile aktif test) bağlayan KÖPRÜdür. Peki neden doğrudan Postman\'de sıfırdan yazmak yerine Network\'ten kopyalıyoruz? Çünkü UI zaten isteği DOĞRU header\'lar ve auth token\'la göndermiştir — bunu elle yeniden yazmaya kalkarsan bir header\'ı unutabilir, yanlış yazabilirsin; `Copy as cURL`, GERÇEKTEN gönderilen isteğin BİREBİR kopyasını verir, tahmin gerektirmez. Java\'da bunun karşılığı bir `HttpRequest` nesnesini serialize edip başka bir ortamda replay etmektir — burada tarayıcı bu serialize işlemini senin için otomatik yapar. QA açısından bu, "UI\'da gördüğüm bug\'ı nasıl tekrarlarım/paylaşırım" sorusunun cevabıdır: bir cURL komutu, bir geliştiriciye "şu isteği şu şekilde gönder, aynı hatayı sen de göreceksin" demenin en kesin yoludur — ekran görüntüsünden çok daha güçlü bir kanıttır.',
+        tr: '"Copy as cURL", bir Network satırını **fotokopi çeken bir tarif kartı makinesi** gibidir: gözlemlediğin bir request\'i (method, URL, header\'lar, body dahil) tek tıkla, TEKRARLANABİLİR bir metin komutuna dönüştürür — artık o request\'i elle yeniden yazmana gerek kalmaz, aynı "tarifi" başka bir mutfakta (Postman, terminal, bir script) pişirebilirsin. Bu, GRUP E\'yi (gözlem) GRUP G\'ye (Postman ile aktif test) bağlayan KÖPRÜdür. Peki neden doğrudan Postman\'de sıfırdan yazmak yerine Network\'ten kopyalıyoruz? Çünkü UI zaten request\'i DOĞRU header\'lar ve auth token\'la göndermiştir — bunu elle yeniden yazmaya kalkarsan bir header\'ı unutabilir, yanlış yazabilirsin; `Copy as cURL`, GERÇEKTEN gönderilen request\'in BİREBİR kopyasını verir, tahmin gerektirmez. Java\'da bunun karşılığı bir `HttpRequest` nesnesini serialize edip başka bir ortamda replay etmektir — burada tarayıcı bu serialize işlemini senin için otomatik yapar. QA açısından bu, "UI\'da gördüğüm bug\'ı nasıl tekrarlarım/paylaşırım" sorusunun cevabıdır: bir cURL komutu, bir geliştiriciye "şu request\'i şu şekilde gönder, aynı hatayı sen de göreceksin" demenin en kesin yoludur — ekran görüntüsünden çok daha güçlü bir kanıttır.',
         en: '"Copy as cURL" is like a **photocopier for a recipe card**: with one click it turns an observed request (method, URL, headers, body included) into a REPEATABLE text command — you no longer need to rewrite that request by hand, you can "cook" the same recipe in another kitchen (Postman, a terminal, a script). This is the BRIDGE connecting GROUP E (observation) to GROUP G (active testing with Postman). So why copy from Network instead of writing it fresh in Postman? Because the UI already sent the request with the CORRECT headers and auth token — rewriting it by hand risks forgetting or mistyping a header; `Copy as cURL` gives an EXACT copy of the request that was REALLY sent, no guessing required. The Java equivalent is serializing an `HttpRequest` object and replaying it in another environment — here the browser does that serialization automatically for you. For QA, this answers the question "how do I reproduce/share the bug I saw in the UI": a cURL command is the most precise way to tell a developer "send this exact request, you will see the same error" — far stronger evidence than a screenshot.',
       },
     },
@@ -5224,7 +5224,7 @@ const E6 = {
     {
       type: 'text',
       content: {
-        tr: 'Bir Network satırına sağ tıklayıp `Copy → Copy as cURL` seçince, isteğin tam bir metin komutu panoya kopyalanır. Postman\'de `Import → Raw text` ile bu metni yapıştırdığında, Postman method/URL/header/body\'yi otomatik ayrıştırıp bir istek olarak kurar — artık o isteği Postman\'in tüm gücüyle (environment, assertion, koleksiyon) test edebilirsin.',
+        tr: 'Bir Network satırına sağ tıklayıp `Copy → Copy as cURL` seçince, request\'in tam bir metin komutu panoya kopyalanır. Postman\'de `Import → Raw text` ile bu metni yapıştırdığında, Postman method/URL/header/body\'yi otomatik ayrıştırıp bir request olarak kurar — artık o request\'i Postman\'in tüm gücüyle (environment, assertion, koleksiyon) test edebilirsin.',
         en: 'Right-clicking a Network row and choosing `Copy → Copy as cURL` copies the request as a full text command to the clipboard. Pasting this text in Postman via `Import → Raw text`, Postman automatically parses the method/URL/headers/body and sets it up as a request — now you can test it with Postman\'s full power (environments, assertions, collections).',
       },
     },
@@ -5236,7 +5236,7 @@ const E6 = {
     {
       type: 'video-scene',
       id: 'api-e6-curl-import-film',
-      title: { tr: '🎬 Gördüğün İsteği Postman\'e Taşımak', en: '🎬 Carrying the Request You Saw into Postman' },
+      title: { tr: '🎬 Gördüğün Request\'i Postman\'e Taşımak', en: '🎬 Carrying the Request You Saw into Postman' },
       xpReward: 11,
       sceneDurationMs: 3400,
       stageHeight: 260,
@@ -5249,7 +5249,7 @@ const E6 = {
       ],
       scenes: [
         {
-          caption: { tr: 'Tester Network panelinde şüpheli bir istek satırı buldu — bunu başka bir araçta tekrar etmek istiyor.', en: 'The tester found a suspicious request row in the Network panel — they want to repeat it in another tool.' },
+          caption: { tr: 'Tester Network panelinde şüpheli bir request satırı buldu — bunu başka bir araçta tekrar etmek istiyor.', en: 'The tester found a suspicious request row in the Network panel — they want to repeat it in another tool.' },
           positions: { row: { x: 50, y: 50, scale: 1.1, pulse: true } },
         },
         {
@@ -5268,7 +5268,7 @@ const E6 = {
           beams: [{ from: 'clipboard', to: 'postman', color: '#22c55e' }],
         },
         {
-          caption: { tr: 'Ders — Artık bu istek Postman\'in tüm gücüyle (environment, `pm.test` assertion, koleksiyon) test edilebilir; bu, GRUP E\'den GRUP G\'ye giden köprüdür.', en: 'The lesson — this request can now be tested with Postman\'s full power (environments, `pm.test` assertions, collections); this is the bridge from GROUP E to GROUP G.' },
+          caption: { tr: 'Ders — Artık bu request Postman\'in tüm gücüyle (environment, `pm.test` assertion, koleksiyon) test edilebilir; bu, GRUP E\'den GRUP G\'ye giden köprüdür.', en: 'The lesson — this request can now be tested with Postman\'s full power (environments, `pm.test` assertions, collections); this is the bridge from GROUP E to GROUP G.' },
           positions: { postman: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
           beams: [{ from: 'postman', to: 'tester', color: '#8b5cf6' }],
         },
@@ -5278,22 +5278,22 @@ const E6 = {
       type: 'step-animation',
       title: { tr: 'Gözlemden Postman\'e Taşıma Sırası', en: 'The Order for Moving from Observation to Postman' },
       steps: [
-        { id: 1, icon: '📡', label: { tr: 'İsteği Network\'te bul…', en: 'Find the request in Network…' }, detail: { tr: 'Şüpheli/incelenmek istenen isteğin satırını bul, üzerine tıkla.', en: 'Find the row of the suspicious/interesting request, click on it.' } },
-        { id: 2, icon: '📋', label: { tr: 'cURL olarak kopyala…', en: 'Copy as cURL…' }, detail: { tr: 'Sağ tık → Copy → Copy as cURL ile tam istek metnini panoya al.', en: 'Right-click → Copy → Copy as cURL to grab the full request text to the clipboard.' } },
-        { id: 3, icon: '📮', label: { tr: 'Postman\'e import et…', en: 'Import into Postman…' }, detail: { tr: 'Import → Raw text ile yapıştır; Postman isteği otomatik ayrıştırıp kurar.', en: 'Paste via Import → Raw text; Postman automatically parses and sets up the request.' } },
+        { id: 1, icon: '📡', label: { tr: 'Request\'i Network\'te bul…', en: 'Find the request in Network…' }, detail: { tr: 'Şüpheli/incelenmek istenen request\'in satırını bul, üzerine tıkla.', en: 'Find the row of the suspicious/interesting request, click on it.' } },
+        { id: 2, icon: '📋', label: { tr: 'cURL olarak kopyala…', en: 'Copy as cURL…' }, detail: { tr: 'Sağ tık → Copy → Copy as cURL ile tam request metnini panoya al.', en: 'Right-click → Copy → Copy as cURL to grab the full request text to the clipboard.' } },
+        { id: 3, icon: '📮', label: { tr: 'Postman\'e import et…', en: 'Import into Postman…' }, detail: { tr: 'Import → Raw text ile yapıştır; Postman request\'i otomatik ayrıştırıp kurar.', en: 'Paste via Import → Raw text; Postman automatically parses and sets up the request.' } },
       ],
     },
     {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-e6-order-01',
-      question: { tr: 'Network\'te gözlemlenen bir isteği Postman\'e taşıma sırasını diz.', en: 'Order the steps to carry a request observed in Network into Postman.' },
+      question: { tr: 'Network\'te gözlemlenen bir request\'i Postman\'e taşıma sırasını diz.', en: 'Order the steps to carry a request observed in Network into Postman.' },
       items: [
         { id: '1', text: { tr: 'Network panelinde ilgili satırı bul', en: 'Find the relevant row in the Network panel' }, order: 1 },
         { id: '2', text: { tr: 'Sağ tık → Copy → Copy as cURL', en: 'Right-click → Copy → Copy as cURL' }, order: 2 },
         { id: '3', text: { tr: 'Postman\'de Import → Raw text\'i aç', en: 'Open Import → Raw text in Postman' }, order: 3 },
         { id: '4', text: { tr: 'Kopyalanan metni yapıştır', en: 'Paste the copied text' }, order: 4 },
-        { id: '5', text: { tr: 'Postman isteği otomatik kurar, artık test edilebilir', en: 'Postman sets up the request automatically, now testable' }, order: 5 },
+        { id: '5', text: { tr: 'Postman request\'i otomatik kurar, artık test edilebilir', en: 'Postman sets up the request automatically, now testable' }, order: 5 },
       ],
       xpReward: 10,
     },
@@ -5302,37 +5302,37 @@ const E6 = {
       relatedTopicId: 'api-e6-curl-import',
       id: 'api-e6-curl-import',
       title: { tr: 'Kendin Dene: cURL\'ün Neden Elle Yazmaktan Daha Güvenilir Olduğunu Belirle', en: 'Try It Yourself: Determine Why cURL Is More Reliable Than Writing by Hand' },
-      starterCode: `// Senaryo: UI bir Authorization header'i ile istek gonderiyor
+      starterCode: `// Senaryo: UI bir Authorization header'i ile request gonderiyor
 // Sen bu istegi Postman'de SIFIRDAN elle yazacaksin
 // TODO: bu yaklasimin en buyuk riski nedir?
 Risk: ???`,
       solutionCode: `// Elle yazarken bir header'i (ozellikle Authorization/Content-Type) unutabilir
 // veya yanlis yazabilirsin -> Copy as cURL bu riski ORTADAN KALDIRIR
 Risk: header/deger unutma veya yanlis yazma -> Copy as cURL bunu engeller`,
-      hint: { tr: 'UI, isteği doğru header\'lar ve token\'la GERÇEKTEN göndermiştir — bunu elle yeniden yazmaya kalkışmak insan hatasına (unutulan bir header, yanlış yazılan bir değer) açıktır. `Copy as cURL` bu riski tamamen ortadan kaldırır.', en: 'The UI has REALLY sent the request with the correct headers and token — trying to rewrite it by hand is open to human error (a forgotten header, a mistyped value). `Copy as cURL` removes this risk entirely.' },
-      successMessage: { tr: 'Doğru! Copy as cURL, tahmine değil gerçekten gönderilen isteğe dayanır.', en: 'Correct! Copy as cURL relies on the request that was really sent, not a guess.' },
+      hint: { tr: 'UI, request\'i doğru header\'lar ve token\'la GERÇEKTEN göndermiştir — bunu elle yeniden yazmaya kalkışmak insan hatasına (unutulan bir header, yanlış yazılan bir değer) açıktır. `Copy as cURL` bu riski tamamen ortadan kaldırır.', en: 'The UI has REALLY sent the request with the correct headers and token — trying to rewrite it by hand is open to human error (a forgotten header, a mistyped value). `Copy as cURL` removes this risk entirely.' },
+      successMessage: { tr: 'Doğru! Copy as cURL, tahmine değil gerçekten gönderilen request\'e dayanır.', en: 'Correct! Copy as cURL relies on the request that was really sent, not a guess.' },
     },
     {
       type: 'quiz',
       question: { tr: '`Copy as cURL` özelliği GRUP E ile GRUP G (Postman) arasında nasıl bir rol oynar?', en: 'What role does the `Copy as cURL` feature play between GROUP E and GROUP G (Postman)?' },
       options: [
-        { id: 'a', text: { tr: 'Gözlemlenen bir isteği elle yeniden yazmadan, birebir kopyasıyla Postman\'e taşıyan bir köprüdür', en: 'It is a bridge that carries an observed request into Postman as an exact copy, without hand-rewriting it' } },
+        { id: 'a', text: { tr: 'Gözlemlenen bir request\'i elle yeniden yazmadan, birebir kopyasıyla Postman\'e taşıyan bir köprüdür', en: 'It is a bridge that carries an observed request into Postman as an exact copy, without hand-rewriting it' } },
         { id: 'b', text: { tr: 'Sadece bir dekorasyon özelliğidir, işlevi yoktur', en: 'It is purely decorative, with no function' } },
         { id: 'c', text: { tr: 'Postman\'i tamamen devre dışı bırakır', en: 'It completely disables Postman' } },
-        { id: 'd', text: { tr: 'Sadece GET isteklerinde çalışır', en: 'It only works for GET requests' } },
+        { id: 'd', text: { tr: 'Sadece GET request\'lerinde çalışır', en: 'It only works for GET requests' } },
       ],
       correct: 'a',
-      explanation: { tr: '`Copy as cURL`, tarayıcının GERÇEKTEN gönderdiği isteği (method/URL/header/body dahil) tam bir metin komutuna çevirir; bu metin Postman\'e import edilerek, elle yeniden yazmanın insan hatası riskini taşımadan aynı isteğin AKTİF test edilmesine imkân verir.', en: '`Copy as cURL` turns the request the browser REALLY sent (method/URL/headers/body included) into a complete text command; importing this text into Postman lets the same request be ACTIVELY tested without the human-error risk of rewriting it by hand.' },
+      explanation: { tr: '`Copy as cURL`, tarayıcının GERÇEKTEN gönderdiği request\'i (method/URL/header/body dahil) tam bir metin komutuna çevirir; bu metin Postman\'e import edilerek, elle yeniden yazmanın insan hatası riskini taşımadan aynı request\'in AKTİF test edilmesine imkân verir.', en: '`Copy as cURL` turns the request the browser REALLY sent (method/URL/headers/body included) into a complete text command; importing this text into Postman lets the same request be ACTIVELY tested without the human-error risk of rewriting it by hand.' },
       retryQuestion: {
-        question: { tr: 'Bir isteği elle Postman\'de sıfırdan yeniden yazmanın en büyük riski nedir?', en: 'What is the biggest risk of rewriting a request from scratch by hand in Postman?' },
+        question: { tr: 'Bir request\'i elle Postman\'de sıfırdan yeniden yazmanın en büyük riski nedir?', en: 'What is the biggest risk of rewriting a request from scratch by hand in Postman?' },
         options: [
-          { id: 'a', text: { tr: 'Bir header\'ı veya değeri unutmak/yanlış yazmak, gerçek isteği tam yansıtmamak', en: 'Forgetting or mistyping a header or value, not fully reflecting the real request' } },
+          { id: 'a', text: { tr: 'Bir header\'ı veya değeri unutmak/yanlış yazmak, gerçek request\'i tam yansıtmamak', en: 'Forgetting or mistyping a header or value, not fully reflecting the real request' } },
           { id: 'b', text: { tr: 'Postman\'in çökmesi', en: 'Postman crashing' } },
           { id: 'c', text: { tr: 'İnternetin kesilmesi', en: 'Losing internet' } },
           { id: 'd', text: { tr: 'Hiçbir risk yoktur', en: 'There is no risk at all' } },
         ],
         correct: 'a',
-        explanation: { tr: 'Elle yeniden yazmak insan hatasına açıktır — bir `Authorization` header\'ı, bir query parametresi veya body\'deki bir alan unutulabilir/yanlış yazılabilir; bu da Postman\'deki isteğin tarayıcıda GÖZLEMLENEN gerçek istekten farklı davranmasına yol açar.', en: 'Rewriting by hand is open to human error — an `Authorization` header, a query parameter, or a field in the body can be forgotten/mistyped; this makes the Postman request behave differently from the real request OBSERVED in the browser.' },
+        explanation: { tr: 'Elle yeniden yazmak insan hatasına açıktır — bir `Authorization` header\'ı, bir query parametresi veya body\'deki bir alan unutulabilir/yanlış yazılabilir; bu da Postman\'deki request\'in tarayıcıda GÖZLEMLENEN gerçek request\'ten farklı davranmasına yol açar.', en: 'Rewriting by hand is open to human error — an `Authorization` header, a query parameter, or a field in the body can be forgotten/mistyped; this makes the Postman request behave differently from the real request OBSERVED in the browser.' },
       },
     },
   ],
@@ -5373,7 +5373,7 @@ const F1 = {
       type: 'simple-box',
       emoji: '📜',
       content: {
-        tr: 'Bir OpenAPI spec\'i (`openapi.yaml`/`.json`), bir binanın **mimari çizimidir** — bina (kod) zaten var ve çalışıyor, ama bir elektrikçinin (başka bir ekibin, bir test aracının) binayı anlamak için içeri girip her odayı elle dolaşmasına gerek yoktur; çizime bakması yeterlidir. GRUP A\'da "sözleşme" kavramını görmüştün (A1) — OpenAPI spec, o soyut sözleşmeyi **makine-okunur, standart bir formata** döker: hangi yol (`/api/v1/bugs`) hangi metodu (GET/POST) kabul eder, hangi alanlar zorunludur, yanıt nasıl görünür — hepsi TEK bir dosyada, İngilizce açıklama okumaya gerek kalmadan. Peki kod zaten varken (Java\'da bir `Controller` sınıfı, TypeScript\'te bir DTO) neden ayrı bir spec dosyasına ihtiyaç var? Çünkü kod SADECE o dili bilen bir geliştiricinin okuyabileceği bir formattadır; spec ise Postman, Swagger UI, kod üretici araçlar, sözleşme testleri gibi ONLARCA farklı aracın AYNI ANDA okuyabileceği ORTAK bir dildir. Java\'da bunun en yakın karşılığı bir `interface` + JavaDoc birleşimidir: `interface` metodun İMZASINI (ne alır, ne döner) garanti eder, JavaDoc bunu İNSAN tarafından okunur açıklar; OpenAPI spec ikisini birden, hem makine hem insan için, TEK dosyada yapar. QA açısından bu spec, kod okumadan bir API\'nin sözleşmesini öğrenmenin en hızlı yoludur — ve GRUP F boyunca göreceğin gibi, bu sözleşme ile GERÇEĞİN AYRIŞTIĞI an, tam olarak bir "contract defect"in doğduğu andır.',
+        tr: 'Bir OpenAPI spec\'i (`openapi.yaml`/`.json`), bir binanın **mimari çizimidir** — bina (kod) zaten var ve çalışıyor, ama bir elektrikçinin (başka bir ekibin, bir test aracının) binayı anlamak için içeri girip her odayı elle dolaşmasına gerek yoktur; çizime bakması yeterlidir. GRUP A\'da "sözleşme" kavramını görmüştün (A1) — OpenAPI spec, o soyut sözleşmeyi **makine-okunur, standart bir formata** döker: hangi yol (`/api/v1/bugs`) hangi metodu (GET/POST) kabul eder, hangi alanlar zorunludur, response nasıl görünür — hepsi TEK bir dosyada, İngilizce açıklama okumaya gerek kalmadan. Peki kod zaten varken (Java\'da bir `Controller` sınıfı, TypeScript\'te bir DTO) neden ayrı bir spec dosyasına ihtiyaç var? Çünkü kod SADECE o dili bilen bir geliştiricinin okuyabileceği bir formattadır; spec ise Postman, Swagger UI, kod üretici araçlar, sözleşme testleri gibi ONLARCA farklı aracın AYNI ANDA okuyabileceği ORTAK bir dildir. Java\'da bunun en yakın karşılığı bir `interface` + JavaDoc birleşimidir: `interface` metodun İMZASINI (ne alır, ne döner) garanti eder, JavaDoc bunu İNSAN tarafından okunur açıklar; OpenAPI spec ikisini birden, hem makine hem insan için, TEK dosyada yapar. QA açısından bu spec, kod okumadan bir API\'nin sözleşmesini öğrenmenin en hızlı yoludur — ve GRUP F boyunca göreceğin gibi, bu sözleşme ile GERÇEĞİN AYRIŞTIĞI an, tam olarak bir "contract defect"in doğduğu andır.',
         en: 'An OpenAPI spec (`openapi.yaml`/`.json`) is a building\'s **architectural blueprint** — the building (the code) already exists and works, but an electrician (another team, a test tool) does not need to walk through every room by hand to understand the building; looking at the blueprint is enough. You saw the "contract" concept in GROUP A (A1) — the OpenAPI spec puts that abstract contract into a **machine-readable, standard format**: which path (`/api/v1/bugs`) accepts which method (GET/POST), which fields are required, what the response looks like — all in ONE file, with no need to read prose. So if the code already exists (a `Controller` class in Java, a DTO in TypeScript), why is a separate spec file needed? Because code is a format only a developer who knows that language can read; the spec is a COMMON language that DOZENS of different tools — Postman, Swagger UI, code generators, contract tests — can read SIMULTANEOUSLY. The closest Java equivalent is an `interface` combined with JavaDoc: the `interface` guarantees the method\'s SIGNATURE (what it takes, what it returns), the JavaDoc explains it for a HUMAN; an OpenAPI spec does both, for machine and human, in ONE file. For QA, this spec is the fastest way to learn an API\'s contract without reading code — and as you will see throughout GROUP F, the moment this contract DIVERGES from REALITY is exactly the moment a "contract defect" is born.',
       },
     },
@@ -5400,7 +5400,7 @@ paths:
         '201':
           description: Bug olusturuldu
         '400':
-          description: Gecersiz istek (ornegin bos title)`,
+          description: Gecersiz request (ornegin bos title)`,
         en: `# openapi.yaml — the core of the /api/v1/bugs contract
 openapi: 3.0.0
 info:
@@ -5512,7 +5512,7 @@ paths:
         { id: 'd', text: { tr: 'Kullanıcı arayüzünün renk paletini belirlemek', en: 'To determine the UI\'s color palette' } },
       ],
       correct: 'a',
-      explanation: { tr: 'OpenAPI spec, bir API\'nin sözleşmesini (yollar, metodlar, zorunlu alanlar, yanıt şekilleri) standart, makine-okunur bir formatta tanımlar — Postman, Swagger UI, test araçları gibi onlarca farklı araç bu TEK dosyayı okuyarak API\'yi anlayabilir.', en: 'An OpenAPI spec defines an API\'s contract (paths, methods, required fields, response shapes) in a standard, machine-readable format — dozens of tools like Postman, Swagger UI, and test tools can understand the API by reading this ONE file.' },
+      explanation: { tr: 'OpenAPI spec, bir API\'nin sözleşmesini (yollar, metodlar, zorunlu alanlar, response şekilleri) standart, makine-okunur bir formatta tanımlar — Postman, Swagger UI, test araçları gibi onlarca farklı araç bu TEK dosyayı okuyarak API\'yi anlayabilir.', en: 'An OpenAPI spec defines an API\'s contract (paths, methods, required fields, response shapes) in a standard, machine-readable format — dozens of tools like Postman, Swagger UI, and test tools can understand the API by reading this ONE file.' },
       retryQuestion: {
         question: { tr: 'OpenAPI spec\'in Java\'daki en yakın karşılığı nedir?', en: 'What is the closest Java equivalent of an OpenAPI spec?' },
         options: [
@@ -5692,21 +5692,21 @@ const F3 = {
       type: 'simple-box',
       emoji: '👆',
       content: {
-        tr: 'Swagger UI, spec dosyasından otomatik oluşan bir **showroom**dur: bir araba showroom\'unda arabanın teknik özelliklerini kağıttan okumak yerine direksiyona oturup gaza basabilirsin — Swagger UI de spec\'teki her endpoint\'i "Try it out" butonuyla GERÇEKTEN çağırmana izin verir, hiçbir kod yazmadan, hiçbir Postman kurulumu olmadan. Peki Postman zaten varken bu neden ayrı bir araç? Çünkü Swagger UI, spec\'in kendisinden DOĞAR — Postman\'de bir isteği elle kurman gerekirken (endpoint\'i, alanları biliyor olman gerekir), Swagger UI spec\'i okuyup SANA formu otomatik hazırlar: hangi alanın zorunlu olduğunu, hangi değerlerin geçerli olduğunu (enum) ÖNCEDEN gösterir. Java\'da bunun karşılığı bir REPL (`jshell`) gibidir — kodu derleyip paketlemeden, doğrudan DENEYEBİLDİĞİN bir ortam. QA açısından Swagger UI, bir API\'yi ilk kez gören bir testerın "önce anla, sonra otomasyona geç" akışındaki İLK elle test aracıdır — derin otomasyon (GRUP G-I) buradan SONRA gelir.',
+        tr: 'Swagger UI, spec dosyasından otomatik oluşan bir **showroom**dur: bir araba showroom\'unda arabanın teknik özelliklerini kağıttan okumak yerine direksiyona oturup gaza basabilirsin — Swagger UI de spec\'teki her endpoint\'i "Try it out" butonuyla GERÇEKTEN çağırmana izin verir, hiçbir kod yazmadan, hiçbir Postman kurulumu olmadan. Peki Postman zaten varken bu neden ayrı bir araç? Çünkü Swagger UI, spec\'in kendisinden DOĞAR — Postman\'de bir request\'i elle kurman gerekirken (endpoint\'i, alanları biliyor olman gerekir), Swagger UI spec\'i okuyup SANA formu otomatik hazırlar: hangi alanın zorunlu olduğunu, hangi değerlerin geçerli olduğunu (enum) ÖNCEDEN gösterir. Java\'da bunun karşılığı bir REPL (`jshell`) gibidir — kodu derleyip paketlemeden, doğrudan DENEYEBİLDİĞİN bir ortam. QA açısından Swagger UI, bir API\'yi ilk kez gören bir testerın "önce anla, sonra otomasyona geç" akışındaki İLK elle test aracıdır — derin otomasyon (GRUP G-I) buradan SONRA gelir.',
         en: 'Swagger UI is a **showroom** auto-built from the spec file: instead of reading a car\'s technical specs on paper in a showroom, you can sit in the driver\'s seat and press the gas — Swagger UI lets you REALLY call every endpoint in the spec with the "Try it out" button, without writing any code, without setting up Postman. So why is this a separate tool when Postman already exists? Because Swagger UI is BORN from the spec itself — while in Postman you must set up a request by hand (you need to already know the endpoint, the fields), Swagger UI reads the spec and auto-prepares the form FOR YOU: it shows in advance which field is required, which values are valid (enum). The Java equivalent is a REPL (`jshell`) — an environment where you can TRY code directly without compiling and packaging. For QA, Swagger UI is the FIRST hands-on test tool in a tester\'s "understand first, automate later" flow when seeing an API for the first time — deep automation (GROUP G-I) comes AFTER this.',
       },
     },
-    { type: 'heading', text: { tr: 'Formdan Gerçek İsteğe', en: 'From a Form to a Real Request' } },
+    { type: 'heading', text: { tr: 'Formdan Gerçek Request\'e', en: 'From a Form to a Real Request' } },
     {
       type: 'text',
       content: {
-        tr: 'Swagger UI\'da bir endpoint\'e tıkladığında `Try it out` butonu belirir. Bu butona basınca alanlar DÜZENLENEBİLİR hale gelir, `Execute` butonu ise GERÇEK bir HTTP isteği gönderir — sonucu (status kodu, yanıt gövdesi) tam olarak DevTools Network panelinde (GRUP E) göreceğinle aynı şekilde gösterir.',
+        tr: 'Swagger UI\'da bir endpoint\'e tıkladığında `Try it out` butonu belirir. Bu butona basınca alanlar DÜZENLENEBİLİR hale gelir, `Execute` butonu ise GERÇEK bir HTTP request\'i gönderir — sonucu (status kodu, response gövdesi) tam olarak DevTools Network panelinde (GRUP E) göreceğinle aynı şekilde gösterir.',
         en: 'Clicking an endpoint in Swagger UI reveals a `Try it out` button. Pressing it makes the fields EDITABLE, and the `Execute` button sends a REAL HTTP request — showing the result (status code, response body) exactly as you would see it in the DevTools Network panel (GROUP E).',
       },
     },
     {
       type: 'diagram-svg',
-      title: { tr: 'Spec → Swagger UI → Try it out → Gerçek İstek', en: 'Spec → Swagger UI → Try it out → Real Request' },
+      title: { tr: 'Spec → Swagger UI → Try it out → Gerçek Request', en: 'Spec → Swagger UI → Try it out → Real Request' },
       svg: swaggerUiFlowSvg,
     },
     {
@@ -5739,7 +5739,7 @@ const F3 = {
           beams: [{ from: 'try', to: 'fill', color: '#a78bfa' }],
         },
         {
-          caption: { tr: '`Execute`\'e basınca GERÇEK bir HTTP isteği sunucuya gider — bu bir simülasyon değildir.', en: 'Pressing `Execute` sends a REAL HTTP request to the server — this is not a simulation.' },
+          caption: { tr: '`Execute`\'e basınca GERÇEK bir HTTP request\'i sunucuya gider — bu bir simülasyon değildir.', en: 'Pressing `Execute` sends a REAL HTTP request to the server — this is not a simulation.' },
           positions: { fill: { x: 20, y: 35 }, exec: { x: 58, y: 50, scale: 1.2, pulse: true } },
           beams: [{ from: 'fill', to: 'exec', color: '#22c55e' }],
         },
@@ -5768,7 +5768,7 @@ const F3 = {
         { id: '1', text: { tr: '/swagger-ui.html\'i tarayıcıda aç', en: 'Open /swagger-ui.html in the browser' }, order: 1 },
         { id: '2', text: { tr: 'Test etmek istediğin endpoint\'i bul', en: 'Find the endpoint you want to test' }, order: 2 },
         { id: '3', text: { tr: '"Try it out" tıkla, alanları doldur', en: 'Click "Try it out", fill the fields' }, order: 3 },
-        { id: '4', text: { tr: '"Execute" ile gerçek isteği gönder', en: 'Send the real request with "Execute"' }, order: 4 },
+        { id: '4', text: { tr: '"Execute" ile gerçek request\'i gönder', en: 'Send the real request with "Execute"' }, order: 4 },
         { id: '5', text: { tr: 'Dönen status/gövdeyi spec\'in vaadiyle karşılaştır', en: 'Compare the returned status/body with the spec\'s promise' }, order: 5 },
       ],
       xpReward: 10,
@@ -5790,13 +5790,13 @@ Eksik adim: "Try it out" butonuna basmak`,
       type: 'quiz',
       question: { tr: 'Swagger UI\'daki "Execute" butonuna basmak neye karşılık gelir?', en: 'What does pressing the "Execute" button in Swagger UI correspond to?' },
       options: [
-        { id: 'a', text: { tr: 'Sunucuya GERÇEK bir HTTP isteği gönderir — bir simülasyon değildir', en: 'It sends a REAL HTTP request to the server — it is not a simulation' } },
+        { id: 'a', text: { tr: 'Sunucuya GERÇEK bir HTTP request\'i gönderir — bir simülasyon değildir', en: 'It sends a REAL HTTP request to the server — it is not a simulation' } },
         { id: 'b', text: { tr: 'Sadece spec dosyasını yeniden yükler', en: 'It only reloads the spec file' } },
         { id: 'c', text: { tr: 'Sunucuyu yeniden başlatır', en: 'It restarts the server' } },
         { id: 'd', text: { tr: 'Hiçbir şey yapmaz, sadece görsel bir animasyondur', en: 'It does nothing, it is just a visual animation' } },
       ],
       correct: 'a',
-      explanation: { tr: '`Execute`, tarayıcının doğrudan sunucuya gönderdiği gerçek bir HTTP isteğidir; dönen status kodu ve gövde, DevTools Network panelinde göreceğinle birebir aynı gerçekliktir.', en: '`Execute` is a real HTTP request the browser sends directly to the server; the returned status code and body are the exact same reality you would see in the DevTools Network panel.' },
+      explanation: { tr: '`Execute`, tarayıcının doğrudan sunucuya gönderdiği gerçek bir HTTP request\'tir; dönen status kodu ve gövde, DevTools Network panelinde göreceğinle birebir aynı gerçekliktir.', en: '`Execute` is a real HTTP request the browser sends directly to the server; the returned status code and body are the exact same reality you would see in the DevTools Network panel.' },
       retryQuestion: {
         question: { tr: 'Swagger UI, spec\'teki `enum` alanlarını "Try it out" formunda nasıl gösterir?', en: 'How does Swagger UI show a spec\'s `enum` fields in the "Try it out" form?' },
         options: [
@@ -5937,7 +5937,7 @@ Eksik test: severity: "URGENT" (tanimsiz enum degeri) gonderip sunucunun tepkisi
       question: { tr: 'Bir şemadaki `enum: ["LOW","MEDIUM","HIGH","CRITICAL"]` kısıtı hangi test senaryosunu DOĞRUDAN doğurur?', en: 'Which test scenario does an `enum: ["LOW","MEDIUM","HIGH","CRITICAL"]` schema constraint DIRECTLY birth?' },
       options: [
         { id: 'a', text: { tr: 'Listede olmayan bir değer (örn. "URGENT") gönderilirse sunucunun nasıl tepki verdiğini test etmek', en: 'Testing how the server reacts if a value not in the list (e.g. "URGENT") is sent' } },
-        { id: 'b', text: { tr: 'Sunucunun ne kadar hızlı yanıt verdiğini test etmek', en: 'Testing how fast the server responds' } },
+        { id: 'b', text: { tr: 'Sunucunun ne kadar hızlı response verdiğini test etmek', en: 'Testing how fast the server responds' } },
         { id: 'c', text: { tr: 'Veritabanı bağlantısını test etmek', en: 'Testing the database connection' } },
         { id: 'd', text: { tr: 'CSS stillerinin doğru yüklendiğini test etmek', en: 'Testing that CSS styles load correctly' } },
       ],
@@ -5946,13 +5946,13 @@ Eksik test: severity: "URGENT" (tanimsiz enum degeri) gonderip sunucunun tepkisi
       retryQuestion: {
         question: { tr: 'Bir şemada `required` listesinde olmayan bir alan ne anlama gelir?', en: 'What does a field NOT in a schema\'s `required` list mean?' },
         options: [
-          { id: 'a', text: { tr: 'Alan opsiyoneldir — onsuz gönderilen bir istek de geçerli olmalıdır', en: 'The field is optional — a request sent without it should still be valid' } },
+          { id: 'a', text: { tr: 'Alan opsiyoneldir — onsuz gönderilen bir request de geçerli olmalıdır', en: 'The field is optional — a request sent without it should still be valid' } },
           { id: 'b', text: { tr: 'Alan asla gönderilemez', en: 'The field can never be sent' } },
-          { id: 'c', text: { tr: 'Alan sadece GET isteklerinde geçerlidir', en: 'The field is only valid on GET requests' } },
+          { id: 'c', text: { tr: 'Alan sadece GET request\'lerinde geçerlidir', en: 'The field is only valid on GET requests' } },
           { id: 'd', text: { tr: 'Şema bu alanı yok sayar', en: 'The schema ignores this field' } },
         ],
         correct: 'a',
-        explanation: { tr: '`required` listesinde OLMAYAN bir alan opsiyoneldir; sözleşmeye göre bu alan olmadan gönderilen bir istek de geçerli kabul edilmelidir — testerın doğrulayacağı şey tam olarak budur.', en: 'A field NOT in the `required` list is optional; per the contract, a request sent without it should still be accepted as valid — this is exactly what a tester verifies.' },
+        explanation: { tr: '`required` listesinde OLMAYAN bir alan opsiyoneldir; sözleşmeye göre bu alan olmadan gönderilen bir request de geçerli kabul edilmelidir — testerın doğrulayacağı şey tam olarak budur.', en: 'A field NOT in the `required` list is optional; per the contract, a request sent without it should still be accepted as valid — this is exactly what a tester verifies.' },
       },
     },
   ],
@@ -5965,7 +5965,7 @@ const F5 = {
       type: 'simple-box',
       emoji: '⚠️',
       content: {
-        tr: 'Bir contract defect, F1\'de öğrendiğin "mimari çizim" analojisine geri döner: çizimde "bu oda 20 metrekare" yazarken gerçekte 15 metrekare olması gibi — bina (kod) ÇALIŞIYOR, çizim (spec) de VAR, ama ikisi birbirini YALANLIYOR. F2\'de gördüğün otomatik üretim bu riski AZALTIR ama SIFIRLAMAZ: spec üretilirken bile bir geliştirici yanlış bir `@ApiResponse` annotation\'ı yazabilir, veya spec elle düzenlendiyse kod değişince güncellenmemiş olabilir. Peki bu neden özellikle SİNSİ bir defect kategorisidir — normal bir fonksiyonel bug\'dan farkı ne? Çünkü UI\'daki manuel test veya fonksiyonel bir otomasyon testi genelde SADECE "istek başarılı mı?" sorar, "yanıt tam olarak DOKÜMANDAKİ ŞEKİLDE mi?" sorusunu SORMAZ — bu yüzden bir contract defect, aylarca fark edilmeden production\'da yaşayabilir, ta ki spec\'e güvenen bir mobil uygulama veya üçüncü taraf entegrasyonu YANLIŞ varsayımla çökene kadar. Java\'da bunun karşılığı, bir `interface`\'in JavaDoc\'unun kodla senkronize kalmaması gibidir — derleyici bunu YAKALAMAZ, çünkü JavaDoc derlemenin bir parçası değildir; tıpkı bir spec\'in "derlemenin" (build\'in) bir parçası olmasına rağmen İÇERİĞİNİN doğruluğunun ayrıca test EDİLMESİ gerektiği gibi. QA açısından contract testing, tam olarak bu boşluğu kapatan disiplindir.',
+        tr: 'Bir contract defect, F1\'de öğrendiğin "mimari çizim" analojisine geri döner: çizimde "bu oda 20 metrekare" yazarken gerçekte 15 metrekare olması gibi — bina (kod) ÇALIŞIYOR, çizim (spec) de VAR, ama ikisi birbirini YALANLIYOR. F2\'de gördüğün otomatik üretim bu riski AZALTIR ama SIFIRLAMAZ: spec üretilirken bile bir geliştirici yanlış bir `@ApiResponse` annotation\'ı yazabilir, veya spec elle düzenlendiyse kod değişince güncellenmemiş olabilir. Peki bu neden özellikle SİNSİ bir defect kategorisidir — normal bir fonksiyonel bug\'dan farkı ne? Çünkü UI\'daki manuel test veya fonksiyonel bir otomasyon testi genelde SADECE "request başarılı mı?" sorar, "response tam olarak DOKÜMANDAKİ ŞEKİLDE mi?" sorusunu SORMAZ — bu yüzden bir contract defect, aylarca fark edilmeden production\'da yaşayabilir, ta ki spec\'e güvenen bir mobil uygulama veya üçüncü taraf entegrasyonu YANLIŞ varsayımla çökene kadar. Java\'da bunun karşılığı, bir `interface`\'in JavaDoc\'unun kodla senkronize kalmaması gibidir — derleyici bunu YAKALAMAZ, çünkü JavaDoc derlemenin bir parçası değildir; tıpkı bir spec\'in "derlemenin" (build\'in) bir parçası olmasına rağmen İÇERİĞİNİN doğruluğunun ayrıca test EDİLMESİ gerektiği gibi. QA açısından contract testing, tam olarak bu boşluğu kapatan disiplindir.',
         en: 'A contract defect returns to the "architectural blueprint" analogy from F1: the blueprint says "this room is 20 square meters" while it is really 15 — the building (the code) WORKS, the blueprint (the spec) EXISTS, but the two CONTRADICT each other. The auto-generation you saw in F2 REDUCES this risk but does not ZERO it out: even while generating a spec, a developer can write a wrong `@ApiResponse` annotation, or if the spec was hand-edited it may not have been updated when the code changed. So why is this an especially SNEAKY defect category — how does it differ from a normal functional bug? Because manual testing in the UI or a functional automation test usually ONLY asks "did the request succeed?", it does NOT ask "does the response EXACTLY match the DOCUMENTED shape?" — so a contract defect can live in production unnoticed for months, until a mobile app or a third-party integration trusting the spec crashes on a WRONG assumption. The Java equivalent is an `interface`\'s JavaDoc falling out of sync with the code — the compiler does NOT catch this, because JavaDoc is not part of compilation; just as a spec being part of the "build" does not mean its CONTENT\'s accuracy is separately TESTED. For QA, contract testing is exactly the discipline that closes this gap.',
       },
     },
@@ -5979,7 +5979,7 @@ const F5 = {
       type: 'simple-box',
       emoji: '1️⃣',
       content: {
-        tr: '**1. Status Kodu Uyumsuzluğu** — Spec `POST /api/v1/bugs` için `200` döndüğünü söyler, ama gerçek API `201 Created` döner. **Kök neden:** geliştirici kod tarafında doğru pratiğe (`201` = oluşturma) geçmiş ama spec\'i güncellemeyi UNUTMUŞ. **Tester nasıl yakalar:** Swagger UI\'da `Try it out` ile gerçek isteği çalıştırıp dönen status kodunu dokümandaki ile birebir karşılaştırarak.',
+        tr: '**1. Status Kodu Uyumsuzluğu** — Spec `POST /api/v1/bugs` için `200` döndüğünü söyler, ama gerçek API `201 Created` döner. **Kök neden:** geliştirici kod tarafında doğru pratiğe (`201` = oluşturma) geçmiş ama spec\'i güncellemeyi UNUTMUŞ. **Tester nasıl yakalar:** Swagger UI\'da `Try it out` ile gerçek request\'i çalıştırıp dönen status kodunu dokümandaki ile birebir karşılaştırarak.',
         en: '**1. Status code mismatch** — the spec says `POST /api/v1/bugs` returns `200`, but the real API returns `201 Created`. **Root cause:** the developer moved to the correct practice on the code side (`201` = creation) but FORGOT to update the spec. **How the tester catches it:** running the real request with `Try it out` in Swagger UI and comparing the returned status code exactly against the doc.',
       },
     },
@@ -5987,7 +5987,7 @@ const F5 = {
       type: 'simple-box',
       emoji: '2️⃣',
       content: {
-        tr: '**2. Enum Drift** — Spec `severity` için `[LOW, MEDIUM, HIGH]` üç değer listeler, ama geliştirici kod tarafına yeni bir `CRITICAL` değeri EKLEMİŞ ve spec\'e YANSITMAMIŞ. **Kök neden:** enum bir Java/TS sabitler listesinde kolayca genişletilebilir ama spec\'teki karşılığı elle güncellenmesi gereken AYRI bir liste. **Tester nasıl yakalar:** gerçek yanıtlarda dokümanda OLMAYAN bir değer görerek, veya negatif testte "CRITICAL reddedilmeli" beklerken kabul edildiğini fark ederek.',
+        tr: '**2. Enum Drift** — Spec `severity` için `[LOW, MEDIUM, HIGH]` üç değer listeler, ama geliştirici kod tarafına yeni bir `CRITICAL` değeri EKLEMİŞ ve spec\'e YANSITMAMIŞ. **Kök neden:** enum bir Java/TS sabitler listesinde kolayca genişletilebilir ama spec\'teki karşılığı elle güncellenmesi gereken AYRI bir liste. **Tester nasıl yakalar:** gerçek response\'larda dokümanda OLMAYAN bir değer görerek, veya negatif testte "CRITICAL reddedilmeli" beklerken kabul edildiğini fark ederek.',
         en: '**2. Enum drift** — the spec lists three `severity` values `[LOW, MEDIUM, HIGH]`, but the developer ADDED a new `CRITICAL` value on the code side and did NOT reflect it in the spec. **Root cause:** an enum can easily expand in a Java/TS constants list, but its counterpart in the spec is a SEPARATE list that must be updated by hand. **How the tester catches it:** seeing a value NOT in the doc in real responses, or expecting "CRITICAL should be rejected" in a negative test and noticing it is accepted instead.',
       },
     },
@@ -5995,7 +5995,7 @@ const F5 = {
       type: 'simple-box',
       emoji: '3️⃣',
       content: {
-        tr: '**3. Required Yalanı** — Spec `reporter` alanını `required` listesinde gösterir, ama gerçek API bu alan OLMADAN gönderilen bir isteği de kabul edip `201` döner. **Kök neden:** backend\'deki doğrulama kuralı (`@NotBlank`/`@IsNotEmpty`) ya hiç yazılmamış ya da bir yerde SESSİZCE devre dışı (bkz. B1/D3\'teki eksik pipe/starter defect\'leri) — spec doğru yazılmış ama koddaki GERÇEK davranış farklı. **Tester nasıl yakalar:** "zorunlu" işaretli her alanı bilerek BOŞ bırakarak deneyip 400 yerine 201 alındığında.',
+        tr: '**3. Required Yalanı** — Spec `reporter` alanını `required` listesinde gösterir, ama gerçek API bu alan OLMADAN gönderilen bir request\'i de kabul edip `201` döner. **Kök neden:** backend\'deki doğrulama kuralı (`@NotBlank`/`@IsNotEmpty`) ya hiç yazılmamış ya da bir yerde SESSİZCE devre dışı (bkz. B1/D3\'teki eksik pipe/starter defect\'leri) — spec doğru yazılmış ama koddaki GERÇEK davranış farklı. **Tester nasıl yakalar:** "zorunlu" işaretli her alanı bilerek BOŞ bırakarak deneyip 400 yerine 201 alındığında.',
         en: '**3. The required lie** — the spec lists `reporter` in the `required` list, but the real API also accepts a request sent WITHOUT this field and returns `201`. **Root cause:** the backend validation rule (`@NotBlank`/`@IsNotEmpty`) was either never written or is SILENTLY disabled somewhere (see the missing pipe/starter defects in B1/D3) — the spec is written correctly, but the code\'s REAL behavior differs. **How the tester catches it:** deliberately leaving every field marked "required" empty and getting 201 instead of 400.',
       },
     },
@@ -6003,7 +6003,7 @@ const F5 = {
       type: 'simple-box',
       emoji: '4️⃣',
       content: {
-        tr: '**4. Alan Tipi Uyumsuzluğu** — Spec `createdAt` alanının `type: string, format: date-time` (ISO-8601, örn. `2026-07-24T10:00:00Z`) olduğunu söyler, ama gerçek API bunu bir UNIX timestamp sayısı (`1753350000`) olarak döner. **Kök neden:** backend\'de serialization ayarı değişmiş (örn. farklı bir JSON kütüphanesi/konfigürasyon) ama spec bu değişikliği YAKALAMAMIŞ. **Tester nasıl yakalar:** gerçek yanıtta bir alanın TİPİNİ (string mi sayı mı) spec\'teki `type`/`format` ile birebir karşılaştırarak — özellikle spec\'e güvenerek otomatik parse eden bir istemci (mobil uygulama) bu farkta ÇÖKER.',
+        tr: '**4. Alan Tipi Uyumsuzluğu** — Spec `createdAt` alanının `type: string, format: date-time` (ISO-8601, örn. `2026-07-24T10:00:00Z`) olduğunu söyler, ama gerçek API bunu bir UNIX timestamp sayısı (`1753350000`) olarak döner. **Kök neden:** backend\'de serialization ayarı değişmiş (örn. farklı bir JSON kütüphanesi/konfigürasyon) ama spec bu değişikliği YAKALAMAMIŞ. **Tester nasıl yakalar:** gerçek response\'ta bir alanın TİPİNİ (string mi sayı mı) spec\'teki `type`/`format` ile birebir karşılaştırarak — özellikle spec\'e güvenerek otomatik parse eden bir istemci (mobil uygulama) bu farkta ÇÖKER.',
         en: '**4. Field type mismatch** — the spec says `createdAt` is `type: string, format: date-time` (ISO-8601, e.g. `2026-07-24T10:00:00Z`), but the real API returns it as a UNIX timestamp number (`1753350000`). **Root cause:** a serialization setting changed on the backend (e.g. a different JSON library/config) but the spec did NOT catch this change. **How the tester catches it:** comparing a real response field\'s TYPE (string or number) exactly against the spec\'s `type`/`format` — a client (mobile app) that trusts the spec and auto-parses will CRASH on this mismatch.',
       },
     },
@@ -6057,7 +6057,7 @@ const F5 = {
       title: { tr: 'Bir Contract Defect\'i Kanıtlama Sırası', en: 'The Order for Proving a Contract Defect' },
       steps: [
         { id: 1, icon: '📜', label: { tr: 'Spec\'in vaadini oku…', en: 'Read the spec\'s promise…' }, detail: { tr: 'Status kodu, alan tipi, enum listesi gibi somut bir iddiayı not al.', en: 'Note a concrete claim like status code, field type, or enum list.' } },
-        { id: 2, icon: '▶️', label: { tr: 'Gerçek isteği çalıştır…', en: 'Run the real request…' }, detail: { tr: 'Swagger UI Try it out veya Postman ile gerçek yanıtı al.', en: 'Get the real response with Swagger UI Try it out or Postman.' } },
+        { id: 2, icon: '▶️', label: { tr: 'Gerçek request\'i çalıştır…', en: 'Run the real request…' }, detail: { tr: 'Swagger UI Try it out veya Postman ile gerçek response\'u al.', en: 'Get the real response with Swagger UI Try it out or Postman.' } },
         { id: 3, icon: '⚖️', label: { tr: 'Vaat ile gerçeği karşılaştır…', en: 'Compare the promise with reality…' }, detail: { tr: 'Uyumsuzluk varsa bunu "kod doğru, doküman eski" savunmasına karşı BUG olarak raporla.', en: 'If there is a mismatch, report it as a BUG against the "code is right, doc is old" defense.' } },
       ],
     },
@@ -6068,7 +6068,7 @@ const F5 = {
       question: { tr: 'Bir contract defect\'i tespit etme ve raporlama sürecini sırala.', en: 'Order the process for detecting and reporting a contract defect.' },
       items: [
         { id: '1', text: { tr: 'Spec\'teki somut bir iddiayı (status/type/enum) not al', en: 'Note a concrete claim in the spec (status/type/enum)' }, order: 1 },
-        { id: '2', text: { tr: 'Aynı isteği gerçek API\'ye gönder', en: 'Send the same request to the real API' }, order: 2 },
+        { id: '2', text: { tr: 'Aynı request\'i gerçek API\'ye gönder', en: 'Send the same request to the real API' }, order: 2 },
         { id: '3', text: { tr: 'Gerçek sonucu spec\'in vaadiyle satır satır karşılaştır', en: 'Compare the real result against the spec\'s promise line by line' }, order: 3 },
         { id: '4', text: { tr: 'Uyumsuzluğu (varsa) kanıtla', en: 'Prove the mismatch (if any)' }, order: 4 },
         { id: '5', text: { tr: 'Bug olarak aç, "doküman eski" mazeretini kabul etme', en: 'File it as a bug, do not accept the "the doc is old" excuse' }, order: 5 },
@@ -6086,7 +6086,7 @@ const F5 = {
 Kategori: ???`,
       solutionCode: `// Kodda enum genisletilmis (yeni deger eklenmis) ama spec guncellenmemis
 Kategori: Enum drift`,
-      hint: { tr: 'Spec\'te tanımlı olmayan yeni bir değerin gerçek yanıtta belirmesi, kodun spec\'ten daha "ileride" olduğu, yani enum listesinin spec\'te GÜNCELLENMEDİĞİ anlamına gelir — bu "enum drift"tir.', en: 'A new value not defined in the spec appearing in the real response means the code is "ahead" of the spec — the enum list was NOT UPDATED in the spec — this is "enum drift".' },
+      hint: { tr: 'Spec\'te tanımlı olmayan yeni bir değerin gerçek response\'ta belirmesi, kodun spec\'ten daha "ileride" olduğu, yani enum listesinin spec\'te GÜNCELLENMEDİĞİ anlamına gelir — bu "enum drift"tir.', en: 'A new value not defined in the spec appearing in the real response means the code is "ahead" of the spec — the enum list was NOT UPDATED in the spec — this is "enum drift".' },
       successMessage: { tr: 'Doğru! Enum drift, spec\'in en sık gözden kaçan ayrışma türlerinden biridir.', en: 'Correct! Enum drift is one of the most commonly overlooked divergence types in a spec.' },
     },
     {
@@ -6103,13 +6103,13 @@ Kategori: Enum drift`,
       retryQuestion: {
         question: { tr: '"Required yalanı" contract defect\'inin tanımı nedir?', en: 'What defines a "required lie" contract defect?' },
         options: [
-          { id: 'a', text: { tr: 'Spec bir alanı zorunlu gösterirken, gerçek API bu alan olmadan da isteği kabul etmesi', en: 'The spec marks a field as required, but the real API accepts the request without it too' } },
+          { id: 'a', text: { tr: 'Spec bir alanı zorunlu gösterirken, gerçek API bu alan olmadan da request\'i kabul etmesi', en: 'The spec marks a field as required, but the real API accepts the request without it too' } },
           { id: 'b', text: { tr: 'Bir alanın hiç var olmaması', en: 'A field not existing at all' } },
-          { id: 'c', text: { tr: 'Sunucunun yavaş yanıt vermesi', en: 'The server responding slowly' } },
+          { id: 'c', text: { tr: 'Sunucunun yavaş response vermesi', en: 'The server responding slowly' } },
           { id: 'd', text: { tr: 'Spec dosyasının bulunamaması', en: 'The spec file not being found' } },
         ],
         correct: 'a',
-        explanation: { tr: '"Required yalanı", spec\'in bir alanı zorunlu (`required`) olarak BİLDİRMESİNE rağmen, backend\'deki gerçek doğrulama kuralının eksik/devre dışı olması nedeniyle o alan olmadan da isteğin kabul edilmesidir — spec ile GERÇEK davranış arasındaki bir uyumsuzluktur.', en: 'A "required lie" is when the spec DECLARES a field as required, but because the real validation rule on the backend is missing/disabled, a request is accepted without that field too — a mismatch between the spec and REAL behavior.' },
+        explanation: { tr: '"Required yalanı", spec\'in bir alanı zorunlu (`required`) olarak BİLDİRMESİNE rağmen, backend\'deki gerçek doğrulama kuralının eksik/devre dışı olması nedeniyle o alan olmadan da request\'in kabul edilmesidir — spec ile GERÇEK davranış arasındaki bir uyumsuzluktur.', en: 'A "required lie" is when the spec DECLARES a field as required, but because the real validation rule on the backend is missing/disabled, a request is accepted without that field too — a mismatch between the spec and REAL behavior.' },
       },
     },
   ],
@@ -6270,7 +6270,7 @@ const G1 = {
       type: 'simple-box',
       emoji: '📁',
       content: {
-        tr: 'Bir Postman Collection, `/api/v1/bugs` için yazılmış tüm istekleri saklayan bir **test klasörüdür** — ama bunları ENDPOINT\'e göre değil, gerçek bir kullanım AKIŞINA göre grupladığında ("Bug Oluşturma Akışı", "Bug Yaşam Döngüsü") anlamlı olur. Java\'da en yakın karşılığı, `src/test/java` altında paketleri özelliğe göre (`bugcreation`, `buglifecycle`) ayırmaktır — teknik katmana göre değil, iş akışına göre. **Derin Collection/klasör mimarisi rehberi için → `/postman` sayfasına bak; burada sadece Bug Tracker\'ı Postman\'e taşıyoruz.**',
+        tr: 'Bir Postman Collection, `/api/v1/bugs` için yazılmış tüm request\'leri saklayan bir **test klasörüdür** — ama bunları ENDPOINT\'e göre değil, gerçek bir kullanım AKIŞINA göre grupladığında ("Bug Oluşturma Akışı", "Bug Yaşam Döngüsü") anlamlı olur. Java\'da en yakın karşılığı, `src/test/java` altında paketleri özelliğe göre (`bugcreation`, `buglifecycle`) ayırmaktır — teknik katmana göre değil, iş akışına göre. **Derin Collection/klasör mimarisi rehberi için → `/postman` sayfasına bak; burada sadece Bug Tracker\'ı Postman\'e taşıyoruz.**',
         en: 'A Postman Collection is a **test folder** holding all requests written for `/api/v1/bugs` — but it only makes sense when grouped not by endpoint, but by a real usage FLOW ("Bug Creation Flow", "Bug Lifecycle"). The closest Java equivalent is splitting packages under `src/test/java` by feature (`bugcreation`, `buglifecycle`), not by technical layer. **For a deep Collection/folder architecture guide → see the `/postman` page; here we are just carrying the Bug Tracker into Postman.**',
       },
     },
@@ -6320,7 +6320,7 @@ const G1 = {
       steps: [
         { id: 1, icon: '🔌', label: { tr: 'Endpoint\'leri listele…', en: 'List the endpoints…' }, detail: { tr: '/api/v1/bugs\'un 6 endpoint\'ini gözden geçir (GRUP B-D).', en: 'Review the 6 endpoints of /api/v1/bugs (GROUP B-D).' } },
         { id: 2, icon: '🔀', label: { tr: 'Akışlara ayır…', en: 'Split into flows…' }, detail: { tr: 'Endpoint yerine "oluşturma", "yaşam döngüsü" gibi gerçek kullanım akışlarına grupla.', en: 'Group by real usage flows like "creation", "lifecycle" instead of by endpoint.' } },
-        { id: 3, icon: '📁', label: { tr: 'Klasörleri kur…', en: 'Set up the folders…' }, detail: { tr: 'Her akış bir klasör, her istek o klasörün altında bir öğe olur.', en: 'Each flow is a folder, each request an item under it.' } },
+        { id: 3, icon: '📁', label: { tr: 'Klasörleri kur…', en: 'Set up the folders…' }, detail: { tr: 'Her akış bir klasör, her request o klasörün altında bir öğe olur.', en: 'Each flow is a folder, each request an item under it.' } },
       ],
     },
     {
@@ -6332,7 +6332,7 @@ const G1 = {
         { id: '1', text: { tr: 'Endpoint listesini gözden geçir', en: 'Review the endpoint list' }, order: 1 },
         { id: '2', text: { tr: 'Gerçek kullanım akışlarını belirle', en: 'Identify real usage flows' }, order: 2 },
         { id: '3', text: { tr: 'Her akış için bir klasör oluştur', en: 'Create a folder for each flow' }, order: 3 },
-        { id: '4', text: { tr: 'İstekleri ilgili klasöre yerleştir', en: 'Place requests into the relevant folder' }, order: 4 },
+        { id: '4', text: { tr: 'Request\'leri ilgili klasöre yerleştir', en: 'Place requests into the relevant folder' }, order: 4 },
         { id: '5', text: { tr: 'Collection\'ı takımla paylaş', en: 'Share the collection with the team' }, order: 5 },
       ],
       xpReward: 9,
@@ -6342,7 +6342,7 @@ const G1 = {
       relatedTopicId: 'api-g1-collection-structure',
       id: 'api-g1-collection-structure',
       title: { tr: 'Kendin Dene: Doğru Klasörü Seç', en: 'Try It Yourself: Pick the Right Folder' },
-      starterCode: `// Istekler: POST /bugs, GET /bugs/{id}, PATCH /bugs/{id}/status, DELETE /bugs/{id}
+      starterCode: `// Request\'ler: POST /bugs, GET /bugs/{id}, PATCH /bugs/{id}/status, DELETE /bugs/{id}
 // TODO: "PATCH /bugs/{id}/status" hangi akis klasorune ait?
 Klasor: ???`,
       solutionCode: `// Status guncelleme, bir bug'in YASAM DONGUSUNUN parcasidir (olusturma degil)
@@ -6383,7 +6383,7 @@ const G2 = {
       type: 'simple-box',
       emoji: '🌍',
       content: {
-        tr: '`{{baseUrl}}` gibi bir Postman değişkeni, Java\'daki `application.properties`\'teki `${server.url}` gibi bir **yer tutucudur** — isteğin İÇİNE sabit bir değer yazmak yerine, ortam DEĞİŞİNCE (dev/staging/prod) tek bir yerden değişen bir referans kullanırsın. `{{bugId}}` ise bir isteğin SONUCUNU bir SONRAKİ isteğe TAŞIYAN bir köprüdür (G4\'te bunu aktif olarak kuracaksın). **Derin environment/variable scope rehberi için → `/postman` sayfasına bak.**',
+        tr: '`{{baseUrl}}` gibi bir Postman değişkeni, Java\'daki `application.properties`\'teki `${server.url}` gibi bir **yer tutucudur** — request\'in İÇİNE sabit bir değer yazmak yerine, ortam DEĞİŞİNCE (dev/staging/prod) tek bir yerden değişen bir referans kullanırsın. `{{bugId}}` ise bir request\'in SONUCUNU bir SONRAKİ request\'e TAŞIYAN bir köprüdür (G4\'te bunu aktif olarak kuracaksın). **Derin environment/variable scope rehberi için → `/postman` sayfasına bak.**',
         en: 'A Postman variable like `{{baseUrl}}` is a **placeholder**, much like `${server.url}` in Java\'s `application.properties` — instead of hardcoding a value INSIDE the request, you use a single reference that changes when the environment (dev/staging/prod) changes. `{{bugId}}` is a bridge that CARRIES one request\'s RESULT into the NEXT request (you will build this actively in G4). **For a deep environment/variable scope guide → see the `/postman` page.**',
       },
     },
@@ -6394,7 +6394,7 @@ const G2 = {
         tr: `# Environment: "Bug Tracker - Local"
 baseUrl = http://localhost:3000
 
-# Istek artik sabit degil, degiskenle yazilir:
+# Request artik sabit degil, degiskenle yazilir:
 GET {{baseUrl}}/api/v1/bugs/{{bugId}}`,
         en: `# Environment: "Bug Tracker - Local"
 baseUrl = http://localhost:3000
@@ -6416,9 +6416,9 @@ GET {{baseUrl}}/api/v1/bugs/{{bugId}}`,
         { id: 'switch', emoji: '🔀', label: { tr: 'Environment değiştir', en: 'Switch environment' }, color: '#22c55e' },
       ],
       scenes: [
-        { caption: { tr: 'İstekte URL sabit yazılırsa, her ortam değişiminde ONLARCA isteği elle düzeltmek gerekir.', en: 'If the URL is hardcoded in the request, dozens of requests must be fixed by hand on every environment change.' }, positions: { hardcoded: { x: 50, y: 50, scale: 1.1, pulse: true } } },
-        { caption: { tr: '`{{baseUrl}}` değişkenine geçince istek artık ortamdan BAĞIMSIZ yazılmış olur.', en: 'Switching to the `{{baseUrl}}` variable, the request is now written INDEPENDENT of the environment.' }, positions: { hardcoded: { x: 20, y: 40 }, variable: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'hardcoded', to: 'variable', color: '#0ea5e9' }] },
-        { caption: { tr: 'Environment\'ı "Local"dan "Staging"e değiştirmek TEK tıkla TÜM istekleri günceller.', en: 'Switching the environment from "Local" to "Staging" updates ALL requests with ONE click.' }, positions: { variable: { x: 20, y: 40 }, switch: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'variable', to: 'switch', color: '#22c55e' }] },
+        { caption: { tr: 'Request\'te URL sabit yazılırsa, her ortam değişiminde ONLARCA request\'i elle düzeltmek gerekir.', en: 'If the URL is hardcoded in the request, dozens of requests must be fixed by hand on every environment change.' }, positions: { hardcoded: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: '`{{baseUrl}}` değişkenine geçince request artık ortamdan BAĞIMSIZ yazılmış olur.', en: 'Switching to the `{{baseUrl}}` variable, the request is now written INDEPENDENT of the environment.' }, positions: { hardcoded: { x: 20, y: 40 }, variable: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'hardcoded', to: 'variable', color: '#0ea5e9' }] },
+        { caption: { tr: 'Environment\'ı "Local"dan "Staging"e değiştirmek TEK tıkla TÜM request\'leri günceller.', en: 'Switching the environment from "Local" to "Staging" updates ALL requests with ONE click.' }, positions: { variable: { x: 20, y: 40 }, switch: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'variable', to: 'switch', color: '#22c55e' }] },
       ],
     },
     {
@@ -6426,7 +6426,7 @@ GET {{baseUrl}}/api/v1/bugs/{{bugId}}`,
       title: { tr: 'Sabit Değerden Ortam Değişkenine', en: 'From a Hardcoded Value to an Environment Variable' },
       steps: [
         { id: 1, icon: '🌍', label: { tr: 'Environment oluştur…', en: 'Create an environment…' }, detail: { tr: '"Bug Tracker - Local" gibi bir environment aç, baseUrl değişkenini tanımla.', en: 'Open an environment like "Bug Tracker - Local", define the baseUrl variable.' } },
-        { id: 2, icon: '✏️', label: { tr: 'İsteklerde kullan…', en: 'Use it in requests…' }, detail: { tr: 'URL\'i sabit yazmak yerine {{baseUrl}} referansıyla yaz.', en: 'Instead of hardcoding the URL, write it as a {{baseUrl}} reference.' } },
+        { id: 2, icon: '✏️', label: { tr: 'Request\'lerde kullan…', en: 'Use it in requests…' }, detail: { tr: 'URL\'i sabit yazmak yerine {{baseUrl}} referansıyla yaz.', en: 'Instead of hardcoding the URL, write it as a {{baseUrl}} reference.' } },
         { id: 3, icon: '🔀', label: { tr: 'Ortamı değiştir…', en: 'Switch the environment…' }, detail: { tr: 'Sağ üstteki environment seçiciyle dev/staging arasında tek tıkla geçiş yap.', en: 'Switch between dev/staging with one click via the environment selector top-right.' } },
       ],
     },
@@ -6438,9 +6438,9 @@ GET {{baseUrl}}/api/v1/bugs/{{bugId}}`,
       items: [
         { id: '1', text: { tr: 'Yeni bir Environment oluştur', en: 'Create a new Environment' }, order: 1 },
         { id: '2', text: { tr: 'baseUrl değişkenini tanımla', en: 'Define the baseUrl variable' }, order: 2 },
-        { id: '3', text: { tr: 'İsteklerdeki sabit URL\'i {{baseUrl}} ile değiştir', en: 'Replace hardcoded URLs in requests with {{baseUrl}}' }, order: 3 },
+        { id: '3', text: { tr: 'Request\'lerdeki sabit URL\'i {{baseUrl}} ile değiştir', en: 'Replace hardcoded URLs in requests with {{baseUrl}}' }, order: 3 },
         { id: '4', text: { tr: 'Environment\'ı seçiciden aktif et', en: 'Activate the environment from the selector' }, order: 4 },
-        { id: '5', text: { tr: 'İsteği çalıştır, doğru ortama gittiğini doğrula', en: 'Run the request, verify it hit the right environment' }, order: 5 },
+        { id: '5', text: { tr: 'Request\'i çalıştır, doğru ortama gittiğini doğrula', en: 'Run the request, verify it hit the right environment' }, order: 5 },
       ],
       xpReward: 9,
     },
@@ -6454,29 +6454,29 @@ GET http://localhost:3000/api/v1/bugs/42`,
       solutionCode: `// FIX: baseUrl degiskeni kullanildi, ortam degisince otomatik guncellenir
 GET {{baseUrl}}/api/v1/bugs/{{bugId}}`,
       hint: { tr: 'Sabit yazılan her URL, ortam değişince ELLE düzeltilmesi gereken bir bakım yüküdür. `{{baseUrl}}` ve `{{bugId}}` gibi değişkenler bu yükü ortadan kaldırır.', en: 'Every hardcoded URL is a maintenance burden that must be fixed by hand when the environment changes. Variables like `{{baseUrl}}` and `{{bugId}}` remove that burden.' },
-      successMessage: { tr: 'Doğru! Artık environment değişince istek otomatik doğru ortama gider.', en: 'Correct! Now the request automatically goes to the right environment when it switches.' },
+      successMessage: { tr: 'Doğru! Artık environment değişince request otomatik doğru ortama gider.', en: 'Correct! Now the request automatically goes to the right environment when it switches.' },
     },
     {
       type: 'quiz',
       question: { tr: '`{{baseUrl}}` gibi bir Postman değişkeni kullanmanın en büyük avantajı nedir?', en: 'What is the biggest advantage of using a Postman variable like `{{baseUrl}}`?' },
       options: [
-        { id: 'a', text: { tr: 'Ortam (dev/staging/prod) değişince tüm istekler TEK bir yerden güncellenir', en: 'When the environment (dev/staging/prod) changes, all requests update from ONE place' } },
-        { id: 'b', text: { tr: 'İstekleri daha hızlı gönderir', en: 'It sends requests faster' } },
+        { id: 'a', text: { tr: 'Ortam (dev/staging/prod) değişince tüm request\'ler TEK bir yerden güncellenir', en: 'When the environment (dev/staging/prod) changes, all requests update from ONE place' } },
+        { id: 'b', text: { tr: 'Request\'leri daha hızlı gönderir', en: 'It sends requests faster' } },
         { id: 'c', text: { tr: 'Sunucuyu otomatik başlatır', en: 'It automatically starts the server' } },
         { id: 'd', text: { tr: 'JSON gövdesini otomatik doğrular', en: 'It automatically validates the JSON body' } },
       ],
       correct: 'a',
-      explanation: { tr: 'Sabit yazılan bir URL her ortam değişiminde onlarca isteği elle güncellemeyi gerektirir; bir değişken kullanmak bu güncellemeyi TEK bir yere (Environment tanımına) indirger.', en: 'A hardcoded URL requires manually updating dozens of requests on every environment change; using a variable reduces this update to ONE place (the Environment definition).' },
+      explanation: { tr: 'Sabit yazılan bir URL her ortam değişiminde onlarca request\'i elle güncellemeyi gerektirir; bir değişken kullanmak bu güncellemeyi TEK bir yere (Environment tanımına) indirger.', en: 'A hardcoded URL requires manually updating dozens of requests on every environment change; using a variable reduces this update to ONE place (the Environment definition).' },
       retryQuestion: {
         question: { tr: '`{{bugId}}` gibi bir değişkenin G4\'teki rolü ne olacak?', en: 'What role will a variable like `{{bugId}}` play in G4?' },
         options: [
-          { id: 'a', text: { tr: 'Bir POST isteğinin sonucundaki id\'yi bir sonraki GET isteğine taşıyan köprü olacak', en: 'It will be the bridge carrying a POST request\'s resulting id into the next GET request' } },
+          { id: 'a', text: { tr: 'Bir POST request\'inin sonucundaki id\'yi bir sonraki GET request\'ine taşıyan köprü olacak', en: 'It will be the bridge carrying a POST request\'s resulting id into the next GET request' } },
           { id: 'b', text: { tr: 'Sadece dokümantasyon amaçlı olacak', en: 'It will be purely for documentation purposes' } },
           { id: 'c', text: { tr: 'Hiçbir işlevi olmayacak', en: 'It will have no function' } },
           { id: 'd', text: { tr: 'Sadece hata mesajlarında görünecek', en: 'It will only appear in error messages' } },
         ],
         correct: 'a',
-        explanation: { tr: 'G4\'te bir Pre-request/Test script, POST yanıtından gelen `id`\'yi `pm.environment.set(\'bugId\', ...)` ile bu değişkene yazacak — sonraki istekler bu değeri `{{bugId}}` ile okuyacak.', en: 'In G4, a Pre-request/Test script will write the `id` from the POST response into this variable with `pm.environment.set(\'bugId\', ...)` — subsequent requests will read that value via `{{bugId}}`.' },
+        explanation: { tr: 'G4\'te bir Pre-request/Test script, POST response\'undan gelen `id`\'yi `pm.environment.set(\'bugId\', ...)` ile bu değişkene yazacak — sonraki request\'ler bu değeri `{{bugId}}` ile okuyacak.', en: 'In G4, a Pre-request/Test script will write the `id` from the POST response into this variable with `pm.environment.set(\'bugId\', ...)` — subsequent requests will read that value via `{{bugId}}`.' },
       },
     },
   ],
@@ -6489,7 +6489,7 @@ const G3 = {
       type: 'simple-box',
       emoji: '🧪',
       content: {
-        tr: '`pm.test(...)`, Postman\'in JavaScript ile yazılan **assertion cümlesidir** — Java\'da JUnit\'teki `assertEquals`/`assertThat`\'in birebir karşılığı, sadece dil ve syntax farklı. `pm.response.to.have.status(201)` demek, JUnit\'te `assertEquals(201, response.getStatus())` demekle AYNI işi yapar. Peki neden sadece "isteği gönder, gözle bak" yetmiyor? Çünkü göz kontrolü ÖLÇEKLENMEZ ve TEKRARLANAMAZ — `pm.test` yazınca bu kontrol her koşumda OTOMATİK ve TUTARLI çalışır. **Derin `pm.test`/Chai assertion rehberi için → `/postman` sayfasına bak.**',
+        tr: '`pm.test(...)`, Postman\'in JavaScript ile yazılan **assertion cümlesidir** — Java\'da JUnit\'teki `assertEquals`/`assertThat`\'in birebir karşılığı, sadece dil ve syntax farklı. `pm.response.to.have.status(201)` demek, JUnit\'te `assertEquals(201, response.getStatus())` demekle AYNI işi yapar. Peki neden sadece "request\'i gönder, gözle bak" yetmiyor? Çünkü göz kontrolü ÖLÇEKLENMEZ ve TEKRARLANAMAZ — `pm.test` yazınca bu kontrol her koşumda OTOMATİK ve TUTARLI çalışır. **Derin `pm.test`/Chai assertion rehberi için → `/postman` sayfasına bak.**',
         en: '`pm.test(...)` is Postman\'s JavaScript-written **assertion statement** — the direct counterpart of JUnit\'s `assertEquals`/`assertThat` in Java, only the language and syntax differ. Saying `pm.response.to.have.status(201)` does the SAME job as `assertEquals(201, response.getStatus())` in JUnit. So why isn\'t "send the request, eyeball it" enough? Because eyeballing does not SCALE and is not REPEATABLE — writing `pm.test` makes this check run AUTOMATICALLY and CONSISTENTLY on every run. **For a deep `pm.test`/Chai assertion guide → see the `/postman` page.**',
       },
     },
@@ -6530,7 +6530,7 @@ pm.test('Response contains the title field', () => {
         { id: 'auto', emoji: '✅', label: { tr: 'Her koşumda otomatik', en: 'Automatic on every run' }, color: '#22c55e' },
       ],
       scenes: [
-        { caption: { tr: 'Bir tester her istekten sonra yanıtı gözle kontrol ediyor — yorucu ve hataya açık.', en: 'A tester eyeballs the response after every request — tiring and error-prone.' }, positions: { eye: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Bir tester her request\'ten sonra response\'u gözle kontrol ediyor — yorucu ve hataya açık.', en: 'A tester eyeballs the response after every request — tiring and error-prone.' }, positions: { eye: { x: 50, y: 50, scale: 1.1, pulse: true } } },
         { caption: { tr: '`Tests` sekmesine `pm.test(...)` yazılır — kontrol artık KOD haline gelir.', en: '`pm.test(...)` is written in the `Tests` tab — the check becomes CODE.' }, positions: { eye: { x: 20, y: 40 }, test: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'eye', to: 'test', color: '#0ea5e9' }] },
         { caption: { tr: 'Artık her koşumda status ve gövde OTOMATİK doğrulanır — tekrar tekrar aynı titizlikle.', en: 'Now status and body are AUTOMATICALLY verified on every run — repeatedly, with the same rigor.' }, positions: { test: { x: 20, y: 40 }, auto: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'test', to: 'auto', color: '#22c55e' }] },
       ],
@@ -6539,7 +6539,7 @@ pm.test('Response contains the title field', () => {
       type: 'step-animation',
       title: { tr: 'Bir Assertion Yazma Sırası', en: 'The Order for Writing an Assertion' },
       steps: [
-        { id: 1, icon: '📤', label: { tr: 'İsteği gönder…', en: 'Send the request…' }, detail: { tr: 'POST /api/v1/bugs isteğini çalıştır, yanıtı gözlemle.', en: 'Run the POST /api/v1/bugs request, observe the response.' } },
+        { id: 1, icon: '📤', label: { tr: 'Request\'i gönder…', en: 'Send the request…' }, detail: { tr: 'POST /api/v1/bugs request\'ini çalıştır, response\'u gözlemle.', en: 'Run the POST /api/v1/bugs request, observe the response.' } },
         { id: 2, icon: '🧪', label: { tr: 'Tests sekmesine yaz…', en: 'Write in the Tests tab…' }, detail: { tr: 'pm.test(...) ile status ve gövde kontrolünü koda döktür.', en: 'Turn the status and body check into code with pm.test(...).' } },
         { id: 3, icon: '✅', label: { tr: 'Sonucu doğrula…', en: 'Verify the result…' }, detail: { tr: 'Test Results sekmesinde yeşil/kırmızı sonucu oku.', en: 'Read the green/red result in the Test Results tab.' } },
       ],
@@ -6550,7 +6550,7 @@ pm.test('Response contains the title field', () => {
       id: 'api-g3-order-01',
       question: { tr: 'Bir pm.test yazma ve doğrulama sürecini sırala.', en: 'Order the process for writing and verifying a pm.test.' },
       items: [
-        { id: '1', text: { tr: 'İsteği gönder, ham yanıtı gör', en: 'Send the request, see the raw response' }, order: 1 },
+        { id: '1', text: { tr: 'Request\'i gönder, ham response\'u gör', en: 'Send the request, see the raw response' }, order: 1 },
         { id: '2', text: { tr: 'Tests sekmesini aç', en: 'Open the Tests tab' }, order: 2 },
         { id: '3', text: { tr: 'pm.test(...) ile status kontrolü yaz', en: 'Write a status check with pm.test(...)' }, order: 3 },
         { id: '4', text: { tr: 'pm.expect(...) ile gövde kontrolü ekle', en: 'Add a body check with pm.expect(...)' }, order: 4 },
@@ -6580,10 +6580,10 @@ pm.test('severity alani HIGH', () => {
     },
     {
       type: 'quiz',
-      question: { tr: '`pm.test(...)` yazmanın "yanıtı gözle kontrol etmeye" göre en büyük avantajı nedir?', en: 'What is the biggest advantage of writing `pm.test(...)` over "eyeballing the response"?' },
+      question: { tr: '`pm.test(...)` yazmanın "response\'u gözle kontrol etmeye" göre en büyük avantajı nedir?', en: 'What is the biggest advantage of writing `pm.test(...)` over "eyeballing the response"?' },
       options: [
         { id: 'a', text: { tr: 'Kontrol koda dönüşür — her koşumda otomatik ve tutarlı çalışır, ölçeklenir', en: 'The check becomes code — it runs automatically and consistently on every run, and scales' } },
-        { id: 'b', text: { tr: 'İsteği daha hızlı gönderir', en: 'It sends the request faster' } },
+        { id: 'b', text: { tr: 'Request\'i daha hızlı gönderir', en: 'It sends the request faster' } },
         { id: 'c', text: { tr: 'Sunucu yükünü azaltır', en: 'It reduces server load' } },
         { id: 'd', text: { tr: 'Hiçbir farkı yoktur', en: 'It makes no difference' } },
       ],
@@ -6611,7 +6611,7 @@ const G4 = {
       type: 'simple-box',
       emoji: '🔗',
       content: {
-        tr: 'Test zincirleme, bir POST isteğinin ÜRETTİĞİ `id`\'yi bir sonraki GET isteğine TAŞIMAKTIR — Java\'da bir metodun dönüş değerini bir sonraki metoda PARAMETRE olarak geçirmenin Postman\'deki karşılığıdır. `Tests` sekmesinde `pm.environment.set(\'bugId\', body.id)` yazınca, POST\'un yanıtından gelen id G2\'de tanımladığın `{{bugId}}` değişkenine YAZILIR; bir sonraki istek bu değeri OKUYUP kullanır. Peki bu neden tek bir istekte her şeyi test etmekten daha iyi? Çünkü gerçek bir kullanıcı akışı da TAM OLARAK böyledir: önce bir bug OLUŞTURULUR, SONRA o bug\'a REFERANSLA işlem yapılır — zincirleme test bu gerçek akışı BİREBİR simüle eder. **Derin pre-request script rehberi için → `/postman` sayfasına bak.**',
+        tr: 'Test zincirleme, bir POST request\'inin ÜRETTİĞİ `id`\'yi bir sonraki GET request\'ine TAŞIMAKTIR — Java\'da bir metodun dönüş değerini bir sonraki metoda PARAMETRE olarak geçirmenin Postman\'deki karşılığıdır. `Tests` sekmesinde `pm.environment.set(\'bugId\', body.id)` yazınca, POST\'un response\'undan gelen id G2\'de tanımladığın `{{bugId}}` değişkenine YAZILIR; bir sonraki request bu değeri OKUYUP kullanır. Peki bu neden tek bir request\'te her şeyi test etmekten daha iyi? Çünkü gerçek bir kullanıcı akışı da TAM OLARAK böyledir: önce bir bug OLUŞTURULUR, SONRA o bug\'a REFERANSLA işlem yapılır — zincirleme test bu gerçek akışı BİREBİR simüle eder. **Derin pre-request script rehberi için → `/postman` sayfasına bak.**',
         en: 'Test chaining CARRIES the `id` PRODUCED by a POST request into the next GET request — the Postman counterpart of passing a method\'s return value as a PARAMETER to the next method in Java. Writing `pm.environment.set(\'bugId\', body.id)` in the `Tests` tab WRITES the id from the POST response into the `{{bugId}}` variable you defined in G2; the next request READS and uses that value. So why is this better than testing everything in one request? Because a real user flow is EXACTLY like this: a bug is FIRST created, THEN acted upon BY REFERENCE — test chaining EXACTLY simulates this real flow. **For a deep pre-request script guide → see the `/postman` page.**',
       },
     },
@@ -6627,7 +6627,7 @@ pm.test('Bug olusturuldu', () => {
   pm.environment.set('bugId', body.id)
 })
 
-// Sonraki istek: GET {{baseUrl}}/api/v1/bugs/{{bugId}}
+// Sonraki request: GET {{baseUrl}}/api/v1/bugs/{{bugId}}
 // bugId artik onceki POST'tan gelen GERCEK id'dir`,
         en: `// POST /api/v1/bugs -> Tests tab
 pm.test('Bug was created', () => {
@@ -6658,18 +6658,18 @@ pm.test('Bug was created', () => {
       scenes: [
         { caption: { tr: '`POST /api/v1/bugs` çalıştırılır — sunucu YENİ bir kayıt oluşturur, `id: 42` döner.', en: '`POST /api/v1/bugs` runs — the server creates a NEW record, returns `id: 42`.' }, positions: { post: { x: 50, y: 50, scale: 1.1, pulse: true } } },
         { caption: { tr: 'Tests sekmesindeki script bu id\'yi YAKALAR ve `pm.environment.set(...)` ile kaydeder.', en: 'The script in the Tests tab CAPTURES this id and saves it with `pm.environment.set(...)`.' }, positions: { post: { x: 18, y: 35 }, set: { x: 55, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'post', to: 'set', color: '#0ea5e9' }] },
-        { caption: { tr: '`{{bugId}}` değişkeni artık GERÇEK id (42) değerini taşıyor — bir sonraki isteğe HAZIR.', en: 'The `{{bugId}}` variable now carries the REAL id value (42) — READY for the next request.' }, positions: { set: { x: 18, y: 35 }, var: { x: 55, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'set', to: 'var', color: '#a78bfa' }] },
+        { caption: { tr: '`{{bugId}}` değişkeni artık GERÇEK id (42) değerini taşıyor — bir sonraki request\'e HAZIR.', en: 'The `{{bugId}}` variable now carries the REAL id value (42) — READY for the next request.' }, positions: { set: { x: 18, y: 35 }, var: { x: 55, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'set', to: 'var', color: '#a78bfa' }] },
         { caption: { tr: '`GET /api/v1/bugs/{{bugId}}` çalıştırıldığında Postman bunu OTOMATİK `/api/v1/bugs/42`\'ye çevirir.', en: 'When `GET /api/v1/bugs/{{bugId}}` runs, Postman AUTOMATICALLY turns it into `/api/v1/bugs/42`.' }, positions: { var: { x: 18, y: 35 }, get: { x: 55, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'var', to: 'get', color: '#22c55e' }] },
-        { caption: { tr: 'Ders — İki istek artık BİRBİRİNE BAĞLIDIR; bu, "önce oluştur, sonra referansla işlem yap" gerçek kullanıcı akışının BİREBİR testidir.', en: 'The lesson — the two requests are now LINKED; this is an EXACT test of the real user flow "create first, then act by reference".' }, positions: { get: { x: 30, y: 45 }, proof: { x: 62, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'get', to: 'proof', color: '#8b5cf6' }] },
+        { caption: { tr: 'Ders — İki request artık BİRBİRİNE BAĞLIDIR; bu, "önce oluştur, sonra referansla işlem yap" gerçek kullanıcı akışının BİREBİR testidir.', en: 'The lesson — the two requests are now LINKED; this is an EXACT test of the real user flow "create first, then act by reference".' }, positions: { get: { x: 30, y: 45 }, proof: { x: 62, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'get', to: 'proof', color: '#8b5cf6' }] },
       ],
     },
     {
       type: 'step-animation',
-      title: { tr: 'İki İsteği Zincirleme Sırası', en: 'The Order for Chaining Two Requests' },
+      title: { tr: 'İki Request\'i Zincirleme Sırası', en: 'The Order for Chaining Two Requests' },
       steps: [
-        { id: 1, icon: '📤', label: { tr: 'POST çalıştır…', en: 'Run POST…' }, detail: { tr: 'Yeni bug oluştur, yanıttaki id\'yi gözlemle.', en: 'Create a new bug, observe the id in the response.' } },
+        { id: 1, icon: '📤', label: { tr: 'POST çalıştır…', en: 'Run POST…' }, detail: { tr: 'Yeni bug oluştur, response\'taki id\'yi gözlemle.', en: 'Create a new bug, observe the id in the response.' } },
         { id: 2, icon: '💾', label: { tr: 'id\'yi kaydet…', en: 'Save the id…' }, detail: { tr: 'Tests sekmesinde pm.environment.set(\'bugId\', body.id) yaz.', en: 'Write pm.environment.set(\'bugId\', body.id) in the Tests tab.' } },
-        { id: 3, icon: '📥', label: { tr: 'GET ile kullan…', en: 'Use it in GET…' }, detail: { tr: 'Sonraki istekte {{bugId}} değişkenini kullanarak aynı kaydı sorgula.', en: 'In the next request, query the same record using the {{bugId}} variable.' } },
+        { id: 3, icon: '📥', label: { tr: 'GET ile kullan…', en: 'Use it in GET…' }, detail: { tr: 'Sonraki request\'te {{bugId}} değişkenini kullanarak aynı kaydı sorgula.', en: 'In the next request, query the same record using the {{bugId}} variable.' } },
       ],
     },
     {
@@ -6678,11 +6678,11 @@ pm.test('Bug was created', () => {
       id: 'api-g4-order-01',
       question: { tr: 'Postman\'de bir test zinciri kurma sırasını diz.', en: 'Order the steps for building a test chain in Postman.' },
       items: [
-        { id: '1', text: { tr: 'POST /api/v1/bugs isteğini çalıştır', en: 'Run the POST /api/v1/bugs request' }, order: 1 },
-        { id: '2', text: { tr: 'Tests sekmesinde yanıttan id\'yi oku', en: 'Read the id from the response in the Tests tab' }, order: 2 },
+        { id: '1', text: { tr: 'POST /api/v1/bugs request\'ini çalıştır', en: 'Run the POST /api/v1/bugs request' }, order: 1 },
+        { id: '2', text: { tr: 'Tests sekmesinde response\'tan id\'yi oku', en: 'Read the id from the response in the Tests tab' }, order: 2 },
         { id: '3', text: { tr: 'pm.environment.set ile id\'yi değişkene yaz', en: 'Write the id into a variable with pm.environment.set' }, order: 3 },
-        { id: '4', text: { tr: 'GET isteğinde {{bugId}} değişkenini kullan', en: 'Use the {{bugId}} variable in the GET request' }, order: 4 },
-        { id: '5', text: { tr: 'GET isteğinin AYNI kaydı döndürdüğünü doğrula', en: 'Verify the GET request returns the SAME record' }, order: 5 },
+        { id: '4', text: { tr: 'GET request\'inde {{bugId}} değişkenini kullan', en: 'Use the {{bugId}} variable in the GET request' }, order: 4 },
+        { id: '5', text: { tr: 'GET request\'inin AYNI kaydı döndürdüğünü doğrula', en: 'Verify the GET request returns the SAME record' }, order: 5 },
       ],
       xpReward: 13,
     },
@@ -6694,15 +6694,15 @@ pm.test('Bug was created', () => {
       starterCode: `pm.test('Bug olusturuldu', () => {
   pm.response.to.have.status(201)
   const body = pm.response.json()
-  // BUG: id hicbir yere kaydedilmiyor, sonraki istek bosta kalir
+  // BUG: id hicbir yere kaydedilmiyor, sonraki request bosta kalir
 })`,
       solutionCode: `pm.test('Bug olusturuldu', () => {
   pm.response.to.have.status(201)
   const body = pm.response.json()
   pm.environment.set('bugId', body.id)
 })`,
-      hint: { tr: 'Yanıttan `id`\'yi okumak yetmez — bir sonraki isteğin `{{bugId}}` değişkenini kullanabilmesi için bu id\'yi `pm.environment.set(...)` ile KAYDETMEK gerekir.', en: 'Reading the `id` from the response is not enough — it must be SAVED with `pm.environment.set(...)` so the next request can use the `{{bugId}}` variable.' },
-      successMessage: { tr: 'Doğru! Artık POST ile GET isteği gerçek bir akışta zincirlendi.', en: 'Correct! Now the POST and GET requests are chained into a real flow.' },
+      hint: { tr: 'Response\'tan `id`\'yi okumak yetmez — bir sonraki request\'in `{{bugId}}` değişkenini kullanabilmesi için bu id\'yi `pm.environment.set(...)` ile KAYDETMEK gerekir.', en: 'Reading the `id` from the response is not enough — it must be SAVED with `pm.environment.set(...)` so the next request can use the `{{bugId}}` variable.' },
+      successMessage: { tr: 'Doğru! Artık POST ile GET request\'i gerçek bir akışta zincirlendi.', en: 'Correct! Now the POST and GET requests are chained into a real flow.' },
     },
     {
       type: 'quiz',
@@ -6718,13 +6718,13 @@ pm.test('Bug was created', () => {
       retryQuestion: {
         question: { tr: '`pm.environment.set(\'bugId\', body.id)` çağrısı hangi sekmede yazılır?', en: 'In which tab is the `pm.environment.set(\'bugId\', body.id)` call written?' },
         options: [
-          { id: 'a', text: { tr: 'Tests sekmesinde — yanıt geldikten SONRA çalışır', en: 'In the Tests tab — it runs AFTER the response arrives' } },
+          { id: 'a', text: { tr: 'Tests sekmesinde — response geldikten SONRA çalışır', en: 'In the Tests tab — it runs AFTER the response arrives' } },
           { id: 'b', text: { tr: 'Headers sekmesinde', en: 'In the Headers tab' } },
           { id: 'c', text: { tr: 'Body sekmesinde', en: 'In the Body tab' } },
           { id: 'd', text: { tr: 'Params sekmesinde', en: 'In the Params tab' } },
         ],
         correct: 'a',
-        explanation: { tr: '`Tests` sekmesindeki script, isteğin YANITI geldikten sonra çalışır — bu yüzden yanıttan `body.id`\'yi okuyup bir sonraki isteğe taşımak için doğru yer burasıdır.', en: 'The script in the `Tests` tab runs after the request\'s RESPONSE arrives — this is why it is the right place to read `body.id` from the response and carry it to the next request.' },
+        explanation: { tr: '`Tests` sekmesindeki script, request\'in YANITI geldikten sonra çalışır — bu yüzden response\'tan `body.id`\'yi okuyup bir sonraki request\'e taşımak için doğru yer burasıdır.', en: 'The script in the `Tests` tab runs after the request\'s RESPONSE arrives — this is why it is the right place to read `body.id` from the response and carry it to the next request.' },
       },
     },
   ],
@@ -6737,7 +6737,7 @@ const G5 = {
       type: 'simple-box',
       emoji: '🚫',
       content: {
-        tr: 'Negatif test setleri, F4/F6\'da şemadan TÜRETTİĞİN checklist\'in Postman\'de HAYATA GEÇİRİLMESİDİR: her `required`/`type`/`enum` ihlali artık bir Postman klasöründe AYRI bir istektir. Java\'da bunun karşılığı, bir metodun her geçersiz girdi kombinasyonu için AYRI bir `@Test` yazmaktır (`@ParameterizedTest` ile bile). Peki neden bunları AYRI istekler olarak tutuyoruz, tek bir istekte birleştirmiyoruz? Çünkü her negatif senaryo AYRI bir kanıt üretmelidir — biri başarısız olduğunda HANGİSİNİN başarısız olduğu belirsiz kalmamalıdır; birleştirilmiş bir istek "bir şey yanlış" der, ayrı istekler "TAM OLARAK bu kural ihlal edildi" der. **Derin negatif test tasarımı için → `/postman` sayfasına bak.**',
+        tr: 'Negatif test setleri, F4/F6\'da şemadan TÜRETTİĞİN checklist\'in Postman\'de HAYATA GEÇİRİLMESİDİR: her `required`/`type`/`enum` ihlali artık bir Postman klasöründe AYRI bir request\'tir. Java\'da bunun karşılığı, bir metodun her geçersiz girdi kombinasyonu için AYRI bir `@Test` yazmaktır (`@ParameterizedTest` ile bile). Peki neden bunları AYRI request\'ler olarak tutuyoruz, tek bir request\'te birleştirmiyoruz? Çünkü her negatif senaryo AYRI bir kanıt üretmelidir — biri başarısız olduğunda HANGİSİNİN başarısız olduğu belirsiz kalmamalıdır; birleştirilmiş bir request "bir şey yanlış" der, ayrı request\'ler "TAM OLARAK bu kural ihlal edildi" der. **Derin negatif test tasarımı için → `/postman` sayfasına bak.**',
         en: 'Negative test sets are F4/F6\'s schema-DERIVED checklist BROUGHT TO LIFE in Postman: every `required`/`type`/`enum` violation is now a SEPARATE request in a Postman folder. The Java equivalent is writing a SEPARATE `@Test` for every invalid input combination of a method (even with `@ParameterizedTest`). So why keep these as SEPARATE requests instead of merging them into one? Because every negative scenario should produce SEPARATE evidence — when one fails, it should not stay unclear WHICH one failed; a merged request says "something is wrong", separate requests say "EXACTLY this rule was violated". **For deep negative test design → see the `/postman` page.**',
       },
     },
@@ -6746,12 +6746,12 @@ const G5 = {
       language: 'javascript',
       code: {
         tr: `// Klasor: "Negatif Testler"
-// Istek 1: POST /bugs { severity: "HIGH" } (title EKSIK)
+// Request 1: POST /bugs { severity: "HIGH" } (title EKSIK)
 pm.test('title eksikken 400 doner', () => {
   pm.response.to.have.status(400)
 })
 
-// Istek 2: POST /bugs { title: "x", severity: "URGENT" } (enum DISI)
+// Request 2: POST /bugs { title: "x", severity: "URGENT" } (enum DISI)
 pm.test('enum disi severity 400 doner', () => {
   pm.response.to.have.status(400)
 })`,
@@ -6781,7 +6781,7 @@ pm.test('400 for out-of-enum severity', () => {
       ],
       scenes: [
         { caption: { tr: 'F6\'da şemadan türetilen checklist elimizde: eksik title, enum dışı severity, geçersiz email...', en: 'We have the checklist derived from the schema in F6: missing title, out-of-enum severity, invalid email...' }, positions: { schema: { x: 50, y: 50, scale: 1.1, pulse: true } } },
-        { caption: { tr: 'Her checklist maddesi Postman\'de AYRI bir istek/klasör öğesi olur — "Negatif Testler" klasörü doğar.', en: 'Each checklist item becomes a SEPARATE request/folder item in Postman — the "Negative Tests" folder is born.' }, positions: { schema: { x: 20, y: 40 }, folder: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'schema', to: 'folder', color: '#0ea5e9' }] },
+        { caption: { tr: 'Her checklist maddesi Postman\'de AYRI bir request/klasör öğesi olur — "Negatif Testler" klasörü doğar.', en: 'Each checklist item becomes a SEPARATE request/folder item in Postman — the "Negative Tests" folder is born.' }, positions: { schema: { x: 20, y: 40 }, folder: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'schema', to: 'folder', color: '#0ea5e9' }] },
         { caption: { tr: 'Koşum sonrası hangi kuralın ihlal edildiğinde sunucunun HATA VERDİĞİ, hangisinde SESSİZCE KABUL ETTİĞİ netleşir.', en: 'After the run it becomes clear which rule violation the server ERRORS on, and which it SILENTLY ACCEPTS.' }, positions: { folder: { x: 20, y: 40 }, proof: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'folder', to: 'proof', color: '#22c55e' }] },
       ],
     },
@@ -6790,7 +6790,7 @@ pm.test('400 for out-of-enum severity', () => {
       title: { tr: 'Şemadan Negatif Test Klasörüne', en: 'From Schema to Negative Test Folder' },
       steps: [
         { id: 1, icon: '📐', label: { tr: 'Checklist\'i al…', en: 'Take the checklist…' }, detail: { tr: 'F6\'da şemadan türetilen negatif senaryo listesini kullan.', en: 'Use the negative scenario list derived from the schema in F6.' } },
-        { id: 2, icon: '🚫', label: { tr: 'Her madde bir istek olsun…', en: 'Each item becomes a request…' }, detail: { tr: 'Her ihlal için ayrı bir Postman isteği oluştur, ilgili pm.test\'i yaz.', en: 'Create a separate Postman request for each violation, write the relevant pm.test.' } },
+        { id: 2, icon: '🚫', label: { tr: 'Her madde bir request olsun…', en: 'Each item becomes a request…' }, detail: { tr: 'Her ihlal için ayrı bir Postman request\'i oluştur, ilgili pm.test\'i yaz.', en: 'Create a separate Postman request for each violation, write the relevant pm.test.' } },
         { id: 3, icon: '📋', label: { tr: 'Sonuçları karşılaştır…', en: 'Compare the results…' }, detail: { tr: 'Hangi kuralın gerçekten uygulandığını, hangisinin sessizce geçtiğini gör.', en: 'See which rule is really enforced, and which silently passes.' } },
       ],
     },
@@ -6802,8 +6802,8 @@ pm.test('400 for out-of-enum severity', () => {
       items: [
         { id: '1', text: { tr: 'F6\'daki şema checklist\'ini gözden geçir', en: 'Review the schema checklist from F6' }, order: 1 },
         { id: '2', text: { tr: '"Negatif Testler" klasörünü oluştur', en: 'Create a "Negative Tests" folder' }, order: 2 },
-        { id: '3', text: { tr: 'Her ihlal için ayrı bir istek ekle', en: 'Add a separate request for each violation' }, order: 3 },
-        { id: '4', text: { tr: 'Her isteğe "400 beklenir" assertion\'ı yaz', en: 'Write an "expect 400" assertion for each request' }, order: 4 },
+        { id: '3', text: { tr: 'Her ihlal için ayrı bir request ekle', en: 'Add a separate request for each violation' }, order: 3 },
+        { id: '4', text: { tr: 'Her request\'e "400 beklenir" assertion\'ı yaz', en: 'Write an "expect 400" assertion for each request' }, order: 4 },
         { id: '5', text: { tr: 'Koşum sonrası hangi kuralın uygulanmadığını raporla', en: 'Report which rule was not enforced after the run' }, order: 5 },
       ],
       xpReward: 11,
@@ -6813,25 +6813,25 @@ pm.test('400 for out-of-enum severity', () => {
       relatedTopicId: 'api-g5-negative-tests',
       id: 'api-g5-negative-tests',
       title: { tr: 'Kendin Dene: Eksik Negatif Senaryoyu Ekle', en: 'Try It Yourself: Add the Missing Negative Scenario' },
-      starterCode: `// Yazilan istekler: title eksik, severity enum disi
-// TODO: F4'teki "reporter format" kisitindan hangi istek EKSIK?
-Eksik istek: ???`,
-      solutionCode: `// reporter alaninin email formatinda OLMADIGI bir istek eksik
-Eksik istek: POST /bugs { title: "x", severity: "HIGH", reporter: "gecersiz-string" } -> 400 beklenir`,
+      starterCode: `// Yazilan request\'ler: title eksik, severity enum disi
+// TODO: F4'teki "reporter format" kisitindan hangi request EKSIK?
+Eksik request: ???`,
+      solutionCode: `// reporter alaninin email formatinda OLMADIGI bir request eksik
+Eksik request: POST /bugs { title: "x", severity: "HIGH", reporter: "gecersiz-string" } -> 400 beklenir`,
       hint: { tr: 'F4\'te `reporter` alanının `format: email` kısıtı olduğunu görmüştün. Bu kısıtın da diğerleri gibi (required, enum) AYRI bir negatif test senaryosu olması gerekir.', en: 'You saw in F4 that the `reporter` field has a `format: email` constraint. This constraint, like the others (required, enum), needs its own SEPARATE negative test scenario.' },
       successMessage: { tr: 'Doğru! Şemadaki her kısıt, negatif test setinde ayrı bir kanıt satırı olmalı.', en: 'Correct! Every constraint in the schema deserves its own evidence line in the negative test set.' },
     },
     {
       type: 'quiz',
-      question: { tr: 'Negatif test senaryolarını TEK bir istekte birleştirmek yerine AYRI istekler olarak tutmanın avantajı nedir?', en: 'What is the advantage of keeping negative test scenarios as SEPARATE requests instead of merging them into ONE?' },
+      question: { tr: 'Negatif test senaryolarını TEK bir request\'te birleştirmek yerine AYRI request\'ler olarak tutmanın avantajı nedir?', en: 'What is the advantage of keeping negative test scenarios as SEPARATE requests instead of merging them into ONE?' },
       options: [
-        { id: 'a', text: { tr: 'Bir istek başarısız olduğunda, TAM OLARAK hangi kuralın ihlal edildiği belirsiz kalmaz', en: 'When a request fails, it stays clear EXACTLY which rule was violated' } },
+        { id: 'a', text: { tr: 'Bir request başarısız olduğunda, TAM OLARAK hangi kuralın ihlal edildiği belirsiz kalmaz', en: 'When a request fails, it stays clear EXACTLY which rule was violated' } },
         { id: 'b', text: { tr: 'Postman daha hızlı çalışır', en: 'Postman runs faster' } },
         { id: 'c', text: { tr: 'Daha az disk alanı kaplar', en: 'It takes up less disk space' } },
         { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
       ],
       correct: 'a',
-      explanation: { tr: 'Birleştirilmiş bir istek başarısız olduğunda "bir şey yanlış" der ama HANGİ kuralın ihlal edildiği net değildir. Ayrı istekler her biri TEK bir kuralı test eder — başarısızlık doğrudan o kurala işaret eder.', en: 'A merged request failing says "something is wrong" but it is not clear WHICH rule was violated. Separate requests each test ONE rule — a failure points directly to that rule.' },
+      explanation: { tr: 'Birleştirilmiş bir request başarısız olduğunda "bir şey yanlış" der ama HANGİ kuralın ihlal edildiği net değildir. Ayrı request\'ler her biri TEK bir kuralı test eder — başarısızlık doğrudan o kurala işaret eder.', en: 'A merged request failing says "something is wrong" but it is not clear WHICH rule was violated. Separate requests each test ONE rule — a failure points directly to that rule.' },
       retryQuestion: {
         question: { tr: 'Negatif test setlerinin kaynağı nereden gelir?', en: 'Where do negative test sets come from?' },
         options: [
@@ -6841,7 +6841,7 @@ Eksik istek: POST /bugs { title: "x", severity: "HIGH", reporter: "gecersiz-stri
           { id: 'd', text: { tr: 'Rastgele sayı üreticisinden', en: 'From a random number generator' } },
         ],
         correct: 'a',
-        explanation: { tr: 'GRUP F\'te öğrendiğin gibi, bir şemadaki her `required`/`type`/`enum`/`format` kısıtı sistematik olarak bir negatif senaryo doğurur; G5 bu checklist\'i Postman isteklerine dönüştürür.', en: 'As you learned in GROUP F, every `required`/`type`/`enum`/`format` constraint in a schema systematically births a negative scenario; G5 turns this checklist into Postman requests.' },
+        explanation: { tr: 'GRUP F\'te öğrendiğin gibi, bir şemadaki her `required`/`type`/`enum`/`format` kısıtı sistematik olarak bir negatif senaryo doğurur; G5 bu checklist\'i Postman request\'lerine dönüştürür.', en: 'As you learned in GROUP F, every `required`/`type`/`enum`/`format` constraint in a schema systematically births a negative scenario; G5 turns this checklist into Postman requests.' },
       },
     },
   ],
@@ -6980,7 +6980,7 @@ const H1 = {
       type: 'simple-box',
       emoji: '🎬',
       content: {
-        tr: 'REST Assured\'un `given().when().then()` zinciri, çıplak `HttpClient` + JUnit `assert` kodunu bir **cümleye** dönüştürür: "GİVEN şu ön koşullar VARKEN, WHEN şu isteği ATTIĞIMDA, THEN şunu BEKLERİM" — İngilizce okunduğunda bile anlaşılır. Java\'da `HttpClient` ile aynı testi yazmak onlarca satır boilerplate (bağlantı kurma, header ekleme, gövdeyi ayrıştırma) gerektirirken, REST Assured bunu ÜÇ okunabilir satıra indirger — Bean Validation\'ın `@Valid` ile validation boilerplate\'ini yok etmesine benzer bir sadeleştirme. Peki bu "cümle" yapısı neden sadece sözdizimsel bir şeker değil? Çünkü bir test raporu okuyan bir PAYDAŞ (yönetici, ürün sahibi), `given/when/then` yapısındaki bir test ADINI okuyarak SENARYOYU anlayabilir — çıplak bir `assertEquals` satırı bunu sağlamaz. **Derin REST Assured rehberi için → `/rest-assured` sayfasına bak; burada sadece Bug Tracker\'ı REST Assured ile test etmeye başlıyoruz.**',
+        tr: 'REST Assured\'un `given().when().then()` zinciri, çıplak `HttpClient` + JUnit `assert` kodunu bir **cümleye** dönüştürür: "GİVEN şu ön koşullar VARKEN, WHEN şu request\'i ATTIĞIMDA, THEN şunu BEKLERİM" — İngilizce okunduğunda bile anlaşılır. Java\'da `HttpClient` ile aynı testi yazmak onlarca satır boilerplate (bağlantı kurma, header ekleme, gövdeyi ayrıştırma) gerektirirken, REST Assured bunu ÜÇ okunabilir satıra indirger — Bean Validation\'ın `@Valid` ile validation boilerplate\'ini yok etmesine benzer bir sadeleştirme. Peki bu "cümle" yapısı neden sadece sözdizimsel bir şeker değil? Çünkü bir test raporu okuyan bir PAYDAŞ (yönetici, ürün sahibi), `given/when/then` yapısındaki bir test ADINI okuyarak SENARYOYU anlayabilir — çıplak bir `assertEquals` satırı bunu sağlamaz. **Derin REST Assured rehberi için → `/rest-assured` sayfasına bak; burada sadece Bug Tracker\'ı REST Assured ile test etmeye başlıyoruz.**',
         en: 'REST Assured\'s `given().when().then()` chain turns bare `HttpClient` + JUnit `assert` code into a **sentence**: "GIVEN these preconditions, WHEN I make this request, THEN I expect this" — understandable even read as plain English. Writing the same test with `HttpClient` in Java takes dozens of boilerplate lines (connecting, adding headers, parsing the body), while REST Assured reduces it to THREE readable lines — a simplification similar to how `@Valid` removes Bean Validation boilerplate. So why is this "sentence" structure more than syntactic sugar? Because a STAKEHOLDER (a manager, a product owner) reading a test report can understand the SCENARIO just by reading a `given/when/then`-structured test name — a bare `assertEquals` line does not provide that. **For a deep REST Assured guide → see the `/rest-assured` page; here we are just starting to test the Bug Tracker with REST Assured.**',
       },
     },
@@ -7049,7 +7049,7 @@ class BugsApiTest {
       stageHeight: 270,
       actors: [
         { id: 'given', emoji: '⚙️', label: { tr: 'GIVEN: ön koşullar', en: 'GIVEN: preconditions' }, color: '#f59e0b' },
-        { id: 'when', emoji: '📤', label: { tr: 'WHEN: isteği at', en: 'WHEN: make the request' }, color: '#0ea5e9' },
+        { id: 'when', emoji: '📤', label: { tr: 'WHEN: request\'i at', en: 'WHEN: make the request' }, color: '#0ea5e9' },
         { id: 'then', emoji: '✅', label: { tr: 'THEN: beklentiyi doğrula', en: 'THEN: verify the expectation' }, color: '#22c55e' },
         { id: 'stakeholder', emoji: '👔', label: { tr: 'Paydaş test adını okur', en: 'Stakeholder reads the test name' }, color: '#8b5cf6' },
       ],
@@ -7066,7 +7066,7 @@ class BugsApiTest {
       steps: [
         { id: 1, icon: '📦', label: { tr: 'Bağımlılığı ekle…', en: 'Add the dependency…' }, detail: { tr: 'rest-assured\'ı pom.xml\'e test scope\'unda ekle.', en: 'Add rest-assured to pom.xml in test scope.' } },
         { id: 2, icon: '⚙️', label: { tr: 'given() ile kur…', en: 'Set up with given()…' }, detail: { tr: 'baseUri gibi ön koşulları tanımla.', en: 'Define preconditions like baseUri.' } },
-        { id: 3, icon: '✅', label: { tr: 'when/then ile doğrula…', en: 'Verify with when/then…' }, detail: { tr: 'İsteği at, statusCode ve gövdeyi kontrol et.', en: 'Make the request, check statusCode and the body.' } },
+        { id: 3, icon: '✅', label: { tr: 'when/then ile doğrula…', en: 'Verify with when/then…' }, detail: { tr: 'Request\'i at, statusCode ve gövdeyi kontrol et.', en: 'Make the request, check statusCode and the body.' } },
       ],
     },
     {
@@ -7076,7 +7076,7 @@ class BugsApiTest {
       question: { tr: 'given/when/then zincirinin doğru sırasını diz.', en: 'Order the given/when/then chain correctly.' },
       items: [
         { id: '1', text: { tr: 'given() — ön koşulları (baseUri, header) kur', en: 'given() — set up preconditions (baseUri, headers)' }, order: 1 },
-        { id: '2', text: { tr: 'when() — gerçek isteği tanımla (get/post)', en: 'when() — define the real request (get/post)' }, order: 2 },
+        { id: '2', text: { tr: 'when() — gerçek request\'i tanımla (get/post)', en: 'when() — define the real request (get/post)' }, order: 2 },
         { id: '3', text: { tr: 'then() — beklenen sonucu doğrula (statusCode/body)', en: 'then() — verify the expected result (statusCode/body)' }, order: 3 },
         { id: '4', text: { tr: 'Testi çalıştır', en: 'Run the test' }, order: 4 },
         { id: '5', text: { tr: 'Test raporunu oku', en: 'Read the test report' }, order: 5 },
@@ -7119,8 +7119,8 @@ class BugsApiTest {
       retryQuestion: {
         question: { tr: '`then()` bloğunun rolü nedir?', en: 'What is the role of the `then()` block?' },
         options: [
-          { id: 'a', text: { tr: 'İsteğin sonucunu (status, gövde, header) beklenenle karşılaştırıp doğrular', en: 'It verifies the request\'s result (status, body, headers) against expectations' } },
-          { id: 'b', text: { tr: 'İsteği gönderir', en: 'It sends the request' } },
+          { id: 'a', text: { tr: 'Request\'in sonucunu (status, gövde, header) beklenenle karşılaştırıp doğrular', en: 'It verifies the request\'s result (status, body, headers) against expectations' } },
+          { id: 'b', text: { tr: 'Request\'i gönderir', en: 'It sends the request' } },
           { id: 'c', text: { tr: 'Bağlantı bilgilerini tanımlar', en: 'It defines connection info' } },
           { id: 'd', text: { tr: 'Veritabanını sıfırlar', en: 'It resets the database' } },
         ],
@@ -7201,7 +7201,7 @@ const H2 = {
       id: 'api-h2-order-01',
       question: { tr: 'jsonPath ile bir alanı doğrulama sürecini sırala.', en: 'Order the process for verifying a field with jsonPath.' },
       items: [
-        { id: '1', text: { tr: 'İsteği gönder, yanıtı al', en: 'Send the request, get the response' }, order: 1 },
+        { id: '1', text: { tr: 'Request\'i gönder, response\'u al', en: 'Send the request, get the response' }, order: 1 },
         { id: '2', text: { tr: 'Doğrulanacak alanın adını belirle', en: 'Identify the field name to verify' }, order: 2 },
         { id: '3', text: { tr: 'Uygun Hamcrest matcher\'ını seç', en: 'Choose the appropriate Hamcrest matcher' }, order: 3 },
         { id: '4', text: { tr: '.body("alan", matcher) ile bağla', en: 'Bind with .body("field", matcher)' }, order: 4 },
@@ -7258,7 +7258,7 @@ const H3 = {
       type: 'simple-box',
       emoji: '🔄',
       content: {
-        tr: 'POJO (Plain Old Java Object) deserialization, B2\'de tanımladığın `Bug` sınıfını ÖDÜNÇ ALIP test kodunda YENİDEN KULLANMAKTIR — API\'nin ÜRETTİĞİ JSON\'u elle alan alan okumak yerine, `.as(Bug.class)` ile TEK satırda bir Java nesnesine dönüştürürsün. Bu, DRY (Don\'t Repeat Yourself) prensibinin API testindeki en somut örneğidir: uygulama kodu ile test kodu AYNI sınıfı (`Bug`) paylaşır, ikisi arasında bir tutarsızlık riski YOKTUR — `Bug` sınıfına bir alan eklenirse, test kodu da otomatik olarak bunu "görür" (derleme zamanında). Peki bu neden sadece bir kolaylık değil? Çünkü `Bug bug = response.as(Bug.class)` satırı, yanıtın Java\'nın TİP SİSTEMİNE uyduğunu da DOLAYLI olarak test eder — alan tipi uyuşmuyorsa (F5\'teki "alan tipi uyumsuzluğu" contract defect\'i gibi) bu satır ÇALIŞMA ZAMANINDA hata fırlatır. **Derin POJO/serialization rehberi için → `/rest-assured` sayfasına bak.**',
+        tr: 'POJO (Plain Old Java Object) deserialization, B2\'de tanımladığın `Bug` sınıfını ÖDÜNÇ ALIP test kodunda YENİDEN KULLANMAKTIR — API\'nin ÜRETTİĞİ JSON\'u elle alan alan okumak yerine, `.as(Bug.class)` ile TEK satırda bir Java nesnesine dönüştürürsün. Bu, DRY (Don\'t Repeat Yourself) prensibinin API testindeki en somut örneğidir: uygulama kodu ile test kodu AYNI sınıfı (`Bug`) paylaşır, ikisi arasında bir tutarsızlık riski YOKTUR — `Bug` sınıfına bir alan eklenirse, test kodu da otomatik olarak bunu "görür" (derleme zamanında). Peki bu neden sadece bir kolaylık değil? Çünkü `Bug bug = response.as(Bug.class)` satırı, response\'un Java\'nın TİP SİSTEMİNE uyduğunu da DOLAYLI olarak test eder — alan tipi uyuşmuyorsa (F5\'teki "alan tipi uyumsuzluğu" contract defect\'i gibi) bu satır ÇALIŞMA ZAMANINDA hata fırlatır. **Derin POJO/serialization rehberi için → `/rest-assured` sayfasına bak.**',
         en: 'POJO (Plain Old Java Object) deserialization BORROWS the `Bug` class you defined in B2 and REUSES it in test code — instead of manually reading the JSON the API PRODUCES field by field, you convert it to a Java object in ONE line with `.as(Bug.class)`. This is the most concrete example of the DRY (Don\'t Repeat Yourself) principle in API testing: the application code and test code SHARE the SAME class (`Bug`), so there is NO risk of inconsistency between them — if a field is added to the `Bug` class, the test code automatically "sees" it too (at compile time). So why is this more than just convenience? Because the line `Bug bug = response.as(Bug.class)` also INDIRECTLY tests that the response matches Java\'s TYPE SYSTEM — if a field type mismatches (like the "field type mismatch" contract defect from F5), this line throws an error AT RUNTIME. **For a deep POJO/serialization guide → see the `/rest-assured` page.**',
       },
     },
@@ -7321,12 +7321,12 @@ assertEquals("Login button freezes", bug.title);`,
       stageHeight: 250,
       actors: [
         { id: 'app', emoji: '🖥️', label: { tr: 'Uygulama: Bug.java', en: 'App: Bug.java' }, color: '#f59e0b' },
-        { id: 'json', emoji: '📄', label: { tr: 'API yanıtı: JSON', en: 'API response: JSON' }, color: '#0ea5e9' },
+        { id: 'json', emoji: '📄', label: { tr: 'API response\'u: JSON', en: 'API response: JSON' }, color: '#0ea5e9' },
         { id: 'test', emoji: '🧪', label: { tr: 'Test: .as(Bug.class)', en: 'Test: .as(Bug.class)' }, color: '#22c55e' },
       ],
       scenes: [
         { caption: { tr: 'B2\'de yazılan `Bug` sınıfı uygulamanın İÇİNDE, veriyi taşımak için kullanılıyor.', en: 'The `Bug` class written in B2 is used INSIDE the app, to carry data.' }, positions: { app: { x: 50, y: 50, scale: 1.1, pulse: true } } },
-        { caption: { tr: 'API bu sınıfı JSON\'a çevirip yanıt olarak döner.', en: 'The API converts this class to JSON and returns it as the response.' }, positions: { app: { x: 20, y: 40 }, json: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'app', to: 'json', color: '#0ea5e9' }] },
+        { caption: { tr: 'API bu sınıfı JSON\'a çevirip response olarak döner.', en: 'The API converts this class to JSON and returns it as the response.' }, positions: { app: { x: 20, y: 40 }, json: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'app', to: 'json', color: '#0ea5e9' }] },
         { caption: { tr: 'Test kodu AYNI `Bug` sınıfını ÖDÜNÇ alıp `.as(Bug.class)` ile JSON\'u GERİ bir Java nesnesine çevirir — döngü tamamlanır.', en: 'The test code BORROWS the SAME `Bug` class and converts the JSON BACK into a Java object with `.as(Bug.class)` — the loop closes.' }, positions: { json: { x: 20, y: 40 }, test: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'json', to: 'test', color: '#22c55e' }] },
       ],
     },
@@ -7334,7 +7334,7 @@ assertEquals("Login button freezes", bug.title);`,
       type: 'step-animation',
       title: { tr: 'JSON\'dan POJO\'ya Dönüşüm Sırası', en: 'The Order for Converting JSON to a POJO' },
       steps: [
-        { id: 1, icon: '📄', label: { tr: 'Yanıtı al…', en: 'Get the response…' }, detail: { tr: 'İsteği gönder, ham JSON yanıtını .extract() ile yakala.', en: 'Send the request, capture the raw JSON response with .extract().' } },
+        { id: 1, icon: '📄', label: { tr: 'Response\'u al…', en: 'Get the response…' }, detail: { tr: 'Request\'i gönder, ham JSON response\'unu .extract() ile yakala.', en: 'Send the request, capture the raw JSON response with .extract().' } },
         { id: 2, icon: '🔄', label: { tr: 'POJO\'ya dönüştür…', en: 'Convert to a POJO…' }, detail: { tr: '.as(Bug.class) ile JSON\'u B2\'deki AYNI Bug sınıfına deserialize et.', en: 'Deserialize the JSON into the SAME Bug class from B2 with .as(Bug.class).' } },
         { id: 3, icon: '✅', label: { tr: 'Alanları doğrula…', en: 'Verify the fields…' }, detail: { tr: 'Artık bug.title gibi tip-güvenli Java alanlarıyla assert yaz.', en: 'Now write asserts with type-safe Java fields like bug.title.' } },
       ],
@@ -7346,7 +7346,7 @@ assertEquals("Login button freezes", bug.title);`,
       question: { tr: 'JSON\'dan POJO\'ya dönüşüm sürecini sırala.', en: 'Order the process for converting JSON to a POJO.' },
       items: [
         { id: '1', text: { tr: 'Uygulamadaki Bug sınıfını test moduluyle paylaş', en: 'Share the app\'s Bug class with the test module' }, order: 1 },
-        { id: '2', text: { tr: 'İsteği gönder, yanıtı al', en: 'Send the request, get the response' }, order: 2 },
+        { id: '2', text: { tr: 'Request\'i gönder, response\'u al', en: 'Send the request, get the response' }, order: 2 },
         { id: '3', text: { tr: '.extract().as(Bug.class) ile POJO\'ya dönüştür', en: 'Convert to a POJO with .extract().as(Bug.class)' }, order: 3 },
         { id: '4', text: { tr: 'bug.title gibi tip-güvenli alanlarla assert yaz', en: 'Write asserts with type-safe fields like bug.title' }, order: 4 },
         { id: '5', text: { tr: 'Testi çalıştır, sonucu doğrula', en: 'Run the test, verify the result' }, order: 5 },
@@ -7382,13 +7382,13 @@ Response response = given().baseUri("http://localhost:3000")
       retryQuestion: {
         question: { tr: '`.as(Bug.class)` çağrısı çalışma zamanında ne zaman hata fırlatır?', en: 'When does the `.as(Bug.class)` call throw an error at runtime?' },
         options: [
-          { id: 'a', text: { tr: 'Yanıttaki bir alanın tipi, Bug sınıfındaki karşılığıyla uyuşmadığında', en: 'When a field\'s type in the response does not match its counterpart in the Bug class' } },
+          { id: 'a', text: { tr: 'Response\'taki bir alanın tipi, Bug sınıfındaki karşılığıyla uyuşmadığında', en: 'When a field\'s type in the response does not match its counterpart in the Bug class' } },
           { id: 'b', text: { tr: 'Asla hata fırlatmaz', en: 'It never throws an error' } },
           { id: 'c', text: { tr: 'Sadece sunucu kapalıyken', en: 'Only when the server is down' } },
-          { id: 'd', text: { tr: 'Sadece GET isteklerinde', en: 'Only on GET requests' } },
+          { id: 'd', text: { tr: 'Sadece GET request\'lerinde', en: 'Only on GET requests' } },
         ],
         correct: 'a',
-        explanation: { tr: 'Deserialization, yanıtın Java tip sistemine UYMASINI dolaylı olarak test eder — F5\'teki "alan tipi uyumsuzluğu" gibi bir contract defect varsa (örn. sayı yerine metin), `.as(Bug.class)` çalışma zamanında bir istisna fırlatır.', en: 'Deserialization indirectly tests that the response MATCHES Java\'s type system — if there is a contract defect like the "field type mismatch" from F5 (e.g. text instead of a number), `.as(Bug.class)` throws an exception at runtime.' },
+        explanation: { tr: 'Deserialization, response\'un Java tip sistemine UYMASINI dolaylı olarak test eder — F5\'teki "alan tipi uyumsuzluğu" gibi bir contract defect varsa (örn. sayı yerine metin), `.as(Bug.class)` çalışma zamanında bir istisna fırlatır.', en: 'Deserialization indirectly tests that the response MATCHES Java\'s type system — if there is a contract defect like the "field type mismatch" from F5 (e.g. text instead of a number), `.as(Bug.class)` throws an exception at runtime.' },
       },
     },
   ],
@@ -7401,7 +7401,7 @@ const H4 = {
       type: 'simple-box',
       emoji: '📐',
       content: {
-        tr: 'H2\'de her alanı TEK TEK doğrulamıştın (`title`, `severity`, ...); JSON Schema Validation ise F4\'te gördüğün ŞEMANIN TAMAMINI TEK bir satırda doğrular: `matchesJsonSchemaInClasspath("bug-schema.json")`. Bu, F5\'teki "contract defect" avcılığını OTOMATİKLEŞTİRİR — artık her yanıtı elle karşılaştırmak yerine, spec\'ten üretilen bir JSON Schema dosyasını REST Assured\'a "bunu her zaman kontrol et" dersin. Peki neden hâlâ H2\'deki tek tek `.body(...)` doğrulamalarını da kullanıyoruz, sadece şema doğrulaması YETMEZ mi? Çünkü şema doğrulaması sadece ŞEKLİ (tip, zorunlu alan) kontrol eder — belirli bir DEĞERİ (örn. "title tam olarak bu metin olmalı") kontrol ETMEZ; ikisi TAMAMLAYICIDIR: şema "yapı doğru mu", tek tek `.body()` "içerik doğru mu" sorusuna cevap verir. **Derin JSON Schema Validation rehberi için → `/rest-assured` sayfasına bak.**',
+        tr: 'H2\'de her alanı TEK TEK doğrulamıştın (`title`, `severity`, ...); JSON Schema Validation ise F4\'te gördüğün ŞEMANIN TAMAMINI TEK bir satırda doğrular: `matchesJsonSchemaInClasspath("bug-schema.json")`. Bu, F5\'teki "contract defect" avcılığını OTOMATİKLEŞTİRİR — artık her response\'u elle karşılaştırmak yerine, spec\'ten üretilen bir JSON Schema dosyasını REST Assured\'a "bunu her zaman kontrol et" dersin. Peki neden hâlâ H2\'deki tek tek `.body(...)` doğrulamalarını da kullanıyoruz, sadece şema doğrulaması YETMEZ mi? Çünkü şema doğrulaması sadece ŞEKLİ (tip, zorunlu alan) kontrol eder — belirli bir DEĞERİ (örn. "title tam olarak bu metin olmalı") kontrol ETMEZ; ikisi TAMAMLAYICIDIR: şema "yapı doğru mu", tek tek `.body()` "içerik doğru mu" sorusuna cevap verir. **Derin JSON Schema Validation rehberi için → `/rest-assured` sayfasına bak.**',
         en: 'In H2 you verified each field ONE BY ONE (`title`, `severity`, ...); JSON Schema Validation verifies the ENTIRE schema you saw in F4 in ONE line: `matchesJsonSchemaInClasspath("bug-schema.json")`. This AUTOMATES the "contract defect" hunt from F5 — instead of manually comparing every response, you tell REST Assured "always check this" using a JSON Schema file generated from the spec. So why still use H2\'s individual `.body(...)` checks too, isn\'t schema validation ENOUGH alone? Because schema validation only checks the SHAPE (type, required field) — it does NOT check a SPECIFIC value (e.g. "title must be exactly this text"); the two are COMPLEMENTARY: schema answers "is the structure correct", individual `.body()` answers "is the content correct". **For a deep JSON Schema Validation guide → see the `/rest-assured` page.**',
       },
     },
@@ -7446,7 +7446,7 @@ given()
         { id: 'auto', emoji: '🤖', label: { tr: 'Her koşumda otomatik kontrol', en: 'Automatic check on every run' }, color: '#22c55e' },
       ],
       scenes: [
-        { caption: { tr: 'F5\'te contract defect\'leri ELLE, spec\'i gerçek yanıtla karşılaştırarak buluyordun.', en: 'In F5 you found contract defects by MANUALLY comparing the spec against real responses.' }, positions: { manual: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'F5\'te contract defect\'leri ELLE, spec\'i gerçek response\'la karşılaştırarak buluyordun.', en: 'In F5 you found contract defects by MANUALLY comparing the spec against real responses.' }, positions: { manual: { x: 50, y: 50, scale: 1.1, pulse: true } } },
         { caption: { tr: 'F4/F6\'daki şema bir `bug-schema.json` dosyasına dönüştürülür.', en: 'The schema from F4/F6 is turned into a `bug-schema.json` file.' }, positions: { manual: { x: 20, y: 40 }, schema: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'manual', to: 'schema', color: '#0ea5e9' }] },
         { caption: { tr: '`matchesJsonSchemaInClasspath(...)` bu dosyayı HER test koşumunda otomatik kontrol eder — elle karşılaştırma artık geçmişte kaldı.', en: '`matchesJsonSchemaInClasspath(...)` automatically checks this file on EVERY test run — manual comparison is now history.' }, positions: { schema: { x: 20, y: 40 }, auto: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'schema', to: 'auto', color: '#22c55e' }] },
       ],
@@ -7496,7 +7496,7 @@ given()
       options: [
         { id: 'a', text: { tr: 'Tamamlayıcıdırlar — şema "yapı doğru mu", tek tek doğrulama "içerik doğru mu" sorusuna cevap verir', en: 'They are complementary — schema answers "is the structure correct", individual checks answer "is the content correct"' } },
         { id: 'b', text: { tr: 'Birbirinin YERİNE geçer, ikisini birden kullanmaya gerek yoktur', en: 'They REPLACE each other, there is no need to use both' } },
-        { id: 'c', text: { tr: 'Şema doğrulaması sadece GET isteklerinde çalışır', en: 'Schema validation only works on GET requests' } },
+        { id: 'c', text: { tr: 'Şema doğrulaması sadece GET request\'lerinde çalışır', en: 'Schema validation only works on GET requests' } },
         { id: 'd', text: { tr: 'Hiçbir ilişkileri yoktur', en: 'They have no relationship' } },
       ],
       correct: 'a',
@@ -7652,7 +7652,7 @@ const H6 = {
       type: 'simple-box',
       emoji: '🔁',
       content: {
-        tr: 'REST Assured yalnızca bir HTTP İSTEMCİSİDİR — isteği kim ÇALIŞTIRACAK, kim RAPORLAYACAK sorusunun cevabı JUnit 5 veya TestNG\'dir. Bu, G6\'da gördüğün Newman\'ın rolüyle AYNIDIR: Newman bir Postman koleksiyonunu ÇALIŞTIRIR/RAPORLAR, JUnit/TestNG ise bir REST Assured test SINIFINI çalıştırır/raporlar. `mvn test` (veya `mvn verify`) bu testleri komut satırından/CI\'da tetikler — GRUP B\'de yazdığın uygulama koduyla AYNI Maven projesinde yaşarlar. Peki bu neden önemli — testler ayrı bir proje olamaz mıydı? Çünkü aynı projede yaşamak, kod DEĞİŞTİĞİNDE testin AYNI `mvn install`/CI adımında OTOMATİK çalışmasını garanti eder; ayrı bir proje olsaydı, "testleri de çalıştırmayı unutma" riski (G4\'teki gibi) geri dönerdi. **Derin JUnit/TestNG+CI kurulumu için → `/rest-assured` sayfasına bak.**',
+        tr: 'REST Assured yalnızca bir HTTP İSTEMCİSİDİR — request\'i kim ÇALIŞTIRACAK, kim RAPORLAYACAK sorusunun cevabı JUnit 5 veya TestNG\'dir. Bu, G6\'da gördüğün Newman\'ın rolüyle AYNIDIR: Newman bir Postman koleksiyonunu ÇALIŞTIRIR/RAPORLAR, JUnit/TestNG ise bir REST Assured test SINIFINI çalıştırır/raporlar. `mvn test` (veya `mvn verify`) bu testleri komut satırından/CI\'da tetikler — GRUP B\'de yazdığın uygulama koduyla AYNI Maven projesinde yaşarlar. Peki bu neden önemli — testler ayrı bir proje olamaz mıydı? Çünkü aynı projede yaşamak, kod DEĞİŞTİĞİNDE testin AYNI `mvn install`/CI adımında OTOMATİK çalışmasını garanti eder; ayrı bir proje olsaydı, "testleri de çalıştırmayı unutma" riski (G4\'teki gibi) geri dönerdi. **Derin JUnit/TestNG+CI kurulumu için → `/rest-assured` sayfasına bak.**',
         en: 'REST Assured is ONLY an HTTP CLIENT — the answer to "who RUNS the request, who REPORTS it" is JUnit 5 or TestNG. This is the EXACT same role as Newman from G6: Newman RUNS/REPORTS a Postman collection, JUnit/TestNG runs/reports a REST Assured test CLASS. `mvn test` (or `mvn verify`) triggers these tests from the command line/in CI — they live in the SAME Maven project as the app code you wrote in GROUP B. So why does this matter — couldn\'t tests be a separate project? Because living in the same project GUARANTEES the test runs AUTOMATICALLY in the SAME `mvn install`/CI step when the code CHANGES; if it were a separate project, the "forgetting to run tests too" risk (like in G4) would return. **For a deep JUnit/TestNG+CI setup guide → see the `/rest-assured` page.**',
       },
     },
@@ -7701,7 +7701,7 @@ jobs:
         { id: 'ci', emoji: '🚧', label: { tr: 'mvn test → CI', en: 'mvn test → CI' }, color: '#22c55e' },
       ],
       scenes: [
-        { caption: { tr: 'REST Assured tek başına sadece bir istek gönderme aracıdır — onu KİM çalıştıracak?', en: 'REST Assured alone is just a request-sending tool — WHO will run it?' }, positions: { ra: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'REST Assured tek başına sadece bir request gönderme aracıdır — onu KİM çalıştıracak?', en: 'REST Assured alone is just a request-sending tool — WHO will run it?' }, positions: { ra: { x: 50, y: 50, scale: 1.1, pulse: true } } },
         { caption: { tr: 'JUnit 5/TestNG, `@Test` metotlarını bulup ÇALIŞTIRIR ve sonucu RAPORLAR — G6\'daki Newman\'ın REST Assured karşılığı.', en: 'JUnit 5/TestNG finds `@Test` methods, RUNS them, and REPORTS the result — the REST Assured counterpart of G6\'s Newman.' }, positions: { ra: { x: 20, y: 40 }, junit: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'ra', to: 'junit', color: '#0ea5e9' }] },
         { caption: { tr: '`mvn test` bunu CI\'a bağlar — GRUP B kodunun bulunduğu AYNI projede, her push\'ta OTOMATİK çalışır.', en: '`mvn test` wires this into CI — in the SAME project as the GROUP B code, running AUTOMATICALLY on every push.' }, positions: { junit: { x: 20, y: 40 }, ci: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'junit', to: 'ci', color: '#22c55e' }] },
       ],
@@ -7741,7 +7741,7 @@ steps:
       solutionCode: `steps:
   - run: mvn spring-boot:run &
   - run: mvn test`,
-      hint: { tr: 'REST Assured testleri, sunucuya GERÇEK bir HTTP isteği atar — sunucu henüz başlamamışsa istek bağlantı hatasıyla başarısız olur. Uygulamayı başlatan adım her zaman ÖNCE gelmelidir.', en: 'REST Assured tests send a REAL HTTP request to the server — if the server has not started yet, the request fails with a connection error. The step that starts the app must always come FIRST.' },
+      hint: { tr: 'REST Assured testleri, sunucuya GERÇEK bir HTTP request\'i atar — sunucu henüz başlamamışsa request bağlantı hatasıyla başarısız olur. Uygulamayı başlatan adım her zaman ÖNCE gelmelidir.', en: 'REST Assured tests send a REAL HTTP request to the server — if the server has not started yet, the request fails with a connection error. The step that starts the app must always come FIRST.' },
       successMessage: { tr: 'Doğru! Artık testler sunucu ayaktayken çalışıyor.', en: 'Correct! Now tests run while the server is up.' },
     },
     {
@@ -7758,13 +7758,13 @@ steps:
       retryQuestion: {
         question: { tr: 'REST Assured ile JUnit 5/TestNG arasındaki iş bölümü nedir?', en: 'What is the division of labor between REST Assured and JUnit 5/TestNG?' },
         options: [
-          { id: 'a', text: { tr: 'REST Assured isteği gönderir/doğrular, JUnit/TestNG testi çalıştırır ve raporlar', en: 'REST Assured sends/verifies the request, JUnit/TestNG runs and reports the test' } },
+          { id: 'a', text: { tr: 'REST Assured request\'i gönderir/doğrular, JUnit/TestNG testi çalıştırır ve raporlar', en: 'REST Assured sends/verifies the request, JUnit/TestNG runs and reports the test' } },
           { id: 'b', text: { tr: 'İkisi aynı işi yapar, biri gereksizdir', en: 'They do the same job, one is redundant' } },
-          { id: 'c', text: { tr: 'JUnit/TestNG isteği gönderir, REST Assured raporlar', en: 'JUnit/TestNG sends the request, REST Assured reports it' } },
+          { id: 'c', text: { tr: 'JUnit/TestNG request\'i gönderir, REST Assured raporlar', en: 'JUnit/TestNG sends the request, REST Assured reports it' } },
           { id: 'd', text: { tr: 'REST Assured sadece veritabanı testleri içindir', en: 'REST Assured is only for database tests' } },
         ],
         correct: 'a',
-        explanation: { tr: 'REST Assured bir HTTP istemci KÜTÜPHANESİdir (isteği gönderir, `given/when/then` ile doğrular); JUnit 5/TestNG ise bir test ÇALIŞTIRICISI ve RAPORLAYICISIDIR (`@Test` metotlarını bulur, çalıştırır, sonucu raporlar) — G6\'daki Postman/Newman ayrımıyla birebir aynı mantık.', en: 'REST Assured is an HTTP client LIBRARY (sends the request, verifies with `given/when/then`); JUnit 5/TestNG is a test RUNNER and REPORTER (finds `@Test` methods, runs them, reports the result) — the exact same logic as the Postman/Newman split in G6.' },
+        explanation: { tr: 'REST Assured bir HTTP istemci KÜTÜPHANESİdir (request\'i gönderir, `given/when/then` ile doğrular); JUnit 5/TestNG ise bir test ÇALIŞTIRICISI ve RAPORLAYICISIDIR (`@Test` metotlarını bulur, çalıştırır, sonucu raporlar) — G6\'daki Postman/Newman ayrımıyla birebir aynı mantık.', en: 'REST Assured is an HTTP client LIBRARY (sends the request, verifies with `given/when/then`); JUnit 5/TestNG is a test RUNNER and REPORTER (finds `@Test` methods, runs them, reports the result) — the exact same logic as the Postman/Newman split in G6.' },
       },
     },
   ],
@@ -7782,7 +7782,7 @@ const I1 = {
       type: 'simple-box',
       emoji: '🎭',
       content: {
-        tr: 'Playwright\'ın `request` fixture\'ı, H1\'de gördüğün REST Assured\'un `given()`\'ının TypeScript karşılığıdır — `APIRequestContext`, tarayıcı AÇMADAN doğrudan HTTP istekleri gönderen bir istemcidir. Peki Playwright zaten bir TARAYICI otomasyon aracıyken, neden ayrı bir API istemcisi taşıyor? Çünkü GRUP I\'nin asıl gücü (I3\'te göreceğin gibi) API ile UI\'yı AYNI test dosyasında BİRLEŞTİREBİLMEKTİR — ayrı bir araca (REST Assured) geçmeden, aynı TypeScript test dosyasında hem `/api/v1/bugs`\'a istek atabilir hem tarayıcıyı kontrol edebilirsin. Java\'da bunun karşılığı, bir Selenium testi içinde HttpClient\'ı da enjekte edip kullanmaktır — mümkündür ama Playwright bunu framework\'ün DOĞAL bir parçası yapar. **Derin Playwright rehberi için → `/playwright` sayfasına bak; burada sadece API tarafını görüyoruz.**',
+        tr: 'Playwright\'ın `request` fixture\'ı, H1\'de gördüğün REST Assured\'un `given()`\'ının TypeScript karşılığıdır — `APIRequestContext`, tarayıcı AÇMADAN doğrudan HTTP request\'leri gönderen bir istemcidir. Peki Playwright zaten bir TARAYICI otomasyon aracıyken, neden ayrı bir API istemcisi taşıyor? Çünkü GRUP I\'nin asıl gücü (I3\'te göreceğin gibi) API ile UI\'yı AYNI test dosyasında BİRLEŞTİREBİLMEKTİR — ayrı bir araca (REST Assured) geçmeden, aynı TypeScript test dosyasında hem `/api/v1/bugs`\'a request atabilir hem tarayıcıyı kontrol edebilirsin. Java\'da bunun karşılığı, bir Selenium testi içinde HttpClient\'ı da enjekte edip kullanmaktır — mümkündür ama Playwright bunu framework\'ün DOĞAL bir parçası yapar. **Derin Playwright rehberi için → `/playwright` sayfasına bak; burada sadece API tarafını görüyoruz.**',
         en: 'Playwright\'s `request` fixture is the TypeScript counterpart of the `given()` you saw in REST Assured in H1 — `APIRequestContext` is a client that sends HTTP requests directly WITHOUT opening a browser. So why does Playwright, already a BROWSER automation tool, carry a separate API client? Because GROUP I\'s real power (as you will see in I3) is being able to COMBINE API and UI in the SAME test file — without switching to a separate tool (REST Assured), you can both hit `/api/v1/bugs` and control the browser in the same TypeScript test file. The Java equivalent is injecting and using an HttpClient inside a Selenium test — possible, but Playwright makes it a NATURAL part of the framework. **For a deep Playwright guide → see the `/playwright` page; here we only see the API side.**',
       },
     },
@@ -7809,7 +7809,7 @@ test('fetches the bug list', async ({ request }) => {
     {
       type: 'video-scene',
       id: 'api-i1-request-fixture-film',
-      title: { tr: '🎬 Tarayıcı Açmadan Bir İstek Atmak', en: '🎬 Sending a Request Without Opening a Browser' },
+      title: { tr: '🎬 Tarayıcı Açmadan Bir Request Atmak', en: '🎬 Sending a Request Without Opening a Browser' },
       xpReward: 11,
       sceneDurationMs: 3400,
       stageHeight: 250,
@@ -7821,7 +7821,7 @@ test('fetches the bug list', async ({ request }) => {
       scenes: [
         { caption: { tr: 'Playwright testi `request` fixture\'ını parametre olarak ister.', en: 'A Playwright test asks for the `request` fixture as a parameter.' }, positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } } },
         { caption: { tr: 'Playwright bir `APIRequestContext` sağlar — HİÇBİR tarayıcı sekmesi açılmaz.', en: 'Playwright provides an `APIRequestContext` — NO browser tab opens.' }, positions: { test: { x: 20, y: 40 }, ctx: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'test', to: 'ctx', color: '#0ea5e9' }] },
-        { caption: { tr: '`request.get(...)` doğrudan `/api/v1/bugs`\'a bir HTTP isteği atar — hızlı ve tarayıcı yükünden bağımsız.', en: '`request.get(...)` sends an HTTP request directly to `/api/v1/bugs` — fast and independent of browser overhead.' }, positions: { ctx: { x: 20, y: 40 }, api: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'ctx', to: 'api', color: '#22c55e' }] },
+        { caption: { tr: '`request.get(...)` doğrudan `/api/v1/bugs`\'a bir HTTP request\'i atar — hızlı ve tarayıcı yükünden bağımsız.', en: '`request.get(...)` sends an HTTP request directly to `/api/v1/bugs` — fast and independent of browser overhead.' }, positions: { ctx: { x: 20, y: 40 }, api: { x: 58, y: 55, scale: 1.15, pulse: true } }, beams: [{ from: 'ctx', to: 'api', color: '#22c55e' }] },
       ],
     },
     {
@@ -7830,7 +7830,7 @@ test('fetches the bug list', async ({ request }) => {
       steps: [
         { id: 1, icon: '📦', label: { tr: '@playwright/test\'i kur…', en: 'Set up @playwright/test…' }, detail: { tr: 'Proje zaten kuruluysa ekstra kurulum gerekmez.', en: 'No extra setup needed if the project is already set up.' } },
         { id: 2, icon: '🎯', label: { tr: 'request fixture\'ını al…', en: 'Get the request fixture…' }, detail: { tr: 'Test fonksiyonunun parametresinde { request } destructuring\'i yap.', en: 'Destructure { request } in the test function\'s parameter.' } },
-        { id: 3, icon: '📤', label: { tr: 'İsteği gönder…', en: 'Send the request…' }, detail: { tr: 'request.get/post ile /api/v1/bugs\'a doğrudan istek at.', en: 'Send a direct request to /api/v1/bugs with request.get/post.' } },
+        { id: 3, icon: '📤', label: { tr: 'Request\'i gönder…', en: 'Send the request…' }, detail: { tr: 'request.get/post ile /api/v1/bugs\'a doğrudan request at.', en: 'Send a direct request to /api/v1/bugs with request.get/post.' } },
       ],
     },
     {
@@ -7840,7 +7840,7 @@ test('fetches the bug list', async ({ request }) => {
       question: { tr: 'Playwright ile bir API testi yazma sırasını diz.', en: 'Order the steps for writing an API test with Playwright.' },
       items: [
         { id: '1', text: { tr: 'test fonksiyonunda { request } parametresini al', en: 'Take the { request } parameter in the test function' }, order: 1 },
-        { id: '2', text: { tr: 'request.get/post ile isteği gönder', en: 'Send the request with request.get/post' }, order: 2 },
+        { id: '2', text: { tr: 'request.get/post ile request\'i gönder', en: 'Send the request with request.get/post' }, order: 2 },
         { id: '3', text: { tr: 'response.ok() ile status\'u kontrol et', en: 'Check the status with response.ok()' }, order: 3 },
         { id: '4', text: { tr: 'response.json() ile gövdeyi ayrıştır', en: 'Parse the body with response.json()' }, order: 4 },
         { id: '5', text: { tr: 'expect(...) ile beklentiyi doğrula', en: 'Verify the expectation with expect(...)' }, order: 5 },
@@ -7865,25 +7865,25 @@ test('bug listesi getirilir', async () => {
     },
     {
       type: 'quiz',
-      question: { tr: 'Playwright\'ın `request` fixture\'ı ile bir HTTP isteği göndermenin tarayıcı üzerinden gitmeye göre avantajı nedir?', en: 'What is the advantage of sending an HTTP request with Playwright\'s `request` fixture over going through the browser?' },
+      question: { tr: 'Playwright\'ın `request` fixture\'ı ile bir HTTP request\'i göndermenin tarayıcı üzerinden gitmeye göre avantajı nedir?', en: 'What is the advantage of sending an HTTP request with Playwright\'s `request` fixture over going through the browser?' },
       options: [
-        { id: 'a', text: { tr: 'Tarayıcı açma/render yükü olmadan, doğrudan ve hızlı bir istek gönderir', en: 'It sends a direct, fast request without browser-opening/rendering overhead' } },
+        { id: 'a', text: { tr: 'Tarayıcı açma/render yükü olmadan, doğrudan ve hızlı bir request gönderir', en: 'It sends a direct, fast request without browser-opening/rendering overhead' } },
         { id: 'b', text: { tr: 'Sunucuyu otomatik başlatır', en: 'It automatically starts the server' } },
         { id: 'c', text: { tr: 'Veritabanını sıfırlar', en: 'It resets the database' } },
         { id: 'd', text: { tr: 'Hiçbir avantajı yoktur', en: 'It has no advantage' } },
       ],
       correct: 'a',
-      explanation: { tr: '`APIRequestContext`, bir tarayıcı sekmesi açıp render etmeden doğrudan HTTP isteği gönderir — bu, sadece API\'yi test etmek istediğinde çok daha hızlı ve hafiftir.', en: '`APIRequestContext` sends an HTTP request directly, without opening and rendering a browser tab — much faster and lighter when you only want to test the API.' },
+      explanation: { tr: '`APIRequestContext`, bir tarayıcı sekmesi açıp render etmeden doğrudan HTTP request\'i gönderir — bu, sadece API\'yi test etmek istediğinde çok daha hızlı ve hafiftir.', en: '`APIRequestContext` sends an HTTP request directly, without opening and rendering a browser tab — much faster and lighter when you only want to test the API.' },
       retryQuestion: {
         question: { tr: 'Playwright\'ın `request` fixture\'ının REST Assured\'daki en yakın karşılığı nedir?', en: 'What is the closest REST Assured equivalent of Playwright\'s `request` fixture?' },
         options: [
-          { id: 'a', text: { tr: '`given()` — bir HTTP isteği göndermek için hazırlık/istemci sağlar', en: '`given()` — provides the setup/client for sending an HTTP request' } },
+          { id: 'a', text: { tr: '`given()` — bir HTTP request\'i göndermek için hazırlık/istemci sağlar', en: '`given()` — provides the setup/client for sending an HTTP request' } },
           { id: 'b', text: { tr: '`@Test` annotation\'ı', en: 'The `@Test` annotation' } },
           { id: 'c', text: { tr: 'Bir POJO sınıfı', en: 'A POJO class' } },
           { id: 'd', text: { tr: 'Bir Maven bağımlılığı', en: 'A Maven dependency' } },
         ],
         correct: 'a',
-        explanation: { tr: 'İkisi de bir HTTP isteği göndermek için gereken istemci/bağlamı sağlar — REST Assured\'da `given()` ile başlanır, Playwright\'ta `request` fixture\'ı ile.', en: 'Both provide the client/context needed to send an HTTP request — in REST Assured you start with `given()`, in Playwright with the `request` fixture.' },
+        explanation: { tr: 'İkisi de bir HTTP request\'i göndermek için gereken istemci/bağlamı sağlar — REST Assured\'da `given()` ile başlanır, Playwright\'ta `request` fixture\'ı ile.', en: 'Both provide the client/context needed to send an HTTP request — in REST Assured you start with `given()`, in Playwright with the `request` fixture.' },
       },
     },
   ],
@@ -7951,9 +7951,9 @@ const I2 = {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-i2-order-01',
-      question: { tr: 'Bir Playwright API yanıtını doğrulama sırasını diz.', en: 'Order the steps for verifying a Playwright API response.' },
+      question: { tr: 'Bir Playwright API response\'unu doğrulama sırasını diz.', en: 'Order the steps for verifying a Playwright API response.' },
       items: [
-        { id: '1', text: { tr: 'İsteği gönder, response nesnesini al', en: 'Send the request, get the response object' }, order: 1 },
+        { id: '1', text: { tr: 'Request\'i gönder, response nesnesini al', en: 'Send the request, get the response object' }, order: 1 },
         { id: '2', text: { tr: 'response.ok()/toBeOK() ile status\'u kontrol et', en: 'Check the status with response.ok()/toBeOK()' }, order: 2 },
         { id: '3', text: { tr: 'await response.json() ile gövdeyi ayrıştır', en: 'Parse the body with await response.json()' }, order: 3 },
         { id: '4', text: { tr: 'expect(body.alan).toBe(...) ile içeriği doğrula', en: 'Verify the content with expect(body.field).toBe(...)' }, order: 4 },
@@ -7992,7 +7992,7 @@ expect(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).toContain(body.severity)`,
           { id: 'a', text: { tr: 'Status kodunun 200-299 (2xx) aralığında olduğunu', en: 'That the status code is in the 200-299 (2xx) range' } },
           { id: 'b', text: { tr: 'Sadece status kodunun tam olarak 200 olduğunu', en: 'Only that the status code is exactly 200' } },
           { id: 'c', text: { tr: 'Gövdenin boş olduğunu', en: 'That the body is empty' } },
-          { id: 'd', text: { tr: 'İsteğin 1 saniyeden hızlı olduğunu', en: 'That the request is faster than 1 second' } },
+          { id: 'd', text: { tr: 'Request\'in 1 saniyeden hızlı olduğunu', en: 'That the request is faster than 1 second' } },
         ],
         correct: 'a',
         explanation: { tr: '`toBeOK()`, H1\'deki tek bir `.statusCode(200)` kontrolünden farklı olarak, TÜM başarı aralığını (200, 201, 204 dahil 2xx) kontrol eden bir kısayoldur.', en: 'Unlike H1\'s single `.statusCode(200)` check, `toBeOK()` is a shortcut that checks the ENTIRE success range (2xx, including 200, 201, 204).' },
@@ -8059,7 +8059,7 @@ const I3 = {
       scenes: [
         { caption: { tr: 'YAVAŞ YOL: UI\'dan 10 bug oluşturmak — her biri form doldurma + tıklama + bekleme, dakikalar sürer ve KIRILGANdır.', en: 'THE SLOW PATH: creating 10 bugs from the UI — each one filling a form + clicking + waiting, taking minutes and being FRAGILE.' }, positions: { uiSlow: { x: 50, y: 40, scale: 1.1, pulse: true } } },
         { caption: { tr: 'HIZLI YOL: `request.post(...)` ile AYNI veri SANİYELER içinde, UI\'ya HİÇ dokunmadan oluşturulur.', en: 'THE FAST PATH: the SAME data is created in SECONDS with `request.post(...)`, WITHOUT touching the UI at all.' }, positions: { uiSlow: { x: 20, y: 30 }, apiSetup: { x: 58, y: 45, scale: 1.15, pulse: true } }, beams: [{ from: 'uiSlow', to: 'apiSetup', color: '#f59e0b' }] },
-        { caption: { tr: 'API yanıtından gerçek bir `bug` nesnesi (id: 99) elde edilir — test verisi HAZIRDIR.', en: 'A real `bug` object (id: 99) is obtained from the API response — the test data is READY.' }, positions: { apiSetup: { x: 20, y: 35 }, bug: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'apiSetup', to: 'bug', color: '#a78bfa' }] },
+        { caption: { tr: 'API response\'undan gerçek bir `bug` nesnesi (id: 99) elde edilir — test verisi HAZIRDIR.', en: 'A real `bug` object (id: 99) is obtained from the API response — the test data is READY.' }, positions: { apiSetup: { x: 20, y: 35 }, bug: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'apiSetup', to: 'bug', color: '#a78bfa' }] },
         { caption: { tr: 'ANCAK ŞİMDİ tarayıcı açılır — `page.goto(...)` ile DOĞRUDAN bug listesine gidilir, kurulum adımları ATLANIR.', en: 'ONLY NOW does the browser open — `page.goto(...)` navigates DIRECTLY to the bug list, setup steps are SKIPPED.' }, positions: { bug: { x: 20, y: 35 }, navigate: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'bug', to: 'navigate', color: '#0ea5e9' }] },
         { caption: { tr: 'Ders — Test SADECE gerçekten test edilmek istenen şeyi (bug\'ın listede görünmesi) doğrular; kurulum HIZLI ve GÜVENİLİR API ile, doğrulama GERÇEK kullanıcı deneyimiyle (UI) yapılır.', en: 'The lesson — the test verifies ONLY the thing actually under test (the bug appearing in the list); setup happens via the FAST, RELIABLE API, verification happens via the REAL user experience (UI).' }, positions: { navigate: { x: 30, y: 45 }, verify: { x: 62, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'navigate', to: 'verify', color: '#22c55e' }] },
       ],
@@ -8080,7 +8080,7 @@ const I3 = {
       question: { tr: 'Bir hibrit (API+UI) testin doğru akışını sırala.', en: 'Order the correct flow of a hybrid (API+UI) test.' },
       items: [
         { id: '1', text: { tr: 'request.post(...) ile API üzerinden test verisini oluştur', en: 'Create the test data via the API with request.post(...)' }, order: 1 },
-        { id: '2', text: { tr: 'API yanıtından oluşturulan kaydın bilgilerini al', en: 'Get the created record\'s info from the API response' }, order: 2 },
+        { id: '2', text: { tr: 'API response\'undan oluşturulan kaydın bilgilerini al', en: 'Get the created record\'s info from the API response' }, order: 2 },
         { id: '3', text: { tr: 'page.goto(...) ile doğrudan ilgili sayfaya git', en: 'Navigate directly to the relevant page with page.goto(...)' }, order: 3 },
         { id: '4', text: { tr: 'Sadece test edilen davranışı (görünürlük) doğrula', en: 'Verify only the behavior under test (visibility)' }, order: 4 },
         { id: '5', text: { tr: 'Testi tamamla, sonucu raporla', en: 'Complete the test, report the result' }, order: 5 },
@@ -8221,7 +8221,7 @@ test('logged-in user sees the bug list', async ({ page }) => {
       id: 'api-i4-order-01',
       question: { tr: 'storageState ile API login paylaşımını kurma sırasını diz.', en: 'Order the steps for setting up shared API login with storageState.' },
       items: [
-        { id: '1', text: { tr: 'auth.setup.ts dosyasında API ile login isteği gönder', en: 'Send the API login request in auth.setup.ts' }, order: 1 },
+        { id: '1', text: { tr: 'auth.setup.ts dosyasında API ile login request\'i gönder', en: 'Send the API login request in auth.setup.ts' }, order: 1 },
         { id: '2', text: { tr: 'Dönen oturumu storageState ile auth.json\'a kaydet', en: 'Save the returned session to auth.json with storageState' }, order: 2 },
         { id: '3', text: { tr: 'Test dosyalarında test.use({ storageState: ... }) yaz', en: 'Write test.use({ storageState: ... }) in test files' }, order: 3 },
         { id: '4', text: { tr: 'Testler artık login formunu görmeden başlar', en: 'Tests now start without seeing the login form' }, order: 4 },
@@ -8315,7 +8315,7 @@ const I5 = {
         { id: 'choice', emoji: '🤔', label: { tr: 'Takımın dili karar verir', en: 'The team\'s language decides' }, color: '#8b5cf6' },
       ],
       scenes: [
-        { caption: { tr: 'Aynı `GET /api/v1/bugs/42` isteği iki farklı ekosistemde test edilecek.', en: 'The same `GET /api/v1/bugs/42` request will be tested in two different ecosystems.' }, positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Aynı `GET /api/v1/bugs/42` request\'i iki farklı ekosistemde test edilecek.', en: 'The same `GET /api/v1/bugs/42` request will be tested in two different ecosystems.' }, positions: { request: { x: 50, y: 50, scale: 1.1, pulse: true } } },
         { caption: { tr: 'REST Assured: `given/when/then`, `Bug` POJO\'su, JUnit raporu — Java ekosisteminin İÇİNDE.', en: 'REST Assured: `given/when/then`, the `Bug` POJO, a JUnit report — INSIDE the Java ecosystem.' }, positions: { request: { x: 20, y: 30 }, ra: { x: 62, y: 30, scale: 1.15, pulse: true } }, beams: [{ from: 'request', to: 'ra', color: '#22c55e' }] },
         { caption: { tr: 'Playwright: `request`/`expect`, AYNI dosyada `page` ile UI\'a geçiş — TypeScript ekosisteminin İÇİNDE.', en: 'Playwright: `request`/`expect`, switching to `page` for UI in the SAME file — INSIDE the TypeScript ecosystem.' }, positions: { request: { x: 20, y: 65 }, pw: { x: 62, y: 65, scale: 1.15, pulse: true } }, beams: [{ from: 'request', to: 'pw', color: '#0ea5e9' }] },
         { caption: { tr: 'Ders — İkisi de AYNI endpoint\'i doğru test eder; seçim "hangisi daha iyi" değil, "takım hangi dilde yaşıyor, hibrit güç mü Java ekosistem entegrasyonu mu öncelikli" sorusuna bağlıdır.', en: 'The lesson — both correctly test the SAME endpoint; the choice is not "which is better", it depends on "which language the team lives in, is hybrid power or Java ecosystem integration the priority".' }, positions: { ra: { x: 30, y: 45 }, pw: { x: 50, y: 55 }, choice: { x: 68, y: 48, scale: 1.15, pulse: true } }, beams: [{ from: 'ra', to: 'choice', color: '#8b5cf6' }, { from: 'pw', to: 'choice', color: '#8b5cf6' }] },
@@ -8334,9 +8334,9 @@ const I5 = {
       type: 'challenge',
       variant: 'order-sort',
       id: 'api-i5-order-01',
-      question: { tr: 'Aynı GET isteğinin REST Assured ve Playwright\'ta ORTAK doğrulama adımlarını sırala.', en: 'Order the COMMON verification steps for the same GET request in REST Assured and Playwright.' },
+      question: { tr: 'Aynı GET request\'inin REST Assured ve Playwright\'ta ORTAK doğrulama adımlarını sırala.', en: 'Order the COMMON verification steps for the same GET request in REST Assured and Playwright.' },
       items: [
-        { id: '1', text: { tr: 'İsteği gönder', en: 'Send the request' }, order: 1 },
+        { id: '1', text: { tr: 'Request\'i gönder', en: 'Send the request' }, order: 1 },
         { id: '2', text: { tr: 'Status kodunu doğrula (2xx)', en: 'Verify the status code (2xx)' }, order: 2 },
         { id: '3', text: { tr: 'Gövdeyi ayrıştır (POJO veya JSON nesnesi)', en: 'Parse the body (POJO or JSON object)' }, order: 3 },
         { id: '4', text: { tr: 'Belirli alanları doğrula', en: 'Verify specific fields' }, order: 4 },
@@ -8361,7 +8361,7 @@ const response = await request.get('http://localhost:3000/api/v1/bugs/42')
 expect(response.ok()).toBeTruthy()
 const body = await response.json()
 expect(body.title).toBe('Login butonu donuyor')`,
-      hint: { tr: '`given/when/then` zinciri Playwright\'ta üç adıma bölünür: `request.get(...)` ile isteği gönder, `response.ok()` ile status\'u, `response.json()` sonrası `expect(body.alan)` ile içeriği doğrula.', en: 'The `given/when/then` chain splits into three steps in Playwright: send the request with `request.get(...)`, verify status with `response.ok()`, verify content with `expect(body.field)` after `response.json()`.' },
+      hint: { tr: '`given/when/then` zinciri Playwright\'ta üç adıma bölünür: `request.get(...)` ile request\'i gönder, `response.ok()` ile status\'u, `response.json()` sonrası `expect(body.alan)` ile içeriği doğrula.', en: 'The `given/when/then` chain splits into three steps in Playwright: send the request with `request.get(...)`, verify status with `response.ok()`, verify content with `expect(body.field)` after `response.json()`.' },
       successMessage: { tr: 'Doğru! İki framework de aynı doğrulamayı taşıyor, sadece sözdizimi farklı.', en: 'Correct! Both frameworks carry the same verification, only the syntax differs.' },
     },
     {
@@ -8380,7 +8380,7 @@ expect(body.title).toBe('Login butonu donuyor')`,
         options: [
           { id: 'a', text: { tr: 'API ve UI testlerini AYNI dosyada, aynı test çalıştırıcısıyla birleştirebilmesi (I3)', en: 'Being able to combine API and UI tests in the SAME file, with the same test runner (I3)' } },
           { id: 'b', text: { tr: 'JSON desteklememesi', en: 'Not supporting JSON' } },
-          { id: 'c', text: { tr: 'Sadece GET isteklerini desteklemesi', en: 'Only supporting GET requests' } },
+          { id: 'c', text: { tr: 'Sadece GET request\'lerini desteklemesi', en: 'Only supporting GET requests' } },
           { id: 'd', text: { tr: 'HTTP\'yi desteklememesi', en: 'Not supporting HTTP' } },
         ],
         correct: 'a',
@@ -8414,7 +8414,7 @@ const J = {
       type: 'simple-box',
       emoji: '🚨',
       content: {
-        tr: 'Bu sözlük, bir **doktorun ayırıcı tanı (differential diagnosis) el kitabı** gibidir: AYNI belirti (örn. "istek başarısız oldu") onlarca FARKLI kök nedenden gelebilir, ve yanlış teşhis yanlış tedaviye (yanlış ekibe escalate) yol açar. GRUP A-I boyunca (B1\'deki eksik dependency, C3\'teki middleware sırası, F5\'teki contract defect, G4\'teki test zinciri) HER GRUP kendi hata sınıfını doğurdu — bu sözlük onları TEK bir referans noktasında TOPLAR. Java\'da bunun karşılığı bir "runbook"tur — production\'da bir alarm çaldığında hangi log\'a, hangi metriğe bakılacağını önceden yazılı olarak bilmek, panikle rastgele arama yapmaktan ÇOK daha hızlıdır. Peki bu sözlük neden ezberlemek yerine BAŞVURU kaynağı olarak kullanılmalı? Çünkü gerçek bir production ortamında karşılaşacağın hata mesajı BİREBİR burada olmayabilir — ama BURADAKİ 12 kalıp, "belirtiden kök nedene, kök nedenden doğru ekibe" giden DÜŞÜNME BİÇİMİNİ öğretir; bu düşünme biçimi her yeni, hiç görmediğin hataya da uygulanabilir.',
+        tr: 'Bu sözlük, bir **doktorun ayırıcı tanı (differential diagnosis) el kitabı** gibidir: AYNI belirti (örn. "request başarısız oldu") onlarca FARKLI kök nedenden gelebilir, ve yanlış teşhis yanlış tedaviye (yanlış ekibe escalate) yol açar. GRUP A-I boyunca (B1\'deki eksik dependency, C3\'teki middleware sırası, F5\'teki contract defect, G4\'teki test zinciri) HER GRUP kendi hata sınıfını doğurdu — bu sözlük onları TEK bir referans noktasında TOPLAR. Java\'da bunun karşılığı bir "runbook"tur — production\'da bir alarm çaldığında hangi log\'a, hangi metriğe bakılacağını önceden yazılı olarak bilmek, panikle rastgele arama yapmaktan ÇOK daha hızlıdır. Peki bu sözlük neden ezberlemek yerine BAŞVURU kaynağı olarak kullanılmalı? Çünkü gerçek bir production ortamında karşılaşacağın hata mesajı BİREBİR burada olmayabilir — ama BURADAKİ 12 kalıp, "belirtiden kök nedene, kök nedenden doğru ekibe" giden DÜŞÜNME BİÇİMİNİ öğretir; bu düşünme biçimi her yeni, hiç görmediğin hataya da uygulanabilir.',
         en: 'This dictionary is like a **doctor\'s differential diagnosis handbook**: the SAME symptom (e.g. "the request failed") can come from dozens of DIFFERENT root causes, and a wrong diagnosis leads to wrong treatment (escalating to the wrong team). Throughout GROUP A-I (the missing dependency in B1, the middleware order in C3, the contract defect in F5, the test chain in G4), EVERY group birthed its own error class — this dictionary GATHERS them at ONE reference point. The Java equivalent is a "runbook" — knowing in advance which log, which metric to check when a production alarm fires is FAR faster than panicked random searching. So why should this dictionary be used as a REFERENCE rather than memorized? Because the exact error message you meet in a real production environment may NOT be EXACTLY here — but the 12 patterns HERE teach the WAY OF THINKING that goes "from symptom to root cause, from root cause to the right team"; this way of thinking applies to any new error you have never seen too.',
       },
     },
@@ -8438,17 +8438,17 @@ const J = {
       sceneDurationMs: 3400,
       stageHeight: 260,
       actors: [
-        { id: 'symptom', emoji: '🚨', label: { tr: 'Belirti: istek başarısız', en: 'Symptom: request failed' }, color: '#f59e0b' },
+        { id: 'symptom', emoji: '🚨', label: { tr: 'Belirti: request başarısız', en: 'Symptom: request failed' }, color: '#f59e0b' },
         { id: 'layer', emoji: '🔍', label: { tr: 'Hangi katman?', en: 'Which layer?' }, color: '#0ea5e9' },
         { id: 'client', emoji: '🌐', label: { tr: 'İstemci/Network mü?', en: 'Client/Network?' }, color: '#a78bfa' },
         { id: 'server', emoji: '🖥️', label: { tr: 'Sunucu/Kod mu?', en: 'Server/Code?' }, color: '#ef4444' },
         { id: 'contract', emoji: '📜', label: { tr: 'Sözleşme/Spec mi?', en: 'Contract/Spec?' }, color: '#22c55e' },
       ],
       scenes: [
-        { caption: { tr: 'Bir istek başarısız oldu — ama "başarısız" tek başına HANGİ EKİBE gideceğini söylemez.', en: 'A request failed — but "failed" alone does not tell you WHICH TEAM to go to.' }, positions: { symptom: { x: 50, y: 50, scale: 1.1, pulse: true } } },
+        { caption: { tr: 'Bir request başarısız oldu — ama "başarısız" tek başına HANGİ EKİBE gideceğini söylemez.', en: 'A request failed — but "failed" alone does not tell you WHICH TEAM to go to.' }, positions: { symptom: { x: 50, y: 50, scale: 1.1, pulse: true } } },
         { caption: { tr: 'İlk soru: bu HANGİ KATMANDA doğdu? Network paneli (GRUP E) ilk bakılacak yerdir.', en: 'First question: WHICH LAYER did this originate in? The Network panel (GROUP E) is the first place to check.' }, positions: { symptom: { x: 20, y: 35 }, layer: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'symptom', to: 'layer', color: '#0ea5e9' }] },
-        { caption: { tr: 'İstek sunucuya HİÇ ULAŞMADIYSA (ECONNREFUSED, CORS, timeout) → İstemci/Network katmanı.', en: 'If the request NEVER REACHED the server (ECONNREFUSED, CORS, timeout) → Client/Network layer.' }, positions: { layer: { x: 20, y: 65 }, client: { x: 58, y: 65, scale: 1.15, pulse: true } }, beams: [{ from: 'layer', to: 'client', color: '#a78bfa' }] },
-        { caption: { tr: 'İstek ULAŞTI ama yanlış/sessiz bir sonuç döndüyse (400 yerine 201, boş body) → Sunucu/Kod katmanı.', en: 'If the request REACHED but returned a wrong/silent result (201 instead of 400, empty body) → Server/Code layer.' }, positions: { layer: { x: 35, y: 40 }, server: { x: 62, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'layer', to: 'server', color: '#ef4444' }] },
+        { caption: { tr: 'Request sunucuya HİÇ ULAŞMADIYSA (ECONNREFUSED, CORS, timeout) → İstemci/Network katmanı.', en: 'If the request NEVER REACHED the server (ECONNREFUSED, CORS, timeout) → Client/Network layer.' }, positions: { layer: { x: 20, y: 65 }, client: { x: 58, y: 65, scale: 1.15, pulse: true } }, beams: [{ from: 'layer', to: 'client', color: '#a78bfa' }] },
+        { caption: { tr: 'Request ULAŞTI ama yanlış/sessiz bir sonuç döndüyse (400 yerine 201, boş body) → Sunucu/Kod katmanı.', en: 'If the request REACHED but returned a wrong/silent result (201 instead of 400, empty body) → Server/Code layer.' }, positions: { layer: { x: 35, y: 40 }, server: { x: 62, y: 40, scale: 1.15, pulse: true } }, beams: [{ from: 'layer', to: 'server', color: '#ef4444' }] },
         { caption: { tr: 'Ders — Sunucu doğru çalıştı ama DOKÜMANLA uyuşmuyorsa (F5) → Sözleşme/Spec katmanı. Doğru katmanı bulmak, doğru ekibe escalate etmenin ilk adımıdır.', en: 'The lesson — if the server worked correctly but does NOT match the DOCUMENT (F5) → Contract/Spec layer. Finding the right layer is the first step to escalating to the right team.' }, positions: { server: { x: 30, y: 45 }, contract: { x: 62, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'server', to: 'contract', color: '#22c55e' }] },
       ],
     },
@@ -8461,11 +8461,11 @@ const J = {
           error: '415 Unsupported Media Type',
           fullMessage: 'POST /api/v1/bugs -> 415 Unsupported Media Type',
           cause: {
-            tr: 'İstek gövdesi JSON olmasına rağmen `Content-Type` header\'ı eksik veya `text/plain` gibi yanlış — sunucu gövdeyi hangi formatta ayrıştıracağını bilemiyor.',
+            tr: 'Request gövdesi JSON olmasına rağmen `Content-Type` header\'ı eksik veya `text/plain` gibi yanlış — sunucu gövdeyi hangi formatta ayrıştıracağını bilemiyor.',
             en: 'The request body is JSON, but the `Content-Type` header is missing or wrong (like `text/plain`) — the server cannot know what format to parse the body as.',
           },
           solution: {
-            tr: '`Content-Type: application/json` header\'ını EKLE. Tester bunu E3\'teki Headers sekmesinde, giden isteğin header\'larını kontrol ederek yakalar — istemci/network katmanı.',
+            tr: '`Content-Type: application/json` header\'ını EKLE. Tester bunu E3\'teki Headers sekmesinde, giden request\'in header\'larını kontrol ederek yakalar — istemci/network katmanı.',
             en: 'ADD the `Content-Type: application/json` header. The tester catches this by checking the outgoing request\'s headers in E3\'s Headers tab — client/network layer.',
           },
           codeWrong: `// BUG: Content-Type header'i eksik
@@ -8492,20 +8492,20 @@ fetch('/api/v1/bugs', {
             en: 'F1/F4\'s spec must CLARIFY which code is returned in which case. The tester verifies this distinction in F5\'s contract test — contract/spec layer.',
           },
           codeWrong: `// BUG: sozlesmede hangi kodun donecegi belirtilmemis
-// "gecersiz istek" -> 400 mi 422 mi? Belirsiz.`,
+// "gecersiz request" -> 400 mi 422 mi? Belirsiz.`,
           codeFixed: `// FIX: spec'te acikca ayristirilir
 // bozuk JSON (parse hatasi) -> 400 Bad Request
 // gecerli JSON ama is kurali ihlali (title cok kisa) -> 422 Unprocessable Entity`,
         },
         {
-          error: 'CORS preflight isteği başarısız',
+          error: 'CORS preflight request\'i başarısız',
           fullMessage: "Access to fetch at 'http://localhost:3000/api/v1/bugs' from origin 'http://localhost:5173' has been blocked by CORS policy",
           cause: {
-            tr: 'Tarayıcı, farklı bir origin\'e (portlar bile farklı origin sayılır) istek atmadan önce bir `OPTIONS` isteği (preflight) gönderir; sunucu bu isteğe `Access-Control-Allow-Origin` header\'ıyla CEVAP VERMEZSE tarayıcı GERÇEK isteği hiç göndermez.',
+            tr: 'Tarayıcı, farklı bir origin\'e (portlar bile farklı origin sayılır) request atmadan önce bir `OPTIONS` request\'i (preflight) gönderir; sunucu bu request\'e `Access-Control-Allow-Origin` header\'ıyla CEVAP VERMEZSE tarayıcı GERÇEK request\'i hiç göndermez.',
             en: 'Before sending a request to a different origin (even a different port counts as a different origin), the browser sends an `OPTIONS` request (preflight); if the server does NOT RESPOND with an `Access-Control-Allow-Origin` header, the browser never sends the REAL request at all.',
           },
           solution: {
-            tr: 'Backend\'e bir CORS middleware/config eklenmelidir. Tester bunu E grubundaki Network panelinde `OPTIONS` isteğinin yanıt header\'larını inceleyerek yakalar — istemci/network katmanı (ama kök neden sunucu tarafı bir eksik konfigürasyondur).',
+            tr: 'Backend\'e bir CORS middleware/config eklenmelidir. Tester bunu E grubundaki Network panelinde `OPTIONS` request\'inin response header\'larını inceleyerek yakalar — istemci/network katmanı (ama kök neden sunucu tarafı bir eksik konfigürasyondur).',
             en: 'A CORS middleware/config must be added to the backend. The tester catches this by inspecting the `OPTIONS` request\'s response headers in the GROUP E Network panel — client/network layer (though the root cause is a missing server-side configuration).',
           },
           codeWrong: `// BUG: sunucuda CORS middleware'i yok
@@ -8525,7 +8525,7 @@ app.post('/api/v1/bugs', handler)`,
             en: 'The server is NOT listening on that port at all — either it was never started, it crashed, or the wrong port is being connected to (see C1\'s forgotten `app.listen`).',
           },
           solution: {
-            tr: 'Sunucunun GERÇEKTEN çalıştığını (`curl`/tarayıcı ile smoke test) doğrula, doğru portu kullandığını kontrol et. Tester bunu ilk istekte, HİÇBİR yanıt gelmeden yakalar — istemci/network katmanı.',
+            tr: 'Sunucunun GERÇEKTEN çalıştığını (`curl`/tarayıcı ile smoke test) doğrula, doğru portu kullandığını kontrol et. Tester bunu ilk request\'te, HİÇBİR response gelmeden yakalar — istemci/network katmanı.',
             en: 'Verify the server is REALLY running (a `curl`/browser smoke test), check it is using the right port. The tester catches this on the very first request, with NO response arriving at all — client/network layer.',
           },
           codeWrong: `// BUG: sunucu hicbir zaman baslatilmadi (app.listen eksik, bkz. C1)
@@ -8559,7 +8559,7 @@ next()`,
           error: 'Trailing slash 404',
           fullMessage: 'GET /api/v1/bugs/ (sonda slash ile) -> 404 Not Found',
           cause: {
-            tr: 'Bazı framework\'lerde (özellikle strict routing açıksa) `/api/v1/bugs` ile `/api/v1/bugs/` FARKLI route\'lar sayılır — sonda slash olan istek TANIMSIZ kalır.',
+            tr: 'Bazı framework\'lerde (özellikle strict routing açıksa) `/api/v1/bugs` ile `/api/v1/bugs/` FARKLI route\'lar sayılır — sonda slash olan request TANIMSIZ kalır.',
             en: 'In some frameworks (especially with strict routing enabled), `/api/v1/bugs` and `/api/v1/bugs/` are counted as DIFFERENT routes — the request with a trailing slash stays UNDEFINED.',
           },
           solution: {
@@ -8578,7 +8578,7 @@ app.get('/api/v1/bugs', handler)`,
           error: "Content-Type eksikliğinden boş body (req.body undefined)",
           fullMessage: "POST /api/v1/bugs -> 201 Created ama title: undefined ile kayıt oluştu",
           cause: {
-            tr: 'İstemci `Content-Type: application/json` göndermeden JSON gövde yolladı; sunucudaki gövde ayrıştırıcı (`express.json()`) bu isteği JSON olarak TANIMAZ, `req.body` boş kalır — ama validation da yoksa sunucu yine de 201 döner (bkz. C3, C4).',
+            tr: 'İstemci `Content-Type: application/json` göndermeden JSON gövde yolladı; sunucudaki gövde ayrıştırıcı (`express.json()`) bu request\'i JSON olarak TANIMAZ, `req.body` boş kalır — ama validation da yoksa sunucu yine de 201 döner (bkz. C3, C4).',
             en: 'The client sent a JSON body without `Content-Type: application/json`; the server\'s body parser (`express.json()`) does NOT RECOGNIZE this request as JSON, `req.body` stays empty — but if there is no validation either, the server still returns 201 (see C3, C4).',
           },
           solution: {
@@ -8633,7 +8633,7 @@ if (!bug.reporter) {
           error: 'Request timeout',
           fullMessage: 'Error: timeout of 5000ms exceeded / 504 Gateway Timeout',
           cause: {
-            tr: 'Sunucu belirlenen sürede yanıt VERMİYOR — ya işlem gerçekten çok yavaş (E4\'teki gibi büyük bir `Waiting` süresi), ya da sunucu bir yerde SONSUZ DÖNGÜYE girmiş/kilitlenmiştir.',
+            tr: 'Sunucu belirlenen sürede response VERMİYOR — ya işlem gerçekten çok yavaş (E4\'teki gibi büyük bir `Waiting` süresi), ya da sunucu bir yerde SONSUZ DÖNGÜYE girmiş/kilitlenmiştir.',
             en: 'The server does NOT respond within the given time — either the operation is genuinely very slow (a large `Waiting` duration like in E4), or the server is stuck in an INFINITE LOOP/deadlock somewhere.',
           },
           solution: {
@@ -8650,9 +8650,9 @@ const bugs = await Bug.findAll({ include: [Detail] })`,
         },
         {
           error: 'gzip/encoding sorunu',
-          fullMessage: 'Yanıt gövdesi bozuk karakterlerle geliyor / JSON.parse() SyntaxError verir',
+          fullMessage: 'Response gövdesi bozuk karakterlerle geliyor / JSON.parse() SyntaxError verir',
           cause: {
-            tr: 'Sunucu yanıtı `Content-Encoding: gzip` ile sıkıştırıp gönderiyor ama istemci (veya aradaki bir proxy) bunu doğru DECODE etmiyor — ham, sıkıştırılmış baytlar metin olarak okunmaya çalışılıyor.',
+            tr: 'Sunucu response\'u `Content-Encoding: gzip` ile sıkıştırıp gönderiyor ama istemci (veya aradaki bir proxy) bunu doğru DECODE etmiyor — ham, sıkıştırılmış baytlar metin olarak okunmaya çalışılıyor.',
             en: 'The server sends the response compressed with `Content-Encoding: gzip`, but the client (or an intermediate proxy) does not DECODE it correctly — raw, compressed bytes are being read as text.',
           },
           solution: {
@@ -8667,9 +8667,9 @@ const body = await response.json()   // dogru sekilde decode edilmis veri`,
         },
         {
           error: "Postman'de çalışıp otomasyonda düşen test",
-          fullMessage: 'Postman: tüm istekler PASS. CI\'daki Newman/Playwright koşumu: aynı senaryo FAIL.',
+          fullMessage: 'Postman: tüm request\'ler PASS. CI\'daki Newman/Playwright koşumu: aynı senaryo FAIL.',
           cause: {
-            tr: 'Postman\'de istekler genelde ELLE, SIRAYLA çalıştırılır ve önceki bir koşumdan kalan veriye (sabit bir `id`, önceden oluşturulmuş bir kayıt) SESSİZCE güvenilir; CI\'da ise her koşum TEMİZ bir ortamda, bazen PARALEL çalışır — o "hazır" veri artık YOKTUR.',
+            tr: 'Postman\'de request\'ler genelde ELLE, SIRAYLA çalıştırılır ve önceki bir koşumdan kalan veriye (sabit bir `id`, önceden oluşturulmuş bir kayıt) SESSİZCE güvenilir; CI\'da ise her koşum TEMİZ bir ortamda, bazen PARALEL çalışır — o "hazır" veri artık YOKTUR.',
             en: 'In Postman, requests are usually run MANUALLY, IN ORDER, and SILENTLY rely on data left over from a previous run (a fixed `id`, a pre-created record); in CI, every run happens in a CLEAN environment, sometimes PARALLEL — that "ready" data no longer EXISTS.',
           },
           solution: {
@@ -8694,8 +8694,8 @@ pm.test('bug olustur ve detayini dogrula', () => {
       type: 'step-animation',
       title: { tr: 'Belirtiden Doğru Ekibe', en: 'From Symptom to the Right Team' },
       steps: [
-        { id: 1, icon: '🚨', label: { tr: 'Belirtiyi topla…', en: 'Gather the symptom…' }, detail: { tr: 'Gerçek hata mesajını, status kodunu, hangi istekte olduğunu not al.', en: 'Note the real error message, status code, and which request it occurred on.' } },
-        { id: 2, icon: '🔍', label: { tr: 'Katmanı belirle…', en: 'Identify the layer…' }, detail: { tr: 'İstek sunucuya ulaştı mı (Network paneli)? Ulaştıysa yanıt sözleşmeye uyuyor mu (spec)?', en: 'Did the request reach the server (Network panel)? If so, does the response match the contract (spec)?' } },
+        { id: 1, icon: '🚨', label: { tr: 'Belirtiyi topla…', en: 'Gather the symptom…' }, detail: { tr: 'Gerçek hata mesajını, status kodunu, hangi request\'te olduğunu not al.', en: 'Note the real error message, status code, and which request it occurred on.' } },
+        { id: 2, icon: '🔍', label: { tr: 'Katmanı belirle…', en: 'Identify the layer…' }, detail: { tr: 'Request sunucuya ulaştı mı (Network paneli)? Ulaştıysa response sözleşmeye uyuyor mu (spec)?', en: 'Did the request reach the server (Network panel)? If so, does the response match the contract (spec)?' } },
         { id: 3, icon: '📋', label: { tr: 'Bu sözlükle eşleştir…', en: 'Match against this dictionary…' }, detail: { tr: '12 kalıptan biriyle örtüşüyor mu, örtüşmüyorsa aynı DÜŞÜNME BİÇİMİNİ yeni hataya uygula.', en: 'Does it match one of the 12 patterns? If not, apply the same WAY OF THINKING to the new error.' } },
       ],
     },
@@ -8706,8 +8706,8 @@ pm.test('bug olustur ve detayini dogrula', () => {
       question: { tr: 'Bir API hatasını teşhis etme sırasını diz.', en: 'Order the steps for diagnosing an API error.' },
       items: [
         { id: '1', text: { tr: 'Gerçek hata mesajını ve status kodunu kaydet', en: 'Record the real error message and status code' }, order: 1 },
-        { id: '2', text: { tr: 'İsteğin sunucuya ulaşıp ulaşmadığını Network panelinde kontrol et', en: 'Check in the Network panel whether the request reached the server' }, order: 2 },
-        { id: '3', text: { tr: 'Ulaştıysa yanıtın sözleşmeye (spec) uyup uymadığını kontrol et', en: 'If it reached, check whether the response matches the contract (spec)' } , order: 3 },
+        { id: '2', text: { tr: 'Request\'in sunucuya ulaşıp ulaşmadığını Network panelinde kontrol et', en: 'Check in the Network panel whether the request reached the server' }, order: 2 },
+        { id: '3', text: { tr: 'Ulaştıysa response\'un sözleşmeye (spec) uyup uymadığını kontrol et', en: 'If it reached, check whether the response matches the contract (spec)' } , order: 3 },
         { id: '4', text: { tr: 'Bu sözlükteki 12 kalıptan biriyle eşleştir', en: 'Match it against one of the 12 patterns in this dictionary' }, order: 4 },
         { id: '5', text: { tr: 'Doğru ekibe (istemci/sunucu/spec sahibi) escalate et', en: 'Escalate to the right team (client/server/spec owner)' }, order: 5 },
       ],
@@ -8816,32 +8816,32 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         // ══════════════════ BASIC (15) ══════════════════
         {
           level: 'basic',
-          q: { tr: 'API\'yi hiç görmemiş bir tester olarak `GET /api/v1/bugs` isteğini Postman\'de gönderiyorsun ve `200 OK` + boş bir dizi `[]` alıyorsun. Bu bir bug mudur? Nasıl karar verirsin?', en: 'As a tester who has never seen an API, you send `GET /api/v1/bugs` in Postman and get `200 OK` + an empty array `[]`. Is this a bug? How do you decide?' },
+          q: { tr: 'API\'yi hiç görmemiş bir tester olarak `GET /api/v1/bugs` request\'ini Postman\'de gönderiyorsun ve `200 OK` + boş bir dizi `[]` alıyorsun. Bu bir bug mudur? Nasıl karar verirsin?', en: 'As a tester who has never seen an API, you send `GET /api/v1/bugs` in Postman and get `200 OK` + an empty array `[]`. Is this a bug? How do you decide?' },
           a: { tr: 'Tek başına değil — boş bir liste, "hiç kayıt yok" durumunun GEÇERLİ bir temsili olabilir; sözleşmeye (F grubu) veya iş kuralına bakmadan "bug" dememek gerekir. Karar vermek için önce veritabanında/ortamda GERÇEKTEN kayıt olup olmadığını doğrularım — varsa ve dönmüyorsa bu bir filtreleme/sorgu hatasıdır. Java\'da bunun karşılığı boş bir `List<Bug>` dönmesi gibidir — `null` dönmesi ayrı bir sorundur, boş liste dönmesi genelde doğru davranıştır.', en: 'Not on its own — an empty list can be a VALID representation of "no records exist"; you should not call it a "bug" without checking the contract (GROUP F) or the business rule. To decide, I first verify whether records REALLY exist in the database/environment — if they do and are not returned, that is a filtering/query bug. The Java equivalent is returning an empty `List<Bug>` — returning `null` would be a separate problem, an empty list is usually correct behavior.' },
         },
         {
           level: 'basic',
           q: { tr: 'Bir junior geliştirici "Postman\'de Content-Type header\'ı olmadan da POST çalışıyor, neden ekliyoruz?" diye soruyor. Ne açıklarsın, eklemezsen risk nedir?', en: 'A junior developer asks "POST works in Postman even without a Content-Type header, why do we add it?" What do you explain, and what is the risk of skipping it?' },
-          a: { tr: 'Postman bazen JSON body\'yi otomatik algılayıp header\'ı kendisi eklediği için bu "çalışıyor" YANILSAMASI oluşur; gerçek bir istemcide (mobil uygulama, başka bir servis) bu otomatik algılama OLMAYABİLİR. Header eksikse sunucu gövdeyi doğru ayrıştıramaz ve C grubunda gördüğün gibi `req.body` boş kalabilir — sessizce boş kayıt oluşur. Java\'da `HttpURLConnection` ile de aynı risk vardır: `setRequestProperty("Content-Type", ...)` unutulursa sunucu isteği JSON olarak tanımaz.', en: 'This "it works" illusion happens because Postman sometimes auto-detects a JSON body and adds the header itself; a real client (a mobile app, another service) may NOT have that auto-detection. Without the header, the server cannot parse the body correctly, and as you saw in GROUP C, `req.body` can stay empty — silently creating an empty record. The same risk exists in Java with `HttpURLConnection`: forgetting `setRequestProperty("Content-Type", ...)` means the server does not recognize the request as JSON.' },
+          a: { tr: 'Postman bazen JSON body\'yi otomatik algılayıp header\'ı kendisi eklediği için bu "çalışıyor" YANILSAMASI oluşur; gerçek bir istemcide (mobil uygulama, başka bir servis) bu otomatik algılama OLMAYABİLİR. Header eksikse sunucu gövdeyi doğru ayrıştıramaz ve C grubunda gördüğün gibi `req.body` boş kalabilir — sessizce boş kayıt oluşur. Java\'da `HttpURLConnection` ile de aynı risk vardır: `setRequestProperty("Content-Type", ...)` unutulursa sunucu request\'i JSON olarak tanımaz.', en: 'This "it works" illusion happens because Postman sometimes auto-detects a JSON body and adds the header itself; a real client (a mobile app, another service) may NOT have that auto-detection. Without the header, the server cannot parse the body correctly, and as you saw in GROUP C, `req.body` can stay empty — silently creating an empty record. The same risk exists in Java with `HttpURLConnection`: forgetting `setRequestProperty("Content-Type", ...)` means the server does not recognize the request as JSON.' },
         },
         {
           level: 'basic',
           q: { tr: '`/api/v1/bugs/{id}` yolu ile `/api/v1/bugs?id=...` sorgu parametresi arasında ne zaman hangisini kullanırsın, Bug Tracker örneğiyle açıkla.', en: 'When do you use `/api/v1/bugs/{id}` versus a `/api/v1/bugs?id=...` query parameter — explain with the Bug Tracker example.' },
-          a: { tr: 'Path parametresi bir KAYNAĞIN KİMLİĞİNİ taşır — `/bugs/42` olmadan istek anlamsızdır, bu yüzden tek bir bug\'ı getirmek path\'e aittir. Query parametresi İSTEĞE BAĞLI bir filtreyi taşır — `?status=OPEN` olmadan da liste isteği geçerlidir, bu yüzden filtreleme query\'e aittir. Java\'da bu, bir metodun ZORUNLU parametresi (path) ile opsiyonel/overload edilmiş bir parametresi (query) arasındaki farka benzer.', en: 'A path parameter carries a resource\'s IDENTITY — `/bugs/42` is meaningless without it, so fetching a single bug belongs in the path. A query parameter carries an OPTIONAL filter — a list request is still valid without `?status=OPEN`, so filtering belongs in the query. In Java this is similar to the difference between a method\'s REQUIRED parameter (path) and an optional/overloaded one (query).' },
+          a: { tr: 'Path parametresi bir KAYNAĞIN KİMLİĞİNİ taşır — `/bugs/42` olmadan request anlamsızdır, bu yüzden tek bir bug\'ı getirmek path\'e aittir. Query parametresi İSTEĞE BAĞLI bir filtreyi taşır — `?status=OPEN` olmadan da liste request\'i geçerlidir, bu yüzden filtreleme query\'e aittir. Java\'da bu, bir metodun ZORUNLU parametresi (path) ile opsiyonel/overload edilmiş bir parametresi (query) arasındaki farka benzer.', en: 'A path parameter carries a resource\'s IDENTITY — `/bugs/42` is meaningless without it, so fetching a single bug belongs in the path. A query parameter carries an OPTIONAL filter — a list request is still valid without `?status=OPEN`, so filtering belongs in the query. In Java this is similar to the difference between a method\'s REQUIRED parameter (path) and an optional/overloaded one (query).' },
         },
         {
           level: 'basic',
           q: { tr: 'Bir takım arkadaşın "PUT ve PATCH ikisi de güncelleme, aynı şey" diyor. `/api/v1/bugs/42` üzerinde ikisi gerçekten aynı mı? Idempotency farkını açıkla.', en: 'A teammate says "PUT and PATCH are both updates, they are the same thing". Are they really the same on `/api/v1/bugs/42`? Explain the idempotency difference.' },
-          a: { tr: 'Aynı değiller — PUT TAM güncelleme yapar (gönderilmeyen alanlar silinebilir/sıfırlanabilir) ve idempotenttir (aynı isteği 5 kez atmak AYNI sonucu verir). PATCH KISMİ güncelleme yapar (sadece gönderilen alan değişir) ve genellikle idempotent olsa da her zaman garanti değildir. Java\'da bunun karşılığı bir nesnenin TÜM alanlarını `setAll(newObject)` ile değiştirmek (PUT) ile SADECE bir setter (`setStatus(...)`) çağırmak (PATCH) arasındaki farka benzer.', en: 'They are not the same — PUT does a FULL update (unsent fields can be deleted/reset) and is idempotent (sending the same request 5 times gives the SAME result). PATCH does a PARTIAL update (only the sent field changes) and is usually idempotent but not always guaranteed. In Java this resembles the difference between replacing ALL of an object\'s fields with `setAll(newObject)` (PUT) versus calling just ONE setter (`setStatus(...)`) (PATCH).' },
+          a: { tr: 'Aynı değiller — PUT TAM güncelleme yapar (gönderilmeyen alanlar silinebilir/sıfırlanabilir) ve idempotenttir (aynı request\'i 5 kez atmak AYNI sonucu verir). PATCH KISMİ güncelleme yapar (sadece gönderilen alan değişir) ve genellikle idempotent olsa da her zaman garanti değildir. Java\'da bunun karşılığı bir nesnenin TÜM alanlarını `setAll(newObject)` ile değiştirmek (PUT) ile SADECE bir setter (`setStatus(...)`) çağırmak (PATCH) arasındaki farka benzer.', en: 'They are not the same — PUT does a FULL update (unsent fields can be deleted/reset) and is idempotent (sending the same request 5 times gives the SAME result). PATCH does a PARTIAL update (only the sent field changes) and is usually idempotent but not always guaranteed. In Java this resembles the difference between replacing ALL of an object\'s fields with `setAll(newObject)` (PUT) versus calling just ONE setter (`setStatus(...)`) (PATCH).' },
         },
         {
           level: 'basic',
-          q: { tr: 'Var olmayan bir kayıt için `GET /api/v1/bugs/999` isteğine `404` alıyorsun — bu bir bug mu? Peki yazım hatalı `GET /api/v1/bug/999` (tekil "bug") isteğine gelen `404` ne anlama gelir?', en: 'You get `404` for `GET /api/v1/bugs/999` on a non-existent record — is this a bug? What about a `404` on a typo\'d `GET /api/v1/bug/999` (singular "bug")?' },
+          q: { tr: 'Var olmayan bir kayıt için `GET /api/v1/bugs/999` request\'ine `404` alıyorsun — bu bir bug mu? Peki yazım hatalı `GET /api/v1/bug/999` (tekil "bug") request\'ine gelen `404` ne anlama gelir?', en: 'You get `404` for `GET /api/v1/bugs/999` on a non-existent record — is this a bug? What about a `404` on a typo\'d `GET /api/v1/bug/999` (singular "bug")?' },
           a: { tr: 'İlki DEĞİL — var olmayan bir kaynak için 404 dönmek SÖZLEŞMEYE tam uygun, doğru davranıştır. İkincisi de teknik olarak 404\'tür ama farklı bir NEDENDEN: yol hiç tanımlı değildir (route yok), bu bir istemci hatasıdır (yanlış URL), API\'nin bug\'ı değildir. Java\'da bu, `NoSuchElementException` (kayıt yok, beklenen) ile hiç var olmayan bir metodu çağırmaya çalışmak (derleme hatası, hiç oraya varılmaz) arasındaki farka benzer.', en: 'The first is NOT a bug — returning 404 for a non-existent resource is exactly what the CONTRACT expects, correct behavior. The second is also technically a 404 but for a different REASON: the path is not defined at all (no such route), a client error (wrong URL), not the API\'s bug. In Java this resembles the difference between a `NoSuchElementException` (record missing, expected) and trying to call a method that does not exist at all (compile error, you never even get there).' },
         },
         {
           level: 'basic',
-          q: { tr: '`POST /api/v1/bugs` isteğinin `201` yerine `200` dönmesinin ne anlama geldiğini ve testlerde "yine de geçiyor" olmasına rağmen neden teknik olarak yanlış olduğunu açıkla.', en: 'Explain what it means for `POST /api/v1/bugs` to return `200` instead of `201`, and why it is technically wrong even though tests "still pass".' },
+          q: { tr: '`POST /api/v1/bugs` request\'inin `201` yerine `200` dönmesinin ne anlama geldiğini ve testlerde "yine de geçiyor" olmasına rağmen neden teknik olarak yanlış olduğunu açıkla.', en: 'Explain what it means for `POST /api/v1/bugs` to return `200` instead of `201`, and why it is technically wrong even though tests "still pass".' },
           a: { tr: '`201 Created`, "yeni bir kaynak oluşturuldu" anlamına gelen ÖZEL bir koddur; `200 OK` genel bir başarı kodudur ve OLUŞTURMA ile GÜNCELLEME/OKUMA arasında AYRIM yapmaz. Testler genelde sadece "2xx mi?" kontrol ettiği için "yine de geçer", ama bir istemci (mobil uygulama) status koduna göre farklı davranıyorsa (örn. 201\'de "Location" header\'ını okuyorsa) bu sessizce kırılır. Java\'da bunun karşılığı, `ResponseEntity.ok()` yerine `ResponseEntity.status(HttpStatus.CREATED)` kullanmanın SPESİFİK anlam taşıması gibidir.', en: '`201 Created` is a SPECIFIC code meaning "a new resource was created"; `200 OK` is a generic success code that does NOT DISTINGUISH between CREATION and UPDATE/READ. Tests usually "still pass" because they often only check "is it 2xx?", but if a client (a mobile app) behaves differently based on the status code (e.g. reading the "Location" header on 201), it silently breaks. The Java equivalent is that using `ResponseEntity.status(HttpStatus.CREATED)` instead of `ResponseEntity.ok()` carries SPECIFIC meaning.' },
         },
         {
@@ -8852,7 +8852,7 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'basic',
           q: { tr: 'Bir Postman koleksiyonunu endpoint listesine göre değil, kullanıcı akışına göre organize etmenin yeni bir tester için neden daha hızlı bir öğrenme sağladığını açıkla.', en: 'Explain why organizing a Postman collection by user flow rather than by raw endpoint list helps a new tester learn faster.' },
-          a: { tr: 'Endpoint listesi TEKNİK bir görünümdür ("burada 6 istek var"), akış organizasyonu ise İŞ MANTIĞINI yansıtır ("önce oluştur, sonra yönet") — yeni bir kişi klasör isimlerini okuyarak sistemin NASIL kullanıldığını anlar, her isteği tek tek incelemesi gerekmez. Java\'da bu, test paketlerini teknik katmana (`controllers`, `services`) göre değil, özelliğe (`bugcreation`, `buglifecycle`) göre paketlemeye benzer.', en: 'An endpoint list is a TECHNICAL view ("there are 6 requests here"), flow organization reflects the BUSINESS LOGIC ("create first, then manage") — a newcomer understands HOW the system is used just by reading folder names, without inspecting every request individually. In Java this resembles packaging test suites by feature (`bugcreation`, `buglifecycle`) rather than by technical layer (`controllers`, `services`).' },
+          a: { tr: 'Endpoint listesi TEKNİK bir görünümdür ("burada 6 request var"), akış organizasyonu ise İŞ MANTIĞINI yansıtır ("önce oluştur, sonra yönet") — yeni bir kişi klasör isimlerini okuyarak sistemin NASIL kullanıldığını anlar, her request\'i tek tek incelemesi gerekmez. Java\'da bu, test paketlerini teknik katmana (`controllers`, `services`) göre değil, özelliğe (`bugcreation`, `buglifecycle`) göre paketlemeye benzer.', en: 'An endpoint list is a TECHNICAL view ("there are 6 requests here"), flow organization reflects the BUSINESS LOGIC ("create first, then manage") — a newcomer understands HOW the system is used just by reading folder names, without inspecting every request individually. In Java this resembles packaging test suites by feature (`bugcreation`, `buglifecycle`) rather than by technical layer (`controllers`, `services`).' },
         },
         {
           level: 'basic',
@@ -8862,7 +8862,7 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'basic',
           q: { tr: 'Bir spec\'te `severity` alanı `enum: [LOW, MEDIUM, HIGH, CRITICAL]` olarak tanımlı. Bu kısıt etrafında nasıl bir test yazarsın?', en: 'A spec defines `severity` as `enum: [LOW, MEDIUM, HIGH, CRITICAL]`. What kind of test would you write around this constraint?' },
-          a: { tr: 'İki AYRI senaryo yazarım: (1) listedeki geçerli bir değerle (örn. `HIGH`) isteğin kabul edildiğini doğrulayan bir pozitif test, (2) listede OLMAYAN bir değerle (örn. `URGENT`) isteğin 400 ile REDDEDİLDİĞİNİ doğrulayan bir negatif test. Java\'da bu, bir `enum` sınıfına geçersiz bir string atamaya çalışmanın derleme zamanında değil, burada ÇALIŞMA ZAMANINDA (API sınırında) yakalanması gerektiğini gösterir.', en: 'I write two SEPARATE scenarios: (1) a positive test verifying the request is accepted with a valid value from the list (e.g. `HIGH`), (2) a negative test verifying the request is REJECTED with 400 for a value NOT in the list (e.g. `URGENT`). In Java, this shows that assigning an invalid string to an `enum` class would fail at compile time — here it must be caught at RUNTIME instead (at the API boundary).' },
+          a: { tr: 'İki AYRI senaryo yazarım: (1) listedeki geçerli bir değerle (örn. `HIGH`) request\'in kabul edildiğini doğrulayan bir pozitif test, (2) listede OLMAYAN bir değerle (örn. `URGENT`) request\'in 400 ile REDDEDİLDİĞİNİ doğrulayan bir negatif test. Java\'da bu, bir `enum` sınıfına geçersiz bir string atamaya çalışmanın derleme zamanında değil, burada ÇALIŞMA ZAMANINDA (API sınırında) yakalanması gerektiğini gösterir.', en: 'I write two SEPARATE scenarios: (1) a positive test verifying the request is accepted with a valid value from the list (e.g. `HIGH`), (2) a negative test verifying the request is REJECTED with 400 for a value NOT in the list (e.g. `URGENT`). In Java, this shows that assigning an invalid string to an `enum` class would fail at compile time — here it must be caught at RUNTIME instead (at the API boundary).' },
         },
         {
           level: 'basic',
@@ -8872,12 +8872,12 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'basic',
           q: { tr: 'Postman environment\'ında `{{baseUrl}}` localhost\'u gösteriyor. Staging\'e deploy ettikten sonra bunu değiştirmeyi unutuyorsun. Ne olur, bunu nasıl hızlıca fark edersin?', en: 'Your Postman environment\'s `{{baseUrl}}` points to localhost. You forget to switch it after deploying to staging. What happens, and how do you quickly notice it?' },
-          a: { tr: 'Tüm istekler yerel makinene gider — eğer yerelde sunucu çalışmıyorsa TÜM testler `ECONNREFUSED` ile başarısız olur; çalışıyorsa daha KÖTÜSÜ olur, staging yerine YEREL/eski veriye karşı test edip yanlış bir "her şey yolunda" sonucu alırsın. Bunu hızlıca fark etmenin yolu her koşum öncesi aktif environment\'ın adını (G2) kontrol etmek ve ilk isteğin yanıtındaki bir ortam-özgü değeri (ör. bir sürüm numarası) doğrulamaktır.', en: 'All requests go to your local machine — if the server is not running locally, ALL tests fail with `ECONNREFUSED`; if it IS running, it is WORSE, you test against LOCAL/stale data instead of staging and get a false "everything is fine" result. The quick way to notice this is checking the active environment\'s name (G2) before every run and verifying an environment-specific value (e.g. a version number) in the first response.' },
+          a: { tr: 'Tüm request\'ler yerel makinene gider — eğer yerelde sunucu çalışmıyorsa TÜM testler `ECONNREFUSED` ile başarısız olur; çalışıyorsa daha KÖTÜSÜ olur, staging yerine YEREL/eski veriye karşı test edip yanlış bir "her şey yolunda" sonucu alırsın. Bunu hızlıca fark etmenin yolu her koşum öncesi aktif environment\'ın adını (G2) kontrol etmek ve ilk request\'in response\'undaki bir ortam-özgü değeri (ör. bir sürüm numarası) doğrulamaktır.', en: 'All requests go to your local machine — if the server is not running locally, ALL tests fail with `ECONNREFUSED`; if it IS running, it is WORSE, you test against LOCAL/stale data instead of staging and get a false "everything is fine" result. The quick way to notice this is checking the active environment\'s name (G2) before every run and verifying an environment-specific value (e.g. a version number) in the first response.' },
         },
         {
           level: 'basic',
           q: { tr: 'Bir geliştirici "@NotBlank ile validation ekledim ama spring-boot-starter-validation eklemeyi unuttum" diyor. Testerlık yaparken ne gözlemlersin?', en: 'A developer says "I added validation with @NotBlank but forgot to add spring-boot-starter-validation". As a tester, what would you observe?' },
-          a: { tr: 'Kod DERLENİR ve uygulama HATASIZ başlar — hiçbir uyarı görmezsin. Ama boş `title` ile bir `POST` isteği attığında 400 yerine 201 alırsın çünkü `@NotBlank` sessizce yok sayılır (B1). Bu, "kod var" ile "kod DEVREDE" arasındaki farkın klasik bir örneğidir — sadece kod okuyarak bunu YAKALAYAMAZSIN, gerçek bir istekle test etmen gerekir.', en: 'The code COMPILES and the app starts WITHOUT ERROR — you see no warning at all. But sending a `POST` with an empty `title` gets you 201 instead of 400, because `@NotBlank` is silently ignored (B1). This is a classic example of the gap between "the code exists" and "the code is ACTIVE" — you cannot CATCH this just by reading code, you have to test with a real request.' },
+          a: { tr: 'Kod DERLENİR ve uygulama HATASIZ başlar — hiçbir uyarı görmezsin. Ama boş `title` ile bir `POST` request\'i attığında 400 yerine 201 alırsın çünkü `@NotBlank` sessizce yok sayılır (B1). Bu, "kod var" ile "kod DEVREDE" arasındaki farkın klasik bir örneğidir — sadece kod okuyarak bunu YAKALAYAMAZSIN, gerçek bir request\'le test etmen gerekir.', en: 'The code COMPILES and the app starts WITHOUT ERROR — you see no warning at all. But sending a `POST` with an empty `title` gets you 201 instead of 400, because `@NotBlank` is silently ignored (B1). This is a classic example of the gap between "the code exists" and "the code is ACTIVE" — you cannot CATCH this just by reading code, you have to test with a real request.' },
         },
         {
           level: 'basic',
@@ -8899,11 +8899,11 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'intermediate',
           q: { tr: 'Code review\'da `express.json()` middleware\'inin route handler\'lardan SONRA kayıtlı olduğunu görüyorsun. Bu gerçek hangi bug\'a yol açar, ve bunu code review yerine testle nasıl kanıtlarsın?', en: 'In code review you see `express.json()` registered AFTER the route handlers. What real bug does this cause, and how would you prove it with a test rather than just code review?' },
-          a: { tr: 'Bu, POST isteklerinde `req.body`\'nin `undefined` kalmasına yol açar — sunucu yine de 201 döner ama tüm alanlar `undefined` olarak kaydedilir, sessiz bir veri bütünlüğü hatası (C3). Kanıtlamak için gerçek bir POST isteği atıp dönen kaydı GET ile okur, `title` gibi alanların boş geldiğini gösteririm — "kod incelemesi yeterli değildir, çalışan sistemde doğrulama şarttır" prensibinin somut kanıtı budur.', en: 'This causes `req.body` to stay `undefined` on POST requests — the server still returns 201, but all fields get saved as `undefined`, a silent data-integrity bug (C3). To prove it, I send a real POST request and read the record back with a GET, showing fields like `title` come back empty — concrete proof of the principle that "code review is not enough, verification on a running system is mandatory".' },
+          a: { tr: 'Bu, POST request\'lerinde `req.body`\'nin `undefined` kalmasına yol açar — sunucu yine de 201 döner ama tüm alanlar `undefined` olarak kaydedilir, sessiz bir veri bütünlüğü hatası (C3). Kanıtlamak için gerçek bir POST request\'i atıp dönen kaydı GET ile okur, `title` gibi alanların boş geldiğini gösteririm — "kod incelemesi yeterli değildir, çalışan sistemde doğrulama şarttır" prensibinin somut kanıtı budur.', en: 'This causes `req.body` to stay `undefined` on POST requests — the server still returns 201, but all fields get saved as `undefined`, a silent data-integrity bug (C3). To prove it, I send a real POST request and read the record back with a GET, showing fields like `title` come back empty — concrete proof of the principle that "code review is not enough, verification on a running system is mandatory".' },
         },
         {
           level: 'intermediate',
-          q: { tr: 'Bir NestJS controller\'ı tamamen doğru görünüyor — decorator\'lar, DTO, her şey yerinde — ama GET istekleri 404 dönüyor. Farklı KATMANLARDAN gelen İKİ AYRI kök nedeni say.', en: 'A NestJS controller looks completely correct — decorators, DTO, everything in place — but GET requests return 404. Name TWO SEPARATE root causes from different layers.' },
+          q: { tr: 'Bir NestJS controller\'ı tamamen doğru görünüyor — decorator\'lar, DTO, her şey yerinde — ama GET request\'leri 404 dönüyor. Farklı KATMANLARDAN gelen İKİ AYRI kök nedeni say.', en: 'A NestJS controller looks completely correct — decorators, DTO, everything in place — but GET requests return 404. Name TWO SEPARATE root causes from different layers.' },
           a: { tr: 'Birincisi: controller `@Module`\'ün `controllers` dizisine EKLENMEMİŞ olabilir (D1) — kod doğru ama DI container\'a hiç kayıtlı değil, Nest onu ASLA tanımaz. İkincisi: yol tanımında bir yazım/parametre hatası olabilir (`@Get(\':id\')` yerine `@Get(\'id\')` gibi) — burada sorun modül kaydı değil, decorator\'ın kendisidir. İkisi de "kod var" ama farklı SEBEPLERLE 404 üretir; tester her ikisini de ayrı ayrı ELEMESİ gerekir.', en: 'First: the controller may not be ADDED to `@Module`\'s `controllers` array (D1) — the code is correct but never registered with the DI container, Nest NEVER recognizes it. Second: there may be a typo/parameter mistake in the path definition (like `@Get(\'id\')` instead of `@Get(\':id\')`) — here the problem is not module registration, it is the decorator itself. Both produce 404 despite "the code existing", for different REASONS; the tester must RULE OUT each separately.' },
         },
         {
@@ -8918,13 +8918,13 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         },
         {
           level: 'intermediate',
-          q: { tr: 'Production yanıtlarında OpenAPI\'nin `enum` listesinde OLMAYAN iki `severity` değeri görüyorsun. Bu hangi defect türüdür ve muhtemelen NASIL oluştu?', en: 'You see two `severity` values in production responses that are NOT in the OpenAPI `enum` list. What kind of defect is this, and how did it likely happen?' },
+          q: { tr: 'Production response\'larında OpenAPI\'nin `enum` listesinde OLMAYAN iki `severity` değeri görüyorsun. Bu hangi defect türüdür ve muhtemelen NASIL oluştu?', en: 'You see two `severity` values in production responses that are NOT in the OpenAPI `enum` list. What kind of defect is this, and how did it likely happen?' },
           a: { tr: 'Bu bir "enum drift" contract defect\'idir (F5) — kod tarafında enum genişletilmiş (yeni bir değer eklenmiş) ama spec elle güncellenmediği için AYRIŞMIŞTIR. Muhtemelen bir geliştirici Java/TS enum sınıfına hızlıca yeni bir değer eklemiş, ama spec\'in ayrı bir dosya olduğunu (ve otomatik üretilmediğini, F2) unutmuş veya spec\'i elle güncellemeyi atlamıştır.', en: 'This is an "enum drift" contract defect (F5) — the enum was expanded on the code side (a new value added) but the spec DIVERGED because it was not manually updated. A developer likely quickly added a new value to the Java/TS enum class but forgot the spec is a separate file (and is not auto-generated, F2) or skipped manually updating it.' },
         },
         {
           level: 'intermediate',
           q: { tr: 'AYNI `/api/v1/bugs/42` endpoint\'inde PATCH ile PUT\'un yanlış kullanıldığında GERÇEKTEN farklı sonuç üretebileceği bir senaryo tarif et.', en: 'Describe a scenario where PATCH and PUT, if misused, would genuinely produce different outcomes on the SAME `/api/v1/bugs/42` endpoint.' },
-          a: { tr: 'Bir istemci sadece `{ "status": "CLOSED" }` gönderip PUT kullanırsa (PATCH yerine), sunucu bunu TAM güncelleme sayıp `title`/`severity`/`reporter` gibi gönderilmeyen alanları SIFIRLAYABİLİR/silebilir — kayıt sessizce veri kaybeder. Aynı istek PATCH ile gönderilseydi SADECE `status` değişirdi. Java\'da bu, bir nesnenin `equals`/`copy` metodunda yanlışlıkla tüm alanları `null`\'a set etmeye benzer.', en: 'If a client sends only `{ "status": "CLOSED" }` using PUT (instead of PATCH), the server may treat it as a FULL update and RESET/delete unsent fields like `title`/`severity`/`reporter` — the record silently loses data. The same request sent with PATCH would change ONLY `status`. In Java this resembles accidentally setting all fields to `null` in an object\'s `equals`/`copy` method.' },
+          a: { tr: 'Bir istemci sadece `{ "status": "CLOSED" }` gönderip PUT kullanırsa (PATCH yerine), sunucu bunu TAM güncelleme sayıp `title`/`severity`/`reporter` gibi gönderilmeyen alanları SIFIRLAYABİLİR/silebilir — kayıt sessizce veri kaybeder. Aynı request PATCH ile gönderilseydi SADECE `status` değişirdi. Java\'da bu, bir nesnenin `equals`/`copy` metodunda yanlışlıkla tüm alanları `null`\'a set etmeye benzer.', en: 'If a client sends only `{ "status": "CLOSED" }` using PUT (instead of PATCH), the server may treat it as a FULL update and RESET/delete unsent fields like `title`/`severity`/`reporter` — the record silently loses data. The same request sent with PATCH would change ONLY `status`. In Java this resembles accidentally setting all fields to `null` in an object\'s `equals`/`copy` method.' },
         },
         {
           level: 'intermediate',
@@ -8959,12 +8959,12 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'intermediate',
           q: { tr: '"Sessiz 500" defect\'inin ne olduğunu açıkla ve bunu production\'a ulaşmadan yakalayacak bir checklist maddesi tasarla.', en: 'Explain what a "silent 500" defect is and design a checklist item that would catch it before it reaches production.' },
-          a: { tr: 'Sessiz 500, frontend kodunun yanıtın status kodunu HİÇ kontrol etmeden başarı akışını çalıştırmasıyla oluşur — UI "başarılı" der ama sunucu aslında 500 dönmüştür (E5). Checklist maddesi: "her API çağrısından sonra, UI\'nın gösterdiği mesajdan BAĞIMSIZ olarak Network panelindeki GERÇEK Status kodunu doğrula" — bu, otomasyonda `response.ok()`/`statusCode()` assertion\'ının HER isteğe eklenmesini zorunlu kılan bir code review kuralına dönüştürülebilir.', en: 'A silent 500 happens when frontend code runs its success flow WITHOUT EVER checking the response status code — the UI says "success" while the server actually returned 500 (E5). Checklist item: "after every API call, verify the REAL Status code in the Network panel, INDEPENDENT of what the UI displays" — this can become a code review rule requiring a `response.ok()`/`statusCode()` assertion on EVERY request in automation.' },
+          a: { tr: 'Sessiz 500, frontend kodunun response\'un status kodunu HİÇ kontrol etmeden başarı akışını çalıştırmasıyla oluşur — UI "başarılı" der ama sunucu aslında 500 dönmüştür (E5). Checklist maddesi: "her API çağrısından sonra, UI\'nın gösterdiği mesajdan BAĞIMSIZ olarak Network panelindeki GERÇEK Status kodunu doğrula" — bu, otomasyonda `response.ok()`/`statusCode()` assertion\'ının HER request\'e eklenmesini zorunlu kılan bir code review kuralına dönüştürülebilir.', en: 'A silent 500 happens when frontend code runs its success flow WITHOUT EVER checking the response status code — the UI says "success" while the server actually returned 500 (E5). Checklist item: "after every API call, verify the REAL Status code in the Network panel, INDEPENDENT of what the UI displays" — this can become a code review rule requiring a `response.ok()`/`statusCode()` assertion on EVERY request in automation.' },
         },
         {
           level: 'intermediate',
           q: { tr: 'Hassas kullanıcı verisi döndüren bir endpoint için `Cache-Control` header\'ını neden kontrol etmekte ısrar edersin?', en: 'Why would you insist on checking the `Cache-Control` header for an endpoint that returns sensitive user data?' },
-          a: { tr: 'Header eksikse tarayıcı yanıtı ÖNBELLEĞE alabilir — kullanıcı çıkış yaptıktan SONRA bile geri tuşuyla ESKİ, hassas veriyi (bir başkasının bilgisayarında) görebilir (GRUP J\'deki Cache-Control eksikliği). Bu bir performans sorunu DEĞİL, bir GÜVENLİK açığıdır — Java\'da bunun karşılığı bir servlet response\'unda `Cache-Control: no-store` header\'ını eklemeyi unutmaktır.', en: 'Without the header, the browser may CACHE the response — even AFTER the user logs out, the back button can show OLD, sensitive data (on someone else\'s computer) (the missing Cache-Control from GROUP J). This is NOT a performance issue, it is a SECURITY hole — the Java equivalent is forgetting to add the `Cache-Control: no-store` header on a servlet response.' },
+          a: { tr: 'Header eksikse tarayıcı response\'u ÖNBELLEĞE alabilir — kullanıcı çıkış yaptıktan SONRA bile geri tuşuyla ESKİ, hassas veriyi (bir başkasının bilgisayarında) görebilir (GRUP J\'deki Cache-Control eksikliği). Bu bir performans sorunu DEĞİL, bir GÜVENLİK açığıdır — Java\'da bunun karşılığı bir servlet response\'unda `Cache-Control: no-store` header\'ını eklemeyi unutmaktır.', en: 'Without the header, the browser may CACHE the response — even AFTER the user logs out, the back button can show OLD, sensitive data (on someone else\'s computer) (the missing Cache-Control from GROUP J). This is NOT a performance issue, it is a SECURITY hole — the Java equivalent is forgetting to add the `Cache-Control: no-store` header on a servlet response.' },
         },
         {
           level: 'intermediate',
@@ -8973,13 +8973,13 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         },
         {
           level: 'intermediate',
-          q: { tr: 'N+1 istek örüntüsünü, backend kodunu okumadan SADECE Network panelinden gözlemleyerek nasıl fark edersin?', en: 'How do you notice an N+1 request pattern purely by observing the Network panel, without reading backend code?' },
-          a: { tr: 'Bir liste sayfasının önce TEK bir `GET /bugs` isteği attığını, ardından AYNI URL kalıbının (örn. `GET /bugs/{id}/details`) kayıt sayısı kadar TEKRARLANDIĞINI görürüm — 10 kayıt için 11 istek (GRUP E5). Bu, Network panelindeki satır sayısının kayıt sayısıyla orantılı büyümesiyle GÖZLE fark edilir, kod okumaya gerek yoktur.', en: 'I see a list page fire ONE `GET /bugs` request first, then the SAME URL pattern (e.g. `GET /bugs/{id}/details`) REPEATED as many times as there are records — 11 requests for 10 records (GROUP E5). This is noticeable JUST BY EYE from the Network panel row count growing proportionally with the record count, no code reading needed.' },
+          q: { tr: 'N+1 request örüntüsünü, backend kodunu okumadan SADECE Network panelinden gözlemleyerek nasıl fark edersin?', en: 'How do you notice an N+1 request pattern purely by observing the Network panel, without reading backend code?' },
+          a: { tr: 'Bir liste sayfasının önce TEK bir `GET /bugs` request\'i attığını, ardından AYNI URL kalıbının (örn. `GET /bugs/{id}/details`) kayıt sayısı kadar TEKRARLANDIĞINI görürüm — 10 kayıt için 11 request (GRUP E5). Bu, Network panelindeki satır sayısının kayıt sayısıyla orantılı büyümesiyle GÖZLE fark edilir, kod okumaya gerek yoktur.', en: 'I see a list page fire ONE `GET /bugs` request first, then the SAME URL pattern (e.g. `GET /bugs/{id}/details`) REPEATED as many times as there are records — 11 requests for 10 records (GROUP E5). This is noticeable JUST BY EYE from the Network panel row count growing proportionally with the record count, no code reading needed.' },
         },
         {
           level: 'intermediate',
           q: { tr: 'Bir hibrit test API ile bug oluşturup UI\'da anında görünmesini bekliyor ama test kararsız (flaky). API\'nin doğruluğuyla İLGİSİZ iki olası neden öner.', en: 'A hybrid test creates a bug via the API and expects it to instantly appear in the UI, but the test is flaky. Propose two possible causes UNRELATED to the API\'s correctness.' },
-          a: { tr: 'Birincisi: UI, veriyi periyodik olarak (ör. 5 saniyede bir) POLLING ile çekiyor olabilir — test API isteğinden HEMEN sonra sayfaya gidiyorsa, UI henüz YENİLENMEMİŞ olabilir; çözüm `page.reload()` veya bir bekleme koşuludur. İkincisi: UI tarafında bir ÖNBELLEK (client-side cache) katmanı liste sonucunu ESKİ tutuyor olabilir — API doğru çalışsa da UI eski veriyi gösterir.', en: 'First: the UI may be POLLING data periodically (e.g. every 5 seconds) — if the test navigates to the page IMMEDIATELY after the API call, the UI may not have REFRESHED yet; the fix is `page.reload()` or a wait condition. Second: a client-side CACHE layer in the UI may be keeping the list result STALE — even if the API works correctly, the UI shows old data.' },
+          a: { tr: 'Birincisi: UI, veriyi periyodik olarak (ör. 5 saniyede bir) POLLING ile çekiyor olabilir — test API request\'inden HEMEN sonra sayfaya gidiyorsa, UI henüz YENİLENMEMİŞ olabilir; çözüm `page.reload()` veya bir bekleme koşuludur. İkincisi: UI tarafında bir ÖNBELLEK (client-side cache) katmanı liste sonucunu ESKİ tutuyor olabilir — API doğru çalışsa da UI eski veriyi gösterir.', en: 'First: the UI may be POLLING data periodically (e.g. every 5 seconds) — if the test navigates to the page IMMEDIATELY after the API call, the UI may not have REFRESHED yet; the fix is `page.reload()` or a wait condition. Second: a client-side CACHE layer in the UI may be keeping the list result STALE — even if the API works correctly, the UI shows old data.' },
         },
         {
           level: 'intermediate',
@@ -8989,7 +8989,7 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'intermediate',
           q: { tr: 'CI pipeline\'ında `mvn test`, `mvn spring-boot:run` uygulamayı başlatmayı BİTİRMEDEN çalışıyor. Ne olur, pipeline\'ı nasıl düzeltirsin?', en: 'Your CI pipeline runs `mvn test` BEFORE `mvn spring-boot:run` finishes starting the app. What happens, and how do you fix the pipeline?' },
-          a: { tr: 'REST Assured testleri sunucuya GERÇEK bir HTTP isteği atar — sunucu henüz dinlemeye başlamadıysa istekler `ECONNREFUSED` ile başarısız olur (H6, C1\'deki aynı hatayla aynı belirti). Düzeltme: uygulamayı başlatan adımı ÖNCE koymak ve gerekirse (`sleep`/healthcheck endpoint\'i) sunucunun GERÇEKTEN hazır olduğunu doğrulayan bir adım eklemek, sonra `mvn test`\'i çalıştırmaktır.', en: 'REST Assured tests send REAL HTTP requests to the server — if the server has not started listening yet, requests fail with `ECONNREFUSED` (H6, same symptom as C1\'s error). The fix: put the app-starting step FIRST, add a step (a `sleep`/healthcheck endpoint) that verifies the server is REALLY ready if needed, and only then run `mvn test`.' },
+          a: { tr: 'REST Assured testleri sunucuya GERÇEK bir HTTP request\'i atar — sunucu henüz dinlemeye başlamadıysa request\'ler `ECONNREFUSED` ile başarısız olur (H6, C1\'deki aynı hatayla aynı belirti). Düzeltme: uygulamayı başlatan adımı ÖNCE koymak ve gerekirse (`sleep`/healthcheck endpoint\'i) sunucunun GERÇEKTEN hazır olduğunu doğrulayan bir adım eklemek, sonra `mvn test`\'i çalıştırmaktır.', en: 'REST Assured tests send REAL HTTP requests to the server — if the server has not started listening yet, requests fail with `ECONNREFUSED` (H6, same symptom as C1\'s error). The fix: put the app-starting step FIRST, add a step (a `sleep`/healthcheck endpoint) that verifies the server is REALLY ready if needed, and only then run `mvn test`.' },
         },
 
         // ══════════════════ ADVANCED (15) ══════════════════
@@ -9006,7 +9006,7 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'advanced',
           q: { tr: 'Bir enum drift contract defect\'ini (spec 3 değer diyor, kod 4\'e izin veriyor) production\'a ulaşmadan yakalayacak bir CI kapısı (gate) tasarla.', en: 'Design a CI gate that would catch an enum drift contract defect (spec says 3 values, code allows 4) before it reaches production.' },
-          a: { tr: 'CI\'a H4\'teki JSON Schema Validation testini bir "contract test" olarak EKLERİM — her merge öncesi, GERÇEK API yanıtı (staging\'e deploy edilmiş build üzerinden) spec\'teki `enum` listesiyle otomatik karşılaştırılır; şemadaki listede olmayan bir değer görülürse build KIRILIR. Ek olarak F2\'deki otomatik spec üretimi (springdoc/@nestjs/swagger) kullanılırsa, enum\'un kod ile spec arasında AYRIŞMASI mimari olarak imkansız hale gelir.', en: 'I ADD H4\'s JSON Schema Validation test to CI as a "contract test" — before every merge, the REAL API response (from a build deployed to staging) is automatically compared against the spec\'s `enum` list; if a value not in the schema list is seen, the build BREAKS. Additionally, if F2\'s automatic spec generation (springdoc/@nestjs/swagger) is used, the enum diverging between code and spec becomes architecturally impossible.' },
+          a: { tr: 'CI\'a H4\'teki JSON Schema Validation testini bir "contract test" olarak EKLERİM — her merge öncesi, GERÇEK API response\'u (staging\'e deploy edilmiş build üzerinden) spec\'teki `enum` listesiyle otomatik karşılaştırılır; şemadaki listede olmayan bir değer görülürse build KIRILIR. Ek olarak F2\'deki otomatik spec üretimi (springdoc/@nestjs/swagger) kullanılırsa, enum\'un kod ile spec arasında AYRIŞMASI mimari olarak imkansız hale gelir.', en: 'I ADD H4\'s JSON Schema Validation test to CI as a "contract test" — before every merge, the REAL API response (from a build deployed to staging) is automatically compared against the spec\'s `enum` list; if a value not in the schema list is seen, the build BREAKS. Additionally, if F2\'s automatic spec generation (springdoc/@nestjs/swagger) is used, the enum diverging between code and spec becomes architecturally impossible.' },
         },
         {
           level: 'advanced',
@@ -9016,7 +9016,7 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'advanced',
           q: { tr: 'HER otomatik testte TAM bir JSON Schema doğrulaması yapmanın, sadece hedefli alan assertion\'ları kullanmaya göre trade-off\'larını tartış.', en: 'Discuss the trade-offs of running a FULL JSON Schema validation in EVERY automated test versus using only targeted field assertions.' },
-          a: { tr: 'Tam şema doğrulaması geniş bir "hiçbir alan sözleşmeden sapmadı" güvencesi verir ama YAVAŞTIR (her yanıtı tüm şemayla karşılaştırır) ve şemadaki KÜÇÜK bir değişiklik (yeni bir opsiyonel alan) İLGİSİZ testleri KIRABİLİR. Hedefli assertion\'lar (H2) hızlıdır ve sadece o testin İLGİLENDİĞİ alanlara odaklanır ama şemanın GERİ KALANINDAKİ bir sapmayı KAÇIRABİLİR. Pratik denge: kritik contract testlerinde (H4, az sayıda) tam şema, günlük fonksiyonel testlerde (çoğunluk) hedefli assertion.', en: 'Full schema validation gives a broad "nothing in the contract diverged" guarantee but is SLOW (compares every response against the whole schema) and a SMALL schema change (a new optional field) can BREAK unrelated tests. Targeted assertions (H2) are fast and focus only on the fields THAT test cares about, but can MISS a divergence elsewhere in the schema. Practical balance: full schema in a small number of critical contract tests (H4), targeted assertions in the majority of everyday functional tests.' },
+          a: { tr: 'Tam şema doğrulaması geniş bir "hiçbir alan sözleşmeden sapmadı" güvencesi verir ama YAVAŞTIR (her response\'u tüm şemayla karşılaştırır) ve şemadaki KÜÇÜK bir değişiklik (yeni bir opsiyonel alan) İLGİSİZ testleri KIRABİLİR. Hedefli assertion\'lar (H2) hızlıdır ve sadece o testin İLGİLENDİĞİ alanlara odaklanır ama şemanın GERİ KALANINDAKİ bir sapmayı KAÇIRABİLİR. Pratik denge: kritik contract testlerinde (H4, az sayıda) tam şema, günlük fonksiyonel testlerde (çoğunluk) hedefli assertion.', en: 'Full schema validation gives a broad "nothing in the contract diverged" guarantee but is SLOW (compares every response against the whole schema) and a SMALL schema change (a new optional field) can BREAK unrelated tests. Targeted assertions (H2) are fast and focus only on the fields THAT test cares about, but can MISS a divergence elsewhere in the schema. Practical balance: full schema in a small number of critical contract tests (H4), targeted assertions in the majority of everyday functional tests.' },
         },
         {
           level: 'advanced',
@@ -9026,12 +9026,12 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         {
           level: 'advanced',
           q: { tr: 'Takımın bir Express API\'yi NestJS\'e taşımayı planladığını varsay. İş mantığından DEĞİL, framework-DÜZEYİ mimari farklardan kaynaklanan regresyonları yakalayacak bir test stratejisi öner.', en: 'Assume your team is migrating an Express API to NestJS. Propose a testing strategy specifically to catch regressions from framework-LEVEL architectural differences, not business logic.' },
-          a: { tr: 'Odak noktam C ve D gruplarında gördüğün YAPISAL farklar olurdu: middleware SIRASI (Express) yerine modül KAYDI (Nest) davranış değiştirir mi (D1), validation OKUNMASI (Express) yerine `ValidationPipe` KAYDI (Nest) devrede mi (D3), hata gövdesinin ŞEKLİ (`{error}` mi yoksa Nest\'in varsayılanı mı) değişti mi (D4). Bu üç noktayı hedefleyen bir contract/regression test seti (H4\'teki JSON Schema ile) migrasyon ÖNCESİ ve SONRASI aynı endpoint\'lere karşı koşulur, SADECE yanıt ŞEKLİNDEKİ farkları raporlar.', en: 'My focus would be the STRUCTURAL differences you saw in groups C and D: does behavior change based on middleware ORDER (Express) versus module REGISTRATION (Nest) (D1), is validation active via READING the result (Express) versus `ValidationPipe` REGISTRATION (Nest) (D3), did the error body\'s SHAPE (`{error}` or Nest\'s default) change (D4). A contract/regression test set targeting these three points (with H4\'s JSON Schema) is run against the SAME endpoints BEFORE and AFTER migration, reporting ONLY differences in response SHAPE.' },
+          a: { tr: 'Odak noktam C ve D gruplarında gördüğün YAPISAL farklar olurdu: middleware SIRASI (Express) yerine modül KAYDI (Nest) davranış değiştirir mi (D1), validation OKUNMASI (Express) yerine `ValidationPipe` KAYDI (Nest) devrede mi (D3), hata gövdesinin ŞEKLİ (`{error}` mi yoksa Nest\'in varsayılanı mı) değişti mi (D4). Bu üç noktayı hedefleyen bir contract/regression test seti (H4\'teki JSON Schema ile) migrasyon ÖNCESİ ve SONRASI aynı endpoint\'lere karşı koşulur, SADECE response ŞEKLİNDEKİ farkları raporlar.', en: 'My focus would be the STRUCTURAL differences you saw in groups C and D: does behavior change based on middleware ORDER (Express) versus module REGISTRATION (Nest) (D1), is validation active via READING the result (Express) versus `ValidationPipe` REGISTRATION (Nest) (D3), did the error body\'s SHAPE (`{error}` or Nest\'s default) change (D4). A contract/regression test set targeting these three points (with H4\'s JSON Schema) is run against the SAME endpoints BEFORE and AFTER migration, reporting ONLY differences in response SHAPE.' },
         },
         {
           level: 'advanced',
           q: { tr: 'Şu anda "bu frontend mi backend mi sözleşme mi" diye ayrım yapan resmi bir sürecin OLMADIĞI bir takım için GRUP J\'deki katman teşhisi gibi bir escalation matrisi tasarla.', en: 'Design an escalation matrix, like GROUP J\'s layer diagnosis, for a team that currently has NO formal process for triaging "is this frontend, backend, or contract".' },
-          a: { tr: 'Üç aşamalı bir karar ağacı kurarım: (1) İstek sunucuya ULAŞTI MI (Network paneli, E grubu)? Ulaşmadıysa → istemci/network ekibi. (2) Ulaştıysa, yanıt SÖZLEŞMEYE (spec, F grubu) uyuyor mu? Uymuyorsa → API sahibi ekip (spec ile GERÇEK davranış senkronize edilmeli). (3) Sözleşmeye uyuyor ama BEKLENEN İŞ SONUCU yanlışsa → backend iş mantığı ekibi. Bu matris GRUP J\'nin "belirti → katman → escalate" mantığının kurumsallaştırılmış hâlidir.', en: 'I would build a three-stage decision tree: (1) Did the request REACH the server (Network panel, GROUP E)? If not → client/network team. (2) If it reached, does the response match the CONTRACT (spec, GROUP F)? If not → the API-owning team (spec and REAL behavior must be synced). (3) If it matches the contract but the EXPECTED BUSINESS OUTCOME is wrong → the backend business-logic team. This matrix is the institutionalized form of GROUP J\'s "symptom → layer → escalate" logic.' },
+          a: { tr: 'Üç aşamalı bir karar ağacı kurarım: (1) Request sunucuya ULAŞTI MI (Network paneli, E grubu)? Ulaşmadıysa → istemci/network ekibi. (2) Ulaştıysa, response SÖZLEŞMEYE (spec, F grubu) uyuyor mu? Uymuyorsa → API sahibi ekip (spec ile GERÇEK davranış senkronize edilmeli). (3) Sözleşmeye uyuyor ama BEKLENEN İŞ SONUCU yanlışsa → backend iş mantığı ekibi. Bu matris GRUP J\'nin "belirti → katman → escalate" mantığının kurumsallaştırılmış hâlidir.', en: 'I would build a three-stage decision tree: (1) Did the request REACH the server (Network panel, GROUP E)? If not → client/network team. (2) If it reached, does the response match the CONTRACT (spec, GROUP F)? If not → the API-owning team (spec and REAL behavior must be synced). (3) If it matches the contract but the EXPECTED BUSINESS OUTCOME is wrong → the backend business-logic team. This matrix is the institutionalized form of GROUP J\'s "symptom → layer → escalate" logic.' },
         },
         {
           level: 'advanced',
@@ -9040,18 +9040,18 @@ Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (m
         },
         {
           level: 'advanced',
-          q: { tr: 'Bir güvenlik incelemesi `DELETE /bugs/{id}`\'nin sahiplik (ownership) kontrolü yapmadığını buluyor. Sadece kimliği doğrulanmış (authenticated) Postman istekleri kullanarak, kod erişimi OLMADAN bunu nasıl yakalardın?', en: 'A security review finds that `DELETE /bugs/{id}` does not check ownership. Using only authenticated Postman requests, WITHOUT code access, how would you have caught this?' },
+          q: { tr: 'Bir güvenlik incelemesi `DELETE /bugs/{id}`\'nin sahiplik (ownership) kontrolü yapmadığını buluyor. Sadece kimliği doğrulanmış (authenticated) Postman request\'leri kullanarak, kod erişimi OLMADAN bunu nasıl yakalardın?', en: 'A security review finds that `DELETE /bugs/{id}` does not check ownership. Using only authenticated Postman requests, WITHOUT code access, how would you have caught this?' },
           a: { tr: 'İki farklı kullanıcı hesabıyla iki token alırım; Kullanıcı A\'nın bug\'ını Kullanıcı B\'nin token\'ıyla SİLMEYİ denerim. Beklenen sonuç `403 Forbidden`\'dır (A5\'teki yetki farkı); `200`/`204` gelirse bu bir IDOR (Insecure Direct Object Reference) güvenlik açığıdır. Bu test SADECE Postman + iki farklı token ile, hiçbir kod erişimi olmadan tasarlanabilir ve çalıştırılabilir — güvenlik testinin API testinden AYRI bir disiplin olmadığının kanıtıdır.', en: 'I get two tokens with two different user accounts; I try to DELETE User A\'s bug with User B\'s token. The expected result is `403 Forbidden` (the authorization difference from A5); getting `200`/`204` means this is an IDOR (Insecure Direct Object Reference) security hole. This test can be designed and run with ONLY Postman + two different tokens, with zero code access — proof that security testing is not a SEPARATE discipline from API testing.' },
         },
         {
           level: 'advanced',
           q: { tr: 'Timing sekmesindeki bulguların (büyük `Waiting` fazı) performans testi açısından ne anlama geldiğini tartış — backend\'de NEYİ araştırmayı önerirsin, NEYİ suçlamazsın?', en: 'Discuss the performance-testing implications of Timing tab findings (a large `Waiting` phase) — what would you recommend investigating on the backend, and what would you NOT blame?' },
-          a: { tr: 'Büyük `Waiting`, sunucunun isteği İŞLERKEN yavaş olduğunu gösterir — araştıracağım ilk şeyler yavaş bir SQL sorgusu (indeks eksikliği), bir N+1 istek örüntüsü (E5) veya senkron bir dış servis çağrısıdır. SUÇLAMAYACAĞIM şey ağ/veri boyutu — `Content-Download` küçükse (E4), bant genişliği veya yanıt boyutu bu gecikmenin nedeni DEĞİLDİR; bu yanlış katmana odaklanıp gerçek sorunu (backend işlem mantığı) gözden kaçırmak anlamına gelir.', en: 'A large `Waiting` shows the server is slow while PROCESSING the request — the first things I would investigate are a slow SQL query (missing index), an N+1 request pattern (E5), or a synchronous external service call. What I would NOT blame is network/data size — if `Content-Download` is small (E4), bandwidth or response size is NOT the cause of this delay; focusing on the wrong layer means missing the real problem (backend processing logic).' },
+          a: { tr: 'Büyük `Waiting`, sunucunun request\'i İŞLERKEN yavaş olduğunu gösterir — araştıracağım ilk şeyler yavaş bir SQL sorgusu (indeks eksikliği), bir N+1 request örüntüsü (E5) veya senkron bir dış servis çağrısıdır. SUÇLAMAYACAĞIM şey ağ/veri boyutu — `Content-Download` küçükse (E4), bant genişliği veya response boyutu bu gecikmenin nedeni DEĞİLDİR; bu yanlış katmana odaklanıp gerçek sorunu (backend işlem mantığı) gözden kaçırmak anlamına gelir.', en: 'A large `Waiting` shows the server is slow while PROCESSING the request — the first things I would investigate are a slow SQL query (missing index), an N+1 request pattern (E5), or a synchronous external service call. What I would NOT blame is network/data size — if `Content-Download` is small (E4), bandwidth or response size is NOT the cause of this delay; focusing on the wrong layer means missing the real problem (backend processing logic).' },
         },
         {
           level: 'advanced',
           q: { tr: 'POST endpoint\'lerinin tasarım gereği neden idempotent OLMADIĞINI açıkla ve bir istemcinin network timeout\'unda saf bir şekilde POST\'u yeniden denemesinin somut bir gerçek-dünya sonucunu ver.', en: 'Explain why POST endpoints are non-idempotent by design, and give a concrete real-world consequence if a client naively retries a POST on network timeout.' },
-          a: { tr: 'POST her çağrıldığında YENİ bir kaynak (yeni bir `id`) oluşturur — AYNI isteği 2 kez göndermek 2 AYRI kayıt üretir (idempotent OLMAMASI budur, A4). Somut sonuç: bir istemci bir POST isteği timeout\'a uğradığında (yanıt gelmeden önce) "başarısız oldu" sanıp OTOMATİK yeniden denerse, sunucu aslında ilk isteği İŞLEMİŞ olabilir ve şimdi AYNI bug\'ın İKİ KOPYASI oluşur — GRUP E5\'teki "çift POST" defect\'inin timeout versiyonu.', en: 'POST creates a NEW resource (a new `id`) every time it is called — sending the SAME request twice produces 2 SEPARATE records (this is what non-idempotent means, A4). Concrete consequence: if a client\'s POST request times out (before the response arrives) and it assumes "it failed" and AUTOMATICALLY retries, the server may have actually PROCESSED the first request, and now TWO COPIES of the SAME bug exist — the timeout version of GROUP E5\'s "double POST" defect.' },
+          a: { tr: 'POST her çağrıldığında YENİ bir kaynak (yeni bir `id`) oluşturur — AYNI request\'i 2 kez göndermek 2 AYRI kayıt üretir (idempotent OLMAMASI budur, A4). Somut sonuç: bir istemci bir POST request\'i timeout\'a uğradığında (response gelmeden önce) "başarısız oldu" sanıp OTOMATİK yeniden denerse, sunucu aslında ilk request\'i İŞLEMİŞ olabilir ve şimdi AYNI bug\'ın İKİ KOPYASI oluşur — GRUP E5\'teki "çift POST" defect\'inin timeout versiyonu.', en: 'POST creates a NEW resource (a new `id`) every time it is called — sending the SAME request twice produces 2 SEPARATE records (this is what non-idempotent means, A4). Concrete consequence: if a client\'s POST request times out (before the response arrives) and it assumes "it failed" and AUTOMATICALLY retries, the server may have actually PROCESSED the first request, and now TWO COPIES of the SAME bug exist — the timeout version of GROUP E5\'s "double POST" defect.' },
         },
         {
           level: 'advanced',
@@ -9125,7 +9125,7 @@ const apiFeynmanDefs = [
   },
   {
     sectionIndex: 6,
-    promptTr: 'Bir JSON yanıtında `"reporter": null` ile reporter alanının HİÇ olmaması arasındaki farkı ve bunun neden bir tester için önemli olduğunu kendi cümlelerinle anlat.',
+    promptTr: 'Bir JSON response\'unda `"reporter": null` ile reporter alanının HİÇ olmaması arasındaki farkı ve bunun neden bir tester için önemli olduğunu kendi cümlelerinle anlat.',
     promptEn: 'Explain, in your own words, the difference between `"reporter": null` and the reporter field being entirely absent in a JSON response, and why it matters to a tester.',
     keywords: ['null', 'yok', 'anahtar', 'contract', 'regres', 'boş'],
     modelAnswerTr: 'null, anahtarın var ama değerinin bilinçli olarak boş olması demektir (bir veri durumu). Alanın hiç olmaması ise anahtarın kaybolması, yani bir contract regresyonu olabilir. Tester ikisini ayırmalıdır çünkü zayıf bir kontrol (if bug.reporter) ikisine de false verir ve alanın sessiz kaybını gizler.',
@@ -9145,7 +9145,7 @@ const apiFeynmanDefs = [
     promptEn: 'Explain, in your own words, why "defining a rule" and "the rule actually being enforced" are two separate steps in Express, using the middleware-order example, to a newcomer.',
     keywords: ['middleware', 'sira', 'sonuc', 'oku', 'express', 'validationresult', 'next'],
     minScore: 3,
-    modelAnswerTr: 'Express minimal bir framework olduğu için hiçbir şeyi senin yerine otomatik yapmaz: bir doğrulama kütüphanesi kural TANIMLAR ama sonucu OKUYUP karar vermek (validationResult + 400 döndürmek) sana kalır; aynı şekilde express.json() gibi bir middleware doğru sırada kayıtlı değilse route hiç çalışmasa da hata vermez, sadece veriyi sessizce boş bırakır. Bu yüzden Express\'te "kod var" ile "kod gerçekten devrede" arasında bir boşluk vardır ve tester bunu her zaman gerçek bir istekle doğrular.',
+    modelAnswerTr: 'Express minimal bir framework olduğu için hiçbir şeyi senin yerine otomatik yapmaz: bir doğrulama kütüphanesi kural TANIMLAR ama sonucu OKUYUP karar vermek (validationResult + 400 döndürmek) sana kalır; aynı şekilde express.json() gibi bir middleware doğru sırada kayıtlı değilse route hiç çalışmasa da hata vermez, sadece veriyi sessizce boş bırakır. Bu yüzden Express\'te "kod var" ile "kod gerçekten devrede" arasında bir boşluk vardır ve tester bunu her zaman gerçek bir request\'le doğrular.',
     modelAnswerEn: 'Because Express is a minimal framework it does not do anything automatically for you: a validation library DEFINES rules but READING the result and deciding (calling validationResult and returning 400) is left to you; likewise, if a middleware like express.json() is not registered in the right order, the route does not error, it just silently leaves the data empty. This is why in Express there is a gap between "the code exists" and "the code is really active", and a tester always verifies it with a real request.',
   },
   {
@@ -9154,7 +9154,7 @@ const apiFeynmanDefs = [
     promptEn: 'Explain, in your own words, why a decorator/pipe/filter in NestJS can be "written correctly" yet have zero effect, using the module/global-registration concept, to a newcomer.',
     keywords: ['modul', 'kayit', 'global', 'pipe', 'filter', 'validationpipe', 'nest'],
     minScore: 3,
-    modelAnswerTr: 'Nest, Spring gibi decorator tabanlı bir yapı kullanır ama Spring\'in aksine bileşenleri otomatik taramaz: bir controller @Module\'ün controllers dizisine EKLENMEZSE hiç çalışmaz, bir DTO\'nun class-validator decorator\'ları main.ts\'te app.useGlobalPipes(new ValidationPipe()) çağrılmazsa asla tetiklenmez, bir Exception Filter da app.useGlobalFilters(...) ile kaydedilmezse devreye girmez. Yani decorator YAZMAK ile onu GLOBAL olarak KAYDETMEK iki ayrı adımdır; tester her ikisinin de yapıldığını gerçek bir istekle doğrular, sadece dosyayı okumakla yetinmez.',
+    modelAnswerTr: 'Nest, Spring gibi decorator tabanlı bir yapı kullanır ama Spring\'in aksine bileşenleri otomatik taramaz: bir controller @Module\'ün controllers dizisine EKLENMEZSE hiç çalışmaz, bir DTO\'nun class-validator decorator\'ları main.ts\'te app.useGlobalPipes(new ValidationPipe()) çağrılmazsa asla tetiklenmez, bir Exception Filter da app.useGlobalFilters(...) ile kaydedilmezse devreye girmez. Yani decorator YAZMAK ile onu GLOBAL olarak KAYDETMEK iki ayrı adımdır; tester her ikisinin de yapıldığını gerçek bir request\'le doğrular, sadece dosyayı okumakla yetinmez.',
     modelAnswerEn: 'Nest uses a decorator-based structure like Spring, but unlike Spring it does not scan components automatically: a controller never works if it is not ADDED to @Module\'s controllers array, a DTO\'s class-validator decorators never trigger unless app.useGlobalPipes(new ValidationPipe()) is called in main.ts, and an Exception Filter never engages unless registered with app.useGlobalFilters(...). So WRITING a decorator and GLOBALLY REGISTERING it are two separate steps; a tester verifies both were done with a real request, never settling for just reading the file.',
   },
   {
@@ -9186,11 +9186,11 @@ const apiFeynmanDefs = [
   },
   {
     sectionIndex: 49,
-    promptTr: 'REST Assured ile JUnit 5/TestNG arasındaki iş bölümünü — kim isteği gönderir, kim testi çalıştırıp raporlar — sektöre yeni giren birine kendi cümlelerinle anlat.',
+    promptTr: 'REST Assured ile JUnit 5/TestNG arasındaki iş bölümünü — kim request\'i gönderir, kim testi çalıştırıp raporlar — sektöre yeni giren birine kendi cümlelerinle anlat.',
     promptEn: 'Explain, in your own words, the division of labor between REST Assured and JUnit 5/TestNG — who sends the request, who runs and reports the test — to a newcomer.',
     keywords: ['restassured', 'junit', 'testng', 'calistir', 'rapor', 'given', 'mvn'],
     minScore: 3,
-    modelAnswerTr: 'REST Assured sadece bir HTTP istemci kütüphanesidir — given/when/then ile isteği gönderir ve doğrular. Ama bu kodu KİMİN çalıştıracağı ve sonucu KİMİN raporlayacağı ayrı bir sorudur; bunun cevabı JUnit 5 veya TestNG\'dir. @Test annotation\'ı ile işaretlenen metodu bu çalıştırıcılar bulur, çalıştırır ve bir rapor üretir; mvn test bu ikisini CI\'da tetikler.',
+    modelAnswerTr: 'REST Assured sadece bir HTTP istemci kütüphanesidir — given/when/then ile request\'i gönderir ve doğrular. Ama bu kodu KİMİN çalıştıracağı ve sonucu KİMİN raporlayacağı ayrı bir sorudur; bunun cevabı JUnit 5 veya TestNG\'dir. @Test annotation\'ı ile işaretlenen metodu bu çalıştırıcılar bulur, çalıştırır ve bir rapor üretir; mvn test bu ikisini CI\'da tetikler.',
     modelAnswerEn: 'REST Assured is just an HTTP client library — it sends and verifies the request with given/when/then. But WHO runs this code and WHO reports the result is a separate question; the answer is JUnit 5 or TestNG. These runners find the method marked with @Test, run it, and produce a report; mvn test triggers both in CI.',
   },
   {
@@ -9208,7 +9208,7 @@ const apiFeynmanDefs = [
     promptEn: 'Explain, in your own words, why an error dictionary like this should be used as a "reference resource" rather than a "list to memorize" — using the example of a tester facing a brand-new error they have never seen — to a newcomer.',
     keywords: ['katman', 'teshis', 'belirti', 'kok neden', 'network', 'sozlesme', 'escalate'],
     minScore: 3,
-    modelAnswerTr: 'Gerçek production hataları burada BİREBİR olmayabilir, ama sözlükteki her giriş aynı düşünme biçimini öğretir: önce belirtiyi (hata mesajı, status kodu) topla, sonra isteğin sunucuya ulaşıp ulaşmadığını Network panelinde kontrol ederek katmanı (istemci/network, sunucu/kod, sözleşme/spec) belirle, sonra o katmanın sahibine escalate et. Hiç görmediğim yeni bir hatada da bu ÜÇ ADIMI (belirti → katman → escalate) uygularım, listeyi ezbere bilmeme gerek kalmaz.',
+    modelAnswerTr: 'Gerçek production hataları burada BİREBİR olmayabilir, ama sözlükteki her giriş aynı düşünme biçimini öğretir: önce belirtiyi (hata mesajı, status kodu) topla, sonra request\'in sunucuya ulaşıp ulaşmadığını Network panelinde kontrol ederek katmanı (istemci/network, sunucu/kod, sözleşme/spec) belirle, sonra o katmanın sahibine escalate et. Hiç görmediğim yeni bir hatada da bu ÜÇ ADIMI (belirti → katman → escalate) uygularım, listeyi ezbere bilmeme gerek kalmaz.',
     modelAnswerEn: 'A real production error may not be EXACTLY here, but every entry in the dictionary teaches the same way of thinking: first gather the symptom (error message, status code), then determine the layer (client/network, server/code, contract/spec) by checking in the Network panel whether the request reached the server, then escalate to that layer\'s owner. For a brand-new error I have never seen, I apply the same THREE STEPS (symptom → layer → escalate), without needing to memorize the list.',
   },
   {

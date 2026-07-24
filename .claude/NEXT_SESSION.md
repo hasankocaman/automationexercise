@@ -10,6 +10,30 @@
 
 ---
 
+## ✅ `/api-testing` — request/response terminoloji dönüşümü (2026-07-24, Opus oturumu, feature/api-testing-page)
+
+Kullanıcı geri bildirimi: API anlatımlarında `request`/`response` yerleşik
+İngilizce terimlerdir (CLAUDE.md §8), TR metinde "istek"/"yanıt" yerine
+kullanılır; "istemek istiyorsun" gibi amatörce ifadeler yasak (bkz. memory
+`api-request-response-terminology`).
+
+**Yapılanlar (`src/data/apiTestingData.js`):**
+- Bağlam-duyarlı bir script'le tüm sayfada **618 dönüşüm**: "istek"→"request",
+  "yanıt"→"response" (tüm çekim ekleriyle: isteği→request'i, yanıtın→response'un
+  vb.). Tek-tırnaklı string'lerde apostrof `\'` olarak escape edildi.
+- **Korunanlar:** "isteğe bağlı" (=optional) deyimi (4 yer) — "request'e bağlı"
+  yanlış olurdu; "istemek" fiili (istiyorsun/istersen) dokunulmadı.
+- **Fiil çakışması düzeltildi:** "Sunucu sözleşmeye göre **yanıtlar**…" (fiil=
+  responds) yanlışlıkla "response'lar" (isim) olmuştu → "response döner" yapıldı.
+- **İzafet bileşikleri** nominatif kaldı: "HTTP İsteği"→"HTTP Request",
+  "POST isteği"→"POST request" (suffix'siz).
+- Yan düzeltme: "ISTEDEN" yazım hatası → "İSTEYEREK" (EN: deliberately).
+
+**Doğrulama:** `node --check` OK, `check-content-integrity` 0 ihlal, `npm run
+build` yeşil, EN alanlarında Türkçe sızıntı YOK, Dalga 22 (5 test) yeşil.
+
+---
+
 ## ✅ `/api-testing` Faz 10 — SON DENETİM + E2E TESTİ TAMAM — SAYFA BİTTİ (2026-07-24, Opus oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §C (Faz 10, plan'daki SON faz).
