@@ -4567,6 +4567,24 @@ const apiFeynmanDefs = [
     modelAnswerTr: 'UI sadece bir istemcidir; mobil uygulama, Postman veya başka bir servis API\'ye doğrudan vurup UI\'nın JS kontrolünü atlar. Bu yüzden güvenilebilecek tek doğrulama sunucudaki @Valid\'dir. Tester bunu UI\'yı bypass edip doğrudan API\'ye geçersiz veri (boş title) göndererek kanıtlar: 400 bekler, 201 gelirse @Valid eksiktir.',
     modelAnswerEn: 'The UI is just one client; a mobile app, Postman, or another service can hit the API directly and bypass the UI\'s JS check. So the only trustworthy validation is @Valid on the server. The tester proves it by bypassing the UI and sending invalid data (empty title) straight to the API: expecting 400, and if 201 arrives, @Valid is missing.',
   },
+  {
+    sectionIndex: 20,
+    promptTr: 'Express\'te "kural tanımlamak" ile "kuralın gerçekten uygulanması" neden iki ayrı adım — sektöre yeni giren birine, middleware sırası örneğini kullanarak kendi cümlelerinle anlat.',
+    promptEn: 'Explain, in your own words, why "defining a rule" and "the rule actually being enforced" are two separate steps in Express, using the middleware-order example, to a newcomer.',
+    keywords: ['middleware', 'sira', 'sonuc', 'oku', 'express', 'validationresult', 'next'],
+    minScore: 3,
+    modelAnswerTr: 'Express minimal bir framework olduğu için hiçbir şeyi senin yerine otomatik yapmaz: bir doğrulama kütüphanesi kural TANIMLAR ama sonucu OKUYUP karar vermek (validationResult + 400 döndürmek) sana kalır; aynı şekilde express.json() gibi bir middleware doğru sırada kayıtlı değilse route hiç çalışmasa da hata vermez, sadece veriyi sessizce boş bırakır. Bu yüzden Express\'te "kod var" ile "kod gerçekten devrede" arasında bir boşluk vardır ve tester bunu her zaman gerçek bir istekle doğrular.',
+    modelAnswerEn: 'Because Express is a minimal framework it does not do anything automatically for you: a validation library DEFINES rules but READING the result and deciding (calling validationResult and returning 400) is left to you; likewise, if a middleware like express.json() is not registered in the right order, the route does not error, it just silently leaves the data empty. This is why in Express there is a gap between "the code exists" and "the code is really active", and a tester always verifies it with a real request.',
+  },
+  {
+    sectionIndex: 25,
+    promptTr: 'NestJS\'te bir decorator/pipe/filter "doğru yazılmış" olmasına rağmen neden hiçbir etkisi olmayabilir — sektöre yeni giren birine, modül/global kayıt kavramını kullanarak kendi cümlelerinle anlat.',
+    promptEn: 'Explain, in your own words, why a decorator/pipe/filter in NestJS can be "written correctly" yet have zero effect, using the module/global-registration concept, to a newcomer.',
+    keywords: ['modul', 'kayit', 'global', 'pipe', 'filter', 'validationpipe', 'nest'],
+    minScore: 3,
+    modelAnswerTr: 'Nest, Spring gibi decorator tabanlı bir yapı kullanır ama Spring\'in aksine bileşenleri otomatik taramaz: bir controller @Module\'ün controllers dizisine EKLENMEZSE hiç çalışmaz, bir DTO\'nun class-validator decorator\'ları main.ts\'te app.useGlobalPipes(new ValidationPipe()) çağrılmazsa asla tetiklenmez, bir Exception Filter da app.useGlobalFilters(...) ile kaydedilmezse devreye girmez. Yani decorator YAZMAK ile onu GLOBAL olarak KAYDETMEK iki ayrı adımdır; tester her ikisinin de yapıldığını gerçek bir istekle doğrular, sadece dosyayı okumakla yetinmez.',
+    modelAnswerEn: 'Nest uses a decorator-based structure like Spring, but unlike Spring it does not scan components automatically: a controller never works if it is not ADDED to @Module\'s controllers array, a DTO\'s class-validator decorators never trigger unless app.useGlobalPipes(new ValidationPipe()) is called in main.ts, and an Exception Filter never engages unless registered with app.useGlobalFilters(...). So WRITING a decorator and GLOBALLY REGISTERING it are two separate steps; a tester verifies both were done with a real request, never settling for just reading the file.',
+  },
 ]
 
 fillMissingFeynman(apiTestingData, apiFeynmanDefs)

@@ -10,7 +10,7 @@
 
 ---
 
-## 🚧 `/api-testing` Faz 4 — GRUP C+D içerik + sections wiring TAMAM, Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+## 🚧 `/api-testing` Faz 4 — GRUP C+D içerik + wiring + Feynman TAMAM, TOPLU DOĞRULAMA SIRADA (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.1 (Faz 4). Şablon: GRUP A/B (Opus,
 önceki oturum). Kullanıcı talimatı bu oturumda: **test etmeden adım adım commit
@@ -38,13 +38,20 @@ section, `sections[20]` = C6, `sections[25]` = D5, `sections[26]` = E1).
 **Sıradaki adımlar (bu oturumda sırayla):**
 1. ~~D5 yaz.~~ ✅ BİTTİ.
 2. ~~sections dizisini C1-C6/D1-D5 literal referanslarıyla güncelle.~~ ✅ BİTTİ.
-3. `apiFeynmanDefs`'e GRUP C sonu (`sectionIndex: 20` = C6) ve GRUP D sonu
-   (`sectionIndex: 25` = D5) için birer feynman-checkpoint tanımı ekle.
-   **SIRADA.**
-4. Faz bitince TOPLU doğrulama: `node scripts/check-content-integrity.mjs`
-   (0 ihlal) + `npm run build` (yeşil) — CLAUDE.md §1.1. Şu ana kadar HİÇ
-   çalıştırılmadı, ihlal/hata riski var (özellikle relatedTopicId, quiz option
-   id, step-animation label şeması — elle yazıldı ama doğrulanmadı).
+3. ~~`apiFeynmanDefs`'e GRUP C sonu (`sectionIndex: 20` = C6) ve GRUP D sonu
+   (`sectionIndex: 25` = D5) için birer feynman-checkpoint tanımı ekle.~~ ✅
+   BİTTİ — `node --input-type=module -e "import(...)"` ile her iki section'da
+   `type: 'feynman-checkpoint'` bloğu bulunduğu doğrulandı.
+4. **SIRADA (henüz çalıştırılmadı bu oturumda):** TOPLU doğrulama —
+   `node scripts/check-content-integrity.mjs` (0 ihlal beklenir, pre-commit
+   hook'ta her commit'te otomatik geçti ama bu SADECE metin/regex kontrolleri;
+   `checkStepAnimationSchema`/`checkQuizOptionIdSchema`/
+   `checkCodePlaygroundIdSchema` modülü DINAMIK import ediyor — artık import
+   hatasız olduğundan bu üç şema kontrolü de İLK KEZ gerçek çalışacak, yeni
+   bir ihlal çıkabilir) + `npm run build` (yeşil) — CLAUDE.md §1.1. Ayrıca C6/
+   D5'teki 3-framework `table` bloklarının UI'da düzgün render olduğu ve amiral
+   filmlerin (`api-c3-middleware-chain-film`, `api-d3-pipe-film`) id
+   çakışması olmadığı teyit edilmeli.
 
 ---
 
