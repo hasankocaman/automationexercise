@@ -64,6 +64,11 @@ export const ROUTE_SEO = [
         description: 'Learn Bruno, the open-source Git-native API client: installation, .bru files, scripting, CLI automation, CI/CD and a full Postman comparison.',
     },
     {
+        path: '/api-testing',
+        title: 'API Testing Tutorial for QA Engineers: Build Then Test | LearnQA.dev',
+        description: 'Learn API testing by first building the API in Java, Express and NestJS, then testing it with DevTools, Swagger, Postman, REST Assured and Playwright.',
+    },
+    {
         path: '/gauge',
         title: 'Gauge Tutorial with Java and Selenium | LearnQA.dev',
         description: 'Learn Gauge test automation with Java: Markdown specs, @Step bindings, Selenium By locators, @FindBy PageFactory and a JSON locator repository.',

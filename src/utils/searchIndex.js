@@ -2,6 +2,7 @@
 // Returns an array of { route, pageName, tabName, tabIndex, snippet, searchText }
 
 import { postmanData } from '../data/postmanData'
+import { apiTestingData } from '../data/apiTestingData'
 import { restAssuredData } from '../data/restAssuredData'
 import { dockerData } from '../data/dockerData'
 import { seleniumData } from '../data/seleniumData'
@@ -187,6 +188,7 @@ function buildEntries(dataObj, route, pageName, language = 'en') {
 
 const ALL_DATA = [
     { data: postmanData, route: '/postman', name: 'Postman' },
+    { data: apiTestingData, route: '/api-testing', name: 'API Testing' },
     { data: restAssuredData, route: '/rest-assured', name: 'REST Assured' },
     { data: dockerData, route: '/docker', name: 'Docker' },
     { data: seleniumData, route: '/selenium', name: 'Selenium' },

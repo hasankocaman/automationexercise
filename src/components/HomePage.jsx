@@ -48,6 +48,7 @@ const RESUME_LESSON_NAMES = {
     '/java': { tr: 'Java', en: 'Java' },
     '/jmeter': { tr: 'JMeter', en: 'JMeter' },
     '/postman': { tr: 'Postman', en: 'Postman' },
+    '/api-testing': { tr: 'API Testing', en: 'API Testing' },
     '/bruno': { tr: 'Bruno', en: 'Bruno' },
     '/rest-assured': { tr: 'REST Assured', en: 'REST Assured' },
     '/gauge': { tr: 'Gauge', en: 'Gauge' },
@@ -1070,6 +1071,7 @@ function HomePage() {
                             <div className="p-2 flex flex-wrap gap-1">
                                 <Link to="/jmeter" data-testid="nav-jmeter" className={nb('orange')}>📊 JMeter</Link>
                                 <Link to="/postman" data-testid="nav-postman" className={nb('orange')}>📮 Postman</Link>
+                                <Link to="/api-testing" data-testid="nav-api-testing" className={nb('indigo')}>🔌 API Testing</Link>
                                 <Link to="/bruno" data-testid="nav-bruno" className={nb('blue')}>📦 Bruno</Link>
                             </div>
                         </div>
@@ -1201,6 +1203,7 @@ function HomePage() {
                                     { to: '/rest-assured', label: '🧪 REST Assured' },
                                     { to: '/gauge', label: '📏 Gauge' },
                                     { to: '/postman', label: '📮 Postman' },
+                                    { to: '/api-testing', label: '🔌 API Testing' },
                                     { to: '/bruno', label: '📦 Bruno' },
                                     { to: '/jmeter', label: '📊 JMeter' },
                                     { to: '/browserstack', label: '☁️ BrowserStack' },
