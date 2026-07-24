@@ -121,10 +121,12 @@ export default function VideoSceneBlock({ block, darkMode, language }) {
     /* ── Ortak sınıflar ── */
     const card = darkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'
     const subtle = darkMode ? 'text-slate-400' : 'text-slate-500'
-    const btnCls = `min-w-9 min-h-9 px-2 rounded-lg border text-sm font-semibold transition-colors ${
+    // Not: disabled durumda buton GÖRÜNÜR kalmalı (yalnızca soluk) — son/ilk
+    // sahnede ileri/geri butonu "yok" gibi algılanmasın diye opacity düşük değil.
+    const btnCls = `min-w-9 min-h-9 px-2 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed ${
         darkMode
-            ? 'border-slate-600 text-slate-200 hover:bg-slate-800 disabled:opacity-40'
-            : 'border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-40'
+            ? 'border-slate-600 text-slate-200 hover:bg-slate-800 disabled:opacity-70 disabled:hover:bg-transparent'
+            : 'border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-60 disabled:hover:bg-transparent'
     }`
 
     const actorTransition = noMotion
