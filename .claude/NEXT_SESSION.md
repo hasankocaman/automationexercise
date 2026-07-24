@@ -10,6 +10,46 @@
 
 ---
 
+## 🚧 `/api-testing` Faz 5 — GRUP E (DevTools Network) E1-E3 TAMAM, E4-E6+wiring+Feynman DEVAM EDİYOR (2026-07-24, Sonnet oturumu, feature/api-testing-page)
+
+Plan: `Documents/api-testing-page-plan.md` §D.2 (Faz 5). Şablon: GRUP A
+(kodsuz). Kullanıcı talimatı (bu oturum boyunca geçerli): **test etmeden adım
+adım commit et**, toplu doğrulama faz sonunda.
+
+**Bu adımda yazılanlar (`src/data/apiTestingData.js`):**
+- 6 inline SVG sabiti eklendi (dış görsel yok kuralı, §8): `networkPanelSvg`,
+  `fetchXhrFilterSvg`, `requestTabsSvg`, `timingBarSvg` (E4 için, hazır),
+  `silentBugSvg` (E5 için, hazır), `curlImportFlowSvg` (E6 için, hazır).
+  Hepsi SADECE teknik terim/sayı/HTTP jargonu kullanıyor (Status/Headers/
+  Timing/200/500 gibi) — bu sayede tek bir `svg` string'i hem TR hem EN
+  ağaçta sorunsuz kullanılabiliyor (block şeması `svg` alanını `{tr,en}`
+  desteklemiyor, bkz. `TopicPage.jsx` `case 'diagram-svg'`).
+- `E1` (Network Paneli Anatomisi), `E2` (Fetch/XHR Filtresi), `E3` (Bir
+  İsteği Okumak: Headers/Payload/Preview/Response/Timing) tam içerikle
+  yazıldı: simple-box(4 katman, Java `HttpLoggingInterceptor` analojisi) +
+  text + `diagram-svg` + video-scene + step-animation + challenge(order-sort)
+  + code-playground (seç/tamamla modu, GRUP A'daki `??? ` kalıbı) + quiz.
+- Eski `groupE` id-array + `mk()` placeholder tanımı SİLİNDİ.
+
+**⚠️ Dosya şu an ÇALIŞMAZ (bilerek):** `sections` hâlâ `...groupE.map(mk)`
+kullanıyor ama `groupE` artık YOK — `ReferenceError`. Doğrulandı:
+`node --input-type=module -e "import(...)"` → `groupE is not defined`.
+
+**Sıradaki adımlar:**
+1. E4 (Timing Sekmesi — `timingBarSvg` kullan), E5 (Network'ten Defect
+   Yakalama — AMİRAL FİLM "Network Panelinde Bir Bug", ≥5 defect senaryosu:
+   sessiz 500, çift POST, N+1, sızan passwordHash, Cache-Control eksikliği —
+   `silentBugSvg` kullan), E6 (Copy as cURL → Postman — `curlImportFlowSvg`
+   kullan) yaz.
+2. `sections` dizisini `E1, E2, E3, E4, E5, E6,` ile güncelle (E grubu index
+   26-31 olacak: A=0-6, B=7-14, C=15-20, D=21-25, E=26-31).
+3. `apiFeynmanDefs`'e GRUP E sonu (E6, `sectionIndex: 31`) için bir
+   feynman-checkpoint ekle.
+4. Faz bitince TOPLU doğrulama: `node scripts/check-content-integrity.mjs`
+   (0 ihlal beklenir) + `npm run build` (yeşil).
+
+---
+
 ## ✅ `/api-testing` Faz 4 — GRUP C+D içerik + wiring + Feynman TAMAM, TOPLU DOĞRULAMA YEŞİL (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.1 (Faz 4). Şablon: GRUP A/B (Opus,

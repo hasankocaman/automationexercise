@@ -4458,14 +4458,475 @@ export class HttpExceptionFilter implements ExceptionFilter {
   ],
 }
 
-const groupE = [
-  ['E1', '🔍', 'Network Paneli Anatomisi', 'Network Panel Anatomy'],
-  ['E2', '🎚️', 'Fetch/XHR Filtresi: gürültüyü ayıklamak', 'Fetch/XHR Filter: cutting the noise'],
-  ['E3', '📖', 'Bir İsteği Okumak: Headers / Payload / Response', 'Reading a Request: Headers / Payload / Response'],
-  ['E4', '⏱️', 'Timing Sekmesi: TTFB, Waiting, Download', 'Timing Tab: TTFB, Waiting, Download'],
-  ['E5', '🐞', "Network'ten Defect Yakalama", 'Catching Defects from Network'],
-  ['E6', '🔗', 'Copy as cURL → Postman Import', 'Copy as cURL → Postman Import'],
-]
+// ═══════════════════════════════════════════════════════════════════════════
+// GRUP E — DevTools Network: Tarayıcıda API'yi Görmek (KODSUZ konu şablonu)
+// Inline SVG diyagramlar sadece teknik terim/sayı kullanır (dış görsel yok, §8)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const networkPanelSvg = `<svg viewBox='0 0 680 190' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <text x='20' y='30' fill='#94a3b8' font-size='12' font-weight='bold'>Name</text>
+  <text x='260' y='30' fill='#94a3b8' font-size='12' font-weight='bold'>Status</text>
+  <text x='360' y='30' fill='#94a3b8' font-size='12' font-weight='bold'>Type</text>
+  <text x='450' y='30' fill='#94a3b8' font-size='12' font-weight='bold'>Size</text>
+  <text x='560' y='30' fill='#94a3b8' font-size='12' font-weight='bold'>Time</text>
+  <line x1='20' y1='42' x2='660' y2='42' stroke='#374151' stroke-width='1'/>
+  <rect x='16' y='52' width='648' height='34' rx='6' fill='#1a2e22'/>
+  <text x='24' y='74' fill='#e5e7eb' font-size='12' font-family='monospace'>bugs?status=OPEN</text>
+  <text x='260' y='74' fill='#4ade80' font-size='12' font-weight='bold'>200</text>
+  <text x='360' y='74' fill='#e5e7eb' font-size='12'>fetch</text>
+  <text x='450' y='74' fill='#e5e7eb' font-size='12'>1.2 kB</text>
+  <text x='560' y='74' fill='#e5e7eb' font-size='12'>84 ms</text>
+  <rect x='16' y='94' width='648' height='34' rx='6' fill='#3a1a1a'/>
+  <text x='24' y='116' fill='#e5e7eb' font-size='12' font-family='monospace'>bugs (POST)</text>
+  <text x='260' y='116' fill='#f87171' font-size='12' font-weight='bold'>500</text>
+  <text x='360' y='116' fill='#e5e7eb' font-size='12'>fetch</text>
+  <text x='450' y='116' fill='#e5e7eb' font-size='12'>0.3 kB</text>
+  <text x='560' y='116' fill='#e5e7eb' font-size='12'>612 ms</text>
+  <rect x='16' y='136' width='648' height='34' rx='6' fill='#242640'/>
+  <text x='24' y='158' fill='#94a3b8' font-size='12' font-family='monospace'>logo.svg</text>
+  <text x='260' y='158' fill='#4ade80' font-size='12' font-weight='bold'>200</text>
+  <text x='360' y='158' fill='#94a3b8' font-size='12'>img</text>
+  <text x='450' y='158' fill='#94a3b8' font-size='12'>4.1 kB</text>
+  <text x='560' y='158' fill='#94a3b8' font-size='12'>9 ms</text>
+</svg>`
+
+const fetchXhrFilterSvg = `<svg viewBox='0 0 680 190' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <text x='20' y='26' fill='#94a3b8' font-size='12' font-weight='bold'>Filtresiz (All)</text>
+  <rect x='16' y='34' width='140' height='24' rx='5' fill='#2a2c45'/><text x='24' y='50' fill='#94a3b8' font-size='11'>logo.svg (img)</text>
+  <rect x='16' y='62' width='140' height='24' rx='5' fill='#2a2c45'/><text x='24' y='78' fill='#94a3b8' font-size='11'>style.css</text>
+  <rect x='16' y='90' width='140' height='24' rx='5' fill='#1a2e22'/><text x='24' y='106' fill='#e5e7eb' font-size='11'>bugs (fetch)</text>
+  <rect x='16' y='118' width='140' height='24' rx='5' fill='#2a2c45'/><text x='24' y='134' fill='#94a3b8' font-size='11'>font.woff2</text>
+  <path d='M 180 90 L 260 90' stroke='#f59e0b' stroke-width='2' marker-end='url(#arrow)'/>
+  <defs><marker id='arrow' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L6,3 L0,6 z' fill='#f59e0b'/></marker></defs>
+  <text x='210' y='60' fill='#f59e0b' font-size='11' font-weight='bold'>Fetch/XHR</text>
+  <text x='300' y='26' fill='#94a3b8' font-size='12' font-weight='bold'>Filtreli</text>
+  <rect x='300' y='80' width='340' height='30' rx='6' fill='#1a2e22'/>
+  <text x='312' y='100' fill='#4ade80' font-size='12' font-family='monospace'>GET /api/v1/bugs?status=OPEN</text>
+</svg>`
+
+const requestTabsSvg = `<svg viewBox='0 0 680 170' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <rect x='16' y='16' width='120' height='30' rx='6' fill='#2a2c45'/><text x='30' y='36' fill='#94a3b8' font-size='12'>Headers</text>
+  <rect x='144' y='16' width='120' height='30' rx='6' fill='#2a2c45'/><text x='158' y='36' fill='#94a3b8' font-size='12'>Payload</text>
+  <rect x='272' y='16' width='120' height='30' rx='6' fill='#3b3220'/><text x='286' y='36' fill='#f59e0b' font-size='12' font-weight='bold'>Preview</text>
+  <rect x='400' y='16' width='120' height='30' rx='6' fill='#2a2c45'/><text x='414' y='36' fill='#94a3b8' font-size='12'>Response</text>
+  <rect x='528' y='16' width='136' height='30' rx='6' fill='#2a2c45'/><text x='542' y='36' fill='#94a3b8' font-size='12'>Timing</text>
+  <rect x='16' y='58' width='648' height='96' rx='8' fill='#141522'/>
+  <text x='32' y='82' fill='#e5e7eb' font-size='12' font-family='monospace'>{</text>
+  <text x='48' y='102' fill='#a78bfa' font-size='12' font-family='monospace'>title: "Login butonu donuyor",</text>
+  <text x='48' y='122' fill='#a78bfa' font-size='12' font-family='monospace'>severity: "HIGH"</text>
+  <text x='32' y='142' fill='#e5e7eb' font-size='12' font-family='monospace'>}</text>
+</svg>`
+
+const timingBarSvg = `<svg viewBox='0 0 680 150' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <text x='20' y='28' fill='#94a3b8' font-size='12' font-weight='bold'>Timing — GET /api/v1/bugs/42</text>
+  <rect x='20' y='44' width='60' height='28' rx='4' fill='#a78bfa'/><text x='26' y='63' fill='#1e2030' font-size='11' font-weight='bold'>TTFB</text>
+  <rect x='80' y='44' width='420' height='28' fill='#f59e0b'/><text x='240' y='63' fill='#1e2030' font-size='11' font-weight='bold'>Waiting (server)</text>
+  <rect x='500' y='44' width='40' height='28' rx='4' fill='#22c55e'/><text x='503' y='63' fill='#1e2030' font-size='10' font-weight='bold'>DL</text>
+  <text x='20' y='100' fill='#e5e7eb' font-size='12'>TTFB: 0.1s</text>
+  <text x='220' y='100' fill='#e5e7eb' font-size='12'>Waiting: 2.7s</text>
+  <text x='500' y='100' fill='#e5e7eb' font-size='12'>Content Download: 0.1s</text>
+  <text x='20' y='128' fill='#f59e0b' font-size='12' font-weight='bold'>Toplam 2.9s icinde en buyuk pay Waiting -> suclu SUNUCU, ag degil</text>
+</svg>`
+
+const silentBugSvg = `<svg viewBox='0 0 680 170' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <text x='20' y='28' fill='#94a3b8' font-size='12' font-weight='bold'>UI</text>
+  <rect x='16' y='36' width='300' height='60' rx='8' fill='#142314'/>
+  <text x='36' y='72' fill='#4ade80' font-size='14' font-weight='bold'>✔ "Bug basariyla olusturuldu"</text>
+  <text x='360' y='28' fill='#94a3b8' font-size='12' font-weight='bold'>Network</text>
+  <rect x='356' y='36' width='308' height='60' rx='8' fill='#3a1a1a'/>
+  <text x='372' y='60' fill='#f87171' font-size='13' font-family='monospace'>POST /api/v1/bugs</text>
+  <text x='372' y='82' fill='#f87171' font-size='16' font-weight='bold'>500 Internal Server Error</text>
+  <path d='M 320 66 L 352 66' stroke='#ef4444' stroke-width='2' stroke-dasharray='4 3'/>
+  <text x='120' y='130' fill='#f59e0b' font-size='12' font-weight='bold'>UI hata GOSTERMIYOR — sadece Network satiri gercegi soyluyor</text>
+</svg>`
+
+const curlImportFlowSvg = `<svg viewBox='0 0 680 150' xmlns='http://www.w3.org/2000/svg' style='background:#1e2030;border-radius:12px;font-family:sans-serif;'>
+  <rect x='16' y='50' width='150' height='50' rx='8' fill='#242640'/><text x='34' y='80' fill='#e5e7eb' font-size='12'>Network satırı</text>
+  <path d='M 172 75 L 220 75' stroke='#f59e0b' stroke-width='2' marker-end='url(#arrow2)'/>
+  <defs><marker id='arrow2' markerWidth='8' markerHeight='8' refX='6' refY='3' orient='auto'><path d='M0,0 L6,3 L0,6 z' fill='#f59e0b'/></marker></defs>
+  <rect x='224' y='50' width='190' height='50' rx='8' fill='#1a2e22'/><text x='240' y='72' fill='#4ade80' font-size='11' font-family='monospace'>curl -X POST \\</text><text x='240' y='88' fill='#4ade80' font-size='11' font-family='monospace'>  '/api/v1/bugs' ...</text>
+  <path d='M 418 75 L 466 75' stroke='#f59e0b' stroke-width='2' marker-end='url(#arrow2)'/>
+  <rect x='470' y='50' width='194' height='50' rx='8' fill='#242640'/><text x='488' y='80' fill='#e5e7eb' font-size='12'>Postman → Import</text>
+</svg>`
+
+const E1 = {
+  title: { tr: '🔍 E1 · Network Paneli Anatomisi', en: '🔍 E1 · Network Panel Anatomy' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🔍',
+      content: {
+        tr: 'DevTools Network paneli, bir **hava trafik kontrol kulesinin radar ekranı** gibidir: her uçuş (istek) ekranda bir satır olarak belirir — nereye gittiği (Name), inişinin başarılı olup olmadığı (Status), ne taşıdığı (Type), ne kadar yer kapladığı (Size) ve ne kadar sürdüğü (Time) tek bakışta görünür. Peki Postman zaten varken, tarayıcının kendi radarına neden bakıyoruz? Çünkü Postman SEN isteği gönderdiğinde çalışır — ama gerçek kullanıcı deneyiminde istekler UI\'nın kendisi (JavaScript) tarafından, senin haberin olmadan tetiklenir; Network paneli UI\'nın ARKASINDA gerçekten ne olduğunu gösteren TEK yerdir. Java\'da bunun en yakın karşılığı bir `HttpClient` loglama interceptor\'ıdır — `OkHttp`\'nin `HttpLoggingInterceptor`\'ı gibi, her giden isteği ve gelen yanıtı konsola yazar; DevTools Network de tarayıcının GUI\'li, otomatik interceptor\'ıdır. QA açısından bu panel, kariyerinin en sık kullanacağın araçlarından biri olur çünkü şu senaryoyu SIK yaşarsın: ekranda her şey normal görünür, buton "Başarılı!" der — ama Network panelini açtığında kırmızı bir 500 satırı seni bekliyordur. UI seni yanıltabilir, Network paneli yanıltmaz.',
+        en: 'The DevTools Network panel is like an **air traffic control tower\'s radar screen**: every flight (request) appears as a row on screen — where it is going (Name), whether it landed successfully (Status), what it is carrying (Type), how much space it takes (Size), and how long it took (Time) are all visible at a glance. So if Postman already exists, why look at the browser\'s own radar? Because Postman runs when YOU send the request — but in a real user experience, requests are triggered by the UI itself (JavaScript), without you knowing; the Network panel is the ONLY place that shows what REALLY happens BEHIND the UI. The closest Java equivalent is an `HttpClient` logging interceptor — like OkHttp\'s `HttpLoggingInterceptor`, which writes every outgoing request and incoming response to the console; DevTools Network is the browser\'s GUI-based, automatic interceptor. For QA this panel becomes one of the most-used tools in your career because you WILL repeatedly face this scenario: everything looks normal on screen, the button says "Success!" — but opening the Network panel, a red 500 row is waiting for you. The UI can mislead you, the Network panel does not.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Beş Sütun: Tek Bakışta Bir İsteğin Özeti', en: 'Five Columns: A Request\'s Summary at a Glance' } },
+    {
+      type: 'text',
+      content: {
+        tr: 'Her satır bir HTTP isteğidir. **Name** yolu/dosya adını, **Status** sunucunun cevabını (200/404/500...), **Type** isteğin türünü (`fetch`/`xhr`/`img`/`css`), **Size** yanıtın boyutunu, **Time** ne kadar sürdüğünü gösterir. `/api/v1/bugs` gibi bir API isteği genelde `fetch` veya `xhr` tipindedir — bu, E2\'de kullanacağın filtrenin temelidir.',
+        en: 'Each row is one HTTP request. **Name** shows the path/filename, **Status** the server\'s answer (200/404/500...), **Type** the request kind (`fetch`/`xhr`/`img`/`css`), **Size** the response size, **Time** how long it took. An API request like `/api/v1/bugs` is usually of type `fetch` or `xhr` — this is the basis of the filter you will use in E2.',
+      },
+    },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'Network Paneli — Sütunlar ve Örnek Satırlar', en: 'Network Panel — Columns and Sample Rows' },
+      svg: networkPanelSvg,
+    },
+    {
+      type: 'video-scene',
+      id: 'api-e1-panel-film',
+      title: { tr: '🎬 Bir İstek Network Panelinde Nasıl Belirir?', en: '🎬 How a Request Appears in the Network Panel' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'click', emoji: '🖱️', label: { tr: 'Kullanıcı tıklar', en: 'User clicks' }, color: '#f59e0b' },
+        { id: 'js', emoji: '⚙️', label: { tr: 'JS fetch() çağırır', en: 'JS calls fetch()' }, color: '#0ea5e9' },
+        { id: 'panel', emoji: '📡', label: { tr: 'Network paneli satır ekler', en: 'Network panel adds a row' }, color: '#a78bfa' },
+        { id: 'status', emoji: '🟢', label: { tr: 'Status/Time dolar', en: 'Status/Time fill in' }, color: '#22c55e' },
+        { id: 'tester', emoji: '🕵️', label: { tr: 'Tester satırı inceler', en: 'Tester inspects the row' }, color: '#8b5cf6' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Kullanıcı (veya tester) "Bugları Yenile" butonuna tıklar.', en: 'The user (or tester) clicks "Refresh Bugs".' },
+          positions: { click: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Buton arkasındaki JavaScript kodu `fetch(\'/api/v1/bugs\')` çağırır — bu, DevTools\'un YAKALAYACAĞI andır.', en: 'The JavaScript behind the button calls `fetch(\'/api/v1/bugs\')` — this is the moment DevTools CAPTURES.' },
+          positions: { click: { x: 20, y: 40 }, js: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'click', to: 'js', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: 'Network paneli anında yeni bir satır ekler — Name doludur ama Status/Size/Time henüz "bekliyor" görünür.', en: 'The Network panel instantly adds a new row — Name is filled but Status/Size/Time still look "pending".' },
+          positions: { js: { x: 20, y: 40 }, panel: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'js', to: 'panel', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: 'Sunucudan yanıt gelince Status (200/500), Size ve Time sütunları anında güncellenir.', en: 'When the server responds, the Status (200/500), Size, and Time columns update instantly.' },
+          positions: { panel: { x: 20, y: 40 }, status: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'panel', to: 'status', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'Ders — Tester bu satırı UI\'nın söylediğine GÜVENMEDEN kendi gözüyle okur; UI "başarılı" dese bile Status sütunu farklı bir hikaye anlatabilir.', en: 'The lesson — a tester reads this row with their own eyes, WITHOUT trusting what the UI says; even if the UI says "success", the Status column may tell a different story.' },
+          positions: { status: { x: 30, y: 45 }, tester: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'status', to: 'tester', color: '#8b5cf6' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'DevTools\'u Açıp İlk İsteği Görmek', en: 'Opening DevTools and Seeing the First Request' },
+      steps: [
+        { id: 1, icon: '⌨️', label: { tr: 'DevTools\'u aç…', en: 'Open DevTools…' }, detail: { tr: 'F12 veya sağ tık → İncele, sonra Network sekmesine geç.', en: 'F12 or right-click → Inspect, then switch to the Network tab.' } },
+        { id: 2, icon: '🔄', label: { tr: 'Bir eylem tetikle…', en: 'Trigger an action…' }, detail: { tr: 'Sayfayı yenile veya bir API çağrısı yapan bir butona tıkla.', en: 'Refresh the page or click a button that triggers an API call.' } },
+        { id: 3, icon: '👀', label: { tr: 'Satırı oku…', en: 'Read the row…' }, detail: { tr: 'Name/Status/Type/Size/Time sütunlarına bakarak isteğin özetini çıkar.', en: 'Read Name/Status/Type/Size/Time to get the request\'s summary.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-e1-order-01',
+      question: { tr: 'Network panelinde bir isteği ilk kez incelerken izlenecek sırayı diz.', en: 'Order the steps for inspecting a request in the Network panel for the first time.' },
+      items: [
+        { id: '1', text: { tr: 'DevTools\'u aç, Network sekmesine geç', en: 'Open DevTools, switch to the Network tab' }, order: 1 },
+        { id: '2', text: { tr: 'Eylemi tetikle (yenile/butona tıkla)', en: 'Trigger the action (refresh/click button)' }, order: 2 },
+        { id: '3', text: { tr: 'Yeni satırın Name sütununu oku', en: 'Read the new row\'s Name column' }, order: 3 },
+        { id: '4', text: { tr: 'Status sütununa bak — 2xx mi 4xx/5xx mi?', en: 'Check the Status column — 2xx or 4xx/5xx?' }, order: 4 },
+        { id: '5', text: { tr: 'Size ve Time ile isteğin ağırlığını/hızını değerlendir', en: 'Assess the request\'s weight/speed via Size and Time' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-e1-panel-anatomy',
+      id: 'api-e1-panel-anatomy',
+      title: { tr: 'Kendin Dene: Doğru Sütunu Eşle', en: 'Try It Yourself: Match the Right Column' },
+      starterCode: `// Network panelinde bir satir: /api/v1/bugs -> 500 -> fetch -> 0.3 kB -> 612 ms
+// TODO: "sunucunun cevabini" hangi sutun gosterir?
+Sutun adi: ???`,
+      solutionCode: `// Sunucunun cevabini (basarili/basarisiz) gosteren sutun STATUS'tur
+Sutun adi: Status`,
+      hint: { tr: 'Name yolu, Type isteğin türünü, Size yanıt boyutunu, Time süreyi gösterir. Sunucunun "başardım/başaramadım" cevabını taşıyan tek sütun Status\'tur.', en: 'Name shows the path, Type the request kind, Size the response size, Time the duration. The only column carrying the server\'s "I succeeded/failed" answer is Status.' },
+      successMessage: { tr: 'Doğru! Status sütunu, bir isteğin gerçekten başarılı olup olmadığının tek güvenilir kanıtıdır.', en: 'Correct! The Status column is the only reliable evidence of whether a request truly succeeded.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'UI ekranda "Bug başarıyla oluşturuldu" mesajı gösteriyor. Bunun gerçekten doğru olduğunu nasıl doğrularsın?', en: 'The UI shows "Bug created successfully" on screen. How do you verify this is really true?' },
+      options: [
+        { id: 'a', text: { tr: 'Mesaja güvenip geçerim, UI zaten doğru söylüyordur', en: 'Trust the message and move on, the UI is surely telling the truth' } },
+        { id: 'b', text: { tr: 'Network panelini açıp isteğin GERÇEK Status kodunu kontrol ederim', en: 'Open the Network panel and check the request\'s REAL Status code' } },
+        { id: 'c', text: { tr: 'Sayfayı yeniden başlatırım', en: 'Restart the page' } },
+        { id: 'd', text: { tr: 'Sadece ekran görüntüsü alırım', en: 'Just take a screenshot' } },
+      ],
+      correct: 'b',
+      explanation: { tr: 'UI mesajları geliştiricinin YAZDIĞI metindir, sunucunun GERÇEK cevabı değildir — bir hata durumunda bile yanlışlıkla "başarılı" mesajı gösterilebilir. Network panelindeki Status sütunu, sunucunun ne döndürdüğünün tek doğrudan kanıtıdır.', en: 'UI messages are text the developer WROTE, not the server\'s REAL answer — even on failure, a "success" message can mistakenly show. The Status column in the Network panel is the only direct evidence of what the server actually returned.' },
+      retryQuestion: {
+        question: { tr: 'Network panelindeki "Type" sütunu ne gösterir?', en: 'What does the "Type" column in the Network panel show?' },
+        options: [
+          { id: 'a', text: { tr: 'İsteğin türünü (fetch, xhr, img, css gibi)', en: 'The kind of request (fetch, xhr, img, css, etc.)' } },
+          { id: 'b', text: { tr: 'Sunucunun IP adresini', en: 'The server\'s IP address' } },
+          { id: 'c', text: { tr: 'Kullanıcının tarayıcı sürümünü', en: 'The user\'s browser version' } },
+          { id: 'd', text: { tr: 'İsteğin ne zaman gönderildiğini', en: 'When the request was sent' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Type sütunu isteğin kaynağını/türünü gösterir — bir API çağrısı genelde `fetch`/`xhr`, bir resim `img`, bir stil dosyası `css`\'tir. Bu ayrım, E2\'de göreceğin filtrelemenin temelidir.', en: 'The Type column shows the request\'s source/kind — an API call is usually `fetch`/`xhr`, an image is `img`, a stylesheet is `css`. This distinction is the basis of the filtering you will see in E2.' },
+      },
+    },
+  ],
+}
+
+const E2 = {
+  title: { tr: '🎚️ E2 · Fetch/XHR Filtresi: gürültüyü ayıklamak', en: '🎚️ E2 · Fetch/XHR Filter: cutting the noise' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '🎚️',
+      content: {
+        tr: 'Fetch/XHR filtresi, bir **radyo istasyonu ayar düğmesi** gibidir: eter (tüm ağ trafiği) yüzlerce frekansla (resim, CSS, font, reklam scripti, API isteği) doludur; filtre olmadan bir sayfa yüklemesi onlarca satır üretir ve aradığın TEK API isteğini bulmak saman yığınında iğne aramaya döner. Filtreyi "Fetch/XHR"a çevirdiğinde, sadece JavaScript\'in kod içinden başlattığı istekler (tam da API çağrıların) kalır — statik dosyalar (resim, font, stil) sessizleşir. Peki neden tarayıcı varsayılan olarak HER ŞEYİ göstersin ki, API testerının işini zorlaştırsın? Çünkü Network paneli SADECE testerlar için değildir — bir frontend geliştirici performans optimizasyonu yaparken TÜM kaynakları (resimler dahil) görmek ister; filtre, senin ROLÜNE göre gürültüyü SEN ayıklarsın. Java\'da bunun karşılığı log seviyesi filtrelemedir: `DEBUG` seviyesinde HER ŞEY loglanır, ama sen sadece `ERROR` seviyesini görmek istersin — log4j/logback\'te seviyeyi süzersin, DevTools\'ta da istek TÜRÜNÜ süzersin. QA açısından bu filtre olmadan çalışmak ciddi bir risktir: 50 satırlık bir sayfa yüklemesinde gerçek API isteğini KAÇIRMAK, bir defect\'i hiç görmeden geçmek anlamına gelir.',
+        en: 'The Fetch/XHR filter is like a **radio tuning dial**: the ether (all network traffic) is full of hundreds of frequencies (images, CSS, fonts, ad scripts, API calls); without a filter, loading one page produces dozens of rows and finding the ONE API request you want becomes finding a needle in a haystack. Turning the filter to "Fetch/XHR" leaves only the requests JavaScript itself started from code (exactly your API calls) — static files (images, fonts, styles) go quiet. So why does the browser show EVERYTHING by default, making an API tester\'s job harder? Because the Network panel is NOT only for testers — a frontend developer doing performance work wants to see ALL resources (images included); the filter lets YOU cut the noise according to YOUR role. The Java equivalent is log-level filtering: at `DEBUG` level EVERYTHING is logged, but you only want to see `ERROR` — you filter by level in log4j/logback, and in DevTools you filter by request TYPE. For QA, working without this filter is a real risk: MISSING the real API request in a 50-row page load means walking right past a defect without ever seeing it.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Gürültüden Sinyale', en: 'From Noise to Signal' } },
+    {
+      type: 'text',
+      content: {
+        tr: 'Network panelinin üstündeki filtre çubuğunda `Fetch/XHR` seçeneğine tıklamak, listeyi sadece JavaScript kodunun (`fetch()`/`XMLHttpRequest`) başlattığı isteklere indirger. Bir metin araması (`bugs`) ile de daraltabilirsin. Bu ikisi birlikte, düzinelerce statik dosya arasından tam olarak aradığın API isteğine saniyeler içinde ulaştırır.',
+        en: 'Clicking the `Fetch/XHR` option in the filter bar above the Network panel reduces the list to only the requests started by JavaScript code (`fetch()`/`XMLHttpRequest`). You can narrow it further with a text search (`bugs`). Together these get you to exactly the API request you want, in seconds, out of dozens of static files.',
+      },
+    },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'Filtresiz Liste → Fetch/XHR ile Daraltılmış Liste', en: 'Unfiltered List → Narrowed with Fetch/XHR' },
+      svg: fetchXhrFilterSvg,
+    },
+    {
+      type: 'video-scene',
+      id: 'api-e2-filter-film',
+      title: { tr: '🎬 50 Satır Arasında Kaybolan Tek API İsteği', en: '🎬 The One API Request Lost Among 50 Rows' },
+      xpReward: 11,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'load', emoji: '📄', label: { tr: 'Sayfa yüklenir: 50 satır', en: 'Page loads: 50 rows' }, color: '#94a3b8' },
+        { id: 'search', emoji: '🔎', label: { tr: 'Testerin gözü ile arama', en: 'Tester searches by eye' }, color: '#f59e0b' },
+        { id: 'filter', emoji: '🎚️', label: { tr: 'Fetch/XHR filtresi', en: 'Fetch/XHR filter' }, color: '#0ea5e9' },
+        { id: 'found', emoji: '🎯', label: { tr: 'Tek satır: /api/v1/bugs', en: 'One row: /api/v1/bugs' }, color: '#22c55e' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Sayfa yüklenir: resimler, fontlar, stiller, reklam scriptleri ve BİR API isteği — toplam 50 satır.', en: 'The page loads: images, fonts, styles, ad scripts, and ONE API request — 50 rows total.' },
+          positions: { load: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: 'Filtre kullanmadan tester gözle satır satır arar — yavaş ve hataya açık.', en: 'Without a filter the tester searches row by row with their eyes — slow and error-prone.' },
+          positions: { load: { x: 20, y: 40 }, search: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'load', to: 'search', color: '#f59e0b' }],
+        },
+        {
+          caption: { tr: 'Filtre çubuğunda "Fetch/XHR" seçilir — sadece JavaScript\'in başlattığı istekler kalır.', en: 'The "Fetch/XHR" option is selected in the filter bar — only JavaScript-started requests remain.' },
+          positions: { search: { x: 20, y: 40 }, filter: { x: 58, y: 55, scale: 1.15, pulse: true } },
+          beams: [{ from: 'search', to: 'filter', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: '50 satır, tek bir satıra iner: `GET /api/v1/bugs`. Aranan defect artık gözden kaçamaz.', en: '50 rows shrink to a single row: `GET /api/v1/bugs`. The defect you are looking for can no longer slip past.' },
+          positions: { filter: { x: 20, y: 40 }, found: { x: 58, y: 55, scale: 1.2, pulse: true } },
+          beams: [{ from: 'filter', to: 'found', color: '#22c55e' }],
+        },
+        {
+          caption: { tr: 'Ders — Filtre bir "süs" değildir; onsuz çalışmak, gerçek bir defect\'i onlarca alakasız satır arasında kaçırma riskidir.', en: 'The lesson — the filter is not a "nicety"; working without it risks missing a real defect among dozens of unrelated rows.' },
+          positions: { found: { x: 40, y: 48, scale: 1.15, pulse: true } },
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Gürültüyü Ayıklama Sırası', en: 'The Order for Cutting the Noise' },
+      steps: [
+        { id: 1, icon: '📄', label: { tr: 'Filtresiz listeye bak…', en: 'Look at the unfiltered list…' }, detail: { tr: 'Sayfa yüklendiğinde resim/font/CSS/API karışık onlarca satır görünür.', en: 'When the page loads, dozens of mixed image/font/CSS/API rows appear.' } },
+        { id: 2, icon: '🎚️', label: { tr: 'Fetch/XHR\'ı seç…', en: 'Select Fetch/XHR…' }, detail: { tr: 'Filtre çubuğunda Fetch/XHR\'a tıkla — sadece JS kaynaklı istekler kalır.', en: 'Click Fetch/XHR in the filter bar — only JS-originated requests remain.' } },
+        { id: 3, icon: '🔎', label: { tr: 'Metinle daralt…', en: 'Narrow with text…' }, detail: { tr: 'Gerekirse "bugs" gibi bir arama terimiyle listeyi tek satıra indir.', en: 'If needed, narrow to a single row with a search term like "bugs".' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-e2-order-01',
+      question: { tr: 'Kalabalık bir sayfa yüklemesinde tek bir API isteğini bulma sırasını diz.', en: 'Order the steps to find one API request in a crowded page load.' },
+      items: [
+        { id: '1', text: { tr: 'Sayfayı yükle, Network panelini gözlemle', en: 'Load the page, observe the Network panel' }, order: 1 },
+        { id: '2', text: { tr: 'Filtre çubuğunda Fetch/XHR\'ı seç', en: 'Select Fetch/XHR in the filter bar' }, order: 2 },
+        { id: '3', text: { tr: 'Kalan listeyi metin aramasıyla daralt', en: 'Narrow the remaining list with a text search' }, order: 3 },
+        { id: '4', text: { tr: 'Hedef API isteğini tek satırda bul', en: 'Find the target API request in a single row' }, order: 4 },
+        { id: '5', text: { tr: 'Status/Time üzerinden isteği değerlendir', en: 'Evaluate the request via Status/Time' }, order: 5 },
+      ],
+      xpReward: 10,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-e2-fetch-xhr-filter',
+      id: 'api-e2-fetch-xhr-filter',
+      title: { tr: 'Kendin Dene: Fetch/XHR Filtresinde Kalanı Seç', en: 'Try It Yourself: Pick What Survives the Fetch/XHR Filter' },
+      starterCode: `// Filtrelenmemis liste: logo.svg (img), style.css, /api/v1/bugs (fetch), font.woff2
+// TODO: Fetch/XHR filtresi acildiginda listede SADECE hangisi kalir?
+Kalan: ???`,
+      solutionCode: `// Sadece JavaScript'in baslattigi istek (fetch/xhr turu) kalir
+Kalan: /api/v1/bugs (fetch)`,
+      hint: { tr: '`img`, `css` ve `font` türündeki dosyalar tarayıcının kendisi tarafından sayfa render edilirken istenir — bunlar JavaScript kodundan değildir, bu yüzden Fetch/XHR filtresinde ELENİR.', en: '`img`, `css`, and `font` type files are requested by the browser itself while rendering the page — these do not come from JavaScript code, so they are FILTERED OUT by the Fetch/XHR filter.' },
+      successMessage: { tr: 'Doğru! Fetch/XHR filtresi tam olarak API isteklerinin yaşadığı yerdir.', en: 'Correct! Fetch/XHR is exactly where API requests live in the filter.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: 'Fetch/XHR filtresi neden tercih edilir?', en: 'Why is the Fetch/XHR filter preferred?' },
+      options: [
+        { id: 'a', text: { tr: 'Sadece JavaScript kodunun başlattığı istekleri (API çağrıları) gösterip statik dosya gürültüsünü eler', en: 'It shows only requests started by JavaScript code (API calls) and cuts static-file noise' } },
+        { id: 'b', text: { tr: 'Tüm isteklerin hızını otomatik artırır', en: 'It automatically speeds up all requests' } },
+        { id: 'c', text: { tr: 'Sadece HTTPS isteklerini gösterir', en: 'It shows only HTTPS requests' } },
+        { id: 'd', text: { tr: 'Sunucudaki hataları otomatik düzeltir', en: 'It automatically fixes server-side errors' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Fetch/XHR filtresi, isteğin TÜRÜNE göre süzer: resim/font/CSS gibi statik kaynak istekleri (tarayıcı tarafından otomatik başlatılır) elenir, sadece JavaScript\'in `fetch()`/`XMLHttpRequest` ile başlattığı — yani genelde API — istekler kalır.', en: 'The Fetch/XHR filter sieves by request TYPE: static resource requests like images/fonts/CSS (auto-started by the browser) are filtered out, leaving only requests JavaScript started with `fetch()`/`XMLHttpRequest` — typically API calls.' },
+      retryQuestion: {
+        question: { tr: 'Filtre kullanmadan Network panelinde API isteği aramanın en büyük riski nedir?', en: 'What is the biggest risk of searching for an API request in the Network panel without a filter?' },
+        options: [
+          { id: 'a', text: { tr: 'Onlarca alakasız satır arasında gerçek isteği/defect\'i kaçırmak', en: 'Missing the real request/defect among dozens of unrelated rows' } },
+          { id: 'b', text: { tr: 'Tarayıcının çökmesi', en: 'Crashing the browser' } },
+          { id: 'c', text: { tr: 'Sunucunun isteği reddetmesi', en: 'The server rejecting the request' } },
+          { id: 'd', text: { tr: 'İnternet bağlantısının kesilmesi', en: 'Losing the internet connection' } },
+        ],
+        correct: 'a',
+        explanation: { tr: 'Filtre olmadan bir sayfa yüklemesi onlarca satır üretebilir; bu kalabalıkta gerçek API isteğini (ve içindeki olası bir 500/boş body defect\'ini) atlamak kolaydır — filtre bu riski ortadan kaldırır.', en: 'Without a filter, one page load can produce dozens of rows; in that crowd it is easy to skip the real API request (and a possible 500/empty-body defect inside it) — the filter removes that risk.' },
+      },
+    },
+  ],
+}
+
+const E3 = {
+  title: { tr: '📖 E3 · Bir İsteği Okumak: Headers / Payload / Preview / Response / Timing', en: '📖 E3 · Reading a Request: Headers / Payload / Preview / Response / Timing' },
+  blocks: [
+    {
+      type: 'simple-box',
+      emoji: '📖',
+      content: {
+        tr: 'Bir Network satırına tıklayıp açılan 5 sekme (`Headers`, `Payload`, `Preview`, `Response`, `Timing`), bir **zarfı katman katman açmak** gibidir: `Headers` zarfın dışındaki adres/pul bilgisidir (meta veri — Content-Type, Authorization); `Payload` içindeki mektubun SEN gönderdiğin hâlidir (istek gövdesi); `Response` sunucudan gelen mektubun HAM hâlidir (ayrıştırılmamış metin); `Preview` ise aynı mektubun OKUNAKLI, biçimlendirilmiş hâlidir (JSON güzelce girintili); `Timing` ise mektubun postalanmasından teslimine kadar geçen süredir. Peki `Response` varken `Preview`\'e neden ihtiyaç var — ikisi aynı veriyi göstermiyor mu? Evet aynı veriyi gösterirler ama `Response` ham metindir (büyük bir JSON\'da okumak gözünü yorar), `Preview` ise tarayıcının senin için AYRIŞTIRIP güzelce sunduğu hâlidir — küçük farkları (bir alanın eksikliği, yanlış tipte bir değer) `Preview`\'de çok daha hızlı yakalarsın. Java\'da bunun karşılığı bir `HttpResponse` nesnesinin `headers()`, `body()` alanlarıdır — `Payload` bir `HttpRequest.BodyPublisher`\'a, `Response` bir `HttpResponse<String>`\'e karşılık gelir; `Timing` ise bir profiler\'ın ölçtüğü süreye. QA açısından bu 5 sekmeyi ayrı ayrı bilmek kritiktir çünkü bir hata farklı sekmelerde farklı görünür: yanlış `Content-Type` `Headers`\'da, eksik bir alan `Payload`\'da, beklenmeyen bir `passwordHash` alanı `Response`\'ta saklıdır.',
+        en: 'The 5 tabs (`Headers`, `Payload`, `Preview`, `Response`, `Timing`) that open when you click a Network row are like **opening an envelope layer by layer**: `Headers` is the address/stamp info on the outside of the envelope (metadata — Content-Type, Authorization); `Payload` is the letter inside as YOU sent it (the request body); `Response` is the RAW form of the letter that came back from the server (unparsed text); `Preview` is the same letter\'s READABLE, formatted form (JSON nicely indented); `Timing` is how long it took from posting to delivery. So why do we need `Preview` when `Response` exists — don\'t they show the same data? Yes, they show the same data, but `Response` is raw text (tiring on the eyes in a large JSON), while `Preview` is the browser PARSING and presenting it nicely for you — small differences (a missing field, a wrongly typed value) are caught much faster in `Preview`. The Java equivalent is an `HttpResponse` object\'s `headers()`, `body()` fields — `Payload` maps to an `HttpRequest.BodyPublisher`, `Response` to an `HttpResponse<String>`, `Timing` to what a profiler measures. For QA, knowing these 5 tabs separately is critical because a bug shows up differently in different tabs: a wrong `Content-Type` hides in `Headers`, a missing field in `Payload`, an unexpected `passwordHash` field in `Response`.',
+      },
+    },
+    { type: 'heading', text: { tr: 'Zarfı Katman Katman Açmak', en: 'Opening the Envelope Layer by Layer' } },
+    {
+      type: 'text',
+      content: {
+        tr: 'Bir satıra tıkladığında yan panelde bu 5 sekme açılır. `Preview` sekmesi, sunucunun döndürdüğü JSON\'u okunaklı ağaç yapısında gösterir — özellikle büyük yanıtlarda ilk bakılacak sekme budur.',
+        en: 'Clicking a row opens these 5 tabs in the side panel. The `Preview` tab shows the JSON the server returned in a readable tree structure — this is the first tab to check, especially for large responses.',
+      },
+    },
+    {
+      type: 'diagram-svg',
+      title: { tr: 'Bir İsteğin 5 Sekmesi (Preview seçili)', en: 'A Request\'s 5 Tabs (Preview selected)' },
+      svg: requestTabsSvg,
+    },
+    {
+      type: 'video-scene',
+      id: 'api-e3-tabs-film',
+      title: { tr: '🎬 Hangi Hata Hangi Sekmede Saklanır?', en: '🎬 Which Bug Hides in Which Tab?' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'row', emoji: '📡', label: { tr: 'Network satırına tıkla', en: 'Click the Network row' }, color: '#f59e0b' },
+        { id: 'headers', emoji: '📇', label: { tr: 'Headers: Content-Type yanlış', en: 'Headers: wrong Content-Type' }, color: '#0ea5e9' },
+        { id: 'payload', emoji: '📝', label: { tr: 'Payload: gönderdiğin veri', en: 'Payload: what you sent' }, color: '#a78bfa' },
+        { id: 'response', emoji: '📥', label: { tr: 'Response: sızan passwordHash', en: 'Response: leaked passwordHash' }, color: '#ef4444' },
+        { id: 'timing', emoji: '⏱️', label: { tr: 'Timing: 2.9 saniye', en: 'Timing: 2.9 seconds' }, color: '#22c55e' },
+      ],
+      scenes: [
+        {
+          caption: { tr: 'Tester Network panelinde bir satıra tıklar — 5 sekmeli bir panel açılır.', en: 'The tester clicks a row in the Network panel — a 5-tab panel opens.' },
+          positions: { row: { x: 50, y: 50, scale: 1.1, pulse: true } },
+        },
+        {
+          caption: { tr: '`Headers` sekmesinde `Content-Type: text/plain` görülür — oysa JSON gönderilmesi gerekiyordu, ilk şüpheli iz.', en: 'The `Headers` tab shows `Content-Type: text/plain` — but JSON was supposed to be sent, the first suspicious clue.' },
+          positions: { row: { x: 20, y: 30 }, headers: { x: 58, y: 30, scale: 1.15, pulse: true } },
+          beams: [{ from: 'row', to: 'headers', color: '#0ea5e9' }],
+        },
+        {
+          caption: { tr: '`Payload` sekmesi testerın gönderdiği isteği aynen gösterir — "ben ne yolladım?" sorusunun cevabı.', en: 'The `Payload` tab shows exactly what the tester sent — the answer to "what did I send?"' },
+          positions: { headers: { x: 20, y: 50 }, payload: { x: 58, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'headers', to: 'payload', color: '#a78bfa' }],
+        },
+        {
+          caption: { tr: '`Response` sekmesinde beklenmedik bir alan görülür: `passwordHash` — sözleşmede OLMAMASI gereken bir sızıntı.', en: 'The `Response` tab reveals an unexpected field: `passwordHash` — a leak that should NOT be in the contract.' },
+          positions: { payload: { x: 20, y: 70 }, response: { x: 58, y: 70, scale: 1.2, pulse: true } },
+          beams: [{ from: 'payload', to: 'response', color: '#ef4444' }],
+        },
+        {
+          caption: { tr: 'Ders — Her sekme farklı bir soruya cevap verir: Headers "meta veri doğru mu", Payload "ben ne gönderdim", Response "sunucu GERÇEKTEN ne döndürdü", Timing "ne kadar sürdü". Hepsini AYRI AYRI kontrol etmek gerekir.', en: 'The lesson — each tab answers a different question: Headers "is the metadata correct", Payload "what did I send", Response "what did the server REALLY return", Timing "how long did it take". All must be checked SEPARATELY.' },
+          positions: { response: { x: 30, y: 45 }, timing: { x: 62, y: 50, scale: 1.15, pulse: true } },
+          beams: [{ from: 'response', to: 'timing', color: '#22c55e' }],
+        },
+      ],
+    },
+    {
+      type: 'step-animation',
+      title: { tr: 'Bir İsteği Baştan Sona Okuma Sırası', en: 'The Order for Reading a Request End to End' },
+      steps: [
+        { id: 1, icon: '📇', label: { tr: 'Headers\'a bak…', en: 'Check Headers…' }, detail: { tr: 'Content-Type, Authorization gibi meta bilgilerin doğru olduğunu doğrula.', en: 'Verify metadata like Content-Type, Authorization is correct.' } },
+        { id: 2, icon: '📝', label: { tr: 'Payload\'ı doğrula…', en: 'Verify Payload…' }, detail: { tr: 'POST/PUT isteklerinde gerçekten göndermeyi düşündüğün veriyi gönderdiğini kontrol et.', en: 'On POST/PUT requests, check you really sent the data you intended.' } },
+        { id: 3, icon: '📥', label: { tr: 'Preview/Response\'u incele…', en: 'Inspect Preview/Response…' }, detail: { tr: 'Sunucunun döndürdüğü gerçek veriyi (ve olmaması gereken alanları) kontrol et, sonra Timing\'e bak.', en: 'Check the real data the server returned (and any field that should not be there), then check Timing.' } },
+      ],
+    },
+    {
+      type: 'challenge',
+      variant: 'order-sort',
+      id: 'api-e3-order-01',
+      question: { tr: 'Bir isteği baştan sona incelerken sekmeleri sırala.', en: 'Order the tabs when inspecting a request end to end.' },
+      items: [
+        { id: '1', text: { tr: 'Headers — meta veri doğru mu', en: 'Headers — is the metadata correct' }, order: 1 },
+        { id: '2', text: { tr: 'Payload — ben ne gönderdim', en: 'Payload — what did I send' }, order: 2 },
+        { id: '3', text: { tr: 'Preview — sunucunun cevabını okunaklı gör', en: 'Preview — see the server\'s answer readably' }, order: 3 },
+        { id: '4', text: { tr: 'Response — ham veriyi karşılaştır', en: 'Response — compare the raw data' }, order: 4 },
+        { id: '5', text: { tr: 'Timing — ne kadar sürdü', en: 'Timing — how long it took' }, order: 5 },
+      ],
+      xpReward: 11,
+    },
+    {
+      type: 'code-playground',
+      relatedTopicId: 'api-e3-request-tabs',
+      id: 'api-e3-request-tabs',
+      title: { tr: 'Kendin Dene: Doğru Sekmeyi Bul', en: 'Try It Yourself: Find the Right Tab' },
+      starterCode: `// Sorun: response govdesinde olmamasi gereken bir "passwordHash" alani var
+// TODO: bu sizintiyi hangi sekmede yakalarsin?
+Sekme: ???`,
+      solutionCode: `// Sunucunun GERCEKTEN dondurdugu veri Response/Preview sekmesinde gorulur
+Sekme: Response (veya Preview)`,
+      hint: { tr: 'Headers meta veriyi, Payload SENİN gönderdiğini gösterir. Sunucunun GERÇEKTEN neyi döndürdüğü — ve olmaması gereken bir alanın sızması — sadece Response/Preview sekmesinde görülür.', en: 'Headers shows metadata, Payload shows what YOU sent. What the server REALLY returned — including a field that should not have leaked — is only visible in the Response/Preview tab.' },
+      successMessage: { tr: 'Doğru! Response/Preview, sunucunun gerçek davranışının tek doğrudan kanıtıdır.', en: 'Correct! Response/Preview is the only direct evidence of the server\'s real behavior.' },
+    },
+    {
+      type: 'quiz',
+      question: { tr: '`Response` ile `Preview` sekmeleri arasındaki fark nedir?', en: 'What is the difference between the `Response` and `Preview` tabs?' },
+      options: [
+        { id: 'a', text: { tr: 'Response ham/ayrıştırılmamış metni, Preview aynı veriyi okunaklı/biçimlendirilmiş gösterir', en: 'Response shows the raw/unparsed text, Preview shows the same data readably/formatted' } },
+        { id: 'b', text: { tr: 'İkisi tamamen farklı isteklere aittir', en: 'They belong to completely different requests' } },
+        { id: 'c', text: { tr: 'Preview sadece hata durumunda görünür', en: 'Preview only appears on errors' } },
+        { id: 'd', text: { tr: 'Response sadece GET isteklerinde vardır', en: 'Response only exists for GET requests' } },
+      ],
+      correct: 'a',
+      explanation: { tr: 'Her iki sekme de AYNI yanıt verisini gösterir; `Response` sunucudan geldiği ham hâliyle, `Preview` ise tarayıcının ayrıştırıp okunaklı bir ağaç yapısında sunduğu hâliyle. Küçük farkları (eksik alan, sızan alan) yakalamak için `Preview` genelde daha hızlıdır.', en: 'Both tabs show the SAME response data; `Response` in its raw form as it came from the server, `Preview` as the browser parses and presents it in a readable tree. `Preview` is usually faster for catching small differences (a missing field, a leaked field).' },
+      retryQuestion: {
+        question: { tr: '`Payload` sekmesi neyi gösterir?', en: 'What does the `Payload` tab show?' },
+        options: [
+          { id: 'a', text: { tr: 'İstemcinin (senin) sunucuya gönderdiği istek gövdesini', en: 'The request body the client (you) sent to the server' } },
+          { id: 'b', text: { tr: 'Sunucunun döndürdüğü veriyi', en: 'The data the server returned' } },
+          { id: 'c', text: { tr: 'İsteğin ne kadar sürdüğünü', en: 'How long the request took' } },
+          { id: 'd', text: { tr: 'Tarayıcının önbelleğini', en: 'The browser\'s cache' } },
+        ],
+        correct: 'a',
+        explanation: { tr: '`Payload`, POST/PUT/PATCH gibi bir gövde taşıyan isteklerde SENİN gönderdiğin veriyi gösterir — sunucunun cevabı değil. "Ben gerçekten doğru veriyi mi gönderdim?" sorusunu bu sekmede cevaplarsın.', en: '`Payload` shows the data YOU sent on requests carrying a body, like POST/PUT/PATCH — not the server\'s answer. You answer "did I really send the right data?" in this tab.' },
+      },
+    },
+  ],
+}
 
 const groupF = [
   ['F1', '📜', 'OpenAPI Spec Nedir? Sözleşme kavramı', 'What Is an OpenAPI Spec? The contract concept'],
