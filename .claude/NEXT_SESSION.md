@@ -10,6 +10,57 @@
 
 ---
 
+## ✅ `/api-testing` Faz 10 — SON DENETİM + E2E TESTİ TAMAM — SAYFA BİTTİ (2026-07-24, Opus oturumu, feature/api-testing-page)
+
+Plan: `Documents/api-testing-page-plan.md` §C (Faz 10, plan'daki SON faz).
+Faz 1-9'da (Opus: A-B, Sonnet: C-K) 57 sekme yazıldı; bu faz bağımsız denetim
+turu + E2E testi + durum güncellemesiydi.
+
+**Yapılanlar:**
+- **Bölüm 9.5 sistematik denetimi:** 57 sekmenin HER BİRİNDE ≥1 video-scene +
+  ≥1 animasyon (`step-animation`/`simulation`/`animated-timeline`/`css-animation`)
+  + ≥1 sandbox (`code-playground`/`git-practice`/`editor`/`java-practice`)
+  olduğu bir denetim script'iyle tek tek kontrol edildi. **1 eksik bulundu:**
+  GRUP K (Mülakat, sectionIndex 56) video-scene İÇERMİYORDU — Faz 9 notunda
+  "elle eklenmeli" denen film atlanmıştı.
+- **Düzeltme:** GRUP K'ye plan §D.6'daki `api-k-interview-layers-film`
+  ("🎬 Mülakat Katmanları: API vs UI Testi", 5 sahne, xpReward 12) eklendi —
+  simple-box girişinden sonra, step-animation'dan önce (Bölüm 9.5 yerleşimi).
+  Film sekmenin gerçek içeriğine bağlı: mülakatçının senaryo sorusu → UI
+  tuzağı → API katmanına inme → @Valid defect'i (B6) → katman+kök neden+Java
+  cevabı. Tekrar denetim: **57/57 sekme GEÇTİ.**
+- Film `id` benzersizliği doğrulandı: `api-*-film` toplam 57 tanım, duplicate YOK.
+- **`tests/video-scene.spec.ts`'e Dalga 22 eklendi** (5 test): A1'de TAM
+  oynatıcı testi (render→play→seek→bitiş rozeti), C1/E1/G1/I1'de temsili
+  render kontrolü. 💼 K · Mülakat sekmesi quiz-gating (%60) arkasında olduğu
+  için test kapsamı DIŞINDA (CLAUDE.md §9.5 Doğrulama notu). **5/5 geçti**
+  (`npx playwright test -g "Dalga 22"`, 16.7s).
+
+**TOPLU doğrulama:** `node scripts/check-content-integrity.mjs` → **0 ihlal**.
+`npm run build` → **yeşil**, `apiTestingData-*.js` ~765 kB (beklenen büyük
+chunk, §14), 42 static route, dist SEO PASS. `Documents/api-testing-page-plan.md`
+başlığı "TAMAMLANDI" olarak güncellendi.
+
+**🎉 `/api-testing` SAYFASI TAMAMEN BİTTİ (Faz 1-10).**
+
+**Manuel test rehberi eklendi:** `Documents/api-testing-page-plan.md` → **Bölüm
+E** (E.0-E.13) adım adım elle test rehberini içerir: uygulama başlatma, sidebar
+navigasyonu (57 sekme), dil toggle (TR/EN kod yorumu kontrolü), video-scene
+oynatıcı, animasyon+drag-drop, sandbox, Defect Doğum Anı kutuları, quiz-gating
+(%60→mülakat kilidi), AI değerlendirme (%80→rozet), Feynman, iç link/çakışma,
+hata sözlüğü, responsive+dark mode. Otomatik testlerin kapsamadığı "içerik
+doğru mu, akış pürüzsüz mü" kontrolleri için bu rehber izlenir.
+
+**Kalan iş (opsiyonel / kullanıcı kararı):**
+- **Tarayıcıda gerçek gezinme testi** hâlâ önerilir — artık adım adım rehber
+  `api-testing-page-plan.md` Bölüm E'de hazır; kullanıcı bunu izleyerek elle
+  doğrulayabilir. Bu oturumda sadece script + hedefli Playwright doğrulaması
+  yapıldı.
+- **`main`'e merge/PR** henüz açılmadı — branch hâlâ `feature/api-testing-page`.
+  Kullanıcı onayıyla PR açılabilir.
+
+---
+
 ## ✅ `/api-testing` Faz 9 — GRUP K (Mülakat, 50 soru) TAMAM — GRUP A-K İÇERİK ÜRETİMİ BİTTİ (2026-07-24, Sonnet oturumu, feature/api-testing-page)
 
 Plan: `Documents/api-testing-page-plan.md` §D.6 (Faz 9, plan'daki SON içerik

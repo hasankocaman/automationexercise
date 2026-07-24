@@ -1065,3 +1065,119 @@ test.describe('Video-Scene — Dalga 21 (llm-agents Intro sekmesi + claude-ai)',
     });
 });
 
+// Dalga 22 (api-testing-page-plan.md, Faz 10) — /api-testing sayfasının 57
+// atomik sekmesine (GRUP A-K) dağıtılan 57 video-scene filmi tek tek test
+// edilmek yerine temsili sekmelerle kontrol edilir. A1 (Giriş) üzerinde TAM
+// oynatıcı davranışı (render → play → seek → bitiş rozeti) doğrulanır; C1
+// (Express), E1 (DevTools Network — kodsuz grup), G1 (Postman), I1
+// (Playwright) üzerinde hafif render kontrolü yapılır. 💼 K · Mülakat sekmesi
+// BİLEREK dışarıda bırakıldı — quiz-gating (%60, CLAUDE.md §22 AC2) ile
+// kilitli ve bu suite gating'i açan bir yardımcı kullanmıyor (CLAUDE.md §9.5
+// "Doğrulama" notu).
+test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () => {
+    test('/api-testing — 🌐 A1 · API Nedir? sekmesinde film oynatıcısı tam çalışır (play/seek/bitiş)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/api-testing');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🌐 A1 · API Nedir\?|🌐 A1 · What Is an API\?/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+
+        const caption = page.getByTestId('video-scene-caption');
+        const firstCaption = await caption.innerText();
+        expect(firstCaption.length).toBeGreaterThan(10);
+
+        // play ile sahne otomatik ilerlemeli (altyazı metni değişmeli)
+        await page.getByTestId('video-scene-play').click();
+        await expect(caption).not.toHaveText(firstCaption, { timeout: 6_000 });
+
+        // pip-2 ile doğrudan 3. sahneye seek — caption bir kez daha değişmeli
+        const beforeSeek = await caption.innerText();
+        await page.getByTestId('video-scene-pip-2').click();
+        await expect(caption).not.toHaveText(beforeSeek, { timeout: 3_000 });
+
+        // next ile son sahneye kadar ilerle, döngünün sonunda bitiş rozeti görünmeli
+        const nextBtn = page.getByTestId('video-scene-next');
+        for (let i = 0; i < 10; i++) {
+            if (await nextBtn.isDisabled()) break;
+            await nextBtn.click();
+        }
+        await expect(page.getByTestId('video-scene-done')).toBeVisible({ timeout: 5_000 });
+
+        await context.close();
+    });
+
+    test('/api-testing — 🟢 C1 · Express Kurulum sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/api-testing');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🟢 C1 · Kurulum|🟢 C1 · Setup/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/api-testing — 🔍 E1 · Network Paneli sekmesinde film render olur (kodsuz grup)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/api-testing');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🔍 E1 · Network Paneli Anatomisi|🔍 E1 · Network Panel Anatomy/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/api-testing — 📁 G1 · Postman Collection sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/api-testing');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /📁 G1 · Collection/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
+    test('/api-testing — 🎭 I1 · Playwright request fixture sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/api-testing');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /🎭 I1 · request fixture/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
+

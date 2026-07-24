@@ -1,7 +1,11 @@
 # `/api-testing` Sayfası — Plan + Değerlendirme
 
 > **Branch:** `feature/api-testing-page`
-> **Durum:** Faz 0 (analiz/onay) — henüz kod yazılmadı.
+> **Durum:** ✅ **TAMAMLANDI** — Faz 1-10 bitti (2026-07-24). 57 atomik sekme
+> (GRUP A-K), her sekmede video-scene + animasyon + sandbox (9.5 denetimi
+> geçti), 57 film, 13 Feynman checkpoint, GRUP J'de 12 hata, GRUP K'de 50
+> mülakat sorusu. `tests/video-scene.spec.ts`'e Dalga 22 (5 temsili render
+> testi) eklendi ve geçti; `check-content-integrity` + `npm run build` yeşil.
 > **Hazırlayan:** Claude Code oturumu, 2026-07-24.
 > Bu dosya iki bölümden oluşur: (A) planın kritik değerlendirmesi ve mevcut
 > koda göre doğrulanmış tespitler, (B) kullanıcının verdiği orijinal prompt
@@ -632,3 +636,176 @@ Sayfa bittiğinde, API'yi hiç görmemiş bir tester bu sayfayı baştan sona ok
 - Swagger dokümanına bakıp test senaryosu listesi çıkarabilmeli
 - Aynı senaryoyu Postman, REST Assured ve Playwright'ta yazabilmeli
 - Bir bug raporunda "UI'da çalışıyor ama API seviyesinde şu kırık" diyebilmeli
+
+---
+
+## E. Manuel Test Rehberi (`/api-testing` — Faz 10 Sonrası)
+
+> Bu bölüm, otomatik testlerin (content-integrity + `npm run build` +
+> Playwright Dalga 22) **kapsamadığı** insan gözü gerektiren kontrolleri
+> adım adım tarif eder. Otomatik testler "blok render oluyor mu"yu doğrular;
+> aşağıdaki manuel adımlar "içerik doğru, akış pürüzsüz, deneyim öğretici mi"
+> sorusunu cevaplar. Sırayla uygula, her adımda **Beklenen** ile ekranda
+> gördüğünü karşılaştır.
+
+### E.0. Uygulamayı Başlat
+
+```bash
+cd /Users/testinium/automationexercise
+npm run dev
+```
+
+- **Beklenen:** Terminal `Local: http://localhost:5173/` yazar.
+- Tarayıcıda **http://localhost:5173/api-testing** adresini aç.
+- **Beklenen:** Üstte sayfa başlığı (h1), solda **dikey sidebar** (yatay tab
+  bar OLMAMALI), sağ üstte dil toggle, sağ altta 🏠 home butonu, üstte scroll
+  progress bar görünür.
+
+### E.1. Sidebar Navigasyonu (57 Atomik Sekme)
+
+1. Sol sidebar'da **GRUP A-K** sekmelerini yukarıdan aşağı gez. Grup önekleri
+   (`🌐 A1 ·`, `☕ B1 ·`, `🟢 C1 ·` …) sırayla A→K gitmeli.
+2. Rastgele 5-6 sekmeye tıkla.
+   - **Beklenen:** Her tıklamada içerik alanı o sekmenin konusuna değişir;
+     sayfa en üste değil, seçilen sekmenin başına konumlanır; tıklanan sekme
+     sidebar'da **aktif (highlighted)** görünür.
+3. Sekme sayısını doğrula: sidebar'da **57 sekme** olmalı (A1-A7, B1-B8,
+   C1-C6, D1-D5, E1-E6, F1-F6, G1-G6, H1-H6, I1-I5, J, K).
+
+### E.2. Dil Toggle (TR / EN) — Bölüm 8 Kritik Kontrolü
+
+1. Herhangi bir **kodlu** sekmede (ör. `B6 · POST + @Valid` veya `C3`) dur.
+2. Dil toggle'ı **EN**'e al.
+   - **Beklenen:** Tüm açıklama metinleri İngilizceye döner. **Kod
+     blokları** da EN varyantına geçer ve **yorum satırlarında Türkçe karakter
+     (ı, ğ, ş, ö, ç, ü) veya Türkçe cümle KALMAMALI.** Bir tane bile Türkçe
+     yorum görürsen bu bir Bölüm 8 ihlalidir — hangi sekme/blok olduğunu not al.
+3. Dili tekrar **TR**'ye al.
+   - **Beklenen:** TR modda kod yorumları Türkçe (`// istegi gonder`,
+     `# dogrula`), ama yerleşik terimler (`@Valid`, `SELECT`, `fixture`,
+     `ValidationPipe`) İngilizce kalır — bu DOĞRUdur.
+4. Dil seçiminin kalıcılığını test et: dili EN yap, **sayfayı yenile (F5)**.
+   - **Beklenen:** Sayfa EN olarak açılır (localStorage `language` anahtarı).
+
+### E.3. Video-Scene (Film) Oynatıcısı — Her Grupta En Az Bir Sekme
+
+1. `A1 · API Nedir?` sekmesinde filmi bul (🎬 başlıklı blok).
+2. **▶ (play)** butonuna bas.
+   - **Beklenen:** Sahneler otomatik ilerler (~3.4 sn/sahne), altyazı
+     (caption) her sahnede değişir, aktörler/beam'ler hareket eder.
+3. Alt kısımdaki **pip noktalarına** (sahne göstergeleri) tıkla.
+   - **Beklenen:** Doğrudan o sahneye atlar (seek), altyazı güncellenir.
+4. **⏭ (next)** ile son sahneye kadar git.
+   - **Beklenen:** Son sahnede **bitiş rozeti** (done badge) + **XP ödülü**
+     görünür.
+5. Aynı kontrolü her gruptan bir sekmede (B, C, D, E, F, G, H, I) tekrarla.
+   Özellikle **amiral filmleri** doğrula: C3 "Middleware Zinciri", D3 "Nest'in
+   Pipe Hattı", E5 "Network Panelinde Bir Bug", F5 "Sözleşme Bozuldu",
+   G4 "Zincirleme Test", H1 "given/when/then", I3 "API ile Kur UI'da Doğrula".
+   - **Kritik:** Film o sekmenin GERÇEK konusunu anlatmalı — konudan kopuk süs
+     film olmamalı (Bölüm 9.5).
+
+### E.4. Animasyon (step-animation) ve Sürükle-Bırak (challenge)
+
+1. Kodlu bir sekmede (ör. `B5 · Controller`) **step-animation** bloğunu bul,
+   adımlar arasında ilerle.
+   - **Beklenen:** Her adım ikon + etiket + detay gösterir, akış mantıklı.
+2. **Drag-and-drop** (order-sort) alıştırmasında satırları doğru sıraya sürükle.
+   - **Beklenen:** Doğru sırada başarı (yeşil/konfeti), yanlışta uyarı.
+   - **Erişilebilirlik:** Klavyeyle ↑/↓ butonlarıyla da sıralanabilmeli
+     (native DnD dışında fallback — Bölüm 9.1).
+
+### E.5. Sandbox (code-playground) — "Kendin Yaz ve Dene"
+
+1. `B6` veya `C4` gibi bir sekmede **code-playground** bloğunu bul.
+2. **starterCode**'u düzenle, **Çalıştır/Kontrol Et** butonuna bas.
+   - **Beklenen:** Beklenen çözümle karşılaştırma yapılır; doğruysa
+     `successMessage`, yanlışsa yönlendirici geri bildirim.
+3. **İpucu (hint)** butonuna bas.
+   - **Beklenen:** İpucu o bloğun konusuna ait — bir önceki koda bağlı olmalı
+     (Bölüm 9.4 ilişkisellik).
+4. **Kodsuz gruplarda** (E, F, J) sandbox'ın "seç/eşleştir/tamamla" modunda
+   çalıştığını doğrula (ör. E'de "bu timing'e göre yavaşlık kimin suçu?" seçimi).
+
+### E.6. "Defect Doğum Anı" Kutuları (İmza Özellik — Bölüm 2)
+
+1. GRUP B (Java/Spring) sekmelerini (B1-B8) tek tek gez.
+   - **Beklenen:** Her kod bloğundan sonra 🐞 emoji'li `simple-box` — "geliştirici
+     bu satırı unutsaydı hangi bug doğardı + tester hangi katmanda yakalar"
+     yapısında. **B'de ≥8, C'de ≥5, D'de ≥5 kutu** olmalı (toplam ≥18).
+2. Örnek kalite barını doğrula: kutu somut request/beklenen/gerçekleşen +
+   "tester nerede yakalar" içermeli, yüzeysel olmamalı.
+
+### E.7. Quiz ve Quiz-Gating (%60) → Mülakat Kilidi (Bölüm 22 AC2/AC3)
+
+1. Herhangi bir sekmede **quiz** bloğunun **asla ilk blok olmadığını** doğrula
+   (önce anlatım/animasyon, sonra quiz — Bölüm 9.1).
+2. Bir quiz sorusunu **yanlış** cevapla.
+   - **Beklenen:** Moral bozan kırmızı ekran değil, animasyonlu mikro
+     geri-bildirim + **alternatif/yedek soru** sunulur (Bölüm 18).
+3. **`💼 K · Mülakat Soruları`** sekmesine git — quizleri henüz çözmemişken.
+   - **Beklenen:** Mülakat soruları **kilitli/gizli** (gating kapalı durum —
+     %60 eşiği aşılmadı).
+4. Sayfadaki konu quizlerinin **%60'ını doğru** cevapla, sonra Mülakat
+   sekmesine dön.
+   - **Beklenen:** Mülakat soruları artık **görünür** (gating açık durum).
+
+### E.8. Mülakat Soruları + AI Değerlendirme (Bölüm 22 AC4/AC5/AC6)
+
+1. Gating açıldıktan sonra Mülakat sekmesinde bir soruya **kendi cevabını yaz**
+   (input/textarea alanı olmalı — AC4).
+2. **AI ile değerlendir** butonuna bas.
+   - **Beklenen:** `grade-interview-answer` Edge Function cevabı puanlar ve bir
+     sonuç/açıklama döner (AC5). *(Not: canlı AI çağrısı Groq rate limit'e
+     tabidir; hata alırsan birkaç saniye sonra tekrar dene.)*
+3. Soruların **%80'ine** doğru cevap ver.
+   - **Beklenen:** **Bitirme rozeti** verilir (AC6).
+4. Soru sayısını doğrula: **50 soru** (15 basic / 20 intermediate / 15 advanced),
+   hepsi senaryo tabanlı ("X nedir?" YOK).
+
+### E.9. Feynman Checkpoint'leri (Bölüm 19)
+
+1. Her grubun sonunda (A, B, C, D, E, F, G, H, I, J, K) **Feynman Alanı** bul —
+   "az öğrendiğini 5 yaşındaki birine anlat" input alanı.
+2. Anahtar kelimeleri içeren bir özet yaz, gönder.
+   - **Beklenen:** Mantıksal kontrolör (keyword/regex) doğru mantıkta neşeli
+     onay verir; eksikse yönlendirir.
+
+### E.10. İç Linkler + Çakışma Kontrolü (Bölüm 5)
+
+1. GRUP G (Postman) / H (REST Assured) sekmelerinde **`/postman`** ve
+   **`/rest-assured`** sayfalarına iç link bulunmalı.
+   - **Beklenen:** Link tıklanınca ilgili sayfaya gider.
+2. Ters yönü doğrula: **`/postman`** ve **`/rest-assured`** sayfalarını aç →
+   "önce API'nin nasıl geliştirildiğini gör → **/api-testing**" linki olmalı.
+3. Derin araç anlatımının burada TEKRARLANMADIĞINI gözle kontrol et (G/H/I
+   sadece "aynı endpoint'i bu araçla test edelim" seviyesinde).
+
+### E.11. GRUP J — Hata Sözlüğü (error-dictionary)
+
+1. `J` sekmesinde **≥12 gerçek hata** listelenmeli (415, 400 vs 422, CORS,
+   ECONNREFUSED, 401 vs 403, trailing slash 404, timeout, gzip vb.).
+2. Her hatada: belirti + kök neden + `codeWrong`/`codeFixed` + "tester hangi
+   katmanda yakalar" olmalı; TR modda kod yorumları Türkçe.
+
+### E.12. Responsive + Dark Mode + Erişilebilirlik (Bölüm 12)
+
+1. Tarayıcıyı **mobil genişliğe** (≤375px) daralt.
+   - **Beklenen:** Yatay kaydırma YOK; kod blokları `overflow-x-auto` ile
+     kendi içinde kayar; sidebar mobilde erişilebilir; butonlar ≥36px.
+2. **Dark mode** toggle'ını aç/kapa.
+   - **Beklenen:** Tüm bloklar (film, kod, simple-box, quiz) hem açık hem koyu
+     temada okunaklı; kontrast yeterli.
+3. Sadece klavyeyle (Tab / Enter / ok tuşları) sidebar + quiz + drag-drop
+   gezilebilmeli.
+
+### E.13. Sonuç Raporu
+
+Her adımda **Beklenen ≠ Gerçekleşen** olan durumu şu formatta not al:
+
+```
+[Sekme] [Blok tipi] — Sorun: ...  |  Beklenen: ...  |  Görülen: ...
+```
+
+Sıfır sapma → sayfa manuel testten geçti. Sapma varsa ilgili grubun
+`*Data.js` section'ında düzeltilir ve E.0'dan ilgili adım tekrar koşulur.

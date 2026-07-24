@@ -8765,6 +8765,28 @@ const K = {
       },
     },
     {
+      type: 'video-scene',
+      id: 'api-k-interview-layers-film',
+      title: { tr: '🎬 Mülakat Katmanları: API vs UI Testi', en: '🎬 Interview Layers: API vs UI Testing' },
+      xpReward: 12,
+      sceneDurationMs: 3400,
+      stageHeight: 260,
+      actors: [
+        { id: 'interviewer', emoji: '🎙️', label: { tr: 'Mülakatçı: senaryo sorusu', en: 'Interviewer: scenario question' }, color: '#6366f1' },
+        { id: 'ui', emoji: '🖥️', label: { tr: 'UI: "çalışıyor gibi"', en: 'UI: "looks fine"' }, color: '#f59e0b' },
+        { id: 'api', emoji: '🔌', label: { tr: 'API katmanı: gerçek', en: 'API layer: the truth' }, color: '#0ea5e9' },
+        { id: 'defect', emoji: '🐞', label: { tr: 'Kök neden / defect', en: 'Root cause / defect' }, color: '#ef4444' },
+        { id: 'answer', emoji: '💡', label: { tr: 'Güçlü cevap', en: 'Strong answer' }, color: '#22c55e' },
+      ],
+      scenes: [
+        { caption: { tr: 'Mülakatçı "API nedir?" sormaz — "UI\'da her şey normal görünüyor ama bir bug var, nasıl bulursun?" der. Ölçtüğü şey ezber değil, katman düşüncesi.', en: 'The interviewer does not ask "what is an API?" — they ask "everything looks normal in the UI but there is a bug, how do you find it?". What they measure is layer thinking, not memorization.' }, positions: { interviewer: { x: 50, y: 45, scale: 1.15, pulse: true } } },
+        { caption: { tr: 'Zayıf aday UI ekranına bakar: "Ekranda hata yok, sorun yok." Bu, UI\'nın gösterdiği metne güvenmenin tuzağıdır (GRUP E).', en: 'A weak candidate looks at the UI screen: "no error on screen, no problem." This is the trap of trusting the text the UI shows (GROUP E).' }, positions: { interviewer: { x: 20, y: 30 }, ui: { x: 58, y: 50, scale: 1.1, pulse: true } }, beams: [{ from: 'interviewer', to: 'ui', color: '#f59e0b' }] },
+        { caption: { tr: 'Güçlü aday UI\'yı bypass eder ve doğrudan API katmanına iner: `POST /api/v1/bugs` boş title ile 400 yerine 201 dönüyor mu? Gerçek burada saklı.', en: 'A strong candidate bypasses the UI and drops down to the API layer directly: does `POST /api/v1/bugs` with an empty title return 201 instead of 400? The truth is hidden here.' }, positions: { ui: { x: 20, y: 60 }, api: { x: 58, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'ui', to: 'api', color: '#0ea5e9' }] },
+        { caption: { tr: 'API katmanı defect\'i ortaya çıkarır: geliştirici B6\'daki `@Valid` kapısını unutmuş, UI\'nın JS kontrolü bu boşluğu gizliyordu. Kök neden bulundu.', en: 'The API layer reveals the defect: the developer forgot the `@Valid` gate from B6, and the UI\'s JS check was hiding this gap. The root cause is found.' }, positions: { api: { x: 25, y: 40 }, defect: { x: 62, y: 50, scale: 1.15, pulse: true } }, beams: [{ from: 'api', to: 'defect', color: '#ef4444' }] },
+        { caption: { tr: 'Ders — Güçlü cevap katmanı ADIYLA söyler: "UI valide ediyor ama sunucuda `@Valid` yok; Java\'da Bean Validation\'ın karşılığı bu. Postman\'de boş title göndererek kanıtlarım." Katman + kök neden + Java = tam puan.', en: 'The lesson — a strong answer names the layer: "the UI validates but the server has no `@Valid`; this is the Bean Validation counterpart in Java. I prove it by sending an empty title in Postman." Layer + root cause + Java = full marks.' }, positions: { defect: { x: 30, y: 45 }, answer: { x: 62, y: 50, scale: 1.2, pulse: true } }, beams: [{ from: 'defect', to: 'answer', color: '#22c55e' }] },
+      ],
+    },
+    {
       type: 'step-animation',
       title: { tr: 'Bir Mülakat Sorusuna Cevap Kurma Sırası', en: 'The Order for Building an Interview Answer' },
       steps: [
