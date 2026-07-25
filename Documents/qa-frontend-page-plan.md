@@ -1,8 +1,8 @@
 # `/qa-frontend` Sayfası — Plan + Görev Dağılımı (Opus / Sonnet)
 
 > **Branch:** `frontenddevelopment-for-qa`
-> **Durum:** 🟡 Faz 1 iskelet + GRUP A tam (A1-A6) → **tamamlandı**. GRUP B-J → **Sonnet (sıradaki faz: D-S2)**.
-> **Hazırlayan:** Claude Code (Opus) oturumu, 2026-07-25. GRUP A2-A6: Claude Code (Sonnet) oturumu, 2026-07-25.
+> **Durum:** ✅ **TAMAMLANDI** (2026-07-25) — Faz 1 iskelet (Opus) + GRUP A-J tam içerik (Opus GRUP A1/F pano/H lab referansları + Sonnet A2-A6, B-J) + D-S11 kapanış denetimi (§9.5 açığı GRUP I/J'de bulunup kapatıldı, content-integrity/i18n/build ilk kez tam çalıştırıldı, üçü de yeşil). Branch `frontenddevelopment-for-qa`, `main`'e merge kararı kullanıcıda.
+> **Hazırlayan:** Claude Code (Opus) oturumu, 2026-07-25 (iskelet). GRUP A2-A6 → J + D-S11: Claude Code (Sonnet) oturumu, 2026-07-25.
 > **Kaynak prompt:** Kullanıcının verdiği `/qa-frontend` promptu (bu dosyanın §E'sinde referans olarak saklanır).
 
 Bu dosya 5 bölümden oluşur:

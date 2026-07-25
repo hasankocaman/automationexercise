@@ -2064,9 +2064,286 @@ const locatorCodeReviewTable = {
   ],
 }
 
+// ─── video-scene: "Stale Element" — referans nasıl ölür (GRUP I, zorunlu film) ─
+const staleElementFilm = {
+  type: 'video-scene',
+  id: 'qaf-stale-element-film',
+  title: {
+    tr: '🎬 Stale Element: Bir Referans Nasıl Ölür?',
+    en: '🎬 Stale Element: How a Reference Dies',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test',    emoji: '🧪', label: { tr: 'Test kodu',              en: 'Test code' },              color: '#0ea5e9' },
+    { id: 'oldNode', emoji: '📦', label: { tr: 'Eski DOM node\'u',        en: 'Old DOM node' },           color: '#f59e0b' },
+    { id: 'ref',     emoji: '🔗', label: { tr: 'Tutulan referans',        en: 'Held reference' },        color: '#8b5cf6' },
+    { id: 'rerender',emoji: '🔁', label: { tr: 'Re-render',               en: 'Re-render' },              color: '#6366f1' },
+    { id: 'newNode', emoji: '🆕', label: { tr: 'Yeni DOM node\'u',        en: 'New DOM node' },           color: '#22c55e' },
+    { id: 'ghost',   emoji: '👻', label: { tr: 'Ölü referans',            en: 'Dead reference' },         color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir test, "Düzenle" butonunu bulup bir DEĞİŞKENDE saklıyor: `const editBtn = await driver.findElement(...)`. Bu filmde bu referansın, listeye yeni bir bug eklenince NASIL sessizce ÖLDÜĞÜNÜ izleyeceksin.',
+        en: 'A test finds the "Edit" button and stores it in a VARIABLE: `const editBtn = await driver.findElement(...)`. In this film you will watch HOW this reference SILENTLY dies once a new bug is added to the list.',
+      },
+      code: { tr: `const editBtn = await driver.findElement(By.testid('edit-bug-42'));`, en: `const editBtn = await driver.findElement(By.testid('edit-bug-42'));` },
+      positions: { test: { x: 50, y: 50, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Element bulunur ve referans TUTULUR: `editBtn` artık DOM\'daki BELİRLİ bir node\'u (o anki "Düzenle" butonunu) işaret eden bir referanstır.',
+        en: 'Step 1 — the element is found and a reference is HELD: `editBtn` now points to a SPECIFIC node in the DOM (the "Edit" button as it currently exists).',
+      },
+      code: { tr: `editBtn → [eski DOM node'una işaret ediyor]`, en: `editBtn -> [pointing to the old DOM node]` },
+      positions: {
+        test: { x: 20, y: 40, scale: 1.05 },
+        ref: { x: 50, y: 55, scale: 1.15, pulse: true },
+        oldNode: { x: 80, y: 55, scale: 1.15 },
+      },
+      beams: [{ from: 'ref', to: 'oldNode', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Başka bir eylem (ör. "Daha Fazla Yükle" tıklanır) bir RE-RENDER tetikler: React/Angular liste state\'i değiştiği için bu alt ağacı YENİDEN OLUŞTURMAYA karar verir (GRUP F1/G1\'deki reconciliation dersini hatırla).',
+        en: 'Step 2 — a different action (e.g. clicking "Load More") triggers a RE-RENDER: because the list state changed, React/Angular decides to RECREATE this subtree (recall the reconciliation lesson from GROUP F1/G1).',
+      },
+      code: { tr: `setBugs([...bugs, ...moreBugs])  → re-render tetiklendi`, en: `setBugs([...bugs, ...moreBugs])  -> re-render triggered` },
+      positions: {
+        oldNode: { x: 22, y: 55, opacity: 0.6, scale: 0.9 },
+        rerender: { x: 55, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'oldNode', to: 'rerender', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Eski node YOK EDİLİR, YENİ bir node kurulur: framework aynı butonu görsel olarak AYNI yerde çizse bile, altta YEPYENİ bir DOM node\'u oluşturmuş olabilir — eski node artık belgede yer ALMIYOR.',
+        en: 'Step 3 — the old node is DESTROYED, a NEW node is built: even though the framework visually draws the same button in the SAME place, underneath it may have created a BRAND NEW DOM node — the old node no longer EXISTS in the document.',
+      },
+      code: { tr: `eski <button> kaldırıldı, yeni <button> eklendi`, en: `old <button> removed, new <button> added` },
+      positions: {
+        rerender: { x: 20, y: 40, opacity: 0.6, scale: 0.9 },
+        newNode: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'rerender', to: 'newNode', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Tutulan referans artık bir HAYALETE işaret ediyor: `editBtn` hâlâ ESKİ node\'a işaret eder ama o node artık belgeye BAĞLI değildir — "stale" (bayat) bir referanstır.',
+        en: 'Step 4 — the held reference now points to a GHOST: `editBtn` still points to the OLD node, but that node is no longer ATTACHED to the document — a "stale" reference.',
+      },
+      code: { tr: `editBtn → [belgeye bağlı olmayan hayalet node]`, en: `editBtn -> [a ghost node not attached to the document]` },
+      positions: {
+        newNode: { x: 22, y: 40, opacity: 0.5, scale: 0.9 },
+        ghost: { x: 58, y: 55, scale: 1.2, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final — `editBtn.click()` çağrılınca: `StaleElementReferenceException: element is not attached to the page document` fırlatılır. Doğru refleks: referansı ÖNCEDEN tutup SONRA kullanmak yerine, HER etkileşimden önce locator\'ı YENİDEN sorgulamak (Playwright locator\'ları bunu otomatik yapar, Selenium\'da elle tekrar `findElement` çağrılmalıdır).',
+        en: 'Final — calling `editBtn.click()` throws `StaleElementReferenceException: element is not attached to the page document`. The right reflex: instead of holding a reference beforehand and using it LATER, RE-QUERY the locator before EVERY interaction (Playwright locators do this automatically, Selenium requires calling `findElement` again by hand).',
+      },
+      code: { tr: `StaleElementReferenceException: element is not attached to the page document`, en: `StaleElementReferenceException: element is not attached to the page document` },
+      positions: {
+        ghost: { x: 30, y: 45, scale: 1.15, pulse: true },
+        test: { x: 68, y: 55, scale: 1.1 },
+      },
+      beams: [{ from: 'ghost', to: 'test', color: '#ef4444' }],
+    },
+  ],
+}
+
+// ─── step-animation: Hata mesajını okuma refleksi (GRUP I) ────────────────────
+const errorMessageDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'qaf-i-error-diagnosis-steps',
+  title: { tr: 'Adım Adım: Hata Mesajı Seni Nereye Yönlendiriyor?', en: 'Step by Step: Where Does the Error Message Point You?' },
+  steps: [
+    { id: 1, icon: '❓', label: { tr: 'Hiç hata yok ama sonuç yanlış', en: 'No error at all, but the result is wrong' }, detail: { tr: 'Test "yeşil" ama yanlış bug\'ı işledi — şüphelen: index\'e bağlı bir locator sıralama değişince sessizce yanlış elemente düştü mü (GRUP H2/H5)?', en: 'The test is "green" but processed the wrong bug — suspect: did an index-bound locator silently fall onto the wrong element once ordering changed (GROUP H2/H5)?' } },
+    { id: 2, icon: '🔍', label: { tr: '"0 elements matched" / NoSuchElement', en: '"0 elements matched" / NoSuchElement' }, detail: { tr: 'Element hiç bulunamadı — element henüz DOM\'a girmedi mi (timing, GRUP D3), koşul tetiklenmedi mi (GRUP F4/G3), yoksa selector yanlış mı yazılmış?', en: 'The element was not found at all — has it not entered the DOM yet (timing, GROUP D3), was the condition not triggered (GROUP F4/G3), or is the selector written incorrectly?' } },
+    { id: 3, icon: '👻', label: { tr: '"not attached to the page document" / StaleElement', en: '"not attached to the page document" / StaleElement' }, detail: { tr: 'Element ÖNCEDEN bulundu ama artık geçersiz — bir re-render (GRUP A5, F3) tutulan referansı geride bıraktı mı?', en: 'The element WAS found before but is no longer valid — did a re-render (GROUP A5, F3) leave the held reference behind?' } },
+    { id: 4, icon: '🚫', label: { tr: '"not visible"/"not interactable"', en: '"not visible"/"not interactable"' }, detail: { tr: 'Element DOM\'da var (`attached`) ama tıklanamıyor — `display:none` mi (GRUP A3), yoksa animasyon/hydration henüz bitmedi mi (GRUP E4)?', en: 'The element exists in the DOM (`attached`) but cannot be clicked — is it `display:none` (GROUP A3), or has an animation/hydration not finished yet (GROUP E4)?' } },
+    { id: 5, icon: '✅', label: { tr: 'Mesajı OKU, tahmin etme', en: 'READ the message, do not guess' }, detail: { tr: 'Her hata mesajı FARKLI bir kök nedene işaret eder — mesajı doğru sınıfa (timing/conditional/stale/kırılgan-locator) yerleştiren tester dakikalar içinde çözer.', en: 'Every error message points to a DIFFERENT root cause — a tester who places the message in the right category (timing/conditional/stale/fragile-locator) solves it in minutes.' } },
+  ],
+}
+
+// ─── code-playground: Stale element'i doğru şekilde önleme (GRUP I) ───────────
+const fixStaleElementPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-i-common-errors',
+  id: 'qaf-i-fix-stale-element',
+  title: { tr: 'Kendin Dene: StaleElementReferenceException\'ı Kalıcı Olarak Düzelt', en: 'Try It Yourself: Permanently Fix a StaleElementReferenceException' },
+  starterCode: {
+    tr: `// BUG raporu: "Dün geçen test bugün StaleElementReferenceException veriyor."
+// Kod: referans "Daha Fazla Yükle" tıklanmadan ÖNCE alınıyor, SONRA kullanılıyor.
+const editBtn = await driver.findElement(By.cssSelector('[data-testid="edit-bug-42"]'));
+await driver.findElement(By.cssSelector('[data-testid="load-more"]')).click();
+await editBtn.click(); // re-render sonrası eski referans`,
+    en: `// BUG report: "A test that passed yesterday throws StaleElementReferenceException today."
+// Code: the reference is taken BEFORE clicking "Load More", then used AFTER.
+const editBtn = await driver.findElement(By.cssSelector('[data-testid="edit-bug-42"]'));
+await driver.findElement(By.cssSelector('[data-testid="load-more"]')).click();
+await editBtn.click(); // the old reference after a re-render`,
+  },
+  solutionCode: {
+    tr: `// FIX: her etkileşimden önce locator'ı YENİDEN sorgula, referansı önceden tutma
+await driver.findElement(By.cssSelector('[data-testid="load-more"]')).click();
+await driver.findElement(By.cssSelector('[data-testid="edit-bug-42"]')).click(); // taze referans`,
+    en: `// FIX: re-query the locator before every interaction, do not hold a reference beforehand
+await driver.findElement(By.cssSelector('[data-testid="load-more"]')).click();
+await driver.findElement(By.cssSelector('[data-testid="edit-bug-42"]')).click(); // a fresh reference`,
+  },
+  hint: {
+    tr: '`editBtn` re-render\'dan ÖNCEKİ bir DOM node\'una işaret ediyor. Re-render sonrası bu node belgeye bağlı olmayabilir. Çözüm: referansı önceden SAKLAMA, her tıklamadan hemen önce elementi YENİDEN bul.',
+    en: '`editBtn` points to a DOM node from BEFORE the re-render. After the re-render this node may no longer be attached to the document. Fix: do not SAVE the reference beforehand, RE-FIND the element right before every click.',
+  },
+  successMessage: {
+    tr: 'Doğru! Bir referansı "önceden tutup sonra kullanmak" yerine her etkileşimden hemen önce locator\'ı yeniden sorgulamak, re-render\'ların StaleElementReferenceException\'a yol açmasını yapısal olarak önler.',
+    en: 'Correct! Re-querying the locator right before every interaction, instead of "holding a reference beforehand and using it later", structurally prevents re-renders from causing a StaleElementReferenceException.',
+  },
+}
+
+// ─── video-scene: Mülakatta senaryo sorusuna cevap verme akışı (GRUP J) ───────
+const interviewAnswerFlowFilm = {
+  type: 'video-scene',
+  id: 'qaf-interview-answer-flow-film',
+  title: {
+    tr: '🎬 Mülakatta Senaryo Sorusuna Nasıl Cevap Verilir?',
+    en: '🎬 How to Answer a Scenario Question in an Interview',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question',  emoji: '❓', label: { tr: 'Senaryo sorusu', en: 'Scenario question' },   color: '#0ea5e9' },
+    { id: 'symptom',   emoji: '👁️', label: { tr: 'Belirti',        en: 'Symptom' },              color: '#f59e0b' },
+    { id: 'cause',     emoji: '🔍', label: { tr: 'Kök neden',       en: 'Root cause' },           color: '#8b5cf6' },
+    { id: 'analogy',   emoji: '☕', label: { tr: 'Java analojisi',  en: 'Java analogy' },         color: '#6366f1' },
+    { id: 'fix',       emoji: '✅', label: { tr: 'Somut çözüm',     en: 'Concrete fix' },         color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir mülakatçı "test bir gün geçti bir gün kaldı, element her deploy\'da değişen bir class kullanıyor" diyor. Zayıf bir cevap sadece "hash class kırılgandır" der. Güçlü bir cevap bu filmdeki 4 adımı TAKİP eder.',
+        en: 'An interviewer says "the test passed one day and failed the next, the element uses a class that changes on every deploy". A weak answer just says "a hash class is fragile". A strong answer FOLLOWS the 4 steps in this film.',
+      },
+      code: { tr: `Soru: "Test flaky, class her deploy'da değişiyor"`, en: `Question: "The test is flaky, the class changes on every deploy"` },
+      positions: { question: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Belirtiyi NETLEŞTİR: "sunucudan aynı response geliyor ama locator bazen bulamıyor, bu da CSS Modules/styled-components gibi bir build aracının class\'a hash eklediğini gösteriyor" gibi SPESİFİK bir gözlemle başla.',
+        en: 'Step 1 — CLARIFY the symptom: start with a SPECIFIC observation like "the same response comes from the server, but the locator sometimes cannot find it, which suggests a build tool like CSS Modules/styled-components is adding a hash to the class".',
+      },
+      code: { tr: `"Class hash'i her build'de değişiyor gibi görünüyor"`, en: `"The class hash appears to change on every build"` },
+      positions: {
+        question: { x: 20, y: 40, opacity: 0.6, scale: 0.9 },
+        symptom: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'symptom', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Kök NEDENİ bul: "class stil AMACIYLA vardır, kimlik için değil — build aracı benzersizlik için hash ekler ve bu her build\'de yeniden üretilir" diyerek MEKANİZMAYI açıkla, sadece belirtiyi tekrar etme.',
+        en: 'Step 2 — find the root CAUSE: EXPLAIN the mechanism, not just repeat the symptom — "the class exists for the PURPOSE of styling, not identity; the build tool adds a hash for uniqueness and this is regenerated on every build".',
+      },
+      code: { tr: `"Hash, build aracının benzersizlik için ürettiği bir imza"`, en: `"The hash is a signature the build tool produces for uniqueness"` },
+      positions: {
+        symptom: { x: 22, y: 40, opacity: 0.6, scale: 0.9 },
+        cause: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'symptom', to: 'cause', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Bir Java ANALOJİSİYLE bağlam kur: "bu, bir nesneyi toString() çıktısına göre karşılaştırmak gibi — biçim değişince ilişki bozulur, oysa kimliği sabit bir id\'ye bağlamalıydık" gibi bir cümle, mülakatçıya derinliğini gösterir.',
+        en: 'Step 3 — ground it with a Java ANALOGY: a sentence like "this is like comparing an object by its toString() output — the relationship breaks when the format changes, whereas we should have bound identity to a fixed id" shows the interviewer your depth.',
+      },
+      code: { tr: `"toString()'e göre eşitlik yapmaya benzer"`, en: `"Similar to equating by toString()"` },
+      positions: {
+        cause: { x: 22, y: 40, opacity: 0.6, scale: 0.9 },
+        analogy: { x: 55, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'cause', to: 'analogy', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Somut bir ÇÖZÜM öner: "developer\'dan data-testid=\'save-bug\' gibi build\'den bağımsız bir kanca isterim" diyerek cevabı SOMUT, uygulanabilir bir adımla bitir. Bu 4 adım (belirti→kök neden→analoji→çözüm) bu SAYFANIN kendi error-dictionary formatının AYNISIdır — düşünme sürecini göstermek, tanım ezberlemekten çok daha değerlidir.',
+        en: 'Final — propose a concrete FIX: end the answer with a CONCRETE, actionable step like "I would ask the developer for a build-independent hook like data-testid=\'save-bug\'". This 4-step flow (symptom -> root cause -> analogy -> fix) is the EXACT SAME format as this page\'s own error-dictionary — showing your thinking process is far more valuable than reciting a definition.',
+      },
+      code: { tr: `"data-testid='save-bug' iste — build'den bağımsız kanca"`, en: `"Ask for data-testid='save-bug' — a build-independent hook"` },
+      positions: {
+        analogy: { x: 22, y: 32, scale: 0.95 },
+        fix: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'analogy', to: 'fix', color: '#22c55e' }],
+    },
+  ],
+}
+
+// ─── step-animation: İyi cevap vs zayıf cevap (GRUP J) ────────────────────────
+const goodVsWeakAnswerSteps = {
+  type: 'step-animation',
+  id: 'qaf-j-answer-quality-steps',
+  title: { tr: 'Adım Adım: Zayıf Bir Cevap Güçlü Bir Cevaba Nasıl Dönüşür', en: 'Step by Step: How a Weak Answer Becomes a Strong One' },
+  steps: [
+    { id: 1, icon: '❌', label: { tr: 'Zayıf: sadece tanım tekrarı', en: 'Weak: just repeating a definition' }, detail: { tr: '"NoSuchElementException element bulunamadığında olur" — bu doğru ama mülakatçıya SENİN NASIL DÜŞÜNDÜĞÜNÜ göstermez.', en: '"NoSuchElementException happens when an element is not found" — this is true but shows the interviewer NOTHING about HOW YOU THINK.' } },
+    { id: 2, icon: '👁️', label: { tr: 'Güçlü: belirtiyi somutlaştır', en: 'Strong: make the symptom concrete' }, detail: { tr: '"Bu spesifik senaryoda element X koşulu Y tetiklenmeden locate edilmeye çalışılıyor" — SOMUT bir gözlem, genel bir tanım değil.', en: '"In this specific scenario element X is being located before condition Y is triggered" — a CONCRETE observation, not a generic definition.' } },
+    { id: 3, icon: '🔍', label: { tr: 'Güçlü: mekanizmayı açıkla', en: 'Strong: explain the mechanism' }, detail: { tr: '"Çünkü framework conditional render\'da elementi DOM\'a hiç eklemiyor" — NEDEN olduğunu, sadece NE olduğunu değil.', en: '"Because the framework never adds the element to the DOM in a conditional render" — explaining WHY it happens, not just WHAT happens.' } },
+    { id: 4, icon: '☕', label: { tr: 'Güçlü: Java\'ya bağla', en: 'Strong: connect to Java' }, detail: { tr: '"Bu, bir if bloğunun çalışmamış olmasına benzer — nesne yaratılmamıştır" — mülakatçının bildiği bir kavrama köprü kurar.', en: '"This resembles an if block not having run — the object was not created" — bridges to a concept the interviewer already knows.' } },
+    { id: 5, icon: '✅', label: { tr: 'Güçlü: somut adımla bitir', en: 'Strong: end with a concrete step' }, detail: { tr: '"Önce koşulu tetikleyen eylemi yapar, sonra locate ederim" — mülakatçı senin bu problemi GERÇEKTEN çözebileceğini görür.', en: '"I would first perform the action that triggers the condition, then locate" — the interviewer sees you can REALLY solve this problem.' } },
+  ],
+}
+
+// ─── code-playground: senaryo sorusuna güçlü bir cevap yaz (GRUP J) ───────────
+const writeStrongAnswerPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-j-interview',
+  id: 'qaf-j-write-strong-answer',
+  title: { tr: 'Kendin Dene: Zayıf Cevabı Güçlü Cevaba Dönüştür', en: 'Try It Yourself: Turn a Weak Answer into a Strong One' },
+  starterCode: {
+    tr: `// Mülakat sorusu: "Bir buton görünüyor ama tıklandığında hiçbir şey olmuyor,
+// birkaç yüz milisaniye sonra çalışıyor. Ne olabilir?"
+// Zayıf cevap:
+// "Bu bir JavaScript sorunu olabilir."
+// TODO: bu cevabı belirti->kök neden->Java analojisi->çözüm akışıyla güçlendir.`,
+    en: `// Interview question: "A button is visible but clicking it does nothing,
+// then it works a few hundred milliseconds later. What could this be?"
+// Weak answer:
+// "This might be a JavaScript issue."
+// TODO: strengthen this answer with the symptom->root cause->Java analogy->fix flow.`,
+  },
+  solutionCode: {
+    tr: `// GÜÇLÜ CEVAP:
+// Belirti: SSR/SSG sayfasında HTML ilk yanıtta hazır ama tıklama gecikmeli çalışıyor.
+// Kök neden: JS bundle henüz hydrate olmadığı için event listener bağlı değil.
+// Java analojisi: constructor çalışmış (alanlar set) ama nesne henüz bir
+// listener'a kaydedilmemiş gibi - "var" ama sistemin aktif parçası değil.
+// Çözüm: developer'dan data-hydrated="true" işareti isterim ve tıklamadan
+// önce bunu beklerim - sadece "visible" olmak yeterli değil.`,
+    en: `// STRONG ANSWER:
+// Symptom: on an SSR/SSG page the HTML is ready in the first response but
+// the click works only after a delay.
+// Root cause: the JS bundle has not hydrated yet, so the event listener is not attached.
+// Java analogy: like a constructor having run (fields set) but the object not
+// yet registered with a listener - it "exists" but is not an active part of the system.
+// Fix: I would ask the developer for a data-hydrated="true" marker and wait
+// for it before clicking - being merely "visible" is not enough.`,
+  },
+  hint: {
+    tr: 'Bu senaryo GRUP E4\'teki hydration dersinin tam karşılığıdır. Cevabı 4 parçaya böl: SOMUT bir belirti tanımla, MEKANİZMAYI (hydration) açıkla, bir Java analojisiyle bağla, ve UYGULANABİLİR bir çözüm (data-hydrated işareti) öner.',
+    en: 'This scenario is the exact counterpart of the hydration lesson in GROUP E4. Break the answer into 4 parts: define a CONCRETE symptom, explain the MECHANISM (hydration), connect it with a Java analogy, and propose an ACTIONABLE fix (a data-hydrated marker).',
+  },
+  successMessage: {
+    tr: 'Doğru! Bu 4 parçalı yapı (belirti→kök neden→analoji→çözüm) mülakatçıya sadece "bildiğini" değil, "gerçek bir problemi NASIL çözdüğünü" gösterir — bu sayfadaki her mülakat sorusunun cevabı bu kalıbı izler.',
+    en: 'Correct! This 4-part structure (symptom -> root cause -> analogy -> fix) shows the interviewer not just "what you know" but "HOW you solve a real problem" — every interview answer on this page follows this pattern.',
+  },
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
-
   // ══ GRUP A — Tarayıcı Nasıl Çalışır (Locator'ın Temeli) ════════════════════
   {
     title: { tr: '🌐 Tarayıcı Nasıl Çalışır', en: '🌐 How the Browser Works' },
@@ -4981,6 +5258,9 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
           en: 'Most locator errors arise from not knowing the source-DOM-render distinction and always settle into the same few patterns: locating before the element renders (NoSuchElement), using a reference that died after a re-render (StaleElement), binding to a hash class, searching without a wait for an element NOT in the DOM due to `*ngIf`/conditional, forgetting the iframe/shadow DOM context. Why an "error dictionary"? Because a tester who recognizes the root cause the moment they see the error message solves it in minutes; one who cannot tries blindly for hours. Java analogy: like thinking "which reference is null?" when you see a NullPointerException — the message tells you the path to the root cause. In QA context: this group presents each error in a Symptom -> Root Cause -> Fix -> Prevention format; every error bridges back to a GROUP you already saw on this page.',
         },
       },
+      staleElementFilm,
+      errorMessageDiagnosisSteps,
+      fixStaleElementPlayground,
       {
         type: 'error-dictionary',
         relatedTopicId: 'qaf-i-common-errors',
@@ -5333,6 +5613,9 @@ driver.findElement(By.cssSelector("[data-testid='edit-bug-42']"));`,
           en: 'A frontend-aware tester\'s interview is measured not by "what is X?" definitions but by real production scenarios: like "your test passed one day and failed the next, the element uses a class that changes on every deploy, the developer says \'my code is the same\' — who do you tell what, and what is the permanent fix?" Why scenario-based? Because the job itself is a scenario — memorizing definitions does not fix a flaky test. Java analogy: like being asked "why did this design break and how would you fix it?" instead of "what is polymorphism?" in an interview. In QA context: this group provides 50 questions as 15 Basic / 20 Intermediate / 15 Advanced, each answer in 3-6 sentences plus a Java analogy.',
         },
       },
+      interviewAnswerFlowFilm,
+      goodVsWeakAnswerSteps,
+      writeStrongAnswerPlayground,
       {
         type: 'interview-questions',
         relatedTopicId: 'qaf-j-interview',
