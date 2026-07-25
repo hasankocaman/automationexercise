@@ -1033,6 +1033,7 @@ function HomePage() {
                                 <Link to="/selenium" data-testid="nav-selenium" className={nb('emerald')}>🟢 Selenium</Link>
                                 <Link to="/playwright" className={nb('purple')}>🎭 Playwright</Link>
                                 <Link to="/cypress" data-testid="nav-cypress" className={nb('purple')}>🌲 Cypress</Link>
+                                <Link to="/qa-frontend" data-testid="nav-qa-frontend" className={nb('purple')}>🖥️ {language === 'tr' ? 'QA için Frontend' : 'Frontend for QA'}</Link>
                                 <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
                                 <Link to="/gauge" data-testid="nav-gauge" className={nb('orange')}>📏 Gauge</Link>
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
@@ -1073,7 +1074,6 @@ function HomePage() {
                                 <Link to="/jmeter" data-testid="nav-jmeter" className={nb('orange')}>📊 JMeter</Link>
                                 <Link to="/postman" data-testid="nav-postman" className={nb('orange')}>📮 Postman</Link>
                                 <Link to="/api-testing" data-testid="nav-api-testing" className={nb('indigo')}>🔌 API Testing</Link>
-                                <Link to="/qa-frontend" data-testid="nav-qa-frontend" className={nb('purple')}>🖥️ {language === 'tr' ? 'QA için Frontend' : 'Frontend for QA'}</Link>
                                 <Link to="/bruno" data-testid="nav-bruno" className={nb('blue')}>📦 Bruno</Link>
                             </div>
                         </div>
@@ -1201,12 +1201,12 @@ function HomePage() {
                                     { to: '/selenium', label: '🟢 Selenium' },
                                     { to: '/manual-testing', label: language === 'tr' ? '🧭 Manuel Test' : '🧭 Manual Testing' },
                                     { to: '/playwright', label: '🎭 Playwright' },
+                                    { to: '/qa-frontend', label: language === 'tr' ? '🖥️ QA için Frontend' : '🖥️ Frontend for QA' },
                                     { to: '/appium', label: '📱 Appium' },
                                     { to: '/rest-assured', label: '🧪 REST Assured' },
                                     { to: '/gauge', label: '📏 Gauge' },
                                     { to: '/postman', label: '📮 Postman' },
                                     { to: '/api-testing', label: '🔌 API Testing' },
-                                    { to: '/qa-frontend', label: language === 'tr' ? '🖥️ QA için Frontend' : '🖥️ Frontend for QA' },
                                     { to: '/bruno', label: '📦 Bruno' },
                                     { to: '/jmeter', label: '📊 JMeter' },
                                     { to: '/browserstack', label: '☁️ BrowserStack' },
