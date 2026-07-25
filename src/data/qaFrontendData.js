@@ -1230,6 +1230,191 @@ const dataAttrEventDelegationSteps = {
   ],
 }
 
+// ─── step-animation: İstek yaşam döngüsü ve Network paneli (GRUP E1) ──────────
+const networkRequestLifecycleSteps = {
+  type: 'step-animation',
+  id: 'qaf-e1-network-lifecycle-steps',
+  title: { tr: 'Adım Adım: Bir Tıklama Network Panelinde Nasıl Görünür?', en: 'Step by Step: How a Click Appears in the Network Panel' },
+  steps: [
+    { id: 1, icon: '🖱️', label: { tr: 'Kullanıcı "New Bug" gönderir', en: 'The user submits "New Bug"' }, detail: { tr: 'JS, form verisini toplayıp `fetch(\'/api/v1/bugs\', {method:\'POST\', body:...})` çağrısını tetikler.', en: 'JS gathers the form data and triggers a `fetch(\'/api/v1/bugs\', {method:\'POST\', body:...})` call.' } },
+    { id: 2, icon: '📡', label: { tr: 'İstek Network paneline düşer', en: 'The request lands in the Network panel' }, detail: { tr: 'DevTools → Network\'te YENİ bir satır belirir: `POST /api/v1/bugs`, durumu "pending" (bekliyor).', en: 'A NEW row appears in DevTools -> Network: `POST /api/v1/bugs`, its status "pending".' } },
+    { id: 3, icon: '⏳', label: { tr: 'Sunucu işler', en: 'The server processes it' }, detail: { tr: 'Bu satır "pending" kaldığı sürece sunucu HENÜZ cevap vermedi — bu, GRUP D3\'teki yarışın Network panelindeki karşılığıdır.', en: 'As long as this row stays "pending", the server has NOT responded yet — this is the Network-panel counterpart of the race from GROUP D3.' } },
+    { id: 4, icon: '✅', label: { tr: 'Status kodu ve response gelir', en: 'The status code and response arrive' }, detail: { tr: 'Satır "200" (veya 4xx/5xx) ile GÜNCELLENİR ve response sekmesinde JSON gövde görünür hale gelir.', en: 'The row UPDATES to "200" (or 4xx/5xx) and the JSON body becomes visible in the response tab.' } },
+    { id: 5, icon: '🔗', label: { tr: 'Tester için köprü: `/api-testing`', en: 'Bridge for the tester: `/api-testing`' }, detail: { tr: 'Bu satırdaki method/status/gövde, `/api-testing` sayfasında öğrendiğin sözleşmenin frontend tarafından GÖRÜNÜŞÜDÜR — bug\'ın frontend\'de mi backend\'de mi olduğunu Network panelinden ayırt edersin.', en: 'The method/status/body in this row is the frontend-side VIEW of the contract you learned on the `/api-testing` page — you tell whether a bug is in the frontend or the backend by reading the Network panel.' } },
+  ],
+}
+
+// ─── video-scene: "Veri Gelince DOM Doluyor" (GRUP E2, zorunlu film — orijinal prompt §4) ─
+const dataFillsDomFilm = {
+  type: 'video-scene',
+  id: 'qaf-data-fills-dom-film',
+  title: {
+    tr: '🎬 Veri Gelince DOM Doluyor: fetch → JSON → State → Re-render',
+    en: '🎬 The DOM Fills In When Data Arrives: fetch -> JSON -> State -> Re-render',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'fetch',   emoji: '📡', label: { tr: 'fetch(\'/api/v1/bugs\')', en: 'fetch(\'/api/v1/bugs\')' }, color: '#0ea5e9' },
+    { id: 'json',    emoji: '📦', label: { tr: 'JSON response',        en: 'JSON response' },        color: '#f59e0b' },
+    { id: 'state',   emoji: '🧠', label: { tr: 'State (bugs = [...])', en: 'State (bugs = [...])' }, color: '#8b5cf6' },
+    { id: 'render',  emoji: '🔁', label: { tr: 'Re-render',            en: 'Re-render' },             color: '#6366f1' },
+    { id: 'dom',     emoji: '📋', label: { tr: 'DOM (3 BugCard)',      en: 'DOM (3 BugCards)' },      color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir BugCard listesinin ekranda BELİRMESİ, tek bir olay değil dört aşamalı bir ZİNCİRDİR: istek → veri → state → yeniden çizim. Bu zinciri bilmek, "neden bu element ANINDA yok, sonradan geliyor" sorusuna netlik kazandırır.',
+        en: 'A BugCard list APPEARING on screen is not a single event but a four-stage CHAIN: request -> data -> state -> redraw. Knowing this chain brings clarity to "why is this element not there instantly, it arrives later".',
+      },
+      code: { tr: `<ul id="bug-list"></ul>  ← başlangıçta boş`, en: `<ul id="bug-list"></ul>  <- empty at the start` },
+      positions: { fetch: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `fetch` isteği yola çıkar: component mount olduğunda (React) veya sayfa yüklendiğinde (saf JS) `fetch(\'/api/v1/bugs\')` tetiklenir. Bu an DOM\'da HENÜZ hiçbir değişiklik yoktur.',
+        en: 'Step 1 — The `fetch` request sets off: when the component mounts (React) or the page loads (plain JS), `fetch(\'/api/v1/bugs\')` fires. At this moment there is NO change in the DOM yet.',
+      },
+      code: { tr: `fetch('/api/v1/bugs') gönderildi...`, en: `fetch('/api/v1/bugs') sent...` },
+      positions: {
+        fetch: { x: 24, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — JSON response gelir: sunucu 3 bug\'lık bir dizi döner. Bu, HAM veridir — henüz uygulamanın hafızasında (state) veya ekranda değildir.',
+        en: 'Step 2 — the JSON response arrives: the server returns an array of 3 bugs. This is RAW data — it is not yet in the app\'s memory (state) or on screen.',
+      },
+      code: { tr: `[{id:1,title:"Login..."}, {id:2,...}, {id:3,...}]`, en: `[{id:1,title:"Login..."}, {id:2,...}, {id:3,...}]` },
+      positions: {
+        fetch: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        json: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fetch', to: 'json', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Veri STATE\'e yazılır: `setBugs(data)` (React) veya bir değişkene atama (saf JS) ile ham JSON, uygulamanın "hafızasına" kaydedilir. DOM hâlâ eski (boş) haldedir — state değişti ama ekran henüz GÜNCELLENMEDİ.',
+        en: 'Step 3 — the data is written to STATE: with `setBugs(data)` (React) or an assignment to a variable (plain JS), the raw JSON is stored in the app\'s "memory". The DOM is still in its old (empty) state — state changed but the screen has NOT been UPDATED yet.',
+      },
+      code: { tr: `state.bugs = [...3 bug...]  (DOM henüz eski)`, en: `state.bugs = [...3 bugs...]  (DOM still old)` },
+      positions: {
+        json: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        state: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'json', to: 'state', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Re-render tetiklenir: state değiştiği için framework (React) veya elle yazılmış kod (saf JS) DOM\'u YENİDEN ÇİZMEYE karar verir. Bu, GRUP F/G\'de göreceğin "state değişince yeniden render" mekanizmasının TAM burasıdır.',
+        en: 'Step 4 — a re-render is triggered: because state changed, the framework (React) or hand-written code (plain JS) decides to REDRAW the DOM. This is EXACTLY the "state changes, re-render happens" mechanism you will see in GROUP F/G.',
+      },
+      code: { tr: `re-render tetiklendi...`, en: `re-render triggered...` },
+      positions: {
+        state: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        render: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'state', to: 'render', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final — DOM 3 BugCard ile dolar: ancak BU adımdan sonra `<li>` elemanları gerçekten DOM\'a girer ve locate edilebilir hale gelir. Zincirin HERHANGİ bir adımı (fetch, JSON, state, render) henüz bitmemişse, DOM hâlâ eski/boş haldedir — testin "ne zaman bekleyeceğini" bilmesi bu zincirin tamamını anlamasına bağlıdır.',
+        en: 'Final — the DOM fills with 3 BugCards: only AFTER this step do the `<li>` elements really enter the DOM and become locatable. If ANY step of the chain (fetch, JSON, state, render) has not finished yet, the DOM is still old/empty — the test knowing "when to wait" depends on understanding this entire chain.',
+      },
+      code: { tr: `<ul><li>Bug 1</li><li>Bug 2</li><li>Bug 3</li></ul>`, en: `<ul><li>Bug 1</li><li>Bug 2</li><li>Bug 3</li></ul>` },
+      positions: {
+        render: { x: 22, y: 30, scale: 0.95 },
+        dom: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'render', to: 'dom', color: '#22c55e' }],
+    },
+  ],
+}
+
+// ─── table: CSR/SSR/SSG → locate zamanlaması (GRUP E3) ────────────────────────
+const renderTypeLocateTimingTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Render türü', en: 'Render type' },
+    { tr: 'HTML nerede oluşur?', en: 'Where is the HTML built?' },
+    { tr: 'İlk yüklemede BugCard\'lar hemen DOM\'da mı?', en: 'Are BugCards in the DOM immediately on first load?' },
+    { tr: 'Locate zamanlaması', en: 'Locate timing' },
+  ],
+  rows: [
+    ['CSR', { tr: 'Tarayıcıda (JS çalışınca)', en: 'In the browser (once JS runs)' }, { tr: '❌ Hayır, JS fetch bitene kadar boş', en: '❌ No, empty until the JS fetch finishes' }, { tr: 'fetch + re-render bitene kadar bekle', en: 'Wait until fetch + re-render finish' }],
+    ['SSR', { tr: 'Sunucuda (istek anında)', en: 'On the server (at request time)' }, { tr: '✅ Evet, ilk HTML\'de hazır gelir', en: '✅ Yes, ready in the first HTML' }, { tr: 'HTML hazır ama JS bağlanana (hydration) kadar tıklama çalışmaz', en: 'HTML is ready but clicks do not work until JS attaches (hydration)' }],
+    ['SSG', { tr: 'Build zamanında (önceden)', en: 'At build time (in advance)' }, { tr: '✅ Evet, statik dosyada hazır', en: '✅ Yes, ready in the static file' }, { tr: 'SSR ile aynı hydration bekleme kuralı geçerlidir', en: 'The same hydration wait rule as SSR applies' }],
+  ],
+}
+
+// ─── step-animation: Hydration "sinsi bug" simülasyonu (GRUP E4) ──────────────
+const hydrationSneakyBugSteps = {
+  type: 'step-animation',
+  id: 'qaf-e4-hydration-sneaky-bug-steps',
+  title: { tr: 'Adım Adım: SSR\'da "Buton Var Ama Çalışmıyor" Sinsi Bug\'ı', en: 'Step by Step: the SSR "Button Exists But Does Not Work" Sneaky Bug' },
+  steps: [
+    { id: 1, icon: '📄', label: { tr: 'Sunucu HTML\'i hazır gönderir', en: 'The server sends the HTML ready' }, detail: { tr: 'SSR sayesinde tarayıcı ilk yanıtta TAM bir "New Bug" butonu görür — sayfa GÖRSEL olarak tamamlanmış gibi durur.', en: 'Thanks to SSR, the browser sees a COMPLETE "New Bug" button in the first response — the page LOOKS visually finished.' } },
+    { id: 2, icon: '⏳', label: { tr: 'Ama JS henüz İNDİRİLİYOR', en: 'But JS is still DOWNLOADING' }, detail: { tr: 'React/Angular JS bundle\'ı ayrı bir dosyadır ve HENÜZ tarayıcıya inmedi/çalışmadı — bu sırada sayfa "donmuş bir fotoğraf" gibidir.', en: 'The React/Angular JS bundle is a separate file and has NOT downloaded/run in the browser yet — during this time the page is like a "frozen photograph".' } },
+    { id: 3, icon: '🖱️', label: { tr: 'Kullanıcı (veya test) HEMEN tıklar', en: 'The user (or test) clicks IMMEDIATELY' }, detail: { tr: 'Buton görsel olarak orada ama JS henüz "hydrate" olmadığı (event listener\'lar bağlanmadığı) için TIKLAMA HİÇBİR ŞEY yapmaz.', en: 'The button visually exists, but since JS has not "hydrated" yet (event listeners are not attached), the CLICK DOES NOTHING.' } },
+    { id: 4, icon: '💧', label: { tr: 'Hydration tamamlanır', en: 'Hydration completes' }, detail: { tr: 'JS bundle çalışır, React/Angular mevcut HTML\'e "bağlanır" (hydrate), event listener\'lar ARTIK aktiftir.', en: 'The JS bundle runs, React/Angular "attaches" (hydrates) to the existing HTML, and event listeners are NOW active.' } },
+    { id: 5, icon: '✅', label: { tr: 'Şimdi tıklama çalışır', en: 'Now the click works' }, detail: { tr: 'Hydration\'dan SONRA yapılan bir tıklama beklenen davranışı tetikler — testerın refleksi: sadece "element visible" değil, "hydration tamamlandı" işaretini beklemek.', en: 'A click made AFTER hydration triggers the expected behavior — the tester\'s reflex: wait not just for "element visible" but for a signal that "hydration has completed".' } },
+  ],
+}
+
+// ─── code-playground: Hydration bitmeden tıklamayı önleme (GRUP E4) ───────────
+const waitForHydrationPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-e4-hydration',
+  id: 'qaf-e4-wait-for-hydration',
+  title: { tr: 'Kendin Dene: Hydration Bitmeden Tıklamayı Önle', en: 'Try It Yourself: Prevent Clicking Before Hydration Finishes' },
+  starterCode: {
+    tr: `// SSR sayfası: "New Bug" butonu ilk HTML'de hazır geliyor ama JS
+// bundle'ı indirilip hydrate olana kadar tıklama çalışmıyor.
+// TODO: sadece görünürlüğü değil, tıklanabilir olmayı da garanti et.
+await page.locator('[data-testid="new-bug-btn"]').click();`,
+    en: `// SSR page: the "New Bug" button is ready in the first HTML, but clicks
+// do not work until the JS bundle downloads and hydrates.
+// TODO: guarantee not just visibility, but clickability too.
+await page.locator('[data-testid="new-bug-btn"]').click();`,
+  },
+  solutionCode: {
+    tr: `// Modern test araçları tıklamadan önce elementin "actionable" (tıklanabilir)
+// olmasını otomatik bekler — bu genelde hydration'ın bitmesini de kapsar.
+// Ekstra güvence gerekiyorsa developer'dan bir "hydrated" işareti iste:
+await page.waitForSelector('[data-hydrated="true"]');
+await page.locator('[data-testid="new-bug-btn"]').click();`,
+    en: `// Modern test tools auto-wait for an element to be "actionable" (clickable)
+// before clicking -- this usually covers hydration finishing too.
+// If extra assurance is needed, ask the developer for a "hydrated" marker:
+await page.waitForSelector('[data-hydrated="true"]');
+await page.locator('[data-testid="new-bug-btn"]').click();`,
+  },
+  hint: {
+    tr: 'Buton `visible` olsa bile, hydration bitmeden click HİÇBİR ŞEY yapmaz çünkü event listener henüz bağlı değildir. Bazı framework\'ler `visible` + `actionable` kontrolünü otomatik yapar, ama karmaşık SSR sayfalarında developer\'dan açık bir "hydration bitti" işareti (`data-hydrated="true"`) istemek en net çözümdür.',
+    en: 'Even if the button is `visible`, a click does NOTHING before hydration finishes because the event listener is not attached yet. Some frameworks auto-check `visible` + `actionable`, but on complex SSR pages asking the developer for an explicit "hydration finished" marker (`data-hydrated="true"`) is the clearest fix.',
+  },
+  successMessage: {
+    tr: 'Doğru! "Görünür" ile "tıklanabilir/işlevsel" farklı şeylerdir — SSR + hydration senaryosunda bu ayrımı bilmemek, sessizce başarısız olan tıklamalara yol açar.',
+    en: 'Correct! "Visible" and "clickable/functional" are different things — not knowing this distinction in an SSR + hydration scenario leads to clicks that silently fail.',
+  },
+}
+
+// ─── table: Loading/Error/Empty — developer'ın 3 durumu vs tester'ın 3 testi (GRUP E5) ─
+const loadingErrorEmptyTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Durum', en: 'State' },
+    { tr: 'Developer\'ın kodladığı', en: 'What the developer codes' },
+    { tr: 'Tester\'ın test etmesi gereken', en: 'What the tester must test' },
+  ],
+  rows: [
+    [{ tr: 'Loading', en: 'Loading' }, { tr: 'fetch beklenirken bir spinner/skeleton gösterilir', en: 'A spinner/skeleton is shown while the fetch is pending' }, { tr: 'Spinner\'ın gerçekten görünüp gerçekten kaybolduğunu doğrula (sonsuz dönmediğini)', en: 'Verify the spinner truly appears and truly disappears (does not spin forever)' }],
+    [{ tr: 'Error', en: 'Error' }, { tr: 'İstek 4xx/5xx dönerse bir hata mesajı gösterilir', en: 'An error message is shown if the request returns 4xx/5xx' }, { tr: 'Sunucu hatası simüle edilip doğru hata mesajının (ve tekrar deneme butonunun) çıktığını doğrula', en: 'Simulate a server error and verify the correct error message (and a retry button) appears' }],
+    [{ tr: 'Empty', en: 'Empty' }, { tr: 'Liste boşsa "Henüz bug yok" gibi bir mesaj gösterilir', en: 'An "No bugs yet" message is shown if the list is empty' }, { tr: 'Filtreleme sonucu 0 kayıt döndüğünde boş-durum mesajının (boş bir tablo değil) göründüğünü doğrula', en: 'When filtering returns 0 results, verify the empty-state message appears (not just a blank table)' }],
+  ],
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
 
@@ -2535,7 +2720,7 @@ const Badge = styled.span\`
     ],
   },
 
-  // ══ GRUP E — Frontend & Backend Nasıl Konuşur (Sonnet) ═════════════════════
+  // ══ GRUP E — Frontend & Backend Nasıl Konuşur ═══════════════════════════════
   {
     title: { tr: '🔌 Frontend & Backend Nasıl Konuşur', en: '🔌 How Frontend and Backend Talk' },
     blocks: [
@@ -2543,9 +2728,269 @@ const Badge = styled.span\`
         type: 'simple-box',
         emoji: '🔌',
         content: {
-          tr: 'Frontend ile backend arasındaki konuşma, bir RESTORANDAKİ garson-mutfak ilişkisi gibidir: tarayıcı (garson) `/api/v1/bugs`\'a bir istek götürür, sunucu (mutfak) JSON döner, JS bu JSON\'u DOM\'a (tabağa) dizer. Neden bir tester bu köprüyü bilmeli? Çünkü elementin ne zaman DOM\'a geleceği tamamen bu konuşmanın hızına bağlıdır — ayrıca sayfanın NEREDE oluştuğu (tarayıcıda mı = CSR, sunucuda mı = SSR) locate zamanlamasını kökten değiştirir. Java analojisi: bu köprü `/api-testing` sayfasında öğrendiğin request/response sözleşmesinin frontend tarafından görünüşüdür — aynı Bug modeli, şimdi ekranda. QA bağlamında: "UI\'da görünmüyor" dediğin bir bug\'ın kökü frontend mi (render) yoksa backend mi (response) — bunu ayırt etmek Network panelini okumaktan geçer. (Atomik başlıklar E1-E5 Sonnet fazında — bkz. plan §D-S5. Köprü: /api-testing.)',
-          en: 'The conversation between frontend and backend is like the waiter-kitchen relationship in a RESTAURANT: the browser (waiter) carries a request to `/api/v1/bugs`, the server (kitchen) returns JSON, and JS arranges that JSON onto the DOM (the plate). Why should a tester know this bridge? Because when an element will appear in the DOM depends entirely on the speed of this conversation — and WHERE the page is built (in the browser = CSR, on the server = SSR) fundamentally changes locate timing. Java analogy: this bridge is the frontend-side view of the request/response contract you learned on the `/api-testing` page — the same Bug model, now on screen. In QA context: for a bug you call "not visible in the UI", is the root the frontend (render) or the backend (response) — telling them apart comes from reading the Network panel. (The atomic topics E1-E5 are in the Sonnet phase — see plan section D-S5. Bridge: /api-testing.)',
+          tr: 'Frontend ile backend arasındaki konuşma, bir RESTORANDAKİ garson-mutfak ilişkisi gibidir: tarayıcı (garson) `/api/v1/bugs`\'a bir istek götürür, sunucu (mutfak) JSON döner, JS bu JSON\'u DOM\'a (tabağa) dizer. Neden bir tester bu köprüyü bilmeli? Çünkü elementin ne zaman DOM\'a geleceği tamamen bu konuşmanın hızına bağlıdır — ayrıca sayfanın NEREDE oluştuğu (tarayıcıda mı = CSR, sunucuda mı = SSR) locate zamanlamasını kökten değiştirir. Java analojisi: bu köprü `/api-testing` sayfasında öğrendiğin request/response sözleşmesinin frontend tarafından görünüşüdür — aynı Bug modeli, şimdi ekranda. QA bağlamında: "UI\'da görünmüyor" dediğin bir bug\'ın kökü frontend mi (render) yoksa backend mi (response) — bunu ayırt etmek Network panelini okumaktan geçer. Bu grup boyunca `/api-testing` sayfasına köprü kuracağız — syntax orada, "neden/ne zaman" burada.',
+          en: 'The conversation between frontend and backend is like the waiter-kitchen relationship in a RESTAURANT: the browser (waiter) carries a request to `/api/v1/bugs`, the server (kitchen) returns JSON, and JS arranges that JSON onto the DOM (the plate). Why should a tester know this bridge? Because when an element will appear in the DOM depends entirely on the speed of this conversation — and WHERE the page is built (in the browser = CSR, on the server = SSR) fundamentally changes locate timing. Java analogy: this bridge is the frontend-side view of the request/response contract you learned on the `/api-testing` page — the same Bug model, now on screen. In QA context: for a bug you call "not visible in the UI", is the root the frontend (render) or the backend (response) — telling them apart comes from reading the Network panel. Throughout this group we bridge to the `/api-testing` page — syntax lives there, "why/when" lives here.',
         },
+      },
+
+      // ── E1: Tarayıcı → Sunucu ──
+      {
+        type: 'heading',
+        text: { tr: '🌐 E1. Tarayıcı → Sunucu: fetch/XHR, `/api/v1/bugs` İsteği', en: '🌐 E1. Browser -> Server: fetch/XHR, the `/api/v1/bugs` Request' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🌐',
+        content: {
+          tr: 'Bir `fetch`/XHR isteği göndermek, bir KARGO GÖNDERMEK gibidir: paketi (isteği) yola çıkarırsın, bir TAKİP NUMARASI (Network paneli satırı) alırsın ve paketin durumunu ("pending" → "delivered") bu numaradan izlersin. Peki neden tester bu paneli okumayı bilmeli? Çünkü "UI\'da bir şey görünmüyor" dediğin bir bug\'ın DevTools → Network\'te tam olarak NEREDE tıkandığını (istek hiç gitmedi mi? sunucu 404/500 mü döndü? response boş mu geldi?) görmek, hatayı frontend\'e mi backend\'e mi atayacağını AYIRT eder. Java analojisi: eski `HttpURLConnection` (callback/blocking hissi veren XHR\'ın atası) ile modern `HttpClient`/`CompletableFuture` (fetch\'in Promise tabanlı yapısı) arasındaki fark gibi — API\'ler değişse de temel HTTP mekaniği aynıdır. QA bağlamında: bu sayfa `fetch`/XHR SYNTAX\'ını öğretmez (bkz. `/api-testing`, `/javascript`); burada öğrenilen, Network panelini bir TEŞHİS ARACI olarak okumaktır.',
+          en: 'Sending a `fetch`/XHR request is like SHIPPING A PACKAGE: you send the package (the request) off, you get a TRACKING NUMBER (a Network panel row), and you follow the package\'s status ("pending" -> "delivered") through that number. So why should a tester know how to read this panel? Because seeing EXACTLY WHERE a "nothing shows up in the UI" bug got stuck in DevTools -> Network (did the request never go out? did the server return 404/500? did the response come back empty?) lets you DISTINGUISH whether to assign the bug to the frontend or the backend. Java analogy: like the difference between the old `HttpURLConnection` (the callback/blocking-feeling ancestor of XHR) and the modern `HttpClient`/`CompletableFuture` (fetch\'s Promise-based structure) — the APIs change, but the underlying HTTP mechanics stay the same. In QA context: this page does not teach `fetch`/XHR SYNTAX (see `/api-testing`, `/javascript`); what is learned here is reading the Network panel as a DIAGNOSTIC TOOL.',
+        },
+      },
+      networkRequestLifecycleSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tester "New Bug" formunu gönderiyor, Toast bildirimi hiç görünmüyor. DevTools → Network\'te `POST /api/v1/bugs` satırını inceliyor ve status "(failed) net::ERR_CONNECTION_REFUSED" görüyor. Bu neyi işaret eder?',
+          en: 'A tester submits the "New Bug" form and the Toast notification never appears. They inspect the `POST /api/v1/bugs` row in DevTools -> Network and see status "(failed) net::ERR_CONNECTION_REFUSED". What does this indicate?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Frontend kodunda bir render hatası var', en: 'There is a render error in the frontend code' } },
+          { id: 'b', text: { tr: 'İstek sunucuya HİÇ ULAŞAMADI — sorun muhtemelen sunucunun ayakta olmaması veya yanlış bir URL/port', en: 'The request NEVER REACHED the server — the problem is likely the server being down or a wrong URL/port' } },
+          { id: 'c', text: { tr: 'JSON gövdesi yanlış formatlanmış', en: 'The JSON body is malformed' } },
+          { id: 'd', text: { tr: 'CSS class\'ı hash\'i değişmiş', en: 'The CSS class hash has changed' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`ERR_CONNECTION_REFUSED`, isteğin sunucuya hiç ULAŞAMADIĞINI gösterir (bir status kodu bile yok) — bu render/JS hatası değil, bağlantı/altyapı seviyesinde bir sorundur. Network paneli bunu net şekilde ayırt etmeni sağlar.',
+          en: '`ERR_CONNECTION_REFUSED` shows the request NEVER REACHED the server (there is not even a status code) — this is not a render/JS error, it is a connection/infrastructure-level problem. The Network panel clearly lets you tell these apart.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Aynı senaryoda Network paneli bu sefer `POST /api/v1/bugs` için status "500" ve response gövdesinde `{"error":"Internal Server Error"}` gösteriyor. Bu, önceki senaryodan (`ERR_CONNECTION_REFUSED`) nasıl farklıdır?',
+            en: 'In the same scenario, the Network panel this time shows status "500" for `POST /api/v1/bugs` with a response body `{"error":"Internal Server Error"}`. How does this differ from the previous scenario (`ERR_CONNECTION_REFUSED`)?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Aynı şeydir, ikisi de "sunucu çalışmıyor" demektir', en: 'It is the same thing, both mean "the server is down"' } },
+            { id: 'b', text: { tr: 'İstek sunucuya ULAŞTI ve sunucu bir hata ile cevap verdi — sorun backend kodunda, bağlantıda değil', en: 'The request REACHED the server and the server responded with an error — the problem is in the backend code, not the connection' } },
+            { id: 'c', text: { tr: 'Bu bir frontend hatasıdır', en: 'This is a frontend error' } },
+            { id: 'd', text: { tr: '500 status kodu her zaman istemci hatasıdır', en: 'A 500 status code always means a client error' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Bir status kodunun (500) ve response gövdesinin var olması, isteğin sunucuya ULAŞTIĞINI ve sunucu tarafında bir HATA oluştuğunu gösterir — bağlantı sorunu değil, backend kodundaki bir hata (exception, null pointer vb.) araştırılmalıdır.',
+            en: 'The existence of a status code (500) and a response body shows the request REACHED the server and an ERROR occurred server-side — not a connection issue, but an error in the backend code (an exception, a null pointer, etc.) that needs investigating.',
+          },
+        },
+      },
+
+      // ── E2: Response → State → Render ──
+      {
+        type: 'heading',
+        text: { tr: '🔁 E2. Response → State → Render: Gelen JSON DOM\'a Nasıl Döner', en: '🔁 E2. Response -> State -> Render: How Incoming JSON Turns Into the DOM' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🔁',
+        content: {
+          tr: 'JSON\'un DOM\'a dönüşmesi, bir FABRİKA MONTAJ HATTI gibidir: ham malzeme (JSON) önce DEPOYA (state\'e) alınır, sonra montaj hattı (render mekanizması) bu depodaki malzemeyi işleyip nihai ürünü (DOM) üretir — hiçbir adım atlanmaz. Peki neden bu zinciri bilmek işine yarar? Çünkü "veri geldi" ile "ekranda göründü" arasında İKİ AYRI adım (state güncelleme + re-render) daha vardır ve her biri bir miktar zaman alabilir. Java analojisi: bir DB sorgusunun sonucunu (ResultSet) önce bir DTO/nesne listesine (state) çevirip, sonra bu listeyi bir view\'a (render) bağlamak gibi — veri gelmesi ile ekranda görünmesi arasında dönüşüm adımları vardır. QA bağlamında: aşağıdaki film bu 4 aşamalı zinciri (fetch → JSON → state → re-render → DOM) somutlaştırır — flaky testlerin çoğu bu zincirin TAMAMLANMADIĞI bir anda locate denemesinden kaynaklanır.',
+          en: 'JSON turning into the DOM is like a FACTORY ASSEMBLY LINE: raw material (JSON) first goes into STORAGE (state), then the assembly line (the render mechanism) processes that stored material and produces the final product (the DOM) — no step is skipped. Why is knowing this chain useful? Because there are TWO SEPARATE steps (state update + re-render) between "data arrived" and "it appeared on screen", and each can take some time. Java analogy: like converting a DB query result (a ResultSet) into a DTO/object list (state) first, then binding that list to a view (render) — there are conversion steps between data arriving and it appearing on screen. In QA context: the film below makes this 4-stage chain (fetch -> JSON -> state -> re-render -> DOM) concrete — most flaky tests come from a locate attempt at a moment when this chain has NOT finished.',
+        },
+      },
+      dataFillsDomFilm,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'JSON response geldi (Network paneli "200" gösteriyor) ama BugCard listesi ekranda HÂLÂ görünmüyor. Zincirin (fetch → JSON → state → re-render → DOM) hangi adımlarında bir sorun olabilir?',
+          en: 'The JSON response arrived (the Network panel shows "200") but the BugCard list STILL does not appear on screen. In which steps of the chain (fetch -> JSON -> state -> re-render -> DOM) could the problem be?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Sadece fetch adımında — response geldiyse başka bir yer olamaz', en: 'Only in the fetch step — if the response arrived, it cannot be anywhere else' } },
+          { id: 'b', text: { tr: 'State güncelleme veya re-render adımında — response gelmesi state\'in doğru güncellendiğini VEYA render\'ın tetiklendiğini garanti etmez', en: 'In the state update or re-render step — the response arriving does not guarantee state was updated correctly OR that a render was triggered' } },
+          { id: 'c', text: { tr: 'Sadece CSS\'te — response ile CSS ilgisizdir', en: 'Only in CSS — the response is unrelated to CSS' } },
+          { id: 'd', text: { tr: 'Hiçbir yerde, bu asla olmaz', en: 'Nowhere, this never happens' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Response gelmesi zincirin sadece İLK yarısının bittiğini gösterir. State güncellemesinde bir kod hatası (yanlış alan okuma, bir koşulun yanlış değerlendirilmesi) veya re-render\'ın tetiklenmemesi (ör. state referansı doğru değiştirilmediyse framework değişikliği fark etmeyebilir) da "veri var ama ekranda yok" durumuna yol açabilir.',
+          en: 'The response arriving only shows the FIRST half of the chain finished. A code bug in the state update (reading the wrong field, a condition evaluated incorrectly) or the re-render not triggering (e.g. if the state reference was not changed correctly, the framework may not notice the change) can also cause "the data exists but is not on screen".',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir React developer\'ı `bugs.push(newBug)` yaparak state\'i "güncelliyor" ama ekran yenilenmiyor. Bu zincirin hangi adımında bir sorun var?',
+            en: 'A React developer "updates" state by doing `bugs.push(newBug)`, but the screen does not refresh. Which step of the chain has a problem?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'fetch adımında — istek hiç gitmemiştir', en: 'In the fetch step — the request never went out' } },
+            { id: 'b', text: { tr: 'Re-render tetikleme adımında — `.push()` diziyi YERİNDE değiştirir, React bu değişikliği fark etmez çünkü referans aynı kalır', en: 'In the re-render triggering step — `.push()` mutates the array IN PLACE, React does not notice this change because the reference stays the same' } },
+            { id: 'c', text: { tr: 'JSON adımında — veri bozuktur', en: 'In the JSON step — the data is corrupt' } },
+            { id: 'd', text: { tr: 'DOM adımında — tarayıcı bozuktur', en: 'In the DOM step — the browser is broken' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'React (ve benzer framework\'ler) state değişikliğini genelde REFERANS karşılaştırmasıyla tespit eder. `.push()` diziyi YERİNDE değiştirir, referans aynı kalır, bu yüzden framework "hiçbir şey değişmedi" sanıp re-render TETİKLEMEZ. Doğru yol: `setBugs([...bugs, newBug])` gibi YENİ bir referans oluşturmaktır.',
+            en: 'React (and similar frameworks) usually detects a state change via REFERENCE comparison. `.push()` mutates the array IN PLACE, the reference stays the same, so the framework thinks "nothing changed" and does NOT trigger a re-render. The correct way: create a NEW reference, like `setBugs([...bugs, newBug])`.',
+          },
+        },
+      },
+
+      // ── E3: CSR vs SSR vs SSG ──
+      {
+        type: 'heading',
+        text: { tr: '🏗️ E3. CSR vs SSR vs SSG: Sayfa Nerede Oluşuyor', en: '🏗️ E3. CSR vs SSR vs SSG: Where the Page Gets Built' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🏗️',
+        content: {
+          tr: 'CSR/SSR/SSG farkı, bir YEMEĞİN NEREDE PİŞTİĞİ farkı gibidir: CSR "eve gelen çiğ malzemeyi mutfağında (tarayıcıda) pişirmek" (HTML JS çalışınca oluşur), SSR "restoranda anlık pişirilip SICAK gelen yemek" (HTML sunucuda, her istekte, hazır gelir), SSG ise "önceden pişirilip dondurulmuş, sadece ısıtılan yemek" (HTML build zamanında ÖNCEDEN üretilir). Peki bu neden locate zamanlamasını DEĞİŞTİRİR? Çünkü CSR\'da ilk HTML BOŞTUR (JS çalışana kadar beklemen gerekir), SSR/SSG\'de ise HTML İLK yanıtta HAZIRDIR (ama JS\'in "hydrate" olmasını beklemen gerekebilir — bkz. E4). Java analojisi: bir view\'ın her istekte sunucuda render edildiği (JSP/Thymeleaf, SSR\'a benzer) ile bir SPA\'nın tamamen istemci tarafında JS ile kurulması (CSR) arasındaki fark gibi. QA bağlamında: bir sayfanın hangi türde olduğunu bilmek, "elementi ne zaman bekleyeceğim" sorusuna FARKLI bir cevap verir.',
+          en: 'The CSR/SSR/SSG difference is like the difference in WHERE A MEAL IS COOKED: CSR is "cooking raw ingredients delivered home, in your own kitchen (the browser)" (the HTML is built once JS runs), SSR is "a meal cooked on the spot at a restaurant and delivered HOT" (the HTML is ready on the server, on every request), SSG is "a meal cooked and frozen in advance, just reheated" (the HTML is produced IN ADVANCE at build time). So why does this CHANGE locate timing? Because in CSR the initial HTML is EMPTY (you must wait for JS to run), while in SSR/SSG the HTML is READY in the FIRST response (but you may still need to wait for JS to "hydrate" — see E4). Java analogy: like the difference between a view rendered on the server on every request (JSP/Thymeleaf, similar to SSR) and a SPA built entirely client-side with JS (CSR). In QA context: knowing which type a page is gives a DIFFERENT answer to "when should I wait for the element".',
+        },
+      },
+      renderTypeLocateTimingTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bug Tracker sayfası CSR ile çalışıyor (React SPA, veri client-side fetch ile geliyor). Sayfa açılır açılmaz BugCard\'ları locate etmeye çalışan bir test için en doğru yaklaşım nedir?',
+          en: 'The Bug Tracker page runs with CSR (a React SPA, data arrives via a client-side fetch). What is the correct approach for a test trying to locate BugCards the moment the page opens?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'İlk HTML\'de BugCard\'lar zaten hazırdır, hemen locate edilebilir', en: 'BugCards are already ready in the initial HTML, they can be located immediately' } },
+          { id: 'b', text: { tr: 'İlk HTML boştur; fetch + state + re-render zincirinin bitmesini (ör. `toHaveCount`) bekle', en: 'The initial HTML is empty; wait for the fetch + state + re-render chain to finish (e.g. `toHaveCount`)' } },
+          { id: 'c', text: { tr: 'Hydration beklemek gerekir, fetch beklemeye gerek yoktur', en: 'You need to wait for hydration, no need to wait for a fetch' } },
+          { id: 'd', text: { tr: 'CSR\'da bekleme hiç gerekmez', en: 'No waiting is ever needed in CSR' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'CSR\'da ilk HTML BOŞTUR — DOM, JS çalışıp fetch tamamlanana kadar dolmaz. SSR/SSG\'nin aksine burada "ilk HTML zaten hazır" varsayımı YANLIŞTIR; doğru refleks E2\'deki zincirin (fetch→state→render) bitmesini koşullu olarak beklemektir.',
+          en: 'In CSR the initial HTML is EMPTY — the DOM does not fill until JS runs and the fetch completes. Unlike SSR/SSG, the assumption "the initial HTML is already ready" is WRONG here; the right reflex is to conditionally wait for the E2 chain (fetch->state->render) to finish.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bug Tracker sayfası SSG ile üretiliyor (statik dosya, build zamanında hazır) ama "New Bug" butonuna tıklamak hâlâ ilk anda çalışmıyor. Bu neden CSR\'daki "veri bekleme" sorunundan FARKLI bir sorundur?',
+            en: 'The Bug Tracker page is produced with SSG (a static file, ready at build time), but clicking "New Bug" still does not work in the first instant. Why is this a DIFFERENT problem from CSR\'s "waiting for data" issue?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Aynı sorundur, SSG de CSR gibi veri bekler', en: 'It is the same problem, SSG also waits for data like CSR' } },
+            { id: 'b', text: { tr: 'SSG\'de HTML zaten hazırdır (veri bekleme sorunu yok); sorun JS\'in henüz hydrate olmaması, yani event listener\'ların bağlanmamış olmasıdır', en: 'In SSG the HTML is already ready (no data-waiting problem); the issue is JS not having hydrated yet, meaning the event listeners are not attached' } },
+            { id: 'c', text: { tr: 'SSG sayfaları hiçbir zaman JS içermez', en: 'SSG pages never contain JS' } },
+            { id: 'd', text: { tr: 'Bu bir tarayıcı hatasıdır', en: 'This is a browser bug' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'SSG\'de HTML build zamanında ÜRETİLMİŞ ve hazırdır — CSR\'daki gibi bir "veri gelene kadar bekleme" sorunu YOKTUR. Ama HTML statik olduğundan JS\'in ayrıca indirilip hydrate olması (E4) gerekir; bu bekleme CSR\'daki fetch beklemesinden TAMAMEN farklı bir mekanizmadır.',
+            en: 'In SSG the HTML was PRODUCED at build time and is ready — there is NO "wait until data arrives" problem like in CSR. But because the HTML is static, JS still needs to download separately and hydrate (E4); this wait is a COMPLETELY different mechanism from CSR\'s fetch wait.',
+          },
+        },
+      },
+
+      // ── E4: Hydration ──
+      {
+        type: 'heading',
+        text: { tr: '💧 E4. Hydration: HTML Var Ama JS Bağlanmadan Buton Çalışmaz (Sinsi Bug)', en: '💧 E4. Hydration: the HTML Exists But the Button Does Not Work Until JS Attaches (a Sneaky Bug)' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '💧',
+        content: {
+          tr: 'Hydration, bir MANKENİ CANLANDIRMAK gibidir: SSR sunucu HTML\'i gönderdiğinde tarayıcıda GÖRSEL olarak tam bir sayfa (bir vitrin mankeni gibi) durur — ama bu manken henüz HAREKET EDEMEZ. JS bundle indirilip çalıştığında React/Angular bu HTML\'e "can verir" (hydrate eder): artık event listener\'lar bağlanmıştır ve manken GERÇEKTEN hareket edebilir. Peki neden bu bir "SİNSİ" bug\'dır? Çünkü hiçbir hata mesajı YOKTUR — sayfa görsel olarak MÜKEMMEL görünür, sadece hydration bitene kadar geçen kısa sürede yapılan bir tıklama SESSİZCE kaybolur. Java analojisi: bir nesnenin constructor\'ı çalışıp alanları set edilmiş (HTML hazır) ama henüz bir Spring context\'e/listener\'a KAYDEDİLMEMİŞ olması gibi — nesne "var" ama sistemin aktif bir parçası DEĞİLDİR. QA bağlamında: bu sinsi bug\'ı yakalamanın yolu "element visible" ile "element hydrate/actionable" arasındaki farkı test etmektir — aşağıdaki adımlar ve pratik bunu somutlaştırır.',
+          en: 'Hydration is like BRINGING A MANNEQUIN TO LIFE: when the SSR server sends the HTML, a visually complete page (like a shop-window mannequin) stands in the browser — but this mannequin cannot MOVE yet. Once the JS bundle downloads and runs, React/Angular "brings this HTML to life" (hydrates it): event listeners are now attached and the mannequin can REALLY move. So why is this a "SNEAKY" bug? Because there is NO error message — the page LOOKS visually perfect, it is just that a click made during the short window before hydration finishes SILENTLY vanishes. Java analogy: like a nesne\'s constructor having run and its fields being set (the HTML is ready), but it has not yet been REGISTERED with a Spring context/listener — the object "exists" but is NOT an active part of the system. In QA context: the way to catch this sneaky bug is to test the difference between "element visible" and "element hydrated/actionable" — the steps and practice below make this concrete.',
+        },
+      },
+      hydrationSneakyBugSteps,
+      waitForHydrationPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir SSR sayfasında test, sayfa yüklenir yüklenmez (ilk HTML geldiği an) "New Bug" butonuna tıklıyor ve HİÇBİR ŞEY olmuyor — ama aynı test 300ms bekleyip tıklayınca ÇALIŞIYOR. Bu davranış neyi gösterir?',
+          en: 'On an SSR page, a test clicks "New Bug" the moment the page loads (as soon as the initial HTML arrives) and NOTHING happens — but the same test works when it waits 300ms before clicking. What does this behavior indicate?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Buton kodunda bir yazım hatası var', en: 'There is a typo in the button code' } },
+          { id: 'b', text: { tr: 'HTML hazır ama JS henüz hydrate olmamıştı; 300ms sonra hydration tamamlanmış ve event listener bağlanmıştı', en: 'The HTML was ready but JS had not hydrated yet; after 300ms hydration had completed and the event listener was attached' } },
+          { id: 'c', text: { tr: 'Test aracı bozuk çalışıyor', en: 'The test tool is malfunctioning' } },
+          { id: 'd', text: { tr: 'Sunucu 300ms sonra farklı bir HTML gönderiyor', en: 'The server sends different HTML after 300ms' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Bu, klasik hydration penceresidir: HTML görsel olarak hazır ama JS henüz "bağlanmadığı" için tıklama işlevsizdir. Kısa bir süre sonra hydration bittiğinde AYNI buton çalışmaya başlar — bu belirti (bekleyince çalışıyor) hydration timing\'ini net şekilde işaret eder.',
+          en: 'This is the classic hydration window: the HTML is visually ready but JS has not "attached" yet, so the click is inert. A short time later, once hydration finishes, the SAME button starts working — this symptom (works after waiting) clearly points to hydration timing.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir developer "biz bu sinsi bug\'ı önlemek için butona `data-hydrated=\'true\'` işareti ekledik, JS bağlanınca bu attribute\'u true yapıyoruz" diyor. Bir tester bunu nasıl kullanır?',
+            en: 'A developer says "we added a `data-hydrated=\'true\'` marker on the button to prevent this sneaky bug, and set it to true once JS attaches". How does a tester use this?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Bu işareti görmezden gelip yine de hemen tıklar', en: 'They ignore this marker and still click immediately' } },
+            { id: 'b', text: { tr: 'Tıklamadan önce bu attribute\'un "true" olmasını BEKLER — bu, hydration\'ın bittiğini garanti eden açık bir sinyaldir', en: 'They WAIT for this attribute to become "true" before clicking — it is an explicit signal that guarantees hydration has finished' } },
+            { id: 'c', text: { tr: 'Bu işaret sadece görsel bir dekorasyondur', en: 'This marker is purely visual decoration' } },
+            { id: 'd', text: { tr: 'data-hydrated attribute\'u CSS için kullanılır', en: 'The data-hydrated attribute is used for CSS' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Hydration\'ın "ne zaman bittiğini" garanti eden yerleşik bir sinyal olmadığından (görünürlük tek başına yetmez), developer\'ın eklediği açık bir `data-hydrated="true"` işareti tam olarak bu boşluğu doldurur — tester bu işareti BEKLEYEREK sinsi bug\'ı yapısal olarak önler.',
+            en: 'Since there is no built-in signal guaranteeing "when" hydration finished (visibility alone is not enough), an explicit `data-hydrated="true"` marker added by the developer fills exactly this gap — the tester structurally prevents the sneaky bug by WAITING for this marker.',
+          },
+        },
+      },
+
+      // ── E5: Loading/Error/Empty State ──
+      {
+        type: 'heading',
+        text: { tr: '🚦 E5. Loading/Error/Empty State: Developer\'ın 3 Durumu, Tester\'ın 3 Testi', en: '🚦 E5. Loading/Error/Empty State: the Developer\'s 3 States, the Tester\'s 3 Tests' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🚦',
+        content: {
+          tr: 'Bir veri isteğinin her zaman "başarıyla dolu geldi" varsayımı, bir SİGORTA POLİÇESİ yazarken sadece "hiçbir şey olmayacak" senaryosunu düşünmeye benzer — gerçek dünyada bekleme (Loading), aksilik (Error) ve boş sonuç (Empty) da OLASI durumlardır ve developer bunların HER BİRİ için ayrı bir arayüz kodlamalıdır. Peki neden tester\'ı ilgilendirir? Çünkü çoğu manuel/otomatik test SADECE "başarılı ve dolu" senaryosunu dener — ama production\'daki gerçek bug\'lar genelde bu üç durumun BİRİNDE saklanır (sonsuz dönen bir spinner, görünmeyen bir hata mesajı, "boş tablo" yerine yanlış bir "yükleniyor" yazısı). Java analojisi: bir metodun sadece "happy path"ini test edip exception/boş liste durumlarını atlamak gibi — kapsam eksik kalır. QA bağlamında: her BugCard listesi özelliği için bu 3 durumun ayrı ayrı simüle edilip doğrulanması gerekir; aşağıdaki tablo developer\'ın kodladığı ile tester\'ın test etmesi gerekeni yan yana koyar.',
+          en: 'Always assuming a data request "arrives successfully full" is like writing an insurance policy only considering the "nothing happens" scenario — in the real world, waiting (Loading), a mishap (Error), and an empty result (Empty) are also POSSIBLE states, and the developer must code a separate interface for EACH of them. Why does this concern a tester? Because most manual/automated tests ONLY try the "successful and full" scenario — but real production bugs usually hide in ONE of these three states (a spinner that spins forever, an invisible error message, a wrong "loading" text instead of an "empty table"). Java analogy: like testing only a method\'s "happy path" and skipping the exception/empty-list cases — coverage stays incomplete. In QA context: for every BugCard list feature, these 3 states must be separately simulated and verified; the table below places what the developer codes side by side with what the tester must test.',
+        },
+      },
+      loadingErrorEmptyTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tester sadece "BugCard listesi başarıyla yükleniyor mu?" senaryosunu test ediyor. Hangi gerçek production bug\'ını KAÇIRMA riski en yüksektir?',
+          en: 'A tester only tests the "does the BugCard list load successfully?" scenario. Which real production bug are they at highest risk of MISSING?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Sunucu 500 döndüğünde hata mesajının hiç görünmemesi (sadece sonsuz spinner)', en: 'The error message never appearing when the server returns 500 (only an infinite spinner)' } },
+          { id: 'b', text: { tr: 'Butonun rengi', en: 'The button\'s color' } },
+          { id: 'c', text: { tr: 'Sayfanın başlığı', en: 'The page\'s title' } },
+          { id: 'd', text: { tr: 'Font büyüklüğü', en: 'The font size' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: 'Sadece "başarı" yolunu test etmek, Error/Empty state\'lerin hiç doğrulanmadığı anlamına gelir. Gerçek bir production bug\'ı genelde şudur: sunucu hata döndüğünde spinner SONSUZA kadar döner çünkü error state hiç kodlanmamış veya tetiklenmemiştir — kullanıcı sayfanın "donduğunu" düşünür.',
+          en: 'Testing only the "success" path means Error/Empty states are never verified. A real production bug often looks like this: when the server returns an error, the spinner spins FOREVER because the error state was never coded or triggered — the user thinks the page has "frozen".',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tester, severity="CRITICAL" filtresini uyguluyor ve hiç kayıt yok. Ekranda BOŞ bir tablo (başlıksız, satırsız) görünüyor, "Henüz bug yok" gibi bir mesaj YOK. Bu neden bir bug\'dır?',
+            en: 'A tester applies the severity="CRITICAL" filter and there are no records. The screen shows an EMPTY table (no headers, no rows), with NO message like "No bugs yet". Why is this a bug?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Bug değildir, boş tablo normal bir davranıştır', en: 'It is not a bug, an empty table is normal behavior' } },
+            { id: 'b', text: { tr: 'Kullanıcı bunun "0 sonuç" mu yoksa "sayfa bozuk mu/hâlâ yükleniyor mu" olduğunu AYIRT EDEMEZ; Empty state eksik kodlanmıştır', en: 'The user CANNOT TELL whether this is "0 results" or "the page is broken/still loading"; the Empty state was not coded' } },
+            { id: 'c', text: { tr: 'Sadece bir stil (CSS) sorunudur', en: 'It is purely a styling (CSS) issue' } },
+            { id: 'd', text: { tr: 'Filtreleme özelliği tamamen bozuktur', en: 'The filtering feature is completely broken' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Boş bir tablo ile "sonuç yok ama sistem çalışıyor" mesajı arasında BÜYÜK bir kullanıcı deneyimi farkı vardır — birincisi kullanıcıyı "acaba bir şey mi bozuldu?" diye düşündürür. Empty state\'in ayrı ve AÇIK bir mesajla kodlanması gerekir; bunun eksik olması E5\'in tam olarak işaret ettiği bug türüdür.',
+            en: 'There is a BIG UX difference between a blank table and a "no results, but the system works" message — the former makes the user think "did something break?". The Empty state must be coded with a separate, EXPLICIT message; its absence is exactly the kind of bug E5 points to.',
+          },
+        },
+      },
+      {
+        type: 'feynman-checkpoint',
+        id: 'qaf-feynman-e',
+        promptTr: 'Hydration\'ın neden "sinsi" bir bug kaynağı olduğunu ve CSR/SSR/SSG arasındaki locate zamanlaması farkını, sektöre yeni giren birine kendi cümlelerinle anlat.',
+        promptEn: 'Explain, in your own words, why hydration is a "sneaky" source of bugs, and the locate-timing difference between CSR/SSR/SSG, to a newcomer.',
+        keywords: ['hydration', 'ssr', 'csr', 'ssg', 'visible', 'listener', 'sinsi', 'locate'],
+        modelAnswerTr: 'CSR\'da ilk HTML boştur ve DOM, JS fetch bitene kadar dolmaz; SSR/SSG\'de ise HTML ilk yanıtta hazırdır ama JS bundle\'ı henüz "hydrate" olmadığı için event listener\'lar bağlı değildir. Hydration bittiğinde JS bu hazır HTML\'e "can verir". Sinsi olmasının sebebi: sayfa görsel olarak mükemmel görünür, hiçbir hata çıkmaz, sadece hydration bitmeden yapılan bir tıklama sessizce hiçbir şey yapmaz — tester bunu "element visible" ile "element gerçekten işlevsel" arasındaki farkı bilerek yakalar.',
+        modelAnswerEn: 'In CSR the initial HTML is empty and the DOM does not fill until the JS fetch finishes; in SSR/SSG the HTML is ready in the first response, but the event listeners are not attached because the JS bundle has not "hydrated" yet. Once hydration finishes, JS "brings this ready HTML to life". The reason it is sneaky: the page looks visually perfect, no error appears, it is just that a click made before hydration finishes silently does nothing — a tester catches this by knowing the difference between "element visible" and "element actually functional".',
       },
     ],
   },
