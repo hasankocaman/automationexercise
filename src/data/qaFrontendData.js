@@ -1846,6 +1846,224 @@ const angularDataTestIdBindingPlayground = {
   },
 }
 
+// ─── table: Kırılgan locator antipattern'leri (GRUP H2) ────────────────────────
+const locatorAntipatternTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Antipattern', en: 'Antipattern' },
+    { tr: 'Neden kırılır?', en: 'Why does it break?' },
+    { tr: 'Yerine ne kullan', en: 'Use instead' },
+  ],
+  rows: [
+    [{ tr: 'Absolute XPath (`/html/body/div[2]/ul/li[3]/button`)', en: 'Absolute XPath (`/html/body/div[2]/ul/li[3]/button`)' }, { tr: 'Ağaca TEK bir wrapper eklenmesi bile tüm yolu geçersiz kılar', en: 'Adding even ONE wrapper to the tree invalidates the entire path' }, { tr: '`data-testid` veya `getByRole`', en: '`data-testid` or `getByRole`' }],
+    [{ tr: '`nth-child`/index bağımlılığı', en: '`nth-child`/index dependency' }, { tr: 'Sıralama değişince (yeni eleman eklenince) YANLIŞ elemente işaret eder — bulunamama değil, SESSİZCE yanlış eşleşme riski', en: 'When ordering changes (a new item is added) it points to the WRONG element — not a not-found, but a SILENT wrong-match risk' }, { tr: 'İlişkisel locate (`row containing text X`) veya `data-id`', en: 'Relational locating (`row containing text X`) or `data-id`' }],
+    [{ tr: 'Hash class (`.Btn_ghost__p0q2`)', en: 'A hash class (`.Btn_ghost__p0q2`)' }, { tr: 'Her build\'de yeniden üretilir (CSS Modules/styled-components)', en: 'Regenerated on every build (CSS Modules/styled-components)' }, { tr: '`data-testid`/`getByRole`', en: '`data-testid`/`getByRole`' }],
+    [{ tr: 'Auto-generated id (`id="r4nd0m-9f3"`)', en: 'An auto-generated id (`id="r4nd0m-9f3"`)' }, { tr: 'Sayfa her yüklemede farklı bir id üretebilir (UUID, sayaç)', en: 'The page can produce a different id on every load (a UUID, a counter)' }, { tr: 'Başlangıç-eşleşmesi (`^=`) veya `data-testid`', en: 'A starts-with match (`^=`) or `data-testid`' }],
+  ],
+}
+
+// ─── video-scene: "5 Locator Yarışı" (GRUP H3, sayfanın en kritik filmi) ──────
+const fiveLocatorRaceFilm = {
+  type: 'video-scene',
+  id: 'qaf-five-locator-race-film',
+  title: {
+    tr: '🎬 5 Locator Yarışı: Deploy Sonrası Hangisi Hayatta Kalır?',
+    en: '🎬 The 5-Locator Race: Which One Survives the Deploy?',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'button',  emoji: '🔘', label: { tr: '"Düzenle" butonu',    en: '"Edit" button' },        color: '#0ea5e9' },
+    { id: 'xpath',   emoji: '1️⃣', label: { tr: 'XPath index',        en: 'XPath index' },           color: '#ef4444' },
+    { id: 'hash',    emoji: '2️⃣', label: { tr: 'Hash class',         en: 'Hash class' },            color: '#f97316' },
+    { id: 'text',    emoji: '3️⃣', label: { tr: 'getByText',          en: 'getByText' },             color: '#eab308' },
+    { id: 'role',    emoji: '4️⃣', label: { tr: 'getByRole',          en: 'getByRole' },             color: '#22c55e' },
+    { id: 'testid',  emoji: '5️⃣', label: { tr: 'getByTestId',        en: 'getByTestId' },           color: '#10b981' },
+    { id: 'deploy',  emoji: '🚀', label: { tr: 'Deploy',              en: 'Deploy' },                color: '#8b5cf6' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '5 farklı tester, AYNI "Düzenle" butonuna 5 farklı locator yazdı: XPath index, hash class, metin (getByText), rol+isim (getByRole), ve data-testid. Bugün HEPSİ çalışıyor. Ama YARIN bir deploy sonrası hangisi hayatta kalacak? Bu, sayfanın EN KRİTİK filmidir.',
+        en: '5 different testers wrote 5 different locators for the SAME "Edit" button: an XPath index, a hash class, text (getByText), role+name (getByRole), and data-testid. Today ALL of them work. But TOMORROW, after a deploy, which one survives? This is the MOST CRITICAL film on this page.',
+      },
+      code: { tr: `5 locator, 1 buton, bugün hepsi ✅`, en: `5 locators, 1 button, all ✅ today` },
+      positions: { button: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Bugün: her 5 locator da AYNI butona ulaşıyor — testler yeşil. Ama her biri FARKLI bir şeye güveniyor: biri konuma (index), biri stile (hash), biri dile (metin), biri erişilebilirliğe (rol), biri kasıtlı bir kimliğe (data-testid).',
+        en: 'Today: all 5 locators reach the SAME button — tests are green. But each relies on something DIFFERENT: one on position (index), one on style (hash), one on language (text), one on accessibility (role), one on a deliberate identity (data-testid).',
+      },
+      code: { tr: `//li[3]/button · .Btn_ghost__p0q2 · "Düzenle" · role=button · data-testid`, en: `//li[3]/button · .Btn_ghost__p0q2 · "Edit" · role=button · data-testid` },
+      positions: {
+        button: { x: 50, y: 30, scale: 1.1 },
+        xpath: { x: 15, y: 62, scale: 0.9 },
+        hash: { x: 32, y: 62, scale: 0.9 },
+        text: { x: 50, y: 62, scale: 0.9 },
+        role: { x: 68, y: 62, scale: 0.9 },
+        testid: { x: 85, y: 62, scale: 0.9 },
+      },
+      beams: [
+        { from: 'button', to: 'xpath' }, { from: 'button', to: 'hash' }, { from: 'button', to: 'text' },
+        { from: 'button', to: 'role' }, { from: 'button', to: 'testid' },
+      ],
+    },
+    {
+      caption: {
+        tr: 'Deploy tetiklenir: İKİ şey AYNI ANDA olur — (1) build aracı CSS Module hash\'ini yeniden üretir, (2) bir kullanıcı yeni bir bug ekler ve bu buton listede BİR SIRA aşağı kayar.',
+        en: 'A deploy fires: TWO things happen AT THE SAME TIME — (1) the build tool regenerates the CSS Module hash, (2) a user adds a new bug and this button shifts DOWN one position in the list.',
+      },
+      code: { tr: `deploy: hash yenilendi + liste 1 sıra kaydı`, en: `deploy: hash regenerated + list shifted by 1` },
+      positions: {
+        deploy: { x: 50, y: 45, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'deploy', to: 'button', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Sonuç 1 — XPath index EN TEHLİKELİ şekilde kırılır: `//li[3]/button` artık BAŞKA bir bug\'ın butonuna işaret ediyor. Test hata VERMEZ, ama YANLIŞ bug\'ı düzenler — bu, "bulunamadı" hatasından daha TEHLİKELİDİR çünkü SESSİZCE yanlış davranır.',
+        en: 'Result 1 — XPath index breaks in the MOST DANGEROUS way: `//li[3]/button` now points to a DIFFERENT bug\'s button. The test does NOT error, but it edits the WRONG bug — this is MORE DANGEROUS than a "not found" error because it fails SILENTLY.',
+      },
+      code: { tr: `//li[3]/button → YANLIŞ bug'a işaret ediyor!`, en: `//li[3]/button -> now points to the WRONG bug!` },
+      positions: {
+        xpath: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Sonuç 2 — Hash class NoSuchElement ile kırılır: `.Btn_ghost__p0q2` build\'de `.Btn_ghost__z8m3q` oldu, dünkü test 0 eleman bulur. En azından bu, XPath\'in aksine AÇIK bir hata verir.',
+        en: 'Result 2 — the hash class breaks with NoSuchElement: `.Btn_ghost__p0q2` became `.Btn_ghost__z8m3q` in the build, yesterday\'s test finds 0 elements. At least, unlike XPath, this gives an OBVIOUS error.',
+      },
+      code: { tr: `.Btn_ghost__p0q2 → 0 elements matched`, en: `.Btn_ghost__p0q2 -> 0 elements matched` },
+      positions: {
+        hash: { x: 50, y: 50, scale: 1.25, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Sonuç 3 — Metin, rol ve data-testid HAYATTA KALIR: butonun metni, erişilebilir ismi ve data-testid\'si deploy\'dan ETKİLENMEDİ. AMA dikkat: metin (getByText) sadece BU SEFER hayatta kaldı — dil değişse (TR→EN) veya metin güncellense KIRILACAKTI. En sağlam ikisi: role+name ve data-testid.',
+        en: 'Result 3 — text, role, and data-testid SURVIVE: the button\'s text, accessible name, and data-testid were NOT affected by the deploy. BUT note: text (getByText) only survived THIS TIME — it would BREAK if the language changed (TR->EN) or the text was updated. The two most robust: role+name and data-testid.',
+      },
+      code: { tr: `getByText/getByRole/getByTestId → hâlâ çalışıyor`, en: `getByText/getByRole/getByTestId -> still working` },
+      positions: {
+        text: { x: 25, y: 50, scale: 1.15, pulse: true },
+        role: { x: 50, y: 50, scale: 1.15, pulse: true },
+        testid: { x: 75, y: 50, scale: 1.15, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Final — Sıralama netleşti: `data-testid` ve `getByRole` deploy\'a KARŞI BAĞIŞIKTIR (kasıtlı kimlik/erişilebilirlik); metin SADECE ŞANSLA hayatta kaldı (i18n\'de kırılırdı); hash class ve XPath index İKİSİ DE kırıldı — biri açıkça (NoSuchElement), diğeri SESSİZCE (yanlış eleman). Bu yüzden hiyerarşi `data-testid` > `role+name` > stabil `id` > text > CSS > XPath-index şeklindedir.',
+        en: 'Final — the ranking is clear: `data-testid` and `getByRole` are IMMUNE to a deploy (a deliberate identity/accessibility); text survived ONLY BY LUCK (it would break under i18n); the hash class and XPath index BOTH broke — one openly (NoSuchElement), the other SILENTLY (the wrong element). This is why the hierarchy is `data-testid` > `role+name` > stable `id` > text > CSS > XPath-index.',
+      },
+      code: { tr: `data-testid > role+name > id > text > CSS > XPath-index`, en: `data-testid > role+name > id > text > CSS > XPath-index` },
+      positions: {
+        testid: { x: 20, y: 40, scale: 1.1 },
+        role: { x: 40, y: 55, scale: 1.0 },
+        text: { x: 58, y: 40, scale: 0.85, opacity: 0.7 },
+        hash: { x: 74, y: 55, scale: 0.8, opacity: 0.4 },
+        xpath: { x: 90, y: 40, scale: 0.8, opacity: 0.4 },
+      },
+    },
+  ],
+}
+
+// ─── step-animation: Conditional/dynamic element için bekleme + varlık kontrolü (GRUP H4) ─
+const conditionalDynamicWaitSteps = {
+  type: 'step-animation',
+  id: 'qaf-h4-conditional-dynamic-steps',
+  title: { tr: 'Adım Adım: Koşullu/Dinamik Bir Elementi Doğru Locate Etme', en: 'Step by Step: Correctly Locating a Conditional/Dynamic Element' },
+  steps: [
+    { id: 1, icon: '❓', label: { tr: 'Önce sor: bu element her zaman mı var?', en: 'First ask: does this element always exist?' }, detail: { tr: 'Bir Toast, Modal veya hata mesajı gibi elementler KOŞULLUDUR — kaynağı okuyup `{isOpen&&}`/`*ngIf` gibi bir kalıp arayarak bunu ÖNCEDEN bil.', en: 'Elements like a Toast, Modal, or error message are CONDITIONAL — know this IN ADVANCE by reading the source and looking for a pattern like `{isOpen&&}`/`*ngIf`.' } },
+    { id: 2, icon: '🎬', label: { tr: 'Koşulu TETİKLE', en: 'TRIGGER the condition' }, detail: { tr: 'Locate etmeden ÖNCE, elementi var eden eylemi yap (butona tıkla, formu gönder) — koşul gerçekleşmeden locate etmek her zaman başarısızdır.', en: 'BEFORE locating, perform the action that brings the element into existence (click the button, submit the form) — locating before the condition is met always fails.' } },
+    { id: 3, icon: '⏳', label: { tr: 'VARLIĞI bekle (`attached`/`present`)', en: 'Wait for PRESENCE (`attached`/`present`)' }, detail: { tr: 'Element DOM\'a girdi mi? Bu, GRUP A3\'teki "DOM\'da var ama render tree\'de yok" ayrımına dayanır — varlık tek başına yeterli değildir.', en: 'Has the element entered the DOM? This relies on the GROUP A3 distinction "exists in the DOM but not in the render tree" — presence alone is not enough.' } },
+    { id: 4, icon: '👁️', label: { tr: 'GÖRÜNÜRLÜĞÜ bekle (`visible`)', en: 'Wait for VISIBILITY (`visible`)' }, detail: { tr: 'Element render tree\'de mi VE ekranda mı? Tıklama gibi etkileşimler için `visible`/`actionable` beklemek gerekir, sadece `attached` değil.', en: 'Is the element in the render tree AND on screen? Interactions like clicking require waiting for `visible`/`actionable`, not just `attached`.' } },
+    { id: 5, icon: '✅', label: { tr: 'Ardından locate/etkileşim', en: 'Then locate/interact' }, detail: { tr: 'Bu 4 adımı (koşulu bil → tetikle → varlığı bekle → görünürlüğü bekle) atlamayan tester, koşullu/dinamik elementlerde flaky test YAZMAZ.', en: 'A tester who does not skip these 4 steps (know the condition -> trigger it -> wait for presence -> wait for visibility) does NOT write a flaky test for conditional/dynamic elements.' } },
+  ],
+}
+
+// ─── code-playground: Tablo/liste içinde tekil satırı ilişkisel bulma (GRUP H5) ─
+const relationalRowLocatorPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-h5-list-single-row',
+  id: 'qaf-h5-relational-row',
+  title: { tr: 'Kendin Dene: Tabloda Tekil Satırı İndeks YASAK Kuralıyla Bul', en: 'Try It Yourself: Find a Single Table Row Under the Index-BANNED Rule' },
+  starterCode: {
+    tr: `// Bug Tracker tablosunda "Login butonu 500 donuyor" satırındaki
+// severity dropdown'ını "CRITICAL" yapman gerekiyor. Tablo sık sık
+// filtrelemeyle yeniden sıralanıyor. TODO: index YASAK kuralına uy.
+await page.locator('tr').nth(4).locator('select').selectOption('CRITICAL');`,
+    en: `// You need to set the severity dropdown to "CRITICAL" on the row
+// "Login button freezes on 500" in the Bug Tracker table. The table is
+// frequently re-sorted by filtering. TODO: obey the index-BANNED rule.
+await page.locator('tr').nth(4).locator('select').selectOption('CRITICAL');`,
+  },
+  solutionCode: {
+    tr: `// Satırı METNE göre ilişkisel bul, SONRA o satırın içindeki dropdown'a git
+await page.locator('tr', { hasText: 'Login butonu 500 donuyor' })
+  .locator('select')
+  .selectOption('CRITICAL');`,
+    en: `// Find the row relationally BY TEXT, THEN go to the dropdown inside that row
+await page.locator('tr', { hasText: 'Login button freezes on 500' })
+  .locator('select')
+  .selectOption('CRITICAL');`,
+  },
+  hint: {
+    tr: '`.nth(4)` "5. satır" demektir ve filtreleme sıralamayı değiştirdiğinde YANLIŞ satırı hedefler — bu, H3 filmindeki XPath index\'in aynı sinsi hatasıdır (sessizce yanlış eleman). Doğru yol: önce satırı bir kimlik veya metinle BUL, sonra o satırın İÇİNDE ara.',
+    en: '`.nth(4)` means "the 5th row" and targets the WRONG row once filtering changes the order — this is the same sneaky mistake as the XPath index in the H3 film (a silent wrong element). The right way: first FIND the row by an identity or text, then search INSIDE that row.',
+  },
+  successMessage: {
+    tr: 'Doğru! Önce satırı ilişkisel olarak (metin/kimlik) bulup SONRA o satırın içinde aramak, sıralamadan tamamen bağımsız ve dayanıklı bir kalıptır — index KULLANMA kuralının somut uygulaması budur.',
+    en: 'Correct! First finding the row relationally (by text/identity) and THEN searching inside it is a pattern completely independent of ordering and durable — this is the concrete application of the do-NOT-use-index rule.',
+  },
+}
+
+// ─── step-animation: Shadow DOM / iframe context değişimi (GRUP H6) ───────────
+const shadowDomIframeSteps = {
+  type: 'step-animation',
+  id: 'qaf-h6-shadow-iframe-steps',
+  title: { tr: 'Adım Adım: Shadow DOM / iframe Neden "Ayrı Bir Ülke" Gibidir', en: 'Step by Step: Why Shadow DOM / an iframe Is Like "a Separate Country"' },
+  steps: [
+    { id: 1, icon: '🌐', label: { tr: 'Normal DOM: tek bir ülke', en: 'Normal DOM: a single country' }, detail: { tr: 'Sayfanın ana DOM ağacında `page.locator(...)` her yeri arar — hepsi AYNI "ülkenin" (document) içindedir.', en: 'In the page\'s main DOM tree, `page.locator(...)` searches everywhere — it is all within the SAME "country" (document).' } },
+    { id: 2, icon: '🏝️', label: { tr: 'Shadow DOM: kendi sınırları olan bir ada', en: 'Shadow DOM: an island with its own borders' }, detail: { tr: 'Bir web component (`<severity-picker>`) kendi İÇ DOM\'unu (shadow root) gizler — normal bir CSS selector bu sınırı GEÇEMEZ.', en: 'A web component (`<severity-picker>`) hides its own INTERNAL DOM (a shadow root) — a normal CSS selector CANNOT cross this boundary.' } },
+    { id: 3, icon: '🖼️', label: { tr: 'iframe: tamamen AYRI bir belge', en: 'An iframe: a COMPLETELY separate document' }, detail: { tr: 'Bir `<iframe>` içindeki içerik kendi `document`\'ına sahiptir — ana sayfanın locator\'ı iframe\'in İÇİNE hiç bakamaz, önce "context değiştirmek" (frame\'e geçmek) gerekir.', en: 'The content inside an `<iframe>` has its own `document` — the main page\'s locator can never look INSIDE the iframe; you must first "switch context" (enter the frame).' } },
+    { id: 4, icon: '🛂', label: { tr: 'Pasaport kontrolü: context değiştirme', en: 'Passport control: switching context' }, detail: { tr: 'Modern araçlar (`page.frameLocator(...)`, shadow DOM için `>>>` veya otomatik penetre eden selector\'lar) bu sınırı GEÇMEK için özel bir adım sunar.', en: 'Modern tools (`page.frameLocator(...)`, `>>>` for shadow DOM, or selectors that auto-pierce) offer a dedicated step to CROSS this boundary.' } },
+    { id: 5, icon: '✅', label: { tr: 'Tester\'ın refleksi: "bu içerik nerede yaşıyor?"', en: 'The tester\'s reflex: "where does this content live?"' }, detail: { tr: 'Bir element locate edilemediğinde, önce "normal DOM\'da mı, shadow DOM\'da mı, yoksa bir iframe\'in içinde mi?" diye SOR — context yanlışsa hiçbir selector çalışmaz.', en: 'When an element cannot be located, first ASK "is it in the normal DOM, a shadow DOM, or inside an iframe?" — no selector works if the context is wrong.' } },
+  ],
+}
+
+// ─── table: Developer'dan ne istenir — H7 konvansiyon önerileri ──────────────
+const developerRequestTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Durum', en: 'Situation' },
+    { tr: 'Developer\'dan tam olarak ne istenir', en: 'Exactly what to ask the developer for' },
+  ],
+  rows: [
+    [{ tr: 'Hash class\'a bağlı bir buton', en: 'A button bound to a hash class' }, { tr: '"Bu butona `data-testid=\'save-bug\'` ekler misin? Class hash\'i her build\'de değişiyor."', en: '"Could you add `data-testid=\'save-bug\'` to this button? The class hash changes on every build."' }],
+    [{ tr: 'Tekrarlayan bir liste satırı', en: 'A repeating list row' }, { tr: '"Her satıra `data-testid=\'bug-row-{id}\'` ekler misin? Satırı index\'le değil id\'yle bulmam gerekiyor."', en: '"Could you add `data-testid=\'bug-row-{id}\'` per row? I need to find the row by id, not by index."' }],
+    [{ tr: 'Erişilebilir isim eksik bir ikon buton', en: 'An icon button with no accessible name' }, { tr: '"Bu butona `aria-label=\'Bug\'ı sil\'` ekler misin? Hem erişilebilirlik hem getByRole için gerekiyor."', en: '"Could you add `aria-label=\'Delete bug\'` to this button? It is needed for both accessibility and getByRole."' }],
+    [{ tr: 'Yeni bir feature/PR', en: 'A new feature/PR' }, { tr: '"Test edilebilirlik bir kabul kriteri olsun mu? Her yeni etkileşimli elemente data-testid veya erişilebilir rol/isim eklemeyi PR checklist\'ine ekleyelim."', en: '"Can testability be an acceptance criterion? Let\'s add adding data-testid or an accessible role/name for every new interactive element to the PR checklist."' }],
+  ],
+}
+
+// ─── table: Locator Code Review checklist (GRUP H8) ───────────────────────────
+const locatorCodeReviewTable = {
+  type: 'table',
+  headers: [
+    { tr: 'PR\'da gördüğün şey', en: 'What you see in the PR' },
+    { tr: 'Sorman gereken soru', en: 'The question you should ask' },
+  ],
+  rows: [
+    [{ tr: 'Yeni bir interaktif element (buton, input, satır)', en: 'A new interactive element (button, input, row)' }, { tr: '"Bunu test etmek için stabil bir kanca (data-testid/role) var mı?"', en: '"Is there a stable hook (data-testid/role) to test this?"' }],
+    [{ tr: 'Bir class isminin değişmesi (refactor/redesign)', en: 'A class name change (refactor/redesign)' }, { tr: '"Bu class\'a bağlı bilinen bir test var mı? (data-testid\'ye taşınmalı mı?)"', en: '"Is there a known test bound to this class? (Should it move to data-testid?)"' }],
+    [{ tr: 'Yeni bir conditional render (`{koşul&&}`/`*ngIf`)', en: 'A new conditional render (`{condition&&}`/`*ngIf`)' }, { tr: '"Bu elementin ne zaman DOM\'a girdiğini gösteren bir işaret (ör. data-state) var mı?"', en: '"Is there a marker (e.g. data-state) showing when this element enters the DOM?"' }],
+    [{ tr: 'Bir liste/tablo render\'ı (`.map()`/`*ngFor`)', en: 'A list/table render (`.map()`/`*ngFor`)' }, { tr: '"Her satırda benzersiz bir kimlik (data-id) var mı, yoksa sadece index mi ayırt ediyor?"', en: '"Does each row have a unique identity (data-id), or does only the index distinguish them?"' }],
+  ],
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
 
@@ -4334,35 +4552,409 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
         type: 'simple-box',
         emoji: '🎯',
         content: {
+          tr: 'Bu grup sayfanın KALBİDİR: A-G gruplarında öğrendiğin her şey (DOM, HTML, CSS, JS, frontend↔backend, React, Angular) burada TEK bir beceride birleşir — herhangi bir elemente bakıp en dayanıklı locator\'ı seçebilmek. Bu grubun 8 başlığı boyunca dayanıklılık hiyerarşisini, antipattern\'leri, aynı elemente 5 locator düşünmeyi, koşullu/dinamik elementleri, liste satırlarını, shadow DOM/iframe\'i, developer\'dan ne isteneceğini ve locator code review\'unu öğreneceksin.',
+          en: 'This group is the HEART of the page: everything you learned in groups A-G (DOM, HTML, CSS, JS, frontend<->backend, React, Angular) converges here into ONE skill — being able to look at any element and pick the most durable locator. Across this group\'s 8 topics you will learn the durability hierarchy, antipatterns, thinking of 5 locators for the same element, conditional/dynamic elements, list rows, shadow DOM/iframes, what to ask the developer for, and locator code review.',
+        },
+      },
+
+      // ── H1: Locator Dayanıklılık Hiyerarşisi ──
+      {
+        type: 'heading',
+        text: { tr: '🏆 H1. Locator Dayanıklılık Hiyerarşisi', en: '🏆 H1. The Locator Durability Hierarchy' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🏆',
+        content: {
           tr: 'Locator seçmek, bir kişiyi tarif etmek gibidir: onu "soldan üçüncü sıradaki, kırmızı tişörtlü kişi" diye tarif edersen (index + görünüm), sıra değişince veya kişi üstünü değiştirince tarifin çöker; ama "T.C. kimlik numarası şu olan kişi" dersen (data-testid), o kişi nereye otursa ne giyse bulunur. Locator dayanıklılık hiyerarşisi tam da budur: `data-testid` > `role`+`name` > stabil `id` > text > CSS > XPath-index (son çare). Neden hiyerarşi? Çünkü her katman bir sonrakinden daha az "tesadüfe" bağlıdır — data-testid kasıtlı bir kimliktir, XPath-index ise DOM\'un o anki şekline dair kırılgan bir varsayım. Java analojisi: nesneyi kimliğe (id) göre mi yoksa geçici bir alana (renk/sıra) göre mi eşitliyorsun sorusudur. QA bağlamında: bu hiyerarşiyi içselleştiren tester her elemente 5 farklı locator düşünüp en dayanıklısını gerekçelendirebilir. Aşağıda **Locator Laboratuvarı** var: bir DOM parçasında attribute\'lara tıkla, hangi locator neden daha sağlam gör.',
           en: 'Choosing a locator is like describing a person: if you describe them as "the person third from the left, in a red shirt" (index + appearance), your description collapses when the order changes or the person changes clothes; but if you say "the person whose national ID number is X" (data-testid), that person is found wherever they sit and whatever they wear. The locator durability hierarchy is exactly this: `data-testid` > `role`+`name` > stable `id` > text > CSS > XPath-index (last resort). Why a hierarchy? Because each layer depends less on "coincidence" than the next — data-testid is a deliberate identity, while XPath-index is a fragile assumption about the DOM\'s current shape. Java analogy: it is the question of whether you equate an object by its identity (id) or by a transient field (color/order). In QA context: a tester who internalizes this hierarchy can think of 5 different locators for any element and justify the most durable one. Below is the **Locator Lab**: click the attributes on a DOM fragment and see which locator is more robust and why.',
         },
       },
+      bugCardLocatorExplorer,
       {
-        type: 'text',
-        content: {
-          tr: 'Aşağıdaki laboratuvarda gerçek bir BugCard DOM\'u var (React CSS Module hash\'li). Renkli attribute\'lara tıkla: her birinin dayanıklılık önceliğini (id/data-testid = 1, XPath = 4) ve Selenium/Playwright/Cypress karşılıklarını gör. Ardından "Kendin Dene" bloğunda bir deploy simülasyonuyla hangi locator\'ın hayatta kaldığını test et.',
-          en: 'The lab below has a real BugCard DOM (with React CSS Module hashes). Click the colored attributes: see each one\'s durability priority (id/data-testid = 1, XPath = 4) and its Selenium/Playwright/Cypress equivalents. Then, in the "Try It Yourself" block, test which locator survives with a deploy simulation.',
+        type: 'quiz',
+        question: {
+          tr: 'Locator Laboratuvarı\'ndaki BugCard DOM\'una göre, en dayanıklıdan en kırılgana doğru hangi sıralama doğrudur?',
+          en: 'According to the Locator Lab\'s BugCard DOM, which ordering from most durable to most fragile is correct?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'class > id > data-testid > text', en: 'class > id > data-testid > text' } },
+          { id: 'b', text: { tr: 'data-testid > role/id > text > class', en: 'data-testid > role/id > text > class' } },
+          { id: 'c', text: { tr: 'text > class > data-testid > id', en: 'text > class > data-testid > id' } },
+          { id: 'd', text: { tr: 'Hepsi eşit derecede güvenilir', en: 'All are equally reliable' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'data-testid en üsttedir (sadece test için, hiçbir şeyden etkilenmez), role/id ikinci sıradadır, text i18n\'de kırılabilir, class (özellikle hash\'li) en kırılgandır çünkü stil amaçlı var olur.',
+          en: 'data-testid is at the top (exists solely for tests, unaffected by anything), role/id is second, text can break under i18n, class (especially hashed) is most fragile because it exists for styling.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Neden "en dayanıklı" ile "en kısa yazılan" locator genelde AYNI şey değildir?',
+            en: 'Why is "most durable" and "shortest to write" generally NOT the same locator?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Her zaman aynıdırlar', en: 'They are always the same' } },
+            { id: 'b', text: { tr: 'Kısa yazım (ör. `.btn`) genelde stil amaçlı, paylaşımlı bir alana bağlanır; dayanıklılık ise KASITLI bir kimliğe bağlanmaktan gelir', en: 'A short spelling (e.g. `.btn`) usually binds to a shared, styling-purpose field; durability comes from binding to a DELIBERATE identity' } },
+            { id: 'c', text: { tr: 'Kısa locator\'lar her zaman daha yavaştır', en: 'Short locators are always slower' } },
+            { id: 'd', text: { tr: 'Uzun locator\'lar her zaman daha güvenlidir', en: 'Long locators are always safer' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Yazım kısalığı ile dayanıklılık BAĞIMSIZ kavramlardır. `.btn` kısadır ama paylaşımlı bir stil sınıfıdır; `[data-testid="save-bug"]` biraz daha uzundur ama KASITLI bir kimliktir — dayanıklılık kararı yazım uzunluğuna değil, alanın AMACINA bakarak verilir.',
+            en: 'Brevity and durability are INDEPENDENT concepts. `.btn` is short but a shared styling class; `[data-testid="save-bug"]` is a bit longer but a DELIBERATE identity — the durability decision is made by looking at the field\'s PURPOSE, not its spelling length.',
+          },
         },
       },
-      bugCardLocatorExplorer,
+
+      // ── H2: Kırılgan Locator Antipattern'leri ──
+      {
+        type: 'heading',
+        text: { tr: '🚫 H2. Kırılgan Locator Antipattern\'leri', en: '🚫 H2. Fragile Locator Antipatterns' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🚫',
+        content: {
+          tr: 'Bir antipattern, "işe yarıyor görünen ama ALTINDA yatan varsayım yanlış olan" bir kalıptır — sanki bir binayı SAĞLAM temele değil, KUMA kurmak gibi: bina bugün ayakta durur, ilk depremde (deploy\'da) çöker. Absolute XPath (`/html/body/div[2]/...`) DOM\'un TAM o anki şekline, `nth-child`/index sıralamaya, hash class build\'e, auto-generated id sayfa yüklemesine bel bağlar — HİÇBİRİ kasıtlı bir kimlik DEĞİLDİR. Peki bu antipattern\'ler neden bu kadar YAYGIN? Çünkü hepsi DevTools\'ta "Copy selector" gibi kısayollarla KOLAYCA üretilir — kolay olan ile dayanıklı olan SIK sık farklı şeylerdir. Java analojisi: bir nesneyi bellek adresine (referansa) göre eşitlemek gibi — çalışır ama GC\'den sonra o adres BAŞKA bir nesneye ait olabilir. QA bağlamında: aşağıdaki tablo her antipattern\'i NEDEN kırıldığı ve YERİNE ne kullanılacağıyla eşleştirir.',
+          en: 'An antipattern is a pattern that "looks like it works but has a WRONG assumption underneath" — like building a structure on SAND instead of SOLID ground: the building stands today, but collapses on the first earthquake (a deploy). Absolute XPath (`/html/body/div[2]/...`) depends on the DOM\'s EXACT current shape, `nth-child`/index on ordering, a hash class on the build, an auto-generated id on the page load — NONE of these is a deliberate identity. Why are these antipatterns so COMMON? Because they are all EASILY produced by shortcuts like "Copy selector" in DevTools — easy and durable are OFTEN different things. Java analogy: like equating a nesne by its memory address (reference) — it works, but after GC that address might belong to a DIFFERENT object. In QA context: the table below pairs each antipattern with WHY it breaks and WHAT to use INSTEAD.',
+        },
+      },
+      locatorAntipatternTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: '`nth-child`/index tabanlı bir locator kırıldığında hangi davranış daha SIK görülür ve neden bu daha TEHLİKELİDİR?',
+          en: 'When an `nth-child`/index-based locator breaks, which behavior is more COMMON, and why is this MORE DANGEROUS?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Her zaman açık bir hata (NoSuchElement) verir', en: 'It always gives an obvious error (NoSuchElement)' } },
+          { id: 'b', text: { tr: 'SESSİZCE yanlış elemente işaret eder — test hata vermez ama YANLIŞ satırı etkiler', en: 'It SILENTLY points to the wrong element — the test does not error but affects the WRONG row' } },
+          { id: 'c', text: { tr: 'Tarayıcı otomatik olarak doğru elemente düzeltir', en: 'The browser automatically corrects to the right element' } },
+          { id: 'd', text: { tr: 'Her zaman test suite\'ini çökertir', en: 'It always crashes the entire test suite' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Hash class gibi diğer antipattern\'ler genelde AÇIK bir hata (0 eleman) verir. Ama index kırıldığında eleman YİNE bulunur — sadece YANLIŞ olanı. Bu, "test yeşil ama yanlış şeyi test etti" durumunun en sinsi kaynağıdır.',
+          en: 'Other antipatterns like a hash class usually give an OBVIOUS error (0 elements). But when the index breaks, an element IS STILL found — just the WRONG one. This is the sneakiest source of "the test is green but tested the wrong thing".',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir developer "auto-generated id\'ler (`id=\'r4nd0m-9f3\'`) her zaman benzersizdir, bu yüzden güvenle locate edilebilir" diyor. Bu görüşteki eksik nedir?',
+            en: 'A developer says "auto-generated ids (`id=\'r4nd0m-9f3\'`) are always unique, so they can be safely located". What is missing from this view?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Doğru, benzersizlik yeterlidir', en: 'Correct, uniqueness is enough' } },
+            { id: 'b', text: { tr: 'Benzersizlik ile KALICILIK farklı şeylerdir — bir id benzersiz olsa da sayfa her yüklendiğinde FARKLI bir değer üretiyorsa, dünkü test bugün o id\'yi bulamaz', en: 'Uniqueness and PERMANENCE are different things — even if an id is unique, if the page produces a DIFFERENT value on every load, yesterday\'s test cannot find that id today' } },
+            { id: 'c', text: { tr: 'Auto-generated id\'ler CSS\'te kullanılamaz', en: 'Auto-generated ids cannot be used in CSS' } },
+            { id: 'd', text: { tr: 'Bu id\'ler sadece test ortamında üretilir', en: 'These ids are only generated in the test environment' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Benzersizlik SADECE "o anda aynı sayfada iki eleman aynı id\'yi taşımaz" garantisi verir — "bu id yarın da aynı olacak" garantisi VERMEZ. Bir test, önceden kaydedilmiş bir id\'ye bağlanırsa, id her yüklemede değişiyorsa test kırılır.',
+            en: 'Uniqueness ONLY guarantees "no two elements on the same page share this id right now" — it does NOT guarantee "this id will be the same tomorrow". If a test binds to a previously recorded id and the id changes on every load, the test breaks.',
+          },
+        },
+      },
+
+      // ── H3: Aynı Elemente 5 Farklı Locator ──
+      {
+        type: 'heading',
+        text: { tr: '🏁 H3. Aynı Elemente 5 Farklı Locator: Hangisi Neden Daha Sağlam', en: '🏁 H3. 5 Different Locators for the Same Element: Which Is More Robust, and Why' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🏁',
+        content: {
+          tr: 'Herhangi bir elemente 5 FARKLI locator düşünebilmek — ve HANGİSİNİN neden daha dayanıklı olduğunu gerekçelendirebilmek — bu sayfanın en önemli TEK becerisidir. Bu, bir dedektifin aynı kişiyi TANIMLAMANIN 5 farklı yolunu (kimlik no, parmak izi, yüz, kıyafet, konum) düşünüp hangisinin MAHKEMEDE (deploy sonrası) geçerli kalacağını bilmesi gibidir. Peki neden "tek bir locator yaz" yerine "5 tanesini DÜŞÜN"? Çünkü ilk aklına gelen locator genelde EN KOLAY olandır (DevTools\'ta ilk görünen), en DAYANIKLI olan değil — 5 seçeneği yan yana koymak seni en iyisini SEÇMEYE zorlar. Java analojisi: bir tasarım kararı verirken (ör. hangi veri yapısını kullanacağını) birden fazla seçeneği karşılaştırıp trade-off\'ları TARTMAK gibi. QA bağlamında: aşağıdaki film, tam olarak bu 5 locator\'ı AYNI butona uygulayıp bir deploy sonrası HANGİSİNİN hayatta kaldığını gösterir — sayfanın en kritik filmidir.',
+          en: 'Being able to think of 5 DIFFERENT locators for any element — and being able to justify WHICH one is more durable and why — is this page\'s single most important skill. It is like a detective thinking of 5 different ways to IDENTIFY the same person (ID number, fingerprint, face, clothing, location) and knowing which one will HOLD UP IN COURT (after a deploy). Why "THINK of 5" instead of "just write one locator"? Because the first locator that comes to mind is usually the EASIEST one (the first thing visible in DevTools), not the most DURABLE one — laying 5 options side by side forces you to CHOOSE the best one. Java analogy: like weighing multiple options and their trade-offs when making a design decision (e.g. which data structure to use). In QA context: the film below applies exactly these 5 locators to the SAME button and shows WHICH ONE survives after a deploy — the most critical film on this page.',
+        },
+      },
+      fiveLocatorRaceFilm,
       deployBreaksLocatorPlayground,
       {
         type: 'quiz',
         question: {
-          tr: 'Aynı "Düzenle" butonuna 5 locator düşünüyorsun: (a) `//li[3]/button`, (b) `.Btn_ghost__p0q2`, (c) `getByText("Düzenle")`, (d) `getByRole("button",{name:"Edit bug"})`, (e) `getByTestId("edit-bug-42")`. Sayfa hem TR/EN çok dilli hem de her deploy\'da class hash\'i değişiyor. Hangisi en dayanıklı?',
-          en: 'You think of 5 locators for the same "Edit" button: (a) `//li[3]/button`, (b) `.Btn_ghost__p0q2`, (c) `getByText("Edit")`, (d) `getByRole("button",{name:"Edit bug"})`, (e) `getByTestId("edit-bug-42")`. The page is both TR/EN multilingual and its class hash changes on every deploy. Which is the most durable?',
+          tr: '5 Locator Yarışı filminde deploy sonrası XPath index neden hash class\'tan bile DAHA TEHLİKELİ bir şekilde kırıldı?',
+          en: 'In the 5-Locator Race film, why did the XPath index break in an EVEN MORE DANGEROUS way than the hash class after the deploy?',
         },
         options: [
-          { id: 'a', text: { tr: '(a) XPath index — çünkü en kısa yazım', en: '(a) XPath index — because it is the shortest to write' } },
-          { id: 'b', text: { tr: '(b) Hash class — çünkü DevTools\'ta ilk o görünür', en: '(b) Hash class — because it appears first in DevTools' } },
-          { id: 'e', text: { tr: '(e) getByTestId — deploy\'dan ve dilden bağımsız stabil kanca', en: '(e) getByTestId — a stable hook independent of deploy and language' } },
-          { id: 'c', text: { tr: '(c) getByText — çünkü en okunabilir olan', en: '(c) getByText — because it is the most readable' } },
+          { id: 'a', text: { tr: 'İkisi de aynı şekilde kırıldı, fark yok', en: 'Both broke the same way, no difference' } },
+          { id: 'b', text: { tr: 'Hash class AÇIK bir hata (0 eleman) verdi; XPath index ise SESSİZCE yanlış bir bug\'ın butonuna işaret etti', en: 'The hash class gave an OBVIOUS error (0 elements); the XPath index SILENTLY pointed to the wrong bug\'s button' } },
+          { id: 'c', text: { tr: 'XPath her zaman hash\'ten daha hızlıdır', en: 'XPath is always faster than a hash' } },
+          { id: 'd', text: { tr: 'İkisi de hiç kırılmadı', en: 'Neither broke at all' } },
         ],
-        correct: 'e',
+        correct: 'b',
         explanation: {
-          tr: '(e) getByTestId kazanır: data-testid build\'den (hash sorunu yok) ve dilden (i18n sorunu yok) bağımsızdır. (a) sıralama değişince, (b) her deploy\'da, (c) TR/EN geçişinde kırılır. (d) getByRole ikinci en iyidir — data-testid yoksa tercih edilir. Hiyerarşi: data-testid > role+name > stabil id > text > CSS > XPath-index.',
-          en: '(e) getByTestId wins: data-testid is independent of the build (no hash problem) and of language (no i18n problem). (a) breaks when ordering changes, (b) on every deploy, (c) on a TR/EN switch. (d) getByRole is second-best — preferred when there is no data-testid. Hierarchy: data-testid > role+name > stable id > text > CSS > XPath-index.',
+          tr: 'Açık bir hata (NoSuchElement) fark edilmesi ve düzeltilmesi kolaydır. Ama XPath index YANLIŞ bir elemente sessizce ulaştığı için, test "yeşil" görünür ama YANLIŞ bug\'ı işler — bu çok daha tehlikeli bir SESSİZ hatadır.',
+          en: 'An obvious error (NoSuchElement) is easy to notice and fix. But because the XPath index silently reaches the WRONG element, the test looks "green" but processes the WRONG bug — a much more dangerous SILENT failure.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Filmde getByText("Düzenle") deploy\'dan sonra hayatta kaldı ama anlatıcı bunun "SADECE ŞANSLA" olduğunu vurguladı. Bu ne anlama gelir?',
+            en: 'In the film, getByText("Edit") survived the deploy, but the narrator emphasized this was "ONLY BY LUCK". What does this mean?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'getByText her zaman en dayanıklı locator\'dır', en: 'getByText is always the most durable locator' } },
+            { id: 'b', text: { tr: 'Bu deploy\'da metin değişmedi ama farklı bir deploy\'da (i18n değişimi, metin güncellemesi) getByText de kırılabilirdi', en: 'The text did not change in this deploy, but in a different deploy (an i18n change, a text update) getByText could break too' } },
+            { id: 'c', text: { tr: 'getByText hiçbir zaman kırılmaz', en: 'getByText never breaks' } },
+            { id: 'd', text: { tr: 'Metin locator\'ları XPath\'ten daha yavaştır', en: 'Text locators are slower than XPath' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'getByText, bu SPESİFİK deploy\'da (sadece hash ve sıralama değişti, metin değişmedi) hayatta kaldı. Ama metin locator\'ları developer\'ın metni güncellemesi veya sayfanın dilinin değişmesi gibi FARKLI bir tetikleyiciyle kırılabilir — bu yüzden data-testid/role kadar GÜVENİLİR değildir.',
+            en: 'getByText survived in this SPECIFIC deploy (only the hash and ordering changed, the text did not). But text locators can break with a DIFFERENT trigger, like the developer updating the text or the page\'s language changing — which is why it is not as RELIABLE as data-testid/role.',
+          },
+        },
+      },
+
+      // ── H4: Conditional/Dynamic Element'i Locate Etmek ──
+      {
+        type: 'heading',
+        text: { tr: '⏳ H4. Conditional/Dynamic Element\'i Locate Etmek', en: '⏳ H4. Locating a Conditional/Dynamic Element' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '⏳',
+        content: {
+          tr: 'Koşullu/dinamik bir elementi locate etmek, GRUP A-G\'de öğrendiğin her şeyin (conditional render, fetch timing, hydration) TEK bir pratik iş akışında birleştiği yerdir. Peki bu 4 adımlı akış (koşulu bil → tetikle → varlığı bekle → görünürlüğü bekle) neden bu kadar önemli? Çünkü flaky testlerin BÜYÜK çoğunluğu bu 4 adımdan BİRİNİN atlanmasından kaynaklanır — genelde ya koşulun hiç tetiklenmemesi (F4\'teki Modal örneği) ya da varlık ile görünürlüğün karıştırılması (A3\'teki Render Tree dersi). Java analojisi: bir kaynağın (ör. bir dosya) AÇILDIĞINI varsaymadan önce `isOpen()` gibi bir kontrol yapmak gibi — varsayım yerine DOĞRULAMA. QA bağlamında: aşağıdaki adımlar bu iş akışını GRUP A-G\'deki derslerin bir ÖZETİ olarak sunar.',
+          en: 'Locating a conditional/dynamic element is where everything you learned in GROUPS A-G (conditional render, fetch timing, hydration) converges into ONE practical workflow. Why does this 4-step flow (know the condition -> trigger it -> wait for presence -> wait for visibility) matter so much? Because the VAST majority of flaky tests come from skipping ONE of these 4 steps — usually either the condition never being triggered (the Modal example in F4) or presence and visibility being confused (the Render Tree lesson in A3). Java analogy: like checking `isOpen()` before assuming a resource (like a file) is OPEN — VERIFICATION instead of assumption. In QA context: the steps below present this workflow as a SUMMARY of the lessons from GROUPS A-G.',
+        },
+      },
+      conditionalDynamicWaitSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir test, "Bug başarıyla oluşturuldu" Toast\'ını `waitForSelector(\'[data-testid="toast"]\', {state:\'attached\'})` ile bekliyor ve ardından Toast\'ın metnini okumaya çalışıyor ama bazen boş bir metin okuyor. Sorun ne olabilir?',
+          en: 'A test waits for the "Bug created successfully" Toast with `waitForSelector(\'[data-testid="toast"]\', {state:\'attached\'})` and then tries to read the Toast\'s text, but sometimes reads empty text. What could be the problem?',
+        },
+        options: [
+          { id: 'a', text: { tr: '`attached` elementin DOM\'da olduğunu doğrular ama metnin animasyon/render tamamlanmadan henüz YAZILMAMIŞ olabileceğini garanti etmez — `visible` veya metin içeriğini bekleyen bir assertion gerekir', en: '`attached` confirms the element is in the DOM but does not guarantee the text has been WRITTEN yet before the animation/render completes — a `visible` or text-content assertion is needed' } },
+          { id: 'b', text: { tr: 'Toast component\'i bozuktur', en: 'The Toast component is broken' } },
+          { id: 'c', text: { tr: 'Bu asla olmaz', en: 'This never happens' } },
+          { id: 'd', text: { tr: 'data-testid yanlış yazılmıştır', en: 'The data-testid is written incorrectly' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: '`attached`, DOM varlığını doğrular ama içeriğin TAM olarak yazıldığını garanti etmez — element bir an boş metinle DOM\'a girip SONRA dolduruluyor olabilir. Metnin kendisini bekleyen bir assertion (`toHaveText`) bu zaman aralığını GÜVENLE kapatır.',
+          en: '`attached` confirms DOM presence but does not guarantee the content is FULLY written — the element might enter the DOM with empty text for a moment and THEN get filled. An assertion waiting for the text itself (`toHaveText`) SAFELY closes this time gap.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'H4\'teki 4 adımlı akışın (koşulu bil → tetikle → varlığı bekle → görünürlüğü bekle) hangi adımı GRUP F4\'teki Modal dersine, hangisi GRUP A3\'teki Render Tree dersine karşılık gelir?',
+            en: 'Which step of the H4 4-step flow (know the condition -> trigger it -> wait for presence -> wait for visibility) corresponds to the Modal lesson in GROUP F4, and which to the Render Tree lesson in GROUP A3?',
+          },
+          options: [
+            { id: 'a', text: { tr: '"Koşulu tetikle" → F4 (Modal); "görünürlüğü bekle" → A3 (Render Tree)', en: '"Trigger the condition" -> F4 (Modal); "wait for visibility" -> A3 (Render Tree)' } },
+            { id: 'b', text: { tr: 'İkisi de aynı adıma karşılık gelir', en: 'Both correspond to the same step' } },
+            { id: 'c', text: { tr: 'Hiçbiri önceki gruplarla ilgili değildir', en: 'Neither relates to the previous groups' } },
+            { id: 'd', text: { tr: '"Koşulu bil" → A3; "varlığı bekle" → F4', en: '"Know the condition" -> A3; "wait for presence" -> F4' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'F4\'te öğrendiğin ders ("koşul false iken element DOM\'da hiç yok") tam olarak "koşulu tetikle" adımına karşılık gelir. A3\'te öğrendiğin ders ("DOM\'da var ama render tree\'de yok olabilir") ise "görünürlüğü bekle" adımına karşılık gelir — H4 bu iki dersi TEK bir iş akışında birleştirir.',
+            en: 'The lesson you learned in F4 ("while the condition is false, the element is not in the DOM at all") corresponds exactly to the "trigger the condition" step. The lesson from A3 ("exists in the DOM but may not be in the render tree") corresponds to the "wait for visibility" step — H4 combines these two lessons into ONE workflow.',
+          },
+        },
+      },
+
+      // ── H5: List/Tablo İçinde Tekil Satır ──
+      {
+        type: 'heading',
+        text: { tr: '📊 H5. List/Tablo İçinde Tekil Satır: İndeks YASAK', en: '📊 H5. A Single Row in a List/Table: Index BANNED' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📊',
+        content: {
+          tr: 'Bu sayfanın en KATI kuralı budur: bir liste/tablo satırını locate ederken indeks (`nth(3)`, `li[3]`) KULLANMA. Bunun yerine satırı bir KİMLİĞE (data-id) veya bir İÇERİĞE (hasText) göre İLİŞKİSEL olarak bul, SONRA o satırın İÇİNDE ara. Peki neden bu kural bu kadar KATI? Çünkü H3\'teki filmde gördüğün gibi, index kırıldığında test hata VERMEZ — SESSİZCE yanlış satırı işler. Bu, üretimde para kaybı, yanlış bug\'ın kapatılması gibi CİDDİ sonuçlar doğurabilir. Java analojisi: bir listede bir öğeyi konumuna göre değil, `equals()`/kimliğine göre ARAMAK gibi — konum değişebilir, kimlik DEĞİŞMEZ. QA bağlamında: aşağıdaki pratikte GRUP A2\'de öğrendiğin ilişkisel locate\'i bir TABLO senaryosunda tekrar uygulayacaksın.',
+          en: 'This is the STRICTEST rule on this page: when locating a list/table row, do NOT use an index (`nth(3)`, `li[3]`). Instead find the row RELATIONALLY by an IDENTITY (data-id) or CONTENT (hasText), THEN search INSIDE that row. Why is this rule so STRICT? Because as you saw in the H3 film, when an index breaks the test does NOT error — it SILENTLY processes the wrong row. This can have SERIOUS consequences in production, like financial loss or closing the wrong bug. Java analogy: like SEARCHING for an item in a list by its `equals()`/identity rather than its position — position can change, identity does NOT. In QA context: in the practice below you will re-apply the relational locating you learned in GROUP A2 to a TABLE scenario.',
+        },
+      },
+      relationalRowLocatorPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tabloda satırı bulmak için `page.locator(\'tr\', {hasText: \'X\'}).locator(\'select\')` yazıyorsun. Bu kalıp neden index\'ten (`nth`) daha güvenilirdir?',
+          en: 'You write `page.locator(\'tr\', {hasText: \'X\'}).locator(\'select\')` to find a row in a table. Why is this pattern more reliable than an index (`nth`)?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Çünkü daha kısa yazılır', en: 'Because it is shorter to write' } },
+          { id: 'b', text: { tr: 'Satırı sıralamadan BAĞIMSIZ, kalıcı bir içeriğe göre bulur; tablo yeniden sıralansa bile AYNI satıra ulaşır', en: 'It finds the row INDEPENDENT of ordering, by a permanent content; even if the table re-sorts, it reaches the SAME row' } },
+          { id: 'c', text: { tr: 'Çünkü her zaman daha hızlı çalışır', en: 'Because it always runs faster' } },
+          { id: 'd', text: { tr: 'İkisi arasında hiçbir fark yoktur', en: 'There is no difference between the two' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`hasText` ile ilişkisel bulma, tablonun O ANKİ sıralamasına değil, satırın İÇERİĞİNE dayanır — filtreleme/sıralama değişse bile AYNI satıra ulaşır. Index ise tablonun o anki şekline kör bir varsayımdır.',
+          en: 'Relational finding with `hasText` relies on the row\'s CONTENT, not the table\'s CURRENT ordering — it reaches the SAME row even if filtering/sorting changes. An index is a blind assumption about the table\'s current shape.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tabloda binlerce satır varsa ve her birinde bir `data-bug-id` attribute\'u varsa, `hasText` ile metin araması yerine hangi yaklaşım daha PERFORMANSLI ve daha az belirsiz olabilir?',
+            en: 'If a table has thousands of rows, each with a `data-bug-id` attribute, which approach might be more PERFORMANT and less ambiguous than a `hasText` search?',
+          },
+          options: [
+            { id: 'a', text: { tr: '`[data-bug-id="42"]` gibi doğrudan kimlik tabanlı bir selector — metin eşleşmesi yerine tam bir attribute değeri arar', en: 'A direct identity-based selector like `[data-bug-id="42"]` — it searches for an exact attribute value instead of a text match' } },
+            { id: 'b', text: { tr: 'Yine `nth()` kullanmak', en: 'Using `nth()` again' } },
+            { id: 'c', text: { tr: 'Tüm satırları tek tek elle kontrol etmek', en: 'Manually checking every row one by one' } },
+            { id: 'd', text: { tr: 'Sayfayı yeniden yükleyip ilk satırı almak', en: 'Reloading the page and taking the first row' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Metin araması (`hasText`) bazen birden fazla satırda kısmi eşleşme verebilir (belirsizlik) ve büyük tablolarda göreceli olarak yavaş olabilir. Doğrudan bir kimlik attribute\'una (`data-bug-id`) eşitlik araması hem daha KESİN hem genelde daha HIZLIDIR — ama HER İKİSİ de index\'ten kesinlikle daha güvenilirdir.',
+            en: 'A text search (`hasText`) can sometimes give a partial match on multiple rows (ambiguity) and can be relatively slow on large tables. An exact-match search on a direct identity attribute (`data-bug-id`) is both more PRECISE and usually FASTER — but BOTH are definitely more reliable than an index.',
+          },
+        },
+      },
+
+      // ── H6: Shadow DOM / iframe / web component ──
+      {
+        type: 'heading',
+        text: { tr: '🛂 H6. Shadow DOM / iframe / Web Component: Context Değişimi', en: '🛂 H6. Shadow DOM / iframe / Web Component: a Context Switch' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🛂',
+        content: {
+          tr: 'Shadow DOM ve iframe, bir ÜLKE İÇİNDEKİ ÖZERK BÖLGE gibidir: normal DOM\'daki bir locator, bu sınırların İÇİNE otomatik olarak GİREMEZ — tıpkı bir vatandaşın başka bir ülkeye pasaportsuz giremeyeceği gibi. Peki bunlar neden var? Bir web component (`<severity-picker>`) kendi iç yapısını (shadow DOM) DIŞARIDAN gelecek stil/script çakışmalarından korumak için gizler; bir `<iframe>` ise güvenlik nedeniyle (ör. üçüncü parti bir ödeme formu) tamamen ayrı bir `document` çalıştırır. Java analojisi: bir class\'ın `private` alanlarına DIŞARIDAN doğrudan erişememek gibi — bir "getter" (context değiştirme API\'si) gerekir. QA bağlamında: bir element locate edilemediğinde ve DOM\'da "orada duruyor gibi görünüyor" ama bulunamıyor gibi hissediyorsan, İLK sorman gereken soru "bu bir shadow DOM veya iframe içinde mi?" olmalıdır.',
+          en: 'Shadow DOM and an iframe are like an AUTONOMOUS REGION within a country: a locator in the normal DOM CANNOT automatically enter INSIDE these boundaries — just like a citizen cannot enter another country without a passport. Why do these exist? A web component (`<severity-picker>`) hides its internal structure (a shadow DOM) to protect it from style/script conflicts coming from OUTSIDE; an `<iframe>` runs an entirely separate `document` for security reasons (e.g. a third-party payment form). Java analogy: like not being able to directly access a class\'s `private` fields from OUTSIDE — you need a "getter" (a context-switching API). In QA context: when an element cannot be located and you feel it "looks like it is there" in the DOM but cannot be found, the FIRST question to ask should be "is this inside a shadow DOM or an iframe?"',
+        },
+      },
+      shadowDomIframeSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tester `<severity-picker>` adında bir web component\'in İÇİNDEKİ bir `<option>`\'ı `page.locator(\'option\')` ile bulmaya çalışıyor ama bulamıyor. DOM\'da element gözle GÖRÜNÜYOR. En olası açıklama nedir?',
+          en: 'A tester tries to find an `<option>` INSIDE a web component named `<severity-picker>` with `page.locator(\'option\')` but cannot find it. The element is visually PRESENT in the DOM. What is the most likely explanation?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Element gizlenmiştir (display:none)', en: 'The element is hidden (display:none)' } },
+          { id: 'b', text: { tr: 'Element bir shadow DOM\'un içindedir ve normal bir selector bu sınırı GEÇEMEZ; özel bir "piercing" selector veya shadow-aware API gerekir', en: 'The element is inside a shadow DOM and a normal selector CANNOT cross this boundary; a special "piercing" selector or shadow-aware API is needed' } },
+          { id: 'c', text: { tr: 'Tarayıcı bozuktur', en: 'The browser is broken' } },
+          { id: 'd', text: { tr: 'Selector syntax\'ı yanlış yazılmıştır', en: 'The selector syntax is written incorrectly' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Web component\'ler genelde kendi iç yapılarını bir shadow root\'ta kapsüller. Normal bir CSS selector bu sınırı OTOMATİK OLARAK geçemez — bu, bir güvenlik/izolasyon özelliğidir, bir HATA değildir. Test aracının shadow-aware bir API\'si (`>>>`, piercing selector) kullanılmalıdır.',
+          en: 'Web components usually encapsulate their internal structure in a shadow root. A normal CSS selector CANNOT automatically cross this boundary — this is a security/isolation feature, not a BUG. A shadow-aware API of the test tool (`>>>`, a piercing selector) should be used.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir "New Bug" formunun içinde üçüncü parti bir ödeme widget\'ı bir `<iframe>` içinde çalışıyor. Bu iframe\'in İÇİNDEKİ bir input\'a yazı yazmak isteyen bir test ne yapmalı?',
+            en: 'A third-party payment widget inside a "New Bug" form runs inside an `<iframe>`. What should a test that wants to type into an input INSIDE this iframe do?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Ana sayfa context\'inde normal bir locator yazmaya devam etmeli, otomatik çalışır', en: 'Keep writing a normal locator in the main page context, it works automatically' } },
+            { id: 'b', text: { tr: 'Önce context\'i iframe\'e SWITCH etmeli (ör. `page.frameLocator(...)`), SONRA o context içinde input\'u locate etmeli', en: 'First SWITCH context into the iframe (e.g. `page.frameLocator(...)`), THEN locate the input within that context' } },
+            { id: 'c', text: { tr: 'iframe\'i tamamen silmeli', en: 'Completely delete the iframe' } },
+            { id: 'd', text: { tr: 'Sayfayı yeniden yüklemeli', en: 'Reload the page' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Bir iframe kendi AYRI `document`\'ına sahip olduğundan, ana sayfanın locator\'ı onun İÇİNE hiç bakamaz. Doğru refleks önce context\'i o frame\'e SWITCH etmek (bir "pasaport kontrolünden geçmek"), sonra o yeni context içinde normal şekilde locate etmektir.',
+            en: 'Since an iframe has its own SEPARATE `document`, the main page\'s locator can never look INSIDE it. The right reflex is to first SWITCH context into that frame (going through a "passport control"), then locate normally within that new context.',
+          },
+        },
+      },
+
+      // ── H7: Developer'dan Ne İstenir ──
+      {
+        type: 'heading',
+        text: { tr: '💬 H7. Developer\'dan Ne İstenir', en: '💬 H7. What to Ask the Developer For' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '💬',
+        content: {
+          tr: 'Bu sayfa boyunca gördüğün her "Developer\'dan Ne İste" kutusu tek bir BECERİYİ inşa ediyordu: soyut bir şikayeti ("test edilebilir değil") somut, uygulanabilir bir İSTEĞE ("şu satıra şunu ekle") çevirmek. Peki bu neden ÖNEMLİ bir ayrım? Çünkü "test edilebilirlik istiyorum" demek bir developer\'ı savunmaya iter (ne demek istediğini bilmez), ama "`data-testid=\'bug-card-{id}\'` ekler misin, çünkü X nedeniyle Y kırılıyor" demek SANİYELER içinde uygulanabilir bir PR\'a dönüşür. Java analojisi: bir code review\'da "bu kod kötü" demek yerine "bu metot `null` kontrolü yapmıyor, satır 42\'de NPE riski var" demek gibi — SPESİFİK geri bildirim hızlı çözülür. QA bağlamında: en ileri seviye, test edilebilirliği bir kabul kriteri (acceptance criterion) olarak PROAKTIF şekilde talep etmektir — bug bulunduktan SONRA değil, feature YAZILIRKEN.',
+          en: 'Every "What to Ask the Developer" box you saw throughout this page was building ONE skill: turning an abstract complaint ("it is not testable") into a concrete, actionable REQUEST ("add this to this line"). Why is this distinction IMPORTANT? Because saying "I want testability" pushes a developer onto the defensive (they do not know what you mean), but saying "could you add `data-testid=\'bug-card-{id}\'`, because X breaks due to Y" turns into an actionable PR in SECONDS. Java analogy: like saying, in a code review, "this method does not null-check, there is an NPE risk on line 42" instead of "this code is bad" — SPECIFIC feedback gets resolved fast. In QA context: the most advanced level is PROACTIVELY requesting testability as an acceptance criterion — not AFTER a bug is found, but WHILE the feature is being WRITTEN.',
+        },
+      },
+      developerRequestTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tester bir sprint planlama toplantısında "yeni BugCard filtreleme özelliği için test edilebilirliği bir kabul kriteri olarak ekleyelim" diyor. Bu, hangi yaklaşımdan DAHA İLERİ bir seviyedir?',
+          en: 'A tester says in a sprint planning meeting "let\'s add testability as an acceptance criterion for the new BugCard filtering feature". This is a MORE ADVANCED level than which approach?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Feature yazıldıktan ve bug bulunduktan SONRA developer\'dan data-testid istemek', en: 'Asking the developer for a data-testid AFTER the feature is written and a bug is found' } },
+          { id: 'b', text: { tr: 'Hiçbir fark yoktur, ikisi de aynı sonucu verir', en: 'There is no difference, both give the same result' } },
+          { id: 'c', text: { tr: 'Test yazmamak', en: 'Not writing tests at all' } },
+          { id: 'd', text: { tr: 'Sadece manuel test yapmak', en: 'Only doing manual testing' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: 'Testability\'yi baştan bir kabul kriteri olarak talep etmek, sorunu KÖKTEN önler — developer feature\'ı YAZARKEN data-testid\'leri ekler, geriye dönük bir PR/refactor gerekmez. Bu, "reaktif" (bug bulunca düzelt) yaklaşımdan çok daha OLGUN bir "proaktif" yaklaşımdır.',
+          en: 'Requesting testability as an acceptance criterion upfront prevents the problem AT THE ROOT — the developer adds data-testids WHILE WRITING the feature, no retroactive PR/refactor is needed. This is a much more MATURE "proactive" approach than the "reactive" (fix it once a bug is found) one.',
+        },
+        retryQuestion: {
+          question: {
+            tr: '"Bu buton çalışmıyor" demek yerine "BugCard içindeki Düzenle butonu, class hash\'i her build\'de değiştiği için otomasyonda bulunamıyor, data-testid gerekiyor" demek NEDEN daha etkilidir?',
+            en: 'Why is saying "the Edit button inside BugCard cannot be found in automation because its class hash changes on every build, a data-testid is needed" more effective than saying "that button does not work"?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Daha uzun olduğu için', en: 'Because it is longer' } },
+            { id: 'b', text: { tr: 'HANGİ component, NEDEN kırıldığı ve NE gerektiği spesifik olarak belirtildiği için developer araştırma yapmadan doğrudan çözüme geçebilir', en: 'Because it specifically states WHICH component, WHY it breaks, and WHAT is needed, so the developer can go straight to a fix without investigating' } },
+            { id: 'c', text: { tr: 'Daha kibar bir ifade olduğu için', en: 'Because it is a more polite phrasing' } },
+            { id: 'd', text: { tr: 'İkisi arasında pratik bir fark yoktur', en: 'There is no practical difference between the two' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Sayfanın §1\'deki temel hedeflerinden biri budur: "hangi component", "hangi teknik neden", "hangi somut çözüm" ile konuşmak, developer\'ın kendi başına teşhis koymak için harcayacağı zamanı SIFIRLAR — bu, ortak dil konuşmanın pratik faydasıdır.',
+            en: 'This is one of the page\'s core goals in §1: speaking with "which component", "which technical reason", "which concrete solution" ZEROES OUT the time the developer would spend diagnosing it themselves — this is the practical benefit of speaking a common language.',
+          },
+        },
+      },
+
+      // ── H8: Locator Code Review ──
+      {
+        type: 'heading',
+        text: { tr: '🔎 H8. Locator Code Review: Developer\'ın PR\'ında Testability\'yi Gözden Geçirmek', en: '🔎 H8. Locator Code Review: Reviewing Testability in a Developer\'s PR' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🔎',
+        content: {
+          tr: 'Bir PR\'ı "testability gözüyle" incelemek, bir denetçinin bir binayı SADECE görünüşe göre değil, YANGIN ÇIKIŞLARININ yerini de kontrol ederek denetlemesi gibidir: bina güzel görünebilir (kod çalışabilir) ama acil bir durumda (bir test yazman gerektiğinde) çıkış yoksa (stabil bir kanca yoksa) sorun ortaya çıkar. Peki bu inceleme NE ZAMAN yapılmalı? Kod merge olduktan SONRA değil, PR AŞAMASINDA — çünkü o an değişiklik hâlâ küçük ve ucuzken düzeltmek kolaydır. Java analojisi: bir code review\'da sadece "çalışıyor mu" değil "test edilebilir mi, mock\'lanabilir mi" diye de sormak gibi — testability bir KOD KALİTESİ boyutudur, ayrı bir konu değildir. QA bağlamında: aşağıdaki tablo, bir PR\'da GÖRDÜĞÜN her değişiklik türü için sorman gereken SPESİFİK soruyu verir — bu sayfanın tüm derslerinin bir SENTEZİDİR.',
+          en: 'Reviewing a PR "with a testability eye" is like an inspector auditing a building not JUST by its appearance, but also by checking WHERE THE FIRE EXITS are: the building can look beautiful (the code can work) but if there is no exit (no stable hook) in an emergency (when you need to write a test), a problem surfaces. When should this review happen? Not AFTER the code merges, but AT THE PR STAGE — because at that point the change is still small and cheap to fix. Java analogy: like asking not just "does it work" in a code review, but also "is it testable, mockable" — testability is a dimension of CODE QUALITY, not a separate topic. In QA context: the table below gives the SPECIFIC question to ask for every type of change you SEE in a PR — this is a SYNTHESIS of every lesson on this page.',
+        },
+      },
+      locatorCodeReviewTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tester bir PR\'da yeni bir `.map()` ile render edilen liste görüyor ve her satırın sadece React `key`\'ine sahip olduğunu, benzersiz bir `data-id` OLMADIĞINI fark ediyor. Bu PR\'da hangi yorumu YAPMALIDIR?',
+          en: 'A tester sees a new list rendered with `.map()` in a PR and notices each row only has a React `key`, with NO unique `data-id`. What comment SHOULD they make on this PR?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir yorum yapmamalı, key yeterlidir', en: 'No comment needed, key is enough' } },
+          { id: 'b', text: { tr: '"Her satıra benzersiz bir `data-id`/`data-testid` eklenebilir mi? key DOM\'da görünmüyor ve locator olarak kullanılamıyor, index\'e bel bağlamak zorunda kalırım."', en: '"Could a unique `data-id`/`data-testid` be added to each row? key does not appear in the DOM and cannot be used as a locator, I would have to rely on an index."' } },
+          { id: 'c', text: { tr: 'PR\'ı hiç incelememeli', en: 'They should not review the PR at all' } },
+          { id: 'd', text: { tr: 'Sadece CSS hakkında yorum yapmalı', en: 'They should only comment on CSS' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Bu, H8\'in tam olarak öğrettiği reflekstir: bir liste render\'ı gördüğünde "her satırda benzersiz bir kimlik var mı, yoksa sadece index mi ayırt ediyor?" sorusunu SOR ve MERGE OLMADAN ÖNCE somut bir istek yap — bu, sonradan bir refactor\'dan çok daha UCUZDUR.',
+          en: 'This is exactly the reflex H8 teaches: when you see a list render, ASK "does each row have a unique identity, or does only the index distinguish them?" and make a concrete request BEFORE the merge — this is much CHEAPER than a refactor afterward.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Locator code review\'unu PR aşamasında yapmak yerine, kod merge olduktan aylar sonra "testler kırılıyor" diye fark etmek neden daha PAHALIDIR?',
+            en: 'Why is noticing "tests are breaking" months after the code merged more EXPENSIVE than doing a locator code review at the PR stage?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Hiçbir fark yoktur, ikisi de aynı maliyeti taşır', en: 'There is no difference, both carry the same cost' } },
+            { id: 'b', text: { tr: 'PR aşamasında bir satırlık bir değişiklik yeterliyken, aylar sonra HEM kodu HEM testleri (bazen çok sayıda) geriye dönük değiştirmek gerekir', en: 'While a one-line change is enough at the PR stage, months later BOTH the code AND the tests (sometimes many of them) need to be changed retroactively' } },
+            { id: 'c', text: { tr: 'Aylar sonra düzeltmek her zaman daha ucuzdur', en: 'Fixing it months later is always cheaper' } },
+            { id: 'd', text: { tr: 'PR aşamasında düzeltme imkansızdır', en: 'Fixing it at the PR stage is impossible' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Bu, yazılım mühendisliğinin genel bir ilkesidir: bir sorunu ERKEN yakalamak (PR\'da bir satırlık istek) her zaman GEÇ yakalamaktan (aylar sonra hem kodu hem çok sayıda testi değiştirmek) ucuzdur. Locator code review bu ilkeyi test edilebilirliğe uygular.',
+            en: 'This is a general software engineering principle: catching a problem EARLY (a one-line request in a PR) is always cheaper than catching it LATE (changing both the code and many tests months later). Locator code review applies this principle to testability.',
+          },
         },
       },
       {
