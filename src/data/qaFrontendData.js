@@ -16,9 +16,9 @@
 // /cypress'e link atar; buradaki fark "developer'ın kodu neden bu DOM'u üretti
 // ve bu yüzden hangi locator kırılmaz" mantığıdır.
 //
-// FAZ DURUMU: Faz 1 iskelet ✅ (Opus) · GRUP A1 referans atom ✅ (Opus) ·
+// FAZ DURUMU: Faz 1 iskelet ✅ (Opus) · GRUP A TAM (A1-A6) ✅ (Opus+Sonnet) ·
 // GRUP F pano referansı ✅ (Opus) · GRUP H locator-lab referansı ✅ (Opus) ·
-// GRUP A2-A6, B-J → Sonnet (bkz. Documents/qa-frontend-page-plan.md §C/§D).
+// GRUP B-J → Sonnet (bkz. Documents/qa-frontend-page-plan.md §C/§D, sıradaki: D-S2).
 import { fillMissingCodeTrios, fillMissingFeynman } from './interactiveTrioFillers.js'
 
 // ─── video-scene: "Kaynak Koddan Sayfaya" (GRUP A / tek ağaç, TEK yere konur) ─
@@ -317,6 +317,324 @@ await page.getByRole('button', { name: 'Edit bug' }).click();`,
   },
 }
 
+// ─── step-animation: DOM aile ağacında ilişkisel locate (GRUP A2) ─────────────
+const domFamilyTreeSteps = {
+  type: 'step-animation',
+  id: 'qaf-a2-family-tree-steps',
+  title: { tr: 'Adım Adım: Aile Ağacında İlişkisel Locate', en: 'Step by Step: Relational Locating in the Family Tree' },
+  steps: [
+    { id: 1, icon: '🌳', label: { tr: '`<ul>` ebeveyndir', en: '`<ul>` is the parent' }, detail: { tr: 'BugCard listesini saran `<ul id="bug-list">` düğümü, her `<li>` kartın EBEVEYNİDİR — ağaçta bir üst seviyededir.', en: 'The `<ul id="bug-list">` node wrapping the BugCard list is the PARENT of every `<li>` card — one level up in the tree.' } },
+    { id: 2, icon: '👶', label: { tr: 'Her `<li>` bir çocuktur', en: 'Each `<li>` is a child' }, detail: { tr: '`<ul>`\'nin doğrudan çocukları olan `<li>` elementleri KARDEŞTİR (sibling) — aynı ebeveyni paylaşırlar, aralarında sıra vardır.', en: 'The `<li>` elements that are direct children of `<ul>` are SIBLINGS — they share the same parent and have an order among them.' } },
+    { id: 3, icon: '🔍', label: { tr: 'İndeks kırılgandır', en: 'Index is fragile' }, detail: { tr: '`li[3]` demek "3. kardeş" demektir; yeni bir bug eklenip sıralama değişince bu artık BAŞKA bir kartı gösterir.', en: '`li[3]` means "the 3rd sibling"; when a new bug is added and the order shifts, it now points to a DIFFERENT card.' } },
+    { id: 4, icon: '🔗', label: { tr: 'İlişkisel locate stabildir', en: 'Relational locating is stable' }, detail: { tr: '"İçinde `Login butonu` yazan `<li>`" demek, ağaçtaki akrabalık ilişkisini (child/descendant) kullanır — sıralamadan bağımsızdır.', en: '"The `<li>` that contains the text `Login button`" uses the kinship relationship in the tree (child/descendant) — it is independent of ordering.' } },
+    { id: 5, icon: '✅', label: { tr: 'Kural: kimliğe göre bul', en: 'Rule: find by identity' }, detail: { tr: 'En dayanıklısı: `data-testid="bug-card-{id}"` gibi bir kimlik. İlişkisel metin eşleşmesi ikinci en iyi, index ise son çare.', en: 'The most durable: an identity like `data-testid="bug-card-{id}"`. Relational text match is second-best, index is the last resort.' } },
+  ],
+}
+
+// ─── code-playground: ilişkisel locate pratiği (GRUP A2) ──────────────────────
+const relationalLocatorPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-a2-dom-tree-anatomy',
+  id: 'qaf-a2-relational-locator',
+  title: { tr: 'Kendin Dene: İndeks Yerine İlişkisel Locate Yaz', en: 'Try It Yourself: Write a Relational Locator Instead of an Index' },
+  starterCode: {
+    tr: `// BugCard listesinde "Login butonu 500 donuyor" yazan satırı bulman gerekiyor.
+// Liste sıralaması sık değişiyor (yeni bug'lar en üste ekleniyor).
+// TODO: index yerine ilişkisel (metne göre) bir locator yaz.
+await page.locator('li').nth(2).click();`,
+    en: `// You need to find the row saying "Login button freezes on 500" in the BugCard list.
+// The list order changes often (new bugs are added to the top).
+// TODO: write a relational (text-based) locator instead of an index.
+await page.locator('li').nth(2).click();`,
+  },
+  solutionCode: {
+    tr: `// "içinde bu metin geçen li" — sıralamadan bağımsız, akrabalık ilişkisine dayanır
+await page.locator('li', { hasText: 'Login butonu 500 donuyor' }).click();`,
+    en: `// "the li that contains this text" -- independent of order, based on kinship
+await page.locator('li', { hasText: 'Login button freezes on 500' }).click();`,
+  },
+  hint: {
+    tr: '`.nth(2)` ağaçtaki "3. kardeş" demektir ve liste yeniden sıralanınca başka bir kartı gösterir. Bunun yerine ağaçtaki ilişkiyi (bu metni İÇEREN li) kullan — `hasText`/`:has-text()` gibi.',
+    en: '`.nth(2)` means "the 3rd sibling" in the tree, and it points to a different card once the list re-sorts. Instead use the tree relationship (the li that CONTAINS this text) — like `hasText`/`:has-text()`.',
+  },
+  successMessage: {
+    tr: 'Doğru! İlişkisel locate ağaçtaki akrabalık bağını kullanır ve sıralama değişse de aynı elemente gider; index ise DOM\'un o anki şekline kör bir varsayımdır.',
+    en: 'Correct! A relational locator uses the kinship link in the tree and still reaches the same element when ordering changes; an index is a blind assumption about the DOM\'s current shape.',
+  },
+}
+
+// ─── step-animation: DOM + CSSOM → Render Tree (GRUP A3) ──────────────────────
+const cssomRenderTreeSteps = {
+  type: 'step-animation',
+  id: 'qaf-a3-cssom-render-steps',
+  title: { tr: 'Adım Adım: DOM + CSSOM Nasıl Render Tree\'ye Dönüşür?', en: 'Step by Step: How DOM + CSSOM Become the Render Tree' },
+  steps: [
+    { id: 1, icon: '🌳', label: { tr: 'DOM hazır', en: 'DOM is ready' }, detail: { tr: 'Parser HTML\'i okuyup DOM ağacını kurdu: her `<li>`, `<span>`, `<button>` birer node.', en: 'The parser read the HTML and built the DOM tree: every `<li>`, `<span>`, `<button>` is a node.' } },
+    { id: 2, icon: '🎨', label: { tr: 'CSSOM hazır', en: 'CSSOM is ready' }, detail: { tr: 'Tarayıcı CSS kurallarını da bir ağaca çevirdi: hangi selector hangi elemente hangi stili verir.', en: 'The browser also turned CSS rules into a tree: which selector gives which element which style.' } },
+    { id: 3, icon: '🔗', label: { tr: 'İkisi birleşir', en: 'The two merge' }, detail: { tr: 'DOM ile CSSOM birleşip Render Tree\'yi kurar — artık her node\'un hesaplanmış bir stili var.', en: 'DOM and CSSOM merge to build the Render Tree — now every node has a computed style.' } },
+    { id: 4, icon: '🚫', label: { tr: '`display:none` elenir', en: '`display:none` is excluded' }, detail: { tr: 'Bir `<li class="hidden-bug">` node DOM\'da VARDIR ama `display:none` olduğu için Render Tree\'ye HİÇ girmez.', en: 'A `<li class="hidden-bug">` node EXISTS in the DOM, but because it has `display:none` it NEVER enters the Render Tree.' } },
+    { id: 5, icon: '⚠️', label: { tr: 'Sonuç: bulundu ama tıklanamaz', en: 'Result: found but not clickable' }, detail: { tr: 'Selenium/Playwright bu node\'u DOM\'da bulur (present) ama tıklama Render Tree\'de olmadığı için başarısız olur — "ElementNotInteractable".', en: 'Selenium/Playwright find this node in the DOM (present), but the click fails because it is not in the Render Tree -- "ElementNotInteractable".' } },
+  ],
+}
+
+// ─── code-playground: present vs visible bekleme stratejisi (GRUP A3) ─────────
+const waitStrategyPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-a3-cssom-render-tree',
+  id: 'qaf-a3-wait-strategy',
+  title: { tr: 'Kendin Dene: Doğru Bekleme Stratejisini Seç', en: 'Try It Yourself: Pick the Right Wait Strategy' },
+  starterCode: {
+    tr: `// "New Bug" modal'ı açılıyor ama animasyonla: modal önce DOM'a
+// display:none olarak eklenir, 200ms sonra CSS class'ı kaldırılıp görünür olur.
+// TODO: modal'a tıklamadan önce doğru bekleme koşulunu yaz.
+await page.locator('[data-testid="new-bug-modal"]').waitFor({ state: 'attached' });
+await page.locator('[data-testid="modal-submit"]').click();`,
+    en: `// The "New Bug" modal opens with an animation: it is first added to the DOM
+// with display:none, then 200ms later its CSS class is removed and it becomes visible.
+// TODO: write the correct wait condition before clicking the modal.
+await page.locator('[data-testid="new-bug-modal"]').waitFor({ state: 'attached' });
+await page.locator('[data-testid="modal-submit"]').click();`,
+  },
+  solutionCode: {
+    tr: `// 'attached' sadece DOM'da var olduğunu doğrular (render tree'de olmayabilir).
+// Tıklamadan önce 'visible' (render tree'de VE görünür) beklemek gerekir.
+await page.locator('[data-testid="new-bug-modal"]').waitFor({ state: 'visible' });
+await page.locator('[data-testid="modal-submit"]').click();`,
+    en: `// 'attached' only confirms it exists in the DOM (it may not be in the render tree).
+// Before clicking you must wait for 'visible' (in the render tree AND visible).
+await page.locator('[data-testid="new-bug-modal"]').waitFor({ state: 'visible' });
+await page.locator('[data-testid="modal-submit"]').click();`,
+  },
+  hint: {
+    tr: '`attached` sadece DOM\'da varlığı doğrular — `display:none` iken bile true döner. Render Tree\'de olup olmadığını (yani gerçekten tıklanabilir mi) anlamak için `visible` beklemek gerekir.',
+    en: '`attached` only confirms DOM presence — it returns true even while `display:none`. To know whether it is in the Render Tree (i.e., truly clickable) you must wait for `visible`.',
+  },
+  successMessage: {
+    tr: 'Doğru! `attached` = DOM\'da var; `visible` = Render Tree\'de VE görünür. Tıklama için her zaman `visible` beklenmeli, yoksa animasyon bitmeden yapılan tıklama ıskalar.',
+    en: 'Correct! `attached` = exists in the DOM; `visible` = in the Render Tree AND visible. Always wait for `visible` before clicking, otherwise a click before the animation finishes misses.',
+  },
+}
+
+// ─── video-scene: "Render'ın 5 Adımı" (GRUP A4, zorunlu film) ─────────────────
+const renderFiveStepsFilm = {
+  type: 'video-scene',
+  id: 'qaf-render-five-steps-film',
+  title: {
+    tr: '🎬 Render\'ın 5 Adımı: Parse → Style → Layout → Paint → Composite',
+    en: '🎬 The 5 Steps of Rendering: Parse -> Style -> Layout -> Paint -> Composite',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'html',    emoji: '📄', label: { tr: 'HTML kaynağı',   en: 'HTML source' },     color: '#0ea5e9' },
+    { id: 'parse',   emoji: '🔎', label: { tr: 'Parse → DOM',    en: 'Parse -> DOM' },     color: '#f59e0b' },
+    { id: 'style',   emoji: '🎨', label: { tr: 'Style → CSSOM',  en: 'Style -> CSSOM' },   color: '#8b5cf6' },
+    { id: 'layout',  emoji: '📐', label: { tr: 'Layout',         en: 'Layout' },           color: '#6366f1' },
+    { id: 'paint',   emoji: '🖌️', label: { tr: 'Paint',          en: 'Paint' },            color: '#ec4899' },
+    { id: 'composite', emoji: '🧩', label: { tr: 'Composite',    en: 'Composite' },        color: '#22c55e' },
+    { id: 'screen',  emoji: '🖥️', label: { tr: 'Ekran',          en: 'Screen' },           color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '"Sayfa render oldu" tek bir an değildir — bir MONTAJ HATTIdır. Bu filmde bir BugCard\'ın bu 5 istasyondan nasıl geçtiğini izleyeceksin ve testin bir butona tam olarak HANGİ istasyonda tıklayabileceğini göreceksin.',
+        en: '"The page rendered" is not a single moment -- it is an ASSEMBLY LINE. In this film you will watch a BugCard pass through these 5 stations, and see at EXACTLY which station a test can click a button.',
+      },
+      code: { tr: `<li class="bug-card">...</li>`, en: `<li class="bug-card">...</li>` },
+      positions: { html: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'İstasyon 1 — Parse: HTML metni token\'lara ayrılıp DOM ağacına dönüşür. Henüz ekranda hiçbir şey yok; sadece yapı kuruldu. Java analojisi: kaynak dosyanın derleyici tarafından AST\'ye ayrıştırılması gibi.',
+        en: 'Station 1 -- Parse: the HTML text is split into tokens and turned into the DOM tree. Nothing is on screen yet; only the structure has been built. Java analogy: like a source file being parsed into an AST by the compiler.',
+      },
+      code: { tr: `DOM: <li> node oluştu`, en: `DOM: the <li> node exists` },
+      positions: {
+        html: { x: 16, y: 50, opacity: 0.6, scale: 0.9 },
+        parse: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'html', to: 'parse', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'İstasyon 2 — Style: CSS kuralları okunup CSSOM kurulur, DOM ile birleşir; her node\'un hesaplanmış (computed) bir stili oluşur. Kritik: `display:none` olan node burada işaretlenir ve Layout\'a hiç girmeyecektir.',
+        en: 'Station 2 -- Style: CSS rules are read and the CSSOM is built, merging with the DOM; every node gets a computed style. Critical: a node with `display:none` is flagged here and will never enter Layout.',
+      },
+      code: { tr: `computed style: color, display, font-size...`, en: `computed style: color, display, font-size...` },
+      positions: {
+        parse: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        style: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'parse', to: 'style', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'İstasyon 3 — Layout: her görünür node\'un tam konumu ve boyutu (x, y, genişlik, yükseklik) piksel cinsinden hesaplanır. BU ANA KADAR bir butonun tıklanabilir bir "yeri" YOKTUR — Layout bitmeden koordinat hesaplanmamıştır.',
+        en: 'Station 3 -- Layout: every visible node\'s exact position and size (x, y, width, height) is computed in pixels. UNTIL THIS POINT a button has NO clickable "location" -- coordinates are not computed before Layout finishes.',
+      },
+      code: { tr: `li { x:24, y:120, w:340, h:64 }`, en: `li { x:24, y:120, w:340, h:64 }` },
+      positions: {
+        style: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        layout: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'style', to: 'layout', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'İstasyon 4 — Paint: hesaplanan kutular gerçek piksellere (renk, kenarlık, gölge) boyanır. Görsel olarak "kart" artık VAR ama hâlâ ayrı katmanlar halindedir — bir sonraki adımda birleştirilecek.',
+        en: 'Station 4 -- Paint: the computed boxes are painted into actual pixels (color, border, shadow). Visually the "card" now EXISTS, but it is still in separate layers -- to be combined in the next step.',
+      },
+      code: { tr: `paint: renk + kenarlık + gölge boyandı`, en: `paint: color + border + shadow painted` },
+      positions: {
+        layout: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        paint: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'layout', to: 'paint', color: '#ec4899' }],
+    },
+    {
+      caption: {
+        tr: 'İstasyon 5 — Composite: boyanan katmanlar doğru sırayla üst üste birleştirilir (GPU\'da). Artık kart tek bir bütün piksel çerçevesidir ve ekrana teslim edilmeye hazırdır.',
+        en: 'Station 5 -- Composite: the painted layers are combined in the correct order (on the GPU). The card is now a single, complete pixel frame ready to be handed to the screen.',
+      },
+      code: { tr: `composite: katmanlar birleşti`, en: `composite: layers combined` },
+      positions: {
+        paint: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        composite: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'paint', to: 'composite', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Ekranda GÖRÜNÜR ve tıklanabilir: bu hat tamamlandığında kullanıcı kartı görür VE test butona güvenle tıklayabilir. Flaky test\'lerin çoğu, bu hat bitmeden (özellikle Layout tamamlanmadan) yapılan erken bir locate/tıklamadır.',
+        en: 'Final -- VISIBLE and clickable on screen: once this line completes, the user sees the card AND the test can safely click the button. Most flaky tests are an early locate/click made before this line finishes -- especially before Layout completes.',
+      },
+      code: { tr: `ekran: kart görünür, buton tıklanabilir`, en: `screen: card visible, button clickable` },
+      positions: {
+        composite: { x: 20, y: 30, scale: 0.95 },
+        screen: { x: 56, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'composite', to: 'screen', color: '#10b981' }],
+    },
+  ],
+}
+
+// ─── challenge (order-sort): Render'ın 5 adımını sırala (GRUP A4) ─────────────
+const renderOrderChallenge = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'qaf-a4-render-order-01',
+  question: { tr: 'Bir sayfanın render sürecinin 5 istasyonunu doğru sırayla diz.', en: 'Order the 5 stations of a page\'s rendering process correctly.' },
+  items: [
+    { id: '1', text: { tr: 'Parse: HTML → DOM ağacı kurulur', en: 'Parse: HTML -> the DOM tree is built' }, order: 1 },
+    { id: '2', text: { tr: 'Style: CSS → CSSOM kurulur ve DOM ile birleşir', en: 'Style: CSS -> the CSSOM is built and merges with the DOM' }, order: 2 },
+    { id: '3', text: { tr: 'Layout: her node\'un konumu/boyutu hesaplanır', en: 'Layout: every node\'s position/size is computed' }, order: 3 },
+    { id: '4', text: { tr: 'Paint: pikseller (renk, kenarlık, gölge) boyanır', en: 'Paint: pixels (color, border, shadow) are painted' }, order: 4 },
+    { id: '5', text: { tr: 'Composite: katmanlar birleşip ekrana teslim edilir', en: 'Composite: layers are combined and handed to the screen' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
+// ─── step-animation: Reflow tetiklenmesi (GRUP A5) ────────────────────────────
+const reflowRepaintSteps = {
+  type: 'step-animation',
+  id: 'qaf-a5-reflow-steps',
+  title: { tr: 'Adım Adım: Yeni Bir BugCard Eklenince Reflow Nasıl Tetiklenir?', en: 'Step by Step: How Adding a New BugCard Triggers a Reflow' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'Sayfa stabil', en: 'The page is stable' }, detail: { tr: 'Test, 2. sıradaki BugCard\'ı locate etti — o an Layout\'ta sabit bir konumu var.', en: 'The test located the BugCard at position 2 -- at that moment it has a fixed position in Layout.' } },
+    { id: 2, icon: '➕', label: { tr: 'Yeni bug JS ile eklenir', en: 'A new bug is added via JS' }, detail: { tr: 'Kullanıcı "New Bug" formunu gönderir; JS listenin BAŞINA yeni bir `<li>` ekler.', en: 'The user submits the "New Bug" form; JS inserts a new `<li>` at the TOP of the list.' } },
+    { id: 3, icon: '🔁', label: { tr: 'Reflow tetiklenir', en: 'A reflow is triggered' }, detail: { tr: 'Tarayıcı Layout\'u YENİDEN hesaplar: eski 2. sıradaki kart artık 3. sırada, konumu (y koordinatı) değişti.', en: 'The browser RECOMPUTES Layout: the card that was at position 2 is now at position 3, its position (y coordinate) has changed.' } },
+    { id: 4, icon: '👻', label: { tr: 'Eski referans geçersiz olur', en: 'The old reference becomes stale' }, detail: { tr: 'Testin tuttuğu element referansı hâlâ DOM\'da var ama artık yanlış yerde/yanlış veriyle eşleşebilir — bazı motorlarda StaleElementReferenceException fırlatır.', en: 'The element reference the test was holding still exists in the DOM, but may now match the wrong place/data -- in some engines this throws a StaleElementReferenceException.' } },
+    { id: 5, icon: '✅', label: { tr: 'Doğru refleks: stabil olmayı bekle', en: 'The right reflex: wait for stability' }, detail: { tr: '`sleep(1000)` yerine "liste sayısı N oldu" veya "element artık DEĞİŞMEDİ" gibi koşullu bir bekleme kur.', en: 'Instead of `sleep(1000)`, set a conditional wait like "the list count reached N" or "the element has stopped changing".' } },
+  ],
+}
+
+// ─── code-playground: stabil hale gelmeyi bekleme (GRUP A5) ───────────────────
+const waitForStablePlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-a5-reflow-repaint',
+  id: 'qaf-a5-wait-for-stable',
+  title: { tr: 'Kendin Dene: `sleep` Yerine Koşullu Bekleme Yaz', en: 'Try It Yourself: Write a Conditional Wait Instead of `sleep`' },
+  starterCode: {
+    tr: `// "New Bug" formu gönderildikten sonra yeni kart listenin başına ekleniyor
+// ve bu bir reflow tetikliyor. TODO: sabit sleep yerine koşullu bekleme yaz.
+await page.click('[data-testid="modal-submit"]');
+await page.waitForTimeout(1000);
+await page.locator('li').first().click();`,
+    en: `// After the "New Bug" form is submitted, the new card is added to the top of the
+// list and this triggers a reflow. TODO: write a conditional wait instead of a fixed sleep.
+await page.click('[data-testid="modal-submit"]');
+await page.waitForTimeout(1000);
+await page.locator('li').first().click();`,
+  },
+  solutionCode: {
+    tr: `// Liste sayısının artmasını (reflow'un bittiğini) koşullu bekle
+await page.click('[data-testid="modal-submit"]');
+await expect(page.locator('li')).toHaveCount(4); // reflow bitene kadar otomatik bekler
+await page.locator('li').first().click();`,
+    en: `// Conditionally wait for the list count to increase (the reflow finished)
+await page.click('[data-testid="modal-submit"]');
+await expect(page.locator('li')).toHaveCount(4); // auto-waits until the reflow is done
+await page.locator('li').first().click();`,
+  },
+  hint: {
+    tr: '`waitForTimeout(1000)` sabit bir tahmindir: yavaş bir makinede yetmez, hızlı bir makinede gereksiz bekletir. `toHaveCount`/`toHaveText` gibi assertion\'lar koşul gerçekleşene kadar otomatik yeniden dener — reflow\'un GERÇEKTEN bittiğini garanti eder.',
+    en: '`waitForTimeout(1000)` is a fixed guess: it is not enough on a slow machine and wastes time on a fast one. Assertions like `toHaveCount`/`toHaveText` auto-retry until the condition is true -- guaranteeing the reflow has REALLY finished.',
+  },
+  successMessage: {
+    tr: 'Doğru! Koşullu bekleme (assertion tabanlı) reflow\'un ne zaman bittiğini gerçekten bilir; sabit `sleep` ise bir tahmindir ve flaky testin klasik kaynağıdır.',
+    en: 'Correct! A conditional (assertion-based) wait actually knows when the reflow finished; a fixed `sleep` is a guess and the classic source of a flaky test.',
+  },
+}
+
+// ─── step-animation: DevTools'ta "Copy selector" vs attribute okuma (GRUP A6) ─
+const devtoolsElementsSteps = {
+  type: 'step-animation',
+  id: 'qaf-a6-devtools-steps',
+  title: { tr: 'Adım Adım: DevTools\'ta Doğru Locator Nasıl Türetilir?', en: 'Step by Step: Deriving the Right Locator in DevTools' },
+  steps: [
+    { id: 1, icon: '🛠️', label: { tr: 'F12 → Elements açılır', en: 'F12 -> Elements opens' }, detail: { tr: 'Testerın ilk durağı burasıdır — kaynak dosya değil, o anki CANLI DOM burada görünür.', en: 'This is the tester\'s first stop -- not the source file, but the current LIVE DOM appears here.' } },
+    { id: 2, icon: '🖱️', label: { tr: '"Copy selector" cazip görünür', en: '"Copy selector" looks tempting' }, detail: { tr: 'Sağ tık → Copy → Copy selector, genelde `body > div:nth-child(2) > ul > li:nth-child(3) > button` gibi UZUN ve İNDEKS TABANLI bir yol üretir.', en: 'Right-click -> Copy -> Copy selector usually produces a LONG, INDEX-BASED path like `body > div:nth-child(2) > ul > li:nth-child(3) > button`.' } },
+    { id: 3, icon: '⚠️', label: { tr: 'Bu yol kırılgandır', en: 'This path is fragile' }, detail: { tr: 'Bu yol DOM\'un O ANKİ tam şekline bağlıdır — bir `<div>` araya girse veya sıra değişse anında kırılır.', en: 'This path depends on the EXACT current shape of the DOM -- one extra `<div>` or a reorder breaks it instantly.' } },
+    { id: 4, icon: '🔍', label: { tr: 'Attribute\'lara elle bak', en: 'Manually inspect the attributes' }, detail: { tr: 'Bunun yerine elementin attribute panelinde `data-testid`, `aria-label` veya stabil bir `id` arıyorsun.', en: 'Instead you look in the element\'s attribute panel for a `data-testid`, `aria-label`, or a stable `id`.' } },
+    { id: 5, icon: '✅', label: { tr: 'En dayanıklısını seç', en: 'Pick the most durable one' }, detail: { tr: 'Bulursan onu kullan; bulamazsan developer\'dan iste. "Copy selector" son çaredir, ilk tercih DEĞİLDİR.', en: 'If you find one, use it; if not, ask the developer. "Copy selector" is the last resort, NOT the first choice.' } },
+  ],
+}
+
+// ─── code-playground: kırılgan "Copy selector" çıktısını düzelt (GRUP A6) ─────
+const fixFragileSelectorPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-a6-devtools-elements',
+  id: 'qaf-a6-fix-fragile-selector',
+  title: { tr: 'Kendin Dene: "Copy Selector" Çıktısını Dayanıklı Hale Getir', en: 'Try It Yourself: Make a "Copy Selector" Output Durable' },
+  starterCode: {
+    tr: `// DevTools'tan "Copy selector" ile kopyaladığın çıktı bu:
+// body > div.app-shell > main > ul > li:nth-child(3) > button.Btn_ghost__p0q2
+// TODO: DevTools'ta aynı butonun attribute panelinde data-testid="edit-bug-42"
+// gördüğünü varsayarak dayanıklı bir locator yaz.
+await page.locator('body > div.app-shell > main > ul > li:nth-child(3) > button.Btn_ghost__p0q2').click();`,
+    en: `// This is the output you copied from DevTools with "Copy selector":
+// body > div.app-shell > main > ul > li:nth-child(3) > button.Btn_ghost__p0q2
+// TODO: assuming you saw data-testid="edit-bug-42" in the same button's attribute
+// panel in DevTools, write a durable locator.
+await page.locator('body > div.app-shell > main > ul > li:nth-child(3) > button.Btn_ghost__p0q2').click();`,
+  },
+  solutionCode: {
+    tr: `// data-testid, DOM'un tam şekline değil kimliğe bağlıdır
+await page.getByTestId('edit-bug-42').click();`,
+    en: `// data-testid binds to identity, not the DOM's exact shape
+await page.getByTestId('edit-bug-42').click();`,
+  },
+  hint: {
+    tr: '"Copy selector" çıktısı `nth-child` ve tüm ata zincirini içerir — DOM\'un O ANKİ şekline bağlıdır. Attribute panelinde bir `data-testid` görüyorsan, uzun yol yerine doğrudan onu kullan.',
+    en: 'The "Copy selector" output includes `nth-child` and the full ancestor chain -- it depends on the EXACT current DOM shape. If you see a `data-testid` in the attribute panel, use it directly instead of the long path.',
+  },
+  successMessage: {
+    tr: 'Doğru! "Copy selector" bir başlangıç noktasıdır, son cevap değil. Attribute panelinde stabil bir kanca (data-testid, aria-label) görünce onu tercih et.',
+    en: 'Correct! "Copy selector" is a starting point, not the final answer. When you see a stable hook (data-testid, aria-label) in the attribute panel, prefer it.',
+  },
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
 
@@ -371,7 +689,44 @@ const sections = [
         emoji: '🌳',
         content: {
           tr: 'DOM bir AİLE AĞACIDIR: her element bir düğüm (node), içindeki elementler onun çocukları, sardığı elementler ebeveynleri. `<li>` bir element node, içindeki "OPEN" yazısı bir text node, `class="..."` ise bir attribute node. Neden bu ayrım locator için önemli? Çünkü `//li/span` gibi bir locator "li\'nin doğrudan çocuğu olan span" der — ağaçtaki akrabalık ilişkisini kullanır; ağaç yapısını bilmeyen tester ilişkisel locator kuramaz. Java analojisi: iç içe nesnelerden oluşan bir nesne grafiği gibidir — parent.getChild() zinciri. QA bağlamında: bir satırı "içinde X yazan satır" diye ilişkisel bulmak, index\'e (`li[3]`) bağlanmaktan çok daha dayanıklıdır çünkü sıralama değişince index kayar. (Bu başlığın tam interaktif içeriği Sonnet fazında tamamlanacak — bkz. plan §D-S1.)',
-          en: 'The DOM is a FAMILY TREE: each element is a node, the elements inside it are its children, the elements wrapping it are its parents. A `<li>` is an element node, the "OPEN" text inside it is a text node, and `class="..."` is an attribute node. Why does this distinction matter for a locator? Because a locator like `//li/span` says "the span that is a direct child of li" — it uses the kinship in the tree; a tester who does not know the tree structure cannot build relational locators. Java analogy: like an object graph of nested objects — a parent.getChild() chain. In QA context: finding a row as "the row that contains X" is far more durable than binding to an index (`li[3]`), because the index shifts when ordering changes. (Full interactive content for this topic is completed in the Sonnet phase — see plan section D-S1.)',
+          en: 'The DOM is a FAMILY TREE: each element is a node, the elements inside it are its children, the elements wrapping it are its parents. A `<li>` is an element node, the "OPEN" text inside it is a text node, and `class="..."` is an attribute node. Why does this distinction matter for a locator? Because a locator like `//li/span` says "the span that is a direct child of li" — it uses the kinship in the tree; a tester who does not know the tree structure cannot build relational locators. Java analogy: like an object graph of nested objects — a parent.getChild() chain. In QA context: finding a row as "the row that contains X" is far more durable than binding to an index (`li[3]`), because the index shifts when ordering changes.',
+        },
+      },
+      domFamilyTreeSteps,
+      relationalLocatorPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'BugCard listesine yeni bir bug eklenince kartlar bir sıra kayıyor. `page.locator(\'li\').nth(2)` yerine hangi locator sıralama değişse de aynı karta gider?',
+          en: 'When a new bug is added to the BugCard list, the cards shift by one position. Instead of `page.locator(\'li\').nth(2)`, which locator still reaches the same card even after the order changes?',
+        },
+        options: [
+          { id: 'a', text: { tr: '`page.locator(\'li\').nth(3)` — bir fazla index dene', en: '`page.locator(\'li\').nth(3)` — try one more index' } },
+          { id: 'b', text: { tr: '`page.locator(\'li\', { hasText: "Login butonu 500 donuyor" })` — ilişkisel, metne göre', en: '`page.locator(\'li\', { hasText: "Login button freezes on 500" })` — relational, by text' } },
+          { id: 'c', text: { tr: '`page.locator(\'li:last-child\')` — her zaman son eleman', en: '`page.locator(\'li:last-child\')` — always the last element' } },
+          { id: 'd', text: { tr: 'Sayfayı yenileyip tekrar dene', en: 'Reload the page and try again' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`hasText` ile yazılan locator, "içinde bu metin geçen li" der — ağaçtaki akrabalık ilişkisini kullanır ve kartın sırası değişse de aynı elemente ulaşır. `.nth()` ve `:last-child` ise ağacın O ANKİ şekline (sıraya) bağımlıdır.',
+          en: 'A locator written with `hasText` says "the li that contains this text" — it uses the kinship relationship in the tree and reaches the same element even if the card\'s position changes. `.nth()` and `:last-child` depend on the tree\'s CURRENT shape (order).',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tabloda 20 satır var ve her satır bir `<tr>`. "3. satırı sil" butonuna tıklamak istiyorsun ama satırlar filtrelemeyle sık yeniden sıralanıyor. En dayanıklı yaklaşım hangisidir?',
+            en: 'A table has 20 rows, each a `<tr>`. You want to click the "delete" button on "row 3", but rows are frequently re-sorted by filtering. Which approach is the most durable?',
+          },
+          options: [
+            { id: 'a', text: { tr: '`tr:nth-child(3)` ile satır numarasına göre bul', en: 'Find by row number with `tr:nth-child(3)`' } },
+            { id: 'b', text: { tr: 'Satırı benzersiz bir kimlikle (data-id, data-testid) ilişkisel bul, sonra o satırın içindeki butona tıkla', en: 'Find the row relationally by a unique identity (data-id, data-testid), then click the button inside that row' } },
+            { id: 'c', text: { tr: 'Her zaman ilk satırı sil', en: 'Always delete the first row' } },
+            { id: 'd', text: { tr: 'Filtrelemeyi kapatıp sıralamanın değişmemesini bekle', en: 'Turn off filtering and hope the order does not change' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Satır numarası (nth-child) filtrelemeyle değişen bir "o anki konum"dur. Satırı kimliğe göre bulup (örn. `[data-id="bug-42"]`) İÇİNDEKİ butona ilişkisel olarak gitmek, sıralamadan tamamen bağımsız ve dayanıklıdır.',
+            en: 'The row number (nth-child) is a "current position" that changes with filtering. Finding the row by identity (e.g. `[data-id="bug-42"]`) and going to the button INSIDE it relationally is completely independent of ordering and durable.',
+          },
         },
       },
       {
@@ -383,7 +738,44 @@ const sections = [
         emoji: '🎨',
         content: {
           tr: 'CSSOM, DOM\'un stil ikizidir: tarayıcı CSS kurallarını da bir ağaca çevirir, sonra DOM ile CSSOM birleşip Render Tree\'yi kurar. Kritik nokta: `display:none` olan bir element DOM\'da VARDIR ama Render Tree\'de YOKTUR — yani locate edilebilir ama tıklanamaz/görünmez. Neden testerı ilgilendirir? "Element bulundu ama ElementNotInteractable" hatasının kökü tam budur: DOM\'da var, render tree\'de yok. Java analojisi: bir nesne bellekte var (DOM) ama UI thread\'inde çizilmemiş (render tree) gibi. QA bağlamında: görünürlük ile varlık iki ayrı kavramdır ve doğru bekleme stratejisi (visible mi, present mi?) bu ayrıma dayanır. (Tam interaktif içerik Sonnet fazında — plan §D-S1.)',
-          en: 'The CSSOM is the DOM\'s style twin: the browser also turns CSS rules into a tree, then the DOM and CSSOM merge to build the Render Tree. Key point: an element with `display:none` EXISTS in the DOM but is ABSENT from the Render Tree — so it can be located but not clicked/seen. Why does it concern a tester? This is the exact root of the "element found but ElementNotInteractable" error: present in the DOM, absent from the render tree. Java analogy: like an object that exists in memory (DOM) but has not been drawn on the UI thread (render tree). In QA context: visibility and presence are two separate concepts, and the correct wait strategy (visible vs present?) rests on this distinction. (Full interactive content in the Sonnet phase — plan section D-S1.)',
+          en: 'The CSSOM is the DOM\'s style twin: the browser also turns CSS rules into a tree, then the DOM and CSSOM merge to build the Render Tree. Key point: an element with `display:none` EXISTS in the DOM but is ABSENT from the Render Tree — so it can be located but not clicked/seen. Why does it concern a tester? This is the exact root of the "element found but ElementNotInteractable" error: present in the DOM, absent from the render tree. Java analogy: like an object that exists in memory (DOM) but has not been drawn on the UI thread (render tree). In QA context: visibility and presence are two separate concepts, and the correct wait strategy (visible vs present?) rests on this distinction.',
+        },
+      },
+      cssomRenderTreeSteps,
+      waitStrategyPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: '"New Bug" modalı DOM\'a `display:none` ile eklenir, 200ms sonra görünür olur. Test modal açılır açılmaz `waitFor({ state: \'attached\' })` ile bekleyip submit butonuna tıklıyor ve "ElementNotInteractable" hatası alıyor. Kök neden nedir?',
+          en: 'The "New Bug" modal is added to the DOM with `display:none`, becoming visible 200ms later. The test waits with `waitFor({ state: \'attached\' })` right after opening the modal and clicks the submit button, getting an "ElementNotInteractable" error. What is the root cause?',
+        },
+        options: [
+          { id: 'a', text: { tr: '`attached` sadece DOM varlığını doğrular; element henüz Render Tree\'ye girmemiş olabilir', en: '`attached` only confirms DOM presence; the element may not have entered the Render Tree yet' } },
+          { id: 'b', text: { tr: 'Selenium/Playwright bozuk', en: 'Selenium/Playwright is broken' } },
+          { id: 'c', text: { tr: 'Modal hiç DOM\'a eklenmemiş', en: 'The modal was never added to the DOM' } },
+          { id: 'd', text: { tr: 'Buton yanlış yazılmış', en: 'The button was written incorrectly' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: '`attached`, elementin DOM\'da var olduğunu doğrular — ama `display:none` iken bile bu true döner çünkü DOM varlığı ile Render Tree varlığı FARKLI şeylerdir. Tıklanabilirlik Render Tree\'ye (yani `visible` durumuna) bağlıdır; bu yüzden `visible` beklenmeliydi.',
+          en: '`attached` confirms the element exists in the DOM — but this returns true even while `display:none`, because DOM presence and Render Tree presence are DIFFERENT things. Clickability depends on the Render Tree (i.e. the `visible` state); `visible` should have been awaited instead.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir StatusBadge component\'i `visibility: hidden` ile gizleniyor (display:none değil). Bu elementin Render Tree\'deki durumu ne olur?',
+            en: 'A StatusBadge component is hidden with `visibility: hidden` (not display:none). What is this element\'s status in the Render Tree?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Render Tree\'ye HİÇ girmez, display:none ile aynıdır', en: 'It NEVER enters the Render Tree, same as display:none' } },
+            { id: 'b', text: { tr: 'Render Tree\'ye GİRER (yer kaplar) ama görünmez — display:none\'dan farklıdır', en: 'It ENTERS the Render Tree (takes up space) but is invisible — different from display:none' } },
+            { id: 'c', text: { tr: 'DOM\'dan tamamen silinir', en: 'It is completely removed from the DOM' } },
+            { id: 'd', text: { tr: 'Hiçbir fark yoktur, ikisi de aynı davranır', en: 'There is no difference, both behave the same' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`visibility:hidden`, `display:none`\'dan farklı olarak elementi Render Tree\'de TUTAR (layout yeri hâlâ ayrılır) ama pikselleri boyamaz. Bu ayrım da locator/wait stratejisi için önemlidir: bazı framework\'lerde bu element "visible" sayılmaz ama "present"tir.',
+            en: 'Unlike `display:none`, `visibility:hidden` KEEPS the element in the Render Tree (its layout space is still reserved) but does not paint its pixels. This distinction matters for locator/wait strategy too: in some frameworks this element does not count as "visible" but is "present".',
+          },
         },
       },
       {
@@ -395,7 +787,44 @@ const sections = [
         emoji: '⚙️',
         content: {
           tr: '"Render" tek bir an değil, 5 adımlı bir MONTAJ HATTIDIR: Parse (HTML→DOM), Style (CSS→CSSOM), Layout (her kutunun yeri/boyutu hesaplanır), Paint (pikseller boyanır), Composite (katmanlar birleştirilir). Neden bir tester bu adımları bilmeli? Çünkü "sayfa yüklendi" dediğin an bu hattın neresinde olduğun, elementin tıklanabilir olup olmadığını belirler — Layout bitmeden bir butonun konumu yoktur, tıklama ıskalar. Java analojisi: bir isteğin request→controller→service→repository→response pipeline\'ı gibi, her adım bir öncekine bağlıdır. QA bağlamında: flaky test\'lerin büyük kısmı "hat henüz bitmemişken locate/tıklama" yüzündendir. (Bu başlığa "Render\'ın 5 Adımı" video-scene filmi Sonnet fazında eklenecek — plan §D-S1.)',
-          en: '"Rendering" is not a single moment but a 5-step ASSEMBLY LINE: Parse (HTML->DOM), Style (CSS->CSSOM), Layout (each box\'s position/size is computed), Paint (pixels are painted), Composite (layers are combined). Why should a tester know these steps? Because where you are on this line the moment you say "the page loaded" determines whether the element is clickable — before Layout finishes a button has no position, and a click misses. Java analogy: like a request\'s request->controller->service->repository->response pipeline, each step depends on the previous. In QA context: a large share of flaky tests come from "locating/clicking while the line has not finished". (A "5 Steps of Rendering" video-scene film is added to this topic in the Sonnet phase — plan section D-S1.)',
+          en: '"Rendering" is not a single moment but a 5-step ASSEMBLY LINE: Parse (HTML->DOM), Style (CSS->CSSOM), Layout (each box\'s position/size is computed), Paint (pixels are painted), Composite (layers are combined). Why should a tester know these steps? Because where you are on this line the moment you say "the page loaded" determines whether the element is clickable — before Layout finishes a button has no position, and a click misses. Java analogy: like a request\'s request->controller->service->repository->response pipeline, each step depends on the previous. In QA context: a large share of flaky tests come from "locating/clicking while the line has not finished".',
+        },
+      },
+      renderFiveStepsFilm,
+      renderOrderChallenge,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Render\'ın 5 adımından hangisi bittiğinde bir butonun ekrandaki tam konumu (x, y, genişlik, yükseklik) ilk kez hesaplanmış olur?',
+          en: 'When which of the 5 rendering steps finishes is a button\'s exact on-screen position (x, y, width, height) computed for the first time?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Parse', en: 'Parse' } },
+          { id: 'b', text: { tr: 'Style', en: 'Style' } },
+          { id: 'c', text: { tr: 'Layout', en: 'Layout' } },
+          { id: 'd', text: { tr: 'Paint', en: 'Paint' } },
+        ],
+        correct: 'c',
+        explanation: {
+          tr: 'Layout adımında her node\'un tam konumu ve boyutu piksel cinsinden hesaplanır. Parse sadece yapıyı (DOM) kurar, Style sadece görünüş kurallarını (CSSOM) hesaplar, Paint ise Layout\'un ürettiği kutuları pikselle boyar — konum bilgisi Layout\'tan önce yoktur.',
+          en: 'In the Layout step, every node\'s exact position and size is computed in pixels. Parse only builds the structure (DOM), Style only computes the appearance rules (CSSOM), and Paint paints the boxes Layout produced into pixels — position information does not exist before Layout.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir test, sayfa "DOMContentLoaded" event\'i tetiklenir tetiklenmez bir butona tıklıyor ve tıklama yanlış koordinata düşüyor (buton henüz o konumda değil). Hangi render adımının bitmediğinden şüphelenirsin?',
+            en: 'A test clicks a button the moment the "DOMContentLoaded" event fires, and the click lands on the wrong coordinate (the button is not there yet). Which rendering step do you suspect has not finished?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Parse — DOM ağacı henüz kurulmamış olabilir', en: 'Parse — the DOM tree may not be built yet' } },
+            { id: 'b', text: { tr: 'Layout/Paint/Composite — DOM kurulmuş olabilir ama konum/piksel/ekran hattı henüz tamamlanmamıştır', en: 'Layout/Paint/Composite — the DOM may be built, but the position/pixel/screen line has not completed yet' } },
+            { id: 'c', text: { tr: 'Hiçbiri, DOMContentLoaded her zaman güvenlidir', en: 'None, DOMContentLoaded is always safe' } },
+            { id: 'd', text: { tr: 'Sorun testin kendisinde, render ile ilgisi yok', en: 'The problem is in the test itself, unrelated to rendering' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`DOMContentLoaded`, DOM ağacının kurulduğunu (Parse bittiğini) garanti eder ama Style/Layout/Paint/Composite\'in bittiğini GARANTİ ETMEZ — özellikle CSS/resim yüklemesi veya JS ile geç eklenen içerik varsa. Bu yüzden testler genelde elementin `visible` olmasını beklemelidir, sadece DOM event\'ini değil.',
+            en: '`DOMContentLoaded` guarantees the DOM tree was built (Parse finished) but does NOT guarantee Style/Layout/Paint/Composite finished — especially with CSS/image loading or content added late by JS. This is why tests should generally wait for the element to be `visible`, not just for the DOM event.',
+          },
         },
       },
       {
@@ -407,7 +836,44 @@ const sections = [
         emoji: '🔁',
         content: {
           tr: 'Reflow, sayfadaki bir değişiklik (yeni bir BugCard eklenmesi gibi) yüzünden tarayıcının Layout\'u yeniden hesaplamasıdır; Repaint ise sadece görünümün (renk gibi) yeniden boyanmasıdır. Neden önemli? Reflow sırasında elementlerin konumu bir an oynar — testin tam o anda locate ettiği element "bir an var bir an yok" gibi davranabilir. Java analojisi: bir koleksiyonu iterasyon sırasında değiştirince oluşan ConcurrentModification hissi gibi — yapı altından kayar. QA bağlamında: liste dolarken/animasyon oynarken locate etmek StaleElementReference\'ın klasik kaynağıdır; doğru refleks stabil hale gelmeyi beklemektir. (Tam içerik Sonnet fazında — plan §D-S1.)',
-          en: 'Reflow is the browser recomputing Layout because of a change on the page (like a new BugCard being added); Repaint is only the appearance (like color) being repainted. Why does it matter? During a reflow the positions of elements shift for a moment — the element the test locates right then can behave "now here, now gone". Java analogy: like the ConcurrentModification feeling when you mutate a collection during iteration — the structure slides out from under you. In QA context: locating while a list fills or an animation plays is the classic source of StaleElementReference; the right reflex is to wait for things to stabilize. (Full content in the Sonnet phase — plan section D-S1.)',
+          en: 'Reflow is the browser recomputing Layout because of a change on the page (like a new BugCard being added); Repaint is only the appearance (like color) being repainted. Why does it matter? During a reflow the positions of elements shift for a moment — the element the test locates right then can behave "now here, now gone". Java analogy: like the ConcurrentModification feeling when you mutate a collection during iteration — the structure slides out from under you. In QA context: locating while a list fills or an animation plays is the classic source of StaleElementReference; the right reflex is to wait for things to stabilize.',
+        },
+      },
+      reflowRepaintSteps,
+      waitForStablePlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: '"New Bug" formu gönderildikten hemen sonra test `page.waitForTimeout(1000)` ile bekleyip ilk karta tıklıyor. CI sunucusu yavaş olduğu gün test flaky oluyor. En sağlam çözüm nedir?',
+          en: 'Right after submitting the "New Bug" form, the test waits with `page.waitForTimeout(1000)` and clicks the first card. On days the CI server is slow, the test is flaky. What is the most robust fix?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Süreyi 1000\'den 5000\'e çıkar', en: 'Increase the duration from 1000 to 5000' } },
+          { id: 'b', text: { tr: 'Sabit sleep yerine liste sayısının arttığını doğrulayan bir assertion (`toHaveCount`) kullan', en: 'Use an assertion (`toHaveCount`) that verifies the list count increased, instead of a fixed sleep' } },
+          { id: 'c', text: { tr: 'Testi CI\'da çalıştırmayı bırak', en: 'Stop running the test in CI' } },
+          { id: 'd', text: { tr: 'Reflow\'u JS ile devre dışı bırak', en: 'Disable the reflow via JS' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Sabit bir süre her zaman bir tahmindir — yavaş makinede yetmez, hızlı makinede gereksiz bekletir. Koşullu bir assertion (liste sayısının arttığını bekleyen) reflow\'un GERÇEKTEN bittiğini garanti eder ve makine hızından bağımsız çalışır.',
+          en: 'A fixed duration is always a guess — it is not enough on a slow machine and wastes time on a fast one. A conditional assertion (waiting for the list count to increase) guarantees the reflow has REALLY finished and works independent of machine speed.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir developer "flaky testi düzeltmek için her yere `sleep(2000)` ekledik" diyor. Bunun neden kalıcı bir çözüm olmadığını nasıl açıklarsın?',
+            en: 'A developer says "we fixed the flaky test by adding `sleep(2000)` everywhere". How do you explain why this is not a permanent fix?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Kalıcı bir çözümdür, endişelenecek bir şey yok', en: 'It is a permanent fix, nothing to worry about' } },
+            { id: 'b', text: { tr: 'Sabit sleep bir varsayımdır; yeterince yavaş bir gün testi yine kırar ve tüm suite gereksiz yavaşlar', en: 'A fixed sleep is an assumption; a slow enough day will break the test again, and the whole suite gets needlessly slower' } },
+            { id: 'c', text: { tr: 'sleep hiçbir zaman işe yaramaz', en: 'sleep never works at all' } },
+            { id: 'd', text: { tr: 'Sorun testte değil sunucuda', en: 'The problem is not in the test but on the server' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Sabit `sleep`, "işlem bu sürede biter" varsayımına dayanır — ama garanti etmez. Yeterince yavaş bir ağ/CI günü aynı flaky\'liği geri getirir, üstelik HER testte gereksiz beklemeyle suite süresini şişirir. Kalıcı çözüm koşullu (assertion tabanlı) beklemedir.',
+            en: 'A fixed `sleep` relies on the assumption "the operation finishes within this time" — but it does not guarantee it. A slow enough network/CI day brings back the same flakiness, and it inflates suite duration with needless waiting on EVERY test. The permanent fix is a conditional (assertion-based) wait.',
+          },
         },
       },
       {
@@ -419,7 +885,44 @@ const sections = [
         emoji: '🛠️',
         content: {
           tr: 'DevTools → Elements paneli, testerın en güçlü silahıdır: kaynak dosyayı DEĞİL, o anki canlı DOM\'u gösterir. Bir elemente sağ tıklayıp "Copy → Copy selector" diyebilir, ama bu genelde kırılgan bir CSS yolu üretir — panelde asıl yapılması gereken elementin attribute\'larına bakıp EN DAYANIKLI olanı (data-testid, role, stabil id) seçmektir. Neden önemli? Çünkü locator kalitesi, hangi kaynağa baktığınla başlar. Java analojisi: debugger\'da çalışan programın canlı değişken durumuna bakmak gibi — kaynak koda değil, o anki gerçeğe. QA bağlamında: locator\'ını Elements\'ten türetmek, kör "Copy selector"a güvenmekten çok daha sağlam testler üretir. (Tam interaktif içerik Sonnet fazında — plan §D-S1.)',
-          en: 'The DevTools -> Elements panel is the tester\'s most powerful weapon: it shows NOT the source file but the current live DOM. You can right-click an element and choose "Copy -> Copy selector", but that usually produces a fragile CSS path — what you should really do in the panel is inspect the element\'s attributes and pick the MOST DURABLE one (data-testid, role, stable id). Why does it matter? Because locator quality begins with which source you look at. Java analogy: like looking at a running program\'s live variable state in a debugger — at the current truth, not the source code. In QA context: deriving your locator from Elements produces far more robust tests than trusting blind "Copy selector". (Full interactive content in the Sonnet phase — plan section D-S1.)',
+          en: 'The DevTools -> Elements panel is the tester\'s most powerful weapon: it shows NOT the source file but the current live DOM. You can right-click an element and choose "Copy -> Copy selector", but that usually produces a fragile CSS path — what you should really do in the panel is inspect the element\'s attributes and pick the MOST DURABLE one (data-testid, role, stable id). Why does it matter? Because locator quality begins with which source you look at. Java analogy: like looking at a running program\'s live variable state in a debugger — at the current truth, not the source code. In QA context: deriving your locator from Elements produces far more robust tests than trusting blind "Copy selector".',
+        },
+      },
+      devtoolsElementsSteps,
+      fixFragileSelectorPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'DevTools\'ta bir butona sağ tıklayıp "Copy selector" dedin ve `body > div:nth-child(2) > ul > li:nth-child(3) > button` çıktısını aldın. Bu yaklaşımla ilgili en doğru değerlendirme hangisidir?',
+          en: 'You right-clicked a button in DevTools and chose "Copy selector", getting `body > div:nth-child(2) > ul > li:nth-child(3) > button`. What is the most accurate assessment of this approach?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Mükemmel, doğrudan kullanılabilir', en: 'Perfect, ready to use directly' } },
+          { id: 'b', text: { tr: 'Başlangıç noktasıdır ama nth-child\'a bağlı olduğu için kırılgandır; attribute panelinde data-testid/aria-label aranmalı', en: 'A starting point, but fragile because it depends on nth-child; a data-testid/aria-label should be sought in the attribute panel' } },
+          { id: 'c', text: { tr: 'Hiçbir zaman işe yaramaz, kullanma', en: 'It never works, do not use it' } },
+          { id: 'd', text: { tr: 'Sadece Chrome\'da çalışır', en: 'It only works in Chrome' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '"Copy selector" DOM\'un o anki tam şekline (ata zinciri + nth-child) bağlı bir yol üretir — bir tek `<div>` araya girse kırılır. Doğru refleks: bu çıktıyı bir BAŞLANGIÇ olarak görüp attribute panelinde daha dayanıklı bir kanca (data-testid, aria-label, stabil id) aramaktır.',
+          en: '"Copy selector" produces a path tied to the DOM\'s exact current shape (ancestor chain + nth-child) — one extra `<div>` breaks it. The right reflex: treat this output as a STARTING point and look in the attribute panel for a more durable hook (data-testid, aria-label, stable id).',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Yeni bir tester "DevTools\'ta Copy selector kullanmayı öğrendim, artık locator yazmayı biliyorum" diyor. Bu düşüncedeki eksiği nasıl tamamlarsın?',
+            en: 'A new tester says "I learned to use Copy selector in DevTools, now I know how to write locators". How do you complete the gap in this thinking?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Doğru, başka bir şey öğrenmesine gerek yok', en: 'Correct, they do not need to learn anything else' } },
+            { id: 'b', text: { tr: 'Copy selector bir kısayoldur; asıl beceri attribute panelini okuyup dayanıklılık hiyerarşisine göre EN İYİ locator\'ı elle seçebilmektir', en: 'Copy selector is a shortcut; the real skill is being able to read the attribute panel and manually pick the BEST locator per the durability hierarchy' } },
+            { id: 'c', text: { tr: 'Copy selector\'ı hiç kullanmamalı', en: 'They should never use Copy selector at all' } },
+            { id: 'd', text: { tr: 'Sadece XPath öğrenmesi yeterli', en: 'Learning only XPath is enough' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Copy selector bir araçtır, bir beceri değildir. Gerçek beceri, panelde gördüğün attribute\'ları (data-testid, role, id, class) tanıyıp hangisinin build/deploy/i18n\'den bağımsız kalacağını değerlendirmektir — bu, sayfanın Locator Ustalığı (GRUP H) bölümünde derinleşir.',
+            en: 'Copy selector is a tool, not a skill. The real skill is recognizing the attributes you see in the panel (data-testid, role, id, class) and judging which will stay independent of build/deploy/i18n — this deepens in the Locator Mastery section (GROUP H) of the page.',
+          },
         },
       },
       {

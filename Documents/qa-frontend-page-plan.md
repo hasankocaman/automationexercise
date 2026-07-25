@@ -1,8 +1,8 @@
 # `/qa-frontend` Sayfası — Plan + Görev Dağılımı (Opus / Sonnet)
 
 > **Branch:** `frontenddevelopment-for-qa`
-> **Durum:** 🟡 Faz 1 iskelet + GRUP A referans + imza pano/lab referansları → **Opus (bu commit)**. GRUP A2-A6, B-J → **Sonnet**.
-> **Hazırlayan:** Claude Code (Opus) oturumu, 2026-07-25.
+> **Durum:** 🟡 Faz 1 iskelet + GRUP A tam (A1-A6) → **tamamlandı**. GRUP B-J → **Sonnet (sıradaki faz: D-S2)**.
+> **Hazırlayan:** Claude Code (Opus) oturumu, 2026-07-25. GRUP A2-A6: Claude Code (Sonnet) oturumu, 2026-07-25.
 > **Kaynak prompt:** Kullanıcının verdiği `/qa-frontend` promptu (bu dosyanın §E'sinde referans olarak saklanır).
 
 Bu dosya 5 bölümden oluşur:
@@ -70,7 +70,7 @@ Bu commit tek başına build'den geçer; Sonnet eksik atomları doldurur.
 
 Her faz sonunda **CLAUDE.md §1.1 (4 madde) + prompt §7 (10 ek kontrol)**. Referans atom Opus'un GRUP A1'idir — kalıbı birebir kopyala, içeriği konuya uyarla.
 
-- **Faz S1 — GRUP A tamamlama (A2-A6):** her atomik başlığa simple-box(4 katman) + anlatım + ≥1 animasyon + ≥1 sandbox + quiz; grup zaten Feynman'lı. Filmler: "Render'ın 5 Adımı" (A4).
+- **✅ Faz S1 — GRUP A tamamlama (A2-A6):** TAMAMLANDI (2026-07-25). A2 (DOM ağacı, step-animation + ilişkisel locate code-playground), A3 (CSSOM/Render Tree, step-animation + attached-vs-visible code-playground), A4 (Render'ın 5 Adımı video-scene + order-sort challenge), A5 (Reflow/Repaint, step-animation + sleep-vs-assertion code-playground), A6 (DevTools, step-animation + Copy-selector-düzeltme code-playground). Her başlıkta quiz+retryQuestion (§18). Doğrulama: check-content-integrity ✓ · i18n:check (regresyon yok) ✓ · npm run build ✓.
 - **Faz S2 — GRUP B (HTML, B1-B5):** her başlık; `locator-explorer` yoğun; `id vs class vs data-testid` dayanıklılık `table` + `challenge`. ≥1 video-scene.
 - **Faz S3 — GRUP C (CSS, C1-C6):** "Class Hash'i Neden Değişir" filmi (C3); hash/utility/runtime class → locate kırılganlığı; her başlıkta pano yok ama C3/C5'te var.
 - **Faz S4 — GRUP D (JS, D1-D5):** DOM manipülasyon, event, async/fetch timing, mutation/wait. "Veri Gelince DOM Doluyor" filmi (D3).
