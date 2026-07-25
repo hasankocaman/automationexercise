@@ -116,18 +116,28 @@ const A1 = {
       relatedTopicId: 'api-a1-what-is-api',
       id: 'api-a1-what-is-api',
       title: { tr: 'Kendin Dene: Sözleşmenin Zorunlu Alanını Tamamla', en: 'Try It Yourself: Complete the Contract\'s Required Field' },
-      starterCode: `// Bug Tracker contract: create-a-new-bug request
+      starterCode: { tr: `// Bug Tracker sözleşmesi: yeni bug oluşturma request'i
+// TODO: sözleşmeye göre ZORUNLU olan alanı ekle (ipucuna bak)
+POST /api/v1/bugs
+{
+  "severity": "HIGH"
+}`, en: `// Bug Tracker contract: create-a-new-bug request
 // TODO: add the field that is REQUIRED by the contract (see the hint)
 POST /api/v1/bugs
 {
   "severity": "HIGH"
-}`,
-      solutionCode: `// title MUST be 3-120 characters — the core of the contract
+}` },
+      solutionCode: { tr: `// title 3-120 karakter ZORUNLUDUR — sözleşmenin çekirdeği
 POST /api/v1/bugs
 {
   "title": "Login butonu 500 donuyor",
   "severity": "HIGH"
-}`,
+}`, en: `// title MUST be 3-120 characters — the core of the contract
+POST /api/v1/bugs
+{
+  "title": "Login butonu 500 donuyor",
+  "severity": "HIGH"
+}` },
       hint: { tr: 'Bug Tracker modelinde `title` (3-120 karakter) zorunludur; onsuz sunucu 400 dönmelidir. `severity` tek başına yeterli değildir — sözleşme neyi zorunlu kılıyorsa onu göndermelisin.', en: 'In the Bug Tracker model `title` (3-120 chars) is required; without it the server should return 400. `severity` alone is not enough — you must send whatever the contract makes mandatory.' },
       successMessage: { tr: 'Doğru! Sözleşmenin zorunlu alanını göndermezsen sunucu request\'i reddeder — tester olarak bu kuralı İSTEYEREK test edersin.', en: 'Correct! Omit a required field and the server rejects the request — as a tester you deliberately test this rule.' },
     },
@@ -276,15 +286,22 @@ Authorization: Bearer <token>    # my identity (if any)
       relatedTopicId: 'api-a2-request-anatomy',
       id: 'api-a2-request-anatomy',
       title: { tr: 'Kendin Dene: Eksik Header\'ı Ekle', en: 'Try It Yourself: Add the Missing Header' },
-      starterCode: `// BUG: the body is JSON but the server does not know it -> assumes an empty body
+      starterCode: { tr: `// BUG: gövde JSON ama sunucu bunu bilmiyor -> boş body sanıyor
 POST /api/v1/bugs
 
-{ "title": "Sepet toplami yanlis", "severity": "MEDIUM" }`,
-      solutionCode: `// FIX: the Content-Type header tells the server that the body is JSON
+{ "title": "Sepet toplami yanlis", "severity": "MEDIUM" }`, en: `// BUG: the body is JSON but the server does not know it -> assumes an empty body
+POST /api/v1/bugs
+
+{ "title": "Sepet toplami yanlis", "severity": "MEDIUM" }` },
+      solutionCode: { tr: `// FIX: Content-Type header'i gövdenin JSON oldugunu sunucuya soyler
 POST /api/v1/bugs
 Content-Type: application/json
 
-{ "title": "Sepet toplami yanlis", "severity": "MEDIUM" }`,
+{ "title": "Sepet toplami yanlis", "severity": "MEDIUM" }`, en: `// FIX: the Content-Type header tells the server that the body is JSON
+POST /api/v1/bugs
+Content-Type: application/json
+
+{ "title": "Sepet toplami yanlis", "severity": "MEDIUM" }` },
       hint: { tr: 'Gövde JSON olsa bile sunucu bunu `Content-Type: application/json` header\'ı olmadan bilemez; header eksikse gövdeyi ayrıştıramaz ve boş sanır.', en: 'Even if the body is JSON, the server cannot know that without the `Content-Type: application/json` header; missing it, the server cannot parse the body and treats it as empty.' },
       successMessage: { tr: 'Doğru! Bug\'ların çoğu body\'de değil, gözden kaçan bir header\'dadır — bunu test etmek tester\'ın işidir.', en: 'Correct! Most bugs live not in the body but in an overlooked header — testing that is the tester\'s job.' },
     },
@@ -432,16 +449,24 @@ Location: /api/v1/bugs/42    # HEADER: address of the new record
       relatedTopicId: 'api-a3-response-anatomy',
       id: 'api-a3-response-anatomy',
       title: { tr: 'Kendin Dene: Body Doğrulamasını Ekle', en: 'Try It Yourself: Add the Body Assertion' },
-      starterCode: `// BUG: only checks the status -> wrong data passes (false PASS)
+      starterCode: { tr: `// BUG: sadece status'a bakiyor -> yanlis veri gecer (yanlis PASS)
 function verify(response) {
   return response.status === 200;
-}`,
-      solutionCode: `// FIX: status + body birlikte dogrulanir
+}`, en: `// BUG: only checks the status -> wrong data passes (false PASS)
+function verify(response) {
+  return response.status === 200;
+}` },
+      solutionCode: { tr: `// FIX: status + body birlikte dogrulanir
+function verify(response) {
+  if (response.status !== 200) return false;
+  // govdedeki kritik alan da beklenen deger mi?
+  return response.body.severity === "CRITICAL";
+}`, en: `// FIX: status + body birlikte dogrulanir
 function verify(response) {
   if (response.status !== 200) return false;
   // is the critical field in the body also the expected value?
   return response.body.severity === "CRITICAL";
-}`,
+}` },
       hint: { tr: 'Status kodu "işlendi" der, "doğru" demez. `severity === "CRITICAL"` gibi bir body kontrolü eklemezsen, 200 dönen yanlış veri testten sessizce geçer.', en: 'The status says "processed", not "correct". Without a body check like `severity === "CRITICAL"`, wrong data returning 200 slips silently through the test.' },
       successMessage: { tr: 'Doğru! Status + body birlikte doğrulanınca yanlış PASS ortadan kalkar.', en: 'Correct! Verifying status + body together eliminates the false PASS.' },
     },
@@ -564,13 +589,18 @@ const A4 = {
       relatedTopicId: 'api-a4-http-methods',
       id: 'api-a4-http-methods',
       title: { tr: 'Kendin Dene: Doğru Metodu Seç', en: 'Try It Yourself: Pick the Right Method' },
-      starterCode: `// Requirement: set ONLY the status field of an existing bug to "CLOSED"
+      starterCode: { tr: `// Gereksinim: mevcut bir bug'in SADECE status alanini "CLOSED" yap
+// TODO: dogru metodu ve yolu sec (butun kaydi degistirme!)
+??? /api/v1/bugs/42/???
+{ "status": "CLOSED" }`, en: `// Requirement: set ONLY the status field of an existing bug to "CLOSED"
 // TODO: pick the right method and path (do not replace the whole record!)
 ??? /api/v1/bugs/42/???
-{ "status": "CLOSED" }`,
-      solutionCode: `// PATCH updates only a single field, does not touch the others
+{ "status": "CLOSED" }` },
+      solutionCode: { tr: `// PATCH sadece tek alani gunceller, diger alanlara dokunmaz
 PATCH /api/v1/bugs/42/status
-{ "status": "CLOSED" }`,
+{ "status": "CLOSED" }`, en: `// PATCH updates only a single field, does not touch the others
+PATCH /api/v1/bugs/42/status
+{ "status": "CLOSED" }` },
       hint: { tr: 'Yalnızca tek bir alanı (status) değiştirmek istiyorsun. PUT tüm kaydı değiştirir ve göndermediğin alanları silebilir; kısmi güncelleme için PATCH kullan.', en: 'You want to change only a single field (status). PUT replaces the whole record and can drop fields you omit; use PATCH for partial updates.' },
       successMessage: { tr: 'Doğru! PATCH kısmi günceller — title ve severity gibi diğer alanlar korunur.', en: 'Correct! PATCH updates partially — other fields like title and severity are preserved.' },
     },
@@ -694,11 +724,14 @@ const A5 = {
       relatedTopicId: 'api-a5-status-codes',
       id: 'api-a5-status-codes',
       title: { tr: 'Kendin Dene: Doğru Status Kodunu Eşle', en: 'Try It Yourself: Match the Right Status Code' },
-      starterCode: `// Situation: a valid token exists but the user tries to delete someone else's bug
+      starterCode: { tr: `// Durum: gecerli token var ama kullanici baskasinin bug'ini silmeye calisiyor
+// TODO: sunucu hangi status kodunu donmeli? (401 mi 403 mu?)
+DELETE /api/v1/bugs/42  ->  ??? `, en: `// Situation: a valid token exists but the user tries to delete someone else's bug
 // TODO: which status code should the server return? (401 or 403?)
-DELETE /api/v1/bugs/42  ->  ??? `,
-      solutionCode: `// Identity exists (token valid) but NO PERMISSION -> 403 Forbidden
-DELETE /api/v1/bugs/42  ->  403 Forbidden`,
+DELETE /api/v1/bugs/42  ->  ??? ` },
+      solutionCode: { tr: `// Kimlik var (token gecerli) ama YETKI yok -> 403 Forbidden
+DELETE /api/v1/bugs/42  ->  403 Forbidden`, en: `// Identity exists (token valid) but NO PERMISSION -> 403 Forbidden
+DELETE /api/v1/bugs/42  ->  403 Forbidden` },
       hint: { tr: 'Token geçerli olduğu için kimlik (authentication) sorunu YOK — o 401 olurdu. Sorun izin (authorization): kullanıcı tanınıyor ama bu işlemi yapamaz. Bu 403\'tür.', en: 'Since the token is valid there is NO authentication problem — that would be 401. The problem is authorization: the user is recognized but cannot do this. That is 403.' },
       successMessage: { tr: 'Doğru! 403, başkasının verisine erişebildiğini gösterebilir — bir IDOR açığının ilk işareti olabilir.', en: 'Correct! A 403 can reveal you can reach another\'s data — possibly the first sign of an IDOR hole.' },
     },
@@ -975,15 +1008,22 @@ const A7 = {
       relatedTopicId: 'api-a7-json-structure',
       id: 'api-a7-json-structure',
       title: { tr: 'Kendin Dene: null ile "Yok"u Ayır', en: 'Try It Yourself: Distinguish null from "Missing"' },
-      starterCode: `// BUG: this check CANNOT distinguish null from "field absent" (both are false)
+      starterCode: { tr: `// BUG: bu kontrol null ile "alan yok"u AYIRAMAZ (ikisi de false)
 function hasReporterField(bug) {
   return Boolean(bug.reporter);
-}`,
-      solutionCode: `// FIX: also check the EXISTENCE of the key
+}`, en: `// BUG: this check CANNOT distinguish null from "field absent" (both are false)
+function hasReporterField(bug) {
+  return Boolean(bug.reporter);
+}` },
+      solutionCode: { tr: `// FIX: anahtarin VARLIGINI ayrica kontrol et
+function hasReporterField(bug) {
+  // "reporter" anahtari var mi? null bile olsa true doner
+  return "reporter" in bug;
+}`, en: `// FIX: also check the EXISTENCE of the key
 function hasReporterField(bug) {
   // does the "reporter" key exist? returns true even if null
   return "reporter" in bug;
-}`,
+}` },
       hint: { tr: '`Boolean(bug.reporter)` hem `null` hem "alan yok" durumunda false verir. Anahtarın varlığını test etmek için `"reporter" in bug` kullan; bu, değer null olsa bile anahtar varsa true döner.', en: '`Boolean(bug.reporter)` returns false for both `null` and "field missing". To test key existence use `"reporter" in bug`; it returns true when the key exists even if the value is null.' },
       successMessage: { tr: 'Doğru! Artık "alan null döndü" (veri) ile "alan kayboldu" (contract regresyonu) durumlarını ayırabilirsin.', en: 'Correct! Now you can separate "field returned null" (data) from "field vanished" (contract regression).' },
     },
@@ -1155,12 +1195,24 @@ public class BugTrackerApplication {
       relatedTopicId: 'api-b1-skeleton',
       id: 'api-b1-skeleton',
       title: { tr: 'Kendin Dene: Eksik Bağımlılığı Ekle', en: 'Try It Yourself: Add the Missing Dependency' },
-      starterCode: `<!-- BUG: we will use @Valid but the validation starter is missing -->
+      starterCode: { tr: `<!-- BUG: @Valid kullanacagiz ama validation starter'i eksik -->
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-web</artifactId>
-</dependency>`,
-      solutionCode: `<dependency>
+</dependency>`, en: `<!-- BUG: we will use @Valid but the validation starter is missing -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-web</artifactId>
+</dependency>` },
+      solutionCode: { tr: `<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+  <!-- @Valid annotation'larinin CALISMASI icin sart -->
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>`, en: `<dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-web</artifactId>
 </dependency>
@@ -1168,7 +1220,7 @@ public class BugTrackerApplication {
   <!-- required for the @Valid annotations to WORK -->
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-validation</artifactId>
-</dependency>`,
+</dependency>` },
       hint: { tr: '`@Valid`/`@NotBlank` gibi Bean Validation annotation\'ları yalnızca sınıf yolunda validation kütüphanesi varsa çalışır. `spring-boot-starter-validation` eklenmezse annotation\'lar sessizce yok sayılır.', en: 'Bean Validation annotations like `@Valid`/`@NotBlank` only work if a validation library is on the classpath. Without `spring-boot-starter-validation` the annotations are silently ignored.' },
       successMessage: { tr: 'Doğru! Artık B6\'da yazacağın @Valid gerçekten tetiklenecek ve boş title 400 dönecek.', en: 'Correct! Now the @Valid you\'ll write in B6 actually fires and an empty title returns 400.' },
     },
@@ -1325,17 +1377,26 @@ public enum Status { OPEN, IN_PROGRESS, CLOSED }`,
       relatedTopicId: 'api-b2-model',
       id: 'api-b2-model',
       title: { tr: 'Kendin Dene: severity\'yi Enum Yap', en: 'Try It Yourself: Make severity an Enum' },
-      starterCode: `// BUG: severity is a String -> an invalid value like "acil" is accepted
+      starterCode: { tr: `// BUG: severity String -> "acil" gibi gecersiz deger kabul edilir
 public class Bug {
     private String title;
     private String severity;   // <- sorun burada
-}`,
-      solutionCode: `// FIX: the enum accepts only the 4 valid values, rejects the rest at the gate
+}`, en: `// BUG: severity is a String -> an invalid value like "acil" is accepted
+public class Bug {
+    private String title;
+    private String severity;   // <- sorun burada
+}` },
+      solutionCode: { tr: `// FIX: enum sadece 4 gecerli degeri kabul eder, gerisini kapida reddeder
 public class Bug {
     private String title;
     private Severity severity;
 }
-public enum Severity { LOW, MEDIUM, HIGH, CRITICAL }`,
+public enum Severity { LOW, MEDIUM, HIGH, CRITICAL }`, en: `// FIX: the enum accepts only the 4 valid values, rejects the rest at the gate
+public class Bug {
+    private String title;
+    private Severity severity;
+}
+public enum Severity { LOW, MEDIUM, HIGH, CRITICAL }` },
       hint: { tr: '`String severity` her metni kabul eder (`"acil"`, `"Critical"`, `"5"`). Bir `enum Severity { LOW, MEDIUM, HIGH, CRITICAL }` tanımlarsan geçersiz değerler deserialization\'da 400 ile reddedilir.', en: 'A `String severity` accepts any text (`"urgent"`, `"Critical"`, `"5"`). Define an `enum Severity { LOW, MEDIUM, HIGH, CRITICAL }` and invalid values are rejected with 400 during deserialization.' },
       successMessage: { tr: 'Doğru! Artık geçersiz öncelikler daha kapıda reddedilir — hayalet kayıt oluşmaz.', en: 'Correct! Now invalid priorities are rejected at the gate — no ghost records.' },
     },
@@ -1510,14 +1571,20 @@ public class BugRepository {
       relatedTopicId: 'api-b3-repository',
       id: 'api-b3-repository',
       title: { tr: 'Kendin Dene: findById\'yi Null-Güvenli Yap', en: 'Try It Yourself: Make findById Null-Safe' },
-      starterCode: `// BUG: returns null when there is no record -> NPE in the upper layer -> 500
+      starterCode: { tr: `// BUG: kayit yoksa null doner -> ust katmanda NPE -> 500
 public Bug findById(Long id) {
     return store.get(id);
-}`,
-      solutionCode: `// FIX: Optional explicitly represents the "absent" case -> the upper layer returns 404
+}`, en: `// BUG: returns null when there is no record -> NPE in the upper layer -> 500
+public Bug findById(Long id) {
+    return store.get(id);
+}` },
+      solutionCode: { tr: `// FIX: Optional "yok" durumunu acikca temsil eder -> ust katman 404 doner
 public Optional<Bug> findById(Long id) {
     return Optional.ofNullable(store.get(id));
-}`,
+}`, en: `// FIX: Optional explicitly represents the "absent" case -> the upper layer returns 404
+public Optional<Bug> findById(Long id) {
+    return Optional.ofNullable(store.get(id));
+}` },
       hint: { tr: '`store.get(id)` kayıt yoksa `null` döner; üst katmanda `.getSeverity()` çağrılınca NPE ve 500 olur. `Optional.ofNullable(...)` döndürürsen "yok" durumu açıkça temsil edilir ve üst katman 404 üretebilir.', en: '`store.get(id)` returns `null` when absent; calling `.getSeverity()` upstream causes an NPE and 500. Return `Optional.ofNullable(...)` and the "absent" state is explicit, so the upper layer can produce 404.' },
       successMessage: { tr: 'Doğru! Artık "bulunamadı" bir çökme değil, 404 ile ele alınabilen normal bir durum.', en: 'Correct! Now "not found" is not a crash but a normal state handled with 404.' },
     },
@@ -1689,12 +1756,17 @@ public class BugService {
       relatedTopicId: 'api-b4-service',
       id: 'api-b4-service',
       title: { tr: 'Kendin Dene: İş Kuralını Ekle', en: 'Try It Yourself: Add the Business Rule' },
-      starterCode: `// BUG: an already CLOSED bug can be closed again -> the side effect runs twice
+      starterCode: { tr: `// BUG: zaten CLOSED bir bug tekrar kapatilabiliyor -> yan etki iki kez calisir
 public Bug closeBug(Long id) {
     Bug bug = repository.findById(id).orElseThrow(() -> new BugNotFoundException(id));
     bug.setStatus(Status.CLOSED);
     return repository.save(bug);
-}`,
+}`, en: `// BUG: an already CLOSED bug can be closed again -> the side effect runs twice
+public Bug closeBug(Long id) {
+    Bug bug = repository.findById(id).orElseThrow(() -> new BugNotFoundException(id));
+    bug.setStatus(Status.CLOSED);
+    return repository.save(bug);
+}` },
       solutionCode: `public Bug closeBug(Long id) {
     Bug bug = repository.findById(id).orElseThrow(() -> new BugNotFoundException(id));
     // IS KURALI: zaten CLOSED ise reddet (yan etkinin tekrarini onler)
@@ -1877,12 +1949,17 @@ public class BugController {
 public List<Bug> list(@RequestParam(defaultValue = "20") int size) {
     return service.list(size);
 }`,
-      solutionCode: `// FIX: clamp size to a reasonable upper bound (e.g. 100)
+      solutionCode: { tr: `// FIX: size'i makul bir ust sinira kirp (or. 100)
 @GetMapping
 public List<Bug> list(@RequestParam(defaultValue = "20") int size) {
     int safeSize = Math.min(Math.max(size, 1), 100);  // 1..100 araligina kirp
     return service.list(safeSize);
-}`,
+}`, en: `// FIX: clamp size to a reasonable upper bound (e.g. 100)
+@GetMapping
+public List<Bug> list(@RequestParam(defaultValue = "20") int size) {
+    int safeSize = Math.min(Math.max(size, 1), 100);  // 1..100 araligina kirp
+    return service.list(safeSize);
+}` },
       hint: { tr: '`size` doğrudan service\'e geçerse `size=1000000` sunucuyu boğabilir. `Math.min(size, 100)` gibi bir üst sınırla (ve alt sınırla) kırparak sınır-dışı değerleri güvenli hale getir.', en: 'If `size` flows straight to the service, `size=1000000` can overwhelm the server. Clamp with an upper (and lower) bound like `Math.min(size, 100)` to make out-of-bound values safe.' },
       successMessage: { tr: 'Doğru! Artık aşırı büyük size değerleri güvenli sınıra kırpılır — tek bir request\'le DoS riski kalkar.', en: 'Correct! Now oversized size values are clamped to a safe bound — the single-request DoS risk is gone.' },
     },
@@ -2050,11 +2127,15 @@ public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
       relatedTopicId: 'api-b6-valid',
       id: 'api-b6-valid',
       title: { tr: 'Kendin Dene: Eksik @Valid\'i Ekle', en: 'Try It Yourself: Add the Missing @Valid' },
-      starterCode: `// BUG: no @Valid -> DTO rules are not triggered -> empty title returns 201
+      starterCode: { tr: `// BUG: @Valid yok -> DTO kurallari tetiklenmez -> bos title 201 doner
 @PostMapping
 public ResponseEntity<Bug> create(@RequestBody BugRequest req) {
     return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
-}`,
+}`, en: `// BUG: no @Valid -> DTO rules are not triggered -> empty title returns 201
+@PostMapping
+public ResponseEntity<Bug> create(@RequestBody BugRequest req) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
+}` },
       solutionCode: `// FIX: @Valid kurallari kapida tetikler -> gecersiz request otomatik 400
 @PostMapping
 public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
@@ -2238,12 +2319,24 @@ public class GlobalExceptionHandler {
       relatedTopicId: 'api-b7-exception',
       id: 'api-b7-exception',
       title: { tr: 'Kendin Dene: Not Found\'u 404\'e Eşle', en: 'Try It Yourself: Map Not Found to 404' },
-      starterCode: `// BUG: no handler for BugNotFoundException -> 500 + stack trace leak
+      starterCode: { tr: `// BUG: BugNotFoundException icin handler yok -> 500 + stack trace sizinti
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    // TODO: BugNotFoundException'i temiz bir 404'e cevir
+}`, en: `// BUG: no handler for BugNotFoundException -> 500 + stack trace leak
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     // TODO: convert BugNotFoundException into a clean 404
-}`,
-      solutionCode: `@RestControllerAdvice
+}` },
+      solutionCode: { tr: `@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(BugNotFoundException.class)
+    public ResponseEntity<ApiError> notFound(BugNotFoundException ex) {
+        // beklenen durum -> temiz 404, stack trace SIZDIRMADAN
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new ApiError("BUG_NOT_FOUND", ex.getMessage()));
+    }
+}`, en: `@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(BugNotFoundException.class)
     public ResponseEntity<ApiError> notFound(BugNotFoundException ex) {
@@ -2251,7 +2344,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(new ApiError("BUG_NOT_FOUND", ex.getMessage()));
     }
-}`,
+}` },
       hint: { tr: 'Handler yoksa BugNotFoundException genel 500\'e düşer ve stack trace sızabilir. `@ExceptionHandler(BugNotFoundException.class)` ile bunu temiz bir 404 + anlamlı mesaja çevir.', en: 'Without a handler, BugNotFoundException falls to a generic 500 and a stack trace can leak. Use `@ExceptionHandler(BugNotFoundException.class)` to map it to a clean 404 + meaningful message.' },
       successMessage: { tr: 'Doğru! Artık "bulunamadı" temiz bir 404 döner, iç detay sızmaz.', en: 'Correct! Now "not found" returns a clean 404 with no internal leak.' },
     },
@@ -2415,11 +2508,15 @@ public ResponseEntity<Void> delete(@PathVariable Long id) {
       relatedTopicId: 'api-b8-status',
       id: 'api-b8-status',
       title: { tr: 'Kendin Dene: POST\'u 201 + Location Yap', en: 'Try It Yourself: Make POST Return 201 + Location' },
-      starterCode: `// BUG: return bug -> Spring returns 200, no Location header -> the chain breaks
+      starterCode: { tr: `// BUG: return bug -> Spring 200 doner, Location header yok -> zincir kirilir
 @PostMapping
 public Bug create(@Valid @RequestBody BugRequest req) {
     return service.create(req);
-}`,
+}`, en: `// BUG: return bug -> Spring returns 200, no Location header -> the chain breaks
+@PostMapping
+public Bug create(@Valid @RequestBody BugRequest req) {
+    return service.create(req);
+}` },
       solutionCode: `// FIX: 201 Created + Location header (yeni kaydin adresi)
 @PostMapping
 public ResponseEntity<Bug> create(@Valid @RequestBody BugRequest req) {
@@ -2603,7 +2700,15 @@ app.listen(PORT, () => {
       relatedTopicId: 'api-c1-setup',
       id: 'api-c1-setup',
       title: { tr: 'Kendin Dene: Sunucuyu Dinlemeye Al', en: 'Try It Yourself: Make the Server Listen' },
-      starterCode: `const express = require('express')
+      starterCode: { tr: `const express = require('express')
+const app = express()
+
+app.get('/api/v1/bugs', (req, res) => {
+  res.json([])
+})
+
+// BUG: sunucu hicbir portu dinlemiyor
+console.log('Bugs API hazir')`, en: `const express = require('express')
 const app = express()
 
 app.get('/api/v1/bugs', (req, res) => {
@@ -2611,8 +2716,8 @@ app.get('/api/v1/bugs', (req, res) => {
 })
 
 // BUG: the server is not listening on any port
-console.log('Bugs API hazir')`,
-      solutionCode: `const express = require('express')
+console.log('Bugs API ready')` },
+      solutionCode: { tr: `const express = require('express')
 const app = express()
 
 app.get('/api/v1/bugs', (req, res) => {
@@ -2622,7 +2727,17 @@ app.get('/api/v1/bugs', (req, res) => {
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(\`Bugs API port \${PORT} dinliyor\`)
-})`,
+})`, en: `const express = require('express')
+const app = express()
+
+app.get('/api/v1/bugs', (req, res) => {
+  res.json([])
+})
+
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(\`Bugs API listening on port \${PORT}\`)
+})` },
       hint: { tr: 'Route tanımlamak sunucuyu başlatmaz. Bir Express uygulamasının request kabul edebilmesi için mutlaka `app.listen(port, callback)` çağrısı gerekir; bu satır yoksa süreç sessizce sonlanır.', en: 'Defining a route does not start the server. An Express app must call `app.listen(port, callback)` before it can accept requests; without this line the process ends silently.' },
       successMessage: { tr: 'Doğru! Artık process sonlanmaz, port dinlenir ve curl/Postman gerçek bir response alır.', en: 'Correct! Now the process does not exit, the port is listened on, and curl/Postman get a real response.' },
     },
@@ -2970,7 +3085,16 @@ app.post('/api/v1/bugs', (req, res) => {
       relatedTopicId: 'api-c3-middleware',
       id: 'api-c3-middleware',
       title: { tr: 'Kendin Dene: Middleware Sırasını Düzelt', en: 'Try It Yourself: Fix the Middleware Order' },
-      starterCode: `const express = require('express')
+      starterCode: { tr: `const express = require('express')
+const app = express()
+
+// BUG: govde ayristirici route'lardan SONRA tanimlanmis
+app.post('/api/v1/bugs', (req, res) => {
+  const { title, severity } = req.body   // undefined gelir
+  res.status(201).json({ id: 1, title, severity })
+})
+
+app.use(express.json())`, en: `const express = require('express')
 const app = express()
 
 // BUG: the body parser is defined AFTER the routes
@@ -2979,8 +3103,17 @@ app.post('/api/v1/bugs', (req, res) => {
   res.status(201).json({ id: 1, title, severity })
 })
 
-app.use(express.json())`,
-      solutionCode: `const express = require('express')
+app.use(express.json())` },
+      solutionCode: { tr: `const express = require('express')
+const app = express()
+
+// FIX: govde ayristirici HER ZAMAN route'lardan ONCE tanimlanir
+app.use(express.json())
+
+app.post('/api/v1/bugs', (req, res) => {
+  const { title, severity } = req.body   // artik dolu gelir
+  res.status(201).json({ id: 1, title, severity })
+})`, en: `const express = require('express')
 const app = express()
 
 // FIX: the body parser is ALWAYS defined BEFORE the routes
@@ -2989,7 +3122,7 @@ app.use(express.json())
 app.post('/api/v1/bugs', (req, res) => {
   const { title, severity } = req.body   // now comes filled
   res.status(201).json({ id: 1, title, severity })
-})`,
+})` },
       hint: { tr: 'Express middleware\'leri kayıt sırasına göre çalışır. `express.json()` route tanımlarından SONRA gelirse, o route\'lar `req.body`\'yi hiçbir zaman ayrıştırılmış görmez.', en: 'Express middlewares run in registration order. If `express.json()` comes AFTER route definitions, those routes never see a parsed `req.body`.' },
       successMessage: { tr: 'Doğru! Artık req.body her zaman dolu gelir, kayıtlar boş title ile oluşmaz.', en: 'Correct! Now req.body always arrives filled, records are not created with an empty title.' },
     },
@@ -3150,7 +3283,15 @@ app.post(
       relatedTopicId: 'api-c4-validation',
       id: 'api-c4-validation',
       title: { tr: 'Kendin Dene: Doğrulama Sonucunu Oku', en: 'Try It Yourself: Read the Validation Result' },
-      starterCode: `app.post('/api/v1/bugs',
+      starterCode: { tr: `app.post('/api/v1/bugs',
+  body('title').isLength({ min: 3, max: 120 }),
+  body('severity').isIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  (req, res) => {
+    // BUG: kurallar tanimlandi ama sonuc hic okunmuyor
+    const { title, severity } = req.body
+    res.status(201).json({ id: 1, title, severity })
+  }
+)`, en: `app.post('/api/v1/bugs',
   body('title').isLength({ min: 3, max: 120 }),
   body('severity').isIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   (req, res) => {
@@ -3158,7 +3299,7 @@ app.post(
     const { title, severity } = req.body
     res.status(201).json({ id: 1, title, severity })
   }
-)`,
+)` },
       solutionCode: `app.post('/api/v1/bugs',
   body('title').isLength({ min: 3, max: 120 }),
   body('severity').isIn(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
@@ -3325,7 +3466,19 @@ app.use((err, req, res, next) => {
       relatedTopicId: 'api-c5-errors',
       id: 'api-c5-errors',
       title: { tr: 'Kendin Dene: Hata Yakalayıcının Yerini Düzelt', en: 'Try It Yourself: Fix the Error Handler\'s Position' },
-      starterCode: `const express = require('express')
+      starterCode: { tr: `const express = require('express')
+const app = express()
+
+// BUG: hata yakalayici route'lardan ONCE tanimlanmis
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({ error: err.message })
+})
+
+app.get('/api/v1/bugs/:id', (req, res, next) => {
+  const bug = findBug(req.params.id)
+  if (!bug) return next({ status: 404, message: 'Bug bulunamadi' })
+  res.json(bug)
+})`, en: `const express = require('express')
 const app = express()
 
 // BUG: the error handler is defined BEFORE the routes
@@ -3337,8 +3490,20 @@ app.get('/api/v1/bugs/:id', (req, res, next) => {
   const bug = findBug(req.params.id)
   if (!bug) return next({ status: 404, message: 'Bug bulunamadi' })
   res.json(bug)
-})`,
-      solutionCode: `const express = require('express')
+})` },
+      solutionCode: { tr: `const express = require('express')
+const app = express()
+
+app.get('/api/v1/bugs/:id', (req, res, next) => {
+  const bug = findBug(req.params.id)
+  if (!bug) return next({ status: 404, message: 'Bug bulunamadi' })
+  res.json(bug)
+})
+
+// FIX: hata yakalayici HER ZAMAN TUM route'lardan SONRA tanimlanir
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({ error: err.message })
+})`, en: `const express = require('express')
 const app = express()
 
 app.get('/api/v1/bugs/:id', (req, res, next) => {
@@ -3350,7 +3515,7 @@ app.get('/api/v1/bugs/:id', (req, res, next) => {
 // FIX: the error handler is ALWAYS defined AFTER ALL routes
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message })
-})`,
+})` },
       hint: { tr: 'Express, hata yakalayıcı middleware\'i sadece kayıt sırasında SONRAKİ konumlarda arar. Route\'lardan önce tanımlanan bir hata yakalayıcıya asla ulaşılmaz.', en: 'Express only looks for the error-catching middleware in positions that come AFTER the current one in registration order. An error handler defined before the routes is never reached.' },
       successMessage: { tr: 'Doğru! Artık next(err) çağrıları düzgün JSON hata gövdesine ulaşır, HTML sayfasına düşmez.', en: 'Correct! Now next(err) calls reach a proper JSON error body instead of falling back to the HTML page.' },
     },
@@ -3474,12 +3639,17 @@ const C6 = {
       relatedTopicId: 'api-c6-compare',
       id: 'api-c6-compare',
       title: { tr: 'Kendin Dene: Spring Kod Satırını Express\'e Çevir', en: 'Try It Yourself: Translate the Spring Line to Express' },
-      starterCode: `// Spring Boot (Java):
+      starterCode: { tr: `// Spring Boot (Java):
+// @GetMapping("/api/v1/bugs/{id}")
+// public Bug getBug(@PathVariable Long id) { ... }
+
+// TODO: ayni isi yapan Express satirini yaz
+`, en: `// Spring Boot (Java):
 // @GetMapping("/api/v1/bugs/{id}")
 // public Bug getBug(@PathVariable Long id) { ... }
 
 // TODO: write the Express line that does the same job
-`,
+` },
       solutionCode: `// Express (JavaScript):
 app.get('/api/v1/bugs/:id', (req, res) => {
   const id = Number(req.params.id)
@@ -3665,7 +3835,16 @@ bootstrap()`,
       relatedTopicId: 'api-d1-module',
       id: 'api-d1-module',
       title: { tr: 'Kendin Dene: Controller\'ı Modüle Kaydet', en: 'Try It Yourself: Register the Controller with the Module' },
-      starterCode: `import { Module } from '@nestjs/common'
+      starterCode: { tr: `import { Module } from '@nestjs/common'
+import { BugsController } from './bugs.controller'
+import { BugsService } from './bugs.service'
+
+// BUG: BugsController dizide yok, kod dogru ama route hic calismayacak
+@Module({
+  controllers: [],
+  providers: [BugsService],
+})
+export class AppModule {}`, en: `import { Module } from '@nestjs/common'
 import { BugsController } from './bugs.controller'
 import { BugsService } from './bugs.service'
 
@@ -3674,7 +3853,7 @@ import { BugsService } from './bugs.service'
   controllers: [],
   providers: [BugsService],
 })
-export class AppModule {}`,
+export class AppModule {}` },
       solutionCode: `import { Module } from '@nestjs/common'
 import { BugsController } from './bugs.controller'
 import { BugsService } from './bugs.service'
@@ -3856,11 +4035,15 @@ export class BugsController {
       relatedTopicId: 'api-d2-decorators',
       id: 'api-d2-decorators',
       title: { tr: 'Kendin Dene: Eksik @Body() Decorator\'ını Ekle', en: 'Try It Yourself: Add the Missing @Body() Decorator' },
-      starterCode: `@Post()
+      starterCode: { tr: `@Post()
+// BUG: parametrenin basinda decorator yok, body her zaman undefined gelir
+create(body: any) {
+  return this.bugsService.create(body)
+}`, en: `@Post()
 // BUG: no decorator in front of the parameter, body always comes undefined
 create(body: any) {
   return this.bugsService.create(body)
-}`,
+}` },
       solutionCode: `@Post()
 create(@Body() body: any) {
   return this.bugsService.create(body)
@@ -4056,7 +4239,15 @@ async function bootstrap() {
       relatedTopicId: 'api-d3-pipe',
       id: 'api-d3-pipe',
       title: { tr: 'Kendin Dene: ValidationPipe\'ı Etkinleştir', en: 'Try It Yourself: Activate the ValidationPipe' },
-      starterCode: `import { NestFactory } from '@nestjs/core'
+      starterCode: { tr: `import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+
+// BUG: DTO decorator'lari yazildi ama hicbir zaman calismayacak
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  await app.listen(3000)
+}
+bootstrap()`, en: `import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 
 // BUG: the DTO decorators are written but will never run
@@ -4064,7 +4255,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   await app.listen(3000)
 }
-bootstrap()`,
+bootstrap()` },
       solutionCode: `import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import { AppModule } from './app.module'
@@ -4253,7 +4444,16 @@ app.useGlobalFilters(new HttpExceptionFilter())`,
       relatedTopicId: 'api-d4-filter',
       id: 'api-d4-filter',
       title: { tr: 'Kendin Dene: Filtreyi Global Olarak Kaydet', en: 'Try It Yourself: Register the Filter Globally' },
-      starterCode: `import { NestFactory } from '@nestjs/core'
+      starterCode: { tr: `import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+import { HttpExceptionFilter } from './http-exception.filter'
+
+// BUG: filter yazildi ama hicbir yerde kayitli degil
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule)
+  await app.listen(3000)
+}
+bootstrap()`, en: `import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { HttpExceptionFilter } from './http-exception.filter'
 
@@ -4262,7 +4462,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   await app.listen(3000)
 }
-bootstrap()`,
+bootstrap()` },
       solutionCode: `import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { HttpExceptionFilter } from './http-exception.filter'
@@ -4394,7 +4594,15 @@ const D5 = {
       relatedTopicId: 'api-d5-compare',
       id: 'api-d5-compare',
       title: { tr: 'Kendin Dene: Spring Annotation\'ını Nest Decorator\'ına Çevir', en: 'Try It Yourself: Translate the Spring Annotation to a Nest Decorator' },
-      starterCode: `// Spring Boot (Java):
+      starterCode: { tr: `// Spring Boot (Java):
+// @RestControllerAdvice
+// public class GlobalExceptionHandler {
+//   @ExceptionHandler(NotFoundException.class)
+//   public ResponseEntity<?> handle(NotFoundException ex) { ... }
+// }
+
+// TODO: ayni isi yapan Nest yapisinin decorator'larini yaz
+`, en: `// Spring Boot (Java):
 // @RestControllerAdvice
 // public class GlobalExceptionHandler {
 //   @ExceptionHandler(NotFoundException.class)
@@ -4402,7 +4610,7 @@ const D5 = {
 // }
 
 // TODO: write the decorators of the Nest structure that does the same job
-`,
+` },
       solutionCode: `// NestJS (TypeScript):
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -4624,9 +4832,11 @@ const E1 = {
       relatedTopicId: 'api-e1-panel-anatomy',
       id: 'api-e1-panel-anatomy',
       title: { tr: 'Kendin Dene: Doğru Sütunu Eşle', en: 'Try It Yourself: Match the Right Column' },
-      starterCode: `// A row in the Network panel: /api/v1/bugs -> 500 -> fetch -> 0.3 kB -> 612 ms
+      starterCode: { tr: `// Network panelinde bir satir: /api/v1/bugs -> 500 -> fetch -> 0.3 kB -> 612 ms
 // TODO: "sunucunun cevabini" hangi sutun gosterir?
-Sutun adi: ???`,
+Sutun adi: ???`, en: `// A row in the Network panel: /api/v1/bugs -> 500 -> fetch -> 0.3 kB -> 612 ms
+// TODO: "sunucunun cevabini" hangi sutun gosterir?
+Sutun adi: ???` },
       solutionCode: `// Sunucunun cevabini (basarili/basarisiz) gosteren sutun STATUS'tur
 Sutun adi: Status`,
       hint: { tr: 'Name yolu, Type request\'in türünü, Size response boyutunu, Time süreyi gösterir. Sunucunun "başardım/başaramadım" cevabını taşıyan tek sütun Status\'tur.', en: 'Name shows the path, Type the request kind, Size the response size, Time the duration. The only column carrying the server\'s "I succeeded/failed" answer is Status.' },
@@ -4749,11 +4959,14 @@ const E2 = {
       relatedTopicId: 'api-e2-fetch-xhr-filter',
       id: 'api-e2-fetch-xhr-filter',
       title: { tr: 'Kendin Dene: Fetch/XHR Filtresinde Kalanı Seç', en: 'Try It Yourself: Pick What Survives the Fetch/XHR Filter' },
-      starterCode: `// Unfiltered list: logo.svg (img), style.css, /api/v1/bugs (fetch), font.woff2
+      starterCode: { tr: `// Filtrelenmemis liste: logo.svg (img), style.css, /api/v1/bugs (fetch), font.woff2
+// TODO: Fetch/XHR filtresi acildiginda listede SADECE hangisi kalir?
+Kalan: ???`, en: `// Unfiltered list: logo.svg (img), style.css, /api/v1/bugs (fetch), font.woff2
 // TODO: when the Fetch/XHR filter is on, which one ONLY remains in the list?
-Kalan: ???`,
-      solutionCode: `// Only the requests started by JavaScript (fetch/xhr type) remain
-Kalan: /api/v1/bugs (fetch)`,
+Kalan: ???` },
+      solutionCode: { tr: `// Sadece JavaScript'in baslattigi request (fetch/xhr turu) kalir
+Kalan: /api/v1/bugs (fetch)`, en: `// Only the requests started by JavaScript (fetch/xhr type) remain
+Kalan: /api/v1/bugs (fetch)` },
       hint: { tr: '`img`, `css` ve `font` türündeki dosyalar tarayıcının kendisi tarafından sayfa render edilirken istenir — bunlar JavaScript kodundan değildir, bu yüzden Fetch/XHR filtresinde ELENİR.', en: '`img`, `css`, and `font` type files are requested by the browser itself while rendering the page — these do not come from JavaScript code, so they are FILTERED OUT by the Fetch/XHR filter.' },
       successMessage: { tr: 'Doğru! Fetch/XHR filtresi tam olarak API request\'lerinin yaşadığı yerdir.', en: 'Correct! Fetch/XHR is exactly where API requests live in the filter.' },
     },
@@ -4876,9 +5089,11 @@ const E3 = {
       relatedTopicId: 'api-e3-request-tabs',
       id: 'api-e3-request-tabs',
       title: { tr: 'Kendin Dene: Doğru Sekmeyi Bul', en: 'Try It Yourself: Find the Right Tab' },
-      starterCode: `// Problem: the response body has a "passwordHash" field that should not be there
+      starterCode: { tr: `// Sorun: response govdesinde olmamasi gereken bir "passwordHash" alani var
 // TODO: bu sizintiyi hangi sekmede yakalarsin?
-Sekme: ???`,
+Sekme: ???`, en: `// Problem: the response body has a "passwordHash" field that should not be there
+// TODO: bu sizintiyi hangi sekmede yakalarsin?
+Sekme: ???` },
       solutionCode: `// Sunucunun GERCEKTEN dondurdugu veri Response/Preview sekmesinde gorulur
 Sekme: Response (veya Preview)`,
       hint: { tr: 'Headers meta veriyi, Payload SENİN gönderdiğini gösterir. Sunucunun GERÇEKTEN neyi döndürdüğü — ve olmaması gereken bir alanın sızması — sadece Response/Preview sekmesinde görülür.', en: 'Headers shows metadata, Payload shows what YOU sent. What the server REALLY returned — including a field that should not have leaked — is only visible in the Response/Preview tab.' },
@@ -5003,11 +5218,14 @@ const E4 = {
       relatedTopicId: 'api-e4-timing',
       id: 'api-e4-timing',
       title: { tr: 'Kendin Dene: Yavaşlığın Suçlusunu Bul', en: 'Try It Yourself: Find the Cause of the Slowness' },
-      starterCode: `// Timing: TTFB 0.1s, Waiting 2.7s, Content Download 0.1s (toplam 2.9s)
+      starterCode: { tr: `// Timing: TTFB 0.1s, Waiting 2.7s, Content Download 0.1s (toplam 2.9s)
+// TODO: bu degerlere gore yavasligin suclusu kim: SUNUCU mu AG mi?
+Suclu: ???`, en: `// Timing: TTFB 0.1s, Waiting 2.7s, Content Download 0.1s (toplam 2.9s)
 // TODO: based on these values, who is to blame for the slowness: the SERVER or the NETWORK?
-Suclu: ???`,
-      solutionCode: `// Most of the total time is in Waiting -> the server is slow while processing the request
-Suclu: SUNUCU (yavas sorgu/islem suphesi, gelistiriciye escalate)`,
+Suclu: ???` },
+      solutionCode: { tr: `// Toplam surenin buyuk kismi Waiting'te -> sunucu istegi islerken yavas
+Suclu: SUNUCU (yavas sorgu/islem suphesi, gelistiriciye escalate)`, en: `// Most of the total time is in Waiting -> the server is slow while processing the request
+Suclu: SUNUCU (yavas sorgu/islem suphesi, gelistiriciye escalate)` },
       hint: { tr: '`Waiting`, sunucunun request\'i işlediği süredir. Toplam sürenin büyük kısmı `Waiting`\'e aitse, gecikme ağda/veri boyutunda değil sunucunun İŞLEM mantığındadır.', en: '`Waiting` is the time the server spends processing the request. If most of the total time belongs to `Waiting`, the delay is in the server\'s PROCESSING logic, not the network/data size.' },
       successMessage: { tr: 'Doğru! Waiting ağırlıklı bir gecikme, bug raporunu doğrudan geliştiriciye ve muhtemel bir sorguya yönlendirir.', en: 'Correct! A Waiting-heavy delay routes the bug report straight to the developer and a likely query issue.' },
     },
@@ -5174,12 +5392,16 @@ const E5 = {
       relatedTopicId: 'api-e5-network-defects',
       id: 'api-e5-network-defects',
       title: { tr: 'Kendin Dene: Defect\'i Doğru Katmana Yönlendir', en: 'Try It Yourself: Route the Defect to the Right Layer' },
-      starterCode: `// Scenario: a "passwordHash" field appears in the user list response (the UI NEVER shows it)
+      starterCode: { tr: `// Senaryo: Kullanici listesi yanitinda "passwordHash" alani goruluyor (UI bunu HIC gostermiyor)
+// TODO: bu bir guvenlik acigi mi, sadece kozmetik bir sorun mu? Hangi ekibe escalate edilir?
+Karar: ???`, en: `// Scenario: a "passwordHash" field appears in the user list response (the UI NEVER shows it)
 // TODO: is this a security hole or just a cosmetic issue? Which team do you escalate to?
-Karar: ???`,
-      solutionCode: `// Leaking a sensitive field in the API response is a SECURITY hole (not cosmetic)
+Karar: ???` },
+      solutionCode: { tr: `// Hassas bir alanin API yanitinda sizmasi GUVENLIK acigidir (kozmetik degil)
+// Backend ekibine (DTO/response model ile alan filtrelemesi icin) escalate edilir
+Karar: GUVENLIK ACIGI -> backend ekibine escalate`, en: `// Leaking a sensitive field in the API response is a SECURITY hole (not cosmetic)
 // escalate to the backend team (to filter the field via the DTO/response model)
-Karar: GUVENLIK ACIGI -> backend ekibine escalate`,
+Karar: GUVENLIK ACIGI -> backend ekibine escalate` },
       hint: { tr: 'Bir alanın UI\'da GÖRÜNMEMESİ onun güvenli olduğu anlamına gelmez — API response\'u tarayıcı DevTools\'u ile herkes tarafından okunabilir. `passwordHash` gibi bir alanın sızması her zaman bir güvenlik açığıdır.', en: 'A field not being VISIBLE in the UI does not mean it is safe — the API response can be read by anyone via browser DevTools. A leaked field like `passwordHash` is always a security hole.' },
       successMessage: { tr: 'Doğru! "UI\'da görünmüyor" güvenlik savunması değildir — API response\'u her zaman erişilebilirdir.', en: 'Correct! "It is not visible in the UI" is not a security defense — the API response is always reachable.' },
     },
@@ -5302,13 +5524,18 @@ const E6 = {
       relatedTopicId: 'api-e6-curl-import',
       id: 'api-e6-curl-import',
       title: { tr: 'Kendin Dene: cURL\'ün Neden Elle Yazmaktan Daha Güvenilir Olduğunu Belirle', en: 'Try It Yourself: Determine Why cURL Is More Reliable Than Writing by Hand' },
-      starterCode: `// Scenario: the UI sends a request with an Authorization header
+      starterCode: { tr: `// Senaryo: UI bir Authorization header'i ile request gonderiyor
 // Sen bu istegi Postman'de SIFIRDAN elle yazacaksin
 // TODO: bu yaklasimin en buyuk riski nedir?
-Risk: ???`,
-      solutionCode: `// When typing by hand you may forget a header (especially Authorization/Content-Type)
+Risk: ???`, en: `// Scenario: the UI sends a request with an Authorization header
+// Sen bu istegi Postman'de SIFIRDAN elle yazacaksin
+// TODO: bu yaklasimin en buyuk riski nedir?
+Risk: ???` },
+      solutionCode: { tr: `// Elle yazarken bir header'i (ozellikle Authorization/Content-Type) unutabilir
+// veya yanlis yazabilirsin -> Copy as cURL bu riski ORTADAN KALDIRIR
+Risk: header/deger unutma veya yanlis yazma -> Copy as cURL bunu engeller`, en: `// When typing by hand you may forget a header (especially Authorization/Content-Type)
 // or you may type it wrong -> Copy as cURL ELIMINATES this risk
-Risk: header/deger unutma veya yanlis yazma -> Copy as cURL bunu engeller`,
+Risk: header/deger unutma veya yanlis yazma -> Copy as cURL bunu engeller` },
       hint: { tr: 'UI, request\'i doğru header\'lar ve token\'la GERÇEKTEN göndermiştir — bunu elle yeniden yazmaya kalkışmak insan hatasına (unutulan bir header, yanlış yazılan bir değer) açıktır. `Copy as cURL` bu riski tamamen ortadan kaldırır.', en: 'The UI has REALLY sent the request with the correct headers and token — trying to rewrite it by hand is open to human error (a forgotten header, a mistyped value). `Copy as cURL` removes this risk entirely.' },
       successMessage: { tr: 'Doğru! Copy as cURL, tahmine değil gerçekten gönderilen request\'e dayanır.', en: 'Correct! Copy as cURL relies on the request that was really sent, not a guess.' },
     },
@@ -5485,14 +5712,21 @@ paths:
       relatedTopicId: 'api-f1-openapi-spec',
       id: 'api-f1-openapi-spec',
       title: { tr: 'Kendin Dene: Spec\'te Eksik Metodu Tamamla', en: 'Try It Yourself: Complete the Missing Method in the Spec' },
-      starterCode: `# only GET is defined for /api/v1/bugs/{id}
+      starterCode: { tr: `# /api/v1/bugs/{id} icin sadece GET tanimli
+# TODO: bug'i SILMEK icin hangi HTTP metodu eksik?
+paths:
+  /api/v1/bugs/{id}:
+    get:
+      summary: Tek bir bug getir
+    ???:
+      summary: Bug'i sil`, en: `# only GET is defined for /api/v1/bugs/{id}
 # TODO: which HTTP method is missing to DELETE the bug?
 paths:
   /api/v1/bugs/{id}:
     get:
       summary: Tek bir bug getir
     ???:
-      summary: Bug'i sil`,
+      summary: Bug'i sil` },
       solutionCode: `paths:
   /api/v1/bugs/{id}:
     get:
@@ -5651,9 +5885,11 @@ SwaggerModule.setup('api-docs', app, document)`,
       relatedTopicId: 'api-f2-swagger-generation',
       id: 'api-f2-swagger-generation',
       title: { tr: 'Kendin Dene: Eksik Kurulum Satırını Tamamla', en: 'Try It Yourself: Complete the Missing Setup Line' },
-      starterCode: `const document = SwaggerModule.createDocument(app, config)
+      starterCode: { tr: `const document = SwaggerModule.createDocument(app, config)
+// BUG: document olusturuldu ama hicbir yere BAGLANMADI
+// TODO: /api-docs'un acilmasi icin eksik cagriyi ekle`, en: `const document = SwaggerModule.createDocument(app, config)
 // BUG: the document was created but NOT WIRED anywhere
-// TODO: add the missing call so /api-docs opens`,
+// TODO: add the missing call so /api-docs opens` },
       solutionCode: `const document = SwaggerModule.createDocument(app, config)
 SwaggerModule.setup('api-docs', app, document)`,
       hint: { tr: '`createDocument` sadece spec nesnesini bellekte OLUŞTURUR; onu bir URL\'e (`/api-docs`) BAĞLAYAN ayrı bir `SwaggerModule.setup(...)` çağrısı gerekir.', en: '`createDocument` only CREATES the spec object in memory; a separate `SwaggerModule.setup(...)` call is needed to BIND it to a URL (`/api-docs`).' },
@@ -5778,11 +6014,14 @@ const F3 = {
       relatedTopicId: 'api-f3-try-it-out',
       id: 'api-f3-try-it-out',
       title: { tr: 'Kendin Dene: Swagger UI\'da Ne Zaman "Execute" Aktif Olur?', en: 'Try It Yourself: When Does "Execute" Become Active in Swagger UI?' },
-      starterCode: `// Situation: an endpoint page opened but the fields are NOT EDITABLE, no Execute button
+      starterCode: { tr: `// Durum: bir endpoint sayfasi acildi ama alanlar DUZENLENEMEZ, Execute butonu YOK
+// TODO: hangi butona basilmadan bu durum degismez?
+Eksik adim: ???`, en: `// Situation: an endpoint page opened but the fields are NOT EDITABLE, no Execute button
 // TODO: without pressing which button does this state not change?
-Eksik adim: ???`,
-      solutionCode: `// until "Try it out" is clicked the form stays read-only, Execute is hidden
-Eksik adim: "Try it out" butonuna basmak`,
+Eksik adim: ???` },
+      solutionCode: { tr: `// "Try it out" tiklanmadan form salt-okunur kalir, Execute gorunmez
+Eksik adim: "Try it out" butonuna basmak`, en: `// until "Try it out" is clicked the form stays read-only, Execute is hidden
+Eksik adim: "Try it out" butonuna basmak` },
       hint: { tr: 'Swagger UI varsayılan olarak spec\'i SALT-OKUNUR gösterir (dokümantasyon modu). `Try it out` butonuna basmadan form düzenlenemez ve `Execute` görünmez.', en: 'Swagger UI shows the spec READ-ONLY by default (documentation mode). Without pressing `Try it out`, the form cannot be edited and `Execute` does not appear.' },
       successMessage: { tr: 'Doğru! "Try it out" olmadan Swagger UI sadece bir doküman görüntüleyicidir, test aracı değil.', en: 'Correct! Without "Try it out", Swagger UI is just a doc viewer, not a test tool.' },
     },
@@ -5923,12 +6162,16 @@ const F4 = {
       relatedTopicId: 'api-f4-schema-reading',
       id: 'api-f4-schema-reading',
       title: { tr: 'Kendin Dene: Şemadan Eksik Test Senaryosunu Bul', en: 'Try It Yourself: Find the Missing Test Scenario from the Schema' },
-      starterCode: `// Sema: "severity": { "type": "string", "enum": ["LOW","MEDIUM","HIGH","CRITICAL"] }
+      starterCode: { tr: `// Sema: "severity": { "type": "string", "enum": ["LOW","MEDIUM","HIGH","CRITICAL"] }
+// Yazilan testler: gecerli deger (HIGH), bos deger
+// TODO: enum kisitina gore hangi ONEMLI negatif test EKSIK?
+Eksik test: ???`, en: `// Sema: "severity": { "type": "string", "enum": ["LOW","MEDIUM","HIGH","CRITICAL"] }
 // Tests written: valid value (HIGH), empty value
 // TODO: enum kisitina gore hangi ONEMLI negatif test EKSIK?
-Eksik test: ???`,
-      solutionCode: `// a test that sends a value OUTSIDE the enum LIST (for example "URGENT") is missing
-Eksik test: severity: "URGENT" (tanimsiz enum degeri) gonderip sunucunun tepkisini dogrula`,
+Eksik test: ???` },
+      solutionCode: { tr: `// enum LISTESI DISINDA bir deger (ornegin "URGENT") gonderme testi eksik
+Eksik test: severity: "URGENT" (tanimsiz enum degeri) gonderip sunucunun tepkisini dogrula`, en: `// a test that sends a value OUTSIDE the enum LIST (for example "URGENT") is missing
+Eksik test: severity: "URGENT" (tanimsiz enum degeri) gonderip sunucunun tepkisini dogrula` },
       hint: { tr: '`enum` kısıtı sadece belirli değerlere izin verir. Geçerli bir değer ve boş değer test edilmiş olsa da, listede OLMAYAN bir değerin (tanımsız enum) sunucuyu nasıl etkilediği ayrı ve kritik bir negatif testtir.', en: 'An `enum` constraint only allows specific values. Even if a valid value and an empty value are tested, how a value NOT in the list (an undefined enum) affects the server is a separate, critical negative test.' },
       successMessage: { tr: 'Doğru! enum dışı değer testi, şema kısıtlarının GERÇEKTEN uygulandığını kanıtlayan kritik bir senaryodur.', en: 'Correct! An out-of-enum test is a critical scenario that proves the schema constraint is REALLY enforced.' },
     },
@@ -6080,12 +6323,16 @@ const F5 = {
       relatedTopicId: 'api-f5-contract-defects',
       id: 'api-f5-contract-defects',
       title: { tr: 'Kendin Dene: Contract Defect\'i Sınıflandır', en: 'Try It Yourself: Classify the Contract Defect' },
-      starterCode: `// Spec: the "severity" enum is [LOW, MEDIUM, HIGH] (3 values)
+      starterCode: { tr: `// Spec: "severity" enum'i [LOW, MEDIUM, HIGH] (3 deger)
+// Gercek API yaniti: "severity": "CRITICAL" (spec'te olmayan 4. deger)
+// TODO: bu hangi contract defect kategorisidir?
+Kategori: ???`, en: `// Spec: the "severity" enum is [LOW, MEDIUM, HIGH] (3 values)
 // Real API response: "severity": "CRITICAL" (a 4th value not in the spec)
 // TODO: bu hangi contract defect kategorisidir?
-Kategori: ???`,
-      solutionCode: `// The enum was extended in the code (a new value added) but the spec was not updated
-Kategori: Enum drift`,
+Kategori: ???` },
+      solutionCode: { tr: `// Kodda enum genisletilmis (yeni deger eklenmis) ama spec guncellenmemis
+Kategori: Enum drift`, en: `// The enum was extended in the code (a new value added) but the spec was not updated
+Kategori: Enum drift` },
       hint: { tr: 'Spec\'te tanımlı olmayan yeni bir değerin gerçek response\'ta belirmesi, kodun spec\'ten daha "ileride" olduğu, yani enum listesinin spec\'te GÜNCELLENMEDİĞİ anlamına gelir — bu "enum drift"tir.', en: 'A new value not defined in the spec appearing in the real response means the code is "ahead" of the spec — the enum list was NOT UPDATED in the spec — this is "enum drift".' },
       successMessage: { tr: 'Doğru! Enum drift, spec\'in en sık gözden kaçan ayrışma türlerinden biridir.', en: 'Correct! Enum drift is one of the most commonly overlooked divergence types in a spec.' },
     },
@@ -6222,10 +6469,13 @@ reporter: { format: email }
       relatedTopicId: 'api-f6-derive-checklist',
       id: 'api-f6-derive-checklist',
       title: { tr: 'Kendin Dene: Şemadan Eksik Senaryoyu Türet', en: 'Try It Yourself: Derive the Missing Scenario from the Schema' },
-      starterCode: `// Sema: "title": { "type": "string", "minLength": 3, "maxLength": 120 }
+      starterCode: { tr: `// Sema: "title": { "type": "string", "minLength": 3, "maxLength": 120 }
+// Yazilan senaryolar: gecerli title, title eksik (required ihlali)
+// TODO: minLength/maxLength kisitindan hangi 2 senaryo daha turemeli?
+Eksik senaryolar: ???`, en: `// Sema: "title": { "type": "string", "minLength": 3, "maxLength": 120 }
 // Scenarios written: valid title, missing title (required violation)
 // TODO: which 2 more scenarios should derive from the minLength/maxLength constraint?
-Eksik senaryolar: ???`,
+Eksik senaryolar: ???` },
       solutionCode: `// minLength ihlali: 2 karakterlik title -> 400 beklenir
 // maxLength ihlali: 121 karakterlik title -> 400 beklenir
 Eksik senaryolar: cok kisa title (minLength altinda) ve cok uzun title (maxLength ustunde)`,
@@ -6345,8 +6595,9 @@ const G1 = {
       starterCode: `// Request\'ler: POST /bugs, GET /bugs/{id}, PATCH /bugs/{id}/status, DELETE /bugs/{id}
 // TODO: "PATCH /bugs/{id}/status" hangi akis klasorune ait?
 Klasor: ???`,
-      solutionCode: `// A status update is part of a bug's LIFECYCLE (not creation)
-Klasor: Bug Yasam Dongusu`,
+      solutionCode: { tr: `// Status guncelleme, bir bug'in YASAM DONGUSUNUN parcasidir (olusturma degil)
+Klasor: Bug Yasam Dongusu`, en: `// A status update is part of a bug's LIFECYCLE (not creation)
+Klasor: Bug Yasam Dongusu` },
       hint: { tr: 'Klasörler ENDPOINT\'e değil AKIŞA göre kurulur. `PATCH /bugs/{id}/status`, bir bug oluşturulduktan SONRAKİ bir aşamayı (durum değişimi) temsil eder — yaşam döngüsü akışına aittir.', en: 'Folders are built by FLOW, not by endpoint. `PATCH /bugs/{id}/status` represents a stage AFTER a bug is created (status change) — it belongs to the lifecycle flow.' },
       successMessage: { tr: 'Doğru! Akışa göre gruplama, koleksiyonu bir bakışta anlaşılır kılar.', en: 'Correct! Grouping by flow makes the collection understandable at a glance.' },
     },
@@ -6563,10 +6814,13 @@ pm.test('Response contains the title field', () => {
       relatedTopicId: 'api-g3-pm-test-assertion',
       id: 'api-g3-pm-test-assertion',
       title: { tr: 'Kendin Dene: Eksik Assertion\'ı Tamamla', en: 'Try It Yourself: Complete the Missing Assertion' },
-      starterCode: `pm.test('Status 201 doner', () => {
+      starterCode: { tr: `pm.test('Status 201 doner', () => {
   pm.response.to.have.status(201)
 })
-// TODO: add a test asserting the response's "severity" field is "HIGH"`,
+// TODO: yanitin "severity" alaninin "HIGH" oldugunu dogrulayan testi ekle`, en: `pm.test('Status 201 doner', () => {
+  pm.response.to.have.status(201)
+})
+// TODO: add a test asserting the response's "severity" field is "HIGH"` },
       solutionCode: `pm.test('Status 201 doner', () => {
   pm.response.to.have.status(201)
 })
@@ -6691,11 +6945,15 @@ pm.test('Bug was created', () => {
       relatedTopicId: 'api-g4-test-chaining',
       id: 'api-g4-test-chaining',
       title: { tr: 'Kendin Dene: Eksik Zincirleme Satırını Ekle', en: 'Try It Yourself: Add the Missing Chaining Line' },
-      starterCode: `pm.test('Bug olusturuldu', () => {
+      starterCode: { tr: `pm.test('Bug olusturuldu', () => {
+  pm.response.to.have.status(201)
+  const body = pm.response.json()
+  // BUG: id hicbir yere kaydedilmiyor, sonraki request bosta kalir
+})`, en: `pm.test('Bug olusturuldu', () => {
   pm.response.to.have.status(201)
   const body = pm.response.json()
   // BUG: the id is not saved anywhere, so the next request is left empty
-})`,
+})` },
       solutionCode: `pm.test('Bug olusturuldu', () => {
   pm.response.to.have.status(201)
   const body = pm.response.json()
@@ -6816,8 +7074,9 @@ pm.test('400 for out-of-enum severity', () => {
       starterCode: `// Yazilan request\'ler: title eksik, severity enum disi
 // TODO: F4'teki "reporter format" kisitindan hangi request EKSIK?
 Eksik request: ???`,
-      solutionCode: `// a request where the reporter field is NOT in email format is missing
-Eksik request: POST /bugs { title: "x", severity: "HIGH", reporter: "gecersiz-string" } -> 400 beklenir`,
+      solutionCode: { tr: `// reporter alaninin email formatinda OLMADIGI bir request eksik
+Eksik request: POST /bugs { title: "x", severity: "HIGH", reporter: "gecersiz-string" } -> 400 beklenir`, en: `// a request where the reporter field is NOT in email format is missing
+Eksik request: POST /bugs { title: "x", severity: "HIGH", reporter: "gecersiz-string" } -> 400 beklenir` },
       hint: { tr: 'F4\'te `reporter` alanının `format: email` kısıtı olduğunu görmüştün. Bu kısıtın da diğerleri gibi (required, enum) AYRI bir negatif test senaryosu olması gerekir.', en: 'You saw in F4 that the `reporter` field has a `format: email` constraint. This constraint, like the others (required, enum), needs its own SEPARATE negative test scenario.' },
       successMessage: { tr: 'Doğru! Şemadaki her kısıt, negatif test setinde ayrı bir kanıt satırı olmalı.', en: 'Correct! Every constraint in the schema deserves its own evidence line in the negative test set.' },
     },
@@ -6934,9 +7193,11 @@ jobs:
       relatedTopicId: 'api-g6-newman-ci',
       id: 'api-g6-newman-ci',
       title: { tr: 'Kendin Dene: Eksik Newman Komutunu Tamamla', en: 'Try It Yourself: Complete the Missing Newman Command' },
-      starterCode: `# newman is installed but the command that RUNS the collection is missing
+      starterCode: { tr: `# newman kuruldu ama koleksiyonu CALISTIRAN komut eksik
 npm install -g newman
-# TODO: run bug-tracker.postman_collection.json with the local environment`,
+# TODO: bug-tracker.postman_collection.json'i local environment ile calistir`, en: `# newman is installed but the command that RUNS the collection is missing
+npm install -g newman
+# TODO: run bug-tracker.postman_collection.json with the local environment` },
       solutionCode: `npm install -g newman
 newman run bug-tracker.postman_collection.json -e local.postman_environment.json`,
       hint: { tr: '`newman run <collection.json>` koleksiyonu çalıştırır; `-e <environment.json>` bayrağı hangi environment\'ın (baseUrl gibi değişkenlerin) kullanılacağını belirtir.', en: '`newman run <collection.json>` runs the collection; the `-e <environment.json>` flag specifies which environment (variables like baseUrl) to use.' },
@@ -7088,13 +7349,19 @@ class BugsApiTest {
       relatedTopicId: 'api-h1-given-when-then',
       id: 'api-h1-given-when-then',
       title: { tr: 'Kendin Dene: Gövde Doğrulamasını Ekle', en: 'Try It Yourself: Add the Body Verification' },
-      starterCode: `given()
+      starterCode: { tr: `given()
     .baseUri("http://localhost:3000")
 .when()
     .get("/api/v1/bugs")
 .then()
     .statusCode(200);
-    // TODO: also assert that the body is an array`,
+    // TODO: govdenin bir dizi oldugunu da dogrula`, en: `given()
+    .baseUri("http://localhost:3000")
+.when()
+    .get("/api/v1/bugs")
+.then()
+    .statusCode(200);
+    // TODO: also assert that the body is an array` },
       solutionCode: `given()
     .baseUri("http://localhost:3000")
 .when()
@@ -7214,10 +7481,13 @@ const H2 = {
       relatedTopicId: 'api-h2-response-verification',
       id: 'api-h2-response-verification',
       title: { tr: 'Kendin Dene: Eksik jsonPath Doğrulamasını Ekle', en: 'Try It Yourself: Add the Missing jsonPath Verification' },
-      starterCode: `.then()
+      starterCode: { tr: `.then()
     .statusCode(200)
     .body("title", equalTo("Login butonu donuyor"))
-    // TODO: assert that the reporter field is "tester@learnqa.dev"`,
+    // TODO: reporter alaninin "tester@learnqa.dev" oldugunu dogrula`, en: `.then()
+    .statusCode(200)
+    .body("title", equalTo("Login butonu donuyor"))
+    // TODO: assert that the reporter field is "tester@learnqa.dev"` },
       solutionCode: `.then()
     .statusCode(200)
     .body("title", equalTo("Login butonu donuyor"))
@@ -7358,10 +7628,13 @@ assertEquals("Login button freezes", bug.title);`,
       relatedTopicId: 'api-h3-pojo-deserialization',
       id: 'api-h3-pojo-deserialization',
       title: { tr: 'Kendin Dene: JSON\'u POJO\'ya Dönüştür', en: 'Try It Yourself: Convert JSON to a POJO' },
-      starterCode: `// BUG: the response is NOT converted to a POJO via .as(Bug.class), stays a raw Response
+      starterCode: { tr: `// BUG: yanit .as(Bug.class) ile POJO'ya CEVRILMIYOR, ham Response kaliyor
 Response response = given().baseUri("http://localhost:3000")
     .when().get("/api/v1/bugs/42")
-    .then().statusCode(200).extract().response();`,
+    .then().statusCode(200).extract().response();`, en: `// BUG: the response is NOT converted to a POJO via .as(Bug.class), stays a raw Response
+Response response = given().baseUri("http://localhost:3000")
+    .when().get("/api/v1/bugs/42")
+    .then().statusCode(200).extract().response();` },
       solutionCode: `Bug bug = given().baseUri("http://localhost:3000")
     .when().get("/api/v1/bugs/42")
     .then().statusCode(200).extract().as(Bug.class);`,
@@ -7609,13 +7882,18 @@ given().spec(BugApiSpec.spec())
       relatedTopicId: 'api-h5-request-specification',
       id: 'api-h5-request-specification',
       title: { tr: 'Kendin Dene: Tekrarlanan Kurulumu Spec\'e Taşı', en: 'Try It Yourself: Move the Repeated Setup into a Spec' },
-      starterCode: `// BUG: baseUri is written SEPARATELY in every test
+      starterCode: { tr: `// BUG: baseUri her testte AYRI AYRI yaziliyor
 @Test void test1() { given().baseUri("http://localhost:3000")...; }
-@Test void test2() { given().baseUri("http://localhost:3000")...; }`,
-      solutionCode: `// FIX: a SINGLE spec, shared across every test
+@Test void test2() { given().baseUri("http://localhost:3000")...; }`, en: `// BUG: baseUri is written SEPARATELY in every test
+@Test void test1() { given().baseUri("http://localhost:3000")...; }
+@Test void test2() { given().baseUri("http://localhost:3000")...; }` },
+      solutionCode: { tr: `// FIX: TEK bir spec, her testte paylasiliyor
 RequestSpecification spec = BugApiSpec.spec();
 @Test void test1() { given().spec(spec)...; }
-@Test void test2() { given().spec(spec)...; }`,
+@Test void test2() { given().spec(spec)...; }`, en: `// FIX: a SINGLE spec, shared across every test
+RequestSpecification spec = BugApiSpec.spec();
+@Test void test1() { given().spec(spec)...; }
+@Test void test2() { given().spec(spec)...; }` },
       hint: { tr: 'İki testte de AYNI `baseUri` yazılıyorsa, bu bir tekrar sinyalidir. `RequestSpecification` bu ortak kurulumu TEK bir yere taşır, her test onu PAYLAŞIR.', en: 'If the SAME `baseUri` is written in two tests, that is a duplication signal. `RequestSpecification` moves this common setup to ONE place, every test SHARES it.' },
       successMessage: { tr: 'Doğru! Artık baseUri değişirse tek bir yer güncellenir, testler otomatik senkron kalır.', en: 'Correct! Now if baseUri changes, one place is updated, tests stay automatically in sync.' },
     },
@@ -7966,9 +8244,11 @@ const I2 = {
       relatedTopicId: 'api-i2-json-assertion',
       id: 'api-i2-json-assertion',
       title: { tr: 'Kendin Dene: Eksik JSON Doğrulamasını Ekle', en: 'Try It Yourself: Add the Missing JSON Verification' },
-      starterCode: `const body = await response.json()
+      starterCode: { tr: `const body = await response.json()
 expect(body.title).toBe('Login butonu donuyor')
-// TODO: assert that body.severity is one of the valid enum values`,
+// TODO: body.severity'nin gecerli enum degerlerinden biri oldugunu dogrula`, en: `const body = await response.json()
+expect(body.title).toBe('Login butonu donuyor')
+// TODO: assert that body.severity is one of the valid enum values` },
       solutionCode: `const body = await response.json()
 expect(body.title).toBe('Login butonu donuyor')
 expect(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).toContain(body.severity)`,
@@ -8092,14 +8372,21 @@ const I3 = {
       relatedTopicId: 'api-i3-hybrid-setup',
       id: 'api-i3-hybrid-setup',
       title: { tr: 'Kendin Dene: UI Kurulumunu API\'ye Taşı', en: 'Try It Yourself: Move the UI Setup to the API' },
-      starterCode: `// BUG: every test creates the bug FROM THE UI - slow and fragile
+      starterCode: { tr: `// BUG: her test bug'i UI'DAN olusturuyor - yavas ve kirilgan
 test('yeni bug listede gorunur', async ({ page }) => {
   await page.goto('http://localhost:3000/bugs/new')
   await page.getByLabel('Title').fill('Odeme sayfasi 500 veriyor')
   await page.getByRole('button', { name: 'Kaydet' }).click()
   await page.goto('http://localhost:3000/bugs')
   await expect(page.getByText('Odeme sayfasi 500 veriyor')).toBeVisible()
-})`,
+})`, en: `// BUG: every test creates the bug FROM THE UI - slow and fragile
+test('yeni bug listede gorunur', async ({ page }) => {
+  await page.goto('http://localhost:3000/bugs/new')
+  await page.getByLabel('Title').fill('Odeme sayfasi 500 veriyor')
+  await page.getByRole('button', { name: 'Kaydet' }).click()
+  await page.goto('http://localhost:3000/bugs')
+  await expect(page.getByText('Odeme sayfasi 500 veriyor')).toBeVisible()
+})` },
       solutionCode: `test('yeni bug listede gorunur', async ({ request, page }) => {
   const created = await request.post('http://localhost:3000/api/v1/bugs', {
     data: { title: 'Odeme sayfasi 500 veriyor', severity: 'CRITICAL', reporter: 'tester@learnqa.dev' },
@@ -8234,14 +8521,21 @@ test('logged-in user sees the bug list', async ({ page }) => {
       relatedTopicId: 'api-i4-storage-state-login',
       id: 'api-i4-storage-state-login',
       title: { tr: 'Kendin Dene: Tekrarlanan Login Adımlarını Kaldır', en: 'Try It Yourself: Remove the Repeated Login Steps' },
-      starterCode: `// BUG: every test file fills the login form SEPARATELY
+      starterCode: { tr: `// BUG: her test dosyasi login formunu AYRI AYRI dolduruyor
 test('bug listesi gorunur', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel('Email').fill('tester@learnqa.dev')
   await page.getByLabel('Sifre').fill('secret')
   await page.getByRole('button', { name: 'Giris' }).click()
   await page.goto('/bugs')
-})`,
+})`, en: `// BUG: every test file fills the login form SEPARATELY
+test('bug listesi gorunur', async ({ page }) => {
+  await page.goto('/login')
+  await page.getByLabel('Email').fill('tester@learnqa.dev')
+  await page.getByLabel('Sifre').fill('secret')
+  await page.getByRole('button', { name: 'Giris' }).click()
+  await page.goto('/bugs')
+})` },
       solutionCode: `// FIX: auth.json PAYLASILIYOR, login formu hic gorulmuyor
 test.use({ storageState: 'auth.json' })
 test('bug listesi gorunur', async ({ page }) => {
@@ -8349,13 +8643,19 @@ const I5 = {
       relatedTopicId: 'api-i5-comparison',
       id: 'api-i5-comparison',
       title: { tr: 'Kendin Dene: REST Assured Satırını Playwright\'a Çevir', en: 'Try It Yourself: Translate the REST Assured Line to Playwright' },
-      starterCode: `// REST Assured (Java):
+      starterCode: { tr: `// REST Assured (Java):
+// given().baseUri("http://localhost:3000")
+//   .when().get("/api/v1/bugs/42")
+//   .then().statusCode(200).body("title", equalTo("Login butonu donuyor"));
+
+// TODO: ayni dogrulamayi Playwright/TypeScript'te yaz
+`, en: `// REST Assured (Java):
 // given().baseUri("http://localhost:3000")
 //   .when().get("/api/v1/bugs/42")
 //   .then().statusCode(200).body("title", equalTo("Login butonu donuyor"));
 
 // TODO: write the same assertion in Playwright/TypeScript
-`,
+` },
       solutionCode: `// Playwright (TypeScript):
 const response = await request.get('http://localhost:3000/api/v1/bugs/42')
 expect(response.ok()).toBeTruthy()
@@ -8718,12 +9018,16 @@ pm.test('bug olustur ve detayini dogrula', () => {
       relatedTopicId: 'api-j-error-layer-diagnosis',
       id: 'api-j-error-layer-diagnosis',
       title: { tr: 'Kendin Dene: Hatayı Doğru Katmana Yönlendir', en: 'Try It Yourself: Route the Error to the Right Layer' },
-      starterCode: `// Error: "Access to fetch at '...' has been blocked by CORS policy"
+      starterCode: { tr: `// Hata: "Access to fetch at '...' has been blocked by CORS policy"
+// TODO: bu hata hangi katmanda dogar - istemci/network mi, sunucu/kod mu, sozlesme/spec mi?
+Katman: ???`, en: `// Error: "Access to fetch at '...' has been blocked by CORS policy"
 // TODO: in which layer does this error arise - client/network, server/code, or contract/spec?
-Katman: ???`,
-      solutionCode: `// CORS arises when the server does not answer the OPTIONS request with the right header
+Katman: ???` },
+      solutionCode: { tr: `// CORS, sunucunun OPTIONS istegine dogru header ile cevap vermemesinden dogar
+// ama tester bunu Network panelinde (istemci/network katmaninda) GOZLEMLER
+Katman: Istemci/Network (Network panelinde gozlemlenir, kok neden sunucu config eksikligi)`, en: `// CORS arises when the server does not answer the OPTIONS request with the right header
 // but the tester OBSERVES this in the Network panel (the client/network layer)
-Katman: Istemci/Network (Network panelinde gozlemlenir, kok neden sunucu config eksikligi)`,
+Katman: Istemci/Network (Network panelinde gozlemlenir, kok neden sunucu config eksikligi)` },
       hint: { tr: 'Bazı hataların kök nedeni bir katmanda (sunucu config), ama testerın onu İLK GÖZLEMLEDİĞİ yer başka bir katman (Network paneli) olabilir. Bu sözlükteki her giriş ikisini de ayırt eder.', en: 'Some errors have their root cause in one layer (server config), but the layer a tester FIRST OBSERVES them in can be different (the Network panel). Every entry in this dictionary distinguishes between the two.' },
       successMessage: { tr: 'Doğru! Katman teşhisi, doğru ekibe hızlı escalate etmenin anahtarıdır.', en: 'Correct! Layer diagnosis is the key to fast, correct escalation.' },
     },
@@ -8800,11 +9104,14 @@ const K = {
       relatedTopicId: 'api-k-interview-warmup',
       id: 'api-k-interview-warmup',
       title: { tr: 'Kendin Dene: Bir Mülakat Sorusuna Isınma Turu', en: 'Try It Yourself: Warm Up for an Interview Question' },
-      starterCode: `// Mulakatci: "POST /api/v1/bugs 201 yerine 200 donuyor, bunu bug olarak acar misin?"
+      starterCode: { tr: `// Mulakatci: "POST /api/v1/bugs 201 yerine 200 donuyor, bunu bug olarak acar misin?"
+// TODO: cevabini 2 cumleyle (KOK NEDEN + ETKI) yaz
+Cevabim: ???`, en: `// Mulakatci: "POST /api/v1/bugs 201 yerine 200 donuyor, bunu bug olarak acar misin?"
 // TODO: write your answer in 2 sentences (ROOT CAUSE + IMPACT)
-Cevabim: ???`,
-      solutionCode: `// A good answer includes ROOT CAUSE + IMPACT, not just "yes/no"
-Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (mobil, otomasyon) 200'u "beklenmeyen" sayabilir; kod calissa da sozlesmeye uymayan davranis bir contract defect'idir (F5).`,
+Cevabim: ???` },
+      solutionCode: { tr: `// Iyi bir cevap KOK NEDEN + ETKI icerir, sadece "evet/hayir" degil
+Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (mobil, otomasyon) 200'u "beklenmeyen" sayabilir; kod calissa da sozlesmeye uymayan davranis bir contract defect'idir (F5).`, en: `// A good answer includes ROOT CAUSE + IMPACT, not just "yes/no"
+Cevabim: Evet - sozlesme (F1/F4) 201 vaat ediyorsa spec'e guvenen her istemci (mobil, otomasyon) 200'u "beklenmeyen" sayabilir; kod calissa da sozlesmeye uymayan davranis bir contract defect'idir (F5).` },
       hint: { tr: 'Güçlü bir mülakat cevabı SADECE "evet, bug\'dır" demez — NEDEN bug olduğunu (sözleşmeye güvenen sistemler) ve bunun hangi GRUP\'taki kavrama (F5 contract defect) bağlandığını gösterir.', en: 'A strong interview answer does not just say "yes, it is a bug" — it shows WHY it is a bug (systems trusting the contract) and which GROUP concept (F5 contract defect) it connects to.' },
       successMessage: { tr: 'Doğru refleks! Şimdi aşağıdaki 50 soruda aynı derinliği uygula.', en: 'The right instinct! Now apply the same depth to the 50 questions below.' },
     },
