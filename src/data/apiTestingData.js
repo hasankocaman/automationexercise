@@ -171,12 +171,12 @@ const A2 = {
     { type: 'heading', text: { tr: 'Bir Request\'in Dört Parçası', en: 'The Four Parts of a Request' } },
     {
       type: 'table',
-      headers: ['Parça / Part', 'Ne işe yarar / Purpose', 'Örnek / Example'],
+      headers: [{ tr: 'Parça', en: 'Part' }, { tr: 'Ne işe yarar', en: 'Purpose' }, { tr: 'Örnek', en: 'Example' }],
       rows: [
-        ['Method', 'Ne yapılacak (fiil) / What to do (verb)', 'POST'],
-        ['URL', 'Nereye / Where', '/api/v1/bugs'],
-        ['Header', 'Request\'in meta bilgisi / Request metadata', 'Content-Type: application/json'],
-        ['Body', 'Taşınan veri (yalnız POST/PUT/PATCH) / Carried data (POST/PUT/PATCH only)', '{ "title": "..." }'],
+        ['Method', { tr: 'Ne yapılacak (fiil)', en: 'What to do (verb)' }, 'POST'],
+        ['URL', { tr: 'Nereye', en: 'Where' }, '/api/v1/bugs'],
+        ['Header', { tr: 'Request\'in meta bilgisi', en: 'Request metadata' }, 'Content-Type: application/json'],
+        ['Body', { tr: 'Taşınan veri (yalnız POST/PUT/PATCH)', en: 'Carried data (POST/PUT/PATCH only)' }, '{ "title": "..." }'],
       ],
     },
     {
@@ -485,13 +485,13 @@ const A4 = {
     { type: 'heading', text: { tr: 'Beş Metod, Beş Söz', en: 'Five Methods, Five Promises' } },
     {
       type: 'table',
-      headers: ['Method', 'Bug Tracker eylemi / action', 'Body?', 'Güvenli / Safe', 'Idempotent'],
+      headers: ['Method', { tr: 'Bug Tracker eylemi', en: 'Bug Tracker action' }, 'Body?', { tr: 'Güvenli', en: 'Safe' }, 'Idempotent'],
       rows: [
-        ['GET', 'GET /api/v1/bugs — listeyi oku / read list', '❌', '✅', '✅'],
-        ['POST', 'POST /api/v1/bugs — yeni bug oluştur / create', '✅', '❌', '❌'],
-        ['PUT', 'PUT /api/v1/bugs/42 — komple değiştir / full replace', '✅', '❌', '✅'],
-        ['PATCH', 'PATCH /api/v1/bugs/42/status — kısmi güncelle / partial', '✅', '❌', '⚠️ genelde / usually'],
-        ['DELETE', 'DELETE /api/v1/bugs/42 — sil / remove', '❌', '❌', '✅'],
+        ['GET', { tr: 'GET /api/v1/bugs — listeyi oku', en: 'GET /api/v1/bugs — read list' }, '❌', '✅', '✅'],
+        ['POST', { tr: 'POST /api/v1/bugs — yeni bug oluştur', en: 'POST /api/v1/bugs — create' }, '✅', '❌', '❌'],
+        ['PUT', { tr: 'PUT /api/v1/bugs/42 — komple değiştir', en: 'PUT /api/v1/bugs/42 — full replace' }, '✅', '❌', '✅'],
+        ['PATCH', { tr: 'PATCH /api/v1/bugs/42/status — kısmi güncelle', en: 'PATCH /api/v1/bugs/42/status — partial' }, '✅', '❌', { tr: '⚠️ genelde', en: '⚠️ usually' }],
+        ['DELETE', { tr: 'DELETE /api/v1/bugs/42 — sil', en: 'DELETE /api/v1/bugs/42 — remove' }, '❌', '❌', '✅'],
       ],
     },
     {
@@ -742,12 +742,12 @@ const A6 = {
     { type: 'heading', text: { tr: 'Bir Testerın Bilmesi Gereken Dört Header', en: 'Four Headers a Tester Must Know' } },
     {
       type: 'table',
-      headers: ['Header', 'Anlam / Meaning', 'Eksikse / If missing'],
+      headers: ['Header', { tr: 'Anlam', en: 'Meaning' }, { tr: 'Eksikse', en: 'If missing' }],
       rows: [
-        ['Content-Type', 'Gövdenin tipi (request) / body type (request)', 'JSON ayrıştırılamaz, boş body / JSON unparsed, empty body'],
-        ['Accept', 'İstenen response tipi / desired response type', '406 veya beklenmeyen format / 406 or unexpected format'],
-        ['Authorization', 'Kimlik (Bearer token) / identity', '401 Unauthorized'],
-        ['Cache-Control', 'Önbellek politikası / cache policy', 'Eski veri döner (phantom bug) / stale data (phantom bug)'],
+        ['Content-Type', { tr: 'Gövdenin tipi (request)', en: 'body type (request)' }, { tr: 'JSON ayrıştırılamaz, boş body', en: 'JSON unparsed, empty body' }],
+        ['Accept', { tr: 'İstenen response tipi', en: 'desired response type' }, { tr: '406 veya beklenmeyen format', en: '406 or unexpected format' }],
+        ['Authorization', { tr: 'Kimlik (Bearer token)', en: 'identity' }, '401 Unauthorized'],
+        ['Cache-Control', { tr: 'Önbellek politikası', en: 'cache policy' }, { tr: 'Eski veri döner (phantom bug)', en: 'stale data (phantom bug)' }],
       ],
     },
     {
@@ -3394,15 +3394,15 @@ const C6 = {
     { type: 'heading', text: { tr: 'Üç Framework, Aynı Sözleşme', en: 'Three Frameworks, One Contract' } },
     {
       type: 'table',
-      headers: ['Konu / Topic', 'Spring Boot (Java)', 'Express.js', 'NestJS'],
+      headers: [{ tr: 'Konu', en: 'Topic' }, 'Spring Boot (Java)', 'Express.js', 'NestJS'],
       rows: [
-        ['Route tanımı / Route definition', '@GetMapping("/bugs")', "app.get('/bugs', handler)", '@Get()'],
-        ['Body okuma / Reading body', '@RequestBody BugRequest req', 'req.body (express.json() şart)', '@Body() dto: CreateBugDto'],
-        ['Validation', '@Valid + Bean Validation', 'express-validator / zod (elle okunur)', 'ValidationPipe + class-validator'],
-        ['Hata yönetimi / Error handling', '@RestControllerAdvice', '4 parametreli (err,req,res,next)', '@Catch() Exception Filter'],
-        ['DI (bağımlılık enjeksiyonu)', 'Spring IoC container', 'manuel / factory fonksiyon', 'Nest IoC container'],
-        ['Sıra hassasiyeti / Order sensitivity', 'Düşük — annotation tabanlı', 'YÜKSEK — middleware SIRASI kritik', 'Orta — modül/pipe kaydı önemli'],
-        ['En sık sessiz hata / Most common silent bug', 'Eksik starter/annotation', 'Yanlış middleware sırası', 'Unutulan global pipe/filter kaydı'],
+        [{ tr: 'Route tanımı', en: 'Route definition' }, '@GetMapping("/bugs")', "app.get('/bugs', handler)", '@Get()'],
+        [{ tr: 'Body okuma', en: 'Reading body' }, '@RequestBody BugRequest req', { tr: 'req.body (express.json() şart)', en: 'req.body (express.json() required)' }, '@Body() dto: CreateBugDto'],
+        ['Validation', '@Valid + Bean Validation', { tr: 'express-validator / zod (elle okunur)', en: 'express-validator / zod (read manually)' }, 'ValidationPipe + class-validator'],
+        [{ tr: 'Hata yönetimi', en: 'Error handling' }, '@RestControllerAdvice', { tr: '4 parametreli (err,req,res,next)', en: '4-parameter (err,req,res,next)' }, '@Catch() Exception Filter'],
+        [{ tr: 'DI (bağımlılık enjeksiyonu)', en: 'DI (dependency injection)' }, 'Spring IoC container', { tr: 'manuel / factory fonksiyon', en: 'manual / factory function' }, 'Nest IoC container'],
+        [{ tr: 'Sıra hassasiyeti', en: 'Order sensitivity' }, { tr: 'Düşük — annotation tabanlı', en: 'Low — annotation-based' }, { tr: 'YÜKSEK — middleware SIRASI kritik', en: 'HIGH — middleware ORDER is critical' }, { tr: 'Orta — modül/pipe kaydı önemli', en: 'Medium — module/pipe registration matters' }],
+        [{ tr: 'En sık sessiz hata', en: 'Most common silent bug' }, { tr: 'Eksik starter/annotation', en: 'Missing starter/annotation' }, { tr: 'Yanlış middleware sırası', en: 'Wrong middleware order' }, { tr: 'Unutulan global pipe/filter kaydı', en: 'Forgotten global pipe/filter registration' }],
       ],
     },
     {
@@ -4316,15 +4316,15 @@ const D5 = {
     { type: 'heading', text: { tr: 'Üç Framework, Aynı Sözleşme (Tekrar)', en: 'Three Frameworks, One Contract (Again)' } },
     {
       type: 'table',
-      headers: ['Konu / Topic', 'Spring Boot (Java)', 'Express.js', 'NestJS'],
+      headers: [{ tr: 'Konu', en: 'Topic' }, 'Spring Boot (Java)', 'Express.js', 'NestJS'],
       rows: [
-        ['Route tanımı / Route definition', '@GetMapping("/bugs")', "app.get('/bugs', handler)", '@Get()'],
-        ['Body okuma / Reading body', '@RequestBody BugRequest req', 'req.body (express.json() şart)', '@Body() dto: CreateBugDto'],
-        ['Validation', '@Valid + Bean Validation', 'express-validator / zod (elle okunur)', 'ValidationPipe + class-validator'],
-        ['Hata yönetimi / Error handling', '@RestControllerAdvice', '4 parametreli (err,req,res,next)', '@Catch() Exception Filter'],
-        ['DI (bağımlılık enjeksiyonu)', 'Spring IoC container', 'manuel / factory fonksiyon', 'Nest IoC container'],
-        ['Modül/kayıt kaygısı / Registration', 'Component scan otomatik', 'Yok — dosya import edilince aktif', '@Module dizisine EKLENMEZSE controller yok sayılır'],
-        ['En sık sessiz hata / Most common silent bug', 'Eksik starter/annotation', 'Yanlış middleware sırası', 'Unutulan global pipe/filter/modül kaydı'],
+        [{ tr: 'Route tanımı', en: 'Route definition' }, '@GetMapping("/bugs")', "app.get('/bugs', handler)", '@Get()'],
+        [{ tr: 'Body okuma', en: 'Reading body' }, '@RequestBody BugRequest req', { tr: 'req.body (express.json() şart)', en: 'req.body (express.json() required)' }, '@Body() dto: CreateBugDto'],
+        ['Validation', '@Valid + Bean Validation', { tr: 'express-validator / zod (elle okunur)', en: 'express-validator / zod (read manually)' }, 'ValidationPipe + class-validator'],
+        [{ tr: 'Hata yönetimi', en: 'Error handling' }, '@RestControllerAdvice', { tr: '4 parametreli (err,req,res,next)', en: '4-parameter (err,req,res,next)' }, '@Catch() Exception Filter'],
+        [{ tr: 'DI (bağımlılık enjeksiyonu)', en: 'DI (dependency injection)' }, 'Spring IoC container', { tr: 'manuel / factory fonksiyon', en: 'manual / factory function' }, 'Nest IoC container'],
+        [{ tr: 'Modül/kayıt kaygısı', en: 'Registration' }, { tr: 'Component scan otomatik', en: 'Automatic component scan' }, { tr: 'Yok — dosya import edilince aktif', en: 'None — active once the file is imported' }, { tr: '@Module dizisine EKLENMEZSE controller yok sayılır', en: 'If NOT ADDED to the @Module array, the controller is ignored' }],
+        [{ tr: 'En sık sessiz hata', en: 'Most common silent bug' }, { tr: 'Eksik starter/annotation', en: 'Missing starter/annotation' }, { tr: 'Yanlış middleware sırası', en: 'Wrong middleware order' }, { tr: 'Unutulan global pipe/filter/modül kaydı', en: 'Forgotten global pipe/filter/module registration' }],
       ],
     },
     {
@@ -8290,15 +8290,15 @@ const I5 = {
     { type: 'heading', text: { tr: 'Aynı Test, İki Dilde', en: 'The Same Test, in Two Languages' } },
     {
       type: 'table',
-      headers: ['Konu / Topic', 'REST Assured (Java)', 'Playwright (TypeScript)'],
+      headers: [{ tr: 'Konu', en: 'Topic' }, 'REST Assured (Java)', 'Playwright (TypeScript)'],
       rows: [
-        ['Sözdizim başlangıcı / Syntax start', 'given().when().then()', 'const response = await request.get(...)'],
-        ['Status doğrulama / Status check', '.statusCode(200)', 'expect(response.ok()).toBeTruthy()'],
-        ['Alan doğrulama / Field check', '.body("title", equalTo(...))', 'expect(body.title).toBe(...)'],
-        ['Şema doğrulama / Schema check', 'matchesJsonSchemaInClasspath(...)', 'ayrı bir kütüphane (örn. ajv) gerekir'],
-        ['UI ile hibrit / Hybrid with UI', 'Ayrı araç gerekir (Selenium + REST Assured)', 'AYNI dosyada { request, page } — doğal'],
-        ['Ekosistem / Ecosystem', 'Java/Maven — Selenium ile aynı dil', 'TypeScript/npm — UI testleriyle aynı dil'],
-        ['Çalıştırıcı / Runner', 'JUnit 5/TestNG + mvn test', 'Playwright Test Runner (dahili)'],
+        [{ tr: 'Sözdizim başlangıcı', en: 'Syntax start' }, 'given().when().then()', 'const response = await request.get(...)'],
+        [{ tr: 'Status doğrulama', en: 'Status check' }, '.statusCode(200)', 'expect(response.ok()).toBeTruthy()'],
+        [{ tr: 'Alan doğrulama', en: 'Field check' }, '.body("title", equalTo(...))', 'expect(body.title).toBe(...)'],
+        [{ tr: 'Şema doğrulama', en: 'Schema check' }, 'matchesJsonSchemaInClasspath(...)', { tr: 'ayrı bir kütüphane (örn. ajv) gerekir', en: 'requires a separate library (e.g. ajv)' }],
+        [{ tr: 'UI ile hibrit', en: 'Hybrid with UI' }, { tr: 'Ayrı araç gerekir (Selenium + REST Assured)', en: 'Requires a separate tool (Selenium + REST Assured)' }, { tr: 'AYNI dosyada { request, page } — doğal', en: 'SAME file { request, page } — natural' }],
+        [{ tr: 'Ekosistem', en: 'Ecosystem' }, { tr: 'Java/Maven — Selenium ile aynı dil', en: 'Java/Maven — same language as Selenium' }, { tr: 'TypeScript/npm — UI testleriyle aynı dil', en: 'TypeScript/npm — same language as UI tests' }],
+        [{ tr: 'Çalıştırıcı', en: 'Runner' }, 'JUnit 5/TestNG + mvn test', { tr: 'Playwright Test Runner (dahili)', en: 'Playwright Test Runner (built-in)' }],
       ],
     },
     {
@@ -8481,7 +8481,7 @@ fetch('/api/v1/bugs', {
 })`,
         },
         {
-          error: '400 Bad Request vs 422 Unprocessable Entity karışıklığı',
+          error: { tr: '400 Bad Request vs 422 Unprocessable Entity karışıklığı', en: '400 Bad Request vs 422 Unprocessable Entity confusion' },
           fullMessage: 'POST /api/v1/bugs { "title": "ab" } -> 400 mü 422 mi dönmeli?',
           cause: {
             tr: '400, gövde HİÇ ayrıştırılamadığında (bozuk JSON); 422, gövde ayrıştırıldı ama bir İŞ KURALINI (minLength gibi) ihlal ettiğinde kullanılır. Çoğu API bu ayrımı yapmadan HER İKİ durumu da 400 döner — bu bir standart hatası değil ama sözleşmede AÇIKÇA belirtilmesi gerekir.',
@@ -8498,7 +8498,7 @@ fetch('/api/v1/bugs', {
 // gecerli JSON ama is kurali ihlali (title cok kisa) -> 422 Unprocessable Entity`,
         },
         {
-          error: 'CORS preflight request\'i başarısız',
+          error: { tr: 'CORS preflight request\'i başarısız', en: 'CORS preflight request failed' },
           fullMessage: "Access to fetch at 'http://localhost:3000/api/v1/bugs' from origin 'http://localhost:5173' has been blocked by CORS policy",
           cause: {
             tr: 'Tarayıcı, farklı bir origin\'e (portlar bile farklı origin sayılır) request atmadan önce bir `OPTIONS` request\'i (preflight) gönderir; sunucu bu request\'e `Access-Control-Allow-Origin` header\'ıyla CEVAP VERMEZSE tarayıcı GERÇEK request\'i hiç göndermez.',
@@ -8537,7 +8537,7 @@ app.get('/api/v1/bugs', handler)
 app.listen(3000, () => console.log('Port 3000 dinleniyor'))`,
         },
         {
-          error: '401 Unauthorized vs 403 Forbidden karışıklığı',
+          error: { tr: '401 Unauthorized vs 403 Forbidden karışıklığı', en: '401 Unauthorized vs 403 Forbidden confusion' },
           fullMessage: 'DELETE /api/v1/bugs/42 -> beklenen 403, gelen 401 (veya tam tersi)',
           cause: {
             tr: 'Backend, "kimlik yok" (401) ile "kimlik var ama yetki yok" (403) senaryolarını AYNI kod ile karıştırıyor — genelde auth middleware\'i her iki durumda da 401 döndürüyor.',
@@ -8575,8 +8575,8 @@ app.set('strict routing', false)   // her iki varyant da calisir
 app.get('/api/v1/bugs', handler)`,
         },
         {
-          error: "Content-Type eksikliğinden boş body (req.body undefined)",
-          fullMessage: "POST /api/v1/bugs -> 201 Created ama title: undefined ile kayıt oluştu",
+          error: { tr: 'Content-Type eksikliğinden boş body (req.body undefined)', en: 'Empty body due to missing Content-Type (req.body undefined)' },
+          fullMessage: { tr: 'POST /api/v1/bugs -> 201 Created ama title: undefined ile kayıt oluştu', en: 'POST /api/v1/bugs -> 201 Created but a record was saved with title: undefined' },
           cause: {
             tr: 'İstemci `Content-Type: application/json` göndermeden JSON gövde yolladı; sunucudaki gövde ayrıştırıcı (`express.json()`) bu request\'i JSON olarak TANIMAZ, `req.body` boş kalır — ama validation da yoksa sunucu yine de 201 döner (bkz. C3, C4).',
             en: 'The client sent a JSON body without `Content-Type: application/json`; the server\'s body parser (`express.json()`) does NOT RECOGNIZE this request as JSON, `req.body` stays empty — but if there is no validation either, the server still returns 201 (see C3, C4).',
@@ -8594,7 +8594,7 @@ fetch('/api/v1/bugs', { method: 'POST', body: JSON.stringify({ title: 'x' }) })`
 })`,
         },
         {
-          error: 'Tarih formatı parse hatası',
+          error: { tr: 'Tarih formatı parse hatası', en: 'Date format parse error' },
           fullMessage: "createdAt: \"24/07/2026\" -> istemci Date.parse() ile 'Invalid Date' üretir",
           cause: {
             tr: 'Backend, F4\'teki spec\'in vaat ettiği ISO-8601 (`2026-07-24T10:00:00Z`) yerine yerel bir formatta (`gün/ay/yıl`) tarih dönüyor — bu bir F5 tarzı contract defect\'idir (alan tipi/format uyumsuzluğu).',
@@ -8609,8 +8609,8 @@ res.json({ ...bug, createdAt: '24/07/2026' })`,
           codeFixed: `res.json({ ...bug, createdAt: new Date().toISOString() })   // 2026-07-24T10:00:00.000Z`,
         },
         {
-          error: 'null vs alan yokluğu',
-          fullMessage: '{ "reporter": null } vs { } (reporter alanı hiç yok)',
+          error: { tr: 'null vs alan yokluğu', en: 'null vs absent field' },
+          fullMessage: { tr: '{ "reporter": null } vs { } (reporter alanı hiç yok)', en: '{ "reporter": null } vs { } (reporter field entirely absent)' },
           cause: {
             tr: '`null`, alanın VAR olduğu ama değerinin bilinçli olarak boş olduğu anlamına gelir; alanın HİÇ olmaması ise anahtarın kaybolduğu (olası bir contract regresyonu) anlamına gelir — ikisi AYNI şey DEĞİLDİR ama zayıf bir kontrol (`if (!bug.reporter)`) ikisini de aynı sayar.',
             en: '`null` means the field EXISTS but its value is intentionally empty; the field being ENTIRELY absent means the key vanished (a possible contract regression) — the two are NOT the SAME thing, but a weak check (`if (!bug.reporter)`) treats them identically.',
@@ -8666,8 +8666,8 @@ const text = new TextDecoder().decode(raw)   // sikistirilmis baytlar CIG olarak
 const body = await response.json()   // dogru sekilde decode edilmis veri`,
         },
         {
-          error: "Postman'de çalışıp otomasyonda düşen test",
-          fullMessage: 'Postman: tüm request\'ler PASS. CI\'daki Newman/Playwright koşumu: aynı senaryo FAIL.',
+          error: { tr: 'Postman\'de çalışıp otomasyonda düşen test', en: 'Test that passes in Postman but fails in automation' },
+          fullMessage: { tr: 'Postman: tüm request\'ler PASS. CI\'daki Newman/Playwright koşumu: aynı senaryo FAIL.', en: 'Postman: all requests PASS. Newman/Playwright run in CI: same scenario FAILs.' },
           cause: {
             tr: 'Postman\'de request\'ler genelde ELLE, SIRAYLA çalıştırılır ve önceki bir koşumdan kalan veriye (sabit bir `id`, önceden oluşturulmuş bir kayıt) SESSİZCE güvenilir; CI\'da ise her koşum TEMİZ bir ortamda, bazen PARALEL çalışır — o "hazır" veri artık YOKTUR.',
             en: 'In Postman, requests are usually run MANUALLY, IN ORDER, and SILENTLY rely on data left over from a previous run (a fixed `id`, a pre-created record); in CI, every run happens in a CLEAN environment, sometimes PARALLEL — that "ready" data no longer EXISTS.',

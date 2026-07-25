@@ -4305,7 +4305,7 @@ function ErrorDictionaryBlock({ block, darkMode, hideHeading = false }) {
                         </div>
                         {err.fullMessage && (
                             <div className={`px-4 py-2 text-xs font-mono border-b ${darkMode ? 'bg-gray-900 text-gray-400 border-gray-800' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
-                                {err.fullMessage}
+                                {tx(err.fullMessage, language)}
                             </div>
                         )}
                         <div className={`px-4 py-3 grid grid-cols-1 md:grid-cols-2 gap-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
