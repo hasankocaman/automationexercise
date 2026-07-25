@@ -635,6 +635,242 @@ await page.getByTestId('edit-bug-42').click();`,
   },
 }
 
+// ─── video-scene: Semantik element mi, div mi? Accessibility Tree'nin kararı (GRUP B) ─
+const semanticVsDivFilm = {
+  type: 'video-scene',
+  id: 'qaf-semantic-vs-div-film',
+  title: {
+    tr: '🎬 Semantik Element mi, Div mi? Accessibility Tree\'nin Kararı',
+    en: '🎬 Semantic Element or Div? The Accessibility Tree\'s Verdict',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'button',  emoji: '🔘', label: { tr: '<button>Kaydet</button>', en: '<button>Save</button>' },       color: '#22c55e' },
+    { id: 'div',     emoji: '📦', label: { tr: '<div onclick=...>Kaydet</div>', en: '<div onclick=...>Save</div>' }, color: '#f59e0b' },
+    { id: 'dom',     emoji: '🌳', label: { tr: 'DOM',                 en: 'DOM' },                 color: '#8b5cf6' },
+    { id: 'a11y',    emoji: '🦯', label: { tr: 'Accessibility Tree',  en: 'Accessibility Tree' },  color: '#6366f1' },
+    { id: 'role',    emoji: '✅', label: { tr: 'role="button" (otomatik)', en: 'role="button" (automatic)' }, color: '#10b981' },
+    { id: 'generic', emoji: '❓', label: { tr: 'role yok (generic)',  en: 'no role (generic)' },   color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'İki "Kaydet" butonu var, PİKSEL PİKSEL aynı görünüyorlar: biri gerçek `<button>`, diğeri sadece CSS ile butona benzetilmiş bir `<div onclick="...">`. Gözle aralarında hiçbir fark yok — ama bu filmde tarayıcının onları NASIL FARKLI muamele ettiğini göreceksin.',
+        en: 'There are two "Save" buttons that look PIXEL-IDENTICAL: one is a real `<button>`, the other is just a `<div onclick="...">` styled to look like a button. To the eye there is no difference — but in this film you will see how the browser treats them DIFFERENTLY.',
+      },
+      code: { tr: `<button>Kaydet</button>  vs  <div onclick="submit()">Kaydet</div>`, en: `<button>Save</button>  vs  <div onclick="submit()">Save</div>` },
+      positions: {
+        button: { x: 30, y: 40, scale: 1.1 },
+        div: { x: 70, y: 40, scale: 1.1 },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — İkisi de DOM\'a girer: parser her ikisini de birer node olarak ağaca ekler. Bu aşamada hâlâ hiçbir fark yok; DOM ikisini de eşit muamele eder.',
+        en: 'Step 1 — Both enter the DOM: the parser adds both as nodes in the tree. At this point there is still no difference; the DOM treats both equally.',
+      },
+      code: { tr: `DOM: iki node da eklendi`, en: `DOM: both nodes added` },
+      positions: {
+        button: { x: 24, y: 50, scale: 1.05 },
+        div: { x: 60, y: 50, scale: 1.05 },
+        dom: { x: 84, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'button', to: 'dom' }, { from: 'div', to: 'dom' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Accessibility Tree kurulur: tarayıcı her elementin "anlamını" (role, isim, durum) çıkaran ikinci bir ağaç kurar — bu ağaç screen reader\'ın VE `getByRole`\'ün gördüğü şeydir.',
+        en: 'Step 2 — The Accessibility Tree is built: the browser builds a second tree that extracts each element\'s "meaning" (role, name, state) — this is what the screen reader AND `getByRole` see.',
+      },
+      code: { tr: `accessibility tree kuruluyor...`, en: `building the accessibility tree...` },
+      positions: {
+        dom: { x: 24, y: 50, opacity: 0.6, scale: 0.9 },
+        a11y: { x: 60, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dom', to: 'a11y', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — `<button>` OTOMATİK bir kimlik kazanır: role="button", isim="Kaydet" (metninden türetilir), Tab ile odaklanabilir, Enter/Space ile tetiklenebilir. Hiçbir ekstra kod yazılmadı — bu, elementin doğasında var.',
+        en: 'Step 3 — `<button>` AUTOMATICALLY gets an identity: role="button", name="Save" (derived from its text), focusable with Tab, triggerable with Enter/Space. No extra code was written — this is built into the element\'s nature.',
+      },
+      code: { tr: `role: button · name: "Kaydet" · focusable: true`, en: `role: button · name: "Save" · focusable: true` },
+      positions: {
+        a11y: { x: 24, y: 40, opacity: 0.6, scale: 0.9 },
+        role: { x: 60, y: 40, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'a11y', to: 'role', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — `<div onclick>` HİÇBİR kimlik kazanmaz: accessibility tree\'de rolü "generic"tir (anlamsız), Tab ile odaklanamaz, Enter/Space ile tetiklenmez — sadece fare tıklamasıyla çalışır. Screen reader kullanıcısı bunun tıklanabilir olduğunu ASLA anlamaz.',
+        en: 'Step 4 — `<div onclick>` gets NO identity at all: its role in the accessibility tree is "generic" (meaningless), it cannot be focused with Tab, it is not triggered by Enter/Space — it only works with a mouse click. A screen-reader user NEVER learns it is clickable.',
+      },
+      code: { tr: `role: generic · name: (yok) · focusable: false`, en: `role: generic · name: (none) · focusable: false` },
+      positions: {
+        a11y: { x: 24, y: 60, opacity: 0.6, scale: 0.9 },
+        generic: { x: 60, y: 60, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'a11y', to: 'generic', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Locator sonucu: `getByRole(\'button\', { name: \'Kaydet\' })` SADECE gerçek `<button>`\'ı bulur; `<div onclick>`\'i asla bulamaz çünkü rolü yok. Developer\'dan ne iste? "Gerçek `<button>` kullan; illa div gerekiyorsa `role="button" tabindex="0"` ve klavye desteği ekle." Semantik element hem erişilebilirliği hem locator\'ı aynı anda kazandırır.',
+        en: 'Final — The locator outcome: `getByRole(\'button\', { name: \'Save\' })` finds ONLY the real `<button>`; it never finds `<div onclick>` because it has no role. What to ask the developer? "Use a real `<button>`; if a div is truly needed, add `role="button" tabindex="0"` and keyboard support." A semantic element wins accessibility AND the locator at the same time.',
+      },
+      code: { tr: `getByRole('button', { name: 'Kaydet' }) → sadece <button>`, en: `getByRole('button', { name: 'Save' }) -> only <button>` },
+      positions: {
+        role: { x: 30, y: 45, scale: 1.15, pulse: true },
+        generic: { x: 68, y: 55, scale: 0.9, opacity: 0.5 },
+      },
+    },
+  ],
+}
+
+// ─── step-animation: id/class/data-*/role hangi amaca hizmet eder (GRUP B2) ───
+const attributePurposeSteps = {
+  type: 'step-animation',
+  id: 'qaf-b2-attribute-purpose-steps',
+  title: { tr: 'Adım Adım: Her Attribute Farklı Bir Amaca Hizmet Eder', en: 'Step by Step: Each Attribute Serves a Different Purpose' },
+  steps: [
+    { id: 1, icon: '🪪', label: { tr: '`id` — resmi kimlik', en: '`id` — official identity' }, detail: { tr: 'Sayfada BENZERSİZ olmalıdır; tıpkı T.C. kimlik numarası gibi bir tane olur. Amacı: tekil tanımlama.', en: 'Must be UNIQUE on the page; like a national ID number, there is only one. Purpose: unique identification.' } },
+    { id: 2, icon: '👕', label: { tr: '`class` — kıyafet/stil', en: '`class` — clothing/style' }, detail: { tr: 'Birden çok elementte aynı olabilir ve sık değişir (yeni sezon = yeni tasarım). Amacı: görünüm, KİMLİK DEĞİL.', en: 'Can be the same on many elements and changes often (new season = new design). Purpose: appearance, NOT identity.' } },
+    { id: 3, icon: '🏷️', label: { tr: '`data-testid` — özel test rozeti', en: '`data-testid` — a dedicated test badge' }, detail: { tr: 'Sadece otomasyon için asılan bir rozettir; stil veya davranışla hiç ilgisi yoktur, bu yüzden en dayanıklısıdır.', en: 'A badge hung solely for automation; it has nothing to do with style or behavior, which is why it is the most durable.' } },
+    { id: 4, icon: '🦯', label: { tr: '`role`/`aria-*` — işlev kartı', en: '`role`/`aria-*` — a function card' }, detail: { tr: 'Elementin TOPLUMDAKİ işlevini (buton mu, sekme mi, uyarı mı) tarif eder; hem erişilebilirlik hem `getByRole` bunu okur.', en: 'Describes the element\'s FUNCTION in the world (is it a button, a tab, an alert); both accessibility and `getByRole` read it.' } },
+    { id: 5, icon: '⚠️', label: { tr: 'Karışıklık: birini diğeri yerine kullanmak', en: 'The mix-up: using one in place of another' }, detail: { tr: '`class`\'ı kimlik (id) gibi kullanmak, kıyafete göre insan tanımaya benzer — sezon (deploy) değişince tanıma bozulur.', en: 'Using `class` as an identity (like id) is like recognizing a person by their clothes — recognition breaks once the season (deploy) changes.' } },
+  ],
+}
+
+// ─── code-playground: doğru attribute'u seç (GRUP B2) ─────────────────────────
+const pickDurableAttributePlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-b2-attributes',
+  id: 'qaf-b2-pick-attribute',
+  title: { tr: 'Kendin Dene: Bu Butonda Hangi Attribute\'a Güvenirsin?', en: 'Try It Yourself: Which Attribute Would You Trust on This Button?' },
+  starterCode: {
+    tr: `// DevTools'ta gördüğün buton:
+// <button id="btn-7f" class="Btn_primary__k92a" data-testid="submit-bug"
+//         role="button" aria-label="Bug'ı gönder">Gönder</button>
+// id her sayfa yüklemesinde YENİDEN ÜRETİLİYOR (rastgele sayı), class build'de
+// hash değiştiriyor. TODO: locator'ı en dayanıklı attribute'a göre yaz.
+await page.locator('#btn-7f').click();`,
+    en: `// The button you see in DevTools:
+// <button id="btn-7f" class="Btn_primary__k92a" data-testid="submit-bug"
+//         role="button" aria-label="Submit bug">Submit</button>
+// id is REGENERATED on every page load (a random number), class changes its
+// hash on build. TODO: write the locator based on the most durable attribute.
+await page.locator('#btn-7f').click();`,
+  },
+  solutionCode: {
+    tr: `// data-testid: build'den, sayfa yüklemesinden ve dilden bağımsız
+await page.getByTestId('submit-bug').click();`,
+    en: `// data-testid: independent of build, page load, and language
+await page.getByTestId('submit-bug').click();`,
+  },
+  hint: {
+    tr: 'Bu senaryoda `id` bile dinamik (her yüklemede değişiyor) ve `class` build\'de hash değiştiriyor — ikisi de kimlik olarak GÜVENİLMEZ. `data-testid` sadece test için var ve hiçbir şeyden etkilenmez.',
+    en: 'In this scenario even `id` is dynamic (changes on every load) and `class` changes its hash on build — neither is TRUSTWORTHY as an identity. `data-testid` exists solely for tests and is affected by nothing.',
+  },
+  successMessage: {
+    tr: 'Doğru! Bir attribute\'un "kimlik" gibi görünmesi onu güvenilir yapmaz — asıl soru o attribute\'un hangi amaçla var olduğu ve neyin etkisiyle değiştiğidir.',
+    en: 'Correct! An attribute looking like an "identity" does not make it trustworthy — the real question is what purpose it exists for and what causes it to change.',
+  },
+}
+
+// ─── table: id vs class vs data-testid dayanıklılık (GRUP B3) ─────────────────
+const attributeDurabilityTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Attribute', en: 'Attribute' },
+    { tr: 'Deploy\'da değişir mi?', en: 'Changes on deploy?' },
+    { tr: 'Sayfa yüklemesinde değişir mi?', en: 'Changes on page load?' },
+    { tr: 'Locator önerisi', en: 'Locator recommendation' },
+  ],
+  rows: [
+    ['data-testid', { tr: '❌ Hayır', en: '❌ No' }, { tr: '❌ Hayır', en: '❌ No' }, { tr: '✅ İlk tercih', en: '✅ First choice' }],
+    ['role + aria-label', { tr: '❌ Hayır', en: '❌ No' }, { tr: '❌ Hayır', en: '❌ No' }, { tr: '✅ İkinci tercih', en: '✅ Second choice' }],
+    ['stabil id', { tr: '❌ Hayır', en: '❌ No' }, { tr: '⚠️ Bazen (dinamikse evet)', en: '⚠️ Sometimes (yes if dynamic)' }, { tr: '⚠️ Sabitse kullan', en: '⚠️ Use if stable' }],
+    ['class (CSS Module)', { tr: '✅ Evet (hash)', en: '✅ Yes (hash)' }, { tr: '❌ Hayır', en: '❌ No' }, { tr: '❌ Kullanma', en: '❌ Do not use' }],
+  ],
+}
+
+// ─── challenge (order-sort): attribute dayanıklılık sırası (GRUP B3) ──────────
+const attributeOrderChallenge = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'qaf-b3-attribute-order-01',
+  question: { tr: 'Bu attribute\'ları EN DAYANIKLIDAN EN KIRILGANA doğru sırala.', en: 'Order these attributes from MOST DURABLE to MOST FRAGILE.' },
+  items: [
+    { id: '1', text: { tr: 'data-testid', en: 'data-testid' }, order: 1 },
+    { id: '2', text: { tr: 'role + aria-label', en: 'role + aria-label' }, order: 2 },
+    { id: '3', text: { tr: 'stabil (sabit) id', en: 'stable (fixed) id' }, order: 3 },
+    { id: '4', text: { tr: 'CSS Module class (hash\'li)', en: 'CSS Module class (hashed)' }, order: 4 },
+  ],
+  xpReward: 10,
+}
+
+// ─── step-animation: label/for ↔ input/id ilişkisi (GRUP B4) ──────────────────
+const labelForIdSteps = {
+  type: 'step-animation',
+  id: 'qaf-b4-label-for-id-steps',
+  title: { tr: 'Adım Adım: `label`\'ın `for\'u `input`\'un `id`\'sine Neden Eşit Olmalı?', en: 'Step by Step: Why a `label`\'s `for` Must Match an `input`\'s `id`' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: '`<label for="reporter">` yazılır', en: '`<label for="reporter">` is written' }, detail: { tr: 'Developer "Bildiren" etiketini yazar ve `for="reporter"` ile bir input\'a İŞARET ETTİĞİNİ belirtir.', en: 'The developer writes the "Reporter" label and points to an input with `for="reporter"`.' } },
+    { id: 2, icon: '🔗', label: { tr: '`<input id="reporter">` eşleşirse…', en: 'If `<input id="reporter">` matches...' }, detail: { tr: 'Tarayıcı bu ikisini BAĞLAR: label\'a tıklamak input\'u odaklar, screen reader "Bildiren" ismini input\'a atar.', en: 'The browser LINKS the two: clicking the label focuses the input, and the screen reader assigns the name "Reporter" to the input.' } },
+    { id: 3, icon: '💥', label: { tr: 'Ama `id="reporterEmail"` olursa…', en: 'But if it is `id="reporterEmail"` instead...' }, detail: { tr: 'Bir refactor sırasında input\'un id\'si değişir ama label\'ın `for`\'u güncellenmezse, bağlantı SESSİZCE kopar — hiçbir hata mesajı çıkmaz.', en: 'During a refactor the input\'s id changes but the label\'s `for` is not updated, the link breaks SILENTLY — no error message appears.' } },
+    { id: 4, icon: '🖱️', label: { tr: 'Görsel olarak fark edilmez', en: 'Visually unnoticeable' }, detail: { tr: 'Sayfa görsel olarak AYNI görünür; sadece label\'a tıklayınca artık input odaklanmaz ve `getByLabel(\'Bildiren\')` elementi bulamaz.', en: 'The page LOOKS the same visually; only clicking the label no longer focuses the input, and `getByLabel(\'Reporter\')` cannot find the element.' } },
+    { id: 5, icon: '✅', label: { tr: 'Tester bunu nasıl yakalar', en: 'How a tester catches this' }, detail: { tr: '`getByLabel(\'Bildiren\')` ile bir locator yazmak, bu ilişkiyi doğrulayan canlı bir testtir — bağlantı kopuksa test de bulamaz ve durumu ortaya çıkarır.', en: 'Writing a locator with `getByLabel(\'Reporter\')` is a live test that verifies this relationship — if the link is broken, the test cannot find it either, exposing the issue.' } },
+  ],
+}
+
+// ─── code-playground: kopuk label/for ilişkisini locator ile yakala (GRUP B4) ─
+const labelForMismatchPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-b4-form-elements',
+  id: 'qaf-b4-label-mismatch',
+  title: { tr: 'Kendin Dene: "New Bug" Formunda Doğru Locator\'ı Yaz', en: 'Try It Yourself: Write the Right Locator on the "New Bug" Form' },
+  starterCode: {
+    tr: `// "New Bug" modal'ında: <label for="reporter">Bildiren</label>
+// <input id="reporter" name="reporterEmail" type="email" />
+// TODO: bu input'a en dayanıklı şekilde nasıl ulaşırsın?
+await page.locator('input[name="reporterEmail"]').fill('test@ornek.com');`,
+    en: `// In the "New Bug" modal: <label for="reporter">Reporter</label>
+// <input id="reporter" name="reporterEmail" type="email" />
+// TODO: what is the most durable way to reach this input?
+await page.locator('input[name="reporterEmail"]').fill('test@example.com');`,
+  },
+  solutionCode: {
+    tr: `// label/for ilişkisi doğruysa getByLabel en okunabilir VE en dayanıklısıdır
+await page.getByLabel('Bildiren').fill('test@ornek.com');`,
+    en: `// If the label/for relationship is correct, getByLabel is the most readable AND durable
+await page.getByLabel('Reporter').fill('test@example.com');`,
+  },
+  hint: {
+    tr: '`name` attribute\'u backend\'e giden alan adıdır ve iş mantığı değişince değişebilir (`reporterEmail` → `reporter`). `label`/`for` ilişkisi doğruysa `getByLabel`, kullanıcının GÖRDÜĞÜ metne bağlıdır ve hem erişilebilirliği hem locate\'i doğrular.',
+    en: 'The `name` attribute is the field name sent to the backend and can change with business logic (`reporterEmail` -> `reporter`). If the label/for relationship is correct, `getByLabel` binds to what the user SEES and verifies both accessibility and locating.',
+  },
+  successMessage: {
+    tr: 'Doğru! `getByLabel` hem kullanıcının gördüğü metne dayandığı için okunabilir hem de label/for ilişkisini canlı doğrulayan bir test görevi görür.',
+    en: 'Correct! `getByLabel` is readable because it relies on what the user sees, and it also acts as a live test verifying the label/for relationship.',
+  },
+}
+
+// ─── step-animation: Accessibility Tree'nin gerçek yapısı (GRUP B5) ───────────
+const accessibilityTreeSteps = {
+  type: 'step-animation',
+  id: 'qaf-b5-accessibility-tree-steps',
+  title: { tr: 'Adım Adım: `getByRole` Aslında Neyi Okuyor?', en: 'Step by Step: What Does `getByRole` Actually Read?' },
+  steps: [
+    { id: 1, icon: '🌳', label: { tr: 'DOM ağacı var', en: 'The DOM tree exists' }, detail: { tr: 'BugCard\'daki her element (li, span, h3, button) bir DOM node\'udur — görsel yapı budur.', en: 'Every element in the BugCard (li, span, h3, button) is a DOM node — this is the visual structure.' } },
+    { id: 2, icon: '🦯', label: { tr: 'İkinci bir ağaç: Accessibility Tree', en: 'A second tree: the Accessibility Tree' }, detail: { tr: 'Tarayıcı DOM\'dan SÜZEREK ikinci bir ağaç çıkarır: sadece "anlamı" olan node\'lar (role + isim + durum) kalır.', en: 'The browser filters the DOM into a second tree: only nodes with "meaning" (role + name + state) remain.' } },
+    { id: 3, icon: '🔍', label: { tr: '`getByRole` bu ikinci ağaca bakar', en: '`getByRole` looks at this second tree' }, detail: { tr: '`getByRole(\'button\', {name:\'Düzenle\'})` DOM\'u DEĞİL, accessibility tree\'yi arar — role="button" VE isim="Düzenle" olan node\'u bulur.', en: '`getByRole(\'button\', {name:\'Edit\'})` searches the accessibility tree, NOT the DOM — it finds the node with role="button" AND name="Edit".' } },
+    { id: 4, icon: '📛', label: { tr: '"İsim" nereden gelir?', en: 'Where does the "name" come from?' }, detail: { tr: 'İsim (accessible name) sırayla şuralardan türetilir: `aria-label` > `aria-labelledby` > element metni > `alt`/`placeholder`.', en: 'The name (accessible name) is derived, in order, from: `aria-label` > `aria-labelledby` > element text > `alt`/`placeholder`.' } },
+    { id: 5, icon: '✅', label: { tr: 'Sonuç: getByRole hem dayanıklı hem erişilebilirliği zorlar', en: 'Result: getByRole is both durable and enforces accessibility' }, detail: { tr: 'Bu ağaç class hash\'inden ve DOM yapısından bağımsızdır; developer\'ın accessibility\'ye önem vermesi otomatikman locator kalitesini de yükseltir.', en: 'This tree is independent of class hashes and DOM structure; a developer caring about accessibility automatically raises locator quality too.' } },
+  ],
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
 
@@ -937,7 +1173,7 @@ const sections = [
     ],
   },
 
-  // ══ GRUP B — HTML: Locator'ın Ham Maddesi (Sonnet) ═════════════════════════
+  // ══ GRUP B — HTML: Locator'ın Ham Maddesi ═══════════════════════════════════
   {
     title: { tr: '🧱 HTML: Locator\'ın Ham Maddesi', en: '🧱 HTML: The Raw Material of Locators' },
     blocks: [
@@ -945,9 +1181,272 @@ const sections = [
         type: 'simple-box',
         emoji: '🧱',
         content: {
-          tr: 'HTML, bir binanın İSKELET ve ETİKETLEME sistemidir: `<button>` bir kapı, `<nav>` bir koridor, `id`/`class`/`data-*` ise kapılara asılmış isim etiketleridir. Locator dediğin şey aslında "hangi etikete bakarak doğru kapıyı bulacağım?" sorusudur. Peki neden bir etiket diğerinden daha iyi? Çünkü bazı etiketler (data-testid) sadece testçiler için asılır ve hiç değişmez; bazıları (class) dekorasyon için asılır ve boya değişince (yeni deploy) düşer. Java analojisi: bir nesnenin `equals/hashCode` için kullandığın alanı seçmek gibi — kararlı olmayan alanı seçersen ilişkin bozulur. QA bağlamında: HTML\'i "locator gözüyle" okuyabilen tester, developer\'dan doğru etiketi (kalıcı bir kanca) isteyebilir; okuyamayan kör XPath\'e mahkumdur. (Bu grubun atomik başlıkları B1-B5 Sonnet fazında doldurulacak — bkz. plan §D-S2.)',
-          en: 'HTML is the SKELETON and LABELING system of a building: a `<button>` is a door, a `<nav>` a corridor, and `id`/`class`/`data-*` are the name tags hung on the doors. What you call a locator is really the question "which tag do I read to find the right door?" Why is one tag better than another? Because some tags (data-testid) are hung only for testers and never change; others (class) are hung for decoration and fall off when the paint changes (a new deploy). Java analogy: like choosing which field to use for an object\'s `equals/hashCode` — pick an unstable field and the relationship breaks. In QA context: a tester who can read HTML "with a locator\'s eye" can ask the developer for the right tag (a durable hook); one who cannot is condemned to blind XPath. (The atomic topics B1-B5 of this group are filled in during the Sonnet phase — see plan section D-S2.)',
+          tr: 'HTML, bir binanın İSKELET ve ETİKETLEME sistemidir: `<button>` bir kapı, `<nav>` bir koridor, `id`/`class`/`data-*` ise kapılara asılmış isim etiketleridir. Locator dediğin şey aslında "hangi etikete bakarak doğru kapıyı bulacağım?" sorusudur. Peki neden bir etiket diğerinden daha iyi? Çünkü bazı etiketler (data-testid) sadece testçiler için asılır ve hiç değişmez; bazıları (class) dekorasyon için asılır ve boya değişince (yeni deploy) düşer. Java analojisi: bir nesnenin `equals/hashCode` için kullandığın alanı seçmek gibi — kararlı olmayan alanı seçersen ilişkin bozulur. QA bağlamında: HTML\'i "locator gözüyle" okuyabilen tester, developer\'dan doğru etiketi (kalıcı bir kanca) isteyebilir; okuyamayan kör XPath\'e mahkumdur.',
+          en: 'HTML is the SKELETON and LABELING system of a building: a `<button>` is a door, a `<nav>` a corridor, and `id`/`class`/`data-*` are the name tags hung on the doors. What you call a locator is really the question "which tag do I read to find the right door?" Why is one tag better than another? Because some tags (data-testid) are hung only for testers and never change; others (class) are hung for decoration and fall off when the paint changes (a new deploy). Java analogy: like choosing which field to use for an object\'s `equals/hashCode` — pick an unstable field and the relationship breaks. In QA context: a tester who can read HTML "with a locator\'s eye" can ask the developer for the right tag (a durable hook); one who cannot is condemned to blind XPath.',
         },
+      },
+
+      // ── B1: Semantik Elementler ──
+      {
+        type: 'heading',
+        text: { tr: '🚪 B1. Semantik Elementler: header, nav, main, button, a', en: '🚪 B1. Semantic Elements: header, nav, main, button, a' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🚪',
+        content: {
+          tr: 'Semantik HTML elementleri, üzerinde "BU BİR DÜĞMEDİR, BASILABİLİR" yazan resmi bir KAPI TABELASI gibidir: `<button>` bu tabelayı otomatik taşır, `<div onclick="...">` ise sadece boyanmış bir kapıdır — insan gözü ikisini de aynı sanır ama itfaiyeci (screen reader/accessibility API) sadece tabelalı olanı "kapı" diye kaydeder. Peki neden `<div onclick>` yerine `<button>` kullanmalıyım, ikisi de tıklanıyor ve aynı görünüyor? Java analojisi: `<button>` tarayıcının "Clickable" arayüzünü (interface) implement eder — otomatik focus, klavye desteği, rol bedava gelir; `<div>` bu arayüzü implement etmez, sen her metodu (tabindex, role, keydown listener) ELLE yeniden yazmak zorunda kalırsın. QA bağlamında: `<div onclick>` kullanan bir sayfa hem screen-reader kullanıcısını dışlar hem de `getByRole(\'button\')` gibi dayanıklı bir locator stratejisini İMKANSIZ kılar — tester bunu gördüğünde developer\'dan semantik elemente geçmesini ister.',
+          en: 'A semantic HTML element is like an official DOOR SIGN reading "THIS IS A BUTTON, PRESSABLE": `<button>` carries this sign automatically, while a `<div onclick="...">` is just a painted door — the human eye thinks they are the same, but the firefighter (screen reader/accessibility API) only registers the one with the sign as a "door". So why should I use `<button>` instead of `<div onclick>` when both are clickable and look the same? Java analogy: `<button>` implements the browser\'s "Clickable" interface for free — automatic focus, keyboard support, and a role come built in; `<div>` does not implement that interface, so you must rewrite every method (tabindex, role, keydown listener) BY HAND. In QA context: a page using `<div onclick>` both excludes screen-reader users and makes a durable locator strategy like `getByRole(\'button\')` IMPOSSIBLE — when a tester sees this they ask the developer to switch to the semantic element.',
+        },
+      },
+      semanticVsDivFilm,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir developer "`<div onclick=\'submit()\'>` ile `<button>` aynı iş: ikisi de tıklanıyor" diyor. Bu iddiadaki eksik nedir?',
+          en: 'A developer says "`<div onclick=\'submit()\'>` and `<button>` do the same job: both are clickable". What is missing from this claim?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir eksik yok, ikisi de aynıdır', en: 'Nothing is missing, they are identical' } },
+          { id: 'b', text: { tr: '`<div>` accessibility tree\'de rol/isim/klavye desteği kazanmaz; `getByRole` onu bulamaz ve screen reader tıklanabilir olduğunu anlamaz', en: 'A `<div>` gets no role/name/keyboard support in the accessibility tree; `getByRole` cannot find it and a screen reader does not know it is clickable' } },
+          { id: 'c', text: { tr: '`<div>` daha hızlı çalışır', en: 'A `<div>` runs faster' } },
+          { id: 'd', text: { tr: '`<button>` sadece formlarda kullanılabilir', en: '`<button>` can only be used inside forms' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`<button>` otomatik olarak role="button", erişilebilir isim, Tab ile odaklanma ve Enter/Space ile tetiklenme kazanır. `<div onclick>` bunların HİÇBİRİNİ bedava almaz — hem erişilebilirlik hem locator stratejisi (getByRole) bu yüzden kırılır.',
+          en: '`<button>` automatically gets role="button", an accessible name, Tab focusability, and Enter/Space triggering. `<div onclick>` gets NONE of these for free — both accessibility and the locator strategy (getByRole) break because of this.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'BugCard listesinde sıralama okları `<span onclick="sort()">▲</span>` olarak yazılmış. Bir tester bunu incelerken hangi iki sorunu tespit eder?',
+            en: 'The sort arrows in the BugCard list are written as `<span onclick="sort()">▲</span>`. When a tester inspects this, which two problems do they identify?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Renk yanlış ve font küçük', en: 'The color is wrong and the font is too small' } },
+            { id: 'b', text: { tr: 'Klavye ile erişilemez (Tab/Enter çalışmaz) VE getByRole(\'button\') ile locate edilemez', en: 'Not reachable by keyboard (Tab/Enter do not work) AND cannot be located with getByRole(\'button\')' } },
+            { id: 'c', text: { tr: 'Ok sembolü yanlış Unicode karakter', en: 'The arrow symbol is the wrong Unicode character' } },
+            { id: 'd', text: { tr: 'Hiçbir sorun yok, span da tıklanabilir', en: 'No problem, a span can be clickable too' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`<span onclick>` semantik olarak "generic" kalır: klavye kullanıcısı Tab ile oraya gelemez, Enter\'la tetikleyemez; otomasyon tarafında da `getByRole(\'button\')` bu elementi bulmaz çünkü rolü yoktur. Doğru çözüm: gerçek `<button>` kullanmak veya `role="button" tabindex="0"` + keydown handler eklemek.',
+            en: 'A `<span onclick>` stays semantically "generic": a keyboard user cannot Tab to it or trigger it with Enter; on the automation side `getByRole(\'button\')` cannot find this element because it has no role. The right fix: use a real `<button>`, or add `role="button" tabindex="0"` plus a keydown handler.',
+          },
+        },
+      },
+
+      // ── B2: Attribute'lar ──
+      {
+        type: 'heading',
+        text: { tr: '🪪 B2. Attribute\'lar: id, class, name, data-*, role, aria-*', en: '🪪 B2. Attributes: id, class, name, data-*, role, aria-*' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🪪',
+        content: {
+          tr: 'id/class/name/data-*/role/aria-*, bir insanın üzerindeki farklı KİMLİK BELGELERİ gibidir: `id` = T.C. kimlik numarası (benzersiz, resmi), `class` = kıyafet markası (birçok kişide aynı olabilir, sezonluk değişir), `data-*` = özel olarak test ekibine verilmiş bir rozet, `role`/`aria-*` = bu kişinin toplumdaki İŞLEVİNİ tarif eden bir kart. Peki neden bu kadar karışıklık olur? Çünkü hepsi HTML\'de aynı yerde ("attribute" olarak) durur ama AMAÇLARI tamamen farklıdır — birini diğeri yerine kullanmak (class\'ı kimlik gibi kullanmak) yanlış varsayımlara yol açar. Java analojisi: bir nesnenin `hashCode()` (benzersiz anahtar) alanı ile `toString()` (görünüş) alanı arasındaki fark gibi — birini diğeri yerine eşitlik kontrolü için kullanırsan bug çıkar. QA bağlamında: attribute\'un AMACINI bilmeyen tester `class`\'ı `id` gibi kullanır ve stil değişince (deploy) testi sessizce kırılır.',
+          en: 'id/class/name/data-*/role/aria-* are like different IDENTITY DOCUMENTS on a person: `id` = a national ID number (unique, official), `class` = a clothing brand (can be the same on many people, changes seasonally), `data-*` = a badge issued specifically to the test team, `role`/`aria-*` = a card describing this person\'s FUNCTION in society. So why does so much confusion happen? Because they all sit in the same place in HTML (as "attributes") but their PURPOSES are completely different — using one in place of another (treating class as an identity) leads to wrong assumptions. Java analogy: like the difference between a nesne\'s `hashCode()` (a unique key) field and its `toString()` (appearance) field — use one instead of the other for an equality check and a bug appears. In QA context: a tester who does not know an attribute\'s PURPOSE uses `class` like an `id`, and the test silently breaks when the style changes (a deploy).',
+        },
+      },
+      attributePurposeSteps,
+      pickDurableAttributePlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tester `driver.findElement(By.className("Btn_primary__k92a"))` yazıyor çünkü DevTools\'ta ilk gördüğü şey bu class. Bu yaklaşımın kök sorunu nedir?',
+          en: 'A tester writes `driver.findElement(By.className("Btn_primary__k92a"))` because that is the first thing they saw in DevTools. What is the root problem with this approach?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'class attribute\'ı stil için vardır, kimlik için değil; CSS Module hash\'i her build\'de değişir', en: 'The class attribute exists for styling, not identity; the CSS Module hash changes on every build' } },
+          { id: 'b', text: { tr: 'className() metodu Selenium\'da yoktur', en: 'The className() method does not exist in Selenium' } },
+          { id: 'c', text: { tr: 'Hiçbir sorun yok, class her zaman güvenilirdir', en: 'No problem, class is always reliable' } },
+          { id: 'd', text: { tr: 'Sorun sadece performans (yavaşlık)', en: 'The only problem is performance (slowness)' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: 'class attribute\'ının AMACI stildir; CSS Module gibi araçlar her build\'de hash ekler. Bir attribute\'u onun AMACI dışında (kimlik olarak) kullanmak, testin bir sonraki deploy\'da sessizce kırılmasına yol açar.',
+          en: 'The PURPOSE of the class attribute is styling; tools like CSS Modules add a hash on every build. Using an attribute outside its PURPOSE (as an identity) causes the test to silently break on the next deploy.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tester `data-testid="submit-bug"` yerine `name="submitBug"` attribute\'unu kullanıyor çünkü ikisi de "sabit" görünüyor. Bu tercih neden riskli olabilir?',
+            en: 'A tester uses the `name="submitBug"` attribute instead of `data-testid="submit-bug"` because both look "fixed". Why might this choice be risky?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Risksizdir, ikisi de aynı derecede güvenlidir', en: 'It is risk-free, both are equally safe' } },
+            { id: 'b', text: { tr: '`name` backend\'e giden iş alanı adıdır ve iş mantığı değişince (örn. API alan adı değişince) değişebilir; `data-testid` SADECE test içindir', en: '`name` is the business field name sent to the backend and can change with business logic (e.g. an API field rename); `data-testid` exists SOLELY for tests' } },
+            { id: 'c', text: { tr: '`name` attribute\'u tarayıcılarda desteklenmiyor', en: 'The `name` attribute is not supported in browsers' } },
+            { id: 'd', text: { tr: 'İkisi de aynı HTML elementinde olamaz', en: 'Both cannot exist on the same HTML element' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`name` iş mantığının bir parçasıdır (form gönderiminde backend\'e gider) ve iş gereksinimleri değişince değişebilir. `data-testid` ise SADECE otomasyon için vardır ve iş mantığından tamamen izoledir — bu yüzden en dayanıklısıdır.',
+            en: '`name` is part of business logic (sent to the backend on form submit) and can change with business requirements. `data-testid` exists SOLELY for automation and is fully isolated from business logic — which is why it is the most durable.',
+          },
+        },
+      },
+
+      // ── B3: id vs class vs data-testid ──
+      {
+        type: 'heading',
+        text: { tr: '⚖️ B3. `id` vs `class` vs `data-testid`: Hangisi Ne Kadar Dayanıklı?', en: '⚖️ B3. `id` vs `class` vs `data-testid`: How Durable Is Each?' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '⚖️',
+        content: {
+          tr: 'Bu üç attribute\'u karşılaştırmak, üç farklı NİŞAN/PEKİ türünü karşılaştırmaya benzer: `data-testid` özel olarak dövülmüş bir NİŞAN YÜZÜĞÜdür (sadece bu amaç için var, asla değişmez); stabil `id` bir SÜRÜCÜ BELGESİ numarası gibidir (genelde sabit ama bazen yeniden basılabilir); `class` ise günün MODASI gibidir (yarın tamamen değişebilir). Peki neden hepsini "eşit güvenilir" görme hatasına düşeriz? Çünkü üçü de DevTools\'ta aynı satırda, aynı görünümde durur — hiçbiri "ben kırılganım" yazmaz. Java analojisi: bir nesnenin `equals()` metodunu yazarken hangi alanları kullanacağını seçmek gibi — id/data-testid "business key" (asla değişmeyen), class ise geçici bir "display field"dır. QA bağlamında: bir tester bu hiyerarşiyi bilmezse, "ilk gördüğüm attribute"u seçer ve test bir sonraki tasarım güncellemesinde (redesign) toplu halde kırılır.',
+          en: 'Comparing these three attributes is like comparing three different types of RING/BADGE: `data-testid` is a specially forged SIGNET RING (exists solely for this purpose, never changes); a stable `id` is like a DRIVER\'S LICENSE number (usually fixed, but occasionally reissued); `class` is like today\'s FASHION (can change completely tomorrow). Why do we fall into the trap of seeing all three as "equally reliable"? Because all three sit on the same line in DevTools, looking the same — none of them announces "I am fragile". Java analogy: like choosing which fields to use when writing a nesne\'s `equals()` method — id/data-testid are the "business key" (never changing), while class is a temporary "display field". In QA context: a tester who does not know this hierarchy picks "the first attribute I saw" and the test breaks en masse on the next design update (a redesign).',
+        },
+      },
+      attributeDurabilityTable,
+      attributeOrderChallenge,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tasarım güncellemesinde (redesign) sadece renkler ve class isimleri değişti; `data-testid` ve `id`\'ler dokunulmadı. Class\'a göre yazılmış 40 test ile data-testid\'ye göre yazılmış 40 test arasında ne olur?',
+          en: 'In a redesign, only colors and class names changed; `data-testid`s and `id`s were untouched. What happens between 40 tests written by class vs 40 tests written by data-testid?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'İkisi de aynı şekilde etkilenir', en: 'Both are affected the same way' } },
+          { id: 'b', text: { tr: 'Class\'a bağlı 40 test toplu kırılır; data-testid\'ye bağlı 40 test etkilenmez', en: 'The 40 class-based tests break en masse; the 40 data-testid-based tests are unaffected' } },
+          { id: 'c', text: { tr: 'İkisi de kırılmaz çünkü redesign sadece görseldir', en: 'Neither breaks because a redesign is only visual' } },
+          { id: 'd', text: { tr: 'data-testid\'ye bağlı testler kırılır çünkü data-testid da bir attribute\'tur', en: 'The data-testid-based tests break because data-testid is also an attribute' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Redesign class isimlerini (ve genelde CSS Module hash\'lerini) değiştirir ama `data-testid`\'ye dokunmaz çünkü o iş/tasarım kararlarından İZOLEDİR. Bu yüzden dayanıklılık hiyerarşisinde data-testid en üsttedir.',
+          en: 'A redesign changes class names (and usually CSS Module hashes) but does not touch `data-testid` because it is ISOLATED from business/design decisions. This is why data-testid sits at the top of the durability hierarchy.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir sayfada `data-testid` hiç yok ama `id="checkout-submit"` var ve bu id hiçbir zaman dinamik üretilmiyor (sabit). Bu durumda en iyi seçim nedir?',
+            en: 'A page has no `data-testid` at all, but there is `id="checkout-submit"` which is never dynamically generated (fixed). What is the best choice here?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Stabil id\'yi kullan; data-testid yoksa hiyerarşideki bir sonraki en dayanıklı seçenektir', en: 'Use the stable id; when there is no data-testid it is the next most durable option in the hierarchy' } },
+            { id: 'b', text: { tr: 'id\'yi asla kullanma, sadece class kullan', en: 'Never use id, only use class' } },
+            { id: 'c', text: { tr: 'Test yazma, id yeterli değildir', en: 'Do not write the test, id is not enough' } },
+            { id: 'd', text: { tr: 'XPath index kullan, daha güvenlidir', en: 'Use an XPath index, it is safer' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Dayanıklılık hiyerarşisi mutlak değil, GÖRECELİDİR: data-testid yoksa ve id gerçekten sabitse (dinamik üretilmiyorsa), stabil id class\'tan çok daha güvenilirdir. Kural "en iyisini kullan", "sadece tek bir attribute\'a izin ver" değildir.',
+            en: 'The durability hierarchy is not absolute, it is RELATIVE: if there is no data-testid and the id is genuinely stable (not dynamically generated), a stable id is far more reliable than class. The rule is "use the best available", not "only ever allow one specific attribute".',
+          },
+        },
+      },
+
+      // ── B4: Form Elementleri ──
+      {
+        type: 'heading',
+        text: { tr: '📝 B4. Form Elementleri: input, select, label İlişkisi (for/id)', en: '📝 B4. Form Elements: the input, select, label Relationship (for/id)' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📝',
+        content: {
+          tr: 'Bir `<label for="reporter">` ile `<input id="reporter">` arasındaki bağ, bir hastane formundaki YÖNLENDİRME ÇIKARTMASI gibidir: etiket "Bildiren" yazısı, TAM OLARAK hangi kutuya işaret ettiğini `for`/`id` eşleşmesiyle söyler; eşleşme doğruysa hemşire (tarayıcı) etikete dokununca doğru kutuyu (input) odaklar. Peki neden bu eşleşme her zaman doğru gibi görünür ama bazen sessizce bozulur? Çünkü bir refactor sırasında input\'un `id`\'si değişebilir (`reporter` → `reporterEmail`) ve kimse label\'ın `for`\'unu güncellemeyi hatırlamaz — sayfa GÖRSEL olarak birebir aynı kalır. Java analojisi: bir foreign key\'in referans verdiği primary key\'in adı değişirse veritabanı ilişkisi sessizce kopar — hiçbir compile-time hata vermez, sadece runtime\'da JOIN boş döner. QA bağlamında: `getByLabel(\'Bildiren\')` ile bir locator yazmak, bu ilişkiyi CANLI doğrulayan bir test görevi görür — bağlantı kopuksa test de elementi bulamaz ve sorunu hemen ortaya çıkarır.',
+          en: 'The bond between a `<label for="reporter">` and an `<input id="reporter">` is like a REFERRAL STICKER on a hospital form: the label\'s "Reporter" text tells you, via the `for`/`id` match, EXACTLY which box it points to; if the match is correct, the nurse (browser) focuses the right box (input) when you touch the label. So why does this match always look right yet sometimes silently break? Because during a refactor the input\'s `id` can change (`reporter` -> `reporterEmail`) and nobody remembers to update the label\'s `for` — the page stays VISUALLY identical. Java analogy: if the primary key a foreign key references gets renamed, the database relationship breaks silently — no compile-time error, the JOIN just returns empty at runtime. In QA context: writing a locator with `getByLabel(\'Reporter\')` acts as a LIVE test verifying this relationship — if the link is broken, the test cannot find the element either, exposing the issue immediately.',
+        },
+      },
+      labelForIdSteps,
+      labelForMismatchPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir refactor sonrası `<input id="reporter">` → `<input id="reporterEmail">` olarak değişti ama `<label for="reporter">` güncellenmedi. Sayfa görsel olarak aynı görünüyor. Bu durumu EN HIZLI hangi yöntem ortaya çıkarır?',
+          en: 'After a refactor, `<input id="reporter">` became `<input id="reporterEmail">` but `<label for="reporter">` was not updated. The page still looks visually identical. Which method exposes this FASTEST?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Sayfaya gözle bakmak', en: 'Looking at the page visually' } },
+          { id: 'b', text: { tr: '`getByLabel(\'Bildiren\')` ile bir locator yazıp çalıştırmak — bağlantı kopuksa element bulunamaz', en: 'Writing and running a locator with `getByLabel(\'Reporter\')` — if the link is broken, the element cannot be found' } },
+          { id: 'c', text: { tr: 'Kod review\'da HTML\'i satır satır okumak', en: 'Reading the HTML line by line in a code review' } },
+          { id: 'd', text: { tr: 'Hiçbiri, bu tür hatalar tespit edilemez', en: 'None, this type of error cannot be detected' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`getByLabel` label/for ilişkisine dayandığı için, bu ilişki koptuğunda locator elementi BULAMAZ — bu, testin kendisinin canlı bir doğrulama görevi görmesi demektir. Gözle bakmak işe yaramaz çünkü sayfa görsel olarak aynı kalır.',
+          en: '`getByLabel` relies on the label/for relationship, so when that relationship breaks, the locator CANNOT find the element — meaning the test itself acts as a live verification. Looking visually does not help because the page stays visually identical.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir formda `<select id="severity">` var ama karşılık gelen `<label>` hiç yazılmamış — sadece placeholder text var. Bu neden hem erişilebilirlik hem locator sorunudur?',
+            en: 'A form has a `<select id="severity">` but the corresponding `<label>` was never written — only placeholder text exists. Why is this both an accessibility AND a locator problem?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Sorun değildir, placeholder yeterlidir', en: 'It is not a problem, placeholder is enough' } },
+            { id: 'b', text: { tr: 'placeholder screen reader\'a güvenilir bir isim vermez ve `getByLabel` bu elementi bulamaz; hem erişilebilirlik hem test edilebilirlik kaybolur', en: 'placeholder does not give the screen reader a reliable name, and `getByLabel` cannot find this element; both accessibility and testability are lost' } },
+            { id: 'c', text: { tr: 'select elementleri zaten label gerektirmez', en: 'select elements never require a label' } },
+            { id: 'd', text: { tr: 'Sadece görsel bir tercih meselesidir', en: 'It is purely a visual preference' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'placeholder bir accessible name KAYNAĞI olarak zayıftır (bazı tarayıcı/screen reader kombinasyonlarında hiç okunmaz) ve select temizlenince (kullanıcı bir seçim yapınca) tamamen kaybolur. Gerçek bir `<label>` hem erişilebilirliği hem `getByLabel` ile locate edilebilirliği garanti eder.',
+            en: 'placeholder is a weak source for an accessible name (not read at all in some browser/screen-reader combinations) and disappears entirely once the select has a value. A real `<label>` guarantees both accessibility and locatability via `getByLabel`.',
+          },
+        },
+      },
+
+      // ── B5: Accessibility Tree ──
+      {
+        type: 'heading',
+        text: { tr: '🦯 B5. Accessibility Tree: `getByRole`/`getByLabel`\'ın Altındaki Gerçek Yapı', en: '🦯 B5. The Accessibility Tree: the Real Structure Under `getByRole`/`getByLabel`' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🦯',
+        content: {
+          tr: 'Accessibility Tree, bir binanın görsel mimarisinin (DOM) yanında duran RÖNTGEN GÖRÜNTÜSÜ gibidir: dışarıdan bakan biri (kullanıcı) binanın rengini/dekorunu görür, röntgeni okuyan biri (screen reader) ise sadece İŞLEVSEL iskeleti (role + isim + durum) görür. Peki `getByRole` neden DOM\'a değil bu röntgene bakar? Çünkü DOM\'da GÖRSEL olarak aynı görünen iki element (gerçek `<button>` ve süslenmiş bir `<div>`), röntgende TAMAMEN farklı görünebilir — biri "buton" der, diğeri "anlamsız kutu" der. Java analojisi: bir arayüzü (interface) implement eden sınıflar farklı görünebilir ama hepsi aynı sözleşmeyi (contract) sağlar — accessibility tree de HTML\'in "hangi sözleşmeyi (rol) sağladığını" gösteren bir sözleşme haritasıdır. QA bağlamında: `getByRole`/`getByLabel` bu röntgene baktığı için class hash\'inden VE DOM yapısından bağımsızdır — developer\'ın erişilebilirliğe önem vermesi otomatik olarak locator kalitesini de yükseltir.',
+          en: 'The Accessibility Tree is like an X-RAY sitting alongside a building\'s visual architecture (the DOM): someone looking from outside (the user) sees the color/decor, while someone reading the X-ray (a screen reader) sees only the FUNCTIONAL skeleton (role + name + state). So why does `getByRole` look at this X-ray instead of the DOM? Because two elements that look VISUALLY identical in the DOM (a real `<button>` and a decorated `<div>`) can look COMPLETELY different in the X-ray — one says "button", the other says "meaningless box". Java analogy: classes implementing an interface can look different, but all fulfill the same contract — the accessibility tree is likewise a contract map showing which contract (role) a piece of HTML fulfills. In QA context: because `getByRole`/`getByLabel` look at this X-ray, they are independent of the class hash AND the DOM structure — a developer caring about accessibility automatically raises locator quality too.',
+        },
+      },
+      accessibilityTreeSteps,
+      bugCardLocatorExplorer,
+      {
+        type: 'quiz',
+        question: {
+          tr: '`getByRole(\'button\', { name: \'Düzenle\' })` yazdın ve bu, Accessibility Tree\'de "isim" alanını arıyor. Bir elementin accessible name\'i sırayla NEREDEN türetilir?',
+          en: 'You wrote `getByRole(\'button\', { name: \'Edit\' })`, and this searches for the "name" field in the Accessibility Tree. In what order is an element\'s accessible name derived?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Sadece class isminden', en: 'Only from the class name' } },
+          { id: 'b', text: { tr: '`aria-label` > `aria-labelledby` > element metni > `alt`/`placeholder` sırasıyla', en: 'In order: `aria-label` > `aria-labelledby` > element text > `alt`/`placeholder`' } },
+          { id: 'c', text: { tr: 'Rastgele, tarayıcıya göre değişir', en: 'Randomly, it varies by browser' } },
+          { id: 'd', text: { tr: 'Sadece `id` attribute\'undan', en: 'Only from the `id` attribute' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Accessible name hesaplama sırası standarttır: önce `aria-label` var mı bakılır, yoksa `aria-labelledby`\'nin işaret ettiği element, o da yoksa elementin kendi metni, son çare `alt`/`placeholder` gibi alanlar kullanılır. Bu sıralamayı bilmek, `getByRole({name:...})` yazarken doğru metni tahmin etmeyi sağlar.',
+          en: 'The accessible name computation order is standardized: first check for `aria-label`, then the element `aria-labelledby` points to, then the element\'s own text, and as a last resort fields like `alt`/`placeholder`. Knowing this order lets you correctly predict the text when writing `getByRole({name:...})`.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir butonda hem `aria-label="Bug\'ı sil"` HEM görünür metin "Sil" var. `getByRole(\'button\', {name:\'Sil\'})` çalışır mı?',
+            en: 'A button has BOTH `aria-label="Delete bug"` AND visible text "Delete". Does `getByRole(\'button\', {name:\'Delete\'})` work?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Hayır, accessible name aria-label\'dan ("Bug\'ı sil") gelir, görünür metinden değil — bu yüzden "Sil" ile eşleşmez', en: 'No, the accessible name comes from aria-label ("Delete bug"), not the visible text — so it does not match "Delete"' } },
+            { id: 'b', text: { tr: 'Evet, her zaman görünür metin kullanılır', en: 'Yes, the visible text is always used' } },
+            { id: 'c', text: { tr: 'İkisi birden birleştirilir: "Sil Bug\'ı sil"', en: 'Both are concatenated: "Delete Delete bug"' } },
+            { id: 'd', text: { tr: 'getByRole aria-label\'ı hiç okumaz', en: 'getByRole never reads aria-label' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: '`aria-label` varsa hiyerarşide en üsttedir ve elementin görünür metnini EZER — accessible name "Bug\'ı sil" olur, "Sil" değil. Bu, `aria-label` eklerken görünür metinle TUTARLI tutmanın (veya ikisinden birini kullanmanın) neden önemli olduğunu gösterir.',
+            en: 'If `aria-label` exists it sits at the top of the hierarchy and OVERRIDES the element\'s visible text — the accessible name becomes "Delete bug", not "Delete". This shows why it matters to keep `aria-label` CONSISTENT with the visible text (or just use one of the two).',
+          },
+        },
+      },
+      {
+        type: 'feynman-checkpoint',
+        id: 'qaf-feynman-b',
+        promptTr: 'Bir `<div onclick>`\'in neden `getByRole(\'button\')` ile bulunamadığını ve `data-testid`/stabil `id`/`class` arasındaki dayanıklılık farkını, sektöre yeni giren birine kendi cümlelerinle anlat.',
+        promptEn: 'Explain, in your own words, why a `<div onclick>` cannot be found with `getByRole(\'button\')`, and the durability difference between `data-testid`/a stable `id`/`class`, to a newcomer.',
+        keywords: ['div', 'button', 'role', 'accessibility', 'data-testid', 'class', 'hash', 'dayanikli'],
+        modelAnswerTr: 'Bir `<div onclick>` görsel olarak butona benzese de accessibility tree\'de "generic" bir role\'e sahiptir, çünkü sadece gerçek `<button>` elementi otomatik olarak role="button" kazanır. `getByRole(\'button\')` DOM\'a değil bu accessibility tree\'ye bakar, bu yüzden div\'i bulamaz. Dayanıklılık açısından `data-testid` en üsttedir çünkü sadece test için var ve hiçbir şeyden etkilenmez; stabil `id` ikinci sıradadır (dinamik değilse); `class` ise stil için var olduğundan ve build\'de hash değiştirdiğinden en kırılganıdır.',
+        modelAnswerEn: 'Even though a `<div onclick>` visually resembles a button, it has a "generic" role in the accessibility tree, because only a real `<button>` element automatically gets role="button". `getByRole(\'button\')` looks at this accessibility tree, not the DOM, so it cannot find the div. In terms of durability, `data-testid` is at the top because it exists solely for testing and is unaffected by anything; a stable `id` is second (if it is not dynamic); `class` is the most fragile because it exists for styling and changes its hash on build.',
       },
     ],
   },
