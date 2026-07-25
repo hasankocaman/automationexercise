@@ -307,6 +307,8 @@ Bu kalıp **Python sayfasıyla sınırlı bir deney değildir** — tüm teknolo
 
 Bu 4 katman, Bölüm 9'daki "ilk block `simple-box` olmalı" kuralının **uygulama standardıdır** ve eski "teknik terim kullanmadan, 10 yaşındaki çocuğa anlatır gibi" ifadesinin yerine geçer — hedef kitle yetişkin bir QA mühendisi olduğundan teknik terim kullanmak sorun değildir; asıl hedef kullanıcıyı düşündürmek ve meslekle bağ kurdurmaktır. Bu standart yeni yazılan veya güncellenen **her** `simple-box` bloğuna uygulanır; hangi sayfanın bu standarda ne kadar yükseltildiği `NEXT_SESSION.md`'de takip edilir, bu dosyada değil (bkz. Bölüm 0).
 
+**Denetim aracı:** `node scripts/audit-analogy-depth.mjs [--missing] [sayfa...]` 4 katmanı sözcük ipuçlarıyla ("gibi", "like", "hayal et"...) arayan bir **triyaj aracıdır, hakem değildir** — denetim birimi tek bir blok değil, bölümün açılış `simple-box`'ı + onu izleyen ≤6 anlatım bloğudur (4. katman çoğu zaman `simple-box`'ın içinde değil, ardından gelen `heading`/`text` bloğundadır). Sözcüksüz metaforlarda ("Consider how a Formula 1 team...") yanlış-pozitif verebilir — bayrağı kaldırılan bir bölümü düzeltmeden önce metni oku.
+
 ### 9.4. İçerik Bütünlüğü ve Dil Tutarlılığı
 
 Bu bölümdeki kurallar `scripts/check-content-integrity.mjs` script'i tarafından otomatik denetlenir. İhlal varsa build kırılır.
@@ -731,3 +733,15 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
 - **`scripts/post-commit-tests.sh: No such file or directory`:** commit sonrası
   hook eksik bir script'e işaret ediyor; commit yine de tamamlanır. Gerçek
   pre-commit doğrulaması (content-integrity) çalışır ve geçerse commit atılır.
+- **GitHub Actions'ta canlı Supabase Auth çağrısı gerektiren testler skip edilir
+  (2026-07-23/24'te teşhis edildi, kalıcı altyapı kısıtlaması):** CI runner'ının
+  paylaşımlı IP'sinden gelen tüm `/auth/v1/*` istekleri (hem public `signInWithPassword`
+  hem `service_role` ile admin API) Supabase tarafında reddediliyor — secrets/rate
+  limit/captcha ayarlarından kaynaklanmıyor, proje ayarlarından düzeltilemez (Supabase
+  Support veya self-hosted runner gerekir). Geçici çözüm: `tests/api-endpoints.spec.ts`,
+  `tests/quiz-ai-explanation-access.spec.ts`, `tests/docker-interview-mastery-flow.spec.ts`,
+  `tests/interview-grading-and-reset.spec.ts`, `tests/qa-mentor-progress-tracking.spec.ts`
+  içindeki üyelik gerektiren describe'lar `process.env.GITHUB_ACTIONS === 'true'` koşuluyla
+  SADECE CI'da skip ediliyor (yerelde/pre-push'ta normal çalışır). Yeniden teşhis etmeye
+  gerek yok; sadece Supabase Support'tan yanıt gelirse veya self-hosted runner'a geçilirse
+  bu skip'ler gözden geçirilir.
