@@ -594,3 +594,128 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
 - **`/basit-backend`** — kullanıcı isteğiyle test kapsamı dışında tutuluyor.
 - **`/security`, `/backend`** — `RequireAdmin` ile korunuyor, normal test
   hesabıyla erişilemiyor.
+
+---
+
+## 23. En Sık Karşılaşılan Hatalar — Kök Neden ve Çözüm (Kalıcı Hata Sözlüğü)
+
+> Bu bölüm, projede **tekrar tekrar** karşılaşılan gerçek hataların kök nedenini
+> ve doğrulanmış çözümünü listeler. Yeni bir görev yaparken önce buraya bak —
+> aynı tuzağa ikinci kez düşme. Her madde: **Belirti → Kök Neden → Çözüm →
+> Önleme**. Yeni bir tekrarlayan hata çıkarsa buraya ekle.
+
+### 23.1. EN modda Türkçe sızıntısı (i18n leak) — EN SIK HATA
+
+- **Belirti:** Sayfa dili EN iken tablolarda, kod editörlerinde (`code-playground`),
+  hata sözlüğünde veya SVG diyagramlarında Türkçe metin görünüyor. (Tersi de olur:
+  TR modda kod yorumları İngilizce kalıyor — bkz. 23.2 kuralı, §8.)
+- **Kök Neden:** İçerik `{tr, en}` bilingual obje yerine **düz string** olarak
+  yazılmış (ör. `headers: ['Parça / Part']`, `starterCode: \`// Türkçe yorum\``,
+  `error: '... karışıklığı'`). Düz string her iki dilde AYNI render edilir, TR sızar.
+  İkincil neden: renderer alanı `tx(field, language)` ile basmıyor (ör. eski
+  `error-dictionary` `fullMessage`, `diagram-svg` `svg` alanı `tx`'siz basılıyordu).
+- **Çözüm:** İçeriği `{ tr: '...', en: '...' }` yap. Renderer `tx(...)` kullanmıyorsa
+  onu da düzelt (bkz. `ErrorDictionaryBlock` `fullMessage` → `tx(...)`). `code`/
+  `code-playground` bloklarında TR yorum Türkçe, EN yorum İngilizce ayrı tut.
+  `diagram-svg` `tx`'siz olduğundan ya SVG metnini İngilizce yap (TR'de de kabul,
+  §8 diyagram etiketi) ya da renderer'ı `tx`'li yapıp SVG'yi `{tr,en}` kur.
+- **Önleme:** Yeni route'u `tests/i18n-content-toggle.spec.ts` içindeki
+  `SAMPLE_ROUTES_FOR_EN_AUDIT` listesine ekle — bu test EN modda `[ığş]`
+  karakterlerini tarar ve CI'da sızıntıyı yakalar. **Uyarı:** bu test yalnızca
+  Türkçe'ye ÖZGÜ karakterleri (`ı/ğ/ş`) yakalar; **ASCII-normalize Türkçe**
+  (`bakiyor`, `gunceller`, `hazir`) yakalanmaz — elle de göz gezdir.
+
+### 23.2. Template literal / string kaçış hatası (`node --check` patlar)
+
+- **Belirti:** `npm run build` veya `node --check` "Unexpected token" / "Unterminated
+  string" ile patlıyor; genelde büyük bir `*Data.js` düzenlemesinden sonra.
+- **Kök Neden (3 alt tip, hepsi bu projede gerçekten kırdı):**
+  1. **Tek tırnaklı string içinde kaçırılmamış apostrof:** `'...bug'a...'` veya
+     `'...API'ye...'` → string erken kapanır. `request'i`, `route'lardan` gibi
+     Türkçe ekli İngilizce terimler bunun en sık kaynağı.
+  2. **Template literal (backtick) içine backtick yazmak:** markdown vurgusu için
+     `` `kod` `` koyunca dıştaki backtick string'i erken kapanır.
+  3. **Ters tık içine yazılan kodun İÇİNDEKİ tek tırnaklar:** ör. mülakat cevabında
+     `` `@Get(':id')` `` — içteki `'` işaretleri de escape ister.
+- **Çözüm:** Tek tırnaklı string'te apostrofu `\'` yap. Backtick içinde markdown
+  vurgusu gerekiyorsa ya tek tırnaklı string'e çevir ya vurgusuz yaz. Toplu
+  metin dönüşümü yapan script'lerde apostrofu daima `\'` olarak üret.
+- **Önleme:** Her `*Data.js` düzenlemesinden SONRA (build beklemeden)
+  `node --check src/data/<dosya>.js` çalıştır — hatayı satırıyla anında verir.
+
+### 23.3. Mekanik toplu metin dönüşümünde isim/fiil ve deyim çakışması
+
+- **Belirti:** Toplu bul-değiştir sonrası cümle bozuluyor (ör. "Sunucu sözleşmeye
+  göre **response'lar**…" — "responds" fiili yanlışlıkla "responses" ismi oldu),
+  veya bir deyim bozuldu ("**isteğe bağlı**" = optional → yanlışça "request'e bağlı").
+- **Kök Neden:** Kelimenin çok anlamlılığı (`yanıtlar` = responds/responses) ve
+  deyimler (`isteğe bağlı`) körlemesine `replace` ile ezildi.
+- **Çözüm:** Bağlam-duyarlı script yaz: deyimleri sentinel ile koru, en uzun formu
+  önce eşle, kelime sınırı (lookaround) kullan, dönüşüm sonrası **spot-check** yap
+  (birkaç örneği gözle doğrula). Türkçe-özgü formlar İngilizce kelimelerin içine
+  gömülmez (güvenli), ama fiil/isim çakışmalarını elle ayıkla.
+- **Önleme:** Toplu dönüşümü doğrudan uygulama; önce **dry-run** ile ayrı dosyaya
+  yaz, `node --check` + örnek diff incele, sonra uygula.
+
+### 23.4. Çift-ağaçlı veri dosyasında index/senkron kayması (drift)
+
+- **Belirti:** EN sekmede TR içerik (veya tersi) görünüyor; iki dil ağacı birbirini
+  tutmuyor.
+- **Kök Neden:** Dosya **çift ağaçlı** (`export const xData = { en: {sections},
+  tr: {sections} }` — iki AYRI section dizisi) ya da `applyTr(enSection, overrides)`
+  gibi **index eşleşmesine** dayalı; içerik genişleyince ağaçlar/indeksler sessizce
+  kayar (bkz. memory: `applyTr-mechanism-risks`).
+- **Çözüm/Önleme:** Yeni veri dosyalarını **tek ağaçlı** kur — `{ tr:{...}, en:{...} }`
+  ama `sections` İKİ tarafta AYNI referans ve her metin alanı `{tr,en}` (referans
+  kalıp: `gaugeData.js`, `apiTestingData.js`). `video-scene` sabiti tek ağaçta
+  TEK yere konur. Çift-ağaçlı bir dosyaya dokunuyorsan film/sabiti İKİ ağaca da
+  aynı referansla koymayı unutma (§9.5).
+
+### 23.5. `fillMissingCodeTrios` kodsuz sekmelerde çalışmaz
+
+- **Belirti:** Kodsuz bir sekmeye (hata sözlüğü, mülakat, saf kavram) otomatik
+  animasyon/sandbox üretilmedi; §9.5 denetimi "eksik sandbox/animasyon" veriyor.
+- **Kök Neden:** `fillMissingCodeTrios` (interactiveTrioFillers.js) **yalnızca**
+  `type:'code'` olan VE dili bash/shell/text OLMAYAN bloklara üretim yapar
+  (bkz. memory: `fillMissingCodeTrios-deficit`). Kodsuz gruplar (A kavramlar,
+  E Network, F Swagger okuma, J hata sözlüğü, K mülakat) kapsam dışıdır.
+- **Çözüm:** Bu sekmelere `step-animation`/`simulation` ve `code-playground`
+  (seç/eşleştir/tamamla modu) bloklarını **elle** ekle. Her elle `code-playground`,
+  `interview-questions`, `error-dictionary` bloğuna **`relatedTopicId` ZORUNLU**
+  (§9.4) — yoksa `check-content-integrity.mjs` build'i kırar.
+- **Önleme:** §9.5 denetimini script'le koş (57 sekmenin her birinde ≥1 video +
+  ≥1 animasyon + ≥1 sandbox var mı?), sadece build'e güvenme.
+
+### 23.6. Dil-varyantlı alanlar taramada "yanlış-pozitif leak"
+
+- **Belirti:** i18n/sızıntı taraması `promptTr`, `modelAnswerTr`, `keywords` gibi
+  alanları "EN'de Türkçe" diye işaretliyor ama aslında sorun yok.
+- **Kök Neden:** `feynman-checkpoint` bloğu `promptTr/En` ve `modelAnswerTr/En`
+  çiftlerini tutar; render EN modda `promptEn/modelAnswerEn` kullanır, `keywords`
+  ise sadece cevap doğrulaması içindir (kullanıcıya GÖSTERİLMEZ). Yani bu alanlar
+  render'da dile göre seçilir — düz string sızıntısı değildir.
+- **Çözüm/Önleme:** Tarama yazarken bir alanın gerçekten sızıp sızmadığını
+  **renderer'ın dil seçimine bakarak** doğrula. Feynman için: her tanımda
+  `promptEn` VE `modelAnswerEn` var mı ve bunlar İngilizce mi — bunu kontrol et,
+  `promptTr`/`keywords`'ü leak sayma.
+
+### 23.7. video-scene son/ilk sahnede pasif buton "kayboldu" görünüyor
+
+- **Belirti:** Film son sahnedeyken ileri (⏭) butonu (veya ilk sahnede geri ⏮)
+  yok gibi görünüyor.
+- **Kök Neden:** Buton `disabled` olunca `disabled:opacity-40` ile koyu temada
+  neredeyse görünmez oluyordu — silinmiş değil, sadece aşırı soluk.
+- **Çözüm:** `VideoSceneBlock` `btnCls` pasif opaklığı yükseltildi (70/60) +
+  `cursor-not-allowed`. **Davranışı değiştirme** (son sahnede ileri pasif kalmalı)
+  — oynatıcı testleri (`video-scene.spec.ts`) `nextBtn.isDisabled()` ile biter,
+  butonu hep-aktif/döngü yaparsan bu testler kırılır.
+
+### 23.8. Bilinen, build'i BOZMAYAN uyarılar (aksiyon gerekmez)
+
+- **Büyük chunk uyarısı:** `javaData`, `typescriptData`, `apiTestingData`,
+  `sqlData`, `TopicPage` 500 kB+ — Vite uyarır ama production build sağlamdır
+  (§14). Yeni büyük sayfa sonrası chunk boyutunu `NEXT_SESSION.md`'ye not et.
+- **Browserslist/caniuse-lite eski veri uyarısı:** build'i bozmaz.
+- **`scripts/post-commit-tests.sh: No such file or directory`:** commit sonrası
+  hook eksik bir script'e işaret ediyor; commit yine de tamamlanır. Gerçek
+  pre-commit doğrulaması (content-integrity) çalışır ve geçerse commit atılır.
