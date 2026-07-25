@@ -4969,7 +4969,7 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
     ],
   },
 
-  // ══ GRUP I — Yaygın Hatalar (error-dictionary, Sonnet min 12) ══════════════
+  // ══ GRUP I — Yaygın Hatalar (error-dictionary) ══════════════════════════════
   {
     title: { tr: '🚨 Yaygın Hatalar', en: '🚨 Common Errors' },
     blocks: [
@@ -4977,9 +4977,346 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
         type: 'simple-box',
         emoji: '🚨',
         content: {
-          tr: 'Locator hatalarının çoğu, kaynak-DOM-render ayrımını bilmemekten doğar ve hep aynı birkaç kalıba oturur: element henüz render olmadan locate etmek (NoSuchElement), re-render sonrası ölmüş referansı kullanmak (StaleElement), hash class\'a bağlanmak, `*ngIf`/conditional ile DOM\'da OLMAYAN elementi bekleme yapmadan aramak, iframe/shadow DOM context\'ini unutmak. Neden bir "hata sözlüğü"? Çünkü hatanın mesajını görünce kök nedenini anında tanıyabilen tester dakikalar içinde çözer; tanıyamayan saatlerce kör dener. Java analojisi: NullPointerException gördüğünde "hangi referans null?" diye düşünmek gibi — mesaj sana kök nedene giden yolu söyler. QA bağlamında: bu grup her hatayı Belirti → Kök Neden → Çözüm → Önleme formatında verir. (Bu grup Sonnet fazında min 12 gerçek hatayla error-dictionary olarak doldurulacak — bkz. plan §D-S9.)',
-          en: 'Most locator errors arise from not knowing the source-DOM-render distinction and always settle into the same few patterns: locating before the element renders (NoSuchElement), using a reference that died after a re-render (StaleElement), binding to a hash class, searching without a wait for an element NOT in the DOM due to `*ngIf`/conditional, forgetting the iframe/shadow DOM context. Why an "error dictionary"? Because a tester who recognizes the root cause the moment they see the error message solves it in minutes; one who cannot tries blindly for hours. Java analogy: like thinking "which reference is null?" when you see a NullPointerException — the message tells you the path to the root cause. In QA context: this group presents each error in a Symptom -> Root Cause -> Fix -> Prevention format. (This group is filled as an error-dictionary with at least 12 real errors in the Sonnet phase — see plan section D-S9.)',
+          tr: 'Locator hatalarının çoğu, kaynak-DOM-render ayrımını bilmemekten doğar ve hep aynı birkaç kalıba oturur: element henüz render olmadan locate etmek (NoSuchElement), re-render sonrası ölmüş referansı kullanmak (StaleElement), hash class\'a bağlanmak, `*ngIf`/conditional ile DOM\'da OLMAYAN elementi bekleme yapmadan aramak, iframe/shadow DOM context\'ini unutmak. Neden bir "hata sözlüğü"? Çünkü hatanın mesajını görünce kök nedenini anında tanıyabilen tester dakikalar içinde çözer; tanıyamayan saatlerce kör dener. Java analojisi: NullPointerException gördüğünde "hangi referans null?" diye düşünmek gibi — mesaj sana kök nedene giden yolu söyler. QA bağlamında: bu grup her hatayı Belirti → Kök Neden → Çözüm → Önleme formatında verir; her hata bu sayfada önceden gördüğün bir GRUP\'a köprü kurar.',
+          en: 'Most locator errors arise from not knowing the source-DOM-render distinction and always settle into the same few patterns: locating before the element renders (NoSuchElement), using a reference that died after a re-render (StaleElement), binding to a hash class, searching without a wait for an element NOT in the DOM due to `*ngIf`/conditional, forgetting the iframe/shadow DOM context. Why an "error dictionary"? Because a tester who recognizes the root cause the moment they see the error message solves it in minutes; one who cannot tries blindly for hours. Java analogy: like thinking "which reference is null?" when you see a NullPointerException — the message tells you the path to the root cause. In QA context: this group presents each error in a Symptom -> Root Cause -> Fix -> Prevention format; every error bridges back to a GROUP you already saw on this page.',
         },
+      },
+      {
+        type: 'error-dictionary',
+        relatedTopicId: 'qaf-i-common-errors',
+        framework: 'QA Frontend',
+        errors: [
+          {
+            error: 'NoSuchElementException',
+            fullMessage: { tr: 'NoSuchElementException: Unable to locate element: [data-testid="bug-card-42"]', en: 'NoSuchElementException: Unable to locate element: [data-testid="bug-card-42"]' },
+            cause: {
+              tr: 'Test, element DOM\'a eklenmeden ÖNCE locate etmeye çalıştı — genelde fetch henüz bitmediği (GRUP D3) veya conditional render koşulu henüz tetiklenmediği (GRUP F4) için element gerçekten DOM\'da YOK.',
+              en: 'The test tried to locate the element BEFORE it was added to the DOM — usually because a fetch has not finished yet (GROUP D3) or a conditional render\'s condition has not been triggered yet (GROUP F4), so the element genuinely does NOT exist in the DOM.',
+            },
+            solution: {
+              tr: 'Sabit `sleep` yerine koşullu bir bekleme (`toHaveCount`, `toBeVisible`) kullan; conditional render\'sa önce koşulu tetikleyen eylemi (butona tıklama) yap.',
+              en: 'Use a conditional wait (`toHaveCount`, `toBeVisible`) instead of a fixed `sleep`; if it is a conditional render, first perform the action that triggers the condition (clicking the button).',
+            },
+            codeWrong: {
+              tr: `// BUG: fetch bitmeden veya modal açılmadan locate ediliyor
+await page.goto('/bugs');
+await page.locator('[data-testid="bug-card-42"]').click();`,
+              en: `// BUG: locating before the fetch finishes or the modal opens
+await page.goto('/bugs');
+await page.locator('[data-testid="bug-card-42"]').click();`,
+            },
+            codeFixed: {
+              tr: `// FIX: koşullu bekleme + gerekiyorsa önce tetikleyici eylem
+await page.goto('/bugs');
+await expect(page.locator('li')).toHaveCount(3); // fetch bitene kadar bekler
+await page.locator('[data-testid="bug-card-42"]').click();`,
+              en: `// FIX: a conditional wait + the triggering action first if needed
+await page.goto('/bugs');
+await expect(page.locator('li')).toHaveCount(3); // waits until the fetch finishes
+await page.locator('[data-testid="bug-card-42"]').click();`,
+            },
+          },
+          {
+            error: 'StaleElementReferenceException',
+            fullMessage: { tr: 'StaleElementReferenceException: element is not attached to the page document', en: 'StaleElementReferenceException: element is not attached to the page document' },
+            cause: {
+              tr: 'Test bir elemente referans TUTTU, ama sonra bir re-render (GRUP A5 reflow, GRUP F3 state değişikliği) bu elementi DOM\'dan kaldırıp YENİDEN oluşturdu — eski referans artık hiçbir şeye karşılık gelmiyor.',
+              en: 'The test HELD a reference to an element, but then a re-render (GROUP A5 reflow, GROUP F3 a state change) removed the element from the DOM and RECREATED it — the old reference no longer corresponds to anything.',
+            },
+            solution: {
+              tr: 'Referansı ÖNCEDEN tutup sonra kullanmak yerine, her etkileşimde locator\'ı YENİDEN sorgula (Playwright locator\'ları bunu otomatik yapar); listeler dolarken/animasyon oynarken stabilleşmeyi bekle.',
+              en: 'Instead of holding a reference beforehand and using it later, RE-QUERY the locator on every interaction (Playwright locators do this automatically); wait for things to stabilize while a list fills/an animation plays.',
+            },
+            codeWrong: {
+              tr: `// BUG: elementi bir kere buluyor, listeye yeni bug eklenince referans olur
+const editBtn = await driver.findElement(By.cssSelector('[data-testid="edit-bug-42"]'));
+await driver.findElement(By.testid('load-more')).click(); // liste yeniden render olur
+await editBtn.click(); // StaleElementReferenceException!`,
+              en: `// BUG: finds the element once, becomes stale once a new bug is added to the list
+const editBtn = await driver.findElement(By.cssSelector('[data-testid="edit-bug-42"]'));
+await driver.findElement(By.testid('load-more')).click(); // the list re-renders
+await editBtn.click(); // StaleElementReferenceException!`,
+            },
+            codeFixed: {
+              tr: `// FIX: her etkileşimden önce locator'ı yeniden sorgula
+await driver.findElement(By.testid('load-more')).click();
+await driver.findElement(By.cssSelector('[data-testid="edit-bug-42"]')).click(); // taze referans`,
+              en: `// FIX: re-query the locator before every interaction
+await driver.findElement(By.testid('load-more')).click();
+await driver.findElement(By.cssSelector('[data-testid="edit-bug-42"]')).click(); // fresh reference`,
+            },
+          },
+          {
+            error: { tr: 'Hash class\'a bağlanıp build\'de kırılma', en: 'Binding to a hash class and breaking on build' },
+            fullMessage: { tr: '0 elements matched: .BugCard_card__x7f2a', en: '0 elements matched: .BugCard_card__x7f2a' },
+            cause: {
+              tr: 'Test, bir CSS Modules/styled-components class\'ına (GRUP C3, C5) bağlandı; bir sonraki build/deploy bu hash\'i YENİDEN üretti ve dünkü class ismi artık DOM\'da hiç YOK.',
+              en: 'The test bound to a CSS Modules/styled-components class (GROUP C3, C5); the next build/deploy REGENERATED this hash, and yesterday\'s class name no longer exists in the DOM at all.',
+            },
+            solution: {
+              tr: 'Class\'a ASLA locate etme; developer\'dan `data-testid` iste (GRUP F7/H1\'deki "Developer\'dan Ne İste" kalıbını kullan).',
+              en: 'NEVER locate by class; ask the developer for a `data-testid` (use the "What to Ask the Developer" pattern from GROUP F7/H1).',
+            },
+            codeWrong: {
+              tr: `// BUG: hash class'a bağlı, deploy'da kırılır
+await page.locator('.BugCard_card__x7f2a').click();`,
+              en: `// BUG: bound to a hash class, breaks on deploy
+await page.locator('.BugCard_card__x7f2a').click();`,
+            },
+            codeFixed: {
+              tr: `// FIX: build'den bağımsız kasıtlı kimlik
+await page.getByTestId('bug-card-42').click();`,
+              en: `// FIX: a deliberate identity independent of the build
+await page.getByTestId('bug-card-42').click();`,
+            },
+          },
+          {
+            error: { tr: 'Conditional element\'i wait\'siz locate', en: 'Locating a conditional element without a wait' },
+            fullMessage: { tr: 'ElementNotInteractableException: element is not visible', en: 'ElementNotInteractableException: element is not visible' },
+            cause: {
+              tr: '`{isOpen && <Modal/>}`/`*ngIf` (GRUP F4, G3) ile render edilen bir element, koşul tetiklenip DOM\'a girse bile CSS animasyonu (fade-in) bitmeden `visible`/`actionable` sayılmayabilir.',
+              en: 'An element rendered with `{isOpen && <Modal/>}`/`*ngIf` (GROUP F4, G3) may not count as `visible`/`actionable` until a CSS animation (a fade-in) finishes, even after the condition is triggered and it enters the DOM.',
+            },
+            solution: {
+              tr: 'Önce koşulu tetikleyen eylemi yap, sonra `attached` DEĞİL `visible` durumunu bekle — GRUP H4\'teki 4 adımlı akışı (bil→tetikle→varlık→görünürlük) uygula.',
+              en: 'First perform the action that triggers the condition, then wait for `visible`, NOT `attached` — apply the 4-step flow from GROUP H4 (know -> trigger -> presence -> visibility).',
+            },
+            codeWrong: {
+              tr: `// BUG: butona tıkladıktan hemen sonra, animasyon bitmeden tıklıyor
+await page.click('[data-testid="new-bug-btn"]');
+await page.locator('[data-testid="modal-submit"]').click();`,
+              en: `// BUG: clicks right after the button, before the animation finishes
+await page.click('[data-testid="new-bug-btn"]');
+await page.locator('[data-testid="modal-submit"]').click();`,
+            },
+            codeFixed: {
+              tr: `// FIX: visible olmayı (animasyon dahil tamamlanmayı) bekle
+await page.click('[data-testid="new-bug-btn"]');
+await page.locator('[data-testid="modal-submit"]').waitFor({ state: 'visible' });
+await page.locator('[data-testid="modal-submit"]').click();`,
+              en: `// FIX: wait to be visible (including the animation finishing)
+await page.click('[data-testid="new-bug-btn"]');
+await page.locator('[data-testid="modal-submit"]').waitFor({ state: 'visible' });
+await page.locator('[data-testid="modal-submit"]').click();`,
+            },
+          },
+          {
+            error: { tr: 'iframe\'i unutmak', en: 'Forgetting the iframe' },
+            fullMessage: { tr: 'NoSuchElementException: Unable to locate element: [data-testid="card-number-input"]', en: 'NoSuchElementException: Unable to locate element: [data-testid="card-number-input"]' },
+            cause: {
+              tr: 'Element gözle DOM\'da GÖRÜNÜYOR (bir ödeme widget\'ı içinde) ama gerçekte bir `<iframe>` içinde, AYRI bir `document`\'ta yaşıyor (GRUP H6) — ana sayfa context\'inde yazılan locator oraya hiç bakamaz.',
+              en: 'The element visually APPEARS in the DOM (inside a payment widget) but really lives inside an `<iframe>`, in a SEPARATE `document` (GROUP H6) — a locator written in the main page context can never look inside it.',
+            },
+            solution: {
+              tr: 'Önce context\'i o frame\'e SWITCH et (`page.frameLocator(...)`), sonra o context içinde normal şekilde locate et.',
+              en: 'First SWITCH context into that frame (`page.frameLocator(...)`), then locate normally within that context.',
+            },
+            codeWrong: {
+              tr: `// BUG: iframe context'ine geçmeden ana context'ten locate ediyor
+await page.locator('[data-testid="card-number-input"]').fill('4242...');`,
+              en: `// BUG: locating from the main context without switching into the iframe
+await page.locator('[data-testid="card-number-input"]').fill('4242...');`,
+            },
+            codeFixed: {
+              tr: `// FIX: önce iframe context'ine gir
+await page.frameLocator('#payment-iframe')
+  .locator('[data-testid="card-number-input"]')
+  .fill('4242...');`,
+              en: `// FIX: enter the iframe context first
+await page.frameLocator('#payment-iframe')
+  .locator('[data-testid="card-number-input"]')
+  .fill('4242...');`,
+            },
+          },
+          {
+            error: { tr: 'Shadow DOM\'a normal selector', en: 'A normal selector against Shadow DOM' },
+            fullMessage: { tr: 'NoSuchElementException: Unable to locate element: severity-picker option', en: 'NoSuchElementException: Unable to locate element: severity-picker option' },
+            cause: {
+              tr: 'Bir web component (`<severity-picker>`) kendi iç yapısını bir shadow root\'ta KAPSÜLLER (GRUP H6) — normal bir CSS selector bu sınırı OTOMATİK OLARAK geçemez.',
+              en: 'A web component (`<severity-picker>`) ENCAPSULATES its internal structure in a shadow root (GROUP H6) — a normal CSS selector CANNOT automatically cross this boundary.',
+            },
+            solution: {
+              tr: 'Test aracının shadow-aware bir API\'sini (piercing selector, `>>>`) veya component\'in kendi genel (public) attribute\'larını kullan.',
+              en: 'Use the test tool\'s shadow-aware API (a piercing selector, `>>>`) or the component\'s own public attributes.',
+            },
+            codeWrong: {
+              tr: `// BUG: shadow root sınırını geçemeyen normal selector
+await page.locator('severity-picker option[value="CRITICAL"]').click();`,
+              en: `// BUG: a normal selector that cannot cross the shadow root boundary
+await page.locator('severity-picker option[value="CRITICAL"]').click();`,
+            },
+            codeFixed: {
+              tr: `// FIX: shadow-piercing selector (Playwright otomatik piercing yapar,
+// ama web component API'sine göre değişebilir)
+await page.locator('severity-picker').locator('option[value="CRITICAL"]').click();`,
+              en: `// FIX: a shadow-piercing selector (Playwright auto-pierces by default,
+// but this can vary depending on the web component's API)
+await page.locator('severity-picker').locator('option[value="CRITICAL"]').click();`,
+            },
+          },
+          {
+            error: { tr: 'İndeks\'e bağlı satır locate\'in sıralama değişince kayması', en: 'An index-based row locator shifting when ordering changes' },
+            fullMessage: { tr: 'Test "CRITICAL" bug\'ı düzenledi ama yanlışlıkla "LOW" severity bug\'ı güncellendi', en: 'The test edited the "CRITICAL" bug but the "LOW" severity bug got updated by mistake' },
+            cause: {
+              tr: '`page.locator(\'tr\').nth(2)` gibi bir locator (GRUP A2, H2, H5) tablonun O ANKİ sırasına bel bağladı; bir filtreleme/sıralama değişikliği bu index\'in ARTIK BAŞKA bir satıra işaret etmesine yol açtı — test SESSİZCE yanlış satırı işledi.',
+              en: 'A locator like `page.locator(\'tr\').nth(2)` (GROUP A2, H2, H5) relied on the table\'s CURRENT order; a filtering/sorting change caused this index to NOW point to a DIFFERENT row — the test SILENTLY processed the wrong row.',
+            },
+            solution: {
+              tr: 'Satırı ASLA index\'e göre bulma; bir kimliğe (`data-bug-id`) veya kalıcı bir içeriğe (`hasText`) göre İLİŞKİSEL bul, sonra o satırın içinde ara.',
+              en: 'NEVER find a row by index; find it RELATIONALLY by an identity (`data-bug-id`) or permanent content (`hasText`), then search inside that row.',
+            },
+            codeWrong: {
+              tr: `// BUG: index sıralama değişince yanlış satıra işaret eder
+await page.locator('tr').nth(2).locator('select').selectOption('CRITICAL');`,
+              en: `// BUG: the index points to the wrong row once ordering changes
+await page.locator('tr').nth(2).locator('select').selectOption('CRITICAL');`,
+            },
+            codeFixed: {
+              tr: `// FIX: satırı kimlikle/metinle ilişkisel bul
+await page.locator('tr', { hasText: 'Login butonu 500 donuyor' })
+  .locator('select').selectOption('CRITICAL');`,
+              en: `// FIX: find the row relationally by identity/text
+await page.locator('tr', { hasText: 'Login button freezes on 500' })
+  .locator('select').selectOption('CRITICAL');`,
+            },
+          },
+          {
+            error: { tr: '`display:none` elementi tıklamaya çalışmak', en: 'Trying to click a `display:none` element' },
+            fullMessage: { tr: 'ElementNotInteractableException: element is not visible and may not be manipulated', en: 'ElementNotInteractableException: element is not visible and may not be manipulated' },
+            cause: {
+              tr: 'Element DOM\'da VARDIR (locate edilir, `attached`) ama `display:none` olduğu için Render Tree\'de YOKTUR (GRUP A3) — DOM varlığı ile tıklanabilirlik FARKLI şeylerdir.',
+              en: 'The element EXISTS in the DOM (it is located, `attached`), but because it has `display:none` it is ABSENT from the Render Tree (GROUP A3) — DOM presence and clickability are DIFFERENT things.',
+            },
+            solution: {
+              tr: '`attached` yerine `visible` durumunu bekle; element gerçekten `display:none` iken tıklanması BEKLENMİYORSA, bu bir uygulama hatası olabilir — önce ürünsel olarak doğru olup olmadığını sorgula.',
+              en: 'Wait for the `visible` state instead of `attached`; if the element is NOT SUPPOSED to be clicked while genuinely `display:none`, this might be an application bug — first question whether it is correct from a product standpoint.',
+            },
+            codeWrong: {
+              tr: `// BUG: sadece DOM varlığını kontrol ediyor, görünürlüğü değil
+await page.waitForSelector('[data-testid="save-bug"]', { state: 'attached' });
+await page.locator('[data-testid="save-bug"]').click();`,
+              en: `// BUG: only checks DOM presence, not visibility
+await page.waitForSelector('[data-testid="save-bug"]', { state: 'attached' });
+await page.locator('[data-testid="save-bug"]').click();`,
+            },
+            codeFixed: {
+              tr: `// FIX: görünürlüğü (render tree'de olmayı) bekle
+await page.waitForSelector('[data-testid="save-bug"]', { state: 'visible' });
+await page.locator('[data-testid="save-bug"]').click();`,
+              en: `// FIX: wait for visibility (being in the render tree)
+await page.waitForSelector('[data-testid="save-bug"]', { state: 'visible' });
+await page.locator('[data-testid="save-bug"]').click();`,
+            },
+          },
+          {
+            error: { tr: 'Hydration bitmeden tıklama', en: 'Clicking before hydration finishes' },
+            fullMessage: { tr: 'Test butona tıkladı, hata almadı, ama hiçbir şey olmadı', en: 'The test clicked the button, got no error, but nothing happened' },
+            cause: {
+              tr: 'SSR/SSG sayfasında (GRUP E3, E4) HTML ilk yanıtta HAZIRDIR ama JS bundle\'ı henüz hydrate OLMADIĞI için event listener bağlı değildir — tıklama sessizce KAYBOLUR.',
+              en: 'On an SSR/SSG page (GROUP E3, E4) the HTML is READY in the first response, but because the JS bundle has not hydrated YET, the event listener is not attached — the click SILENTLY vanishes.',
+            },
+            solution: {
+              tr: 'Developer\'dan açık bir "hydration bitti" işareti (`data-hydrated="true"`) iste ve tıklamadan önce bunu bekle — sadece `visible` olmak yeterli değildir.',
+              en: 'Ask the developer for an explicit "hydration finished" marker (`data-hydrated="true"`) and wait for it before clicking — being merely `visible` is not enough.',
+            },
+            codeWrong: {
+              tr: `// BUG: sayfa açılır açılmaz tıklıyor, hydration bitmemiş olabilir
+await page.goto('/bugs');
+await page.locator('[data-testid="new-bug-btn"]').click();`,
+              en: `// BUG: clicks the moment the page opens, hydration may not have finished
+await page.goto('/bugs');
+await page.locator('[data-testid="new-bug-btn"]').click();`,
+            },
+            codeFixed: {
+              tr: `// FIX: hydration bitti işaretini bekle
+await page.goto('/bugs');
+await page.waitForSelector('[data-hydrated="true"]');
+await page.locator('[data-testid="new-bug-btn"]').click();`,
+              en: `// FIX: wait for the hydration-finished marker
+await page.goto('/bugs');
+await page.waitForSelector('[data-hydrated="true"]');
+await page.locator('[data-testid="new-bug-btn"]').click();`,
+            },
+          },
+          {
+            error: { tr: 'Angular `*ngIf`\'li elementi DOM\'da sanmak', en: 'Assuming an Angular `*ngIf`\'d element is in the DOM' },
+            fullMessage: { tr: 'NoSuchElementException: Unable to locate element: .modal', en: 'NoSuchElementException: Unable to locate element: .modal' },
+            cause: {
+              tr: 'Bir tester, Angular\'da `*ngIf`\'in de React\'in `{isOpen&&}`\'i gibi elementi DOM\'dan TAMAMEN çıkardığını bilmeyip (GRUP G3), sanki bir `display:none` gibi "orada ama gizli" olduğunu VARSAYDI ve butonu tıklamadan locate etmeye çalıştı.',
+              en: 'A tester, not knowing that `*ngIf` in Angular REMOVES the element from the DOM entirely just like React\'s `{isOpen&&}` (GROUP G3), ASSUMED it was "there but hidden" like a `display:none` and tried to locate it without clicking the button.',
+            },
+            solution: {
+              tr: '`*ngIf` ile koşullu render edilen bir elementi locate etmeden önce, koşulu true yapan eylemi (butona tıklama) MUTLAKA yap — GRUP G3\'teki "*ngIf Kapıyı Açıp Kapıyor" filmini hatırla.',
+              en: 'Before locating an element conditionally rendered with `*ngIf`, ALWAYS perform the action that makes the condition true (clicking the button) — remember the "*ngIf Opens and Closes the Door" film from GROUP G3.',
+            },
+            codeWrong: {
+              tr: `// BUG: butona tıklamadan modalı locate etmeye çalışıyor
+await page.goto('/bugs');
+await page.locator('.modal').click(); // *ngIf="isOpen" henüz false`,
+              en: `// BUG: tries to locate the modal without clicking the button
+await page.goto('/bugs');
+await page.locator('.modal').click(); // *ngIf="isOpen" is still false`,
+            },
+            codeFixed: {
+              tr: `// FIX: önce koşulu tetikleyen eylemi yap
+await page.goto('/bugs');
+await page.locator('[data-testid="new-bug-btn"]').click(); // isOpen = true olur
+await page.locator('[data-testid="new-bug-modal"]').waitFor({ state: 'visible' });`,
+              en: `// FIX: first perform the action that triggers the condition
+await page.goto('/bugs');
+await page.locator('[data-testid="new-bug-btn"]').click(); // isOpen becomes true
+await page.locator('[data-testid="new-bug-modal"]').waitFor({ state: 'visible' });`,
+            },
+          },
+          {
+            error: { tr: 'Text locate\'in i18n\'de (TR/EN) kırılması', en: 'A text locator breaking under i18n (TR/EN)' },
+            fullMessage: { tr: 'NoSuchElementException: Unable to locate element: text="Düzenle"', en: 'NoSuchElementException: Unable to locate element: text="Duzenle"' },
+            cause: {
+              tr: 'Test `getByText(\'Düzenle\')` (GRUP H1, H3) ile yazıldı; sayfa dili EN\'e geçince (veya bir A/B testinde metin güncellenince) buton artık "Edit" yazıyor ve TR metnine bağlı locator hiçbir şey bulamıyor.',
+              en: 'The test was written with `getByText(\'Edit\')` (GROUP H1, H3); once the page language switches (or the text is updated in an A/B test), the button now says something else and the locator bound to the old text finds nothing.',
+            },
+            solution: {
+              tr: 'Çok dilli veya sık değişen metinler için `data-testid`/`getByRole` ile dilden BAĞIMSIZ bir kimliğe geç; metin locate\'i sadece tek dilli, nadiren değişen etiketlerde kullan.',
+              en: 'For multilingual or frequently changing text, switch to a language-INDEPENDENT identity with `data-testid`/`getByRole`; use a text locator only for single-language, rarely-changing labels.',
+            },
+            codeWrong: {
+              tr: `// BUG: dile bağlı metin locator'ı, EN moduna geçince kırılır
+await page.getByText('Düzenle').click();`,
+              en: `// BUG: a language-bound text locator, breaks when switching to EN mode
+await page.getByText('Edit').click();`,
+            },
+            codeFixed: {
+              tr: `// FIX: dilden bağımsız kimlik
+await page.getByTestId('edit-bug-42').click();`,
+              en: `// FIX: an identity independent of language
+await page.getByTestId('edit-bug-42').click();`,
+            },
+          },
+          {
+            error: { tr: 'Absolute XPath\'in ufak DOM değişikliğinde patlaması', en: 'An absolute XPath exploding on a tiny DOM change' },
+            fullMessage: { tr: 'NoSuchElementException: Unable to locate element: /html/body/div[2]/main/ul/li[3]/button', en: 'NoSuchElementException: Unable to locate element: /html/body/div[2]/main/ul/li[3]/button' },
+            cause: {
+              tr: 'Absolute XPath (GRUP H2), DOM\'un TAM o anki ata zincirine bel bağlar; bir designer\'ın Sidebar\'a yeni bir uyarı banner\'ı (`<div>`) eklemesi bile, aradaki tüm index\'leri KAYDIRIR ve tüm yolu geçersiz kılar.',
+              en: 'An absolute XPath (GROUP H2) relies on the DOM\'s EXACT current ancestor chain; even a designer adding a new warning banner (`<div>`) to the Sidebar SHIFTS all the indexes in between and invalidates the entire path.',
+            },
+            solution: {
+              tr: 'Absolute XPath\'i ASLA kullanma; `data-testid`/`getByRole` gibi ata zincirinden bağımsız bir locator\'a geç.',
+              en: 'NEVER use an absolute XPath; switch to a locator independent of the ancestor chain, like `data-testid`/`getByRole`.',
+            },
+            codeWrong: {
+              tr: `// BUG: tam ata zincirine bağlı, bir div eklenince kırılır
+driver.findElement(By.xpath("/html/body/div[2]/main/ul/li[3]/button"));`,
+              en: `// BUG: bound to the exact ancestor chain, breaks when a div is added
+driver.findElement(By.xpath("/html/body/div[2]/main/ul/li[3]/button"));`,
+            },
+            codeFixed: {
+              tr: `// FIX: ata zincirinden bağımsız kimlik
+driver.findElement(By.cssSelector("[data-testid='edit-bug-42']"));`,
+              en: `// FIX: an identity independent of the ancestor chain
+driver.findElement(By.cssSelector("[data-testid='edit-bug-42']"));`,
+            },
+          },
+        ],
       },
     ],
   },
