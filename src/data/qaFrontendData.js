@@ -1415,6 +1415,260 @@ const loadingErrorEmptyTable = {
   ],
 }
 
+// ─── video-scene: "Component Bir Fonksiyondur" (GRUP F1, zorunlu film) ────────
+const componentIsFunctionFilm = {
+  type: 'video-scene',
+  id: 'qaf-component-is-function-film',
+  title: {
+    tr: '🎬 Component Bir Fonksiyondur: Prop İçeri Akar, JSX Dışarı Çıkar',
+    en: '🎬 A Component Is a Function: a Prop Flows In, JSX Flows Out',
+  },
+  xpReward: 14,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'react',  emoji: '⚛️', label: { tr: 'React motoru',        en: 'React engine' },       color: '#0ea5e9' },
+    { id: 'func',   emoji: '📜', label: { tr: 'function BugCard(props)', en: 'function BugCard(props)' }, color: '#f59e0b' },
+    { id: 'props',  emoji: '📦', label: { tr: 'props = { bug }',      en: 'props = { bug }' },     color: '#8b5cf6' },
+    { id: 'jsx',    emoji: '📝', label: { tr: 'JSX (bir "tarif")',    en: 'JSX (a "recipe")' },   color: '#6366f1' },
+    { id: 'dom',    emoji: '🌳', label: { tr: 'Gerçek DOM',           en: 'Real DOM' },           color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir React component\'i, ilk bakışta gizemli görünse de aslında SADE bir JavaScript fonksiyonudur. Bu filmde `BugCard` component\'inin React tarafından NASIL çağrıldığını, prop\'un içeri NASIL aktığını ve dönen JSX\'in gerçek DOM\'a NASIL dönüştüğünü izleyeceksin.',
+        en: 'A React component may look mysterious at first, but it is really a PLAIN JavaScript function. In this film you will watch HOW the `BugCard` component gets called by React, HOW the prop flows in, and HOW the returned JSX turns into real DOM.',
+      },
+      code: { tr: `function BugCard({ bug }) { return <li>...</li> }`, en: `function BugCard({ bug }) { return <li>...</li> }` },
+      positions: { func: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — React motoru `BugCard`\'ı ÇAĞIRIR: tıpkı Java\'da bir metodu çağırmak gibi, `BugCard(props)` çalıştırılır. Prop (`{ bug: {...} }`) fonksiyona bir PARAMETRE gibi akar.',
+        en: 'Step 1 — the React engine CALLS `BugCard`: just like calling a method in Java, `BugCard(props)` runs. The prop (`{ bug: {...} }`) flows into the function like a PARAMETER.',
+      },
+      code: { tr: `BugCard({ bug: {id:42, title:"..."} }) çağrılıyor`, en: `BugCard({ bug: {id:42, title:"..."} }) is being called` },
+      positions: {
+        react: { x: 18, y: 50, scale: 1.05 },
+        func: { x: 52, y: 50, scale: 1.15, pulse: true },
+      },
+      beams: [{ from: 'react', to: 'func', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Prop içeri akar ve fonksiyon GÖVDESİ çalışır: `bug.status`, `bug.title` gibi alanlar okunur, gerekiyorsa bir koşul (`{isOpen && ...}`) değerlendirilir — bu ana kadar hiçbir DOM değişikliği YOKTUR, sadece JS çalışıyor.',
+        en: 'Step 2 — the prop flows in and the function BODY runs: fields like `bug.status`, `bug.title` are read, a condition (`{isOpen && ...}`) is evaluated if needed — up to this point there is NO DOM change yet, only JS is running.',
+      },
+      code: { tr: `bug.title → "Login butonu 500 donuyor"`, en: `bug.title -> "Login button freezes on 500"` },
+      positions: {
+        func: { x: 20, y: 50, opacity: 0.7, scale: 0.95 },
+        props: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'func', to: 'props', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Fonksiyon bir JSX DÖNER: bu JSX gerçek DOM DEĞİLDİR — sadece "böyle bir yapı istiyorum" diyen bir TARİFTİR (aslında arka planda `React.createElement(...)` çağrılarından oluşan sade bir JS nesnesidir).',
+        en: 'Step 3 — the function RETURNS JSX: this JSX is NOT real DOM — it is only a RECIPE saying "I want a structure like this" (in fact, behind the scenes, it is a plain JS object made of `React.createElement(...)` calls).',
+      },
+      code: { tr: `return <li className={...}>{bug.title}</li>`, en: `return <li className={...}>{bug.title}</li>` },
+      positions: {
+        props: { x: 20, y: 50, opacity: 0.6, scale: 0.9 },
+        jsx: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'props', to: 'jsx', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Final — React bu TARİFİ gerçek DOM\'a dönüştürür: React, döndürülen JSX\'i önceki halle karşılaştırır (reconciliation) ve GERÇEK DOM node\'larını oluşturur/günceller. İşte locator\'ın gerçekte hedeflediği yer BURASIDIR — JSX değil, bu adımın SONUCU.',
+        en: 'Final — React turns this RECIPE into real DOM: React compares the returned JSX against the previous state (reconciliation) and creates/updates the REAL DOM nodes. THIS is where a locator actually targets — not the JSX, but the RESULT of this step.',
+      },
+      code: { tr: `<li class="BugCard_card__x7f2a">Login butonu 500 donuyor</li>`, en: `<li class="BugCard_card__x7f2a">Login button freezes on 500</li>` },
+      positions: {
+        jsx: { x: 22, y: 32, scale: 0.95 },
+        dom: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'jsx', to: 'dom', color: '#22c55e' }],
+    },
+  ],
+}
+
+// ─── step-animation: JSX ifadelerinin DOM'a çevrilmesi (GRUP F2) ──────────────
+const jsxToDomSteps = {
+  type: 'step-animation',
+  id: 'qaf-f2-jsx-to-dom-steps',
+  title: { tr: 'Adım Adım: JSX İfadeleri Gerçek DOM\'a Nasıl Çevrilir', en: 'Step by Step: How JSX Expressions Translate to Real DOM' },
+  steps: [
+    { id: 1, icon: '🏷️', label: { tr: '`className={styles.card}`', en: '`className={styles.card}`' }, detail: { tr: 'React\'te `class` yerine `className` yazılır; DOM\'da HTML\'in gerçek `class` attribute\'una çevrilir — isim değişir ama işlev aynıdır.', en: 'In React you write `className` instead of `class`; it translates to the DOM\'s real `class` attribute — the name changes but the function stays the same.' } },
+    { id: 2, icon: '🔤', label: { tr: '`{bug.title}`', en: '`{bug.title}`' }, detail: { tr: 'Süslü parantez içindeki bir JS ifadesi DEĞERLENDİRİLİR ve sonucu DOM\'a bir TEXT NODE olarak yazılır.', en: 'A JS expression inside curly braces is EVALUATED and its result is written to the DOM as a TEXT NODE.' } },
+    { id: 3, icon: '🔀', label: { tr: '`{isOpen && <Modal/>}` TRUE ise', en: '`{isOpen && <Modal/>}` when TRUE' }, detail: { tr: 'İfade `<Modal/>` JSX\'ine değerlendirilir ve Modal GERÇEKTEN DOM\'a render edilir.', en: 'The expression evaluates to the `<Modal/>` JSX and the Modal is REALLY rendered into the DOM.' } },
+    { id: 4, icon: '🚫', label: { tr: '`{isOpen && <Modal/>}` FALSE ise', en: '`{isOpen && <Modal/>}` when FALSE' }, detail: { tr: 'İfade `false` değerine eşitlenir; React `false`/`null`/`undefined` için HİÇBİR ŞEY render etmez — Modal DOM\'a hiç GİRMEZ.', en: 'The expression evaluates to `false`; React renders NOTHING for `false`/`null`/`undefined` — the Modal NEVER ENTERS the DOM.' } },
+    { id: 5, icon: '✅', label: { tr: 'Sonuç: JSX\'i okuyabilen tester DOM\'u tahmin eder', en: 'Result: a tester who can read JSX predicts the DOM' }, detail: { tr: 'Bu 4 kalıbı (className, {ifade}, {koşul&&}, liste) tanıyan tester, kaynağa bakıp DOM\'un NE ZAMAN ne içereceğini zihninde canlandırır.', en: 'A tester who recognizes these 4 patterns (className, {expression}, {condition&&}, a list) can look at the source and picture WHEN the DOM will contain what.' } },
+  ],
+}
+
+// ─── table: Props vs State (GRUP F3) ───────────────────────────────────────────
+const propsVsStateTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Özellik', en: 'Property' },
+    { tr: 'Props', en: 'Props' },
+    { tr: 'State', en: 'State' },
+  ],
+  rows: [
+    [{ tr: 'Nereden gelir?', en: 'Where does it come from?' }, { tr: 'Üst component\'ten (yukarıdan aşağı akar)', en: 'From the parent component (flows top-down)' }, { tr: 'Component\'in KENDİ hafızası (useState gibi)', en: 'The component\'s OWN memory (like useState)' }],
+    [{ tr: 'Kim değiştirebilir?', en: 'Who can change it?' }, { tr: 'SADECE üst component (component kendi prop\'unu değiştiremez)', en: 'ONLY the parent component (a component cannot change its own prop)' }, { tr: 'Component\'in kendisi (`setIsOpen(true)` gibi)', en: 'The component itself (like `setIsOpen(true)`)' }],
+    [{ tr: 'Java analojisi', en: 'Java analogy' }, { tr: 'Metot parametresi', en: 'A method parameter' }, { tr: 'Instance field (nesnenin kendi alanı)', en: 'An instance field (the object\'s own field)' }],
+    [{ tr: 'Örnek (BugCard)', en: 'Example (BugCard)' }, { tr: '`bug` (hangi bug gösterilecek — dışarıdan verilir)', en: '`bug` (which bug to show — given from outside)' }, { tr: '`isExpanded` (kart açık mı — kartın kendi kararı)', en: '`isExpanded` (is the card expanded — the card\'s own decision)' }],
+  ],
+}
+
+// ─── code (Kaynak→DOM→Locator, Modal conditional render — GRUP F4) ────────────
+const modalConditionalCode = {
+  type: 'code',
+  language: 'jsx',
+  code: {
+    tr: `// SÜTUN 1 — Developer'ın yazdığı kaynak (BugBoard.jsx)
+function BugBoard() {
+  const [isOpen, setIsOpen] = useState(false)   // state = component'in kendi hafızası
+  return (
+    <>
+      <button onClick={() => setIsOpen(true)}>Yeni Bug</button>
+      {isOpen && <NewBugModal onClose={() => setIsOpen(false)} />}
+    </>
+  )
+}
+
+// SÜTUN 2 — isOpen=false iken GERÇEK DOM
+// <button>Yeni Bug</button>
+//   ← <NewBugModal> DOM'da HİÇ YOK, aramak NoSuchElement verir
+
+// isOpen=true iken GERÇEK DOM
+// <button>Yeni Bug</button>
+// <div data-testid="new-bug-modal">...</div>`,
+    en: `// COLUMN 1 — The source the developer wrote (BugBoard.jsx)
+function BugBoard() {
+  const [isOpen, setIsOpen] = useState(false)   // state = the component's own memory
+  return (
+    <>
+      <button onClick={() => setIsOpen(true)}>New Bug</button>
+      {isOpen && <NewBugModal onClose={() => setIsOpen(false)} />}
+    </>
+  )
+}
+
+// COLUMN 2 — The REAL DOM while isOpen=false
+// <button>New Bug</button>
+//   <- <NewBugModal> DOES NOT EXIST in the DOM at all, searching for it gives NoSuchElement
+
+// The REAL DOM while isOpen=true
+// <button>New Bug</button>
+// <div data-testid="new-bug-modal">...</div>`,
+  },
+}
+
+// ─── code (Kaynak→DOM→Locator, StatusBadge list render — GRUP F5) ─────────────
+const statusBadgeListCode = {
+  type: 'code',
+  language: 'jsx',
+  code: {
+    tr: `// SÜTUN 1 — Developer'ın yazdığı kaynak (BugList.jsx)
+{bugs.map(bug => (
+  <li key={bug.id}>                          // key = React'in iç takip numarası
+    <StatusBadge status={bug.status} />       // her satırda AYRI bir prop
+  </li>
+))}
+
+// SÜTUN 2 — Tarayıcıda oluşan GERÇEK DOM (3 bug için)
+// <li><span class="Badge_open__k3n9">OPEN</span></li>
+// <li><span class="Badge_closed__p2m4">CLOSED</span></li>
+// <li><span class="Badge_open__k3n9">OPEN</span></li>
+//   ← key SADECE React'in iç defterindedir, DOM'da attribute olarak GÖRÜNMEZ`,
+    en: `// COLUMN 1 — The source the developer wrote (BugList.jsx)
+{bugs.map(bug => (
+  <li key={bug.id}>                          // key = React's internal tracking number
+    <StatusBadge status={bug.status} />       // a SEPARATE prop on every row
+  </li>
+))}
+
+// COLUMN 2 — The REAL DOM produced in the browser (for 3 bugs)
+// <li><span class="Badge_open__k3n9">OPEN</span></li>
+// <li><span class="Badge_closed__p2m4">CLOSED</span></li>
+// <li><span class="Badge_open__k3n9">OPEN</span></li>
+//   <- key exists ONLY in React's internal ledger, it is NOT VISIBLE as a DOM attribute`,
+  },
+}
+
+// ─── code (Kaynak→DOM→Locator, Toast + data-testid ekleme örneği — GRUP F6) ───
+const toastDataTestIdCode = {
+  type: 'code',
+  language: 'jsx',
+  code: {
+    tr: `// SÜTUN 1a — ÖNCESİ: Toast component'inde data-testid YOK
+function Toast({ message }) {
+  return <div className={styles.toast}>{message}</div>
+}
+// DOM: <div class="Toast_toast__q7r2">Bug başarıyla oluşturuldu</div>
+//   ← locate edilecek stabil bir kanca YOK, sadece hash'li class var
+
+// SÜTUN 1b — SONRASI: developer'dan istenen TEK satır eklendi
+function Toast({ message }) {
+  return <div className={styles.toast} data-testid="toast">{message}</div>
+}
+// SÜTUN 2 — SONRASI GERÇEK DOM
+// <div class="Toast_toast__q7r2" data-testid="toast">Bug başarıyla oluşturuldu</div>`,
+    en: `// COLUMN 1a — BEFORE: the Toast component has NO data-testid
+function Toast({ message }) {
+  return <div className={styles.toast}>{message}</div>
+}
+// DOM: <div class="Toast_toast__q7r2">Bug created successfully</div>
+//   <- there is NO stable hook to locate, only a hashed class
+
+// COLUMN 1b — AFTER: the ONE line asked of the developer was added
+function Toast({ message }) {
+  return <div className={styles.toast} data-testid="toast">{message}</div>
+}
+// COLUMN 2 — REAL DOM AFTER the change
+// <div class="Toast_toast__q7r2" data-testid="toast">Bug created successfully</div>`,
+  },
+}
+
+// ─── code-playground: Toast'a data-testid eklemeyi simüle et (GRUP F6) ────────
+const addTestIdToToastPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-f6-data-testid-react',
+  id: 'qaf-f6-add-testid-toast',
+  title: { tr: 'Kendin Dene: Toast Component\'ine `data-testid` Ekle', en: 'Try It Yourself: Add `data-testid` to the Toast Component' },
+  starterCode: {
+    tr: `// Toast component'inde henüz data-testid yok, sadece hash'li class var.
+// TODO: JSX satırına data-testid="toast" ekle.
+function Toast({ message }) {
+  return <div className={styles.toast}>{message}</div>
+}`,
+    en: `// The Toast component has no data-testid yet, only a hashed class.
+// TODO: add data-testid="toast" to the JSX line.
+function Toast({ message }) {
+  return <div className={styles.toast}>{message}</div>
+}`,
+  },
+  solutionCode: {
+    tr: `function Toast({ message }) {
+  return <div className={styles.toast} data-testid="toast">{message}</div>
+}`,
+    en: `function Toast({ message }) {
+  return <div className={styles.toast} data-testid="toast">{message}</div>
+}`,
+  },
+  hint: {
+    tr: 'JSX\'te bir attribute eklemek HTML\'dekiyle aynı sözdizimidir — `className` yanına, ondan bağımsız olarak `data-testid="toast"` yazman yeterli. React `data-*` attribute\'larını olduğu gibi DOM\'a geçirir.',
+    en: 'Adding an attribute in JSX has the same syntax as in HTML — just write `data-testid="toast"` alongside `className`, independent of it. React passes `data-*` attributes straight through to the DOM.',
+  },
+  successMessage: {
+    tr: 'Doğru! Tek bir satırlık bu değişiklik, Toast\'ı build\'den bağımsız, kalıcı olarak locate edilebilir hale getirir — developer\'dan istemesi gereken tam olarak budur.',
+    en: 'Correct! This one-line change makes the Toast permanently locatable, independent of the build — this is exactly what should be asked of the developer.',
+  },
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
 
@@ -2995,7 +3249,7 @@ const Badge = styled.span\`
     ],
   },
 
-  // ══ GRUP F — React: Kaynağı Okumak (Opus pano referansı + Sonnet) ══════════
+  // ══ GRUP F — React: Kaynağı Okumak ══════════════════════════════════════════
   {
     title: { tr: '⚛️ React: Kaynağı Okumak', en: '⚛️ React: Reading the Source' },
     blocks: [
@@ -3003,9 +3257,414 @@ const Badge = styled.span\`
         type: 'simple-box',
         emoji: '⚛️',
         content: {
-          tr: 'React component\'i, bir LEGO PARÇASI FABRİKASINDAKİ KALIP gibidir: bir kez `BugCard` kalıbını yazarsın, sonra her bug için o kalıptan bir kart basılır. Kalıba dökülen "malzeme" prop\'tur (bug\'ın verisi), kalıbın çıktısı ise JSX\'in ürettiği gerçek DOM. Neden bir tester React kaynağını okuyabilmeli? Çünkü `className={styles.card}` yazan bir satırın tarayıcıda `class="BugCard_card__x7f2a"` gibi hash\'li bir class ürettiğini GÖREBİLİRSE, ona göre locate etmenin kırılacağını önceden anlar. Java analojisi: component ≈ bir metot/sınıf, prop ≈ parametre, state ≈ instance field, re-render ≈ metodu yeni argümanla yeniden çağırmak. QA bağlamında: JSX\'i okuyup üretilecek DOM\'u zihinde canlandıran tester, developer\'la aynı dili konuşur ve doğru locator\'ı baştan seçer. Aşağıda bu sayfanın imza aracı var: **Kaynak → DOM → Locator panosu**.',
-          en: 'A React component is like a MOLD in a LEGO-BRICK FACTORY: you write the `BugCard` mold once, then a card is stamped from that mold for each bug. The "material" poured into the mold is the prop (the bug\'s data), and the mold\'s output is the real DOM produced by JSX. Why should a tester be able to read React source? Because if they can SEE that a line writing `className={styles.card}` produces a hashed class like `class="BugCard_card__x7f2a"` in the browser, they understand in advance that locating by it will break. Java analogy: component is like a metot/class, a prop like a parameter, state like an instance field, and a re-render like calling the method again with new arguments. In QA context: a tester who reads JSX and pictures the DOM it will produce speaks the same language as the developer and picks the right locator from the start. Below is this page\'s signature tool: the **Source -> DOM -> Locator board**.',
+          tr: 'React component\'i, bir LEGO PARÇASI FABRİKASINDAKİ KALIP gibidir: bir kez `BugCard` kalıbını yazarsın, sonra her bug için o kalıptan bir kart basılır. Kalıba dökülen "malzeme" prop\'tur (bug\'ın verisi), kalıbın çıktısı ise JSX\'in ürettiği gerçek DOM. Neden bir tester React kaynağını okuyabilmeli? Çünkü `className={styles.card}` yazan bir satırın tarayıcıda `class="BugCard_card__x7f2a"` gibi hash\'li bir class ürettiğini GÖREBİLİRSE, ona göre locate etmenin kırılacağını önceden anlar. Java analojisi: component ≈ bir metot/sınıf, prop ≈ parametre, state ≈ instance field, re-render ≈ metodu yeni argümanla yeniden çağırmak. QA bağlamında: JSX\'i okuyup üretilecek DOM\'u zihinde canlandıran tester, developer\'la aynı dili konuşur ve doğru locator\'ı baştan seçer. Bu grup boyunca BugCard, Modal, StatusBadge ve Toast component\'lerinin her biri için birer Kaynak→DOM→Locator panosu göreceksin.',
+          en: 'A React component is like a MOLD in a LEGO-BRICK FACTORY: you write the `BugCard` mold once, then a card is stamped from that mold for each bug. The "material" poured into the mold is the prop (the bug\'s data), and the mold\'s output is the real DOM produced by JSX. Why should a tester be able to read React source? Because if they can SEE that a line writing `className={styles.card}` produces a hashed class like `class="BugCard_card__x7f2a"` in the browser, they understand in advance that locating by it will break. Java analogy: component is like a metot/class, a prop like a parameter, state like an instance field, and a re-render like calling the method again with new arguments. In QA context: a tester who reads JSX and pictures the DOM it will produce speaks the same language as the developer and picks the right locator from the start. Throughout this group you will see a Source -> DOM -> Locator board for each of the BugCard, Modal, StatusBadge, and Toast components.',
         },
+      },
+
+      // ── F1: Component Nedir? ──
+      {
+        type: 'heading',
+        text: { tr: '📜 F1. Component Nedir? Fonksiyon → JSX → DOM', en: '📜 F1. What Is a Component? Function -> JSX -> DOM' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📜',
+        content: {
+          tr: 'Bir React component\'i, gizemli bir "arayüz parçası" değil, SADE bir JavaScript fonksiyonudur — Java\'da bir METODUN parametre alıp bir sonuç döndürmesi gibi. `function BugCard({ bug })` bir metottur, `bug` onun parametresidir, `return <li>...</li>` ise metodun döndürdüğü DEĞERDİR — ama bu değer gerçek DOM değil, bir JSX "TARİF"idir. Peki neden bu ayrımı bilmek işine yarar? Çünkü React bu tarifi ALIR ve gerçek DOM\'a KENDİSİ dönüştürür (reconciliation) — component\'in döndürdüğü şey ile tarayıcıdaki gerçek node ARASINDA bir dönüşüm adımı vardır. Java analojisi: bir metodun `return new Button()` demesi ile o Button nesnesinin GERÇEKTEN ekranda çizilmesi arasındaki fark gibi — nesneyi DÖNDÜRMEK ile onu EKRANA ÇİZMEK ayrı adımlardır. QA bağlamında: component\'i bir fonksiyon olarak gören tester, "bu component yeniden çağrılırsa (re-render) DOM nasıl değişir?" sorusunu Java\'daki "bu metot farklı argümanla çağrılırsa ne döner?" sorusuyla AYNI şekilde düşünür.',
+          en: 'A React component is not a mysterious "UI piece", it is a PLAIN JavaScript function — like a METHOD in Java taking a parameter and returning a result. `function BugCard({ bug })` is a method, `bug` is its parameter, and `return <li>...</li>` is the VALUE the method returns — but this value is not real DOM, it is a JSX "RECIPE". So why is knowing this distinction useful? Because React TAKES this recipe and turns it INTO real DOM ITSELF (reconciliation) — there is a conversion step BETWEEN what the component returns and the real node in the browser. Java analogy: like the difference between a method saying `return new Button()` and that Button object actually being DRAWN on screen — RETURNING an object and DRAWING it on screen are separate steps. In QA context: a tester who sees a component as a function thinks about "how does the DOM change if this component is called again (re-render)?" the SAME way they would think about "what does this method return if called with different arguments?" in Java.',
+        },
+      },
+      componentIsFunctionFilm,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir developer "component\'im `return <li>...</li>` dedi, yani DOM\'a bir `<li>` eklendi" diyor. Bu ifadedeki teknik eksik nedir?',
+          en: 'A developer says "my component said `return <li>...</li>`, so a `<li>` was added to the DOM". What is the technical gap in this statement?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir eksik yok, return demek DOM\'a eklemek demektir', en: 'No gap, returning means it was added to the DOM' } },
+          { id: 'b', text: { tr: 'return edilen şey gerçek DOM değil bir JSX tarifidir; React bunu ALIP reconciliation ile gerçek DOM\'a dönüştürür — ayrı bir adımdır', en: 'What is returned is not real DOM but a JSX recipe; React TAKES it and turns it into real DOM via reconciliation — a separate step' } },
+          { id: 'c', text: { tr: 'Sadece class component\'lerde bu doğrudur', en: 'This is only true for class components' } },
+          { id: 'd', text: { tr: 'JSX zaten HTML dosyasıdır', en: 'JSX is already an HTML file' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'JSX, `React.createElement(...)` çağrılarından oluşan bir JS nesnesidir — bir "tarif". React bu tarifi önceki durumla karşılaştırıp (reconciliation) gerçek DOM node\'larını oluşturur/günceller. "return etmek" ile "DOM\'a girmek" arasında bu dönüşüm adımı vardır.',
+          en: 'JSX is a JS object made of `React.createElement(...)` calls — a "recipe". React compares this recipe against the previous state (reconciliation) and creates/updates the real DOM nodes. There is this conversion step between "returning" and "entering the DOM".',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Java\'daki bir metot analojisiyle: `function BugCard({ bug })` içindeki `bug` parametresi, React\'in terminolojisinde neye karşılık gelir?',
+            en: 'Using a Java method analogy: what does the `bug` parameter inside `function BugCard({ bug })` correspond to in React terminology?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'State', en: 'State' } },
+            { id: 'b', text: { tr: 'Prop', en: 'Prop' } },
+            { id: 'c', text: { tr: 'Context', en: 'Context' } },
+            { id: 'd', text: { tr: 'Ref', en: 'Ref' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`bug`, üst component\'ten AŞAĞI akan bir prop\'tur — tıpkı bir Java metoduna dışarıdan geçirilen bir parametre gibi. Component kendi state\'ini kendi yönetir (instance field gibi), ama prop\'u DEĞİŞTİREMEZ, sadece OKUYABİLİR.',
+            en: '`bug` is a prop flowing DOWN from the parent component — just like a parameter passed into a Java method from outside. A component manages its own state (like an instance field), but it CANNOT CHANGE a prop, only READ it.',
+          },
+        },
+      },
+
+      // ── F2: JSX'i Okumak ──
+      {
+        type: 'heading',
+        text: { tr: '🔤 F2. JSX\'i Okumak: `className`, `{değişken}`, `{koşul && <X/>}`', en: '🔤 F2. Reading JSX: `className`, `{variable}`, `{condition && <X/>}`' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🔤',
+        content: {
+          tr: 'JSX\'i okumak, HTML\'i bilen biri için bir DİLİ ÇEVİRMEK gibidir: `className` = `class`\'ın React lehçesi, `{değişken}` = "burada bu JS ifadesinin SONUCUNU yaz", `{koşul && <X/>}` = "eğer koşul true ise X\'i, DEĞİLSE hiçbir şeyi (false/null/undefined render edilmez) göster". Peki neden bu 3 kalıbı tanımak locator için hayati? Çünkü kaynağı okuyup DOM\'u TAHMİN edebilen tester, hangi elementin HER ZAMAN orada olacağını (className gibi statik alanlar) ve hangisinin KOŞULLU var olacağını ({koşul&&}) baştan bilir. Java analojisi: bir ternary ifadenin (`koşul ? A : B`) veya bir `if` bloğunun çalışma zamanında hangi DEĞERİ üreteceğini kod okuyarak tahmin etmek gibi — JSX de aynı mantıkla "hangi durumda ne render olur" sorusuna kod okuyarak cevap verir. QA bağlamında: `{koşul && <X/>}` kalıbını GÖREN bir tester, X\'i test etmeden önce "bu koşul şu anda true mu?" diye sormayı bilir — GRUP F4\'te bunun somut bir örneğini göreceksin.',
+          en: 'Reading JSX is like TRANSLATING A LANGUAGE for someone who knows HTML: `className` = the React dialect of `class`, `{variable}` = "write the RESULT of this JS expression here", `{condition && <X/>}` = "if the condition is true show X, if NOT show nothing (false/null/undefined render nothing)". Why is recognizing these 3 patterns vital for locating? Because a tester who can read the source and PREDICT the DOM knows in advance which element will ALWAYS be there (static fields like className) and which will exist CONDITIONALLY ({condition&&}). Java analogy: like predicting, by reading code, which VALUE a ternary expression (`condition ? A : B`) or an `if` block will produce at runtime — JSX answers "what renders in which case" by the same logic, just by reading code. In QA context: a tester who SEES the `{condition && <X/>}` pattern knows to ask "is this condition true right now?" before testing X — you will see a concrete example of this in GROUP F4.',
+        },
+      },
+      jsxToDomSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: '`{bugCount > 0 && <span>{bugCount} bug bulundu</span>}` satırını okuyorsun ve `bugCount` şu an `0`. Bu span DOM\'da var mı?',
+          en: 'You read the line `{bugCount > 0 && <span>{bugCount} bugs found</span>}` and `bugCount` is currently `0`. Does this span exist in the DOM?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Evet, "0 bug bulundu" olarak yazar', en: 'Yes, it renders "0 bugs found"' } },
+          { id: 'b', text: { tr: 'Hayır, çünkü `0 > 0` false\'tur ve `false && ...` render EDİLMEZ — span DOM\'da HİÇ yok', en: 'No, because `0 > 0` is false and `false && ...` renders NOTHING — the span DOES NOT EXIST in the DOM at all' } },
+          { id: 'c', text: { tr: 'Evet ama gizli (display:none) olarak', en: 'Yes, but hidden (display:none)' } },
+          { id: 'd', text: { tr: 'Hata fırlatır', en: 'It throws an error' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`bugCount > 0` ifadesi `0` iken `false`\'a eşitlenir; React `{false && <X/>}` için HİÇBİR ŞEY render etmez (X, DOM\'a hiç girmez — `display:none` bile değildir, tamamen YOKTUR). Bu span\'ı locate etmeye çalışmak NoSuchElement verir.',
+          en: 'The expression `bugCount > 0` evaluates to `false` when it is `0`; React renders NOTHING for `{false && <X/>}` (X never enters the DOM — it is not even `display:none`, it is COMPLETELY ABSENT). Trying to locate this span gives NoSuchElement.',
+        },
+        retryQuestion: {
+          question: {
+            tr: '`{bugCount && <span>{bugCount} bug bulundu</span>}` (yukarıdakinden farklı olarak `> 0` karşılaştırması OLMADAN) yazılmışsa ve `bugCount` `0` ise, ekranda ne görürsün?',
+            en: 'If it is written as `{bugCount && <span>{bugCount} bugs found</span>}` (without the `> 0` comparison, unlike above) and `bugCount` is `0`, what do you see on screen?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Hiçbir şey, önceki örnekle aynı davranış', en: 'Nothing, same behavior as the previous example' } },
+            { id: 'b', text: { tr: 'Ekranda YALNIZ BAŞINA bir "0" yazısı belirir — çünkü `0 && ...` sayısal `0`\'a eşitlenir ve React sayıları render EDER (boolean false\'un aksine)', en: 'A standalone "0" text appears on screen — because `0 && ...` evaluates to the number `0`, and React DOES render numbers (unlike boolean false)' } },
+            { id: 'c', text: { tr: 'Hata fırlatır', en: 'It throws an error' } },
+            { id: 'd', text: { tr: 'Span her zaman görünür', en: 'The span is always visible' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Bu, React\'in ünlü bir tuzağıdır: `false`/`null`/`undefined` render EDİLMEZ ama sayısal `0` bir DEĞERDİR ve React onu render EDER — ekranda tek başına şaşırtıcı bir "0" belirir. Bu yüzden koşullu render\'da `bugCount > 0 &&` gibi açık bir boolean karşılaştırma kullanmak daha güvenlidir.',
+            en: 'This is a famous React trap: `false`/`null`/`undefined` are NOT rendered, but the number `0` IS a value and React DOES render it — a surprising standalone "0" appears on screen. This is why using an explicit boolean comparison like `bugCount > 0 &&` in conditional rendering is safer.',
+          },
+        },
+      },
+
+      // ── F3: Props ve State ──
+      {
+        type: 'heading',
+        text: { tr: '📦 F3. Props ve State: Veri Yukarıdan Aşağı, Değişince Re-render', en: '📦 F3. Props and State: Data Flows Top-Down, a Change Triggers Re-render' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📦',
+        content: {
+          tr: 'Props ve state, bir ÇALIŞANIN aldığı İKİ FARKLI TALİMAT türü gibidir: props, YÖNETİCİDEN gelen bir görev talimatıdır (çalışan onu değiştiremez, sadece uygular); state ise çalışanın KENDİ not defterindeki bir hatırlatmadır (çalışan istediği an kendi defterini günceller). Peki neden bu ayrım locator için önemli? Çünkü bir component\'in DOM çıktısı ya ÜST component değiştiğinde (yeni prop) ya da KENDİSİ karar verdiğinde (state güncellemesi, ör. `setIsOpen(true)`) DEĞİŞİR — hangi tetikleyicinin hangi elementi DOM\'a soktuğunu/çıkardığını bilmek, "bu elementi ne zaman bekleyeceğim" sorusuna netlik katar. Java analojisi: props bir metot PARAMETRESİ (çağıran taraf verir, metot değiştiremez), state ise nesnenin instance FIELD\'ı (nesnenin kendisi `this.field = ...` ile değiştirir) gibidir. QA bağlamında: bir elementin DOM\'a girmesi bir prop değişikliğine mi (üst component\'ten, ör. filtre) yoksa bir state değişikliğine mi (component\'in kendi kararı, ör. modal açma) bağlı olduğunu ayırt etmek, doğru tetikleyiciyi (test adımını) bulmayı sağlar.',
+          en: 'Props and state are like TWO DIFFERENT KINDS OF INSTRUCTION an employee receives: props are a task instruction from the MANAGER (the employee cannot change it, only carry it out); state is a reminder in the employee\'s OWN notebook (the employee updates their own notebook whenever they decide to). Why does this distinction matter for a locator? Because a component\'s DOM output changes either when the PARENT component changes (a new prop) or when it DECIDES ITSELF (a state update, e.g. `setIsOpen(true)`) — knowing which trigger puts/removes which element from the DOM brings clarity to "when should I wait for this element". Java analogy: props are like a method PARAMETER (the caller provides it, the method cannot change it), state is like an object\'s instance FIELD (the object itself changes it with `this.field = ...`). In QA context: telling apart whether an element entering the DOM depends on a prop change (from the parent, e.g. a filter) or a state change (the component\'s own decision, e.g. opening a modal) lets you find the correct trigger (test step).',
+        },
+      },
+      propsVsStateTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir BugCard\'ın `bug.status` prop\'u "OPEN" iken StatusBadge yeşil renkte görünüyor. Sidebar\'daki bir filtre değişince status API\'den "CLOSED" olarak güncelleniyor. Bu değişiklik hangi mekanizma ile tetiklenmiştir?',
+          en: 'A BugCard\'s `bug.status` prop is "OPEN" and the StatusBadge shows green. When a Sidebar filter changes, the status is updated to "CLOSED" from the API. Which mechanism triggers this change?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'BugCard kendi state\'ini değiştirdi', en: 'BugCard changed its own state' } },
+          { id: 'b', text: { tr: 'Üst component yeni veriyle yeniden render oldu ve BugCard\'a YENİ bir prop aktı — BugCard bunu değiştirmedi, sadece aldı', en: 'The parent component re-rendered with new data and passed a NEW prop into BugCard — BugCard did not change it, it only received it' } },
+          { id: 'c', text: { tr: 'CSS bu değişikliği tetikledi', en: 'CSS triggered this change' } },
+          { id: 'd', text: { tr: 'Tarayıcı önbelleği güncellendi', en: 'The browser cache was updated' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'BugCard\'ın kendisi `bug.status`\'u DEĞİŞTİREMEZ (bu bir prop\'tur) — değişiklik üst component\'ten (yeni API verisiyle) YUKARIDAN AŞAĞI akar. BugCard sadece yeni prop\'u alır ve buna göre yeniden render olur.',
+          en: 'BugCard itself CANNOT change `bug.status` (it is a prop) — the change flows TOP-DOWN from the parent component (with new API data). BugCard only receives the new prop and re-renders accordingly.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir BugCard\'a tıklayınca kart "genişliyor" (daha fazla detay gösteriyor) ve bu davranış SADECE o karta özel, diğer kartları etkilemiyor. Bu muhtemelen hangi mekanizmadır?',
+            en: 'Clicking a BugCard makes it "expand" (show more detail), and this behavior is SPECIFIC only to that card, not affecting other cards. Which mechanism is this likely to be?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Prop değişikliği — üst component tüm kartları etkiler', en: 'A prop change — the parent component affects all cards' } },
+            { id: 'b', text: { tr: 'State değişikliği — her BugCard kendi `isExpanded` state\'ini yönetir, bu yüzden sadece tıklanan kart etkilenir', en: 'A state change — each BugCard manages its own `isExpanded` state, so only the clicked card is affected' } },
+            { id: 'c', text: { tr: 'CSS animasyonu — JS ile hiçbir ilgisi yok', en: 'A CSS animation — unrelated to JS' } },
+            { id: 'd', text: { tr: 'Bu davranış React\'te mümkün değildir', en: 'This behavior is not possible in React' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Sadece TIKLANAN karta özel bir davranış, o kartın KENDİ state\'i (her BugCard örneğinin kendi `isExpanded`\'ı) ile yönetiliyor demektir — bir prop değişikliği TÜM kardeş component\'leri aynı anda etkilerdi, ama state her component ÖRNEĞİNE özeldir.',
+            en: 'A behavior specific ONLY to the CLICKED card means it is managed by that card\'s OWN state (each BugCard instance\'s own `isExpanded`) — a prop change would affect ALL sibling components at once, but state is specific to each component INSTANCE.',
+          },
+        },
+      },
+
+      // ── F4: Conditional Render (Modal pano) ──
+      {
+        type: 'heading',
+        text: { tr: '🚪 F4. Conditional Render: `{isOpen && <Modal/>}` — Element DOM\'da Ne Zaman VAR', en: '🚪 F4. Conditional Render: `{isOpen && <Modal/>}` — When the Element EXISTS in the DOM' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🚪',
+        content: {
+          tr: '`{isOpen && <Modal/>}` kalıbı, bir GİZLİ KAPI gibidir: kapı ya TAMAMEN vardır (isOpen=true, Modal DOM\'a girer) ya da TAMAMEN yoktur (isOpen=false, Modal DOM\'da HİÇ bulunmaz) — CSS ile "gizlemek" (display:none) ile KARIŞTIRILMAMALIDIR, burada element DOM AĞACINDA bile YOKTUR. Peki neden bu, testerların en sık düştüğü tuzaklardan biri? Çünkü bir tester "Modal\'ı locate edemedim, herhalde bir hata var" diye düşünebilir ama gerçek sebep basitçe `isOpen` henüz `true` OLMAMASI olabilir — element aslında hiç sorunlu değildir, sadece koşul henüz gerçekleşmemiştir. Java analojisi: bir `if (isOpen) { createModal(); }` bloğunun çalışmaması gibi — nesne YARATILMAMIŞTIR, "bozuk" değildir, sadece koşul karşılanmamıştır. QA bağlamında: Modal\'ı test etmeden ÖNCE onu açan eylemi (butona tıklama) yapmak ve `isOpen`\'ı `true` yapan state\'in GERÇEKTEN güncellendiğini doğrulamak gerekir — aşağıdaki pano bu senaryoyu somutlaştırır.',
+          en: 'The `{isOpen && <Modal/>}` pattern is like a HIDDEN DOOR: the door either FULLY exists (isOpen=true, the Modal enters the DOM) or FULLY does not exist (isOpen=false, the Modal is NEVER present in the DOM) — this should NOT be confused with CSS "hiding" (display:none); here the element is not even in the DOM TREE. Why is this one of the most common traps testers fall into? Because a tester might think "I could not locate the Modal, there must be a bug" when the real reason is simply that `isOpen` is NOT `true` yet — the element is not actually broken, the condition just has not happened yet. Java analogy: like an `if (isOpen) { createModal(); }` block not running — the object was NOT CREATED, it is not "broken", the condition simply was not met. In QA context: before testing the Modal, you must perform the action that opens it (clicking the button) and verify the state that sets `isOpen` to `true` REALLY updated — the board below makes this scenario concrete.',
+        },
+      },
+      modalConditionalCode,
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          {
+            icon: '1️⃣',
+            label: { tr: 'Kaynak (ne yazıldı)', en: 'Source (what was written)' },
+            desc: {
+              tr: '`{isOpen && <NewBugModal .../>}` — Modal\'ın render edilip edilmeyeceği tamamen `isOpen` state\'ine bağlı bir KOŞULDUR.',
+              en: '`{isOpen && <NewBugModal .../>}` — whether the Modal renders at all is a CONDITION entirely dependent on the `isOpen` state.',
+            },
+          },
+          {
+            icon: '2️⃣',
+            label: { tr: 'Gerçek DOM (ne oluştu)', en: 'Real DOM (what was produced)' },
+            desc: {
+              tr: '`isOpen=false` iken Modal DOM\'da HİÇ YOK (locate NoSuchElement verir). `isOpen=true` OLDUKTAN SONRA Modal gerçekten DOM\'a girer.',
+              en: 'While `isOpen=false` the Modal is NOT in the DOM AT ALL (locating gives NoSuchElement). ONLY AFTER `isOpen=true` does the Modal really enter the DOM.',
+            },
+          },
+          {
+            icon: '3️⃣',
+            label: { tr: 'Tester\'ın kararı', en: 'The tester\'s decision' },
+            desc: {
+              tr: '❌ Modal\'ı locate etmeden ÖNCE onu açan butona tıklamayı UNUTMA. ✅ Önce butona tıkla, SONRA `data-testid="new-bug-modal"`\'ı bekle/locate et.',
+              en: '❌ Do NOT forget to click the button that opens it BEFORE locating the Modal. ✅ First click the button, THEN wait for/locate `data-testid="new-bug-modal"`.',
+            },
+          },
+        ],
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎯',
+        content: {
+          tr: 'Developer\'dan Ne İste: *"Modal açıldığında/kapandığında bunu doğrulayabileceğim bir işaret var mı? Örneğin modal tamamen render olduğunda `data-testid=\'new-bug-modal\'`\'ın DOM\'da olduğunu, kapandığında ise DOM\'dan tamamen kalktığını garanti eder misin?"* — Bu, conditional render\'ın "yarım açık" bir ara duruma düşmediğini (ör. animasyonla açılırken) garanti altına alır.',
+          en: 'What to Ask the Developer: *"Is there a marker I can use to verify when the modal opens/closes? For example, could you guarantee that `data-testid=\'new-bug-modal\'` is in the DOM once the modal has fully rendered, and completely removed from the DOM once it closes?"* — This guarantees the conditional render does not get stuck in a "half-open" intermediate state (e.g. while animating open).',
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir test "New Bug" modalını locate etmeye çalışıyor ama `NoSuchElementException` alıyor. Test kodunu incelediğinde, "Yeni Bug" BUTONUNA hiç tıklanmadığını görüyorsun. Bu durumda kök neden nedir?',
+          en: 'A test tries to locate the "New Bug" modal but gets `NoSuchElementException`. Reviewing the test code, you see the "New Bug" BUTTON was never clicked. What is the root cause here?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Modal component\'i bozuktur', en: 'The Modal component is broken' } },
+          { id: 'b', text: { tr: '`isOpen` state\'i hiç `true` olmadı, bu yüzden Modal DOM\'a hiç girmedi — bu bir bug değil, beklenen davranıştır', en: '`isOpen` state never became `true`, so the Modal never entered the DOM — this is not a bug, it is expected behavior' } },
+          { id: 'c', text: { tr: 'Test aracı çöktü', en: 'The test tool crashed' } },
+          { id: 'd', text: { tr: 'CSS Modal\'ı gizliyor', en: 'CSS is hiding the Modal' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Conditional render\'da element, koşul (isOpen) sağlanana KADAR DOM\'a hiç girmez. Butona tıklamadan Modal\'ı locate etmeye çalışmak, koşulun hiç TETİKLENMEMESİ nedeniyle beklenen bir NoSuchElement\'tir — bu bir uygulama bug\'ı değil, bir TEST HATASIDIR (eksik adım).',
+          en: 'In a conditional render, the element never enters the DOM UNTIL the condition (isOpen) is met. Trying to locate the Modal without clicking the button is an expected NoSuchElement because the condition was never TRIGGERED — this is not an application bug, it is a TEST ERROR (a missing step).',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Modal bir CSS geçiş animasyonuyla (300ms fade-in) açılıyor. Butona tıkladıktan HEMEN sonra `data-testid="new-bug-modal"`\'ı locate eden bir test ne ile karşılaşabilir?',
+            en: 'The Modal opens with a CSS transition animation (a 300ms fade-in). What might a test locating `data-testid="new-bug-modal"` IMMEDIATELY after clicking the button encounter?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Hiçbir sorun, element her zaman anında bulunur', en: 'No problem, the element is always found instantly' } },
+            { id: 'b', text: { tr: 'Element DOM\'a girmiş olabilir ama animasyon bitmeden `visible` sayılmayabilir — tıklama/etkileşim komutları başarısız olabilir', en: 'The element may have entered the DOM but may not count as `visible` until the animation finishes — click/interaction commands could fail' } },
+            { id: 'c', text: { tr: 'Animasyonlar testleri hiç etkilemez', en: 'Animations never affect tests' } },
+            { id: 'd', text: { tr: 'Element DOM\'dan tamamen silinir', en: 'The element is completely removed from the DOM' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Element `isOpen=true` olur olmaz DOM\'a girer (conditional render tetiklenir) ama CSS animasyonu (fade-in) sürerken tam olarak `visible`/etkileşilebilir sayılmayabilir — bu, GRUP A3\'teki Render Tree/CSSOM dersiyle doğrudan bağlantılıdır.',
+            en: 'The element enters the DOM the moment `isOpen=true` (the conditional render fires), but while the CSS animation (fade-in) is running it may not yet count as fully `visible`/interactable — this connects directly to the Render Tree/CSSOM lesson in GROUP A3.',
+          },
+        },
+      },
+
+      // ── F5: List Render (StatusBadge pano) ──
+      {
+        type: 'heading',
+        text: { tr: '📋 F5. List Render: `.map()` ve `key` — Tekil Satırı Locate Etme', en: '📋 F5. List Render: `.map()` and `key` — Locating a Single Row' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📋',
+        content: {
+          tr: '`.map()` ile liste render etmek, bir FOTOKOPİ MAKİNESİ gibidir: TEK bir "şablon" (`<li key={bug.id}>...`) alınır ve HER bug için bir kopyası basılır — `key`, React\'in bu kopyaları TAKİP etmek için kullandığı bir iç NUMARADIR, DOM\'da bir attribute olarak GÖRÜNMEZ. Peki neden bu, testerlar için özellikle kritik bir konu? Çünkü `.map()` çıktısı GÖRSEL olarak birbirinin aynı elementlerden oluşur — bir tester "3. satırı" (index ile) bulmaya çalışırsa, sıralama değişince YANLIŞ satırı bulur; ama `StatusBadge`\'in kendi prop\'una (bug.status) göre AYIRT edici bir attribute (data-bug-id gibi) varsa, doğru satır her zaman bulunur. Java analojisi: bir `List<Bug>` üzerinde `.forEach()` ile dönüp her Bug için bir nesne üretmek gibi — `key`, Java\'daki bir koleksiyonun iç index\'i gibidir, iş mantığının bir parçası DEĞİLDİR. QA bağlamında: aşağıdaki pano, StatusBadge\'in `.map()` içinde nasıl üretildiğini ve `key`\'in neden bir locator OLMADIĞINI gösterir.',
+          en: 'Rendering a list with `.map()` is like a PHOTOCOPIER: ONE "template" (`<li key={bug.id}>...`) is taken and a copy is printed for EVERY bug — `key` is an internal NUMBER React uses to TRACK these copies, it is NOT VISIBLE as a DOM attribute. Why is this especially critical for testers? Because `.map()` output consists of elements that LOOK visually identical — a tester trying to find "row 3" (by index) finds the WRONG row once the ordering changes; but if `StatusBadge` has a distinguishing attribute based on its own prop (bug.status), like `data-bug-id`, the correct row is always found. Java analogy: like iterating over a `List<Bug>` with `.forEach()` to produce an object for each Bug — `key` is like a collection\'s internal index in Java, it is NOT part of the business logic. In QA context: the board below shows how StatusBadge is produced inside `.map()` and why `key` is NOT a locator.',
+        },
+      },
+      statusBadgeListCode,
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          {
+            icon: '1️⃣',
+            label: { tr: 'Kaynak (ne yazıldı)', en: 'Source (what was written)' },
+            desc: {
+              tr: '`bugs.map(bug => <li key={bug.id}><StatusBadge status={bug.status}/></li>)` — her satır AYNI şablondan, FARKLI prop\'la üretilir.',
+              en: '`bugs.map(bug => <li key={bug.id}><StatusBadge status={bug.status}/></li>)` — every row is produced from the SAME template with a DIFFERENT prop.',
+            },
+          },
+          {
+            icon: '2️⃣',
+            label: { tr: 'Gerçek DOM (ne oluştu)', en: 'Real DOM (what was produced)' },
+            desc: {
+              tr: 'N tane görsel olarak BENZER `<li>` — `key` DOM\'da bir attribute olarak GÖRÜNMEZ, sadece React\'in içinde vardır.',
+              en: 'N visually SIMILAR `<li>` elements — `key` does NOT appear as a DOM attribute, it only exists inside React.',
+            },
+          },
+          {
+            icon: '3️⃣',
+            label: { tr: 'Tester\'ın kararı', en: 'The tester\'s decision' },
+            desc: {
+              tr: '❌ `key`\'e göre locate ETMEYE ÇALIŞMA (DOM\'da yok). ❌ index\'e (`li[3]`) bağlanma. ✅ `data-bug-id`/metne göre ilişkisel bul.',
+              en: '❌ Do NOT try to locate by `key` (it is not in the DOM). ❌ Do not bind to an index (`li[3]`). ✅ Find relationally by `data-bug-id`/text.',
+            },
+          },
+        ],
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tester DevTools\'ta bir BugCard\'ı inceliyor ve React DevTools eklentisinde `key: "42"` gördüğünü fark ediyor. Bu `key` değerini `page.locator(\'[key="42"]\')` ile locate etmeye çalışırsa ne olur?',
+          en: 'A tester inspects a BugCard in DevTools and notices `key: "42"` in the React DevTools extension. If they try to locate using this `key` value with `page.locator(\'[key="42"]\')`, what happens?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Doğru elemente ulaşır çünkü key benzersizdir', en: 'It reaches the correct element because key is unique' } },
+          { id: 'b', text: { tr: 'Hiçbir eleman bulamaz — `key` bir DOM attribute\'u DEĞİLDİR, sadece React\'in iç takip mekanizmasında bulunur', en: 'It finds no element — `key` is NOT a DOM attribute, it exists only in React\'s internal tracking mechanism' } },
+          { id: 'c', text: { tr: 'Tüm BugCard\'ları bulur', en: 'It finds all BugCards' } },
+          { id: 'd', text: { tr: 'Hata fırlatır çünkü key geçersiz bir syntax\'tır', en: 'It throws an error because key is invalid syntax' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`key`, React DevTools gibi ARAÇLARDA görünse de, tarayıcının gerçek DOM\'unda bir attribute olarak YAZILMAZ — sadece React\'in iç reconciliation mekanizmasında kullanılır. `[key="42"]` gibi bir CSS selector hiçbir zaman eşleşmez.',
+          en: 'Even though `key` is visible in TOOLS like React DevTools, it is NEVER written as an attribute in the browser\'s real DOM — it is used only internally by React\'s reconciliation mechanism. A CSS selector like `[key="42"]` never matches anything.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'BugCard listesi filtrelendiğinde sıralama değişiyor (en yeni bug en üste geliyor). `page.locator(\'li\').nth(0)` yerine hangi yaklaşım tekil bir satırı GÜVENİLİR şekilde bulur?',
+            en: 'When the BugCard list is filtered, the order changes (the newest bug moves to the top). Instead of `page.locator(\'li\').nth(0)`, which approach RELIABLY finds a single row?',
+          },
+          options: [
+            { id: 'a', text: { tr: '`li[data-bug-id="42"]` gibi ilişkisel/kimlik tabanlı bir locator', en: 'A relational/identity-based locator like `li[data-bug-id="42"]`' } },
+            { id: 'b', text: { tr: '`li:last-child` — her zaman son elemanı varsayarak', en: '`li:last-child` — assuming it is always the last element' } },
+            { id: 'c', text: { tr: 'React\'in `key` değerini CSS selector olarak kullanarak', en: 'Using React\'s `key` value as a CSS selector' } },
+            { id: 'd', text: { tr: 'Sayfayı yenileyip sıralamanın sabitlenmesini umarak', en: 'Reloading the page and hoping the order stabilizes' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Bir kimliğe (`data-bug-id`) göre ilişkisel locate, sıralamadan TAMAMEN bağımsızdır — liste ne kadar yeniden sıralanırsa sıralansın aynı bug\'a ulaşır. Index (`nth`/`last-child`) ve React `key`\'i (DOM\'da yok) bu iş için uygun değildir.',
+            en: 'Relational locating by an identity (`data-bug-id`) is COMPLETELY independent of ordering — no matter how the list re-sorts, it reaches the same bug. Index (`nth`/`last-child`) and React\'s `key` (not in the DOM) are not suitable for this job.',
+          },
+        },
+      },
+
+      // ── F6: data-testid React'te Nasıl Eklenir (Toast pano) ──
+      {
+        type: 'heading',
+        text: { tr: '🏷️ F6. `data-testid` React\'te Nasıl Eklenir', en: '🏷️ F6. How to Add `data-testid` in React' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🏷️',
+        content: {
+          tr: 'React\'te bir `data-testid` eklemek, bir HTML attribute\'u eklemekten farklı DEĞİLDİR — bu, testerların çoğu zaman bilmediği ama ÇOK BASİT bir gerçektir: `className` gibi başka bir JSX attribute\'unun yanına, aynı sözdiziminde `data-testid="..."` yazmak yeterlidir; React bunu OLDUĞU GİBİ DOM\'a geçirir. Peki neden bu bilgi bir tester için GÜÇ verir? Çünkü "developer\'dan data-testid iste" demek soyut kalabilir — ama tam olarak HANGİ SATIRA, HANGİ SÖZDİZİMİYLE ekleneceğini gösterebilen bir tester, developer\'ın işini saniyeler içinde yapılabilir hale getirir (PR\'da tek satırlık bir diff). Java analojisi: bir sınıfa `@VisibleForTesting` gibi bir annotation eklemek kadar basit ve düşük riskli bir değişikliktir — iş mantığını etkilemez. QA bağlamında: Toast bildirimi GEÇİCİ olduğu (birkaç saniyede kaybolduğu) için özellikle stabil bir kancaya ihtiyaç duyar; aşağıdaki pano ÖNCESİ/SONRASI karşılaştırmasını gösterir.',
+          en: 'Adding a `data-testid` in React is NO DIFFERENT from adding an HTML attribute — a very SIMPLE fact many testers do not know: just write `data-testid="..."` alongside another JSX attribute like `className`, in the same syntax; React passes it STRAIGHT THROUGH to the DOM. Why does this knowledge empower a tester? Because saying "ask the developer for a data-testid" can stay abstract — but a tester who can show EXACTLY WHICH LINE and WHAT SYNTAX to add it with turns the developer\'s work into something doable in seconds (a one-line diff in a PR). Java analogy: as simple and low-risk a change as adding an annotation like `@VisibleForTesting` to a class — it does not affect business logic. In QA context: because a Toast notification is TRANSIENT (disappearing within a few seconds), it especially needs a stable hook; the board below shows a BEFORE/AFTER comparison.',
+        },
+      },
+      toastDataTestIdCode,
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          {
+            icon: '1️⃣',
+            label: { tr: 'Kaynak (öncesi/sonrası)', en: 'Source (before/after)' },
+            desc: {
+              tr: 'Öncesi: `<div className={styles.toast}>`. Sonrası: AYNI satıra `data-testid="toast"` eklendi — tek satırlık, düşük riskli bir değişiklik.',
+              en: 'Before: `<div className={styles.toast}>`. After: `data-testid="toast"` added to the SAME line — a one-line, low-risk change.',
+            },
+          },
+          {
+            icon: '2️⃣',
+            label: { tr: 'Gerçek DOM (öncesi/sonrası)', en: 'Real DOM (before/after)' },
+            desc: {
+              tr: 'Öncesi: sadece hash\'li class var, stabil kanca YOK. Sonrası: `data-testid="toast"` DOM\'da AYNEN görünür.',
+              en: 'Before: only a hashed class exists, NO stable hook. After: `data-testid="toast"` appears VERBATIM in the DOM.',
+            },
+          },
+          {
+            icon: '3️⃣',
+            label: { tr: 'Tester\'ın kararı', en: 'The tester\'s decision' },
+            desc: {
+              tr: '✅ Toast GEÇİCİ olduğundan (birkaç saniyede kaybolur), görünür olur olmaz HEMEN `getByTestId(\'toast\')` ile doğrula — beklemeyi uzatma.',
+              en: '✅ Since the Toast is TRANSIENT (disappears in a few seconds), verify it with `getByTestId(\'toast\')` the MOMENT it becomes visible — do not delay the wait.',
+            },
+          },
+        ],
+      },
+      addTestIdToToastPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir developer "data-testid eklemek büyük bir refactor gerektirir, zaman alır" diyor. Bir tester bu düşünceye JSX kaynağını göstererek nasıl karşılık verir?',
+          en: 'A developer says "adding data-testid requires a big refactor, it will take time". How does a tester respond to this by showing the JSX source?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Haklısın, bu isteği geri çeker', en: 'They agree and withdraw the request' } },
+          { id: 'b', text: { tr: 'İlgili JSX satırını gösterip, `data-testid="..."` eklemenin `className` yanına TEK bir attribute eklemek kadar basit olduğunu somut kodla kanıtlar', en: 'They show the relevant JSX line and prove with concrete code that adding `data-testid="..."` is as simple as adding ONE attribute alongside `className`' } },
+          { id: 'c', text: { tr: 'Konudan tamamen vazgeçer', en: 'They drop the topic entirely' } },
+          { id: 'd', text: { tr: 'Bunun yerine class\'a bağlanmayı önerir', en: 'They suggest binding to the class instead' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Somut kod göstermek soyut bir isteği ("test edilebilirlik istiyorum") saniyeler içinde uygulanabilir bir DEĞİŞİKLİĞE ("şu satıra şunu ekle") dönüştürür. Bu, sayfanın "ortak dil konuşma" hedefinin tam bir örneğidir.',
+          en: 'Showing concrete code turns an abstract request ("I want testability") into a change implementable in seconds ("add this to this line"). This is a perfect example of the page\'s "speak a common language" goal.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir developer "data-testid eklersem bundle boyutu büyür, performans etkilenir" diye endişeleniyor. Bu endişeye teknik olarak doğru cevap nedir?',
+            en: 'A developer worries "if I add data-testid, the bundle size grows and performance is affected". What is the technically correct response to this concern?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Haklı bir endişe, data-testid eklenmemeli', en: 'A valid concern, data-testid should not be added' } },
+            { id: 'b', text: { tr: 'Bir string literal eklemek (bir HTML attribute\'u) ölçülemeyecek kadar küçük bir etkidir; bu endişe production\'daki gerçek performans darboğazlarıyla (büyük JS bundle\'ları, gereksiz re-render) KARIŞTIRILMAMALIDIR', en: 'Adding a string literal (an HTML attribute) has an immeasurably small impact; this concern should NOT be confused with real production performance bottlenecks (large JS bundles, unnecessary re-renders)' } },
+            { id: 'c', text: { tr: 'Her data-testid 1MB\'a kadar büyüklük ekler', en: 'Every data-testid adds up to 1MB in size' } },
+            { id: 'd', text: { tr: 'data-testid sadece development modunda çalışır', en: 'data-testid only works in development mode' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Bir attribute string\'i eklemek, bytes cinsinden ÖLÇÜLEMEYECEK kadar küçük bir maliyettir — gerçek performans sorunları (büyük dependency\'ler, optimize edilmemiş re-render\'lar) tamamen farklı bir konudur. Bu endişe genelde bir gerekçe değil, bir savunma refleksidir.',
+            en: 'Adding an attribute string is a cost so small in bytes it is IMMEASURABLE — real performance issues (large dependencies, unoptimized re-renders) are a completely different topic. This concern is usually a defensive reflex, not a real justification.',
+          },
+        },
+      },
+
+      // ── F7: React'te Sağlam Locator Stratejisi (BugCard pano — Opus referansı) ──
+      {
+        type: 'heading',
+        text: { tr: '🎯 F7. React\'te Sağlam Locator Stratejisi', en: '🎯 F7. A Robust Locator Strategy in React' },
       },
       {
         type: 'heading',
@@ -3085,9 +3744,53 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
         type: 'simple-box',
         emoji: '🎯',
         content: {
-          tr: 'Developer\'dan Ne İste: *"BugCard component\'ine satır başına `data-testid=\'bug-card-{id}\'` ekler misin? CSS Module class\'ları her build\'de hash değiştirdiği için otomasyonda onlara bağlanamıyorum; kartı id\'yle bulmam gerekiyor, yoksa her deploy\'da testim kırılıyor."* — Bu cümle iki şeyi doğru yapar: (1) SORUNU teknik olarak doğru anlatır (hash değişimi), (2) somut, uygulanabilir bir ÇÖZÜM ister (belirli bir attribute). "Şu buton çalışmıyor" demek yerine böyle konuşmak, developer\'la aynı dili konuşmaktır — döngüyü kısaltır. Not: locator SYNTAX derinliği (getByRole/getByTestId nasıl yazılır) için /playwright ve /cypress sayfalarına bak; bu sayfa "neden bu locator" sorusuna cevap verir.',
-          en: 'What to Ask the Developer: *"Could you add `data-testid=\'bug-card-{id}\'` per row to the BugCard component? CSS Module classes change their hash on every build, so I cannot bind to them in automation; I need to find the card by id, otherwise my test breaks on every deploy."* — This sentence does two things right: (1) it describes the PROBLEM technically correctly (the hash change), (2) it asks for a concrete, actionable SOLUTION (a specific attribute). Speaking this way instead of "that button does not work" is speaking the same language as the developer — it shortens the loop. Note: for locator SYNTAX depth (how to write getByRole/getByTestId) see the /playwright and /cypress pages; this page answers "why this locator". (More per-component boards — Modal, StatusBadge, Toast — are added in the Sonnet phase, plan section D-S6.)',
+          tr: 'Developer\'dan Ne İste: *"BugCard component\'ine satır başına `data-testid=\'bug-card-{id}\'` ekler misin? CSS Module class\'ları her build\'de hash değiştirdiği için otomasyonda onlara bağlanamıyorum; kartı id\'yle bulmam gerekiyor, yoksa her deploy\'da testim kırılıyor."* — Bu cümle iki şeyi doğru yapar: (1) SORUNU teknik olarak doğru anlatır (hash değişimi), (2) somut, uygulanabilir bir ÇÖZÜM ister (belirli bir attribute). "Şu buton çalışmıyor" demek yerine böyle konuşmak, developer\'la aynı dili konuşmaktır — döngüyü kısaltır. Not: locator SYNTAX derinliği (getByRole/getByTestId nasıl yazılır) için /playwright ve /cypress sayfalarına bak; bu sayfa "neden bu locator" sorusuna cevap verir. Bu grupta 4 component (BugCard, Modal, StatusBadge, Toast) için Kaynak→DOM→Locator panosu gördün — hepsinin ortak dersi: kaynağı okuyup DOM\'u tahmin et, hash\'e/index\'e/key\'e güvenme, stabil bir kanca iste.',
+          en: 'What to Ask the Developer: *"Could you add `data-testid=\'bug-card-{id}\'` per row to the BugCard component? CSS Module classes change their hash on every build, so I cannot bind to them in automation; I need to find the card by id, otherwise my test breaks on every deploy."* — This sentence does two things right: (1) it describes the PROBLEM technically correctly (the hash change), (2) it asks for a concrete, actionable SOLUTION (a specific attribute). Speaking this way instead of "that button does not work" is speaking the same language as the developer — it shortens the loop. Note: for locator SYNTAX depth (how to write getByRole/getByTestId) see the /playwright and /cypress pages; this page answers "why this locator". In this group you saw a Source -> DOM -> Locator board for 4 components (BugCard, Modal, StatusBadge, Toast) — their common lesson: read the source and predict the DOM, do not trust a hash/index/key, ask for a stable hook.',
         },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'BugCard, Modal, StatusBadge ve Toast panolarının HEPSİNDE ortak olan tek bir ders şudur: ...',
+          en: 'The one lesson common to ALL of the BugCard, Modal, StatusBadge, and Toast boards is: ...',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Her component farklı bir framework kullanmalı', en: 'Every component should use a different framework' } },
+          { id: 'b', text: { tr: 'Kaynağı okuyup üretilecek DOM\'u tahmin etmek ve hash/index/key gibi kırılgan alanlar yerine stabil bir kanca (data-testid/role) istemek', en: 'Reading the source to predict the produced DOM, and asking for a stable hook (data-testid/role) instead of fragile fields like hash/index/key' } },
+          { id: 'c', text: { tr: 'Tüm component\'ler class component olarak yazılmalı', en: 'All components should be written as class components' } },
+          { id: 'd', text: { tr: 'CSS Modules asla kullanılmamalı', en: 'CSS Modules should never be used' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Dört panonun (hash class, conditional render, list render, data-testid ekleme) ortak dersi budur: kaynağı okuyup DOM\'u ZİHNİNDE canlandırmak ve build/sıralama/React-içi mekanizmalardan (hash, index, key) BAĞIMSIZ, kasıtlı bir kimlik (data-testid, role) istemek.',
+          en: 'This is the common lesson of all four boards (hash class, conditional render, list render, adding data-testid): reading the source to picture the DOM IN YOUR MIND, and asking for a deliberate identity (data-testid, role) INDEPENDENT of build/ordering/React-internal mechanisms (hash, index, key).',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tester React kaynağını okuyabiliyor ama developer\'la konuşurken hâlâ "şu component çalışmıyor" diyor. Bu sayfanın hedefine göre eksik olan nedir?',
+            en: 'A tester can read React source, but when talking to the developer still says "that component does not work". According to this page\'s goal, what is missing?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Hiçbir şey eksik değil, bu yeterlidir', en: 'Nothing is missing, this is enough' } },
+            { id: 'b', text: { tr: 'Ortak dil konuşmak: "hangi component", "hangi prop/state", "hangi DOM sonucu" gibi SPESİFİK terimlerle konuşmak — genel "çalışmıyor" ifadesi döngüyü uzatır', en: 'Speaking a common language: using SPECIFIC terms like "which component", "which prop/state", "which DOM outcome" — a vague "does not work" lengthens the loop' } },
+            { id: 'c', text: { tr: 'Sadece Selenium syntax\'ı bilmesi yeterlidir', en: 'Only knowing Selenium syntax is enough' } },
+            { id: 'd', text: { tr: 'CSS öğrenmesi gerekmez', en: 'They do not need to learn CSS' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Sayfanın §1\'deki temel hedeflerinden biri "ortak dil"dir: "BugCard içindeki StatusBadge, isOpen state\'i true olmadığı için Modal DOM\'da yok" demek, "çalışmıyor" demekten çok daha hızlı bir çözüme götürür — bu, kaynağı OKUYABİLMEKLE birlikte bunu ANLATABİLMEYİ de gerektirir.',
+            en: 'One of the page\'s core goals in §1 is a "common language": saying "the StatusBadge inside BugCard — the Modal is not in the DOM because isOpen is not true" leads to a solution much faster than saying "it does not work" — this requires being able to EXPLAIN the source, not just read it.',
+          },
+        },
+      },
+      {
+        type: 'feynman-checkpoint',
+        id: 'qaf-feynman-f',
+        promptTr: 'React\'te bir component\'in neden bir fonksiyon olduğunu, props ile state arasındaki farkı ve `{isOpen && <Modal/>}` gibi bir conditional render\'ın locator\'ı nasıl etkilediğini, sektöre yeni giren birine kendi cümlelerinle anlat.',
+        promptEn: 'Explain, in your own words, why a React component is a function, the difference between props and state, and how a conditional render like `{isOpen && <Modal/>}` affects a locator, to a newcomer.',
+        keywords: ['component', 'function', 'props', 'state', 'conditional', 'modal', 'dom', 'jsx'],
+        modelAnswerTr: 'Bir React component\'i sade bir fonksiyondur: prop\'ları parametre gibi alır ve JSX döner — bu JSX gerçek DOM değil, React\'in gerçek DOM\'a dönüştüreceği bir tariftir. Props üst component\'ten aşağı akar ve component onu değiştiremez; state ise component\'in kendi hafızasıdır ve kendisi günceller. `{isOpen && <Modal/>}` gibi bir conditional render\'da, koşul false iken element DOM\'da TAMAMEN yoktur (gizli değil, yok); bu yüzden Modal\'ı locate etmeden önce onu açan eylemi yapmak ve state\'in gerçekten güncellendiğini bilmek gerekir.',
+        modelAnswerEn: 'A React component is a plain function: it takes props like parameters and returns JSX — this JSX is not real DOM, it is a recipe React will turn into real DOM. Props flow down from the parent and the component cannot change them; state is the component\'s own memory and it updates it itself. In a conditional render like `{isOpen && <Modal/>}`, while the condition is false the element is COMPLETELY absent from the DOM (not hidden, absent); so before locating the Modal you must perform the action that opens it and know that the state has really updated.',
       },
     ],
   },
