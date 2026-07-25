@@ -1058,6 +1058,178 @@ const pseudoStateSteps = {
   ],
 }
 
+// ─── step-animation: createElement → appendChild (GRUP D1) ────────────────────
+const createAppendSteps = {
+  type: 'step-animation',
+  id: 'qaf-d1-create-append-steps',
+  title: { tr: 'Adım Adım: `createElement` ile `appendChild` Arasındaki Boşluk', en: 'Step by Step: The Gap Between `createElement` and `appendChild`' },
+  steps: [
+    { id: 1, icon: '🧱', label: { tr: '`document.createElement(\'li\')`', en: '`document.createElement(\'li\')`' }, detail: { tr: 'Bellekte YENİ bir node oluşturulur ama bu node HİÇBİR YERE bağlı değildir — DOM ağacının bir parçası değildir.', en: 'A NEW node is created in memory, but this node is NOT attached anywhere — it is not part of the DOM tree.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Bu anda locate etmeye çalışsan…', en: 'If you tried to locate it at this moment...' }, detail: { tr: '`document.querySelector(\'li\')` bu yeni node\'u ASLA bulamaz — o sadece bir JS DEĞİŞKENİNDE durur, ağaçta değil.', en: '`document.querySelector(\'li\')` can NEVER find this new node — it only sits in a JS VARIABLE, not in the tree.' } },
+    { id: 3, icon: '🔗', label: { tr: '`parent.appendChild(newLi)`', en: '`parent.appendChild(newLi)`' }, detail: { tr: 'Node artık GERÇEKTEN DOM ağacına eklenir — bu satır çalışana kadar node "var ama görünmez" durumdaydı.', en: 'The node is now REALLY added to the DOM tree — until this line ran, the node "existed but was invisible".' } },
+    { id: 4, icon: '✅', label: { tr: 'Artık locate edilebilir', en: 'Now it can be located' }, detail: { tr: '`appendChild` çalıştıktan SONRA `querySelector`/Playwright locator bu elementi bulabilir.', en: 'AFTER `appendChild` runs, a `querySelector`/Playwright locator can find this element.' } },
+    { id: 5, icon: '⚠️', label: { tr: '`innerHTML` farklı bir risk taşır', en: '`innerHTML` carries a different risk' }, detail: { tr: '`innerHTML = htmlString` mevcut alt ağacı TAMAMEN yok edip yeniden kurar — eski event listener\'lar ve locator referansları SESSİZCE geçersiz olur.', en: '`innerHTML = htmlString` COMPLETELY destroys and rebuilds the existing subtree — old event listeners and locator references become SILENTLY invalid.' } },
+  ],
+}
+
+// ─── step-animation: event listener kaydı ve "hiçbir şey olmuyor" bug'ı (GRUP D2) ─
+const eventListenerSteps = {
+  type: 'step-animation',
+  id: 'qaf-d2-event-listener-steps',
+  title: { tr: 'Adım Adım: "Butona Tıkladım Ama Hiçbir Şey Olmadı" Bug\'ının Kaynağı', en: 'Step by Step: The Root of "I Clicked the Button but Nothing Happened"' },
+  steps: [
+    { id: 1, icon: '🔘', label: { tr: 'Buton DOM\'a eklenir', en: 'The button is added to the DOM' }, detail: { tr: '`<button id="submit-bug">` sayfaya render edilir — GÖRSEL olarak tıklanabilir görünür.', en: '`<button id="submit-bug">` is rendered onto the page — it VISUALLY looks clickable.' } },
+    { id: 2, icon: '⏳', label: { tr: 'Ama listener henüz kayıtlı değil', en: 'But the listener is not registered yet' }, detail: { tr: 'JS bundle\'ı hâlâ indiriliyor/çalışıyor olabilir; `button.addEventListener(\'click\', submitHandler)` satırı henüz ÇALIŞMADI.', en: 'The JS bundle may still be downloading/executing; the `button.addEventListener(\'click\', submitHandler)` line has NOT run yet.' } },
+    { id: 3, icon: '🖱️', label: { tr: 'Kullanıcı (veya test) tıklar', en: 'The user (or test) clicks' }, detail: { tr: 'Tıklama olayı tarayıcı tarafından ÜRETİLİR ama onu dinleyen (kayıtlı) hiçbir handler yoktur — olay SESSİZCE kaybolur.', en: 'The click event IS FIRED by the browser, but there is no handler LISTENING for it — the event is SILENTLY lost.' } },
+    { id: 4, icon: '🚨', label: { tr: 'Sonuç: görsel var, davranış yok', en: 'Result: visual exists, behavior does not' }, detail: { tr: 'Buton görsel olarak orada, tıklanabilir gibi duruyor ama HİÇBİR ŞEY olmuyor — klasik "tıkladım ama çalışmadı" bug raporu.', en: 'The button visually exists, looks clickable, but NOTHING happens — the classic "I clicked it but it did not work" bug report.' } },
+    { id: 5, icon: '✅', label: { tr: 'Tester\'ın teşhis refleksi', en: 'The tester\'s diagnostic reflex' }, detail: { tr: '"Element render oldu mu?" ile "listener kayıtlı mı (hydration bitti mi)?" sorularını AYIRT ETMEK — bu GRUP E4 (hydration) ile doğrudan bağlantılıdır.', en: 'DISTINGUISHING "did the element render?" from "is the listener registered (did hydration finish)?" — this connects directly to GROUP E4 (hydration).' } },
+  ],
+}
+
+// ─── video-scene: Fetch ile locate arasındaki yarış (GRUP D3) ─────────────────
+const fetchRaceFilm = {
+  type: 'video-scene',
+  id: 'qaf-fetch-race-film',
+  title: {
+    tr: '🎬 Fetch Bitmeden Locate Etmek: Bir Yarış Hikayesi',
+    en: '🎬 Locating Before the Fetch Finishes: A Race Story',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'test',    emoji: '🧪', label: { tr: 'Test kodu',           en: 'Test code' },          color: '#0ea5e9' },
+    { id: 'fetch',   emoji: '📡', label: { tr: 'fetch(\'/api/v1/bugs\')', en: 'fetch(\'/api/v1/bugs\')' }, color: '#f59e0b' },
+    { id: 'network', emoji: '🌐', label: { tr: 'Ağ gecikmesi',        en: 'Network latency' },     color: '#8b5cf6' },
+    { id: 'dom',     emoji: '🌳', label: { tr: 'DOM (hâlâ boş liste)', en: 'DOM (still empty list)' }, color: '#6b7280' },
+    { id: 'render',  emoji: '📋', label: { tr: 'DOM (3 BugCard doldu)', en: 'DOM (3 BugCards filled)' }, color: '#22c55e' },
+    { id: 'crash',   emoji: '💥', label: { tr: 'NoSuchElement',        en: 'NoSuchElement' },       color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Sayfa açılır açılmaz test HEMEN bir BugCard\'ı locate etmeye çalışıyor. Ama JS\'in verisi nereden geliyor ve ne kadar sürüyor? Bu filmde test kodu ile ağ isteği arasındaki YARIŞI izleyeceksin.',
+        en: 'The moment the page opens, the test IMMEDIATELY tries to locate a BugCard. But where does the JS data come from and how long does it take? In this film you will watch the RACE between the test code and the network request.',
+      },
+      code: { tr: `test: sayfa açıldı, hemen locate ediyorum`, en: `test: page opened, locating right away` },
+      positions: { test: { x: 50, y: 40, scale: 1.1, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — İki şey AYNI ANDA başlar: sayfa render olurken JS de `fetch(\'/api/v1/bugs\')` çağrısını tetikler. DOM şu an BOŞ bir `<ul>` içerir çünkü veri henüz gelmedi.',
+        en: 'Step 1 — Two things start AT THE SAME TIME: while the page renders, JS also triggers a `fetch(\'/api/v1/bugs\')` call. The DOM currently contains an EMPTY `<ul>` because the data has not arrived yet.',
+      },
+      code: { tr: `<ul id="bug-list"></ul>  ← şu an boş`, en: `<ul id="bug-list"></ul>  <- empty right now` },
+      positions: {
+        test: { x: 16, y: 30, scale: 0.95 },
+        fetch: { x: 50, y: 55, scale: 1.15, pulse: true },
+        dom: { x: 84, y: 55, scale: 1.1 },
+      },
+      beams: [{ from: 'fetch', to: 'dom', color: '#6b7280' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Ağ gecikmesi devam ederken test ZATEN locate etmeyi deniyor: `page.locator(\'li\').first()` çalıştırılır ama `<ul>` hâlâ boş olduğu için EŞLEŞEN eleman YOKTUR.',
+        en: 'Step 2 — While the network latency continues, the test is ALREADY trying to locate: `page.locator(\'li\').first()` runs, but since `<ul>` is still empty there is NO MATCHING element.',
+      },
+      code: { tr: `page.locator('li').first() → 0 eleman`, en: `page.locator('li').first() -> 0 elements` },
+      positions: {
+        test: { x: 22, y: 30, scale: 1.05, pulse: true },
+        network: { x: 55, y: 55, scale: 1.2 },
+        dom: { x: 84, y: 55, opacity: 0.6, scale: 0.95 },
+      },
+      beams: [{ from: 'test', to: 'network', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Eğer test burada `waitFor` KULLANMADAN doğrudan `.click()` çağırırsa: "0 eleman bulundu, tıklanacak bir şey yok" hatasıyla ÇÖKER — NoSuchElement.',
+        en: 'Step 3 — If the test calls `.click()` directly here WITHOUT using `waitFor`: it CRASHES with "0 elements found, nothing to click" — NoSuchElement.',
+      },
+      code: { tr: `NoSuchElementException: 0 elements matched 'li'`, en: `NoSuchElementException: 0 elements matched 'li'` },
+      positions: {
+        test: { x: 24, y: 30, opacity: 0.6, scale: 0.9 },
+        crash: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'test', to: 'crash', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Ağ isteği tamamlanır: sunucu JSON döner, JS her bug için bir `<li>` oluşturup `<ul>`\'ye ekler. DOM artık 3 BugCard içerir — ama bu, test\'in ilk denemesinden BİR SÜRE SONRA gerçekleşti.',
+        en: 'Step 4 — The network request completes: the server returns JSON, JS creates a `<li>` for each bug and appends it to the `<ul>`. The DOM now contains 3 BugCards — but this happened SOME TIME AFTER the test\'s first attempt.',
+      },
+      code: { tr: `<ul><li>...</li><li>...</li><li>...</li></ul>`, en: `<ul><li>...</li><li>...</li><li>...</li></ul>` },
+      positions: {
+        network: { x: 20, y: 40, opacity: 0.6, scale: 0.9 },
+        render: { x: 56, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'network', to: 'render', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Doğru refleks: test `waitFor`/auto-waiting assertion (`toBeVisible`, `toHaveCount`) ile ağ isteğinin BİTMESİNİ bekler, sabit bir `sleep` ile TAHMİN etmez. Playwright gibi modern araçlar bu bekleyişi birçok komutta OTOMATİK yapar — ama bunun NEDEN gerektiğini bilmek, "neden bazen bekleme eklemem gerekiyor" sorusuna cevap verir.',
+        en: 'Final — The right reflex: the test waits for the network request to FINISH using `waitFor`/an auto-waiting assertion (`toBeVisible`, `toHaveCount`), it does not GUESS with a fixed `sleep`. Modern tools like Playwright do this waiting AUTOMATICALLY for many commands — but knowing WHY this is needed answers the question "why do I sometimes need to add a wait".',
+      },
+      code: { tr: `await expect(page.locator('li')).toHaveCount(3);`, en: `await expect(page.locator('li')).toHaveCount(3);` },
+      positions: {
+        render: { x: 30, y: 45, scale: 1.15, pulse: true },
+        crash: { x: 66, y: 60, scale: 0.85, opacity: 0.4 },
+      },
+    },
+  ],
+}
+
+// ─── code-playground: "Load more" ile geç eklenen elementi bekleme (GRUP D4) ──
+const lazyAppendWaitPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-d4-mutation-wait',
+  id: 'qaf-d4-lazy-append-wait',
+  title: { tr: 'Kendin Dene: Geç Eklenen Bir Elementi Doğru Bekle', en: 'Try It Yourself: Correctly Wait for a Late-Appended Element' },
+  starterCode: {
+    tr: `// "Daha Fazla Yükle" butonuna basınca JS 500ms sonra 5 yeni BugCard ekliyor
+// (sunucudan ikinci bir sayfa veri çeker). TODO: sabit sleep yerine doğru bekle.
+await page.click('[data-testid="load-more"]');
+await page.waitForTimeout(500);
+await page.locator('li').nth(10).click();`,
+    en: `// Clicking "Load More" makes JS append 5 new BugCards 500ms later
+// (it fetches a second page of data from the server). TODO: wait correctly instead of a fixed sleep.
+await page.click('[data-testid="load-more"]');
+await page.waitForTimeout(500);
+await page.locator('li').nth(10).click();`,
+  },
+  solutionCode: {
+    tr: `// MutationObserver tabanlı auto-waiting: sayı 15'e çıkana kadar otomatik yeniden dener
+await page.click('[data-testid="load-more"]');
+await expect(page.locator('li')).toHaveCount(15);
+await page.locator('li').nth(10).click();`,
+    en: `// MutationObserver-based auto-waiting: auto-retries until the count reaches 15
+await page.click('[data-testid="load-more"]');
+await expect(page.locator('li')).toHaveCount(15);
+await page.locator('li').nth(10).click();`,
+  },
+  hint: {
+    tr: '500ms bir TAHMİNDİR — sunucu yavaşsa yetmez, hızlıysa gereksiz bekletir. Modern test araçları arka planda bir `MutationObserver` benzeri mekanizmayla DOM\'u dinler; `toHaveCount` gibi assertion\'lar bu mekanizmayı kullanarak KOŞULUN gerçekleştiğini garanti eder.',
+    en: '500ms is a GUESS — it is not enough if the server is slow, and wastes time if it is fast. Modern test tools listen to the DOM in the background with a `MutationObserver`-like mechanism; assertions like `toHaveCount` use this mechanism to guarantee the CONDITION has actually occurred.',
+  },
+  successMessage: {
+    tr: 'Doğru! Bir mutation\'ın (yeni element eklenmesi) NE ZAMAN biteceğini tahmin etmek yerine, DOM\'u dinleyen bir koşulu (assertion) beklemek her zaman daha güvenilirdir.',
+    en: 'Correct! Instead of guessing WHEN a mutation (a new element appearing) will finish, waiting for a condition (an assertion) that listens to the DOM is always more reliable.',
+  },
+}
+
+// ─── step-animation: data-* attribute'unu JS'in kendisi de okur (GRUP D5) ─────
+const dataAttrEventDelegationSteps = {
+  type: 'step-animation',
+  id: 'qaf-d5-data-attr-steps',
+  title: { tr: 'Adım Adım: JS `data-*`\'ı Sadece Testler İçin mi Okur?', en: 'Step by Step: Does JS Read `data-*` Only for Tests?' },
+  steps: [
+    { id: 1, icon: '🎯', label: { tr: 'Tek bir listener, çok satır', en: 'One listener, many rows' }, detail: { tr: 'Developer her BugCard\'a AYRI bir click listener eklemek yerine, TEK bir listener\'ı `<ul>`\'ye ekler — buna "event delegation" denir.', en: 'Instead of adding a SEPARATE click listener to every BugCard, the developer adds ONE listener to the `<ul>` — this is called "event delegation".' } },
+    { id: 2, icon: '🖱️', label: { tr: 'Bir karta tıklanır', en: 'A card is clicked' }, detail: { tr: 'Tıklama olayı `<ul>`\'ye kadar "yükselir" (bubbling); listener bu olayı yakalar ama HANGİ kartın tıklandığını bilmesi gerekir.', en: 'The click event "bubbles" up to the `<ul>`; the listener catches it but needs to know WHICH card was clicked.' } },
+    { id: 3, icon: '🏷️', label: { tr: '`event.target.closest(\'li\').dataset.bugId`', en: '`event.target.closest(\'li\').dataset.bugId`' }, detail: { tr: 'JS, tıklanan elementin en yakın `<li>` atasını bulur ve onun `data-bug-id` attribute\'unu OKUYARAK hangi bug\'a tıklandığını anlar.', en: 'JS finds the nearest `<li>` ancestor of the clicked element and READS its `data-bug-id` attribute to understand which bug was clicked.' } },
+    { id: 4, icon: '⚙️', label: { tr: 'Bu, uygulamanın KENDİ mantığıdır', en: 'This is the APP\'s OWN logic' }, detail: { tr: '`data-bug-id` burada sadece test için değil, UYGULAMANIN GERÇEK ÇALIŞMASI için vardır — silinirse uygulama bozulur, sadece testler değil.', en: '`data-bug-id` here exists not just for tests, but for the APP\'S ACTUAL FUNCTIONING — if removed, the app breaks, not just the tests.' } },
+    { id: 5, icon: '💎', label: { tr: 'Tester için bonus: EN dayanıklı kanca', en: 'Bonus for the tester: the MOST durable hook' }, detail: { tr: 'Uygulama mantığının bel bağladığı bir `data-*` attribute\'u, sadece `data-testid` gibi test-özel bir attribute\'tan bile daha az silinme riski taşır — developer onu kaldırırsa kendi uygulaması da bozulur.', en: 'A `data-*` attribute the app logic relies on carries even LESS risk of removal than a test-only attribute like `data-testid` — if the developer removes it, their own app breaks too.' } },
+  ],
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
 
@@ -2089,7 +2261,7 @@ const Badge = styled.span\`
     ],
   },
 
-  // ══ GRUP D — JavaScript: DOM'u Kim Değiştiriyor (Sonnet) ═══════════════════
+  // ══ GRUP D — JavaScript: DOM'u Kim Değiştiriyor ═════════════════════════════
   {
     title: { tr: '⚡ JavaScript: DOM\'u Kim Değiştiriyor', en: '⚡ JavaScript: Who Changes the DOM' },
     blocks: [
@@ -2097,9 +2269,268 @@ const Badge = styled.span\`
         type: 'simple-box',
         emoji: '⚡',
         content: {
-          tr: 'JavaScript, binadaki elektrik ve otomasyon sistemidir: sayfayı sonradan CANLI hale getiren, butona basınca bir şeyler olmasını sağlayan, sunucudan veri gelince yeni BugCard\'lar üreten güç budur. Neden testerı en çok ilgilendiren katman JS\'tir? Çünkü DOM\'u değiştiren odur — element bir an yoktur, fetch bitince belirir; bu yüzden "elementi bekleme" (wait) gerekir ve `sleep` yanlış cevaptır. Java analojisi: DOM ana thread\'de senkron kurulur ama fetch asenkron döner — bir CompletableFuture\'ın sonucunu beklemeden okumaya çalışmak gibi. QA bağlamında: locate timing sorunlarının kökü JS\'in asenkronluğudur; doğru refleks sabit süre uyumak değil, elementin varlığını/görünürlüğünü koşullu beklemektir. (Atomik başlıklar D1-D5 Sonnet fazında — bkz. plan §D-S4.)',
-          en: 'JavaScript is the electrical and automation system of the building: it is the power that makes the page LIVE afterward, makes something happen when a button is pressed, and produces new BugCards when data arrives from the server. Why is JS the layer that concerns a tester most? Because it is what changes the DOM — an element is absent for a moment, then appears when a fetch completes; this is why you need to "wait for the element" and why `sleep` is the wrong answer. Java analogy: the DOM is built synchronously on the main thread, but a fetch returns asynchronously — like trying to read a CompletableFuture\'s result without waiting for it. In QA context: the root of locate-timing problems is JS asynchrony; the right reflex is not to sleep a fixed time but to conditionally wait for the element\'s presence/visibility. (The atomic topics D1-D5 are in the Sonnet phase — see plan section D-S4.)',
+          tr: 'JavaScript, binadaki elektrik ve otomasyon sistemidir: sayfayı sonradan CANLI hale getiren, butona basınca bir şeyler olmasını sağlayan, sunucudan veri gelince yeni BugCard\'lar üreten güç budur. Neden testerı en çok ilgilendiren katman JS\'tir? Çünkü DOM\'u değiştiren odur — element bir an yoktur, fetch bitince belirir; bu yüzden "elementi bekleme" (wait) gerekir ve `sleep` yanlış cevaptır. Java analojisi: DOM ana thread\'de senkron kurulur ama fetch asenkron döner — bir CompletableFuture\'ın sonucunu beklemeden okumaya çalışmak gibi. QA bağlamında: locate timing sorunlarının kökü JS\'in asenkronluğudur; doğru refleks sabit süre uyumak değil, elementin varlığını/görünürlüğünü koşullu beklemektir.',
+          en: 'JavaScript is the electrical and automation system of the building: it is the power that makes the page LIVE afterward, makes something happen when a button is pressed, and produces new BugCards when data arrives from the server. Why is JS the layer that concerns a tester most? Because it is what changes the DOM — an element is absent for a moment, then appears when a fetch completes; this is why you need to "wait for the element" and why `sleep` is the wrong answer. Java analogy: the DOM is built synchronously on the main thread, but a fetch returns asynchronously — like trying to read a CompletableFuture\'s result without waiting for it. In QA context: the root of locate-timing problems is JS asynchrony; the right reflex is not to sleep a fixed time but to conditionally wait for the element\'s presence/visibility.',
         },
+      },
+
+      // ── D1: DOM Manipülasyonu ──
+      {
+        type: 'heading',
+        text: { tr: '🧱 D1. DOM Manipülasyonu: createElement, appendChild, innerHTML', en: '🧱 D1. DOM Manipulation: createElement, appendChild, innerHTML' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🧱',
+        content: {
+          tr: 'JS\'in DOM\'u değiştirmesi, bir İNŞAAT USTASININ binaya SONRADAN oda eklemesi gibidir: `document.createElement(\'li\')` yeni bir "tuğla" hazırlar ama henüz hiçbir yere bağlı DEĞİLDİR — sadece bir JS değişkeninde durur; `appendChild` bu tuğlayı GERÇEKTEN duvara (DOM ağacına) ekler. Peki neden bazen `element.innerHTML = htmlString` yerine `createElement`+`appendChild` tercih edilir? Çünkü `innerHTML` mevcut alt ağacı TAMAMEN yok edip sıfırdan kurar — buna bağlı event listener\'lar ve DOM referansları SESSİZCE geçersiz hale gelir (sinsi bir bug kaynağı). Java analojisi: `new Foo()` ile bir nesne yaratmak (createElement) ile onu bir koleksiyona `list.add(foo)` ile eklemek (appendChild) arasındaki fark gibi — var OLMAK ile sistemin bir PARÇASI olmak farklı adımlardır. QA bağlamında: `createElement` çağrıldı ama `appendChild` henüz çalışmadıysa, o elementi locate etmeye çalışmak HER ZAMAN başarısız olur — bu, D3\'teki timing dersinin temelidir.',
+          en: 'JS changing the DOM is like a CONSTRUCTION WORKER adding a room to a building AFTERWARD: `document.createElement(\'li\')` prepares a new "brick" but it is NOT attached anywhere yet — it only sits in a JS variable; `appendChild` REALLY adds this brick to the wall (the DOM tree). So why is `createElement`+`appendChild` sometimes preferred over `element.innerHTML = htmlString`? Because `innerHTML` COMPLETELY destroys and rebuilds the existing subtree from scratch — event listeners and DOM references bound to it become SILENTLY invalid (a sneaky bug source). Java analogy: like the difference between creating a nesne with `new Foo()` (createElement) and adding it to a collection with `list.add(foo)` (appendChild) — existing and being a PART of the system are different steps. In QA context: if `createElement` was called but `appendChild` has not run yet, trying to locate that element ALWAYS fails — this is the foundation of the timing lesson in D3.',
+        },
+      },
+      createAppendSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir developer `newCard = document.createElement(\'li\')` satırını çalıştırdı ama henüz `parent.appendChild(newCard)` satırına gelmedi. Bu anda `page.locator(\'li\').last()` ne bulur?',
+          en: 'A developer ran the line `newCard = document.createElement(\'li\')` but has not reached `parent.appendChild(newCard)` yet. What does `page.locator(\'li\').last()` find at this moment?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Yeni oluşturulan li\'yi bulur çünkü createElement çalıştı', en: 'It finds the newly created li because createElement ran' } },
+          { id: 'b', text: { tr: 'Yeni li\'yi BULAMAZ çünkü henüz DOM ağacına eklenmedi, sadece bir JS değişkeninde duruyor', en: 'It CANNOT find the new li because it has not been added to the DOM tree yet, it only sits in a JS variable' } },
+          { id: 'c', text: { tr: 'Hata fırlatır çünkü createElement geçersiz bir işlemdir', en: 'It throws an error because createElement is an invalid operation' } },
+          { id: 'd', text: { tr: 'Eski son elementi ikinci kez bulur', en: 'It finds the old last element a second time' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`createElement` sadece bellekte bir node oluşturur; DOM ağacına eklenmesi `appendChild` (veya benzeri) ile AYRI bir adımdır. Bu iki adım arasında element "var ama görünmez/bulunamaz" durumdadır.',
+          en: '`createElement` only creates a node in memory; adding it to the DOM tree is a SEPARATE step done via `appendChild` (or similar). Between these two steps the element "exists but is invisible/unfindable".',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir developer BugCard listesini güncellemek için `ul.innerHTML = newListHtml` kullanıyor. Bu yaklaşımın locator/test açısından riski nedir?',
+            en: 'A developer uses `ul.innerHTML = newListHtml` to update the BugCard list. What is the locator/test risk of this approach?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Risk yok, innerHTML her zaman güvenlidir', en: 'No risk, innerHTML is always safe' } },
+            { id: 'b', text: { tr: 'Mevcut alt ağaç tamamen yok edilip yeniden kurulur; eski DOM referansları/listener\'lar sessizce geçersizleşir', en: 'The existing subtree is completely destroyed and rebuilt; old DOM references/listeners silently become invalid' } },
+            { id: 'c', text: { tr: 'Sadece görsel bir değişikliktir, hiçbir etkisi yoktur', en: 'It is purely a visual change with no side effects' } },
+            { id: 'd', text: { tr: 'innerHTML testler tarafından hiç görülmez', en: 'innerHTML is never seen by tests' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`innerHTML` ataması eski alt ağacı SİLER ve yeni HTML\'den SIFIRDAN kurar. Bir test önceden bu ağaçtaki bir elemente referans TUTMUŞSA (ör. Selenium WebElement), bu referans artık DOM\'daki hiçbir şeye karşılık gelmez ve StaleElementReferenceException fırlatabilir.',
+            en: 'An `innerHTML` assignment DELETES the old subtree and builds it FROM SCRATCH from the new HTML. If a test was previously HOLDING a reference to an element in that tree (e.g. a Selenium WebElement), that reference no longer corresponds to anything in the DOM and can throw a StaleElementReferenceException.',
+          },
+        },
+      },
+
+      // ── D2: Event Listener ──
+      {
+        type: 'heading',
+        text: { tr: '🖱️ D2. Event Listener: Butona Basınca Kod Nasıl Tetiklenir', en: '🖱️ D2. Event Listeners: How Code Is Triggered by a Button Press' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🖱️',
+        content: {
+          tr: 'Event listener, bir GÜVENLİK KAMERASI + ALARM sistemi gibidir: `button.addEventListener(\'click\', handler)` demek "bu butona her basıldığında alarmı çal (handler\'ı çağır)" demektir — ama kamera KURULMADAN (listener eklenmeden) önce biri basarsa, alarm çalmaz, olay SESSİZCE kaybolur. Peki neden bazen bir butona tıklıyorsun ama HİÇBİR ŞEY olmuyor? Çünkü buton DOM\'a eklendi ama JS henüz o butona listener EKLEMEDİ — script hâlâ yükleniyor olabilir, ya da event yanlış elemente bağlanmış olabilir. Java analojisi: bir Observer pattern\'de bir nesnenin observer listesine KAYDOLMADAN önce fırlatılan bir event\'i asla ALAMAMASI gibi — kayıt olmadan bildirim gelmez. QA bağlamında: bu, "butona tıkladım ama hiçbir şey olmadı" bug raporlarının EN YAYGIN teknik köklerinden biridir — tester "element render oldu mu?" ile "listener kayıtlı mı?" sorularını AYIRT ederek teşhis koyar (GRUP E4 hydration konusuna doğrudan köprü).',
+          en: 'An event listener is like a SECURITY CAMERA + ALARM system: `button.addEventListener(\'click\', handler)` means "sound the alarm (call the handler) every time this button is pressed" — but if someone presses it before the camera is INSTALLED (the listener is added), the alarm does not sound, the event is SILENTLY lost. So why do you sometimes click a button and NOTHING happens? Because the button was added to the DOM but JS has not yet ATTACHED a listener to it — the script may still be loading, or the event may be bound to the wrong element. Java analogy: like an Observer pattern object NEVER RECEIVING an event fired before it REGISTERED in the observer list — no registration, no notification. In QA context: this is one of the MOST COMMON technical roots of "I clicked the button but nothing happened" bug reports — a tester diagnoses it by DISTINGUISHING "did the element render?" from "is the listener registered?" (a direct bridge to the hydration topic in GROUP E4).',
+        },
+      },
+      eventListenerSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir bug raporu: "New Bug modalındaki Submit butonuna tıklıyorum, buton görünüyor ama HİÇBİR ŞEY olmuyor." Bu belirtiye bakarak ilk şüphelendiğin nedir?',
+          en: 'A bug report says: "I click the Submit button in the New Bug modal, the button is visible but NOTHING happens." Looking at this symptom, what do you suspect first?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Buton yanlış renkte tasarlanmış', en: 'The button was designed with the wrong color' } },
+          { id: 'b', text: { tr: 'Buton DOM\'da/görsel olarak var ama JS henüz ona bir click listener eklemedi', en: 'The button exists in the DOM/visually, but JS has not yet attached a click listener to it' } },
+          { id: 'c', text: { tr: 'Sunucu çökmüştür', en: 'The server has crashed' } },
+          { id: 'd', text: { tr: 'Tarayıcı desteklemiyor', en: 'The browser does not support it' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '"Görünür ama tepkisiz" belirtisi klasik olarak render/listener AYRIMINA işaret eder: element render oldu (görünüyor) ama davranışı bağlayan JS kodu (listener) henüz ÇALIŞMADI veya YANLIŞ elemente eklendi.',
+          en: 'The "visible but unresponsive" symptom classically points to the render/listener DISTINCTION: the element rendered (it is visible), but the JS code binding the behavior (the listener) has NOT run yet or was attached to the WRONG element.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tester, sorunun "listener eksik" mi yoksa "listener var ama içindeki kod hata veriyor" mu olduğunu nasıl ayırt edebilir?',
+            en: 'How can a tester distinguish whether the problem is "the listener is missing" versus "the listener exists but the code inside it throws an error"?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'İkisi de aynı şeydir, ayrım yapmaya gerek yok', en: 'Both are the same thing, no need to distinguish' } },
+            { id: 'b', text: { tr: 'DevTools Console\'da bir hata mesajı var mı bakarak — hata varsa listener çalışıyor ama içeride patlıyor demektir', en: 'By checking the DevTools Console for an error message — if there is one, the listener runs but throws inside' } },
+            { id: 'c', text: { tr: 'Sayfayı yeniden başlatarak', en: 'By restarting the page' } },
+            { id: 'd', text: { tr: 'Tarayıcı önbelleğini temizleyerek', en: 'By clearing the browser cache' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Listener hiç kayıtlı değilse Console\'da genelde SESSİZLİK olur (hiçbir şey loglanmaz). Listener kayıtlıysa ama içindeki kod bir hata fırlatıyorsa (ör. undefined bir alana erişim), Console\'da kırmızı bir hata mesajı ve stack trace GÖRÜNÜR — bu, "listener eksik" ile "listener\'da bug var"ı ayırt etmenin en hızlı yoludur.',
+            en: 'If the listener is not registered at all, the Console is usually SILENT (nothing gets logged). If the listener is registered but the code inside throws (e.g. accessing an undefined field), a red error message and stack trace APPEAR in the Console — this is the fastest way to distinguish "listener missing" from "listener has a bug".',
+          },
+        },
+      },
+
+      // ── D3: Async ve Fetch ──
+      {
+        type: 'heading',
+        text: { tr: '📡 D3. Async ve Fetch: Veri Gelince DOM Sonradan Dolar', en: '📡 D3. Async and Fetch: the DOM Fills In After Data Arrives' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📡',
+        content: {
+          tr: '`fetch`, bir RESTORANA telefonla sipariş vermek gibidir: siparişi verirsin (fetch çağrısı) ama yemek ANINDA gelmez — bir SÜRE (ağ gecikmesi) geçer, sonra kurye (response) kapıya gelir ve ancak O ZAMAN masaya (DOM\'a) konur. Peki neden bu, testerlar için bir YARIŞ durumu yaratır? Çünkü test kodu genelde sayfa açılır açılmaz ÇALIŞMAYA başlar — ama JS\'in verisi henüz gelmemiş olabilir, DOM hâlâ boş bir `<ul>` içerir. Java analojisi: bir `CompletableFuture.get()` çağırmadan, henüz TAMAMLANMAMIŞ bir future\'ın sonucunu okumaya çalışmak gibi — `null`/boş bir değer alırsın çünkü iş henüz BİTMEDİ. QA bağlamında: bu YARIŞ (test hızı vs ağ hızı) flaky testlerin EN YAYGIN kaynağıdır; aşağıdaki film bu yarışı adım adım gösterir.',
+          en: '`fetch` is like phoning in an order to a RESTAURANT: you place the order (the fetch call) but the food does NOT arrive INSTANTLY — some TIME passes (network latency), then the courier (the response) reaches the door, and only THEN is it placed on the table (the DOM). So why does this create a RACE condition for testers? Because test code usually starts RUNNING the moment the page opens — but the JS data may not have arrived yet, and the DOM may still contain an empty `<ul>`. Java analogy: like trying to read the result of a `CompletableFuture` that has NOT completed yet, without calling `.get()` and waiting — you get `null`/an empty value because the work is NOT DONE yet. In QA context: this RACE (test speed vs network speed) is the MOST COMMON source of flaky tests; the film below walks through this race step by step.',
+        },
+      },
+      fetchRaceFilm,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Sayfa açılır açılmaz test `page.locator(\'li\').first().click()` çalıştırıyor ve %30 ihtimalle "0 elements matched" hatası alıyor, %70 ihtimalle çalışıyor. Bu tutarsızlığın kök nedeni nedir?',
+          en: 'The moment the page opens, the test runs `page.locator(\'li\').first().click()` and gets "0 elements matched" 30% of the time, working the other 70%. What is the root cause of this inconsistency?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Playwright bozuk çalışıyor', en: 'Playwright is malfunctioning' } },
+          { id: 'b', text: { tr: 'Test kodu ile fetch\'in bitme süresi arasında bir YARIŞ var; bazen fetch test çalışmadan önce, bazen sonra biter', en: 'There is a RACE between the test code and the fetch completion time; sometimes the fetch finishes before the test runs, sometimes after' } },
+          { id: 'c', text: { tr: 'Sunucu her seferinde farklı veri döndürüyor', en: 'The server returns different data every time' } },
+          { id: 'd', text: { tr: 'Test kodunda yazım hatası var', en: 'There is a typo in the test code' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Bu klasik bir YARIŞ KOŞULUDUR (race condition): ağ gecikmesi her çalıştırmada biraz farklıdır (CI makinesi yüküne, ağ trafiğine göre), bu yüzden bazen fetch test\'in locate denemesinden ÖNCE, bazen SONRA tamamlanır. Sabit bir bekleme koşullu bir bekleme ile DEĞİŞTİRİLMELİDİR.',
+          en: 'This is a classic RACE CONDITION: network latency varies slightly on every run (depending on CI machine load, network traffic), so sometimes the fetch completes BEFORE the test\'s locate attempt, sometimes AFTER. A fixed wait should be REPLACED with a conditional wait.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tester "ben bu sorunu `page.waitForTimeout(3000)` ekleyerek çözdüm, artık hiç kırılmıyor" diyor. Bu neden yanıltıcı bir "çözüm"dür?',
+            en: 'A tester says "I fixed this by adding `page.waitForTimeout(3000)`, it never breaks anymore". Why is this a misleading "fix"?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Gerçek bir çözümdür, endişelenmeye gerek yok', en: 'It is a real fix, nothing to worry about' } },
+            { id: 'b', text: { tr: 'Sadece o ANDA test edilen ağ koşullarında yeterli bir tahmindir; daha yavaş bir gün/ortamda yine kırılabilir ve her koşumda gereksiz 3 saniye kaybettirir', en: 'It is only a guess that happens to be enough under the network conditions tested AT THAT MOMENT; on a slower day/environment it can still break, and it wastes 3 unnecessary seconds on every run' } },
+            { id: 'c', text: { tr: '3000ms evrensel olarak yeterli bir süredir', en: '3000ms is universally a sufficient duration' } },
+            { id: 'd', text: { tr: 'waitForTimeout hiçbir zaman kullanılmamalıdır', en: 'waitForTimeout should never be used at all' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Sabit bir süre, o anki test ortamının hızına göre "yeterince büyük" GÖRÜNEBİLİR ama garanti değildir — CI\'da yoğunluk artınca veya ağ yavaşlayınca yine yetersiz kalabilir. Koşullu bekleme (assertion tabanlı) hem daha hızlı (koşul erken gerçekleşirse hemen devam eder) hem daha güvenilirdir.',
+            en: 'A fixed duration may LOOK "big enough" for the current test environment\'s speed, but it is not a guarantee — it can become insufficient again once CI load increases or the network slows down. A conditional wait (assertion-based) is both faster (it proceeds immediately if the condition is met early) and more reliable.',
+          },
+        },
+      },
+
+      // ── D4: Mutation ──
+      {
+        type: 'heading',
+        text: { tr: '🔄 D4. Mutation: Element Geç Eklenir — Neden `wait` Gerekir, Neden `sleep` Yanlış', en: '🔄 D4. Mutation: an Element Is Added Late — Why `wait` Is Needed, Why `sleep` Is Wrong' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🔄',
+        content: {
+          tr: 'Bir DOM mutasyonu (yeni element ekleme, silme, değiştirme), bir POSTANEDEKİ paket takip sistemine benzer: paketin (elementin) NE ZAMAN teslim edileceğini TAHMİN ETMEK yerine, kargo şirketinin "teslim edildi" BİLDİRİMİNİ (bir olay/koşul) beklemek çok daha güvenilirdir. Tarayıcılar bu bildirimi `MutationObserver` adlı bir API ile sağlar — modern test araçları (Playwright) arka planda BUNA BENZER bir mekanizmayla DOM\'u dinler ve `toHaveCount`/`toBeVisible` gibi assertion\'lar bu dinlemeyi kullanır. Peki neden `sleep(500)` yanlış bir refleks? Çünkü 500ms bir TAHMİNDİR: yavaş bir günde yetmez (test kırılır), hızlı bir günde gereksiz zaman kaybettirir (suite yavaşlar). Java analojisi: `Thread.sleep()` yerine bir `CountDownLatch`/`CompletableFuture.get()` ile GERÇEK bir olayı beklemek gibi — biri tahmindir, diğeri garanti. QA bağlamında: "Daha Fazla Yükle" gibi butonlarla GEÇ eklenen elementler, bu dersin en somut örneğidir.',
+          en: 'A DOM mutation (adding, removing, or changing an element) is like a package-tracking system at a post office: instead of GUESSING WHEN the package (the element) will be delivered, it is far more reliable to wait for the courier company\'s "delivered" NOTIFICATION (an event/condition). Browsers provide this notification via an API called `MutationObserver` — modern test tools (Playwright) listen to the DOM in the background with a SIMILAR mechanism, and assertions like `toHaveCount`/`toBeVisible` use this listening. So why is `sleep(500)` the wrong reflex? Because 500ms is a GUESS: it is not enough on a slow day (the test breaks), and wastes time on a fast day (the suite slows down). Java analogy: like waiting for a REAL event with a `CountDownLatch`/`CompletableFuture.get()` instead of `Thread.sleep()` — one is a guess, the other a guarantee. In QA context: elements added LATE by buttons like "Load More" are the most concrete example of this lesson.',
+        },
+      },
+      lazyAppendWaitPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: '"Daha Fazla Yükle" butonuna basılınca JS 5 yeni BugCard\'ı DOM\'a ekliyor (500ms-2s arası değişen bir sürede, ağa bağlı). Bu yeni kartlardan birine tıklamadan önce en güvenilir yaklaşım hangisidir?',
+          en: 'Clicking "Load More" makes JS add 5 new BugCards to the DOM (in a variable time of 500ms-2s, depending on the network). Before clicking one of these new cards, which approach is the most reliable?',
+        },
+        options: [
+          { id: 'a', text: { tr: '`page.waitForTimeout(2000)` — en kötü ihtimale göre sabit bekle', en: '`page.waitForTimeout(2000)` — wait a fixed time for the worst case' } },
+          { id: 'b', text: { tr: '`await expect(page.locator(\'li\')).toHaveCount(N)` — liste sayısının arttığını koşullu bekle', en: '`await expect(page.locator(\'li\')).toHaveCount(N)` — conditionally wait for the list count to increase' } },
+          { id: 'c', text: { tr: 'Hiç bekleme, hemen tıkla', en: 'Do not wait at all, click immediately' } },
+          { id: 'd', text: { tr: 'Sayfayı yeniden yükle', en: 'Reload the page' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Koşullu bekleme (assertion tabanlı) mutasyonun GERÇEKTEN bittiğini garanti eder ve ağ hızından bağımsız çalışır — en kötü ihtimale göre sabit süre beklemek hem gereksiz yavaşlık hem de "en kötü ihtimal beklenenden de kötüyse" kırılma riski taşır.',
+          en: 'A conditional wait (assertion-based) guarantees the mutation has REALLY finished and works independent of network speed — waiting a fixed time for the worst case carries both needless slowness and the risk of breaking if the worst case turns out even worse than expected.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Tarayıcının `MutationObserver` API\'si ne işe yarar ve test araçları bunu neden kullanır?',
+            en: 'What does the browser\'s `MutationObserver` API do, and why do test tools use it?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Sayfanın rengini değiştirir', en: 'It changes the page\'s color' } },
+            { id: 'b', text: { tr: 'DOM\'daki değişiklikleri (ekleme/silme/attribute değişimi) dinleyip bir CALLBACK tetikler — test araçları bunu "koşul gerçekleşti mi" diye anlamak için kullanır', en: 'It listens for changes in the DOM (add/remove/attribute change) and triggers a CALLBACK — test tools use this to understand "has the condition occurred"' } },
+            { id: 'c', text: { tr: 'Ağ isteklerini hızlandırır', en: 'It speeds up network requests' } },
+            { id: 'd', text: { tr: 'Sadece Chrome\'da vardır', en: 'It only exists in Chrome' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`MutationObserver`, bir DOM alt ağacındaki değişiklikleri (node ekleme/silme, attribute/text değişimi) ASENKRON olarak dinleyip bir callback tetikleyen bir tarayıcı API\'sidir. Test araçları, "koşul (ör. element sayısı) GERÇEKLEŞTİ Mİ" sorusunu sabit bekleme yerine bu tür bir dinleme mekanizmasıyla cevaplar.',
+            en: '`MutationObserver` is a browser API that ASYNCHRONOUSLY listens for changes in a DOM subtree (node add/remove, attribute/text change) and triggers a callback. Test tools answer "HAS the condition (e.g. the element count) occurred" using this kind of listening mechanism instead of a fixed wait.',
+          },
+        },
+      },
+
+      // ── D5: data-* Attribute'ları JS'ten okuma ──
+      {
+        type: 'heading',
+        text: { tr: '🏷️ D5. `data-*` Attribute\'larını JS\'ten Okuma: Developer Neden Bunları Kullanır', en: '🏷️ D5. Reading `data-*` Attributes from JS: Why Developers Use Them' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🏷️',
+        content: {
+          tr: '`data-*` attribute\'ları sadece testerlar için "rozet" olmayabilir — bazen UYGULAMANIN KENDİSİ de onları okur, tıpkı bir depo çalışanının her kutudaki BARKODU (data-bug-id) hem envanter takibi HEM DE müşteri hizmetleri için kullanması gibi. Peki bu neden önemli? Çünkü developer, tek tek her BugCard\'a ayrı bir click listener eklemek yerine, TEK bir listener\'ı `<ul>`\'ye ekleyip (event delegation) tıklanan elementin `data-bug-id`\'sini OKUYARAK hangi karta tıklandığını anlayabilir — bu durumda `data-*` uygulamanın GERÇEK ÇALIŞMASININ bir parçasıdır, sadece test kolaylığı değil. Java analojisi: bir HashMap\'in anahtarı gibi — uygulama bu anahtara göre doğru kaydı bulur, anahtar sadece "debug için" değil, iş mantığının kendisi için vardır. QA bağlamında: uygulama mantığının bel bağladığı bir `data-*` attribute\'u, sadece test için eklenmiş bir `data-testid`\'den bile DAHA az silinme riski taşır — developer onu kaldırırsa kendi uygulaması da bozulur, bu da onu EN dayanıklı kancalardan biri yapar.',
+          en: '`data-*` attributes may not only be "badges" for testers — sometimes the APP ITSELF also reads them, much like a warehouse worker using the BARCODE on each box (data-bug-id) for BOTH inventory tracking AND customer service. Why does this matter? Because instead of attaching a separate click listener to every single BugCard, a developer can attach ONE listener to the `<ul>` (event delegation) and READ the clicked element\'s `data-bug-id` to know which card was clicked — in this case `data-*` is part of the app\'s ACTUAL FUNCTIONING, not just a testing convenience. Java analogy: like a HashMap\'s key — the app finds the right record using this key, and the key exists not just "for debugging" but for the business logic itself. In QA context: a `data-*` attribute the app logic relies on carries EVEN LESS risk of removal than a `data-testid` added solely for tests — if the developer removes it, their own app breaks too, making it one of the MOST durable hooks available.',
+        },
+      },
+      dataAttrEventDelegationSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir BugCard\'da `data-bug-id="42"` attribute\'u var ve developer bunu `<ul>`\'ye eklenen TEK bir click listener içinde `event.target.closest(\'li\').dataset.bugId` ile okuyor. Bu attribute neden özellikle dayanıklı bir locator adayıdır?',
+          en: 'A BugCard has a `data-bug-id="42"` attribute, and the developer reads it inside a SINGLE click listener attached to `<ul>` via `event.target.closest(\'li\').dataset.bugId`. Why is this attribute an especially durable locator candidate?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Çünkü sadece testler için eklenmiştir', en: 'Because it was added solely for tests' } },
+          { id: 'b', text: { tr: 'Çünkü uygulamanın KENDİ tıklama mantığı bu attribute\'a bel bağlıyor — silinirse test değil, uygulamanın kendisi bozulur', en: 'Because the APP\'S OWN click logic relies on this attribute — if removed, the app itself breaks, not just the test' } },
+          { id: 'c', text: { tr: 'Çünkü CSS bu attribute\'u stil için kullanıyor', en: 'Because CSS uses this attribute for styling' } },
+          { id: 'd', text: { tr: 'Çünkü her zaman büyük harfle yazılır', en: 'Because it is always written in uppercase' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Bir `data-testid` sadece testler için var olduğundan, "gereksiz" görülüp bir refactor\'da silinme riski taşır. Ama uygulamanın kendi iş mantığı (event delegation gibi) bir `data-*` attribute\'una bel bağlıyorsa, o attribute\'u silmek uygulamayı da bozar — bu da onu doğal olarak daha kalıcı ve dayanıklı kılar.',
+          en: 'Because a `data-testid` exists solely for tests, it carries the risk of being seen as "unnecessary" and removed in a refactor. But if the app\'s own business logic (like event delegation) relies on a `data-*` attribute, removing it breaks the app too — making it naturally more permanent and durable.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tester "Uygulama mantığının kullandığı data-* attribute\'ları varsa, artık hiç data-testid eklemeye gerek yok" diyor. Bu görüşteki eksik nedir?',
+            en: 'A tester says "if there are data-* attributes used by the app logic, we never need to add data-testid anymore". What is missing from this view?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Tamamen doğru bir görüş, başka bir şeye gerek yok', en: 'Completely correct, nothing else is needed' } },
+            { id: 'b', text: { tr: 'Uygulama mantığı HER elemente bir data-* attribute\'u eklemeyi gerektirmez (ör. statik bir başlık); testin ihtiyacı olan HER elemente özel data-testid eklemek yine gerekebilir', en: 'App logic does not require a data-* attribute on EVERY element (e.g. a static heading); adding a dedicated data-testid may still be needed for EVERY element the test cares about' } },
+            { id: 'c', text: { tr: 'data-testid attribute\'ları tarayıcılarda desteklenmiyor', en: 'data-testid attributes are not supported in browsers' } },
+            { id: 'd', text: { tr: 'data-* attribute\'ları sadece butonlarda olabilir', en: 'data-* attributes can only exist on buttons' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Uygulama mantığının kullandığı `data-*` attribute\'ları (event delegation gibi) sadece BELİRLİ elementlerde (genelde tekrarlayan listelerde) bulunur. Statik, tekil elementlerde (bir başlık, bir açıklama metni) uygulama mantığı hiçbir `data-*`\'a ihtiyaç duymaz — bu elementleri test etmek istiyorsan yine ÖZEL olarak `data-testid` eklemen gerekir.',
+            en: '`data-*` attributes used by app logic (like event delegation) exist only on CERTAIN elements (usually repeating lists). Static, singular elements (a heading, a description text) need no `data-*` for the app logic to function — if you want to test those elements, you still need to add a DEDICATED `data-testid`.',
+          },
+        },
+      },
+      {
+        type: 'feynman-checkpoint',
+        id: 'qaf-feynman-d',
+        promptTr: 'Bir elementin `createElement` ile oluşturulup `appendChild` ile eklenmesi arasındaki boşluğu ve fetch\'in bitmesini beklemenin neden `sleep` yerine koşullu bir bekleme gerektirdiğini, sektöre yeni giren birine kendi cümlelerinle anlat.',
+        promptEn: 'Explain, in your own words, the gap between an element being created with `createElement` and added with `appendChild`, and why waiting for a fetch to finish requires a conditional wait instead of `sleep`, to a newcomer.',
+        keywords: ['createelement', 'appendchild', 'dom', 'fetch', 'async', 'sleep', 'wait', 'mutation'],
+        modelAnswerTr: '`createElement` bir node\'u sadece bellekte oluşturur; DOM ağacına gerçekten eklenmesi `appendChild` ile ayrı bir adımdır ve bu iki adım arasında element locate edilemez. Fetch de asenkron olduğu için, veri gelene kadar DOM boş kalır; test kodu sayfa açılır açılmaz çalıştığından bu bir yarış yaratır. Sabit bir `sleep` süresi sadece bir tahmindir ve ağ hızına göre yetersiz veya gereksiz kalabilir; bunun yerine bir koşulun (ör. element sayısının artması) gerçekleştiğini doğrulayan bir assertion kullanmak, mutasyonun gerçekten bittiğini garanti eder.',
+        modelAnswerEn: '`createElement` only creates a node in memory; actually adding it to the DOM tree is a separate step done via `appendChild`, and between these two steps the element cannot be located. Because fetch is also asynchronous, the DOM stays empty until the data arrives; since test code runs the moment the page opens, this creates a race. A fixed `sleep` duration is just a guess and can be insufficient or wasteful depending on network speed; instead, using an assertion that verifies a condition (e.g. the element count increasing) has occurred guarantees the mutation has really finished.',
       },
     ],
   },
