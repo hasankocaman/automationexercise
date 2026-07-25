@@ -619,11 +619,20 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
   `code-playground` bloklarında TR yorum Türkçe, EN yorum İngilizce ayrı tut.
   `diagram-svg` `tx`'siz olduğundan ya SVG metnini İngilizce yap (TR'de de kabul,
   §8 diyagram etiketi) ya da renderer'ı `tx`'li yapıp SVG'yi `{tr,en}` kur.
-- **Önleme:** Yeni route'u `tests/i18n-content-toggle.spec.ts` içindeki
-  `SAMPLE_ROUTES_FOR_EN_AUDIT` listesine ekle — bu test EN modda `[ığş]`
-  karakterlerini tarar ve CI'da sızıntıyı yakalar. **Uyarı:** bu test yalnızca
-  Türkçe'ye ÖZGÜ karakterleri (`ı/ğ/ş`) yakalar; **ASCII-normalize Türkçe**
-  (`bakiyor`, `gunceller`, `hazir`) yakalanmaz — elle de göz gezdir.
+- **Önleme (BİRİNCİL — statik scanner):** `scripts/check-i18n-leaks.mjs` veri
+  dosyalarını doğrudan gezerek `{tr,en}` objelerinin `en` tarafında ve düz
+  string'lerde Türkçe-özgü karakterleri (`ığşçöüİĞŞÇÖÜ` — sadece `ığş` DEĞİL;
+  "Parça"/"Örnek" ancak `ç/ö` ile yakalanır) yakalar. Build zincirinde ve
+  `pre-commit`'te koşar. Sitede ~8500 mevcut sızıntı `scripts/i18n-leaks-baseline.json`
+  ile grandfather edilmiştir; scanner yalnızca **baseline'ı AŞAN regresyonda**
+  veya **baseline'ı 0 olan sayfalarda** (ör. `apiTestingData.js`) FAIL eder.
+  Bir sayfayı temizledikten sonra baseline'ı `npm run i18n:baseline` ile DÜŞÜR
+  (asla yükseltme). Yeni sayfayı `STRICT_ZERO_FILES`'a ekleyerek sıfır-tolerans yap.
+- **Önleme (ikincil — runtime):** Yeni route'u `tests/i18n-content-toggle.spec.ts`
+  `SAMPLE_ROUTES_FOR_EN_AUDIT` listesine de ekle (tarayıcıda görünür metni tarar).
+- **Kalan kör nokta:** Hiçbir otomatik kontrol **ASCII-normalize Türkçe'yi**
+  (`bakiyor`, `gunceller`, `hazir` — Türkçe-özgü karakter içermez) yakalayamaz;
+  bunları elle göz gezdirerek ayıkla.
 
 ### 23.2. Template literal / string kaçış hatası (`node --check` patlar)
 
@@ -683,8 +692,11 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
   (seç/eşleştir/tamamla modu) bloklarını **elle** ekle. Her elle `code-playground`,
   `interview-questions`, `error-dictionary` bloğuna **`relatedTopicId` ZORUNLU**
   (§9.4) — yoksa `check-content-integrity.mjs` build'i kırar.
-- **Önleme:** §9.5 denetimini script'le koş (57 sekmenin her birinde ≥1 video +
-  ≥1 animasyon + ≥1 sandbox var mı?), sadece build'e güvenme.
+- **Önleme:** `scripts/check-i18n-leaks.mjs` içindeki `TRIO_COMPLETE_PAGES`
+  listesine tamamlanmış sayfayı ekle — scanner o sayfanın HER sekmesinde ≥1
+  video-scene + ≥1 animasyon + ≥1 sandbox olduğunu build/pre-commit'te doğrular
+  (GRUP K'deki eksik video-scene defect'i bu kontrolle yakalanır). Sadece
+  temsili render testine (`video-scene.spec.ts`) güvenme — o her sekmeyi taramaz.
 
 ### 23.6. Dil-varyantlı alanlar taramada "yanlış-pozitif leak"
 

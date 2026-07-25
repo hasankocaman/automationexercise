@@ -8782,7 +8782,7 @@ fetch('/api/v1/bugs', {
         },
         {
           error: { tr: '400 Bad Request vs 422 Unprocessable Entity karışıklığı', en: '400 Bad Request vs 422 Unprocessable Entity confusion' },
-          fullMessage: 'POST /api/v1/bugs { "title": "ab" } -> 400 mü 422 mi dönmeli?',
+          fullMessage: { tr: 'POST /api/v1/bugs { "title": "ab" } -> 400 mü 422 mi dönmeli?', en: 'POST /api/v1/bugs { "title": "ab" } -> should it return 400 or 422?' },
           cause: {
             tr: '400, gövde HİÇ ayrıştırılamadığında (bozuk JSON); 422, gövde ayrıştırıldı ama bir İŞ KURALINI (minLength gibi) ihlal ettiğinde kullanılır. Çoğu API bu ayrımı yapmadan HER İKİ durumu da 400 döner — bu bir standart hatası değil ama sözleşmede AÇIKÇA belirtilmesi gerekir.',
             en: '400 is used when the body could NOT be parsed AT ALL (broken JSON); 422 is used when the body was parsed but violates a BUSINESS RULE (like minLength). Most APIs return 400 for BOTH cases without distinguishing — not a standards violation, but it must be EXPLICITLY stated in the contract.',
@@ -8895,7 +8895,7 @@ fetch('/api/v1/bugs', { method: 'POST', body: JSON.stringify({ title: 'x' }) })`
         },
         {
           error: { tr: 'Tarih formatı parse hatası', en: 'Date format parse error' },
-          fullMessage: "createdAt: \"24/07/2026\" -> istemci Date.parse() ile 'Invalid Date' üretir",
+          fullMessage: { tr: 'createdAt: "24/07/2026" -> istemci Date.parse() ile \'Invalid Date\' üretir', en: 'createdAt: "24/07/2026" -> the client produces \'Invalid Date\' via Date.parse()' },
           cause: {
             tr: 'Backend, F4\'teki spec\'in vaat ettiği ISO-8601 (`2026-07-24T10:00:00Z`) yerine yerel bir formatta (`gün/ay/yıl`) tarih dönüyor — bu bir F5 tarzı contract defect\'idir (alan tipi/format uyumsuzluğu).',
             en: 'Instead of the ISO-8601 format promised by F4\'s spec (`2026-07-24T10:00:00Z`), the backend returns a date in a local format (`day/month/year`) — this is an F5-style contract defect (field type/format mismatch).',
@@ -8950,7 +8950,7 @@ const bugs = await Bug.findAll({ include: [Detail] })`,
         },
         {
           error: 'gzip/encoding sorunu',
-          fullMessage: 'Response gövdesi bozuk karakterlerle geliyor / JSON.parse() SyntaxError verir',
+          fullMessage: { tr: 'Response gövdesi bozuk karakterlerle geliyor -> JSON.parse() SyntaxError verir', en: 'The response body arrives with corrupted characters -> JSON.parse() throws SyntaxError' },
           cause: {
             tr: 'Sunucu response\'u `Content-Encoding: gzip` ile sıkıştırıp gönderiyor ama istemci (veya aradaki bir proxy) bunu doğru DECODE etmiyor — ham, sıkıştırılmış baytlar metin olarak okunmaya çalışılıyor.',
             en: 'The server sends the response compressed with `Content-Encoding: gzip`, but the client (or an intermediate proxy) does not DECODE it correctly — raw, compressed bytes are being read as text.',
