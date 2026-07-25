@@ -69,6 +69,11 @@ export const ROUTE_SEO = [
         description: 'Learn API testing by first building the API in Java, Express and NestJS, then testing it with DevTools, Swagger, Postman, REST Assured and Playwright.',
     },
     {
+        path: '/qa-frontend',
+        title: 'Frontend for QA: Read Source, Find Unbreakable Locators | LearnQA.dev',
+        description: 'Learn frontend for testers: read React and Angular source, picture the DOM it produces, and choose durable locators (data-testid, role) instead of fragile XPath and hash classes.',
+    },
+    {
         path: '/gauge',
         title: 'Gauge Tutorial with Java and Selenium | LearnQA.dev',
         description: 'Learn Gauge test automation with Java: Markdown specs, @Step bindings, Selenium By locators, @FindBy PageFactory and a JSON locator repository.',

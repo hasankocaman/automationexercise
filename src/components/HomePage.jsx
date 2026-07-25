@@ -49,6 +49,7 @@ const RESUME_LESSON_NAMES = {
     '/jmeter': { tr: 'JMeter', en: 'JMeter' },
     '/postman': { tr: 'Postman', en: 'Postman' },
     '/api-testing': { tr: 'API Testing', en: 'API Testing' },
+    '/qa-frontend': { tr: 'QA için Frontend', en: 'Frontend for QA' },
     '/bruno': { tr: 'Bruno', en: 'Bruno' },
     '/rest-assured': { tr: 'REST Assured', en: 'REST Assured' },
     '/gauge': { tr: 'Gauge', en: 'Gauge' },
@@ -1072,6 +1073,7 @@ function HomePage() {
                                 <Link to="/jmeter" data-testid="nav-jmeter" className={nb('orange')}>📊 JMeter</Link>
                                 <Link to="/postman" data-testid="nav-postman" className={nb('orange')}>📮 Postman</Link>
                                 <Link to="/api-testing" data-testid="nav-api-testing" className={nb('indigo')}>🔌 API Testing</Link>
+                                <Link to="/qa-frontend" data-testid="nav-qa-frontend" className={nb('purple')}>🖥️ {language === 'tr' ? 'QA için Frontend' : 'Frontend for QA'}</Link>
                                 <Link to="/bruno" data-testid="nav-bruno" className={nb('blue')}>📦 Bruno</Link>
                             </div>
                         </div>
@@ -1204,6 +1206,7 @@ function HomePage() {
                                     { to: '/gauge', label: '📏 Gauge' },
                                     { to: '/postman', label: '📮 Postman' },
                                     { to: '/api-testing', label: '🔌 API Testing' },
+                                    { to: '/qa-frontend', label: language === 'tr' ? '🖥️ QA için Frontend' : '🖥️ Frontend for QA' },
                                     { to: '/bruno', label: '📦 Bruno' },
                                     { to: '/jmeter', label: '📊 JMeter' },
                                     { to: '/browserstack', label: '☁️ BrowserStack' },

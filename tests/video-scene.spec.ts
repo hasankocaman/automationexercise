@@ -120,6 +120,23 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
 
         await context.close();
     });
+
+    test('/qa-frontend — Tarayıcı Nasıl Çalışır sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/qa-frontend');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await page.getByRole('button', { name: /How the Browser Works|Tarayıcı Nasıl Çalışır/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
 });
 
 // Dalga 3 (video-rollout-plan.md §7-9) — git-github'a eklenen 11 yeni filmin

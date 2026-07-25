@@ -46,6 +46,9 @@ const SAFE_KEYS = new Set([
   // feynman-checkpoint dil-varyant alanları: render EN'de promptEn/modelAnswerEn
   // kullanır, keywords görünmez (validation) — leak değildir (CLAUDE.md §23.6)
   'promptTr', 'modelAnswerTr', 'keywords',
+  // locator-explorer dil-varyant alanları: LocatorExplorerBlock TR modda *Tr,
+  // EN modda *En kullanır (titleEn/noteEn/tipEn ayrıca taranır) — leak değil.
+  'titleTr', 'noteTr', 'tipTr',
 ])
 
 const ANIM = new Set(['step-animation', 'simulation', 'animated-timeline', 'css-animation'])
@@ -54,7 +57,9 @@ const SANDBOX = new Set(['code-playground', 'git-practice', 'editor', 'java-prac
 // §9.5 trio bütünlüğü ZORUNLU sayfalar (tamamlanmış olduğu doğrulanmış)
 const TRIO_COMPLETE_PAGES = new Set(['apiTestingData.js'])
 // Bu dosyalar baseline'da 0 kabul edilir (yeni/temiz) — herhangi bir sızıntı FAIL
-const STRICT_ZERO_FILES = new Set(['apiTestingData.js'])
+// qaFrontendData.js: yeni sayfa, EN alanlarında Türkçe sızıntısı olmamalı.
+// TRIO_COMPLETE_PAGES'e sayfa Sonnet fazında tamamlanınca eklenir (plan §D-S11).
+const STRICT_ZERO_FILES = new Set(['apiTestingData.js', 'qaFrontendData.js'])
 
 function findLeaks(node, path, parentKey, inTrEn, blockType, out) {
   if (typeof node === 'string') {

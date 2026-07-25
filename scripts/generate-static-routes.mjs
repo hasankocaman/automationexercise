@@ -20,6 +20,7 @@ const DATA_MODULES = {
     '/jmeter': { file: '../src/data/jmeterData.js', exportName: 'jmeterData' },
     '/postman': { file: '../src/data/postmanData.js', exportName: 'postmanData' },
     '/api-testing': { file: '../src/data/apiTestingData.js', exportName: 'apiTestingData' },
+    '/qa-frontend': { file: '../src/data/qaFrontendData.js', exportName: 'qaFrontendData' },
     '/bruno': { file: '../src/data/brunoData.js', exportName: 'brunoData' },
     '/rest-assured': { file: '../src/data/restAssuredData.js', exportName: 'restAssuredData' },
     '/gauge': { file: '../src/data/gaugeData.js', exportName: 'gaugeData' },
