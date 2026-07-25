@@ -5,12 +5,13 @@
 > **Hazırlayan:** Claude Code (Opus) oturumu, 2026-07-25 (iskelet). GRUP A2-A6 → J + D-S11: Claude Code (Sonnet) oturumu, 2026-07-25.
 > **Kaynak prompt:** Kullanıcının verdiği `/qa-frontend` promptu (bu dosyanın §E'sinde referans olarak saklanır).
 
-Bu dosya 5 bölümden oluşur:
+Bu dosya 6 bölümden oluşur:
 - **§A** — Mevcut koda göre doğrulanmış tespitler + prompta yapılan iyileştirmeler.
 - **§B** — Opus'un kodladığı işler (bu commit).
 - **§C** — Sonnet'in kodlayacağı işler (faz faz).
 - **§D** — Sonnet için hazır promptlar (kopyala-yapıştır).
 - **§E** — Orijinal prompt (referans).
+- **§F** — Manuel test rehberi (sayfa bittikten sonra elle nasıl doğrulanır).
 
 ---
 
@@ -131,3 +132,95 @@ Her faz sonunda **CLAUDE.md §1.1 (4 madde) + prompt §7 (10 ek kontrol)**. Refe
 ## §E. Orijinal Prompt (Referans)
 
 Kullanıcının verdiği `/qa-frontend` promptu bu planın kaynağıdır; tam metin oturum geçmişindedir. Özet omurga: (1) tester'ı frontend developer'ın omzundan baktırmak — ortak dil + locator ustalığı; (2) tek örnek uygulama "Bug Tracker Board" (React/Angular/saf HTML aynı çıktı, farklı kaynak); (3) imza "Kaynak→DOM→Locator" üçlü panosu (min 8 durum) + her panoda 🎯 "Developer'dan Ne İste"; (4) `/selenium`,`/playwright`,`/cypress` syntax'ını tekrar etmeme, "neden/hangi locator"a odak. Başarı ölçütü prompt §8'de.
+
+---
+
+## §F. Manuel Test Rehberi
+
+> Sayfa içerik olarak TAMAMLANDI (D-S11). Bu bölüm, otomatik script'lerin (content-integrity, i18n:check, build, audit-interview-questions) YAKALAYAMADIĞI şeyleri — görsel doğruluk, etkileşim akışı, gerçek tarayıcı davranışı — elle doğrulamak için adım adım bir rehberdir. Yeni bir oturumda bu sayfaya dönen biri (Claude Code veya kullanıcı) buradan başlamalı.
+
+### F.0. Kurulum
+
+```bash
+npm run dev
+# Tarayıcıda: http://localhost:5173/qa-frontend
+```
+
+Konsolu (DevTools → Console) AÇIK tut — testin tamamı boyunca kırmızı bir hata/uyarı çıkmamalı (React key uyarısı, `undefined` prop uyarısı, 404 network isteği gibi).
+
+### F.1. Genel Sayfa İskeleti (her sekmede ortak — 2 dakika)
+
+1. Sayfa açıldığında sol tarafta **dikey sidebar** görünmeli (yatay tab bar DEĞİL) — 10 grup (🌐 A ... 💼 J) sırayla listelenir.
+2. Sağ üstte **dil toggle** (TR/EN) var mı, tıklanınca içerik GERÇEKTEN değişiyor mu (sadece başlık değil, `simple-box` metinleri de) kontrol et.
+3. Sayfayı aşağı kaydır — üstte bir **scroll progress bar** ilerlemeli.
+4. Sağ altta sabit bir 🏠 **home butonu** olmalı, tıklanınca `/` adresine dönmeli.
+5. Dark mode toggle'ı aç/kapa — sayfanın TÜM bloklarının (grid, table, code, video-scene) okunur kaldığını (siyah yazı siyah zemin gibi bir çakışma olmadığını) kontrol et.
+6. Mobil genişlikte (DevTools → responsive, 375px) sidebar bir hamburger/açılır menüye dönüşmeli, yatay kaydırma (body scroll-x) OLMAMALI.
+
+### F.2. Ana Sayfa Kartı (1 dakika)
+
+1. `/` adresine git, "Test Araçları" kart grubunu bul (⚡ PERFORMANS & API grubunda DEĞİL — bilinçli olarak oraya taşındı, bkz. commit `d8f9c4b`).
+2. "🖥️ QA için Frontend" kartına tıkla → `/qa-frontend`'e yönlendirmeli.
+3. Alt bilgi (footer) listesinde de aynı linkin Playwright'ın yanında göründüğünü doğrula.
+
+### F.3. GRUP A — Tarayıcı Nasıl Çalışır (5 dakika, REFERANS ATOM kalitesini burada kalibre et)
+
+1. A1'deki **"Kaynak Koddan Sayfaya"** video-scene filmini oynat: ▶ butonuna bas, 6 sahnenin adım adım geçtiğini, altyazının (caption) her sahnede değiştiğini izle. ⏮/⏭ ile manuel gezinmeyi dene. Son sahnede ⏭ butonunun PASİF (disabled, ama görünür — dark mode'da da) olduğunu doğrula.
+2. Hemen altındaki step-animation'da ("Kaynak Kod ile Canlı DOM") adımlar arası geçişi test et.
+3. **Locator Explorer** (BugCard DOM'u) — renkli attribute'lara (`data-testid`, `class`, `id` vb.) tek tek tıkla; her birinde sağda dayanıklılık notu + Selenium/Playwright/Cypress kod örneği DEĞİŞMELİ.
+4. Quiz'i YANLIŞ cevapla — bir `retryQuestion`'ın (yedek soru) göründüğünü doğrula, ardından DOĞRU cevapla geç.
+5. A4'teki **"Render'ın 5 Adımı"** filmini + order-sort challenge'ı (sürükle-bırak ile Parse/Style/Layout/Paint/Composite'i sırala) dene — hem fare ile sürükleyerek hem klavye (↑/↓) ile.
+6. Grup sonundaki **feynman-checkpoint**'e bir cevap yaz (5 yaşındaki birine anlatır gibi) ve AI değerlendirmesinin (veya mock/regex kontrolünün) bir sonuç döndürdüğünü doğrula.
+
+### F.4. GRUP B-G — Atomik Başlıklar (her biri ~3 dakika, örnek akış aynı)
+
+Her grup için aynı kısa döngüyü uygula: **oku → animasyon/film oynat → sandbox'ta "Kendin Dene"yi hem yanlış hem doğru cevapla dene → quiz'i çöz.**
+
+Özellikle bunları doğrula:
+- **B3** — dayanıklılık tablosu + order-sort challenge'ın (attribute'ları dayanıklılığa göre sürükleyerek sırala) doğru sırada kabul ettiğini.
+- **C3** — "Class Hash'i Neden Değişir?" filmi + hemen altındaki `grid` panosunun (Kaynak/DOM/Karar 3 sütunu) mobilde de (dar ekranda) okunabilir kaldığını (yan yana değil alt alta dizilmeli).
+- **D3** — "Fetch Bitmeden Locate Etmek" filmini oynat, D4'teki "Kendin Dene"de `sleep` içeren starter kodu çözüp assertion tabanlı çözüme benzer bir cevap yazınca başarı mesajının çıktığını.
+- **E2** — "Veri Gelince DOM Doluyor" filmi; E4'teki hydration step-animation'ı.
+- **F4/F5/F6** — Modal/StatusBadge/Toast panolarının HER BİRİNİN altında ayrı bir 🎯 "Developer'dan Ne İste" kutusu görünmeli (F7'deki BugCard panosuyla birlikte toplam 4 pano).
+- **G3** — "*ngIf Kapıyı Açıp Kapıyor" filmi + React karşılaştırma tablosu yan yana okunabilir mi.
+
+### F.5. GRUP H — Locator Ustalığı, SAYFANIN KALBİ (10 dakika, EN DETAYLI TEST BURADA)
+
+1. **"5 Locator Yarışı"** filmini (H3) baştan sona izle — 7 sahnenin XPath'in SESSİZCE yanlış elemente düşmesi ile hash class'ın AÇIK hata vermesi arasındaki farkı görsel olarak net gösterdiğini doğrula.
+2. **Locator Laboratuvarı**'nda (H1) her attribute'a tıklayıp dayanıklılık notlarını oku.
+3. **"Kendin Dene: Deploy'da Hayatta Kalan Locator'ı Seç"** playground'unu (H3) çöz — hash class'a bağlı starter kodu `data-testid`/`getByRole` ile değiştirip başarı mesajını al.
+4. H5'teki **"index YASAK"** playground'unda `.nth(4)` gibi bir index çözümü dene — ipucunun bunu neden reddetmesi gerektiğini (veya hint'in doğru yönlendirdiğini) doğrula, sonra `hasText` ilişkisel çözümle geç.
+5. H7/H8'deki tabloları (Developer'dan Ne İste, Code Review checklist) oku — mobilde yatay scroll konteynerinin (`overflow-x-auto`) çalıştığını doğrula.
+
+### F.6. GRUP I — Yaygın Hatalar (5 dakika)
+
+1. **"Stale Element" filmini** oynat.
+2. `error-dictionary` bloğunda **en az 12 hatanın** listelendiğini say (NoSuchElement, StaleElement, hash class, conditional wait'siz, iframe, shadow DOM, index kayması, display:none, hydration, Angular *ngIf, i18n text, absolute XPath).
+3. Birkaç hatanın `codeWrong`/`codeFixed` kod bloklarını aç — TR modda yorumların Türkçe (aksanlı, `görünürlüğü` gibi — `gorunurlugu` DEĞİL), EN modda İngilizce olduğunu doğrula.
+4. Hata-teşhis step-animation'ı ve "Kendin Dene: StaleElementReferenceException'ı Kalıcı Olarak Düzelt" playground'unu dene.
+
+### F.7. GRUP J — Mülakat Soruları + Quiz Gating (EN KRİTİK AKIŞ TESTİ — 10 dakika)
+
+Bu, CLAUDE.md §22'deki zorunlu E2E kontrol listesinin (madde 2-6) manuel karşılığıdır:
+
+1. **Gating KAPALI durumu:** Sayfaya YENİ bir oturumda (localStorage temizlenmiş / gizli sekme) gir, hiçbir quiz'i çözmeden doğrudan GRUP J'ye git — mülakat sorularının **görünmediğini/kilitli** olduğunu doğrula.
+2. Sırayla GRUP A'dan başlayarak quiz'leri çöz (yanlış cevaplarda retryQuestion çıkabilir, doğru cevapla devam et) — toplam quiz'lerin **%60'ına** ulaşınca (tam sayıyı görmek için tarayıcı konsolunda ilerlemeyi loglayan bir mekanizma varsa ona bak, yoksa tüm quiz'leri çözmek en garantili yoldur) GRUP J'nin **AÇILDIĞINI** doğrula.
+3. GRUP J'de "Mülakatta Senaryo Sorusuna Cevap Verme Akışı" filmini + "Kendin Dene: Zayıf Cevabı Güçlü Cevaba Dönüştür" playground'unu dene.
+4. `interview-questions` bloğunda toplam **50 soru** olduğunu, bir soruya tıklayınca **cevap yazılabilecek bir input/textarea** çıktığını doğrula.
+5. Bir soruya kısa/zayıf bir cevap yaz, gönder — **AI değerlendirmesinin** (`grade-interview-answer` Edge Function, internet/Groq bağlantısı gerektirir) bir puan/sonuç döndürdüğünü doğrula. **Not:** Bu adım gerçek bir AI çağrısı yapar (rate-limit riski) — sık tekrarlama.
+6. Soruların **%80'ine** doğru/yeterli cevap verildiğinde bir **bitirme rozeti** çıktığını doğrula (bu adım zaman alır, sadece bir kez tam koşum yapılması yeterli).
+
+### F.8. Çapraz Link ve SEO Kontrolü (3 dakika)
+
+1. Sayfa içindeki `/selenium`, `/playwright`, `/cypress`, `/javascript`, `/api-testing` linklerinin HER BİRİNE tıkla — 404 vermediğini, doğru sayfaya gittiğini doğrula.
+2. Tarayıcı sekme başlığının (`<title>`) "Frontend for QA..." içerdiğini, view-source'ta `<meta name="description">`nin dolu olduğunu kontrol et.
+3. `/qa-frontend` doğrudan URL ile (sayfayı yenileyerek, SPA navigasyonu OLMADAN) açıldığında da düzgün yüklendiğini doğrula (statik shell + hydration, GitHub Pages senaryosu).
+
+### F.9. Bilinen ve Endişelenmeyecek Uyarılar
+
+- Build çıktısında `QaFrontendPage` chunk'ının 500 kB üzerinde olduğu uyarısı (515.59 kB) — **build'i bozmaz**, CLAUDE.md §14/§23.8 kapsamındaki bilinen bir durumdur.
+- `scripts/post-commit-tests.sh: No such file or directory` — commit sonrası görülen bir hook uyarısıdır, commit'i etkilemez.
+
+### F.10. Bir Şey Bozuk Görünüyorsa
+
+Önce CLAUDE.md §23 (En Sık Karşılaşılan Hatalar) bölümüne bak — özellikle §23.1 (EN modda TR sızıntısı) ve §23.7 (video-scene son sahne buton görünürlüğü) bu sayfada da geçerli kalıplardır. Bulduğun her yeni tekrarlayan hatayı oraya (CLAUDE.md, bu dosyaya değil) ekle.
