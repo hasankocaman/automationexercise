@@ -130,10 +130,11 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
         await page.waitForSelector('h1', { timeout: 30_000 });
         await page.getByRole('button', { name: /How the Browser Works|Tarayıcı Nasıl Çalışır/ }).first().click();
 
-        const block = page.getByTestId('video-scene-block');
+        // Bu sekmede 2 film var (A1 "Kaynak Koddan Sayfaya" + A4 "Render'ın 5 Adımı") — .first() kullan
+        const block = page.getByTestId('video-scene-block').first();
         await block.scrollIntoViewIfNeeded();
         await expect(block).toBeVisible();
-        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+        await expect(page.getByTestId('video-scene-caption').first()).not.toBeEmpty();
 
         await context.close();
     });
