@@ -10,6 +10,51 @@
 
 ---
 
+## ✅ i18n EN-sızıntı temizliği + STATİK SCANNER + hata sözlüğü (2026-07-25, Opus oturumu, feature/api-testing-page)
+
+Kullanıcı EN modda Türkçe sızıntılarını (tablo hücreleri, error-dictionary, kod
+editörü yorumları, SVG) ve ardından TR modda İngilizce kod yorumlarını fark etti.
+Kök sorun: içerik düz string / tek-yönlü yazılmış, mevcut testler bunu kaçırıyordu.
+
+**Yapılanlar (commit sırasıyla):**
+- `5180822` **video-scene pasif buton görünürlüğü**: son/ilk sahnede disabled
+  ileri/geri butonu `opacity-40` ile kayboluyordu → 70/60 + `cursor-not-allowed`.
+  Davranış korundu (son sahnede ileri pasif — testler buna dayanıyor). Global
+  bileşen (`VideoSceneBlock`), tüm filmleri etkiler.
+- `f184f0e` **6 tablo (36 hücre) + error-dictionary** `{tr,en}` bilingual yapıldı;
+  `ErrorDictionaryBlock` `fullMessage` artık `tx(...)` ile dile duyarlı.
+- `41f3a95` **code-playground (~91 yorum) + 9 SVG** İngilizce'ye çevrildi + route
+  i18n audit'e eklendi. **Ama bu adım yorumları HER İKİ dilde İngilizce yaptı.**
+- `cf8f54b` **DÜZELTME (§8'e uyum)**: code-playground yorumları **bilingual**
+  yapıldı — TR modda Türkçe, EN modda İngilizce (84 alan). TR versiyonu git'ten
+  (çeviri öncesi) alındı, İngilizce mevcut dosyadan.
+- `3f13d51` **CLAUDE.md §23 — Kalıcı Hata Sözlüğü**: 8 tekrarlayan hata (kök
+  neden + çözüm + önleme): EN-sızıntı, template literal/apostrof kaçış, mekanik
+  dönüşüm isim/fiil+deyim çakışması, çift-ağaç drift, fillMissingCodeTrios kısıtı,
+  Feynman yanlış-pozitif, video-scene buton, build'i bozmayan uyarılar.
+- `5612477` **STATİK i18n-leak + trio SCANNER** (`scripts/check-i18n-leaks.mjs`):
+  veri dosyalarını gezip `{tr,en}.en` ve düz string'lerde **`ığşçöüİĞŞÇÖÜ`** (ç/ö/ü
+  DAHİL — "Parça"/"Örnek" ancak böyle yakalanır) tarar; §9.5 sekme-trio bütünlüğünü
+  de doğrular. **Baseline** (`i18n-leaks-baseline.json`) sitedeki **~8490 mevcut
+  sızıntıyı grandfather eder**; scanner yalnızca REGRESYONDA veya baseline-0
+  sayfalarda (api-testing) FAIL eder. build zinciri + pre-commit'e eklendi.
+  `npm run i18n:check` / `i18n:baseline`. api-testing scanner'ın kaçırdığı 3
+  `fullMessage` (ç/ö/İ) da bilingual yapıldı → **api-testing baseline = 0**.
+
+**Doğrulama:** `npm run build` yeşil (scanner zincirde), i18n audit `/api-testing`
+PASS, scanner enjekte-testte regresyonu yakaladı, content-integrity 0 ihlal,
+video-scene Dalga 22 5/5.
+
+**Bilinen kör nokta:** ASCII-normalize Türkçe (`bakiyor`, `gunceller`) hiçbir
+otomatik kontrolle yakalanamaz — elle göz gezdir (CLAUDE.md §23.1'e not düşüldü).
+
+**SIRADAKİ İŞ (kullanıcı onayladı):** Diğer sayfaların baseline borcunu
+(seleniumData 144, javaData 177, playwrightData 102, cypressData 57…) sayfa
+sayfa DÜŞÜRMEK — her temizlenen sayfada `npm run i18n:baseline` ile borç kalıcı
+azalır, geri gelemez. İstenirse sayfa `STRICT_ZERO_FILES`'a alınıp sıfır-tolerans yapılır.
+
+---
+
 ## ✅ `/api-testing` — request/response terminoloji dönüşümü (2026-07-24, Opus oturumu, feature/api-testing-page)
 
 Kullanıcı geri bildirimi: API anlatımlarında `request`/`response` yerleşik
