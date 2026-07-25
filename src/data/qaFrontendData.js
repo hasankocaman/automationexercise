@@ -1669,6 +1669,183 @@ function Toast({ message }) {
   },
 }
 
+// ─── step-animation: .ts + .html birleşip DOM olur (GRUP G1) ──────────────────
+const tsHtmlMergeSteps = {
+  type: 'step-animation',
+  id: 'qaf-g1-ts-html-merge-steps',
+  title: { tr: 'Adım Adım: `.ts` ve `.html` Nasıl Tek Bir DOM\'a Birleşir', en: 'Step by Step: How `.ts` and `.html` Merge into a Single DOM' },
+  steps: [
+    { id: 1, icon: '☕', label: { tr: '`bug-card.component.ts`', en: '`bug-card.component.ts`' }, detail: { tr: '`@Input() bug` (React\'in prop\'una karşılık gelir) ve mantık (metotlar, değişkenler) burada tanımlanır — SAF davranış kodu.', en: '`@Input() bug` (the counterpart of React\'s prop) and logic (methods, variables) are defined here — PURE behavior code.' } },
+    { id: 2, icon: '📄', label: { tr: '`bug-card.component.html`', en: '`bug-card.component.html`' }, detail: { tr: 'GÖRSEL yapı ayrı bir dosyadadır: `{{bug.title}}`, `*ngIf` gibi template ifadeleri burada yazılır — React\'teki JSX\'in AYRI dosyaya bölünmüş hali.', en: 'The VISUAL structure is in a separate file: template expressions like `{{bug.title}}`, `*ngIf` are written here — like React\'s JSX split into a SEPARATE file.' } },
+    { id: 3, icon: '🔗', label: { tr: 'Angular ikisini BAĞLAR', en: 'Angular BINDS the two' }, detail: { tr: 'Component sınıfı (`.ts`) ile template (`.html`) `@Component({templateUrl:...})` dekoratörüyle birbirine bağlanır — ikisi BİRLİKTE tek bir component tanımlar.', en: 'The component class (`.ts`) and the template (`.html`) are linked via the `@Component({templateUrl:...})` decorator — the two TOGETHER define a single component.' } },
+    { id: 4, icon: '🌳', label: { tr: 'Gerçek DOM üretilir', en: 'The real DOM is produced' }, detail: { tr: 'Angular, `.ts`\'teki veriyi `.html`\'teki template ifadeleriyle birleştirip GERÇEK DOM node\'larını oluşturur.', en: 'Angular combines the data from `.ts` with the template expressions from `.html` to produce the REAL DOM nodes.' } },
+    { id: 5, icon: '🔍', label: { tr: 'Tester\'ın refleksi: İKİ dosyaya da bak', en: 'The tester\'s reflex: check BOTH files' }, detail: { tr: 'React\'te tek bir JSX dosyası yeterliyken, Angular\'da bir bug\'ın kaynağını ararken hem `.ts`\'i (mantık) hem `.html`\'i (görünüm) İNCELEMEN gerekir.', en: 'While a single JSX file is enough in React, when tracking down a bug\'s source in Angular you must EXAMINE both `.ts` (logic) and `.html` (view).' } },
+  ],
+}
+
+// ─── step-animation: Angular template syntax → DOM çevirisi (GRUP G2) ─────────
+const angularTemplateSyntaxSteps = {
+  type: 'step-animation',
+  id: 'qaf-g2-template-syntax-steps',
+  title: { tr: 'Adım Adım: Angular Template Syntax\'ı DOM\'a Nasıl Çevrilir', en: 'Step by Step: How Angular Template Syntax Translates to the DOM' },
+  steps: [
+    { id: 1, icon: '🔤', label: { tr: '`{{ bug.title }}`', en: '`{{ bug.title }}`' }, detail: { tr: 'Çift süslü parantez ("interpolation") bir değeri OKUR ve metne çevirip DOM\'a text node olarak yazar — React\'teki `{bug.title}` ile AYNI iştir.', en: 'Double curly braces ("interpolation") READ a value, turn it into text, and write it to the DOM as a text node — the SAME job as React\'s `{bug.title}`.' } },
+    { id: 2, icon: '⚙️', label: { tr: '`[class.open]="isOpen"`', en: '`[class.open]="isOpen"`' }, detail: { tr: 'Köşeli parantez ("property binding") bir DOM özelliğini (burada bir class\'ı) bir JS ifadesine BAĞLAR — `isOpen` true olduğunda `open` class\'ı eklenir.', en: 'Square brackets ("property binding") BIND a DOM property (here a class) to a JS expression — when `isOpen` is true the `open` class is added.' } },
+    { id: 3, icon: '🖱️', label: { tr: '`(click)="onEdit()"`', en: '`(click)="onEdit()"`' }, detail: { tr: 'Parantez ("event binding") bir DOM olayını bir METODA bağlar — React\'teki `onClick={onEdit}` ile AYNI mantık, farklı sözdizimi.', en: 'Parentheses ("event binding") bind a DOM event to a METHOD — the SAME logic as React\'s `onClick={onEdit}`, different syntax.' } },
+    { id: 4, icon: '🔀', label: { tr: '`*ngIf="isOpen"`', en: '`*ngIf="isOpen"`' }, detail: { tr: 'Yıldızlı direktif, elementi koşula göre DOM\'a EKLER veya DOM\'DAN TAMAMEN ÇIKARIR — React\'in `{isOpen && <X/>}` kalıbının Angular karşılığı.', en: 'A starred directive ADDS the element to the DOM or REMOVES it ENTIRELY based on a condition — the Angular counterpart of React\'s `{isOpen && <X/>}` pattern.' } },
+    { id: 5, icon: '📋', label: { tr: '`*ngFor="let bug of bugs"`', en: '`*ngFor="let bug of bugs"`' }, detail: { tr: 'Bir listeyi DÖNER ve her eleman için bir kopya üretir — React\'in `.map()`\'inin Angular karşılığı; burada da bir iç takip anahtarı (`trackBy`) DOM\'da görünmez.', en: 'ITERATES a list and produces a copy for each item — the Angular counterpart of React\'s `.map()`; here too an internal tracking key (`trackBy`) is not visible in the DOM.' } },
+  ],
+}
+
+// ─── video-scene: "*ngIf Kapıyı Açıp Kapıyor" (GRUP G3, zorunlu film) ─────────
+const ngIfDoorFilm = {
+  type: 'video-scene',
+  id: 'qaf-ngif-door-film',
+  title: {
+    tr: '🎬 `*ngIf` Kapıyı Açıp Kapıyor: Koşullu Elementin DOM\'a Giriş Çıkışı',
+    en: '🎬 `*ngIf` Opens and Closes the Door: a Conditional Element Entering and Leaving the DOM',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'ts',      emoji: '☕', label: { tr: 'isOpen = false',      en: 'isOpen = false' },     color: '#0ea5e9' },
+    { id: 'template',emoji: '📄', label: { tr: '*ngIf="isOpen"',      en: '*ngIf="isOpen"' },     color: '#f59e0b' },
+    { id: 'absent',  emoji: '🚫', label: { tr: 'DOM\'da YOK',          en: 'ABSENT from DOM' },    color: '#6b7280' },
+    { id: 'click',   emoji: '🖱️', label: { tr: 'Buton tıklanır',      en: 'Button clicked' },     color: '#8b5cf6' },
+    { id: 'present', emoji: '🚪', label: { tr: 'DOM\'a GİRDİ',          en: 'ENTERED the DOM' },    color: '#22c55e' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '`*ngIf`, Angular\'ın en sık yanlış anlaşılan direktiflerinden biridir: bir elementi GİZLEMEZ, onu DOM ağacına HİÇ EKLEMEZ veya TAMAMEN ÇIKARIR. Bu filmde bir Modal\'ın `*ngIf` ile açılıp kapanmasını, tam olarak DOM\'a NE ZAMAN girip çıktığını izleyeceksin.',
+        en: '`*ngIf` is one of Angular\'s most commonly misunderstood directives: it does NOT hide an element, it either NEVER adds it to the DOM tree or REMOVES it entirely. In this film you will watch a Modal open and close with `*ngIf`, seeing exactly WHEN it enters and leaves the DOM.',
+      },
+      code: { tr: `<div *ngIf="isOpen" class="modal">...</div>`, en: `<div *ngIf="isOpen" class="modal">...</div>` },
+      positions: { template: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — `isOpen` şu an `false`: component sınıfında (`.ts`) bu değişken `false` değerini taşıyor. Template henüz bu koşulu DEĞERLENDİRMEDİ.',
+        en: 'Step 1 — `isOpen` is currently `false`: in the component class (`.ts`) this variable holds `false`. The template has not EVALUATED this condition yet.',
+      },
+      code: { tr: `isOpen: boolean = false`, en: `isOpen: boolean = false` },
+      positions: {
+        ts: { x: 24, y: 50, scale: 1.1, pulse: true },
+      },
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — `*ngIf="isOpen"` bu değeri OKUR: `false` olduğu için Angular bu elementi DOM\'a HİÇ EKLEMEZ. Bu, CSS `display:none` DEĞİLDİR — element ağaçta yer bile kaplamaz.',
+        en: 'Step 2 — `*ngIf="isOpen"` READS this value: since it is `false`, Angular NEVER ADDS this element to the DOM. This is NOT CSS `display:none` — the element does not even occupy a place in the tree.',
+      },
+      code: { tr: `DOM: <div class="modal"> hiç yok`, en: `DOM: <div class="modal"> does not exist at all` },
+      positions: {
+        ts: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        template: { x: 50, y: 50, scale: 1.15, pulse: true },
+        absent: { x: 82, y: 50, scale: 1.2 },
+      },
+      beams: [{ from: 'template', to: 'absent', color: '#6b7280' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Kullanıcı "Yeni Bug" butonuna tıklar: `(click)="isOpen = true"` tetiklenir ve component sınıfındaki `isOpen` değeri `true` OLUR.',
+        en: 'Step 3 — the user clicks the "New Bug" button: `(click)="isOpen = true"` fires and the `isOpen` value in the component class BECOMES `true`.',
+      },
+      code: { tr: `isOpen = true  (tıklama sonrası)`, en: `isOpen = true  (after the click)` },
+      positions: {
+        click: { x: 24, y: 50, scale: 1.2, pulse: true },
+        ts: { x: 58, y: 50, scale: 1.1 },
+      },
+      beams: [{ from: 'click', to: 'ts', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Angular yeniden değerlendirir ve element DOM\'a GERÇEKTEN GİRER: `*ngIf` artık `true` gördüğü için Modal\'ı DOM ağacına EKLER. Ancak BU ANDAN ÖNCE Modal\'ı locate etmeye çalışan bir test her zaman NoSuchElement alır — React\'teki `{isOpen && <Modal/>}` ile TAMAMEN aynı ders.',
+        en: 'Final — Angular re-evaluates and the element REALLY ENTERS the DOM: since `*ngIf` now sees `true`, it ADDS the Modal to the DOM tree. But a test trying to locate the Modal BEFORE this moment always gets NoSuchElement — EXACTLY the same lesson as React\'s `{isOpen && <Modal/>}`.',
+      },
+      code: { tr: `<div class="modal">...</div>  ← ARTIK DOM'da`, en: `<div class="modal">...</div>  <- NOW in the DOM` },
+      positions: {
+        ts: { x: 22, y: 32, scale: 0.95 },
+        present: { x: 58, y: 55, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'ts', to: 'present', color: '#22c55e' }],
+    },
+  ],
+}
+
+// ─── table: *ngIf/*ngFor ↔ React karşılaştırması (GRUP G3) ────────────────────
+const ngReactComparisonTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Davranış', en: 'Behavior' },
+    { tr: 'Angular', en: 'Angular' },
+    { tr: 'React', en: 'React' },
+    { tr: 'Locator dersi', en: 'Locator lesson' },
+  ],
+  rows: [
+    [{ tr: 'Koşullu render', en: 'Conditional render' }, '*ngIf="isOpen"', '{isOpen && <X/>}', { tr: 'İkisinde de element koşul false iken DOM\'da HİÇ YOK', en: 'In both, the element is NOT in the DOM at all while the condition is false' }],
+    [{ tr: 'Liste render', en: 'List render' }, '*ngFor="let b of bugs"', 'bugs.map(b => ...)', { tr: 'İkisinde de iç takip anahtarı (trackBy/key) DOM\'da GÖRÜNMEZ, locator olarak kullanılamaz', en: 'In both, the internal tracking key (trackBy/key) is NOT VISIBLE in the DOM, cannot be used as a locator' }],
+    [{ tr: 'Metin bağlama', en: 'Text binding' }, '{{ bug.title }}', '{bug.title}', { tr: 'İkisi de bir JS/TS ifadesini DOM text node\'una çevirir', en: 'Both turn a JS/TS expression into a DOM text node' }],
+  ],
+}
+
+// ─── code (Kaynak→DOM→Locator, _ngcontent hash — GRUP G4) ─────────────────────
+const ngContentHashCode = {
+  type: 'code',
+  language: 'typescript',
+  code: {
+    tr: `// SÜTUN 1 — Developer'ın yazdığı Angular kaynağı (status-badge.component.html)
+<span class="badge">{{ status }}</span>
+
+// SÜTUN 2 — Tarayıcıda oluşan GERÇEK DOM
+// <span _ngcontent-abc-5 class="badge">OPEN</span>
+//   ← _ngcontent-abc-5, Angular'ın ViewEncapsulation (stil izolasyonu) için
+//     OTOMATİK eklediği bir attribute'tur; developer bunu YAZMADI`,
+    en: `// COLUMN 1 — The Angular source the developer wrote (status-badge.component.html)
+<span class="badge">{{ status }}</span>
+
+// COLUMN 2 — The REAL DOM produced in the browser
+// <span _ngcontent-abc-5 class="badge">OPEN</span>
+//   <- _ngcontent-abc-5 is an attribute Angular adds AUTOMATICALLY for
+//     ViewEncapsulation (style isolation); the developer did NOT write it`,
+  },
+}
+
+// ─── code-playground: Angular'da dinamik data-testid binding'i (GRUP G5) ──────
+const angularDataTestIdBindingPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-g5-angular-data-testid',
+  id: 'qaf-g5-attr-data-testid',
+  title: { tr: 'Kendin Dene: Angular\'da Dinamik `data-testid` Binding\'i Yaz', en: 'Try It Yourself: Write a Dynamic `data-testid` Binding in Angular' },
+  starterCode: {
+    tr: `// Her BugCard'a bug.id'ye göre benzersiz bir data-testid vermek istiyorsun.
+// Düz interpolation ({{ }}) burada ÇALIŞMAZ çünkü data-testid bir DOM attribute'u,
+// interpolation ise sadece TEXT içeriği için kullanılır.
+// TODO: doğru Angular binding sözdizimini yaz.
+<li class="bug-card" data-testid="{{ 'bug-card-' + bug.id }}">`,
+    en: `// You want to give each BugCard a unique data-testid based on bug.id.
+// Plain interpolation ({{ }}) does NOT work here because data-testid is a DOM
+// attribute, and interpolation is only for TEXT content.
+// TODO: write the correct Angular binding syntax.
+<li class="bug-card" data-testid="{{ 'bug-card-' + bug.id }}">`,
+  },
+  solutionCode: {
+    tr: `// [attr.*] binding'i: dinamik bir DEĞERİ bir HTML attribute'una bağlamanın yolu
+<li class="bug-card" [attr.data-testid]="'bug-card-' + bug.id">`,
+    en: `// The [attr.*] binding: the way to bind a DYNAMIC value to an HTML attribute
+<li class="bug-card" [attr.data-testid]="'bug-card-' + bug.id">`,
+  },
+  hint: {
+    tr: 'Angular\'da `data-testid` gibi standart olmayan (Angular\'ın "bilmediği") bir attribute\'a dinamik değer bağlamak için `[attr.data-testid]="..."` sözdizimi kullanılır — düz interpolation string birleştirmede beklenmedik sonuçlar verebilir.',
+    en: 'In Angular, binding a dynamic value to a non-standard attribute (one Angular does not "know") like `data-testid` uses the `[attr.data-testid]="..."` syntax — plain interpolation can produce unexpected results in string concatenation for attributes.',
+  },
+  successMessage: {
+    tr: 'Doğru! `[attr.*]` binding\'i Angular\'da dinamik data-testid\'ler eklemenin standart yoludur — React\'teki `data-testid={`bug-card-${bug.id}`}` ile AYNI amaca hizmet eder, sadece sözdizimi farklıdır.',
+    en: 'Correct! The `[attr.*]` binding is the standard way to add dynamic data-testids in Angular — it serves the SAME purpose as React\'s `data-testid={`bug-card-${bug.id}`}`, just with different syntax.',
+  },
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
 
@@ -3795,7 +3972,7 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
     ],
   },
 
-  // ══ GRUP G — Angular: Kaynağı Okumak (Sonnet) ══════════════════════════════
+  // ══ GRUP G — Angular: Kaynağı Okumak ════════════════════════════════════════
   {
     title: { tr: '🅰️ Angular: Kaynağı Okumak', en: '🅰️ Angular: Reading the Source' },
     blocks: [
@@ -3803,9 +3980,348 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
         type: 'simple-box',
         emoji: '🅰️',
         content: {
-          tr: 'Angular, React\'ten farklı olarak component\'i İKİYE böler: mantık `.ts` dosyasında, arayüz `.html` template\'inde. Bu, bir tiyatro oyunundaki SENARYO (`.ts` — kim ne yapar) ile SAHNE DÜZENİ (`.html` — ne nerede durur) ayrımı gibidir. Neden testerı ilgilendirir? Çünkü Angular DOM\'a `_ngcontent-xxx` gibi otomatik, anlamsız attribute\'lar ekler — bunlar stil izolasyonu içindir ve locate için ASLA kullanılmaz, tıpkı React\'in hash class\'ı gibi kırılgandır. `*ngIf` bir elementi tamamen DOM\'dan çıkarır (React\'in conditional render\'ının karşılığı), `*ngFor` ise liste üretir. Java analojisi: `.ts` sınıf gövdesi, `.html` ise o sınıfın dışa açtığı görünüm sözleşmesi gibidir. QA bağlamında: `_ngcontent`/hash gibi otomatik üretilen attribute\'ları tanıyan tester, developer\'dan `[attr.data-testid]` binding\'i ister. (Atomik başlıklar G1-G6 Sonnet fazında — bkz. plan §D-S7.)',
-          en: 'Angular, unlike React, splits the component in TWO: the logic in a `.ts` file, the UI in an `.html` template. This is like the split between the SCRIPT (`.ts` — who does what) and the STAGE LAYOUT (`.html` — what stands where) in a theater play. Why does it concern a tester? Because Angular adds automatic, meaningless attributes like `_ngcontent-xxx` to the DOM — these are for style isolation and are NEVER used for locating, being just as fragile as React\'s hash class. `*ngIf` removes an element entirely from the DOM (the counterpart of React\'s conditional render), while `*ngFor` produces a list. Java analogy: the `.ts` is like the class body and the `.html` like the view contract that class exposes. In QA context: a tester who recognizes auto-generated attributes like `_ngcontent`/hash asks the developer for an `[attr.data-testid]` binding. (The atomic topics G1-G6 are in the Sonnet phase — see plan section D-S7.)',
+          tr: 'Angular, React\'ten farklı olarak component\'i İKİYE böler: mantık `.ts` dosyasında, arayüz `.html` template\'inde. Bu, bir tiyatro oyunundaki SENARYO (`.ts` — kim ne yapar) ile SAHNE DÜZENİ (`.html` — ne nerede durur) ayrımı gibidir. Neden testerı ilgilendirir? Çünkü Angular DOM\'a `_ngcontent-xxx` gibi otomatik, anlamsız attribute\'lar ekler — bunlar stil izolasyonu içindir ve locate için ASLA kullanılmaz, tıpkı React\'in hash class\'ı gibi kırılgandır. `*ngIf` bir elementi tamamen DOM\'dan çıkarır (React\'in conditional render\'ının karşılığı), `*ngFor` ise liste üretir. Java analojisi: `.ts` sınıf gövdesi, `.html` ise o sınıfın dışa açtığı görünüm sözleşmesi gibidir. QA bağlamında: `_ngcontent`/hash gibi otomatik üretilen attribute\'ları tanıyan tester, developer\'dan `[attr.data-testid]` binding\'i ister. Bu grup boyunca GRUP F\'teki React kalıplarıyla SÜREKLİ karşılaştırma yapacağız.',
+          en: 'Angular, unlike React, splits the component in TWO: the logic in a `.ts` file, the UI in an `.html` template. This is like the split between the SCRIPT (`.ts` — who does what) and the STAGE LAYOUT (`.html` — what stands where) in a theater play. Why does it concern a tester? Because Angular adds automatic, meaningless attributes like `_ngcontent-xxx` to the DOM — these are for style isolation and are NEVER used for locating, being just as fragile as React\'s hash class. `*ngIf` removes an element entirely from the DOM (the counterpart of React\'s conditional render), while `*ngFor` produces a list. Java analogy: the `.ts` is like the class body and the `.html` like the view contract that class exposes. In QA context: a tester who recognizes auto-generated attributes like `_ngcontent`/hash asks the developer for an `[attr.data-testid]` binding. Throughout this group we will CONTINUOUSLY compare against the React patterns from GROUP F.',
         },
+      },
+
+      // ── G1: Component + Template Ayrımı ──
+      {
+        type: 'heading',
+        text: { tr: '📂 G1. Component + Template Ayrımı: `.ts` + `.html`', en: '📂 G1. Component + Template Separation: `.ts` + `.html`' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📂',
+        content: {
+          tr: 'Angular\'ın `.ts`/`.html` ayrımı, bir binanın MÜHENDİSLİK PLANI (yük hesapları, davranış — `.ts`) ile İÇ DEKORASYON PLANI (görsel yerleşim — `.html`) arasındaki ayrım gibidir: aynı binayı tarif eden İKİ AYRI belge, HER ZAMAN birlikte kullanılır. Peki neden bu ayrımı bilmek işine yarar? Çünkü bir bug\'ın kaynağını ararken (React\'te tek bir JSX dosyasına bakman yeterliyken) Angular\'da HEM `.ts`\'e (mantık doğru mu?) HEM `.html`\'e (template doğru mu bağlanmış?) bakman gerekir — sadece birini okumak eksik bir tanı koyar. Java analojisi: eski Java web geliştirmede Servlet (mantık, `.ts`\'e benzer) ile JSP (görünüm, `.html`\'e benzer) ayrımı gibi, ya da MVC\'deki Controller/View ayrımı gibi. QA bağlamında: "bu bug frontend\'de" dediğinde, Angular\'da bunu "component sınıfında mı (`.ts`) yoksa template\'te mi (`.html`)" diye İKİYE ayırarak daha spesifik konuşabilirsin.',
+          en: 'Angular\'s `.ts`/`.html` separation is like the split between a building\'s ENGINEERING PLAN (load calculations, behavior — `.ts`) and its INTERIOR DECORATION PLAN (visual layout — `.html`): TWO SEPARATE documents describing the same building, ALWAYS used together. Why is knowing this distinction useful? Because when tracking down a bug\'s source (whereas in React a single JSX file is enough), in Angular you must check BOTH `.ts` (is the logic correct?) AND `.html` (is the template bound correctly?) — reading only one gives an incomplete diagnosis. Java analogy: like the Servlet (logic, similar to `.ts`) vs JSP (view, similar to `.html`) separation in old Java web development, or the Controller/View split in MVC. In QA context: when you say "this bug is in the frontend", in Angular you can speak more specifically by splitting it into "is it in the component class (`.ts`) or the template (`.html`)".',
+        },
+      },
+      tsHtmlMergeSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir "New Bug" formunda submit butonu tıklandığında hiçbir şey olmuyor. `bug-form.component.ts`\'i inceliyorsun ve `onSubmit()` metodunun doğru yazıldığını görüyorsun. Sıradaki adımın ne olmalı?',
+          en: 'Clicking the submit button on a "New Bug" form does nothing. You inspect `bug-form.component.ts` and see `onSubmit()` is written correctly. What should your next step be?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Sorun yok demektir, .ts dosyası doğruysa her şey doğrudur', en: 'It means there is no problem, if the .ts file is correct everything is correct' } },
+          { id: 'b', text: { tr: '`.html` template\'ini kontrol et — buton `(click)="onSubmit()"` ile GERÇEKTEN bu metoda bağlanmış mı?', en: 'Check the `.html` template — is the button REALLY bound to this method with `(click)="onSubmit()"`?' } },
+          { id: 'c', text: { tr: 'Sunucu loglarına bakmaya gerek yok', en: 'There is no need to check server logs' } },
+          { id: 'd', text: { tr: 'CSS dosyasını sil', en: 'Delete the CSS file' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Angular\'da mantığın (`.ts`) DOĞRU olması, template\'in (`.html`) o mantığa GERÇEKTEN bağlı olduğunu garanti etmez — buton yanlış metoda bağlanmış, event binding\'i eksik veya yanlış yazılmış olabilir. İki dosya AYRI olduğundan, her ikisi de kontrol edilmelidir.',
+          en: 'In Angular, the logic (`.ts`) being CORRECT does not guarantee the template (`.html`) is REALLY bound to that logic — the button might be bound to the wrong method, or the event binding might be missing or written incorrectly. Since the two files are SEPARATE, both must be checked.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'React\'te aynı "buton tıklanıyor ama çalışmıyor" bug\'ını araştırırken kaç dosyaya bakman gerekir, Angular\'a kıyasla?',
+            en: 'Investigating the same "button is clicked but does not work" bug in React, how many files do you need to check, compared to Angular?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'React\'te de iki ayrı dosya (mantık ve görünüm) kontrol edilmelidir', en: 'In React too, two separate files (logic and view) must be checked' } },
+            { id: 'b', text: { tr: 'Genelde TEK bir dosya (component .jsx) yeterlidir çünkü JSX hem mantığı hem görünümü aynı dosyada tutar', en: 'Usually a SINGLE file (the component .jsx) is enough because JSX keeps both logic and view in the same file' } },
+            { id: 'c', text: { tr: 'React\'te dosya kontrolüne hiç gerek yoktur', en: 'In React there is no need to check files at all' } },
+            { id: 'd', text: { tr: 'React\'te 3 ayrı dosyaya bakmak gerekir', en: 'In React you need to check 3 separate files' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'React\'te component genelde TEK bir `.jsx`/`.tsx` dosyasındadır — hem `onClick={onSubmit}` bağlantısı hem `onSubmit` metodunun kendisi AYNI dosyada görünür. Angular\'ın `.ts`/`.html` ayrımı ekstra bir "iki dosyaya bakma" adımı GEREKTİRİR — bu, iki framework arasındaki somut bir iş akışı farkıdır.',
+            en: 'In React, a component is usually in a SINGLE `.jsx`/`.tsx` file — both the `onClick={onSubmit}` binding and the `onSubmit` method itself are visible in the SAME file. Angular\'s `.ts`/`.html` separation REQUIRES an extra "check two files" step — a concrete workflow difference between the two frameworks.',
+          },
+        },
+      },
+
+      // ── G2: Template Syntax ──
+      {
+        type: 'heading',
+        text: { tr: '🔤 G2. Template Syntax: `{{ }}`, `[property]`, `(event)`, `*ngIf`, `*ngFor`', en: '🔤 G2. Template Syntax: `{{ }}`, `[property]`, `(event)`, `*ngIf`, `*ngFor`' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🔤',
+        content: {
+          tr: 'Angular template syntax\'ı, React\'in JSX kalıplarının FARKLI bir DİLDEKİ karşılıklarıdır: `{{ }}` = React\'in `{değişken}`\'i (metin yazma), `[property]` = React\'in `prop={değer}`\'i (bir özelliğe değer bağlama), `(event)` = React\'in `onClick={...}`\'i (olay bağlama), `*ngIf`/`*ngFor` = React\'in `{koşul&&}`/`.map()`\'i. Peki neden bu paralelliği bilmek işine yarar? Çünkü React\'i zaten okuyabilen bir tester, Angular\'ın syntax\'ını "aynı KAVRAMIN farklı bir yazımı" olarak görüp hızlıca öğrenir — sıfırdan başlamaz. Java analojisi: aynı tasarım desenini (Observer, Strategy) farklı bir dilde (Kotlin, Python) görmek gibi — sözdizimi değişir, kavram AYNI kalır. QA bağlamında: hangi framework\'te olursan ol, "bu ifade DOM\'a ne zaman, ne yazacak?" sorusunu aynı 5 kalıba (metin, özellik, olay, koşul, liste) indirgeyerek cevaplayabilirsin.',
+          en: 'Angular template syntax is the DIFFERENT-LANGUAGE counterpart of React\'s JSX patterns: `{{ }}` = React\'s `{variable}` (writing text), `[property]` = React\'s `prop={value}` (binding a value to a property), `(event)` = React\'s `onClick={...}` (binding an event), `*ngIf`/`*ngFor` = React\'s `{condition&&}`/`.map()`. Why is knowing this parallel useful? Because a tester who can already read React sees Angular\'s syntax as "a different spelling of the SAME CONCEPT" and learns it quickly — they do not start from scratch. Java analogy: like seeing the same design pattern (Observer, Strategy) in a different language (Kotlin, Python) — the syntax changes, the CONCEPT stays the SAME. In QA context: whatever framework you are in, you can answer "when will this expression write what to the DOM?" by reducing it to the same 5 patterns (text, property, event, condition, list).',
+        },
+      },
+      angularTemplateSyntaxSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'React\'te `<button onClick={() => setIsOpen(true)}>` yazan bir tester, Angular kaynağında `(click)="isOpen = true"` görüyor. Bu iki syntax hangi ORTAK kavramı temsil eder?',
+          en: 'A tester who wrote `<button onClick={() => setIsOpen(true)}>` in React sees `(click)="isOpen = true"` in Angular source. What COMMON concept do these two syntaxes represent?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir ortak yanları yok, tamamen farklı kavramlar', en: 'They have nothing in common, completely different concepts' } },
+          { id: 'b', text: { tr: 'İkisi de bir DOM olayını (click) bir davranışa/durum değişikliğine BAĞLAR — event binding', en: 'Both BIND a DOM event (click) to a behavior/state change — event binding' } },
+          { id: 'c', text: { tr: 'İkisi de bir CSS stilini değiştirir', en: 'Both change a CSS style' } },
+          { id: 'd', text: { tr: 'İkisi de bir HTTP isteği gönderir', en: 'Both send an HTTP request' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'İkisi de AYNI kavramı (bir tıklama olayını bir davranışa bağlamak) farklı sözdizimiyle ifade eder. Bu paralelliği görebilen tester, yeni bir framework\'ün syntax\'ını "yeni bir kavram" değil "bildiği kavramın yeni yazımı" olarak öğrenir.',
+          en: 'Both express the SAME concept (binding a click event to a behavior) with different syntax. A tester who can see this parallel learns a new framework\'s syntax not as "a new concept" but as "a new spelling of a concept they already know".',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Angular\'da `*ngFor="let bug of bugs"` görüyorsun. React\'teki HANGİ kalıp bununla aynı işi yapar?',
+            en: 'You see `*ngFor="let bug of bugs"` in Angular. Which pattern in React does the same job?',
+          },
+          options: [
+            { id: 'a', text: { tr: '`{isOpen && <X/>}`', en: '`{isOpen && <X/>}`' } },
+            { id: 'b', text: { tr: '`bugs.map(bug => ...)`', en: '`bugs.map(bug => ...)`' } },
+            { id: 'c', text: { tr: '`useState(bugs)`', en: '`useState(bugs)`' } },
+            { id: 'd', text: { tr: '`useEffect(() => ...)`', en: '`useEffect(() => ...)`' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`*ngFor`, bir listeyi dönüp her eleman için bir kopya üreten bir direktiftir — React\'te bunun karşılığı `.map()`\'tir. Her ikisinde de bir iç takip anahtarı (trackBy/key) vardır ve bu anahtar DOM\'da GÖRÜNMEZ.',
+            en: '`*ngFor` is a directive that iterates a list and produces a copy for each item — in React the counterpart is `.map()`. Both have an internal tracking key (trackBy/key), and this key is NOT VISIBLE in the DOM.',
+          },
+        },
+      },
+
+      // ── G3: *ngIf/*ngFor ↔ React karşılaştırması ──
+      {
+        type: 'heading',
+        text: { tr: '🔀 G3. `*ngIf` → Conditional Render, `*ngFor` → List (React Karşılaştırması)', en: '🔀 G3. `*ngIf` -> Conditional Render, `*ngFor` -> List (React Comparison)' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🔀',
+        content: {
+          tr: '`*ngIf`, React\'in `{koşul && <X/>}`\'inin BİREBİR Angular karşılığıdır: element koşul false iken DOM\'da GİZLİ değil, TAMAMEN YOKTUR — CSS `display:none` ile KARIŞTIRILMAMALIDIR. Peki neden bu paralelliği somut görmek gerekir? Çünkü React\'te öğrendiğin "conditional render\'da element bazen hiç yok" dersi, Angular\'da AYNEN geçerlidir — framework değişse de KAVRAM aynı kalır. Java analojisi: bir `if` bloğunun içindeki `new Modal()` çağrısının çalışmaması gibi — nesne YARATILMAMIŞTIR, "bozuk" değildir. QA bağlamında: aşağıdaki film bu davranışı Angular\'da somutlaştırır — bir Modal\'ın `*ngIf` ile DOM\'a girip çıkışını izleyeceksin, ardından React ile yan yana karşılaştıracaksın.',
+          en: '`*ngIf` is the VERBATIM Angular counterpart of React\'s `{condition && <X/>}`: while the condition is false, the element is not HIDDEN in the DOM, it is COMPLETELY ABSENT — this should NOT be confused with CSS `display:none`. Why is it necessary to see this parallel concretely? Because the lesson you learned in React — "in a conditional render the element is sometimes not there at all" — applies IDENTICALLY in Angular; the framework changes but the CONCEPT stays the same. Java analogy: like an `if` block\'s `new Modal()` call not running — the object was NOT CREATED, it is not "broken". In QA context: the film below makes this behavior concrete in Angular — you will watch a Modal enter and leave the DOM via `*ngIf`, then compare it side-by-side with React.',
+        },
+      },
+      ngIfDoorFilm,
+      ngReactComparisonTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir Angular testinde `*ngIf="isOpen"` ile kontrol edilen bir Modal\'ı, buton tıklanmadan locate etmeye çalışıyorsun. Bu, React\'teki hangi senaryonun BİREBİR karşılığıdır?',
+          en: 'In an Angular test you try to locate a Modal controlled by `*ngIf="isOpen"` without clicking the button. This is the VERBATIM counterpart of which React scenario?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'React\'te bunun bir karşılığı yoktur', en: 'There is no counterpart to this in React' } },
+          { id: 'b', text: { tr: '`{isOpen && <Modal/>}` false iken Modal\'ı locate etmeye çalışmak — ikisi de aynı NoSuchElement sonucunu verir', en: 'Trying to locate the Modal while `{isOpen && <Modal/>}` is false — both give the same NoSuchElement result' } },
+          { id: 'c', text: { tr: 'React\'te bu bir hata fırlatır, Angular\'da fırlatmaz', en: 'In React this throws an error, in Angular it does not' } },
+          { id: 'd', text: { tr: 'Angular\'da bu her zaman başarılıdır', en: 'In Angular this always succeeds' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`*ngIf` ve `{koşul&&}` AYNI davranışı (koşul false iken elementin DOM\'da hiç olmaması) farklı sözdizimiyle üretir. Bir tester bu paralelliği bildiğinde, framework değişse bile aynı teşhis refleksini (önce koşulu tetikleyen eylemi yap) uygular.',
+          en: '`*ngIf` and `{condition&&}` produce the SAME behavior (the element being entirely absent from the DOM while the condition is false) with different syntax. A tester who knows this parallel applies the same diagnostic reflex (first perform the action that triggers the condition) regardless of the framework.',
+        },
+        retryQuestion: {
+          question: {
+            tr: '`*ngFor`\'da kullanılan `trackBy` fonksiyonu, React\'teki `key` prop\'una kıyasla ne işe yarar?',
+            en: 'What does the `trackBy` function used in `*ngFor` do, compared to React\'s `key` prop?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Bir DOM attribute\'u olarak görünür ve locate edilebilir', en: 'It appears as a DOM attribute and can be located' } },
+            { id: 'b', text: { tr: 'React\'in `key`\'i gibi Angular\'ın liste elemanlarını İÇ OLARAK takip etmesini sağlar; DOM\'da GÖRÜNMEZ ve locator olarak kullanılamaz', en: 'Like React\'s `key`, it lets Angular INTERNALLY track list items; it is NOT VISIBLE in the DOM and cannot be used as a locator' } },
+            { id: 'c', text: { tr: 'Sadece performans için vardır, hiçbir işlevi yoktur', en: 'It exists only for performance, it has no function' } },
+            { id: 'd', text: { tr: 'CSS class\'ı olarak DOM\'a eklenir', en: 'It is added to the DOM as a CSS class' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`trackBy` ve React\'in `key`\'i AYNI amaca hizmet eder: framework\'ün hangi liste öğesinin hangi DOM node\'una karşılık geldiğini İÇ OLARAK takip etmesi. İkisi de DOM\'da bir attribute olarak yazılmaz, bu yüzden ikisi de bir locator DEĞİLDİR.',
+            en: '`trackBy` and React\'s `key` serve the SAME purpose: letting the framework INTERNALLY track which list item corresponds to which DOM node. Neither is written as a DOM attribute, so neither is a locator.',
+          },
+        },
+      },
+
+      // ── G4: _ngcontent-xxx / _nghost-xxx ──
+      {
+        type: 'heading',
+        text: { tr: '🎭 G4. `_ngcontent-xxx` / `_nghost-xxx`: Nereden Gelir, Neden Locate Edilmez', en: '🎭 G4. `_ngcontent-xxx` / `_nghost-xxx`: Where They Come From, Why They Are Not Located' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎭',
+        content: {
+          tr: '`_ngcontent-xxx`, Angular\'ın CSS Modules hash\'inin (GRUP C3) KENDİ mekanizmasıdır: Angular varsayılan olarak "ViewEncapsulation" ile stillerin component\'ler arasında SIZMASINI önler — bunu yapmak için her component\'in ürettiği HER elemente OTOMATİK bir `_ngcontent-abc-5` gibi attribute ekler. Peki neden bu, C3\'teki hash dersiyle NEREDEYSE aynı? Çünkü bu attribute de derleme/component INSTANCE\'ına göre değişir ve developer bunu KAYNAK KODDA YAZMAZ — hiç görmediği bir kod tarafından OTOMATİK eklenir. Java analojisi: derleyicinin ürettiği anonim iç sınıf isimleri (`Outer$1`) gibi — kaynakta yazılmaz, derleyici otomatik üretir ve güvenilir bir referans DEĞİLDİR. QA bağlamında: `_ngcontent`/`_nghost` gören bir tester bunu ASLA locate etmez; bunun yerine developer\'dan `[attr.data-testid]` binding\'i ister (G5\'te bunu yazacaksın).',
+          en: '`_ngcontent-xxx` is Angular\'s OWN mechanism paralleling the CSS Modules hash (GROUP C3): by default Angular prevents styles from LEAKING between components with "ViewEncapsulation" — to do this it AUTOMATICALLY adds an attribute like `_ngcontent-abc-5` to EVERY element a component produces. Why is this ALMOST the same lesson as C3\'s hash? Because this attribute also changes based on the compile/component INSTANCE, and the developer does NOT WRITE it in the source — it is added AUTOMATICALLY by code they never see. Java analogy: like the anonymous inner class names the compiler generates (`Outer$1`) — not written in the source, generated automatically by the compiler, and NOT a reliable reference. In QA context: a tester who sees `_ngcontent`/`_nghost` NEVER locates by it; instead they ask the developer for an `[attr.data-testid]` binding (you will write this in G5).',
+        },
+      },
+      ngContentHashCode,
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          {
+            icon: '1️⃣',
+            label: { tr: 'Kaynak (ne yazıldı)', en: 'Source (what was written)' },
+            desc: {
+              tr: '`<span class="badge">{{ status }}</span>` — developer sadece bir class ve interpolation yazdı, `_ngcontent` HİÇ görünmüyor.',
+              en: '`<span class="badge">{{ status }}</span>` — the developer wrote only a class and an interpolation, `_ngcontent` is NOT visible at all.',
+            },
+          },
+          {
+            icon: '2️⃣',
+            label: { tr: 'Gerçek DOM (ne oluştu)', en: 'Real DOM (what was produced)' },
+            desc: {
+              tr: '`<span _ngcontent-abc-5 class="badge">OPEN</span>` — Angular ViewEncapsulation için OTOMATİK bir attribute ekledi; bu değer component derlemesine göre değişir.',
+              en: '`<span _ngcontent-abc-5 class="badge">OPEN</span>` — Angular added an AUTOMATIC attribute for ViewEncapsulation; this value changes based on the component compile.',
+            },
+          },
+          {
+            icon: '3️⃣',
+            label: { tr: 'Tester\'ın kararı', en: 'The tester\'s decision' },
+            desc: {
+              tr: '❌ `[_ngcontent-abc-5]`\'e locate ETME (compile\'a göre değişir). ✅ `[attr.data-testid]` binding\'i iste. 💬 Developer\'dan: `[attr.data-testid]="\'status-badge\'"`.',
+              en: '❌ Do NOT locate by `[_ngcontent-abc-5]` (it changes per compile). ✅ Ask for an `[attr.data-testid]` binding. 💬 Ask the developer for: `[attr.data-testid]="\'status-badge\'"`.',
+            },
+          },
+        ],
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir tester DevTools\'ta bir Angular elementinde `_ngcontent-xz9-12` attribute\'unu görüyor ve `page.locator(\'[_ngcontent-xz9-12]\')` yazmayı düşünüyor. Bu neden kötü bir fikir?',
+          en: 'A tester sees a `_ngcontent-xz9-12` attribute on an Angular element in DevTools and considers writing `page.locator(\'[_ngcontent-xz9-12]\')`. Why is this a bad idea?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'İyi bir fikir, bu attribute her zaman sabittir', en: 'It is a good idea, this attribute is always fixed' } },
+          { id: 'b', text: { tr: 'Bu attribute Angular tarafından OTOMATİK üretilir ve component compile/instance\'ına göre değişebilir — CSS Modules hash\'iyle aynı kırılganlığı taşır', en: 'This attribute is generated AUTOMATICALLY by Angular and can change based on the component compile/instance — it carries the same fragility as a CSS Modules hash' } },
+          { id: 'c', text: { tr: 'Angular attribute\'ları CSS selector\'larla eşleşmez', en: 'Angular attributes do not match with CSS selectors' } },
+          { id: 'd', text: { tr: 'Bu attribute sadece Chrome\'da vardır', en: 'This attribute only exists in Chrome' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`_ngcontent-xxx`, developer\'ın yazmadığı, Angular\'ın ViewEncapsulation için otomatik ürettiği bir attribute\'tur — tıpkı bir CSS Modules hash\'i gibi build/derleme detaylarına bağlıdır ve kalıcı bir kimlik DEĞİLDİR.',
+          en: '`_ngcontent-xxx` is an attribute the developer did not write, automatically generated by Angular for ViewEncapsulation — just like a CSS Modules hash, it depends on build/compile details and is NOT a permanent identity.',
+        },
+        retryQuestion: {
+          question: {
+            tr: '`_ngcontent-xxx` ile CSS Modules hash\'i (`__x7f2a`, GRUP C3) arasındaki EN BÜYÜK benzerlik nedir?',
+            en: 'What is the BIGGEST similarity between `_ngcontent-xxx` and a CSS Modules hash (`__x7f2a`, GROUP C3)?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'İkisi de developer tarafından elle yazılır', en: 'Both are written by hand by the developer' } },
+            { id: 'b', text: { tr: 'İkisi de build/derleme aracı tarafından OTOMATİK üretilir ve stil izolasyonu için var olur, kimlik taşımaz', en: 'Both are generated AUTOMATICALLY by a build/compile tool and exist for style isolation, they do not carry identity' } },
+            { id: 'c', text: { tr: 'İkisi de sadece production\'da görünür', en: 'Both are only visible in production' } },
+            { id: 'd', text: { tr: 'Hiçbir benzerlikleri yok', en: 'They have no similarities at all' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'İkisi de aynı KÖK amaca hizmet eder: stillerin component\'ler/dosyalar arasında sızmasını önlemek. Bu yüzden ikisi de otomatik üretilir, developer\'ın kontrolü DIŞINDADIR ve kimlik olarak GÜVENİLMEZ.',
+            en: 'Both serve the same ROOT purpose: preventing styles from leaking between components/files. This is why both are auto-generated, OUTSIDE the developer\'s control, and UNRELIABLE as identity.',
+          },
+        },
+      },
+
+      // ── G5: Angular'da data-testid ve [attr.data-testid] Binding ──
+      {
+        type: 'heading',
+        text: { tr: '🏷️ G5. Angular\'da `data-testid` ve `[attr.data-testid]` Binding', en: '🏷️ G5. `data-testid` and `[attr.data-testid]` Binding in Angular' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🏷️',
+        content: {
+          tr: 'Angular\'da SABİT bir `data-testid` eklemek basittir (`data-testid="submit-bug"` HTML\'deki gibi yazılır), ama DİNAMİK bir değer (`bug.id`\'ye göre değişen) gerektiğinde düz interpolation (`{{ }}`) BEKLENMEDİK sonuçlar verebilir çünkü interpolation asıl olarak TEXT içeriği içindir, attribute değeri için değil. Peki bu neden bir tester\'ı ilgilendirir? Çünkü "developer\'dan data-testid iste" demek yeterli değildir — Angular\'da doğru sözdizimini (`[attr.data-testid]="ifade"`) BİLMEK, isteğini somut bir kod satırıyla desteklemeni sağlar. Java analojisi: bir attribute\'a string birleştirme ile değer atamak yerine, tip-güvenli bir binding API\'si kullanmak gibi — Angular `[attr.*]` bunun için VAR. QA bağlamında: aşağıdaki pratikte tam olarak bu binding\'i kendin yazacaksın.',
+          en: 'Adding a FIXED `data-testid` in Angular is simple (`data-testid="submit-bug"` is written just like in HTML), but when a DYNAMIC value is needed (one that varies by `bug.id`), plain interpolation (`{{ }}`) can produce UNEXPECTED results because interpolation is primarily for TEXT content, not for attribute values. Why does this concern a tester? Because saying "ask the developer for a data-testid" is not enough — KNOWING the correct Angular syntax (`[attr.data-testid]="expression"`) lets you back up your request with a concrete line of code. Java analogy: like using a type-safe binding API instead of assigning a value to an attribute via string concatenation — Angular\'s `[attr.*]` EXISTS for this. In QA context: in the practice below you will write exactly this binding yourself.',
+        },
+      },
+      angularDataTestIdBindingPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir developer "her BugCard\'a `data-testid` eklemek için `{{ }}` interpolation kullanacağım, `data-testid="{{ \'bug-card-\' + bug.id }}"` yazdım" diyor. Bu yaklaşımdaki potansiyel sorun nedir?',
+          en: 'A developer says "I will use `{{ }}` interpolation to add data-testid to each BugCard, I wrote `data-testid="{{ \'bug-card-\' + bug.id }}"`". What is the potential problem with this approach?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir sorun yok, bu her zaman doğru çalışır', en: 'No problem, this always works correctly' } },
+          { id: 'b', text: { tr: 'Interpolation attribute değerleri için tasarlanmamıştır; dinamik attribute binding\'i için `[attr.data-testid]="...”` kullanmak daha doğru ve önerilen yoldur', en: 'Interpolation is not designed for attribute values; using `[attr.data-testid]="..."` for dynamic attribute binding is the more correct and recommended way' } },
+          { id: 'c', text: { tr: 'data-testid Angular\'da hiç kullanılamaz', en: 'data-testid cannot be used at all in Angular' } },
+          { id: 'd', text: { tr: 'Sadece `*ngFor` içinde bu sorun oluşur', en: 'This problem only occurs inside `*ngFor`' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Interpolation (`{{ }}`) temel olarak metin İÇERİĞİ içindir; attribute\'lara dinamik değer bağlamanın Angular\'ın önerdiği, daha güvenilir yolu `[attr.*]` binding\'idir. Bu, "işe yarayabilir ama doğru araç bu değil" türünden bir uyarıdır.',
+          en: 'Interpolation (`{{ }}`) is fundamentally for text CONTENT; the way Angular recommends binding a dynamic value to attributes reliably is `[attr.*]` binding. This is a "it might work, but this is not the right tool" kind of warning.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'React\'te `data-testid={`bug-card-${bug.id}`}` yazmak ile Angular\'da `[attr.data-testid]="\'bug-card-\' + bug.id"` yazmak arasındaki İLİŞKİ nedir?',
+            en: 'What is the RELATIONSHIP between writing `data-testid={`bug-card-${bug.id}`}` in React and `[attr.data-testid]="\'bug-card-\' + bug.id"` in Angular?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Hiçbir ilişkileri yok', en: 'They have no relationship' } },
+            { id: 'b', text: { tr: 'İkisi de AYNI amacı (dinamik bir değere göre benzersiz bir data-testid üretmek) farklı sözdizimiyle karşılar', en: 'Both fulfill the SAME purpose (producing a unique data-testid based on a dynamic value) with different syntax' } },
+            { id: 'c', text: { tr: 'React\'teki syntax Angular\'da da BİREBİR aynı şekilde çalışır', en: 'The React syntax works IDENTICALLY in Angular too' } },
+            { id: 'd', text: { tr: 'Angular\'da bu işlem imkansızdır', en: 'This operation is impossible in Angular' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Bu, sayfa boyunca gördüğün bir kalıptır: farklı framework\'ler AYNI kavramı (dinamik attribute binding) FARKLI sözdizimiyle ifade eder. Kavramı bir kez anlayan tester, hangi framework\'te olursa olsun aynı isteği (dinamik, stabil bir kimlik) doğru sözdizimiyle formüle edebilir.',
+            en: 'This is a pattern you have seen throughout the page: different frameworks express the SAME concept (dynamic attribute binding) with DIFFERENT syntax. A tester who understands the concept once can formulate the same request (a dynamic, stable identity) with the correct syntax in whatever framework they are in.',
+          },
+        },
+      },
+
+      // ── G6: Angular'da Sağlam Locator Stratejisi ──
+      {
+        type: 'heading',
+        text: { tr: '🎯 G6. Angular\'da Sağlam Locator Stratejisi', en: '🎯 G6. A Robust Locator Strategy in Angular' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎯',
+        content: {
+          tr: 'Bu grubun tüm derslerini birleştirdiğinde ortaya çıkan strateji, React\'teki F7 ile AYNIDIR ama Angular sözdizimiyle: `_ngcontent`/hash\'e ASLA güvenme, `*ngIf` ile koşullu render edilen elementleri locate etmeden önce koşulu TETİKLE, `*ngFor`\'daki `trackBy`\'a değil ilişkisel bir attribute\'a (data-bug-id gibi) güven, dinamik `data-testid` için `[attr.*]` binding\'i iste. Peki neden framework FARK ETMEKSİZİN aynı strateji işe yarar? Çünkü locator dayanıklılığı, HTML\'in kendisine (Bölüm B, H) dair bir gerçektir — hangi framework\'ün bu HTML\'i ÜRETTİĞİ ikincil bir detaydır. Java analojisi: bir tasarım ilkesinin (SOLID gibi) diller arasında (Java, Kotlin, C#) DEĞİŞMEMESİ gibi — uygulama detayı değişir, ilke SABİT kalır. QA bağlamında: React\'i (GRUP F) ve Angular\'ı (GRUP G) öğrendikten sonra, hangi framework\'le karşılaşırsan karşılaş, aynı 3 soruyu sorabilirsin: "bu element her zaman mı var, yoksa koşullu mu?", "bu attribute kalıcı mı yoksa build\'e bağlı mı?", "developer\'dan hangi somut satırı istemeliyim?"',
+          en: 'The strategy that emerges when you combine all this group\'s lessons is the SAME as React\'s F7, just with Angular syntax: NEVER trust `_ngcontent`/a hash, TRIGGER the condition before locating an element conditionally rendered with `*ngIf`, trust a relational attribute (like data-bug-id) rather than `*ngFor`\'s `trackBy`, and ask for `[attr.*]` binding for a dynamic `data-testid`. Why does the same strategy work REGARDLESS of the framework? Because locator durability is a truth about HTML itself (Sections B, H) — WHICH framework PRODUCED this HTML is a secondary detail. Java analogy: like a design principle (like SOLID) NOT CHANGING across languages (Java, Kotlin, C#) — the implementation detail changes, the principle stays FIXED. In QA context: after learning React (GROUP F) and Angular (GROUP G), whatever framework you encounter, you can ask the same 3 questions: "does this element always exist, or is it conditional?", "is this attribute permanent or build-dependent?", "which concrete line should I ask the developer for?"',
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir yeni framework (ör. Vue veya Svelte) ile ilk kez karşılaşan bir tester, locator stratejisini nasıl kurmalıdır?',
+          en: 'A tester encountering a new framework (e.g. Vue or Svelte) for the first time — how should they build their locator strategy?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'O framework\'ün syntax\'ını sıfırdan, önceki bilgiden bağımsız öğrenmeli', en: 'They should learn that framework\'s syntax from scratch, independent of prior knowledge' } },
+          { id: 'b', text: { tr: 'Aynı 3 soruyu sormalı: "bu element koşullu mu?", "bu attribute build\'e mi bağlı?", "developer\'dan ne isteyeceğim?" — framework değişse de KAVRAMLAR aynıdır', en: 'They should ask the same 3 questions: "is this element conditional?", "is this attribute build-dependent?", "what will I ask the developer for?" — the CONCEPTS stay the same regardless of framework' } },
+          { id: 'c', text: { tr: 'Locator stratejisi her framework için TAMAMEN farklıdır, ortak bir yaklaşım yoktur', en: 'The locator strategy is COMPLETELY different for every framework, there is no common approach' } },
+          { id: 'd', text: { tr: 'Sadece XPath kullanmalı, framework önemsizdir', en: 'They should just use XPath, the framework does not matter' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'React ve Angular\'da gördüğün gibi, framework\'ler FARKLI sözdizimi kullanır ama AYNI temel kavramları (conditional render, list render, build-bağımlı hash/attribute) taşır. Bu 3 soruyu sormayı öğrenen bir tester, hiç görmediği bir framework\'te bile hızla doğru locator stratejisini kurar.',
+          en: 'As you saw in React and Angular, frameworks use DIFFERENT syntax but carry the SAME underlying concepts (conditional render, list render, build-dependent hash/attribute). A tester who learns to ask these 3 questions quickly builds the right locator strategy even in a framework they have never seen.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'GRUP F (React) ve GRUP G (Angular) boyunca öğrendiğin en önemli TEK ders neydi?',
+            en: 'What was the single most important lesson you learned across GROUP F (React) and GROUP G (Angular)?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'React Angular\'dan her zaman daha iyidir', en: 'React is always better than Angular' } },
+            { id: 'b', text: { tr: 'Kaynağı okuyup üretilecek DOM\'u tahmin etmek ve framework\'ün otomatik/geçici ürettiği alanlara (hash, key/trackBy, _ngcontent) değil, kasıtlı ve stabil bir kimliğe (data-testid, role) güvenmek', en: 'Reading the source to predict the produced DOM, and trusting a deliberate, stable identity (data-testid, role) rather than fields the framework produces automatically/temporarily (hash, key/trackBy, _ngcontent)' } },
+            { id: 'c', text: { tr: 'Angular her zaman daha test edilebilirdir', en: 'Angular is always more testable' } },
+            { id: 'd', text: { tr: 'Framework\'ler arasında hiçbir ortak nokta yoktur', en: 'There is no common ground between frameworks' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Bu, sayfanın imza dersidir: hangi framework olursa olsun, "kaynağı oku → DOM\'u tahmin et → kasıtlı/stabil bir kimliğe güven, otomatik üretilene güvenme" stratejisi DEĞİŞMEZ. React\'in hash\'i, Angular\'ın `_ngcontent`\'i — ikisi de aynı dersin farklı görünümleridir.',
+            en: 'This is the page\'s signature lesson: regardless of the framework, the strategy "read the source -> predict the DOM -> trust a deliberate/stable identity, do not trust the auto-generated one" does NOT change. React\'s hash, Angular\'s `_ngcontent` — both are different faces of the same lesson.',
+          },
+        },
+      },
+      {
+        type: 'feynman-checkpoint',
+        id: 'qaf-feynman-g',
+        promptTr: '`*ngIf`\'in React\'in `{koşul && <X/>}`\'i ile neden aynı davranışı gösterdiğini ve `_ngcontent-xxx` attribute\'unun CSS Modules hash\'iyle olan paralelliğini, sektöre yeni giren birine kendi cümlelerinle anlat.',
+        promptEn: 'Explain, in your own words, why `*ngIf` shows the same behavior as React\'s `{condition && <X/>}`, and the parallel between the `_ngcontent-xxx` attribute and a CSS Modules hash, to a newcomer.',
+        keywords: ['ngif', 'react', 'conditional', 'ngcontent', 'hash', 'viewencapsulation', 'dom', 'locator'],
+        modelAnswerTr: '`*ngIf`, koşul false iken elementi DOM ağacına hiç eklemez veya tamamen çıkarır — tıpkı React\'in `{koşul && <X/>}`\'i gibi, ikisi de CSS gizlemesi değil GERÇEK bir yokluk üretir. `_ngcontent-xxx` ise Angular\'ın ViewEncapsulation (stil izolasyonu) için otomatik ürettiği bir attribute\'tur; CSS Modules hash\'i gibi developer tarafından yazılmaz, build/component instance\'ına göre değişir ve bu yüzden locator olarak güvenilmez. İkisi de "framework değişse bile locator kavramları aynı kalır" dersinin somut örnekleridir.',
+        modelAnswerEn: '`*ngIf` never adds the element to the DOM tree (or removes it entirely) while the condition is false — just like React\'s `{condition && <X/>}`, both produce a REAL absence, not CSS hiding. `_ngcontent-xxx` is an attribute Angular auto-generates for ViewEncapsulation (style isolation); like a CSS Modules hash, it is not written by the developer, changes based on the build/component instance, and is therefore unreliable as a locator. Both are concrete examples of the lesson "locator concepts stay the same even when the framework changes".',
       },
     ],
   },
