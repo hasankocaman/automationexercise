@@ -871,6 +871,193 @@ const accessibilityTreeSteps = {
   ],
 }
 
+// ─── step-animation: Selector'ın menzili — descendant vs child (GRUP C1) ──────
+const selectorRangeSteps = {
+  type: 'step-animation',
+  id: 'qaf-c1-selector-range-steps',
+  title: { tr: 'Adım Adım: `ul li` ile `ul > li` Arasındaki Fark', en: 'Step by Step: The Difference Between `ul li` and `ul > li`' },
+  steps: [
+    { id: 1, icon: '📮', label: { tr: 'Descendant selector: `ul li`', en: 'Descendant selector: `ul li`' }, detail: { tr: 'Boşluklu yazım "içinde HERHANGİ bir seviyede li olan ul" demektir — arada kaç kat sarmalayıcı olursa olsun eşleşir.', en: 'The space-separated form means "any ul that has an li at ANY depth inside it" — it matches no matter how many wrapper levels are in between.' } },
+    { id: 2, icon: '⚠️', label: { tr: 'Fazla geniş olabilir', en: 'It can be too wide' }, detail: { tr: 'BugCard\'ın içinde iç içe bir alt liste (yorumlar gibi) varsa, `ul li` o alt listedeki `li`\'leri de YANLIŞLIKLA eşleştirebilir.', en: 'If there is a nested sub-list inside a BugCard (like comments), `ul li` can MISTAKENLY match the `li`s in that sub-list too.' } },
+    { id: 3, icon: '🎯', label: { tr: 'Child selector: `ul > li`', en: 'Child selector: `ul > li`' }, detail: { tr: '"`ul`\'nin DOĞRUDAN çocuğu olan li" demektir — sadece bir seviye altındaki eşleşir, iç içe alt listeler dahil olmaz.', en: 'Means "the li that is a DIRECT child of ul" — only one level down matches, nested sub-lists are excluded.' } },
+    { id: 4, icon: '✅', label: { tr: 'Daha dar, daha güvenli', en: 'Narrower, safer' }, detail: { tr: 'BugCard listesi gibi tek seviyeli yapılarda `>` kullanmak, yanlışlıkla iç içe elemanları yakalama riskini ortadan kaldırır.', en: 'In single-level structures like a BugCard list, using `>` removes the risk of accidentally catching nested elements.' } },
+    { id: 5, icon: '🔗', label: { tr: 'Playwright/Cypress\'e neredeyse birebir geçer', en: 'Carries over almost verbatim to Playwright/Cypress' }, detail: { tr: 'CSS selector mantığını okuyabilen tester, `page.locator(\'ul > li\')` gibi otomasyon syntax\'ını da doğrudan okuyabilir — syntax derinliği için /playwright, /cypress\'e bak.', en: 'A tester who can read CSS selector logic can directly read automation syntax like `page.locator(\'ul > li\')` too — for syntax depth see /playwright, /cypress.' } },
+  ],
+}
+
+// ─── table: CSS specificity puanları (GRUP C2) ────────────────────────────────
+const specificityTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Selector türü', en: 'Selector type' },
+    { tr: 'Örnek', en: 'Example' },
+    { tr: 'Specificity puanı', en: 'Specificity score' },
+    { tr: 'Developer neden değiştirir?', en: 'Why does a developer change it?' },
+  ],
+  rows: [
+    [{ tr: 'Element', en: 'Element' }, 'button', '1', { tr: 'Nadiren — çok geneldir', en: 'Rarely — too generic' }],
+    [{ tr: 'Class', en: 'Class' }, '.btn-primary', '10', { tr: 'Sık — yeni tasarım/varyant eklenince', en: 'Often — when a new design/variant is added' }],
+    ['ID', '#submit-btn', '100', { tr: 'Nadiren ama refactor\'da olur', en: 'Rarely, but happens during a refactor' }],
+    [{ tr: 'Inline style', en: 'Inline style' }, 'style="color:red"', '1000', { tr: 'Çok nadir, genelde geçici debug', en: 'Very rare, usually temporary debugging' }],
+  ],
+}
+
+// ─── video-scene: "Class Hash'i Neden Değişir" (GRUP C3, zorunlu film) ────────
+const classHashChangeFilm = {
+  type: 'video-scene',
+  id: 'qaf-class-hash-change-film',
+  title: {
+    tr: '🎬 Class Hash\'i Neden Değişir? `btn` → `Btn_btn__x7f2a` Yolculuğu',
+    en: '🎬 Why Does a Class Hash Change? The `btn` -> `Btn_btn__x7f2a` Journey',
+  },
+  xpReward: 13,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'source',  emoji: '📄', label: { tr: 'BugCard.module.css',  en: 'BugCard.module.css' },  color: '#0ea5e9' },
+    { id: 'loader',  emoji: '⚙️', label: { tr: 'CSS Modules loader',  en: 'CSS Modules loader' },  color: '#f59e0b' },
+    { id: 'hash',    emoji: '🎲', label: { tr: 'Hash üretici',        en: 'Hash generator' },        color: '#8b5cf6' },
+    { id: 'bundle',  emoji: '📦', label: { tr: 'Build çıktısı',       en: 'Build output' },          color: '#6366f1' },
+    { id: 'dom',     emoji: '🌳', label: { tr: 'Tarayıcıda DOM',      en: 'DOM in the browser' },   color: '#22c55e' },
+    { id: 'test',    emoji: '🧪', label: { tr: 'Dünkü test',          en: 'Yesterday\'s test' },     color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Developer kaynak dosyada sadece `.btn { ... }` yazdı — masum, sade bir isim. Ama tarayıcıda `class="Btn_btn__x7f2a"` görüyorsun. Bu filmde o rastgele ekin (suffix) NEREDEN geldiğini ve neden HER BUILD\'DE değiştiğini izleyeceksin.',
+        en: 'The developer wrote just `.btn { ... }` in the source — an innocent, plain name. But in the browser you see `class="Btn_btn__x7f2a"`. In this film you will watch WHERE that random suffix comes from and why it changes on EVERY BUILD.',
+      },
+      code: { tr: `.btn { background: blue; }`, en: `.btn { background: blue; }` },
+      positions: { source: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Build başlar: `npm run build` çalıştığında CSS Modules loader (webpack/vite eklentisi) `.module.css` uzantılı her dosyayı ELE ALIR ve class isimlerini "scope"lamaya karar verir.',
+        en: 'Step 1 — The build starts: when `npm run build` runs, the CSS Modules loader (a webpack/vite plugin) PROCESSES every `.module.css` file and decides to "scope" the class names.',
+      },
+      code: { tr: `npm run build çalışıyor...`, en: `npm run build is running...` },
+      positions: {
+        source: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        loader: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'source', to: 'loader', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Hash üretilir: loader, dosya yolu + class ismini bir algoritmadan geçirip KISA BİR İMZA (`x7f2a`) üretir. Amaç: farklı dosyalardaki AYNI isimli class\'ların (`.btn`) birbirine ÇAKIŞMASINI önlemek.',
+        en: 'Step 2 — The hash is generated: the loader runs the file path + class name through an algorithm to produce a SHORT SIGNATURE (`x7f2a`). Purpose: prevent SAME-named classes (`.btn`) in different files from COLLIDING with each other.',
+      },
+      code: { tr: `hash(BugCard.module.css + ".btn") → "x7f2a"`, en: `hash(BugCard.module.css + ".btn") -> "x7f2a"` },
+      positions: {
+        loader: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        hash: { x: 52, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'loader', to: 'hash', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — Build çıktısına yazılır: nihai CSS ve JS dosyalarında `.btn` artık `.Btn_btn__x7f2a` olarak durur; React kodundaki `styles.btn` bu YENİ ismi otomatik taşır.',
+        en: 'Step 3 — Written to the build output: in the final CSS and JS files, `.btn` now reads `.Btn_btn__x7f2a`; the `styles.btn` in the React code automatically carries this NEW name.',
+      },
+      code: { tr: `.Btn_btn__x7f2a { background: blue; }`, en: `.Btn_btn__x7f2a { background: blue; }` },
+      positions: {
+        hash: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        bundle: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'hash', to: 'bundle', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Tarayıcıda DOM kurulur: kullanıcı sayfayı açtığında bu hash\'li class DOM\'a yazılır. Görsel sonuç DEĞİŞMEDİ (buton hâlâ mavi) ama HTML\'deki class ismi artık farklı.',
+        en: 'Step 4 — The DOM is built in the browser: when the user opens the page, this hashed class is written into the DOM. The visual result has NOT changed (the button is still blue), but the class name in the HTML is now different.',
+      },
+      code: { tr: `<button class="Btn_btn__x7f2a">`, en: `<button class="Btn_btn__x7f2a">` },
+      positions: {
+        bundle: { x: 18, y: 50, opacity: 0.6, scale: 0.9 },
+        dom: { x: 52, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bundle', to: 'dom', color: '#22c55e' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Bir sonraki deploy\'da hash YENİDEN üretilir (`x7f2a` → `z9k1p` gibi) çünkü hash genelde dosya İÇERİĞİNE veya build sırasına bağlıdır. Dünkü `.Btn_btn__x7f2a`\'ya bağlanan test artık 0 element bulur. Developer\'dan ne iste? "Bu butona sabit bir `data-testid` ekler misin? CSS Module hash\'i her build\'de değişiyor ve testimi kırıyor."',
+        en: 'Final — On the next deploy the hash is REGENERATED (e.g. `x7f2a` -> `z9k1p`) because the hash usually depends on file CONTENT or build order. Yesterday\'s test bound to `.Btn_btn__x7f2a` now finds 0 elements. What to ask the developer? "Could you add a fixed `data-testid` to this button? The CSS Module hash changes on every build and it breaks my test."',
+      },
+      code: { tr: `.Btn_btn__z9k1p ← YENİ hash, eski test 0 element bulur`, en: `.Btn_btn__z9k1p <- NEW hash, the old test finds 0 elements` },
+      positions: {
+        dom: { x: 20, y: 32, scale: 0.95 },
+        test: { x: 58, y: 58, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'dom', to: 'test', color: '#ef4444' }],
+    },
+  ],
+}
+
+// ─── table: Utility CSS (Tailwind) neden locate için işe yaramaz (GRUP C4) ────
+const utilityClassTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Gördüğün class', en: 'Class you see' },
+    { tr: 'Ne anlama gelir?', en: 'What does it mean?' },
+    { tr: 'Locator için sorun', en: 'Problem for a locator' },
+  ],
+  rows: [
+    ['px-3', { tr: 'Yatay padding 0.75rem', en: 'Horizontal padding 0.75rem' }, { tr: 'Onlarca elementte AYNI class — hangi elementi kastettiğin belirsiz', en: 'The SAME class on dozens of elements — which element you mean is ambiguous' }],
+    ['bg-blue-500', { tr: 'Arka plan rengi mavi', en: 'Background color blue' }, { tr: 'Tasarım sistemi renk değiştirirse (blue-500 → indigo-500) her yerde kırılır', en: 'If the design system changes color (blue-500 -> indigo-500) it breaks everywhere' }],
+    ['flex items-center', { tr: 'Flexbox düzeni', en: 'Flexbox layout' }, { tr: 'Düzen değişse de anlamı değişmez — hiçbir zaman kimlik taşımaz', en: 'Even if layout changes, its meaning does not — it never carries identity' }],
+  ],
+}
+
+// ─── code-playground: Tailwind class'lı butonda doğru locator (GRUP C4) ───────
+const tailwindLocatorPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'qaf-c4-utility-css',
+  id: 'qaf-c4-tailwind-locator',
+  title: { tr: 'Kendin Dene: Tailwind Class\'lı Butonu Doğru Locate Et', en: 'Try It Yourself: Correctly Locate a Tailwind-Classed Button' },
+  starterCode: {
+    tr: `// DevTools'ta gördüğün buton:
+// <button class="px-3 py-2 bg-blue-500 rounded text-white" data-testid="new-bug-btn">
+//   Yeni Bug
+// </button>
+// TODO: Tailwind class'larından BİRİNE değil, doğru attribute'a göre locate et.
+await page.locator('.bg-blue-500').click();`,
+    en: `// The button you see in DevTools:
+// <button class="px-3 py-2 bg-blue-500 rounded text-white" data-testid="new-bug-btn">
+//   New Bug
+// </button>
+// TODO: locate by the correct attribute, not one of the Tailwind classes.
+await page.locator('.bg-blue-500').click();`,
+  },
+  solutionCode: {
+    tr: `// Tailwind class'ları tasarım sistemi paylaşımlıdır, kimlik taşımaz
+await page.getByTestId('new-bug-btn').click();`,
+    en: `// Tailwind classes are shared by the design system, they carry no identity
+await page.getByTestId('new-bug-btn').click();`,
+  },
+  hint: {
+    tr: '`bg-blue-500` gibi utility class\'lar sayfadaki BAŞKA birçok elementte de kullanılabilir ve tasarım sistemi rengi değiştirdiğinde tüm sitede aynı anda değişir. Bu, "birden çok eleman eşleşti" ve "renk değişince kırıldı" risklerinin ikisini de taşır.',
+    en: 'Utility classes like `bg-blue-500` can be used on many OTHER elements on the page too, and change site-wide the moment the design system changes color. This carries both the "multiple elements matched" and "broke when the color changed" risks.',
+  },
+  successMessage: {
+    tr: 'Doğru! Utility CSS class\'ları tasarımı paylaşımlı olarak tarif eder, kimlik taşımaz — bir elementi tekil olarak işaretlemek için her zaman data-testid gibi özel bir kanca gerekir.',
+    en: 'Correct! Utility CSS classes describe design in a shared way and carry no identity — uniquely marking one element always requires a dedicated hook like data-testid.',
+  },
+}
+
+// ─── step-animation: pseudo-element/state DOM'da locate edilemez (GRUP C6) ───
+const pseudoStateSteps = {
+  type: 'step-animation',
+  id: 'qaf-c6-pseudo-state-steps',
+  title: { tr: 'Adım Adım: `:hover` ve `::before` Neden DOM\'da Bir Node Değildir', en: 'Step by Step: Why `:hover` and `::before` Are Not DOM Nodes' },
+  steps: [
+    { id: 1, icon: '🖱️', label: { tr: '`:hover` bir DURUMDUR, element değil', en: '`:hover` is a STATE, not an element' }, detail: { tr: 'CSS `.btn:hover { background: darkblue; }` yazınca, tarayıcı yeni bir DOM node OLUŞTURMAZ — sadece fare üzerindeyken stili değiştirir.', en: 'When you write CSS `.btn:hover { background: darkblue; }`, the browser does NOT create a new DOM node — it just changes the style while the mouse is over it.' } },
+    { id: 2, icon: '🚫', label: { tr: 'Locator ona doğrudan ulaşamaz', en: 'A locator cannot reach it directly' }, detail: { tr: '`page.locator(\':hover\')` diye bir şey yazamazsın çünkü `:hover` locate edilecek bir eleman değil, elementin ANLIK durumudur.', en: 'You cannot write something like `page.locator(\':hover\')` because `:hover` is not an element to locate, it is the element\'s MOMENTARY state.' } },
+    { id: 3, icon: '🎭', label: { tr: '`::before`/`::after` de gerçek node değildir', en: '`::before`/`::after` are not real nodes either' }, detail: { tr: 'Bunlar CSS ile "sahte" içerik ekler (ikon, süsleme); DOM ağacında GÖRÜNMEZLER, sadece Render Tree\'de görsel olarak var olurlar.', en: 'These add "fake" content with CSS (an icon, decoration); they are NOT visible in the DOM tree, they only visually exist in the Render Tree.' } },
+    { id: 4, icon: '✅', label: { tr: 'Doğru refleks: durumu TETİKLE, sonucu doğrula', en: 'The right reflex: TRIGGER the state, verify the result' }, detail: { tr: 'Hover\'ı test etmek için elementi `hover()` ile TETİKLERSİN, sonra gerçek bir DOM elementinin (örn. bir tooltip `<div>`) görünür olduğunu doğrularsın.', en: 'To test a hover you TRIGGER it with `hover()`, then verify that a real DOM element (e.g. a tooltip `<div>`) has become visible.' } },
+    { id: 5, icon: '💡', label: { tr: 'Örnek: BugCard üzerine gelince tooltip', en: 'Example: hovering a BugCard shows a tooltip' }, detail: { tr: 'BugCard\'a hover yapınca CSS `::after` ile bir ok görünür AMA test aslında ayrı bir `<div class="tooltip">` elementinin `visible` olduğunu bekler — oku DEĞİL.', en: 'Hovering a BugCard shows an arrow via CSS `::after`, BUT the test actually waits for a separate `<div class="tooltip">` element to become `visible` — not the arrow itself.' } },
+  ],
+}
+
 // ─── sections (tek ağaç — iki dile de aynı referans) ──────────────────────────
 const sections = [
 
@@ -1451,7 +1638,7 @@ const sections = [
     ],
   },
 
-  // ══ GRUP C — CSS: Neden Locator'ı Kırar (Sonnet) ═══════════════════════════
+  // ══ GRUP C — CSS: Neden Locator'ı Kırar ═════════════════════════════════════
   {
     title: { tr: '🎨 CSS: Neden Locator\'ı Kırar', en: '🎨 CSS: Why It Breaks Locators' },
     blocks: [
@@ -1459,9 +1646,445 @@ const sections = [
         type: 'simple-box',
         emoji: '🎨',
         content: {
-          tr: 'CSS, bir binanın BOYA ve DEKORASYON katmanıdır — ve tam da bu yüzden locator için tehlikeli bir zemindir. Class\'lar aslında stil için vardır; developer bir rengi değiştirdiğinde veya modern araçlar (CSS Modules, styled-components) her build\'de class\'a rastgele bir hash (`__x7f2a`) eklediğinde, class\'a bağlı locator sessizce kırılır. Neden bu kadar sık başımıza gelir? Çünkü DevTools\'ta gördüğün ilk şey class\'tır ve "Copy selector" genelde onu üretir — en cazip ama en kırılgan seçim. Java analojisi: bir nesneyi `toString()` çıktısına göre karşılaştırmak gibi — biçim değişince ilişki bozulur, oysa kimliği sabit bir id\'ye bağlamalıydın. QA bağlamında: class\'ın stil için var olduğunu bilen tester ona locator olarak GÜVENMEZ; bunun yerine developer\'dan data-testid ister. (Atomik başlıklar C1-C6 Sonnet fazında — bkz. plan §D-S3.)',
-          en: 'CSS is the PAINT and DECORATION layer of a building — and for exactly that reason it is dangerous ground for a locator. Classes really exist for styling; when a developer changes a color, or modern tools (CSS Modules, styled-components) add a random hash (`__x7f2a`) to the class on every build, a locator bound to the class silently breaks. Why does this happen so often? Because the first thing you see in DevTools is the class, and "Copy selector" usually produces it — the most tempting yet most fragile choice. Java analogy: like comparing an object by its `toString()` output — the relationship breaks when the format changes, whereas you should have bound identity to a fixed id. In QA context: a tester who knows classes exist for styling does NOT trust them as locators; instead they ask the developer for a data-testid. (The atomic topics C1-C6 are in the Sonnet phase — see plan section D-S3.)',
+          tr: 'CSS, bir binanın BOYA ve DEKORASYON katmanıdır — ve tam da bu yüzden locator için tehlikeli bir zemindir. Class\'lar aslında stil için vardır; developer bir rengi değiştirdiğinde veya modern araçlar (CSS Modules, styled-components) her build\'de class\'a rastgele bir hash (`__x7f2a`) eklediğinde, class\'a bağlı locator sessizce kırılır. Neden bu kadar sık başımıza gelir? Çünkü DevTools\'ta gördüğün ilk şey class\'tır ve "Copy selector" genelde onu üretir — en cazip ama en kırılgan seçim. Java analojisi: bir nesneyi `toString()` çıktısına göre karşılaştırmak gibi — biçim değişince ilişki bozulur, oysa kimliği sabit bir id\'ye bağlamalıydın. QA bağlamında: class\'ın stil için var olduğunu bilen tester ona locator olarak GÜVENMEZ; bunun yerine developer\'dan data-testid ister.',
         },
+      },
+
+      // ── C1: Selector Mantığı ──
+      {
+        type: 'heading',
+        text: { tr: '🧩 C1. Selector Mantığı: element, class, id, descendant, child, attribute', en: '🧩 C1. Selector Logic: element, class, id, descendant, child, attribute' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🧩',
+        content: {
+          tr: 'CSS selector\'lar bir POSTA ADRESİ hassasiyeti gibidir: element selector (`button`) = "şehirdeki herhangi bir ev", class selector (`.card`) = "bu mahalledeki herkes", id selector (`#checkout`) = "tam bu adres", descendant (`ul li`) = "bu sokaktaki herhangi bir katta", child (`ul > li`) = "bu sokağın doğrudan üzerindeki evler", attribute (`[data-testid]`) = "üzerinde şu tabelayı taşıyan ev". Peki bu ayrımı bilmek neden işine yarar? Çünkü CSS selector mantığı Playwright/Cypress\'in `.locator()` metoduna neredeyse BİREBİR geçer — CSS okuyabilen tester otomasyon syntax\'ını da okur. Java analojisi: SQL\'de `WHERE` cümlesindeki tablo ilişkilerini (JOIN zinciri) zincirlemek gibi — selector\'lar da HTML ağacındaki torun/çocuk ilişkilerini zincirler. QA bağlamında: descendant selector (boşluk) fazla geniştir ve yanlış-pozitif (istenmeyen iç içe elemanı da yakalama) riski taşır; child selector (`>`) daha dar ve genelde daha güvenlidir.',
+          en: 'CSS selectors are like the precision of a POSTAL ADDRESS: an element selector (`button`) = "any house in the city", a class selector (`.card`) = "everyone in this neighborhood", an id selector (`#checkout`) = "this exact address", descendant (`ul li`) = "anywhere on this street, at any depth", child (`ul > li`) = "the houses directly on this street", attribute (`[data-testid]`) = "the house carrying this specific sign". So why is knowing this distinction useful? Because CSS selector logic carries over almost VERBATIM to Playwright/Cypress\'s `.locator()` method — a tester who can read CSS can read automation syntax too. Java analogy: like chaining table relationships (a JOIN chain) in a SQL `WHERE` clause — selectors likewise chain descendant/child relationships in the HTML tree. In QA context: a descendant selector (a space) is too wide and carries a false-positive risk (accidentally catching an unwanted nested element); a child selector (`>`) is narrower and usually safer.',
+        },
+      },
+      selectorRangeSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'BugCard\'ın içinde bir "yorumlar" alt listesi var ve o da `<li>` elemanları içeriyor. `ul li` ile `ul > li` arasında hangi risk farkı vardır?',
+          en: 'Inside a BugCard there is a "comments" sub-list that also contains `<li>` elements. What is the risk difference between `ul li` and `ul > li`?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiç fark yok, ikisi de aynı elementleri bulur', en: 'No difference, both find the same elements' } },
+          { id: 'b', text: { tr: '`ul li` iç içe alt listedeki li\'leri de yanlışlıkla eşleştirebilir; `ul > li` sadece doğrudan çocukları eşleştirir', en: '`ul li` can mistakenly match the li\'s in the nested sub-list too; `ul > li` matches only direct children' } },
+          { id: 'c', text: { tr: '`ul > li` daha yavaş çalışır', en: '`ul > li` runs slower' } },
+          { id: 'd', text: { tr: '`ul li` sadece ilk elemanı bulur', en: '`ul li` finds only the first element' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Descendant selector (`ul li`, boşluklu) ağacın HER seviyesinde arar, bu yüzden iç içe bir alt listeyi de yakalayabilir. Child selector (`ul > li`) sadece BİR seviye altına bakar — tek seviyeli BugCard listeleri için daha güvenlidir.',
+          en: 'A descendant selector (`ul li`, space-separated) searches EVERY level of the tree, so it can also catch a nested sub-list. A child selector (`ul > li`) only looks ONE level down — safer for single-level BugCard lists.',
+        },
+        retryQuestion: {
+          question: {
+            tr: '`li[data-severity="HIGH"]` gibi bir attribute selector\'ı, `li.severity-high` gibi bir class selector\'ına kıyasla neden genelde daha güvenilir kabul edilir?',
+            en: 'Why is an attribute selector like `li[data-severity="HIGH"]` generally considered more reliable than a class selector like `li.severity-high`?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Attribute selector\'lar her zaman daha hızlıdır', en: 'Attribute selectors are always faster' } },
+            { id: 'b', text: { tr: '`data-*` attribute\'ları genelde iş verisini taşımak için konur ve stilden bağımsızdır; class ise stil amaçlıdır ve tasarımla birlikte değişir', en: '`data-*` attributes are usually placed to carry business data and are independent of style; class exists for styling and changes with the design' } },
+            { id: 'c', text: { tr: 'İkisi de aynı derecede güvenilirdir', en: 'Both are equally reliable' } },
+            { id: 'd', text: { tr: 'class selector\'lar CSS\'te kullanılamaz', en: 'class selectors cannot be used in CSS' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: '`data-severity` gibi bir attribute genelde bir İŞ DEĞERİNİ (severity=HIGH) yansıtır ve tasarım değişikliklerinden etkilenmez; `severity-high` gibi bir class ise stil amacıyla vardır ve tasarım güncellemesinde adı değişebilir.',
+            en: 'An attribute like `data-severity` usually reflects a BUSINESS VALUE (severity=HIGH) and is unaffected by design changes; a class like `severity-high` exists for styling and its name can change in a design update.',
+          },
+        },
+      },
+
+      // ── C2: Specificity ve Cascade ──
+      {
+        type: 'heading',
+        text: { tr: '📶 C2. Specificity ve Cascade: Developer Neden Class\'ı Değiştirir', en: '📶 C2. Specificity and Cascade: Why a Developer Changes the Class' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📶',
+        content: {
+          tr: 'Specificity, bir MAHKEME KARARI hiyerarşisi gibidir: element selector\'ı bir yerel kural (puan: 1), class bir belediye kararı (puan: 10), id bir mahkeme kararı (puan: 100), inline style ise doğrudan cumhurbaşkanlığı kararnamesi (puan: 1000) — üstteki her zaman alttakini EZER. Peki bu neden bir tester\'ı ilgilendirir? Çünkü bir developer bir stili "ezmek" istediğinde genelde YENİ bir class ekler (daha spesifik bir kombinasyon) veya mevcut class\'ı değiştirir — bu da locator olarak kullandığın class\'ın CASCADE savaşının bir yan etkisi olarak değişmesi demektir. Java analojisi: method overriding\'de en spesifik (alt sınıftaki) metodun çalışması gibi — CSS\'te de en spesifik selector kazanır. QA bağlamında: class\'ların "kimlik" değil "stil savaşı" aracı olduğunu bilen tester, bir class\'ın CSS çakışması çözülürken değişebileceğini öngörür ve ona güvenmez.',
+          en: 'Specificity is like a COURT RULING hierarchy: an element selector is a local rule (score: 1), a class is a municipal decision (score: 10), an id is a court ruling (score: 100), and inline style is a direct presidential decree (score: 1000) — each level ALWAYS overrides the one below it. So why does this concern a tester? Because when a developer wants to "override" a style, they usually add a NEW class (a more specific combination) or change the existing one — meaning the class you use as a locator can change as a SIDE EFFECT of a cascade battle. Java analogy: like method overriding, where the most specific (subclass) method runs — in CSS the most specific selector wins too. In QA context: a tester who knows classes are a "styling battle" tool, not an "identity" tool, anticipates that a class can change while a CSS conflict is being resolved, and does not trust it.',
+        },
+      },
+      specificityTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir developer, `.btn-primary` stilini belirli bir sayfada "ezmek" (override) için `.bug-modal .btn-primary` gibi daha spesifik bir selector ekliyor. Bu, tester için ne anlama gelir?',
+          en: 'A developer adds a more specific selector like `.bug-modal .btn-primary` to "override" the `.btn-primary` style on a particular page. What does this mean for a tester?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbir şey, class isimleri asla değişmez', en: 'Nothing, class names never change' } },
+          { id: 'b', text: { tr: 'CSS çakışmalarını çözmek için class YAPISININ değişebileceği, bu yüzden class\'a bağlı locator\'ların bu tür refactor\'larda risk altında olduğu', en: 'The class STRUCTURE can change to resolve CSS conflicts, so class-bound locators are at risk during this kind of refactor' } },
+          { id: 'c', text: { tr: 'Sadece performans etkilenir', en: 'Only performance is affected' } },
+          { id: 'd', text: { tr: 'data-testid de bu değişiklikten etkilenir', en: 'data-testid is also affected by this change' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Specificity/cascade savaşlarını çözmek, developer\'ları class YAPISINI (yeni class ekleme, birleştirme, yeniden adlandırma) değiştirmeye iter. `data-testid` bu savaşın tamamen dışındadır çünkü stil amaçlı değildir — bu yüzden bu tür refactor\'lardan etkilenmez.',
+          en: 'Resolving specificity/cascade battles pushes developers to change the class STRUCTURE (adding a class, merging, renaming). `data-testid` sits entirely outside this battle because it is not for styling — so it is unaffected by this kind of refactor.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir tester "inline style (`style="color:red"`) her zaman kazandığı için bunu locator olarak kullanabilirim" diyor. Bu düşüncedeki hata nedir?',
+            en: 'A tester says "since inline style (`style="color:red"`) always wins, I can use it as a locator". What is the flaw in this thinking?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Doğru bir düşünce, inline style en iyi locator\'dır', en: 'It is a correct idea, inline style is the best locator' } },
+            { id: 'b', text: { tr: '"Kazanmak" (specificity) ile "kimlik taşımak" farklı şeylerdir; inline style genelde dinamik/koşullu değer taşır (örn. hesaplanan bir renk) ve stabil değildir', en: '"Winning" (specificity) and "carrying identity" are different things; inline style usually carries a dynamic/conditional value (e.g. a computed color) and is not stable' } },
+            { id: 'c', text: { tr: 'Inline style CSS\'te desteklenmez', en: 'Inline style is not supported in CSS' } },
+            { id: 'd', text: { tr: 'Sadece id selector\'lar kazanabilir', en: 'Only id selectors can win' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Specificity puanı yüksek olmak, o değerin STABİL olduğu anlamına gelmez — tam tersine inline style\'lar genelde JS ile hesaplanan (severity rengine göre değişen gibi) dinamik değerlerdir ve locator için class kadar (hatta daha) güvenilmezdir.',
+            en: 'Having a high specificity score does not mean the value is STABLE — on the contrary, inline styles are usually dynamic values computed by JS (like changing by severity color) and are just as (or more) unreliable as a locator as class.',
+          },
+        },
+      },
+
+      // ── C3: CSS Modules / Scoped CSS ──
+      {
+        type: 'heading',
+        text: { tr: '🎲 C3. CSS Modules / Scoped CSS: `Btn_btn__x7f2a` Hash\'i Nereden Gelir', en: '🎲 C3. CSS Modules / Scoped CSS: Where the `Btn_btn__x7f2a` Hash Comes From' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎲',
+        content: {
+          tr: 'CSS Modules, her dosyaya kendi ÖZEL SOYADINI veren bir NÜFUS MÜDÜRLÜĞÜ gibidir: iki farklı component\'te aynı `.btn` ismi kullanılsa bile, her biri kendi dosyasına özgü bir "soyad" (hash) alır ve asla birbirine karışmaz. Peki bu neden testerı ilgilendirir? Çünkü bu soyad OTOMATİK ve RASTGELE üretilir ve genelde her `npm run build` çalıştığında YENİDEN üretilir — dünkü `.Btn_btn__x7f2a` bugün `.Btn_btn__z9k1p` olabilir. Java analojisi: derleyicinin her derlemede farklı bir iç (senkron/gizli) isim ürettiği anonim sınıflar gibi — dışarıdan görünen davranış aynıdır ama iç isim güvenilir bir referans değildir. QA bağlamında: bu hash\'e bağlanan HERHANGİ bir test, bir sonraki deploy\'da SESSİZCE (derleme hatası vermeden, sadece test çalışma zamanında) kırılır — aşağıdaki film bu mekanizmayı adım adım gösterir.',
+          en: 'CSS Modules is like a CIVIL REGISTRY OFFICE that gives each file its own PRIVATE SURNAME: even if two different components both use the name `.btn`, each gets a surname (hash) unique to its own file and they never get mixed up. So why does this concern a tester? Because this surname is generated AUTOMATICALLY and RANDOMLY, usually REGENERATED on every `npm run build` — yesterday\'s `.Btn_btn__x7f2a` can become `.Btn_btn__z9k1p` today. Java analogy: like anonymous classes where the compiler generates a different internal (synthetic/hidden) name on every compile — the externally visible behavior is the same, but the internal name is not a reliable reference. In QA context: ANY test bound to this hash breaks SILENTLY on the next deploy (no compile error, only a test-runtime failure) — the film below walks through this mechanism step by step.',
+        },
+      },
+      classHashChangeFilm,
+      {
+        type: 'code',
+        language: 'jsx',
+        code: {
+          tr: `// SÜTUN 1 — Developer'ın yazdığı kaynak (BugCard.module.css + JSX)
+/* BugCard.module.css */
+.badge { padding: 4px 8px; border-radius: 4px; }
+
+// BugCard.jsx
+import styles from './BugCard.module.css'
+<span className={styles.badge}>{bug.status}</span>
+
+// SÜTUN 2 — Tarayıcıda oluşan GERÇEK DOM
+// <span class="BugCard_badge__k3n9">OPEN</span>
+//   ← __k3n9 HER build'de yeniden üretilir`,
+          en: `// COLUMN 1 — The source the developer wrote (BugCard.module.css + JSX)
+/* BugCard.module.css */
+.badge { padding: 4px 8px; border-radius: 4px; }
+
+// BugCard.jsx
+import styles from './BugCard.module.css'
+<span className={styles.badge}>{bug.status}</span>
+
+// COLUMN 2 — The REAL DOM produced in the browser
+// <span class="BugCard_badge__k3n9">OPEN</span>
+//   <- __k3n9 is REGENERATED on every build`,
+        },
+      },
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          {
+            icon: '1️⃣',
+            label: { tr: 'Kaynak (ne yazıldı)', en: 'Source (what was written)' },
+            desc: {
+              tr: '`.badge` — developer sade bir CSS Module class ismi yazdı. Dosyada "badge" okunur ve masum görünür.',
+              en: '`.badge` — the developer wrote a plain CSS Module class name. In the file it reads "badge" and looks innocent.',
+            },
+          },
+          {
+            icon: '2️⃣',
+            label: { tr: 'Gerçek DOM (ne oluştu)', en: 'Real DOM (what was produced)' },
+            desc: {
+              tr: '`class="BugCard_badge__k3n9"` — build aracı benzersizlik için bir hash ekledi; bu hash build sırasına/içeriğe bağlıdır ve yeniden üretilebilir.',
+              en: '`class="BugCard_badge__k3n9"` — the build tool added a hash for uniqueness; this hash depends on build order/content and can be regenerated.',
+            },
+          },
+          {
+            icon: '3️⃣',
+            label: { tr: 'Tester\'ın kararı', en: 'The tester\'s decision' },
+            desc: {
+              tr: '❌ `.BugCard_badge__k3n9`\'a locate ETME (hash değişir). ✅ `getByTestId`/`getByRole` kullan. 💬 Developer\'dan iste: `data-testid="status-badge"`.',
+              en: '❌ Do NOT locate by `.BugCard_badge__k3n9` (the hash changes). ✅ Use `getByTestId`/`getByRole`. 💬 Ask the developer for: `data-testid="status-badge"`.',
+            },
+          },
+        ],
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎯',
+        content: {
+          tr: 'Developer\'dan Ne İste: *"StatusBadge component\'ine `data-testid=\'status-badge\'` ekler misin? CSS Modules class\'ı her build\'de yeniden hash\'liyor, o yüzden ona bağlanamıyorum — build\'den bağımsız bir kanca gerekiyor."* — Bu cümle sorunu (hash\'in build bağımlılığı) doğru teşhis eder ve somut bir çözüm ister. Not: bu, GRUP F\'deki React panosuyla aynı temel dersi PEKİŞTİRİR ama farklı bir açıdan bakar — GRUP F "React kaynağını okuma" becerisine, burası ise "build ARACININ hash\'i NASIL ürettiği" mekanizmasına odaklanır.',
+          en: 'What to Ask the Developer: *"Could you add `data-testid=\'status-badge\'` to the StatusBadge component? The CSS Modules class gets rehashed on every build, so I cannot bind to it — I need a hook independent of the build."* — This sentence correctly diagnoses the problem (the hash\'s build dependency) and asks for a concrete fix. Note: this REINFORCES the same core lesson as the React board in GROUP F, but from a different angle — GROUP F focuses on the "reading React source" skill, this one focuses on the mechanism of HOW the build TOOL produces the hash.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'CSS Modules hash\'i (`__x7f2a`) genelde neye göre üretilir ve bu neden onu bir locator kimliği olarak GÜVENİLMEZ kılar?',
+          en: 'What is a CSS Modules hash (`__x7f2a`) usually generated from, and why does this make it UNTRUSTWORTHY as a locator identity?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Kullanıcının tarayıcı diline göre — dil değişince değişir', en: 'By the user\'s browser language — it changes when the language changes' } },
+          { id: 'b', text: { tr: 'Dosya yolu/içeriği veya build sırasına göre — build tekrarlandığında YENİDEN üretilebilir', en: 'By the file path/content or build order — it can be REGENERATED whenever the build re-runs' } },
+          { id: 'c', text: { tr: 'Sunucunun IP adresine göre', en: 'By the server\'s IP address' } },
+          { id: 'd', text: { tr: 'Rastgele değil, her zaman sabittir', en: 'It is not random, it is always fixed' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Hash, genelde dosya yolu + içerik (veya build sırası) üzerinden hesaplanır; bu girdilerden biri değişince (küçük bir kod değişikliği bile) hash YENİDEN üretilir. Bu, hash\'i bir "kimlik" değil, "o anki build\'e özgü bir imza" yapar.',
+          en: 'The hash is usually computed from the file path + content (or build order); when any of these inputs change (even a small code change), the hash is REGENERATED. This makes the hash not an "identity" but "a signature specific to that particular build".',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir developer "biz hash\'i sabitlemek için `webpack.config.js`\'te `localIdentName` ayarını değiştirdik, artık class isimleri build\'ler arası SABİT" diyor. Bu durumda tester\'ın yaklaşımı ne olmalı?',
+            en: 'A developer says "we set `localIdentName` in `webpack.config.js` to make the hash fixed, so class names are now STABLE across builds". What should the tester\'s approach be in this case?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Yine de data-testid\'yi tercih et; class stil AMACIYLA vardır ve gelecekte tasarım/config değişebilir', en: 'Still prefer data-testid; the class exists for a styling PURPOSE and the design/config may change in the future' } },
+            { id: 'b', text: { tr: 'Artık class\'a güvenle bağlanabilirsin, sorun tamamen çözüldü', en: 'You can now safely bind to the class, the problem is fully solved' } },
+            { id: 'c', text: { tr: 'localIdentName bir CSS özelliği değildir, bu mümkün değildir', en: 'localIdentName is not a CSS property, this is not possible' } },
+            { id: 'd', text: { tr: 'Bu ayar sadece production\'da çalışır', en: 'This setting only works in production' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Config ile hash\'i sabitlemek TEKNİK olarak mümkündür ama class hâlâ AMACI itibariyle stildir — bir tasarım güncellemesinde isim değişebilir veya config bir gün geri alınabilir. Kimlik taşıma amacıyla var OLMAYAN bir alana bel bağlamak yerine data-testid tercih edilmeli.',
+            en: 'Fixing the hash via config is TECHNICALLY possible, but the class is still styling BY PURPOSE — the name can change in a design update, or the config could be reverted one day. Rather than relying on a field that does NOT exist to carry identity, data-testid should be preferred.',
+          },
+        },
+      },
+
+      // ── C4: Utility CSS (Tailwind) ──
+      {
+        type: 'heading',
+        text: { tr: '🧵 C4. Utility CSS (Tailwind): `class="px-3 py-2 bg-blue-500"` Neden İşe Yaramaz', en: '🧵 C4. Utility CSS (Tailwind): Why `class="px-3 py-2 bg-blue-500"` Does Not Work' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🧵',
+        content: {
+          tr: 'Utility CSS (Tailwind), bir OFİS ÜNİFORMASI gibidir: `px-3`, `bg-blue-500` gibi class\'lar tek bir kişiye özgü değildir, aynı ÜNİFORMAYI (aynı padding/rengi) giyen HERKESTE aynı görünür. Peki neden bu, locator için özellikle kötü bir seçenek? Çünkü Tailwind class\'ları PAYLAŞIMLI tasarım kararlarıdır — sayfada onlarca elementte aynı `bg-blue-500` olabilir (kaçını eşleştirdiğin belirsizleşir) VE tasarım sistemi rengi değiştirirse (blue-500 → indigo-500) TÜM sitede aynı anda kırılır. Java analojisi: bir dizi nesnenin hepsinde aynı sabit `enum` değerini kullanıp bu değere göre TEK bir nesneyi ayırt etmeye çalışmak gibi — enum bir kimlik değil, bir kategoridir. QA bağlamında: utility class\'lar tasarımı tarif eder, kimlik taşımaz; tekil bir elementi işaretlemek için HER ZAMAN data-testid gibi özel bir kanca gerekir.',
+          en: 'Utility CSS (Tailwind) is like an OFFICE UNIFORM: classes like `px-3`, `bg-blue-500` are not unique to one person, they look the same on EVERYONE wearing the same UNIFORM (the same padding/color). So why is this an especially poor choice for a locator? Because Tailwind classes are SHARED design decisions — the page can have dozens of elements with the same `bg-blue-500` (which one you matched becomes ambiguous), AND if the design system changes the color (blue-500 -> indigo-500) it breaks site-WIDE all at once. Java analogy: like trying to distinguish a SINGLE object in an array by the same constant `enum` value shared by all of them — an enum is not an identity, it is a category. In QA context: utility classes describe design, they carry no identity; uniquely marking one element ALWAYS requires a dedicated hook like data-testid.',
+        },
+      },
+      utilityClassTable,
+      tailwindLocatorPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir sayfada 12 farklı buton `class="px-3 py-2 bg-blue-500 rounded"` kullanıyor. `page.locator(\'.bg-blue-500\')` yazan bir test ne ile karşılaşır?',
+          en: 'A page has 12 different buttons using `class="px-3 py-2 bg-blue-500 rounded"`. What does a test written as `page.locator(\'.bg-blue-500\')` encounter?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Sadece doğru butonu bulur', en: 'It finds only the correct button' } },
+          { id: 'b', text: { tr: '12 element eşleşir — Playwright "strict mode violation" gibi bir hata verir çünkü hangisini kastettiğin belirsizdir', en: '12 elements match — Playwright throws something like a "strict mode violation" because which one you meant is ambiguous' } },
+          { id: 'c', text: { tr: 'Hiçbir element bulunamaz', en: 'No element is found' } },
+          { id: 'd', text: { tr: 'Test otomatik olarak ilk butonu seçer, sorun çıkmaz', en: 'The test automatically picks the first button, no problem arises' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Utility class paylaşımlı bir tasarım kararı olduğundan sayfadaki BİRÇOK elementte aynı anda bulunabilir. Modern araçlar (Playwright strict mode) birden fazla eşleşmeyi SESSİZCE ilk elemente düşürmez, açık bir hata fırlatır — bu iyi bir şeydir çünkü belirsizliği gizlemez.',
+          en: 'Because a utility class is a shared design decision, it can exist on MANY elements on the page simultaneously. Modern tools (Playwright strict mode) do not SILENTLY fall back to the first match, they throw an explicit error — which is a good thing because it does not hide the ambiguity.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Tasarım sistemi ekibi "artık mavi yerine indigo kullanıyoruz" diyerek `bg-blue-500`\'u sitede TÜM butonlarda `bg-indigo-500` ile değiştirdi. Class\'a bağlı locator\'lar için sonuç ne olur?',
+            en: 'The design system team says "we now use indigo instead of blue" and replaces `bg-blue-500` with `bg-indigo-500` on ALL buttons site-wide. What is the consequence for class-bound locators?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Hiçbir şey olmaz, class isimleri her zaman sabittir', en: 'Nothing happens, class names are always fixed' } },
+            { id: 'b', text: { tr: '`.bg-blue-500`\'a bağlı TÜM testler aynı anda ve sessizce kırılır — tek bir tasarım kararı yüzlerce testi etkileyebilir', en: 'ALL tests bound to `.bg-blue-500` break simultaneously and silently — a single design decision can affect hundreds of tests' } },
+            { id: 'c', text: { tr: 'Sadece o butonun testi etkilenir, diğerleri etkilenmez', en: 'Only that button\'s test is affected, others are not' } },
+            { id: 'd', text: { tr: 'data-testid\'ler de bu değişiklikten etkilenir', en: 'data-testid values are also affected by this change' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Utility class\'lar PAYLAŞIMLI olduğu için tek bir tasarım kararı (renk değişimi) siteyi geneline yayılır ve o class\'a bağlı HER test aynı anda kırılır — bu, utility CSS\'in "toplu kırılganlık" riskidir. data-testid tasarım kararlarından tamamen izole olduğu için etkilenmez.',
+            en: 'Because utility classes are SHARED, a single design decision (a color change) spreads site-wide and EVERY test bound to that class breaks at once — this is utility CSS\'s "mass fragility" risk. data-testid, being fully isolated from design decisions, is unaffected.',
+          },
+        },
+      },
+
+      // ── C5: Runtime Styling (styled-components/emotion) ──
+      {
+        type: 'heading',
+        text: { tr: '⚡ C5. Runtime Styling (styled-components/emotion): Her Render\'da Değişen Class', en: '⚡ C5. Runtime Styling (styled-components/emotion): a Class That Changes Every Render' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '⚡',
+        content: {
+          tr: 'CSS Modules hash\'i BUILD ZAMANINDA (bir kez, `npm run build` sırasında) üretilirken, styled-components/emotion gibi "runtime CSS-in-JS" araçları class\'ı TARAYICIDA, JS ÇALIŞIRKEN üretir — bu, bir RESTORANDA her siparişte YENİDEN yazılan bir fiş numarası gibidir: sipariş (prop) değişirse fiş numarası da değişir. Peki bu neden CSS Modules\'tan bile daha riskli? Çünkü bazı yapılandırmalarda class, component\'in ALDIĞI PROP\'A göre de değişebilir (`severity="HIGH"` için farklı, `severity="LOW"` için farklı bir class üretilebilir) — yani aynı component\'in İKİ farklı örneği bile farklı class taşıyabilir. Java analojisi: her çağrıda farklı bir hash üreten, override edilmemiş `Object.hashCode()`\'a güvenmek gibi — referans her seferinde değişir. QA bağlamında: bu araçlarla üretilen class\'lara (`sc-bdfBwQ kxYz` gibi) ASLA locate etme; bu grubun panosu bu kararı somutlaştırır.',
+          en: 'While a CSS Modules hash is generated at BUILD TIME (once, during `npm run build`), "runtime CSS-in-JS" tools like styled-components/emotion generate the class IN THE BROWSER, WHILE JS RUNS — like a RESTAURANT reissuing a ticket number on every order: if the order (the prop) changes, the ticket number changes too. So why is this even riskier than CSS Modules? Because in some setups the class can also change based on the PROP the component RECEIVES (`severity="HIGH"` can produce a different class than `severity="LOW"`) — meaning even TWO instances of the same component can carry different classes. Java analogy: like relying on an unoverridden `Object.hashCode()` that produces a different hash on every call — the reference changes every time. In QA context: NEVER locate by classes produced by these tools (like `sc-bdfBwQ kxYz`); this group\'s board makes that decision concrete.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'jsx',
+        code: {
+          tr: `// SÜTUN 1 — Developer'ın yazdığı kaynak (styled-components)
+const Badge = styled.span\`
+  background: \${props => props.severity === 'HIGH' ? 'red' : 'gray'};
+\`
+<Badge severity="HIGH">HIGH</Badge>
+
+// SÜTUN 2 — Tarayıcıda RUNTIME'da üretilen DOM
+// <span class="sc-bdfBwQ kxYz">HIGH</span>
+//   ← "kxYz" kısmı severity prop'una göre DEĞİŞEBİLİR`,
+          en: `// COLUMN 1 — The source the developer wrote (styled-components)
+const Badge = styled.span\`
+  background: \${props => props.severity === 'HIGH' ? 'red' : 'gray'};
+\`
+<Badge severity="HIGH">HIGH</Badge>
+
+// COLUMN 2 — The DOM produced at RUNTIME in the browser
+// <span class="sc-bdfBwQ kxYz">HIGH</span>
+//   <- the "kxYz" part CAN CHANGE based on the severity prop`,
+        },
+      },
+      {
+        type: 'grid',
+        cols: 3,
+        items: [
+          {
+            icon: '1️⃣',
+            label: { tr: 'Kaynak (ne yazıldı)', en: 'Source (what was written)' },
+            desc: {
+              tr: '`styled.span\\`...\\`` — stil bir JS template literal\'ı içinde tanımlandı; prop\'a göre koşullu bir arka plan rengi var.',
+              en: '`styled.span\\`...\\`` — the style is defined inside a JS template literal; it has a conditional background color based on a prop.',
+            },
+          },
+          {
+            icon: '2️⃣',
+            label: { tr: 'Gerçek DOM (ne oluştu)', en: 'Real DOM (what was produced)' },
+            desc: {
+              tr: '`class="sc-bdfBwQ kxYz"` — birinci parça component kimliği (nispeten sabit), ikinci parça (`kxYz`) RUNTIME\'da, prop kombinasyonuna göre üretildi.',
+              en: '`class="sc-bdfBwQ kxYz"` — the first token is the component identity (relatively stable), the second (`kxYz`) was generated at RUNTIME based on the prop combination.',
+            },
+          },
+          {
+            icon: '3️⃣',
+            label: { tr: 'Tester\'ın kararı', en: 'The tester\'s decision' },
+            desc: {
+              tr: '❌ `.sc-bdfBwQ` veya `.kxYz`\'e locate ETME (ikinci parça prop\'a göre değişir). ✅ `data-testid`/`getByRole` kullan. 💬 Developer\'dan iste: `data-testid="severity-badge"`.',
+              en: '❌ Do NOT locate by `.sc-bdfBwQ` or `.kxYz` (the second part changes with the prop). ✅ Use `data-testid`/`getByRole`. 💬 Ask the developer for: `data-testid="severity-badge"`.',
+            },
+          },
+        ],
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎯',
+        content: {
+          tr: 'Developer\'dan Ne İste: *"Bu Badge component\'ine `data-testid=\'severity-badge\'` ekler misin? styled-components class\'ı prop\'a göre runtime\'da değişebiliyor, o yüzden ona güvenle bağlanamıyorum."* — CSS Modules ile farkı vurgula: burada sorun sadece "build değişince kırılır" değil, "AYNI build içinde bile prop\'a göre değişebilir" olduğu için daha temkinli olunmalı.',
+          en: 'What to Ask the Developer: *"Could you add `data-testid=\'severity-badge\'` to this Badge component? The styled-components class can change at runtime based on the prop, so I cannot reliably bind to it."* — Highlight the difference from CSS Modules: here the problem is not just "it breaks when the build changes", it can also change based on the prop EVEN WITHIN THE SAME build, so extra caution is warranted.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: 'CSS Modules hash\'i ile styled-components/emotion class\'ı arasındaki EN KRİTİK fark nedir?',
+          en: 'What is the MOST CRITICAL difference between a CSS Modules hash and a styled-components/emotion class?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hiçbiri, ikisi de tamamen aynı davranır', en: 'None, both behave exactly the same' } },
+          { id: 'b', text: { tr: 'CSS Modules hash\'i BUILD zamanında bir kez üretilir; styled-components/emotion class\'ı RUNTIME\'da, hatta prop\'a göre AYNI build içinde bile değişebilir', en: 'A CSS Modules hash is generated once at BUILD time; a styled-components/emotion class is generated at RUNTIME, and can even change based on a prop WITHIN THE SAME build' } },
+          { id: 'c', text: { tr: 'styled-components hiç class üretmez', en: 'styled-components never produces a class' } },
+          { id: 'd', text: { tr: 'CSS Modules sadece Angular\'da kullanılır', en: 'CSS Modules is only used in Angular' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'CSS Modules\'ın hash\'i build zamanı sabittir (bir sonraki build\'e kadar değişmez); runtime CSS-in-JS araçları ise class\'ı JS çalışırken üretir ve bu, aynı build içinde bile prop kombinasyonuna göre farklılaşabilir — daha da öngörülemez bir zemindir.',
+          en: 'A CSS Modules hash is fixed at build time (does not change until the next build); runtime CSS-in-JS tools generate the class while JS runs, and this can differ by prop combination even within the same build — an even less predictable ground.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'İki farklı BugCard, biri `severity="HIGH"` biri `severity="LOW"` ile render ediliyor ve styled-components ikisine de FARKLI ikinci class parçası (`kxYz` vs `mnOp`) üretiyor. Bu senaryoda class\'a bağlı bir locator ne ile karşılaşır?',
+            en: 'Two different BugCards render, one with `severity="HIGH"` and one with `severity="LOW"`, and styled-components produces a DIFFERENT second class token (`kxYz` vs `mnOp`) for each. In this scenario, what does a class-bound locator encounter?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Her iki karta da aynı locator\'la ulaşabilir', en: 'It can reach both cards with the same locator' } },
+            { id: 'b', text: { tr: 'Her severity değeri için AYRI bir locator yazmak zorunda kalır, bu da kırılgan ve bakımı zor bir test tabanı yaratır', en: 'It is forced to write a SEPARATE locator for each severity value, creating a fragile and hard-to-maintain test base' } },
+            { id: 'c', text: { tr: 'Test otomatik olarak ikisini de bulur çünkü prop\'lar önemsizdir', en: 'The test automatically finds both because props do not matter' } },
+            { id: 'd', text: { tr: 'severity prop\'u DOM\'a hiç yansımaz', en: 'The severity prop never reflects into the DOM' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Runtime\'da prop\'a göre değişen class\'lar, her varyasyon için ayrı ve kırılgan locator yazmayı zorunlu kılar. `data-testid="severity-badge"` gibi PROP\'TAN bağımsız sabit bir kanca, tüm varyasyonlar için TEK bir locator\'ı mümkün kılar.',
+            en: 'Classes that change with a prop at runtime force writing a separate, fragile locator for every variation. A fixed hook independent of the PROP, like `data-testid="severity-badge"`, makes a SINGLE locator possible across all variations.',
+          },
+        },
+      },
+
+      // ── C6: Pseudo-element/state ──
+      {
+        type: 'heading',
+        text: { tr: '👻 C6. Pseudo-element/State (`:hover`, `::before`): Neden DOM\'da Locate Edilemez', en: '👻 C6. Pseudo-elements/States (`:hover`, `::before`): Why They Cannot Be Located in the DOM' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '👻',
+        content: {
+          tr: '`:hover` ve `::before`, bir tiyatro sahnesindeki IŞIK EFEKTİ gibidir: sahne üzerinde GERÇEK bir obje (aktör, dekor) DEĞİLDİR, sadece belirli bir ANDA (fare üzerindeyken) veya belirli bir KOŞULDA görünen bir projeksiyondur. Peki bu neden bir locator sorunu yaratır? Çünkü `page.locator(\':hover\')` gibi bir şey YAZAMAZSIN — locate edilecek bir DOM node\'u yoktur, sadece bir STİL DURUMU vardır. Java analojisi: bir nesnenin `isActive()` metodunun anlık `true` dönmesi gibi — bu bir NESNE değil, bir nesnenin GEÇİCİ durumudur; "isActive() metodunu locate et" demek anlamsızdır, ama "nesneyi bul, sonra `isActive()` çağır" anlamlıdır. QA bağlamında: `:hover`/`::before` test etmek için doğru refleks, o DURUMU TETİKLEMEK (`hover()` çağırmak) ve sonucunda ORTAYA ÇIKAN gerçek bir DOM elementinin (bir tooltip `<div>` gibi) görünür olduğunu doğrulamaktır — pseudo-element\'in kendisini değil.',
+          en: '`:hover` and `::before` are like a LIGHTING EFFECT on a theater stage: they are NOT a real object on the stage (an actor, a prop), just a projection that appears at a specific MOMENT (while the mouse is over it) or under a specific CONDITION. So why does this create a locator problem? Because you CANNOT write something like `page.locator(\':hover\')` — there is no DOM node to locate, only a STYLE STATE. Java analogy: like a nesne\'s `isActive()` method momentarily returning `true` — this is not an OBJECT, it is a TRANSIENT state of an object; saying "locate the isActive() method" is meaningless, but "find the object, then call isActive()" makes sense. In QA context: the right reflex for testing `:hover`/`::before` is to TRIGGER that state (call `hover()`) and then verify that a real DOM element that APPEARS as a result (like a tooltip `<div>`) becomes visible — not the pseudo-element itself.',
+        },
+      },
+      pseudoStateSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'BugCard\'a fare ile üzerine gelince CSS `::after` ile küçük bir ok görünüyor VE ayrı bir `<div class="tooltip">` elementi `visible` hale geliyor. Bir test bu davranışı nasıl doğrulamalıdır?',
+          en: 'Hovering over a BugCard shows a small arrow via CSS `::after` AND a separate `<div class="tooltip">` element becomes `visible`. How should a test verify this behavior?',
+        },
+        options: [
+          { id: 'a', text: { tr: '`page.locator(\'::after\')` ile oku doğrudan locate ederek', en: 'By directly locating the arrow with `page.locator(\'::after\')`' } },
+          { id: 'b', text: { tr: 'Karta `hover()` çağırıp, ardından gerçek `<div class="tooltip">` elementinin `visible` olduğunu doğrulayarak', en: 'By calling `hover()` on the card, then verifying the real `<div class="tooltip">` element is `visible`' } },
+          { id: 'c', text: { tr: 'Sayfayı yenileyip tekrar bakarak', en: 'By reloading the page and looking again' } },
+          { id: 'd', text: { tr: '`:hover` bir CSS class\'ı olduğu için `.hover` diye locate ederek', en: 'By locating `.hover` since `:hover` is a CSS class' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: '`::after` gerçek bir DOM node değildir, locate edilemez. Doğru test stratejisi durumu TETİKLEMEK (`hover()`) ve bunun sonucunda DOM\'a giren/görünür olan GERÇEK bir elementi (tooltip `<div>`) doğrulamaktır.',
+          en: '`::after` is not a real DOM node and cannot be located. The correct test strategy is to TRIGGER the state (`hover()`) and then verify the REAL element (the tooltip `<div>`) that enters the DOM/becomes visible as a result.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bir developer "`:focus-visible` durumunu test etmek için `page.locator(\':focus-visible\')` yazdım ama hiçbir şey bulamıyor" diyor. Bu neden beklenen bir davranıştır?',
+            en: 'A developer says "I wrote `page.locator(\':focus-visible\')` to test the `:focus-visible` state but it finds nothing". Why is this expected behavior?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Bu bir araç hatasıdır, düzeltilmesi gerekir', en: 'This is a tool bug, it needs to be fixed' } },
+            { id: 'b', text: { tr: '`:focus-visible` bir DOM elementi değil bir durumdur; doğru yaklaşım elementi bulup klavyeyle odaklamak (Tab) ve durumun sonucunu (görsel/stil değişikliği yerine erişilebilir davranışı) doğrulamaktır', en: '`:focus-visible` is not a DOM element but a state; the right approach is to find the element, focus it via keyboard (Tab), and verify the resulting behavior' } },
+            { id: 'c', text: { tr: '`:focus-visible` sadece Firefox\'ta çalışır', en: '`:focus-visible` only works in Firefox' } },
+            { id: 'd', text: { tr: 'Pseudo-class\'lar Playwright\'ta hiç desteklenmez', en: 'Pseudo-classes are not supported at all in Playwright' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Tüm pseudo-class/pseudo-element\'lerin ortak kuralı: bunlar bir ELEMENT DURUMUNU tarif eder, kendileri bir element DEĞİLDİR. Test her zaman durumu TETİKLER (hover/focus/click) ve bunun somut, DOM\'da var olan bir SONUCUNU doğrular.',
+            en: 'The common rule for all pseudo-classes/pseudo-elements: they describe an ELEMENT STATE, they are NOT an element themselves. A test always TRIGGERS the state (hover/focus/click) and verifies a concrete RESULT that exists in the DOM.',
+          },
+        },
+      },
+      {
+        type: 'feynman-checkpoint',
+        id: 'qaf-feynman-c',
+        promptTr: 'CSS Modules hash\'inin (`__x7f2a`) ve styled-components runtime class\'ının neden locator olarak güvenilmez olduğunu, ve `:hover` gibi bir pseudo-state\'i test etmenin doğru yolunu, sektöre yeni giren birine kendi cümlelerinle anlat.',
+        promptEn: 'Explain, in your own words, why a CSS Modules hash (`__x7f2a`) and a styled-components runtime class are unreliable as locators, and the correct way to test a pseudo-state like `:hover`, to a newcomer.',
+        keywords: ['hash', 'build', 'runtime', 'styled-components', 'hover', 'pseudo', 'dom', 'testid'],
+        modelAnswerTr: 'CSS Modules hash\'i her build\'de yeniden üretildiği için, ona bağlanan bir locator bir sonraki deploy\'da sessizce kırılır. styled-components/emotion gibi runtime araçlarda ise class hem build\'de hem de bazen prop\'a göre AYNI build içinde bile değişebilir, bu yüzden daha da güvenilmezdir. `:hover`/`::before` gibi pseudo-state\'ler ise hiç DOM node değildir; doğru test yaklaşımı durumu (hover) tetikleyip, sonucunda görünür hale gelen gerçek bir DOM elementini (örneğin bir tooltip) doğrulamaktır.',
+        modelAnswerEn: 'Because a CSS Modules hash is regenerated on every build, a locator bound to it silently breaks on the next deploy. In runtime tools like styled-components/emotion the class can change both on build and sometimes based on a prop even within the same build, making it even less reliable. Pseudo-states like `:hover`/`::before` are not DOM nodes at all; the correct testing approach is to trigger the state (hover) and then verify a real DOM element that becomes visible as a result (like a tooltip).',
       },
     ],
   },
