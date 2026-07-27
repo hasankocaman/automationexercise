@@ -1731,6 +1731,105 @@ const jsInterviewMechanismLab = {
   xpReward: 10,
 }
 
+// "Önce Tahmin Et" referans blokları — javascriptData tek ağaçlıdır (en/tr AYNI
+// `sections` referansını paylaşır), bu yüzden her sabit `sections` dizisi
+// içine TEK yere eklenir; obje kendi içinde bilingual `{tr,en}` taşır.
+const predJsHoisting = {
+  type: 'prediction',
+  id: 'js-hoisting-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-variables-scope',
+  prompt: {
+    tr: 'Bu kod `var` kullanılan değişkeni değerinden ÖNCE okuyor. Ne olur?',
+    en: 'This code reads a `var` variable BEFORE its value is assigned. What happens?',
+  },
+  code: `console.log(testCount);
+var testCount = 42;
+console.log(testCount);`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: 'ReferenceError: testCount is not defined', en: 'ReferenceError: testCount is not defined' }, why: {
+      tr: '`var` ile tanımlanan değişkenler HOISTING nedeniyle dosyanın en tepesine "çekilir" — tanım zaten bilinir, sadece değer henüz atanmamıştır.',
+      en: '`var` declarations are HOISTED to the top of the scope — the declaration is already known, only the value has not been assigned yet.' } },
+    { id: 'b', label: { tr: 'undefined, sonra 42', en: 'undefined, then 42' }, correct: true },
+    { id: 'c', label: { tr: '42, sonra 42 (hoisting değeri de taşır)', en: '42, then 42 (hoisting carries the value too)' }, why: {
+      tr: 'Hoisting sadece TANIMI yukarı taşır, DEĞERİ değil — atama satırına gelene kadar değer `undefined`\'dır.',
+      en: 'Hoisting only lifts the DECLARATION, not the VALUE — until the assignment line runs, the value is `undefined`.' } },
+    { id: 'd', label: { tr: 'SyntaxError (değişken kullanmadan önce tanımlanmalı)', en: 'SyntaxError (must declare before use)' }, why: {
+      tr: 'Bu, `let`/`const` için Temporal Dead Zone davranışı olurdu — `var` için sözdizimi tamamen geçerlidir.',
+      en: 'That is the Temporal Dead Zone behavior for `let`/`const` — with `var` the syntax is entirely valid.' } },
+  ],
+  output: 'undefined\n42',
+  reveal: {
+    tr: 'JavaScript, bir fonksiyon/dosya çalışmaya başlamadan ÖNCE, o kapsamdaki TÜM `var` bildirimlerini kapsamın en tepesine "taşır" (hoisting) — ama SADECE bildirimi, atanan DEĞERİ değil. Yani motor kodu aslında şöyle görür: `var testCount; console.log(testCount); testCount = 42; console.log(testCount);` — ilk `console.log` çalıştığında `testCount` zaten TANIMLIDIR (hata vermez) ama henüz değer almamıştır, bu yüzden `undefined` yazdırılır. İkinci `console.log` atamadan SONRA çalıştığı için `42` yazdırır. `let`/`const` de hoisting\'e uğrar ama "Temporal Dead Zone" adı verilen bir kural nedeniyle atama satırından önce erişim `ReferenceError` fırlatır — bu yüzden modern kodda `var` yerine `let`/`const` tercih edilir, hoisting kaynaklı sessiz `undefined` buglarını önler. QA otomasyonunda bu, bir yardımcı fonksiyonun en üstünde tanımlanması gereken bir config değişkenini dosyanın ortasında `var` ile tanımlarsan, üstteki kodun onu sessizce `undefined` olarak okuyabileceği anlamına gelir — hata fırlatmaz, sadece yanlış davranır.',
+    en: 'Before a function/file starts running, JavaScript "hoists" ALL `var` declarations in that scope to the top — but ONLY the declaration, not the assigned VALUE. So the engine effectively sees the code as: `var testCount; console.log(testCount); testCount = 42; console.log(testCount);` — when the first `console.log` runs, `testCount` is already DECLARED (no error) but has no value yet, so it prints `undefined`. The second `console.log` runs AFTER the assignment, so it prints `42`. `let`/`const` are hoisted too, but a rule called the "Temporal Dead Zone" makes accessing them before their assignment line throw a `ReferenceError` — which is why modern code prefers `let`/`const` over `var`, avoiding silent hoisting-caused `undefined` bugs. In QA automation, this means if a config variable meant to be defined at the top of a helper is instead declared with `var` in the middle of the file, code above it can silently read it as `undefined` — no error thrown, just wrong behavior.',
+  },
+}
+
+const predJsStrictEquality = {
+  type: 'prediction',
+  id: 'js-strict-equality-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-data-types',
+  prompt: {
+    tr: 'Bu üç karşılaştırmadan kaçı `true` döner?',
+    en: 'How many of these three comparisons return `true`?',
+  },
+  code: `console.log(0 == "");
+console.log(0 === "");
+console.log("" == false);`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: '3 (üçü de true)', en: '3 (all three true)' }, why: {
+      tr: '`===` tip dönüşümü YAPMAZ — `0` bir number, `""` bir string, farklı tipler `===` ile HER ZAMAN false döner.',
+      en: '`===` never performs type coercion — `0` is a number, `""` is a string, different types are ALWAYS false with `===`.' } },
+    { id: 'b', label: { tr: '2 (ilk ve üçüncü true, ikincisi false)', en: '2 (first and third true, second false)' }, correct: true },
+    { id: 'c', label: { tr: '1 (sadece ikincisi true)', en: '1 (only the second is true)' }, why: {
+      tr: 'Tam tersi — `===` tip farkında ASLA true dönmez, dönüşüm yapan `==` true döner.',
+      en: 'It is the opposite — `===` NEVER returns true across different types, it is the coercing `==` that returns true.' } },
+    { id: 'd', label: { tr: '0 (hiçbiri true değil)', en: '0 (none are true)' }, why: {
+      tr: '`==` boş string\'i `0`\'a ve `false`\'u da `0`\'a çevirerek karşılaştırır — bu yüzden en az bazıları true döner.',
+      en: '`==` converts empty string to `0` and `false` to `0` too before comparing — so at least some of these are true.' } },
+  ],
+  output: 'true\nfalse\ntrue',
+  reveal: {
+    tr: '`==` (gevşek eşitlik) karşılaştırmadan ÖNCE tipleri birbirine DÖNÜŞTÜRÜR: `0 == ""` için boş string önce sayıya çevrilir (`Number("") === 0`), sonuç `0 == 0` → `true`. `0 === ""` ise tip dönüşümü YAPMAZ — number ile string farklı tipler, direkt `false`. `"" == false` için `false` önce `0`\'a çevrilir, `""` de `0`\'a çevrilir, `0 == 0` → `true`. Bu zincirleme, öngörülemez dönüşüm kuralları yüzünden `==` test otomasyonunda TEHLİKELİDİR: bir API\'den boş string dönerken assertion `response.value == false` yazarsan, gerçekte `false` DEĞİL boş string dönmüş olsa bile assertion YANLIŞLIKLA geçer — sessiz bir false-positive. Kural: test kodunda HER ZAMAN `===` kullan, `==`\'e asla güvenme.',
+    en: '`==` (loose equality) CONVERTS types before comparing: for `0 == ""`, the empty string is first converted to a number (`Number("") === 0`), giving `0 == 0` → `true`. `0 === ""` performs NO conversion — number and string are different types, so it is directly `false`. For `"" == false`, `false` is converted to `0`, and `""` is also converted to `0`, giving `0 == 0` → `true`. This chain of unpredictable conversion rules makes `==` DANGEROUS in test automation: if an assertion writes `response.value == false` while an API actually returns an empty string (not `false`), the assertion WRONGLY passes — a silent false-positive. Rule: ALWAYS use `===` in test code, never rely on `==`.',
+  },
+}
+
+const predJsLoopClosureVar = {
+  type: 'prediction',
+  id: 'js-loop-closure-var-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-conditions-loops',
+  prompt: {
+    tr: 'Bu döngü 100ms sonra ne yazdırır? (İpucu: `var` kullanılıyor)',
+    en: 'What does this loop print after 100ms? (Hint: it uses `var`)',
+  },
+  code: `for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100);
+}`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: '0, 1, 2 (beklenen sıra)', en: '0, 1, 2 (the expected order)' }, why: {
+      tr: 'Bu, `let` kullanılsaydı doğru olurdu — `var` ile TEK bir paylaşımlı değişken vardır, üç ayrı değil.',
+      en: 'This would be correct with `let` — with `var` there is only ONE shared variable, not three separate ones.' } },
+    { id: 'b', label: { tr: '3, 3, 3 (üçü de son değer)', en: '3, 3, 3 (all the final value)' }, correct: true },
+    { id: 'c', label: { tr: '0, 0, 0 (üçü de ilk değer)', en: '0, 0, 0 (all the first value)' }, why: {
+      tr: 'Callback\'ler döngü TAMAMEN bittikten sonra (100ms gecikmeyle) çalışır — o ana kadar `i` son değerine ulaşmıştır.',
+      en: 'The callbacks run AFTER the loop has fully finished (100ms delay) — by then `i` has already reached its final value.' } },
+    { id: 'd', label: { tr: 'undefined, undefined, undefined', en: 'undefined, undefined, undefined' }, why: {
+      tr: '`i`, `setTimeout` callback\'i içinde closure ile hâlâ erişilebilir — kapsam dışına çıkmış değil, sadece PAYLAŞIMLI.',
+      en: '`i` is still reachable inside the `setTimeout` callback via closure — it has not gone out of scope, it is just SHARED.' } },
+  ],
+  output: '3\n3\n3',
+  reveal: {
+    tr: '`var` FONKSİYON kapsamlıdır (block-scoped değil) — bu döngüde TEK bir `i` değişkeni vardır ve 3 `setTimeout` callback\'inin ÜÇÜ DE aynı `i`\'yi closure ile "hatırlar" (referans olarak, kopya olarak değil). Döngü senkron olarak hemen biter (`i` 3\'e ulaşır, koşul `3 < 3` false olunca durur), SONRA 100ms sonra callback\'ler sırayla çalışır — ama o anda `i` zaten `3`\'tür, üçü de AYNI paylaşımlı değişkeni okur. Çözüm: `var` yerine `let` kullanmak — `let` HER iterasyonda YENİ ve BAĞIMSIZ bir `i` bağlaması (binding) oluşturur, her closure kendi `i`\'sini hatırlar, sonuç `0, 1, 2` olur. Bu, JavaScript\'in en meşhur mülakat tuzaklarından biridir ve QA otomasyonunda GERÇEK bug\'lara yol açar: birden fazla elemente paralel event listener eklerken `var` kullanmak, hepsinin AYNI (son) elemente tepki vermesine neden olabilir.',
+    en: '`var` is FUNCTION-scoped (not block-scoped) — in this loop there is only ONE `i` variable, and all 3 `setTimeout` callbacks "remember" that same `i` via closure (by reference, not by copy). The loop finishes synchronously almost immediately (`i` reaches 3, the condition `3 < 3` becomes false, it stops), and THEN, 100ms later, the callbacks run in sequence — but by that time `i` is already `3`, so all three read the SAME shared variable. The fix: use `let` instead of `var` — `let` creates a NEW, INDEPENDENT `i` binding on EVERY iteration, so each closure remembers its own `i`, giving `0, 1, 2`. This is one of JavaScript\'s most famous interview traps and it causes REAL bugs in QA automation: attaching event listeners to multiple elements in a loop using `var` can make all of them react to the SAME (last) element.',
+  },
+}
+
 const sections = [
   // ─────────────────────────────────────────────
   // SECTION 0 — Intro & Why JS
@@ -2384,6 +2483,7 @@ console.log("=== (Strict Equality):", a === b); // false`
         }
       },
       jsVarScopeFilm,
+      predJsHoisting,
       jsVarScopeSteps,
       {
         type: "quiz",
@@ -2667,6 +2767,7 @@ console.log(typeof "test", typeof 42, typeof true, typeof undefined, typeof null
         }
       },
       jsTypeCoercionFilm,
+      predJsStrictEquality,
       {
         type: "quiz",
         question: {
@@ -3599,6 +3700,7 @@ console.log("Total Fails:", failCount, "/ Total:", tests.length);`
         }
       },
       jsLoopClosureTrapFilm,
+      predJsLoopClosureVar,
       {
         type: "quiz",
         question: {
