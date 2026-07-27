@@ -435,7 +435,11 @@ async function main() {
 
   for (const filename of files) {
     const filepath = path.join(DATA_DIR, filename)
-    const source = await readFile(filepath, 'utf8')
+    // Normalize CRLF → LF: on Windows checkouts (core.autocrlf=true) trailing \r
+    // on each line breaks the `$` end-anchors below (JS regex treats \r as a line
+    // terminator, so `(.+)$` can't match through it) — this silently no-ops the
+    // English-comment check locally while CI (LF checkout) still catches it.
+    const source = (await readFile(filepath, 'utf8')).replace(/\r\n/g, '\n')
 
     checkEnglishComments(source, filename, mappedPatterns, allViolations)
     checkRelatedTopicId(source, filename, allViolations)

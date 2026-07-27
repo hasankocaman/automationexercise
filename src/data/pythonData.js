@@ -7695,7 +7695,7 @@ def is_valid_email(email: str) -> bool:
 
 is_valid_email("t@t.com")  # call directly
 
-# Default params (instead of overloading):
+# Default params (Java overloading equivalent):
 def create_user(name: str, role: str = "tester", active: bool = True):
     return {"name": name, "role": role, "active": active}
 
