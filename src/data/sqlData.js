@@ -2171,6 +2171,74 @@ const sqlIntroPractice = {
 }
 
 
+// "Önce Tahmin Et" referans blokları — bu dosyada finalEnSections/finalTrSections
+// dizilerinin ilgili section'ının blocks dizisine ("],", section kapanışından
+// hemen önce) plain-object elemanı olarak eklenir. Her sabit tek `{tr,en}` alanlı
+// bilingual objedir; hem EN hem TR section'ında AYNI referansla kullanılır.
+const predSqlCountNull = {
+  type: 'prediction',
+  id: 'sql-count-null-pred',
+  xpReward: 15,
+  relatedTopicId: 'sql-aggregate-functions',
+  prompt: {
+    tr: '`phone` sütununda 2 satırda NULL var (toplam 5 satır). İki COUNT de aynı sayıyı mı döner?',
+    en: 'The `phone` column has NULL in 2 of 5 rows. Do both COUNTs return the same number?',
+  },
+  code: `-- users table has 5 rows, 2 of which have phone = NULL
+SELECT COUNT(*) AS total_rows FROM users;
+SELECT COUNT(phone) AS rows_with_phone FROM users;`,
+  codeLanguage: 'sql',
+  options: [
+    { id: 'a', label: { tr: '5, 5 (ikisi de aynı)', en: '5, 5 (both the same)' }, why: {
+      tr: '`COUNT(*)` tüm satırları sayar ama `COUNT(sütun)` NULL olanları ATLAR — ikisi farklı sonuç verir.',
+      en: '`COUNT(*)` counts every row, but `COUNT(column)` SKIPS NULLs — they give different results.' } },
+    { id: 'b', label: { tr: '5, 3', en: '5, 3' }, correct: true },
+    { id: 'c', label: { tr: '3, 3 (ikisi de NULL\'ları atlar)', en: '3, 3 (both skip NULLs)' }, why: {
+      tr: '`COUNT(*)` bir sütuna değil SATIRA bakar — NULL içeren satırlar da satırdır, hepsi sayılır.',
+      en: '`COUNT(*)` looks at the ROW, not a column — rows with NULL are still rows, all of them get counted.' } },
+    { id: 'd', label: { tr: 'Hata: COUNT(*) NULL içeren tabloda çalışmaz', en: 'Error: COUNT(*) fails on tables with NULLs' }, why: {
+      tr: '`COUNT(*)` NULL\'lardan tamamen etkilenmez — bu yüzden hiçbir hata oluşmaz.',
+      en: '`COUNT(*)` is completely unaffected by NULLs — so no error occurs.' } },
+  ],
+  output: 'total_rows: 5\nrows_with_phone: 3',
+  reveal: {
+    tr: '`COUNT(*)` SATIRLARI sayar — bir satırda hangi sütun NULL olursa olsun, o satır yine de vardır ve sayılır: sonuç 5. `COUNT(sütun_adı)` ise SADECE o sütunda NULL OLMAYAN değerleri sayar — `phone` sütununda 2 NULL olduğu için sonuç 5 - 2 = 3\'tür. Bu, "kaç kullanıcı kayıtlı?" (COUNT(*)) ile "kaç kullanıcının telefon numarası var?" (COUNT(phone)) sorularının FARKLI sorular olduğunu gösterir — aynı tabloda, aynı satır sayısında bile. QA otomasyonunda bu ayrım karışırsa "toplam kayıt" ile "geçerli veri sayısı" birbirine karışır: bir dashboard testi `COUNT(*)` ile "aktif kullanıcı" sayısını doğruluyorsa ama iş kuralı aslında "email doğrulanmış kullanıcı" (COUNT(email_verified_at)) demekse, test yanlış metriği doğrular ve gerçek bir veri kalitesi sorununu (eksik alanlar) gizler.',
+    en: '`COUNT(*)` counts ROWS — no matter which column is NULL in a row, that row still exists and gets counted: the result is 5. `COUNT(column_name)`, on the other hand, counts ONLY the non-NULL values in that specific column — since `phone` has 2 NULLs, the result is 5 - 2 = 3. This shows that "how many users are registered?" (COUNT(*)) and "how many users have a phone number?" (COUNT(phone)) are DIFFERENT questions — even on the same table, same row count. If this distinction gets confused in QA automation, "total records" and "count of valid data" get mixed up: if a dashboard test verifies "active users" with `COUNT(*)` but the business rule actually means "users with verified email" (COUNT(email_verified_at)), the test validates the wrong metric and hides a real data-quality problem (missing fields).',
+  },
+}
+
+const predSqlJoinRowMultiplication = {
+  type: 'prediction',
+  id: 'sql-join-row-multiplication-pred',
+  xpReward: 15,
+  relatedTopicId: 'sql-joins',
+  prompt: {
+    tr: '`testers` tablosunda 1 satır var. O testere ait `bugs` tablosunda 3 açık bug var. JOIN sonucu kaç satır döner?',
+    en: 'The `testers` table has 1 row. That tester has 3 open bugs in the `bugs` table. How many rows does the JOIN return?',
+  },
+  code: `SELECT testers.name, bugs.title
+FROM testers
+JOIN bugs ON bugs.tester_id = testers.id;`,
+  codeLanguage: 'sql',
+  options: [
+    { id: 'a', label: { tr: '1 satır (bir tester)', en: '1 row (one tester)' }, why: {
+      tr: 'JOIN, eşleşen HER bug satırı için testerin bilgisini TEKRARLAR — sonuç tester sayısı değil, eşleşme sayısı kadar satırdır.',
+      en: 'JOIN REPEATS the tester\'s info for EVERY matching bug row — the result has as many rows as there are matches, not as many as there are testers.' } },
+    { id: 'b', label: { tr: '3 satır — testerin adı 3 kez tekrar eder', en: '3 rows — the tester\'s name repeats 3 times' }, correct: true },
+    { id: 'c', label: { tr: '4 satır (1 tester + 3 bug toplamı)', en: '4 rows (1 tester + 3 bugs summed)' }, why: {
+      tr: 'JOIN satırları TOPLAMAZ, ÇARPAR (eşleşme başına bir satır) — burada 1 tester × 3 eşleşen bug = 3 satır.',
+      en: 'JOIN does not ADD rows, it MULTIPLIES them (one row per match) — here 1 tester × 3 matching bugs = 3 rows.' } },
+    { id: 'd', label: { tr: 'Hata: bir tester\'a birden fazla bug bağlanamaz', en: 'Error: a tester cannot have more than one bug' }, why: {
+      tr: 'One-to-many ilişki tamamen normal ve geçerlidir — bir tester\'ın birden çok bug\'ı olması JOIN\'i bozmaz.',
+      en: 'A one-to-many relationship is perfectly normal and valid — a tester having multiple bugs does not break the JOIN.' } },
+  ],
+  output: '(3 rows: tester name repeated once per bug)',
+  reveal: {
+    tr: 'JOIN, iki tablo arasında eşleşen HER ÇİFT için bir satır üretir — "one-to-many" (bire-çok) bir ilişkide (bir tester, birden çok bug) bu, "bir" tarafındaki satırın eşleşme sayısı kadar TEKRARLANMASI demektir. Burada 1 tester × 3 eşleşen bug = 3 satır döner, testerin adı her satırda AYNEN tekrar eder. Bu, JOIN\'in en sık yanlış anlaşılan davranışıdır ve QA otomasyonunda GERÇEK bug\'lara yol açar: `SELECT COUNT(*) FROM testers JOIN bugs ...` ile "kaç tester var?" sorusuna cevap ARAMAK, aslında "kaç eşleşme var?" sorusuna cevap verir — sonuç, gerçek tester sayısından çok daha büyük çıkar (satır ÇOĞALMASI, "fan-out"). Doğru tester sayısı için ya `COUNT(DISTINCT testers.id)` kullanılmalı ya da sorgu farklı kurulmalıdır. Java analojisi: iki liste arasında nested for-loop ile kartezyen eşleştirme yapman gibi düşün — dış listede 1 eleman, iç listede eşleşen 3 eleman varsa, iç döngü 3 kez çalışır.',
+    en: 'JOIN produces one row for EVERY matching pair between two tables — in a "one-to-many" relationship (one tester, several bugs), this means the row on the "one" side gets REPEATED once per match. Here 1 tester × 3 matching bugs = 3 rows returned, with the tester\'s name repeated identically on each row. This is one of the most commonly misunderstood JOIN behaviors and it causes REAL bugs in QA automation: running `SELECT COUNT(*) FROM testers JOIN bugs ...` to answer "how many testers are there?" actually answers "how many matches are there?" — the result comes out far larger than the real tester count (row multiplication, "fan-out"). To get the correct tester count you need `COUNT(DISTINCT testers.id)` or a differently structured query. Java analogy: think of a nested for-loop doing a cartesian match between two lists — if the outer list has 1 element and the inner list has 3 matches, the inner loop runs 3 times.',
+  },
+}
+
 const finalEnSections = [
   {
     "title": "🎯 What is SQL & Why Does Every QA Engineer Need It?",
@@ -4046,7 +4114,8 @@ const finalEnSections = [
         "minScore": 3,
         "modelAnswerTr": "Aggregate fonksiyonları çoklu satırları tek bir özet değere dönüştürür. GROUP BY olmadan kullanıldıklarında tüm tabloyu tek bir grup sayıp tek satır dönerler. GROUP BY eklendiğinde ise veriyi kategorize edip her grup için ayrı özet satırı üretirler.",
         "modelAnswerEn": "Aggregate functions process multiple rows to compute a single summary value. Without GROUP BY, they aggregate the entire table into a single row. With GROUP BY, they compute a separate summary row for each distinct group."
-      }
+      },
+      predSqlCountNull
     ]
   },
   {
@@ -4618,7 +4687,8 @@ const finalEnSections = [
         "minScore": 3,
         "modelAnswerTr": "INNER JOIN yalnızca her iki tabloda eşleşen kayıtları getirir. LEFT JOIN sol tablodaki tüm satırları getirir, eşleşmeyen sağ taraflar NULL olur. `LEFT JOIN ... WHERE sag.id IS NULL` sorgusuyla parent kaydı silinmiş yetim kayıtları yakalarız.",
         "modelAnswerEn": "INNER JOIN returns rows with matching values in both tables. LEFT JOIN returns all rows from the left table, filling right-side columns with NULL if no match exists. We find orphaned records by querying LEFT JOIN with a WHERE right.key IS NULL."
-      }
+      },
+      predSqlJoinRowMultiplication
     ]
   },
   {
@@ -9457,7 +9527,8 @@ const finalTrSections = [
         "minScore": 3,
         "modelAnswerTr": "Aggregate fonksiyonları çoklu satırları tek bir özet değere dönüştürür. GROUP BY olmadan kullanıldıklarında tüm tabloyu tek bir grup sayıp tek satır dönerler. GROUP BY eklendiğinde ise veriyi kategorize edip her grup için ayrı özet satırı üretirler.",
         "modelAnswerEn": "Aggregate functions process multiple rows to compute a single summary value. Without GROUP BY, they aggregate the entire table into a single row. With GROUP BY, they compute a separate summary row for each distinct group."
-      }
+      },
+      predSqlCountNull
     ]
   },
   {
@@ -10026,7 +10097,8 @@ const finalTrSections = [
         "minScore": 3,
         "modelAnswerTr": "INNER JOIN yalnızca her iki tabloda eşleşen kayıtları getirir. LEFT JOIN sol tablodaki tüm satırları getirir, eşleşmeyen sağ taraflar NULL olur. `LEFT JOIN ... WHERE sag.id IS NULL` sorgusuyla parent kaydı silinmiş yetim kayıtları yakalarız.",
         "modelAnswerEn": "INNER JOIN returns rows with matching values in both tables. LEFT JOIN returns all rows from the left table, filling right-side columns with NULL if no match exists. We find orphaned records by querying LEFT JOIN with a WHERE right.key IS NULL."
-      }
+      },
+      predSqlJoinRowMultiplication
     ]
   },
   {
