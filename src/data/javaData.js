@@ -10028,6 +10028,45 @@ System.out.println(name);  // admin`,
 }
 
 // ─── S-B: STRINGS & MATH ──────────────────────────────────────────────────────
+
+// "Önce Tahmin Et" referans bloğu — String + int birleştirmede soldan-sağa
+// değerlendirme klasik bir Java tuzağıdır. Çift-ağaçlı sB için TEK obje olarak
+// tanımlanıp hem tr hem en blocks dizisine AYNI referansla konur (§9.5 kalıbı;
+// tüm alanlar zaten {tr,en} olduğu için tek obje iki dilde de doğru render eder).
+const predJavaStringConcat = {
+  type: 'prediction',
+  id: 'java-string-concat-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-strings-math',
+  prompt: {
+    tr: 'Bu satır ekrana ne yazar? Çalıştırmadan önce zihninde soldan sağa hesapla.',
+    en: 'What does this line print? Evaluate it left to right in your head before running.',
+  },
+  code: `public class Main {
+    public static void main(String[] args) {
+        System.out.println(1 + 2 + "3" + 4 + 5);
+    }
+}`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: '12345', en: '12345' }, why: {
+      tr: 'Hepsi String olsaydı doğru olurdu — ama ilk 1 + 2 hâlâ sayısal toplamdır (henüz String yok).',
+      en: 'This would be right if all were Strings — but the first 1 + 2 is still numeric addition (no String yet).' } },
+    { id: 'b', label: { tr: '3345', en: '3345' }, correct: true },
+    { id: 'c', label: { tr: '33345', en: '33345' }, why: {
+      tr: '1 + 2 tek sayıya (3) iner, iki ayrı 3 yan yana gelmez.',
+      en: '1 + 2 collapses to a single number (3); you do not get two separate 3s.' } },
+    { id: 'd', label: { tr: '1533', en: '1533' }, why: {
+      tr: 'Java çarpma/öncelik uygulamaz; + operatörü tamamen soldan sağa çalışır.',
+      en: 'Java applies no multiplication/precedence here; the + operator runs strictly left to right.' } },
+  ],
+  output: '3345',
+  reveal: {
+    tr: '`+` operatörü soldan sağa değerlendirilir. `1 + 2` her iki operand da sayı olduğu için önce aritmetik toplama olur → `3`. Ardından `3 + "3"` bir String içerdiği için String birleştirmeye döner → `"33"`. Bundan sonra soldaki değer artık String olduğu için `"33" + 4` → `"334"`, `"334" + 5` → `"3345"`. Java\'da `int` ile `int` toplamı sayısaldır; bir taraf String olur olmaz operatör kalıcı olarak birleştirmeye geçer. Java analojisi bir yana, aynı kural QA otomasyonunda log/mesaj kurarken tuzak olur: `"Toplam: " + a + b` beklediğin toplamı değil yan yana yapıştırılmış rakamları basar — parantez (`a + b`) şarttır.',
+    en: 'The `+` operator is evaluated left to right. In `1 + 2` both operands are numbers, so it is arithmetic addition first → `3`. Then `3 + "3"` involves a String, so it switches to String concatenation → `"33"`. From there the left value is already a String, so `"33" + 4` → `"334"`, `"334" + 5` → `"3345"`. In Java `int + int` is numeric; the moment one side is a String the operator switches permanently to concatenation. Beyond the language trivia, the same rule bites in QA automation when building logs/messages: `"Total: " + a + b` prints the digits glued side by side, not the sum you expected — the parentheses (`a + b`) are mandatory.',
+  },
+}
+
 const sB = {
   tr: {
     title: '🔤 Strings & Math — Metin ve Matematik',
@@ -10139,6 +10178,7 @@ const sB = {
     }
 }`,
       },
+      predJavaStringConcat,
       { type: 'heading', text: { tr: 'Math Sınıfı', en: 'Math Class' } },
       {
         type: 'code', language: 'java', label: 'java.lang.Math metotları',
@@ -10301,6 +10341,7 @@ const sB = {
 }`,
         height: '200px',
       },
+      predJavaStringConcat,
       { type: 'heading', text: { en: 'Math Class' } },
       {
         type: 'code', language: 'java', label: 'java.lang.Math methods',

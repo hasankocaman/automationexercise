@@ -34,6 +34,7 @@ import DriftMeterBlock from './DriftMeterBlock'
 import ObservabilityDashboardBlock from './ObservabilityDashboardBlock'
 import EdgeCaseFactoryBlock from './EdgeCaseFactoryBlock'
 import VisualDiffDetectiveBlock from './VisualDiffDetectiveBlock'
+import PredictionBlock from './PredictionBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 import { logActivity } from '../lib/activityLog'
@@ -17910,6 +17911,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'code-playground':
             return <CodePlaygroundBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+
+        case 'prediction':
+            return <PredictionBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
 
         case 'framework-puzzle':
             return <FrameworkPuzzleBlock key={i} block={block} darkMode={darkMode} language={language} />
