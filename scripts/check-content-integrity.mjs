@@ -113,8 +113,13 @@ function checkEnglishComments(source, filename, mappedPatterns, violations) {
     lineNum++
 
     // Determine what context a backtick opens based on the current line's prefix
-    // Patterns like `en: \`` or `tr: \`` or just standalone backticks
-    const enOpenRE = /\ben\s*:\s*`/
+    // Patterns like `en: \`` or `tr: \`` or just standalone backticks.
+    // Also recognizes the project's shared-const EN-fix convention (§23.1/§23.4,
+    // e.g. basitBackendData.js/backendData.js/pythonData.js): a shared TR/EN const
+    // (schemaSql) can't be edited in place, so the fix is a sibling top-level
+    // `const xxxEn = \`...\`` wired in as `code: { tr: schemaSql, en: schemaSqlEn }`.
+    // That const's content is legitimately English and must not be flagged.
+    const enOpenRE = /\ben\s*:\s*`|\bconst\s+\w+En\s*=\s*`/
     const trOpenRE = /\btr\s*:\s*`/
 
     // Count backticks to update the stack, skipping escaped ones

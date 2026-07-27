@@ -173,6 +173,184 @@ values
   ('backend-starter', 'Backend Starter', 'Backend sayfasındaki ana akışı tamamlayan kullanıcı.', '🧩', 1)
 on conflict (id) do nothing;`;
 
+// EN-tree version of schemaSql — schemaSql const is shared (referenced by both
+// tr and en section blocks below), so it must never be edited in place. See
+// §23.1/§23.4: the fix is a new *_en const wrapped as { tr, en } at the block.
+const schemaSqlEn = `-- LearnQA.dev simple backend schema
+-- Where to run it: Supabase Dashboard > SQL Editor > New query.
+-- Why this file first: policies, triggers, and application code all need the tables to exist first.
+-- If skipped: React has nowhere to persist data, so everything except login gets forgotten.
+
+-- profiles: the profile card the app shows for each auth.users technical account.
+create table public.profiles (
+  -- id is the exact same user identity as auth.users(id) in Supabase Auth.
+  -- primary key: guarantees every profile is unique.
+  -- references auth.users(id): ties the profile row to the real logged-in user.
+  -- on delete cascade: if the user is deleted, their profile is deleted automatically; no orphan rows.
+  -- If skipped: the profile and the logged-in user can drift apart, risking mixing up user data.
+  id uuid primary key references auth.users(id) on delete cascade,
+
+  -- The name shown on screen. We store the Google name or email here.
+  -- If skipped: chat and feedback areas can't show the user by a readable name.
+  display_name text,
+
+  -- Avatar URL, e.g. the Google profile photo.
+  -- If skipped: no visual personalization on the user card.
+  avatar_url text,
+
+  -- When the profile was created. default now() lets the database stamp the time automatically.
+  -- If skipped: we lose track of when the record was opened.
+  created_at timestamptz not null default now()
+);
+
+-- user_progress: tracks which lesson, which topic, and how far the student got.
+create table public.user_progress (
+  -- Auto-incrementing technical row id. The app never generates this, the database does.
+  -- If skipped: tracking individual rows in logs and the admin screen becomes hard.
+  id bigint generated always as identity primary key,
+
+  -- Which user does this progress record belong to?
+  -- not null: prevents a progress record from existing without an owner.
+  -- on delete cascade: progress data is cleaned up automatically if the user is deleted.
+  -- If skipped: records have no clear owner and RLS security can't be set up.
+  user_id uuid not null references auth.users(id) on delete cascade,
+
+  -- The lesson's route/slug value. Example: selenium, sql, backend.
+  -- If skipped: we can't know which lesson to send the user back to.
+  lesson_slug text not null,
+
+  -- The topic/tab id within the lesson. Example: explicit-wait, tables, auth.
+  -- If skipped: we lose track of exactly which topic the user was on.
+  topic_slug text not null,
+
+  -- Rejects any status other than started or completed.
+  -- If skipped: mixed-up values like done, finish, etc. would break reports.
+  status text not null default 'started' check (status in ('started', 'completed')),
+
+  -- Stores flexible details like scroll position, active tab, or video timestamp as json.
+  -- If skipped: only the topic is known; the exact position within it is lost.
+  last_position jsonb not null default '{}'::jsonb,
+
+  -- When the topic was completed, if it was.
+  -- If skipped: badges and stats can't show a completion date.
+  completed_at timestamptz,
+
+  -- Last updated time. Lets us resume the returning user from their most recent record.
+  -- If skipped: there's no way to sort out where the user last left off.
+  updated_at timestamptz not null default now(),
+
+  -- The same user + lesson + topic combination must be a single row.
+  -- upsert relies on this rule to update the existing row instead of inserting a new one.
+  -- If skipped: saving the same topic repeatedly creates duplicate progress rows.
+  unique (user_id, lesson_slug, topic_slug)
+);
+
+-- badges: the catalog table of badges that can be awarded.
+create table public.badges (
+  -- The badge's fixed id, e.g. first-topic, used on the code side.
+  -- If skipped: selecting badges reliably and avoiding re-awarding them becomes hard.
+  id text primary key,
+
+  -- The badge's user-facing title.
+  -- If skipped: no title to show on the badge card.
+  title text not null,
+
+  -- Short text explaining why the badge was awarded.
+  -- If skipped: the user won't understand why they earned it.
+  description text not null,
+
+  -- Badge icon. The default keeps a safe icon even if left blank.
+  -- If skipped: the badge list looks visually weak.
+  icon text not null default '🏅',
+
+  -- Rule field describing how many completed topics are required.
+  -- If skipped: we can't report which achievement tier the badge belongs to.
+  required_completed_topics int not null default 1
+);
+
+-- user_badges: which user earned which badge?
+create table public.user_badges (
+  -- Technical row id for each badge award.
+  -- If skipped: tracking individual badge records on the admin screen becomes hard.
+  id bigint generated always as identity primary key,
+
+  -- The user who received the badge.
+  -- If skipped: we wouldn't know who the badge belongs to.
+  user_id uuid not null references auth.users(id) on delete cascade,
+
+  -- The badge's id from the badges table.
+  -- If skipped: nonexistent or wrong badges could get attached to a user.
+  badge_id text not null references public.badges(id) on delete cascade,
+
+  -- When the badge was awarded.
+  -- If skipped: the user's achievement history can't be shown as a timeline.
+  awarded_at timestamptz not null default now(),
+
+  -- The same user should only get the same badge once.
+  -- If skipped: duplicate rows awarding the same badge repeatedly could occur.
+  unique (user_id, badge_id)
+);
+
+-- feedback: opinions, criticism, and suggestions from logged-in members.
+create table public.feedback (
+  -- Auto-generated feedback row id.
+  -- If skipped: tracking and managing a single feedback record becomes hard.
+  id bigint generated always as identity primary key,
+
+  -- The user who wrote the feedback.
+  -- If skipped: we can't follow up with the user if needed.
+  user_id uuid not null references auth.users(id) on delete cascade,
+
+  -- Feedback type. check only allows the approved categories.
+  -- If skipped: typos and inconsistent category data would pile up.
+  type text not null check (type in ('suggestion', 'bug', 'praise', 'other')),
+
+  -- Message text. Required to be between 10-2000 characters.
+  -- If skipped: empty messages or excessively long text would pollute the database.
+  message text not null check (char_length(message) between 10 and 2000),
+
+  -- Which page did the feedback come from? Example: /backend, /selenium.
+  -- If skipped: it becomes hard to know which page needs improvement.
+  page_path text,
+
+  -- When the feedback was written.
+  -- If skipped: we can't distinguish new suggestions from old ones.
+  created_at timestamptz not null default now()
+);
+
+-- chat_messages: messages members currently online send to each other.
+create table public.chat_messages (
+  -- Technical row id for each message.
+  -- If skipped: sorting, deleting, or debugging a message becomes hard.
+  id bigint generated always as identity primary key,
+
+  -- The user who sent the message.
+  -- If skipped: we can't set up secure chat rules or let a user delete their own message.
+  user_id uuid not null references auth.users(id) on delete cascade,
+
+  -- The name shown in the message list. Stored as a snapshot.
+  -- If skipped: showing a name on old messages would require a profile join every time.
+  display_name text,
+
+  -- Message content. A 1-500 character range reduces spam and empty messages.
+  -- If skipped: empty or excessively long messages would ruin the chat experience.
+  message text not null check (char_length(message) between 1 and 500),
+
+  -- Message timestamp. Needed for ordering and a "just now" indicator.
+  -- If skipped: the chat order wouldn't be reliable.
+  created_at timestamptz not null default now()
+);
+
+-- Insert the starter badges.
+-- on conflict do nothing: running this SQL a second time won't throw a duplicate error.
+-- If skipped: re-running the migration would halt and the badge catalog would need manual cleanup.
+insert into public.badges (id, title, description, icon, required_completed_topics)
+values
+  ('first-topic', 'First Topic', 'The user who completed their first topic.', '🌱', 1),
+  ('five-topics', 'Consistent Learner', 'The user who completed 5 topics.', '🔥', 5),
+  ('backend-starter', 'Backend Starter', 'The user who completed the main flow on the Backend page.', '🧩', 1)
+on conflict (id) do nothing;`;
+
 const rlsSql = `-- RLS, tablonun kapısına güvenlik görevlisi koyar.
 -- RLS açılınca policy yazmadığın işlem otomatik engellenir.
 -- Yazılmazsa: publishable key kullanan client yanlış policy ile fazla veri okuyabilir.
@@ -257,6 +435,91 @@ create policy "users delete own chat messages"
 on public.chat_messages for delete to authenticated
 using ((select auth.uid()) = user_id);`;
 
+// EN-tree version of rlsSql — shared const, see schemaSqlEn comment above.
+const rlsSqlEn = `-- RLS puts a security guard on the table's door.
+-- Once RLS is on, any operation you haven't written a policy for is blocked automatically.
+-- If skipped: a client using the publishable key could read far more data than intended, based on the wrong policy.
+alter table public.profiles enable row level security;
+alter table public.user_progress enable row level security;
+alter table public.user_badges enable row level security;
+alter table public.feedback enable row level security;
+alter table public.chat_messages enable row level security;
+alter table public.badges enable row level security;
+
+-- Any signed-in user can read profile names; needed to show a name in chat.
+-- If skipped: pulling display_name for a user list or chat becomes hard.
+create policy "profiles are readable by signed in users"
+on public.profiles for select to authenticated using (true);
+
+-- A user can only update their own profile.
+-- using: permission to act on the existing row.
+-- with check: forces the updated new row to still belong to the same user.
+-- If skipped: a user could change someone else's profile name or impersonate someone else.
+create policy "users update own profile"
+on public.profiles for update to authenticated
+using ((select auth.uid()) = id)
+with check ((select auth.uid()) = id);
+
+-- auth.uid() is the id of the signed-in user within the Supabase session.
+-- This policy only lets a user read their own progress rows.
+-- If skipped: a user could see which lessons someone else has been working on.
+create policy "users read own progress"
+on public.user_progress for select to authenticated
+using ((select auth.uid()) = user_id);
+
+-- On insert, user_id must always match the signed-in user.
+-- If skipped: a malicious user could write progress under someone else's name.
+create policy "users write own progress"
+on public.user_progress for insert to authenticated
+with check ((select auth.uid()) = user_id);
+
+-- On update, both the old row and the new values must still belong to the same user.
+-- If skipped: a user could mark another user's progress record as completed.
+create policy "users update own progress"
+on public.user_progress for update to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+-- The badge catalog is shared information; any signed-in user can read it.
+-- If skipped: the badge list can't be shown in the UI.
+create policy "signed in users read badge catalog"
+on public.badges for select to authenticated using (true);
+
+-- A user can only read the badges they themselves earned.
+-- If skipped: other users' badge history could be exposed.
+create policy "users read own badges"
+on public.user_badges for select to authenticated
+using ((select auth.uid()) = user_id);
+
+-- When writing feedback, user_id must match the signed-in user.
+-- If skipped: someone could submit a fake suggestion/complaint under someone else's name.
+create policy "users write own feedback"
+on public.feedback for insert to authenticated
+with check ((select auth.uid()) = user_id);
+
+-- A user can view their own past feedback if they want to.
+-- If skipped: a "my submitted suggestions" list on the profile screen wouldn't be possible.
+create policy "users read own feedback"
+on public.feedback for select to authenticated
+using ((select auth.uid()) = user_id);
+
+-- Chat is a shared space; any signed-in user can read the messages.
+-- If skipped: even if realtime messages arrive, the chat history list wouldn't fill in.
+create policy "signed in users read chat"
+on public.chat_messages for select to authenticated using (true);
+
+-- The user_id of the message sender must be their own session id.
+-- If skipped: someone could try to send a message under another user's name.
+create policy "signed in users send chat"
+on public.chat_messages for insert to authenticated
+with check ((select auth.uid()) = user_id);
+
+-- A user can only delete their own message.
+-- If skipped: everyone could delete anyone's message, or no one could delete any message at all.
+create policy "users delete own chat messages"
+on public.chat_messages for delete to authenticated
+using ((select auth.uid()) = user_id);`;
+
 const profileTriggerSql = `-- Yeni Google kullanıcısı oluştuğunda otomatik public.profiles satırı açar.
 -- Yazılmazsa: auth.users içinde kullanıcı olur ama uygulama profil adı/avatar bulamaz.
 create or replace function public.handle_new_user()
@@ -294,12 +557,59 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute procedure public.handle_new_user();`;
 
+// EN-tree version of profileTriggerSql — shared const, see schemaSqlEn comment above.
+const profileTriggerSqlEn = `-- Automatically opens a public.profiles row when a new Google user is created.
+-- If skipped: the user exists in auth.users but the app can't find a profile name/avatar.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+-- security definer: the function runs with its own privileges to insert into the table.
+-- set search_path = public: makes clear which schema to use; prevents writing to the wrong table.
+-- If skipped: the trigger could hit a permission or schema error writing from auth.users to profiles.
+security definer set search_path = public
+as $$
+begin
+  -- new is the user row just added to the auth.users table.
+  -- raw_user_meta_data carries extra info like the name/avatar coming from Google.
+  insert into public.profiles (id, display_name, avatar_url)
+  values (
+    new.id,
+    -- if full_name is missing, fall back to email so the screen never shows an empty name.
+    coalesce(new.raw_user_meta_data->>'full_name', new.email),
+    new.raw_user_meta_data->>'avatar_url'
+  );
+
+  -- Trigger functions must return the processed row.
+  -- If skipped: the trigger may not complete as expected.
+  return new;
+end;
+$$;
+
+-- Drop the same trigger first if it already exists.
+-- If skipped: re-running this would throw a "trigger already exists" error.
+drop trigger if exists on_auth_user_created on auth.users;
+
+-- Run the profile function every time a new user is inserted into auth.users.
+-- If skipped: a profiles row won't be created automatically after Google login.
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute procedure public.handle_new_user();`;
+
 const realtimeSql = `-- chat_messages tablosunu Supabase Realtime yayınına ekler.
 -- Yazılmazsa: insert edilen yeni chat mesajları diğer açık tarayıcılara anlık düşmez.
 alter publication supabase_realtime add table public.chat_messages;
 
 -- İsteğe bağlı: progress değişince başka açık sekme de anında güncellensin.
 -- Yazılmazsa: progress yine kaydedilir ama diğer sekme refresh olmadan bunu görmeyebilir.
+alter publication supabase_realtime add table public.user_progress;`;
+
+// EN-tree version of realtimeSql — shared const, see schemaSqlEn comment above.
+const realtimeSqlEn = `-- Adds the chat_messages table to the Supabase Realtime publication.
+-- If skipped: newly inserted chat messages won't show up instantly in other open browsers.
+alter publication supabase_realtime add table public.chat_messages;
+
+-- Optional: let another open tab update instantly when progress changes too.
+-- If skipped: progress is still saved, but another tab may not see it without a refresh.
 alter publication supabase_realtime add table public.user_progress;`;
 
 const supabaseClientCode = `// src/lib/supabaseClient.js
@@ -317,6 +627,24 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 // Tek bir supabase nesnesi oluşturup tüm feature dosyalarında kullanırız.
 // Yazılmazsa: her dosyada bağlantıyı tekrar kurar, kodu dağınık hale getirirsin.
+export const supabase = createClient(supabaseUrl, supabaseKey);`;
+
+// EN-tree version of supabaseClientCode — shared const, see schemaSqlEn comment above.
+const supabaseClientCodeEn = `// src/lib/supabaseClient.js
+// We get createClient from the Supabase SDK; this is our backend door.
+// If skipped: the React app can't connect to Supabase Auth, Database, or Realtime.
+import { createClient } from '@supabase/supabase-js';
+
+// Env variables starting with VITE_ are exposed to browser code by Vite.
+// If skipped: you'd have to hardcode the URL in the code, making it hard to switch environments.
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+
+// The publishable key can be used on the client; the service_role key must NEVER go here.
+// If skipped: Supabase can't tell who the request is from or which project it should go to.
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// We create a single supabase object and use it across all feature files.
+// If skipped: every file would re-establish the connection, making the code messy.
 export const supabase = createClient(supabaseUrl, supabaseKey);`;
 
 const authCode = `// src/features/auth/authApi.js
@@ -429,6 +757,117 @@ export async function signOut() {
   return supabase.auth.signOut();
 }`;
 
+// EN-tree version of authCode — shared const, see schemaSqlEn comment above.
+const authCodeEn = `// src/features/auth/authApi.js
+// We use the shared Supabase client; everywhere sees the same session info.
+// If skipped: the auth code would end up disconnected from the database client.
+import { supabase } from '../../lib/supabaseClient';
+
+const AUTH_CALLBACK_PATH = '/auth/callback';
+
+export const oauthProviders = [
+  { id: 'google', label: 'Google' },
+  { id: 'github', label: 'GitHub' },
+  // Microsoft is called provider: 'azure' inside Supabase Auth.
+  // If skipped: trying provider: 'microsoft' would leave Supabase unable to find a supported provider.
+  { id: 'azure', label: 'Microsoft' },
+];
+
+export function getAuthRedirectUrl(next = '/') {
+  // next must only be an in-site route; we don't accept external URLs.
+  // If skipped: a malicious actor could redirect the user to another site after login.
+  const safeNext = typeof next === 'string' && next.startsWith('/') ? next : '/';
+
+  // The full URL to return to after the Supabase Auth flow.
+  // If skipped: the OAuth or Magic Link return could land on the wrong page or on localhost.
+  return window.location.origin + AUTH_CALLBACK_PATH + '?next=' + encodeURIComponent(safeNext);
+}
+
+export async function signInWithOAuthProvider(provider, next = '/') {
+  const options = {
+    redirectTo: getAuthRedirectUrl(next),
+  };
+
+  // It's good practice to explicitly request email/profile info for Azure/Microsoft.
+  // If skipped: some tenant settings may return an incomplete email.
+  if (provider === 'azure') {
+    options.scopes = 'openid email profile';
+  }
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    // google, github, or azure.
+    // If skipped: it wouldn't be known which social login to open.
+    provider,
+    options,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export function signInWithGoogle(next) {
+  return signInWithOAuthProvider('google', next);
+}
+
+export function signInWithGitHub(next) {
+  return signInWithOAuthProvider('github', next);
+}
+
+export function signInWithMicrosoft(next) {
+  return signInWithOAuthProvider('azure', next);
+}
+
+export async function sendMagicLink({ fullName, email, next = '/' }) {
+  const cleanedFullName = fullName.trim().replace(/\\s+/g, ' ');
+  const cleanedEmail = email.trim().toLowerCase();
+
+  if (cleanedFullName.length < 2) {
+    throw new Error('Full name must be at least 2 characters.');
+  }
+  if (!cleanedEmail.includes('@')) {
+    throw new Error('Please enter a valid email address.');
+  }
+
+  const { data, error } = await supabase.auth.signInWithOtp({
+    email: cleanedEmail,
+    options: {
+      // Automatically creates the user if they don't exist yet.
+      // If skipped: a user who hasn't registered before might not receive the Magic Link.
+      shouldCreateUser: true,
+
+      // The address to return to when the Magic Link is clicked.
+      // If skipped: clicking the link might not correctly return to the GitHub Pages route.
+      emailRedirectTo: getAuthRedirectUrl(next),
+
+      // This object is written into auth.users.raw_user_meta_data.
+      // After the trigger verifies it, it copies full_name from here into public.profiles.
+      // If skipped: the full name of a passwordless-signup user would be lost.
+      data: {
+        full_name: cleanedFullName,
+        display_name: cleanedFullName,
+        signup_method: 'magic_link',
+      },
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getCurrentSession() {
+  // Reads the current Supabase session info in the browser.
+  // If skipped: the app can't answer "is this user logged in?"
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return data.session;
+}
+
+export async function signOut() {
+  // Clears the Supabase session.
+  // If skipped: the user would still appear logged in after clicking "sign out."
+  return supabase.auth.signOut();
+}`;
+
 const authProfileTriggerSql = `-- Modern Auth profil senkronizasyonu.
 -- Amaç: OAuth veya Magic Link ile doğrulanan kullanıcıyı public.profiles tablosuna kopyalamak.
 -- Not: Magic Link isteğinde auth.users satırı erken oluşabilir; profile kopyalama email_confirmed_at dolunca yapılır.
@@ -506,6 +945,84 @@ create trigger on_auth_user_verified
 after insert or update of email_confirmed_at on auth.users
 for each row execute procedure public.handle_verified_user();`;
 
+// EN-tree version of authProfileTriggerSql — shared const, see schemaSqlEn comment above.
+const authProfileTriggerSqlEn = `-- Modern Auth profile sync.
+-- Goal: copy a user verified via OAuth or Magic Link into the public.profiles table.
+-- Note: for a Magic Link request, the auth.users row can be created early; the profile copy happens once email_confirmed_at is set.
+
+alter table public.profiles
+  add column if not exists full_name text,
+  add column if not exists email text;
+
+create or replace function public.handle_verified_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  resolved_full_name text;
+  resolved_avatar_url text;
+  -- Must stay in the exact same order as the AVATAR_EMOJIS list in src/lib/avatarEmojis.js.
+  default_avatar_emoji text;
+begin
+  -- Don't create a profile row if the Magic Link hasn't been clicked yet.
+  -- If skipped: people who haven't verified their email could look like active users in profiles.
+  if new.email_confirmed_at is null then
+    return new;
+  end if;
+
+  -- OAuth providers can return metadata under different key names.
+  -- The Magic Link form sends full_name inside options.data.
+  resolved_full_name := nullif(coalesce(
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'name',
+    new.raw_user_meta_data->>'user_name',
+    split_part(new.email, '@', 1)
+  ), '');
+
+  resolved_avatar_url := nullif(coalesce(
+    new.raw_user_meta_data->>'avatar_url',
+    new.raw_user_meta_data->>'picture'
+  ), '');
+
+  -- We assign a random emoji avatar on first login; even if the Google photo
+  -- fails to load or doesn't exist, the user starts with a decent-looking avatar.
+  -- If skipped: a new user would be stuck with an empty/initial avatar until a photo arrives.
+  default_avatar_emoji := (array[
+    '👩', '👨', '🧑', '👩‍🦰', '👨‍🦰', '👩‍🦱', '👨‍🦱', '👩‍🦳', '👨‍🦳',
+    '👩‍🦲', '👨‍🦲', '🤓', '😎', '👩‍💻', '👨‍💻', '🕵️‍♀️', '🕵️‍♂️'
+  ])[1 + floor(random() * 17)::int];
+
+  insert into public.profiles (id, full_name, display_name, email, avatar_url, avatar_emoji)
+  values (
+    new.id,
+    resolved_full_name,
+    resolved_full_name,
+    new.email,
+    resolved_avatar_url,
+    default_avatar_emoji
+  )
+  on conflict (id) do update
+  set full_name = coalesce(excluded.full_name, public.profiles.full_name),
+      display_name = coalesce(excluded.display_name, public.profiles.display_name),
+      email = coalesce(excluded.email, public.profiles.email),
+      avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url),
+      -- Never overwrite a user's own chosen emoji; only fill it in if it's still empty.
+      avatar_emoji = coalesce(public.profiles.avatar_emoji, excluded.avatar_emoji);
+
+  return new;
+end;
+$$;
+
+-- Removing the old "open profile the instant the user is created" trigger.
+-- If skipped: a profile row could be created before the Magic Link is even clicked.
+drop trigger if exists on_auth_user_created on auth.users;
+drop trigger if exists on_auth_user_verified on auth.users;
+
+create trigger on_auth_user_verified
+after insert or update of email_confirmed_at on auth.users
+for each row execute procedure public.handle_verified_user();`;
+
 const authCallbackCode = `// src/pages/AuthCallback.jsx
 // Route: /auth/callback
 // OAuth ve Magic Link dönüşünde session'ı tamamlar, sonra güvenli next route'a yönlendirir.
@@ -547,6 +1064,69 @@ export default function AuthCallback() {
       } catch (error) {
         if (alive) {
           setMessage(error.message || 'Giriş tamamlanamadı.');
+        }
+      }
+    }
+
+    finishAuth();
+    return () => { alive = false; };
+  }, [navigate, searchParams]);
+
+  return (
+    <main className="min-h-screen grid place-items-center bg-slate-950 text-white px-4">
+      <section className="w-full max-w-md rounded-xl border border-cyan-800 bg-slate-900 p-6 text-center">
+        <div className="mx-auto mb-4 h-12 w-12 animate-pulse rounded-full bg-cyan-400/20 grid place-items-center">
+          🔐
+        </div>
+        <h1 className="text-xl font-bold">LearnQA.dev Auth</h1>
+        <p className="mt-3 text-sm text-slate-300">{message}</p>
+      </section>
+    </main>
+  );
+}`;
+
+// EN-tree version of authCallbackCode — shared const, see schemaSqlEn comment above.
+const authCallbackCodeEn = `// src/pages/AuthCallback.jsx
+// Route: /auth/callback
+// Completes the session on OAuth or Magic Link return, then redirects to the safe next route.
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
+
+export default function AuthCallback() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [message, setMessage] = useState('Verifying login...');
+
+  useEffect(() => {
+    let alive = true;
+
+    async function finishAuth() {
+      try {
+        const code = searchParams.get('code');
+        const rawNext = searchParams.get('next') || '/';
+        const safeNext = rawNext.startsWith('/') ? rawNext : '/';
+
+        // On a PKCE return, a code arrives in the URL; we need to exchange it for a session.
+        // If skipped: some OAuth/Magic Link returns would leave the user without a session.
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+        }
+
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+
+        if (!data.session) {
+          throw new Error('Session not found. The link may have expired.');
+        }
+
+        if (alive) {
+          navigate(safeNext, { replace: true });
+        }
+      } catch (error) {
+        if (alive) {
+          setMessage(error.message || 'Login could not be completed.');
         }
       }
     }
@@ -688,6 +1268,127 @@ export default function AuthPanel({ next = '/backend' }) {
   );
 }`;
 
+// EN-tree version of magicLinkFormCode — shared const, see schemaSqlEn comment above.
+const magicLinkFormCodeEn = `// src/features/auth/AuthPanel.jsx
+import { useState } from 'react';
+import {
+  oauthProviders,
+  sendMagicLink,
+  signInWithOAuthProvider,
+} from './authApi';
+
+export default function AuthPanel({ next = '/backend' }) {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
+  const [errorMessage, setErrorMessage] = useState('');
+
+  async function handleOAuth(provider) {
+    setErrorMessage('');
+    await signInWithOAuthProvider(provider, next);
+  }
+
+  async function handleMagicLinkSubmit(event) {
+    event.preventDefault();
+    setStatus('sending');
+    setErrorMessage('');
+
+    try {
+      await sendMagicLink({ fullName, email, next });
+      setStatus('sent');
+    } catch (error) {
+      setStatus('error');
+      setErrorMessage(error.message || 'The activation link could not be sent.');
+    }
+  }
+
+  if (status === 'sent') {
+    return (
+      <section className="rounded-xl border border-emerald-300 bg-emerald-50 p-6 text-emerald-950">
+        <div className="mb-3 text-3xl">✉️</div>
+        <h2 className="text-lg font-bold">Check your email</h2>
+        <p className="mt-2 text-sm">
+          We sent an activation link to {email}. Clicking it verifies your email and opens your LearnQA.dev session.
+        </p>
+        <button
+          type="button"
+          onClick={() => setStatus('idle')}
+          className="mt-4 rounded-lg border border-emerald-700 px-3 py-2 text-sm font-semibold"
+        >
+          Use a different email
+        </button>
+      </section>
+    );
+  }
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="text-xl font-bold text-slate-900">Sign in or sign up</h2>
+      <p className="mt-1 text-sm text-slate-600">
+        Continue instantly with a social account, or verify your email with a passwordless Magic Link.
+      </p>
+
+      <div className="mt-5 grid gap-2">
+        {oauthProviders.map((provider) => (
+          <button
+            key={provider.id}
+            type="button"
+            onClick={() => handleOAuth(provider.id)}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+          >
+            Continue with {provider.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wide text-slate-400">
+        <span className="h-px flex-1 bg-slate-200" />
+        or
+        <span className="h-px flex-1 bg-slate-200" />
+      </div>
+
+      <form onSubmit={handleMagicLinkSubmit} className="grid gap-3">
+        <label className="grid gap-1 text-sm font-semibold text-slate-700">
+          Full Name
+          <input
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            required
+            autoComplete="name"
+            className="rounded-lg border border-slate-300 px-3 py-2 font-normal"
+            placeholder="Ada Lovelace"
+          />
+        </label>
+
+        <label className="grid gap-1 text-sm font-semibold text-slate-700">
+          Email
+          <input
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            type="email"
+            autoComplete="email"
+            className="rounded-lg border border-slate-300 px-3 py-2 font-normal"
+            placeholder="ada@example.com"
+          />
+        </label>
+
+        {status === 'error' && (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{errorMessage}</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={status === 'sending'}
+          className="rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white disabled:opacity-60"
+        >
+          {status === 'sending' ? 'Sending activation link...' : 'Sign Up'}
+        </button>
+      </form>
+    </section>
+  );
+}`;
+
 const authRedirectChecklistCode = `# Supabase Dashboard > Authentication > URL Configuration
 # Site URL:
 https://learnqa.dev
@@ -702,6 +1403,23 @@ http://localhost:5173/**
 # Google/GitHub/Microsoft developer console içinde Authorized redirect URI olarak
 # Supabase Dashboard > Authentication > Providers ekranındaki callback URL yazılır.
 # Örnek format:
+https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`;
+
+// EN-tree version of authRedirectChecklistCode — shared const, see schemaSqlEn comment above.
+const authRedirectChecklistCodeEn = `# Supabase Dashboard > Authentication > URL Configuration
+# Site URL:
+https://learnqa.dev
+
+# Redirect URLs allow list:
+https://learnqa.dev/auth/callback
+https://learnqa.dev/**
+http://localhost:5173/auth/callback
+http://localhost:5173/**
+
+# OAuth provider callback side:
+# In the Google/GitHub/Microsoft developer console, set the Authorized redirect URI
+# to the callback URL shown on the Supabase Dashboard > Authentication > Providers screen.
+# Example format:
 https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`;
 
 const progressCode = `// src/features/progress/progressApi.js
@@ -782,6 +1500,85 @@ export async function loadResumePoint(userId) {
   return data;
 }`;
 
+// EN-tree version of progressCode — shared const, see schemaSqlEn comment above.
+const progressCodeEn = `// src/features/progress/progressApi.js
+// The Progress API is a small service layer that writes the user's resume point to the database.
+// If skipped: every component would repeat the Supabase query itself.
+import { supabase } from '../../lib/supabaseClient';
+
+export async function saveProgress({ userId, lessonSlug, topicSlug, status, lastPosition }) {
+  // Database column names are snake_case, so we build the row object to match the table.
+  // If skipped: Supabase would throw an insert/update error over mismatched column names.
+  const row = {
+    // The RLS policy compares this field against auth.uid().
+    // If skipped: we wouldn't know the record's owner and the insert policy would fail.
+    user_id: userId,
+
+    // Which lesson? Example: selenium, sql, backend.
+    // If skipped: we couldn't tell which lesson to send the user back to.
+    lesson_slug: lessonSlug,
+
+    // Which topic/tab?
+    // If skipped: the user couldn't return to the exact spot they left off in the lesson.
+    topic_slug: topicSlug,
+
+    // started or completed. The database check constraint validates these values.
+    // If skipped: badge and completion reports couldn't tell which record finished.
+    status,
+
+    // Flexible details like scroll position, active tab, or quiz result.
+    // If skipped: the topic is known but the in-page detail is lost.
+    last_position: lastPosition,
+
+    // The date is only written if it's completed.
+    // If skipped: we couldn't show when a completed topic was finished.
+    completed_at: status === 'completed' ? new Date().toISOString() : null,
+
+    // Used to order "most recently updated record" for resuming.
+    // If skipped: returning to the page could reopen a stale record.
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data, error } = await supabase
+    // We choose which table to write to.
+    // If skipped: Supabase wouldn't know where to send the request.
+    .from('user_progress')
+
+    // upsert: update if it exists, insert if it doesn't.
+    // onConflict targets the unique (user_id, lesson_slug, topic_slug) rule.
+    // If skipped: a new row could be created every time for the same topic.
+    .upsert(row, { onConflict: 'user_id,lesson_slug,topic_slug' })
+
+    // Returns the saved final state back to the UI.
+    // If skipped: the UI might not be able to immediately show the successful save.
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function loadResumePoint(userId) {
+  const { data, error } = await supabase
+    .from('user_progress')
+    // We take all columns for now; only the needed columns could be selected in production.
+    // If skipped: we couldn't read the route, topic, and last_position info.
+    .select('*')
+    // Only the signed-in user's own records.
+    // If skipped: another user's progress info could come through by mistake.
+    .eq('user_id', userId)
+    // The most recently updated record should come first.
+    // If skipped: the user might resume from an old topic instead of their last spot.
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    // Return null instead of an error if there's no record.
+    // If skipped: a first-time user would see an unnecessary error.
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}`;
+
 const badgeCode = `// src/features/badges/badgeApi.js
 // Badge API, tamamlanan konu sayısına göre rozet verme işini tek yerde toplar.
 // Yazılmazsa: rozet kuralları farklı component'lere dağılır.
@@ -808,6 +1605,41 @@ export async function awardFirstTopicBadge(userId) {
     .from('user_badges')
     // upsert + onConflict aynı rozeti ikinci kez yazmayı engeller.
     // Yazılmazsa: kullanıcı aynı rozeti tekrar tekrar alabilir.
+    .upsert({ user_id: userId, badge_id: 'first-topic' }, { onConflict: 'user_id,badge_id' })
+    .select('badge_id, awarded_at')
+    .single();
+
+  if (error) throw error;
+  return data;
+}`;
+
+// EN-tree version of badgeCode — shared const, see schemaSqlEn comment above.
+const badgeCodeEn = `// src/features/badges/badgeApi.js
+// The Badge API keeps the logic for awarding badges based on completed-topic count in one place.
+// If skipped: badge rules would be scattered across different components.
+import { supabase } from '../../lib/supabaseClient';
+
+export async function awardFirstTopicBadge(userId) {
+  const { count, error: countError } = await supabase
+    .from('user_progress')
+    // head true: don't download rows, only ask for the exact count.
+    // If skipped: you'd fetch unnecessary data and slow the app down.
+    .select('id', { count: 'exact', head: true })
+    // Only count records completed by this specific user.
+    // If skipped: the total across all users could award this user a badge.
+    .eq('user_id', userId)
+    .eq('status', 'completed');
+
+  if (countError) throw countError;
+
+  // Don't award the badge if no topic has been completed yet.
+  // If skipped: a user could get the badge without finishing anything.
+  if (!count || count < 1) return null;
+
+  const { data, error } = await supabase
+    .from('user_badges')
+    // upsert + onConflict prevents writing the same badge a second time.
+    // If skipped: a user could receive the same badge over and over again.
     .upsert({ user_id: userId, badge_id: 'first-topic' }, { onConflict: 'user_id,badge_id' })
     .select('badge_id, awarded_at')
     .single();
@@ -843,6 +1675,43 @@ export async function submitFeedback({ userId, type, message, pagePath }) {
       message: cleaned,
       // Hangi sayfadan geldiğini bilmek iyileştirme önceliği verir.
       // Yazılmazsa: problemi hangi içerikte arayacağımızı bilemeyiz.
+      page_path: pagePath,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}`;
+
+// EN-tree version of feedbackCode — shared const, see schemaSqlEn comment above.
+const feedbackCodeEn = `// src/features/feedback/feedbackApi.js
+// The Feedback API saves the text coming from the suggestion/complaint form to the database.
+// If skipped: user opinions would only stay in the browser and get lost.
+import { supabase } from '../../lib/supabaseClient';
+
+export async function submitFeedback({ userId, type, message, pagePath }) {
+  // Trim leading/trailing whitespace.
+  // If skipped: messy data like "   nice idea   " would get stored.
+  const cleaned = message.trim();
+
+  // A quick client-side check; the database re-enforces it with a check constraint.
+  // If skipped: a user could submit an empty or meaninglessly short message.
+  if (cleaned.length < 10) throw new Error('Feedback must be at least 10 characters.');
+
+  const { data, error } = await supabase
+    .from('feedback')
+    .insert({
+      // The RLS policy matches this user against auth.uid().
+      // If skipped: the insert wouldn't pass the security check.
+      user_id: userId,
+      // suggestion, bug, praise, or other.
+      // If skipped: the admin panel couldn't classify feedback.
+      type,
+      // We store the cleaned message.
+      message: cleaned,
+      // Knowing which page it came from helps prioritize improvements.
+      // If skipped: we wouldn't know which content to look at for the issue.
       page_path: pagePath,
     })
     .select()
@@ -911,6 +1780,66 @@ export function subscribeToChat(onMessage) {
     .subscribe();
 }`;
 
+// EN-tree version of chatCode — shared const, see schemaSqlEn comment above.
+const chatCodeEn = `// src/features/chat/chatApi.js
+// The Chat API loads old messages, sends new messages, and opens a realtime subscription.
+// If skipped: online users couldn't see each other instantly.
+import { supabase } from '../../lib/supabaseClient';
+
+export async function loadRecentMessages() {
+  const { data, error } = await supabase
+    .from('chat_messages')
+    // We only select the columns we'll show in the UI.
+    // If skipped: unnecessary fields would be fetched, hurting performance.
+    .select('id, display_name, message, created_at')
+    // We fetch newest first to quickly find the most recent messages.
+    // If skipped: old messages could appear at the front.
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) throw error;
+
+  // We reverse the order because old -> new reads better on screen.
+  // If skipped: the chat flow could look backwards to the user.
+  return data.reverse();
+}
+
+export async function sendMessage({ userId, displayName, message }) {
+  const { error } = await supabase.from('chat_messages').insert({
+    // RLS checks this field against auth.uid().
+    // If skipped: the message insert wouldn't pass the policy.
+    user_id: userId,
+    // We store the currently displayed name together with the message.
+    // If skipped: the message list would need a profiles table join every time.
+    display_name: displayName,
+    // We trim whitespace before sending.
+    // If skipped: messages that look empty could clutter the chat.
+    message: message.trim(),
+  });
+  if (error) throw error;
+}
+
+export function subscribeToChat(onMessage) {
+  return supabase
+    // This subscription's name. Used to separate multiple channels.
+    // If skipped: managing and closing the Realtime connection would be harder.
+    .channel('learnqa-chat')
+    .on(
+      // Listen for changes on the Postgres table.
+      // If skipped: the page would need to be refreshed for a new message.
+      'postgres_changes',
+      // Only listen for INSERT events on public.chat_messages.
+      // If skipped: unnecessary table/change events could be listened to.
+      { event: 'INSERT', schema: 'public', table: 'chat_messages' },
+      // payload.new is the newly inserted message row.
+      // If skipped: we couldn't add the incoming message to React state.
+      (payload) => onMessage(payload.new)
+    )
+    // Starts the subscription.
+    // If skipped: the channel is defined but listening never starts.
+    .subscribe();
+}`;
+
 const envCode = `# .env.local
 # Supabase Project Settings > API ekranındaki Project URL.
 # Yazılmazsa: React uygulaması hangi Supabase projesine bağlanacağını bilemez.
@@ -921,12 +1850,32 @@ VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 # Yazılmazsa: Supabase client yetkili istek başlatamaz.
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxxxxxxxxxx`;
 
+// EN-tree version of envCode — shared const, see schemaSqlEn comment above.
+const envCodeEn = `# .env.local
+# The Project URL from Supabase Project Settings > API screen.
+# If skipped: the React app won't know which Supabase project to connect to.
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+
+# Publishable key: usable on the browser side.
+# Warning: never put the service_role key here; that's the admin key.
+# If skipped: the Supabase client can't start an authorized request.
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxxxxxxxxxx`;
+
 const installCode = `# Supabase JavaScript SDK'yı projeye ekler.
 # Yazılmazsa: import { createClient } satırı module not found hatası verir.
 npm install @supabase/supabase-js
 
 # Vite geliştirme sunucusunu çalıştırır.
 # Yazılmazsa: localde login/progress akışını tarayıcıda test edemezsin.
+npm run dev`;
+
+// EN-tree version of installCode — shared const, see schemaSqlEn comment above.
+const installCodeEn = `# Adds the Supabase JavaScript SDK to the project.
+# If skipped: the import { createClient } line throws a module not found error.
+npm install @supabase/supabase-js
+
+# Starts the Vite dev server.
+# If skipped: you can't test the login/progress flow in the browser locally.
 npm run dev`;
 
 const supabaseFunctionConfigCode = `# supabase/config.toml
@@ -941,6 +1890,25 @@ verify_jwt = true
 
 # Webhook endpointleri public çağrılır; güvenlik JWT ile değil provider imzasıyla sağlanır.
 # Yazılmazsa: Stripe ve iZico webhooklarında Authorization: Bearer <Supabase JWT> olmadığı için gateway 401 döner.
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.iyzico-webhook]
+verify_jwt = false`;
+
+// EN-tree version of supabaseFunctionConfigCode — shared const, see schemaSqlEn comment above.
+const supabaseFunctionConfigCodeEn = `# supabase/config.toml
+# This file makes Edge Function behavior persistent in the deploy environment.
+# If skipped: Stripe/iyzico webhook requests could be rejected with 401 before reaching your code, since they don't carry a Supabase JWT.
+
+[functions.create-stripe-checkout]
+verify_jwt = true
+
+[functions.create-iyzico-checkout]
+verify_jwt = true
+
+# Webhook endpoints are called publicly; security comes from the provider signature, not a JWT.
+# If skipped: the gateway would return 401 for Stripe and iyzico webhooks since they don't send Authorization: Bearer <Supabase JWT>.
 [functions.stripe-webhook]
 verify_jwt = false
 
@@ -1097,6 +2065,157 @@ revoke all on function public.can_access_lesson(text, uuid) from public;
 grant execute on function public.is_premium_user(uuid) to anon, authenticated;
 grant execute on function public.can_access_lesson(text, uuid) to anon, authenticated;`;
 
+// EN-tree version of premiumSchemaSql — shared const, see schemaSqlEn comment above.
+const premiumSchemaSqlEn = `-- Premium membership and paywall schema.
+-- Where to run it: Supabase Dashboard > SQL Editor > New query.
+-- Goal: give a user who pays $1 (or the local equivalent) access to all content.
+-- Security: is_premium is updated only by the webhook Edge Function, never by React.
+
+-- Enable pgcrypto in case it's needed for uuid generation.
+-- If skipped: gen_random_uuid() might not work for payment_intents.id.
+create extension if not exists pgcrypto;
+
+-- Adding premium status to the profiles table.
+-- is_premium: the main flag for fast UI and RLS checks.
+-- premium_until: an end date if you want a time-limited membership; null can be treated as unlimited.
+-- payment_provider: which provider granted premium? stripe, iyzico, or manual.
+alter table public.profiles
+  add column if not exists is_premium boolean not null default false,
+  add column if not exists premium_started_at timestamptz,
+  add column if not exists premium_until timestamptz,
+  add column if not exists payment_provider text check (payment_provider in ('stripe', 'iyzico', 'manual')),
+  add column if not exists stripe_customer_id text,
+  add column if not exists iyzico_customer_reference text,
+  add column if not exists premium_updated_at timestamptz;
+
+-- Critical: a user updating their own profile must not be able to change the premium columns.
+-- RLS selects rows; we use grant/revoke for column-level security.
+-- If skipped: with the existing "users update own profile" policy, a user could try to manually set is_premium to true.
+revoke update on public.profiles from authenticated;
+grant update (display_name, avatar_url) on public.profiles to authenticated;
+
+-- lessons: which lesson is free, which is premium? Let the database know.
+-- A client-side slug list can only be a UI hint; the real barrier must live here.
+create table if not exists public.lessons (
+  lesson_slug text primary key,
+  title text not null,
+  sort_order int not null,
+  is_free boolean not null default false,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- Example: the first 3 lessons are free. If your real curriculum order differs, change sort_order and is_free.
+insert into public.lessons (lesson_slug, title, sort_order, is_free)
+values
+  ('selenium', 'Selenium', 1, true),
+  ('playwright', 'Playwright', 2, true),
+  ('cypress', 'Cypress', 3, true),
+  ('python', 'Python', 4, false),
+  ('typescript', 'TypeScript', 5, false),
+  ('sql', 'SQL', 6, false),
+  ('backend', 'Simple Backend', 7, false)
+on conflict (lesson_slug) do update
+set title = excluded.title,
+    sort_order = excluded.sort_order,
+    is_free = excluded.is_free,
+    is_active = true;
+
+-- lesson_contents: stores the video URL, markdown, exclusive content, or file reference you want to protect.
+-- Anything you put in a static GitHub Pages file isn't secret; premium content must live behind the DB or private Storage.
+create table if not exists public.lesson_contents (
+  id bigint generated always as identity primary key,
+  lesson_slug text not null references public.lessons(lesson_slug) on delete cascade,
+  topic_slug text not null,
+  content_type text not null check (content_type in ('markdown', 'video_url', 'storage_path')),
+  content_body text not null,
+  created_at timestamptz not null default now(),
+  unique (lesson_slug, topic_slug, content_type)
+);
+
+-- payment_intents: matches the user to a provider reference when a payment starts.
+-- The iyzico webhook sends paymentConversationId instead of user_id; user_id is looked up from here.
+create table if not exists public.payment_intents (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  provider text not null check (provider in ('stripe', 'iyzico')),
+  -- Holds the Stripe Checkout Session id, or the iyzico Checkout Form token.
+  -- If skipped: the provider-side payment session wouldn't match our record.
+  provider_reference text unique,
+  -- iyzico's paymentConversationId matches this field.
+  -- If create-iyzico-checkout doesn't write this field, iyzico-webhook can't find the user_id.
+  conversation_id text unique,
+  amount_minor int not null,
+  currency text not null,
+  status text not null default 'created' check (status in ('created', 'paid', 'failed', 'expired')),
+  checkout_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- payment_events: processes webhook events idempotently.
+-- unique(provider, provider_event_id): if Stripe/iyzico resends the same webhook, we won't grant premium repeatedly.
+create table if not exists public.payment_events (
+  id bigint generated always as identity primary key,
+  provider text not null check (provider in ('stripe', 'iyzico')),
+  provider_event_id text not null,
+  user_id uuid references auth.users(id) on delete set null,
+  amount_minor int,
+  currency text,
+  status text not null,
+  raw_payload jsonb not null,
+  processed_at timestamptz not null default now(),
+  unique (provider, provider_event_id)
+);
+
+create index if not exists idx_lessons_free_order on public.lessons (is_free, sort_order);
+create index if not exists idx_lesson_contents_lesson_topic on public.lesson_contents (lesson_slug, topic_slug);
+create index if not exists idx_payment_intents_user_provider on public.payment_intents (user_id, provider);
+
+-- We keep the premium check in a single function.
+-- security definer: to avoid falling into a recursive-policy trap when reading profiles inside an RLS policy.
+-- exists: returns false if the user doesn't exist.
+create or replace function public.is_premium_user(check_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles p
+    where p.id = check_user_id
+      and p.is_premium = true
+      and (p.premium_until is null or p.premium_until > now())
+  );
+$$;
+
+-- Lesson access check: a free lesson is open to everyone, a locked lesson only to premium users.
+create or replace function public.can_access_lesson(check_lesson_slug text, check_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.lessons l
+    where l.lesson_slug = check_lesson_slug
+      and l.is_active = true
+      and (
+        l.is_free = true
+        or (check_user_id is not null and public.is_premium_user(check_user_id))
+      )
+  );
+$$;
+
+revoke all on function public.is_premium_user(uuid) from public;
+revoke all on function public.can_access_lesson(text, uuid) from public;
+grant execute on function public.is_premium_user(uuid) to anon, authenticated;
+grant execute on function public.can_access_lesson(text, uuid) to anon, authenticated;`;
+
 const premiumRlsSql = `-- Premium paywall RLS kuralları.
 -- Önce yeni tabloları kilitle.
 alter table public.lessons enable row level security;
@@ -1189,6 +2308,99 @@ create policy "users delete own chat messages"
 on public.chat_messages for delete to authenticated
 using ((select auth.uid()) = user_id);`;
 
+// EN-tree version of premiumRlsSql — shared const, see schemaSqlEn comment above.
+const premiumRlsSqlEn = `-- Premium paywall RLS rules.
+-- First, lock down the new tables.
+alter table public.lessons enable row level security;
+alter table public.lesson_contents enable row level security;
+alter table public.payment_intents enable row level security;
+alter table public.payment_events enable row level security;
+
+-- Lesson titles/curriculum can be visible to everyone.
+-- This way a regular member can see a locked lesson's title but not fetch its content.
+drop policy if exists "lesson catalog is public" on public.lessons;
+create policy "lesson catalog is public"
+on public.lessons for select to anon, authenticated
+using (is_active = true);
+
+-- The content is the actual protected data. Free lessons for everyone, premium lessons only for premium members.
+-- The client-side modal is just UX; this policy is the real security.
+drop policy if exists "lesson content follows paywall" on public.lesson_contents;
+create policy "lesson content follows paywall"
+on public.lesson_contents for select to anon, authenticated
+using (public.can_access_lesson(lesson_slug, (select auth.uid())));
+
+-- Payment intent: a user can only see the payment records they themselves started.
+-- Insert/update is done by the Edge Function's service role, not the regular client.
+drop policy if exists "users read own payment intents" on public.payment_intents;
+create policy "users read own payment intents"
+on public.payment_intents for select to authenticated
+using ((select auth.uid()) = user_id);
+
+-- Raw payment_events webhook records are never exposed to the client.
+-- We don't write a policy: RLS on + no policy = the browser can't access it.
+
+-- Decision (2026-06-22): user_progress is NOT tied to lessons/can_access_lesson.
+-- The "save my resume point" feature must work site-wide (Java, JMeter, Docker included, ~30 pages);
+-- none of these pages are registered in the premium "lessons" table. The paywall
+-- only protects the locked lesson CONTENT (lesson_contents), not progress records.
+-- If skipped: can_access_lesson() returns false for every page not in the lessons
+-- table, and "save my resume point" would fail with an RLS error on those pages.
+drop policy if exists "users read own progress" on public.user_progress;
+drop policy if exists "users write own progress" on public.user_progress;
+drop policy if exists "users update own progress" on public.user_progress;
+drop policy if exists "users read own allowed progress" on public.user_progress;
+drop policy if exists "users insert own allowed progress" on public.user_progress;
+drop policy if exists "users update own allowed progress" on public.user_progress;
+
+create policy "users read own progress"
+on public.user_progress for select to authenticated
+using ((select auth.uid()) = user_id);
+
+create policy "users insert own progress"
+on public.user_progress for insert to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "users update own progress"
+on public.user_progress for update to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+-- Decision (2026-06-21): badges, feedback, and chat are open to FREE members too.
+-- The paywall only protects locked lesson CONTENT (lesson_contents) — see the
+-- "lesson content follows paywall" policy above.
+-- If skipped: since premium is never sold in prod, badges/feedback/chat would effectively be open to no one.
+drop policy if exists "users read own badges" on public.user_badges;
+create policy "users read own badges"
+on public.user_badges for select to authenticated
+using ((select auth.uid()) = user_id);
+
+drop policy if exists "users write own feedback" on public.feedback;
+drop policy if exists "users read own feedback" on public.feedback;
+
+create policy "users write own feedback"
+on public.feedback for insert to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "users read own feedback"
+on public.feedback for select to authenticated
+using ((select auth.uid()) = user_id);
+
+drop policy if exists "signed in users read chat" on public.chat_messages;
+drop policy if exists "signed in users send chat" on public.chat_messages;
+drop policy if exists "users delete own chat messages" on public.chat_messages;
+
+create policy "signed in users read chat"
+on public.chat_messages for select to authenticated using (true);
+
+create policy "signed in users send chat"
+on public.chat_messages for insert to authenticated
+with check ((select auth.uid()) = user_id);
+
+create policy "users delete own chat messages"
+on public.chat_messages for delete to authenticated
+using ((select auth.uid()) = user_id);`;
+
 const stripeCheckoutFunctionCode = `// supabase/functions/create-stripe-checkout/index.ts
 // Amaç: React sadece bu Edge Function'ı çağırır; Stripe secret key tarayıcıya hiç gitmez.
 import Stripe from 'https://esm.sh/stripe@14?target=denonext';
@@ -1219,6 +2431,91 @@ Deno.serve(async (request) => {
 
   // Admin client sadece Edge Function içinde kullanılır; RLS bypass eder.
   // Yazılmazsa: payment_intents kaydını güvenli şekilde server tarafında oluşturamayız.
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  );
+
+  const userId = userData.user.id;
+  const origin = request.headers.get('Origin') ?? 'https://learnqa.dev';
+
+  const { data: intent, error: intentError } = await supabaseAdmin
+    .from('payment_intents')
+    .insert({
+      user_id: userId,
+      provider: 'stripe',
+      amount_minor: 100,
+      currency: 'usd',
+      status: 'created',
+    })
+    .select('id')
+    .single();
+
+  if (intentError) {
+    return new Response(intentError.message, { status: 500 });
+  }
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    success_url: origin + '/backend?payment=success',
+    cancel_url: origin + '/backend?payment=cancel',
+    client_reference_id: userId,
+    metadata: {
+      user_id: userId,
+      payment_intent_id: intent.id,
+      product: 'learnqa_premium',
+    },
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          unit_amount: 100,
+          product_data: { name: 'LearnQA.dev Premium Membership' },
+        },
+        quantity: 1,
+      },
+    ],
+  });
+
+  await supabaseAdmin
+    .from('payment_intents')
+    .update({ provider_reference: session.id, checkout_url: session.url })
+    .eq('id', intent.id);
+
+  return Response.json({ url: session.url });
+});`;
+
+// EN-tree version of stripeCheckoutFunctionCode — shared const, see schemaSqlEn comment above.
+const stripeCheckoutFunctionCodeEn = `// supabase/functions/create-stripe-checkout/index.ts
+// Goal: React only calls this Edge Function; the Stripe secret key never reaches the browser.
+import Stripe from 'https://esm.sh/stripe@14?target=denonext';
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
+  apiVersion: '2024-11-20',
+});
+
+Deno.serve(async (request) => {
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  // Verify the user with the Supabase JWT in the Authorization header.
+  // If skipped: the payment session would start ownerless and the webhook couldn't find a user_id.
+  const authHeader = request.headers.get('Authorization') ?? '';
+  const supabaseUser = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const { data: userData, error: userError } = await supabaseUser.auth.getUser();
+  if (userError || !userData.user) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  // The admin client is only used inside the Edge Function; it bypasses RLS.
+  // If skipped: we couldn't safely create the payment_intents record server-side.
   const supabaseAdmin = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -1451,6 +2748,185 @@ Deno.serve(async (request) => {
   });
 });`;
 
+// EN-tree version of iyzicoCheckoutFunctionCode — shared const, see schemaSqlEn comment above.
+const iyzicoCheckoutFunctionCodeEn = `// supabase/functions/create-iyzico-checkout/index.ts
+// Goal: start the iyzico Checkout Form session server-side.
+// Card details stay on iyzico's page; IYZICO_API_KEY and IYZICO_SECRET_KEY never reach the browser.
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+const IYZICO_BASE_URL = Deno.env.get('IYZICO_BASE_URL') ?? 'https://sandbox-api.iyzipay.com';
+const CHECKOUT_INITIALIZE_PATH = '/payment/iyzipos/checkoutform/initialize/auth/ecom';
+
+async function hmacSha256Hex(secret: string, message: string) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(message));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function createIyzicoAuthorization(path: string, body: string) {
+  const apiKey = Deno.env.get('IYZICO_API_KEY')!;
+  const secretKey = Deno.env.get('IYZICO_SECRET_KEY')!;
+  const randomKey = String(Date.now()) + crypto.randomUUID().replaceAll('-', '');
+
+  // iyzico HMACSHA256 Auth: HMACSHA256(randomKey + uri.path + request.body, secretKey)
+  // If skipped: the CF-Initialize request would come back unauthorized from iyzico.
+  const signature = await hmacSha256Hex(secretKey, randomKey + path + body);
+  const authorizationString =
+    'apiKey:' + apiKey + '&randomKey:' + randomKey + '&signature:' + signature;
+
+  return {
+    authorization: 'IYZWSv2 ' + btoa(authorizationString),
+    randomKey,
+  };
+}
+
+function moneyToMinorUnit(value: string) {
+  return Math.round(Number(value) * 100);
+}
+
+Deno.serve(async (request) => {
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  const authHeader = request.headers.get('Authorization') ?? '';
+  const supabaseUser = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const { data: userData, error: userError } = await supabaseUser.auth.getUser();
+  if (userError || !userData.user) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const bodyFromClient = await request.json().catch(() => ({}));
+  const buyer = bodyFromClient.buyer ?? {};
+  const requiredBuyerFields = ['name', 'surname', 'identityNumber', 'email', 'gsmNumber', 'address', 'city', 'country'];
+  const missing = requiredBuyerFields.filter((field) => !buyer[field]);
+  if (missing.length) {
+    return Response.json({ error: 'Missing iyzico buyer fields', missing }, { status: 400 });
+  }
+
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  );
+
+  const userId = userData.user.id;
+  const origin = request.headers.get('Origin') ?? 'https://learnqa.dev';
+  const conversationId = crypto.randomUUID();
+  const price = Deno.env.get('IYZICO_PREMIUM_PRICE') ?? '35.00';
+  const currency = Deno.env.get('IYZICO_PREMIUM_CURRENCY') ?? 'TRY';
+  const callbackUrl = Deno.env.get('IYZICO_CALLBACK_URL') ?? origin + '/backend?payment=iyzico-return';
+
+  const { data: intent, error: intentError } = await supabaseAdmin
+    .from('payment_intents')
+    .insert({
+      user_id: userId,
+      provider: 'iyzico',
+      conversation_id: conversationId,
+      amount_minor: moneyToMinorUnit(price),
+      currency,
+      status: 'created',
+    })
+    .select('id, conversation_id')
+    .single();
+
+  if (intentError) {
+    return new Response(intentError.message, { status: 500 });
+  }
+
+  const iyzicoPayload = {
+    locale: 'tr',
+    conversationId,
+    price,
+    paidPrice: price,
+    currency,
+    basketId: 'learnqa-premium-' + intent.id,
+    paymentGroup: 'PRODUCT',
+    callbackUrl,
+    enabledInstallments: [1],
+    buyer: {
+      id: userId,
+      name: buyer.name,
+      surname: buyer.surname,
+      identityNumber: buyer.identityNumber,
+      email: buyer.email,
+      gsmNumber: buyer.gsmNumber,
+      registrationAddress: buyer.address,
+      city: buyer.city,
+      country: buyer.country,
+      zipCode: buyer.zipCode ?? '34000',
+      ip: request.headers.get('x-forwarded-for')?.split(',')[0] ?? '127.0.0.1',
+    },
+    billingAddress: {
+      address: buyer.address,
+      contactName: buyer.name + ' ' + buyer.surname,
+      city: buyer.city,
+      country: buyer.country,
+      zipCode: buyer.zipCode ?? '34000',
+    },
+    basketItems: [
+      {
+        id: 'learnqa-premium',
+        name: 'LearnQA.dev Premium Membership',
+        category1: 'Education',
+        itemType: 'VIRTUAL',
+        price,
+      },
+    ],
+  };
+
+  const requestBody = JSON.stringify(iyzicoPayload);
+  const auth = await createIyzicoAuthorization(CHECKOUT_INITIALIZE_PATH, requestBody);
+
+  const iyzicoResponse = await fetch(IYZICO_BASE_URL + CHECKOUT_INITIALIZE_PATH, {
+    method: 'POST',
+    headers: {
+      Authorization: auth.authorization,
+      'x-iyzi-rnd': auth.randomKey,
+      'Content-Type': 'application/json',
+    },
+    body: requestBody,
+  });
+
+  const checkout = await iyzicoResponse.json();
+  if (!iyzicoResponse.ok || checkout.status !== 'success') {
+    await supabaseAdmin
+      .from('payment_intents')
+      .update({ status: 'failed', updated_at: new Date().toISOString() })
+      .eq('id', intent.id);
+
+    return Response.json({ error: 'iyzico checkout initialize failed', details: checkout }, { status: 502 });
+  }
+
+  await supabaseAdmin
+    .from('payment_intents')
+    .update({
+      provider_reference: checkout.token,
+      checkout_url: checkout.paymentPageUrl,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', intent.id);
+
+  return Response.json({
+    url: checkout.paymentPageUrl,
+    token: checkout.token,
+    conversationId: intent.conversation_id,
+  });
+});`;
+
 const stripeWebhookFunctionCode = `// supabase/functions/stripe-webhook/index.ts
 // Stripe Dashboard webhook URL:
 // https://YOUR_PROJECT_REF.supabase.co/functions/v1/stripe-webhook
@@ -1479,6 +2955,104 @@ Deno.serve(async (request) => {
   try {
     // Raw body + Stripe-Signature olmadan webhook kabul edilmez.
     // Yazılmazsa: saldırgan sahte JSON POST edip kendini premium yapabilir.
+    event = await stripe.webhooks.constructEventAsync(
+      body,
+      signature!,
+      Deno.env.get('STRIPE_WEBHOOK_SIGNING_SECRET')!,
+      undefined,
+      cryptoProvider
+    );
+  } catch (error) {
+    return new Response('Invalid Stripe signature', { status: 400 });
+  }
+
+  if (event.type !== 'checkout.session.completed') {
+    return Response.json({ ok: true, ignored: event.type });
+  }
+
+  const session = event.data.object as Stripe.Checkout.Session;
+  const userId = session.metadata?.user_id ?? session.client_reference_id;
+  const amount = session.amount_total ?? 0;
+  const currency = session.currency ?? 'usd';
+
+  if (!userId || session.payment_status !== 'paid' || amount < 100 || currency !== 'usd') {
+    return new Response('Payment is not valid for premium', { status: 400 });
+  }
+
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  );
+
+  const { error: eventError } = await supabaseAdmin.from('payment_events').insert({
+    provider: 'stripe',
+    provider_event_id: event.id,
+    user_id: userId,
+    amount_minor: amount,
+    currency,
+    status: 'paid',
+    raw_payload: JSON.parse(body),
+  });
+
+  if (eventError?.code === '23505') {
+    return Response.json({ ok: true, duplicate: true });
+  }
+  if (eventError) {
+    return new Response(eventError.message, { status: 500 });
+  }
+
+  await supabaseAdmin
+    .from('payment_intents')
+    .update({ status: 'paid', updated_at: new Date().toISOString() })
+    .eq('provider_reference', session.id);
+
+  const { error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .update({
+      is_premium: true,
+      premium_started_at: new Date().toISOString(),
+      premium_until: premiumUntilOneYear(),
+      payment_provider: 'stripe',
+      premium_updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId);
+
+  if (profileError) {
+    return new Response(profileError.message, { status: 500 });
+  }
+
+  return Response.json({ ok: true });
+});`;
+
+// EN-tree version of stripeWebhookFunctionCode — shared const, see schemaSqlEn comment above.
+const stripeWebhookFunctionCodeEn = `// supabase/functions/stripe-webhook/index.ts
+// Stripe Dashboard webhook URL:
+// https://YOUR_PROJECT_REF.supabase.co/functions/v1/stripe-webhook
+// Event to listen for: checkout.session.completed
+import Stripe from 'https://esm.sh/stripe@14?target=denonext';
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
+  apiVersion: '2024-11-20',
+});
+const cryptoProvider = Stripe.createSubtleCryptoProvider();
+
+function premiumUntilOneYear() {
+  return new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+}
+
+Deno.serve(async (request) => {
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  const signature = request.headers.get('Stripe-Signature');
+  const body = await request.text();
+
+  let event: Stripe.Event;
+  try {
+    // A webhook is never accepted without the raw body + Stripe-Signature.
+    // If skipped: an attacker could POST fake JSON and make themselves premium.
     event = await stripe.webhooks.constructEventAsync(
       body,
       signature!,
@@ -1744,6 +3318,203 @@ Deno.serve(async (request) => {
   return Response.json({ ok: true });
 });`;
 
+// EN-tree version of iyzicoWebhookFunctionCode — shared const, see schemaSqlEn comment above.
+const iyzicoWebhookFunctionCodeEn = `// supabase/functions/iyzico-webhook/index.ts
+// iyzico Merchant Portal webhook URL:
+// https://YOUR_PROJECT_REF.supabase.co/functions/v1/iyzico-webhook
+// Note: X-IYZ-SIGNATURE-V3 must be enabled on the iyzico account.
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+const IYZICO_BASE_URL = Deno.env.get('IYZICO_BASE_URL') ?? 'https://sandbox-api.iyzipay.com';
+const CHECKOUT_RETRIEVE_PATH = '/payment/iyzipos/checkoutform/auth/ecom/detail';
+
+async function hmacSha256Hex(secret: string, message: string) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(message));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function timingSafeEqual(a: string, b: string) {
+  const encoder = new TextEncoder();
+  const left = encoder.encode(a.trim().toLowerCase());
+  const right = encoder.encode(b.trim().toLowerCase());
+  let diff = left.length ^ right.length;
+  const max = Math.max(left.length, right.length);
+
+  for (let i = 0; i < max; i += 1) {
+    diff |= (left[i] ?? 0) ^ (right[i] ?? 0);
+  }
+
+  return diff === 0;
+}
+
+async function createIyzicoAuthorization(path: string, body: string) {
+  const apiKey = Deno.env.get('IYZICO_API_KEY')!;
+  const secretKey = Deno.env.get('IYZICO_SECRET_KEY')!;
+  const randomKey = String(Date.now()) + crypto.randomUUID().replaceAll('-', '');
+  const signature = await hmacSha256Hex(secretKey, randomKey + path + body);
+  const authorizationString =
+    'apiKey:' + apiKey + '&randomKey:' + randomKey + '&signature:' + signature;
+
+  return {
+    authorization: 'IYZWSv2 ' + btoa(authorizationString),
+    randomKey,
+  };
+}
+
+function moneyToMinorUnit(value: unknown) {
+  return Math.round(Number(value) * 100);
+}
+
+async function retrieveCheckoutResult(token: string, conversationId: string) {
+  const requestBody = JSON.stringify({
+    locale: 'tr',
+    conversationId,
+    token,
+  });
+  const auth = await createIyzicoAuthorization(CHECKOUT_RETRIEVE_PATH, requestBody);
+
+  const response = await fetch(IYZICO_BASE_URL + CHECKOUT_RETRIEVE_PATH, {
+    method: 'POST',
+    headers: {
+      Authorization: auth.authorization,
+      'x-iyzi-rnd': auth.randomKey,
+      'Content-Type': 'application/json',
+    },
+    body: requestBody,
+  });
+
+  const result = await response.json();
+  if (!response.ok || result.status !== 'success') {
+    throw new Error('iyzico retrieve failed');
+  }
+
+  return result;
+}
+
+function premiumUntilOneYear() {
+  return new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+}
+
+Deno.serve(async (request) => {
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405 });
+  }
+
+  const rawBody = await request.text();
+  const payload = JSON.parse(rawBody);
+  const receivedSignature = request.headers.get('X-IYZ-SIGNATURE-V3') ?? '';
+  const secretKey = Deno.env.get('IYZICO_SECRET_KEY')!;
+
+  // Direct format: secretKey + iyziEventType + paymentId + paymentConversationId + status
+  // HPP/Checkout Form format: secretKey + iyziEventType + iyziPaymentId + token + paymentConversationId + status
+  // Per the official docs, the result must be HEX-encoded HMAC-SHA256.
+  const isHpp = Boolean(payload.token);
+  const signatureMessage = isHpp
+    ? secretKey + payload.iyziEventType + payload.iyziPaymentId + payload.token + payload.paymentConversationId + payload.status
+    : secretKey + payload.iyziEventType + payload.paymentId + payload.paymentConversationId + payload.status;
+
+  const expectedSignature = await hmacSha256Hex(secretKey, signatureMessage);
+  if (!timingSafeEqual(expectedSignature, receivedSignature)) {
+    return new Response('Invalid iyzico signature', { status: 400 });
+  }
+
+  if (payload.status !== 'SUCCESS') {
+    return Response.json({ ok: true, ignored: payload.status });
+  }
+
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  );
+
+  const { data: intent, error: intentError } = await supabaseAdmin
+    .from('payment_intents')
+    .select('id, user_id, amount_minor, currency')
+    .eq('conversation_id', payload.paymentConversationId)
+    .eq('provider', 'iyzico')
+    .single();
+
+  if (intentError || !intent) {
+    return new Response('Unknown payment conversation', { status: 400 });
+  }
+
+  // The Checkout Form webhook carries a token. We use it to re-verify amount/currency via CF-Retrieve.
+  // If skipped: we'd be trusting only the webhook's SUCCESS value.
+  if (!payload.token) {
+    return new Response('Missing iyzico checkout token', { status: 400 });
+  }
+
+  let retrieveResult;
+  try {
+    retrieveResult = await retrieveCheckoutResult(payload.token, payload.paymentConversationId);
+  } catch {
+    return new Response('Could not verify iyzico payment result', { status: 400 });
+  }
+
+  const paidMinor = moneyToMinorUnit(retrieveResult.paidPrice);
+  const currency = String(retrieveResult.currency ?? '').toUpperCase();
+  const fraudApproved = retrieveResult.fraudStatus === 1 || retrieveResult.fraudStatus === '1';
+
+  if (
+    retrieveResult.paymentStatus !== 'SUCCESS'
+    || !fraudApproved
+    || paidMinor < intent.amount_minor
+    || currency !== String(intent.currency).toUpperCase()
+  ) {
+    return new Response('iyzico payment amount/currency/fraud check failed', { status: 400 });
+  }
+
+  const providerEventId = payload.iyziReferenceCode ?? payload.iyziPaymentId ?? retrieveResult.paymentId;
+  const { error: eventError } = await supabaseAdmin.from('payment_events').insert({
+    provider: 'iyzico',
+    provider_event_id: String(providerEventId),
+    user_id: intent.user_id,
+    amount_minor: paidMinor,
+    currency,
+    status: 'paid',
+    raw_payload: { webhook: payload, retrieve: retrieveResult },
+  });
+
+  if (eventError?.code === '23505') {
+    return Response.json({ ok: true, duplicate: true });
+  }
+  if (eventError) {
+    return new Response(eventError.message, { status: 500 });
+  }
+
+  await supabaseAdmin
+    .from('payment_intents')
+    .update({ status: 'paid', updated_at: new Date().toISOString() })
+    .eq('id', intent.id);
+
+  const { error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .update({
+      is_premium: true,
+      premium_started_at: new Date().toISOString(),
+      premium_until: premiumUntilOneYear(),
+      payment_provider: 'iyzico',
+      premium_updated_at: new Date().toISOString(),
+    })
+    .eq('id', intent.user_id);
+
+  if (profileError) {
+    return new Response(profileError.message, { status: 500 });
+  }
+
+  return Response.json({ ok: true });
+});`;
+
 const paywallFrontendCode = `// src/features/premium/premiumApi.js
 // Bu kod sadece UI deneyimi içindir; gerçek güvenlik Supabase RLS tarafındadır.
 import { supabase } from '../../lib/supabaseClient';
@@ -1800,6 +3571,74 @@ export async function startIyzicoPremiumCheckout(buyer) {
   // buyer alanları iZico Checkout Form için gereklidir.
   // Örnek: { name, surname, identityNumber, email, gsmNumber, address, city, country, zipCode }
   // Yazılmazsa: create-iyzico-checkout Edge Function eksik buyer bilgisiyle 400 döner.
+  const { data, error } = await supabase.functions.invoke('create-iyzico-checkout', {
+    body: {
+      product: 'learnqa_premium',
+      buyer,
+    },
+  });
+
+  if (error) throw error;
+  window.location.href = data.url;
+}`;
+
+// EN-tree version of paywallFrontendCode — shared const, see schemaSqlEn comment above.
+const paywallFrontendCodeEn = `// src/features/premium/premiumApi.js
+// This code is only for the UI experience; the real security lives in Supabase RLS.
+import { supabase } from '../../lib/supabaseClient';
+
+export async function loadMyProfile() {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, display_name, avatar_url, is_premium, premium_until, payment_provider')
+    .eq('id', user.id)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export function hasActivePremium(profile) {
+  if (!profile?.is_premium) return false;
+  if (!profile.premium_until) return true;
+  return new Date(profile.premium_until).getTime() > Date.now();
+}
+
+// UI hint for the first 3 lessons. Real authorization is protected by the lessons + lesson_contents RLS.
+export const FREE_LESSON_SLUGS = ['selenium', 'playwright', 'cypress'];
+
+export function canOpenLessonInUi(lessonSlug, profile) {
+  return FREE_LESSON_SLUGS.includes(lessonSlug) || hasActivePremium(profile);
+}
+
+export async function loadLessonContent(lessonSlug, topicSlug) {
+  const { data, error } = await supabase
+    .from('lesson_contents')
+    .select('content_type, content_body')
+    .eq('lesson_slug', lessonSlug)
+    .eq('topic_slug', topicSlug);
+
+  if (error) throw error;
+  return data;
+}
+
+export async function startStripePremiumCheckout() {
+  const { data, error } = await supabase.functions.invoke('create-stripe-checkout', {
+    body: { product: 'learnqa_premium' },
+  });
+
+  if (error) throw error;
+  window.location.href = data.url;
+}
+
+export async function startIyzicoPremiumCheckout(buyer) {
+  // The buyer fields are required for the iyzico Checkout Form.
+  // Example: { name, surname, identityNumber, email, gsmNumber, address, city, country, zipCode }
+  // If skipped: the create-iyzico-checkout Edge Function returns 400 for missing buyer info.
   const { data, error } = await supabase.functions.invoke('create-iyzico-checkout', {
     body: {
       product: 'learnqa_premium',
@@ -5161,13 +7000,13 @@ const enSections = [
         type: 'warning',
         content: 'The order matters, it is not arbitrary: table first (create table), then enable RLS, then policies (create policy), then Realtime last. Think of it like Java — you define the class first, then add access control (private/public) to it; you cannot override a method on a class that does not exist yet.',
       },
-        { type: 'code', label: '1) Tables', language: 'sql', code: schemaSql },
+        { type: 'code', label: '1) Tables', language: 'sql', code: { tr: schemaSql, en: schemaSqlEn } },
         schemaGuideBlock,
-        { type: 'code', label: '2) Row Level Security', language: 'sql', code: rlsSql },
+        { type: 'code', label: '2) Row Level Security', language: 'sql', code: { tr: rlsSql, en: rlsSqlEn } },
         rlsGuideBlock,
-        { type: 'code', label: '3) Auto profile trigger', language: 'sql', code: profileTriggerSql },
+        { type: 'code', label: '3) Auto profile trigger', language: 'sql', code: { tr: profileTriggerSql, en: profileTriggerSqlEn } },
         triggerGuideBlock,
-        { type: 'code', label: '4) Realtime', language: 'sql', code: realtimeSql },
+        { type: 'code', label: '4) Realtime', language: 'sql', code: { tr: realtimeSql, en: realtimeSqlEn } },
         realtimeGuideBlock,
       {
         type: 'quiz',
@@ -5317,14 +7156,14 @@ const enSections = [
           explanation: 'Supabase Auth always identifies Microsoft/Azure AD sign-in by the provider name "azure". Sending a name like "microsoft" is not recognized and the request fails — the Dashboard label saying "Microsoft" does not mean the code-level string is "microsoft" too.',
         },
       },
-      { type: 'code', label: '7) Profile trigger for verified users', language: 'sql', code: authProfileTriggerSql },
-      { type: 'code', label: '8) Redirect allow-list settings', language: 'bash', code: authRedirectChecklistCode },
+      { type: 'code', label: '7) Profile trigger for verified users', language: 'sql', code: { tr: authProfileTriggerSql, en: authProfileTriggerSqlEn } },
+      { type: 'code', label: '8) Redirect allow-list settings', language: 'bash', code: { tr: authRedirectChecklistCode, en: authRedirectChecklistCodeEn } },
       authRedirectGuideBlock,
-      { type: 'code', label: '9) Supabase client', language: 'javascript', code: supabaseClientCode },
-      { type: 'code', label: '10) OAuth + Magic Link Auth API', language: 'javascript', code: authCode },
+      { type: 'code', label: '9) Supabase client', language: 'javascript', code: { tr: supabaseClientCode, en: supabaseClientCodeEn } },
+      { type: 'code', label: '10) OAuth + Magic Link Auth API', language: 'javascript', code: { tr: authCode, en: authCodeEn } },
       authGuideBlock,
-      { type: 'code', label: '11) /auth/callback route component', language: 'javascript', code: authCallbackCode },
-      { type: 'code', label: '12) AuthPanel: social login + passwordless signup', language: 'jsx', code: magicLinkFormCode },
+      { type: 'code', label: '11) /auth/callback route component', language: 'javascript', code: { tr: authCallbackCode, en: authCallbackCodeEn } },
+      { type: 'code', label: '12) AuthPanel: social login + passwordless signup', language: 'jsx', code: { tr: magicLinkFormCode, en: magicLinkFormCodeEn } },
       authPracticeBlock,
       { type: 'warning', content: 'Magic Link success usually returns user/session as null immediately. That is normal: show a check-your-email screen until the user clicks the activation link.' },
       {
@@ -5379,7 +7218,7 @@ const enSections = [
     blocks: [
       { type: 'simple-box', emoji: '📌', content: 'Saving progress is like placing a bookmark in a book. When the user returns, the app opens the right page again.' },
       { type: 'simulation', title: { tr: 'Progress kaydı: React state -> Supabase row -> tekrar açınca resume', en: 'Progress save: React state -> Supabase row -> resume on return' }, description: { tr: 'Progress upsert ve resume akışını gösterir.', en: 'Shows progress upsert and resume flow.' }, scenario: 'backend-progress-flow', color: '#10b981', icon: '📍' },
-        { type: 'code', label: 'Progress API', language: 'javascript', code: progressCode },
+        { type: 'code', label: 'Progress API', language: 'javascript', code: { tr: progressCode, en: progressCodeEn } },
         progressGuideBlock,
       {
         type: 'quiz',
@@ -5424,7 +7263,7 @@ const enSections = [
     blocks: [
       { type: 'simple-box', emoji: '🏆', content: 'A badge is the teacher’s stamp saying “you passed this milestone.”' },
       { type: 'text', content: 'For the first version, a small client-side badge check is enough for learning motivation. If badges become important, move award logic to an Edge Function or backend endpoint.' },
-        { type: 'code', label: 'Simple badge code', language: 'javascript', code: badgeCode },
+        { type: 'code', label: 'Simple badge code', language: 'javascript', code: { tr: badgeCode, en: badgeCodeEn } },
         badgeGuideBlock,
       {
         type: 'quiz',
@@ -5468,7 +7307,7 @@ const enSections = [
     title: '💬 Feedback form',
     blocks: [
       { type: 'simple-box', emoji: '📝', content: 'Feedback is the suggestion box in the classroom. The user writes what is missing, and the app stores who wrote it and from which page.' },
-        { type: 'code', label: 'Feedback API', language: 'javascript', code: feedbackCode },
+        { type: 'code', label: 'Feedback API', language: 'javascript', code: { tr: feedbackCode, en: feedbackCodeEn } },
         feedbackGuideBlock,
       {
         type: 'quiz',
@@ -5513,7 +7352,7 @@ const enSections = [
     blocks: [
       { type: 'simple-box', emoji: '💭', content: 'Realtime chat is like students speaking in the same classroom: when one message is sent, everybody sees it without refreshing.' },
       { type: 'simulation', title: { tr: 'Realtime Chat: insert -> channel -> diğer kullanıcıların ekranı', en: 'Realtime Chat: insert -> channel -> other users screens' }, description: { tr: 'Realtime chat event akışını gösterir.', en: 'Shows the realtime chat event flow.' }, scenario: 'supabase-realtime-chat', color: '#8b5cf6', icon: '🟣' },
-        { type: 'code', label: 'Chat API', language: 'javascript', code: chatCode },
+        { type: 'code', label: 'Chat API', language: 'javascript', code: { tr: chatCode, en: chatCodeEn } },
         chatGuideBlock,
       {
         type: 'quiz',
@@ -5571,17 +7410,17 @@ const enSections = [
           ['Webhook retry', 'payment_events unique(provider, provider_event_id)', 'A provider retry is processed only once.'],
         ],
       },
-      { type: 'code', label: '1) Premium tables and helper functions', language: 'sql', code: premiumSchemaSql },
+      { type: 'code', label: '1) Premium tables and helper functions', language: 'sql', code: { tr: premiumSchemaSql, en: premiumSchemaSqlEn } },
       premiumSchemaGuideBlock,
-      { type: 'code', label: '2) Premium RLS and paywall policies', language: 'sql', code: premiumRlsSql },
+      { type: 'code', label: '2) Premium RLS and paywall policies', language: 'sql', code: { tr: premiumRlsSql, en: premiumRlsSqlEn } },
       premiumRlsGuideBlock,
-      { type: 'code', label: '3) Supabase Function config: webhook JWT gate', language: 'toml', code: supabaseFunctionConfigCode },
-      { type: 'code', label: '4) Stripe checkout session Edge Function', language: 'typescript', code: stripeCheckoutFunctionCode },
-      { type: 'code', label: '5) iyzico Checkout Form Edge Function', language: 'typescript', code: iyzicoCheckoutFunctionCode },
-      { type: 'code', label: '6) Stripe webhook handler', language: 'typescript', code: stripeWebhookFunctionCode },
-      { type: 'code', label: '7) iyzico webhook handler + CF-Retrieve verification', language: 'typescript', code: iyzicoWebhookFunctionCode },
+      { type: 'code', label: '3) Supabase Function config: webhook JWT gate', language: 'toml', code: { tr: supabaseFunctionConfigCode, en: supabaseFunctionConfigCodeEn } },
+      { type: 'code', label: '4) Stripe checkout session Edge Function', language: 'typescript', code: { tr: stripeCheckoutFunctionCode, en: stripeCheckoutFunctionCodeEn } },
+      { type: 'code', label: '5) iyzico Checkout Form Edge Function', language: 'typescript', code: { tr: iyzicoCheckoutFunctionCode, en: iyzicoCheckoutFunctionCodeEn } },
+      { type: 'code', label: '6) Stripe webhook handler', language: 'typescript', code: { tr: stripeWebhookFunctionCode, en: stripeWebhookFunctionCodeEn } },
+      { type: 'code', label: '7) iyzico webhook handler + CF-Retrieve verification', language: 'typescript', code: { tr: iyzicoWebhookFunctionCode, en: iyzicoWebhookFunctionCodeEn } },
       webhookGuideBlock,
-      { type: 'code', label: '8) React paywall and profile state', language: 'javascript', code: paywallFrontendCode },
+      { type: 'code', label: '8) React paywall and profile state', language: 'javascript', code: { tr: paywallFrontendCode, en: paywallFrontendCodeEn } },
       paywallGuideBlock,
       {
         type: 'steps',
@@ -5649,8 +7488,8 @@ const enSections = [
     blocks: [
       { type: 'simple-box', emoji: '🧩', content: 'The final step is plugging the pieces into the app like LEGO: package, env file, client, login, progress, then build.' },
       { type: 'installation', steps: [{ cmd: 'npm install @supabase/supabase-js', explanation: 'Install the official Supabase JavaScript client.' }, { cmd: 'New file: .env.local', explanation: 'Store project URL and publishable key locally.' }, { cmd: 'npm run dev', explanation: 'Run locally and test Google login.' }, { cmd: 'npm run build', explanation: 'Verify production build.' }] },
-        { type: 'code', label: 'Install commands', language: 'bash', code: installCode },
-        { type: 'code', label: '.env.local', language: 'bash', code: envCode },
+        { type: 'code', label: 'Install commands', language: 'bash', code: { tr: installCode, en: installCodeEn } },
+        { type: 'code', label: '.env.local', language: 'bash', code: { tr: envCode, en: envCodeEn } },
         installGuideBlock,
       {
         type: 'quiz',
