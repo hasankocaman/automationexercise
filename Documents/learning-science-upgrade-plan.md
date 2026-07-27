@@ -13,9 +13,9 @@ gerçek durumu**:
 | # | Yazıdaki eksik | Projedeki gerçek durum | Karar |
 |---|----------------|------------------------|-------|
 | 1 | **Prediction** ("çıktı ne? / compile olur mu?") | **Gerçek boşluk.** `quiz`, `challenge`, `feynman-checkpoint` var ama "önce tahmin et, sonra gör" (commitment → reveal) diye ayrı bir blok tipi YOKTU. | ✅ **Opus yaptı** (yeni `prediction` bloğu) + Sonnet yaygınlaştıracak |
-| 2 | Kod yürütme animasyonu (for → i=0 → i=1…) | Kısmen var: `step-animation`, `trace`, `pytest-execution-visual`, `js-executor`. Genel "satır satır değişken durumu yürüyen" jenerik izleyici yok. | 🔷 Opus (yeni `code-trace` bileşeni) — bu daldan SONRA |
-| 3 | Heap / Stack görselleştirme | `python-memory-visual` (Python değişkenleri), `data-structure` var; ama Java `new Person()` → Stack(reference) + Heap(object) modeli yok. | 🔶 Sonnet (mevcut `data-structure`/`python-memory-visual` verisini Java'ya genişletme) |
-| 4 | Memory viz (ArrayList/HashMap/Queue/Stack animasyon) | `data-structure` + `python-collection-visual` blokları VAR ama az sayfada. | 🔶 Sonnet (veri yaygınlaştırma) |
+| 2 | Kod yürütme animasyonu (for → i=0 → i=1…) | Kısmen var: `step-animation`, `trace`, `pytest-execution-visual`, `js-executor`. Genel "satır satır değişken durumu yürüyen" jenerik izleyici yoktu. | ✅ **Opus yaptı** (yeni `code-trace` bileşeni) + Sonnet yaygınlaştıracak |
+| 3 | Heap / Stack görselleştirme | `python-memory-visual` (Python değişkenleri), `data-structure` var; ama Java `new Person()` → Stack(reference) + Heap(object) modeli yoktu. | ✅ **Opus yaptı** (yeni `heap-stack` bileşeni) + Sonnet yaygınlaştıracak |
+| 4 | Memory viz (ArrayList/HashMap/Queue/Stack animasyon) | `data-structure` + `python-collection-visual` blokları VAR ama az sayfada; `heap-stack` de nesne bazlı bellek için eklendi. | 🔶 Sonnet (veri yaygınlaştırma: `data-structure` + `heap-stack`) |
 | 5 | Kişiselleşmiş AI Mentor ("2 haftadır XPath'te zorlanıyorsun") | `QAMentorPage` var ama kişisel zayıflık takibi/hatırlatma yok. Supabase + progress analitiği gerekir. | 🔷 Opus (ayrı mimari görev, backend gerektirir) |
 | 6 | Adaptif zorluk | Yok. Quiz zorluğu sabit. | 🔷 Opus (ayrı görev, §18 yedek-soru altyapısı üstüne kurulur) |
 | 7 | Learning Analytics dashboard (en güçlü/zayıf konu) | `SkillRadar`, `ActivityHeatmap`, `XpStat` var — parçalar mevcut, birleşik dashboard + konu-bazlı doğruluk agregasyonu yok. | 🔷 Opus/Sonnet karışık (agregasyon Opus, kart UI Sonnet) |
@@ -83,6 +83,62 @@ kırmızı ekran yerine mikro-geri bildirim) ile uyumlu.
 - `prediction` bloğu **quiz gibi** konu anlatımından SONRA gelir (§9.1) — asla
   ilk blok olamaz.
 
+### Opus Dalga 2 — `code-trace` ve `heap-stack` (TAMAMLANDI, commit'lendi)
+
+İki yeni self-contained bileşen daha eklendi (backend gerektirmez, "Opus bileşen
+yazar → Sonnet data ekler" kalıbı):
+
+- `src/components/CodeTraceBlock.jsx` — **`code-trace`**: kodu satır satır YÜRÜR;
+  aktif satır vurgulu, değişken tablosu her adımda güncellenir (değişen değer sarı
+  parlar), opsiyonel çıktı paneli, ▶ oynat / ⏮⏭ adımla / ↺ sıfırla. (feedback #2)
+- `src/components/HeapStackBlock.jsx` — **`heap-stack`**: Stack (yerel değişkenler,
+  primitive vs referans) | Heap (nesneler) iki kolon; referans→nesne renk
+  eşleşmesi + işaret edilen nesne parlaması ile aliasing'i gösterir. (feedback #3/#4)
+- `TopicPage.jsx` — her ikisi için import + `case` kaydı.
+- `javaData.js` referans örnekleri: `traceJavaForLoop` (for döngüsü, S-C Akış
+  Kontrolü) ve `heapStackJava` (`new Person()` + `q = p` aliasing, S2 OOP). İkisi
+  de çift-ağaçlı bölümlere tek sabit + iki ağaç referansıyla konuldu.
+
+**Not (şema):** `code-trace` ve `heap-stack` bloklarında `code` alanı **düz string
+olmalı** (renderer `.split('\n')` yapar, `{tr,en}` DESTEKLENMEZ) — bu yüzden kodu
+**yorumsuz** tut (i18n taraması TR sızıntısı sanmasın), tüm açıklamayı bilingual
+`note` alanlarına koy.
+
+#### `code-trace` şeması
+```js
+{
+  type: 'code-trace',
+  title: { tr, en },
+  code: 'çok satırlı kaynak (yorumsuz)',
+  codeLanguage: 'java',
+  steps: [
+    { line: 3, vars: { i: '0', sum: '0' }, output: '', note: { tr, en } },
+    // line = 1-indexli vurgulanacak satır; vars = o adımki değişkenler
+    // (değişen değer otomatik sarı parlar); output = (ops.) birikmiş çıktı
+  ],
+}
+```
+
+#### `heap-stack` şeması
+```js
+{
+  type: 'heap-stack',
+  title: { tr, en },
+  code: 'çok satırlı kaynak (yorumsuz)',
+  codeLanguage: 'java',
+  steps: [
+    {
+      line: 2, note: { tr, en },
+      stack: [
+        { name: 'age', value: '30', kind: 'primitive' },
+        { name: 'p', ref: 'obj1', kind: 'ref' },   // ref → heap[].id ile eşleşir
+      ],
+      heap: [ { id: 'obj1', type: 'Person', fields: { name: '"Ada"', age: '30' } } ],
+    },
+  ],
+}
+```
+
 ## 3. Sonnet Görevleri (prompt Bölüm 4'te)
 
 ### Görev S1 — `prediction` bloğunu tüm teknoloji sayfalarına yaygınlaştır
@@ -99,11 +155,13 @@ konu sekmesine en az 1** `prediction` bloğu — özellikle "gotcha" içeren yer
   `JOIN` satır sayısı, `GROUP BY` + agregasyon.
 - JS/TS: `==` vs `===`, hoisting, closure/loop `var`, `typeof null`, `[] + {}`.
 
-### Görev S2 — Heap/Stack + Memory viz (feedback #3, #4) genişlet
-Mevcut `data-structure` ve `python-memory-visual` bloklarını Java'ya yay: `new
-Person()` → Stack(reference) + Heap(object) ayrımı, ArrayList/HashMap/Queue/Stack
-animasyonlu kartları. Yeni bileşen YAZMA — önce mevcut blokların şemasını `--list`
-ile incele, veri olarak ekle. (Mevcut bileşen yetmezse Opus'a bırak, uydurma.)
+### Görev S2 — `code-trace` + `heap-stack` yaygınlaştır (feedback #2, #3, #4)
+Bileşenler HAZIR (`CodeTraceBlock`, `HeapStackBlock`). Java referansları örnek.
+- `code-trace`: her sayfada döngü/algoritma anlatan kod bloğunun ardına satır satır
+  yürüyüş ekle (Java for/while, Python for, SQL yok — algoritmik akış olan yerler).
+- `heap-stack`: nesne/referans/aliasing anlatan yerlere (Java `new`, `= p`, Python
+  liste referans kopyası). ArrayList/HashMap/Queue/Stack için mevcut `data-structure`
+  bloğunu da veri olarak yay. Yeni bileşen YAZMA — yetmezse Opus'a bırak, uydurma.
 
 ## 4. Sonnet için HAZIR PROMPT
 
@@ -136,6 +194,13 @@ Yap:
    Türkçe (§8). `relatedTopicId` ekle.
 4. javaData bitince Python → SQL → JavaScript → TypeScript sırasıyla devam et.
 
+Prediction rollout bitince, aynı sayfalarda **Görev S2**'ye geç: `code-trace`
+(döngü/algoritma anlatan kod bloklarının ardına satır satır yürüyüş) ve
+`heap-stack` (nesne/referans/aliasing anlatan yerlere). Şemalar bu dosyanın
+Bölüm 2'sinde; referanslar `javaData.js` içinde `traceJavaForLoop` ve
+`heapStackJava`. `code`/`heap-stack` bloklarında `code` alanı **düz string,
+yorumsuz** olmalı (renderer `{tr,en}` desteklemez, açıklama `note`'larda).
+
 Her dosyadan sonra ZORUNLU (§1.1): `node --check src/data/<dosya>.js` →
 `node scripts/check-content-integrity.mjs` → `node scripts/check-i18n-leaks.mjs`
 → `npm run build`. Dördü de geçmeden "bitti" deme. Parça parça ilerle, her
@@ -144,10 +209,18 @@ tahmin blokları`). Bittiğinde `NEXT_SESSION.md`'yi güncelle.
 
 ---
 
-## 5. Bu Dalga Kapsamı DIŞI (ayrı görevler)
+## 5. Bu Dalga Kapsamı DIŞI (ayrı görevler — Opus bileşen işi BİTTİ, geriye backend/epik kaldı)
 
-- **#2 Kod yürütme izleyici (`code-trace`)** — yeni Opus bileşeni.
-- **#5 Kişisel AI Mentor** — Supabase progress analitiği + hatırlatma; Opus + backend.
-- **#6 Adaptif zorluk** — §18 yedek-soru altyapısı üstüne; ayrı Opus görevi.
-- **#7 Learning Analytics dashboard** — agregasyon (Opus) + kart UI (Sonnet).
-- **#8 Portföy/proje üretimi** — ayrı epik.
+Opus'un bu daldaki tüm self-contained bileşen işi tamamlandı (`prediction`,
+`code-trace`, `heap-stack`). Kalanlar backend/mimari/product kararı gerektirir ve
+kullanıcının açık onayı olmadan tek başına kodlanmamalı (§13):
+
+- **#5 Kişisel AI Mentor** — Supabase progress analitiği + konu-bazlı zayıflık
+  takibi + hatırlatma. Yeni tablo/RPC + edge function gerektirir → ayrı görev.
+- **#6 Adaptif zorluk** — §18 yedek-soru altyapısı üstüne kullanıcı başarı
+  geçmişine göre zorluk seçimi → ayrı görev.
+- **#7 Learning Analytics dashboard** — konu-bazlı doğruluk agregasyonu (Opus,
+  progress verisi şeması) + kart UI (Sonnet). Parçalar (`SkillRadar`,
+  `ActivityHeatmap`) var, birleştirme yok.
+- **#8 Portföy/proje üretimi** — mini framework → POM → API test → CI → push akışı;
+  en büyük epik, ayrı planlama gerekir.

@@ -35,6 +35,8 @@ import ObservabilityDashboardBlock from './ObservabilityDashboardBlock'
 import EdgeCaseFactoryBlock from './EdgeCaseFactoryBlock'
 import VisualDiffDetectiveBlock from './VisualDiffDetectiveBlock'
 import PredictionBlock from './PredictionBlock'
+import CodeTraceBlock from './CodeTraceBlock'
+import HeapStackBlock from './HeapStackBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 import { logActivity } from '../lib/activityLog'
@@ -17914,6 +17916,12 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'prediction':
             return <PredictionBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+
+        case 'code-trace':
+            return <CodeTraceBlock key={i} block={block} darkMode={darkMode} language={language} />
+
+        case 'heap-stack':
+            return <HeapStackBlock key={i} block={block} darkMode={darkMode} language={language} />
 
         case 'framework-puzzle':
             return <FrameworkPuzzleBlock key={i} block={block} darkMode={darkMode} language={language} />

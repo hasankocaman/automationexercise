@@ -3092,6 +3092,47 @@ cd java-qa-project && mvn test`,
   },
 }
 
+// "Stack & Heap Bellek Modeli" referans bloğu (§9.1 görsel). new Person() Heap'te
+// nesne, Stack'te referans oluşturur; q = p referansı KOPYALAR → aliasing. Kod
+// düz string (yorumsuz) tutulur ki i18n taraması TR sızıntısı sanmasın; tüm
+// açıklama bilingual note alanlarındadır. Çift-ağaçlı s2'nin hem tr hem en
+// blocks dizisine AYNI referansla konur (§9.5).
+const heapStackJava = {
+  type: 'heap-stack',
+  title: { tr: 'new Person() — Stack mı Heap mi?', en: 'new Person() — Stack or Heap?' },
+  code: `int age = 30;
+Person p = new Person("Ada", age);
+Person q = p;
+q.setAge(31);`,
+  codeLanguage: 'java',
+  steps: [
+    {
+      line: 1,
+      note: { tr: '`age` bir primitive (int). Değeri (30) doğrudan Stack\'te tutulur — Heap\'e uğramaz.', en: '`age` is a primitive (int). Its value (30) lives directly on the Stack — it never touches the Heap.' },
+      stack: [{ name: 'age', value: '30', kind: 'primitive' }],
+      heap: [],
+    },
+    {
+      line: 2,
+      note: { tr: '`new Person(...)` Heap\'te bir nesne yaratır. `p` nesnenin KENDİSİNİ değil, adresini (referans) tutar. Not: `age` değeri constructor\'a KOPYALANDI.', en: '`new Person(...)` creates an object on the Heap. `p` holds the address (a reference), not the object itself. Note: the `age` value was COPIED into the constructor.' },
+      stack: [{ name: 'age', value: '30', kind: 'primitive' }, { name: 'p', ref: 'obj1', kind: 'ref' }],
+      heap: [{ id: 'obj1', type: 'Person', fields: { name: '"Ada"', age: '30' } }],
+    },
+    {
+      line: 3,
+      note: { tr: '`q = p` referansı KOPYALAR — yeni nesne YARATMAZ. Artık `p` ve `q` AYNI Heap nesnesini işaret eder (aliasing). Java\'da object atama hep böyledir; Python\'da da (`q = p`) aynı davranış geçerlidir.', en: '`q = p` copies the REFERENCE — it does NOT create a new object. Now `p` and `q` point to the SAME Heap object (aliasing). Object assignment always works this way in Java; Python behaves identically (`q = p`).' },
+      stack: [{ name: 'age', value: '30', kind: 'primitive' }, { name: 'p', ref: 'obj1', kind: 'ref' }, { name: 'q', ref: 'obj1', kind: 'ref' }],
+      heap: [{ id: 'obj1', type: 'Person', fields: { name: '"Ada"', age: '30' } }],
+    },
+    {
+      line: 4,
+      note: { tr: '`q.setAge(31)` Heap\'teki nesneyi değiştirir. `p` de aynı nesneyi işaret ettiği için `p.getAge()` artık 31 döner! Ama Stack\'teki primitive `age` hâlâ 30 — o kopyaydı. QA\'da en sık aliasing bug\'ı budur: bir liste/nesneyi iki yerde paylaşıp birinden değiştirince ötekinin de bozulması.', en: '`q.setAge(31)` mutates the object on the Heap. Since `p` points to the same object, `p.getAge()` now returns 31 too! But the primitive `age` on the Stack is still 30 — that was a copy. This is the most common aliasing bug in QA: sharing one list/object in two places and mutating via one silently corrupts the other.' },
+      stack: [{ name: 'age', value: '30', kind: 'primitive' }, { name: 'p', ref: 'obj1', kind: 'ref' }, { name: 'q', ref: 'obj1', kind: 'ref' }],
+      heap: [{ id: 'obj1', type: 'Person', fields: { name: '"Ada"', age: '31' } }],
+    },
+  ],
+}
+
 // ─── S2: OOP & COLLECTIONS ────────────────────────────────────────────────────
 const s2 = {
   tr: {
@@ -3151,6 +3192,7 @@ TestUser user2 = new TestUser("qa_user", "qa@test.com", 25);
 System.out.println(user1); // TestUser{username='admin', email='admin@test.com'}`,
       },
       javaClassObjectStep,
+      heapStackJava,
       {
         type: 'heading', text: { tr: 'Interface & Abstract Class', en: 'Interface & Abstract Class' },
       },
@@ -3378,6 +3420,7 @@ TestUser user1 = new TestUser("admin", "admin@test.com", 30);
 System.out.println(user1);`,
       },
       javaClassObjectStep,
+      heapStackJava,
       {
         type: 'heading', text: { tr: 'Interface & Abstract Class', en: 'Interface & Abstract Class' },
       },
@@ -10402,6 +10445,32 @@ const sB = {
   },
 }
 
+// "Canlı Kod Yürüyüşü" referans bloğu (§9.1/§20 frame-by-frame). for döngüsü
+// satır satır yürür; i ve sum her adımda güncellenir, döngü çıkış koşulu
+// (i=4 → 4<=3 yanlış) görünür hale gelir. Kod düz string (yorumsuz) — açıklama
+// bilingual note'larda. Çift-ağaçlı sC'nin hem tr hem en blocks'una konur (§9.5).
+const traceJavaForLoop = {
+  type: 'code-trace',
+  title: { tr: 'for Döngüsü Adım Adım', en: 'for Loop Step by Step' },
+  code: `int sum = 0;
+for (int i = 1; i <= 3; i++) {
+    sum += i;
+}
+System.out.println(sum);`,
+  codeLanguage: 'java',
+  steps: [
+    { line: 1, vars: { sum: '0' }, output: '', note: { tr: 'Döngüden önce `sum` 0 olarak başlatılır.', en: '`sum` is initialized to 0 before the loop.' } },
+    { line: 2, vars: { sum: '0', i: '1' }, output: '', note: { tr: 'Döngü kurulumu: `i = 1`. Koşul `1 <= 3` doğru → gövdeye gir.', en: 'Loop setup: `i = 1`. Condition `1 <= 3` is true → enter the body.' } },
+    { line: 3, vars: { sum: '1', i: '1' }, output: '', note: { tr: '`sum += i` → sum = 0 + 1 = 1.', en: '`sum += i` → sum = 0 + 1 = 1.' } },
+    { line: 2, vars: { sum: '1', i: '2' }, output: '', note: { tr: '`i++` → i = 2. Koşul `2 <= 3` doğru → tekrar gövde.', en: '`i++` → i = 2. Condition `2 <= 3` is true → body again.' } },
+    { line: 3, vars: { sum: '3', i: '2' }, output: '', note: { tr: '`sum += i` → sum = 1 + 2 = 3.', en: '`sum += i` → sum = 1 + 2 = 3.' } },
+    { line: 2, vars: { sum: '3', i: '3' }, output: '', note: { tr: '`i++` → i = 3. Koşul `3 <= 3` doğru → son tur.', en: '`i++` → i = 3. Condition `3 <= 3` is true → final pass.' } },
+    { line: 3, vars: { sum: '6', i: '3' }, output: '', note: { tr: '`sum += i` → sum = 3 + 3 = 6.', en: '`sum += i` → sum = 3 + 3 = 6.' } },
+    { line: 2, vars: { sum: '6', i: '4' }, output: '', note: { tr: '`i++` → i = 4. Koşul `4 <= 3` YANLIŞ → döngü biter (i son değere ulaşmadan çıkışın sırrı budur).', en: '`i++` → i = 4. Condition `4 <= 3` is FALSE → the loop ends (this is why the loop stops before i reaches a valid value).' } },
+    { line: 5, vars: { sum: '6', i: '—' }, output: '6', note: { tr: 'Döngü bitti, `sum` = 6 ekrana yazılır. `i` artık kapsam dışı.', en: 'Loop finished, `sum` = 6 is printed. `i` is now out of scope.' } },
+  ],
+}
+
 // ─── S-C: AKIŞ KONTROLÜ ───────────────────────────────────────────────────────
 const sC = {
   tr: {
@@ -10573,6 +10642,7 @@ if (score >= 90) {
         expected: `1 2 3 4 5 \n1 2 3 4 5 \nCount: 3`,
       },
       { type: 'heading', text: { tr: 'for ve for-each Döngüleri', en: 'for and for-each Loops' } },
+      traceJavaForLoop,
       {
         type: 'code', language: 'java', label: 'for, for-each, nested loops, break/continue',
         code: `public class Main {
@@ -10752,6 +10822,7 @@ if (score >= 90) {
 // Output: BB`,
       },
       { type: 'heading', text: { en: 'for and for-each Loops' } },
+      traceJavaForLoop,
       {
         type: 'code', language: 'java', label: 'Loops',
         code: `public class Main {
