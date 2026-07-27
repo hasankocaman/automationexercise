@@ -9662,6 +9662,81 @@ const s7 = {
   },
 }
 
+// "Önce Tahmin Et" referans blokları — Operators bölümü için iki ayrı gotcha:
+// (1) int/double karışık bölme (implicit promotion), (2) mantıksal operatör
+// önceliği (&& her zaman || 'dan önce değerlendirilir). sA çift-ağaçlı olduğu
+// için her ikisi de hem tr hem en blocks'a AYNI referansla konur (§9.5).
+const predJavaDivisionPromotion = {
+  type: 'prediction',
+  id: 'java-division-promotion-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-operators',
+  prompt: {
+    tr: 'Bu kod ne yazar? `a` int, `b` double — dikkatli bak.',
+    en: 'What does this print? `a` is int, `b` is double — look closely.',
+  },
+  code: `public class Main {
+    public static void main(String[] args) {
+        int a = 7;
+        double b = 2;
+        System.out.println(a / b);
+    }
+}`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: '3', en: '3' }, why: {
+      tr: 'Bu, `int / int` tam sayı bölmesinin sonucu olurdu — ama `b` bir `double`.',
+      en: 'That would be the result of int/int integer division — but `b` is a double.' } },
+    { id: 'b', label: { tr: '3.5', en: '3.5' }, correct: true },
+    { id: 'c', label: { tr: '3.0', en: '3.0' }, why: {
+      tr: 'Sonuç kesirli — küsurat atılmıyor, çünkü işlem double aritmetiğinde yapılıyor.',
+      en: 'The result has a fraction — nothing gets truncated because the operation runs in double arithmetic.' } },
+    { id: 'd', label: { tr: 'Derleme hatası', en: 'Compile error' }, why: {
+      tr: 'int ve double birlikte kullanılabilir — Java int\'i otomatik olarak double\'a yükseltir (widening).',
+      en: 'int and double can be mixed freely — Java automatically widens the int to double.' } },
+  ],
+  output: '3.5',
+  reveal: {
+    tr: 'Java\'da `int / int` tam sayı bölmesidir (küsurat atılır) — AMA operandlardan biri `double` olduğu anda Java otomatik olarak diğer operandı da `double`\'a yükseltir (implicit widening) ve bölme ondalıklı yapılır. Burada `a` (int 7), `b`\'nin (double) yanına gelince önce `7.0`\'a dönüşür, sonra `7.0 / 2.0 = 3.5` hesaplanır. Kural: eğer İKİ operand da int ise tam sayı bölmesi olur, biri bile double/float olursa sonuç ondalıklıdır. QA otomasyonunda bu, yüzde/oran hesaplayan bir yardımcı metotta (`passRate = passed / total`) sinsi bir buga dönüşür — `total` int ise ve `passed` da int ise sonuç her zaman 0 ya da 1 çıkar; en az birini `double`\'a çevirmek (`(double) passed / total`) şarttır.',
+    en: 'In Java, `int / int` is integer division (fraction discarded) — BUT the moment one operand is `double`, Java automatically widens the other operand to `double` too (implicit widening) and the division becomes fractional. Here `a` (int 7) is widened to `7.0` next to `b` (double), then `7.0 / 2.0 = 3.5` is computed. Rule: if BOTH operands are int, you get integer division; if even one is double/float, the result is fractional. In QA automation this becomes a sneaky bug in a pass-rate helper (`passRate = passed / total`) — if both `passed` and `total` are int, the result is always 0 or 1; casting at least one to `double` (`(double) passed / total`) is mandatory.',
+  },
+}
+
+const predJavaOperatorPrecedence = {
+  type: 'prediction',
+  id: 'java-logical-precedence-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-operators',
+  prompt: {
+    tr: 'Bu boolean ifade `true` mu `false` mi olur? Önce `&&`, sonra `||` diye düşün.',
+    en: 'Does this boolean expression evaluate to `true` or `false`? Think `&&` before `||`.',
+  },
+  code: `public class Main {
+    public static void main(String[] args) {
+        boolean result = false && true || true;
+        System.out.println(result);
+    }
+}`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: 'false', en: 'false' }, why: {
+      tr: 'Eğer önce `||` işlenseydi (soldan sağa parantezsiz okusan) bu çıkardı — ama `&&`, `||`\'dan önce gelir.',
+      en: 'This is what you would get if `||` were evaluated first (reading left-to-right unparenthesized) — but `&&` binds tighter than `||`.' } },
+    { id: 'b', label: { tr: 'true', en: 'true' }, correct: true },
+    { id: 'c', label: { tr: 'Derleme hatası', en: 'Compile error' }, why: {
+      tr: 'Sözdizimi tamamen geçerli; `&&` ve `||` parantezsiz de yan yana kullanılabilir.',
+      en: 'The syntax is entirely valid; `&&` and `||` can be chained without parentheses.' } },
+    { id: 'd', label: { tr: 'NullPointerException', en: 'NullPointerException' }, why: {
+      tr: 'Burada null olan hiçbir şey yok, hepsi primitive boolean.',
+      en: 'Nothing here is null — everything is a primitive boolean.' } },
+  ],
+  output: 'true',
+  reveal: {
+    tr: 'Java\'da `&&` (AND), `||` (OR)\'dan DAHA YÜKSEK önceliğe sahiptir — matematikte çarpmanın toplamadan önce gelmesi gibi. Yani `false && true || true` aslında `(false && true) || true` olarak okunur: önce `false && true` → `false`, sonra `false || true` → `true`. Parantezsiz karmaşık boolean ifadeler QA otomasyonunda assertion/koşul yazarken en sinsi hata kaynaklarından biridir — `if (a || b && c)` yazan biri genelde "a VEYA (b VE c)" demek ister ve tesadüfen doğru sonuç alır çünkü `&&` zaten önce çalışır, ama okuyan kişi için niyet belirsizdir. Best practice: mantıksal önceliğe güvenme, niyeti netleştirmek için HER ZAMAN parantez kullan — `(false && true) || true`.',
+    en: 'In Java, `&&` (AND) has HIGHER precedence than `||` (OR) — just like multiplication binds tighter than addition in math. So `false && true || true` is actually read as `(false && true) || true`: first `false && true` → `false`, then `false || true` → `true`. Unparenthesized compound boolean expressions are one of the sneakiest bug sources when writing assertions/conditions in QA automation — someone writing `if (a || b && c)` usually means "a OR (b AND c)" and accidentally gets the right answer because `&&` already runs first, but intent is unclear to the reader. Best practice: never rely on precedence, ALWAYS use parentheses to make intent explicit — `(false && true) || true`.',
+  },
+}
+
 // ─── S-A: TEMEL SÖZDİZİMİ ────────────────────────────────────────────────────
 const sA = {
   tr: {
@@ -9904,6 +9979,8 @@ System.out.println(name);  // admin`,
       }
 }
 },
+      predJavaDivisionPromotion,
+      predJavaOperatorPrecedence,
     ],
   },
   en: {
@@ -10066,6 +10143,8 @@ System.out.println(name);  // admin`,
       }
 }
 },
+      predJavaDivisionPromotion,
+      predJavaOperatorPrecedence,
     ],
   },
 }
@@ -10471,6 +10550,56 @@ System.out.println(sum);`,
   ],
 }
 
+// "Önce Tahmin Et" — klasik switch fall-through tuzağı: unutulan `break` bir
+// sonraki case'e "düşer". sC EN ağacı switch bölümünü hiç içermiyor (dosyanın
+// bilinen drift borcu, CLAUDE.md §23.4) — bu yüzden EN'de en yakın uygun yere
+// (for-each döngüsünden sonra) konur; blok kendi içinde tam bağlam taşır.
+const predJavaSwitchFallthrough = {
+  type: 'prediction',
+  id: 'java-switch-fallthrough-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-control-flow',
+  prompt: {
+    tr: 'Bu kod ekrana ne yazar? İpucu: bir `break` eksik.',
+    en: 'What does this code print? Hint: one `break` is missing.',
+  },
+  code: `public class Main {
+    public static void main(String[] args) {
+        int status = 2;
+        switch (status) {
+            case 1:
+                System.out.println("PENDING");
+                break;
+            case 2:
+                System.out.println("APPROVED");
+            case 3:
+                System.out.println("SHIPPED");
+                break;
+            default:
+                System.out.println("UNKNOWN");
+        }
+    }
+}`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: 'Sadece "APPROVED"', en: 'Just "APPROVED"' }, why: {
+      tr: '`case 2` içinde `break` YOK — Java otomatik durmaz, bir sonraki case\'e devam eder (fall-through).',
+      en: 'There is NO `break` inside `case 2` — Java does not stop automatically, it falls through to the next case.' } },
+    { id: 'b', label: { tr: '"APPROVED" ve "SHIPPED" (iki satır)', en: '"APPROVED" and "SHIPPED" (two lines)' }, correct: true },
+    { id: 'c', label: { tr: 'Sadece "UNKNOWN"', en: 'Just "UNKNOWN"' }, why: {
+      tr: '`status` değeri 2 ve `case 2` eşleşiyor — `default`\'a hiç uğramaz.',
+      en: '`status` is 2 and `case 2` matches directly — `default` is never reached.' } },
+    { id: 'd', label: { tr: 'Derleme hatası', en: 'Compile error' }, why: {
+      tr: '`break`\'siz bir case tamamen geçerli Java sözdizimidir — sadece niyet edilmemiş davranışa yol açar.',
+      en: 'A case without `break` is perfectly valid Java syntax — it just causes unintended behavior.' } },
+  ],
+  output: 'APPROVED\nSHIPPED',
+  reveal: {
+    tr: 'Klasik `switch` bir case eşleştiğinde otomatik durmaz — eşleşen case\'den itibaren `break` görene kadar TÜM sonraki case\'lerin gövdesini de çalıştırır ("fall-through"). Burada `status == 2` olduğu için `case 2` çalışır, "APPROVED" yazdırılır; ama `break` olmadığı için akış `case 3`\'e "düşer", "SHIPPED" de yazdırılır, sonra oradaki `break` akışı durdurur. `default` hiç çalışmaz çünkü zaten bir case eşleşmişti. Bu, gerçek dünyada en sık rastlanan Java hatalarından biridir — bir case\'e yeni satır eklerken `break` unutulursa sessizce yanlış davranış üretir (derleyici uyarmaz). Modern Java 14+ `switch` expression (`->` oku) fall-through\'u TAMAMEN ortadan kaldırır — bu yüzden yeni kodda tercih edilir.',
+    en: 'A classic `switch` does NOT stop automatically once a case matches — starting from the matching case, it runs the body of EVERY subsequent case until it hits a `break` ("fall-through"). Here `status == 2`, so `case 2` runs and prints "APPROVED"; but since there is no `break`, execution "falls through" into `case 3`, which prints "SHIPPED" too, then its `break` stops the flow. `default` never runs because a case already matched. This is one of the most common real-world Java bugs — forgetting a `break` when adding a new case silently produces wrong behavior (the compiler gives no warning). Modern Java 14+ `switch` expressions (the `->` arrow form) eliminate fall-through entirely — which is why they are preferred in new code.',
+  },
+}
+
 // ─── S-C: AKIŞ KONTROLÜ ───────────────────────────────────────────────────────
 const sC = {
   tr: {
@@ -10608,6 +10737,7 @@ if (score >= 90) {
 }`,
         height: '260px',
       },
+      predJavaSwitchFallthrough,
       { type: 'heading', text: { tr: 'while ve do-while Döngüleri', en: 'while and do-while Loops' } },
       {
         type: 'code', language: 'java', label: 'while ve do-while',
@@ -10823,6 +10953,7 @@ if (score >= 90) {
       },
       { type: 'heading', text: { en: 'for and for-each Loops' } },
       traceJavaForLoop,
+      predJavaSwitchFallthrough,
       {
         type: 'code', language: 'java', label: 'Loops',
         code: `public class Main {
@@ -10899,6 +11030,44 @@ if (score >= 90) {
 }
 },
     ],
+  },
+}
+
+// "Önce Tahmin Et" — array eşitliği tuzağı: `==` referans karşılaştırır,
+// `Arrays.equals()` içerik karşılaştırır. QA'da assertEquals(array1, array2)
+// hatası burada kök bulur. sD çift-ağaçlı; hem tr hem en blocks'a AYNI
+// referansla konur (§9.5).
+const predJavaArrayEquality = {
+  type: 'prediction',
+  id: 'java-array-equality-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-arrays',
+  prompt: {
+    tr: 'İçerikleri AYNI olan iki array. Üç satır da `true` mu yazar?',
+    en: 'Two arrays with the SAME content. Do all three lines print `true`?',
+  },
+  code: `int[] a = {1, 2, 3};
+int[] b = {1, 2, 3};
+System.out.println(a == b);
+System.out.println(a.equals(b));
+System.out.println(java.util.Arrays.equals(a, b));`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: 'true, true, true', en: 'true, true, true' }, why: {
+      tr: 'Array\'lerde `==` ve `.equals()` referans karşılaştırır (Object\'ten miras), içerik DEĞİL — `a` ve `b` FARKLI nesneler.',
+      en: 'For arrays, both `==` and `.equals()` compare references (inherited from Object), NOT content — `a` and `b` are DIFFERENT objects.' } },
+    { id: 'b', label: { tr: 'false, false, true', en: 'false, false, true' }, correct: true },
+    { id: 'c', label: { tr: 'true, false, true', en: 'true, false, true' }, why: {
+      tr: '`==` de referans karşılaştırır — `a` ve `b` ayrı `new int[]{...}` çağrısıyla yaratıldı, aynı nesne DEĞİLLER.',
+      en: '`==` also compares references — `a` and `b` were created by separate `new int[]{...}` calls, they are NOT the same object.' } },
+    { id: 'd', label: { tr: 'Derleme hatası (array\'lerde equals yok)', en: 'Compile error (arrays have no equals)' }, why: {
+      tr: 'Array, Object\'ten `.equals()` metodunu miras alır — derlenir, ama Object\'in varsayılan davranışı yine referans karşılaştırmasıdır.',
+      en: 'Array inherits `.equals()` from Object — it compiles fine, but Object\'s default behavior is still reference comparison.' } },
+  ],
+  output: 'false\nfalse\ntrue',
+  reveal: {
+    tr: 'Java array\'leri `equals()`\'i EZMEZ (override etmez) — `Object`\'ten miras aldıkları varsayılan `equals()` de tıpkı `==` gibi referans karşılaştırır: "aynı bellek adresi mi?" `a` ve `b` iki AYRI `new int[]` çağrısıyla oluşturuldu, içerikleri aynı olsa bile FARKLI nesneler — bu yüzden `a == b` ve `a.equals(b)` ikisi de `false`. İçeriği karşılaştırmak için `java.util.Arrays.equals(a, b)` (veya çok boyutlu için `Arrays.deepEquals`) kullanmak GEREKİR — o `true` döner. Bu QA otomasyonunda çok gerçek bir tuzaktır: bir assertion kütüphanesinde `assertEquals(expectedArray, actualArray)` yazıp array\'lerin `.equals()`\'ine güvenirsen, içerik doğru olsa bile test YANLIŞLIKLA fail eder (ya da bazı framework\'lerde referans eşit olmadığı için hep fail görünür) — JUnit\'in `assertArrayEquals()` ya da `Arrays.equals()` şart.',
+    en: 'Java arrays do NOT override `equals()` — the default `equals()` inherited from `Object` compares references just like `==`: "is it the same memory address?" `a` and `b` were created by two SEPARATE `new int[]` calls, so even with identical content they are DIFFERENT objects — hence both `a == b` and `a.equals(b)` are `false`. To compare content you MUST use `java.util.Arrays.equals(a, b)` (or `Arrays.deepEquals` for multi-dimensional) — that returns `true`. This is a very real trap in QA automation: if you write `assertEquals(expectedArray, actualArray)` relying on the array\'s `.equals()`, the test can fail WRONGLY even when content matches — you need JUnit\'s `assertArrayEquals()` or `Arrays.equals()`.',
   },
 }
 
@@ -11084,6 +11253,7 @@ public class Main {
       }
 }
 },
+      predJavaArrayEquality,
     ],
   },
   en: {
@@ -11185,6 +11355,7 @@ public class Main {
       }
 }
 },
+      predJavaArrayEquality,
     ],
   },
 }
@@ -17161,6 +17332,78 @@ sPlaywright.en = {
   blocks: sPlaywright.tr.blocks
 };
 
+// "Önce Tahmin Et" — Wrapper Classes bölümü için iki gotcha: (1) Integer cache
+// (-128..127 önbelleklenir, == referans karşılaştırır), (2) unboxing NullPointer.
+// sFileIO EN ağacı Wrapper Classes bölümünü hiç içermiyor (drift borcu, §23.4);
+// EN'de en yakın uygun yere ("Generics & Threads" başlığından önce) konur.
+const predJavaIntegerCache = {
+  type: 'prediction',
+  id: 'java-integer-cache-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-wrapper-classes',
+  prompt: {
+    tr: 'İki satır da `==` ile karşılaştırıyor. İkisi de `true` mu döner?',
+    en: 'Both lines compare with `==`. Do both return `true`?',
+  },
+  code: `Integer a = 100;
+Integer b = 100;
+System.out.println(a == b);
+
+Integer c = 200;
+Integer d = 200;
+System.out.println(c == d);`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: 'true, true (ikisi de eşit)', en: 'true, true (both equal)' }, why: {
+      tr: 'İkisi de `.equals()` ile true olurdu — ama burada `==` kullanılıyor, o referans karşılaştırır.',
+      en: 'Both would be true with `.equals()` — but this uses `==`, which compares references.' } },
+    { id: 'b', label: { tr: 'true, false', en: 'true, false' }, correct: true },
+    { id: 'c', label: { tr: 'false, false (ikisi de farklı)', en: 'false, false (both different)' }, why: {
+      tr: '100 değeri Integer cache aralığında (-128..127) — o ikisi AYNI önbelleklenmiş nesneyi paylaşır.',
+      en: 'The value 100 is within the Integer cache range (-128..127) — those two share the SAME cached object.' } },
+    { id: 'd', label: { tr: 'Derleme hatası', en: 'Compile error' }, why: {
+      tr: '`Integer a = 100;` tamamen geçerli — autoboxing int\'i otomatik Integer\'a çevirir.',
+      en: '`Integer a = 100;` is entirely valid — autoboxing automatically converts the int to Integer.' } },
+  ],
+  output: 'true\nfalse',
+  reveal: {
+    tr: 'Java, performans için `-128` ile `127` arasındaki `Integer` değerlerini önceden oluşturup bir ÖNBELLEKTE (Integer Cache) tutar. `Integer a = 100;` yazınca autoboxing devreye girer ve `a`, önbellekteki HAZIR 100 nesnesine referans olur; `b = 100` de AYNI önbellek nesnesine işaret eder — bu yüzden `a == b` (referans karşılaştırması) `true` döner. Ama `200` bu aralığın DIŞINDA — her `Integer c = 200` YENİ bir nesne yaratır, `c` ve `d` FARKLI nesnelere işaret eder, `==` `false` döner. Bu, Java\'nın en meşhur tuzaklarından biridir ve QA otomasyonunda gerçek bug\'lara yol açar: bir test util\'i `Integer` değerlerini `==` ile karşılaştırırsa, küçük test verileriyle (örn. status code 100-127) yanlışlıkla "çalışıyor" görünür ama büyük değerlerle (200, 500 gibi HTTP kodları) sessizce kırılır. Kural: `Integer`/wrapper tiplerini HER ZAMAN `.equals()` ile karşılaştır, asla `==` ile değil.',
+    en: 'For performance, Java pre-creates and caches `Integer` values from `-128` to `127` (the Integer Cache). Writing `Integer a = 100;` triggers autoboxing, and `a` becomes a reference to the ALREADY-EXISTING cached 100 object; `b = 100` points to the SAME cached object — so `a == b` (reference comparison) returns `true`. But `200` is OUTSIDE that range — each `Integer c = 200` creates a BRAND-NEW object, so `c` and `d` point to DIFFERENT objects and `==` returns `false`. This is one of Java\'s most famous gotchas and causes real bugs in QA automation: a test util that compares `Integer` values with `==` will misleadingly "work" with small test data (e.g. status codes 100-127) but silently break with larger values (like HTTP codes 200, 500). Rule: ALWAYS compare `Integer`/wrapper types with `.equals()`, never with `==`.',
+  },
+}
+
+const predJavaUnboxingNPE = {
+  type: 'prediction',
+  id: 'java-unboxing-npe-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-wrapper-classes',
+  prompt: {
+    tr: 'Bu kod çalıştırılınca ne olur?',
+    en: 'What happens when this code runs?',
+  },
+  code: `Integer retryCount = null;
+int attempts = retryCount + 1;
+System.out.println(attempts);`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: '1 yazdırılır (null 0 sayılır)', en: '1 is printed (null treated as 0)' }, why: {
+      tr: 'Java, null\'ı otomatik olarak 0\'a çevirmez — unboxing null bir referansı int\'e çeviremez.',
+      en: 'Java does not automatically convert null to 0 — unboxing cannot turn a null reference into an int.' } },
+    { id: 'b', label: { tr: 'NullPointerException fırlatılır', en: 'NullPointerException is thrown' }, correct: true },
+    { id: 'c', label: { tr: 'Derleme hatası', en: 'Compile error' }, why: {
+      tr: '`Integer retryCount = null;` ve `retryCount + 1` her ikisi de derlenir — hata sadece ÇALIŞMA zamanında oluşur.',
+      en: '`Integer retryCount = null;` and `retryCount + 1` both compile fine — the failure only happens at RUNTIME.' } },
+    { id: 'd', label: { tr: '0 yazdırılır', en: '0 is printed' }, why: {
+      tr: 'Program 0 yazdırmadan önce çöker — unboxing anında exception fırlatır.',
+      en: 'The program crashes before it can print 0 — unboxing throws immediately.' } },
+  ],
+  output: 'Exception in thread "main" java.lang.NullPointerException',
+  reveal: {
+    tr: '`retryCount + 1` ifadesinde `+` operatörü bir `int` ile bir `Integer`\'ı toplayacağı için Java otomatik olarak `retryCount`\'u unboxing yapar (`retryCount.intValue()` çağırır gibi). Ama `retryCount` `null` — null bir referans üzerinde metot çağırmaya çalışmak `NullPointerException` fırlatır. Bu, wrapper tiplerle çalışırken EN SIK karşılaşılan runtime hatasıdır: API\'den gelen bir JSON alanı eksikse (`"retryCount": null` ya da alan hiç yoksa) ve o alan `Integer`\'a deserialize edilip aritmetikte kullanılıyorsa, test suite\'i production\'da hiç görülmeyen ama belirli test verisiyle rastgele patlayan bir NPE ile çöker. Önlem: aritmetikten önce `retryCount != null` kontrolü yap, ya da `Optional`/varsayılan değer (`retryCount == null ? 0 : retryCount`) kullan.',
+    en: 'In `retryCount + 1`, since `+` needs to add an `int` to an `Integer`, Java automatically unboxes `retryCount` (roughly calling `retryCount.intValue()`). But `retryCount` is `null` — calling a method on a null reference throws `NullPointerException`. This is the MOST common runtime error when working with wrapper types: if a JSON field from an API is missing (`"retryCount": null` or the field is absent entirely) and it deserializes into an `Integer` used in arithmetic, the test suite crashes with an NPE that never shows up in some environments but randomly explodes with specific test data. Fix: check `retryCount != null` before arithmetic, or use `Optional`/a default value (`retryCount == null ? 0 : retryCount`).',
+  },
+}
+
 // ─── S-FILEIO: FILE HANDLING, ITERATOR, GENERICS, THREADS ──────────────────
 const sFileIO = {
   tr: {
@@ -17429,6 +17672,8 @@ public class Main {
 }`,
         expected: `2147483647\n-2147483648\n123\n1010\nff\n-1\n3.14\ntrue\ntrue\n9.223372036854776E18\ntrue\ntrue\nfalse\ntrue\ntrue\ntrue\nA\nz`,
       },
+      predJavaIntegerCache,
+      predJavaUnboxingNPE,
       { type: 'heading', text: { tr: 'Generics — Tip-Güvenli Genel Programlama', en: 'Generics' } },
       {
         type: 'code', language: 'java', label: 'Generic sınıf ve metot — QA örneği ile',
@@ -17781,6 +18026,8 @@ while (mapIt.hasNext()) {
 System.out.println(map); // {B=2, C=3}`,
       },
       javaIteratorSafeRemovalStep,
+      predJavaIntegerCache,
+      predJavaUnboxingNPE,
       { type: 'heading', text: { en: 'Generics & Threads' } },
       {
         type: 'code', language: 'java', label: 'Generics and basic Thread usage',
