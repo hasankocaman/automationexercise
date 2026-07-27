@@ -4,6 +4,91 @@
 
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// "Önce Tahmin Et" referans blokları — typescriptData çift-ağaçlıdır (ayrı
+// en.sections / tr.sections dizileri, ~7268 satır arayla), ama HER blok zaten
+// {en,tr} alanlı bilingual objelerden oluşuyor ("Fully bilingual structure").
+// Bu iki sabit, ilgili section'ın blocks dizisine (aynı içerik) iki ağaca da
+// AYNI referansla eklenir (§9.5).
+const predTsExcessPropertyCheck = {
+  type: 'prediction',
+  id: 'ts-excess-property-check-pred',
+  xpReward: 15,
+  relatedTopicId: 'ts-object-types',
+  prompt: {
+    tr: 'İki atama da AYNI fazladan alanı (`slow`) taşıyor. İkisi de aynı şekilde mi davranır?',
+    en: 'Both assignments carry the SAME extra field (`slow`). Do they behave the same way?',
+  },
+  code: `type TestResult = { name: string; passed: boolean };
+
+const direct: TestResult = { name: "login_test", passed: true, slow: true };
+
+const data = { name: "login_test", passed: true, slow: true };
+const viaVariable: TestResult = data;`,
+  codeLanguage: 'typescript',
+  options: [
+    { id: 'a', label: { tr: 'İkisi de derlenir (fazladan alan sorun değil)', en: 'Both compile (extra field is fine)' }, why: {
+      tr: 'İlk atama derlenmez — TypeScript object literal\'i DOĞRUDAN atarken "fazla özellik kontrolü" (excess property check) uygular.',
+      en: 'The first assignment does NOT compile — TypeScript applies "excess property checking" when an object literal is assigned DIRECTLY.' } },
+    { id: 'b', label: { tr: 'İlk hata verir, ikincisi derlenir', en: 'First errors, second compiles' }, correct: true },
+    { id: 'c', label: { tr: 'İkisi de hata verir', en: 'Both error' }, why: {
+      tr: '`data` bir DEĞİŞKEN üzerinden atandığı için TypeScript excess property check\'i UYGULAMAZ — sadece object literal\'ler doğrudan atanırken bu kontrol devreye girer.',
+      en: 'Since `data` is assigned via a VARIABLE, TypeScript does NOT apply the excess property check — that check only triggers when an object literal is assigned directly.' } },
+    { id: 'd', label: { tr: 'İkisi de runtime\'da çöker', en: 'Both crash at runtime' }, why: {
+      tr: 'Bu bir COMPILE-TIME (derleme zamanı) kontrolüdür — runtime\'da hiçbir şey çökmez, JavaScript fazladan alanları görmezden gelir.',
+      en: 'This is a COMPILE-TIME check — nothing crashes at runtime, plain JavaScript simply ignores extra fields.' } },
+  ],
+  output: 'error TS2353: Object literal may only specify known properties, and \'slow\' does not exist in type \'TestResult\'.\n(viaVariable — no error, compiles fine)',
+  reveal: {
+    tr: 'TypeScript, bir object literal\'i (`{ ... }` süslü parantez ifadesi) DOĞRUDAN bir tipe atadığında ekstra bir kontrol uygular: "fazla özellik kontrolü" (excess property check) — tipte tanımlanmayan HİÇBİR alana izin vermez, bu yüzden `direct` satırı derleme hatası verir. Ama `data` önce ayrı bir değişkene atanıp SONRA `TestResult`\'a atanınca, TypeScript bunu farklı değerlendirir: yapısal tipleme (structural typing) kurallarına göre `data`, `TestResult`\'ın istediği TÜM alanları (name, passed) zaten karşılıyor — fazladan `slow` alanı olması yapısal uyumu BOZMAZ, bu yüzden `viaVariable` satırı sorunsuz derlenir. Bu, TypeScript\'in en sık şaşırtan davranışlarından biridir: aynı veri, aynı şekil, ama assignment YOLUNA göre farklı sonuç! QA otomasyonunda pratik önemi şu: bir API mock\'unu doğrudan object literal ile yazarsan (typo\'lu bir alan anında yakalanır), ama aynı objeyi bir değişkende tutup sonra atarsan, o typo\'yu derleyici KAÇIRABİLİR — test verisi mock\'larında doğrudan literal kullanmak daha güvenlidir.',
+    en: 'When TypeScript sees an object literal (`{ ... }` curly-brace expression) assigned DIRECTLY to a type, it applies an extra check: "excess property checking" — it allows NO fields beyond what the type defines, so the `direct` line fails to compile. But when `data` is first assigned to a separate variable and THEN assigned to `TestResult`, TypeScript evaluates it differently: under structural typing rules, `data` already satisfies ALL the fields `TestResult` requires (name, passed) — having an extra `slow` field does NOT break structural compatibility, so the `viaVariable` line compiles cleanly. This is one of TypeScript\'s most surprising behaviors: identical data, identical shape, but a different outcome depending on the assignment PATH! The practical QA impact: if you write an API mock as a direct object literal, a typo\'d field gets caught instantly — but if you hold the same object in a variable first, the compiler can MISS that typo — using direct literals for test-data mocks is safer.',
+  },
+}
+
+const predTsStructuralTyping = {
+  type: 'prediction',
+  id: 'ts-structural-typing-pred',
+  xpReward: 15,
+  relatedTopicId: 'ts-interfaces',
+  prompt: {
+    tr: '`Point` ve `Coordinate`, AYRI interface\'ler ve isimleri farklı. Bu atama derlenir mi?',
+    en: '`Point` and `Coordinate` are SEPARATE interfaces with different names. Does this assignment compile?',
+  },
+  code: `interface Point {
+  x: number;
+  y: number;
+}
+
+interface Coordinate {
+  x: number;
+  y: number;
+}
+
+function logPoint(p: Point): void {
+  console.log(\`(\${p.x}, \${p.y})\`);
+}
+
+const coord: Coordinate = { x: 10, y: 20 };
+logPoint(coord);`,
+  codeLanguage: 'typescript',
+  options: [
+    { id: 'a', label: { tr: 'Hayır — Coordinate, Point değildir', en: 'No — Coordinate is not a Point' }, why: {
+      tr: 'Bu Java\'da (nominal typing) doğru olurdu — Java\'da bir sınıf/interface ismi EŞLEŞMELİDİR. Ama TypeScript farklı çalışır.',
+      en: 'This would be true in Java (nominal typing) — in Java a class/interface NAME must match. But TypeScript works differently.' } },
+    { id: 'b', label: { tr: 'Evet — ikisi de aynı şekle (x, y) sahip', en: 'Yes — both have the same shape (x, y)' }, correct: true },
+    { id: 'c', label: { tr: 'Sadece "implements Point" eklenirse derlenir', en: 'Only compiles if you add "implements Point"' }, why: {
+      tr: 'TypeScript\'te interface\'ler arasında `implements` bildirimi GEREKMEZ — şekil (fields) uyuyorsa yeterlidir.',
+      en: 'TypeScript does not require an `implements` declaration between interfaces — matching shape (fields) is enough.' } },
+    { id: 'd', label: { tr: 'Sadece alan isimleri VE sırası birebir aynıysa derlenir', en: 'Only compiles if field names AND order match exactly' }, why: {
+      tr: 'Sıra önemli değildir — TypeScript her alanı isme göre eşler, tanım sırasına göre değil.',
+      en: 'Order does not matter — TypeScript matches each field by name, not by declaration order.' } },
+  ],
+  output: '(10, 20)  — compiles and runs fine',
+  reveal: {
+    tr: 'TypeScript, Java\'nın aksine YAPISAL TİPLEME (structural typing / "duck typing") kullanır: iki tipin UYUMLU sayılması için isimlerinin AYNI olması gerekmez, sadece ŞEKİLLERİNİN (field\'ların isim ve tipleri) eşleşmesi yeterlidir. `Point` ve `Coordinate` farklı isimlere sahip iki AYRI interface olsa da, ikisi de `{ x: number; y: number }` şeklini taşıdığı için TypeScript onları BİRBİRİNİN YERİNE KULLANILABİLİR sayar — "eğer ördek gibi yürüyüp ördek gibi ötüyorsa, ördektir" mantığı. Java\'da bu ASLA çalışmaz: `Coordinate` sınıfı `Point` implement etmediği sürece bir `Point` parametresine geçirilemez, isim EŞLEŞMESİ zorunludur (nominal typing). QA otomasyonunda bu fark güçlü bir esneklik sağlar: bir API\'den gelen response şekli ile senin tanımladığın bir DTO tipi isim olarak hiç ilişkili olmasa bile, alanları eşleşiyorsa doğrudan kullanılabilir — ama dikkatli olunmalı, çünkü YANLIŞLIKLA benzer şekilli ama anlamca farklı iki tipi (örn. `UserId` ve `OrderId`, ikisi de sadece `{ value: number }`) birbirinin yerine geçirmek derleyici tarafından YAKALANMAZ.',
+    en: 'Unlike Java, TypeScript uses STRUCTURAL TYPING ("duck typing"): for two types to be considered compatible, their NAMES do not need to match — only their SHAPE (field names and types) needs to. `Point` and `Coordinate` are two SEPARATE interfaces with different names, but since both have the shape `{ x: number; y: number }`, TypeScript treats them as INTERCHANGEABLE — "if it walks like a duck and quacks like a duck, it\'s a duck." In Java this NEVER works: a `Coordinate` class cannot be passed where a `Point` is expected unless it explicitly implements `Point` — the NAME must match (nominal typing). This gives QA automation real flexibility: a shape returned from an API and a DTO type you defined, even with completely unrelated names, can be used directly as long as their fields match — but be careful, because ACCIDENTALLY swapping two types that happen to share a shape but mean different things (e.g. `UserId` and `OrderId`, both just `{ value: number }`) will NOT be caught by the compiler.',
+  },
+}
+
 export const typescriptData = {
   "en": {
     "hero": {
@@ -2075,6 +2160,7 @@ export const typescriptData = {
               }
             }
           },
+          predTsExcessPropertyCheck,
           {
             "type": "ts-mini-hero",
             "promptTr": "TypeScript object type ile Java interface arasındaki benzerlikleri ve farkları anlat. Java'dan bakış açısıyla kısaca.",
@@ -2706,7 +2792,8 @@ export const typescriptData = {
                 "en": "Union types are declared using the '|' (pipe) symbol, indicating that a value can be any of the listed types."
               }
             }
-          }
+          },
+          predTsStructuralTyping
         ]
       },
       {
@@ -9342,6 +9429,7 @@ export const typescriptData = {
               }
             }
           },
+          predTsExcessPropertyCheck,
           {
             "type": "ts-mini-hero",
             "promptTr": "TypeScript object type ile Java interface arasındaki benzerlikleri ve farkları anlat. Java'dan bakış açısıyla kısaca.",
@@ -9973,7 +10061,8 @@ export const typescriptData = {
                 "en": "Union types are declared using the '|' (pipe) symbol, indicating that a value can be any of the listed types."
               }
             }
-          }
+          },
+          predTsStructuralTyping
         ]
       },
       {
