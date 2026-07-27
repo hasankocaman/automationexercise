@@ -1830,6 +1830,66 @@ const predJsLoopClosureVar = {
   },
 }
 
+// Görev S2 — code-trace + heap-stack referansları (feedback #2/#3/#4).
+const traceJsForEach = {
+  type: 'code-trace',
+  title: { tr: 'for Döngüsü Adım Adım — Test Sonuçlarını Say', en: 'for Loop Step by Step — Counting Test Results' },
+  code: `const results = ["PASS", "FAIL", "PASS"];
+let passCount = 0;
+for (let i = 0; i < results.length; i++) {
+  if (results[i] === "PASS") passCount++;
+}
+console.log(passCount);`,
+  codeLanguage: 'javascript',
+  steps: [
+    { line: 2, vars: { passCount: '0' }, output: '', note: { tr: '`passCount` sıfırdan başlatılır.', en: '`passCount` is initialized to 0.' } },
+    { line: 3, vars: { passCount: '0', i: '0' }, output: '', note: { tr: 'Döngü kurulumu: `i = 0`. Koşul `0 < 3` doğru → gövdeye gir.', en: 'Loop setup: `i = 0`. Condition `0 < 3` is true → enter the body.' } },
+    { line: 4, vars: { passCount: '1', i: '0' }, output: '', note: { tr: '`results[0]` = "PASS", eşleşme var → `passCount++` → 1.', en: '`results[0]` = "PASS", it matches → `passCount++` → 1.' } },
+    { line: 3, vars: { passCount: '1', i: '1' }, output: '', note: { tr: '`i++` → i = 1. Koşul `1 < 3` doğru.', en: '`i++` → i = 1. Condition `1 < 3` is true.' } },
+    { line: 4, vars: { passCount: '1', i: '1' }, output: '', note: { tr: '`results[1]` = "FAIL", eşleşme YOK → `passCount` değişmez.', en: '`results[1]` = "FAIL", no match → `passCount` stays the same.' } },
+    { line: 3, vars: { passCount: '1', i: '2' }, output: '', note: { tr: '`i++` → i = 2. Koşul `2 < 3` doğru — son tur.', en: '`i++` → i = 2. Condition `2 < 3` is true — final pass.' } },
+    { line: 4, vars: { passCount: '2', i: '2' }, output: '', note: { tr: '`results[2]` = "PASS", eşleşme var → `passCount++` → 2.', en: '`results[2]` = "PASS", it matches → `passCount++` → 2.' } },
+    { line: 3, vars: { passCount: '2', i: '3' }, output: '', note: { tr: '`i++` → i = 3. Koşul `3 < 3` YANLIŞ → döngü biter.', en: '`i++` → i = 3. Condition `3 < 3` is FALSE → the loop ends.' } },
+    { line: 6, vars: { passCount: '2', i: '—' }, output: '2', note: { tr: 'Döngü bitti, `passCount` = 2 yazdırılır. `let i` bloktan çıkınca kapsam dışına çıkar (var olsaydı çıkmazdı).', en: 'The loop ends, `passCount` = 2 is printed. `let i` goes out of scope once the block ends (it would not with `var`).' } },
+  ],
+}
+
+const heapStackJsObjectRef = {
+  type: 'heap-stack',
+  title: { tr: 'Nesne Referansı — "Posta Kutusu Anahtarı" Canlı', en: 'Object Reference — The "Mailbox Key" in Action' },
+  code: `const config = { retries: 3 };
+const backup = config;
+backup.retries = 5;
+console.log(config.retries);`,
+  codeLanguage: 'javascript',
+  steps: [
+    {
+      line: 1,
+      note: { tr: '`const config = { retries: 3 }` Heap\'te bir nesne yaratır. `config`, o nesnenin adresini (referansını) tutar — nesnenin KENDİSİNİ değil.', en: '`const config = { retries: 3 }` creates an object on the Heap. `config` holds the object\'s address (reference) — not the object itself.' },
+      stack: [{ name: 'config', ref: 'obj1', kind: 'ref' }],
+      heap: [{ id: 'obj1', type: 'Object', fields: { retries: '3' } }],
+    },
+    {
+      line: 2,
+      note: { tr: '`backup = config` referansı KOPYALAR — YENİ bir nesne YARATMAZ. Artık `config` ve `backup` AYNI Heap nesnesini işaret eder (iki anahtar, tek posta kutusu).', en: '`backup = config` copies the REFERENCE — it does NOT create a new object. `config` and `backup` now point to the SAME Heap object (two keys, one mailbox).' },
+      stack: [{ name: 'config', ref: 'obj1', kind: 'ref' }, { name: 'backup', ref: 'obj1', kind: 'ref' }],
+      heap: [{ id: 'obj1', type: 'Object', fields: { retries: '3' } }],
+    },
+    {
+      line: 3,
+      note: { tr: '`backup.retries = 5` Heap\'teki nesneyi DEĞİŞTİRİR. `const backup` sadece REFERANSIN yeniden atanmasını engeller — nesnenin İÇERİĞİNİ değiştirmekten değil.', en: '`backup.retries = 5` MUTATES the object on the Heap. `const backup` only prevents REASSIGNING the reference — not changing the object\'s CONTENTS.' },
+      stack: [{ name: 'config', ref: 'obj1', kind: 'ref' }, { name: 'backup', ref: 'obj1', kind: 'ref' }],
+      heap: [{ id: 'obj1', type: 'Object', fields: { retries: '5' } }],
+    },
+    {
+      line: 4,
+      note: { tr: '`config.retries` de `5` yazdırır — `config`\'e HİÇ dokunulmadı, ama `backup` üzerinden yapılan değişiklik AYNI nesneyi paylaştıkları için `config`\'e de yansıdı. Bu, JS\'te en sık rastlanan test-veri kirlenmesi (flaky test) kaynağıdır.', en: '`config.retries` also prints `5` — `config` was NEVER touched directly, but the change made via `backup` reflects on `config` too because they share the SAME object. This is the most common source of test-data contamination (flaky tests) in JS.' },
+      stack: [{ name: 'config', ref: 'obj1', kind: 'ref' }, { name: 'backup', ref: 'obj1', kind: 'ref' }],
+      heap: [{ id: 'obj1', type: 'Object', fields: { retries: '5' } }],
+    },
+  ],
+}
+
 const sections = [
   // ─────────────────────────────────────────────
   // SECTION 0 — Intro & Why JS
@@ -2607,6 +2667,7 @@ console.log("=== (Strict Equality):", a === b); // false`
           en: "JavaScript data types split into two groups and understanding this distinction is critical in test automation. Primitive types (String, Number, Boolean, Null, Undefined, Symbol, BigInt) are like postage stamps: the value is carried on the stamp itself, and copying creates a fully independent duplicate. Reference types (Object, Array, Function) are like a key to a mailbox: copying the key gives two keys that open the same box — if one person changes the contents, the other sees the change too. Why does this matter? In Java the primitive (`int`, `boolean`) vs reference (`List`, `Map`) distinction is identical and causes the same issues: `int a = b` copies the value, `List<String> a = b` copies the reference. Critical QA scenario: if you share a test data object between two tests and one mutates it, the other test breaks — the classic source of flaky tests. Solution: use `JSON.parse(JSON.stringify(data))` for deep copy or spread `{...config}` for shallow copy."
         }
       },
+      heapStackJsObjectRef,
       {
         type: "heading",
         content: { tr: "Primitive Tipler — 7 Temel Yapı Taşı", en: "Primitive Types — 7 Building Blocks" }
@@ -3701,6 +3762,7 @@ console.log("Total Fails:", failCount, "/ Total:", tests.length);`
       },
       jsLoopClosureTrapFilm,
       predJsLoopClosureVar,
+      traceJsForEach,
       {
         type: "quiz",
         question: {
