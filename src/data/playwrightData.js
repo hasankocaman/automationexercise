@@ -6106,19 +6106,19 @@ npx playwright test login.spec.ts --ui`,
       "options": [
             {
                   "id": "a",
-                  "text": "retain-on-failure yalnızca başarısız testlerde trace dosyası üretir, böylece başarılı binlerce testin yarattığı depolama yükü ve ağ trafiği önlenmiş olur"
+                  "text": { "tr": "retain-on-failure yalnızca başarısız testlerde trace dosyası üretir, böylece başarılı binlerce testin yarattığı depolama yükü ve ağ trafiği önlenmiş olur", "en": "retain-on-failure only produces a trace file for failing tests, which avoids the storage load and network traffic that thousands of passing tests would otherwise generate" }
             },
             {
                   "id": "b",
-                  "text": "retain-on-failure trace dosyasını buluta otomatik olarak yedekler"
+                  "text": { "tr": "retain-on-failure trace dosyasını buluta otomatik olarak yedekler", "en": "retain-on-failure automatically backs up the trace file to the cloud" }
             },
             {
                   "id": "c",
-                  "text": "trace: 'on' ayarı performans sorunlarına yol açtığı için devre dışı bırakılmıştır"
+                  "text": { "tr": "trace: 'on' ayarı performans sorunlarına yol açtığı için devre dışı bırakılmıştır", "en": "The trace: 'on' setting has been disabled because it causes performance problems" }
             },
             {
                   "id": "d",
-                  "text": "İki seçenek arasında dosya boyutu veya kaynak kullanımı açısından bir fark yoktur"
+                  "text": { "tr": "İki seçenek arasında dosya boyutu veya kaynak kullanımı açısından bir fark yoktur", "en": "There is no difference between the two options in terms of file size or resource usage" }
             }
       ],
       "correct": "a",
@@ -6485,19 +6485,19 @@ actions/upload-artifact@v4`,
       "options": [
             {
                   "id": "a",
-                  "text": "Sharding, tek bir makine içindeki CPU çekirdeklerini kullanır, harici makine gerektirmez"
+                  "text": { "tr": "Sharding, tek bir makine içindeki CPU çekirdeklerini kullanır, harici makine gerektirmez", "en": "Sharding uses the CPU cores within a single machine and does not require an external machine" }
             },
             {
                   "id": "b",
-                  "text": "Sharding, toplam test paketini parçalara ayırıp farklı CI job'ları arasında dağıtarak toplam test süresini düşürmeyi hedefler"
+                  "text": { "tr": "Sharding, toplam test paketini parçalara ayırıp farklı CI job'ları arasında dağıtarak toplam test süresini düşürmeyi hedefler", "en": "Sharding splits the total test suite into chunks and distributes them across different CI jobs to reduce the total test duration" }
             },
             {
                   "id": "c",
-                  "text": "Sharding sadece görsel regresyon testleri için kullanılabilir"
+                  "text": { "tr": "Sharding sadece görsel regresyon testleri için kullanılabilir", "en": "Sharding can only be used for visual regression tests" }
             },
             {
                   "id": "d",
-                  "text": "Sharding kullanıldığında --workers ayarının kullanılmasına gerek kalmaz"
+                  "text": { "tr": "Sharding kullanıldığında --workers ayarının kullanılmasına gerek kalmaz", "en": "Once sharding is used, the --workers setting is no longer needed" }
             }
       ],
       "correct": "b",
@@ -6818,8 +6818,10 @@ await page.context().storageState({ path: '.auth/user.json' });`,
             },
             {
                   "id": "c",
-                  "text": "Codegen sadece tek bir test senaryosu üretebilir.",
-                  "en": "Codegen can only generate a single test scenario."
+                  "text": {
+                        "tr": "Codegen sadece tek bir test senaryosu üretebilir.",
+                        "en": "Codegen can only generate a single test scenario."
+                  }
             },
             {
                   "id": "d",

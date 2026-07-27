@@ -1945,11 +1945,11 @@ docker run --rm -v $(pwd):/tests justb4/jmeter \\
                 fullMessage: 'java.net.ConnectException: Connection refused: connect\nat org.apache.jmeter.protocol.http.sampler.HTTPHC4Impl.executeRequest',
                 cause: { tr: 'JMeter hedef sunucuya bağlanamıyor. Sunucu kapalı, yanlış port/host ayarlandı veya güvenlik duvarı bağlantıyı engelliyor.', en: 'JMeter cannot connect to the target server. The server is down, wrong host/port is configured, or a firewall is blocking the connection.' },
                 solution: { tr: '1) Sunucunun çalıştığını doğrulayın. 2) HTTP Request\'de Host ve Port değerlerini kontrol edin. 3) Tarayıcıdan URL\'e erişebildiğinizi test edin. 4) Güvenlik duvarı kurallarını kontrol edin.', en: '1) Verify the server is running. 2) Check Host and Port in HTTP Request. 3) Test the URL from a browser. 4) Check firewall rules.' },
-                codeWrong: `# Yanlış host/port — sunucu 8080'de dinliyor
+                codeWrong: `# Wrong host/port — the server listens on 8080
 HTTP Request:
   Server Name: localhost
-  Port: 3000  ← YANLIŞ`,
-                codeFixed: `# Doğru port
+  Port: 3000  ← WRONG`,
+                codeFixed: `# Correct port
 HTTP Request:
   Server Name: localhost
   Port: 8080
@@ -1960,33 +1960,33 @@ HTTP Request:
                 fullMessage: '${authToken} → EXTRACTION_FAILED\nJSON Extractor: No results for expression: $.data.token',
                 cause: { tr: 'JSON Extractor veya Regex Extractor belirtilen path/pattern ile yanıtta hiçbir değer bulamadı. Login başarısız olmuş, response yapısı değişmiş veya JSON path yanlış yazılmış.', en: 'JSON Extractor or Regex Extractor could not find a value matching the specified path/pattern in the response. Login failed, response structure changed, or JSON path is wrong.' },
                 solution: { tr: '1) View Results Tree ile gerçek yanıtı kontrol edin. 2) JSON path ifadesini doğrulayın (JSONPath online tester kullanın). 3) Önceki isteğin başarılı olduğundan emin olun. 4) Default value olarak EXTRACTION_FAILED yerine boş bırakın — ama assertion ekleyin.', en: '1) Check the actual response in View Results Tree. 2) Verify the JSON path expression (use an online JSONPath tester). 3) Ensure the previous request succeeded. 4) Leave Default Value empty but add an assertion to catch failures.' },
-                codeWrong: `# Yanlış JSON path — response yapısı farklı
-# Gerçek response: {"result": {"token": "abc"}}
-# Yanlış path:
-JSON Path: $.data.token  ← data anahtarı yok`,
-                codeFixed: `# Doğru JSON path
+                codeWrong: `# Wrong JSON path — the response structure is different
+# Actual response: {"result": {"token": "abc"}}
+# Wrong path:
+JSON Path: $.data.token  ← there is no "data" key`,
+                codeFixed: `# Correct JSON path
 JSON Path: $.result.token
 
-# Assertion ekle — extraction başarısız olursa test başarısız say
+# Add an assertion — treat the test as failed if extraction fails
 Response Assertion:
   Apply to: JMeter Variable: authToken
   Pattern: EXTRACTION_FAILED
-  Not: ✓ (yoksa başarısız say)`
+  Not: ✓ (fail the test if this pattern is absent)`
               },
               {
                 error: 'OutOfMemoryError: Java heap space',
                 fullMessage: 'java.lang.OutOfMemoryError: Java heap space\nat org.apache.jmeter.reporters.ResultCollector.sampleOccurred',
                 cause: { tr: 'JMeter\'ın JVM heap alanı doldu. Genellikle View Results Tree gibi çok fazla veri saklayan Listener\'lar büyük testlerde çalıştırıldığında olur.', en: 'JMeter\'s JVM heap space is exhausted. Usually caused by Listeners like View Results Tree storing too much data during large-scale tests.' },
                 solution: { tr: '1) View Results Tree\'yi devre dışı bırakın veya kaldırın — yalnızca debug için kullanın. 2) JMeter başlangıç heap boyutunu artırın: jmeter.bat/sh dosyasında -Xmx4g. 3) Büyük testlerde yalnızca Aggregate Report veya Summary Report kullanın.', en: '1) Disable or remove View Results Tree — use only during debug. 2) Increase JMeter heap: set -Xmx4g in jmeter.bat/sh. 3) For large tests, use only Aggregate Report or Summary Report.' },
-                codeWrong: `# Yanlış — büyük testte View Results Tree etkin
+                codeWrong: `# Wrong — View Results Tree is enabled in a large-scale test
 Thread Group: 1000 users × 300 loops
-Listener: View Results Tree (tüm yanıtları RAM'de saklar) ← YANLIŞ`,
-                codeFixed: `# Doğru — büyük testlerde yalnızca verimli listener'lar
+Listener: View Results Tree (stores every response in RAM) ← WRONG`,
+                codeFixed: `# Correct — only lightweight listeners in large-scale tests
 Thread Group: 1000 users × 300 loops
-Listener: Aggregate Report      ← sadece istatistik tutar
-CLI flag: -e -o ./report        ← HTML raporu test sonrası üret
+Listener: Aggregate Report      ← keeps only statistics
+CLI flag: -e -o ./report        ← generate the HTML report after the test
 
-# JVM heap'i artır (jmeter.bat/jmeter.sh):
+# Increase the JVM heap (jmeter.bat/jmeter.sh):
 set HEAP=-Xms4g -Xmx4g`
               },
               {
@@ -1994,31 +1994,31 @@ set HEAP=-Xms4g -Xmx4g`
                 fullMessage: 'Response code: Non HTTP response code: org.apache.http.conn.ConnectTimeoutException\nResponse message: Non HTTP response message: Connect to api.example.com:443 timed out',
                 cause: { tr: 'Sunucu, JMeter\'ın beklediği süre içinde bağlantıyı kabul etmedi. Yüksek yükte sunucu kapasitesini aşıyor veya ağ gecikmesi çok yüksek.', en: 'The server did not accept the connection within JMeter\'s timeout window. Under heavy load the server may be at capacity, or network latency is too high.' },
                 solution: { tr: '1) Connection timeout\'u artırın: Advanced sekmesinde Connection Timeout. 2) Bu hatanın yüksek yükte çoğalıp çoğalmadığını kontrol edin — bu, sistemin kırılma noktasına işaret eder. 3) Ramp-up süresini uzatın.', en: '1) Increase the connection timeout in the Advanced tab of HTTP Request. 2) Check if this error multiplies under high load — it signals the system breaking point. 3) Increase ramp-up period.' },
-                codeWrong: `# Çok kısa timeout ve aşırı agresif ramp-up
+                codeWrong: `# Timeout is too short and ramp-up is far too aggressive
 HTTP Request Advanced:
   Connection Timeout: 1000ms
-Thread Group: 1000 users, Ramp-Up: 5s ← çok hızlı`,
-                codeFixed: `# Gerçekçi timeout ve kademeli ramp-up
+Thread Group: 1000 users, Ramp-Up: 5s ← way too fast`,
+                codeFixed: `# Realistic timeout and a gradual ramp-up
 HTTP Request Advanced:
   Connection Timeout: 10000ms
   Response Timeout:   30000ms
 
 Thread Group:
   Number of Users: 1000
-  Ramp-Up: 300s  ← 5 dakikada kademeli artış`
+  Ramp-Up: 300s  ← gradual increase over 5 minutes`
               },
               {
                 error: 'Test script did not run — FAILED: Assertion failed on variable',
                 fullMessage: 'Response code: 200\nAssertion failure message: Test failed: text expected to contain /dashboard',
                 cause: { tr: 'Response Assertion beklenen string\'i ya da pattern\'ı yanıtta bulamadı. URL doğru çalışıyor ama içerik beklenenin dışında — örneğin: login başarısız, hata mesajı döndü.', en: 'The Response Assertion could not find the expected string or pattern in the response. The URL works but content is wrong — e.g., login failed and an error page returned instead of the dashboard.' },
                 solution: { tr: '1) View Results Tree\'de gerçek response body\'yi inceleyin. 2) Assertion pattern\'ını güncellemeyi düşünün. 3) Bu istek öncesi adımların (login, token extraction) başarılı olduğundan emin olun.', en: '1) Inspect the actual response body in View Results Tree. 2) Consider updating the assertion pattern. 3) Ensure preceding steps (login, token extraction) succeeded.' },
-                codeWrong: `# Assertion başarısız — login başarısız ama fark edilmedi
+                codeWrong: `# Assertion misses it — login failed but went undetected
 Response Assertion:
   Response Field: Response Body
   Pattern: Welcome to Dashboard
-  ← Login'de hata olduğu için "Invalid credentials" dönüyor`,
-                codeFixed: `# İki katmanlı doğrulama
-# 1) Status kodu assertion
+  ← Returns "Invalid credentials" because the login request failed`,
+                codeFixed: `# Two-layer verification
+# 1) Status code assertion
 Response Assertion:
   Response Code: 200
 
@@ -2026,9 +2026,9 @@ Response Assertion:
 Response Assertion:
   Pattern: Welcome to Dashboard
 
-# 3) Login isteğine de assertion ekle
+# 3) Also add an assertion on the login request
 Response Assertion on Login:
-  Pattern: "token"  ← token yoksa login başarısız demektir`
+  Pattern: "token"  ← no token means login failed`
               },
             ]
           },

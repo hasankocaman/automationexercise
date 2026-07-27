@@ -2278,10 +2278,10 @@ npx playwright test
         retryQuestion: {
           question: { tr: "`npm init -y` komutu ne yapar?", en: "What does `npm init -y` do?" },
           options: [
-            { id: "a", text: "Node.js günceller / Updates Node.js" },
+            { id: "a", text: { tr: "Node.js'i günceller", en: "Updates Node.js" } },
             { id: "b", text: { tr: "Tüm soruları otomatik \"evet\" ile geçip package.json oluşturur", en: "Creates package.json with all defaults automatically" } },
-            { id: "c", text: "Projeyi siler / Deletes the project" },
-            { id: "d", text: "npm'i günceller / Updates npm" }
+            { id: "c", text: { tr: "Projeyi siler", en: "Deletes the project" } },
+            { id: "d", text: { tr: "npm'i günceller", en: "Updates npm" } }
           ],
           correct: "b",
           explanation: { tr: "`npm init -y` tüm yapılandırma sorularını otomatik varsayılan değerlerle yanıtlayarak bir `package.json` dosyası oluşturur.", en: "`npm init -y` answers all configuration questions with default values and instantly creates a `package.json` file — `-y` means \"yes to all\"." }
@@ -5732,7 +5732,7 @@ mockElement.trigger('click', { clientX: 100, clientY: 200 });`
           ["new Date()",          { tr: "Şu anki tarih/saat", en: "Current date/time" },           "new Date()",                               "LocalDateTime.now()"],
           ["new Date(ms)",        { tr: "Epoch ms'den Date üretir", en: "Date from epoch ms" },     "new Date(0)",                              "Instant.ofEpochMilli(0)"],
           [".getFullYear()",      { tr: "4 haneli yıl", en: "4-digit year" },                       "d.getFullYear() → 2025",                   ".getYear()"],
-          [".getMonth()",         { tr: "Ay (0-11!)", en: "Month (0-11!)" },                        "d.getMonth() + 1 → gerçek ay",             ".getMonthValue() - 1"],
+          [".getMonth()",         { tr: "Ay (0-11!)", en: "Month (0-11!)" },                        { tr: "d.getMonth() + 1 → gerçek ay", en: "d.getMonth() + 1 → real month" },             ".getMonthValue() - 1"],
           [".getDate()",          { tr: "Ayın günü (1-31)", en: "Day of month (1-31)" },            "d.getDate() → 15",                         ".getDayOfMonth()"],
           [".getTime()",          { tr: "Epoch ms (Unix timestamp)", en: "Epoch ms (Unix timestamp)" }, "d.getTime() → 1700000000000",         ".toEpochMilli()"],
           [".toISOString()",      { tr: "ISO 8601 string", en: "ISO 8601 string" },                 `"2025-01-15T10:30:00.000Z"`,               ".format(DateTimeFormatter.ISO_INSTANT)"],

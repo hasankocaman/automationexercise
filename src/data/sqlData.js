@@ -3138,7 +3138,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT, run_date TEXT);\nINSERT INTO test_results VALUES (1,'Login Test','PASS',1200,'staging','2024-01-10');\nINSERT INTO test_results VALUES (2,'Checkout Flow','FAIL',5400,'staging','2024-01-10');\nINSERT INTO test_results VALUES (3,'Signup Test','PASS',890,'prod','2024-01-11');\nINSERT INTO test_results VALUES (4,'Profile Update','FAIL',3100,'prod','2024-01-11');\nINSERT INTO test_results VALUES (5,'Search Feature','PASS',2200,'staging','2024-01-12');\nINSERT INTO test_results VALUES (6,'Logout Test','SKIP',0,'staging','2024-01-12');\nINSERT INTO test_results VALUES (7,'Login Test','PASS',1100,'prod','2024-01-13');\nINSERT INTO test_results VALUES (8,'API Health Check','FAIL',8200,'staging','2024-01-13');",
-        "defaultCode": "-- ▶ Çalıştır ve değiştir!\nSELECT * FROM test_results WHERE status = 'FAIL';\n\n-- Diğerlerini dene:\n-- SELECT test_name, duration_ms FROM test_results ORDER BY duration_ms DESC;\n-- SELECT DISTINCT environment FROM test_results;\n-- SELECT * FROM test_results WHERE duration_ms > 2000 AND status = 'PASS';\n-- SELECT COUNT(*) AS total FROM test_results;"
+        "defaultCode": "-- ▶ Run it and change it!\nSELECT * FROM test_results WHERE status = 'FAIL';\n\n-- Try the others:\n-- SELECT test_name, duration_ms FROM test_results ORDER BY duration_ms DESC;\n-- SELECT DISTINCT environment FROM test_results;\n-- SELECT * FROM test_results WHERE duration_ms > 2000 AND status = 'PASS';\n-- SELECT COUNT(*) AS total FROM test_results;"
       },
       {
         "type": "callout",
@@ -3433,7 +3433,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);\nINSERT INTO test_results VALUES (1,'Login Test','PASS',1200,'staging');\nINSERT INTO test_results VALUES (2,'Checkout Flow','FAIL',5400,'staging');\nINSERT INTO test_results VALUES (3,'Signup Test','PASS',890,'prod');\nINSERT INTO test_results VALUES (4,'Profile Update','FAIL',3100,'prod');\nINSERT INTO test_results VALUES (5,'Search Feature','PASS',2200,'staging');\nINSERT INTO test_results VALUES (6,'Logout Test','SKIP',0,'staging');",
-        "defaultCode": "-- Tablo hazır! Sorguları dene:\nSELECT * FROM test_results ORDER BY duration_ms DESC;\n\n-- Diğerlerini dene:\n-- SELECT * FROM test_results WHERE status = 'FAIL';\n-- SELECT COUNT(*) AS total, status FROM test_results GROUP BY status ORDER BY total DESC;\n-- SELECT test_name, duration_ms FROM test_results WHERE duration_ms > 1000;"
+        "defaultCode": "-- Table is ready! Try the queries:\nSELECT * FROM test_results ORDER BY duration_ms DESC;\n\n-- Try the others:\n-- SELECT * FROM test_results WHERE status = 'FAIL';\n-- SELECT COUNT(*) AS total, status FROM test_results GROUP BY status ORDER BY total DESC;\n-- SELECT test_name, duration_ms FROM test_results WHERE duration_ms > 1000;"
       },
       {
         "type": "heading",
@@ -3920,7 +3920,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);\nINSERT INTO test_results VALUES (1,'Login Test','PASS',1200,'staging');\nINSERT INTO test_results VALUES (2,'Checkout Flow','FAIL',5400,'staging');\nINSERT INTO test_results VALUES (3,'Signup Test','PASS',890,'prod');\nINSERT INTO test_results VALUES (4,'Profile Update','FAIL',3100,'prod');\nINSERT INTO test_results VALUES (5,'Search Feature','PASS',2200,'staging');\nINSERT INTO test_results VALUES (6,'Logout Test','SKIP',0,'staging');\nINSERT INTO test_results VALUES (7,'Login Test','PASS',1100,'prod');\nINSERT INTO test_results VALUES (8,'API Health Check','FAIL',8200,'staging');",
-        "defaultCode": "-- Aggregate functions — çalıştır!\nSELECT COUNT(*) AS total_tests FROM test_results;\n\n-- Diğerlerini dene:\n-- SELECT SUM(duration_ms) AS total_ms FROM test_results;\n-- SELECT ROUND(AVG(duration_ms), 0) AS avg_ms FROM test_results;\n-- SELECT MIN(duration_ms) AS fastest, MAX(duration_ms) AS slowest FROM test_results;\n-- SELECT COUNT(*) AS failed FROM test_results WHERE status = 'FAIL';"
+        "defaultCode": "-- Aggregate functions — run it!\nSELECT COUNT(*) AS total_tests FROM test_results;\n\n-- Try the others:\n-- SELECT SUM(duration_ms) AS total_ms FROM test_results;\n-- SELECT ROUND(AVG(duration_ms), 0) AS avg_ms FROM test_results;\n-- SELECT MIN(duration_ms) AS fastest, MAX(duration_ms) AS slowest FROM test_results;\n-- SELECT COUNT(*) AS failed FROM test_results WHERE status = 'FAIL';"
       },
       {
         "type": "callout",
@@ -4078,7 +4078,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);\nINSERT INTO test_results VALUES (1,'Login Test','PASS',1200,'staging');\nINSERT INTO test_results VALUES (2,'Checkout Flow','FAIL',5400,'staging');\nINSERT INTO test_results VALUES (3,'Signup Test','PASS',890,'prod');\nINSERT INTO test_results VALUES (4,'Profile Update','FAIL',3100,'prod');\nINSERT INTO test_results VALUES (5,'Search Feature','PASS',2200,'staging');\nINSERT INTO test_results VALUES (6,'Logout Test','SKIP',0,'staging');\nINSERT INTO test_results VALUES (7,'Login Test','PASS',1100,'prod');\nINSERT INTO test_results VALUES (8,'API Health Check','FAIL',8200,'staging');",
-        "defaultCode": "-- GROUP BY — statusa göre say\nSELECT status, COUNT(*) AS count\nFROM test_results\nGROUP BY status\nORDER BY count DESC;\n\n-- Diğerlerini dene:\n-- SELECT environment, ROUND(AVG(duration_ms),0) AS avg_ms FROM test_results GROUP BY environment;\n-- SELECT test_name, COUNT(*) AS runs FROM test_results GROUP BY test_name HAVING COUNT(*) > 1;"
+        "defaultCode": "-- GROUP BY — count by status\nSELECT status, COUNT(*) AS count\nFROM test_results\nGROUP BY status\nORDER BY count DESC;\n\n-- Try the others:\n-- SELECT environment, ROUND(AVG(duration_ms),0) AS avg_ms FROM test_results GROUP BY environment;\n-- SELECT test_name, COUNT(*) AS runs FROM test_results GROUP BY test_name HAVING COUNT(*) > 1;"
       },
       {
         "type": "callout",
@@ -4270,7 +4270,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE testers (id INTEGER PRIMARY KEY, name TEXT, email TEXT);\nCREATE TABLE projects (id INTEGER PRIMARY KEY, name TEXT);\nCREATE TABLE bugs (id INTEGER PRIMARY KEY, title TEXT, status TEXT, priority TEXT, tester_id INTEGER, project_id INTEGER);\nINSERT INTO testers VALUES (1,'Alice','alice@qa.com'),(2,'Bob','bob@qa.com'),(3,'Carol','carol@qa.com');\nINSERT INTO projects VALUES (1,'WebApp'),(2,'Mobile'),(3,'API');\nINSERT INTO bugs VALUES\n(1,'Login fails on Safari','OPEN','HIGH',1,1),\n(2,'Broken image on profile','CLOSED','LOW',1,1),\n(3,'API timeout on checkout','OPEN','HIGH',2,3),\n(4,'Wrong error message','OPEN','MEDIUM',2,2),\n(5,'Crash on empty search','OPEN','HIGH',3,1);",
-        "defaultCode": "-- INNER JOIN: testers ve bug'lar birleştir\nSELECT t.name AS tester, b.title AS bug, b.status\nFROM testers t\nINNER JOIN bugs b ON t.id = b.tester_id;\n\n-- Diğerlerini dene:\n-- SELECT t.name, COUNT(b.id) AS assigned_bugs FROM testers t LEFT JOIN bugs b ON t.id=b.tester_id GROUP BY t.id,t.name;\n-- SELECT t.name, p.name AS project, b.title FROM testers t JOIN bugs b ON t.id=b.tester_id JOIN projects p ON b.project_id=p.id WHERE b.status='OPEN';"
+        "defaultCode": "-- INNER JOIN: join testers and bugs\nSELECT t.name AS tester, b.title AS bug, b.status\nFROM testers t\nINNER JOIN bugs b ON t.id = b.tester_id;\n\n-- Try the others:\n-- SELECT t.name, COUNT(b.id) AS assigned_bugs FROM testers t LEFT JOIN bugs b ON t.id=b.tester_id GROUP BY t.id,t.name;\n-- SELECT t.name, p.name AS project, b.title FROM testers t JOIN bugs b ON t.id=b.tester_id JOIN projects p ON b.project_id=p.id WHERE b.status='OPEN';"
       },
       {
         "type": "heading",
@@ -4472,12 +4472,12 @@ const finalEnSections = [
         "type": "comparison",
         "left": {
           "label": { "tr": "❌ Yavaş — Her satır için alt sorgu", "en": "❌ Slow — Subquery for every row" },
-          "code": "SELECT name,\n  (SELECT COUNT(*) FROM bugs\n   WHERE tester_id = t.id) AS bug_count\nFROM testers t;\n-- Her tester satırı için iç SELECT bir kez çalışır!",
+          "code": "SELECT name,\n  (SELECT COUNT(*) FROM bugs\n   WHERE tester_id = t.id) AS bug_count\nFROM testers t;\n-- The inner SELECT runs once for every tester row!",
           "note": { "tr": "Bağıntılı alt sorgu: O(n) iç sorgu", "en": "Correlated subquery: O(n) inner queries" }
         },
         "right": {
           "label": { "tr": "✅ Hızlı — Tek JOIN + GROUP BY", "en": "✅ Fast — Single JOIN + GROUP BY" },
-          "code": "SELECT t.name, COUNT(b.id) AS bug_count\nFROM testers t\nLEFT JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.id, t.name;\n-- Her iki tabloda tek geçiş",
+          "code": "SELECT t.name, COUNT(b.id) AS bug_count\nFROM testers t\nLEFT JOIN bugs b ON t.id = b.tester_id\nGROUP BY t.id, t.name;\n-- A single pass over both tables",
           "note": { "tr": "LEFT JOIN: 0 hatalı durumları da doğru işler", "en": "LEFT JOIN: handles 0 bugs correctly too" }
         }
       },
@@ -4645,7 +4645,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);\nINSERT INTO test_results VALUES\n(1,'Login Test','PASS',1200,'staging'),(2,'Checkout Flow','FAIL',5400,'staging'),\n(3,'Signup Test','PASS',890,'prod'),(4,'Profile Update','FAIL',3100,'prod'),\n(5,'Search Feature','PASS',2200,'staging'),(6,'Logout Test','SKIP',0,'staging'),\n(7,'Login Test','PASS',1100,'prod'),(8,'API Health Check','FAIL',8200,'staging');\nCREATE TABLE testers (id INTEGER PRIMARY KEY, name TEXT);\nCREATE TABLE bugs (id INTEGER PRIMARY KEY, title TEXT, status TEXT, tester_id INTEGER);\nINSERT INTO testers VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');\nINSERT INTO bugs VALUES (1,'Login fails','OPEN',1),(2,'Broken image','CLOSED',1),(3,'API timeout','OPEN',2),(4,'Wrong msg','OPEN',2);",
-        "defaultCode": "-- Ortalamanın üzerindeki testler (scalar subquery):\nSELECT test_name, duration_ms\nFROM test_results\nWHERE duration_ms > (SELECT AVG(duration_ms) FROM test_results)\nORDER BY duration_ms DESC;\n\n-- Diğerlerini dene:\n-- SELECT name FROM testers WHERE id IN (SELECT DISTINCT tester_id FROM bugs WHERE status='OPEN');"
+        "defaultCode": "-- Tests above the average (scalar subquery):\nSELECT test_name, duration_ms\nFROM test_results\nWHERE duration_ms > (SELECT AVG(duration_ms) FROM test_results)\nORDER BY duration_ms DESC;\n\n-- Try the others:\n-- SELECT name FROM testers WHERE id IN (SELECT DISTINCT tester_id FROM bugs WHERE status='OPEN');"
       },
       {
         "type": "callout",
@@ -4773,7 +4773,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);\nINSERT INTO test_results VALUES\n(1,'Login Test','PASS',1200,'staging'),(2,'Checkout Flow','FAIL',5400,'staging'),\n(3,'Signup Test','PASS',890,'prod'),(4,'Profile Update','FAIL',3100,'prod'),\n(5,'Search Feature','PASS',2200,'staging'),(6,'Logout Test','SKIP',0,'staging'),\n(7,'Login Test','PASS',1100,'prod'),(8,'API Health Check','FAIL',8200,'staging');",
-        "defaultCode": "-- LIKE: \"Login\" içeren testler\nSELECT test_name, status FROM test_results WHERE test_name LIKE '%Login%';\n\n-- Diğerlerini dene:\n-- SELECT * FROM test_results WHERE duration_ms BETWEEN 1000 AND 3000;\n-- SELECT * FROM test_results WHERE status IN ('FAIL','SKIP');\n-- SELECT test_name AS \"Test Adı\", duration_ms/1000.0 AS \"Süre (sn)\", status FROM test_results WHERE status != 'SKIP';"
+        "defaultCode": "-- LIKE: tests containing \"Login\"\nSELECT test_name, status FROM test_results WHERE test_name LIKE '%Login%';\n\n-- Try the others:\n-- SELECT * FROM test_results WHERE duration_ms BETWEEN 1000 AND 3000;\n-- SELECT * FROM test_results WHERE status IN ('FAIL','SKIP');\n-- SELECT test_name AS \"Test Name\", duration_ms/1000.0 AS \"Duration (sec)\", status FROM test_results WHERE status != 'SKIP';"
       },
       {
         "type": "heading",
@@ -4784,7 +4784,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE testers (id INTEGER PRIMARY KEY, name TEXT);\nCREATE TABLE projects (id INTEGER PRIMARY KEY, name TEXT);\nCREATE TABLE bugs (id INTEGER PRIMARY KEY, title TEXT, status TEXT, priority TEXT, tester_id INTEGER, project_id INTEGER);\nINSERT INTO testers VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');\nINSERT INTO projects VALUES (1,'WebApp'),(2,'Mobile'),(3,'API');\nINSERT INTO bugs VALUES\n(1,'Login fails on Safari','OPEN','HIGH',1,1),\n(2,'Broken image on profile','CLOSED','LOW',1,1),\n(3,'API timeout on checkout','OPEN','HIGH',2,3),\n(4,'Wrong error message','OPEN','MEDIUM',2,2),\n(5,'Crash on empty search','OPEN','HIGH',3,1);",
-        "defaultCode": "-- En fazla açık hata olan kişi kim?\nSELECT te.name, COUNT(*) AS open_bugs\nFROM testers te\nJOIN bugs b ON te.id = b.tester_id\nWHERE b.status = 'OPEN'\nGROUP BY te.id, te.name\nORDER BY open_bugs DESC;\n\n-- Diğerlerini dene:\n-- SELECT p.name AS project, COUNT(b.id) AS total_bugs FROM projects p LEFT JOIN bugs b ON p.id=b.project_id GROUP BY p.id,p.name;\n-- SELECT te.name, b.title, b.priority FROM testers te JOIN bugs b ON te.id=b.tester_id WHERE b.priority='HIGH';"
+        "defaultCode": "-- Who has the most open bugs?\nSELECT te.name, COUNT(*) AS open_bugs\nFROM testers te\nJOIN bugs b ON te.id = b.tester_id\nWHERE b.status = 'OPEN'\nGROUP BY te.id, te.name\nORDER BY open_bugs DESC;\n\n-- Try the others:\n-- SELECT p.name AS project, COUNT(b.id) AS total_bugs FROM projects p LEFT JOIN bugs b ON p.id=b.project_id GROUP BY p.id,p.name;\n-- SELECT te.name, b.title, b.priority FROM testers te JOIN bugs b ON te.id=b.tester_id WHERE b.priority='HIGH';"
       },
       {
         "type": "callout",
@@ -4941,7 +4941,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);\nINSERT INTO test_results VALUES\n(1,'Login Test','PASS',1200,'staging'),(2,'Checkout Flow','FAIL',5400,'staging'),\n(3,'Signup Test','PASS',890,'prod'),(4,'Profile Update','FAIL',3100,'prod'),\n(5,'Search Feature','PASS',2200,'staging'),(6,'Logout Test','SKIP',0,'staging'),\n(7,'Login Test','PASS',1100,'prod'),(8,'API Health Check','FAIL',8200,'staging');",
-        "defaultCode": "-- ROW_NUMBER, RANK, DENSE_RANK — window functions\nSELECT test_name, duration_ms,\n       ROW_NUMBER()  OVER (ORDER BY duration_ms DESC) AS rn,\n       RANK()        OVER (ORDER BY duration_ms DESC) AS rnk,\n       DENSE_RANK()  OVER (ORDER BY duration_ms DESC) AS dense_rnk\nFROM test_results;\n\n-- Diğerlerini dene:\n-- SELECT environment, test_name, duration_ms, RANK() OVER (PARTITION BY environment ORDER BY duration_ms DESC) AS rank_in_env FROM test_results;"
+        "defaultCode": "-- ROW_NUMBER, RANK, DENSE_RANK — window functions\nSELECT test_name, duration_ms,\n       ROW_NUMBER()  OVER (ORDER BY duration_ms DESC) AS rn,\n       RANK()        OVER (ORDER BY duration_ms DESC) AS rnk,\n       DENSE_RANK()  OVER (ORDER BY duration_ms DESC) AS dense_rnk\nFROM test_results;\n\n-- Try the others:\n-- SELECT environment, test_name, duration_ms, RANK() OVER (PARTITION BY environment ORDER BY duration_ms DESC) AS rank_in_env FROM test_results;"
       },
       {
         "type": "callout",
@@ -5091,7 +5091,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE test_results (id INTEGER PRIMARY KEY, test_name TEXT, status TEXT, duration_ms INTEGER, environment TEXT);\nINSERT INTO test_results VALUES\n(1,'Login Test','PASS',1200,'staging'),(2,'Checkout Flow','FAIL',5400,'staging'),\n(3,'Signup Test','PASS',890,'prod'),(4,'Profile Update','FAIL',3100,'prod'),\n(5,'Search Feature','PASS',2200,'staging'),(6,'Logout Test','SKIP',0,'staging'),\n(7,'Login Test','PASS',1100,'prod'),(8,'API Health Check','FAIL',8200,'staging');",
-        "defaultCode": "-- CTE: başarısız testleri adımlara ayır\nWITH failed_tests AS (\n    SELECT test_name, COUNT(*) AS fail_count\n    FROM test_results\n    WHERE status = 'FAIL'\n    GROUP BY test_name\n),\npass_times AS (\n    SELECT test_name, AVG(duration_ms) AS avg_ms\n    FROM test_results\n    WHERE status = 'PASS'\n    GROUP BY test_name\n)\nSELECT f.test_name, f.fail_count, ROUND(p.avg_ms,0) AS avg_pass_ms\nFROM failed_tests f\nLEFT JOIN pass_times p ON f.test_name = p.test_name\nORDER BY f.fail_count DESC;"
+        "defaultCode": "-- CTE: break failed tests into steps\nWITH failed_tests AS (\n    SELECT test_name, COUNT(*) AS fail_count\n    FROM test_results\n    WHERE status = 'FAIL'\n    GROUP BY test_name\n),\npass_times AS (\n    SELECT test_name, AVG(duration_ms) AS avg_ms\n    FROM test_results\n    WHERE status = 'PASS'\n    GROUP BY test_name\n)\nSELECT f.test_name, f.fail_count, ROUND(p.avg_ms,0) AS avg_pass_ms\nFROM failed_tests f\nLEFT JOIN pass_times p ON f.test_name = p.test_name\nORDER BY f.fail_count DESC;"
       },
       {
         "type": "callout",
@@ -5387,7 +5387,7 @@ const finalEnSections = [
         "type": "editor",
         "lang": "sql",
         "schema": "CREATE TABLE testers (id INTEGER PRIMARY KEY, name TEXT);\nCREATE TABLE projects (id INTEGER PRIMARY KEY, name TEXT);\nCREATE TABLE bugs (id INTEGER PRIMARY KEY, title TEXT, status TEXT, priority TEXT, tester_id INTEGER, project_id INTEGER);\nINSERT INTO testers VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');\nINSERT INTO projects VALUES (1,'WebApp'),(2,'Mobile'),(3,'API');\nINSERT INTO bugs VALUES\n(1,'Login fails on Safari','OPEN','HIGH',1,1),\n(2,'Broken image on profile','CLOSED','LOW',1,1),\n(3,'API timeout on checkout','OPEN','HIGH',2,3),\n(4,'Wrong error message','OPEN','MEDIUM',2,2),\n(5,'Crash on empty search','OPEN','HIGH',3,1);",
-        "defaultCode": "-- VIEW oluştur\nCREATE VIEW active_failures AS\n    SELECT t.name AS tester, b.title, b.priority, p.name AS project\n    FROM bugs b\n    JOIN testers t  ON b.tester_id  = t.id\n    JOIN projects p ON b.project_id = p.id\n    WHERE b.status = 'OPEN';\n\n-- View'ı tablo gibi kullan:\nSELECT * FROM active_failures WHERE priority = 'HIGH';"
+        "defaultCode": "-- Create a VIEW\nCREATE VIEW active_failures AS\n    SELECT t.name AS tester, b.title, b.priority, p.name AS project\n    FROM bugs b\n    JOIN testers t  ON b.tester_id  = t.id\n    JOIN projects p ON b.project_id = p.id\n    WHERE b.status = 'OPEN';\n\n-- Use the view like a table:\nSELECT * FROM active_failures WHERE priority = 'HIGH';"
       },
       {
         "type": "callout",
@@ -6182,8 +6182,8 @@ const finalEnSections = [
               "tr": "1) INSERT IGNORE (MySQL) veya INSERT OR IGNORE (SQLite) kullanın. 2) ON CONFLICT DO NOTHING / DO UPDATE ekleyin. 3) INSERT öncesinde SELECT ile kontrol edin.",
               "en": "1) Use INSERT IGNORE (MySQL) or INSERT OR IGNORE (SQLite). 2) Add ON CONFLICT DO NOTHING / DO UPDATE. 3) Check with SELECT before INSERT."
             },
-            "codeWrong": "-- YANLIŞ — tekrar eden email ekliyor\nINSERT INTO users (id, email) VALUES (1, 'a@test.com');\nINSERT INTO users (id, email) VALUES (2, 'a@test.com'); -- HATA",
-            "codeFixed": "-- DOĞRU — çakışmada güncelle (upsert)\nINSERT INTO users (id, email)\nVALUES (2, 'a@test.com')\nON CONFLICT(email) DO UPDATE SET id = excluded.id;\n\n-- veya sadece yok say:\nINSERT OR IGNORE INTO users (id, email) VALUES (2, 'a@test.com');"
+            "codeWrong": "-- WRONG — inserting a duplicate email\nINSERT INTO users (id, email) VALUES (1, 'a@test.com');\nINSERT INTO users (id, email) VALUES (2, 'a@test.com'); -- ERROR",
+            "codeFixed": "-- CORRECT — update on conflict (upsert)\nINSERT INTO users (id, email)\nVALUES (2, 'a@test.com')\nON CONFLICT(email) DO UPDATE SET id = excluded.id;\n\n-- or simply ignore it:\nINSERT OR IGNORE INTO users (id, email) VALUES (2, 'a@test.com');"
           },
           {
             "error": "FOREIGN KEY constraint failed",
@@ -6196,8 +6196,8 @@ const finalEnSections = [
               "tr": "1) Önce parent kaydı ekleyin. 2) PRAGMA foreign_keys = ON ile FK denetimini etkinleştirin (SQLite'de varsayılan kapalı). 3) INSERT sırasını parent → child olarak düzenleyin.",
               "en": "1) Insert the parent record first. 2) Enable FK checking: PRAGMA foreign_keys = ON (SQLite defaults to OFF). 3) Order INSERTs parent → child."
             },
-            "codeWrong": "-- YANLIŞ — users tablosunda id=999 yok\nINSERT INTO orders (id, user_id) VALUES (1, 999); -- HATA",
-            "codeFixed": "-- DOĞRU — önce parent'ı ekle\nINSERT INTO users (id, name) VALUES (999, 'Alice');\nINSERT INTO orders (id, user_id) VALUES (1, 999); -- OK\n\n-- SQLite'de FK denetimini etkinleştir:\nPRAGMA foreign_keys = ON;"
+            "codeWrong": "-- WRONG — id=999 does not exist in the users table\nINSERT INTO orders (id, user_id) VALUES (1, 999); -- ERROR",
+            "codeFixed": "-- CORRECT — insert the parent first\nINSERT INTO users (id, name) VALUES (999, 'Alice');\nINSERT INTO orders (id, user_id) VALUES (1, 999); -- OK\n\n-- Enable FK checking in SQLite:\nPRAGMA foreign_keys = ON;"
           },
           {
             "error": "NOT NULL constraint failed: table.column",
@@ -6210,8 +6210,8 @@ const finalEnSections = [
               "tr": "1) Sütun için değer sağlayın. 2) Sütuna DEFAULT değeri tanımlayın. 3) Şemayı gözden geçirin: o sütun gerçekten zorunlu mu?",
               "en": "1) Provide a value for the column. 2) Add a DEFAULT to the column definition. 3) Review the schema — does that column really need to be required?"
             },
-            "codeWrong": "-- YANLIŞ — email NOT NULL ama değer verilmedi\nINSERT INTO employees (id, name) VALUES (1, 'Bob'); -- HATA",
-            "codeFixed": "-- DOĞRU — tüm NOT NULL sütunlara değer ver\nINSERT INTO employees (id, name, email)\nVALUES (1, 'Bob', 'bob@company.com');\n\n-- veya default ekle:\n-- email TEXT NOT NULL DEFAULT 'unknown@company.com'"
+            "codeWrong": "-- WRONG — email is NOT NULL but no value was given\nINSERT INTO employees (id, name) VALUES (1, 'Bob'); -- ERROR",
+            "codeFixed": "-- CORRECT — provide a value for every NOT NULL column\nINSERT INTO employees (id, name, email)\nVALUES (1, 'Bob', 'bob@company.com');\n\n-- or add a default:\n-- email TEXT NOT NULL DEFAULT 'unknown@company.com'"
           },
           {
             "error": "syntax error near '...'",
@@ -6224,8 +6224,8 @@ const finalEnSections = [
               "tr": "1) Keyword yazımını kontrol edin. 2) SELECT listesinde virgülleri kontrol edin. 3) Rezerve kelimeler tablo/sütun adı olarak kullanılıyorsa backtick veya çift tırnak ile sarın.",
               "en": "1) Check keyword spelling. 2) Check commas in the SELECT list. 3) If using reserved words as identifiers, wrap them in backticks or double quotes."
             },
-            "codeWrong": "-- YANLIŞ — FROM yerine FORM yazılmış\nSELECT name FORM users WHERE id = 1; -- syntax error",
-            "codeFixed": "-- DOĞRU — keyword doğru yazılmış\nSELECT name FROM users WHERE id = 1;\n\n-- Rezerve kelime kullanımı:\nSELECT `order`, `select` FROM my_table;  -- backtick ile sarılmış"
+            "codeWrong": "-- WRONG — FORM was typed instead of FROM\nSELECT name FORM users WHERE id = 1; -- syntax error",
+            "codeFixed": "-- CORRECT — the keyword is spelled correctly\nSELECT name FROM users WHERE id = 1;\n\n-- Using a reserved word:\nSELECT `order`, `select` FROM my_table;  -- wrapped in backticks"
           },
           {
             "error": "no such table: table_name",
@@ -6238,8 +6238,8 @@ const finalEnSections = [
               "tr": "1) CREATE TABLE ile tabloyu oluşturun. 2) Tablo adının yazımını kontrol edin. 3) Doğru veritabanına bağlandığınızı doğrulayın. SQLite'de: SELECT name FROM sqlite_master WHERE type='table';",
               "en": "1) Create the table with CREATE TABLE. 2) Check the table name spelling. 3) Verify you are connected to the correct database. In SQLite: SELECT name FROM sqlite_master WHERE type='table';"
             },
-            "codeWrong": "-- YANLIŞ — tablo henüz oluşturulmamış\nSELECT * FROM test_results; -- no such table",
-            "codeFixed": "-- DOĞRU — önce tabloyu oluştur\nCREATE TABLE IF NOT EXISTS test_results (\n  id      INTEGER PRIMARY KEY,\n  name    TEXT NOT NULL,\n  status  TEXT NOT NULL,\n  run_at  TEXT\n);\nSELECT * FROM test_results;"
+            "codeWrong": "-- WRONG — the table has not been created yet\nSELECT * FROM test_results; -- no such table",
+            "codeFixed": "-- CORRECT — create the table first\nCREATE TABLE IF NOT EXISTS test_results (\n  id      INTEGER PRIMARY KEY,\n  name    TEXT NOT NULL,\n  status  TEXT NOT NULL,\n  run_at  TEXT\n);\nSELECT * FROM test_results;"
           },
           {
             "error": "ambiguous column name: column",
@@ -6252,8 +6252,8 @@ const finalEnSections = [
               "tr": "Tablo adı veya alias ile tam nitelendirme (qualification) kullanın: users.id veya u.id gibi.",
               "en": "Use full qualification with table name or alias: users.id or u.id."
             },
-            "codeWrong": "-- YANLIŞ — her iki tabloda da \"id\" var\nSELECT id, name FROM users JOIN orders ON users.id = orders.user_id;\n-- ambiguous column name: id",
-            "codeFixed": "-- DOĞRU — tablo adıyla nitelendir\nSELECT users.id, users.name, orders.id AS order_id\nFROM users\nJOIN orders ON users.id = orders.user_id;\n\n-- veya alias kullan:\nSELECT u.id, u.name, o.id AS order_id\nFROM users u\nJOIN orders o ON u.id = o.user_id;"
+            "codeWrong": "-- WRONG — both tables have an \"id\" column\nSELECT id, name FROM users JOIN orders ON users.id = orders.user_id;\n-- ambiguous column name: id",
+            "codeFixed": "-- CORRECT — qualify with the table name\nSELECT users.id, users.name, orders.id AS order_id\nFROM users\nJOIN orders ON users.id = orders.user_id;\n\n-- or use an alias:\nSELECT u.id, u.name, o.id AS order_id\nFROM users u\nJOIN orders o ON u.id = o.user_id;"
           },
           {
             "error": "table has N columns but M values were supplied",
@@ -6266,8 +6266,8 @@ const finalEnSections = [
               "tr": "INSERT'te sütun listesini açıkça belirtin ve VALUES ile sayısının eşleştiğinden emin olun.",
               "en": "Explicitly list the column names in INSERT and ensure VALUES count matches."
             },
-            "codeWrong": "-- YANLIŞ — 4 sütun var ama 3 değer veriliyor\n-- Tablo: users (id, name, email, role)\nINSERT INTO users VALUES (1, 'Alice', 'alice@test.com'); -- HATA",
-            "codeFixed": "-- DOĞRU — sütun isimlerini açıkça belirt\nINSERT INTO users (id, name, email)\nVALUES (1, 'Alice', 'alice@test.com');\n-- role sütunu NULL alır (ya da DEFAULT değeri)"
+            "codeWrong": "-- WRONG — the table has 4 columns but only 3 values are supplied\n-- Table: users (id, name, email, role)\nINSERT INTO users VALUES (1, 'Alice', 'alice@test.com'); -- ERROR",
+            "codeFixed": "-- CORRECT — explicitly list the column names\nINSERT INTO users (id, name, email)\nVALUES (1, 'Alice', 'alice@test.com');\n-- the role column gets NULL (or its DEFAULT value)"
           },
           {
             "error": "Lock wait timeout exceeded; try restarting transaction",
@@ -6280,8 +6280,8 @@ const finalEnSections = [
               "tr": "1) Uzun süren veya açık bırakılmış transaction'ları bulun ve sonlandırın (COMMIT/ROLLBACK). 2) Otomasyon testlerinde bağlantıları kapatıp açarak havuzları temizleyin. 3) Kilit zaman aşımı süresini artırın.",
               "en": "1) Find and terminate long-running or uncommitted transactions (run COMMIT or ROLLBACK). 2) Ensure automation tests close connections properly to clear pools. 3) Increase the lock timeout threshold if necessary."
             },
-            "codeWrong": "-- YANLIŞ — Açık bırakılan kilitli transaction (COMMIT edilmemiş)\nSTART TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- Test yarıda kesildi veya bağlantı açık kaldı (COMMIT/ROLLBACK yok)\n\n-- Eşzamanlı başka sorgu bekler ve hata verir:\nUPDATE users SET status = 'DONE' WHERE id = 1; -- HATA: Lock wait timeout",
-            "codeFixed": "-- DOĞRU — Transaction'ı her zaman güvenli şekilde bitirin\nSTART TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\nCOMMIT; -- Kilidi kaldır\n\n-- Eşzamanlı sorgu artık anında çalışır:\nUPDATE users SET status = 'DONE' WHERE id = 1; -- OK"
+            "codeWrong": "-- WRONG — a locking transaction left open (never COMMITted)\nSTART TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\n-- The test was interrupted midway or the connection was left open (no COMMIT/ROLLBACK)\n\n-- A concurrent query waits and then fails:\nUPDATE users SET status = 'DONE' WHERE id = 1; -- ERROR: Lock wait timeout",
+            "codeFixed": "-- CORRECT — always end the transaction safely\nSTART TRANSACTION;\nUPDATE users SET status = 'IN_PROGRESS' WHERE id = 1;\nCOMMIT; -- Releases the lock\n\n-- A concurrent query now runs immediately:\nUPDATE users SET status = 'DONE' WHERE id = 1; -- OK"
           }
         ]
       },
@@ -7105,23 +7105,23 @@ const finalEnSections = [
         "items": [
           {
             "icon": "1️⃣",
-            "label": "İndir",
+            "label": "Download",
             "desc": "dbeaver.io → Community Edition → pick the package for your operating system"
           },
           {
             "icon": "2️⃣",
-            "label": "Kur",
+            "label": "Install",
             "desc": "Windows: run the .exe · macOS: drag the .dmg · Linux: .deb or snap"
           },
           {
             "icon": "3️⃣",
-            "label": "Aç",
+            "label": "Open",
             "desc": "Downloads a bundled Java (JRE) on first launch — requires an internet connection"
           },
           {
             "icon": "4️⃣",
             "label": "Verify",
-            "desc": "Help → About DBeaver → versiyon bilgisi görünmeli"
+            "desc": "Help → About DBeaver → version info should appear"
           }
         ]
       },
@@ -7452,7 +7452,7 @@ const finalEnSections = [
               {"level":"basic","q":{"en":"Q11: Explain window functions with a practical example.","tr":"Soru 11: Window fonksiyonlarını pratik bir örnekle açıklayın."},"a":{"en":"Window functions perform calculations across a set of table rows that are somehow related to the current row, without collapsing them into a single output row like GROUP BY. Each row retains its identity. `OVER()` defines the window, `PARTITION BY` groups the window, and `ORDER BY` sorts within it.","tr":"Window fonksiyonları, satırları tek bir grupta birleştirmeden (GROUP BY yapmadan) satır kümeleri üzerinde hesaplama yapar. Her satır kendi kimliğini korur ve window hesaplaması sonucunu alır. `OVER()` pencereyi, `PARTITION BY` grupları, `ORDER BY` ise sıralamayı belirler."},"code":{"en":"-- Show each test run alongside the average duration of its environment:\nSELECT test_name,\n       environment,\n       duration_ms,\n       AVG(duration_ms) OVER(PARTITION BY environment) AS env_avg\nFROM test_results;\n\n-- Rank tests by duration within each environment:\nSELECT test_name,\n       environment,\n       duration_ms,\n       RANK() OVER(PARTITION BY environment ORDER BY duration_ms DESC) as env_rank\nFROM test_results;","tr":"-- Her test çalışmasını, kendi ortamının ortalama süresiyle birlikte göster:\nSELECT test_name,\n       environment,\n       duration_ms,\n       AVG(duration_ms) OVER(PARTITION BY environment) AS env_avg\nFROM test_results;\n\n-- Testleri her ortamda kendi içlerinde sürelerine göre sırala:\nSELECT test_name,\n       environment,\n       duration_ms,\n       RANK() OVER(PARTITION BY environment ORDER BY duration_ms DESC) as env_rank\nFROM test_results;"}},
               {"level":"basic","q":{"en":"Q12: What is a CTE? When should it be preferred over a subquery?","tr":"Soru 12: CTE nedir? Alt sorguya göre ne zaman tercih edilmelidir?"},"a":{"en":"A CTE (Common Table Expression) is a temporary named result set defined using the `WITH` clause. It improves readability by breaking complex nested subqueries into logical top-down steps, and can be referenced multiple times within the same query.","tr":"CTE (Common Table Expression), `WITH` ifadesiyle tanımlanan adlandırılmış geçici bir sonuç kümesidir. Karmaşık iç içe sorguları yukarıdan aşağıya mantıklı adımlara bölerek okunabilirliği artırır ve aynı geçici tabloya tek sorguda birden çok kez atıfta bulunulmasını sağlar."},"code":{"en":"-- Readable queries with CTE:\nWITH failed_tests AS (\n    SELECT id, test_name, environment\n    FROM test_results\n    WHERE status = 'FAIL'\n),\nenv_failures AS (\n    SELECT environment, COUNT(*) as fail_count\n    FROM failed_tests\n    GROUP BY environment\n)\nSELECT * FROM env_failures WHERE fail_count > 10;","tr":"-- CTE ile okunabilir sorgular:\nWITH failed_tests AS (\n    SELECT id, test_name, environment\n    FROM test_results\n    WHERE status = 'FAIL'\n),\nenv_failures AS (\n    SELECT environment, COUNT(*) as fail_count\n    FROM failed_tests\n    GROUP BY environment\n)\nSELECT * FROM env_failures WHERE fail_count > 10;"}},
               {"level":"basic","q":{"en":"Q13: How does a transaction work? What are the ACID properties?","tr":"Soru 13: Transaction nasıl çalışır? ACID özellikleri nelerdir?"},"a":{"en":"A database transaction is a sequence of SQL statements executed as a single, atomic unit of work. ACID stands for:\nAtomicity: All-or-nothing execution.\nConsistency: Moves the DB from one valid state to another, enforcing constraints.\nIsolation: Concurrent transactions do not interfere with each other.\nDurability: Once committed, updates survive system failures.","tr":"Transaction, tek bir birim olarak işlenen SQL komutları dizisidir. ACID özellikleri şunlardır:\nAtomicity (Atomiklik): Hepsi ya da hiçbiri.\nConsistency (Tutarlılık): Şema kuralları korunur.\nIsolation (İzolasyon): Eşzamanlı işlemler birbirini etkilemez.\nDurability (Kalıcılık): COMMIT sonrası veriler kalıcı diske yazılır."},"code":{"en":"START TRANSACTION;\n\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\n\n-- If both succeeded:\nCOMMIT;\n\n-- If any failed:\nROLLBACK;","tr":"START TRANSACTION;\n\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\n\n-- Eğer ikisi de başarılı olursa:\nCOMMIT;\n\n-- Eğer herhangi biri başarısız olursa:\nROLLBACK;"}},
-              {"level":"basic","q":{"en":"Q14: What is SQL injection and how do parameterized queries prevent it?","tr":"Soru 14: SQL Injection nedir ve parametreli sorgular bunu nasıl önler?"},"a":{"en":"SQL Injection is a vulnerability where malicious SQL commands are injected into database queries through untrusted user inputs. Parameterized queries (Prepared Statements) compile the SQL query template first, then bind parameters as raw values. The inputs are never interpreted as SQL executable code.","tr":"SQL Injection, kullanıcı girdilerinin SQL kodu gibi yorumlanması zafiyetidir. Parametreli sorgular (Prepared Statements), SQL yapısı ile kullanıcı verisini tamamen ayırır. Veri ne olursa olsun (zararlı kodlar dahil) sadece bir parametre/değer olarak işlenir ve çalıştırılamaz."},"code":{"en":"-- VULNERABLE to SQL injection:\n-- Input: \"admin' OR '1'='1\"\nquery = \"SELECT * FROM users WHERE user = '\" + input + \"' AND pass = '\" + password + \"'\";\n-- Generates: SELECT * FROM users WHERE user = 'admin' OR '1'='1' ...\n\n-- SAFE (Parameterized query):\nquery = \"SELECT * FROM users WHERE user = ? AND pass = ?\";\n-- Girdi doğrudan SQL derleyicisine veri olarak iletilir","tr":"-- SQL injection'a karşı savunmasız:\n-- Girdi: \"admin' OR '1'='1\"\nquery = \"SELECT * FROM users WHERE user = '\" + input + \"' AND pass = '\" + password + \"'\";\n-- Üretilen: SELECT * FROM users WHERE user = 'admin' OR '1'='1' ...\n\n-- GÜVENLİ (Parametreli sorgu):\nquery = \"SELECT * FROM users WHERE user = ? AND pass = ?\";\n-- Girdi doğrudan SQL derleyicisine veri olarak iletilir"}},
+              {"level":"basic","q":{"en":"Q14: What is SQL injection and how do parameterized queries prevent it?","tr":"Soru 14: SQL Injection nedir ve parametreli sorgular bunu nasıl önler?"},"a":{"en":"SQL Injection is a vulnerability where malicious SQL commands are injected into database queries through untrusted user inputs. Parameterized queries (Prepared Statements) compile the SQL query template first, then bind parameters as raw values. The inputs are never interpreted as SQL executable code.","tr":"SQL Injection, kullanıcı girdilerinin SQL kodu gibi yorumlanması zafiyetidir. Parametreli sorgular (Prepared Statements), SQL yapısı ile kullanıcı verisini tamamen ayırır. Veri ne olursa olsun (zararlı kodlar dahil) sadece bir parametre/değer olarak işlenir ve çalıştırılamaz."},"code":{"en":"-- VULNERABLE to SQL injection:\n-- Input: \"admin' OR '1'='1\"\nquery = \"SELECT * FROM users WHERE user = '\" + input + \"' AND pass = '\" + password + \"'\";\n-- Generates: SELECT * FROM users WHERE user = 'admin' OR '1'='1' ...\n\n-- SAFE (Parameterized query):\nquery = \"SELECT * FROM users WHERE user = ? AND pass = ?\";\n-- The input is passed straight to the SQL compiler as data","tr":"-- SQL injection'a karşı savunmasız:\n-- Girdi: \"admin' OR '1'='1\"\nquery = \"SELECT * FROM users WHERE user = '\" + input + \"' AND pass = '\" + password + \"'\";\n-- Üretilen: SELECT * FROM users WHERE user = 'admin' OR '1'='1' ...\n\n-- GÜVENLİ (Parametreli sorgu):\nquery = \"SELECT * FROM users WHERE user = ? AND pass = ?\";\n-- Girdi doğrudan SQL derleyicisine veri olarak iletilir"}},
               {"level":"basic","q":{"en":"Q15: How do you optimize a slow SQL query?","tr":"Soru 15: Yavaş bir sorguyu nasıl optimize edersiniz?"},"a":{"en":"1. Use `EXPLAIN` to audit the query plan and identify Full Table Scans.\n2. Add indexes on columns commonly used in WHERE clauses, JOIN conditions, and ORDER BY constraints.\n3. Avoid `SELECT *`; only request the specific columns you need.\n4. Rewrite subqueries as JOINs where possible to allow optimizer optimizations.\n5. Use LIMIT to return only the subset of data required by the application.","tr":"1. `EXPLAIN` ile sorgu planını inceleyin, full table scan olan adımları tespit edin.\n2. Sık filtrelenen (WHERE), birleştirilen (JOIN ON) ve sıralanan (ORDER BY) sütunlara index ekleyin.\n3. `SELECT *` yerine sadece gerekli sütunları çağırın.\n4. Alt sorguları (subquery) mümkünse JOIN'e dönüştürün.\n5. Ağır sorgularda performansı optimize etmek için LIMIT kullanın."},"code":{"en":"-- EXPLAIN query plan:\nEXPLAIN SELECT * FROM orders WHERE status = 'SHIPPED';\n\n-- Create compound index for multi-column filters:\nCREATE INDEX idx_user_status ON orders(user_id, status);","tr":"-- EXPLAIN sorgu planı:\nEXPLAIN SELECT * FROM orders WHERE status = 'SHIPPED';\n\n-- Çoklu sütun filtreleri için birleşik indeks oluştur:\nCREATE INDEX idx_user_status ON orders(user_id, status);"}},
               // ── INTERMEDIATE ────────────────────────────────────
               {"level":"intermediate","q":{"en":"Q16: What is a Database Schema?","tr":"Soru 16: Veritabanı Şeması (Schema) ne anlama gelir?"},"a":{"en":"A database schema is the skeleton structure that represents the logical view of the entire database. It defines how the data is organized, including tables, columns, data types, primary/foreign keys, and relationships. For a QA engineer, the schema serves as the map to design database validation tests.","tr":"Veritabanı şeması, veritabanının mantıksal ve fiziksel yapısını tanımlayan bir plandır (blueprint). Tabloları, sütunları, veri tiplerini, primary/foreign key kısıtlamalarını ve tablolar arası ilişkileri içerir. Bir QA mühendisi için, uygulamanın veri yapısını anlamak ve test verisi tasarlamak için şema bilgisi kritik önem taşır."},"code":{"en":"-- Example of schema definition (DDL):\nCREATE TABLE testers (\n    id         INT PRIMARY KEY,\n    name       VARCHAR(50) NOT NULL,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);","tr":"-- Şema tanımı örneği (DDL):\nCREATE TABLE testers (\n    id         INT PRIMARY KEY,\n    name       VARCHAR(50) NOT NULL,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);"}},

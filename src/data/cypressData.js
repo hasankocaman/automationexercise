@@ -2981,17 +2981,32 @@ const cypressFixtureCloneP = {
   relatedTopicId: 'cypress-errors',
   id: 'cypress-errors',
   title: { tr: 'Kendin Dene: Fixture Mutation Hatasını Düzelt', en: 'Try It Yourself: Fix the Fixture Mutation Bug' },
-  starterCode: `cy.fixture('user.json').then((data) => {
+  starterCode: {
+    tr: `cy.fixture('user.json').then((data) => {
   // BUG: data objesi doğrudan mutate ediliyor, sıradaki testi kirletiyor
   data.lastLogin = new Date().toISOString()
   cy.wrap(data).as('currentUser')
 })`,
-  solutionCode: `cy.fixture('user.json').then((data) => {
+    en: `cy.fixture('user.json').then((data) => {
+  // BUG: the data object is mutated directly, polluting the next test
+  data.lastLogin = new Date().toISOString()
+  cy.wrap(data).as('currentUser')
+})`,
+  },
+  solutionCode: {
+    tr: `cy.fixture('user.json').then((data) => {
   // FIX: kullanmadan önce klonla, orijinal fixture objesi hiç değişmez
   const currentUser = { ...data }
   currentUser.lastLogin = new Date().toISOString()
   cy.wrap(currentUser).as('currentUser')
 })`,
+    en: `cy.fixture('user.json').then((data) => {
+  // FIX: clone before using it, the original fixture object never changes
+  const currentUser = { ...data }
+  currentUser.lastLogin = new Date().toISOString()
+  cy.wrap(currentUser).as('currentUser')
+})`,
+  },
   hint: { tr: 'Object spread (`{ ...data }`) ile data\'nın bir kopyasını oluştur, mutasyonu KOPYA üzerinde yap — orijinal fixture referansına dokunma.', en: 'Create a copy of data with object spread (`{ ...data }`), mutate the COPY — never touch the original fixture reference.' },
   successMessage: { tr: 'Doğru! Artık her test kendi bağımsız kopyasıyla çalışıyor, fixture kirliliği imkansız.', en: 'Correct! Every test now works with its own independent copy — fixture pollution is impossible.' },
 }
@@ -3300,19 +3315,36 @@ const cypressApiLoginP = {
   relatedTopicId: 'cypress',
   id: 'cypress-api-login-practice',
   title: { tr: 'Kendin Dene: UI Login\'i cy.request()\'e Çevir', en: 'Try It Yourself: Convert a UI Login to cy.request()' },
-  starterCode: `// Bu test SADECE dashboard'daki veriyi kontrol ediyor, login akışını DEĞİL
+  starterCode: {
+    tr: `// Bu test SADECE dashboard'daki veriyi kontrol ediyor, login akışını DEĞİL
 cy.visit('/login')
 cy.get('[data-cy=username]').type('qa_user')
 cy.get('[data-cy=password]').type('Secret123')
 cy.get('[data-cy=submit]').click()
 cy.get('[data-cy=stats-total]').should('have.text', '42')`,
-  solutionCode: `// login bir ön koşul olduğu için cy.request() ile hızlandırılır
+    en: `// This test ONLY checks the data on the dashboard, NOT the login flow
+cy.visit('/login')
+cy.get('[data-cy=username]').type('qa_user')
+cy.get('[data-cy=password]').type('Secret123')
+cy.get('[data-cy=submit]').click()
+cy.get('[data-cy=stats-total]').should('have.text', '42')`,
+  },
+  solutionCode: {
+    tr: `// login bir ön koşul olduğu için cy.request() ile hızlandırılır
 cy.request('POST', '/api/login', { username: 'qa_user', password: 'Secret123' })
   .then((response) => {
     window.localStorage.setItem('token', response.body.token)
     cy.visit('/dashboard')
     cy.get('[data-cy=stats-total]').should('have.text', '42')
   })`,
+    en: `// login is just a precondition here, so speed it up with cy.request()
+cy.request('POST', '/api/login', { username: 'qa_user', password: 'Secret123' })
+  .then((response) => {
+    window.localStorage.setItem('token', response.body.token)
+    cy.visit('/dashboard')
+    cy.get('[data-cy=stats-total]').should('have.text', '42')
+  })`,
+  },
   hint: { tr: 'cy.request() gerçek bir HTTP isteği atar ve response.body içinde token döner — bu token\'ı localStorage\'a yazıp doğrudan hedef sayfayı ziyaret edebilirsin.', en: 'cy.request() fires a real HTTP request and returns a token in response.body — write that token to localStorage and visit the target page directly.' },
   successMessage: { tr: 'Doğru! 5 UI adımı yerine 1 API çağrısı + localStorage yazımı — test artık çok daha hızlı ve login akışına bağımlı değil.', en: 'Correct! One API call + a localStorage write instead of 5 UI steps — the test is now much faster and no longer coupled to the login flow.' },
 }
@@ -3850,19 +3882,19 @@ before(() => cy.task('db:seed'))`,
       "options": [
             {
                   "id": "a",
-                  "text": "Sadece tüm testler bittikten sonra 1 kez"
+                  "text": { "tr": "Sadece tüm testler bittikten sonra 1 kez", "en": "Only once, after all tests have finished" }
             },
             {
                   "id": "b",
-                  "text": "Dosya çalışmaya başladığında 1 kez"
+                  "text": { "tr": "Dosya çalışmaya başladığında 1 kez", "en": "Only once, when the file starts running" }
             },
             {
                   "id": "c",
-                  "text": "Her bir it() bloğunun çalışması tamamlandıktan sonra"
+                  "text": { "tr": "Her bir it() bloğunun çalışması tamamlandıktan sonra", "en": "After each individual it() block finishes running" }
             },
             {
                   "id": "d",
-                  "text": "Sadece test başarısız olduğunda"
+                  "text": { "tr": "Sadece test başarısız olduğunda", "en": "Only when a test fails" }
             }
       ],
       "correct": "c",

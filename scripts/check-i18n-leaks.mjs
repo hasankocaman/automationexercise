@@ -26,7 +26,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readdirSync, readFileSync, writeFileSync } from 'fs'
-import { fileURLToPath } from 'url'
+import { fileURLToPath, pathToFileURL } from 'url'
 import { dirname, join } from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -49,6 +49,20 @@ const SAFE_KEYS = new Set([
   // locator-explorer dil-varyant alanları: LocatorExplorerBlock TR modda *Tr,
   // EN modda *En kullanır (titleEn/noteEn/tipEn ayrıca taranır) — leak değil.
   'titleTr', 'noteTr', 'tipTr',
+  // flow-diagram step dil-varyant alanı: TopicPage renderer `isTr && descTr ?
+  // descTr : desc` kullanır — EN modda İngilizce `desc` gösterilir, `descTr`
+  // yalnızca TR override'ıdır (160/160 descTr'nin `desc` kardeşi var) — leak değil (§23.6).
+  'descTr',
+  // quiz dil-varyant alanları: TopicPage renderer (18488-18490) EN modda
+  // optionsEn/questionEn/explanationEn kullanır, *Tr yalnızca TR override'ıdır;
+  // warningTr LocatorExplorerBlock'ta warningEn ile eşleşir. Hepsinin *En/base
+  // kardeşi var (0 orphan) — EN'de görünmez, leak değil (§23.6).
+  'optionsTr', 'questionTr', 'explanationTr', 'warningTr',
+  // git-practice `pattern` alanı: TopicPage `new RegExp(step.pattern, 'i')` ile
+  // kullanıcı girdisini eşleştirir (4/4 kullanım) — HİÇBİR YERDE ekrana basılmaz.
+  // Bazı pattern'lar bilinçli olarak TR|EN alternatiflerini birlikte kabul eder
+  // (ör. 'yeniden başlat|restart') — görünmez, leak değil.
+  'pattern',
 ])
 
 const ANIM = new Set(['step-animation', 'simulation', 'animated-timeline', 'css-animation'])
@@ -59,28 +73,44 @@ const TRIO_COMPLETE_PAGES = new Set(['apiTestingData.js', 'qaFrontendData.js'])
 // Bu dosyalar baseline'da 0 kabul edilir (yeni/temiz) — herhangi bir sızıntı FAIL
 // qaFrontendData.js: yeni sayfa, EN alanlarında Türkçe sızıntısı olmamalı.
 // TRIO_COMPLETE_PAGES'e sayfa Sonnet fazında tamamlanınca eklenir (plan §D-S11).
-const STRICT_ZERO_FILES = new Set(['apiTestingData.js', 'qaFrontendData.js'])
+const STRICT_ZERO_FILES = new Set([
+  'apiTestingData.js', 'qaFrontendData.js',
+  // Tamamen temizlenmiş sayfalar — sıfır-tolerans (§23.1). Yeni bir sızıntı build'i kırar.
+  'gaugeData.js', 'javascriptData.js', 'restAssuredData.js', 'securityData.js',
+  'kafkaData.js', 'basitBackendData.js', 'jmeterData.js', 'playwrightData.js',
+  'cypressData.js', 'typescriptData.js', 'sqlData.js', 'pythonData.js',
+])
 
-function findLeaks(node, path, parentKey, inTrEn, blockType, out) {
+// `why`/`note` (java-compare): JavaCompareBlock EN modda `${key}_en` kardeşini
+// tercih eder (`isTr ? block.why : (block.why_en ?? block.why)`), TR modda
+// `why`/`note` kalır. Kardeş DOLUYSA leak değildir (§23.6); kardeş yoksa/boşsa
+// gerçek leak'tir — bu yüzden sabit SAFE_KEYS değil, parentObj bazlı kontrol.
+const EN_SIBLING_FIELDS = new Set(['why', 'note'])
+
+function findLeaks(node, path, parentKey, inTrEn, blockType, out, block = null, parentObj = null) {
   if (typeof node === 'string') {
     if (parentKey === 'tr') return
     if (SAFE_KEYS.has(parentKey)) return
+    if (EN_SIBLING_FIELDS.has(parentKey) && parentObj && typeof parentObj[`${parentKey}_en`] === 'string' && parentObj[`${parentKey}_en`].trim()) return
     // {tr,en} objesinin en tarafı YA DA düz string (her iki dilde görünür)
     const isEnField = parentKey === 'en'
     if ((isEnField || !inTrEn) && TR_CHARS.test(node)) {
-      out.push({ path, blockType, snippet: node.replace(/\s+/g, ' ').slice(0, 70) })
+      // `block`/`field`/`isEnField`: --list modu shared/en-only etiketi + fix önerisi için kullanır.
+      out.push({ path, blockType, field: parentKey, isEnField, block, snippet: node.replace(/\s+/g, ' ').slice(0, 70) })
     }
     return
   }
   if (Array.isArray(node)) {
-    node.forEach((v, i) => findLeaks(v, `${path}[${i}]`, parentKey, inTrEn, blockType, out))
+    node.forEach((v, i) => findLeaks(v, `${path}[${i}]`, parentKey, inTrEn, blockType, out, block, parentObj))
     return
   }
   if (node && typeof node === 'object') {
     const isTrEn = ('tr' in node && 'en' in node)
     const bt = node.type || blockType
+    // Bir `type` alanı olan obje bir "blok"tur; leak'in hangi blokta olduğunu izle.
+    const blk = node.type ? node : block
     for (const [k, v] of Object.entries(node)) {
-      findLeaks(v, `${path}.${k}`, k, inTrEn || isTrEn, bt, out)
+      findLeaks(v, `${path}.${k}`, k, inTrEn || isTrEn, bt, out, blk, node)
     }
   }
 }
@@ -105,30 +135,88 @@ function findTrioGaps(data) {
   return gaps
 }
 
+// Bir alt-ağaçtaki `type` alanı olan tüm blok objelerini toplar (shared tespiti için).
+function collectBlocks(node, set) {
+  if (Array.isArray(node)) { node.forEach(v => collectBlocks(v, set)); return }
+  if (node && typeof node === 'object') {
+    if (node.type) set.add(node)
+    for (const k of Object.keys(node)) collectBlocks(node[k], set)
+  }
+}
+
+// Renderer'ı içerik/kod alanlarını dile göre (tx/pick/getLocalizedCode) basan blok
+// tipleri — SHARED (tr===en) bloklarda düz string GÜVENLE {tr,en}'e çevrilebilir.
+const LOCALIZING_BLOCKS = new Set(['code-playground', 'code', 'quiz'])
+// Renderer'a HAM basılan alanlar (tx yok) — SHARED blokta {tr,en} yaparsan
+// `[object Object]` render eder (§23.1). Bunlar Opus'un renderer işidir.
+const RAW_FIELDS = new Set(['codeWrong', 'codeFixed', 'defaultCode'])
+
+// --list için: her leak'e shared/en-only durumu + güvenli fix önerisi ekler.
+function recommendFix(leak, trBlockSet) {
+  if (leak.isEnField) return 'EN-ÇEVİR: {tr,en}.en zaten var, en değerini İngilizceye çevir (her blok güvenli)'
+  const shared = leak.block ? trBlockSet.has(leak.block) : false
+  if (!shared) return 'YERİNDE-ÇEVİR: blok yalnızca EN-ağacında; Türkçeyi İngilizceye çevir, düz string bırak (güvenli)'
+  if (LOCALIZING_BLOCKS.has(leak.blockType) && !RAW_FIELDS.has(leak.field))
+    return "{TR,EN}: paylaşımlı blok ama renderer localize eder; { tr: <mevcut>, en: <İngilizce> } yap"
+  return '⚠ OPUS: paylaşımlı + renderer HAM basar ({tr,en} → [object Object]); renderer güncellemesi gerekir, DOKUNMA'
+}
+
 async function main() {
   const updateBaseline = process.argv.includes('--update-baseline')
   const files = readdirSync(DATA_DIR).filter(f => f.endsWith('Data.js')).sort()
 
   const counts = {}
   const leaksByFile = {}
+  const trBlockSetByFile = {}
   const trioGapsByFile = {}
 
   for (const f of files) {
     let mod
-    try { mod = await import(join(DATA_DIR, f) + '?t=' + Date.now()) }
-    catch { continue }
+    // NOT: import() mutlak dosya yolunu değil file:// URL'i ister; join(...) ham
+    // yolu (Windows'ta `D:\...`) ERR_UNSUPPORTED_ESM_URL_SCHEME atar ve scanner'ı
+    // sessizce no-op'a çevirirdi. pathToFileURL ile her platformda çalışır.
+    try { mod = await import(pathToFileURL(join(DATA_DIR, f)).href + '?t=' + Date.now()) }
+    catch (e) { console.error(`⚠ import atlandı: ${f} — ${e.code || e.message}`); continue }
     const exportKey = Object.keys(mod).find(k => k.endsWith('Data'))
     const data = exportKey ? mod[exportKey] : null
     if (!data) continue
 
+    // KRİTİK: EN sızıntısını ölçmek için EN modunun GERÇEKTEN render ettiği ağacı
+    // tara. TopicPage `data[language]` ile TÜM ağacı dile göre seçer (bkz. §5) —
+    // çift-ağaçlı dosyalarda `data.tr.sections` yalnızca TR modda görünür, oradaki
+    // Türkçe DOĞRUdur. Eski kod TR ağacını tarıyordu: çift-ağaçta hem binlerce
+    // yanlış-pozitif üretiyor hem gerçek EN-ağacı sızıntılarını KAÇIRIYORDU. Tek
+    // ağaçlı dosyalarda (en===tr shared ref) sonuç aynıdır — bu yüzden güvenli.
     const out = []
-    try { findLeaks(data.tr?.sections ?? data, 'sections', null, false, null, out) } catch { /* ignore */ }
+    try { findLeaks(data.en?.sections ?? data.sections ?? data, 'sections', null, false, null, out) } catch { /* ignore */ }
     counts[f] = out.length
     leaksByFile[f] = out
+    // TR-ağacı blok set'i (shared tespiti) — sadece --list modunda gerekli.
+    const trSet = new Set()
+    try { if (data.tr?.sections) collectBlocks(data.tr.sections, trSet) } catch { /* ignore */ }
+    trBlockSetByFile[f] = trSet
 
     if (TRIO_COMPLETE_PAGES.has(f)) {
       try { trioGapsByFile[f] = findTrioGaps(data) } catch { trioGapsByFile[f] = [] }
     }
+  }
+
+  // --list [dosya]: her sızıntının yolunu + snippet'ini yazar (çeviri işi için).
+  // Belirli dosya: `--list javaData.js`; hepsi: `--list`. Sadece EN-ağacı sızıntısı.
+  const listIdx = process.argv.indexOf('--list')
+  if (listIdx !== -1) {
+    const only = process.argv[listIdx + 1] && !process.argv[listIdx + 1].startsWith('--') ? process.argv[listIdx + 1] : null
+    let grand = 0
+    for (const f of files) {
+      const out = leaksByFile[f] || []
+      if (out.length === 0 || (only && f !== only)) continue
+      grand += out.length
+      const trSet = trBlockSetByFile[f] || new Set()
+      console.log(`\n### ${f} — ${out.length} EN-ağacı sızıntısı`)
+      out.forEach((l, i) => console.log(`${String(i + 1).padStart(3)}. [${l.blockType || '?'}] field=${l.field} ${l.path}\n     "${l.snippet}"\n     → ${recommendFix(l, trSet)}`))
+    }
+    console.log(`\nToplam listelenen: ${grand}`)
+    return
   }
 
   if (updateBaseline) {

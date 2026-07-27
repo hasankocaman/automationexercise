@@ -138,6 +138,149 @@ from shop.products p
 where p.price between 1000 and 10000
 order by p.price;`
 
+// EN-tree versions: shopSchemaSql/shopMockDataSql/shopQaQueriesSql are shared
+// consts also used by the TR section blocks — never edit those in place. These
+// *_en consts feed the EN section's { tr, en } code field instead (§23.1/§23.4).
+const shopSchemaSqlEn = `-- 1) Open a separate store area for this course
+create schema if not exists shop;
+
+-- 2) Product groups: computers, clothing, shoes
+create table if not exists shop.categories (
+  id bigint generated always as identity primary key,
+  name text not null,
+  slug text not null unique
+);
+
+-- 3) Products for sale
+create table if not exists shop.products (
+  id bigint generated always as identity primary key,
+  category_id bigint not null references shop.categories(id),
+  name text not null,
+  sku text not null unique,
+  price numeric(10, 2) not null check (price > 0),
+  stock int not null default 0 check (stock >= 0),
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- 4) Customers
+create table if not exists shop.customers (
+  id bigint generated always as identity primary key,
+  email text not null unique,
+  full_name text not null,
+  created_at timestamptz not null default now()
+);
+
+-- 5) Order header
+create table if not exists shop.orders (
+  id bigint generated always as identity primary key,
+  order_number text not null unique,
+  customer_id bigint not null references shop.customers(id),
+  status text not null check (status in ('new', 'paid', 'shipped', 'cancelled')),
+  total_amount numeric(10, 2) not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- 6) Order line items
+create table if not exists shop.order_items (
+  id bigint generated always as identity primary key,
+  order_id bigint not null references shop.orders(id) on delete cascade,
+  product_id bigint not null references shop.products(id),
+  quantity int not null check (quantity > 0),
+  unit_price numeric(10, 2) not null check (unit_price > 0),
+  unique (order_id, product_id)
+);`
+
+const shopMockDataSqlEn = `-- 1) Categories
+insert into shop.categories (name, slug)
+values
+  ('Computers', 'computers'),
+  ('Clothing', 'clothing'),
+  ('Shoes', 'shoes')
+on conflict (slug) do nothing;
+
+-- 2) Products
+insert into shop.products (category_id, name, sku, price, stock, is_active)
+values
+  ((select id from shop.categories where slug = 'computers'), 'Nebula Gaming Laptop', 'COMP-LAP-001', 39999.90, 12, true),
+  ((select id from shop.categories where slug = 'computers'), '27-inch 4K Monitor', 'COMP-MON-002', 8999.50, 18, true),
+  ((select id from shop.categories where slug = 'computers'), 'Mechanical Keyboard', 'COMP-KEY-003', 2499.00, 35, true),
+  ((select id from shop.categories where slug = 'clothing'), 'Cotton Oversize T-Shirt', 'CLO-TSH-101', 549.90, 60, true),
+  ((select id from shop.categories where slug = 'clothing'), 'Winter Coat', 'CLO-COA-102', 2999.90, 9, true),
+  ((select id from shop.categories where slug = 'shoes'), 'Running Shoes', 'SHO-RUN-201', 1899.90, 24, true),
+  ((select id from shop.categories where slug = 'shoes'), 'Leather Boots', 'SHO-BOT-202', 3499.90, 7, true)
+on conflict (sku) do nothing;
+
+-- 3) Customers
+insert into shop.customers (email, full_name)
+values
+  ('ayse@example.com', 'Ayse Yilmaz'),
+  ('mert@example.com', 'Mert Kaya')
+on conflict (email) do nothing;
+
+-- 4) Orders
+insert into shop.orders (order_number, customer_id, status, total_amount)
+select 'ORD-1001', id, 'paid', 48999.40
+from shop.customers
+where email = 'ayse@example.com'
+on conflict (order_number) do nothing;
+
+insert into shop.orders (order_number, customer_id, status, total_amount)
+select 'ORD-1002', id, 'new', 2449.80
+from shop.customers
+where email = 'mert@example.com'
+on conflict (order_number) do nothing;
+
+-- 5) Order items
+insert into shop.order_items (order_id, product_id, quantity, unit_price)
+select o.id, p.id, 1, p.price
+from shop.orders o
+join shop.products p on p.sku = 'COMP-LAP-001'
+where o.order_number = 'ORD-1001'
+on conflict (order_id, product_id) do nothing;
+
+insert into shop.order_items (order_id, product_id, quantity, unit_price)
+select o.id, p.id, 1, p.price
+from shop.orders o
+join shop.products p on p.sku = 'COMP-MON-002'
+where o.order_number = 'ORD-1001'
+on conflict (order_id, product_id) do nothing;
+
+insert into shop.order_items (order_id, product_id, quantity, unit_price)
+select o.id, p.id, 2, p.price
+from shop.orders o
+join shop.products p on p.sku = 'CLO-TSH-101'
+where o.order_number = 'ORD-1002'
+on conflict (order_id, product_id) do nothing;`
+
+const shopQaQueriesSqlEn = `-- 1) Test the UI product list: do active computer products show up?
+select p.id, p.name, c.slug as category, p.price, p.stock
+from shop.products p
+join shop.categories c on c.id = p.category_id
+where c.slug = 'computers'
+  and p.is_active = true
+order by p.price desc;
+
+-- 2) Stock test: are there any out-of-stock products?
+select id, name, sku, stock
+from shop.products
+where stock = 0;
+
+-- 3) Order detail test: does the order total match the line items?
+select
+  o.order_number,
+  o.total_amount as order_total,
+  sum(oi.quantity * oi.unit_price) as item_total
+from shop.orders o
+join shop.order_items oi on oi.order_id = o.id
+group by o.order_number, o.total_amount;
+
+-- 4) API filter test: does the price range work correctly?
+select p.name, p.price
+from shop.products p
+where p.price between 1000 and 10000
+order by p.price;`
+
 const packageJsonCode = `{
   "scripts": {
     "dev": "next dev",
@@ -419,6 +562,174 @@ Content-Type: application/json
   "name": "",
   "sku": "X",
   "categorySlug": "bilgisayar",
+  "price": -1,
+  "stock": -5
+}`
+
+// EN-tree versions: dbTsCode/healthRouteTsCode/productsRouteTsCode/frontendFetchCode/
+// apiHttpTestCode are shared consts also used by the TR section blocks — never edit
+// those in place. These *_en consts feed the EN section's { tr, en } code field.
+const dbTsCodeEn = `// src/lib/db.ts
+// Goal: let every API file connect to PostgreSQL through the same door
+// Result: every route.ts file can run SQL with pool.query(...)
+import { Pool } from 'pg'
+
+const globalForPg = globalThis as unknown as {
+  pgPool?: Pool
+}
+
+export const pool =
+  globalForPg.pgPool ??
+  new Pool({
+    connectionString: process.env.DATABASE_URL,
+  })
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPg.pgPool = pool
+}`
+
+const healthRouteTsCodeEn = `// src/app/api/health/route.ts
+// Goal: quickly check whether the API server is up
+// Result: if the tester gets a 200 response, the API door is working
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    service: 'shop-backend-api',
+  })
+}`
+
+const productsRouteTsCodeEn = `// src/app/api/products/route.ts
+// Goal: open the /api/products door
+// Result: when the UI calls this address, it gets the product list as JSON
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { pool } from '@/lib/db'
+
+const productBody = z.object({
+  name: z.string().min(2),
+  sku: z.string().min(3),
+  categorySlug: z.enum(['computers', 'clothing', 'shoes']),
+  price: z.number().positive(),
+  stock: z.number().int().min(0),
+})
+
+export async function GET(request: NextRequest) {
+  const category = request.nextUrl.searchParams.get('category')
+
+  const { rows } = await pool.query(
+    'select p.id, p.name, p.sku, c.slug as category, p.price, p.stock from shop.products p join shop.categories c on c.id = p.category_id where ($1::text is null or c.slug = $1) and p.is_active = true order by p.id',
+    [category]
+  )
+
+  return NextResponse.json({ data: rows })
+}
+
+export async function POST(request: NextRequest) {
+  const parsed = productBody.safeParse(await request.json())
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Product details are missing or invalid' },
+      { status: 400 }
+    )
+  }
+
+  const product = parsed.data
+
+  const { rows } = await pool.query(
+    'insert into shop.products (category_id, name, sku, price, stock) select c.id, $1, $2, $3, $4 from shop.categories c where c.slug = $5 returning id, name, sku, price, stock',
+    [product.name, product.sku, product.price, product.stock, product.categorySlug]
+  )
+
+  if (rows.length === 0) {
+    return NextResponse.json(
+      { error: 'Category not found' },
+      { status: 400 }
+    )
+  }
+
+  return NextResponse.json({ data: rows[0] }, { status: 201 })
+}`
+
+const frontendFetchCodeEn = `// src/app/page.tsx
+// Goal: have the UI side call its own API door
+// Result: product cards fill up with the JSON that comes back from SQL
+'use client'
+
+import { useEffect, useState } from 'react'
+
+type Product = {
+  id: number
+  name: string
+  category: string
+  price: string
+  stock: number
+}
+
+export default function Page() {
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    async function loadProducts() {
+      const response = await fetch('/api/products?category=computers', {
+        headers: { Accept: 'application/json' },
+      })
+
+      const json = await response.json()
+      setProducts(json.data ?? [])
+    }
+
+    loadProducts()
+  }, [])
+
+  return (
+    <main>
+      {products.map(product => (
+        <article key={product.id}>
+          <h2>{product.name}</h2>
+          <p>{product.price} TL</p>
+          <p>Stock: {product.stock}</p>
+        </article>
+      ))}
+    </main>
+  )
+}`
+
+const apiHttpTestCodeEn = `### 1) Is the API up?
+GET http://localhost:3000/api/health
+Accept: application/json
+
+### 2) Fetch computer products
+GET http://localhost:3000/api/products?category=computers
+Accept: application/json
+
+### 3) Fetch a single product
+GET http://localhost:3000/api/products/1
+Accept: application/json
+
+### 4) Add a new product
+POST http://localhost:3000/api/products
+Content-Type: application/json
+X-Request-Id: qa-local-001
+
+{
+  "name": "USB-C Dock Station",
+  "sku": "COMP-DOCK-004",
+  "categorySlug": "computers",
+  "price": 3299.90,
+  "stock": 14
+}
+
+### 5) Invalid data test
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "sku": "X",
+  "categorySlug": "computers",
   "price": -1,
   "stock": -5
 }`
@@ -815,9 +1126,9 @@ const enDbeaverSqlSection = {
   blocks: [
     { type: 'simple-box', emoji: '🗄️', content: 'DBeaver is a control desk for your database. Open an SQL Editor, create the shop schema, then add realistic product and order data.' },
     { type: 'warning', content: 'Use a local or training database. Do not practice on a live company database.' },
-    { type: 'code', label: 'DBeaver SQL Editor: schema and tables', language: 'sql', code: shopSchemaSql },
-    { type: 'code', label: 'DBeaver SQL Editor: mock data', language: 'sql', code: shopMockDataSql },
-    { type: 'code', label: 'Tester check queries', language: 'sql', code: shopQaQueriesSql },
+    { type: 'code', label: 'DBeaver SQL Editor: schema and tables', language: 'sql', code: { tr: shopSchemaSql, en: shopSchemaSqlEn } },
+    { type: 'code', label: 'DBeaver SQL Editor: mock data', language: 'sql', code: { tr: shopMockDataSql, en: shopMockDataSqlEn } },
+    { type: 'code', label: 'Tester check queries', language: 'sql', code: { tr: shopQaQueriesSql, en: shopQaQueriesSqlEn } },
   ],
 }
 
@@ -860,9 +1171,9 @@ const enNextApiSection = {
             └─ route.ts`,
       note: 'In Next.js, route.ts is special. The folder path becomes the API address.',
     },
-    { type: 'code', label: 'src/lib/db.ts', language: 'typescript', code: dbTsCode },
-    { type: 'code', label: 'src/app/api/health/route.ts', language: 'typescript', code: healthRouteTsCode },
-    { type: 'code', label: 'src/app/api/products/route.ts', language: 'typescript', code: productsRouteTsCode },
+    { type: 'code', label: 'src/lib/db.ts', language: 'typescript', code: { tr: dbTsCode, en: dbTsCodeEn } },
+    { type: 'code', label: 'src/app/api/health/route.ts', language: 'typescript', code: { tr: healthRouteTsCode, en: healthRouteTsCodeEn } },
+    { type: 'code', label: 'src/app/api/products/route.ts', language: 'typescript', code: { tr: productsRouteTsCode, en: productsRouteTsCodeEn } },
   ],
 }
 
@@ -870,8 +1181,8 @@ const enApiTestRulesSection = {
   title: '🧪 API Test, Base URL, Endpoint, Header',
   blocks: [
     { type: 'simple-box', emoji: '🧪', content: 'Test the API before waiting for the UI. Check base URL, endpoint, method, headers, body, status, and JSON.' },
-    { type: 'code', label: 'requests/products.http', language: 'http', code: apiHttpTestCode },
-    { type: 'code', label: 'UI calls the API: src/app/page.tsx', language: 'tsx', code: frontendFetchCode },
+    { type: 'code', label: 'requests/products.http', language: 'http', code: { tr: apiHttpTestCode, en: apiHttpTestCodeEn } },
+    { type: 'code', label: 'UI calls the API: src/app/page.tsx', language: 'tsx', code: { tr: frontendFetchCode, en: frontendFetchCodeEn } },
     { type: 'mock-backend-lab', variant: 'api', title: 'See GET, POST, PATCH responses', intro: 'This panel animates method, endpoint, status, and JSON on fake product rows.' },
   ],
 }

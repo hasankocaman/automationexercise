@@ -1325,7 +1325,8 @@ public class ConfigReader {
           tr: '"▶ Testi Çalıştır" butonuna bas: given() → when() → then() zincirinin adım adım nasıl çalıştığını, isteğin gönderilişini ve assertion\'ların koşmasını izle.',
           en: 'Press "▶ Run Test": watch the given() → when() → then() chain execute, the request being sent, and assertions running step by step.',
         },
-        code: `// Java — REST Assured given/when/then zinciri
+        code: {
+          tr: `// Java — REST Assured given/when/then zinciri
 @Test
 void getUser_shouldReturn200_withValidData() {
     given()                                    // ① Kurulum
@@ -1345,6 +1346,27 @@ void getUser_shouldReturn200_withValidData() {
 // given() = Postman "Pre-request Script + Headers"
 // when()  = Postman "Send" butonu
 // then()  = Postman "Tests" sekmesi (pm.test)`,
+          en: `// Java — REST Assured given/when/then chain
+@Test
+void getUser_shouldReturn200_withValidData() {
+    given()                                    // ① Setup
+        .baseUri("https://reqres.in")
+        .header("Content-Type", "application/json")
+        .queryParam("page", 2)
+    .when()                                    // ② Action
+        .get("/api/users")
+    .then()                                    // ③ Verification
+        .statusCode(200)
+        .body("page", equalTo(2))
+        .body("data", hasSize(6))
+        .body("data[0].email", containsString("@"))
+        .time(lessThan(5000L));
+
+// Comparison with Postman:
+// given() = Postman "Pre-request Script + Headers"
+// when()  = Postman "Send" button
+// then()  = Postman "Tests" tab (pm.test)`,
+        },
         language: 'java',
       },
       {
@@ -2412,11 +2434,11 @@ public class UserCrudE2ETest extends BaseTest {
             },
             {
                   "id": "b",
-                  "text": "@TestMethodOrder(MethodOrderer.OrderAnnotation.class) ve her metoda @Order(n) kullanımı"
+                  "text": { "tr": "@TestMethodOrder(MethodOrderer.OrderAnnotation.class) ve her metoda @Order(n) kullanımı", "en": "@TestMethodOrder(MethodOrderer.OrderAnnotation.class) plus @Order(n) on each method" }
             },
             {
                   "id": "c",
-                  "text": "Metotların kod içerisindeki sıralamasını değiştirmek"
+                  "text": { "tr": "Metotların kod içerisindeki sıralamasını değiştirmek", "en": "Changing the physical order of the methods in the code" }
             },
             {
                   "id": "d",

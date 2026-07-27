@@ -837,12 +837,22 @@ const kafkaRetentionReplayPractice = {
   relatedTopicId: 'kafka-intro',
   id: 'kafka-intro',
   title: { tr: 'Kendin Dene: Baştan Replay İçin Consumer Ayarla', en: 'Try It Yourself: Configure a Consumer to Replay From the Start' },
-  starterCode: `// Hedef: yeni bir consumer group, topic'in TÜM gecmisini bastan okusun
+  starterCode: {
+    tr: `// Hedef: yeni bir consumer group, topic'in TÜM gecmisini bastan okusun
 // (henuz hic offset commit etmemis bir grup icin gecerlidir)
 // TODO: dogru degeri yaz
 props.put("auto.offset.reset", "?");`,
-  solutionCode: `// Hedef: yeni bir consumer group, topic'in TÜM gecmisini bastan okusun
+    en: `// Goal: a new consumer group should read the ENTIRE history of the topic from the start
+// (applies to a group that has not committed any offset yet)
+// TODO: write the correct value
+props.put("auto.offset.reset", "?");`,
+  },
+  solutionCode: {
+    tr: `// Hedef: yeni bir consumer group, topic'in TÜM gecmisini bastan okusun
 props.put("auto.offset.reset", "earliest");`,
+    en: `// Goal: a new consumer group should read the ENTIRE history of the topic from the start
+props.put("auto.offset.reset", "earliest");`,
+  },
   hint: { tr: '"earliest" = offset 0\'dan başla (tüm geçmişi oku), "latest" = sadece bundan sonraki yeni mesajları oku. Bu ayar sadece grubun HİÇ commit edilmiş offset\'i yoksa devreye girer.', en: '"earliest" = start from offset 0 (read all history), "latest" = only read new messages from now on. This setting only kicks in when the group has NO committed offset yet.' },
   successMessage: { tr: 'Doğru! auto.offset.reset=earliest, yeni bir consumer group\'un topic\'in retention süresi boyunca sakladığı HER mesajı, tıpkı ilk kez yazılmış gibi okuyabilmesini sağlar.', en: 'Correct! auto.offset.reset=earliest lets a brand-new consumer group read EVERY message the topic has kept for its retention period, as if it were written just now.' },
 }

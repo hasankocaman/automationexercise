@@ -444,7 +444,7 @@ const sections = [
         options: [
           { id: 'a', text: "Header" },
           { id: 'b', text: "Payload" },
-          { id: 'c', text: "Signature (İmza)" },
+          { id: 'c', text: { tr: "Signature (İmza)", en: "Signature" } },
           { id: 'd', text: "Username" }
         ],
         correct: 'c',

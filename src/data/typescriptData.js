@@ -5758,7 +5758,7 @@ export const typescriptData = {
               "tr": "Java enum'ları tam teşekküllü sınıflardır. TypeScript'te numeric ve string enum var. QA'da genellikle string enum tercih edilir çünkü log'larda okunabilir değerler üretir."
             },
             "java": "// Java enum (full-featured class)\npublic enum TestStatus {\n    PASS(\"✅\"), FAIL(\"❌\"), SKIP(\"⏭️\");\n\n    private final String icon;\n    TestStatus(String icon) { this.icon = icon; }\n    public String getIcon() { return icon; }\n}\n\nTestStatus status = TestStatus.PASS;\nstatus.getIcon();  // \"✅\"\nstatus.name();     // \"PASS\"",
-            "typescript": "// TypeScript: two enum styles + union type\n\n// 1. String enum (most similar to Java):\nenum TestStatus {\n    PASS = \"PASS\",    // log'da görünür değer\n    FAIL = \"FAIL\",\n    SKIP = \"SKIP\"\n}\nTestStatus.PASS // === \"PASS\"\n\n// 2. Numeric enum (Java numeric enum gibi):\nenum Priority { LOW, MEDIUM, HIGH }  // 0, 1, 2\n\n// 3. Union type (TypeScript idiomu — daha yaygın):\ntype Status = \"PASS\" | \"FAIL\" | \"SKIP\";\n// No enum import needed! Compiler checks all cases.",
+            "typescript": "// TypeScript: two enum styles + union type\n\n// 1. String enum (most similar to Java):\nenum TestStatus {\n    PASS = \"PASS\",    // value visible in logs\n    FAIL = \"FAIL\",\n    SKIP = \"SKIP\"\n}\nTestStatus.PASS // === \"PASS\"\n\n// 2. Numeric enum (like Java's numeric enum):\nenum Priority { LOW, MEDIUM, HIGH }  // 0, 1, 2\n\n// 3. Union type (the more common TypeScript idiom):\ntype Status = \"PASS\" | \"FAIL\" | \"SKIP\";\n// No enum import needed! Compiler checks all cases.",
             "note": {
               "en": "Java enum = TypeScript string enum. But TypeScript's union type (type Status = \"PASS\" | \"FAIL\") is shorter and tree-shakeable. Use string enums in QA — logs show \"PASS\" not 0.",
               "tr": "Java enum = TypeScript string enum. Ama TypeScript'te union type (type Status = \"PASS\" | \"FAIL\") daha kısa ve tree-shakeable. QA'de string enum kullan."
@@ -6682,8 +6682,8 @@ export const typescriptData = {
                   "tr": "1) Playwright Inspector ile selectoru doğrula: npx playwright codegen. 2) data-testid attribute ekle ve page.getByTestId() kullan. 3) Timeout'u artır: locator.click({ timeout: 60000 }). 4) Frame içindeyse: page.frameLocator() kullan.",
                   "en": "1) Validate selector with Playwright Inspector: npx playwright codegen. 2) Add data-testid and use page.getByTestId(). 3) Increase timeout: locator.click({ timeout: 60000 }). 4) If inside a frame: use page.frameLocator()."
                 },
-                "codeWrong": "// YANLIŞ — genel CSS selector, değişime açık\nawait page.locator('button').click();",
-                "codeFixed": "// DOĞRU — data-testid ile stabil locator\nawait page.getByTestId('submit-btn').click();\n\n// veya rol + isim ile:\nawait page.getByRole('button', { name: 'Submit' }).click();"
+                "codeWrong": "// WRONG — a generic CSS selector, prone to change\nawait page.locator('button').click();",
+                "codeFixed": "// CORRECT — a stable locator via data-testid\nawait page.getByTestId('submit-btn').click();\n\n// or via role + name:\nawait page.getByRole('button', { name: 'Submit' }).click();"
               },
               {
                 "error": "Error: strict mode violation: locator resolved to 2 elements",
@@ -6696,8 +6696,8 @@ export const typescriptData = {
                   "tr": "Daha spesifik selector kullan: getByLabel, getByPlaceholder veya nth(). Ya da all() ile hepsini liste olarak al.",
                   "en": "Use a more specific selector: getByLabel, getByPlaceholder, or nth(). Alternatively use all() to get all matches as a list."
                 },
-                "codeWrong": "// YANLIŞ — çok genel, birden fazla eşleşiyor\nawait page.locator('input').fill('test@example.com');",
-                "codeFixed": "// DOĞRU — etiket ile spesifik element\nawait page.getByLabel('Email address').fill('test@example.com');\n\n// veya nth() ile belirli indeks:\nawait page.locator('input').nth(1).fill('test@example.com');"
+                "codeWrong": "// WRONG — too generic, matches multiple elements\nawait page.locator('input').fill('test@example.com');",
+                "codeFixed": "// CORRECT — a specific element via its label\nawait page.getByLabel('Email address').fill('test@example.com');\n\n// or a specific index via nth():\nawait page.locator('input').nth(1).fill('test@example.com');"
               },
               {
                 "error": "Error: page has been closed",
@@ -6710,8 +6710,8 @@ export const typescriptData = {
                   "tr": "Playwright fixture'larını doğru kullan — page fixture'ı her test için otomatik oluşturulur ve temizlenir. Worker kapsamlı browser fixture'larında context'in açık olduğundan emin ol.",
                   "en": "Use Playwright fixtures correctly — the page fixture is automatically created and cleaned up per test. For worker-scoped browser fixtures, ensure the context is still open."
                 },
-                "codeWrong": "// YANLIŞ — page'i manuel kapatıp sonra kullanmaya çalışmak\nawait page.close();\nawait page.goto('/dashboard'); // Error!",
-                "codeFixed": "// DOĞRU — fixture'lar sayfa ömrünü yönetir\ntest('dashboard loads', async ({ page }) => {\n  // page otomatik açılır ve test sonunda kapatılır\n  await page.goto('/dashboard');\n  await expect(page).toHaveTitle('Dashboard');\n}); // page burada otomatik kapanır"
+                "codeWrong": "// WRONG — manually closing the page and then trying to use it\nawait page.close();\nawait page.goto('/dashboard'); // Error!",
+                "codeFixed": "// CORRECT — fixtures manage the page's lifetime\ntest('dashboard loads', async ({ page }) => {\n  // the page opens automatically and closes at the end of the test\n  await page.goto('/dashboard');\n  await expect(page).toHaveTitle('Dashboard');\n}); // the page closes automatically here"
               },
               {
                 "error": "net::ERR_CONNECTION_REFUSED",
@@ -6724,8 +6724,8 @@ export const typescriptData = {
                   "tr": "1) Playwright webServer config ile uygulamayı otomatik başlat. 2) baseURL'i playwright.config.ts içinde doğru ayarla. 3) CI'da uygulama başlatma adımının test adımından önce geldiğini kontrol et.",
                   "en": "1) Use Playwright webServer config to auto-start the app. 2) Set baseURL correctly in playwright.config.ts. 3) In CI, verify the app start step runs before the test step."
                 },
-                "codeWrong": "// YANLIŞ — uygulama başlamadan test çalışıyor\nawait page.goto('http://localhost:3000');",
-                "codeFixed": "// DOĞRU — playwright.config.ts\nexport default defineConfig({\n  webServer: {\n    command: 'npm run start',       // uygulamayı başlat\n    url: 'http://localhost:3000',   // hazır olana dek bekle\n    reuseExistingServer: !process.env.CI,\n  },\n  use: { baseURL: 'http://localhost:3000' },\n});"
+                "codeWrong": "// WRONG — the test runs before the application has started\nawait page.goto('http://localhost:3000');",
+                "codeFixed": "// CORRECT — playwright.config.ts\nexport default defineConfig({\n  webServer: {\n    command: 'npm run start',       // start the application\n    url: 'http://localhost:3000',   // wait until it's ready\n    reuseExistingServer: !process.env.CI,\n  },\n  use: { baseURL: 'http://localhost:3000' },\n});"
               },
               {
                 "error": "expect(locator).toBeVisible() → Error: Timeout 5000ms exceeded",
@@ -6738,8 +6738,8 @@ export const typescriptData = {
                   "tr": "1) expect timeout'unu artır: expect(locator).toBeVisible({ timeout: 10000 }). 2) Önce bir aksiyon bekle (navigation, API yanıtı). 3) waitFor() ile element hazır olana dek bekle.",
                   "en": "1) Increase assertion timeout: expect(locator).toBeVisible({ timeout: 10000 }). 2) Await an earlier action (navigation, API response). 3) Use waitFor() to wait until the element is ready."
                 },
-                "codeWrong": "// YANLIŞ — aksiyon tamamlanmadan assertion\nawait page.click('#save-btn');\nawait expect(page.getByText('Saved!')).toBeVisible(); // çok hızlı",
-                "codeFixed": "// DOĞRU — yeterli timeout ile bekle\nawait page.click('#save-btn');\nawait expect(page.getByText('Saved!')).toBeVisible({ timeout: 10000 });\n\n// veya response bekliyorsan:\nconst [response] = await Promise.all([\n  page.waitForResponse('/api/save'),\n  page.click('#save-btn'),\n]);\nawait expect(page.getByText('Saved!')).toBeVisible();"
+                "codeWrong": "// WRONG — asserting before the action has finished\nawait page.click('#save-btn');\nawait expect(page.getByText('Saved!')).toBeVisible(); // too fast",
+                "codeFixed": "// CORRECT — wait with a sufficient timeout\nawait page.click('#save-btn');\nawait expect(page.getByText('Saved!')).toBeVisible({ timeout: 10000 });\n\n// or if you're waiting on a response:\nconst [response] = await Promise.all([\n  page.waitForResponse('/api/save'),\n  page.click('#save-btn'),\n]);\nawait expect(page.getByText('Saved!')).toBeVisible();"
               },
               {
                 "error": "TS2345: Argument of type 'string' is not assignable to parameter of type 'Browser'",
@@ -6752,8 +6752,8 @@ export const typescriptData = {
                   "tr": "Enum değerini kullan (Browser.CHROMIUM) veya string'i enum'a dönüştür. Eğer dışarıdan gelen değeri dönüştürmek gerekiyorsa as ile cast et.",
                   "en": "Use the enum value (Browser.CHROMIUM) or cast the string. If converting external input to enum, use as assertion."
                 },
-                "codeWrong": "// YANLIŞ — string enum yerine geçirilemiyor\nfunction runTest(browser: Browser) { ... }\nrunTest('chromium'); // TS2345 hatası",
-                "codeFixed": "// DOĞRU — enum değeri kullan\nrunTest(Browser.CHROMIUM); // ✅\n\n// veya dışarıdan gelen string'i cast et:\nconst browserStr = process.env.BROWSER ?? 'chromium';\nrunTest(browserStr as Browser); // dikkatli kullan — doğrulama ekle"
+                "codeWrong": "// WRONG — a plain string cannot substitute for the enum\nfunction runTest(browser: Browser) { ... }\nrunTest('chromium'); // TS2345 error",
+                "codeFixed": "// CORRECT — use the enum value\nrunTest(Browser.CHROMIUM); // ✅\n\n// or cast an incoming string:\nconst browserStr = process.env.BROWSER ?? 'chromium';\nrunTest(browserStr as Browser); // use with care — add validation"
               }
             ]
           },

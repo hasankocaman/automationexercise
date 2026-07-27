@@ -2085,12 +2085,20 @@ const codePlaygroundAnswerChecklist = {
   id: 'py-interview-answer-checklist',
   label: { tr: 'Kendin Yaz: Cevabın Üç Katmanı Var mı?', en: 'Write It Yourself: Does Your Answer Have All Three Layers?' },
   language: 'python',
-  code: `def score_answer(answer_text):
+  code: {
+    tr: `def score_answer(answer_text):
     # BOZUK: her zaman 1 puan döner, cevabın içeriğine hiç bakmıyor
     return 1
 
 answer = "list mutable, tuple immutable'dir."
 print(score_answer(answer))  # Zayif bir cevap - 1 degil daha dusuk bir puan almali`,
+    en: `def score_answer(answer_text):
+    # BROKEN: always returns 1, never looks at the answer's content
+    return 1
+
+answer = "list mutable, tuple immutable'dir."
+print(score_answer(answer))  # A weak answer - should score lower than 1`,
+  },
   expected: `0`,
   explanation: {
     tr: 'Güçlü bir mülakat cevabı üç katman içerir: kavram, Java karşılaştırması, somut QA örneği. Fonksiyon cevap metninde "java" ve "test" (ya da benzeri QA terimi) geçip geçmediğini kontrol ederek bu katmanları SAYMALI, sabit bir puan DÖNMEMELİ.',
@@ -3588,7 +3596,7 @@ print("Not tested:", not_tested)` },
             },
             {
                   "id": "d",
-                  "text": "İşlem iptal edilir"
+                  "text": { "tr": "İşlem iptal edilir", "en": "The operation is cancelled" }
             }
       ],
       "correct": "b",
@@ -4218,19 +4226,19 @@ Failures: ['test_login', 'test_ui']` },
       "options": [
             {
                   "id": "a",
-                  "text": "İki sayının çarpımını döndüren isimsiz bir fonksiyon"
+                  "text": { "tr": "İki sayının çarpımını döndüren isimsiz bir fonksiyon", "en": "An anonymous function that returns the product of two numbers" }
             },
             {
                   "id": "b",
-                  "text": "İki sayıyı çarpan bir sınıf"
+                  "text": { "tr": "İki sayıyı çarpan bir sınıf", "en": "A class that multiplies two numbers" }
             },
             {
                   "id": "c",
-                  "text": "İki sayının çarpımını ekrana yazdıran bir metod"
+                  "text": { "tr": "İki sayının çarpımını ekrana yazdıran bir metod", "en": "A method that prints the product of two numbers" }
             },
             {
                   "id": "d",
-                  "text": "a ve b değişkenlerini içeren bir tuple"
+                  "text": { "tr": "a ve b değişkenlerini içeren bir tuple", "en": "A tuple containing the variables a and b" }
             }
       ],
       "correct": "a",
@@ -6517,19 +6525,19 @@ for case in cases:
       "options": [
             {
                   "id": "a",
-                  "text": "Sınıfın hafızadaki adresini kontrol eder"
+                  "text": { "tr": "Sınıfın hafızadaki adresini kontrol eder", "en": "Checks the class's address in memory" }
             },
             {
                   "id": "b",
-                  "text": "Nesne içindeki tüm alanların değerlerinin eşitliğini karşılaştırır"
+                  "text": { "tr": "Nesne içindeki tüm alanların değerlerinin eşitliğini karşılaştırır", "en": "Compares the values of all fields inside the object for equality" }
             },
             {
                   "id": "c",
-                  "text": "Sadece sınıf isimlerinin eşitliğini kontrol eder"
+                  "text": { "tr": "Sadece sınıf isimlerinin eşitliğini kontrol eder", "en": "Only checks whether the class names are equal" }
             },
             {
                   "id": "d",
-                  "text": "Nesnenin boş olup olmadığını denetler"
+                  "text": { "tr": "Nesnenin boş olup olmadığını denetler", "en": "Checks whether the object is empty" }
             }
       ],
       "correct": "b",
@@ -7410,13 +7418,13 @@ if (value == null) {
 
 // Java 8+ Optional:
 Optional.ofNullable(value).orElse("default");`,
-        python: `# Python None (null karşılığı)
+        python: `# Python None (equivalent of null)
 value = None
 if value is None:    # NOT: value == None
     print("No value")
 # value.upper() → AttributeError (same risk!)
 
-# Python idiom (Optional.orElse karşılığı):
+# Python idiom (equivalent of Optional.orElse):
 result = value if value is not None else "default"
 result = value or "default"  # shorter`,
         note: '"is None" kullan, "== None" değil — aynı nesne kontrolü yapar, __eq__ değil. value or "default" falsy check yapar (0, "", [] da default döner), dikkatli kullan.',
@@ -7456,7 +7464,7 @@ print(len(tests))    # 1 — len(), not .size()
 for t in tests:
     print(t)
 
-# Index + value (Java\'nın indexed for\'u):
+# Index + value (Java's indexed for equivalent):
 for i, t in enumerate(tests):
     print(f"{i}: {t}")`,
         note: 'Python list mixed type destekler: [1, "hello", True]. append() = add(), remove() = remove(), len() = size(), in = contains(). "new ArrayList<>()" yok — sadece [].',
@@ -7489,13 +7497,13 @@ result = {}
 result["status"] = "PASS"
 result["duration"] = 1200
 result["status"]               # "PASS"
-result.get("err", "")          # getOrDefault karşılığı
-"status" in result             # containsKey karşılığı
+result.get("err", "")          # equivalent of getOrDefault
+"status" in result             # equivalent of containsKey
 
-# Literal syntax (en yaygın):
+# Literal syntax (most common):
 result = {"status": "PASS", "duration": 1200}
 
-for key, value in result.items():  # entrySet karşılığı
+for key, value in result.items():  # equivalent of entrySet
     print(f"{key}: {value}")`,
         note: 'Python dict Python 3.7\'den itibaren ekleme sırasını korur. Java HashMap sıra garantisi vermez. put() = result["k"] = v, get() = result.get("k"), entrySet() = .items().',
         note_en: 'Python dict preserves insertion order since Python 3.7. Java HashMap gives no order guarantee. put() = result["k"] = v, get() = result.get("k"), entrySet() = .items().',
@@ -7529,7 +7537,7 @@ len(seen)          # 1
 # Literal syntax:
 seen = {"login", "checkout"}
 
-# Operatörler:
+# Operators:
 seen | other       # Union (addAll)
 seen & other       # Intersection (retainAll)
 seen - other       # Difference (removeAll)
@@ -7569,7 +7577,7 @@ def check_response(url: str):
 
 code, body = check_response("/api/health")  # unpacking
 
-# Named tuple (record karşılığı):
+# Named tuple (record equivalent):
 from collections import namedtuple
 Point = namedtuple("Point", ["x", "y"])
 p = Point(3, 5)
@@ -7605,7 +7613,7 @@ count = 5
 msg = f"User {name} ran {count} tests"
 # "User Alice ran 5 tests"
 
-# Her türlü ifade {} içinde çalışır:
+# Any kind of expression works inside {}:
 status = f"Pass: {count-1}, Fail: {1}"
 result = f"{'PASS' if count > 0 else 'FAIL'}"
 obj_val = f"Status: {resp.status_code}"
@@ -7640,11 +7648,11 @@ for (int i = 0; i < testList.size(); i++) {
 for (int i = 0; i < 5; i++) {
     System.out.println(i);  // 0,1,2,3,4
 }`,
-        python: `# Python for-in (Java enhanced for karşılığı)
+        python: `# Python for-in (Java enhanced for equivalent)
 for test in test_list:
     print(test)
 
-# Index + value (enumerate = Java\'nın indexed for):
+# Index + value (enumerate = Java's indexed for):
 for i, test in enumerate(test_list):
     print(f"{i}: {test}")
 
@@ -7674,7 +7682,7 @@ public class TestUtils {
 }
 // Usage: TestUtils.isValidEmail("t@t.com")
 
-// Overloading (default params için):
+// Overloading (for default params):
 public static User create(String name) {
     return create(name, "tester");
 }
@@ -7685,9 +7693,9 @@ public static User create(String name, String role) {
 def is_valid_email(email: str) -> bool:
     return email is not None and "@" in email
 
-is_valid_email("t@t.com")  # doğrudan çağır
+is_valid_email("t@t.com")  # call directly
 
-# Default params (overloading yerine):
+# Default params (instead of overloading):
 def create_user(name: str, role: str = "tester", active: bool = True):
     return {"name": name, "role": role, "active": active}
 
@@ -7759,7 +7767,7 @@ public class TestResult {
         python: `# Python class (very similar!)
 class TestResult:
     def __init__(self, name: str, status: str):
-        self.name = name      # self = Java\'nın 'this\'i
+        self.name = name      # self = Java's implicit 'this'
         self.status = status
 
     @property
@@ -7770,7 +7778,7 @@ class TestResult:
         return f"{self.name}: {self.status}"
 
 result = TestResult("login_test", "PASS")
-result.is_passed  # True — parantez yok, @property!
+result.is_passed  # True — no parentheses, @property!
 print(result)     # "login_test: PASS"`,
         note: '"self" Python\'da explicit (Java\'nın implicit "this"i). @property = getter (parantez olmadan çağrılır). __init__ = constructor. __str__ = toString(). @Override yok — sadece metodu yeniden tanımla.',
         note_en: '"self" is explicit in Python (Java\'s implicit "this"). @property = getter (called without parentheses). __init__ = constructor. __str__ = toString(). No @Override — just redefine the method.',
@@ -7825,10 +7833,10 @@ long failCount = tests.stream()
 
 int total = tests.stream()
     .mapToInt(t -> t.getDuration()).sum();`,
-        python: `# Python list comprehension (daha özlü!)
+        python: `# Python list comprehension (much more concise!)
 failed = [t["name"] for t in tests
           if t["status"] == "FAIL"]
-# [ifade for öğe in liste if koşul]
+# [expression for item in list if condition]
 
 # Count:
 fail_count = sum(1 for t in tests
@@ -7837,7 +7845,7 @@ fail_count = sum(1 for t in tests
 # Sum:
 total = sum(t["duration"] for t in tests)
 
-# Dict comprehension (Streams\'de yok!):
+# Dict comprehension (not available in Streams!):
 status_map = {t["name"]: t["status"] for t in tests}`,
         note: '[x for x in list if cond] = stream().filter().map().collect(). Bu idiom Python\'da her yerde kullanılır — mutlaka öğren. Generator expressions (parantez) lazy evaluation yapar, list comp (köşeli) hemen değerlendirir.',
         note_en: '[x for x in list if cond] = stream().filter().map().collect(). This idiom is everywhere in Python — you must learn it. Generator expressions (parentheses) are lazy; list comp (brackets) evaluates immediately.',
@@ -7874,7 +7882,7 @@ with db.connect() as conn:
     conn.execute("SELECT 1")
 # conn auto-committed and closed
 
-# Playwright (context manager kullanır!):
+# Playwright (uses a context manager!):
 with sync_playwright() as p:
     browser = p.chromium.launch()`,
         note: '"with" AutoCloseable implement eden her nesneyle çalışır (__enter__ + __exit__). Dosya, bağlantı, kilit, Playwright browser — hepsi with ile kullanılır. "finally: f.close()" yazmak artık eski tarz.',
@@ -8316,31 +8324,193 @@ def test_order_placed(sample_order, db):
       1: { text: '1. Değişkenler ve Tipler' },
       2: { topic: 'Değişkenler ve Tipler', why: 'Java\'da her değişkenin tipi derleme zamanında sabitlenir. Python\'da tipler dinamik — aynı değişken farklı tipler tutabilir. Testleri daha hızlı yazarsın ama dikkatli olman gerekir.', note: 'Python type hints (count: int) Java gibi görünür ama çalışma zamanında zorlanmaz. Statik kontrol için mypy kullan.' },
       3: { text: '2. None — null\'ın Karşılığı' },
-      4: { topic: 'null → None', why: 'Java\'da null NullPointerException\'a yol açar. Python\'da aynı risk var ama None olarak adlandırılır. "is None" kullanımı en iyi pratiktir.', note: '"is None" kullan, "== None" değil. value or "default" falsy check yapar (0, "", [] da default döner), dikkatli kullan.' },
+      4: { topic: 'null → None', why: 'Java\'da null NullPointerException\'a yol açar. Python\'da aynı risk var ama None olarak adlandırılır. "is None" kullanımı en iyi pratiktir.', note: '"is None" kullan, "== None" değil. value or "default" falsy check yapar (0, "", [] da default döner), dikkatli kullan.', python: `# Python None (null karşılığı)
+value = None
+if value is None:    # NOT: value == None
+    print("No value")
+# value.upper() → AttributeError (same risk!)
+
+# Python idiom (Optional.orElse karşılığı):
+result = value if value is not None else "default"
+result = value or "default"  # shorter` },
       5: { text: '3. List — ArrayList\'in Karşılığı' },
-      6: { topic: 'ArrayList → list', why: 'Java ArrayList ve Python list aynı amaca hizmet eder: dinamik boyutlu sıralı koleksiyon. Python sözdizimi çok daha kısadır — new yoktur, import yoktur, generic tip yoktur.', note: 'Python list mixed type destekler. append()=add(), remove()=remove(), len()=size(), in=contains(). "new ArrayList<>()" yok — sadece [].' },
+      6: { topic: 'ArrayList → list', why: 'Java ArrayList ve Python list aynı amaca hizmet eder: dinamik boyutlu sıralı koleksiyon. Python sözdizimi çok daha kısadır — new yoktur, import yoktur, generic tip yoktur.', note: 'Python list mixed type destekler. append()=add(), remove()=remove(), len()=size(), in=contains(). "new ArrayList<>()" yok — sadece [].', python: `# Python list (no import, no generic type!)
+tests = []
+tests.append("login")
+tests.append("checkout")
+tests.remove("login")
+print(tests[0])      # "checkout"
+print(len(tests))    # 1 — len(), not .size()
+"checkout" in tests  # True
+
+for t in tests:
+    print(t)
+
+# Index + value (Java'nın indexed for'u):
+for i, t in enumerate(tests):
+    print(f"{i}: {t}")` },
       7: { text: '4. Dict — HashMap\'in Karşılığı' },
-      8: { topic: 'HashMap → dict', why: 'Java HashMap ve Python dict aynı konsept: key-value eşlemeleri. Python sözdizimi çok daha temizdir — put/get yerine [] kullanılır, import gerekmez.', note: 'Python dict Python 3.7\'den itibaren ekleme sırasını korur. put()=d["k"]=v, get()=d.get("k"), entrySet()=.items().' },
+      8: { topic: 'HashMap → dict', why: 'Java HashMap ve Python dict aynı konsept: key-value eşlemeleri. Python sözdizimi çok daha temizdir — put/get yerine [] kullanılır, import gerekmez.', note: 'Python dict Python 3.7\'den itibaren ekleme sırasını korur. put()=d["k"]=v, get()=d.get("k"), entrySet()=.items().', python: `# Python dict (no import needed!)
+result = {}
+result["status"] = "PASS"
+result["duration"] = 1200
+result["status"]               # "PASS"
+result.get("err", "")          # getOrDefault karşılığı
+"status" in result             # containsKey karşılığı
+
+# Literal syntax (en yaygın):
+result = {"status": "PASS", "duration": 1200}
+
+for key, value in result.items():  # entrySet karşılığı
+    print(f"{key}: {value}")` },
       9: { text: '5. Set — HashSet\'in Karşılığı' },
-      10: { topic: 'HashSet → set', why: 'Tekrar eden öğeleri elemek ve O(1) üyelik kontrolü için — Java\'da HashSet, Python\'da set. Hem sözdizimi hem performans karakteristiği aynıdır.', note: 'O(1) lookup için list yerine set kullan. Python set ve Java HashSet aynı Big-O garantileri sunar.' },
+      10: { topic: 'HashSet → set', why: 'Tekrar eden öğeleri elemek ve O(1) üyelik kontrolü için — Java\'da HashSet, Python\'da set. Hem sözdizimi hem performans karakteristiği aynıdır.', note: 'O(1) lookup için list yerine set kullan. Python set ve Java HashSet aynı Big-O garantileri sunar.', python: `# Python set (no import!)
+seen = set()
+seen.add("login")
+seen.add("login")  # duplicate ignored
+len(seen)          # 1
+"login" in seen    # True, O(1)
+
+# Literal syntax:
+seen = {"login", "checkout"}
+
+# Operatörler:
+seen | other       # Union (addAll)
+seen & other       # Intersection (retainAll)
+seen - other       # Difference (removeAll)
+seen ^ other       # Symmetric difference` },
       11: { text: '6. Tuple — Java\'da Doğrudan Karşılığı Yok' },
-      12: { topic: 'tuple (Java\'da yok!)', why: 'Python tuple immutable sıralı koleksiyondur. Java\'da en yakın List.of() veya record\'dur. Python\'da birden fazla değer döndürmek için tuple kullanılır.', note: 'Python\'ın en güçlü özelliklerinden biri: birden fazla değer döndürmek için tuple kullan. Java\'da Result/Pair sarmalayıcı gerekir; Python\'da sadece "return a, b".' },
+      12: { topic: 'tuple (Java\'da yok!)', why: 'Python tuple immutable sıralı koleksiyondur. Java\'da en yakın List.of() veya record\'dur. Python\'da birden fazla değer döndürmek için tuple kullanılır.', note: 'Python\'ın en güçlü özelliklerinden biri: birden fazla değer döndürmek için tuple kullan. Java\'da Result/Pair sarmalayıcı gerekir; Python\'da sadece "return a, b".', python: `# Python tuple: immutable ordered collection
+pair = ("user", "admin")
+# pair[0] = "x"  # ❌ TypeError: immutable!
+
+# Multiple return values (killer feature!):
+def check_response(url: str):
+    resp = requests.get(url)
+    return resp.status_code, resp.text  # tuple!
+
+code, body = check_response("/api/health")  # unpacking
+
+# Named tuple (record karşılığı):
+from collections import namedtuple
+Point = namedtuple("Point", ["x", "y"])
+p = Point(3, 5)
+print(p.x)  # 3` },
       13: { text: '7. String Formatting — f-string vs String.format()' },
-      14: { topic: 'String formatting', why: 'Test logları ve raporlarında sık kullanılır. Python f-string, Java String.format()\'un çok daha okunabilir versiyonudur.', note: 'f-string {} içine method çağrısı, hesaplama, koşul da yazabilirsin. %s veya String.format kullanma — f-string her zaman daha okunabilir.' },
+      14: { topic: 'String formatting', why: 'Test logları ve raporlarında sık kullanılır. Python f-string, Java String.format()\'un çok daha okunabilir versiyonudur.', note: 'f-string {} içine method çağrısı, hesaplama, koşul da yazabilirsin. %s veya String.format kullanma — f-string her zaman daha okunabilir.', python: `# Python f-string (Python 3.6+) — much cleaner!
+name = "Alice"
+count = 5
+
+msg = f"User {name} ran {count} tests"
+# "User Alice ran 5 tests"
+
+# Her türlü ifade {} içinde çalışır:
+status = f"Pass: {count-1}, Fail: {1}"
+result = f"{'PASS' if count > 0 else 'FAIL'}"
+obj_val = f"Status: {resp.status_code}"
+
+# Multiline:
+report = f"""
+User: {name}
+Tests: {count}
+"""` },
       15: { text: '8. Döngüler — for-each → for-in' },
-      16: { topic: 'for loops', why: 'Python for-in, Java\'nın enhanced for-each döngüsüne çok benzer. Tek fark: Python\'da index için enumerate() kullanılır.', note: 'Python\'da süslü parantez yok — GİRİNTİ blokları tanımlar! Eksik girinti = döngü gövdesi yok. Java\'dan geçişte en büyük sözdizimi şoku budur.' },
+      16: { topic: 'for loops', why: 'Python for-in, Java\'nın enhanced for-each döngüsüne çok benzer. Tek fark: Python\'da index için enumerate() kullanılır.', note: 'Python\'da süslü parantez yok — GİRİNTİ blokları tanımlar! Eksik girinti = döngü gövdesi yok. Java\'dan geçişte en büyük sözdizimi şoku budur.', python: `# Python for-in (Java enhanced for karşılığı)
+for test in test_list:
+    print(test)
+
+# Index + value (enumerate = Java'nın indexed for):
+for i, test in enumerate(test_list):
+    print(f"{i}: {test}")
+
+# Range-based:
+for i in range(5):       # 0,1,2,3,4
+    print(i)
+
+# range(start, end, step):
+for i in range(0, 10, 2):   # 0,2,4,6,8
+    print(i)` },
       17: { text: '9. Fonksiyonlar — Method → def' },
-      18: { topic: 'methods → functions', why: 'Java\'da her metod bir class içinde olmak zorundadır. Python\'da fonksiyonlar serbest (standalone) olabilir. Default parametreler Java method overloading\'in yerini alır.', note: 'Python keyword arguments güçlüdür: create_user("Bob", active=False, role="admin") — sıra önemli değil.' },
+      18: { topic: 'methods → functions', why: 'Java\'da her metod bir class içinde olmak zorundadır. Python\'da fonksiyonlar serbest (standalone) olabilir. Default parametreler Java method overloading\'in yerini alır.', note: 'Python keyword arguments güçlüdür: create_user("Bob", active=False, role="admin") — sıra önemli değil.', java: `// Java: methods must be inside a class
+public class TestUtils {
+    public static boolean isValidEmail(String email) {
+        return email != null && email.contains("@");
+    }
+}
+// Usage: TestUtils.isValidEmail("t@t.com")
+
+// Overloading (default params için):
+public static User create(String name) {
+    return create(name, "tester");
+}
+public static User create(String name, String role) {
+    return new User(name, role);
+}`, python: `# Python: standalone functions (no class needed!)
+def is_valid_email(email: str) -> bool:
+    return email is not None and "@" in email
+
+is_valid_email("t@t.com")  # doğrudan çağır
+
+# Default params (overloading yerine):
+def create_user(name: str, role: str = "tester", active: bool = True):
+    return {"name": name, "role": role, "active": active}
+
+create_user("Alice")              # role="tester"
+create_user("Bob", role="admin")  # keyword arg` },
       19: { text: '10. Exception Handling — try/catch → try/except' },
       20: { topic: 'Exception handling', why: 'Aynı konsept, farklı anahtar kelimeler: "catch" Python\'da "except" olur. Python\'da checked/unchecked exception ayrımı yoktur — throws bildirimi yoktur.', note: '"raise" (argümansız) = Java "throw e". Python\'da checked exceptions yok — "throws IOException" bildirimi gerekmez.' },
       21: { text: '11. Sınıflar ve OOP — class (Çok Benzer!)' },
-      22: { topic: 'class & OOP', why: 'Python class yapısı Java\'ya çok benzer. İki kritik fark: (1) her method "self" parametresi alır, (2) access modifier\'lar kural — zorunluluk değil.', note: '"self" Python\'da explicit. @property = getter (parantez olmadan çağrılır). __init__ = constructor. __str__ = toString().' },
+      22: { topic: 'class & OOP', why: 'Python class yapısı Java\'ya çok benzer. İki kritik fark: (1) her method "self" parametresi alır, (2) access modifier\'lar kural — zorunluluk değil.', note: '"self" Python\'da explicit. @property = getter (parantez olmadan çağrılır). __init__ = constructor. __str__ = toString().', python: `# Python class (very similar!)
+class TestResult:
+    def __init__(self, name: str, status: str):
+        self.name = name      # self = Java'nın 'this'i
+        self.status = status
+
+    @property
+    def is_passed(self) -> bool:   # getter (no () to call)
+        return self.status == "PASS"
+
+    def __str__(self) -> str:      # toString()
+        return f"{self.name}: {self.status}"
+
+result = TestResult("login_test", "PASS")
+result.is_passed  # True — parantez yok, @property!
+print(result)     # "login_test: PASS"` },
       23: { text: '12. Erişim Belirleyicileri — Kural, Zorunluluk Değil!' },
       24: { topic: 'access modifiers (kural, zorunluluk değil!)', why: 'Java\'da private/public/protected derleyici tarafından zorlanır. Python\'da sadece kuraldır — _ ve __ prefix kullanılır ama dışarıdan hala erişilebilir!', note: '__ (double underscore) ismi karıştırır ama engellemez. Python felsefesi: "Hepimiz yetişkiniz, gizlemeye gerek yok."' },
       25: { text: '13. Java Streams → List Comprehension' },
-      26: { topic: 'Streams → List Comprehensions', why: 'Java 8 Streams ve Python list comprehension aynı amaca hizmet eder: filtrele ve dönüştür. Python versiyonu çok daha kısadır.', note: '[x for x in list if cond] = stream().filter().map().collect(). Bu idiom Python\'da her yerde kullanılır — mutlaka öğren.' },
+      26: { topic: 'Streams → List Comprehensions', why: 'Java 8 Streams ve Python list comprehension aynı amaca hizmet eder: filtrele ve dönüştür. Python versiyonu çok daha kısadır.', note: '[x for x in list if cond] = stream().filter().map().collect(). Bu idiom Python\'da her yerde kullanılır — mutlaka öğren.', python: `# Python list comprehension (daha özlü!)
+failed = [t["name"] for t in tests
+          if t["status"] == "FAIL"]
+# [ifade for öğe in liste if koşul]
+
+# Count:
+fail_count = sum(1 for t in tests
+                 if t["status"] == "FAIL")
+
+# Sum:
+total = sum(t["duration"] for t in tests)
+
+# Dict comprehension (Streams'de yok!):
+status_map = {t["name"]: t["status"] for t in tests}` },
       27: { text: '14. try-with-resources → with' },
-      28: { topic: 'try-with-resources → with', why: 'Dosya, DB bağlantısı gibi kaynakları güvenli kapatmak için. Java\'da try-with-resources, Python\'da "with". Aynı güvence: hata olsa bile kaynak kapanır.', note: '"with" AutoCloseable implement eden her nesneyle çalışır. "finally: f.close()" artık eski tarz.' },
+      28: { topic: 'try-with-resources → with', why: 'Dosya, DB bağlantısı gibi kaynakları güvenli kapatmak için. Java\'da try-with-resources, Python\'da "with". Aynı güvence: hata olsa bile kaynak kapanır.', note: '"with" AutoCloseable implement eden her nesneyle çalışır. "finally: f.close()" artık eski tarz.', python: `# Python 'with' (context manager)
+with open("data.csv", "r") as f:
+    line = f.readline()
+# f automatically closed — even if exception!
+
+# Multiple resources:
+with open("in.csv") as fin, open("out.csv","w") as fout:
+    fout.write(fin.read())
+
+# Database:
+with db.connect() as conn:
+    conn.execute("SELECT 1")
+# conn auto-committed and closed
+
+# Playwright (context manager kullanır!):
+with sync_playwright() as p:
+    browser = p.chromium.launch()` },
       29: { text: '15. Kalıtım — extends/implements → Python' },
       30: { topic: 'inheritance & abstract class', why: 'Python\'da extends ve implements arasında ayrım yoktur. Abstract class için ABC kullanılır. Multiple inheritance doğal desteklenir.', note: 'Python multiple inheritance destekler: (BasePage, Loggable). @Override yok — sadece metodu yeniden tanımla.' },
       31: { text: 'Hızlı Karşılaştırma Tablosu' },
