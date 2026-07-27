@@ -13858,13 +13858,13 @@ driver.quit(); // always in finally!`,
             highlights: ['id="username"'],
             code: `WebElement el = driver.findElement(By.id("username"));
 // Fastest: browsers optimize id lookups`,
-            title: 'En Hızlı & En Güvenilir',
+            title: 'Fastest & Most Reliable',
             titleEn: 'Fastest & Most Reliable',
             explanation: 'Directly targets the id attribute. Browsers optimize id lookups, making this the fastest locator. id must be unique per page — like a final constant in Java.',
             explanationEn: 'Directly targets the id attribute. Browsers optimize id lookups, making this the fastest locator. id must be unique per page — like a final constant in Java.',
             tip: '✅ Always first choice. If no id, request the dev team to add one. "By id" is QA automation standard.',
             tipEn: '✅ Always first choice. If no id, request the dev team to add one. "By id" is QA automation standard.',
-            when: 'Element\'in id attribute\'ü varsa — HER ZAMAN kullan',
+            when: 'When element has an id attribute — ALWAYS use it first',
             whenEn: 'When element has an id attribute — ALWAYS use it first',
           },
           {
@@ -13874,13 +13874,13 @@ driver.quit(); // always in finally!`,
     By.cssSelector("[data-testid='username-input']")
 );
 // or: By.cssSelector("[data-qa='username']")`,
-            title: 'Test için Tasarlanmış — En İyi Pratik',
+            title: 'Designed for Testing — Best Practice',
             titleEn: 'Designed for Testing — Best Practice',
             explanation: 'data-testid is added specifically for QA. Tests don\'t break even if styles, ids or classes change. Industry standard in React/Vue/Angular — like an interface in Java: contract stays intact even if implementation changes.',
             explanationEn: 'data-testid is added specifically for QA. Tests don\'t break even if styles, ids or classes change. Industry standard in React/Vue/Angular — like an interface in Java: contract stays intact even if implementation changes.',
             tip: '✅ BEST PRACTICE: Ask the dev team to add data-testid to all testable elements. Most stable locator long-term.',
             tipEn: '✅ BEST PRACTICE: Ask the dev team to add data-testid to all testable elements. Most stable locator long-term.',
-            when: 'data-testid varsa id\'den bile önce tercih et',
+            when: 'When data-testid exists, prefer it even over id',
             whenEn: 'When data-testid exists, prefer it even over id',
           },
           {
@@ -13889,13 +13889,13 @@ driver.quit(); // always in finally!`,
             code: `WebElement el = driver.findElement(By.name("email"));
 // This is the field name submitted to the backend
 // Think: like an HTTP request parameter name`,
-            title: 'Form Elementleri için Doğal Seçim',
+            title: 'Natural Choice for Form Elements',
             titleEn: 'Natural Choice for Form Elements',
             explanation: 'Targets the name attribute on HTML form elements. Common in login, register, search forms — same as the field name POSTed to the backend. Like HTTP parameter names in Java.',
             explanationEn: 'Targets the name attribute on HTML form elements. Common in login, register, search forms — same as the field name POSTed to the backend. Like HTTP parameter names in Java.',
             tip: '✅ Second choice for form fields when no id. Multiple elements may share the same name — be careful.',
             tipEn: '✅ Second choice for form fields when no id. Multiple elements may share the same name — be careful.',
-            when: 'id yoksa form input / select / textarea için',
+            when: 'For form input, select, textarea when no id exists',
             whenEn: 'For form input, select, textarea when no id exists',
           },
           {
@@ -13905,13 +13905,13 @@ driver.quit(); // always in finally!`,
 List<WebElement> els =
     driver.findElements(By.className("form-input"));
 WebElement first = els.get(0);`,
-            title: 'Dikkat: Genellikle Birden Fazla Eşleşir',
+            title: 'Warning: Usually Matches Multiple Elements',
             titleEn: 'Warning: Usually Matches Multiple Elements',
             explanation: 'Targets a CSS class name. The same class is usually used on multiple elements — findElement() returns the first, findElements() returns all. Like List.get(0) in Java: risky unless you\'re certain.',
             explanationEn: 'Targets a CSS class name. The same class is usually used on multiple elements — findElement() returns the first, findElements() returns all. Like List.get(0) in Java: risky unless you\'re certain.',
             tip: '⚠️ Takes a single class name — write "form-input" not "form-input btn". Prefer cssSelector combo for non-unique classes.',
             tipEn: '⚠️ Takes a single class name — write "form-input" not "form-input btn". Prefer cssSelector combo for non-unique classes.',
-            when: 'Sayfada tam olarak TEK bir elementi olan class için',
+            when: 'Only when the class matches exactly one element on the page',
             whenEn: 'Only when the class matches exactly one element on the page',
           },
           {
@@ -13922,13 +13922,13 @@ WebElement btn =
     driver.findElement(By.cssSelector("#loginBtn"));
 // Can add conditions: #loginBtn[disabled]
 // Superset of By.id() — same speed, more options`,
-            title: 'CSS id Seçicisi — By.id() ile Eşdeğer',
+            title: 'CSS id Selector — Equivalent to By.id()',
             titleEn: 'CSS id Selector — Equivalent to By.id()',
             explanation: 'In CSS syntax, # selects by id. Same speed as By.id(). Difference: cssSelector can combine with other attributes. Like method overloading in Java — same base, different parameters.',
             explanationEn: 'In CSS syntax, # selects by id. Same speed as By.id(). Difference: cssSelector can combine with other attributes. Like method overloading in Java — same base, different parameters.',
             tip: '✅ Same speed as By.id() — but cssSelector can add extra filters: #loginBtn[type="submit"] etc.',
             tipEn: '✅ Same speed as By.id() — but cssSelector can add extra filters: #loginBtn[type="submit"] etc.',
-            when: 'id ile birlikte başka attribute da kontrol etmek gerektiğinde',
+            when: 'When checking id along with additional attribute constraints',
             whenEn: 'When checking id along with additional attribute constraints',
           },
           {
@@ -13939,32 +13939,32 @@ WebElement el = driver.findElement(
     By.cssSelector("input.form-input[name='email']")
 );
 // input → tag  |  .form-input → class  |  [name='email'] → attr`,
-            title: 'Kombine CSS — Çok Spesifik & Güvenilir',
+            title: 'Combined CSS — Very Specific & Reliable',
             titleEn: 'Combined CSS — Very Specific & Reliable',
             explanation: 'Combines tag name, class and attributes in one selector. Minimal risk of wrong element selection. Like filtering HashMap.entrySet() with multiple conditions in Java — more criteria, more unique.',
             explanationEn: 'Combines tag name, class and attributes in one selector. Minimal risk of wrong element selection. Like filtering HashMap.entrySet() with multiple conditions in Java — more criteria, more unique.',
             tip: '✅ Preferred when data-testid is not available. Tag + class + attribute is both reliable and readable.',
             tipEn: '✅ Preferred when data-testid is not available. Tag + class + attribute is both reliable and readable.',
-            when: 'Benzersizlik için birden fazla attribute birleştirmek gerektiğinde',
+            when: 'When combining multiple attributes for uniqueness is required',
             whenEn: 'When combining multiple attributes for uniqueness is required',
           },
           {
             id: 'by-linktext', label: 'By.linkText()', priority: 6, starRating: '⭐', color: '#ec4899',
-            highlights: ['Şifremi Unuttum'],
+            highlights: ['Forgot Password'],
             code: `// Only works for <a> tags!
 WebElement link =
-    driver.findElement(By.linkText("Şifremi Unuttum"));
+    driver.findElement(By.linkText("Forgot Password"));
 
 // Partial text match:
 WebElement part =
-    driver.findElement(By.partialLinkText("Şifrem"));`,
-            title: 'Yalnızca <a> Linkleri — Büyük/Küçük Harf Duyarlı',
+    driver.findElement(By.partialLinkText("Forgot"));`,
+            title: 'Only <a> Links — Case Sensitive',
             titleEn: 'Only <a> Links — Case Sensitive',
             explanation: 'Only targets visible text of <a> anchor elements. Case-sensitive. Breaks if text changes or if the app is multilingual. Requires exact match like String.equals() in Java.',
             explanationEn: 'Only targets visible text of <a> anchor elements. Case-sensitive. Breaks if text changes or if the app is multilingual. Requires exact match like String.equals() in Java.',
             tip: '⚠️ Links only. In multilingual apps this locator breaks tests — prefer href attribute or data-testid.',
             tipEn: '⚠️ Links only. In multilingual apps this locator breaks tests — prefer href attribute or data-testid.',
-            when: 'Yalnızca statik metin içeren <a> linkleri için',
+            when: 'Only for <a> link elements with static, non-translated text',
             whenEn: 'Only for <a> link elements with static, non-translated text',
           },
           {
@@ -13981,13 +13981,13 @@ driver.findElement(
 // Axis — DOM relationship (most powerful):
 driver.findElement(
     By.xpath("//label[@for='username']/following-sibling::input"));`,
-            title: 'En Güçlü — Ama Son Çare',
+            title: 'Most Powerful — But Last Resort',
             titleEn: 'Most Powerful — But Last Resort',
             explanation: 'Uses XML path expressions. Can express complex DOM relationships (parent/child/sibling/ancestor). Slowest locator — breaks easily when page structure changes. Like reflection in Java: very powerful but think before using.',
             explanationEn: 'Uses XML path expressions. Can express complex DOM relationships (parent/child/sibling/ancestor). Slowest locator — breaks easily when page structure changes. Like reflection in Java: very powerful but think before using.',
             tip: '⛔ Last resort. If achievable with cssSelector, avoid xpath. Unavoidable: shadow DOM, inside iframes, complex DOM relationships.',
             tipEn: '⛔ Last resort. If achievable with cssSelector, avoid xpath. Unavoidable: shadow DOM, inside iframes, complex DOM relationships.',
-            when: 'Başka hiçbir locator çalışmadığında — özellikle DOM ilişkisi gerektiğinde',
+            when: 'Only when no other locator works — especially for DOM relationship navigation',
             whenEn: 'Only when no other locator works — especially for DOM relationship navigation',
           },
         ],
@@ -14039,9 +14039,9 @@ actions.dragAndDrop(source, target).perform();   // drag & drop`,
         title: { en: 'Select Dropdown — Step-by-Step Interactive Guide', tr: 'Select Dropdown — Adım Adım İnteraktif Rehber' },
         steps: [
           { id: 'wrap', label: 'Select Wrap', labelEn: 'Select Wrap', visualState: 'wrap', description: { en: 'Wrap the <select> WebElement with the Select class — like wrapping an ArrayList with Collections.sort() in Java — adding dropdown-specific capabilities on top of the basic WebElement.', tr: 'WebElement olarak bulunan <select> elemanını Select sınıfına sarıyoruz.' }, code: `import org.openqa.selenium.support.ui.Select;\n\nWebElement el = driver.findElement(By.id("country"));\nSelect dropdown = new Select(el);\n\nboolean isMulti = dropdown.isMultiple();`, tip: { en: '✅ Select class only works for native <select> elements. Custom dropdowns (built with ul/li) require a different strategy.', tr: '✅ Select sınıfı sadece <select> elementi için çalışır.' } },
-          { id: 'byText', label: 'byVisibleText', labelEn: 'byVisibleText', visualState: 'byText', selectedValue: 'tr', description: { en: 'Select by the text the user sees. Like List.stream().filter(s -> s.equals("Turkey")).findFirst() in Java — requires exact text match, case-sensitive.', tr: 'Kullanıcının gördüğü metne göre seçim.' }, code: `dropdown.selectByVisibleText("Türkiye");\n\n// Case-sensitive! "türkiye" won't work\nString selected = dropdown.getFirstSelectedOption().getText();\nSystem.out.println(selected); // "Türkiye"`, tip: { en: '⚠️ Breaks if visible text changes (i18n, A/B testing). Prefer selectByValue() — value attribute is usually more stable.', tr: '⚠️ Görünen metin değişirse test kırılır.' } },
-          { id: 'byValue', label: 'byValue', labelEn: 'byValue', visualState: 'byValue', selectedValue: 'tr', description: { en: 'Select by the HTML value attribute — like <option value="TR">Turkey</option>. Like Map.get("TR") in Java — direct key access, not text search.', tr: 'HTML value attribute değerine göre seçim.' }, code: `dropdown.selectByValue("tr");\n// <option value="tr">Türkiye</option>\n\nString val = dropdown.getFirstSelectedOption().getAttribute("value");\nSystem.out.println(val); // "tr"`, tip: { en: '✅ Most reliable selection method. Value attribute is independent of display text — stays constant even if language changes.', tr: '✅ En güvenilir seçim yöntemi.' } },
-          { id: 'byIndex', label: 'byIndex', labelEn: 'byIndex', visualState: 'byIndex', selectedValue: 'tr', description: { en: 'Select by 0-based index — like List.get(0) in Java. Least reliable: if a new country is added to the list, all indexes shift.', tr: '0\'dan başlayan index ile seçim.' }, code: `dropdown.selectByIndex(0); // "Türkiye" (first)\ndropdown.selectByIndex(2); // "Germany"\n\nint total = dropdown.getOptions().size();\nSystem.out.println("Total: " + total); // 4`, tip: { en: '⛔ Last resort — if UI order changes, index selects wrong element. Use only when selectByValue/Text is not possible.', tr: '⛔ Son tercih — UI sırası değişirse yanlış element.' } },
+          { id: 'byText', label: 'byVisibleText', labelEn: 'byVisibleText', visualState: 'byText', selectedValue: 'tr', description: { en: 'Select by the text the user sees. Like List.stream().filter(s -> s.equals("Turkey")).findFirst() in Java — requires exact text match, case-sensitive.', tr: 'Kullanıcının gördüğü metne göre seçim.' }, code: `dropdown.selectByVisibleText("Turkey");\n\n// Case-sensitive! "turkey" won't work\nString selected = dropdown.getFirstSelectedOption().getText();\nSystem.out.println(selected); // "Turkey"`, tip: { en: '⚠️ Breaks if visible text changes (i18n, A/B testing). Prefer selectByValue() — value attribute is usually more stable.', tr: '⚠️ Görünen metin değişirse test kırılır.' } },
+          { id: 'byValue', label: 'byValue', labelEn: 'byValue', visualState: 'byValue', selectedValue: 'tr', description: { en: 'Select by the HTML value attribute — like <option value="TR">Turkey</option>. Like Map.get("TR") in Java — direct key access, not text search.', tr: 'HTML value attribute değerine göre seçim.' }, code: `dropdown.selectByValue("tr");\n// <option value="tr">Turkey</option>\n\nString val = dropdown.getFirstSelectedOption().getAttribute("value");\nSystem.out.println(val); // "tr"`, tip: { en: '✅ Most reliable selection method. Value attribute is independent of display text — stays constant even if language changes.', tr: '✅ En güvenilir seçim yöntemi.' } },
+          { id: 'byIndex', label: 'byIndex', labelEn: 'byIndex', visualState: 'byIndex', selectedValue: 'tr', description: { en: 'Select by 0-based index — like List.get(0) in Java. Least reliable: if a new country is added to the list, all indexes shift.', tr: '0\'dan başlayan index ile seçim.' }, code: `dropdown.selectByIndex(0); // "Turkey" (first)\ndropdown.selectByIndex(2); // "Germany"\n\nint total = dropdown.getOptions().size();\nSystem.out.println("Total: " + total); // 4`, tip: { en: '⛔ Last resort — if UI order changes, index selects wrong element. Use only when selectByValue/Text is not possible.', tr: '⛔ Son tercih — UI sırası değişirse yanlış element.' } },
           { id: 'firstSelected', label: 'getSelected', labelEn: 'getSelected', visualState: 'firstSelected', selectedValue: 'us', description: { en: 'Read the currently selected option — like List.stream().filter(isSelected).findFirst() in Java. Used to verify the selection was made correctly with assertions.', tr: 'Şu anda seçili option\'ı okuma.' }, code: `WebElement selected = dropdown.getFirstSelectedOption();\n\nString text = selected.getText();\nString value = selected.getAttribute("value");\n\nassertEquals("USA", text);\nassertEquals("us", value);`, tip: { en: '✅ Always add assertion after selection: assertEquals("USA", dropdown.getFirstSelectedOption().getText())', tr: '✅ Seçim sonrası her zaman assertion ekle.' } },
           { id: 'getOptions', label: 'getOptions()', labelEn: 'getOptions()', visualState: 'getOptions', description: { en: 'Returns all options as List<WebElement>. Like getting a List<String> in Java. Used to test dynamic dropdowns that load options from the API.', tr: 'Tüm option\'ları List<WebElement> olarak döndürür.' }, code: `List<WebElement> options = dropdown.getOptions();\n\nfor (int i = 0; i < options.size(); i++) {\n    System.out.println(i + ": " + options.get(i).getText()\n        + " [value=" + options.get(i).getAttribute("value") + "]");\n}`, tip: { en: '✅ Dropdown test strategy: verify the list with getOptions() first (expected count?), then make selection with selectByValue().', tr: '✅ Önce getOptions() ile listeyi doğrula, sonra selectByValue() ile seçim yap.' } },
         ],
@@ -14068,9 +14068,9 @@ actions.dragAndDrop(source, target).perform();   // drag & drop`,
         icon: '🖼️',
         title: { en: 'iFrame Switching — Interactive Guide', tr: 'iFrame Switching — İnteraktif Rehber' },
         steps: [
-          { id: 'outer', label: 'Dış Sayfa', labelEn: 'Outer Page', visualState: 'outer', description: { en: 'Default driver context is the main page. It sees the iFrame only as a WebElement — cannot access its contents. Like a module with a different ClassLoader in Java: special switchTo() needed.', tr: 'Varsayılan driver context\'i ana sayfadadır.' }, code: `driver.get("https://shop.com/checkout");\n\n// Can FIND the iframe element\nWebElement frame = driver.findElement(\n    By.cssSelector("iframe.payment-frame")\n);\n\n// But CANNOT access elements inside it!\n// → NoSuchElementException!`, tip: { en: '⚠️ Always call switchTo().frame() before accessing elements inside an iFrame — otherwise NoSuchElementException.', tr: '⚠️ iFrame içine girmeden önce switchTo().frame() çağır.' } },
+          { id: 'outer', label: 'Outer Page', labelEn: 'Outer Page', visualState: 'outer', description: { en: 'Default driver context is the main page. It sees the iFrame only as a WebElement — cannot access its contents. Like a module with a different ClassLoader in Java: special switchTo() needed.', tr: 'Varsayılan driver context\'i ana sayfadadır.' }, code: `driver.get("https://shop.com/checkout");\n\n// Can FIND the iframe element\nWebElement frame = driver.findElement(\n    By.cssSelector("iframe.payment-frame")\n);\n\n// But CANNOT access elements inside it!\n// → NoSuchElementException!`, tip: { en: '⚠️ Always call switchTo().frame() before accessing elements inside an iFrame — otherwise NoSuchElementException.', tr: '⚠️ iFrame içine girmeden önce switchTo().frame() çağır.' } },
           { id: 'switch-by-id', label: 'switchTo()', labelEn: 'switchTo()', visualState: 'switch-by-id', description: { en: 'Move the driver context into the iFrame with switchTo().frame(). Three overloads: ID/Name, Index, and WebElement. WebElement overload is most reliable.', tr: 'switchTo().frame() ile driver context\'ini iFrame\'e taşıyoruz.' }, code: `// 3 overloads:\n\n// 1. By id or name attribute\ndriver.switchTo().frame("paymentFrame");\n\n// 2. By page order (0-indexed)\ndriver.switchTo().frame(0);\n\n// 3. By WebElement (recommended)\nWebElement iframe = driver.findElement(\n    By.cssSelector("iframe.payment-frame")\n);\ndriver.switchTo().frame(iframe);`, tip: { en: '✅ WebElement overload is most reliable: even if iframe id/name changes, found by CSS selector. Index overload breaks if order changes.', tr: '✅ WebElement overload en güvenilir.' } },
-          { id: 'inner', label: 'Frame İçi', labelEn: 'Inside Frame', visualState: 'inner', description: { en: 'Driver context is now inside the iFrame. All findElement() calls now only search this frame\'s DOM. Like entering a different namespace in Java.', tr: 'Driver context artık iFrame içinde.' }, code: `// After switchTo().frame() — we're inside!\ndriver.findElement(By.id("cardNumber"))\n    .sendKeys("4111 1111 1111 1111");\ndriver.findElement(By.id("cvv"))\n    .sendKeys("123");\n\n// Waits work inside frames too\nwait.until(ExpectedConditions.elementToBeClickable(\n    By.id("payBtn"))).click();`, tip: { en: '✅ All normal Selenium methods work inside the frame — click(), sendKeys(), findElements(), waits, etc. Only the context has changed.', tr: '✅ Frame içinde tüm normal Selenium metodları çalışır.' } },
+          { id: 'inner', label: 'Inside Frame', labelEn: 'Inside Frame', visualState: 'inner', description: { en: 'Driver context is now inside the iFrame. All findElement() calls now only search this frame\'s DOM. Like entering a different namespace in Java.', tr: 'Driver context artık iFrame içinde.' }, code: `// After switchTo().frame() — we're inside!\ndriver.findElement(By.id("cardNumber"))\n    .sendKeys("4111 1111 1111 1111");\ndriver.findElement(By.id("cvv"))\n    .sendKeys("123");\n\n// Waits work inside frames too\nwait.until(ExpectedConditions.elementToBeClickable(\n    By.id("payBtn"))).click();`, tip: { en: '✅ All normal Selenium methods work inside the frame — click(), sendKeys(), findElements(), waits, etc. Only the context has changed.', tr: '✅ Frame içinde tüm normal Selenium metodları çalışır.' } },
           { id: 'nested', label: 'Nested Frame', labelEn: 'Nested Frame', visualState: 'nested', description: { en: 'Frame within a frame. Each inner frame requires a separate switchTo(). Like nested synchronized blocks in Java.', tr: 'Frame içinde frame.' }, code: `driver.switchTo().frame("paymentFrame");\n\n// Inside payment frame → another frame here\ndriver.switchTo().frame("captchaFrame");\n\n// Now in deepest frame\ndriver.findElement(By.id("recaptchaBox")).click();\n\n// Go up one level (parentFrame)\ndriver.switchTo().parentFrame();`, tip: { en: '⚠️ defaultContent() goes all the way out. parentFrame() goes up one level. Track which context you\'re in.', tr: '⚠️ defaultContent() en dışa çıkar, parentFrame() bir üste.' } },
           { id: 'back', label: 'defaultContent()', labelEn: 'defaultContent()', visualState: 'back', description: { en: 'switchTo().defaultContent() returns the driver to the main page — exits all frames in one call. Always call it after frame operations are done.', tr: 'switchTo().defaultContent() driver\'ı ana sayfaya döndürür.' }, code: `// Done with frame operations\ndriver.findElement(By.id("payBtn")).click();\n\n// Return to main page\ndriver.switchTo().defaultContent();\n\n// Now access main page elements\nwait.until(ExpectedConditions.visibilityOfElementLocated(\n    By.id("orderConfirmation")));\nString orderNo = driver.findElement(\n    By.id("orderNumber")).getText();`, tip: { en: '✅ Best practice: use try-finally: try { frame ops } finally { driver.switchTo().defaultContent(); }', tr: '✅ try-finally ile her zaman frame\'den temiz çık.' } },
           { id: 'parent', label: 'parentFrame()', labelEn: 'parentFrame()', visualState: 'parent', description: { en: 'switchTo().parentFrame() goes up exactly one frame level — unlike defaultContent() which exits all. Like super.method() in Java — goes up exactly one level.', tr: 'switchTo().parentFrame() sadece bir üst frame\'e çıkar.' }, code: `// 3 levels: main → paymentFrame → captchaFrame\n\ndriver.switchTo().frame("paymentFrame");\ndriver.switchTo().frame("captchaFrame");\n// Now in captchaFrame (deepest)\n\n// Up one level → paymentFrame\ndriver.switchTo().parentFrame();\n\n// Up one more → main page\ndriver.switchTo().parentFrame();`, tip: { en: '✅ parentFrame() is more controlled for 2-3 level nesting. Unsure how deep? Use defaultContent() — always goes to main page.', tr: '✅ 2-3 derinlikte parentFrame() daha kontrollü. Emin değilsen defaultContent() kullan.' } },
@@ -14086,7 +14086,7 @@ actions.dragAndDrop(source, target).perform();   // drag & drop`,
           { id: 'single', label: 'getHandle()', labelEn: 'getHandle()', visualState: 'single', description: { en: 'Start with a single window. getWindowHandle() returns a unique String ID. Save it for returning later — like Thread.currentThread().getId() in Java.', tr: 'Başlangıçta tek pencere.' }, code: `String mainHandle = driver.getWindowHandle();\nSystem.out.println("Main: " + mainHandle); // "CDw0..."\n\nSet<String> handles = driver.getWindowHandles();\nSystem.out.println("Count: " + handles.size()); // 1`, tip: { en: '✅ Always save the main window handle at the start of the test — you\'ll need it to return.', tr: '✅ Test başında ana handle\'ı her zaman kaydet.' } },
           { id: 'handles', label: 'getHandles()', labelEn: 'getHandles()', visualState: 'handles', description: { en: 'After a new window/popup opens, getWindowHandles() returns 2+ handles. Java Set<String> — unordered. Find the new one by filtering out the main handle.', tr: 'Yeni pencere açıldıktan sonra getWindowHandles() 2 handle döndürür.' }, code: `driver.findElement(By.linkText("Product Detail")).click();\n\nSet<String> allHandles = driver.getWindowHandles();\nSystem.out.println("Count: " + allHandles.size()); // 2\n\nString newHandle = allHandles.stream()\n    .filter(h -> !h.equals(mainHandle))\n    .findFirst().orElseThrow();`, tip: { en: '✅ Use stream().filter() to find the new handle from the Set — more readable than forEach loop.', tr: '✅ stream().filter() ile yeni handle\'ı bul.' } },
           { id: 'switched', label: 'switchTo()', labelEn: 'switchTo()', visualState: 'switched', description: { en: 'Switch to the new window with switchTo().window(handle). All driver commands now apply to the new window. Like switching to a different Thread\'s context in Java.', tr: 'switchTo().window(handle) ile yeni pencereye geçiyoruz.' }, code: `driver.switchTo().window(newHandle);\n\n// Now we're in the new window\nwait.until(ExpectedConditions.urlContains("/product/"));\nString title = driver.findElement(\n    By.cssSelector("h1.product-title")).getText();\n\ndriver.findElement(By.id("addToCart")).click();`, tip: { en: '✅ After switchTo().window(), wait for the new URL to load before accessing elements.', tr: '✅ switchTo() sonrası yeni URL\'i bekle.' } },
-          { id: 'back', label: 'Geri Dön', labelEn: 'Switch Back', visualState: 'back', description: { en: 'Return to the main window. Optionally close the new window first with close(). Like ExecutorService.shutdown() in Java — clean up what you opened.', tr: 'İşimiz bitince ana pencereye geri dönüyoruz.' }, code: `// Optionally close the new window\ndriver.close(); // closes only active window\n\n// Return to main — REQUIRED!\ndriver.switchTo().window(mainHandle);\n\n// Now on main page\nwait.until(ExpectedConditions.urlContains("/shop"));\nassertEquals("1", driver.findElement(\n    By.id("cartCount")).getText());`, tip: { en: '⚠️ driver.close() closes only the active window. Without switching back to main first, you lose the driver connection!', tr: '⚠️ driver.close() sadece aktif pencereyi kapatır — ana pencereye geç yoksa driver bağlantısı kopar!' } },
+          { id: 'back', label: 'Switch Back', labelEn: 'Switch Back', visualState: 'back', description: { en: 'Return to the main window. Optionally close the new window first with close(). Like ExecutorService.shutdown() in Java — clean up what you opened.', tr: 'İşimiz bitince ana pencereye geri dönüyoruz.' }, code: `// Optionally close the new window\ndriver.close(); // closes only active window\n\n// Return to main — REQUIRED!\ndriver.switchTo().window(mainHandle);\n\n// Now on main page\nwait.until(ExpectedConditions.urlContains("/shop"));\nassertEquals("1", driver.findElement(\n    By.id("cartCount")).getText());`, tip: { en: '⚠️ driver.close() closes only the active window. Without switching back to main first, you lose the driver connection!', tr: '⚠️ driver.close() sadece aktif pencereyi kapatır — ana pencereye geç yoksa driver bağlantısı kopar!' } },
           { id: 'new-tab', label: 'Selenium 4 Tab', labelEn: 'Selenium 4 Tab', visualState: 'new-tab', description: { en: 'Selenium 4 can programmatically open a new tab or window — no JavaScript needed. WindowType.TAB = new tab, WindowType.WINDOW = new window.', tr: 'Selenium 4 ile yeni sekme programatik olarak açılabilir.' }, code: `import org.openqa.selenium.WindowType;\n\n// Open new tab AND switch to it\ndriver.switchTo().newWindow(WindowType.TAB);\n\ndriver.get("https://other-site.com/product");\nSystem.out.println(driver.getTitle());\n\n// New window:\n// driver.switchTo().newWindow(WindowType.WINDOW);`, tip: { en: '✅ Selenium 4: newWindow() automatically switches to the new tab — no separate switchTo().window() call needed.', tr: '✅ Selenium 4: newWindow() otomatik yeni sekmeye geçer.' } },
         ],
       },
@@ -14183,7 +14183,8 @@ const sPlaywright = {
       { type: 'heading', text: { tr: 'Adım 1: Maven Kurulumu', en: 'Step 1: Maven Setup' } },
       {
         type: 'code', language: 'xml', label: 'pom.xml — Playwright Java',
-        code: `<dependencies>
+        code: {
+          tr: `<dependencies>
   <!-- Playwright Java (her şey dahil: Chrome, Firefox, WebKit) -->
   <dependency>
     <groupId>com.microsoft.playwright</groupId>
@@ -14202,6 +14203,26 @@ const sPlaywright = {
 
 <!-- Browser binary'lerini indir (ilk kez) -->
 <!-- mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install" -->`,
+          en: `<dependencies>
+  <!-- Playwright Java (everything included: Chrome, Firefox, WebKit) -->
+  <dependency>
+    <groupId>com.microsoft.playwright</groupId>
+    <artifactId>playwright</artifactId>
+    <version>1.44.0</version>
+  </dependency>
+
+  <!-- JUnit5 runner -->
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.2</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+
+<!-- Download browser binaries (first time only) -->
+<!-- mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install" -->`,
+        },
       },
       javaPlaywrightPomStep,
       { type: 'heading', text: { tr: 'Adım 2: Tarayıcı Açma ve Kapatma', en: 'Step 2: Browser Launch' } },
@@ -14287,7 +14308,8 @@ public class BrowserSetup {
       { type: 'heading', text: { tr: 'Adım 3: Sayfa Navigasyonu', en: 'Step 3: Navigation' } },
       {
         type: 'code', language: 'java', label: { tr: 'Tüm navigasyon komutları', en: 'All navigation commands' },
-        code: `Page page = context.newPage();
+        code: {
+          tr: `Page page = context.newPage();
 
 // URL aç — DOM yüklenene kadar otomatik bekler
 page.navigate("https://automationexercise.com");
@@ -14314,6 +14336,34 @@ Page popup = page.waitForPopup(() -> {
     page.locator("#openPopupBtn").click();
 });
 System.out.println("Popup URL: " + popup.url());`,
+          en: `Page page = context.newPage();
+
+// Open URL — automatically waits until the DOM loads
+page.navigate("https://automationexercise.com");
+
+// navigate() options
+page.navigate("https://google.com",
+    new Page.NavigateOptions()
+        .setWaitUntil(WaitUntilState.NETWORKIDLE) // wait until the network is idle
+        .setTimeout(30000)                         // 30 second timeout
+);
+
+// Back / Forward / Reload — like navigate().back() in Selenium
+page.goBack();
+page.goForward();
+page.reload();
+
+// Page info
+String title  = page.title();        // "Automation Exercise"
+String url    = page.url();          // "https://..."
+String source = page.content();      // Full HTML (Selenium: getPageSource())
+
+// Wait for popup / new tab (instead of getWindowHandles() in Selenium)
+Page popup = page.waitForPopup(() -> {
+    page.locator("#openPopupBtn").click();
+});
+System.out.println("Popup URL: " + popup.url());`,
+        },
       },
       javaPlaywrightNavigationStep,
       { type: 'heading', text: { tr: 'Adım 4: Element Bulma — 8 Locator Stratejisi', en: 'Step 4: Element Locators — 8 Strategies' } },
@@ -14571,7 +14621,8 @@ Locator sibling = page.locator("xpath=//label[@for='username']/following-sibling
       { type: 'heading', text: { tr: 'Adım 5: Element İşlemleri', en: 'Step 5: Element Actions' } },
       {
         type: 'code', language: 'java', label: { tr: 'Tüm element işlemleri — fill, click, check, okuma', en: 'All element actions — fill, click, check, reading' },
-        code: `Locator input = page.locator("#username");
+        code: {
+          tr: `Locator input = page.locator("#username");
 
 // ── YAZMA / TIKLAMA ─────────────────────────────────
 input.fill("admin@example.com");      // Önce temizler sonra yazar (sendKeys'den üstün!)
@@ -14606,6 +14657,42 @@ page.locator("#rememberMe").uncheck();
 page.locator("#country").selectOption("TR");                 // value ile
 page.locator("#country").selectOption(new SelectOption().setLabel("Türkiye")); // metin ile
 page.locator("#country").selectOption(new SelectOption().setIndex(0));         // index ile`,
+          en: `Locator input = page.locator("#username");
+
+// ── TYPING / CLICKING ────────────────────────────────
+input.fill("admin@example.com");      // Clears first, then types (better than sendKeys!)
+input.clear();                        // Clear the content
+input.pressSequentially("abc");       // Type character by character (for masked inputs)
+input.click();                        // Click
+input.dblclick();                     // Double click
+
+// Special keys (like sendKeys(Keys.ENTER) in Selenium)
+input.press("Enter");
+input.press("Tab");
+input.press("Control+A");             // Like keyDown(CONTROL) + sendKeys("a") in Selenium
+
+// ── READING ───────────────────────────────────────────
+String text       = input.textContent();        // Visible text
+String inputValue = input.inputValue();         // Input value (Selenium: getAttribute("value"))
+String cls        = input.getAttribute("class");
+String href       = page.locator("a").getAttribute("href");
+
+// ── STATE CHECKS ──────────────────────────────────
+boolean visible  = input.isVisible();   // Is it visible?
+boolean enabled  = input.isEnabled();   // Is it enabled?
+boolean checked  = input.isChecked();   // Is checkbox/radio checked?
+boolean disabled = input.isDisabled();  // Is it disabled?
+
+// ── CHECKBOX / RADIO ────────────────────────────────
+page.locator("#rememberMe").check();    // Selenium: toggle with click()
+page.locator("#rememberMe").uncheck();
+
+// ── SELECT DROPDOWN ─────────────────────────────────
+// In Selenium you would need to wrap with the Select class
+page.locator("#country").selectOption("TR");                 // by value
+page.locator("#country").selectOption(new SelectOption().setLabel("Turkey")); // by text
+page.locator("#country").selectOption(new SelectOption().setIndex(0));         // by index`,
+        },
       },
       javaPlaywrightElementActionsStep,
       {
@@ -14703,7 +14790,8 @@ for (int i = 0; i < total; i++) {
       },
       {
         type: 'code', language: 'java', label: { tr: 'Auto-Wait karşılaştırma — Selenium vs Playwright', en: 'Auto-Wait comparison — Selenium vs Playwright' },
-        code: `// ── SELENIUM: Her action için explicit wait zorunlu ──────────────────
+        code: {
+          tr: `// ── SELENIUM: Her action için explicit wait zorunlu ──────────────────
 WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 WebElement loginBtn = wait.until(
     ExpectedConditions.elementToBeClickable(By.id("loginBtn"))
@@ -14736,6 +14824,40 @@ page.locator(".loading-spinner").waitFor(   // Element kaybolana kadar
     new Locator.WaitForOptions()
         .setState(WaitForSelectorState.HIDDEN)
 );`,
+          en: `// ── SELENIUM: explicit wait required for every action ──────────────────
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+WebElement loginBtn = wait.until(
+    ExpectedConditions.elementToBeClickable(By.id("loginBtn"))
+);
+loginBtn.click();
+
+// Wait until the loading spinner disappears
+wait.until(ExpectedConditions.invisibilityOfElementLocated(
+    By.className("loading-spinner")
+));
+
+// Wait until the URL changes
+wait.until(ExpectedConditions.urlContains("/dashboard"));
+// ...You have to rewrite these at every step!
+
+// ── PLAYWRIGHT: You don't need to write anything ─────────────────────
+// Playwright automatically:
+// 1. Waits until the element is in the DOM
+// 2. Waits until the element is visible
+// 3. Waits until the element is enabled
+// 4. Waits for animations to finish
+// 5. THEN performs the action
+
+page.locator("#loginBtn").click(); // Enough! Includes 30s auto-wait
+
+// URL / page waits (if needed)
+page.waitForURL("**/dashboard");           // Wait for URL pattern
+page.waitForLoadState(LoadState.NETWORKIDLE); // Until the network goes idle
+page.locator(".loading-spinner").waitFor(   // Until the element disappears
+    new Locator.WaitForOptions()
+        .setState(WaitForSelectorState.HIDDEN)
+);`,
+        },
       },
       javaPlaywrightAutoWaitStep,
       {
@@ -14827,7 +14949,8 @@ page.locator("#slowComponent").waitFor(
       { type: 'heading', text: { tr: 'Adım 7: Screenshot & page.evaluate()', en: 'Step 7: Screenshot & page.evaluate()' } },
       {
         type: 'code', language: 'java', label: { tr: 'Screenshot ve JavaScript işlemleri', en: 'Screenshot and JavaScript operations' },
-        code: `import java.nio.file.Paths;
+        code: {
+          tr: `import java.nio.file.Paths;
 
 // ── SCREENSHOT ───────────────────────────────────────
 // Tüm sayfa screenshot
@@ -14866,6 +14989,46 @@ System.out.println(readyState); // "complete"
 page.locator("#email").evaluate(
     "el => { el.value = 'test@test.com'; el.dispatchEvent(new Event('input', {bubbles:true})); }"
 );`,
+          en: `import java.nio.file.Paths;
+
+// ── SCREENSHOT ───────────────────────────────────────
+// Full page screenshot
+page.screenshot(new Page.ScreenshotOptions()
+    .setPath(Paths.get("target/screenshots/full-page.png"))
+    .setFullPage(true)    // capture the whole page (including scroll)
+);
+
+// Element screenshot (also available in Selenium 4)
+page.locator("#errorPanel").screenshot(
+    new Locator.ScreenshotOptions()
+        .setPath(Paths.get("target/screenshots/error-panel.png"))
+);
+
+// Byte array (for Allure/reporting)
+byte[] bytes = page.screenshot();
+// Allure: Allure.addAttachment("screenshot", "image/png",
+//     new ByteArrayInputStream(bytes), ".png");
+
+// ── PAGE.EVALUATE() — JS EXECUTOR EQUIVALENT ──────────
+// In Selenium: ((JavascriptExecutor) driver).executeScript(...)
+// In Playwright: page.evaluate()
+
+// Scroll the page
+page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+page.evaluate("window.scrollBy(0, 500)");
+
+// Scroll to element
+page.locator("#footer").evaluate("el => el.scrollIntoView(true)");
+
+// Return a value
+String readyState = (String) page.evaluate("() => document.readyState");
+System.out.println(readyState); // "complete"
+
+// Set value on an element with JS (React controlled input)
+page.locator("#email").evaluate(
+    "el => { el.value = 'test@test.com'; el.dispatchEvent(new Event('input', {bubbles:true})); }"
+);`,
+        },
       },
       {
         type: 'playwright-visual',
@@ -14962,7 +15125,8 @@ page.locator("#email").dispatchEvent("input");`,
       { type: 'heading', text: { tr: 'Adım 8: Actions Sınıfı (Hover, Drag-Drop, Klavye)', en: 'Step 8: Actions (Hover, Drag-Drop, Keyboard)' } },
       {
         type: 'code', language: 'java', label: 'Playwright Actions — hover, drag, keyboard',
-        code: `// ── HOVER ───────────────────────────────────────────
+        code: {
+          tr: `// ── HOVER ───────────────────────────────────────────
 // Selenium'da: new Actions(driver).moveToElement(el).perform()
 // Playwright'ta: locator.hover()
 page.locator("#navMenu").hover();
@@ -14995,6 +15159,40 @@ page.locator("#editor").fill("Yeni içerik");
 page.keyboard.down("Shift");
 page.locator("tr:nth-child(5)").click();
 page.keyboard.up("Shift");`,
+          en: `// ── HOVER ───────────────────────────────────────────
+// In Selenium: new Actions(driver).moveToElement(el).perform()
+// In Playwright: locator.hover()
+page.locator("#navMenu").hover();
+// Auto-wait runs until the submenu is visible
+page.locator("#subItem").click();
+
+// ── DOUBLE CLICK ────────────────────────────────────
+page.locator("td.editable").dblclick();
+
+// ── RIGHT CLICK (Context Menu) ──────────────────────
+page.locator("[data-file='report.pdf']").click(
+    new Locator.ClickOptions().setButton(MouseButton.RIGHT)
+);
+page.locator("#ctxMenuDelete").click();
+
+// ── DRAG AND DROP ────────────────────────────────────
+page.locator("#draggable").dragTo(page.locator("#droppable"));
+// or with an offset:
+page.locator("#draggable").dragTo(page.locator("#droppable"),
+    new Locator.DragToOptions().setTargetPosition(200, 0)
+);
+
+// ── KEYBOARD COMBINATION ──────────────────────────────
+// In Selenium: actions.keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
+page.locator("#editor").press("Control+A");
+page.locator("#editor").press("Delete");
+page.locator("#editor").fill("New content");
+
+// Shift + Click
+page.keyboard.down("Shift");
+page.locator("tr:nth-child(5)").click();
+page.keyboard.up("Shift");`,
+        },
       },
       {
         type: 'playwright-visual',
@@ -17584,15 +17782,28 @@ const javaProblemSolvingPractice = {
   relatedTopicId: 'java-problem-solving',
   id: 'java-problem-solving',
   title: { tr: 'Kendin Dene: Doğru Koleksiyonu Seç', en: 'Try It Yourself: Pick the Right Collection' },
-  starterCode: `// Gereksinim: kullanıcı ID'lerini SIRAYLA ekle, ama ayni ID iki kez EKLENMEMELI
+  starterCode: {
+    tr: `// Gereksinim: kullanıcı ID'lerini SIRAYLA ekle, ama ayni ID iki kez EKLENMEMELI
 // TODO: List yerine dogru koleksiyonu sec
 List<String> userIds = new ArrayList<>();
 userIds.add("u1");
 userIds.add("u1"); // BUG: tekrar eklendi, engellenmedi`,
-  solutionCode: `// LinkedHashSet: hem tekrari engeller HEM ekleme sirasini korur
+    en: `// Requirement: add user IDs IN ORDER, but the same ID must NOT be added twice
+// TODO: pick the right collection instead of List
+List<String> userIds = new ArrayList<>();
+userIds.add("u1");
+userIds.add("u1"); // BUG: added again, not blocked`,
+  },
+  solutionCode: {
+    tr: `// LinkedHashSet: hem tekrari engeller HEM ekleme sirasini korur
 Set<String> userIds = new LinkedHashSet<>();
 userIds.add("u1");
 userIds.add("u1"); // sessizce yok sayilir, sira bozulmaz`,
+    en: `// LinkedHashSet: blocks duplicates AND preserves insertion order
+Set<String> userIds = new LinkedHashSet<>();
+userIds.add("u1");
+userIds.add("u1"); // silently ignored, order stays intact`,
+  },
   hint: { tr: 'Sıra korunmalı VE tekrar engellenmeli — bu ikisini AYNI ANDA veren tek koleksiyon `LinkedHashSet`\'tir (düz `HashSet` sırayı garanti etmez).', en: 'Order must be preserved AND duplicates blocked — the only collection giving you BOTH at once is `LinkedHashSet` (plain `HashSet` does not guarantee order).' },
   successMessage: { tr: 'Doğru! LinkedHashSet, HashSet\'in tekrar-engelleme garantisini ArrayList\'in sıra garantisiyle birleştirir.', en: 'Correct! LinkedHashSet combines HashSet\'s duplicate-blocking guarantee with ArrayList\'s order guarantee.' },
 }
@@ -18344,7 +18555,8 @@ const javaPlaygroundStringMethods = {
     en: '1️⃣ Press "▶ Run" to see output — 3 lines appear.\n2️⃣ Switch to "🐛 Fix the Failing Test" — endsWith and equals return false because trim() was not called on rawTitle. Clean first, then compare.\n3️⃣ Goal: Understand the driver.getTitle().trim().equals("Login") chain in QA tests; without trim() spaces blow up every assertion.',
   },
   language: 'java',
-  code: `public class Main {
+  code: {
+    tr: `public class Main {
     public static void main(String[] args) {
         String rawTitle = "  Login Page  ";
 
@@ -18354,6 +18566,17 @@ const javaPlaygroundStringMethods = {
         System.out.println(title.toUpperCase());          // LOGIN PAGE
     }
 }`,
+    en: `public class Main {
+    public static void main(String[] args) {
+        String rawTitle = "  Login Page  ";
+
+        String title = rawTitle.trim(); // clean first
+        System.out.println(title.endsWith("Login Page")); // true
+        System.out.println(title.equals("Login Page"));   // true
+        System.out.println(title.toUpperCase());          // LOGIN PAGE
+    }
+}`,
+  },
   expected: 'true\ntrue\nLOGIN PAGE',
   explanation: {
     tr: '✅ Çalıştı! .trim() yeni bir String döndürür — orijinal rawTitle değişmez (immutability). .equals() içerik karşılaştırır, == ise referans. QA\'da driver.getTitle().trim().equalsIgnoreCase("login page") kombinasyonu en güvenli doğrulama yöntemidir.',
@@ -18364,7 +18587,8 @@ const javaPlaygroundStringMethods = {
     { tr: '🔍 İpucu 2 — Hangi adım eksik: rawTitle.endsWith(...) yazmadan önce String title = rawTitle.trim() ile boşlukları temizle; sonra title üzerinde işlem yap.', en: '🔍 Hint 2 — Which step is missing: Before writing rawTitle.endsWith(...) clean whitespace with String title = rawTitle.trim(); then work on title.' },
     { tr: '✏️ İpucu 3 — Çözüm: String title = rawTitle.trim() ekle; rawTitle.endsWith → title.endsWith ve rawTitle.equals → title.equals yap.', en: '✏️ Hint 3 — Solution: Add String title = rawTitle.trim(); change rawTitle.endsWith → title.endsWith and rawTitle.equals → title.equals.' },
   ],
-  buggyCode: `public class Main {
+  buggyCode: {
+    tr: `public class Main {
     public static void main(String[] args) {
         String rawTitle = "  Login Page  ";
 
@@ -18374,7 +18598,19 @@ const javaPlaygroundStringMethods = {
         System.out.println(rawTitle.toUpperCase().trim());   // yanlış sıra
     }
 }`,
-  fixedCode: `public class Main {
+    en: `public class Main {
+    public static void main(String[] args) {
+        String rawTitle = "  Login Page  ";
+
+        // no trim() — the spaces cause the problem
+        System.out.println(rawTitle.endsWith("Login Page")); // false!
+        System.out.println(rawTitle.equals("Login Page"));   // false!
+        System.out.println(rawTitle.toUpperCase().trim());   // wrong order
+    }
+}`,
+  },
+  fixedCode: {
+    tr: `public class Main {
     public static void main(String[] args) {
         String rawTitle = "  Login Page  ";
 
@@ -18384,6 +18620,17 @@ const javaPlaygroundStringMethods = {
         System.out.println(title.toUpperCase());          // LOGIN PAGE
     }
 }`,
+    en: `public class Main {
+    public static void main(String[] args) {
+        String rawTitle = "  Login Page  ";
+
+        String title = rawTitle.trim(); // clean first
+        System.out.println(title.endsWith("Login Page")); // true
+        System.out.println(title.equals("Login Page"));   // true
+        System.out.println(title.toUpperCase());          // LOGIN PAGE
+    }
+}`,
+  },
 }
 
 const javaStepAnimationStringImmutable = {
@@ -18493,7 +18740,8 @@ const javaPlaygroundIfElse = {
     { tr: '🔍 İpucu 2 — Kural: en kısıtlayıcı (en büyük eşikli) koşul en üste gelmeli. >= 90 → >= 80 → >= 70 → >= 60 → else.', en: '🔍 Hint 2 — Rule: the most restrictive condition (highest threshold) must come first. >= 90 → >= 80 → >= 70 → >= 60 → else.' },
     { tr: '✏️ İpucu 3 — Sıra: if(>=90) … else if(>=80) … else if(>=70) … else if(>=60) … else. Koşulları bu sıraya getir.', en: '✏️ Hint 3 — Order: if(>=90) … else if(>=80) … else if(>=70) … else if(>=60) … else. Reorder the conditions to this sequence.' },
   ],
-  buggyCode: `public class Main {
+  buggyCode: {
+    tr: `public class Main {
     public static void main(String[] args) {
         int score = 75;
 
@@ -18508,6 +18756,22 @@ const javaPlaygroundIfElse = {
         }
     }
 }`,
+    en: `public class Main {
+    public static void main(String[] args) {
+        int score = 75;
+
+        if (score >= 60) {            // first TRUE: 75>=60
+            System.out.println("AA"); // wrong grade!
+        } else if (score >= 70) {
+            System.out.println("BB");
+        } else if (score >= 80) {
+            System.out.println("BA");
+        } else {
+            System.out.println("FF");
+        }
+    }
+}`,
+  },
   fixedCode: `public class Main {
     public static void main(String[] args) {
         int score = 75;
@@ -18736,7 +19000,8 @@ const javaPlaygroundMethods = {
     en: '1️⃣ Press "▶ Run" — see results from greet and add methods.\n2️⃣ Switch to "🐛 Fix the Failing Test" — add method has no return statement; "missing return statement" compile error. Add the missing line.\n3️⃣ Goal: void method returns nothing; int method must always return an int with return — a compile requirement.',
   },
   language: 'java',
-  code: `public class Main {
+  code: {
+    tr: `public class Main {
 
     static void greet(String name) {
         System.out.println("Merhaba, " + name + "!");
@@ -18752,7 +19017,24 @@ const javaPlaygroundMethods = {
         System.out.println("5 + 3 = " + result);
     }
 }`,
-  expected: 'Merhaba, QA!\n5 + 3 = 8',
+    en: `public class Main {
+
+    static void greet(String name) {
+        System.out.println("Hello, " + name + "!");
+    }
+
+    static int add(int a, int b) {
+        return a + b;
+    }
+
+    public static void main(String[] args) {
+        greet("QA");
+        int result = add(5, 3);
+        System.out.println("5 + 3 = " + result);
+    }
+}`,
+  },
+  expected: { tr: 'Merhaba, QA!\n5 + 3 = 8', en: 'Hello, QA!\n5 + 3 = 8' },
   explanation: {
     tr: '✅ Çalıştı! greet void — sadece konsola yazar, değer döndürmez, çağıran değişkene atayamaz. add int — hesaplar ve return ile döndürür. Python\'daki def add(a, b): return a+b ile birebir aynı mantık.',
     en: '✅ It ran! greet is void — only writes to console, returns no value, caller cannot assign it. add is int — calculates and returns with return. Exact same logic as Python\'s def add(a, b): return a+b.',
@@ -18762,7 +19044,8 @@ const javaPlaygroundMethods = {
     { tr: '🔍 İpucu 2 — Neyi döndür: a ve b parametreleri toplamı döndürmeli.', en: '🔍 Hint 2 — What to return: the sum of parameters a and b must be returned.' },
     { tr: '✏️ İpucu 3 — Çözüm: int sum = a + b; satırından sonra return sum; veya doğrudan return a + b; yaz.', en: '✏️ Hint 3 — Solution: After int sum = a + b; write return sum; or directly write return a + b;' },
   ],
-  buggyCode: `public class Main {
+  buggyCode: {
+    tr: `public class Main {
 
     static void greet(String name) {
         System.out.println("Merhaba, " + name + "!");
@@ -18779,7 +19062,26 @@ const javaPlaygroundMethods = {
         System.out.println("5 + 3 = " + result);
     }
 }`,
-  fixedCode: `public class Main {
+    en: `public class Main {
+
+    static void greet(String name) {
+        System.out.println("Hello, " + name + "!");
+    }
+
+    static int add(int a, int b) {
+        int sum = a + b;
+        // return missing! compile error: missing return statement
+    }
+
+    public static void main(String[] args) {
+        greet("QA");
+        int result = add(5, 3);
+        System.out.println("5 + 3 = " + result);
+    }
+}`,
+  },
+  fixedCode: {
+    tr: `public class Main {
 
     static void greet(String name) {
         System.out.println("Merhaba, " + name + "!");
@@ -18795,6 +19097,23 @@ const javaPlaygroundMethods = {
         System.out.println("5 + 3 = " + result);
     }
 }`,
+    en: `public class Main {
+
+    static void greet(String name) {
+        System.out.println("Hello, " + name + "!");
+    }
+
+    static int add(int a, int b) {
+        return a + b; // calculate AND return
+    }
+
+    public static void main(String[] args) {
+        greet("QA");
+        int result = add(5, 3);
+        System.out.println("5 + 3 = " + result);
+    }
+}`,
+  },
 }
 
 const javaStepAnimationMethodCall = {
@@ -18905,7 +19224,8 @@ const javaPlaygroundEnum = {
     { tr: '🔍 İpucu 2 — Nereye break ekle: println("URL: https://qa.example.com") satırından hemen sonra break; ekle.', en: '🔍 Hint 2 — Where to add break: add break; immediately after the println("URL: https://qa.example.com") line.' },
     { tr: '✏️ İpucu 3 — Çözüm: case "QA": bloğuna break; ekle. Ya da Java 14+ sözdizimini kullan: case "QA" -> System.out.println("URL: https://qa.example.com");', en: '✏️ Hint 3 — Solution: Add break; to case "QA": block. Or use Java 14+ syntax: case "QA" -> System.out.println("URL: https://qa.example.com");' },
   ],
-  buggyCode: `public class Main {
+  buggyCode: {
+    tr: `public class Main {
     public static void main(String[] args) {
         String env = "QA";
         switch (env) {
@@ -18920,7 +19240,24 @@ const javaPlaygroundEnum = {
         }
     }
 }`,
-  fixedCode: `public class Main {
+    en: `public class Main {
+    public static void main(String[] args) {
+        String env = "QA";
+        switch (env) {
+            case "QA":
+                System.out.println("URL: https://qa.example.com");
+                // break missing! fall-through starts
+            case "PROD":
+                System.out.println("URL: https://prod.example.com");
+                break;
+            default:
+                System.out.println("URL: https://dev.example.com");
+        }
+    }
+}`,
+  },
+  fixedCode: {
+    tr: `public class Main {
     public static void main(String[] args) {
         String env = "QA";
         switch (env) {
@@ -18935,6 +19272,22 @@ const javaPlaygroundEnum = {
         }
     }
 }`,
+    en: `public class Main {
+    public static void main(String[] args) {
+        String env = "QA";
+        switch (env) {
+            case "QA":
+                System.out.println("URL: https://qa.example.com");
+                break; // fall-through prevented
+            case "PROD":
+                System.out.println("URL: https://prod.example.com");
+                break;
+            default:
+                System.out.println("URL: https://dev.example.com");
+        }
+    }
+}`,
+  },
 }
 
 const javaStepAnimationEnum = {
@@ -19062,7 +19415,10 @@ const javaPlaygroundCucumber = {
     }
 }`,
   },
-  expected: '1. Given: Tarayıcı açık, login sayfasında\n2. When: admin/admin123 ile giriş yapıldı\n3. Then: Dashboard göründü ✅',
+  expected: {
+    tr: '1. Given: Tarayıcı açık, login sayfasında\n2. When: admin/admin123 ile giriş yapıldı\n3. Then: Dashboard göründü ✅',
+    en: '1. Given: Browser open, on login page\n2. When: logged in with admin/admin123\n3. Then: Dashboard appeared ✅',
+  },
   explanation: {
     tr: '✅ Given → When → Then sırası doğru! Bu sıra iş gereksinimini yansıtır: ortam hazır → aksiyon → kontrol. Cucumber feature dosyasında da aynı sıra hem PO\'ların hem QA\'nın anlayabileceği yaşayan belge oluşturur.',
     en: '✅ Given → When → Then order is correct! This order reflects the business requirement: environment ready → action → check. Same order in Cucumber feature files creates a living document both POs and QA can understand.',
@@ -19072,7 +19428,8 @@ const javaPlaygroundCucumber = {
     { tr: '🔍 İpucu 2 — Doğru sıra: 1.Given — ortamı hazırla 2.When — aksiyonu gerçekleştir 3.Then — sonucu doğrula.', en: '🔍 Hint 2 — Correct order: 1.Given — prepare environment 2.When — perform action 3.Then — verify result.' },
     { tr: '✏️ İpucu 3 — Çözüm: main içindeki çağrı sırasını givenBrowserOpen → whenUserLogsIn → thenDashboardVisible yap.', en: '✏️ Hint 3 — Solution: Reorder main calls to givenBrowserOpen → whenUserLogsIn → thenDashboardVisible.' },
   ],
-  buggyCode: `public class LoginSteps {
+  buggyCode: {
+    tr: `public class LoginSteps {
 
     void givenBrowserOpen() {
         System.out.println("1. Given: Tarayıcı açık");
@@ -19093,7 +19450,30 @@ const javaPlaygroundCucumber = {
         s.thenDashboardVisible();
     }
 }`,
-  fixedCode: `public class LoginSteps {
+    en: `public class LoginSteps {
+
+    void givenBrowserOpen() {
+        System.out.println("1. Given: Browser open");
+    }
+
+    void whenUserLogsIn() {
+        System.out.println("2. When: Logged in");
+    }
+
+    void thenDashboardVisible() {
+        System.out.println("3. Then: Dashboard ✅");
+    }
+
+    public static void main(String[] args) {
+        LoginSteps s = new LoginSteps();
+        s.whenUserLogsIn();      // wrong order!
+        s.givenBrowserOpen();   // wrong order!
+        s.thenDashboardVisible();
+    }
+}`,
+  },
+  fixedCode: {
+    tr: `public class LoginSteps {
 
     void givenBrowserOpen() {
         System.out.println("1. Given: Tarayıcı açık");
@@ -19114,6 +19494,28 @@ const javaPlaygroundCucumber = {
         s.thenDashboardVisible(); // sonra doğrulama
     }
 }`,
+    en: `public class LoginSteps {
+
+    void givenBrowserOpen() {
+        System.out.println("1. Given: Browser open");
+    }
+
+    void whenUserLogsIn() {
+        System.out.println("2. When: Logged in");
+    }
+
+    void thenDashboardVisible() {
+        System.out.println("3. Then: Dashboard ✅");
+    }
+
+    public static void main(String[] args) {
+        LoginSteps s = new LoginSteps();
+        s.givenBrowserOpen();   // correct: environment first
+        s.whenUserLogsIn();     // then action
+        s.thenDashboardVisible(); // then verification
+    }
+}`,
+  },
 }
 
 const javaStepAnimationCucumberFlow = {
@@ -19219,7 +19621,10 @@ const javaPlaygroundPlaywright = {
     }
 }`,
   },
-  expected: '1. Playwright.create() + browser.launch()\n2. browser.newPage()\n3. page.navigate(\'https://learnqa.dev/login\')\n4. assertThat(page).hasTitle(\'Login\') → PASS ✅\n5. try-with-resources → browser kapandı',
+  expected: {
+    tr: '1. Playwright.create() + browser.launch()\n2. browser.newPage()\n3. page.navigate(\'https://learnqa.dev/login\')\n4. assertThat(page).hasTitle(\'Login\') → PASS ✅\n5. try-with-resources → browser kapandı',
+    en: '1. Playwright.create() + browser.launch()\n2. browser.newPage()\n3. page.navigate(\'https://learnqa.dev/login\')\n4. assertThat(page).hasTitle(\'Login\') → PASS ✅\n5. try-with-resources → browser closed',
+  },
   explanation: {
     tr: '✅ Doğru sıra! Playwright\'ta assertThat(page).hasTitle() akıllı bekleme içerir — başlık hazır olana kadar otomatik bekler. Selenium\'da buna explicit WebDriverWait gerekirdi. Sıra önemli: navigate olmadan title undefined.',
     en: '✅ Correct order! In Playwright assertThat(page).hasTitle() includes smart waiting — it auto-waits until the title is ready. Selenium would need an explicit WebDriverWait for this. Order matters: title is undefined without navigate.',
@@ -19229,7 +19634,8 @@ const javaPlaygroundPlaywright = {
     { tr: '🔍 İpucu 2 — Kural: Her zaman önce navigate, sonra assert. Playwright otomatik bekleyebilir ama içerik yokken bekleyecek bir şey de yok.', en: '🔍 Hint 2 — Rule: Always navigate first, then assert. Playwright can auto-wait but there is nothing to wait for if there is no content.' },
     { tr: '✏️ İpucu 3 — Çözüm: navigate satırını assertThat satırından ÖNCE koy.', en: '✏️ Hint 3 — Solution: Place the navigate line BEFORE the assertThat line.' },
   ],
-  buggyCode: `public class LoginTest {
+  buggyCode: {
+    tr: `public class LoginTest {
     public static void main(String[] args) {
         System.out.println("1. Playwright.create() + browser.launch()");
         System.out.println("2. browser.newPage()");
@@ -19239,7 +19645,19 @@ const javaPlaygroundPlaywright = {
         System.out.println("5. try-with-resources → browser kapandı");
     }
 }`,
-  fixedCode: `public class LoginTest {
+    en: `public class LoginTest {
+    public static void main(String[] args) {
+        System.out.println("1. Playwright.create() + browser.launch()");
+        System.out.println("2. browser.newPage()");
+        // Wrong: assert WITHOUT navigate!
+        System.out.println("3. assertThat(page).hasTitle('Login') → FAIL ❌");
+        System.out.println("4. page.navigate('https://learnqa.dev/login')");
+        System.out.println("5. try-with-resources → browser closed");
+    }
+}`,
+  },
+  fixedCode: {
+    tr: `public class LoginTest {
     public static void main(String[] args) {
         System.out.println("1. Playwright.create() + browser.launch()");
         System.out.println("2. browser.newPage()");
@@ -19248,6 +19666,16 @@ const javaPlaygroundPlaywright = {
         System.out.println("5. try-with-resources → browser kapandı");
     }
 }`,
+    en: `public class LoginTest {
+    public static void main(String[] args) {
+        System.out.println("1. Playwright.create() + browser.launch()");
+        System.out.println("2. browser.newPage()");
+        System.out.println("3. page.navigate('https://learnqa.dev/login')");
+        System.out.println("4. assertThat(page).hasTitle('Login') → PASS ✅");
+        System.out.println("5. try-with-resources → browser closed");
+    }
+}`,
+  },
 }
 
 const javaStepAnimationPlaywrightFlow = {

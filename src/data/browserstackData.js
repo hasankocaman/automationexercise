@@ -871,7 +871,8 @@ const section0 = {
         tr: '# BrowserStack capability örneği (Python + Selenium)',
         en: '# BrowserStack capability example (Python + Selenium)'
       },
-      code: `from selenium import webdriver
+      code: {
+        tr: `from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 options = Options()                          # Chrome options oluştur
@@ -897,7 +898,35 @@ driver = webdriver.Remote(
 
 driver.get("https://example.com")           # Test URL'ine git
 print(driver.title)                         # Sayfa başlığını yazdır
-driver.quit()                               # Oturumu kapat`
+driver.quit()                               # Oturumu kapat`,
+        en: `from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+options = Options()                          # create Chrome options
+
+# BrowserStack W3C capabilities
+bstack_options = {
+    "userName": "YOUR_USERNAME",             # BS username
+    "accessKey": "YOUR_ACCESS_KEY",          # BS access key
+    "browserName": "Chrome",                 # Browser: Chrome/Firefox/Safari/Edge
+    "browserVersion": "latest",              # Version: "latest" or "120.0"
+    "os": "Windows",                         # OS: Windows/OS X
+    "osVersion": "11",                       # OS version
+    "sessionName": "Login Test",             # name shown on the dashboard
+    "buildName": "Sprint-42",                # build group
+}
+
+options.set_capability("bstack:options", bstack_options)  # send to BS
+
+driver = webdriver.Remote(
+    command_executor="https://hub.browserstack.com/wd/hub",  # BS hub URL
+    options=options
+)
+
+driver.get("https://example.com")           # go to the test URL
+print(driver.title)                         # print the page title
+driver.quit()                               # close the session`,
+      },
     },
     browserstackHubJourneyFilm,
     {
@@ -1039,7 +1068,8 @@ const section1 = {
       type: 'code',
       language: 'YAML',
       content: { tr: '# browserstack.yml — proje köküne koy', en: '# browserstack.yml — place at project root' },
-      code: `userName: YOUR_BROWSERSTACK_USERNAME        # BS Dashboard'dan al
+      code: {
+        tr: `userName: YOUR_BROWSERSTACK_USERNAME        # BS Dashboard'dan al
 accessKey: YOUR_BROWSERSTACK_ACCESS_KEY     # BS Dashboard'dan al
 
 buildName: "My Project Build"               # Dashboard'da görünecek build adı
@@ -1062,7 +1092,32 @@ browsers:
     osVersion: Sonoma
 
 parallelsPerPlatform: 1                    # Her OS'te kaç paralel test
-browserstackLocal: false                   # Localhost test için true yap`
+browserstackLocal: false                   # Localhost test için true yap`,
+        en: `userName: YOUR_BROWSERSTACK_USERNAME        # get from BS Dashboard
+accessKey: YOUR_BROWSERSTACK_ACCESS_KEY     # get from BS Dashboard
+
+buildName: "My Project Build"               # build name shown on the dashboard
+projectName: "QA Automation"               # project name
+
+browsers:
+  - browserName: Chrome                    # 1st browser
+    browserVersion: latest
+    os: Windows
+    osVersion: 11
+
+  - browserName: Firefox                   # 2nd browser (runs in parallel)
+    browserVersion: latest
+    os: OS X
+    osVersion: Sonoma
+
+  - browserName: Safari                    # 3rd browser
+    browserVersion: 17.0
+    os: OS X
+    osVersion: Sonoma
+
+parallelsPerPlatform: 1                    # how many parallel tests per OS
+browserstackLocal: false                   # set true for localhost testing`,
+      },
     },
     {
       type: 'heading',
@@ -1072,13 +1127,22 @@ browserstackLocal: false                   # Localhost test için true yap`
       type: 'code',
       language: 'Bash',
       content: { tr: '# .env dosyası (asla git\'e commit etme!)', en: '# .env file (never commit to git!)' },
-      code: `# .env — Proje kökünde oluştur
+      code: {
+        tr: `# .env — Proje kökünde oluştur
 BROWSERSTACK_USERNAME=your_username         # BS kullanıcı adı
 BROWSERSTACK_ACCESS_KEY=your_access_key    # BS erişim anahtarı
 
 # Python kodunda kullanım:
 # import os
-# username = os.environ["BROWSERSTACK_USERNAME"]`
+# username = os.environ["BROWSERSTACK_USERNAME"]`,
+        en: `# .env — create at the project root
+BROWSERSTACK_USERNAME=your_username         # BS username
+BROWSERSTACK_ACCESS_KEY=your_access_key    # BS access key
+
+# Usage in Python code:
+# import os
+# username = os.environ["BROWSERSTACK_USERNAME"]`,
+      },
     },
     {
       type: 'step-animation',
@@ -1259,11 +1323,18 @@ def test_login_page(driver):
       type: 'code',
       language: 'Bash',
       content: { tr: '# SDK ile çalıştır — test kodu değişmedi', en: '# Run with SDK — test code unchanged' },
-      code: `# browserstack.yml dosyasının bulunduğu dizinde çalıştır
+      code: {
+        tr: `# browserstack.yml dosyasının bulunduğu dizinde çalıştır
 browserstack-sdk pytest test_login.py -v
 
 # Paralel çalıştırmak için
-browserstack-sdk pytest tests/ -v --tb=short`
+browserstack-sdk pytest tests/ -v --tb=short`,
+        en: `# run this in the directory containing browserstack.yml
+browserstack-sdk pytest test_login.py -v
+
+# to run in parallel
+browserstack-sdk pytest tests/ -v --tb=short`,
+      },
     },
     {
       type: 'heading',
@@ -1612,7 +1683,8 @@ const section3 = {
       type: 'code',
       language: 'YAML',
       content: { tr: '# Playwright için browserstack.yml', en: '# browserstack.yml for Playwright' },
-      code: `userName: YOUR_USERNAME
+      code: {
+        tr: `userName: YOUR_USERNAME
 accessKey: YOUR_ACCESS_KEY
 
 buildName: "Playwright E2E Suite"
@@ -1636,7 +1708,33 @@ browsers:
 
 parallelsPerPlatform: 2
 framework: playwright                      # Playwright olduğunu belirt
-playwrightVersion: 1.40.0                 # Playwright sürümü`
+playwrightVersion: 1.40.0                 # Playwright sürümü`,
+        en: `userName: YOUR_USERNAME
+accessKey: YOUR_ACCESS_KEY
+
+buildName: "Playwright E2E Suite"
+projectName: "E-Commerce Tests"
+
+browsers:
+  - browserName: chrome                    # Playwright-supported: chrome/edge/playwright-chromium
+    browserVersion: latest
+    os: Windows
+    osVersion: 11
+
+  - browserName: playwright-webkit         # Safari engine (BS only)
+    browserVersion: latest
+    os: OS X
+    osVersion: Sonoma
+
+  - browserName: playwright-firefox        # Firefox engine
+    browserVersion: latest
+    os: Windows
+    osVersion: 11
+
+parallelsPerPlatform: 2
+framework: playwright                      # declare this is Playwright
+playwrightVersion: 1.40.0                 # Playwright version`,
+      },
     },
     {
       type: 'step-animation',
@@ -1658,7 +1756,8 @@ playwrightVersion: 1.40.0                 # Playwright sürümü`
       type: 'code',
       language: 'Python',
       content: { tr: '# test_search.py — Normal Playwright testi, değiştirilmez', en: '# test_search.py — Normal Playwright test, no modifications' },
-      code: `import pytest
+      code: {
+        tr: `import pytest
 from playwright.sync_api import Page, expect
 
 def test_search_product(page: Page):
@@ -1681,20 +1780,55 @@ def test_add_to_cart(page: Page):
     """Sepete ekleme testi"""
     page.goto("https://shop.example.com/product/1")
     page.get_by_role("button", name="Sepete Ekle").click()
-    expect(page.locator(".cart-count")).to_have_text("1")  # Sepette 1 ürün`
+    expect(page.locator(".cart-count")).to_have_text("1")  # Sepette 1 ürün`,
+        en: `import pytest
+from playwright.sync_api import Page, expect
+
+def test_search_product(page: Page):
+    """E-commerce product search test"""
+    page.goto("https://shop.example.com")              # go to homepage
+    page.get_by_placeholder("Search products...").fill("laptop")  # fill the search box
+    page.get_by_role("button", name="Search").click()    # click the search button
+
+    # wait for results to load
+    expect(page.locator(".product-card")).to_have_count_greater_than(0)
+
+    # click the first product
+    page.locator(".product-card").first.click()
+
+    # verify we are on the product detail page
+    expect(page).to_have_url(r".*product.*")
+    expect(page.locator("h1")).to_be_visible()
+
+def test_add_to_cart(page: Page):
+    """Add to cart test"""
+    page.goto("https://shop.example.com/product/1")
+    page.get_by_role("button", name="Add to Cart").click()
+    expect(page.locator(".cart-count")).to_have_text("1")  # 1 item in cart`,
+      },
     },
     {
       type: 'code',
       language: 'Bash',
       content: { tr: '# SDK ile Playwright testlerini BS\'te çalıştır', en: '# Run Playwright tests on BS with SDK' },
-      code: `# Tüm testleri BS'te çalıştır
+      code: {
+        tr: `# Tüm testleri BS'te çalıştır
 browserstack-sdk pytest tests/ -v
 
 # Belirli bir test dosyasını çalıştır
 browserstack-sdk pytest tests/test_search.py -v -k "test_search_product"
 
 # Paralel mod (browserstack.yml'deki ayarlar devreye girer)
-browserstack-sdk pytest tests/ -n auto`
+browserstack-sdk pytest tests/ -n auto`,
+        en: `# run all tests on BS
+browserstack-sdk pytest tests/ -v
+
+# run a specific test file
+browserstack-sdk pytest tests/test_search.py -v -k "test_search_product"
+
+# parallel mode (settings from browserstack.yml apply)
+browserstack-sdk pytest tests/ -n auto`,
+      },
     },
     {
       type: 'step-animation',
@@ -1833,7 +1967,8 @@ const section4 = {
       type: 'code',
       language: 'YAML',
       content: { tr: '# .github/workflows/browserstack.yml', en: '# .github/workflows/browserstack.yml' },
-      code: `name: BrowserStack Cross-Browser Tests
+      code: {
+        tr: `name: BrowserStack Cross-Browser Tests
 
 on:
   push:
@@ -1861,7 +1996,37 @@ jobs:
         env:
           BROWSERSTACK_USERNAME: \${{ secrets.BS_USERNAME }}    # GitHub Secret
           BROWSERSTACK_ACCESS_KEY: \${{ secrets.BS_ACCESS_KEY }}
-        run: browserstack-sdk pytest tests/ -v --tb=short`
+        run: browserstack-sdk pytest tests/ -v --tb=short`,
+        en: `name: BrowserStack Cross-Browser Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  browserstack-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4             # pull the code
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt  # install dependencies
+
+      - name: Run BrowserStack Tests
+        env:
+          BROWSERSTACK_USERNAME: \${{ secrets.BS_USERNAME }}    # GitHub Secret
+          BROWSERSTACK_ACCESS_KEY: \${{ secrets.BS_ACCESS_KEY }}
+        run: browserstack-sdk pytest tests/ -v --tb=short`,
+      },
     },
     {
       type: 'heading',
@@ -2005,7 +2170,8 @@ const section5 = {
       type: 'code',
       language: 'Python',
       content: { tr: '# Percy ile görsel snapshot testi', en: '# Visual snapshot testing with Percy' },
-      code: `from percy import percy_snapshot          # Percy Python paketi
+      code: {
+        tr: `from percy import percy_snapshot          # Percy Python paketi
 from selenium import webdriver
 
 driver = webdriver.Remote(               # BS bağlantısı
@@ -2019,7 +2185,23 @@ percy_snapshot(driver, "Homepage")      # Snapshot al — Percy karşılaştır�
 driver.get("https://shop.example.com/cart")
 percy_snapshot(driver, "Cart Page")     # 2. snapshot
 
-driver.quit()`
+driver.quit()`,
+        en: `from percy import percy_snapshot          # Percy Python package
+from selenium import webdriver
+
+driver = webdriver.Remote(               # BS connection
+    command_executor="https://hub.browserstack.com/wd/hub",
+    options=options
+)
+
+driver.get("https://shop.example.com")  # go to the page
+percy_snapshot(driver, "Homepage")      # take a snapshot — Percy compares it
+
+driver.get("https://shop.example.com/cart")
+percy_snapshot(driver, "Cart Page")     # 2nd snapshot
+
+driver.quit()`,
+      },
     },
     browserstackEcosystemChainFilm,
     {
