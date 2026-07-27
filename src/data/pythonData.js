@@ -8679,6 +8679,75 @@ print(result == 0.3)`,
   },
 }
 
+// Görev S2 — code-trace + heap-stack referansları (feedback #2/#3/#4). Aynı
+// composition-injection kuralı geçerli: base sections/trSections'a DOKUNULMAZ,
+// translateBlocks([...]) satırlarına eklenir.
+const tracePyForLoop = {
+  type: 'code-trace',
+  title: { tr: 'for Döngüsü Adım Adım — Toplam Hesaplama', en: 'for Loop Step by Step — Computing a Sum' },
+  code: `durations = [120, 340, 90]
+total = 0
+for d in durations:
+    total += d
+print(total)`,
+  codeLanguage: 'python',
+  steps: [
+    { line: 1, vars: { durations: '[120, 340, 90]' }, output: '', note: { tr: '`durations` listesi belleğe yazılır — 3 eleman.', en: 'The `durations` list is created in memory — 3 elements.' } },
+    { line: 2, vars: { durations: '[120, 340, 90]', total: '0' }, output: '', note: { tr: '`total` sıfırdan başlatılır.', en: '`total` is initialized to 0.' } },
+    { line: 3, vars: { durations: '[120, 340, 90]', total: '0', d: '120' }, output: '', note: { tr: '`for d in durations` listenin İLK elemanını `d`\'ye atar — Java\'daki `for (int x : list)` ile birebir aynı mantık.', en: '`for d in durations` binds `d` to the FIRST element — exactly like Java\'s `for (int x : list)`.' } },
+    { line: 4, vars: { durations: '[120, 340, 90]', total: '120', d: '120' }, output: '', note: { tr: '`total += d` → total = 0 + 120 = 120.', en: '`total += d` → total = 0 + 120 = 120.' } },
+    { line: 3, vars: { durations: '[120, 340, 90]', total: '120', d: '340' }, output: '', note: { tr: 'Döngü ikinci elemana geçer: `d = 340`.', en: 'The loop moves to the second element: `d = 340`.' } },
+    { line: 4, vars: { durations: '[120, 340, 90]', total: '460', d: '340' }, output: '', note: { tr: '`total += d` → total = 120 + 340 = 460.', en: '`total += d` → total = 120 + 340 = 460.' } },
+    { line: 3, vars: { durations: '[120, 340, 90]', total: '460', d: '90' }, output: '', note: { tr: 'Döngü üçüncü (son) elemana geçer: `d = 90`.', en: 'The loop moves to the third (last) element: `d = 90`.' } },
+    { line: 4, vars: { durations: '[120, 340, 90]', total: '550', d: '90' }, output: '', note: { tr: '`total += d` → total = 460 + 90 = 550.', en: '`total += d` → total = 460 + 90 = 550.' } },
+    { line: 5, vars: { durations: '[120, 340, 90]', total: '550', d: '—' }, output: '550', note: { tr: 'Liste tükendi, döngü biter, `total` = 550 yazdırılır. Python\'da `d` döngü sonrasında da erişilebilir kalır (Java\'nın aksine — Java\'da for-each değişkeni bloktan çıkınca kapsam dışına çıkar).', en: 'The list is exhausted, the loop ends, `total` = 550 is printed. In Python, `d` remains accessible after the loop (unlike Java — Java\'s for-each variable goes out of scope when the block ends).' } },
+  ],
+}
+
+const heapStackPyMutableDefault = {
+  type: 'heap-stack',
+  title: { tr: 'Mutable Default Argument — Heap\'te Paylaşılan Liste', en: 'Mutable Default Argument — A Shared List on the Heap' },
+  code: `def add_case(case, cases=[]):
+    cases.append(case)
+    return cases
+
+r1 = add_case("login_test")
+r2 = add_case("logout_test")`,
+  codeLanguage: 'python',
+  steps: [
+    {
+      line: 1,
+      note: { tr: '`def` çalıştırıldığında `cases=[]` varsayılanı BİR KEZ değerlendirilir ve Heap\'te TEK bir liste nesnesi (`defaultList`) oluşur — fonksiyon nesnesine iliştirilir.', en: 'When `def` runs, the `cases=[]` default is evaluated ONCE, creating a SINGLE list object (`defaultList`) on the Heap — attached to the function object.' },
+      stack: [],
+      heap: [{ id: 'defaultList', type: 'list', fields: { items: '[]' } }],
+    },
+    {
+      line: 5,
+      note: { tr: '`add_case("login_test")` çağrılır. `case` yerel değişkeni "login_test"\'i tutar; `cases` parametresi verilmediği için Heap\'teki PAYLAŞIMLI `defaultList`\'e referans olur.', en: '`add_case("login_test")` is called. Local `case` holds "login_test"; since `cases` was not provided, it references the SHARED `defaultList` on the Heap.' },
+      stack: [{ name: 'case', value: '"login_test"', kind: 'primitive' }, { name: 'cases', ref: 'defaultList', kind: 'ref' }],
+      heap: [{ id: 'defaultList', type: 'list', fields: { items: '["login_test"]' } }],
+    },
+    {
+      line: 5,
+      note: { tr: '`r1 = add_case(...)` sonucu `r1` de AYNI `defaultList` nesnesine işaret eder. Fonksiyon çağrısı biter, yerel `case`/`cases` kapsam dışına çıkar — ama Heap\'teki nesne YAŞAMAYA devam eder (fonksiyona iliştirili).', en: '`r1 = add_case(...)` makes `r1` point to that SAME `defaultList` object too. The call ends, local `case`/`cases` go out of scope — but the Heap object KEEPS LIVING (attached to the function).' },
+      stack: [{ name: 'r1', ref: 'defaultList', kind: 'ref' }],
+      heap: [{ id: 'defaultList', type: 'list', fields: { items: '["login_test"]' } }],
+    },
+    {
+      line: 6,
+      note: { tr: '`add_case("logout_test")` TEKRAR çağrılır. `cases` yine AYNI `defaultList`\'e bağlanır — YENİ bir liste OLUŞMAZ, çünkü varsayılan değer sadece `def` anında bir kez hesaplanmıştı.', en: '`add_case("logout_test")` is called AGAIN. `cases` binds to that SAME `defaultList` once more — NO new list is created, because the default was only computed once, at `def` time.' },
+      stack: [{ name: 'r1', ref: 'defaultList', kind: 'ref' }, { name: 'case', value: '"logout_test"', kind: 'primitive' }, { name: 'cases', ref: 'defaultList', kind: 'ref' }],
+      heap: [{ id: 'defaultList', type: 'list', fields: { items: '["login_test"]' } }],
+    },
+    {
+      line: 2,
+      note: { tr: '`cases.append(case)` `defaultList`\'e "logout_test" ekler. `r1` de AYNI nesneyi gösterdiği için, `r1` artık ["login_test", "logout_test"] görünür — `r1`\'e hiç dokunulmadığı hâlde İÇERİĞİ DEĞİŞTİ!', en: '`cases.append(case)` adds "logout_test" to `defaultList`. Since `r1` points to that SAME object, `r1` now shows ["login_test", "logout_test"] — its CONTENT changed even though `r1` was never touched again!' },
+      stack: [{ name: 'r1', ref: 'defaultList', kind: 'ref' }, { name: 'r2', ref: 'defaultList', kind: 'ref' }],
+      heap: [{ id: 'defaultList', type: 'list', fields: { items: '["login_test", "logout_test"]' } }],
+    },
+  ],
+}
+
 function translateBlocks(blocks) {
   return blocks.map(block => {
     if (block.type === 'heading' && typeof block.text === 'string') {
@@ -11462,8 +11531,8 @@ const finalEnSections = [
   { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
   { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
   { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
-  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), pyForLoopStep, challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
-  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
+  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
+  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, heapStackPyMutableDefault, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
   { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), pyPolymorphismStep, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
   { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), pyLegbScopeStep, ...sections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
   { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), pyArrayModuleStep, pyRandomSeedFilm, stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
@@ -11512,8 +11581,8 @@ const finalTrSections = [
   { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
   { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
   { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
-  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), pyForLoopStep, challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
-  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
+  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
+  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, heapStackPyMutableDefault, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
   { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), pyPolymorphismStep, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
   { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), pyLegbScopeStep, ...trSections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
   { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), pyArrayModuleStep, pyRandomSeedFilm, stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
