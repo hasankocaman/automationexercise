@@ -8574,6 +8574,111 @@ const translationMap = {
   'File Handling': { tr: 'Dosya Yönetimi (File Handling)', en: 'File Handling' }
 };
 
+// "Önce Tahmin Et" referans blokları — bu dosyada blocks composition satırlarına
+// (translateBlocks([...]) çağrıları, ~11354-11370 civarı) dizi elemanı olarak
+// eklenir; base section array'lerine (sections/trSections) DOKUNULMAZ (slice
+// offsetlerini kırar). Her obje tek `{tr,en}` alanlı bilingual sabit; hem EN hem
+// TR composition satırında AYNI referansla kullanılır.
+const predPyIsVsEquals = {
+  type: 'prediction',
+  id: 'py-is-vs-eq-pred',
+  xpReward: 15,
+  relatedTopicId: 'python-operators',
+  prompt: {
+    tr: 'İçerikleri AYNI olan iki liste. `==` ve `is` ikisi de `True` mu döner?',
+    en: 'Two lists with the SAME content. Do both `==` and `is` return `True`?',
+  },
+  code: `original = [1, 2, 3]
+copy = original.copy()
+
+print(original == copy)
+print(original is copy)`,
+  codeLanguage: 'python',
+  options: [
+    { id: 'a', label: { tr: 'True, True', en: 'True, True' }, why: {
+      tr: '`==` içerik karşılaştırır, evet True — ama `is` KİMLİK (aynı nesne mi?) sorar, o farklı sonuç verir.',
+      en: '`==` compares content, so True — but `is` asks IDENTITY (same object?), which gives a different answer.' } },
+    { id: 'b', label: { tr: 'True, False', en: 'True, False' }, correct: true },
+    { id: 'c', label: { tr: 'False, False', en: 'False, False' }, why: {
+      tr: 'İçerikler birebir aynı ([1,2,3] == [1,2,3]) — `==` bunu True olarak görür.',
+      en: 'The contents are identical ([1,2,3] == [1,2,3]) — `==` sees that as True.' } },
+    { id: 'd', label: { tr: 'False, True', en: 'False, True' }, why: {
+      tr: '`.copy()` YENİ bir liste nesnesi üretir — `original` ve `copy` aynı bellek adresini paylaşmaz, `is` bu yüzden False döner.',
+      en: '`.copy()` produces a NEW list object — `original` and `copy` do not share the same memory address, so `is` returns False.' } },
+  ],
+  output: 'True\nFalse',
+  reveal: {
+    tr: '`==` DEĞER eşitliğini sorar: "içerikleri aynı mı?" — `[1,2,3] == [1,2,3]` her zaman `True`. `is` ise KİMLİK eşitliğini sorar: "aynı bellek nesnesi mi?" — `.copy()` orijinalin bağımsız bir kopyasını (yeni nesne) yarattığı için `original is copy` `False` döner, içerikleri birebir aynı olsa bile. Java analojisi: Python\'daki `==` Java\'daki `.equals()`\'e, Python\'daki `is` ise Java\'daki `==` (referans karşılaştırması)\'na karşılık gelir — isimler ters gibi görünse de mantık aynı. QA otomasyonunda bu ayrım kritik: `if response.json() is expected_dict` yazan biri neredeyse HER ZAMAN `False` alır çünkü iki ayrı dict nesnesi asla aynı kimliğe sahip olmaz — doğru kontrol `==`dir. `is` sadece `None`, `True`, `False` gibi tekil (singleton) değerler için kullanılmalıdır.',
+    en: '`==` asks about VALUE equality: "is the content the same?" — `[1,2,3] == [1,2,3]` is always `True`. `is` asks about IDENTITY: "is it the same object in memory?" — since `.copy()` creates an independent copy (a new object), `original is copy` is `False`, even with identical content. Java analogy: Python\'s `==` maps to Java\'s `.equals()`, and Python\'s `is` maps to Java\'s `==` (reference comparison) — the names look swapped but the logic matches. This distinction is critical in QA automation: writing `if response.json() is expected_dict` will ALMOST ALWAYS return `False` because two separate dict objects never share identity — the correct check is `==`. Reserve `is` for singleton values like `None`, `True`, `False`.',
+  },
+}
+
+const predPyMutableDefaultArg = {
+  type: 'prediction',
+  id: 'py-mutable-default-arg-pred',
+  xpReward: 15,
+  relatedTopicId: 'python-functions',
+  prompt: {
+    tr: 'Bu fonksiyon İKİ KEZ çağrılıyor. İkinci çağrının çıktısı ne olur?',
+    en: 'This function is called TWICE. What does the second call print?',
+  },
+  code: `def add_case(case, cases=[]):
+    cases.append(case)
+    return cases
+
+print(add_case("login_test"))
+print(add_case("logout_test"))`,
+  codeLanguage: 'python',
+  options: [
+    { id: 'a', label: { tr: "['logout_test']", en: "['logout_test']" }, why: {
+      tr: 'Bu, `cases=[]`\'in HER çağrıda sıfırdan oluştuğu varsayımıyla doğru olurdu — ama Python öyle çalışmaz.',
+      en: 'This would be correct if `cases=[]` were recreated fresh on EVERY call — but Python does not work that way.' } },
+    { id: 'b', label: { tr: "['login_test', 'logout_test']", en: "['login_test', 'logout_test']" }, correct: true },
+    { id: 'c', label: { tr: 'TypeError fırlatılır', en: 'TypeError is raised' }, why: {
+      tr: 'Kod tamamen geçerli — sadece BEKLENMEDİK, sinsi bir davranış üretir, hata değil.',
+      en: 'The code is entirely valid — it just produces unexpected, sneaky behavior, not an error.' } },
+    { id: 'd', label: { tr: "['logout_test', 'login_test'] (ters sıra)", en: "['logout_test', 'login_test'] (reversed)" }, why: {
+      tr: 'append() sıralı ekler — sıra karışmaz, sadece BİRİKİR.',
+      en: 'append() adds in order — order does not scramble, it just ACCUMULATES.' } },
+  ],
+  output: "['login_test']\n['login_test', 'logout_test']",
+  reveal: {
+    tr: 'Python\'da `def` bir bildirim değil, ÇALIŞAN bir ifadedir: varsayılan değerler (`cases=[]`) fonksiyon TANIMLANDIĞI anda BİR KEZ hesaplanır ve fonksiyon nesnesine iliştirilir — her ÇAĞRIDA yeniden oluşmaz. Yani `cases=[]` ile oluşan liste, TÜM çağrılar arasında PAYLAŞILAN tek bir nesnedir. İlk çağrı ("login_test") o paylaşılan listeye ekler → `[\'login_test\']`. İkinci çağrı ("logout_test") AYNI listeye ekler (yeni boş liste DEĞİL) → `[\'login_test\', \'logout_test\']`. Java\'da bu sorun hiç YOKTUR çünkü varsayılan parametre değerleri her çağrıda yeniden değerlendirilir. Düzeltme: `cases=None` yaz, fonksiyon içinde `if cases is None: cases = []` ile HER çağrıda taze bir liste oluştur. QA\'da bu tuzak, tek başına geçen testlerin suite ile birlikte koştuğunda kırılmasının klasik nedenidir — "test sırası bozuk" sanılır ama aslında paylaşılan mutable default, bir testin verisini diğerine sızdırır.',
+    en: 'In Python, `def` is not a declaration, it is a RUNNING statement: default values (`cases=[]`) are evaluated ONCE, at the moment the function is DEFINED, and attached to the function object — they are not recreated on every CALL. So the list created by `cases=[]` is a single object SHARED across all calls. The first call ("login_test") appends to that shared list → `[\'login_test\']`. The second call ("logout_test") appends to the SAME list (not a fresh empty one) → `[\'login_test\', \'logout_test\']`. Java has NO such problem because default parameter values are re-evaluated on every call. The fix: use `cases=None`, then inside the function do `if cases is None: cases = []` to build a fresh list on EVERY call. In QA this trap is the classic reason tests that pass individually break when run with the full suite — it looks like "broken test ordering" but is actually a shared mutable default leaking one test\'s data into the next.',
+  },
+}
+
+const predPyFloatPrecision = {
+  type: 'prediction',
+  id: 'py-float-precision-pred',
+  xpReward: 15,
+  relatedTopicId: 'python-data-types',
+  prompt: {
+    tr: 'Bu karşılaştırma `True` mu `False` mu döner?',
+    en: 'Does this comparison return `True` or `False`?',
+  },
+  code: `result = 0.1 + 0.2
+print(result == 0.3)`,
+  codeLanguage: 'python',
+  options: [
+    { id: 'a', label: { tr: 'True', en: 'True' }, why: {
+      tr: 'Matematiksel olarak 0.1 + 0.2 = 0.3 gibi görünür — ama ikili (binary) floating-point gösterimde bu tam olarak doğru değildir.',
+      en: 'Mathematically 0.1 + 0.2 looks like 0.3 — but in binary floating-point representation it is not exactly true.' } },
+    { id: 'b', label: { tr: 'False', en: 'False' }, correct: true },
+    { id: 'c', label: { tr: 'TypeError fırlatılır', en: 'TypeError is raised' }, why: {
+      tr: 'Float karşılaştırması tamamen geçerli Python kodudur — hata fırlatmaz, sadece beklenmeyen bir sonuç üretir.',
+      en: 'Comparing floats is perfectly valid Python — it does not raise an error, it just produces a surprising result.' } },
+    { id: 'd', label: { tr: "'0.1' + '0.2' gibi string birleştirir", en: "Concatenates like '0.1' + '0.2'" }, why: {
+      tr: '0.1 ve 0.2 float\'tır, string değil — `+` burada aritmetik toplamadır.',
+      en: '0.1 and 0.2 are floats, not strings — `+` here is arithmetic addition.' } },
+  ],
+  output: 'False',
+  reveal: {
+    tr: 'Ondalıklı sayılar bilgisayarda ikili (binary) tabanda saklanır ve `0.1` ile `0.2` gibi ondalık kesirlerin çoğu ikili tabanda TAM olarak temsil edilemez (tıpkı 1/3\'ün ondalık tabanda 0.333... diye sonsuza gitmesi gibi). `0.1 + 0.2` gerçekte `0.30000000000000004` gibi ÇOK KÜÇÜK bir hata payıyla sonuçlanır — bu Python\'a özgü değildir, IEEE 754 floating-point standardını kullanan HER dilde (Java, JavaScript, C++ dahil) aynı şey olur. QA otomasyonunda bu, "rastgele" görünen ama HER ZAMAN aynı sebepten kaynaklanan klasik bir flaky test kalıbıdır: bir toplam/ortalama testi `assert total == 0.3` diye doğrudan eşitlik kontrolü yaparsa arada bir (ya da hep) patlar. Doğru yaklaşım: `math.isclose(result, 0.3)` gibi bir TOLERANS (epsilon) ile karşılaştırma yapmak — hiçbir zaman float\'ları `==` ile doğrudan karşılaştırma.',
+    en: 'Decimal numbers are stored in binary on a computer, and most decimal fractions like `0.1` and `0.2` cannot be represented EXACTLY in binary (just like 1/3 goes on forever as 0.333... in decimal). `0.1 + 0.2` actually results in a TINY error like `0.30000000000000004` — this is not Python-specific, it happens in EVERY language using the IEEE 754 floating-point standard (including Java, JavaScript, C++). In QA automation this is a classic flaky-test pattern that looks "random" but always stems from the exact same cause: a sum/average test that does a direct equality check like `assert total == 0.3` will fail intermittently (or always). The correct approach: compare with a TOLERANCE (epsilon), like `math.isclose(result, 0.3)` — never compare floats directly with `==`.',
+  },
+}
+
 function translateBlocks(blocks) {
   return blocks.map(block => {
     if (block.type === 'heading' && typeof block.text === 'string') {
@@ -11352,13 +11457,13 @@ const finalEnSections = [
   { ...sections[0], blocks: [...sections[0].blocks, pyBytecodeJourneyFilm, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro'), challengePrintFlowOrder, challengeVariableAssignUseOrder] },
   { title: '📦 Installation', blocks: translateBlocks([...sections[1].blocks, pyRequirementsPortabilityFilm, stepAnimationInstallFlow, pyRequirementsFreezeStep, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation'), challengePipInstallOrder, challengeRequirementsTxtOrder]) },
   { title: '📐 Syntax & Comments', blocks: translateBlocks([...sections[2].blocks.slice(0, 14), pyIndentationMixFilm, stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments'), challengeIndentationNestingOrder, challengeCommentToggleOrder]) },
-  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), pyDynamicTypingStep, pyCastConfigBugFilm, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
+  { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), pyDynamicTypingStep, pyCastConfigBugFilm, predPyFloatPrecision, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
   { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
-  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), pyIsVsEqFilm, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
+  { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
   { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
   { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
   { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), pyForLoopStep, challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
-  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
+  { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
   { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), pyPolymorphismStep, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
   { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), pyLegbScopeStep, ...sections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
   { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), pyArrayModuleStep, pyRandomSeedFilm, stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
@@ -11402,13 +11507,13 @@ const finalTrSections = [
   { ...trSections[0], blocks: [...trSections[0].blocks, pyBytecodeJourneyFilm, stepAnimationScriptRun, challengeScriptRunOrder, ...getPlaygroundBlocksForTopic('intro'), challengePrintFlowOrder, challengeVariableAssignUseOrder] },
   { title: '📦 Kurulum', blocks: translateBlocks([...trSections[1].blocks, pyRequirementsPortabilityFilm, stepAnimationInstallFlow, pyRequirementsFreezeStep, challengeVenvOrder, feynman1, ...getPlaygroundBlocksForTopic('installation'), challengePipInstallOrder, challengeRequirementsTxtOrder]) },
   { title: '📐 Sözdizimi & Yorumlar', blocks: translateBlocks([...trSections[2].blocks.slice(0, 14), pyIndentationMixFilm, stepAnimationIndentationBlock, challengeIfElseOrder, feynman2A, playgroundSyntax, ...getPlaygroundBlocksForTopic('syntax-comments'), challengeIndentationNestingOrder, challengeCommentToggleOrder]) },
-  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), pyDynamicTypingStep, pyCastConfigBugFilm, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
+  { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), pyDynamicTypingStep, pyCastConfigBugFilm, predPyFloatPrecision, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
   { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
-  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), pyIsVsEqFilm, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
+  { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
   { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
   { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
   { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), pyForLoopStep, challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
-  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
+  { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
   { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), pyPolymorphismStep, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
   { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), pyLegbScopeStep, ...trSections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
   { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), pyArrayModuleStep, pyRandomSeedFilm, stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
