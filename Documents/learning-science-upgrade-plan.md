@@ -55,8 +55,10 @@ kullanıcı onayı olmadan tek başına kodlanmaz (§13). Detay Bölüm 5'te.
    function ister.
 3. **#8 Portföy/proje üretimi** — en büyük epik (mini framework → POM → API →
    CI → push → portfolyo).
-4. **İsteğe bağlı düşük öncelik:** SQL/TS'e code-trace/heap-stack (SQL için
-   heap/stack kavramsal uymaz; TS runtime = JS).
+4. **İsteğe bağlı düşük öncelik:** ✅ Java/Python/JS code-trace/heap-stack
+   genişletme dalgası 2026-07-28'de yapıldı (commit `5daa148`): Java String Pool
+   heap-stack + dizi ters çevirme code-trace, Python list-copy heap-stack, JS
+   `.reduce()` code-trace. Kalan: SQL/TS (SQL için heap/stack uymaz; TS = JS).
 5. **`main`'e merge/PR kararı** kullanıcıda — branch `feature/prediction-blocks`
    içerik olarak tamamlandı, tüm geçitler yeşil.
 
