@@ -1890,6 +1890,26 @@ console.log(config.retries);`,
   ],
 }
 
+// `.reduce()` çoğu kişinin kafasını karıştırır çünkü "acc" ve "cur" görünmez.
+// Geri çağırımın her eleman için bir kez çalıştığını ve acc'nin bir önceki
+// dönüşü taşıdığını satır satır görünce reduce mantığı oturuyor.
+const traceJsReduce = {
+  type: 'code-trace',
+  title: { tr: '.reduce() Adım Adım — Akümülatör Nasıl Birikir?', en: '.reduce() Step by Step — How the Accumulator Builds' },
+  code: `const nums = [5, 8, 2];
+const total = nums.reduce((acc, cur) => acc + cur, 0);
+console.log(total);`,
+  codeLanguage: 'javascript',
+  steps: [
+    { line: 1, vars: { nums: '[5, 8, 2]' }, output: '', note: { tr: 'Toplanacak 3 sayı belleğe yazılır. `.reduce()` bunları TEK bir değere "indirger".', en: 'The 3 numbers to sum are created in memory. `.reduce()` "reduces" them to a SINGLE value.' } },
+    { line: 2, vars: { nums: '[5, 8, 2]', acc: '0', cur: '5' }, output: '', note: { tr: 'Başlangıç değeri `0` (son argüman). 1. çağrı: `acc = 0`, `cur = 5` (ilk eleman) → geri çağırım `0 + 5 = 5` döndürür.', en: 'The initial value is `0` (the last argument). Call 1: `acc = 0`, `cur = 5` (first element) → the callback returns `0 + 5 = 5`.' } },
+    { line: 2, vars: { nums: '[5, 8, 2]', acc: '5', cur: '8' }, output: '', note: { tr: '2. çağrı: `acc = 5` (önceki dönüş taşındı), `cur = 8` → `5 + 8 = 13`. İşte reduce\'un sırrı: `acc` bir önceki adımın sonucunu taşır.', en: 'Call 2: `acc = 5` (the previous return is carried over), `cur = 8` → `5 + 8 = 13`. This is the secret of reduce: `acc` carries the result of the previous step.' } },
+    { line: 2, vars: { nums: '[5, 8, 2]', acc: '13', cur: '2' }, output: '', note: { tr: '3. çağrı: `acc = 13`, `cur = 2` (son eleman) → `13 + 2 = 15`. Liste bitti.', en: 'Call 3: `acc = 13`, `cur = 2` (last element) → `13 + 2 = 15`. The list is exhausted.' } },
+    { line: 2, vars: { nums: '[5, 8, 2]', total: '15' }, output: '', note: { tr: 'Eleman kalmadı → `.reduce()` son `acc` değerini (15) döndürür ve `total`\'a atanır.', en: 'No elements left → `.reduce()` returns the final `acc` value (15), assigned to `total`.' } },
+    { line: 3, vars: { nums: '[5, 8, 2]', total: '15' }, output: '15', note: { tr: '`total` = 15 yazdırılır. Aynı işi `for` döngüsüyle de yapabilirdin — `reduce` sadece "biriktir ve tek değere indirge" niyetini daha okunur ifade eder.', en: '`total` = 15 is printed. You could do the same with a `for` loop — `reduce` just expresses the "accumulate into one value" intent more readably.' } },
+  ],
+}
+
 const sections = [
   // ─────────────────────────────────────────────
   // SECTION 0 — Intro & Why JS
@@ -3763,6 +3783,7 @@ console.log("Total Fails:", failCount, "/ Total:", tests.length);`
       jsLoopClosureTrapFilm,
       predJsLoopClosureVar,
       traceJsForEach,
+      traceJsReduce,
       {
         type: "quiz",
         question: {

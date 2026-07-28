@@ -8748,6 +8748,45 @@ r2 = add_case("logout_test")`,
   ],
 }
 
+// `b = a` referans kopyalar, `a[:]` gerçek (shallow) kopya yaratır. Bir listeyi
+// iki değişkene atayıp birinden değiştirdiğinde ötekinin de değişmesi — QA'da en
+// sık aliasing bug'ı. Slice (`[:]`) bunu neden çözer, Heap'te görünür kılar.
+const heapStackPyListCopy = {
+  type: 'heap-stack',
+  title: { tr: 'b = a mı, b = a[:] mi? — Referans vs Kopya', en: 'b = a or b = a[:]? — Reference vs Copy' },
+  code: `a = [1, 2]
+b = a
+c = a[:]
+b.append(3)`,
+  codeLanguage: 'python',
+  steps: [
+    {
+      line: 1,
+      note: { tr: '`a = [1, 2]` Heap\'te bir liste nesnesi (`list1`) yaratır; `a` onu işaret eder. Python\'da her liste Heap\'te yaşar, değişken sadece adresi tutar (Java\'daki referans gibi).', en: '`a = [1, 2]` creates a list object (`list1`) on the Heap; `a` points to it. In Python every list lives on the Heap, and the variable only holds the address (like a reference in Java).' },
+      stack: [{ name: 'a', ref: 'list1', kind: 'ref' }],
+      heap: [{ id: 'list1', type: 'list', fields: { items: '[1, 2]' } }],
+    },
+    {
+      line: 2,
+      note: { tr: '`b = a` yeni liste YARATMAZ — sadece referansı kopyalar. `a` ve `b` artık AYNI `list1` nesnesini işaret eder (aliasing).', en: '`b = a` does NOT create a new list — it only copies the reference. `a` and `b` now point to the SAME `list1` object (aliasing).' },
+      stack: [{ name: 'a', ref: 'list1', kind: 'ref' }, { name: 'b', ref: 'list1', kind: 'ref' }],
+      heap: [{ id: 'list1', type: 'list', fields: { items: '[1, 2]' } }],
+    },
+    {
+      line: 3,
+      note: { tr: '`c = a[:]` slice, Heap\'te YENİ ve AYRI bir liste (`list2`) yaratır — içeriği kopyalanır. `c` bu bağımsız kopyayı işaret eder; `a`/`b` ile bağı yoktur.', en: '`c = a[:]` slicing creates a NEW, SEPARATE list (`list2`) on the Heap — its contents are copied. `c` points to this independent copy; it has no link to `a`/`b`.' },
+      stack: [{ name: 'a', ref: 'list1', kind: 'ref' }, { name: 'b', ref: 'list1', kind: 'ref' }, { name: 'c', ref: 'list2', kind: 'ref' }],
+      heap: [{ id: 'list1', type: 'list', fields: { items: '[1, 2]' } }, { id: 'list2', type: 'list', fields: { items: '[1, 2]' } }],
+    },
+    {
+      line: 4,
+      note: { tr: '`b.append(3)` `list1`\'i değiştirir. `a` da AYNI nesneyi gösterdiği için `a` artık `[1, 2, 3]` — `a`\'ya hiç dokunmadın ama içeriği değişti! `c` (list2) gerçek kopya olduğu için hâlâ `[1, 2]`. Kopya gerektiğinde `a[:]` (veya `list(a)`, `a.copy()`) kullan.', en: '`b.append(3)` mutates `list1`. Since `a` points to the SAME object, `a` is now `[1, 2, 3]` — you never touched `a` but its content changed! `c` (list2) is a real copy, so it stays `[1, 2]`. When you need a copy, use `a[:]` (or `list(a)`, `a.copy()`).' },
+      stack: [{ name: 'a', ref: 'list1', kind: 'ref' }, { name: 'b', ref: 'list1', kind: 'ref' }, { name: 'c', ref: 'list2', kind: 'ref' }],
+      heap: [{ id: 'list1', type: 'list', fields: { items: '[1, 2, 3]' } }, { id: 'list2', type: 'list', fields: { items: '[1, 2]' } }],
+    },
+  ],
+}
+
 function translateBlocks(blocks) {
   return blocks.map(block => {
     if (block.type === 'heading' && typeof block.text === 'string') {
@@ -11529,7 +11568,7 @@ const finalEnSections = [
   { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), pyDynamicTypingStep, pyCastConfigBugFilm, predPyFloatPrecision, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
   { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
   { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
-  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
+  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, heapStackPyListCopy, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
   { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
   { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
   { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, heapStackPyMutableDefault, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
@@ -11579,7 +11618,7 @@ const finalTrSections = [
   { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), pyDynamicTypingStep, pyCastConfigBugFilm, predPyFloatPrecision, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
   { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
   { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
-  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
+  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, heapStackPyListCopy, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
   { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
   { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
   { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, heapStackPyMutableDefault, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },

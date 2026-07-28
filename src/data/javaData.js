@@ -10189,6 +10189,53 @@ const predJavaStringConcat = {
   },
 }
 
+// "new String() gerçekten yeni nesne mi?" — String pool (interning) bellek modeli.
+// Literal String\'ler pool\'da paylaşılır (aynı referans → `==` true); `new String()`
+// pool\'u atlayıp Heap\'te AYRI bir nesne yaratır (`==` false, ama `.equals` true).
+// Java\'nın en klasik `==` vs `.equals` tuzağının kökü budur.
+const heapStackJavaStringPool = {
+  type: 'heap-stack',
+  title: { tr: 'String Pool — Literal mı, new String mi?', en: 'String Pool — Literal vs new String?' },
+  code: `String a = "hi";
+String b = "hi";
+String c = new String("hi");
+boolean x = (a == b);
+boolean y = (a == c);`,
+  codeLanguage: 'java',
+  steps: [
+    {
+      line: 1,
+      note: { tr: '`"hi"` bir literal. Java onu String Pool\'a (Heap içinde özel, paylaşılan bir alan) yerleştirir ve `a` bu havuz nesnesini işaret eder.', en: '`"hi"` is a literal. Java places it in the String Pool (a special, shared area inside the Heap), and `a` points to this pool object.' },
+      stack: [{ name: 'a', ref: 'pool1', kind: 'ref' }],
+      heap: [{ id: 'pool1', type: 'String(pool)', fields: { value: '"hi"' } }],
+    },
+    {
+      line: 2,
+      note: { tr: '`b = "hi"` AYNI literal — Java yeni nesne yaratmaz, havuzdaki mevcut `"hi"`\'yi yeniden kullanır. `a` ve `b` artık AYNI nesneyi işaret eder (interning).', en: '`b = "hi"` is the SAME literal — Java creates no new object, it reuses the existing `"hi"` in the pool. `a` and `b` now point to the SAME object (interning).' },
+      stack: [{ name: 'a', ref: 'pool1', kind: 'ref' }, { name: 'b', ref: 'pool1', kind: 'ref' }],
+      heap: [{ id: 'pool1', type: 'String(pool)', fields: { value: '"hi"' } }],
+    },
+    {
+      line: 3,
+      note: { tr: '`new String("hi")` `new` anahtar kelimesiyle Heap\'te BRAND-NEW, ayrı bir nesne yaratır — pool\'u atlar. İçerik aynı ("hi") ama nesne farklı. `c` bu yeni nesneyi işaret eder.', en: '`new String("hi")` uses `new` to create a BRAND-NEW, separate object on the Heap — it bypasses the pool. Same content ("hi") but a different object. `c` points to this new object.' },
+      stack: [{ name: 'a', ref: 'pool1', kind: 'ref' }, { name: 'b', ref: 'pool1', kind: 'ref' }, { name: 'c', ref: 'obj2', kind: 'ref' }],
+      heap: [{ id: 'pool1', type: 'String(pool)', fields: { value: '"hi"' } }, { id: 'obj2', type: 'String(new)', fields: { value: '"hi"' } }],
+    },
+    {
+      line: 4,
+      note: { tr: '`a == b` referansları karşılaştırır. İkisi de `pool1`\'i işaret ettiği için sonuç `true`. `x` bir primitive (boolean) — doğrudan Stack\'te tutulur.', en: '`a == b` compares references. Both point to `pool1`, so the result is `true`. `x` is a primitive (boolean) — held directly on the Stack.' },
+      stack: [{ name: 'a', ref: 'pool1', kind: 'ref' }, { name: 'b', ref: 'pool1', kind: 'ref' }, { name: 'c', ref: 'obj2', kind: 'ref' }, { name: 'x', value: 'true', kind: 'primitive' }],
+      heap: [{ id: 'pool1', type: 'String(pool)', fields: { value: '"hi"' } }, { id: 'obj2', type: 'String(new)', fields: { value: '"hi"' } }],
+    },
+    {
+      line: 5,
+      note: { tr: '`a == c` FARKLI nesneleri karşılaştırır (`pool1` vs `obj2`) → `false`! İçerik aynı olsa da `==` referansa bakar. İçeriği karşılaştırmak isteseydin `a.equals(c)` `true` dönerdi. QA\'da String\'leri `==` ile karşılaştırmak bu yüzden sinsi bir bug kaynağıdır — her zaman `.equals` kullan.', en: '`a == c` compares DIFFERENT objects (`pool1` vs `obj2`) → `false`! Even with identical content, `==` checks the reference. To compare content you would use `a.equals(c)`, which returns `true`. Comparing Strings with `==` in QA is a sneaky bug source for this reason — always use `.equals`.' },
+      stack: [{ name: 'a', ref: 'pool1', kind: 'ref' }, { name: 'b', ref: 'pool1', kind: 'ref' }, { name: 'c', ref: 'obj2', kind: 'ref' }, { name: 'x', value: 'true', kind: 'primitive' }, { name: 'y', value: 'false', kind: 'primitive' }],
+      heap: [{ id: 'pool1', type: 'String(pool)', fields: { value: '"hi"' } }, { id: 'obj2', type: 'String(new)', fields: { value: '"hi"' } }],
+    },
+  ],
+}
+
 const sB = {
   tr: {
     title: '🔤 Strings & Math — Metin ve Matematik',
@@ -10301,6 +10348,7 @@ const sB = {
 }`,
       },
       predJavaStringConcat,
+      heapStackJavaStringPool,
       { type: 'heading', text: { tr: 'Math Sınıfı', en: 'Math Class' } },
       {
         type: 'code', language: 'java', label: 'java.lang.Math metotları',
@@ -10464,6 +10512,7 @@ const sB = {
         height: '200px',
       },
       predJavaStringConcat,
+      heapStackJavaStringPool,
       { type: 'heading', text: { en: 'Math Class' } },
       {
         type: 'code', language: 'java', label: 'java.lang.Math methods',
@@ -10547,6 +10596,35 @@ System.out.println(sum);`,
     { line: 3, vars: { sum: '6', i: '3' }, output: '', note: { tr: '`sum += i` → sum = 3 + 3 = 6.', en: '`sum += i` → sum = 3 + 3 = 6.' } },
     { line: 2, vars: { sum: '6', i: '4' }, output: '', note: { tr: '`i++` → i = 4. Koşul `4 <= 3` YANLIŞ → döngü biter (i son değere ulaşmadan çıkışın sırrı budur).', en: '`i++` → i = 4. Condition `4 <= 3` is FALSE → the loop ends (this is why the loop stops before i reaches a valid value).' } },
     { line: 5, vars: { sum: '6', i: '—' }, output: '6', note: { tr: 'Döngü bitti, `sum` = 6 ekrana yazılır. `i` artık kapsam dışı.', en: 'Loop finished, `sum` = 6 is printed. `i` is now out of scope.' } },
+  ],
+}
+
+// İki-işaretçi (two-pointer) dizi ters çevirme — baştan ve sondan gelen iki
+// index ortada buluşana kadar eleman takas eder. Dizinin adım adım nasıl
+// değiştiğini görünce takas/off-by-one mantığı somutlaşır.
+const traceJavaArrayReverse = {
+  type: 'code-trace',
+  title: { tr: 'Diziyi Ters Çevir — İki İşaretçi', en: 'Reverse an Array — Two Pointers' },
+  code: `int[] a = {10, 20, 30};
+int i = 0, j = 2;
+while (i < j) {
+    int t = a[i];
+    a[i] = a[j];
+    a[j] = t;
+    i++; j--;
+}
+System.out.println(Arrays.toString(a));`,
+  codeLanguage: 'java',
+  steps: [
+    { line: 1, vars: { a: '[10, 20, 30]' }, output: '', note: { tr: 'Dizi `a` üç elemanla başlar. Amaç: yerinde (in-place) ters çevirmek — yeni dizi yaratmadan.', en: 'Array `a` starts with three elements. Goal: reverse it in place — without creating a new array.' } },
+    { line: 2, vars: { a: '[10, 20, 30]', i: '0', j: '2' }, output: '', note: { tr: '`i` baştan (0), `j` sondan (2) başlar. Bu iki işaretçi ortada buluşana kadar yaklaşacak.', en: '`i` starts at the front (0), `j` at the back (2). These two pointers move toward each other until they meet in the middle.' } },
+    { line: 3, vars: { a: '[10, 20, 30]', i: '0', j: '2' }, output: '', note: { tr: 'Koşul `i < j` → `0 < 2` doğru → gövdeye gir. İki işaretçi henüz buluşmadı.', en: 'Condition `i < j` → `0 < 2` is true → enter the body. The two pointers have not met yet.' } },
+    { line: 4, vars: { a: '[10, 20, 30]', i: '0', j: '2', t: '10' }, output: '', note: { tr: '`t = a[i]` → a[0] değeri (10) geçici değişkende saklanır — üzerine yazmadan önce kaybolmasın diye.', en: '`t = a[i]` → the value of a[0] (10) is saved in a temp variable — so it is not lost before we overwrite it.' } },
+    { line: 5, vars: { a: '[30, 20, 30]', i: '0', j: '2', t: '10' }, output: '', note: { tr: '`a[i] = a[j]` → a[0] artık a[2]\'nin değeri (30). Dizi `[30, 20, 30]` oldu; 10 hâlâ `t`\'de güvende.', en: '`a[i] = a[j]` → a[0] is now the value of a[2] (30). The array is `[30, 20, 30]`; 10 is still safe in `t`.' } },
+    { line: 6, vars: { a: '[30, 20, 10]', i: '0', j: '2', t: '10' }, output: '', note: { tr: '`a[j] = t` → a[2] artık saklanan değer (10). Takas tamam: `[30, 20, 10]`. Geçici değişken olmasaydı 10\'u kaybederdik.', en: '`a[j] = t` → a[2] is now the saved value (10). Swap complete: `[30, 20, 10]`. Without the temp variable we would have lost 10.' } },
+    { line: 7, vars: { a: '[30, 20, 10]', i: '1', j: '1' }, output: '', note: { tr: '`i++` ve `j--` → işaretçiler içe doğru bir adım: i=1, j=1. Artık aynı yerdeler.', en: '`i++` and `j--` → the pointers step inward: i=1, j=1. They are now at the same spot.' } },
+    { line: 3, vars: { a: '[30, 20, 10]', i: '1', j: '1' }, output: '', note: { tr: 'Koşul `1 < 1` YANLIŞ → döngü biter. Ortadaki eleman zaten yerinde, ona dokunmaya gerek yok.', en: 'Condition `1 < 1` is FALSE → the loop ends. The middle element is already in place, no need to touch it.' } },
+    { line: 9, vars: { a: '[30, 20, 10]', i: '1', j: '1' }, output: '[30, 20, 10]', note: { tr: 'Dizi ters çevrildi: `[30, 20, 10]`. Sadece tek takasla, ekstra dizi kullanmadan — O(n/2) takas.', en: 'The array is reversed: `[30, 20, 10]`. With just one swap, using no extra array — O(n/2) swaps.' } },
   ],
 }
 
@@ -11139,6 +11217,7 @@ public class Main {
 }`,
         expected: `10\n50\n5\n10 20 99 40 50 \n[10, 20, 99, 40, 50]\n[10, 20, 40, 50, 99]\n40 index: 2\n[10, 20, 40]`,
       },
+      traceJavaArrayReverse,
       { type: 'heading', text: { tr: 'Çok Boyutlu Dizi (2D Array)', en: 'Multi-dimensional Arrays' } },
       {
         type: 'code', language: 'java', label: '2D Array (matris)',
@@ -11296,6 +11375,7 @@ public class Main {
     }
 }`,
       },
+      traceJavaArrayReverse,
       {
         type: 'editor', lang: 'java', label: 'Array Practice',
         defaultCode: `import java.util.Arrays;
