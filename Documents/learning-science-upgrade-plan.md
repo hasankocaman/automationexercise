@@ -43,6 +43,26 @@
 hepsi tek tek geçti. Yol boyunca 2 i18n leak yakalanıp düzeltildi (Java switch
 demo literalleri, SQL yorum satırı).
 
+**Prediction DOYURMA dalgası (Opus, 2026-07-28 — kullanıcı "aynı sayfalarda
+maksimum sayıda ekle" dedi):** İlk rollout'un (17 blok) üzerine dil sayfalarının
+kalan gotcha'ya değer TÜM sekmeleri kapsandı. +24 prediction (2 dalga toplamı 42):
+- **SQL** (8): NULL comparison, COUNT/NULL, JOIN fan-out, HAVING/WHERE, DISTINCT
+  çoklu-sütun, WHERE'siz UPDATE, NOT IN+NULL, BETWEEN dahil-uç.
+- **Java** (10): string concat, int/double bölme, operatör önceliği, switch
+  fall-through, Integer cache, unboxing NPE, array equality, ConcurrentModification,
+  int taşması wrap, finally return ezme.
+- **Python** (8): is/==, mutable default, float precision, list mult paylaşımı,
+  for...else, 1/1.0/True dict anahtarı, class-level mutable paylaşım, UnboundLocalError.
+- **JavaScript** (9): hoisting, ==/===, closure+var, .sort() sözlüksel, typeof
+  null/[]/NaN, "5"+1 vs "5"-1, setTimeout(0) makrotask, Promise mikrotask, this→TypeError.
+- **TypeScript** (7): excess property, structural typing, any/unknown, as assertion,
+  tuple.push bypass, ?? vs ||, catch e:unknown.
+- Ayrıca code-trace/heap-stack genişletme (commit `5daa148`): Java String Pool
+  heap-stack + dizi ters çevirme trace, Python list-copy heap-stack, JS .reduce() trace.
+- Boş kalan sekmeler (kurulum/mülakat/pratik/QA-use-cases + Generics/Utility Types)
+  ya kavramsal olarak "çıktıyı tahmin et" formatına uymuyor ya da düşük değerli —
+  bilinçli bırakıldı. Her sayfa ayrı commit; tüm geçitler yeşil.
+
 ### 🔜 SIRADA NE VAR (bir sonraki oturum)
 
 Kalan işlerin tümü **saf-frontend değil** — backend/mimari/product kararı ister,
@@ -55,10 +75,11 @@ kullanıcı onayı olmadan tek başına kodlanmaz (§13). Detay Bölüm 5'te.
    function ister.
 3. **#8 Portföy/proje üretimi** — en büyük epik (mini framework → POM → API →
    CI → push → portfolyo).
-4. **İsteğe bağlı düşük öncelik:** ✅ Java/Python/JS code-trace/heap-stack
-   genişletme dalgası 2026-07-28'de yapıldı (commit `5daa148`): Java String Pool
-   heap-stack + dizi ters çevirme code-trace, Python list-copy heap-stack, JS
-   `.reduce()` code-trace. Kalan: SQL/TS (SQL için heap/stack uymaz; TS = JS).
+4. **İsteğe bağlı düşük öncelik:** ✅ code-trace/heap-stack genişletme + prediction
+   DOYURMA dalgası 2026-07-28'de yapıldı (yukarı bak). Dil sayfalarında prediction
+   gotcha kapsamı doygunlaştı (java=10, js=9, python=8, sql=8, ts=7). Kalan uygun
+   sekme yok; ilerleyecek yer araç sayfaları (git/linux/docker — seçili prediction)
+   ama düşük öncelik.
 5. **`main`'e merge/PR kararı** kullanıcıda — branch `feature/prediction-blocks`
    içerik olarak tamamlandı, tüm geçitler yeşil.
 
