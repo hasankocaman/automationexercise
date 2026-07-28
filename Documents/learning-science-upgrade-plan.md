@@ -5,6 +5,63 @@
 > değil**, projenin mevcut durumuyla harmanlayarak ele alır. Branch:
 > `feature/prediction-blocks`.
 
+---
+
+## 0. İLERLEME DURUMU (son güncelleme: 2026-07-28 — bir sonraki oturuma devir)
+
+> Bu bölüm "şimdiye kadar ne yapıldı + sırada ne var" özetidir. Ayrıntı için
+> `git log --oneline` (branch `feature/prediction-blocks`) ve aşağıdaki bölümler.
+
+### ✅ TAMAMLANANLAR
+
+**Yeni blok tipleri (3 adet, Opus — bileşen + TopicPage kaydı + Java referansı):**
+- `prediction` (`PredictionBlock.jsx`) — "Önce Tahmin Et, Sonra Gör" / active recall (yazı #1)
+- `code-trace` (`CodeTraceBlock.jsx`) — satır satır kod yürüyüşü (yazı #2)
+- `heap-stack` (`HeapStackBlock.jsx`) — Stack/Heap bellek görselleştirmesi (yazı #3/#4)
+- Şemalar bu dosyanın Bölüm 2'sinde. Üçü de `TopicPage.jsx`'te `case` olarak kayıtlı.
+
+**Görev S1 — prediction rollout (Sonnet, 5/5 dil, 17 blok):**
+- javaData.js (7): string-concat, int/double bölme, operatör önceliği, switch fall-through, Integer cache, unboxing NPE, array equality
+- pythonData.js (3): `is`/`==`, mutable default arg, float precision
+- sqlData.js (2): COUNT(*)/NULL, JOIN satır çoğalması (fan-out)
+- javascriptData.js (3): hoisting, `==`/`===`, closure+var loop
+- typescriptData.js (2): excess property check, structural typing
+
+**Görev S2 — code-trace + heap-stack rollout (Sonnet, 3 dil):**
+- javaData.js: for-loop trace + OOP aliasing heap-stack
+- pythonData.js: for-loop trace + mutable-default heap-stack
+- javascriptData.js: for-loop trace + nesne-referansı heap-stack
+
+**#7 Learning Analytics dashboard (Opus, tamamen local-first, backend YOK):**
+- `progressStore.js` → `getLearningAnalytics()`, `reviewQueue.js` → `getMostMissedAreas()`
+- `LearningAnalytics.jsx` → HomePage'de ActivityHeatmap'ten sonra render
+- Ortalama quiz başarısı + en güçlü/en zayıf konu + en çok hata yapılan alan
+- Seeded-localStorage smoke testiyle doğrulandı (accuracy 83%, sıralamalar doğru)
+
+**Doğrulama:** her commit'te `node --check` + `check-content-integrity.mjs` +
+`check-i18n-leaks.mjs` (baseline **109** sabit, regresyon yok) + `npm run build` —
+hepsi tek tek geçti. Yol boyunca 2 i18n leak yakalanıp düzeltildi (Java switch
+demo literalleri, SQL yorum satırı).
+
+### 🔜 SIRADA NE VAR (bir sonraki oturum)
+
+Kalan işlerin tümü **saf-frontend değil** — backend/mimari/product kararı ister,
+kullanıcı onayı olmadan tek başına kodlanmaz (§13). Detay Bölüm 5'te.
+
+1. **#6 Adaptif zorluk** — quiz motoruna (TopicPage ~18k satır, çok sayıda E2E
+   testi) dokunur; zorluk-etiketli soru havuzu gerekir. Riskli, ayrı planla.
+2. **#5 Kişisel AI Mentor** — "hangi konuda zorlanıyorsun" verisi #7 analytics
+   ile zaten YERELDE var; asıl konuşan/AI katmanı Supabase tablo+RPC+edge
+   function ister.
+3. **#8 Portföy/proje üretimi** — en büyük epik (mini framework → POM → API →
+   CI → push → portfolyo).
+4. **İsteğe bağlı düşük öncelik:** SQL/TS'e code-trace/heap-stack (SQL için
+   heap/stack kavramsal uymaz; TS runtime = JS).
+5. **`main`'e merge/PR kararı** kullanıcıda — branch `feature/prediction-blocks`
+   içerik olarak tamamlandı, tüm geçitler yeşil.
+
+---
+
 ## 1. Yazının Değerlendirmesi — Gerçekle Kıyas
 
 Yazıda 8 eksik sıralanıyor. Kodu inceledikten sonra her birinin **projedeki
