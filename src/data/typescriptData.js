@@ -89,6 +89,78 @@ logPoint(coord);`,
   },
 }
 
+// "any ile unknown aynı mı?" — ikisi de "her şey" tutar ama any TÜM tip kontrolünü
+// KAPATIR (tehlikeli), unknown ise kullanmadan önce daraltma (narrowing) ZORUNLU kılar.
+const predTsAnyVsUnknown = {
+  type: 'prediction',
+  id: 'ts-any-vs-unknown-pred',
+  xpReward: 15,
+  relatedTopicId: 'ts-special-types',
+  prompt: {
+    tr: '`a` tipi `any`, `u` tipi `unknown`. İkisine de bir string atanıyor. Hangi satır DERLENMEZ?',
+    en: '`a` is typed `any`, `u` is typed `unknown`. Both get a string assigned. Which line does NOT compile?',
+  },
+  code: `let a: any = "hello";
+let u: unknown = "hello";
+
+const x: number = a.toFixed(2);   // (1)
+const y: number = u.length;       // (2)`,
+  codeLanguage: 'typescript',
+  options: [
+    { id: 'a', label: { tr: 'Sadece (1) hata verir', en: 'Only (1) errors' }, why: {
+      tr: '`any` HER şeye izin verir — `a.toFixed` derleme zamanında kontrol edilmez (runtime\'da çökse bile). Hata veren (2)\'dir.',
+      en: '`any` allows EVERYTHING — `a.toFixed` is not checked at compile time (even if it crashes at runtime). The one that errors is (2).' } },
+    { id: 'b', label: { tr: 'Sadece (2) hata verir', en: 'Only (2) errors' }, correct: true },
+    { id: 'c', label: { tr: 'İkisi de hata verir', en: 'Both error' }, why: {
+      tr: '(1) hata VERMEZ çünkü `any` tüm tip kontrolünü kapatır — derleyici `a` üzerinde her şeye göz yumar.',
+      en: '(1) does NOT error because `any` disables all type checking — the compiler lets anything happen on `a`.' } },
+    { id: 'd', label: { tr: 'Hiçbiri hata vermez', en: 'Neither errors' }, why: {
+      tr: '(2) kesinlikle hata verir — `unknown` bir değerin özelliğine, önce tipini daraltmadan erişmene İZİN VERMEZ.',
+      en: '(2) definitely errors — `unknown` does NOT let you access a property before narrowing its type first.' } },
+  ],
+  output: 'Line (2): error TS18046: \'u\' is of type \'unknown\'.\nLine (1): no error (any disables checking)',
+  reveal: {
+    tr: '`any` ve `unknown` ikisi de "herhangi bir değer" tutabilir ama GÜVENLİK açısından zıttırlar. `any` tip sistemini tamamen DEVRE DIŞI bırakır: `a.toFixed(2)` derleme zamanında hiç sorgulanmaz — `a` aslında string olduğu için runtime\'da çökecek olsa bile derleyici sessiz kalır (satır 1 "derlenir"). `unknown` ise TypeScript\'in tip-güvenli üst kutusudur: bir `unknown` değere herhangi bir işlem yapmadan ÖNCE tipini daraltman (narrowing: `typeof u === "string"`, `if`, tip guard) zorunludur — bu yüzden `u.length` doğrudan kullanımı derleme hatası verir (satır 2). Kısaca: `any` "bana güven, kontrol etme" der; `unknown` "önce kanıtla, sonra kullan" der. QA otomasyonunda bu ayrım kritiktir: bir API\'den gelen `response.json()` sonucunu `any` yaparsan, yanlış alan adı veya tip yıllarca sessizce runtime\'a sızar ve flaky/yanıltıcı testlere yol açar; `unknown` yapıp önce doğrularsan, hatalı veri şeklini DERLEME zamanında yakalarsın. Java analojisi: `any`, her şeyi `Object`\'e cast edip sonra kör `@SuppressWarnings` ile zorla kullanmak gibidir; `unknown` ise `instanceof` ile kontrol etmeden cast\'e izin vermeyen disiplinli yaklaşımdır.',
+    en: '`any` and `unknown` can both hold "any value" but they are OPPOSITES in terms of SAFETY. `any` completely DISABLES the type system: `a.toFixed(2)` is never questioned at compile time — even though `a` is actually a string and would crash at runtime, the compiler stays silent (line 1 "compiles"). `unknown`, on the other hand, is TypeScript\'s type-safe top box: before doing ANYTHING with an `unknown` value you MUST narrow its type (narrowing: `typeof u === "string"`, `if`, a type guard) — so using `u.length` directly is a compile error (line 2). In short: `any` says "trust me, don\'t check"; `unknown` says "prove it first, then use it." This distinction is critical in QA automation: if you type an API\'s `response.json()` result as `any`, a wrong field name or type silently leaks to runtime for years and causes flaky/misleading tests; if you type it as `unknown` and validate first, you catch the malformed data shape at COMPILE time. Java analogy: `any` is like casting everything to `Object` and then forcing it through with a blind `@SuppressWarnings`; `unknown` is the disciplined approach that refuses the cast until you check with `instanceof`.',
+  },
+}
+
+// "Cast (as) veriyi gerçekten dönüştürür mü?" — HAYIR. `as` sadece derleyiciye
+// "bana güven" der; runtime'da hiçbir dönüşüm/kontrol yapmaz. Yalan söylersen çöker.
+const predTsTypeAssertion = {
+  type: 'prediction',
+  id: 'ts-type-assertion-pred',
+  xpReward: 15,
+  relatedTopicId: 'ts-casting',
+  prompt: {
+    tr: '`value` aslında bir string. `as number` ile "number" olduğunu iddia ediyoruz. Ne olur?',
+    en: '`value` is actually a string. We assert it is a `number` with `as number`. What happens?',
+  },
+  code: `const value: unknown = "42";
+
+const n = value as number;
+
+console.log(n.toFixed(2));`,
+  codeLanguage: 'typescript',
+  options: [
+    { id: 'a', label: { tr: 'Derlenir; çıktı "42.00"', en: 'Compiles; prints "42.00"' }, why: {
+      tr: '`as` veriyi DÖNÜŞTÜRMEZ — `value` runtime\'da hâlâ "42" string\'idir, string\'lerde `toFixed` yoktur.',
+      en: '`as` does NOT convert the data — `value` is still the string "42" at runtime, and strings have no `toFixed`.' } },
+    { id: 'b', label: { tr: 'Derlenir ama runtime\'da çöker (TypeError)', en: 'Compiles but crashes at runtime (TypeError)' }, correct: true },
+    { id: 'c', label: { tr: 'Derleme hatası verir', en: 'Fails to compile' }, why: {
+      tr: 'Derlenir — `as` ile derleyiciye "number\'dır" dediğin için `n.toFixed` derleme zamanında geçerli sayılır; sorun runtime\'da patlar.',
+      en: 'It compiles — because `as` told the compiler "it is a number," `n.toFixed` is considered valid at compile time; the problem explodes at runtime.' } },
+    { id: 'd', label: { tr: '"42" sayıya çevrilir, çıktı "42.00"', en: '"42" is converted to a number, prints "42.00"' }, why: {
+      tr: 'Tip assertion bir DÖNÜŞTÜRME (conversion) değildir — sayıya çevirmek için `Number(value)` gerekir, `as` değil.',
+      en: 'A type assertion is not a CONVERSION — to convert to a number you need `Number(value)`, not `as`.' } },
+  ],
+  output: 'Compiles fine, then at runtime: TypeError: n.toFixed is not a function',
+  reveal: {
+    tr: 'Tip assertion (`value as number`) bir DÖNÜŞTÜRME işlemi DEĞİLDİR — sadece derleyiciye "bu değerin tipini benden daha iyi biliyorum, number olarak kabul et" demenin bir yoludur. Runtime\'da HİÇBİR şey olmaz: `value` hâlâ "42" string\'i olarak kalır, hiçbir kontrol veya çevirme yapılmaz. Derleyici artık `n`\'i number sandığı için `n.toFixed(2)` satırını geçerli görür ve derleme başarılı olur — ama runtime\'da string\'lerde `toFixed` metodu olmadığı için `TypeError: n.toFixed is not a function` fırlar. Yani `as` ile derleyiciye YALAN söylersen, o yalan derleme zamanında değil, en kötü yerde — production runtime\'ında — patlar. Gerçekten sayıya çevirmek için `Number(value)` veya `parseInt` gerekir. QA otomasyonunda bu çok tehlikelidir: bir API response\'unu `as MyType` ile zorla tiplersen, gelen veri o şekle uymuyorsa derleyici seni UYARMAZ ve test beklenmedik yerde çöker; `as` yerine runtime doğrulama (zod, io-ts gibi) veya tip guard kullanmak güvenlidir. Java analojisi: `as`, `(Integer) someObject` cast\'ine benzer ama daha da tehlikelidir — Java en azından runtime\'da `ClassCastException` fırlatır; TypeScript\'in `as`\'i runtime\'da HİÇBİR kontrol yapmaz, çünkü tipler derlemede silinir (type erasure).',
+    en: 'A type assertion (`value as number`) is NOT a CONVERSION — it is just a way to tell the compiler "I know this value\'s type better than you do, treat it as a number." At runtime NOTHING happens: `value` remains the string "42", with no check or conversion. Because the compiler now believes `n` is a number, it considers `n.toFixed(2)` valid and compilation succeeds — but at runtime, since strings have no `toFixed` method, a `TypeError: n.toFixed is not a function` is thrown. So if you LIE to the compiler with `as`, that lie explodes not at compile time but in the worst place — production runtime. To actually convert to a number you need `Number(value)` or `parseInt`. This is very dangerous in QA automation: if you force-type an API response with `as MyType` and the incoming data does not match that shape, the compiler does NOT warn you and the test crashes somewhere unexpected; instead of `as`, using runtime validation (zod, io-ts) or a type guard is safe. Java analogy: `as` resembles the `(Integer) someObject` cast but is even more dangerous — Java at least throws a `ClassCastException` at runtime; TypeScript\'s `as` performs NO runtime check at all, because types are erased during compilation (type erasure).',
+  },
+}
+
 export const typescriptData = {
   "en": {
     "hero": {
@@ -2042,7 +2114,8 @@ export const typescriptData = {
                 "en": "Arrays are dynamic; tuples enforce strict index-based contracts (e.g., index 0 must be string, index 1 must be boolean)."
               }
             }
-          }
+          },
+          predTsAnyVsUnknown
         ]
       },
       {
@@ -3213,7 +3286,8 @@ export const typescriptData = {
                 "en": "Appending a '?' after the parameter name makes it optional, meaning the function can be called with or without that argument."
               }
             }
-          }
+          },
+          predTsTypeAssertion
         ]
       },
       {
@@ -9311,7 +9385,8 @@ export const typescriptData = {
                 "en": "Arrays are dynamic; tuples enforce strict index-based contracts (e.g., index 0 must be string, index 1 must be boolean)."
               }
             }
-          }
+          },
+          predTsAnyVsUnknown
         ]
       },
       {
@@ -10482,7 +10557,8 @@ export const typescriptData = {
                 "en": "Appending a '?' after the parameter name makes it optional, meaning the function can be called with or without that argument."
               }
             }
-          }
+          },
+          predTsTypeAssertion
         ]
       },
       {

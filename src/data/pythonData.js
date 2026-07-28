@@ -8787,6 +8787,78 @@ b.append(3)`,
   ],
 }
 
+// "[[0]] * 3 üç bağımsız liste mi yaratır?" — HAYIR. Çarpım iç listenin
+// REFERANSINI 3 kez kopyalar; hepsi AYNI listeyi işaret eder. Birine append
+// edince üçü birden değişir. Python'un en klasik "paylaşılan iç liste" tuzağı.
+const predPyListMultiplication = {
+  type: 'prediction',
+  id: 'py-list-multiplication-pred',
+  xpReward: 15,
+  relatedTopicId: 'py-lists-tuples',
+  prompt: {
+    tr: 'Bu kodun çıktısı ne olur? `[[0]] * 3` üç ayrı iç liste mi yaratır?',
+    en: 'What does this print? Does `[[0]] * 3` create three separate inner lists?',
+  },
+  code: `grid = [[0]] * 3
+grid[0].append(9)
+print(grid)`,
+  codeLanguage: 'python',
+  options: [
+    { id: 'a', label: { tr: '[[0, 9], [0], [0]]', en: '[[0, 9], [0], [0]]' }, why: {
+      tr: 'Bu, üç iç listenin BAĞIMSIZ olduğunu varsayar — ama `* 3` yeni liste yaratmaz, AYNI listenin referansını 3 kez koyar.',
+      en: 'This assumes the three inner lists are INDEPENDENT — but `* 3` creates no new lists, it places the SAME list\'s reference 3 times.' } },
+    { id: 'b', label: { tr: '[[0, 9], [0, 9], [0, 9]]', en: '[[0, 9], [0, 9], [0, 9]]' }, correct: true },
+    { id: 'c', label: { tr: '[[9], [0], [0]]', en: '[[9], [0], [0]]' }, why: {
+      tr: '`append` mevcut `[0]`\'a ekler, üzerine yazmaz — ve üç konum da aynı listeyi paylaştığı için hepsi `[0, 9]` olur.',
+      en: '`append` adds to the existing `[0]`, it does not overwrite — and since all three slots share the same list, they all become `[0, 9]`.' } },
+    { id: 'd', label: { tr: 'Hata verir', en: 'It raises an error' }, why: {
+      tr: '`[[0]] * 3` tamamen geçerli Python\'dır — hata yok, sadece beklenmedik paylaşımlı davranış.',
+      en: '`[[0]] * 3` is perfectly valid Python — no error, just surprising shared behavior.' } },
+  ],
+  output: '[[0, 9], [0, 9], [0, 9]]',
+  reveal: {
+    tr: '`[[0]] * 3` dıştaki listeyi 3 elemanlı yapar ama iç listeyi KOPYALAMAZ — sadece TEK bir `[0]` nesnesinin referansını üç konuma da yerleştirir. Yani `grid[0]`, `grid[1]` ve `grid[2]` bellekte AYNI liste nesnesini işaret eder (aliasing). Bu yüzden `grid[0].append(9)` o tek listeyi değiştirir ve üç konum da aynı nesneyi gösterdiği için çıktı `[[0, 9], [0, 9], [0, 9]]` olur — sadece birine ekledin ama üçü birden değişti! Bağımsız iç listeler istiyorsan liste kavraması (list comprehension) kullanmalısın: `[[0] for _ in range(3)]` — bu her tur YENİ bir liste yaratır. QA otomasyonunda bu tuzak, test verisi matrisleri veya "her test için ayrı config" kurarken sinsi bug\'lara yol açar: `[default_config] * n` ile n kopya sandığın şey aslında tek paylaşımlı config\'tir; bir testte yaptığın değişiklik diğer tüm testlere sızar (flaky, sıraya bağlı hatalar). Java analojisi: `Arrays.fill(row, sharedList)` ile aynı liste referansını her hücreye koymak gibi — yeni nesne yaratmak için her hücrede `new ArrayList<>()` gerekir.',
+    en: '`[[0]] * 3` makes the outer list 3 elements long but does NOT copy the inner list — it places the reference of a SINGLE `[0]` object into all three slots. So `grid[0]`, `grid[1]`, and `grid[2]` point to the SAME list object in memory (aliasing). That is why `grid[0].append(9)` mutates that one list, and since all three slots show the same object, the output is `[[0, 9], [0, 9], [0, 9]]` — you appended to only one but all three changed! If you want independent inner lists you must use a list comprehension: `[[0] for _ in range(3)]` — which creates a NEW list each iteration. In QA automation this trap causes sneaky bugs when building test-data matrices or "separate config per test": what you think is n copies via `[default_config] * n` is actually one shared config; a change in one test leaks into all others (flaky, order-dependent failures). Java analogy: it is like `Arrays.fill(row, sharedList)` putting the same list reference in every cell — to create new objects you need `new ArrayList<>()` in each cell.',
+  },
+}
+
+// "for döngüsünün else'i ne zaman çalışır?" — break OLMADAN normal biten döngüden
+// SONRA. Java'da for'un else'i yoktur; Python'a özgü, sık şaşırtan bir yapı.
+const predPyForElse = {
+  type: 'prediction',
+  id: 'py-for-else-pred',
+  xpReward: 15,
+  relatedTopicId: 'py-conditions-loops',
+  prompt: {
+    tr: 'Bu kod ne yazar? `for` döngüsünün `else` bloğu ne zaman çalışır?',
+    en: 'What does this print? When does a `for` loop\'s `else` block run?',
+  },
+  code: `for x in [1, 2, 3]:
+    if x == 5:
+        break
+else:
+    print("not found")
+print("done")`,
+  codeLanguage: 'python',
+  options: [
+    { id: 'a', label: { tr: 'Sadece "done"', en: 'Just "done"' }, why: {
+      tr: '`else`, döngü `break`\'e UĞRAMADAN normal bittiğinde çalışır — burada hiç break olmadı, bu yüzden "not found" da yazılır.',
+      en: 'The `else` runs when the loop finishes WITHOUT hitting `break` — here no break occurred, so "not found" is printed too.' } },
+    { id: 'b', label: { tr: '"not found" ve "done" (iki satır)', en: '"not found" and "done" (two lines)' }, correct: true },
+    { id: 'c', label: { tr: 'Sadece "not found"', en: 'Just "not found"' }, why: {
+      tr: 'Döngüden sonraki `print("done")` her koşulda çalışır — o girintili değil, döngünün dışındadır.',
+      en: 'The `print("done")` after the loop runs unconditionally — it is not indented, it is outside the loop.' } },
+    { id: 'd', label: { tr: 'Hata: `for`\'un `else`\'i olmaz', en: 'Error: `for` cannot have `else`' }, why: {
+      tr: 'Python\'da `for`/`while` döngülerinin `else` bloğu OLABİLİR — Java\'nın aksine bu geçerli bir yapıdır.',
+      en: 'In Python `for`/`while` loops CAN have an `else` block — unlike Java, this is valid syntax.' } },
+  ],
+  output: 'not found\ndone',
+  reveal: {
+    tr: 'Python\'da bir `for` (veya `while`) döngüsüne bağlı `else` bloğu, çoğu kişinin sandığı gibi "döngü boşsa" değil — döngü `break` ile KESİLMEDEN, elemanları normal şekilde tükettiğinde çalışır. Buradaki döngü 1, 2, 3 üzerinde döner, hiçbiri 5\'e eşit olmadığı için `break` HİÇ tetiklenmez; döngü doğal olarak biter ve `else` bloğu çalışıp "not found" yazar. Ardından girintisiz `print("done")` her hâlükârda çalışır. Bu yapıyı "arama döngüsü" olarak düşünmek en kolayı: döngü içinde aradığını bulunca `break` edersin; `else` ise "hiç break olmadı = bulunamadı" durumunu yakalar. Java\'da for döngüsünün `else`\'i YOKTUR — orada aynı mantığı bir `found` boolean bayrağıyla kurarsın (`if (!found) {...}`). QA otomasyonunda bu okunması güç bir yapıdır: bir test listesinde belirli bir hata arayan döngüde `else` bloğunu yanlış anlarsan (örn. "eleman yoksa çalışır" sanmak), doğrulama mantığın tersine döner ve testin sessizce yanlış dalı çalıştırır.',
+    en: 'In Python, an `else` block attached to a `for` (or `while`) loop runs — not "if the loop is empty" as many assume — but when the loop finishes consuming its items normally, WITHOUT being interrupted by `break`. The loop here iterates over 1, 2, 3, and since none equals 5, `break` is NEVER triggered; the loop ends naturally and the `else` block runs, printing "not found". Then the non-indented `print("done")` runs regardless. The easiest way to think about this construct is as a "search loop": inside the loop you `break` when you find what you are looking for; the `else` then catches the "no break happened = not found" case. Java has NO `else` on a for loop — there you build the same logic with a `found` boolean flag (`if (!found) {...}`). In QA automation this is a hard-to-read construct: in a loop searching a test list for a specific error, if you misread the `else` block (e.g. thinking it runs "when the element is absent"), your validation logic inverts and the test silently takes the wrong branch.',
+  },
+}
+
 function translateBlocks(blocks) {
   return blocks.map(block => {
     if (block.type === 'heading' && typeof block.text === 'string') {
@@ -11568,9 +11640,9 @@ const finalEnSections = [
   { title: '📦 Variables & Types', blocks: translateBlocks([...sections[2].blocks.slice(14, 41), pyDynamicTypingStep, pyCastConfigBugFilm, predPyFloatPrecision, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
   { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
   { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
-  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, heapStackPyListCopy, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
+  { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, heapStackPyListCopy, predPyListMultiplication, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
   { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
-  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
+  { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, predPyForElse, challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
   { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, heapStackPyMutableDefault, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
   { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), pyPolymorphismStep, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
   { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), pyLegbScopeStep, ...sections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
@@ -11618,9 +11690,9 @@ const finalTrSections = [
   { title: '📦 Değişkenler & Tipler', blocks: translateBlocks([...trSections[2].blocks.slice(14, 41), pyDynamicTypingStep, pyCastConfigBugFilm, predPyFloatPrecision, stepAnimationVariableAssignment, challengeCastingOrder, feynman2B, playgroundVariables, ...getPlaygroundBlocksForTopic('variables-types'), challengeTypeCheckOrder, challengeStringToIntMathOrder]) },
   { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
   { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
-  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, heapStackPyListCopy, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
+  { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, heapStackPyListCopy, predPyListMultiplication, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
   { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
-  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
+  { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, predPyForElse, challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
   { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, heapStackPyMutableDefault, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
   { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), pyPolymorphismStep, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
   { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), pyLegbScopeStep, ...trSections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },

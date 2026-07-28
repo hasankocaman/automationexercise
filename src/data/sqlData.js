@@ -2239,6 +2239,76 @@ JOIN bugs ON bugs.tester_id = testers.id;`,
   },
 }
 
+// "= NULL neden hiç satır bulmaz?" — SQL'in en klasik NULL tuzağı. NULL "bilinmeyen"
+// demektir; `= NULL` sonucu TRUE değil UNKNOWN olur, WHERE her satırı eler → 0 satır.
+const predSqlNullComparison = {
+  type: 'prediction',
+  id: 'sql-null-comparison-pred',
+  xpReward: 15,
+  relatedTopicId: 'sql-null-values',
+  prompt: {
+    tr: '`users` tablosunda 5 satır var, 2\'sinde `phone` NULL. İki sorgu da kaç satır sayar?',
+    en: 'The `users` table has 5 rows, 2 with `phone` NULL. How many rows does each query count?',
+  },
+  code: `-- 2 of 5 users have phone = NULL
+SELECT COUNT(*) FROM users WHERE phone = NULL;
+SELECT COUNT(*) FROM users WHERE phone IS NULL;`,
+  codeLanguage: 'sql',
+  options: [
+    { id: 'a', label: { tr: '2, 2 (ikisi de NULL\'ları bulur)', en: '2, 2 (both find the NULLs)' }, why: {
+      tr: '`= NULL` asla TRUE dönmez — NULL ile eşitlik karşılaştırması UNKNOWN üretir, o yüzden ilk sorgu 0 sayar.',
+      en: '`= NULL` is never TRUE — comparing to NULL with equality yields UNKNOWN, so the first query counts 0.' } },
+    { id: 'b', label: { tr: '0, 2', en: '0, 2' }, correct: true },
+    { id: 'c', label: { tr: '3, 2', en: '3, 2' }, why: {
+      tr: 'İlk sorgu NULL-OLMAYANları değil, `phone = NULL` koşulunu değerlendirir — bu koşul hiçbir satır için TRUE olmaz, sonuç 0.',
+      en: 'The first query evaluates `phone = NULL`, not the non-NULLs — that condition is never TRUE for any row, so the result is 0.' } },
+    { id: 'd', label: { tr: 'Hata: `= NULL` geçersiz sözdizimi', en: 'Error: `= NULL` is invalid syntax' }, why: {
+      tr: '`= NULL` geçerli sözdizimidir, hata vermez — sadece HİÇBİR satırı eşleştirmez (sessizce 0 döner).',
+      en: '`= NULL` is valid syntax and raises no error — it simply matches NO rows (silently returns 0).' } },
+  ],
+  output: '0\n2',
+  reveal: {
+    tr: 'SQL\'de NULL "değer yok / bilinmeyen" demektir; bir bilinmeyeni bir şeyle KARŞILAŞTIRAMAZSIN. Bu yüzden `phone = NULL` sonucu TRUE veya FALSE değil, üçüncü bir mantık değeri olan UNKNOWN olur. WHERE sadece koşulu TRUE olan satırları geçirir — UNKNOWN, TRUE olmadığı için HER satır elenir ve ilk sorgu 0 sayar. NULL\'ları bulmak için özel `IS NULL` operatörü gerekir; ikinci sorgu bu yüzden doğru şekilde 2 sayar. Bu, QA otomasyonunda sinsi bir "sessiz sıfır" (silent zero) hatasıdır: bir veri doğrulama sorgusu `WHERE deleted_at = NULL` ile "silinmemiş kayıtları" saymaya çalışırsa her zaman 0 döner, test yanlışlıkla "hiç aktif kayıt yok" sanır ya da koşulu tersten kurup TÜM kayıtları kaçırır — üstelik hiçbir hata mesajı olmadan. Doğrusu `IS NULL` / `IS NOT NULL`\'dır.',
+    en: 'In SQL, NULL means "no value / unknown"; you cannot COMPARE an unknown to anything. So `phone = NULL` evaluates not to TRUE or FALSE, but to a third logic value, UNKNOWN. WHERE only lets through rows whose condition is TRUE — since UNKNOWN is not TRUE, EVERY row is filtered out and the first query counts 0. To find NULLs you need the special `IS NULL` operator; that is why the second query correctly counts 2. This is a sneaky "silent zero" bug in QA automation: if a data-validation query tries to count "non-deleted records" with `WHERE deleted_at = NULL`, it always returns 0, and the test wrongly assumes "there are no active records" or, worse, misses ALL records with no error message at all. The correct form is `IS NULL` / `IS NOT NULL`.',
+  },
+}
+
+// "WHERE'de COUNT(*) neden hata verir?" — mantıksal işlem sırası: WHERE, GROUP BY ve
+// aggregate'ten ÖNCE çalışır, o yüzden COUNT(*) henüz yoktur. Grupları filtrelemek
+// için HAVING (GROUP BY'dan SONRA çalışır) gerekir.
+const predSqlHavingWhere = {
+  type: 'prediction',
+  id: 'sql-having-where-pred',
+  xpReward: 15,
+  relatedTopicId: 'sql-group-by-having',
+  prompt: {
+    tr: 'Bir tester\'ın 2\'den fazla bug\'ı olan grupları bulmak isteniyor. Bu sorgu çalışır mı?',
+    en: 'We want groups where a tester has more than 2 bugs. Does this query run?',
+  },
+  code: `SELECT tester_id, COUNT(*) AS c
+FROM bugs
+WHERE COUNT(*) > 2
+GROUP BY tester_id;`,
+  codeLanguage: 'sql',
+  options: [
+    { id: 'a', label: { tr: '2\'den fazla bug\'ı olan grupları döner', en: 'Returns groups with more than 2 bugs' }, why: {
+      tr: '`WHERE`, gruplama ve aggregate\'ten ÖNCE çalışır — o aşamada `COUNT(*)` henüz hesaplanmamıştır, kullanılamaz.',
+      en: '`WHERE` runs BEFORE grouping and aggregation — at that stage `COUNT(*)` is not yet computed and cannot be used.' } },
+    { id: 'b', label: { tr: 'Hata: aggregate fonksiyon WHERE içinde kullanılamaz', en: 'Error: aggregate function not allowed in WHERE' }, correct: true },
+    { id: 'c', label: { tr: 'Tüm satırları filtresiz döner', en: 'Returns all rows unfiltered' }, why: {
+      tr: 'Motor koşulu sessizce yok saymaz — geçersiz aggregate kullanımı doğrudan bir hata fırlatır.',
+      en: 'The engine does not silently ignore the condition — an invalid aggregate use raises an error outright.' } },
+    { id: 'd', label: { tr: '0 satır döner', en: 'Returns 0 rows' }, why: {
+      tr: 'Sorgu hiç çalışmaz ki 0 satır dönsün — parse/planlama aşamasında hata verir.',
+      en: 'The query never runs to return 0 rows — it fails during parsing/planning.' } },
+  ],
+  output: 'ERROR: aggregate functions are not allowed in WHERE',
+  reveal: {
+    tr: 'SQL\'de yazma sırası (SELECT → FROM → WHERE → GROUP BY → HAVING) ile MANTIKSAL çalışma sırası farklıdır. Motor önce FROM, sonra WHERE, sonra GROUP BY, sonra aggregate hesaplama, en son HAVING/SELECT yürütür. `COUNT(*)` ancak GROUP BY sonrası oluşur; `WHERE` ondan ÖNCE çalıştığı için orada `COUNT(*)`\'a başvurmak "henüz var olmayan bir şeye" başvurmaktır ve motor hata verir. Grupları aggregate sonucuna göre filtrelemek için `HAVING COUNT(*) > 2` kullanılır — çünkü HAVING gruplama ve aggregate\'ten SONRA çalışır. Kural şudur: tek satırları filtrele → WHERE; grupları filtrele → HAVING. Bu ayrım QA\'da bir raporlama sorgusu yazarken kritiktir: "3\'ten fazla başarısız testi olan build\'leri getir" gibi bir doğrulamayı WHERE ile kurmaya çalışırsan sorgu hiç çalışmaz; HAVING\'e geçmen gerekir.',
+    en: 'In SQL the writing order (SELECT → FROM → WHERE → GROUP BY → HAVING) differs from the LOGICAL execution order. The engine runs FROM first, then WHERE, then GROUP BY, then aggregate computation, and finally HAVING/SELECT. `COUNT(*)` only comes into existence after GROUP BY; because `WHERE` runs BEFORE that, referring to `COUNT(*)` there is referring to "something that does not exist yet," and the engine raises an error. To filter groups by an aggregate result you use `HAVING COUNT(*) > 2` — because HAVING runs AFTER grouping and aggregation. The rule is: filter individual rows → WHERE; filter groups → HAVING. This distinction is critical in QA when writing a reporting query: if you try to build a check like "fetch builds with more than 3 failed tests" using WHERE, the query never runs; you must switch to HAVING.',
+  },
+}
+
 const finalEnSections = [
   {
     "title": "🎯 What is SQL & Why Does Every QA Engineer Need It?",
@@ -3960,7 +4030,8 @@ const finalEnSections = [
         "minScore": 3,
         "modelAnswerTr": "Sorgu yazarken SELECT ile başlarız ancak veritabanı motoru mantıksal olarak FROM ve WHERE adımlarını SELECT'ten önce çalıştırır. SELECT adımı henüz çalışmadığı için, orada tanımlanan sütun takma adları (alias) WHERE içinde kullanılamaz.",
         "modelAnswerEn": "Although queries start with SELECT, the engine evaluates FROM and WHERE steps prior to SELECT. Because aliases are defined during the SELECT phase, they are not yet known or available during the execution of the WHERE clause."
-      }
+      },
+      predSqlNullComparison
     ]
   },
   {
@@ -4249,7 +4320,8 @@ const finalEnSections = [
         "minScore": 3,
         "modelAnswerTr": "WHERE, gruplama yapılmadan önce tek tek satırları filtreler ve aggregate fonksiyon içeremez. HAVING ise GROUP BY çalıştıktan sonra gruplanmış sonuçları filtreler ve aggregate fonksiyon sonuçları üzerinde filtreleme yapabilir.",
         "modelAnswerEn": "WHERE filters raw rows before any grouping is performed and cannot filter aggregates. HAVING filters grouped rows after GROUP BY evaluates, allowing conditions on aggregate function results."
-      }
+      },
+      predSqlHavingWhere
     ]
   },
   {
@@ -9373,7 +9445,8 @@ const finalTrSections = [
         "minScore": 3,
         "modelAnswerTr": "Sorgu yazarken SELECT ile başlarız ancak veritabanı motoru mantıksal olarak FROM ve WHERE adımlarını SELECT'ten önce çalıştırır. SELECT adımı henüz çalışmadığı için, orada tanımlanan sütun takma adları (alias) WHERE içinde kullanılamaz.",
         "modelAnswerEn": "Although queries start with SELECT, the engine evaluates FROM and WHERE steps prior to SELECT. Because aliases are defined during the SELECT phase, they are not yet known or available during the execution of the WHERE clause."
-      }
+      },
+      predSqlNullComparison
     ]
   },
   {
@@ -9662,7 +9735,8 @@ const finalTrSections = [
         "minScore": 3,
         "modelAnswerTr": "WHERE, gruplama yapılmadan önce tek tek satırları filtreler ve aggregate fonksiyon içeremez. HAVING ise GROUP BY çalıştıktan sonra gruplanmış sonuçları filtreler ve aggregate fonksiyon sonuçları üzerinde filtreleme yapabilir.",
         "modelAnswerEn": "WHERE filters raw rows before any grouping is performed and cannot filter aggregates. HAVING filters grouped rows after GROUP BY evaluates, allowing conditions on aggregate function results."
-      }
+      },
+      predSqlHavingWhere
     ]
   },
   {

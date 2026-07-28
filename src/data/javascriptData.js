@@ -1910,6 +1910,73 @@ console.log(total);`,
   ],
 }
 
+// "[10, 2, 1].sort() sayısal mı sıralar?" — HAYIR. Varsayılan sort elemanları
+// STRING'e çevirip sözlüksel (alfabetik) karşılaştırır: "10" < "2". Sayısal sıralama
+// için karşılaştırıcı ((a,b)=>a-b) ZORUNLU. QA'da en sık "yanlış sıralama" bug'ı.
+const predJsArraySort = {
+  type: 'prediction',
+  id: 'js-array-sort-default-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-array-methods',
+  prompt: {
+    tr: 'Bu satır ne yazdırır? `.sort()` sayıları sayısal olarak mı sıralar?',
+    en: 'What does this print? Does `.sort()` order numbers numerically?',
+  },
+  code: `console.log([10, 2, 1, 25].sort());`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: '[1, 2, 10, 25]', en: '[1, 2, 10, 25]' }, why: {
+      tr: 'Bu sayısal sıralama olurdu — ama varsayılan `.sort()` sayısal değil, elemanları STRING\'e çevirip sözlüksel sıralar.',
+      en: 'That would be numeric ordering — but the default `.sort()` is not numeric; it converts elements to STRINGS and sorts lexicographically.' } },
+    { id: 'b', label: { tr: '[1, 10, 2, 25]', en: '[1, 10, 2, 25]' }, correct: true },
+    { id: 'c', label: { tr: '[25, 10, 2, 1]', en: '[25, 10, 2, 1]' }, why: {
+      tr: 'Varsayılan sıralama azalan değil artandır — ama sayısal değil, sözlüksel artan ("1" < "10" < "2").',
+      en: 'The default order is ascending, not descending — but lexicographic ascending, not numeric ("1" < "10" < "2").' } },
+    { id: 'd', label: { tr: 'Hata verir', en: 'It raises an error' }, why: {
+      tr: '`.sort()` argümansız tamamen geçerlidir — hata yok, sadece sayısal değil sözlüksel sıralar.',
+      en: '`.sort()` with no argument is perfectly valid — no error, it just sorts lexicographically instead of numerically.' } },
+  ],
+  output: '[ 1, 10, 2, 25 ]',
+  reveal: {
+    tr: 'JavaScript\'te `Array.prototype.sort()` argümansız çağrıldığında, elemanların tipine bakmaksızın hepsini önce STRING\'e çevirir ve Unicode kod noktalarına göre (sözlüksel/alfabetik) karşılaştırır. Bu yüzden `[10, 2, 1, 25]` sayısal olarak değil, "10", "2", "1", "25" string\'leri gibi sıralanır: karakter karakter karşılaştırıldığında "1" ile başlayanlar "2" ile başlayanlardan önce gelir → sonuç `[1, 10, 2, 25]`. Sayısal sıralama için mutlaka bir karşılaştırıcı fonksiyon vermelisin: `arr.sort((a, b) => a - b)` (artan) veya `(a, b) => b - a` (azalan). Bu, QA otomasyonunda son derece sinsi bir bug kaynağıdır: bir tablo/liste testinde "fiyata göre artan sıralama" doğrularken `.sort()`\'u argümansız kullanırsan, tek haneli ve çift haneli değerler karıştığında (9, 10, 11) sıralama bozulur ve test ya yanlış PASS verir ya da açıklanamayan şekilde kırılır. Java analojisi: Java\'da `Collections.sort(list)` sayısal tipler için doğru (numerik) sıralar çünkü `Integer` `Comparable`\'dır; JS\'in varsayılanı ise her şeyi string sayar — bu yüzden JS\'te karşılaştırıcı yazmak alışkanlık olmalı.',
+    en: 'In JavaScript, when `Array.prototype.sort()` is called with no argument, it converts ALL elements to STRINGS regardless of their type and compares them by Unicode code points (lexicographic/alphabetical). So `[10, 2, 1, 25]` is not sorted numerically but as the strings "10", "2", "1", "25": compared character by character, things starting with "1" come before those starting with "2" → the result is `[1, 10, 2, 25]`. For numeric sorting you must always provide a comparator function: `arr.sort((a, b) => a - b)` (ascending) or `(a, b) => b - a` (descending). This is an extremely sneaky bug source in QA automation: when verifying "sort by price ascending" in a table/list test, if you use `.sort()` with no argument, the ordering breaks once single- and double-digit values mix (9, 10, 11) and the test either wrongly PASSES or breaks inexplicably. Java analogy: in Java `Collections.sort(list)` sorts numeric types correctly (numerically) because `Integer` is `Comparable`; JavaScript\'s default treats everything as a string — which is why writing a comparator should be a habit in JS.',
+  },
+}
+
+// "typeof null ne döner?" — "object" (JS'in ilk sürümünden kalma, hiç düzeltilmeyen
+// tarihi bir bug). Diziler de "object"tir. Tip kontrolünü bu yüzden dikkatli yap.
+const predJsTypeofNull = {
+  type: 'prediction',
+  id: 'js-typeof-null-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-data-types',
+  prompt: {
+    tr: 'Bu üç satır sırasıyla ne yazdırır?',
+    en: 'What do these three lines print, in order?',
+  },
+  code: `console.log(typeof null);
+console.log(typeof [1, 2]);
+console.log(typeof NaN);`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: '"null", "array", "NaN"', en: '"null", "array", "NaN"' }, why: {
+      tr: '`typeof` bu üç değerin hiçbiri için beklediğin etiketi vermez — `null`→"object", dizi→"object", NaN→"number".',
+      en: '`typeof` gives none of these the label you\'d expect — `null`→"object", array→"object", NaN→"number".' } },
+    { id: 'b', label: { tr: '"object", "object", "number"', en: '"object", "object", "number"' }, correct: true },
+    { id: 'c', label: { tr: '"object", "array", "number"', en: '"object", "array", "number"' }, why: {
+      tr: '`typeof [1, 2]` "array" DEĞİL "object" döner — JS\'te dizi kontrolü için `Array.isArray()` gerekir.',
+      en: '`typeof [1, 2]` returns "object", NOT "array" — in JS you need `Array.isArray()` to check for arrays.' } },
+    { id: 'd', label: { tr: '"null", "object", "number"', en: '"null", "object", "number"' }, why: {
+      tr: '`typeof null` "null" değil "object" döner — bu JS\'in ilk sürümünden kalma, hiç düzeltilmeyen tarihi bir hatadır.',
+      en: '`typeof null` returns "object", not "null" — a historic bug from JS\'s first version that was never fixed.' } },
+  ],
+  output: 'object\nobject\nnumber',
+  reveal: {
+    tr: '`typeof null` "object" döner — bu, JavaScript\'in 1995\'teki ilk uygulamasından kalma, artık düzeltilirse milyonlarca siteyi bozacağı için bilinçli olarak korunmuş TARİHİ bir bug\'dır. `null` bir nesne DEĞİLDİR, ama `typeof` yanlışlıkla öyle raporlar. İkincisi: `typeof [1, 2]` "array" değil "object" döner çünkü JS\'te diziler özel bir nesne türüdür — bir değerin gerçekten dizi olup olmadığını anlamak için `Array.isArray(x)` kullanmalısın. Üçüncüsü: `typeof NaN` "number" döner; NaN ("Not a Number") ismine rağmen teknik olarak `number` tipindedir (geçersiz bir sayısal sonucu temsil eder). Bu üç davranış, JS\'te tip kontrolünün neden dikkatli yapılması gerektiğini gösterir. QA otomasyonunda pratik sonuç: bir API response\'unda "bu alan bir nesne mi?" veya "bu bir dizi mi?" doğrulaması yaparken `typeof x === "object"` yazarsan, `null` de dizi de bu kontrolü geçer ve doğrulaman yanlış veriyi kabul eder — `null` için ayrı `x === null` kontrolü, dizi için `Array.isArray(x)` kullanmak gerekir. Java analojisi: Java\'da `null instanceof Object` `false` döner ve `x.getClass()` gerçek tipi verir; JS\'in `typeof`\'u ise bu kadar güvenilir değildir, bu yüzden ek kontroller şarttır.',
+    en: '`typeof null` returns "object" — a HISTORIC bug from JavaScript\'s very first implementation in 1995, deliberately kept because fixing it now would break millions of sites. `null` is NOT an object, but `typeof` wrongly reports it as one. Second: `typeof [1, 2]` returns "object", not "array", because arrays in JS are a special kind of object — to check whether a value is really an array you must use `Array.isArray(x)`. Third: `typeof NaN` returns "number"; despite its name ("Not a Number"), NaN is technically of type `number` (it represents an invalid numeric result). These three behaviors show why type checking in JS must be done carefully. The practical QA impact: when validating "is this field an object?" or "is this an array?" on an API response, if you write `typeof x === "object"`, both `null` and an array pass that check and your validation accepts wrong data — you need a separate `x === null` check for null and `Array.isArray(x)` for arrays. Java analogy: in Java `null instanceof Object` returns `false` and `x.getClass()` gives the real type; JavaScript\'s `typeof` is not that reliable, so extra checks are mandatory.',
+  },
+}
+
 const sections = [
   // ─────────────────────────────────────────────
   // SECTION 0 — Intro & Why JS
@@ -2960,7 +3027,8 @@ console.log(typeof "test", typeof 42, typeof true, typeof undefined, typeof null
               ["çalıştır", "runs"]
         ],
         minScore: 5
-      }
+      },
+      predJsTypeofNull
     ]
   },
 
@@ -3543,7 +3611,8 @@ console.log('Flat list:', nested.flat());      // ['TC-001','TC-002','TC-003','T
               ["liste", "keeps"]
         ],
         minScore: 5
-      }
+      },
+      predJsArraySort
     ]
   },
 
