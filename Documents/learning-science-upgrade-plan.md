@@ -219,8 +219,11 @@ kullanıcının açık onayı olmadan tek başına kodlanmamalı (§13):
   takibi + hatırlatma. Yeni tablo/RPC + edge function gerektirir → ayrı görev.
 - **#6 Adaptif zorluk** — §18 yedek-soru altyapısı üstüne kullanıcı başarı
   geçmişine göre zorluk seçimi → ayrı görev.
-- **#7 Learning Analytics dashboard** — konu-bazlı doğruluk agregasyonu (Opus,
-  progress verisi şeması) + kart UI (Sonnet). Parçalar (`SkillRadar`,
-  `ActivityHeatmap`) var, birleştirme yok.
+- **#7 Learning Analytics dashboard** — ✅ **TAMAMLANDI (Opus).** `getLearningAnalytics()`
+  (progressStore.js) + `getMostMissedAreas()` (reviewQueue.js) agregasyonları +
+  `LearningAnalytics.jsx` panosu (HomePage'de, ActivityHeatmap'ten sonra). Tamamen
+  local-first: ortalama quiz başarısı, en güçlü/en zayıf konu, en çok hata yapılan
+  alan. Mevcut `SkillRadar`/`JobReadinessCard` (QAMentorPage, kariyer-haritası
+  gate'i) ile çakışmaz — bu pano ana sayfada harita kurmadan görünür.
 - **#8 Portföy/proje üretimi** — mini framework → POM → API test → CI → push akışı;
   en büyük epik, ayrı planlama gerekir.
