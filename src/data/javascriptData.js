@@ -1977,6 +1977,146 @@ console.log(typeof NaN);`,
   },
 }
 
+// "+ ve - string ile aynı mı davranır?" — HAYIR. `+` string varsa BİRLEŞTİRİR;
+// `-`/`*`/`/` string anlamı olmadığı için operand'ı sayıya ÇEVİRİR. Asimetri tuzağı.
+const predJsStringCoercion = {
+  type: 'prediction',
+  id: 'js-string-coercion-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-strings-numbers',
+  prompt: {
+    tr: 'Bu iki satır sırasıyla ne yazdırır? `"5"` bir string.',
+    en: 'What do these two lines print, in order? `"5"` is a string.',
+  },
+  code: `console.log("5" + 1);
+console.log("5" - 1);`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: '6, 4', en: '6, 4' }, why: {
+      tr: '`+` sayısal toplama yapmaz — bir operand string olduğu için birleştirir → "51", 6 değil.',
+      en: '`+` does not do numeric addition here — since one operand is a string it concatenates → "51", not 6.' } },
+    { id: 'b', label: { tr: '"51", 4', en: '"51", 4' }, correct: true },
+    { id: 'c', label: { tr: '"51", "51"', en: '"51", "51"' }, why: {
+      tr: '`-` operatörünün string anlamı yoktur — "5"\'i sayıya çevirip 5 - 1 = 4 (sayı) döndürür.',
+      en: 'The `-` operator has no string meaning — it coerces "5" to a number and returns 5 - 1 = 4 (a number).' } },
+    { id: 'd', label: { tr: 'NaN, 4', en: 'NaN, 4' }, why: {
+      tr: '`"5" + 1` NaN değildir — geçerli bir string birleştirmesidir ve "51" verir.',
+      en: '`"5" + 1` is not NaN — it is a valid string concatenation and yields "51".' } },
+  ],
+  output: '51\n4',
+  reveal: {
+    tr: 'JavaScript\'te `+` operatörü AŞIRI YÜKLENMİŞTİR (overloaded): operand\'lardan herhangi biri string ise sayısal toplama yerine string BİRLEŞTİRME yapar. `"5" + 1`\'de "5" string olduğu için 1 de string\'e çevrilir ve sonuç "51" olur. Ama `-`, `*`, `/`, `%` operatörlerinin string karşılığı YOKTUR — bu yüzden onlar tam tersini yapar: string operand\'ları sayıya çevirmeye çalışır. `"5" - 1`\'de "5" sayıya (5) çevrilir ve sonuç 4 (bir sayı) olur. Bu asimetri (`+` string\'e, diğerleri sayıya çeker) JS\'in en kafa karıştırıcı davranışlarından biridir. QA otomasyonunda bu son derece kritiktir çünkü form input\'ları, URL parametreleri ve `JSON`\'dan gelen çoğu değer STRING\'tir: bir fiyat testinde `total = price + tax` yazarsan ve ikisi string ise, beklenen toplam yerine yan yana yapıştırılmış rakamlar ("1050" gibi) elde edersin ve test sessizce yanlış değeri doğrular. Güvenli yol: sayısal işlemden önce `Number(x)`, `parseInt`, veya `parseFloat` ile açıkça sayıya çevirmektir. Java analojisi: Java\'da `"5" + 1` de "51" verir (String concatenation), ama `"5" - 1` Java\'da DERLEME HATASIDIR — Java string\'e `-` uygulanmasına izin vermez; JS ise sessizce sayıya çevirir, bu yüzden JS\'te tip dönüşümüne çok daha dikkatli olmak gerekir.',
+    en: 'In JavaScript the `+` operator is OVERLOADED: if either operand is a string, it performs string CONCATENATION instead of numeric addition. In `"5" + 1`, since "5" is a string, 1 is coerced to a string too and the result is "51". But the `-`, `*`, `/`, `%` operators have NO string meaning — so they do the opposite: they try to coerce string operands to numbers. In `"5" - 1`, "5" is coerced to the number 5 and the result is 4 (a number). This asymmetry (`+` pulls toward string, the others toward number) is one of JS\'s most confusing behaviors. It is extremely critical in QA automation because form inputs, URL parameters, and most values coming from `JSON` are STRINGS: if you write `total = price + tax` in a price test and both are strings, you get digits glued together ("1050") instead of the expected sum, and the test silently validates the wrong value. The safe approach is to convert explicitly with `Number(x)`, `parseInt`, or `parseFloat` before any numeric operation. Java analogy: in Java `"5" + 1` also yields "51" (String concatenation), but `"5" - 1` is a COMPILE ERROR in Java — Java does not allow `-` on a String; JavaScript silently coerces to a number, which is why you must be far more careful with type conversion in JS.',
+  },
+}
+
+// "setTimeout(…, 0) hemen mi çalışır?" — HAYIR. 0ms bile olsa callback görev
+// kuyruğuna gider ve TÜM senkron kod bittikten sonra çalışır (event loop).
+const predJsSetTimeoutOrder = {
+  type: 'prediction',
+  id: 'js-settimeout-order-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-event-loop',
+  prompt: {
+    tr: 'Bu kod satırları hangi sırayla yazdırır? `setTimeout` gecikmesi 0.',
+    en: 'In what order does this code print? The `setTimeout` delay is 0.',
+  },
+  code: `console.log("A");
+setTimeout(() => console.log("B"), 0);
+console.log("C");`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: 'A, B, C', en: 'A, B, C' }, why: {
+      tr: '`setTimeout` 0ms olsa bile callback\'i ANINDA çalıştırmaz — önce senkron kod (C) biter.',
+      en: '`setTimeout` does not run its callback IMMEDIATELY even at 0ms — the synchronous code (C) finishes first.' } },
+    { id: 'b', label: { tr: 'A, C, B', en: 'A, C, B' }, correct: true },
+    { id: 'c', label: { tr: 'B, A, C', en: 'B, A, C' }, why: {
+      tr: '`setTimeout` callback\'i asla senkron koddan önce çalışmaz — kuyruğa alınır, en sona kalır.',
+      en: 'A `setTimeout` callback never runs before synchronous code — it is queued and runs last.' } },
+    { id: 'd', label: { tr: 'A, C (B hiç çalışmaz)', en: 'A, C (B never runs)' }, why: {
+      tr: '`B` de çalışır — sadece senkron kod bittikten SONRA, event loop kuyruğu boşaltınca.',
+      en: '`B` does run — just AFTER the synchronous code finishes, once the event loop drains the queue.' } },
+  ],
+  output: 'A\nC\nB',
+  reveal: {
+    tr: 'JavaScript tek iş parçacıklıdır (single-threaded) ve bir event loop ile çalışır. `console.log("A")` ve `console.log("C")` senkron kodlardır ve çağrı yığınında (call stack) hemen çalışır. `setTimeout(..., 0)` ise callback\'i HEMEN çalıştırmaz — 0ms gecikmeyle bile olsa, callback\'i bir "görev kuyruğuna" (task queue / macrotask queue) koyar. Event loop, kuyruktaki bir görevi ancak çağrı yığını TAMAMEN boşaldığında (yani tüm senkron kod bittiğinde) alır ve çalıştırır. Bu yüzden sıra A → C (senkron) → B (kuyruktan) olur; 0ms "hemen" değil, "mümkün olan en erken, ama senkron koddan sonra" demektir. Bu, QA otomasyonunda asenkron testlerin temelidir: bir UI olayından sonra DOM\'un güncellenmesi veya bir ağ isteğinin dönmesi bu kuyruğa bağlıdır — bu yüzden `await`, `waitFor` veya explicit wait kullanmadan hemen assertion yaparsan, callback henüz çalışmadığı için test rastgele başarısız olur (flaky). Java analojisi: Java\'da bunun karşılığı bir `ExecutorService`\'e sıfır gecikmeli task submit etmek gibidir — ana thread devam eder, task sonra çalışır; ama JS tek thread\'li olduğu için "sonra" mutlaka mevcut senkron blok bitince gelir.',
+    en: 'JavaScript is single-threaded and runs on an event loop. `console.log("A")` and `console.log("C")` are synchronous and execute immediately on the call stack. `setTimeout(..., 0)`, however, does NOT run its callback immediately — even with a 0ms delay, it places the callback into a "task queue" (macrotask queue). The event loop only picks up and runs a queued task once the call stack is COMPLETELY empty (i.e., all synchronous code has finished). So the order is A → C (synchronous) → B (from the queue); 0ms does not mean "immediately," it means "as early as possible, but after the synchronous code." This is the foundation of asynchronous testing in QA automation: a DOM update after a UI event or the return of a network request depends on this queue — so if you assert immediately without using `await`, `waitFor`, or an explicit wait, the test fails randomly (flaky) because the callback has not run yet. Java analogy: the equivalent is submitting a zero-delay task to an `ExecutorService` — the main thread continues and the task runs later; but because JS is single-threaded, "later" always comes once the current synchronous block finishes.',
+  },
+}
+
+// "Promise.then mı setTimeout mu önce çalışır?" — Promise (mikrotask), setTimeout'tan
+// (makrotask) ÖNCE. Senkron kod bitince önce TÜM mikrotask'lar boşaltılır.
+const predJsPromiseVsTimeout = {
+  type: 'prediction',
+  id: 'js-promise-vs-timeout-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-promises-closures',
+  prompt: {
+    tr: 'Bu kod hangi sırayla yazdırır? `setTimeout` önce planlanıyor ama...',
+    en: 'In what order does this print? `setTimeout` is scheduled first, but...',
+  },
+  code: `console.log("start");
+setTimeout(() => console.log("timeout"), 0);
+Promise.resolve().then(() => console.log("promise"));
+console.log("end");`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: 'start, end, timeout, promise', en: 'start, end, timeout, promise' }, why: {
+      tr: '`setTimeout` önce planlansa da Promise callback\'i bir MİKROTASK\'tır ve makrotask olan setTimeout\'tan ÖNCE çalışır.',
+      en: 'Even though `setTimeout` is scheduled first, the Promise callback is a MICROTASK and runs BEFORE the macrotask setTimeout.' } },
+    { id: 'b', label: { tr: 'start, end, promise, timeout', en: 'start, end, promise, timeout' }, correct: true },
+    { id: 'c', label: { tr: 'start, timeout, promise, end', en: 'start, timeout, promise, end' }, why: {
+      tr: '`end` senkron olduğu için `timeout`/`promise`\'ten ÖNCE gelir — asenkron callback\'ler tüm senkron kod bitmeden çalışmaz.',
+      en: '`end` is synchronous so it comes BEFORE `timeout`/`promise` — async callbacks do not run until all synchronous code finishes.' } },
+    { id: 'd', label: { tr: 'start, end, promise (timeout düşer)', en: 'start, end, promise (timeout dropped)' }, why: {
+      tr: '`timeout` de çalışır — sadece tüm mikrotask\'lar (promise) boşaldıktan SONRA, en sona kalır.',
+      en: '`timeout` does run — just LAST, after all microtasks (promise) have drained.' } },
+  ],
+  output: 'start\nend\npromise\ntimeout',
+  reveal: {
+    tr: 'Event loop\'ta iki farklı kuyruk vardır ve öncelikleri farklıdır: MİKROTASK kuyruğu (Promise `.then`/`.catch`/`.finally`, `queueMicrotask`, `await` devamları) ve MAKROTASK kuyruğu (`setTimeout`, `setInterval`, I/O olayları). Kritik kural şudur: her senkron kod bloğu bittiğinde, event loop bir sonraki MAKROTASK\'a geçmeden ÖNCE, mikrotask kuyruğundaki TÜM işleri boşaltır. Bu kodda önce senkron "start" ve "end" yazdırılır. Sonra event loop devreye girer: `setTimeout` makrotask kuyruğunda beklerken, `Promise.resolve().then(...)` mikrotask kuyruğundadır ve mikrotask\'lar önce çalıştığı için "promise" yazdırılır. En son, makrotask sırası geldiğinde "timeout" yazdırılır. Yani `setTimeout` kod içinde ÖNCE yazılmış ve ÖNCE planlanmış olsa bile, Promise callback\'i ondan önce çalışır. QA otomasyonunda bu ayrım, `async/await` tabanlı testlerin neden belirli bir sırayla ilerlediğini anlamak için kritiktir: Playwright/Cypress gibi araçlarda Promise zincirlerinin setTimeout tabanlı beklemelerden önce çözülmesi, testlerin zamanlama davranışını doğrudan etkiler. Java analojisi: Java\'da `CompletableFuture` callback\'leri ile `ScheduledExecutorService` görevleri farklı mekanizmalardır; JS\'in mikrotask/makrotask ayrımı bu iki farklı öncelik düzeyini tek thread üzerinde modeller.',
+    en: 'The event loop has two distinct queues with different priorities: the MICROTASK queue (Promise `.then`/`.catch`/`.finally`, `queueMicrotask`, `await` continuations) and the MACROTASK queue (`setTimeout`, `setInterval`, I/O events). The critical rule: whenever a synchronous code block finishes, the event loop drains ALL work in the microtask queue BEFORE moving on to the next MACROTASK. In this code, the synchronous "start" and "end" print first. Then the event loop kicks in: while `setTimeout` waits in the macrotask queue, `Promise.resolve().then(...)` is in the microtask queue, and since microtasks run first, "promise" prints. Finally, when it is the macrotask\'s turn, "timeout" prints. So even though `setTimeout` was written FIRST in the code and scheduled FIRST, the Promise callback runs before it. In QA automation this distinction is critical for understanding why `async/await`-based tests proceed in a certain order: in tools like Playwright/Cypress, Promise chains resolving before setTimeout-based waits directly affects the timing behavior of tests. Java analogy: in Java, `CompletableFuture` callbacks and `ScheduledExecutorService` tasks are different mechanisms; JS\'s microtask/macrotask split models these two priority levels on a single thread.',
+  },
+}
+
+// "c.inc'i değişkene atayıp çağırınca this ne olur?" — undefined. this çağrı ŞEKLİNE
+// göre belirlenir; metodu bağlamdan koparınca this kaybolur → TypeError.
+const predJsThisBinding = {
+  type: 'prediction',
+  id: 'js-this-binding-pred',
+  xpReward: 15,
+  relatedTopicId: 'js-classes',
+  prompt: {
+    tr: 'Bu kod ne yapar? `c.inc` bir değişkene atanıp öyle çağrılıyor.',
+    en: 'What does this code do? `c.inc` is assigned to a variable and called that way.',
+  },
+  code: `class Counter {
+  count = 0;
+  inc() { this.count++; }
+}
+const c = new Counter();
+const fn = c.inc;
+fn();`,
+  codeLanguage: 'javascript',
+  options: [
+    { id: 'a', label: { tr: '`c.count` 1 olur', en: '`c.count` becomes 1' }, why: {
+      tr: '`fn`, `c`\'den KOPARILDI — `fn()` çağrısında `this` artık `c` değil, bu yüzden `c.count` değişmez (üstelik hata fırlar).',
+      en: '`fn` is DETACHED from `c` — in `fn()` the `this` is no longer `c`, so `c.count` does not change (and it actually throws).' } },
+    { id: 'b', label: { tr: 'TypeError (this undefined)', en: 'TypeError (this is undefined)' }, correct: true },
+    { id: 'c', label: { tr: 'Hiçbir şey olmaz, hata da yok', en: 'Nothing happens, no error' }, why: {
+      tr: 'Hata VAR — `this` undefined olduğu için `this.count` erişimi `TypeError` fırlatır.',
+      en: 'There IS an error — since `this` is undefined, accessing `this.count` throws a `TypeError`.' } },
+    { id: 'd', label: { tr: 'Derleme hatası', en: 'Compile error' }, why: {
+      tr: 'Kod geçerlidir ve çalışmaya başlar — sorun RUNTIME\'da, `fn()` çağrıldığında ortaya çıkar.',
+      en: 'The code is valid and starts running — the problem occurs at RUNTIME, when `fn()` is called.' } },
+  ],
+  output: "TypeError: Cannot read properties of undefined (reading 'count')",
+  reveal: {
+    tr: 'JavaScript\'te bir fonksiyonun `this`\'i, fonksiyonun nerede TANIMLANDIĞINA değil, NASIL ÇAĞRILDIĞINA göre belirlenir. `c.inc()` şeklinde çağırsaydın, nokta\'nın solundaki `c` `this` olurdu ve çalışırdı. Ama `const fn = c.inc` ile metodu nesnesinden KOPARIYORSUN — `fn` artık sadece fonksiyona bir referans, `c` ile bağı yok. `fn()` çağrıldığında önünde bir nesne olmadığı için `this` `undefined` olur (class metotları örtük olarak strict mode\'dadır; strict mode\'da bağlamsız çağrıda `this` `undefined`\'dır, global nesne değil). Sonuç: `this.count++` satırı `undefined.count`\'a erişmeye çalışır ve `TypeError` fırlar. Çözümler: (1) `const fn = c.inc.bind(c)` ile `this`\'i kalıcı olarak `c`\'ye bağla; (2) metodu bir arrow function ile sar: `const fn = () => c.inc()`; (3) class alanı olarak arrow tanımla: `inc = () => { this.count++ }`. QA otomasyonunda bu tuzak, bir class metodunu event handler veya callback olarak geçerken (`button.addEventListener("click", obj.handleClick)`) sürekli karşımıza çıkar — `this` kaybolur ve handler çöker. Java analojisi: Java\'da bir metot her zaman ait olduğu nesneye bağlıdır (`this` sabittir); JS\'te ise fonksiyonlar "serbesttir" ve `this` çağrı anında dinamik olarak bağlanır — Java\'dan gelenlerin en çok yanıldığı farklardan biridir.',
+    en: 'In JavaScript, a function\'s `this` is determined not by where the function is DEFINED but by HOW it is CALLED. Had you called it as `c.inc()`, the `c` to the left of the dot would be `this` and it would work. But `const fn = c.inc` DETACHES the method from its object — `fn` is now just a reference to the function, with no link to `c`. When `fn()` is called, there is no object in front of it, so `this` becomes `undefined` (class methods are implicitly in strict mode; in strict mode a context-less call has `this` as `undefined`, not the global object). As a result, the line `this.count++` tries to access `undefined.count` and throws a `TypeError`. Fixes: (1) `const fn = c.inc.bind(c)` to permanently bind `this` to `c`; (2) wrap the method in an arrow function: `const fn = () => c.inc()`; (3) define it as an arrow class field: `inc = () => { this.count++ }`. In QA automation this trap constantly appears when passing a class method as an event handler or callback (`button.addEventListener("click", obj.handleClick)`) — `this` is lost and the handler crashes. Java analogy: in Java a method is always bound to the object it belongs to (`this` is fixed); in JS functions are "free" and `this` is bound dynamically at call time — one of the differences that most trips up those coming from Java.',
+  },
+}
+
 const sections = [
   // ─────────────────────────────────────────────
   // SECTION 0 — Intro & Why JS
@@ -3298,7 +3438,8 @@ console.log("Split parts:", cleanText.split(": ")); // ["Report", "15 Passed"]`
               "replace"
         ],
         minScore: 5
-      }
+      },
+      predJsStringCoercion
     ]
   },
 
@@ -4166,7 +4307,8 @@ console.log("3. Stack End");`
               ["sıralı", "one"]
         ],
         minScore: 5
-      }
+      },
+      predJsSetTimeoutOrder
     ]
   },
 
@@ -4389,7 +4531,8 @@ console.log("Count call 2:", counter());`
               ["zincir", "chain"]
         ],
         minScore: 5
-      }
+      },
+      predJsPromiseVsTimeout
     ]
   },
 
@@ -4688,7 +4831,8 @@ console.log("Parsed Browser:", testData.browser);`
               ["nesne", "object"]
         ],
         minScore: 5
-      }
+      },
+      predJsThisBinding
     ]
   },
 
