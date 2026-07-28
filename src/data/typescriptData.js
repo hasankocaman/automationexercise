@@ -161,6 +161,110 @@ console.log(n.toFixed(2));`,
   },
 }
 
+// "Tuple 2 elemanla sınırlıyken .push(3) derlenir mi?" — EVET. TS tuple uzunluğunu
+// yalnızca atama/indeksleme'de zorlar; .push() dizinin metodudur ve engellenmez.
+const predTsTuplePush = {
+  type: 'prediction',
+  id: 'ts-tuple-push-pred',
+  xpReward: 15,
+  relatedTopicId: 'ts-arrays-tuples',
+  prompt: {
+    tr: '`point` tipi `[number, number]` (2 elemanlı tuple). Bu kod derlenir mi, çıktı ne?',
+    en: '`point` is typed `[number, number]` (a 2-element tuple). Does this compile, and what is the output?',
+  },
+  code: `const point: [number, number] = [1, 2];
+point.push(3);
+console.log(point.length);`,
+  codeLanguage: 'typescript',
+  options: [
+    { id: 'a', label: { tr: 'Derleme hatası: tuple sadece 2 eleman alır', en: 'Compile error: tuple allows only 2 elements' }, why: {
+      tr: 'TS tuple uzunluğunu `.push()`\'ta KONTROL ETMEZ — sadece doğrudan atama ve indekslemede zorlar, bu yüzden hata vermez.',
+      en: 'TS does NOT check tuple length on `.push()` — it only enforces it on direct assignment and indexing, so no error occurs.' } },
+    { id: 'b', label: { tr: 'Derlenir; "3" yazar', en: 'Compiles; prints "3"' }, correct: true },
+    { id: 'c', label: { tr: 'Derlenir; "2" yazar (push yok sayılır)', en: 'Compiles; prints "2" (push is ignored)' }, why: {
+      tr: '`.push(3)` gerçekten çalışır ve elemanı ekler — çalışma zamanında tuple sadece bir dizidir, uzunluk 3 olur.',
+      en: '`.push(3)` genuinely runs and adds the element — at runtime a tuple is just an array, so the length becomes 3.' } },
+    { id: 'd', label: { tr: 'Runtime hatası', en: 'Runtime error' }, why: {
+      tr: 'Runtime\'da hiçbir hata yok — dizi büyür; TS\'in tuple güvenliği yalnızca derleme zamanı ve `.push` bu kontrolün dışında.',
+      en: 'There is no runtime error — the array grows; TS\'s tuple safety is compile-time only and `.push` slips past that check.' } },
+  ],
+  output: '3',
+  reveal: {
+    tr: 'TypeScript\'te bir tuple (`[number, number]`), sabit uzunlukta ve her pozisyonu tipli bir dizidir — ama bu güvenlik yalnızca DOĞRUDAN atama (`point = [1, 2, 3]` hata verir) ve indeksleme (`point[2]` hata verir) için geçerlidir. `.push()`, `.pop()` gibi dizi metotları ise tuple tipinde HÂLÂ kullanılabilir ve TS bunların uzunluğu bozmasını ENGELLEMEZ — bu, TypeScript\'in bilinen bir tip güvenliği açığıdır. `point.push(3)` sorunsuz derlenir ve çalışır; çünkü çalışma zamanında bir tuple aslında sıradan bir JavaScript dizisidir. Sonuç: `point` artık `[1, 2, 3]` ve `length` 3\'tür. Yani tuple\'ın "tam 2 eleman" garantisine `.push` karşısında GÜVENEMEZSİN. Bunu önlemek için `readonly [number, number]` kullanabilirsin — o zaman `.push` derleme hatası verir (çünkü readonly dizilerde mutasyon metotları yoktur). QA otomasyonunda bu önemlidir: bir tuple\'ı "her zaman [x, y] koordinatı" gibi sabit yapı sandığın bir yerde bir kod yanlışlıkla `.push` ederse, TS seni uyarmaz ve veri yapısı sessizce bozulur. Java analojisi: Java\'da sabit boyut için `int[]` (boyutu değiştirilemez) veya immutable bir record kullanırsın; TS\'in tuple\'ı ise altında değiştirilebilir bir dizi olduğundan bu koruma `readonly` olmadan tam değildir.',
+    en: 'In TypeScript a tuple (`[number, number]`) is a fixed-length array with each position typed — but this safety only applies to DIRECT assignment (`point = [1, 2, 3]` errors) and indexing (`point[2]` errors). Array methods like `.push()` and `.pop()` are STILL available on a tuple type, and TS does NOT prevent them from breaking the length — this is a known type-safety hole in TypeScript. `point.push(3)` compiles and runs fine, because at runtime a tuple is really just an ordinary JavaScript array. Result: `point` is now `[1, 2, 3]` and `length` is 3. So you CANNOT rely on a tuple\'s "exactly 2 elements" guarantee against `.push`. To prevent this you can use `readonly [number, number]` — then `.push` is a compile error (because readonly arrays have no mutation methods). This matters in QA automation: if you treat a tuple as a fixed structure like "always an [x, y] coordinate" and some code accidentally `.push`es to it, TS does not warn you and the data structure is silently corrupted. Java analogy: in Java you use `int[]` (whose size cannot change) or an immutable record for fixed size; TS\'s tuple, being a mutable array underneath, does not fully protect this without `readonly`.',
+  },
+}
+
+// "0 || x ve 0 ?? x aynı mı?" — HAYIR. || her falsy'de (0 dahil) sağı döner; ?? SADECE
+// null/undefined'de. Varsayılan atarken 0/""/false geçerli değerse ?? kullan.
+const predTsNullishCoalescing = {
+  type: 'prediction',
+  id: 'ts-nullish-coalescing-pred',
+  xpReward: 15,
+  relatedTopicId: 'ts-template-null',
+  prompt: {
+    tr: 'Bu kod ne yazdırır? `||` ile `??` aynı sonucu mu verir?',
+    en: 'What does this print? Do `||` and `??` give the same result?',
+  },
+  code: `const a = 0 || "fallback";
+const b = 0 ?? "fallback";
+console.log(a, b);`,
+  codeLanguage: 'typescript',
+  options: [
+    { id: 'a', label: { tr: 'fallback fallback', en: 'fallback fallback' }, why: {
+      tr: '`??` yalnızca null/undefined\'i "boş" sayar — 0 geçerli bir değer olduğu için `b` 0 olur, fallback değil.',
+      en: '`??` treats only null/undefined as "empty" — since 0 is a valid value, `b` becomes 0, not fallback.' } },
+    { id: 'b', label: { tr: 'fallback 0', en: 'fallback 0' }, correct: true },
+    { id: 'c', label: { tr: '0 0', en: '0 0' }, why: {
+      tr: '`||` 0\'ı falsy sayar ve sağı döndürür — bu yüzden `a` "fallback" olur, 0 değil.',
+      en: '`||` treats 0 as falsy and returns the right side — so `a` is "fallback", not 0.' } },
+    { id: 'd', label: { tr: '0 fallback', en: '0 fallback' }, why: {
+      tr: 'Tam tersi — `a` (||) fallback, `b` (??) 0 olur; 0 || \'da düşer, 0 ?? \'da kalır.',
+      en: 'It is the reverse — `a` (||) is fallback, `b` (??) is 0; 0 falls through with ||, survives with ??.' } },
+  ],
+  output: 'fallback 0',
+  reveal: {
+    tr: '`||` (mantıksal VEYA) ve `??` (nullish coalescing) benzer görünür ama "boşluk" tanımları farklıdır. `||` sol taraf HERHANGİ bir falsy değerse (yani `0`, `""`, `false`, `null`, `undefined`, `NaN`) sağ tarafı döndürür. `??` ise SADECE sol taraf `null` veya `undefined` ise sağ tarafı döndürür — `0`, `""`, `false` gibi "geçerli ama falsy" değerleri KORUR. Bu yüzden `0 || "fallback"` → "fallback" (0 falsy sayıldı), ama `0 ?? "fallback"` → 0 (0 null/undefined değil, korundu). Bu ayrım varsayılan değer atarken kritiktir: `const retries = config.retries || 3` yazarsan ve kullanıcı bilinçli olarak `retries: 0` (hiç deneme) ayarlamışsa, `||` bunu ezip 3 yapar — kullanıcının niyeti sessizce bozulur. Doğrusu `config.retries ?? 3`\'tür: yalnızca değer hiç verilmemişse (undefined) 3 kullanır. QA otomasyonunda bu, config/opsiyon nesnelerinde çok sık rastlanan sinsi bir bug\'dır — `timeout: 0`, `headless: false`, `prefix: ""` gibi geçerli ama falsy değerler `||` ile yanlışlıkla varsayılana döner. Java analojisi: Java\'da `Optional.orElse()` yalnızca null durumunu ele alır (falsy kavramı yoktur); TS\'in `??`\'si buna en yakın davranıştır, `||` ise JS\'in geniş falsy kümesi yüzünden çok daha risklidir.',
+    en: '`||` (logical OR) and `??` (nullish coalescing) look similar but define "emptiness" differently. `||` returns the right side if the left is ANY falsy value (i.e. `0`, `""`, `false`, `null`, `undefined`, `NaN`). `??`, however, returns the right side ONLY if the left is `null` or `undefined` — it PRESERVES "valid but falsy" values like `0`, `""`, `false`. So `0 || "fallback"` → "fallback" (0 counted as falsy), but `0 ?? "fallback"` → 0 (0 is not null/undefined, so it survives). This distinction is critical when assigning defaults: if you write `const retries = config.retries || 3` and the user deliberately set `retries: 0` (no retries), `||` overrides it to 3 — the user\'s intent is silently corrupted. The correct form is `config.retries ?? 3`: it uses 3 only if the value was never provided (undefined). In QA automation this is a very common sneaky bug in config/option objects — valid-but-falsy values like `timeout: 0`, `headless: false`, `prefix: ""` get wrongly reset to the default with `||`. Java analogy: in Java `Optional.orElse()` handles only the null case (there is no falsy concept); TS\'s `??` is the closest to that behavior, whereas `||` is far riskier because of JS\'s broad set of falsy values.',
+  },
+}
+
+// "catch (e) içinde e.message'a erişmek derlenir mi?" — HAYIR. TS 4.4+ strict'te e
+// tipi `unknown`'dır (her şey throw edilebilir); önce daraltman gerekir.
+const predTsCatchUnknown = {
+  type: 'prediction',
+  id: 'ts-catch-unknown-pred',
+  xpReward: 15,
+  relatedTopicId: 'ts-error-handling',
+  prompt: {
+    tr: 'Strict TypeScript\'te bu kod derlenir mi? `catch (e)` içinde `e.message`.',
+    en: 'In strict TypeScript, does this compile? `e.message` inside `catch (e)`.',
+  },
+  code: `try {
+  throw new Error("boom");
+} catch (e) {
+  console.log(e.message);
+}`,
+  codeLanguage: 'typescript',
+  options: [
+    { id: 'a', label: { tr: 'Derlenir; "boom" yazar', en: 'Compiles; prints "boom"' }, why: {
+      tr: 'Strict TS\'te `e` tipi `any` DEĞİL `unknown`\'dır — `unknown` üzerinde `.message`\'a doğrudan erişmek derleme hatasıdır.',
+      en: 'In strict TS, `e` is typed `unknown`, NOT `any` — accessing `.message` directly on `unknown` is a compile error.' } },
+    { id: 'b', label: { tr: 'Derleme hatası: e tipi unknown', en: 'Compile error: e is of type unknown' }, correct: true },
+    { id: 'c', label: { tr: 'Derlenir; undefined yazar', en: 'Compiles; prints undefined' }, why: {
+      tr: 'Kod derlenmediği için hiçbir şey yazdırmaz — sorun runtime\'da undefined değil, derleme zamanı tip hatasıdır.',
+      en: 'It prints nothing because it does not compile — the problem is a compile-time type error, not a runtime undefined.' } },
+    { id: 'd', label: { tr: 'Runtime hatası fırlar', en: 'Throws a runtime error' }, why: {
+      tr: 'Sorun runtime\'da değil — TS derleyicisi `e.message`\'ı derleme zamanında reddeder (JS\'e hiç çevrilmez).',
+      en: 'The problem is not at runtime — the TS compiler rejects `e.message` at compile time (it never transpiles).' } },
+  ],
+  output: "error TS18046: 'e' is of type 'unknown'.",
+  reveal: {
+    tr: 'TypeScript 4.4\'ten itibaren (ve `strict` / `useUnknownInCatchVariables` aktifken), bir `catch (e)` bloğundaki `e` değişkeni `any` değil `unknown` tipindedir. Bunun nedeni JavaScript\'te `throw` ifadesinin HERHANGİ bir değeri fırlatabilmesidir — `throw new Error(...)` kadar `throw "bir string"`, `throw 42` veya `throw { custom: true }` de geçerlidir. Dolayısıyla derleyici `e`\'nin bir `Error` olduğunu VARSAYAMAZ; onu `unknown` yapar ve sen tipini DARALTMADAN (`narrowing`) hiçbir özelliğine erişmene izin vermez. `e.message` doğrudan yazıldığında derleme hatası (`\'e\' is of type \'unknown\'`) alırsın. Doğru yol önce tip kontrolü yapmaktır: `if (e instanceof Error) { console.log(e.message); }` — bu daraltmadan sonra `e` güvenle `Error` olarak kullanılabilir. QA otomasyonunda bu, testlerdeki hata yakalama bloklarını sağlamlaştırır: bir API çağrısı veya assertion beklenmedik bir şey fırlattığında, kör bir `e.message` yerine tipini kontrol etmek testin gerçekten neyin yanlış gittiğini doğru raporlamasını sağlar. Java analojisi: Java seni zaten belirli bir tip yakalamaya zorlar (`catch (IOException e)`) ve `e` o tipte güvenlidir; TS\'in `unknown` yaklaşımı da benzer bir disiplin getirir — kullanmadan önce "bu gerçekten bir Error mı?" diye kanıtlaman gerekir.',
+    en: 'Since TypeScript 4.4 (and with `strict` / `useUnknownInCatchVariables` enabled), the `e` variable in a `catch (e)` block is typed `unknown`, not `any`. This is because in JavaScript a `throw` statement can throw ANY value — `throw "a string"`, `throw 42`, or `throw { custom: true }` are just as valid as `throw new Error(...)`. Therefore the compiler CANNOT assume `e` is an `Error`; it types it as `unknown` and refuses to let you access any property without first NARROWING its type. Writing `e.message` directly gives a compile error (`\'e\' is of type \'unknown\'`). The correct way is to check the type first: `if (e instanceof Error) { console.log(e.message); }` — after this narrowing, `e` can be safely used as an `Error`. In QA automation this hardens the error-handling blocks in tests: when an API call or assertion throws something unexpected, checking the type instead of a blind `e.message` ensures the test reports what actually went wrong correctly. Java analogy: Java already forces you to catch a specific type (`catch (IOException e)`) and `e` is safe as that type; TS\'s `unknown` approach brings similar discipline — you must prove "is this really an Error?" before using it.',
+  },
+}
+
 export const typescriptData = {
   "en": {
     "hero": {
@@ -2115,7 +2219,8 @@ export const typescriptData = {
               }
             }
           },
-          predTsAnyVsUnknown
+          predTsAnyVsUnknown,
+          predTsTuplePush
         ]
       },
       {
@@ -4619,7 +4724,8 @@ export const typescriptData = {
                 "en": "They enforce string patterns (like URL structures or data-testid prefixes) at compile time, eliminating configuration errors before executing tests."
               }
             }
-          }
+          },
+          predTsNullishCoalescing
         ]
       },
       {
@@ -5365,7 +5471,8 @@ export const typescriptData = {
                 }
               }
             ]
-          }
+          },
+          predTsCatchUnknown
         ]
       },
       {
@@ -9386,7 +9493,8 @@ export const typescriptData = {
               }
             }
           },
-          predTsAnyVsUnknown
+          predTsAnyVsUnknown,
+          predTsTuplePush
         ]
       },
       {
@@ -11890,7 +11998,8 @@ export const typescriptData = {
                 "en": "They enforce string patterns (like URL structures or data-testid prefixes) at compile time, eliminating configuration errors before executing tests."
               }
             }
-          }
+          },
+          predTsNullishCoalescing
         ]
       },
       {
@@ -12636,7 +12745,8 @@ export const typescriptData = {
                 }
               }
             ]
-          }
+          },
+          predTsCatchUnknown
         ]
       },
       {
