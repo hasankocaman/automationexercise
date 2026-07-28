@@ -3133,6 +3133,114 @@ q.setAge(31);`,
   ],
 }
 
+// "Döngü içinde listeden eleman silmek çalışır mı?" — HAYIR. for-each bir Iterator
+// kullanır; listeyi doğrudan değiştirince Iterator bozulur → ConcurrentModificationException.
+const predJavaConcurrentModification = {
+  type: 'prediction',
+  id: 'java-concurrent-modification-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-collections',
+  prompt: {
+    tr: 'Bu kod ne yapar? for-each döngüsü içinde listeden eleman silmek güvenli mi?',
+    en: 'What does this code do? Is it safe to remove an element from a list inside a for-each loop?',
+  },
+  code: `List<String> tests = new ArrayList<>(List.of("a", "b", "c"));
+for (String t : tests) {
+    if (t.equals("b")) tests.remove(t);
+}
+System.out.println(tests);`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: '[a, c] — "b" silinir', en: '[a, c] — "b" is removed' }, why: {
+      tr: 'for-each doğrudan `tests.remove()` ile listeyi değiştirmene İZİN VERMEZ — sessizce silmez, exception fırlatır.',
+      en: 'for-each does NOT let you modify the list directly with `tests.remove()` — it does not silently remove, it throws.' } },
+    { id: 'b', label: { tr: 'ConcurrentModificationException fırlatır', en: 'Throws ConcurrentModificationException' }, correct: true },
+    { id: 'c', label: { tr: '[a, b, c] — hiçbir şey silinmez', en: '[a, b, c] — nothing is removed' }, why: {
+      tr: 'Silme işlemi denenir ve tam o anda değişiklik algılanıp exception fırlar — sessizce görmezden gelinmez.',
+      en: 'The removal is attempted and at that exact moment the modification is detected and an exception is thrown — it is not silently ignored.' } },
+    { id: 'd', label: { tr: 'Derleme hatası', en: 'Compile error' }, why: {
+      tr: 'Kod tamamen geçerli Java\'dır ve derlenir — sorun RUNTIME\'da, döngü bir sonraki adıma geçerken ortaya çıkar.',
+      en: 'The code is perfectly valid Java and compiles — the problem occurs at RUNTIME, when the loop tries to advance.' } },
+  ],
+  output: 'Exception in thread "main" java.util.ConcurrentModificationException',
+  reveal: {
+    tr: 'Bir `for (String t : tests)` for-each döngüsü, perde arkasında listenin `Iterator`\'ını kullanır. Iterator, oluşturulduğu anda listenin bir "değişiklik sayacını" (`modCount`) hatırlar ve her adımda bunu kontrol eder. `tests.remove(t)` ile listeyi DOĞRUDAN değiştirdiğinde bu sayaç artar; döngü bir sonraki elemana geçmek isterken Iterator "liste altımdan değişti!" der ve `ConcurrentModificationException` fırlatır. Yani "b" silinmiş gibi görünse de döngü tamamlanamadan çöker. Doğru yollar: (1) `Iterator`\'ı açıkça kullanıp `it.remove()` çağırmak (Iterator kendi silme işlemini bilir, sayaç senkron kalır); (2) Java 8+ `tests.removeIf(t -> t.equals("b"))` kullanmak (en temiz yol); (3) silinecekleri ayrı bir listeye toplayıp döngüden sonra `removeAll` yapmak. QA otomasyonunda bu tuzak, bir test sonuç listesini filtrelerken sık karşımıza çıkar — "başarısız testleri listeden çıkar" gibi bir döngü CME ile çökerse test raporu hiç üretilmez. Python analojisi: Python\'da da `for x in liste: liste.remove(x)` benzer şekilde elemanları atlar/bozar; oradaki çözüm de `[x for x in liste if ...]` (yeni liste) veya kopya üzerinde dönmektir.',
+    en: 'A `for (String t : tests)` for-each loop uses the list\'s `Iterator` behind the scenes. When created, the Iterator remembers the list\'s "modification count" (`modCount`) and checks it on every step. When you modify the list DIRECTLY with `tests.remove(t)`, that count increments; as the loop tries to advance to the next element, the Iterator says "the list changed under me!" and throws `ConcurrentModificationException`. So even though "b" appears removed, the loop crashes before completing. The correct ways: (1) use the `Iterator` explicitly and call `it.remove()` (the Iterator knows about its own removal and keeps the count in sync); (2) use Java 8+ `tests.removeIf(t -> t.equals("b"))` (the cleanest); (3) collect the items to remove into a separate list and `removeAll` after the loop. In QA automation this trap shows up often when filtering a list of test results — if a loop like "remove failed tests from the list" crashes with CME, the test report is never produced. Python analogy: in Python `for x in list: list.remove(x)` similarly skips/corrupts elements; the fix there is also `[x for x in list if ...]` (a new list) or iterating over a copy.',
+  },
+}
+
+// "int taşarsa exception mı, sessiz sarma mı?" — SESSİZCE sarar (MAX+1 → MIN).
+// Java int taşmasında uyarı vermez; QA'da sayaç/ID taşması sinsi bir bug'dır.
+const predJavaIntegerOverflow = {
+  type: 'prediction',
+  id: 'java-integer-overflow-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-strings-math',
+  prompt: {
+    tr: '`Integer.MAX_VALUE` = 2147483647. Bu kod ne yazar?',
+    en: '`Integer.MAX_VALUE` = 2147483647. What does this print?',
+  },
+  code: `int big = Integer.MAX_VALUE;
+System.out.println(big + 1);`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: '2147483648', en: '2147483648' }, why: {
+      tr: 'Bu değer `int`\'in üst sınırını AŞAR — 32-bit `int` bu sayıyı tutamaz, o yüzden sonuç bu olamaz.',
+      en: 'This value EXCEEDS the upper limit of an `int` — a 32-bit `int` cannot hold it, so the result cannot be this.' } },
+    { id: 'b', label: { tr: '-2147483648', en: '-2147483648' }, correct: true },
+    { id: 'c', label: { tr: 'ArithmeticException fırlatır', en: 'Throws ArithmeticException' }, why: {
+      tr: 'Java `int` taşmasında exception FIRLATMAZ — sessizce sarar. Exception istiyorsan `Math.addExact()` kullanmalısın.',
+      en: 'Java does NOT throw on `int` overflow — it wraps silently. If you want an exception you must use `Math.addExact()`.' } },
+    { id: 'd', label: { tr: '0', en: '0' }, why: {
+      tr: 'Sonuç sıfıra dönmez — iki\'nin tümleyeni (two\'s complement) aritmetiğinde en üst değerden bir fazlası en alt (negatif) değere sarar.',
+      en: 'It does not wrap to zero — in two\'s complement arithmetic, one past the maximum wraps to the minimum (most negative) value.' } },
+  ],
+  output: '-2147483648',
+  reveal: {
+    tr: 'Java\'da `int` 32-bit işaretli (signed) bir tiptir ve yalnızca -2147483648 ile +2147483647 arasını tutabilir. `Integer.MAX_VALUE` bu aralığın en üstüdür; ona 1 eklediğinde değer aralığın dışına taşar ve iki\'nin tümleyeni (two\'s complement) aritmetiği gereği en üst değerden en ALT değere "sarar" (wrap-around): sonuç `Integer.MIN_VALUE` yani -2147483648 olur. En kritik nokta: Java bu taşmada HİÇBİR uyarı veya exception vermez — kod sessizce yanlış sonuç üretir. Bu yüzden büyük sayılarla çalışırken ya `long` (64-bit) kullanmalı ya da taşmayı yakalamak için `Math.addExact(a, b)` (taşarsa `ArithmeticException` fırlatır) tercih edilmelidir. QA otomasyonunda bu sinsi bir bug kaynağıdır: bir test sayacı, ID üreteci veya milisaniye hesabı `int` sınırını aşınca aniden negatif değere döner ve "toplam süre negatif" gibi imkânsız görünen, tekrarı zor hatalara yol açar. Python analojisi: Python\'da `int` sınırsızdır (otomatik büyür), bu yüzden bu taşma orada HİÇ yaşanmaz — Java\'dan gelenlerin en çok şaşırdığı farklardan biridir.',
+    en: 'In Java, `int` is a 32-bit signed type and can only hold values from -2147483648 to +2147483647. `Integer.MAX_VALUE` is the top of that range; when you add 1, the value overflows past the range and, per two\'s complement arithmetic, "wraps around" from the maximum to the MINIMUM value: the result is `Integer.MIN_VALUE`, i.e. -2147483648. The critical point: Java gives NO warning or exception on this overflow — the code silently produces a wrong result. That is why, when working with large numbers, you should use `long` (64-bit) or, to catch overflow, prefer `Math.addExact(a, b)` (which throws `ArithmeticException` on overflow). In QA automation this is a sneaky bug source: when a test counter, ID generator, or millisecond computation crosses the `int` limit, it suddenly flips to a negative value and causes impossible-looking, hard-to-reproduce errors like "total duration is negative." Python analogy: in Python `int` is unbounded (it grows automatically), so this overflow NEVER happens there — one of the differences that most surprises those coming from Java.',
+  },
+}
+
+// "try içinde return varken finally de return ederse hangisi kazanır?" — finally.
+// finally'deki return, try'ın dönüş değerini EZER (ve exception'ı bile yutabilir).
+const predJavaFinallyReturn = {
+  type: 'prediction',
+  id: 'java-finally-return-pred',
+  xpReward: 15,
+  relatedTopicId: 'java-exceptions',
+  prompt: {
+    tr: 'Bu metot ne döndürür? `try` 1 döndürüyor ama `finally` de bir return içeriyor.',
+    en: 'What does this method return? `try` returns 1, but `finally` also has a return.',
+  },
+  code: `static int test() {
+    try {
+        return 1;
+    } finally {
+        return 2;
+    }
+}
+// System.out.println(test());`,
+  codeLanguage: 'java',
+  options: [
+    { id: 'a', label: { tr: '1', en: '1' }, why: {
+      tr: '`try` 1 döndürmeye hazırlanır ama `finally` metottan çıkmadan ÖNCE çalışır ve kendi return\'ü bu değeri ezer.',
+      en: '`try` prepares to return 1, but `finally` runs BEFORE the method exits and its own return overrides that value.' } },
+    { id: 'b', label: { tr: '2', en: '2' }, correct: true },
+    { id: 'c', label: { tr: 'Derleme hatası (iki return)', en: 'Compile error (two returns)' }, why: {
+      tr: 'Farklı bloklarda iki `return` olması tamamen geçerlidir — derleyici buna izin verir.',
+      en: 'Having two `return`s in different blocks is perfectly valid — the compiler allows it.' } },
+    { id: 'd', label: { tr: 'Önce 1, sonra 2', en: 'First 1, then 2' }, why: {
+      tr: 'Bir metot yalnızca TEK bir değer döndürür — iki değeri arka arkaya döndüremez; `finally`\'nin return\'ü kazanır.',
+      en: 'A method returns only ONE value — it cannot return two in sequence; `finally`\'s return wins.' } },
+  ],
+  output: '2',
+  reveal: {
+    tr: '`finally` bloğu, `try` veya `catch` ne olursa olsun (normal çıkış, exception, hatta `return`) HER ZAMAN çalışır — kaynak temizliği için tam da bunun için vardır. `try` içindeki `return 1` metottan çıkmak üzere değeri hazırlar, ama metot GERÇEKTEN çıkmadan önce `finally` çalışmak zorundadır. `finally` içinde de bir `return 2` olduğu için, bu return akışı tamamen ele geçirir ve `try`\'ın hazırladığı 1 değeri SESSİZCE atılır — metot 2 döndürür. Daha da tehlikelisi: eğer `try` bir exception fırlatıyor olsaydı, `finally`\'deki `return` o exception\'ı da YUTAR (exception hiç yukarı gitmez, sanki hata olmamış gibi). Bu yüzden `finally` içinde `return` (veya `break`/`continue`) yazmak güçlü bir ANTI-PATTERN kabul edilir — hataları ve dönüş değerlerini görünmez şekilde bozar. `finally` yalnızca temizlik (dosya/bağlantı kapatma) için kullanılmalı, kontrol akışı için değil. QA otomasyonunda bu, bir test yardımcı metodunun gerçek hatayı yutup yanlışlıkla "başarılı" değer döndürmesine — yani en tehlikeli hata türü olan sahte PASS\'e — yol açabilir.',
+    en: 'The `finally` block ALWAYS runs regardless of what `try` or `catch` do (normal exit, exception, even a `return`) — that is exactly why it exists, for resource cleanup. The `return 1` inside `try` prepares the value to exit the method, but before the method ACTUALLY exits, `finally` must run. Since `finally` also has a `return 2`, this return completely takes over the flow and the 1 that `try` prepared is SILENTLY discarded — the method returns 2. Even more dangerous: if `try` were throwing an exception, the `return` in `finally` would SWALLOW that exception too (the exception never propagates, as if no error happened). That is why writing a `return` (or `break`/`continue`) inside `finally` is considered a strong ANTI-PATTERN — it invisibly corrupts errors and return values. `finally` should be used only for cleanup (closing files/connections), not for control flow. In QA automation this can cause a test helper method to swallow the real error and mistakenly return a "success" value — i.e. a false PASS, the most dangerous kind of failure.',
+  },
+}
+
 // ─── S2: OOP & COLLECTIONS ────────────────────────────────────────────────────
 const s2 = {
   tr: {
@@ -3193,6 +3301,7 @@ System.out.println(user1); // TestUser{username='admin', email='admin@test.com'}
       },
       javaClassObjectStep,
       heapStackJava,
+      predJavaConcurrentModification,
       {
         type: 'heading', text: { tr: 'Interface & Abstract Class', en: 'Interface & Abstract Class' },
       },
@@ -3421,6 +3530,7 @@ System.out.println(user1);`,
       },
       javaClassObjectStep,
       heapStackJava,
+      predJavaConcurrentModification,
       {
         type: 'heading', text: { tr: 'Interface & Abstract Class', en: 'Interface & Abstract Class' },
       },
@@ -10349,6 +10459,7 @@ const sB = {
       },
       predJavaStringConcat,
       heapStackJavaStringPool,
+      predJavaIntegerOverflow,
       { type: 'heading', text: { tr: 'Math Sınıfı', en: 'Math Class' } },
       {
         type: 'code', language: 'java', label: 'java.lang.Math metotları',
@@ -10513,6 +10624,7 @@ const sB = {
       },
       predJavaStringConcat,
       heapStackJavaStringPool,
+      predJavaIntegerOverflow,
       { type: 'heading', text: { en: 'Math Class' } },
       {
         type: 'code', language: 'java', label: 'java.lang.Math methods',
@@ -11929,6 +12041,7 @@ public class Main {
 }`,
         expected: `Dizi sınırı aşıldı: Index 10 out of bounds for length 3\nfinally her zaman çalışır!\nNull referans: Cannot invoke "String.length()" because "s" is null\nYaş geçerli: 25\nHata: Geçersiz yaş: -5\nCast veya argüman hatası: ClassCastException`,
       },
+      predJavaFinallyReturn,
       { type: 'heading', text: { tr: 'Lambda Expressions & Functional Interface', en: 'Lambda Expressions' } },
       {
         type: 'code', language: 'java', label: 'Lambda ifadeleri ve Stream API',
@@ -12130,6 +12243,7 @@ public class Main {
     }
 }`,
       },
+      predJavaFinallyReturn,
       { type: 'heading', text: { en: 'Lambda Expressions & Stream API' } },
       {
         type: 'code', language: 'java', label: 'Lambda and Stream',
