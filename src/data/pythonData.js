@@ -8748,6 +8748,119 @@ r2 = add_case("logout_test")`,
   ],
 }
 
+// "1, 1.0 ve True ayrı dict anahtarı mı?" — HAYIR. Üçü de eşit (==) ve aynı hash'e
+// sahip → dict için AYNI anahtar; değer ezilir, anahtar ilk hâliyle kalır.
+const predPyDictIntFloatKey = {
+  type: 'prediction',
+  id: 'py-dict-int-float-key-pred',
+  xpReward: 15,
+  relatedTopicId: 'py-sets-dicts',
+  prompt: {
+    tr: 'Bu kodun çıktısı ne olur? `1`, `1.0` ve `True` ayrı ayrı anahtar mı olur?',
+    en: 'What does this print? Do `1`, `1.0`, and `True` become separate keys?',
+  },
+  code: `d = {1: "a"}
+d[1.0] = "b"
+d[True] = "c"
+print(d)`,
+  codeLanguage: 'python',
+  options: [
+    { id: 'a', label: { tr: "{1: 'a', 1.0: 'b', True: 'c'}", en: "{1: 'a', 1.0: 'b', True: 'c'}" }, why: {
+      tr: '`1`, `1.0` ve `True` Python\'da birbirine EŞİTTİR ve aynı hash\'e sahiptir — dict için üçü de tek anahtardır, üç ayrı değil.',
+      en: '`1`, `1.0`, and `True` are EQUAL in Python and share the same hash — for a dict they are a single key, not three separate ones.' } },
+    { id: 'b', label: { tr: "{1: 'c'}", en: "{1: 'c'}" }, correct: true },
+    { id: 'c', label: { tr: "{1: 'a'}", en: "{1: 'a'}" }, why: {
+      tr: 'Sonraki atamalar aynı anahtarı EZER — değer "a"\'da kalmaz, en son yazılan "c" olur.',
+      en: 'The later assignments OVERWRITE the same key — the value does not stay "a", it becomes the last written, "c".' } },
+    { id: 'd', label: { tr: 'Hata: karışık anahtar tipleri', en: 'Error: mixed key types' }, why: {
+      tr: 'Dict farklı tipte anahtarları rahatça kabul eder — burada zaten hepsi eşit olduğu için tek anahtara iner, hata yok.',
+      en: 'A dict happily accepts keys of different types — and here they are all equal anyway, so they collapse to one key; no error.' } },
+  ],
+  output: "{1: 'c'}",
+  reveal: {
+    tr: 'Python\'da dict anahtarları KİMLİĞE (identity) değil, hash + eşitliğe (`==`) göre karşılaştırılır. `1 == 1.0` `True`\'dur ve `hash(1) == hash(1.0)`; ayrıca `bool`, `int`\'in bir alt sınıfı olduğu için `True == 1` ve `hash(True) == hash(1)`\'dir. Yani `1`, `1.0` ve `True` dict açısından AYNI anahtardır. `d[1.0] = "b"` mevcut `1` anahtarının değerini "b" yapar, `d[True] = "c"` yine aynı anahtarı "c" yapar — sonuçta tek bir giriş kalır ve ilk yazılan anahtar gösterimi (`1`) korunurken değer en son yazılan "c" olur: `{1: \'c\'}`. Bu, sık şaşırtan bir davranıştır. QA otomasyonunda bir sonuç sözlüğünde HTTP durum kodlarını `200` (int) ve `True` (bir bayrak) gibi değerleri anahtar olarak karıştırırsan, beklemediğin şekilde birbirini ezebilirler ve veri sessizce kaybolur. Java analojisi: Java\'da `HashMap<Object,String>` içinde `Integer 1`, `Double 1.0` ve `Boolean.TRUE` AYRI anahtarlardır (çünkü `equals` farklı tipler için `false` döner) — Python\'ın sayısal eşitliği burada Java\'dan ayrışır.',
+    en: 'In Python, dict keys are compared not by IDENTITY but by hash + equality (`==`). `1 == 1.0` is `True` and `hash(1) == hash(1.0)`; also, since `bool` is a subclass of `int`, `True == 1` and `hash(True) == hash(1)`. So `1`, `1.0`, and `True` are the SAME key as far as the dict is concerned. `d[1.0] = "b"` sets the value of the existing `1` key to "b", and `d[True] = "c"` sets that same key to "c" — leaving a single entry, where the first-written key representation (`1`) is kept while the value is the last written, "c": `{1: \'c\'}`. This is a frequently surprising behavior. In QA automation, if you mix keys like `200` (int) and `True` (a flag) in a results dict, they can overwrite each other unexpectedly and data is silently lost. Java analogy: in Java a `HashMap<Object,String>` treats `Integer 1`, `Double 1.0`, and `Boolean.TRUE` as SEPARATE keys (because `equals` returns `false` across different types) — Python\'s numeric equality diverges from Java here.',
+  },
+}
+
+// "Class seviyesindeki liste her instance'a ayrı mı?" — HAYIR. Class değişkeni TÜM
+// instance'larda PAYLAŞILIR; birinden append edince ötekilerde de görünür.
+const predPyClassVarShared = {
+  type: 'prediction',
+  id: 'py-class-var-shared-pred',
+  xpReward: 15,
+  relatedTopicId: 'py-classes-oop',
+  prompt: {
+    tr: 'Bu kod ne yazar? `items` her nesnede ayrı bir liste mi?',
+    en: 'What does this print? Is `items` a separate list per object?',
+  },
+  code: `class Cart:
+    items = []
+    def add(self, x):
+        self.items.append(x)
+
+a = Cart()
+b = Cart()
+a.add("apple")
+print(b.items)`,
+  codeLanguage: 'python',
+  options: [
+    { id: 'a', label: { tr: '[] (b kendi listesine sahip)', en: '[] (b has its own list)' }, why: {
+      tr: '`items` class seviyesinde tanımlı — her instance\'a kopyalanmaz, hepsi AYNI listeyi paylaşır.',
+      en: '`items` is defined at the class level — it is not copied per instance; they all share the SAME list.' } },
+    { id: 'b', label: { tr: "['apple']", en: "['apple']" }, correct: true },
+    { id: 'c', label: { tr: 'Hata: b\'ye hiç ekleme yapılmadı', en: 'Error: nothing was added to b' }, why: {
+      tr: 'Hata yok — `a.add` ile eklenen öğe paylaşılan listede olduğu için `b.items` üzerinden de görünür.',
+      en: 'No error — the item added via `a.add` is in the shared list, so it is visible through `b.items` too.' } },
+    { id: 'd', label: { tr: "['apple', 'apple']", en: "['apple', 'apple']" }, why: {
+      tr: '`add` yalnızca bir kez, `a` üzerinden çağrıldı — liste paylaşılsa da öğe tek eklenir.',
+      en: '`add` was called only once, via `a` — even though the list is shared, the item is added just once.' } },
+  ],
+  output: "['apple']",
+  reveal: {
+    tr: 'Bir class gövdesinde doğrudan tanımlanan `items = []` bir CLASS değişkenidir (class attribute) — o class\'ın TÜM instance\'ları tarafından PAYLAŞILAN tek bir liste nesnesidir, her nesne için ayrı yaratılmaz. `a.add("apple")` çağrıldığında `self.items.append(...)` bu tek paylaşımlı listeyi değiştirir; `b` de aynı listeyi işaret ettiği için `b.items` artık `[\'apple\']` görünür — `b`\'ye hiç dokunmadın ama içeriği değişti. Bu, mutable default argument tuzağının (bkz. o prediction) class hâlidir. Doğru yol: değiştirilebilir (mutable) durumu `__init__` içinde INSTANCE değişkeni olarak tanımlamaktır: `def __init__(self): self.items = []` — böylece her nesne kendi listesini alır. (Not: `int`/`str` gibi immutable class değişkenlerinde bu tuzak görünmez çünkü onları "değiştirmek" aslında instance\'a yeni bir değişken atar.) QA otomasyonunda bu, bir Page Object veya test-veri sınıfında paylaşılan mutable durum tutmanın neden tehlikeli olduğunu gösterir: bir testin biriktirdiği veri diğer testlere sızar ve sıraya bağlı, tekrarı zor flaky hatalara yol açar. Java analojisi: `static List<String> items = new ArrayList<>()` alanı gibidir — instance değil, class düzeyinde paylaşılır; instance başına ayrı istiyorsan `static` olmayan bir alan + constructor\'da başlatma gerekir.',
+    en: 'An `items = []` defined directly in a class body is a CLASS variable (class attribute) — a single list object SHARED by ALL instances of that class, not created separately per object. When `a.add("apple")` is called, `self.items.append(...)` mutates this one shared list; since `b` points to the same list, `b.items` now shows `[\'apple\']` — you never touched `b` but its content changed. This is the class-level version of the mutable default argument trap (see that prediction). The correct way is to define mutable state as an INSTANCE variable inside `__init__`: `def __init__(self): self.items = []` — so each object gets its own list. (Note: with immutable class variables like `int`/`str` this trap is invisible, because "changing" them actually assigns a new variable on the instance.) In QA automation this shows why holding shared mutable state in a Page Object or test-data class is dangerous: data accumulated by one test leaks into others, causing order-dependent, hard-to-reproduce flaky failures. Java analogy: it is like a `static List<String> items = new ArrayList<>()` field — shared at the class level, not per instance; if you want per-instance you need a non-static field initialized in the constructor.',
+  },
+}
+
+// "Fonksiyon içinde bir global'i önce okuyup sonra atarsan?" — UnboundLocalError.
+// Atama, ismi TÜM fonksiyon boyunca local yapar; atamadan önceki okuma patlar.
+const predPyUnboundLocal = {
+  type: 'prediction',
+  id: 'py-unbound-local-pred',
+  xpReward: 15,
+  relatedTopicId: 'py-scope-modules',
+  prompt: {
+    tr: 'Bu kod ne yapar? Fonksiyon global `count`\'u önce yazdırıp sonra ona atama yapıyor.',
+    en: 'What does this code do? The function prints the global `count`, then assigns to it.',
+  },
+  code: `count = 10
+
+def increment():
+    print(count)
+    count = count + 1
+
+increment()`,
+  codeLanguage: 'python',
+  options: [
+    { id: 'a', label: { tr: '10 yazdırır, sonra global 11 olur', en: 'Prints 10, then the global becomes 11' }, why: {
+      tr: 'Fonksiyon içinde `count`\'a atama olduğu için `count` TÜM fonksiyonda local sayılır — global\'e hiç erişilmez.',
+      en: 'Because `count` is assigned inside the function, `count` is treated as local throughout — the global is never accessed.' } },
+    { id: 'b', label: { tr: 'UnboundLocalError fırlatır', en: 'Throws UnboundLocalError' }, correct: true },
+    { id: 'c', label: { tr: '11 yazdırır', en: 'Prints 11' }, why: {
+      tr: '`print(count)` satırı, henüz atanmamış LOCAL `count`\'a baktığı için çalışamadan hata fırlar.',
+      en: 'The `print(count)` line refers to the not-yet-assigned LOCAL `count`, so it errors before running.' } },
+    { id: 'd', label: { tr: '10 yazdırır, global 10 kalır', en: 'Prints 10, global stays 10' }, why: {
+      tr: 'Fonksiyon en baştaki `print`\'te bile çökeceği için hiçbir şey yazdıramaz.',
+      en: 'The function crashes even at the first `print`, so it prints nothing at all.' } },
+  ],
+  output: "UnboundLocalError: local variable 'count' referenced before assignment",
+  reveal: {
+    tr: 'Python bir fonksiyonu derlerken, gövdesinde bir isme ATAMA yapılıp yapılmadığına bakar. `count = count + 1` satırı `count`\'a atama yaptığı için Python `count`\'u fonksiyonun TAMAMINDA yerel (local) bir değişken olarak işaretler — sadece atamadan sonra değil, ilk satırdan itibaren. Bu yüzden `print(count)` satırı çalıştığında, yerel `count`\'a HENÜZ bir değer atanmamıştır ve Python global `count = 10`\'a düşmek yerine `UnboundLocalError: local variable referenced before assignment` fırlatır. Yani fonksiyon 10 bile yazdıramaz. Bunu düzeltmenin yolları: (1) global\'i değiştireceğini açıkça bildirmek için fonksiyon başına `global count` eklemek; (2) daha temizi, global\'i hiç değiştirmeyip değeri parametre olarak alıp yeni değeri `return` etmek (`def increment(c): return c + 1`). QA otomasyonunda bu tuzak, test durumunu global bir sayaçla takip etmeye çalışırken sık görülür ve testin beklenmedik yerde çökmesine yol açar; global durum yerine fonksiyonlara veri geçirmek her zaman daha güvenlidir. Java analojisi: Java\'da bir metot, sınıf alanı (`this.count`) ile aynı isimli bir yerel değişkeni gölgeleyebilir ama okuma/yazma karışıklığı derleme zamanında farklıdır — Python\'ın "atama ismi baştan local yapar" kuralı Java\'da yoktur.',
+    en: 'When Python compiles a function, it checks whether a name is ASSIGNED anywhere in its body. Because the line `count = count + 1` assigns to `count`, Python marks `count` as a local variable for the ENTIRE function — not just after the assignment, but from the first line. So when `print(count)` runs, the local `count` has NOT been assigned a value yet, and instead of falling back to the global `count = 10`, Python throws `UnboundLocalError: local variable referenced before assignment`. So the function cannot even print 10. Ways to fix it: (1) add `global count` at the top of the function to explicitly declare you will modify the global; (2) more cleanly, do not modify the global at all — take the value as a parameter and `return` the new value (`def increment(c): return c + 1`). In QA automation this trap is common when trying to track test state with a global counter and causes the test to crash unexpectedly; passing data into functions instead of using global state is always safer. Java analogy: in Java a method can shadow a field (`this.count`) with a same-named local variable, but the read/write confusion is different at compile time — Python\'s "an assignment makes the name local from the start" rule does not exist in Java.',
+  },
+}
+
 // `b = a` referans kopyalar, `a[:]` gerçek (shallow) kopya yaratır. Bir listeyi
 // iki değişkene atayıp birinden değiştirdiğinde ötekinin de değişmesi — QA'da en
 // sık aliasing bug'ı. Slice (`[:]`) bunu neden çözer, Heap'te görünür kılar.
@@ -11641,11 +11754,11 @@ const finalEnSections = [
   { title: '🔤 Strings & Booleans', blocks: translateBlocks([...sections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
   { title: '➕ Operators', blocks: translateBlocks([...sections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...sections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
   { title: '📋 Lists & Tuples', blocks: translateBlocks([...sections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, heapStackPyListCopy, predPyListMultiplication, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
-  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
+  { title: '🗂️ Sets & Dicts', blocks: translateBlocks([...sections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, predPyDictIntFloatKey, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
   { title: '🔁 Conditions & Loops', blocks: translateBlocks([...sections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, predPyForElse, challengeForLoopOrder, ...sections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
   { title: '⚙️ Functions & Lambda', blocks: translateBlocks([...sections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...sections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, heapStackPyMutableDefault, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
-  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), pyPolymorphismStep, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
-  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), pyLegbScopeStep, ...sections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
+  { title: '🏗️ Classes & OOP', blocks: translateBlocks([...sections[4].blocks.slice(0, 14), ...sections[4].blocks.slice(75, 82), pyPolymorphismStep, predPyClassVarShared, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
+  { title: '🌐 Scope & Modules', blocks: translateBlocks([...sections[4].blocks.slice(14, 26), pyLegbScopeStep, predPyUnboundLocal, ...sections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
   { title: '📊 Helper Modules', blocks: translateBlocks([...sections[4].blocks.slice(82, 101), pyArrayModuleStep, pyRandomSeedFilm, stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
   { title: '📂 Files & JSON', blocks: translateBlocks([...sections[4].blocks.slice(34, 40), pyJsonDumpsStep, pyUserInputStep, ...sections[4].blocks.slice(107, 125), pyWithFileCloseFilm, stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith, challengeJsonLoadOrder, challengeJsonDumpOrder]) },
   { title: '🚨 Exceptions & RegEx', blocks: translateBlocks([...sections[4].blocks.slice(26, 34), ...sections[4].blocks.slice(40, 45), pyExceptTypeMatchFilm, stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException, challengeMultiExceptOrder, challengeRegexFindallOrder]) },
@@ -11691,11 +11804,11 @@ const finalTrSections = [
   { title: '🔤 Metinler & Mantıksal', blocks: translateBlocks([...trSections[2].blocks.slice(41, 55), pyTruthyFalsyFilm, stepAnimationStringSlicing, challengeStringCleanupOrder, feynman2C, ...getPlaygroundBlocksForTopic('strings-booleans'), challengeFStringOrder, challengeSplitJoinOrder]) },
   { title: '➕ Operatörler', blocks: translateBlocks([...trSections[2].blocks.slice(55, 58), challengeOperatorPrecedenceOrder, ...trSections[2].blocks.slice(58, 65), pyIsVsEqFilm, predPyIsVsEquals, stepAnimationShortCircuit, feynman2D, ...getPlaygroundBlocksForTopic('operators'), challengeAssertVsIs, challengeFillAssert, challengeBugSpotAssert, challengeChainedComparisonOrder, challengePlusEqualsOrder]) },
   { title: '📋 Listeler & Demetler', blocks: translateBlocks([...trSections[3].blocks.slice(0, 15), pyTupleImmutabilityFilm, stepAnimationListAppend, heapStackPyListCopy, predPyListMultiplication, challengeListFilterOrder, feynman3A, ...getPlaygroundBlocksForTopic('lists-tuples'), challengeListAppendOrder, challengeTupleUnpackOrder]) },
-  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
+  { title: '🗂️ Setler & Sözlükler', blocks: translateBlocks([...trSections[3].blocks.slice(15, 29), pySetDedupeFilm, stepAnimationSetDedup, predPyDictIntFloatKey, challengeDictGetOrder, feynman3B, ...getPlaygroundBlocksForTopic('sets-dicts'), challengeSetOperationOrder, challengeDictItemsLoopOrder]) },
   { title: '🔁 Koşul & Döngüler', blocks: translateBlocks([...trSections[3].blocks.slice(29, 45), pyForLoopStep, tracePyForLoop, predPyForElse, challengeForLoopOrder, ...trSections[3].blocks.slice(45, 48), pyRetryWhileFilm, stepAnimationWhileLoop, feynman3C, playgroundLoops, ...getPlaygroundBlocksForTopic('conditions-loops'), challengeWhileLoopOrder, challengeBreakLoopOrder]) },
   { title: '⚙️ Fonksiyonlar & Lambda', blocks: translateBlocks([...trSections[3].blocks.slice(48, 52), challengeFunctionArgsOrder, ...trSections[3].blocks.slice(52, 63), pyMutableDefaultArgFilm, predPyMutableDefaultArg, heapStackPyMutableDefault, stepAnimationFunctionCall, feynman3D, playgroundFunctions, ...getPlaygroundBlocksForTopic('functions-lambda'), challengeLambdaOrder, challengeMultiReturnUnpackOrder]) },
-  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), pyPolymorphismStep, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
-  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), pyLegbScopeStep, ...trSections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
+  { title: '🏗️ Sınıflar & OOP', blocks: translateBlocks([...trSections[4].blocks.slice(0, 14), ...trSections[4].blocks.slice(75, 82), pyPolymorphismStep, predPyClassVarShared, pyInitConstructorFilm, stepAnimationObjectCreation, feynman4A, playgroundClasses, ...getPlaygroundBlocksForTopic('classes-oop'), challengeInheritanceOrder, challengeMethodOverrideOrder, challengeInstanceMethodCallOrder]) },
+  { title: '🌐 Kapsam & Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(14, 26), pyLegbScopeStep, predPyUnboundLocal, ...trSections[4].blocks.slice(101, 107), pyLegbScopeFilm, challengeScopeLegbOrder, feynman4B, stepAnimationImportFlow, ...getPlaygroundBlocksForTopic('scope-modules'), challengeModuleImportOrder, challengePackageImportOrder]) },
   { title: '📊 Yardımcı Modüller', blocks: translateBlocks([...trSections[4].blocks.slice(82, 101), pyArrayModuleStep, pyRandomSeedFilm, stepAnimationRandomChoice, challengeDatetimeOrder, feynmanHelper, ...getPlaygroundBlocksForTopic('helper-modules'), challengeRandomSeedOrder, challengeOsEnvironOrder]) },
   { title: '📂 Dosya & JSON', blocks: translateBlocks([...trSections[4].blocks.slice(34, 40), pyJsonDumpsStep, pyUserInputStep, ...trSections[4].blocks.slice(107, 125), pyWithFileCloseFilm, stepAnimationJsonRead, challengeWithFileOrder, feynman4C, ...getPlaygroundBlocksForTopic('files-json'), challengeFillWith, challengeJsonLoadOrder, challengeJsonDumpOrder]) },
   { title: '🚨 Hata & RegEx', blocks: translateBlocks([...trSections[4].blocks.slice(26, 34), ...trSections[4].blocks.slice(40, 45), pyExceptTypeMatchFilm, stepAnimationTryExcept, challengeRegexSearchOrder, feynman4D, goodVsBadExceptionHandling, ...getPlaygroundBlocksForTopic('exceptions-regex'), challengeExceptionBestPractice, challengeBugSpotException, challengeMultiExceptOrder, challengeRegexFindallOrder]) },
