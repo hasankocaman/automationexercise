@@ -125,3 +125,27 @@ export function getQueueStats(now = Date.now()) {
         dueCount: queue.filter((item) => item.nextDue <= now).length,
     }
 }
+
+/**
+ * Learning Analytics dashboard için: yanlış cevaplanan soruları KONUYA (route)
+ * göre gruplayıp en çok hata yapılan alanları döner. `wrongCount` toplamı esas
+ * alınır (bir soru birden çok kez yanlış yapılmış olabilir), en yüksek önce.
+ * Her grup için ayrıca kaç FARKLI soru olduğu (`questionCount`) tutulur.
+ * Kayıtta saklı `pageTitle` görünen etiket olarak kullanılır — kuyruk local-first
+ * olduğu için üyelik gerekmez (CLAUDE.md §5).
+ */
+export function getMostMissedAreas(limit = 3) {
+    const queue = readQueue()
+    const byRoute = {}
+    for (const item of queue) {
+        const key = item.route || item.pageTitle || 'unknown'
+        if (!byRoute[key]) {
+            byRoute[key] = { route: item.route || null, pageTitle: item.pageTitle || null, wrongCount: 0, questionCount: 0 }
+        }
+        byRoute[key].wrongCount += item.wrongCount || 1
+        byRoute[key].questionCount += 1
+    }
+    return Object.values(byRoute)
+        .sort((a, b) => b.wrongCount - a.wrongCount)
+        .slice(0, limit)
+}

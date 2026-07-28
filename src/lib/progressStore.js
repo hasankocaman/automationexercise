@@ -9,7 +9,7 @@
 // hiçbir yerde kalıcı tutulmuyordu, InterviewPracticeBlock'un `avg`'ı sadece
 // React state'inde yaşıyordu). Başka hiçbir anahtara yazılmaz.
 
-import { getQueueStats } from './reviewQueue'
+import { getQueueStats, getMostMissedAreas } from './reviewQueue'
 import { MASTERY_MANIFEST } from '../data/generated/masteryManifest'
 
 const XP_KEY_PREFIX = 'learnqa_xp_'
@@ -321,4 +321,58 @@ export function saveLastPosition(route, tabIndex) {
             updatedAt: Date.now(),
         }))
     } catch { /* localStorage kapalı olabilir */ }
+}
+
+// ── Learning Analytics (öğrenme yazısı #7 "Learning Analytics dashboard") ────
+// Kullanıcının değerlendirmesinde istenen tek noktadan geri bildirim: ortalama
+// quiz başarısı, en güçlü/en zayıf konu, en çok hata yapılan alan. TÜM veriler
+// mevcut localStorage anahtarlarından SALT-OKUNUR türetilir (bu modülün ilkesi);
+// yeni bir depolama/backend/üyelik GEREKMEZ (CLAUDE.md §5, local-first). Hiç
+// quiz denenmemişse `hasData: false` döner — çağıran bileşen boş durumu gösterir.
+//
+// Not: quizAccuracy, getMastery'nin quiz bileşeniyle AYNI ham veriden
+// (`quizAttempted_*` / `quizScore_*`) hesaplanır ama farklı bir metriktir —
+// mastery sayfa-kapsamı + mülakatı da harmanlar, buradaki accuracy SADECE
+// "denediğin quizlerin yüzde kaçı şu an doğru" der (daha ham, daha okunur).
+export function getLearningAnalytics(now = Date.now()) {
+    let totalCorrect = 0
+    let totalAttempted = 0
+    const started = [] // { route, mastery }
+
+    for (const [route, manifest] of Object.entries(MASTERY_MANIFEST)) {
+        const { pageKey } = manifest
+        const attemptedByTab = readJsonObject(`quizAttempted_${pageKey}`)
+        const correctByTab = readJsonObject(`quizScore_${pageKey}`)
+        for (const tab of Object.keys(attemptedByTab)) totalAttempted += Object.keys(attemptedByTab[tab] || {}).length
+        for (const tab of Object.keys(correctByTab)) totalCorrect += Object.keys(correctByTab[tab] || {}).length
+
+        const mastery = getMastery(route)
+        if (typeof mastery === 'number') started.push({ route, mastery })
+    }
+
+    const quizAccuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : null
+    const byMastery = started.slice().sort((a, b) => b.mastery - a.mastery)
+    const strongest = byMastery.length ? byMastery[0] : null
+    // En zayıf: EN AZ İKİ konu başlanmışsa göster (tek konuda "en güçlü = en zayıf"
+    // olması anlamsız). Aksi halde null → bileşen zayıf kartını gizler.
+    const weakest = byMastery.length >= 2 ? byMastery[byMastery.length - 1] : null
+
+    const review = getQueueStats(now)
+    const mostMissed = getMostMissedAreas(3)
+
+    const hasData = totalAttempted > 0 || started.length > 0 || review.total > 0
+
+    return {
+        hasData,
+        quizAccuracy,
+        totalCorrect,
+        totalAttempted,
+        topicsStarted: started.length,
+        topicsCompleted: getCompletedRoutes().length,
+        strongest,
+        weakest,
+        reviewDue: review.dueCount,
+        reviewTotal: review.total,
+        mostMissed,
+    }
 }

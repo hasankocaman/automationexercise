@@ -22,6 +22,7 @@ import TrendingSkillsWidget from './TrendingSkillsWidget'
 import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
 import ActivityHeatmap from './ActivityHeatmap'
+import LearningAnalytics from './LearningAnalytics'
 import OnboardingTour from './OnboardingTour'
 import { hasSeenOnboarding, markOnboardingSeen } from '../lib/onboarding'
 import { getQueueStats, REVIEW_QUEUE_SESSION_SIZE } from '../lib/reviewQueue'
@@ -848,6 +849,10 @@ function HomePage() {
 
                 <ActivityHeatmap darkMode={darkMode} language={language} />
             </div>
+
+            {/* ── Öğrenme Analitiği panosu (öğrenme yazısı #7) — sadece en az bir
+                quiz denenmişse render edilir (LearningAnalytics içinde hasData gate'i) ── */}
+            <LearningAnalytics darkMode={darkMode} language={language} />
 
             {/* ── "Bugünkü Tekrar" kartı (WP4) — sadece tekrar zamanı gelmiş soru varsa görünür ── */}
             {dueReviewCount > 0 && (
