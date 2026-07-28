@@ -2309,6 +2309,135 @@ GROUP BY tester_id;`,
   },
 }
 
+// "DISTINCT sadece ilk sütuna mı bakar?" — HAYIR. DISTINCT seçilen TÜM sütunların
+// KOMBİNASYONUNU tekilleştirir; satırın tamamı benzersizse tutulur.
+const predSqlDistinctMultiCol = {
+  type: 'prediction',
+  id: 'sql-distinct-multi-col-pred',
+  xpReward: 15,
+  relatedTopicId: 'sql-select-sort',
+  prompt: {
+    tr: '`locations` tablosunda şu satırlar var: (Paris, FR), (Paris, US), (Paris, FR). Bu sorgu kaç satır döner?',
+    en: 'The `locations` table has: (Paris, FR), (Paris, US), (Paris, FR). How many rows does this query return?',
+  },
+  code: `SELECT DISTINCT city, country FROM locations;`,
+  codeLanguage: 'sql',
+  options: [
+    { id: 'a', label: { tr: '1 satır (tek "Paris")', en: '1 row (a single "Paris")' }, why: {
+      tr: 'DISTINCT yalnızca `city`\'ye bakmaz — `city` VE `country`\'nin birlikte oluşturduğu satırı tekilleştirir.',
+      en: 'DISTINCT does not look at `city` alone — it deduplicates the combined `city` AND `country` row.' } },
+    { id: 'b', label: { tr: '2 satır', en: '2 rows' }, correct: true },
+    { id: 'c', label: { tr: '3 satır (hiçbiri elenmez)', en: '3 rows (nothing removed)' }, why: {
+      tr: '(Paris, FR) iki kez geçiyor — tam tekrar olan bu çift elenir, geriye 2 benzersiz satır kalır.',
+      en: '(Paris, FR) appears twice — that exact duplicate pair is removed, leaving 2 unique rows.' } },
+    { id: 'd', label: { tr: 'Hata: DISTINCT tek sütunla kullanılır', en: 'Error: DISTINCT works with one column only' }, why: {
+      tr: 'DISTINCT birden çok sütunla tamamen geçerlidir — tüm seçili sütunlara birlikte uygulanır.',
+      en: 'DISTINCT is perfectly valid with multiple columns — it applies to all selected columns together.' } },
+  ],
+  output: 'Paris | FR\nParis | US   (2 rows)',
+  reveal: {
+    tr: '`SELECT DISTINCT`, yazıldığı ilk sütuna değil, SELECT\'te seçilen TÜM sütunların oluşturduğu SATIRIN tamamına uygulanır — yani benzersizlik (city, country) çiftinin kombinasyonuna göre belirlenir. Elimizdeki üç satırdan (Paris, FR) iki kez geçtiği için bu tam-tekrar çift bir kez elenir; (Paris, US) farklı bir kombinasyon olduğu için ayrı kalır. Sonuç: 2 benzersiz satır. Çok yaygın bir yanılgı "DISTINCT city yazınca tüm Paris\'ler tek satıra iner" sanmaktır — oysa country sütunu da SELECT\'te olduğu için ayrım ona göre de yapılır. QA otomasyonunda bu ayrım kritiktir: "kaç farklı şehir var?" doğrulamasını `SELECT DISTINCT city, country` ile yaparsan aynı şehrin farklı ülke kayıtları ayrı sayılır ve beklediğinden fazla satır dönerek testin yanlış eşik doğrular. Gerçekten şehir bazında tekil sayı istiyorsan `COUNT(DISTINCT city)` kullanmalısın.',
+    en: '`SELECT DISTINCT` applies not to the first column written, but to the ENTIRE ROW formed by ALL columns selected — so uniqueness is determined by the combination of the (city, country) pair. Of our three rows, (Paris, FR) appears twice, so that exact-duplicate pair is removed once; (Paris, US) is a different combination and stays separate. Result: 2 unique rows. A very common misconception is thinking "writing DISTINCT city collapses all Paris rows into one" — but since the country column is also in the SELECT, the distinction is made on it too. This is critical in QA automation: if you verify "how many distinct cities?" with `SELECT DISTINCT city, country`, the same city with different country records is counted separately and more rows return than expected, making the test validate the wrong threshold. If you truly want a per-city unique count, you must use `COUNT(DISTINCT city)`.',
+  },
+}
+
+// "WHERE unutulursa ne olur?" — UPDATE/DELETE TÜM satırları etkiler. Üretimde en
+// yıkıcı SQL kazası. Her zaman önce SELECT ile WHERE'i doğrula.
+const predSqlUpdateNoWhere = {
+  type: 'prediction',
+  id: 'sql-update-no-where-pred',
+  xpReward: 15,
+  relatedTopicId: 'sql-update-delete',
+  prompt: {
+    tr: '`users` tablosunda 5 satır var. Bu sorgu kaç satırı değiştirir?',
+    en: 'The `users` table has 5 rows. How many rows does this query change?',
+  },
+  code: `UPDATE users SET status = 'inactive';`,
+  codeLanguage: 'sql',
+  options: [
+    { id: 'a', label: { tr: '1 satır', en: '1 row' }, why: {
+      tr: 'Hangi satırı hedeflediğini söyleyen `WHERE` yok — motor "hepsi" diye yorumlar.',
+      en: 'There is no `WHERE` telling it which row to target — the engine interprets it as "all of them".' } },
+    { id: 'b', label: { tr: '0 satır (WHERE olmadan çalışmaz)', en: '0 rows (does nothing without WHERE)' }, why: {
+      tr: '`WHERE`\'siz UPDATE geçerlidir ve HİÇBİR satırı atlamaz — tam tersine hepsini günceller.',
+      en: 'An UPDATE without `WHERE` is valid and skips NO rows — on the contrary, it updates all of them.' } },
+    { id: 'c', label: { tr: '5 satır (hepsi)', en: '5 rows (all of them)' }, correct: true },
+    { id: 'd', label: { tr: 'Hata: WHERE zorunludur', en: 'Error: WHERE is required' }, why: {
+      tr: 'Standart SQL `WHERE`\'i zorunlu tutmaz — bu yüzden hata da vermez, sessizce her satırı günceller (tehlikeli olan da budur).',
+      en: 'Standard SQL does not require `WHERE` — so it raises no error and silently updates every row (which is exactly what makes it dangerous).' } },
+  ],
+  output: '5 rows affected',
+  reveal: {
+    tr: '`UPDATE ... SET ...` ifadesinde `WHERE` cümlesi hangi satırların değişeceğini SINIRLAR; onu yazmazsan sınır yoktur ve motor tablodaki HER satırı günceller — burada 5 satırın hepsinin `status`\'ü "inactive" olur. Aynı şey `DELETE FROM users;` için de geçerlidir: WHERE\'siz DELETE tabloyu boşaltır. Bu, üretim veritabanlarında en yıkıcı ve en sık yapılan kazadır çünkü SQL bir hata veya uyarı vermez — komut tamamen geçerlidir, sadece niyet ettiğinden çok daha fazlasını yapar. Korunma yolu: (1) her UPDATE/DELETE\'i önce AYNI WHERE ile bir `SELECT` olarak çalıştırıp kaç/hangi satırın etkileneceğini gör; (2) çoğu istemci "safe update mode" sunar (WHERE\'siz UPDATE\'i reddeder); (3) kritik değişiklikleri `BEGIN; ... ROLLBACK;` ile transaction içinde dene. QA otomasyonunda test veritabanında temizlik/kurulum script\'i yazarken bu tuzağa düşmek tüm test verini silebilir — teardown sorgularında WHERE\'i asla unutma.',
+    en: 'In an `UPDATE ... SET ...` statement the `WHERE` clause LIMITS which rows change; if you omit it there is no limit and the engine updates EVERY row in the table — here all 5 rows get `status` = "inactive". The same applies to `DELETE FROM users;`: a DELETE without WHERE empties the table. This is the most destructive and most common accident on production databases because SQL gives no error or warning — the command is perfectly valid, it just does far more than you intended. How to protect yourself: (1) run every UPDATE/DELETE first as a `SELECT` with the SAME WHERE to see how many/which rows will be affected; (2) most clients offer a "safe update mode" (rejecting a WHERE-less UPDATE); (3) test critical changes inside a transaction with `BEGIN; ... ROLLBACK;`. In QA automation, falling into this trap while writing cleanup/setup scripts on the test database can wipe all your test data — never forget the WHERE in teardown queries.',
+  },
+}
+
+// "NOT IN (…NULL…) beklediğini döner mi?" — HAYIR. Liste NULL içerince NOT IN
+// hiçbir satır döndürmez (üç-değerli mantık). Ünlü ve sinsi bir SQL bug'ı.
+const predSqlNotInNull = {
+  type: 'prediction',
+  id: 'sql-not-in-null-pred',
+  xpReward: 15,
+  relatedTopicId: 'sql-subqueries',
+  prompt: {
+    tr: '`blocklist` alt sorgusu şu değerleri döner: 1, 2, NULL. `users`\'da id\'si 3,4,5 olan kullanıcılar var. Sonuç kaç satır?',
+    en: 'The `blocklist` subquery returns: 1, 2, NULL. `users` has ids 3, 4, 5. How many rows come back?',
+  },
+  code: `SELECT id FROM users
+WHERE id NOT IN (SELECT blocked_id FROM blocklist);`,
+  codeLanguage: 'sql',
+  options: [
+    { id: 'a', label: { tr: '3 satır (id 3, 4, 5)', en: '3 rows (ids 3, 4, 5)' }, why: {
+      tr: 'Liste bir NULL içerdiği için `NOT IN` üç-değerli mantığa takılır ve engellenmeyen satırları bile döndüremez.',
+      en: 'Because the list contains a NULL, `NOT IN` gets caught in three-valued logic and cannot return even the non-blocked rows.' } },
+    { id: 'b', label: { tr: '0 satır', en: '0 rows' }, correct: true },
+    { id: 'c', label: { tr: '5 satır (hepsi)', en: '5 rows (everyone)' }, why: {
+      tr: '`NOT IN` yine de 1 ve 2\'yi elemeye çalışır — ama NULL yüzünden sonuç TRUE olamadığından hiçbir satır geçmez, hepsi değil.',
+      en: '`NOT IN` still tries to exclude 1 and 2 — but since the NULL prevents any result from being TRUE, no rows pass, not all of them.' } },
+    { id: 'd', label: { tr: 'Hata verir', en: 'It raises an error' }, why: {
+      tr: 'Sorgu geçerlidir, hata vermez — sadece sessizce 0 satır döner (bu yüzden bug\'ı fark etmek zordur).',
+      en: 'The query is valid and raises no error — it just silently returns 0 rows (which is why the bug is hard to notice).' } },
+  ],
+  output: '(0 rows)',
+  reveal: {
+    tr: '`NOT IN (1, 2, NULL)` motor tarafından `id <> 1 AND id <> 2 AND id <> NULL` şeklinde açılır. Sorun son terimde: `id <> NULL` sonucu TRUE veya FALSE değil, UNKNOWN\'dır (NULL "bilinmeyen"le karşılaştırma yapılamaz). Bir `AND` zincirinde herhangi bir terim UNKNOWN olur ve diğerleri TRUE olsa bile, sonuç asla TRUE olamaz (en iyi ihtimalle UNKNOWN kalır). WHERE yalnızca TRUE satırları geçirdiği için HİÇBİR satır dönmez — id\'si 3, 4, 5 olan, aslında engellenmemiş kullanıcılar bile kaybolur. Bu, SQL\'in en sinsi bug\'larından biridir çünkü hata mesajı yoktur, sorgu bir gün NULL\'suz çalışırken listeye tek bir NULL girince sessizce boş sonuç vermeye başlar. Çözüm: ya alt sorguda `WHERE blocked_id IS NOT NULL` ile NULL\'ları ele, ya da `NOT IN` yerine `NOT EXISTS` kullan (NOT EXISTS NULL\'lardan bu şekilde etkilenmez). QA otomasyonunda "engellenmemiş kullanıcıları getir" gibi bir doğrulama, blocklist\'e bir NULL sızdığında sessizce 0 döner ve testin gerçek bir veriyi kaçırmasına yol açar.',
+    en: 'The engine expands `NOT IN (1, 2, NULL)` into `id <> 1 AND id <> 2 AND id <> NULL`. The problem is the last term: `id <> NULL` evaluates not to TRUE or FALSE but to UNKNOWN (you cannot compare to the "unknown" NULL). In an `AND` chain, if any term is UNKNOWN then even if the others are TRUE, the result can never be TRUE (at best it stays UNKNOWN). Since WHERE only passes TRUE rows, NO rows come back — even the genuinely non-blocked users with ids 3, 4, 5 disappear. This is one of SQL\'s sneakiest bugs because there is no error message: the query works fine one day without NULLs, and the moment a single NULL enters the list it silently starts returning empty. The fix: either remove NULLs in the subquery with `WHERE blocked_id IS NOT NULL`, or use `NOT EXISTS` instead of `NOT IN` (NOT EXISTS is not affected by NULLs this way). In QA automation, a check like "fetch non-blocked users" silently returns 0 the moment a NULL leaks into the blocklist, causing the test to miss real data.',
+  },
+}
+
+// "BETWEEN uç değerleri dahil mi?" — EVET, her iki uç da dahildir (inclusive).
+// Tarih sütunlarında ise gizli bir saat/zaman tuzağı barındırır.
+const predSqlBetweenInclusive = {
+  type: 'prediction',
+  id: 'sql-between-inclusive-pred',
+  xpReward: 15,
+  relatedTopicId: 'sql-like-between-in',
+  prompt: {
+    tr: '`n` sütununda değerler: 10, 15, 20, 25. Bu sorgu kaç satır sayar?',
+    en: 'Column `n` has values: 10, 15, 20, 25. How many rows does this query count?',
+  },
+  code: `SELECT COUNT(*) FROM t WHERE n BETWEEN 10 AND 20;`,
+  codeLanguage: 'sql',
+  options: [
+    { id: 'a', label: { tr: '1 (sadece 15)', en: '1 (only 15)' }, why: {
+      tr: 'BETWEEN uçları DIŞLAMAZ — 10 ve 20 de dahildir, sadece aradaki 15 değil.',
+      en: 'BETWEEN does not EXCLUDE the bounds — 10 and 20 are included too, not just the 15 in between.' } },
+    { id: 'b', label: { tr: '2 (15 ve 20)', en: '2 (15 and 20)' }, why: {
+      tr: 'Alt uç 10 da dahildir — BETWEEN her iki ucu birden kapsar, o yüzden 10 da sayılır.',
+      en: 'The lower bound 10 is included too — BETWEEN covers both ends, so 10 is counted as well.' } },
+    { id: 'c', label: { tr: '3 (10, 15, 20)', en: '3 (10, 15, 20)' }, correct: true },
+    { id: 'd', label: { tr: '4 (hepsi)', en: '4 (all of them)' }, why: {
+      tr: '25 aralığın dışındadır (20\'den büyük) — üst uç 20 dahil olsa da 25 kapsanmaz.',
+      en: '25 is outside the range (greater than 20) — even though the upper bound 20 is included, 25 is not.' } },
+  ],
+  output: '3',
+  reveal: {
+    tr: '`BETWEEN a AND b`, `>= a AND <= b` ile birebir aynıdır — yani HER İKİ uç değer de aralığa DAHİLDİR (inclusive). Burada 10 (alt uç, dahil), 15 (arada) ve 20 (üst uç, dahil) koşulu sağlar; 25 ise 20\'den büyük olduğu için dışarıda kalır. Sonuç: 3 satır. Sık yapılan hata BETWEEN\'i "aradaki değerler, uçlar hariç" sanmaktır. Asıl sinsi tuzak ise TARİH/zaman sütunlarında ortaya çıkar: `created_at BETWEEN \'2024-01-01\' AND \'2024-01-31\'` yazarsan, \'2024-01-31\' aslında \'2024-01-31 00:00:00\' (gece yarısı) anlamına gelir; 31 Ocak günü gündüz saatlerinde (örn. 14:30) oluşturulan kayıtlar bu üst sınırın ÖTESİNDE kalır ve sessizce dışlanır. Bu, QA raporlama testlerinde "Ocak ayı kayıtları" gibi bir doğrulamada eksik satır sayısına ve yanlış PASS\'e yol açar. Güvenli yöntem: üst sınırı `< \'2024-02-01\'` (yarı-açık aralık) olarak yazmaktır.',
+    en: '`BETWEEN a AND b` is exactly equivalent to `>= a AND <= b` — meaning BOTH bounds are INCLUDED (inclusive). Here 10 (lower bound, included), 15 (in between), and 20 (upper bound, included) satisfy the condition; 25 is left out because it is greater than 20. Result: 3 rows. A common mistake is thinking BETWEEN means "the values in between, excluding the bounds." The real sneaky trap appears with DATE/time columns: if you write `created_at BETWEEN \'2024-01-01\' AND \'2024-01-31\'`, the \'2024-01-31\' actually means \'2024-01-31 00:00:00\' (midnight); records created during the daytime of January 31 (e.g. 14:30) fall BEYOND that upper bound and are silently excluded. In QA reporting tests this leads to missing row counts and a wrong PASS when validating something like "January records." The safe approach is to write the upper bound as `< \'2024-02-01\'` (a half-open range).',
+  },
+}
+
 const finalEnSections = [
   {
     "title": "🎯 What is SQL & Why Does Every QA Engineer Need It?",
@@ -3388,7 +3517,8 @@ const finalEnSections = [
         "minScore": 3,
         "modelAnswerTr": "SELECT sorgusu, veritabanından veri okumak için kullanılır. FROM ile hedef tablo belirtilir. ORDER BY ise belirtilen sütuna göre sonuçları varsayılan olarak artan (ASC) veya azalan (DESC) şekilde hizalar.",
         "modelAnswerEn": "The SELECT statement retrieves data from a database. FROM specifies the source table. ORDER BY sorts the output rows based on a column in either ascending (ASC) or descending (DESC) order."
-      }
+      },
+      predSqlDistinctMultiCol
     ]
   },
   {
@@ -3539,7 +3669,8 @@ const finalEnSections = [
         "minScore": 3,
         "modelAnswerTr": "WHERE koşulu unutulduğunda UPDATE veya DELETE komutları tablodaki TÜM satırları günceller veya siler. Güvenli operasyon için, bu işlemleri çalıştırmadan önce aynı WHERE koşulunu SELECT sorgusuyla çalıştırıp etkilenen satırları doğrulamalıyız.",
         "modelAnswerEn": "Without a WHERE clause, UPDATE and DELETE modify or remove every row in a table. To prevent this, always test the exact WHERE clause in a SELECT query first to confirm which records will be affected."
-      }
+      },
+      predSqlUpdateNoWhere
     ]
   },
   {
@@ -4888,7 +5019,8 @@ const finalEnSections = [
         "minScore": 3,
         "modelAnswerTr": "Standart alt sorgu bağımsızdır, bir kez çalışıp sonucu dış sorguya iletir. Bağlantılı alt sorgu ise dış sorgudaki bir sütunu referans alır ve dış sorgunun her satırı için tekrar tekrar çalışır; bu da büyük veritabanlarında yavaşlığa yol açar.",
         "modelAnswerEn": "A standard subquery runs independently and executes once, passing the result to the outer query. A correlated subquery references columns from the outer query, executing once for every row processed by the outer query, which can be slow."
-      }
+      },
+      predSqlNotInNull
     ]
   },
   {
@@ -5052,7 +5184,8 @@ const finalEnSections = [
         "minScore": 3,
         "modelAnswerTr": "LIKE operatöründe yüzde (%) sıfır veya daha fazla karakter yerine geçerken, alt çizgi (_) tam olarak tek bir karakter yerine geçer. Örneğin `_A%` ifadesi, ikinci harfi A olan tüm metinleri arar.",
         "modelAnswerEn": "In LIKE patterns, percent (%) matches any string of zero or more characters, whereas underscore (_) matches exactly one character. For example, `_A%` matches any string with \"A\" as its second character."
-      }
+      },
+      predSqlBetweenInclusive
     ]
   },
   {
@@ -8803,7 +8936,8 @@ const finalTrSections = [
         "minScore": 3,
         "modelAnswerTr": "SELECT sorgusu, veritabanından veri okumak için kullanılır. FROM ile hedef tablo belirtilir. ORDER BY ise belirtilen sütuna göre sonuçları varsayılan olarak artan (ASC) veya azalan (DESC) şekilde hizalar.",
         "modelAnswerEn": "The SELECT statement retrieves data from a database. FROM specifies the source table. ORDER BY sorts the output rows based on a column in either ascending (ASC) or descending (DESC) order."
-      }
+      },
+      predSqlDistinctMultiCol
     ]
   },
   {
@@ -8954,7 +9088,8 @@ const finalTrSections = [
         "minScore": 3,
         "modelAnswerTr": "WHERE koşulu unutulduğunda UPDATE veya DELETE komutları tablodaki TÜM satırları günceller veya siler. Güvenli operasyon için, bu işlemleri çalıştırmadan önce aynı WHERE koşulunu SELECT sorgusuyla çalıştırıp etkilenen satırları doğrulamalıyız.",
         "modelAnswerEn": "Without a WHERE clause, UPDATE and DELETE modify or remove every row in a table. To prevent this, always test the exact WHERE clause in a SELECT query first to confirm which records will be affected."
-      }
+      },
+      predSqlUpdateNoWhere
     ]
   },
   {
@@ -10302,7 +10437,8 @@ const finalTrSections = [
         "minScore": 3,
         "modelAnswerTr": "Standart alt sorgu bağımsızdır, bir kez çalışıp sonucu dış sorguya iletir. Bağlantılı alt sorgu ise dış sorgudaki bir sütunu referans alır ve dış sorgunun her satırı için tekrar tekrar çalışır; bu da büyük veritabanlarında yavaşlığa yol açar.",
         "modelAnswerEn": "A standard subquery runs independently and executes once, passing the result to the outer query. A correlated subquery references columns from the outer query, executing once for every row processed by the outer query, which can be slow."
-      }
+      },
+      predSqlNotInNull
     ]
   },
   {
@@ -10469,7 +10605,8 @@ const finalTrSections = [
         "minScore": 3,
         "modelAnswerTr": "LIKE operatöründe yüzde (%) sıfır veya daha fazla karakter yerine geçerken, alt çizgi (_) tam olarak tek bir karakter yerine geçer. Örneğin `_A%` ifadesi, ikinci harfi A olan tüm metinleri arar.",
         "modelAnswerEn": "In LIKE patterns, percent (%) matches any string of zero or more characters, whereas underscore (_) matches exactly one character. For example, `_A%` matches any string with \"A\" as its second character."
-      }
+      },
+      predSqlBetweenInclusive
     ]
   },
   {
