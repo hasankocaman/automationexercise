@@ -63,6 +63,12 @@ const SAFE_KEYS = new Set([
   // Bazı pattern'lar bilinçli olarak TR|EN alternatiflerini birlikte kabul eder
   // (ör. 'yeniden başlat|restart') — görünmez, leak değil.
   'pattern',
+  // locator-visual `highlights` alanı: TopicPage `highlightHtml(htmlExample,
+  // loc.highlights)` içinde SADECE regex eşleştirme/vurgulama için kullanılır
+  // (satır ~4522-4536) — ekrana ayrı bir metin olarak HİÇBİR ZAMAN basılmaz.
+  // EN modda htmlExample İngilizce olduğundan eşleşme bulunmaz (vurgu kaybolur,
+  // hata değildir) — görünmez, leak değil.
+  'highlights',
 ])
 
 const ANIM = new Set(['step-animation', 'simulation', 'animated-timeline', 'css-animation'])
@@ -87,11 +93,20 @@ const STRICT_ZERO_FILES = new Set([
 // gerçek leak'tir — bu yüzden sabit SAFE_KEYS değil, parentObj bazlı kontrol.
 const EN_SIBLING_FIELDS = new Set(['why', 'note'])
 
+// `label`/`title`/`explanation`/`tip`/`when` (locator-visual, playwright-visual,
+// selenium-visual): bu bloklar {tr,en} obje değil, çıplak `field`/`fieldEn` çift
+// alan kullanır — renderer `isTr ? loc.title : (loc.titleEn || loc.title)` gibi
+// bir düşüşle EN'de doğru alanı seçer (TopicPage.jsx örn. satır 4572/4576/4586/
+// 4591/4985/14919-14926 ile doğrulandı, 2026-07-29). Kardeş (`${key}En`) DOLUYSA
+// EN modda hiç görünmez — leak değildir. Kardeş yoksa/boşsa gerçek leak kalır.
+const EN_SIBLING_FIELDS_CAMEL = new Set(['label', 'title', 'explanation', 'tip', 'when'])
+
 function findLeaks(node, path, parentKey, inTrEn, blockType, out, block = null, parentObj = null) {
   if (typeof node === 'string') {
     if (parentKey === 'tr') return
     if (SAFE_KEYS.has(parentKey)) return
     if (EN_SIBLING_FIELDS.has(parentKey) && parentObj && typeof parentObj[`${parentKey}_en`] === 'string' && parentObj[`${parentKey}_en`].trim()) return
+    if (EN_SIBLING_FIELDS_CAMEL.has(parentKey) && parentObj && typeof parentObj[`${parentKey}En`] === 'string' && parentObj[`${parentKey}En`].trim()) return
     // {tr,en} objesinin en tarafı YA DA düz string (her iki dilde görünür)
     const isEnField = parentKey === 'en'
     if ((isEnField || !inTrEn) && TR_CHARS.test(node)) {

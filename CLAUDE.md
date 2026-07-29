@@ -712,6 +712,18 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
   **renderer'ın dil seçimine bakarak** doğrula. Feynman için: her tanımda
   `promptEn` VE `modelAnswerEn` var mı ve bunlar İngilizce mi — bunu kontrol et,
   `promptTr`/`keywords`'ü leak sayma.
+- **İkinci örnek (2026-07-29, javaData.js 86→44):** `locator-visual`/
+  `playwright-visual` blokları `{tr,en}` obje değil, çıplak `field`/`fieldEn`
+  çift alan kullanır (`title`/`titleEn`, `explanation`/`explanationEn`,
+  `tip`/`tipEn`, `when`/`whenEn`, `label`/`labelEn`). Renderer `isTr ? loc.title
+  : (loc.titleEn || loc.title)` ile EN'de doğru alanı seçer (`TopicPage.jsx`
+  satır ~4572/4576/4586/4591/4985) — `title` alanı Türkçe kalsa da EN modda hiç
+  render edilmez, leak değildir. `check-i18n-leaks.mjs`'e `EN_SIBLING_FIELDS_CAMEL`
+  seti eklenerek (kardeş `${key}En` doluysa leak sayma) düzeltildi; javaData.js
+  borcu 86→44'e düştü (baseline güncellendi, gerçek borç artık sadece `code`
+  alanındaki — `codeCommentTranslations` tablosunda karşılığı olmayan — yorumlar).
+  Ayrıca `locator-visual`'ın `highlights` alanı (sadece HTML'de vurgu eşleştirmesi
+  için kullanılır, hiçbir zaman ekrana basılmaz) `SAFE_KEYS`'e eklendi.
 
 ### 23.7. video-scene son/ilk sahnede pasif buton "kayboldu" görünüyor
 
