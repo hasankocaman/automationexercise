@@ -5847,7 +5847,7 @@ function GitPracticeBlock({ block, darkMode, language, onFirstSuccess }) {
             return {
                 label: tx(step.label, language),
                 ok,
-                example: step.example,
+                example: tx(step.example, language),
             }
         })
 
@@ -5996,7 +5996,7 @@ function BackendPracticeBlock({ block, darkMode, language }) {
             return {
                 label: tx(step.label, language),
                 ok,
-                example: step.example,
+                example: tx(step.example, language),
             }
         })
 

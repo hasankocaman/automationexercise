@@ -739,6 +739,20 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
   YALNIZCA gerçekten `tx()`/`getLocalizedCode()` KULLANMAYAN, ham render eden
   alanlar için geçerli — yeni bir "OPUS" leak görürsen önce renderer'da hangi
   fonksiyonla basıldığını doğrula, körü körüne "dokunma" deme.
+- **Dördüncü örnek — son 9 leak de gerçek OPUS/paylaşım-körlüğü değildi
+  (2026-07-29, aynı oturum):** `backendData.js`'in 7 leak'i (`BackendPracticeBlock`/
+  `GitPracticeBlock`'ta `example: step.example` gerçekten `tx()` kullanmıyordu) —
+  bu SEFERKİ gerçek bir renderer eksikliğiydi ama düzeltmesi tek satır ve geriye
+  dönük güvenli: `example: tx(step.example, language)` (tx() plain string'te
+  no-op döner). `linuxData.js`'in 2 leak'i ise scanner'ın "paylaşımsız" (YERİNDE-ÇEVİR)
+  demesine rağmen aslında paylaşımlıydı — `linuxErrors` sabiti hem TR hem EN
+  wrapper bloğunda AYNI dizi referansıyla kullanılıyordu, ama scanner'ın shared-
+  tespiti yalnızca `type` alanlı ÜST bloğu (iki ayrı `error-dictionary` obje
+  literali) karşılaştırdığından iç-içe paylaşılan diziyi kaçırıyordu — yerinde
+  çeviri yapılsaydı TR modda da İngilizce görünürdü. Doğru çözüm: `{tr,en}` yap.
+  **Sonuç: site-geneli i18n leak baseline'ı 9 → 0.** Ders: "⚠ OPUS" ve "YERİNDE-ÇEVİR"
+  etiketleri de scanner'ın heuristic'idir, kör nokta içerebilir — bir leak'i
+  kalıcı kabul etmeden önce renderer'ı ve paylaşım zincirini elle doğrula.
 
 ### 23.7. video-scene son/ilk sahnede pasif buton "kayboldu" görünüyor
 

@@ -423,7 +423,7 @@ const linuxErrors = [
     '`docker buildx build --platform linux/amd64,linux/arm64` ile multi-platform image build et, veya `docker run --platform linux/amd64 ...` ile QEMU emülasyonunu zorla (performans kaybı kabul edilebilirse).',
     'Build a multi-platform image with `docker buildx build --platform linux/amd64,linux/arm64`, or force QEMU emulation with `docker run --platform linux/amd64 ...` if the performance hit is acceptable.',
     '$ docker run myimage:amd64-only\nstandard_init_linux.go:228: exec user process caused: exec format error',
-    '$ docker buildx build --platform linux/amd64,linux/arm64 -t myimage:multi --push .\n$ docker run myimage:multi\n# Doğru mimari otomatik seçilir'
+    { tr: '$ docker buildx build --platform linux/amd64,linux/arm64 -t myimage:multi --push .\n$ docker run myimage:multi\n# Doğru mimari otomatik seçilir', en: '$ docker buildx build --platform linux/amd64,linux/arm64 -t myimage:multi --push .\n$ docker run myimage:multi\n# The correct architecture is selected automatically' }
   ),
   errEntry(
     'No space left on device',
@@ -463,7 +463,7 @@ const linuxErrors = [
     '1) Eşleşen `if...fi`, `for...done` çiftlerini gözden geçir. 2) `file deploy.sh` ile "CRLF line terminators" görüyorsan `dos2unix deploy.sh` ile dönüştür. 3) `bash -n deploy.sh` ile script\'i çalıştırmadan sözdizimini kontrol et.',
     '1) Review matching `if...fi`, `for...done` pairs. 2) If `file deploy.sh` shows "CRLF line terminators", convert with `dos2unix deploy.sh`. 3) Check syntax without running it via `bash -n deploy.sh`.',
     "$ ./deploy.sh\ndeploy.sh: line 14: syntax error near unexpected token `fi'",
-    '$ dos2unix deploy.sh\n$ bash -n deploy.sh   # sözdizimi OK\n$ ./deploy.sh\nDeploying test environment...'
+    { tr: '$ dos2unix deploy.sh\n$ bash -n deploy.sh   # sözdizimi OK\n$ ./deploy.sh\nDeploying test environment...', en: '$ dos2unix deploy.sh\n$ bash -n deploy.sh   # syntax OK\n$ ./deploy.sh\nDeploying test environment...' }
   ),
 ]
 
