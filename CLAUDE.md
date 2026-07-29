@@ -724,6 +724,21 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
   alanındaki — `codeCommentTranslations` tablosunda karşılığı olmayan — yorumlar).
   Ayrıca `locator-visual`'ın `highlights` alanı (sadece HTML'de vurgu eşleştirmesi
   için kullanılır, hiçbir zaman ekrana basılmaz) `SAFE_KEYS`'e eklendi.
+- **Üçüncü örnek — `code`/`codeWrong`/`codeFixed` de OPUS DEĞİL (2026-07-29, aynı
+  oturum):** Bu alanlar `CodeBlock` → `getLocalizedCode()` üzerinden basılır; bu
+  fonksiyon hem `{tr,en}` objesini hem düz string'i (RUNTIME'da `codeCommentTranslations`
+  regex tablosuyla, `TopicPage.jsx` satır ~45-365) destekler. Scanner'a bu runtime
+  çeviriyi simüle eden `simulateEnCode()` eklendi — tabloda zaten karşılığı olan
+  Türkçe yorumlar artık yanlışlıkla leak sayılmıyor (javaData.js 44→26,
+  browserstackData.js 14→1). Kalanlar (tabloda karşılığı OLMAYAN yorumlar) elle
+  `{tr,en}` bilingual yapılarak kapatıldı (javaData.js 26→0, browserstackData.js
+  1→0 — `java-compare` bloğunun `java`/`python`/`typescript`/`sql` alanları da
+  aynı `getLocalizedCode()`'u kullandığından `CODE_COMMENT_FIELDS`'e eklendi).
+  **Sonuç: site-geneli baseline 67 → 9** (kalan 9 = `backendData.js` 7 + `linuxData.js`
+  2, ayrı belgelenmiş ComparisonBlock/shared-array istisnaları). ⚠ OPUS etiketi artık
+  YALNIZCA gerçekten `tx()`/`getLocalizedCode()` KULLANMAYAN, ham render eden
+  alanlar için geçerli — yeni bir "OPUS" leak görürsen önce renderer'da hangi
+  fonksiyonla basıldığını doğrula, körü körüne "dokunma" deme.
 
 ### 23.7. video-scene son/ilk sahnede pasif buton "kayboldu" görünüyor
 

@@ -34,6 +34,46 @@ const ROOT = join(__dirname, '..')
 const DATA_DIR = join(ROOT, 'src', 'data')
 const BASELINE_PATH = join(__dirname, 'i18n-leaks-baseline.json')
 
+// `code`/`codeWrong`/`codeFixed`/`defaultCode` düz-string alanları CodeBlock →
+// getLocalizedCode() → localizeCodeComments() üzerinden EN modda RUNTIME'da
+// yorum çevirisi görür (TopicPage.jsx satır ~45-365 `codeCommentTranslations`
+// TR→EN regex tablosu, satır ~1322-1339 `localizeCodeComments`/`getLocalizedCode`).
+// Scanner bunu simüle etmezse tabloda ZATEN karşılığı olan yorumları yanlışlıkla
+// leak sayar (CLAUDE.md §23.6 — 2026-07-29 ikinci örnek). Tabloyu TopicPage.jsx'ten
+// canlı çıkarıp aynı dönüşümü uygulayarak GERÇEK kalan borcu ölçer.
+function extractArrayLiteral(src, varName) {
+  const marker = `const ${varName} = [`
+  const start = src.indexOf(marker)
+  if (start === -1) return []
+  const bracketStart = start + marker.length - 1
+  let depth = 0, i = bracketStart
+  for (; i < src.length; i++) {
+    if (src[i] === '[') depth++
+    else if (src[i] === ']') { depth--; if (depth === 0) break }
+  }
+  try { return new Function(`return ${src.slice(bracketStart, i + 1)}`)() }
+  catch { return [] }
+}
+const topicPageSrc = readFileSync(join(ROOT, 'src', 'components', 'TopicPage.jsx'), 'utf8')
+const codeCommentTranslations = extractArrayLiteral(topicPageSrc, 'codeCommentTranslations')
+function simulateEnCode(code) {
+  if (typeof code !== 'string') return code
+  return code.split('\n').map(line => {
+    const m = line.match(/(#|\/\/|--)/)
+    if (!m) return line
+    const before = line.slice(0, m.index + m[0].length)
+    const after = line.slice(m.index + m[0].length)
+    const translated = codeCommentTranslations.reduce((t, [pattern, repl]) => t.replace(pattern, repl), after)
+    return before + translated
+  }).join('\n')
+}
+// Renderer'ın getLocalizedCode() ile bastığı, düz string kaldıklarında yukarıdaki
+// simülasyona tabi tutulması gereken alanlar (RAW_FIELDS'ın eski, yanlış "OPUS"
+// varsayımının yerine geçti — CodeBlock/getLocalizedCode ikisini de destekler).
+// `java`/`python`/`typescript`/`sql`: JavaCompareBlock de aynı getLocalizedCode()
+// ile basıyor (TopicPage.jsx satır ~2219/2225, 2026-07-29 doğrulandı).
+const CODE_COMMENT_FIELDS = new Set(['code', 'codeWrong', 'codeFixed', 'defaultCode', 'java', 'python', 'typescript', 'sql'])
+
 // Türkçe-özgü karakterler. `[ığş]` YETMEZ — "Parça" (ç), "Örnek" (Ö), "çözüm"
 // gibi EN sızıntıları yalnızca ç/ö/ü/İ ile yakalanır (CLAUDE.md §23.1 kör noktası).
 // İngilizce teknik içerikte ç/ö/ü pratikte bulunmaz; loanword riski ihmal edilebilir.
@@ -110,6 +150,14 @@ function findLeaks(node, path, parentKey, inTrEn, blockType, out, block = null, 
     // {tr,en} objesinin en tarafı YA DA düz string (her iki dilde görünür)
     const isEnField = parentKey === 'en'
     if ((isEnField || !inTrEn) && TR_CHARS.test(node)) {
+      // Düz string code/codeWrong/codeFixed/defaultCode: runtime'da codeCommentTranslations
+      // ile çevrilir (yukarı bak) — simülasyon sonrası hâlâ Türkçe kalıyorsa gerçek leak'tir.
+      if (!isEnField && CODE_COMMENT_FIELDS.has(parentKey)) {
+        const translated = simulateEnCode(node)
+        if (!TR_CHARS.test(translated)) return
+        out.push({ path, blockType, field: parentKey, isEnField, block, snippet: translated.replace(/\s+/g, ' ').slice(0, 70) })
+        return
+      }
       // `block`/`field`/`isEnField`: --list modu shared/en-only etiketi + fix önerisi için kullanır.
       out.push({ path, blockType, field: parentKey, isEnField, block, snippet: node.replace(/\s+/g, ' ').slice(0, 70) })
     }
@@ -162,16 +210,17 @@ function collectBlocks(node, set) {
 // Renderer'ı içerik/kod alanlarını dile göre (tx/pick/getLocalizedCode) basan blok
 // tipleri — SHARED (tr===en) bloklarda düz string GÜVENLE {tr,en}'e çevrilebilir.
 const LOCALIZING_BLOCKS = new Set(['code-playground', 'code', 'quiz'])
-// Renderer'a HAM basılan alanlar (tx yok) — SHARED blokta {tr,en} yaparsan
-// `[object Object]` render eder (§23.1). Bunlar Opus'un renderer işidir.
-const RAW_FIELDS = new Set(['codeWrong', 'codeFixed', 'defaultCode'])
 
 // --list için: her leak'e shared/en-only durumu + güvenli fix önerisi ekler.
 function recommendFix(leak, trBlockSet) {
   if (leak.isEnField) return 'EN-ÇEVİR: {tr,en}.en zaten var, en değerini İngilizceye çevir (her blok güvenli)'
   const shared = leak.block ? trBlockSet.has(leak.block) : false
   if (!shared) return 'YERİNDE-ÇEVİR: blok yalnızca EN-ağacında; Türkçeyi İngilizceye çevir, düz string bırak (güvenli)'
-  if (LOCALIZING_BLOCKS.has(leak.blockType) && !RAW_FIELDS.has(leak.field))
+  // codeCommentTranslations simülasyonundan SONRA da kalan gerçek leak — CodeBlock/
+  // getLocalizedCode {tr,en}'i de destekler (2026-07-29 doğrulandı), renderer işi DEĞİL.
+  if (CODE_COMMENT_FIELDS.has(leak.field))
+    return "KOD-YORUM: codeCommentTranslations tablosuna eksik ifadeyi ekle YA DA alanı {tr,en} yap (renderer zaten ikisini de destekler)"
+  if (LOCALIZING_BLOCKS.has(leak.blockType))
     return "{TR,EN}: paylaşımlı blok ama renderer localize eder; { tr: <mevcut>, en: <İngilizce> } yap"
   return '⚠ OPUS: paylaşımlı + renderer HAM basar ({tr,en} → [object Object]); renderer güncellemesi gerekir, DOKUNMA'
 }
