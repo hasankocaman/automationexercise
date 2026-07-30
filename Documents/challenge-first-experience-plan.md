@@ -38,7 +38,26 @@
 > `highlightGlossaryTerms` helper), `TopicPage.jsx` `text`/`simple-box` render'ına
 > bağlama. Gate'ler yeşil (content-integrity + i18n:0 + build). **SONNET sözlüğü
 > yüzlerce terime genişletecek + test yazacak — hazır prompt §7.3'te.**
-> **SIRADAKİ İŞ = SONNET: (a) Mission rollout §7.2, (b) Tooltip sözlüğü §7.3.**
+> **📌 DURUM (2026-07-31, Sonnet): SONNET TARAFI DA TAMAMLANDI.**
+> - **Mission rollout (§7.2, P1-S1…S4) TAMAMLANDI:** 6 sayfa (Selenium
+>   referans + Playwright + Cypress + Python + SQL + REST Assured), her biri
+>   5 adım (locator/selector seçimi + aksiyon + assertion + doğru bekleme/
+>   negatif senaryo kararı + uçtan uca birleştirme), `tests/mission-
+>   flow.spec.ts` (veri-güdümlü E2E, yerel Chromium'da PASS), CLAUDE.md §5
+>   blok listesine `mission` eklendi. **Plan §3.4 "bitti" tanımı KARŞILANDI.**
+> - **Tooltip sözlüğü (§7.3, P1.5-S1 + P1.5-S3) TAMAMLANDI:** `termGlossary.js`
+>   24 → 57 terime genişletildi (33 yeni: loop, condition, class/object,
+>   inheritance, JSON, HTTP status, cookie/session, container, image, pod,
+>   thread, async/await, promise, callback, closure, generic, regex, env
+>   variable, dependency, repository, deploy, rollback, cache, latency,
+>   idempotent, token, schema, webhook, payload, queue, load balancer,
+>   log/stack trace, race condition). `tests/term-tooltip.spec.ts` (yeni,
+>   veri-güdümlü E2E: hover/focus/ESC/kod-bloğunda-sarılmama, yerel
+>   Chromium'da 2/2 PASS). P1.5-S2 (kapsamı callout/info/tip'e genişletme)
+>   opsiyonel bırakıldı — kapsam dışı bırakılan bir sonraki oturuma not.
+> - **PHASE 1 + PHASE 1.5 TAMAMEN BİTTİ.** Kalan: Phase 2 (Sprint Simulator)
+>   ve Phase 3 (adaptif zorluk) — ikisi de ayrı kullanıcı onayı + planlama
+>   ister (plan §4/§5), bu oturumun kapsamı dışında.
 
 ### ✅ TAMAMLANANLAR (önceki dalga — bu planın ön koşulu)
 - **Mentor (AI Learning Coach) — Katman A/B** — `MentorPanel` + `MentorNudge` +

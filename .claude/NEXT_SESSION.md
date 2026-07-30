@@ -170,8 +170,34 @@
     baseline 0 ✓ · build ✓ (43 shell). (Not: `termGlossary.js` `*Data.js`
     glob'una girmediği için i18n scanner'ın 38-dosya taramasına dahil DEĞİL —
     ASCII/EN bütünlüğü yukarıdaki özel script ile elle doğrulandı.)
-  - 🔜 **Sırada:** `tests/term-tooltip.spec.ts` (P1.5-S3) — render + hover/tap
-    + ESC + kod bloğunda sarılmama testi.
+  - ✅ **P1.5-S3 — `tests/term-tooltip.spec.ts` (yeni) TAMAMLANDI:** /selenium
+    Locators sekmesi üzerinde tam veri-güdümlü E2E (hangi sekmede/terimde test
+    edileceği `TERM_GLOSSARY` + `seleniumData` TARANARAK bulunur, sabit
+    gömülmez). İki test: (1) bilinen terim noktalı-çizgili sarılıyor, hover ile
+    popover açılıp benzetme metnini gösteriyor, ESC ile kapanıyor, TAB
+    (klavye) ile fokuslanınca da açılıp blur'da kapanıyor (§3.6.1 "hover VE
+    focus VE tap" gereksinimi); (2) `<pre>` kod bloğu içinde HİÇ tooltip
+    tetikleyici yok (mekanizma mimari olarak sadece text/simple-box'a bağlı).
+    **Bulgu (test yazarken düzeltildi):** ilk yazımda hover sonrası aynı
+    elemente `.click()` atmak popover'ı AÇMAK yerine KAPATIYORDU (imleç zaten
+    üstteyken click, hover'ın açtığı state'i toggle'lıyor) — click-toggle
+    testi bunun yerine klavye focus/blur ile değiştirildi (hem daha güvenilir
+    hem erişilebilirlik iddiasını daha doğrudan kanıtlıyor). Ayrıca test
+    güvenilirliği için `TermTooltip.jsx`'e 3 `data-testid` eklendi
+    (`term-tooltip-trigger` + `data-term-key`, `term-tooltip-popover`).
+    **Yerel Chromium'da 2/2 PASS (33.2s).**
+  - **✅ PHASE 1.5 (Kavram Tooltip'i) TAMAMEN BİTTİ.** P1.5-S2 (kapsamı
+    callout/info/tip render'larına genişletme) BİLİNÇLİ OLARAK ATLANDI —
+    opsiyonel işaretliydi (plan §7.3), mevcut text/simple-box kapsamı
+    çekirdek kullanıcı deneyimini zaten karşılıyor; istenirse sonraki
+    oturumda eklenebilir.
+  - **✅✅ PHASE 1 + PHASE 1.5 TAMAMEN BİTTİ (bu oturum, 2026-07-30→31).**
+    Tüm doğrulama kapıları (content-integrity + i18n baseline 0 +
+    audit-learning-blocks + build 43 shell + 2 yeni E2E test dosyası, toplam
+    3/3 PASS yerel Chromium'da) yeşil. `main`'e merge/PR kararı kullanıcıda.
+  - 🔜 **Sırada (kullanıcı onayı + ayrı planlama gerektirir, plan §4/§5):**
+    Phase 2 (QA Sprint/Company Simulator, yeni `/sprint` rotası) veya Phase 3
+    (adaptif zorluk + SkillRadar'ı `skillSignals.js`'ten besleme).
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
 

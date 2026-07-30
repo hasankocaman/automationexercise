@@ -115,6 +115,8 @@ export default function TermTooltip({ entry, surface, language, darkMode }) {
     return (
         <span ref={wrapRef} style={{ position: 'relative', display: 'inline' }}>
             <span
+                data-testid="term-tooltip-trigger"
+                data-term-key={surface.toLowerCase()}
                 role="button"
                 tabIndex={0}
                 aria-expanded={open}
@@ -140,6 +142,7 @@ export default function TermTooltip({ entry, surface, language, darkMode }) {
 
             {open && (
                 <span
+                    data-testid="term-tooltip-popover"
                     id={popId}
                     role="tooltip"
                     style={{
