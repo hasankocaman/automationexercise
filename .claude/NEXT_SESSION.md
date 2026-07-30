@@ -134,9 +134,32 @@
   - **✅ P1-S1 (6 sayfa mission rollout) TAMAMLANDI** — Selenium (Opus referans) +
     Playwright + Cypress + Python + SQL + REST Assured, plan §3.4'teki "en az
     6 sayfa" hedefine ULAŞILDI.
-  - 🔜 **Sırada:** `tests/mission-flow.spec.ts` (P1-S3) + CLAUDE.md §5'e
-    `mission` ekleme (P1-S4). Ardından Phase 1.5 tooltip sözlüğü genişletme
-    (§7.3, P1.5-S1…S3).
+  - ✅ **P1-S3 + P1-S4 TAMAMLANDI:**
+    - `tests/mission-flow.spec.ts` (yeni) — /selenium referans görevi üzerinde
+      TAM veri-güdümlü E2E: adım kilidinin sırayla açıldığı, "Mini-lesson aç"ın
+      çalıştığı (metin `steps[].miniLesson`'dan okunur), tüm 5 adım (2
+      prediction + 3 code-playground) sırayla tamamlanınca tamamlanma banner'ı
+      + `learnqa_xp_selenium` localStorage'a XP/completed'ın gerçekten
+      yazıldığı doğrulanıyor. Sabit metin/id gömülmez — `seleniumData`'dan
+      hesaplanır (`tests/learning-blocks-render.spec.ts` ile aynı ilke).
+      **Yerel Chromium'da PASS (37.8s).** Yeni route yok → §22.1 değişmez.
+    - `src/components/MissionBlock.jsx` — testi güvenilir kılmak için 4
+      `data-testid` eklendi (`mission-block` + `data-mission-id`/`data-
+      mission-complete`, `mission-step` + `data-step-index`/`data-step-
+      locked`/`data-step-done`, `mission-mini-lesson`, `mission-complete-
+      banner`) — `mentor-panel`/`mentor-ai-button` kalıbıyla aynı (içerik
+      DEĞİŞMEDİ, sadece test-scoping).
+    - `CLAUDE.md` §5 blok listesine `prediction | code-trace | heap-stack | mission`
+      eklendi (üçü zaten vardı ama listeye hiç girmemişti — fırsatçı düzeltme).
+    - **Doğrulama:** content-integrity ✓ · i18n baseline 0 ✓ · audit-learning-
+      blocks (mission:6, 0 ihlal) ✓ · build ✓ (43 shell) · `npx playwright test
+      tests/mission-flow.spec.ts` ✓ (1/1 PASS).
+  - **✅ PHASE 1 (Challenge-First Senaryo Katmanı) TAMAMLANDI** — plan §3.4
+    "bitti" tanımının tamamı karşılandı: 6 sayfa (Selenium+Playwright+Cypress+
+    Python+SQL+REST Assured), audit/i18n/build kapıları yeşil, E2E test yeşil,
+    `skillSignals.js` her görev bitince sinyal topluyor (Phase 3 hazır).
+  - 🔜 **Sırada:** Phase 1.5 tooltip sözlüğü genişletme (§7.3, P1.5-S1…S3) —
+    `termGlossary.js`'i yüzlerce terime genişletme + `tests/term-tooltip.spec.ts`.
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
 

@@ -86,7 +86,7 @@ export default function MissionBlock({ block, darkMode, language, onFirstSuccess
     const progressPct = steps.length ? Math.round((doneSteps.length / steps.length) * 100) : 0
 
     return (
-        <div style={{ position: 'relative', margin: '28px 0', padding: '22px', background: cardBg, border: `1px solid ${border}`, borderRadius: 18 }}>
+        <div data-testid="mission-block" data-mission-id={block.id} data-mission-complete={missionComplete} style={{ position: 'relative', margin: '28px 0', padding: '22px', background: cardBg, border: `1px solid ${border}`, borderRadius: 18 }}>
             {celebrating && <ConfettiExplosion duration={3200} particleCount={36} onComplete={() => setCelebrating(false)} />}
 
             {/* Başlık şeridi */}
@@ -135,7 +135,7 @@ export default function MissionBlock({ block, darkMode, language, onFirstSuccess
                     const numFg = isDone || isActive ? '#fff' : textSub
 
                     return (
-                        <div key={step.id ?? idx} style={{
+                        <div key={step.id ?? idx} data-testid="mission-step" data-step-index={idx} data-step-locked={isLocked} data-step-done={isDone} style={{
                             border: `2px solid ${stepBorder}`, borderRadius: 14,
                             background: darkMode ? '#111827' : '#fff',
                             opacity: isLocked ? 0.55 : 1, padding: '14px 16px',
@@ -202,7 +202,7 @@ export default function MissionBlock({ block, darkMode, language, onFirstSuccess
 
                                     {/* Mini-lesson içeriği (reveal) */}
                                     {isActive && openLesson === idx && step.miniLesson && (
-                                        <div style={{
+                                        <div data-testid="mission-mini-lesson" style={{
                                             marginTop: 12, padding: '12px 14px', borderLeft: `3px solid ${accent}`,
                                             background: darkMode ? '#1e293b' : '#eef2ff', borderRadius: '0 10px 10px 0',
                                             fontSize: 13.5, lineHeight: 1.6, color: textMain,
@@ -219,7 +219,7 @@ export default function MissionBlock({ block, darkMode, language, onFirstSuccess
 
             {/* Görev tamamlanınca: debrief (gerçek QA bağlamı) */}
             {missionComplete && (
-                <div style={{ marginTop: 18 }}>
+                <div data-testid="mission-complete-banner" style={{ marginTop: 18 }}>
                     <div style={{
                         display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 10,
                         background: darkMode ? '#052e2b' : '#ecfdf5', border: '1px solid #10b981', marginBottom: block.debrief ? 12 : 0,
