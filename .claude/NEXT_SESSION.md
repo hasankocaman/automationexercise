@@ -51,9 +51,27 @@
     ✓ (38 dosya) · i18n:check ✓ (baseline 0, regresyon yok) · `npm run build` ✓
     (43 static shell, SEO geçti; seleniumData chunk 633 kB — bilinen büyük-chunk
     uyarısı, §14/§23.8).
-  - **SIRADAKİ İŞ = SONNET (P1-S1…S4), hazır prompt planın §7.2'sinde:** referans
-    görevi örnek alıp Playwright/Cypress/Python/SQL/API'ye birer gerçek-QA görevi +
-    `tests/mission-flow.spec.ts` + CLAUDE.md §5 blok listesine `mission` ekleme.
+  - **PHASE 1.5 — KAVRAM TOOLTIP OPUS TARAFI (P1.5-O1…O3) da TAMAMLANDI — aynı oturum:**
+    Kullanıcı gözlemi: "yazılım bilmeyen kullanıcı en basit kavramları anlamıyor."
+    Çözüm: terimlerin üstüne gelince/dokununca günlük-hayat benzetmesi baloncuğu.
+    - `src/data/termGlossary.js` (yeni) — terim→benzetme sözlüğü, ~24 tohum terim
+      (locator, selector, assertion, fixture, XPath, DOM, API, endpoint, CI/CD,
+      pipeline, commit, merge, branch, framework, boolean, null, exception,
+      variable, array, query, flaky test, timeout, mock, regression).
+    - `src/components/TermTooltip.jsx` (yeni) — hover/focus/tap ile açılan,
+      ESC/dışarı-tık kapanan, klavye-erişilebilir, dark-mode + bilingual popover +
+      `highlightGlossaryTerms` helper (modül-seviyesi tek regex, `\b` ASCII sınırı,
+      blok başına ilk-geçiş ≤8 terim; kod blokları ASLA sarılmaz).
+    - `src/components/TopicPage.jsx` — `case 'text'` ve `case 'simple-box'` prose
+      render'ına `highlightGlossaryTerms(...)` bağlandı (minimal, düşük risk).
+    - **Not:** termGlossary.js `*Glossary.js` olduğundan i18n scanner'ın `*Data.js`
+      glob'una GİRMİYOR — `en` saf İngilizce + `aliases` ASCII elle korunmalı
+      (plan §3.6.1). Gate'ler yeşil (content-integrity + i18n:0 + build 43 shell).
+  - **SIRADAKİ İŞ = SONNET — iki paralel iş, hazır promptlar planda:**
+    (a) **Mission rollout (§7.2)** — Playwright/Cypress/Python/SQL/API'ye gerçek-QA
+    görevleri + `tests/mission-flow.spec.ts` + CLAUDE.md §5'e `mission` ekleme.
+    (b) **Tooltip sözlüğü (§7.3)** — `termGlossary.js`'i yüzlerce terime genişletme
+    + `tests/term-tooltip.spec.ts`.
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
 

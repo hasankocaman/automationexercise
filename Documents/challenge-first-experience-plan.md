@@ -31,7 +31,14 @@
 >   Locators sekmesine çift-ağaç push).
 > Dört §1.1 kapısı da yeşil: audit-learning-blocks ✓ (mission: 1, 0 ihlal) ·
 > content-integrity ✓ · i18n baseline 0 ✓ · build ✓ (43 shell).
-> **SIRADAKİ İŞ = SONNET (P1-S1…S4), hazır prompt §7.2'de.**
+>
+> **📌 DURUM (2026-07-30, Opus): PHASE 1.5 KAVRAM TOOLTIP OPUS TARAFI (P1.5-O1…O3)
+> da TAMAMLANDI ve commit'lendi** (§3.6). Yazılanlar: `src/data/termGlossary.js`
+> (~24 tohum terim), `src/components/TermTooltip.jsx` (hover/tap popover +
+> `highlightGlossaryTerms` helper), `TopicPage.jsx` `text`/`simple-box` render'ına
+> bağlama. Gate'ler yeşil (content-integrity + i18n:0 + build). **SONNET sözlüğü
+> yüzlerce terime genişletecek + test yazacak — hazır prompt §7.3'te.**
+> **SIRADAKİ İŞ = SONNET: (a) Mission rollout §7.2, (b) Tooltip sözlüğü §7.3.**
 
 ### ✅ TAMAMLANANLAR (önceki dalga — bu planın ön koşulu)
 - **Mentor (AI Learning Coach) — Katman A/B** — `MentorPanel` + `MentorNudge` +
@@ -231,6 +238,70 @@ explorer/editor adım olarak DEĞİŞMEDEN çalışır (`onExerciseCompleted` za
 
 ---
 
+## 3.6. PHASE 1.5 — Kavram Tooltip'i (Yazılım Bilmeyen Kullanıcı için Günlük-Hayat Benzetmeleri)
+
+**Kaynak:** Kullanıcı gözlemi (2026-07-30): "Hiç yazılım bilmeyen bir kullanıcı
+siteyi incelerken yazılım kavramlarını bilmediğinden en basit konuları dahi
+anlamıyor." **Hedef:** Yazılım terimlerinin geçtiği yerlerde, o terimin ÜSTÜNE
+gelince (hover) / dokununca (mobil) küçük bir açıklama baloncuğu belirsin — teknik
+tanım DEĞİL, günlük hayattan basit bir **benzetme** (örn. "fixture = yemek yapmadan
+önce malzemeleri tezgaha dizmek"). En iyi UX ile: göze batmayan noktalı alt çizgi,
+hover/focus/tap ile açılan, ESC/dışarı-tık ile kapanan, klavye-erişilebilir popover.
+
+**Bu §9.3'ün (4-katmanlı derin analoji) YERİNE GEÇMEZ** — o, yetişkin QA mühendisi
+için sayfa içeriğindeki `simple-box` analojisidir. Bu ise inline, tek-cümlelik,
+**sıfır-bilgi** kullanıcıya yönelik mikro-tooltip. İkisi bir arada çalışır.
+
+### 3.6.1. Tasarım (bağlayıcı)
+- **Merkezî sözlük (tek kaynak):** `src/data/termGlossary.js` — `{ termKey: { term:{tr,en},
+  aliases:[...ascii...], short:{tr,en}, analogy:{tr,en} } }`. `analogy` yıldızdır
+  (günlük-hayat benzetmesi); `short` tek-cümle sade tanım. **Terimi bir kez tanımla,
+  her yerde otomatik vurgulan.**
+- **Otomatik vurgulama (auto-highlight):** `highlightGlossaryTerms(text, language, darkMode)`
+  düz metni gezip bilinen terimlerin **her metin bloğunda İLK geçtiği yeri** bir
+  `<TermTooltip>` ile sarar (kelime-sınırı, büyük/küçük harf duyarsız, blok başına
+  en çok ~8 terim → gürültü olmaz). **Yalnızca prose render'larına uygulanır; kod
+  blokları/tablolar ASLA sarılmaz.**
+- **UX:** noktalı alt çizgi + `cursor: help`; hover VE focus (klavye) VE tap (mobil)
+  açar; ESC + dışarı-tık kapatır; `role="tooltip"` + `aria`; dark mode + bilingual
+  (dil zaten seçili); 44px dokunma hedefi; popover terimin ÜSTÜnde açılır (layout'u
+  itmez), `max-width: min(280px, 80vw)`.
+- **i18n:** `aliases` düz string olduğundan **yalnız ASCII** (Türkçe-özel karakterli
+  yüzey formu leak taramasını tetikler, §23.1). Türkçe metin `term.tr`/`analogy.tr`/
+  `short.tr` içinde (`{tr,en}` objesi — güvenli). `en` tarafları saf İngilizce.
+
+### 3.6.2. OPUS ne yapar (P1.5-O1…O3) — BU OTURUMDA YAPILDI
+- **P1.5-O1** `src/data/termGlossary.js` — sözlük + **~24 tohum terim** (locator,
+  selector, assertion, fixture, XPath, DOM, API, endpoint, CI/CD, pipeline, commit,
+  merge, branch, framework, boolean, null, exception, variable, array, query,
+  flaky test, timeout, mock, regression). Sonnet YÜZLERCE terime genişletecek.
+- **P1.5-O2** `src/components/TermTooltip.jsx` — `TermTooltip` popover bileşeni +
+  `highlightGlossaryTerms` helper (modül seviyesinde tek-sefer regex + yüzey→key
+  lookup). Self-contained, yeni CDN/paket yok.
+- **P1.5-O3** `src/components/TopicPage.jsx` — `case 'text'` ve `case 'simple-box'`
+  render'ına `highlightGlossaryTerms(...)` bağlandı (minimal, düşük risk; kod
+  render'ları değişmedi).
+
+### 3.6.3. SONNET ne yapar (P1.5-S1…S3) — SIRADAKİ İŞ (prompt §7.3)
+- **S1 — Sözlüğü genişlet:** `termGlossary.js`'e sayfalarda geçen TÜM kavramları
+  ekle (dil başına: değişken tipleri, döngü, koşul, sınıf/nesne, kalıtım, JSON,
+  HTTP/status kod, cookie/session, container, image, pod, thread, async/await,
+  promise, callback, closure, generic, regex, environment variable, dependency,
+  repository, deploy, rollback, cache, latency, throughput, idempotent…). Her biri
+  günlük-hayat benzetmeli, bilingual, aliases ASCII, tekrar yasağı (§9.4).
+- **S2 — Kapsamı genişlet (opsiyonel, dikkatli):** `highlightGlossaryTerms`'ü
+  `callout`/`info`/`tip`/list prose render'larına da bağla (heading'lere BAĞLAMA —
+  kısa, kalabalık görünür). Her eklemede kod/tablo render'ına bulaşmadığını doğrula.
+- **S3 — Test:** `tests/term-tooltip.spec.ts` — bir ders sayfasında bilinen bir
+  terimin noktalı-çizgili sarıldığı, hover/tap ile popover'ın açıldığı ve benzetme
+  metnini gösterdiği, ESC ile kapandığı; kod bloğu içindeki aynı kelimenin
+  SARILMADIĞI. Yeni route yok → §22.1 değişmez.
+
+**Opus doğrulama (bu oturum):** node --check (termGlossary.js) + content-integrity
++ i18n baseline 0 + build — hepsi geçti.
+
+---
+
 ## 4. PHASE 2 — QA Sprint / Company Simulator (Phase 1 üstüne)
 
 **Hedef (yazıdan):**
@@ -347,6 +418,32 @@ gereği — bunlar yeni yüzey). Sırası kullanıcı kararı:
 >
 > Her dosyadan sonra ZORUNLU (§1.1): `node --check` → content-integrity →
 > i18n:check (baseline 0) → build. Parça parça ilerle, her sayfadan sonra ayrı commit.
+
+---
+
+### 7.3. SONNET için (Kavram Tooltip sözlüğü — P1.5-S1…S3)
+
+> Branch: `feature/challenge-first`. Opus tarafı (TermTooltip + highlightGlossaryTerms
+> + termGlossary seed + text/simple-box bağlama) BİTTİ — bunları YENİDEN YAZMA. Planın
+> **§3.6** bölümünü oku.
+>
+> Yap (her biri ayrı commit):
+> 1. **S1 — `src/data/termGlossary.js` sözlüğünü genişlet.** Sitedeki sayfalarda geçen
+>    ve yazılım bilmeyen birinin anlamayacağı TÜM kavramları ekle (bkz. §3.6.3 liste).
+>    Her giriş: `term:{tr,en}`, `aliases:[…ASCII yüzey formları…]`, `short:{tr,en}`
+>    (tek cümle sade tanım), `analogy:{tr,en}` (GÜNLÜK-HAYAT benzetmesi — yıldız bu).
+>    Kurallar: `en` tarafı saf İngilizce; `aliases` YALNIZ ASCII (Türkçe-özel karakter
+>    i18n leak tetikler, §23.1); aynı/benzer benzetmeyi farklı terimde TEKRARLAMA (§9.4);
+>    "test" gibi aşırı yaygın kelimeleri sözlüğe EKLEME (her yerde vurgulanır, gürültü olur).
+> 2. **S2 (opsiyonel) — kapsamı genişlet:** `highlightGlossaryTerms`'ü `callout`/`info`/
+>    `tip`/list prose render'larına da bağla (TopicPage). Heading'lere BAĞLAMA. Her
+>    eklemeden sonra kod/tablo render'larına bulaşmadığını gözle doğrula.
+> 3. **S3 — `tests/term-tooltip.spec.ts`:** bilinen terimin sarıldığı + hover/tap ile
+>    benzetmenin göründüğü + ESC ile kapandığı + kod bloğundaki aynı kelimenin
+>    SARILMADIĞI. Yeni route yok → §22.1 değişmez.
+>
+> Her dosyadan sonra ZORUNLU (§1.1): `node --check src/data/termGlossary.js` →
+> content-integrity → i18n:check (baseline 0) → build. Dördü geçmeden "bitti" deme.
 
 ---
 
