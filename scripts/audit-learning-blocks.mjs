@@ -15,6 +15,10 @@
 //   code-trace : `code` düz string (renderer .split('\n') yapar, {tr,en} DESTEKLENMEZ,
 //                plan §2 not) · `steps` boş olmayan dizi · her step'te sayısal `line`.
 //   heap-stack : `code` düz string · `steps` boş olmayan dizi · her step'te sayısal `line`.
+//   mission    : `id` (benzersiz) · `relatedTopicId` · `steps` en az 3 · her step'te
+//                boş olmayan `brief` + `miniLesson` + type'lı gömülü `block` ·
+//                `successCriterion` verilirse 'onFirstSuccess'|'manual'
+//                (challenge-first-experience-plan.md §3.2).
 //
 // UYARI (bilgi amaçlı, build kırmaz):
 //   - prediction doğru-şık pozisyon dağılımı (ör. hepsi B ise kullanıcı gaming yapabilir).
@@ -118,6 +122,47 @@ async function main() {
         }
     }
 
+    // — mission (challenge-first görev zinciri, challenge-first-experience-plan.md §3.2) —
+    // Missionlar dil sayfalarıyla sınırlı değil; yeni mission eklenen data
+    // dosyalarını buraya ekle (Sonnet rollout: playwrightData, cypressData…).
+    const MISSION_FILES = [...FILES, 'seleniumData.js'];
+    const missionIdOwner = new Map();
+    let missionCount = 0;
+    for (const file of [...new Set(MISSION_FILES)]) {
+        const mod = await import(`../src/data/${file}`);
+        const data = mod[Object.keys(mod).find((k) => k.endsWith('Data'))] || Object.values(mod)[0];
+        for (const b of collectBlocks(data, ['mission'])) {
+            missionCount++;
+            const label = b.id ?? '(id yok)';
+            if (!b.id) {
+                errors.push(`${file}: bir mission bloğunda 'id' yok — XP/beceri tekilliği için ZORUNLU (plan §3.2).`);
+            } else if (missionIdOwner.has(b.id)) {
+                errors.push(`${file}: mission id='${b.id}' benzersiz değil (ayrıca ${missionIdOwner.get(b.id)} içinde).`);
+            } else {
+                missionIdOwner.set(b.id, file);
+            }
+            if (!b.relatedTopicId) {
+                errors.push(`${file}: mission id='${label}' — 'relatedTopicId' ZORUNLU (plan §3.2).`);
+            }
+            const steps = Array.isArray(b.steps) ? b.steps : null;
+            if (!steps || steps.length < 3) {
+                errors.push(`${file}: mission id='${label}' — 'steps' en az 3 elemanlı dizi olmalı (plan §3.2), bulundu: ${steps ? steps.length : 'yok'}.`);
+            } else {
+                if (steps.length > 8) {
+                    warnings.push(`${file}: mission id='${label}' — ${steps.length} adım (plan §3.2 ~7 önerir); kullanıcıyı bunaltma riski.`);
+                }
+                steps.forEach((s, i) => {
+                    if (!isNonEmptyText(s.brief)) errors.push(`${file}: mission id='${label}' step[${i}] — 'brief' boş/eksik.`);
+                    if (!isNonEmptyText(s.miniLesson)) errors.push(`${file}: mission id='${label}' step[${i}] — 'miniLesson' ZORUNLU (challenge-first: takılınca ders), boş/eksik.`);
+                    if (!s.block || typeof s.block.type !== 'string') errors.push(`${file}: mission id='${label}' step[${i}] — type'lı gömülü 'block' eksik.`);
+                    if (s.successCriterion != null && !['onFirstSuccess', 'manual'].includes(s.successCriterion)) {
+                        errors.push(`${file}: mission id='${label}' step[${i}] — successCriterion 'onFirstSuccess'|'manual' olmalı, bulundu: '${s.successCriterion}'.`);
+                    }
+                });
+            }
+        }
+    }
+
     // — ROUTE_ADVICE openTab derin-link guard'ı —
     // Mentor aksiyonlarının openTab'ı gerçekten prediction OLAN sekmeyi gösteriyor mu?
     try {
@@ -145,7 +190,7 @@ async function main() {
     }
 
     console.log('Öğrenme-blok Şema Denetimi (learning-science-upgrade-plan.md §2)\n');
-    console.log(`Benzersiz blok sayıları → prediction: ${predCount} · code-trace: ${traceCount} · heap-stack: ${heapCount}`);
+    console.log(`Benzersiz blok sayıları → prediction: ${predCount} · code-trace: ${traceCount} · heap-stack: ${heapCount} · mission: ${missionCount}`);
     console.log(`Doğru-şık pozisyon dağılımı: ${JSON.stringify(positionDist)}`);
 
     // Pozisyon-yanlılığı uyarısı: bir harf toplamın %80'inden fazlasını kapsıyorsa gaming riski.
@@ -166,7 +211,7 @@ async function main() {
         console.log('\nŞema ihlalleri build\'i kırar.');
         process.exit(1);
     }
-    console.log('\n✅ Tüm prediction/code-trace/heap-stack blokları şema kurallarını karşılıyor.');
+    console.log('\n✅ Tüm prediction/code-trace/heap-stack/mission blokları şema kurallarını karşılıyor.');
 }
 
 main().catch((err) => {

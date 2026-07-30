@@ -20,9 +20,45 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-30, Opus — plan denetimi + öğrenme-blok testleri)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-30, Opus — Challenge-First Phase 1 Opus tarafı)
 
-- **Aktif branch: `feature/prediction-blocks`.** Bu oturumun SON işi (2026-07-30, Opus):
+- **Aktif branch: `feature/challenge-first`** (yeni, `main`'den açıldı). Kullanıcının
+  stratejik değerlendirme yazısı denetlenip yeni plan yazıldı:
+  **`Documents/challenge-first-experience-plan.md`** (learning-science planının halefi).
+  Değerlendirme özeti: yazının "Phase 3" listesi (AI coach / prediction / memory-viz /
+  analytics) ZATEN BİTMİŞ; gerçek yeni değer challenge-first + iş simülasyonu.
+  Kullanıcı **Phase 1 = Challenge-First Senaryo Katmanı** yönünü seçti; açık ürün
+  kararı (sayfa-içi vs ayrı sekme) önerilen "sayfa-içi" ile ilerletildi.
+  - **PHASE 1 OPUS TARAFI (P1-O1…O5) TAMAMLANDI — bu oturum:**
+    - `src/lib/skillSignals.js` (yeni) — local-first beceri sinyali deposu
+      (`recordSkillSignal`/`getSkillSignals`/`getSkillSignalCounts`/`hasSkillSignal`).
+      Phase 3'te SkillRadar'ı "çözülen challenge"dan besleyecek; şimdilik toplar.
+    - `src/components/MissionBlock.jsx` (yeni) — `type:'mission'` görev zinciri:
+      adım sırayla kilit açar, gömülü blok `onFirstSuccess` verince adım biter,
+      "💡 Takıldın mı? Mini-lesson aç" (challenge-first çekirdeği), tamamlanınca
+      XP+konfeti+beceri sinyali+debrief. YENİ SANDBOX YAZMAZ.
+    - `src/components/TopicPage.jsx` — `import MissionBlock` + `case 'mission'`:
+      `renderInner` callback'i her adımın gömülü bloğunu (code-playground/prediction/
+      editor/sandbox…) AYNI `renderBlock` makinesinden geçirir.
+    - `scripts/audit-learning-blocks.mjs` — `mission` şema değişmezi eklendi
+      (id benzersiz + relatedTopicId + ≥3 adım + her adımda brief/miniLesson/
+      type'lı block + successCriterion geçerli). Build hard-fail. MISSION_FILES
+      listesi seleniumData.js dahil — Sonnet rollout ederken yeni dosyaları ekleyecek.
+    - `src/data/seleniumData.js` — REFERANS görev "Login sayfasını test et"
+      (Locators sekmesi, 5 adım: locator seç → tıkla → assert → wait stratejisi
+      seç → explicit wait yaz; çift-ağaç `s2.tr/s2.en`'e tek sabit push).
+  - **Doğrulama:** `audit-learning-blocks` ✓ (mission: 1, 0 ihlal) · content-integrity
+    ✓ (38 dosya) · i18n:check ✓ (baseline 0, regresyon yok) · `npm run build` ✓
+    (43 static shell, SEO geçti; seleniumData chunk 633 kB — bilinen büyük-chunk
+    uyarısı, §14/§23.8).
+  - **SIRADAKİ İŞ = SONNET (P1-S1…S4), hazır prompt planın §7.2'sinde:** referans
+    görevi örnek alıp Playwright/Cypress/Python/SQL/API'ye birer gerçek-QA görevi +
+    `tests/mission-flow.spec.ts` + CLAUDE.md §5 blok listesine `mission` ekleme.
+  - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
+    Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
+
+- **Önceki oturum (2026-07-30, Opus) — plan denetimi + öğrenme-blok testleri
+  (branch `feature/prediction-blocks`):** Bu oturumun SON işi (2026-07-30, Opus):
   `learning-science-upgrade-plan.md`'nin ne kadar yerine getirildiği denetlendi
   ve **test kapsamı boşluğu kapatıldı** (commit `142d8d5`):
   - **Denetim sonucu — plan TAM yerine getirilmiş:** prediction (java=10/js=9/
@@ -129,6 +165,15 @@
 - Bu branch'e geçmeden önceki oturumda `feature/api-testing-page` üzerinde **i18n EN-sızıntı temizliği** yapılmıştı: video-scene pasif buton görünürlüğü düzeltildi, 6 tablo + error-dictionary bilingual yapıldı, code-playground yorumları bilingual hale getirildi (TR Türkçe / EN İngilizce), ve yeni bir **statik scanner** eklendi: `scripts/check-i18n-leaks.mjs` (build zincirinde + `pre-commit`'te çalışır, `npm run i18n:check` / `npm run i18n:baseline`). Kök neden, çözüm ve kullanım detayı: **CLAUDE.md §23.1**.
 
 ## 🔜 Açık İşler / Sıradaki Adımlar
+
+0. **YENİ PLAN (2026-07-30) — `Documents/challenge-first-experience-plan.md`:**
+   Kullanıcının stratejik değerlendirme yazısı denetlendi. Sonuç: yazının
+   "Phase 3" listesinin çoğu ZATEN BİTMİŞ (mentor/prediction/memory-viz/analytics).
+   Gerçek yeni değer → **Phase 1: Challenge-First Senaryo Katmanı** (yeni `mission`
+   blok tipi; mevcut sandbox'ları göreve sarar, frontend-only). Kullanıcı bu yönü
+   seçti (2026-07-30). Phase 2 = Sprint/Company Simulator, Phase 3 = adaptif zorluk,
+   Phase 4 = park. Opus/Sonnet hazır promptları planın §7'sinde. **Açık karar
+   (Opus başlamadan):** görevler sayfa-içi mi ayrı sekme mi (öneri: sayfa-içi).
 
 1. **i18n EN-sızıntı temizliği TAMAMEN BİTTİ (2026-07-25 → 2026-07-29, çoklu oturum, KAPALI):** `check-i18n-leaks.mjs` scanner'ı sıfırdan inşa edildi ve art arda düzeltildi — yanlış-ağaç tarama (8490 hayalet leak), paylaşımlı-sabit tespiti, `why`/`note` ve `field`/`fieldEn` sibling farkındalığı, `codeCommentTranslations` runtime simülasyonu. Borç azalma sırası: 8490(hayalet) → 646 → 365 → 223 → 199 → 109 → 67 → 9 → **0**. Kök neden/çözüm kalıpları kalıcı olarak **CLAUDE.md §23.1 ve §23.6**'da belgeli (yeni bir "OPUS"/"YERİNDE-ÇEVİR" leak'e rastlarsan önce oraya bak); adım adım geçmiş `git log --oneline`'daki `fix(i18n...)` commit'lerinde duruyor, burada tekrarlanmıyor. `npm run i18n:check` artık "grandfathered borç: 0" basıyor — herhangi bir yeni sızıntı build'i kırar.
 2. **`/qa-frontend` → `main` merge/PR kararı** kullanıcıda; sayfa içerik olarak bitti, manuel test rehberi (`Documents/qa-frontend-page-plan.md` §F) hazır, isteğe bağlı olarak `npm run test:e2e` ile Playwright koşumu yapılabilir.

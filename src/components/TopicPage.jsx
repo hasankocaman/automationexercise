@@ -37,6 +37,7 @@ import VisualDiffDetectiveBlock from './VisualDiffDetectiveBlock'
 import PredictionBlock from './PredictionBlock'
 import CodeTraceBlock from './CodeTraceBlock'
 import HeapStackBlock from './HeapStackBlock'
+import MissionBlock from './MissionBlock'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 import { logActivity } from '../lib/activityLog'
@@ -17916,6 +17917,21 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'prediction':
             return <PredictionBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+
+        case 'mission':
+            // Challenge-first görev zinciri (challenge-first-experience-plan.md §3).
+            // MissionBlock YENİ SANDBOX YAZMAZ — her adımın gömülü bloğunu (mevcut
+            // code-playground / prediction / editor / sandbox…) `renderInner` ile
+            // AYNI renderBlock makinesinden geçirir; gömülü blok onFirstSuccess
+            // (onExerciseCompleted) verince ilgili adım tamamlanır.
+            return <MissionBlock key={i} block={block} darkMode={darkMode} language={language}
+                onFirstSuccess={() => onExerciseCompleted?.(i)}
+                renderInner={(stepBlock, stepIdx, onStepDone) => renderBlock(
+                    stepBlock, `${i}-m${stepIdx}`, darkMode, language, onQuizCorrect,
+                    sectionTitle, onInterviewMastery, isTabComplete, onHardReset,
+                    () => onStepDone?.()
+                )}
+            />
 
         case 'code-trace':
             return <CodeTraceBlock key={i} block={block} darkMode={darkMode} language={language} />

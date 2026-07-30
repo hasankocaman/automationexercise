@@ -9534,6 +9534,196 @@ const sFwArch = {
 }
 
 // ─── EXPORT — TopicPage formatı: { tr: { hero, tabs, sections }, en: {...} } ──
+// 🎯 CHALLENGE-FIRST REFERANS GÖREVI (challenge-first-experience-plan.md §3.3 P1-O5)
+// "Login sayfasını test et" — gerçek bir QA görevi: buton bul → tıkla → assert →
+// doğru bekleme stratejisini seç → flaky testi explicit wait ile yeşile al.
+// Her adım MEVCUT bir interaktif bloğu (prediction / code-playground) gömer;
+// MissionBlock onları TopicPage'in renderBlock makinesinden geçirir (yeni sandbox
+// yazılmaz). Sonnet bu görevi örnek alıp Playwright/Cypress/Python/SQL/API'ye yayacak.
+// Çift-ağaçlı dosya (§9.5): TEK bilingual sabit, İKİ ağaca da aynı referansla push.
+const seleniumLoginMission = {
+  type: 'mission',
+  id: 'selenium-login-mission',
+  xpReward: 45,
+  relatedTopicId: 'selenium-locators',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Bugün bir e-ticaret sitesinin login sayfasını test edeceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir smoke testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will test the login page of an e-commerce site. You will not read a lesson — you will build a real smoke test step by step, like a QA. If you get stuck on a step, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'sel-mission-step-locator',
+      brief: { tr: '1) Login butonunu en güvenilir şekilde bulacak locator’ı seç.', en: '1) Pick the locator that finds the login button most reliably.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'By.className sessiz tehlikelidir: aynı class birden fazla elemente denk gelebilir, test yanlış PASS verir ve exception fırlatmaz. By.id benzersizse O(1) hızındadır ve en güvenilirdir — tıpkı Java’da Map’te key ile lookup yapmak gibi. By.tagName ise sayfadaki tüm button’ları eşler.',
+        en: 'By.className is silently dangerous: the same class can match multiple elements, so the test passes wrongly without throwing. By.id, when unique, is O(1) and the most reliable — just like a key lookup in a Java Map. By.tagName matches every button on the page.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sel-mission-locator-choice',
+        xpReward: 10,
+        relatedTopicId: 'selenium-locators',
+        prompt: { tr: 'Bu buton için hangi locator en güvenilir?', en: 'Which locator is most reliable for this button?' },
+        code: '<button id="loginBtn" class="btn primary">Sign in</button>',
+        codeLanguage: 'html',
+        options: [
+          { id: 'a', label: { tr: 'By.className("btn")', en: 'By.className("btn")' }, why: { tr: 'Birden fazla element aynı class’ı taşıyabilir; yanlış elementi sessizce eşler.', en: 'Multiple elements can share the class; it silently matches the wrong one.' } },
+          { id: 'b', label: { tr: 'By.id("loginBtn")', en: 'By.id("loginBtn")' }, correct: true },
+          { id: 'c', label: { tr: 'By.tagName("button")', en: 'By.tagName("button")' }, why: { tr: 'Sayfadaki tüm button’ları döndürür, ilki login olmayabilir.', en: 'Returns every button on the page; the first may not be login.' } },
+        ],
+        reveal: {
+          tr: 'By.id("loginBtn") doğru: id benzersiz ve stabilse en hızlı ve en güvenilir locator’dır. className ve tagName birden çok elemente denk gelip sessiz yanlış PASS üretebilir — QA açısından bulması en zor flaky test türü.',
+          en: 'By.id("loginBtn") is correct: when the id is unique and stable it is the fastest, most reliable locator. className and tagName can match multiple elements and produce a silent false PASS — the hardest kind of flaky test to find.',
+        },
+      },
+    },
+    {
+      id: 'sel-mission-step-click',
+      brief: { tr: '2) Seçtiğin locator ile butona tıklayan Selenium satırını yaz.', en: '2) Write the Selenium line that clicks the button with that locator.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'driver.findElement(By.id("loginBtn")) elementi bulur, .click() ona tıklar. Java’da bir nesne referansı alıp metot çağırmak gibi: önce referansı bul, sonra üstünde aksiyon uygula.',
+        en: 'driver.findElement(By.id("loginBtn")) finds the element and .click() clicks it. Like grabbing an object reference in Java and calling a method: locate the reference first, then act on it.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-mission-click-code',
+        relatedTopicId: 'selenium-login-mission',
+        language: 'java',
+        label: { tr: 'Login butonuna tıkla', en: 'Click the login button' },
+        task: { tr: 'TODO satırını, By.id ile login butonuna tıklayacak şekilde tamamla.', en: 'Complete the TODO line to click the login button using By.id.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç By.id + click zincirini kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the By.id + click chain yourself.' },
+        code: {
+          tr: 'driver.findElement(By.id("loginBtn")).click();',
+          en: 'driver.findElement(By.id("loginBtn")).click();',
+        },
+        starterCode: {
+          tr: '// TODO: By.id ile login butonunu bul ve tıkla\ndriver.findElement().click();',
+          en: '// TODO: find the login button with By.id and click it\ndriver.findElement().click();',
+        },
+        solutionCode: {
+          tr: 'driver.findElement(By.id("loginBtn")).click();',
+          en: 'driver.findElement(By.id("loginBtn")).click();',
+        },
+        expected: { tr: 'Login butonu bulunur ve tıklanır.', en: 'The login button is found and clicked.' },
+        hints: [
+          { tr: 'findElement bir tek WebElement döndürür; parametresi bir By locator’ıdır.', en: 'findElement returns a single WebElement; its parameter is a By locator.' },
+          { tr: 'Önceki adımda seçtiğin locator: By.id("loginBtn").', en: 'The locator you picked in the previous step: By.id("loginBtn").' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sel-mission-step-assert',
+      brief: { tr: '3) Giriş sonrası dashboard’ın göründüğünü doğrulayan assertion’ı yaz.', en: '3) Write the assertion that verifies the dashboard is visible after login.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Tıklamak yetmez; test bir ŞEYİ doğrulamalı, yoksa hiçbir bug yakalamaz. isDisplayed() elementin görünür olup olmadığını döndürür; assertTrue onu bir başarı/başarısızlık kararına çevirir. Assertion olmayan bir test her zaman PASS verir — en tehlikeli yalancı test.',
+        en: 'Clicking is not enough; a test must verify SOMETHING or it catches no bugs. isDisplayed() returns whether the element is visible; assertTrue turns that into a pass/fail decision. A test with no assertion always passes — the most dangerous kind of fake test.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-mission-assert-code',
+        relatedTopicId: 'selenium-login-mission',
+        language: 'java',
+        label: { tr: 'Dashboard görünürlüğünü assert et', en: 'Assert dashboard visibility' },
+        task: { tr: 'TODO satırını, dashboard elementinin görünür olduğunu doğrulayan bir assertion ile tamamla.', en: 'Complete the TODO line with an assertion that verifies the dashboard element is visible.' },
+        explanation: { tr: 'Amaç: tıklamadan sonra sonucu doğrulayan bir kontrol yazmayı pekiştirmek.', en: 'Goal: reinforce writing a check that verifies the result after the click.' },
+        code: {
+          tr: 'assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());',
+          en: 'assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());',
+        },
+        starterCode: {
+          tr: '// TODO: dashboard göründü mü diye assertion yaz\n',
+          en: '// TODO: write an assertion for whether the dashboard is displayed\n',
+        },
+        solutionCode: {
+          tr: 'assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());',
+          en: 'assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());',
+        },
+        expected: { tr: 'Dashboard görünürse test PASS, görünmezse FAIL verir.', en: 'The test passes if the dashboard is visible and fails if it is not.' },
+        hints: [
+          { tr: 'isDisplayed() bir boolean döndürür; onu assertTrue(...) ile bir doğrulamaya çevir.', en: 'isDisplayed() returns a boolean; wrap it in assertTrue(...) to make it a verification.' },
+          { tr: 'Dashboard’ın locator’ı: By.id("dashboard").', en: 'The dashboard locator: By.id("dashboard").' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sel-mission-step-waitchoice',
+      brief: { tr: '4) Dashboard bazen 1sn bazen 4sn’de yükleniyor. Testi flaky yapmayacak bekleme stratejisini seç.', en: '4) The dashboard loads in 1s sometimes, 4s other times. Pick the wait strategy that will not make the test flaky.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Thread.sleep(2000) sabit bekler: element 1sn’de hazırsa 1sn boşa gider, 4sn sürerse test patlar. Implicit wait tüm findElement’lara global gecikme ekler ama koşula bakmaz. WebDriverWait + ExpectedConditions ise KOŞUL gerçekleşene kadar bekler, en fazla timeout kadar — hem hızlı hem stabildir.',
+        en: 'Thread.sleep(2000) waits a fixed time: if the element is ready in 1s you waste 1s, if it takes 4s the test breaks. Implicit wait adds a global delay to all findElement calls but ignores the condition. WebDriverWait + ExpectedConditions waits until the CONDITION is true, up to the timeout — both fast and stable.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sel-mission-wait-choice',
+        xpReward: 10,
+        relatedTopicId: 'selenium-login-mission',
+        prompt: { tr: 'Değişken yükleme süresinde testi flaky yapmayacak bekleme hangisi?', en: 'With variable load time, which wait keeps the test from being flaky?' },
+        code: '// dashboard: bazen 1sn, bazen 4sn\n// which wait?',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'Thread.sleep(2000)', en: 'Thread.sleep(2000)' }, why: { tr: 'Sabit süre; 4sn sürerse test patlar, 1sn’de hazırsa zaman kaybedilir.', en: 'Fixed duration; breaks if it takes 4s, wastes time if ready in 1s.' } },
+          { id: 'b', label: { tr: 'WebDriverWait + ExpectedConditions.visibilityOfElementLocated', en: 'WebDriverWait + ExpectedConditions.visibilityOfElementLocated' }, correct: true },
+          { id: 'c', label: { tr: 'Hiç bekleme koyma', en: 'No wait at all' }, why: { tr: 'Element geç gelirse NoSuchElementException fırlar; en kırılgan seçenek.', en: 'If the element arrives late a NoSuchElementException is thrown; the most fragile option.' } },
+        ],
+        reveal: {
+          tr: 'WebDriverWait + ExpectedConditions doğru: koşul (görünürlük) gerçekleşene kadar bekler, en fazla timeout kadar. Değişken süreli yüklemelerde hem sabit sleep’in zaman kaybını hem de beklemesizliğin kırılganlığını ortadan kaldırır.',
+          en: 'WebDriverWait + ExpectedConditions is correct: it waits until the condition (visibility) is true, up to the timeout. On variable-time loads it removes both the wasted time of a fixed sleep and the fragility of no wait.',
+        },
+      },
+    },
+    {
+      id: 'sel-mission-step-waitcode',
+      brief: { tr: '5) Testi yeşile al: dashboard beklemesini explicit wait ile yaz.', en: '5) Make the test green: write the dashboard wait using an explicit wait.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'WebDriverWait bir timeout ile kurulur; .until(...) içine bir ExpectedConditions koşulu verilir. visibilityOfElementLocated(By.id("dashboard")) element görünene kadar bekler. Bu, sabit Thread.sleep’i koşullu beklemeyle değiştirmenin standart kalıbıdır.',
+        en: 'A WebDriverWait is created with a timeout; you pass an ExpectedConditions condition into .until(...). visibilityOfElementLocated(By.id("dashboard")) waits until the element is visible. This is the standard pattern for replacing a fixed Thread.sleep with a conditional wait.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-mission-wait-code',
+        relatedTopicId: 'selenium-login-mission',
+        language: 'java',
+        label: { tr: 'Explicit wait ile dashboard’ı bekle', en: 'Wait for the dashboard with an explicit wait' },
+        task: { tr: 'TODO satırını, dashboard görünene kadar bekleyen bir WebDriverWait ile tamamla (en fazla 10 saniye).', en: 'Complete the TODO line with a WebDriverWait that waits until the dashboard is visible (up to 10 seconds).' },
+        explanation: { tr: 'Amaç: sabit sleep yerine koşullu beklemeyi kendin yazarak flaky testi stabilize etmek.', en: 'Goal: stabilize the flaky test by writing the conditional wait yourself instead of a fixed sleep.' },
+        code: {
+          tr: 'new WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));',
+          en: 'new WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));',
+        },
+        starterCode: {
+          tr: 'driver.findElement(By.id("loginBtn")).click();\n// TODO: dashboard görünene kadar explicit wait ekle (max 10 sn)\n',
+          en: 'driver.findElement(By.id("loginBtn")).click();\n// TODO: add an explicit wait until the dashboard is visible (max 10s)\n',
+        },
+        solutionCode: {
+          tr: 'driver.findElement(By.id("loginBtn")).click();\nnew WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));',
+          en: 'driver.findElement(By.id("loginBtn")).click();\nnew WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));',
+        },
+        expected: { tr: 'Dashboard 1sn’de de 4sn’de de gelse test sabit yeşil kalır.', en: 'Whether the dashboard arrives in 1s or 4s, the test stays consistently green.' },
+        hints: [
+          { tr: 'WebDriverWait(driver, Duration.ofSeconds(10)) 10 saniyelik bir timeout kurar.', en: 'WebDriverWait(driver, Duration.ofSeconds(10)) sets up a 10-second timeout.' },
+          { tr: '.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard"))) koşulu görünürlüktür.', en: '.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard"))) — the condition is visibility.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir login smoke testinin iskeletini kurdun: güvenilir locator seçimi → aksiyon → assertion → doğru bekleme stratejisi → flaky’yi stabilize etme. Gerçek işte bir QA’nın yeni bir sayfaya baktığında izlediği yol tam olarak budur. Bir sonraki adım: aynı akışı Page Object Model ile sınıflara ayırmak.',
+    en: 'You did not just read a lesson — in 5 steps you built the skeleton of a real login smoke test: reliable locator choice → action → assertion → correct wait strategy → stabilizing the flaky case. This is exactly the path a QA follows when looking at a new page on the job. Next step: split the same flow into classes with the Page Object Model.',
+  },
+}
+// Çift-ağaç: aynı sabiti hem TR hem EN Locators sekmesine (s2) aynı referansla ekle (§9.5).
+s2.tr.blocks.push(seleniumLoginMission)
+s2.en.blocks.push(seleniumLoginMission)
+
 export const seleniumData = {
   tr: {
     hero: {
