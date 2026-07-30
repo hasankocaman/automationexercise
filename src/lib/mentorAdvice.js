@@ -148,6 +148,133 @@ const ROUTE_ADVICE = {
             { label: { tr: 'Pipe ve izinler bölümünü tekrar et', en: 'Revisit pipes & permissions' }, route: '/linux' },
         ],
     },
+    '/rest-assured': {
+        tip: {
+            tr: 'Java\'da assertEquals tek satır kontrolse, REST Assured\'da given/when/then zinciri kurulumu, isteği ve doğrulamayı AYNI cümlede birleştirir — hangi adımın nerede bittiğini karıştırmak en sık hata.',
+            en: 'Where plain Java uses a single assertEquals, REST Assured\'s given/when/then chain fuses setup, request and verification into one sentence — mixing up which step ends where is the most common slip.',
+        },
+        actions: [
+            { label: { tr: 'given/when/then zincirini tekrar et', en: 'Revisit the given/when/then chain' }, route: '/rest-assured' },
+            { label: { tr: 'JSON path doğrulamalarını tekrar et', en: 'Revisit JSON path assertions' }, route: '/rest-assured' },
+        ],
+    },
+    '/postman': {
+        tip: {
+            tr: 'Environment ve Collection değişkenlerinin kapsamı (scope) farklı — bir pre-request script\'te set ettiğin değişkeni yanlış katmanda aramak "undefined" hatasının en sık nedeni.',
+            en: 'Environment and Collection variables have different scopes — looking for a variable you set in a pre-request script in the wrong layer is the most common cause of "undefined" errors.',
+        },
+        actions: [
+            { label: { tr: 'Değişken kapsamlarını tekrar et', en: 'Revisit variable scopes' }, route: '/postman' },
+        ],
+    },
+    '/bruno': {
+        tip: {
+            tr: 'Bruno\'nun Git-native olması, .bru dosyalarının diff\'lenebilir olduğu anlamına gelir — ama secret\'ları environment dosyasına yazıp commit\'lemek en sık yapılan güvenlik hatası.',
+            en: 'Bruno being Git-native means .bru files are diffable — but writing secrets into an environment file and committing it is the most common security mistake.',
+        },
+        actions: [
+            { label: { tr: '.bru dosya yapısını tekrar et', en: 'Revisit the .bru file structure' }, route: '/bruno' },
+        ],
+    },
+    '/jenkins': {
+        tip: {
+            tr: 'Declarative pipeline\'da post{} bloğu her zaman çalışır (stage başarısız olsa bile) — cleanup/bildirim mantığını stage içine gömmek yaygın bir mimari hata.',
+            en: 'The post{} block in a declarative pipeline always runs (even if a stage fails) — burying cleanup/notification logic inside a stage instead is a common architecture mistake.',
+        },
+        actions: [
+            { label: { tr: 'Pipeline post{} bloğunu tekrar et', en: 'Revisit the post{} block' }, route: '/jenkins' },
+        ],
+    },
+    '/kubernetes': {
+        tip: {
+            tr: 'Pod tek başına kalıcı değildir — Deployment onu yeniden yaratır, Service ona sabit bir ağ adresi verir. Bu üçünü karıştırmak "pod\'a nasıl erişirim" sorusunun kaynağı.',
+            en: 'A Pod alone is not durable — a Deployment recreates it, a Service gives it a stable network address. Confusing these three is the root of "how do I reach my pod" questions.',
+        },
+        actions: [
+            { label: { tr: 'Pod/Deployment/Service farkını tekrar et', en: 'Revisit Pod vs Deployment vs Service' }, route: '/kubernetes' },
+        ],
+    },
+    '/kafka': {
+        tip: {
+            tr: 'Consumer offset\'i ne zaman commit ettiğin, mesajın "en az bir kez" mi yoksa "tam bir kez" mi işlendiğini belirler — bu ayrımı test senaryosuna yansıtmamak sessiz veri kaybına/duplikasyona yol açar.',
+            en: 'When a consumer commits its offset determines whether a message is processed at-least-once or exactly-once — not reflecting this in your test scenarios silently causes data loss or duplication.',
+        },
+        actions: [
+            { label: { tr: 'Offset commit zamanlamasını tekrar et', en: 'Revisit offset commit timing' }, route: '/kafka' },
+        ],
+    },
+    '/appium': {
+        tip: {
+            tr: 'Web\'de XPath genelde son çare iken, mobilde accessibility id / resource-id gibi platforma özel locator\'lar öncelik sırası XPath\'ten önce gelir — Selenium alışkanlığıyla direkt XPath\'e atlamak flaky testin en sık nedeni.',
+            en: 'While XPath is usually a last resort on the web, mobile locators like accessibility id / resource-id should be tried before XPath — jumping straight to XPath out of Selenium habit is the top cause of flaky mobile tests.',
+        },
+        actions: [
+            { label: { tr: 'Mobil locator önceliğini tekrar et', en: 'Revisit mobile locator priority' }, route: '/appium' },
+        ],
+    },
+    '/aws': {
+        tip: {
+            tr: 'IAM\'de "en az yetki" (least privilege) ilkesini atlayıp root/geniş yetkiyle test ortamı kurmak, prod\'a taşınınca ciddi güvenlik açığına dönüşür — test hesaplarını da gerçek yetki sınırlarıyla kur.',
+            en: 'Skipping IAM\'s least-privilege principle and setting up test environments with root/broad access turns into a real security gap once it reaches prod — build test accounts with real permission boundaries too.',
+        },
+        actions: [
+            { label: { tr: 'IAM ve least privilege bölümünü tekrar et', en: 'Revisit IAM & least privilege' }, route: '/aws' },
+        ],
+    },
+    '/azure': {
+        tip: {
+            tr: 'Azure DevOps pipeline\'ında variable group\'lar ve pipeline değişkenleri farklı kapsamlarda yaşar — bir stage\'de görünen değişkenin başka bir stage\'de görünmemesi genelde bu kapsam farkındandır, bug değil.',
+            en: 'In Azure DevOps pipelines, variable groups and pipeline variables live in different scopes — a variable visible in one stage but not another is usually this scope difference, not a bug.',
+        },
+        actions: [
+            { label: { tr: 'Pipeline değişken kapsamını tekrar et', en: 'Revisit pipeline variable scope' }, route: '/azure' },
+        ],
+    },
+    '/jmeter': {
+        tip: {
+            tr: 'Bir önceki isteğin cevabından (ör. token) sonraki isteğe dinamik değer taşımak (correlation) yapılmazsa, thread sayısı ne kadar yüksek olursa olsun sonuçlar gerçek yükü yansıtmaz — sabit/statik veriyle test etmek yaygın tuzak.',
+            en: 'Without correlating dynamic values (e.g. a token) from one response into the next request, results won\'t reflect real load no matter how many threads you run — testing with static/hardcoded data is the common trap.',
+        },
+        actions: [
+            { label: { tr: 'Correlation (dinamik değer taşıma) bölümünü tekrar et', en: 'Revisit correlation (dynamic value passing)' }, route: '/jmeter' },
+        ],
+    },
+    '/browserstack': {
+        tip: {
+            tr: 'Capabilities\'te (browser/os/device) küçük bir yazım/sürüm uyuşmazlığı, testin kendi hatasıymış gibi görünen bir session başlatma hatasına yol açar — önce capability\'yi, sonra testi şüphelen.',
+            en: 'A small mismatch in capabilities (browser/os/device) causes a session-start failure that looks like it\'s the test\'s fault — suspect the capability config before the test itself.',
+        },
+        actions: [
+            { label: { tr: 'Capabilities eşleşmesini tekrar et', en: 'Revisit capabilities matching' }, route: '/browserstack' },
+        ],
+    },
+    '/gauge': {
+        tip: {
+            tr: 'Gauge\'de spec markdown dosyası HEM dokümantasyon HEM test olduğundan, bir step\'i parametrize etmeden kopyala-yapıştırmak specs\'i şişirir — Java\'da metot overload yerine parametre kullanmak gibi düşün.',
+            en: 'Since a Gauge spec markdown file is both documentation and test, copy-pasting a step instead of parameterizing it bloats the spec — think of it like using a parameter instead of a Java method overload.',
+        },
+        actions: [
+            { label: { tr: 'Step parametrizasyonunu tekrar et', en: 'Revisit step parameterization' }, route: '/gauge' },
+        ],
+    },
+    '/test-frameworks': {
+        tip: {
+            tr: 'pytest/Selenium/Playwright arasında seçim yaparken "hangisi daha popüler" değil, "projenin dili, CI hızı ve ekip Java/Python bilgisi" sorusuna cevap ver — yanlış framework seçimi mimariyi sonradan tersine çevrilemez şekilde kilitler.',
+            en: 'When choosing between pytest/Selenium/Playwright, don\'t ask "which is more popular" — ask about your project\'s language, CI speed and the team\'s Java/Python background. The wrong choice locks in an architecture that\'s hard to reverse later.',
+        },
+        actions: [
+            { label: { tr: 'Framework karşılaştırmasını tekrar et', en: 'Revisit the framework comparison' }, route: '/test-frameworks' },
+        ],
+    },
+    '/qa-frontend': {
+        tip: {
+            tr: 'Kaynak koddaki (JSX/HTML) bir elementle DOM\'da render edilen gerçek element aynı şey değildir — React re-render sonrası aynı görünen elementin referansı değişebilir (stale element), bu farkı Locator Lab\'da tekrar test et.',
+            en: 'The element in source code (JSX/HTML) is not the same as the actual rendered DOM element — after a React re-render, an element that looks the same can have a new reference (stale element); retest that gap in the Locator Lab.',
+        },
+        actions: [
+            { label: { tr: 'Kaynak→DOM→Locator akışını tekrar et', en: 'Revisit the source→DOM→locator flow' }, route: '/qa-frontend' },
+        ],
+    },
 }
 
 const GENERIC_ADVICE = {
