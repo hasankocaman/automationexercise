@@ -297,6 +297,7 @@ kullanıcının açık onayı olmadan tek başına kodlanmamalı (§13):
 
 - **#5 Kişisel AI Mentor** — Supabase progress analitiği + konu-bazlı zayıflık
   takibi + hatırlatma. Yeni tablo/RPC + edge function gerektirir → ayrı görev.
+  **Ayrıntılı uygulama planı + rol dağılımı (Sen/Opus/Sonnet) için Bölüm 6'ya bak.**
 - **#6 Adaptif zorluk** — §18 yedek-soru altyapısı üstüne kullanıcı başarı
   geçmişine göre zorluk seçimi → ayrı görev.
 - **#7 Learning Analytics dashboard** — ✅ **TAMAMLANDI (Opus).** `getLearningAnalytics()`
@@ -307,3 +308,240 @@ kullanıcının açık onayı olmadan tek başına kodlanmamalı (§13):
   gate'i) ile çakışmaz — bu pano ana sayfada harita kurmadan görünür.
 - **#8 Portföy/proje üretimi** — mini framework → POM → API test → CI → push akışı;
   en büyük epik, ayrı planlama gerekir.
+
+---
+
+## 6. #5 Kişisel AI Mentor — Ayrıntılı Uygulama Planı (Sen / Opus / Sonnet)
+
+> **Hedef (kullanıcının yazısındaki cümle):** Site, "2 haftadır XPath'te
+> zorlanıyorsun, hadi şu 3 alıştırmayı yapalım" diyebilen, kişiye özel, zaman
+> içinde takip eden bir mentor gibi davransın. Bugün site zayıflığı YALNIZCA anlık
+> gösteriyor (`LearningAnalytics.jsx` → en zayıf konu / en çok hata). Eksik olan iki
+> şey: **(a) zamanı** ("2 haftadır" demek için tarihli geçmiş lazım) ve **(b)
+> konuşan/öğüt veren AI katmanı**.
+
+### 6.0. Mevcut durum — neyin üstüne kuruyoruz (körlemesine başlama)
+
+Bu özellik SIFIRDAN değil, hazır parçaların üstüne kurulur. Önce bunları oku:
+
+| Parça | Dosya | Ne veriyor |
+|-------|-------|------------|
+| Anlık analitik | `src/lib/progressStore.js` → `getLearningAnalytics()` | `{ hasData, quizAccuracy, strongest, weakest, mostMissed, reviewDue, ... }` — hepsi localStorage'dan SALT-OKUNUR türetiliyor, backend yok |
+| En çok hata alanları | `src/lib/reviewQueue.js` → `getMostMissedAreas(n)` | `[{ route, pageTitle, wrongCount }]` |
+| Pano UI | `src/components/LearningAnalytics.jsx` | HomePage'de render, tamamen local-first |
+| Supabase client | `src/lib/supabaseClient.js` | `supabase`, `isSupabaseConfigured`, `isPremiumEnabled` (env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) |
+| Auth | `src/context/AuthContext.jsx` → `useAuth()` | oturum/kullanıcı |
+| Edge function KALIBI | `supabase/functions/grade-interview-answer/index.ts` | CORS + `supabase.auth.getUser()` üye kontrolü + `callGroq()` + JSON — **birebir kopyalanacak iskelet** |
+| Groq helper | `supabase/functions/_shared/groq.ts` | `callGroq(apiKey, messages)`, model `llama-3.3-70b-versatile`, secret `GROQ_API_KEY` (ZATEN kurulu) |
+| SQL şema KALIBI | `supabase/social_proof_schema.sql`, `supabase/map_events_schema.sql` | RLS + `security definer` RPC + `grant execute` — repo'da migration YOK, SQL Editor'da elle çalıştırılıyor |
+
+### 6.1. Mimari karar — ÖNERİLEN yaklaşım (hibrit: yerel-öncelikli tespit + opsiyonel AI katmanı)
+
+Projenin "üyelik opsiyonel bir katmandır, ön koşul değildir" ilkesine (CLAUDE.md
+§5) sadık kalmak için özelliği **iki katmana** böl:
+
+- **Katman A — Zaman-serili zayıflık tespiti (YEREL, üyeliksiz, herkese açık):**
+  `getLearningAnalytics()` çıktısının **tarihli anlık görüntülerini (snapshot)**
+  localStorage'da bir halka-tampon (ring buffer) olarak biriktir. Böylece "2
+  haftadır bu konu zayıf listende" gibi ZAMAN ifadeleri **backend olmadan**
+  hesaplanır. Kalıcı zayıflık = "aynı konu son N snapshot'ta / M gündür zayıf
+  listede". Bu katman anonim kullanıcıda da çalışır (§5).
+- **Katman B — Konuşan AI mentor (üyelik gerektirir, opsiyonel):** Zayıflık
+  özetini alıp kişiye özel, motive edici, TR/EN öğüt üreten bir **edge function**
+  (`mentor-advice`). API anahtarı client'a konamayacağı için AI çağrısı ZORUNLU
+  olarak edge function'dan geçer (tıpkı `grade-interview-answer` gibi üye-only).
+  Üye değilse: Katman A'nın **deterministik şablon öğütleri** (AI'sız, kural
+  tabanlı) gösterilir — yani özellik üyeliksiz de bir değer verir, AI sadece onu
+  zenginleştirir.
+
+**Neden hibrit?** "2 hafta" iddiası için tek gereken tarihli snapshot — bu tamamen
+yerelde çözülür, kimseyi login'e zorlamaz. Supabase yalnızca (1) cihazlar-arası
+senkron ve (2) API anahtarını saklayan AI katmanı için gerekir. Bu ayrım aynı
+zamanda test/prod feature-flag ayrımına da (§5) uyar.
+
+### 6.2. SEN (Hasan) ne yapmalısın — kararlar + elle altyapı adımları
+
+Bunlar kod DEĞİL; ya senin vereceğin ürün kararların ya da yalnızca senin
+erişimindeki (Supabase paneli, secret, deploy) elle adımlar. Opus/Sonnet bunları
+senin yerine yapamaz.
+
+**① Ürün kararları — KULLANICI TARAFINDAN KARARLAŞTIRILDI (2026-07-30, sabit):**
+
+1. **Mentor nerede yaşasın? → KARAR: HomePage'de** (önerilen yaklaşım, kullanıcı
+   onayladı 2026-07-30). Mentor paneli, HomePage'de mevcut `LearningAnalytics`
+   panosunun hemen ALTINA eklenir — kullanıcı analitiğini zaten orada görüyor,
+   mentor onun doğal devamı. Yeni route veya `/qa-mentor`'a ekleme YAPILMAZ.
+2. **Proaktif mi, reaktif mi? → KARAR: PROAKTİF, ama yalnızca uygulama-içi (e-posta
+   YOK).** Kullanıcı siteye geldiğinde uygulama kendiliğinden davranır: kalıcı bir
+   zayıflık varsa site girişinde uygulama-içi bir **nudge** (kapatılabilir banner /
+   nav rozeti) belirir ve `/qa-mentor`'a yönlendirir; `/qa-mentor` açıldığında mentor
+   paneli kendiliğinden öne çıkar/açılır. E-posta/SMTP/cron KAPSAM DIŞI (v2).
+3. **AI katmanı üye-only mu? → KARAR: EVET, yalnızca üyelere özel** (maliyet koruması,
+   `grade-interview-answer` kalıbı). Üye olmayan kullanıcı Katman A'nın deterministik
+   şablon öğüdünü görür; AI zenginleştirme katmanı ona HİÇ gösterilmez.
+4. **AI katmanının görünürlüğü → KARAR: AI paneli/butonu SADECE üye VE üyelik-aktif
+   ortamda render edilir.** Üye değilse "üye ol da AI koçu aç" gibi bir teşvik
+   gösterilebilir ama AI çağrısı/çıktısı üye olmayana asla gösterilmez. Bu ortamda
+   üyeliğin açık olup olmadığını Opus `isSupabaseConfigured` + `useAuth()` +
+   `NEXT_SESSION.md`'deki feature-flag durumuyla teyit eder.
+
+**② Elle altyapı adımları (yalnızca sen yapabilirsin — Opus şema/fonksiyonu YAZAR,
+sen ÇALIŞTIRIR/DEPLOY edersin):**
+
+5. **SQL şemasını çalıştır** (yalnızca Katman B / cihaz-senkron istersen): Opus'un
+   üreteceği `supabase/mentor_schema.sql` dosyasını **Supabase panosu → SQL
+   Editor**'da elle çalıştır (repo'da migration tutulmuyor — §6.0 kalıbı). RLS'in
+   açık olduğunu ve kullanıcının yalnızca KENDİ satırını gördüğünü panoda doğrula.
+6. **Secret kontrolü:** AI katmanı `GROQ_API_KEY`'i kullanır — bu secret
+   `qa-assistant`/`grade-interview-answer` için ZATEN kurulu, yeni secret
+   GEREKMEZ. Yeni bir sağlayıcı seçmezsen bu adım "doğrula ve geç".
+7. **Edge function deploy:** `supabase functions deploy mentor-advice --project-ref
+   <ref>` komutunu SEN çalıştır (Opus kodu yazar, deploy senin kimlik bilgilerini
+   ister). Deploy sonrası uygulamadan bir kez tetikleyip 200 döndüğünü gör.
+8. **CI kısıtı farkındalığı:** CLAUDE.md §23.8 — GitHub Actions runner'ından canlı
+   Supabase Auth çağrıları reddediliyor. Yeni edge function'a bağlı üye-only E2E
+   testleri CI'da SKIP edilecek (yerelde çalışır). Bu beklenen; Sonnet testi
+   `process.env.GITHUB_ACTIONS === 'true'` guard'ıyla yazacak (mevcut kalıp).
+
+**③ Onay kapıları:** §13/§21 gereği Opus kodlamaya başlamadan sana etkilenen dosya
+listesini + veri modelini özetleyip onay alacak. Sen "başla" demeden backend
+yazılmaz.
+
+### 6.3. OPUS ne yapmalı — mimari + backend + yeni bileşenler
+
+Opus'un işi: veri modeli, backend (şema + RPC + edge function), yerel snapshot/
+tespit mantığı ve yeni React bileşeni. "Opus bileşen/altyapı yazar → Sonnet data/
+içerik/test ekler" kalıbı (§9.2) burada da geçerli.
+
+**O1 — Katman A: Yerel zaman-serili snapshot + kalıcı zayıflık tespiti (backend YOK):**
+- Yeni `src/lib/mentorSnapshots.js`:
+  - `recordSnapshot(now=Date.now())` — `getLearningAnalytics()` çıktısından KÜÇÜK
+    bir özet (`{ ts, weakestRoute, weakestMastery, mostMissed: [{route, wrongCount}], quizAccuracy }`)
+    türetip localStorage'da tarihli halka-tampona ekler (örn. son 60 snapshot,
+    günde en fazla 1 — aynı gün tekrar çağrılırsa üstüne yaz). Anahtar kalıbı
+    mevcut `progressStore` anahtarlarıyla tutarlı olsun.
+  - `getPersistentWeakness(now)` — snapshot geçmişini tarayıp "kaç gündür / kaç
+    snapshot'tır aynı konu zayıf/en-çok-hata listesinde" bilgisini döner:
+    `{ route, pageTitle, daysStruggling, snapshotsSeen, trend: 'improving'|'worsening'|'stuck' }`.
+    "2 haftadır XPath'te zorlanıyorsun" cümlesini besleyen ÇEKİRDEK budur.
+  - Tamamen local-first, salt-okunur türetme ilkesi (`progressStore.js` yorumundaki
+    ilke) korunur; yeni yazılan tek şey snapshot halka-tamponu.
+- Snapshot'ı NE tetikler: uygulama açılışında (site girişi / HomePage mount) günde
+  bir kez `recordSnapshot()` — Opus bunu HomePage mount'unda küçük bir efektle bağlar.
+
+**O2 — Katman A deterministik öğüt motoru (AI'sız, herkese açık fallback):**
+- `src/lib/mentorAdvice.js` → `buildLocalAdvice(persistentWeakness, analytics, language)`
+  — kural tabanlı, bilingual şablon öğütler döndürür (örn. "X konusunda N gündür
+  takılıyorsun → şu 3 alıştırma / şu prediction bloğu"). Zayıf konuyu ilgili
+  route'a + o route'un pratik/prediction sekmesine link'ler. AI YOKKEN gösterilen
+  budur; AI VARKEN bu, edge function'a "ipucu bağlamı" olarak da beslenir.
+
+**O3 — Katman B: Supabase şeması + RPC (yalnızca cihaz-senkron için — opsiyonel):**
+- `supabase/mentor_schema.sql` (SQL Editor'da elle çalışacak, §6.0 kalıbı):
+  - `mentor_snapshots` tablosu: `user_id uuid references auth.users`, `ts timestamptz`,
+    `payload jsonb` (O1'deki özet), `created_at`. RLS: kullanıcı yalnızca kendi
+    `user_id`'sini SELECT/INSERT edebilir (`auth.uid() = user_id`).
+  - (Ops.) `get_mentor_history(p_days int)` RPC (`security definer`) — kişisel
+    veri sızdırmadan yalnızca çağıran kullanıcının snapshot'larını döndürür.
+  - `grant execute ... to authenticated`. Migration repo'da tutulmaz; dosya başına
+    "SQL Editor'da elle çalıştır" notu (mevcut iki şema dosyasındaki gibi).
+- Client tarafı senkron: login olunca yerel snapshot'ları Supabase'e upsert eden +
+  Supabase'den çekip yerelle birleştiren ince bir katman (`mentorSnapshots.js`
+  içine `syncSnapshots()`); `isSupabaseConfigured && user` değilse hiç çağrılmaz.
+
+**O4 — Katman B: `mentor-advice` edge function (üye-only, AI):**
+- `supabase/functions/mentor-advice/index.ts` — `grade-interview-answer`'ı iskelet
+  al: CORS + `supabase.auth.getUser()` üye kontrolü + `callGroq()` + JSON. Girdi:
+  `{ persistentWeakness, analyticsSummary, recentSnapshots, lang }`. Sistem prompt'u:
+  "Sen bir QA öğrenme koçusun; kullanıcının zayıflık verisine bakıp SOMUT, kısa,
+  motive edici, aksiyon-odaklı bir öğüt üret (hangi konu, kaç gündür, sıradaki 2-3
+  somut adım). Uydurma — sadece verilen veriye dayan." Çıktı katı JSON:
+  `{ headline, diagnosis, actions: [{ label, route }], tone }`. Maliyet: tek çağrı,
+  temperature düşük (0.3-0.5), `max_tokens` sınırlı. Secret: mevcut `GROQ_API_KEY`.
+- Deploy'u SEN yaparsın (§6.2 adım 7); Opus yalnızca kodu ve deploy komutunu verir.
+
+**O5 — Yeni React bileşeni (MentorPanel) — HomePage'e:**
+- `src/components/MentorPanel.jsx` — `LearningAnalytics` panosunun stil/dark-mode/
+  bilingual/mobil (44px touch target) kalıbını taklit eder. Akış: mount'ta
+  `getPersistentWeakness()` + `buildLocalAdvice()` ile ANINDA (AI beklemeden) yerel
+  öğüdü gösterir. **Proaktif davranış (karar §6.2-②):** HomePage açıldığında panel
+  kendiliğinden öne çıkar/açık gelir (kullanıcı tıklamasını beklemez).
+- **AI katmanı görünürlüğü (karar §6.2-③④):** "Daha derin analiz al" butonu ve AI
+  çıktısı YALNIZCA `isSupabaseConfigured && user` (üye) iken render edilir; buton
+  `mentor-advice` edge function'ını çağırır ve AI öğüdünü yerel öğüdün üstüne
+  bindirir (progressive enhancement). Üye değilse bu buton/çıktı HİÇ gösterilmez
+  (isteğe bağlı: "üye ol → AI koçu aç" ince teşviki gösterilebilir, AI çağrısı yok).
+- Zayıflık yoksa / `hasData:false` ise panel hiç render edilmez (yeni ziyaretçiye
+  gürültü olmasın — `LearningAnalytics` ile aynı davranış).
+- **Yerleşim (karar §6.2-①):** HomePage'de, `LearningAnalytics` panosunun hemen
+  ALTINA. `LearningAnalytics` "en zayıf konu"yu gösterir; MentorPanel onun üstüne
+  "N gündür zayıf + sıradaki somut adımlar" katmanını ekler — ikisi doğal bir çift.
+
+**O6 — Proaktif nudge (karar §6.2-②):**
+- `src/components/MentorNudge.jsx` (veya mevcut bir global banner/toast kalıbı
+  varsa onu kullan) — kullanıcı HomePage DIŞINDAKİ sayfalarda gezerken (ders/test
+  sayfaları) `getPersistentWeakness()` kalıcı bir zayıflık döndürürse kapatılabilir
+  bir banner/nav rozeti gösterir: "Mentorun seni bekliyor: X konusunda N gündür
+  takılıyorsun →" ve HomePage'deki mentor bölümüne (anchor/`<Link to="/#mentor">`
+  veya HomePage + scroll) yönlendirir. HomePage'de zaten panel öne çıktığından nudge
+  orada gerekmez/gösterilmez. Kapatma durumu localStorage'da tutulur (aynı gün tekrar
+  rahatsız etmez). Uygulama-içi YALNIZCA (e-posta yok). Yerel veriyle çalışır —
+  üyelik gerektirmez.
+
+**Opus doğrulama (§1.1 — her adımda):** `node --check` (dokunduğu her .js) →
+`check-content-integrity.mjs` → `check-i18n-leaks.mjs` (baseline'ı BOZMA) →
+`npm run build`. Bileşen bilingual, TR sızıntısı yok.
+
+### 6.4. SONNET ne yapmalı — içerik, wiring cilası, testler
+
+Opus çekirdeği kurduktan SONRA Sonnet devralır (yeni backend/mimari YAZMAZ — §9.2):
+
+**S1 — Deterministik öğüt şablonlarını doldur/zenginleştir:** `mentorAdvice.js`'teki
+`buildLocalAdvice` şablon havuzunu genişlet — her ana konu route'u için 2-3 bilingual,
+somut, Java analojili (§15) öğüt metni ("XPath'te takıldın → önce `//` vs `/` farkını
+şu prediction'da test et, sonra Locator Lab'da dene"). Metinler TR Türkçe / EN İngilizce
+(§8); teknik terim İngilizce kalır. Tekrar yasağına (§9.4) dikkat.
+
+**S2 — Bilingual arayüz metinleri + boş/yükleniyor/hata durumları:** `MentorPanel`'in
+tüm string'lerini, AI çağrısı sırasındaki yükleniyor animasyonunu (§20 çizgi-film
+ruhu, konfeti/parlama uygun yerde), AI hatası/timeout fallback'ini (sessizce yerel
+öğüde düş) cilalar.
+
+**S3 — E2E testleri (CI-guard'lı):** `tests/mentor-panel.spec.ts` (test edilen route
+HomePage `/` — yeni route açılmadı, §22.1 istisna listesi değişmez):
+- Yerel katman (üyeliksiz): seeded-localStorage ile zayıflık kur → HomePage `/`
+  açıldığında MentorPanel'in doğru konuyu + "N gündür" ifadesini proaktif gösterdiğini
+  doğrula (AI'sız, CI'da tam çalışır). Ayrıca bir ders sayfasında MentorNudge
+  banner'ının belirdiğini ve HomePage mentor bölümüne link'lediğini doğrula.
+- AI katmanı (üye-only): `describe`'ı `process.env.GITHUB_ACTIONS === 'true'` ile
+  SKIP et (§23.8 — CI'da canlı Supabase auth reddediliyor); yerelde çalışır. Üye
+  DEĞİLKEN AI butonunun/çıktısının GÖRÜNMEDİĞİNİ de doğrula (karar §6.2-③④).
+- §22 buton-tıklanabilirlik kontrolü HomePage için korunur (mevcut HomePage
+  testleriyle çakışmadığından emin ol).
+
+**S4 — Snapshot mantığı için birim/smoke doğrulaması:** `getPersistentWeakness`'i
+tarih-ötelenmiş seeded snapshot'larla test et (dün/1 hafta/2 hafta önce) →
+`daysStruggling` ve `trend` doğru mu. `LearningAnalytics`'in seeded-localStorage
+smoke testi (progressStore) buna örnek kalıptır.
+
+**S5 — Dokümantasyon güncelle:** Bitince `NEXT_SESSION.md`'ye durum yaz, gerekirse
+CLAUDE.md route haritasına (yeni route açıldıysa) + §22.1'e ekleme yap.
+
+**Sonnet doğrulama:** her dosyadan sonra §1.1 dörtlüsü; her mantıklı parçadan sonra
+ayrı commit (`feat(mentor): yerel snapshot tespiti`, `feat(mentor): AI öğüt edge
+function`, `test(mentor): panel + snapshot testleri`).
+
+### 6.5. Önerilen sıra (bağımlılık zinciri) ve "önce ne test edilir"
+
+1. **Opus O1+O2** (yerel snapshot + deterministik öğüt) — backend YOK, tek başına
+   değer verir, hemen test edilebilir. **İlk teslim edilebilir dilim bu.**
+2. **Opus O5+O6** (MentorPanel `/qa-mentor` içinde + proaktif MentorNudge) +
+   **Sonnet S1/S2/S4** — yerel + proaktif katman uçtan uca çalışır, üyelik hiç
+   gerekmez. Buraya kadar merge edilebilir bir ürün var.
+3. **Opus O3+O4** (Supabase şema + edge function) + **Sen §6.2 elle adımlar** —
+   AI zenginleştirme ve cihaz-senkron (yalnızca üyelere görünür). Ayrı, sonraki dilim.
+4. **Sonnet S3+S5** (testler + dok) — her dilimin ardından ilgili testler.
+
+Bu sıra, "üyeliksiz de çalışan bir dilim önce biter" (§5 ilkesi) ve backend riskini
+en sona bırakma prensibine uyar. 1-2 tamamlanınca kullanıcıya gösterilip AI
+katmanına (3) geçmeden geri bildirim alınabilir.
