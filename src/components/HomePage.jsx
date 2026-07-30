@@ -23,6 +23,7 @@ import CommentsSection from './CommentsSection'
 import ReviewQueuePanel from './ReviewQueuePanel'
 import ActivityHeatmap from './ActivityHeatmap'
 import LearningAnalytics from './LearningAnalytics'
+import MentorPanel from './MentorPanel'
 import OnboardingTour from './OnboardingTour'
 import { hasSeenOnboarding, markOnboardingSeen } from '../lib/onboarding'
 import { getQueueStats, REVIEW_QUEUE_SESSION_SIZE } from '../lib/reviewQueue'
@@ -853,6 +854,11 @@ function HomePage() {
             {/* ── Öğrenme Analitiği panosu (öğrenme yazısı #7) — sadece en az bir
                 quiz denenmişse render edilir (LearningAnalytics içinde hasData gate'i) ── */}
             <LearningAnalytics darkMode={darkMode} language={language} />
+
+            {/* ── Kişisel Mentor (öğrenme yazısı #5) — analitiğin hemen altında;
+                kalıcı zayıflık varsa "N gündür X'te takılıyorsun" + somut adımlar
+                (MentorPanel içinde zayıflık yoksa hiç render edilmez) ── */}
+            <MentorPanel darkMode={darkMode} language={language} />
 
             {/* ── "Bugünkü Tekrar" kartı (WP4) — sadece tekrar zamanı gelmiş soru varsa görünür ── */}
             {dueReviewCount > 0 && (
