@@ -2341,6 +2341,192 @@ const predSqlDistinctMultiCol = {
   },
 }
 
+// 🎯 CHALLENGE-FIRST GÖREVİ (challenge-first-experience-plan.md §3.3 P1-S1)
+// "Ürün fiyat verisini doğrula" — WHERE/ORDER BY/NULL mantığını içeren gerçek
+// bir QA veri-doğrulama senaryosu. Selenium/Playwright/Cypress/Python referans
+// görevlerinin SQL karşılığı. `predSqlDistinctMultiCol`'la AYNI kalıp: tek
+// bilingual sabit, hem EN hem TR "SELECT & Sort" section'ına AYNI referansla
+// eklenir (aşağıda finalEnSections/finalTrSections'ta).
+const sqlPriceValidationMission = {
+  type: 'mission',
+  id: 'sql-price-validation-mission',
+  xpReward: 45,
+  relatedTopicId: 'sql-select-sort',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Bugün production veritabanındaki `products` tablosunda fiyat verisini doğrulayacaksın: negatif fiyat var mı, eksik (NULL) fiyat var mı, en kötü örnekleri en üstte görecek şekilde sırala. Ders okumayacaksın — bir QA gibi adım adım gerçek bir SQL doğrulama sorgusu yazacaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will validate price data in the production `products` table: is there a negative price, is there a missing (NULL) price, and sort the worst examples to the top. You will not read a lesson — you will write a real SQL validation query step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'sql-mission-step-where',
+      brief: { tr: '1) Negatif fiyatlı ürünleri bulacak doğru WHERE koşulunu seç.', en: '1) Pick the correct WHERE condition to find products with a negative price.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'WHERE price < 0 satırları TEK TEK kontrol eder ve sadece koşulu SAĞLAYANLARI döndürür — Java\'da bir List\'i for döngüsüyle gezip if (price < 0) yazmakla AYNI mantık, sadece veritabanı bunu senin için, çok daha hızlı yapar. price != 0 YANLIŞTIR: 0 değil negatif arıyoruz, bu koşul pozitif fiyatları da (yanlışlıkla) dahil eder.',
+        en: 'WHERE price < 0 checks rows ONE BY ONE and returns ONLY the ones that satisfy the condition — the SAME logic as looping through a Java List with if (price < 0), just done by the database, much faster. price != 0 is WRONG: we are looking for negative, not zero, and this condition would (mistakenly) include positive prices too.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sql-mission-where-choice',
+        xpReward: 10,
+        relatedTopicId: 'sql-select-sort',
+        prompt: { tr: '`products` tablosunda negatif fiyatlı satırları bulmak için doğru WHERE koşulu hangisi?', en: 'Which WHERE condition correctly finds rows with a negative price in `products`?' },
+        code: `SELECT * FROM products WHERE ???;`,
+        codeLanguage: 'sql',
+        options: [
+          { id: 'a', label: { tr: 'WHERE price != 0', en: 'WHERE price != 0' }, why: { tr: 'Bu "sıfır değil" demektir — negatif VE pozitif tüm fiyatları döndürür, aradığımız hatayı ayıklamaz.', en: 'This means "not zero" — it returns both negative AND positive prices, not filtering for the bug we want.' } },
+          { id: 'b', label: { tr: 'WHERE price < 0', en: 'WHERE price < 0' }, correct: true },
+          { id: 'c', label: { tr: 'WHERE price = negative', en: 'WHERE price = negative' }, why: { tr: '"negative" bir SQL anahtar kelimesi değildir — bu sorgu bir sözdizimi hatası verir.', en: '"negative" is not a SQL keyword — this query throws a syntax error.' } },
+        ],
+        reveal: {
+          tr: 'WHERE price < 0 doğru: karşılaştırma operatörü ile SADECE sıfırdan küçük değerleri filtreler. Bu, "fiyat asla negatif olmamalı" iş kuralını doğrudan bir SQL koşuluna çevirir — production\'da bu tür bir satırın varlığı genelde bir indirim/kupon hesaplama hatasının izidir.',
+          en: 'WHERE price < 0 is correct: the comparison operator filters ONLY values below zero. This directly translates the business rule "price must never be negative" into a SQL condition — in production, a row like this is usually a trace of a discount/coupon calculation bug.',
+        },
+      },
+    },
+    {
+      id: 'sql-mission-step-write-where',
+      brief: { tr: '2) Negatif fiyatlı ürünleri getiren sorguyu yaz.', en: '2) Write the query that returns products with a negative price.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'SELECT * FROM products WHERE price < 0; sorgusu tüm sütunlarla (*) products tablosundaki, price\'ı sıfırdan küçük olan satırları getirir. Sonuç boş dönerse (0 satır) bu iyi bir haber — negatif fiyat YOK demektir.',
+        en: 'SELECT * FROM products WHERE price < 0; returns all columns (*) for rows in the products table whose price is below zero. An empty result (0 rows) is good news — it means there is NO negative price.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sql-mission-where-code',
+        relatedTopicId: 'sql-price-validation-mission',
+        language: 'sql',
+        label: { tr: 'Negatif fiyatlı ürünleri bul', en: 'Find products with a negative price' },
+        task: { tr: 'TODO satırını, negatif fiyatlı ürünleri getiren bir WHERE koşuluyla tamamla.', en: 'Complete the TODO line with a WHERE condition that returns products with a negative price.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç WHERE koşulunu kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the WHERE condition yourself.' },
+        code: {
+          tr: `SELECT * FROM products WHERE price < 0;`,
+          en: `SELECT * FROM products WHERE price < 0;`,
+        },
+        starterCode: {
+          tr: `-- TODO: price < 0 kosuluyla negatif fiyatli urunleri getir\nSELECT * FROM products WHERE;`,
+          en: `-- TODO: return products with price < 0\nSELECT * FROM products WHERE;`,
+        },
+        solutionCode: {
+          tr: `SELECT * FROM products WHERE price < 0;`,
+          en: `SELECT * FROM products WHERE price < 0;`,
+        },
+        expected: { tr: 'Sadece fiyatı negatif olan satırlar döner (varsa).', en: 'Only rows with a negative price are returned (if any exist).' },
+        hints: [
+          { tr: 'WHERE koşulu SELECT * FROM tablo WHERE koşul; şeklinde yazılır.', en: 'A WHERE condition is written as SELECT * FROM table WHERE condition;.' },
+          { tr: 'Önceki adımda seçtiğin koşul: price < 0.', en: 'The condition you picked in the previous step: price < 0.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sql-mission-step-orderby',
+      brief: { tr: '3) Sonuçları en düşük (en kötü) fiyat en üstte olacak şekilde sırala.', en: '3) Sort the results so the lowest (worst) price appears first.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'ORDER BY price ASC sonuçları küçükten büyüğe sıralar — en negatif (en kötü) değer en üste gelir, böylece en acil düzeltilmesi gereken kayıt ilk bakışta görünür. ASC varsayılandır ama açıkça yazmak niyeti netleştirir; DESC yazsaydın en YÜKSEK fiyat üste gelirdi, bu senaryoda yanlış yön olurdu.',
+        en: 'ORDER BY price ASC sorts results from smallest to largest — the most negative (worst) value comes first, so the most urgent record to fix is visible at a glance. ASC is the default, but writing it explicitly clarifies intent; DESC would put the HIGHEST price first, the wrong direction for this scenario.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sql-mission-orderby-code',
+        relatedTopicId: 'sql-price-validation-mission',
+        language: 'sql',
+        label: { tr: 'En kötü fiyatı en üste sırala', en: 'Sort the worst price to the top' },
+        task: { tr: 'TODO satırını, sonuçları price\'a göre artan (ASC) sıralayan ORDER BY ile tamamla.', en: 'Complete the TODO line with an ORDER BY that sorts results by price ascending (ASC).' },
+        explanation: { tr: 'Amaç: filtrelenmiş sonucu sıralayan bir kontrol yazmayı pekiştirmek.', en: 'Goal: reinforce writing a check that sorts the filtered result.' },
+        code: {
+          tr: `SELECT * FROM products WHERE price < 0 ORDER BY price ASC;`,
+          en: `SELECT * FROM products WHERE price < 0 ORDER BY price ASC;`,
+        },
+        starterCode: {
+          tr: `SELECT * FROM products WHERE price < 0\n-- TODO: price'a gore artan sirala\n;`,
+          en: `SELECT * FROM products WHERE price < 0\n-- TODO: sort by price ascending\n;`,
+        },
+        solutionCode: {
+          tr: `SELECT * FROM products WHERE price < 0 ORDER BY price ASC;`,
+          en: `SELECT * FROM products WHERE price < 0 ORDER BY price ASC;`,
+        },
+        expected: { tr: 'Sonuçlar en düşük (en negatif) fiyattan başlayarak sıralanır.', en: 'Results are sorted starting from the lowest (most negative) price.' },
+        hints: [
+          { tr: 'ORDER BY sütun ASC|DESC, WHERE\'den SONRA yazılır.', en: 'ORDER BY column ASC|DESC is written AFTER WHERE.' },
+          { tr: 'ASC = artan (küçükten büyüğe), DESC = azalan (büyükten küçüğe).', en: 'ASC = ascending (small to large), DESC = descending (large to small).' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sql-mission-step-null',
+      brief: { tr: '4) price < 0 koşulu, fiyatı hiç girilmemiş (NULL) satırları da yakalar mı?', en: '4) Does the price < 0 condition also catch rows where the price was never entered (NULL)?' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'SQL\'de NULL "bilinmiyor" anlamına gelir, "sıfır" veya "boş" değil. NULL < 0 karşılaştırması TRUE veya FALSE değil, UNKNOWN döner — ve WHERE yalnızca TRUE olan satırları tutar. Bu yüzden price < 0, price\'ı hiç girilmemiş (NULL) satırları SESSİZCE atlar; bu satırları yakalamak için ayrıca price IS NULL yazman gerekir.',
+        en: 'In SQL, NULL means "unknown", not "zero" or "empty". The comparison NULL < 0 does not return TRUE or FALSE — it returns UNKNOWN, and WHERE only keeps rows where the result is TRUE. So price < 0 SILENTLY skips rows where the price was never entered (NULL); to catch those you must separately write price IS NULL.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sql-mission-null-choice',
+        xpReward: 10,
+        relatedTopicId: 'sql-price-validation-mission',
+        prompt: { tr: '`products` tablosunda price NULL olan 2 satır var. WHERE price < 0 bu satırları döner mi?', en: 'The `products` table has 2 rows where price is NULL. Does WHERE price < 0 return those rows?' },
+        code: `-- price: NULL, NULL, -5, 10, 20\nSELECT * FROM products WHERE price < 0;`,
+        codeLanguage: 'sql',
+        options: [
+          { id: 'a', label: { tr: 'Evet, NULL en küçük değer sayılır', en: 'Yes, NULL is treated as the smallest value' }, why: { tr: 'NULL bir DEĞER değildir, "bilinmiyor" anlamına gelir — karşılaştırmalarda hiçbir zaman TRUE üretmez.', en: 'NULL is not a VALUE, it means "unknown" — it never produces TRUE in a comparison.' } },
+          { id: 'b', label: { tr: 'Hayır, NULL satırlar sonuca hiç girmez', en: 'No, NULL rows never enter the result' }, correct: true },
+          { id: 'c', label: { tr: 'Sorgu hata verir', en: 'The query throws an error' }, why: { tr: 'Sözdizimi geçerlidir — sorgu çalışır, sadece NULL satırları SESSİZCE dışarıda bırakır, hata vermez.', en: 'The syntax is valid — the query runs, it just SILENTLY excludes NULL rows without erroring.' } },
+        ],
+        reveal: {
+          tr: 'Hayır doğru: NULL < 0 karşılaştırması UNKNOWN döner, WHERE ise sadece TRUE olan satırları tutar — bu yüzden price\'ı hiç girilmemiş satırlar sonuçtan SESSİZCE düşer. Bu, gerçek bir QA veri-doğrulama tuzağıdır: "negatif fiyat yok" testin PASS verse bile, aynı anda eksik (NULL) fiyatlı ürünler production\'da fark edilmeden durabilir. Eksiksiz bir doğrulama price < 0 OR price IS NULL yazmalıdır.',
+          en: 'No is correct: the comparison NULL < 0 returns UNKNOWN, and WHERE only keeps rows where the result is TRUE — so rows where the price was never entered SILENTLY drop out of the result. This is a real QA data-validation trap: your "no negative price" test can PASS while products with a missing (NULL) price sit unnoticed in production at the same time. A complete validation must write price < 0 OR price IS NULL.',
+        },
+      },
+    },
+    {
+      id: 'sql-mission-step-full',
+      brief: { tr: '5) Testi baştan sona birleştir: negatif VEYA eksik fiyatları bul, en kötüsü en üstte.', en: '5) Combine it end-to-end: find negative OR missing prices, worst first.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir SQL veri-doğrulama sorgusu genelde şu üçlüden oluşur: filtrele (WHERE) → eksik veriyi de kapsa (IS NULL ile OR) → sırala (ORDER BY). Bu üçlü, gerçek bir production veri doğrulama sorgusunun en küçük tekrarlanabilir birimidir — Selenium/Playwright/Cypress/pytest\'te gördüğün "kur → aksiyon → doğrula" deseninin veritabanı dünyasındaki karşılığı.',
+        en: 'A SQL data-validation query usually consists of this trio: filter (WHERE) → cover missing data too (OR with IS NULL) → sort (ORDER BY). This trio is the smallest repeatable unit of a real production data-validation query — the database-world equivalent of the "setup → action → verify" pattern you saw in Selenium/Playwright/Cypress/pytest.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sql-mission-full-code',
+        relatedTopicId: 'sql-price-validation-mission',
+        language: 'sql',
+        label: { tr: 'Fiyat doğrulama sorgusunu tamamla', en: 'Complete the price validation query' },
+        task: { tr: 'TODO satırını, negatif VEYA NULL fiyatları getiren ve en kötüsünü en üste sıralayan tam bir sorgu ile tamamla.', en: 'Complete the TODO line with a full query that returns negative OR NULL prices, worst first.' },
+        explanation: { tr: 'Amaç: önceki 3 adımı tek bir çalışan sorguda birleştirmek.', en: 'Goal: combine the previous 3 steps into one working query.' },
+        code: {
+          tr: `SELECT * FROM products\nWHERE price < 0 OR price IS NULL\nORDER BY price ASC;`,
+          en: `SELECT * FROM products\nWHERE price < 0 OR price IS NULL\nORDER BY price ASC;`,
+        },
+        starterCode: {
+          tr: `-- TODO: negatif VEYA NULL fiyatlari getir, price'a gore artan sirala\nSELECT * FROM products\nWHERE;`,
+          en: `-- TODO: return negative OR NULL prices, sorted by price ascending\nSELECT * FROM products\nWHERE;`,
+        },
+        solutionCode: {
+          tr: `SELECT * FROM products\nWHERE price < 0 OR price IS NULL\nORDER BY price ASC;`,
+          en: `SELECT * FROM products\nWHERE price < 0 OR price IS NULL\nORDER BY price ASC;`,
+        },
+        expected: { tr: 'Hem negatif hem NULL fiyatlı satırlar döner, en düşük (en negatif) fiyat en üstte.', en: 'Both negative and NULL-priced rows are returned, with the lowest (most negative) price at the top.' },
+        hints: [
+          { tr: 'İki koşulu OR ile birleştir: price < 0 OR price IS NULL.', en: 'Combine the two conditions with OR: price < 0 OR price IS NULL.' },
+          { tr: 'ORDER BY price ASC en sona, noktalı virgülden önce eklenir.', en: 'ORDER BY price ASC is added at the end, before the semicolon.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir production veri-doğrulama sorgusunun iskeletini kurdun: doğru WHERE koşulu seçimi → filtrele → sırala → NULL\'ın karşılaştırmalarda SESSİZCE elendiğini anlama → hepsini tek sorguda birleştirme. "NULL < 0 UNKNOWN döner" gerçeği, çoğu QA\'nın veri doğrulamasında gözden kaçırdığı en sinsi tuzaktır — şimdi bunu biliyorsun.',
+    en: 'You did not just read a lesson — in 5 steps you built the skeleton of a real production data-validation query: choosing the correct WHERE condition → filtering → sorting → understanding that NULL is SILENTLY excluded from comparisons → combining it all into one query. The fact that "NULL < 0 returns UNKNOWN" is the sneakiest trap most QAs miss in data validation — now you know it.',
+  },
+}
+
 // "WHERE unutulursa ne olur?" — UPDATE/DELETE TÜM satırları etkiler. Üretimde en
 // yıkıcı SQL kazası. Her zaman önce SELECT ile WHERE'i doğrula.
 const predSqlUpdateNoWhere = {
@@ -3518,7 +3704,8 @@ const finalEnSections = [
         "modelAnswerTr": "SELECT sorgusu, veritabanından veri okumak için kullanılır. FROM ile hedef tablo belirtilir. ORDER BY ise belirtilen sütuna göre sonuçları varsayılan olarak artan (ASC) veya azalan (DESC) şekilde hizalar.",
         "modelAnswerEn": "The SELECT statement retrieves data from a database. FROM specifies the source table. ORDER BY sorts the output rows based on a column in either ascending (ASC) or descending (DESC) order."
       },
-      predSqlDistinctMultiCol
+      predSqlDistinctMultiCol,
+      sqlPriceValidationMission
     ]
   },
   {
@@ -8937,7 +9124,8 @@ const finalTrSections = [
         "modelAnswerTr": "SELECT sorgusu, veritabanından veri okumak için kullanılır. FROM ile hedef tablo belirtilir. ORDER BY ise belirtilen sütuna göre sonuçları varsayılan olarak artan (ASC) veya azalan (DESC) şekilde hizalar.",
         "modelAnswerEn": "The SELECT statement retrieves data from a database. FROM specifies the source table. ORDER BY sorts the output rows based on a column in either ascending (ASC) or descending (DESC) order."
       },
-      predSqlDistinctMultiCol
+      predSqlDistinctMultiCol,
+      sqlPriceValidationMission
     ]
   },
   {

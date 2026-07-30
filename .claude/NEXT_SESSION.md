@@ -111,7 +111,19 @@
     oturumundan kalma) içinde de var olduğu elle taranarak bulundu — üçü de
     `{tr,en}` bilingual yapıldı. Ders: yeni prediction `code` alanı yazarken
     düz string + Türkçe yorum kombinasyonundan KAÇIN, baştan `{tr,en}` yaz.
-  - 🔜 **Sırada:** sqlData.js → API testing sayfası (P1-S1 devam), sonra
+  - ✅ **sqlData.js — "Ürün fiyat verisini doğrula" mission görevi eklendi.**
+    SELECT & Sort sekmesi, 5 adım: doğru WHERE koşulu seçimi (prediction) →
+    negatif fiyatları getiren sorguyu yaz → ORDER BY ile en kötü fiyatı üste
+    sırala → NULL'ın karşılaştırmalarda SESSİZCE elendiğini anlama (prediction)
+    → negatif+NULL'ı birleştiren tam sorguyu yaz. `predSqlDistinctMultiCol`
+    kalıbını takip etti: tek bilingual sabit, hem EN hem TR "SELECT & Sort"
+    section'ına AYNI referansla (`replace_all`) eklendi. **Doğrulama:** audit
+    (mission: 5, prediction: 46) ✓ · content-integrity ✓ · i18n baseline 0 ✓ ·
+    build ✓ (43 shell).
+  - **P1-S1 (5 sayfa mission rollout) TAMAMLANDI** — Selenium (Opus referans) +
+    Playwright + Cypress + Python + SQL, plan §3.4'teki "en az 6 sayfa" hedefine
+    yakın (API eklenince 6/6 tamamlanacak).
+  - 🔜 **Sırada:** API testing sayfası (P1-S1 son parça), sonra
     `tests/mission-flow.spec.ts` (P1-S3) + CLAUDE.md §5 (P1-S4). Ardından
     Phase 1.5 tooltip sözlüğü genişletme (§7.3).
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
