@@ -158,8 +158,20 @@
     "bitti" tanımının tamamı karşılandı: 6 sayfa (Selenium+Playwright+Cypress+
     Python+SQL+REST Assured), audit/i18n/build kapıları yeşil, E2E test yeşil,
     `skillSignals.js` her görev bitince sinyal topluyor (Phase 3 hazır).
-  - 🔜 **Sırada:** Phase 1.5 tooltip sözlüğü genişletme (§7.3, P1.5-S1…S3) —
-    `termGlossary.js`'i yüzlerce terime genişletme + `tests/term-tooltip.spec.ts`.
+  - ✅ **P1.5-S1 — `termGlossary.js` 24 → 57 terime genişletildi** (33 yeni
+    terim): loop, condition, class/object, inheritance, JSON, HTTP status
+    code, cookie/session, container, image, pod, thread, async/await,
+    promise, callback, closure, generic, regex, environment variable,
+    dependency, repository, deploy, rollback, cache, latency, idempotent,
+    token, schema, webhook, payload, queue, load balancer, log/stack trace,
+    race condition. Her biri günlük-hayat benzetmeli + bilingual + ASCII
+    aliases; script ile 0 duplicate alias + 0 non-ASCII + 0 eksik EN alanı
+    doğrulandı. **Doğrulama:** node --check ✓ · content-integrity ✓ · i18n
+    baseline 0 ✓ · build ✓ (43 shell). (Not: `termGlossary.js` `*Data.js`
+    glob'una girmediği için i18n scanner'ın 38-dosya taramasına dahil DEĞİL —
+    ASCII/EN bütünlüğü yukarıdaki özel script ile elle doğrulandı.)
+  - 🔜 **Sırada:** `tests/term-tooltip.spec.ts` (P1.5-S3) — render + hover/tap
+    + ESC + kod bloğunda sarılmama testi.
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
 
