@@ -1059,6 +1059,194 @@ cy.get('[data-cy=submit]').click()
   },
 }
 
+// 🎯 CHALLENGE-FIRST GÖREVİ (challenge-first-experience-plan.md §3.3 P1-S1)
+// "Ürün ara ve sonuçları doğrula" — data-cy selector'ı + retry-able assertion
+// kullanan gerçek bir Cypress senaryosu. Selenium/Playwright referans
+// görevlerinin Cypress karşılığı — MEVCUT prediction/code-playground bloklarını
+// gömer, yeni sandbox yazılmaz.
+const cypressSearchMission = {
+  type: 'mission',
+  id: 'cypress-search-mission',
+  xpReward: 45,
+  relatedTopicId: 'cypress-basic-commands',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Bugün bir e-ticaret sitesinde "ürün ara" akışını test edeceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir Cypress testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will test the "search for a product" flow on an e-commerce site. You will not read a lesson — you will build a real Cypress test step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'cy-mission-step-selector',
+      brief: { tr: '1) Arama kutusunu en güvenilir şekilde bulacak selector\'ı seç.', en: '1) Pick the most reliable selector to find the search box.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '.search-box gibi bir CSS class, tasarımcı Tailwind sınıflarını refactor ettiğinde sessizce kırılır. [data-cy=search-input] ise SADECE test için var olduğu belli olan, stil değişikliklerinden hiç etkilenmeyen bir attribute\'tur — Selenium\'daki By.id\'nin ruhu aynı ama Cypress ekosisteminde konvansiyon data-cy\'dir.',
+        en: 'A CSS class like .search-box silently breaks when the designer refactors Tailwind classes. [data-cy=search-input] is an attribute that clearly exists ONLY for testing and is untouched by style changes — the same spirit as Selenium\'s By.id, but data-cy is the Cypress ecosystem convention.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'cy-mission-selector-choice',
+        xpReward: 10,
+        relatedTopicId: 'cypress-basic-commands',
+        prompt: { tr: 'Bu arama kutusu için hangi selector en güvenilir?', en: 'Which selector is most reliable for this search box?' },
+        code: '<input class="search-box form-control" data-cy="search-input" placeholder="Search products" />',
+        codeLanguage: 'html',
+        options: [
+          { id: 'a', label: { tr: "cy.get('.search-box')", en: "cy.get('.search-box')" }, why: { tr: 'Bu class stil için var; tasarım refactor edilince sessizce değişebilir veya kaldırılabilir.', en: 'This class exists for styling; it can silently change or be removed on a design refactor.' } },
+          { id: 'b', label: { tr: "cy.get('[data-cy=search-input]')", en: "cy.get('[data-cy=search-input]')" }, correct: true },
+          { id: 'c', label: { tr: "cy.get('input')", en: "cy.get('input')" }, why: { tr: 'Sayfadaki TÜM input elemanlarını döndürür — hangisi arama kutusu belli değil.', en: 'Returns EVERY input element on the page — it is unclear which one is the search box.' } },
+        ],
+        reveal: {
+          tr: '[data-cy=search-input] doğru: sadece test amaçlı eklenmiş bir attribute\'a bağlanır, CSS/stil değişikliklerinden ve DOM\'daki diğer input\'lardan etkilenmez. Cypress ekosisteminde data-cy/data-testid en güvenilir selector stratejisi kabul edilir.',
+          en: '[data-cy=search-input] is correct: it binds to an attribute added purely for testing, unaffected by CSS/style changes or other inputs in the DOM. In the Cypress ecosystem, data-cy/data-testid is considered the most reliable selector strategy.',
+        },
+      },
+    },
+    {
+      id: 'cy-mission-step-type',
+      brief: { tr: '2) Seçtiğin selector ile arama kutusuna "laptop" yaz.', en: '2) Type "laptop" into the search box using that selector.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'cy.get(selector).type(metin) elementi bulur ve karakterleri tek tek simüle ederek yazar. Cypress arka planda retry-ability ile elementin DOM\'da hazır olmasını otomatik bekler — Selenium\'daki gibi ayrı bir wait yazmana gerek yoktur.',
+        en: 'cy.get(selector).type(text) finds the element and types the characters one by one. In the background, Cypress automatically waits (retry-ability) for the element to be ready in the DOM — you do not need a separate wait like in Selenium.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-mission-type-code',
+        relatedTopicId: 'cypress-search-mission',
+        language: 'javascript',
+        label: { tr: 'Arama kutusuna yaz', en: 'Type into the search box' },
+        task: { tr: 'TODO satırını, arama kutusuna "laptop" yazacak şekilde tamamla.', en: 'Complete the TODO line to type "laptop" into the search box.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç cy.get() + type() zincirini kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the cy.get() + type() chain yourself.' },
+        code: {
+          tr: `cy.get('[data-cy=search-input]').type('laptop')`,
+          en: `cy.get('[data-cy=search-input]').type('laptop')`,
+        },
+        starterCode: {
+          tr: `// TODO: [data-cy=search-input] alanina 'laptop' yaz\n`,
+          en: `// TODO: type 'laptop' into [data-cy=search-input]\n`,
+        },
+        solutionCode: {
+          tr: `cy.get('[data-cy=search-input]').type('laptop')`,
+          en: `cy.get('[data-cy=search-input]').type('laptop')`,
+        },
+        expected: { tr: 'Arama kutusu bulunur ve "laptop" yazılır.', en: 'The search box is found and "laptop" is typed.' },
+        hints: [
+          { tr: 'cy.get() bir CSS selector alır; attribute selector köşeli parantez içinde yazılır.', en: 'cy.get() takes a CSS selector; attribute selectors are written inside square brackets.' },
+          { tr: 'Önceki adımda seçtiğin selector: [data-cy=search-input].', en: 'The selector you picked in the previous step: [data-cy=search-input].' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'cy-mission-step-assert',
+      brief: { tr: '3) Arama sonucunda en az 1 ürün kartının göründüğünü doğrulayan assertion\'ı yaz.', en: '3) Write the assertion that verifies at least 1 product card appears in the results.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Yazmak yetmez; test bir ŞEYİ doğrulamalı yoksa hiçbir bug yakalamaz. .should(\'have.length.at.least\', 1) retry-able bir assertion\'dır: sonuçlar gelene kadar birkaç saniye otomatik tekrar dener — sabit bir cy.wait() gibi kör beklemez, KOŞULU bekler.',
+        en: 'Typing is not enough; a test must verify SOMETHING or it catches no bugs. .should(\'have.length.at.least\', 1) is a retry-able assertion: it automatically retries for a few seconds until the results arrive — unlike a blind cy.wait(), it waits for the CONDITION.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-mission-assert-code',
+        relatedTopicId: 'cypress-search-mission',
+        language: 'javascript',
+        label: { tr: 'En az 1 sonuç olduğunu assert et', en: 'Assert at least 1 result exists' },
+        task: { tr: 'TODO satırını, en az 1 ürün kartı olduğunu doğrulayan retry-able bir assertion ile tamamla.', en: 'Complete the TODO line with a retry-able assertion that at least 1 product card exists.' },
+        explanation: { tr: 'Amaç: yazmadan sonra sonucu doğrulayan bir kontrol yazmayı pekiştirmek.', en: 'Goal: reinforce writing a check that verifies the result after typing.' },
+        code: {
+          tr: `cy.get('.product-card').should('have.length.at.least', 1)`,
+          en: `cy.get('.product-card').should('have.length.at.least', 1)`,
+        },
+        starterCode: {
+          tr: `// TODO: en az 1 .product-card oldugunu dogrula\n`,
+          en: `// TODO: verify at least 1 .product-card exists\n`,
+        },
+        solutionCode: {
+          tr: `cy.get('.product-card').should('have.length.at.least', 1)`,
+          en: `cy.get('.product-card').should('have.length.at.least', 1)`,
+        },
+        expected: { tr: 'Sonuç kartları gelirse test PASS, birkaç saniye içinde gelmezse FAIL verir.', en: 'The test passes if result cards appear, and fails if none appear within a few seconds.' },
+        hints: [
+          { tr: '.should() Cypress\'in retry-able assertion sözdizimidir — bir chai-jquery ifadesi alır.', en: '.should() is Cypress\'s retry-able assertion syntax — it takes a chai-jquery expression.' },
+          { tr: '"have.length.at.least" en az kaç eleman olduğunu kontrol eder.', en: '"have.length.at.least" checks the minimum number of elements.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'cy-mission-step-nowait',
+      brief: { tr: '4) Sonuçlar bazen 100ms bazen 800ms\'de geliyor. Testi flaky yapmayacak yaklaşımı seç.', en: '4) Results arrive in 100ms sometimes, 800ms other times. Pick the approach that will not make the test flaky.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'cy.wait(1000) sabit bekler: sonuç 800ms\'de gelse bile 200ms boşa gider, 1200ms sürerse test patlar. .should(...) ise zaten retry-able\'dır — koşul (kart sayısı ≥1) gerçekleşene kadar Cypress\'in varsayılan timeout\'u (4sn) içinde otomatik tekrar dener, ayrı bir bekleme YAZMANA gerek yoktur.',
+        en: 'cy.wait(1000) waits a fixed time: even if the result arrives in 800ms, 200ms is wasted, and the test breaks if it takes 1200ms. .should(...) is already retry-able — it automatically retries within Cypress\'s default timeout (4s) until the condition (card count ≥1) is true; you do NOT need to write a separate wait.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'cy-mission-nowait-choice',
+        xpReward: 10,
+        relatedTopicId: 'cypress-search-mission',
+        prompt: { tr: 'Değişken gelme süresinde testi flaky yapmayacak yaklaşım hangisi?', en: 'With variable arrival time, which approach keeps the test from being flaky?' },
+        code: '// sonuclar: bazen 100ms, bazen 800ms\n// which approach?',
+        codeLanguage: 'javascript',
+        options: [
+          { id: 'a', label: { tr: "cy.wait(1000) sonra kontrol et", en: 'cy.wait(1000) then check' }, why: { tr: 'Sabit süre; 1000ms\'den geç gelirse test patlar, erken gelirse zaman kaybedilir.', en: 'Fixed duration; breaks if it arrives after 1000ms, wastes time if it arrives earlier.' } },
+          { id: 'b', label: { tr: "cy.get('.product-card').should('have.length.at.least', 1) — ekstra bekleme eklemeden", en: "cy.get('.product-card').should('have.length.at.least', 1) — with no extra wait added" }, correct: true },
+          { id: 'c', label: { tr: 'Hiç assertion yazmadan devam et', en: 'Continue without writing an assertion' }, why: { tr: 'Sonuçlar geç gelse bile test kontrol etmediği için PASS verir — sessiz yanlış PASS.', en: 'Even if the results are late the test passes because it never checks — a silent false PASS.' } },
+        ],
+        reveal: {
+          tr: '.should() doğru: Cypress\'in retry-able assertion\'ları zaten koşul gerçekleşene kadar otomatik tekrar dener (varsayılan 4sn timeout). Ayrıca bir cy.wait(sayı) eklemek hem gereksiz hem de yanlış bir sabit süre varsayımı ekler — CLAUDE.md ekosisteminde bu "flaky testin en sık kök nedeni" olarak bilinir.',
+          en: '.should() is correct: Cypress\'s retry-able assertions already auto-retry until the condition is true (4s default timeout). Adding a cy.wait(number) on top is both unnecessary and introduces a wrong fixed-duration assumption — this is known as the most common root cause of flaky tests.',
+        },
+      },
+    },
+    {
+      id: 'cy-mission-step-full',
+      brief: { tr: '5) Testi baştan sona birleştir: yaz + assert et, tek Cypress testi olarak.', en: '5) Combine it end-to-end: type + assert, as a single Cypress test.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir Cypress testi genelde şu üçlüden oluşur: git (cy.visit) → aksiyon (type/click) → doğrulama (.should). Bu üçlü, gerçek bir smoke testin en küçük tekrarlanabilir birimidir — tıpkı Selenium ve Playwright\'ta gördüğün desenin aynısı, sadece sözdizimi farklı.',
+        en: 'A Cypress test usually consists of this trio: navigate (cy.visit) → action (type/click) → verification (.should). This trio is the smallest repeatable unit of a real smoke test — the same pattern you saw in Selenium and Playwright, just different syntax.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-mission-full-code',
+        relatedTopicId: 'cypress-search-mission',
+        language: 'javascript',
+        label: { tr: 'Arama testini tamamla', en: 'Complete the search test' },
+        task: { tr: 'TODO satırlarını, arama yapıp sonuçları doğrulayan tam bir test ile tamamla.', en: 'Complete the TODO lines with a full test that searches and verifies the results.' },
+        explanation: { tr: 'Amaç: önceki 3 adımı tek bir çalışan test bloğunda birleştirmek.', en: 'Goal: combine the previous 3 steps into one working test block.' },
+        code: {
+          tr: `it('urun aramasi sonuc doner', () => {\n  cy.visit('/products')\n  cy.get('[data-cy=search-input]').type('laptop')\n  cy.get('.product-card').should('have.length.at.least', 1)\n})`,
+          en: `it('product search returns results', () => {\n  cy.visit('/products')\n  cy.get('[data-cy=search-input]').type('laptop')\n  cy.get('.product-card').should('have.length.at.least', 1)\n})`,
+        },
+        starterCode: {
+          tr: `it('urun aramasi sonuc doner', () => {\n  cy.visit('/products')\n  // TODO: [data-cy=search-input] alanina 'laptop' yaz\n  // TODO: en az 1 .product-card oldugunu dogrula\n})`,
+          en: `it('product search returns results', () => {\n  cy.visit('/products')\n  // TODO: type 'laptop' into [data-cy=search-input]\n  // TODO: verify at least 1 .product-card exists\n})`,
+        },
+        solutionCode: {
+          tr: `it('urun aramasi sonuc doner', () => {\n  cy.visit('/products')\n  cy.get('[data-cy=search-input]').type('laptop')\n  cy.get('.product-card').should('have.length.at.least', 1)\n})`,
+          en: `it('product search returns results', () => {\n  cy.visit('/products')\n  cy.get('[data-cy=search-input]').type('laptop')\n  cy.get('.product-card').should('have.length.at.least', 1)\n})`,
+        },
+        expected: { tr: 'Test uçtan uca PASS olur: arama yapılır ve sonuçlar doğrulanır.', en: 'The test passes end-to-end: the search runs and the results are verified.' },
+        hints: [
+          { tr: 'İki TODO da önceki adımlarda yazdığın satırlarla aynı.', en: 'Both TODOs are the same lines you wrote in the previous steps.' },
+          { tr: 'it(...) bloğu Mocha\'nın test tanımlama sözdizimidir — Cypress bunun üstüne kurulur.', en: 'The it(...) block is Mocha\'s test-definition syntax — Cypress is built on top of it.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir "ürün ara" smoke testinin iskeletini kurdun: güvenilir selector seçimi → aksiyon → retry-able assertion → cy.wait(sayı)\'nın neden flaky testin en sık kök nedeni olduğunu anlama → hepsini tek testte birleştirme. Selenium\'da WebDriverWait, Playwright\'ta web-first assertion, Cypress\'te .should() — üçü de AYNI problemi çözer: koşulu bekle, süreyi değil.',
+    en: 'You did not just read a lesson — in 5 steps you built the skeleton of a real "search for a product" smoke test: reliable selector choice → action → retry-able assertion → understanding why cy.wait(number) is the most common root cause of flaky tests → combining it all into one test. WebDriverWait in Selenium, a web-first assertion in Playwright, .should() in Cypress — all three solve the SAME problem: wait for the condition, not the duration.',
+  },
+}
+// Çift-ağaç: aynı görev sabitini hem TR hem EN Temel Komutlar sekmesine (s2) aynı referansla ekle (§9.5).
+s2.tr.blocks.push(cypressSearchMission)
+s2.en.blocks.push(cypressSearchMission)
+
 const cypressActionChainFilm = {
   type: 'video-scene',
   id: 'cypress-action-chain-film',

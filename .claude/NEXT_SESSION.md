@@ -79,9 +79,19 @@
     `scripts/audit-learning-blocks.mjs` `MISSION_FILES`'e `playwrightData.js`
     eklendi. **Doğrulama:** audit (mission: 2, 0 ihlal) ✓ · content-integrity ✓ ·
     i18n baseline 0 ✓ · build ✓ (43 shell).
-  - 🔜 **Sırada:** cypressData.js → pythonData.js → sqlData.js → API testing
-    sayfası (P1-S1 devam), sonra `tests/mission-flow.spec.ts` (P1-S3) +
-    CLAUDE.md §5 (P1-S4). Ardından Phase 1.5 tooltip sözlüğü genişletme (§7.3).
+  - ✅ **cypressData.js — "Ürün ara ve sonuçları doğrula" mission görevi eklendi.**
+    Temel Komutlar & Selector Stratejisi sekmesi (s2), 5 adım: data-cy selector
+    seç (prediction) → yaz (code-playground) → retry-able .should() assertion
+    yaz (code-playground) → cy.wait(sayı)'nın neden flaky testin en sık kök
+    nedeni olduğunu anla (prediction) → uçtan uca birleştir (code-playground).
+    Debrief üç aracı (WebDriverWait/web-first assertion/.should()) "aynı
+    problemi çözer: koşulu bekle, süreyi değil" diye bağlıyor. Çift-ağaç
+    `s2.tr/s2.en`'e tek sabit push. `MISSION_FILES`'e `cypressData.js` eklendi.
+    **Doğrulama:** audit (mission: 3, 0 ihlal) ✓ · content-integrity ✓ ·
+    i18n baseline 0 ✓ · build ✓ (43 shell).
+  - 🔜 **Sırada:** pythonData.js → sqlData.js → API testing sayfası (P1-S1 devam),
+    sonra `tests/mission-flow.spec.ts` (P1-S3) + CLAUDE.md §5 (P1-S4). Ardından
+    Phase 1.5 tooltip sözlüğü genişletme (§7.3).
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
 
