@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite --host",
     "dev:prod": "vite --host --mode prodtest",
-    "build": "node scripts/check-seo.mjs && node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs && node scripts/audit-interview-questions.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-mastery-manifest.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
+    "build": "node scripts/check-seo.mjs && node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs && node scripts/audit-interview-questions.mjs && node scripts/audit-learning-blocks.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-mastery-manifest.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
     "content:check": "node scripts/check-content-integrity.mjs",
     "i18n:check": "node scripts/check-i18n-leaks.mjs",
     "i18n:baseline": "node scripts/check-i18n-leaks.mjs --update-baseline",
@@ -25,6 +25,7 @@
     "audit:interactive": "node scripts/audit-interactive.mjs",
     "audit:interactive:missing": "node scripts/audit-interactive.mjs --missing",
     "audit:interview-questions": "node scripts/audit-interview-questions.mjs",
+    "audit:learning-blocks": "node scripts/audit-learning-blocks.mjs",
     "audit:animation": "node scripts/audit-animation-coverage.mjs",
     "audit:animation:missing": "node scripts/audit-animation-coverage.mjs --missing",
     "postinstall": "simple-git-hooks"

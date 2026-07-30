@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import SeoMeta from './components/SeoMeta'
 import RequireAdmin from './components/RequireAdmin'
@@ -7,6 +7,8 @@ import AuthCallback from './components/AuthCallback'
 import LoginPage from './components/LoginPage'
 import ChatWidget from './components/ChatWidget'
 import CommentsWidget from './components/CommentsWidget'
+import MentorNudge from './components/MentorNudge'
+import { recordSnapshot } from './lib/mentorSnapshots'
 
 const HomePage = lazy(() => import('./components/HomePage'))
 const JMeterPage = lazy(() => import('./components/JMeterPage'))
@@ -60,11 +62,17 @@ function RouteFallback() {
 }
 
 function App() {
+    // Kişisel Mentor (öğrenme yazısı #5): kullanıcı hangi sayfaya inerse insin,
+    // giriş başına günde bir kez zayıflık snapshot'ı al (gün başına idempotent,
+    // veri yoksa no-op). Böylece "N gündür" sayımı HomePage'e uğramasa da ilerler.
+    useEffect(() => { try { recordSnapshot() } catch { /* localStorage kapalı olabilir */ } }, [])
+
     return (
         <>
             <SeoMeta />
             <ChatWidget />
             <CommentsWidget />
+            <MentorNudge />
             <Suspense fallback={<RouteFallback />}>
                 <Routes>
                     <Route path="/" element={<HomePage />} />

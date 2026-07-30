@@ -20,9 +20,71 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-29, i18n leak sıfırlama + sPlaywright temizliği)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-30, Opus — plan denetimi + öğrenme-blok testleri)
 
-- **Aktif branch: `feature/prediction-blocks`.** Bu oturumda (2026-07-29, Sonnet)
+- **Aktif branch: `feature/prediction-blocks`.** Bu oturumun SON işi (2026-07-30, Opus):
+  `learning-science-upgrade-plan.md`'nin ne kadar yerine getirildiği denetlendi
+  ve **test kapsamı boşluğu kapatıldı** (commit `142d8d5`):
+  - **Denetim sonucu — plan TAM yerine getirilmiş:** prediction (java=10/js=9/
+    python=8/sql=8/ts=7 = 42 benzersiz id, runtime-walk ile İKİ dil ağacında da
+    wired doğrulandı), code-trace 5 + heap-stack 5, mentor Katman A/B (O1-O6 +
+    S1-S5) tam, #7 Learning Analytics + MentorPanel + MentorNudge HomePage/App'te
+    wired, edge function + şema ACTIVE. Mentor-advice her iki projede (test+prod)
+    ACTIVE v2, GROQ_API_KEY mevcut.
+  - **Eklenen kalıcı kontroller:** (1) `scripts/audit-learning-blocks.mjs` build
+    zincirine girdi (`audit-interview-questions`'tan sonra) + `npm run
+    audit:learning-blocks` — prediction/code-trace/heap-stack şema değişmezlerini
+    (tam 1 correct, boş olmayan reveal, benzersiz id, code düz string, steps[].line
+    sayısal) hard-fail eder. (2) `tests/mentor-panel.spec.ts` + `mentor-snapshot-
+    weakness.spec.ts` (Sonnet) + `tests/learning-blocks-render.spec.ts` (Opus, 3
+    test: /java'da üç blok tipinin render + etkileşimi).
+  - **⚠️ Tespit edilen içerik bulgusu (kullanıcı kararı bekliyor, build kırmaz):**
+    42 prediction'ın **40'ında doğru cevap 'B' pozisyonunda** — kullanıcı "hep B
+    seç" ile gaming yapabilir. Şıkları karıştırmak önerilir ama bu 5 çift-ağaç
+    dosyada 40 bloklu riskli bir içerik düzenlemesi; Opus tek başına yapmadı,
+    audit UYARI olarak sürekli raporluyor. Düzeltme kararı kullanıcıda.
+  - **Doğrulama:** `audit-learning-blocks` ✓ (0 ihlal) · content-integrity ✓ ·
+    i18n baseline 0 ✓ · build ✓ (43 shell) · 3 render + 8 mentor testi PASS.
+
+- **Bu oturumda (2026-07-30, Sonnet)**
+  `Documents/learning-science-upgrade-plan.md` Bölüm 6 §6.6'daki hazır promptla
+  **#5 Kişisel AI Mentor — Sonnet tarafı (S1-S5) TAMAMLANDI** (Opus'un O1-O6
+  backend/bileşen işi önceki oturumda bitmişti, bkz. plan §6 durum notu).
+  3 ayrı commit:
+  1. **S1 — `feat(mentor): oğüt şablolarını 14 route'a genişlet`** (`e912e05`):
+     `mentorAdvice.js`'teki `ROUTE_ADVICE` havuzu 12 route'tan 26 route'a
+     çıkarıldı — rest-assured, postman, bruno, jenkins, kubernetes, kafka,
+     appium, aws, azure, jmeter, browserstack, gauge, test-frameworks,
+     qa-frontend eklendi. Her girdi bilingual, somut (o teknolojinin en sık
+     tuzağı) ve uygun yerde Java analojili.
+  2. **S2 — `polish(mentor): MentorPanel giriş/AI-sonuç animasyonlarını cilala`**
+     (`59014d0`): panel açılışına `animate-fadeIn`, AI sonucuna `animate-scaleIn`
+     + `shadow-focus-accent`, AI hatasına `animate-fadeIn` — mevcut Tailwind
+     animasyon kalıpları (yeni paket/CDN yok). Loading/empty/error state'leri ve
+     36px touch target'lar zaten doğruydu.
+  3. **S3+S4 — `test(mentor): panel + snapshot smoke testleri`** (`4a4941f`):
+     `tests/mentor-snapshot-weakness.spec.ts` (`getPersistentWeakness`
+     daysStruggling 1/7/14 gün + trend stuck/worsening/improving, seeded
+     `learnqa_mentor_snapshots`) ve `tests/mentor-panel.spec.ts` (Katman A:
+     proaktif panel + AI butonunun üye-değilken gizli olduğu + MentorNudge akışı
+     + boş-veri durumunda hiçbir bileşenin render edilmediği; Katman B: gerçek
+     Supabase girişi + `page.route()` ile mock'lanmış `mentor-advice` yanıtıyla
+     AI butonu/sonucu, `GITHUB_ACTIONS==='true'` guard'ıyla CI'da skip). **Bu
+     oturumda 4+4=8 testin TAMAMI yerel Chromium'da PASS oldu** (AI katmanı
+     dahil — `.env.local`'de test kullanıcısı zaten yapılandırılıydı, gerçek
+     Groq çağrısı yapılmadı, yalnızca edge function mock'landı).
+  - **Doğrulama (her commit'te ayrı ayrı):** `node --check` ✓ ·
+    `check-content-integrity.mjs` ✓ (38 dosya) · `check-i18n-leaks.mjs` ✓
+    (baseline 0, regresyon yok — `mentorAdvice.js`/`MentorPanel.jsx` zaten
+    `src/data/*.js` kapsamı dışında) · `npm run build` ✓ (43 static shell, SEO
+    geçti).
+  - **Kalan (kullanıcıda, plan §6.2):** `supabase functions deploy mentor-advice
+    --project-ref <ref>` gerçek deploy'u henüz teyit edilmedi — Katman A
+    (yerel, üyeliksiz) deploy'suz da tam çalışır; Katman B (gerçek AI, üye-only)
+    yalnızca deploy sonrası prod'da devreye girer. `main`'e merge/PR kararı
+    kullanıcıda.
+
+- **Önceki oturum (2026-07-29) — i18n leak sıfırlama + sPlaywright temizliği:**
   4 ayrı commit ile şu iş tamamlandı:
   1. **`sPlaywright.en` ölü kod bug'ı çözüldü** (`9b00924`) — `javaData.js`'de
      override tarafından hiç render edilmeyen ~1250 satırlık eski `en:` objesi
@@ -48,11 +110,13 @@
   - **code-trace/heap-stack genişletme TAMAMLANDI (Opus, 2026-07-28, düşük öncelik seçildi, commit `5daa148`):** Mevcut sayfalara 4 yeni blok eklendi — javaData: String Pool heap-stack (`==` interning tuzağı) + iki-işaretçi dizi ters çevirme code-trace; pythonData: `b=a` vs `b=a[:]` list-copy heap-stack; javascriptData: `.reduce()` akümülatör code-trace. Hepsi tek sabit + ağaç referansı; `code` alanları yorumsuz (renderer düz string), açıklamalar bilingual `note`'larda. `node --check` + content-integrity + i18n (baseline 109) + build hepsi geçti.
   - **Prediction derinleştirme TAMAMLANDI (Opus, 2026-07-28, commit `40fd0d1`):** Dil sayfalarının boş/az kapsanan sekmelerine 8 yeni `prediction` bloğu — sqlData: `= NULL` vs `IS NULL` + `WHERE`'de aggregate hatası (HAVING); typescriptData: `any` vs `unknown` + `as` type assertion (runtime TypeError); pythonData: `[[0]]*3` paylaşımlı iç liste + `for...else`; javascriptData: `.sort()` sözlüksel varsayılan + `typeof null/[]/NaN`. Çift-ağaç dosyalarda tek sabit + iki ağaç referansı (SQL/TS `replace_all` ile). Tüm geçitler yeşil (content-integrity + i18n 109 + build).
   - **Prediction DOYURMA dalgası TAMAMLANDI (Opus, 2026-07-28, commit'ler SQL/Java/Python/JS/TS ayrı):** kullanıcı "aynı sayfalarda maksimum sayıda ekle" dedi → her dil sayfasının kalan gotcha'ya değer sekmeleri kapsandı. +16 yeni prediction: SQL +4 (DISTINCT çoklu-sütun, WHERE'siz UPDATE, NOT IN+NULL, BETWEEN dahil-uç), Java +3 (for-each remove→CME, int taşması wrap, finally return ezme), Python +3 (1/1.0/True dict anahtarı, class-level mutable paylaşım, UnboundLocalError), JS +4 ("5"+1 vs "5"-1, setTimeout(0) makrotask, Promise mikrotask önceliği, koparılmış metotta this→TypeError), TS +3 (tuple.push bypass, ?? vs ||, catch e:unknown). **Güncel kapsam: java=10, js=9, python=8, sql=8, ts=7.** Her biri bilingual + Java analojisi + QA bağlamı; tüm geçitler yeşil (node --check + content-integrity + i18n 109 + build 43 shell). Boş kalan sekmeler ya kavramsal olarak gotcha'ya uygun değil (kurulum/mülakat/pratik) ya da düşük değerli (Generics/Utility Types predict-output'a uymaz).
-  - **🔜 SIRADAKİ OTURUM — buradan devam et** (hepsi backend/mimari/product kararı ister, kullanıcı onayı olmadan tek başına kodlanmaz; detay `learning-science-upgrade-plan.md` §0 + §5):
+  - **🔜 SIRADAKİ OTURUM — buradan devam et** (2026-07-30 güncellemesi: #5 Kişisel
+    AI Mentor artık TAMAMLANDI, yukarıdaki 2026-07-30 bölümüne bak — kalanlar
+    hâlâ backend/mimari/product kararı ister, kullanıcı onayı olmadan tek başına
+    kodlanmaz; detay `learning-science-upgrade-plan.md` §0 + §5):
     1. **#6 Adaptif zorluk** — quiz motoruna (TopicPage ~18k satır, çok E2E testi) dokunur, zorluk-etiketli soru havuzu gerekir. Riskli, ayrı planla.
-    2. **#5 Kişisel AI Mentor** — "hangi konuda zorlanıyorsun" verisi #7 analytics ile YERELDE zaten var; konuşan/AI katmanı Supabase tablo+RPC+edge function ister.
-    3. **#8 Portföy/proje üretimi** — en büyük epik.
-    4. **Düşük öncelik (opsiyonel):** Java/Python/JS'e code-trace/heap-stack genişletme dalgası 2026-07-28'de yapıldı (yukarı bak, commit `5daa148`). Kalan: SQL/TS'e ekleme — SQL için heap/stack kavramsal uymaz; TS runtime = JS (düşük değer).
+    2. **#8 Portföy/proje üretimi** — en büyük epik.
+    3. **Düşük öncelik (opsiyonel):** Java/Python/JS'e code-trace/heap-stack genişletme dalgası 2026-07-28'de yapıldı (yukarı bak, commit `5daa148`). Kalan: SQL/TS'e ekleme — SQL için heap/stack kavramsal uymaz; TS runtime = JS (düşük değer).
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Branch içerik olarak tamamlandı, tüm geçitler yeşil (`node --check` + content-integrity + i18n:check baseline 109 + build).
 
 - **`frontenddevelopment-for-qa` branch'i** (önceki oturum, bu dalgada dokunulmadı): **`/qa-frontend` — "QA için Frontend: Developer'la Aynı Dili Konuşmak" sayfası içerik olarak TAMAMLANDI** (Opus iskelet+referanslar + Sonnet GRUP A-J + D-S11 kapanış denetimi, hepsi 2026-07-25). Detaylı geliştirme geçmişi (hangi GRUP'ta ne yazıldığı) artık tekrarlanmıyor — `git log --oneline` (commit'ler `feat(qa-frontend): GRUP X tamamlandı` formatında açıklayıcı) ve `Documents/qa-frontend-page-plan.md` yeterli referanstır.
