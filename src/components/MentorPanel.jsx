@@ -115,7 +115,7 @@ export default function MentorPanel({ darkMode, language }) {
 
     return (
         <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
-            <div className={`rounded-2xl border-2 p-4 md:p-6 shadow-lg ${s.border} ${s.bg}`} data-testid="mentor-panel">
+            <div className={`rounded-2xl border-2 p-4 md:p-6 shadow-lg animate-fadeIn ${s.border} ${s.bg}`} data-testid="mentor-panel">
                 {/* Başlık */}
                 <div className="flex items-center gap-2 mb-3">
                     <span className="text-2xl" aria-hidden="true">🧭</span>
@@ -167,10 +167,10 @@ export default function MentorPanel({ darkMode, language }) {
                             </button>
                         )}
 
-                        {aiError && <p className={`mt-2 text-xs ${darkMode ? 'text-rose-300' : 'text-rose-600'}`}>{aiError}</p>}
+                        {aiError && <p className={`mt-2 text-xs animate-fadeIn ${darkMode ? 'text-rose-300' : 'text-rose-600'}`}>{aiError}</p>}
 
                         {aiAdvice && (
-                            <div className={`rounded-xl border p-3 ${darkMode ? 'border-purple-700/50 bg-purple-950/30' : 'border-purple-200 bg-purple-50'}`} data-testid="mentor-ai-result">
+                            <div className={`rounded-xl border p-3 animate-scaleIn shadow-focus-accent ${darkMode ? 'border-purple-700/50 bg-purple-950/30' : 'border-purple-200 bg-purple-50'}`} data-testid="mentor-ai-result">
                                 <div className={`text-[11px] font-bold uppercase tracking-wide mb-1 ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>
                                     ✨ {isTr ? 'AI Koçunun Analizi' : 'Your AI Coach\'s Analysis'}
                                 </div>
