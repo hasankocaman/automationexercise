@@ -20,9 +20,33 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-30, Kişisel AI Mentor — Sonnet S1-S5 tamamlandı)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-30, Opus — plan denetimi + öğrenme-blok testleri)
 
-- **Aktif branch: `feature/prediction-blocks`.** Bu oturumda (2026-07-30, Sonnet)
+- **Aktif branch: `feature/prediction-blocks`.** Bu oturumun SON işi (2026-07-30, Opus):
+  `learning-science-upgrade-plan.md`'nin ne kadar yerine getirildiği denetlendi
+  ve **test kapsamı boşluğu kapatıldı** (commit `142d8d5`):
+  - **Denetim sonucu — plan TAM yerine getirilmiş:** prediction (java=10/js=9/
+    python=8/sql=8/ts=7 = 42 benzersiz id, runtime-walk ile İKİ dil ağacında da
+    wired doğrulandı), code-trace 5 + heap-stack 5, mentor Katman A/B (O1-O6 +
+    S1-S5) tam, #7 Learning Analytics + MentorPanel + MentorNudge HomePage/App'te
+    wired, edge function + şema ACTIVE. Mentor-advice her iki projede (test+prod)
+    ACTIVE v2, GROQ_API_KEY mevcut.
+  - **Eklenen kalıcı kontroller:** (1) `scripts/audit-learning-blocks.mjs` build
+    zincirine girdi (`audit-interview-questions`'tan sonra) + `npm run
+    audit:learning-blocks` — prediction/code-trace/heap-stack şema değişmezlerini
+    (tam 1 correct, boş olmayan reveal, benzersiz id, code düz string, steps[].line
+    sayısal) hard-fail eder. (2) `tests/mentor-panel.spec.ts` + `mentor-snapshot-
+    weakness.spec.ts` (Sonnet) + `tests/learning-blocks-render.spec.ts` (Opus, 3
+    test: /java'da üç blok tipinin render + etkileşimi).
+  - **⚠️ Tespit edilen içerik bulgusu (kullanıcı kararı bekliyor, build kırmaz):**
+    42 prediction'ın **40'ında doğru cevap 'B' pozisyonunda** — kullanıcı "hep B
+    seç" ile gaming yapabilir. Şıkları karıştırmak önerilir ama bu 5 çift-ağaç
+    dosyada 40 bloklu riskli bir içerik düzenlemesi; Opus tek başına yapmadı,
+    audit UYARI olarak sürekli raporluyor. Düzeltme kararı kullanıcıda.
+  - **Doğrulama:** `audit-learning-blocks` ✓ (0 ihlal) · content-integrity ✓ ·
+    i18n baseline 0 ✓ · build ✓ (43 shell) · 3 render + 8 mentor testi PASS.
+
+- **Bu oturumda (2026-07-30, Sonnet)**
   `Documents/learning-science-upgrade-plan.md` Bölüm 6 §6.6'daki hazır promptla
   **#5 Kişisel AI Mentor — Sonnet tarafı (S1-S5) TAMAMLANDI** (Opus'un O1-O6
   backend/bileşen işi önceki oturumda bitmişti, bkz. plan §6 durum notu).
