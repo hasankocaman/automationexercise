@@ -120,12 +120,23 @@
     section'ına AYNI referansla (`replace_all`) eklendi. **Doğrulama:** audit
     (mission: 5, prediction: 46) ✓ · content-integrity ✓ · i18n baseline 0 ✓ ·
     build ✓ (43 shell).
-  - **P1-S1 (5 sayfa mission rollout) TAMAMLANDI** — Selenium (Opus referans) +
-    Playwright + Cypress + Python + SQL, plan §3.4'teki "en az 6 sayfa" hedefine
-    yakın (API eklenince 6/6 tamamlanacak).
-  - 🔜 **Sırada:** API testing sayfası (P1-S1 son parça), sonra
-    `tests/mission-flow.spec.ts` (P1-S3) + CLAUDE.md §5 (P1-S4). Ardından
-    Phase 1.5 tooltip sözlüğü genişletme (§7.3).
+  - ✅ **restAssuredData.js — "GET /api/users/2 isteğini given/when/then ile
+    test et" mission görevi eklendi.** Assertions (Hamcrest) sekmesi, 5 adım:
+    eksik .then() zincirinin sonucunu tahmin et (prediction) → status code
+    doğrula → body içeriğini (JSON Path + Hamcrest) doğrula → negatif senaryo
+    kararı — var olmayan kullanıcı için doğru HTTP kodu (prediction) → negatif
+    senaryoyu yaz (id=9999 → 404). Plan §3.3'ün "API (Postman/REST Assured —
+    istek→assertion→negatif senaryo)" hedefini birebir karşılıyor. Tek-ağaçlı
+    dosya (§9.5): sabit `sections[5]`'e (paylaşılan tr/en referansı) TEK yere
+    eklendi. `MISSION_FILES`'e `restAssuredData.js` eklendi. **Doğrulama:**
+    audit (mission: 6, 0 ihlal) ✓ · content-integrity ✓ · i18n baseline 0 ✓ ·
+    build ✓ (43 shell).
+  - **✅ P1-S1 (6 sayfa mission rollout) TAMAMLANDI** — Selenium (Opus referans) +
+    Playwright + Cypress + Python + SQL + REST Assured, plan §3.4'teki "en az
+    6 sayfa" hedefine ULAŞILDI.
+  - 🔜 **Sırada:** `tests/mission-flow.spec.ts` (P1-S3) + CLAUDE.md §5'e
+    `mission` ekleme (P1-S4). Ardından Phase 1.5 tooltip sözlüğü genişletme
+    (§7.3, P1.5-S1…S3).
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
 
