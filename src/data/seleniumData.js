@@ -9665,7 +9665,10 @@ const seleniumLoginMission = {
         xpReward: 10,
         relatedTopicId: 'selenium-login-mission',
         prompt: { tr: 'Değişken yükleme süresinde testi flaky yapmayacak bekleme hangisi?', en: 'With variable load time, which wait keeps the test from being flaky?' },
-        code: '// dashboard: bazen 1sn, bazen 4sn\n// which wait?',
+        code: {
+          tr: '// dashboard: bazen 1sn, bazen 4sn\n// hangi bekleme?',
+          en: '// dashboard: sometimes 1s, sometimes 4s\n// which wait?',
+        },
         codeLanguage: 'java',
         options: [
           { id: 'a', label: { tr: 'Thread.sleep(2000)', en: 'Thread.sleep(2000)' }, why: { tr: 'Sabit süre; 4sn sürerse test patlar, 1sn’de hazırsa zaman kaybedilir.', en: 'Fixed duration; breaks if it takes 4s, wastes time if ready in 1s.' } },

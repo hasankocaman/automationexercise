@@ -89,8 +89,30 @@
     `s2.tr/s2.en`'e tek sabit push. `MISSION_FILES`'e `cypressData.js` eklendi.
     **Doğrulama:** audit (mission: 3, 0 ihlal) ✓ · content-integrity ✓ ·
     i18n baseline 0 ✓ · build ✓ (43 shell).
-  - 🔜 **Sırada:** pythonData.js → sqlData.js → API testing sayfası (P1-S1 devam),
-    sonra `tests/mission-flow.spec.ts` (P1-S3) + CLAUDE.md §5 (P1-S4). Ardından
+  - ✅ **pythonData.js — "Kullanıcı API'sini pytest ile test et" mission görevi
+    eklendi.** Real World (pytest) sekmesi (final section index 16), 5 adım:
+    fixture ile tekrarı önleme kararı (prediction) → base_url fixture'ını yaz
+    (code-playground) → status_code assert et (code-playground) → parametrize
+    kararı (prediction) → fixture+parametrize'ı uçtan uca birleştir
+    (code-playground). pythonData.js'in RİSKLİ `applyTr`/index-override
+    mekanizmasına DOKUNULMADI — güvenli kalıbı takip ederek mission sabiti
+    SADECE `finalEnSections[16]`/`finalTrSections[16]` dizi literal'lerine
+    (spread sonrası) eklendi (bkz. dosyadaki "GUVENLIK NOTU" — Dalga A8 kalıbı).
+    **Doğrulama:** audit (mission: 4, prediction: 44) ✓ · content-integrity ✓ ·
+    i18n baseline 0 ✓ · build ✓ (43 shell).
+  - ⚠️ **Yan bulgu ve düzeltme — ASCII-normalize Türkçe kör noktası (CLAUDE.md
+    §23.1) 3 yerde gerçekten yakalandı:** `check-i18n-leaks.mjs` özel Türkçe
+    karakter (ığşçöüİĞŞÇÖÜ) arıyor; "bazen 200ms, bazen 1.5sn" gibi özel
+    karaktersiz Türkçe yorumlar plain-string `prediction.code` alanlarında
+    sessizce EN moda sızıyordu. Python'daki yeni blok scanner'ın YAKALADIĞI
+    (özel karakterli) 1 leak'i düzeltirken, aynı kalıbın **playwrightData.js**
+    (`pw-mission-autowait-choice`), **cypressData.js** (`cy-mission-nowait-
+    choice`) ve **seleniumData.js** (`sel-mission-wait-choice`, önceki Opus
+    oturumundan kalma) içinde de var olduğu elle taranarak bulundu — üçü de
+    `{tr,en}` bilingual yapıldı. Ders: yeni prediction `code` alanı yazarken
+    düz string + Türkçe yorum kombinasyonundan KAÇIN, baştan `{tr,en}` yaz.
+  - 🔜 **Sırada:** sqlData.js → API testing sayfası (P1-S1 devam), sonra
+    `tests/mission-flow.spec.ts` (P1-S3) + CLAUDE.md §5 (P1-S4). Ardından
     Phase 1.5 tooltip sözlüğü genişletme (§7.3).
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).

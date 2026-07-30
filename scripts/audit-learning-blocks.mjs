@@ -126,6 +126,7 @@ async function main() {
     // Missionlar dil sayfalarıyla sınırlı değil; yeni mission eklenen data
     // dosyalarını buraya ekle (Sonnet rollout: playwrightData, cypressData…).
     const MISSION_FILES = [...FILES, 'seleniumData.js', 'playwrightData.js', 'cypressData.js'];
+    // pythonData.js zaten FILES içinde (dil sayfaları listesi) — MISSION_FILES ayrıca eklemez.
     const missionIdOwner = new Map();
     let missionCount = 0;
     for (const file of [...new Set(MISSION_FILES)]) {

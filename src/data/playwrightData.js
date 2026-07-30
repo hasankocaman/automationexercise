@@ -1928,7 +1928,10 @@ const playwrightCartMission = {
         xpReward: 10,
         relatedTopicId: 'playwright-cart-mission',
         prompt: { tr: 'Değişken görünme süresinde testi flaky yapmayacak yaklaşım hangisi?', en: 'With variable appearance time, which approach keeps the test from being flaky?' },
-        code: '// modal: bazen 200ms, bazen 1.5sn\n// which approach?',
+        code: {
+          tr: '// modal: bazen 200ms, bazen 1.5sn\n// hangi yaklasim?',
+          en: '// modal: sometimes 200ms, sometimes 1.5s\n// which approach?',
+        },
         codeLanguage: 'typescript',
         options: [
           { id: 'a', label: { tr: 'page.waitForTimeout(1500) sonra kontrol et', en: 'page.waitForTimeout(1500) then check' }, why: { tr: 'Sabit süre; 1.5sn\'den geç gelirse test patlar, 200ms\'de hazırsa zaman kaybedilir.', en: 'Fixed duration; breaks if it takes longer than 1.5s, wastes time if ready in 200ms.' } },

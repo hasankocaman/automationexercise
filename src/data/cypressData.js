@@ -1188,7 +1188,10 @@ const cypressSearchMission = {
         xpReward: 10,
         relatedTopicId: 'cypress-search-mission',
         prompt: { tr: 'Değişken gelme süresinde testi flaky yapmayacak yaklaşım hangisi?', en: 'With variable arrival time, which approach keeps the test from being flaky?' },
-        code: '// sonuclar: bazen 100ms, bazen 800ms\n// which approach?',
+        code: {
+          tr: '// sonuclar: bazen 100ms, bazen 800ms\n// hangi yaklasim?',
+          en: '// results: sometimes 100ms, sometimes 800ms\n// which approach?',
+        },
         codeLanguage: 'javascript',
         options: [
           { id: 'a', label: { tr: "cy.wait(1000) sonra kontrol et", en: 'cy.wait(1000) then check' }, why: { tr: 'Sabit süre; 1000ms\'den geç gelirse test patlar, erken gelirse zaman kaybedilir.', en: 'Fixed duration; breaks if it arrives after 1000ms, wastes time if it arrives earlier.' } },
