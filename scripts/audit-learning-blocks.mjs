@@ -24,6 +24,15 @@ const FILES = [
     'javaData.js', 'javascriptData.js', 'pythonData.js', 'sqlData.js', 'typescriptData.js',
 ];
 
+// ROUTE_ADVICE (mentorAdvice.js) aksiyonlarındaki `openTab` derin-link indeksleri,
+// o route'un data dosyasında prediction bloğu OLAN bir sekmeyi göstermeli. İçerik
+// yeniden sıralanırsa indeks kayar ve mentor kullanıcıyı yanlış sekmeye götürür —
+// bu guard onu build zamanında yakalar. route → { data dosyası, export adı }.
+const ROUTE_DATA = {
+    '/java': 'javaData', '/javascript': 'javascriptData', '/python': 'pythonData',
+    '/sql': 'sqlData', '/typescript': 'typescriptData',
+};
+
 // Bir data modülünün tüm ağacını gezip verilen tiplerdeki blokları toplar.
 // Çift-ağaçlı dosyalarda (data.tr + data.en) aynı sabit iki ağaca da AYNI
 // referansla konduğundan, ziyaret edilen obje referanslarını Set'te tutup
@@ -107,6 +116,32 @@ async function main() {
                 }
             }
         }
+    }
+
+    // — ROUTE_ADVICE openTab derin-link guard'ı —
+    // Mentor aksiyonlarının openTab'ı gerçekten prediction OLAN sekmeyi gösteriyor mu?
+    try {
+        const { ROUTE_ADVICE } = await import('../src/lib/mentorAdvice.js');
+        for (const [route, entry] of Object.entries(ROUTE_ADVICE)) {
+            for (const action of (entry.actions || [])) {
+                if (typeof action.openTab !== 'number') continue;
+                const dataName = ROUTE_DATA[action.route];
+                if (!dataName) {
+                    errors.push(`mentorAdvice ROUTE_ADVICE['${route}']: openTab=${action.openTab} ama route='${action.route}' için data eşlemesi yok (ROUTE_DATA'ya ekle).`);
+                    continue;
+                }
+                const mod = await import(`../src/data/${dataName}.js`);
+                const data = mod[dataName];
+                const tree = data.tr || data;
+                const sec = tree.sections?.[action.openTab];
+                const hasPred = sec && Array.isArray(sec.blocks) && sec.blocks.some((b) => b.type === 'prediction');
+                if (!hasPred) {
+                    errors.push(`mentorAdvice ROUTE_ADVICE['${route}']: openTab=${action.openTab} sekmesinde ('${action.route}') prediction bloğu YOK — indeks kaymış olabilir, güncelle.`);
+                }
+            }
+        }
+    } catch (e) {
+        errors.push(`ROUTE_ADVICE guard çalıştırılamadı: ${e.message}`);
     }
 
     console.log('Öğrenme-blok Şema Denetimi (learning-science-upgrade-plan.md §2)\n');

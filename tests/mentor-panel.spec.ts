@@ -56,6 +56,44 @@ test.describe('Kişisel AI Mentor — Katman A (yerel, üyeliksiz, CI\'da tam ç
         await context.close();
     });
 
+    test('/ — Java zayıflığında iki aksiyon buton FARKLI hedefe gider ("tahmin" butonu prediction sekmesini açar, "tuzaklar" butonu açmaz)', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+        const now = Date.now();
+        await seedWeakness(page, weeklyWeaknessSnapshots(now, '/java'));
+
+        await page.goto('/');
+        await page.waitForSelector('[data-testid="main-title"]', { timeout: 30_000 });
+        const panel = page.locator('[data-testid="mentor-panel"]');
+        await expect(panel).toBeVisible();
+        await expect(panel).toContainText('Java');
+
+        // "Tahmin bloklarıyla kendini test et" → openTab:2 (prediction OLAN sekme).
+        // Deep-link çalışırsa /java'ya varınca prediction bloğu ("Önce Tahmin Et")
+        // hiç sekme tıklamadan görünür olmalı.
+        await panel.getByRole('link', { name: /Tahmin bloklarıyla kendini test et/ }).click();
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await expect(page).toHaveURL(/\/java$/);
+        // javaData büyük bir chunk — sekme içeriğinin render'ı 5s'i aşabilir (bkz. §14).
+        await expect(page.getByText('Önce Tahmin Et').first()).toBeVisible({ timeout: 30_000 });
+
+        // Geri dön, DİĞER butonu tıkla: "Klasik Java tuzaklarını tekrar et" →
+        // openTab yok → 0. sekme (giriş) açılır, orada prediction bloğu YOK.
+        await page.goto('/');
+        await page.waitForSelector('[data-testid="main-title"]', { timeout: 30_000 });
+        await panel.getByRole('link', { name: /Klasik Java tuzaklarını tekrar et/ }).click();
+        await page.waitForSelector('h1', { timeout: 30_000 });
+        await expect(page).toHaveURL(/\/java$/);
+        // Sayfa mount olsun (sidebar sekmeleri) — sonra 0. sekmede prediction
+        // bloğu bulunmadığından "Önce Tahmin Et" görünmemeli: iki butonun gerçekten
+        // farklı sekme açtığının kanıtı.
+        await expect(page.locator('div[class*="flex-shrink-0"][class*="sticky"] button').first()).toBeVisible({ timeout: 30_000 });
+        await expect(page.getByText('Önce Tahmin Et')).toHaveCount(0);
+
+        await context.close();
+    });
+
     test('/docker — MentorNudge kalıcı zayıflıkta görünür ve HomePage\'e link verir; HomePage\'in kendisinde nudge gösterilmez', async ({ browser }) => {
         test.setTimeout(60_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });

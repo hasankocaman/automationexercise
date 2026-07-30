@@ -139,6 +139,7 @@ export default function MentorPanel({ darkMode, language }) {
                             <Link
                                 key={`${a.route}-${i}`}
                                 to={a.route}
+                                state={typeof a.openTab === 'number' ? { openTab: a.openTab } : undefined}
                                 className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs md:text-sm font-bold min-h-[36px] transition-transform hover:scale-[1.02] ${darkMode
                                     ? 'border-gray-600 bg-gray-800 text-gray-100 hover:border-gray-400'
                                     : 'border-gray-200 bg-white text-gray-800 hover:border-gray-400'}`}

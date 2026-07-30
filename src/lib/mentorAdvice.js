@@ -33,7 +33,15 @@ export function routeLabel(route) {
 // Route'a özel, SOMUT sonraki adımlar. Her adım o sayfaya (veya alt bölümüne)
 // yönlendirir. Java analojisi (§15) uygun yerlerde diagnosis içinde verilir.
 // Sonnet bu havuzu genişletir (S1): her ana route için 2-3 bilingual, somut öğüt.
-const ROUTE_ADVICE = {
+//
+// `openTab` (ops.): aksiyon o sayfanın BELİRLİ bir sekmesini açar (TopicPage
+// location.state.openTab, HomePage kalıbı). AYNI route'a giden iki aksiyonun
+// aynı sekmeye düşüp kullanıcıyı kandırmaması için kullanılır (ör. "tuzakları
+// tekrar et" → genel giriş sekmesi 0, "tahmin bloklarıyla test et" → prediction
+// bloğu OLAN sekme). Bu indeksler prediction içeren ilk sekmedir; içerik yeniden
+// sıralanırsa `scripts/audit-learning-blocks.mjs` ROUTE_ADVICE guard'ı FAIL eder
+// ve buranın güncellenmesini zorlar (indeks kayması sessizce sızmaz).
+export const ROUTE_ADVICE = {
     '/selenium': {
         tip: {
             tr: 'Locator seçimi ve bekleme (wait) stratejisi Selenium\'da en çok hata alınan yer — CSS/XPath farkını ve explicit wait\'i pekiştir.',
@@ -51,7 +59,9 @@ const ROUTE_ADVICE = {
         },
         actions: [
             { label: { tr: 'Locator + auto-wait bölümünü tekrar et', en: 'Revisit locators & auto-wait' }, route: '/playwright' },
-            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/playwright' },
+            // NOT: /playwright'te prediction bloğu YOK — "tahmin bloklarıyla test et"
+            // yanıltıcıydı; dürüst ve farklı bir hedefe (tekrar kuyruğu) yönlendirir.
+            { label: { tr: 'Bekleyen tekrar sorularını çöz', en: 'Clear your review queue' }, route: '/' },
         ],
     },
     '/cypress': {
@@ -70,7 +80,7 @@ const ROUTE_ADVICE = {
         },
         actions: [
             { label: { tr: 'is/== ve mutable tuzaklarını tekrar et', en: 'Revisit is/== & mutable traps' }, route: '/python' },
-            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/python' },
+            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/python', openTab: 3 },
         ],
     },
     '/javascript': {
@@ -80,7 +90,7 @@ const ROUTE_ADVICE = {
         },
         actions: [
             { label: { tr: 'Hoisting/closure/== bölümlerini tekrar et', en: 'Revisit hoisting/closure/==' }, route: '/javascript' },
-            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/javascript' },
+            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/javascript', openTab: 2 },
         ],
     },
     '/typescript': {
@@ -99,7 +109,7 @@ const ROUTE_ADVICE = {
         },
         actions: [
             { label: { tr: 'NULL ve JOIN bölümlerini tekrar et', en: 'Revisit NULL & JOIN' }, route: '/sql' },
-            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/sql' },
+            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/sql', openTab: 4 },
         ],
     },
     '/java': {
@@ -109,7 +119,7 @@ const ROUTE_ADVICE = {
         },
         actions: [
             { label: { tr: 'Klasik Java tuzaklarını tekrar et', en: 'Revisit classic Java traps' }, route: '/java' },
-            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/java' },
+            { label: { tr: 'Tahmin bloklarıyla kendini test et', en: 'Test yourself with predictions' }, route: '/java', openTab: 2 },
         ],
     },
     '/api-testing': {
@@ -341,7 +351,13 @@ export function buildLocalAdvice(weakness, analytics, language = 'tr') {
         { label: { tr: 'Bu konuyu baştan tekrar et', en: 'Revisit this topic' }, route: weakness.route },
         { label: { tr: 'Bekleyen tekrar sorularını çöz', en: 'Clear your review queue' }, route: '/' },
     ])
-    const actions = rawActions.slice(0, 3).map((a) => ({ label: localize(a.label, language), route: a.route }))
+    // openTab (varsa) korunur — MentorPanel <Link>'e state={{openTab}} olarak geçer,
+    // böylece aynı route'a giden aksiyonlar farklı sekmeye açılır.
+    const actions = rawActions.slice(0, 3).map((a) => ({
+        label: localize(a.label, language),
+        route: a.route,
+        ...(typeof a.openTab === 'number' ? { openTab: a.openTab } : {}),
+    }))
 
     return { headline, diagnosis, actions, severity: severityOf(weakness), label }
 }
