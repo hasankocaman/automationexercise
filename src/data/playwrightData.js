@@ -1798,6 +1798,192 @@ def test_basic_actions(page: Page):
     ],
   },
 }
+// 🎯 CHALLENGE-FIRST GÖREVİ (challenge-first-experience-plan.md §3.3 P1-S1)
+// "Ürünü sepete ekle" — automationexercise.com üzerinde gerçek bir Playwright
+// senaryosu: sağlam locator seç → tıkla → web-first assertion yaz → auto-wait'in
+// neden Thread.sleep'i gereksiz kıldığını tahmin et → tek testte birleştir.
+// Selenium referans görevinin (seleniumData.js) Playwright karşılığı — MEVCUT
+// prediction/code-playground bloklarını gömer, yeni sandbox yazılmaz.
+const playwrightCartMission = {
+  type: 'mission',
+  id: 'playwright-cart-mission',
+  xpReward: 45,
+  relatedTopicId: 'playwright-locators',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Bugün automationexercise.com üzerinde "ürünü sepete ekle" akışını test edeceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir Playwright testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will test the "add product to cart" flow on automationexercise.com. You will not read a lesson — you will build a real Playwright test step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'pw-mission-step-locator',
+      brief: { tr: '1) "Add to Cart" butonunu en sağlam şekilde bulacak stratejiyi seç.', en: '1) Pick the most robust strategy to find the "Add to Cart" button.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'CSS class veya XPath, frontend ekibi markup\'ı değiştirdiğinde (bir div\'i span yapmak gibi) sessizce kırılır — "brittle test" denen budur. getByRole ekran okuyucunun gördüğü ARIA rolünü hedefler; Java\'daki By.xpath("//div[3]/button") gibi konum bağımlı değildir, DOM yeniden düzenlense bile çalışmaya devam eder.',
+        en: 'A CSS class or XPath silently breaks when the frontend team changes markup (like turning a div into a span) — this is called a "brittle test". getByRole targets the ARIA role a screen reader sees; unlike Java\'s By.xpath("//div[3]/button"), it is not position-dependent and keeps working even if the DOM is restructured.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'pw-mission-locator-choice',
+        xpReward: 10,
+        relatedTopicId: 'playwright-locators',
+        prompt: { tr: 'Bu buton için hangi locator en dayanıklı?', en: 'Which locator is most resilient for this button?' },
+        code: '<button class="btn btn-default add-to-cart" data-product-id="1">Add to cart</button>',
+        codeLanguage: 'html',
+        options: [
+          { id: 'a', label: { tr: 'page.locator(".btn.btn-default")', en: 'page.locator(".btn.btn-default")' }, why: { tr: 'Aynı class birden fazla butonda kullanılabilir; sayfadaki başka bir "Add to cart" butonuna sessizce denk gelebilir.', en: 'The same class can appear on multiple buttons; it may silently match a different "Add to cart" button.' } },
+          { id: 'b', label: { tr: 'page.getByRole(\'button\', { name: \'Add to cart\' })', en: 'page.getByRole(\'button\', { name: \'Add to cart\' })' }, correct: true },
+          { id: 'c', label: { tr: 'page.locator("xpath=//div[3]/button")', en: 'page.locator("xpath=//div[3]/button")' }, why: { tr: 'DOM sırasına bağlıdır; tasarımcı bir kart daha eklerse indeks kayar ve locator yanlış elemente gider.', en: 'Depends on DOM order; if the designer adds one more card the index shifts and the locator points to the wrong element.' } },
+        ],
+        reveal: {
+          tr: 'getByRole doğru: erişilebilirlik ağacındaki ROL ve isme göre bulur — class veya DOM konumuna bağlı değildir. Bu hem daha az kırılgandır hem de ekran okuyucu kullanıcıları için erişilebilirliği dolaylı olarak test eder.',
+          en: 'getByRole is correct: it finds elements by their ROLE and name in the accessibility tree — independent of class or DOM position. This is both less brittle and indirectly tests accessibility for screen-reader users.',
+        },
+      },
+    },
+    {
+      id: 'pw-mission-step-click',
+      brief: { tr: '2) Seçtiğin locator ile "Add to Cart" butonuna tıklayan satırı yaz.', en: '2) Write the line that clicks "Add to Cart" using that locator.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'page.getByRole(...).click() elementi bulur ve tıklar; Playwright arkada elementin görünür ve tıklanabilir olmasını otomatik bekler (auto-wait) — Selenium\'da bunun için ayrı bir WebDriverWait yazman gerekirdi.',
+        en: 'page.getByRole(...).click() finds and clicks the element; Playwright automatically waits (auto-wait) for it to be visible and clickable in the background — in Selenium you would need a separate WebDriverWait for this.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-mission-click-code',
+        relatedTopicId: 'playwright-cart-mission',
+        language: 'typescript',
+        label: { tr: '"Add to Cart" butonuna tıkla', en: 'Click "Add to Cart"' },
+        task: { tr: 'TODO satırını, getByRole ile "Add to cart" butonuna tıklayacak şekilde tamamla.', en: 'Complete the TODO line to click "Add to cart" using getByRole.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç getByRole + click zincirini kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the getByRole + click chain yourself.' },
+        code: {
+          tr: `await page.getByRole('button', { name: 'Add to cart' }).click();`,
+          en: `await page.getByRole('button', { name: 'Add to cart' }).click();`,
+        },
+        starterCode: {
+          tr: `// TODO: getByRole ile "Add to cart" butonunu bul ve tikla\nawait page.getByRole().click();`,
+          en: `// TODO: find and click "Add to cart" with getByRole\nawait page.getByRole().click();`,
+        },
+        solutionCode: {
+          tr: `await page.getByRole('button', { name: 'Add to cart' }).click();`,
+          en: `await page.getByRole('button', { name: 'Add to cart' }).click();`,
+        },
+        expected: { tr: '"Add to cart" butonu bulunur ve tıklanır.', en: 'The "Add to cart" button is found and clicked.' },
+        hints: [
+          { tr: 'getByRole iki parametre alır: rol (\'button\') ve erişilebilir isim ({ name: ... }).', en: 'getByRole takes two arguments: the role (\'button\') and the accessible name ({ name: ... }).' },
+          { tr: 'Önceki adımda seçtiğin strateji: page.getByRole(\'button\', { name: \'Add to cart\' }).', en: 'The strategy you picked in the previous step: page.getByRole(\'button\', { name: \'Add to cart\' }).' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'pw-mission-step-assert',
+      brief: { tr: '3) Sepete eklendiğini gösteren modalın göründüğünü doğrulayan assertion\'ı yaz.', en: '3) Write the assertion that verifies the "added to cart" modal appears.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Tıklamak yetmez; test bir ŞEYİ doğrulamalı yoksa hiçbir bug yakalamaz. expect(locator).toBeVisible() Playwright\'ın "web-first" assertion\'ıdır: koşul doğru olana kadar birkaç saniye otomatik tekrar dener — Java\'daki assertTrue tek seferlik anlık kontrol yapar, retry etmez.',
+        en: 'Clicking is not enough; a test must verify SOMETHING or it catches no bugs. expect(locator).toBeVisible() is Playwright\'s "web-first" assertion: it automatically retries for a few seconds until the condition is true — Java\'s assertTrue checks once, instantly, with no retry.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-mission-assert-code',
+        relatedTopicId: 'playwright-cart-mission',
+        language: 'typescript',
+        label: { tr: 'Sepet modalının göründüğünü assert et', en: 'Assert the cart modal is visible' },
+        task: { tr: 'TODO satırını, "Added!" modalının görünür olduğunu doğrulayan bir web-first assertion ile tamamla.', en: 'Complete the TODO line with a web-first assertion that the "Added!" modal is visible.' },
+        explanation: { tr: 'Amaç: tıklamadan sonra sonucu doğrulayan bir kontrol yazmayı pekiştirmek.', en: 'Goal: reinforce writing a check that verifies the result after the click.' },
+        code: {
+          tr: `await expect(page.getByText('Added!')).toBeVisible();`,
+          en: `await expect(page.getByText('Added!')).toBeVisible();`,
+        },
+        starterCode: {
+          tr: `// TODO: "Added!" modali gorunur mu diye assertion yaz\n`,
+          en: `// TODO: write an assertion for whether the "Added!" modal is visible\n`,
+        },
+        solutionCode: {
+          tr: `await expect(page.getByText('Added!')).toBeVisible();`,
+          en: `await expect(page.getByText('Added!')).toBeVisible();`,
+        },
+        expected: { tr: 'Modal görünürse test PASS, birkaç saniye içinde görünmezse FAIL verir.', en: 'The test passes if the modal appears, and fails if it does not appear within a few seconds.' },
+        hints: [
+          { tr: 'expect(locator).toBeVisible() bir web-first assertion\'dır — retry içerir.', en: 'expect(locator).toBeVisible() is a web-first assertion — it retries automatically.' },
+          { tr: 'Modal metni: "Added!".', en: 'The modal text: "Added!".' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'pw-mission-step-autowait',
+      brief: { tr: '4) Modal bazen 200ms bazen 1.5sn\'de beliriyor. Testi flaky yapmayacak yaklaşımı seç.', en: '4) The modal appears in 200ms sometimes, 1.5s other times. Pick the approach that will not make the test flaky.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Selenium\'da bu durum için WebDriverWait + ExpectedConditions yazman gerekirdi. Playwright\'ta expect(...).toBeVisible() zaten auto-wait + retry içerir — ayrıca bir bekleme yazmana GEREK YOKTUR. page.waitForTimeout(1500) ise Thread.sleep gibi sabit bekler: gereksiz yavaşlatır ve garantisi yoktur.',
+        en: 'In Selenium you would need to write a WebDriverWait + ExpectedConditions for this. In Playwright, expect(...).toBeVisible() already includes auto-wait + retry — you do NOT need to add extra waiting. page.waitForTimeout(1500) waits a fixed time like Thread.sleep: it needlessly slows things down and gives no guarantee.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'pw-mission-autowait-choice',
+        xpReward: 10,
+        relatedTopicId: 'playwright-cart-mission',
+        prompt: { tr: 'Değişken görünme süresinde testi flaky yapmayacak yaklaşım hangisi?', en: 'With variable appearance time, which approach keeps the test from being flaky?' },
+        code: '// modal: bazen 200ms, bazen 1.5sn\n// which approach?',
+        codeLanguage: 'typescript',
+        options: [
+          { id: 'a', label: { tr: 'page.waitForTimeout(1500) sonra kontrol et', en: 'page.waitForTimeout(1500) then check' }, why: { tr: 'Sabit süre; 1.5sn\'den geç gelirse test patlar, 200ms\'de hazırsa zaman kaybedilir.', en: 'Fixed duration; breaks if it takes longer than 1.5s, wastes time if ready in 200ms.' } },
+          { id: 'b', label: { tr: 'expect(modal).toBeVisible() — ekstra bekleme eklemeden', en: 'expect(modal).toBeVisible() — with no extra wait added' }, correct: true },
+          { id: 'c', label: { tr: 'Hiç assertion yazmadan devam et', en: 'Continue without writing an assertion' }, why: { tr: 'Modal geç gelse bile test kontrol etmediği için PASS verir — sessiz yanlış PASS.', en: 'Even if the modal is late the test passes because it never checks — a silent false PASS.' } },
+        ],
+        reveal: {
+          tr: 'expect(modal).toBeVisible() doğru: Playwright\'ın web-first assertion\'ları zaten koşul gerçekleşene kadar otomatik retry yapar (varsayılan birkaç saniye). Ayrıca bir waitForTimeout eklemek hem gereksiz hem de yanlış bir sabit süre varsayımı ekler.',
+          en: 'expect(modal).toBeVisible() is correct: Playwright\'s web-first assertions already auto-retry until the condition is true (a few seconds by default). Adding a waitForTimeout on top is both unnecessary and introduces a wrong fixed-duration assumption.',
+        },
+      },
+    },
+    {
+      id: 'pw-mission-step-full',
+      brief: { tr: '5) Testi baştan sona birleştir: tıkla + assert et, tek Playwright testi olarak.', en: '5) Combine it end-to-end: click + assert, as a single Playwright test.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir Playwright testi genelde şu üçlüden oluşur: git (goto) → aksiyon (click/fill) → doğrulama (expect...toBeVisible/toHaveText). Bu üçlü, gerçek bir smoke testin en küçük tekrarlanabilir birimidir.',
+        en: 'A Playwright test usually consists of this trio: navigate (goto) → action (click/fill) → verification (expect...toBeVisible/toHaveText). This trio is the smallest repeatable unit of a real smoke test.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-mission-full-code',
+        relatedTopicId: 'playwright-cart-mission',
+        language: 'typescript',
+        label: { tr: 'Sepete ekleme testini tamamla', en: 'Complete the add-to-cart test' },
+        task: { tr: 'TODO satırlarını, ürünü sepete ekleyip modalı doğrulayan tam bir test ile tamamla.', en: 'Complete the TODO lines with a full test that adds the product to cart and verifies the modal.' },
+        explanation: { tr: 'Amaç: önceki 3 adımı tek bir çalışan test fonksiyonunda birleştirmek.', en: 'Goal: combine the previous 3 steps into one working test function.' },
+        code: {
+          tr: `import { test, expect } from '@playwright/test';\n\ntest('urun sepete eklenir', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  await expect(page.getByText('Added!')).toBeVisible();\n});`,
+          en: `import { test, expect } from '@playwright/test';\n\ntest('product is added to cart', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  await expect(page.getByText('Added!')).toBeVisible();\n});`,
+        },
+        starterCode: {
+          tr: `import { test, expect } from '@playwright/test';\n\ntest('urun sepete eklenir', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  // TODO: ilk "Add to cart" butonuna tikla\n  // TODO: "Added!" modalinin gorundugunu dogrula\n});`,
+          en: `import { test, expect } from '@playwright/test';\n\ntest('product is added to cart', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  // TODO: click the first "Add to cart" button\n  // TODO: verify the "Added!" modal is visible\n});`,
+        },
+        solutionCode: {
+          tr: `import { test, expect } from '@playwright/test';\n\ntest('urun sepete eklenir', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  await expect(page.getByText('Added!')).toBeVisible();\n});`,
+          en: `import { test, expect } from '@playwright/test';\n\ntest('product is added to cart', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  await expect(page.getByText('Added!')).toBeVisible();\n});`,
+        },
+        expected: { tr: 'Test uçtan uca PASS olur: ürün sepete eklenir ve modal doğrulanır.', en: 'The test passes end-to-end: the product is added to cart and the modal is verified.' },
+        hints: [
+          { tr: '.first() birden fazla eşleşen buton varsa ilkini seçer — sayfada onlarca ürün kartı var.', en: '.first() picks the first match when multiple buttons match — the page has dozens of product cards.' },
+          { tr: 'İki TODO da önceki adımlarda yazdığın satırlarla aynı.', en: 'Both TODOs are the same lines you wrote in the previous steps.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir "sepete ekle" smoke testinin iskeletini kurdun: dayanıklı locator seçimi → aksiyon → web-first assertion → auto-wait\'in neden ekstra bekleme yazmanı gereksiz kıldığını anlama → hepsini tek testte birleştirme. Playwright\'ın Selenium\'a göre en büyük farkı tam burada: bekleme stratejisi çoğu zaman senin problemin değil, framework\'ün problemi.',
+    en: 'You did not just read a lesson — in 5 steps you built the skeleton of a real "add to cart" smoke test: resilient locator choice → action → web-first assertion → understanding why auto-wait makes extra waiting unnecessary → combining it all into one test. This is Playwright\'s biggest difference from Selenium right here: waiting strategy is mostly the framework\'s problem, not yours.',
+  },
+}
+
 const s3 = {
   tr: {
     title: '🎯 Locator Stratejileri',
@@ -2087,6 +2273,9 @@ test('locators', async ({ page }) => {
     ],
   },
 }
+// Çift-ağaç: aynı görev sabitini hem TR hem EN Locator Stratejileri sekmesine (s3) aynı referansla ekle (§9.5).
+s3.tr.blocks.push(playwrightCartMission)
+s3.en.blocks.push(playwrightCartMission)
 
 const s4 = {
   tr: {

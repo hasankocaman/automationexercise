@@ -67,11 +67,21 @@
     - **Not:** termGlossary.js `*Glossary.js` olduğundan i18n scanner'ın `*Data.js`
       glob'una GİRMİYOR — `en` saf İngilizce + `aliases` ASCII elle korunmalı
       (plan §3.6.1). Gate'ler yeşil (content-integrity + i18n:0 + build 43 shell).
-  - **SIRADAKİ İŞ = SONNET — iki paralel iş, hazır promptlar planda:**
-    (a) **Mission rollout (§7.2)** — Playwright/Cypress/Python/SQL/API'ye gerçek-QA
-    görevleri + `tests/mission-flow.spec.ts` + CLAUDE.md §5'e `mission` ekleme.
-    (b) **Tooltip sözlüğü (§7.3)** — `termGlossary.js`'i yüzlerce terime genişletme
-    + `tests/term-tooltip.spec.ts`.
+- **Bu oturum (2026-07-30, Sonnet) — Phase 1 mission rollout devam ediyor
+  (branch `feature/challenge-first`, plan §7.2/§7.3):**
+  - ✅ **playwrightData.js — "Sepete ürün ekle" mission görevi eklendi** (commit
+    aşağıda). Locator Stratejileri sekmesi (s3), 5 adım: sağlam locator seç
+    (getByRole vs class vs XPath, prediction) → tıkla (code-playground) →
+    web-first assertion yaz (code-playground) → auto-wait'in Thread.sleep'i
+    neden gereksiz kıldığını anla (prediction) → uçtan uca birleştir
+    (code-playground). automationexercise.com'u hedefliyor (sitenin kendi test
+    konusu — projeyle tutarlı). Çift-ağaç `s3.tr/s3.en`'e tek sabit push.
+    `scripts/audit-learning-blocks.mjs` `MISSION_FILES`'e `playwrightData.js`
+    eklendi. **Doğrulama:** audit (mission: 2, 0 ihlal) ✓ · content-integrity ✓ ·
+    i18n baseline 0 ✓ · build ✓ (43 shell).
+  - 🔜 **Sırada:** cypressData.js → pythonData.js → sqlData.js → API testing
+    sayfası (P1-S1 devam), sonra `tests/mission-flow.spec.ts` (P1-S3) +
+    CLAUDE.md §5 (P1-S4). Ardından Phase 1.5 tooltip sözlüğü genişletme (§7.3).
   - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
 
