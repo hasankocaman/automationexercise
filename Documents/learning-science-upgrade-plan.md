@@ -320,6 +320,13 @@ kullanıcının açık onayı olmadan tek başına kodlanmamalı (§13):
 > şey: **(a) zamanı** ("2 haftadır" demek için tarihli geçmiş lazım) ve **(b)
 > konuşan/öğüt veren AI katmanı**.
 
+> **📌 DURUM (2026-07-30, Opus):** OPUS TARAFI (O1-O6) TAMAMLANDI ve `feature/prediction-blocks`'a
+> commit'lendi (4 commit: `docs(mentor)`, `feat(mentor): Katman A`, `feat(mentor): UI`,
+> `feat(mentor): Katman B`). Dört §1.1 kapısı da yeşil (content-integrity + i18n:0 + build).
+> Kullanıcı `mentor_schema.sql`'i learnqa-test + learnqa-prod'da çalıştırdı. Kalan tek
+> manuel adım: `supabase functions deploy mentor-advice --project-ref <ref>` (AI katmanı;
+> Katman A onsuz da çalışır). **SIRADAKİ İŞ = SONNET (S1-S5), hazır prompt §6.6'da.**
+
 ### 6.0. Mevcut durum — neyin üstüne kuruyoruz (körlemesine başlama)
 
 Bu özellik SIFIRDAN değil, hazır parçaların üstüne kurulur. Önce bunları oku:
@@ -545,3 +552,69 @@ function`, `test(mentor): panel + snapshot testleri`).
 Bu sıra, "üyeliksiz de çalışan bir dilim önce biter" (§5 ilkesi) ve backend riskini
 en sona bırakma prensibine uyar. 1-2 tamamlanınca kullanıcıya gösterilip AI
 katmanına (3) geçmeden geri bildirim alınabilir.
+
+### 6.6. SONNET için HAZIR PROMPT (mentor S1-S5)
+
+> Kullanıcı Sonnet oturumuna yalnızca "bu planı oku ve devam et" diyecek. Aşağısı
+> Sonnet'in tek başına takip edeceği tam talimattır. Opus tarafı (O1-O6) BİTTİ ve
+> commit'lendi — Sonnet YENİ BİLEŞEN/BACKEND YAZMAZ, sadece içerik/test/cila ekler.
+
+---
+
+**PROMPT (Sonnet — Kişisel AI Mentor içerik + test + cila):**
+
+Branch: `feature/prediction-blocks` (zaten açık, üstünde çalış). Bu planın (bu dosya)
+**Bölüm 6**'sını, özellikle §6.0 (mevcut parçalar), §6.1 (hibrit mimari), §6.3
+(Opus'un yazdığı dosyalar) ve §6.4 (senin görevlerin S1-S5) bölümlerini oku.
+
+**Opus tarafı BİTTİ ve commit'lendi — bunları YENİDEN YAZMA, sadece kullan:**
+- `src/lib/mentorSnapshots.js` — `recordSnapshot`, `getPersistentWeakness`, `getSnapshots`
+- `src/lib/mentorAdvice.js` — `buildLocalAdvice`, `routeLabel`, `ROUTE_ADVICE` havuzu
+- `src/components/MentorPanel.jsx` — HomePage'de, LearningAnalytics'in altında (`data-testid="mentor-panel"`, AI butonu `data-testid="mentor-ai-button"`, AI sonucu `data-testid="mentor-ai-result"`)
+- `src/components/MentorNudge.jsx` — App.jsx'te global (`data-testid="mentor-nudge"`)
+- `supabase/functions/mentor-advice/index.ts` + `supabase/mentor_schema.sql` — DOKUNMA (backend hazır, kullanıcı SQL'i çalıştırdı)
+
+Senin işin (sırayla, her biri ayrı commit):
+
+1. **S1 — Öğüt şablonlarını genişlet (`mentorAdvice.js` → `ROUTE_ADVICE`):** Şu an 12
+   route var (selenium, playwright, cypress, python, javascript, typescript, sql, java,
+   api-testing, docker, git-github, linux). Kalan ana route'lar için (`/rest-assured`,
+   `/postman`, `/bruno`, `/jenkins`, `/kubernetes`, `/kafka`, `/appium`, `/aws`, `/azure`,
+   `/jmeter`, `/browserstack`, `/gauge`, `/test-frameworks`, `/qa-frontend`, `/git-github`
+   zaten var) `{ tip: {tr,en}, actions: [{label:{tr,en}, route}] }` girdileri ekle. Her
+   `tip` SOMUT olsun (o konunun en sık takılınan noktası), Java analojisi uygunsa kur
+   (§15). TR Türkçe / EN İngilizce, teknik terimler İngilizce (§8). Aynı/benzer metni
+   farklı route'larda TEKRARLAMA (§9.4). `actions.route` gerçek bir route olmalı.
+
+2. **S2 — MentorPanel cilası (`MentorPanel.jsx`):** Yükleniyor/boş/hata durumlarını
+   gözden geçir. AI çağrısı sırasındaki spinner var; §20 ruhuna uygun küçük bir
+   parlama/geçiş ekleyebilirsin (mevcut stil kalıbını bozmadan, yeni CDN/paket YOK).
+   Tüm metinlerin bilingual olduğunu doğrula. Mobil 44px touch target'ları koru.
+
+3. **S4 — Snapshot mantığı smoke testi (`getPersistentWeakness`):** Tarih-ötelenmiş
+   seeded snapshot'larla (dün / 1 hafta / 2 hafta önce, `learnqa_mentor_snapshots`
+   anahtarına elle JSON yaz) `daysStruggling` ve `trend`'in (improving/worsening/stuck)
+   doğru hesaplandığını doğrulayan bir test yaz. Kalıp: mevcut seeded-localStorage
+   smoke testleri (progressStore/LearningAnalytics).
+
+4. **S3 — E2E testleri (`tests/mentor-panel.spec.ts`, CI-guard'lı):**
+   - **Yerel katman (üyeliksiz, CI'da tam çalışır):** seeded `learnqa_mentor_snapshots`
+     + `learnqa_review_queue` ile zayıflık kur → HomePage `/` açıldığında `mentor-panel`
+     görünür, doğru konu + "N gündür" ifadesi var. Bir ders sayfasında `mentor-nudge`
+     görünür ve `/`'e link'ler. Üye DEĞİLKEN `mentor-ai-button` GÖRÜNMEZ (karar §6.2-③④).
+   - **AI katmanı (üye-only):** `describe`'ı `process.env.GITHUB_ACTIONS === 'true'` ile
+     SKIP et (§23.8). Yeni route açılmadı → §22.1 istisna listesi DEĞİŞMEZ.
+   - §22 buton-tıklanabilirlik HomePage için korunur; mevcut HomePage testleriyle çakışma yok.
+
+5. **S5 — Dokümantasyon:** Bitince `.claude/NEXT_SESSION.md`'yi güncelle (mentor Katman A
+   canlı, Katman B deploy kullanıcıda). Gerekliyse CLAUDE.md §22.1'e dokunma (yeni route yok).
+
+**Her dosyadan sonra ZORUNLU (§1.1):** `node --check` (dokunduğun .js) →
+`node scripts/check-content-integrity.mjs` → `node scripts/check-i18n-leaks.mjs`
+(baseline 0'ı BOZMA) → `npm run build`. Dördü de geçmeden "bitti" deme. Parça parça
+ilerle, her S görevinden sonra ayrı commit (`feat(mentor): öğüt şablonları genişletildi`,
+`test(mentor): panel + snapshot testleri`). AI-katmanı testini yerelde koşmak için
+kullanıcının `mentor-advice` fonksiyonunu deploy etmiş olması gerekir — deploy yoksa o
+test zaten skip/graceful; yerel katman testleri deploy'suz çalışır.
+
+---
