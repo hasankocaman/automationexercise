@@ -948,6 +948,192 @@ const restAssuredUserApiMission = {
   },
 }
 
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı onayıyla mevcut 6 sayfanın aksiyon sekmelerine +1
+// görev). "Kullanıcı oluştur, id'yi çıkar, GET ile doğrula" — bu sekmenin
+// ZATEN gösterdiği tam 5-adımlı CRUD zincirinin (UserCrudE2ETest) EN KÜÇÜK,
+// tek başına yazılabilir yapı taşı: POST → extract → GET. MEVCUT
+// prediction/code-playground bloklarını gömer, yeni sandbox yazılmaz.
+const restAssuredChainMission = {
+  type: 'mission',
+  id: 'restassured-chain-mission',
+  xpReward: 45,
+  relatedTopicId: 'restassured-test-chaining',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün bir kullanıcı oluşturma + doğrulama zinciri kuracaksın: POST ile bir kullanıcı oluşturacak, sunucunun döndürdüğü id\'yi çıkaracak ve o id ile GET yaparak kullanıcının GERÇEKTEN veritabanına yazıldığını doğrulayacaksın. Ders okumayacaksın — bir QA gibi adım adım gerçek bir test zinciri kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will build a create-user-then-verify chain: create a user with POST, extract the id the server returns, and use that id to GET the user and verify it was REALLY written to the database. You will not read a lesson — you will build a real test chain step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'ra-chain-step-why',
+      brief: { tr: '1) GET adımında id\'yi hardcode etmek (örn. id=5) yerine POST yanıtından çıkarmanın neden gerekli olduğunu tahmin et.', en: '1) Predict why you need to extract the id from the POST response instead of hardcoding it (e.g. id=5) in the GET step.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Sunucu her POST\'ta YENİ bir id üretir (örn. otomatik artan bir sayaçla) — bugün 5 olan id, yarın test verisi değişince 42 olabilir. id\'yi hardcode edersen testin GET adımı, POST\'un GERÇEKTE ürettiği kullanıcıyla değil, RASTGELE bir id ile konuşur — bu, "yanlış şeyi test etme" hatasıdır.',
+        en: 'The server generates a NEW id on every POST (e.g. via an auto-incrementing counter) — an id that is 5 today could be 42 tomorrow once test data changes. If you hardcode the id, the GET step talks to a RANDOM id instead of the user POST actually created — this is the "testing the wrong thing" mistake.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'ra-chain-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'restassured-test-chaining',
+        prompt: { tr: 'POST ile oluşturulan kullanıcıyı GET ile doğrularken id\'yi nereden almalısın?', en: 'When verifying the user created by POST using GET, where should you get the id from?' },
+        code: '// POST /api/users -> yeni bir id uretir (her calistirmada FARKLI)\n// GET /api/users/{id} -> which id?',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'Testte sabit bir id yaz (örn. id=5)', en: 'Hardcode a fixed id in the test (e.g. id=5)' }, why: { tr: 'Sunucunun ürettiği GERÇEK id\'yle örtüşmeyebilir — test yanlış kullanıcıyı (ya da hiç kullanıcıyı) kontrol eder.', en: 'It may not match the REAL id the server generated — the test checks the wrong user (or no user at all).' } },
+          { id: 'b', label: { tr: 'POST yanıtından id\'yi çıkar (.extract().path("id"))', en: 'Extract the id from the POST response (.extract().path("id"))' }, correct: true },
+          { id: 'c', label: { tr: 'id\'ye hiç ihtiyaç yok, sadece POST\'un 201 döndüğünü kontrol et', en: 'No need for the id at all, just check POST returns 201' }, why: { tr: '201 sadece isteğin KABUL edildiğini gösterir — kullanıcının GERÇEKTEN veritabanına yazıldığını KANITLAMAZ.', en: '201 only shows the request was ACCEPTED — it does NOT PROVE the user was REALLY written to the database.' } },
+        ],
+        reveal: {
+          tr: '.extract().path("id") doğru: POST\'un GERÇEKTE ürettiği id\'yi yanıttan alırsın, böylece GET adımı her koşumda DOĞRU kullanıcıyı sorgular — sunucu hangi id\'yi üretirse üretsin test hep GEÇERLİ kalır.',
+          en: '.extract().path("id") is correct: you get the id the server ACTUALLY generated from the response, so the GET step always queries the CORRECT user on every run — the test stays VALID no matter which id the server produces.',
+        },
+      },
+    },
+    {
+      id: 'ra-chain-step-post',
+      brief: { tr: '2) Kullanıcı oluşturan POST isteğini yaz ve dönen id\'yi çıkar.', en: '2) Write the POST request that creates a user and extract the returned id.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '.extract().path("id") zincirin en sonuna eklenir ve yanıt JSON\'ındaki "id" alanının değerini bir Java değişkenine ATAR — bu, zincirin bir SONRAKİ isteğe TAŞIYACAĞI değerdir.',
+        en: '.extract().path("id") is added at the very end of the chain and ASSIGNS the value of the "id" field in the response JSON to a Java variable — this is the value the chain will CARRY to the NEXT request.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-chain-post-code',
+        relatedTopicId: 'restassured-chain-mission',
+        label: { tr: 'POST isteği ile id\'yi çıkar', en: 'Extract the id with a POST request' },
+        language: 'java',
+        task: { tr: 'TODO satırını, POST /api/users isteğinin 201 döndürdüğünü doğrulayıp yanıttan "id" alanını çıkaracak şekilde tamamla.', en: 'Complete the TODO line to verify POST /api/users returns 201 and extract the "id" field from the response.' },
+        explanation: { tr: 'Gerçek bir HTTP isteği göndermez; amaç extract().path(...) zincirini kendin yazmayı pekiştirmek.', en: 'Does not send a real HTTP request; the goal is to reinforce writing the extract().path(...) chain yourself.' },
+        code: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");`,
+        },
+        starterCode: {
+          tr: `// TODO: POST at, 201 dogrula, "id" alanini cikar\nString userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201);`,
+          en: `// TODO: send POST, verify 201, extract the "id" field\nString userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201);`,
+        },
+        solutionCode: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");`,
+        },
+        expected: { tr: 'userId değişkeni, sunucunun ürettiği GERÇEK id değerini tutar.', en: 'The userId variable holds the REAL id value the server generated.' },
+        hints: [
+          { tr: '.extract().path("id") zincire .then().statusCode(...) SONRASINA eklenir.', en: '.extract().path("id") is chained AFTER .then().statusCode(...).' },
+          { tr: 'Dönen değer bir String\'e atanır — sonraki adımda path parametresi olarak kullanılacak.', en: 'The returned value is assigned to a String — it will be used as a path parameter in the next step.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'ra-chain-step-get',
+      brief: { tr: '3) Çıkarılan id ile GET isteği yaz, kullanıcının gerçekten oluştuğunu doğrula.', en: '3) Write the GET request using the extracted id, verifying the user really exists.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '.pathParam("id", userId) bir önceki adımda çıkardığın değeri URL\'nin `{id}` yer tutucusuna YERLEŞTİRİR — böylece GET, POST\'un GERÇEKTE oluşturduğu kullanıcıyı sorgular, rastgele bir id\'yi değil.',
+        en: '.pathParam("id", userId) PLACES the value you extracted in the previous step into the URL\'s `{id}` placeholder — so the GET queries the user POST REALLY created, not a random id.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-chain-get-code',
+        relatedTopicId: 'restassured-chain-mission',
+        label: { tr: 'Çıkarılan id ile GET yap', en: 'GET with the extracted id' },
+        language: 'java',
+        task: { tr: 'TODO satırını, userId\'yi pathParam olarak kullanan ve 200 döndüğünü doğrulayan bir GET isteğiyle tamamla.', en: 'Complete the TODO line with a GET request that uses userId as a pathParam and verifies it returns 200.' },
+        explanation: { tr: 'Amaç: bir önceki adımda çıkardığın değeri GERÇEKTEN kullanan bir isteği kendin yazmayı pekiştirmek.', en: 'Goal: reinforce writing a request that ACTUALLY uses the value you extracted in the previous step.' },
+        code: {
+          tr: `given()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `given()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        starterCode: {
+          tr: `// TODO: userId'yi pathParam olarak kullan, GET at, 200 dogrula\ngiven()\n    .when().get("/api/users/{id}");`,
+          en: `// TODO: use userId as pathParam, send GET, verify 200\ngiven()\n    .when().get("/api/users/{id}");`,
+        },
+        solutionCode: {
+          tr: `given()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `given()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        expected: { tr: 'GET, POST\'un oluşturduğu GERÇEK kullanıcıyı sorgular ve 200 döner.', en: 'The GET queries the REAL user POST created, and returns 200.' },
+        hints: [
+          { tr: '.pathParam(name, value), URL\'deki {name} yer tutucusunu value ile DEĞİŞTİRİR.', en: '.pathParam(name, value) REPLACES the {name} placeholder in the URL with value.' },
+          { tr: 'userId, 2. adımda .extract().path("id") ile elde ettiğin değişken.', en: 'userId is the variable you obtained with .extract().path("id") in step 2.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'ra-chain-step-guard-predict',
+      brief: { tr: '4) POST adımı başarısız olursa (500 dönerse) korumasız bir zincirde GET adımına ne olacağını tahmin et.', en: '4) Predict what happens to the GET step in an unguarded chain if the POST step fails (returns 500).' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'POST 500 ile başarısız olursa, `.extract().path("id")` muhtemelen `null` veya boş bir değer döndürür — bir sonraki adım bu değeri hiç KONTROL ETMEDEN kullanırsa, GET isteği `/api/users/null` gibi ANLAMSIZ bir URL\'e gider ve KAFA KARIŞTIRICI bir hata (asıl POST hatası değil) verir. `assertNotNull(userId, ...)` gibi bir koruma, ASIL sorunu (POST başarısız oldu) net gösterir.',
+        en: 'If POST fails with 500, `.extract().path("id")` likely returns `null` or an empty value — if the next step uses this value WITHOUT CHECKING it, the GET request goes to a MEANINGLESS URL like `/api/users/null` and gives a CONFUSING error (not the real POST failure). A guard like `assertNotNull(userId, ...)` clearly shows the REAL problem (POST failed).',
+      },
+      block: {
+        type: 'prediction',
+        id: 'ra-chain-guard-choice',
+        xpReward: 10,
+        relatedTopicId: 'restassured-chain-mission',
+        prompt: { tr: 'POST 500 hatasıyla başarısız olursa ve GET adımı userId\'yi hiç kontrol etmeden kullanırsa ne olur?', en: 'If POST fails with a 500 error and the GET step uses userId without checking it, what happens?' },
+        code: '// POST fails -> 500\n// userId is null or empty\n// GET /api/users/{id} with that userId?',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'GET, gerçek POST hatasını gizleyen kafa karıştırıcı bir hata verir (örn. /api/users/null)', en: 'GET gives a confusing error that hides the real POST failure (e.g. /api/users/null)' }, correct: true },
+          { id: 'b', label: { tr: 'GET otomatik olarak atlanır', en: 'GET is automatically skipped' }, why: { tr: 'Bir koruma (assertNotNull/assumeTrue) EKLEMEDİĞİN sürece GET adımı otomatik atlanmaz — çalışmaya devam eder.', en: 'Without adding a guard (assertNotNull/assumeTrue), the GET step is NOT automatically skipped — it keeps running.' } },
+          { id: 'c', label: { tr: 'GET, POST\'un başarısız olduğunu otomatik anlar ve aynı hatayı raporlar', en: 'GET automatically understands POST failed and reports the same error' }, why: { tr: 'GET, POST\'un başarısız olduğunu BİLMEZ — sadece elindeki (null/boş) id ile isteği göndermeye çalışır.', en: 'GET does not KNOW POST failed — it just tries to send the request with whatever (null/empty) id it has.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: korumasız bir zincirde GET, `/api/users/null` gibi anlamsız bir isteğe gider ve gerçek sorunu (POST\'un 500 vermesini) GİZLEYEN, kafa karıştırıcı bir hata üretir. `assertNotNull(userId, "POST basarisiz oldu")` gibi bir koruma, hatayı KAYNAĞINDA yakalar.',
+          en: 'Correct: in an unguarded chain, GET goes to a meaningless request like `/api/users/null` and produces a confusing error that HIDES the real problem (POST returning 500). A guard like `assertNotNull(userId, "POST failed")` catches the error AT ITS SOURCE.',
+        },
+      },
+    },
+    {
+      id: 'ra-chain-step-full',
+      brief: { tr: '5) Zinciri koruma satırıyla birlikte tamamla: POST + extract + guard + GET.', en: '5) Complete the chain with a guard line: POST + extract + guard + GET.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Tam bir zincir dört parçadan oluşur: hazırlık (POST), değer taşıma (extract), koruma (assertNotNull — POST\'un GERÇEKTEN başarılı olduğunu doğrula) ve devam (GET). Bu dördü BİRLİKTE, sayfanın başındaki tam CRUD zincirinin (UserCrudE2ETest) en küçük, kendi başına anlaşılır birimidir.',
+        en: 'A complete chain has four parts: setup (POST), carrying a value (extract), a guard (assertNotNull — verify POST REALLY succeeded), and continuation (GET). These four TOGETHER are the smallest, self-contained unit of the full CRUD chain (UserCrudE2ETest) shown earlier on this page.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-chain-full-code',
+        relatedTopicId: 'restassured-chain-mission',
+        label: { tr: 'Zinciri koruma satırıyla tamamla', en: 'Complete the chain with a guard' },
+        language: 'java',
+        task: { tr: 'TODO satırını, userId\'nin null olmadığını doğrulayan bir assertNotNull ile tamamla.', en: 'Complete the TODO line with an assertNotNull that verifies userId is not null.' },
+        explanation: { tr: 'Amaç: önceki 3 adımı, gerçek bir zincirde ZORUNLU olan koruma satırıyla birleştirmek.', en: 'Goal: combine the previous 3 steps with the guard line that is MANDATORY in a real chain.' },
+        code: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\nassertNotNull(userId, "POST basarisiz oldu, id yok");\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\nassertNotNull(userId, "POST failed, no id");\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        starterCode: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\n// TODO: userId'nin null olmadigini dogrula\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\n// TODO: verify userId is not null\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        solutionCode: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\nassertNotNull(userId, "POST basarisiz oldu, id yok");\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\nassertNotNull(userId, "POST failed, no id");\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        expected: { tr: 'Zincir uçtan uca çalışır: POST başarısız olursa hata KAYNAĞINDA (assertNotNull mesajıyla) yakalanır, başarılıysa GET GERÇEK kullanıcıyı doğrular.', en: 'The chain runs end-to-end: if POST fails, the error is caught AT ITS SOURCE (with the assertNotNull message); if it succeeds, GET verifies the REAL user.' },
+        hints: [
+          { tr: 'assertNotNull(değer, mesaj) değer null ise testi mesajla FAIL eder.', en: 'assertNotNull(value, message) FAILs the test with the message if value is null.' },
+          { tr: 'Koruma satırı extract\'tan HEMEN sonra, GET\'ten ÖNCE gelir.', en: 'The guard line comes RIGHT AFTER extract, BEFORE the GET.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir test zincirinin EN KÜÇÜK yapı taşını kurdun: id\'yi hardcode etmenin neden yanlış olduğunu anlama → POST + extract yazma → çıkarılan değerle GET yazma → korumasız bir zincirin nasıl kafa karıştırıcı hatalar ürettiğini anlama → koruma satırıyla tamamlama. Bu dört-parçalı iskelet (POST → extract → guard → GET), sayfanın başında gördüğün tam 5 adımlı UserCrudE2ETest zincirinin ATOMIK birimidir — şimdi onu PUT ve DELETE adımlarıyla genişletmeye hazırsın.',
+    en: 'You did not just read a lesson — in 5 steps you built the SMALLEST building block of a real test chain: understanding why hardcoding the id is wrong → writing POST + extract → writing GET with the extracted value → understanding how an unguarded chain produces confusing errors → completing it with a guard line. This four-part skeleton (POST → extract → guard → GET) is the ATOMIC unit of the full 5-step UserCrudE2ETest chain you saw earlier on this page — you are now ready to extend it with PUT and DELETE steps.',
+  },
+}
+
 const sections = [
 
   // ── 0: Why REST Assured? ────────────────────────────────────────────────────
@@ -2641,6 +2827,7 @@ public class UserCrudE2ETest extends BaseTest {
       }
 }
 },
+      restAssuredChainMission,
     ],
   },
 
