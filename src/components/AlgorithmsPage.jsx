@@ -4,6 +4,7 @@ import TopicHeader from './TopicHeader'
 import VideoSceneBlock from './VideoSceneBlock'
 import LessonFinishBadge from './LessonFinishBadge'
 import { highlightGlossaryTerms } from './TermTooltip'
+import TooltipGuideMascot from './TooltipGuideMascot'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
@@ -1503,6 +1504,7 @@ function AlgorithmsPage() {
             >
                 🏠
             </button>
+            <TooltipGuideMascot />
         </div>
     )
 }

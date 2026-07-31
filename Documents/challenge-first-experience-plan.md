@@ -374,6 +374,53 @@ vb.) bu üç sayfada da otomatik devreye girdi, ayrı bir wiring gerekmedi.
 **Doğrulama:** content-integrity + i18n baseline 0 + build (43 shell) +
 `tests/term-tooltip.spec.ts` + `tests/mission-flow.spec.ts` regresyon (3/3 PASS).
 
+### 3.6.5. Genişletme (2026-07-31, kullanıcı talebi) — rehber karakter (mascot)
+
+**Kaynak:** Kullanıcı: "Kullanıcıya bu bilmediği kelimelerde açıklamalar
+çıkacağını söyleyen bir balon olsa — sevimli bir animasyon karakteri ve
+konuşma balonuyla, sayfanın neresine giderse gitsin kullanıcıyı yönlendirse."
+CLAUDE.md §20 ("Disney/Pixar Modu") ruhuna doğrudan uyuyor.
+
+**Kullanıcı kararları (AskUserQuestion, 3 soru):**
+1. Konumlanma: **sabit köşe**, scroll'u TAKİP ETMEZ (gerçek scroll-pozisyon
+   takibi, mühendislik riskini karşılamayan bir "hoş geldin" özelliği için
+   orantısız — `OnboardingTour.jsx`'in "spotlight yerine sabit kart" kararıyla
+   AYNI gerekçe, plan §3.6'nın kendi dosya başı yorumunda zaten belgeli).
+2. Kapsam: **sadece 3 giriş sayfası** (`/what-is-testing`, `/manual-testing`,
+   `/algorithms`) — §3.6.4'te yoğunlaştırılan sayfalarla AYNI.
+3. Zamanlama: **her ziyarette küçük bir rozet** olarak durur (localStorage'da
+   "bir daha gösterme" YOK), tıklanınca konuşma balonu açılır/kapanır.
+
+**Yapılan:**
+- `src/components/TooltipGuideMascot.jsx` (yeni) — self-contained: dil için
+  `useLanguage()`, dark mode için `document.documentElement`'teki 'dark-mode'
+  class'ını İZLEYEN salt-okunur bir `MutationObserver` (İKİNCİ bir state
+  yöneticisi YAZILMAZ, TopicPage/AlgorithmsPage'in zaten yazdığı class okunur).
+  🦉 emoji karakter + tıklanınca açılan konuşma balonu (Kavram Tooltip'i
+  özelliğini anlatan bilingual metin).
+- `TopicPage.jsx`'e DOKUNULMADI (onlarca sayfada paylaşılır, oraya eklersen
+  HER teknoloji sayfasında görünürdü — kapsam kararı #2'yi ihlal ederdi).
+  Bunun yerine 3 sayfanın KENDİ wrapper component'ine eklendi:
+  `WhatIsTestingPage.jsx` (ince TopicPage sarmalayıcı, sibling olarak),
+  `ManualTestingPage.jsx` + `AlgorithmsPage.jsx` (kendi ana `return` JSX'lerinin
+  sonuna, mevcut 🏠 butonundan hemen sonra).
+- **Konum düzeltmesi (gerçek tarayıcı testiyle bulundu):** ilk sürüm sol-alt
+  köşedeydi (`bottom:16px, left:16px`) — App.jsx'te GLOBAL render edilen
+  `ChatWidget` (`fixed bottom-20 left-4 z-[999]`) ile AYNI sütunda sadece
+  20px arayla duruyordu; konuşma balonu AÇILINCA ChatWidget'ın üstüne
+  biniyordu (ekran görüntüsüyle doğrulandı). **Düzeltme:** sol kenar
+  DİKEY-ORTA konuma taşındı (`position: fixed, left, top:50%,
+  translateY(-50%)`) — ChatWidget/CommentsWidget/🏠/📍 gibi TÜM köşe-yığılan
+  widget'lardan tamamen bağımsız, z-index 900 (bu widget'ların 999'undan
+  DÜŞÜK, herhangi bir gelecekteki proximity'de onlar KAZANIR).
+- `tests/tooltip-guide-mascot.spec.ts` (yeni) — 3 sayfada rozet+balon aç/kapa
+  + kapsam-dışı sayfada (`/selenium`) hiç görünmeme + ChatWidget'la çakışmama
+  (bounding box kesişim kontrolü). **5/5 PASS.**
+
+**Doğrulama:** content-integrity + i18n baseline 0 + build (43 shell) +
+`tests/tooltip-guide-mascot.spec.ts` (5/5) + `term-tooltip.spec.ts` +
+`mission-flow.spec.ts` regresyon (3/3) — hepsi geçti.
+
 ---
 
 ## 4. PHASE 2 — QA Sprint / Company Simulator (Phase 1 üstüne)

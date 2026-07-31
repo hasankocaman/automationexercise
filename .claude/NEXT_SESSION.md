@@ -36,6 +36,22 @@
   Doğrulama: content-integrity + i18n baseline 0 + build + 2 E2E test regresyonu
   (term-tooltip + mission-flow, 3/3 PASS). Commit `8fe795e`.
 
+- **Aynı gün, hemen ardından — Rehber Karakter (Mascot):** Kullanıcı "sevimli
+  bir animasyon karakteri + konuşma balonu, bilmediğin kelimenin üstüne gel de
+  görsün diye yönlendirsin" istedi. AskUserQuestion ile 3 tasarım kararı
+  netleştirildi: sabit köşe (scroll takip ETMEZ), sadece 3 giriş sayfası,
+  her ziyarette rozet + tıklayınca balon. `TooltipGuideMascot.jsx` (yeni,
+  🦉 emoji + self-contained dark-mode algılama) yazıldı; `TopicPage.jsx`'e
+  DOKUNULMADI (paylaşılan dosya), 3 sayfanın kendi wrapper'ına eklendi
+  (`WhatIsTestingPage`/`ManualTestingPage`/`AlgorithmsPage`). **Gerçek
+  tarayıcı testiyle bulunan bug:** ilk sürüm sol-alt köşedeydi, App.jsx'teki
+  global `ChatWidget`'la (bottom-20 left-4) çakışıyordu (balon açılınca
+  üstüne biniyordu) — sol kenar dikey-orta konuma taşınarak düzeltildi.
+  `tests/tooltip-guide-mascot.spec.ts` (yeni, 5 test: 3 sayfa aç/kapa +
+  kapsam-dışı sayfada yokluk + ChatWidget çakışma kontrolü) **5/5 PASS**.
+  Doğrulama: content-integrity + i18n baseline 0 + build + mascot testi (5/5)
+  + term-tooltip/mission-flow regresyonu (3/3) — hepsi geçti. Detay: plan §3.6.5.
+
 - **Önceki iş (aynı gün) — Mission Dalga 2:** Phase 1 + Phase 1.5 önceki
   oturumda TAMAMLANMIŞTI (6 sayfa × 1 mission + kavram tooltip'i). Bu oturumda
   kullanıcı "bu görevleri ne kadar genişletebilirsin, her dikey sekmede

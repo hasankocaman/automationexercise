@@ -4,6 +4,7 @@ import TopicHeader from './TopicHeader'
 import VideoSceneBlock from './VideoSceneBlock'
 import LessonFinishBadge from './LessonFinishBadge'
 import { highlightGlossaryTerms } from './TermTooltip'
+import TooltipGuideMascot from './TooltipGuideMascot'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { manualTestingData } from '../data/manualTestingData'
@@ -1257,6 +1258,7 @@ function ManualTestingPage() {
             >
                 🏠
             </button>
+            <TooltipGuideMascot />
         </div>
     )
 }
