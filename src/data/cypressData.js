@@ -1971,6 +1971,192 @@ cy.get('.product-card').should('have.length', 8)` },
   ],
 }
 
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı onayıyla mevcut 6 sayfanın aksiyon sekmelerine +1
+// görev). "Yavaş API'yi stub'la, loading ve hata durumlarını test et" —
+// diğer 5 mission'ın locator/selector temasından FARKLI bir gerçek-QA
+// senaryosu: network stubbing ile flaky olmayan loading/error-state testi.
+// MEVCUT code-playground/prediction bloklarını gömer, yeni sandbox yazılmaz.
+const cypressNetworkStubMission = {
+  type: 'mission',
+  id: 'cypress-network-stub-mission',
+  xpReward: 45,
+  relatedTopicId: 'cypress-network-intercept',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün ürün listesi API\'si YAVAŞKEN (gerçekte 2 saniye sürüyor) loading spinner\'ın doğru göründüğünü, sonra da bir sunucu hatasında hata mesajının çıktığını test edeceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir network stubbing testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today the product list API is SLOW (it really takes 2 seconds) and you will test that the loading spinner appears correctly, and that an error message shows up on a server error. You will not read a lesson — you will build a real network-stubbing test step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'cy-stub-step-why',
+      brief: { tr: '1) Gerçek API\'nin 2 saniye sürmesini beklemek yerine ne yapmalısın, tahmin et.', en: '1) Predict what you should do instead of waiting for the real API to take 2 seconds.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Gerçek sunucuyu her test koşumunda 2 saniye beklemek testi YAVAŞLATIR ve ağ durumuna (bazen 1sn, bazen 5sn) bağlı kalıp FLAKY yapar. cy.intercept() ile isteği STUB edersin: gerçek sunucuya hiç gitmeden, kontrollü bir gecikme + sahte veriyle cevap verirsin — test hem hızlı hem her koşumda AYNI davranır.',
+        en: 'Waiting for the real server 2 seconds on every test run SLOWS the test down and makes it FLAKY (sometimes 1s, sometimes 5s depending on network conditions). With cy.intercept() you STUB the request: you respond with a controlled delay + fake data without ever hitting the real server — the test is both fast and behaves the SAME on every run.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'cy-stub-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'cypress-network-intercept',
+        prompt: { tr: 'Yavaş bir API\'nin loading state\'ini test etmenin en güvenilir yolu hangisi?', en: 'What is the most reliable way to test the loading state of a slow API?' },
+        code: '// gercek API: bazen 1sn, bazen 5sn surer\n// which approach?',
+        codeLanguage: 'javascript',
+        options: [
+          { id: 'a', label: { tr: 'cy.wait(2000) ile sabit süre bekleyip spinner\'ı kontrol et', en: 'cy.wait(2000) for a fixed duration then check the spinner' }, why: { tr: 'Sabit süre; API 5sn sürerse spinner kaybolmadan kontrol edersin, 1sn sürerse zaman kaybedersin — flaky.', en: 'Fixed duration; if the API takes 5s you check before the spinner disappears, if 1s you waste time — flaky.' } },
+          { id: 'b', label: { tr: 'cy.intercept() ile isteği kontrollü bir gecikmeyle stub et', en: 'Stub the request with cy.intercept() using a controlled delay' }, correct: true },
+          { id: 'c', label: { tr: 'Gerçek API\'yi hiç test etme, spinner\'ı görsel olarak kontrol et', en: 'Never test the real API, just visually check the spinner' }, why: { tr: 'Spinner\'ın NE ZAMAN kaybolduğunu (isteğin bittiğini) otomatik doğrulamadan sadece görsel kontrol, regresyonu yakalamaz.', en: 'Just a visual check without automatically verifying WHEN the spinner disappears (the request finished) catches no regressions.' } },
+        ],
+        reveal: {
+          tr: 'cy.intercept() doğru: isteği kontrollü bir gecikmeyle (örn. delay: 2000) stub edersin — gerçek ağ koşullarından bağımsız, HER koşumda aynı davranan, hızlı ve güvenilir bir test elde edersin.',
+          en: 'cy.intercept() is correct: you stub the request with a controlled delay (e.g. delay: 2000) — independent of real network conditions, you get a fast, reliable test that behaves the SAME on every run.',
+        },
+      },
+    },
+    {
+      id: 'cy-stub-step-intercept',
+      brief: { tr: '2) Ürün listesi isteğini 2 saniye gecikmeyle stub eden intercept\'i yaz.', en: '2) Write the intercept that stubs the product list request with a 2-second delay.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'cy.intercept(\'GET\', url, { fixture, delay }).as(\'alias\') üç şeyi birleştirir: hangi isteği yakalayacağını (GET + url), ne döndüreceğini (fixture) ve ne kadar geciktireceğini (delay). `.as(...)` ile verdiğin alias, sonraki `cy.wait(\'@alias\')` çağrısında isteği BEKLEMEK için kullanılır.',
+        en: 'cy.intercept(\'GET\', url, { fixture, delay }).as(\'alias\') combines three things: which request to catch (GET + url), what to return (fixture), and how long to delay it. The alias you give with `.as(...)` is used later in `cy.wait(\'@alias\')` to WAIT for the request.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-stub-intercept-code',
+        relatedTopicId: 'cypress-network-stub-mission',
+        language: 'javascript',
+        label: { tr: 'Ürün listesini 2sn gecikmeyle stub et', en: 'Stub the product list with a 2s delay' },
+        task: { tr: 'TODO satırını, GET /api/products isteğini "products.json" fixture\'ı ve 2000ms gecikmeyle stub eden intercept ile tamamla.', en: 'Complete the TODO line with an intercept that stubs GET /api/products using the "products.json" fixture and a 2000ms delay.' },
+        explanation: { tr: 'Gerçek bir ağ isteği göndermez; amaç intercept\'in fixture+delay zincirini kendin yazmayı pekiştirmek.', en: 'Does not send a real network request; the goal is to reinforce writing the intercept\'s fixture+delay chain yourself.' },
+        code: {
+          tr: `cy.intercept('GET', '/api/products', { fixture: 'products.json', delay: 2000 }).as('getProducts')`,
+          en: `cy.intercept('GET', '/api/products', { fixture: 'products.json', delay: 2000 }).as('getProducts')`,
+        },
+        starterCode: {
+          tr: `// TODO: GET /api/products'i products.json fixture'i + 2000ms delay ile stub et, 'getProducts' diye adlandir\n`,
+          en: `// TODO: stub GET /api/products with the products.json fixture + 2000ms delay, alias it as 'getProducts'\n`,
+        },
+        solutionCode: {
+          tr: `cy.intercept('GET', '/api/products', { fixture: 'products.json', delay: 2000 }).as('getProducts')`,
+          en: `cy.intercept('GET', '/api/products', { fixture: 'products.json', delay: 2000 }).as('getProducts')`,
+        },
+        expected: { tr: 'İstek gerçek sunucuya hiç gitmez; 2 saniye sonra fixture verisiyle cevap döner.', en: 'The request never reaches the real server; it responds with the fixture data after 2 seconds.' },
+        hints: [
+          { tr: 'cy.intercept(method, url, response) üç parametre alır.', en: 'cy.intercept(method, url, response) takes three arguments.' },
+          { tr: '.as(\'getProducts\') alias\'ı, sonraki adımda cy.wait(\'@getProducts\') için gerekecek.', en: 'The .as(\'getProducts\') alias will be needed for cy.wait(\'@getProducts\') in the next step.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'cy-stub-step-loading',
+      brief: { tr: '3) Loading spinner\'ın istek sırasında göründüğünü, istek bitince kaybolduğunu doğrula.', en: '3) Verify the loading spinner appears during the request and disappears once it finishes.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Sayfa ziyaret edildiği AN spinner görünür olmalı (istek henüz gecikmede). cy.wait(\'@getProducts\') isteğin (2 saniyelik gecikmenin) BİTMESİNİ bekler — bittikten SONRA spinner\'ın artık görünür OLMADIĞINI (.should(\'not.exist\')) doğrularsın.',
+        en: 'The spinner should be visible the MOMENT the page is visited (the request is still delaying). cy.wait(\'@getProducts\') waits for the request (the 2-second delay) to FINISH — AFTER that you verify the spinner is no longer visible (.should(\'not.exist\')).',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-stub-loading-code',
+        relatedTopicId: 'cypress-network-stub-mission',
+        language: 'javascript',
+        label: { tr: 'Spinner\'ın görünüp kaybolduğunu doğrula', en: 'Verify the spinner appears and disappears' },
+        task: { tr: 'TODO satırlarını, spinner\'ın önce görünür olduğunu, istek bitince kaybolduğunu doğrulayan satırlarla tamamla.', en: 'Complete the TODO lines to verify the spinner is visible first, then disappears once the request finishes.' },
+        explanation: { tr: 'Amaç: stub edilmiş isteğin BEKLEME + DOĞRULAMA döngüsünü kendin yazmayı pekiştirmek.', en: 'Goal: reinforce writing the WAIT + VERIFY cycle for the stubbed request yourself.' },
+        code: {
+          tr: `cy.visit('/shop')\ncy.get('[data-cy=spinner]').should('be.visible')\ncy.wait('@getProducts')\ncy.get('[data-cy=spinner]').should('not.exist')`,
+          en: `cy.visit('/shop')\ncy.get('[data-cy=spinner]').should('be.visible')\ncy.wait('@getProducts')\ncy.get('[data-cy=spinner]').should('not.exist')`,
+        },
+        starterCode: {
+          tr: `cy.visit('/shop')\n// TODO: spinner'in gorunur oldugunu dogrula\ncy.wait('@getProducts')\n// TODO: spinner'in artik var olmadigini dogrula\n`,
+          en: `cy.visit('/shop')\n// TODO: verify the spinner is visible\ncy.wait('@getProducts')\n// TODO: verify the spinner no longer exists\n`,
+        },
+        solutionCode: {
+          tr: `cy.visit('/shop')\ncy.get('[data-cy=spinner]').should('be.visible')\ncy.wait('@getProducts')\ncy.get('[data-cy=spinner]').should('not.exist')`,
+          en: `cy.visit('/shop')\ncy.get('[data-cy=spinner]').should('be.visible')\ncy.wait('@getProducts')\ncy.get('[data-cy=spinner]').should('not.exist')`,
+        },
+        expected: { tr: 'Spinner istek sırasında görünür, istek bitince kaybolur — her koşumda AYNI (2 saniyelik stub sayesinde).', en: 'The spinner is visible during the request and disappears once it finishes — the SAME on every run (thanks to the 2-second stub).' },
+        hints: [
+          { tr: 'cy.wait(\'@alias\') stub edilmiş isteğin BİTMESİNİ bekler.', en: 'cy.wait(\'@alias\') waits for the stubbed request to FINISH.' },
+          { tr: '.should(\'not.exist\') elementin artık DOM\'da olmadığını doğrular.', en: '.should(\'not.exist\') verifies the element is no longer in the DOM.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'cy-stub-step-error-predict',
+      brief: { tr: '4) Sunucu 500 hatası dönerse arayüzün NE göstermesi gerektiğini tahmin et.', en: '4) Predict what the UI SHOULD show when the server returns a 500 error.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir uygulama sadece "mutlu yolu" (happy path) değil, hata durumlarını da KULLANICIYA ANLAMLI şekilde göstermelidir. 500 hatasında spinner\'ın SONSUZA kadar dönmesi ya da sayfanın sessizce boş kalması KÖTÜ bir kullanıcı deneyimidir — kullanıcıya "bir şeyler ters gitti, tekrar dene" gibi AÇIK bir mesaj gösterilmelidir.',
+        en: 'An application should not just handle the "happy path" — it must show error states to the USER in a MEANINGFUL way. On a 500 error, the spinner spinning FOREVER or the page silently staying empty is a BAD user experience — the user should see a CLEAR message like "something went wrong, try again".',
+      },
+      block: {
+        type: 'prediction',
+        id: 'cy-stub-error-choice',
+        xpReward: 10,
+        relatedTopicId: 'cypress-network-stub-mission',
+        prompt: { tr: 'Ürün listesi API\'si 500 hatası dönerse, iyi bir kullanıcı deneyimi için arayüz ne yapmalı?', en: 'If the product list API returns a 500 error, what should the UI do for a good user experience?' },
+        code: '// GET /api/products -> 500 Internal Server Error\n// what should the UI show?',
+        codeLanguage: 'javascript',
+        options: [
+          { id: 'a', label: { tr: 'Spinner sonsuza kadar dönmeye devam etmeli', en: 'The spinner should keep spinning forever' }, why: { tr: 'Kullanıcı bir şeyin YÜKLENMEYE devam ettiğini sanır — aslında istek zaten BAŞARISIZ oldu, bu yanıltıcıdır.', en: 'The user thinks something is STILL loading — the request already FAILED, this is misleading.' } },
+          { id: 'b', label: { tr: 'Açık bir hata mesajı gösterilmeli (örn. "Ürünler yüklenemedi")', en: 'A clear error message should be shown (e.g. "Failed to load products")' }, correct: true },
+          { id: 'c', label: { tr: 'Sayfa sessizce boş kalmalı, hiçbir şey gösterilmemeli', en: 'The page should silently stay empty, showing nothing' }, why: { tr: 'Kullanıcı NEDEN hiçbir ürün görmediğini anlayamaz — bir hata mı oldu, yoksa gerçekten ürün mü yok bilemez.', en: 'The user cannot tell WHY they see no products — was there an error, or are there genuinely no products?' } },
+        ],
+        reveal: {
+          tr: 'Açık bir hata mesajı doğru: kullanıcı NE olduğunu anlamalı ve mümkünse bir sonraki adımı (tekrar dene gibi) bilmelidir. Bu QA açısından kritiktir — "hata durumunu test etmemek", production\'da sessizce başarısız olan ve kimsenin fark etmediği bir özelliğin en yaygın kaynağıdır.',
+          en: 'A clear error message is correct: the user must understand WHAT happened and, if possible, know the next step (like retry). This is critical from a QA perspective — "not testing the error state" is the most common source of a feature silently failing in production that nobody notices.',
+        },
+      },
+    },
+    {
+      id: 'cy-stub-step-error-code',
+      brief: { tr: '5) 500 hatasını simüle et ve hata mesajının göründüğünü doğrula.', en: '5) Simulate the 500 error and verify the error message appears.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'cy.intercept() sadece başarılı yanıtları değil, `statusCode: 500` gibi HATA durumlarını da simüle edebilir — gerçek sunucuyu bilerek bozmana GEREK YOKTUR. Bu, "happy path" testinin AYNI iskeletini (görüşme→bekleme→doğrulama) kullanır, sadece stub\'ın içeriği değişir.',
+        en: 'cy.intercept() can simulate not just successful responses but also ERROR states like `statusCode: 500` — you do NOT need to actually break the real server. This uses the SAME skeleton (visit→wait→verify) as the "happy path" test, only the stub\'s content changes.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-stub-error-code',
+        relatedTopicId: 'cypress-network-stub-mission',
+        language: 'javascript',
+        label: { tr: '500 hatasını simüle et', en: 'Simulate the 500 error' },
+        task: { tr: 'TODO satırlarını, 500 hatası döndüren bir intercept ile ve hata mesajının göründüğünü doğrulayan bir assertion ile tamamla.', en: 'Complete the TODO lines with an intercept that returns a 500 error and an assertion that the error message appears.' },
+        explanation: { tr: 'Amaç: happy-path testinin iskeletini bir hata senaryosuna uyarlamayı pekiştirmek.', en: 'Goal: reinforce adapting the happy-path test\'s skeleton to an error scenario.' },
+        code: {
+          tr: `cy.intercept('GET', '/api/products', { statusCode: 500 }).as('getProductsError')\ncy.visit('/shop')\ncy.wait('@getProductsError')\ncy.get('[data-cy=error-message]').should('be.visible')`,
+          en: `cy.intercept('GET', '/api/products', { statusCode: 500 }).as('getProductsError')\ncy.visit('/shop')\ncy.wait('@getProductsError')\ncy.get('[data-cy=error-message]').should('be.visible')`,
+        },
+        starterCode: {
+          tr: `// TODO: GET /api/products'i 500 statusCode ile stub et, 'getProductsError' diye adlandir\ncy.visit('/shop')\ncy.wait('@getProductsError')\n// TODO: hata mesajinin gorunur oldugunu dogrula\n`,
+          en: `// TODO: stub GET /api/products with statusCode 500, alias it as 'getProductsError'\ncy.visit('/shop')\ncy.wait('@getProductsError')\n// TODO: verify the error message is visible\n`,
+        },
+        solutionCode: {
+          tr: `cy.intercept('GET', '/api/products', { statusCode: 500 }).as('getProductsError')\ncy.visit('/shop')\ncy.wait('@getProductsError')\ncy.get('[data-cy=error-message]').should('be.visible')`,
+          en: `cy.intercept('GET', '/api/products', { statusCode: 500 }).as('getProductsError')\ncy.visit('/shop')\ncy.wait('@getProductsError')\ncy.get('[data-cy=error-message]').should('be.visible')`,
+        },
+        expected: { tr: 'Sunucu hiç çağrılmadan 500 simüle edilir ve arayüzdeki hata mesajı doğrulanır.', en: 'A 500 is simulated without ever calling the real server, and the error message in the UI is verified.' },
+        hints: [
+          { tr: '{ statusCode: 500 } bir intercept response objesidir — fixture yerine kullanılır.', en: '{ statusCode: 500 } is an intercept response object — used instead of a fixture.' },
+          { tr: 'İskelet AYNI: intercept → visit → wait → assert, sadece response içeriği değişti.', en: 'The skeleton is the SAME: intercept → visit → wait → assert, only the response content changed.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir network-stubbing testi kurdun: neden gerçek ağı beklemek yerine stub etmen gerektiğini anlama → gecikmeli stub yazma → loading state\'i doğrulama → hata durumunun neden test edilmesi GEREKTİĞİNİ anlama → aynı iskeleti bir hata senaryosuna uyarlama. Bu, Cypress\'in Selenium\'a göre en büyük süper gücüdür: gerçek sunucuyu hiç bozmadan HER durumu (yavaş, hızlı, başarılı, başarısız) test edebilirsin.',
+    en: 'You did not just read a lesson — in 5 steps you built a real network-stubbing test: understanding why you should stub instead of waiting for the real network → writing a delayed stub → verifying the loading state → understanding WHY the error state must be tested → adapting the same skeleton to an error scenario. This is Cypress\'s biggest superpower over Selenium: you can test EVERY state (slow, fast, success, failure) without ever touching the real server.',
+  },
+}
+
 const s5 = {
   tr: {
     title: '🌐 Network & cy.intercept()',
@@ -2083,6 +2269,7 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
       }
 }
 },
+      cypressNetworkStubMission,
     ],
   },
   en: {
@@ -2196,6 +2383,7 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
       }
 }
 },
+      cypressNetworkStubMission,
     ],
   },
 }
