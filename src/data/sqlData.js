@@ -2239,6 +2239,193 @@ JOIN bugs ON bugs.tester_id = testers.id;`,
   },
 }
 
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı onayıyla mevcut 6 sayfanın aksiyon sekmelerine +1
+// görev). "Sipariş verisinde yetim kayıtları bul" — diğer SQL mission'ının
+// (fiyat doğrulama, WHERE/ORDER BY) temasından FARKLI bir gerçek-QA veri
+// doğrulama senaryosu: LEFT JOIN ile referans bütünlüğü (referential
+// integrity) kontrolü. Bu section'ın feynman'ında ZATEN geçen "yetim kayıt"
+// (orphaned record) kavramını UYGULAMALI hale getirir. MEVCUT prediction/
+// code-playground bloklarını gömer, yeni sandbox yazılmaz.
+const sqlOrphanOrdersMission = {
+  type: 'mission',
+  id: 'sql-orphan-orders-mission',
+  xpReward: 45,
+  relatedTopicId: 'sql-joins',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün production veritabanındaki `orders` tablosunda, artık var olmayan bir müşteriye ait "yetim" (orphaned) siparişleri bulacaksın. Ders okumayacaksın — bir QA gibi adım adım gerçek bir referans bütünlüğü (referential integrity) sorgusu yazacaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will find "orphaned" orders in the production `orders` table — orders that belong to a customer who no longer exists. You will not read a lesson — you will write a real referential-integrity query step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'sql-orphan-step-jointype',
+      brief: { tr: '1) Müşterisi silinmiş siparişleri bulmak için hangi JOIN türünü kullanman gerektiğini tahmin et.', en: '1) Predict which JOIN type you need to find orders whose customer was deleted.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'INNER JOIN SADECE her iki tabloda da eşleşen satırları döndürür — müşterisi silinmiş bir sipariş, `customers` tablosunda hiç EŞLEŞMEYECEĞİ için INNER JOIN sonucunda hiç GÖRÜNMEZ (sessizce kaybolur). LEFT JOIN ise sol tablonun (orders) TÜM satırlarını korur, eşleşme yoksa sağ taraf NULL olur — yetim kayıtları YAKALAMANIN tek yolu budur.',
+        en: 'INNER JOIN returns ONLY rows that match in both tables — an order whose customer was deleted will NEVER match in `customers`, so it simply DISAPPEARS from an INNER JOIN result (silently). LEFT JOIN keeps ALL rows from the left table (orders), filling the right side with NULL when there is no match — this is the ONLY way to CATCH orphaned records.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sql-orphan-jointype-choice',
+        xpReward: 10,
+        relatedTopicId: 'sql-joins',
+        prompt: { tr: 'Müşterisi `customers` tablosunda artık olmayan siparişleri bulmak için hangi JOIN\'i kullanmalısın?', en: 'Which JOIN should you use to find orders whose customer no longer exists in `customers`?' },
+        code: 'SELECT * FROM orders\n??? JOIN customers ON orders.customer_id = customers.id;',
+        codeLanguage: 'sql',
+        options: [
+          { id: 'a', label: { tr: 'INNER JOIN', en: 'INNER JOIN' }, why: { tr: 'INNER JOIN eşleşmeyen satırları TAMAMEN eler — tam da bulmaya çalıştığın yetim kayıtları GİZLER.', en: 'INNER JOIN completely drops non-matching rows — it HIDES exactly the orphaned records you are trying to find.' } },
+          { id: 'b', label: { tr: 'LEFT JOIN', en: 'LEFT JOIN' }, correct: true },
+          { id: 'c', label: { tr: 'JOIN kullanmadan iki tabloyu ayrı ayrı SELECT et', en: 'SELECT the two tables separately without a JOIN' }, why: { tr: 'Bu, hangi siparişin hangi müşteriye ait olduğunu KARŞILAŞTIRMANI hiç sağlamaz — eşleştirme JOIN\'in işidir.', en: 'This never lets you COMPARE which order belongs to which customer — matching is the JOIN\'s job.' } },
+        ],
+        reveal: {
+          tr: 'LEFT JOIN doğru: sol tablonun (orders) TÜM satırlarını korur — eşleşen müşteri VARSA bilgisini getirir, YOKSA `customers` sütunlarını NULL bırakır. Bu NULL\'lar, tam olarak yetim kayıtların İŞARETİDİR.',
+          en: 'LEFT JOIN is correct: it keeps ALL rows from the left table (orders) — if a matching customer EXISTS it brings their info, if NOT it leaves the `customers` columns NULL. Those NULLs are exactly the SIGNAL of an orphaned record.',
+        },
+      },
+    },
+    {
+      id: 'sql-orphan-step-write-join',
+      brief: { tr: '2) orders ve customers tablolarını LEFT JOIN ile birleştiren sorguyu yaz.', en: '2) Write the query that joins orders and customers with LEFT JOIN.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'LEFT JOIN customers ON orders.customer_id = customers.id, her `orders` satırı için eşleşen `customers` satırını ARAR; bulamazsa o satırın `customers` sütunlarını NULL bırakır ama `orders` satırını SİLMEZ — INNER JOIN\'den farkı budur.', en: 'LEFT JOIN customers ON orders.customer_id = customers.id SEARCHES for a matching `customers` row for every `orders` row; if it cannot find one, it leaves that row\'s `customers` columns NULL but does NOT DROP the `orders` row — this is the difference from INNER JOIN.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sql-orphan-join-code',
+        relatedTopicId: 'sql-orphan-orders-mission',
+        language: 'sql',
+        label: { tr: 'orders ve customers\'ı LEFT JOIN ile birleştir', en: 'Join orders and customers with LEFT JOIN' },
+        task: { tr: 'TODO satırını, orders ve customers\'ı LEFT JOIN ile birleştirecek şekilde tamamla.', en: 'Complete the TODO line to join orders and customers with LEFT JOIN.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç LEFT JOIN sözdizimini kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the LEFT JOIN syntax yourself.' },
+        code: {
+          tr: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id;`,
+          en: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id;`,
+        },
+        starterCode: {
+          tr: `-- TODO: orders ve customers'i LEFT JOIN ile birlestir\nSELECT * FROM orders\n;`,
+          en: `-- TODO: join orders and customers with LEFT JOIN\nSELECT * FROM orders\n;`,
+        },
+        solutionCode: {
+          tr: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id;`,
+          en: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id;`,
+        },
+        expected: { tr: 'TÜM siparişler döner; müşterisi olmayanlarda customers sütunları NULL görünür.', en: 'ALL orders are returned; orders without a customer show NULL in the customers columns.' },
+        hints: [
+          { tr: 'LEFT JOIN tablo ON eşleşme_koşulu şeklinde yazılır.', en: 'LEFT JOIN table ON match_condition is the syntax.' },
+          { tr: 'Eşleşme koşulu: orders.customer_id = customers.id.', en: 'The match condition: orders.customer_id = customers.id.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sql-orphan-step-filter',
+      brief: { tr: '3) Sonuçları SADECE yetim siparişleri (eşleşmeyenleri) gösterecek şekilde filtrele.', en: '3) Filter the results to show ONLY the orphaned (unmatched) orders.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'LEFT JOIN sonrası TÜM siparişler görünür — hem eşleşenler hem eşleşmeyenler. `WHERE customers.id IS NULL` eklemek, SADECE eşleşme BULUNAMAYAN (yani customers tarafı NULL kalan) satırları filtreler — bu tam olarak yetim kayıtlardır.',
+        en: 'After a LEFT JOIN ALL orders are visible — both matched and unmatched. Adding `WHERE customers.id IS NULL` filters to ONLY the rows where no match was FOUND (i.e. the customers side stayed NULL) — these are exactly the orphaned records.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sql-orphan-filter-code',
+        relatedTopicId: 'sql-orphan-orders-mission',
+        language: 'sql',
+        label: { tr: 'Sadece yetim siparişleri filtrele', en: 'Filter to only orphaned orders' },
+        task: { tr: 'TODO satırını, customers.id\'nin NULL olduğu satırları filtreleyen bir WHERE ile tamamla.', en: 'Complete the TODO line with a WHERE that filters rows where customers.id is NULL.' },
+        explanation: { tr: 'Amaç: LEFT JOIN + IS NULL kalıbının "yetim kayıt bulma" idiyomunu kendin yazmayı pekiştirmek.', en: 'Goal: reinforce writing the LEFT JOIN + IS NULL "find orphaned records" idiom yourself.' },
+        code: {
+          tr: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+          en: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+        },
+        starterCode: {
+          tr: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\n-- TODO: customers.id NULL olan satirlari filtrele\n;`,
+          en: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\n-- TODO: filter rows where customers.id is NULL\n;`,
+        },
+        solutionCode: {
+          tr: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+          en: `SELECT * FROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+        },
+        expected: { tr: 'Sadece müşterisi bulunamayan (yetim) siparişler döner.', en: 'Only orders whose customer could not be found (orphaned) are returned.' },
+        hints: [
+          { tr: 'WHERE koşulu, tıpkı DISTINCT gibi LEFT JOIN\'den SONRA yazılır.', en: 'The WHERE condition, just like DISTINCT, is written AFTER the LEFT JOIN.' },
+          { tr: '`customers.id IS NULL` — eşitlik (=) değil IS NULL kullan, NULL karşılaştırmalarda = asla TRUE dönmez.', en: '`customers.id IS NULL` — use IS NULL, not equality (=); = never returns TRUE in NULL comparisons.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sql-orphan-step-inner-predict',
+      brief: { tr: '4) Aynı sorguyu INNER JOIN ile yazsaydın yetim kayıtları görebilir miydin, tahmin et.', en: '4) Predict whether you would see the orphaned records if you wrote the same query with INNER JOIN.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'INNER JOIN customers ON ... WHERE customers.id IS NULL yazsaydın, sonuç HER ZAMAN 0 satır olurdu — çünkü INNER JOIN zaten eşleşMEYEN satırları en baştan ELER; `customers.id IS NULL` koşuluna ulaşacak hiçbir satır KALMAZ. Bu, "yanlış JOIN türü seçmenin" sessizce yanlış (ve her zaman boş) bir sonuç ürettiği klasik bir QA tuzağıdır.',
+        en: 'If you wrote INNER JOIN customers ON ... WHERE customers.id IS NULL, the result would ALWAYS be 0 rows — because INNER JOIN already ELIMINATES non-matching rows from the start; no row is LEFT to reach the `customers.id IS NULL` condition. This is a classic QA trap where "picking the wrong JOIN type" silently produces a wrong (and always empty) result.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sql-orphan-inner-choice',
+        xpReward: 10,
+        relatedTopicId: 'sql-orphan-orders-mission',
+        prompt: { tr: 'Aynı sorguyu LEFT JOIN yerine INNER JOIN ile yazsaydın, `WHERE customers.id IS NULL` kaç satır döndürürdü?', en: 'If you wrote the same query with INNER JOIN instead of LEFT JOIN, how many rows would `WHERE customers.id IS NULL` return?' },
+        code: 'INNER JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;',
+        codeLanguage: 'sql',
+        options: [
+          { id: 'a', label: { tr: 'Her zaman 0 satır', en: 'Always 0 rows' }, correct: true },
+          { id: 'b', label: { tr: 'LEFT JOIN ile aynı sonucu verir', en: 'The same result as LEFT JOIN' }, why: { tr: 'INNER JOIN eşleşmeyen satırları JOIN aşamasında ELER — WHERE\'e ulaşan satırların HİÇBİRİNDE customers.id NULL olamaz.', en: 'INNER JOIN eliminates non-matching rows at the JOIN stage itself — NONE of the rows reaching WHERE can have a NULL customers.id.' } },
+          { id: 'c', label: { tr: 'Sorgu hata verir', en: 'The query throws an error' }, why: { tr: 'Sözdizimi geçerlidir, sorgu çalışır — sadece SESSİZCE (hatasız) 0 satır döner.', en: 'The syntax is valid, the query runs — it just SILENTLY (without error) returns 0 rows.' } },
+        ],
+        reveal: {
+          tr: 'Her zaman 0 satır doğru: INNER JOIN eşleşmeyen satırları JOIN aşamasında zaten ELEDİĞİ için, WHERE customers.id IS NULL koşuluna ulaşan hiçbir satır YOKTUR. Bu, yanlış JOIN türü seçmenin SESSİZCE (hatasız ama yanlış) bir sonuç ürettiği klasik bir tuzaktır — sorgu "çalışır" ama YANLIŞ soruyu cevaplar.',
+          en: 'Always 0 rows is correct: since INNER JOIN already ELIMINATES non-matching rows at the JOIN stage, no row EVER reaches the WHERE customers.id IS NULL condition. This is a classic trap where picking the wrong JOIN type SILENTLY (without error, but incorrectly) produces a result — the query "runs" but answers the WRONG question.',
+        },
+      },
+    },
+    {
+      id: 'sql-orphan-step-full',
+      brief: { tr: '5) Sorguyu tamamla: sadece ilgili sütunları seç, yetim siparişleri tam olarak raporla.', en: '5) Complete the query: select only the relevant columns, fully reporting the orphaned orders.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir veri-doğrulama raporu SELECT * yerine ilgili sütunları (order id, tarih, customer_id) SEÇEREK daha okunabilir olur — QA raporunda "bu sipariş neden yetim?" sorusuna direkt cevap veren sütunlar gösterilir.',
+        en: 'A data-validation report becomes more readable by SELECTING the relevant columns (order id, date, customer_id) instead of SELECT * — a QA report shows exactly the columns that answer "why is this order orphaned?".',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sql-orphan-full-code',
+        relatedTopicId: 'sql-orphan-orders-mission',
+        language: 'sql',
+        label: { tr: 'Yetim sipariş raporunu tamamla', en: 'Complete the orphaned order report' },
+        task: { tr: 'TODO satırını, orders.id, orders.order_date ve orders.customer_id sütunlarını seçecek şekilde tamamla.', en: 'Complete the TODO line to select the orders.id, orders.order_date, and orders.customer_id columns.' },
+        explanation: { tr: 'Amaç: önceki adımların LEFT JOIN + WHERE IS NULL iskeletini okunabilir bir raporla birleştirmek.', en: 'Goal: combine the previous steps\' LEFT JOIN + WHERE IS NULL skeleton into a readable report.' },
+        code: {
+          tr: `SELECT orders.id, orders.order_date, orders.customer_id\nFROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+          en: `SELECT orders.id, orders.order_date, orders.customer_id\nFROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+        },
+        starterCode: {
+          tr: `-- TODO: orders.id, orders.order_date, orders.customer_id sutunlarini sec\nSELECT *\nFROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+          en: `-- TODO: select orders.id, orders.order_date, orders.customer_id columns\nSELECT *\nFROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+        },
+        solutionCode: {
+          tr: `SELECT orders.id, orders.order_date, orders.customer_id\nFROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+          en: `SELECT orders.id, orders.order_date, orders.customer_id\nFROM orders\nLEFT JOIN customers ON orders.customer_id = customers.id\nWHERE customers.id IS NULL;`,
+        },
+        expected: { tr: 'Yetim siparişlerin sadece ID, tarih ve customer_id\'si okunabilir bir raporda görünür.', en: 'Only the ID, date, and customer_id of orphaned orders appear in a readable report.' },
+        hints: [
+          { tr: 'SELECT * yerine sütun adlarını virgülle ayırarak yaz.', en: 'Instead of SELECT *, write column names separated by commas.' },
+          { tr: 'FROM/JOIN/WHERE sırası önceki adımlarla AYNI kalır, sadece SELECT satırı değişir.', en: 'The FROM/JOIN/WHERE order stays the SAME as the previous steps, only the SELECT line changes.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir referans bütünlüğü (referential integrity) sorgusu kurdun: doğru JOIN türünü seçme → LEFT JOIN yazma → yetim kayıtları filtreleme → yanlış JOIN türünün neden SESSİZCE yanlış bir sonuç (her zaman 0 satır) ürettiğini anlama → okunabilir bir rapor olarak tamamlama. Bu tür sorgular, production\'da "silinen bir müşterinin siparişleri ne oluyor?" gibi sessiz veri bütünlüğü sorunlarını yakalamanın standart yoludur.',
+    en: 'You did not just read a lesson — in 5 steps you built a real referential-integrity query: choosing the correct JOIN type → writing the LEFT JOIN → filtering to orphaned records → understanding why the wrong JOIN type SILENTLY produces a wrong result (always 0 rows) → completing it as a readable report. Queries like this are the standard way to catch silent data-integrity problems in production, like "what happens to a deleted customer\'s orders?".',
+  },
+}
+
 // "= NULL neden hiç satır bulmaz?" — SQL'in en klasik NULL tuzağı. NULL "bilinmeyen"
 // demektir; `= NULL` sonucu TRUE değil UNKNOWN olur, WHERE her satırı eler → 0 satır.
 const predSqlNullComparison = {
@@ -5078,7 +5265,8 @@ const finalEnSections = [
         "modelAnswerTr": "INNER JOIN yalnızca her iki tabloda eşleşen kayıtları getirir. LEFT JOIN sol tablodaki tüm satırları getirir, eşleşmeyen sağ taraflar NULL olur. `LEFT JOIN ... WHERE sag.id IS NULL` sorgusuyla parent kaydı silinmiş yetim kayıtları yakalarız.",
         "modelAnswerEn": "INNER JOIN returns rows with matching values in both tables. LEFT JOIN returns all rows from the left table, filling right-side columns with NULL if no match exists. We find orphaned records by querying LEFT JOIN with a WHERE right.key IS NULL."
       },
-      predSqlJoinRowMultiplication
+      predSqlJoinRowMultiplication,
+      sqlOrphanOrdersMission
     ]
   },
   {
@@ -10495,7 +10683,8 @@ const finalTrSections = [
         "modelAnswerTr": "INNER JOIN yalnızca her iki tabloda eşleşen kayıtları getirir. LEFT JOIN sol tablodaki tüm satırları getirir, eşleşmeyen sağ taraflar NULL olur. `LEFT JOIN ... WHERE sag.id IS NULL` sorgusuyla parent kaydı silinmiş yetim kayıtları yakalarız.",
         "modelAnswerEn": "INNER JOIN returns rows with matching values in both tables. LEFT JOIN returns all rows from the left table, filling right-side columns with NULL if no match exists. We find orphaned records by querying LEFT JOIN with a WHERE right.key IS NULL."
       },
-      predSqlJoinRowMultiplication
+      predSqlJoinRowMultiplication,
+      sqlOrphanOrdersMission
     ]
   },
   {
