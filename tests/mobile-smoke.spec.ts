@@ -75,3 +75,47 @@ test.describe('Mobil viewport (iPhone 14, 390×844) — kritik akışlar', () =>
         expect(pageErrors, '/docker mobilde console/page hataları').toHaveLength(0);
     });
 });
+
+// ─── Genişletilmiş route kapsamı (S4.1, sprint-simulator-and-open-items-plan.md
+// §6.3) ────────────────────────────────────────────────────────────────────
+// testcoverage.md §5.2: "mobil test yalnızca / ve /docker'ı kapsıyor, diğer
+// ~20 sayfa mobilde hiç test edilmemiş" bulgusunu kapatır. 6 yeni sayfa —
+// dil sayfaları (Python/Java/SQL) + araç sayfaları (Selenium/Jenkins/
+// Kubernetes) karışık — / ve /docker ile birlikte TOPLAM 8 sayfaya çıkarır.
+// §22.1 kalıcı istisna listesi (/basit-backend, /security, /backend) EKLENMEDİ.
+const EXPANDED_MOBILE_ROUTES = ['/python', '/java', '/sql', '/selenium', '/jenkins', '/kubernetes'];
+
+test.describe('Mobil viewport (iPhone 14) — genişletilmiş route kapsamı (S4.1)', () => {
+    for (const route of EXPANDED_MOBILE_ROUTES) {
+        test(`${route} — yatay kayma yok, ilk sidebar sekmesi 36px WCAG hedefini karşılıyor, console hatası yok`, async ({ page }) => {
+            test.setTimeout(60_000);
+            const pageErrors: string[] = [];
+            page.on('pageerror', (e) => pageErrors.push(e.message));
+
+            await page.goto(route);
+            await page.waitForSelector('h1', { timeout: 30_000 });
+
+            // CLAUDE.md §12: yatay kaydırma olmamalı.
+            const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+                scrollWidth: document.documentElement.scrollWidth,
+                clientWidth: document.documentElement.clientWidth,
+            }));
+            expect(scrollWidth, `${route} mobilde yatay kaymaya izin veriyor`).toBeLessThanOrEqual(clientWidth + 1);
+
+            // İlk sidebar sekmesi görünür + WCAG 2.5.5 dokunma hedefini (36px) karşılıyor.
+            const sidebarTabs = page.locator('div[class*="flex-shrink-0"][class*="sticky"] button');
+            const tabCount = await sidebarTabs.count();
+            expect(tabCount, `${route} mobilde sidebar sekmesi bulunamadı`).toBeGreaterThan(0);
+            const firstTab = sidebarTabs.first();
+            await expect(firstTab).toBeVisible();
+            const box = await firstTab.boundingBox();
+            expect(box, `${route} ilk sidebar sekmesinin bounding box'ı alınamadı`).not.toBeNull();
+            expect(box!.height, `${route} ilk sidebar sekmesi 36px WCAG dokunma hedefinin altında`).toBeGreaterThanOrEqual(36);
+
+            // Sekmeye dokunmak sayfayı bozmamalı (actionability: visible + stable + receives events).
+            await firstTab.click();
+
+            expect(pageErrors, `${route} mobilde console/page hataları`).toHaveLength(0);
+        });
+    }
+});

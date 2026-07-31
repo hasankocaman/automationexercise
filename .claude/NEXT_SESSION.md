@@ -20,7 +20,41 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — Career Map Faz 2 S3)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — Test kapsamı S4)
+
+- **Aktif branch: `feature/sprint-simulator`.** Plan §6.3'teki Sonnet promptu
+  uygulandı: **S4 — Test kapsamı boşlukları (mobil viewport + çapraz tarayıcı)
+  TAMAMLANDI.** `Documents/testcoverage.md` (2026-07-03, bayat) yerine önce
+  `tests/` klasörü elle tarandı — mobil kapsamın hâlâ sadece `/` ve `/docker`
+  olduğu doğrulandı, çapraz tarayıcı project'i hiç yoktu.
+  - **S4.1 — Mobil viewport genişletme:** `tests/mobile-smoke.spec.ts`'e 6 yeni
+    route eklendi (`/python`, `/java`, `/sql` — dil sayfaları; `/selenium`,
+    `/jenkins`, `/kubernetes` — araç sayfaları), `/` + `/docker` ile birlikte
+    **toplam 8 sayfa**. Her route için: yatay kayma yok (CLAUDE.md §12), ilk
+    sidebar sekmesi WCAG 2.5.5 36px dokunma hedefini karşılıyor, sekmeye
+    dokunma sayfayı bozmuyor, console/page hatası yok. §22.1 istisna listesi
+    (`/basit-backend`, `/security`, `/backend`) EKLENMEDİ. **8/8 PASS.**
+  - **S4.2 — Çapraz tarayıcı (Firefox + WebKit):** Ana `playwright.config.ts`
+    DEĞİŞTİRİLMEDİ (hâlâ sadece chromium, `npm run test:e2e` süresi etkilenmedi)
+    — mevcut `playwright.quiz-audit.config.ts`/`playwright.interview-flows.config.ts`
+    kalıbı izlenerek **ayrı** `playwright.cross-browser.config.ts` (yeni) +
+    `tests-cross-browser/cross-browser-smoke.spec.ts` (yeni) eklendi. Sadece
+    temsili 2 sayfa (`/` + `/docker`, CLAUDE.md §22 kalıbı) Firefox + WebKit
+    project'lerinde SMOKE seviyesinde doğrulanıyor (derinlik değil, tarayıcıya
+    özgü render/etkileşim kırılması riski). `npm run test:cross-browser`
+    script'i eklendi (`package.json`). Firefox + WebKit browser binary'leri
+    `npx playwright install` ile kuruldu. **4/4 PASS** (2 test × 2 tarayıcı).
+  - **Doğrulama:** content-integrity ✓ (39 dosya) · i18n baseline 0 ✓ · build ✓
+    (44 shell, `playwright.config.ts` değişmedi) · mobile-smoke genişletilmiş
+    8/8 PASS · cross-browser-smoke 4/4 PASS.
+  - **✅ PLANDAKİ TÜM SONNET GÖREVLERİ (S1-S4) TAMAMLANDI.** Kalan tek kalem
+    Faz 3 (Kullanıcı/Hasan'ın deploy/doğrulama açık uçları, plan §5) — kod işi
+    değil, credential/panel işi.
+  - **Açık iş:** `main`'e merge/PR kararı kullanıcıda.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Sonnet — Career Map Faz 2 S3)
 
 - **Aktif branch: `feature/sprint-simulator`.** Plan §6.2'deki Sonnet promptu
   uygulandı: **S3 — Career Map Faz 2 (milestone/rozet + breadcrumb) TAMAMLANDI**
