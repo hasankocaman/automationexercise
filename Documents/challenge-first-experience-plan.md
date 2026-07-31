@@ -58,6 +58,21 @@
 > - **PHASE 1 + PHASE 1.5 TAMAMEN BİTTİ.** Kalan: Phase 2 (Sprint Simulator)
 >   ve Phase 3 (adaptif zorluk) — ikisi de ayrı kullanıcı onayı + planlama
 >   ister (plan §4/§5), bu oturumun kapsamı dışında.
+>
+> **📌 DURUM (2026-07-31, Sonnet): MISSION DALGA 2 — 6 sayfaya ikinci görev
+> TAMAMLANDI (kullanıcı onayı: "mevcut 6 sayfada, aksiyon sekmelerine +1-2
+> görev").** Her sayfaya, referans görevden (locator/selector teması) FARKLI
+> bir aksiyon sekmesine ikinci bir mission eklendi (§9.2 Dalga 2 tablosu):
+> Selenium/Playwright → Framework Mimarisi (POM refactor), Cypress → Network
+> & Intercept (stub/loading/error), Python → Troubleshooting (traceback
+> teşhisi), SQL → JOINs (yetim kayıt bulma), REST Assured → Test Zinciri
+> (POST→extract→guard→GET). **Toplam mission sayısı: 6 → 12.** Bir gerçek bug
+> yakalanıp düzeltildi: Cypress'in Network & Intercept sekmesi (s5) çift-ağaçlı
+> olduğundan ilk yazımda görev yalnızca EN ağacına gitmişti — doğrulama
+> sırasında yakalanıp TR ağacına da eklendi (§9.2 not). Tüm 6 commit'te
+> §1.1 dörtlü kapı + `mission-flow.spec.ts` regresyon testi (Selenium'da artık
+> 2 mission var, test doğru olanı bulup PASS oldu) çalıştırıldı, hepsi yeşil.
+> §9.2 manuel test rehberi Dalga 2 tablosuyla güncellendi.
 
 ### ✅ TAMAMLANANLAR (önceki dalga — bu planın ön koşulu)
 - **Mentor (AI Learning Coach) — Katman A/B** — `MentorPanel` + `MentorNudge` +
@@ -561,9 +576,18 @@ detaylar §9.2'de):
     dizilmeli (yatay taşma yok), düğmeler parmakla basılabilir boyutta
     (~44px) kalmalı.
 
-### 9.2. Sayfaya Özel Detaylar (6 görev)
+### 9.2. Sayfaya Özel Detaylar (12 görev — 6 sayfa × 2 görev)
 
-| Sayfa | Sidebar Sekmesi | Görev Adı | Mission ID (localStorage `completed` kontrolü için) | Route (XP anahtarı `learnqa_xp_<route>`) |
+> **Genişletme notu (2026-07-31, kullanıcı onayı):** Her sayfaya birer İKİNCİ
+> görev eklendi — bir "aksiyon" sekmesine daha (Framework Mimarisi/Network/
+> Troubleshooting/JOINs/Test Zinciri), böylece her 6 sayfada da 2'şer mission
+> canlı. "Her dikey sekmede" değil, bilinçli olarak SEÇİLİ aksiyon sekmelerine
+> sınırlı tutuldu (§1.1 gerekçesi: kavram sekmelerinde zorlama görev, özellik
+> sayısını artırıp derinliği sulandırır).
+
+**Dalga 1 — referans görevler (locator/selector teması):**
+
+| Sayfa | Sidebar Sekmesi | Görev Adı | Mission ID | Route (XP anahtarı) |
 |---|---|---|---|---|
 | `/selenium` | 🎯 Locators | Login sayfasını test et | `selenium-login-mission` | `selenium` |
 | `/playwright` | 🎯 Locator Stratejileri | Sepete ürün ekle | `playwright-cart-mission` | `playwright` |
@@ -572,16 +596,41 @@ detaylar §9.2'de):
 | `/sql` | 🟢 SELECT & Sort / SELECT & Sıralama | Ürün fiyat verisini doğrula | `sql-price-validation-mission` | `sql` |
 | `/rest-assured` | ✅ Assertions | GET /api/users/2 isteğini test et | `restassured-user-api-mission` | `rest-assured` |
 
+**Dalga 2 — ikinci görevler (farklı tema, her sayfada aksiyon sekmesi):**
+
+| Sayfa | Sidebar Sekmesi | Görev Adı | Mission ID | Route (XP anahtarı) |
+|---|---|---|---|---|
+| `/selenium` | 🏗️ Framework Mimarisi (SOLID + POM) | Ham testi Page Object Model'e refactor et | `selenium-pom-refactor-mission` | `selenium` |
+| `/playwright` | 🏗️ Framework Mimarisi | Ham testi Page Object'e refactor et (TypeScript) | `playwright-pom-refactor-mission` | `playwright` |
+| `/cypress` | 🌐 Network & cy.intercept() | Yavaş API'yi stub'la, loading/hata durumunu test et | `cypress-network-stub-mission` | `cypress` |
+| `/python` | 🚨 Yaygın Hatalar / Troubleshooting | CI'da patlayan traceback'i oku, kök nedeni bul, düzelt | `python-traceback-debug-mission` | `python` |
+| `/sql` | 🟡 SQL JOINs | Sipariş verisinde yetim (orphaned) kayıtları bul | `sql-orphan-orders-mission` | `sql` |
+| `/rest-assured` | 🔗 Test Zinciri — Gerçek E2E Senaryolar | Kullanıcı oluştur, id'yi çıkar, GET ile doğrula | `restassured-chain-mission` | `rest-assured` |
+
 Her sayfada §9.1'in genel akışına ek olarak şunlara dikkat et:
-- **Selenium/Playwright/Cypress:** görevler ilgili sayfanın var olan
+- **Selenium/Playwright/Cypress (Dalga 1):** görevler ilgili sayfanın var olan
   Locator/Selector Explorer bloğunun HEMEN ardından gelmeli (aynı sekmede,
   konu anlatımından sonra — §9.1 sıralama kuralı).
-- **Python:** görev, "Real World (pytest)" sekmesinin EN SONUNDA (mevcut
-  fixture/parametrize challenge'larından sonra) yer almalı.
-- **SQL:** görev "SELECT & Sort" sekmesinin sonunda, `predSqlDistinctMultiCol`
-  prediction'ından hemen sonra gelmeli.
-- **REST Assured:** görev "✅ Assertions" sekmesinin, `http-flow-animation`
-  bloğundan hemen sonra, sekmenin en sonunda yer almalı.
+- **Python (Dalga 1):** görev, "Real World (pytest)" sekmesinin EN SONUNDA
+  (mevcut fixture/parametrize challenge'larından sonra) yer almalı.
+- **SQL (Dalga 1):** görev "SELECT & Sort" sekmesinin sonunda,
+  `predSqlDistinctMultiCol` prediction'ından hemen sonra gelmeli.
+- **REST Assured (Dalga 1):** görev "✅ Assertions" sekmesinin,
+  `http-flow-animation` bloğundan hemen sonra, sekmenin en sonunda yer almalı.
+- **Selenium/Playwright (Dalga 2):** POM refactor görevi Framework Mimarisi
+  sekmesinin EN SONUNDA — mevcut BasePage/fixture içeriğiyle ÇAKIŞMAZ, sade
+  class-tabanlı POM kalıbını tamamlar (debrief bir sonraki adımı işaret eder).
+- **Cypress (Dalga 2):** ⚠️ bu sekme (Network & Intercept) ÇİFT-AĞAÇLI —
+  `s5.tr.blocks` ve `s5.en.blocks` AYRI diziler. Görev HER İKİSİNE de eklendi
+  (ilk yazımda sadece EN'e gitmişti, doğrulamada yakalanıp düzeltildi — yeni
+  bir görev eklerken bu sekmede iki ağacı da kontrol et).
+- **Python (Dalga 2):** traceback görevi "Yaygın Hatalar/Troubleshooting"
+  sekmesinin EN SONUNDA, `challengeFlakyInvestigateOrder`'dan sonra.
+- **SQL (Dalga 2):** JOIN görevi "SQL JOINs" sekmesinin sonunda,
+  `predSqlJoinRowMultiplication` prediction'ından hemen sonra.
+- **REST Assured (Dalga 2):** chaining görevi "Test Zinciri" sekmesinin en
+  sonunda — sekmenin ZATEN gösterdiği tam `UserCrudE2ETest` (5 adımlı CRUD)
+  örneğinin EN KÜÇÜK yapı taşını (POST→extract→guard→GET) uygulamalı yapar.
 
 ### 9.3. Kavram Tooltip'i (Phase 1.5) Test Rehberi (~5 dakika)
 

@@ -20,7 +20,51 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-30, Opus — Challenge-First Phase 1 Opus tarafı)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-31, Sonnet — Mission Dalga 2)
+
+- **Aktif branch: `feature/challenge-first`.** Phase 1 + Phase 1.5 önceki
+  oturumda TAMAMLANMIŞTI (6 sayfa × 1 mission + kavram tooltip'i). Bu oturumda
+  kullanıcı "bu görevleri ne kadar genişletebilirsin, her dikey sekmede
+  uygulanabilir mi?" diye sordu. Değerlendirme: teknik engel yok ama HER
+  sekmede zorlama görev, kullanıcının orijinal stratejik yazısının uyardığı
+  "özellik sayısı, derinlik değil" tuzağına düşer — sadece "aksiyon" sekmeleri
+  (Framework Mimarisi, Network, Troubleshooting, JOINs, Test Zinciri gibi)
+  buna uygun. Kullanıcı **"mevcut 6 sayfada, aksiyon sekmelerine +1-2 görev"**
+  seçeneğini onayladı.
+  - **✅ MISSION DALGA 2 TAMAMLANDI — 6 sayfanın HER BİRİNE ikinci bir görev
+    eklendi** (plan §9.2 Dalga 2 tablosu, 6 ayrı commit):
+    1. **Selenium** → Framework Mimarisi (SOLID+POM) sekmesi: "Ham testi POM'a
+       refactor et" (`selenium-pom-refactor-mission`) — locator tekrarının
+       riski (prediction) → LoginPage sınıfı yaz → login() metodu yaz →
+       bakım maliyeti 10→1 dosya (prediction) → testi Page Object'le yeniden yaz.
+    2. **Playwright** → Framework Mimarisi sekmesi: aynı POM teması TypeScript
+       karşılığı (`playwright-pom-refactor-mission`) — sekmenin zaten
+       derinlemesine işlediği fixture/DI konusuyla ÇAKIŞMAZ.
+    3. **Cypress** → Network & cy.intercept() sekmesi: "Yavaş API'yi stub'la,
+       loading/hata durumunu test et" (`cypress-network-stub-mission`) — farklı
+       tema (network stubbing). ⚠️ **Gerçek bug yakalandı:** bu sekme (s5)
+       ÇİFT-AĞAÇLI, ilk yazımda görev SADECE EN ağacına gitmişti, doğrulama
+       sırasında TR ağacına da eklendi.
+    4. **Python** → Troubleshooting/Yaygın Hatalar sekmesi: "CI'da patlayan
+       traceback'i oku, kök nedeni bul, düzelt" (`python-traceback-debug-mission`)
+       — stepAnimationTracebackReading'in "en alttan oku" kalıbını uygulamalı
+       yapıyor. `finalEnSections`/`finalTrSections`'a (Dalga A8 güvenli kalıp).
+    5. **SQL** → SQL JOINs sekmesi: "Sipariş verisinde yetim kayıt bul"
+       (`sql-orphan-orders-mission`) — LEFT JOIN + WHERE IS NULL idiyomu.
+    6. **REST Assured** → Test Zinciri sekmesi: "Kullanıcı oluştur, id çıkar,
+       GET ile doğrula" (`restassured-chain-mission`) — sekmenin zaten
+       gösterdiği tam `UserCrudE2ETest` zincirinin en küçük yapı taşı.
+  - **Toplam mission sayısı: 6 → 12** (`audit-learning-blocks.mjs` çıktısı).
+  - **Doğrulama (her commit'te ayrı ayrı):** content-integrity ✓ · i18n
+    baseline 0 ✓ · audit-learning-blocks (mission:12, 0 ihlal) ✓ · build ✓
+    (43 shell) · `tests/mission-flow.spec.ts` regresyon testi (Selenium'da
+    artık 2 mission var, test hâlâ doğru olanı — Locators'takini — bulup
+    PASS oluyor) ✓.
+  - Plan §9.2 manuel test rehberi Dalga 1/Dalga 2 tablolarıyla güncellendi.
+  - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2/Phase 3 hâlâ
+    ayrı onay + planlama ister.
+
+- **Önceki oturum (2026-07-30, Opus) — Challenge-First Phase 1 Opus tarafı:**
 
 - **Aktif branch: `feature/challenge-first`** (yeni, `main`'den açıldı). Kullanıcının
   stratejik değerlendirme yazısı denetlenip yeni plan yazıldı:
