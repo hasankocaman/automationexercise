@@ -20,9 +20,23 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-31, Sonnet — Mission Dalga 2)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-31, Sonnet — Kavram Tooltip yoğunlaştırma)
 
-- **Aktif branch: `feature/challenge-first`.** Phase 1 + Phase 1.5 önceki
+- **Aktif branch: `feature/challenge-first`.** Mission Dalga 2'nin (aşağıda)
+  hemen ardından, kullanıcı "kavram tooltip'i özellikle yeni başlayanlar için
+  önemli, ilk girilen sayfalarda (Test Nedir, Manuel Test, Algoritma Temelleri,
+  Java/TS/Python) daha yoğun olmalı" dedi. **Gerçek bir mimari boşluk
+  bulundu:** `/manual-testing` ve `/algorithms` `TopicPage.jsx` kullanmıyordu
+  (kendi özel component'leri var) — `highlightGlossaryTerms` bu iki sayfada
+  HİÇ çalışmıyordu (0 tetikleyici, ölçüldü). Düzeltildi: `ManualTestingPage.jsx`
+  (`InfoBox`) + `AlgorithmsPage.jsx` (`LessonCard`) render noktalarına
+  `highlightGlossaryTerms` bağlandı; `termGlossary.js` 57→84 terime genişletildi
+  (test temelleri, manuel test, algoritma, dil temelleri, ortam). Ölçülen etki:
+  `/manual-testing` 0→33, `/algorithms` 0→7 tetikleyici. Detay: plan §3.6.4.
+  Doğrulama: content-integrity + i18n baseline 0 + build + 2 E2E test regresyonu
+  (term-tooltip + mission-flow, 3/3 PASS). Commit `8fe795e`.
+
+- **Önceki iş (aynı gün) — Mission Dalga 2:** Phase 1 + Phase 1.5 önceki
   oturumda TAMAMLANMIŞTI (6 sayfa × 1 mission + kavram tooltip'i). Bu oturumda
   kullanıcı "bu görevleri ne kadar genişletebilirsin, her dikey sekmede
   uygulanabilir mi?" diye sordu. Değerlendirme: teknik engel yok ama HER

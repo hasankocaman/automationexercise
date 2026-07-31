@@ -334,6 +334,46 @@ için sayfa içeriğindeki `simple-box` analojisidir. Bu ise inline, tek-cümlel
 **Opus doğrulama (bu oturum):** node --check (termGlossary.js) + content-integrity
 + i18n baseline 0 + build — hepsi geçti.
 
+### 3.6.4. Genişletme (2026-07-31, kullanıcı talebi) — giriş sayfalarında yoğunluk
+
+**Kaynak:** Kullanıcı: "Kavram Tooltip'i özellikle yeni başlayan kullanıcılar için
+gerekli. İlk girilen sayfalar (Test Nedir, Manuel Test, Algoritma Temelleri ve
+Java/TypeScript/Python) burda açıklamalar daha yoğun olmalı — kullanıcı ilk
+öğrendiği derslerde kavramları TAM anlamalı."
+
+**Bulunan kök neden:** `/manual-testing` ve `/algorithms` sayfaları `TopicPage.jsx`
+KULLANMIYOR — kendi özel component'leri var (`ManualTestingPage.jsx`,
+`AlgorithmsPage.jsx`), bu yüzden `highlightGlossaryTerms` bu iki sayfada HİÇ
+çalışmıyordu (ölçüldü: 0 tetikleyici). `/what-is-testing` TopicPage kullandığı
+için mekanizma zaten aktifti ama sözlük bu sayfaların özgün kelime dağarcığını
+(bug, severity, black box, edge case, algorithm, recursion…) henüz kapsamıyordu.
+
+**Yapılan:**
+- `ManualTestingPage.jsx` → `InfoBox` bileşenine (`lesson.analogy/why/realLife`
+  metinlerini basan tek nokta) `highlightGlossaryTerms` bağlandı.
+- `AlgorithmsPage.jsx` → `LessonCard`'daki `lesson.analogy/why` render'larına
+  aynı şekilde bağlandı.
+- `termGlossary.js` 57 → 84 terime genişletildi: test temelleri (bug, severity,
+  priority, test case, black/white box, smoke/sanity test, unit/integration
+  test, requirement, acceptance criteria), manuel test (repro steps, expected/
+  actual, exploratory testing, edge/boundary case), algoritma (algorithm,
+  recursion, big O, data structure, stack/queue, binary search), dil temelleri
+  (syntax, compile/interpret, data type, function, parameter, IDE), ortam
+  (production, environment).
+
+**Ölçülen etki (Playwright, gerçek tarayıcı):** `/manual-testing` 0→33,
+`/algorithms` 0→7, `/what-is-testing` sekmeleri 1→(1-10) tetikleyici.
+
+**Bilinen kalıcı sınır:** Türkçe eklerin (ör. "testleri", "birim testleri")
+`\b` kelime-sınırı regex'iyle tam eşleşmemesi — dil-farkında kök bulma
+(stemming) olmadan tam çözülemez, kabul edilen bir kısıtlama (mikro-tooltip,
+NLP değil). `/python`, `/typescript`, `/java` zaten TopicPage kullandığından
+bu dalga öncesinde de aktifti; §3.6.4 terimleri (data type, function, syntax
+vb.) bu üç sayfada da otomatik devreye girdi, ayrı bir wiring gerekmedi.
+
+**Doğrulama:** content-integrity + i18n baseline 0 + build (43 shell) +
+`tests/term-tooltip.spec.ts` + `tests/mission-flow.spec.ts` regresyon (3/3 PASS).
+
 ---
 
 ## 4. PHASE 2 — QA Sprint / Company Simulator (Phase 1 üstüne)
