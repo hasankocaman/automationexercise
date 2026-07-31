@@ -10676,6 +10676,200 @@ const stepAnimationTracebackReading = {
   ],
 }
 
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı onayıyla mevcut 6 sayfanın aksiyon sekmelerine +1
+// görev). "CI'da patlayan testin traceback'ini oku, kök nedeni bul, düzelt" —
+// diğer Python mission'ının (API test) fixture/parametrize temasından FARKLI
+// bir gerçek-QA aksiyonu: hata teşhisi. stepAnimationTracebackReading'in
+// "en alttan oku" kalıbını UYGULAMALI hale getirir. MEVCUT prediction/
+// code-playground bloklarını gömer, yeni sandbox yazılmaz. GÜVENLİK NOTU:
+// bu sabit SADECE finalEnSections/finalTrSections'a eklenir (Dalga A8 kalıbı).
+const pyTracebackDebugMission = {
+  type: 'mission',
+  id: 'python-traceback-debug-mission',
+  xpReward: 45,
+  relatedTopicId: 'troubleshooting',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün CI\'da başarısız olan bir testin traceback\'ini okuyup kök nedeni bulacak, sonra kodu düzelteceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir hata teşhisi yapacaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will read the traceback of a test that failed in CI, find the root cause, and then fix the code. You will not read a lesson — you will do a real bug diagnosis step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'py-debug-step-read',
+      brief: { tr: '1) Bir traceback\'te asıl hatanın (tip + mesaj) NEREDE göründüğünü tahmin et.', en: '1) Predict WHERE the actual error (type + message) appears in a traceback.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Python traceback\'i yukarıdan aşağıya bir ÇAĞRI ZİNCİRİ gösterir (kim kimi çağırdı), ama asıl hatanın TİPİ ve mesajı her zaman EN ALTTAKİ satırdadır. Üstteki satırlar sadece "nasıl buraya gelindiğini" gösterir — kök neden aramaya EN ALTTAN başlanır.',
+        en: 'A Python traceback shows a CALL CHAIN top to bottom (who called whom), but the error\'s actual TYPE and message are always on the BOTTOM line. The lines above just show "how we got here" — root-cause hunting starts from the BOTTOM.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'py-debug-read-choice',
+        xpReward: 10,
+        relatedTopicId: 'troubleshooting',
+        prompt: { tr: 'Bir Python traceback\'inde asıl hata mesajı (tip + açıklama) nerede görünür?', en: 'In a Python traceback, where does the actual error message (type + description) appear?' },
+        code: {
+          tr: 'Traceback (most recent call last):\n  File "test_checkout.py", line 12, in test_checkout\n    process_order(config)\n  File "checkout.py", line 8, in process_order\n    email = config[\'email\']\nKeyError: \'email\'',
+          en: 'Traceback (most recent call last):\n  File "test_checkout.py", line 12, in test_checkout\n    process_order(config)\n  File "checkout.py", line 8, in process_order\n    email = config[\'email\']\nKeyError: \'email\'',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'En üstteki satırda ("Traceback (most recent call last):")', en: 'On the top line ("Traceback (most recent call last):")' }, why: { tr: 'Bu sadece bir başlıktır — hatanın kendisi değil, traceback\'in NE olduğunu söyler.', en: 'This is just a header — it says WHAT a traceback is, not the error itself.' } },
+          { id: 'b', label: { tr: 'En alttaki satırda ("KeyError: \'email\'")', en: 'On the bottom line ("KeyError: \'email\'")' }, correct: true },
+          { id: 'c', label: { tr: 'Ortadaki dosya/satır numaralarında', en: 'In the middle file/line numbers' }, why: { tr: 'Bunlar çağrı zincirini (hangi dosya, hangi satır) gösterir — hatanın TİPİNİ değil.', en: 'These show the call chain (which file, which line) — not the error TYPE itself.' } },
+        ],
+        reveal: {
+          tr: 'En alttaki satır doğru: "KeyError: \'email\'" hem hatanın TİPİNİ (KeyError) hem de neyin eksik olduğunu (\'email\' anahtarı) söyler. Üstteki satırlar sadece oraya nasıl gelindiğini (test_checkout → process_order) gösterir.',
+          en: 'The bottom line is correct: "KeyError: \'email\'" tells you both the error\'s TYPE (KeyError) and what was missing (the \'email\' key). The lines above just show how we got there (test_checkout → process_order).',
+        },
+      },
+    },
+    {
+      id: 'py-debug-step-locate',
+      brief: { tr: '2) Traceback\'e göre hangi satırın hataya sebep olduğunu bul ve neden olduğunu yaz.', en: '2) Find which line caused the error according to the traceback and write why.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`config[\'email\']` satırı, `config` sözlüğünde \'email\' anahtarı YOKSA KeyError fırlatır — Java\'daki `map.get("email")` `null` döndürürken, Python\'da köşeli parantezle erişim (`dict[key]`) anahtar yoksa DOĞRUDAN exception fırlatır.',
+        en: 'The line `config[\'email\']` raises a KeyError if the \'email\' key does NOT exist in the `config` dict — while Java\'s `map.get("email")` returns `null`, Python\'s bracket access (`dict[key]`) DIRECTLY raises an exception when the key is missing.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'py-debug-locate-code',
+        relatedTopicId: 'python-traceback-debug-mission',
+        language: 'python',
+        label: { tr: 'Hatalı satırı köşeli parantezden .get()\'e çevir', en: 'Change the buggy line from bracket access to .get()' },
+        task: { tr: 'TODO satırını, \'email\' anahtarı yoksa hata fırlatmak yerine None döndürecek şekilde tamamla.', en: 'Complete the TODO line so it returns None instead of raising when the \'email\' key is missing.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç KeyError\'a yol açan satırı güvenli bir erişimle değiştirmeyi kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce replacing the line that causes KeyError with a safe access yourself.' },
+        code: {
+          tr: `def process_order(config):\n    email = config.get('email')\n    return email`,
+          en: `def process_order(config):\n    email = config.get('email')\n    return email`,
+        },
+        starterCode: {
+          tr: `def process_order(config):\n    # TODO: config['email'] yerine .get('email') kullan\n    email = config['email']\n    return email`,
+          en: `def process_order(config):\n    # TODO: use .get('email') instead of config['email']\n    email = config['email']\n    return email`,
+        },
+        solutionCode: {
+          tr: `def process_order(config):\n    email = config.get('email')\n    return email`,
+          en: `def process_order(config):\n    email = config.get('email')\n    return email`,
+        },
+        expected: { tr: '\'email\' anahtarı olmasa bile artık KeyError fırlamaz, None döner.', en: 'Even without the \'email\' key, this no longer raises KeyError — it returns None.' },
+        hints: [
+          { tr: '.get(key) bir sözlükte anahtar yoksa hata fırlatmak yerine None (veya verdiğin varsayılanı) döndürür.', en: '.get(key) returns None (or a default you provide) instead of raising when the key is missing from a dict.' },
+          { tr: 'Köşeli parantez erişimi (dict[key]) ile .get(key) arasındaki fark budur: biri fırlatır, diğeri döndürür.', en: 'This is the difference between bracket access (dict[key]) and .get(key): one raises, the other returns.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'py-debug-step-default',
+      brief: { tr: '3) None dönmesi de yeterli değil — hangi yaklaşımın daha güvenli olduğunu tahmin et.', en: '3) Returning None is not enough either — predict which approach is safer.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'email None dönerse, kodun ilerisinde "None\'a e-posta gönder" gibi SESSİZ bir hataya yol açabilir — KeyError en azından GÖRÜNÜR bir hataydı. `.get(\'email\', \'no-reply@example.com\')` gibi anlamlı bir VARSAYILAN vermek, hem çökmeyi önler hem de sessiz None hatasını engeller.',
+        en: 'If email returns None, further down the code it could silently cause a bug like "sending an email to None" — a KeyError was at least a VISIBLE error. Providing a meaningful DEFAULT like `.get(\'email\', \'no-reply@example.com\')` both prevents the crash and avoids the silent None bug.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'py-debug-default-choice',
+        xpReward: 10,
+        relatedTopicId: 'python-traceback-debug-mission',
+        prompt: { tr: '\'email\' anahtarı eksik olduğunda hangi yaklaşım en güvenli?', en: 'When the \'email\' key is missing, which approach is safest?' },
+        code: {
+          tr: '# secenek A: config.get(\'email\')\n# secenek B: config.get(\'email\', \'no-reply@example.com\')\n# secenek C: config[\'email\']',
+          en: '# option A: config.get(\'email\')\n# option B: config.get(\'email\', \'no-reply@example.com\')\n# option C: config[\'email\']',
+        },
+        codeLanguage: 'python',
+        options: [
+          { id: 'a', label: { tr: "config.get('email') — None dönsün, ilerideki kod None'ı ele alsın", en: "config.get('email') — return None, let downstream code handle None" }, why: { tr: 'None sessizce ilerler; "None\'a e-posta gönder" gibi görünmez bir hataya yol açabilir.', en: 'None silently propagates; it can cause an invisible bug like "sending email to None".' } },
+          { id: 'b', label: { tr: "config.get('email', 'no-reply@example.com') — anlamlı bir varsayılan ver", en: "config.get('email', 'no-reply@example.com') — provide a meaningful default" }, correct: true },
+          { id: 'c', label: { tr: "config['email'] — köşeli parantezle bırak", en: "config['email'] — leave it with brackets" }, why: { tr: 'Bu, zaten CI\'da patlayan ORİJİNAL hatalı koddur.', en: 'This is the ORIGINAL buggy code that already crashed in CI.' } },
+        ],
+        reveal: {
+          tr: 'Anlamlı bir varsayılan doğru: `.get(\'email\', \'no-reply@example.com\')` hem çökmeyi önler hem de "None ile devam et" gibi sessiz bir hatayı engeller — kodun geri kalanı her zaman GEÇERLİ bir e-posta string\'iyle çalışır.',
+          en: 'A meaningful default is correct: `.get(\'email\', \'no-reply@example.com\')` both prevents the crash and avoids a silent bug like "continue with None" — the rest of the code always works with a VALID email string.',
+        },
+      },
+    },
+    {
+      id: 'py-debug-step-fix',
+      brief: { tr: '4) Düzeltmeyi anlamlı bir varsayılan değerle tamamla.', en: '4) Complete the fix with a meaningful default value.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '.get(key, default) iki parametre alır: anahtar ve anahtar bulunamazsa dönecek değer. Bu tek satır, hem KeyError\'ı hem de "None ile devam etme" riskini AYNI ANDA çözer.',
+        en: '.get(key, default) takes two arguments: the key and the value to return if the key is not found. This one line solves BOTH the KeyError and the "continuing with None" risk AT THE SAME TIME.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'py-debug-fix-code',
+        relatedTopicId: 'python-traceback-debug-mission',
+        language: 'python',
+        label: { tr: 'Varsayılan değerli düzeltmeyi yaz', en: 'Write the fix with a default value' },
+        task: { tr: 'TODO satırını, \'email\' anahtarı yoksa \'no-reply@example.com\' dönecek şekilde tamamla.', en: 'Complete the TODO line so it returns \'no-reply@example.com\' when the \'email\' key is missing.' },
+        explanation: { tr: 'Amaç: bir önceki adımda seçtiğin yaklaşımı gerçek kodla yazmayı pekiştirmek.', en: 'Goal: reinforce writing the approach you picked in the previous step as real code.' },
+        code: {
+          tr: `def process_order(config):\n    email = config.get('email', 'no-reply@example.com')\n    return email`,
+          en: `def process_order(config):\n    email = config.get('email', 'no-reply@example.com')\n    return email`,
+        },
+        starterCode: {
+          tr: `def process_order(config):\n    # TODO: 'email' yoksa 'no-reply@example.com' dondur\n    email = config.get('email')\n    return email`,
+          en: `def process_order(config):\n    # TODO: return 'no-reply@example.com' if 'email' is missing\n    email = config.get('email')\n    return email`,
+        },
+        solutionCode: {
+          tr: `def process_order(config):\n    email = config.get('email', 'no-reply@example.com')\n    return email`,
+          en: `def process_order(config):\n    email = config.get('email', 'no-reply@example.com')\n    return email`,
+        },
+        expected: { tr: '\'email\' anahtarı olsun olmasın, fonksiyon her zaman GEÇERLİ bir string döner, asla None veya exception değil.', en: 'Whether the \'email\' key exists or not, the function always returns a VALID string, never None or an exception.' },
+        hints: [
+          { tr: '.get(anahtar, varsayılan) ikinci parametre olarak varsayılanı alır.', en: '.get(key, default) takes the default as its second argument.' },
+          { tr: 'Varsayılan değer test verisiyle tutarlı, anlamlı bir e-posta string\'i olmalı.', en: 'The default should be a meaningful email string, consistent with the test data.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'py-debug-step-test',
+      brief: { tr: '5) Bu hatayı gelecekte YAKALAYACAK bir test yaz.', en: '5) Write a test that WOULD CATCH this bug in the future.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Sadece kodu düzeltmek yetmez — bu hatanın GERİ GELMEYECEĞİNİ garanti eden bir test yazman gerekir. \'email\' anahtarı olmayan bir config ile process_order\'ı çağırıp, exception FIRLAMADIĞINI ve anlamlı bir varsayılan döndüğünü doğrulayan bir test, aynı bug\'ın CI\'da bir daha PATLAMASINI önler.',
+        en: 'Fixing the code is not enough — you need a test that guarantees this bug will NOT come back. A test that calls process_order with a config missing the \'email\' key, verifying it does NOT raise and returns a meaningful default, prevents the same bug from CRASHING CI again.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'py-debug-test-code',
+        relatedTopicId: 'python-traceback-debug-mission',
+        language: 'python',
+        label: { tr: 'Regresyon testini yaz', en: 'Write the regression test' },
+        task: { tr: 'TODO satırını, \'email\' anahtarı OLMAYAN bir config ile process_order çağırıp sonucun beklenen varsayılana eşit olduğunu doğrulayan bir assert ile tamamla.', en: 'Complete the TODO line with an assert that calls process_order with a config MISSING \'email\' and verifies the result equals the expected default.' },
+        explanation: { tr: 'Amaç: bir düzeltmenin ardından onu KORUYAN bir regresyon testi yazmayı pekiştirmek.', en: 'Goal: reinforce writing a regression test that PROTECTS a fix after it is made.' },
+        code: {
+          tr: `def test_process_order_eksik_email():\n    config = {}\n    assert process_order(config) == 'no-reply@example.com'`,
+          en: `def test_process_order_missing_email():\n    config = {}\n    assert process_order(config) == 'no-reply@example.com'`,
+        },
+        starterCode: {
+          tr: `def test_process_order_eksik_email():\n    config = {}\n    # TODO: process_order(config)'in 'no-reply@example.com' dondugunu dogrula\n`,
+          en: `def test_process_order_missing_email():\n    config = {}\n    # TODO: verify process_order(config) returns 'no-reply@example.com'\n`,
+        },
+        solutionCode: {
+          tr: `def test_process_order_eksik_email():\n    config = {}\n    assert process_order(config) == 'no-reply@example.com'`,
+          en: `def test_process_order_missing_email():\n    config = {}\n    assert process_order(config) == 'no-reply@example.com'`,
+        },
+        expected: { tr: 'Bu test CI\'da koşacak ve email anahtarı eksik olduğunda kodun asla exception fırlatmadığını sürekli doğrulayacak.', en: 'This test will run in CI and continuously verify the code never raises when the email key is missing.' },
+        hints: [
+          { tr: 'Boş bir sözlük ({}) \'email\' anahtarını İÇERMEZ — tam da hatayı tetikleyen durum.', en: 'An empty dict ({}) does NOT contain the \'email\' key — exactly the condition that triggers the bug.' },
+          { tr: 'assert process_order(config) == beklenen_deger şeklinde tek satırlık bir doğrulama yeterlidir.', en: 'A one-line assert process_order(config) == expected_value is enough.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir hata teşhisi ve düzeltme sürecini uçtan uca yaşadın: traceback\'i en alttan okuma → hatalı satırı bulma → None dönmenin de yetmediğini anlama → anlamlı bir varsayılanla düzeltme → bu hatanın bir daha PATLAMASINI önleyen bir regresyon testi yazma. Gerçek bir QA\'nın CI\'da kırmızı bir build gördüğünde izlediği yol tam olarak budur.',
+    en: 'You did not just read a lesson — in 5 steps you went through a real bug diagnosis and fix end to end: reading the traceback from the bottom → finding the buggy line → understanding that returning None is not enough either → fixing it with a meaningful default → writing a regression test that prevents this bug from EVER crashing again. This is exactly the path a real QA follows when they see a red build in CI.',
+  },
+}
+
 const challengeFlakyDebugOrder = {
   type: 'challenge',
   variant: 'order-sort',
@@ -11959,7 +12153,7 @@ const finalEnSections = [
   { title: '⚡ Advanced Concepts', blocks: translateBlocks([...sections[4].blocks.slice(45, 75), pyListComprehensionStep, pyIteratorProtocolStep, pyContextManagerStep, pyTypeHintsStep, ...sections[4].blocks.slice(125, 137), pyArgparseStep, pyDecoratorRetryFilm, stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts'), challengeDecoratorOrder, challengeContextManagerOrder]) },
   { title: '🛠️ Real World (pytest)', blocks: translateBlocks([...sections[5].blocks.slice(0, 21), pyApiAssertStep, pyCsvParametrizeStep, pyRetryDecoratorStep, pyDbFixtureScopeStep, pyPytestFixtureChainFilm, feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture, challengePytestFixtureOrder, challengePytestRunOrder, pyApiTestMission]) },
   { title: '🔗 Ecosystem', blocks: translateBlocks([...pythonEcosystemBlocks, pyEcosystemCollabFilm, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder, challengeVirtualenvWorkflowOrder, challengePyPiVersionCheckOrder]) },
-  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), pyTracebackReadingFilm, stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder]) },
+  { title: '🚨 Troubleshooting', blocks: translateBlocks([...sections[5].blocks.slice(21, 24), pyTracebackReadingFilm, stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder, pyTracebackDebugMission]) },
   { title: '☕ Java → Python', blocks: translateBlocks([...sections[8].blocks, pyJavaConstructorInitFilm, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python'), challengeJavaTryCatchToPythonOrder, challengeJavaForRangeToPythonOrder]) },
   { title: '📝 Practice Exercises', blocks: translateBlocks([...sections[7].blocks, pyParseResultsExerciseFilm, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark, challengeTestHelperFunctionOrder, challengeBugReportWriteOrder]) },
   {
@@ -12009,7 +12203,7 @@ const finalTrSections = [
   { title: '⚡ İleri Seviye', blocks: translateBlocks([...trSections[4].blocks.slice(45, 75), pyListComprehensionStep, pyIteratorProtocolStep, pyContextManagerStep, pyTypeHintsStep, ...trSections[4].blocks.slice(125, 137), pyArgparseStep, pyDecoratorRetryFilm, stepAnimationDecorator, challengeGeneratorOrder, feynman4E, ...getPlaygroundBlocksForTopic('advanced-concepts'), challengeDecoratorOrder, challengeContextManagerOrder]) },
   { title: '🛠️ Gerçek Hayat (pytest)', blocks: translateBlocks([...trSections[5].blocks.slice(0, 21), pyApiAssertStep, pyCsvParametrizeStep, pyRetryDecoratorStep, pyDbFixtureScopeStep, pyPytestFixtureChainFilm, feynman5, interactiveDiagramTestPyramid, stepAnimationPytestFlow, goodVsBadAssertPrint, goodVsBadFixture, ...getPlaygroundBlocksForTopic('real-world-pytest'), challengeFixtureScope, challengeParametrize, challengePytestOrder, challengeFillFixture, challengeFillParametrize, challengeBugSpotFixture, challengePytestFixtureOrder, challengePytestRunOrder, pyApiTestMission]) },
   { title: '🔗 Ekosistem', blocks: translateBlocks([...pythonEcosystemBlocks, pyEcosystemCollabFilm, stepAnimationPipInstall, feynmanEcosystem, ...getPlaygroundBlocksForTopic('ecosystem'), challengeCiOrder, challengeVirtualenvWorkflowOrder, challengePyPiVersionCheckOrder]) },
-  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), pyTracebackReadingFilm, stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder]) },
+  { title: '🚨 Yaygın Hatalar', blocks: translateBlocks([...trSections[5].blocks.slice(21, 24), pyTracebackReadingFilm, stepAnimationTracebackReading, challengeFlakyDebugOrder, feynmanTroubleshooting, goodVsBadWaitStrategy, ...getPlaygroundBlocksForTopic('troubleshooting'), challengeTracebackReadOrder, challengeFlakyInvestigateOrder, pyTracebackDebugMission]) },
   { title: '☕ Java → Python', blocks: translateBlocks([...trSections[8].blocks, pyJavaConstructorInitFilm, stepAnimationJavaToPythonMethod, challengeJavaForEachToPythonOrder, feynman8, ...getPlaygroundBlocksForTopic('java-to-python'), challengeJavaTryCatchToPythonOrder, challengeJavaForRangeToPythonOrder]) },
   { title: '📝 Pratik & Alıştırma', blocks: translateBlocks([...trSections[7].blocks, pyParseResultsExerciseFilm, stepAnimationProblemSolvingStrategy, challengeTestDataFunctionOrder, feynman7, ...getPlaygroundBlocksForTopic('practice-exercises'), challengeConftest, challengeMark, challengeTestHelperFunctionOrder, challengeBugReportWriteOrder]) },
   {
