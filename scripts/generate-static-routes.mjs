@@ -194,6 +194,17 @@ async function specialRouteContent(seo) {
     if (seo.path === '/test-frameworks') return testFrameworksContent()
     if (seo.path === '/java-document') return javaDocumentContent()
     if (seo.path === '/git-document') return gitDocumentContent()
+    if (seo.path === '/sprint') return {
+        title: 'QA Sprint Simulator — Analyze, Test, Automate, Ship',
+        intro: 'Join a QA team and close real sprint bugs end to end. Every bug follows the workflow a QA engineer actually uses: analyze the report and find the faulty layer, write an observable test case, automate it with a proper assertion, read the CI failure as evidence, and gate it in the pipeline before merge.',
+        topics: [
+            { title: 'Analyze the bug report', snippets: ['Reproduce before you report: find whether the fault lives in the frontend, the API or the data layer before writing a single test.'] },
+            { title: 'Write the test case', snippets: ['Given/When/Then steps that state an observable outcome, without the refresh step that would mask the bug.'] },
+            { title: 'Automate with an assertion', snippets: ['Selenium and Playwright tests that wait on a condition instead of a fixed duration, so they fail reliably while the bug exists.'] },
+            { title: 'Read the CI failure', snippets: ['A newly written regression test going red on its first run is proof the test works, not a problem to disable.'] },
+            { title: 'Gate it before merge', snippets: ['Tag the test into the regression suite and trigger the pipeline on every pull request so the bug cannot silently return.'] },
+        ],
+    }
     if (seo.path === '/qa-mentor') return {
         title: 'QA Kariyer Yol Haritası — Kişiselleştirilmiş Öğrenme Planı',
         intro: 'Deneyim seviyene ve tercihlerine göre kişiselleştirilmiş bir QA kariyer zihin haritası oluştur. Sıfırdan başlayanlar için Algoritma → Manuel Test → Java → Selenium yolundan, deneyimli geliştiriciler için Java+Playwright veya Python/TypeScript yoluna kadar 4 farklı kişiselleştirilmiş harita.',

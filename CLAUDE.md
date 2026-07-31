@@ -120,6 +120,7 @@ Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 - `/algorithms` — Algoritmalar: QA mühendisi için görsel problem çözme atölyesi
 - `/advanced-algorithms` — İleri seviye algoritmalar
 - `/qa-mentor` — QA Mentor: kariyer yol haritası sihirbazı, ilerleme % takibi, sertifika
+- `/sprint` — QA Sprint Simulator: Kanban panosu + bug görevleri (Analiz → Test Case → Otomasyon → CI → Merge). Ders sayfası DEĞİL; içerik `src/data/sprintsData.js`, görevler Phase 1 `mission` primitifini kullanır (bkz. `Documents/sprint-simulator-and-open-items-plan.md`)
 - `/leaderboard` — XP/streak liderlik tablosu (public, `get_leaderboard` RPC)
 - `/verify-certificate/:id` — Sertifika doğrulama (public, dinamik route — sitemap'e eklenmez, bkz. `seo.js` `dynamic: true`)
 - `/qa-assistant` — AI QA asistanı (`<ProtectedRoute>`, sadece üye)

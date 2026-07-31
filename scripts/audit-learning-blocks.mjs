@@ -69,38 +69,42 @@ async function main() {
     const positionDist = {};            // doğru şık harfi → adet
     let predCount = 0, traceCount = 0, heapCount = 0;
 
+    // prediction şema değişmezleri — hem dil sayfalarında hem mission içine
+    // GÖMÜLÜ prediction'larda aynı kurallar geçerlidir (bkz. aşağıdaki ikinci tur).
+    const auditPrediction = (b, file) => {
+        predCount++;
+        const opts = Array.isArray(b.options) ? b.options : [];
+        const correctIdxs = opts.map((o, i) => (o && o.correct ? i : -1)).filter((i) => i >= 0);
+        if (correctIdxs.length !== 1) {
+            errors.push(`${file}: prediction id='${b.id ?? '(yok)'}' — tam 1 correct beklenirken ${correctIdxs.length} bulundu.`);
+        }
+        if (!isNonEmptyText(b.reveal)) {
+            errors.push(`${file}: prediction id='${b.id ?? '(yok)'}' — 'reveal' (NEDEN açıklaması) boş/eksik (plan §2 ZORUNLU).`);
+        }
+        if (!b.id) {
+            errors.push(`${file}: bir prediction bloğunda 'id' yok — XP tekilliği için ZORUNLU (plan §2).`);
+        } else {
+            if (idOwner.has(b.id)) {
+                errors.push(`${file}: prediction id='${b.id}' benzersiz değil (ayrıca ${idOwner.get(b.id)} içinde).`);
+            } else {
+                idOwner.set(b.id, file);
+            }
+        }
+        if (!b.relatedTopicId) {
+            warnings.push(`${file}: prediction id='${b.id ?? '(yok)'}' — 'relatedTopicId' önerilir (plan §2), eksik.`);
+        }
+        if (correctIdxs.length === 1) {
+            const letter = String.fromCharCode(65 + correctIdxs[0]);
+            positionDist[letter] = (positionDist[letter] || 0) + 1;
+        }
+    };
+
     for (const file of FILES) {
         const mod = await import(`../src/data/${file}`);
         const data = mod[Object.keys(mod).find((k) => k.endsWith('Data'))] || Object.values(mod)[0];
 
         // — prediction —
-        for (const b of collectBlocks(data, ['prediction'])) {
-            predCount++;
-            const opts = Array.isArray(b.options) ? b.options : [];
-            const correctIdxs = opts.map((o, i) => (o && o.correct ? i : -1)).filter((i) => i >= 0);
-            if (correctIdxs.length !== 1) {
-                errors.push(`${file}: prediction id='${b.id ?? '(yok)'}' — tam 1 correct beklenirken ${correctIdxs.length} bulundu.`);
-            }
-            if (!isNonEmptyText(b.reveal)) {
-                errors.push(`${file}: prediction id='${b.id ?? '(yok)'}' — 'reveal' (NEDEN açıklaması) boş/eksik (plan §2 ZORUNLU).`);
-            }
-            if (!b.id) {
-                errors.push(`${file}: bir prediction bloğunda 'id' yok — XP tekilliği için ZORUNLU (plan §2).`);
-            } else {
-                if (idOwner.has(b.id)) {
-                    errors.push(`${file}: prediction id='${b.id}' benzersiz değil (ayrıca ${idOwner.get(b.id)} içinde).`);
-                } else {
-                    idOwner.set(b.id, file);
-                }
-            }
-            if (!b.relatedTopicId) {
-                warnings.push(`${file}: prediction id='${b.id ?? '(yok)'}' — 'relatedTopicId' önerilir (plan §2), eksik.`);
-            }
-            if (correctIdxs.length === 1) {
-                const letter = String.fromCharCode(65 + correctIdxs[0]);
-                positionDist[letter] = (positionDist[letter] || 0) + 1;
-            }
-        }
+        for (const b of collectBlocks(data, ['prediction'])) auditPrediction(b, file);
 
         // — code-trace + heap-stack —
         for (const type of ['code-trace', 'heap-stack']) {
@@ -125,13 +129,23 @@ async function main() {
     // — mission (challenge-first görev zinciri, challenge-first-experience-plan.md §3.2) —
     // Missionlar dil sayfalarıyla sınırlı değil; yeni mission eklenen data
     // dosyalarını buraya ekle (Sonnet rollout: playwrightData, cypressData…).
-    const MISSION_FILES = [...FILES, 'seleniumData.js', 'playwrightData.js', 'cypressData.js', 'restAssuredData.js'];
+    const MISSION_FILES = [...FILES, 'seleniumData.js', 'playwrightData.js', 'cypressData.js', 'restAssuredData.js', 'sprintsData.js'];
     // pythonData.js ve sqlData.js zaten FILES içinde (dil sayfaları listesi) — MISSION_FILES ayrıca eklemez.
     const missionIdOwner = new Map();
     let missionCount = 0;
     for (const file of [...new Set(MISSION_FILES)]) {
         const mod = await import(`../src/data/${file}`);
         const data = mod[Object.keys(mod).find((k) => k.endsWith('Data'))] || Object.values(mod)[0];
+
+        // Mission ADIMLARINA gömülü prediction'lar da şema denetimine girer.
+        // FILES'ta OLMAYAN dosyalarda (seleniumData, sprintsData…) bu bloklar
+        // aksi hâlde HİÇ doğrulanmıyordu — eksik `reveal` veya iki `correct`
+        // sessizce geçiyordu. FILES'takiler yukarıda sayıldığı için burada
+        // yalnızca fazladan dosyalar taranır (çifte sayım olmasın).
+        if (!FILES.includes(file)) {
+            for (const b of collectBlocks(data, ['prediction'])) auditPrediction(b, file);
+        }
+
         for (const b of collectBlocks(data, ['mission'])) {
             missionCount++;
             const label = b.id ?? '(id yok)';

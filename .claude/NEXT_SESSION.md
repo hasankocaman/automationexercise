@@ -20,9 +20,74 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-31, Sonnet — Kavram Tooltip yoğunlaştırma)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — Sprint Simulator Faz 1)
 
-- **Aktif branch: `feature/challenge-first`.** Mission Dalga 2'nin (aşağıda)
+- **Aktif branch: `feature/sprint-simulator`** (`main`'den açıldı). Kullanıcı
+  `Documents/` altındaki 20 plan dosyasının denetlenmesini ve açık kalan işler
+  için yeni bir plan + Opus/Sonnet görev dağılımı istedi. Yeni plan:
+  **`Documents/sprint-simulator-and-open-items-plan.md`**.
+  - **✅ FAZ 1 — QA SPRINT SIMULATOR (`/sprint`) OPUS TARAFI TAMAMLANDI (O1-O8):**
+    - `src/lib/sprintStore.js` (yeni) — local-first pano durumu. **Tek-doğruluk
+      ilkesi:** bug'ın "bitti" bilgisi BURADA TUTULMAZ, `xp.js`'ten türetilir
+      (`getCompletedExercises`); depo yalnızca "sprint'e çekildi" + "sprint
+      kapatıldı" tutar. İkinci bir tamamlanma state'i drift üretirdi (§23.4).
+    - `src/components/TopicPage.jsx` — **tek satır:** `renderBlock` `export`
+      edildi. Sprint sayfası bug görevlerinin gömülü bloklarını (code-playground,
+      prediction…) AYNI makineden geçirir — kendi renderer'ını yazmak
+      challenge-first'in "YENİ SANDBOX YAZMA" ilkesinin ihlali olurdu.
+    - `src/components/SprintBoard.jsx` (yeni) — Kanban panosu (Backlog/In
+      Progress/Done), bug kartı, severity rozeti. Saf Tailwind, dış paket yok.
+    - `src/components/SprintPage.jsx` (yeni) — sayfa kabuğu, sprint özeti +
+      ilerleme, bug raporu paneli, MissionBlock host'u, sprint kapanış töreni
+      (bonus XP + konfeti + retrospektif + skill signal).
+    - `src/data/sprintsData.js` (yeni) — Sprint 1 "Checkout Akışı Kararlılığı",
+      2 referans bug. **BİR BUG = BİR MISSION**, 5 adım QA iş akışına birebir
+      oturur: Analiz → Test Case → Otomasyon → CI → Merge. LQA-101 (sessiz login
+      hatası, frontend 401'i yutuyor) + LQA-102 (bayat sepet toplamı). Tam
+      bilingual, STRICT_ZERO.
+    - Rota bağlandı: `App.jsx` (lazy+Route), `seo.js` ROUTE_SEO,
+      `generate-static-routes.mjs` specialRouteContent, `CLAUDE.md` §2 route
+      haritası. Build artık **44** statik shell üretiyor (43'ten +1).
+    - `tests/sprint-flow.spec.ts` (yeni, 2 test) — veri-güdümlü E2E: 3 kolon
+      render, "Sprint'e al" geçişi, adım kilidi, tüm bug'lar kapanınca Done +
+      sprint kapatma + XP/localStorage + F5 kalıcılığı. **2/2 PASS.**
+  - **🐛 Testin yakaladığı GERÇEK bug (düzeltildi):** `renderBlock`'un 2.
+    parametresi React key'ine dönüşüyor; ilk yazımda sabit `0` verilmişti, bu
+    yüzden React iki farklı bug'ın MissionBlock'unu aynı instance sanıp yeniden
+    kullanıyor, önceki bug'ın "tamamlandı" state'i taşınıyor ve ikinci bug HİÇ
+    tamamlanmış işaretlenmiyordu. Key `selectedBug.id` yapıldı.
+  - **🔍 Yan bulgu — denetim kör noktası kapatıldı:** `audit-learning-blocks.mjs`
+    prediction şema kontrolünü YALNIZCA dil sayfalarında (`FILES`) yapıyordu;
+    mission içine gömülü prediction'lar (seleniumData, playwrightData,
+    cypressData, restAssuredData, sprintsData) HİÇ doğrulanmıyordu — eksik
+    `reveal` veya iki `correct` sessizce geçerdi. Kontrol `MISSION_FILES`'a da
+    genişletildi: **denetlenen prediction 50 → 70**, hepsi şemayı karşılıyor.
+  - **Doğrulama:** content-integrity ✓ (39 dosya) · i18n baseline 0 ✓ ·
+    audit-learning-blocks ✓ (mission:14, prediction:70, 0 ihlal) · build ✓
+    (44 shell, SEO geçti) · `tests/sprint-flow.spec.ts` 2/2 ✓ ·
+    regresyon `mission-flow` + `learning-blocks-render` 4/4 ✓.
+  - **🔜 Sırada (Sonnet promptları planın §6'sında HAZIR):** S1 sprint içerik
+    genişletme (Sprint 1'e +2 bug, Sprint 2 API/performans temalı), S2 HomePage
+    giriş kartı, S3 Career Map Faz 2 (milestone/rozet + breadcrumb), S4 test
+    kapsamı (mobil viewport + çapraz tarayıcı).
+  - **🔜 Kullanıcı (Hasan) tarafı, planın §5'i:** `explain-code-output` ve
+    `mentor-advice` edge function deploy teyidi, social-proof RPC yeniden
+    çalıştırma, trending-skills aktivasyon adımları.
+
+---
+
+## 📌 Önceki Durum (2026-08-01 — merge durumu doğrulandı)
+
+- **✅ AKTİF BRANCH: `main`.** `feature/challenge-first` main'e merge edildi
+  (`62dccf2 Merge branch 'feature/challenge-first'`). Ayrıca `frontenddevelopment-for-qa`
+  (`/qa-frontend` sayfası) ve `feature/api-testing-page` (`/api-testing` sayfası)
+  branch'leri de doğrulandı: ikisi de `main`'e göre 0 commit ileride — yani
+  içerikleri zaten `main`'de. Aşağıdaki geçmiş girdilerdeki "main'e merge/PR
+  kararı kullanıcıda" notları artık ÇÖZÜLMÜŞ durumda; yeni bir aksiyon gerekmiyor.
+  Çalışma ağacı temiz.
+
+- **Önceki iş (2026-07-31, Sonnet — Kavram Tooltip yoğunlaştırma, `feature/challenge-first`
+  üzerinde yapıldı, artık main'de):** Mission Dalga 2'nin (aşağıda)
   hemen ardından, kullanıcı "kavram tooltip'i özellikle yeni başlayanlar için
   önemli, ilk girilen sayfalarda (Test Nedir, Manuel Test, Algoritma Temelleri,
   Java/TS/Python) daha yoğun olmalı" dedi. **Gerçek bir mimari boşluk
@@ -108,7 +173,7 @@
     artık 2 mission var, test hâlâ doğru olanı — Locators'takini — bulup
     PASS oluyor) ✓.
   - Plan §9.2 manuel test rehberi Dalga 1/Dalga 2 tablolarıyla güncellendi.
-  - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2/Phase 3 hâlâ
+  - **Açık iş:** Merge tamamlandı (yukarı bak). Phase 2/Phase 3 hâlâ
     ayrı onay + planlama ister.
 
 - **Önceki oturum (2026-07-30, Opus) — Challenge-First Phase 1 Opus tarafı:**
@@ -289,7 +354,7 @@
   - 🔜 **Sırada (kullanıcı onayı + ayrı planlama gerektirir, plan §4/§5):**
     Phase 2 (QA Sprint/Company Simulator, yeni `/sprint` rotası) veya Phase 3
     (adaptif zorluk + SkillRadar'ı `skillSignals.js`'ten besleme).
-  - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
+  - **Açık iş:** Merge tamamlandı (yukarı bak, `main`'de). Phase 2 (Sprint Simulator) ve
     Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
 
 - **Önceki oturum (2026-07-30, Opus) — plan denetimi + öğrenme-blok testleri
@@ -352,8 +417,7 @@
   - **Kalan (kullanıcıda, plan §6.2):** `supabase functions deploy mentor-advice
     --project-ref <ref>` gerçek deploy'u henüz teyit edilmedi — Katman A
     (yerel, üyeliksiz) deploy'suz da tam çalışır; Katman B (gerçek AI, üye-only)
-    yalnızca deploy sonrası prod'da devreye girer. `main`'e merge/PR kararı
-    kullanıcıda.
+    yalnızca deploy sonrası prod'da devreye girer. Branch merge tamamlandı (`main`'de).
 
 - **Önceki oturum (2026-07-29) — i18n leak sıfırlama + sPlaywright temizliği:**
   4 ayrı commit ile şu iş tamamlandı:
@@ -388,15 +452,15 @@
     1. **#6 Adaptif zorluk** — quiz motoruna (TopicPage ~18k satır, çok E2E testi) dokunur, zorluk-etiketli soru havuzu gerekir. Riskli, ayrı planla.
     2. **#8 Portföy/proje üretimi** — en büyük epik.
     3. **Düşük öncelik (opsiyonel):** Java/Python/JS'e code-trace/heap-stack genişletme dalgası 2026-07-28'de yapıldı (yukarı bak, commit `5daa148`). Kalan: SQL/TS'e ekleme — SQL için heap/stack kavramsal uymaz; TS runtime = JS (düşük değer).
-  - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Branch içerik olarak tamamlandı, tüm geçitler yeşil (`node --check` + content-integrity + i18n:check baseline 109 + build).
+  - **Açık iş:** Merge tamamlandı — `feature/prediction-blocks` branch'i artık mevcut değil, içerik `main`'de.
 
-- **`frontenddevelopment-for-qa` branch'i** (önceki oturum, bu dalgada dokunulmadı): **`/qa-frontend` — "QA için Frontend: Developer'la Aynı Dili Konuşmak" sayfası içerik olarak TAMAMLANDI** (Opus iskelet+referanslar + Sonnet GRUP A-J + D-S11 kapanış denetimi, hepsi 2026-07-25). Detaylı geliştirme geçmişi (hangi GRUP'ta ne yazıldığı) artık tekrarlanmıyor — `git log --oneline` (commit'ler `feat(qa-frontend): GRUP X tamamlandı` formatında açıklayıcı) ve `Documents/qa-frontend-page-plan.md` yeterli referanstır.
+- **`frontenddevelopment-for-qa` branch'i** (2026-08-01'de doğrulandı: `main`'e göre 0 commit ileride — içeriği zaten `main`'de): **`/qa-frontend` — "QA için Frontend: Developer'la Aynı Dili Konuşmak" sayfası içerik olarak TAMAMLANDI** (Opus iskelet+referanslar + Sonnet GRUP A-J + D-S11 kapanış denetimi, hepsi 2026-07-25). Detaylı geliştirme geçmişi (hangi GRUP'ta ne yazıldığı) artık tekrarlanmıyor — `git log --oneline` (commit'ler `feat(qa-frontend): GRUP X tamamlandı` formatında açıklayıcı) ve `Documents/qa-frontend-page-plan.md` yeterli referanstır.
   - **Sayfanın içeriği:** 10 GRUP (A-J), 12 video-scene filmi (dahil "5 Locator Yarışı" — sayfanın en kritik filmi, "Stale Element", "*ngIf Kapıyı Açıp Kapıyor"), 4 Kaynak→DOM→Locator panosu (BugCard/Modal/StatusBadge/Toast), 12 error-dictionary hatası, **50 mülakat sorusu (15/20/15, `node scripts/audit-interview-questions.mjs` ile bağımsız doğrulandı — script artık `/qa-frontend`'i de içeriyor)**, tüm quiz'lerde retryQuestion, §9.5 trio'su (video+animasyon+sandbox) GRUP A-J'nin TAMAMINDA doğrulandı.
   - **Doğrulama durumu:** `check-content-integrity` ✓ · `i18n:check` ✓ (sıfır sızıntı, `qaFrontendData.js` hem `STRICT_ZERO_FILES` hem `TRIO_COMPLETE_PAGES`'te) · `npm run build` ✓ (43 statik shell, SEO geçti) · `audit-interview-questions.mjs` ✓ — hepsi geçti.
   - **Manuel test rehberi hazır:** `Documents/qa-frontend-page-plan.md` §F — kurulumdan (`npm run dev` → `/qa-frontend`) grup grup elle test adımlarına (video-scene oynatma, quiz-gating akışı, Locator Lab, feynman AI değerlendirmesi vb.) kadar adım adım rehber.
   - **Bilinen uyarı:** `QaFrontendPage` chunk'ı 515.59 kB (build'i bozmuyor, CLAUDE.md §14/§23.8 kapsamında bilinen durum).
-  - **Açık kalan (opsiyonel):** `npm run test:e2e` (Playwright) bu sayfa için henüz koşulmadı; `main`'e merge kararı kullanıcıda.
-- `feature/api-testing-page` branch'i (ayrı branch, bu oturumda dokunulmadı): `origin/feature/api-testing-page` ile senkron (`bac59ee`). `/api-testing` sayfası içerik olarak TAMAMLANDI (57 sekme, GRUP A-K, Faz 1-10). Plan: `Documents/api-testing-page-plan.md`. `main`'e henüz merge/PR açılmadı — karar kullanıcıda.
+  - **Açık kalan (opsiyonel):** `npm run test:e2e` (Playwright) bu sayfa için henüz koşulmadı.
+- `feature/api-testing-page` branch'i (2026-08-01'de doğrulandı: `main`'e göre 0 commit ileride — içeriği zaten `main`'de). `/api-testing` sayfası içerik olarak TAMAMLANDI (57 sekme, GRUP A-K, Faz 1-10). Plan: `Documents/api-testing-page-plan.md`.
 - Bu branch'e geçmeden önceki oturumda `feature/api-testing-page` üzerinde **i18n EN-sızıntı temizliği** yapılmıştı: video-scene pasif buton görünürlüğü düzeltildi, 6 tablo + error-dictionary bilingual yapıldı, code-playground yorumları bilingual hale getirildi (TR Türkçe / EN İngilizce), ve yeni bir **statik scanner** eklendi: `scripts/check-i18n-leaks.mjs` (build zincirinde + `pre-commit`'te çalışır, `npm run i18n:check` / `npm run i18n:baseline`). Kök neden, çözüm ve kullanım detayı: **CLAUDE.md §23.1**.
 
 ## 🔜 Açık İşler / Sıradaki Adımlar
@@ -411,10 +475,10 @@
    (Opus başlamadan):** görevler sayfa-içi mi ayrı sekme mi (öneri: sayfa-içi).
 
 1. **i18n EN-sızıntı temizliği TAMAMEN BİTTİ (2026-07-25 → 2026-07-29, çoklu oturum, KAPALI):** `check-i18n-leaks.mjs` scanner'ı sıfırdan inşa edildi ve art arda düzeltildi — yanlış-ağaç tarama (8490 hayalet leak), paylaşımlı-sabit tespiti, `why`/`note` ve `field`/`fieldEn` sibling farkındalığı, `codeCommentTranslations` runtime simülasyonu. Borç azalma sırası: 8490(hayalet) → 646 → 365 → 223 → 199 → 109 → 67 → 9 → **0**. Kök neden/çözüm kalıpları kalıcı olarak **CLAUDE.md §23.1 ve §23.6**'da belgeli (yeni bir "OPUS"/"YERİNDE-ÇEVİR" leak'e rastlarsan önce oraya bak); adım adım geçmiş `git log --oneline`'daki `fix(i18n...)` commit'lerinde duruyor, burada tekrarlanmıyor. `npm run i18n:check` artık "grandfathered borç: 0" basıyor — herhangi bir yeni sızıntı build'i kırar.
-2. **`/qa-frontend` → `main` merge/PR kararı** kullanıcıda; sayfa içerik olarak bitti, manuel test rehberi (`Documents/qa-frontend-page-plan.md` §F) hazır, isteğe bağlı olarak `npm run test:e2e` ile Playwright koşumu yapılabilir.
-3. **`main`'e merge/PR kararı** (her iki açık branch için de) kullanıcıda.
-4. **AC08 çoklu tema paleti** — kullanıcı "şimdilik atla" dedi, plan `Documents/acceptancecriterias.md` Madde 11'de hazır bekliyor.
-5. **Bilinen ASCII-normalize Türkçe kör noktası** — `bakiyor`, `gunceller` gibi Türkçe-özgü karakter içermeyen sızıntılar hiçbir otomatik kontrolle yakalanamıyor, elle göz gezdirmek gerekiyor.
+2. **Tüm branch merge'leri TAMAMLANDI (2026-08-01'de doğrulandı):** `feature/challenge-first`, `frontenddevelopment-for-qa` (`/qa-frontend`) ve `feature/api-testing-page` (`/api-testing`) — üçü de `main`'e göre 0 commit ileride, yani içerikleri `main`'de. Aktif branch artık `main`. `/qa-frontend` için opsiyonel `npm run test:e2e` koşumu hâlâ yapılmadı.
+3. **AC08 çoklu tema paleti** — kullanıcı "şimdilik atla" dedi, plan `Documents/acceptancecriterias.md` Madde 11'de hazır bekliyor.
+4. **Bilinen ASCII-normalize Türkçe kör noktası** — `bakiyor`, `gunceller` gibi Türkçe-özgü karakter içermeyen sızıntılar hiçbir otomatik kontrolle yakalanamıyor, elle göz gezdirmek gerekiyor.
+5. **Sırada (kullanıcı onayı + ayrı planlama gerektirir):** Phase 2 (QA Sprint/Company Simulator) veya Phase 3 (adaptif zorluk), bkz. `Documents/challenge-first-experience-plan.md` §4/§5.
 
 ## ✅ Proje Geneli Denetim Durumu (2026-07-25'te script ile taze ölçüldü)
 
