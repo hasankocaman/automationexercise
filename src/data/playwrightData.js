@@ -1798,6 +1798,195 @@ def test_basic_actions(page: Page):
     ],
   },
 }
+// 🎯 CHALLENGE-FIRST GÖREVİ (challenge-first-experience-plan.md §3.3 P1-S1)
+// "Ürünü sepete ekle" — automationexercise.com üzerinde gerçek bir Playwright
+// senaryosu: sağlam locator seç → tıkla → web-first assertion yaz → auto-wait'in
+// neden Thread.sleep'i gereksiz kıldığını tahmin et → tek testte birleştir.
+// Selenium referans görevinin (seleniumData.js) Playwright karşılığı — MEVCUT
+// prediction/code-playground bloklarını gömer, yeni sandbox yazılmaz.
+const playwrightCartMission = {
+  type: 'mission',
+  id: 'playwright-cart-mission',
+  xpReward: 45,
+  relatedTopicId: 'playwright-locators',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Bugün automationexercise.com üzerinde "ürünü sepete ekle" akışını test edeceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir Playwright testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will test the "add product to cart" flow on automationexercise.com. You will not read a lesson — you will build a real Playwright test step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'pw-mission-step-locator',
+      brief: { tr: '1) "Add to Cart" butonunu en sağlam şekilde bulacak stratejiyi seç.', en: '1) Pick the most robust strategy to find the "Add to Cart" button.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'CSS class veya XPath, frontend ekibi markup\'ı değiştirdiğinde (bir div\'i span yapmak gibi) sessizce kırılır — "brittle test" denen budur. getByRole ekran okuyucunun gördüğü ARIA rolünü hedefler; Java\'daki By.xpath("//div[3]/button") gibi konum bağımlı değildir, DOM yeniden düzenlense bile çalışmaya devam eder.',
+        en: 'A CSS class or XPath silently breaks when the frontend team changes markup (like turning a div into a span) — this is called a "brittle test". getByRole targets the ARIA role a screen reader sees; unlike Java\'s By.xpath("//div[3]/button"), it is not position-dependent and keeps working even if the DOM is restructured.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'pw-mission-locator-choice',
+        xpReward: 10,
+        relatedTopicId: 'playwright-locators',
+        prompt: { tr: 'Bu buton için hangi locator en dayanıklı?', en: 'Which locator is most resilient for this button?' },
+        code: '<button class="btn btn-default add-to-cart" data-product-id="1">Add to cart</button>',
+        codeLanguage: 'html',
+        options: [
+          { id: 'a', label: { tr: 'page.locator(".btn.btn-default")', en: 'page.locator(".btn.btn-default")' }, why: { tr: 'Aynı class birden fazla butonda kullanılabilir; sayfadaki başka bir "Add to cart" butonuna sessizce denk gelebilir.', en: 'The same class can appear on multiple buttons; it may silently match a different "Add to cart" button.' } },
+          { id: 'b', label: { tr: 'page.getByRole(\'button\', { name: \'Add to cart\' })', en: 'page.getByRole(\'button\', { name: \'Add to cart\' })' }, correct: true },
+          { id: 'c', label: { tr: 'page.locator("xpath=//div[3]/button")', en: 'page.locator("xpath=//div[3]/button")' }, why: { tr: 'DOM sırasına bağlıdır; tasarımcı bir kart daha eklerse indeks kayar ve locator yanlış elemente gider.', en: 'Depends on DOM order; if the designer adds one more card the index shifts and the locator points to the wrong element.' } },
+        ],
+        reveal: {
+          tr: 'getByRole doğru: erişilebilirlik ağacındaki ROL ve isme göre bulur — class veya DOM konumuna bağlı değildir. Bu hem daha az kırılgandır hem de ekran okuyucu kullanıcıları için erişilebilirliği dolaylı olarak test eder.',
+          en: 'getByRole is correct: it finds elements by their ROLE and name in the accessibility tree — independent of class or DOM position. This is both less brittle and indirectly tests accessibility for screen-reader users.',
+        },
+      },
+    },
+    {
+      id: 'pw-mission-step-click',
+      brief: { tr: '2) Seçtiğin locator ile "Add to Cart" butonuna tıklayan satırı yaz.', en: '2) Write the line that clicks "Add to Cart" using that locator.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'page.getByRole(...).click() elementi bulur ve tıklar; Playwright arkada elementin görünür ve tıklanabilir olmasını otomatik bekler (auto-wait) — Selenium\'da bunun için ayrı bir WebDriverWait yazman gerekirdi.',
+        en: 'page.getByRole(...).click() finds and clicks the element; Playwright automatically waits (auto-wait) for it to be visible and clickable in the background — in Selenium you would need a separate WebDriverWait for this.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-mission-click-code',
+        relatedTopicId: 'playwright-cart-mission',
+        language: 'typescript',
+        label: { tr: '"Add to Cart" butonuna tıkla', en: 'Click "Add to Cart"' },
+        task: { tr: 'TODO satırını, getByRole ile "Add to cart" butonuna tıklayacak şekilde tamamla.', en: 'Complete the TODO line to click "Add to cart" using getByRole.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç getByRole + click zincirini kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the getByRole + click chain yourself.' },
+        code: {
+          tr: `await page.getByRole('button', { name: 'Add to cart' }).click();`,
+          en: `await page.getByRole('button', { name: 'Add to cart' }).click();`,
+        },
+        starterCode: {
+          tr: `// TODO: getByRole ile "Add to cart" butonunu bul ve tikla\nawait page.getByRole().click();`,
+          en: `// TODO: find and click "Add to cart" with getByRole\nawait page.getByRole().click();`,
+        },
+        solutionCode: {
+          tr: `await page.getByRole('button', { name: 'Add to cart' }).click();`,
+          en: `await page.getByRole('button', { name: 'Add to cart' }).click();`,
+        },
+        expected: { tr: '"Add to cart" butonu bulunur ve tıklanır.', en: 'The "Add to cart" button is found and clicked.' },
+        hints: [
+          { tr: 'getByRole iki parametre alır: rol (\'button\') ve erişilebilir isim ({ name: ... }).', en: 'getByRole takes two arguments: the role (\'button\') and the accessible name ({ name: ... }).' },
+          { tr: 'Önceki adımda seçtiğin strateji: page.getByRole(\'button\', { name: \'Add to cart\' }).', en: 'The strategy you picked in the previous step: page.getByRole(\'button\', { name: \'Add to cart\' }).' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'pw-mission-step-assert',
+      brief: { tr: '3) Sepete eklendiğini gösteren modalın göründüğünü doğrulayan assertion\'ı yaz.', en: '3) Write the assertion that verifies the "added to cart" modal appears.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Tıklamak yetmez; test bir ŞEYİ doğrulamalı yoksa hiçbir bug yakalamaz. expect(locator).toBeVisible() Playwright\'ın "web-first" assertion\'ıdır: koşul doğru olana kadar birkaç saniye otomatik tekrar dener — Java\'daki assertTrue tek seferlik anlık kontrol yapar, retry etmez.',
+        en: 'Clicking is not enough; a test must verify SOMETHING or it catches no bugs. expect(locator).toBeVisible() is Playwright\'s "web-first" assertion: it automatically retries for a few seconds until the condition is true — Java\'s assertTrue checks once, instantly, with no retry.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-mission-assert-code',
+        relatedTopicId: 'playwright-cart-mission',
+        language: 'typescript',
+        label: { tr: 'Sepet modalının göründüğünü assert et', en: 'Assert the cart modal is visible' },
+        task: { tr: 'TODO satırını, "Added!" modalının görünür olduğunu doğrulayan bir web-first assertion ile tamamla.', en: 'Complete the TODO line with a web-first assertion that the "Added!" modal is visible.' },
+        explanation: { tr: 'Amaç: tıklamadan sonra sonucu doğrulayan bir kontrol yazmayı pekiştirmek.', en: 'Goal: reinforce writing a check that verifies the result after the click.' },
+        code: {
+          tr: `await expect(page.getByText('Added!')).toBeVisible();`,
+          en: `await expect(page.getByText('Added!')).toBeVisible();`,
+        },
+        starterCode: {
+          tr: `// TODO: "Added!" modali gorunur mu diye assertion yaz\n`,
+          en: `// TODO: write an assertion for whether the "Added!" modal is visible\n`,
+        },
+        solutionCode: {
+          tr: `await expect(page.getByText('Added!')).toBeVisible();`,
+          en: `await expect(page.getByText('Added!')).toBeVisible();`,
+        },
+        expected: { tr: 'Modal görünürse test PASS, birkaç saniye içinde görünmezse FAIL verir.', en: 'The test passes if the modal appears, and fails if it does not appear within a few seconds.' },
+        hints: [
+          { tr: 'expect(locator).toBeVisible() bir web-first assertion\'dır — retry içerir.', en: 'expect(locator).toBeVisible() is a web-first assertion — it retries automatically.' },
+          { tr: 'Modal metni: "Added!".', en: 'The modal text: "Added!".' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'pw-mission-step-autowait',
+      brief: { tr: '4) Modal bazen 200ms bazen 1.5sn\'de beliriyor. Testi flaky yapmayacak yaklaşımı seç.', en: '4) The modal appears in 200ms sometimes, 1.5s other times. Pick the approach that will not make the test flaky.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Selenium\'da bu durum için WebDriverWait + ExpectedConditions yazman gerekirdi. Playwright\'ta expect(...).toBeVisible() zaten auto-wait + retry içerir — ayrıca bir bekleme yazmana GEREK YOKTUR. page.waitForTimeout(1500) ise Thread.sleep gibi sabit bekler: gereksiz yavaşlatır ve garantisi yoktur.',
+        en: 'In Selenium you would need to write a WebDriverWait + ExpectedConditions for this. In Playwright, expect(...).toBeVisible() already includes auto-wait + retry — you do NOT need to add extra waiting. page.waitForTimeout(1500) waits a fixed time like Thread.sleep: it needlessly slows things down and gives no guarantee.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'pw-mission-autowait-choice',
+        xpReward: 10,
+        relatedTopicId: 'playwright-cart-mission',
+        prompt: { tr: 'Değişken görünme süresinde testi flaky yapmayacak yaklaşım hangisi?', en: 'With variable appearance time, which approach keeps the test from being flaky?' },
+        code: {
+          tr: '// modal: bazen 200ms, bazen 1.5sn\n// hangi yaklasim?',
+          en: '// modal: sometimes 200ms, sometimes 1.5s\n// which approach?',
+        },
+        codeLanguage: 'typescript',
+        options: [
+          { id: 'a', label: { tr: 'page.waitForTimeout(1500) sonra kontrol et', en: 'page.waitForTimeout(1500) then check' }, why: { tr: 'Sabit süre; 1.5sn\'den geç gelirse test patlar, 200ms\'de hazırsa zaman kaybedilir.', en: 'Fixed duration; breaks if it takes longer than 1.5s, wastes time if ready in 200ms.' } },
+          { id: 'b', label: { tr: 'expect(modal).toBeVisible() — ekstra bekleme eklemeden', en: 'expect(modal).toBeVisible() — with no extra wait added' }, correct: true },
+          { id: 'c', label: { tr: 'Hiç assertion yazmadan devam et', en: 'Continue without writing an assertion' }, why: { tr: 'Modal geç gelse bile test kontrol etmediği için PASS verir — sessiz yanlış PASS.', en: 'Even if the modal is late the test passes because it never checks — a silent false PASS.' } },
+        ],
+        reveal: {
+          tr: 'expect(modal).toBeVisible() doğru: Playwright\'ın web-first assertion\'ları zaten koşul gerçekleşene kadar otomatik retry yapar (varsayılan birkaç saniye). Ayrıca bir waitForTimeout eklemek hem gereksiz hem de yanlış bir sabit süre varsayımı ekler.',
+          en: 'expect(modal).toBeVisible() is correct: Playwright\'s web-first assertions already auto-retry until the condition is true (a few seconds by default). Adding a waitForTimeout on top is both unnecessary and introduces a wrong fixed-duration assumption.',
+        },
+      },
+    },
+    {
+      id: 'pw-mission-step-full',
+      brief: { tr: '5) Testi baştan sona birleştir: tıkla + assert et, tek Playwright testi olarak.', en: '5) Combine it end-to-end: click + assert, as a single Playwright test.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir Playwright testi genelde şu üçlüden oluşur: git (goto) → aksiyon (click/fill) → doğrulama (expect...toBeVisible/toHaveText). Bu üçlü, gerçek bir smoke testin en küçük tekrarlanabilir birimidir.',
+        en: 'A Playwright test usually consists of this trio: navigate (goto) → action (click/fill) → verification (expect...toBeVisible/toHaveText). This trio is the smallest repeatable unit of a real smoke test.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-mission-full-code',
+        relatedTopicId: 'playwright-cart-mission',
+        language: 'typescript',
+        label: { tr: 'Sepete ekleme testini tamamla', en: 'Complete the add-to-cart test' },
+        task: { tr: 'TODO satırlarını, ürünü sepete ekleyip modalı doğrulayan tam bir test ile tamamla.', en: 'Complete the TODO lines with a full test that adds the product to cart and verifies the modal.' },
+        explanation: { tr: 'Amaç: önceki 3 adımı tek bir çalışan test fonksiyonunda birleştirmek.', en: 'Goal: combine the previous 3 steps into one working test function.' },
+        code: {
+          tr: `import { test, expect } from '@playwright/test';\n\ntest('urun sepete eklenir', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  await expect(page.getByText('Added!')).toBeVisible();\n});`,
+          en: `import { test, expect } from '@playwright/test';\n\ntest('product is added to cart', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  await expect(page.getByText('Added!')).toBeVisible();\n});`,
+        },
+        starterCode: {
+          tr: `import { test, expect } from '@playwright/test';\n\ntest('urun sepete eklenir', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  // TODO: ilk "Add to cart" butonuna tikla\n  // TODO: "Added!" modalinin gorundugunu dogrula\n});`,
+          en: `import { test, expect } from '@playwright/test';\n\ntest('product is added to cart', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  // TODO: click the first "Add to cart" button\n  // TODO: verify the "Added!" modal is visible\n});`,
+        },
+        solutionCode: {
+          tr: `import { test, expect } from '@playwright/test';\n\ntest('urun sepete eklenir', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  await expect(page.getByText('Added!')).toBeVisible();\n});`,
+          en: `import { test, expect } from '@playwright/test';\n\ntest('product is added to cart', async ({ page }) => {\n  await page.goto('https://automationexercise.com');\n  await page.getByRole('button', { name: 'Add to cart' }).first().click();\n  await expect(page.getByText('Added!')).toBeVisible();\n});`,
+        },
+        expected: { tr: 'Test uçtan uca PASS olur: ürün sepete eklenir ve modal doğrulanır.', en: 'The test passes end-to-end: the product is added to cart and the modal is verified.' },
+        hints: [
+          { tr: '.first() birden fazla eşleşen buton varsa ilkini seçer — sayfada onlarca ürün kartı var.', en: '.first() picks the first match when multiple buttons match — the page has dozens of product cards.' },
+          { tr: 'İki TODO da önceki adımlarda yazdığın satırlarla aynı.', en: 'Both TODOs are the same lines you wrote in the previous steps.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir "sepete ekle" smoke testinin iskeletini kurdun: dayanıklı locator seçimi → aksiyon → web-first assertion → auto-wait\'in neden ekstra bekleme yazmanı gereksiz kıldığını anlama → hepsini tek testte birleştirme. Playwright\'ın Selenium\'a göre en büyük farkı tam burada: bekleme stratejisi çoğu zaman senin problemin değil, framework\'ün problemi.',
+    en: 'You did not just read a lesson — in 5 steps you built the skeleton of a real "add to cart" smoke test: resilient locator choice → action → web-first assertion → understanding why auto-wait makes extra waiting unnecessary → combining it all into one test. This is Playwright\'s biggest difference from Selenium right here: waiting strategy is mostly the framework\'s problem, not yours.',
+  },
+}
+
 const s3 = {
   tr: {
     title: '🎯 Locator Stratejileri',
@@ -2087,6 +2276,9 @@ test('locators', async ({ page }) => {
     ],
   },
 }
+// Çift-ağaç: aynı görev sabitini hem TR hem EN Locator Stratejileri sekmesine (s3) aynı referansla ekle (§9.5).
+s3.tr.blocks.push(playwrightCartMission)
+s3.en.blocks.push(playwrightCartMission)
 
 const s4 = {
   tr: {
@@ -7581,6 +7773,192 @@ claude mcp add playwright npx @playwright/mcp@latest
 // işler). Her adımın kod bloğu kendi trio'suyla (step-animation + challenge +
 // code-playground) izlenir → filler jenerik blok EKLEMEZ.
 // ══════════════════════════════════════════════════════════════════════════
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı onayıyla mevcut 6 sayfanın aksiyon sekmelerine +1
+// görev). "Ham testi Page Object'e refactor et" — Selenium'daki POM
+// görevinin Playwright/TypeScript karşılığı; bu sekmenin ZATEN derinlemesine
+// işlediği fixture/DI konusuyla ÇAKIŞMAZ, sade class-tabanlı POM kalıbını
+// uçtan uca yazdırır. MEVCUT prediction/code-playground bloklarını gömer.
+const playwrightPomRefactorMission = {
+  type: 'mission',
+  id: 'playwright-pom-refactor-mission',
+  xpReward: 45,
+  relatedTopicId: 'playwright-framework-basepage',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün ham (locator\'ları test dosyasının içinde tutan) bir Playwright testini Page Object ile yeniden yapılandıracaksın. Ders okumayacaksın — bir QA gibi adım adım gerçek bir refactor yapacaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will refactor a raw Playwright test (one that keeps its locators inside the spec file) into a Page Object. You will not read a lesson — you will do a real refactor step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'pw-pom-step-why',
+      brief: { tr: '1) Locator\'ları test dosyasının içinde tutmanın en büyük riskini tahmin et.', en: '1) Predict the biggest risk of keeping locators inside the spec file.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`page.getByRole(\'button\', {name:\'Login\'})` 15 farklı `.spec.ts` dosyasında tekrar tekrar yazılmışsa, buton metni "Login"den "Sign in"e değişince 15 dosyayı TEK TEK bulup düzeltmen gerekir. Page Object, bu locator\'ı TEK bir sınıfta toplar.',
+        en: 'If `page.getByRole(\'button\', {name:\'Login\'})` is repeated across 15 different `.spec.ts` files, when the button text changes from "Login" to "Sign in" you must find and fix all 15 files ONE BY ONE. A Page Object gathers that locator into ONE class.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'pw-pom-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'playwright-framework-basepage',
+        prompt: { tr: '`getByRole(\'button\', {name:\'Login\'})` 15 farklı .spec.ts dosyasında ayrı ayrı yazılmış. Buton metni değişirse ne olur?', en: '`getByRole(\'button\', {name:\'Login\'})` is written separately in 15 different .spec.ts files. What happens if the button text changes?' },
+        code: '// 15 spec dosyasinin HER BIRINDE:\nawait page.getByRole(\'button\', { name: \'Login\' }).click();',
+        codeLanguage: 'typescript',
+        options: [
+          { id: 'a', label: { tr: 'Sadece 1 dosyayı güncellemek yeterli olur', en: 'Updating just 1 file is enough' }, why: { tr: 'Locator her dosyada AYRI AYRI yazılmış — tek dosyayı düzeltmek diğer 14\'ünü kırık bırakır.', en: 'The locator is written SEPARATELY in each file — fixing one file leaves the other 14 broken.' } },
+          { id: 'b', label: { tr: '15 dosyanın HEPSİNİ tek tek bulup güncellemen gerekir', en: 'You must find and update ALL 15 files one by one' }, correct: true },
+          { id: 'c', label: { tr: 'Playwright otomatik olarak yeni metni bulur', en: 'Playwright automatically finds the new text' }, why: { tr: 'Playwright sihirli değildir — getByRole tam olarak yazdığın adı arar, otomatik uyum sağlamaz.', en: 'Playwright is not magic — getByRole searches for exactly the name you wrote, it does not auto-adapt.' } },
+        ],
+        reveal: {
+          tr: '15 dosyanın hepsini tek tek bulup güncellemen gerekir doğru: locator TEKRARLANMIŞTIR. Page Object tam olarak bu sorunu çözer — locator\'ı BİR sınıfta tanımlarsın, 15 test de o sınıfı KULLANIR; değişiklik tek yerden yapılır.',
+          en: 'You must find and update all 15 files one by one is correct: the locator is DUPLICATED. The Page Object solves exactly this — you define the locator in ONE class, all 15 tests USE that class; the change happens in one place.',
+        },
+      },
+    },
+    {
+      id: 'pw-pom-step-class',
+      brief: { tr: '2) LoginPage sınıfının locator alanını ve constructor\'ını yaz.', en: '2) Write the LoginPage class\'s locator field and constructor.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir Page Object, o sayfanın locator\'larını `readonly` alanlarda saklayan sıradan bir TypeScript sınıfıdır. Constructor, testten gelen `page`\'i alıp sınıfın kendi alanına atar ve locator\'ları `page.getByRole(...)` ile HAZIRDAN kurar.',
+        en: 'A Page Object is an ordinary TypeScript class that stores that page\'s locators in `readonly` fields. The constructor takes the `page` from the test, assigns it to the class\'s own field, and sets up the locators with `page.getByRole(...)` READY to use.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-pom-class-code',
+        relatedTopicId: 'playwright-pom-refactor-mission',
+        language: 'typescript',
+        label: { tr: 'LoginPage sınıfının iskeletini yaz', en: 'Write the LoginPage class skeleton' },
+        task: { tr: 'TODO satırını, page\'i alan bir constructor ile tamamla.', en: 'Complete the TODO line with a constructor that takes the page.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç Page Object\'in constructor kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the Page Object\'s constructor pattern yourself.' },
+        code: {
+          tr: `class LoginPage {\n  readonly page: Page;\n  readonly loginBtn: Locator;\n\n  constructor(page: Page) {\n    this.page = page;\n    this.loginBtn = page.getByRole('button', { name: 'Login' });\n  }\n}`,
+          en: `class LoginPage {\n  readonly page: Page;\n  readonly loginBtn: Locator;\n\n  constructor(page: Page) {\n    this.page = page;\n    this.loginBtn = page.getByRole('button', { name: 'Login' });\n  }\n}`,
+        },
+        starterCode: {
+          tr: `class LoginPage {\n  readonly page: Page;\n  readonly loginBtn: Locator;\n\n  // TODO: page'i alan constructor'i yaz, this.page ve this.loginBtn'i ata\n}`,
+          en: `class LoginPage {\n  readonly page: Page;\n  readonly loginBtn: Locator;\n\n  // TODO: write a constructor that takes page, assign this.page and this.loginBtn\n}`,
+        },
+        solutionCode: {
+          tr: `class LoginPage {\n  readonly page: Page;\n  readonly loginBtn: Locator;\n\n  constructor(page: Page) {\n    this.page = page;\n    this.loginBtn = page.getByRole('button', { name: 'Login' });\n  }\n}`,
+          en: `class LoginPage {\n  readonly page: Page;\n  readonly loginBtn: Locator;\n\n  constructor(page: Page) {\n    this.page = page;\n    this.loginBtn = page.getByRole('button', { name: 'Login' });\n  }\n}`,
+        },
+        expected: { tr: 'LoginPage artık kendi page referansını tutar ve locator\'ı hazır bir alan olarak saklar.', en: 'LoginPage now holds its own page reference and stores the locator as a ready field.' },
+        hints: [
+          { tr: 'Constructor, sınıfla AYNI isme sahiptir ve dönüş tipi yoktur.', en: 'A constructor has the SAME name as the class and no return type.' },
+          { tr: '`this.page = page;` gelen parametreyi sınıfın kendi alanına atar.', en: '`this.page = page;` assigns the incoming parameter to the class\'s own field.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'pw-pom-step-method',
+      brief: { tr: '3) LoginPage\'e, login işlemini yapan bir async metot ekle.', en: '3) Add an async method to LoginPage that performs the login action.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Page Object\'in metotları, o sayfada YAPILABİLECEK eylemleri isimlendirir — `async login(user, pass)` demek, "bu sayfada giriş yapabilirsin" demektir. Test kodu ARTIK `getByRole`/`fill` detaylarını bilmek zorunda değildir, sadece `await loginPage.login(...)` der.',
+        en: 'A Page Object\'s methods name the actions that CAN be performed on that page — `async login(user, pass)` says "you can log in on this page". The test code no longer needs to know the `getByRole`/`fill` details, it just says `await loginPage.login(...)`.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-pom-method-code',
+        relatedTopicId: 'playwright-pom-refactor-mission',
+        language: 'typescript',
+        label: { tr: 'login() metodunu yaz', en: 'Write the login() method' },
+        task: { tr: 'TODO satırını, username ve password alıp login butonuna tıklayan bir async login() metoduyla tamamla.', en: 'Complete the TODO line with an async login() method that takes username and password and clicks the login button.' },
+        explanation: { tr: 'Amaç: Page Object\'in "eylem metodu" kalıbını kendin yazmayı pekiştirmek.', en: 'Goal: reinforce writing the Page Object\'s "action method" pattern yourself.' },
+        code: {
+          tr: `async login(username: string, password: string) {\n  await this.page.getByLabel('Username').fill(username);\n  await this.page.getByLabel('Password').fill(password);\n  await this.loginBtn.click();\n}`,
+          en: `async login(username: string, password: string) {\n  await this.page.getByLabel('Username').fill(username);\n  await this.page.getByLabel('Password').fill(password);\n  await this.loginBtn.click();\n}`,
+        },
+        starterCode: {
+          tr: `// TODO: username/password alanlarini doldur, this.loginBtn'e tikla\nasync login(username: string, password: string) {\n}`,
+          en: `// TODO: fill username/password fields, click this.loginBtn\nasync login(username: string, password: string) {\n}`,
+        },
+        solutionCode: {
+          tr: `async login(username: string, password: string) {\n  await this.page.getByLabel('Username').fill(username);\n  await this.page.getByLabel('Password').fill(password);\n  await this.loginBtn.click();\n}`,
+          en: `async login(username: string, password: string) {\n  await this.page.getByLabel('Username').fill(username);\n  await this.page.getByLabel('Password').fill(password);\n  await this.loginBtn.click();\n}`,
+        },
+        expected: { tr: 'login() çağrıldığında kullanıcı adı/şifre doldurulur ve login butonuna tıklanır.', en: 'Calling login() fills the username/password and clicks the login button.' },
+        hints: [
+          { tr: 'Üç işlem sırayla: username doldur, password doldur, butona tıkla — her biri `await` ister.', en: 'Three actions in order: fill username, fill password, click the button — each needs `await`.' },
+          { tr: '`this.loginBtn` constructor\'da zaten tanımlıydı, tekrar `getByRole` yazmana gerek yok.', en: '`this.loginBtn` was already defined in the constructor, you do not need to write `getByRole` again.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'pw-pom-step-cost',
+      brief: { tr: '4) Page Object sonrası, buton metni değişirse kaç yeri güncellemen gerektiğini tahmin et.', en: '4) Predict how many places you need to update after a button text change, now that the Page Object is in place.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Page Object\'ten ÖNCE locator 15 spec dosyasında ayrı ayrı yazılıydı. SONRA locator SADECE LoginPage sınıfında bir kez tanımlıdır; 15 test de bu sınıfı KULLANIR. Metin değişince artık tek bir dosyayı (LoginPage.ts) güncellemek yeterlidir.',
+        en: 'BEFORE the Page Object the locator was written separately in 15 spec files. AFTER, the locator is defined ONCE, only in the LoginPage class; all 15 tests USE that class. When the text changes, updating a single file (LoginPage.ts) is now enough.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'pw-pom-cost-choice',
+        xpReward: 10,
+        relatedTopicId: 'playwright-pom-refactor-mission',
+        prompt: { tr: 'LoginPage\'i kullanan 15 test var. Buton metni "Login"den "Sign in"e değişirse kaç dosyayı güncellemen gerekir?', en: '15 tests use LoginPage. If the button text changes from "Login" to "Sign in", how many files do you need to update?' },
+        code: '// 15 test -> hepsi LoginPage kullaniyor\n// button text: "Login" -> "Sign in"',
+        codeLanguage: 'typescript',
+        options: [
+          { id: 'a', label: { tr: '1 dosya (LoginPage.ts)', en: '1 file (LoginPage.ts)' }, correct: true },
+          { id: 'b', label: { tr: '15 dosyanın hepsi', en: 'All 15 files' }, why: { tr: 'Bu, Page Object OLMADAN önceki durumdu — Page Object sonrası locator artık tek bir yerde.', en: 'That was the situation WITHOUT the Page Object — afterward the locator lives in only one place.' } },
+          { id: 'c', label: { tr: 'Hiçbiri, otomatik düzelir', en: 'None, it fixes itself automatically' }, why: { tr: 'Kod kendi kendine değişmez — birinin locator\'ı elle güncellemesi gerekir, sadece bunun için TEK dosyaya bakması yeterlidir.', en: 'Code does not change itself — someone must update the locator by hand, they just only need to look at ONE file to do it.' } },
+        ],
+        reveal: {
+          tr: '1 dosya doğru: Page Object sayesinde locator artık SADECE LoginPage.ts\'te tanımlı. 15 test de bu sınıfı kullandığından, tek dosyayı güncellemek TÜM testleri otomatik olarak düzeltir.',
+          en: '1 file is correct: thanks to the Page Object the locator is now defined ONLY in LoginPage.ts. Since all 15 tests use that class, updating the single file automatically fixes ALL tests.',
+        },
+      },
+    },
+    {
+      id: 'pw-pom-step-test',
+      brief: { tr: '5) Test dosyasını, ham locator yerine LoginPage kullanacak şekilde tamamla.', en: '5) Complete the spec file to use LoginPage instead of raw locators.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Refactor sonrası test artık `getByRole`/`getByLabel` GÖRMEZ — sadece `new LoginPage(page)` ile bir sayfa nesnesi oluşturur ve `.login(...)` der. Test, NE YAPILDIĞINI okur; NASIL yapıldığını (locator detaylarını) LoginPage sınıfı bilir.',
+        en: 'After the refactor, the test no longer SEES `getByRole`/`getByLabel` — it just creates a page object with `new LoginPage(page)` and calls `.login(...)`. The test reads WHAT is done; the LoginPage class knows HOW it is done (the locator details).',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'pw-pom-test-code',
+        relatedTopicId: 'playwright-pom-refactor-mission',
+        language: 'typescript',
+        label: { tr: 'Test dosyasını LoginPage ile tamamla', en: 'Complete the spec file with LoginPage' },
+        task: { tr: 'TODO satırını, LoginPage nesnesi oluşturup login() metodunu çağıracak şekilde tamamla.', en: 'Complete the TODO line to create a LoginPage object and call its login() method.' },
+        explanation: { tr: 'Amaç: önceki 2 adımda yazdığın sınıfı gerçek bir testte KULLANMayı pekiştirmek.', en: 'Goal: reinforce USING the class you wrote in the previous 2 steps inside a real test.' },
+        code: {
+          tr: `test('giris basarili', async ({ page }) => {\n  const loginPage = new LoginPage(page);\n  await loginPage.login('admin', '1234');\n  await expect(page.getByText('Dashboard')).toBeVisible();\n});`,
+          en: `test('login succeeds', async ({ page }) => {\n  const loginPage = new LoginPage(page);\n  await loginPage.login('admin', '1234');\n  await expect(page.getByText('Dashboard')).toBeVisible();\n});`,
+        },
+        starterCode: {
+          tr: `test('giris basarili', async ({ page }) => {\n  // TODO: LoginPage nesnesi olustur\n  // TODO: login('admin', '1234') cagir\n  await expect(page.getByText('Dashboard')).toBeVisible();\n});`,
+          en: `test('login succeeds', async ({ page }) => {\n  // TODO: create a LoginPage object\n  // TODO: call login('admin', '1234')\n  await expect(page.getByText('Dashboard')).toBeVisible();\n});`,
+        },
+        solutionCode: {
+          tr: `test('giris basarili', async ({ page }) => {\n  const loginPage = new LoginPage(page);\n  await loginPage.login('admin', '1234');\n  await expect(page.getByText('Dashboard')).toBeVisible();\n});`,
+          en: `test('login succeeds', async ({ page }) => {\n  const loginPage = new LoginPage(page);\n  await loginPage.login('admin', '1234');\n  await expect(page.getByText('Dashboard')).toBeVisible();\n});`,
+        },
+        expected: { tr: 'Test artık locator detaylarını hiç görmeden LoginPage üzerinden login olur.', en: 'The test now logs in via LoginPage without ever seeing the locator details.' },
+        hints: [
+          { tr: '`new LoginPage(page)` bir Page Object nesnesi oluşturur.', en: '`new LoginPage(page)` creates a Page Object instance.' },
+          { tr: '2. adımda yazdığın metot: login(username, password), `await` ile çağrılır.', en: 'The method you wrote in step 2: login(username, password), called with `await`.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda ham bir testi gerçek bir Page Object refactor\'ına dönüştürdün: tekrarlanan locator\'ın riskini anlama → sınıf iskeleti yazma → eylem metodu yazma → bakım maliyetinin nasıl 15 dosyadan 1 dosyaya düştüğünü anlama → testi Page Object üzerinden yeniden yazma. Bu, gerçek bir Playwright framework\'ünde her sayfanın izlediği kalıptır — sonraki adım (bu sekmenin geri kalanında görüldüğü gibi) bunu bir de `test.extend` fixture\'ına dönüştürmektir.',
+    en: 'You did not just read a lesson — in 5 steps you turned a raw test into a real Page Object refactor: understanding the risk of a duplicated locator → writing the class skeleton → writing an action method → understanding how maintenance cost drops from 15 files to 1 → rewriting the test through the Page Object. This is the pattern every page follows in a real Playwright framework — the next step (as the rest of this tab shows) is turning it into a `test.extend` fixture too.',
+  },
+}
+
 const playwrightArchBlocks = [
   {
     type: 'simple-box',
@@ -8795,6 +9173,7 @@ for (const c of cases) {
       },
     },
   },
+  playwrightPomRefactorMission,
 ]
 
 const sFwArch = {

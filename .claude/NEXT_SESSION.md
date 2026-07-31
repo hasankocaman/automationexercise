@@ -20,9 +20,280 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-30, Opus — plan denetimi + öğrenme-blok testleri)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-07-31, Sonnet — Kavram Tooltip yoğunlaştırma)
 
-- **Aktif branch: `feature/prediction-blocks`.** Bu oturumun SON işi (2026-07-30, Opus):
+- **Aktif branch: `feature/challenge-first`.** Mission Dalga 2'nin (aşağıda)
+  hemen ardından, kullanıcı "kavram tooltip'i özellikle yeni başlayanlar için
+  önemli, ilk girilen sayfalarda (Test Nedir, Manuel Test, Algoritma Temelleri,
+  Java/TS/Python) daha yoğun olmalı" dedi. **Gerçek bir mimari boşluk
+  bulundu:** `/manual-testing` ve `/algorithms` `TopicPage.jsx` kullanmıyordu
+  (kendi özel component'leri var) — `highlightGlossaryTerms` bu iki sayfada
+  HİÇ çalışmıyordu (0 tetikleyici, ölçüldü). Düzeltildi: `ManualTestingPage.jsx`
+  (`InfoBox`) + `AlgorithmsPage.jsx` (`LessonCard`) render noktalarına
+  `highlightGlossaryTerms` bağlandı; `termGlossary.js` 57→84 terime genişletildi
+  (test temelleri, manuel test, algoritma, dil temelleri, ortam). Ölçülen etki:
+  `/manual-testing` 0→33, `/algorithms` 0→7 tetikleyici. Detay: plan §3.6.4.
+  Doğrulama: content-integrity + i18n baseline 0 + build + 2 E2E test regresyonu
+  (term-tooltip + mission-flow, 3/3 PASS). Commit `8fe795e`.
+
+- **Aynı gün, hemen ardından — Rehber Karakter (Mascot):** Kullanıcı "sevimli
+  bir animasyon karakteri + konuşma balonu, bilmediğin kelimenin üstüne gel de
+  görsün diye yönlendirsin" istedi. AskUserQuestion ile 3 tasarım kararı
+  netleştirildi: sabit köşe (scroll takip ETMEZ), sadece 3 giriş sayfası,
+  her ziyarette rozet + tıklayınca balon. `TooltipGuideMascot.jsx` (yeni,
+  🦉 emoji + self-contained dark-mode algılama) yazıldı; `TopicPage.jsx`'e
+  DOKUNULMADI (paylaşılan dosya), 3 sayfanın kendi wrapper'ına eklendi
+  (`WhatIsTestingPage`/`ManualTestingPage`/`AlgorithmsPage`). **Gerçek
+  tarayıcı testiyle bulunan bug:** ilk sürüm sol-alt köşedeydi, App.jsx'teki
+  global `ChatWidget`'la (bottom-20 left-4) çakışıyordu (balon açılınca
+  üstüne biniyordu) — sol kenar dikey-orta konuma taşınarak düzeltildi.
+  `tests/tooltip-guide-mascot.spec.ts` (yeni, 5 test: 3 sayfa aç/kapa +
+  kapsam-dışı sayfada yokluk + ChatWidget çakışma kontrolü) **5/5 PASS**.
+  Doğrulama: content-integrity + i18n baseline 0 + build + mascot testi (5/5)
+  + term-tooltip/mission-flow regresyonu (3/3) — hepsi geçti. Detay: plan §3.6.5.
+
+- **Aynı gün, üçüncü tur — Dikkat Çekme Animasyonu:** Kullanıcı "maskot ilk
+  sayfa açılışta yanıp sönsün, kullanıcı bir defa tıklayınca boyutuna geri
+  dönsün ve sadece sabit kalsın" istedi. `hasInteracted` state eklendi: rozet
+  İLK tıklamaya kadar sürekli yanıp söner (`tooltipGuideAttention`, ölçek+
+  opaklık pulse, 1.1sn), ilk tıklamadan SONRA kalıcı olarak durur + normal
+  boyutuna döner. **2 gerçek bug bulunup düzeltildi:** (1) `@keyframes`
+  tanımı yanlışlıkla sadece balonun içindeydi — rozet balon açılmadan ÖNCE
+  yanıp sönmesi gerektiğinden dışarı taşındı; (2) rozet sürekli pulse ettiği
+  için Playwright'ın "stable" actionability kontrolü ilk tıklamada asla
+  geçmiyordu (test timeout) — gerçek kullanıcıyı ETKİLEMEZ, test'te ilk
+  tıklama `force:true` ile düzeltildi. `tooltip-guide-mascot.spec.ts`'e yeni
+  test eklendi (animasyon öncesi/sonrası + boyut kontrolü). **6/6 PASS**
+  (temiz/tek-worker koşumda; art arda çok test dev server'ı meşgul edip
+  transient timeout verebiliyor — mascot mantığıyla ilgisiz, bilinen not).
+  Doğrulama: content-integrity + i18n baseline 0 + build + mascot testi (6/6)
+  + term-tooltip/mission-flow regresyonu (3/3) — hepsi geçti. Detay: plan §3.6.5.
+
+- **Önceki iş (aynı gün) — Mission Dalga 2:** Phase 1 + Phase 1.5 önceki
+  oturumda TAMAMLANMIŞTI (6 sayfa × 1 mission + kavram tooltip'i). Bu oturumda
+  kullanıcı "bu görevleri ne kadar genişletebilirsin, her dikey sekmede
+  uygulanabilir mi?" diye sordu. Değerlendirme: teknik engel yok ama HER
+  sekmede zorlama görev, kullanıcının orijinal stratejik yazısının uyardığı
+  "özellik sayısı, derinlik değil" tuzağına düşer — sadece "aksiyon" sekmeleri
+  (Framework Mimarisi, Network, Troubleshooting, JOINs, Test Zinciri gibi)
+  buna uygun. Kullanıcı **"mevcut 6 sayfada, aksiyon sekmelerine +1-2 görev"**
+  seçeneğini onayladı.
+  - **✅ MISSION DALGA 2 TAMAMLANDI — 6 sayfanın HER BİRİNE ikinci bir görev
+    eklendi** (plan §9.2 Dalga 2 tablosu, 6 ayrı commit):
+    1. **Selenium** → Framework Mimarisi (SOLID+POM) sekmesi: "Ham testi POM'a
+       refactor et" (`selenium-pom-refactor-mission`) — locator tekrarının
+       riski (prediction) → LoginPage sınıfı yaz → login() metodu yaz →
+       bakım maliyeti 10→1 dosya (prediction) → testi Page Object'le yeniden yaz.
+    2. **Playwright** → Framework Mimarisi sekmesi: aynı POM teması TypeScript
+       karşılığı (`playwright-pom-refactor-mission`) — sekmenin zaten
+       derinlemesine işlediği fixture/DI konusuyla ÇAKIŞMAZ.
+    3. **Cypress** → Network & cy.intercept() sekmesi: "Yavaş API'yi stub'la,
+       loading/hata durumunu test et" (`cypress-network-stub-mission`) — farklı
+       tema (network stubbing). ⚠️ **Gerçek bug yakalandı:** bu sekme (s5)
+       ÇİFT-AĞAÇLI, ilk yazımda görev SADECE EN ağacına gitmişti, doğrulama
+       sırasında TR ağacına da eklendi.
+    4. **Python** → Troubleshooting/Yaygın Hatalar sekmesi: "CI'da patlayan
+       traceback'i oku, kök nedeni bul, düzelt" (`python-traceback-debug-mission`)
+       — stepAnimationTracebackReading'in "en alttan oku" kalıbını uygulamalı
+       yapıyor. `finalEnSections`/`finalTrSections`'a (Dalga A8 güvenli kalıp).
+    5. **SQL** → SQL JOINs sekmesi: "Sipariş verisinde yetim kayıt bul"
+       (`sql-orphan-orders-mission`) — LEFT JOIN + WHERE IS NULL idiyomu.
+    6. **REST Assured** → Test Zinciri sekmesi: "Kullanıcı oluştur, id çıkar,
+       GET ile doğrula" (`restassured-chain-mission`) — sekmenin zaten
+       gösterdiği tam `UserCrudE2ETest` zincirinin en küçük yapı taşı.
+  - **Toplam mission sayısı: 6 → 12** (`audit-learning-blocks.mjs` çıktısı).
+  - **Doğrulama (her commit'te ayrı ayrı):** content-integrity ✓ · i18n
+    baseline 0 ✓ · audit-learning-blocks (mission:12, 0 ihlal) ✓ · build ✓
+    (43 shell) · `tests/mission-flow.spec.ts` regresyon testi (Selenium'da
+    artık 2 mission var, test hâlâ doğru olanı — Locators'takini — bulup
+    PASS oluyor) ✓.
+  - Plan §9.2 manuel test rehberi Dalga 1/Dalga 2 tablolarıyla güncellendi.
+  - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2/Phase 3 hâlâ
+    ayrı onay + planlama ister.
+
+- **Önceki oturum (2026-07-30, Opus) — Challenge-First Phase 1 Opus tarafı:**
+
+- **Aktif branch: `feature/challenge-first`** (yeni, `main`'den açıldı). Kullanıcının
+  stratejik değerlendirme yazısı denetlenip yeni plan yazıldı:
+  **`Documents/challenge-first-experience-plan.md`** (learning-science planının halefi).
+  Değerlendirme özeti: yazının "Phase 3" listesi (AI coach / prediction / memory-viz /
+  analytics) ZATEN BİTMİŞ; gerçek yeni değer challenge-first + iş simülasyonu.
+  Kullanıcı **Phase 1 = Challenge-First Senaryo Katmanı** yönünü seçti; açık ürün
+  kararı (sayfa-içi vs ayrı sekme) önerilen "sayfa-içi" ile ilerletildi.
+  - **PHASE 1 OPUS TARAFI (P1-O1…O5) TAMAMLANDI — bu oturum:**
+    - `src/lib/skillSignals.js` (yeni) — local-first beceri sinyali deposu
+      (`recordSkillSignal`/`getSkillSignals`/`getSkillSignalCounts`/`hasSkillSignal`).
+      Phase 3'te SkillRadar'ı "çözülen challenge"dan besleyecek; şimdilik toplar.
+    - `src/components/MissionBlock.jsx` (yeni) — `type:'mission'` görev zinciri:
+      adım sırayla kilit açar, gömülü blok `onFirstSuccess` verince adım biter,
+      "💡 Takıldın mı? Mini-lesson aç" (challenge-first çekirdeği), tamamlanınca
+      XP+konfeti+beceri sinyali+debrief. YENİ SANDBOX YAZMAZ.
+    - `src/components/TopicPage.jsx` — `import MissionBlock` + `case 'mission'`:
+      `renderInner` callback'i her adımın gömülü bloğunu (code-playground/prediction/
+      editor/sandbox…) AYNI `renderBlock` makinesinden geçirir.
+    - `scripts/audit-learning-blocks.mjs` — `mission` şema değişmezi eklendi
+      (id benzersiz + relatedTopicId + ≥3 adım + her adımda brief/miniLesson/
+      type'lı block + successCriterion geçerli). Build hard-fail. MISSION_FILES
+      listesi seleniumData.js dahil — Sonnet rollout ederken yeni dosyaları ekleyecek.
+    - `src/data/seleniumData.js` — REFERANS görev "Login sayfasını test et"
+      (Locators sekmesi, 5 adım: locator seç → tıkla → assert → wait stratejisi
+      seç → explicit wait yaz; çift-ağaç `s2.tr/s2.en`'e tek sabit push).
+  - **Doğrulama:** `audit-learning-blocks` ✓ (mission: 1, 0 ihlal) · content-integrity
+    ✓ (38 dosya) · i18n:check ✓ (baseline 0, regresyon yok) · `npm run build` ✓
+    (43 static shell, SEO geçti; seleniumData chunk 633 kB — bilinen büyük-chunk
+    uyarısı, §14/§23.8).
+  - **PHASE 1.5 — KAVRAM TOOLTIP OPUS TARAFI (P1.5-O1…O3) da TAMAMLANDI — aynı oturum:**
+    Kullanıcı gözlemi: "yazılım bilmeyen kullanıcı en basit kavramları anlamıyor."
+    Çözüm: terimlerin üstüne gelince/dokununca günlük-hayat benzetmesi baloncuğu.
+    - `src/data/termGlossary.js` (yeni) — terim→benzetme sözlüğü, ~24 tohum terim
+      (locator, selector, assertion, fixture, XPath, DOM, API, endpoint, CI/CD,
+      pipeline, commit, merge, branch, framework, boolean, null, exception,
+      variable, array, query, flaky test, timeout, mock, regression).
+    - `src/components/TermTooltip.jsx` (yeni) — hover/focus/tap ile açılan,
+      ESC/dışarı-tık kapanan, klavye-erişilebilir, dark-mode + bilingual popover +
+      `highlightGlossaryTerms` helper (modül-seviyesi tek regex, `\b` ASCII sınırı,
+      blok başına ilk-geçiş ≤8 terim; kod blokları ASLA sarılmaz).
+    - `src/components/TopicPage.jsx` — `case 'text'` ve `case 'simple-box'` prose
+      render'ına `highlightGlossaryTerms(...)` bağlandı (minimal, düşük risk).
+    - **Not:** termGlossary.js `*Glossary.js` olduğundan i18n scanner'ın `*Data.js`
+      glob'una GİRMİYOR — `en` saf İngilizce + `aliases` ASCII elle korunmalı
+      (plan §3.6.1). Gate'ler yeşil (content-integrity + i18n:0 + build 43 shell).
+- **Bu oturum (2026-07-30, Sonnet) — Phase 1 mission rollout devam ediyor
+  (branch `feature/challenge-first`, plan §7.2/§7.3):**
+  - ✅ **playwrightData.js — "Sepete ürün ekle" mission görevi eklendi** (commit
+    aşağıda). Locator Stratejileri sekmesi (s3), 5 adım: sağlam locator seç
+    (getByRole vs class vs XPath, prediction) → tıkla (code-playground) →
+    web-first assertion yaz (code-playground) → auto-wait'in Thread.sleep'i
+    neden gereksiz kıldığını anla (prediction) → uçtan uca birleştir
+    (code-playground). automationexercise.com'u hedefliyor (sitenin kendi test
+    konusu — projeyle tutarlı). Çift-ağaç `s3.tr/s3.en`'e tek sabit push.
+    `scripts/audit-learning-blocks.mjs` `MISSION_FILES`'e `playwrightData.js`
+    eklendi. **Doğrulama:** audit (mission: 2, 0 ihlal) ✓ · content-integrity ✓ ·
+    i18n baseline 0 ✓ · build ✓ (43 shell).
+  - ✅ **cypressData.js — "Ürün ara ve sonuçları doğrula" mission görevi eklendi.**
+    Temel Komutlar & Selector Stratejisi sekmesi (s2), 5 adım: data-cy selector
+    seç (prediction) → yaz (code-playground) → retry-able .should() assertion
+    yaz (code-playground) → cy.wait(sayı)'nın neden flaky testin en sık kök
+    nedeni olduğunu anla (prediction) → uçtan uca birleştir (code-playground).
+    Debrief üç aracı (WebDriverWait/web-first assertion/.should()) "aynı
+    problemi çözer: koşulu bekle, süreyi değil" diye bağlıyor. Çift-ağaç
+    `s2.tr/s2.en`'e tek sabit push. `MISSION_FILES`'e `cypressData.js` eklendi.
+    **Doğrulama:** audit (mission: 3, 0 ihlal) ✓ · content-integrity ✓ ·
+    i18n baseline 0 ✓ · build ✓ (43 shell).
+  - ✅ **pythonData.js — "Kullanıcı API'sini pytest ile test et" mission görevi
+    eklendi.** Real World (pytest) sekmesi (final section index 16), 5 adım:
+    fixture ile tekrarı önleme kararı (prediction) → base_url fixture'ını yaz
+    (code-playground) → status_code assert et (code-playground) → parametrize
+    kararı (prediction) → fixture+parametrize'ı uçtan uca birleştir
+    (code-playground). pythonData.js'in RİSKLİ `applyTr`/index-override
+    mekanizmasına DOKUNULMADI — güvenli kalıbı takip ederek mission sabiti
+    SADECE `finalEnSections[16]`/`finalTrSections[16]` dizi literal'lerine
+    (spread sonrası) eklendi (bkz. dosyadaki "GUVENLIK NOTU" — Dalga A8 kalıbı).
+    **Doğrulama:** audit (mission: 4, prediction: 44) ✓ · content-integrity ✓ ·
+    i18n baseline 0 ✓ · build ✓ (43 shell).
+  - ⚠️ **Yan bulgu ve düzeltme — ASCII-normalize Türkçe kör noktası (CLAUDE.md
+    §23.1) 3 yerde gerçekten yakalandı:** `check-i18n-leaks.mjs` özel Türkçe
+    karakter (ığşçöüİĞŞÇÖÜ) arıyor; "bazen 200ms, bazen 1.5sn" gibi özel
+    karaktersiz Türkçe yorumlar plain-string `prediction.code` alanlarında
+    sessizce EN moda sızıyordu. Python'daki yeni blok scanner'ın YAKALADIĞI
+    (özel karakterli) 1 leak'i düzeltirken, aynı kalıbın **playwrightData.js**
+    (`pw-mission-autowait-choice`), **cypressData.js** (`cy-mission-nowait-
+    choice`) ve **seleniumData.js** (`sel-mission-wait-choice`, önceki Opus
+    oturumundan kalma) içinde de var olduğu elle taranarak bulundu — üçü de
+    `{tr,en}` bilingual yapıldı. Ders: yeni prediction `code` alanı yazarken
+    düz string + Türkçe yorum kombinasyonundan KAÇIN, baştan `{tr,en}` yaz.
+  - ✅ **sqlData.js — "Ürün fiyat verisini doğrula" mission görevi eklendi.**
+    SELECT & Sort sekmesi, 5 adım: doğru WHERE koşulu seçimi (prediction) →
+    negatif fiyatları getiren sorguyu yaz → ORDER BY ile en kötü fiyatı üste
+    sırala → NULL'ın karşılaştırmalarda SESSİZCE elendiğini anlama (prediction)
+    → negatif+NULL'ı birleştiren tam sorguyu yaz. `predSqlDistinctMultiCol`
+    kalıbını takip etti: tek bilingual sabit, hem EN hem TR "SELECT & Sort"
+    section'ına AYNI referansla (`replace_all`) eklendi. **Doğrulama:** audit
+    (mission: 5, prediction: 46) ✓ · content-integrity ✓ · i18n baseline 0 ✓ ·
+    build ✓ (43 shell).
+  - ✅ **restAssuredData.js — "GET /api/users/2 isteğini given/when/then ile
+    test et" mission görevi eklendi.** Assertions (Hamcrest) sekmesi, 5 adım:
+    eksik .then() zincirinin sonucunu tahmin et (prediction) → status code
+    doğrula → body içeriğini (JSON Path + Hamcrest) doğrula → negatif senaryo
+    kararı — var olmayan kullanıcı için doğru HTTP kodu (prediction) → negatif
+    senaryoyu yaz (id=9999 → 404). Plan §3.3'ün "API (Postman/REST Assured —
+    istek→assertion→negatif senaryo)" hedefini birebir karşılıyor. Tek-ağaçlı
+    dosya (§9.5): sabit `sections[5]`'e (paylaşılan tr/en referansı) TEK yere
+    eklendi. `MISSION_FILES`'e `restAssuredData.js` eklendi. **Doğrulama:**
+    audit (mission: 6, 0 ihlal) ✓ · content-integrity ✓ · i18n baseline 0 ✓ ·
+    build ✓ (43 shell).
+  - **✅ P1-S1 (6 sayfa mission rollout) TAMAMLANDI** — Selenium (Opus referans) +
+    Playwright + Cypress + Python + SQL + REST Assured, plan §3.4'teki "en az
+    6 sayfa" hedefine ULAŞILDI.
+  - ✅ **P1-S3 + P1-S4 TAMAMLANDI:**
+    - `tests/mission-flow.spec.ts` (yeni) — /selenium referans görevi üzerinde
+      TAM veri-güdümlü E2E: adım kilidinin sırayla açıldığı, "Mini-lesson aç"ın
+      çalıştığı (metin `steps[].miniLesson`'dan okunur), tüm 5 adım (2
+      prediction + 3 code-playground) sırayla tamamlanınca tamamlanma banner'ı
+      + `learnqa_xp_selenium` localStorage'a XP/completed'ın gerçekten
+      yazıldığı doğrulanıyor. Sabit metin/id gömülmez — `seleniumData`'dan
+      hesaplanır (`tests/learning-blocks-render.spec.ts` ile aynı ilke).
+      **Yerel Chromium'da PASS (37.8s).** Yeni route yok → §22.1 değişmez.
+    - `src/components/MissionBlock.jsx` — testi güvenilir kılmak için 4
+      `data-testid` eklendi (`mission-block` + `data-mission-id`/`data-
+      mission-complete`, `mission-step` + `data-step-index`/`data-step-
+      locked`/`data-step-done`, `mission-mini-lesson`, `mission-complete-
+      banner`) — `mentor-panel`/`mentor-ai-button` kalıbıyla aynı (içerik
+      DEĞİŞMEDİ, sadece test-scoping).
+    - `CLAUDE.md` §5 blok listesine `prediction | code-trace | heap-stack | mission`
+      eklendi (üçü zaten vardı ama listeye hiç girmemişti — fırsatçı düzeltme).
+    - **Doğrulama:** content-integrity ✓ · i18n baseline 0 ✓ · audit-learning-
+      blocks (mission:6, 0 ihlal) ✓ · build ✓ (43 shell) · `npx playwright test
+      tests/mission-flow.spec.ts` ✓ (1/1 PASS).
+  - **✅ PHASE 1 (Challenge-First Senaryo Katmanı) TAMAMLANDI** — plan §3.4
+    "bitti" tanımının tamamı karşılandı: 6 sayfa (Selenium+Playwright+Cypress+
+    Python+SQL+REST Assured), audit/i18n/build kapıları yeşil, E2E test yeşil,
+    `skillSignals.js` her görev bitince sinyal topluyor (Phase 3 hazır).
+  - ✅ **P1.5-S1 — `termGlossary.js` 24 → 57 terime genişletildi** (33 yeni
+    terim): loop, condition, class/object, inheritance, JSON, HTTP status
+    code, cookie/session, container, image, pod, thread, async/await,
+    promise, callback, closure, generic, regex, environment variable,
+    dependency, repository, deploy, rollback, cache, latency, idempotent,
+    token, schema, webhook, payload, queue, load balancer, log/stack trace,
+    race condition. Her biri günlük-hayat benzetmeli + bilingual + ASCII
+    aliases; script ile 0 duplicate alias + 0 non-ASCII + 0 eksik EN alanı
+    doğrulandı. **Doğrulama:** node --check ✓ · content-integrity ✓ · i18n
+    baseline 0 ✓ · build ✓ (43 shell). (Not: `termGlossary.js` `*Data.js`
+    glob'una girmediği için i18n scanner'ın 38-dosya taramasına dahil DEĞİL —
+    ASCII/EN bütünlüğü yukarıdaki özel script ile elle doğrulandı.)
+  - ✅ **P1.5-S3 — `tests/term-tooltip.spec.ts` (yeni) TAMAMLANDI:** /selenium
+    Locators sekmesi üzerinde tam veri-güdümlü E2E (hangi sekmede/terimde test
+    edileceği `TERM_GLOSSARY` + `seleniumData` TARANARAK bulunur, sabit
+    gömülmez). İki test: (1) bilinen terim noktalı-çizgili sarılıyor, hover ile
+    popover açılıp benzetme metnini gösteriyor, ESC ile kapanıyor, TAB
+    (klavye) ile fokuslanınca da açılıp blur'da kapanıyor (§3.6.1 "hover VE
+    focus VE tap" gereksinimi); (2) `<pre>` kod bloğu içinde HİÇ tooltip
+    tetikleyici yok (mekanizma mimari olarak sadece text/simple-box'a bağlı).
+    **Bulgu (test yazarken düzeltildi):** ilk yazımda hover sonrası aynı
+    elemente `.click()` atmak popover'ı AÇMAK yerine KAPATIYORDU (imleç zaten
+    üstteyken click, hover'ın açtığı state'i toggle'lıyor) — click-toggle
+    testi bunun yerine klavye focus/blur ile değiştirildi (hem daha güvenilir
+    hem erişilebilirlik iddiasını daha doğrudan kanıtlıyor). Ayrıca test
+    güvenilirliği için `TermTooltip.jsx`'e 3 `data-testid` eklendi
+    (`term-tooltip-trigger` + `data-term-key`, `term-tooltip-popover`).
+    **Yerel Chromium'da 2/2 PASS (33.2s).**
+  - **✅ PHASE 1.5 (Kavram Tooltip'i) TAMAMEN BİTTİ.** P1.5-S2 (kapsamı
+    callout/info/tip render'larına genişletme) BİLİNÇLİ OLARAK ATLANDI —
+    opsiyonel işaretliydi (plan §7.3), mevcut text/simple-box kapsamı
+    çekirdek kullanıcı deneyimini zaten karşılıyor; istenirse sonraki
+    oturumda eklenebilir.
+  - **✅✅ PHASE 1 + PHASE 1.5 TAMAMEN BİTTİ (bu oturum, 2026-07-30→31).**
+    Tüm doğrulama kapıları (content-integrity + i18n baseline 0 +
+    audit-learning-blocks + build 43 shell + 2 yeni E2E test dosyası, toplam
+    3/3 PASS yerel Chromium'da) yeşil. `main`'e merge/PR kararı kullanıcıda.
+  - 🔜 **Sırada (kullanıcı onayı + ayrı planlama gerektirir, plan §4/§5):**
+    Phase 2 (QA Sprint/Company Simulator, yeni `/sprint` rotası) veya Phase 3
+    (adaptif zorluk + SkillRadar'ı `skillSignals.js`'ten besleme).
+  - **Açık iş:** `main`'e merge/PR kararı kullanıcıda. Phase 2 (Sprint Simulator) ve
+    Phase 3 (adaptif zorluk) ayrı onay + planlama ister (plan §4/§5).
+
+- **Önceki oturum (2026-07-30, Opus) — plan denetimi + öğrenme-blok testleri
+  (branch `feature/prediction-blocks`):** Bu oturumun SON işi (2026-07-30, Opus):
   `learning-science-upgrade-plan.md`'nin ne kadar yerine getirildiği denetlendi
   ve **test kapsamı boşluğu kapatıldı** (commit `142d8d5`):
   - **Denetim sonucu — plan TAM yerine getirilmiş:** prediction (java=10/js=9/
@@ -129,6 +400,15 @@
 - Bu branch'e geçmeden önceki oturumda `feature/api-testing-page` üzerinde **i18n EN-sızıntı temizliği** yapılmıştı: video-scene pasif buton görünürlüğü düzeltildi, 6 tablo + error-dictionary bilingual yapıldı, code-playground yorumları bilingual hale getirildi (TR Türkçe / EN İngilizce), ve yeni bir **statik scanner** eklendi: `scripts/check-i18n-leaks.mjs` (build zincirinde + `pre-commit`'te çalışır, `npm run i18n:check` / `npm run i18n:baseline`). Kök neden, çözüm ve kullanım detayı: **CLAUDE.md §23.1**.
 
 ## 🔜 Açık İşler / Sıradaki Adımlar
+
+0. **YENİ PLAN (2026-07-30) — `Documents/challenge-first-experience-plan.md`:**
+   Kullanıcının stratejik değerlendirme yazısı denetlendi. Sonuç: yazının
+   "Phase 3" listesinin çoğu ZATEN BİTMİŞ (mentor/prediction/memory-viz/analytics).
+   Gerçek yeni değer → **Phase 1: Challenge-First Senaryo Katmanı** (yeni `mission`
+   blok tipi; mevcut sandbox'ları göreve sarar, frontend-only). Kullanıcı bu yönü
+   seçti (2026-07-30). Phase 2 = Sprint/Company Simulator, Phase 3 = adaptif zorluk,
+   Phase 4 = park. Opus/Sonnet hazır promptları planın §7'sinde. **Açık karar
+   (Opus başlamadan):** görevler sayfa-içi mi ayrı sekme mi (öneri: sayfa-içi).
 
 1. **i18n EN-sızıntı temizliği TAMAMEN BİTTİ (2026-07-25 → 2026-07-29, çoklu oturum, KAPALI):** `check-i18n-leaks.mjs` scanner'ı sıfırdan inşa edildi ve art arda düzeltildi — yanlış-ağaç tarama (8490 hayalet leak), paylaşımlı-sabit tespiti, `why`/`note` ve `field`/`fieldEn` sibling farkındalığı, `codeCommentTranslations` runtime simülasyonu. Borç azalma sırası: 8490(hayalet) → 646 → 365 → 223 → 199 → 109 → 67 → 9 → **0**. Kök neden/çözüm kalıpları kalıcı olarak **CLAUDE.md §23.1 ve §23.6**'da belgeli (yeni bir "OPUS"/"YERİNDE-ÇEVİR" leak'e rastlarsan önce oraya bak); adım adım geçmiş `git log --oneline`'daki `fix(i18n...)` commit'lerinde duruyor, burada tekrarlanmıyor. `npm run i18n:check` artık "grandfathered borç: 0" basıyor — herhangi bir yeni sızıntı build'i kırar.
 2. **`/qa-frontend` → `main` merge/PR kararı** kullanıcıda; sayfa içerik olarak bitti, manuel test rehberi (`Documents/qa-frontend-page-plan.md` §F) hazır, isteğe bağlı olarak `npm run test:e2e` ile Playwright koşumu yapılabilir.

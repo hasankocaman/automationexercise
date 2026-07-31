@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import TopicHeader from './TopicHeader'
 import VideoSceneBlock from './VideoSceneBlock'
 import LessonFinishBadge from './LessonFinishBadge'
+import { highlightGlossaryTerms } from './TermTooltip'
+import TooltipGuideMascot from './TooltipGuideMascot'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { beginnerAlgorithmsData } from '../data/beginnerAlgorithmsData'
@@ -1141,11 +1143,11 @@ function LessonCard({ lesson, labels, darkMode, neuroMode, recallProgress, onRec
                             <div className="grid gap-4">
                                 <div className={`rounded-lg border-l-4 p-4 text-sm leading-relaxed ${darkMode ? 'bg-amber-500/10 text-amber-100' : 'bg-amber-50 text-amber-900'}`} style={{ borderColor: '#f59e0b' }}>
                                     <div className="mb-1 text-xs font-black uppercase tracking-wide">{labels.lesson}</div>
-                                    {lesson.analogy}
+                                    {highlightGlossaryTerms(lesson.analogy, language, darkMode)}
                                 </div>
                                 <div className={`rounded-lg border p-4 text-sm leading-relaxed ${darkMode ? 'border-slate-700 bg-slate-950 text-slate-300' : 'border-slate-200 bg-slate-50 text-slate-700'}`}>
                                     <div className="mb-1 text-xs font-black uppercase tracking-wide" style={{ color: lesson.color }}>{labels.why}</div>
-                                    {lesson.why}
+                                    {highlightGlossaryTerms(lesson.why, language, darkMode)}
                                 </div>
                             </div>
                             <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950/70' : 'border-slate-200 bg-slate-50'}`}>
@@ -1502,6 +1504,7 @@ function AlgorithmsPage() {
             >
                 🏠
             </button>
+            <TooltipGuideMascot />
         </div>
     )
 }

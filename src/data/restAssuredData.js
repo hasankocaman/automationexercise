@@ -760,6 +760,380 @@ void statusIs200() {
   successMessage: { tr: 'Doğru! Aynı doğrulama mantığı, iki farklı araçta iki farklı sözdizimiyle ifade edildi.', en: 'Correct! The same verification logic, expressed with two different syntaxes in two different tools.' },
 }
 
+// 🎯 CHALLENGE-FIRST GÖREVİ (challenge-first-experience-plan.md §3.3 P1-S1)
+// "GET /api/users/2 isteğini given/when/then ile test et" — istek → assertion
+// → negatif senaryo akışını içeren gerçek bir REST Assured senaryosu. Bu,
+// Selenium/Playwright/Cypress/Python/SQL referans görevlerinin API-testing
+// karşılığıdır (plan §3.3 Sonnet görev listesi: "API (Postman/REST Assured —
+// istek→assertion→negatif senaryo)"). MEVCUT prediction/code-playground
+// bloklarını gömer, yeni sandbox yazılmaz. Tek-ağaçlı dosya (§9.5): bilingual
+// alanlar tek objede, sections dizisine (index 5, Assertions) TEK yere konur.
+const restAssuredUserApiMission = {
+  type: 'mission',
+  id: 'restassured-user-api-mission',
+  xpReward: 45,
+  relatedTopicId: 'rest-assured-assertions',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Bugün bir kullanıcı API\'sini (GET /api/users/2) REST Assured ile test edeceksin — hem "kullanıcı bulundu" hem "kullanıcı bulunamadı" senaryosunu. Ders okumayacaksın — bir QA gibi adım adım gerçek bir REST Assured testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will test a user API (GET /api/users/2) with REST Assured — both the "user found" and "user not found" scenarios. You will not read a lesson — you will build a real REST Assured test step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'ra-mission-step-chain',
+      brief: { tr: '1) Eksik bir given/when/then zincirinden hangi parça eksikse testin ne olacağını tahmin et.', en: '1) Predict what happens to the test when a piece of the given/when/then chain is missing.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'given() (hazırlık) → when() (eylem) → then() (doğrulama) ZORUNLU sırayla gelir. .then() olmadan istek GÖNDERİLİR ama HİÇBİR ŞEY doğrulanmaz — sunucu 500 dönse bile test yeşil kalır, çünkü kimse kontrol etmiyor. Bu, Selenium\'da tıklayıp assertion yazmamaya, Cypress\'te .should() eklememeye eşdeğerdir.',
+        en: 'given() (setup) → when() (action) → then() (verification) come in a MANDATORY order. Without .then(), the request IS SENT but NOTHING is verified — even if the server returns 500, the test stays green because nobody is checking. This is the equivalent of clicking in Selenium without an assertion, or forgetting .should() in Cypress.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'ra-mission-chain-choice',
+        xpReward: 10,
+        relatedTopicId: 'rest-assured-assertions',
+        prompt: { tr: 'Bu kodda .then() satırı YOK. Test ne olur?', en: 'This code has NO .then() line. What happens to the test?' },
+        code: `given()\n    .when().get("/api/users/2");`,
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'İstek gönderilir ama HİÇBİR ŞEY doğrulanmaz, test PASS görünür', en: 'The request is sent but NOTHING is verified, the test appears to PASS' }, correct: true },
+          { id: 'b', label: { tr: 'Derleme hatası verir, kod çalışmaz', en: 'It throws a compile error, the code does not run' }, why: { tr: 'Sözdizimi geçerlidir — .then() opsiyoneldir, eklenmemesi derleme hatası vermez.', en: 'The syntax is valid — .then() is optional, omitting it does not cause a compile error.' } },
+          { id: 'c', label: { tr: 'Otomatik olarak 200 bekler ve doğrular', en: 'It automatically expects and verifies 200' }, why: { tr: 'Hiçbir doğrulama otomatik eklenmez — .then() yazılmadıkça hiçbir assertion çalışmaz.', en: 'No verification is added automatically — no assertion runs unless .then() is written.' } },
+        ],
+        reveal: {
+          tr: '.then() olmadan istek gönderilir ama sonuç hiç kontrol edilmez — bu "test" hiçbir bug yakalayamaz, her zaman PASS görünür. Bu, Selenium\'da tıklayıp assertion eklememek veya Cypress\'te .should() yazmamakla AYNI hatadır: aksiyon var, doğrulama yok.',
+          en: 'Without .then() the request is sent but the result is never checked — this "test" catches no bugs and always appears to PASS. This is the SAME mistake as clicking in Selenium without adding an assertion, or forgetting .should() in Cypress: there is an action, but no verification.',
+        },
+      },
+    },
+    {
+      id: 'ra-mission-step-status',
+      brief: { tr: '2) GET /api/users/2 isteğinin 200 döndürdüğünü doğrulayan tam zinciri yaz.', en: '2) Write the full chain that verifies GET /api/users/2 returns 200.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'given().when().get(url).then().statusCode(200); üç adımı TEK akıcı zincirde birleştirir: hazırlık, eylem, doğrulama. .statusCode(200), Hamcrest\'in equalTo(200) matcher\'ının kısayoludur — okunabilirlik için REST Assured tarafından sağlanır.',
+        en: 'given().when().get(url).then().statusCode(200); merges the three steps into ONE fluent chain: setup, action, verification. .statusCode(200) is a shortcut for Hamcrest\'s equalTo(200) matcher — provided by REST Assured for readability.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-mission-status-code',
+        relatedTopicId: 'restassured-user-api-mission',
+        label: { tr: 'Durum kodunu doğrula', en: 'Verify the status code' },
+        language: 'java',
+        task: { tr: 'TODO satırını, GET /api/users/2 isteğinin status code\'unun 200 olduğunu doğrulayan .then() zinciriyle tamamla.', en: 'Complete the TODO line with a .then() chain that verifies the status code of GET /api/users/2 is 200.' },
+        explanation: { tr: 'Gerçek bir HTTP isteği göndermez; amaç given/when/then + statusCode zincirini kendin yazmayı pekiştirmek.', en: 'Does not send a real HTTP request; the goal is to reinforce writing the given/when/then + statusCode chain yourself.' },
+        code: {
+          tr: `given()\n    .when().get("/api/users/2")\n    .then().statusCode(200);`,
+          en: `given()\n    .when().get("/api/users/2")\n    .then().statusCode(200);`,
+        },
+        starterCode: {
+          tr: `given()\n    .when().get("/api/users/2")\n    // TODO: status code'un 200 oldugunu dogrula\n`,
+          en: `given()\n    .when().get("/api/users/2")\n    // TODO: verify the status code is 200\n`,
+        },
+        solutionCode: {
+          tr: `given()\n    .when().get("/api/users/2")\n    .then().statusCode(200);`,
+          en: `given()\n    .when().get("/api/users/2")\n    .then().statusCode(200);`,
+        },
+        expected: { tr: 'Sunucu 200 döndürürse test PASS, farklı bir kod (404, 500 gibi) dönerse FAIL verir.', en: 'The test passes if the server returns 200, and fails if a different code (like 404, 500) is returned.' },
+        hints: [
+          { tr: '.then() zincirin doğrulama parçasıdır — when()\'den SONRA gelir.', en: '.then() is the verification part of the chain — it comes AFTER when().' },
+          { tr: '.statusCode(200) doğrudan HTTP durum kodunu kontrol eder.', en: '.statusCode(200) checks the HTTP status code directly.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'ra-mission-step-body',
+      brief: { tr: '3) Durum koduna ek olarak, dönen JSON\'daki id alanının 2 olduğunu da doğrula.', en: '3) In addition to the status code, also verify the id field in the returned JSON is 2.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Sadece 200 kontrol etmek, doğru İSTEĞİN doğru CEVABI aldığını garanti etmez — sunucu yanlış kullanıcıyı da 200 ile dönebilir. .body("data.id", equalTo(2)) JSON Path ile response body\'nin İÇİNE bakar; Hamcrest\'in equalTo() matcher\'ı ile zincirlenir. Aynı .then() zincirine EKLENEBİLİR, ayrı bir satır gerekmez.',
+        en: 'Checking only 200 does not guarantee the right REQUEST got the right RESPONSE — the server could return a different user with 200 too. .body("data.id", equalTo(2)) looks INSIDE the response body using JSON Path, chained with Hamcrest\'s equalTo() matcher. It can be CHAINED onto the same .then(), no separate line needed.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-mission-body-code',
+        relatedTopicId: 'restassured-user-api-mission',
+        label: { tr: 'Body içeriğini doğrula', en: 'Verify the body content' },
+        language: 'java',
+        task: { tr: 'TODO satırını, status code 200 kontrolüne ek olarak data.id alanının 2 olduğunu doğrulayan bir .body() ile tamamla.', en: 'Complete the TODO line by adding a .body() check that data.id equals 2, alongside the status code 200 check.' },
+        explanation: { tr: 'Amaç: status code doğrulamasının YETMEDİĞİ, gövde içeriğinin de kontrol edilmesi gerektiği senaryoyu pekiştirmek.', en: 'Goal: reinforce that a status code check is NOT enough — the body content must be verified too.' },
+        code: {
+          tr: `given()\n    .when().get("/api/users/2")\n    .then()\n        .statusCode(200)\n        .body("data.id", equalTo(2));`,
+          en: `given()\n    .when().get("/api/users/2")\n    .then()\n        .statusCode(200)\n        .body("data.id", equalTo(2));`,
+        },
+        starterCode: {
+          tr: `given()\n    .when().get("/api/users/2")\n    .then()\n        .statusCode(200)\n        // TODO: data.id alaninin 2 oldugunu dogrula\n`,
+          en: `given()\n    .when().get("/api/users/2")\n    .then()\n        .statusCode(200)\n        // TODO: verify data.id equals 2\n`,
+        },
+        solutionCode: {
+          tr: `given()\n    .when().get("/api/users/2")\n    .then()\n        .statusCode(200)\n        .body("data.id", equalTo(2));`,
+          en: `given()\n    .when().get("/api/users/2")\n    .then()\n        .statusCode(200)\n        .body("data.id", equalTo(2));`,
+        },
+        expected: { tr: 'Hem status code 200 hem de data.id\'nin 2 olduğu birlikte doğrulanır.', en: 'Both the 200 status code and data.id equal to 2 are verified together.' },
+        hints: [
+          { tr: '.body(jsonPath, matcher) aynı .then() zincirine eklenir — yeni bir given/when gerekmez.', en: '.body(jsonPath, matcher) is added onto the same .then() chain — no new given/when needed.' },
+          { tr: 'equalTo(2) bir Hamcrest matcher\'ıdır, statik import ile gelir.', en: 'equalTo(2) is a Hamcrest matcher, brought in via a static import.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'ra-mission-step-negative-predict',
+      brief: { tr: '4) Var olmayan bir kullanıcı (id=9999) istendiğinde ne dönmesi GEREKTİĞİNİ tahmin et.', en: '4) Predict what SHOULD be returned when a non-existent user (id=9999) is requested.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Sadece "var olan kullanıcı çalışıyor" testi yeterli değildir — bir API\'nin OLMAYAN bir kaynak için DOĞRU hata kodunu döndürmesi de test edilmeli. GET /api/users/9999 için doğru davranış 404 Not Found\'dur; 200 dönerse (boş veya yanlış içerikle) bu ciddi bir API tasarım hatasıdır ve production\'da sessizce yanlış davranışa yol açar.',
+        en: 'A test that only checks "the existing user works" is not enough — an API must also be tested for returning the CORRECT error code for a resource that does NOT exist. The correct behavior for GET /api/users/9999 is 404 Not Found; if it returns 200 (with empty or wrong content) that is a serious API design bug that silently causes wrong behavior in production.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'ra-mission-negative-choice',
+        xpReward: 10,
+        relatedTopicId: 'rest-assured-assertions',
+        prompt: { tr: 'GET /api/users/9999 (var olmayan kullanıcı) için doğru API davranışı hangisi?', en: 'What is the correct API behavior for GET /api/users/9999 (a non-existent user)?' },
+        code: `GET /api/users/9999\n// user with id=9999 does not exist`,
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: '200 OK ve boş bir body', en: '200 OK with an empty body' }, why: { tr: '200 "başarılı" demektir — ama kullanıcı bulunamadı, bu yanıltıcı bir sinyaldir; client kodu bunu "kullanıcı var ama boş" sanabilir.', en: '200 means "success" — but the user was not found, which is a misleading signal; client code might think "the user exists but is empty".' } },
+          { id: 'b', label: { tr: '404 Not Found', en: '404 Not Found' }, correct: true },
+          { id: 'c', label: { tr: '500 Internal Server Error', en: '500 Internal Server Error' }, why: { tr: '500 sunucu tarafında BEKLENMEYEN bir hata anlamına gelir — "kullanıcı bulunamadı" beklenen, normal bir durumdur, sunucu hatası değildir.', en: '500 means an UNEXPECTED server-side error — "user not found" is an expected, normal case, not a server failure.' } },
+        ],
+        reveal: {
+          tr: '404 Not Found doğru: HTTP durum kodları anlam taşır — 404 "istenen kaynak bulunamadı" der ve client kodun bunu doğru şekilde ele almasını (örn. "Kullanıcı bulunamadı" mesajı göstermeyi) sağlar. 200 dönmesi client\'ı yanıltır, 500 ise gerçekte olmayan bir sunucu arızası izlenimi verir.',
+          en: '404 Not Found is correct: HTTP status codes carry meaning — 404 says "the requested resource was not found" and lets client code handle it correctly (e.g. showing a "User not found" message). Returning 200 misleads the client, and 500 falsely implies a server failure that did not actually happen.',
+        },
+      },
+    },
+    {
+      id: 'ra-mission-step-negative-code',
+      brief: { tr: '5) Negatif senaryoyu yaz: var olmayan kullanıcı için 404 döndüğünü doğrula.', en: '5) Write the negative scenario: verify a non-existent user returns 404.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir negatif test, "olumlu yol" (happy path) testiyle AYNI given/when/then iskeletini kullanır — sadece girdi (var olmayan bir id) ve beklenen sonuç (404) değişir. Gerçek bir test suite\'i her zaman İKİSİNİ de içerir: "doğru girdi doğru sonucu verir" VE "yanlış girdi doğru HATAYI verir".',
+        en: 'A negative test uses the SAME given/when/then skeleton as the "happy path" test — only the input (a non-existent id) and the expected outcome (404) change. A real test suite always includes BOTH: "correct input gives the correct result" AND "invalid input gives the correct ERROR".',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-mission-negative-code',
+        relatedTopicId: 'restassured-user-api-mission',
+        label: { tr: 'Negatif senaryoyu tamamla', en: 'Complete the negative scenario' },
+        language: 'java',
+        task: { tr: 'TODO satırını, id=9999 için 404 döndüğünü doğrulayan bir zincirle tamamla.', en: 'Complete the TODO line with a chain that verifies id=9999 returns 404.' },
+        explanation: { tr: 'Amaç: önceki adımların "happy path" iskeletini bir negatif senaryoya uyarlamak.', en: 'Goal: adapt the "happy path" skeleton from the previous steps to a negative scenario.' },
+        code: {
+          tr: `given()\n    .when().get("/api/users/9999")\n    .then().statusCode(404);`,
+          en: `given()\n    .when().get("/api/users/9999")\n    .then().statusCode(404);`,
+        },
+        starterCode: {
+          tr: `// var olmayan kullanici icin negatif senaryo\ngiven()\n    .when().get("/api/users/9999")\n    // TODO: status code'un 404 oldugunu dogrula\n`,
+          en: `// negative scenario for a non-existent user\ngiven()\n    .when().get("/api/users/9999")\n    // TODO: verify the status code is 404\n`,
+        },
+        solutionCode: {
+          tr: `given()\n    .when().get("/api/users/9999")\n    .then().statusCode(404);`,
+          en: `given()\n    .when().get("/api/users/9999")\n    .then().statusCode(404);`,
+        },
+        expected: { tr: 'Var olmayan kullanıcı için sunucu 404 döndürürse test PASS olur.', en: 'The test passes if the server returns 404 for the non-existent user.' },
+        hints: [
+          { tr: 'İskelet AYNI: given().when().get(url).then().statusCode(...) — sadece URL ve beklenen kod değişir.', en: 'The skeleton is the SAME: given().when().get(url).then().statusCode(...) — only the URL and expected code change.' },
+          { tr: 'Önceki adımda seçtiğin doğru kod: 404.', en: 'The correct code you picked in the previous step: 404.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir API test iskeletini kurdun: given/when/then\'in NEDEN zorunlu sırayla geldiğini anlama → status code doğrulama → body içeriğini de doğrulama → negatif senaryonun neden GEREKLİ olduğunu anlama (var olmayan kaynak için doğru hata kodu) → happy path iskeletini negatif senaryoya uyarlama. Gerçek bir API test suite\'i HER ZAMAN hem "doğru girdi doğru sonuç" hem "yanlış girdi doğru hata" testlerini birlikte içerir.',
+    en: 'You did not just read a lesson — in 5 steps you built the skeleton of a real API test: understanding WHY given/when/then must come in order → verifying the status code → verifying the body content too → understanding WHY a negative scenario is NECESSARY (the correct error code for a non-existent resource) → adapting the happy-path skeleton to a negative scenario. A real API test suite ALWAYS includes BOTH "correct input gives the correct result" AND "invalid input gives the correct error" tests together.',
+  },
+}
+
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı onayıyla mevcut 6 sayfanın aksiyon sekmelerine +1
+// görev). "Kullanıcı oluştur, id'yi çıkar, GET ile doğrula" — bu sekmenin
+// ZATEN gösterdiği tam 5-adımlı CRUD zincirinin (UserCrudE2ETest) EN KÜÇÜK,
+// tek başına yazılabilir yapı taşı: POST → extract → GET. MEVCUT
+// prediction/code-playground bloklarını gömer, yeni sandbox yazılmaz.
+const restAssuredChainMission = {
+  type: 'mission',
+  id: 'restassured-chain-mission',
+  xpReward: 45,
+  relatedTopicId: 'restassured-test-chaining',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün bir kullanıcı oluşturma + doğrulama zinciri kuracaksın: POST ile bir kullanıcı oluşturacak, sunucunun döndürdüğü id\'yi çıkaracak ve o id ile GET yaparak kullanıcının GERÇEKTEN veritabanına yazıldığını doğrulayacaksın. Ders okumayacaksın — bir QA gibi adım adım gerçek bir test zinciri kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will build a create-user-then-verify chain: create a user with POST, extract the id the server returns, and use that id to GET the user and verify it was REALLY written to the database. You will not read a lesson — you will build a real test chain step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'ra-chain-step-why',
+      brief: { tr: '1) GET adımında id\'yi hardcode etmek (örn. id=5) yerine POST yanıtından çıkarmanın neden gerekli olduğunu tahmin et.', en: '1) Predict why you need to extract the id from the POST response instead of hardcoding it (e.g. id=5) in the GET step.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Sunucu her POST\'ta YENİ bir id üretir (örn. otomatik artan bir sayaçla) — bugün 5 olan id, yarın test verisi değişince 42 olabilir. id\'yi hardcode edersen testin GET adımı, POST\'un GERÇEKTE ürettiği kullanıcıyla değil, RASTGELE bir id ile konuşur — bu, "yanlış şeyi test etme" hatasıdır.',
+        en: 'The server generates a NEW id on every POST (e.g. via an auto-incrementing counter) — an id that is 5 today could be 42 tomorrow once test data changes. If you hardcode the id, the GET step talks to a RANDOM id instead of the user POST actually created — this is the "testing the wrong thing" mistake.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'ra-chain-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'restassured-test-chaining',
+        prompt: { tr: 'POST ile oluşturulan kullanıcıyı GET ile doğrularken id\'yi nereden almalısın?', en: 'When verifying the user created by POST using GET, where should you get the id from?' },
+        code: '// POST /api/users -> yeni bir id uretir (her calistirmada FARKLI)\n// GET /api/users/{id} -> which id?',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'Testte sabit bir id yaz (örn. id=5)', en: 'Hardcode a fixed id in the test (e.g. id=5)' }, why: { tr: 'Sunucunun ürettiği GERÇEK id\'yle örtüşmeyebilir — test yanlış kullanıcıyı (ya da hiç kullanıcıyı) kontrol eder.', en: 'It may not match the REAL id the server generated — the test checks the wrong user (or no user at all).' } },
+          { id: 'b', label: { tr: 'POST yanıtından id\'yi çıkar (.extract().path("id"))', en: 'Extract the id from the POST response (.extract().path("id"))' }, correct: true },
+          { id: 'c', label: { tr: 'id\'ye hiç ihtiyaç yok, sadece POST\'un 201 döndüğünü kontrol et', en: 'No need for the id at all, just check POST returns 201' }, why: { tr: '201 sadece isteğin KABUL edildiğini gösterir — kullanıcının GERÇEKTEN veritabanına yazıldığını KANITLAMAZ.', en: '201 only shows the request was ACCEPTED — it does NOT PROVE the user was REALLY written to the database.' } },
+        ],
+        reveal: {
+          tr: '.extract().path("id") doğru: POST\'un GERÇEKTE ürettiği id\'yi yanıttan alırsın, böylece GET adımı her koşumda DOĞRU kullanıcıyı sorgular — sunucu hangi id\'yi üretirse üretsin test hep GEÇERLİ kalır.',
+          en: '.extract().path("id") is correct: you get the id the server ACTUALLY generated from the response, so the GET step always queries the CORRECT user on every run — the test stays VALID no matter which id the server produces.',
+        },
+      },
+    },
+    {
+      id: 'ra-chain-step-post',
+      brief: { tr: '2) Kullanıcı oluşturan POST isteğini yaz ve dönen id\'yi çıkar.', en: '2) Write the POST request that creates a user and extract the returned id.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '.extract().path("id") zincirin en sonuna eklenir ve yanıt JSON\'ındaki "id" alanının değerini bir Java değişkenine ATAR — bu, zincirin bir SONRAKİ isteğe TAŞIYACAĞI değerdir.',
+        en: '.extract().path("id") is added at the very end of the chain and ASSIGNS the value of the "id" field in the response JSON to a Java variable — this is the value the chain will CARRY to the NEXT request.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-chain-post-code',
+        relatedTopicId: 'restassured-chain-mission',
+        label: { tr: 'POST isteği ile id\'yi çıkar', en: 'Extract the id with a POST request' },
+        language: 'java',
+        task: { tr: 'TODO satırını, POST /api/users isteğinin 201 döndürdüğünü doğrulayıp yanıttan "id" alanını çıkaracak şekilde tamamla.', en: 'Complete the TODO line to verify POST /api/users returns 201 and extract the "id" field from the response.' },
+        explanation: { tr: 'Gerçek bir HTTP isteği göndermez; amaç extract().path(...) zincirini kendin yazmayı pekiştirmek.', en: 'Does not send a real HTTP request; the goal is to reinforce writing the extract().path(...) chain yourself.' },
+        code: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");`,
+        },
+        starterCode: {
+          tr: `// TODO: POST at, 201 dogrula, "id" alanini cikar\nString userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201);`,
+          en: `// TODO: send POST, verify 201, extract the "id" field\nString userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201);`,
+        },
+        solutionCode: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");`,
+        },
+        expected: { tr: 'userId değişkeni, sunucunun ürettiği GERÇEK id değerini tutar.', en: 'The userId variable holds the REAL id value the server generated.' },
+        hints: [
+          { tr: '.extract().path("id") zincire .then().statusCode(...) SONRASINA eklenir.', en: '.extract().path("id") is chained AFTER .then().statusCode(...).' },
+          { tr: 'Dönen değer bir String\'e atanır — sonraki adımda path parametresi olarak kullanılacak.', en: 'The returned value is assigned to a String — it will be used as a path parameter in the next step.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'ra-chain-step-get',
+      brief: { tr: '3) Çıkarılan id ile GET isteği yaz, kullanıcının gerçekten oluştuğunu doğrula.', en: '3) Write the GET request using the extracted id, verifying the user really exists.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '.pathParam("id", userId) bir önceki adımda çıkardığın değeri URL\'nin `{id}` yer tutucusuna YERLEŞTİRİR — böylece GET, POST\'un GERÇEKTE oluşturduğu kullanıcıyı sorgular, rastgele bir id\'yi değil.',
+        en: '.pathParam("id", userId) PLACES the value you extracted in the previous step into the URL\'s `{id}` placeholder — so the GET queries the user POST REALLY created, not a random id.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-chain-get-code',
+        relatedTopicId: 'restassured-chain-mission',
+        label: { tr: 'Çıkarılan id ile GET yap', en: 'GET with the extracted id' },
+        language: 'java',
+        task: { tr: 'TODO satırını, userId\'yi pathParam olarak kullanan ve 200 döndüğünü doğrulayan bir GET isteğiyle tamamla.', en: 'Complete the TODO line with a GET request that uses userId as a pathParam and verifies it returns 200.' },
+        explanation: { tr: 'Amaç: bir önceki adımda çıkardığın değeri GERÇEKTEN kullanan bir isteği kendin yazmayı pekiştirmek.', en: 'Goal: reinforce writing a request that ACTUALLY uses the value you extracted in the previous step.' },
+        code: {
+          tr: `given()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `given()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        starterCode: {
+          tr: `// TODO: userId'yi pathParam olarak kullan, GET at, 200 dogrula\ngiven()\n    .when().get("/api/users/{id}");`,
+          en: `// TODO: use userId as pathParam, send GET, verify 200\ngiven()\n    .when().get("/api/users/{id}");`,
+        },
+        solutionCode: {
+          tr: `given()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `given()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        expected: { tr: 'GET, POST\'un oluşturduğu GERÇEK kullanıcıyı sorgular ve 200 döner.', en: 'The GET queries the REAL user POST created, and returns 200.' },
+        hints: [
+          { tr: '.pathParam(name, value), URL\'deki {name} yer tutucusunu value ile DEĞİŞTİRİR.', en: '.pathParam(name, value) REPLACES the {name} placeholder in the URL with value.' },
+          { tr: 'userId, 2. adımda .extract().path("id") ile elde ettiğin değişken.', en: 'userId is the variable you obtained with .extract().path("id") in step 2.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'ra-chain-step-guard-predict',
+      brief: { tr: '4) POST adımı başarısız olursa (500 dönerse) korumasız bir zincirde GET adımına ne olacağını tahmin et.', en: '4) Predict what happens to the GET step in an unguarded chain if the POST step fails (returns 500).' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'POST 500 ile başarısız olursa, `.extract().path("id")` muhtemelen `null` veya boş bir değer döndürür — bir sonraki adım bu değeri hiç KONTROL ETMEDEN kullanırsa, GET isteği `/api/users/null` gibi ANLAMSIZ bir URL\'e gider ve KAFA KARIŞTIRICI bir hata (asıl POST hatası değil) verir. `assertNotNull(userId, ...)` gibi bir koruma, ASIL sorunu (POST başarısız oldu) net gösterir.',
+        en: 'If POST fails with 500, `.extract().path("id")` likely returns `null` or an empty value — if the next step uses this value WITHOUT CHECKING it, the GET request goes to a MEANINGLESS URL like `/api/users/null` and gives a CONFUSING error (not the real POST failure). A guard like `assertNotNull(userId, ...)` clearly shows the REAL problem (POST failed).',
+      },
+      block: {
+        type: 'prediction',
+        id: 'ra-chain-guard-choice',
+        xpReward: 10,
+        relatedTopicId: 'restassured-chain-mission',
+        prompt: { tr: 'POST 500 hatasıyla başarısız olursa ve GET adımı userId\'yi hiç kontrol etmeden kullanırsa ne olur?', en: 'If POST fails with a 500 error and the GET step uses userId without checking it, what happens?' },
+        code: '// POST fails -> 500\n// userId is null or empty\n// GET /api/users/{id} with that userId?',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'GET, gerçek POST hatasını gizleyen kafa karıştırıcı bir hata verir (örn. /api/users/null)', en: 'GET gives a confusing error that hides the real POST failure (e.g. /api/users/null)' }, correct: true },
+          { id: 'b', label: { tr: 'GET otomatik olarak atlanır', en: 'GET is automatically skipped' }, why: { tr: 'Bir koruma (assertNotNull/assumeTrue) EKLEMEDİĞİN sürece GET adımı otomatik atlanmaz — çalışmaya devam eder.', en: 'Without adding a guard (assertNotNull/assumeTrue), the GET step is NOT automatically skipped — it keeps running.' } },
+          { id: 'c', label: { tr: 'GET, POST\'un başarısız olduğunu otomatik anlar ve aynı hatayı raporlar', en: 'GET automatically understands POST failed and reports the same error' }, why: { tr: 'GET, POST\'un başarısız olduğunu BİLMEZ — sadece elindeki (null/boş) id ile isteği göndermeye çalışır.', en: 'GET does not KNOW POST failed — it just tries to send the request with whatever (null/empty) id it has.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: korumasız bir zincirde GET, `/api/users/null` gibi anlamsız bir isteğe gider ve gerçek sorunu (POST\'un 500 vermesini) GİZLEYEN, kafa karıştırıcı bir hata üretir. `assertNotNull(userId, "POST basarisiz oldu")` gibi bir koruma, hatayı KAYNAĞINDA yakalar.',
+          en: 'Correct: in an unguarded chain, GET goes to a meaningless request like `/api/users/null` and produces a confusing error that HIDES the real problem (POST returning 500). A guard like `assertNotNull(userId, "POST failed")` catches the error AT ITS SOURCE.',
+        },
+      },
+    },
+    {
+      id: 'ra-chain-step-full',
+      brief: { tr: '5) Zinciri koruma satırıyla birlikte tamamla: POST + extract + guard + GET.', en: '5) Complete the chain with a guard line: POST + extract + guard + GET.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Tam bir zincir dört parçadan oluşur: hazırlık (POST), değer taşıma (extract), koruma (assertNotNull — POST\'un GERÇEKTEN başarılı olduğunu doğrula) ve devam (GET). Bu dördü BİRLİKTE, sayfanın başındaki tam CRUD zincirinin (UserCrudE2ETest) en küçük, kendi başına anlaşılır birimidir.',
+        en: 'A complete chain has four parts: setup (POST), carrying a value (extract), a guard (assertNotNull — verify POST REALLY succeeded), and continuation (GET). These four TOGETHER are the smallest, self-contained unit of the full CRUD chain (UserCrudE2ETest) shown earlier on this page.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'ra-chain-full-code',
+        relatedTopicId: 'restassured-chain-mission',
+        label: { tr: 'Zinciri koruma satırıyla tamamla', en: 'Complete the chain with a guard' },
+        language: 'java',
+        task: { tr: 'TODO satırını, userId\'nin null olmadığını doğrulayan bir assertNotNull ile tamamla.', en: 'Complete the TODO line with an assertNotNull that verifies userId is not null.' },
+        explanation: { tr: 'Amaç: önceki 3 adımı, gerçek bir zincirde ZORUNLU olan koruma satırıyla birleştirmek.', en: 'Goal: combine the previous 3 steps with the guard line that is MANDATORY in a real chain.' },
+        code: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\nassertNotNull(userId, "POST basarisiz oldu, id yok");\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\nassertNotNull(userId, "POST failed, no id");\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        starterCode: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\n// TODO: userId'nin null olmadigini dogrula\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\n// TODO: verify userId is not null\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        solutionCode: {
+          tr: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\nassertNotNull(userId, "POST basarisiz oldu, id yok");\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+          en: `String userId = given()\n    .when().post("/api/users")\n    .then().statusCode(201)\n    .extract().path("id");\nassertNotNull(userId, "POST failed, no id");\n\ngiven()\n    .pathParam("id", userId)\n    .when().get("/api/users/{id}")\n    .then().statusCode(200);`,
+        },
+        expected: { tr: 'Zincir uçtan uca çalışır: POST başarısız olursa hata KAYNAĞINDA (assertNotNull mesajıyla) yakalanır, başarılıysa GET GERÇEK kullanıcıyı doğrular.', en: 'The chain runs end-to-end: if POST fails, the error is caught AT ITS SOURCE (with the assertNotNull message); if it succeeds, GET verifies the REAL user.' },
+        hints: [
+          { tr: 'assertNotNull(değer, mesaj) değer null ise testi mesajla FAIL eder.', en: 'assertNotNull(value, message) FAILs the test with the message if value is null.' },
+          { tr: 'Koruma satırı extract\'tan HEMEN sonra, GET\'ten ÖNCE gelir.', en: 'The guard line comes RIGHT AFTER extract, BEFORE the GET.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir test zincirinin EN KÜÇÜK yapı taşını kurdun: id\'yi hardcode etmenin neden yanlış olduğunu anlama → POST + extract yazma → çıkarılan değerle GET yazma → korumasız bir zincirin nasıl kafa karıştırıcı hatalar ürettiğini anlama → koruma satırıyla tamamlama. Bu dört-parçalı iskelet (POST → extract → guard → GET), sayfanın başında gördüğün tam 5 adımlı UserCrudE2ETest zincirinin ATOMIK birimidir — şimdi onu PUT ve DELETE adımlarıyla genişletmeye hazırsın.',
+    en: 'You did not just read a lesson — in 5 steps you built the SMALLEST building block of a real test chain: understanding why hardcoding the id is wrong → writing POST + extract → writing GET with the extracted value → understanding how an unguarded chain produces confusing errors → completing it with a guard line. This four-part skeleton (POST → extract → guard → GET) is the ATOMIC unit of the full 5-step UserCrudE2ETest chain you saw earlier on this page — you are now ready to extend it with PUT and DELETE steps.',
+  },
+}
+
 const sections = [
 
   // ── 0: Why REST Assured? ────────────────────────────────────────────────────
@@ -2167,6 +2541,7 @@ void userResponse_allFieldsValidation() {
       expectedValue: '404',
       actualValue: '200',
     },
+    restAssuredUserApiMission,
     ],
   },
 
@@ -2452,6 +2827,7 @@ public class UserCrudE2ETest extends BaseTest {
       }
 }
 },
+      restAssuredChainMission,
     ],
   },
 

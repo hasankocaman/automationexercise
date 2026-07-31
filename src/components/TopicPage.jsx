@@ -37,6 +37,8 @@ import VisualDiffDetectiveBlock from './VisualDiffDetectiveBlock'
 import PredictionBlock from './PredictionBlock'
 import CodeTraceBlock from './CodeTraceBlock'
 import HeapStackBlock from './HeapStackBlock'
+import MissionBlock from './MissionBlock'
+import { highlightGlossaryTerms } from './TermTooltip'
 import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 import { logActivity } from '../lib/activityLog'
@@ -17506,7 +17508,9 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
             if (lowerText.startsWith('lego ile anlatım:') || lowerText.startsWith('lego analogy:')) {
                 return <LegoAnalogyCard key={i} text={textContent} darkMode={darkMode} language={language} />
             }
-            return <p key={i} className={textCls}>{textContent}</p>
+            // Kavram Tooltip'i (§3.6): prose içindeki bilinen yazılım terimleri
+            // günlük-hayat benzetmesi baloncuğuyla sarılır. Kod blokları etkilenmez.
+            return <p key={i} className={textCls}>{highlightGlossaryTerms(textContent, language, darkMode)}</p>
         case 'heading':
             const headingDiff = block.difficulty ? tx(block.difficulty, language) : ''
             return (
@@ -17703,7 +17707,7 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
                 <div key={i} className="mt-4 p-4 rounded-xl border-2 flex items-start gap-3" style={{ background: '#fef3c7', borderColor: '#f59e0b' }}>
                     <span className="text-2xl flex-shrink-0">{block.emoji || '💡'}</span>
                     <p className="text-sm leading-relaxed" style={{ color: '#78350f' }}>
-                        {tx(block.content, language)}
+                        {highlightGlossaryTerms(tx(block.content, language), language, darkMode)}
                     </p>
                 </div>
             )
@@ -17916,6 +17920,21 @@ function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, section
 
         case 'prediction':
             return <PredictionBlock key={i} block={block} darkMode={darkMode} language={language} onFirstSuccess={() => onExerciseCompleted?.(i)} />
+
+        case 'mission':
+            // Challenge-first görev zinciri (challenge-first-experience-plan.md §3).
+            // MissionBlock YENİ SANDBOX YAZMAZ — her adımın gömülü bloğunu (mevcut
+            // code-playground / prediction / editor / sandbox…) `renderInner` ile
+            // AYNI renderBlock makinesinden geçirir; gömülü blok onFirstSuccess
+            // (onExerciseCompleted) verince ilgili adım tamamlanır.
+            return <MissionBlock key={i} block={block} darkMode={darkMode} language={language}
+                onFirstSuccess={() => onExerciseCompleted?.(i)}
+                renderInner={(stepBlock, stepIdx, onStepDone) => renderBlock(
+                    stepBlock, `${i}-m${stepIdx}`, darkMode, language, onQuizCorrect,
+                    sectionTitle, onInterviewMastery, isTabComplete, onHardReset,
+                    () => onStepDone?.()
+                )}
+            />
 
         case 'code-trace':
             return <CodeTraceBlock key={i} block={block} darkMode={darkMode} language={language} />

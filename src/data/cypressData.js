@@ -1059,6 +1059,197 @@ cy.get('[data-cy=submit]').click()
   },
 }
 
+// 🎯 CHALLENGE-FIRST GÖREVİ (challenge-first-experience-plan.md §3.3 P1-S1)
+// "Ürün ara ve sonuçları doğrula" — data-cy selector'ı + retry-able assertion
+// kullanan gerçek bir Cypress senaryosu. Selenium/Playwright referans
+// görevlerinin Cypress karşılığı — MEVCUT prediction/code-playground bloklarını
+// gömer, yeni sandbox yazılmaz.
+const cypressSearchMission = {
+  type: 'mission',
+  id: 'cypress-search-mission',
+  xpReward: 45,
+  relatedTopicId: 'cypress-basic-commands',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Bugün bir e-ticaret sitesinde "ürün ara" akışını test edeceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir Cypress testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will test the "search for a product" flow on an e-commerce site. You will not read a lesson — you will build a real Cypress test step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'cy-mission-step-selector',
+      brief: { tr: '1) Arama kutusunu en güvenilir şekilde bulacak selector\'ı seç.', en: '1) Pick the most reliable selector to find the search box.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '.search-box gibi bir CSS class, tasarımcı Tailwind sınıflarını refactor ettiğinde sessizce kırılır. [data-cy=search-input] ise SADECE test için var olduğu belli olan, stil değişikliklerinden hiç etkilenmeyen bir attribute\'tur — Selenium\'daki By.id\'nin ruhu aynı ama Cypress ekosisteminde konvansiyon data-cy\'dir.',
+        en: 'A CSS class like .search-box silently breaks when the designer refactors Tailwind classes. [data-cy=search-input] is an attribute that clearly exists ONLY for testing and is untouched by style changes — the same spirit as Selenium\'s By.id, but data-cy is the Cypress ecosystem convention.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'cy-mission-selector-choice',
+        xpReward: 10,
+        relatedTopicId: 'cypress-basic-commands',
+        prompt: { tr: 'Bu arama kutusu için hangi selector en güvenilir?', en: 'Which selector is most reliable for this search box?' },
+        code: '<input class="search-box form-control" data-cy="search-input" placeholder="Search products" />',
+        codeLanguage: 'html',
+        options: [
+          { id: 'a', label: { tr: "cy.get('.search-box')", en: "cy.get('.search-box')" }, why: { tr: 'Bu class stil için var; tasarım refactor edilince sessizce değişebilir veya kaldırılabilir.', en: 'This class exists for styling; it can silently change or be removed on a design refactor.' } },
+          { id: 'b', label: { tr: "cy.get('[data-cy=search-input]')", en: "cy.get('[data-cy=search-input]')" }, correct: true },
+          { id: 'c', label: { tr: "cy.get('input')", en: "cy.get('input')" }, why: { tr: 'Sayfadaki TÜM input elemanlarını döndürür — hangisi arama kutusu belli değil.', en: 'Returns EVERY input element on the page — it is unclear which one is the search box.' } },
+        ],
+        reveal: {
+          tr: '[data-cy=search-input] doğru: sadece test amaçlı eklenmiş bir attribute\'a bağlanır, CSS/stil değişikliklerinden ve DOM\'daki diğer input\'lardan etkilenmez. Cypress ekosisteminde data-cy/data-testid en güvenilir selector stratejisi kabul edilir.',
+          en: '[data-cy=search-input] is correct: it binds to an attribute added purely for testing, unaffected by CSS/style changes or other inputs in the DOM. In the Cypress ecosystem, data-cy/data-testid is considered the most reliable selector strategy.',
+        },
+      },
+    },
+    {
+      id: 'cy-mission-step-type',
+      brief: { tr: '2) Seçtiğin selector ile arama kutusuna "laptop" yaz.', en: '2) Type "laptop" into the search box using that selector.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'cy.get(selector).type(metin) elementi bulur ve karakterleri tek tek simüle ederek yazar. Cypress arka planda retry-ability ile elementin DOM\'da hazır olmasını otomatik bekler — Selenium\'daki gibi ayrı bir wait yazmana gerek yoktur.',
+        en: 'cy.get(selector).type(text) finds the element and types the characters one by one. In the background, Cypress automatically waits (retry-ability) for the element to be ready in the DOM — you do not need a separate wait like in Selenium.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-mission-type-code',
+        relatedTopicId: 'cypress-search-mission',
+        language: 'javascript',
+        label: { tr: 'Arama kutusuna yaz', en: 'Type into the search box' },
+        task: { tr: 'TODO satırını, arama kutusuna "laptop" yazacak şekilde tamamla.', en: 'Complete the TODO line to type "laptop" into the search box.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç cy.get() + type() zincirini kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the cy.get() + type() chain yourself.' },
+        code: {
+          tr: `cy.get('[data-cy=search-input]').type('laptop')`,
+          en: `cy.get('[data-cy=search-input]').type('laptop')`,
+        },
+        starterCode: {
+          tr: `// TODO: [data-cy=search-input] alanina 'laptop' yaz\n`,
+          en: `// TODO: type 'laptop' into [data-cy=search-input]\n`,
+        },
+        solutionCode: {
+          tr: `cy.get('[data-cy=search-input]').type('laptop')`,
+          en: `cy.get('[data-cy=search-input]').type('laptop')`,
+        },
+        expected: { tr: 'Arama kutusu bulunur ve "laptop" yazılır.', en: 'The search box is found and "laptop" is typed.' },
+        hints: [
+          { tr: 'cy.get() bir CSS selector alır; attribute selector köşeli parantez içinde yazılır.', en: 'cy.get() takes a CSS selector; attribute selectors are written inside square brackets.' },
+          { tr: 'Önceki adımda seçtiğin selector: [data-cy=search-input].', en: 'The selector you picked in the previous step: [data-cy=search-input].' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'cy-mission-step-assert',
+      brief: { tr: '3) Arama sonucunda en az 1 ürün kartının göründüğünü doğrulayan assertion\'ı yaz.', en: '3) Write the assertion that verifies at least 1 product card appears in the results.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Yazmak yetmez; test bir ŞEYİ doğrulamalı yoksa hiçbir bug yakalamaz. .should(\'have.length.at.least\', 1) retry-able bir assertion\'dır: sonuçlar gelene kadar birkaç saniye otomatik tekrar dener — sabit bir cy.wait() gibi kör beklemez, KOŞULU bekler.',
+        en: 'Typing is not enough; a test must verify SOMETHING or it catches no bugs. .should(\'have.length.at.least\', 1) is a retry-able assertion: it automatically retries for a few seconds until the results arrive — unlike a blind cy.wait(), it waits for the CONDITION.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-mission-assert-code',
+        relatedTopicId: 'cypress-search-mission',
+        language: 'javascript',
+        label: { tr: 'En az 1 sonuç olduğunu assert et', en: 'Assert at least 1 result exists' },
+        task: { tr: 'TODO satırını, en az 1 ürün kartı olduğunu doğrulayan retry-able bir assertion ile tamamla.', en: 'Complete the TODO line with a retry-able assertion that at least 1 product card exists.' },
+        explanation: { tr: 'Amaç: yazmadan sonra sonucu doğrulayan bir kontrol yazmayı pekiştirmek.', en: 'Goal: reinforce writing a check that verifies the result after typing.' },
+        code: {
+          tr: `cy.get('.product-card').should('have.length.at.least', 1)`,
+          en: `cy.get('.product-card').should('have.length.at.least', 1)`,
+        },
+        starterCode: {
+          tr: `// TODO: en az 1 .product-card oldugunu dogrula\n`,
+          en: `// TODO: verify at least 1 .product-card exists\n`,
+        },
+        solutionCode: {
+          tr: `cy.get('.product-card').should('have.length.at.least', 1)`,
+          en: `cy.get('.product-card').should('have.length.at.least', 1)`,
+        },
+        expected: { tr: 'Sonuç kartları gelirse test PASS, birkaç saniye içinde gelmezse FAIL verir.', en: 'The test passes if result cards appear, and fails if none appear within a few seconds.' },
+        hints: [
+          { tr: '.should() Cypress\'in retry-able assertion sözdizimidir — bir chai-jquery ifadesi alır.', en: '.should() is Cypress\'s retry-able assertion syntax — it takes a chai-jquery expression.' },
+          { tr: '"have.length.at.least" en az kaç eleman olduğunu kontrol eder.', en: '"have.length.at.least" checks the minimum number of elements.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'cy-mission-step-nowait',
+      brief: { tr: '4) Sonuçlar bazen 100ms bazen 800ms\'de geliyor. Testi flaky yapmayacak yaklaşımı seç.', en: '4) Results arrive in 100ms sometimes, 800ms other times. Pick the approach that will not make the test flaky.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'cy.wait(1000) sabit bekler: sonuç 800ms\'de gelse bile 200ms boşa gider, 1200ms sürerse test patlar. .should(...) ise zaten retry-able\'dır — koşul (kart sayısı ≥1) gerçekleşene kadar Cypress\'in varsayılan timeout\'u (4sn) içinde otomatik tekrar dener, ayrı bir bekleme YAZMANA gerek yoktur.',
+        en: 'cy.wait(1000) waits a fixed time: even if the result arrives in 800ms, 200ms is wasted, and the test breaks if it takes 1200ms. .should(...) is already retry-able — it automatically retries within Cypress\'s default timeout (4s) until the condition (card count ≥1) is true; you do NOT need to write a separate wait.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'cy-mission-nowait-choice',
+        xpReward: 10,
+        relatedTopicId: 'cypress-search-mission',
+        prompt: { tr: 'Değişken gelme süresinde testi flaky yapmayacak yaklaşım hangisi?', en: 'With variable arrival time, which approach keeps the test from being flaky?' },
+        code: {
+          tr: '// sonuclar: bazen 100ms, bazen 800ms\n// hangi yaklasim?',
+          en: '// results: sometimes 100ms, sometimes 800ms\n// which approach?',
+        },
+        codeLanguage: 'javascript',
+        options: [
+          { id: 'a', label: { tr: "cy.wait(1000) sonra kontrol et", en: 'cy.wait(1000) then check' }, why: { tr: 'Sabit süre; 1000ms\'den geç gelirse test patlar, erken gelirse zaman kaybedilir.', en: 'Fixed duration; breaks if it arrives after 1000ms, wastes time if it arrives earlier.' } },
+          { id: 'b', label: { tr: "cy.get('.product-card').should('have.length.at.least', 1) — ekstra bekleme eklemeden", en: "cy.get('.product-card').should('have.length.at.least', 1) — with no extra wait added" }, correct: true },
+          { id: 'c', label: { tr: 'Hiç assertion yazmadan devam et', en: 'Continue without writing an assertion' }, why: { tr: 'Sonuçlar geç gelse bile test kontrol etmediği için PASS verir — sessiz yanlış PASS.', en: 'Even if the results are late the test passes because it never checks — a silent false PASS.' } },
+        ],
+        reveal: {
+          tr: '.should() doğru: Cypress\'in retry-able assertion\'ları zaten koşul gerçekleşene kadar otomatik tekrar dener (varsayılan 4sn timeout). Ayrıca bir cy.wait(sayı) eklemek hem gereksiz hem de yanlış bir sabit süre varsayımı ekler — CLAUDE.md ekosisteminde bu "flaky testin en sık kök nedeni" olarak bilinir.',
+          en: '.should() is correct: Cypress\'s retry-able assertions already auto-retry until the condition is true (4s default timeout). Adding a cy.wait(number) on top is both unnecessary and introduces a wrong fixed-duration assumption — this is known as the most common root cause of flaky tests.',
+        },
+      },
+    },
+    {
+      id: 'cy-mission-step-full',
+      brief: { tr: '5) Testi baştan sona birleştir: yaz + assert et, tek Cypress testi olarak.', en: '5) Combine it end-to-end: type + assert, as a single Cypress test.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir Cypress testi genelde şu üçlüden oluşur: git (cy.visit) → aksiyon (type/click) → doğrulama (.should). Bu üçlü, gerçek bir smoke testin en küçük tekrarlanabilir birimidir — tıpkı Selenium ve Playwright\'ta gördüğün desenin aynısı, sadece sözdizimi farklı.',
+        en: 'A Cypress test usually consists of this trio: navigate (cy.visit) → action (type/click) → verification (.should). This trio is the smallest repeatable unit of a real smoke test — the same pattern you saw in Selenium and Playwright, just different syntax.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-mission-full-code',
+        relatedTopicId: 'cypress-search-mission',
+        language: 'javascript',
+        label: { tr: 'Arama testini tamamla', en: 'Complete the search test' },
+        task: { tr: 'TODO satırlarını, arama yapıp sonuçları doğrulayan tam bir test ile tamamla.', en: 'Complete the TODO lines with a full test that searches and verifies the results.' },
+        explanation: { tr: 'Amaç: önceki 3 adımı tek bir çalışan test bloğunda birleştirmek.', en: 'Goal: combine the previous 3 steps into one working test block.' },
+        code: {
+          tr: `it('urun aramasi sonuc doner', () => {\n  cy.visit('/products')\n  cy.get('[data-cy=search-input]').type('laptop')\n  cy.get('.product-card').should('have.length.at.least', 1)\n})`,
+          en: `it('product search returns results', () => {\n  cy.visit('/products')\n  cy.get('[data-cy=search-input]').type('laptop')\n  cy.get('.product-card').should('have.length.at.least', 1)\n})`,
+        },
+        starterCode: {
+          tr: `it('urun aramasi sonuc doner', () => {\n  cy.visit('/products')\n  // TODO: [data-cy=search-input] alanina 'laptop' yaz\n  // TODO: en az 1 .product-card oldugunu dogrula\n})`,
+          en: `it('product search returns results', () => {\n  cy.visit('/products')\n  // TODO: type 'laptop' into [data-cy=search-input]\n  // TODO: verify at least 1 .product-card exists\n})`,
+        },
+        solutionCode: {
+          tr: `it('urun aramasi sonuc doner', () => {\n  cy.visit('/products')\n  cy.get('[data-cy=search-input]').type('laptop')\n  cy.get('.product-card').should('have.length.at.least', 1)\n})`,
+          en: `it('product search returns results', () => {\n  cy.visit('/products')\n  cy.get('[data-cy=search-input]').type('laptop')\n  cy.get('.product-card').should('have.length.at.least', 1)\n})`,
+        },
+        expected: { tr: 'Test uçtan uca PASS olur: arama yapılır ve sonuçlar doğrulanır.', en: 'The test passes end-to-end: the search runs and the results are verified.' },
+        hints: [
+          { tr: 'İki TODO da önceki adımlarda yazdığın satırlarla aynı.', en: 'Both TODOs are the same lines you wrote in the previous steps.' },
+          { tr: 'it(...) bloğu Mocha\'nın test tanımlama sözdizimidir — Cypress bunun üstüne kurulur.', en: 'The it(...) block is Mocha\'s test-definition syntax — Cypress is built on top of it.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir "ürün ara" smoke testinin iskeletini kurdun: güvenilir selector seçimi → aksiyon → retry-able assertion → cy.wait(sayı)\'nın neden flaky testin en sık kök nedeni olduğunu anlama → hepsini tek testte birleştirme. Selenium\'da WebDriverWait, Playwright\'ta web-first assertion, Cypress\'te .should() — üçü de AYNI problemi çözer: koşulu bekle, süreyi değil.',
+    en: 'You did not just read a lesson — in 5 steps you built the skeleton of a real "search for a product" smoke test: reliable selector choice → action → retry-able assertion → understanding why cy.wait(number) is the most common root cause of flaky tests → combining it all into one test. WebDriverWait in Selenium, a web-first assertion in Playwright, .should() in Cypress — all three solve the SAME problem: wait for the condition, not the duration.',
+  },
+}
+// Çift-ağaç: aynı görev sabitini hem TR hem EN Temel Komutlar sekmesine (s2) aynı referansla ekle (§9.5).
+s2.tr.blocks.push(cypressSearchMission)
+s2.en.blocks.push(cypressSearchMission)
+
 const cypressActionChainFilm = {
   type: 'video-scene',
   id: 'cypress-action-chain-film',
@@ -1780,6 +1971,192 @@ cy.get('.product-card').should('have.length', 8)` },
   ],
 }
 
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı onayıyla mevcut 6 sayfanın aksiyon sekmelerine +1
+// görev). "Yavaş API'yi stub'la, loading ve hata durumlarını test et" —
+// diğer 5 mission'ın locator/selector temasından FARKLI bir gerçek-QA
+// senaryosu: network stubbing ile flaky olmayan loading/error-state testi.
+// MEVCUT code-playground/prediction bloklarını gömer, yeni sandbox yazılmaz.
+const cypressNetworkStubMission = {
+  type: 'mission',
+  id: 'cypress-network-stub-mission',
+  xpReward: 45,
+  relatedTopicId: 'cypress-network-intercept',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün ürün listesi API\'si YAVAŞKEN (gerçekte 2 saniye sürüyor) loading spinner\'ın doğru göründüğünü, sonra da bir sunucu hatasında hata mesajının çıktığını test edeceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir network stubbing testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today the product list API is SLOW (it really takes 2 seconds) and you will test that the loading spinner appears correctly, and that an error message shows up on a server error. You will not read a lesson — you will build a real network-stubbing test step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'cy-stub-step-why',
+      brief: { tr: '1) Gerçek API\'nin 2 saniye sürmesini beklemek yerine ne yapmalısın, tahmin et.', en: '1) Predict what you should do instead of waiting for the real API to take 2 seconds.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Gerçek sunucuyu her test koşumunda 2 saniye beklemek testi YAVAŞLATIR ve ağ durumuna (bazen 1sn, bazen 5sn) bağlı kalıp FLAKY yapar. cy.intercept() ile isteği STUB edersin: gerçek sunucuya hiç gitmeden, kontrollü bir gecikme + sahte veriyle cevap verirsin — test hem hızlı hem her koşumda AYNI davranır.',
+        en: 'Waiting for the real server 2 seconds on every test run SLOWS the test down and makes it FLAKY (sometimes 1s, sometimes 5s depending on network conditions). With cy.intercept() you STUB the request: you respond with a controlled delay + fake data without ever hitting the real server — the test is both fast and behaves the SAME on every run.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'cy-stub-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'cypress-network-intercept',
+        prompt: { tr: 'Yavaş bir API\'nin loading state\'ini test etmenin en güvenilir yolu hangisi?', en: 'What is the most reliable way to test the loading state of a slow API?' },
+        code: '// gercek API: bazen 1sn, bazen 5sn surer\n// which approach?',
+        codeLanguage: 'javascript',
+        options: [
+          { id: 'a', label: { tr: 'cy.wait(2000) ile sabit süre bekleyip spinner\'ı kontrol et', en: 'cy.wait(2000) for a fixed duration then check the spinner' }, why: { tr: 'Sabit süre; API 5sn sürerse spinner kaybolmadan kontrol edersin, 1sn sürerse zaman kaybedersin — flaky.', en: 'Fixed duration; if the API takes 5s you check before the spinner disappears, if 1s you waste time — flaky.' } },
+          { id: 'b', label: { tr: 'cy.intercept() ile isteği kontrollü bir gecikmeyle stub et', en: 'Stub the request with cy.intercept() using a controlled delay' }, correct: true },
+          { id: 'c', label: { tr: 'Gerçek API\'yi hiç test etme, spinner\'ı görsel olarak kontrol et', en: 'Never test the real API, just visually check the spinner' }, why: { tr: 'Spinner\'ın NE ZAMAN kaybolduğunu (isteğin bittiğini) otomatik doğrulamadan sadece görsel kontrol, regresyonu yakalamaz.', en: 'Just a visual check without automatically verifying WHEN the spinner disappears (the request finished) catches no regressions.' } },
+        ],
+        reveal: {
+          tr: 'cy.intercept() doğru: isteği kontrollü bir gecikmeyle (örn. delay: 2000) stub edersin — gerçek ağ koşullarından bağımsız, HER koşumda aynı davranan, hızlı ve güvenilir bir test elde edersin.',
+          en: 'cy.intercept() is correct: you stub the request with a controlled delay (e.g. delay: 2000) — independent of real network conditions, you get a fast, reliable test that behaves the SAME on every run.',
+        },
+      },
+    },
+    {
+      id: 'cy-stub-step-intercept',
+      brief: { tr: '2) Ürün listesi isteğini 2 saniye gecikmeyle stub eden intercept\'i yaz.', en: '2) Write the intercept that stubs the product list request with a 2-second delay.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'cy.intercept(\'GET\', url, { fixture, delay }).as(\'alias\') üç şeyi birleştirir: hangi isteği yakalayacağını (GET + url), ne döndüreceğini (fixture) ve ne kadar geciktireceğini (delay). `.as(...)` ile verdiğin alias, sonraki `cy.wait(\'@alias\')` çağrısında isteği BEKLEMEK için kullanılır.',
+        en: 'cy.intercept(\'GET\', url, { fixture, delay }).as(\'alias\') combines three things: which request to catch (GET + url), what to return (fixture), and how long to delay it. The alias you give with `.as(...)` is used later in `cy.wait(\'@alias\')` to WAIT for the request.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-stub-intercept-code',
+        relatedTopicId: 'cypress-network-stub-mission',
+        language: 'javascript',
+        label: { tr: 'Ürün listesini 2sn gecikmeyle stub et', en: 'Stub the product list with a 2s delay' },
+        task: { tr: 'TODO satırını, GET /api/products isteğini "products.json" fixture\'ı ve 2000ms gecikmeyle stub eden intercept ile tamamla.', en: 'Complete the TODO line with an intercept that stubs GET /api/products using the "products.json" fixture and a 2000ms delay.' },
+        explanation: { tr: 'Gerçek bir ağ isteği göndermez; amaç intercept\'in fixture+delay zincirini kendin yazmayı pekiştirmek.', en: 'Does not send a real network request; the goal is to reinforce writing the intercept\'s fixture+delay chain yourself.' },
+        code: {
+          tr: `cy.intercept('GET', '/api/products', { fixture: 'products.json', delay: 2000 }).as('getProducts')`,
+          en: `cy.intercept('GET', '/api/products', { fixture: 'products.json', delay: 2000 }).as('getProducts')`,
+        },
+        starterCode: {
+          tr: `// TODO: GET /api/products'i products.json fixture'i + 2000ms delay ile stub et, 'getProducts' diye adlandir\n`,
+          en: `// TODO: stub GET /api/products with the products.json fixture + 2000ms delay, alias it as 'getProducts'\n`,
+        },
+        solutionCode: {
+          tr: `cy.intercept('GET', '/api/products', { fixture: 'products.json', delay: 2000 }).as('getProducts')`,
+          en: `cy.intercept('GET', '/api/products', { fixture: 'products.json', delay: 2000 }).as('getProducts')`,
+        },
+        expected: { tr: 'İstek gerçek sunucuya hiç gitmez; 2 saniye sonra fixture verisiyle cevap döner.', en: 'The request never reaches the real server; it responds with the fixture data after 2 seconds.' },
+        hints: [
+          { tr: 'cy.intercept(method, url, response) üç parametre alır.', en: 'cy.intercept(method, url, response) takes three arguments.' },
+          { tr: '.as(\'getProducts\') alias\'ı, sonraki adımda cy.wait(\'@getProducts\') için gerekecek.', en: 'The .as(\'getProducts\') alias will be needed for cy.wait(\'@getProducts\') in the next step.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'cy-stub-step-loading',
+      brief: { tr: '3) Loading spinner\'ın istek sırasında göründüğünü, istek bitince kaybolduğunu doğrula.', en: '3) Verify the loading spinner appears during the request and disappears once it finishes.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Sayfa ziyaret edildiği AN spinner görünür olmalı (istek henüz gecikmede). cy.wait(\'@getProducts\') isteğin (2 saniyelik gecikmenin) BİTMESİNİ bekler — bittikten SONRA spinner\'ın artık görünür OLMADIĞINI (.should(\'not.exist\')) doğrularsın.',
+        en: 'The spinner should be visible the MOMENT the page is visited (the request is still delaying). cy.wait(\'@getProducts\') waits for the request (the 2-second delay) to FINISH — AFTER that you verify the spinner is no longer visible (.should(\'not.exist\')).',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-stub-loading-code',
+        relatedTopicId: 'cypress-network-stub-mission',
+        language: 'javascript',
+        label: { tr: 'Spinner\'ın görünüp kaybolduğunu doğrula', en: 'Verify the spinner appears and disappears' },
+        task: { tr: 'TODO satırlarını, spinner\'ın önce görünür olduğunu, istek bitince kaybolduğunu doğrulayan satırlarla tamamla.', en: 'Complete the TODO lines to verify the spinner is visible first, then disappears once the request finishes.' },
+        explanation: { tr: 'Amaç: stub edilmiş isteğin BEKLEME + DOĞRULAMA döngüsünü kendin yazmayı pekiştirmek.', en: 'Goal: reinforce writing the WAIT + VERIFY cycle for the stubbed request yourself.' },
+        code: {
+          tr: `cy.visit('/shop')\ncy.get('[data-cy=spinner]').should('be.visible')\ncy.wait('@getProducts')\ncy.get('[data-cy=spinner]').should('not.exist')`,
+          en: `cy.visit('/shop')\ncy.get('[data-cy=spinner]').should('be.visible')\ncy.wait('@getProducts')\ncy.get('[data-cy=spinner]').should('not.exist')`,
+        },
+        starterCode: {
+          tr: `cy.visit('/shop')\n// TODO: spinner'in gorunur oldugunu dogrula\ncy.wait('@getProducts')\n// TODO: spinner'in artik var olmadigini dogrula\n`,
+          en: `cy.visit('/shop')\n// TODO: verify the spinner is visible\ncy.wait('@getProducts')\n// TODO: verify the spinner no longer exists\n`,
+        },
+        solutionCode: {
+          tr: `cy.visit('/shop')\ncy.get('[data-cy=spinner]').should('be.visible')\ncy.wait('@getProducts')\ncy.get('[data-cy=spinner]').should('not.exist')`,
+          en: `cy.visit('/shop')\ncy.get('[data-cy=spinner]').should('be.visible')\ncy.wait('@getProducts')\ncy.get('[data-cy=spinner]').should('not.exist')`,
+        },
+        expected: { tr: 'Spinner istek sırasında görünür, istek bitince kaybolur — her koşumda AYNI (2 saniyelik stub sayesinde).', en: 'The spinner is visible during the request and disappears once it finishes — the SAME on every run (thanks to the 2-second stub).' },
+        hints: [
+          { tr: 'cy.wait(\'@alias\') stub edilmiş isteğin BİTMESİNİ bekler.', en: 'cy.wait(\'@alias\') waits for the stubbed request to FINISH.' },
+          { tr: '.should(\'not.exist\') elementin artık DOM\'da olmadığını doğrular.', en: '.should(\'not.exist\') verifies the element is no longer in the DOM.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'cy-stub-step-error-predict',
+      brief: { tr: '4) Sunucu 500 hatası dönerse arayüzün NE göstermesi gerektiğini tahmin et.', en: '4) Predict what the UI SHOULD show when the server returns a 500 error.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir uygulama sadece "mutlu yolu" (happy path) değil, hata durumlarını da KULLANICIYA ANLAMLI şekilde göstermelidir. 500 hatasında spinner\'ın SONSUZA kadar dönmesi ya da sayfanın sessizce boş kalması KÖTÜ bir kullanıcı deneyimidir — kullanıcıya "bir şeyler ters gitti, tekrar dene" gibi AÇIK bir mesaj gösterilmelidir.',
+        en: 'An application should not just handle the "happy path" — it must show error states to the USER in a MEANINGFUL way. On a 500 error, the spinner spinning FOREVER or the page silently staying empty is a BAD user experience — the user should see a CLEAR message like "something went wrong, try again".',
+      },
+      block: {
+        type: 'prediction',
+        id: 'cy-stub-error-choice',
+        xpReward: 10,
+        relatedTopicId: 'cypress-network-stub-mission',
+        prompt: { tr: 'Ürün listesi API\'si 500 hatası dönerse, iyi bir kullanıcı deneyimi için arayüz ne yapmalı?', en: 'If the product list API returns a 500 error, what should the UI do for a good user experience?' },
+        code: '// GET /api/products -> 500 Internal Server Error\n// what should the UI show?',
+        codeLanguage: 'javascript',
+        options: [
+          { id: 'a', label: { tr: 'Spinner sonsuza kadar dönmeye devam etmeli', en: 'The spinner should keep spinning forever' }, why: { tr: 'Kullanıcı bir şeyin YÜKLENMEYE devam ettiğini sanır — aslında istek zaten BAŞARISIZ oldu, bu yanıltıcıdır.', en: 'The user thinks something is STILL loading — the request already FAILED, this is misleading.' } },
+          { id: 'b', label: { tr: 'Açık bir hata mesajı gösterilmeli (örn. "Ürünler yüklenemedi")', en: 'A clear error message should be shown (e.g. "Failed to load products")' }, correct: true },
+          { id: 'c', label: { tr: 'Sayfa sessizce boş kalmalı, hiçbir şey gösterilmemeli', en: 'The page should silently stay empty, showing nothing' }, why: { tr: 'Kullanıcı NEDEN hiçbir ürün görmediğini anlayamaz — bir hata mı oldu, yoksa gerçekten ürün mü yok bilemez.', en: 'The user cannot tell WHY they see no products — was there an error, or are there genuinely no products?' } },
+        ],
+        reveal: {
+          tr: 'Açık bir hata mesajı doğru: kullanıcı NE olduğunu anlamalı ve mümkünse bir sonraki adımı (tekrar dene gibi) bilmelidir. Bu QA açısından kritiktir — "hata durumunu test etmemek", production\'da sessizce başarısız olan ve kimsenin fark etmediği bir özelliğin en yaygın kaynağıdır.',
+          en: 'A clear error message is correct: the user must understand WHAT happened and, if possible, know the next step (like retry). This is critical from a QA perspective — "not testing the error state" is the most common source of a feature silently failing in production that nobody notices.',
+        },
+      },
+    },
+    {
+      id: 'cy-stub-step-error-code',
+      brief: { tr: '5) 500 hatasını simüle et ve hata mesajının göründüğünü doğrula.', en: '5) Simulate the 500 error and verify the error message appears.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'cy.intercept() sadece başarılı yanıtları değil, `statusCode: 500` gibi HATA durumlarını da simüle edebilir — gerçek sunucuyu bilerek bozmana GEREK YOKTUR. Bu, "happy path" testinin AYNI iskeletini (görüşme→bekleme→doğrulama) kullanır, sadece stub\'ın içeriği değişir.',
+        en: 'cy.intercept() can simulate not just successful responses but also ERROR states like `statusCode: 500` — you do NOT need to actually break the real server. This uses the SAME skeleton (visit→wait→verify) as the "happy path" test, only the stub\'s content changes.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'cy-stub-error-code',
+        relatedTopicId: 'cypress-network-stub-mission',
+        language: 'javascript',
+        label: { tr: '500 hatasını simüle et', en: 'Simulate the 500 error' },
+        task: { tr: 'TODO satırlarını, 500 hatası döndüren bir intercept ile ve hata mesajının göründüğünü doğrulayan bir assertion ile tamamla.', en: 'Complete the TODO lines with an intercept that returns a 500 error and an assertion that the error message appears.' },
+        explanation: { tr: 'Amaç: happy-path testinin iskeletini bir hata senaryosuna uyarlamayı pekiştirmek.', en: 'Goal: reinforce adapting the happy-path test\'s skeleton to an error scenario.' },
+        code: {
+          tr: `cy.intercept('GET', '/api/products', { statusCode: 500 }).as('getProductsError')\ncy.visit('/shop')\ncy.wait('@getProductsError')\ncy.get('[data-cy=error-message]').should('be.visible')`,
+          en: `cy.intercept('GET', '/api/products', { statusCode: 500 }).as('getProductsError')\ncy.visit('/shop')\ncy.wait('@getProductsError')\ncy.get('[data-cy=error-message]').should('be.visible')`,
+        },
+        starterCode: {
+          tr: `// TODO: GET /api/products'i 500 statusCode ile stub et, 'getProductsError' diye adlandir\ncy.visit('/shop')\ncy.wait('@getProductsError')\n// TODO: hata mesajinin gorunur oldugunu dogrula\n`,
+          en: `// TODO: stub GET /api/products with statusCode 500, alias it as 'getProductsError'\ncy.visit('/shop')\ncy.wait('@getProductsError')\n// TODO: verify the error message is visible\n`,
+        },
+        solutionCode: {
+          tr: `cy.intercept('GET', '/api/products', { statusCode: 500 }).as('getProductsError')\ncy.visit('/shop')\ncy.wait('@getProductsError')\ncy.get('[data-cy=error-message]').should('be.visible')`,
+          en: `cy.intercept('GET', '/api/products', { statusCode: 500 }).as('getProductsError')\ncy.visit('/shop')\ncy.wait('@getProductsError')\ncy.get('[data-cy=error-message]').should('be.visible')`,
+        },
+        expected: { tr: 'Sunucu hiç çağrılmadan 500 simüle edilir ve arayüzdeki hata mesajı doğrulanır.', en: 'A 500 is simulated without ever calling the real server, and the error message in the UI is verified.' },
+        hints: [
+          { tr: '{ statusCode: 500 } bir intercept response objesidir — fixture yerine kullanılır.', en: '{ statusCode: 500 } is an intercept response object — used instead of a fixture.' },
+          { tr: 'İskelet AYNI: intercept → visit → wait → assert, sadece response içeriği değişti.', en: 'The skeleton is the SAME: intercept → visit → wait → assert, only the response content changed.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir network-stubbing testi kurdun: neden gerçek ağı beklemek yerine stub etmen gerektiğini anlama → gecikmeli stub yazma → loading state\'i doğrulama → hata durumunun neden test edilmesi GEREKTİĞİNİ anlama → aynı iskeleti bir hata senaryosuna uyarlama. Bu, Cypress\'in Selenium\'a göre en büyük süper gücüdür: gerçek sunucuyu hiç bozmadan HER durumu (yavaş, hızlı, başarılı, başarısız) test edebilirsin.',
+    en: 'You did not just read a lesson — in 5 steps you built a real network-stubbing test: understanding why you should stub instead of waiting for the real network → writing a delayed stub → verifying the loading state → understanding WHY the error state must be tested → adapting the same skeleton to an error scenario. This is Cypress\'s biggest superpower over Selenium: you can test EVERY state (slow, fast, success, failure) without ever touching the real server.',
+  },
+}
+
 const s5 = {
   tr: {
     title: '🌐 Network & cy.intercept()',
@@ -1892,6 +2269,7 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
       }
 }
 },
+      cypressNetworkStubMission,
     ],
   },
   en: {
@@ -2005,6 +2383,7 @@ wireMockServer.stubFor(get(urlEqualTo("/api/products"))
       }
 }
 },
+      cypressNetworkStubMission,
     ],
   },
 }

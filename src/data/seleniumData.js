@@ -8303,6 +8303,191 @@ const seleniumArchTestChainFilm = {
   ],
 }
 
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı isteğiyle mevcut 6 sayfanın "aksiyon" sekmelerine +1
+// görev). "Ham testi Page Object Model'e refactor et" — locator'ları test
+// metodundan çıkarıp bir Page Object sınıfına taşıma pratiği. MEVCUT
+// prediction/code-playground bloklarını gömer, yeni sandbox yazılmaz.
+const seleniumPomRefactorMission = {
+  type: 'mission',
+  id: 'selenium-pom-refactor-mission',
+  xpReward: 45,
+  relatedTopicId: 'selenium-framework-basepage',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün ham (locator\'ları test metodunun içinde tutan) bir Selenium testini Page Object Model (POM) ile yeniden yapılandıracaksın. Ders okumayacaksın — bir QA gibi adım adım gerçek bir refactor yapacaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will refactor a raw Selenium test (one that keeps its locators inside the test method) into the Page Object Model (POM). You will not read a lesson — you will do a real refactor step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'sel-pom-step-why',
+      brief: { tr: '1) Locator\'ları test metodunun içinde tutmanın en büyük riskini tahmin et.', en: '1) Predict the biggest risk of keeping locators inside the test method.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Login butonunun id\'si 10 farklı test dosyasında tekrar tekrar yazılmışsa, tasarımcı o id\'yi değiştirdiğinde 10 dosyayı TEK TEK bulup düzeltmen gerekir. Page Object, o locator\'ı TEK bir sınıfta toplar — Java\'da bir sabiti (constant) bir kere tanımlayıp her yerde referans vermek gibi: değişiklik tek noktadan yapılır.',
+        en: 'If the login button\'s id is repeated across 10 different test files, when the designer changes that id you must find and fix all 10 files ONE BY ONE. A Page Object gathers that locator into ONE class — like defining a constant once in Java and referencing it everywhere: the change happens at a single point.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sel-pom-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'selenium-framework-basepage',
+        prompt: { tr: '`By.id("loginBtn")` 10 farklı test dosyasında ayrı ayrı yazılmış. Tasarımcı id\'yi değiştirirse ne olur?', en: '`By.id("loginBtn")` is written separately in 10 different test files. What happens if the designer changes the id?' },
+        code: '// 10 test dosyasinin HER BIRINDE:\ndriver.findElement(By.id("loginBtn"));',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'Sadece 1 dosyayı güncellemek yeterli olur', en: 'Updating just 1 file is enough' }, why: { tr: 'Locator her dosyada AYRI AYRI yazılmış — tek dosyayı düzeltmek diğer 9\'unu kırık bırakır.', en: 'The locator is written SEPARATELY in each file — fixing one file leaves the other 9 broken.' } },
+          { id: 'b', label: { tr: '10 dosyanın HEPSİNİ tek tek bulup güncellemen gerekir', en: 'You must find and update ALL 10 files one by one' }, correct: true },
+          { id: 'c', label: { tr: 'Selenium otomatik olarak yeni id\'yi bulur', en: 'Selenium automatically finds the new id' }, why: { tr: 'Selenium sihirli değildir — findElement tam olarak yazdığın locator\'ı arar, otomatik uyum sağlamaz.', en: 'Selenium is not magic — findElement searches for exactly the locator you wrote, it does not auto-adapt.' } },
+        ],
+        reveal: {
+          tr: '10 dosyanın hepsini tek tek bulup güncellemen gerekir doğru: locator TEKRARLANMIŞTIR, tek bir kaynak (single source of truth) yoktur. Page Object Model tam olarak bu sorunu çözer — locator\'ı BİR sınıfta tanımlarsın, 10 test de o sınıfı KULLANIR; değişiklik tek yerden yapılır.',
+          en: 'You must find and update all 10 files one by one is correct: the locator is DUPLICATED, there is no single source of truth. The Page Object Model solves exactly this — you define the locator in ONE class, all 10 tests USE that class; the change happens in one place.',
+        },
+      },
+    },
+    {
+      id: 'sel-pom-step-class',
+      brief: { tr: '2) LoginPage sınıfının locator alanını ve constructor\'ını yaz.', en: '2) Write the LoginPage class\'s locator field and constructor.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir Page Object, o sayfanın locator\'larını PRIVATE alanlarda saklayan sıradan bir Java sınıfıdır. Constructor, testten gelen `driver`\'ı alıp sınıfın kendi alanına atar — böylece sınıfın metotları o driver\'ı kullanarak elementleri bulabilir.',
+        en: 'A Page Object is an ordinary Java class that stores that page\'s locators in PRIVATE fields. The constructor takes the `driver` from the test and assigns it to the class\'s own field — so the class\'s methods can use that driver to find elements.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-pom-class-code',
+        relatedTopicId: 'selenium-pom-refactor-mission',
+        language: 'java',
+        label: { tr: 'LoginPage sınıfının iskeletini yaz', en: 'Write the LoginPage class skeleton' },
+        task: { tr: 'TODO satırını, driver\'ı alan bir constructor ile tamamla.', en: 'Complete the TODO line with a constructor that takes the driver.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç Page Object\'in constructor kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the Page Object\'s constructor pattern yourself.' },
+        code: {
+          tr: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n}`,
+          en: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n}`,
+        },
+        starterCode: {
+          tr: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    // TODO: driver'i alan constructor'i yaz, this.driver'a ata\n}`,
+          en: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    // TODO: write a constructor that takes driver, assign it to this.driver\n}`,
+        },
+        solutionCode: {
+          tr: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n}`,
+          en: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n}`,
+        },
+        expected: { tr: 'LoginPage artık kendi driver referansını tutar ve locator\'ı bir alan olarak saklar.', en: 'LoginPage now holds its own driver reference and stores the locator as a field.' },
+        hints: [
+          { tr: 'Constructor, sınıfla AYNI isme sahiptir ve dönüş tipi yoktur.', en: 'A constructor has the SAME name as the class and no return type.' },
+          { tr: '`this.driver = driver;` gelen parametreyi sınıfın kendi alanına atar.', en: '`this.driver = driver;` assigns the incoming parameter to the class\'s own field.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sel-pom-step-method',
+      brief: { tr: '3) LoginPage\'e, login işlemini yapan bir metot ekle.', en: '3) Add a method to LoginPage that performs the login action.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Page Object\'in metotları, o sayfada YAPILABİLECEK eylemleri isimlendirir — `login(user, pass)` demek, "bu sayfada giriş yapabilirsin" demektir. Test kodu ARTIK `findElement`/`sendKeys` detaylarını bilmek zorunda değildir, sadece `loginPage.login(...)` der.',
+        en: 'A Page Object\'s methods name the actions that CAN be performed on that page — `login(user, pass)` says "you can log in on this page". The test code no longer needs to know the `findElement`/`sendKeys` details, it just says `loginPage.login(...)`.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-pom-method-code',
+        relatedTopicId: 'selenium-pom-refactor-mission',
+        language: 'java',
+        label: { tr: 'login() metodunu yaz', en: 'Write the login() method' },
+        task: { tr: 'TODO satırını, username ve password alıp login butonuna tıklayan bir login() metoduyla tamamla.', en: 'Complete the TODO line with a login() method that takes username and password and clicks the login button.' },
+        explanation: { tr: 'Amaç: Page Object\'in "eylem metodu" kalıbını kendin yazmayı pekiştirmek.', en: 'Goal: reinforce writing the Page Object\'s "action method" pattern yourself.' },
+        code: {
+          tr: `public void login(String username, String password) {\n    driver.findElement(usernameField).sendKeys(username);\n    driver.findElement(passwordField).sendKeys(password);\n    driver.findElement(loginBtn).click();\n}`,
+          en: `public void login(String username, String password) {\n    driver.findElement(usernameField).sendKeys(username);\n    driver.findElement(passwordField).sendKeys(password);\n    driver.findElement(loginBtn).click();\n}`,
+        },
+        starterCode: {
+          tr: `// usernameField ve passwordField zaten tanimli\n// TODO: username/password yaz, login butonuna tikla\npublic void login(String username, String password) {\n}`,
+          en: `// usernameField and passwordField are already defined\n// TODO: type username/password, click the login button\npublic void login(String username, String password) {\n}`,
+        },
+        solutionCode: {
+          tr: `public void login(String username, String password) {\n    driver.findElement(usernameField).sendKeys(username);\n    driver.findElement(passwordField).sendKeys(password);\n    driver.findElement(loginBtn).click();\n}`,
+          en: `public void login(String username, String password) {\n    driver.findElement(usernameField).sendKeys(username);\n    driver.findElement(passwordField).sendKeys(password);\n    driver.findElement(loginBtn).click();\n}`,
+        },
+        expected: { tr: 'login() çağrıldığında kullanıcı adı/şifre yazılır ve login butonuna tıklanır.', en: 'Calling login() types the username/password and clicks the login button.' },
+        hints: [
+          { tr: 'Üç işlem sırayla: username yaz, password yaz, butona tıkla.', en: 'Three actions in order: type username, type password, click the button.' },
+          { tr: 'sendKeys(...) bir metne yazar, click() ise tıklar.', en: 'sendKeys(...) types text, click() clicks.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sel-pom-step-cost',
+      brief: { tr: '4) POM sonrası, UI değişirse kaç yeri güncellemen gerektiğini tahmin et.', en: '4) Predict how many places you need to update after a UI change, now that POM is in place.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'POM\'dan ÖNCE locator 10 test dosyasında ayrı ayrı yazılıydı — id değişince 10 yer. POM\'dan SONRA locator SADECE LoginPage sınıfında bir kez tanımlıdır; 10 test de bu sınıfı KULLANIR. id değişince artık tek bir dosyayı (LoginPage.java) güncellemek yeterlidir.',
+        en: 'BEFORE POM the locator was written separately in 10 test files — changing the id meant 10 places. AFTER POM the locator is defined ONCE, only in the LoginPage class; all 10 tests USE that class. When the id changes, updating a single file (LoginPage.java) is now enough.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sel-pom-cost-choice',
+        xpReward: 10,
+        relatedTopicId: 'selenium-pom-refactor-mission',
+        prompt: { tr: 'LoginPage\'i kullanan 10 test var. Tasarımcı login butonunun id\'sini değiştirirse kaç dosyayı güncellemen gerekir?', en: '10 tests use LoginPage. If the designer changes the login button\'s id, how many files do you need to update?' },
+        code: '// 10 test -> hepsi LoginPage kullaniyor\n// designer changes loginBtn id',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: '1 dosya (LoginPage.java)', en: '1 file (LoginPage.java)' }, correct: true },
+          { id: 'b', label: { tr: '10 dosyanın hepsi', en: 'All 10 files' }, why: { tr: 'Bu, POM OLMADAN önceki durumdu — POM sonrası locator artık tek bir yerde.', en: 'That was the situation WITHOUT POM — after POM the locator lives in only one place.' } },
+          { id: 'c', label: { tr: 'Hiçbiri, otomatik düzelir', en: 'None, it fixes itself automatically' }, why: { tr: 'Kod kendi kendine değişmez — birinin locator\'ı elle güncellemesi gerekir, sadece bunun için TEK dosyaya bakması yeterlidir.', en: 'Code does not change itself — someone must update the locator by hand, they just only need to look at ONE file to do it.' } },
+        ],
+        reveal: {
+          tr: '1 dosya doğru: POM sayesinde locator artık SADECE LoginPage.java\'da tanımlı. 10 test de bu sınıfı kullandığından, tek dosyayı güncellemek TÜM testleri otomatik olarak düzeltir — bu, POM\'un asıl kazandırdığı bakım (maintenance) avantajıdır.',
+          en: '1 file is correct: thanks to POM the locator is now defined ONLY in LoginPage.java. Since all 10 tests use that class, updating the single file automatically fixes ALL tests — this is the real maintenance advantage POM provides.',
+        },
+      },
+    },
+    {
+      id: 'sel-pom-step-test',
+      brief: { tr: '5) Test metodunu, ham locator yerine LoginPage kullanacak şekilde tamamla.', en: '5) Complete the test method to use LoginPage instead of raw locators.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Refactor sonrası test metodu artık `findElement`/`By.id` GÖRMEZ — sadece `new LoginPage(driver)` ile bir sayfa nesnesi oluşturur ve `.login(...)` der. Test, NE YAPILDIĞINI okur; NASIL yapıldığını (locator detaylarını) LoginPage sınıfı bilir.',
+        en: 'After the refactor, the test method no longer SEES `findElement`/`By.id` — it just creates a page object with `new LoginPage(driver)` and calls `.login(...)`. The test reads WHAT is done; the LoginPage class knows HOW it is done (the locator details).',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-pom-test-code',
+        relatedTopicId: 'selenium-pom-refactor-mission',
+        language: 'java',
+        label: { tr: 'Test metodunu LoginPage ile tamamla', en: 'Complete the test method with LoginPage' },
+        task: { tr: 'TODO satırını, LoginPage nesnesi oluşturup login() metodunu çağıracak şekilde tamamla.', en: 'Complete the TODO line to create a LoginPage object and call its login() method.' },
+        explanation: { tr: 'Amaç: önceki 2 adımda yazdığın sınıfı gerçek bir testte KULLANMayı pekiştirmek.', en: 'Goal: reinforce USING the class you wrote in the previous 2 steps inside a real test.' },
+        code: {
+          tr: `@Test\npublic void loginBasarili() {\n    LoginPage loginPage = new LoginPage(driver);\n    loginPage.login("admin", "1234");\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+          en: `@Test\npublic void loginSucceeds() {\n    LoginPage loginPage = new LoginPage(driver);\n    loginPage.login("admin", "1234");\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+        },
+        starterCode: {
+          tr: `@Test\npublic void loginBasarili() {\n    // TODO: LoginPage nesnesi olustur\n    // TODO: login("admin", "1234") cagir\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+          en: `@Test\npublic void loginSucceeds() {\n    // TODO: create a LoginPage object\n    // TODO: call login("admin", "1234")\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+        },
+        solutionCode: {
+          tr: `@Test\npublic void loginBasarili() {\n    LoginPage loginPage = new LoginPage(driver);\n    loginPage.login("admin", "1234");\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+          en: `@Test\npublic void loginSucceeds() {\n    LoginPage loginPage = new LoginPage(driver);\n    loginPage.login("admin", "1234");\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+        },
+        expected: { tr: 'Test artık locator detaylarını hiç görmeden LoginPage üzerinden login olur.', en: 'The test now logs in via LoginPage without ever seeing the locator details.' },
+        hints: [
+          { tr: '`new LoginPage(driver)` bir Page Object nesnesi oluşturur.', en: '`new LoginPage(driver)` creates a Page Object instance.' },
+          { tr: '2. adımda yazdığın metot: login(username, password).', en: 'The method you wrote in step 2: login(username, password).' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda ham bir testi gerçek bir Page Object Model refactor\'ına dönüştürdün: tekrarlanan locator\'ın riskini anlama → sınıf iskeleti yazma → eylem metodu yazma → bakım maliyetinin nasıl 10 dosyadan 1 dosyaya düştüğünü anlama → testi Page Object üzerinden yeniden yazma. Bu, gerçek bir Selenium framework\'ünde her sayfanın izlediği kalıptır.',
+    en: 'You did not just read a lesson — in 5 steps you turned a raw test into a real Page Object Model refactor: understanding the risk of a duplicated locator → writing the class skeleton → writing an action method → understanding how maintenance cost drops from 10 files to 1 → rewriting the test through the Page Object. This is the pattern every page follows in a real Selenium framework.',
+  },
+}
+
 const seleniumArchBlocks = [
   {
     type: 'simple-box',
@@ -9525,6 +9710,7 @@ public void loginScenarios(String user, String pass, boolean shouldPass) {
       },
     },
   },
+  seleniumPomRefactorMission,
 ]
 
 // Bilingual bloklar tek dizide; her iki ağaç AYNI referansı paylaşır.
@@ -9534,6 +9720,199 @@ const sFwArch = {
 }
 
 // ─── EXPORT — TopicPage formatı: { tr: { hero, tabs, sections }, en: {...} } ──
+// 🎯 CHALLENGE-FIRST REFERANS GÖREVI (challenge-first-experience-plan.md §3.3 P1-O5)
+// "Login sayfasını test et" — gerçek bir QA görevi: buton bul → tıkla → assert →
+// doğru bekleme stratejisini seç → flaky testi explicit wait ile yeşile al.
+// Her adım MEVCUT bir interaktif bloğu (prediction / code-playground) gömer;
+// MissionBlock onları TopicPage'in renderBlock makinesinden geçirir (yeni sandbox
+// yazılmaz). Sonnet bu görevi örnek alıp Playwright/Cypress/Python/SQL/API'ye yayacak.
+// Çift-ağaçlı dosya (§9.5): TEK bilingual sabit, İKİ ağaca da aynı referansla push.
+const seleniumLoginMission = {
+  type: 'mission',
+  id: 'selenium-login-mission',
+  xpReward: 45,
+  relatedTopicId: 'selenium-locators',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Bugün bir e-ticaret sitesinin login sayfasını test edeceksin. Ders okumayacaksın — bir QA gibi adım adım gerçek bir smoke testi kuracaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will test the login page of an e-commerce site. You will not read a lesson — you will build a real smoke test step by step, like a QA. If you get stuck on a step, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'sel-mission-step-locator',
+      brief: { tr: '1) Login butonunu en güvenilir şekilde bulacak locator’ı seç.', en: '1) Pick the locator that finds the login button most reliably.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'By.className sessiz tehlikelidir: aynı class birden fazla elemente denk gelebilir, test yanlış PASS verir ve exception fırlatmaz. By.id benzersizse O(1) hızındadır ve en güvenilirdir — tıpkı Java’da Map’te key ile lookup yapmak gibi. By.tagName ise sayfadaki tüm button’ları eşler.',
+        en: 'By.className is silently dangerous: the same class can match multiple elements, so the test passes wrongly without throwing. By.id, when unique, is O(1) and the most reliable — just like a key lookup in a Java Map. By.tagName matches every button on the page.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sel-mission-locator-choice',
+        xpReward: 10,
+        relatedTopicId: 'selenium-locators',
+        prompt: { tr: 'Bu buton için hangi locator en güvenilir?', en: 'Which locator is most reliable for this button?' },
+        code: '<button id="loginBtn" class="btn primary">Sign in</button>',
+        codeLanguage: 'html',
+        options: [
+          { id: 'a', label: { tr: 'By.className("btn")', en: 'By.className("btn")' }, why: { tr: 'Birden fazla element aynı class’ı taşıyabilir; yanlış elementi sessizce eşler.', en: 'Multiple elements can share the class; it silently matches the wrong one.' } },
+          { id: 'b', label: { tr: 'By.id("loginBtn")', en: 'By.id("loginBtn")' }, correct: true },
+          { id: 'c', label: { tr: 'By.tagName("button")', en: 'By.tagName("button")' }, why: { tr: 'Sayfadaki tüm button’ları döndürür, ilki login olmayabilir.', en: 'Returns every button on the page; the first may not be login.' } },
+        ],
+        reveal: {
+          tr: 'By.id("loginBtn") doğru: id benzersiz ve stabilse en hızlı ve en güvenilir locator’dır. className ve tagName birden çok elemente denk gelip sessiz yanlış PASS üretebilir — QA açısından bulması en zor flaky test türü.',
+          en: 'By.id("loginBtn") is correct: when the id is unique and stable it is the fastest, most reliable locator. className and tagName can match multiple elements and produce a silent false PASS — the hardest kind of flaky test to find.',
+        },
+      },
+    },
+    {
+      id: 'sel-mission-step-click',
+      brief: { tr: '2) Seçtiğin locator ile butona tıklayan Selenium satırını yaz.', en: '2) Write the Selenium line that clicks the button with that locator.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'driver.findElement(By.id("loginBtn")) elementi bulur, .click() ona tıklar. Java’da bir nesne referansı alıp metot çağırmak gibi: önce referansı bul, sonra üstünde aksiyon uygula.',
+        en: 'driver.findElement(By.id("loginBtn")) finds the element and .click() clicks it. Like grabbing an object reference in Java and calling a method: locate the reference first, then act on it.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-mission-click-code',
+        relatedTopicId: 'selenium-login-mission',
+        language: 'java',
+        label: { tr: 'Login butonuna tıkla', en: 'Click the login button' },
+        task: { tr: 'TODO satırını, By.id ile login butonuna tıklayacak şekilde tamamla.', en: 'Complete the TODO line to click the login button using By.id.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç By.id + click zincirini kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the By.id + click chain yourself.' },
+        code: {
+          tr: 'driver.findElement(By.id("loginBtn")).click();',
+          en: 'driver.findElement(By.id("loginBtn")).click();',
+        },
+        starterCode: {
+          tr: '// TODO: By.id ile login butonunu bul ve tıkla\ndriver.findElement().click();',
+          en: '// TODO: find the login button with By.id and click it\ndriver.findElement().click();',
+        },
+        solutionCode: {
+          tr: 'driver.findElement(By.id("loginBtn")).click();',
+          en: 'driver.findElement(By.id("loginBtn")).click();',
+        },
+        expected: { tr: 'Login butonu bulunur ve tıklanır.', en: 'The login button is found and clicked.' },
+        hints: [
+          { tr: 'findElement bir tek WebElement döndürür; parametresi bir By locator’ıdır.', en: 'findElement returns a single WebElement; its parameter is a By locator.' },
+          { tr: 'Önceki adımda seçtiğin locator: By.id("loginBtn").', en: 'The locator you picked in the previous step: By.id("loginBtn").' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sel-mission-step-assert',
+      brief: { tr: '3) Giriş sonrası dashboard’ın göründüğünü doğrulayan assertion’ı yaz.', en: '3) Write the assertion that verifies the dashboard is visible after login.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Tıklamak yetmez; test bir ŞEYİ doğrulamalı, yoksa hiçbir bug yakalamaz. isDisplayed() elementin görünür olup olmadığını döndürür; assertTrue onu bir başarı/başarısızlık kararına çevirir. Assertion olmayan bir test her zaman PASS verir — en tehlikeli yalancı test.',
+        en: 'Clicking is not enough; a test must verify SOMETHING or it catches no bugs. isDisplayed() returns whether the element is visible; assertTrue turns that into a pass/fail decision. A test with no assertion always passes — the most dangerous kind of fake test.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-mission-assert-code',
+        relatedTopicId: 'selenium-login-mission',
+        language: 'java',
+        label: { tr: 'Dashboard görünürlüğünü assert et', en: 'Assert dashboard visibility' },
+        task: { tr: 'TODO satırını, dashboard elementinin görünür olduğunu doğrulayan bir assertion ile tamamla.', en: 'Complete the TODO line with an assertion that verifies the dashboard element is visible.' },
+        explanation: { tr: 'Amaç: tıklamadan sonra sonucu doğrulayan bir kontrol yazmayı pekiştirmek.', en: 'Goal: reinforce writing a check that verifies the result after the click.' },
+        code: {
+          tr: 'assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());',
+          en: 'assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());',
+        },
+        starterCode: {
+          tr: '// TODO: dashboard göründü mü diye assertion yaz\n',
+          en: '// TODO: write an assertion for whether the dashboard is displayed\n',
+        },
+        solutionCode: {
+          tr: 'assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());',
+          en: 'assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());',
+        },
+        expected: { tr: 'Dashboard görünürse test PASS, görünmezse FAIL verir.', en: 'The test passes if the dashboard is visible and fails if it is not.' },
+        hints: [
+          { tr: 'isDisplayed() bir boolean döndürür; onu assertTrue(...) ile bir doğrulamaya çevir.', en: 'isDisplayed() returns a boolean; wrap it in assertTrue(...) to make it a verification.' },
+          { tr: 'Dashboard’ın locator’ı: By.id("dashboard").', en: 'The dashboard locator: By.id("dashboard").' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sel-mission-step-waitchoice',
+      brief: { tr: '4) Dashboard bazen 1sn bazen 4sn’de yükleniyor. Testi flaky yapmayacak bekleme stratejisini seç.', en: '4) The dashboard loads in 1s sometimes, 4s other times. Pick the wait strategy that will not make the test flaky.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Thread.sleep(2000) sabit bekler: element 1sn’de hazırsa 1sn boşa gider, 4sn sürerse test patlar. Implicit wait tüm findElement’lara global gecikme ekler ama koşula bakmaz. WebDriverWait + ExpectedConditions ise KOŞUL gerçekleşene kadar bekler, en fazla timeout kadar — hem hızlı hem stabildir.',
+        en: 'Thread.sleep(2000) waits a fixed time: if the element is ready in 1s you waste 1s, if it takes 4s the test breaks. Implicit wait adds a global delay to all findElement calls but ignores the condition. WebDriverWait + ExpectedConditions waits until the CONDITION is true, up to the timeout — both fast and stable.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sel-mission-wait-choice',
+        xpReward: 10,
+        relatedTopicId: 'selenium-login-mission',
+        prompt: { tr: 'Değişken yükleme süresinde testi flaky yapmayacak bekleme hangisi?', en: 'With variable load time, which wait keeps the test from being flaky?' },
+        code: {
+          tr: '// dashboard: bazen 1sn, bazen 4sn\n// hangi bekleme?',
+          en: '// dashboard: sometimes 1s, sometimes 4s\n// which wait?',
+        },
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'Thread.sleep(2000)', en: 'Thread.sleep(2000)' }, why: { tr: 'Sabit süre; 4sn sürerse test patlar, 1sn’de hazırsa zaman kaybedilir.', en: 'Fixed duration; breaks if it takes 4s, wastes time if ready in 1s.' } },
+          { id: 'b', label: { tr: 'WebDriverWait + ExpectedConditions.visibilityOfElementLocated', en: 'WebDriverWait + ExpectedConditions.visibilityOfElementLocated' }, correct: true },
+          { id: 'c', label: { tr: 'Hiç bekleme koyma', en: 'No wait at all' }, why: { tr: 'Element geç gelirse NoSuchElementException fırlar; en kırılgan seçenek.', en: 'If the element arrives late a NoSuchElementException is thrown; the most fragile option.' } },
+        ],
+        reveal: {
+          tr: 'WebDriverWait + ExpectedConditions doğru: koşul (görünürlük) gerçekleşene kadar bekler, en fazla timeout kadar. Değişken süreli yüklemelerde hem sabit sleep’in zaman kaybını hem de beklemesizliğin kırılganlığını ortadan kaldırır.',
+          en: 'WebDriverWait + ExpectedConditions is correct: it waits until the condition (visibility) is true, up to the timeout. On variable-time loads it removes both the wasted time of a fixed sleep and the fragility of no wait.',
+        },
+      },
+    },
+    {
+      id: 'sel-mission-step-waitcode',
+      brief: { tr: '5) Testi yeşile al: dashboard beklemesini explicit wait ile yaz.', en: '5) Make the test green: write the dashboard wait using an explicit wait.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'WebDriverWait bir timeout ile kurulur; .until(...) içine bir ExpectedConditions koşulu verilir. visibilityOfElementLocated(By.id("dashboard")) element görünene kadar bekler. Bu, sabit Thread.sleep’i koşullu beklemeyle değiştirmenin standart kalıbıdır.',
+        en: 'A WebDriverWait is created with a timeout; you pass an ExpectedConditions condition into .until(...). visibilityOfElementLocated(By.id("dashboard")) waits until the element is visible. This is the standard pattern for replacing a fixed Thread.sleep with a conditional wait.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-mission-wait-code',
+        relatedTopicId: 'selenium-login-mission',
+        language: 'java',
+        label: { tr: 'Explicit wait ile dashboard’ı bekle', en: 'Wait for the dashboard with an explicit wait' },
+        task: { tr: 'TODO satırını, dashboard görünene kadar bekleyen bir WebDriverWait ile tamamla (en fazla 10 saniye).', en: 'Complete the TODO line with a WebDriverWait that waits until the dashboard is visible (up to 10 seconds).' },
+        explanation: { tr: 'Amaç: sabit sleep yerine koşullu beklemeyi kendin yazarak flaky testi stabilize etmek.', en: 'Goal: stabilize the flaky test by writing the conditional wait yourself instead of a fixed sleep.' },
+        code: {
+          tr: 'new WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));',
+          en: 'new WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));',
+        },
+        starterCode: {
+          tr: 'driver.findElement(By.id("loginBtn")).click();\n// TODO: dashboard görünene kadar explicit wait ekle (max 10 sn)\n',
+          en: 'driver.findElement(By.id("loginBtn")).click();\n// TODO: add an explicit wait until the dashboard is visible (max 10s)\n',
+        },
+        solutionCode: {
+          tr: 'driver.findElement(By.id("loginBtn")).click();\nnew WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));',
+          en: 'driver.findElement(By.id("loginBtn")).click();\nnew WebDriverWait(driver, Duration.ofSeconds(10))\n    .until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard")));',
+        },
+        expected: { tr: 'Dashboard 1sn’de de 4sn’de de gelse test sabit yeşil kalır.', en: 'Whether the dashboard arrives in 1s or 4s, the test stays consistently green.' },
+        hints: [
+          { tr: 'WebDriverWait(driver, Duration.ofSeconds(10)) 10 saniyelik bir timeout kurar.', en: 'WebDriverWait(driver, Duration.ofSeconds(10)) sets up a 10-second timeout.' },
+          { tr: '.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard"))) koşulu görünürlüktür.', en: '.until(ExpectedConditions.visibilityOfElementLocated(By.id("dashboard"))) — the condition is visibility.' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda gerçek bir login smoke testinin iskeletini kurdun: güvenilir locator seçimi → aksiyon → assertion → doğru bekleme stratejisi → flaky’yi stabilize etme. Gerçek işte bir QA’nın yeni bir sayfaya baktığında izlediği yol tam olarak budur. Bir sonraki adım: aynı akışı Page Object Model ile sınıflara ayırmak.',
+    en: 'You did not just read a lesson — in 5 steps you built the skeleton of a real login smoke test: reliable locator choice → action → assertion → correct wait strategy → stabilizing the flaky case. This is exactly the path a QA follows when looking at a new page on the job. Next step: split the same flow into classes with the Page Object Model.',
+  },
+}
+// Çift-ağaç: aynı sabiti hem TR hem EN Locators sekmesine (s2) aynı referansla ekle (§9.5).
+s2.tr.blocks.push(seleniumLoginMission)
+s2.en.blocks.push(seleniumLoginMission)
+
 export const seleniumData = {
   tr: {
     hero: {
