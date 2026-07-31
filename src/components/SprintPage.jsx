@@ -75,7 +75,11 @@ export default function SprintPage() {
     const isTr = language === 'tr'
     const [darkMode, setDarkMode] = useDarkModeState()
 
-    const sprint = sprintsData.sprints[0]
+    const sprints = sprintsData.sprints
+    // Sprint seçici (S1: Sprint 2 eklendi — sabit sprints[0] artık ikinci
+    // sprint'i asla göstermezdi). Varsayılan: ilk sprint.
+    const [selectedSprintId, setSelectedSprintId] = useState(sprints[0]?.id ?? null)
+    const sprint = sprints.find((s) => s.id === selectedSprintId) ?? sprints[0]
     const bugs = useMemo(() => sprint?.bugs ?? [], [sprint])
 
     const [selectedBugId, setSelectedBugId] = useState(null)
@@ -101,6 +105,11 @@ export default function SprintPage() {
     const handlePull = useCallback((bug) => {
         pullBugIntoSprint(bug.id)
         setSelectedBugId(bug.id)
+    }, [])
+
+    const handleSelectSprint = useCallback((id) => {
+        setSelectedSprintId(id)
+        setSelectedBugId(null) // farklı sprint'e geçince önceki bug detayı kapanır
     }, [])
 
     const handleCloseSprint = useCallback(() => {
@@ -139,8 +148,33 @@ export default function SprintPage() {
                     </p>
                 </header>
 
+                {/* ── Sprint seçici — birden fazla sprint varsa gösterilir ──── */}
+                {sprints.length > 1 && (
+                    <div data-testid="sprint-tabs" className="mb-4 flex flex-wrap gap-2">
+                        {sprints.map((s) => {
+                            const active = s.id === sprint.id
+                            return (
+                                <button
+                                    key={s.id}
+                                    type="button"
+                                    data-testid="sprint-tab"
+                                    data-sprint-id={s.id}
+                                    data-active={active}
+                                    onClick={() => handleSelectSprint(s.id)}
+                                    className={`min-h-9 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${active
+                                        ? 'bg-indigo-600 text-white'
+                                        : darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        }`}
+                                >
+                                    {s.code} · {tx(s.title, isTr)}
+                                </button>
+                            )
+                        })}
+                    </div>
+                )}
+
                 {/* ── Sprint özeti ─────────────────────────────────────────── */}
-                <section data-testid="sprint-summary" className={`mb-6 rounded-2xl border p-4 md:p-5 ${panelBase}`}>
+                <section data-testid="sprint-summary" data-sprint-id={sprint.id} className={`mb-6 rounded-2xl border p-4 md:p-5 ${panelBase}`}>
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                         <span className={`rounded px-2 py-0.5 font-mono text-xs font-bold ${darkMode ? 'bg-indigo-500/20 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
                             {sprint.code}

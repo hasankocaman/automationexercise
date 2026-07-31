@@ -16,7 +16,7 @@
 | Faz | Konu | Sahip | Durum |
 |-----|------|-------|-------|
 | **Faz 1** | QA Sprint Simulator (`/sprint`) — çekirdek | **Opus** | ✅ **TAMAMLANDI** (O1-O8) |
-| **Faz 1-S** | Sprint içerik genişletme + HomePage girişi | Sonnet | 🔜 Prompt §6.1'de hazır |
+| **Faz 1-S** | Sprint içerik genişletme + HomePage girişi | Sonnet | ✅ **TAMAMLANDI** (S1, bkz. NEXT_SESSION.md) |
 | **Faz 2** | Career Map Faz 2 (milestone + paylaşılabilir harita) | Sonnet | 🔜 Prompt §6.2'de hazır |
 | **Faz 3** | Deploy/doğrulama açık uçları | **Kullanıcı (Hasan)** | 🔜 Liste §5'te |
 | **Faz 4** | Test kapsamı boşlukları (mobil/çapraz tarayıcı) | Sonnet | 🔜 Prompt §6.3'te hazır |

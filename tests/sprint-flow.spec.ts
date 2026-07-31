@@ -187,4 +187,33 @@ test.describe('QA Sprint Simulator — /sprint', () => {
 
         await context.close();
     });
+
+    test('sprint sekmesi değiştirince farklı sprint\'in bug\'ları gösteriliyor', async ({ browser }) => {
+        // S1 içerik genişletmesiyle eklendi: Sprint 2 eklenince SprintPage'in
+        // sabit sprints[0] göstermesi ikinci sprint'i asla erişilebilir kılmazdı
+        // — bu test o regresyonu yakalar (sprint-simulator-and-open-items-plan.md §6.1).
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+        await gotoSprint(page);
+
+        expect(sprintsData.sprints.length, 'bu test en az 2 sprint bekler').toBeGreaterThanOrEqual(2);
+        const secondSprint = sprintsData.sprints[1] as unknown as { id: string; bugs: Bug[] };
+
+        // İlk sprint'in bug'ları görünür durumda.
+        await expect(page.locator(`[data-testid="sprint-bug-card"][data-bug-id="${bugs[0].id}"]`)).toBeVisible();
+
+        // İkinci sprint sekmesine geç.
+        await page.locator(`[data-testid="sprint-tab"][data-sprint-id="${secondSprint.id}"]`).click();
+        await expect(page.locator(`[data-testid="sprint-summary"]`)).toHaveAttribute('data-sprint-id', secondSprint.id);
+
+        // Artık ikinci sprint'in bug'ları görünüyor, ilk sprint'inkiler DEĞİL.
+        await expect(page.locator('[data-testid="sprint-bug-card"]')).toHaveCount(secondSprint.bugs.length);
+        for (const bug of secondSprint.bugs) {
+            await expect(page.locator(`[data-testid="sprint-bug-card"][data-bug-id="${bug.id}"]`)).toBeVisible();
+        }
+        await expect(page.locator(`[data-testid="sprint-bug-card"][data-bug-id="${bugs[0].id}"]`)).toHaveCount(0);
+
+        await context.close();
+    });
 });

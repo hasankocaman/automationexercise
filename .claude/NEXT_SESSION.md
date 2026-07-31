@@ -20,7 +20,50 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — Sprint Simulator Faz 1)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — Sprint içerik genişletme S1)
+
+- **Aktif branch: `feature/sprint-simulator`.** Opus'un Faz 1 çekirdeğinin
+  (aşağıda) hemen ardından, plan §6.1'deki Sonnet promptu uygulandı: **S1 —
+  Sprint içerik genişletme + HomePage giriş kartı TAMAMLANDI.**
+  - **`src/data/sprintsData.js`'e 2 yeni bug eklendi (Sprint 1 → 4 bug):**
+    LQA-103 (ödeme butonuna çift tıklayınca sipariş iki kez oluşuyor —
+    idempotency key + veritabanı UNIQUE constraint, check-then-act yarış durumu
+    dersi), LQA-104 (süresi geçmiş kupon hâlâ geçerli — istemciden gelen tarihe
+    güvenmeme + test verisinde deterministik/sabit tarih kullanma dersi).
+  - **Yeni `sprint-2` eklendi** ("API Performans ve Güvenilirlik", ShopLab
+    Platform/Backend ekibi, 2 bug): LQA-201 (ürün listesi N+1 sorgu — REST
+    Assured `.time(lessThan(...))` + donanımdan bağımsız sorgu-sayısı
+    assertion'ı dersi), LQA-202 (eşzamanlı sipariş istekleri stoğu negatife
+    düşürüyor — `CountDownLatch` ile gerçek eşzamanlılık testi + atomik
+    `UPDATE ... WHERE stok > 0` çözümü, LQA-103'teki check-then-act dersinin
+    farklı bir alanda tekrarı).
+  - **🐛 Gerçek bug bulundu ve düzeltildi (kapsam dışı ama zorunlu):** Sprint 2
+    eklenince `SprintPage.jsx` hâlâ sabit `sprintsData.sprints[0]` gösteriyordu
+    — yeni sprint hiçbir zaman ERİŞİLEMEZ olurdu. `SprintPage.jsx`'e sprint
+    seçici (tab bar, `data-testid="sprint-tab"`) eklendi; sprint değişince bug
+    detay paneli kapanır. Bu değişiklik plan promptunun orijinal dosya kapsamı
+    dışındaydı ama içerik eklemenin doğal sonucu olarak zorunluydu.
+  - **`src/components/HomePage.jsx`'e "QA Sprint Simülatörü" giriş kartı
+    eklendi** — mevcut `resume-banner` statik kalıbı KOPYALANDI (yeni tasarım
+    icat edilmedi), amber/orange renk şeması ile ayrıştırıldı.
+  - **Yan iyileştirme — denetim tutarlılığı:** Yeni prediction'ların doğru şık
+    pozisyonları bilinçli çeşitlendirildi (A/B/C dağılımı), "hep B" gaming
+    riskini büyütmemek için (bkz. §23'teki bilinen 47/50 uyarısı — bu artık
+    Sprint bloklarında tekrarlanmadı).
+  - **`tests/sprint-flow.spec.ts`'e 3. test eklendi:** sprint sekmesi
+    değiştirince farklı sprint'in bug'ları gösteriliyor mu (yukarıdaki
+    SprintPage bug'ının regresyon testi). **3/3 PASS.**
+  - **Doğrulama:** `node --check sprintsData.js` ✓ · content-integrity ✓
+    (39 dosya) · i18n baseline 0 ✓ · audit-learning-blocks ✓ (mission:18,
+    prediction:78, 0 ihlal) · build ✓ (44 shell) · `sprint-flow.spec.ts` 3/3 ✓ ·
+    `homepage-recommended-badges.spec.ts` regresyon 2/2 ✓.
+  - **🔜 Sırada (plan §6.2/§6.3, Sonnet promptları hazır):** S3 Career Map
+    Faz 2 (milestone/rozet + breadcrumb), S4 test kapsamı (mobil viewport +
+    çapraz tarayıcı).
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus — Sprint Simulator Faz 1)
 
 - **Aktif branch: `feature/sprint-simulator`** (`main`'den açıldı). Kullanıcı
   `Documents/` altındaki 20 plan dosyasının denetlenmesini ve açık kalan işler
