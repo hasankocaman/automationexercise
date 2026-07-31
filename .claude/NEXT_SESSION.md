@@ -20,7 +20,56 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — Sprint içerik genişletme S1)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — Career Map Faz 2 S3)
+
+- **Aktif branch: `feature/sprint-simulator`.** Plan §6.2'deki Sonnet promptu
+  uygulandı: **S3 — Career Map Faz 2 (milestone/rozet + breadcrumb) TAMAMLANDI**
+  (`Documents/career-map-feature-plan.md` §4.3/§4.4c). MVP'ye (v2 sorular,
+  localStorage kalıcılığı, `estimatedHours`, `trackMapEvent`) DOKUNULMADI,
+  üstüne kuruldu.
+  - **S3.1 — Milestone/rozet sistemi:** `src/utils/careerMapMilestones.js`
+    (yeni) — 5 milestone tanımı (plan §4.3 tablosu birebir): 🏁 İlk adım
+    (haritanın ilk düğümü tamamlandı), 🏁 Kod yazan testçi (Java/Python/TS'ten
+    biri), 🏁 Otomasyoncu (Selenium/Playwright'tan biri), 🏁 Full-stack tester
+    (Postman/REST Assured + SQL), 🏆 SDET yolu tamam (ana yol düğümlerinin
+    %80'i). Tamamen local-first, KENDİ ilerleme state'i TUTMAZ — mevcut
+    `getLocalCompletedRoutes()`'tan HER render'da yeniden türetilir (tek
+    doğruluk kaynağı ilkesi, CLAUDE.md §23.4). Ayrı bir `learnqa_map_milestones`
+    anahtarı SADECE "bu milestone daha önce kutlandı mı?" bilgisini tutar (xp.js
+    `completed` ilkesiyle aynı desen — konfeti/`trackMapEvent('milestone_earned')`
+    bir kez tetiklensin diye).
+    - **Not (dürüst sadeleştirme):** Plandaki "İlk quizin çözülmesi" tetikleyicisi
+      mevcut altyapıda YOK (yalnızca route-seviyeli tam tamamlanma izleniyor) —
+      "İlk adım" milestone'ı haritanın ilk düğümünün TAMAMEN bitmesine bağlandı.
+    - `QAMentorPage.jsx`'e `MilestoneStrip` alt bileşeni eklendi (`MindMapView`
+      içinde, süre rozeti bloğunun hemen ardında) — kazanılan/kazanılmayan
+      rozetler renk farkıyla gösterilir, yeni kazanımda `ConfettiExplosion`.
+  - **S3.2 — Ders sayfasında "haritanda neredesin" breadcrumb'ı:**
+    `TopicHeader.jsx`'e `useMapBreadcrumb()` eklendi — `TopicHeader` TÜM ders
+    sayfalarında (TopicPage üzerinden ~25 teknoloji sayfası + Algorithms/
+    ManualTesting/WhatIsTesting) paylaşıldığından buraya eklemek TEK NOKTADAN
+    tüm sitede yayılım sağladı. **`TopicPage.jsx`'in quiz motoruna
+    DOKUNULMADI** (plan kısıtı). `/qa-mentor`, `/leaderboard`,
+    `/verify-certificate`, `/qa-assistant`, `/sprint` hariç tutuldu (harita
+    düğümü değiller). Breadcrumb'a tıklayınca `/qa-mentor`'a gider.
+  - **`tests/career-map-milestones.spec.ts` (yeni, 4 test):** milestone
+    kazanımı (first-step + code-writing-tester kazanılır, diğerleri
+    kazanılmaz), breadcrumb doğru pozisyon gösterir + tıklanınca /qa-mentor'a
+    gider, profil yokken breadcrumb hiç görünmez, /qa-mentor'da breadcrumb
+    kendisi görünmez. **4/4 PASS.**
+  - **Doğrulama:** content-integrity ✓ (39 dosya) · i18n baseline 0 ✓ · build ✓
+    (44 shell) · yeni testler 4/4 ✓ · regresyon `career-map.spec.ts` (12) +
+    `qa-mentor-progress-tracking.spec.ts` (1) + `qa-mentor-roadmap-order.spec.ts`
+    (1) = **14/14 PASS** (hiç kırılma yok).
+  - **S3.3 (opsiyonel, planda "en son" işaretli) YAPILMADI:** paylaşılabilir
+    harita görseli (`<canvas>` + `toDataURL()`) — düşük öncelik, istenirse
+    ayrı bir oturumda eklenebilir.
+  - **🔜 Sırada (plan §6.3, Sonnet promptu hazır):** S4 test kapsamı boşlukları
+    (mobil viewport genişletme + çapraz tarayıcı).
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Sonnet — Sprint içerik genişletme S1)
 
 - **Aktif branch: `feature/sprint-simulator`.** Opus'un Faz 1 çekirdeğinin
   (aşağıda) hemen ardından, plan §6.1'deki Sonnet promptu uygulandı: **S1 —

@@ -6,8 +6,10 @@ import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import TopicHeader from './TopicHeader'
 import CircularProgress from './CircularProgress'
+import ConfettiExplosion from './ConfettiExplosion'
 import { SkillRadar, JobReadinessCard } from './SkillRadar'
 import { DIALOG, MENTOR_STEPS, ALL_MAPS, WEEKLY_HOURS, pickBaseMapId, resolveMap } from '../data/qaMentorData'
+import { MILESTONE_DEFS, getEarnedMilestones, recordNewMilestones } from '../utils/careerMapMilestones'
 import {
     readMentorProfile,
     saveMentorProfile,
@@ -382,6 +384,42 @@ function ExtraNode({ node, lang, darkMode, animDelay }) {
 }
 
 // ─── Mind Map View ──────────────────────────────────────────────────────────
+// ─── Milestone Şeridi (Kariyer Haritası Faz 2, S3.1) ────────────────────────
+// Mevcut rozet sistemine (ders bitirme %80, claimCertificate) DOKUNMAZ; harita
+// üstüne yol-seviyesi bayraklar ekler (plan §4.3). Kazanılmış/kazanılmamış
+// durumu HER render'da `getEarnedMilestones` ile YENİDEN hesaplanır — kendi
+// state'i yoktur, tek doğruluk kaynağı ders tamamlama verisidir.
+function MilestoneStrip({ earned, lang, darkMode }) {
+    const earnedIds = new Set(earned.map((m) => m.id))
+    return (
+        <div data-testid="career-map-milestones" className={`rounded-2xl border p-4 md:p-5 ${darkMode ? 'border-gray-700 bg-gray-800/80' : 'border-gray-200 bg-white'} shadow-lg`}>
+            <h3 className={`mb-3 text-xs font-black uppercase tracking-wide ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {lang === 'tr' ? '🚩 Milestone\'lar' : '🚩 Milestones'}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+                {MILESTONE_DEFS.map((m) => {
+                    const isEarned = earnedIds.has(m.id)
+                    return (
+                        <div
+                            key={m.id}
+                            data-testid="career-map-milestone"
+                            data-milestone-id={m.id}
+                            data-earned={isEarned}
+                            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-all duration-300 ${isEarned
+                                ? (darkMode ? 'border-amber-600 bg-amber-900/40 text-amber-300' : 'border-amber-300 bg-amber-50 text-amber-700')
+                                : (darkMode ? 'border-gray-700 bg-gray-900/40 text-gray-600' : 'border-gray-200 bg-gray-50 text-gray-400')
+                                }`}
+                        >
+                            <span className={isEarned ? '' : 'grayscale opacity-50'}>{m.emoji}</span>
+                            {lang === 'tr' ? m.label.tr : m.label.en}
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
 function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, certificateId, weeklyHours, completedSet }) {
     const [headerVisible, setHeaderVisible] = useState(false)
     const [noteVisible, setNoteVisible] = useState(false)
@@ -395,6 +433,21 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, cer
     }, [mapData.nodes.length])
 
     const mentorNote = lang === 'tr' ? mapData.mentorNote.tr : mapData.mentorNote.en
+
+    // Milestone'lar (Faz 2, S3.1): HER render'da mevcut tamamlama verisinden
+    // yeniden türetilir (kendi state'i yok). Yeni kazanılan varsa (önceki
+    // ziyarette depoda olmayan bir id) konfeti + trackMapEvent bir KEZ tetiklenir.
+    const earnedMilestones = getEarnedMilestones(mapData.nodes, completedSet || new Set())
+    const [celebratingMilestone, setCelebratingMilestone] = useState(false)
+    useEffect(() => {
+        if (!completedSet) return // henüz ilerleme yüklenmedi
+        const fresh = recordNewMilestones(earnedMilestones.map((m) => m.id))
+        if (fresh.length) {
+            fresh.forEach((id) => trackMapEvent('milestone_earned', { milestoneId: id, mapId: mapData.id }))
+            setCelebratingMilestone(true)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [earnedMilestones.map((m) => m.id).join(','), completedSet])
 
     // Düğüm durumları + süre hesabı (plan §4.1/§4.2): tamamlanan / sıradaki / gelecek
     const completed = completedSet || new Set()
@@ -481,6 +534,17 @@ function MindMapView({ mapData, lang, darkMode, dialog, onRestart, progress, cer
                         </div>
                     )}
                 </div>
+            </div>
+
+            {celebratingMilestone && (
+                <ConfettiExplosion duration={3600} particleCount={48} onComplete={() => setCelebratingMilestone(false)} />
+            )}
+
+            {/* Milestone Şeridi (Faz 2, S3.1): ders bitirme rozetinin ÜSTÜNE
+                yol-seviyesi bayraklar — progress yüklenmeden (anonim ilk açılış
+                anında bile) gösterilir, hepsi "kazanılmamış" görünür. */}
+            <div className={`transition-all duration-700 delay-75 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                <MilestoneStrip earned={earnedMilestones} lang={lang} darkMode={darkMode} />
             </div>
 
             {/* Learning OS Faz 2 (plan §6.2-6.3/F8-F9): Skill Radar + Job Readiness —
