@@ -8303,6 +8303,191 @@ const seleniumArchTestChainFilm = {
   ],
 }
 
+// 🎯 CHALLENGE-FIRST İKİNCİ GÖREV (challenge-first-experience-plan.md §3'ün
+// devamı — kullanıcı isteğiyle mevcut 6 sayfanın "aksiyon" sekmelerine +1
+// görev). "Ham testi Page Object Model'e refactor et" — locator'ları test
+// metodundan çıkarıp bir Page Object sınıfına taşıma pratiği. MEVCUT
+// prediction/code-playground bloklarını gömer, yeni sandbox yazılmaz.
+const seleniumPomRefactorMission = {
+  type: 'mission',
+  id: 'selenium-pom-refactor-mission',
+  xpReward: 45,
+  relatedTopicId: 'selenium-framework-basepage',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Bugün ham (locator\'ları test metodunun içinde tutan) bir Selenium testini Page Object Model (POM) ile yeniden yapılandıracaksın. Ders okumayacaksın — bir QA gibi adım adım gerçek bir refactor yapacaksın. Takıldığın adımda "Mini-lesson aç" ile ipucu alabilirsin.',
+    en: 'Today you will refactor a raw Selenium test (one that keeps its locators inside the test method) into the Page Object Model (POM). You will not read a lesson — you will do a real refactor step by step, like a QA. If you get stuck, open the mini-lesson for a hint.',
+  },
+  steps: [
+    {
+      id: 'sel-pom-step-why',
+      brief: { tr: '1) Locator\'ları test metodunun içinde tutmanın en büyük riskini tahmin et.', en: '1) Predict the biggest risk of keeping locators inside the test method.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Login butonunun id\'si 10 farklı test dosyasında tekrar tekrar yazılmışsa, tasarımcı o id\'yi değiştirdiğinde 10 dosyayı TEK TEK bulup düzeltmen gerekir. Page Object, o locator\'ı TEK bir sınıfta toplar — Java\'da bir sabiti (constant) bir kere tanımlayıp her yerde referans vermek gibi: değişiklik tek noktadan yapılır.',
+        en: 'If the login button\'s id is repeated across 10 different test files, when the designer changes that id you must find and fix all 10 files ONE BY ONE. A Page Object gathers that locator into ONE class — like defining a constant once in Java and referencing it everywhere: the change happens at a single point.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sel-pom-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'selenium-framework-basepage',
+        prompt: { tr: '`By.id("loginBtn")` 10 farklı test dosyasında ayrı ayrı yazılmış. Tasarımcı id\'yi değiştirirse ne olur?', en: '`By.id("loginBtn")` is written separately in 10 different test files. What happens if the designer changes the id?' },
+        code: '// 10 test dosyasinin HER BIRINDE:\ndriver.findElement(By.id("loginBtn"));',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'Sadece 1 dosyayı güncellemek yeterli olur', en: 'Updating just 1 file is enough' }, why: { tr: 'Locator her dosyada AYRI AYRI yazılmış — tek dosyayı düzeltmek diğer 9\'unu kırık bırakır.', en: 'The locator is written SEPARATELY in each file — fixing one file leaves the other 9 broken.' } },
+          { id: 'b', label: { tr: '10 dosyanın HEPSİNİ tek tek bulup güncellemen gerekir', en: 'You must find and update ALL 10 files one by one' }, correct: true },
+          { id: 'c', label: { tr: 'Selenium otomatik olarak yeni id\'yi bulur', en: 'Selenium automatically finds the new id' }, why: { tr: 'Selenium sihirli değildir — findElement tam olarak yazdığın locator\'ı arar, otomatik uyum sağlamaz.', en: 'Selenium is not magic — findElement searches for exactly the locator you wrote, it does not auto-adapt.' } },
+        ],
+        reveal: {
+          tr: '10 dosyanın hepsini tek tek bulup güncellemen gerekir doğru: locator TEKRARLANMIŞTIR, tek bir kaynak (single source of truth) yoktur. Page Object Model tam olarak bu sorunu çözer — locator\'ı BİR sınıfta tanımlarsın, 10 test de o sınıfı KULLANIR; değişiklik tek yerden yapılır.',
+          en: 'You must find and update all 10 files one by one is correct: the locator is DUPLICATED, there is no single source of truth. The Page Object Model solves exactly this — you define the locator in ONE class, all 10 tests USE that class; the change happens in one place.',
+        },
+      },
+    },
+    {
+      id: 'sel-pom-step-class',
+      brief: { tr: '2) LoginPage sınıfının locator alanını ve constructor\'ını yaz.', en: '2) Write the LoginPage class\'s locator field and constructor.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir Page Object, o sayfanın locator\'larını PRIVATE alanlarda saklayan sıradan bir Java sınıfıdır. Constructor, testten gelen `driver`\'ı alıp sınıfın kendi alanına atar — böylece sınıfın metotları o driver\'ı kullanarak elementleri bulabilir.',
+        en: 'A Page Object is an ordinary Java class that stores that page\'s locators in PRIVATE fields. The constructor takes the `driver` from the test and assigns it to the class\'s own field — so the class\'s methods can use that driver to find elements.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-pom-class-code',
+        relatedTopicId: 'selenium-pom-refactor-mission',
+        language: 'java',
+        label: { tr: 'LoginPage sınıfının iskeletini yaz', en: 'Write the LoginPage class skeleton' },
+        task: { tr: 'TODO satırını, driver\'ı alan bir constructor ile tamamla.', en: 'Complete the TODO line with a constructor that takes the driver.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç Page Object\'in constructor kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the Page Object\'s constructor pattern yourself.' },
+        code: {
+          tr: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n}`,
+          en: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n}`,
+        },
+        starterCode: {
+          tr: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    // TODO: driver'i alan constructor'i yaz, this.driver'a ata\n}`,
+          en: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    // TODO: write a constructor that takes driver, assign it to this.driver\n}`,
+        },
+        solutionCode: {
+          tr: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n}`,
+          en: `public class LoginPage {\n    private WebDriver driver;\n    private By loginBtn = By.id("loginBtn");\n\n    public LoginPage(WebDriver driver) {\n        this.driver = driver;\n    }\n}`,
+        },
+        expected: { tr: 'LoginPage artık kendi driver referansını tutar ve locator\'ı bir alan olarak saklar.', en: 'LoginPage now holds its own driver reference and stores the locator as a field.' },
+        hints: [
+          { tr: 'Constructor, sınıfla AYNI isme sahiptir ve dönüş tipi yoktur.', en: 'A constructor has the SAME name as the class and no return type.' },
+          { tr: '`this.driver = driver;` gelen parametreyi sınıfın kendi alanına atar.', en: '`this.driver = driver;` assigns the incoming parameter to the class\'s own field.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sel-pom-step-method',
+      brief: { tr: '3) LoginPage\'e, login işlemini yapan bir metot ekle.', en: '3) Add a method to LoginPage that performs the login action.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Page Object\'in metotları, o sayfada YAPILABİLECEK eylemleri isimlendirir — `login(user, pass)` demek, "bu sayfada giriş yapabilirsin" demektir. Test kodu ARTIK `findElement`/`sendKeys` detaylarını bilmek zorunda değildir, sadece `loginPage.login(...)` der.',
+        en: 'A Page Object\'s methods name the actions that CAN be performed on that page — `login(user, pass)` says "you can log in on this page". The test code no longer needs to know the `findElement`/`sendKeys` details, it just says `loginPage.login(...)`.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-pom-method-code',
+        relatedTopicId: 'selenium-pom-refactor-mission',
+        language: 'java',
+        label: { tr: 'login() metodunu yaz', en: 'Write the login() method' },
+        task: { tr: 'TODO satırını, username ve password alıp login butonuna tıklayan bir login() metoduyla tamamla.', en: 'Complete the TODO line with a login() method that takes username and password and clicks the login button.' },
+        explanation: { tr: 'Amaç: Page Object\'in "eylem metodu" kalıbını kendin yazmayı pekiştirmek.', en: 'Goal: reinforce writing the Page Object\'s "action method" pattern yourself.' },
+        code: {
+          tr: `public void login(String username, String password) {\n    driver.findElement(usernameField).sendKeys(username);\n    driver.findElement(passwordField).sendKeys(password);\n    driver.findElement(loginBtn).click();\n}`,
+          en: `public void login(String username, String password) {\n    driver.findElement(usernameField).sendKeys(username);\n    driver.findElement(passwordField).sendKeys(password);\n    driver.findElement(loginBtn).click();\n}`,
+        },
+        starterCode: {
+          tr: `// usernameField ve passwordField zaten tanimli\n// TODO: username/password yaz, login butonuna tikla\npublic void login(String username, String password) {\n}`,
+          en: `// usernameField and passwordField are already defined\n// TODO: type username/password, click the login button\npublic void login(String username, String password) {\n}`,
+        },
+        solutionCode: {
+          tr: `public void login(String username, String password) {\n    driver.findElement(usernameField).sendKeys(username);\n    driver.findElement(passwordField).sendKeys(password);\n    driver.findElement(loginBtn).click();\n}`,
+          en: `public void login(String username, String password) {\n    driver.findElement(usernameField).sendKeys(username);\n    driver.findElement(passwordField).sendKeys(password);\n    driver.findElement(loginBtn).click();\n}`,
+        },
+        expected: { tr: 'login() çağrıldığında kullanıcı adı/şifre yazılır ve login butonuna tıklanır.', en: 'Calling login() types the username/password and clicks the login button.' },
+        hints: [
+          { tr: 'Üç işlem sırayla: username yaz, password yaz, butona tıkla.', en: 'Three actions in order: type username, type password, click the button.' },
+          { tr: 'sendKeys(...) bir metne yazar, click() ise tıklar.', en: 'sendKeys(...) types text, click() clicks.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'sel-pom-step-cost',
+      brief: { tr: '4) POM sonrası, UI değişirse kaç yeri güncellemen gerektiğini tahmin et.', en: '4) Predict how many places you need to update after a UI change, now that POM is in place.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'POM\'dan ÖNCE locator 10 test dosyasında ayrı ayrı yazılıydı — id değişince 10 yer. POM\'dan SONRA locator SADECE LoginPage sınıfında bir kez tanımlıdır; 10 test de bu sınıfı KULLANIR. id değişince artık tek bir dosyayı (LoginPage.java) güncellemek yeterlidir.',
+        en: 'BEFORE POM the locator was written separately in 10 test files — changing the id meant 10 places. AFTER POM the locator is defined ONCE, only in the LoginPage class; all 10 tests USE that class. When the id changes, updating a single file (LoginPage.java) is now enough.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'sel-pom-cost-choice',
+        xpReward: 10,
+        relatedTopicId: 'selenium-pom-refactor-mission',
+        prompt: { tr: 'LoginPage\'i kullanan 10 test var. Tasarımcı login butonunun id\'sini değiştirirse kaç dosyayı güncellemen gerekir?', en: '10 tests use LoginPage. If the designer changes the login button\'s id, how many files do you need to update?' },
+        code: '// 10 test -> hepsi LoginPage kullaniyor\n// designer changes loginBtn id',
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: '1 dosya (LoginPage.java)', en: '1 file (LoginPage.java)' }, correct: true },
+          { id: 'b', label: { tr: '10 dosyanın hepsi', en: 'All 10 files' }, why: { tr: 'Bu, POM OLMADAN önceki durumdu — POM sonrası locator artık tek bir yerde.', en: 'That was the situation WITHOUT POM — after POM the locator lives in only one place.' } },
+          { id: 'c', label: { tr: 'Hiçbiri, otomatik düzelir', en: 'None, it fixes itself automatically' }, why: { tr: 'Kod kendi kendine değişmez — birinin locator\'ı elle güncellemesi gerekir, sadece bunun için TEK dosyaya bakması yeterlidir.', en: 'Code does not change itself — someone must update the locator by hand, they just only need to look at ONE file to do it.' } },
+        ],
+        reveal: {
+          tr: '1 dosya doğru: POM sayesinde locator artık SADECE LoginPage.java\'da tanımlı. 10 test de bu sınıfı kullandığından, tek dosyayı güncellemek TÜM testleri otomatik olarak düzeltir — bu, POM\'un asıl kazandırdığı bakım (maintenance) avantajıdır.',
+          en: '1 file is correct: thanks to POM the locator is now defined ONLY in LoginPage.java. Since all 10 tests use that class, updating the single file automatically fixes ALL tests — this is the real maintenance advantage POM provides.',
+        },
+      },
+    },
+    {
+      id: 'sel-pom-step-test',
+      brief: { tr: '5) Test metodunu, ham locator yerine LoginPage kullanacak şekilde tamamla.', en: '5) Complete the test method to use LoginPage instead of raw locators.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Refactor sonrası test metodu artık `findElement`/`By.id` GÖRMEZ — sadece `new LoginPage(driver)` ile bir sayfa nesnesi oluşturur ve `.login(...)` der. Test, NE YAPILDIĞINI okur; NASIL yapıldığını (locator detaylarını) LoginPage sınıfı bilir.',
+        en: 'After the refactor, the test method no longer SEES `findElement`/`By.id` — it just creates a page object with `new LoginPage(driver)` and calls `.login(...)`. The test reads WHAT is done; the LoginPage class knows HOW it is done (the locator details).',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'sel-pom-test-code',
+        relatedTopicId: 'selenium-pom-refactor-mission',
+        language: 'java',
+        label: { tr: 'Test metodunu LoginPage ile tamamla', en: 'Complete the test method with LoginPage' },
+        task: { tr: 'TODO satırını, LoginPage nesnesi oluşturup login() metodunu çağıracak şekilde tamamla.', en: 'Complete the TODO line to create a LoginPage object and call its login() method.' },
+        explanation: { tr: 'Amaç: önceki 2 adımda yazdığın sınıfı gerçek bir testte KULLANMayı pekiştirmek.', en: 'Goal: reinforce USING the class you wrote in the previous 2 steps inside a real test.' },
+        code: {
+          tr: `@Test\npublic void loginBasarili() {\n    LoginPage loginPage = new LoginPage(driver);\n    loginPage.login("admin", "1234");\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+          en: `@Test\npublic void loginSucceeds() {\n    LoginPage loginPage = new LoginPage(driver);\n    loginPage.login("admin", "1234");\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+        },
+        starterCode: {
+          tr: `@Test\npublic void loginBasarili() {\n    // TODO: LoginPage nesnesi olustur\n    // TODO: login("admin", "1234") cagir\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+          en: `@Test\npublic void loginSucceeds() {\n    // TODO: create a LoginPage object\n    // TODO: call login("admin", "1234")\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+        },
+        solutionCode: {
+          tr: `@Test\npublic void loginBasarili() {\n    LoginPage loginPage = new LoginPage(driver);\n    loginPage.login("admin", "1234");\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+          en: `@Test\npublic void loginSucceeds() {\n    LoginPage loginPage = new LoginPage(driver);\n    loginPage.login("admin", "1234");\n    assertTrue(driver.findElement(By.id("dashboard")).isDisplayed());\n}`,
+        },
+        expected: { tr: 'Test artık locator detaylarını hiç görmeden LoginPage üzerinden login olur.', en: 'The test now logs in via LoginPage without ever seeing the locator details.' },
+        hints: [
+          { tr: '`new LoginPage(driver)` bir Page Object nesnesi oluşturur.', en: '`new LoginPage(driver)` creates a Page Object instance.' },
+          { tr: '2. adımda yazdığın metot: login(username, password).', en: 'The method you wrote in step 2: login(username, password).' },
+        ],
+        xpReward: 15,
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Az önce bir ders okumadın — 5 adımda ham bir testi gerçek bir Page Object Model refactor\'ına dönüştürdün: tekrarlanan locator\'ın riskini anlama → sınıf iskeleti yazma → eylem metodu yazma → bakım maliyetinin nasıl 10 dosyadan 1 dosyaya düştüğünü anlama → testi Page Object üzerinden yeniden yazma. Bu, gerçek bir Selenium framework\'ünde her sayfanın izlediği kalıptır.',
+    en: 'You did not just read a lesson — in 5 steps you turned a raw test into a real Page Object Model refactor: understanding the risk of a duplicated locator → writing the class skeleton → writing an action method → understanding how maintenance cost drops from 10 files to 1 → rewriting the test through the Page Object. This is the pattern every page follows in a real Selenium framework.',
+  },
+}
+
 const seleniumArchBlocks = [
   {
     type: 'simple-box',
@@ -9525,6 +9710,7 @@ public void loginScenarios(String user, String pass, boolean shouldPass) {
       },
     },
   },
+  seleniumPomRefactorMission,
 ]
 
 // Bilingual bloklar tek dizide; her iki ağaç AYNI referansı paylaşır.
