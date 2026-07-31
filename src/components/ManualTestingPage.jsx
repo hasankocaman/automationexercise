@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import TopicHeader from './TopicHeader'
 import VideoSceneBlock from './VideoSceneBlock'
 import LessonFinishBadge from './LessonFinishBadge'
+import { highlightGlossaryTerms } from './TermTooltip'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { manualTestingData } from '../data/manualTestingData'
@@ -980,9 +981,9 @@ function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode,
 
                 <div className="mt-5 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
                     <div className="grid gap-4">
-                        <InfoBox label={labels.learn} text={lesson.analogy} color={lesson.color} darkMode={darkMode} />
-                        <InfoBox label={labels.javaBridge} text={lesson.why} color="#f59e0b" darkMode={darkMode} />
-                        <InfoBox label={labels.realLife} text={lesson.realLife} color="#22c55e" darkMode={darkMode} />
+                        <InfoBox label={labels.learn} text={lesson.analogy} color={lesson.color} darkMode={darkMode} language={language} />
+                        <InfoBox label={labels.javaBridge} text={lesson.why} color="#f59e0b" darkMode={darkMode} language={language} />
+                        <InfoBox label={labels.realLife} text={lesson.realLife} color="#22c55e" darkMode={darkMode} language={language} />
                     </div>
                     <div className="grid gap-4">
                         <ScenarioVisual lesson={lesson} darkMode={darkMode} />
@@ -1024,11 +1025,11 @@ function LessonCard({ lesson, labels, darkMode, complete, onComplete, neuroMode,
     )
 }
 
-function InfoBox({ label, text, color, darkMode }) {
+function InfoBox({ label, text, color, darkMode, language }) {
     return (
         <div className={`rounded-lg border-l-4 p-4 text-sm leading-relaxed ${darkMode ? 'bg-slate-950 text-slate-300' : 'bg-slate-50 text-slate-700'}`} style={{ borderColor: color }}>
             <div className="mb-1 text-xs font-black uppercase" style={{ color }}>{label}</div>
-            {text}
+            {highlightGlossaryTerms(text, language, darkMode)}
         </div>
     )
 }

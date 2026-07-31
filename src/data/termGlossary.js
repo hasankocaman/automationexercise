@@ -364,4 +364,172 @@ export const TERM_GLOSSARY = {
     short: { tr: 'İki işlemin aynı veriye AYNI ANDA dokunup, hangisinin önce bittiğine göre sonucun değişmesi.', en: 'Two operations touching the same data AT THE SAME TIME, so the result depends on which one finishes first.' },
     analogy: { tr: 'İki kişinin aynı anda son bileti almaya çalışması gibi: kim daha hızlıysa o kazanır, ama sistem ikisine de "aldın" derse ortalık karışır.', en: 'Like two people trying to grab the last ticket at the same instant: whoever is faster wins, but if the system tells BOTH "you got it", chaos follows.' },
   },
+
+  // ── Genişletme (Sonnet, 2026-07-31) — sıfır bilgili bir kullanıcının SİTEYE
+  // İLK GİRDİĞİ sayfalarda (Test Nedir, Manuel Test, Algoritma Temelleri,
+  // Java/TypeScript/Python girişleri) yoğunluğu artırmak için eklendi.
+  // Kullanıcı talebi: "ilk öğrendiği derslerde kavramları TAM anlamalı."
+
+  bugDefect: {
+    term: { tr: 'Bug / Defect (Hata)', en: 'Bug / Defect' },
+    aliases: ['bug', 'defect', 'kusur'],
+    short: { tr: 'Yazılımın beklenenden FARKLI davranmasına yol açan bir hata.', en: 'A flaw that makes software behave DIFFERENTLY from what was expected.' },
+    analogy: { tr: 'Bir tarifte şekeri tuz sanıp koymak gibi: sonuç ortaya çıkar ama BEKLENEN tatta değildir — biri bunu fark edip düzeltmelidir.', en: 'Like mistaking salt for sugar in a recipe: something comes out, but not the EXPECTED taste — someone has to notice and fix it.' },
+  },
+  severity: {
+    term: { tr: 'Severity (Önem Derecesi)', en: 'Severity' },
+    aliases: ['severity', 'onem derecesi'],
+    short: { tr: 'Bir hatanın uygulamaya ne kadar BÜYÜK zarar verdiğinin ölçüsü.', en: 'A measure of how BIG a technical impact a bug causes to the application.' },
+    analogy: { tr: 'Bir arabadaki arızaların ciddiyetini derecelendirmek gibi: fren tutmaması (kritik) ile radyo sesinin çatlaması (düşük) AYNI önem derecesinde değildir.', en: 'Like rating how serious a car problem is: brakes not working (critical) and a crackling radio (low) are NOT the same severity.' },
+  },
+  priority: {
+    term: { tr: 'Priority (Öncelik)', en: 'Priority' },
+    aliases: ['priority', 'oncelik'],
+    short: { tr: 'Bir hatanın NE ZAMAN düzeltilmesi gerektiğinin sırası.', en: 'The order in which a bug SHOULD be fixed.' },
+    analogy: { tr: 'Acil serviste hastaların sırayla değil, aciliyete göre çağrılması gibi — severity "ne kadar kötü", priority ise "ne zaman sırada" sorusuna cevap verir; biri diğerini otomatik belirlemez.', en: 'Like an ER calling patients by urgency, not by arrival order — severity answers "how bad", priority answers "when in line"; one does not automatically determine the other.' },
+  },
+  testCase: {
+    term: { tr: 'Test Case (Test Senaryosu)', en: 'Test Case' },
+    aliases: ['test case', 'test senaryosu'],
+    short: { tr: 'Belirli bir adımlar dizisi + beklenen sonuçtan oluşan, tekrar çalıştırılabilir bir kontrol.', en: 'A repeatable check made of a specific set of steps plus an expected result.' },
+    analogy: { tr: 'Bir yemek tarifi gibi: hangi malzemeleri (girdi) hangi sırayla ekleyeceğini ve sonunda NE elde etmen gerektiğini (beklenen sonuç) yazar — herkes aynı tarifi izlerse aynı sonuca ulaşır.', en: 'Like a recipe: it lists which ingredients (input) to add in which order and WHAT you should end up with (expected result) — anyone following it reaches the same outcome.' },
+  },
+  blackBoxWhiteBox: {
+    term: { tr: 'Black Box / White Box Test', en: 'Black Box / White Box Testing' },
+    aliases: ['black box', 'white box', 'kara kutu', 'beyaz kutu'],
+    short: { tr: 'Black box: kodu görmeden sadece girdi/çıktıya bakarak test etmek. White box: kodun içini bilerek test etmek.', en: 'Black box: testing by input/output only, without seeing the code. White box: testing while knowing the code\'s internals.' },
+    analogy: { tr: 'Bir kapalı kutuya top atıp hangi renkte çıktığına bakmak (black box) ile kutunun İÇİNİ görüp mekanizmayı bilerek test etmek (white box) arasındaki fark gibi — ikisi de geçerlidir, farklı şeyleri yakalar.', en: 'Like throwing a ball into a closed box and watching what color comes out (black box) versus seeing INSIDE the box and testing with knowledge of the mechanism (white box) — both are valid, they catch different things.' },
+  },
+  smokeSanityTest: {
+    term: { tr: 'Smoke Test / Sanity Test', en: 'Smoke Test / Sanity Test' },
+    aliases: ['smoke test', 'sanity test'],
+    short: { tr: 'Smoke test: uygulama hiç açılıyor mu diye hızlı bir genel kontrol. Sanity test: yeni bir değişikliğin dar bir alanda mantıklı çalıştığını doğrulama.', en: 'Smoke test: a quick, broad check that the app even starts up. Sanity test: verifying a narrow, recent change makes sense.' },
+    analogy: { tr: 'Yeni aldığın bir elektrikli aleti prize takıp "yanıyor mu, duman çıkıyor mu" diye bakmak smoke test\'tir — detaylı kullanmadan önceki en hızlı, en yüzeysel kontrol.', en: 'Plugging in a new appliance and checking "does it turn on, is there smoke" is a smoke test — the fastest, most surface-level check before detailed use.' },
+  },
+  unitIntegrationTest: {
+    term: { tr: 'Unit Test / Integration Test', en: 'Unit Test / Integration Test' },
+    aliases: ['unit test', 'integration test', 'birim test'],
+    short: { tr: 'Unit test: kodun EN KÜÇÜK parçasını (tek bir fonksiyon) tek başına test eder. Integration test: birden fazla parçanın BİRLİKTE doğru çalıştığını test eder.', en: 'Unit test: tests the SMALLEST piece of code (a single function) in isolation. Integration test: tests that multiple pieces work correctly TOGETHER.' },
+    analogy: { tr: 'Bir arabanın her parçasını (fren, motor, far) AYRI AYRI test etmek unit test\'tir; arabayı yola çıkarıp hepsinin BİRLİKTE çalıştığını görmek integration test\'tir.', en: 'Testing each car part (brakes, engine, headlights) SEPARATELY is a unit test; taking the car onto the road to see everything work TOGETHER is an integration test.' },
+  },
+  requirement: {
+    term: { tr: 'Requirement (Gereksinim)', en: 'Requirement' },
+    aliases: ['requirement', 'gereksinim'],
+    short: { tr: 'Bir yazılımın YAPMASI gereken şeyin yazılı tarifi.', en: 'A written description of what a piece of software MUST do.' },
+    analogy: { tr: 'Bir ev inşa etmeden önce mimara verilen "3 yatak odası, 2 banyo olsun" listesi gibi — gereksinim netleşmezse, inşa edilen ev (yazılım) kimsenin istediği ev olmayabilir.', en: 'Like the list "3 bedrooms, 2 bathrooms" given to an architect before building a house — if the requirement is unclear, the house (software) built may not be what anyone wanted.' },
+  },
+  acceptanceCriteria: {
+    term: { tr: 'Acceptance Criteria (Kabul Kriterleri)', en: 'Acceptance Criteria' },
+    aliases: ['acceptance criteria', 'kabul kriterleri'],
+    short: { tr: 'Bir özelliğin "bitti" sayılması için sağlaması gereken, net ve ölçülebilir koşullar listesi.', en: 'A clear, measurable list of conditions a feature must meet to be considered "done".' },
+    analogy: { tr: 'Bir sınavı geçmek için gereken asgari puan gibi — "iyi görünüyor" sübjektiftir, ama "80 üzeri = geçti" net bir çizgidir; kabul kriterleri de "bitti mi bitmedi mi" tartışmasını ortadan kaldırır.', en: 'Like the minimum score needed to pass an exam — "looks good" is subjective, but "80+ = pass" is a clear line; acceptance criteria remove the "is it done or not" argument.' },
+  },
+  reproSteps: {
+    term: { tr: 'Reproduction Steps (Yeniden Üretme Adımları)', en: 'Reproduction Steps' },
+    aliases: ['reproduction steps', 'repro steps', 'yeniden uretme'],
+    short: { tr: 'Bir hatayı BAŞKA BİRİNİN de aynı şekilde tekrar tetikleyebilmesi için yazılan adım adım tarif.', en: 'A step-by-step recipe written so ANOTHER PERSON can trigger the same bug again, exactly the same way.' },
+    analogy: { tr: 'Bir tamirciye arabanın sesini tarif ederken "35 km hızda, sağa dönerken, 2. viteste" demek gibi — ne kadar NET tarif edersen, tamirci (geliştirici) o kadar hızlı bulur.', en: 'Like describing a car noise to a mechanic as "at 35 km/h, turning right, in 2nd gear" — the more PRECISE the description, the faster the mechanic (developer) finds it.' },
+  },
+  expectedActual: {
+    term: { tr: 'Expected / Actual Result (Beklenen / Gerçek Sonuç)', en: 'Expected / Actual Result' },
+    aliases: ['expected result', 'actual result', 'beklenen sonuc', 'gercek sonuc'],
+    short: { tr: 'Expected: olması gereken sonuç. Actual: gerçekte gözlemlenen sonuç. İkisi FARKLIYSA bug vardır.', en: 'Expected: what should happen. Actual: what really happened. If they DIFFER, there is a bug.' },
+    analogy: { tr: 'Bir teraziye "1 kg olmalı" (expected) yazıp tarttığında "980 gram" (actual) çıkması gibi — ikisi arasındaki FARK, bir sorun olduğunu gösterir.', en: 'Like writing "should be 1 kg" (expected) on a scale and getting "980 grams" (actual) — the DIFFERENCE between the two signals a problem.' },
+  },
+  exploratoryTesting: {
+    term: { tr: 'Exploratory Testing (Keşifsel Test)', en: 'Exploratory Testing' },
+    aliases: ['exploratory testing', 'kesifsel test'],
+    short: { tr: 'Önceden yazılmış adımlar OLMADAN, uygulamayı özgürce gezip hata arama.', en: 'Freely exploring an application to hunt for bugs, WITHOUT pre-written steps.' },
+    analogy: { tr: 'Yeni taşındığın bir eve, elindeki bir plan OLMADAN girip her kapıyı, her çekmeceyi meraklı bir çocuk gibi açman gibi — bazen planlı aramanın kaçırdığı şeyleri bu şekilde bulursun.', en: 'Like walking into a new house WITHOUT a floor plan and curiously opening every door and drawer like a child — sometimes this finds things a planned search would miss.' },
+  },
+  edgeBoundaryCase: {
+    term: { tr: 'Edge Case / Boundary Value (Sınır Durum)', en: 'Edge Case / Boundary Value' },
+    aliases: ['edge case', 'boundary value', 'sinir durum'],
+    short: { tr: 'Normal kullanımın ÇOK dışında veya bir sınırın TAM üzerinde olan, unutulması kolay durumlar.', en: 'Situations FAR outside normal use, or EXACTLY on a limit — easy to forget.' },
+    analogy: { tr: 'Bir asansörün "maksimum 8 kişi" sınırını test ederken tam 8 kişiyi (sınır) ve 9 kişiyi (sınırın az ötesi) denemek gibi — sorunlar genelde ORTADA değil, tam bu uç noktalarda çıkar.', en: 'Like testing an elevator\'s "max 8 people" limit by trying exactly 8 (the boundary) and 9 (just past it) — problems usually show up not in the MIDDLE, but at exactly these edges.' },
+  },
+  algorithm: {
+    term: { tr: 'Algorithm (Algoritma)', en: 'Algorithm' },
+    aliases: ['algorithm', 'algoritma'],
+    short: { tr: 'Bir problemi çözmek için izlenen, adım adım net bir tarif.', en: 'A clear, step-by-step recipe for solving a problem.' },
+    analogy: { tr: 'Bir yemek tarifi gibi: hangi adımı hangi sırayla yaparsan, HER SEFERİNDE aynı sonuca ulaşırsın — algoritma da bir problemi çözmenin YAZILI, tekrarlanabilir yoludur.', en: 'Like a recipe: following the same steps in the same order gets you the same result EVERY TIME — an algorithm is a WRITTEN, repeatable way to solve a problem.' },
+  },
+  recursion: {
+    term: { tr: 'Recursion (Özyineleme)', en: 'Recursion' },
+    aliases: ['recursion', 'ozyineleme'],
+    short: { tr: 'Bir fonksiyonun, aynı problemin KÜÇÜLTÜLMÜŞ bir versiyonunu çözmek için KENDİNİ çağırması.', en: 'A function calling ITSELF to solve a SMALLER version of the same problem.' },
+    analogy: { tr: 'İçi içe Rus matruşka bebekleri gibi: her bebeği açtığında, İÇİNDE aynı şeklin daha küçük bir kopyası çıkar — en küçük bebeğe (temel durum) ulaşana kadar bu devam eder.', en: 'Like nested Russian matryoshka dolls: opening each one reveals a smaller copy of the SAME shape INSIDE — this continues until you reach the smallest doll (the base case).' },
+  },
+  bigO: {
+    term: { tr: 'Big O (Zaman Karmaşıklığı)', en: 'Big O (Time Complexity)' },
+    aliases: ['big o', 'time complexity', 'zaman karmasikligi'],
+    short: { tr: 'Bir işlemin, veri BÜYÜDÜKÇE ne kadar YAVAŞLADIĞINI gösteren kaba bir ölçü.', en: 'A rough measure of how much SLOWER an operation gets as the data GROWS.' },
+    analogy: { tr: 'Bir telefon rehberinde ismi ALFABETİK sırayla aramak (hızlı, Big O(log n)) ile baştan sona TEK TEK okumak (yavaş, Big O(n)) arasındaki fark gibi — rehber ne kadar KALINLAŞIRSA, yöntem seçimi o kadar ÖNEMLİ hale gelir.', en: 'Like the difference between searching a phone book ALPHABETICALLY (fast, Big O(log n)) versus reading it page by page (slow, Big O(n)) — the THICKER the book gets, the MORE the method choice matters.' },
+  },
+  dataStructure: {
+    term: { tr: 'Data Structure (Veri Yapısı)', en: 'Data Structure' },
+    aliases: ['data structure', 'veri yapisi'],
+    short: { tr: 'Veriyi, belirli bir işlemi HIZLI yapabilmek için düzenli bir şekilde saklama yöntemi.', en: 'A way of organizing data so a specific operation can be done QUICKLY.' },
+    analogy: { tr: 'Bir mutfaktaki farklı saklama kapları gibi: baharatlar için raf (hızlı görme), dondurulmuş yiyecek için kutu (uzun saklama) — HER iş için doğru "kap" (veri yapısı) farklıdır.', en: 'Like different storage containers in a kitchen: a spice rack (fast visibility), a freezer box (long-term storage) — the right "container" (data structure) differs for EACH job.' },
+  },
+  stackQueueDs: {
+    term: { tr: 'Stack / Queue (Veri Yapısı)', en: 'Stack / Queue (Data Structure)' },
+    aliases: ['stack (data structure)', 'lifo', 'fifo'],
+    short: { tr: 'Stack: son giren ilk çıkar (LIFO). Queue: ilk giren ilk çıkar (FIFO).', en: 'Stack: last in, first out (LIFO). Queue: first in, first out (FIFO).' },
+    analogy: { tr: 'Stack, üst üste dizilmiş tabaklar yığını gibidir — en ÜSTTEKİni alırsın. Queue ise bir kuyruk gibidir — en ÖNCE gelen en ÖNCE hizmet alır.', en: 'A stack is like a pile of stacked plates — you take the one on TOP. A queue is like a line at a store — whoever arrived FIRST gets served FIRST.' },
+  },
+  binarySearch: {
+    term: { tr: 'Binary Search (İkili Arama)', en: 'Binary Search' },
+    aliases: ['binary search', 'ikili arama'],
+    short: { tr: 'SIRALI bir listede, her adımda arama alanını YARIYA bölerek hızlıca eleman bulma yöntemi.', en: 'A method for finding an item in a SORTED list by cutting the search area in HALF at every step.' },
+    analogy: { tr: 'Bir sözlükte kelime ararken baştan sayfa sayfa DEĞİL, ortadan açıp "aradığım bundan önce mi sonra mı" diye bölerek ilerlemen gibi — her adımda arama alanın YARIYA iner.', en: 'Like searching a dictionary not page by page from the start, but opening it in the middle and asking "is what I want before or after this" — the search area HALVES with every step.' },
+  },
+  syntaxError: {
+    term: { tr: 'Syntax (Sözdizimi)', en: 'Syntax' },
+    aliases: ['syntax', 'sozdizimi'],
+    short: { tr: 'Bir programlama dilinin, kodun NASIL yazılması gerektiğine dair kuralları.', en: 'The rules a programming language has for HOW code must be written.' },
+    analogy: { tr: 'Bir dildeki dilbilgisi kuralları gibi: cümlenin ANLAMI doğru olsa bile kelime sırası/noktalama yanlışsa cümle "bozuk" sayılır — kod da syntax kurallarına uymazsa çalışmaz.', en: 'Like a language\'s grammar rules: even if the MEANING is right, wrong word order/punctuation makes a sentence "broken" — code that breaks syntax rules simply does not run.' },
+  },
+  compileInterpret: {
+    term: { tr: 'Compile / Interpret (Derleme / Yorumlama)', en: 'Compile / Interpret' },
+    aliases: ['compile', 'compiler', 'interpret', 'interpreter', 'derleme'],
+    short: { tr: 'Compile: kodun çalıştırılmadan ÖNCE makine diline çevrilmesi. Interpret: kodun satır satır, ÇALIŞTIRILIRKEN okunup yürütülmesi.', en: 'Compile: translating code to machine language BEFORE running it. Interpret: reading and running code line by line, WHILE it executes.' },
+    analogy: { tr: 'Compile, bir kitabı BAŞTAN SONA çevirip sonra okumaya benzer (Java). Interpret ise bir tercümanın konuşmayı ANINDA, cümle cümle çevirmesi gibidir (Python) — ikisi de aynı bilgiyi taşır, sadece ZAMANLAMASI farklıdır.', en: 'Compile is like translating a whole book FIRST and then reading it (Java). Interpret is like a live interpreter translating speech sentence by sentence AS it happens (Python) — both carry the same information, just at a different TIME.' },
+  },
+  dataType: {
+    term: { tr: 'Data Type (Veri Tipi)', en: 'Data Type' },
+    aliases: ['data type', 'veri tipi'],
+    short: { tr: 'Bir değerin NE ÇEŞİT bir bilgi olduğunu belirten etiket (sayı, metin, doğru/yanlış gibi).', en: 'A label that says WHAT KIND of information a value is (number, text, true/false, etc.).' },
+    analogy: { tr: 'Bir depodaki kutuların üstüne "kırılabilir", "sıvı", "yiyecek" yazması gibi — kutunun tipini bilmek, onu NASIL taşıman/kullanman gerektiğini belirler.', en: 'Like labeling warehouse boxes "fragile", "liquid", "food" — knowing a box\'s type determines HOW you must handle/use it.' },
+  },
+  functionMethod: {
+    term: { tr: 'Function / Method (Fonksiyon)', en: 'Function / Method' },
+    aliases: ['function', 'fonksiyon', 'method (code)'],
+    short: { tr: 'Belirli bir işi yapan, isimlendirilmiş ve TEKRAR TEKRAR çağrılabilen bir kod parçası.', en: 'A named piece of code that does a specific job and can be called AGAIN and AGAIN.' },
+    analogy: { tr: 'Bir kahve makinesinin "kahve yap" düğmesi gibi: düğmeye her bastığında (çağırdığında) AYNI adımlar otomatik çalışır — o adımları her seferinde elle tekrarlaman gerekmez.', en: 'Like a coffee machine\'s "brew" button: every time you press it (call it), the SAME steps run automatically — you never have to repeat those steps by hand.' },
+  },
+  parameterArgument: {
+    term: { tr: 'Parameter / Argument (Parametre)', en: 'Parameter / Argument' },
+    aliases: ['parameter', 'argument', 'parametre'],
+    short: { tr: 'Bir fonksiyona, çalışırken kullanması için verilen GİRDİ değeri.', en: 'An INPUT value handed to a function for it to use while running.' },
+    analogy: { tr: 'Bir kahve makinesine "büyük boy, sütlü" seçeneğini söylemek gibi — makinenin YAPTIĞI iş aynıdır (kahve yapmak), ama verdiğin parametreye göre SONUÇ değişir.', en: 'Like telling a coffee machine "large size, with milk" — the machine\'s JOB is the same (making coffee), but the RESULT changes based on the parameters you give it.' },
+  },
+  ide: {
+    term: { tr: 'IDE (Geliştirme Ortamı)', en: 'IDE' },
+    aliases: ['ide'],
+    short: { tr: 'Kod yazmak, çalıştırmak ve hata ayıklamak için tek bir programda toplanmış araç seti.', en: 'A toolset for writing, running, and debugging code, all gathered in one program.' },
+    analogy: { tr: 'Bir aşçının her aletin (bıçak, tencere, fırın) AYRI AYRI bir odada olması yerine, hepsinin TEK bir mutfakta bir arada olması gibi — IDE, kod yazmanın tüm araçlarını tek bir yerde toplar.', en: 'Like a chef having every tool (knife, pot, oven) gathered in ONE kitchen instead of SEPARATE rooms — an IDE gathers all the tools for writing code in one place.' },
+  },
+  productionEnvironment: {
+    term: { tr: 'Production (Canlı Ortam)', en: 'Production' },
+    aliases: ['production', 'canli ortam', 'uretim ortami'],
+    short: { tr: 'Yazılımın GERÇEK kullanıcılar tarafından kullanıldığı, "canlı" ortam.', en: 'The "live" environment where REAL users actually use the software.' },
+    analogy: { tr: 'Bir tiyatro provası (test ortamı) ile gerçek gösteri gecesi (production) arasındaki fark gibi — provada hata yaparsan kimse fark etmez, ama gerçek gecede SEYİRCİ (gerçek kullanıcı) izliyordur.', en: 'Like the difference between a theater rehearsal (test environment) and the actual show night (production) — a mistake in rehearsal goes unnoticed, but on the real night the AUDIENCE (real users) is watching.' },
+  },
+  environment: {
+    term: { tr: 'Environment (Ortam)', en: 'Environment' },
+    aliases: ['test environment', 'staging', 'ortam (yazilim)'],
+    short: { tr: 'Bir yazılımın çalıştığı, birbirinden AYRI kurulmuş bilgisayar/sunucu ortamlarından biri (test, staging, production gibi).', en: 'One of the SEPARATE computer/server setups a piece of software runs in (like test, staging, production).' },
+    analogy: { tr: 'Bir dizinin farklı çekim setleri gibi: prova seti (test), son kontrol seti (staging) ve YAYINDAKİ gerçek bölüm (production) — AYNI senaryo ama her ortamın riski ve izleyicisi farklıdır.', en: 'Like different film sets for a TV series: the rehearsal set (test), the final-check set (staging), and the episode that actually AIRS (production) — the SAME script, but each environment has a different risk and audience.' },
+  },
 }
