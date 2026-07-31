@@ -473,3 +473,163 @@ Opus kodlamaya başlamadan SEN'in onaylaman gereken tek ürün kararı (§3.3):
 gerektirmediğinden başka elle altyapı adımı yok. Phase 2 (yeni `/sprint` rotası)
 ve Phase 3 (quiz motoru) ayrı onay + ayrı planlama ister — Phase 1 bitip sana
 gösterildikten sonra.
+
+---
+
+## 9. Manuel Test Rehberi (Phase 1 + Phase 1.5)
+
+> Phase 1 + Phase 1.5 içerik olarak TAMAMLANDI (§0). Bu bölüm, otomatik
+> script'lerin (content-integrity, i18n:check, build, audit-learning-blocks)
+> ve otomatik testlerin (`tests/mission-flow.spec.ts`,
+> `tests/term-tooltip.spec.ts`) YAKALAYAMADIĞI şeyleri — görsel doğruluk,
+> gerçek kullanıcı hissi, dark mode/mobil/dil geçişleri — elle doğrulamak
+> için adım adım bir rehberdir. Yeni bir oturumda buraya dönen biri (Claude
+> Code veya kullanıcı) buradan başlamalı. `qa-frontend-page-plan.md §F` ile
+> aynı kalıp.
+
+### 9.0. Kurulum
+
+```bash
+npm run dev
+# Tarayıcıda: http://localhost:5173
+```
+
+Konsolu (DevTools → Console) AÇIK tut — testin tamamı boyunca kırmızı bir
+hata/uyarı çıkmamalı (React key uyarısı, `undefined` prop uyarısı, 404
+network isteği gibi).
+
+Otomatik testleri de elle tetiklemek istersen (aynı şeyi tarayıcıda görmeden
+önce/sonra doğrulamak için):
+
+```bash
+npx playwright test tests/mission-flow.spec.ts --project=chromium
+npx playwright test tests/term-tooltip.spec.ts --project=chromium
+```
+
+### 9.1. Genel Mission Akışı (6 sayfada da AYNI desen — her sayfa ~4 dakika)
+
+Aşağıdaki adım dizisini HER görev sayfasında aynen uygula (sayfaya özel
+detaylar §9.2'de):
+
+1. Sayfayı aç, sol sidebar'dan §9.2 tablosundaki sekmeye tıkla, aşağı kaydırıp
+   **🎯 Görev** başlıklı kartı bul.
+2. Kartın üstünde senaryo metni (örn. "Bugün bir e-ticaret sitesinin login
+   sayfasını test edeceksin...") ve mor bir **persona rozeti** ("QA Engineer ·
+   Sprint 4") görünmeli.
+3. İlerleme çubuğu **"0/5 adım"** göstermeli; **sadece 1. adım** açık
+   (numaralı daire dolu renkli), **2-5. adımlar 🔒 kilitli** ve soluk
+   (opacity düşük) görünmeli.
+4. 1. adımda **"💡 Takıldın mı? Mini-lesson aç"** düğmesine bas — bir açıklama
+   metni açılmalı; tekrar basınca kapanmalı.
+5. 1. adımı tamamla:
+   - **Adım bir tahmin (prediction) ise:** ÖNCE bilerek YANLIŞ bir şık seç,
+     "Tahminimi Onayla"ya bas — turuncu bir "Yakındın..." mesajı + seçtiğin
+     yanlış şıkkın `why` açıklaması + "↻ Tekrar dene" düğmesi görünmeli
+     (§18 mikro-geri bildirim, kırmızı moral bozucu ekran YOK). Tekrar dene,
+     bu kez DOĞRU şıkkı seç, onayla — yeşil "Doğru tahmin!" + `reveal`
+     açıklaması çıkmalı.
+   - **Adım bir kod yazma (code-playground) ise:** metin kutusuna kendi
+     çözümünü yazmayı DENE (asıl kullanıcı deneyimi budur). Bilerek yanlış
+     bir şey yaz, "▶ Çalıştır ve Kontrol Et"e bas — kırmızı "Henüz değil..."
+     + hangi satırın farklı olduğunu gösteren tanı paneli çıkmalı. İki
+     başarısız denemeden sonra **"Çözümü Uygula"** düğmesinin belirdiğini
+     doğrula, tıkla — kutu otomatik doğru çözümle dolmalı; "Çalıştır ve
+     Kontrol Et"e tekrar bas — yeşil "Doğru!" mesajı çıkmalı.
+6. 1. adımın artık **✓ (yeşil)** göründüğünü, **2. adımın kilidinin açıldığını**
+   (🔒 kalkmış, kenarlık rengi mora döndü) doğrula.
+7. Adım 4-6'yı adım 2, 3, 4, 5 için TEKRARLA (aynı yöntemler: prediction →
+   yanlış+doğru dene, code-playground → yanlış dene + çözümü uygula).
+8. 5. adım da bitince: **"🏆 Görev tamamlandı! Bir QA gibi uçtan uca çözdün."**
+   banner'ı + altında **debrief** metni (gerçek QA bağlamına bağlayan
+   kapanış) görünmeli. Konfeti animasyonunun oynadığını doğrula.
+9. DevTools → Console'da şunu çalıştır (route adını §9.2'den al, örn.
+   `selenium`):
+   ```js
+   JSON.parse(localStorage.getItem('learnqa_xp_selenium'))
+   ```
+   `completed` dizisinde mission id'nin (§9.2 tablosu) olduğunu, `xp`
+   değerinin arttığını doğrula.
+10. Sayfayı YENİLE (F5) — görevin hâlâ tamamlanmış göründüğünü (adımlar
+    kilitsiz, hepsi ✓, banner hâlâ görünür) doğrula — kalıcılık kontrolü.
+11. Sağ üstten **dil toggle**'ı EN yap — senaryo, adım brief'leri,
+    mini-lesson'lar, debrief, buton metinleri (`Mini-lesson aç` →
+    `Open mini-lesson` gibi) HEPSİ İngilizce olmalı, hiçbir Türkçe kalıntı
+    görünmemeli.
+12. **Dark mode**'u aç/kapa — kart arka planı, metin renkleri, ilerleme
+    çubuğu okunur kalmalı (siyah yazı siyah zemin çakışması yok).
+13. DevTools → responsive mode, **375px** genişlik — adım kartları alt alta
+    dizilmeli (yatay taşma yok), düğmeler parmakla basılabilir boyutta
+    (~44px) kalmalı.
+
+### 9.2. Sayfaya Özel Detaylar (6 görev)
+
+| Sayfa | Sidebar Sekmesi | Görev Adı | Mission ID (localStorage `completed` kontrolü için) | Route (XP anahtarı `learnqa_xp_<route>`) |
+|---|---|---|---|---|
+| `/selenium` | 🎯 Locators | Login sayfasını test et | `selenium-login-mission` | `selenium` |
+| `/playwright` | 🎯 Locator Stratejileri | Sepete ürün ekle | `playwright-cart-mission` | `playwright` |
+| `/cypress` | 🖱️ Temel Komutlar & Selector Stratejisi | Ürün ara ve sonuçları doğrula | `cypress-search-mission` | `cypress` |
+| `/python` | 🛠️ Real World (pytest) / Gerçek Hayat (pytest) | Kullanıcı API'sini pytest ile test et | `python-api-test-mission` | `python` |
+| `/sql` | 🟢 SELECT & Sort / SELECT & Sıralama | Ürün fiyat verisini doğrula | `sql-price-validation-mission` | `sql` |
+| `/rest-assured` | ✅ Assertions | GET /api/users/2 isteğini test et | `restassured-user-api-mission` | `rest-assured` |
+
+Her sayfada §9.1'in genel akışına ek olarak şunlara dikkat et:
+- **Selenium/Playwright/Cypress:** görevler ilgili sayfanın var olan
+  Locator/Selector Explorer bloğunun HEMEN ardından gelmeli (aynı sekmede,
+  konu anlatımından sonra — §9.1 sıralama kuralı).
+- **Python:** görev, "Real World (pytest)" sekmesinin EN SONUNDA (mevcut
+  fixture/parametrize challenge'larından sonra) yer almalı.
+- **SQL:** görev "SELECT & Sort" sekmesinin sonunda, `predSqlDistinctMultiCol`
+  prediction'ından hemen sonra gelmeli.
+- **REST Assured:** görev "✅ Assertions" sekmesinin, `http-flow-animation`
+  bloğundan hemen sonra, sekmenin en sonunda yer almalı.
+
+### 9.3. Kavram Tooltip'i (Phase 1.5) Test Rehberi (~5 dakika)
+
+1. **Herhangi bir teknoloji sayfasına git** (Kavram Tooltip'i SİTE GENELİNDE
+   `text`/`simple-box` bloklarına bağlıdır — tek bir sayfayla sınırlı değil).
+   Önerilen: `/selenium` → 🎯 Locators sekmesi (açılış `simple-box`'ında
+   "Locator", "API", "DOM" gibi birden fazla bilinen terim var).
+2. Prose metinde **noktalı alt çizgili** bir kelime bul (örn. "Locator") —
+   üstüne gelince imleç `help` (soru işaretli) olmalı.
+3. **Hover et** — kelimenin ÜSTÜNDE küçük bir baloncuk açılmalı: 💬 ikonu +
+   terim adı + günlük-hayat benzetmesi + altında tek-cümlelik sade tanım.
+4. Fareyi UZAKLAŞTIR (baloncuğun dışına) — baloncuk kapanmalı.
+5. **Klavye ile:** Tab tuşuyla o kelimeye fokuslan (veya tıklayıp fokusla) —
+   baloncuk YİNE açılmalı (fare kullanmadan, erişilebilirlik). Tab ile
+   başka bir yere geçince (blur) kapanmalı.
+6. Baloncuk açıkken **ESC** tuşuna bas — kapanmalı.
+7. Kelimeye **tıkla** (tap simülasyonu) — baloncuk açılmalı/kapanmalı
+   (aç/kapa toggle). **Not:** fare ÖNCE o kelimenin üstündeyse (hover ile
+   zaten açıksa) hemen ardından tıklamak baloncuğu KAPATIR (toggle) —
+   bu beklenen davranıştır, bug değildir.
+8. Sayfada bir **kod bloğu** (koyu arka planlı `<pre>` kutusu) bul — içinde
+   glossary'de olan bir kelime (örn. "array", "class", "commit") geçse bile
+   o kelimenin ALTI ÇİZİLİ OLMAMALI, tıklanabilir olmamalı — mekanizma
+   SADECE prose (`text`/`simple-box`) render'larına bağlıdır, kod bloklarına
+   ASLA uygulanmaz.
+9. Dil toggle'ı EN yap, aynı kelimeye hover et — baloncuktaki benzetme
+   metni İngilizce olmalı.
+10. Dark mode aç — baloncuk renkleri (arka plan/border/metin) okunur kalmalı.
+11. **İsteğe bağlı geniş tarama:** `/python`, `/docker`, `/jenkins` gibi
+    farklı sayfalarda da rastgele birkaç `simple-box`/paragraf üzerinde
+    aynı davranışı gözle doğrula — mekanizma TÜM sayfalarda aktif olmalı
+    (P1.5-S2 — callout/info/tip render'larına genişletme henüz yapılmadı,
+    bu blok tiplerinde tooltip GÖRÜNMEZ, bu bilinen bir kapsam sınırıdır).
+
+### 9.4. Bilinen, Endişelenmeyecek Uyarılar
+
+- Build çıktısında `seleniumData` chunk'ının 633 kB, `TopicPage` chunk'ının
+  1.6 MB üzerinde olduğu uyarısı — **build'i bozmaz**, CLAUDE.md §14/§23.8
+  kapsamındaki bilinen bir durumdur.
+- Browserslist/caniuse-lite eski veri uyarısı — build'i bozmaz.
+- Playwright test çıktısında `[BABEL] Note: the code generator has
+  deoptimised the styling of TopicPage.jsx` notu — sadece dosya boyutuyla
+  ilgili bir Babel notudur, test sonucunu etkilemez.
+
+### 9.5. Bir Şey Bozuk Görünüyorsa
+
+Önce CLAUDE.md §23 (En Sık Karşılaşılan Hatalar) bölümüne bak — özellikle
+§23.1 (EN modda TR sızıntısı, özellikle ASCII-normalize kör noktası: bu
+oturumda 4 `prediction.code` alanında gerçekten yakalandı, bkz. `NEXT_SESSION.md`
+2026-07-30/31 girdileri). `mission`/`term-tooltip` için yeni bir tekrarlayan
+hata bulursan CLAUDE.md §23'e (bu dosyaya değil) ekle.
