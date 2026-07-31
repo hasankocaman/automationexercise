@@ -417,8 +417,35 @@ CLAUDE.md §20 ("Disney/Pixar Modu") ruhuna doğrudan uyuyor.
   + kapsam-dışı sayfada (`/selenium`) hiç görünmeme + ChatWidget'la çakışmama
   (bounding box kesişim kontrolü). **5/5 PASS.**
 
+**Genişletme (2026-07-31, aynı oturum, ikinci kullanıcı talebi) — dikkat
+çekme animasyonu:** "Maskot ilk sayfa açılışta yanıp sönsün, kullanıcı bir
+defa tıklayınca boyutuna geri dönsün ve sabit kalsın." Eklendi:
+- `hasInteracted` state — rozet, kullanıcı İLK tıklayana kadar
+  `tooltipGuideAttention` keyframe'i ile sürekli yanıp söner (ölçek 1→1.22 +
+  opaklık 1→0.55, 1.1sn döngü); ilk tıklamadan SONRA (o sayfa ziyareti
+  boyunca, açık/kapalı fark etmez) animasyon KALICI olarak `none` olur, rozet
+  normal boyutuna (44×44) döner.
+- **Bulunan gerçek bug (keyframes kapsamı):** `@keyframes` tanımı önce SADECE
+  balonun içinde render ediliyordu (`{open && (...)}` bloğunda) — ama rozet
+  balon hiç AÇILMADAN önce (kapalıyken) zaten yanıp sönmesi gerekiyordu.
+  Keyframe tanımı, HER ZAMAN render edilen dış container'a taşınarak
+  düzeltildi.
+- **Bulunan gerçek bug (Playwright actionability):** rozet SÜREKLİ pulse
+  ettiğinden, Playwright'ın `click()` işlemindeki "stable" (elementin
+  hareketsiz olması) actionability kontrolü İLK tıklamadan önce asla geçmiyor
+  — test zaman aşımına uğruyordu. Gerçek kullanıcı tıklaması bundan
+  ETKİLENMEZ (tarayıcı olayı anında iletir); test'te İLK tıklama
+  `{ force: true }` ile yapılarak düzeltildi (fonksiyonel bir sorun DEĞİL,
+  sadece test-tooling'in katı bekleme davranışını atlatma).
+- `tests/tooltip-guide-mascot.spec.ts`'e yeni test eklendi: animasyonun
+  tıklamadan önce çalıştığını, tıklamadan sonra kalıcı olarak durduğunu ve
+  boyutun 44×44'e döndüğünü doğrular. **6/6 PASS** (temiz/tek-worker koşum;
+  art arda çok test koşulduğunda dev server meşgul olup transient timeout
+  verebiliyor — bu bilinen bir CI/local-koşum notu, mascot mantığıyla ilgisi
+  yok).
+
 **Doğrulama:** content-integrity + i18n baseline 0 + build (43 shell) +
-`tests/tooltip-guide-mascot.spec.ts` (5/5) + `term-tooltip.spec.ts` +
+`tests/tooltip-guide-mascot.spec.ts` (6/6) + `term-tooltip.spec.ts` +
 `mission-flow.spec.ts` regresyon (3/3) — hepsi geçti.
 
 ---

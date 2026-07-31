@@ -12,6 +12,12 @@ import { useLanguage } from '../context/LanguageContext'
 // /manual-testing, /algorithms) — bu sayfaların KENDİ wrapper component'ine
 // eklenir, TopicPage.jsx'e DOKUNULMAZ (TopicPage onlarca sayfada paylaşılır).
 //
+// Dikkat çekme davranışı (kullanıcı talebi, 2026-07-31): sayfa açılışında
+// rozet, kullanıcı İLK KEZ tıklayana kadar yanıp söner (`tooltipGuideAttention`,
+// ölçekleme + opaklık pulse'ı); ilk tıklamadan SONRA (o sayfa ziyareti
+// boyunca) animasyon kalıcı olarak durur ve rozet normal boyutunda sabit
+// kalır — açık/kapalı durumundan bağımsız, bir daha yanıp sönmez.
+//
 // Self-contained: darkMode'u kendi algılar (document.documentElement'teki
 // 'dark-mode' class'ını izler — TopicPage/AlgorithmsPage'in zaten yazdığı
 // class, salt-okunur gözlemlenir, İKİNCİ bir state yöneticisi YAZILMAZ).
@@ -41,6 +47,14 @@ export default function TooltipGuideMascot() {
     const isTr = language === 'tr'
     const darkMode = useObservedDarkMode()
     const [open, setOpen] = useState(false)
+    // Sayfa açılışında dikkat çekmek için yanıp söner (kullanıcı talebi,
+    // 2026-07-31); İLK tıklamada kalıcı olarak durur ve normal boyutuna
+    // döner — bir daha (o ziyaret boyunca) animasyon oynamaz.
+    const [hasInteracted, setHasInteracted] = useState(false)
+    const handleToggle = () => {
+        setOpen((v) => !v)
+        setHasInteracted(true)
+    }
 
     const bubbleBg = darkMode ? '#1e1b4b' : '#ffffff'
     const bubbleBorder = darkMode ? '#4f46e5' : '#818cf8'
@@ -51,6 +65,17 @@ export default function TooltipGuideMascot() {
             data-testid="tooltip-guide-mascot"
             style={{ position: 'fixed', top: '50%', left: '14px', transform: 'translateY(-50%)', zIndex: 900, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}
         >
+            {/* Keyframes HER ZAMAN mevcut olmalı — rozet, balon hiç açılmadan
+                ÖNCE (kapalıyken) zaten yanıp sönmeye başlar; tanım balonun
+                içine gömülseydi ilk açılışa kadar animasyon çalışmazdı. */}
+            <style>{`
+                @keyframes tooltipGuidePop { from { opacity: 0; transform: translateY(6px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+                @keyframes tooltipGuideAttention {
+                    0%, 100% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.22); opacity: 0.55; }
+                }
+            `}</style>
+
             {open && (
                 <div
                     data-testid="tooltip-guide-bubble"
@@ -62,10 +87,6 @@ export default function TooltipGuideMascot() {
                         fontSize: 13.5, lineHeight: 1.55, animation: 'tooltipGuidePop 0.25s ease-out',
                     }}
                 >
-                    <style>{`
-                        @keyframes tooltipGuidePop { from { opacity: 0; transform: translateY(6px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
-                        @keyframes tooltipGuideBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-                    `}</style>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                         <strong style={{ fontSize: 12.5, color: darkMode ? '#a5b4fc' : '#4f46e5' }}>
                             {isTr ? '💡 Rehber' : '💡 Guide'}
@@ -91,7 +112,7 @@ export default function TooltipGuideMascot() {
 
             <button
                 type="button"
-                onClick={() => setOpen((v) => !v)}
+                onClick={handleToggle}
                 aria-expanded={open}
                 aria-label={isTr ? 'Rehber karakteri — Kavram Tooltip\'i hakkında ipucu' : 'Guide character — tip about the Concept Tooltip'}
                 data-testid="tooltip-guide-badge"
@@ -101,7 +122,10 @@ export default function TooltipGuideMascot() {
                     background: darkMode ? '#312e81' : '#eef2ff',
                     border: `2px solid ${darkMode ? '#6366f1' : '#818cf8'}`,
                     boxShadow: darkMode ? '0 4px 16px rgba(79,70,229,0.5)' : '0 4px 16px rgba(99,102,241,0.35)',
-                    cursor: 'pointer', fontSize: 22, animation: open ? 'none' : 'tooltipGuideBounce 2.4s ease-in-out infinite',
+                    cursor: 'pointer', fontSize: 22,
+                    // İlk tıklamaya kadar dikkat çekmek için yanıp söner; bir kez
+                    // etkileşim alınca kalıcı olarak durur ve normal boyutuna döner.
+                    animation: hasInteracted ? 'none' : 'tooltipGuideAttention 1.1s ease-in-out infinite',
                 }}
             >
                 🦉

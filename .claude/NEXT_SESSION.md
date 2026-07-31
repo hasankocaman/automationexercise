@@ -52,6 +52,23 @@
   Doğrulama: content-integrity + i18n baseline 0 + build + mascot testi (5/5)
   + term-tooltip/mission-flow regresyonu (3/3) — hepsi geçti. Detay: plan §3.6.5.
 
+- **Aynı gün, üçüncü tur — Dikkat Çekme Animasyonu:** Kullanıcı "maskot ilk
+  sayfa açılışta yanıp sönsün, kullanıcı bir defa tıklayınca boyutuna geri
+  dönsün ve sadece sabit kalsın" istedi. `hasInteracted` state eklendi: rozet
+  İLK tıklamaya kadar sürekli yanıp söner (`tooltipGuideAttention`, ölçek+
+  opaklık pulse, 1.1sn), ilk tıklamadan SONRA kalıcı olarak durur + normal
+  boyutuna döner. **2 gerçek bug bulunup düzeltildi:** (1) `@keyframes`
+  tanımı yanlışlıkla sadece balonun içindeydi — rozet balon açılmadan ÖNCE
+  yanıp sönmesi gerektiğinden dışarı taşındı; (2) rozet sürekli pulse ettiği
+  için Playwright'ın "stable" actionability kontrolü ilk tıklamada asla
+  geçmiyordu (test timeout) — gerçek kullanıcıyı ETKİLEMEZ, test'te ilk
+  tıklama `force:true` ile düzeltildi. `tooltip-guide-mascot.spec.ts`'e yeni
+  test eklendi (animasyon öncesi/sonrası + boyut kontrolü). **6/6 PASS**
+  (temiz/tek-worker koşumda; art arda çok test dev server'ı meşgul edip
+  transient timeout verebiliyor — mascot mantığıyla ilgisiz, bilinen not).
+  Doğrulama: content-integrity + i18n baseline 0 + build + mascot testi (6/6)
+  + term-tooltip/mission-flow regresyonu (3/3) — hepsi geçti. Detay: plan §3.6.5.
+
 - **Önceki iş (aynı gün) — Mission Dalga 2:** Phase 1 + Phase 1.5 önceki
   oturumda TAMAMLANMIŞTI (6 sayfa × 1 mission + kavram tooltip'i). Bu oturumda
   kullanıcı "bu görevleri ne kadar genişletebilirsin, her dikey sekmede
