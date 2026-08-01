@@ -53,6 +53,49 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
         expect(routes).toContain('/algorithms');
     });
 
+    // Kullanıcı isteği (2026-08-01): ileri seviye mod düğmeleri (Advanced
+    // Algoritma / Nöro-Optimizasyon Modu / Zihinsel Vites Değiştirici) ilk
+    // ziyarette dikkat dağıtmasın diye sayfanın ALTINA taşındı; kullanıcı
+    // dersin tamamını bir kez bitirdiyse eski yerinde (hero'nun üstünde)
+    // kalır — bkz. AlgorithmsPage.jsx hasFinishedLessonsBefore.
+    test('/algorithms — ileri seviye mod düğmeleri: ilk ziyarette ALTTA, dersi bitirmiş kullanıcıda ÜSTTE (hero)', async ({ page }) => {
+        test.setTimeout(60_000);
+
+        // 1) İlk ziyaret (localStorage temiz) → düğmeler hero'da OLMAMALI,
+        //    sayfanın altındaki "İleri Seviye Seçenekler" panelinde olmalı.
+        await page.goto('/algorithms');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        await expect(page.getByTestId('algorithms-mode-controls-hero')).toHaveCount(0);
+
+        const bottomPanel = page.getByTestId('algorithms-advanced-panel');
+        await bottomPanel.scrollIntoViewIfNeeded();
+        await expect(bottomPanel).toBeVisible();
+        await expect(bottomPanel.getByTestId('algorithms-mode-controls')).toBeVisible();
+        // Panel, ders bitirme rozetinden SONRA (DOM'da altında) render edilmeli.
+        const badge = page.getByTestId('lesson-finish-badge');
+        const badgeBox = await badge.boundingBox();
+        const panelBox = await bottomPanel.boundingBox();
+        expect(panelBox!.y).toBeGreaterThan(badgeBox!.y);
+
+        // 2) Dersin TÜM bölümlerini bitirmiş bir kullanıcıyı simüle et
+        //    (completedLessons localStorage'a elle yazılır — quiz akışı zaten
+        //    yukarıdaki testte uçtan uca doğrulandı, burada sadece konum
+        //    davranışı test ediliyor).
+        const lessonIds = beginnerAlgorithmsData.tr.lessons.map((lesson: { id: string }) => lesson.id);
+        await page.evaluate((ids: string[]) => {
+            const completed: Record<string, boolean> = {};
+            ids.forEach((id) => { completed[id] = true; });
+            window.localStorage.setItem('algorithms_completed_lessons', JSON.stringify(completed));
+        }, lessonIds);
+        await page.reload();
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        // Artık düğmeler hero'da (üstte) görünür, alt panel HİÇ render edilmez.
+        await expect(page.getByTestId('algorithms-mode-controls-hero')).toBeVisible();
+        await expect(page.getByTestId('algorithms-advanced-panel')).toHaveCount(0);
+    });
+
     test('/manual-testing — her bölümün quizi doğru cevaplanınca rozet "done" olur', async ({ page }) => {
         test.setTimeout(120_000);
         await page.goto('/manual-testing');

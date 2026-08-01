@@ -1405,7 +1405,7 @@ function AlgorithmsPage() {
                             <p className={`mt-4 max-w-3xl text-base leading-relaxed md:text-lg ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{data.hero.subtitle}</p>
                             <p className={`mt-3 max-w-3xl text-sm leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{data.hero.intro}</p>
                             {hasFinishedLessonsBefore && (
-                                <div className="mt-5">{modeControlButtons}</div>
+                                <div className="mt-5" data-testid="algorithms-mode-controls-hero">{modeControlButtons}</div>
                             )}
                         </div>
                         <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-200 bg-slate-50'}`}>
@@ -1513,7 +1513,7 @@ function AlgorithmsPage() {
                         {/* İleri seviye mod düğmeleri — sayfaya ilk defa giren biri için
                             (dersi henüz bitirmemiş) sayfanın EN ALTINDA, dikkat dağıtmadan. */}
                         {!hasFinishedLessonsBefore && (
-                            <section className={`rounded-lg border p-4 md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+                            <section data-testid="algorithms-advanced-panel" className={`rounded-lg border p-4 md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
                                 <h2 className={`text-lg font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{nLabels.advancedPanelTitle}</h2>
                                 <p className={`mt-2 text-sm leading-relaxed ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{nLabels.advancedPanelDesc}</p>
                                 <div className="mt-4">{modeControlButtons}</div>
