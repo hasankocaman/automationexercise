@@ -588,7 +588,7 @@ const jsLoopClosureTrapFilm = {
     },
     {
       caption: {
-        tr: "Final — çıktı artık `0, 1, 2` — beklenen sıra. Bu yüzden CLAUDE.md kuralı gibi projeler `var`'ı yasaklar: asenkron kod içeren döngülerde `let` kullanmak bu klasik tuzağı baştan önler.",
+        tr: "Final — çıktı artık `0, 1, 2` — beklenen sıra. Bu yüzden birçok proje kod standardında `var`'ı yasaklar: asenkron kod içeren döngülerde `let` kullanmak bu klasik tuzağı baştan önler.",
         en: "Final — the output is now `0, 1, 2` — the expected sequence. This is why projects ban `var`: using `let` in loops containing async code prevents this classic trap from the start.",
       },
       positions: {

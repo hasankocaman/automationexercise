@@ -15,6 +15,11 @@
  *       bails out silently with `if (!block.id) return` — the UI still shows a
  *       "Doğru!" success message but XP/exercise-completion is NEVER recorded;
  *       see /what-is-testing "Site Haritası" incident, .claude/NEXT_SESSION.md 2026-07-20)
+ *   (g) Gherkin keywords translated into Turkish (Scenario/Given/When/Then/And are
+ *       the language's own syntax and stay English even on TR pages)
+ *   (h) Model-to-model coordination jargon leaking into user-visible content
+ *       (plan file paths, § section numbers, task codes, CLAUDE.md references —
+ *       the user never sees those documents; see CLAUDE.md §24)
  *
  * Exit code 1 when any violations found (breaks build/commit).
  * Follows the same reporting pattern as check-seo.mjs.
@@ -41,6 +46,37 @@ const ENGLISH_INDICATOR_RE = /\b(why|usually|on Mac|in your terminal|both|points
 
 // Lines with these patterns are terminal/program output — NOT explanatory comments
 const OUTPUT_LINE_RE = /^\s*(>>|=>|->|#\s*>|#\s*[✔✅✗❌⚠️]|\/\/\s*>|#\s*Output|#\s*Result|Expected:|Got:|\.\.\.|Traceback|Error:|Warning:|Usage:|Version:|v\d+\.\d+)/i
+
+// ─── Kontrol [H]: model-arası koordinasyon jargonu (CLAUDE.md §24) ───────────
+// Bu proje birden fazla AI aracıyla geliştiriliyor ve modeller birbirlerine
+// plan dosyaları/§ bölüm numaraları/görev kodları üzerinden referans veriyor.
+// Bu iç koordinasyon dili KULLANICIYA GÖRÜNMEZ olmalıdır — kullanıcı ne
+// "CLAUDE.md §9.1"in ne de "S3 promptu"nun ne olduğunu bilir; ders metninde
+// böyle bir referans görmek anlatımı anlaşılmaz kılar ve daha kötüsü,
+// doğrulanamayan bir kaynağa atıf yapar (gerçek vaka: /cypress sayfasında
+// "CLAUDE.md'deki kural Cypress dokümantasyonunda da geçer" cümlesi).
+//
+// KAPSAM: yalnızca RENDER EDİLEN içerik (veri dosyalarından import edilip
+// gezilen string değerler). Kod yorumları KAPSAM DIŞIDIR — onlar geliştirici
+// dokümantasyonudur, kullanıcı görmez.
+const INTERNAL_JARGON_PATTERNS = [
+  [/CLAUDE\.md/i, 'CLAUDE.md referansı'],
+  [/NEXT_SESSION/i, 'NEXT_SESSION referansı'],
+  [/AGENTS\.md/i, 'AGENTS.md referansı'],
+  [/\bcodexSeo\b/i, 'codexSeo referansı'],
+  [/Documents\/[\w.-]+\.md/i, 'plan dosyası yolu'],
+  [/§\s*\d/, 'plan bölüm numarası (§N)'],
+  [/\bpaste-ready\b/i, 'prompt jargonu'],
+  [/\b(Opus|Sonnet)\s+(tarafı|görevi|promptu|prompt)/i, 'model görev dağılımı'],
+  [/\b[OS]\d+\s*(promptu|görevi)/i, 'görev kodu (O1/S3 gibi)'],
+]
+
+// AI araçlarını KONU olarak anlatan sayfalar: "Claude Code", "Opus", "Sonnet"
+// gibi terimler burada meşru ders içeriğidir (iç koordinasyon jargonu değil).
+// Plan bölüm numarası/plan dosyası referansı bu sayfalarda da YASAKTIR — bu
+// yüzden muafiyet pattern bazındadır, dosya bazında topyekûn değil.
+const AI_TOPIC_FILES = new Set(['claudeAiData.js', 'llmAgentsData.js'])
+const AI_TOPIC_EXEMPT = new Set(['CLAUDE.md referansı'])
 
 // Tokens that are allowed to remain in English even inside a comment
 const TECHNICAL_TOKEN_RE = /^(SELECT|FROM|WHERE|JOIN|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|GROUP\s+BY|ORDER\s+BY|HAVING|UNION|WITH|NULL|TRUE|FALSE|PASS|FAIL|OK|ERROR|GET|POST|PUT|PATCH|DELETE|HTTP|HTTPS|JSON|XML|HTML|CSS|API|URL|UUID|ID|XPath|Selenium|Playwright|pytest|WebDriver|Chrome|Firefox|Safari|Edge|CI\/CD|Docker|Jenkins|Kubernetes|Kafka|Appium|BrowserStack|AWS|Azure|WRONG|CORRECT|FIXME|TODO|NOTE|assert|fixture|locator|selector|pipeline|import|from|def|class|return|print|async|await|const|let|var|function|interface|type|enum|null|true|false|undefined|NaN|GET|POST|PUT)$/i
@@ -490,6 +526,56 @@ function checkGherkinKeywords(source, filename, violations) {
   }
 }
 
+// Kontrol [H] — veri modülünü import edip TÜM string değerlerini gezer.
+// Kaynak metnini DEĞİL, gerçekten render edilecek değerleri tarar; böylece
+// `// CLAUDE.md §8 gereği ...` gibi geliştirici yorumları doğal olarak
+// kapsam dışında kalır (yorumlar import edilmiş nesnede yoktur).
+async function checkInternalJargon(filepath, filename, violations) {
+  let mod
+  try {
+    mod = await import(pathToFileURL(filepath).href)
+  } catch {
+    return // dosya import edilemiyor — bu kontrolün konusu değil
+  }
+
+  const isAiTopicPage = AI_TOPIC_FILES.has(filename)
+  const seen = new Set()
+
+  const walk = (node, keyPath) => {
+    if (node == null) return
+    if (typeof node === 'string') {
+      for (const [re, label] of INTERNAL_JARGON_PATTERNS) {
+        if (isAiTopicPage && AI_TOPIC_EXEMPT.has(label)) continue
+        const match = node.match(re)
+        if (!match) continue
+        const at = match.index ?? 0
+        const context = node.slice(Math.max(0, at - 60), at + 80).replace(/\s+/g, ' ').trim()
+        // Aynı metin birden fazla yerde paylaşılıyor olabilir (tek sabit, iki
+        // dil ağacı) — vakayı bir kez raporla.
+        const key = `${label}|${context}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        violations.push({
+          type: 'internal-jargon-in-content',
+          file: filename,
+          line: 0,
+          content: `Kullanıcıya görünen metinde iç koordinasyon jargonu (${label}) @ ${keyPath}: "…${context}…" — CLAUDE.md §24: plan/bölüm/görev referansları ders içeriğine ve kullanıcı arayüzüne YAZILMAZ`,
+        })
+      }
+      return
+    }
+    if (Array.isArray(node)) {
+      node.forEach((v, i) => walk(v, `${keyPath}[${i}]`))
+      return
+    }
+    if (typeof node === 'object') {
+      for (const [k, v] of Object.entries(node)) walk(v, keyPath ? `${keyPath}.${k}` : k)
+    }
+  }
+
+  for (const [exportKey, value] of Object.entries(mod)) walk(value, exportKey)
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -516,6 +602,7 @@ async function main() {
     await checkQuizOptionIdSchema(filepath, filename, allViolations)
     await checkCodePlaygroundIdSchema(filepath, filename, allViolations)
     checkGherkinKeywords(source, filename, allViolations)
+    await checkInternalJargon(filepath, filename, allViolations)
     allHints.push(...collectHints(source, filename))
   }
 
@@ -569,6 +656,7 @@ async function main() {
   const quizIdViolations = dedupedViolations.filter((v) => v.type === 'quiz-option-missing-id')
   const playgroundIdViolations = dedupedViolations.filter((v) => v.type === 'code-playground-missing-id')
   const gherkinViolations = dedupedViolations.filter((v) => v.type === 'gherkin-translated-keyword')
+  const jargonViolations = dedupedViolations.filter((v) => v.type === 'internal-jargon-in-content')
 
   console.log(`\nİçerik Bütünlük Kontrolü — ${files.length} dosya tarandı\n`)
   console.log(`${'─'.repeat(60)}`)
@@ -622,6 +710,13 @@ async function main() {
     }
   }
 
+  if (jargonViolations.length > 0) {
+    console.error(`\n[H] Kullanıcıya görünen metinde model-arası koordinasyon jargonu (${jargonViolations.length} ihlal):`)
+    for (const v of jargonViolations) {
+      console.error(`  ${v.file}  →  ${v.content}`)
+    }
+  }
+
   const total = dedupedViolations.length
   console.log(`\n${'─'.repeat(60)}`)
 
@@ -629,7 +724,7 @@ async function main() {
     console.log(`İçerik bütünlüğü: TÜM KONTROLLER GEÇTİ ✓`)
     process.exit(0)
   } else {
-    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length} E=${quizIdViolations.length} F=${playgroundIdViolations.length} G=${gherkinViolations.length}`)
+    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length} E=${quizIdViolations.length} F=${playgroundIdViolations.length} G=${gherkinViolations.length} H=${jargonViolations.length}`)
     console.error(`Build engellendi — lütfen yukarıdaki ihlalleri düzelt.`)
     process.exit(1)
   }
