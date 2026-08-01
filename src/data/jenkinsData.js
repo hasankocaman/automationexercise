@@ -5169,3 +5169,190 @@ pipeline {
 }
 
 fillMissingCodeTrios(jenkinsData, 'jenkins')
+
+// 🎯 CHALLENGE-FIRST GÖREV (Documents/seo-phase-2-plan.md §7.2, S2) — "First
+// Jenkinsfile" sekmesine (aksiyon sekmesi). MEVCUT prediction/code-playground
+// bloklarını gömer, yeni sandbox yazılmaz. Çift-ağaçlı dosya: TEK bilingual
+// sabit, İKİ ağaca da AYNI referansla push edilir (CLAUDE.md §23.4).
+const jenkinsPipelineMission = {
+  type: 'mission',
+  id: 'jenkins-pipeline-mission',
+  xpReward: 40,
+  relatedTopicId: 'jenkins-first-pipeline',
+  persona: { tr: 'QA Engineer · Sprint 3', en: 'QA Engineer · Sprint 3' },
+  scenario: {
+    tr: 'Şu ana kadar testleri elle "mvn test" diyerek çalıştırıyordun. Bugün, her commit\'te otomatik testleri çalıştıran ve başarısız olursa ekibe HABER VEREN bir Jenkins pipeline\'ı yazacaksın.',
+    en: 'So far you have run tests by hand with "mvn test". Today you will write a Jenkins pipeline that runs tests automatically on every commit and NOTIFIES the team when they fail.',
+  },
+  steps: [
+    {
+      id: 'jenkins-pipeline-why',
+      brief: { tr: '1) Declarative pipeline\'ın (Jenkinsfile) elle "Build" tıklamaya göre asıl avantajını tahmin et.', en: '1) Predict the real advantage of a declarative pipeline (Jenkinsfile) over manually clicking "Build".' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Elle yapılandırılmış bir Jenkins job\'ı (Freestyle), ayarları Jenkins arayüzünde SAKLAR — o job\'ı silip yeniden kursan ayarlar KAYBOLUR. Jenkinsfile, pipeline tanımını KOD olarak repo\'ya yazar: Java\'da konfigürasyonu `application.properties`\'e yazıp Git\'e commit\'lemek gibi — versiyonlanır, gözden geçirilir, geri alınabilir.',
+        en: 'A manually configured Jenkins job (Freestyle) STORES its settings in the Jenkins UI — delete and recreate the job and the settings are GONE. A Jenkinsfile writes the pipeline definition as CODE in the repo — like writing configuration into `application.properties` and committing it to Git in Java: it gets versioned, reviewed, and can be rolled back.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'jenkins-pipeline-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'jenkins-first-pipeline',
+        prompt: { tr: 'Pipeline tanımını Jenkins arayüzünde elle tıklayarak mı yapılandırmalısın, yoksa repo\'daki bir Jenkinsfile\'da mı? Asıl fark nedir?', en: 'Should you configure the pipeline by clicking in the Jenkins UI, or with a Jenkinsfile in the repo? What is the real difference?' },
+        code: {
+          tr: '// Seçenek A: Jenkins arayüzünde elle tıklama\n// Seçenek B: repo içinde Jenkinsfile (kod)',
+          en: '// Option A: manually clicking in the Jenkins UI\n// Option B: a Jenkinsfile inside the repo (code)',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'Jenkinsfile testleri otomatik olarak daha hızlı çalıştırır', en: 'The Jenkinsfile automatically runs tests faster' }, why: { tr: 'Hız, pipeline formatına değil çalıştırılan komutlara bağlıdır — kazanç HIZ değil, İZLENEBİLİRLİK ve GERİ ALINABİLİRLİK\'tir.', en: 'Speed depends on the commands run, not the pipeline format — the win is not SPEED, it is TRACEABILITY and being able to ROLL BACK.' } },
+          { id: 'b', label: { tr: 'Arayüzden yapılandırma zaten Jenkinsfile\'a otomatik yazılır', en: 'UI configuration is automatically written into a Jenkinsfile anyway' }, why: { tr: 'Tam tersi doğru değildir — arayüzden yapılan ayarlar SADECE Jenkins\'in kendi veritabanında yaşar, koda yansımaz.', en: 'The opposite is not true — UI settings live ONLY in Jenkins\'s own database, they are not reflected in code.' } },
+          { id: 'c', label: { tr: 'Jenkinsfile versiyonlanır, gözden geçirilir ve Git geçmişiyle birlikte geri alınabilir', en: 'The Jenkinsfile is versioned, reviewed, and can be rolled back together with Git history' }, correct: true },
+        ],
+        reveal: {
+          tr: 'Versiyonlanır ve geri alınabilir doğru: Jenkinsfile repo\'nun bir parçası olduğundan, pipeline\'a yapılan her değişiklik bir commit\'tir — pull request\'te gözden geçirilir, `git revert` ile geri alınabilir. Arayüzden yapılan ayarlar bu izi bırakmaz.',
+          en: 'Versioned and revertible is correct: since the Jenkinsfile is part of the repo, every change to the pipeline is a commit — it gets reviewed in a pull request and can be undone with `git revert`. UI-based settings leave no such trail.',
+        },
+      },
+    },
+    {
+      id: 'jenkins-pipeline-stages',
+      brief: { tr: '2) Test çalıştıran bir "Test" stage\'i olan pipeline iskeletini yaz.', en: '2) Write the pipeline skeleton with a "Test" stage that runs tests.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Declarative pipeline\'ın omurgası: `pipeline { agent ... stages { stage(\'İsim\') { steps { ... } } } } }`. `agent` NEREDE çalışacağını, her `stage` MANTIKSAL bir aşamayı (Build, Test, Deploy), `steps` içindeki komutlar da o aşamada GERÇEKTEN çalışacak komutları belirtir.',
+        en: 'The backbone of a declarative pipeline is `pipeline { agent ... stages { stage(\'Name\') { steps { ... } } } } }`. `agent` says WHERE it runs, each `stage` is a LOGICAL phase (Build, Test, Deploy), and the commands inside `steps` are what ACTUALLY runs in that phase.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'jenkins-pipeline-stages-code',
+        relatedTopicId: 'jenkins-first-pipeline',
+        language: 'groovy',
+        label: { tr: 'Jenkinsfile — Test stage\'ini tamamla', en: 'Jenkinsfile — complete the Test stage' },
+        task: { tr: 'TODO satırını, "mvn test" çalıştıran bir "Test" stage\'i ile tamamla.', en: 'Complete the TODO line with a "Test" stage that runs "mvn test".' },
+        explanation: { tr: 'Gerçek runtime değil; amaç declarative pipeline\'ın stage/steps kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the declarative pipeline\'s stage/steps pattern yourself.' },
+        code: {
+          tr: `pipeline {\n    agent any\n    stages {\n        stage('Test') {\n            steps {\n                sh 'mvn test'\n            }\n        }\n    }\n}`,
+          en: `pipeline {\n    agent any\n    stages {\n        stage('Test') {\n            steps {\n                sh 'mvn test'\n            }\n        }\n    }\n}`,
+        },
+        starterCode: {
+          tr: `pipeline {\n    agent any\n    stages {\n        // TODO: "Test" adinda bir stage ekle, icinde "mvn test" calistir\n    }\n}`,
+          en: `pipeline {\n    agent any\n    stages {\n        // TODO: add a "Test" stage that runs "mvn test"\n    }\n}`,
+        },
+        solutionCode: {
+          tr: `pipeline {\n    agent any\n    stages {\n        stage('Test') {\n            steps {\n                sh 'mvn test'\n            }\n        }\n    }\n}`,
+          en: `pipeline {\n    agent any\n    stages {\n        stage('Test') {\n            steps {\n                sh 'mvn test'\n            }\n        }\n    }\n}`,
+        },
+        expected: { tr: 'Pipeline artık her koşumda "mvn test" çalıştıran bir Test aşamasına sahip.', en: 'The pipeline now has a Test stage that runs "mvn test" on every run.' },
+        hints: [
+          { tr: '`stage(\'Test\') { steps { ... } }` kalıbını kullan.', en: 'Use the `stage(\'Test\') { steps { ... } }` pattern.' },
+          { tr: 'Kabuk komutu çalıştırmak için `sh \'mvn test\'` yaz.', en: 'To run a shell command write `sh \'mvn test\'`.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'jenkins-pipeline-silent-fail',
+      brief: { tr: '3) Test stage\'i kırmızı olur ama `post` bloğu yoksa ekibe ne olur, tahmin et.', en: '3) Predict what happens to the team when the Test stage goes red but there is no `post` block.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`post` bloğu olmadan bir pipeline sadece Jenkins panosunda KIRMIZI görünür — kimse otomatik olarak HABERDAR edilmez. Ekip panoyu düzenli kontrol etmiyorsa, kırık bir build GÜNLERCE fark edilmeyebilir. Bu, "sessiz başarısızlık" QA\'in en sinsi hatalarından biridir.',
+        en: 'Without a `post` block, a pipeline just shows RED on the Jenkins dashboard — no one is automatically NOTIFIED. If the team is not checking the dashboard regularly, a broken build can go unnoticed for DAYS. This is one of QA\'s most insidious failure modes: silent failure.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'jenkins-pipeline-silent-fail-choice',
+        xpReward: 10,
+        relatedTopicId: 'jenkins-first-pipeline',
+        prompt: { tr: 'Test stage\'i başarısız oluyor ama pipeline\'da hiç `post` bloğu yok. Ekip bunu nasıl öğrenir?', en: 'The Test stage fails but the pipeline has no `post` block at all. How does the team find out?' },
+        code: {
+          tr: '// pipeline { agent any\n//   stages { stage(\'Test\') { steps { sh \'mvn test\' } } }\n//   // post bloğu YOK\n// }',
+          en: '// pipeline { agent any\n//   stages { stage(\'Test\') { steps { sh \'mvn test\' } } }\n//   // no post block\n// }',
+        },
+        codeLanguage: 'groovy',
+        options: [
+          { id: 'a', label: { tr: 'Jenkins otomatik olarak ekibe e-posta/Slack bildirimi gönderir', en: 'Jenkins automatically sends an email/Slack notification to the team' }, why: { tr: 'Bildirim OTOMATİK gelmez — bunu tetiklemek için `post { failure { ... } }` bloğuna AÇIKÇA yazman gerekir.', en: 'Notifications do not happen AUTOMATICALLY — you must EXPLICITLY write a `post { failure { ... } }` block to trigger one.' } },
+          { id: 'b', label: { tr: 'Sadece pano kırmızı görünür; birisi panoyu manuel kontrol etmedikçe kimse haberdar olmaz', en: 'Only the dashboard shows red; no one is notified unless someone checks it manually' }, correct: true },
+          { id: 'c', label: { tr: 'Pipeline başarısız stage\'i otomatik olarak atlayıp devam eder', en: 'The pipeline automatically skips the failed stage and continues' }, why: { tr: 'Varsayılan davranış devam etmek değil DURMAKTIR — başarısız bir stage sonraki stage\'lerin çalışmasını engeller.', en: 'The default behavior is to STOP, not continue — a failed stage blocks the following stages from running.' } },
+        ],
+        reveal: {
+          tr: 'Sadece pano kırmızı görünür doğru: bildirim OTOMATİK değildir. Çözüm, `post { failure { mail ... } }` veya bir Slack adımı eklemektir — böylece kırık build PASİF bir renk değil, AKTİF bir uyarı haline gelir.',
+          en: 'Only the dashboard shows red is correct: notification is not AUTOMATIC. The fix is adding a `post { failure { mail ... } }` block or a Slack step — turning a broken build from a PASSIVE color into an ACTIVE alert.',
+        },
+      },
+    },
+    {
+      id: 'jenkins-pipeline-post',
+      brief: { tr: '4) Test başarısız olunca ekibe haber veren `post { failure { ... } }` bloğunu yaz.', en: '4) Write the `post { failure { ... } }` block that notifies the team when tests fail.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`post` bloğu, TÜM stage\'lerden SONRA çalışır ve sonuca göre dallanır: `success`, `failure`, `always`. `failure` içine yazılan adımlar SADECE build kırmızı olduğunda tetiklenir — tam olarak "ekibe haber ver" için doğru yer.',
+        en: 'The `post` block runs AFTER all stages and branches on the result: `success`, `failure`, `always`. Steps written inside `failure` are triggered ONLY when the build is red — exactly the right place to "notify the team".',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'jenkins-pipeline-post-code',
+        relatedTopicId: 'jenkins-first-pipeline',
+        language: 'groovy',
+        label: { tr: 'post { failure { ... } } bloğunu ekle', en: 'Add the post { failure { ... } } block' },
+        task: { tr: 'TODO satırını, sadece başarısızlıkta çalışan bir mail adımıyla tamamla.', en: 'Complete the TODO line with a mail step that runs only on failure.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç `post`/`failure` kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the `post`/`failure` pattern yourself.' },
+        code: {
+          tr: `post {\n    failure {\n        mail to: 'qa-team@example.com',\n             subject: "Build FAILED: \${env.JOB_NAME}",\n             body: "Detaylar: \${env.BUILD_URL}"\n    }\n}`,
+          en: `post {\n    failure {\n        mail to: 'qa-team@example.com',\n             subject: "Build FAILED: \${env.JOB_NAME}",\n             body: "Details: \${env.BUILD_URL}"\n    }\n}`,
+        },
+        starterCode: {
+          tr: `post {\n    // TODO: sadece basarisizlikta calisan bir blok ekle, icine mail adimi yaz\n}`,
+          en: `post {\n    // TODO: add a block that runs only on failure, put a mail step inside\n}`,
+        },
+        solutionCode: {
+          tr: `post {\n    failure {\n        mail to: 'qa-team@example.com',\n             subject: "Build FAILED: \${env.JOB_NAME}",\n             body: "Detaylar: \${env.BUILD_URL}"\n    }\n}`,
+          en: `post {\n    failure {\n        mail to: 'qa-team@example.com',\n             subject: "Build FAILED: \${env.JOB_NAME}",\n             body: "Details: \${env.BUILD_URL}"\n    }\n}`,
+        },
+        expected: { tr: 'Testler kırılınca ekip artık panoyu kontrol etmeden e-posta ile haberdar olur.', en: 'When tests break, the team is now notified by email without checking the dashboard.' },
+        hints: [
+          { tr: '`post` bloğunun içine `failure { ... }` alt bloğunu yaz.', en: 'Write a `failure { ... }` sub-block inside the `post` block.' },
+          { tr: '`\${env.JOB_NAME}` ve `\${env.BUILD_URL}` hazır Jenkins ortam değişkenleridir.', en: '`\${env.JOB_NAME}` and `\${env.BUILD_URL}` are built-in Jenkins environment variables.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'jenkins-pipeline-agent-any',
+      brief: { tr: '5) `agent any`\'nin gizli bir riskini tahmin et.', en: '5) Predict a hidden risk of `agent any`.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`agent any`, pipeline\'ı MEVCUT herhangi bir Jenkins node\'unda çalıştırır — hangi node olduğu her koşumda DEĞİŞEBİLİR. Node\'larda farklı Java/Maven sürümleri kuruluysa, "bende geçiyor" sorununu bu kez CI TARAFINDA yaşarsın. Docker sekmesindeki gibi bir container agent\'ı, node\'lar arası bu farkı da ortadan kaldırır.',
+        en: '`agent any` runs the pipeline on ANY available Jenkins node — WHICH node can CHANGE on every run. If nodes have different Java/Maven versions installed, you get the "works on my machine" problem again, this time on the CI SIDE. A container agent, like in the Docker tab, removes this drift between nodes too.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'jenkins-pipeline-agent-any-choice',
+        xpReward: 10,
+        relatedTopicId: 'jenkins-first-pipeline',
+        prompt: { tr: '`agent any` kullanan bir pipeline bazen Node A\'da, bazen Node B\'de çalışıyor; Node B\'de eski bir Java sürümü kurulu. Bu ne riske yol açar?', en: 'A pipeline using `agent any` sometimes runs on Node A, sometimes on Node B; Node B has an older Java version installed. What risk does this create?' },
+        code: {
+          tr: '// agent any -> hangi node kullanılacağı değişebilir\n// Node A: Java 21   Node B: Java 17',
+          en: '// agent any -> which node is used can change\n// Node A: Java 21   Node B: Java 17',
+        },
+        codeLanguage: 'groovy',
+        options: [
+          { id: 'a', label: { tr: 'Build, HANGİ node\'a düştüğüne göre farklı sonuç verebilir — CI\'da "bende geçiyor" versiyonu', en: 'The build can behave differently depending on WHICH node it lands on — a CI version of "it passes on my machine"' }, correct: true },
+          { id: 'b', label: { tr: 'Jenkins otomatik olarak tüm node\'ları aynı sürüme günceller', en: 'Jenkins automatically updates all nodes to the same version' }, why: { tr: 'Jenkins node ortamlarını otomatik senkronlamaz — bu bir varsayım, gerçek davranış değil.', en: 'Jenkins does not automatically sync node environments — this is an assumption, not real behavior.' } },
+          { id: 'c', label: { tr: 'Hiçbir fark olmaz, Maven her node\'da aynı davranır', en: 'No difference, Maven behaves the same on every node' }, why: { tr: 'Java/Maven sürüm farkları derleme ve testlerin davranışını GERÇEKTEN değiştirebilir — "hiç fark yok" yanlış bir varsayım.', en: 'Java/Maven version differences can REALLY change compilation and test behavior — "no difference" is a false assumption.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: `agent any` node seçimini Jenkins\'e bırakır, bu da ortam farkını CI\'a taşır. Docker sekmesinde gördüğün gibi bir container agent\'ı (`agent { docker { image \'maven:3.9-eclipse-temurin-21\' } }`) kullanmak, HANGİ node\'a düştüğünden bağımsız olarak SABİT bir ortam garanti eder.',
+          en: 'Correct: `agent any` leaves node selection to Jenkins, which carries environment drift into CI. Using a container agent like in the Docker tab (`agent { docker { image \'maven:3.9-eclipse-temurin-21\' } }`) guarantees a FIXED environment regardless of which node it lands on.',
+        },
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Bu 5 adım, "elle mvn test çalıştırma"dan gerçek bir CI pipeline\'a geçişin iskeletidir: neden kod-olarak-pipeline (izlenebilirlik) → stage/steps yapısı → sessiz başarısızlık riski → post/failure ile aktif bildirim → agent seçiminin ortam tutarlılığına etkisi. Bir sonraki adım genellikle bu agent\'ı Docker sekmesindeki gibi bir container\'a sabitlemektir.',
+    en: 'These 5 steps are the skeleton of moving from "running mvn test by hand" to a real CI pipeline: why pipeline-as-code (traceability) → stage/steps structure → the risk of silent failure → active notification with post/failure → how agent choice affects environment consistency. The natural next step is usually pinning that agent to a container like in the Docker tab.',
+  },
+}
+
+jenkinsData.en.sections[2].blocks.push(jenkinsPipelineMission)
+jenkinsData.tr.sections[2].blocks.push(jenkinsPipelineMission)
