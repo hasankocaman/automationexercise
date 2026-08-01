@@ -20,7 +20,126 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-01, Opus) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-02, Sonnet) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Bu bölüm, yeni bir oturumun 30 saniyede duruma hâkim olması için yazıldı.
+> Ayrıntılar aşağıdaki tarihli bölümlerde; **çelişki olursa bu bölüm günceldir.**
+
+### Neredeyiz
+
+- **Branch: `feature/seo-phase-2`** — `main`'in **28 commit** önünde (bu oturumun
+  commit'leri hariç), çalışma ağacı bu oturumun sonunda commit edildi.
+  **`main`'e merge EDİLMEDİ; karar hâlâ kullanıcıda.**
+
+### Bu oturumda yapılanlar
+
+1. **Ana sayfadaki "Mülakat Isınma Turu" kompakt hale getirildi.** Kullanıcı
+   bölümün çok yer kapladığını, sadece içerik hakkında bilgi verip asıl
+   soru-cevaba tıklamayla ulaşılması gerektiğini belirtti. `InterviewWarmup.jsx`
+   + `interviewWarmupData.js`: başlık/açıklama metni kısaltıldı, "amaç" kutusu
+   tek satırlık şeride indirildi, kart başına padding/font küçültüldü, "cevabı
+   göster" + "bu konuyu çalış →" aynı satıra alındı. Tıklama hedefi
+   DEĞİŞMEDİ (kullanıcı seçimi: ilgili dersin sayfasına gitmeye devam ediyor).
+   Ölçüm: 1280px genişlikte bölüm yüksekliği ~950px → **706px**. FAQPage şeması
+   etkilenmedi (soru metinleri hâlâ tam görünür, şema sadece bunu şart koşuyor).
+   `tests/interview-warmup.spec.ts` 6/6 PASS.
+2. **`DEPLOY.md` §9'daki doğrulama komutlarında gerçek bir kusur bulundu ve
+   düzeltildi.** Kullanıcı `curl http://localhost:4173/en/selenium` (sonda `/`
+   OLMADAN) çalıştırınca hem TR hem EN'de `lang="tr"` gördü. Kök neden: `vite
+   preview`'ın statik sunucusu (`sirv`), sondaki `/` olmadan bir alt-route
+   istendiğinde o route'un shell'ini bulamıyor ve sessizce KÖK `dist/index.html`'e
+   (her zaman TR) düşüyor — 404 vermeden, 200 ile. `dist/` çıktısının kendisi
+   doğruydu (`dist/en/selenium/index.html` içinde `lang="en"` doğru duruyordu);
+   sorun yalnızca yerel test yönteminde. DEPLOY.md'deki 10+ curl komutuna/URL'e
+   sonda `/` eklendi + bu kısıtı açıklayan bir uyarı notu kondu. Ayrıca **iki yan
+   bulgu** düzeltildi: (a) `dist/404.html` yerelde YOKTUR (yalnızca
+   `.github/workflows/deploy.yml`'deki "Prepare GitHub Pages compatibility
+   files" adımı üretir) — F1'deki `ls dist/404.html` beklentisi netleştirildi;
+   (b) kullanıcının PowerShell konsolunda Türkçe karakterler bozuk görünüyordu
+   (`E─şitimi`) — dosyanın kendisi doğru UTF-8, sorun konsolun kod sayfası
+   (`chcp 65001` notu eklendi).
+3. **D1 (mükerrer başlık kontrolü) otomatikleştirildi.** Önceden DEPLOY.md'de
+   elle koşulan, çok satırlı bir `node -e` komutuydu — kullanıcının PowerShell
+   oturumunda hem Türkçe-özgü karakterler hem de bir satır (`for (const r of
+   ROUTE_SEO)`) kayboldu (muhtemelen konsol kod sayfası/yapıştırma kaynaklı).
+   Artık `scripts/check-seo.mjs`'te kalıcı bir kontrol (`seenTitles` Map'i,
+   mevcut `seenDescriptions` ile simetrik) — `npm run build`/`seo:check`
+   sırasında otomatik çalışıyor. Diş doğrulandı (geçici mükerrer title enjekte
+   edildi → build kırıldı → geri alındı → yeşile döndü).
+4. **YENİ: `npm run test:release-gate` — DEPLOY.md §9'un A1/A5/A6/A7/A8/D3/F1/F2
+   maddelerinin otomatik karşılığı.** Kullanıcı isteği: "bu kontrolleri testlere
+   ekle". Yeni dosyalar: `playwright.release-gate.config.ts` (ayrı port 4174,
+   `pretest:release-gate` önce TAM `npm run build` koşturur, `reuseExistingServer:
+   false` — bilerek, bu bir yayın kapısı, eski/unutulmuş bir preview sunucusuna
+   güvenmemeli), `tests-release-gate/deploy-gate.spec.ts` (72 test).
+   - **Neden ayrı bir katman:** `tests/seo-phase2-coverage.spec.ts` dist
+     dosyalarını DOSYA SİSTEMİNDEN okur — sunucunun HTTP davranışını (trailing-
+     slash çözümü gibi) test etmez. `tests/seo-i18n-routing.spec.ts` ise `npm
+     run dev` üzerinden HİDRATE OLMUŞ uygulamayı test eder — ham, JS öncesi
+     HTML'i göremez. Bu suite tam olarak o iki testin GÖRMEDİĞİ katmanı — HTTP
+     üzerinden servis edilen ham shell'i — test ediyor; madde 2'deki regresyon
+     tam olarak burada yakalanabilirdi.
+   - **Kapsam:** A5 artık 40 route'un TAMAMINDA (yalnızca örnek bir sayfada
+     değil) hash→temiz-URL yönlendirmesini doğruluyor. A1/A6/A7/D3/F2 5 temsili
+     route × 2 dil üzerinde (`/`, `/selenium`, `/git-github`, `/portfolio`,
+     `/docker`) HTTP üzerinden title/lang/hreflang/canonical/gövde-içerik
+     kontrolü yapıyor. F1 derin bağlantı + sert yenileme. A8 bilinmeyen `/en`
+     yolunun çökmediğini doğruluyor (**not:** gerçek bir "sayfa bulunamadı"
+     arayüzü YOK — React Router'da wildcard route tanımlı değil, yalnızca boş
+     içerik + çalışan widget'lar render oluyor; bu test yalnızca "sunucu hatası/
+     JS çökmesi yok" asgari barını doğruluyor, gerçek bir 404 UI eklemek ayrı
+     bir ürün kararı, kapsam dışı bırakıldı).
+   - **Doğrulama:** 72/72 PASS (37s). Diş doğrulandı: `dist/en/selenium/index.html`'e
+     elle `lang="tr"` enjekte edildi → ilgili test kırıldı → geri alındı → yeşile
+     döndü.
+   - Otomatikleşmeyen maddeler (D2 SERP gözle, C2 rich-results validator gözle,
+     C3 Course alan doğruluğu gözle, E1/E2 analytics — yalnızca canlı domainde
+     ölçülebilir, F3 post-deploy GSC adımları) DEPLOY.md'de elle kalmaya devam
+     ediyor; bu köşe niyetli, otomatikleştirilebilir değil.
+
+### Doğrulama durumu (bu oturumun sonu)
+
+- `npm run build` ✓ (birden fazla kez, tutarlı) · `node scripts/check-seo.mjs` ✓
+  (46 route, 0 mükerrer title/description) · içerik bütünlüğü ✓ · i18n baseline 0 ✓.
+- `tests/interview-warmup.spec.ts` 6/6 ✓ · `npm run test:release-gate` 72/72 ✓ (37s).
+- Bu oturum ana `npm run test:e2e` paketini yeniden koşmadı (değişiklikler SEO/
+  doküman/yeni-ayrı-suite kapsamında, mevcut 303 teste dokunmadı) — bir sonraki
+  oturumda merge öncesi tam paketi bir kez daha koşturmak faydalı olur.
+
+### Sıradaki iş — öncelik sırasıyla
+
+**A. Kullanıcı kararı bekleyen (kod işi yok):**
+1. **`main`'e merge kararı.** Yayını engelleyen açık bulgu YOK. `npm run
+   test:release-gate` artık DEPLOY.md §9'un çoğunu otomatik doğruluyor —
+   merge öncesi tek komut yeterli, öncesinde D2/C2/C3'ü gözle bir kez geçmek
+   yine de önerilir (~10 dk, otomatikleşmeyen kısımlar).
+2. **Plausible hesabını deploy'dan ÖNCE aç** (`DEPLOY.md` §8/E1). Sonra
+   açılırsa `/en` geçişinin ilk günlerine ait ölçüm kalıcı olarak kaybolur.
+3. Deploy sonrası: GSC'ye sitemap'i yeniden gönder (80 URL).
+
+**B. Küçük, net kod işleri (hazır, sıraya alınabilir):**
+1. **Portfolyo giriş noktası eksik:** `/qa-mentor`'daki rozet şeridinin yanına
+   "kazandıklarını portfolyonda gör" linki (ana sayfa kartı zaten var).
+2. **Portfolyo paylaşım kartı görseli** (`<canvas>` + `toDataURL`) — düşük
+   öncelik, `Documents/portfolio-builder-plan.md` §7.2'de park edilmiş.
+3. **(Düşük öncelik, keşfedildi ama düzeltilmedi) `/en/olmayan-bir-sayfa` gibi
+   bilinmeyen bir yol gerçek bir 404 arayüzü göstermiyor** — React Router'da
+   wildcard route yok, yalnızca boş içerik alanı + floating widget'lar render
+   oluyor. Çökmüyor (release-gate A8 bunu doğruluyor) ama kullanıcı deneyimi
+   ideal değil. Gerçek bir "sayfa bulunamadı" bileşeni eklemek ayrı bir ürün
+   kararı — henüz istenmedi.
+
+**C. Bilinen kısıtlar (aksiyon gerekmiyor, bilinsin):**
+- `npm run test:interview-flows` art arda koşulunca Groq rate limit'ine
+  takılabiliyor. Tek tek koşulunca geçer. CI'da zaten koşmuyor.
+- CI'da Supabase auth gerektiren testler bilinçli skip ediliyor (§23.8).
+- `npm run test:release-gate` her koşumda TAM bir `npm run build` tetikler
+  (~25-60s) — bilerek: bu bir yayın kapısı, gerçekten yayınlanacak dist'i
+  doğrulamalı, eski/yarım bir build'i değil.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus)
 
 > Bu bölüm, yeni bir oturumun 30 saniyede duruma hâkim olması için yazıldı.
 > Ayrıntılar aşağıdaki tarihli bölümlerde; **çelişki olursa bu bölüm günceldir.**
