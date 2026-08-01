@@ -34,8 +34,8 @@ export const ROUTE_SEO = [
         title: 'Selenium WebDriver Tutorial for QA Engineers | LearnQA.dev',
         description: 'Learn Selenium WebDriver with Java, Python and TypeScript examples, locator strategies, waits, frames, real-world automation scenarios and interview questions.',
         tr: {
-            title: 'Selenium WebDriver Eğitimi: QA Mühendisleri İçin | LearnQA.dev',
-            description: 'Selenium WebDriver\'ı Java, Python ve TypeScript örnekleriyle öğren: locator stratejileri, wait yapıları, frame yönetimi ve mülakat soruları.',
+            title: 'Selenium Nedir? WebDriver Eğitimi (Java, Python) | LearnQA.dev',
+            description: 'Selenium WebDriver nedir, nasıl kurulur ve Java, Python, TypeScript ile nasıl kullanılır? Locator stratejileri, wait yapıları, gerçek senaryolar ve mülakat soruları.',
         },
     },
     {
@@ -43,8 +43,8 @@ export const ROUTE_SEO = [
         title: 'Playwright Tutorial for QA Automation | LearnQA.dev',
         description: 'Master Playwright for modern QA automation with TypeScript, Java and Python examples, auto-waiting, locators, API testing and real interview scenarios.',
         tr: {
-            title: 'Playwright Eğitimi: Modern QA Otomasyonu | LearnQA.dev',
-            description: 'Playwright\'ı TypeScript, Java ve Python örnekleriyle öğren: auto-waiting mantığı, locator API\'si, API testi ve gerçek mülakat senaryoları.',
+            title: 'Playwright Türkçe Eğitim: Modern QA Otomasyonu | LearnQA.dev',
+            description: 'Playwright\'ı Türkçe anlatımla, TypeScript, Java ve Python örnekleriyle öğren: auto-waiting mantığı, locator API\'si, API testi ve mülakat senaryoları.',
         },
     },
     {
@@ -61,7 +61,7 @@ export const ROUTE_SEO = [
         title: 'Python for QA Engineers: Pytest, Selenium and Playwright | LearnQA.dev',
         description: 'Learn Python from the ground up for QA automation, including pytest, Selenium, Playwright, test data handling and Java-friendly explanations.',
         tr: {
-            title: 'QA İçin Python: pytest, Selenium ve Playwright | LearnQA.dev',
+            title: 'Python Öğren: QA İçin pytest, Selenium, Playwright | LearnQA.dev',
             description: 'Test otomasyonu için Python\'u sıfırdan öğren: pytest fixture yapısı, Selenium, Playwright, test verisi yönetimi ve Java karşılaştırmaları.',
         },
     },
@@ -88,8 +88,8 @@ export const ROUTE_SEO = [
         title: 'SQL for QA Engineers with Interactive Practice | LearnQA.dev',
         description: 'Practice SQL for software testing with SELECT, JOIN, GROUP BY, window functions, data validation scenarios and interactive exercises.',
         tr: {
-            title: 'QA İçin SQL Eğitimi ve İnteraktif Pratik | LearnQA.dev',
-            description: 'Yazılım testi için SQL öğren: SELECT, JOIN, GROUP BY, window function, veri doğrulama senaryoları ve tarayıcıda çalışan alıştırmalar.',
+            title: 'SQL Sorguları Eğitimi: QA İçin İnteraktif Pratik | LearnQA.dev',
+            description: 'SQL sorgularını yazılım testi için öğren: SELECT, JOIN, GROUP BY, window function, veri doğrulama senaryoları ve tarayıcıda çalışan alıştırmalar.',
         },
     },
     {
@@ -97,8 +97,8 @@ export const ROUTE_SEO = [
         title: 'Java for QA Automation Engineers | LearnQA.dev',
         description: 'Learn Java concepts for Selenium, Playwright, API testing and QA automation interviews with practical examples and hands-on exercises.',
         tr: {
-            title: 'QA Otomasyonu İçin Java Eğitimi | LearnQA.dev',
-            description: 'Selenium, Playwright, API testi ve QA mülakatları için Java kavramlarını uygulamalı örneklerle ve tarayıcıda çalışan alıştırmalarla öğren.',
+            title: 'Java Öğren: QA Otomasyonu İçin Sıfırdan Eğitim | LearnQA.dev',
+            description: 'Selenium, Playwright, API testi ve QA mülakatları için Java\'yı sıfırdan öğren: uygulamalı örnekler ve tarayıcıda çalışan alıştırmalarla.',
         },
     },
     {
@@ -169,8 +169,8 @@ export const ROUTE_SEO = [
         title: 'Docker for QA Engineers and Test Automation | LearnQA.dev',
         description: 'Learn Docker for QA automation, test environments, Selenium Grid, containers, images, volumes, networks and CI workflows.',
         tr: {
-            title: 'QA Mühendisleri İçin Docker Eğitimi | LearnQA.dev',
-            description: 'Test otomasyonu için Docker öğren: test ortamları, Selenium Grid, container, image, volume ve network kavramları ile CI iş akışları.',
+            title: 'Docker Nedir? QA Mühendisleri İçin Eğitim | LearnQA.dev',
+            description: 'Docker nedir, test otomasyonunda nasıl kullanılır? Test ortamları, Selenium Grid, container, image, volume, network kavramları ve CI iş akışları.',
         },
     },
     {
@@ -178,8 +178,8 @@ export const ROUTE_SEO = [
         title: 'Jenkins CI/CD for QA Automation | LearnQA.dev',
         description: 'Learn Jenkins pipelines for QA automation with build stages, test reports, Docker agents, parallel execution and troubleshooting.',
         tr: {
-            title: 'Jenkins CI/CD Eğitimi: QA Otomasyonu İçin | LearnQA.dev',
-            description: 'QA otomasyonu için Jenkins pipeline yazmayı öğren: build aşamaları, test raporları, Docker agent kullanımı, paralel koşum ve hata giderme.',
+            title: 'Jenkins Nedir? CI/CD ve Pipeline Eğitimi | LearnQA.dev',
+            description: 'Jenkins nedir, QA otomasyonunda pipeline nasıl yazılır? Build aşamaları, test raporları, Docker agent kullanımı, paralel koşum ve hata giderme.',
         },
     },
     {
@@ -223,8 +223,8 @@ export const ROUTE_SEO = [
         title: 'Git and GitHub Tutorial for QA Engineers | LearnQA.dev',
         description: 'Learn Git and GitHub with visual workflows, branch strategy, pull requests, GitHub Actions, Pages deployment, safety rules and hands-on command practice.',
         tr: {
-            title: 'QA Mühendisleri İçin Git ve GitHub Eğitimi | LearnQA.dev',
-            description: 'Git ve GitHub\'ı görsel akışlarla öğren: branch stratejisi, pull request, GitHub Actions, Pages yayını, güvenlik kuralları ve komut pratiği.',
+            title: 'Git ve GitHub Öğren: QA Mühendisleri İçin Eğitim | LearnQA.dev',
+            description: 'Git ve GitHub\'ı görsel akışlarla, sıfırdan öğren: branch stratejisi, pull request, GitHub Actions, Pages yayını, güvenlik kuralları ve komut pratiği.',
         },
     },
     {
@@ -232,8 +232,8 @@ export const ROUTE_SEO = [
         title: 'Web Penetration Testing and OWASP Top 10 for QA | LearnQA.dev',
         description: 'Learn web application penetration testing, OWASP Top 10 vulnerabilities (SQLi, XSS, JWT, IDOR, SSRF) with interactive Pixar-style Lego animations and quiz practice.',
         tr: {
-            title: 'Web Sızma Testi ve Siber Güvenlik Eğitimi | LearnQA.dev',
-            description: 'Web uygulaması sızma testini ve OWASP Top 10 açıklarını (SQLi, XSS, JWT, IDOR, SSRF) interaktif Lego animasyonları ve quizlerle öğren.',
+            title: 'Siber Güvenlik ve Sızma Testi Eğitimi (OWASP) | LearnQA.dev',
+            description: 'Web uygulaması sızma testi nasıl yapılır? OWASP Top 10 açıklarını (SQLi, XSS, JWT, IDOR, SSRF) interaktif Lego animasyonları ve quizlerle öğren.',
         },
     },
     {
@@ -295,8 +295,8 @@ export const ROUTE_SEO = [
         title: 'Introduction to Software Testing & QA Fundamentals | LearnQA.dev',
         description: 'Learn software testing fundamentals, ISTQB testing principles, QA vs QC, SDET roles, and concrete examples of why testing is crucial in software development.',
         tr: {
-            title: 'Yazılım Testine Giriş ve QA Temelleri | LearnQA.dev',
-            description: 'Yazılım testinin temellerini öğren: ISTQB test prensipleri, QA ile QC farkı, SDET rolü ve testin neden kritik olduğunu gösteren örnekler.',
+            title: 'Yazılım Testi Nedir? QA Temelleri ve ISTQB | LearnQA.dev',
+            description: 'Yazılım testi nedir, QA ile QC farkı nedir? ISTQB test prensipleri, SDET rolü ve testin neden kritik olduğunu gösteren somut örnekler.',
         },
     },
     {
@@ -304,8 +304,8 @@ export const ROUTE_SEO = [
         title: 'Manual Testing Tutorial with Interactive QA Practice | LearnQA.dev',
         description: 'Learn manual testing with visual QA examples, test cases, exploratory testing, bug reports, severity, regression practice and interactive exercises.',
         tr: {
-            title: 'Manuel Test Eğitimi ve İnteraktif QA Pratiği | LearnQA.dev',
-            description: 'Manuel testi görsel örneklerle öğren: test case yazımı, keşifsel test, bug raporu, severity belirleme, regresyon ve interaktif alıştırmalar.',
+            title: 'Manuel Test Nedir? Eğitim ve İnteraktif QA Pratiği | LearnQA.dev',
+            description: 'Manuel test nedir, nasıl yapılır? Test case yazımı, keşifsel test, bug raporu, severity belirleme, regresyon testi ve interaktif alıştırmalar.',
         },
     },
     {
