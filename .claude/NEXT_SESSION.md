@@ -20,7 +20,86 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — ana sayfada Mülakat Isınma Turu + FAQPage geri kazanıldı)
+## 🚩 OTURUM DEVİR NOTU (2026-08-01, Opus) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Bu bölüm, yeni bir oturumun 30 saniyede duruma hâkim olması için yazıldı.
+> Ayrıntılar aşağıdaki tarihli bölümlerde; **çelişki olursa bu bölüm günceldir.**
+
+### Neredeyiz
+
+- **Branch: `feature/seo-phase-2`** — `main`'in **28 commit** önünde, çalışma
+  ağacı temiz, `origin`'e push edildi. **`main`'e merge EDİLMEDİ; karar
+  kullanıcıda.**
+- Branch şu üç işi bir arada taşıyor: **SEO Faz 2** (dil-ayrık `/en` URL, iki
+  dilli metadata, statik shell'ler, kod bölme, analytics), **Portfolio Builder**
+  (`/portfolio`) ve **test/otomasyon borcunun kapatılması**.
+
+### Bu oturumda yapılanlar (7 commit: `df4d403` → `d9fc3b7`)
+
+1. **`/portfolio` çekirdeği** (`df4d403`, `0335b24`) — çözülen görevleri,
+   kapatılan bug'ları, ustalık ve rozetleri toplayan AGGREGATOR sayfa. Kendi
+   ilerleme state'i tutmaz. En kritik nokta: `xp.js` anahtarı sayfa URL'inden
+   türediği için portfolyo global tarama yapar (aksi hâlde sessizce boş görünür).
+   Ayrıntılı manuel test rehberi: `Documents/portfolio-builder-plan.md` §13.
+2. **Test kapsamı denetimi** (`2066caa`) — §10/§22 kurallarıyla mevcut listeler
+   karşılaştırıldı; 3 kapsam boşluğu kapatıldı ve **mülakat akış suite'inde
+   yıllardır gizli duran gerçek bir hata** bulunup düzeltildi (sekme takip
+   değişkeni kilit kontrolünden sonra eskiyor, test olmayan bir butonu sonsuza
+   kadar bekliyordu → 300 s'de takılan test 39 s'de geçiyor).
+3. **SEO Faz 2'nin test edilmeyen 5 maddesi E2E'ye alındı** (`38780e1`) —
+   sitemap bütünlüğü, JSON-LD, kod bölme, analytics (4 olayın 4'ü) ve TÜM
+   ders görevleri (18 mission, önceden 18'de 1).
+4. **Yayın kapısı rehberi** (`794d83b`) — `DEPLOY.md` §9: geri dönüşü pahalı
+   değişiklikler için ayrıntılı yayın öncesi manuel doğrulama + karar tablosu.
+5. **İki yayın öncesi SEO riski kapatıldı** (`d9b5f7a`) — korumalı/işlevsel
+   sayfalar sitemap'ten çıkarıldı (`noindex` + `robots` meta), görünmeyen
+   içeriği işaret eden FAQPage şeması kaldırıldı.
+6. **Mülakat Isınma Turu** (`d9fc3b7`) — ana sayfada gate'siz, görünür 12 soru;
+   FAQPage şeması politikaya uygun biçimde geri kazanıldı. Gating (AC 04)
+   değişmedi.
+
+### Doğrulama durumu (bu oturumun sonu)
+
+- `npm run build` ✓ — 80 sitemap URL, 90 statik shell, 68 sayfa `Course`,
+  2 sayfa `FAQPage` (görünür içerikle doğrulandı), 10 noindex shell.
+- İçerik bütünlüğü ✓ (41 dosya) · i18n baseline 0 ✓ · mülakat denetimi 27/27 ✓.
+- **Tam E2E paketi: 303/303 PASS (14.6 dk), 0 hata.** (Oturum başında 253'tü;
+  bu oturumda eklenen kapsamla 303'e çıktı.)
+- Auth gerektiren suite'ler (§23.8) ve `test:interview-flows` bu koşumda yok —
+  ikisi de bilinçli olarak ana pakette değil.
+
+### Sıradaki iş — öncelik sırasıyla
+
+**A. Kullanıcı kararı bekleyen (kod işi yok):**
+1. **`main`'e merge kararı.** Yayını engelleyen açık bulgu KALMADI. Merge =
+   canlı deploy (GitHub Pages). Öncesinde `DEPLOY.md` §9'daki A ve F
+   bölümlerini gözle geçirmek önerilir (~15 dk).
+2. **Plausible hesabını deploy'dan ÖNCE aç** (`DEPLOY.md` §8). Sonra açılırsa
+   `/en` geçişinin ilk günlerine ait ölçüm kalıcı olarak kaybolur — geri
+   doldurulamaz.
+3. Deploy sonrası: GSC'ye sitemap'i **yeniden gönder** (artık **80 URL**),
+   1-2 hafta sonra hreflang hatalarına bak.
+
+**B. Küçük, net kod işleri (hazır, sıraya alınabilir):**
+4. **Mükerrer başlık denetimi otomatik değil.** `check-seo.mjs` mükerrer
+   *description*'ı build'de kırıyor ama *title*'ı hiç kontrol etmiyor. Şu an
+   mükerrer YOK; eksik olan bekçi. Komut `DEPLOY.md` §9.4 D1'de hazır —
+   `check-seo.mjs`'e taşımak ~10 satırlık iş.
+5. **Portfolyo giriş noktası eksik:** `/qa-mentor`'daki rozet şeridinin yanına
+   "kazandıklarını portfolyonda gör" linki (ana sayfa kartı zaten var).
+6. **Portfolyo paylaşım kartı görseli** (`<canvas>` + `toDataURL`) — düşük
+   öncelik, `Documents/portfolio-builder-plan.md` §7.2'de park edilmiş.
+
+**C. Bilinen kısıtlar (aksiyon gerekmiyor, bilinsin):**
+- `npm run test:interview-flows` art arda koşulunca Groq rate limit'ine
+  takılabiliyor (`grade-interview-answer` 200 dönmez). Tek tek koşulunca geçer.
+  CI'da zaten koşmuyor.
+- CI'da Supabase auth gerektiren testler bilinçli skip ediliyor (§23.8) —
+  altyapı kısıtı, yeniden teşhis etmeye gerek yok.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus — ana sayfada Mülakat Isınma Turu + FAQPage geri kazanıldı)
 
 - **Aktif branch: `feature/seo-phase-2`.** Kullanıcının fikri uygulandı: mülakat
   soruları %60 barajının arkasında olduğu için FAQPage şeması kaldırılmıştı;
