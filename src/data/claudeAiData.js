@@ -1015,7 +1015,7 @@ Once confirmed, write 5 Gherkin scenarios.`,
   solutionCode: {
     tr: `Sen kıdemli bir QA mühendisisin.
 Önce, aşağıdaki user story ve kabul kriterlerinde belirsiz veya eksik olan HER kuralı listele.
-Özellik: {{ozellik_adi}}
+Feature: {{ozellik_adi}}
 User story + kabul kriterleri: {{user_story}}
 Onaylandıktan sonra {{n}} adet Gherkin senaryosu yaz.`,
     en: `You are a senior QA engineer.

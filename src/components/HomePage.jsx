@@ -693,6 +693,38 @@ function HomePage() {
                 )
             })()}
 
+            {/* ── QA Sprint Simulator Banner — resume-banner ile AYNI statik kalıp
+                (Documents/sprint-simulator-and-open-items-plan.md §6.1 S2). Yeni
+                tasarım icat edilmedi; sadece renk şeması + ikon farklılaştırıldı. ── */}
+            <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                <Link
+                    to="/sprint"
+                    data-testid="sprint-simulator-banner"
+                    className={`group flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl ${
+                        darkMode
+                            ? 'border-amber-700/60 bg-gradient-to-r from-amber-900/40 via-orange-900/30 to-rose-900/30 hover:border-amber-500/80'
+                            : 'border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 hover:border-amber-400'
+                    }`}
+                >
+                    <div className={`flex-shrink-0 rounded-xl p-2.5 md:p-3 shadow-lg ${darkMode ? 'bg-amber-700/60' : 'bg-amber-600'}`}>
+                        <span className="text-2xl md:text-3xl">🏃</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {language === 'tr' ? '🎯 QA Sprint Simülatörüne katıl' : '🎯 Join the QA Sprint Simulator'}
+                        </h2>
+                        <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-amber-200/80' : 'text-amber-700'}`}>
+                            {language === 'tr'
+                                ? 'Ders okumuyorsun, bir ekibe giriyorsun: bug\'ı analiz et, test case yaz, otomasyona dök, CI\'da doğrula, merge\'e hazırla.'
+                                : 'You are not reading a lesson, you are joining a team: analyze the bug, write the test case, automate it, verify it in CI, get it ready to merge.'}
+                        </p>
+                    </div>
+                    <div className={`flex-shrink-0 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg whitespace-nowrap ${darkMode ? 'bg-amber-600' : 'bg-amber-600'}`}>
+                        {language === 'tr' ? 'Sprint\'e katıl' : 'Join the sprint'} →
+                    </div>
+                </Link>
+            </div>
+
             {/* ── "Bugün" şeridi (Learning OS Faz 1, plan §5-F3) — günlük hedef + streak + Devam et ── */}
             <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
                 {(() => {

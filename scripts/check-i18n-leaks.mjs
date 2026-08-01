@@ -125,6 +125,10 @@ const STRICT_ZERO_FILES = new Set([
   'gaugeData.js', 'javascriptData.js', 'restAssuredData.js', 'securityData.js',
   'kafkaData.js', 'basitBackendData.js', 'jmeterData.js', 'playwrightData.js',
   'cypressData.js', 'typescriptData.js', 'sqlData.js', 'pythonData.js',
+  // sprintsData.js: yeni (Sprint Simulator), baştan tam bilingual yazıldı.
+  // NOT: TRIO_COMPLETE_PAGES'e EKLENMEZ — /sprint bir TopicPage ders sayfası
+  // değil, sekme/video-scene kavramı bu sayfada yoktur (§9.5 kapsamı dışı).
+  'sprintsData.js',
 ])
 
 // `why`/`note` (java-compare): JavaCompareBlock EN modda `${key}_en` kardeşini

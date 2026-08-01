@@ -15,9 +15,10 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
     test('/algorithms — tüm bölümler tamamlanınca rozet "done" olur ve route kariyer haritasına işlenir', async ({ page }) => {
         // Büyük modül: ilk derlemede yavaş olabilir (bkz. other-pages-ui.spec.ts notu)
         test.setTimeout(120_000);
-        // Nöro-Optimizasyon Modu /algorithms'da VARSAYILAN AÇIK ve ders kartlarını
-        // recall-kilidi overlay'i ile örter (bilinçli tasarım) — tamamlama butonuna
-        // deterministik erişim için testte kapatılır (gerçek kullanıcı toggle'ı ile aynı).
+        // Nöro-Optimizasyon Modu /algorithms'da VARSAYILAN KAPALI (kullanıcı
+        // isterse açar); açıkken ders kartlarını recall-kilidi overlay'i ile
+        // örter. Bu test o overlay'i devreye SOKMADAN tamamlama butonuna
+        // deterministik erişim istediği için burada da açıkça kapalı tutuluyor.
         await page.addInitScript(() => {
             window.localStorage.setItem('algorithms_neuro_mode', 'false');
         });
@@ -50,6 +51,49 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
         // Anonim kariyer haritası kaydı: route learnqa_completed_routes'a düşmüş olmalı.
         const routes = await page.evaluate(() => JSON.parse(localStorage.getItem('learnqa_completed_routes') || '[]'));
         expect(routes).toContain('/algorithms');
+    });
+
+    // Kullanıcı isteği (2026-08-01): ileri seviye mod düğmeleri (Advanced
+    // Algoritma / Nöro-Optimizasyon Modu / Zihinsel Vites Değiştirici) ilk
+    // ziyarette dikkat dağıtmasın diye sayfanın ALTINA taşındı; kullanıcı
+    // dersin tamamını bir kez bitirdiyse eski yerinde (hero'nun üstünde)
+    // kalır — bkz. AlgorithmsPage.jsx hasFinishedLessonsBefore.
+    test('/algorithms — ileri seviye mod düğmeleri: ilk ziyarette ALTTA, dersi bitirmiş kullanıcıda ÜSTTE (hero)', async ({ page }) => {
+        test.setTimeout(60_000);
+
+        // 1) İlk ziyaret (localStorage temiz) → düğmeler hero'da OLMAMALI,
+        //    sayfanın altındaki "İleri Seviye Seçenekler" panelinde olmalı.
+        await page.goto('/algorithms');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        await expect(page.getByTestId('algorithms-mode-controls-hero')).toHaveCount(0);
+
+        const bottomPanel = page.getByTestId('algorithms-advanced-panel');
+        await bottomPanel.scrollIntoViewIfNeeded();
+        await expect(bottomPanel).toBeVisible();
+        await expect(bottomPanel.getByTestId('algorithms-mode-controls')).toBeVisible();
+        // Panel, ders bitirme rozetinden SONRA (DOM'da altında) render edilmeli.
+        const badge = page.getByTestId('lesson-finish-badge');
+        const badgeBox = await badge.boundingBox();
+        const panelBox = await bottomPanel.boundingBox();
+        expect(panelBox!.y).toBeGreaterThan(badgeBox!.y);
+
+        // 2) Dersin TÜM bölümlerini bitirmiş bir kullanıcıyı simüle et
+        //    (completedLessons localStorage'a elle yazılır — quiz akışı zaten
+        //    yukarıdaki testte uçtan uca doğrulandı, burada sadece konum
+        //    davranışı test ediliyor).
+        const lessonIds = beginnerAlgorithmsData.tr.lessons.map((lesson: { id: string }) => lesson.id);
+        await page.evaluate((ids: string[]) => {
+            const completed: Record<string, boolean> = {};
+            ids.forEach((id) => { completed[id] = true; });
+            window.localStorage.setItem('algorithms_completed_lessons', JSON.stringify(completed));
+        }, lessonIds);
+        await page.reload();
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        // Artık düğmeler hero'da (üstte) görünür, alt panel HİÇ render edilmez.
+        await expect(page.getByTestId('algorithms-mode-controls-hero')).toBeVisible();
+        await expect(page.getByTestId('algorithms-advanced-panel')).toHaveCount(0);
     });
 
     test('/manual-testing — her bölümün quizi doğru cevaplanınca rozet "done" olur', async ({ page }) => {
@@ -86,8 +130,9 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
     // kilitlemez. Quiz, tamamlamayı zorunlu kılmaz — sadece kolay bir yol sunar.
     test('/advanced-algorithms — opsiyonel ders notu görünür ve quiz bölümü otomatik tamamlar', async ({ page }) => {
         test.setTimeout(120_000);
-        // Nöro-Optimizasyon Modu bölüm içeriğini recall-kilidi overlay'i ile örter
-        // (bilinçli tasarım) — quize deterministik erişim için kapatılır.
+        // Nöro-Optimizasyon Modu VARSAYILAN KAPALI; açıkken bölüm içeriğini
+        // recall-kilidi overlay'i ile örter — burada da açıkça kapalı tutularak
+        // quize deterministik erişim sağlanıyor.
         await page.addInitScript(() => {
             window.localStorage.setItem('advanced_algorithms_neuro_mode', 'false');
         });

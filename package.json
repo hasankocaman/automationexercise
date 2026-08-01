@@ -22,6 +22,8 @@
     "test:interview-flows": "playwright test --config=playwright.interview-flows.config.ts",
     "pretest:quiz-audit": "node scripts/kill-stale-test-processes.mjs",
     "test:quiz-audit": "playwright test --config=playwright.quiz-audit.config.ts",
+    "pretest:cross-browser": "node scripts/kill-stale-test-processes.mjs",
+    "test:cross-browser": "playwright test --config=playwright.cross-browser.config.ts",
     "audit:interactive": "node scripts/audit-interactive.mjs",
     "audit:interactive:missing": "node scripts/audit-interactive.mjs --missing",
     "audit:interview-questions": "node scripts/audit-interview-questions.mjs",

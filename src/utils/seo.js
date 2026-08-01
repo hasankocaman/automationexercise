@@ -209,6 +209,11 @@ export const ROUTE_SEO = [
         description: 'Sign in to LearnQA.dev with Google, GitHub, Microsoft, or a passwordless email Magic Link to save your learning progress.',
     },
     {
+        path: '/sprint',
+        title: 'QA Sprint Simulator: Practice a Real Bug Workflow | LearnQA.dev',
+        description: 'Work a real QA sprint: analyze a bug report, write the test case, automate it, read the CI failure and gate it before merge, step by step in your browser.',
+    },
+    {
         path: '/leaderboard',
         title: 'XP Leaderboard for QA Learners | LearnQA.dev',
         description: 'See the top 10 LearnQA.dev members by XP, earned by completing lessons and quizzes across Selenium, Playwright, Java, Python and more.',

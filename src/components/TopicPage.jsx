@@ -17495,7 +17495,12 @@ updated_at: now()` : 'No saved progress yet.'}</pre>
 
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
-function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '', onInterviewMastery, isTabComplete = false, onHardReset, onExerciseCompleted) {
+// `export` (Sprint Simulator, sprint-simulator-and-open-items-plan.md §2.3):
+// /sprint sayfası bug görevlerinin gömülü bloklarını (code-playground, prediction…)
+// AYNI makineden geçirir. Kendi renderer'ını yazmak, challenge-first'in "YENİ
+// SANDBOX YAZMA" ilkesinin doğrudan ihlali olurdu. İmza DEĞİŞMEDİ — TopicPage'in
+// kendi çağrıları etkilenmez.
+export function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, sectionTitle = '', onInterviewMastery, isTabComplete = false, onHardReset, onExerciseCompleted) {
     const textCls = `text-sm leading-relaxed mt-3 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`
     const h3Cls = `text-xl font-bold mt-8 mb-3 pb-2 border-b ${darkMode ? 'text-white border-gray-700' : 'text-gray-800 border-gray-200'}`
     const h4Cls = `text-base font-semibold mt-5 mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`
