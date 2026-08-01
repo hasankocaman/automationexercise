@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import TopicPage from './TopicPage'
-import { typescriptData } from '../data/typescriptData'
+import { typescriptDataStub } from '../data/typescriptDataStub'
 import { useLanguage } from '../context/LanguageContext'
 import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
 import '../typescript-effects.css'
@@ -168,6 +168,24 @@ function TypeScriptPage() {
     const [isLightMode, setIsLightMode] = useState(true)
     const audioNodesRef = useRef(null)
     const thunderTimerRef = useRef(null)
+
+    // Performans (Documents/seo-phase-2-plan.md §7.1): typescriptData.js ~1.1MB —
+    // tüm sekmeler senkron indirilirse LCP'yi düşürür. Önce küçük stub (hero+tabs,
+    // boş sections) SENKRON gösterilir, gerçek veri arka planda dinamik import()
+    // ile yüklenip değiştirilir. TopicPage'in renderBlock/quiz motoruna DOKUNULMADI —
+    // sadece bu wrapper'ın veri kaynağı değişti, `data` prop şekli aynı kaldı.
+    const [pageData, setPageData] = useState(typescriptDataStub)
+    const [fullDataLoaded, setFullDataLoaded] = useState(false)
+
+    useEffect(() => {
+        let alive = true
+        import('../data/typescriptData').then((mod) => {
+            if (!alive) return
+            setPageData(mod.typescriptData)
+            setFullDataLoaded(true)
+        })
+        return () => { alive = false }
+    }, [])
 
     useEffect(() => {
         const wrapper = document.querySelector('.typescript-page')
@@ -470,12 +488,20 @@ function TypeScriptPage() {
     return (
         <div className="typescript-page">
             <TopicPage
-                data={typescriptData}
+                data={pageData}
                 gradient="from-indigo-600 to-blue-700"
                 bgLight="bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50"
                 extraBanner={<TypeScriptStatsBanner />}
                 headerExtra={soundToggleButton}
             />
+            {!fullDataLoaded && (
+                <div
+                    className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[999] px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white shadow-lg animate-pulse"
+                    data-testid="topic-content-loading"
+                >
+                    {language === 'tr' ? 'İçerik yükleniyor…' : 'Loading content…'}
+                </div>
+            )}
             <div
                 className="ts-wave-progress"
                 onClick={scrollToTop}

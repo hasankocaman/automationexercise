@@ -20,7 +20,86 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — SEO Faz 2 / dil-ayrık URL)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — SEO Faz 2 / S1 performans)
+
+- **Aktif branch: `feature/seo-phase-2`.** Opus'un O1-O8 çekirdeğinin (aşağıda)
+  hemen ardından, kullanıcı `Documents/seo-phase-2-plan.md`'deki Sonnet
+  görevlerini (S1-S4) sırayla, sormadan, tamamına kadar uygulamamı istedi.
+  **S1 — Performans/kod bölme TAMAMLANDI.**
+  - **Sorun:** `/typescript`, `/java`, `/sql` sayfalarına girmek 850KB-1.1MB'lık
+    TEK bir veri chunk'ının TAMAMEN indirilmesini gerektiriyordu — kullanıcı bir
+    seferde tek sekme görürken 17-25 sekmenin verisi senkron iniyordu (mobilde
+    LCP'yi düşürüyordu).
+  - **Mimari karar (plan §7.1'in "davranış değişmeyecek" kısıtına uyularak):**
+    `TopicPage.jsx`'e (21.697 satır, renderBlock/quiz motoru) **HİÇ
+    DOKUNULMADI** — bunun yerine 3 sayfanın WRAPPER bileşeni (`TypeScriptPage.jsx`,
+    `JavaPage.jsx`, `SQLPage.jsx`) değiştirildi:
+    1. `scripts/generate-data-stubs.mjs` (yeni, build zincirine eklendi) —
+       kaynak `<name>Data.js` dosyasına HİÇ dokunmadan, onu dinamik `import()`
+       ile okuyup SADECE `hero` + `tabs` (sekme etiketleri) + BOŞ `sections`
+       içeren minik bir "stub" (`<name>DataStub.js`, ~2-2.4KB) üretir. Kaynak
+       dosyalar hâlâ TEK doğruluk kaynağı (CLAUDE.md §5) — stub asla elle
+       düzenlenmez, her `npm run build`'de ve `npm run dev` öncesinde (`predev`)
+       GÜNCEL kaynaktan yeniden üretilir.
+    2. Wrapper bileşenleri artık `data={pageData}` kullanır: `useState(stub)`
+       ile SENKRON hızlı ilk boya, `useEffect`'te GERÇEK veri dosyası dinamik
+       `import()` ile arka planda yüklenip `setPageData(fullData)` ile
+       değiştirilir. Yüklenirken küçük bir "İçerik yükleniyor…" pill gösterilir
+       (`data-testid="topic-content-loading"`, TopicPage'e DOKUNMADAN, wrapper'ın
+       kendi JSX'inde sibling olarak).
+  - **Neden "sekmeye tıklanınca" değil "mount sonrası arka planda" yükleme
+    seçildi (plan §7.1'den bilinçli sapma):** `activeTab` state'i TopicPage
+    İÇİNDE yaşıyor, wrapper'dan görünmüyor; ayrıca `location.state.openTab` ile
+    DOĞRUDAN N. sekmeye deep-link YAPILABİLİYOR (HomePage resume banner,
+    MentorPanel önerileri — `mentorAdvice.js`'de `/sql` openTab:4, `/java`
+    openTab:2 gibi). "Sadece tıklanan sekmeyi yükle" tasarımı TopicPage'in
+    `sections[activeTab]` senkron okuma sözleşmesine dokunmayı gerektirirdi —
+    riskli. Bunun yerine: arka plan yüklemesi MOUNT'ta hemen başlar (kullanıcı
+    eylemine bağlı değil), tipik ağ gecikmesi insan tepki süresinden kısa
+    olduğundan pratikte "tıklamadan önce zaten hazır" davranışına çok yakın
+    sonuç verir, ama TopicPage'in senkron okuma varsayımını hiç bozmaz.
+  - **`check-content-integrity.mjs`/`check-i18n-leaks.mjs` etkilenmedi:** stub
+    dosyaları `*Data.js` glob filtresine (`f.endsWith('Data.js')`) UYMUYOR
+    (`*DataStub.js`), bilinçli olarak — içerikleri zaten kaynak dosyada
+    denetleniyor, aynı metni ikinci kez farklı bir dosyada "ilişkisiz kopya"
+    olarak işaretletmemek için. `generate-static-routes.mjs` ve
+    `audit-learning-blocks.mjs`/`check-i18n-leaks.mjs` HÂLÂ orijinal
+    `typescriptData.js`/`javaData.js`/`sqlData.js`'i import ediyor —
+    crawler'a giden statik shell'ler ve tüm Node script'leri TAM içeriği
+    görüyor, sadece GERÇEK TARAYICI kullanıcısı hızlı stub + arka plan
+    yüklemesi deneyimliyor.
+  - **Ölçüm (önce/sonra, ilk boya için gereken senkron JS):**
+
+    | Sayfa | ÖNCE (route chunk + veri chunk senkron) | SONRA (ilk boya için senkron) | Azalma |
+    |---|---|---|---|
+    | `/typescript` | ~1.1 MB (typescriptData 1,115.86 kB) | 15.70 kB (`TypeScriptPage-*.js`, stub dahil) | ~%98.6 |
+    | `/java` | ~962 KB (javaData 961.87 kB) | 17.43 kB (`JavaPage-*.js`, stub dahil) | ~%98.2 |
+    | `/sql` | ~867 KB (sqlData 866.60 kB) | 16.01 kB (`SQLPage-*.js`, stub dahil) | ~%98.2 |
+
+    Doğrulama: `dist/assets/TypeScriptPage-*.js` içinde `import("./typescriptData-*.js")`
+    çağrısının `useEffect` GÖVDESİNDE olduğu build çıktısından grep ile teyit
+    edildi (statik değil, gerçekten ertelenmiş dinamik import). Veri
+    dosyalarının KENDİSİ değişmedi (hâlâ 866KB-1.1MB) — toplam indirilen bayt
+    aynı kalır, sadece İLK BOYA için gereken KRİTİK YOL küçüldü.
+  - **Riskli senaryo elle doğrulandı:** `mentor-panel.spec.ts`'teki
+    `openTab:2` deep-link testi (`/java`'ya tab 2 açık gelip "Önce Tahmin Et"
+    prediction bloğunun 30s içinde görünmesini bekliyor — bu test ZATEN yavaş
+    chunk yüklemesini tolere edecek şekilde yazılmıştı) **PASS** — arka plan
+    yüklemesi + `toBeVisible` polling'i bu senaryoyu sorunsuz kapsıyor.
+  - **Doğrulama:** content-integrity ✓ (39 dosya, stub'lar glob dışı) ·
+    i18n baseline 0 ✓ · audit-learning-blocks ✓ · build ✓ (88 shell, dist-SEO
+    geçti, static shell'ler hâlâ TAM içerik gösteriyor) · **E2E 81 PASS / 0
+    FAIL** (topic-pages-ui 25 tam sayfa taraması + typescript/sql tab-tıklama
+    testleri 2 + mentor-panel openTab dahil 5 + learning-blocks-render/java 3 +
+    mission-flow/selenium 1 + i18n-content-toggle 32 tam paket + önceki S1
+    öncesi genel regresyon çakışan testler).
+  - **🔜 Sırada:** S2 (`mission` yayılımı), S3 (analytics), S4 (TR metadata
+    cilası + mülakat dağılımı) — plan §7.2-§7.4'teki promptlarla sırayla
+    devam ediliyor, kullanıcı onayı beklenmeden.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus — SEO Faz 2 / dil-ayrık URL)
 
 - **Aktif branch: `feature/seo-phase-2`** (`main`'den açıldı; `feature/sprint-simulator`
   merge edilmiş durumda, `6ab2254`). Kullanıcı `Documents/` altındaki 21 plan

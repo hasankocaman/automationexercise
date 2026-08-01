@@ -5,9 +5,11 @@
   "type": "module",
   "description": "QA Learning Platform for Selenium, Playwright, Java, Python, SQL, API testing, DevOps and cloud tools",
   "scripts": {
+    "predev": "node scripts/generate-data-stubs.mjs",
     "dev": "vite --host",
     "dev:prod": "vite --host --mode prodtest",
-    "build": "node scripts/check-seo.mjs && node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs && node scripts/audit-interview-questions.mjs && node scripts/audit-learning-blocks.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-mastery-manifest.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
+    "generate:data-stubs": "node scripts/generate-data-stubs.mjs",
+    "build": "node scripts/check-seo.mjs && node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs && node scripts/audit-interview-questions.mjs && node scripts/audit-learning-blocks.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-data-stubs.mjs && node scripts/generate-mastery-manifest.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
     "content:check": "node scripts/check-content-integrity.mjs",
     "i18n:check": "node scripts/check-i18n-leaks.mjs",
     "i18n:baseline": "node scripts/check-i18n-leaks.mjs --update-baseline",

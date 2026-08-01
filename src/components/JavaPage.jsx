@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import TopicPage from './TopicPage'
-import { javaData } from '../data/javaData'
+import { javaDataStub } from '../data/javaDataStub'
 import { useLanguage } from '../context/LanguageContext'
 import { useNavigate } from 'react-router-dom'
 import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
@@ -223,6 +223,22 @@ function JavaPage() {
     const [isLightMode, setIsLightMode] = useState(true)
     const audioNodesRef = useRef(null)
     const thunderTimerRef = useRef(null)
+
+    // Performans (Documents/seo-phase-2-plan.md §7.1): javaData.js ~960KB — önce
+    // küçük stub (hero+tabs, boş sections) SENKRON gösterilir, gerçek veri arka
+    // planda dinamik import() ile yüklenip değiştirilir. TopicPage'e DOKUNULMADI.
+    const [pageData, setPageData] = useState(javaDataStub)
+    const [fullDataLoaded, setFullDataLoaded] = useState(false)
+
+    useEffect(() => {
+        let alive = true
+        import('../data/javaData').then((mod) => {
+            if (!alive) return
+            setPageData(mod.javaData)
+            setFullDataLoaded(true)
+        })
+        return () => { alive = false }
+    }, [])
 
     useEffect(() => {
         const wrapper = document.querySelector('.java-page')
@@ -525,7 +541,7 @@ function JavaPage() {
     return (
         <div className="java-page">
             <TopicPage
-                data={javaData}
+                data={pageData}
                 gradient="from-orange-600 to-amber-600"
                 bgLight="bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50"
                 extraBanner={
@@ -536,6 +552,14 @@ function JavaPage() {
                 }
                 headerExtra={soundToggleButton}
             />
+            {!fullDataLoaded && (
+                <div
+                    className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[999] px-3 py-1.5 rounded-full text-xs font-semibold bg-orange-600 text-white shadow-lg animate-pulse"
+                    data-testid="topic-content-loading"
+                >
+                    {language === 'tr' ? 'İçerik yükleniyor…' : 'Loading content…'}
+                </div>
+            )}
             <div
                 className="java-wave-progress"
                 onClick={scrollToTop}

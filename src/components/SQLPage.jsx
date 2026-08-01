@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import TopicPage from './TopicPage'
-import { sqlData } from '../data/sqlData'
+import { sqlDataStub } from '../data/sqlDataStub'
 import { useLanguage } from '../context/LanguageContext'
 import { getAudioContext, createRainLoop, fadeGain, stopRainLoop, playThunder } from '../lib/ambientSound'
 import '../sql-effects.css'
@@ -186,6 +186,22 @@ function SQLPage() {
     const [isLightMode, setIsLightMode] = useState(true)
     const audioNodesRef = useRef(null)
     const thunderTimerRef = useRef(null)
+
+    // Performans (Documents/seo-phase-2-plan.md §7.1): sqlData.js ~870KB — önce
+    // küçük stub (hero+tabs, boş sections) SENKRON gösterilir, gerçek veri arka
+    // planda dinamik import() ile yüklenip değiştirilir. TopicPage'e DOKUNULMADI.
+    const [pageData, setPageData] = useState(sqlDataStub)
+    const [fullDataLoaded, setFullDataLoaded] = useState(false)
+
+    useEffect(() => {
+        let alive = true
+        import('../data/sqlData').then((mod) => {
+            if (!alive) return
+            setPageData(mod.sqlData)
+            setFullDataLoaded(true)
+        })
+        return () => { alive = false }
+    }, [])
 
     useEffect(() => {
         const wrapper = document.querySelector('.sql-page')
@@ -488,12 +504,20 @@ function SQLPage() {
     return (
         <div className="sql-page">
             <TopicPage
-                data={sqlData}
+                data={pageData}
                 gradient="from-blue-600 to-cyan-600"
                 bgLight="bg-gradient-to-br from-blue-50 via-cyan-50 to-sky-50"
                 extraBanner={<SQLStatsBanner />}
                 headerExtra={soundToggleButton}
             />
+            {!fullDataLoaded && (
+                <div
+                    className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[999] px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white shadow-lg animate-pulse"
+                    data-testid="topic-content-loading"
+                >
+                    {language === 'tr' ? 'İçerik yükleniyor…' : 'Loading content…'}
+                </div>
+            )}
             <div
                 className="sql-wave-progress"
                 onClick={scrollToTop}
