@@ -20,7 +20,62 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — SEO Faz 2 / S1 performans)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — SEO Faz 2 / S2 mission yayılımı)
+
+- **Aktif branch: `feature/seo-phase-2`.** S1'in hemen ardından **S2 — mission
+  yayılımı TAMAMLANDI** (plan §7.2). Ölçülen durum: 25 teknoloji sayfasından
+  yalnızca 6'sında (`selenium`, `playwright`, `cypress`, `python`, `sql`,
+  `rest-assured`) mission vardı — hiçbiri en yüksek trafikli sayfalarda değildi.
+  - **6 yeni sayfaya birer 5 adımlık mission eklendi** (her biri AYRI commit,
+    `52c0fc0`..`e990852`): `docker` (QA: Selenium Grid sekmesi — container/hub-node
+    compose/yarış durumu/RemoteWebDriver/shm_size), `jenkins` (First Jenkinsfile
+    sekmesi — pipeline-as-code/stage-steps/sessiz başarısızlık/post-failure/agent
+    seçimi), `git-github` (Merge & Conflict sekmesi, plan promptunda önerilen —
+    çakışma işaretleri/temizlik/add-commit/status doğrulama), `java` (Test
+    Frameworks sekmesi, ben seçtim çünkü sayfa zaten test kodu yazmayı öğretiyor —
+    @ParameterizedTest ile kopyala-yapıştır testlerin sessiz tutarsızlık riskini
+    yapısal olarak kapatma), `postman` (Writing Automated Tests sekmesi —
+    pm.test() status assertion/token çıkarma/hardcode riski/{{değişken}} zinciri),
+    `linux` (Real-World QA Scenarios sekmesi, plan promptunda "CI agent debug"
+    olarak önerildi — ps/grep, lsof, tail -f üçlüsüyle GUI'siz hata ayıklama).
+  - Toplam mission sayısı: **18 → 24**, prediction: **78 → 96**.
+  - `scripts/audit-learning-blocks.mjs`'in `MISSION_FILES` listesine 5 yeni dosya
+    eklendi (`dockerData.js`, `jenkinsData.js`, `gitGithubData.js`, `postmanData.js`,
+    `linuxData.js` — `javaData.js` zaten `FILES`teydi) — yoksa şema denetimi bu
+    görevleri hiç görmezdi.
+  - **🐛 Gerçek hata yakalanıp düzeltildi (linuxData.js):** apostrof kaçış hatası
+    (`process'i` tek tırnaklı string içinde escape edilmeden) `node --check`i
+    kırdı — CLAUDE.md §23.2'nin tam olarak uyardığı tuzak. Düzeltildi, tüm 6
+    dosya `node --check` ile tek tek doğrulandı.
+  - **🐛 İkinci hata (jenkins+linux, i18n scanner yakaladı):** 2 `prediction.code`
+    alanı düz string olarak Türkçe-özgü karakter (`ğ`/`ş`) içeriyordu, EN modda
+    sızıyordu — `{tr,en}` bilingual yapıldı.
+  - **🔍 Üçüncü, scanner'ın YAKALAYAMADIĞI bir kör nokta elle bulundu (CLAUDE.md
+    §23.1'in tarif ettiği tam senaryo):** 13 tane daha `prediction.code` alanı
+    ASCII-normalize Türkçe kullanıyordu (`ayni`, `farkli`, `cozuldu`,
+    `yapistirildi` gibi — Türkçe-özgü karakter YOK, otomatik tarayıcı bunları
+    göremiyor). Referans selenium mission'ı da bu kalıbı kullanıyordu (muhtemelen
+    aynı kör noktaya sahip, dokunulmadı — kapsam dışı). Kendi 13 alanımın
+    HEPSİ elle `{tr,en}` bilingual yapıldı — artık EN modda gerçekten İngilizce.
+  - **🎯 Dördüncü, kendi kendine yapılan kalite denetimi (istenmedi ama proaktif
+    yapıldı):** `audit-learning-blocks.mjs`nin `positionDist` çıktısı, YENİ
+    eklenen 18 prediction'ın HEPSİNDE doğru cevabın "a" (ilk seçenek) pozisyonunda
+    olduğunu gösterdi — NEXT_SESSION geçmişinde daha önce flag'lenen "hep B"
+    gaming riskinin bu kez "hep A" versiyonu. 18 sorunun 12'sinde seçenek sırası
+    elle karıştırılıp **6/6/6 (a/b/c) dağılımına** getirildi (site geneli hâlâ
+    B'ye kaymış durumda — bu ÖNCEDEN VAR olan, kapsam dışı bir borç, sadece
+    kendi yeni 18 sorumun dağılımı düzeltildi).
+  - **Doğrulama:** her dosya için `node --check` ✓ · content-integrity ✓
+    (39 dosya) · i18n baseline 0 ✓ · audit-learning-blocks ✓ (mission:24,
+    prediction:96, dağılım kendi 18'imde 6/6/6) · build ✓ (88 shell, dist-SEO
+    geçti) · E2E 63/63 PASS (`mission-flow` referans testi + `topic-pages-ui`
+    25 sayfa + `i18n-content-toggle` 32 test + `learning-blocks-render`/java 3).
+  - **🔜 Sırada:** S3 (çerezsiz analytics), S4 (TR metadata cilası + mülakat
+    dağılımı) — plan §7.3-§7.4, sırayla, kullanıcı onayı beklenmeden.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Sonnet — SEO Faz 2 / S1 performans)
 
 - **Aktif branch: `feature/seo-phase-2`.** Opus'un O1-O8 çekirdeğinin (aşağıda)
   hemen ardından, kullanıcı `Documents/seo-phase-2-plan.md`'deki Sonnet
