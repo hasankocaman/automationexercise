@@ -4534,3 +4534,191 @@ find . -size +100M                  # şüpheli derecede büyük dosyaları bul`
 }
 
 fillMissingCodeTrios(linuxData, 'linux')
+
+// 🎯 CHALLENGE-FIRST GÖREV (Documents/seo-phase-2-plan.md §7.2, S2) — "Real-World
+// QA Scenarios" sekmesine (aksiyon sekmesi, plan promptunda "CI agent debug"
+// olarak önerildi). MEVCUT prediction/code-playground bloklarını gömer, yeni
+// sandbox yazılmaz. Çift-ağaçlı dosya: TEK bilingual sabit, İKİ ağaca da AYNI
+// referansla push edilir (CLAUDE.md §23.4).
+const linuxCiDebugMission = {
+  type: 'mission',
+  id: 'linux-ci-debug-mission',
+  xpReward: 40,
+  relatedTopicId: 'linux-ci-agent-debug',
+  persona: { tr: 'QA Engineer · Sprint 7', en: 'QA Engineer · Sprint 7' },
+  scenario: {
+    tr: 'CI\'daki Selenium testleri 10 dakikadır TAKILI kalmış, ne "geçti" ne "kırıldı" diyor. Jenkins agent\'ına SSH ile bağlandın. Bugün, GUI olmadan sadece komut satırıyla sorunu bulacaksın.',
+    en: 'The Selenium tests in CI have been STUCK for 10 minutes, showing neither "passed" nor "failed". You have SSH\'d into the Jenkins agent. Today you will track down the problem using only the command line, no GUI.',
+  },
+  steps: [
+    {
+      id: 'linux-ci-find-process',
+      brief: { tr: '1) chromedriver\'ın gerçekten çalışıp çalışmadığını hangi komutla anlarsın, tahmin et.', en: '1) Predict which command tells you whether chromedriver is actually running.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Bir CI agent\'ında ekran YOKTUR — Görev Yöneticisi açıp "Chrome çalışıyor mu?" diye BAKAMAZSIN. `ps aux`, o anda çalışan TÜM process\'leri (PID, CPU, bellek, komut) listeler; `grep` ile bunu ilgilendiğin isme (chromedriver) DARALTIRSIN.',
+        en: 'A CI agent has NO screen — you cannot open Task Manager and LOOK to see "is Chrome running?". `ps aux` lists ALL currently running processes (PID, CPU, memory, command); `grep` NARROWS that down to the name you care about (chromedriver).',
+      },
+      block: {
+        type: 'prediction',
+        id: 'linux-ci-find-process-choice',
+        xpReward: 10,
+        relatedTopicId: 'linux-ci-agent-debug',
+        prompt: { tr: 'CI agent\'ına SSH ile bağlandın, GUI yok. chromedriver\'ın çalışıp çalışmadığını görmek için hangi komutu kullanırsın?', en: 'You SSH into the CI agent, there is no GUI. Which command do you use to see whether chromedriver is running?' },
+        code: {
+          tr: '// ekran yok, sadece terminal\n// soru: chromedriver process\'i canlı mı?',
+          en: '// no screen, terminal only\n// question: is the chromedriver process alive?',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: '`ps aux | grep chromedriver`', en: '`ps aux | grep chromedriver`' }, correct: true },
+          { id: 'b', label: { tr: '`ls chromedriver`', en: '`ls chromedriver`' }, why: { tr: '`ls` sadece dosya/klasör listeler — çalışan bir PROCESS\'i gösteremez, sadece dosyanın diskte VAR olup olmadığını gösterir.', en: '`ls` only lists files/folders — it cannot show a running PROCESS, only whether the file EXISTS on disk.' } },
+          { id: 'c', label: { tr: '`cat chromedriver.log`', en: '`cat chromedriver.log`' }, why: { tr: 'Log dosyası GEÇMİŞTE ne olduğunu gösterir — process ŞU AN çalışıyor mu sorusuna doğrudan cevap vermez.', en: 'A log file shows what happened in the PAST — it does not directly answer whether the process is running RIGHT NOW.' } },
+        ],
+        reveal: {
+          tr: '`ps aux | grep chromedriver` doğru: `ps aux` TÜM process\'leri listeler, `|` (pipe) bu çıktıyı `grep`e YÖNLENDİRİR, `grep chromedriver` da sadece o ismi içeren satırları FİLTRELER. Sonuç: chromedriver çalışıyorsa PID\'i ve komut satırıyla birlikte görürsün, çalışmıyorsa hiçbir satır dönmez.',
+          en: '`ps aux | grep chromedriver` is correct: `ps aux` lists ALL processes, `|` (pipe) FEEDS that output into `grep`, and `grep chromedriver` FILTERS only the lines containing that name. Result: if chromedriver is running you see its PID and command line; if not, no line comes back.',
+        },
+      },
+    },
+    {
+      id: 'linux-ci-ps-grep',
+      brief: { tr: '2) `ps aux | grep` komutunu kendin yaz.', en: '2) Write the `ps aux | grep` command yourself.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`|` (pipe) karakteri, bir komutun ÇIKTISINI başka bir komutun GİRDİSİ yapar. `ps aux | grep chromedriver`, "TÜM process\'leri listele, SONRA bu listeden sadece \'chromedriver\' geçenleri göster" demektir — Java\'da bir metodun dönüş değerini başka bir metoda ARGÜMAN olarak zincirlemek gibi.',
+        en: 'The `|` (pipe) character turns one command\'s OUTPUT into another command\'s INPUT. `ps aux | grep chromedriver` means "list ALL processes, THEN show only the ones containing \'chromedriver\' from that list" — like chaining a method\'s return value as an ARGUMENT into another method in Java.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'linux-ci-ps-grep-code',
+        relatedTopicId: 'linux-ci-agent-debug',
+        language: 'bash',
+        label: { tr: 'chromedriver process\'ini bul', en: 'Find the chromedriver process' },
+        task: { tr: 'TODO satırını, tüm process\'leri listeleyip sadece chromedriver içerenleri filtreleyen komutla tamamla.', en: 'Complete the TODO line with a command that lists all processes and filters only the ones containing chromedriver.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç `ps`/`grep`/pipe kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the `ps`/`grep`/pipe pattern yourself.' },
+        code: {
+          tr: `ps aux | grep chromedriver`,
+          en: `ps aux | grep chromedriver`,
+        },
+        starterCode: {
+          tr: `# TODO: tum process'leri listele, sadece "chromedriver" iceren satirlari filtrele`,
+          en: `# TODO: list all processes, filter only lines containing "chromedriver"`,
+        },
+        solutionCode: {
+          tr: `ps aux | grep chromedriver`,
+          en: `ps aux | grep chromedriver`,
+        },
+        expected: { tr: 'chromedriver çalışıyorsa PID\'ini içeren bir satır görürsün, çalışmıyorsa boş sonuç.', en: 'If chromedriver is running you see a line with its PID, otherwise an empty result.' },
+        hints: [
+          { tr: '`ps aux` çıktısını `|` ile `grep`e yönlendir.', en: 'Pipe the `ps aux` output into `grep` with `|`.' },
+          { tr: 'Aranacak isim `chromedriver`dır.', en: 'The name to search for is `chromedriver`.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'linux-ci-port-in-use',
+      brief: { tr: '3) chromedriver ÇALIŞIYOR ama yeni bir tane başlatılamıyor — "Address already in use" hatasının anlamını tahmin et.', en: '3) chromedriver IS running but a new one fails to start — predict what an "Address already in use" error means.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Her Selenium/chromedriver instance\'ı bir PORTU (genelde 9515 veya Grid\'de 4444) DİNLER. Önceki bir test koşumu chromedriver\'ı DÜZGÜN kapatmadan ölmüşse, o process hâlâ portu TUTAR — yeni bir test başlatmaya çalıştığında "Address already in use" hatası bu portun ZATEN DOLU olduğunu söyler.',
+        en: 'Every Selenium/chromedriver instance LISTENS on a PORT (usually 9515, or 4444 on a Grid). If a previous test run died without properly closing chromedriver, that process still HOLDS the port — when a new test tries to start, "Address already in use" means that port is ALREADY TAKEN.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'linux-ci-port-in-use-choice',
+        xpReward: 10,
+        relatedTopicId: 'linux-ci-agent-debug',
+        prompt: { tr: 'Yeni bir test koşumu "Address already in use: 4444" hatasıyla patlıyor. En olası kök neden nedir?', en: 'A new test run blows up with "Address already in use: 4444". What is the most likely root cause?' },
+        code: {
+          tr: '// yeni koşum: bind() failed: Address already in use (:4444)',
+          en: '// new run: bind() failed: Address already in use (:4444)',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'İnternet bağlantısı kopmuş', en: 'The internet connection is down' }, why: { tr: 'Bu hata yerel bir port çakışmasıdır, ağ bağlantısıyla değil BAŞKA bir process\'in aynı portu kullanmasıyla ilgilidir.', en: 'This error is a local port conflict — it relates to ANOTHER process using the same port, not network connectivity.' } },
+          { id: 'b', label: { tr: 'chromedriver sürümü tarayıcıyla uyumsuz', en: 'The chromedriver version is incompatible with the browser' }, why: { tr: 'Sürüm uyumsuzluğu FARKLI bir hata mesajı (session not created / version mismatch) verir, port hatası değil.', en: 'A version mismatch produces a DIFFERENT error message (session not created / version mismatch), not a port error.' } },
+          { id: 'c', label: { tr: 'Önceki bir koşumdan kalan bir process hâlâ 4444 portunu tutuyor', en: 'A process left over from a previous run is still holding port 4444' }, correct: true },
+        ],
+        reveal: {
+          tr: 'Doğru: "Address already in use", o portu zaten BAŞKA bir process\'in tuttuğu anlamına gelir — genelde önceki bir koşumdan kalan, düzgün kapanmamış bir chromedriver. Sıradaki adım, HANGİ process\'in bu portu tuttuğunu bulmaktır.',
+          en: 'Correct: "Address already in use" means that port is already HELD by another process — usually a leftover chromedriver from a previous run that did not shut down properly. The next step is finding WHICH process is holding that port.',
+        },
+      },
+    },
+    {
+      id: 'linux-ci-lsof',
+      brief: { tr: '4) 4444 portunu hangi process\'in tuttuğunu bulan komutu yaz.', en: '4) Write the command that finds which process is holding port 4444.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`lsof -i :4444` ("list open files, internet"), o portu DİNLEYEN process\'i PID\'iyle birlikte gösterir. Bulduğun PID ile `kill <PID>` diyerek o sıkışmış process\'i SONLANDIRABİLİR, ardından yeni koşumun portu TEMİZ kullanmasını sağlayabilirsin.',
+        en: '`lsof -i :4444` ("list open files, internet") shows the process LISTENING on that port, along with its PID. With that PID you can TERMINATE the stuck process using `kill <PID>`, then let the new run use the port CLEANLY.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'linux-ci-lsof-code',
+        relatedTopicId: 'linux-ci-agent-debug',
+        language: 'bash',
+        label: { tr: '4444 portunu tutan process\'i bul', en: 'Find the process holding port 4444' },
+        task: { tr: 'TODO satırını, 4444 portunu dinleyen process\'i listeleyen komutla tamamla.', en: 'Complete the TODO line with the command that lists the process listening on port 4444.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç `lsof -i :PORT` kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the `lsof -i :PORT` pattern yourself.' },
+        code: {
+          tr: `lsof -i :4444`,
+          en: `lsof -i :4444`,
+        },
+        starterCode: {
+          tr: `# TODO: 4444 portunu dinleyen process'i (PID dahil) listele`,
+          en: `# TODO: list the process (including PID) listening on port 4444`,
+        },
+        solutionCode: {
+          tr: `lsof -i :4444`,
+          en: `lsof -i :4444`,
+        },
+        expected: { tr: 'Portu tutan process\'in PID\'ini görürsün — artık `kill <PID>` ile sonlandırabilirsin.', en: 'You see the PID of the process holding the port — you can now terminate it with `kill <PID>`.' },
+        hints: [
+          { tr: '`lsof -i :<port>` bir porta bağlı process\'leri listeler.', en: '`lsof -i :<port>` lists processes bound to a port.' },
+          { tr: 'Port numarasını iki nokta üst üste (`:`) ile yaz: `:4444`.', en: 'Write the port number after a colon (`:`): `:4444`.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'linux-ci-tail',
+      brief: { tr: '5) Test hâlâ takılıyken log dosyasını CANLI izlemenin `cat`ten neden daha iyi olduğunu tahmin et.', en: '5) Predict why watching the log file LIVE beats using `cat` while the test is still stuck.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`cat log.txt`, dosyanın o ANKİ içeriğini bir kez basıp ÇIKAR — dosya güncellendikçe tekrar tekrar `cat` çalıştırman gerekir. `tail -f log.txt` ise dosyayı AÇIK tutar ve yeni satır eklendikçe onu ANINDA ekrana yazar; takılı bir process\'i CANLI izlerken doğru araç budur.',
+        en: '`cat log.txt` prints the file\'s content ONCE at that MOMENT and exits — you would need to re-run `cat` again and again as the file updates. `tail -f log.txt` keeps the file OPEN and prints new lines the INSTANT they are added; it is the right tool for watching a stuck process LIVE.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'linux-ci-tail-choice',
+        xpReward: 10,
+        relatedTopicId: 'linux-ci-agent-debug',
+        prompt: { tr: 'Test hâlâ takılı durumda ve log dosyasına yeni satırlar yavaş yavaş yazılıyor. `cat log.txt` ile `tail -f log.txt` arasındaki fark nedir?', en: 'The test is still stuck and new lines are slowly being written to the log file. What is the difference between `cat log.txt` and `tail -f log.txt`?' },
+        code: {
+          tr: '// log dosyası hâlâ büyüyor (process takılı)\n// cat log.txt  vs  tail -f log.txt',
+          en: '// the log file is still growing (process is stuck)\n// cat log.txt  vs  tail -f log.txt',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: '`cat`, dosyayı sürekli otomatik olarak yeniler', en: '`cat` continuously auto-refreshes the file' }, why: { tr: '`cat`in bu davranışı YOKTUR — çıktıyı basar ve hemen sonlanır, dosyayı İZLEMEZ.', en: '`cat` has no such behavior — it prints the output and exits immediately, it does not WATCH the file.' } },
+          { id: 'b', label: { tr: '`tail -f`, yeni satırları CANLI göstermeye devam eder; `cat` bir kez basıp çıkar', en: '`tail -f` keeps showing new lines LIVE; `cat` prints once and exits' }, correct: true },
+          { id: 'c', label: { tr: 'İkisi de aynı şeyi yapar, sadece syntax farklıdır', en: 'They both do the same thing, only the syntax differs' }, why: { tr: 'Davranışları TEMELDEN farklıdır — biri anlık görüntü alır, diğeri sürekli akışı izler.', en: 'Their behavior is FUNDAMENTALLY different — one takes a snapshot, the other watches a continuous stream.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: `-f` ("follow") bayrağı `tail`i dosyayı SÜREKLİ izleyen bir moda sokar — takılı bir CI process\'inin ne yaptığını ANLIK görmek için idealdir. `cat`, sadece o ANDAKİ görüntüyü verir; process yeni bir şey yazdıkça komutu ELLE tekrarlaman gerekir.',
+          en: 'Correct: the `-f` ("follow") flag puts `tail` into a mode that CONTINUOUSLY watches the file — ideal for seeing INSTANTLY what a stuck CI process is doing. `cat` only gives a snapshot of that MOMENT; you would need to MANUALLY re-run the command as the process writes more.',
+        },
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Bu 5 adım, GUI olmayan bir CI agent\'ında gerçek bir hata ayıklama akışının iskeletidir: process\'in çalışıp çalışmadığını sor → `ps`/`grep` ile bul → "port dolu" hatasının anlamını çöz → `lsof` ile sahibini bul → `tail -f` ile canlı izle. Bu üçlü (`ps`, `lsof`, `tail -f`) neredeyse HER CI hata ayıklama seansında karşına çıkar.',
+    en: 'These 5 steps are the skeleton of a real debugging flow on a GUI-less CI agent: ask whether the process is running → find it with `ps`/`grep` → decode what "port in use" means → find the owner with `lsof` → watch it live with `tail -f`. This trio (`ps`, `lsof`, `tail -f`) shows up in almost EVERY CI debugging session.',
+  },
+}
+
+linuxData.en.sections[6].blocks.push(linuxCiDebugMission)
+linuxData.tr.sections[6].blocks.push(linuxCiDebugMission)
