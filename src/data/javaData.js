@@ -19480,4 +19480,192 @@ export const javaData = {
 
 fillMissingCodeTrios(javaData, 'java')
 
+// 🎯 CHALLENGE-FIRST GÖREV (Documents/seo-phase-2-plan.md §7.2, S2) — "Test
+// Frameworks" (JUnit5/TestNG) sekmesine (aksiyon sekmesi: bu sekme zaten test
+// KODU yazmayı öğretiyor, en doğal ev). MEVCUT prediction/code-playground
+// bloklarını gömer, yeni sandbox yazılmaz. Çift-ağaçlı dosya: TEK bilingual
+// sabit, İKİ ağaca da AYNI referansla push edilir (CLAUDE.md §23.4).
+const javaParameterizedTestMission = {
+  type: 'mission',
+  id: 'java-parameterized-test-mission',
+  xpReward: 40,
+  relatedTopicId: 'java-junit5-parameterized',
+  persona: { tr: 'QA Engineer · Sprint 4', en: 'QA Engineer · Sprint 4' },
+  scenario: {
+    tr: 'Ekip login formunu 3 farklı geçersiz girdiyle (boş kullanıcı adı, boş şifre, çok kısa şifre) test etmek için 3 AYRI test metodu yazmış — kod neredeyse birebir aynı. Bugün bunu TEK bir parametreli teste dönüştüreceksin.',
+    en: 'The team wrote 3 SEPARATE test methods to test the login form with 3 different invalid inputs (empty username, empty password, too-short password) — the code is nearly identical. Today you will turn this into ONE parameterized test.',
+  },
+  steps: [
+    {
+      id: 'java-param-why',
+      brief: { tr: '1) 3 neredeyse-özdeş test metodunun asıl riskini tahmin et.', en: '1) Predict the real risk of 3 nearly-identical test methods.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Kopyala-yapıştır testler, bir GÜN birinde küçük bir düzeltme yapılıp diğer ikisinde UNUTULDUĞUNDA sessizce BAYATLAR — üç test de "geçiyor" görünür ama artık aynı mantığı test etmiyor olabilirler. `@ParameterizedTest`, mantığı TEK yerde tutar: Java\'da bir yardımcı metodu tekrar tekrar yazmak yerine ÇAĞIRMAK gibi.',
+        en: 'Copy-pasted tests silently go STALE the day someone makes a small fix in one and FORGETS the other two — all three tests still "pass" but may no longer test the same logic. `@ParameterizedTest` keeps the logic in ONE place: like CALLING a helper method in Java instead of rewriting it over and over.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'java-param-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'java-junit5-parameterized',
+        prompt: { tr: '`testEmptyUsername()`, `testEmptyPassword()`, `testShortPassword()` neredeyse özdeş kod içeriyor. Birinde assertion mesajı düzeltilip diğer ikisinde UNUTULURSA en olası sonuç nedir?', en: '`testEmptyUsername()`, `testEmptyPassword()`, `testShortPassword()` contain nearly identical code. If the assertion message is fixed in one but FORGOTTEN in the other two, what is the most likely outcome?' },
+        code: {
+          tr: '// testEmptyUsername()   -> assertion mesajı DÜZELTİLDİ\n// testEmptyPassword()   -> eski mesaj kaldı (unutuldu)\n// testShortPassword()   -> eski mesaj kaldı (unutuldu)',
+          en: '// testEmptyUsername()   -> assertion message FIXED\n// testEmptyPassword()   -> old message left behind (forgotten)\n// testShortPassword()   -> old message left behind (forgotten)',
+        },
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'JUnit otomatik olarak diğer iki metodu senkronize eder', en: 'JUnit automatically synchronizes the other two methods' }, why: { tr: 'JUnit test metotları arasında hiçbir otomatik senkronizasyon yapmaz — her metot bağımsız, birbirinden habersiz kod parçasıdır.', en: 'JUnit performs no automatic synchronization between test methods — each method is an independent, unaware piece of code.' } },
+          { id: 'b', label: { tr: 'Üç test de "geçiyor" görünür ama ikisi artık güncel olmayan/tutarsız bir davranışı doğruluyor olabilir', en: 'All three tests still "pass" but two may now be verifying outdated/inconsistent behavior' }, correct: true },
+          { id: 'c', label: { tr: 'Diğer iki test otomatik olarak FAIL olur', en: 'The other two tests automatically FAIL' }, why: { tr: 'Kopyalanmış eski kod GEÇERLİ kod olmaya devam eder, derleme veya çalışma zamanı hatası vermez — sorun SESSİZ bir tutarsızlıktır, görünür bir FAIL değil.', en: 'The copied old code remains VALID code, it does not cause a compile or runtime error — the problem is a SILENT inconsistency, not a visible FAIL.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: risk görünür bir hata değil, SESSİZ bir tutarsızlıktır — üç test de yeşil kalır ama artık aynı standardı doğrulamıyorlardır. `@ParameterizedTest` bu riski YAPISAL olarak ortadan kaldırır çünkü doğrulama mantığı TEK bir metotta yaşar.',
+          en: 'Correct: the risk is not a visible error, it is a SILENT inconsistency — all three tests stay green but no longer verify the same standard. `@ParameterizedTest` eliminates this risk STRUCTURALLY because the verification logic lives in ONE method.',
+        },
+      },
+    },
+    {
+      id: 'java-param-skeleton',
+      brief: { tr: '2) `@ParameterizedTest` + `@ValueSource` ile test iskeletini yaz.', en: '2) Write the test skeleton with `@ParameterizedTest` + `@ValueSource`.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`@ParameterizedTest`, bir test metodunu BİRDEN FAZLA girdiyle çalıştırır. `@ValueSource(strings = {...})` en basit besleyicidir — verdiğin her string için metot BİR KEZ çalışır, o değer parametre olarak metoda GİRER.',
+        en: '`@ParameterizedTest` runs a test method with MULTIPLE inputs. `@ValueSource(strings = {...})` is the simplest source — the method runs ONCE for each string you provide, with that value coming IN as the parameter.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'java-param-skeleton-code',
+        relatedTopicId: 'java-junit5-parameterized',
+        language: 'java',
+        label: { tr: '@ParameterizedTest iskeletini tamamla', en: 'Complete the @ParameterizedTest skeleton' },
+        task: { tr: 'TODO satırını, 3 geçersiz kullanıcı adını besleyen doğru annotation\'larla tamamla.', en: 'Complete the TODO line with the correct annotations feeding 3 invalid usernames.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç `@ParameterizedTest`/`@ValueSource` kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the `@ParameterizedTest`/`@ValueSource` pattern yourself.' },
+        code: {
+          tr: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    // dogrulama burada\n}`,
+          en: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    // assertion goes here\n}`,
+        },
+        starterCode: {
+          tr: `// TODO: bu metodu "", " ", "a" degerleriyle CALISTIRACAK\n// iki annotation ekle\nvoid loginFailsForInvalidUsername(String username) {\n    // dogrulama burada\n}`,
+          en: `// TODO: add two annotations that RUN this method\n// with the values "", " ", "a"\nvoid loginFailsForInvalidUsername(String username) {\n    // assertion goes here\n}`,
+        },
+        solutionCode: {
+          tr: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    // dogrulama burada\n}`,
+          en: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    // assertion goes here\n}`,
+        },
+        expected: { tr: 'Aynı metot artık 3 farklı geçersiz kullanıcı adı için AYRI AYRI çalışır.', en: 'The same method now runs SEPARATELY for 3 different invalid usernames.' },
+        hints: [
+          { tr: '`@ParameterizedTest`, `@Test`in yerine geçer, İKİSİ BİRDEN kullanılmaz.', en: '`@ParameterizedTest` REPLACES `@Test`, they are not used TOGETHER.' },
+          { tr: '`@ValueSource(strings = {...})` metoda bir `String` parametresi besler.', en: '`@ValueSource(strings = {...})` feeds a `String` parameter into the method.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'java-param-forget-annotation',
+      brief: { tr: '3) `@ParameterizedTest` yerine yanlışlıkla `@Test` bırakırsan ne olacağını tahmin et.', en: '3) Predict what happens if you accidentally leave `@Test` instead of `@ParameterizedTest`.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`@Test`, parametre BEKLEMEZ — JUnit5 böyle bir metodu görünce ÇALIŞTIRAMAZ ve "test bulunamadı/geçersiz test metodu" hatası fırlatır. Bu, "sessizce yanlış davranan" bir hata DEĞİLDİR — açık ve hemen fark edilen bir hatadır, ama sebebi ilk bakışta şaşırtıcı görünebilir.',
+        en: '`@Test` does NOT expect a parameter — when JUnit5 sees such a method it CANNOT run it and throws a "no tests found / invalid test method" error. This is NOT a "silently wrong" bug — it is a loud, immediately visible error, but its cause can look surprising at first glance.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'java-param-forget-annotation-choice',
+        xpReward: 10,
+        relatedTopicId: 'java-junit5-parameterized',
+        prompt: { tr: 'Bir parametre alan metoda yanlışlıkla `@ParameterizedTest` yerine `@Test` yazdın. `@ValueSource` da kaldı. Ne olur?', en: 'You accidentally left `@Test` instead of `@ParameterizedTest` on a method that takes a parameter, with `@ValueSource` still there. What happens?' },
+        code: {
+          tr: '@Test // yanlışlıkla @ParameterizedTest yerine\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) { }',
+          en: '@Test // wrongly left instead of @ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) { }',
+        },
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'JUnit metodu geçersiz test olarak reddeder, açık bir hata verir', en: 'JUnit rejects the method as an invalid test, throwing a clear error' }, correct: true },
+          { id: 'b', label: { tr: 'Test sadece parametresiz çalışır, `username` null olur', en: 'The test just runs without a parameter, `username` becomes null' }, why: { tr: '`@Test` parametreli metotları ÇALIŞTIRMAZ, sessizce null geçmez — hata açıkça fırlatılır.', en: '`@Test` does not RUN parameterized methods with a silent null — the error is thrown explicitly.' } },
+          { id: 'c', label: { tr: 'Sadece "" değeriyle bir kez çalışır, diğer ikisi atlanır', en: 'It runs once with only "", skipping the other two' }, why: { tr: '`@Test` `@ValueSource`u hiç OKUMAZ — kısmi çalışma değil, TAMAMEN reddetme söz konusudur.', en: '`@Test` does not READ `@ValueSource` at all — this is a complete rejection, not a partial run.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: JUnit5, `@Test` ile işaretli parametreli bir metodu ÇALIŞTIRAMAZ ve build\'i açık bir hatayla durdurur. Bu, kopyala-yapıştır testlerin "sessiz tutarsızlığından" farklıdır — burada hata GÜRÜLTÜLÜdür, sadece kaynağı (yanlış annotation) ilk bakışta net olmayabilir.',
+          en: 'Correct: JUnit5 CANNOT run a parameterized method marked with `@Test` and stops the build with an explicit error. This differs from the copy-paste tests\' "silent inconsistency" — here the error is LOUD, only its source (wrong annotation) may not be obvious at first glance.',
+        },
+      },
+    },
+    {
+      id: 'java-param-assertion',
+      brief: { tr: '4) Parametreli test metoduna assertion ekleyerek tamamla.', en: '4) Complete the parameterized test method by adding the assertion.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Parametre metoda GİRDİKTEN sonra test gövdesi SIRADAN bir test gibi yazılır — tek fark, `username` her koşumda FARKLI bir değer taşımasıdır. Login servisinin geçersiz kullanıcı adını reddettiğini `assertFalse(loginService.isValid(username))` ile doğrularsın.',
+        en: 'Once the parameter comes IN to the method, the test body is written like an ORDINARY test — the only difference is that `username` carries a DIFFERENT value on each run. You verify the login service rejects the invalid username with `assertFalse(loginService.isValid(username))`.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'java-param-assertion-code',
+        relatedTopicId: 'java-junit5-parameterized',
+        language: 'java',
+        label: { tr: 'Assertion\'ı tamamla', en: 'Complete the assertion' },
+        task: { tr: 'TODO satırını, `loginService.isValid(username)`in false döndüğünü doğrulayan assertion ile tamamla.', en: 'Complete the TODO line with an assertion that verifies `loginService.isValid(username)` returns false.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç parametreli metot gövdesine assertion yazmayı kendin pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the assertion inside a parameterized method body yourself.' },
+        code: {
+          tr: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    assertFalse(loginService.isValid(username));\n}`,
+          en: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    assertFalse(loginService.isValid(username));\n}`,
+        },
+        starterCode: {
+          tr: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    // TODO: loginService.isValid(username)'in false donmesini dogrula\n}`,
+          en: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    // TODO: assert that loginService.isValid(username) returns false\n}`,
+        },
+        solutionCode: {
+          tr: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    assertFalse(loginService.isValid(username));\n}`,
+          en: `@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\nvoid loginFailsForInvalidUsername(String username) {\n    assertFalse(loginService.isValid(username));\n}`,
+        },
+        expected: { tr: '3 eski test metodunun yaptığı iş artık TEK bir metotta, 3 ayrı koşumla yapılıyor.', en: 'What 3 old test methods did is now done in ONE method, across 3 separate runs.' },
+        hints: [
+          { tr: '`assertFalse(...)`, parantez içindeki ifadenin `false` olmasını bekler.', en: '`assertFalse(...)` expects the expression inside the parentheses to be `false`.' },
+          { tr: 'Doğrulanacak ifade `loginService.isValid(username)`dir.', en: 'The expression to verify is `loginService.isValid(username)`.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'java-param-benefit',
+      brief: { tr: '5) 4. geçersiz kullanıcı adı senaryosu eklenince (örn. çok uzun string) ne değişeceğini tahmin et.', en: '5) Predict what changes when a 4th invalid username scenario (e.g. a too-long string) is added.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Eski (kopyala-yapıştır) yaklaşımda yeni bir senaryo eklemek YENİ bir test METODU yazmak demekti — mantığın DÖRDÜNCÜ kopyası. `@ParameterizedTest`te ise `@ValueSource` listesine TEK bir değer eklemek yeterlidir — metodun kendisi hiç DEĞİŞMEZ.',
+        en: 'In the old (copy-paste) approach, adding a new scenario meant writing a NEW test METHOD — a FOURTH copy of the logic. With `@ParameterizedTest`, adding ONE value to the `@ValueSource` list is enough — the method itself does not CHANGE at all.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'java-param-benefit-choice',
+        xpReward: 10,
+        relatedTopicId: 'java-junit5-parameterized',
+        prompt: { tr: 'Ekip 4. bir geçersiz senaryo (51 karakterlik çok uzun bir kullanıcı adı) eklemek istiyor. Parametreli teste geçtikten sonra bunun için ne yapman gerekir?', en: 'The team wants to add a 4th invalid scenario (a 51-character too-long username). After moving to a parameterized test, what do you need to do?' },
+        code: {
+          tr: '@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\n// yeni senaryo: 51 karakterlik string',
+          en: '@ParameterizedTest\n@ValueSource(strings = {"", " ", "a"})\n// new scenario: a 51-character string',
+        },
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'Yeni bir `testLongUsername()` metodu daha yazman gerekir', en: 'You need to write another `testLongUsername()` method' }, why: { tr: 'Bu tam olarak parametreli testin ÖNLEDİĞİ kopyala-yapıştır kalıbıdır — artık gerekmez.', en: 'That is exactly the copy-paste pattern parameterized testing PREVENTS — it is no longer needed.' } },
+          { id: 'b', label: { tr: 'Assertion mantığını da yeniden yazman gerekir', en: 'You also need to rewrite the assertion logic' }, why: { tr: 'Assertion mantığı zaten TEK bir yerde, `username`e göre çalışıyor — yeni bir string değeri için değişmesine gerek yoktur.', en: 'The assertion logic already lives in ONE place and works generically over `username` — it does not need to change for a new string value.' } },
+          { id: 'c', label: { tr: '`@ValueSource` listesine tek bir yeni değer eklemek yeterli, metot değişmez', en: 'Just adding one new value to the `@ValueSource` list is enough, the method does not change' }, correct: true },
+        ],
+        reveal: {
+          tr: 'Doğru: `@ValueSource` listesine `"a".repeat(51)` gibi tek bir değer eklemek yeterlidir — assertion mantığı zaten genel olduğundan hiç dokunulmaz. Bu, ADIM 1\'deki riskin (unutulan güncelleme) YAPISAL olarak imkansız hale gelmesidir — güncellenecek TEK bir yer vardır.',
+          en: 'Correct: adding a single value like `"a".repeat(51)` to the `@ValueSource` list is enough — the assertion logic is already generic and is not touched. This is the risk from STEP 1 (a forgotten update) becoming STRUCTURALLY impossible — there is only ONE place to update.',
+        },
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Bu 5 adım, kopyala-yapıştır testlerin en büyük riskini (sessiz tutarsızlık) `@ParameterizedTest` ile YAPISAL olarak ortadan kaldırmanın iskeletidir: risk tahmini → annotation iskeleti → yanlış annotation\'ın (gürültülü) sonucu → assertion yazımı → yeni senaryo ekleme maliyeti. Bu kalıp; Cucumber\'daki `Scenario Outline`, pytest\'teki `@pytest.mark.parametrize` ile aynı fikrin Java karşılığıdır.',
+    en: 'These 5 steps are the skeleton of eliminating copy-pasted tests\' biggest risk (silent inconsistency) STRUCTURALLY with `@ParameterizedTest`: predicting the risk → the annotation skeleton → the (loud) result of a wrong annotation → writing the assertion → the cost of adding a new scenario. This pattern is Java\'s counterpart to the same idea in Cucumber\'s `Scenario Outline` and pytest\'s `@pytest.mark.parametrize`.',
+  },
+}
+
+javaData.en.sections[9].blocks.push(javaParameterizedTestMission)
+javaData.tr.sections[9].blocks.push(javaParameterizedTestMission)
+
 
