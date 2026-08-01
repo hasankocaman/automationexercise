@@ -399,6 +399,15 @@ export const ROUTE_SEO = [
         },
     },
     {
+        path: '/portfolio',
+        title: 'QA Portfolio Builder: Turn Your Practice Into Proof | LearnQA.dev',
+        description: 'Collect every mission you solved, bug you closed and topic you mastered into one QA portfolio page you can export as Markdown for GitHub or LinkedIn.',
+        tr: {
+            title: 'QA Portfolyo: Pratiğini Somut Kanıta Dönüştür | LearnQA.dev',
+            description: 'Çözdüğün görevleri, kapattığın bug\'ları ve ustalaştığın konuları tek bir QA portfolyo sayfasında topla, Markdown olarak dışa aktarıp paylaş.',
+        },
+    },
+    {
         path: '/leaderboard',
         title: 'XP Leaderboard for QA Learners | LearnQA.dev',
         description: 'See the top 10 LearnQA.dev members by XP, earned by completing lessons and quizzes across Selenium, Playwright, Java, Python and more.',

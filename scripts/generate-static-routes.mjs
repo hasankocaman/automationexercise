@@ -313,6 +313,28 @@ async function specialRouteContent(seo, locale) {
             { title: 'Gate it before merge', snippets: ['Tag the test into the regression suite and trigger the pipeline on every pull request so the bug cannot silently return.'] },
         ],
     }
+    // Portfolyo içeriği %100 yerel (kullanıcının tarayıcısında) üretilir —
+    // crawler'a gösterilecek gerçek kullanıcı verisi YOKTUR. Shell, sayfanın NE
+    // OLDUĞUNU anlatan tanıtım metni içerir; kullanıcı verisi taklit etmez.
+    if (seo.path === '/portfolio') return locale === 'tr' ? {
+        title: 'QA Portfolyo — Çözdüğün Görevleri Somut Kanıta Dönüştür',
+        intro: 'QA öğrenme ilerlemeni tek sayfada topla. Portfolyo yeni bir şey üretmez; çözdüğün görev zincirlerini, kapattığın sprint bug\'larını, ustalık skorlarını ve kariyer rozetlerini bir araya getirip gösterilebilir bir çalışma günlüğüne çevirir. Tamamen tarayıcında çalışır, üyelik gerektirmez ve Markdown olarak dışa aktarılabilir.',
+        topics: [
+            { title: 'İnşa ettiklerin', snippets: ['Bitirdiğin her görev zinciri için ne yaptığını, hangi beceriyi kullandığını ve ne zaman tamamladığını gösteren bir kart.'] },
+            { title: 'Sprint deneyimi', snippets: ['Kapattığın bug\'lar: severity rozeti, bug başlığı ve Analiz → Test Case → Otomasyon → CI → Merge akışının hangi adımlarından geçtiği.'] },
+            { title: 'Beceri haritası ve ustalık', snippets: ['Beceri alanı başına ortalama ustalık skoru ve başladığın konuların mülakat puanıyla birlikte listesi.'] },
+            { title: 'Markdown dışa aktarım', snippets: ['Portfolyonu GitHub README veya LinkedIn profiline yapıştırabileceğin bir metne çevir.'] },
+        ],
+    } : {
+        title: 'QA Portfolio — Turn the Missions You Solved Into Proof',
+        intro: 'Gather your QA learning progress onto one page. The portfolio produces nothing new; it brings together the mission chains you solved, the sprint bugs you closed, your mastery scores and your career badges, turning them into a work log you can actually show. It runs entirely in your browser, needs no account, and exports as Markdown.',
+        topics: [
+            { title: 'What you built', snippets: ['A card for every mission chain you finished, showing what you did, which skill you used and when you completed it.'] },
+            { title: 'Sprint experience', snippets: ['The bugs you closed: severity badge, bug title, and the Analyze to Test Case to Automate to CI to Merge steps you worked through.'] },
+            { title: 'Skill map and mastery', snippets: ['Average mastery score per skill area, plus a list of the topics you started along with their interview scores.'] },
+            { title: 'Markdown export', snippets: ['Turn your portfolio into text you can paste into a GitHub README or your LinkedIn profile.'] },
+        ],
+    }
     if (seo.path === '/qa-mentor') return locale === 'en' ? {
         title: 'QA Career Roadmap — Personalized Learning Plan',
         intro: 'Build a personalized QA career mind map based on your experience level and preferences. Four different maps, from the Algorithms → Manual Testing → Java → Selenium path for absolute beginners to the Java+Playwright or Python/TypeScript routes for experienced developers.',

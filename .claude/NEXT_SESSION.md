@@ -20,7 +20,55 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — `feature/portfolio-builder` `feature/seo-phase-2`'ye merge edildi)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — Portfolio Builder çekirdeği `/portfolio` TAMAMLANDI)
+
+- **Aktif branch: `feature/seo-phase-2`.** `Documents/portfolio-builder-plan.md`'deki
+  Opus çekirdeği (O1-O7) uygulandı. `/portfolio` artık canlı bir sayfa.
+- **Yeni dosyalar:** `src/lib/portfolioSnapshot.js` (türetme), `src/data/portfolioData.js`
+  (tüm metinler + 18 görev kataloğu + 6 bug kataloğu + boş durum kopyası),
+  `src/components/PortfolioPage.jsx`, `tests/portfolio-page.spec.ts`.
+  **Sadece-ekleme yapılan paylaşılan dosyalar:** `App.jsx` (lazy route),
+  `src/utils/seo.js` (TR+EN metadata), `scripts/generate-static-routes.mjs`
+  (shell tanıtım metni), `scripts/check-i18n-leaks.mjs` (STRICT_ZERO'ya
+  `portfolioData.js`), `src/components/HomePage.jsx` (teal giriş kartı),
+  `tests/no-internal-jargon.spec.ts` (route listesine `/portfolio`), `CLAUDE.md` §2.
+- **⚠ Planın en kritik maddesi uygulandı — route-kapsamı tuzağı:** `xp.js`
+  depolama anahtarını bulunulan sayfanın URL'inden türetir, bu yüzden
+  `getCompletedExercises()` ve onun üstüne kurulu TÜM `sprintStore`
+  fonksiyonları `/portfolio` sayfasında sessizce boş döner. `xp.js`/`sprintStore.js`
+  DEĞİŞTİRİLMEDİ; `portfolioSnapshot.js` tüm `learnqa_xp_*` anahtarlarını
+  tarayan global bir küme kuruyor (`progressStore.getTotalXp()`'nin kanıtlanmış
+  deseni). **Testin dişi doğrulandı:** global tarama geçici olarak route-kapsamlı
+  okumaya çevrildi → 2 test KIRILDI → geri alındı.
+- **Plandan bilinçli 3 sapma (hepsi dürüstlük gerekçeli):**
+  1. Plan "en uzun streak" istiyordu — `activityLog` bunu TUTMUYOR (yalnızca
+     güncel seri + aktif gün türetilebilir). Olmayan metrik uydurulmadı, gerçekten
+     ölçülen ikisi gösteriliyor.
+  2. Plan 18 mission diyordu; S2'den sonra gerçek sayı **24** (18 ders görevi +
+     6 sprint bug'ı). Katalog buna göre yazıldı.
+  3. Plan "44 → 45 shell" diyordu; dil-ayrık URL'lerden sonra gerçek sayı
+     **88 → 90** (45 route × 2 dil).
+  4. Ana sayfa giriş kartı planda Sonnet görevi (S4) idi — erişilemeyen bir
+     sayfa teslim edilmiş sayılmayacağı için çekirdeğe alındı.
+- **Milestone bölümü:** profil düğüm kopyası (`{route,title,emoji}`) `isMain`
+  taşımadığından "SDET yolu tamam" rozeti profilden hesaplanamıyor; harita
+  sayfasının zaten yazdığı `learnqa_map_milestones` kaydıyla birleştiriliyor
+  (yeni state değil, mevcut deponun okunması).
+- **Doğrulama:** `node --check` (2 yeni dosya) ✓ · content-integrity ✓ (40 dosya) ·
+  i18n baseline 0 ✓ · build ✓ (**90 shell**, dist-SEO geçti, 56 FAQPage/68 Course) ·
+  `portfolio-page.spec.ts` **8/8** ✓ (diş doğrulandı) · regresyon: no-internal-jargon
+  (9, `/portfolio` dahil) + sprint-flow (4) + seo-i18n-routing (6) +
+  homepage-recommended-badges (2) + other-pages-ui + mobile-smoke (16) +
+  theme-and-accessibility (5) = **50/50 PASS**.
+- **🔜 Kalan portfolyo işleri (planın Sonnet tarafı, opsiyonel):** `/qa-mentor`
+  rozet şeridinin yanına portfolyo linki (S4'ün ikinci yarısı) ve paylaşılabilir
+  kart görseli (`<canvas>`) — ikisi de düşük öncelik, ayrı oturum.
+- **🔜 Değişmeyen açık iş:** `main`'e merge kararı kullanıcıda; Plausible hesabı
+  ve GSC sitemap yeniden gönderimi (90 URL) hâlâ kullanıcı tarafında.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Sonnet — `feature/portfolio-builder` `feature/seo-phase-2`'ye merge edildi)
 
 - **`origin/feature/portfolio-builder` fetch edilip `feature/seo-phase-2`'ye
   merge edildi** (commit `c06c21e`). O branch `main`'den yalnızca 2 commit

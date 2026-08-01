@@ -725,6 +725,39 @@ function HomePage() {
                 </Link>
             </div>
 
+            {/* ── QA Portfolyo Banner — sprint banner'ının AYNI kalıbı, ayırt
+                edici teal/emerald şemasıyla. Yeni tasarım icat edilmedi; sadece
+                renk + ikon farklılaştırıldı. Sadece EKLENDİ, mevcut hiçbir blok
+                yeniden düzenlenmedi. ── */}
+            <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                <Link
+                    to="/portfolio"
+                    data-testid="portfolio-banner"
+                    className={`group flex items-center gap-3 md:gap-4 rounded-2xl border-2 p-3.5 md:p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl ${
+                        darkMode
+                            ? 'border-teal-700/60 bg-gradient-to-r from-teal-900/40 via-emerald-900/30 to-cyan-900/30 hover:border-teal-500/80'
+                            : 'border-teal-300 bg-gradient-to-r from-teal-50 via-emerald-50 to-cyan-50 hover:border-teal-400'
+                    }`}
+                >
+                    <div className={`flex-shrink-0 rounded-xl p-2.5 md:p-3 shadow-lg ${darkMode ? 'bg-teal-700/60' : 'bg-teal-600'}`}>
+                        <span className="text-2xl md:text-3xl">🗂️</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <h2 className={`text-sm md:text-base font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {language === 'tr' ? '🗂️ QA Portfolyonu gör' : '🗂️ See your QA Portfolio'}
+                        </h2>
+                        <p className={`text-xs md:text-sm leading-relaxed ${darkMode ? 'text-teal-200/80' : 'text-teal-700'}`}>
+                            {language === 'tr'
+                                ? 'Çözdüğün görevler, kapattığın bug\'lar ve ustalaştığın konular tek sayfada — Markdown olarak kopyalayıp paylaşabilirsin.'
+                                : 'The missions you solved, the bugs you closed and the topics you mastered on one page — copy it as Markdown and share it.'}
+                        </p>
+                    </div>
+                    <div className="flex-shrink-0 rounded-xl bg-teal-600 px-3 py-2 text-xs font-bold text-white shadow-lg whitespace-nowrap">
+                        {language === 'tr' ? 'Portfolyoyu aç' : 'Open the portfolio'} →
+                    </div>
+                </Link>
+            </div>
+
             {/* ── "Bugün" şeridi (Learning OS Faz 1, plan §5-F3) — günlük hedef + streak + Devam et ── */}
             <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
                 {(() => {

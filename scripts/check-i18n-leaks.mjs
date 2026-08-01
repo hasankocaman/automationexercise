@@ -129,6 +129,9 @@ const STRICT_ZERO_FILES = new Set([
   // NOT: TRIO_COMPLETE_PAGES'e EKLENMEZ — /sprint bir TopicPage ders sayfası
   // değil, sekme/video-scene kavramı bu sayfada yoktur (§9.5 kapsamı dışı).
   'sprintsData.js',
+  // portfolioData.js: yeni (QA Portfolyo), baştan tam bilingual yazıldı.
+  // /portfolio bir TopicPage ders sayfası değildir — TRIO_COMPLETE_PAGES'e EKLENMEZ.
+  'portfolioData.js',
 ])
 
 // `why`/`note` (java-compare): JavaCompareBlock EN modda `${key}_en` kardeşini

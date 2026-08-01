@@ -295,6 +295,13 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://learnqa.dev/portfolio</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/portfolio" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/portfolio" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://learnqa.dev/leaderboard</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/leaderboard" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/leaderboard" />
@@ -599,6 +606,13 @@
     <loc>https://learnqa.dev/en/sprint</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/sprint" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/sprint" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/en/portfolio</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/portfolio" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/portfolio" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

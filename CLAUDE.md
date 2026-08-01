@@ -121,6 +121,7 @@ Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 - `/advanced-algorithms` — İleri seviye algoritmalar
 - `/qa-mentor` — QA Mentor: kariyer yol haritası sihirbazı, ilerleme % takibi, sertifika
 - `/sprint` — QA Sprint Simulator: Kanban panosu + bug görevleri (Analiz → Test Case → Otomasyon → CI → Merge). Ders sayfası DEĞİL; içerik `src/data/sprintsData.js`, görevler Phase 1 `mission` primitifini kullanır (bkz. `Documents/sprint-simulator-and-open-items-plan.md`)
+- `/portfolio` — QA Portfolyo: çözülen görevleri, kapatılan sprint bug'larını, ustalık skorlarını ve rozetleri tek sayfada toplayan AGGREGATOR (üretmez, toplar). Kendi ilerleme state'i TUTMAZ — her render'da mevcut depolardan türetilir (`src/lib/portfolioSnapshot.js`); tek istisna kullanıcının kendi yazdığı ad/unvan. Metinler `src/data/portfolioData.js`'te
 - `/leaderboard` — XP/streak liderlik tablosu (public, `get_leaderboard` RPC)
 - `/verify-certificate/:id` — Sertifika doğrulama (public, dinamik route — sitemap'e eklenmez, bkz. `seo.js` `dynamic: true`)
 - `/qa-assistant` — AI QA asistanı (`<ProtectedRoute>`, sadece üye)

@@ -41,6 +41,7 @@ const ROUTES = [
     '/qa-frontend',   // "§1" sızıntısının çıktığı sayfa — regresyon bekçisi
     '/gauge',         // gerçek sızıntının çıktığı sayfa — regresyon bekçisi
     '/sprint',
+    '/portfolio',     // metinleri portfolioData.js'te toplanan aggregator sayfa
     '/qa-mentor',
     '/manual-testing',
 ];

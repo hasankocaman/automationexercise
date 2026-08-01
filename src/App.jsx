@@ -53,6 +53,7 @@ const QaAssistantPage = lazy(() => import('./components/QaAssistantPage'))
 const ClaudeAiPage = lazy(() => import('./components/ClaudeAiPage'))
 const LlmAgentsPage = lazy(() => import('./components/LlmAgentsPage'))
 const SprintPage = lazy(() => import('./components/SprintPage'))
+const PortfolioPage = lazy(() => import('./components/PortfolioPage'))
 
 function RouteFallback() {
     return (
@@ -114,6 +115,7 @@ function App() {
                     <Route path="/advanced-algorithms" element={<AdvancedAlgorithmsPage />} />
                     <Route path="/qa-mentor" element={<QAMentorPage />} />
                     <Route path="/sprint" element={<SprintPage />} />
+                    <Route path="/portfolio" element={<PortfolioPage />} />
                     <Route path="/backend" element={<RequireAdmin><BackendPage /></RequireAdmin>} />
                     <Route path="/basit-backend" element={<BasitBackendPage />} />
                     <Route path="/leaderboard" element={<LeaderboardPage />} />
