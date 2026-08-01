@@ -3593,3 +3593,188 @@ GET https://api.example.com/data
     ],
   },
 }
+
+// 🎯 CHALLENGE-FIRST GÖREV (Documents/seo-phase-2-plan.md §7.2, S2) — "Writing
+// Automated Tests" sekmesine (aksiyon sekmesi: sayfanın zaten test SCRIPT'i
+// yazmayı öğrettiği yer). MEVCUT prediction/code-playground bloklarını gömer,
+// yeni sandbox yazılmaz. Çift-ağaçlı dosya: TEK bilingual sabit, İKİ ağaca da
+// AYNI referansla push edilir (CLAUDE.md §23.4).
+const postmanChainedRequestMission = {
+  type: 'mission',
+  id: 'postman-chained-request-mission',
+  xpReward: 40,
+  relatedTopicId: 'postman-test-automation',
+  persona: { tr: 'QA Engineer · Sprint 5', en: 'QA Engineer · Sprint 5' },
+  scenario: {
+    tr: 'Login endpoint\'i bir token döndürüyor ve sonraki istekler (örn. "Siparişlerimi Getir") bu token\'ı Authorization header\'ında bekliyor. Bugün, login\'in sonucunu otomatik doğrulayan ve token\'ı bir sonraki isteğe TAŞIYAN bir Postman test script\'i yazacaksın.',
+    en: 'The login endpoint returns a token, and subsequent requests (e.g. "Get My Orders") expect that token in the Authorization header. Today you will write a Postman test script that automatically verifies the login result and CARRIES the token into the next request.',
+  },
+  steps: [
+    {
+      id: 'postman-chain-why-assert',
+      brief: { tr: '1) Status code assertion\'ı olmayan bir login isteğinde neyin yanlış gidebileceğini tahmin et.', en: '1) Predict what can go wrong in a login request without a status code assertion.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Postman, bir isteği "gönderildi" diye YEŞİL göstermez — sadece cevap GELDİ diye gösterir. 401 (yetkisiz) veya 500 (sunucu hatası) dönen bir login de "başarıyla" cevaplanmış sayılır, ÇÜNKÜ bir HTTP cevabı geldi. Test SEKMESİNE `pm.test()` yazmadan Postman senin için HİÇBİR ŞEYİ doğrulamaz.',
+        en: 'Postman does not show GREEN because a request "was sent" — only because a response ARRIVED. A login that returns 401 (unauthorized) or 500 (server error) still counts as "answered", BECAUSE an HTTP response came back. Without writing `pm.test()` in the Tests tab, Postman verifies NOTHING for you.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'postman-chain-why-assert-choice',
+        xpReward: 10,
+        relatedTopicId: 'postman-test-automation',
+        prompt: { tr: 'Login isteğinde hiç `pm.test()` yok, sadece "Send" tıklanıyor. API 401 dönerse Postman ekranında ne görürsün?', en: 'The login request has no `pm.test()` at all, you just click "Send". If the API returns 401, what do you see in Postman?' },
+        code: {
+          tr: '// Tests sekmesi BOŞ\n// API: 401 Unauthorized dönüyor',
+          en: '// Tests tab is EMPTY\n// API: returns 401 Unauthorized',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'Postman otomatik olarak isteği kırmızı/FAIL olarak işaretler', en: 'Postman automatically marks the request as red/FAIL' }, why: { tr: 'Postman HTTP durum kodunu göstermeye devam eder ama assertion YAZMADIĞIN sürece bunu bir "test sonucu"na çevirmez.', en: 'Postman keeps showing the HTTP status code, but it does not turn that into a "test result" unless you WRITE an assertion.' } },
+          { id: 'b', label: { tr: 'Koleksiyon çalıştırıcısı bu isteği otomatik olarak atlar', en: 'The collection runner automatically skips this request' }, why: { tr: 'İstek yine de gönderilir ve cevap alınır — sadece PASS/FAIL etiketi eksik kalır, istek atlanmaz.', en: 'The request is still sent and a response is received — only the PASS/FAIL label is missing, the request is not skipped.' } },
+          { id: 'c', label: { tr: 'Sadece "401 Unauthorized" durum kodu görünür, hiçbir test PASS/FAIL göstermez', en: 'You just see the "401 Unauthorized" status, no test shows PASS/FAIL at all' }, correct: true },
+        ],
+        reveal: {
+          tr: 'Doğru: Postman durum kodunu gösterir ama bunu bir "test"e çevirmek SENİN işindir. `pm.test()` yazılmadığı sürece 401 dönen bir istek, koleksiyon çalıştırıcısında SESSİZCE geçer — CI\'da bunu fark etmek için AÇIK bir assertion şarttır.',
+          en: 'Correct: Postman shows the status code, but turning it into a "test" is YOUR job. Without `pm.test()`, a request returning 401 passes SILENTLY in the collection runner — an EXPLICIT assertion is required to catch this in CI.',
+        },
+      },
+    },
+    {
+      id: 'postman-chain-status-test',
+      brief: { tr: '2) Login isteğine 200 bekleyen bir `pm.test()` yaz.', en: '2) Write a `pm.test()` on the login request that expects 200.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`pm.test("isim", () => { ... })` bir test bloğu tanımlar; içindeki `pm.response.to.have.status(200)` cevabın durum kodunu KONTROL EDER. Bu kod bir isteğin "Tests" sekmesine yazılır ve istek her çalıştığında OTOMATİK tetiklenir.',
+        en: '`pm.test("name", () => { ... })` defines a test block; inside it, `pm.response.to.have.status(200)` CHECKS the response\'s status code. This code is written in a request\'s "Tests" tab and is triggered AUTOMATICALLY every time the request runs.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'postman-chain-status-test-code',
+        relatedTopicId: 'postman-test-automation',
+        language: 'javascript',
+        label: { tr: 'Login için status assertion\'ı yaz', en: 'Write the status assertion for login' },
+        task: { tr: 'TODO satırını, 200 durum kodunu doğrulayan `pm.test()` ile tamamla.', en: 'Complete the TODO line with a `pm.test()` that verifies the 200 status code.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç Postman `pm.test()` kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the Postman `pm.test()` pattern yourself.' },
+        code: {
+          tr: `pm.test("Login basarili donuyor", () => {\n    pm.response.to.have.status(200);\n});`,
+          en: `pm.test("Login returns success", () => {\n    pm.response.to.have.status(200);\n});`,
+        },
+        starterCode: {
+          tr: `// TODO: 200 durum kodunu dogrulayan bir pm.test() yaz`,
+          en: `// TODO: write a pm.test() that verifies the 200 status code`,
+        },
+        solutionCode: {
+          tr: `pm.test("Login basarili donuyor", () => {\n    pm.response.to.have.status(200);\n});`,
+          en: `pm.test("Login returns success", () => {\n    pm.response.to.have.status(200);\n});`,
+        },
+        expected: { tr: 'Login 200 dışında bir kod dönerse artık koleksiyon çalıştırıcısında AÇIKÇA kırmızı görünür.', en: 'If login returns anything other than 200, it now shows EXPLICITLY red in the collection runner.' },
+        hints: [
+          { tr: '`pm.test("isim", () => { ... })` bir test bloğunun genel kalıbıdır.', en: '`pm.test("name", () => { ... })` is the general pattern for a test block.' },
+          { tr: 'Durum kodu kontrolü için `pm.response.to.have.status(200)` kullan.', en: 'Use `pm.response.to.have.status(200)` to check the status code.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'postman-chain-extract-token',
+      brief: { tr: '3) Login cevabından token\'ı alıp bir environment değişkenine yaz.', en: '3) Extract the token from the login response and save it into an environment variable.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`pm.response.json()` cevap gövdesini JS nesnesine çevirir. `pm.environment.set("token", ...)`, bu değeri o environment\'a ait bir DEĞİŞKENE yazar — Java\'da bir metottan dönen değeri bir değişkene atamak gibi. Sonraki istekler bu değişkeni `{{token}}` yazarak OKUYABİLİR.',
+        en: '`pm.response.json()` parses the response body into a JS object. `pm.environment.set("token", ...)` writes that value into a VARIABLE belonging to that environment — like assigning a method\'s return value to a variable in Java. Later requests can READ this variable by writing `{{token}}`.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'postman-chain-extract-token-code',
+        relatedTopicId: 'postman-test-automation',
+        language: 'javascript',
+        label: { tr: 'Token\'ı environment değişkenine çıkar', en: 'Extract the token into an environment variable' },
+        task: { tr: 'TODO satırını, cevaptaki `token` alanını `authToken` environment değişkenine yazan kodla tamamla.', en: 'Complete the TODO line with code that saves the response\'s `token` field into the `authToken` environment variable.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç cevaptan değer çıkarıp environment\'a yazma kalıbını kendin pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce extracting a value from the response and writing it to the environment yourself.' },
+        code: {
+          tr: `const body = pm.response.json();\npm.environment.set("authToken", body.token);`,
+          en: `const body = pm.response.json();\npm.environment.set("authToken", body.token);`,
+        },
+        starterCode: {
+          tr: `const body = pm.response.json();\n// TODO: body.token'i "authToken" environment degiskenine yaz`,
+          en: `const body = pm.response.json();\n// TODO: save body.token into the "authToken" environment variable`,
+        },
+        solutionCode: {
+          tr: `const body = pm.response.json();\npm.environment.set("authToken", body.token);`,
+          en: `const body = pm.response.json();\npm.environment.set("authToken", body.token);`,
+        },
+        expected: { tr: 'authToken artık login\'den GERÇEK zamanlı gelen token değerini taşıyor.', en: 'authToken now carries the token value that came in REAL time from login.' },
+        hints: [
+          { tr: '`pm.environment.set(isim, deger)` iki parametre alır.', en: '`pm.environment.set(name, value)` takes two parameters.' },
+          { tr: 'JSON gövdesindeki alana `body.token` ile erişilir.', en: 'The field in the JSON body is accessed with `body.token`.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'postman-chain-hardcode-risk',
+      brief: { tr: '4) Token\'ı dinamik çıkarmak yerine elle yapıştırırsan ne olacağını tahmin et.', en: '4) Predict what happens if you paste the token by hand instead of extracting it dynamically.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'JWT gibi token\'lar genelde KISA SÜRELİ geçerlidir (dakikalar/saatler). Elle yapıştırılan bir token, bir süre sonra SÜRESİ DOLAR — test o zamana kadar geçer, sonra 401 ile SESSİZCE (görünüşte "ortam sorunu" gibi) kırılmaya başlar. Dinamik çıkarım bu bakım yükünü tamamen ORTADAN KALDIRIR.',
+        en: 'Tokens like JWTs are usually SHORT-LIVED (minutes/hours). A hand-pasted token EXPIRES after a while — the test passes until then, then starts breaking with 401, SILENTLY (looking like an "environment issue"). Dynamic extraction ELIMINATES this maintenance burden entirely.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'postman-chain-hardcode-risk-choice',
+        xpReward: 10,
+        relatedTopicId: 'postman-test-automation',
+        prompt: { tr: '`authToken` değişkenine dinamik çıkarım yerine elle bugünkü token\'ı yapıştırdın. Bir hafta sonra suite\'i tekrar çalıştırırsan ne olur?', en: 'You pasted today\'s token into `authToken` by hand instead of extracting it dynamically. What happens if you run the suite again a week later?' },
+        code: {
+          tr: '// authToken = "eyJhbGci...bugunku_token" (elle yapıştırıldı)\n// 1 hafta sonra aynı suite tekrar çalıştırılıyor',
+          en: '// authToken = "eyJhbGci...todays_token" (pasted by hand)\n// same suite runs again a week later',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'Hiçbir fark olmaz, token\'lar süresiz geçerlidir', en: 'No difference, tokens are valid forever' }, why: { tr: 'Çoğu auth sistemi (JWT dahil) token\'lara SÜRE sınırı koyar — "süresiz" varsayımı production\'da GEÇERSİZDİR.', en: 'Most auth systems (including JWT) put an EXPIRY on tokens — the "forever valid" assumption is INVALID in production.' } },
+          { id: 'b', label: { tr: 'Token süresi dolduğu için sonraki istekler 401 ile başarısız olur', en: 'Later requests fail with 401 because the token has expired' }, correct: true },
+          { id: 'c', label: { tr: 'Postman token\'ı otomatik olarak yeniler', en: 'Postman automatically refreshes the token' }, why: { tr: 'Postman token\'ların süresini TAKİP ETMEZ ve otomatik yenilemez — bu, dinamik çıkarımın çözdüğü TAM OLARAK bu sorundur.', en: 'Postman does not TRACK token expiry or auto-refresh it — this is EXACTLY the problem dynamic extraction solves.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: elle yapıştırılan token bir süre sonra geçersizleşir ve suite 401\'lerle kırılmaya başlar — hatanın kaynağı ilk bakışta "API bozuldu" gibi görünür ama aslında test verisi bayatlamıştır. 3. adımdaki dinamik `pm.environment.set(...)` her koşumda TAZE bir token ürettiği için bu sorunu YAPISAL olarak önler.',
+          en: 'Correct: the hand-pasted token becomes invalid after a while and the suite starts breaking with 401s — the error looks like "the API broke" at first glance, but the test data has actually gone stale. The dynamic `pm.environment.set(...)` from step 3 produces a FRESH token on every run, preventing this problem STRUCTURALLY.',
+        },
+      },
+    },
+    {
+      id: 'postman-chain-use-token',
+      brief: { tr: '5) Sonraki isteğin (Siparişlerimi Getir) `{{authToken}}`ı nasıl KULLANDIĞINI tahmin et.', en: '5) Predict how the next request (Get My Orders) USES `{{authToken}}`.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Postman\'da `{{degisken}}` sözdizimi, İSTEK GÖNDERİLMEDEN HEMEN ÖNCE o değişkenin GÜNCEL değeriyle değiştirilir. Yani "Siparişlerimi Getir" isteğinin Authorization header\'ına `Bearer {{authToken}}` yazarsan, her koşumda 3. adımda ÇIKARILAN en güncel token kullanılır — elle kopyala-yapıştıra hiç gerek kalmaz.',
+        en: 'In Postman, the `{{variable}}` syntax is replaced with that variable\'s CURRENT value RIGHT BEFORE the request is sent. So if you write `Bearer {{authToken}}` in the "Get My Orders" request\'s Authorization header, every run uses the freshest token EXTRACTED in step 3 — no manual copy-paste needed at all.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'postman-chain-use-token-choice',
+        xpReward: 10,
+        relatedTopicId: 'postman-test-automation',
+        prompt: { tr: '"Siparişlerimi Getir" isteğinin Authorization header\'ı `Bearer {{authToken}}` olarak yazılmış. Bu istek koleksiyon çalıştırıcısında login\'den HEMEN SONRA çalıştırılırsa ne olur?', en: 'The "Get My Orders" request\'s Authorization header is written as `Bearer {{authToken}}`. What happens when this request runs RIGHT AFTER login in the collection runner?' },
+        code: '// Login -> pm.environment.set("authToken", body.token)\n// Get My Orders -> Header: Authorization: Bearer {{authToken}}',
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: '`{{authToken}}`, login adımında YENİ ÇIKARILAN token ile değiştirilip istek yetkilendirilir', en: '`{{authToken}}` is replaced with the token JUST EXTRACTED in the login step, and the request is authorized' }, correct: true },
+          { id: 'b', label: { tr: '`{{authToken}}` literal metin olarak gönderilir, sunucu bunu anlamaz', en: '`{{authToken}}` is sent as literal text, the server does not understand it' }, why: { tr: 'Postman isteği GÖNDERMEDEN önce `{{...}}` değişkenlerini ÇÖZER — literal metin olarak gitmez.', en: 'Postman RESOLVES `{{...}}` variables before SENDING the request — it does not go out as literal text.' } },
+          { id: 'c', label: { tr: 'İki istek arasında elle "Run" a tekrar basman gerekir', en: 'You need to manually click "Run" again between the two requests' }, why: { tr: 'Koleksiyon çalıştırıcısı istekleri SIRAYLA otomatik çalıştırır — elle araya girmen gerekmez.', en: 'The collection runner executes requests in ORDER automatically — you do not need to intervene manually.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: bu, tüm görevin asıl kazancıdır — login isteği token\'ı ÇIKARIP environment\'a yazdığı için, sonraki her istek `{{authToken}}` yazarak o değeri OTOMATİK kullanır. Zincir kırılmaz çünkü değişken PAYLAŞILAN environment üzerinden akar, elle taşınmaz.',
+          en: 'Correct: this is the real payoff of the whole mission — because the login request EXTRACTS the token and writes it to the environment, every later request AUTOMATICALLY uses that value by writing `{{authToken}}`. The chain does not break because the variable flows through the SHARED environment, not manual copy-paste.',
+        },
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Bu 5 adım gerçek bir zincirlenmiş API testinin iskeletidir: assertion olmadan neyin kaçırıldığını gör → status assertion yaz → cevaptan token çıkarıp environment\'a yaz → elle yapıştırmanın bayatlama riskini gör → `{{degisken}}` ile zinciri kur. Bu kalıp; login → sipariş oluştur → sipariş doğrula gibi çok adımlı HER API akışına genelleşir.',
+    en: 'These 5 steps are the skeleton of a real chained API test: see what an assertion catches that its absence misses → write the status assertion → extract the token from the response into the environment → see the staleness risk of hand-pasting → build the chain with `{{variable}}`. This pattern generalizes to EVERY multi-step API flow like login → create order → verify order.',
+  },
+}
+
+postmanData.en.sections[3].blocks.push(postmanChainedRequestMission)
+postmanData.tr.sections[3].blocks.push(postmanChainedRequestMission)
