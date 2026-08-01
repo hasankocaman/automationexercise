@@ -37,6 +37,8 @@ const neuroLabels = {
         activeRecallLocked: '🔒 İçerik Kilitli: Lütfen yukarıdaki Aktif Hatırlama sorusunu yanıtlayın.',
         interleavedPracticeTitle: '🔀 Zihinsel Vites Değiştirici (Interleaved Mode)',
         interleavedPracticeDesc: 'Konuları doğrusal değil, beyni vites değiştirmeye zorlayan karışık sırayla çalışın.',
+        advancedPanelTitle: '⚙️ İleri Seviye Seçenekler',
+        advancedPanelDesc: 'Öğrenmeyi hızlandıran bu modları istersen buradan açabilirsin. Dersi bir kez bitirince bu seçenekler hızlı erişim için sayfanın en üstüne taşınır.',
     },
     en: {
         neuroModeToggle: '🧠 Neuro-Optimization Mode',
@@ -65,6 +67,8 @@ const neuroLabels = {
         activeRecallLocked: '🔒 Content Locked: Please complete the Active Recall challenge above.',
         interleavedPracticeTitle: '🔀 Mental Gear Shifter (Interleaved Mode)',
         interleavedPracticeDesc: 'Study topics in a mixed order that forces the brain to switch tasks and context.',
+        advancedPanelTitle: '⚙️ Advanced Options',
+        advancedPanelDesc: 'Turn on these speed-learning modes here if you like. Once you finish the lesson, they move to the top of the page for quick access.',
     }
 }
 
@@ -1359,6 +1363,32 @@ function AlgorithmsPage() {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
 
+    // İleri seviye mod düğmeleri (kullanıcı kararı, 2026-08-01): sayfaya ilk
+    // defa giren biri (henüz dersin tamamını bitirmemiş) için bu düğmeler
+    // dikkat dağıtmasın diye sayfanın EN ALTINA taşınır. Dersi bir kez
+    // bitirmiş (tüm bölümler tamamlanmış) kullanıcı için düğmeler üstteki
+    // eski yerinde kalır — artık ne yaptığını biliyor, hızlı erişim ister.
+    const hasFinishedLessonsBefore = data.lessons.length > 0 && completedLessonCount === data.lessons.length
+    const modeControlButtons = (
+        <div className="flex flex-wrap gap-3" data-testid="algorithms-mode-controls">
+            <Link to="/advanced-algorithms" className="inline-flex min-h-11 items-center rounded-lg border border-cyan-400/40 bg-cyan-500/10 px-4 text-sm font-black text-cyan-200 shadow-lg shadow-cyan-500/10 transition hover:scale-105 hover:bg-cyan-500/20">
+                {data.hero.advancedLabel}
+            </Link>
+            <button
+                onClick={() => setNeuroMode(!neuroMode)}
+                className={`min-h-11 rounded-lg px-4 text-sm font-black transition duration-200 shadow-lg hover:scale-105 ${neuroMode ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-600/25 animate-pulse' : 'bg-slate-700 hover:bg-slate-600 text-white shadow-slate-700/20'}`}
+            >
+                {nLabels.neuroModeToggle} {neuroMode ? '✓' : ''}
+            </button>
+            <button
+                onClick={() => setIsInterleaved(!isInterleaved)}
+                className={`min-h-11 rounded-lg px-4 text-sm font-black transition duration-200 shadow-lg hover:scale-105 ${isInterleaved ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-white shadow-cyan-600/25' : 'bg-slate-700 hover:bg-slate-600 text-white shadow-slate-700/20'}`}
+            >
+                {nLabels.interleavedPracticeTitle} {isInterleaved ? '✓' : ''}
+            </button>
+        </div>
+    )
+
     return (
         <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark-mode bg-slate-950 text-slate-100' : 'bg-gradient-to-br from-emerald-50 via-white to-cyan-50 text-slate-900'}`}>
             <ScrollProgressBar />
@@ -1374,23 +1404,9 @@ function AlgorithmsPage() {
                             <h1 className={`mt-4 text-3xl font-black leading-tight md:text-5xl ${darkMode ? 'text-white' : 'text-slate-950'}`}>{data.hero.title}</h1>
                             <p className={`mt-4 max-w-3xl text-base leading-relaxed md:text-lg ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{data.hero.subtitle}</p>
                             <p className={`mt-3 max-w-3xl text-sm leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>{data.hero.intro}</p>
-                            <div className="mt-5 flex flex-wrap gap-3">
-                                <Link to="/advanced-algorithms" className="inline-flex min-h-11 items-center rounded-lg border border-cyan-400/40 bg-cyan-500/10 px-4 text-sm font-black text-cyan-200 shadow-lg shadow-cyan-500/10 transition hover:scale-105 hover:bg-cyan-500/20">
-                                    {data.hero.advancedLabel}
-                                </Link>
-                                <button 
-                                    onClick={() => setNeuroMode(!neuroMode)} 
-                                    className={`min-h-11 rounded-lg px-4 text-sm font-black transition duration-200 shadow-lg hover:scale-105 ${neuroMode ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-600/25 animate-pulse' : 'bg-slate-700 hover:bg-slate-600 text-white shadow-slate-700/20'}`}
-                                >
-                                    {nLabels.neuroModeToggle} {neuroMode ? '✓' : ''}
-                                </button>
-                                <button 
-                                    onClick={() => setIsInterleaved(!isInterleaved)} 
-                                    className={`min-h-11 rounded-lg px-4 text-sm font-black transition duration-200 shadow-lg hover:scale-105 ${isInterleaved ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-white shadow-cyan-600/25' : 'bg-slate-700 hover:bg-slate-600 text-white shadow-slate-700/20'}`}
-                                >
-                                    {nLabels.interleavedPracticeTitle} {isInterleaved ? '✓' : ''}
-                                </button>
-                            </div>
+                            {hasFinishedLessonsBefore && (
+                                <div className="mt-5">{modeControlButtons}</div>
+                            )}
                         </div>
                         <div className={`rounded-lg border p-4 ${darkMode ? 'border-slate-700 bg-slate-950' : 'border-slate-200 bg-slate-50'}`}>
                             <div className="grid gap-3 md:grid-cols-[1fr_32px_1fr_32px_1fr]">
@@ -1493,6 +1509,16 @@ function AlgorithmsPage() {
                             total={data.lessons.length}
                             lessonTitle={data.hero.title}
                         />
+
+                        {/* İleri seviye mod düğmeleri — sayfaya ilk defa giren biri için
+                            (dersi henüz bitirmemiş) sayfanın EN ALTINDA, dikkat dağıtmadan. */}
+                        {!hasFinishedLessonsBefore && (
+                            <section className={`rounded-lg border p-4 md:p-6 ${darkMode ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
+                                <h2 className={`text-lg font-black ${darkMode ? 'text-white' : 'text-slate-950'}`}>{nLabels.advancedPanelTitle}</h2>
+                                <p className={`mt-2 text-sm leading-relaxed ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{nLabels.advancedPanelDesc}</p>
+                                <div className="mt-4">{modeControlButtons}</div>
+                            </section>
+                        )}
                     </div>
                 </div>
             </main>
