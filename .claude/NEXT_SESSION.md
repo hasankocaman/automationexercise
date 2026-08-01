@@ -20,7 +20,31 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — SEO Faz 2 TAMAMLANDI: S1-S4 + E2E doğrulaması)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — `feature/portfolio-builder` `feature/seo-phase-2`'ye merge edildi)
+
+- **`origin/feature/portfolio-builder` fetch edilip `feature/seo-phase-2`'ye
+  merge edildi** (commit `c06c21e`). O branch `main`'den yalnızca 2 commit
+  ileride idi (`Documents/portfolio-builder-plan.md` planı + iç koordinasyon
+  dili sızıntısını engelleyen yeni bir kural: `CLAUDE.md` §24, yeni
+  `check-content-integrity.mjs` Kontrol [H], yeni `tests/no-internal-jargon.spec.ts`,
+  ayrıca `cypressData/gaugeData/javaData/javascriptData/qaFrontendData.js`'te
+  küçük içerik düzeltmeleri). Tek çakışma `CLAUDE.md`'de aynı satıra iki ayrı
+  dalın birer kural eklemesiydi — ikisi de korunarak çözüldü, içerik kaybı
+  yok. `src/data/javaData.js` otomatik (çakışmasız) birleşti.
+  - Bundan sonra geliştirme **`feature/seo-phase-2` branch'inden** devam
+    ediyor — iki dalın da işleri artık burada bir arada. Ayrı
+    `feature/portfolio-builder` branch'i (local + origin) hâlâ duruyor,
+    silinmedi.
+  - Merge sonrası `check-content-integrity` ✓, `npm run build` ✓ (88 shell,
+    dist-SEO temiz), tam E2E suite ✓ — **253/253 test yeşil** (yeni
+    `no-internal-jargon.spec.ts`'in 8 testi dahil, 12 dk).
+  - **`feature/seo-phase-2` artık hem SEO Faz 2 (O1-O8 + S1-S4) hem Portfolio
+    Builder planı + iç-koordinasyon-dili kuralını içeriyor, `main`'e merge
+    kararı kullanıcıda.**
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Sonnet — SEO Faz 2 TAMAMLANDI: S1-S4 + E2E doğrulaması)
 
 - **✅ Kapsamlı son E2E testi TAMAMLANDI, TAM SUITE YEŞİL: 245/245 ✅**
   (commit `b7e04f8`): tam suite (40 spec dosyası) 2 kez koşuldu — ilk koşuda
