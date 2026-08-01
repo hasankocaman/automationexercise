@@ -2,6 +2,8 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { LOCALES, ROUTE_SEO, alternatesFor, canonicalUrl, localizedPath, seoFor } from '../src/utils/seo.js'
+import { INTERVIEW_SHOWCASE } from '../src/data/generated/interviewShowcase.js'
+import { interviewWarmupData } from '../src/data/interviewWarmupData.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
@@ -418,7 +420,7 @@ function fallbackContent(seo, content, locale) {
     // sayfalara, EN shell /en/... sayfalarına link verir. Karışık linkleme,
     // crawler'ın dil kümelerini birbirine bağlamasına yol açar.
     const links = ROUTE_SEO
-        .filter((item) => item.path !== seo.path && !item.dynamic)
+        .filter((item) => item.path !== seo.path && !item.dynamic && !item.noindex)
         .map((item) => {
             const label = seoFor(item, locale).title.replace(' | LearnQA.dev', '')
             return `          <li><a href="${escapeHtml(localizedPath(item.path, locale))}">${escapeHtml(label)}</a></li>`
@@ -434,11 +436,28 @@ ${content.topics.map((topic) => `          <li><strong>${escapeHtml(textValue(to
         </section>`
         : ''
 
+    // Mülakat ısınma bölümü YALNIZCA ana sayfada. Bu metin gate'siz ve
+    // görünürdür; ana sayfanın FAQPage şeması BİREBİR bu metinden üretilir
+    // (şema ile ekranda yazan şey ayrışmasın diye — bkz. DEPLOY.md §9.3).
+    const warmup = seo.path === '/' && INTERVIEW_SHOWCASE.length
+        ? `<section>
+        <h2>${escapeHtml(textValue(interviewWarmupData.heading, locale))}</h2>
+        <p>${escapeHtml(textValue(interviewWarmupData.intro, locale))}</p>
+        <p><strong>${escapeHtml(textValue(interviewWarmupData.purposeTitle, locale))}</strong> ${escapeHtml(textValue(interviewWarmupData.purposeBody, locale))}</p>
+${INTERVIEW_SHOWCASE.map((item) => `        <article>
+          <h3>${escapeHtml(textValue(item.q, locale))}</h3>
+          <p>${escapeHtml(textValue(item.a, locale))}</p>
+          <p><a href="${escapeHtml(localizedPath(item.route, locale))}">${escapeHtml(interviewWarmupData.routeLabels[item.route] || item.route)}</a></p>
+        </article>`).join('\n')}
+        </section>`
+        : ''
+
     return `<main data-seo-fallback="true" style="font-family: Inter, Arial, sans-serif; max-width: 960px; margin: 0 auto; padding: 32px 20px; line-height: 1.6;">
         <h1>${escapeHtml(textValue(content?.title, locale) || seo.title.replace(' | LearnQA.dev', ''))}</h1>
         <p>${escapeHtml(seo.description)}</p>
         ${contentIntro}
         ${topicList}
+        ${warmup}
         <nav aria-label="${escapeHtml(ui.navLabel)}">
         <h2>${escapeHtml(ui.topicNav)}</h2>
         <ul>
@@ -501,26 +520,35 @@ function structuredDataFor(seo, url, locale) {
         })
     }
 
-    // ⚠ FAQPage ŞEMASI BİLEREK ÜRETİLMİYOR — geri eklemeden önce oku.
+    // FAQPage: YALNIZCA ana sayfada ve YALNIZCA orada GÖRÜNÜR olan sorulardan.
     //
-    // Şema mülakat sorularından otomatik üretiliyordu. Ölçüldüğünde (2026-08-01)
-    // şemada 10 soru vardı ama bu soruların HİÇBİRİ sayfanın görünür gövdesinde
-    // yoktu: statik shell'de yalnızca JSON-LD içinde duruyorlardı, uygulamada ise
-    // mülakat sekmesi %60 quiz barajının ARKASINDA (bu gating bir ürün kararıdır,
-    // Documents/acceptancecriterias.md AC 04). Yani crawler'ın gördüğü içerikle
-    // kullanıcının gördüğü içerik ayrışıyordu.
+    // Geçmişi önemli: şema önce her ders sayfasında mülakat sorularından
+    // üretiliyordu, ama o sorular sayfanın görünür gövdesinde YOKTU (yalnızca
+    // JSON-LD içindeydiler) ve uygulamada %60 quiz barajının arkasındaydılar.
+    // Arama motoru politikası soru/cevabın kullanıcıya GÖRÜNÜR olmasını şart
+    // koştuğu için şema tamamen kaldırılmıştı. Ana sayfaya eklenen gate'siz
+    // ısınma bölümüyle koşul artık gerçekten sağlanıyor: aşağıdaki metnin
+    // AYNISI yukarıda `fallbackContent`'te görünür olarak basılıyor ve
+    // uygulamada `InterviewWarmup` bileşeni olarak render ediliyor.
     //
-    // Google'ın FAQPage politikası, soru ve cevabın tam metninin sayfada
-    // kullanıcıya GÖRÜNÜR olmasını şart koşar. Ayrıca FAQ zengin sonuçları
-    // 2023'ten beri yalnızca resmî kurum/sağlık siteleri için gösteriliyor —
-    // yani bu şema bize görünür bir kazanç sağlamazken politika riski taşıyordu.
-    // Riski almanın karşılığı yoktu; şema kaldırıldı. `Course` etkilenmedi.
-    //
-    // Geri eklemek istersen ÖNCE şu iki koşulu birden sağla:
-    //   1) Şemaya giren soru/cevap metni sayfada gate'siz GÖRÜNÜR olmalı,
-    //   2) Bu görünürlük AC 04'teki %60 gating kuralıyla çelişmemeli
-    //      (ör. gate'in ÖNÜNDE, herkese açık ayrı bir SSS bölümü).
-    // `tests/seo-phase2-coverage.spec.ts` şemanın sessizce geri gelmesini engeller.
+    // KURAL: bu şemaya, sayfada görünmeyen tek bir soru bile eklenemez.
+    // `tests/seo-phase2-coverage.spec.ts` her FAQPage sorusunun aynı sayfanın
+    // görünür gövdesinde bulunduğunu doğrular.
+    if (seo.path === '/' && INTERVIEW_SHOWCASE.length >= 3) {
+        graph.push({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            inLanguage: locale,
+            mainEntity: INTERVIEW_SHOWCASE.map((item) => ({
+                '@type': 'Question',
+                name: textValue(item.q, locale),
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: textValue(item.a, locale),
+                },
+            })),
+        })
+    }
 
     return JSON.stringify(graph, null, 2).replaceAll('</script', '<\\/script')
 }

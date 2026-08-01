@@ -20,7 +20,41 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — yayın öncesi 2 SEO riski kapatıldı)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — ana sayfada Mülakat Isınma Turu + FAQPage geri kazanıldı)
+
+- **Aktif branch: `feature/seo-phase-2`.** Kullanıcının fikri uygulandı: mülakat
+  soruları %60 barajının arkasında olduğu için FAQPage şeması kaldırılmıştı;
+  şimdi **ana sayfada herkese açık, gate'siz bir "Mülakat Isınma Turu"** var ve
+  şema oradan üretiliyor. Gating kuralına (AC 04) DOKUNULMADI — ders sonundaki
+  AI değerlendirmeli mülakat pratiği aynen barajın arkasında.
+- **Yeni dosyalar:** `scripts/generate-interview-showcase.mjs` (build-time
+  örnekleyici), `src/data/generated/interviewShowcase.js` (üretilen),
+  `src/data/interviewWarmupData.js` (bölümün metinleri, STRICT_ZERO),
+  `src/components/InterviewWarmup.jsx`, `tests/interview-warmup.spec.ts` (6 test).
+- **Neden build-time:** sorular 12 ayrı ders dosyasında ve o dosyalar 300 KB-1 MB.
+  Ana sayfanın onları runtime import etmesi ilk boyayı yıkardı (S1'de tam tersi
+  yapılmıştı). Script Node'da okuyup yalnızca seçilenleri küçük bir dosyaya yazar.
+- **Seçim deterministik:** rastgelelik yok — her build aynı çıktı. 12 sayfadan
+  1'er soru, seviye rotasyonuyla (**4 basic / 4 intermediate / 4 advanced**).
+  TR/EN eşlemesi indeksle yapılır; iki ağacın soru sayısı tutmuyorsa o sayfa
+  ATLANIR (uydurma eşleme yerine sessizce dışarıda bırakmak — §23.4 dersi).
+  8 sorunun altına düşerse script build'i kırar.
+- **Şema kuralı kalıcılaştı:** FAQPage yalnızca ana sayfada olabilir VE şemadaki
+  her sorunun aynı sayfanın GÖRÜNÜR gövdesinde bulunması zorunlu.
+  `check-dist-seo.mjs` şemayı PARSE edip bunu doğrular (hard-fail).
+  - **🐛 Kontrolün ilk hâli yanlış yöndeydi:** kaynak listeyi geziyordu, şemayı
+    değil — şemaya elle görünmeyen bir soru eklense KAÇIRIRDI. Sonda testiyle
+    yakalandı ve yön düzeltildi (artık şemanın kendisi geziliyor). E2E bekçisi
+    zaten doğru yöndeydi.
+- **Doğrulama:** build ✓ (80 sitemap URL, 90 shell, **2 sayfada FAQPage —
+  görünür içerikle doğrulandı**, 68 Course, 10 noindex shell) ·
+  content-integrity ✓ · i18n baseline 0 ✓ · `interview-warmup` 6/6 ·
+  `seo-phase2-coverage` 16/16 · görünürlük bekçisinin dişi doğrulandı
+  (şemaya görünmeyen soru enjekte edildi → hem build kontrolü hem E2E kırıldı).
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus — yayın öncesi 2 SEO riski kapatıldı)
 
 - **Aktif branch: `feature/seo-phase-2`.** `DEPLOY.md` §9'daki yayın kapısı
   rehberi yazılırken ölçülen **iki açık bulgu düzeltildi**. İkisi de "geri

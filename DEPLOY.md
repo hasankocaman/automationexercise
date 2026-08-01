@@ -379,37 +379,37 @@ curl -s localhost:4173/sitemap.xml | grep "verify-certificate"   # ÇIKTI OLMAMA
 site, zengin sonuç ayrıcalığını kaybeder; ağır durumlarda "Structured data
 manual action" alır ve düzeltme + yeniden değerlendirme talebi haftalar sürer.
 
-**C1 — ✅ FAQPage şeması (ÇÖZÜLDÜ — regresyon kontrolü olarak kalır):**
+**C1 — ✅ FAQPage şeması (ÇÖZÜLDÜ — artık ana sayfada, görünür içerikle):**
 
 ```bash
-grep -rl '"@type": "FAQPage"' dist/ | head    # ÇIKTI OLMAMALI
+# Şema yalnızca ana sayfada olmalı, ders sayfalarında OLMAMALI
+grep -rl '"@type": "FAQPage"' dist/ | sort        # yalnızca dist/index.html ve dist/en/index.html
+
+# Şemadaki her sorunun sayfada GÖRÜNÜR olduğunu doğrula (build zinciri de yapar)
+node scripts/check-dist-seo.mjs | grep FAQPage
 ```
 
-**Geçmiş bulgu ve çözümü (2026-08-01):** Şema, mülakat sorularından otomatik
-üretiliyordu. Ölçüldüğünde şemada 10 soru vardı ama **hiçbiri** sayfanın
-görünür gövdesinde yoktu:
+**Geçmiş bulgu (2026-08-01):** Şema, ders sayfalarında mülakat sorularından
+üretiliyordu. Ölçüldüğünde şemada 10 soru vardı ama **hiçbiri** sayfanın görünür
+gövdesinde yoktu: statik shell'de yalnızca JSON-LD içindeydiler, uygulamada ise
+%60 quiz barajının arkasındaydılar (`Documents/acceptancecriterias.md` AC 04).
+Crawler'ın gördüğüyle kullanıcının gördüğü ayrışıyordu; Google'ın FAQPage
+politikası soru ve cevabın kullanıcıya GÖRÜNÜR olmasını şart koşar.
 
-1. Statik shell'de soru metni yalnızca JSON-LD içindeydi, görünür gövdede yoktu.
-2. Uygulamada mülakat soruları %60 quiz barajının ARKASINDAYDI (bu gating bir
-   ürün kararıdır — `Documents/acceptancecriterias.md` AC 04).
+**Uygulanan çözüm (iki aşama):**
 
-Yani crawler'ın gördüğü içerikle kullanıcının gördüğü içerik ayrışıyordu.
-Google'ın FAQPage politikası, soru ve cevabın tam metninin sayfada kullanıcıya
-GÖRÜNÜR olmasını şart koşar.
+1. Şema önce tamamen kaldırıldı (risk kapatıldı).
+2. Ardından ana sayfaya **herkese açık, gate'siz "Mülakat Isınma Turu"** bölümü
+   eklendi: 12 konudan karışık 12 gerçek mülakat sorusu, soru her zaman görünür,
+   cevap açılır-kapanır. Şema artık YALNIZCA bu görünür metinden üretiliyor —
+   yani şemadaki her cümle ekranda da yazıyor. Gating kuralına dokunulmadı;
+   ders sonundaki mülakat pratiği (AI değerlendirmeli) aynen barajın arkasında.
 
-**Uygulanan çözüm: şema kaldırıldı.** Gerekçe iki katmanlı: (a) politika riski
-gerçekti, (b) FAQ zengin sonuçları 2023'ten beri yalnızca resmî kurum/sağlık
-siteleri için gösteriliyor — yani şema bize görünür bir kazanç sağlamıyordu.
-Riski almanın karşılığı yoktu. `Course` şeması etkilenmedi (68 sayfa).
-
-**Geri eklemek istersen ÖNCE iki koşulu birden sağla:**
-
-1. Şemaya giren soru/cevap metni sayfada **gate'siz görünür** olmalı.
-2. Bu görünürlük AC 04'teki %60 gating kuralıyla çelişmemeli — pratikte bu,
-   gate'in ÖNÜNDE, herkese açık ayrı bir SSS bölümü demektir.
-
-`check-dist-seo.mjs` ve `tests/seo-phase2-coverage.spec.ts` şemanın görünürlük
-sorunu çözülmeden sessizce geri gelmesini hard-fail ile engeller.
+**Kalıcı kural:** Şemaya, sayfada görünmeyen tek bir soru bile eklenemez.
+`check-dist-seo.mjs` şemayı PARSE edip her sorunun görünür gövdede bulunduğunu
+doğrular ve build'i kırar; `tests/seo-phase2-coverage.spec.ts` aynı kuralı E2E
+tarafında, `tests/interview-warmup.spec.ts` de bölümün gate'siz kaldığını
+tarayıcıda denetler.
 
 **C2 — Resmî doğrulayıcıdan geçir:**
 
@@ -565,7 +565,7 @@ anlatımı görmelisin; yalnızca "Loading…" görüyorsan shell üretimi bozuk
 | A1-A8 dil-ayrık URL | otomatik testler yeşil, gözle teyit gerekir | ✅ Evet — bir tıklamada bile `/en` düşüyorsa durdur |
 | B1, B3 sitemap sayısı/dinamik route | otomatik test kapsıyor | — |
 | B2 korumalı/işlevsel route'lar sitemap'te | ✅ **çözüldü** (noindex + sitemap filtresi + robots meta) | — regresyon testi bekliyor |
-| C1 FAQ içeriği kullanıcıya görünmüyor | ✅ **çözüldü** (şema kaldırıldı) | — regresyon testi bekliyor |
+| C1 FAQ içeriği kullanıcıya görünmüyor | ✅ **çözüldü** (ana sayfada görünür ısınma bölümü + şema oradan) | — regresyon testi bekliyor |
 | C2 Rich Results Test | elle yapılır | ✅ Evet — hata varsa düzelt |
 | D1 mükerrer başlık denetimi yok | açık (şu an mükerrer YOK, eksik olan otomatik bekçi) | 🟡 Hayır ama yayın öncesi bir kez elle koş |
 | D2 SERP görünümü | elle yapılır | 🟡 Hayır — ama sonradan değiştirmek CTR geçmişini sıfırlar |

@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { search as searchContent } from '../utils/searchIndex'
 import { readMentorProfile, getLocalCompletedRoutes } from '../utils/careerMapProfile'
 import ZoomControls from './ZoomControls'
+import InterviewWarmup from './InterviewWarmup'
 import AccountMenu from './AccountMenu'
 import BasicElements from './BasicElements'
 import ComplexInteractions from './ComplexInteractions'
@@ -757,6 +758,12 @@ function HomePage() {
                     </div>
                 </Link>
             </div>
+
+            {/* ── Mülakat Isınma Turu — herkese açık, gate'siz soru-cevap ──
+                Ders sayfalarındaki mülakat sekmesi %60 quiz barajının arkasında;
+                burası o içeriğin gate'siz, GÖRÜNÜR karşılığı. Ana sayfanın
+                FAQPage şeması yalnızca bu görünür metinden üretilir. ── */}
+            <InterviewWarmup darkMode={darkMode} />
 
             {/* ── "Bugün" şeridi (Learning OS Faz 1, plan §5-F3) — günlük hedef + streak + Devam et ── */}
             <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">

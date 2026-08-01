@@ -89,7 +89,7 @@ Görev büyükse (birden fazla dosya/blok), tek seferde hepsini bitirmeye çalı
 
 Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 
-- `/` — Home / automation playground
+- `/` — Home / automation playground. Ayrıca **Mülakat Isınma Turu**: 12 konudan karışık, herkese açık (gate'siz) gerçek mülakat soruları — ders sayfalarındaki mülakat sekmesi %60 quiz barajının arkasında olduğu için yapılandırılmış veriye giren metin orada kullanıcıya görünmüyordu. Sorular build sırasında ders verisinden türetilir (`scripts/generate-interview-showcase.mjs`), ana sayfanın FAQPage şeması YALNIZCA bu görünür metinden üretilir. Şemaya görünmeyen soru eklenmesi build'i kırar
 - `/selenium` — Selenium WebDriver
 - `/playwright` — Playwright
 - `/cypress` — Cypress E2E testing

@@ -114,27 +114,58 @@ test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
 test.describe('SEO Faz 2 — zengin sonuç şeması (O6)', () => {
     const COURSE_ROUTE = '/selenium';
 
-    // ⚠ FAQPage BİLEREK üretilmiyor. Şema mülakat sorularından türetiliyordu ama
-    // o soruların hiçbiri sayfanın görünür gövdesinde yoktu (yalnızca JSON-LD
-    // içindeydi) ve uygulamada %60 quiz barajının arkasındaydı. Google'ın FAQPage
-    // politikası içeriğin kullanıcıya GÖRÜNÜR olmasını şart koşar; ayrıca FAQ
-    // zengin sonuçları artık yalnızca resmî kurum/sağlık siteleri için gösteriliyor
-    // — yani risk vardı, karşılığında kazanç yoktu. Bu test şemanın görünürlük
-    // sorunu çözülmeden sessizce geri gelmesini engeller (bkz. DEPLOY.md §9.3).
-    test('FAQPage şeması ÜRETİLMİYOR — görünür içerik olmadan geri gelmemeli', async () => {
-        const offenders: string[] = [];
+    // FAQPage kuralı: şemaya giren HER soru, AYNI sayfanın GÖRÜNÜR gövdesinde
+    // bulunmalıdır. Bu yalnızca bir stil tercihi değil — arama motoru politikası
+    // soru/cevabın kullanıcıya görünür olmasını şart koşar.
+    //
+    // Geçmiş: şema önce her ders sayfasında mülakat sorularından üretiliyordu ama
+    // o sorular sayfada HİÇ görünmüyordu (yalnızca JSON-LD içindeydiler) ve
+    // uygulamada %60 quiz barajının arkasındaydılar. Şema kaldırıldı; ana sayfaya
+    // gate'siz "Mülakat Isınma Turu" bölümü eklenince koşul gerçekten sağlandı.
+    // Bu test, şemanın yeniden görünmeyen içeriğe kaymasını engeller.
+
+    // generate-static-routes.mjs'teki escapeHtml ile aynı dönüşüm — görünür gövde
+    // escape edilmiş, şema ham metin taşıyor.
+    const escapeHtml = (v: string) => String(v)
+        .replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+        .replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+
+    test('FAQPage yalnızca ana sayfada var ve her sorusu sayfada GÖRÜNÜR', async () => {
+        let homepageFaqCount = 0;
+
         for (const entry of ALL_SHELL_ROUTES) {
             for (const locale of LOCALES) {
                 const html = await readShell(entry.path, locale);
-                if (html.includes('"@type": "FAQPage"')) {
-                    offenders.push(localizedPath(entry.path, locale));
+                const faq = parseJsonLd(html).find((b) => b['@type'] === 'FAQPage');
+                if (!faq) continue;
+
+                expect(
+                    entry.path,
+                    `FAQPage yalnızca ana sayfada olabilir — ${localizedPath(entry.path, locale)} üzerinde bulundu`,
+                ).toBe('/');
+
+                const visibleBody = html.replace(/<script[\s\S]*?<\/script>/g, '');
+                expect(faq.mainEntity.length, 'FAQPage boş soru listesiyle üretilmiş').toBeGreaterThanOrEqual(3);
+
+                for (const q of faq.mainEntity) {
+                    expect(q['@type']).toBe('Question');
+                    expect(String(q.acceptedAnswer?.text ?? '').length, 'FAQ cevabı boş').toBeGreaterThan(0);
+                    expect(
+                        visibleBody.includes(escapeHtml(q.name)),
+                        `FAQ sorusu sayfanın görünür gövdesinde YOK (${localizedPath(entry.path, locale)}): "${String(q.name).slice(0, 60)}..."`,
+                    ).toBe(true);
                 }
+
+                // Dil doğruluğu: EN şemada Türkçeye özgü karakter olmamalı.
+                if (locale === 'en') {
+                    expect(JSON.stringify(faq), 'EN FAQPage şemasında Türkçe sızıntısı').not.toMatch(/[ığşçöüİĞŞÇÖÜ]/);
+                }
+                homepageFaqCount += 1;
             }
         }
-        expect(
-            offenders,
-            `FAQPage şeması geri gelmiş: ${offenders.join(', ')}. Geri eklemeden önce soru/cevap metni sayfada gate'siz görünür olmalı.`,
-        ).toHaveLength(0);
+
+        // Her iki dilde de üretilmiş olmalı — biri sessizce düşerse yakalanır.
+        expect(homepageFaqCount, 'ana sayfada FAQPage şeması iki dilde de bulunmalı').toBe(LOCALES.length);
     });
 
     test('Course şeması geçerli ve ders sayfasında üretiliyor', async () => {
