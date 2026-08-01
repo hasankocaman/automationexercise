@@ -448,6 +448,7 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Sekmenin gerçek içeriğiyle bağı olmayan, konudan kopuk bir film uydurmak — her film o sekmedeki kod/simulation'ın anlattığı mekanizmayı görselleştirmelidir (Bölüm 9.5).
 - ❌ Framework Mimarisi sekmelerinde "Büyük Resim Mindmap"i tek bir devasa ASCII `code` bloğunda anlatmak — Bölüm 9.6'daki beş görünüme (Ana Akış / Kurulum Akışı / Paralel Çalışma / Veri Paylaşım Kapsamı / Kim Ne Yapar) bölünmeli, hazır `python-flow-diagram`/`grid` bileşenleri kullanılmalıdır.
 - ❌ Bölüm 1.1'deki 4 maddelik doğruluk checklist'ini çalıştırmadan "tamamladım", "hazır", "bitti" demek.
+- ❌ Ders içeriğine, arayüz metnine veya kullanıcıya verdiğin cevaba iç koordinasyon dili yazmak — plan dosyası adı (`CLAUDE.md`, `NEXT_SESSION.md`, `Documents/*-plan.md`), `§` bölüm numarası, faz/görev kodu (`S3 promptu`, `Faz 1 Opus tarafı`) kullanıcının okumadığı belgelere atıftır (Bölüm 24). Kuralın KENDİSİNİ anlat, kaynağını değil. Kod yorumları muaftır. `check-content-integrity.mjs` Kontrol [H] + `tests/no-internal-jargon.spec.ts` bunu denetler.
 - ❌ Bir dilin KENDİ sözdizimini Türkçeleştirmek — Gherkin'in `Scenario/Given/When/Then/And`'i, SQL'in `SELECT/JOIN`'i gibi anahtar kelimelerdir ve TR sayfada da İngilizce kalır; Türkçeleşen sadece adım/açıklama METNİDİR (Bölüm 8, §23.9). `check-content-integrity.mjs` Kontrol [G] bunu hard-fail eder.
 
 ---
@@ -817,3 +818,62 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
   altları çizilirdi. Sadece `gherkin` ve `cucumber` terimleri eklendi.
 
 ---
+
+## 24. KESİN KURAL — İç Koordinasyon Dili Kullanıcıya SIZMAZ
+
+> Bu bölüm hem **kullanıcıya yazdığın mesajlar** hem de **uygulamanın içeriği**
+> için bağlayıcıdır. Esnek değildir.
+
+Bu proje birden fazla AI aracıyla (Claude Code, Antigravity, Windsurf, Trae)
+geliştiriliyor ve bu araçlar birbirlerine plan dosyaları, `§` bölüm numaraları
+ve görev kodları üzerinden referans veriyor. **Bu dil modellerin kendi
+aralarındaki koordinasyon dilidir — kullanıcının dili değildir.**
+
+Kullanıcı `CLAUDE.md`'yi, `NEXT_SESSION.md`'yi veya `Documents/` altındaki plan
+dosyalarını okumak zorunda değildir ve çoğu zaman okumaz. Bu dosyalara yapılan
+bir atıf kullanıcı için **doğrulanamayan bir kaynağa atıftır** — anlatımı
+anlaşılmaz kılar ve güveni zedeler.
+
+### 24.1. Yasak olan (her iki bağlamda da)
+
+- Plan dosyası adları/yolları: `CLAUDE.md`, `NEXT_SESSION.md`, `AGENTS.md`,
+  `codexSeo.md`, `Documents/*-plan.md`
+- Plan bölüm numaraları: `§9.1`, `§23.4`, "planın §6'sı", "Bölüm 17 gereği"
+- Faz/dalga/görev kodları: `Faz 1 Opus tarafı`, `S3 promptu`, `O1`, `Dalga 2`,
+  `P1-S4`
+- Model/araç görev dağılımı: "bunu Sonnet yapacak", "Opus çekirdeği", "Sonnet
+  içeriği ekler"
+- Prompt mühendisliği jargonu: `paste-ready`, "prompt şablonu", "geçit"
+
+### 24.2. Nerede geçerli
+
+| Bağlam | Kural |
+|--------|-------|
+| **Ders içeriği** (`src/data/*Data.js`, konu anlatımı, quiz, mülakat cevabı, film caption'ı, ipucu) | ❌ Asla. Bir kuralı anlatman gerekiyorsa kuralın KENDİSİNİ anlat, kaynağını değil: "CLAUDE.md'deki şu kural" DEĞİL, "her test bağımsız çalışabilmeli". |
+| **Arayüz metni** (buton, başlık, boş durum, tooltip, hata mesajı) | ❌ Asla. |
+| **Kullanıcıya verdiğin cevap/rapor** (sohbet mesajları) | ❌ Asla. Ne yaptığını sonuç diliyle anlat: "planın §3.1'indeki türetme util'ini yazdım" DEĞİL, "ilerleme verisini toplayan yardımcıyı yazdım". |
+| **Kod yorumları** (`.jsx`/`.js` içindeki `//` ve `/* */`) | ✅ Serbest. Bunlar geliştirici dokümantasyonudur, kullanıcı görmez — mevcut yorumlardaki referanslar temizlenmez, yeni yorumlarda da kullanılabilir. |
+| **Plan/kural `.md` dosyalarının kendisi** | ✅ Serbest. Zaten model-arası koordinasyon içindir. |
+
+### 24.3. Tek istisna — konu olarak anlatılan AI araçları
+
+`/claude-ai` ve `/llm-agents` sayfaları Claude Code'u ve ajan yapılandırma
+dosyası kavramını **ders konusu** olarak anlatır. Orada "Claude Code",
+"CLAUDE.md" gerçek bir ürün özelliğinin adıdır, iç koordinasyon jargonu
+değildir — muaftır. **Muafiyet pattern bazındadır, dosya bazında topyekûn
+değil:** bu sayfalarda da plan bölüm numarası (`§9.1`) veya görev kodu (`S3`)
+yazılamaz.
+
+### 24.4. Otomatik denetim (iki katman)
+
+1. **`scripts/check-content-integrity.mjs` Kontrol [H]** — veri modülünü import
+   edip TÜM string değerlerini gezer. Build + pre-commit'te **hard-fail**.
+   Kod yorumlarını doğal olarak kapsam dışı bırakır (import edilmiş nesnede
+   yorum yoktur).
+2. **`tests/no-internal-jargon.spec.ts`** — gerçek tarayıcıda render edilen
+   metni tarar. Statik denetimin göremediği yerleri yakalar: bileşen içine
+   hardcode edilmiş JSX metni, `*Data.js` dışındaki içerik kaynakları
+   (`termGlossary.js` gibi), runtime'da birleştirilen dizeler.
+
+Hiçbir otomatik kontrol **kullanıcıya yazdığın mesajları** denetleyemez —
+§24.2'nin üçüncü satırı yalnızca bu kurala uymanla sağlanır.

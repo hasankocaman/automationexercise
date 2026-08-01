@@ -9368,7 +9368,7 @@ public class ZapSecurityTest {
 // mvn test -pl integration   → her PR (5 dakika)
 // mvn test -pl e2e           → gece build (45 dakika)
 
-// PR standartları — CLAUDE.md veya CONTRIBUTING.md
+// PR standartları — CONTRIBUTING.md
 // ✅ Her yeni özellik: en az 1 unit + 1 integration test
 // ✅ Bug fix: test önce yazılır (TDD), sonra fix
 // ✅ Code review: test coverage %80 altına düşürme
@@ -9401,7 +9401,7 @@ public class ZapSecurityTest {
 // mvn test -pl integration   → every PR (5 minutes)
 // mvn test -pl e2e           → nightly build (45 minutes)
 
-// PR standards — CLAUDE.md or CONTRIBUTING.md
+// PR standards — CONTRIBUTING.md
 // ✅ Every new feature: at least 1 unit + 1 integration test
 // ✅ Bug fix: test written first (TDD), then fix
 // ✅ Code review: do not drop test coverage below 80%

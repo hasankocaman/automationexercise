@@ -4451,8 +4451,8 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
           ],
           correct: 'b',
           explanation: {
-            tr: 'Sayfanın §1\'deki temel hedeflerinden biri "ortak dil"dir: "BugCard içindeki StatusBadge, isOpen state\'i true olmadığı için Modal DOM\'da yok" demek, "çalışmıyor" demekten çok daha hızlı bir çözüme götürür — bu, kaynağı OKUYABİLMEKLE birlikte bunu ANLATABİLMEYİ de gerektirir.',
-            en: 'One of the page\'s core goals in §1 is a "common language": saying "the StatusBadge inside BugCard — the Modal is not in the DOM because isOpen is not true" leads to a solution much faster than saying "it does not work" — this requires being able to EXPLAIN the source, not just read it.',
+            tr: 'Bu sayfanın giriş bölümündeki temel hedeflerden biri "ortak dil"dir: "BugCard içindeki StatusBadge, isOpen state\'i true olmadığı için Modal DOM\'da yok" demek, "çalışmıyor" demekten çok daha hızlı bir çözüme götürür — bu, kaynağı OKUYABİLMEKLE birlikte bunu ANLATABİLMEYİ de gerektirir.',
+            en: 'One of this page\'s core goals, stated in its introduction, is a "common language": saying "the StatusBadge inside BugCard — the Modal is not in the DOM because isOpen is not true" leads to a solution much faster than saying "it does not work" — this requires being able to EXPLAIN the source, not just read it.',
           },
         },
       },
@@ -5180,8 +5180,8 @@ function BugCard({ bug }) {                 // prop = bug data (~ method paramet
           ],
           correct: 'b',
           explanation: {
-            tr: 'Sayfanın §1\'deki temel hedeflerinden biri budur: "hangi component", "hangi teknik neden", "hangi somut çözüm" ile konuşmak, developer\'ın kendi başına teşhis koymak için harcayacağı zamanı SIFIRLAR — bu, ortak dil konuşmanın pratik faydasıdır.',
-            en: 'This is one of the page\'s core goals in §1: speaking with "which component", "which technical reason", "which concrete solution" ZEROES OUT the time the developer would spend diagnosing it themselves — this is the practical benefit of speaking a common language.',
+            tr: 'Bu sayfanın giriş bölümündeki temel hedeflerden biri budur: "hangi component", "hangi teknik neden", "hangi somut çözüm" ile konuşmak, developer\'ın kendi başına teşhis koymak için harcayacağı zamanı SIFIRLAR — bu, ortak dil konuşmanın pratik faydasıdır.',
+            en: 'This is one of this page\'s core goals, stated in its introduction: speaking with "which component", "which technical reason", "which concrete solution" ZEROES OUT the time the developer would spend diagnosing it themselves — this is the practical benefit of speaking a common language.',
           },
         },
       },

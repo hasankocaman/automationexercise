@@ -1199,7 +1199,7 @@ const cypressSearchMission = {
           { id: 'c', label: { tr: 'Hiç assertion yazmadan devam et', en: 'Continue without writing an assertion' }, why: { tr: 'Sonuçlar geç gelse bile test kontrol etmediği için PASS verir — sessiz yanlış PASS.', en: 'Even if the results are late the test passes because it never checks — a silent false PASS.' } },
         ],
         reveal: {
-          tr: '.should() doğru: Cypress\'in retry-able assertion\'ları zaten koşul gerçekleşene kadar otomatik tekrar dener (varsayılan 4sn timeout). Ayrıca bir cy.wait(sayı) eklemek hem gereksiz hem de yanlış bir sabit süre varsayımı ekler — CLAUDE.md ekosisteminde bu "flaky testin en sık kök nedeni" olarak bilinir.',
+          tr: '.should() doğru: Cypress\'in retry-able assertion\'ları zaten koşul gerçekleşene kadar otomatik tekrar dener (varsayılan 4sn timeout). Ayrıca bir cy.wait(sayı) eklemek hem gereksiz hem de yanlış bir sabit süre varsayımı ekler — sabit süre beklemek, flaky testin en sık kök nedenidir.',
           en: '.should() is correct: Cypress\'s retry-able assertions already auto-retry until the condition is true (4s default timeout). Adding a cy.wait(number) on top is both unnecessary and introduces a wrong fixed-duration assumption — this is known as the most common root cause of flaky tests.',
         },
       },
@@ -3968,7 +3968,7 @@ const s11 = {
       },
       {
         type: 'text',
-        content: 'Cypress, test yapısı için Mocha\'nın describe/context/it arayüzünü kullanır. describe() ve context() birebir aynıdır, sadece okunabilirlik için ikisi de vardır. Her it() (veya specify()) bağımsız bir test senaryosudur — CLAUDE.md\'deki "her test bağımsız çalışabilmeli" kuralı Cypress\'in resmi dokümantasyonunda da birebir aynı cümleyle geçer.',
+        content: 'Cypress, test yapısı için Mocha\'nın describe/context/it arayüzünü kullanır. describe() ve context() birebir aynıdır, sadece okunabilirlik için ikisi de vardır. Her it() (veya specify()) bağımsız bir test senaryosudur — Cypress\'in resmi dokümantasyonu da "her test bağımsız çalışabilmeli" kuralını aynı cümleyle vurgular.',
       },
       {
         type: 'code', label: 'describe / it / 4 Hook',
