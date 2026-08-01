@@ -1,5 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import { seleniumData } from '../src/data/seleniumData.js';
+import { stubPlausible, recordedEvents } from './helpers/analytics';
 
 // Challenge-First görev zinciri (Documents/challenge-first-experience-plan.md
 // §3, Phase 1) — `mission` blok tipinin GERÇEK TARAYICIDA render + etkileşim
@@ -89,6 +90,9 @@ test.describe('Challenge-first görev zinciri (mission) — /selenium referans g
 
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
+        // Analytics olayı (`mission_completed`) bu akışın SONUNDA doğrulanır —
+        // görev zincirini ikinci bir testte tekrar oynatmamak için buraya bağlandı.
+        await stubPlausible(page);
         await gotoSeleniumTab(page, tabIndex);
 
         const missionRoot = page.locator(`[data-testid="mission-block"][data-mission-id="${missionBlockData.id}"]`);
@@ -133,6 +137,12 @@ test.describe('Challenge-first görev zinciri (mission) — /selenium referans g
         });
         expect(xpState?.completed, 'mission id XP completed listesine yazılmalı').toContain(missionBlockData.id);
         expect(xpState?.xp, 'görev tamamlanınca XP artmalı').toBeGreaterThan(0);
+
+        // S3 — `mission_completed` ölçüm olayı gerçekten gidiyor mu?
+        const events = await recordedEvents(page);
+        const completedEvent = events.find((e) => e.name === 'mission_completed');
+        expect(completedEvent, `mission_completed gönderilmedi (olaylar: ${JSON.stringify(events)})`).toBeTruthy();
+        expect(completedEvent!.props.missionId).toBe(missionBlockData.id);
 
         await context.close();
     });

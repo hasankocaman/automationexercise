@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { beginnerAlgorithmsData } from '../src/data/beginnerAlgorithmsData.js';
 import { whatIsTestingData } from '../src/data/whatIsTestingData.js';
 import { manualTestingData } from '../src/data/manualTestingData.js';
+import { stubPlausible, recordedEvents } from './helpers/analytics';
 import { algorithmsData } from '../src/data/algorithmsData.js';
 
 // Ders bitirme rozeti (ürün kararı 2026-07-19): başlangıç derslerinde kullanıcı
@@ -22,6 +23,9 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
         await page.addInitScript(() => {
             window.localStorage.setItem('algorithms_neuro_mode', 'false');
         });
+        // Analytics olayı (`lesson_completed`) bu akışın SONUNDA doğrulanır — bir
+        // dersi baştan bitiren ikinci bir test yazmamak için buraya bağlandı (S3).
+        await stubPlausible(page);
         await page.goto('/algorithms');
         await page.waitForSelector('h1', { timeout: 60_000 });
 
@@ -51,6 +55,13 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
         // Anonim kariyer haritası kaydı: route learnqa_completed_routes'a düşmüş olmalı.
         const routes = await page.evaluate(() => JSON.parse(localStorage.getItem('learnqa_completed_routes') || '[]'));
         expect(routes).toContain('/algorithms');
+
+        // S3 — `lesson_completed` ölçüm olayı gerçekten gidiyor mu? (Üyelik
+        // gerektirmez: olay anonim kullanıcıda da tetiklenir, bkz. AuthContext.)
+        const events = await recordedEvents(page);
+        const lessonEvent = events.find((e) => e.name === 'lesson_completed');
+        expect(lessonEvent, `lesson_completed gönderilmedi (olaylar: ${JSON.stringify(events)})`).toBeTruthy();
+        expect(lessonEvent!.props.route).toBe('/algorithms');
     });
 
     // Kullanıcı isteği (2026-08-01): ileri seviye mod düğmeleri (Advanced

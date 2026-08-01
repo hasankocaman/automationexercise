@@ -1,5 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import { sprintsData } from '../src/data/sprintsData.js';
+import { stubPlausible, recordedEvents } from './helpers/analytics';
 
 // QA Sprint Simulator (Documents/sprint-simulator-and-open-items-plan.md, Faz 1)
 // — /sprint sayfasının GERÇEK TARAYICIDA uçtan uca akış testi (O8).
@@ -140,6 +141,9 @@ test.describe('QA Sprint Simulator — /sprint', () => {
         test.setTimeout(180_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
+        // Analytics olayı (`sprint_closed`) bu akışın SONUNDA doğrulanır — sprint'i
+        // ikinci bir testte baştan kapatmamak için buraya bağlandı (S3).
+        await stubPlausible(page);
         await gotoSprint(page);
 
         // Sprint kapatma düğmesi, bug'lar bitmeden GÖRÜNMEMELİ.
@@ -184,6 +188,13 @@ test.describe('QA Sprint Simulator — /sprint', () => {
                 .toHaveAttribute('data-bug-status', 'done');
         }
         await expect(page.getByTestId('sprint-retro')).toBeVisible();
+
+        // S3 — `sprint_closed` ölçüm olayı gerçekten gidiyor mu? (Sayfa yenilendiği
+        // için kayıtlar sessionStorage'da tutuluyor, navigasyonu atlatır.)
+        const events = await recordedEvents(page);
+        const closedEvent = events.find((e) => e.name === 'sprint_closed');
+        expect(closedEvent, `sprint_closed gönderilmedi (olaylar: ${JSON.stringify(events)})`).toBeTruthy();
+        expect(closedEvent!.props.sprintId).toBe(sprint.id);
 
         await context.close();
     });

@@ -20,7 +20,65 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — test kapsamı denetimi: 3 boşluk + 1 gerçek test bug'ı)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — SEO Faz 2'nin test edilmeyen 5 maddesi E2E'ye alındı)
+
+- **Aktif branch: `feature/seo-phase-2`.** `Documents/seo-phase-2-plan.md`'deki 12
+  maddenin her biri için "otomasyona dahil mi, test ediliyor mu" denetimi
+  yapıldı. **7 madde zaten kapsamdaydı, 5'i değildi — hepsi kapatıldı.**
+- **Denetim sonucu (öncesi):** O1/O3/O5/O7/S4 build zincirinde hard-fail
+  ediyordu, O2/O8 E2E'deydi. Kapsam DIŞINDA olanlar: **O4 sitemap** (üretiliyor
+  ama üretilen dosyayı okuyan hiçbir kontrol yoktu), **O6 JSON-LD** (yalnızca
+  SAYILIP yazdırılıyordu, sıfıra düşse build yeşil kalırdı), **S3 analytics**
+  (hiç test yoktu), **S1 kod bölme** (yalnızca yükleme göstergesi bekleniyordu,
+  asıl iddia ölçülmüyordu; `/java` hiç kapsanmıyordu), **S2 mission yayılımı**
+  (sayılıyor + şema denetleniyor ama "gerçekten çözülebiliyor mu" test
+  edilmiyordu).
+- **Yeni: `tests/seo-phase2-coverage.spec.ts` (13 test).** Build ÇIKTISINI
+  doğrular (`dist/`; iki CI workflow'u da E2E'den önce build alıyor):
+  - **O4:** sitemap URL sayısı = route × dil, mükerrer `<loc>` yok, her girdide
+    `hreflang` çifti, her route'un iki dilli URL'i gerçekten listede,
+    `robots.txt` sitemap'e işaret ediyor ve site geneli `Disallow: /` yok,
+    yayınlanan `/sitemap.xml` tarayıcıdan da erişilebiliyor.
+  - **O6:** JSON-LD blokları GERÇEKTEN parse ediliyor (bozuk JSON patlar),
+    `FAQPage.mainEntity` boş değil, her `Question` soru+cevap taşıyor, TR
+    shell'de Türkçe / EN shell'de Türkçe karakter YOK, `Course` şeması var ve
+    **site geneli alt eşik** (≥40 FAQPage, ≥50 Course) — üretim çökerse kırılır.
+  - **S1:** `JavaPage`/`TypeScriptPage`/`SQLPage` chunk'ları veri chunk'ını
+    STATİK değil DİNAMİK import ediyor (build artefaktından doğrulanır) +
+    üç sayfada da başlık ağır veri beklenmeden boyanıyor (`/java` ilk kez kapsamda).
+  - **Dişi doğrulandı:** dist'teki bir `<url>` silindi → sitemap testi KIRILDI;
+    `"FAQPage"` bozuldu → şema testi KIRILDI; dinamik import silindi → kod
+    bölme testi KIRILDI. Üçü de geri alındı.
+- **Yeni: `tests/analytics-events.spec.ts` (3 test) + `tests/helpers/analytics.ts`.**
+  - **🐛 Test yazarken bulunan tuzak:** gerçek `plausible.io/js/script.js`
+    yükleniyor ve `window.plausible`ı KENDİ fonksiyonuyla EZİYOR; o fonksiyon
+    localhost'ta bilinçli olarak hiçbir şey göndermiyor. Yani script
+    engellenmeden yazılan bir analytics testi, olay hiç tetiklenmese bile
+    sessizce "geçer" görünürdü. Yardımcı artık isteği `route.abort()` ile
+    engelliyor.
+  - Kapsanan: `language_changed` (SEO Faz 2'nin `/en` kullanımını ölçen kritik
+    olayı), Plausible yokken sayfanın kırılmaması (no-op güvenliği), olay
+    property'lerinde kişisel veri olmaması.
+  - Kalan 3 olay MEVCUT akışlara bağlandı (ağır akışı ikinci kez oynatmamak
+    için): `mission_completed` → `mission-flow` + `mission-spread`,
+    `sprint_closed` → `sprint-flow`, `lesson_completed` → `lesson-completion`.
+    **4 olayın 4'ü de artık test ediliyor.**
+- **Yeni: `tests/mission-spread.spec.ts` (12 test).** Yalnızca S2'nin 6 sayfası
+  değil, `mission` bloğu olan **TÜM 12 ders sayfasındaki 18 görevin TAMAMI**
+  uçtan uca oynatılıyor: adım kilidi sırayla açılıyor, tüm adımlar bitince
+  tamamlanma banner'ı + o sayfanın KENDİ XP havuzuna kayıt + beceri sinyali +
+  `mission_completed` olayı. Önceden yalnızca `/selenium`'un İLK görevi test
+  ediliyordu (18'de 1).
+  - **🐛 Yakalanan gerçek tuzak:** `pythonData`'da bir seçenek etiketi çift
+    tırnak içeriyor (`("KeyError: 'email'")`); regex tabanlı `getByRole` seçicisi
+    Playwright'ın iç seçici dizesinde ayrıştırma hatası veriyordu. Düz string
+    `hasText` eşleşmesine geçildi.
+- **Doğrulama:** yeni/etkilenen suite'ler tek tek PASS (13 + 3 + 12 + bağlanan
+  akışlar 13). Tam paket koşumu aşağıda.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus — test kapsamı denetimi: 3 boşluk + 1 gerçek test bug'ı)
 
 - **Aktif branch: `feature/seo-phase-2`.** Kural dosyaları (§10, §22, §22.1) ile
   mevcut test/denetim listeleri karşılaştırıldı. **Üç gerçek kapsam boşluğu ve
