@@ -20,7 +20,24 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — SEO Faz 2 TAMAMLANDI: S1-S4)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — SEO Faz 2 TAMAMLANDI: S1-S4 + E2E doğrulaması)
+
+- **✅ Kapsamlı son E2E testi TAMAMLANDI** (commit `b7e04f8`): tam suite
+  (~185 test, 40 spec dosyası) koşuldu, 2 gerçek regresyon + 1 flaky test
+  bulundu ve düzeltildi:
+  - `seo-i18n-routing.spec.ts`: S4'te `/docker` TR title'ı "Docker Eğitimi"
+    → "Docker Nedir?" olarak cilalandığı için eski pattern'i bekleyen test
+    kırılmıştı — test yeni başlığa göre güncellendi (kod tarafında hata yoktu,
+    test beklentisi eskiydi).
+  - `typescript-page.spec.ts` (flaky) + `sql-page.spec.ts` (proaktif, aynı
+    risk): S1'in stub+arka-plan-swap deseni (`TypeScriptPage.jsx`/`SQLPage.jsx`)
+    yüzünden test sekmelere tıklamaya gerçek veri yüklenmeden başlayabiliyordu
+    ("Kurulum" sekmesi bazen boş görünüyordu). `topic-content-loading`
+    göstergesinin kaybolmasını bekleyen bir adım eklendi.
+  - Düzeltme sonrası ilgili 3 test dosyası (8 test) tek tek yeşil, ardından
+    `check-content-integrity` + `npm run build` temiz geçti.
+  - **SEO Faz 2 (O1-O8 + S1-S4) artık tamamen doğrulanmış durumda. `main`'e
+    merge kararı kullanıcıda (CLAUDE.md §21).**
 
 - **Aktif branch: `feature/seo-phase-2`.** Opus'un O1-O8 çekirdeğinin ardından
   Sonnet'in S1-S4 görevlerinin TÜMÜ tamamlandı (`Documents/seo-phase-2-plan.md`).
