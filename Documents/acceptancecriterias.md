@@ -204,6 +204,50 @@ suite'e dahil edilmez.
 
 ---
 
+#### AC 13 — QA Portfolyo: Türetilmiş Kanıt Sayfası (`/portfolio`)
+
+**Kapsam:** `/portfolio` + `src/lib/portfolioSnapshot.js` +
+`src/data/portfolioData.js` (plan: `Documents/portfolio-builder-plan.md`).
+
+- **Local-first, üyelik ÖN KOŞUL DEĞİL** (CLAUDE.md §5 ile tutarlı). Üye
+  kullanıcı için ekstra bir şey yapmaz; anonim kullanıcıyla birebir aynı
+  deneyim sunar.
+- **Türet, tutma:** Portfolyo KENDİ ilerleme state'ini TUTMAZ; her render'da
+  mevcut depolardan yeniden hesaplanır. **Tek istisna:** kullanıcının kendi
+  yazdığı ad/unvan (`learnqa_portfolio_identity`) — ilerleme verisi değildir,
+  türetilecek bir kaynağı yoktur.
+- **Global tamamlanma taraması (kritik):** `xp.js` depolama anahtarını
+  bulunulan sayfanın URL'inden türettiği için `getCompletedExercises()` ve
+  onun üstüne kurulu `sprintStore` fonksiyonları `/portfolio` sayfasında hata
+  vermeden SESSİZCE boş döner. Portfolyo bu fonksiyonları ÇAĞIRMAZ; tüm
+  `learnqa_xp_*` anahtarlarını tarayarak global bir tamamlanma kümesi kurar.
+  Görevlerini gerçekten bitirmiş bir kullanıcının portfolyosu ASLA boş
+  görünmemelidir.
+- **Üç kademeli boş durum:** hiç kanıt yoksa bölümler HİÇ render edilmez, tek
+  bir davet ekranı gösterilir (`portfolio-empty`); kısmen veri varsa verisi
+  olmayan bölüm gizlenir ve yerine tek satırlık davetkâr bir ipucu
+  (`portfolio-hint-*`) çıkar; hiçbir yerde "0" bir başarısızlık olarak
+  gösterilmez ("veri yok" ile "sıfır" ayrımı korunur).
+- **Dayanıklılık:** Katalogda karşılığı olmayan bir görev id'si SESSİZCE
+  DÜŞÜRÜLMEZ — jenerik bir kartla görünür. Kullanıcının emeği hiçbir koşulda
+  kaybolmaz.
+- **Dürüstlük:** Portfolyo sahte kanıt üretmez. Verilerin yalnızca o
+  tarayıcıdaki yerel ilerlemeden üretildiği ve bunun bir sertifika olmadığı
+  notu sayfada VE Markdown çıktısında görünür olmalıdır
+  (`/verify-certificate` akışıyla karıştırılmamalıdır).
+- **Markdown dışa aktarım:** Dolu portfolyoda pano metni üretir; boş
+  portfolyoda düğme HİÇ görünmez.
+- **İki dil:** Çıplak URL Türkçe, `/en/portfolio` İngilizce; EN modda tek bir
+  Türkçeye özgü karakter dahi görünmemelidir (CLAUDE.md §23.1).
+
+**Test dosyası:** `tests/portfolio-page.spec.ts` (8 test) — boş/kısmi/dolu
+kademeler, global tarama regresyon bekçisi (route-kapsamı tuzağı), katalog
+dışı görev dayanıklılığı, kimlik kalıcılığı, Markdown çıktısı, EN dil
+taraması ve ana sayfa giriş kartı. `npm run test:e2e` kapsamındadır.
+Sayfanın console/page hata taraması `tests/other-pages-ui.spec.ts`'tedir.
+
+---
+
 ## ✅ Tamamlanan Geliştirmeler
 
 ### 1. Manual Testing Lab

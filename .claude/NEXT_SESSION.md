@@ -20,7 +20,55 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — Portfolio Builder çekirdeği `/portfolio` TAMAMLANDI)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — test kapsamı denetimi: 3 boşluk + 1 gerçek test bug'ı)
+
+- **Aktif branch: `feature/seo-phase-2`.** Kural dosyaları (§10, §22, §22.1) ile
+  mevcut test/denetim listeleri karşılaştırıldı. **Üç gerçek kapsam boşluğu ve
+  bir gerçek test hatası bulundu; hepsi kapatıldı.**
+- **🐛 GERÇEK TEST HATASI — `tests-extended/interview-mastery-flows.spec.ts`:**
+  Suite, eşiğin ALTINDA bir miktar quiz cevapladıktan sonra kilidi doğrulamak
+  için mülakat sekmesine tıklıyor, ama sekme takip değişkeni (`activeTab`) son
+  İÇERİK sekmesini göstermeye devam ediyordu. Sonraki döngü "sekme değişmediyse
+  tıklama" mantığı kullandığından, sıradaki quiz AYNI içerik sekmesindeyse
+  sayfaya geri DÖNÜLMÜYOR ve test mülakat sekmesinde var olmayan bir quiz
+  butonunu **sonsuza kadar bekliyordu**. Çoğu sayfada sıradaki quiz farklı bir
+  sekmede olduğu için hata yıllardır görünmemişti; `/qa-frontend` (48 quiz,
+  eşik 29 → son iki quiz aynı sekmede) eklenince ortaya çıktı.
+  - Teşhis: Playwright call log'unda "resolved to" satırı YOKTU → buton
+    aktörlük sorunu değil, DOM'da hiç yok. Sidebar indeks kayması ve metin
+    eşleşmesi hipotezleri ölçülerek ELENDİ (buton metni birebir eşleşiyor,
+    sidebar 10 sekmede 10 buton).
+  - Düzeltme: kilit kontrolünden sonra `activeTab = -1` (tek satır).
+    **Sonuç: 300 s'de takılan test 39 s'de geçiyor.** Test timeout'u da
+    120 s → 180 s yapıldı (29 quiz'lik sayfalar için pay).
+- **Kapatılan 3 kapsam boşluğu:**
+  1. `tests/topic-pages-ui.spec.ts` — `/api-testing` ve `/qa-frontend` TopicPage
+     tabanlı ders sayfası oldukları hâlde listede YOKTU (§22 kontrol 1 kapsam
+     dışıydı). Eklendi, **2/2 PASS**.
+  2. `tests-extended/interview-mastery-flows.spec.ts` — `/claude-ai`,
+     `/llm-agents`, `/qa-frontend`, `/api-testing` `interview-questions` bloğu
+     taşıdığı hâlde suite'te YOKTU (§22 kontrol 3 "TÜM sayfalar" demesine
+     rağmen). Dördü de eklendi, **4/4 PASS** (qa-frontend yukarıdaki düzeltmeyle).
+  3. `scripts/audit-interview-questions.mjs` — `/gauge` ve `/api-testing`
+     denetlenmiyordu (§10'un 50 soru kuralı onlar için hiç kontrol edilmemişti).
+     Eklendi; ikisi de zaten 50 soru + 15/20/15 dağılımıyla uyumlu çıktı,
+     build kırılmadı. **25 → 27 sayfa, 27/27 ✅.** Ayrıca başlıktaki sabit sayı
+     ("22 teknoloji sayfası") `PAGES.length`'ten türetilir yapıldı — sayfa
+     eklendikçe sessizce eskiyordu.
+- **Ek kapsam:** `/sprint` ve `/portfolio` `tests/other-pages-ui.spec.ts`'e
+  eklendi (kendi akış suite'leri vardı ama ikisi de console/page HATASI
+  taramıyordu). **10/10 PASS.**
+- **Belge senkronu:** `Documents/acceptancecriterias.md`'ye **AC 13 — QA
+  Portfolyo** eklendi (§22'nin "önce AC, sonra test maddesi" kuralı gereği;
+  portfolyo suite'i önceki oturumda AC karşılığı olmadan eklenmişti).
+- **Not (regresyon değil):** Art arda birden fazla mülakat akışı koşturulunca
+  `grade-interview-answer` geçici olarak 200 dönmeyebiliyor (Groq rate limit —
+  config'in `workers: 1` yorumunun uyardığı durum). `/docker` tek başına
+  koşturulunca **PASS**; suite'i sayfa sayfa koşturmak gerekebilir.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus — Portfolio Builder çekirdeği `/portfolio` TAMAMLANDI)
 
 - **Aktif branch: `feature/seo-phase-2`.** `Documents/portfolio-builder-plan.md`'deki
   Opus çekirdeği (O1-O7) uygulandı. `/portfolio` artık canlı bir sayfa.

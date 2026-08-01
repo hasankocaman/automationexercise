@@ -55,6 +55,13 @@ const PAGES: Array<{ route: string; dataVar: string; dataFile: string }> = [
     { route: '/python', dataVar: 'pythonData', dataFile: 'pythonData' },
     { route: '/sql', dataVar: 'sqlData', dataFile: 'sqlData' },
     { route: '/typescript', dataVar: 'typescriptData', dataFile: 'typescriptData' },
+    // 2026-08-01'de eklendi — bu 4 sayfa `interview-questions` bloğu taşıdığı
+    // hâlde suite'te YOKTU, yani CLAUDE.md §22 kontrol 3'ün ("interview-questions
+    // formatı kullanan TÜM sayfalar") kapsamı dışında kalıyorlardı.
+    { route: '/claude-ai', dataVar: 'claudeAiData', dataFile: 'claudeAiData' },
+    { route: '/llm-agents', dataVar: 'llmAgentsData', dataFile: 'llmAgentsData' },
+    { route: '/qa-frontend', dataVar: 'qaFrontendData', dataFile: 'qaFrontendData' },
+    { route: '/api-testing', dataVar: 'apiTestingData', dataFile: 'apiTestingData' },
 ];
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
@@ -97,7 +104,7 @@ async function answerActiveTabQuizCorrectly(page: Page, block: any) {
 
 test.describe('Mülakat AI değerlendirme akışı — interview-questions kullanan tüm sayfalar', () => {
     test.skip(!configured, '.env.local içinde VITE_SUPABASE_URL/KEY veya TEST_USER_EMAIL/PASSWORD eksik');
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
 
     for (const { route, dataVar, dataFile } of PAGES) {
         test(`${route} — quiz gating → AI değerlendirir → sekme tamamlanır`, async ({ browser }) => {
@@ -170,6 +177,16 @@ test.describe('Mülakat AI değerlendirme akışı — interview-questions kulla
             if (belowCount > 0) {
                 await tabButtons.nth(interviewTabIndex).click();
                 await expect(page.getByText(LOCK_TEXT)).toBeVisible();
+                // KRİTİK: bu tıklama sayfayı mülakat sekmesine götürdü ama `activeTab`
+                // hâlâ son İÇERİK sekmesini gösteriyordu. Aşağıdaki döngü
+                // `tabIndex !== activeTab` koşuluyla sekme değiştirdiğinden, sıradaki
+                // quiz AYNI içerik sekmesindeyse sekmeye geri DÖNÜLMÜYOR ve test
+                // mülakat sekmesinde olmayan bir quiz butonunu sonsuza kadar
+                // bekliyordu. Çoğu sayfada sıradaki quiz farklı bir sekmede olduğu
+                // için hata görünmüyordu; /qa-frontend'de (48 quiz, eşik 29 → son iki
+                // quiz aynı sekmede) ortaya çıktı. -1 = "sayfa artık hiçbir içerik
+                // sekmesinde değil, mutlaka yeniden tıkla".
+                activeTab = -1;
             }
 
             // 3) Eşiği geç (>=%60) → kilit açılır.

@@ -34,6 +34,10 @@ const PAGES = [
     { route: '/claude-ai', file: 'claudeAiData.js', exportName: 'claudeAiData' },
     { route: '/llm-agents', file: 'llmAgentsData.js', exportName: 'llmAgentsData' },
     { route: '/qa-frontend', file: 'qaFrontendData.js', exportName: 'qaFrontendData' },
+    // 2026-08-01'de eklendi — ikisi de `interview-questions` bloğu taşıdığı hâlde
+    // bu listede YOKTU, yani §10'un 50 soru kuralı onlar için hiç denetlenmiyordu.
+    { route: '/gauge', file: 'gaugeData.js', exportName: 'gaugeData' },
+    { route: '/api-testing', file: 'apiTestingData.js', exportName: 'apiTestingData' },
 ];
 
 const MIN_TOTAL = 50;
@@ -106,7 +110,9 @@ async function main() {
 
     let failCount = 0;
     let warnCount = 0;
-    console.log('Mülakat Soru Denetimi (CLAUDE.md §10) — 22 teknoloji sayfası\n');
+    // Sayı PAGES'ten türetilir — elle yazılan sabit, sayfa eklendikçe sessizce
+    // eskiyordu (27 sayfa denetlenirken başlık "22" diyordu).
+    console.log(`Mülakat Soru Denetimi (CLAUDE.md §10) — ${PAGES.length} teknoloji sayfası\n`);
     console.log('Route'.padEnd(16), 'Toplam'.padEnd(8), 'Basic'.padEnd(7), 'Interm.'.padEnd(9), 'Advanced'.padEnd(9), 'Durum');
     console.log('-'.repeat(70));
 

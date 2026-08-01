@@ -45,7 +45,11 @@ test('/ — ana sayfa navigasyon linkleri görünür', async ({ page }) => {
 // java-document / git-document: markdown reader sayfaları.
 // manual-testing / qa-mentor: TopicPage kullanmaz, scroll-spy nav.
 // algorithms / advanced-algorithms: ayrı testlerde — büyük modüller (bkz. aşağısı).
-for (const route of ['/java-document', '/git-document', '/manual-testing', '/qa-mentor']) {
+// /sprint ve /portfolio'nun kendi akış suite'leri var (sprint-flow, portfolio-page)
+// ama ikisi de console/page HATASI taramıyordu — §22 kontrol 1 ("her ders/test
+// sayfasında butonlar görünür ve tıklanabilir") bu iki sayfa için kapsam
+// dışındaydı. 2026-08-01'de eklendi.
+for (const route of ['/java-document', '/git-document', '/manual-testing', '/qa-mentor', '/sprint', '/portfolio']) {
     test(`${route} — sayfa yüklenir, görünür butonlar tıklanabilir`, async ({ page }) => {
         test.setTimeout(60_000);
 
