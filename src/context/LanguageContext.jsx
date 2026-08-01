@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import en from '../locales/en.json'
 import tr from '../locales/tr.json'
+import { localizedPath, stripLocalePrefix } from '../utils/seo'
 
 const LanguageContext = createContext()
 
@@ -15,8 +16,16 @@ const getDefaultLanguage = () => {
     return 'tr'
 }
 
-export function LanguageProvider({ children }) {
-    const [language, setLanguage] = useState(getDefaultLanguage)
+/**
+ * `initialLanguage` verildiğinde (main.jsx URL'den türetir) URL dil için TEK
+ * OTORİTEDİR — localStorage'a bakılmaz. Prop verilmezse eski davranış korunur
+ * (localStorage → 'tr'), böylece bu provider'ı doğrudan saran testler/hikâyeler
+ * kırılmaz. Bkz. Documents/seo-phase-2-plan.md §2.2.
+ */
+export function LanguageProvider({ children, initialLanguage }) {
+    const [language, setLanguage] = useState(
+        () => (initialLanguage === 'tr' || initialLanguage === 'en' ? initialLanguage : getDefaultLanguage()),
+    )
 
     useEffect(() => {
         localStorage.setItem('language', language)
@@ -37,8 +46,25 @@ export function LanguageProvider({ children }) {
         return getValue(language) ?? getValue('en') ?? getValue('tr') ?? defaultValue ?? key
     }
 
+    // Dil değişimi artık URL değiştirir: /selenium ⇄ /en/selenium. `basename`
+    // mount anında sabitlendiği için router içi geçiş yeterli değil, tam
+    // navigasyon gerekiyor (§2.2). localStorage ÖNCE yazılır ki mevcut
+    // kalıcılık testleri ve localStorage okuyan kodlar doğru değeri görsün.
     const toggleLanguage = () => {
-        setLanguage(prev => prev === 'en' ? 'tr' : 'en')
+        const next = language === 'en' ? 'tr' : 'en'
+
+        try {
+            localStorage.setItem('language', next)
+        } catch { /* localStorage kapalı olabilir */ }
+
+        if (typeof window === 'undefined') {
+            setLanguage(next)
+            return
+        }
+
+        const barePath = stripLocalePrefix(window.location.pathname)
+        const target = `${localizedPath(barePath, next)}${window.location.search}${window.location.hash}`
+        window.location.assign(target)
     }
 
     return (

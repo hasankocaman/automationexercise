@@ -1,5 +1,5 @@
 import { readdir, readFile } from 'node:fs/promises'
-import { ROUTE_SEO, SITE_URL, canonicalUrl } from '../src/utils/seo.js'
+import { LOCALES, ROUTE_SEO, SITE_URL, canonicalUrl, localizedPath, seoFor } from '../src/utils/seo.js'
 
 const appSource = await readFile(new URL('../src/App.jsx', import.meta.url), 'utf8')
 const netlifySource = await readFile(new URL('../netlify.toml', import.meta.url), 'utf8')
@@ -22,13 +22,40 @@ for (const route of seoRoutes) {
     }
 }
 
+// Metadata kuralları HER İKİ DİL için de geçerlidir (Documents/seo-phase-2-plan.md §2).
+// Eksik `tr` bloğu build'i kırar — yeni route eklerken iki dil de zorunludur.
+const seenDescriptions = new Map()
+
 for (const item of ROUTE_SEO) {
     if (!item.path.startsWith('/')) errors.push(`SEO path must start with "/": ${item.path}`)
-    if (!item.title || item.title.length < 20) errors.push(`SEO title is too short for ${item.path}`)
-    if (!item.title.includes('LearnQA.dev')) errors.push(`SEO title should include LearnQA.dev for ${item.path}`)
-    if (!item.description || item.description.length < 80) errors.push(`SEO description is too short for ${item.path}`)
-    if (item.description.length > 180) errors.push(`SEO description is too long for ${item.path}`)
-    if (!canonicalUrl(item.path).startsWith(SITE_URL)) errors.push(`Canonical URL is invalid for ${item.path}`)
+    if (!item.tr) errors.push(`Missing Turkish (tr) SEO metadata for ${item.path}`)
+
+    for (const locale of LOCALES) {
+        const { title, description } = seoFor(item, locale)
+        const where = `${item.path} [${locale}]`
+
+        if (!title || title.length < 20) errors.push(`SEO title is too short for ${where}`)
+        if (!title || !title.includes('LearnQA.dev')) errors.push(`SEO title should include LearnQA.dev for ${where}`)
+        if (!description || description.length < 80) errors.push(`SEO description is too short for ${where}`)
+        if (description && description.length > 180) errors.push(`SEO description is too long for ${where}`)
+        if (!canonicalUrl(localizedPath(item.path, locale)).startsWith(SITE_URL)) {
+            errors.push(`Canonical URL is invalid for ${where}`)
+        }
+
+        // Aynı description iki route'ta tekrarlanırsa Google duplicate meta sayar.
+        const key = `${locale}|${description}`
+        if (seenDescriptions.has(key)) {
+            errors.push(`Duplicate SEO description for ${where} (same as ${seenDescriptions.get(key)})`)
+        } else {
+            seenDescriptions.set(key, item.path)
+        }
+    }
+
+    // TR metadata gerçekten Türkçeleştirilmiş mi — İngilizce metnin kopyalanıp
+    // bırakılmasını yakalar (bu, dil-ayrık URL'lerin tüm faydasını yok ederdi).
+    if (item.tr && item.tr.title === item.title && item.tr.description === item.description) {
+        errors.push(`Turkish SEO metadata is identical to English for ${item.path}`)
+    }
 }
 
 for (const route of seoRoutes) {

@@ -12,7 +12,9 @@ test.describe('WP2 — Ana sayfa "önerilen sıra" rozetleri', () => {
         await page.goto('/');
         await page.waitForSelector('[data-testid="main-title"]', { timeout: 30_000 });
 
-        const startHereBadge = page.locator('a[href="/what-is-testing"]').locator('xpath=following-sibling::span[1]');
+        // href$= kullanılıyor çünkü EN modda URL /en öneki taşır
+        // (/en/what-is-testing) — bkz. Documents/seo-phase-2-plan.md §2.
+        const startHereBadge = page.locator('a[href$="/what-is-testing"]').locator('xpath=following-sibling::span[1]');
         await expect(startHereBadge).toHaveText('🚀 Buradan başla');
 
         await expect(page.locator('[data-testid="nav-algorithms"]').locator('xpath=following-sibling::span[1]')).toHaveText('①');
@@ -31,7 +33,9 @@ test.describe('WP2 — Ana sayfa "önerilen sıra" rozetleri', () => {
 
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
 
-        const startHereBadge = page.locator('a[href="/what-is-testing"]').locator('xpath=following-sibling::span[1]');
+        // href$= kullanılıyor çünkü EN modda URL /en öneki taşır
+        // (/en/what-is-testing) — bkz. Documents/seo-phase-2-plan.md §2.
+        const startHereBadge = page.locator('a[href$="/what-is-testing"]').locator('xpath=following-sibling::span[1]');
         await expect(startHereBadge).toHaveText('🚀 Start here');
 
         // Sayısal rozetler dile bağlı değil, değişmemeli.

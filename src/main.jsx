@@ -9,6 +9,7 @@ import './focus-mode.css'
 import { LanguageProvider } from './context/LanguageContext'
 import { ZoomProvider } from './context/ZoomContext'
 import { AuthProvider } from './context/AuthContext'
+import { EN_PREFIX, localeFromPathname } from './utils/seo'
 
 function migrateLegacyHashRoute() {
     const hashPath = window.location.hash
@@ -19,6 +20,13 @@ function migrateLegacyHashRoute() {
 }
 
 migrateLegacyHashRoute()
+
+// DİL-AYRIK URL (Documents/seo-phase-2-plan.md §2.1): URL `/en` ile başlıyorsa
+// router'ı o basename ile kur. Böylece App.jsx'teki 43 route İKİLENMEZ ve tüm
+// <Link to="/docker"> kullanımları otomatik olarak /en/docker olur — EN gezinti
+// EN'de kalır. URL dil için tek otoritedir (§2.2).
+const routerLocale = localeFromPathname(window.location.pathname)
+const routerBasename = routerLocale === 'en' ? EN_PREFIX : '/'
 
 // import { worker } from './mocks/browser' // Removed to avoid duplicate import warning
 
@@ -52,9 +60,9 @@ async function enableMocking() {
 enableMocking().catch(console.error).finally(() => {
     createRoot(document.getElementById('root')).render(
         <StrictMode>
-            <BrowserRouter>
+            <BrowserRouter basename={routerBasename}>
                 <ZoomProvider>
-                    <LanguageProvider>
+                    <LanguageProvider initialLanguage={routerLocale}>
                         <AuthProvider>
                             <App />
                         </AuthProvider>

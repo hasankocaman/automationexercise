@@ -20,7 +20,91 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — /sprint UX düzeltmesi)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — SEO Faz 2 / dil-ayrık URL)
+
+- **Aktif branch: `feature/seo-phase-2`** (`main`'den açıldı; `feature/sprint-simulator`
+  merge edilmiş durumda, `6ab2254`). Kullanıcı `Documents/` altındaki 21 plan
+  dosyasının denetlenmesini ve fikir/öneri istedi. **Ölçüm sonucu: içerik borcu
+  KAPANMIŞ** (mülakat 25/25 sayfa ≥50 soru · animasyon kapsamı %100, 0 açık ·
+  interaktif üçlü 0 boşluk · i18n baseline 0). Yani "daha çok içerik" artık en
+  yüksek getirili iş değil. Yeni plan: **`Documents/seo-phase-2-plan.md`**.
+
+- **🔴 Bulunan kritik açık — Türkçe içerik Google'da HİÇ YOKTU:** `index.html`
+  `<html lang="en">`, `seo.js`'teki 44 route'un TAMAMININ metadata'sı İngilizce,
+  statik shell gövdesi de İngilizce (`textValue()` daima `.en` seçiyordu) — ama
+  varsayılan arayüz dili `tr`. Google her sayfayı İngilizce sanıp doymuş
+  İngilizce sorgularda yarıştırıyordu; "selenium nedir", "playwright türkçe
+  eğitim" gibi asıl fırsat sorgularında indekslenecek Türkçe URL yoktu.
+
+- **✅ FAZ 2 OPUS TARAFI TAMAMLANDI (O1-O8):**
+  - **Mimari karar (plan §2):** çıplak path = **TR**, `/en/<path>` = **EN**
+    (Seçenek A). Gerekçe: mevcut URL otoritesi korunur, çıplak URL'in dili
+    varsayılan arayüz diliyle eşitlenir, GitHub Pages'te ek altyapı gerekmez.
+    `/tr` prefix'li Seçenek B reddedildi — GitHub Pages'te server redirect yok.
+  - **Uygulama tekniği:** `main.jsx`'te URL `/en` ile başlıyorsa
+    `<BrowserRouter basename="/en">`. **`App.jsx`'e HİÇ DOKUNULMADI** — 43 lazy
+    route ikilenmedi, `check-seo.mjs`'in `<Route path>` ayrıştırması bozulmadı ve
+    tüm `<Link to>` / `useNavigate` çağrıları otomatik `/en` öneki aldı.
+    Doğrulandı: kodda router'ı atlayan ham `<a href="/...">` YOK.
+  - **Dil otoritesi URL'e geçti (§2.2):** `localStorage.language` artık dili
+    BELİRLEMEZ, yalnızca yansıtır. Otomatik yönlendirme bilinçli olarak
+    EKLENMEDİ (39 E2E spec'inde sürpriz kırılma üretirdi). Dil düğmesi artık
+    URL değiştirir (`window.location.assign`) — `basename` mount anında
+    sabitlendiği için tam navigasyon zorunlu.
+  - `seo.js`: `LOCALES`/`DEFAULT_LOCALE`/`EN_PREFIX` + her route'a `tr:{title,
+    description}` (44 route için TR metadata yazıldı) + `localeFromPathname`,
+    `stripLocalePrefix`, `localizedPath`, `seoFor`, `alternatesFor`.
+    `getSeoForPath` artık TAM pathname alır.
+  - `SeoMeta.jsx`: dile göre meta + `<html lang>` + `hreflang` (tr/en/x-default)
+    + `og:locale`. `generate-seo-files.mjs`: sitemap **44 → 88 URL**, her girdide
+    `xhtml:link` alternates.
+  - `generate-static-routes.mjs`: shell'ler **iki dilde** üretiliyor
+    (`dist/<route>` + `dist/en/<route>`) = **88 shell**. TR gövde metni ELLE
+    YAZILMADI, `textValue(value, locale)` ile mevcut bilingual veriden geliyor;
+    script içindeki sabit İngilizce arayüz metinleri iki dilli yapıldı.
+    `/java-document` ve `/git-document` TR'de `*_tr.md` dosyalarını okuyor.
+  - **JSON-LD zenginleştirme:** `FAQPage` mülakat sorularından otomatik üretiliyor
+    (`interview-questions` blokları, dile uygun `q`/`a`, ilk 10 soru) + `Course`
+    şeması. Ölçülen sonuç: **56 sayfada FAQPage, 68 sayfada Course** (önceden 0).
+  - `check-seo.mjs`: TR metadata zorunlu, uzunluk sınırları İKİ dilde de kontrol,
+    **duplicate description** kontrolü ve "TR metadata İngilizceyle özdeş mi"
+    kontrolü eklendi. `check-dist-seo.mjs`: her route iki dilde de üretilmiş mi,
+    `<html lang>` doğru mu, hreflang üçlüsü tam mı — hepsi hard-fail.
+  - `tests/seo-i18n-routing.spec.ts` (yeni, 6 test) — **6/6 PASS.**
+- **🐛 Regresyonun yakaladığı gerçek kırılma (düzeltildi):**
+  `homepage-recommended-badges.spec.ts` EN testi `a[href="/what-is-testing"]`
+  selector'ı kullanıyordu; EN modda href artık `/en/what-is-testing` olduğu için
+  kırıldı. Selector `href$=` yapıldı — testin kodladığı eski varsayım güncellendi,
+  davranış doğru.
+- **Doğrulama:** content-integrity ✓ (39 dosya) · i18n baseline 0 ✓ ·
+  audit-learning-blocks ✓ (mission:18, prediction:78) · audit-interview-questions ✓ ·
+  build ✓ (88 shell, 88 sitemap URL, dist-SEO geçti) · **E2E toplam 196 PASS, 0 FAIL**
+  (seo-i18n-routing 6 · i18n-content-toggle 32 · topic-pages-ui + other-pages-ui +
+  mission-flow + sprint-flow + theme-accessibility + mobile-smoke 53 · lesson-completion
+  + term-tooltip + quiz-retry + learning-blocks-render + career-map(+milestones) +
+  tooltip-guide-mascot + video-scene 98 · daily-loop + review-queue + mentor-* +
+  code-playground + sql/js/ts-page + tr-code-comments 28 · sandbox'lar + lab'lar +
+  roadmap-order 15 — sayımda homepage-badges'ın 2'si düzeltme sonrası ayrıca koşuldu).
+  Auth gerektiren suite'ler (§23.8) koşturulmadı.
+- **Kalıcı kurallar yazıldı:** `codexSeo.md` **§0** (dil-ayrık URL mimarisi, tam
+  kural seti) + `CLAUDE.md` §6 (iki dilli metadata zorunluluğu) ve §11'e 2 yeni
+  "yapma" maddesi.
+- **🔜 Sırada — Sonnet promptları planın §7'sinde HAZIR:** S1 performans/kod bölme
+  (TopicPage chunk 1.6 MB, typescriptData 1.1 MB), S2 `mission` yayılımı (25
+  sayfadan sadece 6'sında var), S3 çerezsiz analytics (sitede HİÇ analytics yok),
+  S4 TR metadata kalite geçişi + `/postman` ve `/playwright` mülakat dağılımı.
+- **🔜 Kullanıcı (Hasan) tarafı, planın §5'i:** deploy sonrası GSC'ye sitemap'i
+  YENİDEN GÖNDER (88 URL, `/en/*` kümesi yeni), 1-2 hafta sonra hreflang
+  hatalarını GSC'den doğrula, analytics hesabı aç. **Ayrıca hâlâ açık:**
+  `sprint-simulator-and-open-items-plan.md` §5'teki 4 madde (edge function
+  deploy'ları, social-proof RPC, trending-skills aktivasyonu) — bu plan onları
+  kapatmaz.
+- **Açık iş:** `main`'e merge kararı kullanıcıda. Merge öncesi plan §8'deki
+  9 adımlı manuel test rehberi uygulanmalı.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus — /sprint UX düzeltmesi)
 
 - **Aktif branch: `feature/sprint-simulator`.** Kullanıcı `/sprint`'i elle gezerken
   **gerçek bir UX bug'ı bildirdi:** "Görevi aç"a basınca hiçbir şey olmuyor gibi

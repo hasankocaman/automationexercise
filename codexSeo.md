@@ -22,6 +22,38 @@ temelini güçlendirmek ve korumak. Ana hedefler:
 
 ## SEO Mimarisi — Nasıl Çalışıyor
 
+### 0. Dil-ayrık URL mimarisi (SEO Faz 2 — ZORUNLU)
+
+Site iki dilli içerik üretir ama uzun süre TEK URL kümesi vardı: `<html lang="en">`,
+tüm metadata İngilizce, buna karşılık varsayılan arayüz dili `tr`. Sonuç: Google
+her sayfayı İngilizce sanıyordu ve Türkçe içeriğin indekslenecek hiçbir URL'i
+yoktu. 2026-08-01'de düzeltildi.
+
+**Kural:**
+
+| URL | Dil |
+|---|---|
+| `/selenium` (çıplak path) | **Türkçe** (varsayılan) |
+| `/en/selenium` | **İngilizce** |
+
+- **URL dil için TEK OTORİTEDİR.** `localStorage.language` dili belirlemez,
+  yalnızca yansıtır. Otomatik yönlendirme YOKTUR.
+- Uygulama `src/main.jsx`'te `<BrowserRouter basename="/en">` ile kurulur (URL
+  `/en` ile başlıyorsa). Bu sayede **`App.jsx`'teki route'lar ikilenmez** ve tüm
+  `<Link to="/x">` / `useNavigate('/x')` çağrıları otomatik olarak `/en/x` olur.
+  → **Route eklerken `/en` varyantı ELLE eklenmez, kendiliğinden oluşur.**
+- Dil düğmesi artık URL değiştirir (`window.location.assign`) — `basename` mount
+  anında sabitlendiği için tam navigasyon zorunludur.
+- Her `ROUTE_SEO` girdisi `tr: { title, description }` bloğu taşımak ZORUNDADIR;
+  `check-seo.mjs` eksik/İngilizceyle özdeş TR metadata'yı hard-fail eder.
+- `hreflang` (`tr`, `en`, `x-default`) hem runtime'da (`SeoMeta.jsx`) hem statik
+  shell'lerde üretilir; sitemap her route'u iki dilde + `xhtml:link` alternates
+  ile listeler.
+- Kod tarafında router'ı atlayan ham `<a href="/...">` veya
+  `window.location.href = '/...'` KULLANMA — EN oturumunu TR'ye düşürür.
+
+Detaylı gerekçe ve mimari seçenek karşılaştırması: `Documents/seo-phase-2-plan.md` §2.
+
 ### 1. CLAUDE.md SEO kuralları
 `CLAUDE.md` Bölüm 6'da SEO ve yayın stratejisi kuralları tanımlıdır (temiz URL, metadata zorunluluğu, robots/sitemap, build zinciri).
 

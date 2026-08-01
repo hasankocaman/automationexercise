@@ -226,7 +226,8 @@ automationexercise/
 SEO altyapısı bu projede **zorunludur**, opsiyonel değildir — misyonun yarısı bu.
 
 - Temiz URL kullan: `/selenium`, asla `/#/selenium` değil.
-- Her route için `src/utils/seo.js` içinde metadata olmalı; title `LearnQA.dev` içermeli, description 80–180 karakter aralığında olmalı, canonical `https://learnqa.dev/...` formatında olmalı.
+- **Dil-ayrık URL (zorunlu):** çıplak path = **Türkçe**, `/en/<path>` = **İngilizce**. URL dil için tek otoritedir; `localStorage.language` dili belirlemez. `/en` varyantı `main.jsx`'teki `basename` ile otomatik oluşur — yeni route eklerken elle `/en` route'u YAZILMAZ. Detay: `codexSeo.md` §0.
+- Her route için `src/utils/seo.js` içinde metadata olmalı; title `LearnQA.dev` içermeli, description 80–180 karakter aralığında olmalı, canonical `https://learnqa.dev/...` formatında olmalı. **Metadata İKİ dilde de zorunludur:** girdinin `title`/`description` alanları İngilizce, `tr: { title, description }` bloğu Türkçe. Eksik veya İngilizceyle özdeş TR metadata build'i kırar.
 - Build zinciri (`npm run build`) SEO kontrollerini geçmelidir: `check-seo → generate-seo-files → vite build → generate-static-routes → check-dist-seo`.
 - Eski standalone `.html` dosyaları React route'larını gölgelememeli; legacy `.html` URL gerekiyorsa `public/*.html` içinde hafif canonical redirect dosyası olarak tutulmalı.
 - İçerik SEO'su: her sayfa tek bir ana arama niyetini hedeflemeli (örn. "Selenium WebDriver tutorial for QA engineers"); sadece araç ismi değil, problem odaklı başlıklar da üretilmeli (wait strategies, Page Object Model, API testing gibi).
@@ -448,6 +449,8 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Sekmenin gerçek içeriğiyle bağı olmayan, konudan kopuk bir film uydurmak — her film o sekmedeki kod/simulation'ın anlattığı mekanizmayı görselleştirmelidir (Bölüm 9.5).
 - ❌ Framework Mimarisi sekmelerinde "Büyük Resim Mindmap"i tek bir devasa ASCII `code` bloğunda anlatmak — Bölüm 9.6'daki beş görünüme (Ana Akış / Kurulum Akışı / Paralel Çalışma / Veri Paylaşım Kapsamı / Kim Ne Yapar) bölünmeli, hazır `python-flow-diagram`/`grid` bileşenleri kullanılmalıdır.
 - ❌ Bölüm 1.1'deki 4 maddelik doğruluk checklist'ini çalıştırmadan "tamamladım", "hazır", "bitti" demek.
+- ❌ Yeni route eklerken `src/utils/seo.js`'e sadece İngilizce metadata yazmak — `tr: { title, description }` bloğu zorunludur ve İngilizcenin kopyası olamaz (Bölüm 6, `codexSeo.md` §0). `check-seo.mjs` ikisini de hard-fail eder.
+- ❌ Uygulama içinde router'ı atlayan ham `<a href="/docker">` veya `window.location.href = '/docker'` kullanmak — `/en` oturumundaki kullanıcıyı sessizce Türkçe sayfaya düşürür. Daima `<Link to>` / `useNavigate` kullan (`codexSeo.md` §0).
 - ❌ Bir dilin KENDİ sözdizimini Türkçeleştirmek — Gherkin'in `Scenario/Given/When/Then/And`'i, SQL'in `SELECT/JOIN`'i gibi anahtar kelimelerdir ve TR sayfada da İngilizce kalır; Türkçeleşen sadece adım/açıklama METNİDİR (Bölüm 8, §23.9). `check-content-integrity.mjs` Kontrol [G] bunu hard-fail eder.
 
 ---
