@@ -421,6 +421,75 @@ async function checkCodePlaygroundIdSchema(filepath, filename, violations) {
   }
 }
 
+// ─── Check (g): Gherkin anahtar kelimeleri Türkçeleştirilemez ────────────────
+//
+// CLAUDE.md §8: yerleşik yazılım terimleri sayfa dili TR olsa bile İngilizce
+// kalır. Gherkin'in Scenario/Given/When/Then/And'i tıpkı SELECT/JOIN gibi DİLİN
+// KENDİ SÖZDİZİMİDİR — çevrilirse ortaya hiçbir Cucumber koşumunun anlamayacağı
+// sahte bir dil çıkar. Adım METİNLERİ Türkçe kalabilir, sadece anahtar kelime
+// İngilizce olmalıdır.
+//
+// Gerçek bulgu (2026-08-01, kullanıcı raporu): sprintsData.js'teki 18 Gherkin
+// bloğunda anahtar kelimeler Türkçeleştirilmişti (`Senaryo:`, `Diyelim ki`,
+// `O zaman`, `Ve`) — dahası `When` satırı tamamen DÜŞMÜŞTÜ, yani blok geçerli
+// Gherkin bile değildi. Bu kontrol o regresyonu kalıcı olarak kapatır.
+
+const TR_GHERKIN_KEYWORDS = [
+  ['Senaryo Taslagi:', 'Scenario Outline:'], ['Senaryo Taslağı:', 'Scenario Outline:'],
+  ['Senaryo:', 'Scenario:'], ['Ozellik:', 'Feature:'], ['Özellik:', 'Feature:'],
+  ['Arka plan:', 'Background:'], ['Ornekler:', 'Examples:'], ['Örnekler:', 'Examples:'],
+  ['Diyelim ki ', 'Given '], ['Eger ki ', 'When '], ['Eğer ki ', 'When '],
+  ['O zaman ', 'Then '], ['Fakat ', 'But '], ['Ve ', 'And '],
+]
+
+// Bir string'in Gherkin bloğu olup olmadığı ilk satırından anlaşılır.
+const GHERKIN_HEAD_RE = /^\s*(Scenario Outline|Scenario|Senaryo Taslagi|Senaryo Taslağı|Senaryo|Feature|Ozellik|Özellik):/
+
+// Gerçek bir adım satırı (EN veya TR anahtar kelimesiyle başlayan).
+const GHERKIN_STEP_RE = /^\s*(Given|When|Then|And|But|Diyelim ki|Eger ki|Eğer ki|O zaman|Ve|Fakat|Ama)\s/
+
+// Kod alanı mı? (tek satırlık Gherkin yalnızca burada anlamlıdır)
+const GHERKIN_CODE_FIELD_RE = /\b(code|starterCode|solutionCode|codeWrong|codeFixed)\s*:\s*(\{\s*(tr|en)\s*:\s*)?$/
+
+function checkGherkinKeywords(source, filename, violations) {
+  // Hem backtick hem tek tırnaklı string gövdelerini tara.
+  const stringRe = /`([^`]*)`|'((?:[^'\\]|\\.)*)'/g
+  let m
+  while ((m = stringRe.exec(source)) !== null) {
+    const body = m[1] ?? m[2]
+    if (!body) continue
+    // Kaynakta satır sonları literal `\n` olarak yazılı olabilir.
+    const parts = body.split(/\\n|\n/)
+    if (!GHERKIN_HEAD_RE.test(parts[0])) continue
+
+    // YANLIŞ-POZİTİF KORUMASI (2026-08-01, ilk yazımda 12 tane verdi):
+    // "Senaryo: EC2'de Selenium Grid" gibi düz Türkçe BAŞLIKLAR da
+    // "Senaryo:" ile başlar ama Gherkin değildir. Gerçek bir Gherkin bloğu ya
+    // birden fazla satırdır ve en az bir adım satırı içerir, ya da bir kod
+    // alanına yazılmıştır.
+    const hasStepLine = parts.slice(1).some((p) => GHERKIN_STEP_RE.test(p))
+    const before = source.slice(Math.max(0, m.index - 80), m.index)
+    const isCodeField = GHERKIN_CODE_FIELD_RE.test(before)
+    if (!hasStepLine && !isCodeField) continue
+
+    const line = source.slice(0, m.index).split('\n').length
+
+    for (const part of parts) {
+      const text = part.replace(/^\s*/, '')
+      if (!text) continue
+      const hit = TR_GHERKIN_KEYWORDS.find(([tr]) => text.startsWith(tr))
+      if (hit) {
+        violations.push({
+          type: 'gherkin-translated-keyword',
+          file: filename,
+          line,
+          content: `Gherkin anahtar kelimesi Türkçeleştirilmiş: "${hit[0].trim()}" → "${hit[1].trim()}" olmalı (CLAUDE.md §8 — adım metni Türkçe kalabilir, anahtar kelime kalamaz)`,
+        })
+      }
+    }
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -446,6 +515,7 @@ async function main() {
     await checkStepAnimationSchema(filepath, filename, allViolations)
     await checkQuizOptionIdSchema(filepath, filename, allViolations)
     await checkCodePlaygroundIdSchema(filepath, filename, allViolations)
+    checkGherkinKeywords(source, filename, allViolations)
     allHints.push(...collectHints(source, filename))
   }
 
@@ -498,6 +568,7 @@ async function main() {
   const stepSchemaViolations = dedupedViolations.filter((v) => v.type === 'step-animation-missing-label')
   const quizIdViolations = dedupedViolations.filter((v) => v.type === 'quiz-option-missing-id')
   const playgroundIdViolations = dedupedViolations.filter((v) => v.type === 'code-playground-missing-id')
+  const gherkinViolations = dedupedViolations.filter((v) => v.type === 'gherkin-translated-keyword')
 
   console.log(`\nİçerik Bütünlük Kontrolü — ${files.length} dosya tarandı\n`)
   console.log(`${'─'.repeat(60)}`)
@@ -544,6 +615,13 @@ async function main() {
     }
   }
 
+  if (gherkinViolations.length > 0) {
+    console.error(`\n[G] Gherkin anahtar kelimesi Türkçeleştirilmiş (${gherkinViolations.length} ihlal):`)
+    for (const v of gherkinViolations) {
+      console.error(`  ${v.file}:${v.line}  →  ${v.content}`)
+    }
+  }
+
   const total = dedupedViolations.length
   console.log(`\n${'─'.repeat(60)}`)
 
@@ -551,7 +629,7 @@ async function main() {
     console.log(`İçerik bütünlüğü: TÜM KONTROLLER GEÇTİ ✓`)
     process.exit(0)
   } else {
-    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length} E=${quizIdViolations.length} F=${playgroundIdViolations.length}`)
+    console.error(`\nToplam ${total} ihlal bulundu: A=${englishViolations.length} B=${missingIdViolations.length} C=${duplicateViolations.length} D=${stepSchemaViolations.length} E=${quizIdViolations.length} F=${playgroundIdViolations.length} G=${gherkinViolations.length}`)
     console.error(`Build engellendi — lütfen yukarıdaki ihlalleri düzelt.`)
     process.exit(1)
   }

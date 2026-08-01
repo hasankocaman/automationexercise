@@ -448,6 +448,7 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Sekmenin gerçek içeriğiyle bağı olmayan, konudan kopuk bir film uydurmak — her film o sekmedeki kod/simulation'ın anlattığı mekanizmayı görselleştirmelidir (Bölüm 9.5).
 - ❌ Framework Mimarisi sekmelerinde "Büyük Resim Mindmap"i tek bir devasa ASCII `code` bloğunda anlatmak — Bölüm 9.6'daki beş görünüme (Ana Akış / Kurulum Akışı / Paralel Çalışma / Veri Paylaşım Kapsamı / Kim Ne Yapar) bölünmeli, hazır `python-flow-diagram`/`grid` bileşenleri kullanılmalıdır.
 - ❌ Bölüm 1.1'deki 4 maddelik doğruluk checklist'ini çalıştırmadan "tamamladım", "hazır", "bitti" demek.
+- ❌ Bir dilin KENDİ sözdizimini Türkçeleştirmek — Gherkin'in `Scenario/Given/When/Then/And`'i, SQL'in `SELECT/JOIN`'i gibi anahtar kelimelerdir ve TR sayfada da İngilizce kalır; Türkçeleşen sadece adım/açıklama METNİDİR (Bölüm 8, §23.9). `check-content-integrity.mjs` Kontrol [G] bunu hard-fail eder.
 
 ---
 
@@ -787,3 +788,32 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
   SADECE CI'da skip ediliyor (yerelde/pre-push'ta normal çalışır). Yeniden teşhis etmeye
   gerek yok; sadece Supabase Support'tan yanıt gelirse veya self-hosted runner'a geçilirse
   bu skip'ler gözden geçirilir.
+
+### 23.9. Dilin KENDİ sözdizimini Türkçeleştirmek (Gherkin tuzağı)
+
+- **Belirti:** TR sayfada bir Gherkin bloğu `Senaryo:` / `Diyelim ki` / `O zaman` /
+  `Ve` ile yazılmış. Kullanıcı raporu (2026-08-01, `/sprint`).
+- **Kök Neden:** "TR sayfada açıklama Türkçe olmalı" kuralı (§8), anahtar
+  kelimeleri de kapsıyor sanılıyor. Oysa Gherkin'in `Scenario/Given/When/Then/
+  And`'i tıpkı `SELECT`/`JOIN`/`NULL` gibi **dilin kendi sözdizimidir** —
+  çevrilirse hiçbir Cucumber koşumunun ayrıştıramayacağı sahte bir dil çıkar.
+  Aynı tuzak SQL/YAML/JSON anahtar kelimeleri için de geçerlidir.
+- **Yan bulgu:** `sprintsData.js`'teki 18 blokta `When` satırı tamamen DÜŞMÜŞTÜ
+  (adım hiç anahtar kelimesizdi) — yani blok geçerli Gherkin bile değildi.
+  Türkçeleştirme çoğu zaman yapıyı da bozar, sadece kelimeyi değil.
+- **Çözüm:** Anahtar kelime İngilizce; **adım METNİ Türkçe kalır**
+  (`When kullanici gecerli bir e-posta girer`). Anlamını açıklamak gerekiyorsa
+  kod bloğunun **hemen üstündeki** `explanation` alanına iki dilli bir açıklama
+  yaz — kod bloğunun İÇİNE tooltip bağlanamaz (`highlightGlossaryTerms` `<pre>`
+  içeriğini tasarım gereği ASLA sarmaz).
+- **Önleme:** `check-content-integrity.mjs` **Kontrol [G]** (`checkGherkinKeywords`)
+  build ve pre-commit'te hard-fail eder. Yanlış-pozitif koruması vardır: "Senaryo:
+  EC2'de Selenium Grid" gibi düz Türkçe BAŞLIKLAR Gherkin sayılmaz — bir string
+  ancak ya çok satırlı olup en az bir adım satırı içeriyorsa ya da bir kod alanına
+  (`code`/`starterCode`/`solutionCode`/`codeWrong`/`codeFixed`) yazılmışsa
+  denetlenir.
+- **Sözlük notu:** `Given`/`When`/`Then`/`And` `termGlossary.js`'e BİLEREK
+  eklenmedi — günlük İngilizcede aşırı yaygın oldukları için EN modda her cümlede
+  altları çizilirdi. Sadece `gherkin` ve `cucumber` terimleri eklendi.
+
+---

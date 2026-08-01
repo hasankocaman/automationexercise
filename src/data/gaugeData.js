@@ -126,7 +126,7 @@ const gaugeVsCompetitorsFilm = {
   sceneDurationMs: 3400,
   stageHeight: 260,
   actors: [
-    { id: 'scenario', emoji: '📋', label: { tr: 'Senaryo: "Giriş Yapar"', en: 'Scenario: "Signs In"' }, color: '#0ea5e9' },
+    { id: 'scenario', emoji: '📋', label: { tr: 'Scenario: "Giriş Yapar"', en: 'Scenario: "Signs In"' }, color: '#0ea5e9' },
     { id: 'testng',   emoji: '⚙️', label: { tr: 'TestNG @Test',          en: 'TestNG @Test' },          color: '#8b5cf6' },
     { id: 'cucumber', emoji: '🥒', label: { tr: 'Cucumber .feature',     en: 'Cucumber .feature' },      color: '#22c55e' },
     { id: 'gaugeTool',emoji: '📏', label: { tr: 'Gauge .spec',           en: 'Gauge .spec' },            color: '#f59e0b' },
@@ -139,7 +139,7 @@ const gaugeVsCompetitorsFilm = {
         tr: 'Aynı senaryo — "kullanıcı admin ile giriş yapar" — üç farklı araçta yazılırsa nasıl farklı YAŞAR? Bu filmde aynı cümlenin TestNG, Cucumber ve Gauge\'de nereye gittiğini izleyeceksin.',
         en: 'The same scenario — "user signs in as admin" — LIVES differently depending on the tool. In this film you will watch where that one sentence ends up in TestNG, Cucumber, and Gauge.',
       },
-      code: { tr: `Senaryo: Kullanici "admin" ile giris yapar`, en: `Scenario: User signs in as "admin"` },
+      code: { tr: `Scenario: Kullanici "admin" ile giris yapar`, en: `Scenario: User signs in as "admin"` },
       positions: {
         scenario: { x: 50, y: 50, scale: 1.1, pulse: true },
       },

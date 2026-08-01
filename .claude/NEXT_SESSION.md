@@ -50,6 +50,38 @@
     regresyon 6/6 ✓ (toplam 10/10).
   - **Açık iş:** `main`'e merge/PR kararı hâlâ kullanıcıda.
 
+- **Aynı gün, ikinci tur — Gherkin anahtar kelimeleri (kullanıcı raporu):**
+  Kullanıcı `/sprint` görevindeki Gherkin bloğunda anahtar kelimelerin
+  Türkçeleştirildiğini gördü (`Senaryo:`, `Diyelim ki`, `Ve`, `O zaman`).
+  Kural (CLAUDE.md §8): dilin KENDİ sözdizimi, TR sayfada bile İngilizce kalır.
+  - **`sprintsData.js` — 18 blok düzeltildi** (6 mission × code/starterCode/
+    solutionCode). **Yan bulgu:** `When` satırı 18 bloğun HEPSİNDE tamamen
+    DÜŞMÜŞTÜ (adım anahtar kelimesizdi) — bloklar geçerli Gherkin bile değildi;
+    dönüşüm sırasında eklendi. Mekanik dönüşüm önce dry-run ile gözle
+    doğrulandı (CLAUDE.md §23.3), rakamla başlayan adım satırı korundu.
+  - **`gaugeData.js`** (film `code` alanı + eşlik eden aktör etiketi) ve
+    **`claudeAiData.js`** (prompt şablonundaki `Özellik:` → `Feature:`) de
+    düzeltildi. Düz Türkçe başlıklar ("Senaryo: EC2'de Selenium Grid",
+    `manualTestingData.js`'in "Özellik: Kahve Yap" etiketi) Gherkin DEĞİLDİR,
+    dokunulmadı.
+  - **Hover açıklaması (kullanıcı isteği):** Kod bloklarına tooltip mimari
+    olarak bağlanamıyor (`highlightGlossaryTerms` `<pre>` içeriğini asla
+    sarmaz), bu yüzden anahtar kelime açıklaması 6 gherkin bloğunun
+    **`explanation` alanına** iki dilli olarak eklendi (blok render'ında kodun
+    hemen üstünde çıkar). `termGlossary.js`'e `gherkin` + `cucumber` terimleri
+    eklendi; `Given/When/Then/And` BİLEREK eklenmedi — EN modda her cümlede
+    altları çizilirdi (dosyanın "aşırı yaygın kelime ekleme" kuralı).
+  - **Kalıcı kontrol eklendi:** `check-content-integrity.mjs` **Kontrol [G]**
+    (`checkGherkinKeywords`) — build + pre-commit'te hard-fail. İlk yazımında
+    12 yanlış-pozitif verdi (düz Türkçe başlıklar), daraltıldı: bir string
+    ancak çok satırlı olup adım satırı içeriyorsa ya da bir kod alanına
+    yazılmışsa denetlenir. **Dişi doğrulandı** — geçici sonda dosyasıyla 4
+    anahtar kelimenin de yakalandığı görüldü, sonra silindi.
+  - **CLAUDE.md güncellendi:** §23.9 (kök neden/çözüm/önleme) + §11'e hata maddesi.
+  - **Doğrulama:** content-integrity ✓ (0 ihlal, [G] dahil) · i18n baseline 0 ✓ ·
+    audit-learning-blocks ✓ · build ✓ (44 shell) · `sprint-flow.spec.ts` 4/4 ✓ ·
+    `term-tooltip.spec.ts` regresyon 2/2 ✓.
+
 ---
 
 ## 📌 Önceki Durum (2026-08-01, Sonnet — Test kapsamı S4)

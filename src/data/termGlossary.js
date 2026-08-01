@@ -532,4 +532,21 @@ export const TERM_GLOSSARY = {
     short: { tr: 'Bir yazılımın çalıştığı, birbirinden AYRI kurulmuş bilgisayar/sunucu ortamlarından biri (test, staging, production gibi).', en: 'One of the SEPARATE computer/server setups a piece of software runs in (like test, staging, production).' },
     analogy: { tr: 'Bir dizinin farklı çekim setleri gibi: prova seti (test), son kontrol seti (staging) ve YAYINDAKİ gerçek bölüm (production) — AYNI senaryo ama her ortamın riski ve izleyicisi farklıdır.', en: 'Like different film sets for a TV series: the rehearsal set (test), the final-check set (staging), and the episode that actually AIRS (production) — the SAME script, but each environment has a different risk and audience.' },
   },
+  // NOT: Gherkin'in anahtar kelimeleri (Given/When/Then/And) BİLEREK buraya
+  // eklenmedi — bunlar günlük İngilizcede aşırı yaygın kelimeler, alias olarak
+  // eklenirse EN modda her cümlede altları çizilirdi (dosya başındaki "aşırı
+  // yaygın kelimeleri EKLEME" kuralı). Anahtar kelime açıklaması, kod bloğunun
+  // hemen üstündeki `explanation` metninde veriliyor (sprintsData.js).
+  gherkin: {
+    term: { tr: 'Gherkin', en: 'Gherkin' },
+    aliases: ['gherkin'],
+    short: { tr: 'Test senaryolarını Given / When / Then anahtar kelimeleriyle, herkesin okuyabileceği düz cümleler halinde yazma dili.', en: 'A language for writing test scenarios as plain, readable sentences using the Given / When / Then keywords.' },
+    analogy: { tr: 'Bir yemek tarifinin sabit bir kalıba oturtulması gibi: önce "elinde ne var" (Given), sonra "ne yapıyorsun" (When), en son "sonuç ne olmalı" (Then). Kalıp sabit olduğu için tarifi hem aşçı hem müşteri aynı şekilde anlar — test senaryosunu da hem developer hem iş birimi aynı okur.', en: 'Like forcing a cooking recipe into a fixed shape: first "what you have" (Given), then "what you do" (When), finally "what the result must be" (Then). Because the shape is fixed, both the cook and the customer read it the same way — just as both a developer and a business person read the scenario the same way.' },
+  },
+  cucumber: {
+    term: { tr: 'Cucumber', en: 'Cucumber' },
+    aliases: ['cucumber'],
+    short: { tr: 'Gherkin ile yazılmış cümleleri gerçekten çalışan test koduna bağlayan araç.', en: 'The tool that connects sentences written in Gherkin to test code that actually runs.' },
+    analogy: { tr: 'Bir tercüman gibi: masada iş birimi kendi dilinde konuşur ("kullanıcı yanlış şifre girerse uyarı görsün"), Cucumber bu cümleyi alıp arkadaki test koduna çevirir — böylece cümle sadece bir belge olmaktan çıkıp çalışan bir kontrole dönüşür.', en: 'Like an interpreter: the business side speaks in its own language ("if the user types a wrong password they should see a warning"), and Cucumber translates that sentence into the test code behind it — so the sentence stops being just a document and becomes a running check.' },
+  },
 }

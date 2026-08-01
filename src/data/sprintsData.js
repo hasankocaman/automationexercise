@@ -106,19 +106,19 @@ const bugSilentLoginFailure = {
             en: 'Complete the TODO line with a Then step that verifies the error message the user SEES on screen.',
           },
           explanation: {
-            tr: 'Gerçek bir Cucumber koşumu değil; amaç gözlenebilir sonucu yazma refleksini pekiştirmek.',
-            en: 'This is not a real Cucumber run; the goal is to reinforce the reflex of writing an observable outcome.',
+            tr: 'Gerçek bir Cucumber koşumu değil; amaç gözlenebilir sonucu yazma refleksini pekiştirmek. Anahtar kelimeler (Given / When / Then / And) Gherkin dilinin kendi sözdizimidir — SELECT veya JOIN gibi İngilizce kalır: Given = ön koşul, When = kullanıcının yaptığı eylem, Then = gözlenebilir sonuç, And = bir önceki adımın devamı.',
+            en: 'This is not a real Cucumber run; the goal is to reinforce the reflex of writing an observable outcome. The keywords (Given / When / Then / And) are Gherkin syntax, not prose: Given = precondition, When = the action the user takes, Then = the observable outcome, And = a continuation of the previous step.',
           },
           code: {
-            tr: `Senaryo: Yanlis sifre girildiginde kullanici uyarilir\n  Diyelim ki kullanici login sayfasindadir\n  Kullanici gecerli bir e-posta ve YANLIS bir sifre girer\n  Ve giris butonuna tiklar\n  O zaman ekranda "Sifre hatali" mesaji gorunur`,
+            tr: `Scenario: Yanlis sifre girildiginde kullanici uyarilir\n  Given kullanici login sayfasindadir\n  When kullanici gecerli bir e-posta ve YANLIS bir sifre girer\n  And giris butonuna tiklar\n  Then ekranda "Sifre hatali" mesaji gorunur`,
             en: `Scenario: The user is warned when a wrong password is entered\n  Given the user is on the login page\n  When the user enters a valid email and a WRONG password\n  And clicks the sign in button\n  Then the message "Wrong password" is visible on screen`,
           },
           starterCode: {
-            tr: `Senaryo: Yanlis sifre girildiginde kullanici uyarilir\n  Diyelim ki kullanici login sayfasindadir\n  Kullanici gecerli bir e-posta ve YANLIS bir sifre girer\n  Ve giris butonuna tiklar\n  # TODO: gozlenebilir sonucu yazan O zaman satirini ekle`,
+            tr: `Scenario: Yanlis sifre girildiginde kullanici uyarilir\n  Given kullanici login sayfasindadir\n  When kullanici gecerli bir e-posta ve YANLIS bir sifre girer\n  And giris butonuna tiklar\n  # TODO: gozlenebilir sonucu yazan Then satirini ekle`,
             en: `Scenario: The user is warned when a wrong password is entered\n  Given the user is on the login page\n  When the user enters a valid email and a WRONG password\n  And clicks the sign in button\n  # TODO: add the Then line that states the observable outcome`,
           },
           solutionCode: {
-            tr: `Senaryo: Yanlis sifre girildiginde kullanici uyarilir\n  Diyelim ki kullanici login sayfasindadir\n  Kullanici gecerli bir e-posta ve YANLIS bir sifre girer\n  Ve giris butonuna tiklar\n  O zaman ekranda "Sifre hatali" mesaji gorunur`,
+            tr: `Scenario: Yanlis sifre girildiginde kullanici uyarilir\n  Given kullanici login sayfasindadir\n  When kullanici gecerli bir e-posta ve YANLIS bir sifre girer\n  And giris butonuna tiklar\n  Then ekranda "Sifre hatali" mesaji gorunur`,
             en: `Scenario: The user is warned when a wrong password is entered\n  Given the user is on the login page\n  When the user enters a valid email and a WRONG password\n  And clicks the sign in button\n  Then the message "Wrong password" is visible on screen`,
           },
           expected: {
@@ -378,19 +378,19 @@ const bugStaleCartTotal = {
             en: 'Complete the TODO line with a Then step verifying the subtotal updates instantly, WITHOUT a page refresh.',
           },
           explanation: {
-            tr: 'Gerçek bir koşum değil; amaç "bug\'ı maskeleyen adımı test case\'e koyma" refleksini pekiştirmek.',
-            en: 'Not a real run; the goal is to reinforce the reflex of not putting the bug-masking step into the test case.',
+            tr: 'Gerçek bir koşum değil; amaç "bug\'ı maskeleyen adımı test case\'e koyma" refleksini pekiştirmek. Anahtar kelimeler (Given / When / Then / And) Gherkin dilinin kendi sözdizimidir — SELECT veya JOIN gibi İngilizce kalır: Given = ön koşul, When = kullanıcının yaptığı eylem, Then = gözlenebilir sonuç, And = bir önceki adımın devamı.',
+            en: 'Not a real run; the goal is to reinforce the reflex of not putting the bug-masking step into the test case. The keywords (Given / When / Then / And) are Gherkin syntax, not prose: Given = precondition, When = the action the user takes, Then = the observable outcome, And = a continuation of the previous step.',
           },
           code: {
-            tr: `Senaryo: Adet artirilinca alt toplam aninda guncellenir\n  Diyelim ki sepette 100 TL'lik 1 adet urun vardir\n  Kullanici adedi 3 yapar\n  O zaman alt toplam sayfa yenilenmeden 300 TL gorunur`,
+            tr: `Scenario: Adet artirilinca alt toplam aninda guncellenir\n  Given sepette 100 TL'lik 1 adet urun vardir\n  When kullanici adedi 3 yapar\n  Then alt toplam sayfa yenilenmeden 300 TL gorunur`,
             en: `Scenario: The subtotal updates instantly when the quantity is raised\n  Given the cart holds 1 item priced at 100\n  When the user sets the quantity to 3\n  Then the subtotal shows 300 without a page refresh`,
           },
           starterCode: {
-            tr: `Senaryo: Adet artirilinca alt toplam aninda guncellenir\n  Diyelim ki sepette 100 TL'lik 1 adet urun vardir\n  Kullanici adedi 3 yapar\n  # TODO: yenileme ADIMI OLMADAN dogrulayan O zaman satirini ekle`,
+            tr: `Scenario: Adet artirilinca alt toplam aninda guncellenir\n  Given sepette 100 TL'lik 1 adet urun vardir\n  When kullanici adedi 3 yapar\n  # TODO: yenileme ADIMI OLMADAN dogrulayan Then satirini ekle`,
             en: `Scenario: The subtotal updates instantly when the quantity is raised\n  Given the cart holds 1 item priced at 100\n  When the user sets the quantity to 3\n  # TODO: add the Then line that verifies it WITHOUT a refresh step`,
           },
           solutionCode: {
-            tr: `Senaryo: Adet artirilinca alt toplam aninda guncellenir\n  Diyelim ki sepette 100 TL'lik 1 adet urun vardir\n  Kullanici adedi 3 yapar\n  O zaman alt toplam sayfa yenilenmeden 300 TL gorunur`,
+            tr: `Scenario: Adet artirilinca alt toplam aninda guncellenir\n  Given sepette 100 TL'lik 1 adet urun vardir\n  When kullanici adedi 3 yapar\n  Then alt toplam sayfa yenilenmeden 300 TL gorunur`,
             en: `Scenario: The subtotal updates instantly when the quantity is raised\n  Given the cart holds 1 item priced at 100\n  When the user sets the quantity to 3\n  Then the subtotal shows 300 without a page refresh`,
           },
           expected: {
@@ -650,19 +650,19 @@ const bugDoubleOrderSubmit = {
             en: 'Complete the TODO line with a Then step verifying that only 1 order is created even when two requests share the same idempotency key.',
           },
           explanation: {
-            tr: 'Gerçek bir koşum değil; amaç "var mı?" değil "kaç tane?" sorusunu sorma refleksini pekiştirmek.',
-            en: 'Not a real run; the goal is to reinforce asking "how many?" instead of just "did it happen?".',
+            tr: 'Gerçek bir koşum değil; amaç "var mı?" değil "kaç tane?" sorusunu sorma refleksini pekiştirmek. Anahtar kelimeler (Given / When / Then / And) Gherkin dilinin kendi sözdizimidir — SELECT veya JOIN gibi İngilizce kalır: Given = ön koşul, When = kullanıcının yaptığı eylem, Then = gözlenebilir sonuç, And = bir önceki adımın devamı.',
+            en: 'Not a real run; the goal is to reinforce asking "how many?" instead of just "did it happen?". The keywords (Given / When / Then / And) are Gherkin syntax, not prose: Given = precondition, When = the action the user takes, Then = the observable outcome, And = a continuation of the previous step.',
           },
           code: {
-            tr: `Senaryo: Ayni idempotency key ile ikinci istek yeni siparis olusturmaz\n  Diyelim ki kullanici odeme butonuna "abc-123" idempotency key'i ile bir istek gonderdi\n  Kullanici ayni "abc-123" key'i ile ikinci bir istek daha gonderir\n  O zaman sistemde TOPLAM 1 siparis olusur`,
+            tr: `Scenario: Ayni idempotency key ile ikinci istek yeni siparis olusturmaz\n  Given kullanici odeme butonuna "abc-123" idempotency key'i ile bir istek gonderdi\n  When kullanici ayni "abc-123" key'i ile ikinci bir istek daha gonderir\n  Then sistemde TOPLAM 1 siparis olusur`,
             en: `Scenario: A second request with the same idempotency key does not create a new order\n  Given the user sent a request to the payment button with idempotency key "abc-123"\n  When the user sends a second request with the SAME "abc-123" key\n  Then the system has a TOTAL of 1 order`,
           },
           starterCode: {
-            tr: `Senaryo: Ayni idempotency key ile ikinci istek yeni siparis olusturmaz\n  Diyelim ki kullanici odeme butonuna "abc-123" idempotency key'i ile bir istek gonderdi\n  Kullanici ayni "abc-123" key'i ile ikinci bir istek daha gonderir\n  # TODO: TOPLAM siparis sayisini dogrulayan O zaman satirini ekle`,
+            tr: `Scenario: Ayni idempotency key ile ikinci istek yeni siparis olusturmaz\n  Given kullanici odeme butonuna "abc-123" idempotency key'i ile bir istek gonderdi\n  When kullanici ayni "abc-123" key'i ile ikinci bir istek daha gonderir\n  # TODO: TOPLAM siparis sayisini dogrulayan Then satirini ekle`,
             en: `Scenario: A second request with the same idempotency key does not create a new order\n  Given the user sent a request to the payment button with idempotency key "abc-123"\n  When the user sends a second request with the SAME "abc-123" key\n  # TODO: add the Then line that verifies the TOTAL order count`,
           },
           solutionCode: {
-            tr: `Senaryo: Ayni idempotency key ile ikinci istek yeni siparis olusturmaz\n  Diyelim ki kullanici odeme butonuna "abc-123" idempotency key'i ile bir istek gonderdi\n  Kullanici ayni "abc-123" key'i ile ikinci bir istek daha gonderir\n  O zaman sistemde TOPLAM 1 siparis olusur`,
+            tr: `Scenario: Ayni idempotency key ile ikinci istek yeni siparis olusturmaz\n  Given kullanici odeme butonuna "abc-123" idempotency key'i ile bir istek gonderdi\n  When kullanici ayni "abc-123" key'i ile ikinci bir istek daha gonderir\n  Then sistemde TOPLAM 1 siparis olusur`,
             en: `Scenario: A second request with the same idempotency key does not create a new order\n  Given the user sent a request to the payment button with idempotency key "abc-123"\n  When the user sends a second request with the SAME "abc-123" key\n  Then the system has a TOTAL of 1 order`,
           },
           expected: {
@@ -917,19 +917,19 @@ const bugExpiredCouponStillValid = {
             en: 'Complete the TODO line with a Then step stating the server must treat the coupon as invalid DESPITE the fake date the client sent.',
           },
           explanation: {
-            tr: 'Gerçek bir koşum değil; amaç istemci verisine güvenmeme refleksini pekiştirmek.',
-            en: 'Not a real run; the goal is to reinforce the reflex of not trusting client-submitted data.',
+            tr: 'Gerçek bir koşum değil; amaç istemci verisine güvenmeme refleksini pekiştirmek. Anahtar kelimeler (Given / When / Then / And) Gherkin dilinin kendi sözdizimidir — SELECT veya JOIN gibi İngilizce kalır: Given = ön koşul, When = kullanıcının yaptığı eylem, Then = gözlenebilir sonuç, And = bir önceki adımın devamı.',
+            en: 'Not a real run; the goal is to reinforce the reflex of not trusting client-submitted data. The keywords (Given / When / Then / And) are Gherkin syntax, not prose: Given = precondition, When = the action the user takes, Then = the observable outcome, And = a continuation of the previous step.',
           },
           code: {
-            tr: `Senaryo: Istemcinin gonderdigi sahte tarih kuponu gecerli kilmaz\n  Diyelim ki "BAHAR20" kuponu sunucu saatine gore 1 Mayis'ta sona erdi\n  Kullanici istegi duzenleyip "today" alanina "2026-04-30" (gecmis bir tarih) gonderir\n  O zaman sunucu kuponu GECERSIZ sayar`,
+            tr: `Scenario: Istemcinin gonderdigi sahte tarih kuponu gecerli kilmaz\n  Given "BAHAR20" kuponu sunucu saatine gore 1 Mayis'ta sona erdi\n  When kullanici istegi duzenleyip "today" alanina "2026-04-30" (gecmis bir tarih) gonderir\n  Then sunucu kuponu GECERSIZ sayar`,
             en: `Scenario: A fake date sent by the client does not make the coupon valid\n  Given the "BAHAR20" coupon ended on May 1st according to the server clock\n  When the user edits the request and sends "today" as "2026-04-30" (a past date)\n  Then the server treats the coupon as INVALID`,
           },
           starterCode: {
-            tr: `Senaryo: Istemcinin gonderdigi sahte tarih kuponu gecerli kilmaz\n  Diyelim ki "BAHAR20" kuponu sunucu saatine gore 1 Mayis'ta sona erdi\n  Kullanici istegi duzenleyip "today" alanina "2026-04-30" (gecmis bir tarih) gonderir\n  # TODO: sunucunun kendi saatini kullandigini dogrulayan O zaman satirini ekle`,
+            tr: `Scenario: Istemcinin gonderdigi sahte tarih kuponu gecerli kilmaz\n  Given "BAHAR20" kuponu sunucu saatine gore 1 Mayis'ta sona erdi\n  When kullanici istegi duzenleyip "today" alanina "2026-04-30" (gecmis bir tarih) gonderir\n  # TODO: sunucunun kendi saatini kullandigini dogrulayan Then satirini ekle`,
             en: `Scenario: A fake date sent by the client does not make the coupon valid\n  Given the "BAHAR20" coupon ended on May 1st according to the server clock\n  When the user edits the request and sends "today" as "2026-04-30" (a past date)\n  # TODO: add the Then line verifying the server uses its own clock`,
           },
           solutionCode: {
-            tr: `Senaryo: Istemcinin gonderdigi sahte tarih kuponu gecerli kilmaz\n  Diyelim ki "BAHAR20" kuponu sunucu saatine gore 1 Mayis'ta sona erdi\n  Kullanici istegi duzenleyip "today" alanina "2026-04-30" (gecmis bir tarih) gonderir\n  O zaman sunucu kuponu GECERSIZ sayar`,
+            tr: `Scenario: Istemcinin gonderdigi sahte tarih kuponu gecerli kilmaz\n  Given "BAHAR20" kuponu sunucu saatine gore 1 Mayis'ta sona erdi\n  When kullanici istegi duzenleyip "today" alanina "2026-04-30" (gecmis bir tarih) gonderir\n  Then sunucu kuponu GECERSIZ sayar`,
             en: `Scenario: A fake date sent by the client does not make the coupon valid\n  Given the "BAHAR20" coupon ended on May 1st according to the server clock\n  When the user edits the request and sends "today" as "2026-04-30" (a past date)\n  Then the server treats the coupon as INVALID`,
           },
           expected: {
@@ -1189,19 +1189,19 @@ const bugSlowProductListNPlusOne = {
             en: 'Complete the TODO line with a Then step stating the query count must stay under a fixed upper bound, INDEPENDENT of the product count.',
           },
           explanation: {
-            tr: 'Gerçek bir koşum değil; amaç "süre yerine kök nedeni doğrudan yakala" refleksini pekiştirmek.',
-            en: 'Not a real run; the goal is to reinforce catching the root cause directly instead of relying on duration alone.',
+            tr: 'Gerçek bir koşum değil; amaç "süre yerine kök nedeni doğrudan yakala" refleksini pekiştirmek. Anahtar kelimeler (Given / When / Then / And) Gherkin dilinin kendi sözdizimidir — SELECT veya JOIN gibi İngilizce kalır: Given = ön koşul, When = kullanıcının yaptığı eylem, Then = gözlenebilir sonuç, And = bir önceki adımın devamı.',
+            en: 'Not a real run; the goal is to reinforce catching the root cause directly instead of relying on duration alone. The keywords (Given / When / Then / And) are Gherkin syntax, not prose: Given = precondition, When = the action the user takes, Then = the observable outcome, And = a continuation of the previous step.',
           },
           code: {
-            tr: `Senaryo: Urun sayisi artsa bile calisan sorgu sayisi sabit kalir\n  Diyelim ki katalogda 200 urun ve her urunun bir kategorisi var\n  Kullanici "/api/products" endpoint'ine istek atar\n  O zaman calisan toplam sorgu sayisi 5'in ALTINDA kalir`,
+            tr: `Scenario: Urun sayisi artsa bile calisan sorgu sayisi sabit kalir\n  Given katalogda 200 urun ve her urunun bir kategorisi var\n  When kullanici "/api/products" endpoint'ine istek atar\n  Then calisan toplam sorgu sayisi 5'in ALTINDA kalir`,
             en: `Scenario: The query count stays constant even as the product count grows\n  Given the catalog has 200 products and each product has a category\n  When the user requests the "/api/products" endpoint\n  Then the total number of queries executed stays UNDER 5`,
           },
           starterCode: {
-            tr: `Senaryo: Urun sayisi artsa bile calisan sorgu sayisi sabit kalir\n  Diyelim ki katalogda 200 urun ve her urunun bir kategorisi var\n  Kullanici "/api/products" endpoint'ine istek atar\n  # TODO: sorgu sayisinin sabit bir ust sinirin altinda kaldigini dogrulayan O zaman satirini ekle`,
+            tr: `Scenario: Urun sayisi artsa bile calisan sorgu sayisi sabit kalir\n  Given katalogda 200 urun ve her urunun bir kategorisi var\n  When kullanici "/api/products" endpoint'ine istek atar\n  # TODO: sorgu sayisinin sabit bir ust sinirin altinda kaldigini dogrulayan Then satirini ekle`,
             en: `Scenario: The query count stays constant even as the product count grows\n  Given the catalog has 200 products and each product has a category\n  When the user requests the "/api/products" endpoint\n  # TODO: add the Then line verifying the query count stays under a fixed upper bound`,
           },
           solutionCode: {
-            tr: `Senaryo: Urun sayisi artsa bile calisan sorgu sayisi sabit kalir\n  Diyelim ki katalogda 200 urun ve her urunun bir kategorisi var\n  Kullanici "/api/products" endpoint'ine istek atar\n  O zaman calisan toplam sorgu sayisi 5'in ALTINDA kalir`,
+            tr: `Scenario: Urun sayisi artsa bile calisan sorgu sayisi sabit kalir\n  Given katalogda 200 urun ve her urunun bir kategorisi var\n  When kullanici "/api/products" endpoint'ine istek atar\n  Then calisan toplam sorgu sayisi 5'in ALTINDA kalir`,
             en: `Scenario: The query count stays constant even as the product count grows\n  Given the catalog has 200 products and each product has a category\n  When the user requests the "/api/products" endpoint\n  Then the total number of queries executed stays UNDER 5`,
           },
           expected: {
@@ -1456,19 +1456,19 @@ const bugConcurrentOrderStockRace = {
             en: 'Complete the TODO line with a Then step stating stock never goes negative AND at most as many orders as available stock succeed.',
           },
           explanation: {
-            tr: 'Gerçek bir koşum değil; amaç eşzamanlılık senaryosunda "iki parçalı beklenen sonuç" yazma refleksini pekiştirmek.',
-            en: 'Not a real run; the goal is to reinforce writing a "two-part expected outcome" for a concurrency scenario.',
+            tr: 'Gerçek bir koşum değil; amaç eşzamanlılık senaryosunda "iki parçalı beklenen sonuç" yazma refleksini pekiştirmek. Anahtar kelimeler (Given / When / Then / And) Gherkin dilinin kendi sözdizimidir — SELECT veya JOIN gibi İngilizce kalır: Given = ön koşul, When = kullanıcının yaptığı eylem, Then = gözlenebilir sonuç, And = bir önceki adımın devamı.',
+            en: 'Not a real run; the goal is to reinforce writing a "two-part expected outcome" for a concurrency scenario. The keywords (Given / When / Then / And) are Gherkin syntax, not prose: Given = precondition, When = the action the user takes, Then = the observable outcome, And = a continuation of the previous step.',
           },
           code: {
-            tr: `Senaryo: Eszamanli siparisler stogu negatife dusurmez\n  Diyelim ki bir urunun stogu 10 adettir\n  50 eszamanli istek AYNI ANDA bu urun icin siparis olusturmaya calisir\n  O zaman kalan stok negatif olmaz VE en fazla 10 siparis basarili olur`,
+            tr: `Scenario: Eszamanli siparisler stogu negatife dusurmez\n  Given bir urunun stogu 10 adettir\n  When 50 eszamanli istek AYNI ANDA bu urun icin siparis olusturmaya calisir\n  Then kalan stok negatif olmaz VE en fazla 10 siparis basarili olur`,
             en: `Scenario: Concurrent orders do not push stock negative\n  Given a product has a stock of 10\n  When 50 concurrent requests try to order this product AT THE SAME TIME\n  Then the remaining stock is never negative AND at most 10 orders succeed`,
           },
           starterCode: {
-            tr: `Senaryo: Eszamanli siparisler stogu negatife dusurmez\n  Diyelim ki bir urunun stogu 10 adettir\n  50 eszamanli istek AYNI ANDA bu urun icin siparis olusturmaya calisir\n  # TODO: iki parcali beklenen sonucu (negatif olmaz + en fazla 10 basarili) yazan O zaman satirini ekle`,
+            tr: `Scenario: Eszamanli siparisler stogu negatife dusurmez\n  Given bir urunun stogu 10 adettir\n  When 50 eszamanli istek AYNI ANDA bu urun icin siparis olusturmaya calisir\n  # TODO: iki parcali beklenen sonucu (negatif olmaz + en fazla 10 basarili) yazan Then satirini ekle`,
             en: `Scenario: Concurrent orders do not push stock negative\n  Given a product has a stock of 10\n  When 50 concurrent requests try to order this product AT THE SAME TIME\n  # TODO: add the Then line stating the two-part expected outcome (never negative + at most 10 succeed)`,
           },
           solutionCode: {
-            tr: `Senaryo: Eszamanli siparisler stogu negatife dusurmez\n  Diyelim ki bir urunun stogu 10 adettir\n  50 eszamanli istek AYNI ANDA bu urun icin siparis olusturmaya calisir\n  O zaman kalan stok negatif olmaz VE en fazla 10 siparis basarili olur`,
+            tr: `Scenario: Eszamanli siparisler stogu negatife dusurmez\n  Given bir urunun stogu 10 adettir\n  When 50 eszamanli istek AYNI ANDA bu urun icin siparis olusturmaya calisir\n  Then kalan stok negatif olmaz VE en fazla 10 siparis basarili olur`,
             en: `Scenario: Concurrent orders do not push stock negative\n  Given a product has a stock of 10\n  When 50 concurrent requests try to order this product AT THE SAME TIME\n  Then the remaining stock is never negative AND at most 10 orders succeed`,
           },
           expected: {
