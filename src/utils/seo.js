@@ -235,6 +235,8 @@ export const ROUTE_SEO = [
             title: 'Siber Güvenlik ve Sızma Testi Eğitimi (OWASP) | LearnQA.dev',
             description: 'Web uygulaması sızma testi nasıl yapılır? OWASP Top 10 açıklarını (SQLi, XSS, JWT, IDOR, SSRF) interaktif Lego animasyonları ve quizlerle öğren.',
         },
+        // Sitemap'e GİRMEZ + shell'de robots=noindex: RequireAdmin ile korunuyor — ziyaretçi içerik göremez.
+        noindex: true,
     },
     {
         path: '/linux',
@@ -343,6 +345,8 @@ export const ROUTE_SEO = [
             title: 'QA Öğrenme Uygulaması İçin Basit Backend | LearnQA.dev',
             description: 'React tabanlı bir öğrenme platformuna Supabase ile Google girişi, ilerleme kaydı, rozetler, geri bildirim ve gerçek zamanlı sohbet eklemeyi öğren.',
         },
+        // Sitemap'e GİRMEZ + shell'de robots=noindex: RequireAdmin ile korunuyor — ziyaretçi içerik göremez.
+        noindex: true,
     },
     {
         path: '/basit-backend',
@@ -379,6 +383,8 @@ export const ROUTE_SEO = [
             title: 'Giriş Yapılıyor | LearnQA.dev',
             description: 'LearnQA.dev girişin tamamlanıyor. Kimlik doğrulama bittiğinde otomatik olarak yönlendirileceksin, bu sayfada bir işlem yapmana gerek yok.',
         },
+        // Sitemap'e GİRMEZ + shell'de robots=noindex: OAuth dönüş adresi — indekslenirse kullanıcı arama sonucundan bozuk bir akışa düşer.
+        noindex: true,
     },
     {
         path: '/login',
@@ -388,6 +394,8 @@ export const ROUTE_SEO = [
             title: 'Giriş Yap veya Kayıt Ol | LearnQA.dev',
             description: 'Öğrenme ilerlemeni kaydetmek için LearnQA.dev\'e Google, GitHub, Microsoft veya şifresiz e-posta Magic Link ile giriş yap.',
         },
+        // Sitemap'e GİRMEZ + shell'de robots=noindex: işlevsel sayfa, arama sonucunda değeri yok.
+        noindex: true,
     },
     {
         path: '/sprint',
@@ -424,6 +432,8 @@ export const ROUTE_SEO = [
             title: 'Test Otomasyonu İçin AI QA Asistanı | LearnQA.dev',
             description: 'LearnQA AI asistanıyla Selenium, Playwright, Java, Python ve API testi hakkında sohbet et, yazdığın test otomasyon koduna geri bildirim al.',
         },
+        // Sitemap'e GİRMEZ + shell'de robots=noindex: ProtectedRoute — yalnızca üye erişebilir.
+        noindex: true,
     },
     {
         // Gerçek bir sayfa değil, App.jsx route tanımıyla 1:1 eşleşmesi için var (check-seo.mjs

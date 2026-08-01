@@ -20,7 +20,52 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — SEO Faz 2'nin test edilmeyen 5 maddesi E2E'ye alındı)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — yayın öncesi 2 SEO riski kapatıldı)
+
+- **Aktif branch: `feature/seo-phase-2`.** `DEPLOY.md` §9'daki yayın kapısı
+  rehberi yazılırken ölçülen **iki açık bulgu düzeltildi**. İkisi de "geri
+  dönüşü pahalı" kategorisindeydi — yayına çıkıp indekslendikten sonra
+  düzeltmek haftalar sürerdi.
+- **✅ Bulgu 1 — sitemap korumalı/işlevsel sayfaları indekslenmeye sunuyordu.**
+  `/backend`, `/security` (RequireAdmin), `/qa-assistant` (ProtectedRoute),
+  `/login` ve `/auth/callback` sitemap'teydi. İlk üçü ziyaretçiye içerik
+  göstermediği için thin content/soft 404 sinyali üretirdi; `/auth/callback`
+  bir OAuth dönüş adresi, arama sonucundan tıklanırsa kullanıcı bozuk bir akışa
+  düşerdi.
+  - **Çözüm:** `seo.js`'te bu 5 girdiye `noindex: true`.
+    `generate-seo-files.mjs` sitemap'ten çıkarır (**90 → 80 URL**);
+    `generate-static-routes.mjs` shell'lerini YİNE üretir (GitHub Pages'te derin
+    bağlantıda sert yenileme için gerekir) ama `robots=noindex,follow` basar.
+    `check-dist-seo.mjs` her iki yönü de hard-fail eder (noindex sayfada meta
+    eksikse VE indekslenen sayfaya yanlışlıkla noindex bulaştıysa).
+- **✅ Bulgu 2 — FAQPage şeması görünmeyen içeriği işaret ediyordu.** Ölçüm:
+  şemada 10 soru vardı, **0'ı** sayfanın görünür gövdesinde. Statik shell'de
+  yalnızca JSON-LD içindeydiler; uygulamada ise mülakat sekmesi %60 quiz
+  barajının arkasında (AC 04, bir ürün kararı). Crawler'ın gördüğüyle
+  kullanıcının gördüğü ayrışıyordu — Google'ın FAQPage politikası içeriğin
+  kullanıcıya görünür olmasını şart koşar.
+  - **Çözüm: şema kaldırıldı.** Gerekçe iki katmanlı: politika riski gerçekti VE
+    FAQ zengin sonuçları 2023'ten beri yalnızca resmî kurum/sağlık siteleri için
+    gösteriliyor — yani riskin karşılığında kazanç yoktu. `Course` şeması
+    dokunulmadı (68 sayfa).
+  - Geri eklemek için iki koşul birlikte sağlanmalı: şemadaki metin sayfada
+    gate'siz GÖRÜNÜR olmalı ve bu AC 04'le çelişmemeli (pratikte: gate'in
+    önünde, herkese açık ayrı bir SSS bölümü).
+- **Bekçiler:** `tests/seo-phase2-coverage.spec.ts`'e 4 yeni test —
+  korumalı route'lar sitemap'te YOK, noindex shell'leri robots meta'sı taşıyor,
+  indekslenen sayfalara noindex bulaşmamış, FAQPage geri gelmemiş. **Üçünün de
+  dişi doğrulandı** (dist'e FAQPage enjekte edildi / sitemap'e `/login` eklendi /
+  robots meta'sı silindi → 5 test kırıldı, sonra geri alındı).
+- **`DEPLOY.md` §9 güncellendi:** B2 ve C1 artık "ÇÖZÜLDÜ — regresyon kontrolü
+  olarak kalır" biçiminde; karar tablosu ve URL sayıları (80/160) yenilendi.
+- **Geriye kalan yayın öncesi işler (hiçbiri kod değil):** D1 mükerrer başlık
+  komutunu bir kez elle koş, D2 SERP görünümünü gözle kontrol et, **E1 Plausible
+  hesabını deploy'dan ÖNCE aç** (sonra açılırsa geçişin ilk günlerine ait veri
+  kalıcı olarak kaybolur).
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Opus — SEO Faz 2'nin test edilmeyen 5 maddesi E2E'ye alındı)
 
 - **Aktif branch: `feature/seo-phase-2`.** `Documents/seo-phase-2-plan.md`'deki 12
   maddenin her biri için "otomasyona dahil mi, test ediliyor mu" denetimi

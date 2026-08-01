@@ -9,19 +9,26 @@ import { ROUTE_SEO, LOCALES, localizedPath, SITE_URL } from '../src/utils/seo.js
 // (sitemap, statik shell'lerdeki JSON-LD, chunk bölme) ve daha önce hiçbir
 // otomatik kontrol tarafından doğrulanmıyordu:
 //
-//   - Sitemap 90 URL + `xhtml:link` alternatifleri: üretiliyordu ama üretilen
-//     dosyayı okuyup doğrulayan HİÇBİR ŞEY yoktu — yarım üretilse build yeşil kalırdı.
-//   - JSON-LD (FAQPage/Course): `check-dist-seo.mjs` yalnızca SAYIP yazdırıyordu,
-//     sayı sıfıra düşse bile build'i KIRMIYORDU.
+//   - Sitemap + `xhtml:link` alternatifleri: üretiliyordu ama üretilen dosyayı
+//     okuyup doğrulayan HİÇBİR ŞEY yoktu — yarım üretilse build yeşil kalırdı.
+//   - JSON-LD: `check-dist-seo.mjs` yalnızca SAYIP yazdırıyordu, sayı sıfıra
+//     düşse bile build'i KIRMIYORDU.
 //   - Kod bölme: büyük veri chunk'ının ilk boyayı bloklamadığı iddiası hiç
 //     ölçülmüyordu; testler yalnızca yükleme göstergesini bekliyordu.
+//   - Sitemap'e hangi sayfaların GİRMEMESİ gerektiği hiç denetlenmiyordu;
+//     korumalı/işlevsel sayfalar indekslenmeye sunuluyordu.
 //
 // `dist/` gereksinimi: her iki CI workflow'u da E2E'den ÖNCE `npm run build`
 // çalıştırır, `pre-push` hook'u da build alır. Yerelde build almadıysan test
 // sessizce geçmez — açık bir mesajla başarısız olur.
 
 const DIST = 'dist';
-const NON_DYNAMIC_ROUTES = ROUTE_SEO.filter((entry: any) => !entry.dynamic);
+// Sitemap'e giren küme: dinamik route'lar (parametrik) ve `noindex` işaretli
+// korumalı/işlevsel sayfalar hariç. Shell'ler yine İKİ dilde üretilir — bu
+// ayrım bilinçlidir (bkz. DEPLOY.md §9.2).
+const ALL_SHELL_ROUTES = ROUTE_SEO.filter((entry: any) => !entry.dynamic);
+const SITEMAP_ROUTES = ALL_SHELL_ROUTES.filter((entry: any) => !entry.noindex);
+const NOINDEX_ROUTES = ALL_SHELL_ROUTES.filter((entry: any) => entry.noindex);
 
 async function exists(path: string): Promise<boolean> {
     try { await access(path); return true; } catch { return false; }
@@ -61,7 +68,7 @@ test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
 
         // Route sayısının TAM İKİ KATI — bir dil sessizce düşerse yakalanır.
         expect(urlBlocks, 'sitemap URL sayısı route × dil sayısına eşit olmalı')
-            .toHaveLength(NON_DYNAMIC_ROUTES.length * LOCALES.length);
+            .toHaveLength(SITEMAP_ROUTES.length * LOCALES.length);
 
         const locs = urlBlocks.map((b) => b.match(/<loc>([^<]+)<\/loc>/)?.[1] ?? '');
         expect(new Set(locs).size, 'sitemap\'te mükerrer <loc> var').toBe(locs.length);
@@ -80,7 +87,7 @@ test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
         }
 
         // Her route'un iki dilli URL'i gerçekten listede mi?
-        for (const entry of NON_DYNAMIC_ROUTES) {
+        for (const entry of SITEMAP_ROUTES) {
             for (const locale of LOCALES) {
                 const expected = `${SITE_URL}${localizedPath(entry.path, locale)}`.replace(/\/$/, '') || SITE_URL;
                 const found = locs.some((l) => l.replace(/\/$/, '') === expected);
@@ -100,64 +107,102 @@ test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
         const res = await request.get('/sitemap.xml');
         expect(res.status()).toBe(200);
         const body = await res.text();
-        expect(body.split('<url>').length - 1).toBe(NON_DYNAMIC_ROUTES.length * LOCALES.length);
+        expect(body.split('<url>').length - 1).toBe(SITEMAP_ROUTES.length * LOCALES.length);
     });
 });
 
 test.describe('SEO Faz 2 — zengin sonuç şeması (O6)', () => {
-    // Mülakat sorusu olan temsili bir sayfa: FAQPage buradan üretilir.
-    const FAQ_ROUTE = '/selenium';
+    const COURSE_ROUTE = '/selenium';
 
-    for (const locale of LOCALES) {
-        test(`${localizedPath(FAQ_ROUTE, locale)} — FAQPage şeması geçerli ve sayfanın dilinde`, async () => {
-            const html = await readShell(FAQ_ROUTE, locale);
-            const blocks = parseJsonLd(html); // bozuk JSON burada patlar
-            const faq = blocks.find((b) => b['@type'] === 'FAQPage');
-
-            expect(faq, `${locale}: FAQPage şeması üretilmemiş`).toBeTruthy();
-            expect(Array.isArray(faq.mainEntity), 'FAQPage.mainEntity dizi olmalı').toBe(true);
-            expect(faq.mainEntity.length, 'FAQPage boş soru listesiyle üretilmiş').toBeGreaterThan(0);
-
-            for (const q of faq.mainEntity) {
-                expect(q['@type']).toBe('Question');
-                expect(String(q.name).length, 'FAQ sorusu boş').toBeGreaterThan(0);
-                expect(String(q.acceptedAnswer?.text ?? '').length, 'FAQ cevabı boş').toBeGreaterThan(0);
+    // ⚠ FAQPage BİLEREK üretilmiyor. Şema mülakat sorularından türetiliyordu ama
+    // o soruların hiçbiri sayfanın görünür gövdesinde yoktu (yalnızca JSON-LD
+    // içindeydi) ve uygulamada %60 quiz barajının arkasındaydı. Google'ın FAQPage
+    // politikası içeriğin kullanıcıya GÖRÜNÜR olmasını şart koşar; ayrıca FAQ
+    // zengin sonuçları artık yalnızca resmî kurum/sağlık siteleri için gösteriliyor
+    // — yani risk vardı, karşılığında kazanç yoktu. Bu test şemanın görünürlük
+    // sorunu çözülmeden sessizce geri gelmesini engeller (bkz. DEPLOY.md §9.3).
+    test('FAQPage şeması ÜRETİLMİYOR — görünür içerik olmadan geri gelmemeli', async () => {
+        const offenders: string[] = [];
+        for (const entry of ALL_SHELL_ROUTES) {
+            for (const locale of LOCALES) {
+                const html = await readShell(entry.path, locale);
+                if (html.includes('"@type": "FAQPage"')) {
+                    offenders.push(localizedPath(entry.path, locale));
+                }
             }
+        }
+        expect(
+            offenders,
+            `FAQPage şeması geri gelmiş: ${offenders.join(', ')}. Geri eklemeden önce soru/cevap metni sayfada gate'siz görünür olmalı.`,
+        ).toHaveLength(0);
+    });
 
-            // Dil doğruluğu: TR shell'de Türkçeye özgü karakter beklenir, EN'de ASLA.
-            const faqText = JSON.stringify(faq);
-            if (locale === 'en') {
-                expect(faqText, 'EN FAQPage şemasında Türkçe sızıntısı').not.toMatch(/[ığşçöüİĞŞÇÖÜ]/);
-            } else {
-                expect(faqText, 'TR FAQPage şeması Türkçe görünmüyor').toMatch(/[ığşçöüİĞŞÇÖÜ]/);
-            }
-        });
-    }
-
-    test('Course şeması ders sayfasında üretiliyor', async () => {
-        const html = await readShell(FAQ_ROUTE, 'tr');
-        const course = parseJsonLd(html).find((b) => b['@type'] === 'Course');
+    test('Course şeması geçerli ve ders sayfasında üretiliyor', async () => {
+        const html = await readShell(COURSE_ROUTE, 'tr');
+        const course = parseJsonLd(html).find((b) => b['@type'] === 'Course'); // bozuk JSON burada patlar
         expect(course, 'Course şeması üretilmemiş').toBeTruthy();
         expect(String(course.name).length).toBeGreaterThan(0);
         expect(course.provider?.name ?? course.provider, 'Course.provider eksik').toBeTruthy();
     });
 
-    test('site genelinde zengin sonuç kapsamı sessizce sıfıra düşmez', async () => {
-        // `check-dist-seo.mjs` bu sayıları YAZDIRIYOR ama build'i kırmıyordu:
-        // JSON-LD üretimi bozulsa kimse fark etmezdi. Alt eşik, ölçülen mevcut
-        // kapsamın (56 FAQPage / 68 Course) belirgin altında — normal içerik
-        // dalgalanmasında değil, gerçek bir regresyonda kırılır.
-        let faqPages = 0;
+    test('Course şeması sayfanın dilini yansıtır', async () => {
+        const en = parseJsonLd(await readShell(COURSE_ROUTE, 'en')).find((b) => b['@type'] === 'Course');
+        expect(JSON.stringify(en), 'EN Course şemasında Türkçe sızıntısı').not.toMatch(/[ığşçöüİĞŞÇÖÜ]/);
+    });
+
+    test('Course kapsamı sessizce sıfıra düşmez', async () => {
+        // `check-dist-seo.mjs` bu sayıyı YAZDIRIYOR ama tek başına build'i kırmıyordu.
+        // Alt eşik ölçülen mevcut kapsamın (68) belirgin altında — normal içerik
+        // dalgalanmasında değil, gerçek bir üretim regresyonunda kırılır.
         let coursePages = 0;
-        for (const entry of NON_DYNAMIC_ROUTES) {
+        for (const entry of ALL_SHELL_ROUTES) {
             for (const locale of LOCALES) {
-                const html = await readShell(entry.path, locale);
-                if (html.includes('"@type": "FAQPage"')) faqPages += 1;
-                if (html.includes('"@type": "Course"')) coursePages += 1;
+                if ((await readShell(entry.path, locale)).includes('"@type": "Course"')) coursePages += 1;
             }
         }
-        expect(faqPages, 'FAQPage üretimi çöktü').toBeGreaterThanOrEqual(40);
-        expect(coursePages, 'Course üretimi çöktü').toBeGreaterThanOrEqual(50);
+        expect(coursePages, 'Course şeması üretimi çöktü').toBeGreaterThanOrEqual(50);
+    });
+});
+
+test.describe('Sitemap dışı bırakılan sayfalar (korumalı/işlevsel)', () => {
+    // Bu sayfalar ziyaretçiye içerik göstermiyor (RequireAdmin/ProtectedRoute) ya
+    // da işlevsel (login, OAuth callback). Sitemap "bunları indeksle" demektir;
+    // oraya konulmaları thin content/soft 404 sinyali üretir ve `/auth/callback`
+    // arama sonucundan tıklandığında bozuk bir akışa düşürür (DEPLOY.md §9.2).
+    test('korumalı/işlevsel route\'lar sitemap\'te YOK', async () => {
+        expect(NOINDEX_ROUTES.length, 'noindex işaretli route kalmamış — filtre kazayla kaldırılmış olabilir')
+            .toBeGreaterThan(0);
+
+        const xml = await readFile(`${DIST}/sitemap.xml`, 'utf8');
+        for (const entry of NOINDEX_ROUTES) {
+            for (const locale of LOCALES) {
+                const url = `<loc>${SITE_URL}${localizedPath(entry.path, locale)}</loc>`;
+                expect(xml, `${entry.path} sitemap'e sızmış — indekslendikten sonra çıkarmak haftalar sürer`)
+                    .not.toContain(url);
+            }
+        }
+    });
+
+    test('shell\'leri yine üretiliyor ama robots=noindex taşıyor', async () => {
+        for (const entry of NOINDEX_ROUTES) {
+            for (const locale of LOCALES) {
+                // Shell ÜRETİLMELİ: GitHub Pages'te derin bağlantıda sert yenileme
+                // (ör. /login'e doğrudan giriş) yalnızca statik shell varsa çalışır.
+                const html = await readShell(entry.path, locale);
+                expect(html, `${localizedPath(entry.path, locale)}: robots noindex eksik`)
+                    .toContain('name="robots" content="noindex');
+            }
+        }
+    });
+
+    test('indekslenen sayfalara yanlışlıkla noindex bulaşmamış', async () => {
+        for (const entry of SITEMAP_ROUTES.slice(0, 12)) {
+            for (const locale of LOCALES) {
+                const html = await readShell(entry.path, locale);
+                expect(html, `${localizedPath(entry.path, locale)}: indekslenmesi gereken sayfada noindex var`)
+                    .not.toContain('name="robots" content="noindex');
+            }
+        }
     });
 });
 

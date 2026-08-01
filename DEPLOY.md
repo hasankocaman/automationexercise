@@ -205,7 +205,7 @@ GÖNDERİLMEZ.
 
 > **Bu bölüm neden var:** Bir yazılım hatasını geri almak bir `git revert`
 > kadar ucuzdur. Ama arama motoruna verilen bir sinyali geri almak öyle
-> DEĞİLDİR: Google 90 URL'i indeksledikten, hreflang çiftlerini öğrendikten
+> DEĞİLDİR: Google 80 sitemap URL'ini indeksledikten, hreflang çiftlerini öğrendikten
 > ve yapılandırılmış veriyi önbelleğe aldıktan sonra yapıdan dönmek haftalar
 > sürer, biriken otoriteyi dağıtır ve bazı durumlarda manuel işlem
 > (manual action) riski taşır. Aşağıdaki kontroller **deploy'dan ÖNCE**,
@@ -231,8 +231,8 @@ statik shell'leri servis etmez, yani crawler'ın gördüğü şeyi göremezsin.
 
 ### 9.1. A — Dil-ayrık URL yapısı (`/en`) · **en pahalı değişiklik** · ~10 dk
 
-**Neden geri dönüşü pahalı:** Sitenin tüm adres şeması değişti (44 → 90 URL).
-Google bunları indeksledikten sonra yapıdan dönersen 45 URL toplu 404'e düşer,
+**Neden geri dönüşü pahalı:** Sitenin tüm adres şeması değişti (44 → 80 indekslenebilir URL, 90 statik shell).
+Google bunları indeksledikten sonra yapıdan dönersen 40 URL toplu 404'e düşer,
 hreflang çiftleri kırılır ve iki dilin biriktirdiği otorite dağılır. Toparlanma
 aylar sürer.
 
@@ -324,31 +324,44 @@ URL'i indeksten çıkarmak, eklemekten kat kat yavaştır.
 **B1 — Sayı ve bütünlük:**
 
 ```bash
-curl -s localhost:4173/sitemap.xml | grep -c "<url>"        # 90 olmalı
-curl -s localhost:4173/sitemap.xml | grep -c "hreflang"     # her girdide 2 → 180
+curl -s localhost:4173/sitemap.xml | grep -c "<url>"        # 80 olmalı (45 route - 5 noindex = 40, x2 dil)
+curl -s localhost:4173/sitemap.xml | grep -c "hreflang"     # her girdide 2 → 160
 curl -s localhost:4173/robots.txt                            # sitemap satırı olmalı
 ```
 
-**B2 — 🔴 İNDEKSLENMEMESİ GEREKEN URL'LER (yayın öncesi karar gerektirir):**
+**B2 — ✅ İndekslenmemesi gereken URL'ler (ÇÖZÜLDÜ — regresyon kontrolü olarak kalır):**
 
 ```bash
-curl -s localhost:4173/sitemap.xml | grep -E "backend|security|qa-assistant|login|auth/callback"
+curl -s localhost:4173/sitemap.xml | grep -E "/(backend|security|qa-assistant|login|auth/callback)\b"
 ```
 
-Bu komut **şu an çıktı veriyor** — yani sitemap şunları Google'a "indeksle"
-diye sunuyor:
+Bu komut **çıktı VERMEMELİ** (`/basit-backend` eşleşirse sorun yok — o herkese
+açık ayrı bir sayfadır).
+
+**Geçmiş bulgu ve çözümü (2026-08-01):** Sitemap şu beş sayfayı Google'a
+"indeksle" diye sunuyordu:
 
 | URL | Sorun |
 |---|---|
-| `/backend`, `/security` | `RequireAdmin` ile korunuyor — normal ziyaretçi içerik göremez. Google bunları "thin content" / soft 404 olarak değerlendirebilir. |
-| `/qa-assistant` | `ProtectedRoute` — sadece üye. Aynı sorun. |
-| `/login` | İşlevsel sayfa, arama sonucunda değeri yok. |
-| `/auth/callback` | OAuth dönüş adresi. **Bir sitemap'te bulunmaması gerekir**; indekslenirse kullanıcı arama sonucundan tıklayıp bozuk bir OAuth akışına düşer. |
+| `/backend`, `/security` | `RequireAdmin` — ziyaretçi içerik göremez, thin content/soft 404 sinyali |
+| `/qa-assistant` | `ProtectedRoute` — yalnızca üye |
+| `/login` | işlevsel sayfa, arama sonucunda değeri yok |
+| `/auth/callback` | OAuth dönüş adresi; indekslenirse kullanıcı arama sonucundan bozuk bir akışa düşer |
 
-**Karar:** Bunları sitemap'ten çıkarmak (ör. `seo.js` girdilerine `noindex`
-benzeri bir bayrak ekleyip `generate-seo-files.mjs`'te filtrelemek) **deploy
-ÖNCESİNDE** yapılmalıdır. Yayına çıkıp indekslendikten sonra çıkarmak
-`noindex` + yeniden tarama beklemek demektir.
+**Uygulanan çözüm:** `src/utils/seo.js`'te bu girdilere `noindex: true`
+eklendi. `generate-seo-files.mjs` bunları sitemap'ten çıkarır;
+`generate-static-routes.mjs` shell'lerini YİNE üretir (GitHub Pages'te derin
+bağlantıda sert yenileme için gerekir) ama shell'e
+`<meta name="robots" content="noindex,follow" />` basar. `check-dist-seo.mjs`
+her iki tarafı da hard-fail eder, `tests/seo-phase2-coverage.spec.ts` de
+sitemap sızıntısını ve eksik robots meta'sını yakalar.
+
+Doğrulama:
+
+```bash
+curl -s localhost:4173/login/ -o /dev/null -w "%{http_code}\n"   # 200 (sayfa hâlâ açılmalı)
+grep -o 'content="noindex[^"]*"' dist/login/index.html            # noindex,follow
+```
 
 **B3 — Dinamik route sızmamış mı:**
 
@@ -366,46 +379,37 @@ curl -s localhost:4173/sitemap.xml | grep "verify-certificate"   # ÇIKTI OLMAMA
 site, zengin sonuç ayrıcalığını kaybeder; ağır durumlarda "Structured data
 manual action" alır ve düzeltme + yeniden değerlendirme talebi haftalar sürer.
 
-**C1 — 🔴 EN KRİTİK KONTROL: FAQ içeriği kullanıcıya GÖRÜNÜYOR mu?**
-
-Google'ın FAQPage politikası nettir: *soru ve cevabın tam metni, sayfanın
-kendisinde kullanıcıya görünür olmalıdır.* Yalnızca şemada bulunup ekranda
-görünmeyen içerik politika ihlalidir.
-
-Kontrol:
+**C1 — ✅ FAQPage şeması (ÇÖZÜLDÜ — regresyon kontrolü olarak kalır):**
 
 ```bash
-# 1) Şemadaki ilk sorunun metnini al
-curl -s localhost:4173/selenium | python3 -c "
-import sys,re,json
-h=sys.stdin.read()
-for b in re.findall(r'application/ld\+json[^>]*>(.*?)</script>',h,re.S):
-    d=json.loads(b); items=d if isinstance(d,list) else [d]
-    for x in items:
-        if x.get('@type')=='FAQPage':
-            q=x['mainEntity'][0]['name']; print('SORU:',q[:70])
-            body=re.sub(r'<script.*?</script>','',h,flags=re.S)
-            print('GOVDEDE GORUNUYOR MU:', q[:40] in body)
-"
+grep -rl '"@type": "FAQPage"' dist/ | head    # ÇIKTI OLMAMALI
 ```
 
-**Şu an bu kontrol `GOVDEDE GORUNUYOR MU: False` veriyor.** İki ayrı katmanda
-sorun var:
+**Geçmiş bulgu ve çözümü (2026-08-01):** Şema, mülakat sorularından otomatik
+üretiliyordu. Ölçüldüğünde şemada 10 soru vardı ama **hiçbiri** sayfanın
+görünür gövdesinde yoktu:
 
-1. **Statik shell'de** soru metni yalnızca JSON-LD içinde; görünür gövdede yok.
-2. **Uygulamada** mülakat soruları %60 quiz barajının ARKASINDA — kullanıcı
-   quizleri geçmeden o metni zaten göremiyor.
+1. Statik shell'de soru metni yalnızca JSON-LD içindeydi, görünür gövdede yoktu.
+2. Uygulamada mülakat soruları %60 quiz barajının ARKASINDAYDI (bu gating bir
+   ürün kararıdır — `Documents/acceptancecriterias.md` AC 04).
 
-Yani crawler'ın gördüğü içerikle kullanıcının gördüğü içerik ayrışıyor; bu,
-politika açısından en riskli kalıptır.
+Yani crawler'ın gördüğü içerikle kullanıcının gördüğü içerik ayrışıyordu.
+Google'ın FAQPage politikası, soru ve cevabın tam metninin sayfada kullanıcıya
+GÖRÜNÜR olmasını şart koşar.
 
-**Karar seçenekleri (deploy öncesi):**
-- **(a) En güvenlisi:** FAQPage şemasını geçici olarak KALDIR, gating/görünürlük
-  çözülünce geri ekle. Course şeması etkilenmez.
-- **(b)** Şemaya giren soruları, statik shell'in görünür gövdesine de bas VE
-  uygulamada o soruları gate'in ÖNÜNE al (ilk N soru herkese açık).
-- **(c)** Riski bilerek kabul et — ama bu, zengin sonuç kaybını ve manuel işlem
-  ihtimalini göze almak demektir. Tavsiye edilmez.
+**Uygulanan çözüm: şema kaldırıldı.** Gerekçe iki katmanlı: (a) politika riski
+gerçekti, (b) FAQ zengin sonuçları 2023'ten beri yalnızca resmî kurum/sağlık
+siteleri için gösteriliyor — yani şema bize görünür bir kazanç sağlamıyordu.
+Riski almanın karşılığı yoktu. `Course` şeması etkilenmedi (68 sayfa).
+
+**Geri eklemek istersen ÖNCE iki koşulu birden sağla:**
+
+1. Şemaya giren soru/cevap metni sayfada **gate'siz görünür** olmalı.
+2. Bu görünürlük AC 04'teki %60 gating kuralıyla çelişmemeli — pratikte bu,
+   gate'in ÖNÜNDE, herkese açık ayrı bir SSS bölümü demektir.
+
+`check-dist-seo.mjs` ve `tests/seo-phase2-coverage.spec.ts` şemanın görünürlük
+sorunu çözülmeden sessizce geri gelmesini hard-fail ile engeller.
 
 **C2 — Resmî doğrulayıcıdan geçir:**
 
@@ -544,7 +548,7 @@ anlatımı görmelisin; yalnızca "Loading…" görüyorsan shell üretimi bozuk
 **F3 — Yayın sonrası ilk 10 dakika:**
 
 1. `https://learnqa.dev/` ve `https://learnqa.dev/en` aç.
-2. `https://learnqa.dev/sitemap.xml` → 90 URL.
+2. `https://learnqa.dev/sitemap.xml` → 80 URL.
 3. Search Console → Sitemaps → `https://learnqa.dev/sitemap.xml` **yeniden
    gönder** (URL kümesi değişti, eski gönderim yetmez).
 4. URL Inspection ile `https://learnqa.dev/en/selenium` → "URL is on Google"
@@ -560,14 +564,16 @@ anlatımı görmelisin; yalnızca "Loading…" görüyorsan shell üretimi bozuk
 |---|---|---|
 | A1-A8 dil-ayrık URL | otomatik testler yeşil, gözle teyit gerekir | ✅ Evet — bir tıklamada bile `/en` düşüyorsa durdur |
 | B1, B3 sitemap sayısı/dinamik route | otomatik test kapsıyor | — |
-| **B2 admin/işlevsel route'lar sitemap'te** | **açık bulgu** | 🔴 **Evet** — indekslendikten sonra çıkarmak haftalar sürer |
-| **C1 FAQ içeriği kullanıcıya görünmüyor** | **açık bulgu** | 🔴 **Evet** — politika riski, manuel işlem ihtimali |
+| B2 korumalı/işlevsel route'lar sitemap'te | ✅ **çözüldü** (noindex + sitemap filtresi + robots meta) | — regresyon testi bekliyor |
+| C1 FAQ içeriği kullanıcıya görünmüyor | ✅ **çözüldü** (şema kaldırıldı) | — regresyon testi bekliyor |
 | C2 Rich Results Test | elle yapılır | ✅ Evet — hata varsa düzelt |
-| **D1 mükerrer başlık denetimi yok** | **açık bulgu** | 🟡 Hayır ama yayın öncesi bir kez elle koş |
+| D1 mükerrer başlık denetimi yok | açık (şu an mükerrer YOK, eksik olan otomatik bekçi) | 🟡 Hayır ama yayın öncesi bir kez elle koş |
 | D2 SERP görünümü | elle yapılır | 🟡 Hayır — ama sonradan değiştirmek CTR geçmişini sıfırlar |
 | E1 Plausible hesabı | kullanıcı tarafı | 🟡 Hayır ama **deploy'dan önce** açılmalı, sonra veri kayıptır |
 | F1-F2 Pages statik yapı | otomatik test kapsıyor | — |
 
-**Özet:** A ve F otomatik testlerle büyük ölçüde güvence altında; **B2 ve C1
-yayın öncesi karar gerektiren açık bulgulardır**; D ve E bir kerelik elle
-işlerdir ve kaçırılırsa telafisi pahalıdır.
+**Özet:** B2 ve C1 kapatıldı ve regresyon testleriyle bağlandı. A ve F
+otomatik testlerle büyük ölçüde güvence altında ama gözle bir kez teyit
+edilmeli. Geriye yalnızca bir kerelik elle işler kaldı: D1 mükerrer başlık
+komutu, D2 SERP görünümü ve E1 Plausible hesabı — sonuncusu **deploy'dan önce**
+yapılmazsa geçişin ilk günlerine ait veri kalıcı olarak kaybolur.

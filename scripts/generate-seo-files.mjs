@@ -53,7 +53,15 @@ Sitemap: https://learnqa.dev/sitemap.xml
 `,
 )
 
-const indexableRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic)
+// `noindex` girdiler sitemap'e GİRMEZ. Sitemap "bunları indeksle" demektir;
+// korumalı (RequireAdmin/ProtectedRoute) ya da işlevsel (login, OAuth callback)
+// sayfaları oraya koymak Google'a görebileceğinden fazlasını vaat eder — ziyaretçi
+// içerik göremediği için thin content/soft 404 sinyali üretir, `/auth/callback`
+// ise arama sonucundan tıklandığında bozuk bir akışa düşürür. Bir URL'i indeksten
+// çıkarmak eklemekten kat kat yavaş olduğu için bu filtre YAYIN ÖNCESİ kritiktir
+// (bkz. DEPLOY.md §9.2). Statik shell'leri yine üretilir (GitHub Pages'te derin
+// bağlantıda sert yenileme için gerekir) ama shell'de robots=noindex taşır.
+const indexableRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic && !seo.noindex)
 const entries = LOCALES.flatMap((locale) => indexableRoutes.map((seo) => sitemapUrl(seo, locale)))
 
 await writeFile(

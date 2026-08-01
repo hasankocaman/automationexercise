@@ -162,13 +162,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learnqa.dev/security</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/security" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/security" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://learnqa.dev/linux</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/linux" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/linux" />
@@ -246,13 +239,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learnqa.dev/backend</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/backend" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/backend" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://learnqa.dev/basit-backend</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/basit-backend" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/basit-backend" />
@@ -274,20 +260,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learnqa.dev/auth/callback</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/auth/callback" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/auth/callback" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://learnqa.dev/login</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/login" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/login" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://learnqa.dev/sprint</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/sprint" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/sprint" />
@@ -305,13 +277,6 @@
     <loc>https://learnqa.dev/leaderboard</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/leaderboard" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/leaderboard" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://learnqa.dev/qa-assistant</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-assistant" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-assistant" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -477,13 +442,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learnqa.dev/en/security</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/security" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/security" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://learnqa.dev/en/linux</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/linux" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/linux" />
@@ -561,13 +519,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learnqa.dev/en/backend</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/backend" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/backend" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://learnqa.dev/en/basit-backend</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/basit-backend" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/basit-backend" />
@@ -589,20 +540,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://learnqa.dev/en/auth/callback</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/auth/callback" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/auth/callback" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://learnqa.dev/en/login</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/login" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/login" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://learnqa.dev/en/sprint</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/sprint" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/sprint" />
@@ -620,13 +557,6 @@
     <loc>https://learnqa.dev/en/leaderboard</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/leaderboard" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/leaderboard" />
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://learnqa.dev/en/qa-assistant</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-assistant" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-assistant" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

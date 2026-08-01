@@ -372,33 +372,6 @@ function snippetsFromLesson(lesson, locale) {
     ].filter(Boolean).slice(0, 2)
 }
 
-// FAQPage şeması için mülakat sorularını topla (Documents/seo-phase-2-plan.md §1.2).
-// 25 sayfa × 50+ soru zaten `interview-questions` bloklarında yapısal duruyor;
-// elle içerik yazılmaz. Google zengin sonuçta ilk soruları gösterdiği için
-// üst sınır uygulanır — devasa bir JSON-LD sayfayı ağırlaştırır.
-const FAQ_LIMIT = 10
-
-function collectFaq(sections, locale) {
-    const faq = []
-
-    for (const section of sections) {
-        for (const block of section?.blocks || []) {
-            if (block?.type !== 'interview-questions') continue
-
-            for (const item of block.questions || []) {
-                const question = textValue(item.q, locale)
-                const answer = textValue(item.a, locale)
-                if (!question || !answer) continue
-
-                faq.push({ question, answer })
-                if (faq.length >= FAQ_LIMIT) return faq
-            }
-        }
-    }
-
-    return faq
-}
-
 async function routeContent(seo, locale) {
     const specialContent = await specialRouteContent(seo, locale)
     if (specialContent) return specialContent
@@ -431,7 +404,6 @@ async function routeContent(seo, locale) {
             title: hero.title || seo.title.replace(' | LearnQA.dev', ''),
             intro: hero.intro || hero.subtitle || '',
             topics,
-            faq: collectFaq(sections, locale),
             isCourse: Boolean(config.exportName),
         }
     } catch (error) {
@@ -529,22 +501,26 @@ function structuredDataFor(seo, url, locale) {
         })
     }
 
-    // FAQPage: mülakat sorularından üretilir; en az 3 soru yoksa eklenmez.
-    if (seo.content?.faq?.length >= 3) {
-        graph.push({
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            inLanguage: locale,
-            mainEntity: seo.content.faq.map((item) => ({
-                '@type': 'Question',
-                name: item.question,
-                acceptedAnswer: {
-                    '@type': 'Answer',
-                    text: item.answer,
-                },
-            })),
-        })
-    }
+    // ⚠ FAQPage ŞEMASI BİLEREK ÜRETİLMİYOR — geri eklemeden önce oku.
+    //
+    // Şema mülakat sorularından otomatik üretiliyordu. Ölçüldüğünde (2026-08-01)
+    // şemada 10 soru vardı ama bu soruların HİÇBİRİ sayfanın görünür gövdesinde
+    // yoktu: statik shell'de yalnızca JSON-LD içinde duruyorlardı, uygulamada ise
+    // mülakat sekmesi %60 quiz barajının ARKASINDA (bu gating bir ürün kararıdır,
+    // Documents/acceptancecriterias.md AC 04). Yani crawler'ın gördüğü içerikle
+    // kullanıcının gördüğü içerik ayrışıyordu.
+    //
+    // Google'ın FAQPage politikası, soru ve cevabın tam metninin sayfada
+    // kullanıcıya GÖRÜNÜR olmasını şart koşar. Ayrıca FAQ zengin sonuçları
+    // 2023'ten beri yalnızca resmî kurum/sağlık siteleri için gösteriliyor —
+    // yani bu şema bize görünür bir kazanç sağlamazken politika riski taşıyordu.
+    // Riski almanın karşılığı yoktu; şema kaldırıldı. `Course` etkilenmedi.
+    //
+    // Geri eklemek istersen ÖNCE şu iki koşulu birden sağla:
+    //   1) Şemaya giren soru/cevap metni sayfada gate'siz GÖRÜNÜR olmalı,
+    //   2) Bu görünürlük AC 04'teki %60 gating kuralıyla çelişmemeli
+    //      (ör. gate'in ÖNÜNDE, herkese açık ayrı bir SSS bölümü).
+    // `tests/seo-phase2-coverage.spec.ts` şemanın sessizce geri gelmesini engeller.
 
     return JSON.stringify(graph, null, 2).replaceAll('</script', '<\\/script')
 }
@@ -559,6 +535,12 @@ function replaceMeta(html, seo, locale) {
     const hreflangTags = alternatesFor(seo.path)
         .map((alt) => `    <link rel="alternate" hreflang="${alt.hreflang}" href="${escapeHtml(alt.href)}" data-seo-hreflang="true" />`)
         .join('\n')
+    // Korumalı/işlevsel sayfalar sitemap'e girmez ama shell'leri yine üretilir
+    // (GitHub Pages'te derin bağlantıda sert yenileme için gerekir). Crawler bu
+    // sayfaları başka bir yoldan bulursa (dış bağlantı, tarayıcı geçmişi)
+    // indekslemesin diye robots meta'sı burada basılır. `follow` bilinçli:
+    // sayfayı indeksleme ama üzerindeki linkleri izlemeye devam et.
+    const robotsTag = seo.noindex ? '    <meta name="robots" content="noindex,follow" />\n' : ''
 
     return html
         .replace(/<html lang="[^"]*"/, `<html lang="${locale}"`)
@@ -571,7 +553,7 @@ function replaceMeta(html, seo, locale) {
         .replace(/<meta name="twitter:title" content=".*?" \/>/, `<meta name="twitter:title" content="${title}" />`)
         .replace(/<meta name="twitter:description" content=".*?" \/>/, `<meta name="twitter:description" content="${description}" />`)
         .replace('<div id="root"></div>', `<div id="root">\n${fallbackContent(seo, seo.content, locale)}\n    </div>`)
-        .replace('</head>', `${hreflangTags}\n    <script type="application/ld+json">\n${structuredData}\n    </script>\n  </head>`)
+        .replace('</head>', `${robotsTag}${hreflangTags}\n    <script type="application/ld+json">\n${structuredData}\n    </script>\n  </head>`)
 }
 
 const template = await readFile(indexPath, 'utf8')

@@ -73,8 +73,8 @@ for (const locale of LOCALES) {
 
 // Zengin snippet kazanımı ölçülebilir olsun diye raporlanır (hard-fail DEĞİL:
 // her route ders sayfası değil, mülakat bloğu olmayan sayfalar da var).
-let faqPages = 0
 let coursePages = 0
+let noindexShells = 0
 
 for (const locale of LOCALES) {
     for (const entry of checkedRoutes) {
@@ -82,8 +82,26 @@ for (const locale of LOCALES) {
 
         try {
             const html = await readFile(htmlPath, 'utf8')
-            if (html.includes('"@type": "FAQPage"')) faqPages += 1
             if (html.includes('"@type": "Course"')) coursePages += 1
+
+            // FAQPage BİLEREK üretilmiyor (bkz. generate-static-routes.mjs'teki
+            // uzun not): şemaya giren mülakat soruları sayfanın görünür
+            // gövdesinde yok ve uygulamada %60 quiz barajının arkasında.
+            // Görünür içerik olmadan geri eklenirse burada hard-fail eder.
+            if (html.includes('"@type": "FAQPage"')) {
+                errors.push(`FAQPage schema reappeared in ${localizedPath(entry.path, locale)} — content must be visible on the page first (see generate-static-routes.mjs)`)
+            }
+
+            // Sitemap'e girmeyen sayfalar shell'de robots=noindex taşımalı.
+            if (entry.noindex) {
+                if (!html.includes('name="robots" content="noindex')) {
+                    errors.push(`Missing robots noindex meta in ${localizedPath(entry.path, locale)} (route is excluded from sitemap)`)
+                } else {
+                    noindexShells += 1
+                }
+            } else if (html.includes('name="robots" content="noindex')) {
+                errors.push(`Unexpected robots noindex in indexable route ${localizedPath(entry.path, locale)}`)
+            }
         } catch { /* eksiklik yukarıda zaten raporlandı */ }
     }
 }
@@ -94,4 +112,5 @@ if (errors.length) {
 }
 
 console.log(`Dist SEO check passed for ${checked} generated pages (${checkedRoutes.length} routes x ${LOCALES.length} locales).`)
-console.log(`Rich results: ${faqPages} pages with FAQPage, ${coursePages} pages with Course structured data.`)
+console.log(`Rich results: ${coursePages} pages with Course structured data (FAQPage bilerek üretilmiyor).`)
+console.log(`Noindex shells: ${noindexShells} (sitemap dışı, robots=noindex doğrulandı).`)
