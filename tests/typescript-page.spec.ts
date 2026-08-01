@@ -20,6 +20,13 @@ test('TypeScript tabs load and render without crash', async ({ page }) => {
     // Wait up to 60s for the first page render to compile
     await page.waitForSelector('h1', { timeout: 60000 });
 
+    // Performans (SEO Faz 2 S1): sayfa önce küçük bir stub (boş sections) ile
+    // render olur, gerçek veri arka planda dynamic import() ile yüklenir
+    // (bkz. TypeScriptPage.jsx). Sekmelere tıklamadan önce yüklemenin bittiğinden
+    // emin ol — aksi halde "Kurulum" gibi sekmelerde içerik boş görünür (flaky).
+    await page.locator('[data-testid="topic-content-loading"]').waitFor({ state: 'attached', timeout: 2000 }).catch(() => {});
+    await page.locator('[data-testid="topic-content-loading"]').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
+
     // Find only sidebar navigation buttons
     const tabButtons = page.locator('div[class*="w-52"] button');
     const count = await tabButtons.count();

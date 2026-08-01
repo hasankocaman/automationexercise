@@ -18,6 +18,12 @@ test('SQL tabs load and render without crash', async ({ page }) => {
     await page.goto('/sql');
     await page.waitForSelector('h1', { timeout: 30000 });
 
+    // Performans (SEO Faz 2 S1): sayfa önce boş-sections stub ile render olur,
+    // gerçek veri arka planda dynamic import() ile yüklenir (bkz. SQLPage.jsx).
+    // Sekmelere tıklamadan önce yüklemenin bittiğinden emin ol.
+    await page.locator('[data-testid="topic-content-loading"]').waitFor({ state: 'attached', timeout: 2000 }).catch(() => {});
+    await page.locator('[data-testid="topic-content-loading"]').waitFor({ state: 'detached', timeout: 30000 }).catch(() => {});
+
     const tabButtons = page.locator('div[class*="w-52"] button');
     const count = await tabButtons.count();
     console.log(`Found ${count} SQL tabs`);

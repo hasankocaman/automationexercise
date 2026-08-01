@@ -11,7 +11,7 @@ test.describe('SEO Faz 2 — dil-ayrık URL yönlendirmesi', () => {
     test('çıplak URL Türkçe açılır, /en öneki İngilizce açılır', async ({ page }) => {
         await page.goto('/docker');
         await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
-        await expect(page).toHaveTitle(/Docker Eğitimi/);
+        await expect(page).toHaveTitle(/Docker Nedir\?/);
 
         await page.goto('/en/docker');
         await expect(page.locator('html')).toHaveAttribute('lang', 'en');
@@ -26,7 +26,7 @@ test.describe('SEO Faz 2 — dil-ayrık URL yönlendirmesi', () => {
 
         await page.goto('/docker');
         await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
-        await expect(page).toHaveTitle(/Docker Eğitimi/);
+        await expect(page).toHaveTitle(/Docker Nedir\?/);
     });
 
     test('dil düğmesi sadece içeriği değil URL\'i de değiştirir', async ({ page }) => {
