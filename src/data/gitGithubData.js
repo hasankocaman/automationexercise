@@ -7851,3 +7851,186 @@ git push origin feature/my-branch   # Sadece kendi branch'ini push et`,
 }
 
 fillMissingCodeTrios(gitGithubData, 'git')
+
+// 🎯 CHALLENGE-FIRST GÖREV (Documents/seo-phase-2-plan.md §7.2, S2) — "Merge &
+// Conflict" sekmesine (aksiyon sekmesi, plan promptunda açıkça önerildi). MEVCUT
+// prediction/code-playground bloklarını gömer, yeni sandbox yazılmaz. Çift-ağaçlı
+// dosya: TEK bilingual sabit, İKİ ağaca da AYNI referansla push edilir (CLAUDE.md §23.4).
+const gitMergeConflictMission = {
+  type: 'mission',
+  id: 'git-merge-conflict-mission',
+  xpReward: 40,
+  relatedTopicId: 'git-merge-conflict',
+  persona: { tr: 'QA Engineer · Sprint 2', en: 'QA Engineer · Sprint 2' },
+  scenario: {
+    tr: 'Sen ve bir takım arkadaşın AYNI test dosyasının AYNI satırını farklı branch\'lerde değiştirdiniz. `git merge` çalıştırdığında Git "CONFLICT" diyor. Bugün bu çakışmayı doğru şekilde çözeceksin — panik yok, sistemli bir akış var.',
+    en: 'You and a teammate changed the SAME line of the SAME test file on different branches. When you run `git merge`, Git says "CONFLICT". Today you will resolve this the right way — no panic, a systematic flow.',
+  },
+  steps: [
+    {
+      id: 'git-conflict-what',
+      brief: { tr: '1) İki branch AYNI satırı değiştirmişse `git merge`nin ne yapacağını tahmin et.', en: '1) Predict what `git merge` does when two branches changed the SAME line.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Git, iki branch\'in değişikliklerini OTOMATİK birleştirmeye çalışır — bu genelde sorunsuz çalışır çünkü değişiklikler FARKLI satırlardadır. Ama İKİ branch AYNI satırı değiştirmişse Git hangisinin "doğru" olduğuna KARAR VEREMEZ — Java\'da iki thread\'in aynı değişkene aynı anda yazmaya çalışması gibi, bir hakem (sen) gerekir.',
+        en: 'Git tries to AUTOMATICALLY merge two branches\' changes — this usually works fine because the changes are on DIFFERENT lines. But if TWO branches changed the SAME line, Git CANNOT DECIDE which one is "correct" — like two threads trying to write to the same variable at once in Java, it needs a referee (you).',
+      },
+      block: {
+        type: 'prediction',
+        id: 'git-conflict-what-choice',
+        xpReward: 10,
+        relatedTopicId: 'git-merge-conflict',
+        prompt: { tr: '`feature/login` ve `feature/logout` branch\'leri `LoginTest.java`\'nın AYNI satırını farklı şekilde değiştirmiş. `git merge feature/logout` çalıştırınca ne olur?', en: 'Branches `feature/login` and `feature/logout` both changed the SAME line of `LoginTest.java` differently. What happens when you run `git merge feature/logout`?' },
+        code: '// feature/login:   assertEquals("Welcome", title);\n// feature/logout:  assertEquals("Goodbye", title);\n// -> git merge feature/logout',
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'Git merge\'i durdurur ve dosyayı "CONFLICT" olarak işaretler, sana karar verdirir', en: 'Git stops the merge and marks the file as "CONFLICT", leaving the decision to you' }, correct: true },
+          { id: 'b', label: { tr: 'Git otomatik olarak en son commit\'in satırını seçer', en: 'Git automatically picks the most recent commit\'s line' }, why: { tr: 'Git zaman damgasına göre otomatik seçim YAPMAZ — bu, sessizce yanlış bir satırı seçebileceği için TEHLİKELİ bir varsayım olurdu.', en: 'Git does NOT automatically pick based on timestamp — that would be a DANGEROUS assumption, since it could silently choose the wrong line.' } },
+          { id: 'c', label: { tr: 'Git iki satırı da otomatik olarak yan yana birleştirir', en: 'Git automatically merges both lines side by side' }, why: { tr: 'Bu genelde ANLAMSIZ/derlenmez kod üretirdi — Git bunun yerine seni açıkça uyarıp KARAR VERMENİ ister.', en: 'This would usually produce NONSENSICAL/non-compiling code — Git instead explicitly warns you and asks you to DECIDE.' } },
+        ],
+        reveal: {
+          tr: 'Merge\'i durdurup CONFLICT işaretlemesi doğru: Git otomatik karar vermenin RİSKLİ olduğu tek noktada (aynı satır, iki farklı değişiklik) devreye insan kararını sokar. Dosyada her iki versiyon da özel işaretlerle gösterilir, sıradaki adım bunları okumaktır.',
+          en: 'Stopping the merge and marking CONFLICT is correct: at the one point where automatic decision-making is RISKY (same line, two different changes), Git hands the decision to a human. Both versions are shown in the file with special markers — the next step is reading them.',
+        },
+      },
+    },
+    {
+      id: 'git-conflict-markers',
+      brief: { tr: '2) Çakışma işaretlerini oku ve dosyayı doğru satırı bırakarak düzelt.', en: '2) Read the conflict markers and fix the file by keeping the correct line.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Git, çakışan bölgeyi üç işaretle sarar: `<<<<<<< HEAD` (SENİN mevcut branch\'in), `=======` (ayraç), `>>>>>>> feature/logout` (birleştirdiğin branch). Çözüm, İSTEDİĞİN satırı (veya ikisinin bir birleşimini) bırakıp ÜÇ işareti de dosyadan SİLMEKTİR — işaretler kalırsa kod derlenmez.',
+        en: 'Git wraps the conflicting region with three markers: `<<<<<<< HEAD` (YOUR current branch), `=======` (the divider), `>>>>>>> feature/logout` (the branch you are merging in). The fix is keeping the line you WANT (or a combination of both) and DELETING all three markers — if the markers stay, the code will not compile.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'git-conflict-markers-code',
+        relatedTopicId: 'git-merge-conflict',
+        language: 'java',
+        label: { tr: 'Çakışmayı çöz — işaretleri kaldır', en: 'Resolve the conflict — remove the markers' },
+        task: { tr: 'TODO: aşağıdaki çakışan bloğu, SADECE "Welcome" assertion\'ını bırakıp tüm çakışma işaretlerini kaldırarak düzelt.', en: 'TODO: fix the conflicting block below by keeping ONLY the "Welcome" assertion and removing all conflict markers.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç çakışma işaretlerini tanıyıp temizlemeyi kendin yapmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce recognizing and cleaning up conflict markers yourself.' },
+        code: {
+          tr: `assertEquals("Welcome", title);`,
+          en: `assertEquals("Welcome", title);`,
+        },
+        starterCode: {
+          tr: `<<<<<<< HEAD\nassertEquals("Welcome", title);\n=======\nassertEquals("Goodbye", title);\n>>>>>>> feature/logout`,
+          en: `<<<<<<< HEAD\nassertEquals("Welcome", title);\n=======\nassertEquals("Goodbye", title);\n>>>>>>> feature/logout`,
+        },
+        solutionCode: {
+          tr: `assertEquals("Welcome", title);`,
+          en: `assertEquals("Welcome", title);`,
+        },
+        expected: { tr: 'Dosyada tek bir assertion satırı kalır, hiçbir <<<<<<< / ======= / >>>>>>> işareti yoktur.', en: 'The file has a single assertion line left, with no <<<<<<< / ======= / >>>>>>> markers.' },
+        hints: [
+          { tr: '`<<<<<<<`, `=======`, `>>>>>>>` satırlarının ÜÇÜNÜ de tamamen sil.', en: 'Delete ALL THREE of the `<<<<<<<`, `=======`, `>>>>>>>` lines completely.' },
+          { tr: 'Bu senaryoda doğru satır `HEAD` (üst) tarafındaki "Welcome" assertion\'ıdır.', en: 'In this scenario the correct line is the "Welcome" assertion on the `HEAD` (top) side.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'git-conflict-leftover-markers',
+      brief: { tr: '3) İşaretleri silmeyi unutup commit\'lersen ne olacağını tahmin et.', en: '3) Predict what happens if you forget to delete the markers and commit anyway.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Git, çakışma işaretlerini SİLİP silmediğini KONTROL ETMEZ — `<<<<<<<` gibi bir satırı unutup `git add` + `git commit` yaparsan, bu geçersiz Java/JS/Python sözdizimi olarak repo\'ya GİRER. Derleme veya CI aşamasında patlar; hatanın kaynağını anlamak, tecrübesiz biri için şaşırtıcı derecede uzun sürebilir.',
+        en: 'Git does NOT check whether you deleted the conflict markers — if you forget a `<<<<<<<` line and run `git add` + `git commit` anyway, it goes into the repo as invalid Java/JS/Python syntax. It blows up at compile time or in CI; figuring out the source of the error can surprisingly take an inexperienced developer a long time.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'git-conflict-leftover-markers-choice',
+        xpReward: 10,
+        relatedTopicId: 'git-merge-conflict',
+        prompt: { tr: 'Bir `<<<<<<< HEAD` satırını silmeyi unutup `git add` + `git commit` yaptın. Bu kod ne zaman patlar?', en: 'You forgot to delete a `<<<<<<< HEAD` line and ran `git add` + `git commit` anyway. When does this code blow up?' },
+        code: {
+          tr: '// LoginTest.java içinde unutulan satır:\n<<<<<<< HEAD\nassertEquals("Welcome", title);',
+          en: '// Forgotten line inside LoginTest.java:\n<<<<<<< HEAD\nassertEquals("Welcome", title);',
+        },
+        codeLanguage: 'java',
+        options: [
+          { id: 'a', label: { tr: 'Git commit\'i otomatik olarak reddeder', en: 'Git automatically rejects the commit' }, why: { tr: 'Git dosya İÇERİĞİNİ okumaz, sadece değişiklikleri commit\'ler — sözdizimi kontrolü Git\'in işi değildir.', en: 'Git does not read the file CONTENTS, it just commits the changes — syntax checking is not Git\'s job.' } },
+          { id: 'b', label: { tr: 'Testler sessizce PASS olarak görünür, işaret satırı bir yorum sayılır', en: 'Tests silently show as PASS, the marker line is treated as a comment' }, why: { tr: '`<<<<<<< HEAD` geçerli bir yorum sözdizimi DEĞİLDİR — derleyici bunu bir hata olarak reddeder, sessizce yutmaz.', en: '`<<<<<<< HEAD` is NOT valid comment syntax — the compiler rejects it as an error, it does not silently swallow it.' } },
+          { id: 'c', label: { tr: 'Derleme (veya CI) aşamasında geçersiz sözdizimi hatası olarak', en: 'At compile time (or in CI) as an invalid syntax error' }, correct: true },
+        ],
+        reveal: {
+          tr: 'Derleme/CI aşamasında patlar doğru: Git, dosya içeriğinin GEÇERLİ kod olup olmadığını umursamaz — bu sorumluluk derleyiciye/CI\'a düşer. Bu yüzden merge sonrası dosyayı `git diff` veya editörle GÖZDEN GEÇİRMEK, sadece "conflict yok" mesajına güvenmekten daha güvenlidir.',
+          en: 'Blowing up at compile time/CI is correct: Git does not care whether the file content is VALID code — that responsibility falls to the compiler/CI. This is why REVIEWING the file with `git diff` or an editor after a merge is safer than just trusting the "no conflicts" message.',
+        },
+      },
+    },
+    {
+      id: 'git-conflict-resolve-commit',
+      brief: { tr: '4) Çakışmayı çözdükten sonra doğru git komut sırasını yaz.', en: '4) Write the correct git command sequence after resolving the conflict.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Çakışmayı dosyada elle düzelttikten SONRA Git hâlâ o dosyayı "çözülmedi" sanır. `git add <dosya>` diyerek "bunu ben çözdüm, hazır" dersin; ardından `git commit` merge\'i TAMAMLAR (mesaj genelde Git tarafından önceden doldurulur).', en: 'AFTER you manually fix the conflict in the file, Git still thinks that file is "unresolved". `git add <file>` says "I resolved this, it is ready"; then `git commit` COMPLETES the merge (the message is usually pre-filled by Git).',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'git-conflict-resolve-commit-code',
+        relatedTopicId: 'git-merge-conflict',
+        language: 'bash',
+        label: { tr: 'Çözümü tamamlayan komutları yaz', en: 'Write the commands that complete the resolution' },
+        task: { tr: 'TODO satırlarını, düzeltilmiş dosyayı stage\'leyip merge\'i tamamlayan komutlarla doldur.', en: 'Fill the TODO lines with the commands that stage the fixed file and complete the merge.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç conflict-sonrası add/commit akışını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the post-conflict add/commit flow yourself.' },
+        code: {
+          tr: `git add LoginTest.java\ngit commit`,
+          en: `git add LoginTest.java\ngit commit`,
+        },
+        starterCode: {
+          tr: `# LoginTest.java'daki catismayi elle duzelttin\n# TODO: dosyayi "cozuldu" olarak isaretle\n\n# TODO: merge'i tamamla`,
+          en: `# You manually fixed the conflict in LoginTest.java\n# TODO: mark the file as "resolved"\n\n# TODO: complete the merge`,
+        },
+        solutionCode: {
+          tr: `git add LoginTest.java\ngit commit`,
+          en: `git add LoginTest.java\ngit commit`,
+        },
+        expected: { tr: 'Merge tamamlanır, LoginTest.java artık "çakışıyor" olarak işaretli değildir.', en: 'The merge completes, LoginTest.java is no longer marked as "conflicting".' },
+        hints: [
+          { tr: '`git add <dosya>`, o dosyanın çakışmasının çözüldüğünü Git\'e bildirir.', en: '`git add <file>` tells Git that file\'s conflict has been resolved.' },
+          { tr: 'Tüm çakışmalar çözülünce düz `git commit` merge\'i tamamlar (mesaj Git tarafından önceden doldurulur).', en: 'Once all conflicts are resolved, a plain `git commit` completes the merge (the message is pre-filled by Git).' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'git-conflict-verify',
+      brief: { tr: '5) Merge tamamlandıktan sonra `git status`a hâlâ neden bakman gerektiğini tahmin et.', en: '5) Predict why you should still check `git status` after the merge completes.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Büyük bir merge\'de BİRDEN FAZLA dosyada çakışma olabilir. `git add` ile SADECE elle düzelttiğin dosyayı işaretlemiş olabilirsin — diğer çakışan dosyalar hâlâ "unmerged" durumda kalır. `git status`, hangi dosyaların HÂLÂ çözülmemiş olduğunu commit\'ten ÖNCE gösteren son güvenlik kontrolüdür.',
+        en: 'A large merge can have conflicts in MULTIPLE files. With `git add` you may have marked ONLY the file you fixed by hand — other conflicting files can still be "unmerged". `git status` is the final safety check that shows which files are STILL unresolved BEFORE you commit.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'git-conflict-verify-choice',
+        xpReward: 10,
+        relatedTopicId: 'git-merge-conflict',
+        prompt: { tr: 'Merge\'de 2 dosyada çakışma vardı. Sen sadece LoginTest.java\'yı düzeltip `git add` yaptın, ikinci dosyayı unuttun. `git commit` öncesi `git status`a bakarsan ne görürsün?', en: 'The merge had conflicts in 2 files. You only fixed LoginTest.java and ran `git add`, forgetting the second file. What does `git status` show before `git commit`?' },
+        code: {
+          tr: '// git status\n// LoginTest.java   -> staged (çözüldü)\n// LogoutTest.java  -> ??? (unuttun)',
+          en: '// git status\n// LoginTest.java   -> staged (resolved)\n// LogoutTest.java  -> ??? (forgot)',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'Git commit sırasında ikinci dosyayı otomatik çözer', en: 'Git automatically resolves the second file during commit' }, why: { tr: 'Git dosyaları senin için OTOMATİK çözmez — bu tam olarak `git status`un seni uyarmak için var olduğu senaryodur.', en: 'Git does not resolve files for you AUTOMATICALLY — this is exactly the scenario `git status` exists to warn you about.' } },
+          { id: 'b', label: { tr: 'LogoutTest.java hâlâ "both modified" / çözülmemiş olarak listelenir', en: 'LogoutTest.java is still listed as "both modified" / unresolved' }, correct: true },
+          { id: 'c', label: { tr: 'Commit tamamen engellenir, hiçbir şey commit edilemez', en: 'The commit is completely blocked, nothing can be committed' }, why: { tr: 'Git commit\'i tamamen engellemez ama unresolved dosyayı DAHIL EDER — bu daha sinsi bir hata, çünkü commit "başarılı" görünür.', en: 'Git does not fully block the commit but INCLUDES the unresolved file — this is a sneakier bug, because the commit "looks" successful.' } },
+        ],
+        reveal: {
+          tr: 'Doğru: `git status`, unutulan LogoutTest.java\'yı hâlâ çözülmemiş olarak gösterir. Bu kontrolü atlayıp direkt `git commit` yaparsan, dosyanın İÇİNDE hâlâ `<<<<<<<` işaretleri olan bir commit atarsın — bir önceki adımdaki "sessiz derleme hatası" senaryosunun ta kendisi.',
+          en: 'Correct: `git status` still shows the forgotten LogoutTest.java as unresolved. If you skip this check and commit directly, you commit a file that STILL has `<<<<<<<` markers inside it — exactly the "silent compile error" scenario from the previous step.',
+        },
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Bu 5 adım gerçek bir merge conflict çözümünün tam iskeletidir: neden çakışma oluşur (aynı satır, iki karar) → işaretleri oku ve temizle → temizlenmemiş işaretin bedeli (derleme/CI hatası) → add/commit ile çözümü tamamla → status ile diğer dosyaları unutmadığını doğrula. Ekip büyüdükçe bu akış günlük rutinin bir parçası olur.',
+    en: 'These 5 steps are the full skeleton of resolving a real merge conflict: why the conflict happens (same line, two decisions) → read and clean up the markers → the cost of a leftover marker (compile/CI error) → complete the resolution with add/commit → verify with status that you did not forget other files. As the team grows, this flow becomes part of the daily routine.',
+  },
+}
+
+gitGithubData.en.sections[5].blocks.push(gitMergeConflictMission)
+gitGithubData.tr.sections[5].blocks.push(gitMergeConflictMission)
