@@ -20,7 +20,39 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — Test kapsamı S4)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Opus — /sprint UX düzeltmesi)
+
+- **Aktif branch: `feature/sprint-simulator`.** Kullanıcı `/sprint`'i elle gezerken
+  **gerçek bir UX bug'ı bildirdi:** "Görevi aç"a basınca hiçbir şey olmuyor gibi
+  görünüyor. **Teşhis:** state DOĞRU değişiyordu (kart seçiliyor, panel render
+  ediliyor) ama bug detay paneli Kanban panosunun ALTINDA duruyor ve hiçbir
+  scroll yapılmıyordu — kullanıcı ekranın altındaki paneli hiç görmüyordu.
+  `renderBlock` imzası/köprüsü sağlamdı, sorun tamamen görünürlüktü.
+  - **Düzeltme 1 — göreve kaydırma:** `SprintPage.jsx`'e `bugDetailRef` +
+    `selectedBugId` değişince `scrollIntoView({behavior:'smooth',block:'start'})`
+    eklendi; section'a `scroll-mt-24` (TopicHeader `sticky top-0` olduğu için
+    panelin üstü header'ın altında kalmasın diye).
+  - **Düzeltme 2 — bağlama duyarlı rehber maskot:** Kullanıcı "ne yapması
+    gerektiğini tarif eden bir maskot" istedi. **Yeni bileşen YAZILMADI** —
+    mevcut `TooltipGuideMascot.jsx` props'landı (`message`/`emoji`/`ariaLabel`/
+    `initiallyOpen`); TÜM props opsiyonel ve varsayılanları eski davranışın
+    birebir aynısı, yani mevcut 3 giriş sayfası hiç etkilenmedi. `/sprint`'te
+    🐞 maskotu balonu AÇIK başlar ve pano durumuna göre 5 fazda TEK bir
+    sonraki adımı söyler (Backlog'dan çek → Görevi aç → adım kilidi/mini-lesson
+    → Sprint'i kapat → sprint kapandı). Balon açık kaldığı sürece metin canlı
+    güncellenir.
+  - **`tests/sprint-flow.spec.ts`'e 4. test eklendi** — maskotun faz faz doğru
+    metni verdiği + "Görevi aç"ın paneli GERÇEKTEN viewport'a getirdiği
+    (`toBeInViewport()`). **Testin dişi doğrulandı:** `scrollIntoView` geçici
+    olarak kapatılıp test'in KIRILDIĞI görüldü, sonra geri alındı.
+  - **Doğrulama:** content-integrity ✓ (39 dosya) · i18n baseline 0 ✓ · build ✓
+    (44 shell) · `sprint-flow.spec.ts` 4/4 ✓ · `tooltip-guide-mascot.spec.ts`
+    regresyon 6/6 ✓ (toplam 10/10).
+  - **Açık iş:** `main`'e merge/PR kararı hâlâ kullanıcıda.
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Sonnet — Test kapsamı S4)
 
 - **Aktif branch: `feature/sprint-simulator`.** Plan §6.3'teki Sonnet promptu
   uygulandı: **S4 — Test kapsamı boşlukları (mobil viewport + çapraz tarayıcı)

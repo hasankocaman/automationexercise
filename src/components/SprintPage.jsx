@@ -9,11 +9,12 @@
 // TopicPage'in `renderBlock` makinesinden geçer (plan §2.3) — böylece
 // code-playground, prediction gibi ~60 blok tipi olduğu gibi çalışır.
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import TopicHeader from './TopicHeader'
 import ConfettiExplosion from './ConfettiExplosion'
 import SprintBoard from './SprintBoard'
+import TooltipGuideMascot from './TooltipGuideMascot'
 import { renderBlock } from './TopicPage'
 import { sprintsData } from '../data/sprintsData'
 import { addXP, subscribeToXpChanges } from '../lib/xp'
@@ -102,6 +103,18 @@ export default function SprintPage() {
 
     const selectedBug = bugs.find((bug) => bug.id === selectedBugId) ?? null
 
+    // Bug detayı Kanban panosunun ALTINDA render ediliyor. Pano üç kolonlu ve
+    // uzun olduğu için "Görevi aç"a basınca viewport hiç oynamıyor, kullanıcıya
+    // "hiçbir şey olmadı" gibi görünüyordu (gerçek kullanıcı geri bildirimi,
+    // 2026-08-01). Seçim değişince paneli görünür alana kaydır.
+    const bugDetailRef = useRef(null)
+    useEffect(() => {
+        if (!selectedBugId) return
+        // TopicHeader `sticky top-0` — panelin üstü header'ın altında kalmasın
+        // diye section'da `scroll-mt-24` var, `block:'start'` onu hesaba katar.
+        bugDetailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, [selectedBugId])
+
     const handlePull = useCallback((bug) => {
         pullBugIntoSprint(bug.id)
         setSelectedBugId(bug.id)
@@ -119,6 +132,43 @@ export default function SprintPage() {
         setCelebrating(true)
     }, [sprint])
 
+    // ── Rehber maskotun bağlama duyarlı mesajı ──────────────────────────────
+    // Kullanıcı geri bildirimi (2026-08-01): "ne yapacağımı anlamıyorum".
+    // Maskot sabit bir karşılama metni yerine, panonun O ANKİ durumuna göre
+    // TEK bir sonraki adımı söyler (CLAUDE.md §9.1 "sonuç görünür olmalı").
+    // Yeni bileşen YAZILMADI — mevcut TooltipGuideMascot props'landı.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const guide = useMemo(() => {
+        if (sprintClosed) {
+            return {
+                tr: "Bu sprint kapandı. 🏆 Yukarıdaki sekmelerden başka bir sprint'e geçip yeni bug'lara bakabilirsin.",
+                en: 'This sprint is closed. 🏆 Use the tabs above to switch to another sprint and pick up new bugs.',
+            }
+        }
+        if (sprintDone) {
+            return {
+                tr: "Sprint'teki tüm bug'lar kapandı! 🎉 Yukarıdaki yeşil \"Sprint'i kapat\" düğmesine basıp bonus XP'ni ve retrospektifi al.",
+                en: 'All bugs in this sprint are closed! 🎉 Hit the green "Close the sprint" button above to collect your bonus XP and the retrospective.',
+            }
+        }
+        if (selectedBug) {
+            return {
+                tr: "Görev açıldı 👇 Adımlar sırayla kilit açar: bir adımı doğru çözmeden sonraki açılmaz. Takılırsan \"💡 Takıldın mı? Mini-lesson aç\" düğmesi konuyu sana anlatır. 5 adımın hepsi bitince bug otomatik \"Bitti\" kolonuna geçer.",
+                en: 'Mission opened 👇 Steps unlock in order: the next one stays locked until you solve the current one. Stuck? The "💡 Stuck? Open mini-lesson" button explains the concept. When all 5 steps are done, the bug moves to the "Done" column automatically.',
+            }
+        }
+        if (bugs.some((bug) => statusOf(bug) === 'progress')) {
+            return {
+                tr: 'Bug artık "Devam Eden" kolonunda. ▶ "Görevi aç" düğmesine bas — seni aşağıdaki görev zincirine götüreceğim.',
+                en: 'The bug is now in the "In Progress" column. Hit ▶ "Open mission" — I will take you down to the mission chain.',
+            }
+        }
+        return {
+            tr: "Merhaba! 👋 Burada ders okumuyorsun, bir QA ekibindesin. Soldaki Backlog kolonundan bir bug seç ve \"⬅ Sprint'e al\" düğmesine bas — sonra o bug'ı Analiz → Test Case → Otomasyon → CI → Merge adımlarıyla kapatacaksın.",
+            en: 'Hi there! 👋 You are not reading a lesson here, you are on a QA team. Pick a bug from the Backlog column on the left and hit "⬅ Pull into sprint" — then you will close it through Analysis → Test Case → Automation → CI → Merge.',
+        }
+    }, [sprintClosed, sprintDone, selectedBug, bugs, statusOf, revision])
+
     const panelBase = darkMode ? 'border-gray-700 bg-gray-800/70' : 'border-gray-200 bg-white'
 
     return (
@@ -127,6 +177,17 @@ export default function SprintPage() {
             <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
 
             {celebrating && <ConfettiExplosion duration={4000} particleCount={60} onComplete={() => setCelebrating(false)} />}
+
+            {/* Rehber maskot — balon AÇIK başlar (kullanıcı "ne yapacağımı
+                anlamıyorum" dedi). Balon açık kaldığı sürece metin pano
+                durumuyla birlikte CANLI güncellenir; kullanıcı kapatırsa
+                rozet kalır, istediğinde geri açar. */}
+            <TooltipGuideMascot
+                message={guide}
+                emoji="🐞"
+                initiallyOpen
+                ariaLabel={isTr ? 'Sprint rehberi — sıradaki adım' : 'Sprint guide — your next step'}
+            />
 
             <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -241,7 +302,7 @@ export default function SprintPage() {
 
                 {/* ── Seçili bug: rapor + görev ────────────────────────────── */}
                 {selectedBug && (
-                    <section data-testid="sprint-bug-detail" data-bug-id={selectedBug.id} className={`mt-6 rounded-2xl border p-4 md:p-6 ${panelBase}`}>
+                    <section ref={bugDetailRef} data-testid="sprint-bug-detail" data-bug-id={selectedBug.id} className={`mt-6 scroll-mt-24 rounded-2xl border p-4 md:p-6 ${panelBase}`}>
                         <div className="mb-3 flex flex-wrap items-center gap-2">
                             <span className={`rounded px-2 py-0.5 font-mono text-xs font-bold ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
                                 {selectedBug.key}
@@ -251,6 +312,7 @@ export default function SprintPage() {
                             </h3>
                             <button
                                 type="button"
+                                data-testid="sprint-bug-close"
                                 onClick={() => setSelectedBugId(null)}
                                 className={`ml-auto min-h-9 rounded-lg px-3 py-1.5 text-xs font-bold ${darkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                             >

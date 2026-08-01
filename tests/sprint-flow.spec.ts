@@ -216,4 +216,49 @@ test.describe('QA Sprint Simulator — /sprint', () => {
 
         await context.close();
     });
+
+    test('"Görevi aç" kullanıcıyı göreve KAYDIRIR ve rehber maskot sıradaki adımı anlatır', async ({ browser }) => {
+        // Gerçek kullanıcı geri bildirimi (2026-08-01): "Görevi aç'a basınca
+        // değişiklik olmuyor". Detay paneli panonun ALTINDA render edildiği ve
+        // hiçbir scroll yapılmadığı için viewport oynamıyordu. Bu test hem
+        // kaydırmayı hem de bağlama duyarlı rehber maskotu doğrular.
+        test.setTimeout(90_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+        await gotoSprint(page);
+
+        // 1) Maskot balonu AÇIK başlar ve ilk adımı (Backlog'dan bug çekme) anlatır.
+        const bubble = page.getByTestId('tooltip-guide-bubble');
+        await expect(bubble).toBeVisible();
+        await expect(bubble).toContainText('Backlog');
+
+        // 2) Bug'ı sprint'e al → maskot metni yeni faza göre DEĞİŞİR.
+        const first = bugs[0];
+        const card = page.locator(`[data-testid="sprint-bug-card"][data-bug-id="${first.id}"]`);
+        await card.getByTestId('sprint-pull-btn').click();
+
+        const detail = page.locator(`[data-testid="sprint-bug-detail"][data-bug-id="${first.id}"]`);
+        await expect(detail).toBeVisible();
+        // Görev açıkken maskot mini-lesson ipucunu verir (faz değişti).
+        await expect(bubble).toContainText('Mini-lesson');
+
+        // 3) Paneli kapat + başa dön → "Görevi aç" senaryosunun ön koşulu.
+        await page.getByTestId('sprint-bug-close').click();
+        await expect(detail).toHaveCount(0);
+        await page.evaluate(() => window.scrollTo(0, 0));
+        // Panel kapalıyken maskot "Görevi aç'a bas" fazına döner.
+        await expect(bubble).toContainText('Görevi aç');
+
+        // 4) ASIL İDDİA: "Görevi aç" sadece state'i değiştirmiyor, kullanıcıyı
+        //    görevin bulunduğu yere GÖTÜRÜYOR (regresyondan önce panel açılıyor
+        //    ama ekranın çok altında kalıyordu).
+        await card.getByTestId('sprint-open-btn').click();
+        await expect(detail).toBeVisible();
+        await expect(detail).toBeInViewport();
+        // Görev zincirinin kendisi de görünür alanda olmalı.
+        await expect(detail.locator(`[data-testid="mission-block"][data-mission-id="${first.mission.id}"]`))
+            .toBeInViewport();
+
+        await context.close();
+    });
 });

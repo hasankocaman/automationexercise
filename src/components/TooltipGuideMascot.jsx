@@ -29,6 +29,17 @@ import { useLanguage } from '../context/LanguageContext'
 // taşındı: tüm köşe-yığılan widget'lardan (ChatWidget sol-alt, CommentsWidget
 // sağ-alt, 🏠/📍 sağ-alt — TopicPage.jsx) tamamen bağımsız, çakışma riski yok.
 
+// Parametreleştirme (2026-08-01): bileşen başta TEK bir sabit mesaja (Kavram
+// Tooltip'i tanıtımı) gömülüydü. `/sprint` sayfası da "kullanıcı ne yapacağını
+// bilmiyor" sorunu yaşayınca İKİNCİ bir maskot yazmak yerine bu bileşen
+// props'landı. TÜM props opsiyoneldir ve varsayılanları eski davranışın
+// BİREBİR aynısıdır — mevcut 3 giriş sayfası (ve `tooltip-guide-mascot.spec.ts`)
+// hiçbir değişiklik görmez.
+const DEFAULT_MESSAGE = {
+    tr: 'Merhaba! 👋 Sayfada altı noktalı çizgili bir kelime görürsen, bilmediğin bir terim demektir — üstüne gel (mobilde dokun), sana günlük hayattan bir örnekle açıklayayım!',
+    en: "Hi there! 👋 If you see a word with a dashed underline on the page, it's a term you might not know — hover over it (tap on mobile) and I'll explain it with an everyday example!",
+}
+
 function useObservedDarkMode() {
     const [darkMode, setDarkMode] = useState(() =>
         typeof document !== 'undefined' && document.documentElement.classList.contains('dark-mode')
@@ -42,15 +53,21 @@ function useObservedDarkMode() {
     return darkMode
 }
 
-export default function TooltipGuideMascot() {
+export default function TooltipGuideMascot({
+    message = DEFAULT_MESSAGE,   // { tr, en } — balonun gövde metni
+    emoji = '🦉',                 // rozetteki karakter
+    ariaLabel,                   // özel erişilebilirlik etiketi (yoksa varsayılan)
+    initiallyOpen = false,       // balon ilk render'da açık gelsin mi
+}) {
     const { language } = useLanguage()
     const isTr = language === 'tr'
     const darkMode = useObservedDarkMode()
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = useState(initiallyOpen)
     // Sayfa açılışında dikkat çekmek için yanıp söner (kullanıcı talebi,
     // 2026-07-31); İLK tıklamada kalıcı olarak durur ve normal boyutuna
     // döner — bir daha (o ziyaret boyunca) animasyon oynamaz.
-    const [hasInteracted, setHasInteracted] = useState(false)
+    // Balon zaten açık geldiyse dikkat çekmeye gerek yok → blink kapalı başlar.
+    const [hasInteracted, setHasInteracted] = useState(initiallyOpen)
     const handleToggle = () => {
         setOpen((v) => !v)
         setHasInteracted(true)
@@ -104,9 +121,7 @@ export default function TooltipGuideMascot() {
                             ✕
                         </button>
                     </div>
-                    {isTr
-                        ? 'Merhaba! 👋 Sayfada altı noktalı çizgili bir kelime görürsen, bilmediğin bir terim demektir — üstüne gel (mobilde dokun), sana günlük hayattan bir örnekle açıklayayım!'
-                        : "Hi there! 👋 If you see a word with a dashed underline on the page, it's a term you might not know — hover over it (tap on mobile) and I'll explain it with an everyday example!"}
+                    {isTr ? message.tr : message.en}
                 </div>
             )}
 
@@ -114,7 +129,7 @@ export default function TooltipGuideMascot() {
                 type="button"
                 onClick={handleToggle}
                 aria-expanded={open}
-                aria-label={isTr ? 'Rehber karakteri — Kavram Tooltip\'i hakkında ipucu' : 'Guide character — tip about the Concept Tooltip'}
+                aria-label={ariaLabel ?? (isTr ? 'Rehber karakteri — Kavram Tooltip\'i hakkında ipucu' : 'Guide character — tip about the Concept Tooltip')}
                 data-testid="tooltip-guide-badge"
                 style={{
                     minHeight: 44, minWidth: 44, width: 44, height: 44, borderRadius: '50%',
@@ -128,7 +143,7 @@ export default function TooltipGuideMascot() {
                     animation: hasInteracted ? 'none' : 'tooltipGuideAttention 1.1s ease-in-out infinite',
                 }}
             >
-                🦉
+                {emoji}
             </button>
         </div>
     )
