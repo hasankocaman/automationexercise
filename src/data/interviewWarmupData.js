@@ -14,16 +14,16 @@ export const interviewWarmupData = {
     heading: { tr: '⚡ Mülakat Isınma Turu', en: '⚡ Interview Warm-Up Round' },
 
     intro: {
-        tr: 'Farklı konulardan karışık gelen gerçek mülakat soruları. Cevabı görmeden önce bir saniye düşün — bildiğini sandığın şeyle gerçekten bildiğin şey arasındaki farkı en hızlı burada görürsün.',
-        en: 'Real interview questions arriving mixed from different topics. Take a second to think before you reveal the answer — this is the fastest way to see the gap between what you think you know and what you actually know.',
+        tr: '12 farklı konudan karışık gerçek mülakat soruları — cevabı görmeden önce bir saniye düşün.',
+        en: '12 real interview questions mixed from different topics — think for a second before revealing the answer.',
     },
 
     // Kullanıcının açıkça istediği açıklama: buradaki soruların amacı zinde
     // tutmak; ASIL çalışma derslerin sonundaki mülakat bölümünde yapılır.
     purposeTitle: { tr: 'Bu bölüm neye yarar, neye yaramaz?', en: 'What this section is for — and what it is not' },
     purposeBody: {
-        tr: 'Buradaki sorular seni hazırlamak için değil, UYANIK TUTMAK için var: hızlı bir nabız ölçümü, kısa bir adrenalin. Cevabı okuyup geçmek öğrenmek sayılmaz. Asıl iş her dersin sonundaki mülakat bölümünde: orada soruyu kendi cümlelerinle cevaplıyorsun, cevabın değerlendiriliyor ve eksik kalan yer sana geri bildirim olarak dönüyor. Bir konuyu gerçekten kapattığını oradan anlarsın, buradan değil.',
-        en: 'These questions are not here to prepare you — they are here to keep you AWAKE: a quick pulse check, a short shot of adrenaline. Reading an answer and moving on is not learning. The real work happens in the interview section at the end of each lesson: there you answer in your own words, your answer gets evaluated, and the gaps come back to you as feedback. That is where you find out whether you have really closed a topic — not here.',
+        tr: 'Burası sadece hızlı bir nabız ölçümü; asıl mülakat pratiği ve AI değerlendirmesi her dersin sonundaki mülakat sekmesinde.',
+        en: 'This is just a quick pulse check — the real interview practice with AI-graded feedback lives in each lesson\'s interview tab.',
     },
 
     showAnswer: { tr: 'Cevabı göster', en: 'Reveal the answer' },
