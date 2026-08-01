@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 import { recordLocalCompletedRoute } from '../utils/careerMapProfile'
+import { trackEvent } from '../lib/analytics'
 
 const AuthContext = createContext()
 
@@ -189,6 +190,9 @@ export function AuthProvider({ children }) {
     // (yukarıdaki saveProgress zaten anonim de çalışır).
     async function markTopicCompleted({ lessonSlug, topicSlug, topicLabel, routePath }) {
         await saveProgress({ lessonSlug, topicSlug, topicLabel, routePath, status: 'completed' })
+        // Anonim + üye TÜM kullanıcılar için tetiklenir (SEO Faz 2 §7.3) — hangi
+        // sayfada ders tamamlandığını ölçer, üyelik/XP akışından bağımsız.
+        trackEvent('lesson_completed', { route: routePath })
         if (!isSupabaseConfigured || !session) return { badges: [], xpAwarded: 0 }
 
         const xpAwarded = await awardXp(LESSON_XP)

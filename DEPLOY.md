@@ -172,3 +172,29 @@ Bu komut şunları otomatik kontrol eder:
 - `robots.txt` ve `sitemap.xml` üretiliyor mu?
 - Her route için statik HTML shell üretiliyor mu?
 - Her üretilen HTML'de `title`, `description`, `canonical`, fallback metin ve structured data var mı?
+
+## 8. Çerezsiz Analytics (Plausible) Kurulumu
+
+`index.html`'e `data-domain="learnqa.dev"` ile bir Plausible script etiketi
+eklendi (`Documents/seo-phase-2-plan.md` §7.3) — sitede daha önce HİÇ web
+analytics yoktu. Google Analytics bilinçli olarak KULLANILMADI (çerez rızası
+banner'ı gerektirir, KVKK/GDPR yükü getirir); Plausible çerezsizdir.
+
+Script hesap kurulmadan da sayfayı BOZMAZ — sadece hiçbir yere veri göndermez
+(`src/lib/analytics.js`'teki `trackEvent` de `window.plausible` yoksa
+sessizce no-op olur). Aktifleştirmek için:
+
+1. https://plausible.io/ üzerinden hesap aç (veya self-hosted Plausible/Umami
+   kur — bu durumda `index.html`'deki `src`/`data-domain` değerlerini
+   kendi kurulumuna göre güncelle).
+2. Site olarak `learnqa.dev` ekle (domain `index.html`'deki `data-domain`
+   ile BİREBİR eşleşmeli, aksi halde veriler eşleşmez).
+3. Deploy sonrası Plausible dashboard'unda trafiğin gelmeye başladığını
+   doğrula (birkaç dakika gecikebilir).
+
+Şu an 4 özel olay gönderiliyor (`src/lib/analytics.js` → `trackEvent`):
+`lesson_completed` (route ile), `mission_completed` (missionId ile),
+`sprint_closed` (sprintId ile), `language_changed` (hedef dil ile — SEO
+Faz 2'nin `/en` prefix'inin gerçekten kullanılıp kullanılmadığını ölçmek
+için kritik). Hiçbir olayda e-posta, kullanıcı id veya serbest metin cevap
+GÖNDERİLMEZ.

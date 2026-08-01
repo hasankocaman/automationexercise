@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import en from '../locales/en.json'
 import tr from '../locales/tr.json'
 import { localizedPath, stripLocalePrefix } from '../utils/seo'
+import { trackEvent } from '../lib/analytics'
 
 const LanguageContext = createContext()
 
@@ -56,6 +57,11 @@ export function LanguageProvider({ children, initialLanguage }) {
         try {
             localStorage.setItem('language', next)
         } catch { /* localStorage kapalı olabilir */ }
+
+        // SEO Faz 2'nin işe yarayıp yaramadığını ölçmek için kritik olay
+        // (Documents/seo-phase-2-plan.md §7.3) — tam sayfa navigasyonundan
+        // ÖNCE gönderilir ki event kaybolmasın.
+        trackEvent('language_changed', { to: next })
 
         if (typeof window === 'undefined') {
             setLanguage(next)

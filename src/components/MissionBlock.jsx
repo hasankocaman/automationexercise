@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getCompletedExercises, markExerciseComplete, addXP, subscribeToXpChanges } from '../lib/xp'
 import { recordSkillSignal } from '../lib/skillSignals'
+import { trackEvent } from '../lib/analytics'
 import ConfettiExplosion from './ConfettiExplosion'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -65,6 +66,7 @@ export default function MissionBlock({ block, darkMode, language, onFirstSuccess
         addXP(block.xpReward ?? 40)
         markExerciseComplete(block.id)
         recordSkillSignal({ missionId: block.id, route: block.relatedTopicRoute, skill: block.skill })
+        trackEvent('mission_completed', { missionId: block.id })
         setCompletedIds(getCompletedExercises())
         setCelebrating(true)
         onFirstSuccess?.()

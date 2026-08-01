@@ -19,6 +19,7 @@ import { renderBlock } from './TopicPage'
 import { sprintsData } from '../data/sprintsData'
 import { addXP, subscribeToXpChanges } from '../lib/xp'
 import { recordSkillSignal } from '../lib/skillSignals'
+import { trackEvent } from '../lib/analytics'
 import {
     getBugStatus,
     pullBugIntoSprint,
@@ -129,6 +130,7 @@ export default function SprintPage() {
         if (!closeSprint(sprint?.id)) return // zaten kapatılmış → bonus ikinci kez verilmez
         addXP(sprint?.xpBonus ?? 60)
         recordSkillSignal({ missionId: `sprint-close-${sprint?.id}`, route: '/sprint', skill: '/sprint' })
+        trackEvent('sprint_closed', { sprintId: sprint?.id })
         setCelebrating(true)
     }, [sprint])
 
