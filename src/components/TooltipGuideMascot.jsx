@@ -58,20 +58,41 @@ export default function TooltipGuideMascot({
     emoji = '🦉',                 // rozetteki karakter
     ariaLabel,                   // özel erişilebilirlik etiketi (yoksa varsayılan)
     initiallyOpen = false,       // balon ilk render'da açık gelsin mi
+    size = 44,                   // rozet çapı (px), ilk tıklamadan SONRA hep bu boyut
+    emphasizedSize = size,       // ilk tıklamaya KADAR rozet çapı — varsayılan = size
+                                  // (yani "büyütme yok", mevcut 3 giriş sayfasının
+                                  // davranışı BİREBİR korunur; sadece bunu size'dan
+                                  // büyük bir değerle geçen sayfa büyütülmüş+küçülen
+                                  // rozet davranışını alır — bkz. SprintPage.jsx).
 }) {
     const { language } = useLanguage()
     const isTr = language === 'tr'
     const darkMode = useObservedDarkMode()
     const [open, setOpen] = useState(initiallyOpen)
     // Sayfa açılışında dikkat çekmek için yanıp söner (kullanıcı talebi,
-    // 2026-07-31); İLK tıklamada kalıcı olarak durur ve normal boyutuna
-    // döner — bir daha (o ziyaret boyunca) animasyon oynamaz.
-    // Balon zaten açık geldiyse dikkat çekmeye gerek yok → blink kapalı başlar.
-    const [hasInteracted, setHasInteracted] = useState(initiallyOpen)
+    // 2026-07-31); İLK tıklamada (ya da balon zaten açık geldiyse İLK
+    // kapatmada — kullanıcı talebi, 2026-08-01) kalıcı olarak durur ve
+    // normal boyutuna döner — bir daha (o ziyaret boyunca) animasyon oynamaz.
+    // `initiallyOpen`'dan BAĞIMSIZ olarak her zaman false'tan başlar: balon
+    // açık gelse bile kullanıcı henüz OKUMADI/etkileşmedi, rozet dikkat
+    // çekmeye devam etmeli (bkz. SprintPage.jsx — initiallyOpen açık ama
+    // maskot yine de büyük+yanıp sönerek başlamalı).
+    const [hasInteracted, setHasInteracted] = useState(false)
     const handleToggle = () => {
         setOpen((v) => !v)
         setHasInteracted(true)
     }
+    const handleClose = () => {
+        setOpen(false)
+        setHasInteracted(true)
+    }
+
+    // İlk tıklamaya kadar (henüz "okumadıysa") büyütülmüş boyutta yanıp söner;
+    // tıklayıp balonu okuduktan sonra normal boyutuna doğru YUMUŞAKÇA küçülür
+    // (`transition`, aşağıdaki `animation` keyframe'inden bağımsız bir CSS
+    // özelliği olduğu için ikisi çakışmaz).
+    const badgeDiameter = hasInteracted ? size : emphasizedSize
+    const badgeFontSize = Math.round(22 * (badgeDiameter / 44))
 
     const bubbleBg = darkMode ? '#1e1b4b' : '#ffffff'
     const bubbleBorder = darkMode ? '#4f46e5' : '#818cf8'
@@ -110,7 +131,7 @@ export default function TooltipGuideMascot({
                         </strong>
                         <button
                             type="button"
-                            onClick={() => setOpen(false)}
+                            onClick={handleClose}
                             aria-label={isTr ? 'Kapat' : 'Close'}
                             data-testid="tooltip-guide-close"
                             style={{
@@ -132,12 +153,14 @@ export default function TooltipGuideMascot({
                 aria-label={ariaLabel ?? (isTr ? 'Rehber karakteri — Kavram Tooltip\'i hakkında ipucu' : 'Guide character — tip about the Concept Tooltip')}
                 data-testid="tooltip-guide-badge"
                 style={{
-                    minHeight: 44, minWidth: 44, width: 44, height: 44, borderRadius: '50%',
+                    minHeight: badgeDiameter, minWidth: badgeDiameter, width: badgeDiameter, height: badgeDiameter,
+                    borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     background: darkMode ? '#312e81' : '#eef2ff',
                     border: `2px solid ${darkMode ? '#6366f1' : '#818cf8'}`,
                     boxShadow: darkMode ? '0 4px 16px rgba(79,70,229,0.5)' : '0 4px 16px rgba(99,102,241,0.35)',
-                    cursor: 'pointer', fontSize: 22,
+                    cursor: 'pointer', fontSize: badgeFontSize,
+                    transition: 'width 0.35s ease, height 0.35s ease, min-width 0.35s ease, min-height 0.35s ease, font-size 0.35s ease',
                     // İlk tıklamaya kadar dikkat çekmek için yanıp söner; bir kez
                     // etkileşim alınca kalıcı olarak durur ve normal boyutuna döner.
                     animation: hasInteracted ? 'none' : 'tooltipGuideAttention 1.1s ease-in-out infinite',

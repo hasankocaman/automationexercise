@@ -184,8 +184,9 @@ export default function SprintPage() {
                 rozet kalır, istediğinde geri açar. */}
             <TooltipGuideMascot
                 message={guide}
-                emoji="🐞"
+                emoji="🕵️"
                 initiallyOpen
+                emphasizedSize={64}
                 ariaLabel={isTr ? 'Sprint rehberi — sıradaki adım' : 'Sprint guide — your next step'}
             />
 
