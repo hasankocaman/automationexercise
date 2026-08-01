@@ -21,10 +21,13 @@
 | **O6** | JSON-LD zenginleştirme — `FAQPage` + `Course` | **Opus** | ✅ TAMAMLANDI |
 | **O7** | `check-seo.mjs` / `check-dist-seo.mjs` — iki dil hard-fail kontrolleri | **Opus** | ✅ TAMAMLANDI |
 | **O8** | `tests/seo-i18n-routing.spec.ts` + regresyon koşumu | **Opus** | ✅ TAMAMLANDI |
-| **S1** | Performans: veri dosyalarını sekme bazında kod bölme | Sonnet | 🔜 Prompt §7.1 |
-| **S2** | `mission` yayılımı (6/25 sayfa → yüksek trafikli 6 sayfa daha) | Sonnet | 🔜 Prompt §7.2 |
-| **S3** | Çerezsiz web analytics (Plausible/Umami) + olay ölçümü | Sonnet | 🔜 Prompt §7.3 |
-| **S4** | TR metadata kalite geçişi + mülakat dağılım düzeltmesi | Sonnet | 🔜 Prompt §7.4 |
+| **S1** | Performans: veri dosyalarını sekme bazında kod bölme | Sonnet | ✅ TAMAMLANDI |
+| **S2** | `mission` yayılımı (6/25 sayfa → yüksek trafikli 6 sayfa daha) | Sonnet | ✅ TAMAMLANDI |
+| **S3** | Çerezsiz web analytics (Plausible/Umami) + olay ölçümü | Sonnet | ✅ TAMAMLANDI |
+| **S4** | TR metadata kalite geçişi + mülakat dağılım düzeltmesi | Sonnet | ✅ TAMAMLANDI |
+
+**Son E2E doğrulaması (2026-08-01):** tam Playwright suite (40 spec dosyası)
+**245/245 test yeşil** — detaylı manuel test rehberi için bkz. §8.
 
 ---
 
@@ -353,9 +356,13 @@ Bu plandan çıkan, kod tarafında yapılamayacak işler:
 
 ---
 
-## 8. Manuel Test Rehberi — SEO Faz 2 (~6 dakika)
+## 8. Manuel Test Rehberi — SEO Faz 2 (O1-O8 + S1-S4, ~20 dakika)
 
-**Kurulum:** `npm run build && npm run preview`
+**Kurulum (tek sefer):** `npm run build && npm run preview` — preview sunucusu
+`http://localhost:4173` üzerinde `dist/` çıktısını (gerçek production build,
+statik shell'ler dahil) servis eder. Tüm adımlar bu sunucuya karşı yapılır.
+
+### 8.1. O1-O8 — Dil-ayrık URL, hreflang, statik shell, zengin snippet (~6 dk)
 
 1. **TR çıplak URL:** `http://localhost:4173/selenium` → sayfa **Türkçe** açılmalı,
    sekme başlığı Türkçe olmalı.
@@ -375,5 +382,93 @@ Bu plandan çıkan, kod tarafında yapılamayacak işler:
    görünmeli. Bir mülakat sorusunu kopyalayıp https://validator.schema.org/
    üzerinde doğrula.
 8. **Sitemap:** `curl -s localhost:4173/sitemap.xml | grep -c "<url>"` →
-   route sayısının **iki katı** olmalı.
+   route sayısının **iki katı** olmalı (44 route × 2 dil = 88).
 9. **Mobil:** 375px genişlikte `/en/docker` → yatay kaydırma OLMAMALI (§12).
+
+### 8.2. S1 — Performans / stub+arka-plan-swap (~3 dk)
+
+Etkilenen sayfalar: `/typescript`, `/java`, `/sql`.
+
+1. **İlk boya küçüldü mü:** DevTools → Network → sekmeyi temizle, `Disable cache`
+   işaretle → `/typescript`'i aç. `typescriptData-*.js` (~1.1MB) chunk'ının
+   **sayfa ilk render OLDUKTAN SONRA** ayrı bir istek olarak geldiğini gözle
+   doğrula — `typescriptDataStub-*.js` çok daha küçük (~2-2.4KB) ve ilk
+   render'ı bloklamamalı.
+2. **Yükleniyor rozeti:** Sayfa ilk açıldığında ekranın altında kısa süreliğine
+   `İçerik yükleniyor…` (data-testid="topic-content-loading") rozeti
+   görünmeli, gerçek veri gelince KAYBOLMALI. Hızlı bağlantıda göz açıp
+   kapayana kadar geçebilir — Network throttling'i "Slow 3G" yaparak
+   yavaşlatıp gözle takip et.
+3. **Sekmeler doğru veriyle doluyor:** Rozet kaybolduktan sonra sol sidebar'daki
+   TÜM sekmelere sırayla tıkla (özellikle "Kurulum/Installation") — hiçbir
+   sekme boş/eksik içerik göstermemeli. Rozet kaybolmadan (yükleme sırasında)
+   bir sekmeye tıklarsan da içerik en geç birkaç saniye içinde dolmalı, kalıcı
+   boş kalmamalı.
+4. Aynı 1-3 adımlarını `/java` ve `/sql` için tekrarla.
+
+### 8.3. S2 — Yeni mission'lar (6 sayfa, ~5 dk)
+
+Her sayfada mission'ın bulunduğu sekmeye git, göreve başla, adımları
+tamamlayana kadar ilerle — kilitlenme/render hatası OLMAMALI, XP verilmeli:
+
+1. `/docker` → Selenium Grid sekmesi → `dockerSeleniumGridMission` (Compose ile
+   hub/node kurulumu, 5 adım).
+2. `/jenkins` → ilgili sekme → `jenkinsPipelineMission` (Jenkinsfile pipeline +
+   post/failure bildirimi, 5 adım).
+3. `/git-github` → Merge Conflict sekmesi → `gitMergeConflictMission` (conflict
+   çözme, 5 adım).
+4. `/java` → ilgili sekme → `javaParameterizedTestMission`
+   (`@ParameterizedTest`/`@ValueSource` refactor, 5 adım).
+5. `/postman` → ilgili sekme → `postmanChainedRequestMission` (`pm.test()`
+   status assertion + token zincirleme, 5 adım).
+6. `/linux` → ilgili sekme → `linuxCiDebugMission` (`ps`/`grep`, `lsof`,
+   `tail -f` ile CI ajanı debug, 5 adım).
+
+Her mission'da: (a) senaryo/persona metni okunaklı ve dil tutarlı mı (TR
+sayfada TR, EN'de EN), (b) her adımın `prediction` sorusu 3 şıklı ve tek doğru
+cevaplı mı, (c) son adımdan sonra debrief/XP ekranı çıkıyor mu.
+
+### 8.4. S3 — Çerezsiz analytics / Plausible (~2 dk)
+
+Hesap henüz açılmadıysa `window.plausible` fonksiyonu **tanımsız** olacağı için
+event'ler sessizce no-op olur — bu NORMALDİR, hata değildir. Yine de kod
+tarafını doğrulamak için:
+
+1. DevTools → Console'da şunu çalıştır: `window.plausible = (...args) => console.log('PLAUSIBLE', ...args)`
+   (script henüz gerçek Plausible'a bağlı değilse bunu manuel enjekte ederek
+   test et).
+2. Bir dersi tamamla (quiz'lerin çoğunu doğru cevapla) → konsolda
+   `PLAUSIBLE lesson_completed {route: ...}` görünmeli.
+3. Bir mission'ı bitir (bkz. §8.3) → `PLAUSIBLE mission_completed {missionId: ...}`.
+4. `/sprint` sayfasında bir sprint'i kapat → `PLAUSIBLE sprint_closed {sprintId: ...}`.
+5. Dil değiştir (TR↔EN toggle) → `PLAUSIBLE language_changed {to: 'en'|'tr'}`.
+6. `index.html` kaynağında (`view-source:` veya DevTools → Elements) Plausible
+   `<script defer data-domain="learnqa.dev" ...>` etiketinin var olduğunu
+   doğrula.
+
+### 8.5. S4 — TR metadata cilası + mülakat dağılımı (~4 dk)
+
+1. **Başlık/description cilası:** Aşağıdaki TR sayfaları sırayla aç, tarayıcı
+   sekmesi başlığını ve (View Page Source ile) `<meta name="description">`
+   içeriğini oku — gerçek arama niyeti ifadesi içermeli (ör. "selenium nedir",
+   "docker nedir" gibi), jenerik "X Eğitimi" kalıbının ötesinde:
+   `/selenium`, `/playwright`, `/sql`, `/python`, `/java`, `/docker`,
+   `/jenkins`, `/git-github`, `/security`, `/what-is-testing`,
+   `/manual-testing`.
+2. **Mülakat dağılımı — Postman:** `/postman` → 💼 Mülakat sekmesine git (gating
+   açıksa; değilse quizlerin %60'ını doğru cevapla) → soru sayısını say, en az
+   15 basic / 20 intermediate / 15 advanced olmalı (CLAUDE.md §10).
+3. **Mülakat dağılımı — Playwright:** Aynı kontrolü `/playwright` için tekrarla.
+4. **Otomatik doğrulama (opsiyonel ama önerilir):**
+   `npm run audit:interview-questions` → çıktıda **25/25 sayfa ✅, 0 uyarı**
+   olmalı (bu script tüm sayfaları tarar, manuel gezmeye gerek bırakmadan
+   dağılımı doğrular — adım 2-3 sadece görsel/UX teyididir).
+
+### 8.6. Genel regresyon taraması (~2 dk)
+
+`npm run test:e2e` (veya `npx playwright test`) — tüm otomatik suite tekrar
+koşulmalı, **245/245 test** yeşil olmalı (2026-08-01 itibarıyla doğrulanan
+sayı). Kırmızı çıkan varsa önce CLAUDE.md §23.8'deki bilinen Supabase-auth
+ortam kısıtlamasıyla mı ilgili (sadece belirli describe blokları, sadece
+`GITHUB_ACTIONS=true` iken skip edilir) yoksa gerçek bir regresyon mu olduğunu
+ayırt et.
