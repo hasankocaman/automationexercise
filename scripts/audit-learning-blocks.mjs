@@ -129,7 +129,7 @@ async function main() {
     // — mission (challenge-first görev zinciri, challenge-first-experience-plan.md §3.2) —
     // Missionlar dil sayfalarıyla sınırlı değil; yeni mission eklenen data
     // dosyalarını buraya ekle (Sonnet rollout: playwrightData, cypressData…).
-    const MISSION_FILES = [...FILES, 'seleniumData.js', 'playwrightData.js', 'cypressData.js', 'restAssuredData.js', 'sprintsData.js'];
+    const MISSION_FILES = [...FILES, 'seleniumData.js', 'playwrightData.js', 'cypressData.js', 'restAssuredData.js', 'sprintsData.js', 'dockerData.js', 'jenkinsData.js', 'gitGithubData.js', 'postmanData.js', 'linuxData.js'];
     // pythonData.js ve sqlData.js zaten FILES içinde (dil sayfaları listesi) — MISSION_FILES ayrıca eklemez.
     const missionIdOwner = new Map();
     let missionCount = 0;

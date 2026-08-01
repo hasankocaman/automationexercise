@@ -6560,3 +6560,190 @@ options.add_argument('--disable-dev-shm-usage')`,
 }
 
 fillMissingCodeTrios(dockerData, 'docker')
+
+// 🎯 CHALLENGE-FIRST GÖREV (Documents/seo-phase-2-plan.md §7.2, S2) — "QA: Selenium
+// Grid" sekmesine (aksiyon sekmesi). MEVCUT prediction/code-playground bloklarını
+// gömer, yeni sandbox yazılmaz. Çift-ağaçlı dosya: TEK bilingual sabit, İKİ ağaca
+// da AYNI referansla push edilir (CLAUDE.md §23.4).
+const dockerSeleniumGridMission = {
+  type: 'mission',
+  id: 'docker-selenium-grid-mission',
+  xpReward: 40,
+  relatedTopicId: 'docker-selenium-grid',
+  persona: { tr: 'QA Engineer · Sprint 6', en: 'QA Engineer · Sprint 6' },
+  scenario: {
+    tr: 'Ekibindeki 4 kişi Selenium testlerini kendi laptop\'unda farklı Chrome sürümleriyle çalıştırıyor — biri "bende geçiyor" diyor. Bugün testleri, herkesin AYNI container\'da çalıştığı bir Selenium Grid\'e taşıyacaksın.',
+    en: 'Four people on your team run Selenium tests on their own laptops with different Chrome versions — someone always says "it passes on my machine." Today you will move the tests to a Selenium Grid where everyone runs against the SAME container.',
+  },
+  steps: [
+    {
+      id: 'docker-grid-why',
+      brief: { tr: '1) Yerel Chrome yerine container\'da Selenium Grid kullanmanın asıl kazancını tahmin et.', en: '1) Predict the real benefit of running Selenium Grid in a container instead of local Chrome.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Yerel Chrome, işletim sistemine, sürüme ve kurulu eklentilere göre DAVRANIŞ DEĞİŞTİREBİLİR — bu yüzden "bende geçiyor" bir QA klasiğidir. Container, Chrome\'un TAM SÜRÜMÜNÜ image içine kilitler: Java\'da bir bağımlılığı `pom.xml`\'de sabit sürüme kilitlemek gibi, ortam farkı sıfırlanır.',
+        en: 'Local Chrome can BEHAVE DIFFERENTLY depending on OS, version and installed extensions — that is why "it passes on my machine" is a QA classic. A container LOCKS Chrome\'s EXACT VERSION inside the image — like pinning a dependency to a fixed version in `pom.xml` in Java: environment drift drops to zero.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'docker-grid-why-choice',
+        xpReward: 10,
+        relatedTopicId: 'docker-selenium-grid',
+        prompt: { tr: '4 kişi kendi laptop\'unda farklı Chrome sürümüyle aynı testi çalıştırıyor. Testleri Docker\'da bir Selenium Grid\'e taşımanın asıl kazancı nedir?', en: '4 people run the same test with different local Chrome versions. What is the real benefit of moving tests to a Selenium Grid in Docker?' },
+        code: {
+          tr: '// Alice: Chrome 118 (yerel)\n// Bob:   Chrome 121 (yerel)\n// -> aynı test, iki farklı sonuç',
+          en: '// Alice: Chrome 118 (local)\n// Bob:   Chrome 121 (local)\n// -> same test, two different results',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'Testler container içinde otomatik olarak daha hızlı çalışır', en: 'Tests automatically run faster inside a container' }, why: { tr: 'Container hız garantisi vermez — kazanç HIZ değil, herkesin AYNI ortama karşı test etmesidir.', en: 'A container does not guarantee speed — the win is not SPEED, it is everyone testing against the SAME environment.' } },
+          { id: 'b', label: { tr: 'Testler artık HERKESTE aynı, sabit bir Chrome sürümüne karşı çalışır', en: 'Tests now run against the SAME fixed Chrome version for everyone' }, correct: true },
+          { id: 'c', label: { tr: 'Artık hiç browser kurulumuna gerek kalmaz', en: 'No browser installation is ever needed again' }, why: { tr: 'Kurulum hâlâ gerekir — sadece image İÇİNDE, laptop\'a değil; "hiç kurulum yok" yanlış bir genelleme.', en: 'Installation is still required — just INSIDE the image, not on the laptop; "no installation at all" is an overgeneralization.' } },
+        ],
+        reveal: {
+          tr: 'Sabit bir Chrome sürümüne karşı çalışması doğru: image bir kere `chrome:121` diye sabitlenince, laptop\'unda hangi sürüm kurulu olursa olsun test AYNI container\'a karşı koşar. "Bende geçiyor" sorununun kökü — ortam farkı — bu şekilde ortadan kalkar.',
+          en: 'Running against a fixed Chrome version is correct: once the image is pinned to `chrome:121`, the test runs against the SAME container no matter which version is installed on your laptop. This removes the root cause of "it passes on my machine" — environment drift.',
+        },
+      },
+    },
+    {
+      id: 'docker-grid-compose',
+      brief: { tr: '2) docker-compose.yml içinde hub ve node servislerini tanımla.', en: '2) Define the hub and node services in docker-compose.yml.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Selenium Grid iki parçadan oluşur: **hub** (testlerin bağlandığı, node\'ları yöneten trafik polisi) ve **node** (gerçek Chrome\'un çalıştığı worker). Compose\'da bunlar iki AYRI servis olur ve `depends_on` ile node\'un hub\'dan SONRA başlaması söylenir.',
+        en: 'Selenium Grid has two parts: the **hub** (the traffic cop tests connect to, which manages nodes) and the **node** (the worker where the real Chrome runs). In Compose these become two SEPARATE services, and `depends_on` tells the node to start AFTER the hub.',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'docker-grid-compose-code',
+        relatedTopicId: 'docker-selenium-grid',
+        language: 'yaml',
+        label: { tr: 'docker-compose.yml — hub + node servislerini tamamla', en: 'docker-compose.yml — complete the hub + node services' },
+        task: { tr: 'TODO satırlarını, node servisinin hub\'a bağımlı olduğunu belirten satırla tamamla.', en: 'Complete the TODO lines with the line that makes the node service depend on the hub.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç hub/node ayrımını ve `depends_on` kalıbını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the hub/node split and the `depends_on` pattern yourself.' },
+        code: {
+          tr: `services:\n  selenium-hub:\n    image: selenium/hub:4.18\n    ports:\n      - "4442-4444:4442-4444"\n\n  chrome-node:\n    image: selenium/node-chrome:4.18\n    depends_on:\n      - selenium-hub\n    environment:\n      - SE_EVENT_BUS_HOST=selenium-hub`,
+          en: `services:\n  selenium-hub:\n    image: selenium/hub:4.18\n    ports:\n      - "4442-4444:4442-4444"\n\n  chrome-node:\n    image: selenium/node-chrome:4.18\n    depends_on:\n      - selenium-hub\n    environment:\n      - SE_EVENT_BUS_HOST=selenium-hub`,
+        },
+        starterCode: {
+          tr: `services:\n  selenium-hub:\n    image: selenium/hub:4.18\n    ports:\n      - "4442-4444:4442-4444"\n\n  chrome-node:\n    image: selenium/node-chrome:4.18\n    # TODO: bu servisin selenium-hub'a bagimli oldugunu belirt\n    environment:\n      - SE_EVENT_BUS_HOST=selenium-hub`,
+          en: `services:\n  selenium-hub:\n    image: selenium/hub:4.18\n    ports:\n      - "4442-4444:4442-4444"\n\n  chrome-node:\n    image: selenium/node-chrome:4.18\n    # TODO: declare that this service depends on selenium-hub\n    environment:\n      - SE_EVENT_BUS_HOST=selenium-hub`,
+        },
+        solutionCode: {
+          tr: `services:\n  selenium-hub:\n    image: selenium/hub:4.18\n    ports:\n      - "4442-4444:4442-4444"\n\n  chrome-node:\n    image: selenium/node-chrome:4.18\n    depends_on:\n      - selenium-hub\n    environment:\n      - SE_EVENT_BUS_HOST=selenium-hub`,
+          en: `services:\n  selenium-hub:\n    image: selenium/hub:4.18\n    ports:\n      - "4442-4444:4442-4444"\n\n  chrome-node:\n    image: selenium/node-chrome:4.18\n    depends_on:\n      - selenium-hub\n    environment:\n      - SE_EVENT_BUS_HOST=selenium-hub`,
+        },
+        expected: { tr: 'chrome-node artık selenium-hub başlamadan önce ayağa kalkmaz.', en: 'chrome-node no longer starts before selenium-hub is up.' },
+        hints: [
+          { tr: 'Compose\'da servisler arası sıralamayı `depends_on:` anahtarı belirler.', en: 'In Compose, the `depends_on:` key controls startup order between services.' },
+          { tr: 'Liste elemanı olarak servis adını yaz: `- selenium-hub`.', en: 'Write the service name as a list item: `- selenium-hub`.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'docker-grid-race',
+      brief: { tr: '3) `depends_on` node\'u hub\'dan sonra BAŞLATIR ama hub\'ın HAZIR olmasını garanti eder mi, tahmin et.', en: '3) Predict whether `depends_on` guarantees the hub is READY, not just STARTED, before the node connects.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: '`depends_on` sadece container\'ı BAŞLATMA SIRASINI garanti eder — hub container\'ı "başladı" ama içindeki uygulama henüz portu DİNLEMİYOR olabilir. Node bu ARADA bağlanmaya çalışırsa bağlantı reddedilir; bu klasik bir "yarış durumu" (race condition) örneğidir, healthcheck ile çözülür.',
+        en: '`depends_on` only guarantees container START ORDER — the hub container has "started" but the application inside it may not yet be LISTENING on the port. If the node tries to connect DURING that gap, the connection is refused; this is a classic "race condition", solved with a healthcheck.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'docker-grid-race-choice',
+        xpReward: 10,
+        relatedTopicId: 'docker-selenium-grid',
+        prompt: { tr: 'chrome-node, selenium-hub\'a `depends_on` ile bağımlı. Hub container\'ı "başladı" ama içindeki servis portu henüz dinlemiyor. Node bu anda bağlanmaya çalışırsa ne olur?', en: 'chrome-node depends on selenium-hub via `depends_on`. The hub container has "started" but its internal service is not listening on the port yet. What happens if the node tries to connect at that moment?' },
+        code: {
+          tr: '// depends_on: sadece başlatma SIRASI garantisi verir\n// hub "started" != hub "ready"',
+          en: '// depends_on: only guarantees START ORDER\n// hub "started" != hub "ready"',
+        },
+        codeLanguage: 'text',
+        options: [
+          { id: 'a', label: { tr: 'Node bağlantı hatası alır, çünkü hub "başladı" olması "hazır" olduğu anlamına gelmez', en: 'The node gets a connection error, because the hub being "started" does not mean it is "ready"' }, correct: true },
+          { id: 'b', label: { tr: 'Docker otomatik olarak node\'u hub gerçekten hazır olana kadar bekletir', en: 'Docker automatically makes the node wait until the hub is truly ready' }, why: { tr: '`depends_on` (healthcheck olmadan) sadece SIRAYI garanti eder, HAZIR OLMAYI değil — bu tam olarak yaygın yanılgıdır.', en: '`depends_on` (without a healthcheck) only guarantees ORDER, not READINESS — this is exactly the common misconception.' } },
+          { id: 'c', label: { tr: 'Hiçbir fark olmaz, Selenium Grid bağlantıları otomatik tekrar dener', en: 'No difference, Selenium Grid automatically retries connections' }, why: { tr: 'Grid bazı durumlarda tekrar dener ama BU garantiye güvenmek yerine `condition: service_healthy` ile gerçek hazır-olma kontrolü yapmak daha güvenilirdir.', en: 'The grid retries in some cases, but relying on THAT is less reliable than actually checking readiness with `condition: service_healthy`.' } },
+        ],
+        reveal: {
+          tr: 'Bağlantı hatası doğru: "başladı" ile "hazır" farklı şeylerdir. Sağlam bir çözüm, hub servisine bir `healthcheck` eklemek ve node\'un `depends_on` koşulunu `condition: service_healthy` yapmaktır — böylece node, hub GERÇEKTEN istekleri karşılamaya başlayana kadar bekler.',
+          en: 'A connection error is correct: "started" and "ready" are different things. A robust fix is adding a `healthcheck` to the hub service and setting the node\'s `depends_on` condition to `condition: service_healthy` — so the node waits until the hub is ACTUALLY serving requests.',
+        },
+      },
+    },
+    {
+      id: 'docker-grid-remote',
+      brief: { tr: '4) Java testinin, yerel ChromeDriver yerine Grid\'deki hub\'a bağlandığı RemoteWebDriver kodunu yaz.', en: '4) Write the RemoteWebDriver code that makes the Java test connect to the Grid\'s hub instead of a local ChromeDriver.' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Yerelde `new ChromeDriver()` doğrudan makinendeki tarayıcıyı açar. Grid\'e bağlanmak için bunun yerine `new RemoteWebDriver(hubUrl, capabilities)` kullanılır — test artık "bu tarayıcıyı SEN aç" demiyor, "şu adresteki Grid\'den bana bir tarayıcı VER" diyor.',
+        en: 'Locally, `new ChromeDriver()` opens the browser directly on your machine. To connect to a grid, you use `new RemoteWebDriver(hubUrl, capabilities)` instead — the test no longer says "YOU open this browser", it says "GIVE me a browser from the Grid at this address".',
+      },
+      block: {
+        type: 'code-playground',
+        id: 'docker-grid-remote-code',
+        relatedTopicId: 'docker-selenium-grid',
+        language: 'java',
+        label: { tr: 'RemoteWebDriver ile Grid\'e bağlan', en: 'Connect to the Grid with RemoteWebDriver' },
+        task: { tr: 'TODO satırını, hub URL\'i ve ChromeOptions ile RemoteWebDriver oluşturan kodla tamamla.', en: 'Complete the TODO line with code that creates a RemoteWebDriver using the hub URL and ChromeOptions.' },
+        explanation: { tr: 'Gerçek runtime değil; amaç yerel driver ile RemoteWebDriver arasındaki kalıp farkını kendin yazmayı pekiştirmek.', en: 'Not a real runtime; the goal is to reinforce writing the pattern difference between a local driver and RemoteWebDriver yourself.' },
+        code: {
+          tr: `ChromeOptions options = new ChromeOptions();\nURL hubUrl = new URL("http://localhost:4444/wd/hub");\nWebDriver driver = new RemoteWebDriver(hubUrl, options);`,
+          en: `ChromeOptions options = new ChromeOptions();\nURL hubUrl = new URL("http://localhost:4444/wd/hub");\nWebDriver driver = new RemoteWebDriver(hubUrl, options);`,
+        },
+        starterCode: {
+          tr: `ChromeOptions options = new ChromeOptions();\nURL hubUrl = new URL("http://localhost:4444/wd/hub");\n// TODO: hub'a baglanan bir RemoteWebDriver olustur (hubUrl, options)\nWebDriver driver = null;`,
+          en: `ChromeOptions options = new ChromeOptions();\nURL hubUrl = new URL("http://localhost:4444/wd/hub");\n// TODO: create a RemoteWebDriver that connects to the hub (hubUrl, options)\nWebDriver driver = null;`,
+        },
+        solutionCode: {
+          tr: `ChromeOptions options = new ChromeOptions();\nURL hubUrl = new URL("http://localhost:4444/wd/hub");\nWebDriver driver = new RemoteWebDriver(hubUrl, options);`,
+          en: `ChromeOptions options = new ChromeOptions();\nURL hubUrl = new URL("http://localhost:4444/wd/hub");\nWebDriver driver = new RemoteWebDriver(hubUrl, options);`,
+        },
+        expected: { tr: 'Test artık yerel Chrome yerine Grid\'deki chrome-node üzerinde çalışır.', en: 'The test now runs on the Grid\'s chrome-node instead of the local Chrome.' },
+        hints: [
+          { tr: '`new RemoteWebDriver(url, options)` iki parametre alır: hub adresi ve tarayıcı seçenekleri.', en: '`new RemoteWebDriver(url, options)` takes two parameters: the hub address and the browser options.' },
+          { tr: 'Sınıf adı `ChromeDriver` değil `RemoteWebDriver`dır.', en: 'The class name is `RemoteWebDriver`, not `ChromeDriver`.' },
+        ],
+        xpReward: 10,
+      },
+    },
+    {
+      id: 'docker-grid-shm',
+      brief: { tr: '5) Chrome node\'unun neden ekstra paylaşımlı bellek (`--shm-size`) istediğini tahmin et.', en: '5) Predict why the Chrome node needs extra shared memory (`--shm-size`).' },
+      successCriterion: 'onFirstSuccess',
+      miniLesson: {
+        tr: 'Container\'ların varsayılan `/dev/shm` (paylaşımlı bellek) boyutu küçüktür (genelde 64MB). Chrome, sekmeler arası iletişim için bu alanı yoğun kullanır; yetersiz kalınca "Chrome crashed" hatası verir. `docker-compose.yml`\'de `shm_size: 2gb` ekleyerek bu limiti büyütmek çözümdür.',
+        en: 'Containers default to a small `/dev/shm` (shared memory) size, usually 64MB. Chrome uses this heavily for cross-tab communication; when it runs out, you get a "Chrome crashed" error. Adding `shm_size: 2gb` in `docker-compose.yml` raises that limit and fixes it.',
+      },
+      block: {
+        type: 'prediction',
+        id: 'docker-grid-shm-choice',
+        xpReward: 10,
+        relatedTopicId: 'docker-selenium-grid',
+        prompt: { tr: 'chrome-node servisinde `shm_size` ayarlanmamış (varsayılan 64MB). Testler ara sıra rastgele "Chrome crashed" hatasıyla ölüyor. En olası neden nedir?', en: 'The chrome-node service has no `shm_size` set (default 64MB). Tests occasionally die with a random "Chrome crashed" error. What is the most likely cause?' },
+        code: {
+          tr: '// docker-compose.yml\nchrome-node:\n  image: selenium/node-chrome:4.18\n  # shm_size ayarlanmamış -> varsayılan 64MB',
+          en: '// docker-compose.yml\nchrome-node:\n  image: selenium/node-chrome:4.18\n  # shm_size not set -> defaults to 64MB',
+        },
+        codeLanguage: 'yaml',
+        options: [
+          { id: 'a', label: { tr: 'Selenium Grid sürümü çok eski', en: 'The Selenium Grid version is too old' }, why: { tr: 'Sürüm uyumsuzluğu farklı bir hataya (bağlantı/protokol hatası) yol açar, "Chrome crashed" değil.', en: 'A version mismatch causes a different error (connection/protocol error), not "Chrome crashed".' } },
+          { id: 'b', label: { tr: 'Ağ bağlantısı hub ile node arasında kopuyor', en: 'The network connection between hub and node is dropping' }, why: { tr: 'Ağ kopması bağlantı zaman aşımı hatası verir; tarayıcının kendisinin çökmesi paylaşımlı bellek belirtisidir.', en: 'A network drop produces a connection timeout error; the browser process itself crashing is the shared-memory symptom.' } },
+          { id: 'c', label: { tr: 'Varsayılan paylaşımlı bellek (64MB) Chrome için yetersiz kalıyor', en: 'The default shared memory (64MB) is not enough for Chrome' }, correct: true },
+        ],
+        reveal: {
+          tr: 'Yetersiz paylaşımlı bellek doğru: Chrome\'un varsayılan 64MB `/dev/shm`\'i sekmeler arası iletişim için yeterli değildir. `docker-compose.yml`\'de o servise `shm_size: 2gb` eklemek, bu rastgele çökmeleri ortadan kaldırır — production Grid kurulumlarında standart bir ayardır.',
+          en: 'Insufficient shared memory is correct: the default 64MB `/dev/shm` is not enough for Chrome\'s cross-tab communication. Adding `shm_size: 2gb` to that service in `docker-compose.yml` eliminates these random crashes — it is a standard setting in production Grid setups.',
+        },
+      },
+    },
+  ],
+  debrief: {
+    tr: 'Bu 5 adım, bir ekibin "bende geçiyor" kaosundan tekilleştirilmiş bir Selenium Grid\'e geçişinin gerçek iskeletidir: neden container (tutarlılık) → hub/node compose tanımı → başlatma sırası ile hazır-olma farkı (yarış durumu) → RemoteWebDriver bağlantısı → paylaşımlı bellek ayarı. Production\'da bu Grid\'e genellikle CI pipeline\'ından (bkz. Jenkins sekmesi) bağlanılır.',
+    en: 'These 5 steps are the real skeleton of a team\'s move from "it passes on my machine" chaos to a unified Selenium Grid: why a container (consistency) → hub/node compose definition → start order vs. readiness (race condition) → RemoteWebDriver connection → shared memory setting. In production this Grid is usually connected to from a CI pipeline (see the Jenkins tab).',
+  },
+}
+
+dockerData.en.sections[9].blocks.push(dockerSeleniumGridMission)
+dockerData.tr.sections[9].blocks.push(dockerSeleniumGridMission)
