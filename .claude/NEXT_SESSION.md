@@ -20,7 +20,57 @@
 
 ---
 
-## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — SEO Faz 2 / S2 mission yayılımı)
+## 📌 Şu An Ne Durumdayız (son güncelleme: 2026-08-01, Sonnet — SEO Faz 2 TAMAMLANDI: S1-S4)
+
+- **Aktif branch: `feature/seo-phase-2`.** Opus'un O1-O8 çekirdeğinin ardından
+  Sonnet'in S1-S4 görevlerinin TÜMÜ tamamlandı (`Documents/seo-phase-2-plan.md`).
+  Plandaki 12 madde de ✅. **S1 ve S2 detayları aşağıdaki iki bölümde**; bu
+  bölüm S3 (analytics) + S4 (TR metadata + mülakat dağılımı) ve genel özet.
+
+- **✅ S3 — Çerezsiz analytics (Plausible) TAMAMLANDI** (commit `ba80b58`):
+  `index.html`'e `data-domain="learnqa.dev"` ile script eklendi (Google
+  Analytics BİLİNÇLİ kullanılmadı — çerez rızası yükü). `src/lib/analytics.js`
+  → `trackEvent()`, `window.plausible` yoksa sessizce no-op. 4 olay bağlandı:
+  `lesson_completed` (AuthContext, anonim+üye), `mission_completed`
+  (MissionBlock), `sprint_closed` (SprintPage), `language_changed`
+  (LanguageContext — SEO Faz 2'nin `/en` kullanımını ölçmek için kritik).
+  `DEPLOY.md` §8'e hesap kurulum adımları eklendi. **Kullanıcı tarafı açık iş:**
+  Plausible hesabı açılıp `learnqa.dev` domain'i eklenmeli — kod hazır, hesap yok.
+
+- **✅ S4 — TR metadata cilası + mülakat dağılımı TAMAMLANDI** (commit `e40d2d6`):
+  - En yüksek trafikli 12 sayfanın (`selenium`, `playwright`, `sql`, `python`,
+    `java`, `docker`, `jenkins`, `git-github`, `security`, `what-is-testing`,
+    `manual-testing`) TR title/description'ları gerçek arama niyeti kalıplarıyla
+    güçlendirildi ("selenium nedir", "playwright türkçe", "sql sorguları",
+    "docker nedir" gibi) — Opus fazındaki doğrudan çeviriden farklı olarak.
+  - `/postman` (16/19/15) ve `/playwright` (15/15/20) mülakat seviye dağılımı
+    15/20/15 altındaydı — soru SİLİNMEDİ, eksik intermediate seviyeye senaryo
+    tabanlı sorular eklendi (playwright +5, postman +1, her ikisi de hem TR hem
+    EN tarafına — postman'ın iki bloğu FARKLI formatta: EN düz string, TR
+    bilingual `{tr,en}` per-soru, ikisi de elle güncellendi). **Sonuç:
+    audit-interview-questions artık 25/25 sayfa ✅, 0 uyarı** (önceki durum:
+    23/25, 2 uyarı).
+- **Doğrulama:** seo:check (45 route) ✓ · audit-interview-questions (25/25 ✅) ✓ ·
+  content-integrity ✓ · i18n baseline 0 ✓ · build ✓ (88 shell, dist-SEO).
+
+- **🎯 SEO Faz 2 ÖZET (O1-O8 + S1-S4, plan §0'daki TÜM maddeler ✅):**
+  - Dil-ayrık URL (`/en` prefix), 88 statik shell, FAQPage+Course JSON-LD
+    (56+68 sayfa), `/typescript`+`/java`+`/sql` ilk-boya JS'i ~%98 küçüldü,
+    6 yeni sayfaya mission eklendi (18→24 toplam), çerezsiz analytics, TR
+    metadata cilası, mülakat dağılımı 25/25 ✅.
+  - Toplam commit: `f5350b8`, `80034c2`, `52c0fc0`..`e990852` (6 mission +
+    1 audit script), `f46ac67`, `ba80b58`, `e40d2d6` = **12 commit**.
+- **🔜 Kalan tek adım:** kapsamlı son E2E doğrulaması (bu oturumda devam
+  ediyor) — bitince `main`'e merge kararı kullanıcıda (CLAUDE.md §21), öncesinde
+  plan §8'deki 9 adımlı manuel test rehberi önerilir.
+- **🔜 Kullanıcı (Hasan) tarafı, planın §5'i (hâlâ açık, bu plan onları
+  kapatmaz):** GSC'ye sitemap'i yeniden gönder (88 URL), Plausible hesabı aç,
+  `sprint-simulator-and-open-items-plan.md` §5'teki 4 madde (edge function
+  deploy'ları, social-proof RPC, trending-skills aktivasyonu).
+
+---
+
+## 📌 Önceki Durum (2026-08-01, Sonnet — SEO Faz 2 / S2 mission yayılımı)
 
 - **Aktif branch: `feature/seo-phase-2`.** S1'in hemen ardından **S2 — mission
   yayılımı TAMAMLANDI** (plan §7.2). Ölçülen durum: 25 teknoloji sayfasından
