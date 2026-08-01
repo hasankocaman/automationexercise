@@ -15,9 +15,10 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
     test('/algorithms — tüm bölümler tamamlanınca rozet "done" olur ve route kariyer haritasına işlenir', async ({ page }) => {
         // Büyük modül: ilk derlemede yavaş olabilir (bkz. other-pages-ui.spec.ts notu)
         test.setTimeout(120_000);
-        // Nöro-Optimizasyon Modu /algorithms'da VARSAYILAN AÇIK ve ders kartlarını
-        // recall-kilidi overlay'i ile örter (bilinçli tasarım) — tamamlama butonuna
-        // deterministik erişim için testte kapatılır (gerçek kullanıcı toggle'ı ile aynı).
+        // Nöro-Optimizasyon Modu /algorithms'da VARSAYILAN KAPALI (kullanıcı
+        // isterse açar); açıkken ders kartlarını recall-kilidi overlay'i ile
+        // örter. Bu test o overlay'i devreye SOKMADAN tamamlama butonuna
+        // deterministik erişim istediği için burada da açıkça kapalı tutuluyor.
         await page.addInitScript(() => {
             window.localStorage.setItem('algorithms_neuro_mode', 'false');
         });
@@ -86,8 +87,9 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
     // kilitlemez. Quiz, tamamlamayı zorunlu kılmaz — sadece kolay bir yol sunar.
     test('/advanced-algorithms — opsiyonel ders notu görünür ve quiz bölümü otomatik tamamlar', async ({ page }) => {
         test.setTimeout(120_000);
-        // Nöro-Optimizasyon Modu bölüm içeriğini recall-kilidi overlay'i ile örter
-        // (bilinçli tasarım) — quize deterministik erişim için kapatılır.
+        // Nöro-Optimizasyon Modu VARSAYILAN KAPALI; açıkken bölüm içeriğini
+        // recall-kilidi overlay'i ile örter — burada da açıkça kapalı tutularak
+        // quize deterministik erişim sağlanıyor.
         await page.addInitScript(() => {
             window.localStorage.setItem('advanced_algorithms_neuro_mode', 'false');
         });

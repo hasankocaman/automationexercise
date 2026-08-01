@@ -1193,7 +1193,7 @@ function AdvancedAlgorithmsPage() {
     // Neuro-Optimization Mode Toggle State
     const [neuroMode, setNeuroMode] = useState(() => {
         const saved = localStorage.getItem('advanced_algorithms_neuro_mode')
-        return saved !== null ? JSON.parse(saved) : true
+        return saved !== null ? JSON.parse(saved) : false
     })
 
     useEffect(() => {
