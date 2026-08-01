@@ -358,6 +358,13 @@ Bu plandan çıkan, kod tarafında yapılamayacak işler:
 
 ## 8. Manuel Test Rehberi — SEO Faz 2 (O1-O8 + S1-S4, ~20 dakika)
 
+> **Bu bölüm "özellik çalışıyor mu"yu doğrular.** Yayına çıkmadan önce ayrıca
+> **`DEPLOY.md` §9**'u uygula: orası, geri dönüşü PAHALI olan değişiklikler
+> (dil-ayrık URL, sitemap'in Google'a öğrettiği URL kümesi, zengin sonuç
+> şeması, SERP metinleri, ölçüm penceresi) için yayın öncesi zorunlu
+> doğrulamayı ve açık bulguların karar tablosunu içerir. İkisi çakışmaz:
+> burası özellik testi, orası yayın kapısı.
+
 **Kurulum (tek sefer):** `npm run build && npm run preview` — preview sunucusu
 `http://localhost:4173` üzerinde `dist/` çıktısını (gerçek production build,
 statik shell'ler dahil) servis eder. Tüm adımlar bu sunucuya karşı yapılır.
