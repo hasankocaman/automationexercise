@@ -25,6 +25,7 @@ for (const route of seoRoutes) {
 // Metadata kuralları HER İKİ DİL için de geçerlidir (Documents/seo-phase-2-plan.md §2).
 // Eksik `tr` bloğu build'i kırar — yeni route eklerken iki dil de zorunludur.
 const seenDescriptions = new Map()
+const seenTitles = new Map()
 
 for (const item of ROUTE_SEO) {
     if (!item.path.startsWith('/')) errors.push(`SEO path must start with "/": ${item.path}`)
@@ -43,11 +44,20 @@ for (const item of ROUTE_SEO) {
         }
 
         // Aynı description iki route'ta tekrarlanırsa Google duplicate meta sayar.
-        const key = `${locale}|${description}`
-        if (seenDescriptions.has(key)) {
-            errors.push(`Duplicate SEO description for ${where} (same as ${seenDescriptions.get(key)})`)
+        const descKey = `${locale}|${description}`
+        if (seenDescriptions.has(descKey)) {
+            errors.push(`Duplicate SEO description for ${where} (same as ${seenDescriptions.get(descKey)})`)
         } else {
-            seenDescriptions.set(key, item.path)
+            seenDescriptions.set(descKey, item.path)
+        }
+
+        // Aynı title iki route'ta tekrarlanırsa arama sonucunda birbirini yer
+        // (DEPLOY.md §9.4 D1 — önceden yalnızca elle koşulan bir kontroldü).
+        const titleKey = `${locale}|${title}`
+        if (seenTitles.has(titleKey)) {
+            errors.push(`Duplicate SEO title for ${where} (same as ${seenTitles.get(titleKey)})`)
+        } else {
+            seenTitles.set(titleKey, item.path)
         }
     }
 

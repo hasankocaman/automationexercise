@@ -227,6 +227,36 @@ npm run build && npm run preview      # http://localhost:4173 — gerçek dist �
 Tüm adımlar bu sunucuya karşı yapılır. `npm run dev` KULLANMA: dev sunucusu
 statik shell'leri servis etmez, yani crawler'ın gördüğü şeyi göremezsin.
 
+> ✅ **A1, A5 (TÜM herkese açık sayfalar), A6, A7, A8, D3, F1, F2 artık otomatik:**
+> `npm run test:release-gate` (`tests-release-gate/deploy-gate.spec.ts`) önce
+> TAM bir `npm run build` koşturur, ardından GERÇEK bir `vite preview`
+> sunucusuna (ayrı port: 4174, kendi elle açtığın 4173 ile çakışmaz) karşı bu
+> maddeleri doğrular — dosya sistemini değil, gerçek HTTP yanıtını test eder,
+> tam olarak bu bölümdeki `curl` komutlarının yaptığı gibi. Elle koşulan komutlar
+> hâlâ burada duruyor (şüpheli bir sonuçta tek tek elle tekrar etmek için
+> faydalı) ama artık zorunlu değil — deploy öncesi tek komut yeterli. Otomatikleşmeyen
+> maddeler (gözle/harici araç gerektiren D2, C2, C3, E1/E2, F3) elle kalmaya devam ediyor.
+
+> ⚠️ **`vite preview` sonunda MUTLAKA `/` koy.** `vite preview`'ın statik
+> sunucusu (`sirv`), sondaki `/` olmadan bir alt-yol istendiğinde
+> (`localhost:4173/selenium`) o klasördeki `index.html`'i BULAMAZ ve sessizce
+> KÖK `dist/index.html`'e düşer — 404 vermez, hatasız 200 döner ama başlık,
+> `lang`, canonical, hreflang, JSON-LD hepsi ANA SAYFANINKİ olur. Bu yüzden bu
+> bölümdeki `curl` komutlarının hepsi sonda `/` taşır (`localhost:4173/selenium/`).
+> Sonu unutulursa "Türkçe mi?" gibi kaba bir kontrol bile YANLIŞLIKLA geçer
+> görünür (kök sayfa da zaten Türkçe) — sorunu ele vermeyen en tehlikeli tür
+> yanlış-pozitif budur. Gerçek GitHub Pages yayınında bu sorun YOKTUR (statik
+> host'lar `/selenium` isteğini `selenium/index.html`'e sonuçsuz çözer);
+> bu yalnızca yerel `vite preview` test aracının bir kısıtıdır.
+>
+> ⚠️ **Windows PowerShell'de Türkçe karakterler bozuk görünebilir**
+> (`E─şitimi` gibi) — bu dosyadaki içerik BOZUK DEĞİL, `curl.exe`/`Select-String`
+> çıktısını gösteren konsolun kod sayfası UTF-8 değil demektir (dosyanın kendisi
+> doğru UTF-8 — `node -e "console.log(require('fs').readFileSync(...,'utf8'))"`
+> ile veya bir metin editöründe açarak doğrula). Düzeltmek için o PowerShell
+> oturumunda `chcp 65001` veya `[Console]::OutputEncoding =
+> [System.Text.Encoding]::UTF8` çalıştır.
+
 ---
 
 ### 9.1. A — Dil-ayrık URL yapısı (`/en`) · **en pahalı değişiklik** · ~10 dk
@@ -243,13 +273,13 @@ aylar sürer.
 | URL | Beklenen dil |
 |---|---|
 | `localhost:4173/` | Türkçe |
-| `localhost:4173/en` | İngilizce |
-| `localhost:4173/selenium` | Türkçe |
-| `localhost:4173/en/selenium` | İngilizce |
-| `localhost:4173/git-github` | Türkçe |
-| `localhost:4173/en/git-github` | İngilizce |
-| `localhost:4173/portfolio` | Türkçe |
-| `localhost:4173/en/portfolio` | İngilizce |
+| `localhost:4173/en/` | İngilizce |
+| `localhost:4173/selenium/` | Türkçe |
+| `localhost:4173/en/selenium/` | İngilizce |
+| `localhost:4173/git-github/` | Türkçe |
+| `localhost:4173/en/git-github/` | İngilizce |
+| `localhost:4173/portfolio/` | Türkçe |
+| `localhost:4173/en/portfolio/` | İngilizce |
 
 ❌ **Yayını durdur:** herhangi biri 404 veriyorsa ya da yanlış dilde açılıyorsa.
 
@@ -293,16 +323,16 @@ için de karışık sinyaldir.
 **A6 — Crawler'ın gördüğü gövde doğru dilde mi:**
 
 ```bash
-curl -s localhost:4173/selenium    | grep -o '<title>[^<]*' | head -1   # Türkçe olmalı
-curl -s localhost:4173/en/selenium | grep -o '<title>[^<]*' | head -1   # İngilizce olmalı
-curl -s localhost:4173/selenium    | grep -o '<html lang="[^"]*"'       # lang="tr"
-curl -s localhost:4173/en/selenium | grep -o '<html lang="[^"]*"'       # lang="en"
+curl -s localhost:4173/selenium/    | grep -o '<title>[^<]*' | head -1   # Türkçe olmalı
+curl -s localhost:4173/en/selenium/ | grep -o '<title>[^<]*' | head -1   # İngilizce olmalı
+curl -s localhost:4173/selenium/    | grep -o '<html lang="[^"]*"'       # lang="tr"
+curl -s localhost:4173/en/selenium/ | grep -o '<html lang="[^"]*"'       # lang="en"
 ```
 
 **A7 — hreflang üçlüsü tutarlı mı:**
 
 ```bash
-curl -s localhost:4173/selenium | grep -o 'hreflang="[^"]*" href="[^"]*"'
+curl -s localhost:4173/selenium/ | grep -o 'hreflang="[^"]*" href="[^"]*"'
 ```
 
 `tr`, `en` ve `x-default` üçü de olmalı; `href` değerleri **mutlak** ve
@@ -311,7 +341,7 @@ aynı üçlü çıkmalı ve **birbirini işaret etmeli** (TR sayfa EN'i, EN sayf
 
 **A8 — Bilinmeyen `/en` yolu düzgün düşüyor mu:**
 
-`localhost:4173/en/olmayan-sayfa` aç → uygulamanın 404/fallback davranışı
+`localhost:4173/en/olmayan-sayfa/` aç → uygulamanın 404/fallback davranışı
 çalışmalı, boş beyaz ekran veya ham sunucu hatası OLMAMALI.
 
 ---
@@ -413,15 +443,15 @@ tarayıcıda denetler.
 
 **C2 — Resmî doğrulayıcıdan geçir:**
 
-`curl -s localhost:4173/selenium` çıktısını kopyala →
+`curl -s localhost:4173/selenium/` çıktısını kopyala →
 https://search.google.com/test/rich-results → "Code" sekmesine yapıştır.
-Aynısını `/en/selenium` için tekrarla. **Hem TR hem EN** kopyada hata/uyarı
+Aynısını `/en/selenium/` için tekrarla. **Hem TR hem EN** kopyada hata/uyarı
 olmamalı.
 
 **C3 — Course şeması doğru mu:**
 
 ```bash
-curl -s localhost:4173/selenium | grep -o '"@type": "Course"' | head -1
+curl -s localhost:4173/selenium/ | grep -o '"@type": "Course"' | head -1
 ```
 
 Rich Results Test çıktısında `name` ve `provider` alanlarının sayfanın gerçek
@@ -429,7 +459,7 @@ konusunu yansıttığını gözle doğrula (uydurma/şişirilmiş açıklama olm
 
 **C4 — Dil karışması yok mu:**
 
-`/en/selenium`'un şemasında Türkçe cümle, `/selenium`'unkinde İngilizce
+`/en/selenium/`'un şemasında Türkçe cümle, `/selenium/`'unkinde İngilizce
 anlatım OLMAMALI. (Otomatik test bunu tarıyor ama şemaya yeni alan eklenirse
 kapsam dışı kalabilir — gözle bir kez doğrula.)
 
@@ -441,32 +471,18 @@ kapsam dışı kalabilir — gözle bir kez doğrula.)
 tıklama geçmişi (CTR sinyali) sıfırlanır. Sık değiştirmek zararlıdır; bir
 kerede doğru yapmak gerekir.
 
-**D1 — 🔴 Mükerrer BAŞLIK kontrolü (otomatik denetimde YOK):**
+**D1 — ✅ Mükerrer BAŞLIK kontrolü (ÇÖZÜLDÜ — artık otomatik):**
 
-`check-seo.mjs` mükerrer **description** kontrolü yapar ama **title** kontrolü
-YAPMAZ. Elle bak:
+`check-seo.mjs` artık mükerrer **title**'ı da mükerrer description gibi
+`npm run build`/`npm run seo:check` sırasında hard-fail eder (`seenTitles`
+Map'i, TR ve EN ayrı ayrı). Elle koşulan kırılgan bir `node -e` komutuna
+gerek kalmadı — özellikle PowerShell'de bu komut çok satırlı yapıştırmada
+ve `→` gibi ASCII-dışı karakterlerde bozulabiliyordu (mükerrer sözde bir
+satırın kaybolması, konsol kodlamasına bağlı mojibake). Diş doğrulandı:
+geçici olarak iki route'a aynı title verilip build kırıldığı, sonra geri
+alınınca yeşile döndüğü test edildi.
 
-```bash
-node -e "
-const {ROUTE_SEO}=await import('./src/utils/seo.js');
-for (const lang of ['en','tr']) {
-  const seen=new Map();
-  for (const r of ROUTE_SEO) {
-    const t=(lang==='tr'? r.tr?.title : r.title)||'';
-    if (seen.has(t)) console.log(lang.toUpperCase(),'MUKERRER:',t,'→',seen.get(t),'ve',r.path);
-    else seen.set(t,r.path);
-  }
-}
-" --input-type=module
-```
-
-Çıktı boş olmalı (yalnızca `kontrol bitti` satırı). Mükerrer başlık, iki
-sayfanın arama sonucunda birbirini yemesi demektir.
-
-> **Şu anki durum:** bu kontrol GEÇİYOR — mükerrer başlık yok. Bulgu
-> "duplicate var" değil, **"otomatik bir bekçi yok"**: yeni bir route
-> eklendiğinde mükerrer başlık build'i kırmaz, sessizce yayına çıkar. Bu
-> yüzden her yeni route sonrası bu komut elle koşulmalı.
+Artık ayrı bir manuel adım gerekmiyor — bu maddeyi build zaten kapsıyor.
 
 **D2 — SERP'te nasıl görünecek (gözle):**
 
@@ -485,8 +501,8 @@ Bakılacaklar:
 **D3 — Canonical kendini gösteriyor mu:**
 
 ```bash
-curl -s localhost:4173/selenium    | grep -o 'rel="canonical" href="[^"]*"'   # .../selenium
-curl -s localhost:4173/en/selenium | grep -o 'rel="canonical" href="[^"]*"'   # .../en/selenium
+curl -s localhost:4173/selenium/    | grep -o 'rel="canonical" href="[^"]*"'   # .../selenium
+curl -s localhost:4173/en/selenium/ | grep -o 'rel="canonical" href="[^"]*"'   # .../en/selenium
 ```
 
 Her sayfa KENDİ dilindeki URL'i işaret etmeli. EN sayfanın canonical'ı TR'yi
@@ -526,20 +542,26 @@ düzeltme her zaman anında yansımaz.
 
 **F1 — Derin bağlantıda sert yenileme (SPA'ların klasik Pages hatası):**
 
-`localhost:4173/en/git-github` aç → **F5 / sert yenileme** yap. Sayfa
+`localhost:4173/en/git-github/` aç → **F5 / sert yenileme** yap. Sayfa
 gelmeli. GitHub Pages'te sunucu tarafı yönlendirme yoktur; bu senaryo yalnızca
 o yola ait statik shell ÜRETİLDİYSE çalışır.
 
 ```bash
 ls dist/en/git-github/index.html      # var olmalı
-ls dist/404.html                       # fallback var olmalı
 cat dist/CNAME                         # learnqa.dev yazmalı
 ```
+
+> `dist/404.html` yerel `npm run build` çıktısında YOKTUR — bunu yalnızca
+> `.github/workflows/deploy.yml`'deki "Prepare GitHub Pages compatibility
+> files" adımı (`cp dist/index.html dist/404.html`) üretir, deploy sırasında.
+> Yerelde `ls dist/404.html` "bulunamadı" derse bu bir regresyon değildir;
+> dosyanın gerçekten üretildiğini görmek için GitHub Actions'taki bu adımın
+> loglarına bak, yerel `dist/`'e değil.
 
 **F2 — Shell gövdesi gerçek içerik gösteriyor mu (boş kabuk değil):**
 
 ```bash
-curl -s localhost:4173/selenium | sed 's/<[^>]*>//g' | tr -s ' \n' ' \n' | head -30
+curl -s localhost:4173/selenium/ | sed 's/<[^>]*>//g' | tr -s ' \n' ' \n' | head -30
 ```
 
 JavaScript kapalı bir crawler'ın gördüğü metin bu. Anlamlı Türkçe konu
