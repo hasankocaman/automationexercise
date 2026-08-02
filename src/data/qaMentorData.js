@@ -1092,6 +1092,64 @@ export const ALL_MAPS = {
     map_c2: MAP_C2,
 }
 
+// ─── Sihirbaz öncesi görünür özet (arama motoru + sihirbaza başlamadan gelen
+// ziyaretçi için) ───────────────────────────────────────────────────────────
+// Aşağıdaki 4 haritanın (MAP_A/B/C1/C2) ortak, kişiselleştirme öncesi genel
+// hattını 6 aşamada özetler. Sihirbazın ARKASINDA değildir — sayfaya girer
+// girmez, hiçbir soru cevaplanmadan görünür. Belirli bir haritanın node
+// listesiyle 1:1 eşleşmez; amacı "bu site sana ne vaat ediyor" sorusuna
+// sihirbazı başlatmadan cevap vermektir.
+export const ZERO_TO_QA_STAGES = [
+    {
+        emoji: '🛡️',
+        title: { tr: 'Test temelleri', en: 'Testing fundamentals' },
+        desc: {
+            tr: 'Testin ne olduğunu, test türlerini ve ISTQB temellerini öğren.',
+            en: 'Learn what testing is, the types of testing and ISTQB fundamentals.',
+        },
+    },
+    {
+        emoji: '🧪',
+        title: { tr: 'Manuel test', en: 'Manual testing' },
+        desc: {
+            tr: 'Test senaryosu yazmayı, bug raporlamayı ve keşifsel testi öğren.',
+            en: 'Learn to write test cases, report bugs and do exploratory testing.',
+        },
+    },
+    {
+        emoji: '💻',
+        title: { tr: 'Bir programlama dili', en: 'A programming language' },
+        desc: {
+            tr: 'Java, Python veya TypeScript ile otomasyon yazabilecek düzeye gel.',
+            en: 'Get to a level where you can write automation in Java, Python or TypeScript.',
+        },
+    },
+    {
+        emoji: '🔵',
+        title: { tr: 'UI otomasyon aracı', en: 'UI automation tool' },
+        desc: {
+            tr: 'Selenium veya Playwright ile tarayıcı testlerini otomatikleştir.',
+            en: 'Automate browser tests with Selenium or Playwright.',
+        },
+    },
+    {
+        emoji: '🔌',
+        title: { tr: 'API testi', en: 'API testing' },
+        desc: {
+            tr: 'Postman ve REST Assured ile arayüz olmadan sistemin doğruluğunu kontrol et.',
+            en: 'Verify the system without the UI using Postman and REST Assured.',
+        },
+    },
+    {
+        emoji: '🚀',
+        title: { tr: 'CI/CD ve bulut', en: 'CI/CD and cloud' },
+        desc: {
+            tr: 'Jenkins, Docker ve AWS ile testlerini her commit\'te otomatik çalıştır.',
+            en: 'Run your tests automatically on every commit with Jenkins, Docker and AWS.',
+        },
+    },
+]
+
 // ─── Parametrik Katman (v2) ────────────────────────────────────────────────
 // Kişiselleştirme = şablon (5 harita) + parametrik katman. Şablonlar sabit
 // kalır; seviye ön eki ve araç overlay'i çalışma zamanında bindirilir

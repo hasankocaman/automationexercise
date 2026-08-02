@@ -4,49 +4,15 @@ import { fileURLToPath } from 'node:url'
 import { LOCALES, ROUTE_SEO, alternatesFor, canonicalUrl, localizedPath, seoFor } from '../src/utils/seo.js'
 import { INTERVIEW_SHOWCASE } from '../src/data/generated/interviewShowcase.js'
 import { interviewWarmupData } from '../src/data/interviewWarmupData.js'
+import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js'
+import { buildSectionSeoIndex } from './lib/sectionSeo.mjs'
+import { DATA_MODULES, loadDataModule } from './lib/topicDataModules.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
 const indexPath = join(distDir, 'index.html')
 
-const DATA_MODULES = {
-    '/selenium': { file: '../src/data/seleniumData.js', exportName: 'seleniumData' },
-    '/playwright': { file: '../src/data/playwrightData.js', exportName: 'playwrightData' },
-    '/cypress': { file: '../src/data/cypressData.js', exportName: 'cypressData' },
-    '/python': { file: '../src/data/pythonData.js', exportName: 'pythonData' },
-    '/typescript': { file: '../src/data/typescriptData.js', exportName: 'typescriptData' },
-    '/javascript': { file: '../src/data/javascriptData.js', exportName: 'javascriptData' },
-    '/sql': { file: '../src/data/sqlData.js', exportName: 'sqlData' },
-    '/java': { file: '../src/data/javaData.js', exportName: 'javaData' },
-    '/jmeter': { file: '../src/data/jmeterData.js', exportName: 'jmeterData' },
-    '/postman': { file: '../src/data/postmanData.js', exportName: 'postmanData' },
-    '/api-testing': { file: '../src/data/apiTestingData.js', exportName: 'apiTestingData' },
-    '/qa-frontend': { file: '../src/data/qaFrontendData.js', exportName: 'qaFrontendData' },
-    '/bruno': { file: '../src/data/brunoData.js', exportName: 'brunoData' },
-    '/rest-assured': { file: '../src/data/restAssuredData.js', exportName: 'restAssuredData' },
-    '/gauge': { file: '../src/data/gaugeData.js', exportName: 'gaugeData' },
-    '/docker': { file: '../src/data/dockerData.js', exportName: 'dockerData' },
-    '/jenkins': { file: '../src/data/jenkinsData.js', exportName: 'jenkinsData' },
-    '/kubernetes': { file: '../src/data/kubernetesData.js', exportName: 'kubernetesData' },
-    '/kafka': { file: '../src/data/kafkaData.js', exportName: 'kafkaData' },
-    '/appium': { file: '../src/data/appiumData.js', exportName: 'appiumData' },
-    '/browserstack': { file: '../src/data/browserstackData.js', exportName: 'browserstackData' },
-    '/git-github': { file: '../src/data/gitGithubData.js', exportName: 'gitGithubData' },
-    '/linux': { file: '../src/data/linuxData.js', exportName: 'linuxData' },
-    '/aws': { file: '../src/data/awsData.js', exportName: 'awsData' },
-    '/azure': { file: '../src/data/azureData.js', exportName: 'azureData' },
-    '/what-is-testing': { file: '../src/data/whatIsTestingData.js', exportName: 'whatIsTestingData' },
-    '/security': { file: '../src/data/securityData.js', exportName: 'securityData' },
-    '/manual-testing': { file: '../src/data/manualTestingData.js', exportName: 'manualTestingData' },
-    '/algorithms': { file: '../src/data/beginnerAlgorithmsData.js', exportName: 'beginnerAlgorithmsData' },
-    '/advanced-algorithms': { file: '../src/data/algorithmsData.js', exportName: 'algorithmsData' },
-    '/qa-mentor': { file: '../src/data/qaMentorData.js', exportName: null },
-    '/backend': { file: '../src/data/backendData.js', exportName: 'backendData' },
-    '/basit-backend': { file: '../src/data/basitBackendData.js', exportName: 'basitBackendData' },
-    '/claude-ai': { file: '../src/data/claudeAiData.js', exportName: 'claudeAiData' },
-    '/llm-agents': { file: '../src/data/llmAgentsData.js', exportName: 'llmAgentsData' },
-}
 
 function escapeHtml(value) {
     return String(value)
@@ -382,8 +348,8 @@ async function routeContent(seo, locale) {
     if (!config) return null
 
     try {
-        const module = await import(config.file)
-        const data = module[config.exportName]
+        const loaded = await loadDataModule(seo.path)
+        const data = loaded?.data
         const other = locale === 'tr' ? 'en' : 'tr'
         const content = data?.[locale] || data?.[other] || data
         if (!content) return null
@@ -405,6 +371,10 @@ async function routeContent(seo, locale) {
         return {
             title: hero.title || seo.title.replace(' | LearnQA.dev', ''),
             intro: hero.intro || hero.subtitle || '',
+            // "X nedir?" sorusunun doğrudan cevabı — uygulamada da AYNEN
+            // görünür (bkz. TopicPage hero altı). Tanımlıysa gövdenin ilk
+            // paragrafı olur, çünkü öne çıkan cevap kutusu ilk paragrafa bakar.
+            seoAnswer: textValue(content.seoAnswer, locale),
             topics,
             isCourse: Boolean(config.exportName),
         }
@@ -426,6 +396,11 @@ function fallbackContent(seo, content, locale) {
             return `          <li><a href="${escapeHtml(localizedPath(item.path, locale))}">${escapeHtml(label)}</a></li>`
         })
         .join('\n')
+    // Cevap paragrafı, açıklama ve giriş metninden ÖNCE gelir: "X nedir"
+    // sorgularında arama motoru sayfanın ilk paragrafına bakar.
+    const seoAnswer = content?.seoAnswer
+        ? `<p data-seo-answer="true">${escapeHtml(textValue(content.seoAnswer, locale))}</p>`
+        : ''
     const contentIntro = content?.intro ? `<p>${escapeHtml(textValue(content.intro, locale))}</p>` : ''
     const topicList = content?.topics?.length
         ? `<section>
@@ -454,6 +429,7 @@ ${INTERVIEW_SHOWCASE.map((item) => `        <article>
 
     return `<main data-seo-fallback="true" style="font-family: Inter, Arial, sans-serif; max-width: 960px; margin: 0 auto; padding: 32px 20px; line-height: 1.6;">
         <h1>${escapeHtml(textValue(content?.title, locale) || seo.title.replace(' | LearnQA.dev', ''))}</h1>
+        ${seoAnswer}
         <p>${escapeHtml(seo.description)}</p>
         ${contentIntro}
         ${topicList}
@@ -467,7 +443,73 @@ ${links}
     </main>`
 }
 
+// Sekme shell'inin gövdesi. Hub shell'inden farkı: burada O SEKMENİN gerçek
+// metni basılır (8 başlıklık özet değil), altında da aynı dersin diğer
+// sekmelerine bağlantı listesi olur — crawler sayfayı bulduğunda kardeş
+// sekmeleri de keşfedebilsin diye.
+function sectionFallbackContent(seo, locale) {
+    const ui = UI_TEXT[locale]
+    const paragraphs = seo.prose
+        .slice(0, 14)
+        .map((part) => `        <p>${escapeHtml(part)}</p>`)
+        .join('\n')
+
+    const siblings = seo.siblings
+        .map((item) => `          <li><a href="${escapeHtml(localizedPath(item.path, locale))}">${escapeHtml(item.label)}</a></li>`)
+        .join('\n')
+
+    return `<main data-seo-fallback="true" data-seo-section="true" style="font-family: Inter, Arial, sans-serif; max-width: 960px; margin: 0 auto; padding: 32px 20px; line-height: 1.6;">
+        <nav aria-label="breadcrumb">
+        <a href="${escapeHtml(localizedPath('/', locale))}">LearnQA.dev</a> › <a href="${escapeHtml(localizedPath(seo.hubPath, locale))}">${escapeHtml(seo.hubLabel)}</a>
+        </nav>
+        <h1>${escapeHtml(seo.sectionLabel)}</h1>
+        <p>${escapeHtml(seo.description)}</p>
+${paragraphs}
+        <nav aria-label="${escapeHtml(ui.navLabel)}">
+        <h2>${escapeHtml(seo.siblingsHeading)}</h2>
+        <ul>
+${siblings}
+        </ul>
+        </nav>
+    </main>`
+}
+
 function structuredDataFor(seo, url, locale) {
+    // Sekme sayfaları: 3 basamaklı breadcrumb (Ana Sayfa › Ders › Bölüm).
+    // SERP'te çıplak URL yerine bu yol gösterilir ve sayfanın hiyerarşideki
+    // yerini Google'a açıkça bildirir.
+    if (seo.isSection) {
+        return JSON.stringify([
+            {
+                '@context': 'https://schema.org',
+                '@type': 'WebPage',
+                name: seo.title,
+                description: seo.description,
+                url,
+                inLanguage: locale,
+                isPartOf: {
+                    '@type': 'WebSite',
+                    name: 'LearnQA.dev',
+                    url: 'https://learnqa.dev/',
+                },
+            },
+            {
+                '@context': 'https://schema.org',
+                '@type': 'BreadcrumbList',
+                itemListElement: [
+                    { '@type': 'ListItem', position: 1, name: 'LearnQA.dev', item: 'https://learnqa.dev/' },
+                    {
+                        '@type': 'ListItem',
+                        position: 2,
+                        name: seo.hubLabel,
+                        item: canonicalUrl(localizedPath(seo.hubPath, locale)),
+                    },
+                    { '@type': 'ListItem', position: 3, name: seo.sectionLabel, item: url },
+                ],
+            },
+        ], null, 2).replaceAll('</script', '<\\/script')
+    }
+
     const graph = [
         {
             '@context': 'https://schema.org',
@@ -556,11 +598,15 @@ function structuredDataFor(seo, url, locale) {
 function replaceMeta(html, seo, locale) {
     const urlPath = localizedPath(seo.path, locale)
     const url = canonicalUrl(urlPath)
+    // Sekme shell'lerinin bir kısmı canonical'ını KENDİNE değil hub'a verir
+    // (ilk sekme: içeriği hub sayfasının hedeflediği sorguyla aynı).
+    const canonicalPath = localizedPath(seo.canonicalPath || seo.path, locale)
+    const canonicalHref = canonicalUrl(canonicalPath)
     const title = escapeHtml(seo.title)
     const description = escapeHtml(seo.description)
-    const canonical = escapeHtml(url)
+    const canonical = escapeHtml(canonicalHref)
     const structuredData = structuredDataFor(seo, url, locale)
-    const hreflangTags = alternatesFor(seo.path)
+    const hreflangTags = alternatesFor(seo.canonicalPath || seo.path)
         .map((alt) => `    <link rel="alternate" hreflang="${alt.hreflang}" href="${escapeHtml(alt.href)}" data-seo-hreflang="true" />`)
         .join('\n')
     // Korumalı/işlevsel sayfalar sitemap'e girmez ama shell'leri yine üretilir
@@ -580,7 +626,7 @@ function replaceMeta(html, seo, locale) {
         .replace(/<meta property="og:url" content=".*?" \/>/, `<meta property="og:url" content="${canonical}" />`)
         .replace(/<meta name="twitter:title" content=".*?" \/>/, `<meta name="twitter:title" content="${title}" />`)
         .replace(/<meta name="twitter:description" content=".*?" \/>/, `<meta name="twitter:description" content="${description}" />`)
-        .replace('<div id="root"></div>', `<div id="root">\n${fallbackContent(seo, seo.content, locale)}\n    </div>`)
+        .replace('<div id="root"></div>', `<div id="root">\n${seo.isSection ? sectionFallbackContent(seo, locale) : fallbackContent(seo, seo.content, locale)}\n    </div>`)
         .replace('</head>', `${robotsTag}${hreflangTags}\n    <script type="application/ld+json">\n${structuredData}\n    </script>\n  </head>`)
 }
 
@@ -611,3 +657,66 @@ for (const locale of LOCALES) {
 }
 
 console.log(`Generated ${written} static route shells (${staticRoutes.length} routes x ${LOCALES.length} locales).`)
+
+// ─── Sekme (bölüm) shell'leri ────────────────────────────────────────────────
+// Ders sayfalarının her dikey sekmesi kendi URL'ini ve kendi crawl edilebilir
+// gövdesini alır. Bu adım olmadan sitedeki içeriğin büyük bölümü tek URL'in
+// arkasında kalıyor ve Google yalnızca ilk sekmenin özetini görüyordu.
+
+const SIBLINGS_HEADING = {
+    tr: 'Bu dersin diğer bölümleri',
+    en: 'Other sections in this lesson',
+}
+
+const { index: sectionIndex, problems } = await buildSectionSeoIndex(SECTION_SLUGS)
+if (problems.length) {
+    console.error(problems.join('\n'))
+    process.exit(1)
+}
+
+let sectionsWritten = 0
+let sectionsIndexable = 0
+
+for (const locale of LOCALES) {
+    for (const [hubPath, entries] of Object.entries(sectionIndex)) {
+        const hubEntry = ROUTE_SEO.find((item) => item.path === hubPath)
+        if (!hubEntry) continue
+
+        for (const entry of entries) {
+            const hubLabel = entry.pageLabels[locale] || seoFor(hubEntry, locale).title.replace(' | LearnQA.dev', '')
+            const siblings = entries
+                .filter((item) => item.index !== entry.index && !item.isHubDuplicate)
+                .map((item) => ({ path: item.path, label: item.titles[locale] }))
+
+            const seo = {
+                path: entry.path,
+                title: entry.seo[locale].title,
+                description: entry.seo[locale].description,
+                isSection: true,
+                hubPath,
+                hubLabel,
+                sectionLabel: entry.titles[locale],
+                prose: entry.prose[locale],
+                siblings,
+                siblingsHeading: SIBLINGS_HEADING[locale],
+                // İlk sekme: canonical HUB'a gider (aynı sorguyu hedefliyorlar,
+                // ikisi birden indekslenirse birbirini yerler). Canonical tek
+                // başına birleştirme sinyalidir; üstüne noindex EKLENMEZ —
+                // ikisi birlikte çelişkili sinyal olur.
+                canonicalPath: entry.isHubDuplicate ? hubPath : undefined,
+                // Kilitli (mülakat) ve ince bölümler indekslenmez.
+                noindex: !entry.indexable && !entry.isHubDuplicate,
+            }
+
+            const html = replaceMeta(template, seo, locale)
+            const urlPath = localizedPath(entry.path, locale)
+            const routeDir = join(distDir, urlPath.replace(/^\//, ''))
+            await mkdir(routeDir, { recursive: true })
+            await writeFile(join(routeDir, 'index.html'), html)
+            sectionsWritten += 1
+            if (entry.indexable && locale === 'tr') sectionsIndexable += 1
+        }
+    }
+}
+
+console.log(`Generated ${sectionsWritten} section shells (${sectionsIndexable} indexable sections x ${LOCALES.length} locales).`)

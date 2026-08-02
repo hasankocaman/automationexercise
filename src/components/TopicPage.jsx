@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { useLanguage } from '../context/LanguageContext'
-import { useLocation, Link } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'
 import { Bookmark, BookmarkCheck, Loader2, AlertTriangle } from 'lucide-react'
 import TopicHeader from './TopicHeader'
 import CommentsSection from './CommentsSection'
@@ -43,6 +43,9 @@ import { sanitizeAiText } from '../lib/sanitizeAiText'
 import { addWrongAnswer } from '../lib/reviewQueue'
 import { logActivity } from '../lib/activityLog'
 import { saveLastPosition, recordInterviewMastery } from '../lib/progressStore'
+import { basePathOf, pathForSection, sectionIndexFromSlug, sectionSlugForIndex } from '../utils/sectionRoutes'
+import { deriveSectionSeo, sectionProse, stripLeadingEmoji, textValue } from '../utils/sectionSeoText'
+import { setSeoOverride } from '../lib/seoOverride'
 
 const codeCommentTranslations = [
     [/Chrome options oluştur/gi, 'Create Chrome options'],
@@ -17717,6 +17720,33 @@ export function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, 
                 </div>
             )
 
+        // Sık Sorulan Sorular — kilitsiz, quiz/mülakat gating'ine TABİ DEĞİL
+        // (Documents/seo-phase-3-plan.md §4 B2). `interview-questions` bloğu
+        // %60 barajının arkasında olduğu için FAQPage şemasının kaynağı OLAMAZ;
+        // bu blok şemanın TEK meşru kaynağıdır — ekranda görünen metinle şema
+        // her zaman birebir aynı olmalıdır (bkz. generate-static-routes.mjs
+        // `pageFaqItems`, check-dist-seo.mjs görünürlük kontrolü).
+        case 'faq':
+            return (
+                <div key={i} className={`mt-4 rounded-xl border ${darkMode ? 'border-teal-800 bg-teal-900/10' : 'border-teal-200 bg-teal-50'}`}>
+                    <div className={`px-4 py-2.5 font-bold text-sm flex items-center gap-2 ${darkMode ? 'text-teal-300' : 'text-teal-800'}`}>
+                        ❓ {language === 'tr' ? 'Sık Sorulan Sorular' : 'Frequently Asked Questions'}
+                    </div>
+                    <div className={`divide-y ${darkMode ? 'divide-teal-900' : 'divide-teal-100'}`}>
+                        {block.items?.map((item, j) => (
+                            <div key={j} className="px-4 py-3">
+                                <p className={`font-semibold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {tx(item.q, language)}
+                                </p>
+                                <p className={`mt-1 text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    {tx(item.a, language)}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )
+
         case 'glossary-term':
             return (
                 <div key={i} className={`mt-4 rounded-xl border overflow-hidden ${darkMode ? 'border-purple-800 bg-purple-900/10' : 'border-purple-200 bg-purple-50'}`}>
@@ -20396,7 +20426,15 @@ function migrateTabProgress(data) {
 function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMentorLink }) {
     const { language } = useLanguage()
     const location = useLocation()
+    const navigate = useNavigate()
+    const { sectionSlug } = useParams()
     const { markTopicCompleted, markRouteFullyCompleted, resetLessonProgress } = useAuth()
+    // Sekme URL'i açıldığında (/selenium/wait-strategies) pathname artık slug
+    // içeriyor. İlerleme, ustalık, yorumlar ve rozet kayıtlarının TAMAMI SAYFA
+    // düzeyindedir — hepsi bu kök path'i kullanır, aksi hâlde aynı dersin
+    // ilerlemesi sekme başına parçalanırdı.
+    const basePath = basePathOf(location.pathname)
+    const slugTabIndex = sectionIndexFromSlug(basePath, sectionSlug)
     const [newBadge, setNewBadge] = useState(null)
     const [xpToast, setXpToast] = useState(null)
     const [darkMode, setDarkMode] = useState(() => {
@@ -20423,7 +20461,12 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
         }
         return isFocus
     })
-    const [activeTab, setActiveTab] = useState(() => location.state?.openTab ?? 0)
+    // URL sekme için otoritedir: /selenium/wait-strategies daima o sekmeyi açar.
+    // Slug yoksa (hub URL'i) mevcut `openTab` state mekanizması korunur —
+    // portfolyo kartları, mentor önerileri ve "devam et" bu yolu kullanır.
+    const [activeTab, setActiveTab] = useState(() => (
+        slugTabIndex >= 0 ? slugTabIndex : (location.state?.openTab ?? 0)
+    ))
     const isInitialTabRender = useRef(true)
     const tabsLayoutRef = useRef(null)
     // qa-builder-construction-theme-plan.md §Revizyon, bug fix "Konfeti tekrarı":
@@ -20522,14 +20565,65 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
 
     // Learning OS Faz 1 (plan §5-F4): ziyaret edilen her sekme "Devam et"
     // CTA'sının sekme-derinlikli hedefi olarak yerel son-konum kaydına düşer.
+    // Kayıt KÖK path ile tutulur — HomePage'deki ders adı tablosu ve mastery
+    // manifesti kök path ile anahtarlanmıştır.
     useEffect(() => {
-        saveLastPosition(location.pathname, activeTab)
+        saveLastPosition(basePath, activeTab)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeTab, location.pathname])
+    }, [activeTab, basePath])
+
+    // Sekme değişince adres çubuğu da değişir (replace: geri tuşu ders içinde
+    // 15 adım birikmesin). Böylece kullanıcı bulunduğu sekmenin linkini
+    // paylaşabilir ve arama motoru her sekmeyi ayrı sayfa olarak görebilir.
+    useEffect(() => {
+        const target = pathForSection(basePath, activeTab)
+        if (target !== location.pathname) {
+            navigate(target, { replace: true, state: location.state })
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab, basePath, location.pathname])
+
+    // Ters yön: tarayıcı geri/ileri tuşu ya da doğrudan bir sekme linkine
+    // girildiğinde URL'deki slug aktif sekmeyi belirler (URL otoritedir).
+    useEffect(() => {
+        if (slugTabIndex >= 0 && slugTabIndex !== activeTab) setActiveTab(slugTabIndex)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [slugTabIndex])
 
     const content = data[language] || data['en']
-    const { hero, tabs, sections, disableTabGating = false } = content
+    const { hero, tabs, sections, seoAnswer, disableTabGating = false } = content
     const pageKey = (hero?.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+    // Yalnızca hub URL'inde (ilk sekme) gösterilir: cevap SAYFANIN tanımıdır,
+    // tek tek bölümlerin değil.
+    const seoAnswerText = activeTab === 0 ? textValue(seoAnswer, language) : ''
+
+    // Sekme URL'i açıkken sayfanın <title>/description'ı O SEKMEYE aittir.
+    // Türetme statik shell ile AYNI fonksiyonu kullanır (sectionSeoText.js) —
+    // böylece Google'ın ham HTML'de ve JavaScript çalıştıktan sonra gördüğü
+    // başlık ayrışmaz. İlk sekme hub URL'inde kaldığı için override almaz.
+    useEffect(() => {
+        const section = sections?.[activeTab]
+        const slug = sectionSlugForIndex(basePath, activeTab)
+        if (!section || activeTab <= 0 || !slug) {
+            setSeoOverride(null)
+            return undefined
+        }
+
+        const derived = deriveSectionSeo({
+            sectionTitle: textValue(section.title, language) || tabs?.[activeTab] || '',
+            pageLabel: stripLeadingEmoji(textValue(hero?.title, language)),
+            prose: sectionProse(section, language),
+            locale: language,
+        })
+
+        setSeoOverride({ path: window.location.pathname, ...derived })
+        return () => setSeoOverride(null)
+        // `sections` bağımlılığı ZORUNLU: büyük ders sayfaları önce boş
+        // bölümlü bir stub ile mount olup gerçek veriyi arkadan yüklüyor
+        // (kod bölme). O olmadan başlık ilk (boş) render'da hesaplanıp bir
+        // daha güncellenmiyordu — sayfa hub başlığıyla kalıyordu.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab, basePath, language, location.pathname, sections])
     const completedCount = tabs?.filter((_, index) => completedTabs[index] || quizVerifiedTabs[index]).length || 0
     const quizVerifiedCount = Object.values(quizVerifiedTabs).filter(Boolean).length
 
@@ -20541,7 +20635,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
             lessonSlug: pageKey,
             topicSlug: String(tabIndex),
             topicLabel: tabs?.[tabIndex],
-            routePath: location.pathname,
+            routePath: basePath,
         }).then(({ badges, xpAwarded } = {}) => {
             if (badges?.length) {
                 setNewBadge(badges[0])
@@ -20562,11 +20656,11 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
     // çağrılması güvenli.
     useEffect(() => {
         if (tabs?.length > 0 && completedCount === tabs.length) {
-            markRouteFullyCompleted({ lessonSlug: pageKey, routePath: location.pathname })
+            markRouteFullyCompleted({ lessonSlug: pageKey, routePath: basePath })
                 .catch(() => { /* senkronizasyon başarısız olsa da UI'ı bozma */ })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [completedCount, tabs?.length, pageKey, location.pathname])
+    }, [completedCount, tabs?.length, pageKey, basePath])
 
     // Bir sekmenin "gerçek" tamamlanma yolu var mı (quiz/quiz-fill ya da
     // interview-questions bloğu) — varsa manuel checkbox devre dışı kalır, çünkü
@@ -20666,7 +20760,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
         if (!isCorrect && questionSnapshot) {
             addWrongAnswer({
                 id: `${pageKey}:${activeTab}:${blockIndex}`,
-                route: location.pathname,
+                route: basePath,
                 pageTitle: hero?.title || pageKey,
                 ...questionSnapshot,
             })
@@ -20717,7 +20811,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
     // formülü sayfadan ayrılınca hiçbir zaman göremiyordu.
     function handleInterviewMastery(_blockIndex, avgPercent) {
         markTabAsVerifiedComplete(activeTab)
-        if (typeof avgPercent === 'number') recordInterviewMastery(location.pathname, avgPercent)
+        if (typeof avgPercent === 'number') recordInterviewMastery(basePath, avgPercent)
     }
 
     // AC07 "Reset": kullanıcı mülakatta %80 barajını geçemeyip onayladığında, sayfadaki
@@ -20743,7 +20837,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
                 pageKey={pageKey}
                 tabIndex={activeTab}
                 tabLabel={tabs?.[activeTab]}
-                routePath={location.pathname}
+                routePath={basePath}
             />
             {xpToast && (
                 <div
@@ -20782,6 +20876,23 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
                     <p className="text-sm md:text-xl opacity-90">{hero.subtitle}</p>
                     <p className="mt-2 md:mt-3 opacity-80 max-w-3xl text-xs md:text-sm leading-relaxed hidden sm:block">{hero.intro}</p>
                 </div>
+
+                {/* "X nedir?" sorusunun doğrudan cevabı — sayfanın en üstünde,
+                    40-70 kelimelik tanım. Arama motoru bu tip sorgularda öne
+                    çıkan cevap için net bir tanım paragrafı arar; analoji ile
+                    açan pedagojik giriş bunu karşılamıyor. Bu metin GÖRÜNÜR
+                    olmak ZORUNDA: statik HTML'de de aynısı basılır, kullanıcının
+                    göremediği bir metni arama motoruna sunmak politika ihlalidir.
+                    Alan opsiyoneldir — tanımlı olmayan sayfalarda hiçbir şey
+                    render edilmez. */}
+                {seoAnswerText && (
+                    <p
+                        data-seo-answer="true"
+                        className={`mb-4 md:mb-6 max-w-3xl text-sm md:text-base leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}
+                    >
+                        {seoAnswerText}
+                    </p>
+                )}
 
                 {/* Extra Banner (e.g. resource link) */}
                 {extraBanner}
@@ -20951,7 +21062,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
                                     completedCount={completedCount}
                                     total={tabs.length}
                                     lessonTitle={hero?.title}
-                                    route={location.pathname}
+                                    route={basePath}
                                 />
                             )}
                         </div>
@@ -20979,7 +21090,7 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
                         </div>
 
                         {/* Bu ders hakkında yorumlar — herkes okuyabilir, sadece üyeler yazabilir */}
-                        <CommentsSection pagePath={location.pathname} darkMode={darkMode} />
+                        <CommentsSection pagePath={basePath} darkMode={darkMode} />
                     </div>
                 </div>
             </main>

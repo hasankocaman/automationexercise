@@ -9,6 +9,7 @@ import ChatWidget from './components/ChatWidget'
 import CommentsWidget from './components/CommentsWidget'
 import MentorNudge from './components/MentorNudge'
 import { recordSnapshot } from './lib/mentorSnapshots'
+import { SECTION_ROUTE_PATHS } from './utils/sectionRoutes'
 
 const HomePage = lazy(() => import('./components/HomePage'))
 const JMeterPage = lazy(() => import('./components/JMeterPage'))
@@ -54,6 +55,47 @@ const ClaudeAiPage = lazy(() => import('./components/ClaudeAiPage'))
 const LlmAgentsPage = lazy(() => import('./components/LlmAgentsPage'))
 const SprintPage = lazy(() => import('./components/SprintPage'))
 const PortfolioPage = lazy(() => import('./components/PortfolioPage'))
+
+// Sekme-seviyesi URL'ler: /selenium/wait-strategies gibi her dikey sekmeye
+// kendi adresi. Aynı sayfa bileşeni render edilir — sekme seçimini TopicPage
+// `useParams().sectionSlug` üzerinden yapar. Böylece 30 ders sayfasının 412
+// sekmesi tek URL'in arkasında kalmak yerine ayrı ayrı indekslenebilir hâle
+// gelir ve kullanıcı doğrudan bir sekmeye link verebilir.
+//
+// Bu tablonun anahtarları `SECTION_ROUTE_PATHS` ile BİREBİR aynı olmalıdır;
+// check-seo.mjs iki listenin ayrışmasını build'de hard-fail eder.
+const SECTION_PAGE_ELEMENTS = {
+    '/selenium': <SeleniumPage />,
+    '/playwright': <PlaywrightPage />,
+    '/cypress': <CypressPage />,
+    '/python': <PythonPage />,
+    '/typescript': <TypeScriptPage />,
+    '/javascript': <JavaScriptPage />,
+    '/sql': <SQLPage />,
+    '/java': <JavaPage />,
+    '/jmeter': <JMeterPage />,
+    '/postman': <PostmanPage />,
+    '/api-testing': <ApiTestingPage />,
+    '/qa-frontend': <QaFrontendPage />,
+    '/bruno': <BrunoPage />,
+    '/rest-assured': <RestAssuredPage />,
+    '/gauge': <GaugePage />,
+    '/docker': <DockerPage />,
+    '/jenkins': <JenkinsPage />,
+    '/kubernetes': <KubernetesPage />,
+    '/kafka': <KafkaPage />,
+    '/appium': <AppiumPage />,
+    '/browserstack': <BrowserStackPage />,
+    '/git-github': <GitGithubPage />,
+    '/linux': <LinuxPage />,
+    '/aws': <AWSPage />,
+    '/azure': <AzurePage />,
+    '/what-is-testing': <WhatIsTestingPage />,
+    '/advanced-algorithms': <AdvancedAlgorithmsPage />,
+    '/basit-backend': <BasitBackendPage />,
+    '/claude-ai': <ClaudeAiPage />,
+    '/llm-agents': <LlmAgentsPage />,
+}
 
 function RouteFallback() {
     return (
@@ -123,6 +165,13 @@ function App() {
                     <Route path="/qa-assistant" element={<ProtectedRoute><QaAssistantPage /></ProtectedRoute>} />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/login" element={<LoginPage />} />
+                    {SECTION_ROUTE_PATHS.map((routePath) => (
+                        <Route
+                            key={routePath}
+                            path={`${routePath}/:sectionSlug`}
+                            element={SECTION_PAGE_ELEMENTS[routePath]}
+                        />
+                    ))}
                 </Routes>
             </Suspense>
         </>

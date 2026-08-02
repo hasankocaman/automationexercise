@@ -9920,6 +9920,7 @@ export const seleniumData = {
       subtitle: 'Java · Python · TypeScript — Tam Öğrenme Kılavuzu',
       intro: 'Selenium\'u sıfırdan öğren: kurulum, locators, aksiyonlar, wait stratejileri, frameler, CDP & BiDi, sanal doğrulayıcılar, Selenium IDE, Grid 4, yaygın hatalar ve 50 mülakat sorusu.',
     },
+    seoAnswer: 'Selenium, web tarayıcılarını gerçek bir kullanıcı gibi kontrol etmeye yarayan açık kaynaklı bir otomasyon aracıdır. W3C WebDriver standardını kullanır; yazdığın test kodu Chrome, Firefox, Edge ve Safari üzerinde aynı şekilde çalışır. Java, Python, JavaScript, C# ve Ruby ile yazılabilir. En yaygın kullanım alanı, her sürümde elle tekrarlanan regresyon testlerini otomatikleştirmektir.',
     tabs: [
       '🌐 Giriş',
       '⚙️ Kurulum',
@@ -9945,6 +9946,7 @@ export const seleniumData = {
       subtitle: 'Java · Python · TypeScript — Complete Learning Guide',
       intro: 'Learn Selenium from scratch: installation, locators, actions, wait strategies, frames, CDP & BiDi, virtual authenticators, Selenium IDE, Grid 4, common errors, and 50 interview questions.',
     },
+    seoAnswer: 'Selenium is an open-source automation tool that drives real web browsers the way a human user would. It speaks the W3C WebDriver standard, so the same test code runs on Chrome, Firefox, Edge and Safari, and you can write it in Java, Python, JavaScript, C# or Ruby. Its most common use is automating the regression tests a team would otherwise repeat by hand on every release.',
     tabs: [
       '🌐 Introduction',
       '⚙️ Installation',

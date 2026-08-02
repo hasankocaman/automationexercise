@@ -70,6 +70,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # sitemap.xml'deki <lastmod> her sayfanın veri dosyasının SON COMMIT
+          # tarihinden okunur. Sığ klonda (varsayılan fetch-depth: 1) tüm
+          # dosyalar tek commit'i gösterir; o durumda lastmod hiç yazılmaz ve
+          # Google tazelik sinyalini kaybederiz.
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

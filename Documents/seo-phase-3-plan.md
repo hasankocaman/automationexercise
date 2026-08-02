@@ -11,21 +11,43 @@
 
 ---
 
-## 0. İLERLEME DURUMU
+## 0. İLERLEME DURUMU VE GÖREV DAĞILIMI
 
-| Faz | Konu | Durum |
-|-----|------|-------|
-| **A1** | Sekme-seviyesi URL mimarisi (`/selenium/wait-stratejileri`) | ⬜ Başlanmadı |
-| **A2** | Sekme shell'i + türetilmiş metadata + sitemap genişletmesi | ⬜ Başlanmadı |
-| **A3** | İnce içerik (thin content) eşiği + tekil başlık guard'ı | ⬜ Başlanmadı |
-| **B1** | `seoAnswer` alanı — her sayfa/sekme için 40-70 kelimelik doğrudan cevap | ⬜ Başlanmadı |
-| **B2** | Shell'de "cevap önce" yerleşimi + `FAQPage` (kilitsiz kaynaktan) | ⬜ Başlanmadı |
-| **C1** | Sorgu-eşleşmeli yeni giriş sayfaları (kariyer / test otomasyonu hub) | ⬜ Başlanmadı |
-| **C2** | Mevcut sayfaların sorgu hizalaması (`/what-is-testing`, `/manual-testing`, `/qa-mentor`) | ⬜ Başlanmadı |
-| **D1** | `lastmod` (git tarihinden), `HowTo`, sekme `BreadcrumbList` | ⬜ Başlanmadı |
-| **D2** | E-E-A-T: yazar/kurum kimliği, güncelleme tarihi, kaynakça | ⬜ Başlanmadı |
-| **E1** | Dış otorite: repo/README/profil linkleri, çapraz yayın, topluluk | ⬜ Başlanmadı |
-| **F1** | Ölçüm: GSC sorgu takibi + sıralama günlüğü + aylık kontrol ritmi | ⬜ Başlanmadı |
+**Ayrım ilkesi:** Opus = mimari, routing, üretim/denetim script'leri, guard ve
+testler (bir kez yazılır, yanlış olursa 750 URL birden bozulur). Sonnet = içerik
+ve metin (sayfa sayfa tekrarlanan, kalıp belli olduğunda paralelleştirilebilen
+iş). Sonnet promptları: `Documents/seo-phase-3-sonnet-prompts.md`.
+
+| Faz | Konu | Sahip | Durum |
+|-----|------|-------|-------|
+| **A1** | Sekme-seviyesi URL mimarisi (`/selenium/wait-strategies`) | **Opus** | ✅ TAMAMLANDI |
+| **A2** | Sekme shell'i + türetilmiş metadata + sitemap genişletmesi | **Opus** | ✅ TAMAMLANDI |
+| **A3** | İnce içerik eşiği + tekil başlık/description guard'ı | **Opus** | ✅ TAMAMLANDI |
+| **A4** | Çalışma zamanı sekme metadata'sı (shell ile aynı türetme) | **Opus** | ✅ TAMAMLANDI |
+| **D1a** | `lastmod` — veri dosyasının gerçek commit tarihinden | **Opus** | ✅ TAMAMLANDI |
+| **D1c** | Sekme `BreadcrumbList` (3 basamak) | **Opus** | ✅ TAMAMLANDI |
+| **B0** | `seoAnswer` ALTYAPISI — alan desteği, görünür render, shell'de ilk paragraf | **Opus** | ✅ TAMAMLANDI |
+| **B2a** | `FAQPage` ALTYAPISI — kilitsiz kaynak + "görünürlük" guard'ı | **Opus** | ⬜ Sırada |
+| **C0** | `/test-automation` route + metadata + shell iskeleti | **Opus** | ⬜ Sırada |
+| **D1b** | `HowTo` şeması (kurulum sekmeleri) | **Opus** | ⬜ Sırada |
+| **D2a** | E-E-A-T: yazar/kurum şeması + görünür "son güncelleme" | **Opus** | ⬜ Sırada |
+| **B1** | `seoAnswer` METNİ — 10 öncelikli sayfa için 40-70 kelimelik cevap | Sonnet | ⬜ S1 promptu |
+| **B2b** | Sayfa başına kilitsiz 5-8 soruluk "Sık Sorulan Sorular" bloğu | Sonnet | ⬜ S2 promptu |
+| **C1** | `/test-automation` hub sayfasının İÇERİĞİ | Sonnet | ⬜ S3 promptu |
+| **C2** | Sorgu hizalaması: `/qa-mentor`, `/what-is-testing`, `/manual-testing`, `/test-frameworks` | Sonnet | ⬜ S4 promptu |
+| **E1** | Dış otorite: README/repo metinleri, çapraz yayın özetleri | Sonnet | ⬜ S5 promptu |
+| **F1** | Ölçüm: GSC sorgu takibi + aylık kontrol ritmi | Kullanıcı | ⬜ Yayından sonra |
+
+### A fazı — ölçülen sonuç (2026-08-02)
+
+| Metrik | Öncesi | Sonrası |
+|---|---|---|
+| Sitemap'teki URL sayısı | 94 | **754** |
+| Üretilen statik shell | 94 | **918** (94 hub + 824 sekme) |
+| `/selenium` ailesinin crawl edilebilir kelimesi | 665 (1 URL) | **7.290** (16 URL) |
+| İndekslenebilir sekme (dil başına) | 0 | **337** |
+| İndekslenmeyen sekme | — | 75 (kilitli mülakat, hub kopyası, ince içerik) |
+| Sitemap `lastmod` | yok | veri dosyasının gerçek commit tarihi |
 
 ---
 
@@ -76,19 +98,21 @@ hedeflerse ikisi de kaybeder (kanibalizasyon).
 
 | Sorgu | Hedef URL | Niyet | Durum | Aksiyon |
 |---|---|---|---|---|
-| selenium nedir | `/selenium` | bilgi | Var, ince | B1 doğrudan cevap + A1 sekme URL'leri |
-| selenium kullanımı / selenium ile test otomasyonu | `/selenium/<kurulum-sekmesi>` | öğretici | Sekme var, URL yok | A1 |
-| playwright nedir | `/playwright` | bilgi | Var, ince | B1 |
-| cypress nedir | `/cypress` | bilgi | Var, ince | B1 |
+| selenium nedir | `/selenium` | bilgi | ✅ Cevap paragrafı eklendi | — |
+| selenium kullanımı / kurulumu | `/selenium/installation` | öğretici | ✅ URL yayında | — |
+| selenium wait / bekleme | `/selenium/wait-strategies` | öğretici | ✅ URL yayında | — |
+| playwright nedir | `/playwright` | bilgi | Var, cevap paragrafı yok | B1 |
+| playwright locator | `/playwright/locator-strategies` | öğretici | ✅ URL yayında | — |
+| cypress nedir | `/cypress` | bilgi | Var, cevap paragrafı yok | B1 |
 | test otomasyonu (nedir/araçları) | **`/test-automation`** (YENİ hub) | bilgi + karşılaştırma | **YOK** | C1 |
 | testerlık öğren / yazılım test uzmanı nasıl olunur | `/qa-mentor` | kariyer | Var ama sorguya hizalı değil | C2 |
 | yazılım testi nedir | `/what-is-testing` | bilgi | Var | C2 (metadata hizalama) |
 | manuel test nedir | `/manual-testing` | bilgi | Var | C2 |
 | qa mühendisi ne iş yapar | `/qa-mentor` (alt bölüm) | kariyer | Kısmen | C2 |
-| pytest nedir / python ile test otomasyonu | `/python/<pytest-sekmesi>` | öğretici | Sekme var, URL yok | A1 |
-| sql join örnekleri (tester için) | `/sql/<join-sekmesi>` | öğretici | Sekme var, URL yok | A1 |
+| python ile test otomasyonu / pytest | `/python/real-world-pytest` | öğretici | ✅ URL yayında | — |
+| sql join örnekleri (tester için) | `/sql/sql-joins` | öğretici | ✅ URL yayında | — |
 | api testi nasıl yapılır | `/api-testing` | öğretici | Var | B1 |
-| selenium mülakat soruları | `/selenium/<mulakat-sekmesi>` | hazırlık | **Kilitli (%60 quiz)** | Bkz. §4.2 uyarısı |
+| selenium mülakat soruları | `/selenium/interview-questions` | hazırlık | **Kilitli (%60 quiz) — bilerek indekslenmiyor** | Bkz. §4.2 |
 
 ### 2.2. İngilizce (uzun kuyruk önce)
 
@@ -110,62 +134,68 @@ sinyalleri head term'e tırmanmanın yakıtıdır.
 
 ---
 
-## 3. Sütun A — İndekslenebilir Yüzeyi 15 Katına Çıkar (EN YÜKSEK GETİRİ)
+## 3. Sütun A — İndekslenebilir Yüzeyi 15 Katına Çıkar ✅ TAMAMLANDI
 
-> Bu, planın **tek en önemli maddesidir.** Yeni içerik yazmayı gerektirmez —
-> zaten var olan 400+ bloğu Google'a görünür kılar.
+> Planın **tek en önemli maddesiydi.** Yeni içerik yazmayı gerektirmedi —
+> zaten var olan 412 bölümü Google'a görünür kıldı.
 
-### A1. Sekme-seviyesi URL
+### 3.0. Uygulanan tasarım (referans)
 
-**Hedef:** `/selenium/wait-stratejileri`, `/en/selenium/wait-strategies`
+| Parça | Dosya | Not |
+|---|---|---|
+| Slug manifesti (DONDURULMUŞ) | `src/data/generated/sectionSlugs.js` | `npm run seo:section-slugs` üretir; build `--check` ile eskimişse kırılır |
+| Slug üretimi + metadata türetme (saf) | `src/utils/sectionSeoText.js` | Build ve runtime AYNI fonksiyonu kullanır |
+| Katalog/indeks + ince içerik kararı | `scripts/lib/sectionSeo.mjs` | `MIN_INDEXABLE_WORDS = 180` |
+| Ders sayfası → veri modülü tablosu | `scripts/lib/topicDataModules.mjs` | Tek kaynak (eskiden shell script'inde gömülüydü) |
+| Runtime slug ↔ sekme eşlemesi | `src/utils/sectionRoutes.js` | `basePathOf`, `pathForSection`, `sectionIndexFromSlug` |
+| Route tanımı | `src/App.jsx` → `SECTION_PAGE_ELEMENTS` | 30 sayfa; `check-seo.mjs` manifestle eşleşmeyi zorlar |
+| Sekme ↔ URL senkronu | `src/components/TopicPage.jsx` | URL otoritedir; sekme değişimi `replace` ile adresi günceller |
+| Çalışma zamanı başlık/description | `src/lib/seoOverride.js` + `SeoMeta.jsx` | Ham HTML ile render sonrası başlık ayrışmasın diye |
+| Sekme shell'leri | `scripts/generate-static-routes.mjs` | Gerçek bölüm metni + kardeş sekme linkleri + breadcrumb |
+| Sitemap + `lastmod` | `scripts/generate-seo-files.mjs` | Sığ klonda lastmod YAZILMAZ (CI'da `fetch-depth: 0`) |
+| Denetim | `check-seo.mjs`, `check-dist-seo.mjs` | Tekillik, canonical, noindex, kelime eşiği — hepsi hard-fail |
+| Testler | `tests/seo-section-routes.spec.ts` | 10 test: derin bağlantı, dil, geri tuşu, kendini onaran slug |
 
-- `App.jsx`: `/:page/:sectionSlug` alt route'u (mevcut `TopicPage` yeniden
-  kullanılır, yeni sayfa bileşeni yazılmaz).
-- `TopicPage`: `useParams().sectionSlug` → `activeTab` başlangıç değeri.
-  Mevcut `location.state.openTab` mekanizması korunur (portfolyo/mentor
-  yönlendirmeleri kırılmaz). Sekme değiştiğinde `navigate(..., {replace:true})`
-  ile URL güncellenir → kullanıcı derin link paylaşabilir (ürün kazancı da var).
-- **Slug kaynağı:** her `section`'a `slug: { tr, en }` alanı. Elle yazılmaz —
-  `scripts/generate-section-slugs.mjs` başlıktan üretir, `Documents/`
-  altına değil `src/data/sectionSlugs.generated.js`'e yazar; **stabil olmalı**
-  (başlık değişse bile slug sabit kalır, yoksa link çürür). Değişiklik
-  gerekirse eski slug 301 ile yenisine gider.
-- **Kanonik:** sekme URL'i **kendine** canonical verir (içerik farklı).
-  Ana sayfa (`/selenium`) sekme listesini içeren hub olarak kalır.
+**Karar kaydı (sonradan tartışılmasın diye):**
+- **Slug iki dilde de aynıdır** (İngilizce başlıktan türetilir). `basename="/en"`
+  mimarisinde TR ve EN aynı path'i paylaşır; dile göre slug iki yönlü eşleme +
+  yönlendirme katmanı isterdi. Slug'ın sıralamaya katkısı zayıf, başlık/h1/gövde
+  zaten sayfanın dilinde.
+- **İlk sekme hub URL'inde kalır.** `/selenium/what-is-selenium` shell'i üretilir
+  (derin bağlantı kırılmasın) ama canonical'ı `/selenium`'a gider ve sitemap'e
+  girmez. Üstüne `noindex` KONMAZ — canonical + noindex çelişkili sinyaldir.
+- **Mülakat sekmeleri indekslenmez.** İçerik %60 quiz kilidinin arkasında;
+  kullanıcının göremediğini arama motoruna sunmak politika ihlalidir.
+- **Bilinmeyen slug 404 vermez**, hub'a düşer ve adres kendini onarır.
 
-### A2. Sekme shell'i + türetilmiş metadata
+### 3.1. Plandan sapmalar (uygulama sırasında alınan kararlar)
 
-- `generate-static-routes.mjs` her sekme için ayrı `dist/<page>/<slug>/index.html`
-  üretir; içine **o sekmenin gerçek bloklarından** çıkarılmış metin yazılır
-  (mevcut `snippetFromBlock` mantığı sekme kapsamında yeniden kullanılır).
-- Metadata otomatik türetilir: `title` = `<Sekme başlığı> — <Sayfa> | LearnQA.dev`,
-  `description` = sekmenin ilk `simple-box`/`text` bloğundan 120-160 karakter.
-  `seo.js`'e **elle 250 satır yazılmaz**; `ROUTE_SEO` genişletmesi çalışma
-  zamanında türetilir, yalnızca istisnalar elle override edilir.
-- `generate-seo-files.mjs` sitemap'e sekme URL'lerini ekler (`priority` 0.7,
-  hreflang alternatifleriyle).
-- **Ölçek:** ~25 sayfa × ort. 15 sekme × 2 dil ≈ **750 yeni URL.** Build süresi
-  ve sitemap boyutu izlenmeli (sitemap 50k URL sınırının çok altında, sorun yok).
+İlk taslakta yazılan üç şey UYGULANMADI; sebepleri:
 
-### A3. İnce içerik guard'ı (ZORUNLU)
+| Taslakta | Uygulamada | Neden |
+|---|---|---|
+| Dile göre slug (`/selenium/wait-stratejileri`) | Tek slug, iki dilde ortak | `basename="/en"` mimarisi path'i paylaştırıyor; çift slug iki yönlü eşleme + yönlendirme tablosu isterdi |
+| Her sekme kendine canonical | İlk sekme hub'a canonical | Hub ile ilk sekme aynı sorguyu hedefliyor — ikisi de indekslenirse birbirini yer |
+| `slug: {tr, en}` alanı veri dosyalarına | Ayrı, üretilen manifest | 412 bölüme elle alan eklemek 30 veri dosyasını şişirir; manifest tek yerde ve denetlenebilir |
 
-750 zayıf sayfa, 25 iyi sayfadan **daha kötüdür.** Bu yüzden:
-
-- Bir sekme shell'i ancak **≥180 kelime** çıkarılabilir metin üretiyorsa
-  yayınlanır; altındakiler sitemap'e girmez ve `noindex` alır (route yine
-  çalışır, sadece indekslenmez).
-- `check-dist-seo.mjs`'e yeni kontroller: (a) hiçbir iki shell **aynı**
-  `title`/`description`'a sahip olamaz, (b) her yayınlanan sekme shell'i
-  kelime eşiğini geçer, (c) her sekme URL'i sitemap'te ve canonical'ı kendisi.
-- Bu kontroller **build'i kırar** (projenin mevcut hard-fail kültürü).
-
-**Beklenen etki:** `/selenium` için crawl edilebilir metin 665 kelimeden,
-15 URL'e yayılmış **~6.000+ kelimeye** çıkar; her biri tek bir arama niyetine
-odaklı.
-
----
+**Ölçülen etki:** `/selenium` ailesi 665 kelime / 1 URL → **7.290 kelime / 16 URL**.
+Site geneli sitemap 94 → 754 URL.
 
 ## 4. Sütun B — "Cevap Önce" ve Zengin Sonuç
+
+### B0. Altyapı ✅ TAMAMLANDI
+
+- Alan: her veri dosyasının `tr`/`en` ağacında `hero`'nun yanında `seoAnswer`.
+- Görünür render: `TopicPage` hero'nun hemen altında, YALNIZCA ilk sekmede
+  (cevap sayfanın tanımıdır, tek bir bölümün değil).
+- Statik HTML: `<h1>`'den hemen sonra, `data-seo-answer="true"` işaretli ilk
+  paragraf.
+- Guard (`check-dist-seo.mjs`): alan tanımlıysa İKİ dilde de dolu olmalı,
+  25-120 kelime aralığında olmalı ve statik HTML'de GERÇEKTEN basılmış olmalı.
+  Üçüncü kural kritik: yalnızca metadata'da kalıp sayfada görünmeyen metin,
+  kullanıcının göremediği içeriği arama motoruna sunmak demektir.
+- Referans uygulama: `/selenium` (TR 50 kelime, EN 66 kelime). Kalan 9 sayfa
+  Sonnet'in S1 görevinde.
 
 ### B1. `seoAnswer` alanı
 
@@ -280,16 +310,15 @@ BrowserStack) tek gerçek üstünlüğü budur.
 > Her adım sonunda CLAUDE.md §1.1 checklist'i (içerik bütünlüğü, ipucu bağı,
 > TR yorum taraması, build) + ilgili doğrulama komutu koşulur.
 
-### Aşama 1 — Yüzey (A1+A2+A3) · en yüksek getiri
-- [ ] `/:page/:sectionSlug` route'u çalışıyor; `openTab` state akışı kırılmadı
-      (`tests/portfolio-mission-tabs.spec.ts` yeşil).
-- [ ] `npm run build` sonrası `dist/selenium/<slug>/index.html` üretiliyor,
-      içinde o sekmenin gerçek metni var.
-- [ ] Hiçbir iki shell aynı title/description taşımıyor (`check-dist-seo.mjs`).
-- [ ] 180 kelime altındaki sekmeler `noindex` + sitemap dışı.
-- [ ] Yeni `tests/seo-section-routes.spec.ts`: derin link doğru sekmeyi açıyor,
-      canonical kendine, TR/EN hreflang doğru.
-- **Kabul:** `/selenium` ailesinin toplam crawl edilebilir kelimesi ≥ 5.000.
+### Aşama 1 — Yüzey (A1+A2+A3+A4) · ✅ TAMAMLANDI (2026-08-02)
+- [x] `/:page/:sectionSlug` route'u çalışıyor; `openTab` state akışı kırılmadı.
+- [x] `npm run build` sonrası `dist/selenium/<slug>/index.html` üretiliyor,
+      içinde o sekmenin gerçek metni var (medyan 486 kelime).
+- [x] Hiçbir iki shell aynı title/description taşımıyor (`check-dist-seo.mjs`).
+- [x] 180 kelime altındaki, kilitli ve hub kopyası sekmeler sitemap dışı.
+- [x] `tests/seo-section-routes.spec.ts` — 10/10 yeşil.
+- [x] Çalışma zamanı başlığı shell başlığıyla aynı türetmeden geliyor.
+- **Kabul (ölçüldü):** `/selenium` ailesi **7.290 kelime** (hedef ≥ 5.000). ✅
 
 ### Aşama 2 — Cevap (B1+B2)
 - [ ] En yüksek öncelikli 10 sayfada `seoAnswer` var, ilk cümle sorguyu cevaplıyor.

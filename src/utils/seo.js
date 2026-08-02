@@ -1,3 +1,5 @@
+import { SECTION_SLUGS } from '../data/generated/sectionSlugs.js'
+
 export const SITE_URL = 'https://learnqa.dev'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -267,11 +269,11 @@ export const ROUTE_SEO = [
     },
     {
         path: '/test-frameworks',
-        title: 'Pytest vs Selenium vs Playwright Comparison | LearnQA.dev',
-        description: 'Compare pytest, Selenium and Playwright for QA automation with practical examples, strengths, trade-offs and migration guidance.',
+        title: 'Playwright vs Selenium vs Pytest Comparison | LearnQA.dev',
+        description: 'Playwright vs Selenium head-to-head for QA automation, plus pytest: practical examples, strengths, trade-offs and migration guidance.',
         tr: {
-            title: 'pytest, Selenium ve Playwright Karşılaştırması | LearnQA.dev',
-            description: 'pytest, Selenium ve Playwright\'ı QA otomasyonu açısından karşılaştır: güçlü yönler, ödünleşimler, uygulamalı örnekler ve geçiş rehberi.',
+            title: 'Playwright vs Selenium Karşılaştırması (pytest dahil) | LearnQA.dev',
+            description: 'Playwright ile Selenium\'u QA otomasyonu açısından karşılaştır: güçlü yönler, ödünleşimler, uygulamalı örnekler, pytest ve geçiş rehberi.',
         },
     },
     {
@@ -294,20 +296,20 @@ export const ROUTE_SEO = [
     },
     {
         path: '/what-is-testing',
-        title: 'Introduction to Software Testing & QA Fundamentals | LearnQA.dev',
-        description: 'Learn software testing fundamentals, ISTQB testing principles, QA vs QC, SDET roles, and concrete examples of why testing is crucial in software development.',
+        title: 'What is Software Testing? Types of Testing & QA Basics | LearnQA.dev',
+        description: 'What is software testing and what are the types of testing? Learn ISTQB principles, QA vs QC, the SDET role, and why testing matters with real examples.',
         tr: {
-            title: 'Yazılım Testi Nedir? QA Temelleri ve ISTQB | LearnQA.dev',
-            description: 'Yazılım testi nedir, QA ile QC farkı nedir? ISTQB test prensipleri, SDET rolü ve testin neden kritik olduğunu gösteren somut örnekler.',
+            title: 'Yazılım Testi Nedir? Test Türleri ve QA Temelleri | LearnQA.dev',
+            description: 'Yazılım testi nedir, test türleri nelerdir? ISTQB test prensipleri, QA ile QC farkı, SDET rolü ve testin neden kritik olduğunu gösteren örnekler.',
         },
     },
     {
         path: '/manual-testing',
-        title: 'Manual Testing Tutorial with Interactive QA Practice | LearnQA.dev',
-        description: 'Learn manual testing with visual QA examples, test cases, exploratory testing, bug reports, severity, regression practice and interactive exercises.',
+        title: 'Manual Testing Tutorial with Real Test Case Examples | LearnQA.dev',
+        description: 'Learn manual testing with real test case examples: writing test cases, exploratory testing, bug reports, severity levels and interactive exercises.',
         tr: {
-            title: 'Manuel Test Nedir? Eğitim ve İnteraktif QA Pratiği | LearnQA.dev',
-            description: 'Manuel test nedir, nasıl yapılır? Test case yazımı, keşifsel test, bug raporu, severity belirleme, regresyon testi ve interaktif alıştırmalar.',
+            title: 'Manuel Test Nedir? Test Senaryosu Örnekleriyle Eğitim | LearnQA.dev',
+            description: 'Manuel test nedir, test senaryosu (test case) nasıl yazılır? Keşifsel test, bug raporu, severity belirleme ve interaktif alıştırmalarla öğren.',
         },
     },
     {
@@ -330,11 +332,11 @@ export const ROUTE_SEO = [
     },
     {
         path: '/qa-mentor',
-        title: 'QA Career Roadmap: Personalized Learning Path | LearnQA.dev',
-        description: 'Plan your QA engineering journey. Build a personalized mind map and learning path based on your experience level, goals and tool preferences.',
+        title: 'How to Become a QA Engineer: Career Roadmap | LearnQA.dev',
+        description: 'Wondering how to become a QA engineer? Get a personalized, step-by-step career roadmap based on your experience level, goals and tool preferences.',
         tr: {
-            title: 'QA Kariyer Yol Haritası — Kişiselleştirilmiş Öğrenme Planı | LearnQA.dev',
-            description: 'QA mühendisliği yolculuğunu planla. Deneyim seviyene ve tercihlerine göre kişiselleştirilmiş zihin haritası ve öğrenme yolu oluştur.',
+            title: 'Yazılım Test Uzmanı Nasıl Olunur? Kariyer Yol Haritası | LearnQA.dev',
+            description: 'Yazılım test uzmanı nasıl olunur, testerlık nasıl öğrenilir? Deneyim seviyene göre kişiselleştirilmiş, adım adım QA kariyer yol haritası oluştur.',
         },
     },
     {
@@ -491,6 +493,31 @@ export function getSeoForPath(pathname) {
     const exact = ROUTE_SEO.find((item) => item.path === routePath)
     if (exact) {
         return { ...seoFor(exact, locale), path: routePath, urlPath: pathname, locale, dynamic: !!exact.dynamic }
+    }
+
+    // Sekme URL'i (/selenium/wait-strategies): hub'ın metadata'sı temel alınır,
+    // canonical/hreflang ise SEKMENİN kendi adresini gösterir. Başlık ve
+    // description'ın sekmeye özgü hâlini TopicPage çalışma zamanında üretir
+    // (bkz. src/lib/seoOverride.js) — bölüm metni yalnızca orada yüklüdür.
+    // Bu dal olmadan tüm sekme URL'leri ana sayfanın canonical'ını taşırdı.
+    const segments = routePath.split('/').filter(Boolean)
+    if (segments.length === 2) {
+        const hubPath = `/${segments[0]}`
+        const sections = SECTION_SLUGS[hubPath]
+        if (sections?.some((item) => item.slug === segments[1])) {
+            const hub = ROUTE_SEO.find((item) => item.path === hubPath)
+            if (hub) {
+                return {
+                    ...seoFor(hub, locale),
+                    path: routePath,
+                    urlPath: pathname,
+                    locale,
+                    dynamic: false,
+                    isSection: true,
+                    hubPath,
+                }
+            }
+        }
     }
 
     // '/verify-certificate/:id' sadece check-seo.mjs eşleşmesi içindir — gerçek

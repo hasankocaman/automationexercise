@@ -1,5 +1,8 @@
 import { access, readFile } from 'node:fs/promises'
 import { LOCALES, ROUTE_SEO, alternatesFor, canonicalUrl, localizedPath, seoFor } from '../src/utils/seo.js'
+import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js'
+import { MIN_INDEXABLE_WORDS, buildSectionSeoIndex } from './lib/sectionSeo.mjs'
+import { DATA_MODULES, contentForLocale, loadDataModule } from './lib/topicDataModules.mjs'
 
 // generate-static-routes.mjs'teki escapeHtml ile BİREBİR aynı olmalı: görünür
 // gövde escape edilmiş hâlde yazılıyor, şema ham metni taşıyor. Aynı dönüşümü
@@ -42,6 +45,20 @@ function routeIndexPath(urlPath) {
 
 function htmlIncludes(html, value) {
     return html.includes(String(value).replaceAll('&', '&amp;'))
+}
+
+/** Shell gövdesindeki (script/style hariç) görünür kelime sayısı. */
+function visibleWordCount(html) {
+    const start = html.indexOf('<main')
+    const end = html.indexOf('</main>')
+    const body = start >= 0 && end > start ? html.slice(start, end) : html
+    return body
+        .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .split(' ')
+        .filter(Boolean).length
 }
 
 const checkedRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic)
@@ -164,11 +181,161 @@ for (const locale of LOCALES) {
     }
 }
 
+// ─── "X nedir?" cevap paragrafı ──────────────────────────────────────────────
+// Kural: alan tanımlıysa (a) İKİ dilde de dolu olmalı, (b) statik HTML'de
+// gerçekten basılmalı. (b) kritik: metin yalnızca şemada/metadata'da kalıp
+// sayfada görünmüyorsa, kullanıcının göremediği içeriği arama motoruna sunmuş
+// oluruz — ana sayfadaki FAQ şemasının bir zamanlar kaldırılma sebebi buydu.
+let answerPages = 0
+
+for (const routePath of Object.keys(DATA_MODULES)) {
+    const entry = ROUTE_SEO.find((item) => item.path === routePath)
+    if (!entry || entry.dynamic) continue
+
+    const loaded = await loadDataModule(routePath)
+    if (!loaded?.data) continue
+
+    const answers = {}
+    for (const locale of LOCALES) {
+        answers[locale] = textValue(contentForLocale(loaded.data, locale)?.seoAnswer, locale).trim()
+    }
+    if (!answers.tr && !answers.en) continue
+
+    for (const locale of LOCALES) {
+        const answer = answers[locale]
+        const urlPath = localizedPath(routePath, locale)
+
+        if (!answer) {
+            errors.push(`seoAnswer is missing for ${urlPath} (defined in the other language)`)
+            continue
+        }
+
+        const words = answer.split(/\s+/).filter(Boolean).length
+        if (words < 25 || words > 120) {
+            errors.push(`seoAnswer should be 25-120 words, got ${words}: ${urlPath}`)
+        }
+
+        try {
+            const html = await readFile(routeIndexPath(urlPath), 'utf8')
+            if (!html.includes(`data-seo-answer="true">${escapeHtml(answer)}<`)) {
+                errors.push(`seoAnswer is not rendered in the static HTML of ${urlPath}`)
+            } else if (locale === 'tr') {
+                answerPages += 1
+            }
+        } catch { /* eksik dosya yukarıda raporlandı */ }
+    }
+}
+
+// ─── Sekme (bölüm) shell'leri ────────────────────────────────────────────────
+// 700+ sekme shell'i ELLE denetlenemez; kurallar burada makineyle zorlanır.
+// En kritik ikisi:
+//   • Tekillik — iki sayfa aynı title/description ile çıkarsa Google ikisini
+//     birbirinin kopyası sayar ve genelde ikisini de geri iter.
+//   • İnce içerik — 180 kelimenin altındaki, kilitli ya da hub'ın kopyası olan
+//     bölümler sitemap dışıdır ve indekslenmemelidir. Yüzlerce zayıf sayfa
+//     yayınlamak sitenin GENEL kalite algısını düşürür (planın A3 guard'ı).
+const { index: sectionIndex, problems: sectionProblems } = await buildSectionSeoIndex(SECTION_SLUGS)
+errors.push(...sectionProblems)
+
+const seenTitles = new Map()
+const seenDescriptions = new Map()
+let sectionShells = 0
+let sectionIndexable = 0
+let sectionNoindex = 0
+
+for (const locale of LOCALES) {
+    // Hub sayfalarının metadata'sı da tekillik havuzuna girer.
+    for (const entry of checkedRoutes) {
+        const { title, description } = seoFor(entry, locale)
+        seenTitles.set(`${locale}|${title}`, entry.path)
+        seenDescriptions.set(`${locale}|${description}`, entry.path)
+    }
+
+    for (const entries of Object.values(sectionIndex)) {
+        for (const entry of entries) {
+            const urlPath = localizedPath(entry.path, locale)
+            const htmlPath = routeIndexPath(urlPath)
+            const { title, description } = entry.seo[locale]
+
+            let html
+            try {
+                html = await readFile(htmlPath, 'utf8')
+            } catch {
+                errors.push(`Missing generated HTML for section ${urlPath}`)
+                continue
+            }
+
+            sectionShells += 1
+
+            // Türetilmiş metinler ders içeriğinden gelir; tırnak ve < > içerebilir.
+            // Bu yüzden karşılaştırma üretimdeki TAM escape ile yapılır (yalnızca
+            // & değiştiren htmlIncludes burada yanlış-negatif verirdi).
+            if (!html.includes(`<title>${escapeHtml(title)}</title>`)) {
+                errors.push(`Missing/incorrect title in section shell ${urlPath}`)
+            }
+            if (!html.includes(`<meta name="description" content="${escapeHtml(description)}" />`)) {
+                errors.push(`Missing/incorrect meta description in section shell ${urlPath}`)
+            }
+            if (!html.includes(`<html lang="${locale}"`)) {
+                errors.push(`Wrong or missing <html lang="${locale}"> for section ${urlPath}`)
+            }
+            if (!html.includes('data-seo-section="true"')) {
+                errors.push(`Missing crawlable section body for ${urlPath}`)
+            }
+            if (!html.includes('"@type": "BreadcrumbList"')) {
+                errors.push(`Missing BreadcrumbList structured data for section ${urlPath}`)
+            }
+            if (html.includes('"@type": "FAQPage"')) {
+                errors.push(`FAQPage schema must not appear on section shells: ${urlPath}`)
+            }
+
+            // Canonical: ilk sekme hub'a, diğerleri kendine.
+            const expectedCanonical = canonicalUrl(localizedPath(entry.isHubDuplicate ? entry.routePath : entry.path, locale))
+            if (!htmlIncludes(html, `<link rel="canonical" href="${expectedCanonical}" />`)) {
+                errors.push(`Wrong canonical in section shell ${urlPath} (expected ${expectedCanonical})`)
+            }
+
+            const hasNoindex = html.includes('name="robots" content="noindex')
+            if (entry.indexable) {
+                sectionIndexable += 1
+                if (hasNoindex) errors.push(`Indexable section carries robots noindex: ${urlPath}`)
+                // Ölçüm ham veri üzerinden DEĞİL, gerçekten YAYINLANAN gövde
+                // üzerinden yapılır: crawler'ın gördüğü şey budur.
+                const words = visibleWordCount(html)
+                if (words < MIN_INDEXABLE_WORDS) {
+                    errors.push(`Indexable section is below the thin-content threshold (${words} words in shell): ${urlPath}`)
+                }
+            } else if (entry.isHubDuplicate) {
+                // Canonical zaten hub'ı işaret ediyor; üstüne noindex konursa
+                // Google'a çelişkili sinyal gider.
+                if (hasNoindex) errors.push(`First section must rely on canonical, not noindex: ${urlPath}`)
+            } else {
+                sectionNoindex += 1
+                if (!hasNoindex) errors.push(`Non-indexable section is missing robots noindex: ${urlPath}`)
+            }
+
+            const titleKey = `${locale}|${title}`
+            if (seenTitles.has(titleKey)) {
+                errors.push(`Duplicate title in ${urlPath} (same as ${seenTitles.get(titleKey)})`)
+            }
+            seenTitles.set(titleKey, urlPath)
+
+            const descKey = `${locale}|${description}`
+            if (seenDescriptions.has(descKey)) {
+                errors.push(`Duplicate meta description in ${urlPath} (same as ${seenDescriptions.get(descKey)})`)
+            }
+            seenDescriptions.set(descKey, urlPath)
+        }
+    }
+}
+
 if (errors.length) {
     console.error(errors.join('\n'))
     process.exit(1)
 }
 
 console.log(`Dist SEO check passed for ${checked} generated pages (${checkedRoutes.length} routes x ${LOCALES.length} locales).`)
+console.log(`Section shells: ${sectionShells} checked, ${sectionIndexable} indexable, ${sectionNoindex} noindex (ince/kilitli).`)
+console.log(`Answer-first paragraphs: ${answerPages} sayfa (görünür gövdede doğrulandı).`)
 console.log(`Rich results: ${coursePages} pages with Course, ${faqPages} with FAQPage (yalnızca ana sayfa, görünür içerikle doğrulandı).`)
 console.log(`Noindex shells: ${noindexShells} (sitemap dışı, robots=noindex doğrulandı).`)

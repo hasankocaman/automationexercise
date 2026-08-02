@@ -1,5 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { LOCALES, ROUTE_SEO, SITE_URL, canonicalUrl, localizedPath, seoFor } from '../src/utils/seo.js'
+import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js'
 
 const appSource = await readFile(new URL('../src/App.jsx', import.meta.url), 'utf8')
 const netlifySource = await readFile(new URL('../netlify.toml', import.meta.url), 'utf8')
@@ -19,6 +20,49 @@ for (const route of appRoutes) {
 for (const route of seoRoutes) {
     if (!appRoutes.has(route)) {
         errors.push(`SEO metadata exists for non-App route: ${route}`)
+    }
+}
+
+// ─── Sekme (bölüm) URL katmanı ───────────────────────────────────────────────
+// Sekme route'ları App.jsx'te tek tek yazılmaz, SECTION_PAGE_ELEMENTS tablosu
+// üzerinden üretilir. Bu tablo slug manifestiyle AYNI sayfaları içermezse ya
+// bir sayfanın sekme URL'leri hiç mount edilmez (derin bağlantı 404) ya da
+// üretilmemiş bir route'a element aranır. İki liste burada karşılaştırılır.
+const sectionElementBlock = appSource.match(/const SECTION_PAGE_ELEMENTS = \{([\s\S]*?)\n\}/)
+if (!sectionElementBlock) {
+    errors.push('SECTION_PAGE_ELEMENTS table not found in App.jsx (section URLs would not mount)')
+} else {
+    const appSectionPages = new Set(
+        [...sectionElementBlock[1].matchAll(/'([^']+)':/g)].map((match) => match[1]),
+    )
+    const manifestPages = new Set(Object.keys(SECTION_SLUGS))
+
+    for (const page of manifestPages) {
+        if (!appSectionPages.has(page)) {
+            errors.push(`Section slugs exist for ${page} but App.jsx has no SECTION_PAGE_ELEMENTS entry`)
+        }
+        if (!seoRoutes.has(page)) {
+            errors.push(`Section slugs exist for ${page} but there is no ROUTE_SEO entry`)
+        }
+    }
+    for (const page of appSectionPages) {
+        if (!manifestPages.has(page)) {
+            errors.push(`App.jsx renders section routes for ${page} but the slug manifest has none (run: npm run seo:section-slugs)`)
+        }
+    }
+}
+
+// Slug'lar sayfa içinde tekil olmalı — çakışma iki bölümü aynı URL'e bindirir.
+for (const [page, entries] of Object.entries(SECTION_SLUGS)) {
+    const seen = new Set()
+    for (const entry of entries) {
+        if (!entry.slug || !/^[a-z0-9-]+$/.test(entry.slug)) {
+            errors.push(`Invalid section slug for ${page}: "${entry.slug}"`)
+        }
+        if (seen.has(entry.slug)) {
+            errors.push(`Duplicate section slug for ${page}: "${entry.slug}"`)
+        }
+        seen.add(entry.slug)
     }
 }
 

@@ -8,7 +8,7 @@ import TopicHeader from './TopicHeader'
 import CircularProgress from './CircularProgress'
 import ConfettiExplosion from './ConfettiExplosion'
 import { SkillRadar, JobReadinessCard } from './SkillRadar'
-import { DIALOG, MENTOR_STEPS, ALL_MAPS, WEEKLY_HOURS, pickBaseMapId, resolveMap } from '../data/qaMentorData'
+import { DIALOG, MENTOR_STEPS, ALL_MAPS, WEEKLY_HOURS, ZERO_TO_QA_STAGES, pickBaseMapId, resolveMap } from '../data/qaMentorData'
 import { MILESTONE_DEFS, getEarnedMilestones, recordNewMilestones } from '../utils/careerMapMilestones'
 import {
     readMentorProfile,
@@ -1071,6 +1071,38 @@ function QAMentorPage() {
                             : '4 quick questions · ~1 minute — get a personalized learning path with a time estimate.'}
                     </p>
                 </div>
+
+                {/* Sihirbaz öncesi görünür özet — arama motoru ve sihirbazı hiç
+                    başlatmamış bir ziyaretçi için sayfanın ne vaat ettiğini
+                    gösterir. Sihirbazın kilidi arkasında DEĞİLDİR. */}
+                {!isComplete && (
+                    <div
+                        data-testid="qa-mentor-zero-to-qa-summary"
+                        className={`mb-6 rounded-2xl border p-4 md:p-5 ${darkMode ? 'bg-gray-800/60 border-gray-700' : 'bg-white border-gray-200'}`}
+                    >
+                        <h2 className={`text-sm md:text-base font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                            {lang === 'tr' ? 'Sıfırdan QA mühendisi olmak: 6 aşama' : 'Becoming a QA engineer from scratch: 6 stages'}
+                        </h2>
+                        <ol className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                            {ZERO_TO_QA_STAGES.map((stage, i) => (
+                                <li
+                                    key={i}
+                                    className={`flex items-start gap-2 rounded-xl px-3 py-2 text-xs md:text-sm ${darkMode ? 'bg-gray-900/50' : 'bg-gray-50'}`}
+                                >
+                                    <span className="text-lg leading-none">{stage.emoji}</span>
+                                    <span>
+                                        <strong className={darkMode ? 'text-gray-100' : 'text-gray-900'}>
+                                            {i + 1}. {stage.title[lang]}
+                                        </strong>
+                                        <span className={`block mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                            {stage.desc[lang]}
+                                        </span>
+                                    </span>
+                                </li>
+                            ))}
+                        </ol>
+                    </div>
+                )}
 
                 {/* Progress Indicator */}
                 {!isComplete && (
