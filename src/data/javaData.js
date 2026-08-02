@@ -19384,6 +19384,7 @@ export const javaData = {
       subtitle: 'JDK 21 · Maven · JUnit5 · TestNG · Cucumber · Selenium · Playwright · REST Assured',
       intro: 'Java\'yı QA perspektifinden öğren: temel sözdiziminden production-grade altyapıya, Cucumber BDD\'den Selenium ve Playwright adım adım kullanımına, 50 mülakat sorusuyla hazır ol.',
     },
+    seoAnswer: 'Java, test otomasyonu dünyasında en yaygın kullanılan programlama dilidir — Selenium, REST Assured, Cucumber ve TestNG gibi kurumsal ölçekteki framework\'lerin büyük çoğunluğu Java üzerine kuruludur. Statik tip denetimi hataları derleme anında yakalar, JVM ekosistemi Maven/Gradle ile bağımlılık yönetimini standartlaştırır. QA mühendisi için en yaygın kullanım alanı, büyük kurumsal projelerde Page Object Model tabanlı otomasyon framework\'ü kurmaktır.',
     tabs: [
       '☕ Giriş',
       '⚙️ Kurulum',
@@ -19433,6 +19434,7 @@ export const javaData = {
       subtitle: 'JDK 21 · Maven · JUnit5 · TestNG · Cucumber · Selenium · Playwright · REST Assured',
       intro: 'Learn Java from a QA perspective: basic syntax to production-grade infrastructure, BDD with Cucumber, step-by-step Selenium & Playwright, ready with 50 interview questions.',
     },
+    seoAnswer: 'Java is the most widely used programming language in test automation — most enterprise-scale frameworks, including Selenium, REST Assured, Cucumber and TestNG, are built on top of it. Its static typing catches many mistakes at compile time, and its JVM ecosystem standardizes dependency management through Maven or Gradle. For a QA engineer, its most common use is building a Page Object Model based automation framework for large enterprise projects.',
     tabs: [
       '☕ Introduction',
       '⚙️ Installation',

@@ -10,6 +10,8 @@ const enHero = {
   "subtitle": "From Zero to Database Testing Expert",
   "intro": "Master SQL for test automation — query databases to verify backend state, seed test data, validate integrity, and pass any SQL interview. No prior database experience needed."
 };
+const trSeoAnswer = 'SQL, ilişkisel veritabanlarındaki veriyi sorgulamak, eklemek, güncellemek ve silmek için kullanılan standart bir dildir. Test otomasyonunda en çok backend durumunu doğrulamak için kullanılır: bir API isteği sonrası veritabanına gerçekten doğru kaydın düşüp düşmediğini SELECT sorgusuyla kontrol etmek, testten önce SQL ile test verisi hazırlamak (seed data) gibi. JOIN, GROUP BY ve subquery gibi yapıları bilmek, bir tester\'ı yalnızca arayüzü değil sistemin gerçek durumunu doğrulayabilen bir mühendise dönüştürür.';
+const enSeoAnswer = 'SQL is the standard language for querying, inserting, updating and deleting data in a relational database. In test automation it is mostly used to verify backend state — running a SELECT query to confirm that an API request actually wrote the correct row to the database, or seeding test data with SQL before a test runs. Knowing JOINs, GROUP BY and subqueries turns a tester from someone who only checks the UI into someone who can verify the system\'s real state.';
 const enTabs = [
   "🎯 Intro & Why",
   "📦 Installation",
@@ -13660,8 +13662,8 @@ const finalTrSections = [
 ];
 
 export const sqlData = {
-  en: { hero: enHero, tabs: enTabs, sections: finalEnSections },
-  tr: { hero: trHero, tabs: trTabs, sections: finalTrSections },
+  en: { hero: enHero, tabs: enTabs, sections: finalEnSections, seoAnswer: enSeoAnswer },
+  tr: { hero: trHero, tabs: trTabs, sections: finalTrSections, seoAnswer: trSeoAnswer },
 };
 
 fillMissingCodeTrios(sqlData, 'sql')

@@ -1515,9 +1515,12 @@ const enHero = {
 
 const enTabs = ['🎯 Intro & Why', '📖 ISTQB & Core', '🛡️ QA vs QC', '💻 SDET & Automation', '🌐 Web, Mobile & Process', '🗺️ Site Map']
 
+const trSeoAnswer = 'Yazılım testi, bir uygulamanın beklendiği gibi çalışıp çalışmadığını, gerçek kullanıcıya ulaşmadan önce sistematik olarak kontrol etme sürecidir. Manuel test insan gözlemiyle yapılırken, otomasyon testi Selenium veya Playwright gibi araçlarla yazılan kod üzerinden tekrarlanır. En yaygın kullanım alanı, her yeni özellik eklendiğinde eski özelliklerin bozulmadığını doğrulayan regresyon testidir — bu da QA mühendisinin bir yazılım ekibindeki temel sorumluluğudur.';
+const enSeoAnswer = 'Software testing is the process of systematically checking whether an application works as expected before it reaches real users. Manual testing relies on human observation, while automation testing repeats the same checks through code written with tools like Selenium or Playwright. Its most common use is regression testing — verifying that existing features still work after a new one is added — which is a core responsibility of a QA engineer on any software team.';
+
 export const whatIsTestingData = {
-  en: { hero: enHero, tabs: enTabs, sections },
-  tr: { hero: trHero, tabs: trTabs, sections },
+  en: { hero: enHero, tabs: enTabs, sections, seoAnswer: enSeoAnswer },
+  tr: { hero: trHero, tabs: trTabs, sections, seoAnswer: trSeoAnswer },
 }
 
 fillMissingCodeTrios(whatIsTestingData, 'what-is-testing')

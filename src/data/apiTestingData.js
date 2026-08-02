@@ -9408,13 +9408,16 @@ const enHero = {
   intro: 'For a tester who has never seen an API: first write the API yourself in Java/Spring, Express and NestJS, then test it with DevTools Network, Swagger, Postman, REST Assured and Playwright. With "Defect Birth" boxes answering "what bug would appear if the developer forgot this line?" at every step — all through a single example API (/api/v1/bugs).',
 }
 
+const trSeoAnswer = 'API testi, bir uygulamanın arayüzü olmadan, doğrudan sunduğu HTTP uç noktalarına (endpoint) istek göndererek doğru veriyi, doğru durum kodunu ve doğru hata davranışını döndürüp döndürmediğini kontrol etmektir. En yaygın araçlar Postman (elle test), REST Assured (Java ile otomasyon) ve Playwright\'ın API modülüdür. Arayüz testinden farkı, veritabanı ve iş mantığına arayüzün üzerinden geçmeden, çok daha hızlı ve kararlı şekilde ulaşmasıdır — bu yüzden regresyon testlerinin önemli bir kısmı API seviyesinde yazılır.';
+const enSeoAnswer = 'API testing means sending requests directly to an application\'s HTTP endpoints, without going through its user interface, to verify that it returns the right data, the right status code and the right error behavior. The most common tools are Postman for manual testing, REST Assured for Java-based automation, and Playwright\'s API module. Its key advantage over UI testing is speed and stability — it reaches the database and business logic without passing through the interface, which is why a large share of regression tests are written at the API level.';
+
 const trTabs = sections.map(s => s.title.tr)
 const enTabs = sections.map(s => s.title.en)
 
 // ─── Export (tek ağaç: sections İKİ dile de aynı referans) ───────────────────
 export const apiTestingData = {
-  tr: { hero: trHero, tabs: trTabs, sections },
-  en: { hero: enHero, tabs: enTabs, sections },
+  tr: { hero: trHero, tabs: trTabs, sections, seoAnswer: trSeoAnswer },
+  en: { hero: enHero, tabs: enTabs, sections, seoAnswer: enSeoAnswer },
 }
 
 // Kodsuz placeholder'larda no-op; içerik fazlarında code bloğu eklendikçe devreye girer.

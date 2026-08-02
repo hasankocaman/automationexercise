@@ -10949,6 +10949,10 @@ const enHero = {
   intro: 'Learn Python from scratch with a focus on test automation. From basic scripting to advanced pytest frameworks — everything a modern QA engineer needs to write reliable, maintainable tests.',
 };
 
+const trSeoAnswer = 'Python, temiz ve okunabilir söz dizimiyle bilinen, yüksek seviyeli ve yorumlanan bir programlama dilidir. Test otomasyonunda en çok pytest çerçevesiyle birlikte kullanılır; Selenium ve Playwright ile tarayıcı otomasyonu, requests kütüphanesiyle API testi yazmak için tercih edilir. Java\'ya göre daha az kod satırıyla aynı testi yazdırması, onu QA mühendisleri arasında en yaygın script dillerinden biri yapar.';
+
+const enSeoAnswer = 'Python is a high-level, interpreted programming language known for its clean, readable syntax. In test automation it is most commonly paired with the pytest framework, used with Selenium and Playwright for browser automation, and with the requests library for API testing. Writing the same test in noticeably fewer lines than Java is a big part of why it has become one of the most widely used scripting languages among QA engineers.';
+
 const enTabs = [
   '🎯 Intro & Why',
   '📦 Installation',
@@ -12235,8 +12239,8 @@ const finalTrSections = [
 ];
 
 export const pythonData = {
-  en: { hero: enHero, tabs: enTabs, sections: finalEnSections },
-  tr: { hero: trHero, tabs: trTabs, sections: finalTrSections },
+  en: { hero: enHero, tabs: enTabs, sections: finalEnSections, seoAnswer: enSeoAnswer },
+  tr: { hero: trHero, tabs: trTabs, sections: finalTrSections, seoAnswer: trSeoAnswer },
 }
 
 fillMissingCodeTrios(pythonData, 'python')

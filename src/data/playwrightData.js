@@ -9198,6 +9198,7 @@ export const playwrightData = {
       subtitle: 'TypeScript · Java · Python ile öğren, Selenium ile karşılaştır',
       intro: 'Microsoft\'un geliştirdiği Playwright, Chrome, Firefox ve Safari\'yi tek API ile kontrol eder. Auto-wait, network mocking ve paralel test desteğiyle modern QA\'nın vazgeçilmezi.',
     },
+    seoAnswer: 'Playwright, Microsoft tarafından geliştirilen açık kaynaklı bir tarayıcı otomasyon aracıdır. Chrome, Firefox ve Safari\'yi TypeScript, Python, Java veya C# ile tek bir API üzerinden kontrol eder. Selenium\'dan farkı, elementin gerçekten tıklanabilir olmasını otomatik bekleyen auto-wait mekanizmasıdır — bu sayede flaky (kararsız) testler büyük ölçüde azalır. En yaygın kullanım alanı, modern web uygulamalarının uçtan uca (end-to-end) test otomasyonudur.',
     tabs: [
       '🎭 Playwright Nedir?',
       '⚙️ Kurulum',
@@ -9227,6 +9228,7 @@ export const playwrightData = {
       subtitle: 'Learn with TypeScript · Java · Python, compare with Selenium',
       intro: 'Developed by Microsoft, Playwright controls Chrome, Firefox and Safari with a single API. Auto-wait, network mocking and parallel tests make it essential for modern QA engineers.',
     },
+    seoAnswer: 'Playwright is an open-source browser automation tool built by Microsoft. It drives Chrome, Firefox and Safari through one API, and you can write tests in TypeScript, Python, Java or C#. Its key difference from Selenium is auto-waiting: it waits for an element to actually be actionable before interacting with it, which cuts down flaky tests significantly. Its most common use is end-to-end test automation for modern web applications.',
     tabs: [
       '🎭 What is Playwright?',
       '⚙️ Installation',

@@ -2395,6 +2395,7 @@ export const dockerData = {
       subtitle: 'Containerization for Developers & QA Engineers',
       intro: 'Master Docker from zero to interview level. Learn how to containerize your test environments, run Selenium Grid and Playwright in Docker, and ensure "it works on my machine" becomes "it works everywhere."',
     },
+    seoAnswer: 'Docker is an open-source containerization tool that packages an application together with its code, libraries and dependencies into an isolated unit called a container. Unlike a virtual machine, it shares the host operating system\'s kernel, which makes it far lighter and faster to start. For a QA engineer, its most common use is running Selenium Grid or a test database inside a container to eliminate the "works on my machine but not in CI" problem.',
     tabs: ['🎯 Introduction', '⚙️ Installation', '📥 Images', '🚀 Containers: docker run', '🔄 Lifecycle & Debug', '💾 Volumes', '🌐 Networks', '📝 Dockerfile', '🧩 Docker Compose', '🧪 QA: Selenium Grid', '🎭 QA: Playwright & CI', '🩺 Troubleshooting', '🔗 Ecosystem', '💼 Interview Q&A'],
     sections: [
       // ── SECTION 0: INTRODUCTION ────────────────────────────────────────────
@@ -4539,6 +4540,7 @@ options.add_argument('--disable-dev-shm-usage')`,
       subtitle: 'Developer ve QA Mühendisleri İçin Containerization',
       intro: 'Docker\'ı sıfırdan mülakat seviyesine taşı. Test ortamlarını containerize et, Selenium Grid ve Playwright\'ı Docker\'da çalıştır ve "bende çalışıyor" sorununu "her yerde çalışıyor" çözümüne dönüştür.',
     },
+    seoAnswer: 'Docker, bir uygulamayı kod, kütüphane ve bağımlılıklarıyla birlikte container adı verilen izole bir birime paketleyen açık kaynaklı bir containerization aracıdır. Sanal makineden farkı, işletim sistemi çekirdeğini konak makineyle paylaşarak çok daha hafif ve hızlı başlamasıdır. QA mühendisi için en yaygın kullanım alanı, Selenium Grid veya bir test veritabanını container içinde çalıştırıp "bende çalışıyor ama CI\'da çalışmıyor" sorununu ortadan kaldırmaktır.',
     tabs: ['🎯 Giriş', '⚙️ Kurulum', '📥 Image\'lar', '🚀 Container: docker run', '🔄 Yaşam Döngüsü & Debug', '💾 Volume\'ler', '🌐 Network\'ler', '📝 Dockerfile', '🧩 Docker Compose', '🧪 QA: Selenium Grid', '🎭 QA: Playwright & CI', '🩺 Yaygın Hatalar', '🔗 Ekosistem', '💼 Mülakat S&C'],
     sections: [
       // ── SECTION 0: INTRODUCTION (TR) ──────────────────────────────────────

@@ -1870,6 +1870,7 @@ export const jenkinsData = {
       subtitle: 'Continuous Integration & Continuous Delivery',
       intro: 'Master Jenkins from zero to interview level. Automate your builds, run tests on every commit, integrate with JMeter/Selenium/Playwright, and deliver software faster and with confidence.',
     },
+    seoAnswer: 'Jenkins is an open-source CI/CD (Continuous Integration/Continuous Delivery) tool that automates the build, test and deploy steps of software development. A pipeline defined in a Jenkinsfile can automatically run Selenium, Playwright or pytest tests on every commit and report the result back to the team. For a QA engineer, its most common use is running the test suite automatically on every pull request to catch regressions before they get merged.',
     tabs: ['🎯 Introduction', '⚙️ Installation', '🔁 First Jenkinsfile', '🔐 Environment & Credentials', '🧪 pytest & JMeter', '🎭 Playwright', '📢 Slack & QA Reporting', '🚀 Advanced', '🛠️ Real World', '🔗 Ecosystem', '💼 Interview Q&A'],
     sections: [
       // ── SECTION 0: INTRODUCTION ────────────────────────────────────────────
@@ -3547,6 +3548,7 @@ pipeline {
       subtitle: 'Sürekli Entegrasyon ve Sürekli Dağıtım',
       intro: 'Jenkins\'i sıfırdan mülakat seviyesine taşı. Her commit\'te build\'leri otomatikleştir, QA araçlarınla entegre et ve yazılımı daha hızlı ve güvenle teslim et.',
     },
+    seoAnswer: 'Jenkins, yazılım geliştirme sürecinde build, test ve deploy adımlarını otomatikleştiren açık kaynaklı bir CI/CD (Sürekli Entegrasyon/Sürekli Dağıtım) aracıdır. Bir Jenkinsfile ile tanımlanan pipeline, her commit\'te otomatik olarak Selenium, Playwright veya pytest testlerini çalıştırabilir ve sonucu ekibe raporlayabilir. QA mühendisi için en yaygın kullanım alanı, test paketini her pull request\'te otomatik koşturup regresyon hatalarını merge öncesinde yakalamaktır.',
     tabs: ['🎯 Giriş', '⚙️ Kurulum', '🔁 İlk Jenkinsfile', '🔐 Environment & Credentials', '🧪 pytest & JMeter', '🎭 Playwright', '📢 Slack & QA Reporting', '🚀 İleri Seviye', '🛠️ Gerçek Hayat', '🔗 Ekosistem', '💼 Mülakat S&C'],
     sections: [
       // ── SECTION 0: INTRODUCTION (TR) ──────────────────────────────────────

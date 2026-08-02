@@ -20,7 +20,157 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-02, Sonnet — portfolyo: görev yönlendirme + "Sıradaki Görev") — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-02, Sonnet — SEO Faz 3 / S1+S4+S5 içerik + FAQ altyapısı) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa bu bölüm günceldir. Bir önceki bölüm (Opus — Sekme URL'leri)
+> aşağıda korunuyor, o oturumun mimari kararları hâlâ geçerli.
+
+### Neredeyiz
+
+- **Branch: `feature/seo-phase-3-serp-rankings`** (main'e MERGE EDİLMEDİ).
+- `Documents/seo-phase-3-sonnet-prompts.md`'deki S1-S5 promptları uygulanıyor;
+  her prompt kendi commit'inde. Bu oturumda S1, S4, S5 BİTTİ; `faq` blok
+  altyapısı (S2'nin önkoşulu) kuruldu. S2 ve S3 sırada.
+
+### Bu oturumda TAMAMLANAN
+
+1. **S1 — `seoAnswer` 9 sayfaya eklendi:** playwright, cypress, python, sql,
+   java, docker, jenkins, api-testing, what-is-testing. Build sonu
+   "Answer-first paragraphs: 10 sayfa" ile doğrulandı (selenium + bu 9'u).
+   Her ikisi 25-120 kelime aralığında, ilk cümle doğrudan tanım.
+2. **S4 — 4 sayfanın metadata'sı sorgu diliyle hizalandı:**
+   `/qa-mentor` → "yazılım test uzmanı nasıl olunur"/"testerlık öğren",
+   `/what-is-testing` → "test türleri nelerdir" eklendi,
+   `/manual-testing` → "test senaryosu örnekleri" eklendi,
+   `/test-frameworks` → EN title'a birebir "Playwright vs Selenium" yazıldı.
+   Ek olarak `/qa-mentor`'a sihirbaz BAŞLAMADAN görünen "Sıfırdan QA mühendisi
+   olmak: 6 aşama" özeti eklendi (`ZERO_TO_QA_STAGES`, `qaMentorData.js` +
+   `QAMentorPage.jsx`) — sihirbazın kişiselleştirdiği 4 haritadan (MAP_A/B/C1/C2)
+   BAĞIMSIZ, genel bir önizlemedir.
+3. **S5 — Dış otorite metinleri:** `README.md` üst bölümü QA Learning
+   Platform'u yansıtacak şekilde yeniden yazıldı (playground açıklaması
+   korunarak altına eklendi). `Documents/outreach/` altında GitHub About
+   metni + 3 tanıtım yazısı taslağı (Selenium wait, SQL JOIN, Playwright vs
+   Selenium) — hiçbiri build'i etkilemez, salt metin.
+4. **`faq` blok tipi eklendi (S2'nin önkoşulu, kısmen bitti):**
+   `TopicPage.jsx`'e yeni `case 'faq':` — `{ items: [{q:{tr,en}, a:{tr,en}}] }`
+   şemasıyla, **quiz/mülakat gating'ine tabi değil**, `simple-box`'ın hemen
+   ardına eklendi. Bu blok `interview-questions`'ın YERİNE geçmez, ayrı bir
+   kilitsiz kaynaktır (bkz. `CLAUDE.md` §22, mülakat sekmesi kilidiyle
+   karıştırılmasın). **Henüz TAMAMLANMADI:** shell'e görünür render +
+   `FAQPage` JSON-LD üretimi + `check-dist-seo.mjs` görünürlük guard'ı hâlâ
+   yazılmadı — bir sonraki adım bu.
+
+### Sıradaki iş
+
+1. **FAQ altyapısını bitir (Opus işi):**
+   - `scripts/generate-static-routes.mjs`: sayfanın `sections` listesindeki
+     `type: 'faq'` bloklarını toplayıp shell'e görünür bir "Sık Sorulan
+     Sorular" bölümü olarak bas (ana sayfadaki `interviewWarmupData` kalıbını
+     TEKRARLA — ekranda yazan ile şemaya giren metin birebir aynı olmalı).
+   - `structuredDataFor`'daki `FAQPage` üretimini **yalnızca ana sayfa**
+     kısıtından çıkar; her route için, o route'un GERÇEK `faq` bloklarından
+     üret (en az 3 soru şartı korunur).
+   - `check-dist-seo.mjs`: mevcut homepage-only FAQ görünürlük kontrolünü
+     TÜM route'lara genelleştir — her FAQPage şemasındaki her soru, aynı
+     sayfanın görünür gövdesinde bulunmalı (aksi hâlde hard-fail).
+2. **S2 — 10 sayfaya `faq` bloğu içerik olarak ekle** (altyapı bitince).
+3. **`/test-automation` route + metadata + sayfa iskeleti** (S3'ün önkoşulu).
+4. **S3 — `/test-automation` sayfa içeriği.**
+5. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması —
+   henüz başlanmadı.
+6. Hepsi bitince tam `npm run test:e2e` paketini koştur (bu oturumda S1+S4
+   sonrası tetiklenen build zaten yeşil: `Answer-first paragraphs: 10 sayfa`,
+   `check-seo`/`check-dist-seo` geçti).
+
+---
+
+## 📌 Önceki Durum (2026-08-02, Opus — SEO Faz 3 / Sekme URL'leri)
+
+> Çelişki olursa bu bölüm günceldir.
+
+### Neredeyiz
+
+- **Branch: `feature/seo-phase-3-serp-rankings`** (main'e MERGE EDİLMEDİ,
+  karar kullanıcıda). `main` bir önceki oturumun sonunda (`aa96dd1`).
+- Yeni hedef: `learnqa` marka sorgusundaki 1. sıralığı **markasız** sorgulara
+  taşımak ("selenium nedir", "test otomasyonu", "testerlık öğren", "playwright
+  nedir" + İngilizce karşılıkları).
+- Plan: `Documents/seo-phase-3-plan.md` (§0'da Opus/Sonnet görev dağılımı).
+  Sonnet promptları: `Documents/seo-phase-3-sonnet-prompts.md`.
+
+### Bu oturumda TAMAMLANAN (Opus tarafı — A fazı)
+
+**Teşhis (ölçüldü, tahmin değil):** Sitenin içeriğinin ~%93'ü Google'a
+görünmüyordu. `/selenium` sayfasında 15 sekme / 428 blok var ama statik
+HTML'de yalnızca **665 kelime**; sekmeler React state'iydi, URL'i yoktu, tek
+URL 15 farklı arama niyetiyle yarışıyordu.
+
+**Çözüm: her dikey sekmeye kendi URL'i** (`/selenium/wait-strategies`).
+
+| Ne | Nerede |
+|---|---|
+| Slug manifesti (dondurulmuş, 30 sayfa / 412 bölüm) | `src/data/generated/sectionSlugs.js` |
+| Manifest üreticisi (`--check` modu build'de) | `scripts/generate-section-slugs.mjs` |
+| Slug + metadata türetme (build ve runtime ORTAK) | `src/utils/sectionSeoText.js` |
+| Katalog, ince içerik kararı, tekilleştirme | `scripts/lib/sectionSeo.mjs` |
+| Ders sayfası → veri modülü tablosu (tek kaynak) | `scripts/lib/topicDataModules.mjs` |
+| Runtime slug ↔ sekme eşlemesi | `src/utils/sectionRoutes.js` |
+| Route'lar (`SECTION_PAGE_ELEMENTS`, 30 sayfa) | `src/App.jsx` |
+| Sekme ↔ URL senkronu, sayfa-düzeyi `basePath` | `src/components/TopicPage.jsx` |
+| Çalışma zamanı sekme başlığı/description'ı | `src/lib/seoOverride.js` + `SeoMeta.jsx` |
+| Sekme shell'leri (gerçek metin + kardeş linkler) | `scripts/generate-static-routes.mjs` |
+| Sitemap + gerçek `lastmod` | `scripts/generate-seo-files.mjs` |
+| Guard'lar (hepsi hard-fail) | `check-seo.mjs`, `check-dist-seo.mjs` |
+| Testler (10/10 yeşil) | `tests/seo-section-routes.spec.ts` |
+
+**Ölçülen sonuç:** sitemap 94 → **754 URL**; üretilen shell 94 → **918**;
+`/selenium` ailesinin crawl edilebilir metni 665 kelime / 1 URL → **7.290
+kelime / 16 URL**; indekslenebilir sekme (dil başına) **337**.
+
+**Dikkat edilmesi gereken kararlar (yeniden tartışmadan önce oku):**
+- Slug iki dilde de AYNI (İngilizce başlıktan). `basename="/en"` path'i
+  paylaştırdığı için dile göre slug iki yönlü eşleme tablosu isterdi.
+- İlk sekme hub URL'inde kalır; shell'i üretilir ama canonical'ı hub'a gider
+  (kanibalizasyon önlemi). Üstüne `noindex` KONMAZ — çelişkili sinyal olur.
+- Mülakat sekmeleri (quiz kilidi arkasında) ve 180 kelime altı bölümler
+  sitemap dışı + `noindex`.
+- Bilinmeyen slug 404 vermez, hub'a düşer, adres kendini onarır.
+- `TopicPage`'deki 9 adet `location.pathname` kullanımı `basePath`'e çevrildi
+  (ilerleme, ustalık, yorumlar, rozet sayfa düzeyindedir — sekme başına
+  parçalanmamalı). Yeni kod yazarken bu ayrımı koru.
+- `seoOverride` effect'inin bağımlılıklarında `sections` ZORUNLU: büyük
+  sayfalar önce boş bölümlü stub ile mount olup veriyi arkadan yüklüyor.
+- `.github/workflows/deploy.yml` build job'ına `fetch-depth: 0` eklendi —
+  sığ klonda `lastmod` güvenilmez olduğu için hiç yazılmıyor.
+
+### Sıradaki iş
+
+**Opus (altyapı, sırayla):**
+1. ✅ `seoAnswer` altyapısı BİTTİ — alan `hero`'nun yanında, hero altında
+   görünür render ediliyor, statik HTML'de `<h1>` sonrası ilk paragraf,
+   `check-dist-seo.mjs` üç kuralı zorluyor (iki dilde dolu, 25-120 kelime,
+   gövdede gerçekten basılı). Referans: `/selenium`. Kalan 9 sayfa Sonnet'te.
+2. `FAQPage` altyapısı — kilitsiz kaynaktan üretim + görünürlük guard'ı.
+   (S2 promptu buna bağlı.)
+3. `/test-automation` route + metadata + sayfa iskeleti. (S3 promptu buna bağlı.)
+4. Kurulum sekmeleri için `HowTo` şeması.
+5. E-E-A-T: yazar/kurum şeması + görünür "son güncelleme" tarihi.
+
+**Sonnet:** `Documents/seo-phase-3-sonnet-prompts.md` içindeki S1-S5.
+S3/S4/S5'in bağımlılığı yok, hemen başlatılabilir.
+
+**Kullanıcı:** yayından sonra Google Search Console'da sekme URL'lerinin
+indekslenmesini izle (aylık ritim planın §9'unda).
+
+### Bilinen not
+
+- Build süresi sekme shell'leri yüzünden uzadı (918 HTML dosyası üretiliyor).
+- `dist` boyutu arttı; GitHub Pages artifact sınırının çok altında.
+
+---
+
+## 📌 Önceki Durum (2026-08-02, Sonnet — portfolyo: görev yönlendirme + "Sıradaki Görev")
 
 > Bu bölüm, yeni bir oturumun 30 saniyede duruma hâkim olması için yazıldı.
 > Ayrıntılar aşağıdaki tarihli bölümlerde; **çelişki olursa bu bölüm günceldir.**

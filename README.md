@@ -1,11 +1,39 @@
-# 🧪 Automation Testing Playground
+# 🧪 LearnQA.dev — QA Learning Platform
 
-**Live site:** https://learnqa.dev  
-**Brand:** LearnQA.dev - QA Learning Platform for test automation engineers.
+**Live site:** https://learnqa.dev
 
-A comprehensive, modern single-page web application designed as a practice playground for automation testers using **Selenium**, **Cypress**, and **Playwright**.
+LearnQA.dev is a free, hands-on learning platform that takes a QA engineer from
+zero to interview-ready: Selenium, Playwright, Cypress, Java, Python,
+TypeScript, SQL, API testing, Docker, Jenkins, Kubernetes and more — each with
+interactive playgrounds, quizzes and AI-graded interview practice, in both
+Turkish and English.
 
-## 🎯 Features
+LearnQA.dev, bir QA mühendisini sıfırdan mülakat seviyesine taşıyan ücretsiz,
+uygulamalı bir öğrenme platformudur: Selenium, Playwright, Cypress, Java,
+Python, TypeScript, SQL, API testi, Docker, Jenkins, Kubernetes ve daha
+fazlası — her biri interaktif alıştırma, quiz ve yapay zeka destekli mülakat
+pratiğiyle, Türkçe ve İngilizce.
+
+<!-- screenshot: docs/screenshot-home.png -->
+
+### What you can learn here
+
+- **Automation frameworks** — Selenium, Playwright, Cypress, Appium
+- **Languages for QA** — Java, Python, TypeScript, JavaScript, SQL
+- **API & performance testing** — Postman, Bruno, REST Assured, JMeter
+- **DevOps for QA** — Docker, Jenkins, Kubernetes, Kafka, Git & GitHub, Linux
+- **Cloud & cross-browser testing** — AWS, Azure, BrowserStack
+- **Career tools** — personalized QA career roadmap, a sprint simulator that
+  walks through a real bug workflow (analyze → test case → automate → CI →
+  merge), and a portfolio page that turns finished exercises into shareable
+  proof
+- Every technology page ends with 50 scenario-based interview questions,
+  graded by AI against your own written answer
+
+The homepage also includes the original automation practice playground below
+(`/`) — the UI components and scenarios described in this README.
+
+## 🎯 Playground Features
 
 This playground includes various UI components and complex scenarios to challenge different automation framework capabilities:
 
