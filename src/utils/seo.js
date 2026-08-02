@@ -378,6 +378,15 @@ export const ROUTE_SEO = [
         },
     },
     {
+        path: '/test-automation',
+        title: 'Test Automation: What It Is, Tools & When to Use It | LearnQA.dev',
+        description: 'What is test automation, when should you automate, which tool to pick (Selenium, Playwright, Cypress, Appium), cost/ROI and how to start your career.',
+        tr: {
+            title: 'Test Otomasyonu Nedir? Araçlar ve Ne Zaman Kullanılır | LearnQA.dev',
+            description: 'Test otomasyonu nedir, ne zaman otomatikleştirilir, hangi araç (Selenium, Playwright, Cypress, Appium) seçilir, maliyet/ROI ve kariyer yol haritası.',
+        },
+    },
+    {
         path: '/auth/callback',
         title: 'Signing you in | LearnQA.dev',
         description: 'Completing your LearnQA.dev sign-in. You will be redirected automatically once authentication finishes.',

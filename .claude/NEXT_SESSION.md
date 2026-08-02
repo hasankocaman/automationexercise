@@ -90,15 +90,40 @@
    - `apiTestingData.js`/`whatIsTestingData.js` tek ağaçlı (sections shared) —
      tek insertion yeterli.
 
+6. **`/test-automation` route + altyapı + S3 içeriği — BİTTİ:** "test
+   otomasyonu" sorgusunun TEK sahibi yeni hub sayfası. Route (`App.jsx`),
+   SEO metadata (`seo.js`), sayfa bileşeni (`TestAutomationPage.jsx`) ve
+   veri modülü kaydı (`scripts/lib/topicDataModules.mjs`) eklendi — sekme-URL
+   sistemine OTOMATİK dahil oldu (`npm run seo:section-slugs` çalıştırıldı:
+   31 sayfa/420 bölüm, 8'i yeni). 8 sekme: Test Otomasyonu Nedir, Ne Zaman
+   Otomatikleştirilir, Araç Seçimi, İlk Otomasyon Testin, Maliyet ve ROI,
+   Otomasyon Neden Başarısız Olur, Kariyer, SSS. Her sekmede video-scene +
+   step-animation + code-playground üçlüsü + 4 katmanlı analoji içeren
+   `simple-box`. İki `link-grid` bloğuyla Selenium/Playwright/Cypress/Appium
+   ve API testi/Python/Jenkins/QA Mentor'a gerçek iç link.
+   - Build sonucu: 46 route (+1), 344 indekslenebilir sekme (+7), "Answer-first
+     paragraphs: 11 sayfa" (+1), "70 with Course, 24 with FAQPage" (+2/+2).
+   - `tests/video-scene.spec.ts`'e temsili render testi eklendi (1/1 yeşil).
+   - `tests/seo-section-routes.spec.ts` + `seo-phase2-coverage.spec.ts`
+     27/27 yeşil. Canlı smoke test: sekmeler arası gezinti + link-grid'in
+     gerçekten `/selenium`'a yönlendirdiği + `/qa-mentor` özetinin göründüğü
+     doğrulandı.
+   - **Ders:** İlk yazımda `table`/`list` bloklarının şemasını YANLIŞ
+     varsaydım (`headers:{tr:[...],en:[...]}` gibi tüm diziyi bilingual
+     sarmak) — gerçek şema HER HÜCRE/HER ÖĞE ayrı ayrı `{tr,en}` olmalı
+     (`TopicPage.jsx` `tx()` her hücreyi tek tek çağırıyor). Yeni bir blok
+     tipi kullanmadan önce renderer'ın gerçek beklediği şekli oku.
+   - 3 `code-playground` bloğunda Türkçe karakterli düz string starterCode/
+     solutionCode i18n taramasında yakalandı, `{tr,en}` ikili formata çevrilip
+     düzeltildi (CLAUDE.md §8 kuralı).
+
 ### Sıradaki iş
 
-1. **`/test-automation` route + metadata + sayfa iskeleti** (S3'ün önkoşulu,
-   henüz başlanmadı).
-2. **S3 — `/test-automation` sayfa içeriği.**
-3. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması —
+1. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması —
    henüz başlanmadı.
-4. Hepsi bitince tam `npm run test:e2e` paketini koştur (plan dosyasındaki
-   §8 kabul kriterlerine göre).
+2. Hepsi bitince tam `npm run test:e2e` paketini koştur (plan dosyasındaki
+   §8 kabul kriterlerine göre) — Sonnet promptlarının hepsi (S1-S5) artık
+   BİTTİ.
 
 ---
 

@@ -1,7 +1,7 @@
 // AUTO-GENERATED — elle düzenleme yalnızca bir slug'ı BİLEREK sabitlemek için.
 // Üretici: scripts/generate-section-slugs.mjs (npm run seo:section-slugs)
 // Kural: bir slug yayına çıktıktan sonra DEĞİŞMEZ (bkz. üretici dosyasındaki not).
-// 30 ders sayfası · 412 bölüm.
+// 31 ders sayfası · 420 bölüm.
 export const SECTION_SLUGS = {
     '/selenium': [
         { slug: 'what-is-selenium', title: "What is Selenium? How Does It Work?" },
@@ -474,5 +474,15 @@ export const SECTION_SLUGS = {
         { slug: 'adversarial-testing-and-red-teaming', title: "Adversarial Testing & Red Teaming" },
         { slug: 'risks-and-common-mistakes', title: "Risks & Common Mistakes" },
         { slug: 'interview-q', title: "Interview Q&A" },
+    ],
+    '/test-automation': [
+        { slug: 'what-is-test-automation', title: "What Is Test Automation?" },
+        { slug: 'when-to-automate-when-not', title: "When to Automate, When Not To" },
+        { slug: 'tool-choice', title: "Tool Choice" },
+        { slug: 'your-first-automation-test', title: "Your First Automation Test" },
+        { slug: 'cost-and-roi', title: "Cost and ROI" },
+        { slug: 'why-does-automation-fail', title: "Why Does Automation Fail?" },
+        { slug: 'career-test-automation-engineer', title: "Career: Test Automation Engineer" },
+        { slug: 'frequently-asked-questions', title: "Frequently Asked Questions" },
     ],
 }

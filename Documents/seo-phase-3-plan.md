@@ -28,12 +28,12 @@ iş). Sonnet promptları: `Documents/seo-phase-3-sonnet-prompts.md`.
 | **D1c** | Sekme `BreadcrumbList` (3 basamak) | **Opus** | ✅ TAMAMLANDI |
 | **B0** | `seoAnswer` ALTYAPISI — alan desteği, görünür render, shell'de ilk paragraf | **Opus** | ✅ TAMAMLANDI |
 | **B2a** | `FAQPage` ALTYAPISI — kilitsiz kaynak + "görünürlük" guard'ı | **Opus** | ⬜ Sırada |
-| **C0** | `/test-automation` route + metadata + shell iskeleti | **Opus** | ⬜ Sırada |
+| **C0** | `/test-automation` route + metadata + shell iskeleti | **Opus** | ✅ TAMAMLANDI |
 | **D1b** | `HowTo` şeması (kurulum sekmeleri) | **Opus** | ⬜ Sırada |
 | **D2a** | E-E-A-T: yazar/kurum şeması + görünür "son güncelleme" | **Opus** | ⬜ Sırada |
 | **B1** | `seoAnswer` METNİ — 10 öncelikli sayfa için 40-70 kelimelik cevap | Sonnet | ✅ TAMAMLANDI |
 | **B2b** | Sayfa başına kilitsiz 5-8 soruluk "Sık Sorulan Sorular" bloğu | Sonnet | ✅ TAMAMLANDI (10 sayfa) |
-| **C1** | `/test-automation` hub sayfasının İÇERİĞİ | Sonnet | ⬜ S3 promptu |
+| **C1** | `/test-automation` hub sayfasının İÇERİĞİ | Sonnet | ✅ TAMAMLANDI (8 sekme) |
 | **C2** | Sorgu hizalaması: `/qa-mentor`, `/what-is-testing`, `/manual-testing`, `/test-frameworks` | Sonnet | ⬜ S4 promptu |
 | **E1** | Dış otorite: README/repo metinleri, çapraz yayın özetleri | Sonnet | ⬜ S5 promptu |
 | **F1** | Ölçüm: GSC sorgu takibi + aylık kontrol ritmi | Kullanıcı | ⬜ Yayından sonra |

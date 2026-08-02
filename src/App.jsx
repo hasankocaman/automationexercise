@@ -55,6 +55,7 @@ const ClaudeAiPage = lazy(() => import('./components/ClaudeAiPage'))
 const LlmAgentsPage = lazy(() => import('./components/LlmAgentsPage'))
 const SprintPage = lazy(() => import('./components/SprintPage'))
 const PortfolioPage = lazy(() => import('./components/PortfolioPage'))
+const TestAutomationPage = lazy(() => import('./components/TestAutomationPage'))
 
 // Sekme-seviyesi URL'ler: /selenium/wait-strategies gibi her dikey sekmeye
 // kendi adresi. Aynı sayfa bileşeni render edilir — sekme seçimini TopicPage
@@ -95,6 +96,7 @@ const SECTION_PAGE_ELEMENTS = {
     '/basit-backend': <BasitBackendPage />,
     '/claude-ai': <ClaudeAiPage />,
     '/llm-agents': <LlmAgentsPage />,
+    '/test-automation': <TestAutomationPage />,
 }
 
 function RouteFallback() {
@@ -151,6 +153,7 @@ function App() {
                     <Route path="/what-is-testing" element={<WhatIsTestingPage />} />
                     <Route path="/claude-ai" element={<ClaudeAiPage />} />
                     <Route path="/llm-agents" element={<LlmAgentsPage />} />
+                    <Route path="/test-automation" element={<TestAutomationPage />} />
                     <Route path="/security" element={<RequireAdmin><SecurityPage /></RequireAdmin>} />
                     <Route path="/manual-testing" element={<ManualTestingPage />} />
                     <Route path="/algorithms" element={<AlgorithmsPage />} />

@@ -1199,3 +1199,21 @@ test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () =
     });
 });
 
+test.describe('Video-Scene — /test-automation (yeni sayfa, varsayılan (ilk) sekmede film render olur)', () => {
+    test('/test-automation — varsayılan (ilk) sekmede film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/test-automation');
+        await page.waitForSelector('h1', { timeout: 30_000 });
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+});
+
