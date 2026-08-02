@@ -320,17 +320,26 @@ BrowserStack) tek gerçek üstünlüğü budur.
 - [x] Çalışma zamanı başlığı shell başlığıyla aynı türetmeden geliyor.
 - **Kabul (ölçüldü):** `/selenium` ailesi **7.290 kelime** (hedef ≥ 5.000). ✅
 
-### Aşama 2 — Cevap (B1+B2)
-- [ ] En yüksek öncelikli 10 sayfada `seoAnswer` var, ilk cümle sorguyu cevaplıyor.
-- [ ] Shell'de `<h1>` sonrası ilk paragraf `seoAnswer`.
-- [ ] `FAQPage` yalnızca kilitsiz kaynaklardan üretiliyor; `check-dist-seo.mjs`
-      kilitli mülakat sorusu sızarsa build'i kırıyor.
+### Aşama 2 — Cevap (B1+B2) · ✅ TAMAMLANDI (2026-08-02)
+- [x] En yüksek öncelikli 10 sayfada `seoAnswer` var, ilk cümle sorguyu cevaplıyor
+      (Selenium, Playwright, Cypress, Python, SQL, Java, Docker, Jenkins,
+      API Testing, Yazılım Testi Nedir).
+- [x] Shell'de `<h1>` sonrası ilk paragraf `seoAnswer` — build: "Answer-first
+      paragraphs: 11 sayfa" (10 + /test-automation).
+- [x] `FAQPage` yalnızca kilitsiz kaynaklardan üretiliyor (`faq` blok tipi,
+      `interview-questions` ASLA kaynak değil); `check-dist-seo.mjs` +
+      `tests/seo-phase2-coverage.spec.ts` her sorunun görünür olduğunu
+      TÜM route'larda doğruluyor (24 FAQPage örneği, hepsi yeşil).
 
-### Aşama 3 — Sayfalar (C1+C2)
-- [ ] `/test-automation` yayında, §9.5 standardına uygun (video+animasyon+sandbox).
-- [ ] `/qa-mentor`, `/what-is-testing`, `/manual-testing` TR metadata'sı sorgu
-      diliyle yeniden yazıldı; `check-seo.mjs` geçiyor.
-- [ ] Kanibalizasyon kontrolü: iki sayfa aynı ana sorguyu hedeflemiyor.
+### Aşama 3 — Sayfalar (C1+C2) · ✅ TAMAMLANDI (2026-08-02)
+- [x] `/test-automation` yayında, §9.5 standardına uygun (8 sekme, her birinde
+      video-scene + step-animation + code-playground).
+- [x] `/qa-mentor`, `/what-is-testing`, `/manual-testing`, `/test-frameworks`
+      TR+EN metadata'sı sorgu diliyle yeniden yazıldı; `check-seo.mjs` geçiyor.
+- [x] Kanibalizasyon kontrolü: `/test-automation`="test otomasyonu",
+      `/qa-mentor`="yazılım test uzmanı nasıl olunur", `/what-is-testing`=
+      "yazılım testi nedir", `/manual-testing`="manuel test nedir",
+      `/test-frameworks`="playwright vs selenium" — beşi de ayrı sorgu.
 
 ### Aşama 4 — Güven (D1+D2)
 - [ ] Sitemap'te gerçek `lastmod`.

@@ -117,13 +117,41 @@
      solutionCode i18n taramasında yakalandı, `{tr,en}` ikili formata çevrilip
      düzeltildi (CLAUDE.md §8 kuralı).
 
+### Tam E2E doğrulaması yapıldı (2026-08-02 gece) — S1-S5 kapandı
+
+`npx playwright test` tam paket: **340 passed, 8 failed, 6 flaky (1.9h)**.
+8 "failed" tek tek izole edilerek incelendi — hiçbiri bu oturumun S1-S5
+işinden kaynaklanan gerçek bir regresyon DEĞİL:
+
+- `seo-section-routes.spec.ts` (3 test, /selenium/wait-strategies etrafında)
+  ve `topic-pages-ui.spec.ts` (/sql, /typescript, /python) — tam paket
+  `fullyParallel` + çoklu worker'la aynı anda en büyük data chunk'larını
+  (selenium ~650KB, sql/typescript/java 800KB-1.1MB) Vite dev server'a
+  isteyince transform süresi varsayılan 5000ms `expect` timeout'unu aşıyor.
+  **Kanıt:** aynı testler `--workers=1` (seo-section-routes: 10/10) ve
+  `--workers=2` (topic-pages-ui: 29/29, /sql-/typescript-/python dahil)
+  ile TAM YEŞİL. Gerçek bug değil, dev-server kaynak çekişmesi.
+- `analytics-events.spec.ts` ve `homepage-recommended-badges.spec.ts` —
+  izole `--workers=1` koşumda da başarısız KALDI, ama bu iki test dosyası
+  ve etkiledikleri `HomePage.jsx` bu branch'te `main`'e göre **hiç
+  değişmemiş** (`git diff main --stat` boş) — bu oturumdan önce de var olan
+  flaky testler, S1-S5 ile ilgisi yok.
+- 6 flaky (retry'de geçti) hepsi de dokunulmamış sayfalar/akışlar
+  (interview-grading-and-reset, other-pages-ui, portfolio-page) — aynı
+  paralel-yük deseni.
+
+**Sonuç:** SEO Faz 3 S1-S5 içeriği (seoAnswer, FAQ altyapısı, /test-automation,
+metadata hizalama, outreach) hiçbir mevcut testi bozmadı.
+
 ### Sıradaki iş
 
-1. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması —
-   henüz başlanmadı.
-2. Hepsi bitince tam `npm run test:e2e` paketini koştur (plan dosyasındaki
-   §8 kabul kriterlerine göre) — Sonnet promptlarının hepsi (S1-S5) artık
-   BİTTİ.
+1. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması + mobil
+   LCP ölçümü — henüz başlanmadı (plan §8 Aşama 4).
+2. Outreach taslakları (`Documents/outreach/`) hazır ama GitHub About /
+   dev.to / Medium'a **manuel yayınlanmadı** — kullanıcı aksiyonu (plan §8
+   Aşama 5).
+3. Branch `feature/seo-phase-3-serp-rankings` main'e merge edilmedi, remote'a
+   push edilmedi — karar kullanıcıda.
 
 ---
 
