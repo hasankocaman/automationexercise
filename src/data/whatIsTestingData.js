@@ -371,6 +371,48 @@ const sections = [
       bugCostStep,
       bugCostPractice,
       {
+        // Kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2). %60 quiz
+        // kilidinin ARKASINDA DEĞİL; sayfa içi FAQPage şemasının TEK kaynağıdır.
+        type: 'faq',
+        items: [
+          {
+            q: { tr: 'Yazılım testi nedir?', en: 'What is software testing?' },
+            a: {
+              tr: 'Yazılım testi, bir uygulamanın beklendiği gibi çalışıp çalışmadığını, gerçek kullanıcıya ulaşmadan önce sistematik olarak kontrol etme sürecidir. Manuel test insan gözlemiyle yapılırken, otomasyon testi kodla tekrarlanır.',
+              en: 'Software testing is the process of systematically checking whether an application works as expected before it reaches real users. Manual testing relies on human observation, while automation testing repeats the same checks through code.',
+            },
+          },
+          {
+            q: { tr: 'Test türleri nelerdir?', en: 'What are the types of testing?' },
+            a: {
+              tr: 'En temel ayrım manuel test ile otomasyon testidir. Kapsam açısından ise birim (unit), entegrasyon (integration), sistem (system) ve kabul (acceptance) testi olarak katmanlara ayrılır; her katman farklı bir hata sınıfını yakalamayı hedefler.',
+              en: 'The most basic split is manual testing vs. automation testing. By scope, testing is layered into unit, integration, system and acceptance testing; each layer targets catching a different class of defect.',
+            },
+          },
+          {
+            q: { tr: 'QA ile QC arasındaki fark nedir?', en: 'What is the difference between QA and QC?' },
+            a: {
+              tr: 'QA (Kalite Güvencesi), hataların baştan oluşmasını önleyen SÜRECE odaklanır; QC (Kalite Kontrol) ise zaten üretilmiş ÜRÜNÜ test ederek hataları bulur. QA proaktif, QC reaktiftir.',
+              en: 'QA (Quality Assurance) focuses on the PROCESS that prevents defects from happening in the first place; QC (Quality Control) tests the already-built PRODUCT to find defects. QA is proactive, QC is reactive.',
+            },
+          },
+          {
+            q: { tr: 'SDET nedir?', en: 'What is an SDET?' },
+            a: {
+              tr: 'SDET (Software Development Engineer in Test), test otomasyon kodu yazan, framework kuran ve geliştirme ekibiyle aynı mühendislik standartlarına tabi olan bir roldür — klasik manuel test uzmanından farklı olarak güçlü kodlama becerisi gerektirir.',
+              en: 'An SDET (Software Development Engineer in Test) writes test automation code, builds frameworks, and is held to the same engineering standards as the development team — unlike a classic manual tester, it requires strong coding skills.',
+            },
+          },
+          {
+            q: { tr: 'Yazılım testi öğrenmek ne kadar sürer?', en: 'How long does it take to learn software testing?' },
+            a: {
+              tr: 'Temel kavramları (test türleri, ISTQB terminolojisi, QA/QC farkı) birkaç günde öğrenebilirsin. Otomasyon araçlarıyla (Selenium/Playwright) pratik yapıp mülakat seviyesine gelmek genelde birkaç ay sürer.',
+              en: 'You can learn the basic concepts (types of testing, ISTQB terminology, QA vs QC) in a few days. Practicing with automation tools (Selenium/Playwright) to reach interview-ready level usually takes a few months.',
+            },
+          },
+        ],
+      },
+      {
         type: 'quiz',
         question: {
           tr: 'Yazılım testinin en önemli finansal gerekçesi aşağıdakilerden hangisidir?',

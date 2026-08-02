@@ -191,6 +191,50 @@ const sqlQueryOrderFilm = {
     },
   ],
 }
+// 🎯 SQL Nedir? — kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2). %60
+// quiz kilidinin ARKASINDA DEĞİL; sayfa içi FAQPage şemasının TEK kaynağıdır.
+// Her iki bölüm ağacına da AYNI referansla konur (sqlIntroWhyFilm ile aynı kalıp).
+const sqlFaqBlock = {
+  type: 'faq',
+  items: [
+    {
+      q: { tr: 'SQL nedir?', en: 'What is SQL?' },
+      a: {
+        tr: 'SQL, ilişkisel veritabanlarındaki veriyi sorgulamak, eklemek, güncellemek ve silmek için kullanılan standart bir dildir. Test otomasyonunda en çok backend durumunu doğrulamak için kullanılır.',
+        en: 'SQL is the standard language for querying, inserting, updating and deleting data in a relational database. In test automation it is mostly used to verify backend state.',
+      },
+    },
+    {
+      q: { tr: 'SQL öğrenmek ne kadar sürer?', en: 'How long does it take to learn SQL?' },
+      a: {
+        tr: 'SELECT, WHERE ve JOIN gibi temel sorguları birkaç günde öğrenebilirsin. GROUP BY, subquery ve window function dahil mülakat seviyesine gelmek genelde 3-4 hafta düzenli pratik gerektirir.',
+        en: 'You can learn basic queries like SELECT, WHERE and JOIN in a few days. Reaching interview-ready level — including GROUP BY, subqueries and window functions — usually takes 3-4 weeks of regular practice.',
+      },
+    },
+    {
+      q: { tr: 'SQL ücretsiz mi?', en: 'Is SQL free?' },
+      a: {
+        tr: 'SQL\'in kendisi bir standarttır, ücretsizdir. PostgreSQL ve MySQL gibi onu uygulayan veritabanı motorlarının çoğu da ücretsiz ve açık kaynaklıdır; Oracle gibi bazı ticari motorlar ücretlidir.',
+        en: 'SQL itself is a standard and is free. Most database engines that implement it, like PostgreSQL and MySQL, are also free and open-source; some commercial engines like Oracle are paid.',
+      },
+    },
+    {
+      q: { tr: 'SQL ile NoSQL arasındaki fark nedir?', en: 'What is the difference between SQL and NoSQL?' },
+      a: {
+        tr: 'SQL veritabanları veriyi sabit şemalı tablolarda, satır-sütun ilişkileriyle tutar; NoSQL (MongoDB gibi) esnek, şemasız doküman/anahtar-değer yapıları kullanır. Test tarafında SQL veri bütünlüğünü JOIN ile doğrularken, NoSQL doğrulaması genelde tek doküman üzerinden yapılır.',
+        en: 'SQL databases store data in fixed-schema tables with row-column relationships; NoSQL (like MongoDB) uses flexible, schema-less document or key-value structures. On the testing side, SQL verifies data integrity through JOINs, while NoSQL verification is usually done on a single document.',
+      },
+    },
+    {
+      q: { tr: 'En sık karşılaşılan SQL hatası nedir?', en: 'What is the most common SQL error?' },
+      a: {
+        tr: '`WHERE` koşulu olmadan yazılan bir `UPDATE` veya `DELETE` — bu, tablodaki HER satırı etkiler. Production\'da bu hata geri alınamaz veri kaybına yol açabilir; bu yüzden her zaman önce `SELECT` ile koşulu test etmek önerilir.',
+        en: 'An `UPDATE` or `DELETE` written without a `WHERE` clause — this affects EVERY row in the table. In production this mistake can cause unrecoverable data loss, which is why it is always recommended to test the condition with `SELECT` first.',
+      },
+    },
+  ],
+}
+
 // ─── Intro & Why film — SELECT'in bildirimsel (declarative) doğası ─────────
 const sqlIntroWhyFilm = {
   type: 'video-scene',
@@ -3097,6 +3141,7 @@ const finalEnSections = [
       },
       sqlIntroWhyFilm,
       sqlIntroPractice,
+      sqlFaqBlock,
       {
         "type": "quiz",
         "question": "What does SQL stand for?",
@@ -8518,6 +8563,7 @@ const finalTrSections = [
       },
       sqlIntroWhyFilm,
       sqlIntroPractice,
+      sqlFaqBlock,
       {
         "type": "quiz",
         "question": "SQL neyin kısaltmasıdır?",

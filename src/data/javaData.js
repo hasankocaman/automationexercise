@@ -276,6 +276,57 @@ const javaIteratorSafeRemovalStep = {
 // Veri şeması referansı: gaugeData.js gaugeRunChainFilm / gitGithubData.js.
 
 // (0) Giriş — JVM'in .java → bytecode → JVM çalıştırma zinciri
+// ☕ Giriş — kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2). %60 quiz
+// kilidinin ARKASINDA DEĞİL; sayfa içi FAQPage şemasının TEK kaynağıdır. Her
+// iki bölüm ağacına da AYNI referansla konur.
+const javaFaqBlock = {
+  type: 'faq',
+  items: [
+    {
+      q: { tr: 'QA mühendisleri neden Java öğrenir?', en: 'Why do QA engineers learn Java?' },
+      a: {
+        tr: 'Çünkü Selenium, REST Assured, Cucumber ve TestNG gibi kurumsal ölçekteki test framework\'lerinin büyük çoğunluğu Java üzerine kuruludur. Java bilmek, bu araçların iç mimarisini ve hata mesajlarını gerçekten anlamayı sağlar.',
+        en: 'Because most enterprise-scale test frameworks — Selenium, REST Assured, Cucumber, TestNG — are built on top of Java. Knowing Java lets you actually understand these tools\' internal architecture and error messages.',
+      },
+    },
+    {
+      q: { tr: 'Java ile Python arasındaki fark nedir?', en: 'What is the difference between Java and Python?' },
+      a: {
+        tr: 'Java statik tipli olduğu için hataları derleme anında yakalar ve büyük kurumsal projelerde daha katı bir yapı sunar; Python dinamik tipli ve daha az kod satırıyla aynı işi yaptırır. QA tarafında Java daha büyük framework mimarisi, Python daha hızlı script yazımı için tercih edilir.',
+        en: 'Java is statically typed, catching mistakes at compile time and offering more structure for large enterprise projects; Python is dynamically typed and gets the same job done in fewer lines. In QA, Java is preferred for larger framework architectures, Python for fast scripting.',
+      },
+    },
+    {
+      q: { tr: 'Java öğrenmek ne kadar sürer?', en: 'How long does it take to learn Java?' },
+      a: {
+        tr: 'Temel söz dizimini ve OOP kavramlarını 1-2 haftada öğrenebilirsin. Collections, exception yönetimi ve Selenium/REST Assured entegrasyonu dahil mülakat seviyesine gelmek genelde 6-8 hafta düzenli pratik gerektirir.',
+        en: 'You can learn basic syntax and OOP concepts in 1-2 weeks. Reaching interview-ready level — including Collections, exception handling and Selenium/REST Assured integration — usually takes 6-8 weeks of regular practice.',
+      },
+    },
+    {
+      q: { tr: 'Java ücretsiz mi?', en: 'Is Java free?' },
+      a: {
+        tr: 'Evet, OpenJDK dahil Java\'nın çoğu dağıtımı ücretsiz ve açık kaynaklıdır. Maven, JUnit5, TestNG gibi Java QA ekosistemindeki araçların tamamı da ücretsizdir.',
+        en: 'Yes, most Java distributions, including OpenJDK, are free and open-source. All the tools in the Java QA ecosystem — Maven, JUnit5, TestNG — are free as well.',
+      },
+    },
+    {
+      q: { tr: 'Java bytecode\'a nasıl dönüştürülür?', en: 'How is Java converted to bytecode?' },
+      a: {
+        tr: '`javac` derleyicisi `.java` dosyasını `.class` uzantılı bytecode\'a çevirir; bu bytecode, JVM (Java Virtual Machine) tarafından çalıştırılır. Bu katman, Java\'nın "bir kere yaz, her yerde çalıştır" prensibinin temelidir.',
+        en: 'The `javac` compiler turns a `.java` file into `.class` bytecode, which is then executed by the JVM (Java Virtual Machine). This layer is the foundation of Java\'s "write once, run anywhere" principle.',
+      },
+    },
+    {
+      q: { tr: 'En sık karşılaşılan Java hatası nedir?', en: 'What is the most common Java error?' },
+      a: {
+        tr: '`NullPointerException` — bir referans değişkeni `null` iken üzerinde metod çağırmaya çalışıldığında oluşur. Selenium testlerinde genellikle bir elementin bulunamayıp `null` dönmesi ve doğrudan kullanılmaya çalışılmasından kaynaklanır.',
+        en: '`NullPointerException` — happens when you try to call a method on a reference variable that is `null`. In Selenium tests it is usually caused by an element lookup returning `null` and being used directly without a check.',
+      },
+    },
+  ],
+}
+
 const javaJvmChainFilm = {
   type: 'video-scene',
   id: 'java-jvm-bytecode-film',
@@ -2037,6 +2088,7 @@ Merhaba QA!`,
       },
       javaJvmChainFilm,
       javaJvmChainPractice,
+      javaFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Java kodunu bytecode\'a dönüştüren araç hangisidir?', en: 'Which tool converts Java code to bytecode?' },
@@ -2155,6 +2207,7 @@ Hello QA!`,
       },
       javaJvmChainFilm,
       javaJvmChainPractice,
+      javaFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Java kodunu bytecode\'a dönüştüren araç hangisidir?', en: 'Which tool converts Java code to bytecode?' },

@@ -7,6 +7,58 @@ import { LOCATOR_EXPLORER_BLOCK } from './locatorExplorerData.js'
 
 // ─── Test Lifecycle film bloğu (video-scene — EN + TR paylaşımlı) ────────────
 // Veri şeması: PILOT_PLAN_ve_PROMPT.md §2 / src/components/VideoSceneBlock.jsx
+// 🎭 Playwright Nedir? — kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2).
+// Mülakat sekmesindeki sorulardan farklı olarak %60 quiz kilidinin ARKASINDA
+// DEĞİL; sayfa içi FAQPage şemasının TEK kaynağıdır. Her iki bölüm ağacına da
+// AYNI referansla konur.
+const playwrightFaqBlock = {
+  type: 'faq',
+  items: [
+    {
+      q: { tr: 'Playwright nedir?', en: 'What is Playwright?' },
+      a: {
+        tr: 'Playwright, Microsoft tarafından geliştirilen açık kaynaklı bir tarayıcı otomasyon aracıdır. Chrome, Firefox ve Safari\'yi TypeScript, Python, Java veya C# ile tek bir API üzerinden kontrol eder.',
+        en: 'Playwright is an open-source browser automation tool built by Microsoft. It drives Chrome, Firefox and Safari through one API, using TypeScript, Python, Java or C#.',
+      },
+    },
+    {
+      q: { tr: 'Playwright ile Selenium arasındaki fark nedir?', en: 'What is the difference between Playwright and Selenium?' },
+      a: {
+        tr: 'Playwright\'ın auto-wait mekanizması elementin gerçekten hazır olmasını otomatik bekler, bu yüzden Selenium\'a göre çok daha az flaky (kararsız) test üretir. Ayrıca network mock, trace viewer ve browser context izolasyonu gibi built-in özellikleri vardır.',
+        en: 'Playwright\'s auto-wait mechanism automatically waits for an element to actually be ready, producing far fewer flaky tests than Selenium. It also has built-in network mocking, a trace viewer and browser context isolation.',
+      },
+    },
+    {
+      q: { tr: 'Playwright öğrenmek ne kadar sürer?', en: 'How long does it take to learn Playwright?' },
+      a: {
+        tr: 'Temel aksiyon ve locator kullanımını birkaç günde öğrenebilirsin. Fixture yapısı, Page Object Model ve CI entegrasyonu dahil mülakat seviyesine gelmek genelde 3-5 hafta düzenli pratik gerektirir.',
+        en: 'You can learn basic actions and locators in a few days. Reaching interview-ready level — including fixtures, the Page Object Model and CI integration — usually takes 3-5 weeks of regular practice.',
+      },
+    },
+    {
+      q: { tr: 'Playwright ücretsiz mi?', en: 'Is Playwright free?' },
+      a: {
+        tr: 'Evet, Playwright tamamen ücretsiz ve açık kaynaklıdır (Apache 2.0 lisansı). Trace Viewer ve Codegen dahil hiçbir aracı için ödeme yapmazsın.',
+        en: 'Yes, Playwright is completely free and open-source (Apache 2.0 license). You never pay for any of its tools, including Trace Viewer and Codegen.',
+      },
+    },
+    {
+      q: { tr: 'Playwright hangi dilleri destekler?', en: 'Which languages does Playwright support?' },
+      a: {
+        tr: 'TypeScript, JavaScript, Python, Java ve C# için resmi Playwright kütüphaneleri mevcuttur. TypeScript, en zengin özellik desteğine ve en geniş topluluk kaynağına sahiptir.',
+        en: 'Official Playwright libraries exist for TypeScript, JavaScript, Python, Java and C#. TypeScript has the richest feature support and the largest community resources.',
+      },
+    },
+    {
+      q: { tr: 'En sık karşılaşılan Playwright hatası nedir?', en: 'What is the most common Playwright error?' },
+      a: {
+        tr: '"strict mode violation" — bir locator sayfada birden fazla elementle eşleştiğinde Playwright hata verir (Selenium\'un aksine sessizce ilkini almaz). Çözüm, locator\'ı `.first()` ile daraltmak veya daha spesifik bir seçici kullanmaktır.',
+        en: '"strict mode violation" — Playwright throws when a locator matches more than one element on the page (unlike Selenium, which silently picks the first one). The fix is to narrow the locator with `.first()` or use a more specific selector.',
+      },
+    },
+  ],
+}
+
 const testLifecycleFilm = {
   type: 'video-scene',
   id: 'playwright-test-lifecycle-film',
@@ -851,6 +903,7 @@ const s0 = {
       },
       playwrightArchitectureFilm,
       playwrightIntroPractice,
+      playwrightFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta "auto-wait" ne anlama gelir?', en: 'What does "auto-wait" mean in Playwright?' },
@@ -970,6 +1023,7 @@ const s0 = {
       },
       playwrightArchitectureFilm,
       playwrightIntroPractice,
+      playwrightFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Playwright\'ta "auto-wait" ne anlama gelir?', en: 'What does "auto-wait" mean in Playwright?' },

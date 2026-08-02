@@ -1,5 +1,56 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// 🎯 Giriş — kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2). %60 quiz
+// kilidinin ARKASINDA DEĞİL; sayfa içi FAQPage şemasının TEK kaynağıdır. Her
+// iki bölüm ağacına da AYNI referansla konur.
+const jenkinsFaqBlock = {
+  type: 'faq',
+  items: [
+    {
+      q: { tr: 'Jenkins nedir?', en: 'What is Jenkins?' },
+      a: {
+        tr: 'Jenkins, yazılım geliştirme sürecinde build, test ve deploy adımlarını otomatikleştiren açık kaynaklı bir CI/CD aracıdır. Bir Jenkinsfile ile tanımlanan pipeline, her commit\'te testleri otomatik çalıştırabilir.',
+        en: 'Jenkins is an open-source CI/CD tool that automates the build, test and deploy steps of software development. A pipeline defined in a Jenkinsfile can run tests automatically on every commit.',
+      },
+    },
+    {
+      q: { tr: 'Jenkins ile GitHub Actions arasındaki fark nedir?', en: 'What is the difference between Jenkins and GitHub Actions?' },
+      a: {
+        tr: 'Jenkins kendi sunucunda barındırılır (self-hosted) ve tamamen özelleştirilebilir; GitHub Actions ise GitHub\'a entegre, bulut tabanlı bir hizmettir ve kurulum gerektirmez. Jenkins daha fazla kontrol, GitHub Actions daha hızlı başlangıç sunar.',
+        en: 'Jenkins is self-hosted and fully customizable; GitHub Actions is a cloud-based service built into GitHub that requires no setup. Jenkins offers more control, GitHub Actions offers a faster start.',
+      },
+    },
+    {
+      q: { tr: 'Jenkins öğrenmek ne kadar sürer?', en: 'How long does it take to learn Jenkins?' },
+      a: {
+        tr: 'İlk pipeline\'ını birkaç saatte kurabilirsin. Jenkinsfile yazımı, credential yönetimi ve Selenium/pytest entegrasyonu dahil mülakat seviyesine gelmek genelde 2-3 hafta düzenli pratik gerektirir.',
+        en: 'You can set up your first pipeline in a few hours. Reaching interview-ready level — including writing Jenkinsfiles, credential management and Selenium/pytest integration — usually takes 2-3 weeks of regular practice.',
+      },
+    },
+    {
+      q: { tr: 'Jenkins ücretsiz mi?', en: 'Is Jenkins free?' },
+      a: {
+        tr: 'Evet, Jenkins tamamen ücretsiz ve açık kaynaklıdır (MIT lisansı). Kendi sunucunda barındırdığın için ödediğin tek maliyet o sunucunun kendisidir.',
+        en: 'Yes, Jenkins is completely free and open-source (MIT license). Since you host it yourself, the only cost is the server it runs on.',
+      },
+    },
+    {
+      q: { tr: 'Jenkinsfile nedir?', en: 'What is a Jenkinsfile?' },
+      a: {
+        tr: 'Jenkinsfile, bir pipeline\'ın adımlarını (build, test, deploy) kod olarak tanımlayan bir metin dosyasıdır. Projenin kendisiyle birlikte versiyon kontrolünde (Git) tutulur, böylece pipeline değişiklikleri de kod incelemesinden geçer.',
+        en: 'A Jenkinsfile is a text file that defines a pipeline\'s steps (build, test, deploy) as code. It lives in version control (Git) alongside the project itself, so pipeline changes go through code review too.',
+      },
+    },
+    {
+      q: { tr: 'En sık karşılaşılan Jenkins hatası nedir?', en: 'What is the most common Jenkins error?' },
+      a: {
+        tr: '"Permission denied" veya credential hataları — pipeline\'ın erişmeye çalıştığı bir kaynak (Git repo, Docker registry, cloud servis) için doğru credential Jenkins\'e tanımlanmamıştır. Çözüm, Jenkins Credentials Manager\'da doğru anahtarı eklemektir.',
+        en: '"Permission denied" or credential errors — the correct credential for a resource the pipeline tries to reach (Git repo, Docker registry, cloud service) has not been configured in Jenkins. The fix is to add the correct key in the Jenkins Credentials Manager.',
+      },
+    },
+  ],
+}
+
 const jenkinsJavaVersionStep = {
   type: 'step-animation',
   title: { tr: 'java -version, Jenkins\'in Çalıştığı JDK\'yi Neden Doğrular?', en: 'Why Does java -version Verify the JDK That Jenkins Runs On?' },
@@ -1951,6 +2002,7 @@ export const jenkinsData = {
           },
           ...jenkinsIntroInteractiveBlocks,
           jenkinsCicdFlowFilm,
+          jenkinsFaqBlock,
           {
             type: 'quiz',
             question: 'What does "Continuous Integration" primarily mean?',
@@ -3629,6 +3681,7 @@ pipeline {
           },
           ...jenkinsIntroInteractiveBlocks,
           jenkinsCicdFlowFilm,
+          jenkinsFaqBlock,
           {
             type: 'quiz',
             question: '"Continuous Integration" öncelikle ne anlama gelir?',

@@ -71,16 +71,34 @@
    - Build doğrulaması: "Rich results: 68 pages with Course, 2 with FAQPage"
      (S2 içeriği eklenmeden önce beklenen durum — sadece ana sayfa).
 
+5. **S2 — 10 sayfaya `faq` bloğu içerik olarak eklendi — BİTTİ:** Selenium,
+   Playwright, Cypress, Python, SQL, Java, Docker, Jenkins, API Testing,
+   Yazılım Testi Nedir. Her sayfada ilk sekmenin sonuna, ilk quiz bloğundan
+   HEMEN ÖNCE 5-6 soru. Build sonucu: "Rich results: 68 pages with Course,
+   **22 with FAQPage**" (10 sayfa × 2 dil + 2 ana sayfa = 22, tam beklenen).
+   `tests/seo-phase2-coverage.spec.ts` 17/17 yeşil.
+   - **Dosya-yapısı notu (sonraki sayfalar için önemli):** `pythonData.js` ve
+     `typescriptData.js` gibi dosyalar `applyTr(enSection, overrides)`
+     index-eşleşmesi kullanır (CLAUDE.md §23.4) — yeni blok EKLERKEN mevcut
+     override index'lerinden (0-8 gibi) SONRAKİ, henüz override'ı olmayan bir
+     konuma eklendi (quiz'den hemen önce), böylece hiçbir override kaymadı.
+     Yeni bir applyTr dosyasına dokunursan önce override anahtarlarının hangi
+     indekslere kadar gittiğini say.
+   - `sqlData.js`/`selenium`/`playwright`/`cypress`/`java`/`docker`/`jenkins`
+     dual-tree (ayrı tr/en blok dizileri) — paylaşılan bilingual `faq` const'ı
+     HER İKİ ağaca da aynı referansla eklendi (`sqlIntroWhyFilm` ile aynı kalıp).
+   - `apiTestingData.js`/`whatIsTestingData.js` tek ağaçlı (sections shared) —
+     tek insertion yeterli.
+
 ### Sıradaki iş
 
-1. **S2 — 10 sayfaya `faq` bloğu içerik olarak ekle** (altyapı hazır,
-   bağımlılık yok). İlk sekmenin sonuna, quiz bloğundan önce.
-2. **`/test-automation` route + metadata + sayfa iskeleti** (S3'ün önkoşulu,
+1. **`/test-automation` route + metadata + sayfa iskeleti** (S3'ün önkoşulu,
    henüz başlanmadı).
-3. **S3 — `/test-automation` sayfa içeriği.**
-4. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması —
+2. **S3 — `/test-automation` sayfa içeriği.**
+3. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması —
    henüz başlanmadı.
-5. Hepsi bitince tam `npm run test:e2e` paketini koştur.
+4. Hepsi bitince tam `npm run test:e2e` paketini koştur (plan dosyasındaki
+   §8 kabul kriterlerine göre).
 
 ---
 

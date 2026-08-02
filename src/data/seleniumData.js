@@ -720,6 +720,58 @@ const seleniumE2eFunnelFilm = {
   ],
 }
 
+// 🌐 Giriş — kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2). Mülakat
+// sekmesindeki 50 sorunun aksine %60 quiz kilidinin ARKASINDA DEĞİL; arama
+// motoruna sunulan FAQPage şemasının TEK kaynağıdır (bkz. generate-static-routes.mjs
+// faqItemsFromContent). Her iki bölüm ağacına da AYNI referansla konur.
+const seleniumFaqBlock = {
+  type: 'faq',
+  items: [
+    {
+      q: { tr: 'Selenium nedir?', en: 'What is Selenium?' },
+      a: {
+        tr: 'Selenium, web tarayıcılarını gerçek bir kullanıcı gibi kontrol etmeye yarayan açık kaynaklı bir otomasyon aracıdır. W3C WebDriver standardını kullanır ve Java, Python, JavaScript, C# ile yazılabilir.',
+        en: 'Selenium is an open-source automation tool that controls web browsers the way a real user would. It follows the W3C WebDriver standard and can be used with Java, Python, JavaScript or C#.',
+      },
+    },
+    {
+      q: { tr: 'Selenium ile Playwright arasındaki fark nedir?', en: 'What is the difference between Selenium and Playwright?' },
+      a: {
+        tr: 'Playwright, elementin gerçekten tıklanabilir olmasını otomatik bekleyen bir auto-wait mekanizmasına sahiptir; Selenium\'da bu bekleme mantığını sen kendin (WebDriverWait ile) kurarsın. Selenium ise daha geniş bir ekosisteme ve daha uzun bir sektör geçmişine sahiptir.',
+        en: 'Playwright has built-in auto-waiting that waits for an element to actually be actionable before interacting with it; in Selenium you build that waiting logic yourself with WebDriverWait. Selenium has a wider ecosystem and a much longer track record in the industry.',
+      },
+    },
+    {
+      q: { tr: 'Selenium öğrenmek ne kadar sürer?', en: 'How long does it take to learn Selenium?' },
+      a: {
+        tr: 'Temel locator ve aksiyonları birkaç günde öğrenebilirsin; wait stratejileri, Page Object Model ve framework mimarisi dahil mülakat seviyesine gelmek genelde 4-6 hafta düzenli pratik gerektirir.',
+        en: 'You can learn basic locators and actions in a few days; reaching interview-ready level — including wait strategies, the Page Object Model and framework architecture — usually takes 4-6 weeks of regular practice.',
+      },
+    },
+    {
+      q: { tr: 'Selenium ücretsiz mi?', en: 'Is Selenium free?' },
+      a: {
+        tr: 'Evet, Selenium tamamen ücretsiz ve açık kaynaklıdır (Apache 2.0 lisansı). Selenium Grid dahil hiçbir bileşeni için lisans ücreti ödemezsin.',
+        en: 'Yes, Selenium is completely free and open-source (Apache 2.0 license). You never pay a license fee for any of its components, including Selenium Grid.',
+      },
+    },
+    {
+      q: { tr: 'Selenium hangi dilleri destekler?', en: 'Which languages does Selenium support?' },
+      a: {
+        tr: 'Resmi Selenium client kütüphaneleri Java, Python, JavaScript (Node.js), C# ve Ruby için mevcuttur. Kurumsal QA projelerinde en yaygın tercih Java\'dır.',
+        en: 'Official Selenium client libraries exist for Java, Python, JavaScript (Node.js), C# and Ruby. Java is the most common choice in enterprise QA projects.',
+      },
+    },
+    {
+      q: { tr: 'En sık karşılaşılan Selenium hatası nedir?', en: 'What is the most common Selenium error?' },
+      a: {
+        tr: '`StaleElementReferenceException` — sayfa bir şekilde yeniden render olduğunda, elinde tuttuğun element referansı artık geçerli DOM düğümüne işaret etmez. Çözüm, elementi tekrar bulmak veya doğru wait stratejisini kullanmaktır.',
+        en: '`StaleElementReferenceException` — once the page re-renders in any way, the element reference you were holding no longer points to a valid DOM node. The fix is to re-locate the element or use the correct wait strategy.',
+      },
+    },
+  ],
+}
+
 // 🌐 Giriş — WebDriver API akış step-animation'ı ve sandbox'ı (kod bloğu olmayan sekme için eksik tamamlama)
 const seleniumIntroFlowSteps = {
   type: 'step-animation',
@@ -1667,6 +1719,7 @@ const s0 = {
           ['Firefox Profil', 'FirefoxProfile', '✅ FirefoxOptions'],
         ],
       },
+      seleniumFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Selenium 4\'te hangi protokol kullanılır?', en: 'Which protocol does Selenium 4 use?' },
@@ -1777,6 +1830,7 @@ const s0 = {
           ['Firefox Profile', 'FirefoxProfile', '✅ FirefoxOptions'],
         ],
       },
+      seleniumFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Which protocol does Selenium 4 use?', en: 'Which protocol does Selenium 4 use?' },

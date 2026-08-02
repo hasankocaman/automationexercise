@@ -142,6 +142,48 @@ POST /api/v1/bugs
       successMessage: { tr: 'Doğru! Sözleşmenin zorunlu alanını göndermezsen sunucu request\'i reddeder — tester olarak bu kuralı İSTEYEREK test edersin.', en: 'Correct! Omit a required field and the server rejects the request — as a tester you deliberately test this rule.' },
     },
     {
+      // Kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2). %60 quiz
+      // kilidinin ARKASINDA DEĞİL; sayfa içi FAQPage şemasının TEK kaynağıdır.
+      type: 'faq',
+      items: [
+        {
+          q: { tr: 'API testi nasıl yapılır?', en: 'How do you do API testing?' },
+          a: {
+            tr: 'API testi, bir uygulamanın arayüzü olmadan, doğrudan HTTP uç noktalarına istek göndererek doğru veriyi, doğru durum kodunu ve doğru hata davranışını döndürüp döndürmediğini kontrol etmektir. En yaygın araçlar Postman (elle test) ve REST Assured (Java ile otomasyon).',
+            en: 'API testing means sending requests directly to an application\'s HTTP endpoints, without the UI, to verify it returns the right data, status code and error behavior. The most common tools are Postman for manual testing and REST Assured for Java-based automation.',
+          },
+        },
+        {
+          q: { tr: 'API testi ile UI testi arasındaki fark nedir?', en: 'What is the difference between API testing and UI testing?' },
+          a: {
+            tr: 'API testi veritabanı ve iş mantığına arayüzün üzerinden geçmeden ulaşır, bu yüzden çok daha hızlı ve kararlıdır; UI testi ise kullanıcının gerçekte gördüğü ekranı doğrular ama tarayıcı render\'ına bağımlı olduğu için daha yavaş ve daha kırılgandır.',
+            en: 'API testing reaches the database and business logic without going through the interface, making it much faster and more stable; UI testing verifies what the user actually sees on screen but is slower and more fragile because it depends on browser rendering.',
+          },
+        },
+        {
+          q: { tr: 'API testi öğrenmek ne kadar sürer?', en: 'How long does it take to learn API testing?' },
+          a: {
+            tr: 'Postman ile temel GET/POST isteklerini bir günde öğrenebilirsin. REST Assured ile Java tabanlı otomasyon, şema doğrulama ve authentication dahil mülakat seviyesine gelmek genelde 3-4 hafta düzenli pratik gerektirir.',
+            en: 'You can learn basic GET/POST requests with Postman in a day. Reaching interview-ready level — including Java-based automation with REST Assured, schema validation and authentication — usually takes 3-4 weeks of regular practice.',
+          },
+        },
+        {
+          q: { tr: 'API testi için hangi araçlar ücretsizdir?', en: 'Which API testing tools are free?' },
+          a: {
+            tr: 'Postman\'in temel özellikleri, REST Assured (açık kaynak Java kütüphanesi) ve tarayıcının kendi DevTools Network paneli tamamen ücretsizdir. Postman\'in takım/otomasyon özellikleri (Newman CI entegrasyonu hariç) bazı senaryolarda ücretli plana geçer.',
+            en: 'Postman\'s core features, REST Assured (an open-source Java library) and the browser\'s own DevTools Network panel are all completely free. Some of Postman\'s team/collaboration features move to a paid plan.',
+          },
+        },
+        {
+          q: { tr: 'API testinde en sık yapılan hata nedir?', en: 'What is the most common mistake in API testing?' },
+          a: {
+            tr: 'Yalnızca durum kodunu (`200 OK`) kontrol edip response body\'nin gerçek içeriğini doğrulamamak. Sunucu 200 dönebilir ama yanlış veriyi veya eksik bir alanı döndürüyor olabilir — bu yüzden şema ve alan bazlı assertion şarttır.',
+            en: 'Checking only the status code (`200 OK`) without verifying the actual content of the response body. The server can return 200 while sending the wrong data or a missing field — which is why schema and field-level assertions are essential.',
+          },
+        },
+      ],
+    },
+    {
       type: 'quiz',
       question: { tr: 'API\'yi "istemci ile sunucu arasındaki sözleşme" olarak tanımlarsak, tester olarak asıl test ettiğin şey nedir?', en: 'If we define an API as "the contract between client and server", what do you as a tester actually test?' },
       options: [

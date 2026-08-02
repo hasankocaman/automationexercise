@@ -3,6 +3,57 @@
 // Network&Intercept, Gerçek Hayat, Ekosistem, Karşılaştırma, Yaygın Hatalar, 50 Mülakat
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// 🌲 Cypress Nedir? — kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2).
+// %60 quiz kilidinin ARKASINDA DEĞİL; sayfa içi FAQPage şemasının TEK
+// kaynağıdır. Her iki bölüm ağacına da AYNI referansla konur.
+const cypressFaqBlock = {
+  type: 'faq',
+  items: [
+    {
+      q: { tr: 'Cypress nedir?', en: 'What is Cypress?' },
+      a: {
+        tr: 'Cypress, JavaScript ve TypeScript ile yazılan, test kodunu tarayıcının kendi içinde çalıştıran açık kaynaklı bir uçtan uca test otomasyon aracıdır. Ayrı bir WebDriver süreci kullanmaz.',
+        en: 'Cypress is an open-source end-to-end testing tool written in JavaScript and TypeScript that runs your test code directly inside the browser. It does not rely on a separate WebDriver process.',
+      },
+    },
+    {
+      q: { tr: 'Cypress ile Selenium arasındaki fark nedir?', en: 'What is the difference between Cypress and Selenium?' },
+      a: {
+        tr: 'Cypress testi tarayıcının içinde çalıştırır ve otomatik retry-ability sağlar; Selenium ise tarayıcıyı dışarıdan, ayrı bir WebDriver süreciyle kontrol eder. Bu yüzden Cypress çoklu sekme/pencere testinde Selenium kadar esnek değildir.',
+        en: 'Cypress runs tests inside the browser and gives you automatic retry-ability; Selenium controls the browser from outside through a separate WebDriver process. This means Cypress is not as flexible as Selenium for multi-tab or multi-window testing.',
+      },
+    },
+    {
+      q: { tr: 'Cypress öğrenmek ne kadar sürer?', en: 'How long does it take to learn Cypress?' },
+      a: {
+        tr: 'Temel komutları ve `cy.intercept()` kullanımını birkaç günde öğrenebilirsin. Custom command yazımı ve framework mimarisi dahil mülakat seviyesine gelmek genelde 3-4 hafta düzenli pratik gerektirir.',
+        en: 'You can learn the basic commands and `cy.intercept()` in a few days. Reaching interview-ready level — including custom commands and framework architecture — usually takes 3-4 weeks of regular practice.',
+      },
+    },
+    {
+      q: { tr: 'Cypress ücretsiz mi?', en: 'Is Cypress free?' },
+      a: {
+        tr: 'Cypress\'in test çalıştırma çekirdeği tamamen ücretsiz ve açık kaynaklıdır. Cypress Cloud gibi ekstra raporlama/paralel koşum hizmetleri ücretlidir ama testleri yazıp yerelde/CI\'da koşmak için ödeme gerekmez.',
+        en: 'Cypress\'s test-running core is completely free and open-source. Extra services like Cypress Cloud for reporting and parallelization are paid, but writing and running tests locally or in CI costs nothing.',
+      },
+    },
+    {
+      q: { tr: 'Cypress hangi dilleri destekler?', en: 'Which languages does Cypress support?' },
+      a: {
+        tr: 'Cypress yalnızca JavaScript ve TypeScript ile yazılır — Selenium veya Playwright\'ın aksine Java/Python/C# desteği yoktur.',
+        en: 'Cypress is written only in JavaScript and TypeScript — unlike Selenium or Playwright, it has no Java/Python/C# support.',
+      },
+    },
+    {
+      q: { tr: 'En sık karşılaşılan Cypress hatası nedir?', en: 'What is the most common Cypress error?' },
+      a: {
+        tr: '"cy.get() timed out" — cy.get() ile bulunmaya çalışılan element retry süresi (varsayılan 4 saniye) içinde bulunamadığında oluşur. Çoğunlukla yanlış selector veya elementin gerçekten hiç render olmamasından kaynaklanır.',
+        en: '"cy.get() timed out" — happens when the element cy.get() is looking for is not found within the retry window (default 4 seconds). It is most often caused by a wrong selector or the element never actually rendering.',
+      },
+    },
+  ],
+}
+
 const cypressStubVsFakeStep = {
   type: 'step-animation',
   title: { tr: 'cy.stub(), Gerçek Servisi Neden Tamamen Durduruyor?', en: 'Why Does cy.stub() Completely Stop the Real Service?' },
@@ -237,6 +288,7 @@ const s0 = {
       },
       cypressInProcessArchitectureFilm,
       cypressArchitecturePractice,
+      cypressFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Cypress\'in Selenium\'a göre en temel mimari farkı nedir?', en: "What is Cypress's most fundamental architectural difference from Selenium?" },
@@ -364,6 +416,7 @@ const s0 = {
       },
       cypressInProcessArchitectureFilm,
       cypressArchitecturePractice,
+      cypressFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Cypress\'in Selenium\'a göre en temel mimari farkı nedir?', en: "What is Cypress's most fundamental architectural difference from Selenium?" },

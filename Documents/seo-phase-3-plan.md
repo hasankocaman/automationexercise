@@ -31,8 +31,8 @@ iş). Sonnet promptları: `Documents/seo-phase-3-sonnet-prompts.md`.
 | **C0** | `/test-automation` route + metadata + shell iskeleti | **Opus** | ⬜ Sırada |
 | **D1b** | `HowTo` şeması (kurulum sekmeleri) | **Opus** | ⬜ Sırada |
 | **D2a** | E-E-A-T: yazar/kurum şeması + görünür "son güncelleme" | **Opus** | ⬜ Sırada |
-| **B1** | `seoAnswer` METNİ — 10 öncelikli sayfa için 40-70 kelimelik cevap | Sonnet | ⬜ S1 promptu |
-| **B2b** | Sayfa başına kilitsiz 5-8 soruluk "Sık Sorulan Sorular" bloğu | Sonnet | ⬜ S2 promptu |
+| **B1** | `seoAnswer` METNİ — 10 öncelikli sayfa için 40-70 kelimelik cevap | Sonnet | ✅ TAMAMLANDI |
+| **B2b** | Sayfa başına kilitsiz 5-8 soruluk "Sık Sorulan Sorular" bloğu | Sonnet | ✅ TAMAMLANDI (10 sayfa) |
 | **C1** | `/test-automation` hub sayfasının İÇERİĞİ | Sonnet | ⬜ S3 promptu |
 | **C2** | Sorgu hizalaması: `/qa-mentor`, `/what-is-testing`, `/manual-testing`, `/test-frameworks` | Sonnet | ⬜ S4 promptu |
 | **E1** | Dış otorite: README/repo metinleri, çapraz yayın özetleri | Sonnet | ⬜ S5 promptu |

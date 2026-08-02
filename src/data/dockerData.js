@@ -1,5 +1,56 @@
 import { fillMissingCodeTrios } from './interactiveTrioFillers.js'
 
+// 🎯 Docker Nedir? — kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2). %60
+// quiz kilidinin ARKASINDA DEĞİL; sayfa içi FAQPage şemasının TEK kaynağıdır.
+// Her iki bölüm ağacına da AYNI referansla konur.
+const dockerFaqBlock = {
+  type: 'faq',
+  items: [
+    {
+      q: { tr: 'Docker nedir?', en: 'What is Docker?' },
+      a: {
+        tr: 'Docker, bir uygulamayı kod, kütüphane ve bağımlılıklarıyla birlikte container adı verilen izole bir birime paketleyen açık kaynaklı bir containerization aracıdır. Sanal makineden farkı, işletim sistemi çekirdeğini konak makineyle paylaşarak çok daha hafif ve hızlı başlamasıdır.',
+        en: 'Docker is an open-source containerization tool that packages an application together with its code, libraries and dependencies into an isolated unit called a container. Unlike a virtual machine, it shares the host OS kernel, making it far lighter and faster to start.',
+      },
+    },
+    {
+      q: { tr: 'Docker ile sanal makine arasındaki fark nedir?', en: 'What is the difference between Docker and a virtual machine?' },
+      a: {
+        tr: 'Bir sanal makine kendi işletim sistemini tamamen taşır ve dakikalar içinde açılır; bir Docker container\'ı konak işletim sisteminin çekirdeğini paylaşır ve saniyeler içinde başlar. Bu yüzden aynı sunucuda çok daha fazla container çalıştırabilirsin.',
+        en: 'A virtual machine carries an entire operating system of its own and takes minutes to boot; a Docker container shares the host OS kernel and starts in seconds. This lets you run far more containers on the same server.',
+      },
+    },
+    {
+      q: { tr: 'Docker öğrenmek ne kadar sürer?', en: 'How long does it take to learn Docker?' },
+      a: {
+        tr: 'Temel `docker run`/`docker build` komutlarını birkaç günde öğrenebilirsin. Docker Compose, network yapılandırması ve Selenium Grid entegrasyonu dahil mülakat seviyesine gelmek genelde 3-4 hafta düzenli pratik gerektirir.',
+        en: 'You can learn the basic `docker run`/`docker build` commands in a few days. Reaching interview-ready level — including Docker Compose, networking and Selenium Grid integration — usually takes 3-4 weeks of regular practice.',
+      },
+    },
+    {
+      q: { tr: 'Docker ücretsiz mi?', en: 'Is Docker free?' },
+      a: {
+        tr: 'Docker Engine ve Docker CLI ücretsiz ve açık kaynaklıdır. Docker Desktop, büyük şirketlerde ticari kullanım için ücretli olabilir; küçük ekipler ve kişisel kullanım ücretsizdir.',
+        en: 'Docker Engine and the Docker CLI are free and open-source. Docker Desktop can require a paid license for commercial use at larger companies; it remains free for small teams and personal use.',
+      },
+    },
+    {
+      q: { tr: 'Docker Compose ne işe yarar?', en: 'What is Docker Compose for?' },
+      a: {
+        tr: 'Docker Compose, birden fazla container\'ı (örneğin uygulama + veritabanı + Selenium Grid) tek bir YAML dosyasıyla tanımlayıp tek komutla ayağa kaldırmanı sağlar — test ortamı kurulumunu tekrarlanabilir hale getirir.',
+        en: 'Docker Compose lets you define multiple containers (for example app + database + Selenium Grid) in a single YAML file and spin them all up with one command — making test environment setup repeatable.',
+      },
+    },
+    {
+      q: { tr: 'En sık karşılaşılan Docker hatası nedir?', en: 'What is the most common Docker error?' },
+      a: {
+        tr: '"port is already allocated" — konak makinede o port zaten başka bir container veya process tarafından kullanılıyordur. Çözüm, farklı bir port eşlemesi (`-p 8081:8080` gibi) kullanmak veya çakışan container\'ı durdurmaktır.',
+        en: '"port is already allocated" — the host port is already in use by another container or process. The fix is to use a different port mapping (like `-p 8081:8080`) or stop the conflicting container.',
+      },
+    },
+  ],
+}
+
 const dockerImagePullSearchStep = {
   type: 'step-animation',
   title: { tr: 'docker pull Komutu Perde Arkasında Ne İndirir?', en: 'What Does docker pull Actually Download Behind the Scenes?' },
@@ -2416,6 +2467,7 @@ export const dockerData = {
             type: 'text',
             content: 'The classic developer problem: "It works on my machine!" Docker solves this. By packaging your application with its exact dependencies (Python 3.12, specific library versions, OS settings) into a container, you guarantee identical behavior everywhere the container runs.',
           },
+          dockerFaqBlock,
           {
             type: 'quiz',
             question: 'Why isn\'t it enough to just zip your source code and ship that instead of using Docker?',
@@ -4556,6 +4608,7 @@ options.add_argument('--disable-dev-shm-usage')`,
             type: 'text',
             content: 'Klasik developer problemi: "Bende çalışıyor!" Docker bunu çözer. Uygulamanı tam bağımlılıklarıyla (Python 3.12, belirli kütüphane versiyonları, OS ayarları) bir container\'a paketleyerek, container\'ın çalıştığı her yerde özdeş davranışı garanti edersin.',
           },
+          dockerFaqBlock,
           {
             type: 'quiz',
             question: 'Docker kullanmak yerine sadece kaynak kodu zip\'leyip göndermek neden yeterli değildir?',

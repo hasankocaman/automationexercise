@@ -2165,6 +2165,60 @@ print(score_answer(strong))`,
   xpReward: 11,
 }
 
+// 🎯 What is Python? — kilitsiz Sık Sorulan Sorular bloğu (SEO Faz 3 §4 B2).
+// %60 quiz kilidinin ARKASINDA DEĞİL; sayfa içi FAQPage şemasının TEK
+// kaynağıdır. Bu dosya applyTr(enSection, overrides) index-eşleşmesi
+// kullandığı için (CLAUDE.md §23.4) block'un konumu ÖNEMLİDİR: bu blok
+// section[0]'ın override'lı 0-8 indekslerinden SONRA, quiz'den HEMEN ÖNCE
+// eklenir — mevcut hiçbir override index'ini kaydırmaz.
+const pythonFaqBlock = {
+  type: 'faq',
+  items: [
+    {
+      q: { tr: 'Python ile test otomasyonu nasıl yapılır?', en: 'How do you do test automation with Python?' },
+      a: {
+        tr: 'En yaygın kombinasyon pytest (test runner) + Selenium veya Playwright (tarayıcı otomasyonu) + requests (API testi) üçlüsüdür. Fixture\'lar test verisini/tarayıcı örneğini hazırlar, assertion\'lar sonucu doğrular.',
+        en: 'The most common combination is pytest as the test runner, paired with Selenium or Playwright for browser automation and requests for API testing. Fixtures prepare test data or a browser instance, and assertions verify the result.',
+      },
+    },
+    {
+      q: { tr: 'Python ile Java arasındaki fark nedir?', en: 'What is the difference between Python and Java?' },
+      a: {
+        tr: 'Python dinamik tipli ve daha az kod satırıyla aynı işi yaptırır; Java statik tipli olduğu için hataları derleme anında yakalar ve büyük kurumsal projelerde daha katı bir yapı sunar. QA tarafında Python daha hızlı script yazımı, Java daha büyük framework mimarisi için tercih edilir.',
+        en: 'Python is dynamically typed and gets the same job done in fewer lines of code; Java is statically typed, catching mistakes at compile time and offering more structure for large enterprise projects. In QA, Python is preferred for fast scripting, Java for larger framework architectures.',
+      },
+    },
+    {
+      q: { tr: 'Python öğrenmek ne kadar sürer?', en: 'How long does it take to learn Python?' },
+      a: {
+        tr: 'Temel söz dizimini (değişkenler, döngüler, fonksiyonlar) bir haftada öğrenebilirsin. pytest fixture\'ları, OOP ve Selenium/Playwright entegrasyonu dahil mülakat seviyesine gelmek genelde 4-6 hafta düzenli pratik gerektirir.',
+        en: 'You can learn the basic syntax (variables, loops, functions) in a week. Reaching interview-ready level — including pytest fixtures, OOP and Selenium/Playwright integration — usually takes 4-6 weeks of regular practice.',
+      },
+    },
+    {
+      q: { tr: 'Python ücretsiz mi?', en: 'Is Python free?' },
+      a: {
+        tr: 'Evet, Python tamamen ücretsiz ve açık kaynaklıdır (PSF lisansı). pytest, Selenium, requests dahil bahsedilen tüm kütüphaneler de ücretsizdir.',
+        en: 'Yes, Python is completely free and open-source (PSF license). All the libraries mentioned here — pytest, Selenium, requests — are free as well.',
+      },
+    },
+    {
+      q: { tr: 'Python yerine ne kullanılır?', en: 'What is used instead of Python?' },
+      a: {
+        tr: 'Kurumsal ve büyük ölçekli Selenium projelerinde Java, tip güvenli modern Playwright projelerinde TypeScript sıkça Python\'ın yerini alır. Seçim genelde ekibin mevcut dil birikimine göre yapılır.',
+        en: 'Java often replaces Python in enterprise-scale Selenium projects, and TypeScript in type-safe, modern Playwright projects. The choice usually comes down to the team\'s existing language expertise.',
+      },
+    },
+    {
+      q: { tr: 'En sık karşılaşılan Python hatası nedir?', en: 'What is the most common Python error?' },
+      a: {
+        tr: '`AttributeError: \'NoneType\' object has no attribute ...` — bir fonksiyonun `None` döndürdüğü ama koddaki devamın gerçek bir nesne beklediği durumlarda oluşur. Genellikle bir elementin bulunamayıp `None` dönmesi ve üzerinde direkt işlem yapılmaya çalışılmasından kaynaklanır.',
+        en: '`AttributeError: \'NoneType\' object has no attribute ...` — happens when a function returns `None` but the following code expects a real object. It is usually caused by an element lookup returning `None` and the code trying to act on it directly.',
+      },
+    },
+  ],
+}
+
 const sections = [
   // ── 0. INTRO & WHY ──────────────────────────────────────────────────────────
   {
@@ -2214,6 +2268,7 @@ const sections = [
           ['allure-pytest', 'Beautiful test reports', 'pip install allure-pytest'],
         ]
       },
+      pythonFaqBlock,
       {
         type: 'quiz',
         question: { tr: 'Tabloya göre Python\'ın test otomasyonundaki en büyük artısı/eksisi nedir?', en: "According to the comparison table, what is Python's biggest pro/con for test automation?" },
