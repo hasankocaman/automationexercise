@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { readFile, access } from 'node:fs/promises';
 import { ROUTE_SEO, LOCALES, localizedPath, SITE_URL } from '../src/utils/seo.js';
+import { buildSectionSeoIndex } from '../scripts/lib/sectionSeo.mjs';
+import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js';
 
 // SEO Faz 2 — otomasyon dışında kalmış çıktı doğrulamaları.
 //
@@ -54,11 +56,20 @@ function parseJsonLd(html: string): any[] {
     return blocks;
 }
 
+// Sekme (bölüm) URL'leri (Documents/seo-phase-3-plan.md §3): indekslenebilir
+// her bölüm de sitemap'e girer. Bu sayı build'den build'e içerik değiştikçe
+// oynayabilir — sabit bir sayı YAZILMAZ, `sectionSeo.mjs`'teki AYNI hesaptan
+// okunur ki bu test bağımsız bir "doğru sayı" icat etmiş olmasın.
+let sectionUrlCount = 0;
+
 test.beforeAll(async () => {
     expect(
         await exists(`${DIST}/index.html`),
         'dist/ bulunamadı — bu testler build ÇIKTISINI doğruluyor. Önce `npm run build` çalıştır.',
     ).toBe(true);
+
+    const { index: sectionIndex } = await buildSectionSeoIndex(SECTION_SLUGS);
+    sectionUrlCount = Object.values(sectionIndex).flat().filter((entry: any) => entry.indexable).length;
 });
 
 test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
@@ -66,9 +77,10 @@ test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
         const xml = await readFile(`${DIST}/sitemap.xml`, 'utf8');
         const urlBlocks = xml.split('<url>').slice(1);
 
-        // Route sayısının TAM İKİ KATI — bir dil sessizce düşerse yakalanır.
-        expect(urlBlocks, 'sitemap URL sayısı route × dil sayısına eşit olmalı')
-            .toHaveLength(SITEMAP_ROUTES.length * LOCALES.length);
+        // (Hub route + indekslenebilir sekme) sayısının TAM İKİ KATI — bir dil
+        // sessizce düşerse yakalanır.
+        expect(urlBlocks, 'sitemap URL sayısı (route + sekme) × dil sayısına eşit olmalı')
+            .toHaveLength((SITEMAP_ROUTES.length + sectionUrlCount) * LOCALES.length);
 
         const locs = urlBlocks.map((b) => b.match(/<loc>([^<]+)<\/loc>/)?.[1] ?? '');
         expect(new Set(locs).size, 'sitemap\'te mükerrer <loc> var').toBe(locs.length);
@@ -107,7 +119,7 @@ test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
         const res = await request.get('/sitemap.xml');
         expect(res.status()).toBe(200);
         const body = await res.text();
-        expect(body.split('<url>').length - 1).toBe(SITEMAP_ROUTES.length * LOCALES.length);
+        expect(body.split('<url>').length - 1).toBe((SITEMAP_ROUTES.length + sectionUrlCount) * LOCALES.length);
     });
 });
 
@@ -122,7 +134,13 @@ test.describe('SEO Faz 2 — zengin sonuç şeması (O6)', () => {
     // o sorular sayfada HİÇ görünmüyordu (yalnızca JSON-LD içindeydiler) ve
     // uygulamada %60 quiz barajının arkasındaydılar. Şema kaldırıldı; ana sayfaya
     // gate'siz "Mülakat Isınma Turu" bölümü eklenince koşul gerçekten sağlandı.
-    // Bu test, şemanın yeniden görünmeyen içeriğe kaymasını engeller.
+    //
+    // SEO Faz 3 (Documents/seo-phase-3-plan.md §4 B2): FAQPage artık ana
+    // sayfaya ÖZEL DEĞİL — herhangi bir ders sayfası, kilitsiz `faq` bloğu
+    // (TopicPage.jsx, quiz/mülakat gating'ine TABİ DEĞİL) üzerinden kendi
+    // FAQPage'ini üretebilir. Kural değişmedi: kaynağı ne olursa olsun her
+    // soru/cevap aynı sayfada GÖRÜNÜR olmak zorunda — bu test artık TÜM
+    // route'larda görünürlüğü doğruluyor, sadece ana sayfada değil.
 
     // generate-static-routes.mjs'teki escapeHtml ile aynı dönüşüm — görünür gövde
     // escape edilmiş, şema ham metin taşıyor.
@@ -130,8 +148,9 @@ test.describe('SEO Faz 2 — zengin sonuç şeması (O6)', () => {
         .replaceAll('&', '&amp;').replaceAll('"', '&quot;')
         .replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
-    test('FAQPage yalnızca ana sayfada var ve her sorusu sayfada GÖRÜNÜR', async () => {
+    test('Her FAQPage şemasının sorusu, bulunduğu sayfada GÖRÜNÜR', async () => {
         let homepageFaqCount = 0;
+        let totalFaqPages = 0;
 
         for (const entry of ALL_SHELL_ROUTES) {
             for (const locale of LOCALES) {
@@ -139,13 +158,9 @@ test.describe('SEO Faz 2 — zengin sonuç şeması (O6)', () => {
                 const faq = parseJsonLd(html).find((b) => b['@type'] === 'FAQPage');
                 if (!faq) continue;
 
-                expect(
-                    entry.path,
-                    `FAQPage yalnızca ana sayfada olabilir — ${localizedPath(entry.path, locale)} üzerinde bulundu`,
-                ).toBe('/');
-
+                totalFaqPages += 1;
                 const visibleBody = html.replace(/<script[\s\S]*?<\/script>/g, '');
-                expect(faq.mainEntity.length, 'FAQPage boş soru listesiyle üretilmiş').toBeGreaterThanOrEqual(3);
+                expect(faq.mainEntity.length, `FAQPage boş soru listesiyle üretilmiş (${localizedPath(entry.path, locale)})`).toBeGreaterThanOrEqual(3);
 
                 for (const q of faq.mainEntity) {
                     expect(q['@type']).toBe('Question');
@@ -158,14 +173,26 @@ test.describe('SEO Faz 2 — zengin sonuç şeması (O6)', () => {
 
                 // Dil doğruluğu: EN şemada Türkçeye özgü karakter olmamalı.
                 if (locale === 'en') {
-                    expect(JSON.stringify(faq), 'EN FAQPage şemasında Türkçe sızıntısı').not.toMatch(/[ığşçöüİĞŞÇÖÜ]/);
+                    expect(JSON.stringify(faq), `EN FAQPage şemasında Türkçe sızıntısı (${localizedPath(entry.path, locale)})`).not.toMatch(/[ığşçöüİĞŞÇÖÜ]/);
                 }
-                homepageFaqCount += 1;
+                if (entry.path === '/') homepageFaqCount += 1;
             }
         }
 
-        // Her iki dilde de üretilmiş olmalı — biri sessizce düşerse yakalanır.
+        // Ana sayfa her iki dilde de üretilmiş olmalı — biri sessizce düşerse yakalanır.
         expect(homepageFaqCount, 'ana sayfada FAQPage şeması iki dilde de bulunmalı').toBe(LOCALES.length);
+        expect(totalFaqPages, 'hiçbir sayfada FAQPage şeması bulunamadı').toBeGreaterThanOrEqual(LOCALES.length);
+    });
+
+    test('Sekme (bölüm) shell\'lerinde FAQPage şeması ASLA yok', async () => {
+        // FAQ, hub sayfasının İLK sekmesindeki `faq` bloğundan üretilir; sekme
+        // URL'lerinin kendi shell'i bu şemayı TAŞIMAMALI (aksi hâlde aynı şema
+        // birden fazla URL'de tekrarlanır — duplicate structured data sinyali).
+        const sample = ['selenium/wait-strategies', 'sql/sql-joins'];
+        for (const path of sample) {
+            const html = await readFile(`${DIST}/${path}/index.html`, 'utf8');
+            expect(html, `Sekme shell'i FAQPage taşımamalı: ${path}`).not.toContain('"@type": "FAQPage"');
+        }
     });
 
     test('Course şeması geçerli ve ders sayfasında üretiliyor', async () => {

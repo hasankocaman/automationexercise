@@ -133,35 +133,36 @@ for (const locale of LOCALES) {
             const html = await readFile(htmlPath, 'utf8')
             if (html.includes('"@type": "Course"')) coursePages += 1
 
-            // FAQPage yalnızca ana sayfada olabilir ve şemadaki HER sorunun
-            // aynı sayfanın GÖRÜNÜR gövdesinde bulunması zorunludur (arama
-            // motoru politikası). Şema ile ekranda yazan şey ayrışırsa burada
-            // hard-fail eder — sessizce yayına çıkmaz.
+            // FAQPage ana sayfaya ARTIK ÖZEL DEĞİL — herhangi bir route'ta
+            // olabilir, TEK KOŞULLA: şemadaki HER sorunun aynı sayfanın
+            // GÖRÜNÜR gövdesinde BİREBİR aynı metinle bulunması (arama motoru
+            // politikası — görünmeyen soru/cevap = cloaking riski). Kaynağı
+            // ana sayfada `interviewWarmupData`, diğer route'larda kilitsiz
+            // `faq` bloğu (mülakat soruları/`interview-questions` ASLA kaynak
+            // olamaz — quiz kilidi arkasında, bkz. generate-static-routes.mjs
+            // faqItemsFromContent). Şema ile ekranda yazan şey ayrışırsa
+            // burada hard-fail eder — sessizce yayına çıkmaz.
             if (html.includes('"@type": "FAQPage"')) {
-                if (entry.path !== '/') {
-                    errors.push(`FAQPage schema must exist only on the homepage, found on ${localizedPath(entry.path, locale)}`)
-                } else {
-                    faqPages += 1
-                    const visibleBody = html.replace(/<script[\s\S]*?<\/script>/g, '')
-                    // ŞEMANIN KENDİSİ gezilir, kaynak liste DEĞİL: şemaya elle ya da
-                    // başka bir kod yolundan görünmeyen bir soru eklenirse kaynak
-                    // listeyi taramak onu KAÇIRIR (bu kontrol ilk yazımında tam olarak
-                    // bunu kaçırıyordu, sonda testiyle yakalandı).
-                    for (const block of parseJsonLd(html)) {
-                        if (block['@type'] !== 'FAQPage') continue
-                        const questions = Array.isArray(block.mainEntity) ? block.mainEntity : []
-                        if (questions.length < 3) {
-                            errors.push(`FAQPage has too few questions in ${localizedPath(entry.path, locale)}`)
+                faqPages += 1
+                const visibleBody = html.replace(/<script[\s\S]*?<\/script>/g, '')
+                // ŞEMANIN KENDİSİ gezilir, kaynak liste DEĞİL: şemaya elle ya da
+                // başka bir kod yolundan görünmeyen bir soru eklenirse kaynak
+                // listeyi taramak onu KAÇIRIR (bu kontrol ilk yazımında tam olarak
+                // bunu kaçırıyordu, sonda testiyle yakalandı).
+                for (const block of parseJsonLd(html)) {
+                    if (block['@type'] !== 'FAQPage') continue
+                    const questions = Array.isArray(block.mainEntity) ? block.mainEntity : []
+                    if (questions.length < 3) {
+                        errors.push(`FAQPage has too few questions in ${localizedPath(entry.path, locale)}`)
+                    }
+                    for (const q of questions) {
+                        const name = String(q?.name ?? '')
+                        if (!name || !String(q?.acceptedAnswer?.text ?? '')) {
+                            errors.push(`FAQPage entry missing question or answer text in ${localizedPath(entry.path, locale)}`)
+                            continue
                         }
-                        for (const q of questions) {
-                            const name = String(q?.name ?? '')
-                            if (!name || !String(q?.acceptedAnswer?.text ?? '')) {
-                                errors.push(`FAQPage entry missing question or answer text in ${localizedPath(entry.path, locale)}`)
-                                continue
-                            }
-                            if (!visibleBody.includes(escapeHtml(name))) {
-                                errors.push(`FAQPage question is not visible in the page body (${localizedPath(entry.path, locale)}): "${name.slice(0, 60)}..."`)
-                            }
+                        if (!visibleBody.includes(escapeHtml(name))) {
+                            errors.push(`FAQPage question is not visible in the page body (${localizedPath(entry.path, locale)}): "${name.slice(0, 60)}..."`)
                         }
                     }
                 }
@@ -337,5 +338,5 @@ if (errors.length) {
 console.log(`Dist SEO check passed for ${checked} generated pages (${checkedRoutes.length} routes x ${LOCALES.length} locales).`)
 console.log(`Section shells: ${sectionShells} checked, ${sectionIndexable} indexable, ${sectionNoindex} noindex (ince/kilitli).`)
 console.log(`Answer-first paragraphs: ${answerPages} sayfa (görünür gövdede doğrulandı).`)
-console.log(`Rich results: ${coursePages} pages with Course, ${faqPages} with FAQPage (yalnızca ana sayfa, görünür içerikle doğrulandı).`)
+console.log(`Rich results: ${coursePages} pages with Course, ${faqPages} with FAQPage (her biri görünür içerikle doğrulandı).`)
 console.log(`Noindex shells: ${noindexShells} (sitemap dışı, robots=noindex doğrulandı).`)

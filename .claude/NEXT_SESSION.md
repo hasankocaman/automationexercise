@@ -52,36 +52,35 @@
    korunarak altına eklendi). `Documents/outreach/` altında GitHub About
    metni + 3 tanıtım yazısı taslağı (Selenium wait, SQL JOIN, Playwright vs
    Selenium) — hiçbiri build'i etkilemez, salt metin.
-4. **`faq` blok tipi eklendi (S2'nin önkoşulu, kısmen bitti):**
-   `TopicPage.jsx`'e yeni `case 'faq':` — `{ items: [{q:{tr,en}, a:{tr,en}}] }`
-   şemasıyla, **quiz/mülakat gating'ine tabi değil**, `simple-box`'ın hemen
-   ardına eklendi. Bu blok `interview-questions`'ın YERİNE geçmez, ayrı bir
-   kilitsiz kaynaktır (bkz. `CLAUDE.md` §22, mülakat sekmesi kilidiyle
-   karıştırılmasın). **Henüz TAMAMLANMADI:** shell'e görünür render +
-   `FAQPage` JSON-LD üretimi + `check-dist-seo.mjs` görünürlük guard'ı hâlâ
-   yazılmadı — bir sonraki adım bu.
+4. **`faq` blok tipi + TAM ALTYAPI (S2'nin önkoşulu) — BİTTİ:**
+   `TopicPage.jsx`'e `case 'faq':` — `{ items: [{q:{tr,en}, a:{tr,en}}] }`
+   şemasıyla, **quiz/mülakat gating'ine tabi değil**. `interview-questions`'ın
+   YERİNE geçmez, ayrı bir kilitsiz kaynaktır. Tamamlanan parçalar:
+   - `generate-static-routes.mjs`: `faqItemsFromContent()` sayfanın
+     `sections`'ındaki `faq` bloklarını toplar; shell'e görünür "Sık Sorulan
+     Sorular" bölümü olarak basılır (ana sayfadaki `interviewWarmupData`
+     kalıbıyla birebir aynı ilke: ekranda yazan = şemaya giren).
+   - `structuredDataFor`'daki `FAQPage` artık ana sayfaya özel DEĞİL — her
+     route kendi `faqItems`'ından (≥3 soru) kendi şemasını üretebilir.
+   - `check-dist-seo.mjs` görünürlük guard'ı TÜM route'lara genelleştirildi.
+   - `tests/seo-phase2-coverage.spec.ts` güncellendi (homepage-only varsayımı
+     kaldırıldı, sekme shell'lerinde FAQ ASLA olmadığı ayrı testle doğrulandı)
+     + sitemap URL sayısı testi artık sekme URL'lerini de hesaba katıyor
+     (daha önce A-fazından kalan bir regresyon riskiydi, bu oturumda yakalandı
+     ve düzeltildi — 17/17 yeşil).
+   - Build doğrulaması: "Rich results: 68 pages with Course, 2 with FAQPage"
+     (S2 içeriği eklenmeden önce beklenen durum — sadece ana sayfa).
 
 ### Sıradaki iş
 
-1. **FAQ altyapısını bitir (Opus işi):**
-   - `scripts/generate-static-routes.mjs`: sayfanın `sections` listesindeki
-     `type: 'faq'` bloklarını toplayıp shell'e görünür bir "Sık Sorulan
-     Sorular" bölümü olarak bas (ana sayfadaki `interviewWarmupData` kalıbını
-     TEKRARLA — ekranda yazan ile şemaya giren metin birebir aynı olmalı).
-   - `structuredDataFor`'daki `FAQPage` üretimini **yalnızca ana sayfa**
-     kısıtından çıkar; her route için, o route'un GERÇEK `faq` bloklarından
-     üret (en az 3 soru şartı korunur).
-   - `check-dist-seo.mjs`: mevcut homepage-only FAQ görünürlük kontrolünü
-     TÜM route'lara genelleştir — her FAQPage şemasındaki her soru, aynı
-     sayfanın görünür gövdesinde bulunmalı (aksi hâlde hard-fail).
-2. **S2 — 10 sayfaya `faq` bloğu içerik olarak ekle** (altyapı bitince).
-3. **`/test-automation` route + metadata + sayfa iskeleti** (S3'ün önkoşulu).
-4. **S3 — `/test-automation` sayfa içeriği.**
-5. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması —
+1. **S2 — 10 sayfaya `faq` bloğu içerik olarak ekle** (altyapı hazır,
+   bağımlılık yok). İlk sekmenin sonuna, quiz bloğundan önce.
+2. **`/test-automation` route + metadata + sayfa iskeleti** (S3'ün önkoşulu,
+   henüz başlanmadı).
+3. **S3 — `/test-automation` sayfa içeriği.**
+4. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması —
    henüz başlanmadı.
-6. Hepsi bitince tam `npm run test:e2e` paketini koştur (bu oturumda S1+S4
-   sonrası tetiklenen build zaten yeşil: `Answer-first paragraphs: 10 sayfa`,
-   `check-seo`/`check-dist-seo` geçti).
+5. Hepsi bitince tam `npm run test:e2e` paketini koştur.
 
 ---
 

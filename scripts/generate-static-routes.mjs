@@ -331,6 +331,27 @@ function snippetFromBlock(block, locale) {
     return textValue(block.content || block.text || block.title || block.question || block.description, locale)
 }
 
+// `faq` bloğu (TopicPage.jsx) — quiz/mülakat gating'ine TABİ DEĞİL, sayfa içi
+// FAQPage şemasının TEK meşru kaynağıdır (Documents/seo-phase-3-plan.md §4 B2).
+// `interview-questions` blokları burada BİLEREK atlanır: onlar %60 quiz
+// barajının arkasında, kullanıcının göremediği içeriği şemaya koymak arama
+// motoru politikasını ihlal eder.
+function faqItemsFromContent(content, locale) {
+    const sections = Array.isArray(content?.sections) ? content.sections : []
+    const items = []
+    for (const section of sections) {
+        for (const block of section.blocks ?? []) {
+            if (block?.type !== 'faq' || !Array.isArray(block.items)) continue
+            for (const item of block.items) {
+                const q = textValue(item.q, locale)
+                const a = textValue(item.a, locale)
+                if (q && a) items.push({ q, a })
+            }
+        }
+    }
+    return items
+}
+
 function snippetsFromLesson(lesson, locale) {
     return [
         textValue(lesson.analogy, locale),
@@ -375,6 +396,9 @@ async function routeContent(seo, locale) {
             // görünür (bkz. TopicPage hero altı). Tanımlıysa gövdenin ilk
             // paragrafı olur, çünkü öne çıkan cevap kutusu ilk paragrafa bakar.
             seoAnswer: textValue(content.seoAnswer, locale),
+            // Kilitsiz `faq` bloklarından toplanan sorular — hem shell'de
+            // görünür basılır hem FAQPage şemasının kaynağıdır (aşağıya bak).
+            faqItems: faqItemsFromContent(content, locale),
             topics,
             isCourse: Boolean(config.exportName),
         }
@@ -411,6 +435,19 @@ ${content.topics.map((topic) => `          <li><strong>${escapeHtml(textValue(to
         </section>`
         : ''
 
+    // Sayfa içi Sık Sorulan Sorular — YALNIZCA kilitsiz `faq` bloklarından
+    // (mülakat sorularından DEĞİL). Ekranda yazan metinle FAQPage şemasına
+    // giren metin BİREBİR aynı olmalı; ikisi de `content.faqItems`'tan gelir.
+    const faq = content?.faqItems?.length
+        ? `<section>
+        <h2>${escapeHtml(locale === 'tr' ? 'Sık Sorulan Sorular' : 'Frequently Asked Questions')}</h2>
+${content.faqItems.map((item) => `        <article>
+          <h3>${escapeHtml(item.q)}</h3>
+          <p>${escapeHtml(item.a)}</p>
+        </article>`).join('\n')}
+        </section>`
+        : ''
+
     // Mülakat ısınma bölümü YALNIZCA ana sayfada. Bu metin gate'siz ve
     // görünürdür; ana sayfanın FAQPage şeması BİREBİR bu metinden üretilir
     // (şema ile ekranda yazan şey ayrışmasın diye — bkz. DEPLOY.md §9.3).
@@ -433,6 +470,7 @@ ${INTERVIEW_SHOWCASE.map((item) => `        <article>
         <p>${escapeHtml(seo.description)}</p>
         ${contentIntro}
         ${topicList}
+        ${faq}
         ${warmup}
         <nav aria-label="${escapeHtml(ui.navLabel)}">
         <h2>${escapeHtml(ui.topicNav)}</h2>
@@ -587,6 +625,26 @@ function structuredDataFor(seo, url, locale) {
                 acceptedAnswer: {
                     '@type': 'Answer',
                     text: textValue(item.a, locale),
+                },
+            })),
+        })
+    }
+
+    // Diğer TÜM route'lar için: yalnızca kilitsiz `faq` bloklarından üretilir
+    // (bkz. faqItemsFromContent). Aynı kural: şemadaki her soru/cevap yukarıda
+    // `fallbackContent`'te AYNI metinle görünür basılmış olmalı —
+    // `check-dist-seo.mjs` bunu her route için doğrular.
+    if (seo.path !== '/' && seo.content?.faqItems?.length >= 3) {
+        graph.push({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            inLanguage: locale,
+            mainEntity: seo.content.faqItems.map((item) => ({
+                '@type': 'Question',
+                name: item.q,
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: item.a,
                 },
             })),
         })
