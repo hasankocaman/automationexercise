@@ -82,6 +82,15 @@ test.describe('QA Portfolyo — /portfolio', () => {
         // Dürüstlük notu HER kademede görünür.
         await expect(page.getByTestId('portfolio-honesty-note')).toBeVisible();
 
+        // Regresyon bekçisi: CTA sadece route'a değil, görevin KENDİ sekmesine
+        // götürmeli — aksi hâlde kullanıcı /selenium'un ilk sekmesinde kalır ve
+        // metnin işaret ettiği görevi (login smoke testi) kendi bulmak zorunda kalır.
+        await page.getByTestId('portfolio-empty-mission-cta').click();
+        await page.waitForURL(/\/selenium$/);
+        await expect(
+            page.locator('[data-testid="mission-block"][data-mission-id="selenium-login-mission"]'),
+        ).toBeVisible({ timeout: 15_000 });
+
         await context.close();
     });
 
@@ -117,6 +126,83 @@ test.describe('QA Portfolyo — /portfolio', () => {
         // Ustalık tablosu: sadece BAŞLANMIŞ konu listelenir.
         await expect(page.locator('[data-testid="portfolio-mastery-row"][data-route="/selenium"]')).toBeVisible();
         await expect(page.locator('[data-testid="portfolio-mastery-row"][data-route="/docker"]')).toHaveCount(0);
+
+        // Sıradaki görev: katalogda selenium-login-mission'dan hemen sonra gelen
+        // selenium-pom-refactor-mission tamamlanmadı, o yüzden CTA onu göstermeli
+        // — portfolyo sadece geçmişi değil, sıradaki adımı da göstermeli.
+        const nextMissionSection = page.getByTestId('portfolio-next-mission');
+        await expect(nextMissionSection).toHaveAttribute('data-mission-id', 'selenium-pom-refactor-mission');
+        // İLERİYE bakan taskTitle gösterilmeli ("...etmek"), "İnşa Ettiklerin"deki
+        // GERİYE bakan title DEĞİL ("...ettin") — henüz yapılmamış bir görev
+        // bitmiş gibi görünmemeli (kullanıcı raporu).
+        await expect(nextMissionSection).toContainText(tr(portfolioData.missionCatalog['selenium-pom-refactor-mission'].taskTitle));
+
+        await context.close();
+    });
+
+    // Regresyon bekçisi: portfolyo yalnızca "ne bitirdin" göstermemeli, "sırada
+    // ne var" da göstermeli — kullanıcı raporu: "bana yeni görev vermiyor".
+    test('"Sıradaki Görev" kartı en son tamamlanmamış katalog görevini gösterir ve doğru sekmeyi açar', async ({ browser }) => {
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+        await seedFullPortfolio(page);
+        await gotoPortfolio(page);
+
+        const cta = page.getByTestId('portfolio-next-mission-cta');
+        await expect(cta).toHaveAttribute('href', /\/selenium$/);
+        await cta.click();
+        await page.waitForURL(/\/selenium$/);
+
+        // İkinci bir sekme tıklaması OLMADAN sıradaki görevin bloğu görünür olmalı.
+        await expect(
+            page.locator('[data-testid="mission-block"][data-mission-id="selenium-pom-refactor-mission"]'),
+        ).toBeVisible({ timeout: 15_000 });
+
+        await context.close();
+    });
+
+    // Sınır durumu: katalogdaki TÜM 18 görev tamamlanmışsa gösterilecek bir
+    // "sıradaki görev" kalmaz — portfolyo olmayan bir görevi UYDURMAMALI, kart
+    // tamamen kaybolmalı.
+    test('kataloğun tamamı tamamlanmışsa "Sıradaki Görev" kartı hiç görünmez', async ({ browser }) => {
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+        await page.addInitScript((missionIds) => {
+            localStorage.setItem('learnqa_xp_selenium', JSON.stringify({ xp: 900, completed: missionIds }));
+        }, Object.keys(portfolioData.missionCatalog));
+        await gotoPortfolio(page);
+
+        await expect(page.getByTestId('portfolio-stats')).toBeVisible();
+        await expect(page.getByTestId('portfolio-next-mission')).toHaveCount(0);
+
+        await context.close();
+    });
+
+    // Regresyon bekçisi: "aç" linki eskiden sadece route'a gidiyordu, kullanıcı
+    // her zaman sayfanın İLK sekmesinde açılıyordu — görevin kendi sekmesi
+    // (burada index 2) hangi konumdaysa olsun. `openTab` state'i artık
+    // `TopicPage`'in başlangıç sekmesini doğrudan görevin bulunduğu sekmeye
+    // taşımalı; ikinci bir tıklama olmadan mission bloğu ekranda görünmeli.
+    test('görev kartındaki "aç" linki lesson sayfasını görevin KENDİ sekmesinde açıyor', async ({ browser }) => {
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+        await seedFullPortfolio(page);
+        await gotoPortfolio(page);
+
+        const openLink = page.locator(
+            `[data-testid="portfolio-mission-card"][data-mission-id="${SEEDED_MISSION_ID}"] [data-testid="portfolio-mission-open-link"]`,
+        );
+        const expectedTab = portfolioData.missionCatalog[SEEDED_MISSION_ID].openTab;
+        expect(typeof expectedTab, `${SEEDED_MISSION_ID} kataloğunda openTab tanımlı olmalı`).toBe('number');
+        await expect(openLink).toHaveAttribute('href', /\/selenium$/);
+
+        await openLink.click();
+        await page.waitForURL(/\/selenium$/);
+
+        // İkinci bir sekme tıklaması OLMADAN görevin kendi bloğu görünür olmalı.
+        await expect(
+            page.locator(`[data-testid="mission-block"][data-mission-id="${SEEDED_MISSION_ID}"]`),
+        ).toBeVisible({ timeout: 15_000 });
 
         await context.close();
     });

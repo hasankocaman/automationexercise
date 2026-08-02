@@ -122,6 +122,7 @@ function buildMissions(completedIds) {
         rows.push({
             missionId: id,
             route: entry?.route || signal.route || '',
+            openTab: typeof entry?.openTab === 'number' ? entry.openTab : null,
             title: entry?.title || null,
             skill: entry?.skill || null,
             whatYouBuilt: entry?.whatYouBuilt || null,
@@ -140,6 +141,7 @@ function buildMissions(completedIds) {
         rows.push({
             missionId: id,
             route: entry.route,
+            openTab: typeof entry.openTab === 'number' ? entry.openTab : null,
             title: entry.title,
             skill: entry.skill,
             whatYouBuilt: entry.whatYouBuilt,
@@ -150,6 +152,31 @@ function buildMissions(completedIds) {
 
     // En yeni üstte — kronolojik kanıt hissi.
     return rows.sort((a, b) => b.ts - a.ts)
+}
+
+// ─── Sıradaki görev ─────────────────────────────────────────────────────────
+// "İnşa Ettiklerin" geriye bakar (ne bitirdin); bu, ileriye bakar (sırada ne
+// var). Katalog SIRASIYLA gezilir — ilk TAMAMLANMAMIŞ ders görevi döner.
+// Sprint bug'ları kapsam DIŞI (ayrı bir panoda yaşıyorlar, `/sprint` CTA'sı
+// zaten kalıcı olarak görünür). Hiçbiri kalmadıysa `null` — portfolyo
+// olmayan bir görevi uydurmaz, kart tamamen gizlenir.
+function buildNextMission(completedIds) {
+    const { missionCatalog } = portfolioData
+    for (const [id, entry] of Object.entries(missionCatalog)) {
+        if (completedIds.has(id)) continue
+        return {
+            missionId: id,
+            route: entry.route,
+            openTab: typeof entry.openTab === 'number' ? entry.openTab : null,
+            // `taskTitle` ileriye bakan, HENÜZ yapılmamış bir işi anlatır ("X'i
+            // kurmak"); `title` geriye bakan bir bitirme cümlesidir ("X'i
+            // kurdun"). "İnşa Ettiklerin" `title` kullanır, bu kart YANLIŞLIKLA
+            // bitmiş gibi görünmesin diye `taskTitle` kullanır.
+            taskTitle: entry.taskTitle || entry.title,
+            skill: entry.skill,
+        }
+    }
+    return null
 }
 
 // ─── Sprint deneyimi ────────────────────────────────────────────────────────
@@ -220,6 +247,7 @@ export function getPortfolioSnapshot() {
     const analytics = getLearningAnalytics()
 
     const missions = buildMissions(completedIds)
+    const nextMission = buildNextMission(completedIds)
     const sprints = buildSprints(completedIds)
     const mastery = buildMastery(completedRoutes)
     const milestones = buildMilestones()
@@ -261,6 +289,7 @@ export function getPortfolioSnapshot() {
         identity: readIdentity(),
         stats,
         missions,
+        nextMission,
         sprints,
         skills,
         mastery,

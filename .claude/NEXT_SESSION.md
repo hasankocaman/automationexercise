@@ -20,10 +20,76 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-02, Sonnet) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-02, Sonnet — portfolyo: görev yönlendirme + "Sıradaki Görev") — YENİ OTURUM BURADAN BAŞLASIN
 
 > Bu bölüm, yeni bir oturumun 30 saniyede duruma hâkim olması için yazıldı.
 > Ayrıntılar aşağıdaki tarihli bölümlerde; **çelişki olursa bu bölüm günceldir.**
+
+### Neredeyiz
+
+- Kullanıcı bu oturumda **`feature/seo-phase-2`'nin `main`'e merge edilip push
+  edilmesini** istedi — tam `npm run test:e2e` paketi geçerse uygulanacak.
+  Sonuç (merge/push gerçekleşti mi, hangi commit) bu bölümün doğrudan
+  üzerine, oturumun sonunda eklenecek; buraya bakan biri önce en tepedeki
+  notu okumalı.
+
+### Bu oturumda yapılanlar
+
+1. **Portfolyo görev kartları artık dersin KENDİ sekmesine götürüyor
+   (kullanıcı raporu).** `/portfolio`'daki "aç" linkleri önceden sadece
+   route'a gidiyordu, kullanıcı her zaman sayfanın ilk sekmesinde açılıyordu —
+   görevin gerçek konumu ne olursa olsun. `missionCatalog`'taki 18 ders
+   görevinin her birine, o görevin GERÇEKTEN bulunduğu sekme indeksini elle
+   tespit edip (`seleniumData.js` vb. 12 veri dosyası tek tek grep'lendi)
+   `openTab` alanı eklendi; `TopicPage`'in zaten var olan
+   `location.state.openTab` mekanizmasına bağlandı (aynı mekanizma HomePage
+   "devam et" ve mentor önerilerinde de kullanılıyor, yeni bir altyapı
+   yazılmadı).
+   - Yeni `tests/portfolio-mission-tabs.spec.ts` (36 test): 18 görevin
+     `openTab`'i data dosyasından okunan GERÇEK sekme indeksiyle eşleşiyor mu
+     (config drift bekçisi, tarayıcı açmaz) + 18 görevin `taskTitle`i
+     tanımlı ve `title`dan farklı mı (aşağıya bkz).
+   - `tests/portfolio-page.spec.ts`'e 4 yeni test: boş durum CTA'sı + görev
+     kartı "aç" linki gerçekten doğru sekmeyi (ikinci tıklama olmadan) açıyor,
+     kataloğun tamamı bitince "Sıradaki Görev" kartı kayboluyor.
+2. **Yeni "🎯 Sıradaki Görev" kartı** (kullanıcı isteği: "bana yeni görev
+   vermiyor"). `/portfolio` önceden sadece GEÇMİŞE bakıyordu (AGGREGATOR
+   mimarisi korunuyor — kendi state'i yok, `missionCatalog` sırasına göre ilk
+   TAMAMLANMAMIŞ görevi `portfolioSnapshot.js`'te türetiyor). Tüm 18 görev
+   bitince kart sessizce kayboluyor, olmayan bir görev uydurulmuyor.
+   - **🐛 Kullanıcı ikinci bir hata buldu ve düzeltildi:** kart, "İnşa
+     Ettiklerin"deki GERİYE bakan `title`i ("Login smoke testi kur**dun**")
+     kullanıyordu — henüz yapılmamış bir görev BİTMİŞ gibi görünüyordu. Her
+     18 görev için ayrı, İLERİYE bakan bir `taskTitle` eklendi ("Login smoke
+     testi kur**mak**"); `title` "İnşa Ettiklerin"de aynen kalıyor.
+3. **Değişen dosyalar:** `src/data/portfolioData.js` (18× `openTab` + 18×
+   `taskTitle` + 3 yeni UI metni), `src/lib/portfolioSnapshot.js`
+   (`buildNextMission()`), `src/components/PortfolioPage.jsx` (yeni bölüm +
+   `state={{openTab}}` geçen linkler), `tests/portfolio-page.spec.ts` (4 yeni
+   test), `tests/portfolio-mission-tabs.spec.ts` (yeni, 36 test).
+
+### Doğrulama durumu (bu oturumun sonu)
+
+- İçerik bütünlüğü ✓ · i18n leak taraması ✓ (0 regresyon) · `npm run build` ✓.
+- Portfolyo test dosyaları: 47/47 PASS (`portfolio-page.spec.ts` 11 +
+  `portfolio-mission-tabs.spec.ts` 36).
+- Tam `npm run test:e2e` paketinin bu oturumdaki sonucu (merge/push kararı
+  buna bağlı) — bkz. "Neredeyiz".
+
+### Sıradaki iş
+
+- **A. Kullanıcı tarafı (kod işi değil, hâlâ açık):** Plausible analytics
+  hesabını aç (`DEPLOY.md` §8) — açık kaldıkça `/en` geçişinin ilk günlerine
+  ait ölçüm kalıcı olarak kayboluyor. Deploy sonrası GSC'ye sitemap'i yeniden
+  gönder (80 URL).
+- **B. Küçük, net kod işleri (düşük öncelik, sıraya alınabilir):**
+  `/qa-mentor`'daki rozet şeridinin yanına portfolyoya link, portfolyo
+  paylaşım kartı görseli (`<canvas>`), bilinmeyen `/en/...` yollarında gerçek
+  bir 404 arayüzü olmaması (çöküyor değil, sadece ideal değil).
+
+---
+
+## 📌 Önceki Durum (2026-08-02, Sonnet — mülakat bölümü kompaktlaştırma + yayın kapısı otomasyonu)
 
 ### Neredeyiz
 

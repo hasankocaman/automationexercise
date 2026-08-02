@@ -198,7 +198,12 @@ function EmptyInvite({ isTr, darkMode }) {
                 {tx(es.body, isTr)}
             </p>
             <div className="flex flex-col gap-3 md:flex-row">
-                <Link to="/selenium" data-testid="portfolio-empty-mission-cta" className={cardCls}>
+                <Link
+                    to="/selenium"
+                    state={{ openTab: portfolioData.missionCatalog['selenium-login-mission']?.openTab }}
+                    data-testid="portfolio-empty-mission-cta"
+                    className={cardCls}
+                >
                     <p className={`text-sm font-extrabold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{tx(es.missionCta, isTr)}</p>
                     <p className={`mt-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{tx(es.missionCtaNote, isTr)}</p>
                 </Link>
@@ -310,6 +315,38 @@ export default function PortfolioPage() {
 
                         <StatStrip stats={snapshot.stats} isTr={isTr} darkMode={darkMode} />
 
+                        {/* ── Sıradaki görev — ileriye bakan tek CTA ──────────── */}
+                        {snapshot.nextMission && (
+                            <section
+                                data-testid="portfolio-next-mission"
+                                data-mission-id={snapshot.nextMission.missionId}
+                                className={`mb-8 rounded-2xl border p-4 md:p-5 ${darkMode ? 'border-teal-800 bg-teal-950/30' : 'border-teal-200 bg-teal-50'}`}
+                            >
+                                <h2 className={`mb-1 text-lg font-bold ${darkMode ? 'text-teal-200' : 'text-teal-800'}`}>
+                                    {tx(ui.nextMissionHeading, isTr)}
+                                </h2>
+                                <p className={`mb-3 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                    {tx(ui.nextMissionIntro, isTr)}
+                                </p>
+                                <h3 className={`mb-1 text-base font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {tx(snapshot.nextMission.taskTitle, isTr)}
+                                </h3>
+                                {snapshot.nextMission.skill && (
+                                    <p className={`mb-3 text-xs font-semibold ${darkMode ? 'text-teal-300' : 'text-teal-700'}`}>
+                                        {tx(ui.skillLabel, isTr)}: {tx(snapshot.nextMission.skill, isTr)}
+                                    </p>
+                                )}
+                                <Link
+                                    to={snapshot.nextMission.route}
+                                    state={typeof snapshot.nextMission.openTab === 'number' ? { openTab: snapshot.nextMission.openTab } : undefined}
+                                    data-testid="portfolio-next-mission-cta"
+                                    className="inline-block min-h-11 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-teal-700"
+                                >
+                                    {tx(ui.nextMissionCta, isTr)}
+                                </Link>
+                            </section>
+                        )}
+
                         {/* ── İnşa Ettiklerin — portfolyonun kalbi ────────────── */}
                         {snapshot.missions.length > 0 ? (
                             <section data-testid="portfolio-missions" className="mb-8">
@@ -349,6 +386,8 @@ export default function PortfolioPage() {
                                             {mission.route && (
                                                 <Link
                                                     to={mission.route}
+                                                    state={typeof mission.openTab === 'number' ? { openTab: mission.openTab } : undefined}
+                                                    data-testid="portfolio-mission-open-link"
                                                     className={`mt-3 inline-block text-xs font-bold ${darkMode ? 'text-teal-300 hover:text-teal-200' : 'text-teal-700 hover:text-teal-800'}`}
                                                 >
                                                     {tx(ui.openLesson, isTr)}

@@ -62,6 +62,13 @@ export const portfolioData = {
         openLesson: { tr: 'Derse git →', en: 'Go to the lesson →' },
         unknownDate: { tr: 'tarih kaydedilmemiş', en: 'date not recorded' },
 
+        nextMissionHeading: { tr: '🎯 Sıradaki Görev', en: '🎯 Next Mission' },
+        nextMissionIntro: {
+            tr: 'Portfolyonu büyütmek için sırada bu var.',
+            en: 'This is next to grow your portfolio.',
+        },
+        nextMissionCta: { tr: 'Bu görevi çöz →', en: 'Solve this mission →' },
+
         sprintHeading: { tr: 'Sprint Deneyimi', en: 'Sprint Experience' },
         sprintIntro: {
             tr: 'Bir QA ekibinde bug kapatmak ders bitirmekten farklıdır: raporu analiz et, test case yaz, otomatikleştir, CI\'da koştur, merge\'e hazırla.',
@@ -295,7 +302,9 @@ export const portfolioData = {
     missionCatalog: {
         'selenium-login-mission': {
             route: '/selenium',
+            openTab: 2,
             title: { tr: 'Login smoke testi kurdun', en: 'Built a login smoke test' },
+            taskTitle: { tr: 'Login smoke testi kurmak', en: 'Build a login smoke test' },
             skill: { tr: 'Locator stratejisi, assertion ve explicit wait', en: 'Locator strategy, assertions and explicit waits' },
             whatYouBuilt: {
                 tr: 'Bir e-ticaret login sayfası için sıfırdan smoke test kurdun: butonu en dayanıklı locator ile buldun, tıklama aksiyonunu yazdın, giriş sonrası dashboard\'ı doğrulayan assertion\'ı ekledin. Yükleme süresi 1-4 saniye arasında değiştiği için testi sabit bekleme yerine explicit wait ile stabilize ettin.',
@@ -304,7 +313,9 @@ export const portfolioData = {
         },
         'selenium-pom-refactor-mission': {
             route: '/selenium',
+            openTab: 6,
             title: { tr: 'Selenium testini Page Object Model\'e refactor ettin', en: 'Refactored a Selenium test into the Page Object Model' },
+            taskTitle: { tr: 'Selenium testini Page Object Model\'e refactor etmek', en: 'Refactor a Selenium test into the Page Object Model' },
             skill: { tr: 'Page Object Model ve test bakım maliyeti', en: 'Page Object Model and test maintenance cost' },
             whatYouBuilt: {
                 tr: 'Locator\'ları test metodunun içinde tutan ham bir Selenium testini Page Object Model\'e taşıdın: LoginPage sınıfının locator alanlarını ve constructor\'ını yazdın, login işlemini yapan eylem metodunu ekledin ve testi sayfa API\'si üstünden yeniden yazdın. UI değişince 10 dosyada yapılacak bakımı tek dosyaya indirdin.',
@@ -313,7 +324,9 @@ export const portfolioData = {
         },
         'playwright-cart-mission': {
             route: '/playwright',
+            openTab: 3,
             title: { tr: '"Sepete ekle" akışını Playwright ile test ettin', en: 'Tested an add-to-cart flow with Playwright' },
+            taskTitle: { tr: '"Sepete ekle" akışını Playwright ile test etmek', en: 'Test an add-to-cart flow with Playwright' },
             skill: { tr: 'Dayanıklı locator seçimi ve web-first assertion', en: 'Resilient locator selection and web-first assertions' },
             whatYouBuilt: {
                 tr: 'Bir e-ticaret sitesinde "ürünü sepete ekle" akışını uçtan uca test ettin: dayanıklı locator stratejisini seçtin, tıklama satırını yazdın ve sepet modalının göründüğünü web-first assertion ile doğruladın. Modal 200ms ile 1.5sn arasında beliriyordu; auto-wait sayesinde ekstra bekleme yazmadan testi tek parça hâline getirdin.',
@@ -322,7 +335,9 @@ export const portfolioData = {
         },
         'playwright-pom-refactor-mission': {
             route: '/playwright',
+            openTab: 8,
             title: { tr: 'Playwright testini Page Object ile yeniden yapılandırdın', en: 'Restructured a Playwright test with a Page Object' },
+            taskTitle: { tr: 'Playwright testini Page Object ile yeniden yapılandırmak', en: 'Restructure a Playwright test with a Page Object' },
             skill: { tr: 'Page Object ve async eylem metotları', en: 'Page Objects and async action methods' },
             whatYouBuilt: {
                 tr: 'Locator\'ları test dosyasında tutan bir Playwright testini Page Object\'e taşıdın: LoginPage sınıfının locator alanını ve constructor\'ını yazdın, login\'i yapan async metodu ekledin ve test dosyasını sayfa nesnesi üzerinden yeniden yazdın. Buton metni değiştiğinde 15 dosyada yapılacak değişikliği tek noktaya indirdin.',
@@ -331,7 +346,9 @@ export const portfolioData = {
         },
         'cypress-search-mission': {
             route: '/cypress',
+            openTab: 2,
             title: { tr: 'Ürün arama akışı için Cypress testi yazdın', en: 'Wrote a Cypress test for a product search flow' },
+            taskTitle: { tr: 'Ürün arama akışı için Cypress testi yazmak', en: 'Write a Cypress test for a product search flow' },
             skill: { tr: 'Selector seçimi ve retry-able assertion', en: 'Selector selection and retry-able assertions' },
             whatYouBuilt: {
                 tr: 'Bir e-ticaret sitesinde "ürün ara" akışını test ettin: arama kutusunu güvenilir bir selector ile buldun, aramayı yazdın ve en az bir sonuç kartının göründüğünü retry-able assertion ile doğruladın. Sonuçlar 100-800ms arasında geldiğinden sabit cy.wait() yerine koşul bekleyen .should() kullandın.',
@@ -340,7 +357,9 @@ export const portfolioData = {
         },
         'cypress-network-stub-mission': {
             route: '/cypress',
+            openTab: 5,
             title: { tr: 'Network stubbing ile loading ve hata durumlarını test ettin', en: 'Tested loading and error states with network stubbing' },
+            taskTitle: { tr: 'Network stubbing ile loading ve hata durumlarını test etmek', en: 'Test loading and error states with network stubbing' },
             skill: { tr: 'cy.intercept ile istek stub\'lama ve hata senaryosu simülasyonu', en: 'Request stubbing with cy.intercept and error-state simulation' },
             whatYouBuilt: {
                 tr: 'Gerçek API\'nin 2 saniye sürmesini beklemek yerine isteği gecikmeyle stub eden bir intercept yazdın; loading spinner\'ın istek sırasında göründüğünü ve bitince kaybolduğunu doğruladın. Ardından aynı iskeleti 500 hatasına uyarlayıp arayüzün hata mesajı gösterdiğini kanıtladın — sunucuyu hiç bozmadan.',
@@ -349,7 +368,9 @@ export const portfolioData = {
         },
         'python-api-test-mission': {
             route: '/python',
+            openTab: 16,
             title: { tr: 'pytest ile API smoke testi kurdun', en: 'Built an API smoke test with pytest' },
+            taskTitle: { tr: 'pytest ile API smoke testi kurmak', en: 'Build an API smoke test with pytest' },
             skill: { tr: 'fixture, assert ve parametrize', en: 'Fixtures, asserts and parametrize' },
             whatYouBuilt: {
                 tr: 'Bir kullanıcı API\'si için pytest testi kurdun: base URL tekrarını fixture ile ortadan kaldırdın, 200 durum kodunu doğrulayan assert satırını yazdın ve aynı testi üç farklı kullanıcı ID\'siyle koşturmak için parametrize kullandın. Dördünü tek bir çalışan test hâlinde birleştirdin.',
@@ -358,7 +379,9 @@ export const portfolioData = {
         },
         'python-traceback-debug-mission': {
             route: '/python',
+            openTab: 18,
             title: { tr: 'CI\'da kırmızı olan bir testin kök nedenini buldun ve düzelttin', en: 'Found and fixed the root cause of a red CI test' },
+            taskTitle: { tr: 'CI\'da kırmızı olan bir testin kök nedenini bulup düzeltmek', en: 'Find and fix the root cause of a red CI test' },
             skill: { tr: 'Traceback okuma, kök neden analizi ve regresyon testi', en: 'Reading tracebacks, root-cause analysis and regression tests' },
             whatYouBuilt: {
                 tr: 'CI\'da başarısız olan bir testin traceback\'ini en alttan okuyup hatalı satırı buldun, None dönmenin de yeterli olmadığını görüp düzeltmeyi anlamlı bir varsayılan değerle tamamladın. Sonra aynı hatanın bir daha sessizce geri gelmesini engelleyen bir regresyon testi yazdın.',
@@ -367,7 +390,9 @@ export const portfolioData = {
         },
         'sql-price-validation-mission': {
             route: '/sql',
+            openTab: 4,
             title: { tr: 'Production fiyat verisini doğrulayan SQL sorgusu yazdın', en: 'Wrote a SQL query that validates production price data' },
+            taskTitle: { tr: 'Production fiyat verisini doğrulayan SQL sorgusu yazmak', en: 'Write a SQL query that validates production price data' },
             skill: { tr: 'WHERE koşulları, ORDER BY ve NULL semantiği', en: 'WHERE conditions, ORDER BY and NULL semantics' },
             whatYouBuilt: {
                 tr: 'Bir products tablosunda veri doğrulama sorgusu kurdun: negatif fiyatları getiren WHERE koşulunu seçtin, sonuçları en kötü örnek en üstte olacak şekilde sıraladın ve `price < 0` koşulunun NULL fiyatları SESSİZCE elediğini fark edip sorguyu eksik fiyatları da yakalayacak şekilde tamamladın.',
@@ -376,7 +401,9 @@ export const portfolioData = {
         },
         'sql-orphan-orders-mission': {
             route: '/sql',
+            openTab: 10,
             title: { tr: 'Yetim siparişleri bulan referans bütünlüğü sorgusu yazdın', en: 'Wrote a referential integrity query that finds orphaned orders' },
+            taskTitle: { tr: 'Yetim siparişleri bulan referans bütünlüğü sorgusu yazmak', en: 'Write a referential integrity query that finds orphaned orders' },
             skill: { tr: 'LEFT JOIN, NULL filtreleme ve referans bütünlüğü', en: 'LEFT JOIN, NULL filtering and referential integrity' },
             whatYouBuilt: {
                 tr: 'Müşterisi silinmiş siparişleri bulmak için orders ve customers tablolarını LEFT JOIN ile birleştirdin, sonucu sadece eşleşmeyen kayıtları gösterecek şekilde filtreledin ve aynı sorgunun INNER JOIN ile yazılsaydı her zaman sıfır satır döndüreceğini — yani bug\'ı sessizce gizleyeceğini — gösterdin.',
@@ -385,7 +412,9 @@ export const portfolioData = {
         },
         'restassured-user-api-mission': {
             route: '/rest-assured',
+            openTab: 5,
             title: { tr: 'REST Assured ile pozitif ve negatif API senaryosu yazdın', en: 'Wrote positive and negative API scenarios with REST Assured' },
+            taskTitle: { tr: 'REST Assured ile pozitif ve negatif API senaryosu yazmak', en: 'Write positive and negative API scenarios with REST Assured' },
             skill: { tr: 'given/when/then zinciri, status ve body doğrulama', en: 'The given/when/then chain, status and body verification' },
             whatYouBuilt: {
                 tr: 'Bir kullanıcı API\'si için REST Assured testi kurdun: tam given/when/then zincirini yazıp 200 durum kodunu doğruladın, dönen JSON\'daki id alanını da assert ettin ve var olmayan bir kullanıcı için 404 bekleyen negatif senaryoyu ekledin. Happy path iskeletini hata senaryosuna uyarladın.',
@@ -394,7 +423,9 @@ export const portfolioData = {
         },
         'restassured-chain-mission': {
             route: '/rest-assured',
+            openTab: 7,
             title: { tr: 'POST → extract → guard → GET test zinciri kurdun', en: 'Built a POST to extract to guard to GET test chain' },
+            taskTitle: { tr: 'POST → extract → guard → GET test zinciri kurmak', en: 'Build a POST to extract to guard to GET test chain' },
             skill: { tr: 'Yanıttan değer çıkarma ve zincir koruması', en: 'Extracting values from responses and guarding the chain' },
             whatYouBuilt: {
                 tr: 'Kullanıcı oluşturma ve doğrulama zinciri kurdun: POST isteğini yazıp sunucunun döndürdüğü id\'yi çıkardın, o id ile GET yaparak kaydın gerçekten oluştuğunu doğruladın ve POST başarısız olduğunda GET adımının kafa karıştırıcı hatalar üretmesini engelleyen koruma satırını ekledin. id\'yi hardcode etmedin.',
@@ -403,7 +434,9 @@ export const portfolioData = {
         },
         'docker-selenium-grid-mission': {
             route: '/docker',
+            openTab: 9,
             title: { tr: 'Testleri container tabanlı Selenium Grid\'e taşıdın', en: 'Moved tests onto a container-based Selenium Grid' },
+            taskTitle: { tr: 'Testleri container tabanlı Selenium Grid\'e taşımak', en: 'Move tests onto a container-based Selenium Grid' },
             skill: { tr: 'docker-compose, RemoteWebDriver ve container kaynak ayarları', en: 'docker-compose, RemoteWebDriver and container resource settings' },
             whatYouBuilt: {
                 tr: 'Herkesin kendi laptop\'unda farklı Chrome sürümüyle koştuğu "bende geçiyor" kaosunu tekilleştirdin: docker-compose.yml içinde hub ve node servislerini tanımladın, Java testini yerel ChromeDriver yerine hub\'a bağlayan RemoteWebDriver kodunu yazdın ve Chrome node\'una paylaşımlı bellek ayarını ekledin. `depends_on`\'un başlatma sırası verdiğini ama hazır olmayı garanti etmediğini de gösterdin.',
@@ -412,7 +445,9 @@ export const portfolioData = {
         },
         'jenkins-pipeline-mission': {
             route: '/jenkins',
+            openTab: 2,
             title: { tr: 'İlk Jenkins pipeline\'ını yazdın', en: 'Wrote your first Jenkins pipeline' },
+            taskTitle: { tr: 'İlk Jenkins pipeline\'ını yazmak', en: 'Write your first Jenkins pipeline' },
             skill: { tr: 'Declarative pipeline, stage/steps ve post/failure bildirimi', en: 'Declarative pipelines, stage/steps and post/failure notification' },
             whatYouBuilt: {
                 tr: 'Elle `mvn test` çalıştırmaktan çıkıp her commit\'te testleri koşan bir Jenkins pipeline\'ı yazdın: Test stage\'i olan declarative iskeleti kurdun, kırmızı bir build\'in kimseye haber vermeden geçip gitmesini engelleyen `post { failure { ... } }` bloğunu ekledin ve `agent any`\'nin ortam tutarlılığı açısından taşıdığı gizli riski gösterdin.',
@@ -421,7 +456,9 @@ export const portfolioData = {
         },
         'git-merge-conflict-mission': {
             route: '/git-github',
+            openTab: 5,
             title: { tr: 'Bir merge conflict\'i uçtan uca çözdün', en: 'Resolved a merge conflict end to end' },
+            taskTitle: { tr: 'Bir merge conflict\'i uçtan uca çözmek', en: 'Resolve a merge conflict end to end' },
             skill: { tr: 'Çakışma işaretlerini okuma, çözme ve doğrulama', en: 'Reading, resolving and verifying conflict markers' },
             whatYouBuilt: {
                 tr: 'İki branch\'in aynı satırı değiştirdiği gerçek bir merge conflict\'ini sistemli biçimde kapattın: çakışma işaretlerini okuyup doğru satırı bırakarak dosyayı düzelttin, temizlenmemiş işaretlerin derleme ve CI hatasına dönüştüğünü gösterdin, add/commit sırasıyla çözümü tamamladın ve `git status` ile başka dosya kalmadığını doğruladın.',
@@ -430,7 +467,9 @@ export const portfolioData = {
         },
         'java-parameterized-test-mission': {
             route: '/java',
+            openTab: 9,
             title: { tr: 'Kopyala-yapıştır testleri tek parametreli teste dönüştürdün', en: 'Turned copy-paste tests into one parameterized test' },
+            taskTitle: { tr: 'Kopyala-yapıştır testleri tek parametreli teste dönüştürmek', en: 'Turn copy-paste tests into one parameterized test' },
             skill: { tr: 'JUnit 5 @ParameterizedTest ve veri odaklı test', en: 'JUnit 5 @ParameterizedTest and data-driven testing' },
             whatYouBuilt: {
                 tr: 'Login formunu üç geçersiz girdiyle test eden neredeyse birebir aynı üç metodu tek bir `@ParameterizedTest` + `@ValueSource` testine indirdin ve assertion\'ı ekleyerek tamamladın. Böylece kopyala-yapıştır testlerin en büyük riskini — birinde yapılan düzeltmenin diğerlerine yansımaması, yani sessiz tutarsızlık — yapısal olarak ortadan kaldırdın.',
@@ -439,7 +478,9 @@ export const portfolioData = {
         },
         'postman-chained-request-mission': {
             route: '/postman',
+            openTab: 3,
             title: { tr: 'Token taşıyan zincirlenmiş Postman testi yazdın', en: 'Wrote a chained Postman test that carries a token' },
+            taskTitle: { tr: 'Token taşıyan zincirlenmiş Postman testi yazmak', en: 'Write a chained Postman test that carries a token' },
             skill: { tr: 'pm.test assertion\'ları ve environment değişkeniyle zincirleme', en: 'pm.test assertions and chaining through environment variables' },
             whatYouBuilt: {
                 tr: 'Login isteğine 200 bekleyen bir `pm.test()` yazdın, cevaptan token\'ı çıkarıp bir environment değişkenine kaydettin ve sonraki isteğin bu değişkeni Authorization header\'ında nasıl kullandığını kurdun. Token\'ı elle yapıştırmanın neden bayatlayan, kırılgan bir çözüm olduğunu da gösterdin.',
@@ -448,7 +489,9 @@ export const portfolioData = {
         },
         'linux-ci-debug-mission': {
             route: '/linux',
+            openTab: 6,
             title: { tr: 'GUI\'siz bir CI agent\'ında takılan testi komut satırıyla teşhis ettin', en: 'Diagnosed a hung test on a headless CI agent from the command line' },
+            taskTitle: { tr: 'GUI\'siz bir CI agent\'ında takılan testi komut satırıyla teşhis etmek', en: 'Diagnose a hung test on a headless CI agent from the command line' },
             skill: { tr: 'ps, grep, lsof ve tail -f ile canlı hata ayıklama', en: 'Live debugging with ps, grep, lsof and tail -f' },
             whatYouBuilt: {
                 tr: '10 dakikadır ne geçen ne kırılan bir CI koşumunu sadece komut satırıyla çözdün: `ps aux | grep` ile chromedriver\'ın gerçekten çalışıp çalışmadığını buldun, "Address already in use" hatasının anlamını çözüp 4444 portunu tutan process\'i `lsof` ile tespit ettin ve log dosyasını `tail -f` ile canlı izleyerek testin nerede takıldığını gördün.',
