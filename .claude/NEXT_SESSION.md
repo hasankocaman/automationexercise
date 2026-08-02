@@ -27,11 +27,18 @@
 
 ### Neredeyiz
 
-- Kullanıcı bu oturumda **`feature/seo-phase-2`'nin `main`'e merge edilip push
-  edilmesini** istedi — tam `npm run test:e2e` paketi geçerse uygulanacak.
-  Sonuç (merge/push gerçekleşti mi, hangi commit) bu bölümün doğrudan
-  üzerine, oturumun sonunda eklenecek; buraya bakan biri önce en tepedeki
-  notu okumalı.
+- **`feature/seo-phase-2`, `main`'e fast-forward merge edildi ve `origin/main`'e
+  push edildi** (`aa96dd1`, tam `npm run test:e2e` paketi — 342/342 PASS,
+  14.3 dk — geçtikten sonra). SEO Faz 2, Portfolio Builder ve test/otomasyon
+  borcu kapatma işlerinin TAMAMI artık `main`'de; production deploy
+  `.github/workflows/deploy.yml` üzerinden tetiklendi. Bir önceki bölümdeki
+  (ve altındaki onlarca "Önceki Durum" kaydındaki) "main'e merge kararı
+  kullanıcıda" notu **ÇÖZÜLDÜ.**
+- Aşağıdaki tüm tarihli bölümler artık **tarihsel kayıt** — o işler main'e
+  gitti, ayrıntı git log'da duruyor. Yeni oturum bu bölümden devam etsin.
+- `feature/seo-phase-2` local/origin'de hâlâ duruyor (silinmedi) — main artık
+  onunla aynı commit'te, branch'e devam eden bir iş yoksa temizlik kullanıcı
+  kararı.
 
 ### Bu oturumda yapılanlar
 
