@@ -17728,16 +17728,22 @@ export function renderBlock(block, i, darkMode, language = 'en', onQuizCorrect, 
         // `pageFaqItems`, check-dist-seo.mjs görünürlük kontrolü).
         case 'faq':
             return (
+                // Başlık etiketleri (h3/h4) BİLİNÇLİ: statik shell aynı SSS'yi
+                // <h2>/<h3> ile basıyor. Burada <div>/<p> kullanılırsa
+                // JavaScript çalıştıktan sonraki DOM'da SSS'nin başlık yapısı
+                // KAYBOLUR — Google'ın render ettiği hâl ile ham HTML ayrışır,
+                // ekran okuyucu da soruları başlıktan başlığa gezemez.
+                // Bölüm başlığı <h2> olduğu için hiyerarşi h2 → h3 → h4.
                 <div key={i} className={`mt-4 rounded-xl border ${darkMode ? 'border-teal-800 bg-teal-900/10' : 'border-teal-200 bg-teal-50'}`}>
-                    <div className={`px-4 py-2.5 font-bold text-sm flex items-center gap-2 ${darkMode ? 'text-teal-300' : 'text-teal-800'}`}>
+                    <h3 className={`px-4 py-2.5 font-bold text-sm flex items-center gap-2 ${darkMode ? 'text-teal-300' : 'text-teal-800'}`}>
                         ❓ {language === 'tr' ? 'Sık Sorulan Sorular' : 'Frequently Asked Questions'}
-                    </div>
+                    </h3>
                     <div className={`divide-y ${darkMode ? 'divide-teal-900' : 'divide-teal-100'}`}>
                         {block.items?.map((item, j) => (
                             <div key={j} className="px-4 py-3">
-                                <p className={`font-semibold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                <h4 className={`font-semibold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                                     {tx(item.q, language)}
-                                </p>
+                                </h4>
                                 <p className={`mt-1 text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                                     {tx(item.a, language)}
                                 </p>

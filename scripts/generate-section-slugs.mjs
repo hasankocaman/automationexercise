@@ -42,12 +42,18 @@ let created = 0
 
 for (const [routePath, entries] of Object.entries(catalog)) {
     const previous = Array.isArray(existing[routePath]) ? existing[routePath] : []
-    const byTitle = new Map(previous.map((item) => [item.title, item.slug]))
+    // Anahtar İKİ tarafta da emoji'siz: manifest başlıkları `stripLeadingEmoji`
+    // ile YAZILIYOR (aşağıdaki `body` şablonu), katalog başlıkları ise emoji'yi
+    // KORUYOR ("🟢 What is Selenium?"). Biri strip edilip diğeri edilmezse bu
+    // arama HİÇ tutmaz ve Kural 1 sessizce ölür — o zaman slug'lar başlığa
+    // değil YALNIZCA index'e bağlanır, araya bölüm eklenince bütün URL'ler
+    // bir alt bölümün içeriğine kayar.
+    const byTitle = new Map(previous.map((item) => [stripLeadingEmoji(item.title), item.slug]))
     const taken = new Set()
 
     manifest[routePath] = entries.map((entry) => {
         const title = entry.byLocale.en.title
-        let slug = byTitle.get(title)
+        let slug = byTitle.get(stripLeadingEmoji(title))
 
         if (!slug && previous[entry.index]?.slug && !taken.has(previous[entry.index].slug)) {
             slug = previous[entry.index].slug

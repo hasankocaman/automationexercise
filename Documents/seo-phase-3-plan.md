@@ -404,6 +404,174 @@ tahminle değil veriyle yaparız.
 
 ---
 
+## 12.5. MANUEL TEST REHBERİ — Faz 3'te Yapılanları Elle Nasıl Doğrularsın
+
+> Bu bölüm, Faz 3'te eklenen her şeyi **kendi gözünle** doğrulaman için
+> yazıldı. Otomatik testler (§12.6) çoğunu zaten koruyor; buradaki liste
+> **otomatik testin göremediği** ya da **gözle görülmesi gereken** şeylere
+> odaklanır. Her adımda "beklenen" ve "bozuksa ne görürsün" ayrı yazıldı —
+> ikisini karşılaştır.
+
+### 12.5.0. Hazırlık (5 dakika)
+
+```bash
+npm run build          # SEO kontrolleri dahil tam zincir; hata verirse DUR
+npm run preview        # http://localhost:4173
+```
+
+⚠️ **`vite preview` adreslerinin sonuna `/` koy** (`/selenium/` gibi).
+Sondaki `/` olmadan preview sunucusu dosyayı bulamaz — bu yalnızca yerel
+preview aracının kısıtıdır, yayında böyle bir sorun yoktur.
+
+İki şeyi ayrı ayrı test edeceksin, karıştırma:
+- **Tarayıcıda gördüğün** = JavaScript çalıştıktan sonraki hâl (kullanıcı deneyimi)
+- **Sayfa kaynağında gördüğün** (Ctrl+U) = Google'ın ilk gördüğü ham HTML
+
+İkisinin **ayrışması** bu mimarideki en tehlikeli hata türüdür: kullanıcıya
+bir şey, arama motoruna başka bir şey göstermek politika ihlalidir.
+
+---
+
+### 12.5.1. Sekme URL'leri — her dikey sekmenin kendi adresi
+
+| # | Ne yap | Beklenen | Bozuksa ne görürsün |
+|---|---|---|---|
+| 1 | Adres çubuğuna `localhost:4173/selenium/wait-strategies/` yaz | Sayfa **doğrudan** "Wait Stratejileri" sekmesi açık gelir | İlk sekme ("Selenium Nedir?") açılır → URL otoritesi kırık |
+| 2 | Aynı sayfada sekmeler arasında tıkla | Adres çubuğu her tıklamada değişir (`/selenium/locators` vb.) | Adres `/selenium`'da donuk kalır → sekmeler paylaşılamaz |
+| 3 | Birkaç sekme gezdikten sonra tarayıcı **geri** tuşu | Bir önceki **sekmeye** döner | Sayfadan tamamen çıkar veya hiç tepki vermez |
+| 4 | İlk sekmeye dön | Adres `/selenium` olur, `/selenium/what-is-selenium` OLMAZ | İlk sekme kendi URL'ini alır → aynı içerik iki adreste yarışır |
+| 5 | `localhost:4173/selenium/boyle-bir-bolum-yok/` | 404 YOK; adres kendini `/selenium`'a onarır | Beyaz ekran / hata sayfası |
+| 6 | Bir sekmedeyken sağ üstten dili **ENG** yap | Aynı sekmede kalır, adres `/en/selenium/wait-strategies` olur | Ana sayfaya veya ilk sekmeye düşer |
+| 7 | Sekmedeyken tarayıcı sekmesinin **başlığına** bak | Bölümün kendi başlığı ("Wait Stratejileri...") | Her sekmede aynı hub başlığı → 688 URL aynı başlıkla yarışır |
+
+**Neden önemli:** 4. ve 7. maddeler kanibalizasyon önlemidir. İkisi bozulursa
+sekme URL'leri birbirini yer ve Faz 3'ün tüm kazancı kaybolur.
+
+---
+
+### 12.5.2. Google'ın gördüğü ham HTML (en kritik bölüm)
+
+Bu adımlar **tarayıcıda değil, sayfa kaynağında** yapılır: `Ctrl+U`.
+
+| # | Ne yap | Beklenen |
+|---|---|---|
+| 1 | `/selenium/wait-strategies/` → Ctrl+U → `Ctrl+F` ile "WebDriverWait" ara | Bölümün **gerçek metni** ham HTML'de var (sadece JS'te değil) |
+| 2 | Aynı kaynakta `canonical` ara | `https://learnqa.dev/selenium/wait-strategies` (kendini gösterir) |
+| 3 | `/selenium/what-is-selenium/` kaynağında `canonical` ara | `https://learnqa.dev/selenium` — **hub'ı** gösterir (ilk sekme kanibalizasyon önlemi) |
+| 4 | `/selenium/interview-questions/` kaynağında `robots` ara | `noindex,follow` — kilitli içerik indekslenmez |
+| 5 | `/selenium/` (hub) kaynağında `Bu dersin bölümleri` ara | Bölüm bağlantı listesi var; oradan sekme URL'lerine `<a href>` çıkıyor |
+| 6 | Hub kaynağında `hreflang` ara | `tr` ve `en` karşılıkları var |
+
+**5. madde neden var:** Sitemap yalnızca *keşif* sağlar; sayfanın önemini ve
+tarama önceliğini **iç bağlantılar** belirler. Hub'dan bölüme link çıkmazsa
+688 sekme URL'i link grafiğinde öksüz kalır — sitemap'te olsalar bile Google
+onlara düşük öncelik verir.
+
+---
+
+### 12.5.3. Cevap-önce paragrafı ve Sık Sorulan Sorular
+
+| # | Ne yap | Beklenen |
+|---|---|---|
+| 1 | `/playwright/` aç, başlığın hemen altına bak | Kısa, tanım niteliğinde bir paragraf ("Playwright, Microsoft tarafından...") |
+| 2 | Aynı sayfada aşağı in | "❓ Sık Sorulan Sorular" kutusu var, soru/cevaplar **açık** duruyor |
+| 3 | SSS'yi görmek için quiz çözmen gerekiyor mu? | **HAYIR.** Kilitsiz olmalı |
+| 4 | Ctrl+U → `FAQPage` ara | Şema var |
+| 5 | Şemadaki bir soruyu kopyala, sayfada Ctrl+F ile ara | Soru **birebir** ekranda da yazıyor |
+
+**3. ve 5. madde neden kritik:** Şemaya girip ekranda görünmeyen içerik
+Google'a göre "cloaking"tir ve manuel cezaya yol açar. Mülakat soruları %60
+quiz barajının arkasında olduğu için şemaya **asla** girmemeli — SSS bloğu
+tam da bu yüzden ayrı, kilitsiz bir kaynak olarak yazıldı.
+
+| # | Ne yap | Beklenen |
+|---|---|---|
+| 6 | `/selenium/interview-questions/` kaynağında `FAQPage` ara | **Bulunmamalı** — sekme shell'lerinde FAQ şeması yok |
+
+---
+
+### 12.5.4. `/test-automation` — yeni hub sayfası
+
+| # | Ne yap | Beklenen |
+|---|---|---|
+| 1 | `/test-automation/` aç | 8 sekme, sol dikey menüde |
+| 2 | Her sekmeyi tek tek gez | Her birinde film (▶ oynatıcı) + adım adım animasyon + kod yazma alanı var |
+| 3 | Bir filmi ▶ ile oynat | Sahneler ilerler; son sahnede ileri tuşu pasifleşir (silinmez, soluklaşır) |
+| 4 | "Araç Seçimi" sekmesindeki bağlantı kartlarına tıkla | Gerçekten `/selenium`, `/playwright`, `/cypress`, `/appium`'a gider |
+| 5 | Dili ENG yap, aynı sekmeleri gez | Türkçe metin **sızmıyor** (kod yorumları dahil) |
+| 6 | Sekmeleri gezerken sol menüdeki quiz'lere bak | Quiz hiçbir sekmede **ilk blok değil** — önce anlatım gelir |
+
+---
+
+### 12.5.5. Sorgu hizalaması — kanibalizasyon gözle kontrolü
+
+Şu 5 sayfanın tarayıcı sekmesi başlığını yan yana karşılaştır. **Hiçbiri
+aynı sorguyu hedeflememeli:**
+
+| Sayfa | Sahip olduğu sorgu |
+|---|---|
+| `/test-automation` | "test otomasyonu" |
+| `/what-is-testing` | "yazılım testi nedir", "test türleri" |
+| `/manual-testing` | "manuel test nedir", "test senaryosu örnekleri" |
+| `/test-frameworks` | "playwright vs selenium" |
+| `/qa-mentor` | "yazılım test uzmanı nasıl olunur" |
+
+İkisi aynı sorguyu hedefliyorsa Google ikisini de geri iter — bu, tek tek
+sayfaların kalitesinden bağımsız bir kayıptır.
+
+Ayrıca `/qa-mentor/` açıp **sihirbazı başlatmadan** sayfada "Sıfırdan QA
+mühendisi olmak: 6 aşama" özetinin göründüğünü doğrula (sihirbaz arkasında
+kalırsa o metin Google'a görünmez).
+
+---
+
+### 12.5.6. Otomatik testin GÖREMEDİĞİ, sadece senin bakabileceğin şeyler
+
+Bunlar için otomatik kontrol yazılamaz — insan yargısı gerekir:
+
+1. **Cevap paragrafı gerçekten sorunun cevabı mı?** "Playwright nedir?" diye
+   arayan biri ilk cümleyi okuyunca tatmin oluyor mu, yoksa pazarlama dili mi?
+2. **SSS soruları gerçek arama sorgusu mu?** İnsanların Google'a yazdığı
+   biçimde mi ("playwright mi selenium mu?"), yoksa bizim uydurduğumuz
+   yapay sorular mı?
+3. **Analojiler düşündürüyor mu?** Her bölümün açılış kutusu tek cümlelik
+   yüzeysel bir benzetme değil, gerçekten mekanizmayı yansıtan bir anlatım mı?
+4. **Türkçe akıcı mı?** Otomatik kontrol sadece Türkçe karakter arar;
+   "bakiyor", "hazir" gibi ASCII'ye düşmüş Türkçeyi ve bozuk cümleyi yakalayamaz.
+5. **Mobilde okunabilir mi?** Telefonda aç, yatay kaydırma çıkıyor mu, kod
+   blokları taşıyor mu?
+
+---
+
+### 12.5.7. Yayına çıktıktan sonra (Google Search Console)
+
+Bunlar **yayın sonrası** ve zamana yayılır — hemen sonuç bekleme:
+
+| Ne zaman | Ne yap | Beklenen |
+|---|---|---|
+| Yayın günü | GSC → Sitemaps → `sitemap.xml` gönder | "Başarılı", ~761 URL keşfedildi |
+| 1. gün | GSC → URL Denetimi → `/selenium/wait-strategies` | "URL Google'da değil" ama **taranabilir**; "Canlı testi" yap |
+| 3-7. gün | GSC → Sayfalar raporu | "Dizine eklendi" sayısı artmaya başlar |
+| 2-4. hafta | GSC → Performans → Sorgular | Markasız sorgular ("selenium nedir" vb.) görünmeye başlar |
+| 4-8. hafta | Zengin Sonuçlar raporu | FAQPage/Course şemaları hatasız |
+
+⚠️ Bir sekme URL'i "Kopya, Google farklı bir kanonik seçti" derse: o bölümün
+metni komşusuna fazla benziyor demektir — içeriği ayrıştır veya `noindex` yap.
+
+---
+
+## 12.6. Bu Sürümü Koruyan Otomatik Testler
+
+| Test dosyası | Neyi korur |
+|---|---|
+| `tests/seo-section-routes.spec.ts` | Derin bağlantı, sekme↔adres senkronu, geri tuşu, bilinmeyen slug onarımı, slug manifesti tekilliği |
+| `tests/seo-phase3-integrity.spec.ts` | Slug dondurma kuralının **gerçekten çalıştığı**, hub→bölüm iç bağlantıları, türetilmiş metadata uzunlukları, canonical/noindex tutarlılığı, SSS'nin kilitsizliği |
+| `tests/seo-phase2-coverage.spec.ts` | Sitemap URL sayısı, FAQPage şemasının görünür metne dayandığı, sekme shell'lerinde FAQ olmadığı |
+| `tests/video-scene.spec.ts` | `/test-automation` dahil film bloklarının render olduğu |
+| `scripts/check-dist-seo.mjs` (build) | 92 sayfa + 840 sekme shell'inin başlık/description/canonical/noindex/gövde bütünlüğü |
+
+---
+
 ## 12. İlgili Dosyalar
 
 - `codexSeo.md` — kalıcı SEO mimarisi (bu plan onu genişletir; Aşama 1 bitince

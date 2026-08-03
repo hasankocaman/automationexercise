@@ -42,11 +42,15 @@ const UI_TEXT = {
         whatYouLearn: 'Bu sayfada neler öğreneceksin',
         topicNav: 'QA Öğrenme Konuları',
         navLabel: 'LearnQA.dev konu bağlantıları',
+        sectionNav: 'Bu dersin bölümleri',
+        sectionNavLabel: 'Ders bölümleri',
     },
     en: {
         whatYouLearn: 'What you can learn on this page',
         topicNav: 'QA Learning Topics',
         navLabel: 'LearnQA.dev topic links',
+        sectionNav: 'Sections in this lesson',
+        sectionNavLabel: 'Lesson sections',
     },
 }
 
@@ -464,6 +468,21 @@ ${INTERVIEW_SHOWCASE.map((item) => `        <article>
         </section>`
         : ''
 
+    // Bu dersin KENDİ bölümlerine bağlantılar. Bunlar olmadan sekme URL'leri
+    // yalnızca sitemap'ten keşfedilebilirdi: hub sayfası sitenin en çok iç
+    // bağlantı alan sayfası olduğu hâlde ondan bölümlere HİÇ link çıkmıyordu,
+    // yani 688 indekslenebilir sekme link grafiğinde öksüz kalıyordu. Sitemap
+    // yalnızca keşif sağlar; tarama önceliğini ve sayfa otoritesini iç
+    // bağlantılar dağıtır — bu yüzden hub'dan bölüme link ZORUNLU.
+    const sectionLinks = seo.sectionLinks?.length
+        ? `<nav aria-label="${escapeHtml(ui.sectionNavLabel)}">
+        <h2>${escapeHtml(ui.sectionNav)}</h2>
+        <ul>
+${seo.sectionLinks.map((item) => `          <li><a href="${escapeHtml(localizedPath(item.path, locale))}">${escapeHtml(item.label)}</a></li>`).join('\n')}
+        </ul>
+        </nav>`
+        : ''
+
     return `<main data-seo-fallback="true" style="font-family: Inter, Arial, sans-serif; max-width: 960px; margin: 0 auto; padding: 32px 20px; line-height: 1.6;">
         <h1>${escapeHtml(textValue(content?.title, locale) || seo.title.replace(' | LearnQA.dev', ''))}</h1>
         ${seoAnswer}
@@ -472,6 +491,7 @@ ${INTERVIEW_SHOWCASE.map((item) => `        <article>
         ${topicList}
         ${faq}
         ${warmup}
+        ${sectionLinks}
         <nav aria-label="${escapeHtml(ui.navLabel)}">
         <h2>${escapeHtml(ui.topicNav)}</h2>
         <ul>
@@ -690,13 +710,34 @@ function replaceMeta(html, seo, locale) {
 
 const template = await readFile(indexPath, 'utf8')
 
+// Sekme kataloğu hub shell'lerinden ÖNCE hesaplanır: hub gövdesi kendi
+// bölümlerine bağlantı verecek (bkz. `fallbackContent` içindeki `sectionLinks`).
+const { index: sectionIndex, problems } = await buildSectionSeoIndex(SECTION_SLUGS)
+if (problems.length) {
+    console.error(problems.join('\n'))
+    process.exit(1)
+}
+
+/** Hub sayfasının gövdesine girecek bölüm bağlantıları (indekslenebilir olanlar). */
+function sectionLinksFor(hubPath, locale) {
+    const entries = sectionIndex[hubPath]
+    if (!Array.isArray(entries)) return []
+    return entries
+        .filter((entry) => entry.indexable)
+        .map((entry) => ({ path: entry.path, label: entry.titles[locale] }))
+}
+
 const staticRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic)
 let written = 0
 
 for (const locale of LOCALES) {
     for (const entry of staticRoutes) {
         const localized = { ...entry, ...seoFor(entry, locale) }
-        const html = replaceMeta(template, { ...localized, content: await routeContent(localized, locale) }, locale)
+        const html = replaceMeta(template, {
+            ...localized,
+            content: await routeContent(localized, locale),
+            sectionLinks: sectionLinksFor(entry.path, locale),
+        }, locale)
         const urlPath = localizedPath(entry.path, locale)
 
         // TR ana sayfa dist/index.html'i EZER (GitHub Pages 404 fallback'i de
@@ -726,12 +767,7 @@ const SIBLINGS_HEADING = {
     en: 'Other sections in this lesson',
 }
 
-const { index: sectionIndex, problems } = await buildSectionSeoIndex(SECTION_SLUGS)
-if (problems.length) {
-    console.error(problems.join('\n'))
-    process.exit(1)
-}
-
+// `sectionIndex` yukarıda, hub shell'lerinden önce hesaplandı.
 let sectionsWritten = 0
 let sectionsIndexable = 0
 
