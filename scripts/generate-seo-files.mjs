@@ -1,10 +1,10 @@
-import { execFileSync } from 'node:child_process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { LOCALES, ROUTE_SEO, alternatesFor, canonicalUrl, localizedPath } from '../src/utils/seo.js'
 import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js'
 import { buildSectionSeoIndex } from './lib/sectionSeo.mjs'
+import { isShallowRepo, lastModFor } from './lib/lastmod.mjs'
 import { DATA_MODULES } from './lib/topicDataModules.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -25,38 +25,11 @@ const priorities = {
     '/git-document': '0.7',
 }
 
-// ─── lastmod ─────────────────────────────────────────────────────────────────
-// Bir sayfanın gerçek son değişiklik tarihi, içeriğini taşıyan veri dosyasının
-// son commit tarihidir. `changefreq`/`priority` Google tarafından yıllardır yok
-// sayılıyor; `lastmod` ise hâlâ yeniden tarama önceliği için kullanılıyor —
-// ama YALNIZCA güvenilirse. Bu yüzden iki koruma var:
-//   1. Shallow clone'da (CI'ın varsayılan `fetch-depth: 1`) tüm dosyalar aynı
-//      tek commit'i gösterir; böyle bir durumda lastmod HİÇ yazılmaz — her
-//      deploy'da "her sayfa bugün değişti" demek sinyali tümden değersizleştirir.
-//   2. Git yoksa/başarısızsa sessizce atlanır.
-function gitOutput(args) {
-    try {
-        return execFileSync('git', args, { cwd: rootDir, encoding: 'utf8' }).trim()
-    } catch {
-        return ''
-    }
-}
-
-const shallowRepo = gitOutput(['rev-parse', '--is-shallow-repository']) !== 'false'
-if (shallowRepo) {
+// `changefreq`/`priority` Google tarafından yıllardır yok sayılıyor; `lastmod`
+// ise hâlâ yeniden tarama önceliği için kullanılıyor — ama yalnızca güvenilirse.
+// Tarihin nereden geldiği ve ne zaman hiç yazılmadığı: scripts/lib/lastmod.mjs.
+if (isShallowRepo) {
     console.warn('sitemap: shallow clone algılandı, lastmod yazılmıyor (fetch-depth: 0 gerekir).')
-}
-
-const lastModCache = new Map()
-function lastModFor(routePath) {
-    if (shallowRepo) return ''
-    if (lastModCache.has(routePath)) return lastModCache.get(routePath)
-
-    const config = DATA_MODULES[routePath]
-    const relativeFile = config?.file?.replace('../../', '')
-    const iso = relativeFile ? gitOutput(['log', '-1', '--format=%cI', '--', relativeFile]) : ''
-    lastModCache.set(routePath, iso)
-    return iso
 }
 
 function sitemapUrl({ path, locale, priority, changefreq, lastmod }) {
@@ -133,3 +106,37 @@ ${entries.join('\n')}
 )
 
 console.log(`Generated robots.txt and sitemap.xml: ${indexableRoutes.length} routes + ${sectionEntries.length} sections x ${LOCALES.length} locales = ${entries.length} URLs.`)
+
+// ─── Görünür "son güncelleme" tarihi ─────────────────────────────────────────
+// Aynı tarih üç yerde birden görünmek zorunda: sitemap `lastmod`, sayfanın
+// `dateModified` şeması ve kullanıcıya GÖRÜNEN künye. Statik shell tarihi
+// build sırasında doğrudan okuyabilir ama React uygulaması okuyamaz (tarayıcıda
+// git yoktur) — bu manifest o boşluğu kapatır. Manifest olmadan künye
+// JavaScript sonrası tarihini kaybederdi: ham HTML'de tarih var, render sonrası
+// yok — arama motoru için ayrışma, kullanıcı için kaybolan bilgi.
+const updatedEntries = Object.keys(DATA_MODULES)
+    .map((routePath) => [routePath, lastModFor(routePath)])
+    .filter(([, iso]) => iso)
+    .sort(([a], [b]) => a.localeCompare(b))
+
+await mkdir(join(rootDir, 'src', 'data', 'generated'), { recursive: true })
+await writeFile(
+    join(rootDir, 'src', 'data', 'generated', 'pageUpdated.js'),
+    `// OTOMATİK ÜRETİLDİ — elle düzenleme, npm run build sırasında yeniden yazılır.
+// Kaynak: scripts/generate-seo-files.mjs (tarih: scripts/lib/lastmod.mjs)
+//
+// Ders sayfası → içeriğini taşıyan veri dosyasının son commit tarihi.
+// Sayfadaki görünür künye ve \`dateModified\` şeması bunu kullanır; sitemap
+// \`lastmod\` alanı da AYNI kaynaktan gelir, bu yüzden üçü ayrışamaz.
+// Shallow clone'da güvenilir tarih üretilemediği için manifest BOŞ kalır ve
+// künye tarihsiz basılır (yanlış tarih göstermektense hiç göstermemek).
+
+export const PAGE_UPDATED = ${JSON.stringify(Object.fromEntries(updatedEntries), null, 2)}
+
+export function pageUpdatedFor(routePath) {
+    return PAGE_UPDATED[routePath] || ''
+}
+`,
+)
+
+console.log(`Generated pageUpdated.js: ${updatedEntries.length} sayfa için son güncelleme tarihi.`)

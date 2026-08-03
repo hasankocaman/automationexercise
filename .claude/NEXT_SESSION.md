@@ -20,10 +20,93 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-03, Opus — Faz 3 kod incelemesi: 3 sessiz arıza + manuel rehber + regresyon testleri) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-03, Opus — Aşama 4: HowTo + yazar/kurum kimliği + mobil LCP) — YENİ OTURUM BURADAN BAŞLASIN
 
-> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor; oradaki
-> mimari kararlar hâlâ geçerli, bu oturum onların ÜSTÜNE düzeltme yaptı.
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Neredeyiz
+
+- **Branch: `feature/seo-phase-3-serp-rankings`** — main'e MERGE EDİLMEDİ,
+  remote'a PUSH EDİLMEDİ. Karar hâlâ kullanıcıda.
+- Faz 3'ün **Aşama 4'ü (teknik güven sinyalleri) BİTTİ.** Planda açık kalan
+  tek kod işi buydu; geriye yalnızca kullanıcı aksiyonları kaldı.
+- Build yeşil, `seo-phase3-integrity` **19/19** (12 → 19, yedi yeni test).
+
+### Bu oturumda yapılanlar
+
+1. **Kurulum sekmelerine `HowTo` şeması (13 bölüm × 2 dil = 26 sayfa).**
+   - Kaynak YALNIZCA `installation` ve `steps` blokları. `step-animation`
+     bilerek hariç tutuldu: adları adım gibi görünse de o blok bir mekanizma
+     anlatır ("Sürüm bir sözleşmedir"), uygulanabilir talimat değil — onu
+     prosedür diye işaretlemek sahte bir kurulum rehberi ilan etmek olurdu.
+     Kapsam 24 kurulum sekmesinin 13'ü; eksik kapsam yanlış prosedüre yeğdir.
+   - **Asıl kazanç yan üründe:** kurulum adımları bu iş sayesinde İLK KEZ
+     crawl edilebilir metne girdi. `cmd` alanı ve düz metin adım listeleri
+     SEO metnine giren alanlar listesinde YOKTU — yani "docker kurulumu"
+     sayfasının gerçek adımlarını Google hiç görmüyordu. Artık statik
+     HTML'de numaralı liste olarak basılıyor.
+   - ⚠ Google `HowTo` zengin sonuçlarını 2023'te kaldırdı; bu şema Google'da
+     görsel bir zengin sonuç ÜRETMEZ. Bing hâlâ kullanıyor ve şema sayfanın
+     bir prosedür olduğunu makineye bildiriyor — bu yüzden yine de değerli,
+     ama "SERP'te adım listesi çıkacak" beklentisi kurma.
+2. **Yazar/kurum kimliği (E-E-A-T).** `Organization` + `Person` düğümleri her
+   sayfada, `@id` referansıyla (her sayfada kişiyi yeniden tarif etmek yerine
+   tek kimliğe işaret etmek, motorun kişiyi site genelinde tek varlık olarak
+   tanımasını sağlar). `WebPage` ve `Course` bu düğümlere `author`/`publisher`
+   ile bağlanıyor.
+   - **Görünür künye** hem statik HTML'de hem JavaScript sonrası duruyor:
+     "Yazan: Hasan Kocaman · QA Otomasyon Mühendisi · Yayıncı: LearnQA.dev ·
+     Son güncelleme: 2 Ağustos 2026" (EN'de İngilizce). Yalnızca shell'de
+     kalsaydı Google'ın render ettiği sayfada yazar bilgisi kaybolurdu.
+   - Metinlerin ve şemanın TEK kaynağı `src/utils/authorship.js`.
+3. **Tarih artık üç yerde de aynı.** `scripts/lib/lastmod.mjs` (git commit
+   tarihi) → sitemap `lastmod` + şema `dateModified` + görünür künye. Tarayıcı
+   git göremediği için build sırasında `src/data/generated/pageUpdated.js`
+   üretiliyor (36 sayfa). Shallow clone'da tarih hiç üretilmez, künye tarihsiz
+   basılır — yanlış tarih göstermektense hiç göstermemek.
+4. **Mobil LCP ölçüm aracı: `npm run seo:lcp`.** Pixel 5 + 4x CPU kısma +
+   Slow 4G, sayfa başına 3 koşum, medyan. Rapor `reports/mobile-lcp.json`
+   (git'e girmez). `--strict` ile bütçe aşımında çıkış kodu 1.
+   - **Ölçüm sonucu (2026-08-03, 7 sayfa): hepsi bütçe içinde.**
+     LCP 1204-1984 ms (bütçe 2500), CLS 0.009-0.053 (bütçe 0.1).
+     En yavaş: `/en/selenium` 1984 ms, `/selenium` 1960 ms.
+   - ⚠ **İlk koşum bilerek ATILIR.** Isınmamış ilk istekte ana sayfa 7566 ms,
+     ısındıktan sonra ~1300 ms ölçüldü; ısınma koşumu olmadan medyan bu tek
+     aykırı değerle zehirlenip olmayan bir regresyon bildiriyordu.
+   - ⚠ Git Bash'te `--routes /` argümanı yol dönüşümüne uğrar (`C:/Program
+     Files/Git/` olur). Belirli sayfa ölçeceksen PowerShell kullan.
+5. **Guard'lar ve testler.** `check-dist-seo.mjs` artık her sayfada
+   yazar/kurum şemasını + görünür künyeyi, kurulum sekmelerinde her HowTo
+   adımının gövdede görünür olduğunu hard-fail ile zorluyor.
+   `tests/seo-phase3-integrity.spec.ts` 12 → 19 test.
+
+### Doğrulama durumu
+
+- `npm run build` ✓ · içerik bütünlüğü ✓ (42 dosya) · i18n leak 0 ✓.
+- Build çıktısı: 26 HowTo sayfası, 24 FAQPage, 70 Course, 688 indekslenebilir
+  sekme, 770 sitemap URL.
+- `seo-phase3-integrity` 19/19 · `no-internal-jargon` + `seo-phase2-coverage`
+  + `seo-section-routes` 36/36 · `i18n-content-toggle` + `mobile-smoke` 40/40.
+- Tam `npm run test:e2e` paketi bu oturumda koşulmadı — merge öncesi bir kez
+  koşturmak faydalı olur.
+
+### Sıradaki iş
+
+1. **Branch main'e merge + push kararı — kullanıcıda.** Faz 3'te açık kod işi
+   KALMADI.
+2. Dış tanıtım taslakları (`Documents/outreach/`) hazır ama GitHub About /
+   dev.to / Medium'a manuel yayınlanmadı — kullanıcı aksiyonu.
+3. Plausible analytics hesabı hâlâ açılmadı; deploy'dan önce açılmazsa ilk
+   günlerin ölçümü kalıcı olarak kaybolur.
+4. Yayından sonra Google Search Console'da sekme URL'lerinin indekslenmesini
+   izle.
+
+---
+
+## 📌 Önceki Durum (2026-08-03, Opus — Faz 3 kod incelemesi: 3 sessiz arıza + manuel rehber + regresyon testleri)
+
+> Alttaki bölümler korunuyor; oradaki mimari kararlar hâlâ geçerli, bu oturum
+> onların ÜSTÜNE düzeltme yaptı.
 
 ### Neredeyiz
 

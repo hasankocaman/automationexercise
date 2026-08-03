@@ -2,6 +2,7 @@ import { access, readFile } from 'node:fs/promises'
 import { LOCALES, ROUTE_SEO, alternatesFor, canonicalUrl, localizedPath, seoFor } from '../src/utils/seo.js'
 import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js'
 import { MIN_INDEXABLE_WORDS, buildSectionSeoIndex } from './lib/sectionSeo.mjs'
+import { AUTHOR, AUTHOR_ID, ORGANIZATION, ORGANIZATION_ID } from '../src/utils/authorship.js'
 import { DATA_MODULES, contentForLocale, loadDataModule } from './lib/topicDataModules.mjs'
 
 // generate-static-routes.mjs'teki escapeHtml ile BİREBİR aynı olmalı: görünür
@@ -61,6 +62,50 @@ function visibleWordCount(html) {
         .filter(Boolean).length
 }
 
+/** Script/style çıkarılmış gövde — "bu metin kullanıcıya görünüyor mu?" için. */
+function visibleBodyOf(html) {
+    return html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, '')
+}
+
+// ─── E-E-A-T: yazar/kurum kimliği ────────────────────────────────────────────
+// Üç şey AYNI ANDA doğru olmalı, yoksa sinyal değersizleşir:
+//   1. Grafikte Organization ve Person düğümleri var,
+//   2. WebPage bu düğümlere `@id` ile referans veriyor (kopyasını değil),
+//   3. Aynı yazar adı sayfanın GÖRÜNÜR gövdesinde de yazıyor.
+// (3) olmadan şema, kullanıcının doğrulayamayacağı bir iddiaya dönüşür.
+function checkIdentity(html, urlPath, label) {
+    const graph = parseJsonLd(html)
+    const nodes = graph.filter((node) => node['@id'])
+    const org = nodes.find((node) => node['@id'] === ORGANIZATION_ID)
+    const person = nodes.find((node) => node['@id'] === AUTHOR_ID)
+
+    if (!org || org['@type'] !== 'Organization') {
+        errors.push(`Missing Organization identity node in ${label} ${urlPath}`)
+    }
+    if (!person || person['@type'] !== 'Person') {
+        errors.push(`Missing Person (author) identity node in ${label} ${urlPath}`)
+    } else if (person.name !== AUTHOR.name) {
+        errors.push(`Author node name does not match the single source in ${label} ${urlPath}`)
+    }
+
+    const webPage = graph.find((node) => node['@type'] === 'WebPage')
+    if (webPage) {
+        if (webPage.author?.['@id'] !== AUTHOR_ID) {
+            errors.push(`WebPage is missing an author reference in ${label} ${urlPath}`)
+        }
+        if (webPage.publisher?.['@id'] !== ORGANIZATION_ID) {
+            errors.push(`WebPage is missing a publisher reference in ${label} ${urlPath}`)
+        }
+    }
+
+    const visible = visibleBodyOf(html)
+    if (!visible.includes('data-seo-byline="true"')) {
+        errors.push(`Missing visible byline in ${label} ${urlPath}`)
+    } else if (!visible.includes(escapeHtml(AUTHOR.name)) || !visible.includes(escapeHtml(ORGANIZATION.name))) {
+        errors.push(`Byline does not name the author/publisher from the schema in ${label} ${urlPath}`)
+    }
+}
+
 const checkedRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic)
 let checked = 0
 
@@ -116,6 +161,8 @@ for (const locale of LOCALES) {
         if (!html.includes('"@type": "BreadcrumbList"')) {
             errors.push(`Missing BreadcrumbList structured data for ${urlPath}`)
         }
+
+        checkIdentity(html, urlPath, 'route')
     }
 }
 
@@ -243,6 +290,7 @@ const seenDescriptions = new Map()
 let sectionShells = 0
 let sectionIndexable = 0
 let sectionNoindex = 0
+let howToPages = 0
 
 for (const locale of LOCALES) {
     // Hub sayfalarının metadata'sı da tekillik havuzuna girer.
@@ -288,6 +336,40 @@ for (const locale of LOCALES) {
             }
             if (html.includes('"@type": "FAQPage"')) {
                 errors.push(`FAQPage schema must not appear on section shells: ${urlPath}`)
+            }
+
+            checkIdentity(html, urlPath, 'section')
+
+            // ─── HowTo ───────────────────────────────────────────────────────
+            // Kurulum prosedürünün şemadaki hâli ile ekrandaki hâli ayrışamaz.
+            // Kontrol ŞEMANIN KENDİSİNİ gezer, kaynak listeyi değil: şemaya
+            // başka bir kod yolundan görünmeyen bir adım eklenirse kaynağı
+            // taramak onu kaçırırdı (FAQ kontrolü ilk yazımında tam olarak
+            // bunu kaçırmıştı).
+            const howToNodes = parseJsonLd(html).filter((node) => node['@type'] === 'HowTo')
+            if (howToNodes.length > 1) {
+                errors.push(`More than one HowTo schema in section shell ${urlPath}`)
+            }
+            for (const node of howToNodes) {
+                if (!entry.indexable) {
+                    errors.push(`HowTo schema on a non-indexable section: ${urlPath}`)
+                }
+                const steps = Array.isArray(node.step) ? node.step : []
+                if (steps.length < 3) {
+                    errors.push(`HowTo has too few steps in ${urlPath}`)
+                }
+                const visible = visibleBodyOf(html)
+                for (const step of steps) {
+                    const text = String(step?.text ?? '')
+                    if (!text) {
+                        errors.push(`HowTo step is missing its text in ${urlPath}`)
+                        continue
+                    }
+                    if (!visible.includes(escapeHtml(text))) {
+                        errors.push(`HowTo step is not visible in the page body (${urlPath}): "${text.slice(0, 60)}..."`)
+                    }
+                }
+                howToPages += 1
             }
 
             // Canonical: ilk sekme hub'a, diğerleri kendine.
@@ -338,5 +420,6 @@ if (errors.length) {
 console.log(`Dist SEO check passed for ${checked} generated pages (${checkedRoutes.length} routes x ${LOCALES.length} locales).`)
 console.log(`Section shells: ${sectionShells} checked, ${sectionIndexable} indexable, ${sectionNoindex} noindex (ince/kilitli).`)
 console.log(`Answer-first paragraphs: ${answerPages} sayfa (görünür gövdede doğrulandı).`)
-console.log(`Rich results: ${coursePages} pages with Course, ${faqPages} with FAQPage (her biri görünür içerikle doğrulandı).`)
+console.log(`Rich results: ${coursePages} pages with Course, ${faqPages} with FAQPage, ${howToPages} with HowTo (her biri görünür içerikle doğrulandı).`)
+console.log(`Authorship: ${AUTHOR.name} / ${ORGANIZATION.name} — her sayfada şema + görünür künye doğrulandı.`)
 console.log(`Noindex shells: ${noindexShells} (sitemap dışı, robots=noindex doğrulandı).`)

@@ -270,6 +270,113 @@ test.describe('SSS bloğu kilitsizdir (FAQPage şemasının önkoşulu)', () => 
     });
 });
 
+test.describe('Kurulum prosedürü (HowTo) — şema ile ekran ayrışmamalı', () => {
+    // NEDEN: "docker nasıl kurulur" tipi sorgular prosedür arar. Kurulum
+    // sekmelerinin adımları veri dosyasında zaten sıralıydı ama crawl edilebilir
+    // metne HİÇ girmiyordu (`cmd` ve düz metin adım listeleri, SEO metnine
+    // giren alanlar listesinde yok). Bu blok hem o metni görünür kıldı hem de
+    // adımları makineye prosedür olarak bildirdi. Şemadaki bir adım ekranda
+    // yoksa, kullanıcının göremediği içeriği arama motoruna sunmuş oluruz.
+    test('kurulum sekmesinde HowTo var ve her adım gövdede görünür', async () => {
+        const samples = ['/jenkins/jenkins-installation', '/git-github/installation-and-first-configuration'];
+
+        for (const path of samples) {
+            const shell = await readShell(path);
+            const howTo = parseJsonLd(shell).find((node) => node['@type'] === 'HowTo');
+            expect(howTo, `${path} shell'inde HowTo şeması yok`).toBeTruthy();
+            expect(howTo.step.length).toBeGreaterThanOrEqual(3);
+
+            const visible = shell.replace(/<script[\s\S]*?<\/script>/g, '');
+            for (const step of howTo.step) {
+                const escaped = String(step.text)
+                    .replaceAll('&', '&amp;').replaceAll('"', '&quot;')
+                    .replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+                expect(visible, `Şemadaki adım gövdede yok: ${step.text.slice(0, 50)}`).toContain(escaped);
+            }
+        }
+    });
+
+    test('kurulum sekmesi OLMAYAN sayfalarda HowTo üretilmez', async () => {
+        // Her sıralı listeyi prosedür ilan etmek, şemayı gürültüye çevirir:
+        // "wait stratejileri" bir kurulum rehberi değildir.
+        for (const path of ['/selenium/wait-strategies', '/sql/sql-joins', '/playwright']) {
+            const shell = await readShell(path);
+            const howTo = parseJsonLd(shell).find((node) => node['@type'] === 'HowTo');
+            expect(howTo, `${path} beklenmedik şekilde HowTo taşıyor`).toBeFalsy();
+        }
+    });
+
+    test('adımlar gerçekten veri dosyasındaki komutlardan geliyor', async () => {
+        // Uydurulmuş bir prosedür, olmayan bir kurulum vaat eder. Bilinen bir
+        // komutun şemada yer alması, adımların içerikten okunduğunu kanıtlar.
+        const shell = await readShell('/git-github/installation-and-first-configuration');
+        const howTo = parseJsonLd(shell).find((node) => node['@type'] === 'HowTo');
+        const names = howTo.step.map((s: any) => s.name || s.text).join(' | ');
+        expect(names).toContain('git config --global user.name');
+    });
+});
+
+test.describe('E-E-A-T — yazar ve yayıncı kimliği', () => {
+    // NEDEN: Anonim içerik, aynı kalitedeki imzalı içerikten sistematik olarak
+    // geride kalıyor. Bu kontrolün asıl koruduğu şey üç kaynağın AYNI kalması:
+    // şemadaki kişi, ekranda yazan künye ve JavaScript sonrası görünen künye.
+    // Biri ötekinden ayrılırsa sinyal doğrulanamaz bir iddiaya dönüşür.
+    test('hub ve sekme shell\'lerinde Organization + Person düğümleri var', async () => {
+        for (const path of ['/', '/docker', '/en/docker', '/jenkins/jenkins-installation']) {
+            const shell = await readShell(path);
+            const nodes = parseJsonLd(shell);
+
+            const org = nodes.find((n) => n['@type'] === 'Organization');
+            const person = nodes.find((n) => n['@type'] === 'Person');
+            expect(org, `${path}: Organization düğümü yok`).toBeTruthy();
+            expect(person?.name, `${path}: Person düğümü yok`).toBe('Hasan Kocaman');
+
+            // Referansla bağlanmalı: her sayfada kişiyi yeniden TARİF etmek
+            // yerine tek kimliğe işaret etmek, motorun site genelinde tek bir
+            // varlık tanımasını sağlar.
+            const webPage = nodes.find((n) => n['@type'] === 'WebPage');
+            expect(webPage.author['@id']).toBe('https://learnqa.dev/#author');
+            expect(webPage.publisher['@id']).toBe('https://learnqa.dev/#organization');
+        }
+    });
+
+    test('künye statik HTML\'de görünür ve şemadaki adı taşır', async () => {
+        const shell = await readShell('/docker');
+        expect(shell).toContain('data-seo-byline="true"');
+        expect(shell).toContain('Yazan: Hasan Kocaman');
+        expect(shell).toContain('Yayıncı: LearnQA.dev');
+
+        const en = await readShell('/en/docker');
+        expect(en).toContain('Written by: Hasan Kocaman');
+        expect(en).toContain('Published by: LearnQA.dev');
+    });
+
+    test('künye JavaScript sonrası da duruyor (kaybolmamalı)', async ({ page }) => {
+        // Statik shell hidrasyondan sonra tamamen değiştirilir; künye yalnızca
+        // shell'de kalırsa Google'ın render ettiği sayfada yazar bilgisi
+        // KAYBOLUR — ham HTML ile render sonrası ayrışır.
+        await page.goto('/docker');
+        const byline = page.locator('[data-seo-byline]').first();
+        await expect(byline).toBeVisible({ timeout: 20_000 });
+        await expect(byline).toContainText('Hasan Kocaman');
+        await expect(byline).toContainText('LearnQA.dev');
+    });
+
+    test('şemadaki dateModified ile sitemap lastmod aynı tarihi gösterir', async () => {
+        // Üç yerde (sitemap, şema, görünür künye) tek bir tarih olmalı.
+        // Ayrışırsa "sayfa ne zaman güncellendi" sorusuna site üç farklı
+        // cevap verir ve tarama önceliği sinyali değersizleşir.
+        const shell = await readShell('/docker');
+        const webPage = parseJsonLd(shell).find((n) => n['@type'] === 'WebPage');
+        expect(webPage.dateModified, 'shell\'de dateModified yok').toBeTruthy();
+
+        const sitemap = await readFile('public/sitemap.xml', 'utf8');
+        const block = sitemap.split('<url>').find((part) => part.includes('<loc>https://learnqa.dev/docker</loc>'));
+        expect(block, 'sitemap\'te /docker girdisi yok').toBeTruthy();
+        expect(block).toContain(`<lastmod>${webPage.dateModified}</lastmod>`);
+    });
+});
+
 test.describe('Cevap-önce paragrafı yalnızca hub\'da', () => {
     // NEDEN: `seoAnswer` SAYFANIN tanımıdır ("Playwright nedir?"), tek tek
     // bölümlerin değil. Her sekmede tekrarlanırsa 688 URL aynı paragrafla

@@ -18,6 +18,7 @@
     "seo:check-dist": "node scripts/check-dist-seo.mjs",
     "seo:files": "node scripts/generate-seo-files.mjs",
     "seo:section-slugs": "node scripts/generate-section-slugs.mjs",
+    "seo:lcp": "node scripts/measure-mobile-lcp.mjs",
     "preview": "vite preview",
     "pretest:e2e": "node scripts/kill-stale-test-processes.mjs",
     "test:e2e": "playwright test",

@@ -21,6 +21,7 @@ import {
     wordCount,
 } from '../../src/utils/sectionSeoText.js'
 import { DATA_MODULES, contentForLocale, loadDataModule } from './topicDataModules.mjs'
+import { howToFromSection, isInstallationTitle } from './howTo.mjs'
 
 // Slug üretimi ve metin türetimi runtime ile ORTAK (src/utils/sectionSeoText.js).
 // Buradan yeniden dışa aktarılır ki slug üreticisi tek bir modül import etsin.
@@ -77,7 +78,26 @@ export async function computeSectionCatalog() {
                     prose,
                     words: wordCount(prose),
                     pageLabel: pageLabelFor(perLocale[locale], routeSeo, locale),
+                    section,
                 }
+            }
+
+            // Kurulum sekmesi mi? Karar İKİ dilin başlığına birden bakılarak
+            // verilir: bir dilde "Kurulum" yazan sekme öbür dilde "Setup"tır,
+            // ama bazı sayfalarda başlıklardan yalnızca biri kalıbı tutar
+            // (ör. "⚙️ Erişim & Kurulum" / "⚙️ Access & Setup"). Tek dile
+            // bakmak, prosedürü öbür dilde sessizce düşürürdü.
+            const installTab = isInstallationTitle(
+                ...LOCALES_FOR_SECTIONS.map((locale) => byLocale[locale].title),
+            )
+            for (const locale of LOCALES_FOR_SECTIONS) {
+                byLocale[locale].howTo = installTab
+                    ? howToFromSection(byLocale[locale].section, locale, { sectionTitle: byLocale[locale].title })
+                    : null
+                // Ham bölüm nesnesi katalogda TAŞINMAZ: buradan çıkan veri
+                // sitemap ve shell üretimine gidiyor, veri dosyasının tamamını
+                // sürüklemek hem gereksiz hem de kazara sızma riski.
+                delete byLocale[locale].section
             }
 
             const enSection = sections[index]
@@ -144,6 +164,9 @@ export async function buildSectionSeoIndex(sectionSlugs) {
                 titles: Object.fromEntries(LOCALES_FOR_SECTIONS.map((l) => [l, entry.byLocale[l].title])),
                 prose: Object.fromEntries(LOCALES_FOR_SECTIONS.map((l) => [l, entry.byLocale[l].prose])),
                 pageLabels: Object.fromEntries(LOCALES_FOR_SECTIONS.map((l) => [l, entry.byLocale[l].pageLabel])),
+                // Kurulum sekmelerinde sıralı prosedür (bkz. ./howTo.mjs); diğer
+                // sekmelerde iki dilde de null.
+                howTo: Object.fromEntries(LOCALES_FOR_SECTIONS.map((l) => [l, entry.byLocale[l].howTo])),
                 seo,
             }
         })

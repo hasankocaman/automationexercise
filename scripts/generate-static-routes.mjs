@@ -6,6 +6,14 @@ import { INTERVIEW_SHOWCASE } from '../src/data/generated/interviewShowcase.js'
 import { interviewWarmupData } from '../src/data/interviewWarmupData.js'
 import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js'
 import { buildSectionSeoIndex } from './lib/sectionSeo.mjs'
+import { lastModFor } from './lib/lastmod.mjs'
+import {
+    AUTHOR_ID,
+    ORGANIZATION_ID,
+    authorNode,
+    bylineParts,
+    organizationNode,
+} from '../src/utils/authorship.js'
 import { DATA_MODULES, loadDataModule } from './lib/topicDataModules.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -44,6 +52,8 @@ const UI_TEXT = {
         navLabel: 'LearnQA.dev konu bağlantıları',
         sectionNav: 'Bu dersin bölümleri',
         sectionNavLabel: 'Ders bölümleri',
+        howToHeading: 'Kurulum adımları',
+        bylineLabel: 'Sayfa künyesi',
     },
     en: {
         whatYouLearn: 'What you can learn on this page',
@@ -51,7 +61,51 @@ const UI_TEXT = {
         navLabel: 'LearnQA.dev topic links',
         sectionNav: 'Sections in this lesson',
         sectionNavLabel: 'Lesson sections',
+        howToHeading: 'Installation steps',
+        bylineLabel: 'Page credits',
     },
+}
+
+// Görünür künye: içeriğin arkasında gerçek bir kişi ve kurum olduğunu HEM
+// kullanıcıya HEM makineye söyler. Şemadaki `author`/`publisher` düğümleriyle
+// AYNI kaynaktan (src/utils/authorship.js) beslenir — ayrışamaz. Aynı metin
+// TopicPage'de de render edilir, böylece JavaScript sonrası kaybolmaz.
+function bylineHtml(locale, updatedIso) {
+    const ui = UI_TEXT[locale]
+    const parts = bylineParts(locale, updatedIso)
+    const items = [
+        `<a href="${escapeHtml(parts.authorUrl)}" rel="author noopener" target="_blank">${escapeHtml(parts.author)}</a>`,
+        escapeHtml(parts.role),
+        escapeHtml(parts.publisher),
+        parts.updated ? escapeHtml(parts.updated) : '',
+    ].filter(Boolean)
+
+    return `<footer data-seo-byline="true" aria-label="${escapeHtml(ui.bylineLabel)}" style="margin-top: 32px; font-size: 14px; opacity: 0.85;">
+        <p>${items.join(' · ')}</p>
+        </footer>`
+}
+
+// Kurulum prosedürünün GÖRÜNÜR hâli. HowTo şemasına giren her adım burada da
+// basılır: kullanıcının göremediği bir adımı şemaya koymak, ana sayfanın FAQ
+// şemasının bir zamanlar kaldırılma sebebiyle aynı ihlaldir (check-dist-seo.mjs
+// her adımı gövdede arar). Yan kazanç: `cmd` ve düz metin adım listeleri bu
+// sayede ilk kez crawl edilebilir metne girdi.
+function howToHtml(howTo, locale) {
+    if (!howTo?.steps?.length) return ''
+    const ui = UI_TEXT[locale]
+    const steps = howTo.steps
+        .map((step) => {
+            const name = step.derivedName ? '' : `<strong>${escapeHtml(step.name)}</strong> — `
+            return `          <li>${name}${escapeHtml(step.text)}</li>`
+        })
+        .join('\n')
+
+    return `<section data-seo-howto="true">
+        <h2>${escapeHtml(ui.howToHeading)}</h2>
+        <ol>
+${steps}
+        </ol>
+        </section>`
 }
 
 function testFrameworksContent(locale) {
@@ -498,6 +552,7 @@ ${seo.sectionLinks.map((item) => `          <li><a href="${escapeHtml(localizedP
 ${links}
         </ul>
         </nav>
+        ${bylineHtml(locale, seo.updatedIso)}
     </main>`
 }
 
@@ -523,13 +578,47 @@ function sectionFallbackContent(seo, locale) {
         <h1>${escapeHtml(seo.sectionLabel)}</h1>
         <p>${escapeHtml(seo.description)}</p>
 ${paragraphs}
+        ${howToHtml(seo.howTo, locale)}
         <nav aria-label="${escapeHtml(ui.navLabel)}">
         <h2>${escapeHtml(seo.siblingsHeading)}</h2>
         <ul>
 ${siblings}
         </ul>
         </nav>
+        ${bylineHtml(locale, seo.updatedIso)}
     </main>`
+}
+
+// E-E-A-T: her sayfanın grafiğinde içeriği YAZAN kişi ve YAYINLAYAN kurum
+// bulunur. Arama motoru "bu içeriğin arkasında kim var?" sorusuna makine
+// tarafından okunur bir cevap arıyor; anonim içerik, aynı kalitede imzalı
+// içerikten sistematik olarak geride kalıyor. Düğümler `@id` ile bir kez
+// tanımlanır, WebPage/Course onlara REFERANS verir — aynı kişiyi her sayfada
+// yeniden tarif etmek yerine tek bir kimlikte birleştirmek, motorun kişiyi
+// site genelinde tek bir varlık olarak tanımasını sağlar.
+function identityNodes(locale) {
+    return [organizationNode(), authorNode(locale)]
+}
+
+function webPageNode(seo, url, locale) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: seo.title,
+        description: seo.description,
+        url,
+        inLanguage: locale,
+        isPartOf: {
+            '@type': 'WebSite',
+            name: 'LearnQA.dev',
+            url: 'https://learnqa.dev/',
+        },
+        author: { '@id': AUTHOR_ID },
+        publisher: { '@id': ORGANIZATION_ID },
+        // Tarih yalnızca güvenilirse yazılır (shallow clone'da hiç üretilmez);
+        // uydurma bir "bugün güncellendi" sinyali, hiç tarih vermemekten kötüdür.
+        ...(seo.updatedIso ? { dateModified: seo.updatedIso } : {}),
+    }
 }
 
 function structuredDataFor(seo, url, locale) {
@@ -537,20 +626,8 @@ function structuredDataFor(seo, url, locale) {
     // SERP'te çıplak URL yerine bu yol gösterilir ve sayfanın hiyerarşideki
     // yerini Google'a açıkça bildirir.
     if (seo.isSection) {
-        return JSON.stringify([
-            {
-                '@context': 'https://schema.org',
-                '@type': 'WebPage',
-                name: seo.title,
-                description: seo.description,
-                url,
-                inLanguage: locale,
-                isPartOf: {
-                    '@type': 'WebSite',
-                    name: 'LearnQA.dev',
-                    url: 'https://learnqa.dev/',
-                },
-            },
+        const sectionGraph = [
+            webPageNode(seo, url, locale),
             {
                 '@context': 'https://schema.org',
                 '@type': 'BreadcrumbList',
@@ -565,23 +642,41 @@ function structuredDataFor(seo, url, locale) {
                     { '@type': 'ListItem', position: 3, name: seo.sectionLabel, item: url },
                 ],
             },
-        ], null, 2).replaceAll('</script', '<\\/script')
+            ...identityNodes(locale),
+        ]
+
+        // HowTo: YALNIZCA kurulum sekmelerinde ve YALNIZCA sayfada görünür olan
+        // adımlardan (bkz. scripts/lib/howTo.mjs + howToHtml). "X nasıl kurulur"
+        // sorgusu prosedür arar; bu düğüm sayfanın bir prosedür olduğunu ve
+        // adımlarının ne olduğunu açıkça bildirir. İndekslenmeyen (ince/kilitli)
+        // sekmelerde üretilmez — indekslenmeyecek sayfaya şema koymak boşa yazı.
+        if (seo.howTo?.steps?.length && !seo.noindex && !seo.canonicalPath) {
+            sectionGraph.push({
+                '@context': 'https://schema.org',
+                '@type': 'HowTo',
+                name: seo.howTo.name || seo.sectionLabel,
+                description: seo.description,
+                inLanguage: locale,
+                url,
+                author: { '@id': AUTHOR_ID },
+                publisher: { '@id': ORGANIZATION_ID },
+                step: seo.howTo.steps.map((item, position) => ({
+                    '@type': 'HowToStep',
+                    position: position + 1,
+                    // Türetilmiş (metnin kırpılmışı) adlar şemaya girmez:
+                    // aynı cümleyi ad ve metin olarak iki kez vermek makineye
+                    // hiçbir bilgi eklemez, sadece gürültü üretir.
+                    ...(item.derivedName ? {} : { name: item.name }),
+                    text: item.text,
+                })),
+            })
+        }
+
+        return JSON.stringify(sectionGraph, null, 2).replaceAll('</script', '<\\/script')
     }
 
     const graph = [
-        {
-            '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            name: seo.title,
-            description: seo.description,
-            url,
-            inLanguage: locale,
-            isPartOf: {
-                '@type': 'WebSite',
-                name: 'LearnQA.dev',
-                url: 'https://learnqa.dev/',
-            },
-        },
+        webPageNode(seo, url, locale),
         {
             '@context': 'https://schema.org',
             '@type': 'BreadcrumbList',
@@ -600,6 +695,7 @@ function structuredDataFor(seo, url, locale) {
                 },
             ],
         },
+        ...identityNodes(locale),
     ]
 
     // Course: gerçek ders sayfaları için (veri modülü olan route'lar).
@@ -612,11 +708,11 @@ function structuredDataFor(seo, url, locale) {
             url,
             inLanguage: locale,
             isAccessibleForFree: true,
-            provider: {
-                '@type': 'Organization',
-                name: 'LearnQA.dev',
-                url: 'https://learnqa.dev/',
-            },
+            // Kurum artık her sayfada yeniden tarif edilmiyor, tek kimliğe
+            // referans veriyor — dersi yayınlayan kurumla sitenin sahibi
+            // kurumun AYNI varlık olduğu böylece açıkça söylenmiş oluyor.
+            provider: { '@id': ORGANIZATION_ID },
+            author: { '@id': AUTHOR_ID },
         })
     }
 
@@ -737,6 +833,7 @@ for (const locale of LOCALES) {
             ...localized,
             content: await routeContent(localized, locale),
             sectionLinks: sectionLinksFor(entry.path, locale),
+            updatedIso: lastModFor(entry.path),
         }, locale)
         const urlPath = localizedPath(entry.path, locale)
 
@@ -793,6 +890,10 @@ for (const locale of LOCALES) {
                 prose: entry.prose[locale],
                 siblings,
                 siblingsHeading: SIBLINGS_HEADING[locale],
+                // Sekmenin tarihi, içeriğini taşıyan veri dosyasının tarihidir
+                // (sekmeler ayrı dosyalarda değil, hub'ın veri dosyasında).
+                updatedIso: lastModFor(hubPath),
+                howTo: entry.howTo?.[locale] || null,
                 // İlk sekme: canonical HUB'a gider (aynı sorguyu hedefliyorlar,
                 // ikisi birden indekslenirse birbirini yerler). Canonical tek
                 // başına birleştirme sinyalidir; üstüne noindex EKLENMEZ —

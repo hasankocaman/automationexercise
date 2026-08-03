@@ -44,6 +44,8 @@ import { addWrongAnswer } from '../lib/reviewQueue'
 import { logActivity } from '../lib/activityLog'
 import { saveLastPosition, recordInterviewMastery } from '../lib/progressStore'
 import { basePathOf, pathForSection, sectionIndexFromSlug, sectionSlugForIndex } from '../utils/sectionRoutes'
+import { bylineParts } from '../utils/authorship'
+import { pageUpdatedFor } from '../data/generated/pageUpdated'
 import { deriveSectionSeo, sectionProse, stripLeadingEmoji, textValue } from '../utils/sectionSeoText'
 import { setSeoOverride } from '../lib/seoOverride'
 
@@ -20899,6 +20901,42 @@ function TopicPage({ data, gradient, bgLight, extraBanner, headerExtra, showQaMe
                         {seoAnswerText}
                     </p>
                 )}
+
+                {/* Sayfa künyesi — içeriği kimin yazdığı, kimin yayınladığı ve
+                    en son ne zaman güncellendiği. Statik HTML'de AYNI metin
+                    basılır ve sayfanın author/publisher şeması da aynı kaynaktan
+                    beslenir; bu üçlü ayrışırsa "içeriğin arkasında gerçek biri
+                    var" sinyali değersizleşir. Tarih build sırasında veri
+                    dosyasının son commit'inden üretilir — elle yazılmaz, bu
+                    yüzden hiçbir zaman eskimez. */}
+                {(() => {
+                    const byline = bylineParts(language, pageUpdatedFor(basePath))
+                    return (
+                        <p
+                            data-seo-byline="true"
+                            className={`mb-4 md:mb-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                        >
+                            <a
+                                href={byline.authorUrl}
+                                target="_blank"
+                                rel="author noopener noreferrer"
+                                className="font-semibold underline decoration-dotted underline-offset-2 hover:opacity-80"
+                            >
+                                {byline.author}
+                            </a>
+                            <span aria-hidden="true">·</span>
+                            <span>{byline.role}</span>
+                            <span aria-hidden="true">·</span>
+                            <span>{byline.publisher}</span>
+                            {byline.updated && (
+                                <>
+                                    <span aria-hidden="true">·</span>
+                                    <span>{byline.updated}</span>
+                                </>
+                            )}
+                        </p>
+                    )
+                })()}
 
                 {/* Extra Banner (e.g. resource link) */}
                 {extraBanner}

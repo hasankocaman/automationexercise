@@ -27,15 +27,15 @@ iş). Sonnet promptları: `Documents/seo-phase-3-sonnet-prompts.md`.
 | **D1a** | `lastmod` — veri dosyasının gerçek commit tarihinden | **Opus** | ✅ TAMAMLANDI |
 | **D1c** | Sekme `BreadcrumbList` (3 basamak) | **Opus** | ✅ TAMAMLANDI |
 | **B0** | `seoAnswer` ALTYAPISI — alan desteği, görünür render, shell'de ilk paragraf | **Opus** | ✅ TAMAMLANDI |
-| **B2a** | `FAQPage` ALTYAPISI — kilitsiz kaynak + "görünürlük" guard'ı | **Opus** | ⬜ Sırada |
+| **B2a** | `FAQPage` ALTYAPISI — kilitsiz kaynak + "görünürlük" guard'ı | **Opus** | ✅ TAMAMLANDI |
 | **C0** | `/test-automation` route + metadata + shell iskeleti | **Opus** | ✅ TAMAMLANDI |
-| **D1b** | `HowTo` şeması (kurulum sekmeleri) | **Opus** | ⬜ Sırada |
-| **D2a** | E-E-A-T: yazar/kurum şeması + görünür "son güncelleme" | **Opus** | ⬜ Sırada |
+| **D1b** | `HowTo` şeması (kurulum sekmeleri) | **Opus** | ✅ TAMAMLANDI (13 bölüm × 2 dil) |
+| **D2a** | E-E-A-T: yazar/kurum şeması + görünür "son güncelleme" | **Opus** | ✅ TAMAMLANDI |
 | **B1** | `seoAnswer` METNİ — 10 öncelikli sayfa için 40-70 kelimelik cevap | Sonnet | ✅ TAMAMLANDI |
 | **B2b** | Sayfa başına kilitsiz 5-8 soruluk "Sık Sorulan Sorular" bloğu | Sonnet | ✅ TAMAMLANDI (10 sayfa) |
 | **C1** | `/test-automation` hub sayfasının İÇERİĞİ | Sonnet | ✅ TAMAMLANDI (8 sekme) |
-| **C2** | Sorgu hizalaması: `/qa-mentor`, `/what-is-testing`, `/manual-testing`, `/test-frameworks` | Sonnet | ⬜ S4 promptu |
-| **E1** | Dış otorite: README/repo metinleri, çapraz yayın özetleri | Sonnet | ⬜ S5 promptu |
+| **C2** | Sorgu hizalaması: `/qa-mentor`, `/what-is-testing`, `/manual-testing`, `/test-frameworks` | Sonnet | ✅ TAMAMLANDI |
+| **E1** | Dış otorite: README/repo metinleri, çapraz yayın özetleri | Sonnet | ✅ Taslaklar hazır, yayınlanması kullanıcıda |
 | **F1** | Ölçüm: GSC sorgu takibi + aylık kontrol ritmi | Kullanıcı | ⬜ Yayından sonra |
 
 ### A fazı — ölçülen sonuç (2026-08-02)
@@ -341,11 +341,29 @@ BrowserStack) tek gerçek üstünlüğü budur.
       "yazılım testi nedir", `/manual-testing`="manuel test nedir",
       `/test-frameworks`="playwright vs selenium" — beşi de ayrı sorgu.
 
-### Aşama 4 — Güven (D1+D2)
-- [ ] Sitemap'te gerçek `lastmod`.
-- [ ] Kurulum sekmelerinde `HowTo`, sekme URL'lerinde `BreadcrumbList`.
-- [ ] Yazar/kurum bölümü + görünür "son güncelleme".
-- [ ] Mobil LCP ölçüldü ve `NEXT_SESSION.md`'ye not edildi.
+### Aşama 4 — Güven (D1+D2) · ✅ TAMAMLANDI (2026-08-03)
+- [x] Sitemap'te gerçek `lastmod` (Aşama 1'de gelmişti; artık tarih üretimi
+      `scripts/lib/lastmod.mjs`'te tek kaynak — sitemap, `dateModified` ve
+      görünür künye aynı tarihi kullanır).
+- [x] Kurulum sekmelerinde `HowTo` (13 bölüm × 2 dil = 26 sayfa), sekme
+      URL'lerinde `BreadcrumbList` (Aşama 1).
+- [x] Yazar/kurum bölümü + görünür "son güncelleme" — `Organization`/`Person`
+      düğümleri her sayfada, `@id` referansıyla; künye hem statik HTML'de hem
+      JavaScript sonrası görünür.
+- [x] Mobil LCP ölçüldü (`npm run seo:lcp`) ve sonuç `NEXT_SESSION.md`'ye
+      not edildi.
+
+**Uygulamada alınan kararlar:**
+- `HowTo` kaynağı YALNIZCA `installation` ve `steps` blokları.
+  `step-animation` bilerek hariç: adları adım gibi görünse de o blok bir
+  MEKANİZMA anlatır ("Sürüm bir sözleşmedir"), uygulanabilir talimat değil.
+  Kapsam 24 kurulum sekmesinden 13'ü — eksik kapsam, yanlış prosedüre yeğdir.
+- ⚠ Google `HowTo` zengin sonuçlarını 2023'te kullanımdan kaldırdı; bu şema
+  Google'da görsel bir zengin sonuç ÜRETMEZ. Yine de değerli: Bing hâlâ
+  kullanıyor, sayfanın prosedür olduğunu makineye bildiriyor ve asıl kazanç
+  yan üründe — kurulum adımları bu iş sayesinde İLK KEZ crawl edilebilir
+  metne girdi (`cmd` ve düz metin adım listeleri, SEO metnine giren alanlar
+  listesinde yoktu).
 
 ### Aşama 5 — Otorite (E1) · süreklidir, biter değil
 - [ ] §7'deki 1-3 maddeleri tamam.
@@ -543,7 +561,50 @@ Bunlar için otomatik kontrol yazılamaz — insan yargısı gerekir:
 
 ---
 
-### 12.5.7. Yayına çıktıktan sonra (Google Search Console)
+### 12.5.7. Kurulum adımları, künye ve mobil hız (Aşama 4)
+
+**A. Kurulum sekmesinde adımlar (2 dakika)**
+
+1. `http://localhost:4173/jenkins/jenkins-installation/` aç (sondaki `/`
+   ZORUNLU — bkz. 12.5.0 uyarısı).
+2. Ctrl+U → ham HTML'de `data-seo-howto` ara. **Numaralı bir kurulum listesi
+   görmelisin.** Bu liste JavaScript'ten ÖNCE orada olmalı.
+3. Aynı sayfada `"@type": "HowTo"` ara. Şemadaki her `text` değerinin
+   yukarıdaki listede birebir yazdığını gözle doğrula.
+4. `/selenium/wait-strategies/` sayfasında `HowTo` **olmamalı** — kurulum
+   sekmesi değil.
+
+**B. Yazar künyesi (2 dakika)**
+
+1. `http://localhost:4173/docker/` aç. Hero'nun hemen altında
+   "Yazan: Hasan Kocaman · QA Otomasyon Mühendisi · Yayıncı: LearnQA.dev ·
+   Son güncelleme: …" satırını gör.
+2. `/en/docker/` aç: aynı satır İngilizce olmalı ("Written by: …").
+3. Ctrl+U → `data-seo-byline` ara. **Aynı metin ham HTML'de de olmalı** —
+   yalnızca birinde varsa arama motoru için ayrışma demektir.
+4. Şemada `"@id": "https://learnqa.dev/#author"` referansı olmalı; kişi
+   düğümü tek yerde tanımlanır, sayfalar ona işaret eder.
+5. Künyedeki tarih ile `public/sitemap.xml`'deki aynı sayfanın `<lastmod>`
+   değeri **aynı gün** olmalı.
+
+**C. Mobil hız (5 dakika)**
+
+```bash
+npm run build      # dist gerekiyor
+npm run seo:lcp    # Pixel 5 + 4x CPU + Slow 4G, sayfa başına 3 koşum
+```
+
+- Her satırda LCP ≤ 2500 ms ve CLS ≤ 0.1 bekle. Sonuç
+  `reports/mobile-lcp.json`'a yazılır (git'e girmez).
+- İlk koşum bilerek ATILIR (tarayıcı/sunucu ısınması ölçümü zehirliyor —
+  ısınmamış ilk istekte 7.5 sn, ısındıktan sonra 1.0 sn ölçüldü).
+- Bütçe aşımında çıkış kodunu 1 yapmak için: `npm run seo:lcp -- --strict`.
+- ⚠ Git Bash'te `--routes /` argümanı yol dönüşümüne uğrar; belirli sayfa
+  ölçmek istersen PowerShell kullan ya da sonda `/` bırak (`--routes /sql/`).
+
+---
+
+### 12.5.8. Yayına çıktıktan sonra (Google Search Console)
 
 Bunlar **yayın sonrası** ve zamana yayılır — hemen sonuç bekleme:
 
@@ -565,7 +626,8 @@ metni komşusuna fazla benziyor demektir — içeriği ayrıştır veya `noindex
 | Test dosyası | Neyi korur |
 |---|---|
 | `tests/seo-section-routes.spec.ts` | Derin bağlantı, sekme↔adres senkronu, geri tuşu, bilinmeyen slug onarımı, slug manifesti tekilliği |
-| `tests/seo-phase3-integrity.spec.ts` | Slug dondurma kuralının **gerçekten çalıştığı**, hub→bölüm iç bağlantıları, türetilmiş metadata uzunlukları, canonical/noindex tutarlılığı, SSS'nin kilitsizliği |
+| `tests/seo-phase3-integrity.spec.ts` | Slug dondurma kuralının **gerçekten çalıştığı**, hub→bölüm iç bağlantıları, türetilmiş metadata uzunlukları, canonical/noindex tutarlılığı, SSS'nin kilitsizliği, `HowTo` adımlarının ekranda görünürlüğü, yazar/kurum kimliği ve tarihin üç kaynakta aynı olması |
+| `npm run seo:lcp` (elle) | Mobil LCP/CLS bütçesi — testte değil, ölçüm aracı; yayın öncesi elle koşulur |
 | `tests/seo-phase2-coverage.spec.ts` | Sitemap URL sayısı, FAQPage şemasının görünür metne dayandığı, sekme shell'lerinde FAQ olmadığı |
 | `tests/video-scene.spec.ts` | `/test-automation` dahil film bloklarının render olduğu |
 | `scripts/check-dist-seo.mjs` (build) | 92 sayfa + 840 sekme shell'inin başlık/description/canonical/noindex/gövde bütünlüğü |
