@@ -20,10 +20,90 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-02, Sonnet — SEO Faz 3 / S1+S4+S5 içerik + FAQ altyapısı) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-03, Opus — Faz 3 kod incelemesi: 3 sessiz arıza + manuel rehber + regresyon testleri) — YENİ OTURUM BURADAN BAŞLASIN
 
-> Çelişki olursa bu bölüm günceldir. Bir önceki bölüm (Opus — Sekme URL'leri)
-> aşağıda korunuyor, o oturumun mimari kararları hâlâ geçerli.
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor; oradaki
+> mimari kararlar hâlâ geçerli, bu oturum onların ÜSTÜNE düzeltme yaptı.
+
+### Neredeyiz
+
+- **Branch: `feature/seo-phase-3-serp-rankings`** — main'e MERGE EDİLMEDİ,
+  remote'a PUSH EDİLMEDİ. Karar kullanıcıda.
+- S1-S5 içeriği ve sekme-URL mimarisi bitti (alttaki bölümler). Bu oturum
+  onları **denetledi** ve üç sessiz arıza buldu — üçü de düzeltildi ve
+  regresyon testi altına alındı.
+- Son commit: `486edb8`. Build yeşil, `seo-phase3-integrity` 12/12.
+
+### Bu oturumda bulunan ve düzeltilen 3 arıza
+
+Üçünün ortak yanı: **hiçbiri hata vermiyordu** — build yeşil, sayfa çalışıyor,
+test kırmızı değil. Bu yüzden ancak elle okuyup ölçerek bulundular.
+
+1. **Slug dondurma kuralı 420 bölümün 379'unda ÖLÜYDÜ**
+   (`scripts/generate-section-slugs.mjs`). Manifest başlıkları
+   `stripLeadingEmoji` ile YAZILIYOR ("What is Selenium?"), katalog başlıkları
+   emoji'yi KORUYOR ("🟢 What is Selenium?") — `byTitle.get()` hiç tutmuyordu.
+   Sonuç: slug'lar başlığa değil **yalnızca index'e** bağlıydı. Bir veri
+   dosyasının ORTASINA bölüm eklenince `/selenium/locators` sessizce BAŞKA bir
+   bölümün içeriğini göstermeye başlardı (404 bile değil — yanlış içerik).
+   **Düzeltme:** iki tarafta da strip. 420/420 isabet, mevcut slug'larda
+   **sıfır** değişiklik (geriye dönük güvenli).
+   ⚠️ Yeni bir veri dosyası eklerken bu kuralın hâlâ canlı olduğunu
+   `seo-phase3-integrity.spec.ts` doğruluyor — o test kırmızıya dönerse
+   URL'lerin içerikten koptuğunu anla.
+
+2. **688 sekme URL'i iç bağlantı grafiğinde ÖKSÜZDÜ**
+   (`scripts/generate-static-routes.mjs`). Hub shell'i (sitenin en çok link
+   alan sayfası) kendi bölümlerine HİÇ `<a href>` vermiyordu; sekmeler
+   yalnızca sitemap'ten keşfedilebiliyordu. Sitemap **keşif** sağlar ama
+   tarama önceliğini ve sayfa otoritesini **iç bağlantılar** dağıtır — Faz
+   3'ün tüm kazancı buna bağlıyken tek link yoktu.
+   **Düzeltme:** `buildSectionSeoIndex` artık hub döngüsünden ÖNCE
+   hesaplanıyor, hub gövdesine "Bu dersin bölümleri" listesi basılıyor
+   (selenium 13, sql 23, python 19, test-automation 7 — iki dilde).
+   İlk sekme (hub kopyası) ve kilitli mülakat sekmesi bilinçli HARİÇ.
+
+3. **SSS bloğu JavaScript sonrası başlık yapısını kaybediyordu**
+   (`TopicPage.jsx` `case 'faq'`). Statik shell `<h2>/<h3>` basarken React
+   `<div>/<p>` basıyordu — Google'ın render ettiği DOM ile ham HTML ayrışıyor,
+   ekran okuyucu da soruları başlıktan başlığa gezemiyordu. `<h3>/<h4>` yapıldı
+   (bölüm başlığı `<h2>` olduğu için hiyerarşi h2 → h3 → h4).
+
+### Denetlenip TEMİZ çıkanlar (tekrar bakmaya gerek yok)
+
+- `/test-automation` 8 sekmenin hepsinde video + animasyon + sandbox tam.
+- 11 sayfanın SSS blokları iki dilde de eksiksiz; 132 sorunun hepsi benzersiz.
+- 688 indekslenebilir sekme metadata'sının tamamı SERP sınırları içinde
+  (title ≤62, description 80-180) — tekilleştirme adımı bile sınırı aşmıyor.
+- İlk sekme URL'i (`/selenium/what-is-selenium`) runtime'da hub'a onarılıyor;
+  canonical hub'da kalıyor (kanibalizasyon önlemi JS sonrası da geçerli).
+
+### Eklenen kalıcı belge ve testler
+
+- **`Documents/seo-phase-3-plan.md` §12.5 — MANUEL TEST REHBERİ.** Kullanıcının
+  elle doğrulaması için: hazırlık, sekme URL'leri (7 madde), Ctrl+U ile ham
+  HTML (6 madde), SSS/cevap paragrafı cloaking kontrolü, `/test-automation`,
+  kanibalizasyon tablosu, **otomatik testin göremediği 5 şey**, yayın sonrası
+  GSC takvimi. §12.6 = hangi test dosyası neyi koruyor tablosu.
+- **`tests/seo-phase3-integrity.spec.ts` (12 test, 12/12 yeşil).** Yukarıdaki
+  üç arızanın üçü de artık bekçi altında; ayrıca metadata sınırları,
+  shell↔tarayıcı canonical/başlık tutarlılığı, SSS'nin kilitsizliği.
+  ⚠️ `dist/` ister — önce `npm run build`.
+
+### Sıradaki iş
+
+1. Kurulum sekmeleri için `HowTo` şeması, E-E-A-T yazar/kurum şeması, mobil
+   LCP ölçümü — henüz başlanmadı (plan §8 Aşama 4).
+2. Outreach taslakları (`Documents/outreach/`) hazır ama GitHub About /
+   dev.to / Medium'a **manuel yayınlanmadı** — kullanıcı aksiyonu (Aşama 5).
+3. Branch main'e merge + push kararı.
+
+---
+
+## 📌 Önceki Durum (2026-08-02, Sonnet — SEO Faz 3 / S1+S4+S5 içerik + FAQ altyapısı)
+
+> Bu oturumun ürettiği içerik hâlâ geçerli; üstteki bölüm onun üstüne
+> düzeltme yaptı.
 
 ### Neredeyiz
 
