@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Kişisel AI Mentor — MentorPanel/MentorNudge E2E testleri (öğrenme yazısı #5,
 // plan Bölüm 6 §6.4 S3). Test edilen route HomePage `/` — yeni route açılmadı,
@@ -73,7 +74,7 @@ test.describe('Kişisel AI Mentor — Katman A (yerel, üyeliksiz, CI\'da tam ç
         // Deep-link çalışırsa /java'ya varınca prediction bloğu ("Önce Tahmin Et")
         // hiç sekme tıklamadan görünür olmalı.
         await panel.getByRole('link', { name: /Tahmin bloklarıyla kendini test et/ }).click();
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page).toHaveURL(/\/java$/);
         // javaData büyük bir chunk — sekme içeriğinin render'ı 5s'i aşabilir (bkz. §14).
         await expect(page.getByText('Önce Tahmin Et').first()).toBeVisible({ timeout: 30_000 });
@@ -83,7 +84,7 @@ test.describe('Kişisel AI Mentor — Katman A (yerel, üyeliksiz, CI\'da tam ç
         await page.goto('/');
         await page.waitForSelector('[data-testid="main-title"]', { timeout: 30_000 });
         await panel.getByRole('link', { name: /Klasik Java tuzaklarını tekrar et/ }).click();
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page).toHaveURL(/\/java$/);
         // Sayfa mount olsun (sidebar sekmeleri) — sonra 0. sekmede prediction
         // bloğu bulunmadığından "Önce Tahmin Et" görünmemeli: iki butonun gerçekten
@@ -102,7 +103,7 @@ test.describe('Kişisel AI Mentor — Katman A (yerel, üyeliksiz, CI\'da tam ç
         await seedWeakness(page, weeklyWeaknessSnapshots(now, '/python'));
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const nudge = page.locator('[data-testid="mentor-nudge"]');
         await expect(nudge).toBeVisible();
@@ -128,7 +129,7 @@ test.describe('Kişisel AI Mentor — Katman A (yerel, üyeliksiz, CI\'da tam ç
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.locator('[data-testid="mentor-nudge"]')).toHaveCount(0);
 
         await page.goto('/');

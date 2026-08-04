@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // CP7 (contentplan.md) — Jenkins Sandbox: Docker/Linux/Git/K8s'ten farklı olarak
 // Jenkins'in öğrenme engeli bir CLI değil, Jenkinsfile sözdizimi + stage/post
@@ -45,7 +46,7 @@ test.describe('CP7 — Jenkins Sandbox (yazılabilir Jenkinsfile + canlı Stage 
         const page = await context.newPage();
 
         await page.goto('/jenkins');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByRole('button', { name: /First Jenkinsfile|İlk Jenkinsfile/ }).first().click();
 
@@ -91,7 +92,7 @@ test.describe('CP7 — Jenkins Sandbox (yazılabilir Jenkinsfile + canlı Stage 
         const page = await context.newPage();
 
         await page.goto('/jenkins');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();
         await page.getByRole('button', { name: /First Jenkinsfile|İlk Jenkinsfile/ }).first().click();

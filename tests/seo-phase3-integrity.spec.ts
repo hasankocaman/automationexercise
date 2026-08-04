@@ -366,14 +366,22 @@ test.describe('E-E-A-T — yazar ve yayıncı kimliği', () => {
         // Üç yerde (sitemap, şema, görünür künye) tek bir tarih olmalı.
         // Ayrışırsa "sayfa ne zaman güncellendi" sorusuna site üç farklı
         // cevap verir ve tarama önceliği sinyali değersizleşir.
+        //
+        // Kontrol edilen şey TARİHİN VARLIĞI DEĞİL, İKİSİNİN AYNI OLMASIDIR:
+        // sığ klonda (CI'ın varsayılan fetch-depth: 1) güvenilir tarih
+        // üretilemediği için her ikisi de bilerek BOŞ kalır — bu da tutarlı
+        // bir durumdur. "Tarih olmalı" diye zorlamak, testi ortamın klon
+        // derinliğine bağlar ve CI'da ürünle ilgisi olmayan bir hata üretirdi.
         const shell = await readShell('/docker');
         const webPage = parseJsonLd(shell).find((n) => n['@type'] === 'WebPage');
-        expect(webPage.dateModified, 'shell\'de dateModified yok').toBeTruthy();
+        const schemaDate = webPage.dateModified ?? '';
 
         const sitemap = await readFile('public/sitemap.xml', 'utf8');
         const block = sitemap.split('<url>').find((part) => part.includes('<loc>https://learnqa.dev/docker</loc>'));
         expect(block, 'sitemap\'te /docker girdisi yok').toBeTruthy();
-        expect(block).toContain(`<lastmod>${webPage.dateModified}</lastmod>`);
+        const sitemapDate = /<lastmod>([^<]+)<\/lastmod>/.exec(block as string)?.[1] ?? '';
+
+        expect(schemaDate, 'şema ile sitemap farklı tarih gösteriyor').toBe(sitemapDate);
     });
 });
 

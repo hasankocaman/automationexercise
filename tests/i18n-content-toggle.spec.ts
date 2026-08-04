@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { dockerData } from '../src/data/dockerData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // AC03 (Documents/acceptancecriterias.md) — i18n.
 // Koşul A (TR): quiz/arayüz metinleri Türkçe olmalı.
@@ -23,7 +24,7 @@ test.describe('AC03 — dil değiştirme (TR ⇄ EN) ve localStorage kalıcılı
 
     test('varsayılan dil TR — quiz sorusu ve buton metinleri Türkçe', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         await expect(page.getByText(quizBlockTr.question)).toBeVisible();
         await expect(page.getByRole('button', { name: 'Cevabı Kontrol Et' })).toHaveCount(0); // henüz seçim yapılmadı, buton render olmaz
@@ -33,7 +34,7 @@ test.describe('AC03 — dil değiştirme (TR ⇄ EN) ve localStorage kalıcılı
 
     test('EN\'e geçilince quiz sorusu/seçenekleri ve buton metinleri İngilizce\'ye döner', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
 
@@ -52,12 +53,12 @@ test.describe('AC03 — dil değiştirme (TR ⇄ EN) ve localStorage kalıcılı
 
     test('dil seçimi reload sonrası kalıcı olmalı, geri TR\'ye dönülebilmeli', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
         await expect(page.getByText(quizBlockEn.question)).toBeVisible();
 
         await page.reload();
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
         await expect(page.getByText(quizBlockEn.question)).toBeVisible();
 
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'TR' }).click();
@@ -68,7 +69,7 @@ test.describe('AC03 — dil değiştirme (TR ⇄ EN) ve localStorage kalıcılı
 
     test('NEGATİF: aynı dile tekrar tıklamak (TR iken TR, EN iken ENG) hiçbir şeyi bozmaz', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'TR' }).click();
         await expect(page.getByText(quizBlockTr.question)).toBeVisible();
         const lang = await page.evaluate(() => localStorage.getItem('language'));
@@ -92,7 +93,7 @@ test.describe('AC03 Koşul B — EN modda Türkçeye özgü karakter taraması',
         test(`${route} — EN modda hiçbir sekmede Türkçeye özgü karakter (ı/ğ/ş) görünmemeli`, async ({ page }) => {
             test.setTimeout(120_000);
             await page.goto(route);
-            await page.waitForSelector('h1', { timeout: 60_000 });
+            await waitForAppReady(page, { timeout: 60_000 });
             await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
 
             const tabButtons = page.locator('div[class*="flex-shrink-0"][class*="sticky"] button');

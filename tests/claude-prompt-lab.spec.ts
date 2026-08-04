@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // CS1 (claudesayfa.md) — /claude-ai Prompt Lab: sayfanın "sandbox"ı bir terminal
 // değil, simüle Claude'a karşı prompt yazma laboratuvarıdır. Kullanıcı zayıf bir
@@ -24,7 +25,7 @@ test.describe('CS1 — Claude Prompt Lab (/claude-ai)', () => {
         const page = await context.newPage();
 
         await page.goto('/claude-ai');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByRole('button', { name: /Prompt Mühendisliği|Prompt Engineering/ }).first().click();
 
@@ -63,7 +64,7 @@ test.describe('CS1 — Claude Prompt Lab (/claude-ai)', () => {
         const page = await context.newPage();
 
         await page.goto('/claude-ai');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();
         await page.getByRole('button', { name: /Prompt Mühendisliği|Prompt Engineering/ }).first().click();

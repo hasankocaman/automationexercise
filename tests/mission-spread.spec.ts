@@ -1,5 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import { stubPlausible, recordedEvents } from './helpers/analytics';
+import { waitForAppReady } from './helpers/app-ready';
 
 // SEO Faz 2 / S2 — `mission` yayılımıyla eklenen 6 sayfanın görev zincirleri.
 //
@@ -117,7 +118,7 @@ test.describe('Ders görevleri (mission) — her sayfadaki her görev uçtan uca
             await stubPlausible(page);
 
             await page.goto(route);
-            await page.waitForSelector('h1', { timeout: 60_000 });
+            await waitForAppReady(page, { timeout: 60_000 });
             const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);
 
             for (const { tabIndex, mission } of missions) {

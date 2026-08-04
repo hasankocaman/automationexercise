@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { dockerData } from '../src/data/dockerData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // AC06 (Documents/acceptancecriterias.md) negatif/dayanıklılık senaryoları + AC07
 // (kurs bitirme/reset) — şu ana kadar hiç test edilmemiş bir alan. NEXT_SESSION.md
@@ -89,7 +90,7 @@ test.describe('AC06 (dayanıklılık) + AC07 (reset) — /docker temsili sayfas�
         });
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.locator('[data-testid="nav-account"]')).toBeVisible({ timeout: 10_000 });
 
         const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);

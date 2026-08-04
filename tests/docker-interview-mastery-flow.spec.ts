@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { dockerData } from '../src/data/dockerData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Bu dosya tek bir temsili ders (/docker) üzerinden uçtan uca "öğrenme döngüsünü"
 // doğrular — bu davranış TÜM TopicPage tabanlı sayfalarda ortak olduğu için
@@ -90,7 +91,7 @@ test.describe('Docker — quiz gating + mülakat AI değerlendirme akışı (hap
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         // Giriş gerçekten oturdu mu — TopicHeader'daki hesap menüsü "giriş yap" değil
         // "hesabım" durumuna geçmiş olmalı (oturum enjeksiyonunun doğrulaması).
         await expect(page.locator('[data-testid="nav-account"]')).toBeVisible({ timeout: 10_000 });

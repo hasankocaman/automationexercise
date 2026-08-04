@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { INTERVIEW_SHOWCASE } from '../src/data/generated/interviewShowcase.js';
 import { interviewWarmupData } from '../src/data/interviewWarmupData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Ana sayfadaki "Mülakat Isınma Turu" — herkese açık, gate'siz soru-cevap bölümü.
 //
@@ -21,7 +22,7 @@ test.describe('Ana sayfa — Mülakat Isınma Turu', () => {
 
         // Temiz kullanıcı: hiç quiz çözülmemiş, hiç ders bitirilmemiş.
         await page.goto('/');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const section = page.getByTestId('interview-warmup');
         await expect(section).toBeVisible();
@@ -46,7 +47,7 @@ test.describe('Ana sayfa — Mülakat Isınma Turu', () => {
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
         await page.goto('/');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Kullanıcının burayı "mülakat çalışması" sanmaması bilinçli bir ürün
         // gereğidir — açıklama sessizce kaldırılırsa bu test kırılır.
@@ -62,7 +63,7 @@ test.describe('Ana sayfa — Mülakat Isınma Turu', () => {
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
         await page.goto('/');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const first = page.getByTestId('warmup-card').first();
         const toggle = first.getByTestId('warmup-toggle');
@@ -87,7 +88,7 @@ test.describe('Ana sayfa — Mülakat Isınma Turu', () => {
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
         await page.goto('/');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const firstRoute = INTERVIEW_SHOWCASE[0].route;
         const card = page.locator(`[data-testid="warmup-card"][data-route="${firstRoute}"]`).first();
@@ -103,7 +104,7 @@ test.describe('Ana sayfa — Mülakat Isınma Turu', () => {
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
         await page.goto('/en');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const section = page.getByTestId('interview-warmup');
         await expect(section).toBeVisible();

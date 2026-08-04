@@ -20,7 +20,7 @@
     "seo:section-slugs": "node scripts/generate-section-slugs.mjs",
     "seo:lcp": "node scripts/measure-mobile-lcp.mjs",
     "preview": "vite preview",
-    "pretest:e2e": "node scripts/kill-stale-test-processes.mjs",
+    "pretest:e2e": "node scripts/kill-stale-test-processes.mjs && npm run build",
     "test:e2e": "playwright test",
     "pretest:interview-flows": "node scripts/kill-stale-test-processes.mjs",
     "test:interview-flows": "playwright test --config=playwright.interview-flows.config.ts",

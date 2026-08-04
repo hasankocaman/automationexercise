@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { dockerData } from '../src/data/dockerData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // AC05 (Documents/acceptancecriterias.md): quiz cevaplandıktan sonra "AI'dan Ek
 // Açıklama İste" butonu belirmeli, üretilen içerik soruyla ilişkili olmalı ve
@@ -38,7 +39,7 @@ const correctEn = quizBlockEn.options.find((o: any) => o.id === quizBlockEn.corr
 test.describe('AC05 — anonim kullanıcı için AI açıklama kilitli (TR/EN)', () => {
     test('TR: anonim kullanıcı quiz cevaplar, AI butonu yerine giriş uyarısı görür', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.locator('button', { hasText: optionLabel(correctTr) }).first().click();
         await page.getByRole('button', { name: 'Cevabı Kontrol Et' }).click();
@@ -49,7 +50,7 @@ test.describe('AC05 — anonim kullanıcı için AI açıklama kilitli (TR/EN)',
 
     test('EN: anonymous user answers the quiz, sees sign-in lock instead of the AI button', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
 
         await expect(page.locator('button', { hasText: optionLabel(correctEn) }).first()).toBeVisible();
@@ -92,7 +93,7 @@ test.describe('AC05 — üye kullanıcı için AI açıklama akışı', () => {
         );
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.locator('[data-testid="nav-account"]')).toBeVisible({ timeout: 10_000 });
 
         await page.locator('button', { hasText: optionLabel(correctTr) }).first().click();
@@ -142,7 +143,7 @@ test.describe('AC05 — üye kullanıcı için AI açıklama akışı', () => {
         });
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.locator('[data-testid="nav-account"]')).toBeVisible({ timeout: 10_000 });
 
         await page.locator('button', { hasText: optionLabel(correctTr) }).first().click();
@@ -189,7 +190,7 @@ test.describe('AC05 — üye kullanıcı için AI açıklama akışı', () => {
         });
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.locator('[data-testid="nav-account"]')).toBeVisible({ timeout: 10_000 });
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
 

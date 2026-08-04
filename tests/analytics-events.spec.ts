@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { stubPlausible, blockPlausible, recordedEvents } from './helpers/analytics';
+import { waitForAppReady } from './helpers/app-ready';
 
 // SEO Faz 2 / S3 — çerezsiz analytics olayları.
 //
@@ -21,7 +22,7 @@ test.describe('S3 — çerezsiz analytics olayları', () => {
         await stubPlausible(page);
 
         await page.goto('/');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
         await page.waitForURL(/\/en\/?$/, { timeout: 30_000 });
@@ -45,7 +46,7 @@ test.describe('S3 — çerezsiz analytics olayları', () => {
 
         await blockPlausible(page);
         await page.goto('/');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
         await page.waitForURL(/\/en\/?$/, { timeout: 30_000 });
 
@@ -61,7 +62,7 @@ test.describe('S3 — çerezsiz analytics olayları', () => {
         await stubPlausible(page);
 
         await page.goto('/');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
         await page.waitForURL(/\/en\/?$/, { timeout: 30_000 });
 

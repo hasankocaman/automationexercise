@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // CP5.2 (contentplan.md) — Git Sandbox rollout: mevcut git-interactive-terminal
 // gerçekten iyi bir temele sahipti (status/add/commit/branch/checkout/merge/log
@@ -14,7 +15,7 @@ test.describe('CP5.2 — Git Sandbox (interaktif terminal)', () => {
         const page = await context.newPage();
 
         await page.goto('/git-github');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByRole('button', { name: /Git Temelleri/ }).first().click();
 
@@ -74,7 +75,7 @@ test.describe('CP5.2 — Git Sandbox (interaktif terminal)', () => {
         const page = await context.newPage();
 
         await page.goto('/git-github');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();
         await page.getByRole('button', { name: /Git Basics/ }).first().click();

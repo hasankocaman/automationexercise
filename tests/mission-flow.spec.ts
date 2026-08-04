@@ -1,6 +1,7 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import { seleniumData } from '../src/data/seleniumData.js';
 import { stubPlausible, recordedEvents } from './helpers/analytics';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Challenge-First görev zinciri (Documents/challenge-first-experience-plan.md
 // §3, Phase 1) — `mission` blok tipinin GERÇEK TARAYICIDA render + etkileşim
@@ -50,7 +51,7 @@ function escapeRe(s: string): RegExp {
 
 async function gotoSeleniumTab(page: Page, tabIndex: number) {
     await page.goto('/selenium');
-    await page.waitForSelector('h1', { timeout: 30_000 });
+    await waitForAppReady(page, { timeout: 30_000 });
     const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);
     await expect(tabButtons.nth(tabIndex)).toBeVisible();
     await tabButtons.nth(tabIndex).click();

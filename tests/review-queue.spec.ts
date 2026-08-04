@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // WP4 (fableplan.md) — "Bugünkü Tekrar" (Leitner-lite spaced repetition).
 // ÖNEMLİ: serviceWorkers: 'block' ZORUNLU — MSW service worker'ı aktifken
@@ -15,7 +16,7 @@ test.describe('WP4 — Review Queue (Bugünkü Tekrar)', () => {
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Docker sayfasının ilk sekmesindeki tek quiz bloğu: doğru cevap "b" (index 1),
         // bu yüzden seçenek A (index 0) her zaman yanlıştır — bkz. src/data/dockerData.js.

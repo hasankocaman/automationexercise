@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // LC1 (llmcreate.md) — /llm-agents Token Lab: sayfanın "sandbox"ı, LLM'in
 // next-token prediction mekanizmasını yaşatan deterministik simülatördür.
@@ -14,7 +15,7 @@ test.describe('LC1 — Token Lab (/llm-agents)', () => {
         const page = await context.newPage();
 
         await page.goto('/llm-agents');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByRole('button', { name: /LLM Nedir|What Is an LLM/ }).first().click();
 
@@ -59,7 +60,7 @@ test.describe('LC1 — Token Lab (/llm-agents)', () => {
         const page = await context.newPage();
 
         await page.goto('/llm-agents');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();
         await page.getByRole('button', { name: /LLM Nedir|What Is an LLM/ }).first().click();

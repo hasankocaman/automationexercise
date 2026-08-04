@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // "Cannot read properties" / "something went wrong" gibi genel ifadeler kasıtlı
 // olarak YOK — error-dictionary/yaygın hatalar block'ları gerçek hata mesajı
@@ -62,7 +63,7 @@ for (const route of ['/java-document', '/git-document', '/manual-testing', '/qa-
         });
 
         await page.goto(route, { timeout: 60_000 });
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
         await assertNoCrash(page, route);
 
         // :visible — bazı butonlar bilinçli olarak md:hidden (mobil-only toggle vb.);
@@ -98,7 +99,7 @@ for (const route of ['/algorithms', '/advanced-algorithms']) {
         await page.goto(route, { waitUntil: 'networkidle', timeout: 60_000 });
 
         // h1 40 s içinde DOM'da görünmelidir.
-        await page.waitForSelector('h1', { state: 'attached', timeout: 40_000 });
+        await waitForAppReady(page, { timeout: 40_000 });
 
         await assertNoCrash(page, route);
 
@@ -123,7 +124,7 @@ test('/leaderboard — sayfa yüklenir, render hatası yok', async ({ page }) =>
     });
 
     await page.goto('/leaderboard');
-    await page.waitForSelector('h1', { timeout: 30_000 });
+    await waitForAppReady(page, { timeout: 30_000 });
     await assertNoCrash(page, '/leaderboard');
 
     expect(pageErrors, '/leaderboard: console/page hataları').toHaveLength(0);

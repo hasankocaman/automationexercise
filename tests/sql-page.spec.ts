@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 test('SQL tabs load and render without crash', async ({ page }) => {
     test.setTimeout(90000);
@@ -16,7 +17,7 @@ test('SQL tabs load and render without crash', async ({ page }) => {
     });
 
     await page.goto('/sql');
-    await page.waitForSelector('h1', { timeout: 30000 });
+    await waitForAppReady(page, { timeout: 30000 });
 
     // Performans (SEO Faz 2 S1): sayfa önce boş-sections stub ile render olur,
     // gerçek veri arka planda dynamic import() ile yüklenir (bkz. SQLPage.jsx).

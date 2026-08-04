@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // code-playground blokları için "gerçekten kaydediliyor mu?" regresyon testi.
 // Kök vaka (2026-07-20, kullanıcı bildirimi): /what-is-testing'in "Site Haritası"
@@ -26,7 +27,7 @@ test.describe('code-playground XP/tamamlama kaydı — sessiz veri kaybı regres
         const page = await context.newPage();
 
         await page.goto('/what-is-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const tabButtons = page.locator('button[title]');
         const count = await tabButtons.count();
@@ -79,7 +80,7 @@ test.describe('code-playground XP/tamamlama kaydı — sessiz veri kaybı regres
         const page = await context.newPage();
 
         await page.goto('/postman');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const before = await page.evaluate(() => {
             const raw = localStorage.getItem('learnqa_xp_postman');

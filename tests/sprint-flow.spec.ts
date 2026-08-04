@@ -1,6 +1,7 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 import { sprintsData } from '../src/data/sprintsData.js';
 import { stubPlausible, recordedEvents } from './helpers/analytics';
+import { waitForAppReady } from './helpers/app-ready';
 
 // QA Sprint Simulator (Documents/sprint-simulator-and-open-items-plan.md, Faz 1)
 // — /sprint sayfasının GERÇEK TARAYICIDA uçtan uca akış testi (O8).
@@ -41,7 +42,7 @@ function escapeRe(s: string): RegExp {
 
 async function gotoSprint(page: Page) {
     await page.goto('/sprint');
-    await page.waitForSelector('h1', { timeout: 30_000 });
+    await waitForAppReady(page, { timeout: 30_000 });
 }
 
 // Tek bir mission adımını (prediction ya da code-playground) tamamlar —
@@ -182,7 +183,7 @@ test.describe('QA Sprint Simulator — /sprint', () => {
 
         // Kalıcılık: sayfa yenilenince Done kolonu Done kalmalı.
         await page.reload();
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         for (const bug of bugs) {
             await expect(page.locator(`[data-testid="sprint-bug-card"][data-bug-id="${bug.id}"]`))
                 .toHaveAttribute('data-bug-status', 'done');

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { MAP_A } from '../src/data/qaMentorData.js';
 import { PROFILE_VERSION } from '../src/utils/careerMapProfile.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Kariyer Haritası Faz 2 (Documents/career-map-feature-plan.md §4.3/§4.4c, S3.1+S3.2)
 // — milestone/rozet şeridi ve "haritanda neredesin" breadcrumb'ı. Seeding kalıbı
@@ -41,7 +42,7 @@ test.describe('Kariyer Haritası Faz 2 — milestone şeridi + dersten haritaya 
 
         const page = await context.newPage();
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const strip = page.getByTestId('career-map-milestones');
         await expect(strip).toBeVisible({ timeout: 30_000 });
@@ -77,7 +78,7 @@ test.describe('Kariyer Haritası Faz 2 — milestone şeridi + dersten haritaya 
         // Selenium, MAP_A'da yer alan ama HENÜZ tamamlanmamış bir ders sayfasıdır —
         // TopicPage üzerinden render edilir, TopicHeader'ı (ve breadcrumb'ı) paylaşır.
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const breadcrumb = page.getByTestId('map-breadcrumb');
         await expect(breadcrumb).toBeVisible({ timeout: 30_000 });
@@ -97,7 +98,7 @@ test.describe('Kariyer Haritası Faz 2 — milestone şeridi + dersten haritaya 
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await expect(page.getByTestId('map-breadcrumb')).toHaveCount(0);
         await context.close();
@@ -113,7 +114,7 @@ test.describe('Kariyer Haritası Faz 2 — milestone şeridi + dersten haritaya 
 
         const page = await context.newPage();
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await expect(page.getByTestId('map-breadcrumb')).toHaveCount(0);
         await context.close();

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 test('TypeScript tabs load and render without crash', async ({ page }) => {
     // Set test timeout to 90s to accommodate heavy dev server compilation on first load
@@ -18,7 +19,7 @@ test('TypeScript tabs load and render without crash', async ({ page }) => {
 
     await page.goto('/typescript');
     // Wait up to 60s for the first page render to compile
-    await page.waitForSelector('h1', { timeout: 60000 });
+    await waitForAppReady(page, { timeout: 60000 });
 
     // Performans (SEO Faz 2 S1): sayfa önce küçük bir stub (boş sections) ile
     // render olur, gerçek veri arka planda dynamic import() ile yüklenir

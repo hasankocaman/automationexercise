@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { portfolioData } from '../src/data/portfolioData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // QA Portfolyo — /portfolio uçtan uca testleri.
 //
@@ -55,7 +56,7 @@ async function seedFullPortfolio(page: Page) {
 
 async function gotoPortfolio(page: Page) {
     await page.goto('/portfolio');
-    await page.waitForSelector('h1', { timeout: 30_000 });
+    await waitForAppReady(page, { timeout: 30_000 });
 }
 
 test.describe('QA Portfolyo — /portfolio', () => {
@@ -272,7 +273,7 @@ test.describe('QA Portfolyo — /portfolio', () => {
         const page = await context.newPage();
         await seedFullPortfolio(page);
         await page.goto('/en/portfolio');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await expect(page.getByTestId('portfolio-missions')).toBeVisible();
         await expect(page.getByTestId('portfolio-sprints')).toBeVisible();
@@ -288,7 +289,7 @@ test.describe('QA Portfolyo — /portfolio', () => {
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
         await page.goto('/');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const banner = page.getByTestId('portfolio-banner');
         await expect(banner).toBeVisible();

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Learning OS Faz 1 (Documents/learning-os-redesign-plan.md §8.2-S3) — Ana
 // sayfa "Bugün" şeridi (streak/hedef/Devam-et) ve ActivityHeatmap testleri.
@@ -46,7 +47,7 @@ test.describe('Learning OS Faz 1 — Bugün şeridi + ActivityHeatmap', () => {
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const quizContainer = page.locator('div.rounded-xl.border-2', { hasText: 'Docker Image ile Docker Container arasındaki' }).first();
         await expect(quizContainer).toBeVisible();
@@ -63,7 +64,7 @@ test.describe('Learning OS Faz 1 — Bugün şeridi + ActivityHeatmap', () => {
         // sayfayı yeniden yükle — QuizBlock'un kendi "submitted" state'i local
         // olduğundan reload sonrası tekrar tıklanabilir hale gelir.
         await page.reload();
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         const quizContainer2 = page.locator('div.rounded-xl.border-2', { hasText: 'Docker Image ile Docker Container arasındaki' }).first();
         await quizContainer2.locator('button').nth(1).click();
         await quizContainer2.getByText(/Cevabı Kontrol Et|Check Answer/).first().click();

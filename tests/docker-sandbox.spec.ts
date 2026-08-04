@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // CP1 (contentplan.md) — Docker Sandbox: durum-makineli interaktif terminal.
 // Kullanıcı komutu kendisi yazar; sahte engine state'i (image rafı, container
@@ -12,7 +13,7 @@ test.describe('CP1 — Docker Sandbox (interaktif terminal)', () => {
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Sandbox, CP3 sekme atomikleştirmesinden beri "🔄 Yaşam Döngüsü & Debug"
         // sekmesinde (sol dikey sidebar — kısa sekme adı, section title değil)
@@ -72,7 +73,7 @@ test.describe('CP1 — Docker Sandbox (interaktif terminal)', () => {
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Dili EN'e çevir (sağ üst toggle içindeki ENG butonu) ve EN sekme adıyla ilerle
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();

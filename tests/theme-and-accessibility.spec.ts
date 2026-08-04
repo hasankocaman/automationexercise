@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // AC08 (Documents/acceptancecriterias.md) için önceden HİÇ test yoktu
 // (bkz. Documents/testcoverage.md §5.2 "AC08 — Tema/dark mode/erişilebilirlik:
@@ -49,7 +50,7 @@ test.describe('AC08 — Dark/Light mode toggle davranışı', () => {
     test('/docker (TopicPage) — aynı toggle mekanizması, header butonu üzerinden çalışır', async ({ page }) => {
         // localStorage'ı temiz başlatıp varsayılan (dark) durumu doğruluyoruz.
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await expect(page.locator('html')).toHaveClass(/dark-mode/);
 
@@ -97,7 +98,7 @@ test.describe('WP3 — Odak Modu (Focus Mode) toggle', () => {
     test('/docker — odak modu açılınca parçacıklar gizlenir, reload sonrası kalıcı, tekrar basınca geri gelir', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Başlangıçta odak modu kapalı olmalı (default focusMode='false').
         await expect(page.locator('html')).not.toHaveClass(/focus-mode/);
@@ -116,7 +117,7 @@ test.describe('WP3 — Odak Modu (Focus Mode) toggle', () => {
 
         // Reload sonrası kalıcı olmalı.
         await page.reload();
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.locator('html')).toHaveClass(/focus-mode/);
         await expect(page.locator('.dp-particle').first()).toBeHidden();
 
@@ -135,7 +136,7 @@ test.describe('WP3 — Odak Modu (Focus Mode) toggle', () => {
     test('/selenium — odak modu diğer bir sayfada da parçacıkları ve ambiyans ses butonunu gizler', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await expect(page.locator('html')).not.toHaveClass(/focus-mode/);
         const particle = page.locator('.se-particle').first();

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Video-Scene (Film Bloğu) pilot smoke testi — PILOT_PLAN_ve_PROMPT.md.
 // /llm-agents sayfasındaki "🔍 RAG Pipeline Testing" sekmesinde duran
@@ -14,7 +15,7 @@ test.describe('Video-Scene — Film Bloğu (/llm-agents RAG Pipeline pilotu)', (
         const page = await context.newPage();
 
         await page.goto('/llm-agents');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByRole('button', { name: /RAG Pipeline Testing|RAG Pipeline Testi/ }).first().click();
 
@@ -59,7 +60,7 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
         const page = await context.newPage();
 
         await page.goto('/git-github');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /Git Basics|Git Temelleri/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -76,7 +77,7 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
         const page = await context.newPage();
 
         await page.goto('/linux');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /Text & Pipes|Metin İşleme & Pipe/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -93,7 +94,7 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /Docker Compose/ }).first().click();
 
         const blocks = page.getByTestId('video-scene-block');
@@ -110,7 +111,7 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
         const page = await context.newPage();
 
         await page.goto('/gauge');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /Spec & Step Basics|Spec & Step Temelleri/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -127,7 +128,7 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
         const page = await context.newPage();
 
         await page.goto('/qa-frontend');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /How the Browser Works|Tarayıcı Nasıl Çalışır/ }).first().click();
 
         // Bu sekmede 2 film var (A1 "Kaynak Koddan Sayfaya" + A4 "Render'ın 5 Adımı") — .first() kullan
@@ -153,7 +154,7 @@ test.describe('Video-Scene — Dalga 3 (git-github 11 yeni film + gauge Neden Ga
         const page = await context.newPage();
 
         await page.goto('/git-github');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -170,7 +171,7 @@ test.describe('Video-Scene — Dalga 3 (git-github 11 yeni film + gauge Neden Ga
         const page = await context.newPage();
 
         await page.goto('/git-github');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🔀 Merge & Conflict/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -187,7 +188,7 @@ test.describe('Video-Scene — Dalga 3 (git-github 11 yeni film + gauge Neden Ga
         const page = await context.newPage();
 
         await page.goto('/git-github');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🚨 Error Dictionary|🚨 Hata Sözlüğü/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -204,7 +205,7 @@ test.describe('Video-Scene — Dalga 3 (git-github 11 yeni film + gauge Neden Ga
         const page = await context.newPage();
 
         await page.goto('/gauge');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🏠 Why Gauge\?|🏠 Neden Gauge\?/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -234,7 +235,7 @@ test.describe('Video-Scene — Dalga 4 (/linux, 9 yeni film + eksik animasyon/sa
         const page = await context.newPage();
 
         await page.goto('/linux');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -251,7 +252,7 @@ test.describe('Video-Scene — Dalga 4 (/linux, 9 yeni film + eksik animasyon/sa
         const page = await context.newPage();
 
         await page.goto('/linux');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🔗 Ecosystem|🔗 Ekosistem/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -268,7 +269,7 @@ test.describe('Video-Scene — Dalga 4 (/linux, 9 yeni film + eksik animasyon/sa
         const page = await context.newPage();
 
         await page.goto('/linux');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🚨 Error Dictionary|🚨 Hata Sözlüğü/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -295,7 +296,7 @@ test.describe('Video-Scene — Dalga 5 (/docker, 12 yeni film + eksik animasyon/
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -312,7 +313,7 @@ test.describe('Video-Scene — Dalga 5 (/docker, 12 yeni film + eksik animasyon/
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /📥 Images|📥 Image\'lar/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -329,7 +330,7 @@ test.describe('Video-Scene — Dalga 5 (/docker, 12 yeni film + eksik animasyon/
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🩺 Troubleshooting|🩺 Yaygın Hatalar/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -346,7 +347,7 @@ test.describe('Video-Scene — Dalga 5 (/docker, 12 yeni film + eksik animasyon/
         const page = await context.newPage();
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🔗 Ecosystem|🔗 Ekosistem/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -373,7 +374,7 @@ test.describe('Video-Scene — Dalga 6 Batch 1 (/selenium, Giriş/Actions/Wait/F
         const page = await context.newPage();
 
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🌐 Introduction|🌐 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -390,7 +391,7 @@ test.describe('Video-Scene — Dalga 6 Batch 1 (/selenium, Giriş/Actions/Wait/F
         const page = await context.newPage();
 
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /⚡ Actions|⚡ Aksiyonlar/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -409,7 +410,7 @@ test.describe('Video-Scene — Dalga 6 Batch 2 (/selenium, Ekosistem/CDP & BiDi/
         const page = await context.newPage();
 
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🔗 Ecosystem|🔗 Ekosistem/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -426,7 +427,7 @@ test.describe('Video-Scene — Dalga 6 Batch 2 (/selenium, Ekosistem/CDP & BiDi/
         const page = await context.newPage();
 
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🌐 CDP & BiDi/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -443,7 +444,7 @@ test.describe('Video-Scene — Dalga 6 Batch 2 (/selenium, Ekosistem/CDP & BiDi/
         const page = await context.newPage();
 
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🚨 Common Errors|🚨 Yaygın Hatalar/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -460,7 +461,7 @@ test.describe('Video-Scene — Dalga 6 Batch 2 (/selenium, Ekosistem/CDP & BiDi/
         const page = await context.newPage();
 
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -479,7 +480,7 @@ test.describe('Video-Scene — Dalga 7 Batch 1 (/playwright, Playwright Nedir?/L
         const page = await context.newPage();
 
         await page.goto('/playwright');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎭 Playwright Nedir\?|🎭 What is Playwright\?/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -496,7 +497,7 @@ test.describe('Video-Scene — Dalga 7 Batch 1 (/playwright, Playwright Nedir?/L
         const page = await context.newPage();
 
         await page.goto('/playwright');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Locator Strategies|🎯 Locator Stratejileri/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -513,7 +514,7 @@ test.describe('Video-Scene — Dalga 7 Batch 1 (/playwright, Playwright Nedir?/L
         const page = await context.newPage();
 
         await page.goto('/playwright');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /📦 Page Object Model/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -530,7 +531,7 @@ test.describe('Video-Scene — Dalga 7 Batch 1 (/playwright, Playwright Nedir?/L
         const page = await context.newPage();
 
         await page.goto('/playwright');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -549,7 +550,7 @@ test.describe('Video-Scene — Dalga 7 Batch 2 (/playwright, Debugging & Trace/P
         const page = await context.newPage();
 
         await page.goto('/playwright');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🐞 Debugging & Trace/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -566,7 +567,7 @@ test.describe('Video-Scene — Dalga 7 Batch 2 (/playwright, Debugging & Trace/P
         const page = await context.newPage();
 
         await page.goto('/playwright');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /⚡ Paralel & CI\/CD|⚡ Parallel & CI\/CD/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -583,7 +584,7 @@ test.describe('Video-Scene — Dalga 7 Batch 2 (/playwright, Debugging & Trace/P
         const page = await context.newPage();
 
         await page.goto('/playwright');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🚨 Yaygın Hatalar|🚨 Common Errors/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -611,7 +612,7 @@ test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescr
         const page = await context.newPage();
 
         await page.goto('/python');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -628,7 +629,7 @@ test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescr
         const page = await context.newPage();
 
         await page.goto('/sql');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -645,7 +646,7 @@ test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescr
         const page = await context.newPage();
 
         await page.goto('/cypress');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🌲 What is Cypress\?|🌲 Cypress Nedir\?/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -662,7 +663,7 @@ test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescr
         const page = await context.newPage();
 
         await page.goto('/cypress');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -679,7 +680,7 @@ test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescr
         const page = await context.newPage();
 
         await page.goto('/javascript');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş & Neden/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -696,7 +697,7 @@ test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescr
         const page = await context.newPage();
 
         await page.goto('/typescript');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş & Neden/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -713,7 +714,7 @@ test.describe('Video-Scene — Dalga 8-13 (python/sql/cypress/javascript/typescr
         const page = await context.newPage();
 
         await page.goto('/java');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /☕ Introduction|☕ Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -732,7 +733,7 @@ test.describe('Video-Scene — Dalga 14 (postman/bruno/rest-assured Giriş sekme
         const page = await context.newPage();
 
         await page.goto('/postman');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -749,7 +750,7 @@ test.describe('Video-Scene — Dalga 14 (postman/bruno/rest-assured Giriş sekme
         const page = await context.newPage();
 
         await page.goto('/bruno');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -766,7 +767,7 @@ test.describe('Video-Scene — Dalga 14 (postman/bruno/rest-assured Giriş sekme
         const page = await context.newPage();
 
         await page.goto('/rest-assured');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🏠 Why REST Assured\?|🏠 Neden REST Assured\?/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -783,7 +784,7 @@ test.describe('Video-Scene — Dalga 14 (postman/bruno/rest-assured Giriş sekme
         const page = await context.newPage();
 
         await page.goto('/rest-assured');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -802,7 +803,7 @@ test.describe('Video-Scene — Dalga 15-16 (jenkins/kubernetes/jmeter/kafka Giri
         const page = await context.newPage();
 
         await page.goto('/jenkins');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -819,7 +820,7 @@ test.describe('Video-Scene — Dalga 15-16 (jenkins/kubernetes/jmeter/kafka Giri
         const page = await context.newPage();
 
         await page.goto('/kubernetes');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -836,7 +837,7 @@ test.describe('Video-Scene — Dalga 15-16 (jenkins/kubernetes/jmeter/kafka Giri
         const page = await context.newPage();
 
         await page.goto('/jmeter');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -853,7 +854,7 @@ test.describe('Video-Scene — Dalga 15-16 (jenkins/kubernetes/jmeter/kafka Giri
         const page = await context.newPage();
 
         await page.goto('/kafka');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -872,7 +873,7 @@ test.describe('Video-Scene — Dalga 17-18 (appium/browserstack/aws/azure Giriş
         const page = await context.newPage();
 
         await page.goto('/appium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Intro & Architecture|🎯 Giriş & Mimari/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -889,7 +890,7 @@ test.describe('Video-Scene — Dalga 17-18 (appium/browserstack/aws/azure Giriş
         const page = await context.newPage();
 
         await page.goto('/appium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🏗️ Framework Architecture|🏗️ Framework Mimarisi/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -906,7 +907,7 @@ test.describe('Video-Scene — Dalga 17-18 (appium/browserstack/aws/azure Giriş
         const page = await context.newPage();
 
         await page.goto('/browserstack');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /☁️ What Is It\?|☁️ Nedir\?/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -923,7 +924,7 @@ test.describe('Video-Scene — Dalga 17-18 (appium/browserstack/aws/azure Giriş
         const page = await context.newPage();
 
         await page.goto('/aws');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -940,7 +941,7 @@ test.describe('Video-Scene — Dalga 17-18 (appium/browserstack/aws/azure Giriş
         const page = await context.newPage();
 
         await page.goto('/azure');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Introduction|🎯 Giriş/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -967,7 +968,7 @@ test.describe('Video-Scene — Dalga 19 (what-is-testing/test-frameworks)', () =
         const page = await context.newPage();
 
         await page.goto('/what-is-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Intro & Why|🎯 Giriş & Neden/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -984,7 +985,7 @@ test.describe('Video-Scene — Dalga 19 (what-is-testing/test-frameworks)', () =
         const page = await context.newPage();
 
         await page.goto('/test-frameworks');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const block = page.getByTestId('video-scene-block');
         await block.scrollIntoViewIfNeeded();
@@ -1001,7 +1002,7 @@ test.describe('Video-Scene — Dalga 20 (manual-testing/algorithms/advanced-algo
         const page = await context.newPage();
 
         await page.goto('/manual-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const blocks = page.getByTestId('video-scene-block');
         await blocks.first().scrollIntoViewIfNeeded();
@@ -1017,7 +1018,7 @@ test.describe('Video-Scene — Dalga 20 (manual-testing/algorithms/advanced-algo
         const page = await context.newPage();
 
         await page.goto('/algorithms');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const blocks = page.getByTestId('video-scene-block');
         await blocks.first().scrollIntoViewIfNeeded();
@@ -1033,7 +1034,7 @@ test.describe('Video-Scene — Dalga 20 (manual-testing/algorithms/advanced-algo
         const page = await context.newPage();
 
         await page.goto('/advanced-algorithms');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const blocks = page.getByTestId('video-scene-block');
         await blocks.first().scrollIntoViewIfNeeded();
@@ -1054,7 +1055,7 @@ test.describe('Video-Scene — Dalga 21 (llm-agents Intro sekmesi + claude-ai)',
         const page = await context.newPage();
 
         await page.goto('/llm-agents');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Intro: The AI, ML & LLM Map|🎯 Giriş: AI, ML ve LLM Haritası/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -1071,7 +1072,7 @@ test.describe('Video-Scene — Dalga 21 (llm-agents Intro sekmesi + claude-ai)',
         const page = await context.newPage();
 
         await page.goto('/claude-ai');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎯 Intro: AI-Assisted Testing|🎯 Giriş: AI Destekli Test/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -1099,7 +1100,7 @@ test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () =
         const page = await context.newPage();
 
         await page.goto('/api-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🌐 A1 · API Nedir\?|🌐 A1 · What Is an API\?/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -1136,7 +1137,7 @@ test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () =
         const page = await context.newPage();
 
         await page.goto('/api-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🟢 C1 · Kurulum|🟢 C1 · Setup/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -1153,7 +1154,7 @@ test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () =
         const page = await context.newPage();
 
         await page.goto('/api-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🔍 E1 · Network Paneli Anatomisi|🔍 E1 · Network Panel Anatomy/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -1170,7 +1171,7 @@ test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () =
         const page = await context.newPage();
 
         await page.goto('/api-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /📁 G1 · Collection/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -1187,7 +1188,7 @@ test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () =
         const page = await context.newPage();
 
         await page.goto('/api-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.getByRole('button', { name: /🎭 I1 · request fixture/ }).first().click();
 
         const block = page.getByTestId('video-scene-block');
@@ -1206,7 +1207,7 @@ test.describe('Video-Scene — /test-automation (yeni sayfa, varsayılan (ilk) s
         const page = await context.newPage();
 
         await page.goto('/test-automation');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const block = page.getByTestId('video-scene-block');
         await block.scrollIntoViewIfNeeded();

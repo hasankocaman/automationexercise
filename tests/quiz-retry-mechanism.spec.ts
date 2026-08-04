@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { dockerData } from '../src/data/dockerData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // AC02 (Documents/acceptancecriterias.md): kullanıcı bir quiz sorusuna yanlış
 // cevap verirse, sistem BİR DEFAYA MAHSUS olmak üzere farklı bir yedek soru
@@ -43,7 +44,7 @@ test.describe('AC02 — quiz yanlış cevap sonrası bir defaya mahsus alternati
 
     test('ana soruya yanlış cevap → retry sorusu açılır → retry de yanlış olursa İKİNCİ bir retry YOK', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         await page.locator('button', { hasText: optionLabel(mainWrong) }).first().click();
         await page.getByRole('button', { name: 'Cevabı Kontrol Et' }).click();
@@ -70,7 +71,7 @@ test.describe('AC02 — quiz yanlış cevap sonrası bir defaya mahsus alternati
 
     test('retry sorusuna doğru cevap verilirse normal doğru cevap gibi sayılır (sekme ilerlemesine katkı sağlar)', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         const tab0Checkbox = page.locator(SIDEBAR_TAB_BUTTONS).nth(0).locator('[role="checkbox"]');
         await expect(tab0Checkbox).toHaveAttribute('aria-checked', 'false');
@@ -96,7 +97,7 @@ test.describe('AC02 — quiz yanlış cevap sonrası bir defaya mahsus alternati
 
     test('NEGATİF: ana soruya İLK denemede doğru cevap verilirse retry butonu hiç görünmez', async ({ page }) => {
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         await page.locator('button', { hasText: optionLabel(mainCorrect) }).first().click();
         await page.getByRole('button', { name: 'Cevabı Kontrol Et' }).click();

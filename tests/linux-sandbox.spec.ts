@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // CP5 (contentplan.md) — Linux Sandbox rollout: Docker Sandbox'ta (CP1) kanıtlanan
 // "kullanıcı komutu kendi yazar, durum-makineli motor canlı güncellenir" kalıbının
@@ -14,7 +15,7 @@ test.describe('CP5 — Linux Sandbox (interaktif terminal)', () => {
         const page = await context.newPage();
 
         await page.goto('/linux');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByRole('button', { name: /Dosya Sistemi & Navigasyon/ }).first().click();
 
@@ -68,7 +69,7 @@ test.describe('CP5 — Linux Sandbox (interaktif terminal)', () => {
         const page = await context.newPage();
 
         await page.goto('/linux');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();
         await page.getByRole('button', { name: /Filesystem & Navigation/ }).first().click();

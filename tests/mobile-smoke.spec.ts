@@ -1,4 +1,5 @@
 import { test, expect, devices } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Documents/testcoverage.md §5.2 bu boşluğu "Yüksek risk" olarak işaretliyor:
 // "Mobil responsive — Playwright'ta mobile viewport testi yok. WCAG touch
@@ -8,6 +9,22 @@ import { test, expect, devices } from '@playwright/test';
 //   - Buton/link minimum 36px touch target (WCAG 2.5.5)
 //   - Kod blokları overflow-x-auto ile taşabilir olmalı (yatay sayfa kaymasına
 //     neden olmamalı)
+
+// Tarayıcının KENDİ bildirimi — uygulama kodundan gelen bir istisna değil.
+// "ResizeObserver loop completed with undelivered notifications", gözlemcinin
+// geri çağırmaları tek bir kare içinde teslim edilemediğinde tarayıcının
+// ürettiği uyarıdır; işlev bozulmaz, bir sonraki karede teslim edilir.
+// Burada sayfa başına TAM 1 kez görülüyor (kaçak bir döngü olsaydı onlarca
+// kez tekrarlanırdı) ve yalnızca mobil viewport'ta, sekme değişiminde layout
+// yeniden ölçülürken çıkıyor. Bu platformun kendi ders içeriği de (Cypress
+// hata sözlüğü) aynı mesajı "zararsız tarayıcı uyarısı, gerçek bir bug değil,
+// test suite'inde filtrelenmeli" diye öğretiyor — kendi suite'imiz de aynısını
+// yapıyor. Filtre BİLEREK dar tutuldu: yalnızca bu tek mesaj.
+const BENIGN_PAGE_ERRORS = [/ResizeObserver loop/i];
+
+function isBenign(message: string): boolean {
+    return BENIGN_PAGE_ERRORS.some((re) => re.test(message));
+}
 
 test.use({ ...devices['iPhone 14'] });
 
@@ -45,10 +62,10 @@ test.describe('Mobil viewport (iPhone 14, 390×844) — kritik akışlar', () =>
         test.setTimeout(60_000);
 
         const pageErrors: string[] = [];
-        page.on('pageerror', (e) => pageErrors.push(e.message));
+        page.on('pageerror', (e) => { if (!isBenign(e.message)) pageErrors.push(e.message); });
 
         await page.goto('/docker');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const { scrollWidth, clientWidth } = await page.evaluate(() => ({
             scrollWidth: document.documentElement.scrollWidth,
@@ -90,10 +107,10 @@ test.describe('Mobil viewport (iPhone 14) — genişletilmiş route kapsamı (S4
         test(`${route} — yatay kayma yok, ilk sidebar sekmesi 36px WCAG hedefini karşılıyor, console hatası yok`, async ({ page }) => {
             test.setTimeout(60_000);
             const pageErrors: string[] = [];
-            page.on('pageerror', (e) => pageErrors.push(e.message));
+            page.on('pageerror', (e) => { if (!isBenign(e.message)) pageErrors.push(e.message); });
 
             await page.goto(route);
-            await page.waitForSelector('h1', { timeout: 30_000 });
+            await waitForAppReady(page, { timeout: 30_000 });
 
             // CLAUDE.md §12: yatay kaydırma olmamalı.
             const { scrollWidth, clientWidth } = await page.evaluate(() => ({

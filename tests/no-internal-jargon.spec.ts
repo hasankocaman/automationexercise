@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // CLAUDE.md §24 — model-arası koordinasyon jargonu kullanıcıya GÖRÜNMEZ olmalı.
 //
@@ -59,7 +60,7 @@ test.describe('CLAUDE.md §24 — iç koordinasyon jargonu kullanıcıya sızmam
     for (const route of ROUTES) {
         test(`${route} — görünür metinde plan/bölüm/görev referansı yok`, async ({ page }) => {
             await page.goto(route);
-            await page.waitForSelector('h1', { timeout: 60_000 });
+            await waitForAppReady(page, { timeout: 60_000 });
 
             // Sekmeli ders sayfalarında yalnızca aktif sekme DOM'da olur; sidebar
             // sekmelerini tek tek gezmek testi dakikalarca uzatır. Statik denetim

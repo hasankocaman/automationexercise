@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // CP5.3 (contentplan.md) — Kubernetes Sandbox rollout: Docker/Linux/Git'ten
 // farklı olarak sayfada hiç gerçek bir kubectl terminali yoktu — sadece pasif
@@ -16,7 +17,7 @@ test.describe('CP5.3 — Kubernetes Sandbox (interaktif kubectl terminali)', () 
         const page = await context.newPage();
 
         await page.goto('/kubernetes');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByRole('button', { name: /kubectl Komutları/ }).first().click();
 
@@ -78,7 +79,7 @@ test.describe('CP5.3 — Kubernetes Sandbox (interaktif kubectl terminali)', () 
         const page = await context.newPage();
 
         await page.goto('/kubernetes');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByTestId('language-toggle').getByRole('button', { name: 'ENG' }).click();
         await page.getByRole('button', { name: /kubectl Commands/ }).first().click();

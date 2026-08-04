@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { javaData } from '../src/data/javaData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Öğrenme Bilimi Yükseltmesi (Documents/learning-science-upgrade-plan.md) —
 // prediction / code-trace / heap-stack blok tiplerinin GERÇEK TARAYICIDA RENDER +
@@ -30,7 +31,7 @@ function labelText(label: unknown): string {
 
 async function gotoJavaTab(page: Page, tabIndex: number) {
     await page.goto('/java');
-    await page.waitForSelector('h1', { timeout: 30_000 });
+    await waitForAppReady(page, { timeout: 30_000 });
     const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);
     await expect(tabButtons.nth(tabIndex)).toBeVisible();
     await tabButtons.nth(tabIndex).click();

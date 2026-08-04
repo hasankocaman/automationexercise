@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { MAP_A, MAP_C1 } from '../src/data/qaMentorData.js';
 import { PROFILE_VERSION } from '../src/utils/careerMapProfile.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Kariyer Haritası v2 — sihirbaz mutlu yolu, "kararsızım" akışı, localStorage
 // kalıcılığı, geri düğmesi, ana sayfa kutusu 3 durumu ve anonim ilerleme yüzdesi.
@@ -17,7 +18,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('1) Mutlu yol: kod yazabiliyorum + Java + Selenium + 6-10 saat → MAP_C1 render olur, düğüm sayısı doğru, CTA tıklanabilir', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         for (const optionId of ['L_CODER', 'LANG_JAVA', 'TOOL_SELENIUM', 'TIME_MID']) {
             const option = page.getByTestId(`mentor-option-${optionId}`);
@@ -46,7 +47,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('2) "Kararsızım" akışı: dil sorusunda kararsızım seçilince öneri balonu görünür ve akış Java yolundan (MAP_C2) devam eder', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await page.getByTestId('mentor-option-L_CODER').click();
 
@@ -74,7 +75,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('3) Kalıcılık: sihirbaz tamamlanınca qaMentorProfile localStorage\'a yazılır, sayfa yeniden yüklenince sihirbaz DEĞİL doğrudan harita gösterilir', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         for (const optionId of ['L_CODER', 'LANG_JAVA', 'TOOL_SELENIUM', 'TIME_MID']) {
             const option = page.getByTestId(`mentor-option-${optionId}`);
@@ -88,7 +89,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
         expect(JSON.parse(stored as string).mapId).toBe('map_c1');
 
         await page.reload();
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Sihirbaz sorularından biri (S1 seçenekleri) artık DOM'da olmamalı.
         await expect(page.getByTestId('mentor-option-L_CODER')).toHaveCount(0);
@@ -100,7 +101,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('4) Geri düğmesi: 2. soruda geri\'ye basılınca 1. sorunun seçenekleri tekrar görünür', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const levelOption = page.getByTestId('mentor-option-L_ZERO');
         await expect(levelOption).toBeVisible({ timeout: 30_000 });
@@ -164,7 +165,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('7) Yarıda kalan sihirbaz: 1. soru cevaplanıp sayfa yeniden yüklenince kaldığı sorudan (S2) devam eder', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const levelOption = page.getByTestId('mentor-option-L_ZERO');
         await expect(levelOption).toBeVisible({ timeout: 30_000 });
@@ -173,7 +174,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
         // Taslak cevap alınır alınmaz yazılır (bot daha yazarken) — S2 seçeneklerini
         // beklemeden reload etmek tam da test edilen senaryo (yarıda bırakma).
         await page.reload();
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Kaldığı soru (S2 dil) doğrudan sorulmalı; S1 seçenekleri geri gelmemeli.
         await expect(page.getByTestId('mentor-option-LANG_JAVA')).toBeVisible({ timeout: 30_000 });
@@ -183,7 +184,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('8) Sıfır seviye vurgusu: S1\'de "Tamamen sıfırım" seçilince S2\'de Kararsızım seçeneğinde Önerilen rozeti görünür', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const levelOption = page.getByTestId('mentor-option-L_ZERO');
         await expect(levelOption).toBeVisible({ timeout: 30_000 });
@@ -199,7 +200,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('9) Seviyeye göre ders: "Manuel test yapıyorum" diyen kullanıcının haritasında Manuel Test düğümü YER ALMAZ, algoritma hızlı-tempo ön eki gelir', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         for (const optionId of ['L_MANUAL', 'LANG_JAVA', 'TOOL_SELENIUM', 'TIME_MID']) {
             const option = page.getByTestId(`mentor-option-${optionId}`);
@@ -224,7 +225,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('10) Tek dil: Python seçilince haritada TypeScript düğümü YER ALMAZ, TypeScript "kariyer +1" ekstrasına taşınır', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         for (const optionId of ['L_CODER', 'LANG_PYTHON', 'TOOL_PLAYWRIGHT', 'TIME_MID']) {
             const option = page.getByTestId(`mentor-option-${optionId}`);
@@ -247,7 +248,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
     test('11) Tek araç: Python + yalnız Selenium seçilince Playwright ana yolda YER ALMAZ, "ikinci UI aracı" ekstrasına taşınır', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         for (const optionId of ['L_CODER', 'LANG_PYTHON', 'TOOL_SELENIUM', 'TIME_MID']) {
             const option = page.getByTestId(`mentor-option-${optionId}`);
@@ -289,7 +290,7 @@ test.describe('Kariyer Haritası v2 — sihirbaz, kalıcılık, ana sayfa kutusu
 
         const page = await context.newPage();
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         expect(expectedPercent).toBeGreaterThan(0);
         await expect(page.getByText(`${expectedPercent}%`)).toBeVisible({ timeout: 30_000 });

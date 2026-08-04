@@ -92,13 +92,21 @@ ${entries.map((entry) => `        { slug: '${entry.slug}', title: ${JSON.stringi
 }
 `
 
+// Karşılaştırma satır sonundan BAĞIMSIZ olmalı: depoda `core.autocrlf=true`
+// ayarlı bir Windows makinesinde her `git checkout` bu dosyayı CRLF'e çevirir,
+// üretici ise LF yazar. Ham metin karşılaştırması bu durumda "manifest güncel
+// değil" der ve build, içerikte hiçbir değişiklik olmadığı hâlde kırılır
+// (2026-08-03'te bir branch geçişinden sonra tam olarak bu yaşandı). Kapının
+// amacı içeriğin güncelliğini denetlemek, satır sonu biçimini değil.
+const normalizeNewlines = (value) => value.replace(/\r\n/g, '\n').trim()
+
 if (checkOnly) {
     let current = ''
     try {
         current = await readFile(manifestUrl, 'utf8')
     } catch { /* dosya yok — aşağıda hata verilir */ }
 
-    if (current.trim() !== body.trim()) {
+    if (normalizeNewlines(current) !== normalizeNewlines(body)) {
         console.error('Bölüm slug manifesti güncel değil. Çalıştır: npm run seo:section-slugs')
         process.exit(1)
     }

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // WP1 (fableplan.md) — QA Mentor yol haritalarında sıra düzeltmesi: Docker artık
 // Jenkins/AWS'ten ÖNCE geliyor (container kavramı Docker'sız anlaşılmaz), Linux
@@ -10,7 +11,7 @@ test.describe('WP1 — QA Mentor roadmap sırası (MAP_A)', () => {
     test('/qa-mentor — sıfır+Java+Selenium seçilince Docker→Jenkins→AWS sırası, Linux ana hatta, Kafka extras\'ta', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/qa-mentor');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Sihirbaz v2 (4 soru): sıfır → Java → Selenium → zaman. Bu kombinasyon
         // MAP_A'yı üretir (pickBaseMapId: zero+java+selenium → map_a).

@@ -4,6 +4,7 @@ import { whatIsTestingData } from '../src/data/whatIsTestingData.js';
 import { manualTestingData } from '../src/data/manualTestingData.js';
 import { stubPlausible, recordedEvents } from './helpers/analytics';
 import { algorithmsData } from '../src/data/algorithmsData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Ders bitirme rozeti (ürün kararı 2026-07-19): başlangıç derslerinde kullanıcı
 // her bölümde ilerlemesini görebilmeli; son bölümün altında tüm bölümler bitince
@@ -27,7 +28,7 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
         // dersi baştan bitiren ikinci bir test yazmamak için buraya bağlandı (S3).
         await stubPlausible(page);
         await page.goto('/algorithms');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         const badge = page.getByTestId('lesson-finish-badge');
         await badge.scrollIntoViewIfNeeded();
@@ -75,7 +76,7 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
         // 1) İlk ziyaret (localStorage temiz) → düğmeler hero'da OLMAMALI,
         //    sayfanın altındaki "İleri Seviye Seçenekler" panelinde olmalı.
         await page.goto('/algorithms');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         await expect(page.getByTestId('algorithms-mode-controls-hero')).toHaveCount(0);
 
@@ -100,7 +101,7 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
             window.localStorage.setItem('algorithms_completed_lessons', JSON.stringify(completed));
         }, lessonIds);
         await page.reload();
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Artık düğmeler hero'da (üstte) görünür, alt panel HİÇ render edilmez.
         await expect(page.getByTestId('algorithms-mode-controls-hero')).toBeVisible();
@@ -110,7 +111,7 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
     test('/manual-testing — her bölümün quizi doğru cevaplanınca rozet "done" olur', async ({ page }) => {
         test.setTimeout(120_000);
         await page.goto('/manual-testing');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         const badge = page.getByTestId('lesson-finish-badge');
         await badge.scrollIntoViewIfNeeded();
@@ -148,7 +149,7 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
             window.localStorage.setItem('advanced_algorithms_neuro_mode', 'false');
         });
         await page.goto('/advanced-algorithms');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         const note = page.getByTestId('optional-lesson-note');
         await expect(note).toBeVisible();
@@ -167,7 +168,7 @@ test.describe('Ders bitirme rozeti — bölüm ilerlemesi + bitirme kutlaması',
     test('/what-is-testing — TopicPage son sekmesinin altında rozet görünür', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/what-is-testing');
-        await page.waitForSelector('h1', { timeout: 60_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         // Son sekmeye sidebar'dan geç (sekme butonları title={tab} taşır).
         const tabs = whatIsTestingData.tr.tabs;

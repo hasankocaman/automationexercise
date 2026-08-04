@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // AC10 (Documents/acceptancecriterias.md) — TR modda kod bloğu yorum dili
 // kalitesi, POZİTİF doğrulama. `i18n-content-toggle.spec.ts` sadece EN modda
@@ -15,7 +16,7 @@ const SIDEBAR_TAB_BUTTONS = 'div[class*="flex-shrink-0"][class*="sticky"] button
 test('/python — "Değişkenler & Tipler" sekmesi, TR modda: "Multiple assignment" değil "Çoklu atama" görünür', async ({ page }) => {
     test.setTimeout(60_000);
     await page.goto('/python');
-    await page.waitForSelector('h1', { timeout: 30_000 });
+    await waitForAppReady(page, { timeout: 30_000 });
 
     const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);
     await tabButtons.filter({ hasText: 'Değişkenler & Tipler' }).first().click();
@@ -38,7 +39,7 @@ const KNOWN_ENGLISH_COMMENTS_MUST_NOT_LEAK = [
 test('/python — TR modda tüm sekmelerde bilinen İngilizce yorumlar sızmıyor', async ({ page }) => {
     test.setTimeout(120_000);
     await page.goto('/python');
-    await page.waitForSelector('h1', { timeout: 30_000 });
+    await waitForAppReady(page, { timeout: 30_000 });
 
     const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);
     const tabCount = await tabButtons.count();

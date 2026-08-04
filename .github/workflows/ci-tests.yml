@@ -31,10 +31,12 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
 
-      - name: Build (SEO + content integrity + interview audit gate)
-        run: npm run build
-
-      - name: Run Playwright E2E tests
+      # `npm run test:e2e` artık ÖNCE tam `npm run build` koşturur (pretest:e2e)
+      # ve testleri dev sunucusu yerine üretilen `dist/`e karşı (vite preview)
+      # çalıştırır. Bu yüzden ayrı bir "Build" adımı YOK — olsaydı her koşumda
+      # aynı build iki kez alınırdı. SEO / içerik bütünlüğü / mülakat denetimi
+      # geçitleri build'in içinde olduğu için hâlâ testlerden önce koşuyor.
+      - name: Build + Playwright E2E tests (dist üzerinde)
         run: npm run test:e2e
 
       - name: Upload Playwright report

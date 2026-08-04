@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { MAP_A } from '../src/data/qaMentorData.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // AC09 (Documents/acceptancecriterias.md): "Kullanıcı kariyer yolu seçtiyse
 // güncel ilerleme (progress bar veya checkpoint) görselleştirilmelidir" +
@@ -102,7 +103,7 @@ test.describe('AC09 — QA Mentor yol haritası ilerleme görselleştirmesi', ()
             const page = await context.newPage();
 
             await page.goto('/qa-mentor');
-            await page.waitForSelector('h1', { timeout: 30_000 });
+            await waitForAppReady(page, { timeout: 30_000 });
 
             // v2 migrasyon akışı: career_goal kayıtlı ama local qaMentorProfile yok →
             // tam sihirbaz yerine SADECE zaman mini-sorusu sorulur (plan §7 risk 6),

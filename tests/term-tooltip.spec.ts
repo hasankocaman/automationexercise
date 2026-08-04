@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { seleniumData } from '../src/data/seleniumData.js';
 import { TERM_GLOSSARY } from '../src/data/termGlossary.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Kavram Tooltip'i (Documents/challenge-first-experience-plan.md §3.6, Phase
 // 1.5) — yazılım bilmeyen kullanıcı için inline günlük-hayat benzetmesi
@@ -58,7 +59,7 @@ function findTabWithTermAndCode(): number {
 
 async function gotoSeleniumTab(page: Page, tabIndex: number) {
     await page.goto('/selenium');
-    await page.waitForSelector('h1', { timeout: 30_000 });
+    await waitForAppReady(page, { timeout: 30_000 });
     const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);
     await expect(tabButtons.nth(tabIndex)).toBeVisible();
     await tabButtons.nth(tabIndex).click();

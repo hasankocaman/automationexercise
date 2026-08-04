@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // Kavram Tooltip'i Rehber Karakteri (challenge-first-experience-plan.md §3.6.4,
 // kullanıcı talebi 2026-07-31) — sevimli bir maskot, sadece 3 giriş sayfasında
@@ -29,7 +30,7 @@ test.describe('Kavram Tooltip\'i rehber karakteri (mascot)', () => {
         test(`${url} — rozet görünür, tıklayınca balon açılır/kapanır`, async ({ page }) => {
             test.setTimeout(60_000);
             await page.goto(url);
-            await page.waitForSelector('h1', { timeout: 30_000 });
+            await waitForAppReady(page, { timeout: 30_000 });
 
             const badge = page.getByTestId('tooltip-guide-badge');
             await expect(badge).toBeVisible();
@@ -61,7 +62,7 @@ test.describe('Kavram Tooltip\'i rehber karakteri (mascot)', () => {
     test('kapsam dışı bir sayfada (/selenium) hiç görünmez', async ({ page }) => {
         test.setTimeout(30_000);
         await page.goto('/selenium');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.getByTestId('tooltip-guide-badge')).toHaveCount(0);
     });
 
@@ -69,7 +70,7 @@ test.describe('Kavram Tooltip\'i rehber karakteri (mascot)', () => {
         test.setTimeout(30_000);
         await page.setViewportSize({ width: 1280, height: 800 });
         await page.goto('/what-is-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const mascotBox = await page.getByTestId('tooltip-guide-badge').boundingBox();
         const chatWidgetBox = await page.locator('.fixed.bottom-20.left-4').first().boundingBox();
@@ -86,7 +87,7 @@ test.describe('Kavram Tooltip\'i rehber karakteri (mascot)', () => {
     test('/what-is-testing — ilk tıklamaya kadar yanıp söner, sonra kalıcı olarak durur', async ({ page }) => {
         test.setTimeout(30_000);
         await page.goto('/what-is-testing');
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
         const badge = page.getByTestId('tooltip-guide-badge');
         await expect(badge).toBeVisible();
 
