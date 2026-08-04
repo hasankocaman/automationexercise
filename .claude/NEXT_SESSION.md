@@ -20,9 +20,86 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-03, Opus — Aşama 4: HowTo + yazar/kurum kimliği + mobil LCP) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-04, Opus — test paketi production build'e taşındı, kapsam %100 kapıya bağlandı) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Neredeyiz
+
+- **Tam paket YEŞİL: 375 passed / 0 failed / 4 flaky / 24.4 dk** (öncesi:
+  353 passed / 7 failed / 13 flaky / ~1.9 saat).
+- Test kapsamı **43/43 route (%100)**, artık build zincirinde zorunlu.
+- Branch main'e merge edildi ve push'landı → deploy tetiklendi.
+
+### Bu oturumda yapılanlar
+
+1. **Paket artık dev sunucusunda değil, PRODUCTION BUILD üzerinde koşuyor.**
+   `pretest:e2e` önce tam `npm run build` alıyor, `playwright.config.ts`
+   testleri `vite preview` ile servis edilen `dist/`e yöneltiyor (port 4175).
+   - Ölçüm: ilk `<h1>` dev sunucusunda ana sayfada **17.003 ms**, `/en/`'de
+     6.512 ms, sekme URL'inde 5.993 ms; aynı sayfalar production build'de
+     **79 / 48 / 46 ms**. 130-215 kat fark. Varsayılan 5 sn'lik doğrulama
+     süresiyle paketin bir kısmı ürünü değil **Vite'ın derleme süresini**
+     ölçüyordu — süreleri uzatmak bunu çözmez, gizlerdi.
+   - CI'da çift build olmasın diye iki iş akışındaki ayrı "Build" adımı
+     kaldırıldı; geçitler zaten build'in içinde ve hâlâ testlerden önce koşuyor.
+2. **Bunun ortaya çıkardığı GERÇEK kusur — kalıcı olarak belgelendi
+   (CLAUDE.md §23.10).** Testler "sayfa hazır mı"yı `waitForSelector('h1')` ile
+   soruyordu. Yayınlanan her sayfada arama motoru için üretilen statik gövdenin
+   **kendi `<h1>`'i var**, yani bekleme JavaScript çalışmadan çözülüyor ve
+   otomatik tekrarı olmayan çağrılar (`count()`, `evaluate()`, `boundingBox()`)
+   boş DOM görüyordu. Dev sunucusunda bu tuzak görünmez (kabuk basılmaz).
+   - Çözüm: `tests/helpers/app-ready.ts` → `waitForAppReady(page)`.
+     **40 dosyada 163 çağrı** dönüştürüldü. Dev'e karşı geriye dönük güvenli.
+   - Bu tek düzeltme 6 mobil hatayı ve flaky'lerin çoğunu kapattı.
+3. **`topic-pages-ui` artık aynı şeyi 21.715 kez doğrulamıyor.** Eski hâli her
+   sekmedeki her butona iki tarayıcı çağrısı yapıyordu (~43.000 gidiş-dönüş) ve
+   yaptığı iş boştu: seçici zaten `:visible` filtresi taşırken `toBeVisible()`
+   çağrılıyor, `isEnabled()` sonucu hiçbir yerde doğrulanmıyordu.
+   - Yeni hâli sekme başına TEK `evaluate` (`tests/helpers/button-audit.ts`) ve
+     üstüne gerçekten başarısız olabilecek iki kontrol: 0×0 boyutlu buton
+     (bozuk render) ve görünür+enabled olduğu hâlde `pointer-events:none` olan
+     buton (tıklanabilir görünüp tıklanmayan).
+   - **Denetçinin kendi testi var:** sayfaya bilerek iki bozuk buton enjekte
+     edip yakalandığını kanıtlıyor. "Hep yeşil" tek başına kanıt değildir.
+4. **Kapsam kapısı: `scripts/check-test-coverage.mjs`** (build zincirinde).
+   Her route en az bir testte geçmeli, yoksa `EXCEPTIONS` sözlüğünde
+   **gerekçesiyle** bulunmalı. Ölü istisna da hard-fail. Diş testi iki yönde de
+   yapıldı. Kapsam listesi artık belgede değil kodda (CLAUDE.md §22.1 not düştü).
+5. **Açık iki kapsam boşluğu gerçek testle kapatıldı** (`tests/auth-pages.spec.ts`):
+   `/login` (giriş formu gerçekten çalışıyor mu) ve `/qa-assistant` (anonim
+   ziyaretçi gerçekten engelleniyor mu — koruma kalkarsa hiçbir hata üretmez).
+6. **Slug manifesti kapısındaki gerçek kusur düzeltildi.** Karşılaştırma satır
+   sonlarını da içeriyordu; `core.autocrlf=true` olan Windows'ta her
+   `git checkout` sonrası içerik hiç değişmediği hâlde build kırılıyordu.
+7. **`npm run test:report`** — `tests/*.spec.ts`'i ayrıştırıp her senaryonun
+   adımlarını ve beklenen sonucunu gösteren tek dosyalık renkli HTML rapor
+   (`reports/test-report.html`, git'e girmez). 50 dosya · 254 senaryo ·
+   1150 adım · 1073 doğrulama · %100 sayfa kapsamı.
+
+### Bilinmesi gerekenler
+
+- **4 flaky test duruyor** (ilk denemede düşüp retry'da geçen): ana sayfa EN
+  rozeti, `/java` code-trace, hreflang, `/java` sekme testi. 13'ten 4'e indi ama
+  "flaky" yeşil demek değil — deterministik paket istenirse sıradaki iş budur.
+- Paket artık `npm run dev`'i hiç çalıştırmıyor; dev sunucusu bozulursa test
+  yakalamaz. Bilinçli takas.
+- Mobil testlerde `ResizeObserver loop` mesajı dar bir filtreyle zararsız
+  sayılıyor (sayfa başına tam 1 kez çıkıyor, döngü değil).
+- 24.4 dakikanın içinde tam build var.
+
+### Sıradaki iş
+
+1. Deploy sonrası GitHub Actions'ı ve ardından arama konsolunu izle.
+2. Kalan 4 flaky testi kökünden çöz (istenirse).
+3. Dış tanıtım taslakları (`Documents/outreach/`) hâlâ manuel yayınlanmadı.
+4. Plausible analytics hesabı hâlâ açılmadı.
+
+---
+
+## 📌 Önceki Durum (2026-08-03, Opus — Aşama 4: HowTo + yazar/kurum kimliği + mobil LCP)
+
+> Alttaki bölümler korunuyor.
 
 ### Neredeyiz
 

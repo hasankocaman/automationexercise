@@ -566,8 +566,24 @@ GitHub Actions üzerinde otomatik koşar: `main`'e push'ta `.github/workflows/de
 içindeki `test` job'ı (testler kırmızıysa `build`/`deploy` hiç çalışmaz), `main`'e açılan
 PR'larda ise `.github/workflows/ci-tests.yml`. Yerel `pre-push` hook'u sadece hızlı
 build/içerik-bütünlüğü doğrulaması yapar, tarayıcı açan E2E testlerini artık lokalde
-çalıştırmaz (bkz. `scripts/pre-push-tests.sh`). Bu testler aşağıdaki 6 kontrolü
-**mutlaka** kapsamalıdır. Yeni bir sayfa/özellik eklenirken veya
+çalıştırmaz (bkz. `scripts/pre-push-tests.sh`).
+
+**Paket DEV SUNUCUSUNA DEĞİL, PRODUCTION BUILD'E karşı koşar (2026-08-04):**
+`pretest:e2e` önce tam `npm run build` çalıştırır, `playwright.config.ts` de
+testleri `vite preview` ile servis edilen `dist/`e yöneltir (port 4175).
+Gerekçe ölçümle sabittir: dev sunucusunda ilk `<h1>` ana sayfada 17.003 ms'de
+geliyordu, aynı sayfa production build'de 79 ms — 130-215 kat fark. Varsayılan
+5 sn'lik doğrulama süresiyle paketin bir kısmı ürünü değil Vite'ın derleme
+süresini ölçüyordu. Yeni bir suite/config yazarken bu ilkeyi koru: **yayınlanan
+artefaktı test et.** (Bunun getirdiği tuzak için §23.10'a bak.)
+
+**Kapsam artık makineyle zorunludur:** `scripts/check-test-coverage.mjs` build
+zincirinde koşar ve her route'un en az bir testte geçtiğini doğrular. Test
+kapsamı listesi bir belgede TUTULMAZ — kapsam dışı bırakılacak route, o
+script'teki `EXCEPTIONS` sözlüğüne **gerekçesiyle** yazılır. Ölü istisna
+(artık var olmayan ya da aslında test edilmiş route) da hard-fail eder.
+
+Bu testler aşağıdaki 6 kontrolü **mutlaka** kapsamalıdır. Yeni bir sayfa/özellik eklenirken veya
 mevcut test suite'i değiştirilirken bu liste referans alınmalı, kapsam dışı kalan
 kontrol varsa ilgili Playwright test dosyasına eklenmelidir:
 
@@ -603,6 +619,12 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
 - **`/basit-backend`** — kullanıcı isteğiyle test kapsamı dışında tutuluyor.
 - **`/security`, `/backend`** — `RequireAdmin` ile korunuyor, normal test
   hesabıyla erişilemiyor.
+
+⚠️ **Bu liste artık yalnızca açıklama içindir; OTORİTE koddadır:**
+`scripts/check-test-coverage.mjs` içindeki `EXCEPTIONS` sözlüğü. Bir sayfayı
+kapsam dışına almak için oraya gerekçesiyle eklenir — buraya yazmak tek başına
+hiçbir şey yapmaz ve build yine kırılır. Bu bilinçli: belgeye yazılan kapsam
+listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
 
 ---
 
@@ -820,6 +842,32 @@ dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
 - **Sözlük notu:** `Given`/`When`/`Then`/`And` `termGlossary.js`'e BİLEREK
   eklenmedi — günlük İngilizcede aşırı yaygın oldukları için EN modda her cümlede
   altları çizilirdi. Sadece `gherkin` ve `cucumber` terimleri eklendi.
+
+### 23.10. `waitForSelector('h1')` HAZIRLIK SİNYALİ DEĞİLDİR (statik kabuk tuzağı)
+
+- **Belirti:** Testler "sidebar sekmesi bulunamadı" (`count()` → 0) diye düşüyor
+  ya da rastgele flaky oluyor; aynı test tek başına koşunca geçiyor. 2026-08-04'te
+  6 mobil test bu yüzden kırmızıydı, 13 test flaky işaretlenmişti.
+- **Kök Neden:** Yayınlanan her sayfa, arama motorları için üretilmiş bir statik
+  gövde taşır (`data-seo-fallback`) ve o gövdenin **kendi `<h1>`'i vardır**. Yani
+  `h1`, JavaScript çalışmadan ÖNCE de DOM'dadır: `waitForSelector('h1')` anında
+  çözülür, test React mount olmadan ilerler ve otomatik yeniden denemesi OLMAYAN
+  her çağrı (`count()`, `evaluate()`, `boundingBox()`, `innerText()`) boş DOM
+  görür. Dev sunucusunda bu tuzak GÖRÜNMEZ (orada kabuk basılmaz, ilk `h1`
+  zorunlu olarak React'in başlığıdır) — bu yüzden yıllarca kazara çalıştı ve
+  ancak paket production build'e taşınınca ortaya çıktı.
+- **Çözüm:** `tests/helpers/app-ready.ts` → `waitForAppReady(page)`. Kabuğun
+  React tarafından SİLİNMİŞ olmasını bekler (`[data-seo-fallback]` yok olur),
+  sonra `h1`'i doğrular. Dev sunucusuna karşı da güvenlidir (kabuk hiç
+  basılmadığı için koşul baştan sağlanır).
+- **Önleme:** Yeni testte sayfa hazırlığı için **asla** `waitForSelector('h1')`
+  kullanma; `waitForAppReady(page)` çağır. Aynı mantık `[data-testid]` gibi
+  yalnızca React'in bastığı seçiciler için gerekmez — onlar zaten kabukta yoktur.
+- **Yan ders:** Bir doğrulama "hep yeşil" diye doğru sayılmaz. Her zaman boş liste
+  döndüren kırık bir denetçi de aynen böyle görünür. Yeni bir guard yazınca
+  BOZUK durumu bilerek üretip kırmızıya döndüğünü gör (örnek: `topic-pages-ui`
+  içindeki "guard'ın kendi testi" — sayfaya 0×0 ve tıklanamaz buton enjekte edip
+  denetçinin yakaladığını kanıtlar).
 
 ---
 

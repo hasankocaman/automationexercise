@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
+import { auditTabButtons, CONTENT_AREA } from './helpers/button-audit';
 
 // TopicPage tabanlı (sol dikey sidebar + sekmeler) herkese açık route'lar.
 // Admin/login gerektiren route'lar (/security, /backend, /qa-assistant), özel
@@ -34,9 +36,7 @@ function isAllowedError(msg: string): boolean {
 // Sidebar genişliği sayfaya göre değişebilir (w-52 / w-56 vb.) — ortak özellik
 // flex-shrink-0 + sticky olması (bkz. TopicPage.jsx ve TestFrameworksPage.jsx).
 const SIDEBAR_TAB_BUTTONS = 'div[class*="flex-shrink-0"][class*="sticky"] button';
-// :visible — bazı butonlar bilinçli olarak md:hidden (mobil-only toggle vb.);
-// masaüstü viewport'ta gizli olmaları beklenen davranış, bug değil.
-const CONTENT_BUTTONS = 'div[class*="flex-shrink-0"][class*="sticky"] + div button:visible';
+// Buton denetiminin gerekçesi ve kapsamı: ./helpers/button-audit.ts
 // "Cannot read properties", "something went wrong" gibi genel ifadeler kasıtlı
 // olarak YOK — error-dictionary block'ları gerçek hata mesajı örnekleri içerir
 // (örn. cypressData.js) ve bunlar gerçek crash değildir. Gerçek render hataları
@@ -47,11 +47,12 @@ const CRASH_MARKERS = ['[object Object]'];
 
 for (const route of TOPIC_ROUTES) {
     test(`${route} — her sekme render olur, içerik butonları görünür`, async ({ page }) => {
-        // 180_000ms marji, 4 paralel worker altinda en agir veri dosyalarinda
-        // (java/typescript/python/selenium) ~1/190 oraninda rastgele zaman
-        // asimina yol aciyordu (izole kosumda hep gecer, sadece tam pakette
-        // sinirda kaliyordu) — 2026-07-21'de 240_000ms'ye yukseltildi.
-        test.setTimeout(240_000);
+        // Buton denetimi sekme başına ~43.000 gidiş-dönüşten 390 `evaluate`
+        // çağrısına indi (bkz. dosya başındaki not), bu yüzden 240_000ms'lik
+        // eski marj gerekmiyor. En kalabalık sayfa /api-testing (57 sekme);
+        // sınır yine de bol tutuldu ki 4 paralel worker altında sekme
+        // render'ları için yer kalsın.
+        test.setTimeout(180_000);
 
         const pageErrors: string[] = [];
         page.on('pageerror', (e) => pageErrors.push(e.message));
@@ -62,7 +63,7 @@ for (const route of TOPIC_ROUTES) {
         });
 
         await page.goto(route);
-        await page.waitForSelector('h1', { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);
         const tabCount = await tabButtons.count();
@@ -77,6 +78,7 @@ for (const route of TOPIC_ROUTES) {
         }
 
         const disabledButtonsFound: string[] = [];
+        let visibleButtonsSeen = 0;
 
         for (let i = 0; i < tabCount; i++) {
             // Sekme butonunun kendisi görünür ve tıklanabilir olmalı.
@@ -121,29 +123,76 @@ for (const route of TOPIC_ROUTES) {
                     .not.toBe(nextText);
             }
 
-            // İçerik alanındaki butonlar görünür olmalı. Enabled durumu burada hard-fail
-            // yapmıyoruz: birçok aksiyon butonu (AI değerlendir, mesaj gönder vb.) kasıtlı
-            // olarak boş input/precondition'a kadar disabled kalır — bu bir bug değil.
-            // Disabled bulunanlar test raporuna bilgi amaçlı eklenir.
-            const contentButtons = page.locator(CONTENT_BUTTONS);
-            const buttonCount = await contentButtons.count();
-            for (let b = 0; b < buttonCount; b++) {
-                const button = contentButtons.nth(b);
-                await expect(button, `${route} sekme ${i} buton ${b}: görünür değil`).toBeVisible();
-                if (!(await button.isEnabled())) {
-                    const label = (await button.innerText().catch(() => '')).trim().slice(0, 40);
-                    disabledButtonsFound.push(`sekme ${i} buton ${b} ("${label}")`);
-                }
+            // İçerik alanındaki butonların tamamı TEK DOM geçişinde denetlenir
+            // (gerekçe: dosyanın başındaki `auditButtons` notu).
+            const audit = await auditTabButtons(page);
+
+            visibleButtonsSeen += audit.visible;
+
+            expect(
+                audit.brokenLayout,
+                `${route} sekme ${i}: yerleşimde yer kaplayan ama 0×0 boyutlu buton(lar) — bozuk render`,
+            ).toEqual([]);
+            expect(
+                audit.unclickable,
+                `${route} sekme ${i}: görünür ve enabled olduğu hâlde pointer-events:none olan buton(lar) — tıklanabilir görünüp tıklanamıyor`,
+            ).toEqual([]);
+
+            for (const label of audit.disabled) {
+                disabledButtonsFound.push(`sekme ${i} ("${label}")`);
             }
         }
 
-        if (disabledButtonsFound.length) {
-            test.info().annotations.push({
-                type: 'info',
-                description: `${route}: ilk render'da disabled bulunan butonlar (beklenen olabilir): ${disabledButtonsFound.join(', ')}`,
-            });
-        }
+        test.info().annotations.push({
+            type: 'info',
+            description: `${route}: ${tabCount} sekme, ${visibleButtonsSeen} görünür buton denetlendi`
+                + (disabledButtonsFound.length
+                    ? ` — ilk render'da disabled bulunanlar (beklenen olabilir): ${disabledButtonsFound.join(', ')}`
+                    : ''),
+        });
 
         expect(pageErrors, `${route}: console/page hataları`).toHaveLength(0);
     });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DENETÇİNİN KENDİ TESTİ
+//
+// Yukarıdaki iki doğrulama (bozuk yerleşim, tıklanamayan buton) bugün site
+// genelinde 0 sonuç veriyor. Bu iyi bir haber ama tek başına HİÇBİR ŞEY
+// kanıtlamaz: her zaman boş liste döndüren kırık bir denetçi de aynen böyle
+// "yeşil" görünürdü. Bu test, sayfaya bilerek iki bozuk buton enjekte edip
+// denetçinin ikisini de yakaladığını gösterir — yani guard'ın dişi olduğunu.
+// Enjeksiyon yalnızca bu testin tarayıcı bağlamında yaşar, üründe iz bırakmaz.
+// ─────────────────────────────────────────────────────────────────────────────
+test('buton denetçisi bozuk butonları GERÇEKTEN yakalıyor (guard\'ın kendi testi)', async ({ page }) => {
+    test.setTimeout(60_000);
+
+    await page.goto('/docker');
+    await waitForAppReady(page, { timeout: 30_000 });
+
+    const before = await auditTabButtons(page);
+    expect(before.brokenLayout, 'temiz sayfada bozuk yerleşim bulunmamalı').toEqual([]);
+    expect(before.unclickable, 'temiz sayfada tıklanamayan buton bulunmamalı').toEqual([]);
+
+    await page.evaluate((selector) => {
+        const root = document.querySelector(selector);
+        if (!root) throw new Error('içerik alanı bulunamadı');
+
+        // 1) Yerleşimde yer kaplayan ama 0×0: kullanıcı göremez.
+        const zero = document.createElement('button');
+        zero.textContent = 'SIFIR BOYUTLU TEST BUTONU';
+        zero.style.cssText = 'width:0;height:0;padding:0;border:0;overflow:hidden';
+        root.appendChild(zero);
+
+        // 2) Görünür + enabled ama tıklanamaz: en sinsi tür.
+        const dead = document.createElement('button');
+        dead.textContent = 'TIKLANAMAYAN TEST BUTONU';
+        dead.style.cssText = 'width:120px;height:40px;pointer-events:none';
+        root.appendChild(dead);
+    }, CONTENT_AREA);
+
+    const after = await auditTabButtons(page);
+    expect(after.brokenLayout, '0×0 buton yakalanmadı — denetçi kör').toContain('SIFIR BOYUTLU TEST BUTONU');
+    expect(after.unclickable, 'pointer-events:none buton yakalanmadı — denetçi kör').toContain('TIKLANAMAYAN TEST BUTONU');
+});
