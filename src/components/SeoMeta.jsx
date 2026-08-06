@@ -39,8 +39,20 @@ function SeoMeta() {
         // Override yalnızca AİT OLDUĞU adres hâlâ açıksa uygulanır — sayfa
         // değişiminde bir önceki sekmenin başlığı sızmasın diye.
         const active = override && override.path === fullPath ? override : null
-        const title = active?.title || seo.title
-        const description = active?.description || seo.description
+
+        // Sekme adreslerinde (/sql/sql-joins) `seo` HUB'ın metadata'sını taşır;
+        // sekmeye özgü başlığı TopicPage üretir ve override olarak gönderir —
+        // ama bunun için önce sayfanın veri paketi (yer yer ~1 MB) yüklenmeli.
+        // O ana kadar hub başlığını yazmak, statik gövdenin ZATEN doğru yazdığı
+        // başlığı silip yanlışıyla değiştirmek olur: başlık doğrudan yanlışa,
+        // sonra tekrar doğruya döner. Override gelene kadar sayfada duran değer
+        // korunur; hub'dan sekmeye geçişte de bu, bugünkü davranışın aynısıdır.
+        const keepExisting = seo.isSection && !active
+        const title = active?.title || (keepExisting ? (document.title || seo.title) : seo.title)
+        const description = active?.description
+            || (keepExisting
+                ? (document.head.querySelector('meta[name="description"]')?.getAttribute('content') || seo.description)
+                : seo.description)
 
         document.documentElement.setAttribute('lang', seo.locale)
         document.title = title

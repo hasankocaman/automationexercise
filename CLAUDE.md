@@ -869,6 +869,50 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   içindeki "guard'ın kendi testi" — sayfaya 0×0 ve tıklanamaz buton enjekte edip
   denetçinin yakaladığını kanıtlar).
 
+### 23.11. `vite preview` uzantısız yolda YANLIŞ kabuğu servis eder
+
+- **Belirti:** Testler tek başına geçiyor, tam pakette rastgele düşüyor. Düşen
+  doğrulama sayfanın `<title>`'ı, canonical'ı veya hreflang'i oluyor ve gelen
+  değer hep ANA SAYFANIN değeri.
+- **Kök Neden (ölçüldü, 2026-08-05):** `curl localhost:4175/docker` ana sayfanın
+  kabuğunu döndürüyordu (`canonical https://learnqa.dev/`); aynı adres sondaki
+  eğik çizgiyle, `/docker/`, doğru kabuğu veriyordu. Preview'in statik katmanı
+  uzantısız yolu dosyaya çözemeyince istek tek-sayfa yedeğine düşüp
+  `dist/index.html` dönüyor. GitHub Pages ise `/docker/index.html` servis eder —
+  yani preview YAYINLANAN şeyi taklit etmiyordu. Sonuç: her sayfa React mount
+  olana kadar ana sayfanın metadata'sını taşıyor, bu değerleri okuyan her
+  doğrulama uygulamayla yarışıyordu.
+- **Çözüm:** `vite.config.js` içindeki `previewDirectoryIndex` eklentisi.
+  Uzantısız ve eğik çizgisiz yollarda `dist/<yol>/index.html` varsa isteği
+  İÇERİDEN yeniden yazar (yönlendirme YAPMAZ — adres `/docker` kalmalı, testler
+  ve uygulama bunu bekliyor). Asset'ler ve bilinmeyen yol yedeği etkilenmez.
+- **⚠ Bunun getirdiği YENİ tuzak:** artık her sayfa KENDİ kabuğunu aldığı için
+  kabuk, sayfanın gerçek başlıklarını ve SSS metnini içerir. Yani "beklenen metin
+  göründü" de tek başına hazırlık sinyali DEĞİLDİR (§23.10'un genişlemiş hâli) —
+  `getByRole('heading', ...)` kabuktan da karşılanabilir. Sayfa içeriğine bakan
+  her testte önce `waitForAppReady(page)` çağır.
+- **Yan bulgu (ürün):** bölüm adreslerinde (`/sql/sql-joins`) uygulama açılınca
+  başlık kısa süre HUB başlığına geriliyordu; `SeoMeta` artık sekmeye özgü
+  başlık gelene kadar kabuğun yazdığı doğru başlığı korur.
+
+### 23.12. Kaybolan bir anı doğrulamak (animasyon sayaçları)
+
+- **Belirti:** Bir etkileşim testi "element bulunamadı" diyor ama ekran
+  görüntüsünde her şey yerli yerinde; tek başına koşunca geçiyor.
+- **Kök Neden:** Doğrulama, ekranda yalnızca birkaç yüz milisaniye duran bir
+  duruma bakıyor. `code-trace` ve `heap-stack` blokları ▶ Başlat'tan sonra
+  otomatik oynatmaya geçer: "Adım 1/N" metni 1100-1300 ms sonra kendiliğinden
+  "Adım 2/N" olur ve BİR DAHA GERİ GELMEZ. Paralel worker'lar CPU'yu paylaşırken
+  ilk yoklama o pencereyi kaçırıyor ve doğrulama kalıcı olarak düşüyor.
+- **Çözüm:** Kaybolan anı değil KALICI gerçeği doğrula. Referans:
+  `learning-blocks-render.spec.ts` → `assertStepWalkthrough` — (1) Başlat sonrası
+  sayacın VARLIĞI, (2) Sıfırla → İleri → İleri zincirinin sayacı 1'den 2'ye
+  taşıması. İkinci zincir hiçbir zamanlayıcı içermez, sonuç makineden bağımsızdır.
+- **Önleme:** Bir doğrulama zamanlayıcıya bağlı bir duruma bakıyorsa ya kalıcı
+  bir duruma çevir ya da bekleme payını duvar saatinden TÜRET (örnek:
+  `video-scene.spec.ts` → `SCENE_DURATION_MS * 4`), rastgele bir sayı yazma.
+  Geniş pay doğruluğu gizlemez: sahne hiç ilerlemezse test yine düşer.
+
 ---
 
 ## 24. KESİN KURAL — İç Koordinasyon Dili Kullanıcıya SIZMAZ

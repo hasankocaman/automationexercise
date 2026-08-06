@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { waitForAppReady } from './helpers/app-ready';
 
+// Film sahnelerinin veri şemasındaki sabit süresi (sceneDurationMs).
+// Oynatıcı testlerinin bekleme payları buradan türetilir.
+const SCENE_DURATION_MS = 3_400;
+
 // Video-Scene (Film Bloğu) pilot smoke testi — PILOT_PLAN_ve_PROMPT.md.
 // /llm-agents sayfasındaki "🔍 RAG Pipeline Testing" sekmesinde duran
 // ragPipelineFilm (llmAgentsData.js) üzerinden VideoSceneBlock'un temel
@@ -10,7 +14,12 @@ import { waitForAppReady } from './helpers/app-ready';
 
 test.describe('Video-Scene — Film Bloğu (/llm-agents RAG Pipeline pilotu)', () => {
     test('block render oluyor, play ile sahne ilerliyor, pip ile seek çalışıyor, sonda bitiş rozeti görünür', async ({ browser }) => {
-        test.setTimeout(60_000);
+        // Dosyadaki diğer testler tek bir render doğrular; bu test ağır bir
+        // sayfayı açar, sekme değiştirir, filmi OYNATIR (sahne başına 3,4 sn
+        // duvar saati), sahne atlar ve sonuna kadar ilerler. İşin kendisi
+        // dakikalarca sürebilir; 60 sn bütçe ürünü değil, işin uzunluğunu
+        // kesiyordu.
+        test.setTimeout(150_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
 
@@ -27,18 +36,31 @@ test.describe('Video-Scene — Film Bloğu (/llm-agents RAG Pipeline pilotu)', (
         const firstCaption = await caption.innerText();
         expect(firstCaption.length).toBeGreaterThan(10);
 
-        // play ile sahne otomatik ilerlemeli (altyazı metni değişmeli)
+        // play ile sahne otomatik ilerlemeli (altyazı metni değişmeli).
+        // Süre sahnenin KENDİ uzunluğundan (3400 ms) türetilir: burada beklenen
+        // şey bir duvar saati, ürünün hızı değil. 6 sn yalnızca 2,6 sn pay
+        // bırakıyordu ve paralel worker'lar CPU'yu paylaşırken bu pay yetmedi.
+        // Geniş pay doğruluğu gizlemez — sahneler hiç ilerlemezse test yine düşer.
         await page.getByTestId('video-scene-play').click();
-        await expect(caption).not.toHaveText(firstCaption, { timeout: 6_000 });
+        await expect(caption).not.toHaveText(firstCaption, { timeout: SCENE_DURATION_MS * 4 });
 
-        // pip-2 ile doğrudan 3. sahneye seek — caption bir kez daha değişmeli
-        const beforeSeek = await caption.innerText();
-        await page.getByTestId('video-scene-pip-2').click();
-        await expect(caption).not.toHaveText(beforeSeek, { timeout: 3_000 });
+        // Sahne atlama (pip) otomatik oynatmayı DURDURUR — bu yüzden nereye
+        // atlayacağımızı bilerek seçebiliriz. Eskiden 3. sahneye atlanıp
+        // "altyazı değişti mi" diye bakılıyordu; oysa otomatik oynatma o sırada
+        // ZATEN 3. sahneye ulaşmış olabiliyordu ve atlama hiçbir şeyi
+        // değiştirmiyordu — ürün doğru çalışırken test düşüyordu. Bunun yerine
+        // başa atlanır ve altyazının tam olarak ilk sahnenin metni olduğu
+        // doğrulanır: yarış yok, üstelik "farklı olsun"dan daha güçlü bir
+        // doğrulama (eşitlik).
+        await page.getByTestId('video-scene-pip-0').click();
+        await expect(caption).toHaveText(firstCaption, { timeout: 8_000 });
 
-        // next ile son sahneye kadar ilerle, döngünün sonunda bitiş rozeti görünmeli
+        // next ile son sahneye kadar ilerle, döngünün sonunda bitiş rozeti görünmeli.
+        // Artık İLK sahneden başlıyoruz (yukarıda başa atladık), o yüzden tur
+        // sayısı film uzunluğunu rahatça aşmalı — yoksa döngü sona varmadan
+        // biter ve hata "bitiş rozeti yok" diye yanıltıcı görünür.
         const nextBtn = page.getByTestId('video-scene-next');
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 20; i++) {
             if (await nextBtn.isDisabled()) break;
             await nextBtn.click();
         }
@@ -1095,7 +1117,9 @@ test.describe('Video-Scene — Dalga 21 (llm-agents Intro sekmesi + claude-ai)',
 // "Doğrulama" notu).
 test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () => {
     test('/api-testing — 🌐 A1 · API Nedir? sekmesinde film oynatıcısı tam çalışır (play/seek/bitiş)', async ({ browser }) => {
-        test.setTimeout(60_000);
+        // Tam oynatıcı akışı (oynat/atla/bitir) duvar saatine bağlıdır ve
+        // /api-testing sitenin en kalabalık sayfası — bkz. pilot testin notu.
+        test.setTimeout(150_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
 
@@ -1111,18 +1135,31 @@ test.describe('Video-Scene — Dalga 22 (/api-testing, GRUP A-K, 57 film)', () =
         const firstCaption = await caption.innerText();
         expect(firstCaption.length).toBeGreaterThan(10);
 
-        // play ile sahne otomatik ilerlemeli (altyazı metni değişmeli)
+        // play ile sahne otomatik ilerlemeli (altyazı metni değişmeli).
+        // Süre sahnenin KENDİ uzunluğundan (3400 ms) türetilir: burada beklenen
+        // şey bir duvar saati, ürünün hızı değil. 6 sn yalnızca 2,6 sn pay
+        // bırakıyordu ve paralel worker'lar CPU'yu paylaşırken bu pay yetmedi.
+        // Geniş pay doğruluğu gizlemez — sahneler hiç ilerlemezse test yine düşer.
         await page.getByTestId('video-scene-play').click();
-        await expect(caption).not.toHaveText(firstCaption, { timeout: 6_000 });
+        await expect(caption).not.toHaveText(firstCaption, { timeout: SCENE_DURATION_MS * 4 });
 
-        // pip-2 ile doğrudan 3. sahneye seek — caption bir kez daha değişmeli
-        const beforeSeek = await caption.innerText();
-        await page.getByTestId('video-scene-pip-2').click();
-        await expect(caption).not.toHaveText(beforeSeek, { timeout: 3_000 });
+        // Sahne atlama (pip) otomatik oynatmayı DURDURUR — bu yüzden nereye
+        // atlayacağımızı bilerek seçebiliriz. Eskiden 3. sahneye atlanıp
+        // "altyazı değişti mi" diye bakılıyordu; oysa otomatik oynatma o sırada
+        // ZATEN 3. sahneye ulaşmış olabiliyordu ve atlama hiçbir şeyi
+        // değiştirmiyordu — ürün doğru çalışırken test düşüyordu. Bunun yerine
+        // başa atlanır ve altyazının tam olarak ilk sahnenin metni olduğu
+        // doğrulanır: yarış yok, üstelik "farklı olsun"dan daha güçlü bir
+        // doğrulama (eşitlik).
+        await page.getByTestId('video-scene-pip-0').click();
+        await expect(caption).toHaveText(firstCaption, { timeout: 8_000 });
 
-        // next ile son sahneye kadar ilerle, döngünün sonunda bitiş rozeti görünmeli
+        // next ile son sahneye kadar ilerle, döngünün sonunda bitiş rozeti görünmeli.
+        // Artık İLK sahneden başlıyoruz (yukarıda başa atladık), o yüzden tur
+        // sayısı film uzunluğunu rahatça aşmalı — yoksa döngü sona varmadan
+        // biter ve hata "bitiş rozeti yok" diye yanıltıcı görünür.
         const nextBtn = page.getByTestId('video-scene-next');
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 20; i++) {
             if (await nextBtn.isDisabled()) break;
             await nextBtn.click();
         }

@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { javaData } from '../src/data/javaData.js';
 import { waitForAppReady } from './helpers/app-ready';
 
@@ -27,6 +27,40 @@ function findSectionWith(pred: (blocks: Block[]) => boolean): number {
 function labelText(label: unknown): string {
     if (label && typeof label === 'object') return String((label as { tr?: string }).tr ?? (label as { en?: string }).en ?? '');
     return String(label ?? '');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NEDEN "Adım 1/" DOĞRULANMAZ
+//
+// heap-stack ve code-trace blokları ▶ Başlat'a basıldığında otomatik oynatmaya
+// geçer: sayaç 1100-1300 ms'de bir kendiliğinden ilerler. Yani "Adım 1/" ekranda
+// yalnızca ~1 saniye durur ve BİR DAHA GERİ GELMEZ. Doğrulama o pencereyi
+// kaçırırsa (paralel worker'lar CPU'yu paylaşırken sık olur) test, ürün doğru
+// çalıştığı hâlde "element bulunamadı" der. Kaybolan bir anı doğrulamak,
+// zamanlamayı ürünün davranışına değil makinenin yüküne bağlar.
+//
+// Bunun yerine iki KALICI gerçek doğrulanır:
+//   1. Başlat'tan sonra adım sayacı VAR (yürüyüş gerçekten başladı),
+//   2. Sıfırla → İleri → İleri zinciri sayacı 1'den 2'ye taşır (adımlama
+//      gerçekten çalışıyor). Sıfırla otomatik oynatmayı durdurduğu için bu
+//      zincirde hiçbir zamanlayıcı yoktur — sonuç makineden bağımsızdır.
+// ─────────────────────────────────────────────────────────────────────────────
+async function assertStepWalkthrough(page: Page, blockRoot: Locator) {
+    const counter = blockRoot.getByText(/Adım\s*\d+\s*\/\s*\d+/);
+
+    await blockRoot.getByRole('button', { name: /Başlat/ }).click();
+    await expect(counter, 'Başlat sonrası adım sayacı görünmedi').toBeVisible();
+
+    // ↺ Sıfırla → başlamamış duruma dön (sayaç yalnızca `started` iken basılır).
+    await blockRoot.getByRole('button', { name: /Sıfırla/ }).click();
+    await expect(counter, 'Sıfırla sonrası sayaç hâlâ duruyor').toHaveCount(0);
+
+    // ⏭ İleri otomatik oynatmayı BAŞLATMAZ; her tıklama tam bir adım ilerletir.
+    const next = blockRoot.getByRole('button', { name: /İleri/ });
+    await next.click();
+    await expect(counter, 'İlk İleri adım 1\'e getirmeliydi').toHaveText(/Adım\s*1\s*\/\s*\d+/);
+    await next.click();
+    await expect(counter, 'İkinci İleri adım 2\'ye getirmeliydi').toHaveText(/Adım\s*2\s*\/\s*\d+/);
 }
 
 async function gotoJavaTab(page: Page, tabIndex: number) {
@@ -73,9 +107,7 @@ test.describe('Öğrenme-blok render (prediction / code-trace / heap-stack) — 
 
         await expect(page.getByText('STACK').first()).toBeVisible();
         await expect(page.getByText('HEAP').first()).toBeVisible();
-        // ▶ Başlat → adım sayacı görünür (bellek modeli canlandı).
-        await page.getByRole('button', { name: /Başlat/ }).first().click();
-        await expect(page.getByText(/Adım\s*1\//).first()).toBeVisible();
+        await assertStepWalkthrough(page, page.getByTestId('heap-stack-block').first());
 
         await context.close();
     });
@@ -91,8 +123,7 @@ test.describe('Öğrenme-blok render (prediction / code-trace / heap-stack) — 
 
         // "Değişkenler" paneli code-trace bloğuna özgü (heap-stack'te STACK/HEAP var).
         await expect(page.getByText('Değişkenler').first()).toBeVisible();
-        await page.getByRole('button', { name: /Başlat/ }).first().click();
-        await expect(page.getByText(/Adım\s*1\//).first()).toBeVisible();
+        await assertStepWalkthrough(page, page.getByTestId('code-trace-block').first());
 
         await context.close();
     });

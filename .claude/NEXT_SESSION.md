@@ -20,9 +20,137 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-04, Opus — test paketi production build'e taşındı, kapsam %100 kapıya bağlandı) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-05, Opus — kalan 4 flaky testin kökü kazındı) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Neredeyiz
+
+- **Tam paket YEŞİL ve DETERMİNİSTİK: 380 passed / 0 failed / 0 flaky / 23.6 dk**
+  (öncesi: 375 passed / 4 flaky / 24.4 dk).
+- Bir önceki oturumdan kalan **4 flaky testin dördü de kökünden çözüldü.**
+  Bunlar tek bir sebebe bağlı değildi — üç ayrı kök neden çıktı, biri ürünün
+  değil TEST ORTAMININ kusuruydu ve tek başına paketin güvenilirliğini
+  sarsıyordu.
+- İş **`fix/test-suite-flakiness` dalında commit edildi**; main'e merge ve push
+  EDİLMEDİ, karar kullanıcıda.
+
+### Bulunan kökler (dördü de "tek başına geçiyor, pakette düşüyor" idi)
+
+1. **`vite preview` uzantısız yolda YANLIŞ kabuğu servis ediyordu** (asıl bulgu,
+   CLAUDE.md §23.11'e kalıcı olarak yazıldı). `curl localhost:4175/docker` ana
+   sayfanın kabuğunu döndürüyordu; `/docker/` (eğik çizgiyle) doğru kabuğu.
+   Yani paket, "yayınlanan artefaktı test ediyoruz" derken sayfa başına üretilen
+   840 kabuğu HTTP üzerinden HİÇ sınamıyordu ve her sayfa React mount olana
+   kadar ana sayfanın başlığını/canonical'ını/hreflang'ini taşıyordu.
+   Düzeltme: `vite.config.js` → `previewDirectoryIndex` eklentisi (içeriden
+   yeniden yazma; adres `/docker` kalır). Doğrulandı: `/docker`, `/en/docker`,
+   `/selenium/wait-strategies` kendi canonical'ıyla geliyor; asset'ler ve
+   bilinmeyen yol yedeği bozulmadı.
+2. **Kaybolan bir an doğrulanıyordu** (CLAUDE.md §23.12). `/java` kod yürüyüşü
+   testi "Adım 1/" arıyordu; o metin otomatik oynatma yüzünden 1100 ms yaşıyor.
+   Aynı kusur bellek modeli testinde de vardı (1300 ms). Düzeltme:
+   `assertStepWalkthrough` — sayacın varlığı + Sıfırla→İleri→İleri zinciri
+   (zamanlayıcısız, makineden bağımsız). `CodeTraceBlock`/`HeapStackBlock`'a
+   `data-testid` eklendi ki doğrulama yanlış bloğa gitmesin.
+3. **İki gerçek bekleme eksiği.** (a) Dil düğmesi tam sayfa navigasyonu yapıyor
+   (`window.location.assign`), ana sayfa rozet testi bunu beklemiyordu.
+   (b) `/java` sekme testi ÜÇÜNCÜ TARAF bir servisten gelen 502'yi ürün hatası
+   sayıyordu — tarayıcı adresi mesaj metnine koymadığı için mevcut filtre
+   göremiyordu. Filtre artık kaynağın adresine bakıyor; **kendi sunucumuzun
+   502'si hâlâ hata sayılıyor** ve bunu kanıtlayan kendi testi var.
+
+### Bu iş sırasında ortaya çıkan ve düzeltilen diğer şeyler
+
+- **Ürün:** bölüm adreslerinde (`/sql/sql-joins`) uygulama açılınca başlık kısa
+  süre HUB başlığına gerileyip sonra düzeliyordu. `SeoMeta` artık sekmeye özgü
+  başlık gelene kadar kabuğun yazdığı doğru başlığı korur.
+- **Yeni tuzak:** kabuklar artık gerçek içerik taşıdığı için "beklenen metin
+  göründü" de hazırlık sinyali DEĞİL. `seo-phase3-integrity` ve
+  `seo-section-routes` dosyalarına `waitForAppReady` + yük toleranslı süreler
+  eklendi (bu ikisi en ağır sayfalara gidiyor ama hiç beklemiyordu).
+- **Film oynatıcı testleri:** 3. sahneye atlayıp "altyazı değişti mi" diyorlardı;
+  otomatik oynatma zaten oraya varmış olabiliyordu. Artık BAŞA atlanıp altyazının
+  ilk sahne metnine EŞİT olduğu doğrulanıyor (yarış yok, doğrulama daha güçlü).
+  Bütçeleri de 60→150 sn: bu iki test filmi gerçekten OYNATIYOR (sahne başına
+  3.4 sn duvar saati), 60 sn ürünü değil işin uzunluğunu kesiyordu.
+- **`/java`-`/sql`-`/typescript` ilk-boya testi BAŞTAN BERİ kırıkmış**
+  (`seo-phase2-coverage`): `h1` görünürlüğü de "yükleme göstergesi yok" koşulu da
+  uygulama hiç çalışmadan sağlanıyordu, ardından gelen `count()` boş DOM'u
+  sayıyordu. `waitForAppReady` + yinelenen sekme doğrulaması eklendi.
+- **Ana sayfa mülakat testi** (10 soruyu tek tek açıyor) ve **tema testleri**
+  kendi bütçelerini aşıyordu; süre varsayılanları (aşağıdaki açık karar) ve
+  90 sn'lik özel bütçe ile çözüldü.
+- **`topic-pages-ui` bütçesi artık sekme sayısına göre** (`60 sn + sekme×10 sn`).
+  Sabit 180 sn, 19 sekmeli `/playwright`'ta sekme başına 9 sn bırakıyordu.
+
+### Doğrulama
+
+- **Hedeflenen 4 test KANITLANDI:** 4 worker (paketin gerçek ayarı) × 5 tekrar,
+  retry KAPALI → 55/55. Oynatıcı testleri 10/10, bölüm/SEO testleri 87/87,
+  `topic-pages-ui` tam dosya 31/31.
+- **Tam paket koşumları (aynı gün, sırayla):**
+
+  | # | Sonuç | Not |
+  |---|---|---|
+  | ref | 375 geçti · 4 flaky · 24.4 dk | önceki oturum |
+  | 1 | 378 geçti · 2 flaky · 23.6 dk | kabuk düzeltmesi |
+  | 2 | 375 geçti · 5 flaky · **1.9 saat** | makine tıkanması, aşağıya bak |
+  | 3 | 379 geçti · 1 flaky · 24.8 dk | |
+  | 4 | 376 geçti · **2 hata** · 25.6 dk | ilk-boya + mülakat testi |
+  | 5 | 377 geçti · **1 hata** · 25.3 dk | tema testleri |
+  | 6 | 378 geçti · **1 hata** · 31.9 dk | süpürme testi bütçesi |
+  | **7** | **380 geçti · 0 hata · 0 FLAKY · 23.6 dk** | **son durum** |
+
+- **Paket ilk kez tamamen deterministik: 380/380, sıfır flaky, sıfır retry** —
+  üstelik referanstan (24.4 dk) hızlı. Bir sonraki oturum bu tabloyu referans
+  alsın; yeni bir flaky çıkarsa önce §23.10-23.12'deki üç tuzağa bak.
+
+- **Ders: her koşum FARKLI bir testi düşürdü ve hepsi AYNI sınıftandı** —
+  hazırlık sinyalinin yanlış tanımlanması ya da varsayılan sürelerin yük altında
+  yetmemesi. Bunlar yeni arızalar değil; kabuklar artık gerçek içerik taşıdığı
+  için görünme sıklıkları arttı. Örnek: `/java` ilk-boya testi BAŞTAN BERİ
+  kırıkmış — hem `h1` hem "yükleme göstergesi yok" koşulu uygulama hiç
+  çalışmadan sağlanabiliyordu, ardından gelen `count()` boş DOM'u sayıyordu.
+- ⚠ 2 numaralı koşum 1.9 saat sürdü. İncelendi: dört test aynı anda (~5340. sn)
+  zaman aşımına düşüp teardown'da takılmış, yeniden denemede 17-93 sn'de geçmiş —
+  dört worker aynı anda ~88 dakika DONMUŞ. Makine düzeyinde tıkanma; sonraki
+  koşum 24.8 dk'ya döndü. Benzer tablo görülürse önce makine yükünü sorgula.
+
+### ⚠ Açık karar — süre varsayılanları yükseltildi
+
+`playwright.config.ts`'te doğrulama süresi 5→15 sn, test bütçesi 30→90 sn
+yapıldı ve `topic-pages-ui`'nin bütçesi sekme sayısına göre hesaplanır oldu.
+Bu, 2026-08-04'teki "süreleri uzatmak gizler" kararını KISMEN tersine çevirir.
+Gerekçe dosyanın içinde yazılı: o günkü kök neden (dev sunucusunun derleme
+süresini ölçmek) kapandı; kalan şey 8 çekirdekte 4 worker'ın 0.5-1.6 MB'lık
+paketleri aynı anda ayrıştırması. Bu sınırlar bir bekleme ÜST SINIRIdır,
+doğruluk ölçüsü değil — bozuk bir özellik hiçbir süre içinde doğrulamayı
+sağlamaz. **Alternatif:** yerel worker sayısını 4'ten 2-3'e düşürmek
+(çekişmeyi kökten azaltır, yerel süreyi ~2 katına çıkarır). Karar kullanıcıda.
+
+### Bilinmesi gereken yan etki
+
+- **Mobil LCP ölçümü (`npm run seo:lcp`) aynı preview sunucusunu kullanıyor.**
+  Yani 2026-08-03'te kaydedilen LCP değerleri kök dışındaki HER sayfa için
+  yanlış belge (ana sayfa kabuğu) üzerinden alınmış. Sayılar artık gerçek
+  sayfayı ölçecek — yeniden ölçülmeden eski değerlere güvenme.
+
+### Sıradaki iş
+
+1. **`fix/test-suite-flakiness` dalını main'e merge + push kararı — kullanıcıda.**
+   Açık kod işi kalmadı; paket 380/380 sıfır flaky.
+2. `npm run seo:lcp` YENİDEN ölçülmeli — eski değerler geçersiz (yukarıdaki
+   yan etki).
+3. Deploy sonrası GitHub Actions'ı ve arama konsolunu izle.
+4. Dış tanıtım taslakları (`Documents/outreach/`) hâlâ manuel yayınlanmadı.
+5. Plausible analytics hesabı hâlâ açılmadı.
+
+---
+
+## 📌 Önceki Durum (2026-08-04, Opus — test paketi production build'e taşındı, kapsam %100 kapıya bağlandı)
+
+> Alttaki bölümler korunuyor.
 
 ### Neredeyiz
 

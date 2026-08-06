@@ -3,6 +3,7 @@ import { readFile, access } from 'node:fs/promises';
 import { ROUTE_SEO, LOCALES, localizedPath, SITE_URL } from '../src/utils/seo.js';
 import { buildSectionSeoIndex } from '../scripts/lib/sectionSeo.mjs';
 import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // SEO Faz 2 — otomasyon dışında kalmış çıktı doğrulamaları.
 //
@@ -301,10 +302,21 @@ test.describe('SEO Faz 2 — kod bölme / ilk boya (S1)', () => {
             await page.goto(route);
             // İlk boya: h1 görünür. Ağır veri hâlâ arka planda yükleniyor olabilir.
             await expect(page.locator('h1').first()).toBeVisible({ timeout: 30_000 });
+
+            // Buradaki bekleme ZORUNLU. Üstteki iki koşul da uygulama HİÇ
+            // çalışmadan sağlanabilir: yayınlanan sayfanın statik gövdesinin
+            // kendi `h1`'i vardır ve o gövdede yükleme göstergesi hiç yoktur —
+            // yani "gösterge yok" baştan doğrudur. Beklemeden devam edilirse
+            // aşağıdaki `count()` (otomatik tekrarı YOK) boş DOM'u sayar ve
+            // test, ürün sağlamken 0 bulur.
+            await waitForAppReady(page, { timeout: 60_000 });
+
             // Arka plan yüklemesi tamamlanınca gösterge kaybolur ve GERÇEK içerik gelir.
             await expect(page.locator('[data-testid="topic-content-loading"]'))
                 .toHaveCount(0, { timeout: 60_000 });
             const tabButtons = page.locator('div[class*="flex-shrink-0"][class*="sticky"] button');
+            await expect(tabButtons.first(), `${route}: sekmeler yüklenmedi`)
+                .toBeVisible({ timeout: 60_000 });
             expect(await tabButtons.count(), `${route}: sekmeler yüklenmedi`).toBeGreaterThan(1);
         });
     }

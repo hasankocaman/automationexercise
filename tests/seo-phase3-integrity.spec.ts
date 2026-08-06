@@ -4,6 +4,7 @@ import { localizedPath } from '../src/utils/seo.js';
 import { buildSectionSeoIndex, computeSectionCatalog } from '../scripts/lib/sectionSeo.mjs';
 import { stripLeadingEmoji } from '../src/utils/sectionSeoText.js';
 import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js';
+import { waitForAppReady } from './helpers/app-ready';
 
 // SEO Faz 3 — sekme URL mimarisinin SESSİZ bozulma noktaları.
 //
@@ -197,6 +198,7 @@ test.describe('Ham HTML ile tarayıcı ayrışmamalı (cloaking önlemi)', () =>
     // kanibalizasyon önlemi sessizce iptal olur.
     test('ilk sekme adresi hub\'a onarılır ve canonical hub\'ı gösterir', async ({ page }) => {
         await page.goto('/selenium/what-is-selenium');
+        await waitForAppReady(page, { timeout: 30_000 });
 
         // Adres kendini onarır (ilk sekme hub URL'inde yaşar). `/selenium`
         // büyük bir chunk olduğu için önce içeriğin gerçekten geldiğini
@@ -215,6 +217,7 @@ test.describe('Ham HTML ile tarayıcı ayrışmamalı (cloaking önlemi)', () =>
 
     test('indekslenebilir sekmede canonical KENDİNİ gösterir', async ({ page }) => {
         await page.goto('/selenium/wait-strategies');
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.getByRole('heading', { name: /Wait Stratejileri/ }).first()).toBeVisible({ timeout: 15_000 });
 
         const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
@@ -229,6 +232,7 @@ test.describe('Ham HTML ile tarayıcı ayrışmamalı (cloaking önlemi)', () =>
         expect(shellTitle).toBeTruthy();
 
         await page.goto('/sql/sql-joins');
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page).toHaveTitle(/SQL JOIN/i, { timeout: 15_000 });
         expect(await page.title()).toBe(shellTitle);
     });
@@ -242,6 +246,7 @@ test.describe('SSS bloğu kilitsizdir (FAQPage şemasının önkoşulu)', () => 
     // gating'e bağlarsa şema anında "cloaking" hâline gelir.
     test('quiz çözülmeden SSS soruları görünür', async ({ page }) => {
         await page.goto('/playwright');
+        await waitForAppReady(page, { timeout: 30_000 });
 
         const faqHeading = page.getByRole('heading', { name: /Sık Sorulan Sorular/i }).first();
         await expect(faqHeading).toBeVisible({ timeout: 20_000 });
@@ -256,6 +261,7 @@ test.describe('SSS bloğu kilitsizdir (FAQPage şemasının önkoşulu)', () => 
 
     test('şemadaki her soru sayfanın görünür metninde de var', async ({ page }) => {
         await page.goto('/playwright');
+        await waitForAppReady(page, { timeout: 30_000 });
         await expect(page.getByRole('heading', { name: /Sık Sorulan Sorular/i }).first())
             .toBeVisible({ timeout: 20_000 });
 
@@ -356,6 +362,7 @@ test.describe('E-E-A-T — yazar ve yayıncı kimliği', () => {
         // shell'de kalırsa Google'ın render ettiği sayfada yazar bilgisi
         // KAYBOLUR — ham HTML ile render sonrası ayrışır.
         await page.goto('/docker');
+        await waitForAppReady(page, { timeout: 30_000 });
         const byline = page.locator('[data-seo-byline]').first();
         await expect(byline).toBeVisible({ timeout: 20_000 });
         await expect(byline).toContainText('Hasan Kocaman');
@@ -391,11 +398,17 @@ test.describe('Cevap-önce paragrafı yalnızca hub\'da', () => {
     // açılır ve Google bunları birbirinin kopyası saymaya başlar.
     test('hub\'da görünür, sekme URL\'inde görünmez', async ({ page }) => {
         await page.goto('/playwright');
+        await waitForAppReady(page, { timeout: 30_000 });
         const answer = page.locator('[data-seo-answer], p').filter({ hasText: /Playwright, Microsoft/ }).first();
         await expect(answer).toBeVisible({ timeout: 20_000 });
 
         await page.goto('/playwright/locator-strategies');
-        await page.waitForTimeout(1500);
+        await waitForAppReady(page, { timeout: 30_000 });
+        // "Yok" doğrulamasından ÖNCE sayfanın gerçekten DOLDUĞUNU görmek şart:
+        // boş bir sayfada "bu paragraf yok" demek her zaman doğrudur ve hiçbir
+        // şey kanıtlamaz. Sekme listesi, ders içeriğinin geldiğinin işaretidir.
+        await expect(page.locator('div[class*="flex-shrink-0"][class*="sticky"] button').first())
+            .toBeVisible({ timeout: 20_000 });
         const bodyText = await page.locator('body').innerText();
         expect(bodyText).not.toContain('Playwright, Microsoft tarafından geliştirilen');
     });

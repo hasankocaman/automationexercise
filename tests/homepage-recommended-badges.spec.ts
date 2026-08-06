@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/app-ready';
 
 // WP2 (fableplan.md) — Ana sayfa kategori kartlarına "önerilen sıra" görsel
 // ipucu rozetleri eklendi (kart etiketlerine dokunmadan, sadece köşelerine
@@ -10,10 +11,11 @@ test.describe('WP2 — Ana sayfa "önerilen sıra" rozetleri', () => {
     test('/ — TR modda 4 rozet doğru linklerin köşesinde görünür', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/');
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.waitForSelector('[data-testid="main-title"]', { timeout: 30_000 });
 
         // href$= kullanılıyor çünkü EN modda URL /en öneki taşır
-        // (/en/what-is-testing) — bkz. Documents/seo-phase-2-plan.md §2.
+        // (/en/what-is-testing).
         const startHereBadge = page.locator('a[href$="/what-is-testing"]').locator('xpath=following-sibling::span[1]');
         await expect(startHereBadge).toHaveText('🚀 Buradan başla');
 
@@ -29,12 +31,22 @@ test.describe('WP2 — Ana sayfa "önerilen sıra" rozetleri', () => {
     test('/ — EN modda "Buradan başla" rozeti "Start here" olarak değişir', async ({ page }) => {
         test.setTimeout(60_000);
         await page.goto('/');
+        await waitForAppReady(page, { timeout: 30_000 });
         await page.waitForSelector('[data-testid="main-title"]', { timeout: 30_000 });
 
         await page.locator('[data-testid="language-toggle"] button', { hasText: 'ENG' }).click();
 
+        // Dil değişimi bir React durum güncellemesi DEĞİL, tam sayfa
+        // navigasyonudur (`window.location.assign('/en/')` — LanguageContext).
+        // Yani tıklamadan sonra baştan bir belge yüklenir: önce arama motorları
+        // için üretilen statik gövde gelir, uygulama ancak ondan sonra devreye
+        // girer. O gövdede rozet span'ları YOKTUR — navigasyon beklenmezse
+        // doğrulama ürünü değil, yüklenmekte olan kabuğu ölçer.
+        await page.waitForURL(/\/en\/?$/, { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 30_000 });
+
         // href$= kullanılıyor çünkü EN modda URL /en öneki taşır
-        // (/en/what-is-testing) — bkz. Documents/seo-phase-2-plan.md §2.
+        // (/en/what-is-testing).
         const startHereBadge = page.locator('a[href$="/what-is-testing"]').locator('xpath=following-sibling::span[1]');
         await expect(startHereBadge).toHaveText('🚀 Start here');
 

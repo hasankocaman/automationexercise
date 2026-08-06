@@ -58,20 +58,17 @@ test.describe('SEO Faz 2 — dil-ayrık URL yönlendirmesi', () => {
             await page.goto(url);
             await expect(page.locator('html')).toHaveAttribute('lang', expectedLang);
 
-            // hreflang etiketleri SeoMeta effect'inde eklenir (dev sunucusunda
-            // statik shell yok) — evaluate etmeden ÖNCE varlığını bekle.
+            // Etiketlerin DEĞERİ `evaluate` ile TEK SEFERDE okunmaz. Sayfa
+            // yüklenirken hreflang iki kez yazılır: önce statik kabuk basar,
+            // sonra SeoMeta aynı etiketleri kaldırıp yeniden kurar. Tek seferlik
+            // okuma bu iki an arasına düşerse ürün doğru olduğu hâlde yanlış
+            // değeri görür. Kendini yineleyen doğrulama doğru değere yerleşene
+            // kadar bekler; yanlış kalırsa yine kırmızıya döner.
+            await expect(page.locator('link[rel="alternate"][hreflang="tr"]'))
+                .toHaveAttribute('href', 'https://learnqa.dev/docker');
+            await expect(page.locator('link[rel="alternate"][hreflang="en"]'))
+                .toHaveAttribute('href', 'https://learnqa.dev/en/docker');
             await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(1);
-
-            const alternates = await page.evaluate(() =>
-                Array.from(document.querySelectorAll('link[rel="alternate"][hreflang]')).map((tag) => ({
-                    hreflang: tag.getAttribute('hreflang'),
-                    href: tag.getAttribute('href'),
-                })),
-            );
-
-            expect(alternates.find((a) => a.hreflang === 'tr')?.href).toContain('/docker');
-            expect(alternates.find((a) => a.hreflang === 'en')?.href).toContain('/en/docker');
-            expect(alternates.find((a) => a.hreflang === 'x-default')).toBeTruthy();
         }
     });
 

@@ -33,6 +33,20 @@ function isAllowedError(msg: string): boolean {
     return ALLOWED_CONSOLE_ERROR_PATTERNS.some((re) => re.test(msg));
 }
 
+// Yukarıdaki kalıplar konsol METNİNE bakar, ama tarayıcı bir isteğin HTTP
+// durumuyla düşmesini "Failed to load resource: the server responded with a
+// status of 502 ()" diye yazar — adres bu metinde GEÇMEZ, ayrı alanda durur.
+// Bu yüzden Supabase 502 döndürdüğünde /java testi "console hatası" diye
+// kırmızıya dönüyordu: ürün sağlamdı, dışarıdaki servis o an ayaktaydı ya da
+// değildi. Testin sonucunu üçüncü taraf bir servisin sağlığına bağlamak,
+// ölçtüğü şeyi ölçmeyi bırakmak demektir.
+// Kendi sunucumuzdan (preview) gelen hatalar kapsam DIŞINDA bırakılmaz —
+// onlar gerçek bir arıza işaretidir.
+function isThirdPartyResource(url: string): boolean {
+    if (!url) return false;
+    return !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(url);
+}
+
 // Sidebar genişliği sayfaya göre değişebilir (w-52 / w-56 vb.) — ortak özellik
 // flex-shrink-0 + sticky olması (bkz. TopicPage.jsx ve TestFrameworksPage.jsx).
 const SIDEBAR_TAB_BUTTONS = 'div[class*="flex-shrink-0"][class*="sticky"] button';
@@ -57,17 +71,24 @@ for (const route of TOPIC_ROUTES) {
         const pageErrors: string[] = [];
         page.on('pageerror', (e) => pageErrors.push(e.message));
         page.on('console', (msg) => {
-            if (msg.type() === 'error' && !isAllowedError(msg.text())) {
-                pageErrors.push(msg.text());
-            }
+            if (msg.type() !== 'error') return;
+            if (isAllowedError(msg.text())) return;
+            if (isThirdPartyResource(msg.location()?.url || '')) return;
+            pageErrors.push(msg.text());
         });
 
         await page.goto(route);
-        await waitForAppReady(page, { timeout: 30_000 });
+        await waitForAppReady(page, { timeout: 60_000 });
 
         const tabButtons = page.locator(SIDEBAR_TAB_BUTTONS);
         const tabCount = await tabButtons.count();
         expect(tabCount, `${route}: sidebar sekmesi bulunamadı`).toBeGreaterThan(0);
+
+        // Bütçe İŞİN BOYUTUNA göre belirlenir. Sabit 180 sn, 19 sekmeli
+        // /playwright'ta sekme başına 9 sn bırakıyordu — her sekme ayrı bir
+        // render + tüm butonların denetimi demek. Paralel worker'lar altında bu
+        // sınır ürünün doğruluğunu değil, testin ne kadar İŞ yaptığını kesiyordu.
+        test.setTimeout(60_000 + tabCount * 10_000);
 
         // Sekme başlıkları `title` attribute'unda temiz (ikon/kilit eklentisiz)
         // haliyle duruyor — sekme sayfaya AÇILMADAN ÖNCE, sabit bir referans
@@ -195,4 +216,63 @@ test('buton denetçisi bozuk butonları GERÇEKTEN yakalıyor (guard\'ın kendi 
     const after = await auditTabButtons(page);
     expect(after.brokenLayout, '0×0 buton yakalanmadı — denetçi kör').toContain('SIFIR BOYUTLU TEST BUTONU');
     expect(after.unclickable, 'pointer-events:none buton yakalanmadı — denetçi kör').toContain('TIKLANAMAYAN TEST BUTONU');
+});
+
+// Aynı gerekçe konsol hatası sınıflandırıcısı için de geçerli: dış servis
+// hatalarını eleyen bir filtre, YANLIŞLIKLA her şeyi eleyen bir filtreyle
+// dışarıdan aynı görünür — ikisi de sessizdir. Bu test iki yönü de kanıtlar:
+// dış adresten gelen 502 elenmeli, KENDİ sunucumuzdan gelen 502 elenmemeli.
+test('konsol hatası sınıflandırıcısı: dış servis hatası elenir, kendi sunucumuzunki elenmez', async ({ browser }) => {
+    test.setTimeout(60_000);
+
+    // serviceWorkers: 'block' ZORUNLU — MSW'nin service worker'ı isteği önce
+    // kendi alırsa `page.route` hiç devreye girmez, sahte 502 üretilemez ve
+    // test kendini kanıtladığını sanarak yeşile döner.
+    const context = await browser.newContext({ serviceWorkers: 'block' });
+    const page = await context.newPage();
+
+    const reported: string[] = [];
+    page.on('console', (msg) => {
+        if (msg.type() !== 'error') return;
+        if (isAllowedError(msg.text())) return;
+        if (isThirdPartyResource(msg.location()?.url || '')) return;
+        reported.push(msg.text());
+    });
+
+    // İki istek de gerçek ağa çıkmaz; ikisi de 502 ile karşılanır.
+    await page.route('**/kasitli-502.js', (route) => route.fulfill({
+        status: 502,
+        contentType: 'application/javascript',
+        body: '',
+    }));
+
+    await page.goto('/docker');
+    await waitForAppReady(page, { timeout: 30_000 });
+
+    async function loadScript(src: string) {
+        await page.evaluate((url) => new Promise<void>((resolve) => {
+            const tag = document.createElement('script');
+            tag.src = url;
+            tag.onload = () => resolve();
+            tag.onerror = () => resolve();
+            document.head.appendChild(tag);
+        }), src);
+    }
+
+    // Service worker'ı engellediğimiz için MSW kendi başlatma hatasını konsola
+    // yazar. Bu, TESTİN kendi kurulumundan doğan bir gürültüdür (üründe yok);
+    // ölçüme başlamadan önce sayfa silinir.
+    reported.length = 0;
+
+    await loadScript('https://ucuncu-taraf.example.com/kasitli-502.js');
+    await expect
+        .poll(() => reported, { message: 'dış servisin 502\'si ürün hatası sayıldı — test dışarıdaki bir servisin sağlığına bağlanmış' })
+        .toEqual([]);
+
+    await loadScript('/kasitli-502.js');
+    await expect
+        .poll(() => reported, { message: 'kendi sunucumuzun 502\'si yutuldu — filtre gerçek arızayı da gizliyor' })
+        .toEqual([expect.stringContaining('502')]);
+
+    await context.close();
 });

@@ -74,7 +74,7 @@ export default function CodeTraceBlock({ block, darkMode, language }) {
     }
 
     return (
-        <div style={{ margin: '24px 0', padding: '20px', background: darkMode ? '#0b1220' : '#f8fafc', border: `1px solid ${border}`, borderRadius: 16 }}>
+        <div data-testid="code-trace-block" style={{ margin: '24px 0', padding: '20px', background: darkMode ? '#0b1220' : '#f8fafc', border: `1px solid ${border}`, borderRadius: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 20 }}>🚶</span>
                 <span style={{ fontWeight: 800, fontSize: 15, color: textMain }}>

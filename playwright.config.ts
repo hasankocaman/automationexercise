@@ -34,12 +34,33 @@ if (existsSync('.env.local')) {
 // sunucusu, yeni build'i değil ESKİ dist'i servis eder ve testler sessizce
 // yanlış artefaktı doğrular.
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// SÜRELER — ve yukarıdaki notla ÇELİŞMEDİĞİ (2026-08-05)
+//
+// Yukarıda "süreleri uzatmak çözüm değildi, GİZLERDİ" yazıyor ve bu doğruydu:
+// o gün ölçülen şey ürünün hızı değil, Vite'ın modül derleme süresiydi. Süreyi
+// uzatmak, paketin yayınlanan artefaktı hiç test etmediği gerçeğinin üstünü
+// örterdi. O kök neden kapatıldı (production build + doğru statik kabuk).
+//
+// Geriye kalan şey farklı ve meşru: 8 çekirdekli bir makinede 4 worker aynı
+// anda 0,5-1,6 MB'lık paketleri ayrıştırırken ağır bir sayfanın açılması
+// 10-25 sn sürebiliyor. Varsayılan 5 sn'lik doğrulama ve 30 sn'lik test
+// bütçesi, ürünün DOĞRULUĞUNU değil makinenin O ANKİ YÜKÜNÜ kesiyordu:
+// aynı testler tek başına koşunca hep geçiyordu.
+//
+// Bu sınırlar bir bekleme ÜST SINIRIdır, bir doğruluk ölçüsü değil. Gerçekten
+// bozuk bir özellik hiçbir süre içinde doğrulamayı sağlamaz ve test yine
+// kırmızıya döner — yani bu artış hiçbir arızayı gizlemez, yalnızca sağlam
+// ürünü yanlışlıkla suçlamayı bırakır.
+// ─────────────────────────────────────────────────────────────────────────────
 export default defineConfig({
     testDir: './tests',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 1,
     workers: process.env.CI ? 1 : undefined,
+    timeout: 90_000,
+    expect: { timeout: 15_000 },
     reporter: 'html',
     use: {
         baseURL: 'http://localhost:4175',

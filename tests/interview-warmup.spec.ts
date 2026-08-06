@@ -101,6 +101,10 @@ test.describe('Ana sayfa — Mülakat Isınma Turu', () => {
     });
 
     test('EN modda tamamen İngilizce (Türkçeye özgü karakter yok)', async ({ browser }) => {
+        // Bu test ana sayfayı açıp SORULARIN TAMAMINI tek tek açıyor (her biri
+        // ayrı bir tıklama + render). Varsayılan 30 sn bütçe, işin kendisini
+        // kesiyordu — ürün yavaş olduğu için değil, iş uzun olduğu için.
+        test.setTimeout(90_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });
         const page = await context.newPage();
         await page.goto('/en');
