@@ -209,6 +209,111 @@ const bugReportRepairSteps = {
   ],
 }
 
+// ─── grid: rollere göre Jira kullanımı (GRUP A2) ──────────────────────────────
+const jiraRoleGrid = {
+  type: 'grid',
+  cols: 3,
+  items: [
+    {
+      icon: '🧑‍💻',
+      label: { tr: 'Developer', en: 'Developer' },
+      desc: {
+        tr: "Issue'yu okur, commit'e anahtarı bağlar, geçişleri (Ready for QA gibi) tetikler. Jira'daki alanı esas olarak kod ile kayıt arasındaki köprüdür.",
+        en: 'Reads the issue, ties the key into a commit, triggers transitions (like Ready for QA). Their footprint in Jira is mainly the bridge between code and record.',
+      },
+    },
+    {
+      icon: '🧑‍💼',
+      label: { tr: 'Product Owner', en: 'Product Owner' },
+      desc: {
+        tr: 'Priority\'yi belirler, backlog\'u sıralar, "Done" tanımının iş tarafını onaylar. Severity\'ye karışmaz — o teknik bir değerlendirmedir.',
+        en: 'Sets priority, orders the backlog, signs off the business side of "done". Does not weigh in on severity -- that is a technical assessment.',
+      },
+    },
+    {
+      icon: '🧪',
+      label: { tr: 'QA', en: 'QA' },
+      desc: {
+        tr: 'Bug\'ı kaydeder, severity\'yi önerir, ön koşul/adım/kanıtı yazar, doğrular ve resolution\'ı belirler. Panoda en çok geçiş yapan roldür.',
+        en: 'Records the bug, proposes severity, writes preconditions/steps/evidence, verifies and sets the resolution. The role that makes the most transitions on the board.',
+      },
+    },
+  ],
+}
+
+// ─── table: Jira Cloud vs Data Center (GRUP A3) ───────────────────────────────
+const cloudVsDcTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Boyut', en: 'Dimension' },
+    { tr: 'Jira Cloud', en: 'Jira Cloud' },
+    { tr: 'Jira Data Center', en: 'Jira Data Center' },
+  ],
+  rows: [
+    [
+      { tr: 'Barındırma', en: 'Hosting' },
+      { tr: "Atlassian'ın sunucusunda, SaaS", en: "On Atlassian's servers, SaaS" },
+      { tr: 'Şirketin kendi altyapısında', en: "On the company's own infrastructure" },
+    ],
+    [
+      { tr: 'Proje tipi', en: 'Project type' },
+      { tr: 'Team-managed ve company-managed ikisi de var', en: 'Both team-managed and company-managed exist' },
+      { tr: 'Yalnızca company-managed (klasik) proje', en: 'Only company-managed (classic) projects' },
+    ],
+    [
+      { tr: 'Güncelleme', en: 'Updates' },
+      { tr: 'Otomatik, sürekli çıkar', en: 'Automatic, continuous rollout' },
+      { tr: 'Şirket kendi takvimiyle yükseltir', en: 'The company upgrades on its own schedule' },
+    ],
+    [
+      { tr: 'REST API', en: 'REST API' },
+      { tr: '/rest/api/3/...', en: '/rest/api/3/...' },
+      { tr: '/rest/api/2/... (bazı uç noktalar farklı)', en: '/rest/api/2/... (some endpoints differ)' },
+    ],
+  ],
+}
+
+// ─── callout: bu sayfa hangi sürümü anlatıyor (GRUP A3) ───────────────────────
+const cloudScopeCallout = {
+  type: 'callout',
+  color: 'blue',
+  emoji: '📌',
+  title: { tr: 'Bu Sayfanın Kapsamı', en: 'The Scope of This Page' },
+  content: {
+    tr: "Bu sayfadaki anlatım, ekranlar ve REST API örnekleri Jira Cloud temellidir — bugün yeni açılan hesapların büyük çoğunluğu Cloud'dur. Data Center'da çalışıyorsan üç şeyi bekle: proje tipin daima company-managed olacak, REST API adresin /rest/api/2/ olabilir, ve güncellemeler senin takvimine bağlıdır. Fark önemli olduğunda metinde ayrıca belirtilir; sessizce geçilmez.",
+    en: 'The narration, screens and REST API examples on this page are Jira Cloud based -- the vast majority of accounts opened today are Cloud. If you work on Data Center, expect three things: your project type will always be company-managed, your REST API address may be /rest/api/2/, and updates depend on your own schedule. Where the difference matters it is called out explicitly in the text; it is never glossed over.',
+  },
+}
+
+// ─── python-flow-diagram: izlenebilirlik zinciri (GRUP A4) ────────────────────
+const traceabilityFlow = {
+  type: 'python-flow-diagram',
+  titleTr: 'İzlenebilirlik Zinciri: Gereksinimden Bug\'a',
+  titleEn: 'The Traceability Chain: From Requirement to Bug',
+  steps: [
+    { type: 'action', code: 'SHOP-118 (Story)', desc: 'Requirement: a coupon is applied once per order', descTr: 'Gereksinim: kupon sipariş başına bir kez uygulanır' },
+    { type: 'action', code: 'Test: coupon_applied_once', desc: 'A test case is linked to the requirement', descTr: 'Gereksinime bağlı bir test senaryosu yazılır' },
+    { type: 'condition', code: 'Test Execution (build 2026.8.3)', desc: 'The test is run against a specific build', descTr: 'Test belirli bir build\'e karşı koşulur', branch: { true: 'PASS', false: 'FAIL' } },
+    { type: 'error', code: 'SHOP-142 (Bug)', desc: 'On FAIL, a bug is filed and linked back to the test and the story', descTr: 'FAIL durumunda bug açılır, teste ve story\'ye bağlanır' },
+    { type: 'end', code: 'Traceability Report', desc: 'One screen now answers: what was tested, what passed, what leaked', descTr: 'Artık tek bir ekran şunu cevaplar: ne test edildi, ne geçti, ne sızdı' },
+  ],
+}
+
+// ─── step-animation: Jira olmadan bug takibi (GRUP A5) ────────────────────────
+const noJiraCollapseSteps = {
+  type: 'step-animation',
+  id: 'jira-a5-no-jira-collapse-steps',
+  title: { tr: "Adım Adım: E-posta ve Excel ile Bug Takibi Neden Çöker?", en: 'Step by Step: Why Does Email and Excel Bug Tracking Collapse?' },
+  steps: [
+    { id: 1, icon: '📧', label: { tr: 'Bug e-postayla bildirilir', en: 'The bug is reported by email' }, detail: { tr: 'Konu satırı "acil bakılsın" — severity, priority, ortam bilgisi yok. Herkes kendi formatını kullanır.', en: 'Subject line: "urgent please check" -- no severity, no priority, no environment info. Everyone uses their own format.' } },
+    { id: 2, icon: '📊', label: { tr: 'Bir Excel dosyası tutulur', en: 'An Excel file is kept' }, detail: { tr: 'Biri bug\'ları bir tabloya taşımaya karar verir. Dosya paylaşılan bir sürücüde durur, tek seferde tek kişi düzenleyebilir.', en: 'Someone decides to move bugs into a spreadsheet. The file sits on a shared drive; only one person can edit it at a time.' } },
+    { id: 3, icon: '🔀', label: { tr: 'İki kişi aynı satırı değiştirir', en: 'Two people edit the same row' }, detail: { tr: 'Kaydetme çakışması olur, biri diğerinin değişikliğini fark etmeden ezer. Hangi bilginin doğru olduğu artık belirsizdir.', en: 'A save conflict happens; one person overwrites the other without noticing. Which piece of information is correct is now unclear.' } },
+    { id: 4, icon: '🔍', label: { tr: 'Arama imkânsızlaşır', en: 'Searching becomes impossible' }, detail: { tr: '"Ödeme akışındaki tüm açık bug\'lar" sorusunun cevabı artık dosyayı elle Ctrl+F ile taramaktan geçer — ve satır sayısı arttıkça bu yaklaşım yavaşlar, hata yapar.', en: 'The answer to "all open bugs in the checkout flow" now means manually Ctrl+F-ing the file -- and as row count grows this approach gets slow and error-prone.' } },
+    { id: 5, icon: '🔗', label: { tr: 'Kod ile bağ kopar', en: 'The link to code breaks' }, detail: { tr: 'Bir Excel satırı commit mesajına yazılamaz, commit\'ten satıra tıklanamaz. Kod değişikliği ile bug kaydı arasındaki bağ elle, hafızayla kurulmaya çalışılır.', en: 'An Excel row cannot be written into a commit message, nor clicked from a commit. The link between a code change and a bug record is attempted by hand, from memory.' } },
+    { id: 6, icon: '👻', label: { tr: 'Kayıt sessizce kaybolur', en: 'The record silently disappears' }, detail: { tr: 'Dosya yeniden adlandırılır, eski sürüm silinir, biri işten ayrılır ve dosyanın nerede olduğunu bilen kalmaz. Kurum hafızası, dosya sisteminin kaderine bağlı kalır.', en: 'The file gets renamed, the old version deleted, someone leaves the company and nobody knows where the file is anymore. Organizational memory is now at the mercy of the file system.' } },
+  ],
+}
+
 // ─── code-playground: kötü bug raporunu düzelt (GRUP D) ───────────────────────
 const bugReportPlayground = {
   type: 'code-playground',
@@ -401,6 +506,195 @@ const sections = [
         },
       },
       bugFlowChallenge,
+      {
+        type: 'heading',
+        text: { tr: "🧑‍🤝‍🧑 A2. Jira'yı Kimler Kullanır, QA Nerede Durur?", en: '🧑‍🤝‍🧑 A2. Who Uses Jira, and Where Does QA Stand?' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎭',
+        content: {
+          tr: "Bir tiyatro oyununu düşün: yönetmen (PO) hangi sahnenin ne zaman oynanacağına karar verir, oyuncu (developer) repliği söyler, ışıkçı (QA) ise her sahnenin doğru ışıkla, doğru anda, hatasız aktığını kontrol eder. Üçü de aynı oyunun içindedir ama sahnedeki rolleri farklıdır.\n\nDüşündürücü soru: QA'in Jira'daki en sık yaptığı işlem neden \"issue açmak\" değil \"issue'yu bir durumdan diğerine taşımak\"tır? Çünkü QA'in asıl işi üretmek değil doğrulamaktır — panoda en çok geçiş yapan rol budur, çünkü her doğrulama bir geçiş kaydı bırakır.\n\nKarşılaştır: Java'da bir arayüz (`interface`) farklı sınıflara farklı sorumluluk yükler ama hepsi aynı sözleşmeye uyar. Developer, PO ve QA de aynı issue şemasına (aynı `Bug` \"arayüzüne\") farklı yöntemlerle katkı verir — biri kod yazar, biri karar verir, biri doğrular.\n\nQA açısından bedeli: rolü net tanımlanmamış bir takımda QA hem raporu yazar hem test eder hem de kapatır — doğrulayan kişi düzelten kişiyle aynı olur ve \"bende çalışıyor\" sorununun panzehiri kaybolur.",
+          en: 'Picture a stage play: the director (PO) decides which scene plays when, the actor (developer) delivers the lines, and the lighting operator (QA) checks that every scene flows with the right light, at the right moment, without a glitch. All three are in the same play, but their roles on stage differ.\n\nThe question worth pausing on: why is QA\'s most frequent action in Jira not "create an issue" but "move an issue from one status to another"? Because QA\'s real job is not producing but verifying -- it is the role that makes the most transitions on the board, because every verification leaves a transition record.\n\nCompare: in Java an interface loads different responsibilities onto different classes, yet all honor the same contract. Developer, PO and QA all contribute to the same issue schema (the same "Bug" interface) through different methods -- one writes code, one decides, one verifies.\n\nThe cost for QA: on a team where roles are not clearly defined, QA ends up writing the report, testing it and closing it -- the verifier becomes the same person as the fixer, and the antidote to "it works on my machine" disappears.',
+        },
+      },
+      jiraRoleGrid,
+      {
+        type: 'quiz',
+        question: {
+          tr: 'Bir bug 4 kez Reopened olmuş ve her seferinde kapatan kişi düzelten developer\'ın kendisi. Bu düzen niçin risklidir?',
+          en: 'A bug has been reopened 4 times, and each time it was closed by the very developer who fixed it. Why is this arrangement risky?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Developer'ın iş yükü artar", en: "The developer's workload increases" } },
+          { id: 'b', text: { tr: 'Doğrulayan kişi düzelten kişiyle aynıdır — "bende çalışıyor" sorununu yakalayacak bağımsız bir göz kalmaz', en: 'The verifier is the same person as the fixer -- no independent eye remains to catch the "it works on my machine" problem' } },
+          { id: 'c', text: { tr: 'Jira lisansı bunu izin vermez', en: 'The Jira license does not allow this' } },
+          { id: 'd', text: { tr: 'Bug otomatik olarak duplicate sayılır', en: 'The bug is automatically counted as a duplicate' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Doğrulama işinin değeri, doğrulayanın düzeltenden farklı bir kişi olmasından gelir — kendi kodunu kendi test eden biri, kendi kör noktasını göremez. Reopened sayısının yüksek olması bunun somut kanıtıdır.",
+          en: 'The value of verification comes from the verifier being a different person than the fixer -- someone testing their own code cannot see their own blind spot. A high reopen count is concrete evidence of exactly this.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Product Owner\'ın Jira\'daki asıl kararı hangisidir?',
+            en: "What is the Product Owner's core decision in Jira?",
+          },
+          options: [
+            { id: 'a', text: { tr: "Bug'ın severity'sini belirlemek", en: "Setting the bug's severity" } },
+            { id: 'b', text: { tr: "Priority'yi belirlemek ve backlog'u sıralamak", en: 'Setting priority and ordering the backlog' } },
+            { id: 'c', text: { tr: "Kodu review etmek", en: 'Reviewing the code' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: "Severity teknik bir değerlendirmedir ve genelde QA önerir; PO'nun kararı iş takvimidir — priority ve backlog sıralaması.",
+            en: "Severity is a technical assessment usually proposed by QA; the PO's decision is the business calendar -- priority and backlog ordering.",
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '☁️ A3. Jira Cloud vs Data Center', en: '☁️ A3. Jira Cloud vs Data Center' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🏨',
+        content: {
+          tr: "Jira Cloud ile Data Center arasındaki fark, otelde kalmakla kendi evinde oturmak arasındaki farka benzer. Otelde (Cloud) her şeyi Atlassian yönetir — oda kendiliğinden temizlenir, güncellenir, sen sadece kullanırsın. Kendi evinde (Data Center) bakımı, tadilat takvimini ve kilit sistemini sen belirlersin — daha fazla kontrol, daha fazla sorumluluk.\n\nDüşündürücü soru: aynı ürünün iki sürümü niçin farklı REST API adresi kullanır (`/rest/api/3/` vs `/rest/api/2/`)? Çünkü sürümler bağımsız hızlarda gelişir; Cloud sürekli güncellenirken Data Center'ın API'si bir şirketin yükseltme takvimine bağlıdır ve daha yavaş değişir.\n\nKarşılaştır: Java'da bir kütüphanenin `v2` ve `v3` sürümünü aynı anda desteklemek zorunda kalman gibi — API sözleşmesi aynı işi yapar ama küçük ayrıntılar (endpoint yolu, alan adları) sürüme göre değişir. Kodun hangi sürüme konuştuğunu bilmemesi, sessiz 404'lere yol açar.\n\nQA açısından bedeli: bir otomasyon scripti Cloud için yazılıp Data Center'a karşı koşulduğunda API adresi tutmayabilir — hata mesajı \"kimlik doğrulama başarısız\" gibi yanıltıcı görünebilir, oysa kök neden yanlış API sürümüdür.",
+          en: 'The difference between Jira Cloud and Data Center is like staying in a hotel versus living in your own house. In the hotel (Cloud), Atlassian manages everything -- the room cleans and updates itself, you just use it. In your own house (Data Center) you decide the maintenance, the renovation schedule and the lock system -- more control, more responsibility.\n\nThe question worth pausing on: why does the same product use a different REST API address in its two editions (`/rest/api/3/` vs `/rest/api/2/`)? Because the editions evolve at independent speeds; Cloud updates continuously while Data Center\'s API is tied to a company\'s upgrade calendar and changes more slowly.\n\nCompare: it is like having to support the `v2` and `v3` of a Java library at once -- the API contract does the same job, but small details (the endpoint path, field names) differ by version. Code that does not know which version it is talking to produces silent 404s.\n\nThe cost for QA: an automation script written for Cloud and run against Data Center may not hit the right API address -- the error can look misleadingly like "authentication failed" when the root cause is the wrong API edition.',
+        },
+      },
+      cloudVsDcTable,
+      cloudScopeCallout,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Cloud için yazılan bir otomasyon scripti Data Center'a karşı koşuluyor ve `404 Not Found` alıyor, kimlik bilgileri doğru. En olası kök neden nedir?",
+          en: 'An automation script written for Cloud is run against Data Center and gets `404 Not Found`, credentials are correct. What is the most likely root cause?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'API token süresi dolmuş', en: 'The API token has expired' } },
+          { id: 'b', text: { tr: "Script `/rest/api/3/` adresine istek atıyor ama Data Center farklı bir uç nokta sürümü bekliyor olabilir", en: 'The script sends requests to `/rest/api/3/` but Data Center may expect a different endpoint version' } },
+          { id: 'c', text: { tr: 'Ağ bağlantısı kopuk', en: 'The network connection is down' } },
+          { id: 'd', text: { tr: "Proje company-managed değil", en: 'The project is not company-managed' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Kimlik bilgileri doğruysa ve 404 alınıyorsa sorun genelde adres/yol uyuşmazlığıdır. Cloud ve Data Center bazı uç noktalarda farklı API sürümü kullanır; bu, kimlik doğrulamayla değil sürümle ilgili bir kök nedendir.",
+          en: 'If credentials are correct and you get a 404, the problem is usually an address/path mismatch. Cloud and Data Center use a different API version on some endpoints; this is a version-related root cause, not an authentication one.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'Bu sayfadaki örnekler ve REST API çağrıları hangi sürüm temellidir?',
+            en: 'Which edition are the examples and REST API calls on this page based on?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Jira Data Center', en: 'Jira Data Center' } },
+            { id: 'b', text: { tr: 'Jira Cloud', en: 'Jira Cloud' } },
+            { id: 'c', text: { tr: 'İkisi de eşit ağırlıkta', en: 'Both, equally weighted' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Sayfa Jira Cloud temellidir; Data Center farkı önemli olduğunda ayrıca belirtilir.',
+            en: 'The page is Jira Cloud based; Data Center differences are called out separately where they matter.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '🔗 A4. İzlenebilirlik (Traceability) Nedir?', en: '🔗 A4. What Is Traceability?' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🧬',
+        content: {
+          tr: "İzlenebilirlik, bir DNA testi zincirine benzer: bir bulgudan geriye doğru gidip hangi örnekten, hangi kaynaktan geldiğini kanıtlayabilirsin. Jira'da da bir bug'dan geriye gidip onu yakalayan testi, o testin bağlı olduğu gereksinimi ve son koşumun hangi build'de çalıştığını kanıtlayabilmen gerekir.\n\nDüşündürücü soru: \"bu sürümde ne test edildi\" sorusu neden bir bug listesine bakarak cevaplanamaz? Çünkü bug listesi yalnızca BULUNAN şeyleri gösterir; asıl soru neyin TEST EDİLİP hiç bulunamadığını da kapsar — izlenebilirlik zinciri olmadan \"hiç test edilmemiş\" ile \"test edildi ve geçti\" birbirinden ayırt edilemez.\n\nKarşılaştır: Java'da bir stack trace, hatanın en üst çağrıdan en alt satıra kadar tam zincirini verir — hangi metot hangi metodu çağırdı. İzlenebilirlik matrisi de aynı fikri iş süreci düzeyinde uygular: gereksinim → test → koşum → bug zinciri.\n\nQA açısından ölçülebilir kazanç: bir üretim sızıntısı olduğunda \"bu senaryo hiç test edilmemiş miydi, yoksa test edilip mi kaçırıldı\" sorusunun cevabı zincir varsa saniyeler içinde, yoksa günler süren bir arkeolojik kazı ile bulunur.",
+          en: 'Traceability is like a DNA test chain: from a finding you can trace backward and prove which sample, which source it came from. In Jira you likewise need to be able to trace backward from a bug to the test that caught it, the requirement that test is tied to, and which build the latest run executed against.\n\nThe question worth pausing on: why can the question "what was tested in this release" not be answered by looking at a bug list? Because a bug list only shows what was FOUND; the real question also covers what was TESTED and never found -- without a traceability chain, "never tested" and "tested and passed" are indistinguishable.\n\nCompare: in Java a stack trace gives you the full chain of a failure from the outermost call down to the exact line -- which method called which. A traceability matrix applies the same idea at the process level: requirement to test to run to bug.\n\nThe measurable payoff for QA: when a leak reaches production, the question "was this scenario never tested, or tested and missed" is answered in seconds if the chain exists, and by a days-long archaeological dig if it does not.',
+        },
+      },
+      traceabilityFlow,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Üretime bir bug sızdı. İzlenebilirlik zinciri (requirement → test → koşum → bug) kurulu değil. Bu eksikliğin doğrudan sonucu nedir?",
+          en: 'A bug leaked to production. The traceability chain (requirement to test to run to bug) is not in place. What is the direct consequence of this gap?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Bug daha yavaş düzeltilir", en: 'The bug gets fixed more slowly' } },
+          { id: 'b', text: { tr: "Senaryonun hiç test edilmediği mi yoksa test edilip kaçırıldığı mı belirsiz kalır", en: 'Whether the scenario was never tested or was tested and missed remains unclear' } },
+          { id: 'c', text: { tr: "Bug'ın severity'si otomatik yükselir", en: "The bug's severity automatically rises" } },
+          { id: 'd', text: { tr: 'Proje tipi değiştirilmek zorunda kalır', en: 'The project type has to be changed' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Zincir olmadan bir sızıntının kök nedeni (kapsam boşluğu mu, test etkisizliği mi) ayırt edilemez — ikisi de aynı sonucu (üretimde bug) verir ama düzeltme stratejisi tamamen farklıdır.",
+          en: 'Without the chain, the root cause of a leak (a coverage gap versus a test that was ineffective) cannot be told apart -- both produce the same outcome (a bug in production) but the fix strategy is entirely different.',
+        },
+        retryQuestion: {
+          question: {
+            tr: 'İzlenebilirlik zincirinde bir test senaryosu doğrudan hangi kayda bağlanır?',
+            en: 'In the traceability chain, a test case is directly linked to which record?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Doğrudan bir Epic\'e', en: 'Directly to an Epic' } },
+            { id: 'b', text: { tr: 'Ait olduğu gereksinime (Story)', en: 'The requirement it belongs to (Story)' } },
+            { id: 'c', text: { tr: 'Rastgele bir sprint\'e', en: 'A random sprint' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: 'Zincir gereksinimden başlar: her test bir gereksinime bağlanır, her koşum bir teste, her bug da başarısız bir koşuma.',
+            en: 'The chain starts at the requirement: every test links to a requirement, every run to a test, and every bug to a failed run.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: "🕳️ A5. Jira Olmadan Ne Olur?", en: '🕳️ A5. What Happens Without Jira?' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📉',
+        content: {
+          tr: "Kayıt tutmadan bug takibi yapmak, muhasebeyi hafızayla tutmaya benzer: küçük ekipte bir süre işe yarar görünür, ekip ya da veri büyüdüğünde çöker. E-posta ve Excel, ikisi de \"kayıt\" hissi verir ama aranamaz, çakışır ve kod ile bağlanamaz.\n\nDüşündürücü soru: bir Excel dosyası da satır satır bug tutabiliyorken, neden özel bir sisteme ihtiyaç var? Çünkü sorun VERİYİ tutmak değil, veriyi ARANABİLİR, ÇAKIŞMASIZ ve KOD İLE BAĞLANABİLİR hâlde tutmaktır — üçü de bir tablonun doğal olarak yapamadığı şeylerdir.\n\nKarşılaştır: bir `HashMap`'in anahtar-değer erişimini elle bir listede arayarak simüle etmeye çalışmak gibi — teknik olarak mümkündür ama veri büyüdükçe O(n) arama O(1)'in yerini tutamaz. Excel'de bug aramak da aynı ölçeklenme sorununu yaşar.\n\nQA açısından bedeli aşağıdaki adımlarda somutlaşıyor: her adım bir öncekinin küçük bir sürtünmesinden doğar ve birikince sistem çöker.",
+          en: 'Tracking bugs without a record is like keeping accounting by memory: it looks like it works for a while on a small team, and collapses once the team or the data grows. Email and Excel both give the feeling of "a record" but are not searchable, they conflict, and they cannot be linked to code.\n\nThe question worth pausing on: if an Excel file can hold bugs row by row too, why do you need a dedicated system at all? Because the problem is not holding the DATA, it is keeping that data SEARCHABLE, CONFLICT-FREE and LINKABLE TO CODE -- three things a spreadsheet does not naturally provide.\n\nCompare: it is like trying to simulate a `HashMap`\'s key-value lookup by manually scanning a list -- technically possible, but as data grows an O(n) search cannot substitute for O(1). Searching for bugs in Excel suffers the exact same scaling problem.\n\nThe cost for QA becomes concrete in the steps below: each step is born from a small friction of the one before it, and once they pile up, the system collapses.',
+        },
+      },
+      noJiraCollapseSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: "İki kişi aynı Excel satırını aynı anda düzenliyor ve biri diğerinin değişikliğini fark etmeden üzerine yazıyor. Bu, hangi eksikliğin doğrudan sonucudur?",
+          en: 'Two people edit the same Excel row at the same time, and one overwrites the other without noticing. This is the direct consequence of which missing capability?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Excel dosyasının çok büyük olması', en: 'The Excel file being too large' } },
+          { id: 'b', text: { tr: "Kalıcı bir anahtarın ve eşzamanlı düzenlemeyi yöneten bir durum makinesinin (workflow) olmaması", en: 'The absence of a permanent key and a state machine (workflow) that manages concurrent edits' } },
+          { id: 'c', text: { tr: 'Yanlış dosya formatı seçilmiş olması', en: 'The wrong file format having been chosen' } },
+          { id: 'd', text: { tr: 'İnternet bağlantısının yavaş olması', en: 'A slow internet connection' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Jira'da her issue kalıcı bir anahtara ve tanımlı geçişlere (workflow) sahiptir; eşzamanlı düzenleme kaydın kimliğini bozmaz. Excel'de satırın kimliği yalnızca konumdur — konum çakışınca veri de çakışır.",
+          en: "In Jira, every issue has a permanent key and defined transitions (a workflow); concurrent editing does not corrupt the record's identity. In Excel a row's identity is only its position -- when the position collides, the data collides too.",
+        },
+        retryQuestion: {
+          question: {
+            tr: 'E-posta ile bildirilen bir bug\'ın en somut eksikliği nedir?',
+            en: 'What is the most concrete gap of a bug reported by email?',
+          },
+          options: [
+            { id: 'a', text: { tr: 'Standart bir alan/format taşımaması, aranamaması ve kod ile bağlanamaması', en: 'It carries no standard field/format, is not searchable, and cannot be linked to code' } },
+            { id: 'b', text: { tr: 'E-postanın çok uzun sürede gitmesi', en: 'The email taking too long to arrive' } },
+            { id: 'c', text: { tr: "E-posta sunucusunun ücretli olması", en: 'The email server being paid' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'E-posta bir kayıt sistemi değildir: her gönderen kendi formatını kullanır, arama zayıftır ve commit mesajına bir e-posta ID\'si yazmak anlamsızdır.',
+            en: 'Email is not a record system: every sender uses their own format, search is weak, and writing an email ID into a commit message makes no sense.',
+          },
+        },
+      },
     ],
   },
 

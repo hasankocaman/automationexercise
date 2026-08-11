@@ -20,7 +20,7 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-11, Opus — `/jira` sayfası: iskelet + wiring + referans atom) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-11, Sonnet — `/jira` Faz S1 GRUP A tamamlandı) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 
@@ -32,6 +32,11 @@
 - Plan ve Sonnet promptları: **`Documents/jira-page-plan.md`** (§B Opus'un yaptığı,
   §C faz tablosu, §D S1-S12 kopyala-yapıştır promptlar, §E mimari referans,
   §F manuel test rehberi).
+- **Faz S1 (D-S1, GRUP A tamamlama A2-A5) BİTTİ:** A2 (rol karşılaştırması `grid`),
+  A3 (Cloud vs Data Center `table` + `callout`), A4 (izlenebilirlik zinciri
+  `python-flow-diagram`), A5 (Jira olmadan çöküş `step-animation`) eklendi —
+  her başlıkta quiz+retryQuestion. GRUP A artık tam referans sekme.
+  Sıradaki: **D-S2 (GRUP B — Kurulum & İlk Proje)** ve devamı, plan §D'de.
 
 ### Bu oturumda yapılanlar
 
