@@ -199,6 +199,7 @@ export const portfolioData = {
         '/aws': 'AWS',
         '/azure': 'Azure',
         '/gauge': 'Gauge',
+        '/jira': 'Jira',
         '/security': 'Security',
         '/claude-ai': 'Claude AI',
         '/llm-agents': 'LLM Agents',

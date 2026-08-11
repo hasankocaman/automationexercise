@@ -20,7 +20,64 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-05, Opus — kalan 4 flaky testin kökü kazındı) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-11, Opus — `/jira` sayfası: iskelet + wiring + referans atom) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Neredeyiz
+
+- **Branch: `feature/jira-page`** (main'e merge EDİLMEDİ, push EDİLMEDİ).
+- Yeni ders sayfası `/jira` açıldı: **13 sekme, tek ağaçlı `src/data/jiraData.js`**.
+  Opus tarafı (wiring + iskelet + referans atomlar) BİTTİ, build yeşil.
+- Plan ve Sonnet promptları: **`Documents/jira-page-plan.md`** (§B Opus'un yaptığı,
+  §C faz tablosu, §D S1-S12 kopyala-yapıştır promptlar, §E mimari referans,
+  §F manuel test rehberi).
+
+### Bu oturumda yapılanlar
+
+1. **Wiring tam:** `App.jsx` (lazy + route + `SECTION_PAGE_ELEMENTS`), `seo.js`
+   (EN+TR metadata), `topicDataModules.mjs`, `generate-mastery-manifest.mjs`
+   `ROUTE_MAP`, `check-i18n-leaks.mjs` `STRICT_ZERO_FILES`, `JiraPage.jsx`
+   (TopicPage sarmalayıcı + canlı mini Kanban banner'ı, yeni CSS dosyası YOK),
+   `HomePage.jsx` (etiket + üst nav + footer), `progressStore` (foundations),
+   `mentorAdvice`, `LearningAnalytics`, `portfolioData`, CLAUDE.md route haritası.
+2. **Sekme slug'ları donduruldu:** `npm run seo:section-slugs` → 32 sayfa /
+   433 bölüm (13 yeni). Sonnet **sekme başlıklarını değiştiremez**; değiştirirse
+   yayınlanan adres başka içeriğe düşer.
+3. **İçerik iskeleti:** 13 sekmenin hepsinde 4 katmanlı açılış `simple-box`'ı +
+   yönlendirme metni. Tam referans atom GRUP A'da (film "Bir Bug'ın Jira'daki
+   Yolculuğu" 8 sahne + step-animation + grid + JQL playground + quiz/retry +
+   order-sort). GRUP D'de severity↔priority tablosu + rapor düzeltme
+   playground'u + step-animation; GRUP F'de JQL kod bloğu + WAS operatörü
+   playground'u; GRUP L'de 2 hata; GRUP M'de 3 mülakat sorusu.
+4. **Karar: bu sayfa `fillMissingCodeTrios` KULLANMIYOR.** Filler yalnızca kod
+   bloklarından sonra üretim yapar ve bilinmeyen sayfa anahtarında jenerik
+   profile düşer; Jira sekmelerinin çoğu kod değil süreç anlatımı. Animasyon ve
+   sandbox ELLE yazılıyor. `fillMissingFeynman` kullanılıyor (2 checkpoint).
+
+### Doğrulama
+
+- `npm run build` ✓ (47 route, 94 shell, 866 bölüm shell'i, dist SEO ✓).
+- `check-seo` 48 route ✓ · `check-test-coverage` 44/44 ✓ ·
+  `check-content-integrity` ✓ · `i18n:check` regresyon yok, borç 0 ✓.
+- Playwright: `/jira` film render ✓, `/jira` sekme+buton denetimi ✓,
+  `/jira` EN modda Türkçe karakter taraması ✓ (3/3).
+
+### Sıradaki iş
+
+1. **Sonnet fazları S1-S12** — promptlar hazır (`Documents/jira-page-plan.md` §D).
+   Sıra: GRUP A tamamlama → B → C → D (sayfanın kalbi) → … → M + kapanış.
+2. ⚠ **Kapanışta unutulmaması gerekenler (S12):** `/jira`'yı
+   `scripts/audit-interview-questions.mjs` PAGES listesine (50 soru barajı) ve
+   `scripts/generate-interview-showcase.mjs` PAGES listesine ekle; `jiraData.js`'i
+   `check-i18n-leaks.mjs` `TRIO_COMPLETE_PAGES`'e ekle (her sekmede video +
+   animasyon + sandbox kapısı açılır).
+3. Bir önceki oturumdan devam eden açık işler aşağıdaki bölümde duruyor
+   (`fix/test-suite-flakiness` merge kararı, `npm run seo:lcp` yeniden ölçümü).
+
+---
+
+## 📌 Önceki Durum (2026-08-05, Opus — kalan 4 flaky testin kökü kazındı)
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 

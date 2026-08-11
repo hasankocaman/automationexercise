@@ -199,7 +199,7 @@ export const SKILL_CATEGORIES = [
     {
         id: 'foundations',
         label: { tr: 'Temel', en: 'Basics' },
-        routes: ['/what-is-testing', '/git-github', '/linux'],
+        routes: ['/what-is-testing', '/git-github', '/linux', '/jira'],
     },
 ]
 

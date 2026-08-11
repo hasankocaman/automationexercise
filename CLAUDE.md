@@ -106,6 +106,7 @@ Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 - `/postman` — Postman API testing
 - `/bruno` — Bruno (Git-native API client)
 - `/rest-assured` — REST Assured Java API testing
+- `/jira` — Jira: QA için iş takibi, bug raporlama, workflow, JQL, Scrum/Kanban, test yönetimi, REST API otomasyonu (tek ağaçlı `src/data/jiraData.js`; `fillMissingCodeTrios` KULLANMAZ, animasyon/sandbox elle yazılır)
 - `/docker` — Docker for QA
 - `/jenkins` — Jenkins CI/CD
 - `/kubernetes` — Kubernetes for QA

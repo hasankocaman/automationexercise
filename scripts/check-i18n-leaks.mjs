@@ -122,6 +122,8 @@ const TRIO_COMPLETE_PAGES = new Set(['apiTestingData.js', 'qaFrontendData.js'])
 const STRICT_ZERO_FILES = new Set([
   'apiTestingData.js', 'qaFrontendData.js',
   // Tamamen temizlenmiş sayfalar — sıfır-tolerans (§23.1). Yeni bir sızıntı build'i kırar.
+  // jiraData.js: yeni sayfa, baştan tam bilingual yazıldı — sıfır tolerans.
+  'jiraData.js',
   'gaugeData.js', 'javascriptData.js', 'restAssuredData.js', 'securityData.js',
   'kafkaData.js', 'basitBackendData.js', 'jmeterData.js', 'playwrightData.js',
   'cypressData.js', 'typescriptData.js', 'sqlData.js', 'pythonData.js',

@@ -16,7 +16,7 @@ const TOPIC_ROUTES = [
     '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/gauge', '/kubernetes',
     '/kafka', '/appium', '/playwright', '/cypress', '/selenium', '/aws', '/azure',
     '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
-    '/claude-ai', '/llm-agents', '/api-testing', '/qa-frontend',
+    '/claude-ai', '/llm-agents', '/api-testing', '/qa-frontend', '/jira',
 ];
 
 // Test ortamında dışarıya ağ bağlantısı olmadığı için oluşan bilinen hata kalıpları.

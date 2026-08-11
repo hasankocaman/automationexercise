@@ -45,6 +45,7 @@ export const DATA_MODULES = {
     '/claude-ai': { file: '../../src/data/claudeAiData.js', exportName: 'claudeAiData' },
     '/llm-agents': { file: '../../src/data/llmAgentsData.js', exportName: 'llmAgentsData' },
     '/test-automation': { file: '../../src/data/testAutomationData.js', exportName: 'testAutomationData' },
+    '/jira': { file: '../../src/data/jiraData.js', exportName: 'jiraData' },
 }
 
 const moduleCache = new Map()
