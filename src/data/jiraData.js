@@ -591,6 +591,212 @@ const setupOrderChallenge = {
   xpReward: 10,
 }
 
+// ─── Film: bir Epic'in altında bug nasıl doğar (GRUP C referans filmi) ────────
+const epicToBugFilm = {
+  type: 'video-scene',
+  id: 'jira-c1-epic-to-bug-film',
+  title: {
+    tr: "🎬 Bir Epic'in Altında Bug Nasıl Doğar",
+    en: '🎬 How a Bug Is Born Under an Epic',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'epic', emoji: '📐', label: { tr: 'Epic: SHOP-100', en: 'Epic: SHOP-100' }, color: '#8b5cf6' },
+    { id: 'story', emoji: '📖', label: { tr: 'Story: SHOP-118', en: 'Story: SHOP-118' }, color: '#0ea5e9' },
+    { id: 'subtask', emoji: '🔧', label: { tr: 'Sub-task', en: 'Sub-task' }, color: '#6366f1' },
+    { id: 'shipped', emoji: '🚀', label: { tr: 'Canlıya Çıktı', en: 'Shipped' }, color: '#10b981' },
+    { id: 'bug', emoji: '🐞', label: { tr: 'Bug: SHOP-142', en: 'Bug: SHOP-142' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Epic SHOP-100 — \"Ödeme Akışı Yenileme\" — büyük bir hedefi tarif ediyor, tek başına teslim edilemez. Bu filmde bu hedefin nasıl küçük parçalara bölündüğünü ve sonunda bir bug'ın nereden doğduğunu izleyeceksin.",
+        en: 'Epic SHOP-100 -- "Checkout Flow Overhaul" -- describes a large goal that cannot be delivered on its own. In this film you will watch how that goal breaks into small pieces, and where a bug is eventually born from.',
+      },
+      positions: { epic: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — Epic bir Story'ye bölünür: SHOP-118 \"Kupon Kodu Uygulama\" teslim edilebilir tek bir parçadır. Bir Epic altında onlarca Story olabilir; her biri bağımsız teslim edilir.",
+        en: 'Step 1 -- The Epic breaks into a Story: SHOP-118 "Apply Coupon Code" is one deliverable piece. An Epic can hold dozens of Stories; each is delivered independently.',
+      },
+      positions: {
+        epic: { x: 22, y: 50, scale: 1.0 },
+        story: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'epic', to: 'story', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Story, Sub-task'lara bölünür: \"kupon alanı UI'ı\", \"backend indirim hesaplama\", \"e2e test\". Her Sub-task tek bir kişinin bir günde bitirebileceği somut bir iştir.",
+        en: 'Step 2 -- The Story breaks into Sub-tasks: "coupon field UI", "backend discount calculation", "e2e test". Each Sub-task is a concrete piece of work one person can finish in a day.',
+      },
+      positions: {
+        story: { x: 22, y: 50, scale: 1.0 },
+        subtask: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'story', to: 'subtask', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Tüm Sub-task'lar biter, Story Done olur, özellik canlıya çıkar. Hiyerarşi burada tamamlanmıştır — Epic → Story → Sub-task zinciri kapanmıştır.",
+        en: 'Step 3 -- All Sub-tasks finish, the Story goes Done, the feature ships. The hierarchy is complete here -- the Epic to Story to Sub-task chain has closed.',
+      },
+      positions: {
+        subtask: { x: 22, y: 50, scale: 1.0 },
+        shipped: { x: 56, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'subtask', to: 'shipped', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — İki hafta sonra Ayşe canlı ortamda kupon indiriminin iki kez düştüğünü fark eder. SHOP-142 açılır — ama bu bug, hiyerarşinin İÇİNDE bir çocuk DEĞİLDİR; hiyerarşinin DIŞINDAN gelip Story'ye bir LINK ile bağlanır (\"caused by SHOP-118\"). Epic → Story → Sub-task planlanan işi anlatır; Bug ise planlanmamış, keşfedilen bir gerçeği anlatır — ikisi aynı ağaçta yaşamaz.",
+        en: 'Finale (the contrast) -- Two weeks later Ayse notices in the live environment that the coupon discount is deducted twice. SHOP-142 is filed -- but this bug is NOT a child INSIDE the hierarchy; it arrives from OUTSIDE the hierarchy and attaches to the Story via a LINK ("caused by SHOP-118"). Epic to Story to Sub-task describes planned work; a Bug describes an unplanned, discovered reality -- the two do not live in the same tree.',
+      },
+      positions: {
+        shipped: { x: 20, y: 32, scale: 0.9 },
+        story: { x: 46, y: 55, scale: 1.0 },
+        bug: { x: 74, y: 50, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'shipped', to: 'bug', color: '#ef4444' }, { from: 'bug', to: 'story', color: '#ef4444' }],
+    },
+  ],
+}
+
+// ─── step-animation: hiyerarşinin kurulması (GRUP C1) ─────────────────────────
+const hierarchyBuildSteps = {
+  type: 'step-animation',
+  id: 'jira-c1-hierarchy-build-steps',
+  title: { tr: 'Adım Adım: Bir Hedef Nasıl Teslim Edilebilir Parçalara Bölünür?', en: 'Step by Step: How a Goal Breaks Into Deliverable Pieces' },
+  steps: [
+    { id: 1, icon: '📐', label: { tr: 'Epic: büyük hedef', en: 'Epic: the big goal' }, detail: { tr: "\"Ödeme Akışı Yenileme\" — tek başına test edilemeyecek, haftalarca sürecek bir hedef. Bir sprint'e sığmaz.", en: '"Checkout Flow Overhaul" -- a goal that cannot be tested on its own and takes weeks. It does not fit in one sprint.' } },
+    { id: 2, icon: '📖', label: { tr: 'Story: teslim edilebilir dilim', en: 'Story: a deliverable slice' }, detail: { tr: '"Kupon Kodu Uygulama" — kullanıcıya değer katan, bir veya birkaç sprint\'te bitecek somut bir dilim.', en: '"Apply Coupon Code" -- a concrete slice that delivers user value and finishes within one or a few sprints.' } },
+    { id: 3, icon: '🔧', label: { tr: 'Sub-task: bir günlük iş', en: 'Sub-task: a day of work' }, detail: { tr: '"Backend indirim hesaplama" — tek bir kişinin bir iş gününde bitirebileceği kadar küçük ve somut.', en: '"Backend discount calculation" -- small and concrete enough for one person to finish in a workday.' } },
+    { id: 4, icon: '✅', label: { tr: "Sub-task'lar biter", en: 'Sub-tasks finish' }, detail: { tr: "Tüm alt işler Done olunca Story otomatik bitmez — QA'in doğrulaması gerekir; bu yüzden Story'nin kendi workflow'u vardır.", en: 'When all sub-work is Done the Story does not auto-finish -- QA verification is required; this is why the Story has its own workflow.' } },
+    { id: 5, icon: '🚀', label: { tr: 'Story Done, Epic ilerler', en: 'Story is Done, Epic progresses' }, detail: { tr: "Bir Story bitince Epic'in ilerleme yüzdesi artar ama Epic henüz bitmemiştir — altında başka Story'ler duruyor olabilir.", en: "When a Story finishes, the Epic's progress percentage rises, but the Epic is not done yet -- other Stories may still sit under it." } },
+  ],
+}
+
+// ─── table: issue tipi ↔ tipik alanlar (GRUP C2) ───────────────────────────────
+const issueTypeFieldsTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Issue Tipi', en: 'Issue Type' },
+    { tr: 'Kendine özgü alanlar', en: 'Fields specific to it' },
+    { tr: 'Tipik ekran', en: 'Typical screen' },
+  ],
+  rows: [
+    [
+      { tr: 'Epic', en: 'Epic' },
+      { tr: 'Epic Name, hedef tarih aralığı', en: 'Epic Name, target date range' },
+      { tr: 'Roadmap görünümü', en: 'Roadmap view' },
+    ],
+    [
+      { tr: 'Story', en: 'Story' },
+      { tr: 'Story Points, Acceptance Criteria', en: 'Story Points, Acceptance Criteria' },
+      { tr: 'Backlog / sprint planlama ekranı', en: 'Backlog / sprint planning screen' },
+    ],
+    [
+      { tr: 'Bug', en: 'Bug' },
+      { tr: 'Severity, Ortam, Tekrar Üretim Adımları', en: 'Severity, Environment, Reproduction Steps' },
+      { tr: 'Bug raporu ekranı', en: 'Bug report screen' },
+    ],
+    [
+      { tr: 'Sub-task', en: 'Sub-task' },
+      { tr: 'Kalan süre tahmini (Original/Remaining Estimate)', en: 'Time estimate (Original/Remaining Estimate)' },
+      { tr: "Ebeveyn issue'nun içinde küçük panel", en: 'A small panel inside the parent issue' },
+    ],
+  ],
+}
+
+// ─── code-playground: 5 iş kalemini doğru issue tipine eşleştir (GRUP C2) ─────
+const issueTypeMatchPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-c2-bug-is-issue-type',
+  id: 'jira-c2-issue-type-match',
+  title: { tr: 'Kendin Dene: 5 İş Kalemini Doğru Issue Tipine Eşleştir', en: 'Try It Yourself: Match 5 Work Items to the Right Issue Type' },
+  starterCode: {
+    tr: `1. "Ödeme akışını tamamen yeniden tasarla" (3 ay sürecek)   -> ?
+2. "Kullanıcı kupon kodu girebilsin"                        -> ?
+3. "Kupon tutarı iki kez düşülüyor" (canlıda bulundu)        -> ?
+4. "Kupon input alanının backend validasyonunu yaz"          -> ?
+5. "Checkout API'sinde kupon parametresini test et"          -> ?`,
+    en: `1. "Completely redesign the checkout flow" (will take 3 months) -> ?
+2. "Let the user enter a coupon code"                            -> ?
+3. "Coupon amount is deducted twice" (found live)                -> ?
+4. "Write backend validation for the coupon input field"         -> ?
+5. "Test the coupon parameter on the checkout API"                -> ?`,
+  },
+  solutionCode: {
+    tr: `1. Epic     -- 3 ay, tek başına teslim edilemez, birden çok Story içerir
+2. Story    -- kullanıcıya değer katan teslim edilebilir bir dilim
+3. Bug      -- planlanmamış, canlıda keşfedilen bir sapma
+4. Sub-task -- tek kişinin bir günde bitirebileceği somut iş, bir Story'ye bağlı
+5. Sub-task -- test yazmak da Story'nin altındaki somut bir iştir`,
+    en: `1. Epic     -- 3 months, cannot be delivered alone, contains multiple Stories
+2. Story    -- a deliverable slice that gives the user value
+3. Bug      -- an unplanned deviation discovered in production
+4. Sub-task -- concrete, one-day work tied to a Story
+5. Sub-task -- writing a test is also concrete work under a Story`,
+  },
+  hint: {
+    tr: "Süreye bak: aylar sürüyorsa Epic'tir. Kullanıcıya doğrudan değer katıyorsa ve tek başına teslim edilebiliyorsa Story'dir. Planlanmamış, sistemin YANLIŞ davrandığı bir gözlemse Bug'dır. Bir günde bitecek somut, tek kişilik işse ve bir Story'nin altına bağlıysa Sub-task'tır.",
+    en: 'Look at duration: months long means Epic. Directly delivers user value and can ship alone means Story. An unplanned observation that the system behaves WRONG means Bug. Concrete, one-person, one-day work tied under a Story means Sub-task.',
+  },
+  successMessage: {
+    tr: 'Doğru! Süre ve "planlanmış mı, keşfedilmiş mi" sorusu dört tipi birbirinden ayırır. Bu ayrımı yanlış yapmak salt bir etiketleme hatası değildir — §C1\'deki filmde gördüğün gibi, "bu sprintte kaç bug çıktı" gibi bir metrik yanlış issue tipiyle sessizce bozulur.',
+    en: 'Correct! Duration and the question "was this planned, or discovered" separate the four types. Getting this wrong is not just a labeling mistake -- as the film in C1 showed, a metric like "how many bugs came out of this sprint" is silently corrupted by the wrong issue type.',
+  },
+}
+
+// ─── table: link tipleri ve sprint planlamasına etkisi (GRUP C4) ──────────────
+const linkTypesTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Link Tipi', en: 'Link Type' },
+    { tr: 'Anlamı', en: 'Meaning' },
+    { tr: 'Yanlış kullanılırsa sprint planlamasında ne bozulur', en: 'What breaks in sprint planning if misused' },
+  ],
+  rows: [
+    [
+      { tr: 'blocks / is blocked by', en: 'blocks / is blocked by' },
+      { tr: "Bu issue diğeri bitmeden başlayamaz", en: 'This issue cannot start before the other finishes' },
+      { tr: "Yanlış yöne link atılırsa (blocks yerine is blocked by) planlama sırası TERSİNE döner", en: 'If linked in the wrong direction (blocks instead of is blocked by) the planning order INVERTS' },
+    ],
+    [
+      { tr: 'duplicates', en: 'duplicates' },
+      { tr: 'Aynı sorunun ikinci bir kaydı', en: 'A second record of the same problem' },
+      { tr: "Link atılmazsa aynı bug iki kez sayılır, kalite metrikleri şişer", en: 'Without the link the same bug is counted twice, inflating quality metrics' },
+    ],
+    [
+      { tr: 'relates to', en: 'relates to' },
+      { tr: 'Gevşek bir ilişki, bağımlılık DEĞİL', en: 'A loose relationship, NOT a dependency' },
+      { tr: '"blocks" yerine kullanılırsa gerçek bir bağımlılık planlamada hiç görünmez', en: 'Used instead of "blocks", a real dependency never surfaces in planning' },
+    ],
+    [
+      { tr: 'caused by / causes', en: 'caused by / causes' },
+      { tr: "Bug'ı doğuran Story'ye işaret eder", en: 'Points to the Story that caused the bug' },
+      { tr: "Link eksikse §A4'teki izlenebilirlik zinciri kopar", en: 'A missing link breaks the traceability chain from A4' },
+    ],
+  ],
+}
+
+// ─── challenge (order-sort): hiyerarşiyi diz (GRUP C) ──────────────────────────
+const hierarchyOrderChallenge = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'jira-c-hierarchy-order',
+  question: { tr: "Hiyerarşiyi en genişten en dara doğru sırala.", en: 'Order the hierarchy from broadest to narrowest.' },
+  items: [
+    { id: '1', text: { tr: 'Epic (aylar süren büyük hedef)', en: 'Epic (a months-long big goal)' }, order: 1 },
+    { id: '2', text: { tr: 'Story (teslim edilebilir dilim)', en: 'Story (a deliverable slice)' }, order: 2 },
+    { id: '3', text: { tr: 'Sub-task (bir günlük somut iş)', en: 'Sub-task (a day of concrete work)' }, order: 3 },
+  ],
+  xpReward: 10,
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -1075,6 +1281,151 @@ const sections = [
           en: 'We will cover the Epic to Story to Task to Sub-task hierarchy and where a Bug sits in that tree, which fields make up an issue and on which screen those fields appear, the answer to "why is this field missing in this project", and how issue link types (blocks / is blocked by / duplicates / relates to) affect sprint planning.',
         },
       },
+      epicToBugFilm,
+      {
+        type: 'heading',
+        text: { tr: '1️⃣ C1. Hiyerarşi: Epic → Story → Sub-task', en: '1️⃣ C1. The Hierarchy: Epic to Story to Sub-task' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '☕',
+        content: {
+          tr: "Bu hiyerarşiyi Java paket yapısına benzet: Epic bir PAKET gibidir (`com.shopqa.checkout`) — geniş bir hedefi bir arada tutar. Story bir SINIF gibidir (`CouponService`) — tek bir sorumluluğu, tek bir amacı vardır. Sub-task bir METOT gibidir (`applyDiscount()`) — tek bir somut işi yapar.\n\nDüşündürücü soru: bu analoji nerede kırılır? Bir Java paketi, birbiriyle hiç ilgisi olmayan sınıfları da barındırabilir (zorunlu bir ilişki yoktur) — ama bir Epic'in altındaki tüm Story'ler AYNI hedefe hizmet etmek ZORUNDADIR. Yani Jira hiyerarşisi paketten daha SIKI bir kısıtlama taşır: gruplama değil, ortak bir amaca bölünmedir.\n\nKarşılaştır: bir metodun içinde başka bir metot (iç içe fonksiyon) olabilir ama Java'da sınıfın içinde sınıf sık kullanılmaz; Jira'da da Sub-task'ın altında başka bir Sub-task AÇILAMAZ — hiyerarşi üç seviyeyle sınırlıdır, sonsuz derinlik yoktur.\n\nQA açısından bunun anlamı: bir işi yanlış seviyeye koymak (örneğin bir Sub-task'ı Story gibi açmak) yalnızca görsel bir düzensizlik değildir — raporlama araçları seviyeye göre toplam alır, yanlış seviye o toplamı bozar.",
+          en: 'Compare this hierarchy to a Java package structure: an Epic is like a PACKAGE (`com.shopqa.checkout`) -- it holds a broad goal together. A Story is like a CLASS (`CouponService`) -- it has one responsibility, one purpose. A Sub-task is like a METHOD (`applyDiscount()`) -- it does one concrete thing.\n\nThe question worth pausing on: where does this analogy break? A Java package can hold classes with no relation to each other at all (no required link) -- but every Story under an Epic MUST serve the SAME goal. So the Jira hierarchy carries a STRICTER constraint than a package: not grouping, but division toward a shared purpose.\n\nCompare further: a method can contain another method (a nested function), but a class inside a class is uncommon in Java; in Jira a Sub-task under a Sub-task CANNOT be opened either -- the hierarchy is capped at three levels, there is no infinite depth.\n\nWhat this means for QA: filing work at the wrong level (say, opening a Sub-task as if it were a Story) is not just visual clutter -- reporting tools sum things up by level, and the wrong level corrupts that sum.',
+        },
+      },
+      hierarchyBuildSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Epic-Story-Sub-task hiyerarşisinin Java paket yapısından NEREDE ayrıştığını en doğru anlatan cümle hangisidir?",
+          en: 'Which sentence most accurately describes WHERE the Epic-Story-Sub-task hierarchy diverges from a Java package structure?',
+        },
+        options: [
+          { id: 'a', text: { tr: "İkisi tamamen aynıdır, fark yoktur", en: 'They are entirely identical, there is no difference' } },
+          { id: 'b', text: { tr: "Paket ilgisiz sınıfları barındırabilir; Epic'teki her Story AYNI hedefe hizmet etmek zorundadır", en: 'A package can hold unrelated classes; every Story under an Epic MUST serve the SAME goal' } },
+          { id: 'c', text: { tr: "Java'da paket kavramı yoktur", en: 'Java has no concept of a package' } },
+          { id: 'd', text: { tr: "Jira'da sınırsız derinlikte hiyerarşi kurulabilir", en: 'Jira allows unlimited hierarchy depth' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Analojinin kırıldığı yer tam olarak budur: Jira hiyerarşisi paketten daha sıkıdır çünkü gruplama değil, ortak bir amaca bölünmedir. Hiyerarşi ayrıca üç seviyeyle sınırlıdır, sonsuz derinlik yoktur.",
+          en: 'This is exactly where the analogy breaks: the Jira hierarchy is stricter than a package because it is not grouping, it is division toward a shared purpose. The hierarchy is also capped at three levels, with no infinite depth.',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir Story\'nin tüm Sub-task\'ları Done olunca ne olur?', en: "When all of a Story's Sub-tasks go Done, what happens?" },
+          options: [
+            { id: 'a', text: { tr: "Story otomatik olarak Done olur", en: 'The Story automatically goes Done' } },
+            { id: 'b', text: { tr: "Story otomatik bitmez, QA doğrulaması gerekir çünkü kendi workflow'u vardır", en: 'The Story does not auto-finish, QA verification is required because it has its own workflow' } },
+            { id: 'c', text: { tr: "Epic silinir", en: 'The Epic gets deleted' } },
+          ],
+          correct: 'b',
+          explanation: {
+            tr: "Her issue tipinin kendi workflow'u vardır; alt işlerin bitmesi üst issue'yu otomatik kapatmaz.",
+            en: "Every issue type has its own workflow; the parent issue does not auto-close just because the child work is done.",
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: "2️⃣ C2. Bug: Kendi Alanları Olan Bir Issue Tipi", en: '2️⃣ C2. Bug: An Issue Type With Its Own Fields' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bug, hiyerarşinin bir parçası olmasa da tam teşekküllü bir issue tipidir — kendi alanları ve kendi ekranı vardır. §D'de detaylandıracağımız Severity, Ortam ve Tekrar Üretim Adımları gibi alanlar bir Story'de ANLAMSIZDIR, bir Bug'da ZORUNLUDUR. Aşağıdaki tablo dört issue tipinin kendine özgü alanlarını karşılaştırıyor.",
+          en: "Even though it is not part of the hierarchy, Bug is a fully-fledged issue type -- it has its own fields and its own screen. Fields we detail in D like Severity, Environment and Reproduction Steps are MEANINGLESS on a Story, and MANDATORY on a Bug. The table below compares the fields specific to four issue types.",
+        },
+      },
+      issueTypeFieldsTable,
+      issueTypeMatchPlayground,
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ C3. Alan, Ekran ve Şema Üçlüsü', en: '3️⃣ C3. The Field, Screen and Scheme Triplet' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🧰',
+        content: {
+          tr: "Bir alan (field), ekran (screen) ve şema (scheme) üçlüsü bir elektrik tesisatına benzer: alan bir prizdir (veriyi tutar), ekran bir odadaki priz düzenidir (hangi prizler bu odada var), şema ise binanın hangi katının hangi oda düzenini kullandığını belirleyen plandır. Bir odada priz yoksa sorun prizde değil, o katın plan seçiminde olabilir.\n\nDüşündürücü soru: neden bir alan projede \"var\" ama ekranda \"görünmez\" olabilir? Çünkü alan sistemde TANIMLI olmak ile bir issue tipinin EKRANINA eklenmiş olmak farklı şeylerdir — bir alan var olabilir ama hiçbir ekrana bağlanmamışsa hiçbir yerde görünmez.\n\nKarşılaştır: Java'da bir sınıfın `private` bir alanı vardır ama getter yazılmamışsa dışarıdan hiç erişilemez — alan VARDIR ama arayüz (public API) onu göstermez. Jira'da field/screen ayrımı aynı fikri taşır: alan var olmak yetmez, ekrana bağlı (bir \"getter\"ı) olmalı.\n\nQA açısından pratik sonuç: \"bu alanı göremiyorum\" şikâyeti aldığında önce alanın var olup olmadığını değil, o issue tipinin ekranına EKLENİP EKLENMEDİĞİNİ sor.",
+          en: 'A field, screen and scheme triplet is like an electrical installation: a field is an outlet (holds data), a screen is the outlet layout of a room (which outlets exist in this room), and a scheme is the building plan that decides which floor uses which room layout. If a room has no outlet, the problem may not be the outlet itself but that floor\'s plan choice.\n\nThe question worth pausing on: why can a field be "present" in the project yet "invisible" on the screen? Because being DEFINED in the system and being ADDED to an issue type\'s SCREEN are different things -- a field can exist yet, if it is bound to no screen, show up nowhere.\n\nCompare: in Java a class can have a `private` field, but without a getter it is never reachable from outside -- the field EXISTS but the interface (the public API) does not expose it. Jira\'s field/screen split carries the same idea: existing is not enough, the field must be bound to a screen (its "getter").\n\nThe practical takeaway for QA: when you hear "I cannot see this field", ask first not whether the field exists, but whether it has been ADDED to that issue type\'s screen.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "\"Kabul Kriteri\" alanı Story'de görünüyor ama Bug'da görünmüyor. En olası açıklama nedir?",
+          en: 'The "Acceptance Criteria" field appears on Story but not on Bug. What is the most likely explanation?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Alan Bug\'a hiç EKLENMEMİŞ, yani o issue tipinin ekranına bağlı değil', en: 'The field was never ADDED to Bug -- it is not bound to that issue type\'s screen' } },
+          { id: 'b', text: { tr: 'Jira Bug\'larda bu alanı teknik olarak desteklemez', en: 'Jira technically does not support this field on Bugs' } },
+          { id: 'c', text: { tr: 'Ayşe\'nin izni yetersiz', en: "Ayse's permission is insufficient" } },
+          { id: 'd', text: { tr: 'Proje tipi yanlış seçilmiş', en: 'The wrong project type was chosen' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: "Bu, alan/ekran ayrımının klasik örneğidir: alan sistemde tanımlı olabilir ama Bug ekranına eklenmemişse hiçbir Bug'da görünmez — teknik bir kısıt değil, bir konfigürasyon eksikliğidir.",
+          en: 'This is the classic field/screen example: the field may be defined in the system, but if it was never added to the Bug screen it appears on no Bug -- not a technical limitation, a configuration gap.',
+        },
+        retryQuestion: {
+          question: { tr: 'Java\'daki `private` alan + eksik getter benzetmesi field/screen ayrımının hangi yönünü anlatır?', en: "What aspect of the field/screen split does the Java `private` field plus missing getter analogy describe?" },
+          options: [
+            { id: 'a', text: { tr: 'Bir alan var olmak ile dışarıya (ekrana) açık olmak farklı şeylerdir', en: 'A field existing and being exposed (to a screen) are different things' } },
+            { id: 'b', text: { tr: 'Java ile Jira aynı dildir', en: 'Java and Jira are the same language' } },
+            { id: 'c', text: { tr: 'private alanlar Jira\'da yasaktır', en: 'private fields are forbidden in Jira' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Tam olarak bu: varlık ile görünürlük ayrı katmanlardır, ikisinin de doğru olması gerekir.',
+            en: 'Exactly that: existence and visibility are separate layers, and both need to be correct.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ C4. Link Tipleri ve Sprint Planlamasına Etkisi', en: '4️⃣ C4. Link Types and Their Effect on Sprint Planning' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Link tipleri issue'lar arasında yön taşıyan ilişkilerdir — yanlış yön veya yanlış tip seçilirse planlama araçları yanlış sırada iş önerir. Aşağıdaki tablo dört yaygın link tipini ve yanlış kullanıldığında sprint planlamasında NE bozulduğunu gösteriyor.",
+          en: "Link types are directional relationships between issues -- pick the wrong direction or the wrong type, and planning tools suggest work in the wrong order. The table below shows four common link types and WHAT breaks in sprint planning when they are used incorrectly.",
+        },
+      },
+      linkTypesTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: "SHOP-142 bug'ı SHOP-118 story'sine \"relates to\" ile bağlanmış, ama gerçekte SHOP-118 tamamlanmadan SHOP-142'nin test edilmesi mümkün değil. Bu yanlış link neye yol açar?",
+          en: 'SHOP-142 the bug is linked to SHOP-118 the story with "relates to", but in reality SHOP-142 cannot be tested before SHOP-118 finishes. What does this wrong link lead to?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Gerçek bağımlılık planlama aracında hiç görünmez, bug erken sıraya alınabilir", en: 'The real dependency never surfaces in the planning tool, the bug can be scheduled too early' } },
+          { id: 'b', text: { tr: "Jira otomatik olarak doğru linki önerir", en: 'Jira automatically suggests the correct link' } },
+          { id: 'c', text: { tr: "Hiçbir sonucu olmaz, link tipi kozmetiktir", en: 'It has no consequence, link type is cosmetic' } },
+          { id: 'd', text: { tr: "Bug otomatik olarak duplicate sayılır", en: 'The bug is automatically counted as a duplicate' } },
+        ],
+        correct: 'a',
+        explanation: {
+          tr: "\"relates to\" gevşek bir ilişkidir, bağımlılık taşımaz. Gerçek bir sıra zorunluluğu için \"is blocked by\" gerekir — yoksa planlama aracı bağımlılığı hiç bilmez ve bug'ı olması gerekenden erken sıraya koyabilir.",
+          en: '"relates to" is a loose relationship and carries no dependency. A real ordering requirement needs "is blocked by" -- otherwise the planning tool never knows about the dependency and may schedule the bug earlier than it should.',
+        },
+        retryQuestion: {
+          question: { tr: '"duplicates" linkini eksik bırakmanın en somut sonucu nedir?', en: 'What is the most concrete consequence of leaving out the "duplicates" link?' },
+          options: [
+            { id: 'a', text: { tr: "Aynı sorun iki ayrı kayıt olarak sayılır, kalite metrikleri şişer", en: 'The same problem is counted as two separate records, inflating quality metrics' } },
+            { id: 'b', text: { tr: "İki kayıt otomatik birleşir", en: 'The two records automatically merge' } },
+            { id: 'c', text: { tr: "Hiçbir etkisi yoktur", en: 'It has no effect' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Link eksikse iki kayıt bağımsız gibi görünür ve raporlarda ayrı ayrı sayılır — §K\'daki metrikler için bu doğrudan bir bozulma kaynağıdır.',
+            en: 'Without the link the two records look independent and are counted separately in reports -- for the metrics in K this is a direct source of distortion.',
+          },
+        },
+      },
+      hierarchyOrderChallenge,
     ],
   },
 

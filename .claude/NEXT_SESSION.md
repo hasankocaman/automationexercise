@@ -42,7 +42,13 @@
   (`private` erişim belirleyici analojisi), B4 issue key anatomisi
   `code-playground` + kurulum sırası `challenge` (order-sort). Her başlıkta
   quiz+retryQuestion.
-  Sıradaki: **D-S3 (GRUP C — Issue Türleri ve Hiyerarşi)** ve devamı, plan §D'de.
+- **Faz S3 (D-S3, GRUP C — Issue Türleri ve Hiyerarşi) BİTTİ:** "Bir Epic'in
+  Altında Bug Nasıl Doğar" filmi (5 sahne) + C1 hiyerarşi kurulumu
+  `step-animation` (Java paket/sınıf/metot analojisi, kırıldığı yer dahil),
+  C2 issue tipi ↔ alan `table` + 5 iş kalemini eşleştir `code-playground`,
+  C3 alan/ekran/şema üçlüsü (`private`+getter analojisi), C4 link tipleri
+  `table` + hiyerarşi sıralama `challenge`. Her başlıkta quiz+retryQuestion.
+  Sıradaki: **D-S4 (GRUP D — Bug Raporlama Sanatı tamamlama)**, plan §D'de.
 
 ### Bu oturumda yapılanlar
 
