@@ -314,6 +314,81 @@ const noJiraCollapseSteps = {
   ],
 }
 
+// ─── Film: kötü bir bug raporunun 5 günü (GRUP D referans filmi) ──────────────
+const badReportFiveDaysFilm = {
+  type: 'video-scene',
+  id: 'jira-d1-bad-report-5-days-film',
+  title: {
+    tr: "🎬 Kötü Bir Bug Raporunun 5 Günü",
+    en: '🎬 Five Days of a Bad Bug Report',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'report', emoji: '📝', label: { tr: 'Zayıf Rapor', en: 'Weak Report' }, color: '#f59e0b' },
+    { id: 'dev', emoji: '🧑‍💻', label: { tr: 'Mert (Dev)', en: 'Mert (Dev)' }, color: '#6366f1' },
+    { id: 'silence', emoji: '🤐', label: { tr: '"Cannot Reproduce"', en: '"Cannot Reproduce"' }, color: '#64748b' },
+    { id: 'retest', emoji: '🔁', label: { tr: 'Ayşe Yeniden Test Ediyor', en: 'Ayse Retests' }, color: '#0ea5e9' },
+    { id: 'rewrite', emoji: '✍️', label: { tr: 'Rapor Yeniden Yazılır', en: 'Report Rewritten' }, color: '#8b5cf6' },
+    { id: 'fixed', emoji: '✅', label: { tr: 'Gerçek Düzeltme', en: 'Real Fix' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Gün 1, 09:00 — Ayşe bir bug buluyor ve raporu üç saniyede yazıyor: başlık \"Ödeme çalışmıyor\", açıklama yok. Panoda görünür hâle geldi diye kendini rahat hissediyor. Aslında iş daha yeni başlıyor.",
+        en: 'Day 1, 09:00 -- Ayse finds a bug and writes the report in three seconds: title "Checkout is broken", no description. She feels at ease because it is now visible on the board. The work has actually just begun.',
+      },
+      positions: { report: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Gün 2 — Mert raporu açar, kendi test verisiyle dener, hiçbir sorun bulamaz. Elinde ortam, adım veya kanıt olmadığı için tek yapabileceği "cannot reproduce" yazıp raporu geri göndermektir.',
+        en: 'Day 2 -- Mert opens the report, tries it with his own test data, finds nothing wrong. With no environment, steps or evidence in hand, all he can do is write "cannot reproduce" and bounce it back.',
+      },
+      positions: {
+        report: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        dev: { x: 44, y: 50, scale: 1.1 },
+        silence: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'report', to: 'dev' }, { from: 'dev', to: 'silence', color: '#64748b' }],
+    },
+    {
+      caption: {
+        tr: 'Gün 3 — Ayşe kaydı geri alır ama İKİ GÜN önce hangi kuponu, hangi ürünü kullandığını tam hatırlamıyor. Baştan test etmesi gerekiyor — kendi hatasını kendi zamanından çalarak ödüyor.',
+        en: 'Day 3 -- Ayse gets the record back, but does not fully remember which coupon, which product she used TWO DAYS ago. She has to test from scratch -- paying for her own mistake out of her own time.',
+      },
+      positions: {
+        silence: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        retest: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'silence', to: 'retest', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: "Gün 4 — Bu sefer rapor tam yazılır: ortam, ön koşul, deterministik adımlar, beklenen/gerçekleşen, kanıt. Mert raporu açar ve BEŞ DAKİKADA aynı hatayı üretir — üç gün önce imkânsız görünen şey, tam bir rapor ile beş dakikaya iner.",
+        en: 'Day 4 -- This time the report is written completely: environment, precondition, deterministic steps, expected/actual, evidence. Mert opens it and reproduces the exact failure in FIVE MINUTES -- what looked impossible three days ago takes five minutes with a complete report.',
+      },
+      positions: {
+        retest: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        rewrite: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'retest', to: 'rewrite', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — Gün 5'te bug düzeltilir ve doğrulanır. Toplam maliyet: 5 gün, iki kişinin kaybettiği zaman, bir \"cannot reproduce\" damgası. Rapor Gün 1'de tam yazılsaydı bu süreç birkaç SAATE sığardı — arada değişen tek şey raporun tamlığıdır, hatanın kendisi değil.",
+        en: 'Finale (the contrast) -- On Day 5 the bug is fixed and verified. Total cost: 5 days, two people\'s lost time, one "cannot reproduce" stamp. Had the report been written completely on Day 1, this would have fit into a few HOURS -- the only thing that changed in between is the completeness of the report, not the bug itself.',
+      },
+      positions: {
+        rewrite: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        fixed: { x: 54, y: 50, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'rewrite', to: 'fixed', color: '#10b981' }],
+    },
+  ],
+}
+
 // ─── code-playground: kötü bug raporunu düzelt (GRUP D) ───────────────────────
 const bugReportPlayground = {
   type: 'code-playground',
@@ -365,6 +440,131 @@ Evidence: console output and network request attached (checkout-response.json)`,
   successMessage: {
     tr: 'Doğru! Bu rapor artık bir iddia değil, tekrar üretilebilir bir gözlem. Beklenen davranışı kabul kriterine bağlaman ayrıca "bu bug mı, istenen davranış mı" tartışmasını baştan kapatır — otomasyonda assertion\'ı belirsiz bir "sayfa açıldı" yerine somut bir beklenen değere bağlamakla aynı disiplin.',
     en: 'Correct! This report is no longer a claim but a reproducible observation. Tying the expected behavior to an acceptance criterion also closes the "is this a bug or intended" debate up front -- the same discipline as binding an assertion to a concrete expected value instead of a vague "the page opened".',
+  },
+}
+
+// ─── table: belirsiz adım vs deterministik adım (GRUP D2) ──────────────────────
+const deterministicStepsTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Belirsiz adım (yorumlanmaya açık)', en: 'Vague step (open to interpretation)' },
+    { tr: 'Deterministik adım (tek okunuşu var)', en: 'Deterministic step (only one reading)' },
+  ],
+  rows: [
+    [
+      { tr: '"Sepete bir ürün ekle"', en: '"Add a product to the cart"' },
+      { tr: '"Sepete \'Kablosuz Kulaklık\' (500 TL) ürününü 1 adet ekle"', en: '"Add 1 unit of \'Wireless Headphones\' (500 TL) to the cart"' },
+    ],
+    [
+      { tr: '"Bir kupon dene"', en: '"Try a coupon"' },
+      { tr: '"Kupon alanına INDIRIM20 kodunu gir ve Uygula\'ya bas"', en: '"Enter the code INDIRIM20 in the coupon field and press Apply"' },
+    ],
+    [
+      { tr: '"Hata çıkıyor"', en: '"An error shows up"' },
+      { tr: '"Toplam 300 TL gösteriyor (400 TL olması bekleniyordu)"', en: '"The total shows 300 TL (400 TL was expected)"' },
+    ],
+    [
+      { tr: '"Test kullanıcısıyla dene"', en: '"Try it with a test user"' },
+      { tr: '"standart müşteri hesabı (misafir değil, üye) ile dene"', en: '"try it with a standard customer account (member, not guest)"' },
+    ],
+  ],
+}
+
+// ─── grid: kanıt türleri (GRUP D4) ─────────────────────────────────────────────
+const evidenceTypesGrid = {
+  type: 'grid',
+  cols: 2,
+  items: [
+    {
+      icon: '🖥️',
+      label: { tr: 'Konsol çıktısı', en: 'Console output' },
+      desc: {
+        tr: 'Tarayıcı DevTools → Console\'daki hata/uyarı satırları. JS hatalarında ilk bakılacak yerdir; hangi dosyanın hangi satırında patladığını gösterir.',
+        en: 'Error/warning lines from the browser DevTools -> Console. The first place to look for JS errors; shows which file, which line broke.',
+      },
+    },
+    {
+      icon: '🌐',
+      label: { tr: 'Ağ isteği (Network/HAR)', en: 'Network request (Network/HAR)' },
+      desc: {
+        tr: "İsteğin gövdesi, dönen yanıt ve durum kodu. \"200 döndü ama yanlış veri\" ile \"500 döndü\" birbirinden çok farklı kök nedenlere işaret eder.",
+        en: 'The request body, the returned response and the status code. "Returned 200 but with wrong data" and "returned 500" point to very different root causes.',
+      },
+    },
+    {
+      icon: '🎥',
+      label: { tr: 'Ekran kaydı', en: 'Screen recording' },
+      desc: {
+        tr: 'Sözle anlatılması zor, sıralamaya bağlı hatalarda (bir animasyonun bitmeden tıklanması gibi) en güçlü kanıttır — okuyan kişi olayı KENDİ gözüyle görür.',
+        en: 'For failures that are hard to describe in words and depend on timing (like clicking before an animation finishes), this is the strongest evidence -- the reader sees the event with their OWN eyes.',
+      },
+    },
+    {
+      icon: '📄',
+      label: { tr: 'Otomasyon koşum raporu', en: 'Automation run report' },
+      desc: {
+        tr: "Bir otomasyon senaryosu başarısız olduğunda üretilen HTML rapor linki. Elle tekrarlamaya gerek kalmaz — raporun kendisi zaten tekrar üretilebilir bir kanıttır.",
+        en: 'The HTML report link generated when an automation scenario fails. No need to reproduce by hand -- the report itself is already reproducible evidence.',
+      },
+    },
+  ],
+}
+
+// ─── code-playground: bug raporu code review (GRUP D5) ────────────────────────
+const reportCodeReviewPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-d1-bug-report-anatomy',
+  id: 'jira-d5-report-code-review',
+  title: { tr: 'Kendin Dene: Üç Raporu Code Review Et', en: 'Try It Yourself: Code-Review Three Reports' },
+  starterCode: {
+    tr: `Rapor A: "Sepet sayfasında bir şeyler bozuk, bakar mısın?"
+
+Rapor B: "Başlık: Kupon uygulanınca toplam yanlış hesaplanıyor.
+Adımlar: sepete ürün ekle, kupon uygula, toplamı kontrol et.
+Beklenen: doğru toplam. Gerçekleşen: yanlış toplam."
+
+Rapor C: "Başlık: Ödeme adımında yüzde bazlı kupon iki kez düşülüyor.
+Ortam: staging, Chrome 141. Ön koşul: 1 adet Kablosuz Kulaklık (500 TL).
+Adımlar: 1) sepete ekle 2) ödeme adımına geç 3) INDIRIM20 gir, Uygula'ya bas.
+Beklenen: 400 TL. Gerçekleşen: 300 TL. Kanıt: ağ isteği ekte."
+
+Hangisi gönderilmeye hazır, hangileri neden geri döner?`,
+    en: `Report A: "Something's broken on the cart page, can you check?"
+
+Report B: "Title: Total is calculated wrong when a coupon is applied.
+Steps: add a product, apply a coupon, check the total.
+Expected: correct total. Actual: wrong total."
+
+Report C: "Title: Percentage coupon is deducted twice on the checkout step.
+Environment: staging, Chrome 141. Precondition: 1 Wireless Headphones (500 TL).
+Steps: 1) add to cart 2) go to checkout 3) enter INDIRIM20, press Apply.
+Expected: 400 TL. Actual: 300 TL. Evidence: network request attached."
+
+Which one is ready to send, and why would the others bounce back?`,
+  },
+  solutionCode: {
+    tr: `Rapor A: RED — hiçbir alan yok, hangi sayfa/ne bozuk bile belirsiz. Doğrudan "cannot reproduce" ile döner.
+
+Rapor B: KISMEN — beklenen/gerçekleşen ayrılmış ama SAYI yok ("yanlış toplam" ne kadar yanlış?),
+ortam ve ön koşul eksik, kanıt yok. Okuyan kişi denese bile kendi verisiyle farklı bir sonuç alabilir.
+
+Rapor C: HAZIR — başlık formülü (ekran+davranış+koşul), ortam, ön koşul, deterministik adımlar,
+sayısal beklenen/gerçekleşen ve kanıt hepsi var. Okuyan kişi hiçbir varsayımda bulunmak zorunda kalmaz.`,
+    en: `Report A: REJECT -- no fields at all, not even clear which page/what is broken. Bounces back as "cannot reproduce" immediately.
+
+Report B: PARTIAL -- expected/actual are separated but there is no NUMBER ("wrong total" -- how wrong?),
+environment and precondition are missing, no evidence. Even if the reader tries it, their own data may give a different result.
+
+Report C: READY -- title formula (screen+behavior+condition), environment, precondition, deterministic steps,
+numeric expected/actual and evidence are all present. The reader never has to guess anything.`,
+  },
+  hint: {
+    tr: "Altı kontrol maddesini sırayla uygula: başlık formülü var mı (nerede+ne+ne zaman), ortam belirtilmiş mi, ön koşul yazılmış mı, adımlar tek bir eylem içeriyor mu, beklenen/gerçekleşen SAYISAL ve ayrı mı, kanıt var mı. Bir raporun kaç maddeyi karşıladığı onun ne kadar hazır olduğunu gösterir.",
+    en: 'Apply six checks in order: is there a title formula (where+what+when), is the environment stated, is the precondition written, do the steps contain one action each, are expected/actual NUMERIC and separate, is there evidence. How many items a report satisfies shows how ready it is.',
+  },
+  successMessage: {
+    tr: "Doğru! Bu altı maddelik kontrol listesi bir code review checklist'i gibi çalışır — subjektif bir \"iyi görünüyor\" yerine sayılabilir kriterler sunar. Rapor C'nin GRUP D boyunca öğrendiğin her ilkeyi (D1 anatomi, D2 deterministik adım, D3 severity/priority, D4 kanıt) tek bir yerde topladığını fark et.",
+    en: 'Correct! This six-item checklist works like a code review checklist -- it offers countable criteria instead of a subjective "looks fine". Notice that Report C brings together every principle you learned across GROUP D (D1 anatomy, D2 deterministic steps, D3 severity/priority, D4 evidence) in one place.',
   },
 }
 
@@ -1441,9 +1641,98 @@ const sections = [
           en: 'A good bug report is like an accident report. The person writing it stands alone at the scene; the adjuster who reads it will never go there. That is why the report does not say "a car crashed" -- it says which junction, which lane, which weather, which speed, which skid marks. The goal is to let the reader rebuild the event in their mind.\n\nThe question worth pausing on: with the developer sitting two metres away and the issue explainable in ten seconds, why spend ten minutes writing a report? Because the reader is usually not that developer: it is another engineer on night duty, a new teammate six months from now, or you, seeing the same failure a second time.\n\nCompare: when a test breaks you want more than "assertion failed" -- you want the expected and the actual value side by side. A bug report is exactly that: an assertion message written in human language. "Checkout is broken" is a failure with no assertion message.\n\nThe measurable cost for QA: an incomplete report bounces back as "cannot reproduce". Every bounce splits two people\'s day, extends the age of the bug and, worst of all, lets a real defect close under a "not reproducible" label. Report-writing discipline is not politeness; it is the final step of finding a defect.',
         },
       },
+      badReportFiveDaysFilm,
       {
         type: 'heading',
-        text: { tr: '⚖️ Severity ve Priority: Aynı Şey Değil', en: '⚖️ Severity and Priority Are Not the Same Thing' },
+        text: { tr: '1️⃣ D1. İyi Bir Bug Raporunun Anatomisi', en: '1️⃣ D1. The Anatomy of a Good Bug Report' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bir bug raporunun altı zorunlu parçası vardır ve her biri farklı bir soruya cevap verir: Başlık (hangi ekranda ne oldu?), Ortam (hangi tarayıcı/sürüm/işletim sistemi?), Ön koşul (hangi kullanıcı, hangi veri?), Adımlar (hangi sırayla tıklandı?), Beklenen/Gerçekleşen (ne olmalıydı, ne oldu?), Kanıt (bunu ne kanıtlıyor?). Altısından biri eksikse okuyan kişi o boşluğu KENDİ varsayımıyla doldurur — ve genelde yanlış varsayar.",
+          en: 'A bug report has six mandatory parts, and each answers a different question: Title (what happened on which screen?), Environment (which browser/version/OS?), Precondition (which user, which data?), Steps (in which order was it clicked?), Expected/Actual (what should have happened, what did?), Evidence (what proves it?). Miss any one of the six and the reader fills that gap with their OWN assumption -- and usually assumes wrong.',
+        },
+      },
+      bugReportRepairSteps,
+      bugReportPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir bug raporunda \"Ortam\" alanı boş bırakılmış. Bu eksikliğin en olası sonucu nedir?",
+          en: 'The "Environment" field is left empty in a bug report. What is the most likely consequence of this gap?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Rapor otomatik olarak yüksek severity alır', en: 'The report automatically gets high severity' } },
+          { id: 'b', text: { tr: "Okuyan kişi farklı bir tarayıcı/sürümde dener, hatayı GÖREMEZ ve raporu \"cannot reproduce\" ile geri gönderir", en: 'The reader tries it in a different browser/version, CANNOT see the failure, and bounces the report back as "cannot reproduce"' } },
+          { id: 'c', text: { tr: 'Hiçbir etkisi olmaz, tarayıcı farkı önemsizdir', en: 'It has no effect, browser differences do not matter' } },
+          { id: 'd', text: { tr: "Bug otomatik olarak duplicate sayılır", en: 'The bug is automatically counted as a duplicate' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Ortam bilgisi eksikse okuyan kişi kendi varsayılan ortamında dener — sorun tarayıcıya/sürüme özgüyse orada hiç görünmez. Bu, GRUP D'nin film ve step-animation'ında gördüğün beş günlük gecikmenin tam olarak kök nedenidir.",
+          en: 'Without environment info the reader tries it in their own default environment -- if the problem is browser/version-specific it never shows up there. This is exactly the root cause of the five-day delay you saw in the film and step-animation.',
+        },
+        retryQuestion: {
+          question: { tr: 'Altı zorunlu parçadan hangisi "ne olmalıydı" sorusuna cevap verir?', en: 'Which of the six mandatory parts answers "what should have happened"?' },
+          options: [
+            { id: 'a', text: { tr: 'Beklenen sonuç', en: 'Expected result' } },
+            { id: 'b', text: { tr: 'Ortam', en: 'Environment' } },
+            { id: 'c', text: { tr: 'Kanıt', en: 'Evidence' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Beklenen sonuç, sistemin OLMASI gerekeni tarif eder; gerçekleşen sonuç ise SİSTEMİN ne yaptığını. İkisi ayrı yazılır çünkü bir tanesi tahmin, diğeri gözlemdir.',
+            en: 'Expected result describes what the system SHOULD do; actual result describes what the SYSTEM did. They are written separately because one is a prediction, the other an observation.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ D2. Tekrar Üretim Adımları: "Cannot Reproduce" Nasıl Önlenir?', en: '2️⃣ D2. Reproduction Steps: How Do You Prevent "Cannot Reproduce"?' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🧪',
+        content: {
+          tr: "Deterministik bir adım, bir laboratuvar deney protokolü gibidir: \"biraz asit ekle\" değil, \"5 ml %10'luk HCl ekle\" yazılır — çünkü deneyi TEKRARLAYAN kişi aynı sonucu almalıdır. Bug raporundaki adımlar da aynı disiplini ister: yorumlanmaya açık HİÇBİR kelime bırakılmaz.\n\nDüşündürücü soru: \"sepete bir ürün ekle\" adımı neden yetersizdir — sonuçta bir ürün eklenmiş oluyor? Çünkü hangi ürün eklendiğine göre SONUÇ değişebilir: stokta olan/olmayan, indirimli/indirimsiz, dijital/fiziksel ürün farklı kod yollarını tetikleyebilir. \"Bir ürün\" belirsizliği, okuyan kişinin SENİN test ettiğin yoldan FARKLI bir yola girmesine izin verir.\n\nKarşılaştır: bir otomasyon testinde `page.locator('li').first()` yazmak gibi — \"ilk olan\" ifadesi veri sırası değişince başka bir elemente işaret eder. Belirsiz bir bug adımı da aynı kırılganlığı taşır: yazıldığı anda çalışır ama veri değişince farklı bir yola sapar.\n\nQA açısından pratik kural: her adımda TEK bir eylem ve o eylemin TAM parametresi olsun — \"neyi\", \"nereye\", \"hangi değerle\" soruları adımın içinde cevaplanmış olmalı.",
+          en: 'A deterministic step is like a lab experiment protocol: not "add some acid" but "add 5 ml of 10% HCl" -- because whoever REPEATS the experiment must get the same result. Steps in a bug report demand the same discipline: no word is left open to interpretation.\n\nThe question worth pausing on: why is "add a product to the cart" insufficient -- a product does get added, after all? Because the RESULT can change depending on which product: in-stock/out-of-stock, discounted/full-price, digital/physical can trigger different code paths. The ambiguity of "a product" lets the reader take a DIFFERENT path than the one YOU tested.\n\nCompare: it is like writing `page.locator(\'li\').first()` in an automation test -- "the first one" points to a different element once the data order changes. A vague bug step carries the exact same fragility: it works the moment it is written, but drifts onto a different path once the data changes.\n\nThe practical rule for QA: every step should contain ONE action and that action\'s FULL parameter -- the questions "what", "where", "with which value" should all be answered inside the step itself.',
+        },
+      },
+      deterministicStepsTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: '"Bir kupon dene" adımı ile "INDIRIM20 kodunu gir ve Uygula\'ya bas" adımı arasındaki fark neyi değiştirir?',
+          en: 'What does the difference between "try a coupon" and "enter the code INDIRIM20 and press Apply" actually change?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Sadece yazım uzunluğunu değiştirir, sonuç aynıdır", en: 'It only changes the wording length, the result is the same' } },
+          { id: 'b', text: { tr: "Okuyan kişinin FARKLI bir kupon (sabit tutar vs yüzde) denemesini ve hatayı hiç görmemesini engeller", en: 'It prevents the reader from trying a DIFFERENT coupon (fixed amount vs percentage) and never seeing the failure' } },
+          { id: 'c', text: { tr: "Hiçbir farkı yoktur, ikisi de aynı sonucu üretir", en: 'There is no difference, both produce the same outcome' } },
+          { id: 'd', text: { tr: "İkinci adım daha yavaş çalışır", en: 'The second step runs slower' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Bug yalnızca YÜZDE bazlı kuponlarda çıkıyor (§D1\'deki senaryo). "Bir kupon dene" adımıyla okuyan kişi sabit tutarlı bir kupon seçerse hatayı hiç göremez ve raporu haksız yere "cannot reproduce" ile kapatır.',
+          en: 'The bug only shows up with PERCENTAGE coupons (the scenario from D1). With the step "try a coupon", if the reader picks a fixed-amount coupon they never see the failure and unfairly close the report as "cannot reproduce".',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir otomasyon testindeki `.first()` locator\'ı ile belirsiz bir bug adımının ortak riski nedir?', en: 'What risk does a `.first()` locator in an automation test share with a vague bug step?' },
+          options: [
+            { id: 'a', text: { tr: 'İkisi de veri/koşul değişince farklı bir sonuca/yola kayabilir', en: 'Both can drift to a different outcome/path once the data/condition changes' } },
+            { id: 'b', text: { tr: "İkisi de her zaman aynı elementi/sonucu verir", en: 'Both always give the exact same element/outcome' } },
+            { id: 'c', text: { tr: "Ortak bir riskleri yoktur", en: 'They share no common risk' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'İkisi de "şu anki durumda" doğru çalışıyor görünür ama veri sırası veya seçim değişince sessizce yanlış yola sapar.',
+            en: 'Both look correct "in the current state" but silently drift onto the wrong path once data order or selection changes.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ D3. Severity vs Priority: Aynı Şey Değil', en: '3️⃣ D3. Severity vs Priority: Not the Same Thing' },
       },
       {
         type: 'text',
@@ -1488,12 +1777,6 @@ const sections = [
         ],
       },
       {
-        type: 'heading',
-        text: { tr: '🛠️ Kötü Rapordan İyi Rapora', en: '🛠️ From a Bad Report to a Good One' },
-      },
-      bugReportRepairSteps,
-      bugReportPlayground,
-      {
         type: 'quiz',
         question: {
           tr: "Ana sayfanın başlığında şirketin marka adı yanlış yazılmış. Sistem çalışıyor, hiçbir işlev bozulmuyor. Bu bug'ı nasıl etiketlersin?",
@@ -1527,6 +1810,61 @@ const sections = [
           },
         },
       },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ D4. Ekler ve Kanıt', en: '4️⃣ D4. Attachments and Evidence' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Kanıt, raporu bir iddiadan bir gözleme dönüştürür. Otomasyon koşumundan gelen kanıt özellikle değerlidir çünkü ZATEN tekrar üretilebilirdir — koşumu tekrar çalıştırmak, hatayı yeniden görmek için yeterlidir. Aşağıdaki dört kanıt türü, hangi durumda hangisinin en güçlü olduğunu gösteriyor.",
+          en: 'Evidence turns a report from a claim into an observation. Evidence coming from an automation run is especially valuable because it is ALREADY reproducible -- re-running the run is enough to see the failure again. The four evidence types below show which is strongest in which situation.',
+        },
+      },
+      evidenceTypesGrid,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir hata yalnızca belirli bir animasyon bitmeden bir butona tıklanınca oluşuyor — sözle anlatması zor, zamanlamaya bağlı bir hata. Hangi kanıt türü bu durumda en güçlüdür?",
+          en: 'A failure only happens when a button is clicked before a specific animation finishes -- a timing-dependent bug that is hard to describe in words. Which evidence type is strongest here?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Konsol çıktısı', en: 'Console output' } },
+          { id: 'b', text: { tr: 'Ekran kaydı — okuyan kişi zamanlamayı KENDİ gözüyle görür', en: 'Screen recording -- the reader sees the timing with their OWN eyes' } },
+          { id: 'c', text: { tr: 'Ağ isteği (HAR)', en: 'Network request (HAR)' } },
+          { id: 'd', text: { tr: 'Hiçbiri gerekmez, adımlar yeterlidir', en: 'None is needed, the steps are enough' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Zamanlamaya bağlı hatalar sözle anlatıldığında belirsiz kalır (\"animasyon bitmeden tıkla\" ne kadar erken?). Ekran kaydı, okuyan kişinin tam anı KENDİ gözüyle görmesini sağlar — diğer kanıt türleri bu tür bir hatada yetersiz kalır.",
+          en: 'Timing-dependent failures stay vague in words ("click before the animation finishes" -- how early?). A screen recording lets the reader see the exact moment with their OWN eyes -- other evidence types fall short for this kind of failure.',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir otomasyon koşum raporunun kanıt olarak en büyük avantajı nedir?', en: "What is an automation run report's biggest advantage as evidence?" },
+          options: [
+            { id: 'a', text: { tr: 'Zaten tekrar üretilebilir — koşumu yeniden çalıştırmak yeterlidir', en: 'It is already reproducible -- re-running it is enough' } },
+            { id: 'b', text: { tr: 'Her zaman ekran kaydından daha kısadır', en: 'It is always shorter than a screen recording' } },
+            { id: 'c', text: { tr: 'Manuel test etmeye hiç gerek bırakmaz', en: 'It removes all need for manual testing' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Koşum raporu deterministik adımların otomatik kaydıdır — elle tekrar üretmeye gerek kalmadan aynı hatayı yeniden görmeyi sağlar.',
+            en: 'A run report is the automatic record of deterministic steps -- it lets you see the same failure again without manually reproducing it.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '5️⃣ D5. Bug Raporu Code Review', en: '5️⃣ D5. Bug Report Code Review' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bir bug raporunu göndermeden önce gözden geçirmek, bir pull request'i merge etmeden önce review etmekle aynı disiplindir — kontrol listesi öznel bir \"iyi görünüyor\" hissine değil, sayılabilir maddelere dayanır. Aşağıda üç rapor var; her birini D1-D4'te öğrendiğin kriterlerle değerlendir.",
+          en: "Reviewing a bug report before sending it is the same discipline as reviewing a pull request before merging it -- the checklist relies on countable items, not a subjective 'looks fine' feeling. Below are three reports; evaluate each against the criteria you learned in D1-D4.",
+        },
+      },
+      reportCodeReviewPlayground,
     ],
   },
 

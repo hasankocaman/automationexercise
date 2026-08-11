@@ -48,7 +48,14 @@
   C2 issue tipi ↔ alan `table` + 5 iş kalemini eşleştir `code-playground`,
   C3 alan/ekran/şema üçlüsü (`private`+getter analojisi), C4 link tipleri
   `table` + hiyerarşi sıralama `challenge`. Her başlıkta quiz+retryQuestion.
-  Sıradaki: **D-S4 (GRUP D — Bug Raporlama Sanatı tamamlama)**, plan §D'de.
+- **Faz S4 (D-S4, GRUP D — Bug Raporlama Sanatı tamamlama) BİTTİ:** GRUP D
+  D1-D5 kalıbına yeniden düzenlendi (önceki severity/priority içeriği artık
+  D3). "Kötü Bir Bug Raporunun 5 Günü" filmi (5 sahne) eklendi. D1 anatomi
+  (var olan step-animation+playground D1'e taşındı), D2 deterministik adım
+  disiplini (`table` + `.first()` locator analojisi), D3 severity/priority
+  (korunan içerik), D4 kanıt türleri `grid`, D5 üç raporu code review eden
+  `code-playground`. GRUP D artık sayfanın en zengin grubu.
+  Sıradaki: **D-S5 (GRUP E — Workflow ve Durumlar)**, plan §D'de.
 
 ### Bu oturumda yapılanlar
 
