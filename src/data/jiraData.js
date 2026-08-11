@@ -2264,6 +2264,125 @@ project = SHOP AND issuetype = Bug AND status = Done AND resolved >= startOfMont
   },
 }
 
+// ─── Film: bir hata mesajının katman katman çözülmesi (GRUP L referans filmi) ─
+const errorLayersFilm = {
+  type: 'video-scene',
+  id: 'jira-l1-error-layers-film',
+  title: {
+    tr: '🎬 Bir Hata Mesajının Katman Katman Çözülmesi',
+    en: '🎬 Decoding an Error Message Layer by Layer',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'error', emoji: '⚠️', label: { tr: 'Belirsiz Hata Mesajı', en: 'Ambiguous Error Message' }, color: '#ef4444' },
+    { id: 'perm', emoji: '🔐', label: { tr: '1. İzin Katmanı', en: '1. Permission Layer' }, color: '#f59e0b' },
+    { id: 'config', emoji: '⚙️', label: { tr: '2. Konfigürasyon Katmanı', en: '2. Configuration Layer' }, color: '#8b5cf6' },
+    { id: 'syntax', emoji: '📝', label: { tr: '3. Sözdizimi Katmanı', en: '3. Syntax Layer' }, color: '#0ea5e9' },
+    { id: 'diagnosis', emoji: '🎯', label: { tr: 'Teşhis: 90 Saniye', en: 'Diagnosis: 90 Seconds' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Ayşe bir JQL sorgusu koşturuyor, Jira \"Field 'sprint' does not exist or you do not have permission to view it\" diyor. Bu cümle üç farklı kök nedene aynı anda işaret ediyor — teşhis nereden başlar?",
+        en: 'Ayse runs a JQL query, Jira says "Field \'sprint\' does not exist or you do not have permission to view it". This sentence points at three different root causes at once -- where does diagnosis start?',
+      },
+      positions: { error: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Katman 1 — İzin: aynı sorguyu bu alan olmadan koşar, proje erişimi olduğunu doğrular. Bu katman TEMİZ — sorun izin değil.",
+        en: 'Layer 1 -- Permission: she runs the same query without this field, confirms she has project access. This layer is CLEAN -- the problem is not permission.',
+      },
+      positions: {
+        error: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        perm: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'error', to: 'perm', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: "Katman 2 — Konfigürasyon: proje bir Kanban panosu kullanıyor. Sprint alanı YALNIZCA Scrum panolu projelerde bulunur — bu proje türünde alan hiç YOK. Kök neden burada bulundu.",
+        en: 'Layer 2 -- Configuration: the project uses a Kanban board. The sprint field ONLY exists in projects with a Scrum board -- it simply does NOT EXIST in this project type. The root cause is found here.',
+      },
+      positions: {
+        perm: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        config: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'perm', to: 'config', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Katman 3 — Sözdizimi hiç kontrol edilmedi çünkü sorun ondan ÖNCE bulundu. Sırayı bilmeden çalışsaydı, Ayşe muhtemelen alan adını harf harf kontrol ederek zaman kaybederdi.",
+        en: 'Layer 3 -- Syntax was never checked because the problem was found BEFORE it. Working without knowing the order, Ayse would likely have wasted time checking the field name letter by letter.',
+      },
+      positions: {
+        config: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        syntax: { x: 54, y: 50, scale: 1.0, opacity: 0.5 },
+      },
+      beams: [{ from: 'config', to: 'syntax', color: '#64748b' }],
+    },
+    {
+      caption: {
+        tr: "Final — İzin → Konfigürasyon → Sözdizimi sırasını bilmek, teşhisi 90 SANİYEYE indirdi. Sırayı bilmeden rastgele denemek genelde saatler sürer — araç kılavuzundaki gösterge ışığı sözlüğünü ezbere bilmekle motoru açıp bakmak arasındaki fark budur.",
+        en: 'Finale -- Knowing the Permission to Configuration to Syntax order brought diagnosis down to 90 SECONDS. Guessing randomly without knowing the order usually takes hours -- this is the difference between knowing the car manual\'s warning-light glossary by heart and opening the hood to look.',
+      },
+      positions: {
+        syntax: { x: 20, y: 50, scale: 0.9, opacity: 0.5 },
+        diagnosis: { x: 54, y: 50, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'syntax', to: 'diagnosis', color: '#10b981' }],
+    },
+  ],
+}
+
+// ─── step-animation: board'da kart neden görünmüyor (GRUP L) ──────────────────
+const missingCardDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'jira-l-missing-card-diagnosis-steps',
+  title: { tr: "Adım Adım: Bir Kart Panoda Neden Görünmüyor?", en: 'Step by Step: Why Is a Card Missing From the Board?' },
+  steps: [
+    { id: 1, icon: '🔍', label: { tr: "Issue arama kutusunda BULUNUYOR mu?", en: 'Is the issue FOUND in the search box?' }, detail: { tr: 'Issue anahtarıyla ararsın. Bulunuyorsa kayıt var demektir, sorun panonun KENDİ filtresindedir — bir sonraki adıma geç.', en: 'You search by the issue key. If found, the record exists, the problem is in the board\'s OWN filter -- move to the next step.' } },
+    { id: 2, icon: '⚙️', label: { tr: "Panonun arka plan JQL'i kontrol edilir", en: "The board's underlying JQL is checked" }, detail: { tr: "Her pano bir JQL sorgusuna dayanır (bkz. JQL sekmesi). Issue bu sorgunun KOŞULLARINI karşılamıyor olabilir — örneğin farklı bir proje veya issue tipinde.", en: 'Every board is based on a JQL query (see the JQL tab). The issue may not satisfy that query\'s CONDITIONS -- for instance, a different project or issue type.' } },
+    { id: 3, icon: '🚦', label: { tr: 'Hızlı filtre aktif mi?', en: 'Is a quick filter active?' }, detail: { tr: 'Panonun üstünde unutulmuş bir hızlı filtre (örn. "sadece bana atanmışlar") kartı GİZLİYOR olabilir — filtreyi kapatıp tekrar bakılır.', en: 'A forgotten quick filter at the top of the board (e.g. "only assigned to me") may be HIDING the card -- clear it and look again.' } },
+    { id: 4, icon: '🏊', label: { tr: 'Swimlane ayarı kontrol edilir', en: 'The swimlane setting is checked' }, detail: { tr: 'Bazı swimlane yapılandırmaları (örn. "yalnızca epic bazlı") belirli kartları hiçbir şeride YERLEŞTİREMEZ — kart teknik olarak panoda ama görünürde yok.', en: 'Some swimlane configurations (e.g. "epic-based only") may fail to PLACE certain cards in any lane -- the card is technically on the board but not visible.' } },
+    { id: 5, icon: '✅', label: { tr: 'Kaynak bulunur', en: 'The source is found' }, detail: { tr: "Bu dört adım, \"kart kayıp\" şikâyetinin ARKA PLANDAKİ dört olası katmanını sırayla eler — rastgele panoyu yenilemekten çok daha hızlıdır.", en: 'These four steps eliminate, in order, the four possible layers BEHIND a "missing card" complaint -- far faster than randomly refreshing the board.' } },
+  ],
+}
+
+// ─── code-playground: hangi katman sorumlu (GRUP L) ────────────────────────────
+const errorLayerMatchPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-l1-common-failures',
+  id: 'jira-l-error-layer-match',
+  title: { tr: 'Kendin Dene: Üç Belirtiyi Doğru Katmana Eşleştir', en: 'Try It Yourself: Match Three Symptoms to the Right Layer' },
+  starterCode: {
+    tr: `1. "Field does not exist or you do not have permission" -> ?
+2. "assignee = currentUsr()" yazılmış (yazım hatası)          -> ?
+3. Bir issue'da beklenen buton hiç görünmüyor                 -> ?`,
+    en: `1. "Field does not exist or you do not have permission" -> ?
+2. "assignee = currentUsr()" was typed (a typo)               -> ?
+3. An expected button never appears on an issue                -> ?`,
+  },
+  solutionCode: {
+    tr: `1. İzin/Konfigürasyon katmanı -- mesaj ikisini ayırt etmez, sırayla elenir
+2. Sözdizimi katmanı -- fonksiyon adı yanlış yazılmış, JQL bunu ayrıştıramaz
+3. İzin/Konfigürasyon katmanı -- workflow koşulu veya izin şeması butonu gizliyor olabilir`,
+    en: `1. Permission/Configuration layer -- the message does not distinguish them, eliminate in order
+2. Syntax layer -- the function name is misspelled, JQL cannot parse it
+3. Permission/Configuration layer -- a workflow condition or permission scheme may be hiding the button`,
+  },
+  hint: {
+    tr: "Filmde gördüğün sırayı uygula: önce izin/konfigürasyon (sistemin SANA ya da BU PROJEYE ne izin verdiği), sonra sözdizimi (senin YAZDIĞIN şeyin doğruluğu). Bir yazım hatası her zaman sözdizimi katmanındadır — sistem konfigürasyonuyla ilgisi yoktur.",
+    en: 'Apply the order you saw in the film: first permission/configuration (what the system allows for YOU or for THIS PROJECT), then syntax (the correctness of what YOU wrote). A typo is always in the syntax layer -- it has nothing to do with system configuration.',
+  },
+  successMessage: {
+    tr: "Doğru! Katmanları ayırt edebilmek, bir hatayı okurken ilk saniyede nereye bakacağını bilmek demektir — bu filmde gördüğün 90 saniyelik teşhisin sırrı budur.",
+    en: 'Correct! Being able to tell the layers apart means knowing where to look in the first second of reading an error -- this is the secret behind the 90-second diagnosis you saw in the film.',
+  },
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -4367,6 +4486,7 @@ print(response.json()["key"])  # e.g. SHOP-143`,
           en: 'The most-read section of a car manual is the warning-light glossary: knowing what the orange light means is a far faster diagnosis than opening the hood. Jira works the same way: the error message you get usually tells you outright which layer the problem comes from.\n\nThe question worth pausing on: is "Field \'sprint\' does not exist or you do not have permission to view it" a typo, a permission problem, or a field that was never defined in this project? When one sentence points at three different root causes, diagnosis starts not by reading the message but by separating the layers.\n\nCompare: when an element is not found in an automation run, do you question the locator, the timing, or whether the page loaded at all -- knowing the order turns trial and error into diagnosis. Jira problems follow the same order: permission first, then configuration, then syntax.\n\nThe value of this section for QA: none of the errors below mean the system is broken. They are all moments when the system is trying to tell you something -- and being able to read those moments is the difference between saving a day and losing one.',
         },
       },
+      errorLayersFilm,
       {
         type: 'error-dictionary',
         relatedTopicId: 'jira-l1-common-failures',
@@ -4414,8 +4534,131 @@ project = SHOP AND status != Done AND updated >= -14d ORDER BY priority DESC`,
               en: 'First check whether the issue is assigned to you and whether mandatory fields are filled; if both are fine, ask the project admin about the workflow condition. The lasting fix is for the team to write down who may perform which transition -- otherwise every new teammate walks into the same invisible wall.',
             },
           },
+          {
+            error: 'Bug closed with the wrong resolution and disappears from reports',
+            fullMessage: {
+              tr: "Kayıt Done durumunda ve kapalı görünüyor, ama \"bu ay düzeltilen bug'lar\" raporunda hiç görünmüyor — hata mesajı yok, kayıt sessizce eksik.",
+              en: 'The record sits in Done and looks closed, but never appears in the "bugs fixed this month" report -- no error message, the record is silently missing.',
+            },
+            cause: {
+              tr: 'Kayıt kapatılırken resolution alanı "Fixed" yerine yanlışlıkla "Won\'t Fix" ya da "Duplicate" seçilmiş — genelde açılır listedeki ilk seçenek dikkatsizce tıklanır. Rapor `resolution = Fixed` filtresiyle çalıştığı için bu kayıt sessizce dışarıda kalır; Workflow ve Durumlar sekmesinde gördüğün "resolution ne zaman ve kim tarafından set edilmeli" ilkesinin ihlalidir.',
+              en: 'The record was closed with resolution accidentally set to "Won\'t Fix" or "Duplicate" instead of "Fixed" -- usually because the first option in the dropdown gets clicked carelessly. Since the report filters on `resolution = Fixed`, this record silently falls outside it; a violation of the "who sets resolution and when" principle from the Workflows & Statuses tab.',
+            },
+            solution: {
+              tr: 'Kaydın resolution alanını tek tek kontrol et; yanlışsa düzelt (bu genelde ayrı bir izin gerektirir, workflow\'a bir "resolution düzeltme" geçişi eklemek gerekebilir). Kalıcı önlem: kapatma ekranında resolution\'ı BOŞ varsayılan yap, hiçbiri önceden seçili olmasın — dikkatsiz tıklama seçenek listesinde bir varsayılana rastlayamaz.',
+              en: 'Check the record\'s resolution field one by one; fix it if wrong (this usually needs separate permission, possibly a dedicated "fix resolution" transition in the workflow). The lasting prevention: make resolution default to EMPTY on the close screen, with nothing pre-selected -- a careless click cannot land on a default that does not exist.',
+            },
+          },
+          {
+            error: '401 Unauthorized vs 403 Forbidden confusion in a script',
+            fullMessage: {
+              tr: 'Bir otomasyon scripti Jira REST API\'sine istek atıyor, cevap `403` dönüyor ama script "token yanlış" varsayımıyla token\'ı yeniden üretip tekrar deniyor — sonuç değişmiyor.',
+              en: 'An automation script calls the Jira REST API, gets `403` back, but assumes "the token is wrong" and regenerates it and retries -- the result never changes.',
+            },
+            cause: {
+              tr: "İki hata kodu FARKLI katmanları işaret eder: 401 kimliğin geçersiz olduğunu, 403 kimliğin GEÇERLİ ama işlemin YETKİSİZ olduğunu söyler. Token'ı yenilemek 403'ü asla çözmez çünkü sorun kimlikte değil izindedir — script'in kullanıcısının SHOP projesinde issue oluşturma izni yoktur.",
+              en: 'The two codes point to DIFFERENT layers: 401 says the identity is invalid, 403 says the identity is VALID but the action is UNAUTHORIZED. Regenerating the token never fixes a 403 because the problem is not identity, it is permission -- the script\'s user lacks issue-creation permission in the SHOP project.',
+            },
+            solution: {
+              tr: "Kod farkını öğren: 401'de token'ı kontrol et, 403'te KULLANICININ proje izin şemasını kontrol et. Otomasyon kullanıcıları için ayrı, minimal yetkili bir hesap oluşturmak (yalnızca gereken projelerde issue oluşturma/güncelleme izni) hem 403 riskini azaltır hem de sızıntı durumunda hasarı sınırlar.",
+              en: 'Learn the difference: on 401 check the token, on 403 check the USER\'s project permission scheme. Creating a separate, minimally privileged account for automation (issue create/update permission only on the needed projects) both reduces 403 risk and limits damage if it leaks.',
+            },
+            codeWrong: {
+              tr: `# 403 aldığında token'ı yenilemek yanlış katmana müdahale eder
+if response.status_code == 403:
+    api_token = regenerate_token()  # sorunu çözmez, izin sorunu farklı katmanda`,
+              en: `# Regenerating the token on 403 fixes the wrong layer
+if response.status_code == 403:
+    api_token = regenerate_token()  # does not fix it, the permission issue is a different layer`,
+            },
+            codeFixed: {
+              tr: `# 403'te izin şemasını sorgula/logla, token'a dokunma
+if response.status_code == 403:
+    log.error("SHOP projesinde issue olusturma izni eksik -- kullaniciyi kontrol et")`,
+              en: `# On 403, log/investigate the permission scheme, do not touch the token
+if response.status_code == 403:
+    log.error("Missing issue-creation permission on SHOP project -- check the user")`,
+            },
+          },
+          {
+            error: 'POST /rest/api/3/issue returns 400 Bad Request',
+            fullMessage: {
+              tr: '`{"errorMessages":[],"errors":{"customfield_10038":"Bu alan zorunludur."}}` — istek 201 yerine 400 ile geri dönüyor.',
+              en: '`{"errorMessages":[],"errors":{"customfield_10038":"This field is required."}}` -- the request comes back with 400 instead of 201.',
+            },
+            cause: {
+              tr: 'İstek gövdesi `project`, `summary`, `issuetype` gibi standart alanları doğru taşısa bile, o projede EKLENMIŞ bir özel zorunlu alan (customfield) eksik bırakılmıştır — arayüzden manuel oluşturmada bu alan bir ekranda görünür ve doldurulması zorunlu kılınır, API çağrısı bu ekranı GÖRMEZ, yalnızca gövdedeki JSON\'a bakar.',
+              en: 'Even if the request body correctly carries standard fields like `project`, `summary`, `issuetype`, a custom mandatory field (customfield) ADDED to that project\'s screen was left out -- when creating manually through the interface this field appears on a screen and is enforced, but an API call does not SEE that screen, it only looks at the JSON body.',
+            },
+            solution: {
+              tr: "Hata gövdesindeki `errors` objesi HANGİ alanın eksik olduğunu tam olarak söyler — customfield ID'sini not al, `GET /rest/api/3/issue/createmeta` uç noktasıyla o projenin TÜM zorunlu alanlarını listele ve script'in gövdesini buna göre tamamla. Tahmin etmeye gerek yok, hata mesajı zaten cevabı veriyor.",
+              en: 'The `errors` object in the error body tells you EXACTLY which field is missing -- note the customfield ID, list ALL of that project\'s mandatory fields with the `GET /rest/api/3/issue/createmeta` endpoint, and complete the script\'s body accordingly. No guessing needed, the error message already gives the answer.',
+            },
+          },
+          {
+            error: 'The same bug filed three times as separate issues',
+            fullMessage: {
+              tr: "SHOP-142, SHOP-151 ve SHOP-163 üç farklı kişi tarafından açılmış, üçü de aynı kupon hesaplama hatasını anlatıyor — hiçbiri diğerine link'li değil.",
+              en: 'SHOP-142, SHOP-151 and SHOP-163 were filed by three different people, all three describing the same coupon calculation failure -- none linked to the others.',
+            },
+            cause: {
+              tr: "Her kişi issue açmadan ÖNCE arama yapmadı — CI/CD ve Otomasyon Entegrasyonu sekmesinde gördüğün \"arama-önce\" disiplini yalnızca otomasyon için değil, manuel raporlama için de geçerlidir. Sonuç: aynı hata üç kez sayılır, defect density gibi metrikler şişer, üç ayrı developer aynı düzeltmeyi bulmaya çalışıp zaman kaybedebilir.",
+              en: 'Nobody searched BEFORE filing -- the "search-first" discipline you saw on the CI/CD & Automation Integration tab applies not just to automation but to manual reporting too. The result: the same failure is counted three times, metrics like defect density inflate, and three separate developers may waste time trying to find the same fix.',
+            },
+            solution: {
+              tr: "Üç kayıttan en eskisini (SHOP-142) ana kayıt olarak seç, diğer ikisini \"duplicates\" link'iyle ona bağlayıp \"Duplicate\" resolution\'ıyla kapat. Kaybolmasın diye her iki kopyadaki EK bilgiyi (varsa farklı bir ortam, farklı bir kanıt) ana kayda yorum olarak taşı. Kalıcı önlem: issue oluşturma ekranına \"benzer issue\'lar\" öneri paneli eklemek (Jira Cloud\'da yerleşik).",
+              en: 'Pick the oldest of the three (SHOP-142) as the master record, link the other two to it with "duplicates" and close them with the "Duplicate" resolution. To avoid losing anything, move any EXTRA information in the two duplicates (a different environment, different evidence) into a comment on the master record. Lasting prevention: enable the "similar issues" suggestion panel on the issue-creation screen (built into Jira Cloud).',
+            },
+          },
+          {
+            error: 'Unfinished issues silently vanish when a sprint closes',
+            fullMessage: {
+              tr: "Sprint kapatıldı, üç issue hâlâ \"In Progress\"teydi. Kimse onları elle taşımadı ama bir sonraki sprint panosunda GÖRÜNMÜYORLAR — nereye gittikleri belirsiz.",
+              en: 'The sprint was closed, three issues were still "In Progress". Nobody moved them by hand, yet they are MISSING from the next sprint board -- where they went is unclear.',
+            },
+            cause: {
+              tr: "Bir sprint kapatıldığında Jira bitmemiş işleri OTOMATİK olarak backlog'a (veya seçilirse doğrudan bir sonraki sprint'e) geri taşır — bu bir hata değil, tasarım gereği bir davranıştır. Kafa karışıklığı, bu davranışın FARKINDA OLMAMAKTAN gelir: takım her sprint sonunda bunu beklemiyorsa \"issue kayboldu\" paniğine kapılır.",
+              en: 'When a sprint is closed, Jira AUTOMATICALLY moves unfinished work back to the backlog (or directly into the next sprint, if chosen) -- this is not a bug, it is designed behavior. The confusion comes from NOT BEING AWARE of this behavior: if the team does not expect it at the end of every sprint, "the issue vanished" panic follows.',
+            },
+            solution: {
+              tr: "Sprint'i kapatan kişi, kapatma ekranındaki \"bitmemiş işler nereye gitsin\" seçeneğini BİLİNÇLİ seçmelidir (backlog'a mı, doğrudan yeni sprint'e mi). Kaybolmuş görünen bir issue'yu bulmak için backlog'da issue anahtarıyla ara — panoda değil ama sistemde HÂLÂ var.",
+              en: 'Whoever closes the sprint should CONSCIOUSLY pick the "where should unfinished work go" option on the close screen (back to backlog, or straight into the new sprint). To find an issue that seems to have vanished, search the backlog by its key -- it is not on the board, but it is STILL in the system.',
+            },
+          },
+          {
+            error: 'A card is missing from the board even though the issue exists',
+            fullMessage: {
+              tr: "Ayşe SHOP-142'yi arama kutusunda buluyor, issue gerçekten var — ama sprint panosunda hiçbir yerde görünmüyor.",
+              en: 'Ayse finds SHOP-142 in the search box, the issue genuinely exists -- but it is nowhere on the sprint board.',
+            },
+            cause: {
+              tr: "Bu, Gerçek Hayat Sorunları sekmesindeki filmde gördüğün katmanlı teşhisin BİRE BİR uygulama alanıdır: kayıt var (izin/varlık sorunu değil), ama panonun arka plan JQL'i bu issue'yu KAPSAMIYOR olabilir — farklı proje, farklı issue tipi ya da unutulmuş bir hızlı filtre aktif kalmış olabilir.",
+              en: 'This is a DIRECT application of the layered diagnosis you saw in the film at the top of this tab: the record exists (not a permission/existence issue), but the board\'s underlying JQL may not COVER this issue -- a different project, a different issue type, or a forgotten quick filter left active.',
+            },
+            solution: {
+              tr: "Aşağıdaki step-animation'daki dört adımı sırayla uygula: arama kutusunda bulunuyor mu, panonun JQL'i koşulları karşılıyor mu, bir hızlı filtre aktif mi, swimlane ayarı kartı yerleştirebiliyor mu.",
+              en: 'Apply the four steps in the step-animation below, in order: is it found in the search box, does the board\'s JQL satisfy the conditions, is a quick filter active, can the swimlane setting place the card.',
+            },
+          },
+          {
+            error: 'Notification storm after enabling "watch all issues"',
+            fullMessage: {
+              tr: "Bir takım üyesi \"tüm projeyi izle\" seçeneğini açtı; bir haftada 400'den fazla e-posta bildirimi aldı ve gerçekten önemli bir bildirimi (kendisine atanan kritik bug) fark etmeden kaçırdı.",
+              en: 'A teammate enabled "watch entire project"; within a week they received over 400 email notifications and missed a genuinely important one (a critical bug assigned to them) without noticing.',
+            },
+            cause: {
+              tr: "Bu, CI/CD ve Otomasyon Entegrasyonu sekmesindeki \"bildirim ne kadar ucuzsa o kadar değersizleşir\" ilkesinin insan tarafındaki karşılığıdır: proje çapında geniş bir izleme, her küçük yorumu ve her küçük geçişi de bildirime dönüştürür. Sinyal (sana atanan kritik bir bug) gürültünün (herkesin her yorumu) içinde kaybolur.",
+              en: 'This is the human-side counterpart of the "the cheaper a notification is, the less it is worth" principle from the CI/CD & Automation Integration tab: watching an entire project broadly turns every small comment and every small transition into a notification too. The signal (a critical bug assigned to you) gets lost in the noise (everyone\'s every comment).',
+            },
+            solution: {
+              tr: "Proje çapında izleme yerine bildirim şeması (notification scheme) üzerinden yalnızca İLGİLİ olayları (kendine atanan issue'lar, izlediğin belirli issue'lar) bildirim gönderecek şekilde daraltılmalıdır. JQL sekmesinde öğrendiğin abonelik mekanizması burada daha isabetlidir: geniş bir izleme yerine, gerçekten önem taşıyan bir sorguya (\"bana atanmış açık kritik bug'lar\") abone olmak.",
+              en: 'Instead of project-wide watching, the notification scheme should be narrowed to send notifications only for RELEVANT events (issues assigned to you, specific issues you watch). The JQL subscription mechanism you learned earlier is more precise here: instead of broad watching, subscribe to a query that genuinely matters ("open critical bugs assigned to me").',
+            },
+          },
         ],
       },
+      missingCardDiagnosisSteps,
+      errorLayerMatchPlayground,
     ],
   },
 

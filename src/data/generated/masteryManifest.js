@@ -167,7 +167,7 @@ export const MASTERY_MANIFEST = {
     "pageKey": "jira",
     "tabCount": 13,
     "totalQuizBlocks": 35,
-    "totalExerciseBlocks": 29,
+    "totalExerciseBlocks": 31,
     "hasInterview": true
   },
   "/what-is-testing": {

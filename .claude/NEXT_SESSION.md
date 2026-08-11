@@ -104,7 +104,15 @@
   söyler-söylemez, K3 kontrol grafiği/kümülatif akış darboğaz teşhisi
   `step-animation`, K4 dört QA metriği formül+JQL `table` + reopen rate
   ham veri `code-playground`, K5 metrik istismarı (Goodhart yasası).
-  Sıradaki: **D-S11 (GRUP L — error-dictionary min 8 hata)**, plan §D'de.
+- **Faz S11 (D-S11, GRUP L — error-dictionary min 8 hata) BİTTİ:** "Bir Hata
+  Mesajının Katman Katman Çözülmesi" filmi (5 sahne, izin→konfigürasyon→
+  sözdizimi sırası) + 7 yeni hata eklendi (toplam 9): yanlış resolution,
+  401 vs 403 karışıklığı, API 400 zorunlu alan, 3 kez açılan duplicate bug,
+  sprint kapanınca bitmemiş issue'lar, board'da kart görünmüyor, bildirim
+  fırtınası. "Board'da kart neden görünmüyor" `step-animation` + katman
+  eşleştirme `code-playground` eklendi (GRUP L'de daha önce video/animasyon/
+  sandbox YOKTU, bu fazda tamamlandı).
+  Sıradaki: **D-S12 (GRUP M min 50 mülakat + kapanış)**, plan §D'de — SON FAZ.
 
 ### Bu oturumda yapılanlar
 
