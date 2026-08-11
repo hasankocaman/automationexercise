@@ -76,7 +76,13 @@
   `code-playground`, F3 günlük sorgular (WAS operatörü playground'u taşındı,
   retryQuestion eklendi), F4 kaydedilmiş filtre/abonelik `code-playground`.
   Toplam 3 code-playground (plan gereksinimi karşılandı).
-  Sıradaki: **D-S7 (GRUP G — Scrum ve Kanban Panoları)**, plan §D'de.
+- **Faz S7 (D-S7, GRUP G — Scrum ve Kanban Panoları) BİTTİ:** "Bir İş
+  Kaleminin Backlog'dan Panoya Yolculuğu" filmi (6 sahne, donmuş kart
+  kontrastı) + G1 backlog/sprint/pano zinciri quiz, G2 Scrum vs Kanban
+  `table`, G3 "QA sütunu" tartışması (iki taraf da sunuldu, dayatma yok) +
+  hızlı filtre `code-playground` + `/sprint` simülatörüne `link-grid`, G4
+  WIP limiti darboğazı `step-animation`, G5 sprint ritüelleri `table`.
+  Sıradaki: **D-S8 (GRUP H — Test Yönetimi: Xray & Zephyr)**, plan §D'de.
 
 ### Bu oturumda yapılanlar
 

@@ -1376,6 +1376,194 @@ project = SHOP AND labels = production`,
   },
 }
 
+// ─── Film: bir iş kaleminin backlog'dan panoya yolculuğu (GRUP G referans filmi) ─
+const backlogToBoardFilm = {
+  type: 'video-scene',
+  id: 'jira-g1-backlog-to-board-film',
+  title: {
+    tr: "🎬 Bir İş Kaleminin Backlog'dan Panoya Yolculuğu",
+    en: '🎬 The Journey of a Work Item From Backlog to Board',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'backlog', emoji: '📚', label: { tr: 'Backlog (200+ öğe)', en: 'Backlog (200+ items)' }, color: '#64748b' },
+    { id: 'groomed', emoji: '🔍', label: { tr: 'Groomed: SHOP-118', en: 'Groomed: SHOP-118' }, color: '#f59e0b' },
+    { id: 'planning', emoji: '🗓️', label: { tr: 'Sprint Planning', en: 'Sprint Planning' }, color: '#8b5cf6' },
+    { id: 'board', emoji: '📋', label: { tr: 'Sprint Panosu', en: 'Sprint Board' }, color: '#0ea5e9' },
+    { id: 'review', emoji: '📊', label: { tr: 'Sprint Review: Velocity', en: 'Sprint Review: Velocity' }, color: '#10b981' },
+    { id: 'stuck', emoji: '🧊', label: { tr: 'Donmuş Kart', en: 'Stuck Card' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "SHOP-118 \"Kupon Kodu Uygulama\", 200'den fazla öğenin bulunduğu backlog'da ham bir fikir olarak duruyor — henüz tahmin edilmemiş, kabul kriteri yazılmamış. Bu filmde bu ham fikrin panoya kadar giden yolunu izleyeceksin.",
+        en: 'SHOP-118 "Apply Coupon Code" sits as a raw idea in a backlog of over 200 items -- not yet estimated, no acceptance criteria written. In this film you will follow this raw idea\'s path all the way to the board.',
+      },
+      positions: { backlog: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Grooming (refinement): takım ve PO birlikte oturur, story point tahmini yapar (5 puan) ve kabul kriterini yazar: "Bir kupon sipariş başına bir kez uygulanır". Bu adım atlanırsa kartın panoda NE ZAMAN biteceği tahmin edilemez.',
+        en: 'Step 1 -- Grooming (refinement): the team and PO sit together, estimate story points (5 points) and write the acceptance criterion: "A coupon is applied once per order". Skip this step and you cannot predict WHEN the card will finish on the board.',
+      },
+      positions: {
+        backlog: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        groomed: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'backlog', to: 'groomed', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Sprint Planning: takım kapasitesine (bu sprint için 30 puan) göre backlog'dan öğe seçer. SHOP-118'in 5 puanı kapasiteye sığar, sprint'e alınır. Tahmin edilmemiş bir öğe bu adımda seçilemez — kimse ne kadar süreceğini bilmez.",
+        en: 'Step 2 -- Sprint Planning: the team pulls items from the backlog according to capacity (30 points for this sprint). SHOP-118\'s 5 points fit the capacity, it is pulled into the sprint. An unestimated item cannot be selected here -- nobody knows how long it will take.',
+      },
+      positions: {
+        groomed: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        planning: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'groomed', to: 'planning', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Sprint başlar, SHOP-118 panoda bir kart olarak belirir. Kart sütunlar arasında ilerler: To Do → In Progress → Ready for QA → In QA → Done. Kabul kriteri sayesinde QA'in \"bu bitti mi\" sorusunun cevabı NETTİR.",
+        en: 'Step 3 -- The sprint starts, SHOP-118 appears as a card on the board. The card moves through columns: To Do to In Progress to Ready for QA to In QA to Done. Thanks to the acceptance criterion, QA\'s answer to "is this finished" is CLEAR.',
+      },
+      positions: {
+        planning: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        board: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'planning', to: 'board', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — Sprint Review: kart Done sütununa ulaştı, 5 puan takımın velocity\'sine eklendi. Bu sayı bir sonraki sprintin kapasitesini tahmin etmek için kullanılacak — tek bir kartın yolculuğu artık bir veri noktası.',
+        en: 'Step 4 -- Sprint Review: the card reached the Done column, 5 points are added to the team\'s velocity. This number will be used to estimate next sprint\'s capacity -- one card\'s journey is now a data point.',
+      },
+      positions: {
+        board: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        review: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'board', to: 'review', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — Grooming'i atlayıp doğrudan sprint'e alınan bir başka kart hayal et: kabul kriteri yok, kimse ne kadar süreceğini bilmiyor. Kart \"In Progress\" sütununda GÜNLERCE donar — developer neyin \"bitti\" sayılacağını bilmediği için ilerleyemez. Grooming atlanan bir adım değil, panonun akıcılığının ÖN KOŞULUDUR.",
+        en: 'Finale (the contrast) -- Picture another card pulled straight into the sprint, skipping grooming: no acceptance criterion, nobody knows how long it takes. The card FREEZES in the "In Progress" column for DAYS -- the developer cannot move forward not knowing what counts as "done". Grooming is not a skippable step, it is the PRECONDITION for a flowing board.',
+      },
+      positions: {
+        review: { x: 20, y: 32, scale: 0.9 },
+        stuck: { x: 60, y: 55, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'review', to: 'stuck', color: '#ef4444' }],
+    },
+  ],
+}
+
+// ─── table: Scrum board vs Kanban board (GRUP G2) ──────────────────────────────
+const scrumVsKanbanTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Boyut', en: 'Dimension' },
+    { tr: 'Scrum Board', en: 'Scrum Board' },
+    { tr: 'Kanban Board', en: 'Kanban Board' },
+  ],
+  rows: [
+    [
+      { tr: 'Zaman kutusu', en: 'Time box' },
+      { tr: "Sabit süreli sprint'ler (örn. 2 hafta)", en: 'Fixed-length sprints (e.g. 2 weeks)' },
+      { tr: 'Sürekli akış, sprint yok', en: 'Continuous flow, no sprints' },
+    ],
+    [
+      { tr: 'Pano her koşumda', en: 'The board on each cycle' },
+      { tr: 'Sıfırlanır — yeni sprint yeni kartlarla başlar', en: 'Resets -- a new sprint starts with fresh cards' },
+      { tr: 'Sıfırlanmaz — kartlar sürekli akar', en: 'Never resets -- cards flow continuously' },
+    ],
+    [
+      { tr: 'Öngörülebilirlik metriği', en: 'Predictability metric' },
+      { tr: 'Velocity (sprint başına tamamlanan puan)', en: 'Velocity (points completed per sprint)' },
+      { tr: 'Cycle time (bir kartın ortalama bitirme süresi)', en: 'Cycle time (average time a card takes to finish)' },
+    ],
+    [
+      { tr: 'Uygun senaryo', en: 'Fits best when' },
+      { tr: 'Planlanabilir, tahmin edilebilir bir iş akışı (özellik geliştirme)', en: 'Plannable, estimable work (feature development)' },
+      { tr: 'Öngörülemeyen, kesintisiz gelen iş (destek, üretim bug\'ları)', en: 'Unpredictable, continuously arriving work (support, production bugs)' },
+    ],
+  ],
+}
+
+// ─── code-playground: board hızlı filtresi yaz (GRUP G3) ──────────────────────
+const quickFilterPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-g3-board-configuration',
+  id: 'jira-g3-quick-filter',
+  title: { tr: "Kendin Dene: \"Sadece Benim Bug'larım\" Hızlı Filtresini Yaz", en: 'Try It Yourself: Write the "Only My Bugs" Quick Filter' },
+  starterCode: {
+    tr: `-- Panoda bir hızlı filtre butonu istiyorsun: yalnızca SANA atanmış Bug'ları göstersin.
+-- Diğer issue tipleri ve başkalarına atanmış kartlar gizlenmeli.
+issuetype = Bug`,
+    en: `-- You want a quick filter button on the board: show only Bugs assigned to YOU.
+-- Other issue types and cards assigned to others should hide.
+issuetype = Bug`,
+  },
+  solutionCode: {
+    tr: `-- Hızlı filtreler tam bir JQL parçasıdır, panonun kendi sorgusuyla AND'lenir
+issuetype = Bug AND assignee = currentUser()`,
+    en: `-- Quick filters are full JQL fragments, ANDed with the board's own query
+issuetype = Bug AND assignee = currentUser()`,
+  },
+  hint: {
+    tr: "Hızlı filtreler F sekmesinde öğrendiğin JQL'in ta kendisidir — panonun ARKA PLANDAKİ sorgusuna ek bir AND koşulu olarak eklenir. \"Sana atanmış\" ifadesi bir kullanıcı adı sabit yazmakla değil, kişiye göre kendini çözen bir fonksiyonla ifade edilir.",
+    en: 'Quick filters ARE the JQL you learned on the JQL tab -- they get added as an extra AND condition to the board\'s underlying query. "Assigned to you" is expressed not by hardcoding a username but by a function that resolves itself per person.',
+  },
+  successMessage: {
+    tr: "Doğru! Bir hızlı filtre, panonun sorgusuna EKLENEN bir JQL parçasıdır — bu yüzden JQL'i öğrenmek yalnızca arama kutusunda değil, panonun kendisinde de işine yarar.",
+    en: 'Correct! A quick filter is a JQL fragment ADDED to the board\'s query -- this is why learning JQL pays off not just in the search box, but on the board itself.',
+  },
+}
+
+// ─── step-animation: WIP limitinin darboğazı ortaya çıkarması (GRUP G4) ───────
+const wipBottleneckSteps = {
+  type: 'step-animation',
+  id: 'jira-g4-wip-bottleneck-steps',
+  title: { tr: 'Adım Adım: WIP Limiti Bir Darboğazı Nasıl Görünür Kılar?', en: 'Step by Step: How Does a WIP Limit Make a Bottleneck Visible?' },
+  steps: [
+    { id: 1, icon: '🚦', label: { tr: '"In QA" sütununa 3 kart limiti konur', en: 'A limit of 3 cards is set on "In QA"' }, detail: { tr: "Takım, QA'in aynı anda en fazla 3 kartı doğrulayabildiğini biliyor ve bu gerçeği panoya sayısal bir kural olarak yazıyor.", en: "The team knows QA can verify at most 3 cards at once, and writes that reality into the board as a numeric rule." } },
+    { id: 2, icon: '➕', label: { tr: '4. kart "In QA"ya girmeye çalışır', en: 'A 4th card tries to enter "In QA"' }, detail: { tr: "Developer'lar hızlı çalışıp art arda üç kartı daha \"Ready for QA\"dan \"In QA\"ya taşımak istiyor — ama sütun DOLU.", en: 'Developers work fast and want to move three more cards from "Ready for QA" into "In QA" -- but the column is FULL.' } },
+    { id: 3, icon: '🛑', label: { tr: 'Jira geçişi engeller', en: 'Jira blocks the move' }, detail: { tr: "WIP limiti aşıldığında pano bunu GÖRSEL olarak işaretler (sütun kırmızıya döner) — kural bir öneri değil, uygulanan bir kısıttır.", en: 'When the WIP limit is exceeded the board flags it VISUALLY (the column turns red) -- the rule is not a suggestion, it is an enforced constraint.' } },
+    { id: 4, icon: '👀', label: { tr: 'Takım nedeni sorar', en: 'The team asks why' }, detail: { tr: "Sütun sürekli dolu kalıyorsa bu bir tesadüf değildir: QA kapasitesi geliştirme hızının GERİSİNDE kalmış demektir — retrospektifte tartışılacak somut bir sinyal.", en: 'If the column stays full constantly, this is not a coincidence: it means QA capacity is trailing development speed -- a concrete signal to discuss in the retrospective.' } },
+    { id: 5, icon: '⚖️', label: { tr: 'Takım kapasiteyi dengeler', en: 'The team rebalances capacity' }, detail: { tr: "Çözüm daha hızlı test etmek DEĞİL, akışı dengelemektir: bir developer geçici olarak test yazımına yardım edebilir ya da geliştirme hızı bilinçli yavaşlatılabilir.", en: 'The fix is not testing faster, it is balancing the flow: a developer might temporarily help write tests, or development speed is deliberately slowed.' } },
+  ],
+}
+
+// ─── table: sprint ritüelleri ve QA'in getirdiği veri (GRUP G5) ───────────────
+const sprintRitualsTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Ritüel', en: 'Ritual' },
+    { tr: "QA'in getirdiği veri", en: 'The data QA brings' },
+  ],
+  rows: [
+    [
+      { tr: 'Sprint Planning', en: 'Sprint Planning' },
+      { tr: 'Test edilebilirlik tahmini: bu iş kaç puan test sürer, hangi ortam gerekir', en: 'Testability estimate: how many points of testing this takes, which environment it needs' },
+    ],
+    [
+      { tr: 'Daily Standup', en: 'Daily Standup' },
+      { tr: 'Blocker: "SHOP-142 test ortamında kırık, kimse ilerleyemiyor"', en: 'Blocker: "SHOP-142 is broken in the test environment, nobody can proceed"' },
+    ],
+    [
+      { tr: 'Sprint Review', en: 'Sprint Review' },
+      { tr: "Kalite verisi: bu sprintte kaç bug bulundu, kaçı üretime sızdı", en: 'Quality data: how many bugs were found this sprint, how many leaked to production' },
+    ],
+    [
+      { tr: 'Retrospektif', en: 'Retrospective' },
+      { tr: 'Darboğaz verisi: "In QA" sütununda ortalama bekleme süresi ne kadar arttı', en: 'Bottleneck data: how much the average wait time in "In QA" increased' },
+    ],
+  ],
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -2621,6 +2809,161 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
           en: 'We will cover the backlog to sprint to board chain; the difference between Scrum and Kanban boards and which team each suits; column, swimlane and quick-filter configuration; how a WIP limit makes a bottleneck visible; and which data QA brings to each sprint ritual (planning, daily, review, retrospective). Once you have read the concepts, the sprint simulator on this site lets you live the same flow on a Kanban board.',
         },
       },
+      backlogToBoardFilm,
+      {
+        type: 'heading',
+        text: { tr: '1️⃣ G1. Backlog → Sprint → Pano Zinciri', en: '1️⃣ G1. The Backlog to Sprint to Board Chain' },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "Grooming (refinement) adımı atlanıp bir öğe doğrudan sprint'e alınırsa en olası sonuç nedir?",
+          en: 'If the grooming (refinement) step is skipped and an item is pulled directly into the sprint, what is the most likely outcome?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Kart panoda daha hızlı ilerler", en: 'The card moves faster on the board' } },
+          { id: 'b', text: { tr: "Kabul kriteri ve tahmin olmadığı için kart bir sütunda uzun süre donar", en: 'Without an acceptance criterion or estimate, the card freezes in a column for a long time' } },
+          { id: 'c', text: { tr: "Hiçbir fark olmaz, grooming isteğe bağlıdır", en: 'No difference at all, grooming is optional' } },
+          { id: 'd', text: { tr: "Kart otomatik olarak Epic'e dönüşür", en: 'The card automatically turns into an Epic' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Grooming'de yazılan kabul kriteri, \"bu iş bitti mi\" sorusunun cevabını NETLEŞTİRİR. Bu netlik olmadan kart genelde \"In Progress\"te takılı kalır — filmin son sahnesinde gördüğün donmuş kart tam olarak budur.",
+          en: 'The acceptance criterion written during grooming makes the answer to "is this finished" CLEAR. Without that clarity a card typically stalls in "In Progress" -- exactly the frozen card you saw in the film\'s final scene.',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir kartın story point tahmini NEREDE yapılır?', en: "WHERE is a card's story point estimate made?" },
+          options: [
+            { id: 'a', text: { tr: 'Grooming (refinement) sırasında, sprint\'e alınmadan ÖNCE', en: 'During grooming (refinement), BEFORE it is pulled into a sprint' } },
+            { id: 'b', text: { tr: 'Sprint bittikten sonra', en: 'After the sprint ends' } },
+            { id: 'c', text: { tr: 'Kart Done olduğunda otomatik hesaplanır', en: 'Automatically calculated when the card goes Done' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Tahmin, sprint planlamasının kapasite hesaplayabilmesi için grooming sırasında, işe başlamadan önce yapılır.',
+            en: 'The estimate is made during grooming, before work starts, so sprint planning can calculate capacity.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ G2. Scrum Board vs Kanban Board', en: '2️⃣ G2. Scrum Board vs Kanban Board' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "İki pano tipi aynı arayüz bileşenini (sütunlu kartlar) kullanır ama farklı bir zaman felsefesi taşır. Aşağıdaki tablo dört boyutta karşılaştırıyor — özellikle \"pano her koşumda\" satırı, ikisinin neden farklı öngörülebilirlik metriği kullandığını açıklıyor.",
+          en: "The two board types use the same interface component (columned cards) but carry a different philosophy of time. The table below compares them across four dimensions -- the \"the board on each cycle\" row especially explains why each uses a different predictability metric.",
+        },
+      },
+      scrumVsKanbanTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir destek ekibi, üretimden gelen bug'ları öngörülemeyen bir sıklıkta alıyor — bazı günler 2, bazı günler 15 bug geliyor. Bu ekip için hangi pano tipi daha uygundur?",
+          en: 'A support team receives production bugs at an unpredictable rate -- some days 2, some days 15. Which board type suits this team better?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Scrum board — sabit sprint kapasitesi planlamayı kolaylaştırır", en: 'Scrum board -- fixed sprint capacity makes planning easier' } },
+          { id: 'b', text: { tr: "Kanban board — sürekli akan, öngörülemeyen işe sprint sınırı olmadan uyum sağlar", en: 'Kanban board -- adapts to continuously flowing, unpredictable work without a sprint boundary' } },
+          { id: 'c', text: { tr: "İkisi de aynı sonucu verir", en: 'Both give the same result' } },
+          { id: 'd', text: { tr: "Hiçbiri, destek ekipleri pano kullanmaz", en: 'Neither, support teams do not use boards' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Sprint'e dayalı bir plan, öngörülemeyen bir gelişte anlamını kaybeder — bir gün 15 bug gelirse sprint kapasitesi anında aşılır. Kanban'ın sürekli akışı ve WIP limiti bu tür işe daha uygundur.",
+          en: "A sprint-based plan loses meaning against unpredictable arrival -- if 15 bugs show up in one day, sprint capacity is instantly blown. Kanban's continuous flow and WIP limit suit this kind of work better.",
+        },
+        retryQuestion: {
+          question: { tr: 'Scrum ile Kanban\'ın öngörülebilirlik metrikleri arasındaki fark nedir?', en: 'What is the difference between Scrum and Kanban predictability metrics?' },
+          options: [
+            { id: 'a', text: { tr: 'Scrum velocity (sprint başına puan) kullanır, Kanban cycle time (kart başına ortalama süre) kullanır', en: 'Scrum uses velocity (points per sprint), Kanban uses cycle time (average time per card)' } },
+            { id: 'b', text: { tr: 'İkisi de aynı metriği kullanır', en: 'Both use the exact same metric' } },
+            { id: 'c', text: { tr: 'Hiçbiri metrik kullanmaz', en: 'Neither uses a metric' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: "Velocity sprint'in zaman kutusuna bağlıdır; cycle time ise sürekli akışta her kartın kendi bitirme süresini ölçer.",
+            en: "Velocity is tied to the sprint's time box; cycle time measures each card's own completion time in a continuous flow.",
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ G3. Board Konfigürasyonu ve "QA Sütunu" Tartışması', en: '3️⃣ G3. Board Configuration and the "QA Column" Debate' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎭',
+        content: {
+          tr: "Panoya ayrı bir \"QA\" sütunu koymak, bir tiyatro sahnesine ayrı bir \"prova\" bölümü eklemeye benzer: bir yandan provanın GÖRÜNÜR olması iyi bir şeydir (kimse atlamaz), diğer yandan \"önce oyna, sonra prova et\" sırası oyunu şelaleye çevirebilir.\n\nİki tarafın da argümanı var. \"QA sütunu olsun\" diyenler: doğrulama görünür olur, kimse atlamaz, darboğaz (WIP limiti aşımı) somut olarak ölçülür. \"QA sütunu olmasın\" diyenler: ayrı bir sütun, testin geliştirmeden AYRI ve SONRAKİ bir adım olduğu izlenimini güçlendirir — oysa modern pratikte test, kod yazılırken paralel ilerlemelidir (shift-left).\n\nBu sayfa sana hangisinin \"doğru\" olduğunu söylemez — ama kararının sonucunu ölçmenin yolunu gösterir: \"QA\" sütununda ortalama bekleme süresi zamanla ARTIYORSA, sütun testi görünür kılmak yerine bir şelale darboğazı yaratmış olabilir.",
+          en: 'Adding a separate "QA" column to the board is like adding a separate "rehearsal" section to a theater stage: on one hand, making the rehearsal VISIBLE is good (nobody skips it), on the other, a "perform first, rehearse after" order can turn the show into a waterfall.\n\nBoth sides have an argument. Those for a QA column: verification becomes visible, nobody skips it, the bottleneck (WIP limit overflow) is measured concretely. Those against: a separate column reinforces the impression that testing is a SEPARATE, LATER step from development -- whereas modern practice has testing move in parallel with writing code (shift-left).\n\nThis page does not tell you which is "right" -- but it shows you how to measure the outcome of your choice: if the average wait time in the "QA" column keeps RISING over time, the column may have created a waterfall bottleneck instead of making testing visible.',
+        },
+      },
+      quickFilterPlayground,
+      {
+        type: 'link-grid',
+        cols: 1,
+        items: [
+          {
+            icon: '🏃',
+            label: { tr: 'Şimdi Uygula: QA Sprint Simülatörü', en: 'Apply It Now: QA Sprint Simulator' },
+            desc: {
+              tr: "Backlog, sprint, WIP limiti ve pano akışını okumakla değil YAŞAYARAK öğrenmek istersen: sitedeki Kanban panosu + bug görevleri simülatörünü dene.",
+              en: 'If you want to learn backlog, sprint, WIP limit and board flow by DOING rather than reading: try the site\'s Kanban board + bug task simulator.',
+            },
+            route: '/sprint',
+          },
+        ],
+      },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ G4. WIP Limiti ve Darboğaz', en: '4️⃣ G4. WIP Limit and Bottleneck' },
+      },
+      wipBottleneckSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: "\"In QA\" sütununun WIP limiti 3 ve sütun HER GÜN dolu kalıyor. Bu gözlem en çok neyi işaret eder?",
+          en: 'The "In QA" column\'s WIP limit is 3, and the column stays full EVERY DAY. What does this observation point to most?',
+        },
+        options: [
+          { id: 'a', text: { tr: "QA'in tembel çalıştığını", en: 'That QA is working lazily' } },
+          { id: 'b', text: { tr: "QA test kapasitesinin geliştirme hızının GERİSİNDE kaldığını — retrospektifte tartışılacak somut bir sinyal", en: "That QA's testing capacity is TRAILING development speed -- a concrete signal for the retrospective" } },
+          { id: 'c', text: { tr: "WIP limitinin çok yüksek olduğunu", en: 'That the WIP limit is set too high' } },
+          { id: 'd', text: { tr: "Hiçbir şey, bu normal bir durumdur", en: 'Nothing, this is a normal state' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Sürekli dolu bir sütun bir suçlama değil, ölçülebilir bir sinyaldir: geliştirme, doğrulanabilecek hızdan daha hızlı üretiyor demektir. Çözüm daha hızlı test etmek değil, akışı dengelemektir.",
+          en: 'A constantly full column is not an accusation but a measurable signal: development is producing faster than it can be verified. The fix is not testing faster, it is balancing the flow.',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir WIP limiti aşıldığında Jira ne yapar?', en: 'What does Jira do when a WIP limit is exceeded?' },
+          options: [
+            { id: 'a', text: { tr: 'Sütunu görsel olarak işaretler (örn. kırmızıya döner) — kural uygulanan bir kısıttır', en: 'It visually flags the column (e.g. turns it red) -- the rule is an enforced constraint' } },
+            { id: 'b', text: { tr: 'Hiçbir şey yapmaz, tamamen kozmetiktir', en: 'Nothing, it is purely cosmetic' } },
+            { id: 'c', text: { tr: 'Fazla kartı otomatik siler', en: 'It automatically deletes the extra card' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Görsel işaret, takıma "burada bir fiziksel sınır aşıldı" diye somut bir uyarı verir — otomasyon koşumunda paralel worker sınırını aşmanın toplam süreyi uzatmasıyla aynı fikir.',
+            en: 'The visual flag gives the team a concrete warning that "a physical limit was exceeded here" -- the same idea as exceeding the parallel worker limit lengthening total time in an automation run.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: "5️⃣ G5. Sprint Ritüellerinde QA", en: '5️⃣ G5. QA in Sprint Rituals' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "QA her sprint ritüeline BOŞ elle gelmez — her ritüelde masaya somut bir veri getirir. Aşağıdaki tablo dört ritüeli ve her birinde QA'in getirdiği veriyi gösteriyor.",
+          en: "QA does not arrive at any sprint ritual empty-handed -- it brings concrete data to the table at each one. The table below shows the four rituals and the data QA brings to each.",
+        },
+      },
+      sprintRitualsTable,
     ],
   },
 
