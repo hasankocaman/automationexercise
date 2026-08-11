@@ -46,6 +46,7 @@ const PAGES = [
     { route: '/jenkins', file: 'jenkinsData' },
     { route: '/git-github', file: 'gitGithubData' },
     { route: '/postman', file: 'postmanData' },
+    { route: '/jira', file: 'jiraData' },
 ]
 
 // Seviye rotasyonu: liste boyunca basic → intermediate → advanced döner, böylece

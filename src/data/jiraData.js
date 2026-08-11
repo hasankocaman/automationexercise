@@ -2383,6 +2383,132 @@ const errorLayerMatchPlayground = {
   },
 }
 
+// ─── Film: bir mülakat cevabının zayıftan güçlüye yolculuğu (GRUP M referans filmi) ─
+const interviewAnswerFlowFilm = {
+  type: 'video-scene',
+  id: 'jira-m1-interview-answer-flow-film',
+  title: {
+    tr: '🎬 Bir Mülakat Cevabının Anatomisi: Zayıftan Güçlüye',
+    en: '🎬 The Anatomy of an Interview Answer: From Weak to Strong',
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'question', emoji: '❓', label: { tr: 'Senaryo Sorusu', en: 'Scenario Question' }, color: '#0ea5e9' },
+    { id: 'weak', emoji: '🫥', label: { tr: 'Zayıf Cevap: "Bakarım"', en: 'Weak Answer: "I\'ll take a look"' }, color: '#ef4444' },
+    { id: 'data', emoji: '🔍', label: { tr: 'Hangi Veri Çekilir?', en: 'Which Data Is Pulled?' }, color: '#f59e0b' },
+    { id: 'reasoning', emoji: '🧭', label: { tr: 'Neden Bu Sırayla?', en: 'Why This Order?' }, color: '#8b5cf6' },
+    { id: 'strong', emoji: '🎯', label: { tr: 'Güçlü Cevap', en: 'Strong Answer' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Mülakatçı soruyor: \"Sprint'in son günü, bir bug dört kez Reopened oldu, developer 'bende çalışıyor' diyor. Ne yaparsın?\" Bu filmde aynı soruya verilen iki cevabı — biri zayıf, biri güçlü — yan yana izleyeceksin.",
+        en: 'The interviewer asks: "It\'s the last day of the sprint, a bug has been reopened four times, the developer says \'it works on my machine\'. What do you do?" In this film you will watch two answers to the same question -- one weak, one strong -- side by side.',
+      },
+      positions: { question: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: '"Bakarım, düzeltiriz" — bu cevap teknik olarak YANLIŞ değildir ama HİÇBİR ŞEY göstermez: hangi veriye bakılacağı, kiminle konuşulacağı, kararın neye dayanacağı belirsizdir. Mülakatçı bu cevaptan hiçbir şey öğrenemez.',
+        en: '"I\'ll take a look, we\'ll fix it" -- this answer is not technically WRONG, but it shows NOTHING: which data to check, who to talk to, what the decision rests on all stay unclear. The interviewer learns nothing from this answer.',
+      },
+      positions: {
+        question: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        weak: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'question', to: 'weak', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: "Güçlü cevap somut bir veriyle başlar: \"kaydın geçmişini çıkarırım — her Reopened geçişinde hangi ortamda, hangi build ile doğrulandığını.\" Bu, sayfa boyunca öğrendiğin \"önce kanıt\" disiplininin mülakattaki karşılığıdır.",
+        en: 'A strong answer starts with concrete data: "I pull the record\'s history -- in which environment, with which build each Reopened transition was verified." This is the interview-side counterpart of the "evidence first" discipline you learned throughout the page.',
+      },
+      positions: {
+        weak: { x: 20, y: 50, scale: 0.9, opacity: 0.4 },
+        data: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'weak', to: 'data', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: "Güçlü cevap durmaz, GEREKÇE ekler: \"aynı build numarasıyla mı denedik sorusu tartışmayı kişiden veriye taşır.\" Mülakatta ayırt edici olan tam olarak budur — \"ne yaparım\" değil, \"neden bu sırayla\" bilgisi.",
+        en: 'A strong answer does not stop, it adds REASONING: "asking whether we tested with the same build number moves the discussion from the person to the data." This is precisely what sets candidates apart in an interview -- not "what I would do", but "why in this order".',
+      },
+      positions: {
+        data: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        reasoning: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'data', to: 'reasoning', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Final — Güçlü cevap PO'ya kararın maliyetini rakamla sunarak biter: \"bu bug dört kez açılıp kapandığı için şu kadar gün tüketti.\" Aynı soru, aynı süre — ama biri hiçbir şey kanıtlamaz, diğeri sayfa boyunca öğrendiğin HER ilkeyi (kanıt, veri, gerekçe) tek bir cevapta birleştirir.",
+        en: 'Finale -- the strong answer closes by presenting the decision\'s cost to the PO in numbers: "this bug consumed this many days across four cycles." Same question, same time -- but one proves nothing, the other brings together EVERY principle you learned across the page (evidence, data, reasoning) into one answer.',
+      },
+      positions: {
+        reasoning: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        strong: { x: 54, y: 50, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'reasoning', to: 'strong', color: '#10b981' }],
+    },
+  ],
+}
+
+// ─── step-animation: güçlü bir mülakat cevabı nasıl kurulur (GRUP M) ──────────
+const strongAnswerBuildSteps = {
+  type: 'step-animation',
+  id: 'jira-m1-strong-answer-build-steps',
+  title: { tr: 'Adım Adım: Güçlü Bir Mülakat Cevabı Nasıl Kurulur?', en: 'Step by Step: How Do You Build a Strong Interview Answer?' },
+  steps: [
+    { id: 1, icon: '🎧', label: { tr: 'Senaryoyu tam dinle', en: 'Listen to the full scenario' }, detail: { tr: 'Soruda geçen her somut ayrıntıyı (kaç kez, kim ne dedi, hangi zaman baskısı) not al — bunlar cevabının hangi veriye dayanacağını belirler.', en: 'Note every concrete detail in the question (how many times, who said what, what time pressure) -- these decide what data your answer will rest on.' } },
+    { id: 2, icon: '🔍', label: { tr: 'Hangi veriyi çekeceğini söyle', en: 'State which data you would pull' }, detail: { tr: '"Bakarım" yerine "kaydın geçmişini/JQL sorgusunu/ilgili grafiği çekerim" de — somut bir veri kaynağı adı, cevabı bir iddiadan bir eyleme dönüştürür.', en: 'Instead of "I\'ll take a look", say "I pull the record\'s history / a JQL query / the relevant chart" -- naming a concrete data source turns the answer from a claim into an action.' } },
+    { id: 3, icon: '🧭', label: { tr: '"Neden bu sırayla" ekle', en: 'Add "why in this order"' }, detail: { tr: 'Hangi adımı NEDEN önce yaptığını açıkla — bu, sayfa boyunca gördüğün katmanlı teşhis mantığının (önce izin, sonra konfigürasyon) mülakattaki karşılığıdır.', en: 'Explain WHY you do a given step first -- this is the interview counterpart of the layered diagnosis logic you saw throughout the page (permission first, then configuration).' } },
+    { id: 4, icon: '⚖️', label: { tr: 'Kime ne söyleyeceğini ayır', en: 'Separate who you say what to' }, detail: { tr: "Developer'a, PO'ya ve takıma söyleyeceğin şey AYNI DEĞİLDİR — birine veri, birine karar önerisi, birine maliyet sunarsın. Tek bir genel cümle bu ayrımı kaybettirir.", en: 'What you say to the developer, the PO and the team is NOT THE SAME -- to one you present data, to another a decision proposal, to another a cost. A single generic sentence loses this distinction.' } },
+    { id: 5, icon: '☕', label: { tr: 'Bir karşılaştırma ekle', en: 'Add a comparison' }, detail: { tr: "Java, otomasyon ya da günlük bir mühendislik pratiğiyle kısa bir benzetme, cevabının ezber değil ANLAYIŞ olduğunu gösterir — sayfa boyunca gördüğün her senaryo sorusunun cevabı bunu yapar.", en: 'A short comparison to Java, automation or an everyday engineering practice shows your answer is UNDERSTANDING, not memorization -- every scenario question\'s answer throughout the page does this.' } },
+  ],
+}
+
+// ─── code-playground: zayıf cevabı güçlü cevaba dönüştür (GRUP M) ─────────────
+const weakToStrongAnswerPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-m1-interview',
+  id: 'jira-m1-weak-to-strong-answer',
+  title: { tr: 'Kendin Dene: Zayıf Cevabı Güçlü Cevaba Dönüştür', en: 'Try It Yourself: Turn a Weak Answer Into a Strong One' },
+  starterCode: {
+    tr: `Soru: "Bir developer'ın smart commit #resolve komutu çalışmıyor. Ne yaparsın?"
+
+Zayıf cevap: "Muhtemelen bir hata vardır, kontrol ederim ve düzeltirim."`,
+    en: `Question: "A developer's smart commit #resolve command is not working. What do you do?"
+
+Weak answer: "There's probably some error, I'll check it and fix it."`,
+  },
+  solutionCode: {
+    tr: `Güçlü cevap: "Önce issue anahtarının commit mesajında doğru yazıldığını kontrol ederim
+— tek bir yazım hatası tüm komutu geçersiz kılar. Sonra mevcut workflow durumundan
+Done'a doğrudan bir geçişin TANIMLI olup olmadığına bakarım; smart commit workflow
+koşullarını bypass etmez, geçiş yoksa komut sessizce başarısız olur. Bu, bir API
+çağrısının izin şemasını bypass edememesiyle aynı prensip — sözdizimi doğru olsa
+bile iş kuralı izin vermezse işlem geçmez."`,
+    en: `Strong answer: "First I check whether the issue key is written correctly in the
+commit message -- a single typo invalidates the whole command. Then I check whether
+a direct transition to Done is DEFINED from the current workflow status; smart
+commit does not bypass workflow rules, and if no transition exists the command
+silently fails. This is the same principle as an API call being unable to bypass
+the permission scheme -- even with correct syntax, if the business rule does not
+allow it, the action does not go through."`,
+  },
+  hint: {
+    tr: "Zayıf cevabı güçlendirmek için üç şeyi ekle: (1) hangi somut veriye/duruma bakacağını, (2) bunu NEDEN önce kontrol ettiğini, (3) sayfada öğrendiğin bir mekanizmayla (workflow koşulu, izin şeması) kısa bir karşılaştırma. \"Kontrol ederim\" bir eylem değil bir niyettir — mülakatçı NASIL kontrol edeceğini duymak ister.",
+    en: 'To strengthen the weak answer, add three things: (1) which concrete data/state you would check, (2) WHY you check that first, (3) a short comparison to a mechanism you learned on the page (a workflow condition, a permission scheme). "I\'ll check it" is an intention, not an action -- the interviewer wants to hear HOW you would check.',
+  },
+  successMessage: {
+    tr: "Doğru! Fark uzunlukta değil, İÇERİKTE: güçlü cevap somut bir veri kaynağı adlandırır, bir sıralama gerekçesi verir ve öğrenilen bir mekanizmayla karşılaştırır. Bu üçü, bu sayfadaki HER senaryo sorusunun cevabında aynı kalıptır.",
+    en: 'Correct! The difference is not length, it is CONTENT: a strong answer names a concrete data source, gives an ordering rationale, and compares to a learned mechanism. These three stay the same pattern in the answer to EVERY scenario question on this page.',
+  },
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -2679,6 +2805,53 @@ const sections = [
             en: 'Email is not a record system: every sender uses their own format, search is weak, and writing an email ID into a commit message makes no sense.',
           },
         },
+      },
+      {
+        type: 'faq',
+        items: [
+          {
+            q: { tr: 'Jira nedir, tek cümleyle?', en: 'What is Jira, in one sentence?' },
+            a: {
+              tr: "Jira, bir ekibin bug, gereksinim ve iş kalemlerini kalıcı bir kimlikle kaydettiği, önceliklendirdiği ve doğruladığı bir iş takip ve proje yönetim sistemidir.",
+              en: 'Jira is a work-tracking and project-management system where a team records, prioritizes and verifies bugs, requirements and work items under a permanent identity.',
+            },
+          },
+          {
+            q: { tr: 'Jira ücretsiz mi?', en: 'Is Jira free?' },
+            a: {
+              tr: "Jira Cloud, 10 kullanıcıya kadar ücretsiz bir plan sunar; küçük takımlar ve öğrenme amaçlı kullanım için yeterlidir. Daha büyük takımlar ve ek özellikler (gelişmiş raporlama, izin şemaları) için ücretli katmanlar vardır.",
+              en: 'Jira Cloud offers a free plan for up to 10 users, enough for small teams and learning purposes. Larger teams and extra features (advanced reporting, permission schemes) require paid tiers.',
+            },
+          },
+          {
+            q: { tr: 'Jira ile Trello arasındaki fark nedir?', en: 'What is the difference between Jira and Trello?' },
+            a: {
+              tr: "Trello genel amaçlı, basit bir Kanban panosudur — hızlı kurulur ama issue tipi, workflow koşulu, izlenebilirlik matrisi gibi yazılım geliştirmeye özel yapılar taşımaz. Jira, yazılım ekipleri için tasarlanmıştır: bug/story/epic hiyerarşisi, JQL sorgu dili ve test yönetimi eklentileriyle (Xray/Zephyr) çok daha derin bir mühendislik süreci destekler.",
+              en: 'Trello is a general-purpose, simple Kanban board -- quick to set up but lacking software-development-specific structures like issue types, workflow conditions, or a traceability matrix. Jira is built for software teams: a bug/story/epic hierarchy, the JQL query language, and test management add-ons (Xray/Zephyr) support a much deeper engineering process.',
+            },
+          },
+          {
+            q: { tr: "QA mühendisi olarak Jira'yı öğrenmek zorunda mıyım?", en: 'Do I have to learn Jira as a QA engineer?' },
+            a: {
+              tr: "Zorunlu değildir ama sektörde en yaygın kullanılan iş takip aracıdır — birçok iş ilanında Jira deneyimi aranır. Daha önemlisi, Jira'yı öğrenmek yalnızca bir aracı öğrenmek değildir: bug raporlama, izlenebilirlik ve kalite metrikleri gibi araç-bağımsız QA becerilerini de bu sayfa üzerinden öğrenirsin.",
+              en: 'It is not mandatory, but it is the most widely used work-tracking tool in the industry -- many job listings ask for Jira experience. More importantly, learning Jira is not just learning a tool: this page also teaches tool-independent QA skills like bug reporting, traceability and quality metrics.',
+            },
+          },
+          {
+            q: { tr: 'JQL öğrenmek zor mu?', en: 'Is JQL hard to learn?' },
+            a: {
+              tr: "SQL biliyorsan JQL sana tanıdık gelir — alan, operatör, değer ve sıralama aynı mantıkla dizilir. Öğrenme eğrisinin en dik kısmı JQL'in bir veritabanı dili OLMADIĞINI (JOIN yapamaz) kavramaktır; bu sınırı bildikten sonra günlük kullanım hızla oturur.",
+              en: 'If you know SQL, JQL will feel familiar -- field, operator, value and ordering line up with the same logic. The steepest part of the learning curve is grasping that JQL is NOT a database language (it cannot JOIN); once you know that boundary, daily use settles in quickly.',
+            },
+          },
+          {
+            q: { tr: 'Jira Cloud ile Jira Data Center arasında hangisini öğrenmeliyim?', en: 'Which should I learn, Jira Cloud or Jira Data Center?' },
+            a: {
+              tr: "Jira Cloud ile başla — bugün yeni açılan hesapların büyük çoğunluğu Cloud'dur ve ücretsiz bir hesapla hemen deneyebilirsin. Temel kavramlar (issue, workflow, JQL) ikisinde de aynıdır; Data Center'a geçtiğinde farklılık gösteren yalnızca REST API adresi ve proje tipi seçenekleri gibi birkaç noktadır.",
+              en: 'Start with Jira Cloud -- the vast majority of accounts opened today are Cloud, and you can try it immediately with a free account. The core concepts (issue, workflow, JQL) are identical in both; only a few points differ when you move to Data Center, like the REST API address and the project type options.',
+            },
+          },
+        ],
       },
     ],
   },
@@ -4674,6 +4847,9 @@ if response.status_code == 403:
           en: 'An interview tries to tell apart the driver who memorized the manual from the driver who makes decisions in traffic. Both use the same words; only an unexpected situation reveals the difference.\n\nThe question worth pausing on: if you have used Jira every day for three years, why is "I know Jira" not an answer? Because using a tool and understanding the order it imposes are different things: someone who moves cards daily may never have thought about which data those cards produce and which decision that data feeds.\n\nCompare: Java interviews went through the same evolution -- "what is an ArrayList" was replaced by "you got a ConcurrentModificationException, explain the cause and the fix". Definitional knowledge is worth about as much as a search engine; diagnostic ability is the job itself.\n\nFor QA, every question in this tab is scenario-based: you are given a situation and asked which data you would pull, what you would say to whom, and what you would base your decision on. When you answer, state not only "what I would do" but "why in this order" -- that is precisely what sets candidates apart.',
         },
       },
+      interviewAnswerFlowFilm,
+      strongAnswerBuildSteps,
+      weakToStrongAnswerPlayground,
       {
         type: 'interview-questions',
         relatedTopicId: 'jira-m1-interview',
@@ -4709,6 +4885,537 @@ if response.status_code == 403:
             a: {
               tr: "Metriği reddetmek yerine, hedefe dönüştüğünde yaratacağı davranışı somut olarak anlatırım: kayıtlar bölünmeye başlar (tek bir sorun beş ayrı ticket olur), tartışmalı bug'lar \"cannot reproduce\" ile kapanır ve gerçek riskli alanlar yerine kolay kapanan işler seçilir. Bu, ölçütün hedefe dönüştüğü anda ölçüt olmaktan çıkması olgusudur — otomasyonda yüzde doksan kod kapsamının assertion içermeyen testlerle sağlanabilmesiyle aynı mekanizma. Alternatif olarak tek bir sayı yerine üç metrikten oluşan bir set öneririm: üretime sızan bug oranı (kaçırdıklarımız), reopen oranı (düzeltmenin kalitesi) ve doğrulama bekleme süresi (akışın darboğazı). Üçünün birlikte iyileşmesi oyunlanması zor bir tablodur; ayrıca bunların hiçbiri bireysel değil takım metriğidir — kaliteyi tek bir kişiye fatura etmek, bu işin doğasına aykırıdır.",
               en: 'Rather than rejecting the metric, I describe concretely the behavior it creates once it becomes a target: records start being split (one problem becomes five tickets), debatable bugs get closed as "cannot reproduce", and easy-to-close work is chosen over genuinely risky areas. This is the phenomenon of a measure ceasing to be a good measure the moment it becomes a target -- the same mechanism by which ninety percent code coverage can be reached with tests that hold no assertion. Instead of a single number I propose a set of three: the share of bugs leaking to production (what we miss), the reopen rate (the quality of the fix), and verification waiting time (the bottleneck in the flow). Improving all three together is hard to game; and none of them is individual -- they are team metrics, because billing quality to one person contradicts the nature of the work.',
+            },
+          },
+          // ─── BASIC (14 ek soru) ──────────────────────────────────────────
+          {
+            level: 'basic',
+            q: {
+              tr: "Yeni katılan bir developer \"Story ile Task farkı ne, ikisi de sonuçta bir iş değil mi\" diyor. Somut bir örnekle nasıl açıklarsın?",
+              en: 'A new developer asks "what is the difference between a Story and a Task, are they not both just work items?" How do you explain it with a concrete example?',
+            },
+            a: {
+              tr: "Story kullanıcıya doğrudan değer katan, tek başına teslim edilebilir bir dilimdir — \"kullanıcı kupon kodu girebilsin\" gibi. Task ise genellikle destekleyici, kullanıcıya doğrudan görünmeyen bir iştir — \"CI pipeline'ına yeni bir adım ekle\" gibi. İkisi de panoda kart olarak görünse de fark, kullanıcıya değer katıp katmadığında yatar; Java'da bir public API metodu (Story) ile onu destekleyen private bir yardımcı metot (Task) arasındaki fark gibi düşünebilirsin.",
+              en: 'A Story is a slice that delivers direct user value and can ship on its own -- like "let the user enter a coupon code". A Task is usually supporting work with no direct user visibility -- like "add a new step to the CI pipeline". Both appear as cards on the board, but the difference lies in whether it delivers user value; think of it like the difference between a public API method (Story) and a private helper method (Task) that supports it in Java.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Bir bug'ı severity düşük, priority yüksek olarak etiketledin. PO \"severity düşükse neden acil\" diye itiraz ediyor. Ne cevap verirsin?",
+              en: 'You labeled a bug low severity, high priority. The PO objects: "if severity is low, why is it urgent?" What do you answer?',
+            },
+            a: {
+              tr: "Severity teknik etkiyi ölçer (sistem ne kadar bozuldu), priority ise iş takvimini (ne zaman yapılacak) — ikisi farklı eksenlerdir. Örneğin ana sayfada marka adının yanlış yazılması hiçbir işlevi bozmaz (severity düşük) ama saatlerce yayında kalamaz (priority yüksek). Java'da bir metodun dönüş değeri ile fırlattığı exception tipinin farklı bilgi taşıması gibi, bu iki alan da birbirinin yerine geçmez.",
+              en: 'Severity measures technical impact (how badly the system is broken), priority measures the business calendar (when it gets worked on) -- they are different axes. For example, a misspelled brand name on the homepage breaks no function (low severity) but cannot stay live for hours (high priority). Like a Java method\'s return value and the exception type it throws carrying different information, these two fields are not interchangeable.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Takım lideri \"her pull request'te commit mesajına Jira anahtarı konsun\" diyor. Bunu nasıl uygularsın ve ekstra ne kazandırır?",
+              en: 'The team lead says "every pull request\'s commit message should carry a Jira key". How do you implement this, and what extra benefit does it bring?',
+            },
+            a: {
+              tr: "Commit mesajının başına `SHOP-142` gibi issue anahtarını yazmayı standart hâline getiririm; bu, kod değişikliği ile kayıt arasında kalıcı bir bağ kurar. Ekstra kazanç smart commit sözdizimidir: `#comment` veya `#time` gibi komutlarla aynı mesaj bir yorum bırakabilir ya da zaman kaydedebilir — tek bir mesaj hem bağlantı hem eylem taşır. Bu, bir log satırına hem mesaj hem context ekleyen yapılandırılmış loglamayla aynı fikri commit mesajına taşır.",
+              en: 'I make it standard to prefix the commit message with the issue key, like `SHOP-142`; this creates a permanent link between the code change and the record. The extra benefit is smart commit syntax: commands like `#comment` or `#time` let the same message leave a comment or log time -- one message carries both the link and an action. This brings the same idea as structured logging, which adds both a message and context to one log line, into the commit message.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Yeni bir proje kurulacak, PO \"hızlı başlayalım, basit tutalım\" diyor. Hangi proje tipini önerirsin ve neden?",
+              en: 'A new project is being set up, the PO says "let\'s start fast and keep it simple". Which project type do you recommend, and why?',
+            },
+            a: {
+              tr: "Team-managed öneririm — takım kendi alanlarını ve workflow'unu dakikalar içinde, onay beklemeden kurabilir. Ama bunu bir uyarıyla sunarım: takım büyüyüp başka takımlarla standart raporlama gerektirdiğinde company-managed'a geçiş otomatik değildir, elle taşıma gerektirir. Bu, hızlı prototipleme için `ArrayList` seçip sonra thread-safe bir koleksiyona geçmek gibi — başlangıç kararı geleceği bağlar.",
+              en: 'I recommend team-managed -- the team can configure its own fields and workflow in minutes without waiting for approval. But I present it with a caveat: when the team grows and needs standardized reporting with other teams, switching to company-managed is not automatic, it requires manual migration. It is like picking `ArrayList` for fast prototyping and later needing to move to a thread-safe collection -- the starting decision binds the future.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Bir arkadaşın \"panoda hiç bug göremiyorum, hepsi kayboldu mu\" diye endişeleniyor. İlk sorgulayacağın şey ne olur?",
+              en: 'A colleague worries "I cannot see any bugs on the board, did they all disappear?" What is the first thing you check?',
+            },
+            a: {
+              tr: "Önce sprint'in kapanıp kapanmadığını sorarım — bir sprint kapandığında bitmemiş işler otomatik olarak backlog'a ya da yeni sprint'e taşınır, bu bir hata değil tasarım gereği davranıştır. Arama kutusunda bir issue anahtarıyla arayıp kaydın gerçekten var olduğunu doğrularım; varsa sorun panonun görünürlüğündedir, veri kaybı değildir. Bu, bir dosyanın silinmediğini ama farklı bir dizine taşındığını `find` ile doğrulamakla aynı refleks.",
+              en: 'First I ask whether the sprint was closed -- when a sprint closes, unfinished work automatically moves to the backlog or the new sprint, which is designed behavior, not a bug. I search the search box by an issue key to confirm the record genuinely exists; if it does, the problem is board visibility, not data loss. This is the same reflex as verifying with `find` that a file was not deleted but merely moved to a different directory.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Junior bir tester \"WAS operatörü ile = arasındaki fark ne\" diye soruyor. Basit bir örnekle nasıl anlatırsın?",
+              en: 'A junior tester asks "what is the difference between the WAS operator and =?" How do you explain it with a simple example?',
+            },
+            a: {
+              tr: "`status = Reopened` yalnızca ŞU AN o durumda olan kayıtları getirir; kayıt sonradan Done'a taşınırsa listeden düşer. `status WAS Reopened` ise GEÇMİŞTE bu durumu taşımış tüm kayıtları getirir, kayıt şimdi Done olsa bile. Bu, bir değişkenin şu anki değerine bakmakla (=) o değişkenin geçmişteki tüm atamalarını bir log'da aramak (WAS) arasındaki fark gibidir.",
+              en: '`status = Reopened` only returns records currently in that status; if a record later moves to Done, it drops off the list. `status WAS Reopened` returns all records that EVER held that status in the past, even if they are Done now. This is like the difference between looking at a variable\'s current value (=) and searching a log for every past assignment that variable ever had (WAS).',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Bir developer \"ben zaten commit mesajında bahsettim, niye ayrıca bug açayım\" diyor. Ne cevap verirsin?",
+              en: 'A developer says "I already mentioned it in the commit message, why do I need to open a bug too?" What do you answer?',
+            },
+            a: {
+              tr: "Commit mesajı git geçmişinde durur ve aranması, önceliklendirilmesi, birine atanması, kalite metriklerine katılması mümkün değildir. Bug kaydı ise izlenebilir bir kimlik taşır — panoda görünür, JQL ile aranır, bir sürüme bağlanır. İkisi birbirinin yerine geçmez: commit mesajı NEDEN değişti sorusuna cevap verir, issue ise NE, NE ZAMAN ve KİM TARAFINDAN sorularına.",
+              en: 'A commit message sits in git history and cannot be searched, prioritized, assigned, or rolled into quality metrics. A bug record carries a traceable identity -- visible on the board, searchable via JQL, tied to a release. Neither substitutes the other: the commit message answers WHY something changed, the issue answers WHAT, WHEN and BY WHOM.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Bir kartın \"In QA\" sütununda WIP limiti aşılmış görünüyor. Ekip arkadaşın \"limiti kaldıralım, sorun çözülsün\" diyor. Ne dersin?",
+              en: 'The "In QA" column\'s WIP limit is exceeded. A teammate says "let\'s just remove the limit, problem solved". What do you say?',
+            },
+            a: {
+              tr: "Limiti kaldırmak sorunu ÇÖZMEZ, GİZLER — darboğaz hâlâ oradadır, sadece görünmez hâle gelir. Sekiz çekirdekte on altı paralel worker açmanın toplam süreyi kısaltmadığı gibi, limit kaldırmak da QA'in aynı anda daha fazla kartı doğrulayabileceği anlamına gelmez. Doğru yaklaşım limiti korumak ve neden dolduğunu (kapasite dengesizliği) araştırmaktır.",
+              en: 'Removing the limit does not SOLVE the problem, it HIDES it -- the bottleneck is still there, just invisible now. Just as opening sixteen parallel workers on eight cores does not shorten total time, removing the limit does not mean QA can suddenly verify more cards at once. The right approach is to keep the limit and investigate why it keeps filling up (a capacity imbalance).',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Bir Test Execution ile bir Test arasındaki farkı yeni bir QA'e somut bir örnekle nasıl anlatırsın?",
+              en: 'How do you explain the difference between a Test Execution and a Test to a new QA engineer, with a concrete example?',
+            },
+            a: {
+              tr: "Test, \"kupon bir kez uygulanır\" senaryosunun TANIMIDIR — bir kez yazılır, TC-42 gibi bir kimlik taşır. Test Execution ise bu tanımın BELİRLİ bir build'e karşı BELİRLİ bir andaki koşum SONUCUDUR — PASS ya da FAIL. Bu, Java'da bir test sınıfının (bir kez yazılır) her gece çalışan yüzlerce koşum kaydı (JUnit raporları) üretmesiyle aynı ayrımdır.",
+              en: 'A Test is the DEFINITION of the "coupon applied once" scenario -- written once, carrying an identity like TC-42. A Test Execution is the RESULT of running that definition against a SPECIFIC build at a SPECIFIC moment -- PASS or FAIL. This is the same distinction as a Java test class (written once) producing hundreds of run records (JUnit reports) every night it runs.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Panoya \"sadece bana atanmış kartlar\" gösteren bir hızlı filtre eklemen isteniyor. Nasıl bir JQL yazarsın?",
+              en: 'You are asked to add a quick filter to the board that shows "only cards assigned to me". What JQL do you write?',
+            },
+            a: {
+              tr: "`assignee = currentUser()` yazarım — kullanıcı adını sabit yazmak yerine bu fonksiyonu kullanmak, aynı filtrenin panoyu açan HERKES için kendi sonucunu göstermesini sağlar. Bu, otomasyonda sabit test verisi yerine parametre kullanmakla aynı disiplindir: sorgu bir kez yazılır, kişiye göre kendini çözer.",
+              en: 'I write `assignee = currentUser()` -- using this function instead of hardcoding a username means the same filter shows each person who opens the board their OWN result. This is the same discipline as using a parameter instead of hardcoded test data in automation: the query is written once and resolves itself per person.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Bir dashboard gadget'ı beklenmedik bir sayı gösteriyor. İlk ne kontrol edersin?",
+              en: 'A dashboard gadget shows an unexpected number. What is the first thing you check?',
+            },
+            a: {
+              tr: "Gadget'ın bağlı olduğu kaydedilmiş filtreyi açıp altındaki JQL'i doğrudan arama kutusunda çalıştırırım — gadget yalnızca bir görselleştirme katmanıdır, veri kaynağı değildir. Sayı yanlışsa sorun neredeyse her zaman sorgunun kendisindedir (yanlış koşul, yanlış proje), gadget'ın kendisinde değil.",
+              en: 'I open the saved filter the gadget is connected to and run its underlying JQL directly in the search box -- a gadget is only a visualization layer, not a data source. If the number is wrong, the problem is almost always in the query itself (a wrong condition, a wrong project), not the gadget.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "\"Cannot reproduce\" etiketiyle geri dönen bir bug raporunu iyileştirmen isteniyor. Öncelikle neyi eklersin?",
+              en: 'You are asked to improve a bug report that bounced back as "cannot reproduce". What do you add first?',
+            },
+            a: {
+              tr: "Önce ortam bilgisini (tarayıcı, sürüm, işletim sistemi) ve ön koşulu (hangi kullanıcı, hangi veri) eklerim — bunlar en sık atlanan iki alandır ve okuyan kişinin senin gördüğün hatayı KENDİ makinesinde göremiyor olmasının en olası sebebidir. Sonra adımları deterministik hâle getiririm: \"bir ürün ekle\" değil \"Kablosuz Kulaklık ürününü ekle\" gibi tek okunuşlu ifadeler.",
+              en: 'First I add the environment info (browser, version, OS) and the precondition (which user, which data) -- these are the two most commonly skipped fields and the most likely reason the reader cannot see the failure I saw on their OWN machine. Then I make the steps deterministic: not "add a product" but a single-reading phrase like "add the Wireless Headphones product".',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Bir arkadaşın yeni proje için `SHOPQAECOMMERCEPAYMENTSYSTEM` gibi uzun bir proje anahtarı seçmiş. Ona ne önerirsin, neden?",
+              en: 'A colleague picked a long project key like `SHOPQAECOMMERCEPAYMENTSYSTEM` for a new project. What do you suggest, and why?',
+            },
+            a: {
+              tr: "Kısa, akılda kalıcı bir kısaltma öneririm — örneğin `SHOP`. Anahtar her commit mesajında, her issue başlığında ve her JQL sorgusunda elle yazılacak; ne kadar uzunsa o kadar sık yazım hatası olur. Bu, otomasyonda `shopQaEcommercePaymentSystemCheckoutValidator` yerine `checkoutValidator` yazmakla aynı okunabilirlik ilkesidir.",
+              en: 'I suggest a short, memorable abbreviation -- like `SHOP`. The key gets typed by hand in every commit message, every issue title, every JQL query; the longer it is, the more typos happen. This is the same readability principle as writing `checkoutValidator` instead of `shopQaEcommercePaymentSystemCheckoutValidator` in automation.',
+            },
+          },
+          {
+            level: 'basic',
+            q: {
+              tr: "Bir mülakatta sana \"Jira nedir\" diye soruluyor. Salt bir tanımın ötesinde nasıl bir cevap verirsin?",
+              en: 'In an interview you are asked "what is Jira?" How do you answer beyond a bare definition?',
+            },
+            a: {
+              tr: "Jira'yı yalnızca bir bug takip aracı olarak değil, bir kurum hafızası sistemi olarak tanımlarım: her bug'a kalıcı bir kimlik verir, bu kimlik kod, test ve raporlarla bağlanır, ve zamanla biriken kayıtlar hangi modülün risk taşıdığını, hangi testin işe yaradığını gösteren veriye dönüşür. Bu, bir hatayı sadece düzeltmekle o hatanın stack trace'ini, kök nedenini ve tekrar test adımlarını kalıcı olarak kaydetmek arasındaki farkla aynı fikir.",
+              en: 'I define Jira not just as a bug tracker but as an organizational memory system: it gives every bug a permanent identity, ties that identity to code, tests and reports, and the records accumulated over time turn into data showing which module carries risk and which tests pay off. This is the same idea as the difference between just fixing an error versus permanently recording its stack trace, root cause and regression test steps.',
+            },
+          },
+          // ─── INTERMEDIATE (19 ek soru) ───────────────────────────────────
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir kart üç haftadır \"In Progress\"te duruyor, developer \"neredeyse bitti\" diyor ama somut bir ilerleme göremiyorsun. Neyi sorgularsın?",
+              en: 'A card has sat in "In Progress" for three weeks, the developer says "almost done" but you see no concrete progress. What do you investigate?',
+            },
+            a: {
+              tr: "Önce kartın grooming'de tahmin edilip edilmediğini ve kabul kriterinin yazılıp yazılmadığını kontrol ederim — tahminsiz ve kritersiz bir kart için \"bitti\" sorusunun objektif bir cevabı yoktur. Sonra alt işlere (Sub-task) bölünüp bölünmediğine bakarım; büyük, bölünmemiş bir kart genelde ilerlemenin görünmesini engeller. Bu, büyük bir fonksiyonu küçük, test edilebilir metotlara bölmemenin ilerlemeyi görünmez kılmasıyla aynı problem.",
+              en: 'First I check whether the card was estimated during grooming and whether an acceptance criterion was written -- without an estimate and a criterion, "done" has no objective answer for that card. Then I check whether it was broken into Sub-tasks; a large, unbroken card usually hides progress from view. This is the same problem as not splitting a large function into small, testable methods, which makes progress invisible.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Sprint sonunda velocity beklenenden çok düşük çıktı. İki olası neden say ve bunları nasıl ayırt edersin.",
+              en: 'At sprint end, velocity came out much lower than expected. Name two possible causes and how you would tell them apart.',
+            },
+            a: {
+              tr: "Birinci olasılık: kartlar gerçekten yavaş ilerledi (kapasite sorunu) — bunu kontrol grafiğinde aykırı noktalar (beklenenden çok uzun süren kartlar) var mı diye bakarak doğrularım. İkinci olasılık: kartlar bitti ama Done'a değil doğrulama kuyruğuna yığıldı — bunu \"In QA\" sütununun WIP limiti aşımı geçmişine bakarak doğrularım. İki olasılık da aynı düşük sayıyı üretir ama düzeltme stratejileri tamamen farklıdır; burndown grafiği tek başına ikisini ayırt edemez.",
+              en: 'First possibility: cards genuinely moved slowly (a capacity issue) -- I verify this by checking the control chart for outliers (cards that took far longer than expected). Second possibility: cards finished but piled into the verification queue instead of Done -- I verify this by checking the "In QA" column\'s WIP limit overflow history. Both possibilities produce the same low number, but their fixes are entirely different; the burndown chart alone cannot tell them apart.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir developer, kodu bitirir bitirmez resolution alanını \"Fixed\" yapmış, henüz kimse doğrulamadı. Bunu nasıl fark eder, nasıl düzeltirsin?",
+              en: 'A developer sets resolution to "Fixed" the moment the code is done, before anyone verifies it. How do you notice this, and how do you fix it?',
+            },
+            a: {
+              tr: "`resolution = Fixed AND status != Done` gibi bir JQL sorgusu, resolution'ı erken set edilmiş ama hâlâ Done olmayan kayıtları ortaya çıkarır — bu tutarsızlık erken set etmenin somut kanıtıdır. Düzeltme olarak resolution'ı doğrulama BAŞARILI olana kadar boş bırakmayı takım kuralı hâline getiririm; kayıt Reopened'a düşerse resolution'ın hâlâ \"Fixed\" göstermesi, raporları yanıltan sessiz bir hatadır.",
+              en: 'A JQL query like `resolution = Fixed AND status != Done` surfaces records where resolution was set early but the status is not yet Done -- this inconsistency is concrete evidence of setting it early. As a fix, I make it a team rule to leave resolution empty until verification SUCCEEDS; if the record falls into Reopened, resolution still reading "Fixed" is a silent error that misleads reports.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir bug arama kutusunda BULUNUYOR ama aynı bug'ı JQL ile ararken çıkmıyor. Kök neden ne olabilir?",
+              en: 'A bug IS found in the search box, but the same bug does not appear when searching via JQL. What could the root cause be?',
+            },
+            a: {
+              tr: "İki arama farklı kapsamlar kullanıyor olabilir — arama kutusu metin bazlı geniş bir arama yaparken, JQL sorgun `project`, `issuetype` veya `status` gibi bir koşulla kaydı YANLIŞLIKLA dışarıda bırakıyor olabilir (örn. yanlış proje anahtarı ya da fazla kısıtlayıcı bir `status !=` koşulu). Sorguyu koşul koşul basitleştirip hangi AND'in kaydı elediğini bulurum — tıpkı bir otomasyon assertion'ının hangi koşulda başarısız olduğunu izole etmek gibi.",
+              en: 'The two searches may use different scopes -- the search box does a broad text-based search, while your JQL query might WRONGLY exclude the record with a condition like `project`, `issuetype` or `status` (e.g. the wrong project key, or an overly restrictive `status !=` condition). I simplify the query condition by condition to find which AND is eliminating the record -- just like isolating which condition an automation assertion fails on.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Takım \"panoya QA sütunu ekleyelim mi eklemeyelim mi\" diye ikiye bölünmüş. Nasıl bir orta yol önerirsin?",
+              en: 'The team is split on "should we add a QA column to the board or not". What middle ground do you propose?',
+            },
+            a: {
+              tr: "Sütunu ekleriz ama bir ölçüm koşuluyla: \"QA\" sütununda ortalama bekleme süresini takip ederiz ve süre zamanla ARTIYORSA, sütunun testi görünür kılmak yerine bir şelale darboğazı yarattığı sonucuna varıp kaldırmayı yeniden tartışırız. Bu, bir mimari kararı tek seferlik bir tartışmayla değil, ölçülebilir bir geri bildirim döngüsüyle vermekle aynı disiplindir.",
+              en: 'We add the column but with a measurement condition: we track the average wait time in the "QA" column, and if that time keeps RISING over time, we conclude the column created a waterfall bottleneck instead of making testing visible, and revisit removing it. This is the same discipline as making an architectural decision with a measurable feedback loop instead of a one-time debate.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Gece çalışan bir otomasyon scripti 300 duplicate bug açmış. Kök nedeni ve kalıcı düzeltmeyi anlat.",
+              en: 'An overnight automation script filed 300 duplicate bugs. Explain the root cause and the lasting fix.',
+            },
+            a: {
+              tr: "Kök neden, script'in her başarısız koşumda arama yapmadan doğrudan yeni bir issue açmasıdır — aynı flaky test her gece aynı ticket'ı doğurur. Kalıcı düzeltme, koşum kırıldığında önce aynı imzayı (test adı + hata mesajı) taşıyan açık bir kayıt olup olmadığını JQL ile aramak; varsa yorum eklemek, yoksa yeni kayıt açmaktır. Bu, üretim bandındaki bir sensörün her parçaya değil yalnızca GERÇEKTEN yeni bir hataya fiş kesmesiyle aynı tasarım.",
+              en: 'The root cause is the script filing a new issue directly on every failed run without searching first -- the same flaky test spawns the same ticket every night. The lasting fix is: on a broken run, first search via JQL for an open record with the same signature (test name plus error message); if found, add a comment, if not, file a new record. This is the same design as a production-line sensor issuing a slip only for a GENUINELY new defect, not for every part.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Xray kullanan bir takım \"her build için ayrı bir Test tanımı mı açalım\" diye soruyor. Cevabın ve gerekçen?",
+              en: 'A team using Xray asks "should we open a separate Test definition for every build?" What is your answer and reasoning?',
+            },
+            a: {
+              tr: "Hayır — Test tanımı bir SENARYOYU temsil eder ve bir kez yazılır; her build için ayrı bir Test Execution kaydı oluşur. Her build'e ayrı Test açmak, tanım ile sonucu karıştırır ve aynı senaryonun geçmişini (hangi build'de PASS, hangi build'de FAIL) tek bir tanım altında toplamayı imkânsız kılar. Bu, her test koşumu için ayrı bir test SINIFI yazmak yerine aynı sınıfın koşum kayıtlarını (JUnit raporları) biriktirmekle aynı fikirdir.",
+              en: 'No -- a Test definition represents a SCENARIO and is written once; a separate Test Execution record is created for each build. Opening a separate Test per build confuses definition with result, and makes it impossible to gather the same scenario\'s history (which build PASSed, which FAILed) under one definition. This is the same idea as accumulating run records (JUnit reports) for the same test class instead of writing a separate test CLASS for every run.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Reopen rate metriği aylardır yükseliyor ama kimse fark etmemiş çünkü kimse dashboard'a bakmıyor. Bunu nasıl görünür kılarsın?",
+              en: 'Reopen rate has been climbing for months, but nobody noticed because nobody checks the dashboard. How do you make it visible?',
+            },
+            a: {
+              tr: "Reopen rate'i hesaplayan JQL'i bir kaydedilmiş filtreye dönüştürüp haftalık bir ABONELİK kurarım — sayı artık panoya bakmayı beklemek yerine e-posta olarak takıma gelir. Ek olarak dashboard'a bu filtreyi bağlayan bir gadget eklerim ki sprint review'de görsel olarak da tartışılabilsin. Veriyi pasif bir panoda bırakmak yerine aktif olarak ekibin önüne getirmek, bir CI koşumunun sonucunu log dosyasında bırakmak yerine Slack'e bildirmekle aynı fikirdir.",
+              en: 'I turn the JQL that calculates reopen rate into a saved filter and set up a weekly SUBSCRIPTION -- the number now reaches the team by email instead of waiting for someone to check the board. I also add a gadget on the dashboard connected to this filter so it can be discussed visually at sprint review. Actively pushing data in front of the team instead of leaving it passive on a dashboard is the same idea as notifying Slack of a CI run\'s result instead of leaving it in a log file.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir developer \"403 alıyorum, token'ım yanlış olmalı\" diyerek token'ı sürekli yeniliyor ama hata devam ediyor. Teşhisi nasıl düzeltirsin?",
+              en: 'A developer keeps regenerating their token saying "I get 403, my token must be wrong", but the error persists. How do you correct the diagnosis?',
+            },
+            a: {
+              tr: "401 kimlik katmanında durur (\"sen kimsin bilmiyorum\"), 403 ise kimlik GEÇERLİ ama izin YETERSİZ olduğunda döner — token'ı yenilemek 403'ü asla çözmez çünkü sorun kimlik değil izindir. Developer'a kullanıcısının SHOP projesinde issue oluşturma iznine sahip olup olmadığını kontrol etmesini söylerim, token'a değil. Bu, bir derleme hatasıyla bir çalışma zamanı izin hatasını karıştırmamakla aynı ayrımdır — ikisi de \"başarısız\" görünür ama farklı katmanlardan gelir.",
+              en: '401 stops at the identity layer ("I do not know who you are"), while 403 returns when identity is VALID but permission is INSUFFICIENT -- regenerating the token never fixes a 403 because the problem is not identity, it is permission. I tell the developer to check whether their user has issue-creation permission in the SHOP project, not the token. This is the same distinction as not confusing a compile error with a runtime permission error -- both look "failed" but come from different layers.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Kanban panosunda cycle time sürekli artıyor ama kimse nedenini bilmiyor. Nasıl araştırırsın?",
+              en: 'On a Kanban board, cycle time keeps rising but nobody knows why. How do you investigate?',
+            },
+            a: {
+              tr: "Önce kontrol grafiğindeki aykırı noktalara bakarım — hangi kartların ortalamanın çok üzerinde sürdüğünü ve hangi sütunda takıldıklarını görürüm. Sonra kümülatif akış diyagramında hangi katmanın GENİŞLEDİĞİNE bakarım; genişleyen katman kart biriktiren sütundur. İki grafik birlikte \"hangi kart\" ve \"hangi sütun\" sorularını cevaplar — tek bir ortalama sayı bu ayrıntıyı hiçbir zaman vermez.",
+              en: 'First I look at outliers on the control chart -- I see which cards took far longer than average and which column they got stuck in. Then I check which band is WIDENING on the cumulative flow diagram; the widening band is the column accumulating cards. Together the two charts answer "which card" and "which column" -- a single average number never gives that detail.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Aynı bug iki kez farklı severity ile duplicate açılmış. Nasıl birleştirir, hangi severity'yi tutarsın?",
+              en: 'The same bug was filed twice as a duplicate with different severity values. How do you merge them, and which severity do you keep?',
+            },
+            a: {
+              tr: "En eski kaydı ana kayıt seçip diğerini \"duplicates\" link'iyle ona bağlar, \"Duplicate\" resolution'ıyla kapatırım. Severity için ikisinden YÜKSEK olanı tutarım — severity teknik etkiyi ölçer ve iki farklı gözlemci aynı hatayı farklı koşullarda görmüş olabilir; düşük olanı seçmek gerçek etkiyi eksik göstermek riski taşır. Kopyadaki ek bilgiyi (varsa farklı bir tekrar üretim yolu) ana kayda yorum olarak taşırım, kaybolmasın diye.",
+              en: 'I pick the oldest record as the master, link the other to it with "duplicates", and close it with the "Duplicate" resolution. For severity I keep the HIGHER of the two -- severity measures technical impact, and two different observers may have seen the same failure under different conditions; picking the lower one risks understating the real impact. I move any extra information in the duplicate (a different reproduction path, say) into a comment on the master record so it is not lost.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Takım defect leakage'ı ölçmek istiyor ama \"production\" etiketi tutarsız kullanılıyor — bazıları unutuyor. Ne önerirsin?",
+              en: 'The team wants to measure defect leakage, but the "production" label is used inconsistently -- some people forget it. What do you propose?',
+            },
+            a: {
+              tr: "Etiketi elle hatırlamaya güvenmek yerine, bug raporu ekranında \"Ortam\" alanını ZORUNLU yapıp \"production\" seçilirse etiketin otomatik eklenmesini sağlayan bir workflow/otomasyon kuralı öneririm — insanın unutmasına bağlı bir süreç güvenilir bir metrik üretemez. Bu, bir test raporunda ortam bilgisini elle yazmak yerine CI'ın otomatik doldurmasıyla aynı fikirdir: veri kalitesi disiplinle değil sistemle garanti edilmelidir.",
+              en: 'Instead of relying on people remembering to tag manually, I propose making the "Environment" field MANDATORY on the bug report screen and adding a workflow/automation rule that auto-applies the label when "production" is selected -- a process that depends on humans not forgetting cannot produce a reliable metric. This is the same idea as CI auto-filling environment info in a test report instead of someone typing it by hand: data quality should be guaranteed by the system, not by discipline.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir link \"blocks\" yerine yanlışlıkla \"is blocked by\" olarak ters yönde kurulmuş. Bu sprint planlamasını nasıl etkiler, nasıl düzeltirsin?",
+              en: 'A link was mistakenly set up in reverse -- "is blocked by" instead of "blocks". How does this affect sprint planning, and how do you fix it?',
+            },
+            a: {
+              tr: "Yön ters olduğu için planlama aracı bağımlılığı TERS okur — gerçekte önce bitmesi gereken iş sanki SONRA yapılabilirmiş gibi görünür ve sprint sırası bozulabilir. Düzeltme basittir: linki silip doğru yönde (gerçekten engelleyen issue'dan engellenen issue'ya) yeniden kurmak. Bu tür bir hatayı önlemek için link eklerken \"bu hangi işi bekliyor\" sorusunu sesli sormayı takım alışkanlığı hâline getiririm.",
+              en: 'Because the direction is reversed, the planning tool reads the dependency BACKWARDS -- work that genuinely needs to finish first looks like it can happen LATER, potentially breaking sprint order. The fix is simple: delete the link and recreate it in the correct direction (from the issue that actually blocks to the one being blocked). To prevent this kind of mistake, I make it a team habit to ask out loud "which work is this waiting on" when adding a link.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir webhook kurulumu Slack'e mesaj atmıyor. Hangi katmanları sırayla kontrol edersin?",
+              en: 'A webhook setup is not sending messages to Slack. Which layers do you check, in order?',
+            },
+            a: {
+              tr: "Önce webhook'un doğru OLAYA (örn. \"issue updated\") bağlı olup olmadığını kontrol ederim — yanlış olay seçilmişse tetiklenme hiç olmaz. Sonra hedef URL'nin doğru ve erişilebilir olduğunu doğrularım (Slack tarafındaki entegrasyon anahtarı geçerli mi). En son webhook'un JQL filtresi varsa (yalnızca belirli issue'lar için tetiklensin diye), bu filtrenin test edilen issue'yu KAPSAYIP kapsamadığına bakarım — sıralama, izin katmanlarını teşhis ederkenkiyle aynı mantık: önce erişim, sonra konfigürasyon, sonra ayrıntı.",
+              en: 'First I check whether the webhook is bound to the right EVENT (e.g. "issue updated") -- if the wrong event is selected, it never fires at all. Then I verify the target URL is correct and reachable (is the integration key on the Slack side still valid). Last, if the webhook has a JQL filter (to fire only for certain issues), I check whether that filter COVERS the issue being tested -- the same order of reasoning as diagnosing permission layers: access first, then configuration, then detail.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir Precondition güncellendi ama bağlı altı testten biri hâlâ eski davranışı bekliyor gibi başarısız oluyor. Ne olabilir?",
+              en: 'A Precondition was updated, but one of the six linked tests still fails as if expecting the old behavior. What could be going on?',
+            },
+            a: {
+              tr: "O test muhtemelen Precondition'a bağlı DEĞİL, ön koşulu KENDİ İÇİNDE ayrı bir metin olarak tekrar yazmış — bu, Precondition'ın paylaşım avantajını ortadan kaldırır ve tam olarak paylaşılan bir ön koşulu tek bir yerden yönetmenin ÖNLEMEYE çalıştığı hatadır. Testin tanımını açıp Precondition'a doğru LİNKLENDİĞİNİ doğrularım, gerekirse tekrar bağlarım — bu, paylaşılan bir sabiti kopyalamak yerine import etmemenin doğurduğu tutarsızlıkla aynı sınıf hata.",
+              en: 'That test likely is NOT linked to the Precondition, and instead re-wrote the precondition as separate text INSIDE itself -- this defeats the sharing advantage of a Precondition and is exactly the mistake that keeping a shared precondition in one place is meant to PREVENT. I open the test\'s definition and verify it is correctly LINKED to the Precondition, relinking if needed -- the same class of bug as inconsistency caused by copying a shared constant instead of importing it.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir takım günlük 15 JQL sorgusunu elle çalıştırıyor. Nasıl bir iyileştirme önerirsin?",
+              en: 'A team runs 15 JQL queries by hand every day. What improvement do you propose?',
+            },
+            a: {
+              tr: "En sık koşulan sorguları kaydedilmiş filtrelere dönüştürür, kritik olanlar için haftalık/günlük abonelik kurarım ve tekrar eden birkaçını bir dashboard'da gadget olarak toplarım. Bu, elle tekrarlanan bir iş akışını otomatikleştirmekle aynı fikirdir — bir testi her seferinde elle koşmak yerine CI'a bağlamak gibi; sorgu bir kez doğru yazılır, sonra kendi kendine çalışır.",
+              en: 'I turn the most frequently run queries into saved filters, set up daily/weekly subscriptions for the critical ones, and gather a few repeated ones as gadgets on a dashboard. This is the same idea as automating a manually repeated workflow -- like wiring a test into CI instead of running it by hand every time; the query is written correctly once, then runs itself.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir bug \"Done\" görünüyor ama üç ay sonra defect leakage raporunda hiç yer almıyor. Neden olabilir?",
+              en: 'A bug shows as "Done", but three months later it never appears in the defect leakage report. Why might that be?',
+            },
+            a: {
+              tr: "En olası neden, resolution alanının \"Fixed\" yerine yanlışlıkla \"Won't Fix\" ya da \"Duplicate\" seçilmiş olmasıdır — rapor genelde `resolution = Fixed` filtresiyle çalışır ve bu kayıt sessizce dışarıda kalır. Kaydın resolution'ını kontrol ederim; yanlışsa düzeltirim ve kapatma ekranında hiçbir seçeneğin önceden seçili gelmemesini takım kuralı hâline getiririm ki dikkatsiz tıklama bir varsayılana rastlamasın.",
+              en: 'The most likely reason is that resolution was accidentally set to "Won\'t Fix" or "Duplicate" instead of "Fixed" -- the report usually filters on `resolution = Fixed` and this record silently falls outside it. I check the record\'s resolution; if wrong, I fix it, and I make it a team rule that no option comes pre-selected on the close screen so a careless click cannot land on a default.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Sprint review'de PO \"bu sprintte kaç bug bulduk\" diye soruyor. Ham sayı yerine ne sunarsın?",
+              en: 'At sprint review the PO asks "how many bugs did we find this sprint?" What do you present instead of a raw count?',
+            },
+            a: {
+              tr: "Tek bir sayı yerine bağlamı da veririm: kaç bug bulundu, kaçı yüksek severity, kaçı üretime sızdı (defect leakage) ve kaçı reopen oldu. Ham sayı tek başına yanıltıcıdır — on kolay kozmetik bug ile iki kritik ödeme hatası aynı \"10 bug\" cümlesine sığar ama ANLAMLARI çok farklıdır; bu, bir test paketinin \"50 test yazıldı\" demesiyle \"50 test ANLAMLI assertion içeriyor\" demesi arasındaki farkla aynı.",
+              en: 'Instead of a single number, I provide context too: how many bugs, how many high severity, how many leaked to production (defect leakage), how many were reopened. A raw count alone is misleading -- ten easy cosmetic bugs and two critical payment failures both fit into the same "10 bugs" sentence, but their MEANING is very different; the same gap as between a test suite saying "50 tests written" and "50 tests carry meaningful assertions".',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "Bir developer \"smart commit #resolve çalışmıyor\" diye şikâyet ediyor. Hangi ihtimalleri sırayla kontrol edersin?",
+              en: 'A developer complains "smart commit #resolve is not working". What possibilities do you check, in order?',
+            },
+            a: {
+              tr: "Önce issue anahtarının commit mesajında doğru yazılıp yazılmadığını kontrol ederim (bir yazım hatası tüm komutu geçersiz kılar). Sonra mevcut workflow durumundan Done'a doğrudan bir geçiş TANIMLI mı diye bakarım — smart commit workflow koşullarını BYPASS etmez, geçiş yoksa komut sessizce başarısız olur. Bu, bir API çağrısının izin şemasını bypass edememesiyle aynı prensip: sözdizimi doğru olsa bile iş kuralı izin vermezse işlem geçmez.",
+              en: 'First I check whether the issue key is written correctly in the commit message (a typo invalidates the whole command). Then I check whether a direct transition to Done is DEFINED from the current workflow status -- smart commit does not BYPASS workflow rules, and if no transition exists the command silently fails. This is the same principle as an API call being unable to bypass the permission scheme: even with correct syntax, if the business rule does not allow it, the action does not go through.',
+            },
+          },
+          {
+            level: 'intermediate',
+            q: {
+              tr: "İzlenebilirlik matrisinde bir bug'ın hiçbir Test Execution'a bağlı olmadığını görüyorsun. Bu ne anlama gelir, ne yaparsın?",
+              en: 'In the traceability matrix you see a bug with no Test Execution linked to it at all. What does this mean, what do you do?',
+            },
+            a: {
+              tr: "Bu bug muhtemelen otomasyon koşumundan değil manuel bir gözlemden ya da üretimden gelmiştir — izlenebilirlik zinciri yalnızca test kaynaklı bulgular için otomatik kurulur. Bunu elle kontrol eder, gerekiyorsa bug'ı hangi Test'in gelecekte bu senaryoyu KAPSAMASI gerektiğine bağlarım ki aynı sınıf hata bir dahaki sefere otomatik yakalansın — kapsam boşluğunu KAPATMAK, yalnızca bulguyu düzeltmekten daha kalıcı bir çözümdür.",
+              en: 'This bug likely came from a manual observation or production, not an automation run -- the traceability chain is only built automatically for test-originated findings. I check it by hand and, if needed, link the bug to which Test should COVER this scenario going forward, so the same class of failure gets caught automatically next time -- CLOSING the coverage gap is a more lasting fix than just resolving the finding.',
+            },
+          },
+          // ─── ADVANCED (14 ek soru) ────────────────────────────────────────
+          {
+            level: 'advanced',
+            q: {
+              tr: "Takım Data Center'dan Cloud'a geçiyor, mevcut otomasyon script'leri `/rest/api/2/` adresini kullanıyor. Geçiş planını nasıl kurarsın?",
+              en: 'The team is migrating from Data Center to Cloud, and existing automation scripts use `/rest/api/2/`. How do you structure the migration plan?',
+            },
+            a: {
+              tr: "Önce her script'in kullandığı uç noktaları envanterleyip Cloud'daki `/rest/api/3/` karşılıklarıyla eşleştiririm — bazı alan adları ve kimlik doğrulama yöntemi (API token) de değişir. Kritik olmayan bir script'i önce Cloud'a karşı test ortamında koşturup davranışı doğrularım, tüm script'leri aynı anda geçirmem. Bu, bir API'nin `v2`'den `v3`'e geçişini üretimde tek seferde değil, kanarya (canary) bir alt kümeyle doğrulayarak yapmakla aynı risk yönetimi.",
+              en: "First I inventory every endpoint each script uses and map it to its Cloud `/rest/api/3/` counterpart -- some field names and the authentication method (API token) change too. I run a non-critical script against Cloud in a test environment first to verify behavior, rather than migrating all scripts at once. This is the same risk management as validating an API's v2-to-v3 migration with a canary subset in production instead of a single big-bang cutover.",
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "5 takımlı bir organizasyon var, her takım kendi issue tiplerini istiyor ama üst yönetim tek bir standart rapor istiyor. Nasıl bir mimari kurarsın?",
+              en: 'A 5-team organization wants each team to have its own issue types, but upper management wants a single standardized report. How do you architect this?',
+            },
+            a: {
+              tr: "Company-managed proje tipini kullanır, ORTAK bir issue tip şeması (Bug, Story, Task standart alanlarla) tanımlarım — bu tüm raporlamayı besler. Takımların özelleşme ihtiyacı için ek, takıma özel alanları (customfield) o takımın ekranına eklerim ama standart alanları ASLA silmem ya da yeniden adlandırmam. Bu, ortak bir arayüzü (standart alanlar) uygulayıp her sınıfın kendi ek metotlarını (özel alanlar) eklemesine izin vermekle aynı mimari fikir — Java'daki interface + implementasyon esnekliği.",
+              en: 'I use the company-managed project type and define a SHARED issue type scheme (Bug, Story, Task with standard fields) -- this feeds all reporting. For teams\' customization needs, I add extra team-specific fields (customfields) to that team\'s screen, but I NEVER delete or rename the standard fields. This is the same architectural idea as implementing a shared interface while letting each class add its own extra methods -- the interface-plus-implementation flexibility from Java.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Bir CI pipeline'ı hem smart commit hem REST API kullanarak bug açıyor. İkisi arasında çakışma/duplicate riski nasıl doğar, nasıl önlersin?",
+              en: 'A CI pipeline files bugs using both smart commit AND the REST API. How does the risk of conflict/duplication arise between the two, and how do you prevent it?',
+            },
+            a: {
+              tr: "Risk, aynı hatanın hem developer'ın commit mesajındaki `#comment`'i hem CI'ın REST API çağrısındaki arama-önce mantığının FARKLI imza kriterleri kullanmasından doğar — biri commit mesajını, diğeri test adı+hata mesajını imza sayarsa aynı olay iki farklı \"yeni\" kayıt üretebilir. Çözüm, TEK bir imza standardını (örn. her zaman test sınıfı + hata tipi) her iki mekanizmaya da uygulamak ve ikisinin de yazdığı kayıtları AYNI özel alanla (örn. \"failure-signature\") etiketlemektir — tek bir kaynaktan gelen tutarlı bir anahtar, dağıtık iki yazıcının çakışmamasını sağlar.",
+              en: 'The risk arises because the developer\'s commit-message `#comment` and CI\'s REST-API search-first logic might use DIFFERENT signature criteria -- if one treats the commit message as the signature and the other treats test-name-plus-error as the signature, the same event can produce two different "new" records. The fix is to apply ONE signature standard (e.g. always test class plus error type) to both mechanisms, and tag records written by either with the SAME custom field (e.g. "failure-signature") -- a consistent key from a single source keeps two distributed writers from colliding.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Eski bir projede iki yıllık test-requirement bağı hiç kurulmamış. Şimdi izlenebilirlik matrisi kurmak istiyorsun. Nasıl başlarsın?",
+              en: 'An old project has two years of history with no test-requirement links ever built. You want to establish a traceability matrix now. How do you start?',
+            },
+            a: {
+              tr: "Geriye dönük TAM bir bağ kurmaya çalışmam — iki yıllık geçmişi elle bağlamak orantısız bir efor olur ve çoğu değer kaybolmuştur. Bunun yerine BUGÜNDEN İTİBAREN disiplini başlatırım: yeni açılan her Story bir Test'e, her Test bir Test Execution'a bağlanır; eski, hâlâ aktif olan yüksek riskli modüller için SEÇİCİ olarak geriye dönük bağ kurarım. Bu, eski bir kod tabanına %100 test kapsamı hedeflemek yerine yeni kod için zorunlu kapsam kuralı koyup riskli eski modülleri kademeli kapsamakla aynı pragmatik yaklaşım.",
+              en: "I do not try to build FULL retroactive links -- manually connecting two years of history is disproportionate effort and most of the value is already lost. Instead I start the discipline FROM TODAY ONWARD: every newly filed Story links to a Test, every Test to a Test Execution; for old, still-active high-risk modules I build retroactive links SELECTIVELY. This is the same pragmatic approach as not aiming for 100% test coverage on a legacy codebase, but mandating coverage for new code while covering risky legacy modules incrementally.",
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Bir takım metrik hedefi olarak \"sıfır reopen\" koydu. Bu neden tehlikelidir, alternatif olarak ne önerirsin?",
+              en: 'A team set "zero reopens" as a metric target. Why is this dangerous, and what do you propose instead?',
+            },
+            a: {
+              tr: "\"Sıfır reopen\" bir hedefe dönüştüğünde, doğrulayan kişi tartışmalı bir kaydı Reopened yapmak yerine sessizce Done bırakmaya YÖNLENDİRİLİR — hedef, ölçtüğü davranışı bozar (Goodhart yasası). Alternatif olarak reopen oranını izlemeye devam ederim ama HEDEF olarak değil, bir sinyal olarak; asıl performans hedefini takımın kontrol EDEBİLECEĞİ süreç iyileştirmelerine (kabul kriterinin netliği, ortam paritesi) bağlarım — sonuca değil, sonucu ÜRETEN sürece hedef koymak oyunlanmayı zorlaştırır.",
+              en: 'Once "zero reopens" becomes a target, the verifier gets INCENTIVIZED to quietly leave a debatable record as Done instead of marking it Reopened -- the target distorts the very behavior it measures (Goodhart\'s law). Instead, I keep tracking the reopen rate but as a SIGNAL, not a target; I tie the actual performance target to process improvements the team CAN control (acceptance criterion clarity, environment parity) -- targeting the process that PRODUCES the outcome, not the outcome itself, makes gaming harder.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Bir regresyon entegrasyonu sürekli API rate limitine (dakikada 300 istek) takılıyor. Mimari çözümün ne olur?",
+              en: 'A regression integration keeps hitting the API rate limit (300 requests per minute). What is your architectural solution?',
+            },
+            a: {
+              tr: "Tek tek senkron çağrı yerine bir KUYRUK + toplu (batch) yazma mimarisi kurarım: koşum sonuçları önce yerel bir kuyrukta birikir, sonra `retry-after` başlığına saygı gösteren bir worker bunları kontrollü bir hızda Jira'ya gönderir. Bu, bir veritabanına satır satır INSERT atmak yerine toplu (bulk) insert kullanmakla aynı performans mantığıdır — istek sayısını azaltmak, hızı artırmaktan daha güvenilir bir çözümdür.",
+              en: 'Instead of one-by-one synchronous calls, I build a QUEUE plus batched-write architecture: run results first accumulate in a local queue, then a worker that respects the `retry-after` header sends them to Jira at a controlled pace. This is the same performance logic as using bulk inserts into a database instead of inserting row by row -- reducing request count is a more reliable fix than trying to go faster.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Bir workflow'da \"Done\"a iki farklı yoldan ulaşılabiliyor — biri normal QA doğrulaması, diğeri bir developer kısayolu. Bunun raporlara etkisini ve düzeltmeyi anlat.",
+              en: 'A workflow allows reaching "Done" via two different paths -- one the normal QA verification, the other a developer shortcut. Explain the impact on reports and the fix.',
+            },
+            a: {
+              tr: "Kısayol geçişi resolution'ı QA doğrulaması olmadan set edebiliyorsa, \"Done + resolution=Fixed\" filtresine dayanan HER metrik (defect leakage, reopen rate) sessizce kirlenir — bazı kayıtlar hiç doğrulanmadan \"doğrulanmış\" gibi sayılır. Düzeltme, kısayol geçişini TAMAMEN kaldırmak ya da en azından resolution'ı OTOMATİK set etmesini engelleyip QA rolüne özel bir geçiş koşulu eklemektir. Bu, bir güvenlik açığını (yetkisiz bir arka kapı) kapatmakla aynı önceliktedir — veri kalitesi güvenlik kadar ciddiye alınmalıdır.",
+              en: 'If the shortcut transition can set resolution without QA verification, EVERY metric relying on the "Done plus resolution=Fixed" filter (defect leakage, reopen rate) silently gets corrupted -- some records count as "verified" without ever being verified. The fix is to REMOVE the shortcut transition entirely, or at minimum prevent it from auto-setting resolution and add a QA-role-specific condition to the transition. This deserves the same priority as closing a security vulnerability (an unauthorized backdoor) -- data quality should be taken as seriously as security.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Zephyr'den Xray'e geçiş yapılacak, 500 mevcut test tanımı var. Geçiş stratejin ne olur?",
+              en: 'A migration from Zephyr to Xray is planned, with 500 existing test definitions. What is your migration strategy?',
+            },
+            a: {
+              tr: "Önce küçük, düşük riskli bir Test Set'i (örn. 20 test) pilot olarak taşır, alan eşlemesini (Precondition, adımlar, beklenen sonuç) doğrularım — büyük bir toplu taşıma tek seferde hata ayıklaması imkânsız bir kaos yaratır. Pilot başarılıysa geri kalanı gruplar hâlinde, her grup sonrası izlenebilirlik zincirinin (requirement bağları) BOZULMADIĞINI doğrulayarak taşırım. Bu, büyük bir veritabanı şema göçünü tek bir dev migration yerine geriye dönük uyumlu küçük adımlarla yapmakla aynı disiplin.",
+              en: "First I migrate a small, low-risk Test Set (say 20 tests) as a pilot, verifying the field mapping (Precondition, steps, expected result) -- a single big-bang migration creates chaos that is impossible to debug. If the pilot succeeds, I migrate the rest in batches, verifying after each batch that the traceability chain (requirement links) is NOT broken. This is the same discipline as doing a large database schema migration in small, backward-compatible steps instead of one giant migration.",
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Organizasyon \"her metrik Jira'dan gelsin\" diyor ama kullanıcı memnuniyeti gibi bazı veriler Jira'da yok. Bu sınırı nasıl çizersin?",
+              en: 'The organization says "every metric should come from Jira", but some data like customer satisfaction is not in Jira. How do you draw this boundary?',
+            },
+            a: {
+              tr: "Jira'yı SÜREÇ verisinin (bug sayısı, cycle time, reopen oranı) tek kaynağı olarak tutarım ama SONUÇ verisini (kullanıcı memnuniyeti, gelir etkisi) başka sistemlerden (destek bileti aracı, analytics) çekip ayrı bir katmanda BİRLEŞTİRİRİM — Jira'ya zorla sığdırmak, bir aracın yapmadığı işi yapmasını istemek gibi kırılgan bir bağımlılık yaratır. Bu, tek bir veritabanının HER türlü veriyi tutmasını beklemek yerine, her sistemin kendi güçlü olduğu veriyi tutup bir raporlama katmanında birleştirilmesiyle aynı mimari ilke.",
+              en: "I keep Jira as the single source for PROCESS data (bug count, cycle time, reopen rate) but pull OUTCOME data (customer satisfaction, revenue impact) from other systems (a support ticket tool, analytics) and MERGE it in a separate layer -- forcing it into Jira creates a fragile dependency, asking a tool to do a job it was not built for. This is the same architectural principle as not expecting a single database to hold every kind of data, but letting each system hold what it is strong at and merging them in a reporting layer.",
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "İzin şeması yıllar içinde karmaşıklaştı, kimin ne yapabildiği artık belirsiz. Nasıl bir denetim/temizlik süreci kurarsın?",
+              en: 'The permission scheme has grown complex over the years, and who can do what is now unclear. What audit/cleanup process do you set up?',
+            },
+            a: {
+              tr: "Önce mevcut şemayı rol × işlem matrisine dökerim (hangi rol hangi geçişi/alanı görebiliyor) — görselleştirmeden önce kimse tam resmi göremez. Sonra her kuralı \"bu kısıtlama HÂLÂ gerekli mi\" sorusuyla tek tek gözden geçiririm; kullanılmayan/artık anlamsız kuralları KALDIRIRIM, eklemem, çünkü karmaşıklık genelde birikmiş istisnalardan gelir. Bu, ölü kodu (kullanılmayan koşulları) düzenli olarak temizlemeyen bir kod tabanının zamanla okunamaz hâle gelmesiyle aynı bakım disiplini.",
+              en: 'First I dump the current scheme into a role-by-action matrix (which role can see which transition/field) -- nobody can see the full picture before visualizing it. Then I review each rule one by one with the question "is this restriction STILL needed"; I REMOVE unused/now-meaningless rules rather than adding more, because complexity usually comes from accumulated exceptions. This is the same maintenance discipline as a codebase that never cleans up dead code (unused conditions) becoming unreadable over time.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Bir takım CI'da JQL sorgularını hardcoded tutuyor; proje anahtarı değişince her yerde kırılıyor. Nasıl bir mimari öneri sunarsın?",
+              en: 'A team keeps JQL queries hardcoded in CI; when the project key changes, everything breaks. What architectural proposal do you make?',
+            },
+            a: {
+              tr: "Proje anahtarı, ortam adı gibi değişebilir değerleri sorgudan AYIRIP merkezi bir konfigürasyon dosyasında/ortam değişkeninde tutar, sorguları bu değerleri parametre olarak ALACAK şekilde şablonlaştırırım. Bu, bir otomasyon test paketinde URL'yi her test dosyasına sabit yazmak yerine tek bir config'ten okumakla aynı DRY (Don't Repeat Yourself) ilkesidir — bir değer bir kez değişir, HER yerde otomatik güncellenir.",
+              en: 'I SEPARATE values that can change, like the project key or environment name, from the query and keep them in a central config file/environment variable, templating the queries to TAKE these values as parameters. This is the same DRY (Don\'t Repeat Yourself) principle as reading the URL from a single config instead of hardcoding it into every test file in an automation suite -- a value changes once, and updates EVERYWHERE automatically.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Board'un WIP limiti sürekli aşılıyor ama takım \"biz zaten hızlı çalışıyoruz\" diyor. Veriyle nasıl ikna edersin?",
+              en: 'The board\'s WIP limit is constantly exceeded, but the team says "we are already fast". How do you convince them with data?',
+            },
+            a: {
+              tr: "Kontrol grafiğindeki cycle time TRENDİNİ gösteririm — \"hızlıyız\" algısı genelde bireysel kartlara bakmaktan gelir, ama trend genelde son haftalarda YAVAŞLADIĞINI gösterir. Ardından \"In QA\" sütununun WIP limiti aşım geçmişini bu trendle yan yana koyarım — korelasyon, algı yerine veri sunar. Bu, bir performans sorununu \"bence yavaş\" demek yerine profiling verisiyle (hangi metot ne kadar sürüyor) kanıtlamakla aynı disiplin.",
+              en: 'I show the TREND of cycle time on the control chart -- the "we are fast" perception usually comes from looking at individual cards, but the trend usually shows SLOWING over recent weeks. Then I put the "In QA" column\'s WIP limit overflow history side by side with that trend -- correlation offers data instead of perception. This is the same discipline as proving a performance problem with profiling data (which method takes how long) instead of saying "I think it\'s slow".',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Bir güvenlik denetimi, birkaç API token'ının bir log dosyasında düz metin olarak sızdığını buldu. Acil ve kalıcı önlemlerin neler olur?",
+              en: 'A security audit finds several API tokens leaked in plain text in a log file. What are your immediate and lasting measures?',
+            },
+            a: {
+              tr: "Acil önlem: sızan token'ların TÜMÜNÜ derhal iptal edip yenilerini üretmek — şifreyi değiştirmeye gerek yok çünkü token ayrı bir kimlik parçasıdır, bu ayrımın tam olarak işe yaradığı andır. Kalıcı önlem: loglama katmanına Authorization başlığını veya token içeren alanları OTOMATİK maskeleyen bir filtre eklemek ve otomasyon kullanıcıları için minimal yetkili, ayrı hesaplar kullanmak ki bir sızıntının hasarı sınırlı kalsın. Bu, bir stack trace'in şifreleri asla loglamaması gerektiğiyle aynı güvenlik disiplini — hassas veri, hata ayıklama kolaylığından daha önceliklidir.",
+              en: 'Immediate measure: revoke ALL leaked tokens immediately and generate new ones -- no need to change the password, because the token is a separate credential, this is exactly the moment that separation pays off. Lasting measure: add a filter to the logging layer that AUTOMATICALLY masks the Authorization header or token-bearing fields, and use minimally privileged, separate accounts for automation users so a leak\'s damage stays limited. This is the same security discipline as a stack trace never logging passwords -- sensitive data takes priority over debugging convenience.',
+            },
+          },
+          {
+            level: 'advanced',
+            q: {
+              tr: "Şirket genelinde \"kaç bug bulundu\" yerine daha sağlıklı bir kalite skoru tasarlaman isteniyor. Nasıl bir composite metrik kurarsın?",
+              en: 'You are asked to design a healthier quality score for the whole company, instead of "how many bugs were found". How do you build a composite metric?',
+            },
+            a: {
+              tr: "Tek bir sayı yerine üç bileşenli bir skor kurarım: defect leakage (üretime sızma oranı — kaçırdıklarımız), reopen rate (düzeltme kalitesi) ve doğrulama bekleme süresi (akış sağlığı). Her bileşeni AYRI AYRI gösterir, tek bir birleştirilmiş sayıya indirmem — birleştirme, hangi bileşenin kötü gittiğini gizler ve oyunlanmayı kolaylaştırır. Bu, bir test paketinin sağlığını tek bir \"başarı yüzdesi\" yerine kapsam, flaky oranı ve çalışma süresi gibi ayrı göstergelerle izlemekle aynı ilke — şeffaflık, tek bir sayının rahatlığından daha değerlidir.",
+              en: 'Instead of a single number, I build a three-component score: defect leakage (production leak rate -- what we miss), reopen rate (fix quality) and verification wait time (flow health). I show each component SEPARATELY, never collapsing them into one combined number -- combining hides which component is going badly and makes gaming easier. This is the same principle as monitoring a test suite\'s health through separate indicators like coverage, flaky rate and run time instead of a single "success percentage" -- transparency is worth more than the comfort of one number.',
             },
           },
         ],

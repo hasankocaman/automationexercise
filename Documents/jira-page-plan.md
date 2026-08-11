@@ -1,8 +1,8 @@
 # `/jira` Sayfası — Plan + Görev Dağılımı (Opus / Sonnet)
 
 > **Branch:** `feature/jira-page`
-> **Durum:** 🟡 Opus tarafı TAMAMLANDI (iskelet + wiring + referans atom). Sonnet fazları (S1-S12) açık.
-> **Hazırlayan:** Claude Code (Opus) oturumu, 2026-08-11.
+> **Durum:** ✅ TAMAMLANDI (2026-08-11) — Opus tarafı (iskelet + wiring + referans atom) ve Sonnet fazlarının tamamı (S1-S12) bitti. 13 sekme, 50 mülakat sorusu, 9 gerçek hata, min 1 video+1 animasyon+1 sandbox her sekmede. Build/i18n/içerik bütünlüğü/mülakat denetimi yeşil. Branch main'e merge edilmedi — karar kullanıcıda.
+> **Hazırlayan:** Claude Code (Opus) oturumu, 2026-08-11 (iskelet); Claude Code (Sonnet) oturumu, 2026-08-11 (S1-S12).
 > **Hedef sorgu:** "jira nedir", "jira bug raporu nasıl yazılır", "JQL sorguları",
 > "jira test yönetimi", "jira for QA engineers" (+ İngilizce karşılıkları).
 

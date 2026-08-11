@@ -20,7 +20,7 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-11, Sonnet — `/jira` Faz S1 GRUP A tamamlandı) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-11, Sonnet — `/jira` sayfası TAMAMLANDI, S1-S12 bitti) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 
@@ -112,7 +112,39 @@
   fırtınası. "Board'da kart neden görünmüyor" `step-animation` + katman
   eşleştirme `code-playground` eklendi (GRUP L'de daha önce video/animasyon/
   sandbox YOKTU, bu fazda tamamlandı).
-  Sıradaki: **D-S12 (GRUP M min 50 mülakat + kapanış)**, plan §D'de — SON FAZ.
+- **Faz S12 (D-S12, GRUP M min 50 mülakat + kapanış) BİTTİ — SAYFA TAMAMLANDI:**
+  47 yeni mülakat sorusu eklendi (toplam 51: 15 basic / 21 intermediate / 15
+  advanced, `audit-interview-questions.mjs` geçti). GRUP M'ye önceden hiç
+  video/animasyon/sandbox yoktu — "Bir Mülakat Cevabının Anatomisi: Zayıftan
+  Güçlüye" filmi (5 sahne) + güçlü cevap kurma `step-animation` + zayıf→güçlü
+  cevap dönüştürme `code-playground` eklendi. GRUP A'nın sonuna 6 sorulu `faq`
+  bloğu eklendi (build sonucu FAQPage sayfa sayısı 24→26).
+  **Kapanış görevleri tamamlandı:**
+  - `scripts/audit-interview-questions.mjs` `PAGES`'e `/jira` eklendi, denetim geçti.
+  - `scripts/generate-interview-showcase.mjs` `PAGES`'e `/jira` eklendi (ana
+    sayfa mülakat ısınma turuna girdi).
+  - `scripts/check-i18n-leaks.mjs` `TRIO_COMPLETE_PAGES`'e `jiraData.js`
+    eklendi — 13 sekmenin HEPSİNDE ≥1 video + ≥1 animasyon + ≥1 sandbox
+    doğrulandı (13. sekmedeki eksiklik bu fazda kapatıldı).
+  - `npm run build` yeşil (47 route, 866 section shell, "26 with FAQPage").
+  - Playwright: `/jira` film render ✓, sekme/buton denetimi ✓, EN modda TR
+    karakter taraması ✓ — üçü de tekrar koşulup doğrulandı.
+  - `Documents/jira-page-plan.md` durumu ✅ TAMAMLANDI olarak güncellendi.
+  - ⚠ Bu fazda da (S1-S5'teki gibi) birkaç yerde yanlışlıkla iç grup
+    referansı (`GRUP F'de`, `I2'de`) yazılmış, elle taranıp sekme adına
+    çevrildi — CLAUDE.md §23.13'teki kalıcı uyarı bir kez daha doğrulandı.
+
+### Sıradaki iş (yeni oturum buradan başlasın)
+
+1. **`/jira` sayfası içerik olarak TAMAMLANDI.** Kalan tek karar: branch'i
+   main'e merge + push etmek — kullanıcı kararı.
+2. Merge öncesi istenirse `Documents/jira-page-plan.md` §F'deki manuel test
+   rehberi elle uygulanabilir (otomatik testlerin göremediği görsel/etkileşim
+   doğrulaması).
+3. Bir önceki oturumdan devam eden açık işler (aşağıdaki "Önceki Durum"
+   bölümlerinde): `fix/test-suite-flakiness` merge kararı, `npm run seo:lcp`
+   yeniden ölçümü, outreach taslakları, Plausible analytics — hiçbiri bu
+   oturumda ele alınmadı.
 
 ### Bu oturumda yapılanlar
 
