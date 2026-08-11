@@ -568,6 +568,161 @@ numeric expected/actual and evidence are all present. The reader never has to gu
   },
 }
 
+// ─── Film: bir bug'ın Reopened'a düşüşü (GRUP E referans filmi) ───────────────
+const reopenedFallFilm = {
+  type: 'video-scene',
+  id: 'jira-e1-reopened-fall-film',
+  title: {
+    tr: "🎬 Bir Bug'ın Reopened'a Düşüşü",
+    en: "🎬 A Bug's Fall Into Reopened",
+  },
+  xpReward: 15,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'progress', emoji: '🧑‍💻', label: { tr: 'In Progress', en: 'In Progress' }, color: '#6366f1' },
+    { id: 'ready', emoji: '🎯', label: { tr: 'Ready for QA', en: 'Ready for QA' }, color: '#f59e0b' },
+    { id: 'inqa', emoji: '🔍', label: { tr: 'In QA', en: 'In QA' }, color: '#0ea5e9' },
+    { id: 'reopened', emoji: '🔁', label: { tr: 'Reopened', en: 'Reopened' }, color: '#ef4444' },
+    { id: 'resolution', emoji: '🏷️', label: { tr: 'Resolution Alanı', en: 'Resolution Field' }, color: '#8b5cf6' },
+    { id: 'done', emoji: '✅', label: { tr: 'Gerçek Done', en: 'Real Done' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "SHOP-142 \"In Progress\" durumunda — Mert kupon hesaplama fonksiyonunu düzeltiyor. Bu filmde kaydın kapıdan kapıya nasıl ilerlediğini ve bir kapının nasıl geri döndürdüğünü izleyeceksin.",
+        en: 'SHOP-142 sits in "In Progress" -- Mert is fixing the coupon calculation function. In this film you will watch the record move gate to gate, and see how one gate sends it back.',
+      },
+      positions: { progress: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Mert kodu bitirir ve "Ready for QA" geçişini tetikler. Bu geçişte bir koşul (condition) vardır: kod review onayı olmadan bu buton hiç görünmez. Onay var, geçiş açılır.',
+        en: 'Step 1 -- Mert finishes the code and triggers the "Ready for QA" transition. This transition has a condition: without code review approval, the button does not even appear. The approval exists, the transition opens.',
+      },
+      positions: {
+        progress: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        ready: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'progress', to: 'ready', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 2 — Ayşe kaydı "In QA"ya alır ve staging\'de kupon senaryosunu koşar. Yüzde bazlı tekli kupon doğru çalışıyor — ama Ayşe ikinci bir senaryo daha dener: kupon + üye indirimi aynı anda.',
+        en: 'Step 2 -- Ayse moves the record to "In QA" and runs the coupon scenario on staging. The single percentage coupon works correctly -- but Ayse tries one more scenario: coupon plus membership discount at the same time.',
+      },
+      positions: {
+        ready: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        inqa: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ready', to: 'inqa', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3 — İkinci senaryoda hata hâlâ var: iki indirim üst üste bindiğinde tutar yine yanlış hesaplanıyor. Ayşe kaydı "Reopened"a taşır ve YENİ bir tekrar üretim adımı ekler — orijinal rapor eksik değildi, kapsam genişledi.',
+        en: 'Step 3 -- In the second scenario the bug is still there: when the two discounts stack, the amount is calculated wrong again. Ayse moves the record to "Reopened" and adds a NEW reproduction step -- the original report was not incomplete, the scope simply widened.',
+      },
+      positions: {
+        inqa: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        reopened: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'inqa', to: 'reopened', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — Mert ikinci düzeltmeyi yazar, bu sefer resolution alanını yalnızca Ayşe DOĞRULADIKTAN sonra \"Fixed\" olarak set eder — kendi geçişinde BOŞ bırakır. Eğer Mert resolution'ı erkenden \"Fixed\" yazsaydı, kayıt Reopened'a düşse bile bazı raporlar onu hâlâ \"çözülmüş\" sayardı — resolution'ın NE ZAMAN set edildiği, DONE kadar önemlidir.",
+        en: 'Finale (the contrast) -- Mert writes the second fix, this time setting the resolution field to "Fixed" only AFTER Ayse VERIFIES it -- he leaves it EMPTY at his own transition. Had Mert set resolution to "Fixed" early, some reports would still count the record as "resolved" even after it fell into Reopened -- WHEN resolution gets set matters as much as reaching Done.',
+      },
+      positions: {
+        reopened: { x: 18, y: 32, scale: 0.9 },
+        resolution: { x: 46, y: 55, scale: 1.1 },
+        done: { x: 74, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'reopened', to: 'resolution', color: '#8b5cf6' }, { from: 'resolution', to: 'done', color: '#10b981' }],
+    },
+  ],
+}
+
+// ─── python-flow-diagram: tipik bug workflow'u (GRUP E2) ──────────────────────
+const bugWorkflowFlow = {
+  type: 'python-flow-diagram',
+  titleTr: 'Tipik Bug Workflow\'u: QA Nerede Duruyor?',
+  titleEn: 'A Typical Bug Workflow: Where Does QA Stand?',
+  steps: [
+    { type: 'action', code: 'Open', desc: 'Bug is filed, no work has started', descTr: 'Bug kaydedildi, henüz iş başlamadı' },
+    { type: 'action', code: 'In Progress', desc: 'Developer is writing the fix', descTr: 'Developer düzeltmeyi yazıyor' },
+    { type: 'condition', code: 'Ready for QA', desc: 'Gate: requires code review approval', descTr: 'Kapı: kod review onayı gerektirir', branch: { true: 'In QA', false: 'In Progress' } },
+    { type: 'condition', code: 'In QA', desc: 'QA verifies against the acceptance criterion', descTr: "QA kabul kriterine göre doğrular", branch: { true: 'Done', false: 'Reopened' } },
+    { type: 'end', code: 'Done (resolution = Fixed)', desc: 'Only set by QA after verification', descTr: 'Yalnızca QA doğruladıktan sonra set edilir' },
+  ],
+}
+
+// ─── step-animation: resolution alanının zamanlaması (GRUP E3) ────────────────
+const resolutionTimingSteps = {
+  type: 'step-animation',
+  id: 'jira-e3-resolution-timing-steps',
+  title: { tr: 'Adım Adım: Resolution Alanı Ne Zaman Doğru Set Edilir?', en: 'Step by Step: When Is the Resolution Field Set Correctly?' },
+  steps: [
+    { id: 1, icon: '🧑‍💻', label: { tr: 'Developer düzeltmeyi bitirir', en: 'Developer finishes the fix' }, detail: { tr: 'Kod yazıldı, review onaylandı. Resolution alanı henüz BOŞ bırakılır — çünkü henüz hiçbir doğrulama yapılmadı.', en: 'Code is written, review is approved. The resolution field is left EMPTY still -- because no verification has happened yet.' } },
+    { id: 2, icon: '❌', label: { tr: 'Yaygın hata: erken "Fixed"', en: 'Common mistake: early "Fixed"' }, detail: { tr: 'Bazı developer\'lar alışkanlıkla resolution\'ı "Ready for QA"ya geçerken "Fixed" yapar — bu, HENÜZ doğrulanmamış bir iddiayı kesin bir gerçek gibi kaydeder.', en: 'Some developers habitually set resolution to "Fixed" while moving to "Ready for QA" -- this records an UNVERIFIED claim as a settled fact.' } },
+    { id: 3, icon: '🔍', label: { tr: 'QA doğrular', en: 'QA verifies' }, detail: { tr: 'Ayşe kabul kriterine göre test eder. Bu adımda resolution HÂLÂ Mert\'in erken yazdığı "Fixed" değerini taşıyor olabilir — yanıltıcı bir durum.', en: 'Ayse tests against the acceptance criterion. At this point resolution may STILL carry the "Fixed" value Mert set early -- a misleading state.' } },
+    { id: 4, icon: '🔁', label: { tr: 'Doğrulama başarısız olursa', en: 'If verification fails' }, detail: { tr: 'Kayıt Reopened\'a döner ama resolution alanı hâlâ "Fixed" yazıyorsa, "resolution dolu = çözüldü" varsayımıyla çalışan bir rapor bu bug\'ı YANLIŞLIKLA çözülmüş sayar.', en: 'The record falls back to Reopened, but if resolution still reads "Fixed", a report that assumes "resolution filled = resolved" WRONGLY counts this bug as solved.' } },
+    { id: 5, icon: '✅', label: { tr: 'Doğru sıra: resolution en son set edilir', en: 'The correct order: resolution is set last' }, detail: { tr: "Resolution yalnızca QA doğrulayıp Done'a taşırken set edilmelidir. Bu, resolution'ın \"bu iş bitti mi\" değil \"bu iş DOĞRULANARAK bitti mi\" sorusuna cevap vermesini sağlar.", en: 'Resolution should only be set when QA verifies and moves the record to Done. This makes resolution answer not "is this finished" but "was this finished AND VERIFIED".' } },
+  ],
+}
+
+// ─── code-playground: verilen senaryoda doğru geçişi seç (GRUP E4) ────────────
+const transitionDecisionPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-e2-typical-workflow',
+  id: 'jira-e4-transition-decision',
+  title: { tr: 'Kendin Dene: Doğru Geçişi Seç', en: 'Try It Yourself: Pick the Correct Transition' },
+  starterCode: {
+    tr: `Durum: Mert SHOP-142'nin kodunu bitirdi ama kod review'i henüz onaylanmadı.
+Mert hangi geçişi yapmalı?
+
+Mert -> "Ready for QA" geçişine tıklar.`,
+    en: `Case: Mert finished the code for SHOP-142 but code review has not been approved yet.
+Which transition should Mert perform?
+
+Mert -> clicks the "Ready for QA" transition.`,
+  },
+  solutionCode: {
+    tr: `Mert hiçbir geçiş YAPAMAZ — "Ready for QA" butonu review onayı olmadan
+görünmez bile olur (Kurulum & İlk Proje sekmesindeki izin/koşul mantığıyla
+aynı mekanizma). Doğru adım: review'in onaylanmasını beklemek, review
+istemek için yorum bırakmak.`,
+    en: `Mert CANNOT perform any transition -- the "Ready for QA" button does not
+even render without review approval (the same permission/condition logic
+from the Setup & First Project tab). The correct step: wait for the review
+to be approved, leave a comment requesting it.`,
+  },
+  hint: {
+    tr: "Az önceki akış diyagramını hatırla: \"Ready for QA\" bir KOŞULLU kapıdır (condition node). Koşul sağlanmadan geçiş görünmez bile — Kurulum & İlk Proje sekmesinde gördüğün izin şemasıyla aynı mekanizma.",
+    en: 'Remember the flow diagram above: "Ready for QA" is a CONDITIONAL gate. Without the condition met, the transition does not even render -- the same mechanism you saw in the permission scheme on the Setup & First Project tab.',
+  },
+  successMessage: {
+    tr: "Doğru! Bir workflow koşulu, izin şemasıyla aynı mantıkla çalışır — buton görünmez, hata mesajı yok. Bu, Kurulum & İlk Proje sekmesindeki \"görünmeyen buton çoğu zaman kasıtlıdır\" ilkesinin workflow katmanındaki karşılığıdır.",
+    en: 'Correct! A workflow condition works with the same logic as the permission scheme -- the button is absent, no error message. This is the workflow-layer counterpart of the "a missing button is usually deliberate" principle from the Setup & First Project tab.',
+  },
+}
+
+// ─── challenge (order-sort): workflow sırası (GRUP E) ──────────────────────────
+const workflowOrderChallenge = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'jira-e-workflow-order',
+  question: { tr: "Bir bug'ın normal akıştaki (Reopened olmadan) beş durumunu doğru sırayla diz.", en: "Order a bug's five statuses in the normal flow (without Reopened)." },
+  items: [
+    { id: '1', text: { tr: 'Open', en: 'Open' }, order: 1 },
+    { id: '2', text: { tr: 'In Progress', en: 'In Progress' }, order: 2 },
+    { id: '3', text: { tr: 'Ready for QA', en: 'Ready for QA' }, order: 3 },
+    { id: '4', text: { tr: 'In QA', en: 'In QA' }, order: 4 },
+    { id: '5', text: { tr: 'Done', en: 'Done' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
 // ─── code-playground: JQL ile reopen edilen bug'lar (GRUP F) ──────────────────
 const reopenedJqlPlayground = {
   type: 'code-playground',
@@ -946,8 +1101,8 @@ const issueTypeMatchPlayground = {
     en: 'Look at duration: months long means Epic. Directly delivers user value and can ship alone means Story. An unplanned observation that the system behaves WRONG means Bug. Concrete, one-person, one-day work tied under a Story means Sub-task.',
   },
   successMessage: {
-    tr: 'Doğru! Süre ve "planlanmış mı, keşfedilmiş mi" sorusu dört tipi birbirinden ayırır. Bu ayrımı yanlış yapmak salt bir etiketleme hatası değildir — §C1\'deki filmde gördüğün gibi, "bu sprintte kaç bug çıktı" gibi bir metrik yanlış issue tipiyle sessizce bozulur.',
-    en: 'Correct! Duration and the question "was this planned, or discovered" separate the four types. Getting this wrong is not just a labeling mistake -- as the film in C1 showed, a metric like "how many bugs came out of this sprint" is silently corrupted by the wrong issue type.',
+    tr: 'Doğru! Süre ve "planlanmış mı, keşfedilmiş mi" sorusu dört tipi birbirinden ayırır. Bu ayrımı yanlış yapmak salt bir etiketleme hatası değildir — bu sekmenin başındaki filmde gördüğün gibi, "bu sprintte kaç bug çıktı" gibi bir metrik yanlış issue tipiyle sessizce bozulur.',
+    en: 'Correct! Duration and the question "was this planned, or discovered" separate the four types. Getting this wrong is not just a labeling mistake -- as the film at the top of this tab showed, a metric like "how many bugs came out of this sprint" is silently corrupted by the wrong issue type.',
   },
 }
 
@@ -978,7 +1133,7 @@ const linkTypesTable = {
     [
       { tr: 'caused by / causes', en: 'caused by / causes' },
       { tr: "Bug'ı doğuran Story'ye işaret eder", en: 'Points to the Story that caused the bug' },
-      { tr: "Link eksikse §A4'teki izlenebilirlik zinciri kopar", en: 'A missing link breaks the traceability chain from A4' },
+      { tr: "Link eksikse izlenebilirlik zinciri kopar", en: 'A missing link breaks the traceability chain' },
     ],
   ],
 }
@@ -1362,8 +1517,8 @@ const sections = [
       {
         type: 'text',
         content: {
-          tr: "Bu karar, §A3'teki Cloud/Data Center farkından bağımsız bir eksendir — her iki sürümde de proje tipi seçimi yapılır (Data Center yalnızca company-managed sunar). Aşağıdaki tablo iki tipi dört boyutta karşılaştırıyor.",
-          en: "This decision is an axis independent of the Cloud/Data Center difference from A3 -- both editions require a project-type choice (Data Center only offers company-managed). The table below compares the two types across four dimensions.",
+          tr: "Bu karar, Jira Nedir? sekmesinde gördüğün Cloud/Data Center farkından bağımsız bir eksendir — her iki sürümde de proje tipi seçimi yapılır (Data Center yalnızca company-managed sunar). Aşağıdaki tablo iki tipi dört boyutta karşılaştırıyor.",
+          en: "This decision is an axis independent of the Cloud/Data Center difference from the What is Jira? tab -- both editions require a project-type choice (Data Center only offers company-managed). The table below compares the two types across four dimensions.",
         },
       },
       projectTypeTable,
@@ -1533,8 +1688,8 @@ const sections = [
       {
         type: 'text',
         content: {
-          tr: "Bug, hiyerarşinin bir parçası olmasa da tam teşekküllü bir issue tipidir — kendi alanları ve kendi ekranı vardır. §D'de detaylandıracağımız Severity, Ortam ve Tekrar Üretim Adımları gibi alanlar bir Story'de ANLAMSIZDIR, bir Bug'da ZORUNLUDUR. Aşağıdaki tablo dört issue tipinin kendine özgü alanlarını karşılaştırıyor.",
-          en: "Even though it is not part of the hierarchy, Bug is a fully-fledged issue type -- it has its own fields and its own screen. Fields we detail in D like Severity, Environment and Reproduction Steps are MEANINGLESS on a Story, and MANDATORY on a Bug. The table below compares the fields specific to four issue types.",
+          tr: "Bug, hiyerarşinin bir parçası olmasa da tam teşekküllü bir issue tipidir — kendi alanları ve kendi ekranı vardır. Bug Raporlama Sanatı sekmesinde detaylandıracağımız Severity, Ortam ve Tekrar Üretim Adımları gibi alanlar bir Story'de ANLAMSIZDIR, bir Bug'da ZORUNLUDUR. Aşağıdaki tablo dört issue tipinin kendine özgü alanlarını karşılaştırıyor.",
+          en: "Even though it is not part of the hierarchy, Bug is a fully-fledged issue type -- it has its own fields and its own screen. Fields we detail in the Art of Bug Reporting tab like Severity, Environment and Reproduction Steps are MEANINGLESS on a Story, and MANDATORY on a Bug. The table below compares the fields specific to four issue types.",
         },
       },
       issueTypeFieldsTable,
@@ -1620,8 +1775,8 @@ const sections = [
           ],
           correct: 'a',
           explanation: {
-            tr: 'Link eksikse iki kayıt bağımsız gibi görünür ve raporlarda ayrı ayrı sayılır — §K\'daki metrikler için bu doğrudan bir bozulma kaynağıdır.',
-            en: 'Without the link the two records look independent and are counted separately in reports -- for the metrics in K this is a direct source of distortion.',
+            tr: 'Link eksikse iki kayıt bağımsız gibi görünür ve raporlarda ayrı ayrı sayılır — Dashboard ve QA Metrikleri sekmesindeki metrikler için bu doğrudan bir bozulma kaynağıdır.',
+            en: 'Without the link the two records look independent and are counted separately in reports -- for the metrics on the Dashboards & QA Metrics tab this is a direct source of distortion.',
           },
         },
       },
@@ -1669,7 +1824,7 @@ const sections = [
         ],
         correct: 'b',
         explanation: {
-          tr: "Ortam bilgisi eksikse okuyan kişi kendi varsayılan ortamında dener — sorun tarayıcıya/sürüme özgüyse orada hiç görünmez. Bu, GRUP D'nin film ve step-animation'ında gördüğün beş günlük gecikmenin tam olarak kök nedenidir.",
+          tr: "Ortam bilgisi eksikse okuyan kişi kendi varsayılan ortamında dener — sorun tarayıcıya/sürüme özgüyse orada hiç görünmez. Bu, az önceki filmde ve adım adım anlatımda gördüğün beş günlük gecikmenin tam olarak kök nedenidir.",
           en: 'Without environment info the reader tries it in their own default environment -- if the problem is browser/version-specific it never shows up there. This is exactly the root cause of the five-day delay you saw in the film and step-animation.',
         },
         retryQuestion: {
@@ -1713,8 +1868,8 @@ const sections = [
         ],
         correct: 'b',
         explanation: {
-          tr: 'Bug yalnızca YÜZDE bazlı kuponlarda çıkıyor (§D1\'deki senaryo). "Bir kupon dene" adımıyla okuyan kişi sabit tutarlı bir kupon seçerse hatayı hiç göremez ve raporu haksız yere "cannot reproduce" ile kapatır.',
-          en: 'The bug only shows up with PERCENTAGE coupons (the scenario from D1). With the step "try a coupon", if the reader picks a fixed-amount coupon they never see the failure and unfairly close the report as "cannot reproduce".',
+          tr: "Bug yalnızca YÜZDE bazlı kuponlarda çıkıyor (bu sayfa boyunca izlediğimiz SHOP-142 senaryosu). \"Bir kupon dene\" adımıyla okuyan kişi sabit tutarlı bir kupon seçerse hatayı hiç göremez ve raporu haksız yere \"cannot reproduce\" ile kapatır.",
+          en: 'The bug only shows up with PERCENTAGE coupons (the SHOP-142 scenario we have followed throughout this page). With the step "try a coupon", if the reader picks a fixed-amount coupon they never see the failure and unfairly close the report as "cannot reproduce".',
         },
         retryQuestion: {
           question: { tr: 'Bir otomasyon testindeki `.first()` locator\'ı ile belirsiz bir bug adımının ortak riski nedir?', en: 'What risk does a `.first()` locator in an automation test share with a vague bug step?' },
@@ -1891,6 +2046,150 @@ const sections = [
           en: 'We will cover the difference between status, transition and resolution; a typical bug workflow and where QA sits in it (Ready for QA to In QA to Done or Reopened); why the definition of "done" must be written down as a team; why conditions placed on transitions sometimes make your button invisible; and which chores automation rules can take over on specific transitions.',
         },
       },
+      reopenedFallFilm,
+      {
+        type: 'heading',
+        text: { tr: '1️⃣ E1. Status, Transition ve Resolution Üçlüsü', en: '1️⃣ E1. The Status, Transition and Resolution Triplet' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🚦',
+        content: {
+          tr: "Bu üçlüyü bir trafik ışığı sistemine benzet: status IŞIĞIN RENGİDİR (şu anki durum — kırmızı/sarı/yeşil), transition IŞIĞIN DEĞİŞMESİDİR (kırmızıdan yeşile geçiş, bir olay), resolution ise KAVŞAĞIN KAMERA KAYDIDIR (bu geçiş neden oldu, hangi sebeple — arıza mı, planlı bakım mı). Üçü de farklı bir soruya cevap verir.\n\nDüşündürücü soru: neden \"Done\" tek başına yeterli değil de ayrıca bir resolution alanına ihtiyaç var? Çünkü aynı \"Done\" durumuna FARKLI SEBEPLERLE ulaşılabilir — gerçekten düzeltildi mi (Fixed), aslında bir kopya mıydı (Duplicate), yoksa hiç tekrar üretilemedi mi (Cannot Reproduce)? Status \"nerede olduğunu\", resolution \"NEDEN orada olduğunu\" anlatır.\n\nKarşılaştır: Java'da bir metodun dönüş DEĞERİ (status'e benzer — hangi sonuca ulaşıldı) ile fırlattığı EXCEPTION TİPİ (resolution'a benzer — bu sonuca hangi sebeple ulaşıldı) farklı bilgiler taşır; ikisini tek bir alana sıkıştırmak bilgi kaybettirir.\n\nQA açısından pratik sonuç: bir raporlama sorgusu yalnızca status'e (\"= Done\") bakarsa, gerçekten düzeltilmiş bug'larla \"cannot reproduce\" ile kapatılmış bug'ları AYIRT EDEMEZ — resolution'a bakması gerekir.",
+          en: 'Compare this triplet to a traffic light system: status is the LIGHT\'S COLOR (the current state -- red/yellow/green), transition is the LIGHT CHANGING (red to green, an event), and resolution is the INTERSECTION\'S CAMERA RECORD (why this change happened -- a fault, planned maintenance). All three answer a different question.\n\nThe question worth pausing on: why is "Done" alone not enough, why do you also need a resolution field? Because the same "Done" state can be reached for DIFFERENT REASONS -- was it genuinely fixed (Fixed), was it actually a duplicate (Duplicate), or was it never reproducible at all (Cannot Reproduce)? Status tells you "where it is", resolution tells you "WHY it is there".\n\nCompare: in Java, a method\'s return VALUE (like status -- which outcome was reached) and the EXCEPTION TYPE it throws (like resolution -- why that outcome was reached) carry different information; squeezing both into one field loses information.\n\nThe practical takeaway for QA: a reporting query that only looks at status ("= Done") CANNOT tell apart bugs that were genuinely fixed from bugs closed as "cannot reproduce" -- it needs to look at resolution too.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir kalite raporu \"bu ay kaç bug DÜZELTİLDİ\" sorusunu `status = Done` sorgusuyla cevaplıyor. Bu sorgunun hatası nedir?",
+          en: 'A quality report answers "how many bugs were FIXED this month" with the query `status = Done`. What is wrong with this query?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Hiçbir hatası yok, status = Done yeterlidir", en: 'Nothing is wrong, status = Done is enough' } },
+          { id: 'b', text: { tr: "Done durumuna Duplicate veya Cannot Reproduce sebebiyle de ulaşılabilir; resolution'a bakılmadan gerçekten düzeltilenler AYIRT EDİLEMEZ", en: 'Done can also be reached via Duplicate or Cannot Reproduce; without checking resolution, genuinely fixed bugs CANNOT be told apart' } },
+          { id: 'c', text: { tr: "status alanı yalnızca Bug'larda çalışır", en: 'The status field only works on Bugs' } },
+          { id: 'd', text: { tr: "Sorgu sözdizimi hatalıdır", en: 'The query syntax is invalid' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Status \"nerede\" sorusuna cevap verir, \"neden\" sorusuna değil. Doğru sorgu `status = Done AND resolution = Fixed` olmalıdır — aksi hâlde duplicate ve cannot-reproduce kapanışlar da \"düzeltildi\" sayılır.",
+          en: 'Status answers "where", not "why". The correct query should be `status = Done AND resolution = Fixed` -- otherwise duplicate and cannot-reproduce closures also get counted as "fixed".',
+        },
+        retryQuestion: {
+          question: { tr: 'Transition (geçiş) neyi temsil eder?', en: 'What does a transition represent?' },
+          options: [
+            { id: 'a', text: { tr: 'Bir durumdan diğerine geçen OLAYIN kendisi', en: 'The EVENT of moving from one status to another' } },
+            { id: 'b', text: { tr: 'Kaydın o anki sabit hâli', en: "The record's current fixed state" } },
+            { id: 'c', text: { tr: 'Yalnızca bir görsel animasyon', en: 'Just a visual animation' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Transition, status\'ler arasındaki geçişi tetikleyen olaydır — bir kapıdan geçmek gibi; status ise o kapının ardındaki mevcut oda.',
+            en: 'A transition is the event that triggers movement between statuses -- like walking through a gate; status is the current room behind that gate.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ E2. Tipik Bir Bug Workflow\'u', en: '2️⃣ E2. A Typical Bug Workflow' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Aşağıdaki akış, Jira Nedir? sekmesinden beri izlediğimiz SHOP-142'nin geçtiği tipik yoldur. QA'in akıştaki konumuna dikkat et: \"Ready for QA\" ve \"In QA\" arasındaki geçiş, doğrulamanın DÜZELTMEDEN AYRI bir adım olduğunu somutlaştırır — Jira Nedir? sekmesinde gördüğün rol ayrımının workflow'a yansımasıdır.",
+          en: "The flow below is the typical path SHOP-142 has taken since the What is Jira? tab. Notice QA's position in the flow: the transition between \"Ready for QA\" and \"In QA\" makes concrete that verification is a step SEPARATE FROM the fix -- the workflow reflection of the role separation you saw on the What is Jira? tab.",
+        },
+      },
+      bugWorkflowFlow,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Workflow diyagramında \"Ready for QA\" bir koşullu (condition) kapı olarak gösteriliyor. Bu koşul sağlanmazsa ne olur?",
+          en: 'In the workflow diagram, "Ready for QA" is shown as a conditional gate. What happens if the condition is not met?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Geçiş yapılır ama bir uyarı mesajı çıkar", en: 'The transition happens but a warning message appears' } },
+          { id: 'b', text: { tr: "Geçiş yapılamaz; Kurulum & İlk Proje sekmesinde gördüğün gibi buton hiç görünmeyebilir", en: 'The transition cannot be performed; as seen on the Setup & First Project tab, the button may not even render' } },
+          { id: 'c', text: { tr: "Kayıt otomatik olarak silinir", en: 'The record is automatically deleted' } },
+          { id: 'd', text: { tr: "Koşullar yalnızca kozmetiktir, geçişi engellemez", en: 'Conditions are purely cosmetic and never block a transition' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Bir workflow koşulu tam olarak izin şemasıyla aynı mekanizmayı kullanır: koşul sağlanmadan geçiş SESSİZCE engellenir, buton görünmez.",
+          en: 'A workflow condition uses exactly the same mechanism as the permission scheme: without the condition met, the transition is SILENTLY blocked, the button does not appear.',
+        },
+        retryQuestion: {
+          question: { tr: 'Diyagramdaki "In QA" düğümünden çıkan iki dal (True/False) neyi temsil eder?', en: 'What do the two branches (True/False) coming out of the "In QA" node represent?' },
+          options: [
+            { id: 'a', text: { tr: 'Doğrulamanın geçmesi (Done) veya kalması (Reopened)', en: 'Verification passing (Done) or failing (Reopened)' } },
+            { id: 'b', text: { tr: 'Kaydın yüksek veya düşük öncelikli olması', en: 'The record being high or low priority' } },
+            { id: 'c', text: { tr: 'Ayşe\'nin izinli olup olmadığı', en: 'Whether Ayse is on leave' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'QA doğrulaması İKİ sonuca varabilir: kabul kriteri karşılandıysa Done, karşılanmadıysa Reopened — bu ayrım tam olarak bu filmde izlediğin şeydir.',
+            en: 'QA verification can reach TWO outcomes: Done if the acceptance criterion is met, Reopened if not -- exactly the branching you watched in the film.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ E3. "Done" Ne Demek? Resolution\'ın Zamanlaması', en: '3️⃣ E3. What Does "Done" Mean? The Timing of Resolution' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '📜',
+        content: {
+          tr: "\"Definition of Done\" bir yemek tarifinin \"pişti\" tanımına benzer: sadece \"fırından çıktı\" değil, \"iç sıcaklığı 75°C'ye ulaştı VE kontrol edildi\" demektir. Bir takımın \"Done\" tanımı yazılı değilse, herkes kendi tarifini kullanır — biri kod push edilince Done der, biri staging'e çıkınca, biri QA doğrulayınca.\n\nDüşündürücü soru: resolution alanını NE ZAMAN set ettiğin neden \"Done\" kadar önemli? Çünkü resolution bir kez set edildiğinde bazı raporlar onu \"çözüldü\" sayar — kayıt daha sonra Reopened'a düşse bile, ESKİ resolution değeri değiştirilmezse rapor yanlış kalmaya devam eder. Zamanlama, DOĞRULUĞUN kendisidir.\n\nKarşılaştır: bir otomasyon testinde `assert` çağrısını fonksiyonun EN SONUNA koymak gibi — sonucu ortada bir yerde \"muhtemelen doğru\" diye işaretlemek, testin asıl amacını (gerçek doğrulamayı) atlamaktır. Resolution'ı erken set etmek de aynı hatayı iş süreci düzeyinde tekrarlar.\n\nQA açısından kural nettir: resolution SADECE doğrulama BAŞARILI olduğunda ve doğrulayan kişi tarafından set edilir — düzeltmeyi yazan kişi tarafından değil.",
+          en: 'A "Definition of Done" is like a recipe\'s definition of "cooked": not just "came out of the oven", but "internal temperature reached 75°C AND was checked". If a team\'s "Done" is not written down, everyone uses their own recipe -- one calls it done when code is pushed, another when it ships to staging, another when QA verifies.\n\nThe question worth pausing on: why does WHEN you set the resolution field matter as much as reaching "Done"? Because once resolution is set, some reports count it as "resolved" -- even if the record later falls into Reopened, if the OLD resolution value is not changed, the report stays wrong. Timing IS correctness here.\n\nCompare: it is like placing an `assert` call at the very END of a function -- marking the result "probably correct" somewhere in the middle skips the test\'s actual purpose (real verification). Setting resolution early repeats the exact same mistake at the process level.\n\nThe rule for QA is clear: resolution is set ONLY when verification SUCCEEDS, and it is set by the verifier -- not by whoever wrote the fix.',
+        },
+      },
+      resolutionTimingSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Mert kod review onaylanır onaylanmaz resolution alanını \"Fixed\" yapıyor, henüz Ayşe hiçbir şey doğrulamadı. Bu alışkanlığın riski nedir?",
+          en: 'Mert sets resolution to "Fixed" the moment code review is approved, before Ayse verifies anything. What is the risk of this habit?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Hiçbir risk yok, resolution erken set edilebilir", en: 'No risk, resolution can be set early' } },
+          { id: 'b', text: { tr: "Kayıt Reopened'a düşse bile resolution hâlâ \"Fixed\" görünebilir ve \"resolution=Fixed → çözüldü\" varsayan raporları yanıltır", en: 'Even if the record falls into Reopened, resolution may still read "Fixed" and mislead reports that assume "resolution=Fixed means resolved"' } },
+          { id: 'c', text: { tr: "Mert'in izni geri alınır", en: "Mert's permission gets revoked" } },
+          { id: 'd', text: { tr: "Kayıt otomatik olarak duplicate sayılır", en: 'The record is automatically counted as a duplicate' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Resolution\'ın erken set edilmesi, doğrulanmamış bir iddiayı kesin gerçek gibi kaydeder. Kayıt sonradan Reopened\'a düşse bile eski değer temizlenmezse rapor yanlış kalmaya devam eder.',
+          en: 'Setting resolution early records an unverified claim as a settled fact. Even if the record later falls into Reopened, the report stays wrong unless the old value is cleared.',
+        },
+        retryQuestion: {
+          question: { tr: 'Resolution alanını kim, ne zaman set etmelidir?', en: 'Who should set the resolution field, and when?' },
+          options: [
+            { id: 'a', text: { tr: "Yalnızca doğrulayan kişi (QA), doğrulama BAŞARILI olduğunda", en: 'Only the verifier (QA), when verification SUCCEEDS' } },
+            { id: 'b', text: { tr: "Düzeltmeyi yazan kişi, kod push edilir edilmez", en: 'Whoever wrote the fix, as soon as the code is pushed' } },
+            { id: 'c', text: { tr: "Herhangi biri, herhangi bir zamanda", en: 'Anyone, at any time' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Bu, "bende çalışıyor" sorununun resolution alanındaki karşılığıdır — doğrulayan kişi düzelten kişiden farklı olmalıdır.',
+            en: 'This is the resolution-field counterpart of the "it works on my machine" problem -- the verifier must be different from the fixer.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ E4. Otomasyon Kuralları', en: '4️⃣ E4. Automation Rules' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bir workflow geçişine bağlanan otomasyon kuralı, belirli tekrarlayan işleri devralır — örneğin bir kayıt \"Ready for QA\"ya taşındığında otomatik olarak QA rolündeki birine atanması, ya da \"Reopened\"a düşünce otomatik olarak \"regression\" etiketinin eklenmesi. Bu kurallar EKRAN GÖRÜNTÜSÜNE bağlı değildir — Cloud'da da Data Center'da da aynı KAVRAMSAL fikir çalışır: \"şu geçiş olunca şu işi otomatik yap\".",
+          en: 'An automation rule bound to a workflow transition takes over specific repeated chores -- for example, automatically assigning a record to someone with the QA role when it moves to "Ready for QA", or automatically adding a "regression" label when it falls into "Reopened". These rules are not tied to any SCREENSHOT -- the same CONCEPTUAL idea works on Cloud and Data Center alike: "when this transition happens, automatically do this chore".',
+        },
+      },
+      transitionDecisionPlayground,
+      workflowOrderChallenge,
     ],
   },
 

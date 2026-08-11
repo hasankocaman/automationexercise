@@ -55,7 +55,21 @@
   disiplini (`table` + `.first()` locator analojisi), D3 severity/priority
   (korunan içerik), D4 kanıt türleri `grid`, D5 üç raporu code review eden
   `code-playground`. GRUP D artık sayfanın en zengin grubu.
-  Sıradaki: **D-S5 (GRUP E — Workflow ve Durumlar)**, plan §D'de.
+- **Faz S5 (D-S5, GRUP E — Workflow ve Durumlar) BİTTİ:** "Bir Bug'ın
+  Reopened'a Düşüşü" filmi (5 sahne, resolution zamanlaması kontrastı) + E1
+  status/transition/resolution üçlüsü (trafik ışığı analojisi), E2 tipik bug
+  workflow'u `python-flow-diagram`, E3 resolution alanının doğru zamanlaması
+  `step-animation`, E4 otomasyon kuralları + doğru geçişi seç
+  `code-playground` + workflow sıralama `challenge`.
+  ⚠ **Önemli ders bu fazda çıktı:** içerik yazarken yanlışlıkla iç
+  koordinasyon jargonuna benzeyen referanslar ("§B3'te", "GRUP A'dan beri")
+  kullanılmış, fark edilip sekme adlarıyla ("Kurulum & İlk Proje sekmesinde
+  gördüğün gibi") değiştirildi (CLAUDE.md §24). Yeni sekme yazarken önceki
+  sekmelere atıf yaparken DAİMA görünür sekme başlığını kullan, harf/rakam
+  kısaltması (A2, B3, §D1) kullanma — otomatik denetim yalnızca `§\d` kalıbını
+  yakalıyor, harf+rakam kalıbını (§B3, A2) YAKALAMIYOR; bu yüzden elle
+  taranmalı.
+  Sıradaki: **D-S6 (GRUP F — JQL tamamlama)**, plan §D'de.
 
 ### Bu oturumda yapılanlar
 
