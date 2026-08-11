@@ -98,7 +98,13 @@
   `code-playground` + Python karşılığı, J4 webhook kavramı, J5 hata kodları
   `table` + teşhis `step-animation`. İki grup da ayrı film taşıyor (plan
   gereksinimi).
-  Sıradaki: **D-S10 (GRUP K — Dashboard ve QA Metrikleri)**, plan §D'de.
+- **Faz S10 (D-S10, GRUP K — Dashboard ve QA Metrikleri) BİTTİ:** "Burndown
+  Grafiği Düz Bir Çizgi Çizdiğinde" filmi (5 sahne, iki olası neden
+  kontrastı) + K1 filtre→gadget→pano zinciri, K2 burndown/velocity ne
+  söyler-söylemez, K3 kontrol grafiği/kümülatif akış darboğaz teşhisi
+  `step-animation`, K4 dört QA metriği formül+JQL `table` + reopen rate
+  ham veri `code-playground`, K5 metrik istismarı (Goodhart yasası).
+  Sıradaki: **D-S11 (GRUP L — error-dictionary min 8 hata)**, plan §D'de.
 
 ### Bu oturumda yapılanlar
 

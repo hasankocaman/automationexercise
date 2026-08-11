@@ -2107,6 +2107,163 @@ const apiErrorDiagnosisSteps = {
   ],
 }
 
+// ─── Film: burndown düz çizgi çizdiğinde (GRUP K referans filmi) ──────────────
+const flatBurndownFilm = {
+  type: 'video-scene',
+  id: 'jira-k2-flat-burndown-film',
+  title: {
+    tr: '🎬 Burndown Grafiği Düz Bir Çizgi Çizdiğinde: Ekip Tembel mi?',
+    en: '🎬 When the Burndown Chart Draws a Flat Line: Is the Team Lazy?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'burndown', emoji: '📉', label: { tr: 'Burndown (İdeal Çizgi)', en: 'Burndown (Ideal Line)' }, color: '#0ea5e9' },
+    { id: 'flat', emoji: '➖', label: { tr: 'Gün 5: Düz Çizgi', en: 'Day 5: Flat Line' }, color: '#ef4444' },
+    { id: 'scope', emoji: '➕', label: { tr: 'Olasılık 1: Kapsam Eklendi', en: 'Possibility 1: Scope Added' }, color: '#f59e0b' },
+    { id: 'queue', emoji: '⏳', label: { tr: 'Olasılık 2: Doğrulama Kuyruğu', en: 'Possibility 2: Verification Queue' }, color: '#8b5cf6' },
+    { id: 'reveal', emoji: '🔍', label: { tr: 'Panoya Bakılır: Gerçek Neden', en: 'Board Checked: The Real Cause' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Sprint başlar, burndown grafiği ideal bir eğimle inmesi gerektiğini gösteren referans çizgiyi çizer. Takım kapasitesine göre her gün biraz iş bitmiş olmalı.",
+        en: 'The sprint starts, the burndown chart draws the reference line showing it should descend at an ideal slope. Based on team capacity, a bit of work should finish every day.',
+      },
+      positions: { burndown: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Gün 5 — gerçek çizgi DÜZ kalıyor, hiç iş bitmemiş görünüyor. İlk tepki genelde \"ekip yavaş çalışıyor\" olur — ama bu grafik SEBEBİ göstermez, yalnızca OLAYI gösterir.",
+        en: 'Day 5 -- the actual line stays FLAT, no work appears finished. The first reaction is usually "the team is working slowly" -- but this chart does not show the CAUSE, only the EVENT.',
+      },
+      positions: {
+        burndown: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        flat: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'burndown', to: 'flat', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: "İki olasılık var. Olasılık 1: sprint ortasında PO yeni bir öğe ekletti, kalan iş büyüdü — grafik bunu \"hiç ilerleme yok\" gibi gösterir çünkü PAYDA da değişti. Olasılık 2: işler bitiyor ama Done'a değil doğrulama kuyruğuna yığılıyor.",
+        en: 'There are two possibilities. Possibility 1: mid-sprint the PO had a new item added, remaining work grew -- the chart shows this as "no progress at all" because the DENOMINATOR changed too. Possibility 2: work is finishing, but piling into the verification queue instead of Done.',
+      },
+      positions: {
+        flat: { x: 18, y: 32, scale: 0.9 },
+        scope: { x: 44, y: 55, scale: 1.05 },
+        queue: { x: 70, y: 50, scale: 1.1, pulse: true },
+      },
+      beams: [{ from: 'flat', to: 'scope', color: '#f59e0b' }, { from: 'flat', to: 'queue', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: 'Takım burndown grafiğine değil PANOYA bakar: kapsam değişmemiş (Olasılık 1 elenir), ama "In QA" sütununda dört kart birikmiş — WIP limiti aşılmış durumda.',
+        en: 'The team looks not at the burndown chart but at the BOARD: scope has not changed (Possibility 1 is ruled out), but four cards have piled up in "In QA" -- the WIP limit is exceeded.',
+      },
+      positions: {
+        scope: { x: 20, y: 68, scale: 0.85, opacity: 0.4 },
+        queue: { x: 40, y: 45, scale: 0.9 },
+        reveal: { x: 70, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'queue', to: 'reveal', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — Gerçek neden: geliştirme doğrulanabilecek hızdan daha hızlı üretiyor. Burndown tek başına bunu ASLA söylemez — bir olayı gösterir, sebebini söylemek için başka bir veri kaynağına (panoya, WIP limitine) bakmak gerekir. Tek bir metriğe güvenmek, yanlış teşhise ve yanlış çözüme (\"ekibi hızlandıralım\") götürür.",
+        en: 'Finale (the contrast) -- The real cause: development is producing faster than it can be verified. Burndown alone NEVER tells you this -- it shows an event, and finding the cause requires another data source (the board, the WIP limit). Trusting a single metric leads to a wrong diagnosis and a wrong fix ("let\'s speed the team up").',
+      },
+      positions: {
+        reveal: { x: 40, y: 50, scale: 1.1 },
+        burndown: { x: 72, y: 50, scale: 0.9, opacity: 0.5 },
+      },
+      beams: [{ from: 'reveal', to: 'burndown', color: '#64748b' }],
+    },
+  ],
+}
+
+// ─── step-animation: kontrol grafiğinin darboğazı ortaya çıkarması (GRUP K3) ──
+const controlChartBottleneckSteps = {
+  type: 'step-animation',
+  id: 'jira-k3-control-chart-steps',
+  title: { tr: 'Adım Adım: Kontrol Grafiği Bir Darboğazı Nasıl Gösterir?', en: 'Step by Step: How Does a Control Chart Reveal a Bottleneck?' },
+  steps: [
+    { id: 1, icon: '📊', label: { tr: 'Her kart bir nokta olur', en: 'Every card becomes a dot' }, detail: { tr: 'Kontrol grafiğinde her tamamlanan kart, panoya girişinden Done\'a kadar geçen süreyi (cycle time) gösteren bir nokta olarak çizilir.', en: 'On a control chart, every completed card is plotted as a dot showing the time (cycle time) from entering the board to reaching Done.' } },
+    { id: 2, icon: '📈', label: { tr: 'Ortalama çizgi çekilir', en: 'An average line is drawn' }, detail: { tr: 'Noktaların ortalaması bir yatay çizgi olarak gösterilir — "tipik bir kart bu kadar sürer" bilgisini verir.', en: 'The average of the dots is shown as a horizontal line -- telling you "a typical card takes this long".' } },
+    { id: 3, icon: '🔴', label: { tr: 'Aykırı noktalar dikkat çeker', en: 'Outlier dots stand out' }, detail: { tr: 'Ortalamanın çok üzerindeki noktalar (örn. 12 gün süren bir kart) darboğazın SOMUT kanıtıdır — hangi kartın nerede takıldığını gösterir.', en: 'Dots far above the average (a card that took 12 days, say) are CONCRETE evidence of a bottleneck -- showing exactly which card got stuck where.' } },
+    { id: 4, icon: '🌊', label: { tr: 'Kümülatif akış diyagramı katmanları gösterir', en: 'The cumulative flow diagram shows layers' }, detail: { tr: 'Her sütun bir renkli katmandır; bir katmanın GENİŞLEMESİ (diğerleri sabitken) o sütunda kart biriktiğini gösterir — tam olarak "In QA" darboğazının görsel imzası.', en: 'Each column is a colored band; a band WIDENING (while others stay flat) shows cards piling up in that column -- exactly the visual signature of an "In QA" bottleneck.' } },
+    { id: 5, icon: '🎯', label: { tr: 'Darboğaz somutlaşır', en: 'The bottleneck becomes concrete' }, detail: { tr: 'İki grafik birlikte "hangi kart yavaşladı" (kontrol grafiği) ve "hangi sütunda birikme var" (kümülatif akış) sorularını cevaplar — burndown\'ın veremediği cevap budur.', en: 'Together the two charts answer "which card slowed down" (control chart) and "which column is piling up" (cumulative flow) -- the answer burndown alone could not give.' } },
+  ],
+}
+
+// ─── table: QA metrikleri formülleri (GRUP K4) ─────────────────────────────────
+const qaMetricsTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Metrik', en: 'Metric' },
+    { tr: 'Formül', en: 'Formula' },
+    { tr: 'Ölçen JQL fikri', en: 'The JQL idea behind it' },
+  ],
+  rows: [
+    [
+      { tr: 'Defect Density', en: 'Defect Density' },
+      { tr: 'Bug sayısı ÷ modül büyüklüğü (örn. bin satır kod)', en: 'Bug count ÷ module size (e.g. per thousand lines of code)' },
+      { tr: '`project = SHOP AND component = Checkout AND issuetype = Bug`', en: '`project = SHOP AND component = Checkout AND issuetype = Bug`' },
+    ],
+    [
+      { tr: 'Defect Leakage', en: 'Defect Leakage' },
+      { tr: "Üretimde bulunan bug ÷ (test'te + üretimde bulunan toplam bug)", en: 'Bugs found in production ÷ (bugs found in test + production)' },
+      { tr: '`labels = production AND issuetype = Bug AND created >= startOfMonth()`', en: '`labels = production AND issuetype = Bug AND created >= startOfMonth()`' },
+    ],
+    [
+      { tr: 'Reopen Rate', en: 'Reopen Rate' },
+      { tr: 'En az bir kez Reopened olan bug ÷ toplam kapanan bug', en: 'Bugs reopened at least once ÷ total closed bugs' },
+      { tr: '`issuetype = Bug AND status WAS Reopened`', en: '`issuetype = Bug AND status WAS Reopened`' },
+    ],
+    [
+      { tr: 'Bug Age (yaş)', en: 'Bug Age' },
+      { tr: 'Bugünün tarihi − oluşturulma tarihi (açık bug\'lar için)', en: "Today's date minus creation date (for open bugs)" },
+      { tr: '`issuetype = Bug AND status != Done ORDER BY created ASC`', en: '`issuetype = Bug AND status != Done ORDER BY created ASC`' },
+    ],
+  ],
+}
+
+// ─── code-playground: bir metriği ölçen JQL'i yaz (GRUP K4) ───────────────────
+const metricJqlPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-k4-qa-metrics',
+  id: 'jira-k4-metric-jql',
+  title: { tr: "Kendin Dene: Reopen Rate İçin Ham Veriyi Çeken Sorguyu Yaz", en: 'Try It Yourself: Write the Query That Pulls Raw Data for Reopen Rate' },
+  starterCode: {
+    tr: `-- Reopen rate hesaplamak için PAYDAKİ veriyi (bu ay kapanan tüm bug'lar) çekmen gerekiyor.
+-- Payı (en az bir kez Reopened olanlar) ayrı bir sorguyla çekeceksin, bu ondan farklı bir küme.
+project = SHOP AND issuetype = Bug`,
+    en: `-- To calculate reopen rate you need the DENOMINATOR data (all bugs closed this month).
+-- The numerator (reopened at least once) is a separate query, a different set from this one.
+project = SHOP AND issuetype = Bug`,
+  },
+  solutionCode: {
+    tr: `-- Payda: bu ay kapanan TÜM bug'lar
+project = SHOP AND issuetype = Bug AND status = Done AND resolved >= startOfMonth()
+
+-- Pay: bunların arasından en az bir kez Reopened olanlar (WAS operatörü)
+project = SHOP AND issuetype = Bug AND status = Done AND resolved >= startOfMonth() AND status WAS Reopened`,
+    en: `-- Denominator: ALL bugs closed this month
+project = SHOP AND issuetype = Bug AND status = Done AND resolved >= startOfMonth()
+
+-- Numerator: among those, the ones reopened at least once (the WAS operator)
+project = SHOP AND issuetype = Bug AND status = Done AND resolved >= startOfMonth() AND status WAS Reopened`,
+  },
+  hint: {
+    tr: "Bir oran metriği iki AYRI sayı gerektirir: payda (toplam kapanan) ve pay (bunların reopen olanı). `resolved >= startOfMonth()` gibi kayan bir zaman fonksiyonu kullan ki sorgu her ay kendini güncellesin — sabit tarih yazma.",
+    en: 'A ratio metric needs two SEPARATE numbers: the denominator (total closed) and the numerator (the reopened subset of those). Use a shifting time function like `resolved >= startOfMonth()` so the query updates itself every month -- do not write a fixed date.',
+  },
+  successMessage: {
+    tr: "Doğru! İki sorgunun sonuç SAYISINI (issue listesi değil, kaç adet döndüğünü) birbirine bölmek reopen rate'i verir. Bu, Dashboard sekmesindeki bir gadget'ın perde arkasında yaptığı TAM olarak budur — gadget'lar birer JQL sonucunu görselleştirir.",
+    en: 'Correct! Dividing the result COUNT of the two queries (not the issue list, the number returned) gives the reopen rate. This is EXACTLY what a dashboard gadget does behind the scenes -- gadgets visualize a JQL result.',
+  },
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -4038,6 +4195,161 @@ print(response.json()["key"])  # e.g. SHOP-143`,
         content: {
           tr: "Filtre → gadget → pano zincirini; burndown ve velocity grafiklerinin ne söyleyip ne söylemediğini; kontrol grafiği ve kümülatif akış diyagramında QA darboğazının nasıl göründüğünü; defect density, defect leakage, reopen rate ve bug yaşı metriklerinin formüllerini ve hangi sorguyla ölçüldüğünü; ve bir metriğin hedefe dönüştüğünde nasıl bozulduğunu işleyeceğiz.",
           en: 'We will cover the filter to gadget to dashboard chain; what burndown and velocity charts do and do not tell you; how a QA bottleneck appears in a control chart and a cumulative flow diagram; the formulas for defect density, defect leakage, reopen rate and bug age and the query behind each; and how a metric distorts once it becomes a target.',
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '1️⃣ K1. Filtre → Gadget → Pano Zinciri', en: '1️⃣ K1. The Filter to Gadget to Dashboard Chain' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bir dashboard gadget'ı, JQL sekmesinde öğrendiğin bir sorgunun GÖRSELLEŞTİRİLMİŞ hâlidir — kaydedilmiş bir filtre seçilir, gadget o filtrenin sonucunu bir sayı, çubuk grafik veya pasta grafiğe dönüştürür. Zincir hep aynıdır: önce JQL yazılır, sonra kaydedilir, sonra bir gadget o kayda BAĞLANIR.",
+          en: "A dashboard gadget is the VISUALIZED form of a query you learned on the JQL tab -- a saved filter is chosen, and the gadget turns that filter's result into a number, bar chart or pie chart. The chain is always the same: JQL is written first, then saved, then a gadget CONNECTS to that saved filter.",
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir gadget'ın gösterdiği sayı yanlış görünüyor. En doğru ilk teşhis adımı nedir?",
+          en: 'A gadget shows a number that looks wrong. What is the most correct first diagnostic step?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Gadget'ı panodan silip yeniden eklemek", en: 'Delete the gadget from the dashboard and re-add it' } },
+          { id: 'b', text: { tr: "Gadget'ın bağlı olduğu kaydedilmiş filtreyi açıp JQL'i arama kutusunda çalıştırmak", en: "Open the saved filter the gadget is connected to and run its JQL in the search box" } },
+          { id: 'c', text: { tr: "Jira'yı yeniden başlatmak", en: 'Restart Jira' } },
+          { id: 'd', text: { tr: "Panoyu tamamen silmek", en: 'Delete the entire dashboard' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Gadget yalnızca ALTINDAKİ JQL'in sonucunu gösterir — sayı yanlışsa sorun neredeyse her zaman sorgunun kendisindedir (yanlış koşul, yanlış proje). Zinciri kaynağından (JQL) doğrulamak, gadget'ı silip eklemekten çok daha hızlı teşhis eder.",
+          en: 'A gadget only shows the result of the JQL UNDER it -- if the number is wrong, the problem is almost always in the query itself (a wrong condition, a wrong project). Verifying the chain at its source (the JQL) diagnoses far faster than deleting and re-adding the gadget.',
+        },
+        retryQuestion: {
+          question: { tr: 'Zincirdeki üç halka hangi sırayla kurulur?', en: 'In which order are the three links of the chain built?' },
+          options: [
+            { id: 'a', text: { tr: 'Önce JQL yazılır, sonra kaydedilir, sonra gadget bağlanır', en: 'JQL is written first, then saved, then a gadget is connected' } },
+            { id: 'b', text: { tr: 'Önce gadget eklenir, sonra JQL otomatik üretilir', en: 'A gadget is added first, then JQL is auto-generated' } },
+            { id: 'c', text: { tr: 'Sıra önemli değildir', en: 'The order does not matter' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Gadget bir görselleştirme katmanıdır, veri kaynağı DEĞİLDİR — önce sorgu doğru olmalı, sonra üzerine görsel eklenir.',
+            en: 'A gadget is a visualization layer, NOT a data source -- the query must be correct first, then a visual is added on top.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ K2. Burndown ve Velocity: Ne Söyler, Ne Söylemez?', en: '2️⃣ K2. Burndown and Velocity: What They Say, What They Do Not' },
+      },
+      flatBurndownFilm,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Burndown grafiği tek başına, düz bir çizginin \"kapsam eklenmesi\" mi yoksa \"doğrulama kuyruğunda birikme\" mi olduğunu ayırt edebilir mi?",
+          en: 'Can the burndown chart alone tell apart whether a flat line means "scope was added" versus "a pile-up in the verification queue"?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Evet, grafik sebebi de gösterir", en: 'Yes, the chart shows the cause too' } },
+          { id: 'b', text: { tr: "Hayır — burndown yalnızca OLAYI gösterir, sebebi anlamak için panoya (WIP limiti, sütun dağılımı) bakmak gerekir", en: 'No -- burndown only shows the EVENT; understanding the cause requires looking at the board (WIP limit, column distribution)' } },
+          { id: 'c', text: { tr: "Yalnızca Kanban'da ayırt edebilir", en: 'It can only tell them apart on Kanban' } },
+          { id: 'd', text: { tr: "Sprint bitince otomatik ayırt eder", en: 'It automatically tells them apart once the sprint ends' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Bu, filmin ana fikridir: bir gösterge tek başına 'iyi mi kötü mü' sorusunu cevaplamaz, bağlama ihtiyaç duyar. Panodaki WIP limiti aşımı gibi başka bir veri kaynağı olmadan burndown yalnızca bir semptomu gösterir.",
+          en: "This is the film's core idea: a single gauge cannot answer 'good or bad' alone, it needs context. Without another data source like a WIP limit overflow on the board, burndown only shows a symptom.",
+        },
+        retryQuestion: {
+          question: { tr: 'Velocity metriği neyi ölçer?', en: 'What does the velocity metric measure?' },
+          options: [
+            { id: 'a', text: { tr: "Bir sprint'te tamamlanan story point toplamı", en: 'The total story points completed in a sprint' } },
+            { id: 'b', text: { tr: "Bir kartın ortalama bitirme süresi", en: "A card's average completion time" } },
+            { id: 'c', text: { tr: "Açık bug sayısı", en: 'The number of open bugs' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: "Velocity, Scrum'ın zaman kutusuna (sprint) bağlı bir metriktir; kartın ortalama süresi (cycle time) Kanban'ın metriğidir — Scrum ve Kanban Panoları sekmesinde gördüğün ayrım.",
+            en: "Velocity is a metric tied to Scrum's time box (the sprint); a card's average duration (cycle time) is Kanban's metric -- the distinction you saw on the Scrum & Kanban Boards tab.",
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ K3. Kontrol Grafiği ve Kümülatif Akış Diyagramı', en: '3️⃣ K3. Control Chart and Cumulative Flow Diagram' },
+      },
+      controlChartBottleneckSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Kümülatif akış diyagramında \"In QA\" katmanı zamanla GİDEREK GENİŞLİYOR, diğer katmanlar sabit kalıyor. Bu ne anlama gelir?",
+          en: 'On the cumulative flow diagram, the "In QA" band keeps WIDENING over time while other bands stay flat. What does this mean?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Hiçbir şey, bu normal bir dalgalanmadır", en: 'Nothing, this is normal fluctuation' } },
+          { id: 'b', text: { tr: "\"In QA\" sütununda kart birikiyor — bir darboğaz somut olarak GÖRÜNÜR hâle geliyor", en: '"In QA" is accumulating cards -- a bottleneck is becoming VISIBLE in concrete terms' } },
+          { id: 'c', text: { tr: "Sprint hızlanıyor demektir", en: 'It means the sprint is speeding up' } },
+          { id: 'd', text: { tr: "Diyagram hatalıdır, yeniden çizilmelidir", en: 'The diagram is broken, it must be redrawn' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Bir katmanın diğerlerine göre genişlemesi tam olarak birikimin görsel imzasıdır — bu, Scrum ve Kanban Panoları sekmesindeki WIP limiti aşımıyla aynı olguyu farklı bir grafikte gösterir.",
+          en: 'A band widening relative to the others is exactly the visual signature of a pile-up -- this shows the same phenomenon as the WIP limit overflow from the Scrum & Kanban Boards tab, on a different chart.',
+        },
+        retryQuestion: {
+          question: { tr: 'Kontrol grafiğindeki bir aykırı nokta (ortalamanın çok üzerinde) neyi gösterir?', en: 'What does an outlier dot (far above average) on a control chart show?' },
+          options: [
+            { id: 'a', text: { tr: 'Beklenenden çok daha uzun süren belirli bir kartı — somut bir darboğaz kanıtı', en: 'A specific card that took much longer than expected -- concrete bottleneck evidence' } },
+            { id: 'b', text: { tr: 'Bir veri hatasını, her zaman göz ardı edilmeli', en: 'A data error, should always be ignored' } },
+            { id: 'c', text: { tr: 'Takımın tatile çıktığını', en: 'That the team went on vacation' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Aykırı noktalar rastgele değildir — genelde belirli bir kartın hangi sütunda, ne kadar takıldığını gösteren somut bir işarettir.',
+            en: 'Outliers are not random -- they are usually a concrete signal of which specific card got stuck, and for how long, in which column.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ K4. Dört QA Metriği: Formül ve JQL', en: '4️⃣ K4. Four QA Metrics: Formula and JQL' },
+      },
+      qaMetricsTable,
+      metricJqlPlayground,
+      {
+        type: 'heading',
+        text: { tr: "5️⃣ K5. Metriklerin İstismarı", en: '5️⃣ K5. How Metrics Get Gamed' },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "Yönetim \"kapatılan bug sayısı\"nı bir performans hedefine dönüştürdü. En olası davranış bozulması hangisidir?",
+          en: 'Management turned "number of bugs closed" into a performance target. What is the most likely behavioral distortion?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Kalite gerçekten artar, çünkü herkes daha çok bug kapatmaya çalışır", en: 'Quality genuinely improves, because everyone tries to close more bugs' } },
+          { id: 'b', text: { tr: "Kayıtlar bölünür, tartışmalı bug'lar \"cannot reproduce\" ile kapatılır, kolay işler riskli alanların önüne geçer", en: 'Records get split, debatable bugs get closed as "cannot reproduce", easy work is chosen over genuinely risky areas' } },
+          { id: 'c', text: { tr: "Hiçbir davranış değişmez", en: 'No behavior changes at all' } },
+          { id: 'd', text: { tr: "Reopen oranı otomatik düşer", en: 'The reopen rate automatically drops' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Bir ölçüt hedefe dönüştüğü anda iyi bir ölçüt olmaktan çıkar (Goodhart yasası) — bu sekmenin başındaki analojide gördüğün, yüzde doksan kod kapsamının assertion'sız testlerle sağlanabilmesiyle aynı mekanizma.",
+          en: 'A measure stops being a good measure the moment it becomes a target (Goodhart\'s law) -- the same mechanism you saw in the analogy at the top of this tab, where ninety percent code coverage can be reached with tests that hold no assertion.',
+        },
+        retryQuestion: {
+          question: { tr: 'Tek bir sayı yerine üç metrikten oluşan bir set (üretime sızma oranı, reopen oranı, doğrulama bekleme süresi) kullanmanın avantajı nedir?', en: 'What is the advantage of using a set of three metrics (production leakage rate, reopen rate, verification wait time) instead of a single number?' },
+          options: [
+            { id: 'a', text: { tr: "Üçünü birlikte oyunlamak tek bir sayıyı oyunlamaktan çok daha zordur", en: 'Gaming all three together is far harder than gaming a single number' } },
+            { id: 'b', text: { tr: 'Hesaplaması daha basittir', en: 'It is simpler to calculate' } },
+            { id: 'c', text: { tr: 'Tek bir kişiye fatura edilebilir', en: 'It can be billed to a single person' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: "Bir metrik setini oyunlamak, tek bir sayıyı oyunlamaktan daha zordur çünkü metrikler birbirini dengeler — birini iyileştirmek için diğerini kötüleştirmek genelde net bir kayıp yaratır.",
+            en: 'Gaming a set of metrics is harder than gaming a single number because the metrics balance each other -- improving one at the expense of another usually creates a net loss.',
+          },
         },
       },
     ],
