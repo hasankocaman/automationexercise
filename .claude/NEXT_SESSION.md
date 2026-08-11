@@ -68,8 +68,15 @@
   sekmelere atıf yaparken DAİMA görünür sekme başlığını kullan, harf/rakam
   kısaltması (A2, B3, §D1) kullanma — otomatik denetim yalnızca `§\d` kalıbını
   yakalıyor, harf+rakam kalıbını (§B3, A2) YAKALAMIYOR; bu yüzden elle
-  taranmalı.
-  Sıradaki: **D-S6 (GRUP F — JQL tamamlama)**, plan §D'de.
+  taranmalı. Bu bulgu CLAUDE.md §23.13'e kalıcı olarak eklendi.
+- **Faz S6 (D-S6, GRUP F — JQL tamamlama) BİTTİ:** "Bir JQL Sorgusunun
+  Jira'yı Nasıl Süzdüğü" filmi (5 sahne) + F1 JQL anatomisi + JQL vs SQL
+  `table` (JOIN'in olmaması vurgulandı), F2 operatörler/zaman fonksiyonları
+  `table` + koşul değerlendirme sırası `step-animation` + unutulmuş bug
+  `code-playground`, F3 günlük sorgular (WAS operatörü playground'u taşındı,
+  retryQuestion eklendi), F4 kaydedilmiş filtre/abonelik `code-playground`.
+  Toplam 3 code-playground (plan gereksinimi karşılandı).
+  Sıradaki: **D-S7 (GRUP G — Scrum ve Kanban Panoları)**, plan §D'de.
 
 ### Bu oturumda yapılanlar
 

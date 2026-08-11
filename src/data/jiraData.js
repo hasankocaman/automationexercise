@@ -1152,6 +1152,230 @@ const hierarchyOrderChallenge = {
   xpReward: 10,
 }
 
+// ─── Film: bir JQL sorgusunun Jira'yı nasıl süzdüğü (GRUP F referans filmi) ───
+const jqlFilterFilm = {
+  type: 'video-scene',
+  id: 'jira-f1-jql-filter-film',
+  title: {
+    tr: "🎬 Bir JQL Sorgusunun Jira'yı Nasıl Süzdüğü",
+    en: '🎬 How a JQL Query Filters Jira',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'query', emoji: '⌨️', label: { tr: 'JQL Sorgusu', en: 'JQL Query' }, color: '#0ea5e9' },
+    { id: 'pool', emoji: '🗂️', label: { tr: 'Tüm Issue\'lar (2.400)', en: 'All Issues (2,400)' }, color: '#64748b' },
+    { id: 'field', emoji: '🔎', label: { tr: 'Alan Eşleşmesi', en: 'Field Match' }, color: '#f59e0b' },
+    { id: 'filtered', emoji: '🧮', label: { tr: 'Süzülmüş Küme (18)', en: 'Filtered Set (18)' }, color: '#8b5cf6' },
+    { id: 'ordered', emoji: '📋', label: { tr: 'Sıralı Sonuç', en: 'Ordered Result' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "SHOP projesinde 2.400 issue var. Ayşe her sabah panoya tek tek bakmak yerine bir cümle yazıyor: \"bana atanmış, açık, yüksek öncelikli bug'lar\". Bu filmde bu cümlenin arkasında ne olduğunu izleyeceksin.",
+        en: 'The SHOP project holds 2,400 issues. Instead of scanning the board card by card every morning, Ayse writes one sentence: "open, high-priority bugs assigned to me". In this film you will watch what happens behind that sentence.',
+      },
+      positions: { pool: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Sorgu yazılır: `project = SHOP AND issuetype = Bug AND status != Done AND assignee = currentUser() AND priority = High`. Her `AND` bir SÜZGEÇ katmanı ekler, kümeyi daraltır.',
+        en: 'Step 1 -- The query is written: `project = SHOP AND issuetype = Bug AND status != Done AND assignee = currentUser() AND priority = High`. Each `AND` adds a FILTER layer, narrowing the set.',
+      },
+      code: { tr: 'project = SHOP AND issuetype = Bug AND status != Done\nAND assignee = currentUser() AND priority = High', en: 'project = SHOP AND issuetype = Bug AND status != Done\nAND assignee = currentUser() AND priority = High' },
+      positions: {
+        pool: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        query: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'pool', to: 'query' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Jira her koşulu sırayla 2.400 issue'nun alanlarına uygular: önce `project`, sonra `issuetype`, sonra `status`, sonra `assignee`, en son `priority`. Her koşulda küme küçülür, hiçbir issue'nun İÇERİĞİ değişmez — yalnızca GÖRÜNÜRLÜK filtrelenir.",
+        en: "Step 2 -- Jira applies each condition against the fields of all 2,400 issues, in order: first `project`, then `issuetype`, then `status`, then `assignee`, finally `priority`. The set shrinks at each condition; no issue's CONTENT changes -- only VISIBILITY is filtered.",
+      },
+      positions: {
+        query: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        field: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'query', to: 'field', color: '#f59e0b' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Beş koşuldan sağ çıkan 18 issue kalır. Bu, JQL'in bir veritabanı JOIN'i YAPMADIĞINI hatırlatan bir andır: hepsi TEK bir varlık (issue) üzerindeki alanlar, başka bir issue'nun alanına bakılmaz.",
+        en: "Step 3 -- 18 issues survive all five conditions. This is a moment that reminds you JQL does NOT perform a database JOIN: everything is a field on a SINGLE entity (the issue), no field of another issue is ever consulted.",
+      },
+      positions: {
+        field: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        filtered: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'field', to: 'filtered', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Final — `ORDER BY priority DESC, created ASC` eklenince 18 issue Ayşe'nin göreceği SIRAYA girer: en yüksek öncelikli en üstte, aynı öncelikte olanlar en eski oluşturulandan başlar. Panoda hiç görünmeyen bu liste artık Ayşe'nin sabah rutini oldu.",
+        en: 'Finale -- Adding `ORDER BY priority DESC, created ASC` puts the 18 issues into the ORDER Ayse will see them in: highest priority first, and among equal priorities the oldest created comes first. This list, never visible on any board, is now Ayse\'s morning routine.',
+      },
+      code: { tr: 'ORDER BY priority DESC, created ASC', en: 'ORDER BY priority DESC, created ASC' },
+      positions: {
+        filtered: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        ordered: { x: 54, y: 50, scale: 1.25, pulse: true },
+      },
+      beams: [{ from: 'filtered', to: 'ordered', color: '#10b981' }],
+    },
+  ],
+}
+
+// ─── table: JQL vs SQL (GRUP F1) ───────────────────────────────────────────────
+const jqlVsSqlTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Kavram', en: 'Concept' },
+    { tr: 'SQL', en: 'SQL' },
+    { tr: 'JQL', en: 'JQL' },
+  ],
+  rows: [
+    [
+      { tr: 'Alan seçme', en: 'Selecting fields' },
+      { tr: '`SELECT kolon FROM tablo`', en: '`SELECT column FROM table`' },
+      { tr: 'Yok — JQL her zaman TÜM alanları döner, sadece HANGİ issue\'ları döneceğini filtreler', en: 'None -- JQL always returns ALL fields, it only filters WHICH issues come back' },
+    ],
+    [
+      { tr: 'Koşul', en: 'Condition' },
+      { tr: '`WHERE kolon = deger`', en: '`WHERE column = value`' },
+      { tr: '`alan = deger` (WHERE kelimesi yok, doğrudan yazılır)', en: '`field = value` (no WHERE keyword, written directly)' },
+    ],
+    [
+      { tr: 'Sıralama', en: 'Ordering' },
+      { tr: '`ORDER BY`', en: '`ORDER BY`' },
+      { tr: '`ORDER BY` (aynı sözdizimi)', en: '`ORDER BY` (identical syntax)' },
+    ],
+    [
+      { tr: 'Birden çok tabloyu birleştirme', en: 'Combining multiple tables' },
+      { tr: '`JOIN` ile başka tablonun alanına bakılır', en: '`JOIN` reads a field on another table' },
+      { tr: "YOK — bir issue'nun linkli olduğu başka issue'nun alanına DOĞRUDAN bakılamaz", en: 'NONE -- a field on another linked issue cannot be read DIRECTLY' },
+    ],
+  ],
+}
+
+// ─── table: operatörler ve zaman fonksiyonları (GRUP F2) ──────────────────────
+const jqlOperatorsTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Operatör/Fonksiyon', en: 'Operator/Function' },
+    { tr: 'Anlamı', en: 'Meaning' },
+    { tr: 'Örnek', en: 'Example' },
+  ],
+  rows: [
+    [
+      { tr: '`=` / `!=`', en: '`=` / `!=`' },
+      { tr: 'Tam eşitlik / eşit değil', en: 'Exact equality / not equal' },
+      { tr: '`status != Done`', en: '`status != Done`' },
+    ],
+    [
+      { tr: '`IN`', en: '`IN`' },
+      { tr: 'Birden çok değerden biri', en: 'One of multiple values' },
+      { tr: '`priority IN (High, Highest)`', en: '`priority IN (High, Highest)`' },
+    ],
+    [
+      { tr: '`~`', en: '`~`' },
+      { tr: 'Metin içinde arama (contains)', en: 'Text search (contains)' },
+      { tr: '`summary ~ "kupon"`', en: '`summary ~ "coupon"`' },
+    ],
+    [
+      { tr: '`WAS`', en: '`WAS`' },
+      { tr: "Bir alanın GEÇMİŞTE bu değeri taşıdığı", en: 'The field HELD this value in the past' },
+      { tr: '`status WAS Reopened`', en: '`status WAS Reopened`' },
+    ],
+    [
+      { tr: '`CHANGED`', en: '`CHANGED`' },
+      { tr: 'Bir alan ne zaman değişti', en: 'When a field changed' },
+      { tr: '`status CHANGED AFTER -7d`', en: '`status CHANGED AFTER -7d`' },
+    ],
+    [
+      { tr: '`-7d` / `-30m`', en: '`-7d` / `-30m`' },
+      { tr: 'Göreli zaman (7 gün önce / 30 dakika önce)', en: 'Relative time (7 days ago / 30 minutes ago)' },
+      { tr: '`updated <= -7d`', en: '`updated <= -7d`' },
+    ],
+    [
+      { tr: '`startOfDay()` / `startOfSprint()`', en: '`startOfDay()` / `startOfSprint()`' },
+      { tr: 'Günün/sprintin başlangıcı — koşuma göre kayan zaman', en: "The start of the day/sprint -- time that shifts with the run" },
+      { tr: '`created >= startOfDay()`', en: '`created >= startOfDay()`' },
+    ],
+  ],
+}
+
+// ─── step-animation: bir koşulun sırayla değerlendirilmesi (GRUP F2) ──────────
+const jqlEvaluationSteps = {
+  type: 'step-animation',
+  id: 'jira-f2-jql-evaluation-steps',
+  title: { tr: 'Adım Adım: JQL Koşulları Hangi Sırayla Değerlendirilir?', en: 'Step by Step: In Which Order Are JQL Conditions Evaluated?' },
+  steps: [
+    { id: 1, icon: '📦', label: { tr: 'Tüm issue havuzu', en: 'The full issue pool' }, detail: { tr: "Jira, koşulu erişimin olduğu TÜM projelerdeki TÜM issue'lara karşı değerlendirmeye başlar.", en: "Jira starts evaluating the condition against ALL issues in ALL projects you have access to." } },
+    { id: 2, icon: '1️⃣', label: { tr: 'İlk AND koşulu', en: 'The first AND condition' }, detail: { tr: '`project = SHOP` — yalnızca bu koşulu sağlayan issue\'lar bir sonraki koşula geçer, geri kalanı elenir.', en: '`project = SHOP` -- only issues satisfying this condition move to the next; the rest are eliminated.' } },
+    { id: 3, icon: '2️⃣', label: { tr: 'İkinci AND koşulu', en: 'The second AND condition' }, detail: { tr: "`status != Done` — bir önceki adımdan kalan küme üzerinde çalışır, tüm havuz üzerinde DEĞİL.", en: '`status != Done` -- operates on the set surviving the previous step, NOT on the whole pool again.' } },
+    { id: 4, icon: '⏱️', label: { tr: 'Zaman fonksiyonu çözülür', en: 'The time function resolves' }, detail: { tr: "`updated <= -7d` gibi bir koşulda `-7d`, sorgunun ÇALIŞTIRILDIĞI ana göre hesaplanır — kaydedilmiş bir filtrede bu her koşumda YENİDEN hesaplanır.", en: 'In a condition like `updated <= -7d`, `-7d` is computed relative to the moment the query RUNS -- in a saved filter this is RECOMPUTED on every run.' } },
+    { id: 5, icon: '📋', label: { tr: 'ORDER BY son adımdır', en: 'ORDER BY is the last step' }, detail: { tr: 'Tüm filtreleme bittikten SONRA sıralama uygulanır — sıralama küme büyüklüğünü değiştirmez, yalnızca DİZİLİŞİ belirler.', en: 'Ordering is applied AFTER all filtering finishes -- it does not change the set size, only the ARRANGEMENT.' } },
+  ],
+}
+
+// ─── code-playground: zaman fonksiyonuyla sorgu yaz (GRUP F2/F3) ──────────────
+const staleIssuesJqlPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-f1-jql-basics',
+  id: 'jira-f2-time-function-jql',
+  title: { tr: "Kendin Dene: 30 Gündür Dokunulmamış Bug'ları Bul", en: "Try It Yourself: Find Bugs Untouched for 30 Days" },
+  starterCode: {
+    tr: `-- SHOP projesindeki açık bug'lardan, son 30 gündür HİÇ güncellenmemiş olanları bul.
+project = SHOP AND issuetype = Bug AND status != Done`,
+    en: `-- Find open bugs in the SHOP project that have NOT been updated in the last 30 days.
+project = SHOP AND issuetype = Bug AND status != Done`,
+  },
+  solutionCode: {
+    tr: `-- updated alanı son değişiklik zamanını taşır; <= -30d "30 günden eski" demektir
+project = SHOP AND issuetype = Bug AND status != Done AND updated <= -30d ORDER BY updated ASC`,
+    en: `-- the updated field carries the last change time; <= -30d means "older than 30 days"
+project = SHOP AND issuetype = Bug AND status != Done AND updated <= -30d ORDER BY updated ASC`,
+  },
+  hint: {
+    tr: "\"Dokunulmamış\" kelimesi bir alanın SON DEĞİŞİM zamanına işaret eder — bu, `created` değil `updated` alanıdır. Göreli zaman için `-30d` sözdizimini kullan; `<=` \"bu tarihten daha eski\" demektir.",
+    en: 'The word "untouched" points to a field\'s LAST CHANGE time -- that is `updated`, not `created`. Use the `-30d` syntax for relative time; `<=` means "older than this date".',
+  },
+  successMessage: {
+    tr: "Doğru! `updated <= -30d` unutulmuş kayıtları yakalar. `ORDER BY updated ASC` ile en uzun süredir dokunulmayanlar en üstte çıkar — bu tam olarak filmde gördüğün \"süzme + sıralama\" ikilisidir.",
+    en: 'Correct! `updated <= -30d` catches forgotten records. `ORDER BY updated ASC` puts the longest-untouched ones on top -- exactly the "filter plus order" pair you saw in the film.',
+  },
+}
+
+// ─── code-playground: kaydedilmiş filtre/abonelik sorgusu (GRUP F4) ───────────
+const savedFilterJqlPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-f1-jql-basics',
+  id: 'jira-f4-saved-filter-jql',
+  title: { tr: 'Kendin Dene: Haftalık "Üretime Sızan Bug\'lar" Aboneliği', en: 'Try It Yourself: A Weekly "Bugs Leaked to Production" Subscription' },
+  starterCode: {
+    tr: `-- Her Pazartesi e-postayla gelecek bir abonelik için sorgu yaz:
+-- SHOP projesinde, "production" etiketli, son 7 günde açılan bug'lar.
+project = SHOP AND labels = production`,
+    en: `-- Write the query for a subscription that emails every Monday:
+-- Bugs in SHOP labeled "production", created in the last 7 days.
+project = SHOP AND labels = production`,
+  },
+  solutionCode: {
+    tr: `project = SHOP AND issuetype = Bug AND labels = production AND created >= -7d ORDER BY created DESC`,
+    en: `project = SHOP AND issuetype = Bug AND labels = production AND created >= -7d ORDER BY created DESC`,
+  },
+  hint: {
+    tr: "Abonelik her Pazartesi ÇALIŞTIRILACAĞI için sabit bir tarih yazamazsın — göreli zaman (`-7d`) kullan ki sorgu her koşumda kendini güncellesin. `issuetype = Bug` eklemeyi unutma, yoksa Story/Task'lar da listeye karışır.",
+    en: 'Since the subscription RUNS every Monday, you cannot write a fixed date -- use relative time (`-7d`) so the query updates itself on every run. Do not forget `issuetype = Bug`, otherwise Stories/Tasks mix into the list too.',
+  },
+  successMessage: {
+    tr: "Doğru! Bir kaydedilmiş filtre + abonelik, bu sorguyu HAFTADA BİR otomatik koşturur ve sonucu e-postayla gönderir — panoya bakmayı beklemek yerine veri sana gelir. Bu filtre bir board'a da dönüştürülebilir: aynı JQL, farklı bir görünüm.",
+    en: 'Correct! A saved filter plus subscription runs this query automatically ONCE A WEEK and emails the result -- instead of waiting to check a board, the data comes to you. This filter can also become a board: same JQL, a different view.',
+  },
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -2205,15 +2429,16 @@ const sections = [
           en: 'JQL is like a library card catalogue: instead of walking the shelves you ask for "books published after 2019, by this author, on this subject" and the library brings back only those. A board shows you the shelves; JQL gives you a list filtered by your question.\n\nThe question worth pausing on: with the board already showing cards, why learn a query language at all? Because a board is a VIEW and only answers a question someone configured in advance. "High-priority bugs assigned to me and untouched for 30 days" is not sitting ready on any board.\n\nCompare: if you know SQL, JQL will feel familiar -- field, operator, value and ordering line up with the same logic. But there is a critical difference: JQL is not a database language and cannot JOIN. It filters fields on a single entity (the issue); it cannot directly read a field of another issue that this one links to. Not knowing that boundary is the number one source of frustration when learning JQL.\n\nFor QA the difference shows up here: a tester who looks at the board each morning wondering what to do is not doing the same job as a tester who opens six saved filters and sees pending verifications, reopened records and forgotten items in a second.',
         },
       },
+      jqlFilterFilm,
       {
         type: 'heading',
-        text: { tr: '🧱 JQL Anatomisi', en: '🧱 The Anatomy of JQL' },
+        text: { tr: '1️⃣ F1. JQL Anatomisi', en: '1️⃣ F1. The Anatomy of JQL' },
       },
       {
         type: 'text',
         content: {
-          tr: "Bir JQL sorgusu dört parçadan oluşur: ALAN (project, status, assignee), OPERATÖR (=, !=, IN, ~, WAS, CHANGED), DEĞER ve isteğe bağlı SIRALAMA (ORDER BY). Koşullar AND / OR ile zincirlenir. Aşağıdaki örnek bir QA'in günlük olarak kullandığı üç sorguyu gösteriyor — anahtar kelimeler dilin kendi sözdizimidir ve Türkçe sayfada da İngilizce kalır; değişen yalnızca açıklamalardır.",
-          en: 'A JQL query has four parts: FIELD (project, status, assignee), OPERATOR (=, !=, IN, ~, WAS, CHANGED), VALUE and an optional ORDERING (ORDER BY). Conditions are chained with AND / OR. The example below shows three queries a QA engineer uses daily -- the keywords are the language\'s own syntax and stay English even on a Turkish page; only the explanations change.',
+          tr: "Bir JQL sorgusu dört parçadan oluşur: ALAN (project, status, assignee), OPERATÖR (=, !=, IN, ~, WAS, CHANGED), DEĞER ve isteğe bağlı SIRALAMA (ORDER BY). Koşullar AND / OR ile zincirlenir. Aşağıdaki örnek bir QA'in günlük olarak kullandığı üç sorguyu gösteriyor — anahtar kelimeler dilin kendi sözdizimidir ve Türkçe sayfada da İngilizce kalır; değişen yalnızca açıklamalardır. Ardından gelen tablo, SQL bilenler için JQL'i tanıdık ama önemli bir farkla gösteriyor.",
+          en: 'A JQL query has four parts: FIELD (project, status, assignee), OPERATOR (=, !=, IN, ~, WAS, CHANGED), VALUE and an optional ORDERING (ORDER BY). Conditions are chained with AND / OR. The example below shows three queries a QA engineer uses daily -- the keywords are the language\'s own syntax and stay English even on a Turkish page; only the explanations change. The table that follows shows JQL as familiar yet critically different for those who know SQL.',
         },
       },
       {
@@ -2238,6 +2463,94 @@ project = SHOP AND issuetype = Bug AND status != Done AND updated <= -30d
 project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d ORDER BY created DESC`,
         },
       },
+      jqlVsSqlTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir bug'ın hangi Story'den doğduğunu görmek için, JQL'de doğrudan `story.title ~ \"kupon\"` gibi bir sorgu yazabilir misin?",
+          en: 'To see which Story a bug was born from, can you write a JQL query like `story.title ~ "coupon"` directly?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Evet, JQL de SQL gibi JOIN yapar', en: 'Yes, JQL does JOINs just like SQL' } },
+          { id: 'b', text: { tr: 'Hayır — JQL JOIN yapmaz, yalnızca TEK bir issue\'nun kendi alanlarını filtreler', en: 'No -- JQL does not JOIN, it only filters a SINGLE issue\'s own fields' } },
+          { id: 'c', text: { tr: 'Evet, ama yalnızca Data Center\'da', en: 'Yes, but only on Data Center' } },
+          { id: 'd', text: { tr: 'Hayır, JQL hiç alan filtrelemez', en: 'No, JQL cannot filter fields at all' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Bu, JQL öğrenirken en sık yaşanan hayal kırıklığıdır: JQL bir veritabanı dili değildir, JOIN desteklemez. Bağlı bir Story'nin alanına bakmak için o Story'nin KENDİ issue anahtarını (\"caused by\" linki üzerinden) bilmen gerekir.",
+          en: 'This is the most common frustration when learning JQL: it is not a database language and does not support JOIN. To read a linked Story\'s field you need that Story\'s OWN issue key (via the "caused by" link).',
+        },
+        retryQuestion: {
+          question: { tr: 'JQL\'de bir koşulun ne getirdiği ile bir SQL `SELECT`in ne getirdiği arasındaki fark nedir?', en: 'What is the difference between what a JQL condition returns and what a SQL `SELECT` returns?' },
+          options: [
+            { id: 'a', text: { tr: 'JQL her zaman TÜM alanları döner, sadece hangi issue\'ların döneceğini filtreler', en: 'JQL always returns ALL fields, it only filters which issues come back' } },
+            { id: 'b', text: { tr: 'İkisi birebir aynıdır', en: 'They are exactly identical' } },
+            { id: 'c', text: { tr: 'JQL hiçbir alan döndürmez', en: 'JQL returns no fields at all' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'SQL\'de hangi KOLONLARIN döneceğini `SELECT` ile seçersin; JQL\'de böyle bir seçim yoktur — arayüz her zaman tüm alanları gösterir, JQL yalnızca HANGİ issue\'ların listede olacağını belirler.',
+            en: 'In SQL you choose which COLUMNS come back with `SELECT`; JQL has no such choice -- the interface always shows all fields, JQL only decides WHICH issues make the list.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ F2. Operatörler ve Zaman Fonksiyonları', en: '2️⃣ F2. Operators and Time Functions' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "JQL'in gücü küçük bir operatör setinden gelir. Sabit bir tarih yazmak yerine göreli zaman (`-7d`) veya kayan bir fonksiyon (`startOfSprint()`) kullanmak, sorgunun HER koşumda kendini güncellemesini sağlar — kaydedilmiş bir filtreyi bir kez yazıp sonsuza kadar doğru tutmanın anahtarı budur.",
+          en: 'The power of JQL comes from a small operator set. Using relative time (`-7d`) or a shifting function (`startOfSprint()`) instead of a fixed date lets the query update itself on EVERY run -- this is the key to writing a saved filter once and keeping it correct forever.',
+        },
+      },
+      jqlOperatorsTable,
+      jqlEvaluationSteps,
+      staleIssuesJqlPlayground,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir kaydedilmiş filtrede `updated <= -30d` yazıyor. Bu filtre her Pazartesi koştuğunda \"-30 gün\" hangi tarihe göre hesaplanır?",
+          en: 'A saved filter contains `updated <= -30d`. Every Monday it runs -- relative to which date is "-30 days" computed?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Filtrenin İLK yazıldığı tarihe göre, sabit kalır", en: 'Relative to the date the filter was FIRST written, fixed forever' } },
+          { id: 'b', text: { tr: "Sorgunun O AN çalıştırıldığı tarihe göre, her koşumda YENİDEN hesaplanır", en: 'Relative to the date the query is RUNNING right now, RECOMPUTED on every run' } },
+          { id: 'c', text: { tr: "SHOP projesinin oluşturulma tarihine göre", en: "Relative to the SHOP project's creation date" } },
+          { id: 'd', text: { tr: "Her zaman bugünün gece yarısına göre, dakika önemsizdir", en: 'Always relative to midnight today, minutes do not matter' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Göreli zaman ifadeleri (`-30d`, `startOfDay()`) her koşumda YENİDEN çözülür — bu, bir sorguyu bir kez yazıp sürekli doğru tutmanın tam olarak nedenidir. Sabit bir tarih yazsaydın filtre zamanla anlamsızlaşırdı.",
+          en: 'Relative time expressions (`-30d`, `startOfDay()`) are RECOMPUTED on every run -- this is exactly why you can write a query once and keep it correct forever. A fixed date would make the filter meaningless over time.',
+        },
+        retryQuestion: {
+          question: { tr: 'ORDER BY, filtreleme koşullarına göre HANGİ sırada uygulanır?', en: 'In relation to the filter conditions, in WHICH order is ORDER BY applied?' },
+          options: [
+            { id: 'a', text: { tr: 'Tüm koşullar değerlendirilip küme belirlendikten SONRA', en: 'AFTER all conditions are evaluated and the set is decided' } },
+            { id: 'b', text: { tr: 'İlk koşuldan ÖNCE', en: 'BEFORE the first condition' } },
+            { id: 'c', text: { tr: 'Her koşuldan sonra ayrı ayrı', en: 'Separately after each condition' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Sıralama küme büyüklüğünü değiştirmez, yalnızca dizilişi belirler — bu yüzden mantıksal olarak filtrelemeden sonra gelir.',
+            en: 'Ordering does not change the set size, it only decides the arrangement -- which is why it logically comes after filtering.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: "3️⃣ F3. QA'in Günlük Sorguları", en: "3️⃣ F3. A QA Engineer's Daily Queries" },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Yukarıdaki üç sorguya (doğrulama bekleyenler, unutulmuşlar, üretime sızanlar) bir dördüncüsünü ekleyelim: sprint içinde bir kez bile Reopened olmuş kayıtlar. Bu sorgu, bu sekmenin başındaki filmde gördüğün alan-eşleştirme mantığını GEÇMİŞ bir değere uygular — WAS operatörüyle.",
+          en: "Let's add a fourth query to the three above (waiting for verification, forgotten, leaked to production): records that were reopened even once within the sprint. This query applies the field-matching logic you saw in the film at the top of this tab to a PAST value -- via the WAS operator.",
+        },
+      },
       reopenedJqlPlayground,
       {
         type: 'quiz',
@@ -2256,7 +2569,32 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
           tr: "`status = Reopened` anlık durumu sorar. Kayıt artık Done olduğu için sonuçlarda çıkmaz — ve reopen oranını böyle ölçen bir pano kaliteyi olduğundan iyi gösterir. Geçmişteki değeri sorgulamak için `status WAS Reopened` kullanılır; bir alanın ne zaman değiştiğini sormak içinse CHANGED operatörü vardır.",
           en: '`status = Reopened` asks about the current state. Since the record is now Done it does not show up -- and a dashboard measuring reopen rate this way makes quality look better than it is. To query a past value use `status WAS Reopened`; to ask when a field changed there is the CHANGED operator.',
         },
+        retryQuestion: {
+          question: { tr: '`status WAS Reopened` ile `status CHANGED TO Reopened` arasındaki fark nedir?', en: 'What is the difference between `status WAS Reopened` and `status CHANGED TO Reopened`?' },
+          options: [
+            { id: 'a', text: { tr: 'WAS bir değeri TAŞIMIŞ OLMAYI sorar; CHANGED TO belirli bir GEÇİŞİN olup olmadığını sorar', en: 'WAS asks whether a value was EVER HELD; CHANGED TO asks whether a specific TRANSITION happened' } },
+            { id: 'b', text: { tr: 'İkisi birebir aynı sonucu verir', en: 'They give the exact same result' } },
+            { id: 'c', text: { tr: 'CHANGED TO yalnızca sayısal alanlarda çalışır', en: 'CHANGED TO only works on numeric fields' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'İkisi de geçmişe bakar ama farklı sorular sorar — WAS bir "durum", CHANGED TO bir "olay"dır.',
+            en: 'Both look at history but ask different questions -- WAS is about a "state", CHANGED TO is about an "event".',
+          },
+        },
       },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ F4. Kaydedilmiş Filtre, Abonelik ve Filtreden Board Üretme', en: '4️⃣ F4. Saved Filters, Subscriptions and Turning a Filter Into a Board' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bir JQL sorgusu kaydedilince üç şeye dönüşebilir: bir kaydedilmiş filtre (herkes tekrar çalıştırabilir), bir abonelik (belirli aralıklarla e-posta olarak gelir) veya bir Kanban board'un kaynağı (kartlar bu sorgunun sonucundan oluşur). Bu üçü aynı JQL üzerine kurulur — sorguyu bir kez doğru yazmak, üç farklı görünüm kazandırır.",
+          en: 'Once a JQL query is saved it can turn into three things: a saved filter (anyone can rerun it), a subscription (arrives by email on a schedule) or the source of a Kanban board (its cards are built from this query\'s result). All three are built on the same JQL -- writing the query correctly once buys you three different views.',
+        },
+      },
+      savedFilterJqlPlayground,
     ],
   },
 
