@@ -1765,6 +1765,348 @@ const xrayVsZephyrTable = {
   ],
 }
 
+// ─── Film: CI koşumu kırıldığında otomatik bug mı gürültü mü (GRUP I referans filmi) ─
+const ciFailureFilm = {
+  type: 'video-scene',
+  id: 'jira-i2-ci-failure-film',
+  title: {
+    tr: '🎬 Bir CI Koşumu Kırıldığında: Otomatik Bug mı, Gürültü mü?',
+    en: '🎬 When a CI Run Breaks: Automatic Bug or Noise?',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'ci', emoji: '⚙️', label: { tr: 'CI Koşumu (03:00)', en: 'CI Run (03:00)' }, color: '#f59e0b' },
+    { id: 'fail', emoji: '❌', label: { tr: 'Test Kırıldı', en: 'Test Broke' }, color: '#ef4444' },
+    { id: 'search', emoji: '🔍', label: { tr: 'Arama: Aynı İmza Var mı?', en: 'Search: Same Signature Exists?' }, color: '#0ea5e9' },
+    { id: 'comment', emoji: '💬', label: { tr: 'Mevcut Bug\'a Yorum', en: 'Comment on Existing Bug' }, color: '#8b5cf6' },
+    { id: 'newbug', emoji: '🆕', label: { tr: 'Yeni Bug Açılır', en: 'New Bug Filed' }, color: '#10b981' },
+    { id: 'flood', emoji: '🌊', label: { tr: 'Bildirim Fırtınası', en: 'Notification Flood' }, color: '#64748b' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: "Gece 03:00 — CI koşumu ödeme akışı testini kırıyor. Kimse uyanık değil, ama sistemin bir kararı vermesi gerekiyor: yeni bir bug mı açsın, yoksa başka bir şey mi yapsın?",
+        en: 'Night, 03:00 -- the CI run breaks the checkout flow test. Nobody is awake, but the system has to make a decision: file a new bug, or do something else?',
+      },
+      positions: { ci: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: 'Adım 1 — Koşum kırılır. Naif bir tasarım burada doğrudan "bug aç" der — ama bu test her gece rastgele bir ağ gecikmesi yüzünden kırılıyorsa, bu YEDİNCİ aynı bug olur.',
+        en: 'Step 1 -- The run breaks. A naive design says "file a bug" right here -- but if this test breaks every night from a random network delay, this becomes the SEVENTH identical bug.',
+      },
+      positions: {
+        ci: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        fail: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'ci', to: 'fail', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Doğru tasarım önce ARAR: \"aynı test adı + aynı hata imzasıyla açık bir bug var mı?\" JQL sekmesinde öğrendiğin `summary ~ \"...\"` operatörü tam olarak burada işe yarar.",
+        en: 'Step 2 -- The correct design SEARCHES first: "is there an open bug with the same test name plus the same failure signature?" The `summary ~ "..."` operator you learned on the JQL tab is exactly what does this job.',
+      },
+      positions: {
+        fail: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        search: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'fail', to: 'search', color: '#0ea5e9' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 3a — Aynı imzalı açık bir bug BULUNURSA: yeni ticket açılmaz, mevcut kayda "koşum #4821, build 2026.8.3" bilgisiyle bir yorum eklenir. Bug hâlâ TEK kayıt, ama tekrar sayısı ölçülebilir.',
+        en: 'Step 3a -- If an open bug with the same signature IS FOUND: no new ticket opens, a comment with "run #4821, build 2026.8.3" is added to the existing record. The bug is still ONE record, but its recurrence count is measurable.',
+      },
+      positions: {
+        search: { x: 20, y: 32, scale: 0.9 },
+        comment: { x: 60, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'search', to: 'comment', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3b — Aynı imzalı bug BULUNAMAZSA: yeni bir bug açılır, ortam bilgisi ve koşum raporunun linki otomatik eklenir. Bu, gerçekten YENİ bir hata olduğu için haklı bir kayıttır.",
+        en: 'Step 3b -- If no bug with the same signature IS FOUND: a new bug is filed, with environment info and the run report link attached automatically. This is a justified record because it is genuinely a NEW failure.',
+      },
+      positions: {
+        search: { x: 20, y: 68, scale: 0.9 },
+        newbug: { x: 60, y: 45, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'search', to: 'newbug', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — Arama adımı ATLANSAYDI: her gece aynı flaky test için yeni bir ticket açılır, bir ay sonra otuz \"tekil\" bug birikir. Takım bu gürültüde gerçek bir hatayı kaçırır — üretim kalite sensörünün her parçaya fiş kesip operatörleri fişlere bakmaktan vazgeçirmesiyle AYNI mekanizma.",
+        en: 'Finale (the contrast) -- Had the search step been SKIPPED: a new ticket opens every night for the same flaky test, and a month later thirty "unique" bugs pile up. The team misses a real defect in that noise -- the EXACT same mechanism as a production quality sensor issuing a slip for every part until operators stop reading slips at all.',
+      },
+      positions: {
+        newbug: { x: 20, y: 32, scale: 0.9 },
+        flood: { x: 60, y: 55, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'newbug', to: 'flood', color: '#64748b' }],
+    },
+  ],
+}
+
+// ─── table: smart commit sözdizimi (GRUP I1) ───────────────────────────────────
+const smartCommitTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Sözdizimi', en: 'Syntax' },
+    { tr: 'Ne yapar', en: 'What it does' },
+    { tr: 'Örnek', en: 'Example' },
+  ],
+  rows: [
+    [
+      { tr: '`ISSUE-KEY #comment metin`', en: '`ISSUE-KEY #comment text`' },
+      { tr: "Issue'ya otomatik yorum ekler", en: 'Adds an automatic comment to the issue' },
+      { tr: '`SHOP-142 #comment kupon hesaplaması düzeltildi`', en: '`SHOP-142 #comment fixed coupon calculation`' },
+    ],
+    [
+      { tr: '`ISSUE-KEY #resolve`', en: '`ISSUE-KEY #resolve`' },
+      { tr: "Issue'yu Done'a taşır (workflow'da izin varsa)", en: 'Moves the issue to Done (if the workflow allows)' },
+      { tr: '`SHOP-142 #resolve`', en: '`SHOP-142 #resolve`' },
+    ],
+    [
+      { tr: '`ISSUE-KEY #time 2h`', en: '`ISSUE-KEY #time 2h`' },
+      { tr: 'Harcanan zamanı kaydeder', en: 'Logs time spent' },
+      { tr: '`SHOP-142 #time 2h Kupon hesaplaması debug edildi`', en: '`SHOP-142 #time 2h Debugged coupon calculation`' },
+    ],
+  ],
+}
+
+// ─── step-animation: arama-önce stratejisi (GRUP I2) ───────────────────────────
+const searchFirstSteps = {
+  type: 'step-animation',
+  id: 'jira-i2-search-first-steps',
+  title: { tr: 'Adım Adım: Arama-Önce Stratejisi Nasıl Çalışır?', en: 'Step by Step: How Does the Search-First Strategy Work?' },
+  steps: [
+    { id: 1, icon: '❌', label: { tr: 'Koşum kırılır', en: 'The run breaks' }, detail: { tr: 'CI, hangi test sınıfının hangi hata mesajıyla kırıldığını kaydeder — bu ikisi birlikte bir "imza" oluşturur.', en: 'CI records which test class broke with which error message -- together these two form a "signature".' } },
+    { id: 2, icon: '🔍', label: { tr: 'İmzayla arama yapılır', en: 'A search runs on the signature' }, detail: { tr: 'JQL ile `summary ~ "test-adi" AND status != Done` çalıştırılır — bu imzayı taşıyan AÇIK bir kayıt var mı diye bakılır.', en: 'A JQL query like `summary ~ "test-name" AND status != Done` runs -- checking whether an OPEN record with this signature exists.' } },
+    { id: 3, icon: '🔀', label: { tr: 'İki yol ayrılır', en: 'The path splits in two' }, detail: { tr: 'Sonuç bulunursa YORUM eklenir; bulunmazsa YENİ kayıt açılır — hiçbir zaman ikisi birden olmaz.', en: 'If found, a COMMENT is added; if not found, a NEW record is filed -- never both at once.' } },
+    { id: 4, icon: '📎', label: { tr: 'Kanıt her iki yolda da eklenir', en: 'Evidence is attached either way' }, detail: { tr: 'Yorum ya da yeni kayıt, koşum numarasını ve raporun linkini taşır — GRUP D\'de öğrendiğin kanıt disiplini burada da geçerlidir.', en: 'Whether it is a comment or a new record, it carries the run number and the report link -- the evidence discipline you learned earlier applies here too.' } },
+    { id: 5, icon: '📊', label: { tr: 'Tekrar sayısı ölçülebilir hâle gelir', en: 'Recurrence count becomes measurable' }, detail: { tr: 'Bir kaydın yorum sayısı, o hatanın kaç kez tekrarlandığının doğrudan göstergesi olur — gürültü üretmeden veri toplanır.', en: "A record's comment count becomes a direct indicator of how many times that failure recurred -- data is gathered without producing noise." } },
+  ],
+}
+
+// ─── code-playground: arama sorgusu yaz (GRUP I2) ──────────────────────────────
+const duplicateSearchJqlPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-i2-ci-failure-film',
+  id: 'jira-i2-duplicate-search-jql',
+  title: { tr: "Kendin Dene: \"Aynı Hata Zaten Açık mı?\" Sorgusunu Yaz", en: 'Try It Yourself: Write the "Is This Failure Already Open?" Query' },
+  starterCode: {
+    tr: `-- test_checkout_coupon testi "TimeoutError: waiting for selector" mesajıyla kırıldı.
+-- Bu imzayla açık bir bug zaten var mı, kontrol eden sorguyu yaz.
+project = SHOP`,
+    en: `-- The test_checkout_coupon test broke with "TimeoutError: waiting for selector".
+-- Write the query that checks whether a bug with this signature is already open.
+project = SHOP`,
+  },
+  solutionCode: {
+    tr: `project = SHOP AND issuetype = Bug AND status != Done
+AND summary ~ "test_checkout_coupon" AND summary ~ "TimeoutError"`,
+    en: `project = SHOP AND issuetype = Bug AND status != Done
+AND summary ~ "test_checkout_coupon" AND summary ~ "TimeoutError"`,
+  },
+  hint: {
+    tr: 'İki bilgiye ihtiyacın var: hangi test (metin arama) ve hangi hata (metin arama). `~` operatörünü JQL sekmesinde görmüştün — metin içinde arama yapar. `status != Done` eklemeyi unutma, kapanmış eski bir kayıt seni yanıltmasın.',
+    en: 'You need two pieces of information: which test (text search) and which error (text search). You saw the `~` operator on the JQL tab -- it searches within text. Do not forget `status != Done`, so an old closed record does not mislead you.',
+  },
+  successMessage: {
+    tr: "Doğru! Bu sorgu, CI'ın her koşum sonunda otomatik çalıştırdığı \"aç mı, yorum mu ekle\" kararının TAM olarak arkasındaki mantıktır. JQL öğrenmenin otomasyon entegrasyonundaki karşılığı budur.",
+    en: 'Correct! This query is EXACTLY the logic behind the "file or comment" decision CI runs automatically at the end of every run. This is what learning JQL pays off as in automation integration.',
+  },
+}
+
+// ─── Film: bir REST API çağrısının Jira'ya bug açması (GRUP J referans filmi) ─
+const restApiCallFilm = {
+  type: 'video-scene',
+  id: 'jira-j1-rest-api-call-film',
+  title: {
+    tr: "🎬 Bir REST API Çağrısının Jira'ya Bug Açması",
+    en: '🎬 A REST API Call Filing a Bug in Jira',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'token', emoji: '🔑', label: { tr: 'API Token', en: 'API Token' }, color: '#f59e0b' },
+    { id: 'request', emoji: '📤', label: { tr: 'POST /rest/api/3/issue', en: 'POST /rest/api/3/issue' }, color: '#0ea5e9' },
+    { id: 'auth', emoji: '🚪', label: { tr: 'Kimlik + İzin Kontrolü', en: 'Identity + Permission Check' }, color: '#8b5cf6' },
+    { id: 'created', emoji: '🆕', label: { tr: 'SHOP-143 Oluşturuldu', en: 'SHOP-143 Created' }, color: '#10b981' },
+    { id: 'blocked401', emoji: '🚫', label: { tr: '401: Kimlik Reddedildi', en: '401: Identity Rejected' }, color: '#ef4444' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Bir otomasyon scripti üç yüz test verisi kaydı oluşturması gerekiyor — elle yapmak saatler sürer. Bu filmde tek bir API çağrısının Jira sunucusunda ne yaşadığını izleyeceksin.',
+        en: 'An automation script needs to create three hundred test data records -- doing it by hand would take hours. In this film you will watch what a single API call experiences on the Jira server.',
+      },
+      positions: { token: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — Script, hesap ayarlarında üretilmiş bir API token'ı e-posta ile birlikte Authorization başlığına koyar. Şifre KULLANILMAZ — token, çalınırsa iptal edilebilen, şifreden ayrı bir kimlik parçasıdır.",
+        en: 'Step 1 -- The script puts an API token generated in account settings, together with the email, into the Authorization header. A password is NOT used -- a token is a credential separate from the password that can be revoked if leaked.',
+      },
+      code: { tr: 'Authorization: Basic base64(email:api_token)', en: 'Authorization: Basic base64(email:api_token)' },
+      positions: {
+        token: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        request: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'token', to: 'request' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — İstek Jira sunucusuna ulaşır. Sunucu önce KİMLİĞİ doğrular (bu token geçerli mi), sonra İZNİ kontrol eder (bu kullanıcının SHOP projesinde issue açma yetkisi var mı). İki ayrı kontrol, iki ayrı hata kodu üretebilir.",
+        en: 'Step 2 -- The request reaches the Jira server. The server first verifies IDENTITY (is this token valid), then checks PERMISSION (does this user have rights to create issues in the SHOP project). Two separate checks, two separate error codes possible.',
+      },
+      positions: {
+        request: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        auth: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'request', to: 'auth', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3a — Token geçersizse (yanlış yazılmış, süresi dolmuş) sunucu `401 Unauthorized` döner — \"sen kimsin bilmiyorum\" demektir. İstek Jira'ya hiç GİRMEMİŞ sayılır.",
+        en: 'Step 3a -- If the token is invalid (mistyped, expired) the server returns `401 Unauthorized` -- meaning "I do not know who you are". The request is treated as never having ENTERED Jira at all.',
+      },
+      code: { tr: 'HTTP/1.1 401 Unauthorized', en: 'HTTP/1.1 401 Unauthorized' },
+      positions: {
+        auth: { x: 20, y: 32, scale: 0.9 },
+        blocked401: { x: 60, y: 55, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'auth', to: 'blocked401', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: "Final — Kimlik VE izin geçerliyse Jira yeni bir issue oluşturur ve gövdesinde SHOP-143 anahtarını döner. Bu tek çağrı, elle otuz saniye süren bir işlemi saniyenin çok altına indirir — ve üç yüz kez tekrarlandığında elle asla yapılamayacak bir işi mümkün kılar.",
+        en: 'Finale -- If both identity AND permission are valid, Jira creates a new issue and returns the key SHOP-143 in the response body. This single call takes an operation that manually takes thirty seconds down to a fraction of a second -- and repeated three hundred times, makes possible a job that could never be done by hand.',
+      },
+      code: { tr: '{ "key": "SHOP-143" }', en: '{ "key": "SHOP-143" }' },
+      positions: {
+        blocked401: { x: 18, y: 32, scale: 0.85, opacity: 0.4 },
+        auth: { x: 40, y: 55, scale: 0.9, opacity: 0.6 },
+        created: { x: 70, y: 50, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'auth', to: 'created', color: '#10b981' }],
+    },
+  ],
+}
+
+// ─── code-playground: Java/Python issue oluşturma çağrısı (GRUP J3) ───────────
+const restApiCreateIssuePlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-j1-rest-api-call-film',
+  id: 'jira-j3-create-issue-call',
+  title: { tr: "Kendin Dene: Java (REST Assured) ile Bug Oluşturma Çağrısını Tamamla", en: 'Try It Yourself: Complete the Bug-Creation Call in Java (REST Assured)' },
+  starterCode: {
+    tr: `given()
+    .auth().preemptive().basic(EMAIL, API_TOKEN)
+    .contentType("application/json")
+    // TODO: gövdeye "fields" objesi ekle: project.key=SHOP, summary, issuetype.name=Bug
+.when()
+    .post("https://shopqa.atlassian.net/rest/api/3/issue")
+.then()
+    .statusCode(201);`,
+    en: `given()
+    .auth().preemptive().basic(EMAIL, API_TOKEN)
+    .contentType("application/json")
+    // TODO: add a "fields" body: project.key=SHOP, summary, issuetype.name=Bug
+.when()
+    .post("https://shopqa.atlassian.net/rest/api/3/issue")
+.then()
+    .statusCode(201);`,
+  },
+  solutionCode: {
+    tr: `given()
+    .auth().preemptive().basic(EMAIL, API_TOKEN)
+    .contentType("application/json")
+    .body("""
+        {
+          "fields": {
+            "project": { "key": "SHOP" },
+            "summary": "Otomasyon: kupon hesaplama regresyonu",
+            "issuetype": { "name": "Bug" }
+          }
+        }
+        """)
+.when()
+    .post("https://shopqa.atlassian.net/rest/api/3/issue")
+.then()
+    .statusCode(201);`,
+    en: `given()
+    .auth().preemptive().basic(EMAIL, API_TOKEN)
+    .contentType("application/json")
+    .body("""
+        {
+          "fields": {
+            "project": { "key": "SHOP" },
+            "summary": "Automation: coupon calculation regression",
+            "issuetype": { "name": "Bug" }
+          }
+        }
+        """)
+.when()
+    .post("https://shopqa.atlassian.net/rest/api/3/issue")
+.then()
+    .statusCode(201);`,
+  },
+  hint: {
+    tr: "Jira'nın beklediği gövde tek bir \"fields\" objesidir ve üç alan ZORUNLUDUR: hangi projeye (`project.key`), ne hakkında (`summary`), hangi tipte (`issuetype.name`). Bu, Issue Türleri ve Hiyerarşi sekmesinde öğrendiğin \"her issue tipinin kendi zorunlu alanları vardır\" ilkesinin API karşılığıdır.",
+    en: 'The body Jira expects is a single "fields" object with three MANDATORY fields: which project (`project.key`), about what (`summary`), which type (`issuetype.name`). This is the API counterpart of the "every issue type has its own mandatory fields" principle you learned earlier.',
+  },
+  successMessage: {
+    tr: "Doğru! `201 Created` durum kodu, arayüzden tıklayarak yaptığın \"issue oluştur\" işleminin API karşılığıdır. Aynı üç zorunlu alan (project, summary, issuetype) hem arayüzde hem API'de aynıdır — sadece giriş şekli değişir.",
+    en: 'Correct! The `201 Created` status code is the API counterpart of the "create issue" action you perform by clicking in the interface. The same three mandatory fields (project, summary, issuetype) are identical whether through the interface or the API -- only the input method changes.',
+  },
+}
+
+// ─── table: hata kodları (GRUP J5) ─────────────────────────────────────────────
+const apiErrorCodesTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Kod', en: 'Code' },
+    { tr: 'Anlamı', en: 'Meaning' },
+    { tr: 'İlk kontrol edilecek şey', en: 'The first thing to check' },
+  ],
+  rows: [
+    [
+      { tr: '401 Unauthorized', en: '401 Unauthorized' },
+      { tr: "Kimlik doğrulanamadı — sunucu SENİ tanımıyor", en: 'Identity could not be verified -- the server does not know WHO you are' },
+      { tr: "API token'ın doğru/süresi dolmamış olup olmadığı", en: "Whether the API token is correct/not expired" },
+    ],
+    [
+      { tr: '403 Forbidden', en: '403 Forbidden' },
+      { tr: "Kimlik doğru ama İZİN yok — sunucu seni tanıyor, yetkilendirmiyor", en: 'Identity is fine but PERMISSION is missing -- the server knows you, but does not authorize you' },
+      { tr: "Kullanıcının bu projede issue oluşturma izninin olup olmadığı", en: "Whether the user has issue-creation permission in this project" },
+    ],
+    [
+      { tr: '429 Too Many Requests', en: '429 Too Many Requests' },
+      { tr: 'Oran sınırı (rate limit) aşıldı', en: 'The rate limit was exceeded' },
+      { tr: "İsteklerin arasına bekleme koyup koymadığın (retry-after başlığına saygı)", en: 'Whether you are pacing requests (respecting the retry-after header)' },
+    ],
+  ],
+}
+
+// ─── step-animation: hata kodunu teşhis etme (GRUP J5) ─────────────────────────
+const apiErrorDiagnosisSteps = {
+  type: 'step-animation',
+  id: 'jira-j5-api-error-diagnosis-steps',
+  title: { tr: 'Adım Adım: Bir API Hata Kodunu Nasıl Teşhis Edersin?', en: 'Step by Step: How Do You Diagnose an API Error Code?' },
+  steps: [
+    { id: 1, icon: '📡', label: { tr: 'İstek başarısız oldu', en: 'The request failed' }, detail: { tr: 'Beklenen `201 Created` yerine bir hata kodu geldi. Önce KODUN KENDİSİNE bak, gövdedeki mesaja değil — kod, hangi katmanda durduğunu söyler.', en: 'Instead of the expected `201 Created`, an error code arrived. Look at the CODE ITSELF first, not the body message -- the code tells you which layer stopped it.' } },
+    { id: 2, icon: '🔑', label: { tr: '401 mi?', en: 'Is it 401?' }, detail: { tr: "Kimlik katmanında duruyor. Token'ı, e-posta adresini ve base64 kodlamasını kontrol et — istek Jira'nın İÇİNE bile girmedi.", en: 'It stopped at the identity layer. Check the token, the email address and the base64 encoding -- the request never even entered Jira.' } },
+    { id: 3, icon: '🚪', label: { tr: '403 mü?', en: 'Is it 403?' }, detail: { tr: 'Kimlik geçti ama izin katmanında durdu. Kullanıcının bu PROJEDE issue oluşturma iznine sahip olup olmadığını kontrol et — token değil, proje izin şeması sorunu.', en: 'Identity passed but it stopped at the permission layer. Check whether the user has issue-creation permission in this PROJECT -- not a token issue, a project permission scheme issue.' } },
+    { id: 4, icon: '⏳', label: { tr: '429 mu?', en: 'Is it 429?' }, detail: { tr: 'İstek reddedilmedi, ERTELENDİ. Çok hızlı çok fazla istek gönderiliyor. Cevaptaki `retry-after` başlığına bak ve isteklerin arasına o kadar bekleme koy.', en: 'The request was not rejected, it was DEFERRED. Too many requests are being sent too fast. Check the `retry-after` header in the response and pace your requests accordingly.' } },
+    { id: 5, icon: '✅', label: { tr: '2xx mi?', en: 'Is it 2xx?' }, detail: { tr: 'İstek başarılı — ama gövdeyi mutlaka kontrol et, çünkü 200 dönüp içinde boş bir sonuç listesi taşıyan bir yanıt da "teknik olarak başarılı ama işlevsel olarak yanlış" olabilir.', en: 'The request succeeded -- but always check the body too, because a 200 carrying an empty result list inside can be "technically successful but functionally wrong".' } },
+  ],
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -3364,6 +3706,102 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
           en: 'We will cover linking a commit message to an issue (smart commits); the flow and the pitfalls of auto-creating a bug when a CI run breaks; the search-first strategy that prevents duplicate tickets; and how to attach environment information and run artifacts (report link, screenshot, logs) to the record.',
         },
       },
+      ciFailureFilm,
+      {
+        type: 'heading',
+        text: { tr: '1️⃣ I1. Smart Commit: Commit Mesajından Issue\'ya Bağ', en: '1️⃣ I1. Smart Commit: Linking a Commit Message to an Issue' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bir smart commit, git commit mesajının içine gömülen özel bir sözdizimidir — Jira bu mesajı ayrıştırıp issue üzerinde otomatik bir işlem yapar. Bu, Jira Nedir? sekmesinde gördüğün \"commit mesajına anahtar koymak\" fikrinin ötesine geçer: mesaj yalnızca bağlanmakla kalmaz, bir KOMUT da taşır.",
+          en: 'A smart commit is special syntax embedded inside a git commit message -- Jira parses this message and performs an automatic action on the issue. This goes beyond the "put the key in the commit message" idea you saw on the What is Jira? tab: the message does not just link, it also carries a COMMAND.',
+        },
+      },
+      smartCommitTable,
+      {
+        type: 'quiz',
+        question: {
+          tr: "`SHOP-142 #comment kupon hesaplaması düzeltildi #time 1h 30m` şeklinde bir commit mesajı yazıldı. Bu mesaj Jira'da NE yapar?",
+          en: 'A commit message is written as `SHOP-142 #comment fixed coupon calculation #time 1h 30m`. What does this message do IN Jira?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Hiçbir şey, smart commit yalnızca tek bir komut destekler", en: 'Nothing, smart commit only supports a single command' } },
+          { id: 'b', text: { tr: "SHOP-142'ye bir yorum ekler VE 1 saat 30 dakika zaman kaydı girer — birden çok komut ZİNCİRLENEBİLİR", en: "Adds a comment to SHOP-142 AND logs 1 hour 30 minutes of time -- multiple commands CAN be chained" } },
+          { id: 'c', text: { tr: "Yalnızca issue'yu kapatır", en: 'It only closes the issue' } },
+          { id: 'd', text: { tr: "Commit'i reddeder çünkü sözdizimi hatalıdır", en: 'It rejects the commit because the syntax is invalid' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Smart commit komutları `#` ile ayrılarak zincirlenebilir — tek bir commit mesajı birden fazla işlemi tetikleyebilir. Bu, otomasyon scriptlerinin de kullanabileceği bir sözdizimidir.",
+          en: 'Smart commit commands can be chained, separated by `#` -- a single commit message can trigger multiple actions. This is syntax automation scripts can use too.',
+        },
+        retryQuestion: {
+          question: { tr: '`#resolve` komutu her zaman çalışır mı?', en: 'Does the `#resolve` command always work?' },
+          options: [
+            { id: 'a', text: { tr: "Hayır — yalnızca mevcut workflow durumundan Done'a geçiş İZİN VERİYORSA çalışır", en: 'No -- it only works if the current workflow status ALLOWS a transition to Done' } },
+            { id: 'b', text: { tr: "Evet, her zaman koşulsuz çalışır", en: 'Yes, it always works unconditionally' } },
+            { id: 'c', text: { tr: "Yalnızca proje yöneticisi commit atarsa çalışır", en: 'It only works if a project admin makes the commit' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: "Smart commit workflow kurallarını BYPASS etmez — Workflow ve Durumlar sekmesinde gördüğün koşullu geçiş mantığı burada da geçerlidir.",
+            en: 'Smart commit does not BYPASS workflow rules -- the conditional transition logic you saw on the Workflows & Statuses tab applies here too.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ I2. Otomatik Bug Açma: Arama-Önce Stratejisi', en: '2️⃣ I2. Auto-Filing Bugs: The Search-First Strategy' },
+      },
+      searchFirstSteps,
+      duplicateSearchJqlPlayground,
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ I3. Otomatik Açılan Bug\'ın Tuzağı: Gürültü', en: '3️⃣ I3. The Trap of Auto-Filed Bugs: Noise' },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir takım, arama-önce stratejisini uygulamadan CI'a \"her kırılan koşumda otomatik bug aç\" kuralını bağladı. Bir ay sonra en olası sonuç nedir?",
+          en: 'A team wired "auto-file a bug on every broken run" into CI without the search-first strategy. What is the most likely outcome a month later?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Kalite raporu daha doğru hâle gelir", en: 'The quality report becomes more accurate' } },
+          { id: 'b', text: { tr: "Aynı flaky test için onlarca \"tekil\" bug birikir ve gerçek bir hata bu gürültüde kaybolur", en: 'Dozens of "unique" bugs pile up for the same flaky test, and a real defect gets lost in the noise' } },
+          { id: 'c', text: { tr: "CI otomatik olarak yavaşlar", en: 'CI automatically slows down' } },
+          { id: 'd', text: { tr: "Hiçbir sonucu olmaz", en: 'There is no consequence at all' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Bu, bu sekmenin başındaki üretim bandı analojisinin bire bir gerçekleşmesidir: bildirim ne kadar ucuzsa o kadar değersizleşir, ve gürültü içinde gerçek sinyal kaybolur.",
+          en: "This is the production-line analogy from the top of this tab playing out literally: the cheaper a notification is, the less it is worth, and the real signal gets lost in the noise.",
+        },
+        retryQuestion: {
+          question: { tr: 'Arama-önce stratejisi bu tuzağı nasıl önler?', en: 'How does the search-first strategy prevent this trap?' },
+          options: [
+            { id: 'a', text: { tr: 'Aynı imzalı açık bir kayıt varsa yeni ticket açmak yerine yorum ekler', en: 'If an open record with the same signature exists, it adds a comment instead of opening a new ticket' } },
+            { id: 'b', text: { tr: 'CI koşumlarını tamamen durdurur', en: 'It stops CI runs entirely' } },
+            { id: 'c', text: { tr: 'Testleri otomatik olarak siler', en: 'It automatically deletes the tests' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: "Bu, bir hatayı TEK bir kayıt olarak tutarken tekrar sayısını da ölçülebilir bırakır — hem gürültüyü önler hem veriyi korur.",
+            en: 'This keeps a failure as ONE record while leaving its recurrence count measurable -- it prevents noise while preserving the data.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: "4️⃣ I4. Ortam Bilgisi ve Koşum Artefaktı", en: '4️⃣ I4. Environment Info and Run Artifacts' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bug Raporlama Sanatı sekmesinde öğrendiğin \"kanıt\" kavramı otomasyon dünyasında somut bir karşılık bulur: CI koşumu bittiğinde ortam bilgisi (hangi build, hangi tarayıcı, hangi işletim sistemi) ve koşum artefaktının linki (HTML rapor, ekran görüntüsü, log dosyası) otomatik olarak issue'ya eklenir — hiçbiri elle yazılmaz. Bu, bir insanın rapor yazarken elle dolduracağı alanların otomasyon tarafından DOLDURULMASI demektir.",
+          en: 'The "evidence" concept you learned on the Art of Bug Reporting tab finds a concrete counterpart in the automation world: when a CI run finishes, environment info (which build, which browser, which OS) and the run artifact link (HTML report, screenshot, log file) are attached to the issue automatically -- none of it typed by hand. This means fields a human would fill in by hand while writing a report get FILLED IN by automation instead.',
+        },
+      },
     ],
   },
 
@@ -3388,6 +3826,192 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
         content: {
           tr: "API token ile kimlik doğrulamayı; issue oluşturma ve JQL ile arama uç noktalarını; aynı çağrıların Java ve Python karşılıklarını; webhook ile Jira'dan dışarı olay göndermeyi; oran sınırını ve hata kodlarının (401 / 403 / 429) neyi anlattığını işleyeceğiz.",
           en: 'We will cover authenticating with an API token; the issue-creation and JQL-search endpoints; the Java and Python equivalents of the same calls; sending events out of Jira with webhooks; and rate limits plus what the error codes (401 / 403 / 429) actually tell you.',
+        },
+      },
+      restApiCallFilm,
+      {
+        type: 'heading',
+        text: { tr: '1️⃣ J1. Kimlik Doğrulama ve Issue Oluşturma', en: '1️⃣ J1. Authentication and Creating an Issue' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Jira REST API'sine her istek bir Authorization başlığı taşır — e-posta ve API token'ın base64 kodlanmış hâli. Şifre KULLANILMAZ: token ayrı bir kimlik parçasıdır ve çalınırsa şifreyi değiştirmeden iptal edilebilir. Aşağıdaki `curl` örneği en temel çağrıyı gösteriyor.",
+          en: 'Every request to the Jira REST API carries an Authorization header -- the base64-encoded email and API token. A password is NOT used: the token is a separate credential and, if leaked, can be revoked without changing the password. The `curl` example below shows the most basic call.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'bash',
+        code: {
+          tr: `# SHOP projesinde yeni bir Bug oluşturur
+curl -X POST https://shopqa.atlassian.net/rest/api/3/issue \\
+  -H "Authorization: Basic $(echo -n "eposta:api_token" | base64)" \\
+  -H "Content-Type: application/json" \\
+  -d '{"fields": {"project": {"key": "SHOP"}, "summary": "Otomasyon: kupon regresyonu", "issuetype": {"name": "Bug"}}}'`,
+          en: `# Creates a new Bug in the SHOP project
+curl -X POST https://shopqa.atlassian.net/rest/api/3/issue \\
+  -H "Authorization: Basic $(echo -n "email:api_token" | base64)" \\
+  -H "Content-Type: application/json" \\
+  -d '{"fields": {"project": {"key": "SHOP"}, "summary": "Automation: coupon regression", "issuetype": {"name": "Bug"}}}'`,
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir REST API çağrısında şifre yerine API token kullanmanın en somut avantajı nedir?",
+          en: "What is the most concrete advantage of using an API token instead of a password in a REST API call?",
+        },
+        options: [
+          { id: 'a', text: { tr: "Token'lar şifrelerden daha kısadır", en: 'Tokens are shorter than passwords' } },
+          { id: 'b', text: { tr: "Token çalınırsa, hesabın asıl şifresi değişmeden yalnızca token iptal edilebilir", en: 'If a token leaks, only the token can be revoked without changing the account\'s actual password' } },
+          { id: 'c', text: { tr: "Token'lar hiç süresi dolmaz", en: 'Tokens never expire' } },
+          { id: 'd', text: { tr: "API yalnızca token kabul eder, teknik bir zorunluluktur, avantaj değildir", en: 'The API only accepts tokens, it is a technical requirement, not an advantage' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Token, şifreden AYRI bir kimlik parçasıdır — bu ayrım, bir sızıntı durumunda hasarı sınırlar (yalnızca o token iptal edilir, kullanıcının asıl hesap şifresi etkilenmez).",
+          en: 'A token is a credential SEPARATE from the password -- this separation limits the damage of a leak (only that token gets revoked, the user\'s actual account password is unaffected).',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir issue oluşturma isteğinde `fields` gövdesinde hangi üç alan ZORUNLUDUR?', en: 'In an issue-creation request, which three fields in the `fields` body are MANDATORY?' },
+          options: [
+            { id: 'a', text: { tr: 'project.key, summary, issuetype.name', en: 'project.key, summary, issuetype.name' } },
+            { id: 'b', text: { tr: 'Yalnızca summary', en: 'Only summary' } },
+            { id: 'c', text: { tr: 'Hiçbiri zorunlu değildir', en: 'None are mandatory' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Bu üç alan olmadan Jira issue oluşturamaz — arayüzden manuel oluşturmada da aynı üç bilgi istenir.',
+            en: 'Without these three fields Jira cannot create an issue -- the same three pieces of information are required when creating manually through the interface.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ J2. Arama: JQL ile POST /search', en: '2️⃣ J2. Searching: POST /search with JQL' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Arayüzdeki arama kutusuna yazdığın her JQL sorgusu, API tarafında `POST /rest/api/3/search` uç noktasına bir gövde olarak gönderilir. Bu, JQL sekmesinde öğrendiğin her şeyin API'de de ÇALIŞTIĞI anlamına gelir — sözdizimi birebir aynıdır.",
+          en: 'Every JQL query you type into the search box on the interface is sent, on the API side, as a body to the `POST /rest/api/3/search` endpoint. This means everything you learned on the JQL tab WORKS on the API too -- the syntax is identical.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'bash',
+        code: {
+          tr: `# Az önce yazdığın "aynı hata açık mı" sorgusunun API çağrısı
+curl -X POST https://shopqa.atlassian.net/rest/api/3/search \\
+  -H "Authorization: Basic $(echo -n "eposta:api_token" | base64)" \\
+  -H "Content-Type: application/json" \\
+  -d '{"jql": "project = SHOP AND status != Done AND summary ~ \\"TimeoutError\\""}'`,
+          en: `# The API call for the "is this failure already open" query
+curl -X POST https://shopqa.atlassian.net/rest/api/3/search \\
+  -H "Authorization: Basic $(echo -n "email:api_token" | base64)" \\
+  -H "Content-Type: application/json" \\
+  -d '{"jql": "project = SHOP AND status != Done AND summary ~ \\"TimeoutError\\""}'`,
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ J3. Java ve Python Örnekleri', en: '3️⃣ J3. Java and Python Examples' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Aşağıdaki playground'da Java (REST Assured) ile bir issue oluşturma çağrısını tamamlayacaksın. Aynı çağrının Python karşılığı `requests` kütüphanesiyle yapısal olarak birebir aynıdır — değişen yalnızca sözdizimidir, gövde ve başlıklar aynı kalır.",
+          en: "In the playground below you will complete an issue-creation call in Java (REST Assured). The same call's Python equivalent with the `requests` library is structurally identical -- only the syntax changes, the body and headers stay the same.",
+        },
+      },
+      restApiCreateIssuePlayground,
+      {
+        type: 'code',
+        language: 'python',
+        code: {
+          tr: `import requests
+from requests.auth import HTTPBasicAuth
+
+# Java REST Assured örneğiyle YAPISAL olarak birebir aynı: aynı gövde, aynı başlık
+response = requests.post(
+    "https://shopqa.atlassian.net/rest/api/3/issue",
+    auth=HTTPBasicAuth(EPOSTA, API_TOKEN),
+    json={
+        "fields": {
+            "project": {"key": "SHOP"},
+            "summary": "Otomasyon: kupon hesaplama regresyonu",
+            "issuetype": {"name": "Bug"},
+        }
+    },
+)
+assert response.status_code == 201, f"Beklenmeyen durum kodu: {response.status_code}"
+print(response.json()["key"])  # ör. SHOP-143`,
+          en: `import requests
+from requests.auth import HTTPBasicAuth
+
+# Structurally IDENTICAL to the Java REST Assured example: same body, same headers
+response = requests.post(
+    "https://shopqa.atlassian.net/rest/api/3/issue",
+    auth=HTTPBasicAuth(EMAIL, API_TOKEN),
+    json={
+        "fields": {
+            "project": {"key": "SHOP"},
+            "summary": "Automation: coupon calculation regression",
+            "issuetype": {"name": "Bug"},
+        }
+    },
+)
+assert response.status_code == 201, f"Unexpected status code: {response.status_code}"
+print(response.json()["key"])  # e.g. SHOP-143`,
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ J4. Webhook: Jira\'dan Dışarı Olay Göndermek', en: '4️⃣ J4. Webhooks: Sending Events Out of Jira' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Yukarıda gördüğün çağrılar Jira'ya İÇERİ doğru gider (script Jira'yı çağırır). Webhook bunun TERSİDİR: bir issue güncellendiğinde Jira, önceden kayıtlı bir URL'ye kendisi bir HTTP isteği gönderir — örneğin bir bug \"Reopened\"a düştüğünde Slack kanalına otomatik bir mesaj düşürmek için. Script Jira'yı beklemez, Jira scripti UYANDIRIR.",
+          en: 'The calls you saw above go INTO Jira (a script calls Jira). A webhook is the REVERSE: when an issue updates, Jira itself sends an HTTP request to a pre-registered URL -- for example, to drop an automatic message into a Slack channel when a bug falls into "Reopened". The script does not wait on Jira, Jira WAKES the script up.',
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '5️⃣ J5. Oran Sınırı ve Hata Kodları', en: '5️⃣ J5. Rate Limits and Error Codes' },
+      },
+      apiErrorCodesTable,
+      apiErrorDiagnosisSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Bir script SHOP projesinde issue oluşturmaya çalışıyor, kimlik bilgileri doğru ama sunucu `403 Forbidden` döndürüyor. En olası kök neden nedir?",
+          en: "A script tries to create an issue in the SHOP project, credentials are correct, but the server returns `403 Forbidden`. What is the most likely root cause?",
+        },
+        options: [
+          { id: 'a', text: { tr: "API token süresi dolmuş", en: 'The API token has expired' } },
+          { id: 'b', text: { tr: "Kullanıcının SHOP projesinde issue oluşturma iznine sahip olmaması", en: 'The user does not have issue-creation permission in the SHOP project' } },
+          { id: 'c', text: { tr: "Çok fazla istek gönderilmiş", en: 'Too many requests have been sent' } },
+          { id: 'd', text: { tr: "JSON gövdesi bozuk", en: 'The JSON body is malformed' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Kimlik bilgileri doğruysa (401 değil) ama işlem reddediliyorsa (403), sorun KİM olduğun değil NE YAPABİLDİĞİNDİR — izin şemasına bak, token'a değil.",
+          en: 'If credentials are correct (not a 401) but the action is refused (403), the problem is not WHO you are but WHAT you can DO -- check the permission scheme, not the token.',
+        },
+        retryQuestion: {
+          question: { tr: '`429 Too Many Requests` aldığında doğru tepki nedir?', en: 'What is the correct response when you get `429 Too Many Requests`?' },
+          options: [
+            { id: 'a', text: { tr: '`retry-after` başlığına göre bekleyip isteği tekrar denemek', en: 'Wait according to the `retry-after` header and retry the request' } },
+            { id: 'b', text: { tr: 'İsteği hemen tekrar göndermek, daha hızlı denemek', en: 'Immediately resend the request, try faster' } },
+            { id: 'c', text: { tr: 'API token\'ı değiştirmek', en: 'Change the API token' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'İstek reddedilmedi, ertelendi — hızlanmak sorunu büyütür, sunucunun verdiği bekleme süresine uymak çözer.',
+            en: 'The request was not rejected, it was deferred -- speeding up makes it worse, respecting the wait time the server gave is the fix.',
+          },
         },
       },
     ],

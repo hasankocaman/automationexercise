@@ -88,7 +88,17 @@
   H3 izlenebilirlik matrisi `python-flow-diagram` (Jira Nedir? sekmesindeki
   zincirin somutlaşmış hâli), H4 otomasyon sonucu akışı + Test Execution
   JQL `code-playground`, H5 Xray vs Zephyr karar tablosu.
-  Sıradaki: **D-S9 (GRUP I+J — CI/CD entegrasyonu ve REST API)**, plan §D'de.
+- **Faz S9 (D-S9, GRUP I+J — CI/CD entegrasyonu ve REST API) BİTTİ:**
+  GRUP I: "Bir CI Koşumu Kırıldığında" filmi (5 sahne, arama-önce
+  stratejisi) + I1 smart commit `table`, I2 arama-önce `step-animation` +
+  duplicate arama `code-playground`, I3 gürültü tuzağı, I4 ortam/artefakt
+  iliştirme. GRUP J: "Bir REST API Çağrısının Jira'ya Bug Açması" filmi
+  (5 sahne, 401 kontrastı) + J1 kimlik doğrulama + issue oluşturma
+  (`curl`), J2 JQL ile arama (`curl`), J3 Java (REST Assured)
+  `code-playground` + Python karşılığı, J4 webhook kavramı, J5 hata kodları
+  `table` + teşhis `step-animation`. İki grup da ayrı film taşıyor (plan
+  gereksinimi).
+  Sıradaki: **D-S10 (GRUP K — Dashboard ve QA Metrikleri)**, plan §D'de.
 
 ### Bu oturumda yapılanlar
 
