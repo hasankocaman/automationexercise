@@ -82,7 +82,13 @@
   `table`, G3 "QA sütunu" tartışması (iki taraf da sunuldu, dayatma yok) +
   hızlı filtre `code-playground` + `/sprint` simülatörüne `link-grid`, G4
   WIP limiti darboğazı `step-animation`, G5 sprint ritüelleri `table`.
-  Sıradaki: **D-S8 (GRUP H — Test Yönetimi: Xray & Zephyr)**, plan §D'de.
+- **Faz S8 (D-S8, GRUP H — Test Yönetimi: Xray & Zephyr) BİTTİ:** "Bir Test
+  Senaryosunun 50 Koşumu" filmi (5 sahne, tanım/koşum ayrımı) + H1 bug
+  takibi≠test yönetimi, H2 beş issue tipi `table` + ilişki `step-animation`,
+  H3 izlenebilirlik matrisi `python-flow-diagram` (Jira Nedir? sekmesindeki
+  zincirin somutlaşmış hâli), H4 otomasyon sonucu akışı + Test Execution
+  JQL `code-playground`, H5 Xray vs Zephyr karar tablosu.
+  Sıradaki: **D-S9 (GRUP I+J — CI/CD entegrasyonu ve REST API)**, plan §D'de.
 
 ### Bu oturumda yapılanlar
 

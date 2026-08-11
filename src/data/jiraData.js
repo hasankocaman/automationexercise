@@ -1564,6 +1564,207 @@ const sprintRitualsTable = {
   ],
 }
 
+// ─── Film: bir test senaryosunun tanım ile sonuç arasındaki farkı (GRUP H referans filmi) ─
+const testDefVsExecutionFilm = {
+  type: 'video-scene',
+  id: 'jira-h1-test-def-vs-execution-film',
+  title: {
+    tr: "🎬 Bir Test Senaryosunun 50 Koşumu: Tanım ile Sonuç Arasındaki Fark",
+    en: "🎬 A Test Case's 50 Runs: The Difference Between Definition and Result",
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'testdef', emoji: '📋', label: { tr: 'Test Tanımı: TC-42', en: 'Test Definition: TC-42' }, color: '#0ea5e9' },
+    { id: 'run1', emoji: '▶️', label: { tr: 'Koşum #1 (build .1)', en: 'Run #1 (build .1)' }, color: '#10b981' },
+    { id: 'run2', emoji: '▶️', label: { tr: 'Koşum #2 (build .2)', en: 'Run #2 (build .2)' }, color: '#ef4444' },
+    { id: 'bug', emoji: '🐞', label: { tr: 'SHOP-142 açılır', en: 'SHOP-142 filed' }, color: '#ef4444' },
+    { id: 'run3', emoji: '▶️', label: { tr: 'Koşum #3 (build .3)', en: 'Run #3 (build .3)' }, color: '#10b981' },
+    { id: 'flat', emoji: '📄', label: { tr: 'Düz Issue Listesi', en: 'Flat Issue List' }, color: '#64748b' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: '"Bir kupon sipariş başına bir kez uygulanır" senaryosu bir KEZ tanımlanır: TC-42. Ama bu tanım gelecekte ONLARCA kez koşulacak — her sürüm çıkışında, her regresyon paketinde. Bu filmde tanımın koşumlardan nasıl AYRIŞTIĞINI izleyeceksin.',
+        en: 'The scenario "a coupon is applied once per order" is defined ONCE: TC-42. But this definition will be run DOZENS of times in the future -- with every release, every regression pack. In this film you will watch how the definition SEPARATES from its runs.',
+      },
+      positions: { testdef: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — Build 2026.8.1'de koşulur: PASS. Bu sonuç TC-42'nin KENDİSİNE değil, TC-42'nin build .1'deki bu ÖZEL koşumuna aittir — tanım değişmeden kalır.",
+        en: 'Step 1 -- Run against build 2026.8.1: PASS. This result does not belong to TC-42 ITSELF, it belongs to this SPECIFIC run of TC-42 against build .1 -- the definition stays unchanged.',
+      },
+      positions: {
+        testdef: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        run1: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'testdef', to: 'run1', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Build 2026.8.2'de AYNI test tanımı tekrar koşulur: FAIL. Tanım hiç değişmedi, sadece koşulduğu ÜRÜN değişti — ve bu koşum SHOP-142 bug'ını doğurur.",
+        en: 'Step 2 -- The SAME test definition runs again against build 2026.8.2: FAIL. The definition never changed, only the PRODUCT it ran against did -- and this run gives birth to bug SHOP-142.',
+      },
+      positions: {
+        run1: { x: 16, y: 50, scale: 0.9, opacity: 0.5 },
+        run2: { x: 44, y: 50, scale: 1.15 },
+        bug: { x: 74, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'testdef', to: 'run2', color: '#ef4444' }, { from: 'run2', to: 'bug', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Düzeltme sonrası, AYNI tanım build 2026.8.3'e karşı üçüncü kez koşulur: PASS. Şimdi TC-42'nin geçmişinde ÜÇ ayrı koşum kaydı var: PASS, FAIL, PASS — hepsi aynı tanımın farklı zamanlardaki sonuçları.",
+        en: 'Step 3 -- After the fix, the SAME definition runs a third time against build 2026.8.3: PASS. TC-42 now has THREE separate run records in its history: PASS, FAIL, PASS -- all results of the same definition at different times.',
+      },
+      positions: {
+        bug: { x: 16, y: 50, scale: 0.9, opacity: 0.5 },
+        run3: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'bug', to: 'run3', color: '#10b981' }],
+    },
+    {
+      caption: {
+        tr: "Final (kontrast) — Eğer bu bilgi düz bir issue listesinde tutulsaydı, TC-42 için TEK bir kayıt olurdu — son durumu \"PASS\" gösterirdi ve build .2'deki FAIL tamamen kaybolurdu. Test Execution kayıtları sayesinde \"bu senaryo hangi build'lerde kaç kez başarısız oldu\" sorusu asla kaybolmaz — bu, izlenebilirlik matrisinin ham malzemesidir.",
+        en: 'Finale (the contrast) -- If this information were kept in a flat issue list, there would be ONE record for TC-42 -- its latest state would show "PASS" and the FAIL against build .2 would be completely lost. Thanks to Test Execution records, the question "how many times, in which builds, did this scenario fail" is never lost -- this is the raw material of the traceability matrix.',
+      },
+      positions: {
+        run3: { x: 20, y: 32, scale: 0.9 },
+        flat: { x: 60, y: 55, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'run3', to: 'flat', color: '#64748b' }],
+    },
+  ],
+}
+
+// ─── table: Xray/Zephyr issue tipleri ve ilişkileri (GRUP H2) ─────────────────
+const testIssueTypesTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Issue Tipi', en: 'Issue Type' },
+    { tr: 'Ne temsil eder', en: 'What it represents' },
+    { tr: 'Bağlı olduğu üst kayıt', en: 'Its parent record' },
+  ],
+  rows: [
+    [
+      { tr: 'Test', en: 'Test' },
+      { tr: 'Bir senaryonun TANIMI (adımlar, beklenen sonuç) — bir kez yazılır', en: "A scenario's DEFINITION (steps, expected result) -- written once" },
+      { tr: 'Bir Story/gereksinime bağlanır', en: 'Linked to a Story/requirement' },
+    ],
+    [
+      { tr: 'Precondition', en: 'Precondition' },
+      { tr: 'Birden çok Test\'in paylaştığı ortak ön koşul (örn. "standart müşteri hesabı")', en: 'A shared precondition used by multiple Tests (e.g. "standard customer account")' },
+      { tr: 'Bir veya birden çok Test\'e bağlanır', en: 'Linked to one or more Tests' },
+    ],
+    [
+      { tr: 'Test Set', en: 'Test Set' },
+      { tr: 'İlgili Test\'lerin gruplandığı koleksiyon (örn. "Ödeme Akışı Testleri")', en: 'A collection of related Tests (e.g. "Checkout Flow Tests")' },
+      { tr: 'Birden çok Test\'i toplar', en: 'Groups multiple Tests' },
+    ],
+    [
+      { tr: 'Test Plan', en: 'Test Plan' },
+      { tr: 'Bir SÜRÜM için hangi Test\'lerin koşulacağının planı', en: 'The plan of which Tests will run for a RELEASE' },
+      { tr: 'Birden çok Test\'i bir sürüme bağlar', en: 'Ties multiple Tests to a release' },
+    ],
+    [
+      { tr: 'Test Execution', en: 'Test Execution' },
+      { tr: 'Bir Test\'in BELİRLİ BİR ANDA, belirli bir build\'e karşı koşum SONUCU', en: "A Test's RUN RESULT at a SPECIFIC MOMENT, against a specific build" },
+      { tr: 'Bir Test Plan\'ın altında oluşur', en: 'Created under a Test Plan' },
+    ],
+  ],
+}
+
+// ─── step-animation: Test tiplerinin birbirine bağlanışı (GRUP H2) ────────────
+const testHierarchySteps = {
+  type: 'step-animation',
+  id: 'jira-h2-test-hierarchy-steps',
+  title: { tr: 'Adım Adım: Beş Test Issue Tipi Birbirine Nasıl Bağlanır?', en: 'Step by Step: How Do the Five Test Issue Types Connect?' },
+  steps: [
+    { id: 1, icon: '📋', label: { tr: 'Test yazılır', en: 'A Test is written' }, detail: { tr: 'TC-42 "Kupon bir kez uygulanır" — SHOP-118 story\'sine bağlanır. Bir kez yazılır, sonsuza kadar yaşar.', en: 'TC-42 "Coupon is applied once" -- linked to the SHOP-118 story. Written once, lives forever.' } },
+    { id: 2, icon: '🧩', label: { tr: 'Precondition eklenir', en: 'A Precondition is added' }, detail: { tr: '"Standart müşteri hesabı" ön koşulu TC-42\'ye VE beş başka teste bağlanır — tekrar yazmak yerine paylaşılır.', en: 'The "standard customer account" precondition is linked to TC-42 AND five other tests -- shared instead of rewritten.' } },
+    { id: 3, icon: '📦', label: { tr: 'Test Set\'e gruplanır', en: 'It is grouped into a Test Set' }, detail: { tr: 'TC-42, "Ödeme Akışı Testleri" Test Set\'ine dahil edilir — ilgili testler bir arada bulunabilir olur.', en: 'TC-42 is included in the "Checkout Flow Tests" Test Set -- related tests become discoverable together.' } },
+    { id: 4, icon: '🗓️', label: { tr: 'Test Plan\'a bağlanır', en: 'It is tied to a Test Plan' }, detail: { tr: '"Sürüm 2026.8.3 Test Planı" bu Test Set\'i içerir — bu sürümde HANGİ testlerin koşulacağı böyle belirlenir.', en: '"Release 2026.8.3 Test Plan" includes this Test Set -- this decides WHICH tests run for this release.' } },
+    { id: 5, icon: '▶️', label: { tr: 'Test Execution oluşur', en: 'A Test Execution is created' }, detail: { tr: 'Plan koşulduğunda her Test için bir Test Execution kaydı doğar — PASS/FAIL sonucu buraya yazılır, TANIMA değil.', en: 'When the plan runs, a Test Execution record is born for each Test -- the PASS/FAIL result is written here, not on the definition.' } },
+  ],
+}
+
+// ─── python-flow-diagram: izlenebilirlik matrisi (GRUP H3) ────────────────────
+const testTraceabilityMatrixFlow = {
+  type: 'python-flow-diagram',
+  titleTr: 'İzlenebilirlik Matrisi: Gereksinimden Test Sonucuna',
+  titleEn: 'The Traceability Matrix: From Requirement to Test Result',
+  steps: [
+    { type: 'action', code: 'SHOP-118 (Requirement)', desc: 'A coupon is applied once per order', descTr: 'Kupon sipariş başına bir kez uygulanır' },
+    { type: 'action', code: 'TC-42 (Test)', desc: 'Test case linked to the requirement', descTr: 'Gereksinime bağlı test senaryosu' },
+    { type: 'condition', code: 'Test Execution (build 2026.8.3)', desc: 'Latest run of TC-42 against this build', descTr: "TC-42'nin bu build'e karşı son koşumu", branch: { true: 'PASS -- requirement verified', false: 'FAIL -- SHOP-142 filed' } },
+    { type: 'end', code: 'Traceability Report', desc: 'One screen answers: verified, failed, or never tested', descTr: 'Tek bir ekran şunu cevaplar: doğrulandı, başarısız oldu ya da hiç test edilmedi' },
+  ],
+}
+
+// ─── code-playground: JQL ile test execution'ları bul (GRUP H4) ───────────────
+const testExecutionJqlPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-h2-test-hierarchy-steps',
+  id: 'jira-h4-test-execution-jql',
+  title: { tr: 'Kendin Dene: Belirli Bir Build\'in Başarısız Koşumlarını Bul', en: 'Try It Yourself: Find a Specific Build\'s Failed Runs' },
+  starterCode: {
+    tr: `-- Otomasyon paketi Jira'ya sonuçları REST API ile yazıyor.
+-- 2026.8.3 build'inde FAIL sonucu alan Test Execution kayıtlarını bulman gerekiyor.
+project = SHOP AND issuetype = "Test Execution"`,
+    en: `-- The automation suite writes results into Jira via the REST API.
+-- Find the Test Execution records that got a FAIL result for build 2026.8.3.
+project = SHOP AND issuetype = "Test Execution"`,
+  },
+  solutionCode: {
+    tr: `project = SHOP AND issuetype = "Test Execution"
+AND fixVersion = "2026.8.3" AND "Test Execution Status" = FAIL`,
+    en: `project = SHOP AND issuetype = "Test Execution"
+AND fixVersion = "2026.8.3" AND "Test Execution Status" = FAIL`,
+  },
+  hint: {
+    tr: "İki koşul daha lazım: hangi build/sürüm (JQL sekmesinde gördüğün alan bazlı filtreleme mantığı) ve hangi sonuç. Test Execution'ın sonucu ayrı bir alandır — Test'in kendisinde değil, koşum kaydında durur.",
+    en: 'Two more conditions are needed: which build/release (the field-based filtering logic you saw on the JQL tab) and which result. A Test Execution\'s result is a separate field -- it lives on the run record, not on the Test itself.',
+  },
+  successMessage: {
+    tr: "Doğru! Bir otomasyon koşumundan gelen sonuç, JUnit XML raporundan okunup REST API ile bir Test Execution kaydına yazılır. Bu sayede JQL ile \"hangi build'de neler kırıldı\" sorusu, elle rapor taramaya gerek kalmadan cevaplanır.",
+    en: 'Correct! A result coming from an automation run is read from a JUnit XML report and written into a Test Execution record via the REST API. This means "what broke in which build" can be answered with JQL, without manually scanning reports.',
+  },
+}
+
+// ─── table: Xray vs Zephyr karşılaştırması (GRUP H5) ───────────────────────────
+const xrayVsZephyrTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Kriter', en: 'Criterion' },
+    { tr: 'Xray', en: 'Xray' },
+    { tr: 'Zephyr', en: 'Zephyr' },
+  ],
+  rows: [
+    [
+      { tr: 'BDD/Cucumber desteği', en: 'BDD/Cucumber support' },
+      { tr: "Gherkin senaryolarını doğrudan içe/dışa aktarır", en: 'Directly imports/exports Gherkin scenarios' },
+      { tr: 'Sınırlı, eklenti gerekebilir', en: 'Limited, may need an add-on' },
+    ],
+    [
+      { tr: 'REST API olgunluğu', en: 'REST API maturity' },
+      { tr: 'Geniş, otomasyon entegrasyonu için yaygın kullanılır', en: 'Extensive, widely used for automation integration' },
+      { tr: 'Mevcut ama daha az yaygın örnek', en: 'Available but fewer common examples' },
+    ],
+    [
+      { tr: 'Zephyr Scale (eski TM4J) farkı', en: 'Zephyr Scale (formerly TM4J) difference' },
+      { tr: '—', en: '--' },
+      { tr: 'Zephyr\'in birden fazla ürün varyantı vardır (Squad/Scale) — karar öncesi hangisi netleştirilmeli', en: 'Zephyr has multiple product variants (Squad/Scale) -- clarify which one before deciding' },
+    ],
+    [
+      { tr: 'Karar kriteri', en: 'Decision criterion' },
+      { tr: "Takım zaten BDD/Cucumber kullanıyorsa ve ağır REST API entegrasyonu planlanıyorsa", en: 'If the team already uses BDD/Cucumber and heavy REST API integration is planned' },
+      { tr: "Takım basit, manuel ağırlıklı test yönetimi istiyorsa ve mevcut Zephyr deneyimi varsa", en: 'If the team wants simple, manual-heavy test management and already has Zephyr experience' },
+    ],
+  ],
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -2990,6 +3191,153 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
           en: 'We will cover why Jira alone does not do test management; the new issue types Xray/Zephyr introduce (Test, Test Set, Test Plan, Test Execution, Precondition) and how they relate; the traceability matrix; how automation run results flow into Jira; and a comparison of the two tools with the criteria behind the "which one" decision.',
         },
       },
+      testDefVsExecutionFilm,
+      {
+        type: 'heading',
+        text: { tr: '1️⃣ H1. Bug Takibi ≠ Test Yönetimi', en: '1️⃣ H1. Bug Tracking Is Not Test Management' },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "TC-42 üç farklı build'e karşı üç kez koşuldu (PASS, FAIL, PASS) ama bu bilgi düz bir issue listesinde tek bir kayıt olarak tutuluyor. Kaybolan bilgi nedir?",
+          en: 'TC-42 was run three times against three different builds (PASS, FAIL, PASS), but this information is kept as a single record in a flat issue list. What information is lost?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Hiçbir şey kaybolmaz, son durum yeterlidir", en: 'Nothing is lost, the latest state is enough' } },
+          { id: 'b', text: { tr: "Hangi build'de başarısız olduğu ve o başarısızlığın hangi bug'ı doğurduğu bilgisi kaybolur", en: 'Which build it failed against, and which bug that failure produced, is lost' } },
+          { id: 'c', text: { tr: "Test tanımının kendisi kaybolur", en: 'The test definition itself is lost' } },
+          { id: 'd', text: { tr: "Yalnızca test adı kaybolur", en: 'Only the test name is lost' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Düz bir issue listesi yalnızca EN SON durumu tutar — build .2'deki FAIL, build .3'teki PASS'in altında kaybolur. Test Execution kayıtları her koşumu AYRI tutarak bu tarihi korur.",
+          en: 'A flat issue list only holds the LATEST state -- the FAIL against build .2 is lost under the PASS against build .3. Test Execution records preserve this history by keeping each run SEPARATE.',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir JUnit raporu ile test kaynak kodu arasındaki ayrım, Jira\'daki hangi iki kavrama karşılık gelir?', en: 'The distinction between a JUnit report and test source code corresponds to which two concepts in Jira?' },
+          options: [
+            { id: 'a', text: { tr: 'Test issue\'su (tanım) ve Test Execution issue\'su (sonuç)', en: 'The Test issue (definition) and the Test Execution issue (result)' } },
+            { id: 'b', text: { tr: 'Epic ve Story', en: 'Epic and Story' } },
+            { id: 'c', text: { tr: 'Severity ve Priority', en: 'Severity and Priority' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Kaynak kod bir kez yazılır ve tanımı temsil eder; JUnit raporu her koşumda üretilir ve sonucu temsil eder — tam olarak Test/Test Execution ayrımı.',
+            en: 'Source code is written once and represents the definition; a JUnit report is produced on every run and represents the result -- exactly the Test/Test Execution split.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ H2. Beş Yeni Issue Tipi ve İlişkileri', en: '2️⃣ H2. Five New Issue Types and Their Relationships' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Xray/Zephyr, Jira'nın standart issue tiplerine beş yenisini ekler. Aşağıdaki tablo her birinin ne temsil ettiğini ve hangi üst kayda bağlandığını gösteriyor; ardından gelen adım adım anlatım, bu beşinin bir arada nasıl ÇALIŞTIĞINI somutlaştırıyor.",
+          en: "Xray/Zephyr add five new types to Jira's standard issue types. The table below shows what each represents and which parent record it links to; the step-by-step walkthrough that follows makes concrete how these five WORK together.",
+        },
+      },
+      testIssueTypesTable,
+      testHierarchySteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: "\"Standart müşteri hesabı\" ön koşulunu altı farklı Test kullanıyor. Bu ön koşulu her Test'in içine ayrı ayrı yazmak yerine bir Precondition olarak tutmanın kazancı nedir?",
+          en: 'Six different Tests use the "standard customer account" precondition. What is the gain of keeping it as a Precondition instead of writing it separately inside each Test?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Hiçbir kazancı yoktur, kozmetiktir", en: 'No gain at all, it is cosmetic' } },
+          { id: 'b', text: { tr: "Ön koşul değiştiğinde TEK bir yerden güncellenir, altı Test'te ayrı ayrı düzeltme yapılmaz", en: 'When the precondition changes it is updated in ONE place, not fixed separately in six Tests' } },
+          { id: 'c', text: { tr: "Test Execution kayıtlarını otomatik siler", en: 'It automatically deletes Test Execution records' } },
+          { id: 'd', text: { tr: "Yalnızca raporlarda görünür, testlerde etkisi yoktur", en: 'It only appears in reports, no effect on tests' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Bu, tekrar eden bir kod parçasını bir fonksiyona çıkarmakla aynı fikirdir — paylaşılan bir ön koşulu tek bir yerde tutmak, değişikliğin altı kopyaya değil TEK kaynağa yapılmasını sağlar.",
+          en: 'This is the same idea as extracting a repeated piece of code into a function -- keeping a shared precondition in one place means a change is made to a SINGLE source, not six copies.',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir Test Plan\'ın asıl işi nedir?', en: "What is a Test Plan's real job?" },
+          options: [
+            { id: 'a', text: { tr: "Bir sürüm için HANGİ testlerin koşulacağını belirlemek", en: 'Deciding WHICH tests will run for a release' } },
+            { id: 'b', text: { tr: "Bug'ları önceliklendirmek", en: 'Prioritizing bugs' } },
+            { id: 'c', text: { tr: "Sprint kapasitesini hesaplamak", en: 'Calculating sprint capacity' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: "Test Plan, Test Set'leri bir sürüme bağlayarak o sürüm için koşulacak testlerin kapsamını tanımlar.",
+            en: 'A Test Plan ties Test Sets to a release, defining the scope of tests that will run for that release.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ H3. İzlenebilirlik Matrisi', en: '3️⃣ H3. The Traceability Matrix' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Jira Nedir? sekmesinde gördüğün izlenebilirlik zincirinin (gereksinim → test → koşum → bug) test yönetimi eklentisiyle TAM olarak nasıl kurulduğunu görüyorsun burada: her ok gerçek bir issue linkidir, tahmini bir ilişki değil.",
+          en: "Here you see exactly HOW the traceability chain you saw on the What is Jira? tab (requirement to test to run to bug) is built with a test management add-on: every arrow is a real issue link, not an assumed relationship.",
+        },
+      },
+      testTraceabilityMatrixFlow,
+      {
+        type: 'quiz',
+        question: {
+          tr: "İzlenebilirlik matrisinde bir gereksinimin (Story) HİÇBİR Test'e bağlı olmadığı görülüyor. Bu ne anlama gelir?",
+          en: 'The traceability matrix shows a requirement (Story) with NO Test linked to it. What does this mean?',
+        },
+        options: [
+          { id: 'a', text: { tr: "Gereksinim otomatik olarak test edilmiş sayılır", en: 'The requirement is automatically counted as tested' } },
+          { id: 'b', text: { tr: "Bu gereksinim hiç test kapsamına alınmamış — bir kapsam boşluğu", en: 'This requirement was never brought into test scope -- a coverage gap' } },
+          { id: 'c', text: { tr: "Gereksinim silinmelidir", en: 'The requirement should be deleted' } },
+          { id: 'd', text: { tr: "Bu normal bir durumdur, endişelenmeye gerek yok", en: 'This is a normal state, nothing to worry about' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Matrisin asıl değeri budur: bir bug listesi yalnızca BULUNAN sorunları gösterirken, matris hiç TEST EDİLMEMİŞ gereksinimleri de görünür kılar — bu, üretime sızmadan önce yakalanabilecek bir kapsam boşluğudur.",
+          en: 'This is the matrix\'s real value: while a bug list only shows FOUND problems, the matrix also makes NEVER-TESTED requirements visible -- a coverage gap that can be caught before it leaks to production.',
+        },
+        retryQuestion: {
+          question: { tr: 'Bir Test Execution\'ın FAIL sonucu otomatik olarak neyi tetikleyebilir?', en: 'What can a Test Execution\'s FAIL result automatically trigger?' },
+          options: [
+            { id: 'a', text: { tr: 'Bir bug kaydının açılıp o koşuma link\'lenmesi', en: 'A bug record being filed and linked to that run' } },
+            { id: 'b', text: { tr: 'Test tanımının otomatik silinmesi', en: 'The test definition being automatically deleted' } },
+            { id: 'c', text: { tr: 'Sprint\'in otomatik kapanması', en: 'The sprint automatically closing' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Bu, zincirin son halkasıdır: başarısız bir koşum bir bug doğurur ve bu bug koşuma link\'lenerek izlenebilirlik korunur.',
+            en: 'This is the last link in the chain: a failed run produces a bug, and that bug is linked back to the run, preserving traceability.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ H4. Otomasyon Sonuçlarının Jira\'ya Akması', en: '4️⃣ H4. Automation Results Flowing Into Jira' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bir otomasyon paketi koştuğunda ürettiği JUnit XML raporu, CI adımının sonunda bir REST API çağrısıyla Jira'ya aktarılır — her test sonucu bir Test Execution kaydına dönüşür. Bu, elle \"hangi test geçti, hangi test kaldı\" işaretlemenin YERİNİ alır.",
+          en: 'When an automation suite runs, the JUnit XML report it produces is imported into Jira via a REST API call at the end of the CI step -- each test result becomes a Test Execution record. This REPLACES manually marking "which test passed, which failed".',
+        },
+      },
+      testExecutionJqlPlayground,
+      {
+        type: 'heading',
+        text: { tr: '5️⃣ H5. Xray vs Zephyr: Hangisi?', en: '5️⃣ H5. Xray vs Zephyr: Which One?' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "İkisi de aynı beş issue tipi fikrini uygular ama farklı güçlü yanları vardır. Kararı ürün özellik listesine göre değil, takımın ZATEN kullandığı araçlara ve entegrasyon ihtiyacına göre ver.",
+          en: 'Both implement the same five-issue-type idea but have different strengths. Base the decision not on a feature list, but on the tools the team ALREADY uses and its integration needs.',
+        },
+      },
+      xrayVsZephyrTable,
     ],
   },
 
