@@ -398,6 +398,199 @@ project = SHOP AND issuetype = Bug AND sprint in openSprints() AND status WAS Re
   },
 }
 
+// ─── Film: boş bir projeden ilk bug'a (GRUP B referans filmi) ─────────────────
+const setupJourneyFilm = {
+  type: 'video-scene',
+  id: 'jira-b1-setup-journey-film',
+  title: {
+    tr: "🎬 Boş Bir Jira Projesinden İlk Bug'a",
+    en: '🎬 From an Empty Jira Project to the First Bug',
+  },
+  xpReward: 12,
+  sceneDurationMs: 3400,
+  stageHeight: 260,
+  actors: [
+    { id: 'account', emoji: '👤', label: { tr: 'Yeni Hesap', en: 'New Account' }, color: '#0ea5e9' },
+    { id: 'type', emoji: '🔀', label: { tr: 'Proje Tipi Kararı', en: 'Project Type Decision' }, color: '#f59e0b' },
+    { id: 'project', emoji: '📁', label: { tr: 'SHOP Projesi', en: 'SHOP Project' }, color: '#8b5cf6' },
+    { id: 'team', emoji: '👥', label: { tr: 'Ekip Davetleri', en: 'Team Invites' }, color: '#6366f1' },
+    { id: 'perm', emoji: '🔐', label: { tr: 'İzin Şeması', en: 'Permission Scheme' }, color: '#ef4444' },
+    { id: 'issue', emoji: '🐞', label: { tr: 'SHOP-1 (İlk Issue)', en: 'SHOP-1 (First Issue)' }, color: '#10b981' },
+  ],
+  scenes: [
+    {
+      caption: {
+        tr: 'Hesap az önce oluşturuldu, tek bir e-posta ve şifre. Ekranda boş bir alan var: henüz ne bir proje, ne bir issue. Bu filmde bu boşluktan ilk gerçek bug kaydına kadar giden yolu izleyeceksin.',
+        en: 'The account was just created with one email and password. The screen is empty: no project yet, no issue. In this film you will follow the path from that empty state to the first real bug record.',
+      },
+      positions: { account: { x: 50, y: 50, scale: 1.15, pulse: true } },
+    },
+    {
+      caption: {
+        tr: "Adım 1 — Proje tipi kararı: sistem \"team-managed mi, company-managed mi\" diye soruyor. Bu, geri alınması pahalı olan tek karar — tüm alanlar, workflow'lar ve raporlar bunun üzerine kurulacak.",
+        en: 'Step 1 -- The project-type decision: the system asks "team-managed or company-managed?" This is the one decision that is expensive to undo -- every field, workflow and report will be built on top of it.',
+      },
+      code: { tr: 'team-managed  vs  company-managed', en: 'team-managed  vs  company-managed' },
+      positions: {
+        account: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        type: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'account', to: 'type' }],
+    },
+    {
+      caption: {
+        tr: "Adım 2 — Proje doğar: \"SHOP\" projesi ve anahtar öneki (SHOP) belirlenir. Bu önek artık her issue'nun kimliğinin ilk parçası olacak — bir daha kolayca değiştirilemez.",
+        en: 'Step 2 -- The project is born: the "SHOP" project and its key prefix (SHOP) are set. That prefix will now be the first part of every issue\'s identity -- it cannot easily be changed afterward.',
+      },
+      code: { tr: 'Proje Anahtarı: SHOP', en: 'Project Key: SHOP' },
+      positions: {
+        type: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        project: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'type', to: 'project', color: '#8b5cf6' }],
+    },
+    {
+      caption: {
+        tr: "Adım 3 — Ekip davet edilir: Ayşe (QA), Mert (developer), Deniz (PO) projeye eklenir ve her birine bir rol atanır. Rol, kimin hangi geçişi yapabileceğinin ilk katmanıdır.",
+        en: 'Step 3 -- The team is invited: Ayse (QA), Mert (developer) and Deniz (PO) are added to the project and each gets a role. Role is the first layer of who can perform which transition.',
+      },
+      positions: {
+        project: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        team: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'project', to: 'team', color: '#6366f1' }],
+    },
+    {
+      caption: {
+        tr: 'Adım 4 — İzin şeması devreye girer: "Done" geçişini yalnızca QA rolü yapabilsin diye bir kural eklenir. Bu kural görünmez çalışır — Mert "Done" butonunu ekranında hiç görmeyecek.',
+        en: 'Step 4 -- The permission scheme kicks in: a rule is added so only the QA role can perform the "Done" transition. This rule works invisibly -- Mert will never see the "Done" button on his screen at all.',
+      },
+      positions: {
+        team: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        perm: { x: 54, y: 50, scale: 1.2, pulse: true },
+      },
+      beams: [{ from: 'team', to: 'perm', color: '#ef4444' }],
+    },
+    {
+      caption: {
+        tr: 'Final — Ayşe ilk bug\'ı kaydeder. Sistem otomatik olarak SHOP-1 anahtarını verir. Kurulumun her adımı (proje tipi, ekip, izin şeması) bu tek kaydın arkasında sessizce çalışıyor — kullanıcı hiçbirini görmez, ama hepsi oradadır.',
+        en: 'Finale -- Ayse logs the first bug. The system automatically assigns the key SHOP-1. Every setup step (project type, team, permission scheme) works silently behind this single record -- the user sees none of them, yet all are there.',
+      },
+      code: { tr: 'SHOP-1 · Bug', en: 'SHOP-1 - Bug' },
+      positions: {
+        perm: { x: 20, y: 50, scale: 0.9, opacity: 0.6 },
+        issue: { x: 54, y: 50, scale: 1.3, pulse: true },
+      },
+      beams: [{ from: 'perm', to: 'issue', color: '#10b981' }],
+    },
+  ],
+}
+
+// ─── step-animation: hesap açma + doğrulama (GRUP B1) ─────────────────────────
+const accountSetupSteps = {
+  type: 'step-animation',
+  id: 'jira-b1-account-setup-steps',
+  title: { tr: 'Adım Adım: Ücretsiz Jira Cloud Hesabı Açma', en: 'Step by Step: Opening a Free Jira Cloud Account' },
+  steps: [
+    { id: 1, icon: '📧', label: { tr: 'E-posta ile kayıt', en: 'Sign up with email' }, detail: { tr: 'Atlassian hesabı e-posta + şifre ile açılır. Beklenen çıktı: gelen kutusuna bir doğrulama e-postası düşer.', en: 'The Atlassian account is created with email + password. Expected output: a verification email lands in the inbox.' } },
+    { id: 2, icon: '✅', label: { tr: 'E-posta doğrulanır', en: 'Email is verified' }, detail: { tr: 'Doğrulama linkine tıklanır. Beklenen çıktı: tarayıcı Atlassian site adı seçim ekranına yönlenir (örn. shopqa.atlassian.net).', en: 'The verification link is clicked. Expected output: the browser redirects to the Atlassian site name selection screen (e.g. shopqa.atlassian.net).' } },
+    { id: 3, icon: '🏢', label: { tr: 'Site adı belirlenir', en: 'Site name is chosen' }, detail: { tr: "Bu ad artık kalıcı bir URL parçasıdır. Doğrulama: adres çubuğunda `https://<ad>.atlassian.net` görünmeli.", en: 'This name is now a permanent part of the URL. Verification: the address bar should show `https://<name>.atlassian.net`.' } },
+    { id: 4, icon: '📁', label: { tr: 'İlk proje oluşturulur', en: 'The first project is created' }, detail: { tr: 'Proje şablonu (Bug tracking / Scrum / Kanban) seçilir, proje anahtarı (SHOP) belirlenir. Doğrulama: sol menüde proje adı görünür.', en: 'A project template (Bug tracking / Scrum / Kanban) is picked, the project key (SHOP) is set. Verification: the project name appears in the left menu.' } },
+    { id: 5, icon: '🚪', label: { tr: 'Boş panoya varılır', en: 'The empty board is reached' }, detail: { tr: 'Proje açılınca hiç kartı olmayan bir pano görünür. Beklenen çıktı: sütunlar var ama içleri boş — bu, kurulumun başarıyla bittiğinin kanıtıdır.', en: 'When the project opens, an empty board with no cards appears. Expected output: the columns exist but are empty -- this is the proof that setup finished successfully.' } },
+  ],
+}
+
+// ─── table + callout: team-managed vs company-managed (GRUP B2) ───────────────
+const projectTypeTable = {
+  type: 'table',
+  headers: [
+    { tr: 'Boyut', en: 'Dimension' },
+    { tr: 'Team-managed', en: 'Team-managed' },
+    { tr: 'Company-managed', en: 'Company-managed' },
+  ],
+  rows: [
+    [
+      { tr: 'Kim yönetir', en: 'Who governs it' },
+      { tr: 'Takımın kendisi (kısıtlı ayar)', en: 'The team itself (limited settings)' },
+      { tr: 'Jira yöneticisi (merkezi şema)', en: 'The Jira administrator (central schemes)' },
+    ],
+    [
+      { tr: 'Alanlar/workflow paylaşımı', en: 'Field/workflow sharing' },
+      { tr: 'Projeye özel, başka projeyle paylaşılmaz', en: 'Project-specific, not shared with other projects' },
+      { tr: 'Şema birden fazla projede paylaşılabilir', en: 'A scheme can be shared across multiple projects' },
+    ],
+    [
+      { tr: 'Kurulum hızı', en: 'Setup speed' },
+      { tr: 'Dakikalar içinde, onay gerekmez', en: 'Minutes, no approval needed' },
+      { tr: 'Yönetici onayı ve şema tasarımı gerekir', en: 'Requires admin approval and scheme design' },
+    ],
+    [
+      { tr: 'Uygun senaryo', en: 'Fits best when' },
+      { tr: 'Tek takım, hızlı başlangıç, deneme', en: 'One team, fast start, experimentation' },
+      { tr: 'Çoklu takım, uzun vadeli standart raporlama', en: 'Multiple teams, long-term standardized reporting' },
+    ],
+  ],
+}
+
+const projectTypeCallout = {
+  type: 'callout',
+  color: 'orange',
+  emoji: '⚠️',
+  title: { tr: 'Yanlış Seçersen Ne Olur?', en: 'What Happens If You Choose Wrong?' },
+  content: {
+    tr: "Team-managed ile başlayıp altı ay sonra üç takım daha eklenince \"company-managed'a geçelim\" demek basit bir ayar değişikliği DEĞİLDİR — alanlar, workflow'lar ve mevcut issue'lar elle taşınmalıdır, otomatik bir dönüştürme yoktur. Kararı ilk günden \"bu proje tek takımda mı kalacak, yoksa büyüyüp standart bir rapora mı girecek\" sorusuna göre ver.",
+    en: 'Starting with team-managed and then, six months later when three more teams join, saying "let\'s switch to company-managed" is NOT a simple setting change -- fields, workflows and existing issues must be moved by hand, there is no automatic conversion. Make the call on day one based on the question "will this project stay with one team, or grow into a standardized report?"',
+  },
+}
+
+// ─── code-playground: proje anahtarı/issue key üret (GRUP B4) ─────────────────
+const issueKeyPlayground = {
+  type: 'code-playground',
+  relatedTopicId: 'jira-b4-first-issue',
+  id: 'jira-b4-issue-key',
+  title: { tr: 'Kendin Dene: Doğru Proje Anahtarını Seç', en: 'Try It Yourself: Pick the Right Project Key' },
+  starterCode: {
+    tr: `Yeni proje: "ShopQA E-Ticaret Ödeme Sistemi"
+Önerilen anahtar: SHOPQAECOMMERCEPAYMENTSYSTEM
+İlk issue: SHOPQAECOMMERCEPAYMENTSYSTEM-1`,
+    en: `New project: "ShopQA E-Commerce Payment System"
+Proposed key: SHOPQAECOMMERCEPAYMENTSYSTEM
+First issue: SHOPQAECOMMERCEPAYMENTSYSTEM-1`,
+  },
+  solutionCode: {
+    tr: `Yeni proje: "ShopQA E-Ticaret Ödeme Sistemi"
+Doğru anahtar: SHOP
+İlk issue: SHOP-1`,
+    en: `New project: "ShopQA E-Commerce Payment System"
+Correct key: SHOP
+First issue: SHOP-1`,
+  },
+  hint: {
+    tr: "Proje anahtarı her commit mesajında, her issue başlığında ve her JQL sorgusunda elle yazılacak. Ne kadar uzunsa o kadar sık yazım hatası olur. İyi bir anahtar kısa (2-10 karakter), akılda kalıcı ve mevcut anahtarlarla çakışmayan bir kısaltmadır — tam isim değil.",
+    en: 'The project key gets typed by hand in every commit message, every issue title, every JQL query. The longer it is, the more typos happen. A good key is a short (2-10 character), memorable abbreviation that does not collide with existing keys -- not the full name.',
+  },
+  successMessage: {
+    tr: "Doğru! SHOP, projeyi tanımlayan en kısa akılda kalıcı kısaltmadır. Bu, otomasyonda değişken adı seçmekle aynı disiplin: `shopQaEcommercePaymentSystemCheckoutValidator` yerine `checkoutValidator` yazarsın — okunabilirlik uzunlukla değil netlikle artar.",
+    en: 'Correct! SHOP is the shortest memorable abbreviation that identifies the project. This is the same discipline as naming a variable in automation: you write `checkoutValidator`, not `shopQaEcommercePaymentSystemCheckoutValidator` -- readability comes from clarity, not length.',
+  },
+}
+
+// ─── challenge (order-sort): kurulum sırası (GRUP B) ───────────────────────────
+const setupOrderChallenge = {
+  type: 'challenge',
+  variant: 'order-sort',
+  id: 'jira-b-setup-order',
+  question: { tr: 'Boş bir hesaptan ilk bug kaydına giden beş adımı doğru sırayla diz.', en: 'Order the five steps from an empty account to the first bug record.' },
+  items: [
+    { id: '1', text: { tr: 'E-posta ile Atlassian hesabı açılır ve doğrulanır', en: 'An Atlassian account is created with email and verified' }, order: 1 },
+    { id: '2', text: { tr: 'Proje tipi seçilir (team-managed / company-managed)', en: 'The project type is chosen (team-managed / company-managed)' }, order: 2 },
+    { id: '3', text: { tr: 'Proje ve proje anahtarı oluşturulur (SHOP)', en: 'The project and its key are created (SHOP)' }, order: 3 },
+    { id: '4', text: { tr: 'Ekip davet edilir ve rol atanır', en: 'The team is invited and roles are assigned' }, order: 4 },
+    { id: '5', text: { tr: 'İlk issue kaydedilir ve anahtarını alır (SHOP-1)', en: 'The first issue is logged and receives its key (SHOP-1)' }, order: 5 },
+  ],
+  xpReward: 10,
+}
+
 // ─── Sekmeler (GRUP A-M) ──────────────────────────────────────────────────────
 // ⚠ Sekme başlıkları DONDURULMUŞTUR: bölüm URL'lerinin slug'ları bu başlıklardan
 // türetilir ve manifest'e yazılmıştır (src/data/generated/sectionSlugs.js).
@@ -721,6 +914,141 @@ const sections = [
           en: 'You will go from a free Jira Cloud account all the way to logging your first bug: creating the account, picking the right project type, defining the team and roles, understanding why the permission scheme blocks some transitions for you, and creating the first issue with a sound key convention. Every step will have an expected output and a verification check -- moving on before seeing that a step truly succeeded is the most common setup mistake.',
         },
       },
+      setupJourneyFilm,
+      {
+        type: 'heading',
+        text: { tr: '1️⃣ B1. Ücretsiz Jira Cloud Hesabı Açma', en: '1️⃣ B1. Opening a Free Jira Cloud Account' },
+      },
+      accountSetupSteps,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Hesap kurulumunun son adımında boş bir pano görüyorsun — hiç kart yok. Bu ne anlama gelir?", en: "At the final step of account setup you see an empty board -- no cards at all. What does this mean?" },
+        options: [
+          { id: 'a', text: { tr: 'Kurulum başarısız oldu, bir şey eksik', en: 'Setup failed, something is missing' } },
+          { id: 'b', text: { tr: 'Kurulum başarıyla bitti — sütunlar hazır, henüz hiçbir issue kaydedilmedi', en: 'Setup finished successfully -- the columns are ready, no issue has been logged yet' } },
+          { id: 'c', text: { tr: "İnternet bağlantısı kesildi", en: 'The internet connection was lost' } },
+          { id: 'd', text: { tr: "Proje tipi yanlış seçildi", en: 'The wrong project type was chosen' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: "Boş bir pano, kurulumun tamamlandığının GÖRSEL kanıtıdır — sütunlar (workflow durumları) hazır, sadece içerik henüz yok. Bir sonraki adım ilk issue'yu kaydetmektir, kurulumu tekrarlamak değil.",
+          en: 'An empty board is the VISUAL proof that setup is complete -- the columns (workflow statuses) are ready, only the content is missing yet. The next step is to log the first issue, not to repeat the setup.',
+        },
+        retryQuestion: {
+          question: { tr: 'Site adı (örn. shopqa.atlassian.net) neden dikkatli seçilmelidir?', en: 'Why should the site name (e.g. shopqa.atlassian.net) be chosen carefully?' },
+          options: [
+            { id: 'a', text: { tr: 'Çünkü kalıcı bir URL parçası olur, kolayca değiştirilmez', en: 'Because it becomes a permanent part of the URL and is not easily changed' } },
+            { id: 'b', text: { tr: 'Çünkü ücretlendirmeyi belirler', en: 'Because it determines billing' } },
+            { id: 'c', text: { tr: 'Çünkü proje tipini otomatik seçer', en: 'Because it auto-selects the project type' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Site adı seçildikten sonra URL\'nin bir parçası olur ve tüm ekip bu adresi kullanmaya başlar — sonradan değiştirmek link kırıklıklarına yol açar.',
+            en: 'Once chosen, the site name becomes part of the URL and the whole team starts using that address -- changing it later breaks links.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '2️⃣ B2. Proje Tipi Seçimi: Team-managed vs Company-managed', en: '2️⃣ B2. Choosing a Project Type: Team-managed vs Company-managed' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bu karar, §A3'teki Cloud/Data Center farkından bağımsız bir eksendir — her iki sürümde de proje tipi seçimi yapılır (Data Center yalnızca company-managed sunar). Aşağıdaki tablo iki tipi dört boyutta karşılaştırıyor.",
+          en: "This decision is an axis independent of the Cloud/Data Center difference from A3 -- both editions require a project-type choice (Data Center only offers company-managed). The table below compares the two types across four dimensions.",
+        },
+      },
+      projectTypeTable,
+      projectTypeCallout,
+      {
+        type: 'quiz',
+        question: {
+          tr: "Beş farklı takımın aynı bug şablonunu, aynı severity alanını ve aynı raporlama standardını kullanması gerekiyor. Hangi proje tipi bu ihtiyaca uyar?",
+          en: 'Five different teams need to use the same bug template, the same severity field and the same reporting standard. Which project type fits this need?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Team-managed — her takım kendi ayarını yapsın', en: 'Team-managed -- let each team configure its own' } },
+          { id: 'b', text: { tr: 'Company-managed — şema merkezde tanımlanır, tüm projeler paylaşır', en: 'Company-managed -- the scheme is defined centrally and all projects share it' } },
+          { id: 'c', text: { tr: 'İkisi de aynı sonucu verir', en: 'Both give the same result' } },
+          { id: 'd', text: { tr: 'Proje tipi raporlamayı etkilemez', en: 'Project type does not affect reporting' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Company-managed tam olarak bu senaryo için tasarlanmıştır: şema paylaşımı sayesinde beş takım aynı alanları ve workflow\'u kullanır, karşılaştırılabilir raporlama mümkün olur.',
+          en: 'Company-managed is designed exactly for this scenario: scheme sharing means five teams use the same fields and workflow, making comparable reporting possible.',
+        },
+        retryQuestion: {
+          question: { tr: 'Team-managed bir projeden company-managed\'a altı ay sonra geçmek neden basit bir ayar değişikliği DEĞİLDİR?', en: 'Why is switching from a team-managed project to company-managed six months later NOT a simple setting change?' },
+          options: [
+            { id: 'a', text: { tr: 'Çünkü alanlar, workflow\'lar ve mevcut issue\'lar elle taşınmalıdır', en: 'Because fields, workflows and existing issues must be moved by hand' } },
+            { id: 'b', text: { tr: 'Çünkü Jira böyle bir geçişe izin vermez', en: 'Because Jira does not allow such a switch at all' } },
+            { id: 'c', text: { tr: 'Çünkü yalnızca yöneticiler login olabilir', en: 'Because only admins can log in afterward' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Otomatik bir dönüştürme yoktur — bu yüzden karar ilk günden, projenin büyüme beklentisine göre verilmelidir.',
+            en: 'There is no automatic conversion -- which is why the decision should be made on day one, based on the project\'s expected growth.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '3️⃣ B3. Ekip, Rol ve İzinler', en: '3️⃣ B3. Team, Roles and Permissions' },
+      },
+      {
+        type: 'simple-box',
+        emoji: '🎫',
+        content: {
+          tr: "Bir izin şeması, bir konser bileti gibi çalışır: bilet türü (VIP, standart, personel) hangi kapıdan gireceğini belirler, kapıdaki görevli bileti KONTROL EDER, tartışmaz. Jira'da izin şeması aynı işi yapar — rolüne göre hangi geçişi yapabileceğin, arayüz seni hiç bilgilendirmeden belirlenir.\n\nDüşündürücü soru: QA'in \"Done\" butonunu göremediği bir projede, bu bir hata mı yoksa tasarım mı? Neredeyse her zaman tasarımdır — takım muhtemelen \"Done\" geçişini yalnızca developer'a açık bırakmış, QA'in \"Ready for QA\"dan sonrasını göremeyeceği bir akış kurmuştur. Görünmeyen buton, çoğu zaman bilinçli bir kural ihlalidir değil, bilinçli bir kısıtlamadır.\n\nKarşılaştır: Java'da `private` bir metot dışarıdan çağrılamaz — derleyici seni engeller ve NEDEN engellendiğini söyler. Jira'nın izin şeması aynı erişim kontrolünü uygular ama derleme hatası yerine SESSİZLİK verir: buton görünmez, hata mesajı çıkmaz. Bu fark, izin sorunlarının Jira'da neden daha çok kafa karıştırdığını açıklar.\n\nQA açısından pratik sonuç: bir geçiş butonu beklenmedik şekilde kayıpsa önce \"bu benim rolüme mi kapalı\" diye sor, önce bug raporu açma.",
+          en: 'A permission scheme works like a concert ticket: the ticket type (VIP, standard, staff) decides which gate you enter through, and the gate staff CHECK the ticket, they do not argue with it. In Jira the permission scheme does the same job -- which transition you can perform based on your role is decided without the interface ever telling you.\n\nThe question worth pausing on: on a project where QA cannot see the "Done" button, is that a bug or a design choice? Almost always a design choice -- the team likely left the "Done" transition open only to developers, building a flow where QA never sees past "Ready for QA". A missing button is usually a deliberate restriction, not an accidental rule violation.\n\nCompare: in Java a `private` method cannot be called from outside -- the compiler blocks you and tells you WHY. Jira\'s permission scheme applies the same access control, but instead of a compile error it gives you SILENCE: the button is simply absent, no error message appears. That difference explains why permission issues confuse people in Jira more than elsewhere.\n\nThe practical takeaway for QA: when a transition button is unexpectedly missing, ask "is this closed to my role" first, before filing a bug report.',
+        },
+      },
+      {
+        type: 'quiz',
+        question: {
+          tr: "QA rolündeki Ayşe, bir issue'da \"Deploy to Prod\" geçiş butonunu göremiyor; developer Mert görüyor. Ayşe'nin ilk yapması gereken nedir?",
+          en: 'Ayse, who has the QA role, cannot see the "Deploy to Prod" transition button on an issue; Mert, the developer, can. What should Ayse do first?',
+        },
+        options: [
+          { id: 'a', text: { tr: 'Hemen bir bug raporu açmak', en: 'File a bug report immediately' } },
+          { id: 'b', text: { tr: "Bu geçişin QA rolüne bilinçli olarak kapatılmış olabileceğini düşünüp izin şemasını sormak", en: 'Consider that this transition may be deliberately closed to the QA role, and ask about the permission scheme' } },
+          { id: 'c', text: { tr: "Sayfayı yenilemek", en: 'Refresh the page' } },
+          { id: 'd', text: { tr: "Kendi rolünü developer olarak değiştirmek", en: 'Change her own role to developer' } },
+        ],
+        correct: 'b',
+        explanation: {
+          tr: 'Görünmeyen bir buton çoğu zaman kasıtlıdır: prod\'a deploy etmek genelde geliştirici sorumluluğundadır. Bug raporu açmadan önce bunun bir tasarım kararı olup olmadığını sormak zaman kazandırır.',
+          en: 'A missing button is usually intentional: deploying to prod is typically a developer responsibility. Asking whether this is a design decision before filing a bug report saves time.',
+        },
+        retryQuestion: {
+          question: { tr: 'İzin şemasının Java\'daki `private` erişim belirleyiciyle ortak yanı nedir?', en: 'What does a permission scheme have in common with Java\'s `private` access modifier?' },
+          options: [
+            { id: 'a', text: { tr: 'İkisi de yetkisiz erişimi engeller, ama Jira sessizce engeller, Java hata mesajıyla', en: 'Both block unauthorized access, but Jira blocks silently while Java gives an error message' } },
+            { id: 'b', text: { tr: 'İkisi de aynı hata mesajını verir', en: 'Both give the exact same error message' } },
+            { id: 'c', text: { tr: 'Ortak yanları yoktur', en: 'They have nothing in common' } },
+          ],
+          correct: 'a',
+          explanation: {
+            tr: 'Erişim kontrolü fikri aynıdır; farkı ortaya çıkış biçimidir — biri derleme hatası, diğeri arayüzde görünmeyen bir buton.',
+            en: 'The access-control idea is the same; the difference is how it surfaces -- one as a compile error, the other as a button that simply does not render.',
+          },
+        },
+      },
+      {
+        type: 'heading',
+        text: { tr: '4️⃣ B4. İlk Issue ve Anahtar Anatomisi', en: '4️⃣ B4. The First Issue and Key Anatomy' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bir issue anahtarı iki parçadan oluşur: proje anahtarı (SHOP) ve o projedeki sıra numarası (142). SHOP-142, projedeki 142. issue'nun kalıcı kimliğidir — silinen veya taşınan issue'lar bile bu numarayı BOŞA ÇIKARMAZ, bir sonraki issue 143 numarasını alır. Bu, veritabanındaki auto-increment birincil anahtarla aynı fikirdir: sıra numarası asla yeniden kullanılmaz.",
+          en: 'An issue key has two parts: the project key (SHOP) and a sequence number within that project (142). SHOP-142 is the permanent identity of the 142nd issue in the project -- even a deleted or moved issue does NOT free up that number, the next issue takes 143. This is the same idea as an auto-increment primary key in a database: the sequence number is never reused.',
+        },
+      },
+      issueKeyPlayground,
+      setupOrderChallenge,
     ],
   },
 

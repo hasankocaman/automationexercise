@@ -36,7 +36,13 @@
   A3 (Cloud vs Data Center `table` + `callout`), A4 (izlenebilirlik zinciri
   `python-flow-diagram`), A5 (Jira olmadan çöküş `step-animation`) eklendi —
   her başlıkta quiz+retryQuestion. GRUP A artık tam referans sekme.
-  Sıradaki: **D-S2 (GRUP B — Kurulum & İlk Proje)** ve devamı, plan §D'de.
+- **Faz S2 (D-S2, GRUP B — Kurulum & İlk Proje) BİTTİ:** "Boş Bir Jira
+  Projesinden İlk Bug'a" filmi (6 sahne) + B1 hesap açma `step-animation`,
+  B2 team-managed/company-managed `table`+`callout`, B3 izin şeması anlatımı
+  (`private` erişim belirleyici analojisi), B4 issue key anatomisi
+  `code-playground` + kurulum sırası `challenge` (order-sort). Her başlıkta
+  quiz+retryQuestion.
+  Sıradaki: **D-S3 (GRUP C — Issue Türleri ve Hiyerarşi)** ve devamı, plan §D'de.
 
 ### Bu oturumda yapılanlar
 
