@@ -20,7 +20,38 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-11, Sonnet — `/jira` sayfası TAMAMLANDI, S1-S12 bitti) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-12, Sonnet — `/jira` GRUP A'da öğretilmeden sorulan JQL alıştırması düzeltildi) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Bu oturumda yapılan
+
+Kullanıcı GRUP A'daki (Jira Nedir?) `firstJqlPlayground` alıştırmasının JQL
+sözdizimi hiç öğretilmeden sorulduğunu fark etti (ekran görüntüsüyle
+bildirdi). Doğrulandı: alıştırma `AND`, `!=`, `currentUser()`, `ORDER BY`
+gerektiriyordu ama öncesindeki metin yalnızca "JQL'i ilerideki sekmede
+işleyeceğiz, burada sadece görmen yeterli" diyordu — CLAUDE.md §9.1 "önce
+mantık, sonra komut" kuralının ihlaliydi. **Diğer 15 `code-playground`
+bloğu kontrol edildi, hepsi kendinden önceki anlatıma dayanıyor** (JQL
+kullanan diğer tüm playground'lar GRUP F'den — JQL'in gerçek öğretildiği
+sekmeden — sonra geliyor); sorun yalnızca bu ilk örnekteydi.
+
+**Düzeltme:** Metin yeniden yazıldı + alıştırmadan hemen önce annotasyonlu
+bir `code` örneği eklendi ("benim açtığım, henüz kapanmamış issue'lar" —
+ALAN=DEĞER, AND, `!=`, `currentUser()` gösterilir ve açıklanır). Alıştırma
+artık aynı üç parçayı, bir alan adı değişikliğiyle (`reporter`→`assignee`)
+ve bir yeni-ama-tahmin-edilebilir koşulla (`issuetype = Bug`, aynı kalıp)
+istiyor. `ORDER BY` gereksinimi tamamen kaldırıldı (solutionCode'dan) —
+hiç öğretilmemiş bir üçüncü kavramdı, çıkarılması alıştırmayı gerçekten
+çözülebilir kıldı.
+
+Doğrulama: `check-content-integrity`, `i18n:check` (trio dahil), `npm run
+build`, ve `/jira` için topic-pages-ui + i18n-content-toggle + video-scene
+testleri (3/3) tekrar koşulup geçti. Commit atılacak.
+
+---
+
+## 📌 Önceki Durum (2026-08-11, Sonnet — `/jira` sayfası TAMAMLANDI, S1-S12 bitti)
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 

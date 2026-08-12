@@ -154,22 +154,24 @@ const firstJqlPlayground = {
   id: 'jira-a1-first-jql',
   title: { tr: 'Kendin Dene: "Bana Atanan Açık Bug\'lar" Sorgusunu Yaz', en: 'Try It Yourself: Write the "Open Bugs Assigned to Me" Query' },
   starterCode: {
-    tr: `-- SHOP projesindeki, sana atanmış, henüz kapanmamış bug'ları listele.
+    tr: `-- SHOP projesindeki, sana atanmış, henüz kapanmamış BUG'ları listele.
+-- Yukarıdaki örnekle aynı kalıbı kullan: ALAN = DEĞER, AND ile zincirle.
 -- İpucu: kendi kullanıcını sabit yazma; her ekip üyesinde çalışsın.
 project = SHOP`,
-    en: `-- List the bugs in the SHOP project that are assigned to you and not yet closed.
+    en: `-- List the BUGs in the SHOP project that are assigned to you and not yet closed.
+-- Use the same pattern as the example above: FIELD = VALUE, chained with AND.
 -- Hint: do not hardcode your own user; it should work for every teammate.
 project = SHOP`,
   },
   solutionCode: {
-    tr: `-- Dört koşul zincirlenir; currentUser() sorguyu kişiye göre kendi çözer
-project = SHOP AND issuetype = Bug AND status != Done AND assignee = currentUser() ORDER BY priority DESC`,
-    en: `-- Four conditions are chained; currentUser() resolves the query per person
-project = SHOP AND issuetype = Bug AND status != Done AND assignee = currentUser() ORDER BY priority DESC`,
+    tr: `-- Aynı kalıp, üç koşul: hangi issue tipi, kime atanmış, hangi durumda OLMAYAN
+project = SHOP AND issuetype = Bug AND assignee = currentUser() AND status != Done`,
+    en: `-- Same pattern, three conditions: which issue type, who it is assigned to, which status it is NOT in
+project = SHOP AND issuetype = Bug AND assignee = currentUser() AND status != Done`,
   },
   hint: {
-    tr: 'Dört parça gerekiyor: hangi proje, hangi issue tipi, hangi durumda OLMAYAN ve kime atanmış. Kullanıcı adını elle yazarsan sorgu yalnızca sende çalışır — Jira bunun için bir fonksiyon sunar. Sonuçların anlamlı sıralanması için ORDER BY ekle.',
-    en: 'Four parts are needed: which project, which issue type, which status it is NOT in, and who it is assigned to. If you type a username by hand the query only works for you -- Jira offers a function for this. Add ORDER BY so the results come out in a meaningful order.',
+    tr: "Yukarıdaki örnekte gördüğün üç parçayı aynen kullan: `issuetype = Bug` (yeni — aynı ALAN = DEĞER kalıbı), `assignee = currentUser()` (örnekte `reporter` vardı, burada \"atanan kişi\" isteniyor — alan adı değişir, fonksiyon aynı kalır), `status != Done`. Kullanıcı adını elle yazarsan sorgu yalnızca sende çalışır.",
+    en: 'Use the exact same three pieces you saw in the example above: `issuetype = Bug` (new -- same FIELD = VALUE pattern), `assignee = currentUser()` (the example used `reporter`, here we want "who it is assigned to" -- the field name changes, the function stays the same), `status != Done`. If you type a username by hand the query only works for you.',
   },
   successMessage: {
     tr: "Doğru! currentUser() sorguyu kişiselleştirir: aynı kaydedilmiş filtre bütün ekipte çalışır. Bu, otomasyonda sabit test verisi yazmak yerine parametre kullanmakla aynı fikirdir — sorgu bir kez yazılır, herkes kendi sonucunu görür.",
@@ -2577,8 +2579,27 @@ const sections = [
       {
         type: 'text',
         content: {
-          tr: "Kayıt tutmanın ilk somut karşılığı arama yapabilmektir. Jira'nın kendi sorgu dili JQL, panoya bakarak asla göremeyeceğin soruları cevaplar: \"bana atanmış, henüz kapanmamış bug'lar hangileri?\" gibi. Aşağıdaki alanda bu sorguyu kendin yaz — JQL'in tamamını ilerideki sekmede detaylı işleyeceğiz, burada yalnızca bir kaydın neye dönüştüğünü görmen yeterli.",
-          en: 'The first concrete payoff of keeping records is being able to search. Jira\'s own query language, JQL, answers questions a board can never show you: things like "which open bugs are assigned to me?". Write that query yourself below -- we cover JQL in depth in a later tab; here it is enough to see what a record turns into.',
+          tr: "Kayıt tutmanın ilk somut karşılığı arama yapabilmektir. Jira'nın kendi sorgu dili JQL, panoya bakarak asla göremeyeceğin soruları cevaplar. Sözdizimi basit bir kalıp izler: ALAN = DEĞER, birden fazla koşul AND ile zincirlenir. Aşağıdaki örnek, \"benim açtığım, henüz kapanmamış issue'lar\" sorusunu bu kalıpla cevaplıyor — JQL'in tamamını (operatörler, zaman fonksiyonları) JQL sekmesinde derinlemesine işleyeceğiz, ama bu üç parçayı şimdiden tanıman aşağıdaki alıştırmayı çözmen için yeterli.",
+          en: 'The first concrete payoff of keeping records is being able to search. Jira\'s own query language, JQL, answers questions a board can never show you. The syntax follows a simple pattern: FIELD = VALUE, with multiple conditions chained by AND. The example below answers "issues I opened that are not yet closed" with this pattern -- we will cover all of JQL (operators, time functions) in depth on the JQL tab, but knowing these three pieces already is enough to solve the exercise below.',
+        },
+      },
+      {
+        type: 'code',
+        language: 'sql',
+        code: {
+          tr: `-- "Benim açtığım, henüz kapanmamış issue'lar"
+-- ALAN = DEĞER, koşullar AND ile zincirlenir
+project = SHOP AND reporter = currentUser() AND status != Done`,
+          en: `-- "Issues I opened that are not yet closed"
+-- FIELD = VALUE, conditions chained with AND
+project = SHOP AND reporter = currentUser() AND status != Done`,
+        },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Üç parçaya dikkat et: `reporter = currentUser()` — kullanıcı adını elle yazmak yerine Jira'nın sunduğu bu fonksiyon sorguyu kişiselleştirir, aynı sorgu kimde çalışırsa çalışsın kendi sonucunu verir. `status != Done` — `!=` \"eşit değil\" demektir. `AND` — her koşulu bir öncekine ekler, kümeyi daraltır. Şimdi aynı kalıpla, ama \"açan kişi\" yerine \"atanan kişi\" ve ek olarak bir issue tipi koşulu kullanan benzer bir sorguyu kendin yaz.",
+          en: 'Notice three pieces: `reporter = currentUser()` -- instead of typing a username by hand, this function Jira provides personalizes the query, giving its own result no matter who runs it. `status != Done` -- `!=` means "not equal to". `AND` -- adds each condition to the previous one, narrowing the set. Now write a similar query yourself using the same pattern, but with "assignee" instead of "opened by" and an added issue-type condition.',
         },
       },
       firstJqlPlayground,
