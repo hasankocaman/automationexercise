@@ -20,13 +20,26 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-12, Opus — `/jira` site haritasına ve 5 QA Mentor yol haritasına eklendi) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-12, Opus — `/jira` yol haritalarına + site haritası tamamlandı, MAIN'E MERGE EDİLDİ) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 
-### Bu oturumda yapılan (3. istek)
+### 📍 Şu anki durum
 
-**Branch: `feature/jira-in-roadmaps`** — main'e merge EDİLMEDİ, push EDİLMEDİ.
+`/jira` sayfası ve bu oturumdaki tüm işler **`main`'de ve push edildi**.
+Çalışma ağacı temiz, açık branch yok. Bu oturumda toplam üç iş main'e girdi:
+
+1. `feature/jira-page` → `/jira` sayfasının tamamı (13 sekme, 51 mülakat
+   sorusu) — merge `c98c7c5`.
+2. `feature/jira-in-roadmaps` → Jira'nın 5 QA Mentor yol haritasına ve site
+   haritasına eklenmesi + site haritasındaki 10 eksik sayfanın tamamlanması.
+
+**Sıradaki iş:** `/jira` tarafında açık kalan bir şey YOK. Önceki oturumlardan
+devam eden açık işler aşağıdaki "Önceki Durum" bölümlerinde
+(`fix/test-suite-flakiness` merge kararı, `npm run seo:lcp` yeniden ölçümü,
+outreach taslakları, Plausible analytics) — hiçbiri bu oturumda ele alınmadı.
+
+### Bu oturumda yapılan (3. istek)
 
 Kullanıcı `/jira`'nın (1) görünür site haritasında ve (2) QA Mentor'un ürettiği
 HER yol haritasında doğru yerde görünmesini istedi; konumlandırma ölçütünü de
@@ -193,7 +206,8 @@ tekrar doğrulandı, yeşil.
 
 ### Neredeyiz
 
-- **Branch: `feature/jira-page`** (main'e merge EDİLMEDİ, push EDİLMEDİ).
+- **Branch: `feature/jira-page`** — ⚠️ bu satır yazıldığında merge edilmemişti;
+  SONRADAN `main`'e merge edildi (`c98c7c5`) ve push edildi.
 - Yeni ders sayfası `/jira` açıldı: **13 sekme, tek ağaçlı `src/data/jiraData.js`**.
   Opus tarafı (wiring + iskelet + referans atomlar) BİTTİ, build yeşil.
 - Plan ve Sonnet promptları: **`Documents/jira-page-plan.md`** (§B Opus'un yaptığı,
@@ -301,17 +315,16 @@ tekrar doğrulandı, yeşil.
     referansı (`GRUP F'de`, `I2'de`) yazılmış, elle taranıp sekme adına
     çevrildi — CLAUDE.md §23.13'teki kalıcı uyarı bir kez daha doğrulandı.
 
-### Sıradaki iş (yeni oturum buradan başlasın)
+### O anki sıradaki iş (ARTIK GEÇERSİZ — sonradan yapıldı)
 
-1. **`/jira` sayfası içerik olarak TAMAMLANDI.** Kalan tek karar: branch'i
-   main'e merge + push etmek — kullanıcı kararı.
-2. Merge öncesi istenirse `Documents/jira-page-plan.md` §F'deki manuel test
-   rehberi elle uygulanabilir (otomatik testlerin göremediği görsel/etkileşim
-   doğrulaması).
-3. Bir önceki oturumdan devam eden açık işler (aşağıdaki "Önceki Durum"
-   bölümlerinde): `fix/test-suite-flakiness` merge kararı, `npm run seo:lcp`
-   yeniden ölçümü, outreach taslakları, Plausible analytics — hiçbiri bu
-   oturumda ele alınmadı.
+> Bu madde yazıldığında `/jira` branch'i henüz merge edilmemişti. Sonradan
+> merge + push edildi; güncel durum için EN ÜSTTEKİ devir notuna bak.
+
+1. ~~`/jira` sayfası içerik olarak TAMAMLANDI, merge kararı kullanıcıda.~~
+   → Merge edildi (`c98c7c5`) ve push edildi.
+2. İstenirse `Documents/jira-page-plan.md` §F'deki manuel test rehberi elle
+   uygulanabilir (otomatik testlerin göremediği görsel/etkileşim doğrulaması) —
+   HÂLÂ AÇIK, yapılmadı.
 
 ### Bu oturumda yapılanlar
 
