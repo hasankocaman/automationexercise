@@ -1081,7 +1081,12 @@ function QAMentorPage() {
                         className={`mb-6 rounded-2xl border p-4 md:p-5 ${darkMode ? 'bg-gray-800/60 border-gray-700' : 'bg-white border-gray-200'}`}
                     >
                         <h2 className={`text-sm md:text-base font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {lang === 'tr' ? 'Sıfırdan QA mühendisi olmak: 6 aşama' : 'Becoming a QA engineer from scratch: 6 stages'}
+                            {/* Aşama sayısı ZERO_TO_QA_STAGES'ten TÜRETİLİR — daha önce "6" olarak
+                                gömülüydü ve listeye yeni aşama eklenince başlık sessizce yanlış
+                                sayı gösteriyordu. */}
+                            {lang === 'tr'
+                                ? `Sıfırdan QA mühendisi olmak: ${ZERO_TO_QA_STAGES.length} aşama`
+                                : `Becoming a QA engineer from scratch: ${ZERO_TO_QA_STAGES.length} stages`}
                         </h2>
                         <ol className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                             {ZERO_TO_QA_STAGES.map((stage, i) => (

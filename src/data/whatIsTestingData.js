@@ -1367,10 +1367,11 @@ class TestDiscountCalculation:
       },
       {
         type: 'link-grid',
-        cols: 2,
+        cols: 3,
         items: [
           { icon: '🛡️', route: '/what-is-testing', label: { tr: 'Yazılım Testi & QA Temelleri', en: 'Software Testing & QA Fundamentals' }, desc: { tr: 'Yazılım testi nedir, neden test yapılır, ISTQB temel prensipleri, QA vs QC ve SDET rolleri.', en: 'What is software testing, why we test, ISTQB core principles, QA vs QC, and SDET roles.' } },
-          { icon: '✍️', route: '/manual-testing', label: { tr: 'Manuel Test Temelleri', en: 'Manual Testing Fundamentals' }, desc: { tr: 'Test senaryosu (test case) yazımı, hata (bug) raporlama, test tasarım teknikleri ve Agile QA süreçleri.', en: 'Writing test cases, reporting bugs, test design techniques, and Agile QA processes.' } }
+          { icon: '✍️', route: '/manual-testing', label: { tr: 'Manuel Test Temelleri', en: 'Manual Testing Fundamentals' }, desc: { tr: 'Test senaryosu (test case) yazımı, hata (bug) raporlama, test tasarım teknikleri ve Agile QA süreçleri.', en: 'Writing test cases, reporting bugs, test design techniques, and Agile QA processes.' } },
+          { icon: '🤖', route: '/test-automation', label: { tr: 'Test Otomasyonuna Giriş', en: 'Introduction to Test Automation' }, desc: { tr: 'Test otomasyonu nedir, ne zaman otomatikleştirilir, hangi araç seçilir, maliyet/ROI ve kariyer yol haritası.', en: 'What test automation is, when to automate, which tool to pick, cost/ROI, and the career roadmap.' } }
         ]
       },
       {
@@ -1383,7 +1384,20 @@ class TestDiscountCalculation:
         items: [
           { icon: '🟢', route: '/selenium', label: { tr: 'Selenium WebDriver', en: 'Selenium WebDriver' }, desc: { tr: "En yaygın web otomasyon aracı: locator stratejileri, wait'ler, gerçek senaryolar ve 50+ mülakat sorusu.", en: 'The most widely used web automation tool: locator strategies, waits, real scenarios, and 50+ interview questions.' } },
           { icon: '🎭', route: '/playwright', label: { tr: 'Playwright', en: 'Playwright' }, desc: { tr: 'Modern, hızlı ve otomatik bekleyen (auto-wait) yeni nesil web test aracı.', en: 'A modern, fast, auto-waiting next-generation web testing tool.' } },
-          { icon: '🌲', route: '/cypress', label: { tr: 'Cypress', en: 'Cypress' }, desc: { tr: 'Modern frontend test aracı: test izolasyonu, time-travel, intercepting ve Selector Playground.', en: 'Modern frontend testing tool: test isolation, time-travel debugging, network intercepting, and Selector Playground.' } }
+          { icon: '🌲', route: '/cypress', label: { tr: 'Cypress', en: 'Cypress' }, desc: { tr: 'Modern frontend test aracı: test izolasyonu, time-travel, intercepting ve Selector Playground.', en: 'Modern frontend testing tool: test isolation, time-travel debugging, network intercepting, and Selector Playground.' } },
+          { icon: '📏', route: '/gauge', label: { tr: 'Gauge', en: 'Gauge' }, desc: { tr: 'Markdown spec dosyalarıyla test otomasyonu: @Step bağlama, Selenium By locator ve JSON locator deposu.', en: 'Test automation with Markdown spec files: @Step bindings, Selenium By locators, and a JSON locator repository.' } },
+          { icon: '🖥️', route: '/qa-frontend', label: { tr: 'QA için Frontend', en: 'Frontend for QA' }, desc: { tr: 'React/Angular kaynak kodunu okuyup oluşacak DOM\'u canlandır; kırılgan XPath yerine kalıcı locator seç.', en: 'Read React/Angular source, picture the DOM it produces, and pick durable locators instead of fragile XPath.' } }
+        ]
+      },
+      {
+        type: 'heading',
+        text: { tr: '📋 Süreç, İş Takibi & Hata Yönetimi', en: '📋 Process, Work Tracking & Defect Management' }
+      },
+      {
+        type: 'link-grid',
+        cols: 2,
+        items: [
+          { icon: '📋', route: '/jira', label: { tr: 'Jira', en: 'Jira' }, desc: { tr: 'Bug raporlama, issue türleri, workflow, JQL sorguları, Scrum/Kanban panoları, test yönetimi ve REST API ile otomasyon.', en: 'Bug reporting, issue types, workflows, JQL queries, Scrum/Kanban boards, test management, and REST API automation.' } }
         ]
       },
       {
@@ -1394,8 +1408,10 @@ class TestDiscountCalculation:
         type: 'link-grid',
         cols: 2,
         items: [
+          { icon: '🔌', route: '/api-testing', label: { tr: 'API Testi (Uçtan Uca)', en: 'API Testing (End to End)' }, desc: { tr: 'Önce API\'yi Java, Express ve NestJS ile yaz; sonra DevTools, Swagger, Postman ve Playwright ile test et.', en: 'First build the API with Java, Express and NestJS, then test it with DevTools, Swagger, Postman and Playwright.' } },
           { icon: '📮', route: '/postman', label: { tr: 'Postman', en: 'Postman' }, desc: { tr: "Collection, environment, script ve Newman ile CI'a entegre API testi.", en: 'API testing with collections, environments, scripts, and CI integration via Newman.' } },
-          { icon: '☕', route: '/rest-assured', label: { tr: 'REST Assured', en: 'REST Assured' }, desc: { tr: 'Java ile kod tabanlı API otomasyonu: given-when-then zinciri ve assertion\'lar.', en: 'Code-based API automation in Java: the given-when-then chain and assertions.' } }
+          { icon: '☕', route: '/rest-assured', label: { tr: 'REST Assured', en: 'REST Assured' }, desc: { tr: 'Java ile kod tabanlı API otomasyonu: given-when-then zinciri ve assertion\'lar.', en: 'Code-based API automation in Java: the given-when-then chain and assertions.' } },
+          { icon: '📦', route: '/bruno', label: { tr: 'Bruno', en: 'Bruno' }, desc: { tr: 'Git tabanlı açık kaynak API client: .bru dosyaları, script yazımı, CLI otomasyonu ve Postman karşılaştırması.', en: 'Git-native open-source API client: .bru files, scripting, CLI automation, and a Postman comparison.' } }
         ]
       },
       {
@@ -1460,7 +1476,8 @@ class TestDiscountCalculation:
         items: [
           { icon: '☕', route: '/java', label: { tr: 'Java', en: 'Java' }, desc: { tr: 'Selenium/REST Assured otomasyonu ve mülakatlar için Java temelleri.', en: 'Java fundamentals for Selenium/REST Assured automation and interviews.' } },
           { icon: '🐍', route: '/python', label: { tr: 'Python', en: 'Python' }, desc: { tr: 'pytest, Selenium ve Playwright ile sıfırdan Python otomasyonu.', en: 'Python automation from scratch with pytest, Selenium, and Playwright.' } },
-          { icon: '🔷', route: '/typescript', label: { tr: 'TypeScript', en: 'TypeScript' }, desc: { tr: 'Playwright TS ile tip güvenli (type-safe) test otomasyonu.', en: 'Type-safe test automation with Playwright TS.' } }
+          { icon: '🔷', route: '/typescript', label: { tr: 'TypeScript', en: 'TypeScript' }, desc: { tr: 'Playwright TS ile tip güvenli (type-safe) test otomasyonu.', en: 'Type-safe test automation with Playwright TS.' } },
+          { icon: '🟨', route: '/javascript', label: { tr: 'JavaScript', en: 'JavaScript' }, desc: { tr: 'QA otomasyonu için JavaScript: DOM, event\'ler, async yapılar ve event loop.', en: 'JavaScript for QA automation: the DOM, events, async structures, and the event loop.' } }
         ]
       },
       {
@@ -1477,13 +1494,39 @@ class TestDiscountCalculation:
       },
       {
         type: 'heading',
-        text: { tr: '🗺️ Kariyer & Rehberlik', en: '🗺️ Career & Guidance' }
+        text: { tr: '🤖 Yapay Zekâ & QA', en: '🤖 Artificial Intelligence & QA' }
       },
       {
         type: 'link-grid',
         cols: 2,
         items: [
-          { icon: '🗺️', route: '/qa-mentor', label: { tr: 'QA Mentor (AI)', en: 'QA Mentor (AI)' }, desc: { tr: 'AI destekli kariyer yol haritası oluşturucu: Manuel, Otomasyon veya DevOps yönelimli kişisel planlar.', en: 'AI-backed career roadmap builder: personalized plans tailored for Manual, Automation, or DevOps paths.' } }
+          { icon: '🧠', route: '/claude-ai', label: { tr: 'Claude AI ile QA', en: 'QA with Claude AI' }, desc: { tr: 'Prompt engineering, test case üretimi, Selenium/Playwright otomasyonunda AI kullanımı, Claude Code ve MCP.', en: 'Prompt engineering, test case generation, using AI in Selenium/Playwright automation, Claude Code, and MCP.' } },
+          { icon: '🕸️', route: '/llm-agents', label: { tr: 'LLM & AI Agent Temelleri', en: 'LLM & AI Agent Fundamentals' }, desc: { tr: 'LLM nedir, nasıl eğitilir ve bir testçi OpenAI API ile nasıl basit bir test agent\'ı yazar — uygulamalı lab\'larla.', en: 'What an LLM is, how it is trained, and how a tester builds a simple test agent with the OpenAI API, with hands-on labs.' } }
+        ]
+      },
+      {
+        type: 'heading',
+        text: { tr: '🎮 Uygulamalı Lab & Simülasyon', en: '🎮 Hands-On Labs & Simulation' }
+      },
+      {
+        type: 'link-grid',
+        cols: 2,
+        items: [
+          { icon: '🏃', route: '/sprint', label: { tr: 'QA Sprint Simülatörü', en: 'QA Sprint Simulator' }, desc: { tr: 'Gerçek bir sprint\'i adım adım çalış: bug\'ı analiz et, test case yaz, otomatikleştir, CI hatasını oku, merge öncesi doğrula.', en: 'Work a real sprint step by step: analyze the bug, write the test case, automate it, read the CI failure, verify before merge.' } },
+          { icon: '🧰', route: '/basit-backend', label: { tr: 'E-Ticaret SQL & API Lab', en: 'E-Commerce SQL & API Lab' }, desc: { tr: 'DBeaver ile PostgreSQL şeması ve mock veri kur, Next.js TypeScript API route\'ları yazıp endpoint ve header dene.', en: 'Set up a PostgreSQL schema and mock data with DBeaver, then write Next.js TypeScript API routes and try endpoints and headers.' } }
+        ]
+      },
+      {
+        type: 'heading',
+        text: { tr: '🗺️ Kariyer & Rehberlik', en: '🗺️ Career & Guidance' }
+      },
+      {
+        type: 'link-grid',
+        cols: 3,
+        items: [
+          { icon: '🗺️', route: '/qa-mentor', label: { tr: 'QA Mentor (AI)', en: 'QA Mentor (AI)' }, desc: { tr: 'AI destekli kariyer yol haritası oluşturucu: Manuel, Otomasyon veya DevOps yönelimli kişisel planlar.', en: 'AI-backed career roadmap builder: personalized plans tailored for Manual, Automation, or DevOps paths.' } },
+          { icon: '💼', route: '/portfolio', label: { tr: 'QA Portfolyo', en: 'QA Portfolio' }, desc: { tr: 'Çözdüğün görevleri, kapattığın bug\'ları ve ustalaştığın konuları tek sayfada topla, Markdown olarak dışa aktar.', en: 'Collect the missions you solved, bugs you closed, and topics you mastered on one page, and export it as Markdown.' } },
+          { icon: '🏆', route: '/leaderboard', label: { tr: 'Liderlik Tablosu', en: 'Leaderboard' }, desc: { tr: 'Ders ve quiz tamamlayarak en çok XP kazanan ilk 10 üyeyi gör.', en: 'See the top 10 members by XP, earned from completing lessons and quizzes.' } }
         ]
       },
       {

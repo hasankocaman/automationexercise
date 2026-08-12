@@ -300,6 +300,24 @@ const GIT_GITHUB_NODE = (id) => ({
     estimatedHours: 8,
 })
 
+// Jira düğümü (tüm haritalarda UI otomasyon aracından HEMEN SONRA gelir).
+// Neden orada: Jira bir süreç aracıdır, öğrenmesi için önce "kaydedilecek bir
+// şey" gerekir — manuel testte bulunan bug'lar ve otomasyon koşumundan gelen
+// kırmızı testler. UI aracını öğrenmiş bir kullanıcının elinde artık ikisi de
+// vardır; bu yüzden Jira'nın CI/CD ve REST API sekmeleri de ilerideki
+// Jenkins/API düğümlerine köprü kurar.
+const JIRA_NODE = (id) => ({
+    id,
+    emoji: '📋',
+    title: { tr: 'Jira', en: 'Jira' },
+    desc: { tr: 'Bug raporlama, workflow, JQL, Scrum/Kanban panoları', en: 'Bug reporting, workflows, JQL, Scrum/Kanban boards' },
+    route: '/jira',
+    color: '#0052cc',
+    glow: 'rgba(0,82,204,0.4)',
+    isMain: true,
+    estimatedHours: 6,
+})
+
 // Linux ana düğüm (tüm haritalarda Docker/Jenkins ana hatta olduğundan Linux artık her yerde ana düğüm)
 const LINUX_MAIN_NODE = (id) => ({
     id,
@@ -396,8 +414,9 @@ export const MAP_A = {
             isMain: true,
             estimatedHours: 13,
         },
+        JIRA_NODE(7),
         {
-            id: 7,
+            id: 8,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'REST API, request, assertion, Newman', en: 'REST API, requests, assertions, Newman' },
@@ -407,9 +426,9 @@ export const MAP_A = {
             isMain: true,
             estimatedHours: 3,
         },
-        SQL_NODE(8),
+        SQL_NODE(9),
         {
-            id: 9,
+            id: 10,
             emoji: '🔗',
             title: { tr: 'REST Assured', en: 'REST Assured' },
             desc: { tr: 'Java tabanlı API otomasyon framework\'ü', en: 'Java-based API automation framework' },
@@ -419,9 +438,9 @@ export const MAP_A = {
             isMain: true,
             estimatedHours: 5.5,
         },
-        LINUX_MAIN_NODE(10),
+        LINUX_MAIN_NODE(11),
         {
-            id: 11,
+            id: 12,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Container, image, compose, Selenium Grid', en: 'Containers, images, compose, Selenium Grid' },
@@ -432,7 +451,7 @@ export const MAP_A = {
             estimatedHours: 6.5,
         },
         {
-            id: 12,
+            id: 13,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD pipeline, build, test trigger', en: 'CI/CD pipeline, build, test triggers' },
@@ -443,7 +462,7 @@ export const MAP_A = {
             estimatedHours: 5,
         },
         {
-            id: 13,
+            id: 14,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud test ortamı, EC2, S3, Lambda', en: 'Cloud test environment, EC2, S3, Lambda' },
@@ -454,7 +473,7 @@ export const MAP_A = {
             estimatedHours: 2,
         },
         {
-            id: 14,
+            id: 15,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Orchestration, pod, deployment, scale', en: 'Orchestration, pods, deployments, scaling' },
@@ -498,14 +517,18 @@ export const MAP_A = {
     mentorNote: {
         tr: `**Doğru yoldasın!** Yazılım geçmişi olmadan QA mühendisliğine başlamak tamamen mümkün — ve bu sıra bunu en hızlı öğrenmenin kanıtlanmış yolu.
 
-Önce **testin ne olduğunu** anla (Test Temelleri), sonra **mantığını** kur (Algoritma), ardından **test refleksini** geliştir (Manuel Test) ve **Java** ile kod yazmayı öğren. Git & GitHub ile versiyon kontrolünü öğrendikten sonra Selenium ile UI otomasyonuna geçtiğinde zaten sağlam bir temel üzerinde olacaksın. **SQL** ise seni çoğu QA mühendisinden ayıran kritik bir beceri — veritabanı doğrulaması yapmadan tam bir test süreci yürütemezsin.
+Önce **testin ne olduğunu** anla (Test Temelleri), sonra **mantığını** kur (Algoritma), ardından **test refleksini** geliştir (Manuel Test) ve **Java** ile kod yazmayı öğren. Git & GitHub ile versiyon kontrolünü öğrendikten sonra Selenium ile UI otomasyonuna geçtiğinde zaten sağlam bir temel üzerinde olacaksın.
+
+Selenium'dan hemen sonra **Jira** geliyor ve sırası tesadüf değil: Jira bir süreç aracıdır, öğrenmek için önce KAYDEDİLECEK bir şeyin olması gerekir — manuel testte bulduğun bug'lar ve otomasyonda kırmızıya dönen testler. İkisi de elinde olduğunda Jira artık boş bir arayüz değil, gerçek işini takip ettiğin yer olur. **SQL** ise seni çoğu QA mühendisinden ayıran kritik bir beceri — veritabanı doğrulaması yapmadan tam bir test süreci yürütemezsin.
 
 REST Assured ile Java üzerinden API testini kapattıktan sonra sırada **Linux** var — artık bir "bonus" değil, ana hatta: çünkü Docker container'ları, Jenkins agent'ları ve cloud sunucuların hepsi Linux üzerinde çalışır, önce bu işletim sistemini tanımadan container/CI kavramları havada kalır. Bu yüzden **Docker → Jenkins → AWS → Kubernetes** zinciri bu sırada ilerliyor: önce container'ı (Docker) anla, sonra onu CI/CD pipeline'ında (Jenkins) otomatik çalıştırmayı öğren, ardından cloud'a (AWS) taşı, son olarak Kubernetes ile ölçeklendir. Bu zincir seni gerçek bir **SDET (Software Development Engineer in Test)** profili haline getirecek. 💪
 
 💡 **Kafka** artık ana yolda değil — event-driven mimari niş bir konu, temel yığını tamamladıktan sonra bakılacak bir "kariyer +1" ekstrası olarak aşağıda duruyor.`,
         en: `**You're on the right path!** Starting QA engineering without a software background is completely possible — and this sequence is the proven fastest way to get there.
 
-First understand **what testing actually is** (Testing Fundamentals), then build your **logical thinking** (Algorithms), then develop **test instincts** (Manual Testing) and learn to write code with **Java**. After learning version control with Git & GitHub, when you move to Selenium for UI automation, you'll already have a solid foundation. **SQL** is a critical skill that separates you from most QA engineers — you can't run a complete test process without database validation.
+First understand **what testing actually is** (Testing Fundamentals), then build your **logical thinking** (Algorithms), then develop **test instincts** (Manual Testing) and learn to write code with **Java**. After learning version control with Git & GitHub, when you move to Selenium for UI automation, you'll already have a solid foundation.
+
+**Jira** comes right after Selenium, and that position is deliberate: Jira is a process tool, and to learn it you first need something to RECORD — the bugs you found in manual testing and the tests that turned red in automation. Once you have both, Jira stops being an empty interface and becomes the place where you track real work. **SQL** is a critical skill that separates you from most QA engineers — you can't run a complete test process without database validation.
 
 After covering API testing with REST Assured, **Linux** comes next — no longer a "bonus," but part of the main track: Docker containers, Jenkins agents, and cloud servers all run on Linux, so without knowing this operating system first, container/CI concepts stay abstract. That's why the **Docker → Jenkins → AWS → Kubernetes** chain follows this order: first understand containers (Docker), then learn to run them automatically in a CI/CD pipeline (Jenkins), then move to the cloud (AWS), and finally scale with Kubernetes. This chain will turn you into a real **SDET (Software Development Engineer in Test)** profile. 💪
 
@@ -554,8 +577,9 @@ export const MAP_B = {
             isMain: true,
             estimatedHours: 10,
         },
+        JIRA_NODE(5),
         {
-            id: 5,
+            id: 6,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'REST API, environment, Newman/CI', en: 'REST API, environments, Newman/CI' },
@@ -565,10 +589,10 @@ export const MAP_B = {
             isMain: true,
             estimatedHours: 3,
         },
-        SQL_NODE(6),   // ← SQL: Postman'dan sonra
-        LINUX_MAIN_NODE(7),
+        SQL_NODE(7),   // ← SQL: Postman'dan sonra
+        LINUX_MAIN_NODE(8),
         {
-            id: 8,
+            id: 9,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Test ortamı containerize etme', en: 'Containerizing test environments' },
@@ -579,7 +603,7 @@ export const MAP_B = {
             estimatedHours: 6.5,
         },
         {
-            id: 9,
+            id: 10,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD pipeline, paralel test çalıştırma', en: 'CI/CD pipelines, parallel test execution' },
@@ -590,7 +614,7 @@ export const MAP_B = {
             estimatedHours: 5,
         },
         {
-            id: 10,
+            id: 11,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud test altyapısı, Lambda, S3', en: 'Cloud test infrastructure, Lambda, S3' },
@@ -643,12 +667,12 @@ export const MAP_B = {
 
 **Playwright**'ı tavsiye etmemizin nedeni: Hem Python hem TypeScript'i mükemmel destekler, **auto-wait** ile flaky test sorunu minimuma iner, **Trace Viewer** ile hataları video/screenshot/network üzerinden debug edebilirsin ve büyük kurumsal projelerde giderek artan talep görüyor.
 
-**SQL** bilgisi seni çoğu QA mühendisinden ayıran kritik bir beceri — veri doğrulaması olmadan tam bir test süreci yürütülemez. **Linux** artık ana hatta: Docker container'ları ve Jenkins agent'ları Linux üzerinde çalıştığından, önce bu işletim sistemini kavraman gerekiyor. Docker → Jenkins → AWS zinciri ise seni takım ortamında CI/CD süreçlerini yönetebilir hale getirir. 🚀`,
+Playwright'tan hemen sonra **Jira** var: bir süreç aracını öğrenmek için önce kaydedilecek gerçek bir işin olması gerekir — otomasyonda kırmızıya dönen testler ve bulduğun bug'lar. **SQL** bilgisi seni çoğu QA mühendisinden ayıran kritik bir beceri — veri doğrulaması olmadan tam bir test süreci yürütülemez. **Linux** artık ana hatta: Docker container'ları ve Jenkins agent'ları Linux üzerinde çalıştığından, önce bu işletim sistemini kavraman gerekiyor. Docker → Jenkins → AWS zinciri ise seni takım ortamında CI/CD süreçlerini yönetebilir hale getirir. 🚀`,
         en: `**Excellent choice!** The Python + TypeScript + Playwright combination equips you with the most modern QA stack in the industry.
 
 Why we recommend **Playwright**: It perfectly supports both Python and TypeScript, **auto-wait** minimizes flaky test issues, **Trace Viewer** lets you debug failures via video/screenshot/network recordings, and it's seeing increasing demand in large enterprise projects.
 
-**SQL** knowledge separates you from most QA engineers — a complete test process can't run without data validation. **Linux** is now part of the main track: since Docker containers and Jenkins agents run on Linux, understanding this operating system first is essential. The Docker → Jenkins → AWS chain makes you capable of managing CI/CD processes in team environments. 🚀`,
+**Jira** comes right after Playwright: to learn a process tool you first need real work to record — the tests turning red in automation and the bugs you find. **SQL** knowledge separates you from most QA engineers — a complete test process can't run without data validation. **Linux** is now part of the main track: since Docker containers and Jenkins agents run on Linux, understanding this operating system first is essential. The Docker → Jenkins → AWS chain makes you capable of managing CI/CD processes in team environments. 🚀`,
     },
 }
 
@@ -704,8 +728,9 @@ export const MAP_B_SEL = {
             isMain: true,
             estimatedHours: 10,
         },
+        JIRA_NODE(6),
         {
-            id: 6,
+            id: 7,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'REST API, environment, Newman/CI', en: 'REST API, environments, Newman/CI' },
@@ -715,10 +740,10 @@ export const MAP_B_SEL = {
             isMain: true,
             estimatedHours: 3,
         },
-        SQL_NODE(7),   // ← SQL: Postman'dan sonra
-        LINUX_MAIN_NODE(8),
+        SQL_NODE(8),   // ← SQL: Postman'dan sonra
+        LINUX_MAIN_NODE(9),
         {
-            id: 9,
+            id: 10,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Selenium Grid + Playwright containerize', en: 'Selenium Grid + Playwright containerization' },
@@ -729,7 +754,7 @@ export const MAP_B_SEL = {
             estimatedHours: 6.5,
         },
         {
-            id: 10,
+            id: 11,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD pipeline, paralel test çalıştırma', en: 'CI/CD pipelines, parallel test execution' },
@@ -740,7 +765,7 @@ export const MAP_B_SEL = {
             estimatedHours: 5,
         },
         {
-            id: 11,
+            id: 12,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud test altyapısı, Lambda, S3', en: 'Cloud test infrastructure, Lambda, S3' },
@@ -793,12 +818,12 @@ export const MAP_B_SEL = {
 
 Selenium ile Python'un birlikteliği kurumsal projelerde hâlâ yaygın — özellikle legacy test altyapılarında vazgeçilmez. **Playwright** ise onu tamamlıyor: auto-wait, trace viewer ve paralel çalıştırma ile modern projelerin gözdesi. İki aracı da bilen biri olarak "Selenium'dan Playwright'a geçiş" projelerinde özellikle aranacaksın.
 
-**SQL** her iki aracın test sürecinde de kritik rol oynar — veritabanı doğrulaması olmadan API veya UI testleri eksik kalır. **Linux** artık ana hatta: Selenium Grid ve Playwright container'ları sunucularda Linux üzerinde çalışır. Docker → Jenkins → AWS zinciri ise her şeyi CI/CD ortamına taşımanı sağlar. 🏆`,
+İki UI aracından sonra **Jira** geliyor — artık elinde kaydedilecek gerçek iş var: iki farklı araçtan gelen kırmızı testler ve bulduğun bug'lar. **SQL** her iki aracın test sürecinde de kritik rol oynar — veritabanı doğrulaması olmadan API veya UI testleri eksik kalır. **Linux** artık ana hatta: Selenium Grid ve Playwright container'ları sunucularda Linux üzerinde çalışır. Docker → Jenkins → AWS zinciri ise her şeyi CI/CD ortamına taşımanı sağlar. 🏆`,
         en: `**A powerful choice!** As a QA engineer who knows both **Selenium** and **Playwright**, you'll appeal to a very wide job pool.
 
 Selenium's combination with Python is still common in enterprise projects — especially indispensable in legacy test infrastructures. **Playwright** complements it: the darling of modern projects with auto-wait, trace viewer, and parallel execution. Knowing both, you'll be specifically sought out for "Selenium to Playwright migration" projects.
 
-**SQL** plays a critical role in the test process for both tools — API or UI tests are incomplete without database validation. **Linux** is now part of the main track: Selenium Grid and Playwright containers run on Linux servers. The Docker → Jenkins → AWS chain lets you move everything into a CI/CD environment. 🏆`,
+**Jira** follows the two UI tools — by then you have real work to record: red tests coming from two different tools, plus the bugs you find. **SQL** plays a critical role in the test process for both tools — API or UI tests are incomplete without database validation. **Linux** is now part of the main track: Selenium Grid and Playwright containers run on Linux servers. The Docker → Jenkins → AWS chain lets you move everything into a CI/CD environment. 🏆`,
     },
 }
 
@@ -832,8 +857,9 @@ export const MAP_C1 = {
             isMain: true,
             estimatedHours: 13,
         },
+        JIRA_NODE(4),
         {
-            id: 4,
+            id: 5,
             emoji: '📮',
             title: { tr: 'Postman', en: 'Postman' },
             desc: { tr: 'API test, collection, environment', en: 'API testing, collections, environments' },
@@ -843,9 +869,9 @@ export const MAP_C1 = {
             isMain: true,
             estimatedHours: 3,
         },
-        SQL_NODE(5),   // ← SQL: Postman'dan sonra, REST Assured'dan önce
+        SQL_NODE(6),   // ← SQL: Postman'dan sonra, REST Assured'dan önce
         {
-            id: 6,
+            id: 7,
             emoji: '🔗',
             title: { tr: 'REST Assured', en: 'REST Assured' },
             desc: { tr: 'Java API otomasyon, schema validation', en: 'Java API automation, schema validation' },
@@ -855,9 +881,9 @@ export const MAP_C1 = {
             isMain: true,
             estimatedHours: 5.5,
         },
-        LINUX_MAIN_NODE(7),
+        LINUX_MAIN_NODE(8),
         {
-            id: 8,
+            id: 9,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Selenium Grid containerize, test izolasyonu', en: 'Selenium Grid containerization, test isolation' },
@@ -868,7 +894,7 @@ export const MAP_C1 = {
             estimatedHours: 6.5,
         },
         {
-            id: 9,
+            id: 10,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD pipeline, Maven/Gradle entegrasyonu', en: 'CI/CD pipelines, Maven/Gradle integration' },
@@ -879,7 +905,7 @@ export const MAP_C1 = {
             estimatedHours: 5,
         },
         {
-            id: 10,
+            id: 11,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Cloud ölçekli test çalıştırma ortamı', en: 'Cloud-scale test execution environment' },
@@ -890,7 +916,7 @@ export const MAP_C1 = {
             estimatedHours: 2,
         },
         {
-            id: 11,
+            id: 12,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Distributed test execution, pod yönetimi', en: 'Distributed test execution, pod management' },
@@ -934,12 +960,12 @@ export const MAP_C1 = {
     mentorNote: {
         tr: `**Klasik ama güçlü bir seçim!** Java + Selenium stack'i hâlâ sektörde en yaygın kullanılan kombinasyon — büyük kurumsal şirketlerin büyük çoğunluğu bu ekosistemde çalışıyor.
 
-Yazılım geçmişin varsa **Java**'ya adaptasyon çok hızlı olacak. Selenium ile **Page Object Model (POM)** öğrendiğinde test kodunu maintainable tutmanın gerçek anlamını kavrayacaksın. **SQL** ise seni rakiplerinden ayıran kritik beceri — Postman ile API testi yaparken bile veritabanındaki gerçek veriye bakman gerekiyor.
+Yazılım geçmişin varsa **Java**'ya adaptasyon çok hızlı olacak. Selenium ile **Page Object Model (POM)** öğrendiğinde test kodunu maintainable tutmanın gerçek anlamını kavrayacaksın. Hemen ardından gelen **Jira** ise bu testlerin takım içinde nereye kaydedildiğini öğretir — bir süreç aracı ancak kaydedilecek gerçek bir işin varken anlamlıdır. **SQL** ise seni rakiplerinden ayıran kritik beceri — Postman ile API testi yaparken bile veritabanındaki gerçek veriye bakman gerekiyor.
 
 REST Assured ile Java üzerinden API testini kapattığında UI + API testini tek dilde yöneteceksin. Sırada **Linux** var — artık ana hatta, çünkü Selenium Grid'i containerize edeceğin Docker ve onu tetikleyen Jenkins agent'ları Linux sunucularda çalışır. Docker → Jenkins → AWS → Kubernetes zinciri seni tam **DevOps-aware SDET** profiline götürür. 🏆`,
         en: `**A classic but powerful choice!** The Java + Selenium stack is still the most widely used combination in the industry — the vast majority of large enterprise companies work in this ecosystem.
 
-If you have a software background, **Java** adaptation will be very quick. Learning the **Page Object Model (POM)** with Selenium will make you truly understand what maintainable test code means. **SQL** is the critical skill that separates you from competitors — even when API testing with Postman, you often need to check the actual data in the database.
+If you have a software background, **Java** adaptation will be very quick. Learning the **Page Object Model (POM)** with Selenium will make you truly understand what maintainable test code means. **Jira**, which comes right after, teaches where those tests get recorded within a team — a process tool only makes sense once you have real work to record. **SQL** is the critical skill that separates you from competitors — even when API testing with Postman, you often need to check the actual data in the database.
 
 When you complete API testing with REST Assured, you'll manage UI + API testing in a single language. **Linux** comes next — now part of the main track, since the Docker containers hosting your Selenium Grid and the Jenkins agents triggering them both run on Linux servers. The Docker → Jenkins → AWS → Kubernetes chain takes you to a full **DevOps-aware SDET** profile. 🏆`,
     },
@@ -975,8 +1001,9 @@ export const MAP_C2 = {
             isMain: true,
             estimatedHours: 10,
         },
+        JIRA_NODE(4),
         {
-            id: 4,
+            id: 5,
             emoji: '🔗',
             title: { tr: 'REST Assured', en: 'REST Assured' },
             desc: { tr: 'Java tabanlı API otomasyon + Playwright API test', en: 'Java-based API automation + Playwright API testing' },
@@ -986,10 +1013,10 @@ export const MAP_C2 = {
             isMain: true,
             estimatedHours: 5.5,
         },
-        SQL_NODE(5),   // ← SQL: REST Assured'dan sonra
-        LINUX_MAIN_NODE(6),
+        SQL_NODE(6),   // ← SQL: REST Assured'dan sonra
+        LINUX_MAIN_NODE(7),
         {
-            id: 7,
+            id: 8,
             emoji: '🐳',
             title: { tr: 'Docker', en: 'Docker' },
             desc: { tr: 'Playwright containerize, headless test ortamı', en: 'Playwright containerization, headless test env' },
@@ -1000,7 +1027,7 @@ export const MAP_C2 = {
             estimatedHours: 6.5,
         },
         {
-            id: 8,
+            id: 9,
             emoji: '🔧',
             title: { tr: 'Jenkins', en: 'Jenkins' },
             desc: { tr: 'CI/CD, paralel Playwright test koşusu', en: 'CI/CD, parallel Playwright test runs' },
@@ -1011,7 +1038,7 @@ export const MAP_C2 = {
             estimatedHours: 5,
         },
         {
-            id: 9,
+            id: 10,
             emoji: '☁️',
             title: { tr: 'AWS', en: 'AWS' },
             desc: { tr: 'Serverless test çalıştırma, cloud altyapı', en: 'Serverless test execution, cloud infrastructure' },
@@ -1022,7 +1049,7 @@ export const MAP_C2 = {
             estimatedHours: 2,
         },
         {
-            id: 10,
+            id: 11,
             emoji: '⚙️',
             title: { tr: 'Kubernetes', en: 'Kubernetes' },
             desc: { tr: 'Distributed Playwright koşusu, pod scaling', en: 'Distributed Playwright runs, pod scaling' },
@@ -1075,12 +1102,12 @@ export const MAP_C2 = {
 
 Playwright'ın **auto-wait** mekanizması Selenium'un flaky test sorunlarını büyük ölçüde ortadan kaldırıyor. **Trace Viewer** ile test hatalarını video/screenshot/network kaydı üzerinden debug edebileceksin — hiçbir Selenium suite'inde bu out-of-the-box gelmiyor.
 
-**SQL** hem REST Assured hem Playwright süreçlerinde kritik — veritabanı doğrulaması olmadan UI/API testleri eksik kalır. Sırada **Linux** var — artık ana hatta, çünkü Playwright'ı containerize edeceğin Docker ve onu tetikleyen Jenkins pipeline'ları Linux sunucularda çalışır. Şirketlerin "Playwright geçiş" projelerinde sana özel talep olacak. 🌟`,
+Playwright'ın hemen ardından **Jira** geliyor: kırmızıya dönen testleri ve bulduğun bug'ları takım içinde nereye, hangi disiplinle kaydedeceğini burada öğrenirsin. **SQL** hem REST Assured hem Playwright süreçlerinde kritik — veritabanı doğrulaması olmadan UI/API testleri eksik kalır. Sırada **Linux** var — artık ana hatta, çünkü Playwright'ı containerize edeceğin Docker ve onu tetikleyen Jenkins pipeline'ları Linux sunucularda çalışır. Şirketlerin "Playwright geçiş" projelerinde sana özel talep olacak. 🌟`,
         en: `**An excellent future-oriented choice!** The Java + Playwright combination merges enterprise power with modern speed.
 
 Playwright's **auto-wait** mechanism largely eliminates Selenium's flaky test problems. With **Trace Viewer**, you'll debug failures via video/screenshot/network recordings — nothing comes out-of-the-box like this in Selenium suites.
 
-**SQL** is critical in both REST Assured and Playwright processes — UI/API tests are incomplete without database validation. **Linux** comes next — now part of the main track, since the Docker containers hosting your Playwright runs and the Jenkins pipelines triggering them both run on Linux servers. Companies doing "Playwright migration" projects will specifically seek you out. 🌟`,
+**Jira** comes right after Playwright: this is where you learn where — and with what discipline — red tests and the bugs you find get recorded within a team. **SQL** is critical in both REST Assured and Playwright processes — UI/API tests are incomplete without database validation. **Linux** comes next — now part of the main track, since the Docker containers hosting your Playwright runs and the Jenkins pipelines triggering them both run on Linux servers. Companies doing "Playwright migration" projects will specifically seek you out. 🌟`,
     },
 }
 
@@ -1095,7 +1122,8 @@ export const ALL_MAPS = {
 // ─── Sihirbaz öncesi görünür özet (arama motoru + sihirbaza başlamadan gelen
 // ziyaretçi için) ───────────────────────────────────────────────────────────
 // Aşağıdaki 4 haritanın (MAP_A/B/C1/C2) ortak, kişiselleştirme öncesi genel
-// hattını 6 aşamada özetler. Sihirbazın ARKASINDA değildir — sayfaya girer
+// hattını aşama aşama özetler (aşama sayısı QAMentorPage başlığına bu diziden
+// TÜRETİLİR, gömülü değildir). Sihirbazın ARKASINDA değildir — sayfaya girer
 // girmez, hiçbir soru cevaplanmadan görünür. Belirli bir haritanın node
 // listesiyle 1:1 eşleşmez; amacı "bu site sana ne vaat ediyor" sorusuna
 // sihirbazı başlatmadan cevap vermektir.
@@ -1130,6 +1158,14 @@ export const ZERO_TO_QA_STAGES = [
         desc: {
             tr: 'Selenium veya Playwright ile tarayıcı testlerini otomatikleştir.',
             en: 'Automate browser tests with Selenium or Playwright.',
+        },
+    },
+    {
+        emoji: '📋',
+        title: { tr: 'İş takibi ve bug yönetimi', en: 'Work tracking and bug management' },
+        desc: {
+            tr: 'Jira ile bug raporlama, workflow, JQL ve Scrum/Kanban panolarını öğren.',
+            en: 'Learn bug reporting, workflows, JQL and Scrum/Kanban boards with Jira.',
         },
     },
     {
@@ -1183,36 +1219,36 @@ const SINGLE_LANG_NOTES = {
         map_b: {
             tr: `**Harika bir tercih!** Python, QA otomasyonuna en hızlı giriş yapılan dil — okunaklı sözdizimi sayesinde ilk haftadan test yazmaya başlayacaksın.
 
-**Playwright** ile pytest ekosistemi sana auto-wait, Trace Viewer ve paralel koşum gibi modern güçler verir; flaky test derdi en aza iner. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🚀
+**Playwright** ile pytest ekosistemi sana auto-wait, Trace Viewer ve paralel koşum gibi modern güçler verir; flaky test derdi en aza iner. Hemen ardından gelen **Jira**, kırmızıya dönen testleri ve bulduğun bug'ları takım içinde nereye kaydedeceğini öğretir — bir süreç aracı ancak kaydedilecek gerçek bir işin varken anlam kazanır. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🚀
 
 💡 **TypeScript**'i şimdilik dert etme — ana yolu bitirdikten sonra "Ekstra Gelişim Dalları"nda ikinci dil olarak seni bekliyor.`,
             en: `**An excellent choice!** Python is the fastest on-ramp into QA automation — its readable syntax has you writing tests within the first week.
 
-With **Playwright**, the pytest ecosystem gives you modern powers like auto-wait, Trace Viewer, and parallel runs — flaky-test pain drops to a minimum. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🚀
+With **Playwright**, the pytest ecosystem gives you modern powers like auto-wait, Trace Viewer, and parallel runs — flaky-test pain drops to a minimum. **Jira**, which follows immediately, teaches where red tests and the bugs you find get recorded within a team — a process tool only makes sense once you have real work to record. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🚀
 
 💡 Don't worry about **TypeScript** for now — it's waiting in "Extra Growth Branches" as your second language once the main path is done.`,
         },
         map_b_sel_both: {
             tr: `**Güçlü bir seçim!** Python + Selenium, kurumsal projelerde hâlâ en yaygın ikililerden — pytest ile birleşince hem legacy hem modern projelerde iş görürsün.
 
-**Selenium** sana sektörün klasiğini, **Playwright** auto-wait ve Trace Viewer'lı modern dünyayı öğretir — iki aracı da bilen mühendis "Selenium'dan Playwright'a geçiş" projelerinde özellikle aranır. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciri seni CI/CD'ye taşır. 🏆
+**Selenium** sana sektörün klasiğini, **Playwright** auto-wait ve Trace Viewer'lı modern dünyayı öğretir — iki aracı da bilen mühendis "Selenium'dan Playwright'a geçiş" projelerinde özellikle aranır. Ardından gelen **Jira**, bu testlerden çıkan bug'ları takım içinde nereye ve hangi disiplinle kaydedeceğini öğretir. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciri seni CI/CD'ye taşır. 🏆
 
 💡 **TypeScript** ana yolu bitirince "Ekstra Gelişim Dalları"nda ikinci dil olarak seni bekliyor.`,
             en: `**A powerful choice!** Python + Selenium is still one of the most common pairings in enterprise projects — combined with pytest, you'll be useful on both legacy and modern codebases.
 
-**Selenium** teaches you the industry classic, **Playwright** the modern world of auto-wait and Trace Viewer — engineers who know both are specifically sought for "Selenium to Playwright migration" projects. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain carries you into CI/CD. 🏆
+**Selenium** teaches you the industry classic, **Playwright** the modern world of auto-wait and Trace Viewer — engineers who know both are specifically sought for "Selenium to Playwright migration" projects. **Jira** comes next, teaching where — and with what discipline — the bugs from those tests get recorded within a team. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain carries you into CI/CD. 🏆
 
 💡 **TypeScript** is waiting in "Extra Growth Branches" as your second language once the main path is done.`,
         },
         map_b_sel_selenium: {
             tr: `**Sağlam bir seçim!** Python + Selenium, kurumsal test dünyasının kanıtlanmış ikilisi — pytest ile birleşince legacy projelerden modern altyapılara kadar her yerde iş görürsün.
 
-**Selenium** sana locator, wait stratejileri ve Page Object Model gibi HER UI aracına taşınan temelleri öğretir. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🏆
+**Selenium** sana locator, wait stratejileri ve Page Object Model gibi HER UI aracına taşınan temelleri öğretir. Hemen ardından gelen **Jira**, kırmızıya dönen testleri ve bulduğun bug'ları takım içinde nereye kaydedeceğini öğretir — bir süreç aracı ancak kaydedilecek gerçek bir işin varken anlam kazanır. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🏆
 
 💡 **Playwright** ve **TypeScript**'i şimdilik dert etme — ikisi de "Ekstra Gelişim Dalları"nda seni bekliyor; Selenium temelin varken Playwright'a geçiş çok hızlıdır.`,
             en: `**A solid choice!** Python + Selenium is the proven pairing of the enterprise testing world — combined with pytest, it serves you everywhere from legacy projects to modern infrastructures.
 
-**Selenium** teaches you fundamentals that transfer to EVERY UI tool: locators, wait strategies, and the Page Object Model. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🏆
+**Selenium** teaches you fundamentals that transfer to EVERY UI tool: locators, wait strategies, and the Page Object Model. **Jira**, which follows immediately, teaches where red tests and the bugs you find get recorded within a team — a process tool only makes sense once you have real work to record. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🏆
 
 💡 Don't worry about **Playwright** or **TypeScript** for now — both are waiting in "Extra Growth Branches"; with a Selenium foundation, the transition to Playwright is very fast.`,
         },
@@ -1221,36 +1257,36 @@ With **Playwright**, the pytest ecosystem gives you modern powers like auto-wait
         map_b: {
             tr: `**Modern bir tercih!** TypeScript, tip güvenliğiyle test kodundaki hataları daha sen yazarken yakalar — büyük test projelerinde bakım maliyetini ciddi düşürür.
 
-**Playwright** TypeScript ile birinci sınıf çalışır: auto-wait, Trace Viewer, paralel koşum ve tam IDE desteği. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🚀
+**Playwright** TypeScript ile birinci sınıf çalışır: auto-wait, Trace Viewer, paralel koşum ve tam IDE desteği. Hemen ardından gelen **Jira**, kırmızıya dönen testleri ve bulduğun bug'ları takım içinde nereye kaydedeceğini öğretir — bir süreç aracı ancak kaydedilecek gerçek bir işin varken anlam kazanır. **SQL** seni veri doğrulamada rakiplerinden ayırır, **Linux** container dünyasına hazırlar; Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🚀
 
 💡 **Python**'u şimdilik dert etme — ana yolu bitirdikten sonra "Ekstra Gelişim Dalları"nda ikinci dil olarak seni bekliyor.`,
             en: `**A modern choice!** TypeScript's type safety catches mistakes in your test code while you're still writing it — dramatically cutting maintenance costs in large test projects.
 
-**Playwright** works first-class with TypeScript: auto-wait, Trace Viewer, parallel runs, and full IDE support. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🚀
+**Playwright** works first-class with TypeScript: auto-wait, Trace Viewer, parallel runs, and full IDE support. **Jira**, which follows immediately, teaches where red tests and the bugs you find get recorded within a team — a process tool only makes sense once you have real work to record. **SQL** sets you apart in data validation, **Linux** prepares you for the container world; the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🚀
 
 💡 Don't worry about **Python** for now — it's waiting in "Extra Growth Branches" as your second language once the main path is done.`,
         },
         map_b_sel_both: {
             tr: `**Cesur ve modern bir seçim!** TypeScript'in tip güvenliği büyük test projelerinde hataları daha yazarken yakalar; Selenium ile sektörün klasiğini de kapsıyorsun.
 
-**Selenium** sana köklü kurumsal dünyayı, **Playwright** TypeScript ile birinci sınıf çalışan modern otomasyonu öğretir — iki aracı da bilen mühendis geniş bir iş havuzuna hitap eder. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciri seni CI/CD'ye taşır. 🏆
+**Selenium** sana köklü kurumsal dünyayı, **Playwright** TypeScript ile birinci sınıf çalışan modern otomasyonu öğretir — iki aracı da bilen mühendis geniş bir iş havuzuna hitap eder. Ardından gelen **Jira**, bu testlerden çıkan bug'ları takım içinde nereye ve hangi disiplinle kaydedeceğini öğretir. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciri seni CI/CD'ye taşır. 🏆
 
 💡 **Python** ana yolu bitirince "Ekstra Gelişim Dalları"nda ikinci dil olarak seni bekliyor.`,
             en: `**A bold, modern choice!** TypeScript's type safety catches mistakes in large test projects as you write; with Selenium you also cover the industry classic.
 
-**Selenium** teaches you the established enterprise world, **Playwright** the modern automation that works first-class with TypeScript — knowing both tools opens a wide job pool. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain carries you into CI/CD. 🏆
+**Selenium** teaches you the established enterprise world, **Playwright** the modern automation that works first-class with TypeScript — knowing both tools opens a wide job pool. **Jira** comes next, teaching where — and with what discipline — the bugs from those tests get recorded within a team. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain carries you into CI/CD. 🏆
 
 💡 **Python** is waiting in "Extra Growth Branches" as your second language once the main path is done.`,
         },
         map_b_sel_selenium: {
             tr: `**Kararlı bir seçim!** TypeScript + Selenium, tip güvenliğini sektörün en köklü aracıyla birleştirir — büyük kurumsal test altyapılarında sağlam bir profil çizer.
 
-**Selenium** sana locator, wait stratejileri ve Page Object Model gibi HER UI aracına taşınan temelleri öğretir; TypeScript'in tip güvenliği bu altyapıyı daha az kırılgan yapar. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🏆
+**Selenium** sana locator, wait stratejileri ve Page Object Model gibi HER UI aracına taşınan temelleri öğretir; TypeScript'in tip güvenliği bu altyapıyı daha az kırılgan yapar. Ardından gelen **Jira**, bu testlerden çıkan bug'ları takım içinde nereye ve hangi disiplinle kaydedeceğini öğretir. **SQL** ve **Linux** hattından sonra Docker → Jenkins → AWS zinciriyle CI/CD'yi uçtan uca yönetirsin. 🏆
 
 💡 **Playwright** ve **Python**'u şimdilik dert etme — ikisi de "Ekstra Gelişim Dalları"nda seni bekliyor; Selenium temelin varken Playwright'a geçiş çok hızlıdır.`,
             en: `**A determined choice!** TypeScript + Selenium combines type safety with the industry's most established tool — a strong profile for large enterprise test infrastructures.
 
-**Selenium** teaches you fundamentals that transfer to EVERY UI tool: locators, wait strategies, and the Page Object Model; TypeScript's type safety makes that infrastructure less fragile. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🏆
+**Selenium** teaches you fundamentals that transfer to EVERY UI tool: locators, wait strategies, and the Page Object Model; TypeScript's type safety makes that infrastructure less fragile. **Jira** comes next, teaching where — and with what discipline — the bugs from those tests get recorded within a team. After the **SQL** and **Linux** track, the Docker → Jenkins → AWS chain lets you manage CI/CD end to end. 🏆
 
 💡 Don't worry about **Playwright** or **Python** for now — both are waiting in "Extra Growth Branches"; with a Selenium foundation, the transition to Playwright is very fast.`,
         },

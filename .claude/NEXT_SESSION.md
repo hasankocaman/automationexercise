@@ -20,7 +20,97 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-12, Sonnet — `/jira`'ya dolan ev butonu + kavram ipucu maskotu eklendi) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-12, Opus — `/jira` site haritasına ve 5 QA Mentor yol haritasına eklendi) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Bu oturumda yapılan (3. istek)
+
+**Branch: `feature/jira-in-roadmaps`** — main'e merge EDİLMEDİ, push EDİLMEDİ.
+
+Kullanıcı `/jira`'nın (1) görünür site haritasında ve (2) QA Mentor'un ürettiği
+HER yol haritasında doğru yerde görünmesini istedi; konumlandırma ölçütünü de
+verdi: "yazılım geçmişi olmayan biri Selenium'dan veya diğer test araçlarından
+sonra Jira öğrenebilir".
+
+1. **Görünür site haritası** (`/what-is-testing` → 🗺️ Site Haritası sekmesi,
+   `whatIsTestingData.js`): yeni bir kategori eklendi — **"📋 Süreç, İş Takibi
+   & Hata Yönetimi"**, "🎨 UI / Web Test Otomasyonu"dan HEMEN SONRA (yol
+   haritasındaki sırayla tutarlı olsun diye), "🔌 API Testi"nden önce.
+   NOT: bu, `public/sitemap.xml` DEĞİL — o zaten build'de otomatik üretiliyor
+   ve `/jira`'yı ilk günden beri içeriyordu.
+
+2. **QA Mentor (`qaMentorData.js`)**: paylaşılan bir `JIRA_NODE(id)` fabrikası
+   eklendi (SQL_NODE/GIT_GITHUB_NODE kalıbıyla aynı, 6 saat tahmin) ve BEŞ
+   şablonun hepsine **UI otomasyon aracından hemen sonra** yerleştirildi:
+   MAP_A #7 (Selenium sonrası), MAP_B #5, MAP_B_SEL #6, MAP_C1 #4, MAP_C2 #4.
+   Parametrik katman (`resolveMap`) 6 farklı cevap kombinasyonuyla doğrulandı —
+   Java+"ikisi de"de Playwright overlay'i araya girince Jira ondan sonraya
+   kayıyor, Python+yalnız-Selenium'da Playwright düşünce Selenium'dan hemen
+   sonra kalıyor. İkisi de doğru.
+   Ayrıca sihirbaz öncesi genel özete (`ZERO_TO_QA_STAGES`) 7. aşama olarak
+   "İş takibi ve bug yönetimi" eklendi.
+
+3. **Mentor notları**: 5 şablonun notu + `SINGLE_LANG_NOTES`'taki 6 varyant
+   (python/typescript × map_b/map_b_sel_both/map_b_sel_selenium) Jira'nın NEDEN
+   o sırada olduğunu anlatacak şekilde güncellendi — harita bir düğüm
+   gösterirken notun ondan hiç bahsetmemesi tutarsızlık olurdu.
+
+4. **Yan düzeltme:** `QAMentorPage.jsx`'te "Sıfırdan QA mühendisi olmak: **6**
+   aşama" başlığındaki sayı GÖMÜLÜYDÜ; listeye 7. aşama eklenince sessizce
+   yanlış olacaktı. Artık `ZERO_TO_QA_STAGES.length`'ten türetiliyor.
+
+5. **Test:** `qa-mentor-roadmap-order.spec.ts` MAP_A sırasını kilitliyor;
+   beklenen listeye `map-node-jira` (selenium sonrası) eklendi.
+
+**Doğrulama:** `check-content-integrity` ✓ · `i18n:check` (trio dahil) ✓ ·
+`npm run build` ✓ · QA Mentor test paketi **17/17** geçti
+(`qa-mentor-roadmap-order` + `career-map` + `career-map-milestones`).
+Gerçek tarayıcıda da doğrulandı: site haritasında Jira kartı görünüyor, MAP_A'da
+düğüm "#7 Jira" olarak Selenium (#6) ile Postman (#8) arasında render oluyor.
+
+⚠️ **Bilinen kısıt:** Yol haritası kullanıcının localStorage'ındaki profile
+kaydedilir (`qaMentorProfile`). ÖNCEDEN harita oluşturmuş kullanıcıların kayıtlı
+profilinde Jira YOKTUR; haritayı sıfırlayıp yeniden oluşturana kadar görmezler.
+Bu, yeni bir düğüm eklemenin doğal sonucudur — geriye dönük migrasyon YAZILMADI.
+
+📋 **Site haritasındaki 10 eksik sayfa da aynı oturumda tamamlandı** (aşağıdaki
+4. istek bölümüne bak).
+
+### Bu oturumda yapılan (4. istek) — görünür site haritası TAMAMLANDI
+
+Yukarıda raporlanan 10 eksik sayfa (+ kullanıcıya açıkça belirtilerek eklenen
+`/portfolio` ve `/leaderboard`) görünür site haritasına eklendi. Site haritası
+artık **41 link** taşıyor ve `ROUTE_SEO`'daki auth/admin dışı HER route'u
+kapsıyor — script'le doğrulandı: tekrar eden link yok, geçersiz route yok,
+kalan eksik yok.
+
+Yerleşim:
+- **Mevcut kategorilere eklenenler:** `/test-automation` → Test Temelleri
+  (cols 2→3); `/gauge` + `/qa-frontend` → UI/Web Test Otomasyonu;
+  `/api-testing` + `/bruno` → API Testi; `/javascript` → Programlama Dilleri.
+- **İki yeni kategori:** "🤖 Yapay Zekâ & QA" (`/claude-ai`, `/llm-agents`) ve
+  "🎮 Uygulamalı Lab & Simülasyon" (`/sprint`, `/basit-backend`).
+- **Kariyer & Rehberlik** grubu genişletildi (cols 2→3): `/qa-mentor` yanına
+  `/portfolio` ve `/leaderboard`.
+
+Açıklama metinleri UYDURULMADI — her biri o route'un `ROUTE_SEO` TR/EN
+description'ından türetildi, böylece site haritası kartı ile sayfanın kendi
+meta açıklaması çelişmiyor.
+
+**Doğrulama:** `check-content-integrity` ✓ · `i18n:check` ✓ · `npm run build` ✓.
+Gerçek tarayıcıda: 12 yeni linkin hepsi tam 1 kez render oluyor, üç yeni/
+değişen kategori başlığı görünür, `/claude-ai` ve `/sprint` linkleri tıklanıp
+doğru sayfaya gittiği teyit edildi, konsol hatası 0.
+
+⚠️ **Kapsam notu:** Kullanıcı "10 eksik" demişti; `/portfolio` ve `/leaderboard`
+o listede YOKTU (önceki denetimde ders sayfası olmadıkları için elenmişlerdi).
+İkisi de herkese açık ve site haritasının amacı "bu platformda neler var"
+olduğu için eklendi ve kullanıcıya açıkça bildirildi — istenmezse çıkarılabilir.
+
+---
+
+## 📌 Önceki Durum (2026-08-12, Sonnet — `/jira`'ya dolan ev butonu + kavram ipucu maskotu eklendi)
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 

@@ -37,14 +37,14 @@ export const PAGE_UPDATED = {
   "/postman": "2026-08-01T13:28:21+03:00",
   "/python": "2026-08-02T21:23:58+03:00",
   "/qa-frontend": "2026-08-01T14:30:41+03:00",
-  "/qa-mentor": "2026-08-02T16:22:42+03:00",
+  "/qa-mentor": "2026-08-12T11:41:36+03:00",
   "/rest-assured": "2026-07-31T11:27:58+03:00",
   "/security": "2026-07-27T15:38:39+03:00",
   "/selenium": "2026-08-02T21:23:58+03:00",
   "/sql": "2026-08-02T21:23:58+03:00",
   "/test-automation": "2026-08-02T21:48:34+03:00",
   "/typescript": "2026-07-28T09:55:56+03:00",
-  "/what-is-testing": "2026-08-02T21:23:58+03:00"
+  "/what-is-testing": "2026-08-12T11:41:36+03:00"
 }
 
 export function pageUpdatedFor(routePath) {
