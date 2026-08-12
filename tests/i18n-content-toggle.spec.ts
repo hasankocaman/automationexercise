@@ -85,7 +85,7 @@ const SAMPLE_ROUTES_FOR_EN_AUDIT = [
     '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/gauge', '/kubernetes',
     '/kafka', '/appium', '/playwright', '/cypress', '/selenium', '/aws', '/azure',
     '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
-    '/claude-ai', '/llm-agents', '/api-testing',
+    '/claude-ai', '/llm-agents', '/api-testing', '/jira',
 ];
 
 test.describe('AC03 Koşul B — EN modda Türkçeye özgü karakter taraması', () => {

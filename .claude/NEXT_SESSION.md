@@ -20,7 +20,254 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-05, Opus — kalan 4 flaky testin kökü kazındı) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-12, Sonnet — `/jira`'ya dolan ev butonu + kavram ipucu maskotu eklendi) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Bu oturumda yapılan (2. istek)
+
+Kullanıcı iki eksiklik bildirdi: (1) sağ alttaki ev/scroll-to-top butonu diğer
+25 teknoloji sayfasındaki gibi kaydırma yüzdesiyle "dolmuyor" (düz mor daire
+kalıyordu), (2) sayfaya ilk girişte "altı çizgili kelimenin üstüne gelince
+açıklanacağını" söyleyen maskot (`TooltipGuideMascot`) görünmüyordu.
+
+**Kök neden:** `JiraPage.jsx` iki şeyi de içermiyordu.
+- Dolan buton kalıbı (`ra-wave-progress`/`gg-dial-progress` tarzı) 25 sayfada
+  var ama her sayfa kendi CSS dosyasıyla (parçacık efektleri, glitch, mıknatıs
+  buton gibi koca bir "efekt paketi" ile) geliyor — Jira'ya SADECE istenen
+  buton eklendi, o efekt paketinin geri kalanı (parçacıklar, glitch, mıknatıs,
+  ambient ses) BİLEREÇ eklenmedi (CLAUDE.md "istenenin ötesine geçme" kuralı).
+  Yeni `JiraScrollHomeButton` bileşeni tamamen React state + satır içi stille
+  yazıldı, yeni CSS dosyası YOK.
+- `TooltipGuideMascot`, tasarım gereği yalnızca 3 giriş sayfasına
+  (`/what-is-testing`, `/manual-testing`, `/algorithms`) o sayfaların KENDİ
+  wrapper'ına eklenmişti (TopicPage.jsx'e dokunulmadan — CLAUDE.md'deki
+  "TopicPage onlarca sayfada paylaşılır" kısıtı). `/jira` bu 3 sayfa
+  listesinde yoktu. `highlightGlossaryTerms` (altı çizgili terim tooltip'i)
+  zaten TopicPage.jsx'te GLOBAL çalışıyordu — yalnızca onu TANITAN maskot
+  eksikti.
+
+**Düzeltme:** `JiraPage.jsx`'e `<TooltipGuideMascot />` (varsayılan props) ve
+yeni `JiraScrollHomeButton` (58px, mavi/indigo su dolumu, kaydırma yüzdesi,
+`data-testid="jira-dial-progress"`) eklendi.
+
+**Doğrulama:** `npm run build` yeşil. Dev sunucusu açılıp gerçek tarayıcıda
+(Playwright ile) test edildi: dial %55 doğru doluyor, maskot rozeti tıklanınca
+balon açılıp doğru mesajı gösteriyor (ekran görüntüleriyle doğrulandı). `/jira`
+için topic-pages-ui + i18n-content-toggle + video-scene testleri (3/3) tekrar
+koşulup geçti.
+
+---
+
+## 📌 Önceki Durum (2026-08-12, Sonnet — `/jira` GRUP A'da öğretilmeden sorulan JQL alıştırması düzeltildi)
+
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Bu oturumda yapılan
+
+Kullanıcı GRUP A'daki (Jira Nedir?) `firstJqlPlayground` alıştırmasının JQL
+sözdizimi hiç öğretilmeden sorulduğunu fark etti (ekran görüntüsüyle
+bildirdi). Doğrulandı: alıştırma `AND`, `!=`, `currentUser()`, `ORDER BY`
+gerektiriyordu ama öncesindeki metin yalnızca "JQL'i ilerideki sekmede
+işleyeceğiz, burada sadece görmen yeterli" diyordu — CLAUDE.md §9.1 "önce
+mantık, sonra komut" kuralının ihlaliydi. **Diğer 15 `code-playground`
+bloğu kontrol edildi, hepsi kendinden önceki anlatıma dayanıyor** (JQL
+kullanan diğer tüm playground'lar GRUP F'den — JQL'in gerçek öğretildiği
+sekmeden — sonra geliyor); sorun yalnızca bu ilk örnekteydi.
+
+**Düzeltme:** Metin yeniden yazıldı + alıştırmadan hemen önce annotasyonlu
+bir `code` örneği eklendi ("benim açtığım, henüz kapanmamış issue'lar" —
+ALAN=DEĞER, AND, `!=`, `currentUser()` gösterilir ve açıklanır). Alıştırma
+artık aynı üç parçayı, bir alan adı değişikliğiyle (`reporter`→`assignee`)
+ve bir yeni-ama-tahmin-edilebilir koşulla (`issuetype = Bug`, aynı kalıp)
+istiyor. `ORDER BY` gereksinimi tamamen kaldırıldı (solutionCode'dan) —
+hiç öğretilmemiş bir üçüncü kavramdı, çıkarılması alıştırmayı gerçekten
+çözülebilir kıldı.
+
+Doğrulama: `check-content-integrity`, `i18n:check` (trio dahil), `npm run
+build`, ve `/jira` için topic-pages-ui + i18n-content-toggle + video-scene
+testleri (3/3) tekrar koşulup geçti.
+
+**Aynı oturumda ek istek:** Kullanıcı gerçek bir Jira hesabında JQL'in NEREDE
+yazıldığını sordu (hangi menü). JQL sekmesinde (F1) `callout` bloğu eklendi:
+üst nav → "Filters" → "Advanced issue search" → issue navigator ekranındaki
+"Basic / JQL" değiştirme anahtarı. GRUP A'daki ilk JQL örneğine de bu detayın
+JQL sekmesinde olduğuna dair tek cümlelik bir yönlendirme eklendi. Build/i18n
+tekrar doğrulandı, yeşil.
+
+---
+
+## 📌 Önceki Durum (2026-08-11, Sonnet — `/jira` sayfası TAMAMLANDI, S1-S12 bitti)
+
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Neredeyiz
+
+- **Branch: `feature/jira-page`** (main'e merge EDİLMEDİ, push EDİLMEDİ).
+- Yeni ders sayfası `/jira` açıldı: **13 sekme, tek ağaçlı `src/data/jiraData.js`**.
+  Opus tarafı (wiring + iskelet + referans atomlar) BİTTİ, build yeşil.
+- Plan ve Sonnet promptları: **`Documents/jira-page-plan.md`** (§B Opus'un yaptığı,
+  §C faz tablosu, §D S1-S12 kopyala-yapıştır promptlar, §E mimari referans,
+  §F manuel test rehberi).
+- **Faz S1 (D-S1, GRUP A tamamlama A2-A5) BİTTİ:** A2 (rol karşılaştırması `grid`),
+  A3 (Cloud vs Data Center `table` + `callout`), A4 (izlenebilirlik zinciri
+  `python-flow-diagram`), A5 (Jira olmadan çöküş `step-animation`) eklendi —
+  her başlıkta quiz+retryQuestion. GRUP A artık tam referans sekme.
+- **Faz S2 (D-S2, GRUP B — Kurulum & İlk Proje) BİTTİ:** "Boş Bir Jira
+  Projesinden İlk Bug'a" filmi (6 sahne) + B1 hesap açma `step-animation`,
+  B2 team-managed/company-managed `table`+`callout`, B3 izin şeması anlatımı
+  (`private` erişim belirleyici analojisi), B4 issue key anatomisi
+  `code-playground` + kurulum sırası `challenge` (order-sort). Her başlıkta
+  quiz+retryQuestion.
+- **Faz S3 (D-S3, GRUP C — Issue Türleri ve Hiyerarşi) BİTTİ:** "Bir Epic'in
+  Altında Bug Nasıl Doğar" filmi (5 sahne) + C1 hiyerarşi kurulumu
+  `step-animation` (Java paket/sınıf/metot analojisi, kırıldığı yer dahil),
+  C2 issue tipi ↔ alan `table` + 5 iş kalemini eşleştir `code-playground`,
+  C3 alan/ekran/şema üçlüsü (`private`+getter analojisi), C4 link tipleri
+  `table` + hiyerarşi sıralama `challenge`. Her başlıkta quiz+retryQuestion.
+- **Faz S4 (D-S4, GRUP D — Bug Raporlama Sanatı tamamlama) BİTTİ:** GRUP D
+  D1-D5 kalıbına yeniden düzenlendi (önceki severity/priority içeriği artık
+  D3). "Kötü Bir Bug Raporunun 5 Günü" filmi (5 sahne) eklendi. D1 anatomi
+  (var olan step-animation+playground D1'e taşındı), D2 deterministik adım
+  disiplini (`table` + `.first()` locator analojisi), D3 severity/priority
+  (korunan içerik), D4 kanıt türleri `grid`, D5 üç raporu code review eden
+  `code-playground`. GRUP D artık sayfanın en zengin grubu.
+- **Faz S5 (D-S5, GRUP E — Workflow ve Durumlar) BİTTİ:** "Bir Bug'ın
+  Reopened'a Düşüşü" filmi (5 sahne, resolution zamanlaması kontrastı) + E1
+  status/transition/resolution üçlüsü (trafik ışığı analojisi), E2 tipik bug
+  workflow'u `python-flow-diagram`, E3 resolution alanının doğru zamanlaması
+  `step-animation`, E4 otomasyon kuralları + doğru geçişi seç
+  `code-playground` + workflow sıralama `challenge`.
+  ⚠ **Önemli ders bu fazda çıktı:** içerik yazarken yanlışlıkla iç
+  koordinasyon jargonuna benzeyen referanslar ("§B3'te", "GRUP A'dan beri")
+  kullanılmış, fark edilip sekme adlarıyla ("Kurulum & İlk Proje sekmesinde
+  gördüğün gibi") değiştirildi (CLAUDE.md §24). Yeni sekme yazarken önceki
+  sekmelere atıf yaparken DAİMA görünür sekme başlığını kullan, harf/rakam
+  kısaltması (A2, B3, §D1) kullanma — otomatik denetim yalnızca `§\d` kalıbını
+  yakalıyor, harf+rakam kalıbını (§B3, A2) YAKALAMIYOR; bu yüzden elle
+  taranmalı. Bu bulgu CLAUDE.md §23.13'e kalıcı olarak eklendi.
+- **Faz S6 (D-S6, GRUP F — JQL tamamlama) BİTTİ:** "Bir JQL Sorgusunun
+  Jira'yı Nasıl Süzdüğü" filmi (5 sahne) + F1 JQL anatomisi + JQL vs SQL
+  `table` (JOIN'in olmaması vurgulandı), F2 operatörler/zaman fonksiyonları
+  `table` + koşul değerlendirme sırası `step-animation` + unutulmuş bug
+  `code-playground`, F3 günlük sorgular (WAS operatörü playground'u taşındı,
+  retryQuestion eklendi), F4 kaydedilmiş filtre/abonelik `code-playground`.
+  Toplam 3 code-playground (plan gereksinimi karşılandı).
+- **Faz S7 (D-S7, GRUP G — Scrum ve Kanban Panoları) BİTTİ:** "Bir İş
+  Kaleminin Backlog'dan Panoya Yolculuğu" filmi (6 sahne, donmuş kart
+  kontrastı) + G1 backlog/sprint/pano zinciri quiz, G2 Scrum vs Kanban
+  `table`, G3 "QA sütunu" tartışması (iki taraf da sunuldu, dayatma yok) +
+  hızlı filtre `code-playground` + `/sprint` simülatörüne `link-grid`, G4
+  WIP limiti darboğazı `step-animation`, G5 sprint ritüelleri `table`.
+- **Faz S8 (D-S8, GRUP H — Test Yönetimi: Xray & Zephyr) BİTTİ:** "Bir Test
+  Senaryosunun 50 Koşumu" filmi (5 sahne, tanım/koşum ayrımı) + H1 bug
+  takibi≠test yönetimi, H2 beş issue tipi `table` + ilişki `step-animation`,
+  H3 izlenebilirlik matrisi `python-flow-diagram` (Jira Nedir? sekmesindeki
+  zincirin somutlaşmış hâli), H4 otomasyon sonucu akışı + Test Execution
+  JQL `code-playground`, H5 Xray vs Zephyr karar tablosu.
+- **Faz S9 (D-S9, GRUP I+J — CI/CD entegrasyonu ve REST API) BİTTİ:**
+  GRUP I: "Bir CI Koşumu Kırıldığında" filmi (5 sahne, arama-önce
+  stratejisi) + I1 smart commit `table`, I2 arama-önce `step-animation` +
+  duplicate arama `code-playground`, I3 gürültü tuzağı, I4 ortam/artefakt
+  iliştirme. GRUP J: "Bir REST API Çağrısının Jira'ya Bug Açması" filmi
+  (5 sahne, 401 kontrastı) + J1 kimlik doğrulama + issue oluşturma
+  (`curl`), J2 JQL ile arama (`curl`), J3 Java (REST Assured)
+  `code-playground` + Python karşılığı, J4 webhook kavramı, J5 hata kodları
+  `table` + teşhis `step-animation`. İki grup da ayrı film taşıyor (plan
+  gereksinimi).
+- **Faz S10 (D-S10, GRUP K — Dashboard ve QA Metrikleri) BİTTİ:** "Burndown
+  Grafiği Düz Bir Çizgi Çizdiğinde" filmi (5 sahne, iki olası neden
+  kontrastı) + K1 filtre→gadget→pano zinciri, K2 burndown/velocity ne
+  söyler-söylemez, K3 kontrol grafiği/kümülatif akış darboğaz teşhisi
+  `step-animation`, K4 dört QA metriği formül+JQL `table` + reopen rate
+  ham veri `code-playground`, K5 metrik istismarı (Goodhart yasası).
+- **Faz S11 (D-S11, GRUP L — error-dictionary min 8 hata) BİTTİ:** "Bir Hata
+  Mesajının Katman Katman Çözülmesi" filmi (5 sahne, izin→konfigürasyon→
+  sözdizimi sırası) + 7 yeni hata eklendi (toplam 9): yanlış resolution,
+  401 vs 403 karışıklığı, API 400 zorunlu alan, 3 kez açılan duplicate bug,
+  sprint kapanınca bitmemiş issue'lar, board'da kart görünmüyor, bildirim
+  fırtınası. "Board'da kart neden görünmüyor" `step-animation` + katman
+  eşleştirme `code-playground` eklendi (GRUP L'de daha önce video/animasyon/
+  sandbox YOKTU, bu fazda tamamlandı).
+- **Faz S12 (D-S12, GRUP M min 50 mülakat + kapanış) BİTTİ — SAYFA TAMAMLANDI:**
+  47 yeni mülakat sorusu eklendi (toplam 51: 15 basic / 21 intermediate / 15
+  advanced, `audit-interview-questions.mjs` geçti). GRUP M'ye önceden hiç
+  video/animasyon/sandbox yoktu — "Bir Mülakat Cevabının Anatomisi: Zayıftan
+  Güçlüye" filmi (5 sahne) + güçlü cevap kurma `step-animation` + zayıf→güçlü
+  cevap dönüştürme `code-playground` eklendi. GRUP A'nın sonuna 6 sorulu `faq`
+  bloğu eklendi (build sonucu FAQPage sayfa sayısı 24→26).
+  **Kapanış görevleri tamamlandı:**
+  - `scripts/audit-interview-questions.mjs` `PAGES`'e `/jira` eklendi, denetim geçti.
+  - `scripts/generate-interview-showcase.mjs` `PAGES`'e `/jira` eklendi (ana
+    sayfa mülakat ısınma turuna girdi).
+  - `scripts/check-i18n-leaks.mjs` `TRIO_COMPLETE_PAGES`'e `jiraData.js`
+    eklendi — 13 sekmenin HEPSİNDE ≥1 video + ≥1 animasyon + ≥1 sandbox
+    doğrulandı (13. sekmedeki eksiklik bu fazda kapatıldı).
+  - `npm run build` yeşil (47 route, 866 section shell, "26 with FAQPage").
+  - Playwright: `/jira` film render ✓, sekme/buton denetimi ✓, EN modda TR
+    karakter taraması ✓ — üçü de tekrar koşulup doğrulandı.
+  - `Documents/jira-page-plan.md` durumu ✅ TAMAMLANDI olarak güncellendi.
+  - ⚠ Bu fazda da (S1-S5'teki gibi) birkaç yerde yanlışlıkla iç grup
+    referansı (`GRUP F'de`, `I2'de`) yazılmış, elle taranıp sekme adına
+    çevrildi — CLAUDE.md §23.13'teki kalıcı uyarı bir kez daha doğrulandı.
+
+### Sıradaki iş (yeni oturum buradan başlasın)
+
+1. **`/jira` sayfası içerik olarak TAMAMLANDI.** Kalan tek karar: branch'i
+   main'e merge + push etmek — kullanıcı kararı.
+2. Merge öncesi istenirse `Documents/jira-page-plan.md` §F'deki manuel test
+   rehberi elle uygulanabilir (otomatik testlerin göremediği görsel/etkileşim
+   doğrulaması).
+3. Bir önceki oturumdan devam eden açık işler (aşağıdaki "Önceki Durum"
+   bölümlerinde): `fix/test-suite-flakiness` merge kararı, `npm run seo:lcp`
+   yeniden ölçümü, outreach taslakları, Plausible analytics — hiçbiri bu
+   oturumda ele alınmadı.
+
+### Bu oturumda yapılanlar
+
+1. **Wiring tam:** `App.jsx` (lazy + route + `SECTION_PAGE_ELEMENTS`), `seo.js`
+   (EN+TR metadata), `topicDataModules.mjs`, `generate-mastery-manifest.mjs`
+   `ROUTE_MAP`, `check-i18n-leaks.mjs` `STRICT_ZERO_FILES`, `JiraPage.jsx`
+   (TopicPage sarmalayıcı + canlı mini Kanban banner'ı, yeni CSS dosyası YOK),
+   `HomePage.jsx` (etiket + üst nav + footer), `progressStore` (foundations),
+   `mentorAdvice`, `LearningAnalytics`, `portfolioData`, CLAUDE.md route haritası.
+2. **Sekme slug'ları donduruldu:** `npm run seo:section-slugs` → 32 sayfa /
+   433 bölüm (13 yeni). Sonnet **sekme başlıklarını değiştiremez**; değiştirirse
+   yayınlanan adres başka içeriğe düşer.
+3. **İçerik iskeleti:** 13 sekmenin hepsinde 4 katmanlı açılış `simple-box`'ı +
+   yönlendirme metni. Tam referans atom GRUP A'da (film "Bir Bug'ın Jira'daki
+   Yolculuğu" 8 sahne + step-animation + grid + JQL playground + quiz/retry +
+   order-sort). GRUP D'de severity↔priority tablosu + rapor düzeltme
+   playground'u + step-animation; GRUP F'de JQL kod bloğu + WAS operatörü
+   playground'u; GRUP L'de 2 hata; GRUP M'de 3 mülakat sorusu.
+4. **Karar: bu sayfa `fillMissingCodeTrios` KULLANMIYOR.** Filler yalnızca kod
+   bloklarından sonra üretim yapar ve bilinmeyen sayfa anahtarında jenerik
+   profile düşer; Jira sekmelerinin çoğu kod değil süreç anlatımı. Animasyon ve
+   sandbox ELLE yazılıyor. `fillMissingFeynman` kullanılıyor (2 checkpoint).
+
+### Doğrulama
+
+- `npm run build` ✓ (47 route, 94 shell, 866 bölüm shell'i, dist SEO ✓).
+- `check-seo` 48 route ✓ · `check-test-coverage` 44/44 ✓ ·
+  `check-content-integrity` ✓ · `i18n:check` regresyon yok, borç 0 ✓.
+- Playwright: `/jira` film render ✓, `/jira` sekme+buton denetimi ✓,
+  `/jira` EN modda Türkçe karakter taraması ✓ (3/3).
+
+### Sıradaki iş
+
+1. **Sonnet fazları S1-S12** — promptlar hazır (`Documents/jira-page-plan.md` §D).
+   Sıra: GRUP A tamamlama → B → C → D (sayfanın kalbi) → … → M + kapanış.
+2. ⚠ **Kapanışta unutulmaması gerekenler (S12):** `/jira`'yı
+   `scripts/audit-interview-questions.mjs` PAGES listesine (50 soru barajı) ve
+   `scripts/generate-interview-showcase.mjs` PAGES listesine ekle; `jiraData.js`'i
+   `check-i18n-leaks.mjs` `TRIO_COMPLETE_PAGES`'e ekle (her sekmede video +
+   animasyon + sandbox kapısı açılır).
+3. Bir önceki oturumdan devam eden açık işler aşağıdaki bölümde duruyor
+   (`fix/test-suite-flakiness` merge kararı, `npm run seo:lcp` yeniden ölçümü).
+
+---
+
+## 📌 Önceki Durum (2026-08-05, Opus — kalan 4 flaky testin kökü kazındı)
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 

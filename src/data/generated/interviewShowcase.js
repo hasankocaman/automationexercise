@@ -150,6 +150,18 @@ export const INTERVIEW_SHOWCASE = [
       "tr": "Data-driven test, her satırın ayrı bir test iterasyonu olduğu harici CSV veya JSON dosyası kullanır. CSV oluştur: email,password,expectedStatus\\nayse@test.com,dogru_sifre,200\\nyanlish@test.com,kotu_sifre,401. Test scriptlerinde: pm.iterationData.get(\"expectedStatus\"). Collection Runner ile (GUI) CSV dosyasını yükle. Newman CLI ile: newman run collection.json --iteration-data data.csv. 100 ayrı istek olmadan 100 giriş senaryosunu test eder — sınır değer testi ve denklik bölümleme için zorunlu.",
       "en": "Use external CSV/JSON where each row is an iteration. pm.iterationData.get(\"field\") in scripts. Newman: --iteration-data data.csv. Test 100 scenarios without 100 separate requests."
     }
+  },
+  {
+    "route": "/jira",
+    "level": "basic",
+    "q": {
+      "tr": "Yeni katıldığın takımda bug'lar bazen Jira'ya, bazen Slack'e yazılıyor. Takım lideri sana \"sen ne önerirsin\" diyor. Ne cevap verirsin ve önerini neye dayandırırsın?",
+      "en": "On the team you just joined, bugs are sometimes written into Jira and sometimes into Slack. The team lead asks what you would recommend. What do you answer and what do you base it on?"
+    },
+    "a": {
+      "tr": "Tek kayıt yerinin Jira olması gerektiğini, Slack'in ise yalnızca haber verme kanalı olarak kalmasını öneririm. Gerekçem üç somut kayıptır: Slack'te yazılan bug aranamaz (üç ay sonra aynı hata döndüğünde hiçbir bağlam bulunmaz), ölçülemez (kaç bug hangi modülden çıktı sorusu cevapsız kalır) ve bağlanamaz (commit ile kayıt arasında iz kalmaz). Öneriyi dayatma olarak değil, bir ay sonra ölçülebilir bir sonuçla getiririm: Slack'te kalan bug'ların ne kadarının kaybolduğunu göstermek, kuralın kendisinden daha ikna edicidir. Geçiş için de düşük sürtünmeli bir yol öneririm — Slack'ten tek tıkla issue oluşturan bir entegrasyon, insanları alışkanlıklarını değiştirmeye zorlamadan kaydı yerine taşır.",
+      "en": "I would recommend Jira as the single place of record, with Slack kept only as a notification channel. My reasoning rests on three concrete losses: a bug written in Slack is not searchable (when the same failure returns three months later there is no context), not measurable (the question of how many bugs came from which module stays unanswered), and not linkable (no trace remains between a commit and a record). I would present this not as a mandate but with a measurable outcome a month later: showing how many Slack-only bugs were lost is more persuasive than the rule itself. For the transition I would propose a low-friction path -- an integration that creates an issue from Slack in one click moves the record to the right place without forcing people to change habits."
+    }
   }
 ]
 

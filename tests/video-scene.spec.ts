@@ -144,6 +144,24 @@ test.describe('Video-Scene — Dalga 2 (git-github / linux / docker-compose / ga
         await context.close();
     });
 
+    test('/jira — Jira Nedir? sekmesinde film render olur', async ({ browser }) => {
+        test.setTimeout(60_000);
+        const context = await browser.newContext({ serviceWorkers: 'block' });
+        const page = await context.newPage();
+
+        await page.goto('/jira');
+        await waitForAppReady(page, { timeout: 30_000 });
+        // İlk sekme zaten açık gelir; yine de açıkça seçerek testi sıraya bağımlı olmaktan çıkar.
+        await page.getByRole('button', { name: /What is Jira\?|Jira Nedir\?/ }).first().click();
+
+        const block = page.getByTestId('video-scene-block');
+        await block.scrollIntoViewIfNeeded();
+        await expect(block).toBeVisible();
+        await expect(page.getByTestId('video-scene-caption')).not.toBeEmpty();
+
+        await context.close();
+    });
+
     test('/qa-frontend — Tarayıcı Nasıl Çalışır sekmesinde film render olur', async ({ browser }) => {
         test.setTimeout(60_000);
         const context = await browser.newContext({ serviceWorkers: 'block' });

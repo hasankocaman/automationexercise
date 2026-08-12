@@ -158,6 +158,15 @@ export const ROUTE_SEO = [
         },
     },
     {
+        path: '/jira',
+        title: 'Jira Tutorial for QA Engineers: Bug Tracking and JQL | LearnQA.dev',
+        description: 'Learn Jira as a QA engineer: bug report anatomy, issue types, workflows, JQL queries, Scrum and Kanban boards, test management and REST API automation.',
+        tr: {
+            title: 'Jira Eğitimi: QA için Bug Takibi, Workflow ve JQL | LearnQA.dev',
+            description: 'QA mühendisleri için Jira: bug raporlama, issue türleri, workflow, JQL sorguları, Scrum ve Kanban panoları, test yönetimi ve REST API ile otomasyon.',
+        },
+    },
+    {
         path: '/rest-assured',
         title: 'REST Assured Tutorial for Java API Testing | LearnQA.dev',
         description: 'Learn REST Assured for Java API automation with request chaining, assertions, serialization, authentication and CI-ready test design.',

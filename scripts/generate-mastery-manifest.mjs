@@ -53,6 +53,7 @@ const ROUTE_MAP = {
   '/aws': 'awsData',
   '/azure': 'azureData',
   '/gauge': 'gaugeData',
+  '/jira': 'jiraData',
   '/what-is-testing': 'whatIsTestingData',
   '/claude-ai': 'claudeAiData',
   '/llm-agents': 'llmAgentsData',

@@ -163,6 +163,13 @@ export const MASTERY_MANIFEST = {
     "totalExerciseBlocks": 48,
     "hasInterview": true
   },
+  "/jira": {
+    "pageKey": "jira",
+    "tabCount": 13,
+    "totalQuizBlocks": 35,
+    "totalExerciseBlocks": 33,
+    "hasInterview": true
+  },
   "/what-is-testing": {
     "pageKey": "yazlmtestiveqatemelleri",
     "tabCount": 6,

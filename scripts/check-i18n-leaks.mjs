@@ -115,13 +115,15 @@ const ANIM = new Set(['step-animation', 'simulation', 'animated-timeline', 'css-
 const SANDBOX = new Set(['code-playground', 'git-practice', 'editor', 'java-practice'])
 
 // §9.5 trio bütünlüğü ZORUNLU sayfalar (tamamlanmış olduğu doğrulanmış)
-const TRIO_COMPLETE_PAGES = new Set(['apiTestingData.js', 'qaFrontendData.js'])
+const TRIO_COMPLETE_PAGES = new Set(['apiTestingData.js', 'qaFrontendData.js', 'jiraData.js'])
 // Bu dosyalar baseline'da 0 kabul edilir (yeni/temiz) — herhangi bir sızıntı FAIL
 // qaFrontendData.js: yeni sayfa, EN alanlarında Türkçe sızıntısı olmamalı.
 // TRIO_COMPLETE_PAGES'e sayfa Sonnet fazında tamamlanınca eklenir (plan §D-S11).
 const STRICT_ZERO_FILES = new Set([
   'apiTestingData.js', 'qaFrontendData.js',
   // Tamamen temizlenmiş sayfalar — sıfır-tolerans (§23.1). Yeni bir sızıntı build'i kırar.
+  // jiraData.js: yeni sayfa, baştan tam bilingual yazıldı — sıfır tolerans.
+  'jiraData.js',
   'gaugeData.js', 'javascriptData.js', 'restAssuredData.js', 'securityData.js',
   'kafkaData.js', 'basitBackendData.js', 'jmeterData.js', 'playwrightData.js',
   'cypressData.js', 'typescriptData.js', 'sqlData.js', 'pythonData.js',

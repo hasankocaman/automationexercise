@@ -56,6 +56,7 @@ const RESUME_LESSON_NAMES = {
     '/bruno': { tr: 'Bruno', en: 'Bruno' },
     '/rest-assured': { tr: 'REST Assured', en: 'REST Assured' },
     '/gauge': { tr: 'Gauge', en: 'Gauge' },
+    '/jira': { tr: 'Jira', en: 'Jira' },
     '/docker': { tr: 'Docker', en: 'Docker' },
     '/jenkins': { tr: 'Jenkins', en: 'Jenkins' },
     '/kubernetes': { tr: 'Kubernetes', en: 'Kubernetes' },
@@ -1119,6 +1120,7 @@ function HomePage() {
                                 <Link to="/qa-frontend" data-testid="nav-qa-frontend" className={nb('purple')}>🖥️ {language === 'tr' ? 'QA için Frontend' : 'Frontend for QA'}</Link>
                                 <Link to="/rest-assured" data-testid="nav-rest-assured" className={nb('emerald')}>🧪 REST Assured</Link>
                                 <Link to="/gauge" data-testid="nav-gauge" className={nb('orange')}>📏 Gauge</Link>
+                                <Link to="/jira" data-testid="nav-jira" className={nb('blue')}>📋 Jira</Link>
                                 <Link to="/appium" data-testid="nav-appium" className={nb('green')}>📱 Appium</Link>
                                 <Link to="/browserstack" data-testid="nav-browserstack" className={nb('orange')}>☁️ BrowserStack</Link>
                                 <span className="relative inline-block">
@@ -1288,6 +1290,7 @@ function HomePage() {
                                     { to: '/appium', label: '📱 Appium' },
                                     { to: '/rest-assured', label: '🧪 REST Assured' },
                                     { to: '/gauge', label: '📏 Gauge' },
+                                    { to: '/jira', label: '📋 Jira' },
                                     { to: '/postman', label: '📮 Postman' },
                                     { to: '/api-testing', label: '🔌 API Testing' },
                                     { to: '/bruno', label: '📦 Bruno' },

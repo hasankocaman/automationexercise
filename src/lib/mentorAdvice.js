@@ -17,7 +17,7 @@ const ROUTE_LABELS = {
     '/python': 'Python', '/typescript': 'TypeScript', '/javascript': 'JavaScript',
     '/sql': 'SQL', '/java': 'Java', '/jmeter': 'JMeter', '/postman': 'Postman',
     '/api-testing': 'API Testing', '/qa-frontend': 'Frontend for QA', '/bruno': 'Bruno',
-    '/rest-assured': 'REST Assured', '/gauge': 'Gauge', '/docker': 'Docker',
+    '/rest-assured': 'REST Assured', '/gauge': 'Gauge', '/jira': 'Jira', '/docker': 'Docker',
     '/jenkins': 'Jenkins', '/kubernetes': 'Kubernetes', '/kafka': 'Kafka',
     '/appium': 'Appium', '/browserstack': 'BrowserStack', '/aws': 'AWS', '/azure': 'Azure',
     '/test-frameworks': 'Test Frameworks', '/git-github': 'Git & GitHub', '/linux': 'Linux',

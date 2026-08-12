@@ -1,7 +1,7 @@
 // AUTO-GENERATED — elle düzenleme yalnızca bir slug'ı BİLEREK sabitlemek için.
 // Üretici: scripts/generate-section-slugs.mjs (npm run seo:section-slugs)
 // Kural: bir slug yayına çıktıktan sonra DEĞİŞMEZ (bkz. üretici dosyasındaki not).
-// 31 ders sayfası · 420 bölüm.
+// 32 ders sayfası · 433 bölüm.
 export const SECTION_SLUGS = {
     '/selenium': [
         { slug: 'what-is-selenium', title: "What is Selenium? How Does It Work?" },
@@ -484,5 +484,20 @@ export const SECTION_SLUGS = {
         { slug: 'why-does-automation-fail', title: "Why Does Automation Fail?" },
         { slug: 'career-test-automation-engineer', title: "Career: Test Automation Engineer" },
         { slug: 'frequently-asked-questions', title: "Frequently Asked Questions" },
+    ],
+    '/jira': [
+        { slug: 'what-is-jira', title: "What is Jira?" },
+        { slug: 'setup-and-first-project', title: "Setup & First Project" },
+        { slug: 'issue-types-and-hierarchy', title: "Issue Types & Hierarchy" },
+        { slug: 'the-art-of-bug-reporting', title: "The Art of Bug Reporting" },
+        { slug: 'workflows-and-statuses', title: "Workflows & Statuses" },
+        { slug: 'jql-jira-query-language', title: "JQL: Jira Query Language" },
+        { slug: 'scrum-and-kanban-boards', title: "Scrum & Kanban Boards" },
+        { slug: 'test-management-xray-and-zephyr', title: "Test Management: Xray & Zephyr" },
+        { slug: 'ci-cd-and-automation-integration', title: "CI/CD & Automation Integration" },
+        { slug: 'automating-with-the-jira-rest-api', title: "Automating with the Jira REST API" },
+        { slug: 'dashboards-and-qa-metrics', title: "Dashboards & QA Metrics" },
+        { slug: 'real-life-issues', title: "Real-Life Issues" },
+        { slug: 'interview-q', title: "Interview Q&A" },
     ],
 }

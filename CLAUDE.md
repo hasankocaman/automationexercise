@@ -106,6 +106,7 @@ Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 - `/postman` — Postman API testing
 - `/bruno` — Bruno (Git-native API client)
 - `/rest-assured` — REST Assured Java API testing
+- `/jira` — Jira: QA için iş takibi, bug raporlama, workflow, JQL, Scrum/Kanban, test yönetimi, REST API otomasyonu (tek ağaçlı `src/data/jiraData.js`; `fillMissingCodeTrios` KULLANMAZ, animasyon/sandbox elle yazılır)
 - `/docker` — Docker for QA
 - `/jenkins` — Jenkins CI/CD
 - `/kubernetes` — Kubernetes for QA
@@ -912,6 +913,26 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   bir duruma çevir ya da bekleme payını duvar saatinden TÜRET (örnek:
   `video-scene.spec.ts` → `SCENE_DURATION_MS * 4`), rastgele bir sayı yazma.
   Geniş pay doğruluğu gizlemez: sahne hiç ilerlemezse test yine düşer.
+
+### 23.13. Sekme-içi çapraz atıflarda harf+rakam kısaltması (statik denetimin kör noktası)
+
+- **Belirti:** İçerik metninde (quiz açıklaması, hint, playground successMessage
+  gibi) "§B3'te gördüğün gibi", "GRUP A'dan beri", "A2'deki" gibi ifadeler —
+  build YEŞİL kalıyor, `check-content-integrity.mjs` Kontrol [H] hiçbir şey
+  raporlamıyor.
+- **Kök Neden:** Kontrol [H]'nin regex'i yalnızca `§\s*\d` (§ + rakam) arıyor.
+  Çok sekmeli yeni bir sayfa yazarken önceki sekmeye atıf yapmak doğaldır, ama
+  yazım sırasında plan dosyasındaki iç grup harflendirmesi (`GRUP A`, `A2`,
+  `§B3`) yanlışlıkla kullanıcıya görünen metne sızabilir — bunlar § + HARF
+  (§B3) ya da sadece harf+rakam (A2, GRUP A) olduğu için mevcut regex'i
+  atlatır. Kullanıcı ne "GRUP A"nın ne "§B3"ün ne olduğunu bilir.
+- **Çözüm:** Sekmeler arası atıf yaparken DAİMA görünür sekme başlığını kullan
+  ("Kurulum & İlk Proje sekmesinde gördüğün gibi"), harf/rakam kısaltması
+  değil. 2026-08-11'de `/jira` sayfasında S1-S5 fazlarında keşfedildi ve elle
+  taranıp düzeltildi (`jiraData.js`).
+- **Önleme:** Bir fazı bitirmeden önce `grep -n "§\|GRUP [A-Z]'" src/data/<sayfa>Data.js`
+  ile içerik alanlarını (yorum satırları hariç) elle tara — otomatik kapı bunu
+  yakalamaz.
 
 ---
 

@@ -38,6 +38,7 @@ const PAGES = [
     // bu listede YOKTU, yani §10'un 50 soru kuralı onlar için hiç denetlenmiyordu.
     { route: '/gauge', file: 'gaugeData.js', exportName: 'gaugeData' },
     { route: '/api-testing', file: 'apiTestingData.js', exportName: 'apiTestingData' },
+    { route: '/jira', file: 'jiraData.js', exportName: 'jiraData' },
 ];
 
 const MIN_TOTAL = 50;
