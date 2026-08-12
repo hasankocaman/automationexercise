@@ -74,11 +74,39 @@ kaydedilir (`qaMentorProfile`). ÖNCEDEN harita oluşturmuş kullanıcıların k
 profilinde Jira YOKTUR; haritayı sıfırlayıp yeniden oluşturana kadar görmezler.
 Bu, yeni bir düğüm eklemenin doğal sonucudur — geriye dönük migrasyon YAZILMADI.
 
-📋 **Kullanıcıya raporlandı, yapılmadı:** görünür site haritasında `/jira`
-dışında **10 sayfa daha eksik**: `/javascript`, `/bruno`, `/api-testing`,
-`/qa-frontend`, `/gauge`, `/basit-backend`, `/claude-ai`, `/llm-agents`,
-`/test-automation`, `/sprint`. Kullanıcı yalnızca Jira'yı istediği için
-diğerlerine dokunulmadı — istenirse ayrı bir işte eklenebilir.
+📋 **Site haritasındaki 10 eksik sayfa da aynı oturumda tamamlandı** (aşağıdaki
+4. istek bölümüne bak).
+
+### Bu oturumda yapılan (4. istek) — görünür site haritası TAMAMLANDI
+
+Yukarıda raporlanan 10 eksik sayfa (+ kullanıcıya açıkça belirtilerek eklenen
+`/portfolio` ve `/leaderboard`) görünür site haritasına eklendi. Site haritası
+artık **41 link** taşıyor ve `ROUTE_SEO`'daki auth/admin dışı HER route'u
+kapsıyor — script'le doğrulandı: tekrar eden link yok, geçersiz route yok,
+kalan eksik yok.
+
+Yerleşim:
+- **Mevcut kategorilere eklenenler:** `/test-automation` → Test Temelleri
+  (cols 2→3); `/gauge` + `/qa-frontend` → UI/Web Test Otomasyonu;
+  `/api-testing` + `/bruno` → API Testi; `/javascript` → Programlama Dilleri.
+- **İki yeni kategori:** "🤖 Yapay Zekâ & QA" (`/claude-ai`, `/llm-agents`) ve
+  "🎮 Uygulamalı Lab & Simülasyon" (`/sprint`, `/basit-backend`).
+- **Kariyer & Rehberlik** grubu genişletildi (cols 2→3): `/qa-mentor` yanına
+  `/portfolio` ve `/leaderboard`.
+
+Açıklama metinleri UYDURULMADI — her biri o route'un `ROUTE_SEO` TR/EN
+description'ından türetildi, böylece site haritası kartı ile sayfanın kendi
+meta açıklaması çelişmiyor.
+
+**Doğrulama:** `check-content-integrity` ✓ · `i18n:check` ✓ · `npm run build` ✓.
+Gerçek tarayıcıda: 12 yeni linkin hepsi tam 1 kez render oluyor, üç yeni/
+değişen kategori başlığı görünür, `/claude-ai` ve `/sprint` linkleri tıklanıp
+doğru sayfaya gittiği teyit edildi, konsol hatası 0.
+
+⚠️ **Kapsam notu:** Kullanıcı "10 eksik" demişti; `/portfolio` ve `/leaderboard`
+o listede YOKTU (önceki denetimde ders sayfası olmadıkları için elenmişlerdi).
+İkisi de herkese açık ve site haritasının amacı "bu platformda neler var"
+olduğu için eklendi ve kullanıcıya açıkça bildirildi — istenmezse çıkarılabilir.
 
 ---
 
