@@ -1229,6 +1229,18 @@ const jqlFilterFilm = {
   ],
 }
 
+// ─── callout: JQL nerede yazılır (GRUP F1) ─────────────────────────────────────
+const jqlLocationCallout = {
+  type: 'callout',
+  color: 'blue',
+  emoji: '🧭',
+  title: { tr: 'Nerede Yazılır?', en: 'Where Do You Write This?' },
+  content: {
+    tr: "Gerçek bir Jira hesabında üst navigasyon çubuğundaki \"Filters\" menüsüne tıkla, açılan listeden \"Advanced issue search\"ü seç. Karşına gelen issue navigator ekranının sağ üstünde bir \"Basic / JQL\" değiştirme anahtarı vardır — \"JQL\"e tıkladığında bu sayfada gördüğün sözdizimini doğrudan yazabileceğin, otomatik tamamlama önerili bir arama kutusu açılır. Aynı ekran, bir sorguyu \"kaydedilmiş filtre\"ye dönüştürüp abonelik kurmanın (bkz. F4) da yeridir.",
+    en: 'On a real Jira account, click the "Filters" menu in the top navigation bar, then pick "Advanced issue search" from the list. The issue navigator screen that opens has a "Basic / JQL" toggle in its top-right corner -- clicking "JQL" opens a search box with autocomplete suggestions where you type the syntax you see on this page directly. This same screen is also where you turn a query into a "saved filter" and set up a subscription (see F4).',
+  },
+}
+
 // ─── table: JQL vs SQL (GRUP F1) ───────────────────────────────────────────────
 const jqlVsSqlTable = {
   type: 'table',
@@ -2598,8 +2610,8 @@ project = SHOP AND reporter = currentUser() AND status != Done`,
       {
         type: 'text',
         content: {
-          tr: "Üç parçaya dikkat et: `reporter = currentUser()` — kullanıcı adını elle yazmak yerine Jira'nın sunduğu bu fonksiyon sorguyu kişiselleştirir, aynı sorgu kimde çalışırsa çalışsın kendi sonucunu verir. `status != Done` — `!=` \"eşit değil\" demektir. `AND` — her koşulu bir öncekine ekler, kümeyi daraltır. Şimdi aynı kalıpla, ama \"açan kişi\" yerine \"atanan kişi\" ve ek olarak bir issue tipi koşulu kullanan benzer bir sorguyu kendin yaz.",
-          en: 'Notice three pieces: `reporter = currentUser()` -- instead of typing a username by hand, this function Jira provides personalizes the query, giving its own result no matter who runs it. `status != Done` -- `!=` means "not equal to". `AND` -- adds each condition to the previous one, narrowing the set. Now write a similar query yourself using the same pattern, but with "assignee" instead of "opened by" and an added issue-type condition.',
+          tr: "Üç parçaya dikkat et: `reporter = currentUser()` — kullanıcı adını elle yazmak yerine Jira'nın sunduğu bu fonksiyon sorguyu kişiselleştirir, aynı sorgu kimde çalışırsa çalışsın kendi sonucunu verir. `status != Done` — `!=` \"eşit değil\" demektir. `AND` — her koşulu bir öncekine ekler, kümeyi daraltır. Şimdi aynı kalıpla, ama \"açan kişi\" yerine \"atanan kişi\" ve ek olarak bir issue tipi koşulu kullanan benzer bir sorguyu kendin yaz. (Gerçek bir Jira hesabında bu sorguyu tam olarak nereye yazacağını JQL sekmesinde göreceksin.)",
+          en: 'Notice three pieces: `reporter = currentUser()` -- instead of typing a username by hand, this function Jira provides personalizes the query, giving its own result no matter who runs it. `status != Done` -- `!=` means "not equal to". `AND` -- adds each condition to the previous one, narrowing the set. Now write a similar query yourself using the same pattern, but with "assignee" instead of "opened by" and an added issue-type condition. (You will see exactly where to write this query on a real Jira account on the JQL tab.)',
         },
       },
       firstJqlPlayground,
@@ -3635,6 +3647,7 @@ project = SHOP AND reporter = currentUser() AND status != Done`,
         type: 'heading',
         text: { tr: '1️⃣ F1. JQL Anatomisi', en: '1️⃣ F1. The Anatomy of JQL' },
       },
+      jqlLocationCallout,
       {
         type: 'text',
         content: {

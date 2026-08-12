@@ -47,7 +47,14 @@ hiç öğretilmemiş bir üçüncü kavramdı, çıkarılması alıştırmayı g
 
 Doğrulama: `check-content-integrity`, `i18n:check` (trio dahil), `npm run
 build`, ve `/jira` için topic-pages-ui + i18n-content-toggle + video-scene
-testleri (3/3) tekrar koşulup geçti. Commit atılacak.
+testleri (3/3) tekrar koşulup geçti.
+
+**Aynı oturumda ek istek:** Kullanıcı gerçek bir Jira hesabında JQL'in NEREDE
+yazıldığını sordu (hangi menü). JQL sekmesinde (F1) `callout` bloğu eklendi:
+üst nav → "Filters" → "Advanced issue search" → issue navigator ekranındaki
+"Basic / JQL" değiştirme anahtarı. GRUP A'daki ilk JQL örneğine de bu detayın
+JQL sekmesinde olduğuna dair tek cümlelik bir yönlendirme eklendi. Build/i18n
+tekrar doğrulandı, yeşil.
 
 ---
 
