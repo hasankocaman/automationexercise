@@ -20,7 +20,69 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-12, Sonnet — `/jira`'ya dolan ev butonu + kavram ipucu maskotu eklendi) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-12, Opus — `/jira` site haritasına ve 5 QA Mentor yol haritasına eklendi) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Bu oturumda yapılan (3. istek)
+
+**Branch: `feature/jira-in-roadmaps`** — main'e merge EDİLMEDİ, push EDİLMEDİ.
+
+Kullanıcı `/jira`'nın (1) görünür site haritasında ve (2) QA Mentor'un ürettiği
+HER yol haritasında doğru yerde görünmesini istedi; konumlandırma ölçütünü de
+verdi: "yazılım geçmişi olmayan biri Selenium'dan veya diğer test araçlarından
+sonra Jira öğrenebilir".
+
+1. **Görünür site haritası** (`/what-is-testing` → 🗺️ Site Haritası sekmesi,
+   `whatIsTestingData.js`): yeni bir kategori eklendi — **"📋 Süreç, İş Takibi
+   & Hata Yönetimi"**, "🎨 UI / Web Test Otomasyonu"dan HEMEN SONRA (yol
+   haritasındaki sırayla tutarlı olsun diye), "🔌 API Testi"nden önce.
+   NOT: bu, `public/sitemap.xml` DEĞİL — o zaten build'de otomatik üretiliyor
+   ve `/jira`'yı ilk günden beri içeriyordu.
+
+2. **QA Mentor (`qaMentorData.js`)**: paylaşılan bir `JIRA_NODE(id)` fabrikası
+   eklendi (SQL_NODE/GIT_GITHUB_NODE kalıbıyla aynı, 6 saat tahmin) ve BEŞ
+   şablonun hepsine **UI otomasyon aracından hemen sonra** yerleştirildi:
+   MAP_A #7 (Selenium sonrası), MAP_B #5, MAP_B_SEL #6, MAP_C1 #4, MAP_C2 #4.
+   Parametrik katman (`resolveMap`) 6 farklı cevap kombinasyonuyla doğrulandı —
+   Java+"ikisi de"de Playwright overlay'i araya girince Jira ondan sonraya
+   kayıyor, Python+yalnız-Selenium'da Playwright düşünce Selenium'dan hemen
+   sonra kalıyor. İkisi de doğru.
+   Ayrıca sihirbaz öncesi genel özete (`ZERO_TO_QA_STAGES`) 7. aşama olarak
+   "İş takibi ve bug yönetimi" eklendi.
+
+3. **Mentor notları**: 5 şablonun notu + `SINGLE_LANG_NOTES`'taki 6 varyant
+   (python/typescript × map_b/map_b_sel_both/map_b_sel_selenium) Jira'nın NEDEN
+   o sırada olduğunu anlatacak şekilde güncellendi — harita bir düğüm
+   gösterirken notun ondan hiç bahsetmemesi tutarsızlık olurdu.
+
+4. **Yan düzeltme:** `QAMentorPage.jsx`'te "Sıfırdan QA mühendisi olmak: **6**
+   aşama" başlığındaki sayı GÖMÜLÜYDÜ; listeye 7. aşama eklenince sessizce
+   yanlış olacaktı. Artık `ZERO_TO_QA_STAGES.length`'ten türetiliyor.
+
+5. **Test:** `qa-mentor-roadmap-order.spec.ts` MAP_A sırasını kilitliyor;
+   beklenen listeye `map-node-jira` (selenium sonrası) eklendi.
+
+**Doğrulama:** `check-content-integrity` ✓ · `i18n:check` (trio dahil) ✓ ·
+`npm run build` ✓ · QA Mentor test paketi **17/17** geçti
+(`qa-mentor-roadmap-order` + `career-map` + `career-map-milestones`).
+Gerçek tarayıcıda da doğrulandı: site haritasında Jira kartı görünüyor, MAP_A'da
+düğüm "#7 Jira" olarak Selenium (#6) ile Postman (#8) arasında render oluyor.
+
+⚠️ **Bilinen kısıt:** Yol haritası kullanıcının localStorage'ındaki profile
+kaydedilir (`qaMentorProfile`). ÖNCEDEN harita oluşturmuş kullanıcıların kayıtlı
+profilinde Jira YOKTUR; haritayı sıfırlayıp yeniden oluşturana kadar görmezler.
+Bu, yeni bir düğüm eklemenin doğal sonucudur — geriye dönük migrasyon YAZILMADI.
+
+📋 **Kullanıcıya raporlandı, yapılmadı:** görünür site haritasında `/jira`
+dışında **10 sayfa daha eksik**: `/javascript`, `/bruno`, `/api-testing`,
+`/qa-frontend`, `/gauge`, `/basit-backend`, `/claude-ai`, `/llm-agents`,
+`/test-automation`, `/sprint`. Kullanıcı yalnızca Jira'yı istediği için
+diğerlerine dokunulmadı — istenirse ayrı bir işte eklenebilir.
+
+---
+
+## 📌 Önceki Durum (2026-08-12, Sonnet — `/jira`'ya dolan ev butonu + kavram ipucu maskotu eklendi)
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 

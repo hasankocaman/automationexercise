@@ -1388,6 +1388,17 @@ class TestDiscountCalculation:
       },
       {
         type: 'heading',
+        text: { tr: '📋 Süreç, İş Takibi & Hata Yönetimi', en: '📋 Process, Work Tracking & Defect Management' }
+      },
+      {
+        type: 'link-grid',
+        cols: 2,
+        items: [
+          { icon: '📋', route: '/jira', label: { tr: 'Jira', en: 'Jira' }, desc: { tr: 'Bug raporlama, issue türleri, workflow, JQL sorguları, Scrum/Kanban panoları, test yönetimi ve REST API ile otomasyon.', en: 'Bug reporting, issue types, workflows, JQL queries, Scrum/Kanban boards, test management, and REST API automation.' } }
+        ]
+      },
+      {
+        type: 'heading',
         text: { tr: '🔌 API Testi', en: '🔌 API Testing' }
       },
       {

@@ -35,6 +35,10 @@ test.describe('WP1 — QA Mentor roadmap sırası (MAP_A)', () => {
             'map-node-java',
             'map-node-git-github',
             'map-node-selenium',
+            // Jira, UI otomasyon aracından HEMEN SONRA gelir: bir süreç aracını
+            // öğrenmek için önce kaydedilecek gerçek iş (manuel testte bulunan
+            // bug'lar + otomasyonda kırmızıya dönen testler) gerekir.
+            'map-node-jira',
             'map-node-postman',
             'map-node-sql',
             'map-node-rest-assured',
