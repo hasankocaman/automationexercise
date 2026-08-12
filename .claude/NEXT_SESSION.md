@@ -20,7 +20,46 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-12, Sonnet — `/jira` GRUP A'da öğretilmeden sorulan JQL alıştırması düzeltildi) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-12, Sonnet — `/jira`'ya dolan ev butonu + kavram ipucu maskotu eklendi) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### Bu oturumda yapılan (2. istek)
+
+Kullanıcı iki eksiklik bildirdi: (1) sağ alttaki ev/scroll-to-top butonu diğer
+25 teknoloji sayfasındaki gibi kaydırma yüzdesiyle "dolmuyor" (düz mor daire
+kalıyordu), (2) sayfaya ilk girişte "altı çizgili kelimenin üstüne gelince
+açıklanacağını" söyleyen maskot (`TooltipGuideMascot`) görünmüyordu.
+
+**Kök neden:** `JiraPage.jsx` iki şeyi de içermiyordu.
+- Dolan buton kalıbı (`ra-wave-progress`/`gg-dial-progress` tarzı) 25 sayfada
+  var ama her sayfa kendi CSS dosyasıyla (parçacık efektleri, glitch, mıknatıs
+  buton gibi koca bir "efekt paketi" ile) geliyor — Jira'ya SADECE istenen
+  buton eklendi, o efekt paketinin geri kalanı (parçacıklar, glitch, mıknatıs,
+  ambient ses) BİLEREÇ eklenmedi (CLAUDE.md "istenenin ötesine geçme" kuralı).
+  Yeni `JiraScrollHomeButton` bileşeni tamamen React state + satır içi stille
+  yazıldı, yeni CSS dosyası YOK.
+- `TooltipGuideMascot`, tasarım gereği yalnızca 3 giriş sayfasına
+  (`/what-is-testing`, `/manual-testing`, `/algorithms`) o sayfaların KENDİ
+  wrapper'ına eklenmişti (TopicPage.jsx'e dokunulmadan — CLAUDE.md'deki
+  "TopicPage onlarca sayfada paylaşılır" kısıtı). `/jira` bu 3 sayfa
+  listesinde yoktu. `highlightGlossaryTerms` (altı çizgili terim tooltip'i)
+  zaten TopicPage.jsx'te GLOBAL çalışıyordu — yalnızca onu TANITAN maskot
+  eksikti.
+
+**Düzeltme:** `JiraPage.jsx`'e `<TooltipGuideMascot />` (varsayılan props) ve
+yeni `JiraScrollHomeButton` (58px, mavi/indigo su dolumu, kaydırma yüzdesi,
+`data-testid="jira-dial-progress"`) eklendi.
+
+**Doğrulama:** `npm run build` yeşil. Dev sunucusu açılıp gerçek tarayıcıda
+(Playwright ile) test edildi: dial %55 doğru doluyor, maskot rozeti tıklanınca
+balon açılıp doğru mesajı gösteriyor (ekran görüntüleriyle doğrulandı). `/jira`
+için topic-pages-ui + i18n-content-toggle + video-scene testleri (3/3) tekrar
+koşulup geçti.
+
+---
+
+## 📌 Önceki Durum (2026-08-12, Sonnet — `/jira` GRUP A'da öğretilmeden sorulan JQL alıştırması düzeltildi)
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 

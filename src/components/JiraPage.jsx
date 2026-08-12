@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import TopicPage from './TopicPage'
+import TooltipGuideMascot from './TooltipGuideMascot'
 import { jiraData } from '../data/jiraData'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -92,14 +93,69 @@ function JiraBoardBanner() {
     )
 }
 
+/* ─── Dolan ev butonu: sağ altta, sayfa kaydırıldıkça mavi/indigo bir
+   "su" doluyor ve yüzde gösteriyor — diğer teknoloji sayfalarındaki
+   dial/wave-progress kalıbıyla aynı fikir (kendi CSS dosyası olmadan,
+   yalnızca React state + satır içi stil). */
+function JiraScrollHomeButton() {
+    const { language } = useLanguage()
+    const [percent, setPercent] = useState(0)
+
+    useEffect(() => {
+        function onScroll() {
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement
+            const total = scrollHeight - clientHeight
+            const pct = total > 0 ? (scrollTop / total) * 100 : 0
+            setPercent(Math.min(100, Math.max(0, pct)))
+        }
+        window.addEventListener('scroll', onScroll, { passive: true })
+        onScroll()
+        return () => window.removeEventListener('scroll', onScroll)
+    }, [])
+
+    return (
+        <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            title={language === 'tr' ? 'Yukarı Git' : 'Scroll to Top'}
+            data-testid="jira-dial-progress"
+            style={{
+                position: 'fixed', bottom: '1.5rem', right: '1.5rem', width: '58px', height: '58px',
+                borderRadius: '50%', border: '2px solid rgba(99,102,241,0.55)',
+                background: '#1e1b4b', boxShadow: '0 4px 18px rgba(0,0,0,0.35)',
+                zIndex: 1000, overflow: 'hidden', cursor: 'pointer', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
+        >
+            <span
+                aria-hidden="true"
+                style={{
+                    position: 'absolute', bottom: 0, left: 0, width: '100%', height: `${percent}%`,
+                    background: 'linear-gradient(180deg, rgba(99,102,241,0.75), rgba(30,27,75,0.95))',
+                    transition: 'height 0.15s ease-out',
+                }}
+            />
+            <span style={{ position: 'relative', zIndex: 1, fontSize: '0.7rem', fontWeight: 900, color: '#e0e7ff', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>
+                {Math.round(percent)}%
+            </span>
+        </button>
+    )
+}
+
 function JiraPage() {
     return (
-        <TopicPage
-            data={jiraData}
-            gradient="from-blue-600 to-indigo-600"
-            bgLight="bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-50"
-            extraBanner={<JiraBoardBanner />}
-        />
+        <>
+            <TopicPage
+                data={jiraData}
+                gradient="from-blue-600 to-indigo-600"
+                bgLight="bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-50"
+                extraBanner={<JiraBoardBanner />}
+            />
+            <JiraScrollHomeButton />
+            <TooltipGuideMascot />
+        </>
     )
 }
 
