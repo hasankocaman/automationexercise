@@ -232,6 +232,20 @@ const sqlFaqBlock = {
         en: 'An `UPDATE` or `DELETE` written without a `WHERE` clause — this affects EVERY row in the table. In production this mistake can cause unrecoverable data loss, which is why it is always recommended to test the condition with `SELECT` first.',
       },
     },
+    {
+      q: { tr: 'SQL çalıştırmak için ne kurmam gerekir?', en: 'What do I need to install to run SQL?' },
+      a: {
+        tr: 'Bu sayfadaki egzersizler için hiçbir şey kurmana gerek yok — sorgular doğrudan tarayıcıda çalışan bir SQL sandbox\'ında koşuyor. Gerçek bir veritabanına bağlanmak istediğinde DBeaver gibi ücretsiz bir istemciyle PostgreSQL veya MySQL\'e birkaç dakikada bağlanabilirsin.',
+        en: 'You don\'t need to install anything for the exercises on this page — the queries run directly in a browser-based SQL sandbox. When you want to connect to a real database, a free client like DBeaver gets you connected to PostgreSQL or MySQL in a few minutes.',
+      },
+    },
+    {
+      q: { tr: 'SQL mülakatında en çok hangi soru sorulur?', en: 'What is most commonly asked in a SQL interview?' },
+      a: {
+        tr: '`INNER JOIN` ile `LEFT JOIN` arasındaki fark ve her birinin ne zaman kullanılacağı — özellikle "eksik" satırları bulmak için `LEFT JOIN` kullanma senaryosu. `GROUP BY` ile `HAVING`in farkı ve bir alt sorgu (subquery) ile `JOIN`in ne zaman birbirinin yerine geçebileceği de sık sorulan konulardır.',
+        en: 'The difference between `INNER JOIN` and `LEFT JOIN` and when to use each — especially the scenario of using `LEFT JOIN` to find "missing" rows. The difference between `GROUP BY` and `HAVING`, and when a subquery can substitute for a `JOIN`, are also frequently asked.',
+      },
+    },
   ],
 }
 

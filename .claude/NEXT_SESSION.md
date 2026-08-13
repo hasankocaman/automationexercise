@@ -128,18 +128,43 @@ yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
   bloğuna yeni bir soru ("QA mühendisi nasıl olunur?"). `qaMentorData.js`'e
   DOKUNULMADI — dokunmak ölü kod (asla render edilmeyen veri) üretirdi.
   `node --check` + `check-content-integrity.mjs` + `npm run build` yeşil.
-- [ ] S5 — 8 sayfanın FAQ bloğunu genişlet
+- [x] **S5 — FAQ genişletme, kapsam uyarlamasıyla.** Hedef 8 sayfadan 7'si
+  (`/selenium`, `/playwright`, `/python`, `/sql`, `/java`, `/jira`,
+  `/docker`) zaten `≥5` soruya sahipti (çoğu 6); her birine "X mülakatında
+  en çok hangi soru sorulur?" tarzı bir soru eklendi (eksik olan tek ortak
+  desen buydu), `/sql`'e ayrıca kurulum sorusu ("SQL çalıştırmak için ne
+  kurmam gerekir?") eklendi. Yedisi de artık **7 soru**, hepsi iki dilli.
+  **`/manual-testing` BİLİNÇLİ OLARAK ATLANDI:** bu sayfa TopicPage
+  `blocks`/`sections` şeması kullanmıyor — kendi bileşeni (`ManualTestingPage.jsx`,
+  `lessons` dizisi), `case 'faq':` render eden bir yüzeyi yok. FAQ'ı yalnızca
+  statik SEO kabuğuna eklemek (canlı sayfada görünmeyecek şekilde) projenin
+  kendi kuralını ihlal ederdi — CLAUDE.md §23.11 "kabuk ile tarayıcı
+  ayrışmamalı (cloaking önlemi)": kullanıcı JS yüklendikten sonra göremeyeceği
+  içeriği arama motoruna göstermek. S3'teki qa-mentor uyarlamasıyla AYNI kök
+  neden. `node --check` (7 dosya) + `check-content-integrity.mjs` +
+  `npm run build` yeşil; FAQPage sayfa sayısı 26'da sabit kaldı (yeni sayfa
+  değil, mevcut FAQ bloklarına soru eklendi).
+
+**Sonnet tarafında planlanan 5 iş (S1-S5) TAMAMLANDI.** İki tanesi (S3, S5)
+planın öngörmediği bir mimari gerçekle karşılaştı ve kapsamı buna göre
+uyarlandı — ayrıntı yukarıdaki maddelerde.
 
 ### Sıradaki iş
 
-1. **S5'ten devam** — promptlar rapordaki 15. bölümde kopyala-yapıştır hazır.
-2. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
+1. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
    doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
-   linki, Plausible hesabı, Bing Webmaster Tools.
-3. Yayından sonra `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt`
+   linki, Plausible hesabı, Bing Webmaster Tools, outreach taslaklarının
+   (`Documents/outreach/`) Medium/dev.to'da yayınlanması.
+2. Yayından sonra `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt`
    adresinin 200 döndüğü kontrol edilmeli — dönmezse IndexNow bildirimleri
    sessizce reddedilir.
-4. Branch'in main'e merge + push kararı (Sonnet işleri bitince).
+3. **Branch'in main'e merge + push kararı** — kullanıcı onayı gerekiyor.
+   Branch: `feature/seo-visibility-fixes`, 8 commit (3 Opus altyapı + 1 Opus
+   kümeleme + 4 Sonnet içerik), hepsi build+test yeşil.
+4. İsteğe bağlı, planda ertelenmiş: `/manual-testing` FAQ'ı gerçekten
+   istenirse `ManualTestingPage.jsx`'e yeni bir render bloğu + `generate-static-routes.mjs`'e
+   küçük bir kabuk/canlı-sayfa senkron değişikliği gerekir — bu, S5'in
+   "yalnızca *Data.js" kapsamının dışında, ayrı bir görev olarak planlanmalı.
 
 ### Bu oturumdan kalıcı ders
 

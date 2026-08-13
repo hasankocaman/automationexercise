@@ -2986,6 +2986,13 @@ project = SHOP AND reporter = currentUser() AND status != Done`,
               en: 'Start with Jira Cloud -- the vast majority of accounts opened today are Cloud, and you can try it immediately with a free account. The core concepts (issue, workflow, JQL) are identical in both; only a few points differ when you move to Data Center, like the REST API address and the project type options.',
             },
           },
+          {
+            q: { tr: 'QA mülakatında Jira ile ilgili en çok hangi soru sorulur?', en: 'What is most commonly asked about Jira in a QA interview?' },
+            a: {
+              tr: "Bir bug raporunu neyin \"iyi\" yaptığı (kesin adımlar, beklenen/gerçek sonuç, ortam bilgisi) ve bir issue'nun workflow'da hangi durumdan hangi duruma nasıl geçtiği. Ardından JQL ile \"bana atanmış açık buglar\" gibi bir sorgu yazman ve reopen oranı gibi bir kalite metriğini nasıl yorumladığın sık sorulan takip sorularıdır.",
+              en: 'What makes a bug report "good" (exact steps, expected vs. actual result, environment details), and how an issue moves from one workflow status to another. Follow-up questions usually cover writing a JQL query like "open bugs assigned to me" and how you would interpret a quality metric like the reopen rate.',
+            },
+          },
         ],
       },
     ],

@@ -769,6 +769,13 @@ const seleniumFaqBlock = {
         en: '`StaleElementReferenceException` — once the page re-renders in any way, the element reference you were holding no longer points to a valid DOM node. The fix is to re-locate the element or use the correct wait strategy.',
       },
     },
+    {
+      q: { tr: 'Selenium mülakatında en çok hangi soru sorulur?', en: 'What is most commonly asked in a Selenium interview?' },
+      a: {
+        tr: 'Explicit wait ile implicit wait arasındaki fark ve neden ikisinin aynı anda kullanılmaması gerektiği. Ardından Page Object Model\'in ne sorunu çözdüğü ve `StaleElementReferenceException` gibi flaky test senaryolarını nasıl çözdüğün sık sorulan takip sorularıdır.',
+        en: 'The difference between explicit and implicit wait, and why the two should not be mixed. Follow-up questions usually cover what problem the Page Object Model solves and how you would debug a flaky test scenario like `StaleElementReferenceException`.',
+      },
+    },
   ],
 }
 

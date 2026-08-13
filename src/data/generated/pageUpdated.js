@@ -44,7 +44,7 @@ export const PAGE_UPDATED = {
   "/sql": "2026-08-02T21:23:58+03:00",
   "/test-automation": "2026-08-02T21:48:34+03:00",
   "/typescript": "2026-07-28T09:55:56+03:00",
-  "/what-is-testing": "2026-08-12T13:00:15+03:00"
+  "/what-is-testing": "2026-08-13T18:20:44+03:00"
 }
 
 export function pageUpdatedFor(routePath) {

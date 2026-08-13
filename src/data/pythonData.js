@@ -2216,6 +2216,13 @@ const pythonFaqBlock = {
         en: '`AttributeError: \'NoneType\' object has no attribute ...` — happens when a function returns `None` but the following code expects a real object. It is usually caused by an element lookup returning `None` and the code trying to act on it directly.',
       },
     },
+    {
+      q: { tr: 'Python otomasyon mülakatında en çok hangi soru sorulur?', en: 'What is most commonly asked in a Python automation interview?' },
+      a: {
+        tr: 'pytest fixture kapsamlarının (`function`, `class`, `module`, `session`) farkı ve hangisini ne zaman seçeceğin. Ardından `*args`/`**kwargs` kullanımı, liste comprehension\'ların ne zaman okunabilirliği bozduğu ve mutable/immutable veri tiplerinin fonksiyon argümanlarında yol açtığı sürpriz davranışlar sık sorulan takip sorularıdır.',
+        en: 'The difference between pytest fixture scopes (`function`, `class`, `module`, `session`) and when to choose each. Follow-up questions usually cover `*args`/`**kwargs` usage, when a list comprehension hurts readability, and the surprising behavior mutable vs. immutable types cause as function arguments.',
+      },
+    },
   ],
 }
 
