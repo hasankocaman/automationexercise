@@ -20,9 +20,208 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-12, Opus — `/jira` yol haritalarına + site haritası tamamlandı, MAIN'E MERGE EDİLDİ) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-13, Opus — arama görünürlüğü teşhisi + Opus tarafı kod işleri) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### 📍 Şu anki durum
+
+**Branch: `feature/seo-visibility-fixes`** — main'e MERGE EDİLMEDİ, push
+edilmedi. Bir önceki oturumun işleri (`/jira`) main'de.
+
+Çıkış noktası: `Documents/seo-visibility-report-2026-08-13.md`. Rapor sitenin
+794 URL'inden yalnızca 1'inin indekslendiğini, marka aramasında bile
+görünmediğini ölçmüştü. Aynı dosyaya kök neden analizi + 4 fazlı plan +
+Opus/Sonnet görev dağılımı + Sonnet promptları eklendi (bölüm 8-16).
+
+**Teşhis (kanıtla doğrulandı, tekrar araştırmaya gerek yok):** teknik SEO
+altyapısı ÇALIŞIYOR — canlı `/selenium` 2000+ kelime gerçek içerik dönüyor,
+`/en/selenium` İngilizce, sitemap geçerli, robots engellemiyor, şema yerinde.
+Sorun üç yerde: (1) alan adı 8 haftalık ve dışarıdan tek referansı yok —
+GitHub reposu API'de `description: null, homepage: null, topics: []` dönüyor,
+yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
+(3) Search Console/analytics kurulmamış, ölçüm yok.
+
+### Bu oturumda yapılan (Opus tarafı, hepsi build+test yeşil)
+
+1. **Sitemap indeks yapısına bölündü** — `sitemap.xml` artık `sitemapindex`;
+   `sitemap-{tr,en}-{hubs,sections}.xml` dört çocuk. Toplam 794 URL değişmedi.
+   Amaç: Search Console'un indekslenme oranını grup bazında raporlaması.
+   ⚠️ `tests/seo-phase2-coverage.spec.ts`'e `readAllSitemapUrlBlocks()` eklendi —
+   sitemap denetleyen YENİ bir test yazarken `sitemap.xml`'i TEK BAŞINA okuma,
+   orada sayfa URL'i yok, kontrol hep yeşil kalır.
+2. **IndexNow** — `scripts/ping-indexnow.mjs`, `public/bd612d5cca6f783b2753e50f59d60581.txt`,
+   `deploy.yml`'de deploy SONRASI adım. Son 7 günde değişenleri bildirir,
+   deploy'u kırmaz. `npm run seo:indexnow -- --dry-run`.
+3. **`Organization` şeması** — `alternateName`, iki dilli `description`,
+   `foundingDate`. `organizationNode(locale)` artık dile göre tanım basıyor.
+4. **Ana sayfa `lastmod`** — `scripts/lib/lastmod.mjs` → `EXTRA_SOURCES`.
+   `/` daha önce tarihsizdi.
+5. **Ölçüm kancası** — `src/utils/analytics.js`, `VITE_PLAUSIBLE_DOMAIN`
+   tanımlı değilse HİÇBİR istek gitmez. `.env.example` güncellendi.
+6. **İç bağlantı grafiği kümelendi** — hub shell'lerinin alt link bloğu artık
+   düz "herkes herkese" listesi değil: kendi konu ailesi + her diğer
+   kategoriden bir çapa sayfası (`/selenium` TR: 41 düz link → 4 aile + 14
+   çapa). Kümeler UYDURULMADI, `scripts/lib/topicClusters.mjs` sitenin
+   **görünür site haritasından** (`whatIsTestingData.js` → Site Haritası
+   sekmesi, 14 kategori / 41 sayfa) türetiyor — ikinci bir kategori listesi
+   elle tutulsaydı yeni sayfa eklendiğinde sessizce ayrışırdı.
+   ⚠️ **Yeni sayfa eklerken route'u görünür site haritasına da ekle** — yoksa
+   sayfa yalnızca ana sayfadan link alır, konu ailesine bağlanmaz.
+   Ana sayfa tam dizini BİLİNÇLİ olarak korundu (bağlantı grafiğinin güvenlik
+   ağı). `check-dist-seo.mjs`'e öksüz sayfa kontrolü eklendi.
+7. `codexSeo.md` §6/§6.1/§10.1 yeni sitemap, IndexNow ve kümeleme mimarisiyle
+   güncellendi; "dil bazlı SEO eksikliği" maddesi (çözülmüştü, hâlâ açık
+   görünüyordu) düzeltildi.
+
+**Opus tarafında açık iş KALMADI.**
+
+### Sonnet işleri — ilerleme (S1-S5, sıra: S1 → S4 → S2 → S3 → S5)
+
+- [x] **S1 — TR arama başlıkları** (`src/utils/seo.js`). 12 sayfanın
+  (`/selenium`, `/playwright`, `/cypress`, `/python`, `/java`, `/sql`,
+  `/jira`, `/postman`, `/docker`, `/jenkins`, `/manual-testing`,
+  `/what-is-testing`) TR başlık/açıklaması zaten arama niyetine göre
+  yazılmıştı ("X Nedir?" formatı); tek gerçek ihlal 6 başlığın 60 karakter
+  sınırını aşmasıydı (`/selenium` 62, `/python` 64, `/sql` 62, `/jira` 63,
+  `/manual-testing` 67, `/what-is-testing` 63). Hedef sorgu korunarak
+  kısaltıldı, hepsi artık ≤60. `check-seo.mjs` + `npm run build` yeşil.
+- [x] **S4 — outreach taslakları yayına hazır.** `Documents/outreach/`
+  altındaki üç dosya (selenium wait, sql joins, playwright vs selenium)
+  eskiden yalnızca İngilizce tam metindi. Her birine eklendi: (1) dosya
+  başında canonical talimatı — Türkçe teaser için bare path
+  (`/selenium/wait-strategies`, `/sql/sql-joins`, `/test-frameworks`),
+  İngilizce tam metin için `/en/...`; (2) tam metnin ~%40'ı uzunluğunda
+  Türkçe teaser (Medium Türkiye hedefli), en az 2 doğal iç link ile
+  bitiyor; (3) mevcut İngilizce tam metin korunmuş, dev.to için ayrı
+  bölüm olarak altta. Üç hedef link de sitemap'te doğrulandı (indekslenebilir,
+  noindex değil). Kod dosyasına dokunulmadı — `git status --short` yalnızca
+  bu 3 dosyayı gösteriyor.
+- [x] **S2 — `/jira` JQL örnek listesi** (`src/data/jiraData.js`). GRUP F
+  (JQL) sekmesinin sonuna yeni bir alt bölüm eklendi: "F5. Kopyala-Çalıştır:
+  16 Hazır JQL Sorgusu" — heading + text + bilingual `code` bloğu
+  (`jqlCopyPasteLibrary`). 16 sorgu, sekmenin zaten öğrettiği alan/operatör/
+  zaman fonksiyonlarını (WAS, CHANGED, startOfWeek(), currentUser(),
+  openSprints()) gerçekçi kombinasyonlarla birleştiriyor. JQL anahtar
+  kelimeleri Türkçeleştirilmedi, yalnızca yorum satırları TR/EN ayrı. Düz
+  `code` bloğu olduğu için `relatedTopicId` gerekmiyor (yalnızca
+  code-playground/interview-questions/error-dictionary için zorunlu).
+  Konu anlatımından sonra, GRUP G başlamadan önce yerleşti — quiz sıralama
+  kuralını bozmuyor. `node --check` + `check-content-integrity.mjs` +
+  `npm run build` yeşil.
+  ⚠️ **DENETİMDE İKİ HATALI SORGU BULUNDU VE DÜZELTİLDİ** (commit `a47807e`,
+  ayrıntı aşağıdaki "Denetim" bölümünde) — blok kullanıcıya "doğrudan
+  kopyalayıp Jira'da çalıştırabilirsin" dediği için bu iki hata vaadi
+  tutmuyordu.
+- [x] **S3 — kariyer odaklı giriş metni, kapsam uyarlamasıyla.** Planın S3
+  promptu `qaMentorData.js`'e de bir `simple-box` bloğu eklenmesini
+  varsayıyordu — yürütme sırasında bu varsayım YANLIŞ çıktı: `qaMentorData.js`
+  bir `blocks`/`sections` TopicPage şeması değil, sohbet-sihirbazı verisi
+  (`DIALOG`, `MENTOR_STEPS`, `ALL_MAPS`); `QAMentorPage.jsx` hiçbir zaman
+  `simple-box`/`heading`/`text` render etmiyor. `/qa-mentor`'ın statik SEO
+  kabuğu da `generate-static-routes.mjs` içinde ELLE yazılı (Opus/script
+  bölgesi), veri dosyasından türetilmiyor. Bu yüzden içerik tamamen
+  **`whatIsTestingData.js`**'e (gerçek TopicPage, ilk sekme "Giriş & Neden")
+  yoğunlaştırıldı — orası zaten bu sorgunun crawl edilebilir kanonik kaynağı
+  (FAQ bloğu quiz gating'inin arkasında değil, FAQPage şemasının tek kaynağı).
+  Eklenen: "QA Mühendisi Nasıl Olunur?" heading + 4 katmanlı `simple-box`
+  (mimar/denetçi analojisi, "geliştiriciler zaten kendi kodunu test ediyorken
+  neden QA?" sorusu, geliştirici/test mühendisi karşılaştırması, Knight
+  Capital örneği) + beceri sırası metni (Temel Kavramlar → Dil → Framework →
+  Araç → CI/CD, manuel→otomasyon geçişi, ilk iş beklentisi) + mevcut FAQ
+  bloğuna yeni bir soru ("QA mühendisi nasıl olunur?"). `qaMentorData.js`'e
+  DOKUNULMADI — dokunmak ölü kod (asla render edilmeyen veri) üretirdi.
+  `node --check` + `check-content-integrity.mjs` + `npm run build` yeşil.
+- [x] **S5 — FAQ genişletme, kapsam uyarlamasıyla.** Hedef 8 sayfadan 7'si
+  (`/selenium`, `/playwright`, `/python`, `/sql`, `/java`, `/jira`,
+  `/docker`) zaten `≥5` soruya sahipti (çoğu 6); her birine "X mülakatında
+  en çok hangi soru sorulur?" tarzı bir soru eklendi (eksik olan tek ortak
+  desen buydu), `/sql`'e ayrıca kurulum sorusu ("SQL çalıştırmak için ne
+  kurmam gerekir?") eklendi. Yedisi de artık **7 soru**, hepsi iki dilli.
+  **`/manual-testing` BİLİNÇLİ OLARAK ATLANDI:** bu sayfa TopicPage
+  `blocks`/`sections` şeması kullanmıyor — kendi bileşeni (`ManualTestingPage.jsx`,
+  `lessons` dizisi), `case 'faq':` render eden bir yüzeyi yok. FAQ'ı yalnızca
+  statik SEO kabuğuna eklemek (canlı sayfada görünmeyecek şekilde) projenin
+  kendi kuralını ihlal ederdi — CLAUDE.md §23.11 "kabuk ile tarayıcı
+  ayrışmamalı (cloaking önlemi)": kullanıcı JS yüklendikten sonra göremeyeceği
+  içeriği arama motoruna göstermek. S3'teki qa-mentor uyarlamasıyla AYNI kök
+  neden. `node --check` (7 dosya) + `check-content-integrity.mjs` +
+  `npm run build` yeşil; FAQPage sayfa sayısı 26'da sabit kaldı (yeni sayfa
+  değil, mevcut FAQ bloklarına soru eklendi).
+
+**Sonnet tarafında planlanan 5 iş (S1-S5) TAMAMLANDI.** İki tanesi (S3, S5)
+planın öngörmediği bir mimari gerçekle karşılaştı ve kapsamı buna göre
+uyarlandı — ayrıntı yukarıdaki maddelerde.
+
+### Denetim (2026-08-14, Opus — S1-S5 çıktı kontrolü)
+
+Beş işin çıktısı iddiaya değil **build çıktısına** bakılarak denetlendi.
+Dördü doğru çıktı, birinde iki gerçek hata bulundu ve düzeltildi.
+
+| İş | Denetim sonucu |
+|---|---|
+| S1 | ✅ 12 başlığın hepsi ≤60, açıklamalar 80-180 arası, `check-seo` geçiyor. Kısaltma sırasında `/selenium`'dan "Python", `/python`'dan "Playwright" anahtar kelimesi düştü — açıklamalarda hâlâ geçtiği için kabul edilebilir bir ödünleşim. 12 başlıktan 7'sinde "Nedir?" kalıbı var, 5'i ("Eğitim"/"Öğren" kalıbı) farklı bir sorgu ailesini hedefliyor — kusur değil, bilinçli çeşitlilik. |
+| S2 | ❌→✅ **İki hatalı sorgu bulundu**, düzeltildi (commit `a47807e`). Ayrıntı aşağıda. |
+| S3 | ✅ Yeni heading + `simple-box` + metin İKİ dil ağacında da var (tek ağaçlı dosya, 19 blok), FAQ sorusu hem görünür gövdede hem FAQPage şemasında (`/what-is-testing` kabuğunda 6 SSS). |
+| S4 | ✅ Üç canonical hedefi de (`/selenium/wait-strategies`, `/sql/sql-joins`, `/test-frameworks`) sitemap'te İKİ dilde var ve `dist/` altında gerçek shell'leri üretiliyor — yani taslakların işaret ettiği adresler indekslenebilir. |
+| S5 | ✅ Yedi sayfanın da kabuğunda **7 SSS** basılıyor, hepsi TR+EN. |
+
+**S2'deki iki hata (blok "doğrudan kopyalayıp Jira'da çalıştırabilirsin" dediği için ikisi de vaadi bozuyordu):**
+
+1. **Sorgu 16 geçersiz JQL'di.** `comment is EMPTY` yazılmıştı; Jira'nın
+   `comment` alanı YALNIZCA `~` / `!~` destekler ve bu sorgu *"The field
+   'comment' does not support searching for an empty string"* hatası döner.
+   Kopyalayan kullanıcı doğrudan hataya düşerdi. Alanın gerçekten
+   desteklediği operatörle gerçek bir QA senaryosuna çevrildi (yorumunda
+   "yeniden üretilemedi" geçen buglar) ve yorum satırına neden `is EMPTY`
+   yazılamayacağı eklendi.
+2. **Sorgu 9 anlamsal olarak yanlıştı ve sayfanın KENDİ dersiyle
+   çelişiyordu.** Etiket "Bu ay Done'a taşınan buglar" ama sorgu
+   `status = Done AND updated >= startOfMonth()` idi — bu "şu an Done olan ve
+   bu ay herhangi bir nedenle dokunulmuş" kayıtları getirir (3 ay önce
+   kapanıp bugün yorum alan bug yanlışlıkla girer; bu ay Done'a taşınıp
+   sonra reopen edilen bug hiç görünmez). Aynı sekmedeki quiz tam bu ayrımı
+   öğretiyor. `status CHANGED TO Done AFTER startOfMonth()` yapıldı.
+
+Kalan 14 sorgu tek tek doğrulandı (WAS…AFTER, CHANGED AFTER, `assignee is
+EMPTY`, `IN`, `startOfWeek()`/`startOfMonth()`, ikili ORDER BY) — hepsi geçerli.
+
+⚠️ **Ders:** Bu tür "kopyala-çalıştır" bloklarında build yeşil olması hiçbir
+şey kanıtlamaz — `check-content-integrity` JQL'in Jira'da çalışıp
+çalışmayacağını bilemez. Yeni bir komut/sorgu kütüphanesi eklerken her satırın
+hedef sistemde GERÇEKTEN geçerli olduğu ayrıca doğrulanmalı.
+
+### Sıradaki iş
+
+1. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
+   doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
+   linki, Plausible hesabı, Bing Webmaster Tools, outreach taslaklarının
+   (`Documents/outreach/`) Medium/dev.to'da yayınlanması.
+2. Yayından sonra `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt`
+   adresinin 200 döndüğü kontrol edilmeli — dönmezse IndexNow bildirimleri
+   sessizce reddedilir.
+3. **Branch'in main'e merge + push kararı** — kullanıcı onayı gerekiyor.
+   Branch: `feature/seo-visibility-fixes`, 9 commit (1 plan + 2 Opus altyapı
+   + 1 Opus kümeleme + 4 Sonnet içerik + 1 Opus denetim düzeltmesi), hepsi
+   build+test yeşil.
+4. İsteğe bağlı, planda ertelenmiş: `/manual-testing` FAQ'ı gerçekten
+   istenirse `ManualTestingPage.jsx`'e yeni bir render bloğu + `generate-static-routes.mjs`'e
+   küçük bir kabuk/canlı-sayfa senkron değişikliği gerekir — bu, S5'in
+   "yalnızca *Data.js" kapsamının dışında, ayrı bir görev olarak planlanmalı.
+
+### Bu oturumdan kalıcı ders
+
+**Bir bekçinin yeşil olması doğru çalıştığını kanıtlamaz.** Sitemap bölününce,
+`sitemap.xml`'i okumaya devam eden sızıntı kontrolü hiçbir şeye bakmıyor
+olurdu (o dosyada artık sayfa URL'i yok) ama yine yeşil kalırdı. Hem sitemap
+sızıntı bekçisi hem yeni öksüz sayfa bekçisi, BOZUK durum bilerek üretilip
+kırmızıya döndükleri görülerek doğrulandı. Yeni bir guard yazınca aynısını yap.
+
+---
+
+## 📌 Önceki Durum (2026-08-12, Opus — `/jira` yol haritalarına + site haritası tamamlandı, MAIN'E MERGE EDİLDİ)
+
+> Alttaki bölümler korunuyor.
 
 ### 📍 Şu anki durum
 

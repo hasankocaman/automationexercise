@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://learnqa.dev/</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en" />
+    <lastmod>2026-08-11T18:01:01+03:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/selenium</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/selenium" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/selenium" />
+    <lastmod>2026-08-13T18:28:43+03:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/playwright</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/playwright" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/playwright" />
+    <lastmod>2026-08-13T18:28:43+03:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/cypress</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/cypress" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/cypress" />
+    <lastmod>2026-08-02T21:23:58+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/python</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/python" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/python" />
+    <lastmod>2026-08-13T18:28:43+03:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/typescript</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/typescript" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/typescript" />
+    <lastmod>2026-07-28T09:55:56+03:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/javascript</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/javascript" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/javascript" />
+    <lastmod>2026-08-01T14:30:41+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/sql</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/sql" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/sql" />
+    <lastmod>2026-08-13T18:28:43+03:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/java</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/java" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/java" />
+    <lastmod>2026-08-13T18:28:43+03:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/jmeter</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/jmeter" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/jmeter" />
+    <lastmod>2026-07-27T15:38:39+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/postman</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/postman" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/postman" />
+    <lastmod>2026-08-01T13:28:21+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/bruno</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/bruno" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/bruno" />
+    <lastmod>2026-07-21T18:22:44+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/api-testing</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/api-testing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/api-testing" />
+    <lastmod>2026-08-02T21:23:58+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/qa-frontend</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-frontend" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-frontend" />
+    <lastmod>2026-08-01T14:30:41+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/gauge</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/gauge" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/gauge" />
+    <lastmod>2026-08-01T14:30:41+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/jira</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/jira" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/jira" />
+    <lastmod>2026-08-13T18:28:43+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/rest-assured</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/rest-assured" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/rest-assured" />
+    <lastmod>2026-07-31T11:27:58+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/docker</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/docker" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/docker" />
+    <lastmod>2026-08-13T18:28:43+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/jenkins</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/jenkins" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/jenkins" />
+    <lastmod>2026-08-02T21:23:58+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/kubernetes</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/kubernetes" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/kubernetes" />
+    <lastmod>2026-07-21T19:22:10+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/kafka</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/kafka" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/kafka" />
+    <lastmod>2026-07-27T15:38:39+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/appium</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/appium" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/appium" />
+    <lastmod>2026-07-21T23:21:05+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/browserstack</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/browserstack" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/browserstack" />
+    <lastmod>2026-07-27T16:51:51+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/git-github</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/git-github" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/git-github" />
+    <lastmod>2026-08-01T12:19:03+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/linux</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/linux" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/linux" />
+    <lastmod>2026-08-01T12:19:05+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/aws</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/aws" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/aws" />
+    <lastmod>2026-07-20T22:01:54+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/azure</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/azure" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/azure" />
+    <lastmod>2026-07-21T19:22:10+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/test-frameworks</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/test-frameworks" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/test-frameworks" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/java-document</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/java-document" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/java-document" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/git-document</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/git-document" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/git-document" />
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/what-is-testing</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/what-is-testing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/what-is-testing" />
+    <lastmod>2026-08-13T18:20:44+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/manual-testing</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/manual-testing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/manual-testing" />
+    <lastmod>2026-07-21T16:00:01+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/algorithms</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/algorithms" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/algorithms" />
+    <lastmod>2026-07-21T14:21:33+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/advanced-algorithms</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/advanced-algorithms" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/advanced-algorithms" />
+    <lastmod>2026-07-21T17:06:05+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/qa-mentor</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-mentor" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-mentor" />
+    <lastmod>2026-08-12T11:41:36+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/basit-backend</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/basit-backend" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/basit-backend" />
+    <lastmod>2026-07-27T15:38:39+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/claude-ai</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/claude-ai" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/claude-ai" />
+    <lastmod>2026-08-01T07:49:17+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/llm-agents</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/llm-agents" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/llm-agents" />
+    <lastmod>2026-07-18T20:52:19+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/test-automation</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/test-automation" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/test-automation" />
+    <lastmod>2026-08-02T21:48:34+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/sprint</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/sprint" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/sprint" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/portfolio</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/portfolio" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/portfolio" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/leaderboard</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/leaderboard" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/leaderboard" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

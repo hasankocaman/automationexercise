@@ -118,3 +118,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # Bildirim YAYINDAN SONRA gönderilir — önce gönderilseydi arama motoru
+      # henüz eski içeriği çeker ve "değişti" haberi boşa giderdi.
+      # `npm ci` YOK: script yalnızca üretilmiş sitemap dosyalarını ve bağımlılığı
+      # olmayan bir yardımcıyı okur. Adım hiçbir koşulda deploy'u kırmaz.
+      - name: Checkout (IndexNow bildirimi için)
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Notify IndexNow (Bing/Yandex)
+        continue-on-error: true
+        run: node scripts/ping-indexnow.mjs

@@ -383,7 +383,8 @@ test.describe('E-E-A-T — yazar ve yayıncı kimliği', () => {
         const webPage = parseJsonLd(shell).find((n) => n['@type'] === 'WebPage');
         const schemaDate = webPage.dateModified ?? '';
 
-        const sitemap = await readFile('public/sitemap.xml', 'utf8');
+        // `sitemap.xml` artık bir indeks; hub URL'leri Türkçe hub dosyasında.
+        const sitemap = await readFile('public/sitemap-tr-hubs.xml', 'utf8');
         const block = sitemap.split('<url>').find((part) => part.includes('<loc>https://learnqa.dev/docker</loc>'));
         expect(block, 'sitemap\'te /docker girdisi yok').toBeTruthy();
         const sitemapDate = /<lastmod>([^<]+)<\/lastmod>/.exec(block as string)?.[1] ?? '';

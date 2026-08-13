@@ -20,10 +20,27 @@ export const SITE_ORIGIN = 'https://learnqa.dev'
 export const ORGANIZATION_ID = `${SITE_ORIGIN}/#organization`
 export const AUTHOR_ID = `${SITE_ORIGIN}/#author`
 
+// Marka adı arandığında (`learnqa.dev`) arama motoru bu siteyi değil, isim
+// benzeri BAŞKA bir platformu gösteriyor — çünkü o platform yıllardır tanınan
+// bir "varlık", bu site ise henüz sadece bir URL kümesi. Bir markanın varlık
+// olarak tanınması için üç şey gerekir: ne olduğunu söyleyen bir tanım, hangi
+// adlarla anıldığı ve ne zaman ortaya çıktığı. Aşağıdaki üç alan tam olarak
+// bunu bildirir; `sameAs` ise iddiayı dışarıdan doğrulatır.
+//
+// ⚠ `sameAs` TEK YÖNLÜ olduğu sürece değersizdir: burada beyan edilen GitHub
+// ve LinkedIn adresleri siteye GERİ link vermiyorsa doğrulama zinciri kapanmaz.
+// Bu, koddan çözülemeyen bir iştir (hesap ayarı) — planın kullanıcı tarafında.
 export const ORGANIZATION = {
     name: 'LearnQA.dev',
+    alternateName: 'QA Learning Platform',
     url: `${SITE_ORIGIN}/`,
     logo: `${SITE_ORIGIN}/favicon.svg`,
+    // Alan adının ilk yayın tarihi (public/CNAME'in repoya girdiği gün).
+    foundingDate: '2026-06-18',
+    description: {
+        tr: 'QA mühendislerini sıfırdan mülakat seviyesine taşıyan ücretsiz Türkçe ve İngilizce test otomasyonu öğrenme platformu: Selenium, Playwright, Cypress, Java, Python, TypeScript, SQL ve API testi.',
+        en: 'Free QA learning platform in Turkish and English that takes test engineers from zero to interview-ready: Selenium, Playwright, Cypress, Java, Python, TypeScript, SQL and API testing.',
+    },
     sameAs: [
         'https://github.com/hasankocaman/automationexercise',
         'https://www.linkedin.com/in/hasankocaman/',
@@ -57,18 +74,25 @@ export const BYLINE_TEXT = {
     },
 }
 
-/** `Organization` düğümü — her sayfanın grafiğine bir kez girer. */
-export function organizationNode() {
+/**
+ * `Organization` düğümü — her sayfanın grafiğine bir kez girer.
+ * `locale` verilmezse İngilizce tanım kullanılır (şemanın dili sayfanın
+ * diliyle aynı olmalı; ayrışırsa tanım o sayfanın diline ait sayılmaz).
+ */
+export function organizationNode(locale = 'en') {
     return {
         '@context': 'https://schema.org',
         '@type': 'Organization',
         '@id': ORGANIZATION_ID,
         name: ORGANIZATION.name,
+        alternateName: ORGANIZATION.alternateName,
+        description: ORGANIZATION.description[locale] || ORGANIZATION.description.en,
         url: ORGANIZATION.url,
         logo: {
             '@type': 'ImageObject',
             url: ORGANIZATION.logo,
         },
+        foundingDate: ORGANIZATION.foundingDate,
         sameAs: ORGANIZATION.sameAs,
         founder: { '@id': AUTHOR_ID },
     }

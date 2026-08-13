@@ -56,6 +56,13 @@ const playwrightFaqBlock = {
         en: '"strict mode violation" — Playwright throws when a locator matches more than one element on the page (unlike Selenium, which silently picks the first one). The fix is to narrow the locator with `.first()` or use a more specific selector.',
       },
     },
+    {
+      q: { tr: 'Playwright mülakatında en çok hangi soru sorulur?', en: 'What is most commonly asked in a Playwright interview?' },
+      a: {
+        tr: 'Auto-waiting mekanizmasının tam olarak neyi beklediği ve bunun Selenium\'daki explicit wait\'ten farkı. Ardından fixture kapsamının (test/worker) ne işe yaradığı, `page.route()` ile network mocklamanın nasıl kurulduğu ve Trace Viewer ile bir CI hatasının nasıl debug edildiği sık sorulan takip sorularıdır.',
+        en: 'What exactly the auto-waiting mechanism waits for, and how it differs from explicit waits in Selenium. Follow-up questions usually cover fixture scope (test vs. worker), how network mocking with `page.route()` is set up, and how you would debug a CI failure using Trace Viewer.',
+      },
+    },
   ],
 }
 

@@ -4,6 +4,102 @@
 
 ---
 
+## Yayınlama talimatı (canonical)
+
+Bu yazı iki sürüm içerir: aşağıdaki **Türkçe teaser** (Medium Türkiye ve
+Türkçe QA topluluklarına özel) ve altındaki **İngilizce tam metin** (dev.to /
+uluslararası Medium için). Hangi platforma yayınlanırsa yayınlansın:
+
+- Platform `canonical_url` alanı destekliyorsa (dev.to bunu destekler),
+  Türkçe teaser için `https://learnqa.dev/test-frameworks`, İngilizce tam
+  metin için `https://learnqa.dev/en/test-frameworks` girilmeli.
+- Desteklemiyorsa (çoğu Medium hesabı desteklemez), yazının SONUNDA "asıl
+  yazı burada" linkini bırakmak yeterli — TAM METNİ canonical'sız
+  yayınlama, yalnızca teaser'ı yayınla.
+
+Bu ayrım önemli: 8 haftalık yeni bir alan adı, tam metnini canonical
+belirtmeden başka bir platforma kopyalarsa, o platformun otoritesi daha
+yüksek olduğu için arama motoru "asıl" içeriği ORADA sanır ve
+learnqa.dev'deki sürüm zarar görür.
+
+---
+
+## Türkçe Teaser — Medium Türkiye / Türkçe QA toplulukları
+
+**Başlık önerisi:** Playwright ile Selenium Arasındaki Gerçek 5 Fark
+
+Çoğu "Playwright vs Selenium" yazısı ikisinde de doğru olan ve karar
+vermene yardımcı olmayan yüzeysel maddeler sıralar — çoklu dil desteği,
+topluluk büyüklüğü, tarayıcı kapsamı. Aşağıdaki beş fark ise testleri
+gerçekten nasıl yazıp sürdürdüğünü değiştiriyor.
+
+**1. Auto-waiting sonradan eklenmedi, baştan içeride**
+
+Selenium bir elementin VAR olduğunu söyler; HAZIR olduğunu söylemez. Selenium
+setlerinin `WebDriverWait` çağrılarıyla, hatta daha kötüsü `Thread.sleep()`
+ile dolmasının nedeni bu. Playwright'ın actionability kontrolleri her
+etkileşimden ÖNCE otomatik çalışır — tıklamadan önce elementin bağlı,
+görünür, stabil ve önünde engel olmadığını doğrular. Yine de iş kuralı
+koşulları için (belirli bir API yanıtı, değişen bir değer) wait yazarsın,
+ama tarayıcının kendi kendine yetişmesi için wait yazmayı bırakırsın.
+
+**2. Network interception birinci sınıf bir API**
+
+Selenium'da network çağrılarını mock'lamak veya doğrulamak, test kodunun
+DIŞINDA ayrı bir proxy aracı (BrowserMob Proxy gibi) gerektirir. Playwright'ta
+`page.route()` yerleşiktir:
+
+```typescript
+await page.route('**/api/orders', route =>
+  route.fulfill({ status: 500, body: 'Internal Server Error' })
+);
+```
+
+Bu, aynı test dosyasında yazılmış, ekstra altyapı gerektirmeyen tam bir
+network seviyesi test double'ı. Gerçek backend'den tetikleyemediğin hata
+durumlarını test etmek için büyük fark yaratır.
+
+**3. Yeni tarayıcı açmadan context izolasyonu**
+
+Selenium'un varsayılan modeli: bir tarayıcı örneği, bir session'ın state'ini
+taşır. Playwright'ın `browser.newContext()`'i, ZATEN ÇALIŞAN bir tarayıcı
+sürecinin İÇİNDE tamamen izole bir cookie/localStorage/cache sandbox'ı verir
+— bu yüzden "A kullanıcısı olarak giriş yapmış" ile "B kullanıcısı olarak
+giriş yapmış" durumlarını paralel test etmek Playwright'ta ucuz, Selenium'da
+pahalıdır (birden fazla tarayıcı açılışı).
+
+**4. Trace Viewer, CI hatasını debug edilebilir hale getirir**
+
+CI'daki flaky bir Selenium hatası genelde bir ekran görüntüsü (yapılandırdıysan)
+ve bir tahmindir. Playwright'ın Trace Viewer'ı başarısız test için DOM
+anlık görüntüleri, network aktivitesi, konsol logları ve ekran görüntülerinden
+oluşan tam bir zaman çizelgesi kaydeder — sonradan bir debugger gibi adım
+adım izleyebilirsin.
+
+**5. Codegen tahmin değil, gerçek bir locator üretir**
+
+Playwright'ın `codegen`'i tıklamalarını kaydedip kendi önerdiği önceliğe
+göre (rol, metin, test-id) locator üretir — bir sonraki markup değişikliğinde
+kırılması muhtemel otomatik CSS/XPath yerine. Selenium'da bunun eşdeğeri
+yoktur; locator stratejisi baştan sona sana kalır.
+
+**Peki hangisini kullanmalı?** TestNG/Cucumber ile entegre, mevcut bir Grid
+kurulumu olan büyük ve olgun bir Selenium + Java setini sürdürüyorsan
+yeniden yazmak genelde değmez — Selenium hâlâ işini görür. Yeni bir proje
+başlıyorsan veya ekibin zaten TypeScript/JavaScript'te yaşıyorsa, Playwright
+tek bir test yazmadan önce zamanlama kaynaklı flaky'liğin tamamını ortadan
+kaldırır.
+
+pytest ile karşılaştırma, locator strateji farkları ve her ikisi için CI
+kurulumu dahil tam karşılaştırmayı
+[LearnQA.dev'deki Framework Karşılaştırması sayfasında](https://learnqa.dev/test-frameworks)
+bulabilirsin — [tüm Selenium](https://learnqa.dev/selenium) ve
+[Playwright](https://learnqa.dev/playwright) kursları da ücretsiz.
+
+---
+
+## İngilizce Tam Metin (dev.to / uluslararası Medium)
+
 Most "Playwright vs Selenium" posts list the same surface-level bullet
 points — multi-language support, community size, browser coverage — that are
 true of both tools and don't help you decide anything. Here are five

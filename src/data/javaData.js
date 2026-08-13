@@ -324,6 +324,13 @@ const javaFaqBlock = {
         en: '`NullPointerException` — happens when you try to call a method on a reference variable that is `null`. In Selenium tests it is usually caused by an element lookup returning `null` and being used directly without a check.',
       },
     },
+    {
+      q: { tr: 'Java mülakatında en çok hangi soru sorulur?', en: 'What is most commonly asked in a Java interview?' },
+      a: {
+        tr: '`==` ile `.equals()` arasındaki fark (referans karşılaştırması mı, değer karşılaştırması mı) ve `List` ile `Set` arasında hangi Collection\'ın ne zaman seçileceği. Ardından checked/unchecked exception farkı ve bir Page Object sınıfında neden `private` alan + `public` metod kalıbının tercih edildiği sık sorulan takip sorularıdır.',
+        en: 'The difference between `==` and `.equals()` (reference comparison vs. value comparison), and when to choose `List` vs. `Set`. Follow-up questions usually cover the difference between checked and unchecked exceptions, and why a Page Object class typically prefers `private` fields with `public` methods.',
+      },
+    },
   ],
 }
 

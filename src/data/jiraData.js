@@ -1390,6 +1390,118 @@ project = SHOP AND labels = production`,
   },
 }
 
+// ─── code: kopyala-çalıştır JQL kütüphanesi (GRUP F5) ──────────────────────────
+const jqlCopyPasteLibrary = {
+  type: 'code',
+  language: 'sql',
+  code: {
+    tr: `-- 1) Bana atanmış, henüz çözülmemiş tüm buglar
+project = SHOP AND issuetype = Bug AND assignee = currentUser() AND status != Done
+
+-- 2) Bu sprint'te hâlâ açık olan (Done'a taşınmamış) her şey
+project = SHOP AND sprint in openSprints() AND status != Done ORDER BY priority DESC
+
+-- 3) Son 7 günde en az bir kez Reopened olmuş buglar
+project = SHOP AND issuetype = Bug AND status WAS Reopened AFTER -7d
+
+-- 4) Belirli bir fix version'a bağlı, henüz kapanmamış issue'lar
+project = SHOP AND fixVersion = "2026.8.3" AND status != Done ORDER BY priority DESC
+
+-- 5) QA doğrulamasını bekleyen kayıtlar (durum geçişine göre)
+project = SHOP AND status = "Ready for QA" ORDER BY updated ASC
+
+-- 6) Checkout component'indeki yüksek öncelikli buglar
+project = SHOP AND component = Checkout AND issuetype = Bug AND priority IN (High, Highest)
+
+-- 7) "regression" etiketiyle açılmış, henüz kapanmamış issue'lar
+project = SHOP AND labels = regression AND status != Done
+
+-- 8) Bu hafta oluşturulan tüm buglar (haftanın başından bugüne)
+project = SHOP AND issuetype = Bug AND created >= startOfWeek()
+
+-- 9) Bu ay Done'a TAŞINAN buglar (kapanış hızını ölçmek için)
+-- Dikkat: status = Done AND updated >= startOfMonth() YAZMA — o sorgu
+-- "şu an Done olan ve bu ay bir şekilde dokunulmuş" kayıtları getirir.
+-- Geçişin kendisini sormak için CHANGED TO gerekir.
+project = SHOP AND issuetype = Bug AND status CHANGED TO Done AFTER startOfMonth()
+
+-- 10) Bana ait, 3 günden uzun süredir hiç güncellenmemiş açık kayıtlar
+project = SHOP AND assignee = currentUser() AND status != Done AND updated <= -3d
+
+-- 11) Sahipsiz (assignee boş) açık buglar -- kimseye atanmamışsa kimse sorumlu değildir
+project = SHOP AND issuetype = Bug AND assignee is EMPTY AND status != Done
+
+-- 12) Son 24 saatte durumu değişen tüm kayıtlar
+project = SHOP AND status CHANGED AFTER -1d ORDER BY updated DESC
+
+-- 13) Birden fazla projede aynı anda arama (SHOP ve PAY projeleri)
+project IN (SHOP, PAY) AND issuetype = Bug AND status != Done
+
+-- 14) Üretime sızan (production etiketli), son bir aydaki buglar
+project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d ORDER BY created DESC
+
+-- 15) En kritik olanlar önce: öncelik, sonra en eski önce (ikili sıralama)
+project = SHOP AND status != Done ORDER BY priority DESC, created ASC
+
+-- 16) Yorumunda "yeniden üretilemedi" geçen buglar -- rapor kalitesi sorunu
+-- avlamanın en hızlı yolu. comment alanı YALNIZCA ~ (içerir) operatörünü
+-- destekler; comment is EMPTY yazarsan Jira hata döner.
+project = SHOP AND issuetype = Bug AND comment ~ "yeniden üretilemedi" AND status != Done`,
+    en: `-- 1) All unresolved bugs assigned to me
+project = SHOP AND issuetype = Bug AND assignee = currentUser() AND status != Done
+
+-- 2) Everything still open (not moved to Done) in this sprint
+project = SHOP AND sprint in openSprints() AND status != Done ORDER BY priority DESC
+
+-- 3) Bugs that were Reopened at least once in the last 7 days
+project = SHOP AND issuetype = Bug AND status WAS Reopened AFTER -7d
+
+-- 4) Issues tied to a specific fix version that are not yet closed
+project = SHOP AND fixVersion = "2026.8.3" AND status != Done ORDER BY priority DESC
+
+-- 5) Records waiting on QA verification (by status transition)
+project = SHOP AND status = "Ready for QA" ORDER BY updated ASC
+
+-- 6) High-priority bugs in the Checkout component
+project = SHOP AND component = Checkout AND issuetype = Bug AND priority IN (High, Highest)
+
+-- 7) Issues opened with the "regression" label, not yet closed
+project = SHOP AND labels = regression AND status != Done
+
+-- 8) All bugs created this week (since the start of the week)
+project = SHOP AND issuetype = Bug AND created >= startOfWeek()
+
+-- 9) Bugs that TRANSITIONED to Done this month (to measure closing speed)
+-- Careful: do NOT write status = Done AND updated >= startOfMonth() -- that
+-- returns records currently in Done that were touched this month for any reason.
+-- Asking about the transition itself requires CHANGED TO.
+project = SHOP AND issuetype = Bug AND status CHANGED TO Done AFTER startOfMonth()
+
+-- 10) My open records with no update for more than 3 days
+project = SHOP AND assignee = currentUser() AND status != Done AND updated <= -3d
+
+-- 11) Unassigned open bugs -- if nobody owns it, nobody is accountable
+project = SHOP AND issuetype = Bug AND assignee is EMPTY AND status != Done
+
+-- 12) Every record whose status changed in the last 24 hours
+project = SHOP AND status CHANGED AFTER -1d ORDER BY updated DESC
+
+-- 13) Search across multiple projects at once (SHOP and PAY)
+project IN (SHOP, PAY) AND issuetype = Bug AND status != Done
+
+-- 14) Bugs leaked to production (labeled), created in the last month
+project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d ORDER BY created DESC
+
+-- 15) Most critical first: priority, then oldest first (two-level sort)
+project = SHOP AND status != Done ORDER BY priority DESC, created ASC
+
+-- 16) Bugs whose comments contain "cannot reproduce" -- the fastest way to hunt
+-- down report-quality problems. The comment field supports ONLY the ~
+-- (contains) operator; writing comment is EMPTY makes Jira return an error.
+project = SHOP AND issuetype = Bug AND comment ~ "cannot reproduce" AND status != Done`,
+  },
+}
+
 // ─── Film: bir iş kaleminin backlog'dan panoya yolculuğu (GRUP G referans filmi) ─
 const backlogToBoardFilm = {
   type: 'video-scene',
@@ -2884,6 +2996,13 @@ project = SHOP AND reporter = currentUser() AND status != Done`,
               en: 'Start with Jira Cloud -- the vast majority of accounts opened today are Cloud, and you can try it immediately with a free account. The core concepts (issue, workflow, JQL) are identical in both; only a few points differ when you move to Data Center, like the REST API address and the project type options.',
             },
           },
+          {
+            q: { tr: 'QA mülakatında Jira ile ilgili en çok hangi soru sorulur?', en: 'What is most commonly asked about Jira in a QA interview?' },
+            a: {
+              tr: "Bir bug raporunu neyin \"iyi\" yaptığı (kesin adımlar, beklenen/gerçek sonuç, ortam bilgisi) ve bir issue'nun workflow'da hangi durumdan hangi duruma nasıl geçtiği. Ardından JQL ile \"bana atanmış açık buglar\" gibi bir sorgu yazman ve reopen oranı gibi bir kalite metriğini nasıl yorumladığın sık sorulan takip sorularıdır.",
+              en: 'What makes a bug report "good" (exact steps, expected vs. actual result, environment details), and how an issue moves from one workflow status to another. Follow-up questions usually cover writing a JQL query like "open bugs assigned to me" and how you would interpret a quality metric like the reopen rate.',
+            },
+          },
         ],
       },
     ],
@@ -3809,6 +3928,18 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
         },
       },
       savedFilterJqlPlayground,
+      {
+        type: 'heading',
+        text: { tr: '5️⃣ F5. Kopyala-Çalıştır: 16 Hazır JQL Sorgusu', en: '5️⃣ F5. Copy-Paste: 16 Ready JQL Queries' },
+      },
+      {
+        type: 'text',
+        content: {
+          tr: "Bu sekmede öğrendiğin her parça (alan, operatör, zaman fonksiyonu, WAS/CHANGED) tek başına yeterli değil — gerçek işte bunları BİRLEŞTİRİP günlük olarak kullandığın bir sorgu setine dönüştürürsün. Aşağıdaki 16 sorgu, bir QA mühendisinin gerçekten yazdığı türden; doğrudan kopyalayıp kendi proje anahtarınla (SHOP yerine kendi projenle) Jira'da çalıştırabilirsin.",
+          en: "No single piece you learned on this tab (field, operator, time function, WAS/CHANGED) is enough on its own -- on the job you COMBINE them into a query set you use daily. The 16 queries below are the kind a QA engineer actually writes; copy them directly and run them in Jira with your own project key instead of SHOP.",
+        },
+      },
+      jqlCopyPasteLibrary,
     ],
   },
 

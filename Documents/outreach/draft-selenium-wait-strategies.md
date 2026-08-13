@@ -4,6 +4,85 @@
 
 ---
 
+## Yayınlama talimatı (canonical)
+
+Bu yazı iki sürüm içerir: aşağıdaki **Türkçe teaser** (Medium Türkiye ve
+Türkçe QA topluluklarına özel) ve altındaki **İngilizce tam metin** (dev.to /
+uluslararası Medium için). Hangi platforma yayınlanırsa yayınlansın:
+
+- Platform `canonical_url` alanı destekliyorsa (dev.to bunu destekler),
+  Türkçe teaser için `https://learnqa.dev/selenium/wait-strategies`,
+  İngilizce tam metin için `https://learnqa.dev/en/selenium/wait-strategies`
+  girilmeli.
+- Desteklemiyorsa (çoğu Medium hesabı desteklemez), yazının SONUNDA "asıl
+  yazı burada" linkini bırakmak yeterli — TAM METNİ canonical'sız
+  yayınlama, yalnızca teaser'ı yayınla.
+
+Bu ayrım önemli: 8 haftalık yeni bir alan adı, tam metnini canonical
+belirtmeden başka bir platforma kopyalarsa, o platformun otoritesi daha
+yüksek olduğu için arama motoru "asıl" içeriği ORADA sanır ve
+learnqa.dev'deki sürüm zarar görür.
+
+---
+
+## Türkçe Teaser — Medium Türkiye / Türkçe QA toplulukları
+
+**Başlık önerisi:** `Thread.sleep()` Selenium Test Setine Yalan Söylüyor
+
+Devraldığım her Selenium test setinde, bir yerlerde gömülü en az bir
+`Thread.sleep(3000)` oldu. Hikaye hep aynı şekilde başlar: biri flaky bir
+testle karşılaşır, "düzeltmek" için bir sleep ekler, test yeşile döner ve o
+satıra bir daha kimse dokunmaz — ta ki 40 testlik bir koşum on bir dakika
+sürmeye başlayıp birileri nedenini sormak zorunda kalana kadar.
+
+`Thread.sleep()` bir koşulu beklemez. Bir saati bekler. Bu fark, kulağa
+geldiğinden çok daha fazla önemli.
+
+**Asıl sorun ne?** Bir testin beklemeye ihtiyacı olduğunda, bu neredeyse
+her zaman tarayıcı ile test kodunun birbiriyle yarışması yüzündendir. Sayfa
+render olmaya başlamıştır ama ihtiyacın olan element — bir API çağrısı
+sonucunda beliren buton, arama debounce'ından sonra tabloya eklenen satır —
+henüz orada değildir. Sabit bir sleep, bu yarışın ne kadar süreceğine dair
+bir tahmindir. Laptop'unda 3 saniye rahat çalışır; yoğun bir CI runner'da
+yetmeyebilir — ve "geçen" testin artık daha seyrek de olsa yine flaky'dir.
+Zamanlama sorununu ÇÖZMEDİN, ileride yanlış çıkacak bir sayının arkasına
+GİZLEDİN.
+
+Selenium'un `WebDriverWait` + `ExpectedConditions` ikilisi zaman değil,
+KOŞUL bekler — ve koşul gerçekleştiği anda devam eder:
+
+```java
+WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+wait.until(ExpectedConditions.elementToBeClickable(By.id("submit-button")));
+```
+
+Element 200 milisaniyede hazırsa test 200 milisaniyede ilerler. CI yoğun
+olduğu için 8 saniye sürerse test yine geçer — çünkü sabit bir sayıyla değil,
+sayfadan gelen gerçek bir sinyalle yarışıyor.
+
+Öğrenilecek bir sonraki tuzak: `implicit wait` ile `explicit wait`'i AYNI
+ANDA açık bırakmak. Implicit wait HER element aramasına global olarak
+uygulanır; explicit wait'lerle karışınca debug etmesi işkence olan, katlanan
+timeout'lar ortaya çıkar. Tek strateji seç — ihtiyacın olan koşula özel
+explicit wait — ve yanına global implicit wait koyma.
+
+`Thread.sleep()` dolu bir test setinin ne kadar paralelleştirirsen
+paralelleştir bir hız tavanı vardır — en iyi senaryoda bile en kötü süreleri
+beklersin. Koşul tabanlı explicit wait'ler, mevcut bir Selenium setinde
+genelde tek bir değişiklikle elde edebileceğin en büyük hız kazancıdır — ve
+aynı zamanda "yerelde geçiyor ama CI'da yarı yarıya patlıyor" tipi
+flaky'liğin de çözümüdür.
+
+`FluentWait`, özel `ExpectedConditions` ve hangi durumda hangisinin
+kullanılacağı dahil daha uzun, çalıştırılabilir örnekli bir anlatımı
+[LearnQA.dev'deki Selenium Wait Stratejileri bölümünde](https://learnqa.dev/selenium/wait-strategies)
+bulabilirsin — ders ücretsiz ve [tüm Selenium kursu](https://learnqa.dev/selenium)
+Java, Python ve TypeScript örnekleriyle geliyor.
+
+---
+
+## İngilizce Tam Metin (dev.to / uluslararası Medium)
+
 Every Selenium test suite I've inherited has had at least one `Thread.sleep(3000)`
 buried somewhere. It always started the same way: someone hit a flaky test,
 added a sleep to "fix" it, the test went green, and nobody touched that line

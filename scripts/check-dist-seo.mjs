@@ -412,12 +412,55 @@ for (const locale of LOCALES) {
     }
 }
 
+// ─── İç bağlantı grafiği: hiçbir sayfa öksüz kalmamalı ───────────────────────
+// Hub shell'lerinin alt bağlantı bloğu artık düz bir "herkes herkese" listesi
+// değil, konu kümesi + kategori çapaları (bkz. lib/topicClusters.mjs). Bu
+// doğru bir SEO hamlesi ama bir riski var: kümeleme yanlış kurulursa bir
+// sayfaya HİÇBİR yerden link gitmez ve sayfa yalnızca sitemap'ten
+// keşfedilebilir hâle gelir. Sitemap keşif sağlar, otorite ve tarama önceliği
+// sağlamaz — öksüz sayfa pratikte sıralanmaz.
+//
+// Bu yüzden kümelemenin kendisini değil, VAAT ETTİĞİ SONUCU doğruluyoruz:
+// her indekslenebilir route, kendi dışındaki en az bir sayfanın shell'inden
+// link almalı. Ana sayfanın tam dizini bu koşulun taşıyıcısıdır; oradan
+// kaldırılırsa bu kontrol kırmızıya döner.
+const linkableRoutes = ROUTE_SEO.filter((seo) => !seo.dynamic && !seo.noindex)
+
+for (const locale of LOCALES) {
+    const inbound = new Map(linkableRoutes.map((seo) => [localizedPath(seo.path, locale), 0]))
+
+    for (const seo of linkableRoutes) {
+        const localized = localizedPath(seo.path, locale)
+        const file = new URL(localized === '/' ? 'index.html' : `.${localized}/index.html`, distDir)
+        let html
+        try {
+            html = await readFile(file, 'utf8')
+        } catch {
+            continue // eksik shell zaten yukarıda raporlandı
+        }
+        const body = /<main data-seo-fallback[\s\S]*?<\/main>/.exec(html)?.[0] || ''
+        for (const match of body.matchAll(/href="([^"]+)"/g)) {
+            const target = match[1]
+            if (target === localized) continue // kendine link sayılmaz
+            if (inbound.has(target)) inbound.set(target, inbound.get(target) + 1)
+        }
+    }
+
+    for (const [path, count] of inbound) {
+        // Ana sayfaya her sekme shell'inin breadcrumb'ından zaten link gider.
+        if (count === 0) {
+            errors.push(`Orphan route in link graph (${locale}): ${path} — hiçbir shell bu sayfaya link vermiyor`)
+        }
+    }
+}
+
 if (errors.length) {
     console.error(errors.join('\n'))
     process.exit(1)
 }
 
 console.log(`Dist SEO check passed for ${checked} generated pages (${checkedRoutes.length} routes x ${LOCALES.length} locales).`)
+console.log(`İç bağlantı grafiği: ${linkableRoutes.length} route x ${LOCALES.length} dil — öksüz sayfa yok.`)
 console.log(`Section shells: ${sectionShells} checked, ${sectionIndexable} indexable, ${sectionNoindex} noindex (ince/kilitli).`)
 console.log(`Answer-first paragraphs: ${answerPages} sayfa (görünür gövdede doğrulandı).`)
 console.log(`Rich results: ${coursePages} pages with Course, ${faqPages} with FAQPage, ${howToPages} with HowTo (her biri görünür içerikle doğrulandı).`)

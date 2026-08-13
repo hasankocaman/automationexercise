@@ -15,6 +15,12 @@ import {
     organizationNode,
 } from '../src/utils/authorship.js'
 import { DATA_MODULES, loadDataModule } from './lib/topicDataModules.mjs'
+import { buildTopicClusters, clusterSiblings, otherClusterAnchors } from './lib/topicClusters.mjs'
+
+// Konu aileleri, sitenin görünür site haritasından türetilir — ikinci bir
+// kategori listesi tutulmaz (bkz. lib/topicClusters.mjs). Shell üretiminden
+// ÖNCE bir kez kurulur; `fallbackContent` senkron olduğu için burada await'lenir.
+const TOPIC_CLUSTERS = await buildTopicClusters()
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
@@ -50,6 +56,8 @@ const UI_TEXT = {
         whatYouLearn: 'Bu sayfada neler öğreneceksin',
         topicNav: 'QA Öğrenme Konuları',
         navLabel: 'LearnQA.dev konu bağlantıları',
+        clusterNavLabel: 'Aynı alandaki konular',
+        otherAreas: 'Diğer alanlar',
         sectionNav: 'Bu dersin bölümleri',
         sectionNavLabel: 'Ders bölümleri',
         howToHeading: 'Kurulum adımları',
@@ -59,6 +67,8 @@ const UI_TEXT = {
         whatYouLearn: 'What you can learn on this page',
         topicNav: 'QA Learning Topics',
         navLabel: 'LearnQA.dev topic links',
+        clusterNavLabel: 'Topics in the same area',
+        otherAreas: 'Other areas',
         sectionNav: 'Sections in this lesson',
         sectionNavLabel: 'Lesson sections',
         howToHeading: 'Installation steps',
@@ -466,18 +476,96 @@ async function routeContent(seo, locale) {
     }
 }
 
+/** Route için görünür bağlantı etiketi (başlıktan marka son ekini atar). */
+function linkLabelFor(routePath, locale) {
+    const entry = ROUTE_SEO.find((item) => item.path === routePath)
+    if (!entry) return routePath
+    return seoFor(entry, locale).title.replace(' | LearnQA.dev', '')
+}
+
+function linkListItem(routePath, locale) {
+    return `          <li><a href="${escapeHtml(localizedPath(routePath, locale))}">${escapeHtml(linkLabelFor(routePath, locale))}</a></li>`
+}
+
+// Hub shell'inin alt bağlantı bloğu. İki katmanlı:
+//
+//   1. KENDİ KÜMESİ — aynı konu ailesindeki sayfalar, kategori adıyla
+//      başlıklandırılmış. Asıl konu sinyali burada: "Selenium ile Playwright
+//      aynı ailede" demek, ikisini rastgele iki sayfa gibi bağlamaktan
+//      farklıdır.
+//   2. DİĞER ALANLAR — her kategoriden YALNIZCA çapa sayfası. Böylece site
+//      bütünlüğü korunur (her yerden her yere en fazla iki adım) ama sayfa
+//      başına 41 düz link 17'ye iner.
+//
+// ⚠ Ana sayfa İSTİSNADIR: orası sitenin dizini, tam listeyi O taşır. Her
+// indekslenebilir sayfanın en az bir yerden link alması bu istisnaya bağlı —
+// kaldırılırsa kümesi tek sayfadan oluşan route'lar bağlantı grafiğinde
+// öksüz kalır. `check-dist-seo.mjs` bunu her build'de doğruluyor.
+function topicNavHtml(seo, locale) {
+    const ui = UI_TEXT[locale]
+    const isHome = seo.path === '/'
+
+    if (isHome) {
+        const all = ROUTE_SEO
+            .filter((item) => item.path !== seo.path && !item.dynamic && !item.noindex)
+            .map((item) => linkListItem(item.path, locale))
+            .join('\n')
+        return `<nav aria-label="${escapeHtml(ui.navLabel)}">
+        <h2>${escapeHtml(ui.topicNav)}</h2>
+        <ul>
+${all}
+        </ul>
+        </nav>`
+    }
+
+    const siblings = clusterSiblings(TOPIC_CLUSTERS, seo.path)
+    const anchors = otherClusterAnchors(TOPIC_CLUSTERS, seo.path)
+
+    // Site haritasında yer almayan bir route çıkarsa (yeni sayfa eklenip
+    // haritaya konmamışsa) eski davranışa düşülür — sessizce linksiz kalmaktansa
+    // tam liste basmak yeğdir.
+    if (!siblings && !anchors.length) {
+        const all = ROUTE_SEO
+            .filter((item) => item.path !== seo.path && !item.dynamic && !item.noindex)
+            .map((item) => linkListItem(item.path, locale))
+            .join('\n')
+        return `<nav aria-label="${escapeHtml(ui.navLabel)}">
+        <h2>${escapeHtml(ui.topicNav)}</h2>
+        <ul>
+${all}
+        </ul>
+        </nav>`
+    }
+
+    const clusterBlock = siblings?.routes.length
+        ? `<nav aria-label="${escapeHtml(ui.clusterNavLabel)}">
+        <h2>${escapeHtml(textValue(siblings.label, locale))}</h2>
+        <ul>
+${siblings.routes.map((path) => linkListItem(path, locale)).join('\n')}
+        </ul>
+        </nav>`
+        : ''
+
+    const anchorBlock = anchors.length
+        ? `<nav aria-label="${escapeHtml(ui.navLabel)}">
+        <h2>${escapeHtml(ui.otherAreas)}</h2>
+        <ul>
+${anchors.map((entry) => linkListItem(entry.route, locale)).join('\n')}
+${linkListItem('/', locale)}
+        </ul>
+        </nav>`
+        : ''
+
+    return `${clusterBlock}
+        ${anchorBlock}`
+}
+
 function fallbackContent(seo, content, locale) {
     const ui = UI_TEXT[locale]
     // Statik shell'deki iç bağlantılar da dil-tutarlı olmalı: TR shell TR
     // sayfalara, EN shell /en/... sayfalarına link verir. Karışık linkleme,
     // crawler'ın dil kümelerini birbirine bağlamasına yol açar.
-    const links = ROUTE_SEO
-        .filter((item) => item.path !== seo.path && !item.dynamic && !item.noindex)
-        .map((item) => {
-            const label = seoFor(item, locale).title.replace(' | LearnQA.dev', '')
-            return `          <li><a href="${escapeHtml(localizedPath(item.path, locale))}">${escapeHtml(label)}</a></li>`
-        })
-        .join('\n')
+    const topicNav = topicNavHtml(seo, locale)
     // Cevap paragrafı, açıklama ve giriş metninden ÖNCE gelir: "X nedir"
     // sorgularında arama motoru sayfanın ilk paragrafına bakar.
     const seoAnswer = content?.seoAnswer
@@ -546,12 +634,7 @@ ${seo.sectionLinks.map((item) => `          <li><a href="${escapeHtml(localizedP
         ${faq}
         ${warmup}
         ${sectionLinks}
-        <nav aria-label="${escapeHtml(ui.navLabel)}">
-        <h2>${escapeHtml(ui.topicNav)}</h2>
-        <ul>
-${links}
-        </ul>
-        </nav>
+        ${topicNav}
         ${bylineHtml(locale, seo.updatedIso)}
     </main>`
 }
@@ -597,7 +680,7 @@ ${siblings}
 // yeniden tarif etmek yerine tek bir kimlikte birleştirmek, motorun kişiyi
 // site genelinde tek bir varlık olarak tanımasını sağlar.
 function identityNodes(locale) {
-    return [organizationNode(), authorNode(locale)]
+    return [organizationNode(locale), authorNode(locale)]
 }
 
 function webPageNode(seo, url, locale) {

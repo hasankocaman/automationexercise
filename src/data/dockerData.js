@@ -48,6 +48,13 @@ const dockerFaqBlock = {
         en: '"port is already allocated" — the host port is already in use by another container or process. The fix is to use a different port mapping (like `-p 8081:8080`) or stop the conflicting container.',
       },
     },
+    {
+      q: { tr: 'Docker mülakatında en çok hangi soru sorulur?', en: 'What is most commonly asked in a Docker interview?' },
+      a: {
+        tr: 'Image ile container arasındaki fark (image bir şablon, container onun çalışan bir örneği) ve bir Dockerfile\'daki katmanların (layer) nasıl cache\'lendiği. Ardından bir Selenium Grid\'i container\'larla nasıl kuracağın ve volume ile bind mount arasındaki farkı açıklaman sık sorulan takip sorularıdır.',
+        en: 'The difference between an image and a container (an image is a template, a container is a running instance of it), and how layers in a Dockerfile get cached. Follow-up questions usually cover how you would set up a Selenium Grid with containers, and explaining the difference between a volume and a bind mount.',
+      },
+    },
   ],
 }
 

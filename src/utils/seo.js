@@ -36,7 +36,7 @@ export const ROUTE_SEO = [
         title: 'Selenium WebDriver Tutorial for QA Engineers | LearnQA.dev',
         description: 'Learn Selenium WebDriver with Java, Python and TypeScript examples, locator strategies, waits, frames, real-world automation scenarios and interview questions.',
         tr: {
-            title: 'Selenium Nedir? WebDriver Eğitimi (Java, Python) | LearnQA.dev',
+            title: 'Selenium Nedir? WebDriver Eğitimi (Java) | LearnQA.dev',
             description: 'Selenium WebDriver nedir, nasıl kurulur ve Java, Python, TypeScript ile nasıl kullanılır? Locator stratejileri, wait yapıları, gerçek senaryolar ve mülakat soruları.',
         },
     },
@@ -63,7 +63,7 @@ export const ROUTE_SEO = [
         title: 'Python for QA Engineers: Pytest, Selenium and Playwright | LearnQA.dev',
         description: 'Learn Python from the ground up for QA automation, including pytest, Selenium, Playwright, test data handling and Java-friendly explanations.',
         tr: {
-            title: 'Python Öğren: QA İçin pytest, Selenium, Playwright | LearnQA.dev',
+            title: 'Python Öğren: QA için pytest, Selenium | LearnQA.dev',
             description: 'Test otomasyonu için Python\'u sıfırdan öğren: pytest fixture yapısı, Selenium, Playwright, test verisi yönetimi ve Java karşılaştırmaları.',
         },
     },
@@ -90,7 +90,7 @@ export const ROUTE_SEO = [
         title: 'SQL for QA Engineers with Interactive Practice | LearnQA.dev',
         description: 'Practice SQL for software testing with SELECT, JOIN, GROUP BY, window functions, data validation scenarios and interactive exercises.',
         tr: {
-            title: 'SQL Sorguları Eğitimi: QA İçin İnteraktif Pratik | LearnQA.dev',
+            title: 'SQL Sorguları Nedir? QA için İnteraktif Pratik | LearnQA.dev',
             description: 'SQL sorgularını yazılım testi için öğren: SELECT, JOIN, GROUP BY, window function, veri doğrulama senaryoları ve tarayıcıda çalışan alıştırmalar.',
         },
     },
@@ -162,7 +162,7 @@ export const ROUTE_SEO = [
         title: 'Jira Tutorial for QA Engineers: Bug Tracking and JQL | LearnQA.dev',
         description: 'Learn Jira as a QA engineer: bug report anatomy, issue types, workflows, JQL queries, Scrum and Kanban boards, test management and REST API automation.',
         tr: {
-            title: 'Jira Eğitimi: QA için Bug Takibi, Workflow ve JQL | LearnQA.dev',
+            title: 'Jira Nedir? QA için Bug Takibi ve JQL | LearnQA.dev',
             description: 'QA mühendisleri için Jira: bug raporlama, issue türleri, workflow, JQL sorguları, Scrum ve Kanban panoları, test yönetimi ve REST API ile otomasyon.',
         },
     },
@@ -308,7 +308,7 @@ export const ROUTE_SEO = [
         title: 'What is Software Testing? Types of Testing & QA Basics | LearnQA.dev',
         description: 'What is software testing and what are the types of testing? Learn ISTQB principles, QA vs QC, the SDET role, and why testing matters with real examples.',
         tr: {
-            title: 'Yazılım Testi Nedir? Test Türleri ve QA Temelleri | LearnQA.dev',
+            title: 'Yazılım Testi Nedir? QA ve Test Türleri | LearnQA.dev',
             description: 'Yazılım testi nedir, test türleri nelerdir? ISTQB test prensipleri, QA ile QC farkı, SDET rolü ve testin neden kritik olduğunu gösteren örnekler.',
         },
     },
@@ -317,7 +317,7 @@ export const ROUTE_SEO = [
         title: 'Manual Testing Tutorial with Real Test Case Examples | LearnQA.dev',
         description: 'Learn manual testing with real test case examples: writing test cases, exploratory testing, bug reports, severity levels and interactive exercises.',
         tr: {
-            title: 'Manuel Test Nedir? Test Senaryosu Örnekleriyle Eğitim | LearnQA.dev',
+            title: 'Manuel Test Nedir? Test Senaryosu Örnekleri | LearnQA.dev',
             description: 'Manuel test nedir, test senaryosu (test case) nasıl yazılır? Keşifsel test, bug raporu, severity belirleme ve interaktif alıştırmalarla öğren.',
         },
     },

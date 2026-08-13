@@ -30,14 +30,35 @@ export const isShallowRepo = gitOutput(['rev-parse', '--is-shallow-repository'])
 
 const cache = new Map()
 
-/** Route'un veri dosyasının son commit tarihi (ISO) — bilinmiyorsa boş dize. */
+// Her route'un içeriği bir `*Data.js` dosyasında durmaz. Ana sayfa bunun en
+// önemli örneği: içeriği bir bileşende ve build sırasında türetilen mülakat
+// vitrininde yaşıyor. Bu tablo olmadan ana sayfa sitemap'te TARİHSİZ kalıyordu
+// — yani sitenin en önemli URL'i, yeniden tarama önceliği için kullanılan tek
+// sinyali taşımıyordu. Birden fazla dosya verilebilir; EN YENİ tarih kazanır.
+const EXTRA_SOURCES = {
+    '/': [
+        'src/components/HomePage.jsx',
+        'src/data/generated/interviewShowcase.js',
+    ],
+}
+
+function newestCommitDate(files) {
+    const dates = files
+        .map((file) => gitOutput(['log', '-1', '--format=%cI', '--', file]))
+        .filter(Boolean)
+        .sort()
+    return dates.length ? dates[dates.length - 1] : ''
+}
+
+/** Route'un kaynak dosyasının son commit tarihi (ISO) — bilinmiyorsa boş dize. */
 export function lastModFor(routePath) {
     if (isShallowRepo) return ''
     if (cache.has(routePath)) return cache.get(routePath)
 
     const config = DATA_MODULES[routePath]
     const relativeFile = config?.file?.replace('../../', '')
-    const iso = relativeFile ? gitOutput(['log', '-1', '--format=%cI', '--', relativeFile]) : ''
+    const files = relativeFile ? [relativeFile] : (EXTRA_SOURCES[routePath] || [])
+    const iso = newestCommitDate(files)
     cache.set(routePath, iso)
     return iso
 }
