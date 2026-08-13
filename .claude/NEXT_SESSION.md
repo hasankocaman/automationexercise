@@ -97,13 +97,24 @@ yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
   bölüm olarak altta. Üç hedef link de sitemap'te doğrulandı (indekslenebilir,
   noindex değil). Kod dosyasına dokunulmadı — `git status --short` yalnızca
   bu 3 dosyayı gösteriyor.
-- [ ] S2 — `/jira` JQL örnek listesi
+- [x] **S2 — `/jira` JQL örnek listesi** (`src/data/jiraData.js`). GRUP F
+  (JQL) sekmesinin sonuna yeni bir alt bölüm eklendi: "F5. Kopyala-Çalıştır:
+  16 Hazır JQL Sorgusu" — heading + text + bilingual `code` bloğu
+  (`jqlCopyPasteLibrary`). 16 sorgu, sekmenin zaten öğrettiği alan/operatör/
+  zaman fonksiyonlarını (WAS, CHANGED, startOfWeek(), currentUser(),
+  openSprints()) gerçekçi kombinasyonlarla birleştiriyor. JQL anahtar
+  kelimeleri Türkçeleştirilmedi, yalnızca yorum satırları TR/EN ayrı. Düz
+  `code` bloğu olduğu için `relatedTopicId` gerekmiyor (yalnızca
+  code-playground/interview-questions/error-dictionary için zorunlu).
+  Konu anlatımından sonra, GRUP G başlamadan önce yerleşti — quiz sıralama
+  kuralını bozmuyor. `node --check` + `check-content-integrity.mjs` +
+  `npm run build` yeşil.
 - [ ] S3 — kariyer odaklı giriş metni (`/qa-mentor`, `/what-is-testing`)
 - [ ] S5 — 8 sayfanın FAQ bloğunu genişlet
 
 ### Sıradaki iş
 
-1. **S2'den devam** — promptlar rapordaki 15. bölümde kopyala-yapıştır hazır.
+1. **S3'ten devam** — promptlar rapordaki 15. bölümde kopyala-yapıştır hazır.
 2. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
    doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
    linki, Plausible hesabı, Bing Webmaster Tools.
