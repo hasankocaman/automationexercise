@@ -76,18 +76,31 @@ yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
 
 **Opus tarafında açık iş KALMADI.**
 
+### Sonnet işleri — ilerleme (S1-S5, sıra: S1 → S4 → S2 → S3 → S5)
+
+- [x] **S1 — TR arama başlıkları** (`src/utils/seo.js`). 12 sayfanın
+  (`/selenium`, `/playwright`, `/cypress`, `/python`, `/java`, `/sql`,
+  `/jira`, `/postman`, `/docker`, `/jenkins`, `/manual-testing`,
+  `/what-is-testing`) TR başlık/açıklaması zaten arama niyetine göre
+  yazılmıştı ("X Nedir?" formatı); tek gerçek ihlal 6 başlığın 60 karakter
+  sınırını aşmasıydı (`/selenium` 62, `/python` 64, `/sql` 62, `/jira` 63,
+  `/manual-testing` 67, `/what-is-testing` 63). Hedef sorgu korunarak
+  kısaltıldı, hepsi artık ≤60. `check-seo.mjs` + `npm run build` yeşil.
+- [ ] S4 — outreach taslaklarını yayına hazırla
+- [ ] S2 — `/jira` JQL örnek listesi
+- [ ] S3 — kariyer odaklı giriş metni (`/qa-mentor`, `/what-is-testing`)
+- [ ] S5 — 8 sayfanın FAQ bloğunu genişlet
+
 ### Sıradaki iş
 
-1. **Sonnet işleri (S1-S5) hiç başlamadı** — promptlar rapordaki 15. bölümde
-   kopyala-yapıştır hazır. Sıra: S1 (TR arama başlıkları) → S4 (outreach
-   taslakları) → S2 → S3 → S5.
+1. **S4'ten devam** — promptlar rapordaki 15. bölümde kopyala-yapıştır hazır.
 2. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
    doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
    linki, Plausible hesabı, Bing Webmaster Tools.
 3. Yayından sonra `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt`
    adresinin 200 döndüğü kontrol edilmeli — dönmezse IndexNow bildirimleri
    sessizce reddedilir.
-4. Branch'in main'e merge + push kararı.
+4. Branch'in main'e merge + push kararı (Sonnet işleri bitince).
 
 ### Bu oturumdan kalıcı ders
 
