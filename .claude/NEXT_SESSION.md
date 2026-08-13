@@ -109,6 +109,10 @@ yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
   Konu anlatımından sonra, GRUP G başlamadan önce yerleşti — quiz sıralama
   kuralını bozmuyor. `node --check` + `check-content-integrity.mjs` +
   `npm run build` yeşil.
+  ⚠️ **DENETİMDE İKİ HATALI SORGU BULUNDU VE DÜZELTİLDİ** (commit `a47807e`,
+  ayrıntı aşağıdaki "Denetim" bölümünde) — blok kullanıcıya "doğrudan
+  kopyalayıp Jira'da çalıştırabilirsin" dediği için bu iki hata vaadi
+  tutmuyordu.
 - [x] **S3 — kariyer odaklı giriş metni, kapsam uyarlamasıyla.** Planın S3
   promptu `qaMentorData.js`'e de bir `simple-box` bloğu eklenmesini
   varsayıyordu — yürütme sırasında bu varsayım YANLIŞ çıktı: `qaMentorData.js`
@@ -149,6 +153,44 @@ yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
 planın öngörmediği bir mimari gerçekle karşılaştı ve kapsamı buna göre
 uyarlandı — ayrıntı yukarıdaki maddelerde.
 
+### Denetim (2026-08-14, Opus — S1-S5 çıktı kontrolü)
+
+Beş işin çıktısı iddiaya değil **build çıktısına** bakılarak denetlendi.
+Dördü doğru çıktı, birinde iki gerçek hata bulundu ve düzeltildi.
+
+| İş | Denetim sonucu |
+|---|---|
+| S1 | ✅ 12 başlığın hepsi ≤60, açıklamalar 80-180 arası, `check-seo` geçiyor. Kısaltma sırasında `/selenium`'dan "Python", `/python`'dan "Playwright" anahtar kelimesi düştü — açıklamalarda hâlâ geçtiği için kabul edilebilir bir ödünleşim. 12 başlıktan 7'sinde "Nedir?" kalıbı var, 5'i ("Eğitim"/"Öğren" kalıbı) farklı bir sorgu ailesini hedefliyor — kusur değil, bilinçli çeşitlilik. |
+| S2 | ❌→✅ **İki hatalı sorgu bulundu**, düzeltildi (commit `a47807e`). Ayrıntı aşağıda. |
+| S3 | ✅ Yeni heading + `simple-box` + metin İKİ dil ağacında da var (tek ağaçlı dosya, 19 blok), FAQ sorusu hem görünür gövdede hem FAQPage şemasında (`/what-is-testing` kabuğunda 6 SSS). |
+| S4 | ✅ Üç canonical hedefi de (`/selenium/wait-strategies`, `/sql/sql-joins`, `/test-frameworks`) sitemap'te İKİ dilde var ve `dist/` altında gerçek shell'leri üretiliyor — yani taslakların işaret ettiği adresler indekslenebilir. |
+| S5 | ✅ Yedi sayfanın da kabuğunda **7 SSS** basılıyor, hepsi TR+EN. |
+
+**S2'deki iki hata (blok "doğrudan kopyalayıp Jira'da çalıştırabilirsin" dediği için ikisi de vaadi bozuyordu):**
+
+1. **Sorgu 16 geçersiz JQL'di.** `comment is EMPTY` yazılmıştı; Jira'nın
+   `comment` alanı YALNIZCA `~` / `!~` destekler ve bu sorgu *"The field
+   'comment' does not support searching for an empty string"* hatası döner.
+   Kopyalayan kullanıcı doğrudan hataya düşerdi. Alanın gerçekten
+   desteklediği operatörle gerçek bir QA senaryosuna çevrildi (yorumunda
+   "yeniden üretilemedi" geçen buglar) ve yorum satırına neden `is EMPTY`
+   yazılamayacağı eklendi.
+2. **Sorgu 9 anlamsal olarak yanlıştı ve sayfanın KENDİ dersiyle
+   çelişiyordu.** Etiket "Bu ay Done'a taşınan buglar" ama sorgu
+   `status = Done AND updated >= startOfMonth()` idi — bu "şu an Done olan ve
+   bu ay herhangi bir nedenle dokunulmuş" kayıtları getirir (3 ay önce
+   kapanıp bugün yorum alan bug yanlışlıkla girer; bu ay Done'a taşınıp
+   sonra reopen edilen bug hiç görünmez). Aynı sekmedeki quiz tam bu ayrımı
+   öğretiyor. `status CHANGED TO Done AFTER startOfMonth()` yapıldı.
+
+Kalan 14 sorgu tek tek doğrulandı (WAS…AFTER, CHANGED AFTER, `assignee is
+EMPTY`, `IN`, `startOfWeek()`/`startOfMonth()`, ikili ORDER BY) — hepsi geçerli.
+
+⚠️ **Ders:** Bu tür "kopyala-çalıştır" bloklarında build yeşil olması hiçbir
+şey kanıtlamaz — `check-content-integrity` JQL'in Jira'da çalışıp
+çalışmayacağını bilemez. Yeni bir komut/sorgu kütüphanesi eklerken her satırın
+hedef sistemde GERÇEKTEN geçerli olduğu ayrıca doğrulanmalı.
+
 ### Sıradaki iş
 
 1. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
@@ -159,8 +201,9 @@ uyarlandı — ayrıntı yukarıdaki maddelerde.
    adresinin 200 döndüğü kontrol edilmeli — dönmezse IndexNow bildirimleri
    sessizce reddedilir.
 3. **Branch'in main'e merge + push kararı** — kullanıcı onayı gerekiyor.
-   Branch: `feature/seo-visibility-fixes`, 8 commit (3 Opus altyapı + 1 Opus
-   kümeleme + 4 Sonnet içerik), hepsi build+test yeşil.
+   Branch: `feature/seo-visibility-fixes`, 9 commit (1 plan + 2 Opus altyapı
+   + 1 Opus kümeleme + 4 Sonnet içerik + 1 Opus denetim düzeltmesi), hepsi
+   build+test yeşil.
 4. İsteğe bağlı, planda ertelenmiş: `/manual-testing` FAQ'ı gerçekten
    istenirse `ManualTestingPage.jsx`'e yeni bir render bloğu + `generate-static-routes.mjs`'e
    küçük bir kabuk/canlı-sayfa senkron değişikliği gerekir — bu, S5'in
