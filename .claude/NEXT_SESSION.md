@@ -20,14 +20,27 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-13, Opus — arama görünürlüğü teşhisi + Opus tarafı kod işleri) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-14, Opus — arama görünürlüğü çalışması MAIN'E MERGE EDİLDİ ve PUSH EDİLDİ) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 
 ### 📍 Şu anki durum
 
-**Branch: `feature/seo-visibility-fixes`** — main'e MERGE EDİLMEDİ, push
-edilmedi. Bir önceki oturumun işleri (`/jira`) main'de.
+**`feature/seo-visibility-fixes` main'e merge edildi ve push edildi**
+(merge commit `6cbd8aa`, 10 commit: 1 plan + 3 Opus altyapı + 4 Sonnet
+içerik + 1 denetim düzeltmesi + 1 devir notu). Çalışma ağacı temiz.
+
+⚠️ **PUSH = YAYIN.** `main`'e push, test → build → GitHub Pages deploy
+zincirini tetikler; deploy'dan SONRA IndexNow adımı çalışıp değişen URL'leri
+Bing/Yandex'e bildirir. Yani bu çalışma artık canlıdır.
+
+**Yayından hemen sonra kontrol edilmesi gerekenler:**
+1. GitHub Actions'ta `Test & Deploy` akışı yeşil mi? (test job kırmızıysa
+   deploy HİÇ çalışmaz — site eski hâlinde kalır, sessizce.)
+2. `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt` **200 dönüyor
+   mu?** Dönmezse IndexNow bildirimleri sessizce reddedilir.
+3. `https://learnqa.dev/sitemap.xml` artık bir `sitemapindex` mi, dört çocuk
+   sitemap'i de 200 dönüyor mu?
 
 Çıkış noktası: `Documents/seo-visibility-report-2026-08-13.md`. Rapor sitenin
 794 URL'inden yalnızca 1'inin indekslendiğini, marka aramasında bile
@@ -193,21 +206,40 @@ hedef sistemde GERÇEKTEN geçerli olduğu ayrıca doğrulanmalı.
 
 ### Sıradaki iş
 
-1. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
-   doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
-   linki, Plausible hesabı, Bing Webmaster Tools, outreach taslaklarının
-   (`Documents/outreach/`) Medium/dev.to'da yayınlanması.
-2. Yayından sonra `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt`
-   adresinin 200 döndüğü kontrol edilmeli — dönmezse IndexNow bildirimleri
-   sessizce reddedilir.
-3. **Branch'in main'e merge + push kararı** — kullanıcı onayı gerekiyor.
-   Branch: `feature/seo-visibility-fixes`, 9 commit (1 plan + 2 Opus altyapı
-   + 1 Opus kümeleme + 4 Sonnet içerik + 1 Opus denetim düzeltmesi), hepsi
-   build+test yeşil.
-4. İsteğe bağlı, planda ertelenmiş: `/manual-testing` FAQ'ı gerçekten
-   istenirse `ManualTestingPage.jsx`'e yeni bir render bloğu + `generate-static-routes.mjs`'e
-   küçük bir kabuk/canlı-sayfa senkron değişikliği gerekir — bu, S5'in
-   "yalnızca *Data.js" kapsamının dışında, ayrı bir görev olarak planlanmalı.
+**Kod tarafında açık iş YOK.** Bundan sonrası hesap yetkisi gerektiriyor —
+kod bunlarsız ölçülebilir sonuç üretmez.
+
+1. **Search Console** — alan adı doğrulaması + `sitemap.xml` gönderimi.
+   ⚠️ Gönderirken dikkat: sitemap artık bir indeks ve 794 URL'in ~%89'u
+   bölüm sayfası (710 indekslenebilir bölüm / 42 hub). 8 haftalık bir alan
+   adı için bu oran agresif. **Önerilen sıra: önce yalnızca iki hub
+   sitemap'ini gönder** (`sitemap-tr-hubs.xml`, `sitemap-en-hubs.xml`),
+   hub'ların indekslenme oranı oturduktan sonra bölüm sitemap'lerini ekle.
+   Sitemap'in bölünmüş olması tam da bu hamleyi mümkün kılıyor.
+2. **GitHub repo ayarları** — About + **Website alanı** + topics. Şemadaki
+   `sameAs` beyanı bu yapılmadan karşılıksız kalıyor (repo API'de hâlâ
+   `description: null, homepage: null, topics: []`). Metinler
+   `Documents/outreach/github-repo-about.md`'de hazır.
+3. **LinkedIn** — profile site linki + bir tanıtım gönderisi.
+4. **Bing Webmaster Tools** — Search Console'dan içe aktarmayla ~2 dakika.
+5. **Plausible/GA4 hesabı** — açılınca `VITE_PLAUSIBLE_DOMAIN` deploy
+   ortamına eklenecek; kanca zaten yerinde ve kapalı.
+6. **Outreach yazıları** — üç taslak Türkçe teaser + canonical talimatıyla
+   yayına hazır, Medium/dev.to'ya elle yayınlanacak.
+
+**Ölçüm ritmi:** haftalık Search Console → Sayfalar (dizine eklenen artıyor
+mu), aylık → Sorgular CSV. 3 ay sonra görünürlük raporundaki sorgular tekrar
+çalıştırılıp karşılaştırılmalı.
+
+**Beklenti kalibrasyonu (yanlış alarm vermemek için):** Sitemap gönderildikten
+1-2 hafta sonra "Keşfedildi – şu anda dizine eklenmedi" sayısı yüzlerle ifade
+edilecek. Bu arıza değil, yeni bir alan adının normal karşılığıdır. Bakılacak
+sayı toplam değil, **hub sitemap'lerinin indekslenme oranıdır**.
+
+**İsteğe bağlı, ertelenmiş teknik iş:** `/manual-testing` SSS'i gerçekten
+istenirse `ManualTestingPage.jsx`'e yeni bir render yüzeyi + statik kabukla
+senkron küçük bir değişiklik gerekir — içerik işi değil, bileşen işi olarak
+ayrıca planlanmalı.
 
 ### Bu oturumdan kalıcı ders
 
