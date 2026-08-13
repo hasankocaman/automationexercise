@@ -1419,8 +1419,11 @@ project = SHOP AND labels = regression AND status != Done
 -- 8) Bu hafta oluşturulan tüm buglar (haftanın başından bugüne)
 project = SHOP AND issuetype = Bug AND created >= startOfWeek()
 
--- 9) Bu ay Done'a taşınan buglar (kapanış hızını ölçmek için)
-project = SHOP AND issuetype = Bug AND status = Done AND updated >= startOfMonth()
+-- 9) Bu ay Done'a TAŞINAN buglar (kapanış hızını ölçmek için)
+-- Dikkat: status = Done AND updated >= startOfMonth() YAZMA — o sorgu
+-- "şu an Done olan ve bu ay bir şekilde dokunulmuş" kayıtları getirir.
+-- Geçişin kendisini sormak için CHANGED TO gerekir.
+project = SHOP AND issuetype = Bug AND status CHANGED TO Done AFTER startOfMonth()
 
 -- 10) Bana ait, 3 günden uzun süredir hiç güncellenmemiş açık kayıtlar
 project = SHOP AND assignee = currentUser() AND status != Done AND updated <= -3d
@@ -1440,8 +1443,10 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
 -- 15) En kritik olanlar önce: öncelik, sonra en eski önce (ikili sıralama)
 project = SHOP AND status != Done ORDER BY priority DESC, created ASC
 
--- 16) Bu sprint'te en az bir yorum bile almamış issue'lar -- muhtemelen unutulmuş
-project = SHOP AND sprint in openSprints() AND status != Done AND comment is EMPTY`,
+-- 16) Yorumunda "yeniden üretilemedi" geçen buglar -- rapor kalitesi sorunu
+-- avlamanın en hızlı yolu. comment alanı YALNIZCA ~ (içerir) operatörünü
+-- destekler; comment is EMPTY yazarsan Jira hata döner.
+project = SHOP AND issuetype = Bug AND comment ~ "yeniden üretilemedi" AND status != Done`,
     en: `-- 1) All unresolved bugs assigned to me
 project = SHOP AND issuetype = Bug AND assignee = currentUser() AND status != Done
 
@@ -1466,8 +1471,11 @@ project = SHOP AND labels = regression AND status != Done
 -- 8) All bugs created this week (since the start of the week)
 project = SHOP AND issuetype = Bug AND created >= startOfWeek()
 
--- 9) Bugs moved to Done this month (to measure closing speed)
-project = SHOP AND issuetype = Bug AND status = Done AND updated >= startOfMonth()
+-- 9) Bugs that TRANSITIONED to Done this month (to measure closing speed)
+-- Careful: do NOT write status = Done AND updated >= startOfMonth() -- that
+-- returns records currently in Done that were touched this month for any reason.
+-- Asking about the transition itself requires CHANGED TO.
+project = SHOP AND issuetype = Bug AND status CHANGED TO Done AFTER startOfMonth()
 
 -- 10) My open records with no update for more than 3 days
 project = SHOP AND assignee = currentUser() AND status != Done AND updated <= -3d
@@ -1487,8 +1495,10 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
 -- 15) Most critical first: priority, then oldest first (two-level sort)
 project = SHOP AND status != Done ORDER BY priority DESC, created ASC
 
--- 16) Issues in this sprint with zero comments -- likely forgotten
-project = SHOP AND sprint in openSprints() AND status != Done AND comment is EMPTY`,
+-- 16) Bugs whose comments contain "cannot reproduce" -- the fastest way to hunt
+-- down report-quality problems. The comment field supports ONLY the ~
+-- (contains) operator; writing comment is EMPTY makes Jira return an error.
+project = SHOP AND issuetype = Bug AND comment ~ "cannot reproduce" AND status != Done`,
   },
 }
 
