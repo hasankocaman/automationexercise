@@ -687,9 +687,9 @@ Branch: `feature/seo-visibility-fixes`
 | **O1** | Sitemap indeks yapısı | ✅ Bitti | `sitemap.xml` artık `sitemapindex`; dört çocuk (tr/en × hub/section), toplam 794 URL değişmedi. Testler yeni yapıya taşındı. |
 | **O2** | IndexNow | ✅ Bitti | `scripts/ping-indexnow.mjs` + `public/<key>.txt` + deploy sonrası workflow adımı. Son 7 günde değişen URL'leri bildirir, deploy'u kırmaz. |
 | **O7** | Ölçüm kancası | ✅ Bitti (kapalı) | `src/utils/analytics.js`, `VITE_PLAUSIBLE_DOMAIN` tanımlı değilse hiçbir istek gitmez. Hesap açılınca env değişkeni doldurulacak. |
-| **O6** | İç linkleme kümelemesi | ⬜ YAPILMADI | Bilinçli erteleme — gerekçe aşağıda. |
+| **O6** | İç linkleme kümelemesi | ✅ Bitti (ayrı commit) | Ayrıntı 17. bölümde. Aşağıdaki 16.1 erteleme gerekçesi tarihsel kayıt olarak duruyor. |
 
-### 16.1. O6 neden ertelendi
+### 16.1. O6 neden önce ertelenmişti (tarihsel kayıt — sonradan tamamlandı)
 
 İç linklemeyi konu kümelerine çevirmek her statik shell'in alt bağlantı
 bloğunu değiştirir ve şu an o bloğu doğrulayan canlı bir bekçi var
@@ -734,3 +734,63 @@ Ek olarak IndexNow anahtarı yayına çıktıktan sonra
 `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt` adresinin 200
 döndüğü tarayıcıdan kontrol edilmelidir — dönmezse bildirimler sessizce
 reddedilir.
+
+---
+
+## 17. O6 Tamamlandı — İç Bağlantı Grafiği Kümelendi (2026-08-13)
+
+16. bölümdeki tablo O6'yı "yapılmadı" olarak bırakmıştı; aynı gün, ayrı bir
+commit'te tamamlandı. **Opus tarafında açık iş kalmadı.**
+
+### Ne yapıldı
+
+Hub shell'lerinin alt bağlantı bloğu düz listeden iki katmanlı yapıya geçti:
+
+| | Önce | Sonra |
+|---|---|---|
+| `/selenium` (TR) | 13 bölüm + **41 düz route linki** | 13 bölüm + **4 aile üyesi** (UI/Web Test Otomasyonu) + **14 çapa** |
+| `/jira` (TR) | 11 bölüm + 41 düz link | 11 bölüm + 14 çapa (kategorisinde tek üye) |
+| `/` (ana sayfa) | 41 link | **41 link — bilinçli olarak değişmedi** |
+
+### Kümeler nereden geliyor
+
+Uydurulmadılar. `scripts/lib/topicClusters.mjs` sitenin **zaten var olan görünür
+site haritasını** okuyor (Yazılım Testine Giriş sayfasının Site Haritası
+sekmesi): 14 kategori, 41 sayfa. Kapsam ölçüldü — ana sayfa dışındaki her
+indekslenebilir route haritada mevcut, eksik yok.
+
+Bu seçimin gerekçesi: elle ikinci bir kategori listesi tutulsaydı, yeni bir
+sayfa eklendiğinde iki liste sessizce ayrışırdı. Artık kullanıcının gördüğü
+gruplama ile arama motorunun gördüğü bağlantı grafiği tek kaynaktan geliyor.
+
+### Öksüz kalma riski ve nasıl kapatıldı
+
+Kümelemenin gerçek riski, bir sayfaya hiçbir yerden link gitmemesidir — o
+sayfa yalnızca sitemap'ten keşfedilebilir hâle gelir ve pratikte sıralanmaz.
+Üç katmanlı koruma kuruldu:
+
+1. **Ana sayfa tam dizini korundu** — güvenlik ağı.
+2. **Site haritasında olmayan route için eski davranışa düşülür** — yeni bir
+   sayfa haritaya eklenmeyi unutulursa linksiz kalmaz.
+3. **`check-dist-seo.mjs` öksüz sayfa kontrolü** — her indekslenebilir route,
+   kendi dışındaki en az bir shell'den link almalı; almazsa build kırılır.
+
+### Doğrulama
+
+- `npm run build` temiz; yeni satır: `İç bağlantı grafiği: 42 route x 2 dil — öksüz sayfa yok.`
+- **Öksüz bekçisi kırmızıya döndürülerek kanıtlandı:** `/gauge` linkleri tüm
+  Türkçe shell'lerden silindi → `Orphan route in link graph (tr): /gauge`.
+  İlk deneme yanlış kurgulanmıştı (link yalnızca ana sayfadan silinmişti ama
+  sayfa aile üyelerinden link almaya devam ediyordu) — yani bekçi doğru
+  çalışıyordu, test kurgusu eksikti.
+- Yeni test grubu: `tests/seo-phase2-coverage.spec.ts` → "İç bağlantı grafiği —
+  konu kümeleri" (3 test): aile linkleri tam mı, düz listeye dönülmüş mü, ana
+  sayfa dizini eksiksiz mi.
+- SEO test paketleri (`seo-phase2-coverage`, `seo-phase3-integrity`,
+  `seo-section-routes`, `seo-i18n-routing`, `no-internal-jargon`): **65/65**.
+
+### Yeni sayfa eklerken dikkat
+
+Route'u görünür site haritasına da ekle. Eklenmezse sayfa yalnızca ana
+sayfadan link alır, kendi konu ailesine bağlanmaz — build kırılmaz ama konu
+sinyalini kaybeder.

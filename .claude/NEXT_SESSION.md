@@ -59,22 +59,43 @@ yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
    `/` daha önce tarihsizdi.
 5. **Ölçüm kancası** — `src/utils/analytics.js`, `VITE_PLAUSIBLE_DOMAIN`
    tanımlı değilse HİÇBİR istek gitmez. `.env.example` güncellendi.
-6. `codexSeo.md` §6/§6.1 yeni sitemap ve IndexNow mimarisiyle güncellendi;
-   "dil bazlı SEO eksikliği" maddesi (çözülmüştü, hâlâ açık görünüyordu) düzeltildi.
+6. **İç bağlantı grafiği kümelendi** — hub shell'lerinin alt link bloğu artık
+   düz "herkes herkese" listesi değil: kendi konu ailesi + her diğer
+   kategoriden bir çapa sayfası (`/selenium` TR: 41 düz link → 4 aile + 14
+   çapa). Kümeler UYDURULMADI, `scripts/lib/topicClusters.mjs` sitenin
+   **görünür site haritasından** (`whatIsTestingData.js` → Site Haritası
+   sekmesi, 14 kategori / 41 sayfa) türetiyor — ikinci bir kategori listesi
+   elle tutulsaydı yeni sayfa eklendiğinde sessizce ayrışırdı.
+   ⚠️ **Yeni sayfa eklerken route'u görünür site haritasına da ekle** — yoksa
+   sayfa yalnızca ana sayfadan link alır, konu ailesine bağlanmaz.
+   Ana sayfa tam dizini BİLİNÇLİ olarak korundu (bağlantı grafiğinin güvenlik
+   ağı). `check-dist-seo.mjs`'e öksüz sayfa kontrolü eklendi.
+7. `codexSeo.md` §6/§6.1/§10.1 yeni sitemap, IndexNow ve kümeleme mimarisiyle
+   güncellendi; "dil bazlı SEO eksikliği" maddesi (çözülmüştü, hâlâ açık
+   görünüyordu) düzeltildi.
+
+**Opus tarafında açık iş KALMADI.**
 
 ### Sıradaki iş
 
-1. **O6 — iç linkleme kümelemesi YAPILMADI** (bilinçli). Her shell'in alt
-   bağlantı bloğunu ve onu doğrulayan iki bekçiyi aynı anda değiştirmek
-   gerekiyor; ayrı branch'te ele alınmalı. Gerekçe raporun 16.1'inde.
-2. **Sonnet işleri (S1-S5) hiç başlamadı** — promptlar rapordaki 15. bölümde
-   kopyala-yapıştır hazır.
-3. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
+1. **Sonnet işleri (S1-S5) hiç başlamadı** — promptlar rapordaki 15. bölümde
+   kopyala-yapıştır hazır. Sıra: S1 (TR arama başlıkları) → S4 (outreach
+   taslakları) → S2 → S3 → S5.
+2. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
    doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
    linki, Plausible hesabı, Bing Webmaster Tools.
-4. Yayından sonra `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt`
+3. Yayından sonra `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt`
    adresinin 200 döndüğü kontrol edilmeli — dönmezse IndexNow bildirimleri
    sessizce reddedilir.
+4. Branch'in main'e merge + push kararı.
+
+### Bu oturumdan kalıcı ders
+
+**Bir bekçinin yeşil olması doğru çalıştığını kanıtlamaz.** Sitemap bölününce,
+`sitemap.xml`'i okumaya devam eden sızıntı kontrolü hiçbir şeye bakmıyor
+olurdu (o dosyada artık sayfa URL'i yok) ama yine yeşil kalırdı. Hem sitemap
+sızıntı bekçisi hem yeni öksüz sayfa bekçisi, BOZUK durum bilerek üretilip
+kırmızıya döndükleri görülerek doğrulandı. Yeni bir guard yazınca aynısını yap.
 
 ---
 

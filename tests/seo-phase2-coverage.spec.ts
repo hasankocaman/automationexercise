@@ -275,6 +275,66 @@ test.describe('SEO Faz 2 — zengin sonuç şeması (O6)', () => {
     });
 });
 
+test.describe('İç bağlantı grafiği — konu kümeleri', () => {
+    // Hub shell'lerinin alt bağlantı bloğu eskiden düz bir "herkes herkese"
+    // listesiydi: her sayfa diğer 41 sayfaya link veriyordu. Konu sinyali
+    // taşımıyordu ve hiçbir sayfayı öne çıkarmıyordu. Artık iki katmanlı:
+    // kendi konu ailesi + her diğer kategoriden bir çapa sayfası.
+    //
+    // Kümeler UYDURULMUYOR, sitenin görünür site haritasından türetiliyor —
+    // bu test tam olarak o eşleşmeyi doğrular. Ayrışırlarsa kullanıcının
+    // gördüğü gruplama ile crawler'ın gördüğü grafik farklı şeyler söyler.
+    const clusterFor = async (routePath: string) => {
+        const { buildTopicClusters, clusterSiblings } = await import('../scripts/lib/topicClusters.mjs');
+        return clusterSiblings(await buildTopicClusters(), routePath);
+    };
+
+    function fallbackBody(html: string): string {
+        return /<main data-seo-fallback[\s\S]*?<\/main>/.exec(html)?.[0] ?? '';
+    }
+
+    test('hub shell\'i kendi konu ailesindeki sayfaların TAMAMINA link verir', async () => {
+        // /selenium'un ailesi birden fazla üyeli — kümeleme burada görünür.
+        const siblings = await clusterFor('/selenium');
+        expect(siblings?.routes.length, '/selenium tek üyeli bir kümede — test artık bir şey kanıtlamıyor')
+            .toBeGreaterThan(1);
+
+        for (const locale of LOCALES) {
+            const body = fallbackBody(await readShell('/selenium', locale));
+            for (const sibling of siblings!.routes) {
+                const href = `href="${localizedPath(sibling, locale)}"`;
+                expect(body, `${locale}: /selenium shell'i aile üyesi ${sibling}'a link vermiyor`).toContain(href);
+            }
+        }
+    });
+
+    test('hub shell\'i artık TÜM route\'lara düz link vermiyor (ana sayfa hariç)', async () => {
+        // Düz listeye geri dönülürse bu test kırmızıya döner. Ana sayfa
+        // bilinçli istisnadır: sitenin dizini odur.
+        const body = fallbackBody(await readShell('/selenium', 'tr'));
+        const linked = new Set(
+            [...body.matchAll(/href="(\/[^"#]*)"/g)]
+                .map((m) => m[1])
+                .filter((href) => SITEMAP_ROUTES.some((entry: any) => entry.path === href)),
+        );
+        expect(linked.size, `/selenium hub'ı ${linked.size} route'a link veriyor — düz listeye dönülmüş olabilir`)
+            .toBeLessThan(SITEMAP_ROUTES.length - 5);
+    });
+
+    test('ana sayfa tam dizini taşımaya devam ediyor', async () => {
+        // Bu, bağlantı grafiğinin güvenlik ağı: kümeleme yanlış kurulsa bile
+        // her sayfa buradan bir link alır.
+        for (const locale of LOCALES) {
+            const body = fallbackBody(await readShell('/', locale));
+            for (const entry of SITEMAP_ROUTES) {
+                if (entry.path === '/') continue;
+                expect(body, `${locale}: ana sayfa dizininde eksik route: ${entry.path}`)
+                    .toContain(`href="${localizedPath(entry.path, locale)}"`);
+            }
+        }
+    });
+});
+
 test.describe('Sitemap dışı bırakılan sayfalar (korumalı/işlevsel)', () => {
     // Bu sayfalar ziyaretçiye içerik göstermiyor (RequireAdmin/ProtectedRoute) ya
     // da işlevsel (login, OAuth callback). Sitemap "bunları indeksle" demektir;

@@ -140,6 +140,24 @@ Ek script: `npm run seo:check-dist`
 ### 10. Ana sayfa link yapısı
 `src/components/HomePage.jsx` teknoloji navigasyonu `button + navigate()` yerine `Link` kullanır — crawler için gerçek link sinyali oluşturur.
 
+### 10.1. İç bağlantı grafiği — konu kümeleri (topical clusters)
+Statik shell'lerin alt bağlantı bloğu düz bir "herkes herkese" listesi DEĞİLDİR. Hub shell'i (ana sayfa hariç) iki katman basar:
+
+1. **Kendi konu ailesi** — aynı kategorideki sayfalar, kategori adı başlıkla birlikte.
+2. **Diğer alanlar** — her diğer kategoriden yalnızca **çapa** (anchor) sayfası + ana sayfa.
+
+Böylece sayfa başına ~41 düz link ~17'ye iner ve linkler konu anlamı taşır.
+
+**Kümeler `scripts/lib/topicClusters.mjs` tarafından sitenin GÖRÜNÜR site haritasından türetilir** (`/what-is-testing` → Site Haritası sekmesi, `whatIsTestingData.js` içindeki `heading` + `link-grid` çiftleri). İkinci bir kategori listesi elle TUTULMAZ — tutulsaydı yeni bir sayfa eklendiğinde iki liste sessizce ayrışırdı. Çapa = kategorinin ilk sayfası (site haritasındaki sıra öğrenme sırasıdır).
+
+**Bilinçli istisnalar ve korumalar:**
+- **Ana sayfa tam dizini taşır** — bağlantı grafiğinin güvenlik ağıdır; oradan bir route düşerse kümeleme yanlış kurulmuş olsa bile fark edilir.
+- Site haritasında yer almayan bir route çıkarsa (yeni sayfa eklenip haritaya konmamışsa) eski tam-liste davranışına düşülür — sessizce linksiz kalmaktansa.
+- `check-dist-seo.mjs` **öksüz sayfa kontrolü** yapar: her indekslenebilir route, kendi dışındaki en az bir shell'den link almalı. Sitemap keşif sağlar ama otorite/tarama önceliği sağlamaz — öksüz sayfa pratikte sıralanmaz.
+- `tests/seo-phase2-coverage.spec.ts` → "İç bağlantı grafiği — konu kümeleri" (3 test): hub kendi ailesinin tamamına link veriyor mu, düz listeye geri dönülmüş mü, ana sayfa dizini tam mı.
+
+⚠️ **Yeni sayfa eklerken:** route'u görünür site haritasına da ekle. Eklenmezse sayfa yalnızca ana sayfadan link alır ve kendi konu ailesine bağlanmaz.
+
 ### 11. Code splitting
 `src/App.jsx` route component'leri `React.lazy` ile bölünmüştür. İlk ana JS bundle ~3.5MB'tan ~235KB'a indi; büyük data chunk'ları ilgili route açıldığında yüklenir. (`javaData` chunk'ı hâlâ büyük — bkz. Bilinen Uyarılar.)
 
