@@ -86,14 +86,24 @@ yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
   sınırını aşmasıydı (`/selenium` 62, `/python` 64, `/sql` 62, `/jira` 63,
   `/manual-testing` 67, `/what-is-testing` 63). Hedef sorgu korunarak
   kısaltıldı, hepsi artık ≤60. `check-seo.mjs` + `npm run build` yeşil.
-- [ ] S4 — outreach taslaklarını yayına hazırla
+- [x] **S4 — outreach taslakları yayına hazır.** `Documents/outreach/`
+  altındaki üç dosya (selenium wait, sql joins, playwright vs selenium)
+  eskiden yalnızca İngilizce tam metindi. Her birine eklendi: (1) dosya
+  başında canonical talimatı — Türkçe teaser için bare path
+  (`/selenium/wait-strategies`, `/sql/sql-joins`, `/test-frameworks`),
+  İngilizce tam metin için `/en/...`; (2) tam metnin ~%40'ı uzunluğunda
+  Türkçe teaser (Medium Türkiye hedefli), en az 2 doğal iç link ile
+  bitiyor; (3) mevcut İngilizce tam metin korunmuş, dev.to için ayrı
+  bölüm olarak altta. Üç hedef link de sitemap'te doğrulandı (indekslenebilir,
+  noindex değil). Kod dosyasına dokunulmadı — `git status --short` yalnızca
+  bu 3 dosyayı gösteriyor.
 - [ ] S2 — `/jira` JQL örnek listesi
 - [ ] S3 — kariyer odaklı giriş metni (`/qa-mentor`, `/what-is-testing`)
 - [ ] S5 — 8 sayfanın FAQ bloğunu genişlet
 
 ### Sıradaki iş
 
-1. **S4'ten devam** — promptlar rapordaki 15. bölümde kopyala-yapıştır hazır.
+1. **S2'den devam** — promptlar rapordaki 15. bölümde kopyala-yapıştır hazır.
 2. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
    doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
    linki, Plausible hesabı, Bing Webmaster Tools.
