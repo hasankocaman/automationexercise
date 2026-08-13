@@ -20,9 +20,67 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-12, Opus — `/jira` yol haritalarına + site haritası tamamlandı, MAIN'E MERGE EDİLDİ) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-13, Opus — arama görünürlüğü teşhisi + Opus tarafı kod işleri) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### 📍 Şu anki durum
+
+**Branch: `feature/seo-visibility-fixes`** — main'e MERGE EDİLMEDİ, push
+edilmedi. Bir önceki oturumun işleri (`/jira`) main'de.
+
+Çıkış noktası: `Documents/seo-visibility-report-2026-08-13.md`. Rapor sitenin
+794 URL'inden yalnızca 1'inin indekslendiğini, marka aramasında bile
+görünmediğini ölçmüştü. Aynı dosyaya kök neden analizi + 4 fazlı plan +
+Opus/Sonnet görev dağılımı + Sonnet promptları eklendi (bölüm 8-16).
+
+**Teşhis (kanıtla doğrulandı, tekrar araştırmaya gerek yok):** teknik SEO
+altyapısı ÇALIŞIYOR — canlı `/selenium` 2000+ kelime gerçek içerik dönüyor,
+`/en/selenium` İngilizce, sitemap geçerli, robots engellemiyor, şema yerinde.
+Sorun üç yerde: (1) alan adı 8 haftalık ve dışarıdan tek referansı yok —
+GitHub reposu API'de `description: null, homepage: null, topics: []` dönüyor,
+yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
+(3) Search Console/analytics kurulmamış, ölçüm yok.
+
+### Bu oturumda yapılan (Opus tarafı, hepsi build+test yeşil)
+
+1. **Sitemap indeks yapısına bölündü** — `sitemap.xml` artık `sitemapindex`;
+   `sitemap-{tr,en}-{hubs,sections}.xml` dört çocuk. Toplam 794 URL değişmedi.
+   Amaç: Search Console'un indekslenme oranını grup bazında raporlaması.
+   ⚠️ `tests/seo-phase2-coverage.spec.ts`'e `readAllSitemapUrlBlocks()` eklendi —
+   sitemap denetleyen YENİ bir test yazarken `sitemap.xml`'i TEK BAŞINA okuma,
+   orada sayfa URL'i yok, kontrol hep yeşil kalır.
+2. **IndexNow** — `scripts/ping-indexnow.mjs`, `public/bd612d5cca6f783b2753e50f59d60581.txt`,
+   `deploy.yml`'de deploy SONRASI adım. Son 7 günde değişenleri bildirir,
+   deploy'u kırmaz. `npm run seo:indexnow -- --dry-run`.
+3. **`Organization` şeması** — `alternateName`, iki dilli `description`,
+   `foundingDate`. `organizationNode(locale)` artık dile göre tanım basıyor.
+4. **Ana sayfa `lastmod`** — `scripts/lib/lastmod.mjs` → `EXTRA_SOURCES`.
+   `/` daha önce tarihsizdi.
+5. **Ölçüm kancası** — `src/utils/analytics.js`, `VITE_PLAUSIBLE_DOMAIN`
+   tanımlı değilse HİÇBİR istek gitmez. `.env.example` güncellendi.
+6. `codexSeo.md` §6/§6.1 yeni sitemap ve IndexNow mimarisiyle güncellendi;
+   "dil bazlı SEO eksikliği" maddesi (çözülmüştü, hâlâ açık görünüyordu) düzeltildi.
+
+### Sıradaki iş
+
+1. **O6 — iç linkleme kümelemesi YAPILMADI** (bilinçli). Her shell'in alt
+   bağlantı bloğunu ve onu doğrulayan iki bekçiyi aynı anda değiştirmek
+   gerekiyor; ayrı branch'te ele alınmalı. Gerekçe raporun 16.1'inde.
+2. **Sonnet işleri (S1-S5) hiç başlamadı** — promptlar rapordaki 15. bölümde
+   kopyala-yapıştır hazır.
+3. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
+   doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
+   linki, Plausible hesabı, Bing Webmaster Tools.
+4. Yayından sonra `https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt`
+   adresinin 200 döndüğü kontrol edilmeli — dönmezse IndexNow bildirimleri
+   sessizce reddedilir.
+
+---
+
+## 📌 Önceki Durum (2026-08-12, Opus — `/jira` yol haritalarına + site haritası tamamlandı, MAIN'E MERGE EDİLDİ)
+
+> Alttaki bölümler korunuyor.
 
 ### 📍 Şu anki durum
 

@@ -73,10 +73,51 @@ test.beforeAll(async () => {
     sectionUrlCount = Object.values(sectionIndex).flat().filter((entry: any) => entry.indexable).length;
 });
 
+// Sitemap artık TEK dosya değil: `sitemap.xml` bir indeks, URL'ler dil × sayfa
+// tipi kırılımıyla dört çocuk dosyada duruyor (bkz. scripts/generate-seo-files.mjs).
+// Testler indeksin GÖSTERDİĞİ dosyaları okur — çocuk dosya adlarını burada
+// sabitlemek, üretim tarafı değişince testin sessizce eski dosyayı okumasına
+// (ve hep yeşil kalmasına) yol açardı.
+async function readSitemapIndex(): Promise<string[]> {
+    const xml = await readFile(`${DIST}/sitemap.xml`, 'utf8');
+    expect(xml, 'sitemap.xml bir sitemapindex olmalı').toContain('<sitemapindex');
+    return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+}
+
+/** Tüm çocuk sitemap'lerdeki <url> bloklarını tek listede toplar. */
+async function readAllSitemapUrlBlocks(): Promise<string[]> {
+    const children = await readSitemapIndex();
+    const blocks: string[] = [];
+    for (const loc of children) {
+        const file = loc.replace(SITE_URL, '');
+        const xml = await readFile(`${DIST}${file}`, 'utf8');
+        expect(xml, `${file} bir urlset olmalı`).toContain('<urlset');
+        blocks.push(...xml.split('<url>').slice(1));
+    }
+    return blocks;
+}
+
 test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
+    test('sitemap indeksi dört alt sitemap\'i gösterir ve hepsi diskte vardır', async () => {
+        const children = await readSitemapIndex();
+        // Dil × sayfa tipi kırılımı: bir grup sessizce düşerse Search Console'da
+        // o grubun indekslenme oranı ölçülemez hale gelir.
+        const expected = [
+            `${SITE_URL}/sitemap-tr-hubs.xml`,
+            `${SITE_URL}/sitemap-tr-sections.xml`,
+            `${SITE_URL}/sitemap-en-hubs.xml`,
+            `${SITE_URL}/sitemap-en-sections.xml`,
+        ];
+        expect(children.sort()).toEqual(expected.sort());
+
+        for (const loc of children) {
+            const file = `${DIST}${loc.replace(SITE_URL, '')}`;
+            expect(await exists(file), `indekste var ama diskte yok: ${file}`).toBe(true);
+        }
+    });
+
     test('sitemap her route\'u İKİ dilde içerir ve her girdide hreflang alternatifleri vardır', async () => {
-        const xml = await readFile(`${DIST}/sitemap.xml`, 'utf8');
-        const urlBlocks = xml.split('<url>').slice(1);
+        const urlBlocks = await readAllSitemapUrlBlocks();
 
         // (Hub route + indekslenebilir sekme) sayısının TAM İKİ KATI — bir dil
         // sessizce düşerse yakalanır.
@@ -116,11 +157,22 @@ test.describe('SEO Faz 2 — sitemap çıktısı (O4)', () => {
         expect(robots, 'robots.txt tüm siteyi Disallow ediyor').not.toMatch(/^\s*Disallow:\s*\/\s*$/m);
     });
 
-    test('yayınlanan sitemap tarayıcıdan da erişilebilir', async ({ request }) => {
+    test('yayınlanan sitemap indeksi ve her çocuğu tarayıcıdan erişilebilir', async ({ request }) => {
+        // Diskte doğru üretilmiş olması yetmez: indeks bir URL vaat ediyor ve o
+        // URL sunucudan 200 dönmüyorsa arama motoru grubun tamamını kaçırır.
         const res = await request.get('/sitemap.xml');
         expect(res.status()).toBe(200);
-        const body = await res.text();
-        expect(body.split('<url>').length - 1).toBe((SITEMAP_ROUTES.length + sectionUrlCount) * LOCALES.length);
+        const indexBody = await res.text();
+        const children = [...indexBody.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+        expect(children.length, 'indekste alt sitemap yok').toBe(LOCALES.length * 2);
+
+        let total = 0;
+        for (const loc of children) {
+            const child = await request.get(loc.replace(SITE_URL, ''));
+            expect(child.status(), `alt sitemap sunulamadı: ${loc}`).toBe(200);
+            total += (await child.text()).split('<url>').length - 1;
+        }
+        expect(total).toBe((SITEMAP_ROUTES.length + sectionUrlCount) * LOCALES.length);
     });
 });
 
@@ -232,12 +284,16 @@ test.describe('Sitemap dışı bırakılan sayfalar (korumalı/işlevsel)', () =
         expect(NOINDEX_ROUTES.length, 'noindex işaretli route kalmamış — filtre kazayla kaldırılmış olabilir')
             .toBeGreaterThan(0);
 
-        const xml = await readFile(`${DIST}/sitemap.xml`, 'utf8');
+        // ⚠ Yalnızca `sitemap.xml`'i okumak YETMEZ — o dosya artık bir indeks ve
+        // içinde hiç sayfa URL'i yok, yani bu kontrol hep yeşil kalırdı. Sızıntı
+        // ancak ÇOCUK sitemap'lerde görünür.
+        const blocks = await readAllSitemapUrlBlocks();
+        const locs = new Set(blocks.map((b) => b.match(/<loc>([^<]+)<\/loc>/)?.[1] ?? ''));
         for (const entry of NOINDEX_ROUTES) {
             for (const locale of LOCALES) {
-                const url = `<loc>${SITE_URL}${localizedPath(entry.path, locale)}</loc>`;
-                expect(xml, `${entry.path} sitemap'e sızmış — indekslendikten sonra çıkarmak haftalar sürer`)
-                    .not.toContain(url);
+                const url = `${SITE_URL}${localizedPath(entry.path, locale)}`;
+                expect(locs.has(url), `${entry.path} sitemap'e sızmış — indekslendikten sonra çıkarmak haftalar sürer`)
+                    .toBe(false);
             }
         }
     });

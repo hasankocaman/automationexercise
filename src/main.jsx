@@ -10,6 +10,7 @@ import { LanguageProvider } from './context/LanguageContext'
 import { ZoomProvider } from './context/ZoomContext'
 import { AuthProvider } from './context/AuthContext'
 import { EN_PREFIX, localeFromPathname } from './utils/seo'
+import { initAnalytics } from './utils/analytics'
 
 function migrateLegacyHashRoute() {
     const hashPath = window.location.hash
@@ -20,6 +21,10 @@ function migrateLegacyHashRoute() {
 }
 
 migrateLegacyHashRoute()
+
+// Ölçüm kancası — `VITE_PLAUSIBLE_DOMAIN` tanımlı değilse hiçbir şey yapmaz,
+// yani varsayılan durumda hiçbir dış istek gitmez.
+initAnalytics()
 
 // DİL-AYRIK URL (Documents/seo-phase-2-plan.md §2.1): URL `/en` ile başlıyorsa
 // router'ı o basename ile kur. Böylece App.jsx'teki 43 route İKİLENMEZ ve tüm

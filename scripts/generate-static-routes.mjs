@@ -597,7 +597,7 @@ ${siblings}
 // yeniden tarif etmek yerine tek bir kimlikte birleştirmek, motorun kişiyi
 // site genelinde tek bir varlık olarak tanımasını sağlar.
 function identityNodes(locale) {
-    return [organizationNode(), authorNode(locale)]
+    return [organizationNode(locale), authorNode(locale)]
 }
 
 function webPageNode(seo, url, locale) {

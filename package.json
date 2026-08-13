@@ -19,6 +19,7 @@
     "seo:files": "node scripts/generate-seo-files.mjs",
     "seo:section-slugs": "node scripts/generate-section-slugs.mjs",
     "seo:lcp": "node scripts/measure-mobile-lcp.mjs",
+    "seo:indexnow": "node scripts/ping-indexnow.mjs",
     "test:report": "node scripts/generate-test-report.mjs",
     "preview": "vite preview",
     "pretest:e2e": "node scripts/kill-stale-test-processes.mjs && npm run build",

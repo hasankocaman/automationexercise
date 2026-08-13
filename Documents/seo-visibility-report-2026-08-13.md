@@ -672,3 +672,65 @@ Doğrulama (atlanamaz):
 - `node scripts/check-content-integrity.mjs` sıfır ihlal
 - `npm run build` hatasız
 ```
+
+---
+
+## 16. Uygulama Durumu — Opus Tarafı (2026-08-13)
+
+Branch: `feature/seo-visibility-fixes`
+
+| Kod | İş | Durum | Not |
+|---|---|---|---|
+| **O3** | `Organization` şeması zenginleştirildi | ✅ Bitti | `alternateName: 'QA Learning Platform'`, iki dilli `description`, `foundingDate: 2026-06-18`. Şema artık sayfanın diliyle aynı dilde tanım basıyor (`organizationNode(locale)`). |
+| **O4** | Ana sayfa `lastmod` | ✅ Bitti | `scripts/lib/lastmod.mjs` → `EXTRA_SOURCES` tablosu. `/` artık `2026-08-11T18:01:01+03:00` taşıyor; daha önce tarihsizdi. |
+| **O5** | README marka bloğu | ✅ Zaten yapılmıştı | Doğrulandı: canlı site linki ve iki dilli marka açıklaması README'nin ilk ekranında mevcut. Planın 11. bölümündeki 5. madde bu yüzden düşürüldü. |
+| **O1** | Sitemap indeks yapısı | ✅ Bitti | `sitemap.xml` artık `sitemapindex`; dört çocuk (tr/en × hub/section), toplam 794 URL değişmedi. Testler yeni yapıya taşındı. |
+| **O2** | IndexNow | ✅ Bitti | `scripts/ping-indexnow.mjs` + `public/<key>.txt` + deploy sonrası workflow adımı. Son 7 günde değişen URL'leri bildirir, deploy'u kırmaz. |
+| **O7** | Ölçüm kancası | ✅ Bitti (kapalı) | `src/utils/analytics.js`, `VITE_PLAUSIBLE_DOMAIN` tanımlı değilse hiçbir istek gitmez. Hesap açılınca env değişkeni doldurulacak. |
+| **O6** | İç linkleme kümelemesi | ⬜ YAPILMADI | Bilinçli erteleme — gerekçe aşağıda. |
+
+### 16.1. O6 neden ertelendi
+
+İç linklemeyi konu kümelerine çevirmek her statik shell'in alt bağlantı
+bloğunu değiştirir ve şu an o bloğu doğrulayan canlı bir bekçi var
+(`hub shell'i indekslenebilir bölümlerine link verir`, `hub kilitli ve
+hub-kopyası bölümlere link VERMEZ`). Değişiklik doğru yapıldığında bile bu
+testlerin beklentisi yeniden yazılmalı — yani hem üretimi hem bekçisini aynı
+anda değiştirmek gerekiyor. Bunu diğer altı işle aynı commit'e sıkıştırmak,
+bir şey bozulduğunda hangi değişikliğin bozduğunu ayırt edilemez hale
+getirirdi.
+
+Ayrıca sıra bakımından da acil değil: düz linkleme yapısı otoriteyi
+*dağıtıyor*, ama şu an dağıtılacak otorite yok. Dış link gelmeden önce
+kümelemenin ölçülebilir bir etkisi olmayacak.
+
+**Koşul:** Planın 11. bölümündeki 1-4 numaralı kullanıcı adımları
+tamamlandıktan sonra, ayrı bir branch'te ele alınmalı.
+
+### 16.2. Doğrulama
+
+- `npm run build` hatasız (47 route × 2 dil = 94 shell, 866 bölüm shell'i, dist SEO kontrolü geçti).
+- İçerik bütünlüğü ve i18n sızıntı kontrolleri build zincirinde geçti.
+- `tests/seo-phase2-coverage.spec.ts` + `tests/seo-phase3-integrity.spec.ts` → **37/37 geçti**.
+- Sitemap sızıntı bekçisinin gerçekten kırmızıya döndüğü kanıtlandı: çocuk
+  sitemap'e bilerek korumalı bir route (`/login`) enjekte edildi, test
+  başarısız oldu, dosya geri alındı. (Bir bekçinin hep yeşil olması, doğru
+  çalıştığı anlamına gelmez — hiçbir şeye bakmıyor da olabilir.)
+- IndexNow script'i `--dry-run` ile çalıştırıldı: 7 günlük pencerede 40 URL,
+  30 günlük pencerede 782 URL bildirilecek şekilde doğru filtreliyor.
+
+### 16.3. Bu değişikliklerden SONRA kullanıcı tarafında gereken
+
+Kod tarafı hazır ama şu üçü olmadan hiçbiri sonuç üretmez:
+
+1. **Search Console** — alan adı doğrulaması + `sitemap.xml` gönderimi.
+   Gönderildikten sonra dört alt sitemap ayrı satır olarak raporlanacak.
+2. **GitHub repo ayarları** — About + Website alanı + topics. Şemadaki
+   `sameAs` beyanı bu yapılmadan karşılıksız kalıyor.
+3. **Plausible hesabı** — açıldığında `VITE_PLAUSIBLE_DOMAIN` değişkeni
+   deploy ortamına eklenecek; kanca zaten yerinde.
+
+Ek olarak IndexNow anahtarı yayına çıktıktan sonra
+`https://learnqa.dev/bd612d5cca6f783b2753e50f59d60581.txt` adresinin 200
+döndüğü tarayıcıdan kontrol edilmelidir — dönmezse bildirimler sessizce
+reddedilir.

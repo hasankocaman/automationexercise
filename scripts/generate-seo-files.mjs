@@ -77,35 +77,83 @@ if (problems.length) {
 }
 const sectionEntries = Object.values(sectionIndex).flat().filter((entry) => entry.indexable)
 
-const entries = LOCALES.flatMap((locale) => [
-    ...indexableRoutes.map((seo) => sitemapUrl({
-        path: seo.path,
-        locale,
-        priority: priorities[seo.path] || '0.8',
-        changefreq: ['/', '/selenium', '/playwright', '/python', '/typescript', '/sql', '/java'].includes(seo.path)
-            ? 'weekly'
-            : 'monthly',
-        lastmod: lastModFor(seo.path),
-    })),
-    ...sectionEntries.map((entry) => sitemapUrl({
-        path: entry.path,
-        locale,
-        priority: '0.7',
-        changefreq: 'monthly',
-        lastmod: lastModFor(entry.routePath),
-    })),
+// ─── Sitemap: TEK dosya değil, DÖRT parça + bir indeks ────────────────────────
+// Neden bölündü: tek bir urlset'te 700+ URL varken Search Console "şu kadar
+// gönderildi, şu kadar dizine eklendi" bilgisini tek blok olarak verir. O rakam
+// "hangi grup takıldı?" sorusuna cevap veremez — Türkçe hub'lar mı girmiyor,
+// yoksa bölüm sayfaları mı? Grup başına ayrı sitemap, o cevabı ÖLÇÜLEBİLİR
+// hale getirir: her alt sitemap kendi indekslenme oranıyla raporlanır.
+//
+// Bölme ölçütü dil × sayfa tipi: dil, çünkü iki dilin indekslenme hızı ayrışır;
+// tip, çünkü hub sayfaları (47) ile bölüm sayfaları (~350) tarama önceliği
+// bakımından aynı sınıfta değildir — hub'lar önce girmeli.
+//
+// `sitemap.xml` adı KORUNDU (artık içeriği indeks). Arama motoruna daha önce
+// bu adres bildirildiyse yeni bir gönderim gerekmez; indeksi gören motor
+// çocukları kendisi keşfeder.
+const SITEMAP_GROUPS = LOCALES.flatMap((locale) => [
+    {
+        file: `sitemap-${locale}-hubs.xml`,
+        urls: indexableRoutes.map((seo) => ({
+            path: seo.path,
+            locale,
+            priority: priorities[seo.path] || '0.8',
+            changefreq: ['/', '/selenium', '/playwright', '/python', '/typescript', '/sql', '/java'].includes(seo.path)
+                ? 'weekly'
+                : 'monthly',
+            lastmod: lastModFor(seo.path),
+        })),
+    },
+    {
+        file: `sitemap-${locale}-sections.xml`,
+        urls: sectionEntries.map((entry) => ({
+            path: entry.path,
+            locale,
+            priority: '0.7',
+            changefreq: 'monthly',
+            lastmod: lastModFor(entry.routePath),
+        })),
+    },
 ])
+
+let totalUrls = 0
+for (const group of SITEMAP_GROUPS) {
+    totalUrls += group.urls.length
+    await writeFile(
+        join(publicDir, group.file),
+        `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${group.urls.map(sitemapUrl).join('\n')}
+</urlset>
+`,
+    )
+}
+
+// İndeksteki `lastmod`, o alt sitemap'teki EN YENİ sayfa tarihidir — motor
+// hangi grubu yeniden çekeceğine buna bakarak karar verir.
+function newestLastmod(urls) {
+    const dates = urls.map((u) => u.lastmod).filter(Boolean).sort()
+    return dates.length ? dates[dates.length - 1] : ''
+}
 
 await writeFile(
     join(publicDir, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${entries.join('\n')}
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${SITEMAP_GROUPS.map((group) => {
+        const lastmod = newestLastmod(group.urls)
+        return `  <sitemap>
+    <loc>${canonicalUrl(`/${group.file}`)}</loc>
+${lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : ''}  </sitemap>`
+    }).join('\n')}
+</sitemapindex>
 `,
 )
 
-console.log(`Generated robots.txt and sitemap.xml: ${indexableRoutes.length} routes + ${sectionEntries.length} sections x ${LOCALES.length} locales = ${entries.length} URLs.`)
+console.log(
+    `Generated robots.txt and sitemap index: ${SITEMAP_GROUPS.length} alt sitemap, `
+    + `${indexableRoutes.length} route + ${sectionEntries.length} bölüm x ${LOCALES.length} dil = ${totalUrls} URL.`,
+)
 
 // ─── Görünür "son güncelleme" tarihi ─────────────────────────────────────────
 // Aynı tarih üç yerde birden görünmek zorunda: sitemap `lastmod`, sayfanın

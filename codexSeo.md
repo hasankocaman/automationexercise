@@ -85,8 +85,35 @@ Production deploy GitHub Pages üzerinden yapılır. GitHub Pages, Netlify tarz�
 - `/test-frameworks` — Framework Comparison, Playwright Language Comparison, Python Frameworks içeriklerinden zengin fallback.
 - `/java-document` — `public/documents/JavaNotesForProfessionals.md` build sırasında okunur, ilk chapter başlıkları crawl edilebilir şekilde HTML shell'e yazılır.
 
-### 6. robots.txt ve sitemap.xml
-`scripts/generate-seo-files.mjs` — build öncesinde `public/robots.txt` ve `public/sitemap.xml` üretir. `sitemap.xml`, `ROUTE_SEO` listesindeki tüm route'ları içerir.
+### 6. robots.txt ve sitemap (indeks + dört alt sitemap)
+`scripts/generate-seo-files.mjs` — build öncesinde `public/robots.txt` ve sitemap dosyalarını üretir.
+
+`sitemap.xml` **tek bir urlset DEĞİL, bir `sitemapindex`'tir**; URL'ler dil × sayfa tipi kırılımıyla dört çocuk dosyada durur:
+
+| Dosya | İçerik |
+|---|---|
+| `sitemap-tr-hubs.xml` | Türkçe ana sayfa/route URL'leri |
+| `sitemap-tr-sections.xml` | Türkçe bölüm (sekme) URL'leri |
+| `sitemap-en-hubs.xml` | İngilizce ana sayfa/route URL'leri |
+| `sitemap-en-sections.xml` | İngilizce bölüm URL'leri |
+
+**Neden bölündü:** Tek urlset'te Search Console "gönderilen / dizine eklenen" sayısını tek blok olarak raporlar; o rakam "hangi grup takıldı?" sorusuna cevap veremez. Grup başına ayrı dosya, her grubun indekslenme oranını ayrı ayrı ölçülebilir yapar.
+
+**Kurallar:**
+- `robots.txt` yalnızca `sitemap.xml`'i (indeksi) bildirir — çocukları motor kendisi keşfeder, ayrıca bildirilmez.
+- `sitemap.xml` adı KORUNUR. Arama motoruna daha önce bu adres gönderildiyse yeniden gönderim gerekmez.
+- İndeksteki her `<lastmod>`, o alt sitemap'teki en yeni sayfa tarihidir.
+- **Sitemap içeriğini denetleyen bir test yazarken `sitemap.xml`'i tek başına okuma** — orada hiç sayfa URL'i yoktur, kontrol hep yeşil kalır (gerçekte hiçbir şey doğrulamayan bekçi). Çocukları indeksten okuyup gez; kalıp: `tests/seo-phase2-coverage.spec.ts` → `readAllSitemapUrlBlocks()`.
+
+**Ana sayfa `lastmod`:** `/` bir `*Data.js` dosyası taşımadığı için uzun süre tarihsizdi. `scripts/lib/lastmod.mjs` içindeki `EXTRA_SOURCES` tablosu veri dosyası olmayan route'ları kaynak dosyalarıyla eşler (en yeni commit tarihi kazanır). Yeni bir veri-dosyasız route eklenirse oraya da girmelidir.
+
+### 6.1. IndexNow (Bing/Yandex bildirimi)
+`scripts/ping-indexnow.mjs` — deploy TAMAMLANDIKTAN sonra (`deploy.yml` → `deploy` job'ının son adımı) son 7 günde `lastmod`'u değişmiş URL'leri bildirir.
+
+- Anahtar `public/<key>.txt` dosyasındadır; **dosya adı ile içeriği birebir aynı olmak zorundadır** (motor anahtarı bu dosyayı çekip doğrular).
+- Google IndexNow kullanmaz — kazanç Bing/Yandex indeksidir (ve Bing indeksini kullanan yapay zeka asistanları).
+- Script deploy'u ASLA kırmaz: eksik anahtar, ağ hatası, 4xx/5xx — hepsinde uyarı basıp `0` ile çıkar.
+- Değişmemiş URL'i her deploy'da yeniden bildirmek protokolün caydırdığı bir davranıştır; bu yüzden tarih filtresi vardır. Elle çalıştırma: `npm run seo:indexnow -- --dry-run [--days N]`.
 
 ### 7. SEO build kontrolü
 `scripts/check-seo.mjs` kontrol eder:
@@ -139,8 +166,9 @@ Ek script: `npm run seo:check-dist`
 
 1. **Browserslist eski veri uyarısı** — `caniuse-lite` 6+ ay eski olabilir, build'i bozmaz, `npx update-browserslist-db@latest` ile güncellenebilir.
 2. **Büyük `javaData` chunk uyarısı** — 500KB üstü uyarı normaldir, build'i bozmaz. İyileştirme seçenekleri: data dosyasını parçalara bölmek, route içi lazy content yüklemek, `manualChunks` ile kontrollü chunk stratejisi.
-3. **Dil bazlı SEO eksikliği** — Şu anda dil `localStorage` ile değişiyor, Google için TR/EN ayrı URL değil. Orta vadede `/tr/...` ve `/en/...` route yapısı + `hreflang` daha sağlıklı olur — bu büyük bir mimari değişikliktir, ayrı planlanmalı.
+3. **Dil bazlı SEO** — ARTIK EKSİK DEĞİL. Çıplak path Türkçe, `/en/...` İngilizce; `hreflang` hem runtime hem statik shell'lerde üretiliyor (bkz. §0). Bu madde eskiden "yapılacak" olarak duruyordu, 2026-08-01'de çözüldü.
 4. **Gerçek Google Search Console işlemleri** kod tarafında hazır ama hesap yetkisi gerektirir — aşağıdaki checklist'e bak.
+5. **`sameAs` tek yönlüdür ve koddan düzeltilemez** — `src/utils/authorship.js` GitHub ve LinkedIn adreslerini beyan eder; o hesaplar siteye GERİ link vermediği sürece doğrulama zinciri kapanmaz ve beyanın değeri neredeyse sıfırdır. Bu bir hesap ayarıdır, kod değişikliğiyle çözülmez.
 
 ---
 
@@ -148,7 +176,7 @@ Ek script: `npm run seo:check-dist`
 
 1. `learnqa.dev` domain property olarak ekle.
 2. DNS TXT verification kaydını domain DNS paneline ekle.
-3. Verification tamamlanınca `https://learnqa.dev/sitemap.xml` sitemap'ini gönder.
+3. Verification tamamlanınca `https://learnqa.dev/sitemap.xml` sitemap'ini gönder. Bu bir **indeks**tir; gönderdikten sonra Sitemaps ekranında dört alt sitemap ayrı satır olarak görünür ve her biri kendi "gönderilen / dizine eklenen" sayısını raporlar — teşhis bu kırılımdan okunur (Türkçe hub'lar mı girmiyor, bölüm sayfaları mı?). Alt sitemap'leri ayrıca göndermeye gerek yoktur.
 4. URL Inspection ile şu URL'leri tek tek kontrol et:
    - `https://learnqa.dev/`
    - `https://learnqa.dev/selenium`
