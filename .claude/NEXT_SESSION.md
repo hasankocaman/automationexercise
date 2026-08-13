@@ -109,12 +109,30 @@ yani şemadaki `sameAs` karşılıksız; (2) marka adını learnqa.ru tutuyor;
   Konu anlatımından sonra, GRUP G başlamadan önce yerleşti — quiz sıralama
   kuralını bozmuyor. `node --check` + `check-content-integrity.mjs` +
   `npm run build` yeşil.
-- [ ] S3 — kariyer odaklı giriş metni (`/qa-mentor`, `/what-is-testing`)
+- [x] **S3 — kariyer odaklı giriş metni, kapsam uyarlamasıyla.** Planın S3
+  promptu `qaMentorData.js`'e de bir `simple-box` bloğu eklenmesini
+  varsayıyordu — yürütme sırasında bu varsayım YANLIŞ çıktı: `qaMentorData.js`
+  bir `blocks`/`sections` TopicPage şeması değil, sohbet-sihirbazı verisi
+  (`DIALOG`, `MENTOR_STEPS`, `ALL_MAPS`); `QAMentorPage.jsx` hiçbir zaman
+  `simple-box`/`heading`/`text` render etmiyor. `/qa-mentor`'ın statik SEO
+  kabuğu da `generate-static-routes.mjs` içinde ELLE yazılı (Opus/script
+  bölgesi), veri dosyasından türetilmiyor. Bu yüzden içerik tamamen
+  **`whatIsTestingData.js`**'e (gerçek TopicPage, ilk sekme "Giriş & Neden")
+  yoğunlaştırıldı — orası zaten bu sorgunun crawl edilebilir kanonik kaynağı
+  (FAQ bloğu quiz gating'inin arkasında değil, FAQPage şemasının tek kaynağı).
+  Eklenen: "QA Mühendisi Nasıl Olunur?" heading + 4 katmanlı `simple-box`
+  (mimar/denetçi analojisi, "geliştiriciler zaten kendi kodunu test ediyorken
+  neden QA?" sorusu, geliştirici/test mühendisi karşılaştırması, Knight
+  Capital örneği) + beceri sırası metni (Temel Kavramlar → Dil → Framework →
+  Araç → CI/CD, manuel→otomasyon geçişi, ilk iş beklentisi) + mevcut FAQ
+  bloğuna yeni bir soru ("QA mühendisi nasıl olunur?"). `qaMentorData.js`'e
+  DOKUNULMADI — dokunmak ölü kod (asla render edilmeyen veri) üretirdi.
+  `node --check` + `check-content-integrity.mjs` + `npm run build` yeşil.
 - [ ] S5 — 8 sayfanın FAQ bloğunu genişlet
 
 ### Sıradaki iş
 
-1. **S3'ten devam** — promptlar rapordaki 15. bölümde kopyala-yapıştır hazır.
+1. **S5'ten devam** — promptlar rapordaki 15. bölümde kopyala-yapıştır hazır.
 2. **Kullanıcı aksiyonları (kod bunlarsız sonuç üretmez):** Search Console
    doğrulama + sitemap gönderimi, GitHub repo About/Website/topics, LinkedIn
    linki, Plausible hesabı, Bing Webmaster Tools.
