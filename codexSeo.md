@@ -190,23 +190,51 @@ Böylece sayfa başına ~41 düz link ~17'ye iner ve linkler konu anlamı taşı
 
 ---
 
-## Google Search Console — Tekrar Kullanılabilir Checklist
+## Google Search Console — mimari ve gerekçeler
 
-1. `learnqa.dev` domain property olarak ekle.
-2. DNS TXT verification kaydını domain DNS paneline ekle.
-3. Verification tamamlanınca `https://learnqa.dev/sitemap.xml` sitemap'ini gönder. Bu bir **indeks**tir; gönderdikten sonra Sitemaps ekranında dört alt sitemap ayrı satır olarak görünür ve her biri kendi "gönderilen / dizine eklenen" sayısını raporlar — teşhis bu kırılımdan okunur (Türkçe hub'lar mı girmiyor, bölüm sayfaları mı?). Alt sitemap'leri ayrıca göndermeye gerek yoktur.
-4. URL Inspection ile şu URL'leri tek tek kontrol et:
-   - `https://learnqa.dev/`
-   - `https://learnqa.dev/selenium`
-   - `https://learnqa.dev/playwright`
-   - `https://learnqa.dev/python`
-   - `https://learnqa.dev/sql`
-   - `https://learnqa.dev/java`
-   - `https://learnqa.dev/test-frameworks`
-   - `https://learnqa.dev/java-document`
-5. Her kritik URL için `Request Indexing` yap.
-6. Coverage/Pages raporunda `Discovered - currently not indexed`, `Crawled - currently not indexed`, `Duplicate without user-selected canonical` gibi durumları izle.
-7. Sitemap status `Success` olana kadar tekrar kontrol et.
+> ⚠️ **Adım adım yapılacaklar listesi burada DEĞİL.** İşlenebilir kontrol
+> listesi (kutucuklu, güncel durumlu) `Documents/search-console-checklist.md`
+> dosyasındadır. Burası o adımların **neden** öyle olduğunu anlatır; iki
+> dosya çakışırsa checklist günceldir.
+>
+> Bu bölüm eskiden "domain property + DNS TXT + sitemap.xml gönder" diyordu;
+> 2026-08-14'te gerçekte uygulanan yöntem farklı oldu ve liste bir süre
+> yanlış kaldı. Ders: uygulanan yöntem değişince bu bölüm de güncellenmeli.
+
+**Mülk tipi ve doğrulama (uygulanan):** `https://learnqa.dev/` **URL öneki**
+mülkü, **HTML etiketi** yöntemiyle doğrulandı (2026-08-14). Token
+`index.html` head'inde duruyor ve oradan tüm statik shell'lere yayılıyor.
+
+Neden domain property + DNS TXT değil: DNS paneline erişim ayrı bir yetki
+gerektiriyordu; HTML etiketi yöntemi doğrulama dosyasını repoya taşıdığı için
+işin büyük kısmı kod tarafında yapılabildi. Domain property daha geniş kapsar
+(tüm alt alan adları + protokoller) — ileride ikinci bir doğrulama yöntemi
+olarak eklenebilir, sahiplik yedeği olarak değerlidir.
+
+⚠️ **Doğrulama kalıcı değildir.** `index.html`'deki `google-site-verification`
+meta etiketi silinirse Google mülkü bir süre sonra doğrulanmamış sayar ve tüm
+Search Console verisi kesilir. Etiketin üstünde bu uyarı kod yorumu olarak
+duruyor.
+
+**Sitemap gönderimi KADEMELİ yapılır — indeks tek seferde gönderilmez.**
+Sitemap dörde bölünmüştür (dil × sayfa tipi) ve toplam 794 URL'in ~%89'u
+bölüm (sekme) sayfasıdır: 710 bölüm / 42 hub. Yeni bir alan adının tarama
+bütçesi kısıtlı olduğu için hepsi birden sunulursa bütçe bölüm sayfalarına
+dağılır ve asıl indekslenmesi istenen hub sayfaları geride kalır.
+
+Doğru sıra:
+1. Önce yalnızca `sitemap-tr-hubs.xml` ve `sitemap-en-hubs.xml`.
+2. Hub'ların indekslenme oranı %70'i geçince `sitemap-*-sections.xml` eklenir.
+
+Bölmenin tek amacı buydu: Search Console her alt sitemap için ayrı
+"gönderilen / dizine eklenen" sayısı raporlar, böylece "hangi grup takıldı?"
+sorusu cevaplanabilir. Tek dosyayken bu kademelendirme mümkün değildi.
+
+**Dizine ekleme istenecek kilit URL'ler** — öncelik ölçüme göre belirlenir,
+sabit bir liste değildir. 2026-08-14 ölçümünde ana sayfa indekste
+olmadığı için o ilk sıradaydı; güncel liste checklist dosyasındadır.
+Marka sorgusunda çıkamayan bir site rekabetçi sorgularda hiç çıkamaz —
+bu yüzden ana sayfa her zaman ilk sıradadır.
 
 **Google görünürlük yorumlama rehberi:**
 - `site:learnqa.dev` hiç sonuç vermiyorsa → öncelik crawl/index (GSC setup + sitemap submission + URL Inspection).

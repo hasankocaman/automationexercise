@@ -209,6 +209,17 @@ hedef sistemde GERÇEKTEN geçerli olduğu ayrıca doğrulanmalı.
 **Kod tarafında açık iş YOK.** Bundan sonrası hesap yetkisi gerektiriyor —
 kod bunlarsız ölçülebilir sonuç üretmez.
 
+> 📋 **Elle yapılacak adımların işlenebilir listesi artık ayrı bir dosyada:
+> `Documents/search-console-checklist.md`** (kutucuklu, güncel durumlu,
+> sorun giderme tablolu). Aşağıdaki özet onunla çakışırsa checklist
+> günceldir.
+>
+> **Search Console sahiplik doğrulaması TAMAMLANDI (2026-08-14):**
+> `https://learnqa.dev/` URL öneki mülkü, HTML etiketi yöntemiyle. Token
+> `index.html` head'inde; **silinirse doğrulama düşer ve tüm veri kesilir.**
+> Sıradaki elle adım: iki hub sitemap'inin gönderilmesi (indeks dosyası
+> DEĞİL — gerekçe checklist'te).
+
 1. **Search Console** — alan adı doğrulaması + `sitemap.xml` gönderimi.
    ⚠️ Gönderirken dikkat: sitemap artık bir indeks ve 794 URL'in ~%89'u
    bölüm sayfası (710 indekslenebilir bölüm / 42 hub). 8 haftalık bir alan
