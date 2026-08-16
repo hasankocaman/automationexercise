@@ -6,6 +6,13 @@ export default function SecurityLegoVisual({ variant, darkMode, language }) {
     const [trigger, setTrigger] = useState(false)
     const [selectedHouse, setSelectedHouse] = useState(5)
     const [logs, setLogs] = useState([])
+    // Yalnızca 'logic' varyantının kullandığı sayaç. Bu bileşen TEK bir
+    // fonksiyondur ve `variant` propuna göre farklı bir dal döndürür; hook'un
+    // o dalın İÇİNDE çağrılması, varyant değiştiğinde hook sayısını
+    // değiştirir ve React'i "Rendered more hooks than during the previous
+    // render" hatasıyla düşürürdü (sayfa tamamen boşalıyordu). Hook'lar her
+    // render'da AYNI SIRA ve SAYIDA çalışmak zorunda olduğu için yukarı alındı.
+    const [itemCount, setItemCount] = useState(1)
 
     // Helper: LEGO bump row
     const LegoBumps = ({ color, count = 4 }) => (
@@ -614,8 +621,6 @@ export default function SecurityLegoVisual({ variant, darkMode, language }) {
             : (isTr
                 ? "Giriş kapısına bir boyut filtresi (Sanity Check) yerleştiririz. Değeri sıfır veya eksi olan tüm uyumsuz lego parçalarını anında dışarı fırlatır."
                 : "We install a mechanical sanity checking gate. Any brick declaring a negative value is instantly rejected and blocked from entering the tower build.")
-
-        const [itemCount, setItemCount] = useState(1)
 
         return (
             <CardWrapper title={title} explanation={explanation}>

@@ -1453,6 +1453,17 @@ class TestDiscountCalculation:
       },
       {
         type: 'heading',
+        text: { tr: '🔐 Güvenlik Testi', en: '🔐 Security Testing' }
+      },
+      {
+        type: 'link-grid',
+        cols: 2,
+        items: [
+          { icon: '🛡️', route: '/security', label: { tr: 'Siber Güvenlik & OWASP Top 10', en: 'Security Testing & OWASP Top 10' }, desc: { tr: 'Web uygulaması sızma testi: SQLi, XSS, JWT, IDOR ve SSRF açıklarını interaktif simülasyonlarla öğren.', en: 'Web application penetration testing: learn SQLi, XSS, JWT, IDOR, and SSRF vulnerabilities with interactive simulations.' } }
+        ]
+      },
+      {
+        type: 'heading',
         text: { tr: '📱 Mobil Test', en: '📱 Mobile Testing' }
       },
       {

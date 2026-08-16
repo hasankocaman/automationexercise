@@ -2457,6 +2457,14 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://learnqa.dev/security/8-business-logic-flaws</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/security/8-business-logic-flaws" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/security/8-business-logic-flaws" />
+    <lastmod>2026-07-27T15:38:39+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://learnqa.dev/claude-ai/prompt-engineering</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/claude-ai/prompt-engineering" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/claude-ai/prompt-engineering" />

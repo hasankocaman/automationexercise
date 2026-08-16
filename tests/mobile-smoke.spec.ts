@@ -99,7 +99,7 @@ test.describe('Mobil viewport (iPhone 14, 390×844) — kritik akışlar', () =>
 // ~20 sayfa mobilde hiç test edilmemiş" bulgusunu kapatır. 6 yeni sayfa —
 // dil sayfaları (Python/Java/SQL) + araç sayfaları (Selenium/Jenkins/
 // Kubernetes) karışık — / ve /docker ile birlikte TOPLAM 8 sayfaya çıkarır.
-// §22.1 kalıcı istisna listesi (/basit-backend, /security, /backend) EKLENMEDİ.
+// §22.1 kalıcı istisna listesi (/basit-backend, /backend) EKLENMEDİ.
 const EXPANDED_MOBILE_ROUTES = ['/python', '/java', '/sql', '/selenium', '/jenkins', '/kubernetes'];
 
 test.describe('Mobil viewport (iPhone 14) — genişletilmiş route kapsamı (S4.1)', () => {

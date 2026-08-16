@@ -1,7 +1,7 @@
 // AUTO-GENERATED — elle düzenleme yalnızca bir slug'ı BİLEREK sabitlemek için.
 // Üretici: scripts/generate-section-slugs.mjs (npm run seo:section-slugs)
 // Kural: bir slug yayına çıktıktan sonra DEĞİŞMEZ (bkz. üretici dosyasındaki not).
-// 32 ders sayfası · 433 bölüm.
+// 33 ders sayfası · 445 bölüm.
 export const SECTION_SLUGS = {
     '/selenium': [
         { slug: 'what-is-selenium', title: "What is Selenium? How Does It Work?" },
@@ -422,6 +422,20 @@ export const SECTION_SLUGS = {
         { slug: 'what-is-sdet-and-automation', title: "What is SDET & Automation?" },
         { slug: 'web-mobile-testing-and-process', title: "Web, Mobile Testing & Process" },
         { slug: 'site-map', title: "Site Map — What's on This Platform?" },
+    ],
+    '/security': [
+        { slug: 'security-mindset-and-qa', title: "Security Mindset & QA" },
+        { slug: '1-sql-and-nosql-injection', title: "1. SQL & NoSQL Injection" },
+        { slug: '2-cross-site-scripting-xss', title: "2. Cross-Site Scripting (XSS)" },
+        { slug: '3-broken-auth-and-jwt-security', title: "3. Broken Auth & JWT Security" },
+        { slug: '4-idor-and-access-control', title: "4. IDOR & Access Control" },
+        { slug: '5-xxe-and-ssrf-server-side', title: "5. XXE & SSRF (Server-Side)" },
+        { slug: '6-security-misconfigurations', title: "6. Security Misconfigurations" },
+        { slug: '7-insecure-deserialization', title: "7. Insecure Deserialization" },
+        { slug: '8-business-logic-flaws', title: "8. Business Logic Flaws" },
+        { slug: '9-logging-and-monitoring', title: "9. Logging & Monitoring" },
+        { slug: '10-sensitive-data-exposure', title: "10. Sensitive Data Exposure" },
+        { slug: 'interview-questions-50-qs', title: "Interview Questions (50 Qs)" },
     ],
     '/advanced-algorithms': [
         { slug: '1-algorithmic-thinking-split-the-problem', title: "1. Algorithmic thinking: split the problem first" },

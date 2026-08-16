@@ -1144,7 +1144,7 @@ function HomePage() {
                                     </span>
                                 </span>
                                 <Link to="/llm-agents" data-testid="nav-llm-agents" className={nb('violet')}>🧠 LLM & Agents</Link>
-                                {isAdmin && <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 {language === 'tr' ? 'Siber Güvenlik' : 'Cyber Security'}</Link>}
+                                <Link to="/security" data-testid="nav-security" className={nb('red')}>🔒 {language === 'tr' ? 'Siber Güvenlik' : 'Cyber Security'}</Link>
                                 <button onClick={() => { setActiveSection('comparison'); setTimeout(() => { contentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 50) }} className={nb('violet')}>⚖️ {language === 'tr' ? 'Karşılaştır' : 'Compare Tools'}</button>
                             </div>
                         </div>
@@ -1174,6 +1174,7 @@ function HomePage() {
                                 <Link to="/git-github" data-testid="nav-git-github" className={nb('emerald')}>🔀 Git/GitHub</Link>
                                 <Link to="/linux" data-testid="nav-linux" className={nb('orange')}>🐧 Linux</Link>
                                 {isAdmin && <Link to="/backend" data-testid="nav-backend" className={nb('cyan')}>🧩 {language === 'tr' ? 'Basit Backend' : 'Simple Backend'}</Link>}
+                                {isAdmin && <Link to="/qa-shop-setup" data-testid="nav-qa-shop-setup-card" className={nb('indigo')}>🛠️ {language === 'tr' ? 'QA Shop Kurulum' : 'QA Shop Setup'}</Link>}
                                 <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>🔧 Jenkins</Link>
                                 <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>☸️ K8s</Link>
                                 <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>🟠 Kafka</Link>
@@ -1186,9 +1187,26 @@ function HomePage() {
 
                     {/* Practice Area — full width below */}
                     <div className={`mt-3 rounded-xl border overflow-hidden ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-purple-100 shadow-sm'}`}>
-                        <div className={`px-3 py-2 flex items-center gap-1.5 border-b ${darkMode ? 'bg-purple-900/30 border-gray-700' : 'bg-purple-50 border-purple-100'}`}>
+                        {/* flex-wrap ZORUNLU: dış kapsayıcı `overflow-hidden` taşıyor,
+                            sarma olmadan sağdaki admin butonu dar ekranda sessizce
+                            kırpılır — görünmeyen ama DOM'da var olan bir link olur. */}
+                        <div className={`px-3 py-2 flex flex-wrap items-center gap-1.5 border-b ${darkMode ? 'bg-purple-900/30 border-gray-700' : 'bg-purple-50 border-purple-100'}`}>
                             <span className="text-sm">🎯</span>
                             <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>{t('home.category.practice')}</span>
+                            {/* QA Shop kurulum rehberi — ŞİMDİLİK yalnızca admin.
+                                Girişi buraya kondu çünkü aranacağı yer burası: bu
+                                bölüm sayfa İÇİ element oyun alanı, o sayfa ise AYRI
+                                bir veritabanı/API ortamının kurulumu. İkisi farklı
+                                şeyler ve isim benzerliği kafa karıştırıyordu. */}
+                            {isAdmin && (
+                                <Link
+                                    to="/qa-shop-setup"
+                                    data-testid="nav-qa-shop-setup"
+                                    className={`ml-auto min-h-[36px] flex items-center rounded-lg border px-2.5 py-1 text-[11px] font-bold transition-all hover:scale-105 ${darkMode ? 'border-indigo-600 bg-indigo-900/40 text-indigo-200 hover:bg-indigo-800/50' : 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}
+                                >
+                                    🛠️ {language === 'tr' ? 'QA Shop Kurulum Rehberi' : 'QA Shop Setup Guide'}
+                                </Link>
+                            )}
                         </div>
                         <div className="p-2 flex flex-wrap gap-1">
                             {sections.map((section) => (
@@ -1296,7 +1314,7 @@ function HomePage() {
                                     { to: '/bruno', label: '📦 Bruno' },
                                     { to: '/jmeter', label: '📊 JMeter' },
                                     { to: '/browserstack', label: '☁️ BrowserStack' },
-                                    ...(isAdmin ? [{ to: '/security', label: language === 'tr' ? '🔒 Siber Güvenlik' : '🔒 Cyber Security' }] : []),
+                                    { to: '/security', label: language === 'tr' ? '🔒 Siber Güvenlik' : '🔒 Cyber Security' },
                                     { to: '/test-frameworks', label: '⚖️ Framework Karş.' },
                                 ].map(({ to, label }) => (
                                     <li key={to}>
@@ -1319,6 +1337,10 @@ function HomePage() {
                                     { to: '/git-github', label: '🔀 Git/GitHub' },
                                     { to: '/linux', label: '🐧 Linux' },
                                     ...(isAdmin ? [{ to: '/backend', label: language === 'tr' ? '🧩 Basit Backend' : '🧩 Simple Backend' }] : []),
+                                    // QA Shop pratik ortamının kurulum rehberi — admin.
+                                    // Footer'a da konuldu çünkü admin linklerinin arandığı
+                                    // yer burası; üstteki karttan tek başına bulunamıyordu.
+                                    ...(isAdmin ? [{ to: '/qa-shop-setup', label: language === 'tr' ? '🛠️ QA Shop Kurulum' : '🛠️ QA Shop Setup' }] : []),
                                     { to: '/jenkins', label: '🔧 Jenkins' },
                                     { to: '/kubernetes', label: '☸️ Kubernetes' },
                                     { to: '/kafka', label: '🟠 Kafka' },

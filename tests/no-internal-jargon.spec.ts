@@ -34,7 +34,7 @@ const JARGON_PATTERNS: Array<[RegExp, string]> = [
 //   - TopicPage tabanlı ders sayfaları (en yaygın yol)
 //   - kendi bileşenleri olan sayfalar (/manual-testing, /algorithms, /qa-mentor)
 //   - Sprint Simulator (renderBlock'u dışarıdan kullanan tek sayfa)
-// §22.1 kalıcı istisna listesi (/basit-backend, /security, /backend) DAHİL DEĞİL.
+// §22.1 kalıcı istisna listesi (/basit-backend, /backend) DAHİL DEĞİL.
 const ROUTES = [
     '/',
     '/cypress',       // gerçek sızıntının çıktığı sayfa — regresyon bekçisi

@@ -79,13 +79,15 @@ test.describe('AC03 — dil değiştirme (TR ⇄ EN) ve localStorage kalıcılı
 
 // AC03 Koşul B — tüm TopicPage route'larında EN modda görünür metinde Türkçeye
 // özgü karakter taraması. topic-pages-ui.spec.ts'deki TOPIC_ROUTES listesiyle
-// eşleştirildi; /basit-backend, /security, /backend kalıcı istisnalar (CLAUDE.md §22.1).
+// eşleştirildi; /basit-backend ve /backend kalıcı istisnalar (CLAUDE.md §22.1).
+// /security 2026-08-15'te herkese açıldı ve listeye alındı — i18n sızıntı
+// baseline'ında zaten 0 ihlalle işaretliydi.
 const SAMPLE_ROUTES_FOR_EN_AUDIT = [
     '/jmeter', '/sql', '/typescript', '/javascript', '/python', '/test-frameworks',
     '/postman', '/bruno', '/jenkins', '/docker', '/rest-assured', '/gauge', '/kubernetes',
     '/kafka', '/appium', '/playwright', '/cypress', '/selenium', '/aws', '/azure',
     '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
-    '/claude-ai', '/llm-agents', '/api-testing', '/jira',
+    '/claude-ai', '/llm-agents', '/api-testing', '/jira', '/security',
 ];
 
 test.describe('AC03 Koşul B — EN modda Türkçeye özgü karakter taraması', () => {

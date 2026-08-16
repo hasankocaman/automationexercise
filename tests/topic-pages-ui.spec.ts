@@ -3,7 +3,7 @@ import { waitForAppReady } from './helpers/app-ready';
 import { auditTabButtons, CONTENT_AREA } from './helpers/button-audit';
 
 // TopicPage tabanlı (sol dikey sidebar + sekmeler) herkese açık route'lar.
-// Admin/login gerektiren route'lar (/security, /backend, /qa-assistant), özel
+// Admin/login gerektiren route'lar (/backend, /qa-assistant), özel
 // layout'a sahip sayfalar (/, /java-document, /git-document, /leaderboard,
 // /verify-certificate/:id) ve tek-sayfa/scroll-spy navigasyonu kullanan sayfalar
 // (/manual-testing, /algorithms, /advanced-algorithms, /qa-mentor — bunlar TopicPage
@@ -17,6 +17,8 @@ const TOPIC_ROUTES = [
     '/kafka', '/appium', '/playwright', '/cypress', '/selenium', '/aws', '/azure',
     '/browserstack', '/git-github', '/linux', '/java', '/what-is-testing',
     '/claude-ai', '/llm-agents', '/api-testing', '/qa-frontend', '/jira',
+    // 2026-08-15'te admin kapısından çıkarılıp herkese açıldı.
+    '/security',
 ];
 
 // Test ortamında dışarıya ağ bağlantısı olmadığı için oluşan bilinen hata kalıpları.
