@@ -20,9 +20,304 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-14, Opus — arama görünürlüğü çalışması MAIN'E MERGE EDİLDİ ve PUSH EDİLDİ) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-16 · ikinci oturum, Opus — QA Shop tamamlandı) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa BU bölüm günceldir. Alttaki bölümler korunuyor.
+
+### ⚠️ Çalışma ağacı hâlâ KİRLİ, branch yok, commit atılmadı
+
+Kullanıcı commit/branch istemedi. Bir önceki devir notundaki 21 yolun üstüne
+bu oturumda eklenenler:
+
+```
+ M .claude/NEXT_SESSION.md · scripts/check-test-coverage.mjs · src/App.jsx
+ M src/utils/seo.js · src/data/qaShopSetupData.js
+ M src/components/QaShopSetupPage.jsx        (clickpath bloğu + yol haritası)
+?? src/components/QaShopPage.jsx             ← YENİ arayüz
+   qa-shop/ altında: api/core/bugFlags.js · api/routes/{addresses,reviews}.js
+   api/test/ (4 dosya) · postman/ (3 dosya) · rest-assured/ (Maven projesi)
+```
+
+### 📍 Bu oturumda ne yapıldı
+
+**Kullanıcının isteği:** kurulumları kendisi yapacak, kod tarafındaki her şey
+(UI dahil) bitsin, "practice altyapısı tamamen hazır olsun".
+
+1. **`/qa-shop-setup` rehberi sıfırdan kuruluma göre yeniden yazıldı** — 3 →
+   4 adım. Docker kurulumu adımı EKLENDİ (önceki sürüm Docker'ı kurulu
+   varsayıyordu). Windows öncelikli komutlar; PowerShell'de `curl`ün gerçek
+   cURL olmadığı uyarısı; DBeaver'ın `\set` ve `:'sandbox'` psql sözdizimini
+   anlamadığı ve nasıl aşılacağı.
+2. **Bug anahtarları** (`api/src/core/bugFlags.js`, 10 kusur) + `GET/PATCH
+   /sandbox/bugs`. Kusurlar cart/orders/auth/reviews route'larına bağlandı.
+3. **14 yeni uç**: adresler (4), yorumlar (4), sipariş yaşam döngüsü
+   pay/ship/deliver/return (4), kusur anahtarları (2). Şemaya
+   `shipments.delivered_at` eklendi (iade penceresi için).
+4. **`openapi.yaml` 27 → 44 operasyon**, 19 → 25 şema.
+5. **`api/test/` — 81 test, Docker GEREKTİRMEZ.** Saf kurallar + uygulama
+   iskeleti + **sözleşme ↔ uygulama iki yönlü kilit** + Postman koleksiyon
+   kalitesi. `cd qa-shop/api && npm test`.
+6. **Postman/Newman paketi** (`postman/`, 6 klasör / 26 istek, hepsi
+   doğrulamalı) ve **REST Assured projesi** (`rest-assured/`, Maven,
+   `mvn test-compile` yeşil).
+7. **`/qa-shop` arayüzü** — dükkân ekranı, 63 kararlı `data-testid`, olay
+   günlüğü (her UI hareketi → hangi API çağrısı). `RequireAdmin` + `noindex`,
+   `check-test-coverage.mjs`'e gerekçeli istisna eklendi.
+
+### ✅ Doğrulananlar
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run build` | ✔ 49 route, öksüz sayfa yok, noindex shell 12 |
+| `check-content-integrity` · `check-i18n-leaks` | ✔ sıfır ihlal / sıfır sızıntı |
+| `qa-shop/api` → `npm test` | ✔ 81/81 |
+| `rest-assured` → `mvn test-compile` | ✔ exit 0 |
+| API veritabanısız ayağa kalkıyor | ✔ `/health` 503 degraded, route'lar monte |
+| `/qa-shop-setup` tarayıcı render | ✔ 4 adım, 42 tıklama maddesi, 0 konsol hatası |
+| `/qa-shop` tarayıcı render | ✔ API kapalıyken yönlendirme; sözleşme-şekilli sahte API ile tam akış (ürün → sandbox → giriş → sepet → sipariş), 0 konsol hatası |
+
+### ❌ HÂLÂ DOĞRULANAMAYAN — yeni oturumun ilk işi
+
+**Docker bu makinede kurulu değil** (Docker Desktop kaldırılmış; WSL Ubuntu
+diski de bağlanamıyor: `E_ACCESSDENIED`). Yani:
+
+- `schema.sql` + `seed.sql` **gerçek PostgreSQL'de hiç çalıştırılmadı**
+- Hiçbir uç **canlı veritabanına karşı** koşmadı (81 test DB'siz yüzeyi
+  denetliyor, iş mantığını canlı veriyle DEĞİL)
+- `validation-queries.sql` çalıştırılmadı
+- Postman/Newman ve REST Assured paketleri **koşturulmadı** (ikisi de yığın
+  kapalıyken anlaşılır mesajla duruyor — bu doğrulandı)
+
+Kullanıcı Docker'ı kendisi kuracak. Kurulunca sıra:
+
+```bash
+cd qa-shop && docker compose up -d
+curl.exe http://localhost:4000/health
+cd api && npm test
+cd ../rest-assured && mvn test
+newman run ../postman/qa-shop.postman_collection.json -e ../postman/qa-shop.postman_environment.json
+```
+
+Hata çıkarsa en olası yer `seed.sql` (`clone_sandbox`, sipariş toplamlarının
+satırlardan hesaplanması).
+
+### 🎯 Sıradaki iş
+
+1. Yığını ayağa kaldır, dört paketi de koştur, çıkan hataları düzelt
+2. `/qa-shop` ve `/qa-shop-setup` herkese açılacak mı? Açılırsa: `RequireAdmin`
+   + `noindex` + kapsam istisnası birlikte kaldırılmalı ve gerçek E2E testi
+   yazılmalı (sayfa localhost API'ye bağlı olduğu için CI'da yığını ayağa
+   kaldıran bir kurulum gerekir)
+3. Tarayıcı içi katman (kurulumsuz pratik) ve barındırılan sürüm — hâlâ yok
+4. `/work-goals` takipçisi — plan hazır, kod yok
+
+---
+
+## 📌 Önceki Durum (2026-08-16, Opus — QA Shop pratik ortamı + erişim katmanları)
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
+
+### ⚠️ ÖNCE BUNU OKU: çalışma ağacı KİRLİ, branch yok
+
+**Her şey `main` üzerinde ve COMMIT EDİLMEMİŞ.** Son commit `cf0d45e`
+(önceki oturumdan). Kullanıcı commit/push istemedi; oturum bittiğinde
+çalışma ağacında 15 değişmiş + 6 yeni yol duruyordu:
+
+```
+ M public/sitemap-{en,tr}-{hubs,sections}.xml   (build çıktısı)
+ M scripts/check-test-coverage.mjs
+ M src/App.jsx
+ M src/components/HomePage.jsx
+ M src/components/SecurityLegoVisual.jsx        ← gerçek bug düzeltmesi
+ M src/data/generated/sectionSlugs.js           (üretilmiş)
+ M src/data/whatIsTestingData.js
+ M src/utils/seo.js
+ M tests/{i18n-content-toggle,mobile-smoke,no-internal-jargon,topic-pages-ui}.spec.ts
+?? Documents/{access-tiers,qa-shop-practice-platform,work-goals-tracker}-plan.md
+?? qa-shop/                                     ← 25 dosya, yeni pratik yığını
+?? src/components/QaShopSetupPage.jsx
+?? src/data/qaShopSetupData.js
+```
+
+Yeni oturumun ilk kararı: bunlar commit edilecek mi, branch'e mi alınacak.
+Kullanıcıya sor, kendiliğinden commit atma.
+
+### 📍 Bu oturumda ne yapıldı (4 iş)
+
+Kullanıcının çıkış noktası: **işyeri performans hedeflerini (2026, 4 KSF)
+bu platformda ölçülebilir kılmak ve yöneticilerine "her tür testi
+yapabildiğini" ayrı bir projeyle gösterebilmek.** Oradan üç plan ve bir
+çalışan yığın çıktı.
+
+#### 1. Üç plan dosyası yazıldı (`Documents/`)
+
+| Dosya | Ne içerir | Durum |
+|---|---|---|
+| `work-goals-tracker-plan.md` | İşyeri KPI takipçisi (`/work-goals`): 4 KSF'nin 9 alt metriğe bölünmesi, formüller, veri modeli, skor motoru, tempo şeridi, aylık rapor | 📝 Plan, **kod YAZILMADI** |
+| `qa-shop-practice-platform-plan.md` | QA Shop pratik ortamı: 3 katmanlı mimari, 18 tablo, 43 endpoint, bug anahtarları, faz planı | 📝 Plan, **ilk dilim YAZILDI** (aşağıda) |
+| `access-tiers-plan.md` | Erişim katmanları: 4 soruluk karar ölçütü, 🟢 açık / 🟡 üye / 🔴 admin, yeni admin sayfası eklerken 5 adım | 📝 Plan, **uygulanan kararlar §9.5'te işaretli** |
+
+#### 2. `/security` HERKESE AÇILDI (kullanıcı kararı)
+
+- `App.jsx`: `RequireAdmin` kaldırıldı; `SECTION_PAGE_ELEMENTS`'e eklendi
+  (bölüm slug'ları üretilince build bunu zorunlu kıldı)
+- `seo.js`: `noindex` silindi
+- `whatIsTestingData.js`: görünür site haritasına **yeni "🔐 Güvenlik Testi"
+  kategorisi** eklendi (Database Testi ile Mobil Test arasına)
+- `check-test-coverage.mjs`: `/security` istisnası KALDIRILDI
+- Testlere eklendi: `topic-pages-ui` (TOPIC_ROUTES) + `i18n-content-toggle`
+  (SAMPLE_ROUTES_FOR_EN_AUDIT); `mobile-smoke` ve `no-internal-jargon`
+  yorumlarındaki eskiyen istisna listesi düzeltildi
+- `npm run seo:section-slugs` çalıştırıldı → 33 sayfa / 445 bölüm (12 yeni)
+
+**Doğrulandı:** sitemap'te var, kabukta gerçek içerik basılıyor, `noindex`
+yok, iki Playwright testi yeşil, anonim tarayıcıda kilit ekranı çıkmıyor.
+
+#### 3. ⚠️ AÇILIŞ GERÇEK BİR BUG ORTAYA ÇIKARDI (kalıcı ders)
+
+`/security` **8. sekmesinde ("Business Logic Flaws") sayfa TAMAMEN
+BOŞALIYORDU.** Ekran kapkaranlık, React error #310.
+
+Kök neden: `SecurityLegoVisual.jsx`, `useState`'i `if (variant === 'logic')`
+bloğunun **içinde** çağırıyordu. Bileşen tek bir fonksiyon ve `variant`
+propuna göre farklı dal döndürüyor; sekme değişince hook sayısı değişiyor ve
+React ağacı düşürüyordu. Hook bileşenin en üstüne alındı.
+
+> **Ders (CLAUDE.md'ye taşınmaya aday):** admin kapısı bir sayfayı KORUMAZ,
+> yalnızca GİZLER. Test kapsamı dışına alınan her sayfa, kimsenin görmediği
+> bir kusuru sessizce taşır ve bu borç sayfayı açtığın gün ödenir. Bu bug
+> aylardır oradaydı; sayfa hiçbir suite'te geçmediği için görülmedi.
+
+#### 4. QA Shop pratik yığını — İLK DİLİM YAZILDI (`qa-shop/`, 25 dosya)
+
+Kullanıcının onayladığı tavsiyeler: **Node/Express** (iş mantığı tek çekirdek
+olsun, tarayıcı içi katmanla ikiye bölünmesin), **lokal Docker önce**
+(barındırılan katman ertelendi — maliyet + kötüye kullanım), **tek e-ticaret
+domaini**, **kayıtsız sandbox**, **içerikli tek SEO sayfası**.
+
+```
+qa-shop/
+├── db/schema.sql              18 tablo + clone_sandbox/reset_sandbox/purge fonksiyonları
+├── db/seed.sql                belirlenimci tohum (random() YOK): 120 ürün, 360 varyant,
+│                              41 kullanıcı, 150 sipariş, ~300 satır, 200 yorum,
+│                              12 kupon (5'i FARKLI nedenle geçersiz), 300 log
+├── db/validation-queries.sql  25+ SQL testi (0 satır = GEÇTİ) + tek ekranda özet
+│                              + "F. Kusur enjeksiyonu" (kontrolü kırmızıya düşürüp ROLLBACK)
+├── api/openapi.yaml           OpenAPI 3.0.3 — 27 path / 29 operasyon / 19 şema
+├── api/src/                   Express, 2 bağımlılık (express+pg)
+│   ├── core/                  SAF iş kuralları (pricing, rules) — MSW ile paylaşılacak
+│   ├── lib/                   token (JWT, kütüphanesiz), password (scrypt), errors, audit
+│   ├── middleware/            sandbox çözümleme, auth
+│   └── routes/                sandbox 4 · auth 5 · katalog 7 · sepet 6 · sipariş 5
+├── docker-compose.yml         postgres:16 (host portu 5433!) + api (4000)
+└── README.md                  kurulum, DBeaver, curl akışı, endpoint tablosu
+```
+
+**Tasarım kararları (yeniden tartışmaya gerek yok):**
+- Anahtarsız istek reddedilmez → demo verisine **salt okunur** bağlanır
+- `logout` GERÇEKTEN iptal eder (`sessions.revoked_at`) — stateless JWT'de
+  test yanlış yere yeşil geçerdi
+- Kupon **checkout anında yeniden doğrulanır**
+- Sepete ekleme stok REZERVE eder (`FOR UPDATE` kilidiyle)
+- Klonlama doğal anahtarlarla yapılır (sku/email/order_no) — bigserial id'ler kopyada değişir
+- Şema/tohum **tek kaynak**; ileride sql.js ve barındırılan katman buradan türeyecek
+
+#### 5. `/qa-shop-setup` sayfası eklendi (🔴 ADMIN, şimdilik)
+
+Kullanıcının istediği üç adım: **(1)** DBeaver ile pratik veritabanına
+bağlanma, **(2)** Swagger/OpenAPI sözleşmesini okuma, **(3)** uçları önce
+manuel sonra Postman+Newman ile test etme. Dördüncü adım (arayüz pratiği)
+**herkese açık olacak**, arayüz yazılınca.
+
+- `src/data/qaShopSetupData.js` + `src/components/QaShopSetupPage.jsx`
+- **TopicPage KULLANILMADI** — bu bir yordam rehberi, ders sayfası değil;
+  TopicPage her sekmede video+animasyon+sandbox yükümlülüğü doğururdu
+- ⚠️ **Oturum içinde YENİDEN ADLANDIRILDI:** `/practice-lab` →
+  `/qa-shop-setup`. Sebep: ana sayfada ZATEN "PRACTICE LAB" başlıklı bir
+  bölüm var (sayfa içi element/locator oyun alanı) ve kullanıcı ikisini
+  ayırt edemedi. Eski adın hiçbir izi kalmadı.
+- **3 giriş noktası, hepsi `isAdmin`:** üstteki DEVOPS kartı
+  (`nav-qa-shop-setup-card`), PRACTICE LAB başlık çubuğu
+  (`nav-qa-shop-setup`), footer → DevOps & Cloud
+
+> İlk denemede kullanıcı butonu **bulamadı**: yalnızca mor başlık çubuğunun
+> en sağına, 11px yazıyla konmuştu. Çözüm, admin linklerinin ZATEN durduğu
+> yere (`/backend` "Basit Backend"in yanına) koymak oldu. Yeni admin linki
+> eklerken bunu tekrarla.
+
+#### 6. Yan düzeltme: `/security` linkleri de `isAdmin`'e bağlıydı
+
+Route açıldı ama `HomePage.jsx`'te İKİ yerde link hâlâ `isAdmin` koşulundaydı
+— yani sayfa açıktı, adresini bilmeyen ulaşamıyordu. İkisi de kaldırıldı.
+**Ders: bir sayfayı açmak = route + noindex + sitemap + görünür site haritası
++ NAV LİNKLERİ + test kapsamı. Beşi eksik kalırsa açılış yarım kalır.**
+
+Ayrıca PRACTICE LAB başlık satırına `flex-wrap` eklendi: dış kapsayıcı
+`overflow-hidden` taşıdığı için sarma olmadan sağdaki buton dar ekranda
+sessizce kırpılabilirdi.
+
+### ✅ Doğrulananlar
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run build` | ✔ 49 route, kapsam 45/45 (%100) + 3 gerekçeli istisna, öksüz sayfa yok |
+| `/security` Playwright (topic-pages-ui + i18n) | ✔ 2/2 |
+| Anonim: Siber Güvenlik linki görünüyor, sayfa kilitsiz | ✔ |
+| Anonim: 3 QA Shop linki de gizli, `/qa-shop-setup` giriş ekranı | ✔ |
+| `/qa-shop-setup` kabuğu içerik sızdırmıyor (DBeaver/5433/X-Sandbox-Key) | ✔ 254 karakter |
+| `openapi.yaml` ayrıştırma + tüm `$ref` çözümü | ✔ |
+| API'nin 16 JS dosyası `node --check` | ✔ |
+| İzolasyon: qa-shop ↔ gerçek backend referansı | ✔ iki yönde de SIFIR |
+
+### ❌ DOĞRULANAMAYAN — yeni oturumun İLK işi
+
+**Bu makinede `docker` KURULU DEĞİL.** Yığın hiç ayağa kaldırılamadı:
+
+- `schema.sql` ve `seed.sql` **hiç çalıştırılmadı** — PostgreSQL sözdizimi
+  satır satır gözden geçirildi ama sınanmadı
+- API'ye **tek bir istek bile atılmadı** — 27 ucun hiçbiri koşmadı
+- `validation-queries.sql` **hiç çalıştırılmadı**
+
+```bash
+cd qa-shop && docker compose up -d
+curl http://localhost:4000/health          # {"status":"ok","database":"up"} beklenir
+```
+
+Sağlık yeşilse `qa-shop/README.md`'deki uçtan uca akışı koştur (sandbox →
+login → sepet → sipariş). Hata çıkarsa düzeltilecek yer büyük olasılıkla
+`seed.sql` (en karmaşık SQL orada: `clone_sandbox`, sipariş toplamlarının
+satırlardan hesaplanması).
+
+### 🎯 Sıradaki iş (öncelik sırasıyla)
+
+1. **Yığını ayağa kaldır ve doğrula** (yukarıdaki blok) — her şey buna bağlı
+2. **Postman koleksiyonu + REST Assured başlangıç projesi** — kullanıcının
+   yöneticisine göstereceği somut kanıt bu olacak
+3. **Ödeme/kargo/yorum/adres uçları** — tabloları ve tohum verisi VAR,
+   HTTP ucu yok (SQL pratiği şimdiden yapılabilir)
+4. **Arayüz (`/qa-shop`)** + Adım 4'ün herkese açık dokümantasyonu.
+   Kapsamı `access-tiers-plan.md` §9.5'te tablo olarak hazır: hangi arayüz
+   hareketi DB ve API'de neyi değiştirir
+5. **Bug anahtarları** — `sandbox.bug_flags` sütunu duruyor, mekanizma bağlanmadı
+6. `/work-goals` takipçisi — plan hazır, kod yok. Kullanıcının Faz 0'daki
+   üç sorusu (alt ağırlıklar, debug hedefi, otomasyon oranının paydası)
+   yöneticisiyle netleşmeden başlanmasa da olur
+
+### 📌 Kullanıcının açık soruları / bekleyen kararları
+
+- `/admin` hub sayfası yapılsın mı? (admin yüzeyi sayısı 3'e çıktı: `/backend`,
+  `/qa-shop-setup`, ileride `/work-goals`)
+- **Bulgu, dokunulmadı:** ana sayfadaki "Basit Backend" linki `/basit-backend`'e
+  değil, admin'e kapalı `/backend`'e gidiyor. Herkese açık olan
+  `/basit-backend` sayfasının ana sayfada HİÇ linki yok. Kullanıcıya
+  bildirildi, düzeltme istenmedi.
+- `/leaderboard` çıktısında yalnızca görünen ad olduğu doğrulanmalı (e-posta asla)
+
+---
+
+## 📌 Önceki Durum (2026-08-14, Opus — arama görünürlüğü çalışması MAIN'E MERGE EDİLDİ ve PUSH EDİLDİ)
+
+> Alttaki bölümler korunuyor.
 
 ### 📍 Şu anki durum
 
