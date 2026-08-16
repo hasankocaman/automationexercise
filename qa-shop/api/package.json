@@ -1,0 +1,23 @@
+{
+  "name": "qa-shop-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "QA Shop — test otomasyonu pratik API'si (Express + PostgreSQL)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/core.test.mjs test/app.test.mjs test/contract.test.mjs test/postman.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.0"
+  }
+}

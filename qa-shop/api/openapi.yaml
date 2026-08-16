@@ -1,0 +1,1682 @@
+openapi: 3.0.3
+
+# ============================================================================
+# QA Shop Practice API — OpenAPI 3.0.3
+#
+# Bu dosya PRATİK ORTAMININ sözleşmesidir. LearnQA.dev'in kendi backend'iyle
+# (Supabase auth, ilerleme, rozetler) HİÇBİR İLİŞKİSİ YOKTUR — ayrı veritabanı,
+# ayrı süreç, ayrı kimlik doğrulama. Buradaki hiçbir uç gerçek kullanıcı
+# verisine dokunamaz.
+#
+# KULLANIM
+#   Swagger UI : https://editor.swagger.io  → File > Import File
+#   Postman    : Import > File > openapi.yaml  (koleksiyon otomatik oluşur)
+#   REST Assured / Playwright: şema doğrulaması için referans
+#
+# KİMLİK İKİ KATMANLI — karıştırılması en sık yapılan hata:
+#   1. X-Sandbox-Key  → HANGİ VERİ ALANI (kiracı). Neredeyse her uçta gerekir.
+#   2. Authorization  → HANGİ KULLANICI (oturum). Yalnızca 🔒 işaretli uçlarda.
+#   Sandbox anahtarı olmadan token işe yaramaz; token olmadan sandbox anahtarı
+#   yalnızca okuma yaptırır.
+# ============================================================================
+
+info:
+  title: QA Shop Practice API
+  version: "1.0.0"
+  description: |
+    Test otomasyonu pratiği için gerçek bir e-ticaret API'si. Mock değil:
+    veri kalıcı, işlemler transaction içinde, stok gerçekten düşüyor.
+
+    **Sandbox anahtarı göndermezsen** demo verisine salt okunur bağlanırsın —
+    `GET` uçları çalışır, yazma denemeleri `401` döner. İlk denemeyi
+    kolaylaştırmak için böyle.
+
+    **Kendi alanını açmak için:** `POST /sandbox` → dönen `apiKey` değerini
+    `X-Sandbox-Key` başlığında gönder. Alan 7 gün sonra otomatik silinir.
+
+    **Her test koşumundan önce** `POST /sandbox/reset` çağır — temiz durum
+    otomasyonun en temel disiplinidir ve burada bir uç olarak hazır.
+
+    Demo hesabı: `demo@qashop.test` / `Password123!`
+  contact:
+    name: LearnQA.dev
+    url: https://learnqa.dev
+
+servers:
+  - url: http://localhost:4000
+    description: Lokal Docker (docker compose up)
+
+tags:
+  - name: Sistem
+    description: Sağlık ve keşif
+  - name: Sandbox
+    description: İzole veri alanı yönetimi — aç, durum gör, sıfırla, log oku
+  - name: Kimlik
+    description: Kayıt, giriş, oturum
+  - name: Katalog
+    description: Ürün, varyant, kategori, marka, arama
+  - name: Sepet
+    description: Sepet ve satırları — stok rezervasyonu burada gerçekleşir
+  - name: Sipariş
+    description: Checkout, listeleme, iptal, fatura, yaşam döngüsü (ödeme → kargo → teslim → iade)
+  - name: Adres
+    description: Adres defteri — varsayılan adres kuralı tek satırdan fazlasını etkiler
+  - name: Yorum
+    description: Ürün yorumları ve moderasyon — onaysız yorum listede ve ortalamada görünmez
+  - name: Kusur
+    description: Kontrollü bug anahtarları — testinin gerçekten kırmızıya döndüğünü kanıtlamak için
+
+security:
+  - SandboxKey: []
+
+paths:
+
+  # ─────────────────────────────────── Sistem ────────────────────────────────
+  /health:
+    get:
+      tags: [Sistem]
+      summary: Servis ve veritabanı sağlığı
+      description: |
+        Sandbox çözümlemesinden ÖNCE çalışır: veritabanı ayakta değilken bile
+        cevap verir. `503` dönüyorsa API ayakta ama DB'ye ulaşamıyor demektir —
+        "servis mi öldü, DB mi öldü" ayrımını bu uç yapar.
+      security: []
+      responses:
+        "200":
+          description: Her şey çalışıyor
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+        "503":
+          description: Veritabanına ulaşılamıyor
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+
+  /api/v1/openapi.yaml:
+    get:
+      tags: [Sistem]
+      summary: Bu sözleşmenin kendisi
+      description: |
+        Sözleşme dosyadan servis edilir, koddan ÜRETİLMEZ. Postman
+        "Import > Link" ve Swagger "Import URL" doğrudan bu adresi okur.
+
+        `/openapi.yaml` adresi de aynı belgeyi verir (sürüm ön eki olmadan).
+      security: []
+      responses:
+        "200":
+          description: OpenAPI belgesi (YAML)
+          content:
+            text/yaml:
+              schema: { type: string }
+
+  /api/v1:
+    get:
+      tags: [Sistem]
+      summary: API keşif noktası
+      security: []
+      responses:
+        "200":
+          description: Hızlı başlangıç adımları
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name: { type: string, example: QA Shop API }
+                  version: { type: string, example: v1 }
+                  quickStart:
+                    type: array
+                    items: { type: string }
+
+  # ─────────────────────────────────── Sandbox ───────────────────────────────
+  /api/v1/sandbox:
+    post:
+      tags: [Sandbox]
+      summary: Yeni izole veri alanı aç
+      description: |
+        Kayıt İSTEMEZ. Şablonun birebir kopyasını alırsın: 120 ürün, 360
+        varyant, 41 kullanıcı, 150 siparişlik geçmiş. Yani SQL pratiği ilk
+        saniyeden itibaren anlamlı hacim bulur.
+      security: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  type: string
+                  maxLength: 80
+                  example: benim-pratik-alanim
+      responses:
+        "201":
+          description: Alan açıldı
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SandboxCreated" }
+
+  /api/v1/sandbox/state:
+    get:
+      tags: [Sandbox]
+      summary: Satır sayıları
+      description: |
+        Test öncesi/sonrası kıyas için. "Testim gerçekten bir şey değiştirdi
+        mi?" sorusunun en hızlı cevabı.
+      responses:
+        "200":
+          description: Durum özeti
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SandboxState" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "410": { $ref: "#/components/responses/SandboxExpired" }
+
+  /api/v1/sandbox/reset:
+    post:
+      tags: [Sandbox]
+      summary: Tohum veriye dön
+      description: |
+        Tüm kullanıcı verisi silinir ve şablon yeniden kopyalanır. Açık
+        oturumlar da silinir — sıfırlamadan sonra tekrar `login` gerekir.
+
+        Test paketinin `beforeAll` adımına konması beklenir.
+      responses:
+        "200":
+          description: Sıfırlandı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sandboxId: { type: string, format: uuid }
+                  resetAt: { type: string, format: date-time }
+                  durationMs: { type: integer, example: 340 }
+                  message: { type: string }
+        "401":
+          description: Demo (salt okunur) modda sıfırlama yapılamaz
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/sandbox/logs:
+    get:
+      tags: [Sandbox]
+      summary: Denetim kaydı (log analizi pratiği)
+      description: |
+        Bir hata aldığında cevabın `correlationId` değerini buraya ver;
+        isteğin tüm zincirini görürsün. Kök neden analizinin API tarafı budur.
+      parameters:
+        - name: level
+          in: query
+          schema: { type: string, enum: [INFO, WARN, ERROR] }
+        - name: action
+          in: query
+          schema: { type: string, example: order.create }
+        - name: correlationId
+          in: query
+          schema: { type: string, example: req-8f3c1e2a }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 100, maximum: 500 }
+      responses:
+        "200":
+          description: Log satırları (en yeni önce)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+                  limit: { type: integer }
+                  logs:
+                    type: array
+                    items: { $ref: "#/components/schemas/AuditLog" }
+        "400":
+          description: Geçersiz `level` değeri
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  # ─────────────────────────────────── Kimlik ────────────────────────────────
+  /api/v1/auth/register:
+    post:
+      tags: [Kimlik]
+      summary: Yeni kullanıcı kaydı
+      description: |
+        Token DÖNMEZ. Kayıt ile giriş ayrı işlemlerdir; birleştirmek "kayıt
+        olan herkes otomatik giriş yapar" varsayımını dayatır ve e-posta
+        doğrulaması eklendiğinde kırılır.
+
+        E-posta küçük harfe indirgenir: `Ali@x.com` ile `ali@x.com` aynı kişidir.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email: { type: string, format: email, example: yeni@qashop.test }
+                password:
+                  type: string
+                  minLength: 8
+                  description: En az 8 karakter, en az bir harf ve bir rakam
+                  example: Password123!
+                name: { type: string, minLength: 2, example: Yeni Kullanıcı }
+      responses:
+        "201":
+          description: Kullanıcı oluşturuldu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/User" }
+        "409":
+          description: E-posta zaten kayıtlı (`EMAIL_ALREADY_EXISTS`)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: |
+            Doğrulama hatası. Kod alanı hangi kuralın devreye girdiğini söyler:
+            `INVALID_EMAIL`, `WEAK_PASSWORD`, `INVALID_NAME`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/auth/login:
+    post:
+      tags: [Kimlik]
+      summary: Giriş yap, token al
+      description: |
+        ⚠ Kullanıcı yoksa da parola yanlışsa da **aynı** `401` ve **aynı**
+        mesaj döner. Farklı mesaj vermek "bu e-posta kayıtlı" bilgisini
+        sızdırırdı (user enumeration). Testte de bu beklenir.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: demo@qashop.test }
+                password: { type: string, example: Password123! }
+      responses:
+        "200":
+          description: Giriş başarılı
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResponse" }
+        "400":
+          description: "`email` veya `password` eksik"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: Bilgiler hatalı ya da hesap pasif
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/auth/me:
+    get:
+      tags: [Kimlik]
+      summary: 🔒 Oturumdaki kullanıcı
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      responses:
+        "200":
+          description: Kullanıcı bilgisi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    allOf:
+                      - $ref: "#/components/schemas/User"
+                      - type: object
+                        properties:
+                          order_count: { type: integer, example: 4 }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/auth/logout:
+    post:
+      tags: [Kimlik]
+      summary: 🔒 Oturumu kapat
+      description: |
+        Oturumu GERÇEKTEN iptal eder (veritabanında işaretlenir). Stateless
+        bir JWT'de logout sahte bir `204` olurdu: token hâlâ geçerli kalırdı
+        ve "çıkıştan sonra eski token'la `/me` çağır" testi yanlış yere yeşil
+        geçerdi. Burada o test doğru şekilde `401` görür.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      responses:
+        "204": { description: Çıkış yapıldı }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [Kimlik]
+      summary: 🔒 Token yenile
+      description: Eski oturum iptal edilir, yeni token verilir.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      responses:
+        "200":
+          description: Yeni token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenResponse" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  # ─────────────────────────────────── Katalog ───────────────────────────────
+  /api/v1/products:
+    get:
+      tags: [Katalog]
+      summary: Ürün listesi
+      description: |
+        Pasif ürünler varsayılan olarak GİZLİDİR (soft delete). `includeInactive=true`
+        ile görünür — "silinen ürün katalogda çıkmamalı ama eski siparişte
+        durmalı" kuralının test edilebilir hâli.
+
+        Markası olmayan ürünler vardır (`brand` alanı `null`). Bu bilinçlidir:
+        INNER JOIN ile LEFT JOIN farkını gösteren satırlar olmadan JOIN dersi
+        anlatılamaz.
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1, minimum: 1 } }
+        - { name: size, in: query, schema: { type: integer, default: 20, maximum: 100 } }
+        - name: sort
+          in: query
+          schema: { type: string, enum: [price, name, created, sku], default: sku }
+        - { name: order, in: query, schema: { type: string, enum: [asc, desc], default: asc } }
+        - { name: category, in: query, schema: { type: string, example: tshirts } }
+        - { name: brand, in: query, schema: { type: string, example: Nike } }
+        - { name: minPrice, in: query, schema: { type: number, example: 200 } }
+        - { name: maxPrice, in: query, schema: { type: number, example: 800 } }
+        - { name: q, in: query, schema: { type: string, example: Blue } }
+        - { name: includeInactive, in: query, schema: { type: boolean, default: false } }
+      responses:
+        "200":
+          description: Sayfalanmış ürün listesi
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/Product" }
+        "400":
+          description: Tanımsız `sort` değeri
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/products/{id}:
+    get:
+      tags: [Katalog]
+      summary: Ürün detayı
+      description: |
+        `rating_avg` YALNIZCA onaylı yorumlardan hesaplanır; bekleyen yorum
+        puana etki etmemelidir. Pasif ürün `404` döner.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, example: 1 }
+      responses:
+        "200":
+          description: Ürün
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product: { $ref: "#/components/schemas/ProductDetail" }
+        "400": { description: id sayı değil }
+        "404": { description: Ürün yok ya da artık satışta değil }
+
+  /api/v1/products/{id}/variants:
+    get:
+      tags: [Katalog]
+      summary: Ürünün varyantları ve stoğu
+      description: |
+        `available = stock_qty - reserved_qty`. Yalnızca `stock_qty`'ye bakmak
+        sepette bekleyen adedi görmez ve oversell üretir.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, example: 1 }
+      responses:
+        "200":
+          description: Varyant listesi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  productId: { type: integer }
+                  total: { type: integer }
+                  variants:
+                    type: array
+                    items: { $ref: "#/components/schemas/Variant" }
+        "404": { description: Ürün bulunamadı }
+
+  /api/v1/categories:
+    get:
+      tags: [Katalog]
+      summary: Kategori ağacı
+      responses:
+        "200":
+          description: Üst kategoriler ve altları
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+                  categories:
+                    type: array
+                    items: { $ref: "#/components/schemas/Category" }
+
+  /api/v1/categories/{id}/products:
+    get:
+      tags: [Katalog]
+      summary: Kategorideki ürünler (alt kategoriler dahil)
+      description: |
+        Üst kategori istendiğinde altındaki tüm kategorilerin ürünleri döner.
+        Yalnızca doğrudan eşleşmeye bakan bir sorgu üst kategorilerde her zaman
+        boş liste verirdi.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: size, in: query, schema: { type: integer, default: 20 } }
+      responses:
+        "200":
+          description: Sayfalanmış ürün listesi
+        "404": { description: Kategori bulunamadı }
+
+  /api/v1/brands:
+    get:
+      tags: [Katalog]
+      summary: Marka listesi
+      responses:
+        "200":
+          description: Markalar ve ürün sayıları
+
+  /api/v1/search:
+    get:
+      tags: [Katalog]
+      summary: Ürün arama
+      description: |
+        2 karakterden kısa terim `400` döner. Boş aramayı sessizce "her şeyi
+        döndür"e çevirmek, arayüzde fark edilmeyen bir performans sorununa
+        dönüşür.
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string, minLength: 2 }, example: Dress }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: size, in: query, schema: { type: integer, default: 20 } }
+      responses:
+        "200": { description: Arama sonuçları }
+        "400": { description: Terim çok kısa }
+
+  # ─────────────────────────────────── Sepet ─────────────────────────────────
+  /api/v1/carts:
+    post:
+      tags: [Sepet]
+      summary: Sepet aç
+      description: Token gönderirsen sepet kullanıcıya bağlanır; göndermezsen misafir sepeti olur.
+      responses:
+        "201":
+          description: Sepet oluşturuldu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cart: { $ref: "#/components/schemas/Cart" }
+        "401": { $ref: "#/components/responses/ReadOnlySandbox" }
+
+  /api/v1/carts/{id}:
+    get:
+      tags: [Sepet]
+      summary: Sepet detayı ve toplamlar
+      description: |
+        `warnings.priceChanged` alanı, sepetteki fiyatın ürünün güncel
+        fiyatından farklı olduğu satırları listeler. Sepet eski fiyatı korur —
+        bu bir bug değil, bilinçli bir karardır; ama arayüzün hangisini
+        göstereceğine kendi karar verdiği için TEST EDİLMESİ gereken bir karardır.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: Sepet
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CartDetail" }
+        "403": { description: Sepet başka bir kullanıcıya ait }
+        "404": { description: Sepet bulunamadı }
+
+  /api/v1/carts/{id}/items:
+    post:
+      tags: [Sepet]
+      summary: Sepete ürün ekle
+      description: |
+        Stok REZERVE edilir (`reserved_qty` artar). Rezervasyon olmadan iki
+        kullanıcı son ürünü sepetine atar ve hata ancak ödeme sonrası çıkar.
+
+        Aynı varyant ikinci kez eklenirse adet artırılır, yeni satır açılmaz.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [variantId]
+              properties:
+                variantId: { type: integer, example: 1 }
+                qty: { type: integer, minimum: 1, default: 1, example: 2 }
+      responses:
+        "201":
+          description: Eklendi, güncel sepet döner
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CartDetail" }
+        "409":
+          description: |
+            `OUT_OF_STOCK` — `details.available` kaç adet kaldığını söyler.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: "`INVALID_VARIANT`, `INVALID_QTY` veya `PRODUCT_INACTIVE`"
+        "404": { description: Varyant bulunamadı }
+
+  /api/v1/carts/{id}/items/{itemId}:
+    patch:
+      tags: [Sepet]
+      summary: Satır adedini güncelle
+      description: |
+        `qty: 0` ile silme YAPILMAZ → `422`. Silmek için `DELETE` var. Aynı işi
+        iki farklı yolla yapmak, iki davranışın zamanla ayrışmasına yol açar.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: itemId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [qty]
+              properties:
+                qty: { type: integer, minimum: 1, example: 3 }
+      responses:
+        "200": { description: Güncellendi, güncel sepet döner }
+        "409": { description: "`OUT_OF_STOCK`" }
+        "422": { description: "`INVALID_QTY`" }
+        "404": { description: Sepet satırı bulunamadı }
+    delete:
+      tags: [Sepet]
+      summary: Satırı sepetten çıkar
+      description: Rezervasyon serbest bırakılır. Bu adım atlanırsa stok sızar.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - { name: itemId, in: path, required: true, schema: { type: integer } }
+      responses:
+        "204": { description: Silindi }
+        "404": { description: Sepet satırı bulunamadı }
+
+  /api/v1/carts/{id}/coupon:
+    post:
+      tags: [Sepet]
+      summary: Kupon uygula
+      description: |
+        Reddetme nedeni AYRI bir kodla döner — "kupon geçersiz" demek hangi
+        kuralın devreye girdiğini test edilemez kılardı:
+
+        | Kod | Anlamı | Tohum veride örnek |
+        |---|---|---|
+        | `COUPON_NOT_FOUND` | Böyle bir kupon yok | — |
+        | `COUPON_NOT_STARTED` | Henüz başlamadı | `FUTURE15` |
+        | `COUPON_EXPIRED` | Süresi doldu | `EXPIRED20` |
+        | `COUPON_USAGE_LIMIT_REACHED` | Limit doldu | `MAXEDOUT` |
+        | `COUPON_MIN_TOTAL_NOT_MET` | Alt tutar yetersiz | `VIP1000` |
+
+        Geçerli örnek: `WELCOME10` (%10), `SAVE50` (50 TL, min 300).
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, example: WELCOME10 }
+      responses:
+        "200": { description: Kupon uygulandı, güncel sepet döner }
+        "422":
+          description: Kupon reddedildi (kod yukarıdaki tablodan)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  # ─────────────────────────────────── Sipariş ───────────────────────────────
+  /api/v1/orders:
+    post:
+      tags: [Sipariş]
+      summary: 🔒 Checkout — sepeti siparişe çevir
+      description: |
+        Tek transaction içinde: stok düşer, rezervasyon serbest kalır, kupon
+        sayacı artar, sepet `converted` olur.
+
+        **Kupon CHECKOUT ANINDA yeniden doğrulanır.** Sepete eklendiğinde
+        geçerli olması yetmez — sepet bir hafta açık kalmış, kupon bu sürede
+        dolmuş olabilir. Bu yeniden doğrulama atlanırsa "süresi geçmiş kuponla
+        indirim" hatası doğar.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cartId]
+              properties:
+                cartId: { type: integer, example: 42 }
+      responses:
+        "201":
+          description: Sipariş oluşturuldu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order: { $ref: "#/components/schemas/Order" }
+        "409":
+          description: "`CART_NOT_OPEN` veya `OUT_OF_STOCK`"
+        "422":
+          description: "`EMPTY_CART`, `PRODUCT_INACTIVE`, `INVALID_CART_ID` veya kupon reddi"
+        "403": { description: Sepet başka kullanıcıya ait }
+        "404": { description: Sepet bulunamadı }
+    get:
+      tags: [Sipariş]
+      summary: 🔒 Kendi siparişlerin
+      description: |
+        Filtre oturumdaki kullanıcıdan gelir, istemciden DEĞİL. `?userId=`
+        kabul eden bir uç başkasının siparişlerini okumaya açık olurdu.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: size, in: query, schema: { type: integer, default: 20 } }
+        - name: status
+          in: query
+          schema: { type: string, enum: [placed, paid, shipped, delivered, cancelled, returned] }
+      responses:
+        "200": { description: Sayfalanmış sipariş listesi }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/orders/{id}:
+    get:
+      tags: [Sipariş]
+      summary: 🔒 Sipariş detayı
+      description: |
+        Başkasının siparişi `403` döner (`404` değil). İkisi de savunulabilir;
+        burada açık davranış seçildi ki yetki testi net bir sonuç görsün.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: Sipariş, satırlar, ödemeler, kargolar
+        "403": { description: Sipariş sana ait değil }
+        "404": { description: Sipariş bulunamadı }
+
+  /api/v1/orders/{id}/cancel:
+    post:
+      tags: [Sipariş]
+      summary: 🔒 Siparişi iptal et
+      description: |
+        Yalnızca `placed` ve `paid` durumundan iptal edilebilir. Kargolanmış
+        sipariş iptal EDİLMEZ, iade edilir — ikisi stok ve muhasebe açısından
+        farklı işlemlerdir.
+
+        İptalde stok geri yüklenir ve kupon sayacı düşürülür.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200": { description: İptal edildi }
+        "409":
+          description: "`INVALID_TRANSITION` — `details.allowed` izin verilen durumları söyler"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403": { description: Sipariş sana ait değil }
+
+  /api/v1/orders/{id}/invoice:
+    get:
+      tags: [Sipariş]
+      summary: 🔒 Fatura
+      description: |
+        Fatura siparişin KAYITLI değerlerinden üretilir, ürünlerin güncel
+        fiyatından değil. `reconciled` alanı satır toplamlarının başlıktaki
+        ara toplama eşit olduğunu beyan eder — arayüzde fark edilmesi imkânsız
+        bir hatayı, faturayı okuyan test anında yakalar.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: Fatura belgesi
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Invoice" }
+        "403": { description: Sipariş sana ait değil }
+
+  # ───────────────────────── Sipariş yaşam döngüsü ───────────────────────────
+  /api/v1/orders/{id}/pay:
+    post:
+      tags: [Sipariş]
+      summary: 🔒 Ödeme al
+      description: |
+        Siparişi `placed` → `paid` durumuna taşır ve bir ödeme kaydı yazar.
+
+        `simulateFailure: true` gönderildiğinde BAŞARISIZ ödeme üretilir: kayıt
+        yazılır ama sipariş durumu DEĞİŞMEZ ve cevap **402** döner. "Ödeme
+        denendi ve tutmadı" ile "ödeme hiç denenmedi" farklı durumlardır; 200
+        dönseydi bir test isteği geçmiş sayar ve farkı göremezdi.
+
+        Aynı siparişe ikinci kez başarılı ödeme alınamaz (`ALREADY_PAID`) —
+        çift tıklama iki tahsilat üretmemeli.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                method: { type: string, enum: [card, transfer, cod], default: card }
+                simulateFailure: { type: boolean, default: false }
+      responses:
+        "200":
+          description: Ödeme alındı, sipariş `paid`
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order: { $ref: "#/components/schemas/Order" }
+                  payment: { $ref: "#/components/schemas/Payment" }
+        "402":
+          description: Ödeme başarısız — kayıt yazıldı, sipariş durumu değişmedi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order: { $ref: "#/components/schemas/Order" }
+                  payment: { $ref: "#/components/schemas/Payment" }
+        "409":
+          description: "`ALREADY_PAID` veya `INVALID_TRANSITION`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: "`INVALID_PAYMENT_METHOD`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403": { description: Sipariş sana ait değil }
+
+  /api/v1/orders/{id}/ship:
+    post:
+      tags: [Sipariş]
+      summary: 🔒 Kargoya ver
+      description: |
+        `paid` → `shipped`. Ödemesi alınmamış sipariş kargolanamaz: durum geçiş
+        tablosu `placed` → `shipped` geçişine izin vermez ve **409** döner. Bu,
+        veri doğrulama sorgularındaki "ödemesi yok ama kargolanmış sipariş"
+        kontrolünün uygulama tarafındaki karşılığıdır.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                carrier: { type: string, example: Yurtici }
+                trackingNo: { type: string, example: TRK0000123456 }
+      responses:
+        "200":
+          description: Kargo kaydı oluşturuldu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order: { $ref: "#/components/schemas/Order" }
+                  shipment: { $ref: "#/components/schemas/Shipment" }
+        "409":
+          description: "`INVALID_TRANSITION` — ödemesiz sipariş kargolanamaz"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403": { description: Sipariş sana ait değil }
+
+  /api/v1/orders/{id}/deliver:
+    post:
+      tags: [Sipariş]
+      summary: 🔒 Teslim edildi işaretle
+      description: |
+        `shipped` → `delivered`. Teslim ANI kaydedilir (`shipment.delivered_at`);
+        iade penceresi bu andan itibaren sayılır. Kargoya veriliş tarihinden
+        saymak, uzun süren teslimatlarda müşterinin iade hakkını sessizce
+        kısaltırdı.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: Sipariş teslim edildi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order: { $ref: "#/components/schemas/Order" }
+                  shipment: { $ref: "#/components/schemas/Shipment" }
+        "409":
+          description: "`INVALID_TRANSITION`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403": { description: Sipariş sana ait değil }
+
+  /api/v1/orders/{id}/return:
+    post:
+      tags: [Sipariş]
+      summary: 🔒 İade et
+      description: |
+        `delivered` → `returned`. İade, İPTALDEN farklı bir işlemdir: ürün
+        müşteridedir, stoğa geri döner ve **14 günlük** bir zaman penceresi
+        vardır. Pencere dolmuşsa `RETURN_WINDOW_CLOSED` ile 409 döner.
+
+        Yan etkiler: stok geri yüklenir, başarılı ödeme `refunded` olur, kargo
+        kaydı `returned` olur.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: İade tamamlandı
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order: { $ref: "#/components/schemas/Order" }
+                  restoredItems: { type: integer, description: Stoğa geri yüklenen satır sayısı }
+        "409":
+          description: "`RETURN_WINDOW_CLOSED` veya `INVALID_TRANSITION`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403": { description: Sipariş sana ait değil }
+
+  # ─────────────────────────────────── Adres ─────────────────────────────────
+  /api/v1/addresses:
+    get:
+      tags: [Adres]
+      summary: 🔒 Adreslerim
+      description: Varsayılan adres listenin başında döner.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      responses:
+        "200":
+          description: Adres listesi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+                  addresses:
+                    type: array
+                    items: { $ref: "#/components/schemas/Address" }
+    post:
+      tags: [Adres]
+      summary: 🔒 Adres ekle
+      description: |
+        İLK adres otomatik olarak varsayılan olur — kullanıcı hiç seçim yapmadan
+        checkout'a geldiğinde "varsayılan adres yok" durumu oluşmasın diye.
+
+        `isDefault: true` gönderildiğinde diğer adreslerin varsayılanlığı DÜŞER.
+        Yani bu istek, gövdede adı geçmeyen satırları da değiştirir; cevaba bakan
+        bir test bunu göremez, veritabanına bakan bir test görür.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [line1, city]
+              properties:
+                label: { type: string, example: ev }
+                line1: { type: string, minLength: 3 }
+                city: { type: string, minLength: 2 }
+                country: { type: string, pattern: "^[A-Za-z]{2}$", default: TR }
+                postalCode: { type: string, nullable: true }
+                isDefault: { type: boolean }
+      responses:
+        "201":
+          description: Adres oluşturuldu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address: { $ref: "#/components/schemas/Address" }
+        "422":
+          description: "`MISSING_FIELD`, `INVALID_FIELD` veya `INVALID_COUNTRY`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/addresses/{id}:
+    patch:
+      tags: [Adres]
+      summary: 🔒 Adres güncelle
+      description: Kısmi güncelleme — yalnızca gönderilen alanlar değişir.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label: { type: string }
+                line1: { type: string }
+                city: { type: string }
+                country: { type: string }
+                postalCode: { type: string, nullable: true }
+                isDefault: { type: boolean }
+      responses:
+        "200":
+          description: Güncellenmiş adres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address: { $ref: "#/components/schemas/Address" }
+        "422":
+          description: "`EMPTY_PATCH` — güncellenecek alan gönderilmedi"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403": { description: Adres sana ait değil }
+        "404": { description: Adres bulunamadı }
+    delete:
+      tags: [Adres]
+      summary: 🔒 Adres sil
+      description: |
+        Varsayılan adres silinirse kalanlardan biri varsayılan yapılır. Aksi
+        hâlde kullanıcının hiç varsayılanı kalmaz ve bu ancak checkout'ta fark
+        edilirdi.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "204": { description: Silindi }
+        "403": { description: Adres sana ait değil }
+        "404": { description: Adres bulunamadı }
+
+  # ─────────────────────────────────── Yorum ─────────────────────────────────
+  /api/v1/products/{id}/reviews:
+    get:
+      tags: [Yorum]
+      summary: Ürün yorumları
+      description: |
+        Varsayılan olarak YALNIZCA onaylı yorumlar döner. `?status=pending` ile
+        moderasyon kuyruğuna bakılabilir.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+        - name: status
+          in: query
+          schema: { type: string, enum: [pending, approved, rejected], default: approved }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: size, in: query, schema: { type: integer, default: 20, maximum: 100 } }
+      responses:
+        "200":
+          description: Yorum listesi
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/Review" }
+        "404": { description: Ürün bulunamadı }
+    post:
+      tags: [Yorum]
+      summary: 🔒 Yorum yaz
+      description: |
+        Yeni yorum `pending` doğar. **201 dönmesi yorumun yayınlandığı anlamına
+        GELMEZ** — onaylanana kadar listede ve ortalama puanda görünmez. Bu ayrım
+        burada açıkça yazılı çünkü "yorumumu gönderdim ama görünmüyor" en sık
+        yanlış anlaşılan davranışlardan biridir.
+
+        Aynı kullanıcı aynı ürüne iki kez yorum yazamaz.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating]
+              properties:
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                comment: { type: string, maxLength: 2000 }
+      responses:
+        "201":
+          description: Yorum alındı, moderasyon bekliyor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  review: { $ref: "#/components/schemas/Review" }
+                  note: { type: string }
+        "422":
+          description: "`INVALID_RATING` veya `REVIEW_ALREADY_EXISTS`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/products/{id}/rating:
+    get:
+      tags: [Yorum]
+      summary: Ortalama puan ve dağılım
+      description: |
+        Ortalama AYRI bir uçtur: liste sayfalanır, ortalama sayfalanmaz.
+        Ortalamayı listenin ilk sayfasından hesaplamak, çok yorumlu üründe
+        sessizce yanlış sonuç verirdi.
+
+        Hesap YALNIZCA onaylı yorumlar üzerinden yapılır (`basis: approved`).
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: Puan özeti
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RatingSummary" }
+        "404": { description: Ürün bulunamadı }
+
+  /api/v1/reviews/{id}:
+    patch:
+      tags: [Yorum]
+      summary: 🔒 Yorumu onayla / reddet
+      description: |
+        Moderasyon ucu. Bu pratik ortamında rol ayrımı yoktur — girişli her
+        kullanıcı moderasyon yapabilir. Amaç, onay akışını test edilebilir
+        kılmak.
+      security:
+        - SandboxKey: []
+          BearerAuth: []
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [pending, approved, rejected] }
+      responses:
+        "200":
+          description: Güncellenmiş yorum
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  review: { $ref: "#/components/schemas/Review" }
+        "422":
+          description: "`INVALID_STATUS`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404": { description: Yorum bulunamadı }
+
+  # ─────────────────────────── Kontrollü kusurlar ────────────────────────────
+  /api/v1/sandbox/bugs:
+    get:
+      tags: [Kusur]
+      summary: Açılabilecek kusurların kataloğu
+      description: |
+        Her anahtar sistemin gerçek bir yerinde gerçek bir kusur açar.
+        `catchableBy` alanı, o kusuru hangi kontrolün yakalaması GEREKTİĞİNİ
+        söyler.
+
+        Pratiğin kendisi tam olarak şudur: anahtarı aç, testini koş, testinin
+        kırmızıya dönüp dönmediğine bak. Dönmüyorsa test bir şeye bakmıyordur.
+      responses:
+        "200":
+          description: Katalog ve açık olanlar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sandboxId: { type: string, format: uuid }
+                  active:
+                    type: array
+                    items: { type: string }
+                  available:
+                    type: array
+                    items: { $ref: "#/components/schemas/BugFlag" }
+    patch:
+      tags: [Kusur]
+      summary: Kusur aç / kapat
+      description: |
+        Kısmi güncelleme: gönderilmeyen anahtarlar olduğu gibi kalır.
+
+        Bilinmeyen anahtar SESSİZCE yok sayılmaz, `UNKNOWN_BUG_FLAG` ile 422
+        döner. Yok sayılsaydı yazım hatası yapan kullanıcı kusuru açtığını sanır,
+        testi yeşil kalır ve bundan "testim çalışıyor" sonucunu çıkarırdı — tam
+        olarak önlemeye çalıştığımız yanılgı.
+
+        `POST /sandbox/reset` tüm anahtarları kapatır.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: { type: boolean }
+              example: { oversell: true, discount_twice: false }
+      responses:
+        "200":
+          description: Güncel anahtar durumu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sandboxId: { type: string, format: uuid }
+                  active:
+                    type: array
+                    items: { type: string }
+                  flags: { type: object, additionalProperties: { type: boolean } }
+        "401": { $ref: "#/components/responses/ReadOnlySandbox" }
+        "422":
+          description: "`UNKNOWN_BUG_FLAG`, `INVALID_FLAG_VALUE` veya `EMPTY_BODY`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+# ============================================================================
+components:
+
+  securitySchemes:
+    SandboxKey:
+      type: apiKey
+      in: header
+      name: X-Sandbox-Key
+      description: |
+        Hangi veri alanına bağlanacağını belirler. `POST /api/v1/sandbox` ile
+        alınır. Gönderilmezse demo verisine SALT OKUNUR bağlanılır.
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        `POST /api/v1/auth/login` ile alınır. Gerçek JWT formatındadır —
+        jwt.io'ya yapıştırıp içindeki `sub`, `sandbox`, `jti`, `exp`
+        alanlarını görebilirsin.
+
+  responses:
+    Unauthorized:
+      description: Token yok, geçersiz, süresi dolmuş ya da oturum iptal edilmiş
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ReadOnlySandbox:
+      description: Demo verisi salt okunurdur — önce `POST /api/v1/sandbox`
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    SandboxExpired:
+      description: |
+        Sandbox süresi doldu. `410 Gone`, `404`ten daha bilgilendiricidir:
+        kaynak VARDI, süresi geçti.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+
+    Error:
+      type: object
+      description: |
+        Hata gövdesi HER uçta aynı şekildedir. Her endpoint kendi hata şeklini
+        döndürseydi test kodu her uç için ayrı yazılır ve kırılgan olurdu.
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string, example: OUT_OF_STOCK }
+            message: { type: string, example: Stokta yalnızca 2 adet var }
+            details:
+              type: object
+              nullable: true
+              example: { requested: 5, available: 2 }
+        correlationId:
+          type: string
+          example: req-8f3c1e2a-...
+          description: Cevabın `X-Correlation-Id` başlığında da döner.
+
+    Health:
+      type: object
+      properties:
+        status: { type: string, enum: [ok, degraded] }
+        database: { type: string, enum: [up, down] }
+        uptimeSeconds: { type: integer }
+        time: { type: string, format: date-time }
+
+    SandboxCreated:
+      type: object
+      properties:
+        sandboxId: { type: string, format: uuid }
+        apiKey: { type: string, example: qas_3f9a2b... }
+        label: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        howToUse: { type: string }
+        demoUser:
+          type: object
+          properties:
+            email: { type: string, example: demo@qashop.test }
+            password: { type: string, example: Password123! }
+
+    SandboxState:
+      type: object
+      properties:
+        sandboxId: { type: string, format: uuid }
+        mode: { type: string, enum: [demo-readonly, private] }
+        lastResetAt: { type: string, format: date-time, nullable: true }
+        counts:
+          type: object
+          properties:
+            products: { type: integer, example: 120 }
+            variants: { type: integer, example: 360 }
+            users: { type: integer, example: 41 }
+            carts: { type: integer }
+            cart_items: { type: integer }
+            orders: { type: integer, example: 150 }
+            order_items: { type: integer }
+            reviews: { type: integer, example: 200 }
+            audit_log: { type: integer }
+
+    AuditLog:
+      type: object
+      properties:
+        id: { type: integer }
+        at: { type: string, format: date-time }
+        level: { type: string, enum: [INFO, WARN, ERROR] }
+        actor: { type: string, nullable: true }
+        action: { type: string, example: order.create }
+        entity: { type: string, nullable: true }
+        entity_id: { type: string, nullable: true }
+        correlation_id: { type: string, nullable: true }
+        detail: { type: object, nullable: true }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        email: { type: string }
+        name: { type: string }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    TokenResponse:
+      type: object
+      properties:
+        token: { type: string }
+        tokenType: { type: string, example: Bearer }
+        expiresIn: { type: integer, example: 3600 }
+        expiresAt: { type: string, format: date-time }
+
+    LoginResponse:
+      allOf:
+        - $ref: "#/components/schemas/TokenResponse"
+        - type: object
+          properties:
+            user: { $ref: "#/components/schemas/User" }
+
+    Page:
+      type: object
+      properties:
+        page: { type: integer, example: 1 }
+        size: { type: integer, example: 20 }
+        total: { type: integer, example: 111 }
+        totalPages: { type: integer, example: 6 }
+        hasNext: { type: boolean }
+
+    Product:
+      type: object
+      properties:
+        id: { type: integer }
+        sku: { type: string, example: SKU-0001 }
+        name: { type: string, example: Slim Fit White T-Shirt }
+        description: { type: string, nullable: true }
+        price: { type: number, example: 137.99 }
+        currency: { type: string, example: TRY }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+        category: { type: string, nullable: true, example: tshirts }
+        category_name: { type: string, nullable: true }
+        brand:
+          type: string
+          nullable: true
+          description: Bilerek null olabilir — LEFT JOIN dersi için.
+        variant_count: { type: integer, example: 3 }
+        total_stock: { type: integer }
+
+    ProductDetail:
+      allOf:
+        - $ref: "#/components/schemas/Product"
+        - type: object
+          properties:
+            rating_avg:
+              type: number
+              nullable: true
+              description: YALNIZCA onaylı yorumlardan hesaplanır.
+            rating_count: { type: integer }
+
+    Variant:
+      type: object
+      properties:
+        id: { type: integer }
+        sku: { type: string, example: SKU-0001-M }
+        size: { type: string, enum: [S, M, L] }
+        color: { type: string }
+        price: { type: number }
+        stock_qty: { type: integer }
+        reserved_qty: { type: integer }
+        available:
+          type: integer
+          description: stock_qty - reserved_qty. Sipariş edilebilir gerçek adet.
+
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        parent_id: { type: integer, nullable: true }
+        product_count: { type: integer }
+        children:
+          type: array
+          items: { $ref: "#/components/schemas/Category" }
+
+    Cart:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer, nullable: true }
+        guest_token: { type: string, nullable: true }
+        status: { type: string, enum: [open, converted, abandoned] }
+        created_at: { type: string, format: date-time }
+
+    CartItem:
+      type: object
+      properties:
+        id: { type: integer }
+        variant_id: { type: integer }
+        variant_sku: { type: string }
+        product_id: { type: integer }
+        product_name: { type: string }
+        size: { type: string }
+        color: { type: string }
+        qty: { type: integer }
+        unit_price:
+          type: number
+          description: Sepete atıldığı ANDAKİ fiyat (snapshot).
+        current_price:
+          type: number
+          description: Ürünün ŞU ANKİ fiyatı. unit_price ile farklıysa uyarı üretilir.
+        line_total: { type: number }
+        stock_qty: { type: integer }
+        available: { type: integer }
+
+    Totals:
+      type: object
+      description: |
+        grand_total = subtotal - discount_total + shipping_total
+        Kargo 500 TL ve üzeri bedava, altında 29.90.
+      properties:
+        subtotal: { type: number }
+        discount_total: { type: number }
+        shipping_total: { type: number }
+        grand_total: { type: number }
+
+    CartDetail:
+      type: object
+      properties:
+        cart: { $ref: "#/components/schemas/Cart" }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CartItem" }
+        itemCount: { type: integer }
+        totals: { $ref: "#/components/schemas/Totals" }
+        warnings:
+          type: object
+          properties:
+            priceChanged:
+              type: array
+              items:
+                type: object
+                properties:
+                  itemId: { type: integer }
+                  variantSku: { type: string }
+                  cartPrice: { type: number }
+                  currentPrice: { type: number }
+
+    Order:
+      type: object
+      properties:
+        id: { type: integer }
+        order_no: { type: string, example: ORD-1151 }
+        status:
+          type: string
+          enum: [placed, paid, shipped, delivered, cancelled, returned]
+        subtotal: { type: number }
+        discount_total: { type: number }
+        shipping_total: { type: number }
+        grand_total: { type: number }
+        coupon_code: { type: string, nullable: true }
+        placed_at: { type: string, format: date-time }
+
+    Invoice:
+      type: object
+      properties:
+        invoiceNo: { type: string, example: INV-1151 }
+        issuedAt: { type: string, format: date-time }
+        billTo:
+          type: object
+          properties:
+            name: { type: string }
+            email: { type: string }
+        lines:
+          type: array
+          items:
+            type: object
+            properties:
+              description: { type: string }
+              qty: { type: integer }
+              unit_price: { type: number }
+              line_total: { type: number }
+        totals: { $ref: "#/components/schemas/Totals" }
+        reconciled:
+          type: boolean
+          description: |
+            Faturanın kendi tutarlılık beyanı: satır toplamları başlıktaki ara
+            toplama eşit mi. `false` ise arayüzde görülemeyecek bir mutabakat
+            hatası vardır.
+
+    Address:
+      type: object
+      properties:
+        id: { type: integer, example: 12 }
+        label: { type: string, example: ev }
+        line1: { type: string, example: "Ataturk Cad. No 12 D3" }
+        city: { type: string, example: Istanbul }
+        country: { type: string, example: TR }
+        postal_code: { type: string, nullable: true, example: "34100" }
+        is_default:
+          type: boolean
+          description: Kullanıcı başına yalnızca BİR adres varsayılan olabilir.
+
+    Review:
+      type: object
+      properties:
+        id: { type: integer, example: 305 }
+        rating: { type: integer, minimum: 1, maximum: 5, example: 4 }
+        comment: { type: string, nullable: true }
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+          description: |
+            `pending` yorum ürün sayfasında GÖRÜNMEZ ve ortalama puana GİRMEZ —
+            iki ayrı iş kuralı, iki ayrı test.
+        author: { type: string, nullable: true, example: Demo Kullanici }
+        created_at: { type: string, format: date-time }
+
+    RatingSummary:
+      type: object
+      properties:
+        productId: { type: integer }
+        average: { type: number, example: 4.25 }
+        count: { type: integer, example: 8 }
+        basis:
+          type: string
+          example: approved
+          description: Ortalamanın hangi yorum kümesinden hesaplandığı.
+        distribution:
+          type: object
+          description: Puan dağılımı — 5'ten 1'e yorum sayıları.
+          additionalProperties: { type: integer }
+
+    Payment:
+      type: object
+      properties:
+        id: { type: integer }
+        method: { type: string, enum: [card, transfer, cod] }
+        status:
+          type: string
+          enum: [pending, success, failed, refunded]
+          description: |
+            Başarısız ödeme bir KAYIT yazar ama siparişin durumunu değiştirmez.
+            "Denendi ve tutmadı" ile "hiç denenmedi" farklı durumlardır.
+        amount: { type: number, example: 209.90 }
+        txn_ref: { type: string, nullable: true, example: TXN-1737000000000-42 }
+        created_at: { type: string, format: date-time }
+
+    Shipment:
+      type: object
+      properties:
+        id: { type: integer }
+        carrier: { type: string, nullable: true, example: Yurtici }
+        tracking_no: { type: string, nullable: true, example: TRK0000123456 }
+        status: { type: string, enum: [preparing, in_transit, delivered, returned] }
+        shipped_at: { type: string, format: date-time, nullable: true }
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: İade penceresi (14 gün) BU andan itibaren sayılır.
+
+    BugFlag:
+      type: object
+      description: |
+        Kontrollü bir kusur. `breaks` neyi bozduğunu, `catchableBy` hangi
+        kontrolün onu yakalaması gerektiğini söyler.
+      properties:
+        key: { type: string, example: oversell }
+        enabled: { type: boolean }
+        title:
+          type: object
+          properties:
+            tr: { type: string }
+            en: { type: string }
+        breaks:
+          type: object
+          properties:
+            tr: { type: string }
+            en: { type: string }
+        catchableBy:
+          type: object
+          properties:
+            tr: { type: string }
+            en: { type: string }
+        reconciled:
+          type: boolean
+          description: |
+            Satır toplamları başlıktaki ara toplama eşit mi. `false` ise
+            veride mutabakat hatası var demektir.

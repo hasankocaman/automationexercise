@@ -1,0 +1,61 @@
+# QA Shop — lokal pratik ortamı
+#
+#   docker compose up -d        → PostgreSQL + API ayağa kalkar
+#   docker compose down         → durdurur (veri KALIR)
+#   docker compose down -v      → veriyi de siler, sıfırdan tohumlanır
+#
+# Şema ve tohum veri YALNIZCA ilk açılışta yüklenir (Postgres imajının
+# davranışı: /docker-entrypoint-initdb.d yalnızca veri dizini BOŞSA çalışır).
+# schema.sql veya seed.sql değiştirdiysen `down -v` ile temizlemen gerekir.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: qashop-db
+    environment:
+      POSTGRES_USER: qashop
+      POSTGRES_PASSWORD: qashop
+      POSTGRES_DB: qashop
+      # Türkçe karakterli veri için: imaj varsayılanı zaten UTF-8, açıkça
+      # sabitlemek makineden makineye farkı ortadan kaldırır.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      # Host'ta 5433 → içeride 5432. Makinede zaten bir PostgreSQL varsa
+      # 5432 çakışır ve konteyner sessizce başlamaz; 5433 bu tuzağı önler.
+      # DBeaver bağlantısında port 5433 yazılacak.
+      - "5433:5432"
+    volumes:
+      - qashop-pgdata:/var/lib/postgresql/data
+      # Alfabetik sırayla çalışır: önce şema, sonra tohum veri.
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      # API'nin "DB hazır" sanıp erken başlamaması için. pg_isready portu
+      # dinliyor mu diye bakar; tohumlama bittikten sonra sağlıklı olur.
+      test: ["CMD-SHELL", "pg_isready -U qashop -d qashop"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    container_name: qashop-api
+    environment:
+      # Host değil SERVİS ADI (db) ve İÇERİDEKİ port (5432) kullanılır —
+      # konteynerler kendi ağlarında birbirini isimle bulur.
+      DATABASE_URL: postgres://qashop:qashop@db:5432/qashop
+      PORT: 4000
+      JWT_SECRET: qa-shop-local-dev-secret
+      TOKEN_TTL_SECONDS: 3600
+      SANDBOX_TTL_DAYS: 7
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  qashop-pgdata:

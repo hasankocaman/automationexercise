@@ -1,0 +1,9 @@
+# İmaja girmemesi gerekenler. node_modules özellikle önemli: host'ta kurulmuş
+# paketler (özellikle platforma özgü ikili dosyalar) Alpine konteynerinde
+# çalışmaz ve "neden bende çalışıyor da orada çalışmıyor" sınıfı bir hata üretir.
+node_modules
+npm-debug.log
+.env
+.env.*
+Dockerfile
+.dockerignore
