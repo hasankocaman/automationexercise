@@ -25,8 +25,9 @@ const testsDir = join(rootDir, 'tests')
 // sorusunun cevabı altı ay sonra hatırlanmaz.
 const EXCEPTIONS = {
     '/basit-backend': 'Kullanıcı kararıyla hiçbir otomatik test suite\'ine dahil edilmiyor.',
-    '/security': 'Yalnızca admin oturumuyla açılıyor; normal test hesabıyla erişilemiyor.',
     '/backend': 'Yalnızca admin oturumuyla açılıyor; normal test hesabıyla erişilemiyor.',
+    '/qa-shop-setup': 'Yalnızca admin oturumuyla açılıyor; normal test hesabıyla erişilemiyor. Herkese açıldığında bu istisna SİLİNMELİ ve gerçek test yazılmalı.',
+    '/qa-shop': 'Yalnızca admin oturumuyla açılıyor VE anlamlı içerik için kullanıcının kendi makinesinde çalışan bir API gerekiyor (localhost:4000); CI runner\'ında o yığın yok. Herkese açıldığında bu istisna SİLİNMELİ ve API\'yi ayağa kaldıran bir test yazılmalı.',
 }
 
 /**

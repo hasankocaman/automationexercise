@@ -246,8 +246,11 @@ export const ROUTE_SEO = [
             title: 'Siber Güvenlik ve Sızma Testi Eğitimi (OWASP) | LearnQA.dev',
             description: 'Web uygulaması sızma testi nasıl yapılır? OWASP Top 10 açıklarını (SQLi, XSS, JWT, IDOR, SSRF) interaktif Lego animasyonları ve quizlerle öğren.',
         },
-        // Sitemap'e GİRMEZ + shell'de robots=noindex: RequireAdmin ile korunuyor — ziyaretçi içerik göremez.
-        noindex: true,
+        // 2026-08-15: herkese açıldı. İçerik tamamen genel OWASP eğitimi —
+        // sitenin kendi altyapısına dair hiçbir şey içermiyor (Supabase referansı,
+        // anahtar, ortam değişkeni yok). Admin arkasında tutmanın teknik bir
+        // gerekçesi kalmamıştı; "OWASP Top 10", "SQL injection nedir" sorguları
+        // karşılıksız duruyordu.
     },
     {
         path: '/linux',
@@ -357,6 +360,30 @@ export const ROUTE_SEO = [
             description: 'React tabanlı bir öğrenme platformuna Supabase ile Google girişi, ilerleme kaydı, rozetler, geri bildirim ve gerçek zamanlı sohbet eklemeyi öğren.',
         },
         // Sitemap'e GİRMEZ + shell'de robots=noindex: RequireAdmin ile korunuyor — ziyaretçi içerik göremez.
+        noindex: true,
+    },
+    {
+        path: '/qa-shop-setup',
+        title: 'QA Shop Setup Guide: Database, API and Test Automation | LearnQA.dev',
+        description: 'Set up the QA Shop practice environment step by step: connect PostgreSQL with DBeaver, read the OpenAPI contract, and test endpoints manually and with Postman.',
+        tr: {
+            title: 'QA Shop Kurulum Rehberi: Database ve API Testi | LearnQA.dev',
+            description: 'QA Shop pratik ortamını adım adım kur: DBeaver ile PostgreSQL bağlantısı, OpenAPI sözleşmesini okuma, uçları manuel ve Postman ile test etme.',
+        },
+        // Sitemap'e GİRMEZ + shell'de robots=noindex: şimdilik RequireAdmin ile
+        // korunuyor. Herkese açıldığı gün bu satır silinir.
+        noindex: true,
+    },
+    {
+        path: '/qa-shop',
+        title: 'QA Shop: Practice Store for UI Test Automation | LearnQA.dev',
+        description: 'Practice UI automation on a real store interface backed by a live API: stable test ids, cart and order flows, and an event log showing every request.',
+        tr: {
+            title: 'QA Shop: UI Test Otomasyonu Pratik Dükkânı | LearnQA.dev',
+            description: 'Gerçek bir API\'ye bağlı dükkân arayüzünde UI otomasyonu pratiği: kararlı test id\'leri, sepet ve sipariş akışları, her isteği gösteren olay günlüğü.',
+        },
+        // Kurulum rehberiyle aynı gerekçe: sayfa yalnızca kullanıcının kendi
+        // makinesindeki API ile anlamlı. Herkese açıldığı gün bu satır silinir.
         noindex: true,
     },
     {

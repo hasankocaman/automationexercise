@@ -48,6 +48,8 @@ const AdvancedAlgorithmsPage = lazy(() => import('./components/AdvancedAlgorithm
 const QAMentorPage = lazy(() => import('./components/QAMentorPage'))
 const BackendPage = lazy(() => import('./components/BackendPage'))
 const BasitBackendPage = lazy(() => import('./components/BasitBackendPage'))
+const QaShopSetupPage = lazy(() => import('./components/QaShopSetupPage'))
+const QaShopPage = lazy(() => import('./components/QaShopPage'))
 const LeaderboardPage = lazy(() => import('./components/LeaderboardPage'))
 const VerifyCertificatePage = lazy(() => import('./components/VerifyCertificatePage'))
 const QaAssistantPage = lazy(() => import('./components/QaAssistantPage'))
@@ -99,6 +101,7 @@ const SECTION_PAGE_ELEMENTS = {
     '/llm-agents': <LlmAgentsPage />,
     '/test-automation': <TestAutomationPage />,
     '/jira': <JiraPage />,
+    '/security': <SecurityPage />,
 }
 
 function RouteFallback() {
@@ -157,7 +160,7 @@ function App() {
                     <Route path="/llm-agents" element={<LlmAgentsPage />} />
                     <Route path="/test-automation" element={<TestAutomationPage />} />
                     <Route path="/jira" element={<JiraPage />} />
-                    <Route path="/security" element={<RequireAdmin><SecurityPage /></RequireAdmin>} />
+                    <Route path="/security" element={<SecurityPage />} />
                     <Route path="/manual-testing" element={<ManualTestingPage />} />
                     <Route path="/algorithms" element={<AlgorithmsPage />} />
                     <Route path="/advanced-algorithms" element={<AdvancedAlgorithmsPage />} />
@@ -165,6 +168,17 @@ function App() {
                     <Route path="/sprint" element={<SprintPage />} />
                     <Route path="/portfolio" element={<PortfolioPage />} />
                     <Route path="/backend" element={<RequireAdmin><BackendPage /></RequireAdmin>} />
+                    {/* Pratik laboratuvarı kurulum adımları — ŞİMDİLİK admin.
+                        Herkese açılacağı gün bu sarmalayıcı kaldırılır ve
+                        seo.js'teki noindex silinir; başka değişiklik gerekmez. */}
+                    <Route path="/qa-shop-setup" element={<RequireAdmin><QaShopSetupPage /></RequireAdmin>} />
+                    {/* Dükkân arayüzü — UI otomasyonu pratiğinin hedefi.
+                        Kurulum rehberiyle aynı kapının arkasında: sayfa ancak
+                        kullanıcının kendi makinesinde çalışan bir API varken
+                        anlamlı, o yüzden herkese açılması yığın doğrulandıktan
+                        sonraki bir karar. Açılacağı gün bu sarmalayıcı ve
+                        seo.js'teki noindex birlikte kaldırılır. */}
+                    <Route path="/qa-shop" element={<RequireAdmin><QaShopPage /></RequireAdmin>} />
                     <Route path="/basit-backend" element={<BasitBackendPage />} />
                     <Route path="/leaderboard" element={<LeaderboardPage />} />
                     <Route path="/verify-certificate/:id" element={<VerifyCertificatePage />} />
