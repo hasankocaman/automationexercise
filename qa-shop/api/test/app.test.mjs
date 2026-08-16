@@ -99,10 +99,21 @@ describe('istek/cevap sözleşmesi', () => {
 })
 
 describe('route yüzeyi', () => {
-    // Uçların gerçekten MONTE EDİLDİĞİNİ kanıtlar. Veritabanı olmadığı için
-    // çoğu 500 döner — ama 404 DÖNMEMELİ. 404, route'un hiç bağlanmadığı
-    // anlamına gelir ve bu, sözleşmede duran ama var olmayan bir uç demektir.
-    const monteli = [
+    // ⚠ BU KONTROLÜN SINIRI — okumadan güvenme.
+    //
+    // "404 dönmüyorsa route bağlanmıştır" çıkarımı YALNIZCA kimlik istemeyen
+    // router'lar için geçerlidir. `ordersRouter` ve `addressesRouter`
+    // `router.use(requireWritableSandbox, requireAuth)` kullanıyor; Express'te
+    // `router.use(...)` mount yolunun ALTINDAKİ HER istekte çalışır — route
+    // eşleşmese bile. Yani o router'larda uydurma bir yol da 401 döner ve
+    // 404 kontrolü hiçbir şeye bakmaz.
+    //
+    // Bu tam olarak "hep yeşil kalan bekçi" tuzağıdır ve gerçekten yaşandı:
+    // canlı bir yığında sipariş uçları 404 verirken bu test yeşildi.
+    //
+    // Montajın GERÇEK kanıtı contract.test.mjs'te: orada Express'in router
+    // yığını gezilip sözleşmeyle iki yönlü karşılaştırılıyor.
+    const kimlikIstemeyen = [
         ['GET', '/api/v1/products'],
         ['GET', '/api/v1/categories'],
         ['GET', '/api/v1/brands'],
@@ -116,13 +127,9 @@ describe('route yüzeyi', () => {
         ['POST', '/api/v1/sandbox'],
         ['POST', '/api/v1/auth/login'],
         ['POST', '/api/v1/auth/register'],
-        ['GET', '/api/v1/auth/me'],
-        ['POST', '/api/v1/carts'],
-        ['GET', '/api/v1/orders'],
-        ['GET', '/api/v1/addresses'],
     ]
 
-    for (const [method, path] of monteli) {
+    for (const [method, path] of kimlikIstemeyen) {
         test(`${method} ${path} monte edilmiş (404 dönmüyor)`, async () => {
             const res = await fetch(base + path, {
                 method,
@@ -132,4 +139,26 @@ describe('route yüzeyi', () => {
             assert.notEqual(res.status, 404, `${method} ${path} → 404: route bağlanmamış`)
         })
     }
+
+    test('kimlik isteyen router\'da 404 kontrolü KÖRDÜR — kanıt', async () => {
+        // Bekçinin kendi testi: uydurma bir yol da 401 dönüyorsa, o router
+        // için "404 dönmedi" ifadesi montaj hakkında hiçbir şey söylemiyor
+        // demektir. Bu davranış değişirse (ör. auth route bazına taşınırsa)
+        // bu test kırılır ve yukarıdaki listeyi genişletebileceğimizi anlarız.
+        const uydurma = await fetch(`${base}/api/v1/orders/1/kesinlikle-boyle-bir-uc-yok`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}',
+        })
+        assert.equal(uydurma.status, 401,
+            'Beklenen 401: router seviyesindeki auth, eşleşmeyen yolu da yakalıyor')
+
+        const gercek = await fetch(`${base}/api/v1/orders/1/deliver`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}',
+        })
+        assert.equal(gercek.status, uydurma.status,
+            'Var olan ve olmayan yol AYNI kodu dönüyor — ayırt etmek için contract.test.mjs gerekli')
+    })
 })
