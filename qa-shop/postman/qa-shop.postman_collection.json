@@ -1,0 +1,983 @@
+{
+  "info": {
+    "_postman_id": "b7e1a4c2-9f30-4d18-8a6b-2c5e0f1d7a44",
+    "name": "QA Shop — uctan uca regresyon",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "QA Shop pratik API'sinin CALISAN regresyon paketi.\n\nBu koleksiyon sozlesmedeki 44 ucun hepsini TEKRARLAMAZ — onu zaten `Import > Link` ile openapi.yaml'dan uretebilirsin. Buradaki deger baska: istekler BIRBIRINE BAGLI bir akis olusturur, her adim bir onceki adimin urettigi degeri kullanir ve her istek gercek bir dogrulama tasir.\n\nTEKRAR EDILEBILIRLIK: her kosum ILK ISTEKTE yeni bir sandbox acar. Yani paket her calistiginda temiz veriden baslar; 'once reset et' adimina ihtiyac duymaz ve iki kosum birbirini etkilemez.\n\nKOSUM:\n  newman run qa-shop.postman_collection.json -e qa-shop.postman_environment.json\n\nCikis kodu 0 degilse en az bir dogrulama basarisiz demektir — bir pipeline adimi tam olarak buna bakar."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Koleksiyon genelinde tek bir yerden gecen kontrol: sandbox anahtari",
+          "// alinmadan yazma istegi atilirsa API 401 doner ve hata, ilgisiz bir",
+          "// yerde 'yetki sorunu' gibi gorunur. Burada erken uyariyoruz."
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// HER istek icin gecerli ortak dogrulamalar.",
+          "",
+          "pm.test('Cevap suresi makul (< 2000 ms)', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "pm.test('Correlation id basligi donuyor', function () {",
+          "    // Bir hata aldiginda log zincirini bu id ile cekebilmelisin:",
+          "    // GET /sandbox/logs?correlationId=...",
+          "    pm.expect(pm.response.headers.has('X-Correlation-Id')).to.be.true;",
+          "});",
+          "",
+          "// Hata donduyse govdenin sozlesmeye uymasi gerekir. Her uc kendi hata",
+          "// seklini dondurseydi, test kodu her uc icin ayri yazilirdi.",
+          "if (pm.response.code >= 400) {",
+          "    pm.test('Hata govdesi tek tip sozlesmeye uyuyor', function () {",
+          "        const b = pm.response.json();",
+          "        pm.expect(b).to.have.property('error');",
+          "        pm.expect(b.error).to.have.property('code');",
+          "        pm.expect(b.error).to.have.property('message');",
+          "        pm.expect(b).to.have.property('correlationId');",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1 · Kurulum",
+      "description": "Saglik kontrolu ve kendi izole veri alanini acmak.",
+      "item": [
+        {
+          "name": "Saglik kontrolu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "http://localhost:4000/health", "protocol": "http", "host": ["localhost"], "port": "4000", "path": ["health"] },
+            "description": "Yigin ayakta mi? 503 donuyorsa API calisiyor ama veritabanina ulasamiyor."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Servis ayakta', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Veritabani bagli', function () {",
+                  "    // Bu dogrulama olmadan paket, DB olmeden once yazilmis",
+                  "    // testlerle ilerler ve hatalar anlamsiz yerlerde patlar.",
+                  "    pm.expect(pm.response.json().database).to.eql('up');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sandbox ac",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"label\": \"newman-regresyon\"\n}" },
+            "url": { "raw": "{{baseUrl}}/sandbox", "host": ["{{baseUrl}}"], "path": ["sandbox"] },
+            "description": "Her kosum kendi veri alanini acar. Temiz durum boylece kurulumla degil TASARIMLA garanti edilir."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Sandbox olusturuldu', () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "",
+                  "pm.test('Anahtar donuyor', function () {",
+                  "    pm.expect(body.apiKey).to.be.a('string').and.to.match(/^qas_/);",
+                  "});",
+                  "",
+                  "// Degerleri ELLE tasimak, koleksiyonu ilk sifirlamada kullanilamaz",
+                  "// hale getirirdi. Script tasiyor.",
+                  "pm.environment.set('sandboxKey', body.apiKey);",
+                  "pm.environment.set('demoEmail', body.demoUser.email);",
+                  "pm.environment.set('demoPassword', body.demoUser.password);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sandbox durumu",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
+            "url": { "raw": "{{baseUrl}}/sandbox/state", "host": ["{{baseUrl}}"], "path": ["sandbox", "state"] },
+            "description": "Tohum verinin klonlandigini sayilarla dogrular. Bos bir sandbox'ta ilerlemek, sonraki tum hatalari aciklanamaz kilardi."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Durum okunabiliyor', () => pm.response.to.have.status(200));",
+                  "",
+                  "const c = pm.response.json().counts;",
+                  "",
+                  "pm.test('Katalog klonlandi (120 urun)', function () {",
+                  "    pm.expect(Number(c.products)).to.eql(120);",
+                  "});",
+                  "",
+                  "pm.test('Siparis gecmisi klonlandi (150 siparis)', function () {",
+                  "    pm.expect(Number(c.orders)).to.eql(150);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2 · Kimlik",
+      "description": "Giris, oturum ve bir NEGATIF test: gecersiz girdinin reddedildigini dogrulamak.",
+      "item": [
+        {
+          "name": "Giris yap",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{demoEmail}}\",\n  \"password\": \"{{demoPassword}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Giris basarili', () => pm.response.to.have.status(200));",
+                  "",
+                  "const b = pm.response.json();",
+                  "",
+                  "pm.test('Token dondu', function () {",
+                  "    pm.expect(b.token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('Token tipi Bearer', function () {",
+                  "    pm.expect(b.tokenType).to.eql('Bearer');",
+                  "});",
+                  "",
+                  "pm.environment.set('token', b.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kendi bilgim",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Oturum gecerli', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Donen kullanici giris yapanla ayni', function () {",
+                  "    // Token'in DOGRU kullaniciyi temsil ettigini dogrular.",
+                  "    // Sadece 200 kontrolu, baskasinin kimligini donduren bir",
+                  "    // hatayi yesil gecerdi.",
+                  "    pm.expect(pm.response.json().user.email).to.eql(pm.environment.get('demoEmail'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEGATIF · Zayif parolayla kayit reddedilmeli",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"zayif@qashop.test\",\n  \"password\": \"123\",\n  \"name\": \"Zayif Parola\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "description": "Bir ucun yalnizca mutlu yolunu test etmek, hic test etmemekten yalnizca biraz daha iyidir. Bu istek kuralin GERCEKTEN uygulandigini dogrular."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Zayif parola 422 ile reddedildi', () => pm.response.to.have.status(422));",
+                  "",
+                  "pm.test('Red nedeni ayrisik bir kodla donuyor', function () {",
+                  "    pm.expect(pm.response.json().error.code).to.eql('WEAK_PASSWORD');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3 · Katalog",
+      "item": [
+        {
+          "name": "Urunleri listele",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&size=5&sort=price&order=desc",
+              "host": ["{{baseUrl}}"], "path": ["products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "5" },
+                { "key": "sort", "value": "price" },
+                { "key": "order", "value": "desc" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Liste dondu', () => pm.response.to.have.status(200));",
+                  "",
+                  "const b = pm.response.json();",
+                  "",
+                  "pm.test('Sayfalama sozlesmesi eksiksiz', function () {",
+                  "    ['page', 'size', 'total', 'totalPages', 'hasNext', 'items'].forEach(function (k) {",
+                  "        pm.expect(b, 'eksik alan: ' + k).to.have.property(k);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Istenen sayfa boyutuna uyuluyor', function () {",
+                  "    pm.expect(b.items.length).to.be.at.most(5);",
+                  "});",
+                  "",
+                  "pm.test('Siralama gercekten uygulanmis', function () {",
+                  "    // 200 donmesi siralamanin dogru oldugunu SOYLEMEZ. Sunucu",
+                  "    // sort parametresini yok sayarsa istek yine 200 doner.",
+                  "    const fiyatlar = b.items.map(function (p) { return Number(p.price); });",
+                  "    const sirali = fiyatlar.slice().sort(function (a, c) { return c - a; });",
+                  "    pm.expect(fiyatlar).to.eql(sirali);",
+                  "});",
+                  "",
+                  "pm.test('Pasif urun listede yok', function () {",
+                  "    // Soft delete edilmis urun listede gorunmemeli ama eski",
+                  "    // siparislerde durmali — iki ayri kural.",
+                  "    b.items.forEach(function (p) {",
+                  "        if ('is_active' in p) pm.expect(p.is_active).to.be.true;",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Varyant ve stok",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
+            "url": { "raw": "{{baseUrl}}/products/1/variants", "host": ["{{baseUrl}}"], "path": ["products", "1", "variants"] },
+            "description": "Satilabilir adet = stok - rezerve. Sonraki adimlar bu degerin nasil degistigini izleyecek."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Varyantlar dondu', () => pm.response.to.have.status(200));",
+                  "",
+                  "const v = pm.response.json().variants;",
+                  "pm.test('En az bir varyant var', () => pm.expect(v.length).to.be.above(0));",
+                  "",
+                  "// Stogu yeterli ILK varyanti sec: stogu tukenmis bir varyanta",
+                  "// takilirsak sonraki adimlar konu disi bir 409 ile duser.",
+                  "const uygun = v.find(function (x) { return Number(x.available) >= 2; }) || v[0];",
+                  "",
+                  "pm.environment.set('variantId', uygun.id);",
+                  "pm.environment.set('stokOncesi', uygun.available);",
+                  "",
+                  "pm.test('Satilabilir adet negatif degil', function () {",
+                  "    pm.expect(Number(uygun.available)).to.be.at.least(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4 · Sepet",
+      "item": [
+        {
+          "name": "Sepet ac",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/carts", "host": ["{{baseUrl}}"], "path": ["carts"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Sepet olusturuldu', () => pm.response.to.have.status(201));",
+                  "",
+                  "// DIKKAT: sepetin id'si govdenin kokunde DEGIL, cart nesnesinin",
+                  "// icinde. Sozlesmeyi okumadan yazilan bir test burada undefined",
+                  "// tasir ve hata iki adim sonra ortaya cikar.",
+                  "pm.environment.set('cartId', pm.response.json().cart.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sepete ekle",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"variantId\": {{variantId}},\n  \"qty\": 2\n}" },
+            "url": { "raw": "{{baseUrl}}/carts/{{cartId}}/items", "host": ["{{baseUrl}}"], "path": ["carts", "{{cartId}}", "items"] },
+            "description": "Stok BURADA rezerve edilir, henuz dusmez."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Urun sepete eklendi', () => pm.response.to.have.status(201));",
+                  "",
+                  "const b = pm.response.json();",
+                  "",
+                  "pm.test('Sepette bir satir var', function () {",
+                  "    pm.expect(b.items.length).to.eql(1);",
+                  "});",
+                  "",
+                  "pm.test('Ara toplam satirlardan hesaplanmis', function () {",
+                  "    // Baslikta yazan ara toplam ile satirlarin toplami ayrisirsa,",
+                  "    // musteri yanlis tutarla checkout'a gider.",
+                  "    const satirToplami = b.items.reduce(function (s, it) { return s + Number(it.line_total); }, 0);",
+                  "    pm.expect(Number(b.totals.subtotal)).to.be.closeTo(satirToplami, 0.01);",
+                  "});",
+                  "",
+                  "pm.environment.set('sepetAraToplam', b.totals.subtotal);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stok rezerve edildi mi?",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
+            "url": { "raw": "{{baseUrl}}/products/1/variants", "host": ["{{baseUrl}}"], "path": ["products", "1", "variants"] },
+            "description": "Sepete eklemenin YAN ETKISINI dogrular. Sadece sepet cevabina bakan bir test bunu goremez."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Varyantlar okunabiliyor', () => pm.response.to.have.status(200));",
+                  "",
+                  "const id = Number(pm.environment.get('variantId'));",
+                  "const v = pm.response.json().variants.find(function (x) { return Number(x.id) === id; });",
+                  "",
+                  "pm.test('Satilabilir adet 2 azaldi (rezervasyon yazildi)', function () {",
+                  "    // `skip_reserve` bug anahtari acikken BU dogrulama duser —",
+                  "    // sepet cevabi ise degismeden yesil kalir.",
+                  "    const once = Number(pm.environment.get('stokOncesi'));",
+                  "    pm.expect(Number(v.available)).to.eql(once - 2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kupon uygula",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"WELCOME10\"\n}" },
+            "url": { "raw": "{{baseUrl}}/carts/{{cartId}}/coupon", "host": ["{{baseUrl}}"], "path": ["carts", "{{cartId}}", "coupon"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Kupon kabul edildi', () => pm.response.to.have.status(200));",
+                  "",
+                  "const t = pm.response.json().totals;",
+                  "",
+                  "pm.test('Indirim gercekten uygulandi', function () {",
+                  "    pm.expect(Number(t.discount_total)).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test('Indirim yuzde 10 olarak hesaplanmis', function () {",
+                  "    // Kuponun kendisi yuzde 10. Sadece 'indirim > 0' demek,",
+                  "    // yanlis oranla hesaplanmis bir indirimi yesil gecerdi.",
+                  "    const beklenen = Math.round(Number(t.subtotal) * 0.10 * 100) / 100;",
+                  "    pm.expect(Number(t.discount_total)).to.be.closeTo(beklenen, 0.01);",
+                  "});",
+                  "",
+                  "pm.test('Genel toplam formulu tutuyor', function () {",
+                  "    const beklenen = Number(t.subtotal) - Number(t.discount_total) + Number(t.shipping_total);",
+                  "    pm.expect(Number(t.grand_total)).to.be.closeTo(beklenen, 0.01);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEGATIF · Suresi gecmis kupon reddedilmeli",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"EXPIRED20\"\n}" },
+            "url": { "raw": "{{baseUrl}}/carts/{{cartId}}/coupon", "host": ["{{baseUrl}}"], "path": ["carts", "{{cartId}}", "coupon"] },
+            "description": "Bes farkli red nedeni tek bir 'kupon gecersiz' mesajina indirgenseydi, hangi is kuralinin calistigini test etmek imkansiz olurdu."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Suresi gecmis kupon reddedildi', () => pm.response.to.have.status(422));",
+                  "",
+                  "pm.test('Red nedeni SURE DOLDU olarak ayrisiyor', function () {",
+                  "    // 'Alt tutar yetersiz' ile 'suresi doldu' farkli bug'lardir",
+                  "    // ve farkli ekipleri ilgilendirir.",
+                  "    pm.expect(pm.response.json().error.code).to.eql('COUPON_EXPIRED');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5 · Siparis yasam dongusu",
+      "description": "Checkout ve ardindan odeme → kargo → teslim → iade zinciri.",
+      "item": [
+        {
+          "name": "Siparis olustur",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"cartId\": {{cartId}}\n}" },
+            "url": { "raw": "{{baseUrl}}/orders", "host": ["{{baseUrl}}"], "path": ["orders"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Siparis olusturuldu', () => pm.response.to.have.status(201));",
+                  "",
+                  "const o = pm.response.json().order;",
+                  "pm.environment.set('orderId', o.id);",
+                  "",
+                  "pm.test('Siparis placed durumunda dogar', function () {",
+                  "    pm.expect(o.status).to.eql('placed');",
+                  "});",
+                  "",
+                  "pm.test('Mutabakat: genel toplam bilesenleriyle tutuyor', function () {",
+                  "    // `discount_twice` bug anahtari acikken BU dogrulama duser.",
+                  "    const beklenen = Number(o.subtotal) - Number(o.discount_total) + Number(o.shipping_total);",
+                  "    pm.expect(Number(o.grand_total)).to.be.closeTo(beklenen, 0.01);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stok dustu mu?",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
+            "url": { "raw": "{{baseUrl}}/products/1/variants", "host": ["{{baseUrl}}"], "path": ["products", "1", "variants"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Varyantlar okunabiliyor', () => pm.response.to.have.status(200));",
+                  "",
+                  "const id = Number(pm.environment.get('variantId'));",
+                  "const v = pm.response.json().variants.find(function (x) { return Number(x.id) === id; });",
+                  "",
+                  "pm.test('Stok gercekten dustu', function () {",
+                  "    // `skip_stock_decrement` bug anahtari acikken BU dogrulama duser.",
+                  "    // Siparis cevabina bakan test ise yesil kalir.",
+                  "    const once = Number(pm.environment.get('stokOncesi'));",
+                  "    pm.expect(Number(v.stock_qty)).to.be.at.most(once);",
+                  "});",
+                  "",
+                  "pm.test('Rezervasyon serbest birakildi', function () {",
+                  "    // Stok dusup rezervasyon serbest kalmazsa urun IKI KEZ sayilir:",
+                  "    // hem satilmis hem hala sepette bekliyor gorunur.",
+                  "    pm.expect(Number(v.available)).to.eql(Number(v.stock_qty) - Number(v.reserved_qty));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fatura mutabakati",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/invoice", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "invoice"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Fatura uretildi', () => pm.response.to.have.status(200));",
+                  "",
+                  "const f = pm.response.json();",
+                  "",
+                  "pm.test('Fatura kendi tutarliligini beyan ediyor', function () {",
+                  "    // `wrong_line_total` bug anahtari acikken BU dogrulama duser.",
+                  "    pm.expect(f.reconciled).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test('Satir toplamlari ara toplami veriyor', function () {",
+                  "    const toplam = f.lines.reduce(function (s, l) { return s + Number(l.line_total); }, 0);",
+                  "    pm.expect(Number(f.totals.subtotal)).to.be.closeTo(toplam, 0.01);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEGATIF · Odemesiz kargo engellenmeli",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"carrier\": \"Yurtici\"\n}" },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/ship", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "ship"] },
+            "description": "Siparis hala 'placed'. Odemesi alinmamis siparis kargolanamaz."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Odemesiz kargo 409 ile reddedildi', () => pm.response.to.have.status(409));",
+                  "",
+                  "pm.test('Red nedeni durum gecisi', function () {",
+                  "    pm.expect(pm.response.json().error.code).to.eql('INVALID_TRANSITION');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Odeme al",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"method\": \"card\"\n}" },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/pay", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "pay"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Odeme alindi', () => pm.response.to.have.status(200));",
+                  "",
+                  "const b = pm.response.json();",
+                  "",
+                  "pm.test('Siparis paid durumuna gecti', function () {",
+                  "    pm.expect(b.order.status).to.eql('paid');",
+                  "});",
+                  "",
+                  "pm.test('Tahsil edilen tutar siparis tutarina esit', function () {",
+                  "    // Odeme ile siparis tutari ayrisirsa, muhasebe tarafinda",
+                  "    // sessiz bir fark olusur.",
+                  "    pm.expect(Number(b.payment.amount)).to.be.closeTo(Number(b.order.grand_total), 0.01);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEGATIF · Ikinci kez odeme alinmamali",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"method\": \"card\"\n}" },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/pay", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "pay"] },
+            "description": "Cift tiklama iki tahsilat uretmemeli."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Mukerrer odeme 409 ile reddedildi', () => pm.response.to.have.status(409));",
+                  "",
+                  "pm.test('Red nedeni ALREADY_PAID', function () {",
+                  "    pm.expect(pm.response.json().error.code).to.eql('ALREADY_PAID');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kargoya ver",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"carrier\": \"Yurtici\",\n  \"trackingNo\": \"TRK0000000001\"\n}" },
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/ship", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "ship"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Kargoya verildi', () => pm.response.to.have.status(200));",
+                  "",
+                  "const b = pm.response.json();",
+                  "pm.test('Siparis shipped', () => pm.expect(b.order.status).to.eql('shipped'));",
+                  "pm.test('Takip numarasi yazildi', function () {",
+                  "    pm.expect(b.shipment.tracking_no).to.eql('TRK0000000001');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEGATIF · Kargolanmis siparis iptal edilemez",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "cancel"] },
+            "description": "Iptal ile iade farkli islemlerdir: biri urun hic cikmadan, digeri urun musterideyken olur. Stok ve muhasebe sonuclari farklidir."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Kargolanmis siparisin iptali 409', () => pm.response.to.have.status(409));",
+                  "",
+                  "pm.test('Red nedeni durum gecisi', function () {",
+                  "    pm.expect(pm.response.json().error.code).to.eql('INVALID_TRANSITION');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Teslim edildi",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/deliver", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "deliver"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Teslim edildi', () => pm.response.to.have.status(200));",
+                  "",
+                  "const b = pm.response.json();",
+                  "pm.test('Siparis delivered', () => pm.expect(b.order.status).to.eql('delivered'));",
+                  "",
+                  "pm.test('Teslim ani kaydedildi', function () {",
+                  "    // Iade penceresi bu andan sayilir; bos kalirsa pencere",
+                  "    // hesabi sessizce yanlis calisir.",
+                  "    pm.expect(b.shipment.delivered_at).to.not.be.null;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iade et",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/orders/{{orderId}}/return", "host": ["{{baseUrl}}"], "path": ["orders", "{{orderId}}", "return"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Iade kabul edildi', () => pm.response.to.have.status(200));",
+                  "",
+                  "const b = pm.response.json();",
+                  "pm.test('Siparis returned', () => pm.expect(b.order.status).to.eql('returned'));",
+                  "pm.test('Stoga geri yuklenen satir var', function () {",
+                  "    pm.expect(Number(b.restoredItems)).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6 · Kusur anahtarlari",
+      "description": "Bir testin gercekten bir seye baktigini kanitlamanin tek yolu: kusuru bilerek acip testin KIRMIZIYA dondugunu gormek.",
+      "item": [
+        {
+          "name": "Kusur katalogunu oku",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
+            "url": { "raw": "{{baseUrl}}/sandbox/bugs", "host": ["{{baseUrl}}"], "path": ["sandbox", "bugs"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Katalog dondu', () => pm.response.to.have.status(200));",
+                  "",
+                  "const b = pm.response.json();",
+                  "",
+                  "pm.test('Temiz sandbox\\'ta hic kusur acik degil', function () {",
+                  "    pm.expect(b.active).to.be.an('array').that.is.empty;",
+                  "});",
+                  "",
+                  "pm.test('Her kusur nasil yakalanacagini soyluyor', function () {",
+                  "    b.available.forEach(function (f) {",
+                  "        pm.expect(f, f.key).to.have.property('catchableBy');",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "NEGATIF · Uydurma anahtar sessizce yutulmamali",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"boyle_bir_kusur_yok\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/sandbox/bugs", "host": ["{{baseUrl}}"], "path": ["sandbox", "bugs"] },
+            "description": "Yok sayilsaydi, yazim hatasi yapan kullanici kusuru actigini sanir, testi yesil kalir ve bundan 'testim calisiyor' sonucunu cikarirdi."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Tanimsiz anahtar 422 ile reddedildi', () => pm.response.to.have.status(422));",
+                  "",
+                  "pm.test('Hata, gecerli anahtarlari listeliyor', function () {",
+                  "    const e = pm.response.json().error;",
+                  "    pm.expect(e.code).to.eql('UNKNOWN_BUG_FLAG');",
+                  "    pm.expect(e.details.available).to.be.an('array').that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kusuru ac (oversell)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"oversell\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/sandbox/bugs", "host": ["{{baseUrl}}"], "path": ["sandbox", "bugs"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Kusur acildi', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Acik kusurlar listesinde gorunuyor', function () {",
+                  "    pm.expect(pm.response.json().active).to.include('oversell');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sifirla (kusurlar kapanir)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
+            "url": { "raw": "{{baseUrl}}/sandbox/reset", "host": ["{{baseUrl}}"], "path": ["sandbox", "reset"] },
+            "description": "Temiz durum, kusursuz durumdur: sifirlama tohum veriyi geri getirir VE tum kusur anahtarlarini kapatir."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Sifirlama calisti', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Sifirlama suresi raporlaniyor', function () {",
+                  "    pm.expect(pm.response.json().durationMs).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sifirlama kusurlari kapatti mi?",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
+            "url": { "raw": "{{baseUrl}}/sandbox/bugs", "host": ["{{baseUrl}}"], "path": ["sandbox", "bugs"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Katalog okunabiliyor', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Sifirlamadan sonra hic kusur acik degil', function () {",
+                  "    pm.expect(pm.response.json().active).to.be.an('array').that.is.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

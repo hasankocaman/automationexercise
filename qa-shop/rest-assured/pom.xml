@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>dev.learnqa</groupId>
+    <artifactId>qa-shop-rest-assured</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>QA Shop — REST Assured API testleri</name>
+    <description>
+        QA Shop pratik API'sinin Java tarafındaki test paketi. Postman
+        koleksiyonuyla AYNI akışı doğrular; amaç ikisini karşılaştırabilmek.
+    </description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <junit.version>5.10.2</junit.version>
+        <rest.assured.version>5.4.0</rest.assured.version>
+        <surefire.version>3.2.5</surefire.version>
+    </properties>
+
+    <dependencies>
+        <!-- REST Assured: istek kurma + JSON gövde doğrulama.
+             json-path ve xml-path bağımlılıkları transitif olarak gelir. -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest.assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JUnit 5. `junit-jupiter` toplayıcı artifact: api + params + engine. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Hamcrest matcher'ları REST Assured ile birlikte gelir ama sürümü
+             açıkça sabitlemek, transitif sürüm çakışmalarını önler. -->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <!-- Sipariş yaşam döngüsü testleri BİRBİRİNE BAĞLIDIR
+                         (@Order ile sıralı koşar). Paralelleştirme bu sınıfta
+                         zinciri kırardı; bilinçli olarak kapalı. -->
+                    <parallel>none</parallel>
+                    <!-- Yığın ayakta değilken paket anlamsız hatalarla dolar;
+                         BaseTest bunu erken ve tek bir mesajla bildirir. -->
+                    <trimStackTrace>false</trimStackTrace>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
