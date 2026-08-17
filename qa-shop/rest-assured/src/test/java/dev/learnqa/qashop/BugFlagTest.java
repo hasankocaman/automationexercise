@@ -35,8 +35,26 @@ import static org.junit.jupiter.api.Assertions.*;
 class BugFlagTest extends BaseTest {
 
     private String kendiAnahtar;
+    private String kendiEposta;
+    private String kendiParola;
     private RequestSpecification kendiAnonim;
     private RequestSpecification kendiGirisli;
+
+    /**
+     * Bu sınıfın kendi sandbox'ından GÜNCEL bir ürün id'si okur.
+     *
+     * <p>⚠ Değer ÖNBELLEKLENEMEZ. Bu sınıfın {@code @AfterEach} adımı
+     * {@code POST /sandbox/reset} çağırıyor; sıfırlama satırları silip
+     * {@code clone_sandbox} ile yeniden yazıyor ve {@code bigserial} id'ler
+     * HER SIFIRLAMADA yeniden kayıyor. Yani bir kez okunup alanda saklanan id
+     * ilk testten sonra bayatlar ve sonraki testler 404 alır.
+     *
+     * <p>Sabit id yazmanın bir üst katmanı bu: id'ler yalnızca sandbox'lar
+     * arasında değil, aynı sandbox'ın iki sıfırlaması arasında da değişir.
+     */
+    private int urunId() {
+        return birUrunId(kendiAnonim);
+    }
 
     @BeforeAll
     void kendiAlaniniAc() {
@@ -49,8 +67,8 @@ class BugFlagTest extends BaseTest {
                 .extract().jsonPath();
 
         kendiAnahtar = json.getString("apiKey");
-        String eposta = json.getString("demoUser.email");
-        String parola = json.getString("demoUser.password");
+        kendiEposta = json.getString("demoUser.email");
+        kendiParola = json.getString("demoUser.password");
 
         kendiAnonim = new RequestSpecBuilder()
                 .setBaseUri(API)
@@ -58,8 +76,23 @@ class BugFlagTest extends BaseTest {
                 .setContentType(ContentType.JSON)
                 .build();
 
+        yenidenGirisYap();
+    }
+
+    /**
+     * Oturumu yeniden açar ve girişli şablonu tazeler.
+     *
+     * <p>⚠ TOKEN DE ÖNBELLEKLENEMEZ. {@code reset_sandbox} tabloları silerken
+     * {@code sessions} tablosunu da boşaltır — yani sıfırlama, açık tüm
+     * oturumları GERÇEKTEN iptal eder. Bir kez alınıp saklanan token ilk
+     * sıfırlamadan sonra 401 döndürür.
+     *
+     * <p>Bu, {@code logout}'un sahte bir 204 dönmediği tasarımın doğal sonucu:
+     * oturum gerçek bir kayıt olduğu için silinince gerçekten ölüyor.
+     */
+    private void yenidenGirisYap() {
         String token = given(kendiAnonim)
-                .body(Map.of("email", eposta, "password", parola))
+                .body(Map.of("email", kendiEposta, "password", kendiParola))
                 .when().post("/auth/login")
                 .then().statusCode(200)
                 .extract().path("token");
@@ -78,6 +111,11 @@ class BugFlagTest extends BaseTest {
         // getirir hem TÜM kusur anahtarlarını kapatır — "temiz durum, kusursuz
         // durumdur".
         given(kendiAnonim).when().post("/sandbox/reset").then().statusCode(200);
+
+        // Sıfırlama oturumları da iptal ettiği için token yenilenmeli; yoksa
+        // bir sonraki testin ilk yazma isteği 401 alır ve hata, kusurla ilgisi
+        // olmayan bir yerde patlar.
+        yenidenGirisYap();
     }
 
     @Test
@@ -199,7 +237,7 @@ class BugFlagTest extends BaseTest {
 
     private int stogaSahipVaryant() {
         List<Map<String, Object>> varyantlar = given(kendiAnonim)
-                .when().get("/products/1/variants")
+                .when().get("/products/" + urunId() + "/variants")
                 .then().statusCode(200)
                 .extract().jsonPath().getList("variants");
 
@@ -212,7 +250,7 @@ class BugFlagTest extends BaseTest {
 
     private int stokAdedi(int variantId) {
         List<Map<String, Object>> varyantlar = given(kendiAnonim)
-                .when().get("/products/1/variants")
+                .when().get("/products/" + urunId() + "/variants")
                 .then().statusCode(200)
                 .extract().jsonPath().getList("variants");
 

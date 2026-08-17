@@ -106,9 +106,10 @@ class CatalogTest extends BaseTest {
     @Test
     @DisplayName("Varyantlarda satılabilir adet = stok - rezerve")
     void satilabilirAdetHesabi() {
+        // Ürün id'si katalogdan OKUNUR, sabit yazılmaz (bkz. BaseTest.birUrunId).
         JsonPath json = given(anonim)
                 .when()
-                .get("/products/1/variants")
+                .get("/products/" + birUrunId(anonim) + "/variants")
                 .then()
                 .statusCode(200)
                 .body("variants", not(empty()))

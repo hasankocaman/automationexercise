@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrderLifecycleTest extends BaseTest {
 
     private static RequestSpecification girisli;
+    private static int productId;
     private static int variantId;
     private static int stokOncesi;
     private static int cartId;
@@ -38,6 +39,8 @@ class OrderLifecycleTest extends BaseTest {
     @BeforeAll
     void oturumAc() {
         girisli = girisli(girisYap());
+        // Ürün id'si SABİT YAZILAMAZ: her sandbox'ta kayar (bkz. BaseTest).
+        productId = birUrunId(anonim);
     }
 
     @Test
@@ -45,7 +48,7 @@ class OrderLifecycleTest extends BaseTest {
     @DisplayName("01 · Stoğu yeterli bir varyant seçilir")
     void varyantSec() {
         JsonPath json = given(anonim)
-                .when().get("/products/1/variants")
+                .when().get("/products/" + productId + "/variants")
                 .then().statusCode(200)
                 .extract().jsonPath();
 
@@ -159,7 +162,7 @@ class OrderLifecycleTest extends BaseTest {
     @DisplayName("07 · Stok düşer, rezervasyon serbest kalır")
     void stokDuser() {
         JsonPath json = given(anonim)
-                .when().get("/products/1/variants")
+                .when().get("/products/" + productId + "/variants")
                 .then().statusCode(200)
                 .extract().jsonPath();
 
@@ -300,7 +303,7 @@ class OrderLifecycleTest extends BaseTest {
     /** Bir varyantın satılabilir adedini okur. */
     private int satilabilirAdet(int id) {
         List<Map<String, Object>> varyantlar = given(anonim)
-                .when().get("/products/1/variants")
+                .when().get("/products/" + productId + "/variants")
                 .then().statusCode(200)
                 .extract().jsonPath().getList("variants");
 

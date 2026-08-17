@@ -299,7 +299,15 @@
                   "    b.items.forEach(function (p) {",
                   "        if ('is_active' in p) pm.expect(p.is_active).to.be.true;",
                   "    });",
-                  "});"
+                  "});",
+                  "",
+                  "// ⚠ URUN ID'SI SABIT YAZILAMAZ.",
+                  "// clone_sandbox satirlari ayni tablolara bigserial id'lerle kopyalar;",
+                  "// her yeni sandbox'ta id'ler KAYAR. Sablonda urunler 1-120, ilk klonda",
+                  "// 121-240, ikincide 241-360... Anahtarsiz istek sablona gittigi icin",
+                  "// /products/1 elle denerken CALISIR ve bu tuzagi gizler — kendi alanini",
+                  "// actigin an ayni adres 404 doner.",
+                  "pm.environment.set('productId', b.items[0].id);"
                 ]
               }
             }
@@ -310,7 +318,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
-            "url": { "raw": "{{baseUrl}}/products/1/variants", "host": ["{{baseUrl}}"], "path": ["products", "1", "variants"] },
+            "url": { "raw": "{{baseUrl}}/products/{{productId}}/variants", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}", "variants"] },
             "description": "Satilabilir adet = stok - rezerve. Sonraki adimlar bu degerin nasil degistigini izleyecek."
           },
           "event": [
@@ -416,7 +424,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
-            "url": { "raw": "{{baseUrl}}/products/1/variants", "host": ["{{baseUrl}}"], "path": ["products", "1", "variants"] },
+            "url": { "raw": "{{baseUrl}}/products/{{productId}}/variants", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}", "variants"] },
             "description": "Sepete eklemenin YAN ETKISINI dogrular. Sadece sepet cevabina bakan bir test bunu goremez."
           },
           "event": [
@@ -562,7 +570,7 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "X-Sandbox-Key", "value": "{{sandboxKey}}" }],
-            "url": { "raw": "{{baseUrl}}/products/1/variants", "host": ["{{baseUrl}}"], "path": ["products", "1", "variants"] }
+            "url": { "raw": "{{baseUrl}}/products/{{productId}}/variants", "host": ["{{baseUrl}}"], "path": ["products", "{{productId}}", "variants"] }
           },
           "event": [
             {

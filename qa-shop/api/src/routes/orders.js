@@ -406,9 +406,13 @@ ordersRouter.post('/:id/pay', asyncRoute(async (req, res) => {
     const simulateFailure = req.body?.simulateFailure === true
 
     const result = await withTransaction(async (client) => {
-        // Hedef durum yalnızca başarılı ödemede kontrol edilir: başarısız ödeme
-        // denemesi zaten durum değiştirmeyeceği için 'paid' geçişine takılmamalı.
-        const order = await loadForTransition(client, req, id, simulateFailure ? null : 'paid')
+        // Geçiş kontrolü BİLEREK burada yapılmıyor (null geçiliyor): önce
+        // "zaten ödenmiş mi" sorulmalı. Sıra ters olsaydı ikinci ödeme denemesi
+        // genel INVALID_TRANSITION ile reddedilirdi — çünkü 'paid' durumundan
+        // 'paid'e geçiş zaten tanımsız. O zaman "çift tahsilat denendi" ile
+        // "yanlış sırada bir işlem denendi" aynı koda düşer ve ikisini ayırt
+        // eden test yazılamaz. Spesifik neden, genel nedenden önce gelir.
+        const order = await loadForTransition(client, req, id, null)
 
         // Aynı siparişe ikinci kez başarılı ödeme alınamaz. Bu kontrol olmadan
         // çift tıklama iki tahsilat üretir ve mutabakat sorgusu kırmızıya döner.
@@ -417,6 +421,14 @@ ordersRouter.post('/:id/pay', asyncRoute(async (req, res) => {
         if (paid.length && !simulateFailure) {
             throw conflict('ALREADY_PAID', 'Bu siparişin ödemesi zaten alınmış',
                 { paymentId: paid[0].id })
+        }
+
+        // Geçiş kontrolü ödeme kontrolünden SONRA. Başarısız ödeme denemesi
+        // durumu değiştirmediği için bu kontrolden muaf.
+        if (!simulateFailure && !canTransition(order.status, 'paid')) {
+            throw conflict('INVALID_TRANSITION',
+                `'${order.status}' durumundaki sipariş 'paid' yapılamaz`,
+                { currentStatus: order.status, requested: 'paid' })
         }
 
         const status = simulateFailure ? 'failed' : 'success'

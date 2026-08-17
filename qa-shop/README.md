@@ -111,11 +111,15 @@ TOKEN=$(curl -s -X POST $BASE/auth/login \
         -d '{"email":"demo@qashop.test","password":"Password123!"}' \
         | grep -o '"token":"[^"]*' | cut -d'"' -f4)
 
-# 3) Ürünleri listele
-curl -s "$BASE/products?size=3&sort=price&order=desc" -H "X-Sandbox-Key: $KEY"
+# 3) Ürünleri listele — ilk ürünün id'sini AL (sabit yazma, aşağıdaki nota bak)
+PROD=$(curl -s "$BASE/products?size=1" -H "X-Sandbox-Key: $KEY" \
+       | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+echo "PROD=$PROD"
 
-# 4) Bir ürünün varyantlarını gör (stok burada)
-curl -s "$BASE/products/1/variants" -H "X-Sandbox-Key: $KEY"
+# 4) O ürünün varyantlarını gör (stok burada) ve bir varyant id'si al
+curl -s "$BASE/products/$PROD/variants" -H "X-Sandbox-Key: $KEY"
+VAR=$(curl -s "$BASE/products/$PROD/variants" -H "X-Sandbox-Key: $KEY" \
+      | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
 
 # 5) Sepet aç
 CART=$(curl -s -X POST $BASE/carts \
@@ -126,7 +130,7 @@ CART=$(curl -s -X POST $BASE/carts \
 curl -s -X POST $BASE/carts/$CART/items \
      -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN" \
      -H 'Content-Type: application/json' \
-     -d '{"variantId":1,"qty":2}'
+     -d "{\"variantId\":$VAR,\"qty\":2}"
 
 # 7) Kupon uygula
 curl -s -X POST $BASE/carts/$CART/coupon \
@@ -143,6 +147,24 @@ curl -s "$BASE/sandbox/logs?limit=10" -H "X-Sandbox-Key: $KEY"
 ```
 
 ---
+
+> ### ⚠ ID'LERİ SABİT YAZMA — en sinsi tuzak
+>
+> `clone_sandbox` satırları aynı tablolara `bigserial` id'lerle kopyalar. Yani
+> **her yeni sandbox'ta id'ler kayar:** şablonda ürünler 1-120, ilk klonda
+> 121-240, ikincide 241-360...
+>
+> Tuzağın sinsi yanı şu: **anahtarsız istek şablon sandbox'a gider** ve orada
+> `id = 1` gerçekten vardır. Yani `curl .../products/1/variants` elle denerken
+> ÇALIŞIR. Kendi alanını açıp aynı adresi çağırdığın an `404` alırsın ve hata,
+> testinde ilgisiz bir yerde patlar.
+>
+> Dahası: **`POST /sandbox/reset` de id'leri yeniden kaydırır** (satırları silip
+> yeniden klonlar) ve **açık oturumları iptal eder**. Sıfırlamadan önce alınmış
+> bir id ya da token, sıfırlamadan sonra geçersizdir.
+>
+> Kural: id'yi ve token'ı **listeden oku, sabit yazma ve sıfırlamanın ötesinde
+> önbellekleme.**
 
 ## Swagger / OpenAPI sözleşmesi
 

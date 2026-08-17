@@ -122,6 +122,28 @@ public abstract class BaseTest {
                 .extract().path("token");
     }
 
+    /**
+     * Katalogdan gerçek bir ürün id'si okur.
+     *
+     * <p>⚠ ID SABİT YAZILAMAZ. {@code clone_sandbox} satırları aynı tablolara
+     * {@code bigserial} id'lerle kopyalar; her yeni sandbox'ta id'ler KAYAR.
+     * Şablonda ürünler 1-120, ilk klonda 121-240, ikincide 241-360...
+     *
+     * <p>Bu tuzağın sinsi yanı şu: anahtarsız istek ŞABLON sandbox'a gider ve
+     * orada id 1 GERÇEKTEN vardır. Yani {@code /products/1} elle denerken
+     * çalışır, ama kendi alanını açan bir test aynı adreste 404 alır. Sabit
+     * id yazılmış bir paket bu yüzden "bende çalışıyordu" ile karşılaşır.
+     *
+     * @param spec anahtarı taşıyan istek şablonu (hangi sandbox'a bakılacağı)
+     */
+    protected static int birUrunId(RequestSpecification spec) {
+        return given(spec)
+                .queryParam("size", 1)
+                .when().get("/products")
+                .then().statusCode(200)
+                .extract().path("items[0].id");
+    }
+
     /** Giriş yapmış istek şablonu. */
     protected static RequestSpecification girisli(String token) {
         return new RequestSpecBuilder()

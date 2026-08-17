@@ -845,8 +845,11 @@ $TOKEN = $login.token
 # 3) Bundan sonraki isteklerin ortak başlıkları: hangi veri alanı + hangi kullanıcı
 $H = @{ "X-Sandbox-Key" = $KEY; "Authorization" = "Bearer $TOKEN" }
 
-# 4) Stoğu gör (satılabilir adet = stok - rezerve)
-Invoke-RestMethod -Uri "$BASE/products/1/variants" -Headers @{ "X-Sandbox-Key" = $KEY }
+# 4) Ürün ve varyant id'sini KEŞFET — sabit yazma, id'ler her alanda kayar
+$urun = (Invoke-RestMethod -Uri "$BASE/products?size=1" -Headers @{ "X-Sandbox-Key" = $KEY }).items[0]
+$varyantlar = (Invoke-RestMethod -Uri "$BASE/products/$($urun.id)/variants" -Headers @{ "X-Sandbox-Key" = $KEY }).variants
+$VAR = ($varyantlar | Where-Object { $_.available -ge 2 } | Select-Object -First 1).id
+"Urun: $($urun.name) · Varyant: $VAR · satilabilir: $(($varyantlar | Where-Object { $_.id -eq $VAR }).available)"
 
 # 5) Sepet aç
 $cartResp = Invoke-RestMethod -Method Post -Uri "$BASE/carts" -Headers $H
@@ -854,7 +857,7 @@ $CART = $cartResp.cart.id
 "Sepet: $CART"
 
 # 6) Sepete ekle — stok burada REZERVE edilir, henüz düşmez
-Invoke-RestMethod -Method Post -Uri "$BASE/carts/$CART/items" -Headers $H -ContentType "application/json" -Body '{"variantId":1,"qty":2}'
+Invoke-RestMethod -Method Post -Uri "$BASE/carts/$CART/items" -Headers $H -ContentType "application/json" -Body ('{"variantId":' + $VAR + ',"qty":2}')
 
 # 7) Siparişe çevir — stok DÜŞER, rezervasyon serbest kalır
 Invoke-RestMethod -Method Post -Uri "$BASE/orders" -Headers $H -ContentType "application/json" -Body ('{"cartId":' + $CART + '}')`,
@@ -872,8 +875,11 @@ $TOKEN = $login.token
 # 3) Shared headers for the rest: which data area + which user
 $H = @{ "X-Sandbox-Key" = $KEY; "Authorization" = "Bearer $TOKEN" }
 
-# 4) Check stock (sellable = stock - reserved)
-Invoke-RestMethod -Uri "$BASE/products/1/variants" -Headers @{ "X-Sandbox-Key" = $KEY }
+# 4) DISCOVER the product and variant id — never hardcode, ids shift per area
+$urun = (Invoke-RestMethod -Uri "$BASE/products?size=1" -Headers @{ "X-Sandbox-Key" = $KEY }).items[0]
+$varyantlar = (Invoke-RestMethod -Uri "$BASE/products/$($urun.id)/variants" -Headers @{ "X-Sandbox-Key" = $KEY }).variants
+$VAR = ($varyantlar | Where-Object { $_.available -ge 2 } | Select-Object -First 1).id
+"Product: $($urun.name) · Variant: $VAR · available: $(($varyantlar | Where-Object { $_.id -eq $VAR }).available)"
 
 # 5) Open a cart
 $cartResp = Invoke-RestMethod -Method Post -Uri "$BASE/carts" -Headers $H
@@ -881,7 +887,7 @@ $CART = $cartResp.cart.id
 "Cart: $CART"
 
 # 6) Add to cart — stock is RESERVED here, not yet decremented
-Invoke-RestMethod -Method Post -Uri "$BASE/carts/$CART/items" -Headers $H -ContentType "application/json" -Body '{"variantId":1,"qty":2}'
+Invoke-RestMethod -Method Post -Uri "$BASE/carts/$CART/items" -Headers $H -ContentType "application/json" -Body ('{"variantId":' + $VAR + ',"qty":2}')
 
 # 7) Convert to an order — stock DROPS, the reservation is released
 Invoke-RestMethod -Method Post -Uri "$BASE/orders" -Headers $H -ContentType "application/json" -Body ('{"cartId":' + $CART + '}')`,
@@ -906,15 +912,19 @@ KEY=qas_buraya_yapistir     # cevaptaki apiKey değerini yapıştır
 curl -s -X POST $BASE/auth/login -H "X-Sandbox-Key: $KEY" -H 'Content-Type: application/json' -d '{"email":"demo@qashop.test","password":"Password123!"}'
 TOKEN=eyJhb...              # cevaptaki token değeri
 
-# 3) Stoğu gör (satılabilir adet = stok - rezerve)
-curl -s "$BASE/products/1/variants" -H "X-Sandbox-Key: $KEY"
+# 3) Ürün id'sini KEŞFET — sabit yazma, her veri alanında kayar
+PROD=$(curl -s "$BASE/products?size=1" -H "X-Sandbox-Key: $KEY" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
 
-# 4) Sepet aç
+# 4) Stoğu gör (satılabilir adet = stok - rezerve) ve bir varyant id'si al
+curl -s "$BASE/products/$PROD/variants" -H "X-Sandbox-Key: $KEY"
+VAR=$(curl -s "$BASE/products/$PROD/variants" -H "X-Sandbox-Key: $KEY" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+
+# 5) Sepet aç
 curl -s -X POST $BASE/carts -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN"
 CART=1                      # cevaptaki cart.id
 
-# 5) Sepete ekle — stok burada REZERVE edilir
-curl -s -X POST $BASE/carts/$CART/items -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d '{"variantId":1,"qty":2}'
+# 6) Sepete ekle — stok burada REZERVE edilir
+curl -s -X POST $BASE/carts/$CART/items -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d "{\\"variantId\\":$VAR,\\"qty\\":2}"
 
 # 6) Siparişe çevir — stok DÜŞER, rezervasyon serbest kalır
 curl -s -X POST $BASE/orders -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d "{\\"cartId\\":$CART}"`,
@@ -928,20 +938,33 @@ KEY=qas_paste_here          # paste the apiKey value from the response
 curl -s -X POST $BASE/auth/login -H "X-Sandbox-Key: $KEY" -H 'Content-Type: application/json' -d '{"email":"demo@qashop.test","password":"Password123!"}'
 TOKEN=eyJhb...              # the token value from the response
 
-# 3) Check stock (sellable = stock - reserved)
-curl -s "$BASE/products/1/variants" -H "X-Sandbox-Key: $KEY"
+# 3) DISCOVER the product id — never hardcode, it shifts per data area
+PROD=$(curl -s "$BASE/products?size=1" -H "X-Sandbox-Key: $KEY" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
 
-# 4) Open a cart
+# 4) Check stock (sellable = stock - reserved) and take a variant id
+curl -s "$BASE/products/$PROD/variants" -H "X-Sandbox-Key: $KEY"
+VAR=$(curl -s "$BASE/products/$PROD/variants" -H "X-Sandbox-Key: $KEY" | grep -o '"id":[0-9]*' | head -1 | cut -d: -f2)
+
+# 5) Open a cart
 curl -s -X POST $BASE/carts -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN"
 CART=1                      # cart.id from the response
 
-# 5) Add to cart — stock is RESERVED here
-curl -s -X POST $BASE/carts/$CART/items -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d '{"variantId":1,"qty":2}'
+# 6) Add to cart — stock is RESERVED here
+curl -s -X POST $BASE/carts/$CART/items -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d "{\\"variantId\\":$VAR,\\"qty\\":2}"
 
 # 6) Convert to an order — stock DROPS, the reservation is released
 curl -s -X POST $BASE/orders -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d "{\\"cartId\\":$CART}"`,
                     },
                     language: 'bash',
+                },
+                {
+                    type: 'callout',
+                    tone: 'warning',
+                    title: { tr: 'ID\'leri sabit yazma — en sinsi tuzak', en: 'Never hardcode ids — the sneakiest trap' },
+                    content: {
+                        tr: 'Kendi veri alanın açılırken katalog, kullanıcılar ve sipariş geçmişi şablondan KOPYALANIR. Kopyalanan satırlar yeni id\'ler alır: şablonda ürünler 1-120 iken senin alanında 121-240, bir sonrakinde 241-360 olur. Tuzağın sinsi yanı şu: anahtar göndermeden yaptığın istek şablona gider ve orada id 1 GERÇEKTEN vardır. Yani adresi elle denerken çalışır, testine yazdığın an 404 döner — üstelik hata, testinin ilgisiz bir adımında patlar. Aynısı sıfırlama için de geçerli: sıfırlama satırları silip yeniden kopyaladığı için id\'ler tekrar kayar ve açık oturumları da iptal eder. Kural: id\'yi ve token\'ı listeden OKU; sabit yazma, sıfırlamanın ötesinde saklama.',
+                        en: 'When your own data area is created, the catalog, users and order history are COPIED from the template. The copied rows get new ids: products are 1-120 in the template but 121-240 in your area, 241-360 in the next one. Here is the sneaky part: a request sent without a key goes to the template, where id 1 really does exist. So the address works when you try it by hand, and returns 404 the moment you put it in a test — and the failure surfaces at some unrelated step. The same applies to reset: because it deletes and re-copies the rows, ids shift again, and it revokes open sessions too. Rule: READ the id and the token from a listing; never hardcode them, never keep them across a reset.',
+                    },
                 },
                 {
                     type: 'callout',
