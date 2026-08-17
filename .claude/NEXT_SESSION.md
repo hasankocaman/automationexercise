@@ -20,9 +20,94 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-16 · ikinci oturum, Opus — QA Shop tamamlandı) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-17, Opus — QA Shop yığını AYAĞA KALKTI ve doğrulandı) — YENİ OTURUM BURADAN BAŞLASIN
 
 > Çelişki olursa BU bölüm günceldir. Alttaki bölümler korunuyor.
+
+### 📍 Şu anki durum: her şey `main`'de ve PUSH EDİLDİ
+
+Alttaki 2026-08-16 notunun "çalışma ağacı kirli, commit atılmadı" uyarısı
+**ARTIK GEÇERSİZDİR.** Bu oturumda 8 commit `main`'e gitti ve push edildi;
+son commit `964a7a1`. Çalışma ağacında yalnızca build'in her koşumda yeniden
+ürettiği türev dosyalar kalır (`public/sitemap-*.xml`, `pageUpdated.js`).
+
+⚠️ **PUSH = YAYIN.** Kullanıcı bunu bilerek seçti (branch alternatifi
+sunuldu, main'i istedi). Canlıya çıkan görünür değişiklik: `/security`
+herkese açıldı + 8. sekmesindeki hook hatası düzeldi. `/qa-shop` ve
+`/qa-shop-setup` admin kapısı + `noindex` arkasında, dışarıdan görünmüyor.
+
+### ✅ QA Shop yığını GERÇEK PostgreSQL'de doğrulandı
+
+Önceki notların "DOĞRULANAMAYAN" bölümü **kapandı.** Yığın iki ayrı makinede
+çalıştırıldı: macOS/arm64 ve Windows/amd64.
+
+| Paket | Sonuç |
+|---|---|
+| `qa-shop/api` — `npm test` (Docker'sız koşar) | **78/78** |
+| `qa-shop/rest-assured` — `mvn test` | **39/39** BUILD SUCCESS |
+| `qa-shop/postman` — Newman | **28 istek · 134 doğrulama · 0 hata** |
+| `db/validation-queries.sql` | **17 kontrol GEÇTİ** + kusur enjeksiyonu 4 kontrolün gerçekten baktığını kanıtladı |
+
+`schema.sql` ve `seed.sql` ilk denemede hatasız yüklendi; satır sayıları
+README'nin iddia ettiği rakamlarla birebir tuttu.
+
+### 🐛 Canlı koşum ÜÇ gerçek hata ortaya çıkardı (üçü de düzeltildi)
+
+Üçü de o ana kadar **her kontrolden geçmişti.** Kalıcı ders `CLAUDE.md`
+§23.14'e taşındı.
+
+1. **Sabit yazılmış id'ler.** `clone_sandbox` `bigserial` id'leri kaydırıyor;
+   Postman/REST Assured/belgeler `/products/1/variants` yazıyordu. Anahtarsız
+   istek şablona gittiği için elle denerken ÇALIŞIYOR, kendi alanını açan
+   test 404 alıyordu. Newman'daki `deliver`/`return` 404'ünün kökü buydu.
+2. **Mükerrer ödeme yanlış kodla reddediliyordu** — durum geçiş kontrolü
+   ödeme kontrolünden önce çalıştığı için `ALREADY_PAID` yerine genel
+   `INVALID_TRANSITION` dönüyordu. Sıra değiştirildi.
+3. **Sıfırlama önbelleği bayatlatıyor** — `reset_sandbox` yeniden klonladığı
+   için id'ler tekrar kayıyor, `sessions` boşaldığı için token'lar ölüyor.
+
+Ayrıca **kendi testimde kör bir bekçi** bulundu: `ordersRouter.use(requireAuth)`
+olmayan yolda da 401 döndürüyor, yani "404 dönmüyor" kontrolü o router'da
+hiçbir şeye bakmıyordu. Kimlik isteyen route'lar listeden çıkarıldı, yerine
+bekçinin kendi testi kondu.
+
+### 🎯 Sıradaki iş (öncelik sırasıyla)
+
+1. **GitHub Actions durumu HÂLÂ BİLİNMİYOR.** Dört push oldu, hiçbirinin CI
+   sonucu görülmedi (`gh` CLI kurulu değil). Test job'ı kırmızıysa deploy hiç
+   çalışmaz ve site sessizce eski hâlinde kalır. **İlk bakılacak yer burası.**
+2. **Yayınlanmış imaj (Docker Hub / GHCR).** Kullanıcı açıkça sordu: "yeni bir
+   kullanıcı repo indirmeden çalıştırabilir mi?" Cevap evet. Gerekenler:
+   `docker-compose.hub.yml`, önceden tohumlanmış Postgres imajı için ayrı
+   Dockerfile, **çoklu mimari** derleme (kullanıcının iki makinesi farklı
+   mimaride: arm64 + amd64), etikete bağlı Actions iş akışı, README'ye "repo
+   istemeyen kurulum" bölümü. Açık karar: iki imaj + compose dosyası mı,
+   yoksa tek "şişman" imaj mı.
+3. **`/qa-shop` ve `/qa-shop-setup` herkese açılsın mı?** Açılırsa BEŞİ
+   birlikte kaldırılmalı: `RequireAdmin` + `seo.js` noindex + kapsam
+   istisnası + nav linkleri + gerçek E2E test. Biri eksik kalırsa açılış
+   yarım kalır (önceki oturumun `/security` dersi).
+4. **Bug anahtarlarının arayüzden açılması** — mekanizma ve uçlar hazır,
+   `/qa-shop` arayüzünde açma/kapama paneli yok.
+5. `/work-goals` takipçisi — plan hazır, kod yok.
+
+### 📌 Bilinmesi gerekenler
+
+- **API kaynağı imaja gömülü.** `qa-shop/api/src` değişirse
+  `docker compose up -d --build api` gerekir; sadece `restart` eski kodu
+  çalıştırmaya devam eder.
+- `qa-shop/api/node_modules` ve `rest-assured/target` gitignore'da.
+- Kullanıcının iki makinesi var: Windows (`d:\ANTIGRAVITY\automationexercise`)
+  ve MacBook Air (`~/automationexercise`). İkisinde de Docker kurulu.
+- Bu ortamda `git push` **yalnızca sandbox kapalıyken** çalışıyor; açıkken
+  DNS çözülmüyor.
+
+---
+
+## 📌 Önceki Durum (2026-08-16 · ikinci oturum, Opus — QA Shop ilk yazım)
+
+> ⚠️ Aşağıdaki "çalışma ağacı kirli / commit atılmadı" uyarısı ARTIK
+> GEÇERSİZDİR — her şey commit edilip push edildi (yukarıdaki nota bak).
 
 ### ⚠️ Çalışma ağacı hâlâ KİRLİ, branch yok, commit atılmadı
 

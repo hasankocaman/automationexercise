@@ -387,18 +387,30 @@ aracın neyi kolaylaştırdığını ve neyi gizlediğini yan yana gösterir.
 
 ---
 
+## Doğrulanma durumu
+
+Yığın gerçek bir PostgreSQL üstünde, iki ayrı makinede (macOS/arm64 ve
+Windows/amd64) çalıştırıldı ve dört paket de canlı veriye karşı yeşil:
+
+| Paket | Nerede | Sonuç |
+|---|---|---|
+| `api/test` — çekirdek + iskelet + sözleşme + koleksiyon denetimi | Docker'sız koşar | 78/78 |
+| `rest-assured` | Canlı yığın | 39/39 |
+| `postman` (Newman) | Canlı yığın | 28 istek · 134 doğrulama · 0 hata |
+| `db/validation-queries.sql` | Canlı yığın | 17 kontrol GEÇTİ + kusur enjeksiyonu 4 kontrolün gerçekten baktığını kanıtladı |
+
 ## Şu an ne YOK
 
 Dürüst liste — bunlar planlı ama yazılmadı:
 
 - **Tarayıcı içi katman.** Kurulum istemeden sayfa üstünde pratik.
 - **Barındırılan sürüm.** Şimdilik yalnızca lokal.
-- **Şema ve tohum verinin canlı doğrulaması.** `schema.sql` ve `seed.sql`
-  sözdizimi gözden geçirildi ama henüz gerçek bir PostgreSQL üstünde
-  çalıştırılmadı; ilk `docker compose up -d` bunu doğrulayacak.
+- **Yayınlanmış imaj.** Şu an karşı tarafın repoyu klonlaması gerekiyor.
+  Docker Hub/GHCR'a çoklu mimari imaj basılırsa tek dosyayla kurulabilir.
 
 > Daha önce bu listede olan **ödeme / kargo / yorum / adres uçları**, **bug
-> anahtarları** ve **arayüz** artık yazıldı — aşağıdaki bölümlere bak.
+> anahtarları**, **arayüz** ve **şema/tohum verinin canlı doğrulaması** artık
+> tamamlandı.
 
 ---
 

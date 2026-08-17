@@ -915,6 +915,41 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   `video-scene.spec.ts` → `SCENE_DURATION_MS * 4`), rastgele bir sayı yazma.
   Geniş pay doğruluğu gizlemez: sahne hiç ilerlemezse test yine düşer.
 
+### 23.14. "Derleme geçti" ve "test yeşil" bir paketi ÇALIŞIYOR yapmaz
+
+> 2026-08-17'de `qa-shop` yığını ilk kez gerçek bir PostgreSQL'e karşı
+> koşturulunca ortaya çıkan üç hata da, o ana kadar **her kontrolden geçmişti**.
+
+- **Belirti:** Derleme yeşil, DB'siz test paketi yeşil, statik denetimler
+  yeşil — ama paket gerçek bir sisteme karşı koşturulunca ilk adımda düşüyor.
+- **Kök neden (üç ayrı biçimde yaşandı):**
+  1. **Çalışma-anı bağımlılığı derlemede görünmez.** REST Assured, bir Java
+     nesnesini JSON'a çevirmek için classpath'te bir serileştirici ARAR ama
+     kendisi içermez. `jackson-databind` yokken `mvn test-compile` **sorunsuz
+     geçti**; hata yalnızca ilk istek atılırken çıktı.
+  2. **Bekçi kör olabilir.** `router.use(requireAuth)` Express'te mount
+     yolunun ALTINDAKİ HER istekte çalışır — route eşleşmese bile. Yani
+     "404 dönmüyorsa route bağlanmıştır" çıkarımı o router'da hiçbir şeye
+     bakmıyordu: uydurma bir yol da 401 dönüyordu. Canlı sistemde sipariş
+     uçları 404 verirken bu test yeşildi (bkz. §23.10'un aynı ailesi).
+  3. **Sabit id'ler yalnızca "ilk denemede" çalışır.** Çok kiracılı bir
+     şemada satırlar kopyalanırken `bigserial` id'ler kayar. Sabit yazılmış
+     `/products/1` **şablon kiracıda gerçekten vardır** — elle denerken
+     çalışır, kendi alanını açan test aynı adreste 404 alır. Üstelik
+     sıfırlama satırları yeniden klonladığı için id'ler tekrar kayar ve
+     oturumları da iptal eder: sıfırlamadan önce alınmış her id ve token
+     bayattır.
+- **Çözüm/Önleme:**
+  - Bir bekçi yazınca **BOZUK durumu bilerek üret ve kırmızıya döndüğünü gör**
+    (§23.10 ve bu bölüm aynı dersi iki kez öğretti). Ayırt edemiyorsa, o
+    kontrolün yerine gerçek kanıt üreten bir kontrol koy — burada Express
+    router yığınını sözleşmeyle iki yönlü karşılaştıran test.
+  - Kimlik/id gibi **türetilmiş değerleri önbellekleme**; listeden oku ve
+    sıfırlamanın ötesine taşıma.
+  - Bir test paketini "hazır" saymadan önce **hedef sisteme karşı en az bir
+    kez koştur.** Derleme ve mock'lu testler kapsamın yalnızca bir kısmını
+    kanıtlar.
+
 ### 23.13. Sekme-içi çapraz atıflarda harf+rakam kısaltması (statik denetimin kör noktası)
 
 - **Belirti:** İçerik metninde (quiz açıklaması, hint, playground successMessage
