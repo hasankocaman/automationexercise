@@ -35,17 +35,22 @@ Kullanıcı üç kararı verdi: **üç katmanlı hiyerarşi** (epic → business
 FE+BE story), **yeni sayfa** (`/qa-shop-spec` analiz dokümanı olarak kalır),
 **tam iskelet + 2 epic'te tam bölünme**.
 
-Kurulan zincir: 8 iş gereksinimi → 6 epic → 16 business story → 12
+Kurulan zincir: 8 iş gereksinimi → 6 epic → 16 business story → 32
 frontend/backend story → test edenin 6 adımlı yolu.
 
 | Epic | Story | Bölünme |
 |---|---|---|
-| EP-01 Kimlik ve Oturum | US-01, US-02 | ✅ tam (FE/BE-01, FE/BE-02) |
-| EP-02 Katalog ve Arama | US-03, US-04 | bekliyor |
-| EP-03 Sepet ve Kupon | US-05…US-08 | ✅ tam (FE/BE-05…08) |
-| EP-04 Sipariş ve Ödeme | US-09…US-12 | bekliyor |
-| EP-05 Adres ve Yorumlar | US-14, US-15 | bekliyor |
-| EP-06 Veri Güvenliği ve Test Altyapısı | US-13, US-16 | bekliyor |
+| EP-01 Kimlik ve Oturum | US-01, US-02 | ✅ tam |
+| EP-02 Katalog ve Arama | US-03, US-04 | ✅ tam |
+| EP-03 Sepet ve Kupon | US-05…US-08 | ✅ tam |
+| EP-04 Sipariş ve Ödeme | US-09…US-12 | ✅ tam |
+| EP-05 Adres ve Yorumlar | US-14, US-15 | ✅ tam |
+| EP-06 Veri Güvenliği ve Test Altyapısı | US-13, US-16 | ✅ tam |
+
+**Altı epic de bölündü: 16 business story → 32 frontend/backend story.**
+Her business story tam olarak bir FE + bir BE çifti taşıyor; kapı bu oranı
+zorunlu kılıyor. `split: pending` mekanizması duruyor — yeni bir epic
+eklenirse rozet yine dürüst davranmak zorunda.
 
 **Tek kaynak ilkesi korundu:** 16 business story'nin METNİ kopyalanmadı;
 `qaShopBacklogData.js`, `qaShopSpecData.js`'ten id ile okuyor. Şartname
@@ -119,7 +124,6 @@ tam koşturulmalı.
 | 2 | Tam E2E paketini tekrar koştur | Backlog sayfası eklendikten sonra. |
 | 3 | Dalı `main`'e birleştir | Canlı deploy tetikler — KULLANICI KARARI. |
 | 4 | Groq modeli | Aşağıdaki açık arıza bölümü. Kullanıcı "sonra bakalım" dedi. |
-| 5 | Kalan 4 epic'i FE/BE'ye böl | Kalıp kanıtlandı; `split: 'pending'` → `'full'` yapılınca kapı FE+BE çiftini zorunlu kılar. |
 | 6 | Ölü `supabase-bridge` ucunu kaldır | Sözleşme + imaj sürümü değişir. |
 | 7 | Rate limit kararı | Kullanıcı sormuştu, hâlâ karar bekliyor. |
 | 8 | Faz 6 kabul kriterini ELLE koştur | Testler bunu göremez. |

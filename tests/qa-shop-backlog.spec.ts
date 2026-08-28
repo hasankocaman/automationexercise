@@ -23,7 +23,12 @@ test('/qa-shop-backlog — zincir anonim ziyaretçiye açık: 8 gereksinim, 6 ep
         .toHaveCount(8);
     await expect(page.locator('[data-testid^="backlog-epic-"]')).toHaveCount(6);
     await expect(page.locator('[data-testid^="backlog-story-US-"]')).toHaveCount(16);
-    await expect(page.locator('[data-testid^="backlog-child-"]')).toHaveCount(12);
+    await expect(page.locator('[data-testid^="backlog-child-"]')).toHaveCount(32);
+
+    // 16 business story'nin her birinde tam olarak bir frontend + bir backend
+    // story'si olmalı: 16 x 2 = 32. Sayının kendisi değil, bu ORAN anlamlı.
+    await expect(page.locator('[data-testid^="backlog-child-"][data-kind="frontend"]')).toHaveCount(16);
+    await expect(page.locator('[data-testid^="backlog-child-"][data-kind="backend"]')).toHaveCount(16);
 
     // Zincirin kendisi beş halkalı ve test edenin yolu altı adımlı.
     await expect(page.locator('[data-testid="backlog-chain"] ol > li')).toHaveCount(5);
@@ -100,7 +105,7 @@ test('/qa-shop-backlog — story\'ler kullanıcı gözünden yazılmış, geliş
     // kuralı öğreten metni silmek zorunda kalırdık.
     const kartlar = page.locator('[data-testid^="backlog-child-"], [data-testid^="backlog-story-US-"]');
     const adet = await kartlar.count();
-    expect(adet, 'story kartı bulunamadı — tarama boşa dönüyor').toBeGreaterThanOrEqual(28);
+    expect(adet, 'story kartı bulunamadı — tarama boşa dönüyor').toBe(48);   // 16 business + 32 frontend/backend
 
     for (let i = 0; i < adet; i++) {
         const metin = await kartlar.nth(i).innerText();
@@ -147,23 +152,40 @@ test('/qa-shop-backlog — bölünme rozeti yalan söylemiyor', async ({ page })
     await page.goto('/qa-shop-backlog');
     await waitForAppReady(page, { timeout: 60_000 });
 
-    for (const epicId of ['EP-01', 'EP-03']) {
-        const epic = page.locator(`[data-testid="backlog-epic-${epicId}"]`);
-        await expect(epic).toHaveAttribute('data-split', 'full');
+    // ⚠ Belirli epic id'lerine göre yazılmıyor. Bir epic bölündüğünde rozeti
+    // "pending"den "full"a döner; sabit id listesi o gün sessizce anlamını
+    // yitirir ve test hiçbir şey doğrulamamaya başlar. Bunun yerine EKRANDA
+    // ne yazıyorsa o sınanıyor: rozet ne diyorsa altındaki yapı onu tutmalı.
+    const epicler = page.locator('[data-testid^="backlog-epic-"]');
+    const epicAdet = await epicler.count();
+    expect(epicAdet, 'hiç epic bulunamadı — tarama boşa dönüyor').toBe(6);
+
+    let fullSayisi = 0;
+    let pendingSayisi = 0;
+
+    for (let e = 0; e < epicAdet; e++) {
+        const epic = epicler.nth(e);
+        const split = await epic.getAttribute('data-split');
         const storyler = epic.locator('[data-testid^="backlog-story-US-"]');
-        const adet = await storyler.count();
-        expect(adet).toBeGreaterThan(0);
-        for (let i = 0; i < adet; i++) {
-            await expect(storyler.nth(i).locator('[data-kind="frontend"]')).toHaveCount(1);
-            await expect(storyler.nth(i).locator('[data-kind="backend"]')).toHaveCount(1);
+        const storyAdet = await storyler.count();
+        expect(storyAdet, 'story taşımayan epic').toBeGreaterThan(0);
+
+        if (split === 'full') {
+            fullSayisi++;
+            // Vaat: altındaki HER story'de bir FE + bir BE çifti.
+            for (let i = 0; i < storyAdet; i++) {
+                await expect(storyler.nth(i).locator('[data-kind="frontend"]')).toHaveCount(1);
+                await expect(storyler.nth(i).locator('[data-kind="backend"]')).toHaveCount(1);
+            }
+        } else {
+            pendingSayisi++;
+            // Dürüstlük: bölünmemiş epic child TAŞIMAZ ve bunu söyler.
+            await expect(epic.locator('[data-testid^="backlog-child-"]')).toHaveCount(0);
+            await expect(epic).toContainText(/henüz yazılmadı/i);
         }
     }
 
-    // Bölünmemiş epic child TAŞIMAZ ve bunu kullanıcıya söyler.
-    const bekleyen = page.locator('[data-testid="backlog-epic-EP-04"]');
-    await expect(bekleyen).toHaveAttribute('data-split', 'pending');
-    await expect(bekleyen.locator('[data-testid^="backlog-child-"]')).toHaveCount(0);
-    await expect(bekleyen).toContainText(/henüz yazılmadı/i);
+    expect(fullSayisi + pendingSayisi).toBe(6);
 });
 
 // İzlenebilirlik iki yönlü: gereksinimden epic'e, epic'ten gereksinime.
