@@ -148,6 +148,51 @@ export const QA_SHOP_KAVRAMLAR = {
         },
     },
 
+    siparisDurumlari: {
+        ad: { tr: 'Sipariş durumu burada nasıl ilerler', en: 'How an order status moves here' },
+        ozet: {
+            tr: 'Sipariş durumları sırayla ilerler ve atlanamaz: verildi → ödendi → kargolandı → teslim edildi. İptal ve iade bu hattın ayrı çıkışlarıdır.',
+            en: 'Order statuses advance in sequence and cannot be skipped: placed → paid → shipped → delivered. Cancellation and return are separate exits from that line.',
+        },
+        detay: {
+            tr: 'Kargoya çıkmış bir sipariş artık iptal edilmez, iade edilir — ikisi stok ve ödeme tarafında farklı sonuç doğurur. İade de süresizce açık değildir. Dükkân arayüzü siparişi yalnızca verir; kalan geçişleri API üzerinden yürütürsün.',
+            en: 'An order that has shipped can no longer be cancelled, only returned — the two have different effects on stock and payment. The return window does not stay open forever either. The store interface only places the order; you drive the remaining transitions through the API.',
+        },
+    },
+    odemeBasarisiz: {
+        ad: { tr: 'Ödeme başarısız senaryosu', en: 'The failed payment scenario' },
+        ozet: {
+            tr: 'Bu kutu işaretliyken sipariş yine oluşur, ama ödemesi başarısız düşer ve sipariş ödenmemiş kalır.',
+            en: 'With this box ticked the order is still created, but its payment fails and the order stays unpaid.',
+        },
+        detay: {
+            tr: 'Gerçek bir ödeme sağlayıcısı bağlı olmadığı için başarısızlık böyle üretilir; kart alanlarına ne yazdığın sonucu değiştirmez, o alanlar yalnızca vitrin. Ödenmemiş sipariş kaybolmaz — sistemde ödenmemiş hâliyle durur ve o hâlde ilerleyemez.',
+            en: 'No real payment provider is connected, so failure is produced this way; what you type into the card fields changes nothing, they are decorative. An unpaid order does not disappear — it stays in the system as unpaid and cannot move on in that state.',
+        },
+    },
+    varsayilanAdres: {
+        ad: { tr: 'Varsayılan adres nasıl belirlenir', en: 'How the default address is decided' },
+        ozet: {
+            tr: 'Kaydettiğin ilk adres kendiliğinden varsayılan olur ve varsayılan her zaman TEK adrestir.',
+            en: 'The first address you save automatically becomes the default, and there is always exactly ONE default.',
+        },
+        detay: {
+            tr: 'Başka bir adresi varsayılan yaptığında öncekinin varsayılanlığı düşer. Varsayılan adresi silersen kalanlardan biri onun yerine geçer; yani hiç varsayılanı olmayan bir hesap durumu bilerek bırakılmaz.',
+            en: 'Making another address the default drops the flag from the previous one. If you delete the default, one of the remaining addresses takes its place; an account with no default at all is deliberately never left behind.',
+        },
+    },
+    yorumOnayi: {
+        ad: { tr: 'Yorumlar burada onaydan geçer', en: 'Reviews go through approval here' },
+        ozet: {
+            tr: 'Bu listede yalnızca onaylanmış yorumlar görünür; yeni yazılan bir yorum önce onay bekler ve ürünün puan ortalamasına girmez.',
+            en: 'Only approved reviews appear in this list; a newly written review waits for approval first and does not count toward the product rating.',
+        },
+        detay: {
+            tr: 'Dükkân arayüzünde yorum yazma alanı yoktur — yorum eklemek ve onay durumunu değiştirmek API üzerinden yapılır. Onay bekleyenler ayrı listelenebilir, yani iki liste aynı şey değildir.',
+            en: 'The store interface has no review form — adding a review and changing its approval state happen through the API. Those awaiting approval can be listed separately, so the two lists are not the same thing.',
+        },
+    },
+
     // ── Pratik mekaniği: yalnızca bu uygulamada var ─────────────────────────
     defectAnahtari: {
         ad: { tr: 'Defect anahtarı', en: 'Defect flag' },

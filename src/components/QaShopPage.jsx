@@ -1249,7 +1249,7 @@ export default function QaShopPage() {
 
                         {/* Yorumlar */}
                         <section className={`mt-6 rounded-2xl border p-4 md:p-5 ${card}`}>
-                            <h2 className="mb-3 text-lg font-bold">{tx(M.yorumlar, isTr)}</h2>
+                            <h2 className="mb-3 text-lg font-bold">{tx(M.yorumlar, isTr)}<Kavram k="yorumOnayi" isTr={isTr} darkMode={darkMode} /></h2>
                             {yorumlar.length === 0 ? (
                                 <p data-testid="yorum-yok" className="text-sm opacity-70">{tx(M.yorumYok, isTr)}</p>
                             ) : (
@@ -1361,7 +1361,7 @@ export default function QaShopPage() {
                                     <h2 className="mb-3 text-base font-bold">
                                         <StoryIpucu storyId="US-15" {...sp}>
                                             <span>📍 {tx(M.teslimatAdresi, isTr)}</span>
-                                        </StoryIpucu>
+                                        </StoryIpucu><Kavram k="varsayilanAdres" isTr={isTr} darkMode={darkMode} />
                                     </h2>
                                     {adresler.length === 0 ? (
                                         <p data-testid="adres-yok" className="text-sm opacity-70">{tx(M.adresYok, isTr)}</p>
@@ -1461,8 +1461,9 @@ export default function QaShopPage() {
                                         </div>
                                     )}
 
+                                    <Kavram k="odemeBasarisiz" isTr={isTr} darkMode={darkMode} tamGenislik>
                                     <label data-testid="odeme-basarisiz-etiket"
-                                           className="mt-4 flex cursor-pointer items-start gap-2 rounded-xl border border-dashed p-3 text-sm">
+                                           className="mt-4 flex w-full cursor-pointer items-start gap-2 rounded-xl border border-dashed p-3 text-sm">
                                         <input type="checkbox" data-testid="odeme-basarisiz" className="mt-1"
                                                checked={odemeBasarisiz} onChange={(e) => setOdemeBasarisiz(e.target.checked)} />
                                         <span>
@@ -1470,6 +1471,7 @@ export default function QaShopPage() {
                                             <span className="mt-1 block text-xs opacity-70">{tx(M.basarisizAnlat, isTr)}</span>
                                         </span>
                                     </label>
+                                    </Kavram>
                                 </section>
                             </div>
 
@@ -1530,7 +1532,7 @@ export default function QaShopPage() {
                 {/* ═══ SİPARİŞLERİM ═════════════════════════════════════════ */}
                 {gorunum === 'hesap' && (
                     <>
-                        <h1 className="mb-4 text-2xl font-extrabold">📦 {tx(M.siparislerim, isTr)}</h1>
+                        <h1 className="mb-4 text-2xl font-extrabold">📦 {tx(M.siparislerim, isTr)}<Kavram k="siparisDurumlari" isTr={isTr} darkMode={darkMode} /></h1>
                         {siparisler.length === 0 ? (
                             <p data-testid="siparis-yok" className={`rounded-2xl border p-8 text-center text-sm opacity-70 ${card}`}>
                                 {tx(M.siparisYok, isTr)}

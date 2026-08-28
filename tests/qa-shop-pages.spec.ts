@@ -1282,3 +1282,107 @@ test('/qa-shop — kavram baloncukları görüş alanının içinde kalıyor (ok
     await page.locator('[data-testid="kavram-alanAc"]').scrollIntoViewIfNeeded();
     await balonuOlc('kavram-alanAc', 'mobil 375px');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Vitrin kavramları — alışveriş akışının İÇİNDEKİ davranışlar
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// QA panelindeki kavramlar kurulumu anlatır. Asıl bilinmeyen ise dükkânın
+// KENDİ davranışıdır: sipariş durumları nasıl ilerler, ödeme başarısız
+// seçildiğinde ne olur, varsayılan adres nasıl belirlenir, yorumlar niye
+// hemen görünmez. Bunlar akışın içine gömülü olduğu için ancak akışı
+// yürüterek doğrulanabilir.
+//
+// Üç şey birden ölçülür ve üçü de ayrı bir hatayı yakalar:
+//   1. Baloncuk açılıyor ve GÖRÜŞ ALANININ İÇİNDE — sayfanın ortasında,
+//      kaydırılmış bir konumda da taşmamalı.
+//   2. Açıklama KURALI anlatıyor, reçeteyi değil — status kodu içeremez.
+//   3. Sarmalanan öğe hâlâ tıklanabilir — ödeme başarısız kutusu bir
+//      Kavram'ın içine alındı; katman tıklamayı keserse pratik hedefi
+//      flaky olur ve bir QA platformunda öğretilebilecek en kötü şey budur.
+test('/qa-shop — vitrin kavramları akışın içinde okunabilir ve tıklamayı kesmiyor', async ({ page }) => {
+    test.setTimeout(180_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    const gorus = page.viewportSize()!;
+
+    async function balonuAcVeOlc(anahtar: string, beklenen: RegExp) {
+        const rozet = page.locator(`[data-testid="kavram-${anahtar}"]`);
+        await expect(rozet, `${anahtar}: kavram rozeti yok`).toBeVisible();
+        await rozet.scrollIntoViewIfNeeded();
+        await rozet.click();
+
+        const balon = page.locator(`[data-testid="kavram-balonu-${anahtar}"]`);
+        await expect(balon, `${anahtar}: baloncuk açılmadı`).toBeVisible();
+        await expect(balon).toHaveAttribute('data-yon', /ust|alt/);
+
+        const kutu = (await balon.boundingBox())!;
+        expect(kutu, `${anahtar}: baloncuğun kutusu yok`).not.toBeNull();
+        expect(kutu.y, `${anahtar}: baloncuk görüş alanının ÜSTÜNE taştı`).toBeGreaterThanOrEqual(0);
+        expect(kutu.y + kutu.height, `${anahtar}: baloncuk görüş alanının ALTINA taştı`)
+            .toBeLessThanOrEqual(gorus.height);
+        expect(kutu.x, `${anahtar}: baloncuk SOLA taştı`).toBeGreaterThanOrEqual(0);
+        expect(kutu.x + kutu.width, `${anahtar}: baloncuk SAĞA taştı`).toBeLessThanOrEqual(gorus.width);
+
+        // Baloncuk hiçbir koşulda tıklama hedefi OLAMAZ. Bunu "kutucuğu
+        // örtüyor mu" diye ölçmek yetmez: baloncuk bugünkü yerleşimde
+        // kutucuğun üstüne düşmüyor, yani örtüşme testi bozuk bir sürümde de
+        // yeşil kalıyor (denendi). Ölçülmesi gereken şey konum değil, katmanın
+        // hit-test'e hiç girmediğidir.
+        const kesiyor = await balon.evaluate((el) => getComputedStyle(el).pointerEvents !== 'none');
+        expect(kesiyor, `${anahtar}: baloncuk tıklama hedefi olabiliyor — sarılan düğme flaky olur`).toBe(false);
+
+        const metin = await balon.innerText();
+        expect(metin, `${anahtar}: beklenen davranış anlatılmıyor`).toMatch(beklenen);
+
+        // Kural anlatılır, reçete verilmez: beklenen status kodu yazılamaz.
+        for (const yasak of ['200', '201', '402', '409', '422', '401', '403', '404']) {
+            expect(metin, `${anahtar}: kavram açıklaması status kodu veriyor (${yasak})`)
+                .not.toContain(yasak);
+        }
+
+        await page.keyboard.press('Escape');
+        await page.mouse.move(0, 0);
+        await expect(balon).toHaveCount(0);
+    }
+
+    await page.getByTestId('giris-ac').click();
+    await page.getByTestId('giris-eposta').fill('demo@qashop.test');
+    await page.getByTestId('giris-parola').fill('Password123!');
+    await page.getByTestId('giris-yap').click();
+    await expect(page.locator('[data-testid="oturum-eposta"]')).toBeVisible({ timeout: 40_000 });
+
+    // 1) Ürün detayı — yorumların neden hemen görünmediği.
+    await page.locator('[data-testid^="urun-detay-"]').first().click();
+    await expect(page.locator('[data-testid="detay-ad"]')).toBeVisible({ timeout: 40_000 });
+    await balonuAcVeOlc('yorumOnayi', /onay/i);
+
+    // 2) Ödeme adımı — varsayılan adres ve ödeme başarısız senaryosu.
+    await page.locator('[data-testid^="sepete-ekle-"]').first().click();
+    await expect(page.locator('[data-testid="sepet-sayaci"]')).not.toHaveText('0', { timeout: 40_000 });
+    await page.getByTestId('sepet-butonu').click();
+    await page.getByTestId('odemeye-gec').click();
+    await expect(page.locator('[data-testid="odeme-yontemleri"]')).toBeVisible({ timeout: 40_000 });
+
+    await balonuAcVeOlc('varsayilanAdres', /varsayılan|default/i);
+    await balonuAcVeOlc('odemeBasarisiz', /ödenmemiş|unpaid/i);
+
+    // Kavram sarmalayıcısı tıklamayı KESMEMELİ: kutu hâlâ işaretlenebiliyor.
+    const kutucuk = page.getByTestId('odeme-basarisiz');
+    await kutucuk.check();
+    await expect(kutucuk, 'kavram katmanı ödeme kutusunun tıklanmasını kesti').toBeChecked();
+    await kutucuk.uncheck();
+
+    // 3) Siparişlerim — durum makinesinin nasıl ilerlediği.
+    await page.getByTestId('siparis-tamamla').click();
+    await expect(page.locator('[data-testid="siparis-onay"]')).toBeVisible({ timeout: 60_000 });
+    await page.getByTestId('onay-siparisler').click();
+    await expect(page.locator('[data-testid="siparis-listesi"]')).toBeVisible({ timeout: 40_000 });
+    await balonuAcVeOlc('siparisDurumlari', /kargo|ship/i);
+});
