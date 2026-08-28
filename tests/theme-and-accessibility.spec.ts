@@ -168,7 +168,7 @@ test.describe('WP3 — Odak Modu (Focus Mode) toggle', () => {
 //
 // Buradaki asıl bekçi son adımdır: düğmeye basıldığında sayfa hatası
 // üretilmemeli. Görünürlük doğrulaması bunu yakalayamaz.
-const QA_SHOP_ROTALARI = ['/qa-shop-spec', '/qa-shop', '/qa-shop-setup', '/qa-shop-api'];
+const QA_SHOP_ROTALARI = ['/qa-shop-spec', '/qa-shop', '/qa-shop-setup', '/qa-shop-api', '/qa-shop-backlog'];
 
 test.describe('QA Shop sayfalarında tema ve odak modu', () => {
     for (const rota of QA_SHOP_ROTALARI) {

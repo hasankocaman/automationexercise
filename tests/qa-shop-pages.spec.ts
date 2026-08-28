@@ -820,18 +820,18 @@ test('QA Shop geçiş şeridi — derin bağlantılar ilgili bölüme iniyor', a
 // ─────────────────────────────────────────────────────────────────────────────
 // Üstteki şerit kaydırınca gözden kayboluyordu; kullanıcı sayfanın
 // ortasındayken diğer sayfaya geçmek için en üste dönmek zorundaydı.
-test('QA Shop — hızlı geçiş şeridi dört sayfada ve kaydırıldığında da görünür', async ({ page }) => {
-    test.setTimeout(150_000);
+test('QA Shop — hızlı geçiş şeridi beş sayfada ve kaydırıldığında da görünür', async ({ page }) => {
+    test.setTimeout(190_000);
 
     for (const [yol, buradasin] of [
-        ['/qa-shop-spec', 'spec'], ['/qa-shop-setup', 'setup'],
+        ['/qa-shop-backlog', 'backlog'], ['/qa-shop-spec', 'spec'], ['/qa-shop-setup', 'setup'],
         ['/qa-shop-api', 'api'], ['/qa-shop', 'shop'],
     ] as const) {
         await page.goto(yol);
         await waitForAppReady(page, { timeout: 60_000 });
 
         await expect(page.locator('[data-testid="qa-shop-hizli-gecis"]')).toBeVisible();
-        await expect(page.locator('[data-testid^="hizli-"]')).toHaveCount(4);
+        await expect(page.locator('[data-testid^="hizli-"]')).toHaveCount(5);
         await expect(page.locator(`[data-testid="hizli-${buradasin}"]`)).toHaveAttribute('aria-current', 'page');
 
         // Kaydırdıktan sonra da orada olmalı — şeridin tek varlık sebebi bu.
@@ -862,22 +862,45 @@ test('QA Shop — başa dön düğmesi sayfadan çıkmadan en üste götürüyor
 
 // Yüzen öğeler birbirinin üstüne binmemeli. Ölçüldü: ilk sürümde manuel tur
 // düğmesi 768px ve 390px genişlikte şeritle çakışıyordu.
+//
+// ⚠ 640px ve 414px SONRADAN eklendi ve bedava değildi: şeride beşinci sayfa
+// eklenince 390px'te çakışma çıktı, düzeltince 640px'te YENİ bir çakışma
+// ortaya çıktı — çünkü `sm` kırılımında etiketler açılıp şerit 205px'ten
+// 462px'e genişliyor. Liste yalnızca 390 ve 768'i ölçtüğü için ikinci
+// çakışmayı hiç görmüyordu. Kırılımın kendisi (640) ve hemen üstü mutlaka
+// ölçülmeli: genişliğin sıçradığı yer, çakışmanın da doğduğu yerdir.
 test('QA Shop — yüzen düğmeler dar ekranlarda çakışmıyor', async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
 
-    for (const genislik of [1440, 1024, 768, 390]) {
+    for (const genislik of [1440, 1024, 768, 640, 414, 390]) {
         await page.setViewportSize({ width: genislik, height: 900 });
         await page.goto('/qa-shop');
         await waitForAppReady(page, { timeout: 60_000 });
         await expect(page.locator('[data-testid="qa-shop-hizli-gecis"]')).toBeVisible();
 
+        // Üç bilinen öğeyi ADIYLA saymak yerine, alt banttaki TÜM yüzen
+        // öğeleri topluyoruz. Sebep: köşelerde ayrıca sohbet ve yorum
+        // widget'ları duruyor ve bunların testid'si yok — adla yazılmış bir
+        // liste onları hiç göremez, yani yarın eklenen bir düğme de sessizce
+        // çakışabilir. Genel tarama, adını bilmediğimiz öğeyi de kapsar.
         const kutular = await page.evaluate(() => {
-            const al = (t: string) => document.querySelector(`[data-testid="${t}"]`)?.getBoundingClientRect();
-            const serit = al('qa-shop-hizli-gecis');
-            const tur = al('manuel-tur-ac');
-            const basa = al('basa-don');
-            return [serit, tur, basa].map((r) => (r ? { x: r.x, y: r.y, w: r.width, h: r.height } : null));
+            const bulunan: { ad: string; x: number; y: number; w: number; h: number }[] = [];
+            document.querySelectorAll('*').forEach((el) => {
+                if (getComputedStyle(el).position !== 'fixed') return;
+                const r = el.getBoundingClientRect();
+                if (r.width < 10 || r.height < 10) return;
+                if (r.y < window.innerHeight - 260) return;   // yalnızca alt bant
+                bulunan.push({
+                    ad: (el as HTMLElement).dataset.testid || el.className.toString().slice(0, 30),
+                    x: r.x, y: r.y, w: r.width, h: r.height,
+                });
+            });
+            return bulunan;
         });
+
+        // Tarama gerçekten bir şey buldu mu? Sıfır öğe bulan bir denetçi de
+        // "çakışma yok" der ve hep yeşil kalır.
+        expect(kutular.length, `${genislik}px: alt bantta yüzen öğe bulunamadı`).toBeGreaterThanOrEqual(3);
 
         const kesisir = (a: any, b: any) => a && b
             && !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
@@ -885,7 +908,7 @@ test('QA Shop — yüzen düğmeler dar ekranlarda çakışmıyor', async ({ pag
         for (let i = 0; i < kutular.length; i += 1) {
             for (let j = i + 1; j < kutular.length; j += 1) {
                 expect(kesisir(kutular[i], kutular[j]),
-                    `${genislik}px: yüzen düğmeler çakışıyor (${i} ↔ ${j})`).toBeFalsy();
+                    `${genislik}px: yüzen öğeler çakışıyor — "${kutular[i].ad}" ↔ "${kutular[j].ad}"`).toBeFalsy();
             }
         }
     }
