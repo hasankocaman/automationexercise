@@ -10,7 +10,130 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-28, Opus) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-28, ikinci oturum · Opus) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa BU bölüm günceldir. Alttaki "Önceki Durum" bölümleri tarih
+> sırasıyla duruyor ama artık bağlayıcı değil.
+
+### ⚠️ ÖNCE BUNU OKU
+
+Kullanıcı beş işi sırayla istedi ve beşi de yapıldı. Çalışma ağacı artık
+TEMİZ — üç oturumun 79 dosyalık birikimi commit edildi.
+
+- **Dal:** `feature/qa-shop-pratik-ortami` (GitHub'a push edildi)
+- **`main` hâlâ `f4ef66b`** — dal birleştirilmedi. `main`'e push, canlı site
+  deploy'unu tetikler; bu kullanıcının kararı.
+- **Etiket `qa-shop-v1.0.0` push edildi** → imaj yayını iş akışı tetiklendi.
+
+### 🔴 KULLANICININ ELLE YAPMASI GEREKEN İKİ ŞEY
+
+1. **Supabase'de tek satırlık göç.** Üye senkronu bu sütuna bağlı; sütun
+   olmadan senkron sessizce KAPALI kalır (dükkân çalışmaya devam eder):
+
+   ```sql
+   alter table profiles add column if not exists qa_shop_sandbox_key text;
+   ```
+
+   Ölçüldü: sütun şu an YOK (PostgREST `42703`). Eklendiği anda
+   `tests/qa-shop-uye-senkronu.spec.ts` kendiliğinden asıl davranışı
+   sınamaya başlar — test iki dalı da tanıyor.
+
+2. **GHCR paketlerini Public yapmak.** İlk yayında paketler private doğar;
+   o hâlde depoyu indirmeyen kullanıcı `docker login` olmadan çekemez.
+   GitHub → Packages → her paket → Package settings → Change visibility.
+   İş akışı koşumunun sonucu da kontrol edilmeli (Actions sekmesi).
+
+### 📋 Bu Oturumda Yapılanlar
+
+**1. Commit (79 dosya → 8 konu bazlı commit).** Yığın · türev üretimi ·
+ürün fotoğrafları · içerik katmanı ve bekçiler · sayfalar ve giriş kapısı ·
+testler · terim düzeltmeleri · belgeler.
+
+**2. Kavram baloncukları vitrine yayıldı (15 → 19).** Sipariş durum makinesi ·
+ödeme başarısız senaryosu · varsayılan adres · yorum onayı. Dördü de bu
+uygulamaya mahsus davranışı anlatıyor, hiçbirinde beklenen status kodu yok.
+Yeni test alışveriş akışını yürüyerek ölçüyor.
+
+⚠ Bu testte bir iddia YANLIŞ yazılmıştı: tıklanabilirliği "baloncuk kutucuğun
+üstünü örtüyor mu" diye ölçüyordu ve `pointer-events` bilerek bozulduğunda
+YEŞİL kaldı — çünkü baloncuk bugünkü yerleşimde kutucuğun üstüne düşmüyor.
+Ölçüm katmanın hit-test'e hiç girmediğine çevrildi ve kırmızıya döndürüldü.
+
+**3. Tema/erişilebilirlik kapsamı — İKİ GERÇEK ARIZA çıktı.**
+Devir notundaki "diğer üç QA Shop sayfası ekli" bilgisi YANLIŞTI: o dosyada
+hiçbir QA Shop sayfası yoktu. Dördü birden eklendi ve şunlar bulundu:
+
+- **Odak modu düğmesi DÖRT sayfada da patlıyordu** (`is not a function`):
+  ortak başlık düğmeyi koşulsuz basıyor, sayfa ona durum vermiyordu.
+- **`/qa-shop` ve `/qa-shop-api` tema düğmesi** kök öğeye `dark` yazıyordu,
+  sitenin kullandığı `dark-mode`/`light-mode-forced` çiftini değil.
+
+İki kanca da tek dosyaya alındı (`src/hooks/useOdakModu.js`,
+`src/hooks/useKaranlikMod.js`). Ayrışmanın sebebi dört kopyaydı.
+
+**4. İmaj yayını.** Dal + `qa-shop-v1.0.0` etiketi push edildi. Koşum sonucu
+doğrulanamadı (kimliksiz GitHub API sınırı) — Actions sekmesinden bakılmalı.
+
+**5. Üyelik senkronizasyonu.** Alan anahtarı artık üyenin profil satırında da
+tutuluyor ve dükkân açılırken geri alınıyor.
+
+⚠ Önceki "Supabase köprüsü" ÖLÜ KODDU: `sb-token`/`sb-user-email` anahtarlarını
+okuyordu ama uygulamanın hiçbir yeri onları yazmıyordu; üstelik dönen değer
+alan kimliğiydi, alan ANAHTARI değil. Kaldırıldı.
+
+Hatırlama işi kimliği ZATEN doğrulanmış tarafta yapılıyor. QA Shop API'sine
+"şu e-postanın alanını ver" demek, doğrulanmamış bir e-postaya bakıp
+başkasının alanını açmak olurdu — yığın hiç değişmedi. Sunucudaki
+`POST /auth/supabase-bridge` ucu DURUYOR ama artık çağrılmıyor; sözleşmeyi ve
+yayınlanan imajı değiştirmemek için elleşilmedi (temizlenecek borç).
+
+### 🔬 Bu oturumun kalıcı dersleri
+
+1. **Ekranda duran her düğme çalışıyor demek değildir** (`CLAUDE.md` §23.24) —
+   ortak bileşenin koşulsuz bastığı kontrol + hiç ateşlenmeyen istemci kodu.
+2. **Kopyalanan durum kancası ayrışır ve bunu hiçbir kapı görmez** — tema
+   kancasının dört kopyasından ikisi yanlış sınıfı yazıyordu.
+3. **Devir notu da eskir.** "Şu zaten yapılmış" cümlesine güvenip ölçmeden
+   geçmek, bu oturumda iki arızayı gizleyecekti.
+4. **Yanlış yere bakan bir iddia yeşil kalır.** Tıklanabilirlik iddiası
+   bozuk sürümde de geçti; ancak bilerek kırınca anlaşıldı.
+
+### ✅ Doğrulama durumu
+
+`npm run build` ✔ · içerik bütünlüğü ✔ · i18n sızıntı (borç 0) ✔ ·
+SQL eşleme kapısı ✔ · kavram kapısı ✔ (19 kavram) ·
+`qa-shop-pages` + `qa-shop-logout-flow` + `theme-and-accessibility` +
+`qa-shop-uye-senkronu` **47 + 2 = hepsi yeşil**, tekrarlı koşumda kararlı.
+
+⚠ **Doğrulanamayan tek şey:** üye senkronunun MUTLU YOLU (anahtarın gerçekten
+profile yazılması). Sütun canlıda olmadığı için o dal koşmadı; benimseme
+mantığı ayrı bir testle (cevabı sabitlenerek) doğrulandı ve kırmızıya
+döndürüldü. Sütun eklenince ilk test kendiliğinden mutlu yolu sınar.
+
+### 🎯 SIRADAKİ İŞ
+
+| # | İş | Bedel | Not |
+|---|---|---|---|
+| 1 | Supabase göçü + imaj görünürlüğü | Küçük | Yukarıdaki iki elle adım. |
+| 2 | Dalı `main`'e birleştir | Küçük | Canlı site deploy'unu tetikler — kullanıcı kararı. |
+| 3 | Ölü `supabase-bridge` ucunu kaldır | Orta | Sözleşme + yayınlanan imaj değişir; sürüm yükseltmesi ister. |
+| 4 | Rate limit kararı | Orta | API'de yok, 429 dönmüyor. Hâlâ karar bekliyor. |
+| 5 | Kavram baloncuklarını sipariş detayına yay | Küçük | İade penceresi ve kargo durumu için yer var. §25.7 ölçütü geçerli. |
+
+### 🚫 Bilinçli olarak YAPILMAYACAK (yeniden tartışma açma)
+
+Önceki notun listesi aynen geçerli (ayrı route ağacı yok · Swagger kısılmaz ·
+16 story kalır · av sunucuda varsayılan olmaz · giriş kapısı dükkândır ·
+kavrama genel terim girmez · SQL eşlemesi herkese açılmaz). Buna ek olarak:
+
+- **Alan anahtarını QA Shop API'sinde e-postaya bağlamak** — doğrulanmamış
+  kimliğe alan açmak olur. Hatırlama üye profilinde kalır.
+
+---
+
+## 📌 Önceki Durum (2026-08-28 sabah · Opus — SQL katmanı, kavram baloncukları, giriş kapısı)
+
+> ⚠ Bağlayıcı DEĞİL; en üstteki nota bak.
 
 > Çelişki olursa BU bölüm günceldir. Alttaki "Önceki Durum" bölümleri tarih
 > sırasıyla duruyor ama artık bağlayıcı değil.

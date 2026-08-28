@@ -1233,6 +1233,32 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   tek başına çağırma. Ölçümün ilk turunda TR ve EN uzunlukları BİREBİR aynıysa
   şüphelen — gerçek içerikte iki dil asla tam olarak aynı uzunlukta olmaz.
 
+### 23.24. Ekranda duran her düğme ÇALIŞIYOR demek değildir
+
+- **Belirti:** Sayfa açılıyor, düğme görünüyor, testler yeşil — ama düğmeye
+  basınca hiçbir şey olmuyor ya da konsola `is not a function` düşüyor.
+- **Kök neden (iki ayrı biçimde ölçüldü, 2026-08-28):**
+  1. **Ortak bileşen kontrolü KOŞULSUZ render eder, durumu dışarıdan alır.**
+     `TopicHeader` odak modu düğmesini her zaman basar ve `setFocusMode`'u
+     çağırır. `TopicPage` kullanmayan dört QA Shop sayfası ona durum
+     vermiyordu: düğme ekrandaydı, tıklayınca patlıyordu. Aynı ailede ikinci
+     bir ayrışma: dört sayfa tema kancasını KOPYALAMIŞTI ve iki kopya kök
+     öğeye `dark`, ikisi `dark-mode`/`light-mode-forced` yazıyordu — ikisinde
+     tema düğmesi sitenin geri kalanını hiç etkilemiyordu.
+  2. **İstemci kodu hiç ateşlenmeyen bir koşulun arkasında olabilir.** QA
+     Shop'un Supabase köprüsü `localStorage`'daki `sb-token`/`sb-user-email`
+     anahtarlarını okuyordu; uygulamanın hiçbir yeri o anahtarları YAZMIYORDU.
+     Kod yıllarca "vardı" ama bir kez bile çalışmadı; üstelik çalışsaydı da
+     yanlış değeri (alan kimliğini, alan anahtarını değil) yazacaktı.
+- **Çözüm:** Kopyalanan durum kancalarını tek dosyaya al (`src/hooks/`) —
+  ayrışma kopya varken kaçınılmazdır ve hiçbir kapı onu göremez. Ortak bir
+  başlığı kullanan yeni sayfada, başlığın İSTEDİĞİ tüm durumları ver.
+- **Önleme:** Bir kontrolün varlığını değil DAVRANIŞINI doğrula: tıkla, sonucu
+  ölç (kök öğedeki sınıf, `localStorage` değeri) ve `pageerror` sayacının
+  sıfır kaldığını iddia et. `toBeVisible()` bir düğme için hiçbir şey
+  kanıtlamaz (§23.21 ile aynı aile). Bir "köprü" yazdıysan, köprünün KARŞI
+  ucunu kimin yazdığını da doğrula — okuyan taraf tek başına köprü değildir.
+
 ### 23.20. `[data-testid$=""]` hiçbir şeyle eşleşmez
 
 - **Belirti:** Playwright locator'ı "element bulunamadı" diyor, `count()` 0
