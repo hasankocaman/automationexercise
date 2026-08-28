@@ -10,7 +10,125 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-28, ikinci oturum · Opus) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-28, üçüncü oturum · Opus) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa BU bölüm günceldir. Alttaki bölümler tarih sırasıyla duruyor
+> ama artık bağlayıcı değil.
+
+### ⚠️ ÖNCE BUNU OKU
+
+- **Tam E2E paketi koştu:** 429 geçti · 2 düştü · 2 koşmadı (25,3 dk). Düşen
+  ikisinin kök nedeni TEK ve dalla İLGİSİZ (Groq modeli kalktı, aşağıda ayrı
+  bölüm). Yani `feature/qa-shop-pratik-ortami` birleştirme açısından temiz.
+- **`main` hâlâ `f4ef66b`, dal birleştirilmedi.** Kullanıcı kararı bekliyor.
+- **Çalışma ağacında YENİ İŞ var, commit EDİLMEDİ** (kullanıcı istemedi):
+  `/qa-shop-backlog` sayfası ve çevresi — 4 yeni, 13 değişik dosya.
+
+### 📋 Bu oturumda yapılan: `/qa-shop-backlog` (yeni sayfa)
+
+Kullanıcı isteği: *"gerçek bir şirkette proje nasıl geliştirilirse aynısı —
+gereksinim, analiz dokümanı, epic, epic'e bağlı user story'ler; frontend
+developer için ayrı, backend developer için ayrı story; tester da bunları tek
+tek inceleyip test etsin."*
+
+Kullanıcı üç kararı verdi: **üç katmanlı hiyerarşi** (epic → business story →
+FE+BE story), **yeni sayfa** (`/qa-shop-spec` analiz dokümanı olarak kalır),
+**tam iskelet + 2 epic'te tam bölünme**.
+
+Kurulan zincir: 8 iş gereksinimi → 6 epic → 16 business story → 12
+frontend/backend story → test edenin 6 adımlı yolu.
+
+| Epic | Story | Bölünme |
+|---|---|---|
+| EP-01 Kimlik ve Oturum | US-01, US-02 | ✅ tam (FE/BE-01, FE/BE-02) |
+| EP-02 Katalog ve Arama | US-03, US-04 | bekliyor |
+| EP-03 Sepet ve Kupon | US-05…US-08 | ✅ tam (FE/BE-05…08) |
+| EP-04 Sipariş ve Ödeme | US-09…US-12 | bekliyor |
+| EP-05 Adres ve Yorumlar | US-14, US-15 | bekliyor |
+| EP-06 Veri Güvenliği ve Test Altyapısı | US-13, US-16 | bekliyor |
+
+**Tek kaynak ilkesi korundu:** 16 business story'nin METNİ kopyalanmadı;
+`qaShopBacklogData.js`, `qaShopSpecData.js`'ten id ile okuyor. Şartname
+değişince backlog kendiliğinden takip eder.
+
+**§25.2 korundu:** herkese açık `acceptance` iş dilinde tek cümle; status
+kodu, hata sabiti ve Given/When/Then dökümü `criteria` alanında ve yalnızca
+admin'e açılıyor.
+
+### 🔑 KULLANICI DÜZELTMESİ — story'nin aktörü KULLANICIDIR
+
+İlk sürümde frontend/backend story'leri *"Bir frontend geliştirici olarak ...
+istiyorum"* diye yazılmıştı. Kullanıcı bunu reddetti ve haklıydı: bu bir user
+story değil, **kılık değiştirmiş bir task**. Bir story'nin değeri her zaman
+kullanıcıya akar; geliştirme zaten kullanıcı için yapılır.
+
+12 story de kullanıcı gözüne çevrildi (*"Bir müşteri olarak ..."*, *"Bir
+ziyaretçi olarak ..."*). `kind` alanı (frontend/backend) korundu ama artık
+açıkça **işin NEREDE yaşadığını** söylüyor, **kimin faydalandığını** değil.
+Ölü `role` alanı (hiç render edilmiyordu ve zaten geliştiriciyi aktör sayan
+fikri taşıyordu) silindi.
+
+Kural kalıcılaştırıldı — sonraki epic bölünürken aynı kalıp kopyalanmasın:
+- `check-qa-shop-backlog.mjs` **Kontrol [F]** iki dilde de hard-fail eder.
+- `tests/qa-shop-backlog.spec.ts` ekrana basılan story kartlarını tarar.
+- SSS'ye bunu anlatan bir madde eklendi.
+
+⚠ Testin kapsamı bilerek DAR (yalnızca story kartları, `main` değil): SSS
+maddesi yanlış kalıbı *açıklamak için alıntılıyor*: tüm gövdeyi tarayan ilk
+sürüm o açıklamayı suç saydı ve kuralı öğreten metni sildirecekti.
+
+### 🐞 Bu oturumda BULUNAN ve DÜZELTİLEN iki gerçek arıza
+
+1. **`screens` alanları düz Türkçe string'di** — EN modda sızardı.
+   `check-i18n-leaks` yakaladı (borç 0 → 9). İki dilli yapıldı, borç yine 0.
+2. **Geçiş şeridine beşinci sayfa eklenince yüzen düğmelerle çakıştı.**
+   Önce 390px'te (şerit 205px'e genişledi, sol düğmeye 15px girdi). Düzeltince
+   **640px'te YENİ bir çakışma** çıktı — `sm` kırılımında etiketler açılıp
+   şerit 462px'e genişliyor. Test o genişliği hiç ölçmüyordu. Kırılım `md`'ye
+   alındı; şerit `md` altında bir sıra yukarı (`bottom-20`).
+
+### 🛡️ Eklenen/güçlendirilen bekçiler
+
+| Bekçi | Ne kırar |
+|---|---|
+| `scripts/check-qa-shop-backlog.mjs` (build zincirinde) | Hayalet referans · öksüz story · tek yönlü izlenebilirlik · yalan "full" rozeti · eksik iki dillilik · **acceptance'a sızan status kodu/hata sabiti/Gherkin** · **story aktörünün geliştirici yapılması** |
+| `tests/qa-shop-backlog.spec.ts` (7 test) | Sayımlar · **bileşene HARDCODE edilmiş status kodu** (statik kapı göremez) · düzleştirilmiş hiyerarşi · kırık izlenebilirlik çapası · ana sayfa/şerit bağlantısı · EN sızıntısı |
+| `qa-shop-pages` yüzen öğe testi | Artık adla değil, alt banttaki TÜM yüzen öğeleri genel taramayla topluyor (köşe widget'larının testid'si yok); genişlik listesine **640 ve 414** eklendi |
+
+**Hepsi bilerek bozularak kırmızıya döndürüldü** — 9 mutasyon veri kapısında,
+2 mutasyon bileşende (hardcode kod + düzleştirilmiş hiyerarşi), 1 mutasyon
+şerit kırılımında. Hiçbiri bozukken yeşil kalmadı.
+
+### ✅ Doğrulama durumu
+
+`npm run build` ✔ · içerik bütünlüğü ✔ · backlog kapısı ✔ · i18n (borç 0) ✔ ·
+kapsam 50/50 ✔ · statik kabuk TR 5634 / EN 6055 karakter (§23.16 eşiği 2000,
+iki dil farklı uzunlukta → §23.23 tuzağı yok) ·
+`qa-shop-backlog` + `qa-shop-pages` + `theme-and-accessibility` +
+`no-internal-jargon` + `seo-i18n-routing` + `mobile-smoke` → **73/73 yeşil**.
+
+⚠ **Koşulmayan:** tam paket, bu değişikliklerden SONRA. Etkilenmesi muhtemel
+her dosya koşturuldu ama birleştirmeden önce `npm run test:e2e` bir kez daha
+tam koşturulmalı.
+
+### 🎯 SIRADAKİ İŞ
+
+| # | İş | Not |
+|---|---|---|
+| 1 | Yeni işi commit'le | Kullanıcı henüz istemedi. 4 yeni + 13 değişik dosya. |
+| 2 | Tam E2E paketini tekrar koştur | Backlog sayfası eklendikten sonra. |
+| 3 | Dalı `main`'e birleştir | Canlı deploy tetikler — KULLANICI KARARI. |
+| 4 | Groq modeli | Aşağıdaki açık arıza bölümü. Kullanıcı "sonra bakalım" dedi. |
+| 5 | Kalan 4 epic'i FE/BE'ye böl | Kalıp kanıtlandı; `split: 'pending'` → `'full'` yapılınca kapı FE+BE çiftini zorunlu kılar. |
+| 6 | Ölü `supabase-bridge` ucunu kaldır | Sözleşme + imaj sürümü değişir. |
+| 7 | Rate limit kararı | Kullanıcı sormuştu, hâlâ karar bekliyor. |
+| 8 | Faz 6 kabul kriterini ELLE koştur | Testler bunu göremez. |
+
+---
+
+## 📌 Önceki Durum (2026-08-28, ikinci oturum · Opus)
+
+> ⚠ Bağlayıcı DEĞİL; en üstteki nota bak.
 
 > Çelişki olursa BU bölüm günceldir. Alttaki "Önceki Durum" bölümleri tarih
 > sırasıyla duruyor ama artık bağlayıcı değil.
@@ -147,12 +265,42 @@ test:e2e` bir kez tam koşturulmalı — özellikle `src/hooks/` çıkarımı ve
 
 | # | İş | Bedel | Not |
 |---|---|---|---|
-| 1 | **Tam E2E paketini koştur** | Küçük | `npm run test:e2e`. Birleştirme öncesi tek eksik doğrulama. |
+| 0 | ~~**Tam E2E paketini koştur**~~ ✅ KOŞTU (2026-08-28, üçüncü oturum) | — | **429 geçti · 2 düştü · 2 koşmadı** (25,3 dk). Düşen ikisi dalla İLGİSİZ, aşağıya bak. |
+| 1 | **Groq modeli kalktı — canlıda AI kırık** | Orta | `_shared/groq.ts` `DEFAULT_MODEL = 'llama-3.3-70b-versatile'` için Groq 404 veriyor → 8 Edge Function 502. **Kullanıcı "sonra bakalım" dedi, karar bekliyor.** Detay aşağıda. |
 | 2 | **Dalı `main`'e birleştir** | Küçük | Canlı site deploy'unu tetikler — KULLANICI KARARI, sormadan yapma. |
 | 3 | Ölü `supabase-bridge` ucunu kaldır | Orta | Sözleşme + yayınlanan imaj değişir; `qa-shop-v1.0.1` etiketi ister. Temizlenecek borç. |
 | 4 | Rate limit kararı | Orta | API'de yok, 429 dönmüyor. Kullanıcı sormuştu, hâlâ karar bekliyor. Eklenirse iyi bir negatif test hedefi. |
 | 5 | Kavram baloncuklarını sipariş detayına yay | Küçük | İade penceresi ve kargo durumu için yer var. §25.7 ölçütü: "bu bize mi mahsus?" |
 | 6 | Faz 6 kabul kriterini ELLE koştur | Küçük | "Dükkâna ilk giren kullanıcı hiçbir status kodu görmeden bir defect bulabiliyor ve anahtarı aç/kapat yaparak kendisi doğrulayabiliyor." Testler bunu göremez (§23.18). |
+
+### 🔴 AÇIK ARIZA — Groq modeli kalktı (2026-08-28 ölçüldü, karar bekliyor)
+
+Tam E2E paketinde düşen 2 testin kök nedeni TEK ve kalıcı (tekrar koşumda
+aynı yerde aynı mesaj):
+
+```
+The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
+→ Groq 404 → Edge Function 502
+```
+
+`supabase/functions/_shared/groq.ts` içindeki tek `DEFAULT_MODEL` sabiti
+**sekiz** fonksiyonu besliyor: `qa-assistant` · `grade-interview-answer` ·
+`explain-quiz-answer` · `explain-code-output` · `explain-code-practice` ·
+`mentor-advice` · `judge-eval` · `trending-skills-sync`. Yani canlıda AI
+asistanı, mülakat değerlendirmesi ve quiz açıklaması **hepsi kırık**.
+
+Düşen testler: `api-endpoints.spec.ts:80` · `docker-interview-mastery-flow.spec.ts:66`
+(aynı describe'taki 2 test de bu yüzden atlandı).
+
+⚠ **Dalla ilgisi YOK, ölçüldü:** `f4ef66b..HEAD` diff'i `supabase/`'e hiç
+dokunmuyor; sabit `a8edbb1`'den (2026-06-23) beri değişmedi. Model Groq
+tarafında kalktı. Yani bu düşüş birleştirmeyi ENGELLEMEZ — `main`'de de
+aynen düşerdi.
+
+**Düzeltmeden önce:** hangi modelin gerçekten mevcut olduğunu
+`GET https://api.groq.com/openai/v1/models` ile ÖLÇ; hafızadan model adı yazma
+— kataloğun kayması zaten bu arızanın sebebi. Düzeltme tek satır ama Edge
+Function'ların yeniden deploy'unu gerektirir (kullanıcı onayı şart).
 
 ### 🚫 Bilinçli olarak YAPILMAYACAK (yeniden tartışma açma)
 
