@@ -19,7 +19,7 @@ cd qa-shop
 docker compose up -d
 ```
 
-İlk açılış ~30 saniye sürer (imaj indirme + şema + tohum veri). Hazır olunca:
+İlk açılış ~30 saniye sürer (imaj indirme + şema + seed veri). Hazır olunca:
 
 ```bash
 curl http://localhost:4000/health
@@ -36,6 +36,106 @@ docker compose down -v    # veriyi de siler (şema değiştirdiysen bunu kullan)
 > `schema.sql` veya `seed.sql` dosyasını değiştirdiysen `down -v` **zorunlu**.
 > Postgres init script'lerini yalnızca veri dizini boşken çalıştırır; aksi
 > hâlde değişikliğin hiçbir etkisi olmaz ve bunu sana söylemez.
+
+---
+
+## Repoyu indirmeden kurulum (yayınlanmış imajlar)
+
+Yukarıdaki yol bu repoyu klonlamış olmanı gerektirir: compose dosyası
+`schema.sql` ve `seed.sql`i host'tan **bağlar**. Bir arkadaşına, mülakatta
+karşındaki kişiye ya da yöneticine "şunu 2 dakikada kendi makinende çalıştır"
+demek istediğinde o yol işlemez — bağlanacak dosya yoktur.
+
+Bu bölüm o boşluğu kapatır: **şema ve seed veri veritabanı imajının içinde.**
+
+| İmaj | İçinde ne var |
+|---|---|
+| `ghcr.io/hasankocaman/qa-shop-db` | PostgreSQL 16 + 18 tablo + deterministic seed veri, ilk açılışta kendini kurar |
+| `ghcr.io/hasankocaman/qa-shop-api` | Express API (41 iş ucu) + OpenAPI sözleşmesi |
+
+İkisi de **çoklu mimari**: `linux/amd64` (Windows, Intel Mac) ve `linux/arm64`
+(Apple Silicon). Docker makinenin mimarisini kendisi seçer, bir şey yazman
+gerekmez.
+
+### Yol 1 — tek dosya (önerilen)
+
+```powershell
+# Windows PowerShell
+curl.exe -o docker-compose.yml https://raw.githubusercontent.com/hasankocaman/automationexercise/main/qa-shop/docker-compose.hub.yml
+docker compose up -d
+```
+
+```bash
+# macOS / Linux
+curl -o docker-compose.yml https://raw.githubusercontent.com/hasankocaman/automationexercise/main/qa-shop/docker-compose.hub.yml
+docker compose up -d
+```
+
+### Yol 2 — hiç dosya indirmeden
+
+Compose dosyası bile istemiyorsan üç komut yeter. Aradaki tek fark
+konteynerlerin elle bir ağa bağlanması — compose bunu kendisi yapıyordu.
+
+```bash
+docker network create qashop-net
+
+docker run -d --name qashop-db --network qashop-net \
+  -p 5433:5432 ghcr.io/hasankocaman/qa-shop-db:latest
+
+# Veritabanı ilk açılışta kendi seed verisini yükler. API'yi hemen başlatmak sorun
+# değil (bağlantıyı yeniden dener) ama sağlıklı olmasını beklemek istersen:
+#   docker inspect --format '{{.State.Health.Status}}' qashop-db
+docker run -d --name qashop-api --network qashop-net -p 4000:4000 \
+  -e DATABASE_URL=postgres://qashop:qashop@qashop-db:5432/qashop \
+  ghcr.io/hasankocaman/qa-shop-api:latest
+```
+
+Hazır olduğunu doğrula (iki yolda da aynı):
+
+```bash
+curl http://localhost:4000/health
+# {"status":"ok","database":"up",...}
+```
+
+### Sürümü sabitle
+
+`latest` zamanla kayar. Bir eğitimde ya da paylaştığın bir test paketinde
+tekrar üretilebilirlik istiyorsan sürümü sabitle:
+
+```bash
+QA_SHOP_TAG=1.0.0 docker compose up -d              # macOS/Linux
+$env:QA_SHOP_TAG="1.0.0"; docker compose up -d      # PowerShell
+```
+
+### Repo istemeyen yolda ELİNE NE GEÇER, NE GEÇMEZ
+
+Dürüst sınır — beklentiyi baştan doğru kurmak için:
+
+| Var | Nasıl erişilir |
+|---|---|
+| Çalışan veritabanı | DBeaver → `localhost:5433` (aşağıdaki tablo) |
+| Çalışan API, 41 uç | `http://localhost:4000` |
+| OpenAPI sözleşmesi | `http://localhost:4000/api/v1/openapi.yaml` — Postman'de *Import > Link* ile koleksiyona çevrilir |
+| SQL test paketi | İmajın içinde: `docker exec -it qashop-db psql -U qashop -d qashop -f /opt/qa-shop/validation-queries.sql` |
+| Şema ve seed kaynağı | İmajın içinde: `/opt/qa-shop/schema.sql`, `/opt/qa-shop/seed.sql` |
+
+| Yok | Neden / nasıl alınır |
+|---|---|
+| Hazır Postman koleksiyonu (`postman/`) | Bir imaja gömülmesi anlamsız; repodan ya da sürüm dosyalarından indirilir. Sözleşmeyi içe aktarıp kendin üretmek de bir pratiktir |
+| REST Assured projesi (`rest-assured/`) | Maven projesi; repodan alınır |
+| `/qa-shop` arayüzü | Ana uygulamanın içinde, bu yığının parçası değil |
+
+> **Çekme başarısız olursa** (`denied` / `manifest unknown`): ya o sürüm henüz
+> yayınlanmamıştır, ya da paket **private** doğmuştur. GHCR paketleri ilk
+> yayında private gelebilir; sahibinin GitHub → Packages → ilgili paket →
+> *Package settings* → *Change visibility* → **Public** adımını bir kez elle
+> yapması gerekir. Bu adım atlanırsa "repo indirmeden kurulum" vaadi
+> `docker login` istediği için yarım kalır.
+
+Yayın süreci: `qa-shop-v*` biçiminde bir etiket push edildiğinde
+`.github/workflows/qa-shop-images.yml` iki imajı iki mimari için derler,
+GHCR'a basar, manifest'te her iki mimarinin gerçekten bulunduğunu doğrular ve
+**yayınlanan imajları çekip** yığını ayağa kaldırarak sağlığını sınar.
 
 ---
 
@@ -89,7 +189,7 @@ için böyle.
 curl -X POST http://localhost:4000/api/v1/sandbox/reset -H "X-Sandbox-Key: $KEY"
 ```
 
-Tohum veriye döner. Test paketinin `beforeAll` adımına koy — "her koşumdan
+Seed veriye döner. Test paketinin `beforeAll` adımına koy — "her koşumdan
 önce temiz durum" otomasyonun en temel disiplinidir ve burada bir endpoint
 olarak hazır.
 
@@ -105,7 +205,7 @@ KEY=$(curl -s -X POST $BASE/sandbox -H 'Content-Type: application/json' \
       -d '{"label":"demo"}' | grep -o '"apiKey":"[^"]*' | cut -d'"' -f4)
 echo "KEY=$KEY"
 
-# 2) Giriş yap (tohum veride hazır hesap)
+# 2) Giriş yap (seed veride hazır hesap)
 TOKEN=$(curl -s -X POST $BASE/auth/login \
         -H "X-Sandbox-Key: $KEY" -H 'Content-Type: application/json' \
         -d '{"email":"demo@qashop.test","password":"Password123!"}' \
@@ -201,7 +301,7 @@ Ayrıca üç sistem ucu var: `GET /health`, `GET /api/v1` (keşif),
 |---|---|---|
 | POST | `/sandbox` | Yeni alan aç, `apiKey` döner |
 | GET | `/sandbox/state` | Satır sayıları — test öncesi/sonrası kıyas |
-| POST | `/sandbox/reset` | Tohum veriye dön |
+| POST | `/sandbox/reset` | Seed veriye dön |
 | GET | `/sandbox/logs` | `?level=ERROR&correlationId=...&action=...` |
 
 ### Kimlik (5)
@@ -285,9 +385,9 @@ görebilirsin — kök neden analizi pratiğinin tam da bu.
 
 ---
 
-## Tohum veride ne var
+## Seed veride ne var
 
-| Tablo | Adet | İçindeki test dikişi |
+| Tablo | Adet | İçindeki test seam noktası |
 |---|---|---|
 | products | 120 | 9 pasif (soft delete), 10 markasız (NULL FK → LEFT JOIN dersi) |
 | product_variants | 360 | |
@@ -299,7 +399,7 @@ görebilirsin — kök neden analizi pratiğinin tam da bu.
 | reviews | 200 | ~%30 onaysız (ortalama puana girmemeli) |
 | audit_log | 300 | ~%8 ERROR, correlation zincirleriyle |
 
-Veri **belirlenimcidir** — hiçbir yerde `random()` yok. Aynı dosya her
+Veri **deterministic** — hiçbir yerde `random()` yok. Aynı dosya her
 makinede aynı veriyi kurar; "bazen 12 satır dönüyor" diyen bir test yazılamaz.
 
 ---
@@ -310,9 +410,9 @@ makinede aynı veriyi kurar; "bazen 12 satır dönüyor" diyen bir test yazılam
 
 - **A · Mutabakat** — sipariş toplamı bileşenleriyle tutuyor mu, satır
   toplamlarıyla tutuyor mu. Arayüzün asla gösteremeyeceği hata sınıfı.
-- **B · Referans bütünlüğü ve kiracı izolasyonu** — bir kullanıcının verisi
+- **B · Referans bütünlüğü ve tenant izolasyonu** — bir kullanıcının verisi
   diğerine sızmış mı. FK bunu yakalamaz: FK "bir yere bağlı mı" diye bakar,
-  "doğru kiracıya mı bağlı" diye bakmaz.
+  "doğru tenant kapsamına mı bağlı" diye bakmaz.
 - **C · İş kuralı ihlalleri** — oversell, süresi geçmiş kuponla indirim,
   ödemesiz kargolanmış sipariş.
 - **D · Veri kalitesi** — harf farkıyla mükerrer e-posta, gelecek tarihli kayıt.
@@ -326,7 +426,7 @@ Sprint sonu raporunda veya değerlendirme görüşmesinde gösterilecek çıktı
 
 ### Sorgunun gerçekten çalıştığını kanıtlamak
 
-Tohum veri tutarlıdır — yani ilk çalıştırmada kontroller yeşil döner. Ama
+Seed veri tutarlıdır — yani ilk çalıştırmada kontroller yeşil döner. Ama
 **her zaman yeşil kalan bir kontrol ile hiçbir şeye bakmayan bir kontrol
 ekranda birbirinin aynısıdır.**
 
@@ -404,12 +504,12 @@ Windows/amd64) çalıştırıldı ve dört paket de canlı veriye karşı yeşil
 Dürüst liste — bunlar planlı ama yazılmadı:
 
 - **Tarayıcı içi katman.** Kurulum istemeden sayfa üstünde pratik.
-- **Barındırılan sürüm.** Şimdilik yalnızca lokal.
-- **Yayınlanmış imaj.** Şu an karşı tarafın repoyu klonlaması gerekiyor.
-  Docker Hub/GHCR'a çoklu mimari imaj basılırsa tek dosyayla kurulabilir.
+- **Barındırılan sürüm.** Şimdilik yalnızca lokal (imajlar artık yayınlanıyor
+  ama çalıştıran hâlâ kendi makinesi).
 
 > Daha önce bu listede olan **ödeme / kargo / yorum / adres uçları**, **bug
-> anahtarları**, **arayüz** ve **şema/tohum verinin canlı doğrulaması** artık
+> anahtarları**, **arayüz**, **şema/seed verinin canlı doğrulaması** ve
+> **repo istemeyen kurulum (çoklu mimari yayınlanmış imajlar)** artık
 > tamamlandı.
 
 ---
@@ -420,8 +520,9 @@ Dürüst liste — bunlar planlı ama yazılmadı:
 qa-shop/
 ├── db/
 │   ├── schema.sql              18 tablo + klonlama/sıfırlama fonksiyonları
-│   ├── seed.sql                belirlenimci tohum veri (şablon sandbox)
-│   └── validation-queries.sql  SQL test paketi + kusur enjeksiyonu
+│   ├── seed.sql                deterministic seed veri (şablon sandbox)
+│   ├── validation-queries.sql  SQL test paketi + kusur enjeksiyonu
+│   └── Dockerfile              şema+seed GÖMÜLÜ Postgres imajı (repo istemeyen kurulum)
 ├── api/
 │   ├── src/
 │   │   ├── core/               saf iş kuralları (fiyat, kupon, stok, durum geçişi, bug anahtarları)
@@ -434,7 +535,8 @@ qa-shop/
 │   └── Dockerfile
 ├── postman/                    zincirli Newman paketi + ortam dosyası
 ├── rest-assured/               Java (JUnit 5 + REST Assured) test projesi
-├── docker-compose.yml
+├── docker-compose.yml          repodan kurulum (schema/seed host'tan bağlanır)
+├── docker-compose.hub.yml      repo İSTEMEYEN kurulum (GHCR imajları)
 └── README.md
 ```
 

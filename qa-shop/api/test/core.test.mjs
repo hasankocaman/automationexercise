@@ -21,6 +21,7 @@ import {
 
 import {
     BUG_FLAGS, BUG_FLAG_KEYS, isBugOn, activeFlags, describeFlags, unknownFlagKeys,
+    HIDDEN_KEY, isHidden, pickRandomFlags, describeFlagsHidden, hiddenCount,
 } from '../src/core/bugFlags.js'
 
 describe('pricing — para hesabı', () => {
@@ -244,5 +245,69 @@ describe('bugFlags — kontrollü kusur kataloğu', () => {
         assert.equal(oversell.enabled, true)
         assert.equal(liste.every((f) => typeof f.key === 'string'), true)
         assert.equal(liste.length, BUG_FLAG_KEYS.length)
+    })
+})
+
+describe('bugFlags — gizli tur', () => {
+    test('gizli katalog HANGİ kusurun açık olduğunu TAŞIMAZ', () => {
+        // Bu paketin en önemli testi. Gizli turun tek vaadi cevabı
+        // saklamaktır; katalogda `enabled` alanı kalsaydı vaat sessizce
+        // boşa düşerdi ve bunu hiçbir şey söylemezdi.
+        const liste = describeFlagsHidden()
+        assert.equal(liste.length, BUG_FLAG_KEYS.length)
+        for (const kusur of liste) {
+            assert.ok(!('enabled' in kusur), `${kusur.key} enabled alanı taşıyor`)
+        }
+    })
+
+    test('gizli katalog kusurların KENDİSİNİ gösterir — av listesi', () => {
+        // Cevabı saklamak, ihtimalleri saklamak demek değildir. Kullanıcı
+        // neyin mümkün olduğunu bilmeli; yoksa arama sınırı belirsiz bir
+        // tahmin oyununa döner.
+        const liste = describeFlagsHidden()
+        for (const kusur of liste) {
+            assert.ok(kusur.title?.tr && kusur.title?.en)
+            assert.ok(kusur.catchableBy?.tr && kusur.catchableBy?.en)
+        }
+    })
+
+    test('isHidden yalnızca ayrılmış anahtara bakar', () => {
+        assert.equal(isHidden({}), false)
+        assert.equal(isHidden({ oversell: true }), false)
+        assert.equal(isHidden({ [HIDDEN_KEY]: true }), true)
+        assert.equal(isHidden(null), false)
+    })
+
+    test('ayrılmış anahtar kusur sayılmaz', () => {
+        // activeFlags yalnızca BUG_FLAG_KEYS üzerinde döner; dönmeseydi
+        // gizli tur işaretinin kendisi "açık kusur" gibi sayılır ve
+        // kullanıcıya bir fazla kusur varmış gibi görünürdü.
+        const flags = { [HIDDEN_KEY]: true, oversell: true }
+        assert.deepEqual(activeFlags(flags), ['oversell'])
+        assert.equal(hiddenCount(flags), 1)
+        assert.equal(unknownFlagKeys([HIDDEN_KEY]).length, 1)   // kullanıcı PATCH ile yazamaz
+    })
+
+    test('pickRandomFlags istenen adette ve TEKRARSIZ döner', () => {
+        for (const adet of [1, 3, 5, BUG_FLAG_KEYS.length]) {
+            const secim = pickRandomFlags(adet)
+            assert.equal(secim.length, adet)
+            assert.equal(new Set(secim).size, adet, "aynı kusur iki kez seçildi")
+            for (const k of secim) assert.ok(BUG_FLAG_KEYS.includes(k))
+        }
+    })
+
+    test('pickRandomFlags sınırların dışına taşmaz', () => {
+        assert.equal(pickRandomFlags(0).length, 1)
+        assert.equal(pickRandomFlags(999).length, BUG_FLAG_KEYS.length)
+    })
+
+    test('seçim gerçekten değişiyor — sabit sıra değil', () => {
+        // Sıra sabit olsaydı kullanıcı ikinci turda diziyi ezberler ve
+        // arama biterdi. 40 turda ilk sıradaki anahtarın hep aynı çıkma
+        // olasılığı yok denecek kadar düşüktür.
+        const ilkler = new Set()
+        for (let i = 0; i < 40; i += 1) ilkler.add(pickRandomFlags(3)[0])
+        assert.ok(ilkler.size > 1, "seçim sabit görünüyor")
     })
 })

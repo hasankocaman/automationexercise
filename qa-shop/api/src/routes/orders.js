@@ -32,7 +32,7 @@ ordersRouter.post('/', asyncRoute(async (req, res) => {
     }
 
     const order = await withTransaction(async (client) => {
-        // Sipariş numarası üretimi için kiracı bazlı kilit. İki eş zamanlı
+        // Sipariş numarası üretimi için tenant bazlı kilit. İki eş zamanlı
         // checkout aynı numarayı hesaplayıp UNIQUE ihlaline düşmesin diye —
         // kilit yerine "hata alırsak tekrar deneriz" demek, testlerde
         // açıklanamayan 409'lar üretirdi.

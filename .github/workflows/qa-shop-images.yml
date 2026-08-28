@@ -1,0 +1,205 @@
+# QA Shop imajlarını GHCR'a çoklu mimari olarak yayınlar.
+#
+# ⚠ BU AKIŞ `main`'E PUSH'TA ÇALIŞMAZ — yalnızca ETİKET (tag) atıldığında ya
+# da elle tetiklendiğinde. Sebep: imaj yayınlamak dışa dönük, geri alması zor
+# bir iştir. Her `main` push'unda koşsaydı, sıradan bir kod düzeltmesi
+# farkında olmadan `latest` etiketini kaydırırdı.
+#
+# Yayınlamak için:
+#   git tag qa-shop-v1.0.0
+#   git push origin qa-shop-v1.0.0
+#
+# Üretilen adresler:
+#   ghcr.io/hasankocaman/qa-shop-db:1.0.0  · :1.0 · :latest
+#   ghcr.io/hasankocaman/qa-shop-api:1.0.0 · :1.0 · :latest
+#
+# Mimariler: linux/amd64 (Windows/Intel Mac) + linux/arm64 (Apple Silicon).
+
+name: QA Shop imajları → GHCR
+
+on:
+  push:
+    tags: ["qa-shop-v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Sürüm (örn. 1.0.0). Etiket atmadan deneme yayını için."
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  # Aynı sürümün iki koşumu birbirinin üstüne yazmasın.
+  group: qa-shop-images-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  DB_IMAGE: ghcr.io/${{ github.repository_owner }}/qa-shop-db
+  API_IMAGE: ghcr.io/${{ github.repository_owner }}/qa-shop-api
+  PLATFORMS: linux/amd64,linux/arm64
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ─── Sürüm numarasını tek yerde çöz ───────────────────────────────────
+      # Etiket adı `qa-shop-v1.0.0`; imaj etiketi ise `1.0.0` olmalı. Bu
+      # dönüşüm bilerek elle yazıldı (metadata-action yerine): hangi etiketin
+      # basılacağı akışı okuyan herkes için görünür olsun.
+      - name: Sürümü belirle
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#qa-shop-v}"
+          fi
+          # Geçersiz sürümle yayın yapmak, yanlış etiketi geri almaktan çok
+          # daha pahalı — burada erken düşmek istiyoruz.
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Sürüm 'X.Y.Z' biçiminde olmalı, gelen: '$VERSION'"
+            exit 1
+          fi
+          MINOR="${VERSION%.*}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "minor=$MINOR"     >> "$GITHUB_OUTPUT"
+          echo "Yayınlanacak sürüm: $VERSION (ayrıca $MINOR ve latest)"
+
+      # arm64 imajını amd64 runner üzerinde derlemek için gereken emülasyon.
+      # Maliyeti burada düşük: db imajı yalnızca COPY yapar (hiç RUN yok),
+      # api imajının tek RUN'ı `npm install` ve bağımlılıkları (express, pg)
+      # saf JavaScript — native derleme yok, emülasyon altında yavaşlamaz.
+      - name: QEMU kurulumu (çapraz mimari)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Buildx kurulumu
+        uses: docker/setup-buildx-action@v3
+
+      - name: GHCR'a giriş
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          # Ek bir secret GEREKMEZ: iş akışının kendi token'ı `packages: write`
+          # yetkisiyle bu deponun sahibine ait paketlere yazabilir.
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Veritabanı imajı (çoklu mimari)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./qa-shop/db
+          file: ./qa-shop/db/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          tags: |
+            ${{ env.DB_IMAGE }}:${{ steps.ver.outputs.version }}
+            ${{ env.DB_IMAGE }}:${{ steps.ver.outputs.minor }}
+            ${{ env.DB_IMAGE }}:latest
+          cache-from: type=gha,scope=qa-shop-db
+          cache-to: type=gha,mode=max,scope=qa-shop-db
+          # Provenance attestation KAPALI. Açık olduğunda GHCR paket
+          # sayfasında mimari listesine `unknown/unknown` satırları giriyor ve
+          # "bu imaj arm64 destekliyor mu" sorusunun cevabı okunamaz hâle
+          # geliyor. Bu imajın hedef kitlesi paket sayfasına bakıp mimari
+          # doğrulayacak kişiler; okunabilirlik burada attestation'dan değerli.
+          provenance: false
+
+      - name: API imajı (çoklu mimari)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./qa-shop/api
+          file: ./qa-shop/api/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          tags: |
+            ${{ env.API_IMAGE }}:${{ steps.ver.outputs.version }}
+            ${{ env.API_IMAGE }}:${{ steps.ver.outputs.minor }}
+            ${{ env.API_IMAGE }}:latest
+          cache-from: type=gha,scope=qa-shop-api
+          cache-to: type=gha,mode=max,scope=qa-shop-api
+          provenance: false
+
+      # ─── "Derleme geçti" YAYINLANDI DEMEK DEĞİLDİR ────────────────────────
+      # Aşağıdaki iki adım bilerek var: derlemenin yeşil olması, kaydedilen
+      # manifest'in gerçekten iki mimari içerdiğini ve çekildiğinde
+      # çalıştığını KANITLAMAZ. Kullanıcının iki makinesi farklı mimaride;
+      # eksik bir mimari ancak o makinede fark edilir, burada değil.
+      - name: Manifest gerçekten iki mimari içeriyor mu
+        run: |
+          set -euo pipefail
+          for IMAGE in "${DB_IMAGE}" "${API_IMAGE}"; do
+            REF="${IMAGE}:${{ steps.ver.outputs.version }}"
+            echo "── $REF"
+            PLATFORMS_FOUND="$(docker buildx imagetools inspect "$REF" --format '{{range .Manifest.Manifests}}{{.Platform.OS}}/{{.Platform.Architecture}} {{end}}')"
+            echo "   bulunan: $PLATFORMS_FOUND"
+            for WANT in linux/amd64 linux/arm64; do
+              case "$PLATFORMS_FOUND" in
+                *"$WANT"*) echo "   ✔ $WANT" ;;
+                *) echo "::error::$REF içinde $WANT YOK"; exit 1 ;;
+              esac
+            done
+          done
+
+      - name: Yayınlanan imajlarla yığını ayağa kaldır ve sağlığını doğrula
+        run: |
+          set -euo pipefail
+          # Yerel derleme çıktısı DEĞİL, registry'den ÇEKİLEN imajlar test
+          # edilir — kullanıcının göreceği şey bu.
+          cd qa-shop
+          export QA_SHOP_TAG="${{ steps.ver.outputs.version }}"
+          docker compose -f docker-compose.hub.yml pull --quiet
+          docker compose -f docker-compose.hub.yml up -d
+
+          echo "Tohumlama ve API'nin hazır olması bekleniyor..."
+          for i in $(seq 1 60); do
+            BODY="$(curl -fsS http://localhost:4000/health 2>/dev/null || true)"
+            case "$BODY" in
+              *'"database":"up"'*) echo "$BODY"; READY=1; break ;;
+            esac
+            sleep 3
+          done
+          if [ "${READY:-0}" != "1" ]; then
+            echo "::error::API 180 saniyede sağlıklı olmadı"
+            docker compose -f docker-compose.hub.yml logs --tail=80
+            exit 1
+          fi
+
+          # Sağlık ucu "ayakta" der ama veri yüklendi mi demez. Tohum verinin
+          # gerçekten geldiğini kanıtlayan bir okuma yapılıyor.
+          echo "Katalog okunuyor..."
+          curl -fsS 'http://localhost:4000/api/v1/products?size=3' | head -c 400
+          echo
+
+          echo "Tohum satır sayıları:"
+          docker exec qashop-db psql -U qashop -d qashop -tAc \
+            "select 'products=' || count(*) from products"
+          docker exec qashop-db psql -U qashop -d qashop -tAc \
+            "select 'users=' || count(*) from users"
+
+          docker compose -f docker-compose.hub.yml down -v
+
+      - name: Özet
+        run: |
+          {
+            echo "### QA Shop imajları yayınlandı"
+            echo
+            echo "| İmaj | Etiketler |"
+            echo "|---|---|"
+            echo "| \`${DB_IMAGE}\` | ${{ steps.ver.outputs.version }} · ${{ steps.ver.outputs.minor }} · latest |"
+            echo "| \`${API_IMAGE}\` | ${{ steps.ver.outputs.version }} · ${{ steps.ver.outputs.minor }} · latest |"
+            echo
+            echo "Mimariler: \`linux/amd64\` + \`linux/arm64\` (manifest'te doğrulandı)"
+            echo
+            echo "İlk yayından sonra paketler **private** doğabilir — o hâlde"
+            echo "repoyu indirmeyen kullanıcı \`docker login\` olmadan çekemez."
+            echo "GitHub → Packages → her paket → Package settings → Change"
+            echo "visibility → **Public** adımı bir kez elle yapılmalı."
+          } >> "$GITHUB_STEP_SUMMARY"

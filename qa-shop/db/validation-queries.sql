@@ -12,12 +12,14 @@
 --     \set sandbox '00000000-0000-0000-0000-000000000000'
 -- DBeaver'da parametre desteklenmiyorsa değeri elle yapıştır.
 --
--- ⚠ ÖNEMLİ: Tohum veri TUTARLIDIR — yani ilk çalıştırmada bu sorguların
--- neredeyse hepsi 0 satır döner. Bu iyi bir şey ama TEHLİKELİ bir histir:
--- her zaman yeşil kalan bir kontrol ile hiçbir şeye bakmayan bir kontrol
--- ekranda birbirinin aynısıdır. Bir sorgunun gerçekten çalıştığını görmenin
--- tek yolu, kusuru bilerek üretip KIRMIZIYA döndüğünü görmektir —
--- Bölüm F bunun içindir. Bir sorguya güvenmeden önce oradan geçir.
+-- ⚠ ÖNEMLİ: Her zaman yeşil kalan bir kontrol ile hiçbir şeye bakmayan bir
+-- kontrol, rapor ekranında birbirinin aynısıdır. Bir sorgunun gerçekten
+-- çalıştığını görmenin tek yolu, bozuk durumu bilerek üretip KIRMIZIYA
+-- döndüğünü görmektir — Bölüm F bunun içindir. Bir sorguya güvenmeden
+-- önce oradan geçir.
+--
+-- Bu paket bir başlangıç noktasıdır, tam bir kapsam listesi değil. Şemada
+-- burada hiç sorgusu olmayan kurallar var; onları kendin yazacaksın.
 -- ============================================================================
 
 \set sandbox '00000000-0000-0000-0000-000000000000'
@@ -28,8 +30,9 @@
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- A1 · Sipariş toplamı kendi bileşenleriyle tutmuyor
--- Yakaladığı gerçek bug: indirim iki kez uygulanır, kargo eklenmez, yuvarlama kayar.
--- Arayüz grand_total'ı olduğu gibi basar; hata müşteriye fatura olarak gider.
+-- Ne bakar: siparişin genel toplamı, kendi bileşenlerinden (ara toplam, indirim,
+-- kargo) türetiliyor mu. Arayüz grand_total'ı olduğu gibi basar, yani bu eşitliği
+-- ekrana bakarak doğrulayamazsın.
 select o.order_no,
        o.subtotal, o.discount_total, o.shipping_total, o.grand_total,
        (o.subtotal - o.discount_total + o.shipping_total) as beklenen
@@ -39,7 +42,8 @@ select o.order_no,
 
 
 -- A2 · Sipariş ara toplamı, satırların toplamına eşit değil
--- Yakaladığı gerçek bug: bir satır silinince başlık güncellenmiyor.
+-- Ne bakar: sipariş başlığında yazan ara toplam, o siparişin satır
+-- toplamlarının toplamıyla aynı mı.
 select o.order_no,
        o.subtotal                    as baslikta_yazan,
        coalesce(sum(oi.line_total),0) as satirlarin_toplami,
@@ -52,7 +56,8 @@ having o.subtotal <> coalesce(sum(oi.line_total), 0);
 
 
 -- A3 · Satır toplamı, adet × birim fiyata eşit değil
--- Yakaladığı gerçek bug: adet güncellenirken line_total yeniden hesaplanmıyor.
+-- Ne bakar: her sipariş satırının kendi toplamı, o satırın adedi ile birim
+-- fiyatının çarpımına eşit mi.
 select o.order_no, oi.name_snapshot, oi.qty, oi.unit_price, oi.line_total,
        round(oi.qty * oi.unit_price, 2) as beklenen
   from order_items oi
@@ -62,7 +67,8 @@ select o.order_no, oi.name_snapshot, oi.qty, oi.unit_price, oi.line_total,
 
 
 -- A4 · Ödeme tutarı sipariş tutarını tutmuyor
--- Yakaladığı gerçek bug: kupon uygulandıktan SONRA ödeme alınmamış.
+-- Ne bakar: başarılı ya da iade edilmiş bir ödemenin tutarı, bağlı olduğu
+-- siparişin genel toplamıyla aynı mı.
 select o.order_no, o.grand_total, p.amount, p.status
   from payments p
   join orders o on o.id = p.order_id
@@ -76,9 +82,10 @@ select o.order_no, o.grand_total, p.amount, p.status
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- B1 · Kiracı sızıntısı: sipariş satırı, siparişten BAŞKA bir sandbox'a ait
--- Bu, çok kiracılı bir sistemin en tehlikeli bug'ıdır — bir kullanıcı
--- diğerinin verisini görür. FK bunu engellemez; FK yalnızca "bir yere
--- bağlı mı" diye bakar, "DOĞRU kiracıya mı bağlı" diye bakmaz.
+-- Ne bakar: bir sipariş satırının tenant kapsamı, bağlı olduğu siparişin
+-- tenant kapsamıyla aynı mı.
+-- FK bu soruya cevap VERMEZ: FK yalnızca "bir yere bağlı mı" diye bakar,
+-- "DOĞRU tenant kapsamına mı bağlı" diye bakmaz.
 select o.order_no, oi.id as order_item_id,
        o.sandbox_id as siparis_sandbox, oi.sandbox_id as satir_sandbox
   from order_items oi
@@ -86,20 +93,23 @@ select o.order_no, oi.id as order_item_id,
  where oi.sandbox_id <> o.sandbox_id;
 
 -- B2 · Aynı sızıntı, sepet tarafında
+-- Ne bakar: bir sepet satırının tenant kapsamı, bağlı olduğu sepetin
+-- tenant kapsamıyla aynı mı.
 select c.id as cart_id, ci.id as cart_item_id,
        c.sandbox_id as sepet_sandbox, ci.sandbox_id as satir_sandbox
   from cart_items ci
   join carts c on c.id = ci.cart_id
  where ci.sandbox_id <> c.sandbox_id;
 
--- B3 · Varyantı başka bir kiracının ürününe bağlı
+-- B3 · Varyantı başka bir tenant kullanıcısının ürününe bağlı
+-- Ne bakar: bir varyantın tenant kapsamı, bağlı olduğu ürünün kapsamıyla aynı mı.
 select v.sku, v.sandbox_id as varyant_sandbox, p.sandbox_id as urun_sandbox
   from product_variants v
   join products p on p.id = v.product_id
  where v.sandbox_id <> p.sandbox_id;
 
 -- B4 · Satırı olmayan sipariş (boş sipariş)
--- Yakaladığı gerçek bug: checkout yarıda kalmış, başlık yazılmış, satır yazılmamış.
+-- Ne bakar: hiç satırı olmayan bir sipariş başlığı var mı.
 select o.order_no, o.status, o.grand_total, o.placed_at
   from orders o
   left join order_items oi on oi.order_id = o.id
@@ -107,6 +117,7 @@ select o.order_no, o.status, o.grand_total, o.placed_at
    and oi.id is null;
 
 -- B5 · Stoğu olmayan varyant (envanter kaydı hiç açılmamış)
+-- Ne bakar: her varyantın bir envanter kaydı var mı.
 -- LEFT JOIN + IS NULL kalıbı: "olması gereken ama olmayan" satırı bulmanın yolu.
 select v.sku, p.name
   from product_variants v
@@ -121,6 +132,7 @@ select v.sku, p.name
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- C1 · Rezerve adet, mevcut stoktan fazla (oversell)
+-- Ne bakar: bir varyantta rezerve edilmiş adet, eldeki stok adedini aşıyor mu.
 select p.name, v.sku, i.stock_qty, i.reserved_qty
   from inventory i
   join product_variants v on v.id = i.variant_id
@@ -130,6 +142,7 @@ select p.name, v.sku, i.stock_qty, i.reserved_qty
 
 
 -- C2 · Kupon kullanım limiti aşılmış
+-- Ne bakar: bir kuponun kullanım sayısı, tanımlı üst sınırını aşmış mı.
 select code, max_uses, used_count, used_count - max_uses as asim
   from coupons
  where sandbox_id = :'sandbox'
@@ -138,6 +151,8 @@ select code, max_uses, used_count, used_count - max_uses as asim
 
 
 -- C3 · Süresi geçmiş kuponla verilmiş sipariş
+-- Ne bakar: indirim almış siparişlerde kupon, siparişin verildiği ANDA
+-- geçerlilik aralığının içinde miydi.
 -- Zaman mantığı testi: kuponun sipariş ANINDA geçerli olması gerekir,
 -- bugün geçerli olması değil. `now()` ile karşılaştırmak sessiz bir hata olurdu.
 select o.order_no, o.coupon_code, o.placed_at,
@@ -153,6 +168,8 @@ select o.order_no, o.coupon_code, o.placed_at,
 
 
 -- C4 · Kupon alt tutar şartı sağlanmadan indirim uygulanmış
+-- Ne bakar: indirim uygulanmış siparişlerde sepet tutarı, kuponun istediği
+-- alt sınırı karşılıyor mu.
 select o.order_no, o.coupon_code, o.subtotal, c.min_total
   from orders o
   join coupons c on c.code = o.coupon_code and c.sandbox_id = o.sandbox_id
@@ -162,6 +179,7 @@ select o.order_no, o.coupon_code, o.subtotal, c.min_total
 
 
 -- C5 · İptal edilmiş siparişin kargosu var
+-- Ne bakar: iptal edilmiş bir siparişe bağlı kargo kaydı var mı.
 select o.order_no, o.status, s.status as kargo_durumu, s.tracking_no
   from orders o
   join shipments s on s.order_id = o.id
@@ -170,7 +188,8 @@ select o.order_no, o.status, s.status as kargo_durumu, s.tracking_no
 
 
 -- C6 · Kargolanmış ama ödemesi başarılı olmayan sipariş
--- "Parası alınmadan mal çıktı" — ticari olarak en pahalı bug sınıfı.
+-- Ne bakar: kargolanmış ya da teslim edilmiş her siparişin başarılı bir
+-- ödemesi var mı.
 select o.order_no, o.status as siparis, p.status as odeme, o.grand_total
   from orders o
   left join payments p on p.order_id = o.id
@@ -180,9 +199,9 @@ select o.order_no, o.status as siparis, p.status as odeme, o.grand_total
 
 
 -- C7 · Onaylanmamış yorum, ürünün ortalama puanını etkiliyor mu?
--- İki ayrı ortalama hesaplanır ve karşılaştırılır. Fark varsa, uygulamanın
--- hangisini kullandığı ARAYÜZDEN kontrol edilmelidir — bu sorgu farkın
--- var olduğunu, yani hatanın MÜMKÜN olduğunu gösterir.
+-- Ne bakar: yalnızca onaylı yorumlardan hesaplanan ortalama ile tüm
+-- yorumlardan hesaplanan ortalama arasında fark olan ürünleri listeler.
+-- Bu bir ihlal listesi DEĞİLDİR; iki sayının ayrıştığı ürünleri gösterir.
 select p.sku, p.name,
        round(avg(r.rating) filter (where r.status = 'approved'), 2) as onayli_ortalama,
        round(avg(r.rating), 2)                                     as tum_yorumlar_ortalamasi,
@@ -199,9 +218,10 @@ having count(*) filter (where r.status <> 'approved') > 0
 
 
 -- C8 · Pasif ürünün siparişi var mı? (soft delete davranışı)
--- Bu bir HATA DEĞİL — eski siparişler korunmalı. Sorgu, "pasif ürün
--- katalogda görünmemeli ama geçmişte durmalı" kuralının test edilebilir
--- olduğunu gösterir. Katalog endpoint'i bu ürünleri DÖNDÜRÜYORSA bug vardır.
+-- Ne bakar: pasif (soft delete edilmiş) ürünlerden geçmişte sipariş verilmiş
+-- olanları listeler. Bu bir ihlal listesi DEĞİLDİR — kural "pasif ürün
+-- katalogda görünmez ama geçmiş siparişlerde durur" der, yani satır dönmesi
+-- beklenen bir durumdur.
 select p.sku, p.name, p.is_active, count(distinct o.id) as siparis_sayisi
   from products p
   join product_variants v on v.product_id = p.id
@@ -217,8 +237,9 @@ select p.sku, p.name, p.is_active, count(distinct o.id) as siparis_sayisi
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- D1 · Büyük/küçük harf farkıyla tekrar eden e-posta
--- UNIQUE kısıtı 'Ali@x.com' ile 'ali@x.com' ikisine de izin verir; login
--- tarafında ise ikisi aynı kişi sayılır. Klasik veri kalitesi tuzağı.
+-- Ne bakar: yalnızca büyük/küçük harf yazımıyla ayrışan e-postaları gruplar.
+-- Veritabanının UNIQUE kısıtı harf duyarlıdır; bir uygulamanın aynı varsayımla
+-- çalışıp çalışmadığı ayrı bir sorudur.
 select lower(email) as normalize_email, count(*) as adet,
        string_agg(email, ' | ') as varyantlar
   from users
@@ -228,7 +249,8 @@ having count(*) > 1;
 
 
 -- D2 · Markası olmayan ürünler (NULL FK)
--- Hata değil, RAPOR. INNER JOIN kullanan bir listede bu ürünler SESSİZCE
+-- Ne bakar: marka bağlantısı NULL olan ürünlerin sayısı. Bu bir ihlal listesi
+-- DEĞİLDİR, rapordur: INNER JOIN kullanan bir listede bu ürünler SESSİZCE
 -- kaybolur — JOIN tipini test etmenin en somut yolu bu sayıyı bilmektir.
 select count(*) as markasiz_urun_sayisi
   from products
@@ -238,6 +260,7 @@ having count(*) > 0;
 
 
 -- D3 · Fiyatı sıfır veya negatif ürün
+-- Ne bakar: fiyatı sıfır ya da negatif olan ürünler.
 select sku, name, price
   from products
  where sandbox_id = :'sandbox'
@@ -245,6 +268,7 @@ select sku, name, price
 
 
 -- D4 · Varsayılan adresi olmayan veya birden fazla olan kullanıcı
+-- Ne bakar: her kullanıcının varsayılan adres sayısı tam olarak bir mi.
 select u.email,
        count(*) filter (where a.is_default) as varsayilan_adres_sayisi
   from users u
@@ -255,6 +279,7 @@ having count(*) filter (where a.is_default) <> 1;
 
 
 -- D5 · Gelecek tarihli sipariş
+-- Ne bakar: sipariş tarihi şu andan ileride olan kayıtlar.
 select order_no, placed_at
   from orders
  where sandbox_id = :'sandbox'
@@ -266,6 +291,8 @@ select order_no, placed_at
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- E1 · Hangi işlem en çok hata veriyor?
+-- Ne bakar: işlem (action) başına toplam ve hatalı istek sayısını, hata
+-- yüzdesine göre sıralar.
 -- Bir bug'ın kök nedenine giden ilk adım: hatanın NEREDE yoğunlaştığı.
 select action,
        count(*)                                  as toplam,
@@ -278,6 +305,7 @@ select action,
 
 
 -- E2 · Bir hatanın tam zinciri (correlation_id ile)
+-- Ne bakar: tek bir correlation_id'nin tüm log satırlarını zaman sırasıyla getirir.
 -- Tek bir log satırı hiçbir şey anlatmaz; anlatan şey ZİNCİRDİR.
 -- Önce E1'den bir hata bul, correlation_id'sini buraya koy.
 select at, level, actor, action, entity, entity_id,
@@ -294,6 +322,8 @@ select at, level, actor, action, entity, entity_id,
 
 
 -- E3 · Yavaş istekler (p95 üstü)
+-- Ne bakar: her işlemin kendi p95 eşiğini hesaplar ve o eşiğin üstünde kalan
+-- istekleri listeler.
 -- Eşik sabit yazılmaz ("1000ms yavaştır" demek keyfîdir); her işlemin KENDİ
 -- dağılımından hesaplanır.
 --
@@ -324,6 +354,7 @@ select p.action, p.ms, round(t.p95) as p95_esik
 
 
 -- E4 · Hata saatlere göre kümeleniyor mu? (deploy/cron korelasyonu)
+-- Ne bakar: hataları saat kovalarına bölerek yoğunlaştıkları saatleri gösterir.
 select date_trunc('hour', at) as saat,
        count(*) filter (where level = 'ERROR') as hata,
        count(*)                                as toplam
@@ -341,6 +372,7 @@ having count(*) filter (where level = 'ERROR') > 0
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- G1 · Ciroya göre ilk 10 ürün (window function ile sıra numarası)
+-- Ne bakar: iptal ve iade dışındaki siparişlerden ürün başına ciroyu hesaplar.
 select rank() over (order by sum(oi.line_total) desc) as sira,
        p.sku, p.name,
        sum(oi.qty)        as satilan_adet,
@@ -357,6 +389,7 @@ select rank() over (order by sum(oi.line_total) desc) as sira,
 
 
 -- G2 · Aylık ciro ve sipariş adedi
+-- Ne bakar: ay kovalarına göre sipariş adedi, ciro ve ortalama sepet tutarı.
 select to_char(date_trunc('month', o.placed_at), 'YYYY-MM') as ay,
        count(*)                as siparis,
        sum(o.grand_total)      as ciro,
@@ -369,6 +402,7 @@ select to_char(date_trunc('month', o.placed_at), 'YYYY-MM') as ay,
 
 
 -- G3 · Hiç sipariş vermemiş kullanıcılar (LEFT JOIN + IS NULL)
+-- Ne bakar: hiçbir siparişe bağlanmamış kullanıcılar.
 select u.email, u.created_at
   from users u
   left join orders o on o.user_id = u.id
@@ -378,6 +412,7 @@ select u.email, u.created_at
 
 
 -- G4 · Kategori ağacı (self-join)
+-- Ne bakar: üst-alt kategori çiftlerini ve alt kategori başına aktif ürün sayısını.
 select parent.name as ust_kategori,
        child.name  as alt_kategori,
        count(p.id) as urun_sayisi

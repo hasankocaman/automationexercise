@@ -6,7 +6,7 @@
 //   3. Token BU sandbox'a mı ait            → claims.sandbox === req.sandbox.id
 //
 // 3. madde atlanırsa, bir kullanıcının token'ı başka bir sandbox'ta geçerli
-// olur — çok kiracılı sistemlerin klasik yetki açığı. Testi kolay, kaçırması
+// olur — multi-tenant sistemlerin klasik yetki açığı. Testi kolay, kaçırması
 // da kolay.
 import { query } from '../db.js'
 import { verifyToken } from '../lib/token.js'

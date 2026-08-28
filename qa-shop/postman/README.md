@@ -48,7 +48,7 @@ echo $LASTEXITCODE
 
 | Klasör | Ne kanıtlar |
 |---|---|
-| 1 · Kurulum | Yığın ayakta, tohum veri klonlanmış (120 ürün / 150 sipariş) |
+| 1 · Kurulum | Yığın ayakta, seed veri klonlanmış (120 ürün / 150 sipariş) |
 | 2 · Kimlik | Giriş çalışıyor, token doğru kullanıcıyı temsil ediyor, zayıf parola reddediliyor |
 | 3 · Katalog | Sayfalama sözleşmesi eksiksiz, **sıralama gerçekten uygulanmış**, pasif ürün listede yok |
 | 4 · Sepet | Ara toplam satırlardan hesaplanıyor, **stok rezerve ediliyor**, kupon oranı doğru, süresi geçmiş kupon ayrı kodla reddediliyor |

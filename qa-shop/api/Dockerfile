@@ -23,4 +23,19 @@ EXPOSE 4000
 # Root olmayan kullanıcı: node imajında hazır gelir.
 USER node
 
+# Sağlık kontrolü imajın İÇİNDE: `docker run` ile tek tek başlatan (compose
+# kullanmayan) kullanıcının da "hazır mı" diye bakacak bir sinyali olsun.
+# `curl`/`wget` YOK — node:alpine'da curl kurulu değil ve sırf bunun için
+# imaja paket eklemek gereksiz. Node 22'nin yerleşik `fetch`i yeterli.
+# Portu ortam değişkeninden okur: PORT değiştirilirse kontrol de takip eder.
+# /health veritabanı düşükse 503 döner, yani bu kontrol API'nin ayakta
+# olmasını değil GERÇEKTEN çalışır olmasını ölçer.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=6 \
+    CMD ["node", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || 4000) + '/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+
+LABEL org.opencontainers.image.title="QA Shop API"
+LABEL org.opencontainers.image.description="Test otomasyonu pratiği için Express + PostgreSQL REST API (41 iş ucu, OpenAPI 3.0.3 sözleşmeli)"
+LABEL org.opencontainers.image.source="https://github.com/hasankocaman/automationexercise"
+LABEL org.opencontainers.image.licenses="MIT"
+
 CMD ["node", "src/server.js"]
