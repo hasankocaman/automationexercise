@@ -1259,6 +1259,31 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   kanıtlamaz (§23.21 ile aynı aile). Bir "köprü" yazdıysan, köprünün KARŞI
   ucunu kimin yazdığını da doğrula — okuyan taraf tek başına köprü değildir.
 
+### 23.25. `profiles`'a sütun eklemek YETMEZ — sütun düzeyinde yetki gerekir
+
+- **Belirti:** Yeni bir üye alanı eklendi, sütun veritabanında var, okuma
+  çalışıyor — ama yazma sessizce hiçbir şey yapmıyor. Değer hep `null` kalıyor
+  ve hata mesajı görünmüyor (fail-safe yazılmışsa konsolda bile durur).
+- **Kök neden (ölçüldü, 2026-08-28):** Bu projede `public.profiles` üzerindeki
+  `update` yetkisi TABLO düzeyinde değil, **SÜTUN düzeyinde** verilmiş. Yani
+  `authenticated` rolü yalnızca izin verilen sütunları güncelleyebiliyor.
+  Yeni sütun listede olmadığı için PostgREST `42501 permission denied for
+  table profiles` döndürüyor — mesaj "tablo" dediği için insan doğal olarak
+  RLS politikasına bakıyor, oysa sorun GRANT'te.
+  Ayırt etme yolu: aynı oturumla mevcut bir sütunu (örn. `career_goal`)
+  güncelle — o geçiyorsa tablo/RLS sağlamdır, eksik olan sütun yetkisidir.
+- **Çözüm:** Sütunu eklerken yetkisini de ver, ikisi TEK göç adımıdır:
+
+  ```sql
+  alter table profiles add column if not exists <sutun> <tip>;
+  grant update (<sutun>) on public.profiles to authenticated;
+  ```
+
+- **Önleme:** Yeni bir üye alanının testinde okuma ile yazmayı AYRI doğrula.
+  Yalnızca "değer geri geldi mi" diye bakan bir test, yetki eksikken
+  "beklenen X, gelen null" der ve saatlerce yanlış yerde aranır; yazma iznini
+  ayrıca yoklayan bir kontrol eksik satırı adıyla söyler.
+
 ### 23.20. `[data-testid$=""]` hiçbir şeyle eşleşmez
 
 - **Belirti:** Playwright locator'ı "element bulunamadı" diyor, `count()` 0

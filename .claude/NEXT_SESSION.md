@@ -25,23 +25,30 @@ TEMİZ — üç oturumun 79 dosyalık birikimi commit edildi.
   deploy'unu tetikler; bu kullanıcının kararı.
 - **Etiket `qa-shop-v1.0.0` push edildi** → imaj yayını iş akışı tetiklendi.
 
-### 🔴 KULLANICININ ELLE YAPMASI GEREKEN İKİ ŞEY
+### 🔴 KULLANICININ ELLE YAPMASI GEREKEN — GÜNCEL DURUM
 
-1. **Supabase'de tek satırlık göç.** Üye senkronu bu sütuna bağlı; sütun
-   olmadan senkron sessizce KAPALI kalır (dükkân çalışmaya devam eder):
+**✅ Yapıldı:** `alter table profiles add column if not exists qa_shop_sandbox_key text;`
+iki projede de (`learnqa-test` ve `learnqa-prod`) koşturuldu; sütun doğrulandı.
 
-   ```sql
-   alter table profiles add column if not exists qa_shop_sandbox_key text;
-   ```
+**✅ Yapıldı:** GHCR paketleri Public. Ölçüldü — `docker login` OLMADAN
+`qa-shop-db` ve `qa-shop-api` imajlarının `1.0.0` ve `latest` etiketleri
+çekilebiliyor, ikisi de `linux/amd64` + `linux/arm64` taşıyor.
 
-   Ölçüldü: sütun şu an YOK (PostgREST `42703`). Eklendiği anda
-   `tests/qa-shop-uye-senkronu.spec.ts` kendiliğinden asıl davranışı
-   sınamaya başlar — test iki dalı da tanıyor.
+**🔴 KALAN TEK ADIM — bir satır, iki projede de:**
 
-2. **GHCR paketlerini Public yapmak.** İlk yayında paketler private doğar;
-   o hâlde depoyu indirmeyen kullanıcı `docker login` olmadan çekemez.
-   GitHub → Packages → her paket → Package settings → Change visibility.
-   İş akışı koşumunun sonucu da kontrol edilmeli (Actions sekmesi).
+```sql
+grant update (qa_shop_sandbox_key) on public.profiles to authenticated;
+```
+
+Sebep ölçüldü: bu projede `profiles` üzerindeki update yetkisi TABLO değil
+**SÜTUN** düzeyinde. Sütunu eklemek okumayı açar ama yazmayı açmaz —
+üye alan açtığında anahtar profile YAZILMAZ ve senkron sessizce ölür.
+Ayırt etme: aynı oturumla `career_goal` güncellenebiliyor (204), yeni sütun
+reddediliyor (403 · `42501`). Kalıcı ders: `CLAUDE.md` §23.25.
+
+Bu satır koşturulduğunda `tests/qa-shop-uye-senkronu.spec.ts` kendiliğinden
+mutlu yolu sınar; şu an o test yetki eksiğini ADIYLA söyleyerek düşüyor
+(bilerek — sessiz geçmesindense kırmızı kalması doğru).
 
 ### 📋 Bu Oturumda Yapılanlar
 
@@ -105,10 +112,11 @@ SQL eşleme kapısı ✔ · kavram kapısı ✔ (19 kavram) ·
 `qa-shop-pages` + `qa-shop-logout-flow` + `theme-and-accessibility` +
 `qa-shop-uye-senkronu` **47 + 2 = hepsi yeşil**, tekrarlı koşumda kararlı.
 
-⚠ **Doğrulanamayan tek şey:** üye senkronunun MUTLU YOLU (anahtarın gerçekten
-profile yazılması). Sütun canlıda olmadığı için o dal koşmadı; benimseme
-mantığı ayrı bir testle (cevabı sabitlenerek) doğrulandı ve kırmızıya
-döndürüldü. Sütun eklenince ilk test kendiliğinden mutlu yolu sınar.
+⚠ **Mutlu yol HÂLÂ yeşil değil ve bu doğru:** sütun eklendikten sonra test
+mutlu yolu koşmaya başladı ve gerçek bir eksiği yakaladı — üye sütuna
+YAZAMIYOR (sütun düzeyinde grant eksik, yukarıdaki tek satır). Test o eksiği
+adıyla söyleyerek düşüyor. Benimseme mantığı ayrı bir testle (profil
+okumasının cevabı sabitlenerek) doğrulandı ve kırmızıya döndürüldü.
 
 ### 🎯 SIRADAKİ İŞ
 
