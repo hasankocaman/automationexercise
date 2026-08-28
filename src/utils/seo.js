@@ -379,6 +379,19 @@ export const ROUTE_SEO = [
         },
     },
     {
+        // Arama niyeti: "epic user story farkı", "frontend backend user story
+        // örneği", "kabul kriteri nasıl yazılır". Sayfa gerçek bir backlog'un
+        // tamamını gösterir: gereksinim → epic → business story →
+        // frontend/backend story → test.
+        path: '/qa-shop-backlog',
+        title: 'Epic and User Story Example for QA | LearnQA.dev',
+        description: 'A real backlog end to end: 8 business requirements, 6 epics, 16 user stories and separate frontend and backend stories with acceptance criteria you can test.',
+        tr: {
+            title: 'QA için Epic ve User Story Örneği | LearnQA.dev',
+            description: 'Gerçek bir backlog baştan sona: 8 iş gereksinimi, 6 epic, 16 user story ve ayrı frontend/backend story\'leri; hepsi test edilebilir kabul kriterleriyle.',
+        },
+    },
+    {
         // Arama niyeti: "swagger örnek", "test için REST API dokümantasyonu".
         // Sayfa sözleşmeyi build türevinden okuduğu için Docker olmadan da
         // içerik gösterir — indekslenmesinin bir anlamı var.

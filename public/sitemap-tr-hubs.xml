@@ -293,6 +293,13 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://learnqa.dev/qa-shop-backlog</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-shop-backlog" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-shop-backlog" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://learnqa.dev/qa-shop-api</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-shop-api" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-shop-api" />

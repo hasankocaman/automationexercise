@@ -51,6 +51,7 @@ const BasitBackendPage = lazy(() => import('./components/BasitBackendPage'))
 const QaShopSetupPage = lazy(() => import('./components/QaShopSetupPage'))
 const QaShopPage = lazy(() => import('./components/QaShopPage'))
 const QaShopSpecPage = lazy(() => import('./components/QaShopSpecPage'))
+const QaShopBacklogPage = lazy(() => import('./components/QaShopBacklogPage'))
 const QaShopApiPage = lazy(() => import('./components/QaShopApiPage'))
 const LeaderboardPage = lazy(() => import('./components/LeaderboardPage'))
 const VerifyCertificatePage = lazy(() => import('./components/VerifyCertificatePage'))
@@ -178,6 +179,7 @@ function App() {
                         bağlanır; stack kapalıyken boş hata vermez, ne
                         yapılacağını söyleyip kurulum rehberine yönlendirir. */}
                     <Route path="/qa-shop-spec" element={<QaShopSpecPage />} />
+                    <Route path="/qa-shop-backlog" element={<QaShopBacklogPage />} />
                     <Route path="/qa-shop-api" element={<QaShopApiPage />} />
                     <Route path="/qa-shop-setup" element={<QaShopSetupPage />} />
                     <Route path="/qa-shop" element={<QaShopPage />} />

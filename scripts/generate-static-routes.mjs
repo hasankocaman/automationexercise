@@ -9,6 +9,7 @@ import { interviewWarmupData } from '../src/data/interviewWarmupData.js'
 // doğru olmayan bir metin gösterirdik. SSS için bu ayrıca ZORUNLU: şemaya
 // giren soru, sayfada görünen soruyla birebir aynı olmak durumunda.
 import { qaShopSpecData } from '../src/data/qaShopSpecData.js'
+import { qaShopBacklogData, businessStoryById } from '../src/data/qaShopBacklogData.js'
 import { qaShopSetupData } from '../src/data/qaShopSetupData.js'
 import { SQL_PACK_GROUPS } from '../src/data/qaShopSqlPackData.js'
 import { OPENAPI } from '../src/data/generated/qaShopOpenApi.js'
@@ -404,6 +405,7 @@ async function specialRouteContent(seo, locale) {
     // (yalnızca başlık + navigasyon linkleri). İçerik veri dosyalarından
     // türetiliyor ki sayfa değişince kabuk da değişsin.
     if (seo.path === '/qa-shop-spec') return qaShopSpecShell(locale)
+    if (seo.path === '/qa-shop-backlog') return qaShopBacklogShell(locale)
     if (seo.path === '/qa-shop-api') return qaShopApiShell(locale)
     if (seo.path === '/qa-shop-setup') return qaShopSetupShell(locale)
     if (seo.path === '/qa-shop') return qaShopStoreShell(locale)
@@ -493,6 +495,64 @@ function qaShopSpecShell(locale) {
         intro: textValue(bp.comparison.intro, locale),
         topics,
         faqItems: qaShopSpecData.faq.map((item) => ({
+            q: textValue(item.q, locale),
+            a: textValue(item.a, locale),
+        })),
+    }
+}
+
+// Backlog: gereksinim → epic → business story → frontend/backend story.
+//
+// İçerik VERİDEN TÜRETİLİR, elle kopyalanmaz — kopyalanan metin sayfa
+// güncellenince sessizce eskir ve arama motoruna artık doğru olmayan bir şey
+// gösterirsin. Bu sayfa TopicPage kullanmadığı için burada bir girdisi
+// olmasaydı kabukta yalnızca başlık + navigasyon linkleri kalırdı ve sayfanın
+// asıl değeri (gereksinimler, epic hedefleri, story başlıkları) arama motoruna
+// HİÇ görünmezdi. Hiçbir kapı bunu kırmaz; yalnızca ölçerek görülür.
+function qaShopBacklogShell(locale) {
+    const { meta, chain, requirements, epics, childStories, testerFlow, faq } = qaShopBacklogData
+
+    const topics = [
+        {
+            title: textValue(chain.title, locale),
+            snippets: [chain.steps.map((s) => `${textValue(s.label, locale)}: ${textValue(s.detail, locale)}`).join(' · ')],
+        },
+        {
+            title: locale === 'tr' ? 'İş gereksinimleri' : 'Business requirements',
+            snippets: requirements.map((r) => `${r.id} ${textValue(r.title, locale)} — ${textValue(r.need, locale)}`),
+        },
+    ]
+
+    // Her epic kendi hedefi ve altındaki story başlıklarıyla girer: sayfanın
+    // aranabilir değeri burada ("epic user story örneği", "kabul kriteri").
+    for (const epic of epics) {
+        const storyTitles = epic.stories
+            .map((sid) => `${sid} ${textValue(businessStoryById[sid]?.title, locale)}`)
+            .join(' · ')
+        topics.push({
+            title: `${epic.id} ${textValue(epic.title, locale)}`,
+            snippets: [textValue(epic.goal, locale), storyTitles].filter(Boolean),
+        })
+    }
+
+    if (childStories.length) {
+        topics.push({
+            title: locale === 'tr' ? 'Frontend ve backend story listesi' : 'Frontend and backend story list',
+            snippets: [childStories.map((c) => `${c.id} ${textValue(c.title, locale)}`).join(' · ')],
+        })
+    }
+
+    topics.push({
+        title: textValue(testerFlow.title, locale),
+        snippets: testerFlow.steps.map((s) => `${textValue(s.title, locale)} — ${textValue(s.detail, locale)}`),
+    })
+
+    return {
+        title: textValue(meta.title, locale),
+        seoAnswer: textValue(meta.subtitle, locale),
+        intro: textValue(chain.intro, locale),
+        topics,
+        faqItems: faq.map((item) => ({
             q: textValue(item.q, locale),
             a: textValue(item.a, locale),
         })),

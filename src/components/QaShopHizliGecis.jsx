@@ -14,6 +14,13 @@
 // binerdi. Alt-orta iki köşeyi de boş bırakır ve "sayfa geçişi" olarak
 // doğal okunur.
 //
+// ── ŞERİT DAR EKRANDA NEDEN YUKARIDA ─────────────────────────────────────
+// Ölçüldü (390/640/768px): şerit alt-orta, yüzen düğmeler alt-sol (manuel tur)
+// ve alt-sağ (başa dön). Beşinci sayfa eklenince şerit genişledi ve 390px ile
+// 640px'te sol düğmeye girdi. Bu yüzden md ALTINDA şerit bir sıra yukarı
+// (bottom-20) alınır — köşedeki widget'lar da orada ama onlar KÖŞEDE, şerit
+// ORTADA: yatayda 25px+ boşluk kalıyor. md ve üstünde şerit alt sıraya iner.
+//
 // ── BAŞA DÖN AYRI BİR DÜĞME ─────────────────────────────────────────────────
 // Eskiden bu sayfalarda 🏠 ikonlu bir düğme vardı ve SİTE ana sayfasına
 // gidiyordu — kullanıcı ise kendi sayfasının başına dönmeyi bekliyordu. İkon
@@ -22,6 +29,7 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const SAYFALAR = [
+    { id: 'backlog', yol: '/qa-shop-backlog#epics', ikon: '🗂️', etiket: { tr: 'Backlog', en: 'Backlog' }, tam: { tr: 'Gereksinim, epic, frontend/backend story', en: 'Requirements, epics, frontend/backend stories' } },
     { id: 'spec', yol: '/qa-shop-spec#user-stories', ikon: '📋', etiket: { tr: 'Story', en: 'Story' }, tam: { tr: 'User story\'ler ve kabul kriterleri', en: 'User stories and acceptance criteria' } },
     { id: 'setup', yol: '/qa-shop-setup#step-1-docker', ikon: '🛠️', etiket: { tr: 'Kurulum', en: 'Setup' }, tam: { tr: 'Docker, DBeaver, Postman kurulumu', en: 'Docker, DBeaver, Postman setup' } },
     { id: 'api', yol: '/qa-shop-api', ikon: '🔌', etiket: { tr: 'Swagger', en: 'Swagger' }, tam: { tr: 'API sözleşmesi — 46 endpoint', en: 'API contract — 46 endpoints' } },
@@ -56,7 +64,7 @@ export default function QaShopHizliGecis({ aktif, isTr, darkMode }) {
             <nav
                 data-testid="qa-shop-hizli-gecis"
                 aria-label={isTr ? 'QA Shop sayfaları arasında geçiş' : 'Switch between QA Shop pages'}
-                className={`fixed bottom-3 left-1/2 z-[60] -translate-x-1/2 rounded-full border p-1 shadow-2xl backdrop-blur ${
+                className={`fixed bottom-20 left-1/2 z-[60] -translate-x-1/2 rounded-full border p-1 shadow-2xl backdrop-blur md:bottom-3 ${
                     darkMode ? 'border-slate-700 bg-slate-900/95' : 'border-slate-300 bg-white/95'}`}
             >
                 <ul className="flex items-center gap-1">

@@ -1,4 +1,4 @@
-// QA Shop — üç sayfa arası geçiş şeridi
+// QA Shop — sayfalar arası geçiş şeridi
 //
 // ── NEDEN VAR ───────────────────────────────────────────────────────────────
 // QA Shop üç sayfadan oluşuyor ve öğrenme sırası **şartname → kurulum →
@@ -18,7 +18,7 @@
 // ÇALIŞAN uygulama odur, diğer ikisi belgedir.
 import { Link } from 'react-router-dom'
 
-// Şerit dört sayfayı bağlar. `yol` DERİN bağlantı taşır: kullanıcı
+// Şerit beş sayfayı bağlar. `yol` DERİN bağlantı taşır: kullanıcı
 // "Şartname"ye bastığında sayfanın en üstüne değil, aradığı yere düşmeli —
 // user story'ler o sayfanın çok aşağısında ve tepeden başlamak, aramayı
 // kullanıcıya yaptırmak demektir.
@@ -27,6 +27,13 @@ import { Link } from 'react-router-dom'
 // `id={section.id}`, kurulum sayfasında `id={step.id}`) — burada uydurulmuş
 // bir çapa yok. Kaydırmayı `useHashKaydir` yapar.
 const SAYFALAR = [
+    {
+        id: 'backlog',
+        yol: '/qa-shop-backlog#epics',
+        ikon: '🗂️',
+        etiket: { tr: 'Backlog', en: 'Backlog' },
+        aciklama: { tr: 'gereksinim, epic, frontend/backend', en: 'requirements, epics, frontend/backend' },
+    },
     {
         id: 'spec',
         yol: '/qa-shop-spec#user-stories',

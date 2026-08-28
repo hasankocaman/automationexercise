@@ -1259,6 +1259,7 @@ function HomePage() {
                                     için anlamlı. */}
                                 <Link to="/qa-shop" data-testid="nav-qa-shop-card" className={nb('violet')}>🛒 {language === 'tr' ? 'QA Shop Dükkân' : 'QA Shop Store'}</Link>
                                 <Link to="/qa-shop-spec" data-testid="nav-qa-shop-spec-card" className={nb('indigo')}>📋 {language === 'tr' ? 'QA Shop Şartname' : 'QA Shop Spec'}</Link>
+                                <Link to="/qa-shop-backlog" data-testid="nav-qa-shop-backlog-card" className={nb('violet')}>🗂️ {language === 'tr' ? 'QA Shop Backlog' : 'QA Shop Backlog'}</Link>
                                 <Link to="/qa-shop-setup" data-testid="nav-qa-shop-setup-card" className={nb('indigo')}>🛠️ {language === 'tr' ? 'QA Shop Kurulum' : 'QA Shop Setup'}</Link>
                                 <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>🔧 Jenkins</Link>
                                 <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>☸️ K8s</Link>
@@ -1427,6 +1428,7 @@ function HomePage() {
                                     // dükkân, sonra referans belgeler.
                                     { to: '/qa-shop', label: language === 'tr' ? '🛒 QA Shop Dükkân' : '🛒 QA Shop Store' },
                                     { to: '/qa-shop-spec', label: language === 'tr' ? '📋 QA Shop Şartname' : '📋 QA Shop Spec' },
+                                    { to: '/qa-shop-backlog', label: language === 'tr' ? '🗂️ QA Shop Backlog' : '🗂️ QA Shop Backlog' },
                                     { to: '/qa-shop-setup', label: language === 'tr' ? '🛠️ QA Shop Kurulum' : '🛠️ QA Shop Setup' },
                                     { to: '/jenkins', label: '🔧 Jenkins' },
                                     { to: '/kubernetes', label: '☸️ Kubernetes' },
