@@ -4,6 +4,14 @@ import { fileURLToPath } from 'node:url'
 import { LOCALES, ROUTE_SEO, alternatesFor, canonicalUrl, localizedPath, seoFor } from '../src/utils/seo.js'
 import { INTERVIEW_SHOWCASE } from '../src/data/generated/interviewShowcase.js'
 import { interviewWarmupData } from '../src/data/interviewWarmupData.js'
+// QA Shop kabukları veri dosyalarından TÜRETİLİR, elle kopyalanmaz. Elle
+// yazılsaydı sayfa güncellenince kabuk sessizce eskir ve arama motoruna artık
+// doğru olmayan bir metin gösterirdik. SSS için bu ayrıca ZORUNLU: şemaya
+// giren soru, sayfada görünen soruyla birebir aynı olmak durumunda.
+import { qaShopSpecData } from '../src/data/qaShopSpecData.js'
+import { qaShopSetupData } from '../src/data/qaShopSetupData.js'
+import { SQL_PACK_GROUPS } from '../src/data/qaShopSqlPackData.js'
+import { OPENAPI } from '../src/data/generated/qaShopOpenApi.js'
 import { SECTION_SLUGS } from '../src/data/generated/sectionSlugs.js'
 import { buildSectionSeoIndex } from './lib/sectionSeo.mjs'
 import { lastModFor } from './lib/lastmod.mjs'
@@ -390,7 +398,178 @@ async function specialRouteContent(seo, locale) {
             { title: 'Python / TypeScript Yolu (MAP B)', snippets: ['Python ve TypeScript ile modern otomasyon: pytest, Playwright, Postman, SQL, Jenkins, Docker, AWS ve opsiyonel Selenium/Cypress/BrowserStack.'] },
         ],
     }
+    // ─── QA Shop pratik ortamı — üç sayfa ───────────────────────────────────
+    // Bu üç sayfa TopicPage kullanmadığı için otomatik kabuk üretimine
+    // girmiyordu ve arama motoruna neredeyse boş bir gövde gösteriyorlardı
+    // (yalnızca başlık + navigasyon linkleri). İçerik veri dosyalarından
+    // türetiliyor ki sayfa değişince kabuk da değişsin.
+    if (seo.path === '/qa-shop-spec') return qaShopSpecShell(locale)
+    if (seo.path === '/qa-shop-api') return qaShopApiShell(locale)
+    if (seo.path === '/qa-shop-setup') return qaShopSetupShell(locale)
+    if (seo.path === '/qa-shop') return qaShopStoreShell(locale)
+
     return null
+}
+
+// Şartname sayfası: büyük resim + bölüm hedefleri + iş kuralları + SSS.
+// `faqItems` üç ve üzeri olduğunda FAQPage şeması da üretilir — ve o şemanın
+// her sorusu sayfanın görünür gövdesinde de bulunmak ZORUNDA. İkisi de
+// aynı veriden geldiği için ayrışamazlar.
+function qaShopApiShell(locale) {
+    const tr = locale === 'tr'
+
+    // Etiket başına uç listesi: sayfanın asıl arama değeri "hangi uç var"
+    // sorusunun cevabıdır, genel bir tanıtım cümlesi değil.
+    const topics = OPENAPI.etiketSirasi
+        .filter((etiket) => OPENAPI.uclar.some((u) => u.etiket === etiket))
+        .map((etiket) => {
+            const uclar = OPENAPI.uclar.filter((u) => u.etiket === etiket)
+            return {
+                title: tr ? `${etiket} uçları` : `${etiket} endpoints`,
+                snippets: [
+                    OPENAPI.etiketAciklamalari[etiket] || '',
+                    uclar.map((u) => `${u.method} ${u.yol} — ${u.ozet}`).join(' · '),
+                ].filter(Boolean),
+            }
+        })
+
+    // Status kodu okuması: sayfanın öğrettiği asıl şey ve en çok aranan konu.
+    const kodlar = [...new Set(OPENAPI.uclar.flatMap((u) => u.cevaplar.map((c) => c.kod)))].sort()
+    topics.push({
+        title: tr ? 'Sözleşmedeki status kodları' : 'Status codes in the contract',
+        snippets: [
+            tr
+                ? `Hata yolları 200 ile kapatılmaz. Sözleşmede geçen kodlar: ${kodlar.join(', ')}. 401 kimlik doğrulanmadı, 403 yetki yok, 409 durum izin vermiyor, 422 iş kuralı reddetti.`
+                : `Error paths are not closed with 200. Codes used in the contract: ${kodlar.join(', ')}. 401 not authenticated, 403 not authorized, 409 state does not allow it, 422 a business rule rejected it.`,
+        ],
+    })
+
+    return {
+        title: tr ? 'QA Shop API Sözleşmesi — Örnek Swagger / OpenAPI' : 'QA Shop API Contract — Example Swagger / OpenAPI',
+        seoAnswer: tr
+            ? `QA Shop pratik ortamının REST API sözleşmesi: ${OPENAPI.uclar.length} uç, etiketlere ayrılmış, her ucun beklenen status kodlarıyla birlikte. Test case'lerini bu sözleşmeye göre yazarsın.`
+            : `The REST API contract of the QA Shop practice environment: ${OPENAPI.uclar.length} endpoints grouped by tag, each with the status codes you should expect. You write your test cases against this contract.`,
+        intro: tr
+            ? 'Sayfa sözleşmeyi build sırasında üretilen bir türevden okur; Docker kurulu olmasa da tüm uçları inceleyebilirsin. Ham openapi.yaml dosyasını Postman veya Swagger Editor\'a aktarmak istersen yığının ayakta olması gerekir.'
+            : 'The page reads the contract from a derivative generated at build time, so you can browse every endpoint without Docker installed. Importing the raw openapi.yaml into Postman or Swagger Editor requires the stack to be running.',
+        topics,
+    }
+}
+
+function qaShopSpecShell(locale) {
+    const bp = qaShopSpecData.meta.bigPicture
+    const topics = qaShopSpecData.sections.map((section) => ({
+        title: textValue(section.title, locale),
+        snippets: [ilkAciklama(section.blocks, locale)].filter(Boolean),
+    }))
+
+    // İş kuralları ve user story başlıkları da gövdeye girsin: sayfanın asıl
+    // arama değeri burada. Bölüm hedefleri tek başına "ne öğrenirsin"i anlatır
+    // ama "hangi kural" ve "hangi senaryo" sorularına cevap vermez.
+    const rules = []
+    const stories = []
+    for (const section of qaShopSpecData.sections) {
+        for (const block of section.blocks ?? []) {
+            if (block.type === 'ruleCard') rules.push(textValue(block.title, locale))
+            if (block.type === 'userStory') stories.push(`${block.id} ${textValue(block.title, locale)}`)
+        }
+    }
+    if (rules.length) {
+        topics.push({
+            title: locale === 'tr' ? 'Test edilebilir iş kuralları' : 'Testable business rules',
+            snippets: [rules.join(' · ')],
+        })
+    }
+    if (stories.length) {
+        topics.push({
+            title: locale === 'tr' ? 'User story listesi' : 'User story list',
+            snippets: [stories.join(' · ')],
+        })
+    }
+
+    return {
+        title: textValue(qaShopSpecData.meta.title, locale),
+        seoAnswer: textValue(bp.pitch, locale),
+        intro: textValue(bp.comparison.intro, locale),
+        topics,
+        faqItems: qaShopSpecData.faq.map((item) => ({
+            q: textValue(item.q, locale),
+            a: textValue(item.a, locale),
+        })),
+    }
+}
+
+// Kurulum rehberi: dört adım, her birinin hedefi.
+function qaShopSetupShell(locale) {
+    // Hazır SQL paketinin dizini kabuğa da giriyor: sayfanın en aranabilir
+    // içeriği bu ("e-ticaret veri doğrulama sorguları") ve React yüklenmeden
+    // görünmesi gerek. Metin veriden TÜRETİLİYOR — elle kopyalanan bir liste
+    // paket değişince sessizce eskir ve arama motoruna artık doğru olmayan
+    // bir şey gösterirdik.
+    // Grup başına TEK madde yazmak işe yaramıyor: kabuk her maddenin
+    // açıklamasını 260 karaktere kırpıyor ve sekiz sorgulu grubun sonu
+    // düşüyordu (ölçüldü: G4 kabukta hiç yoktu). Sorgu başına bir madde
+    // hem kırpılmıyor hem her sorguyu ayrı ayrı aranabilir kılıyor.
+    const sqlTopics = SQL_PACK_GROUPS.flatMap((grup) =>
+        grup.queries.map((q) => ({
+            title: `${q.id} · ${textValue(grup.title, locale)}`,
+            snippets: [textValue(q.bakar, locale)],
+        })),
+    )
+    return {
+        title: textValue(qaShopSetupData.meta.title, locale),
+        seoAnswer: textValue(qaShopSetupData.meta.subtitle, locale),
+        intro: textValue(qaShopSetupData.meta.isolationNote, locale),
+        topics: [
+            ...qaShopSetupData.steps.map((step) => ({
+                title: textValue(step.title, locale),
+                snippets: [ilkAciklama(step.blocks, locale)].filter(Boolean),
+            })),
+            ...sqlTopics,
+        ],
+    }
+}
+
+// Dükkân arayüzü: veri dosyası YOK (metinler bileşenin içinde), bu yüzden
+// kabuk metni elle yazılıyor. Sayfanın ne olduğunu anlatır, kullanıcının
+// kendi makinesindeki veriyi TAKLİT ETMEZ — orada gösterilecek gerçek bir
+// katalog yok, uydurmak arama motoruna yanlış vaat olurdu.
+function qaShopStoreShell(locale) {
+    return locale === 'tr' ? {
+        title: 'QA Shop Dükkânı — UI Otomasyonu Pratiği İçin Test Hedefi',
+        seoAnswer: 'QA Shop dükkânı, arayüz otomasyonu pratiği için tasarlanmış bir test hedefidir: kendi makinende çalışan gerçek bir API\'ye bağlanır, her etkileşimli öğesi kararlı bir data-testid taşır ve yaptığın her hareketin hangi API çağrısına dönüştüğünü bir olay günlüğünde gösterir. Selenium, Playwright veya Cypress ile otomatikleştirmek için kurulmuştur.',
+        intro: 'Sayfa yığın kapalıyken boş bir hata göstermez; ne yapman gerektiğini söyler ve kurulum rehberine yönlendirir. Yazma işlemleri için kendi izole veri alanını açarsın; anahtarsız bağlanırsan demo verisine salt okunur erişirsin.',
+        topics: [
+            { title: 'Kararlı test id\'leri', snippets: ['Her etkileşimli öğe kararlı bir data-testid taşır. Locator\'ı CSS sınıfına veya görünen metne bağlamak en sık kırılan alışkanlıktır: metin dil değişince, sınıf tasarım değişince kırılır.'] },
+            { title: 'Olay günlüğü', snippets: ['Arayüzdeki her hareket hangi API çağrısına dönüştü, tablo hâlinde görünür. Arayüz testi ile API testinin aynı işin iki yarısı olduğu böyle somutlaşır.'] },
+            { title: 'Sepet ve sipariş akışı', snippets: ['Ürün arama, sepete ekleme, kupon uygulama ve sipariş verme adımlarının tamamı gerçek veritabanına yazar; stok gerçekten düşer.'] },
+            { title: 'Kendi izole veri alanın', snippets: ['Tek tıklamayla kendi sandbox alanını açarsın, veriyi bozarsın ve tek istekle tohum veriye dönersin. Kimse kimsenin verisini göremez.'] },
+        ],
+    } : {
+        title: 'QA Shop Store — A Test Target for UI Automation Practice',
+        seoAnswer: 'The QA Shop store is a test target built for UI automation practice: it connects to a real API running on your own machine, every interactive element carries a stable data-testid, and an event log shows which API call each action turned into. It exists to be automated with Selenium, Playwright or Cypress.',
+        intro: 'When the stack is down the page does not show a blank error; it tells you what to do and points you to the setup guide. For write operations you open your own isolated data area; connecting without a key gives you read-only access to the demo data.',
+        topics: [
+            { title: 'Stable test ids', snippets: ['Every interactive element carries a stable data-testid. Binding a locator to a CSS class or visible text is the habit that breaks most often: text breaks when the language changes, classes break when the design does.'] },
+            { title: 'Event log', snippets: ['Every action in the interface is shown as a table row with the API call it produced. This is what makes UI testing and API testing visibly two halves of the same job.'] },
+            { title: 'Cart and order flow', snippets: ['Searching products, adding to the cart, applying a coupon and placing an order all write to a real database; stock genuinely decreases.'] },
+            { title: 'Your own isolated data area', snippets: ['One click opens your own sandbox area, you corrupt the data, and one request returns you to the seed data. Nobody can see anyone else\'s data.'] },
+        ],
+    }
+}
+
+// Bir bölümün/adımın kabuk özetini KENDİ bloklarından türetir.
+//
+// Eskiden bunun yerine `goal` alanı ("Sonunda: ... olacaksın") kullanılıyordu;
+// o alan sayfadan kaldırıldı. Kabuğa yalnızca sayfada GÖRÜNEN metin girmeli —
+// yoksa arama motoruna kullanıcının okuyamadığı bir şey gösterilmiş olur.
+// Bu yüzden özet, bölümün ilk açıklama bloğundan okunuyor.
+function ilkAciklama(bloklar, locale) {
+    for (const block of bloklar ?? []) {
+        const metin = snippetFromBlock(block, locale)
+        if (metin && metin.length > 40) return metin
+    }
+    return ''
 }
 
 function snippetFromBlock(block, locale) {

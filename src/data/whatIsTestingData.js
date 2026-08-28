@@ -1453,6 +1453,20 @@ class TestDiscountCalculation:
       },
       {
         type: 'heading',
+        text: { tr: '🧪 Uçtan Uca Pratik Ortamı (QA Shop)', en: '🧪 End-to-End Practice Environment (QA Shop)' }
+      },
+      {
+        type: 'link-grid',
+        cols: 2,
+        items: [
+          { icon: '🛒', route: '/qa-shop', label: { tr: 'Pratik Dükkânı — buradan başla', en: 'Practice Store — start here' }, desc: { tr: 'Kararlı test id\'leri taşıyan, çalışan bir dükkân arayüzü. Kurulum gerekmeden açılır; Selenium, Playwright veya Cypress ile otomatikleştir.', en: 'A working store interface with stable test ids. It opens with no setup; automate it with Selenium, Playwright or Cypress.' } },
+          { icon: '📋', route: '/qa-shop-spec', label: { tr: 'Şartname & User Story\'ler', en: 'Product Spec & User Stories' }, desc: { tr: '16 user story, kabul kriterleri, iş kuralları ve hata sözlüğü: test case yazma pratiğinin referansı.', en: '16 user stories, acceptance criteria, business rules and an error glossary: the reference for writing test cases.' } },
+          { icon: '🔌', route: '/qa-shop-api', label: { tr: 'QA Shop API Sözleşmesi', en: 'QA Shop API Contract' }, desc: { tr: '46 endpoint\'in tamamı etiketlere ayrılmış: istek gövdeleri, kimlik başlıkları ve cevap şemalarıyla. Docker kurmadan da incelenir.', en: 'All 46 endpoints grouped by tag, with request bodies, auth headers and response schemas. Browsable without installing Docker.' } },
+          { icon: '🛠️', route: '/qa-shop-setup', label: { tr: 'Kurulum: Docker & DBeaver', en: 'Setup: Docker & DBeaver' }, desc: { tr: 'Kendi makinende gerçek bir PostgreSQL ve REST API ayağa kaldır, DBeaver ile bağlan, endpoint\'leri Postman ile test et.', en: 'Bring a real PostgreSQL and REST API up on your own machine, connect with DBeaver, and test endpoints with Postman.' } }
+        ]
+      },
+      {
+        type: 'heading',
         text: { tr: '🔐 Güvenlik Testi', en: '🔐 Security Testing' }
       },
       {

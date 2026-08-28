@@ -4,7 +4,7 @@
     <loc>https://learnqa.dev/</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en" />
-    <lastmod>2026-08-11T18:01:01+03:00</lastmod>
+    <lastmod>2026-08-16T20:02:47+03:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -249,7 +249,7 @@
     <loc>https://learnqa.dev/what-is-testing</loc>
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/what-is-testing" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/what-is-testing" />
-    <lastmod>2026-08-13T18:20:44+03:00</lastmod>
+    <lastmod>2026-08-16T20:02:47+03:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -282,6 +282,34 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-mentor" />
     <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-mentor" />
     <lastmod>2026-08-12T11:41:36+03:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/qa-shop-spec</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-shop-spec" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-shop-spec" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/qa-shop-api</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-shop-api" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-shop-api" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/qa-shop-setup</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-shop-setup" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-shop-setup" />
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://learnqa.dev/qa-shop</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://learnqa.dev/qa-shop" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://learnqa.dev/en/qa-shop" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
