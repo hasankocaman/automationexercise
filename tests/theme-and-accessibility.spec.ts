@@ -155,3 +155,60 @@ test.describe('WP3 — Odak Modu (Focus Mode) toggle', () => {
         await expect(soundToggle).toBeHidden();
     });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// QA Shop sayfaları — başlıktaki tema ve odak modu düğmeleri
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Bu dört sayfa `TopicPage` KULLANMAZ ama aynı `TopicHeader`'ı render eder,
+// yani tema ve odak modu düğmeleri ekranda görünür. Görünmek çalışmak
+// demek değildir: ölçüldüğünde odak modu düğmesi dördünde de tıklanınca
+// "is not a function" ile patlıyordu, çünkü sayfa başlığa durum vermiyordu.
+// Düğme oradaydı, sayfa açılıyordu, hiçbir test bakmıyordu.
+//
+// Buradaki asıl bekçi son adımdır: düğmeye basıldığında sayfa hatası
+// üretilmemeli. Görünürlük doğrulaması bunu yakalayamaz.
+const QA_SHOP_ROTALARI = ['/qa-shop-spec', '/qa-shop', '/qa-shop-setup', '/qa-shop-api'];
+
+test.describe('QA Shop sayfalarında tema ve odak modu', () => {
+    for (const rota of QA_SHOP_ROTALARI) {
+        test(`${rota} — tema düğmesi çalışıyor, kalıcı; odak düğmesi hata üretmiyor`, async ({ page }) => {
+            test.setTimeout(90_000);
+
+            const sayfaHatalari: string[] = [];
+            page.on('pageerror', (e) => sayfaHatalari.push(String(e)));
+
+            await page.goto(rota);
+            await waitForAppReady(page, { timeout: 60_000 });
+
+            // Varsayılan karanlık tema.
+            await expect(page.locator('html')).toHaveClass(/dark-mode/);
+
+            const tema = page.locator('[data-testid="dark-mode-toggle"]');
+            await expect(tema).toBeVisible();
+            await tema.click();
+            await expect(page.locator('html')).toHaveClass(/light-mode-forced/);
+            await expect.poll(() => page.evaluate(() => localStorage.getItem('darkMode'))).toBe('false');
+
+            // Yeniden yüklemede seçim korunuyor.
+            await page.reload();
+            await waitForAppReady(page, { timeout: 60_000 });
+            await expect(page.locator('html')).toHaveClass(/light-mode-forced/);
+
+            // Karanlık temaya geri dön ki sonraki testler varsayılandan başlasın.
+            await page.locator('[data-testid="dark-mode-toggle"]').click();
+            await expect(page.locator('html')).toHaveClass(/dark-mode/);
+
+            // Odak modu: açılır, kök öğeye sınıf yazar, ikinci basışta kapanır.
+            const odak = page.locator('[data-testid="focus-mode-toggle"]');
+            await expect(odak).toBeVisible();
+            await odak.click();
+            await expect(page.locator('html')).toHaveClass(/focus-mode/);
+            await expect.poll(() => page.evaluate(() => localStorage.getItem('focusMode'))).toBe('true');
+            await odak.click();
+            await expect(page.locator('html')).not.toHaveClass(/focus-mode/);
+
+            expect(sayfaHatalari, `${rota}: başlık düğmeleri sayfa hatası üretti`).toHaveLength(0);
+        });
+    }
+});

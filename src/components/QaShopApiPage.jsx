@@ -14,6 +14,8 @@
 //
 // TopicPage KULLANILMAZ: bu bir ders sayfası değil, bir referans belgedir.
 import { useEffect, useMemo, useState } from 'react'
+import useOdakModu from '../hooks/useOdakModu'
+import useKaranlikMod from '../hooks/useKaranlikMod'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import TopicHeader from './TopicHeader'
@@ -138,17 +140,6 @@ function ScrollProgressBar() {
     )
 }
 
-function useDarkModeState() {
-    const [darkMode, setDarkMode] = useState(() => {
-        const saved = localStorage.getItem('darkMode')
-        return saved ? JSON.parse(saved) : true
-    })
-    useEffect(() => {
-        localStorage.setItem('darkMode', JSON.stringify(darkMode))
-        document.documentElement.classList.toggle('dark', darkMode)
-    }, [darkMode])
-    return [darkMode, setDarkMode]
-}
 
 // ─── Tek uç kartı ───────────────────────────────────────────────────────────
 
@@ -344,7 +335,8 @@ function UcKarti({ uc, isTr, darkMode, acikMi, setAcik }) {
 export default function QaShopApiPage() {
     const { language } = useLanguage()
     const isTr = language === 'tr'
-    const [darkMode, setDarkMode] = useDarkModeState()
+    const [darkMode, setDarkMode] = useKaranlikMod()
+    const [odakModu, setOdakModu] = useOdakModu()
 
     useHashKaydir()
 
@@ -376,7 +368,7 @@ export default function QaShopApiPage() {
     return (
         <div className={`min-h-screen ${shell}`}>
             <ScrollProgressBar />
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={odakModu} setFocusMode={setOdakModu} />
 
             <main className="mx-auto max-w-4xl px-3 py-6 md:px-6 md:py-10">
                 <QaShopGecis aktif="api" isTr={isTr} darkMode={darkMode} />

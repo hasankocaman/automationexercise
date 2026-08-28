@@ -6,13 +6,15 @@
 // TopicPage her sekmede video + animasyon + sandbox yükümlülüğü doğururdu ve
 // bir şartnamede bunların hiçbiri anlamlı olmazdı. Sayfa kabuğu
 // QaShopSetupPage kalıbını izler (TopicHeader + ScrollProgressBar +
-// useDarkModeState + sabit ana sayfa butonu).
+// useKaranlikMod + sabit ana sayfa butonu).
 //
 // Story filtreleri BİLİNÇLİ olarak URL'e yazılmıyor: filtre bir okuma
 // kolaylığı, paylaşılacak bir durum değil. Adres çubuğunu kirletmek yerine
 // bölüm bağlantıları (#user-stories) paylaşılabilir tutuluyor.
 
 import { useState, useEffect, useMemo } from 'react'
+import useOdakModu from '../hooks/useOdakModu'
+import useKaranlikMod from '../hooks/useKaranlikMod'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
@@ -100,21 +102,6 @@ function ScrollProgressBar() {
     )
 }
 
-function useDarkModeState() {
-    const [darkMode, setDarkMode] = useState(() => {
-        const saved = localStorage.getItem('darkMode')
-        const isDark = saved !== null ? JSON.parse(saved) : true
-        document.documentElement.classList.toggle('dark-mode', isDark)
-        document.documentElement.classList.toggle('light-mode-forced', !isDark)
-        return isDark
-    })
-    useEffect(() => {
-        localStorage.setItem('darkMode', JSON.stringify(darkMode))
-        document.documentElement.classList.toggle('dark-mode', darkMode)
-        document.documentElement.classList.toggle('light-mode-forced', !darkMode)
-    }, [darkMode])
-    return [darkMode, setDarkMode]
-}
 
 // ─── Satır içi kod ──────────────────────────────────────────────────────────
 // İçerikte `placed`, `COUPON_EXPIRED` gibi teknik değerler ters tırnak içinde
@@ -925,7 +912,8 @@ function Block({ block, isTr, darkMode }) {
 
 export default function QaShopSpecPage() {
     const { language } = useLanguage()
-    const [darkMode, setDarkMode] = useDarkModeState()
+    const [darkMode, setDarkMode] = useKaranlikMod()
+    const [odakModu, setOdakModu] = useOdakModu()
 
     // Derin bağlantı: /qa-shop-spec#user-stories doğrudan o bölüme insin.
     useHashKaydir()
@@ -967,7 +955,7 @@ export default function QaShopSpecPage() {
     return (
         <div className={`min-h-screen ${shell}`}>
             <ScrollProgressBar />
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={odakModu} setFocusMode={setOdakModu} />
 
             <main className="mx-auto max-w-4xl px-3 py-6 md:px-6 md:py-10">
                 {/* Geçiş şeridi başlıktan ÖNCE: sayfanın ne olduğunu okumadan

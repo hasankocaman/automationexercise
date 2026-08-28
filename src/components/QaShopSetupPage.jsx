@@ -3,7 +3,7 @@
 //
 // QA Shop pratik ortamının (ayrı PostgreSQL + ayrı Express API) kurulum ve
 // ilk test adımlarını anlatır. Sayfa kabuğu PortfolioPage/SprintPage kalıbını
-// izler: TopicHeader + ScrollProgressBar + useDarkModeState + sabit ana sayfa
+// izler: TopicHeader + ScrollProgressBar + useKaranlikMod + sabit ana sayfa
 // butonu.
 //
 // TopicPage KULLANILMAZ. Bu bir ders sayfası değil, sıralı bir yordam
@@ -14,6 +14,8 @@
 // App.jsx'teki sarmalayıcı ve seo.js'teki noindex.
 
 import { useState, useEffect } from 'react'
+import useOdakModu from '../hooks/useOdakModu'
+import useKaranlikMod from '../hooks/useKaranlikMod'
 import { useLanguage } from '../context/LanguageContext'
 import TopicHeader from './TopicHeader'
 import QaShopGecis from './QaShopGecis'
@@ -52,21 +54,6 @@ function ScrollProgressBar() {
     )
 }
 
-function useDarkModeState() {
-    const [darkMode, setDarkMode] = useState(() => {
-        const saved = localStorage.getItem('darkMode')
-        const isDark = saved !== null ? JSON.parse(saved) : true
-        document.documentElement.classList.toggle('dark-mode', isDark)
-        document.documentElement.classList.toggle('light-mode-forced', !isDark)
-        return isDark
-    })
-    useEffect(() => {
-        localStorage.setItem('darkMode', JSON.stringify(darkMode))
-        document.documentElement.classList.toggle('dark-mode', darkMode)
-        document.documentElement.classList.toggle('light-mode-forced', !darkMode)
-    }, [darkMode])
-    return [darkMode, setDarkMode]
-}
 
 // ─── Kod bloğu ──────────────────────────────────────────────────────────────
 // Kopyala düğmesi zorunlu (CLAUDE.md §8). Prism yerine sade <pre>: bu sayfadaki
@@ -479,7 +466,8 @@ function Block({ block, isTr, darkMode }) {
 
 export default function QaShopSetupPage() {
     const { language } = useLanguage()
-    const [darkMode, setDarkMode] = useDarkModeState()
+    const [darkMode, setDarkMode] = useKaranlikMod()
+    const [odakModu, setOdakModu] = useOdakModu()
 
     // Derin bağlantı: /qa-shop-setup#step-1-docker doğrudan o adıma insin.
     useHashKaydir()
@@ -492,7 +480,7 @@ export default function QaShopSetupPage() {
     return (
         <div className={`min-h-screen ${shell}`}>
             <ScrollProgressBar />
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={odakModu} setFocusMode={setOdakModu} />
 
             <main className="mx-auto max-w-4xl px-3 py-6 md:px-6 md:py-10">
 

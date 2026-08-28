@@ -20,6 +20,8 @@
 //
 // TopicPage KULLANILMAZ: bu bir ders sayfası değil, canlı bir uygulama.
 import { useState, useEffect, useCallback, useRef } from 'react'
+import useOdakModu from '../hooks/useOdakModu'
+import useKaranlikMod from '../hooks/useKaranlikMod'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import TopicHeader from './TopicHeader'
@@ -301,24 +303,14 @@ function ScrollProgressBar() {
     )
 }
 
-function useDarkModeState() {
-    const [darkMode, setDarkMode] = useState(() => {
-        const saved = localStorage.getItem('darkMode')
-        return saved ? JSON.parse(saved) : true
-    })
-    useEffect(() => {
-        localStorage.setItem('darkMode', JSON.stringify(darkMode))
-        document.documentElement.classList.toggle('dark', darkMode)
-    }, [darkMode])
-    return [darkMode, setDarkMode]
-}
 
 // ════════════════════════════════════════════════════════════════════════════
 
 export default function QaShopPage() {
     const { language } = useLanguage()
     const isTr = language === 'tr'
-    const [darkMode, setDarkMode] = useDarkModeState()
+    const [darkMode, setDarkMode] = useKaranlikMod()
+    const [odakModu, setOdakModu] = useOdakModu()
 
     // ── Bağlantı ve oturum ───────────────────────────────────────────────────
     const [apiBase, setApiBase] = useState(() => localStorage.getItem(DEPO_ADRES) || VARSAYILAN_API)
@@ -987,7 +979,7 @@ export default function QaShopPage() {
     return (
         <div className={`min-h-screen ${shell}`}>
             <ScrollProgressBar />
-            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+            <TopicHeader darkMode={darkMode} setDarkMode={setDarkMode} focusMode={odakModu} setFocusMode={setOdakModu} />
 
             {/* ═══ MAĞAZA BAŞLIĞI ═══════════════════════════════════════════ */}
             <div data-testid="magaza-basligi"
