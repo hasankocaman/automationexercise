@@ -547,6 +547,11 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Bir açıklama katmanının okunabilirliğini `toBeVisible()` ile doğrulamak — görüş alanının dışındaki öğe de "görünür"dür; dört kenarın viewport içinde kaldığını `boundingBox()` ile ölç (Bölüm 23.21).
 - ❌ Bir rehber adımında dosyayı YALNIZCA depo yoluyla tarif etmek — imajlarla kuran kullanıcının o dosyası yoktur; indirme bağlantısı ya da konteyner içi yol da verilmelidir (Bölüm 25.8).
 - ❌ Cevap anahtarı niteliğindeki bir eşlemeyi (hangi SQL sorgusu hangi kuralı/story'yi/defect'i görür) herkese açık dosyaya ya da sayfaya yazmak — bu bağı kurmak test edenin işidir, eşleme admin tarafında kalır (Bölüm 25.2.1).
+- ❌ Ortak bir bileşeni (`TopicHeader` gibi) kullanan yeni bir sayfada, o bileşenin İSTEDİĞİ durumları vermemek — kontrol koşulsuz render edilir, ekranda durur ve tıklanınca patlar. Bir düğmenin varlığını değil DAVRANIŞINI doğrula (Bölüm 23.24).
+- ❌ Bir durum kancasını (tema, odak modu, dil) sayfadan sayfaya KOPYALAMAK — kopyalar sessizce ayrışır ve bunu hiçbir kapı göremez; kanca `src/hooks/` altında tek dosyada durur (Bölüm 23.24).
+- ❌ `profiles` tablosuna sütun ekleyip yetkisini vermemek — bu projede update yetkisi TABLO değil SÜTUN düzeyindedir; `alter` + `grant update (<sutun>)` TEK göç adımıdır, yoksa okuma çalışır ama yazma sessizce ölür (Bölüm 23.25).
+- ❌ `sonuc.govde.alan ?? []` yazmak — bu ifade EKSİK alana karşı korur, NULL gövdeye karşı korumaz; koruma zincirin İLK halkasında olmalıdır (`govde?.alan`). `sonuc.ok` doğruyken de gövde null olabilir (Bölüm 23.26).
+- ❌ Kalıcı olmayan bir düşüşü mesajını okumadan "testin yarışı" diye geçmek — aynı belirti hem test yarışı hem ürünün çökme yolu olabilir; ikisini yalnızca hata metni ayırır (Bölüm 23.26).
 
 ---
 

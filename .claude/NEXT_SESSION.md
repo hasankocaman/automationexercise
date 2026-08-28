@@ -17,119 +17,142 @@
 
 ### ⚠️ ÖNCE BUNU OKU
 
-Kullanıcı beş işi sırayla istedi ve beşi de yapıldı. Çalışma ağacı artık
-TEMİZ — üç oturumun 79 dosyalık birikimi commit edildi.
+Kullanıcı beş işi sırayla istedi; beşi de yapıldı, hepsi doğrulandı ve
+**elle yapılacak iş kalmadı.**
 
-- **Dal:** `feature/qa-shop-pratik-ortami` (GitHub'a push edildi)
-- **`main` hâlâ `f4ef66b`** — dal birleştirilmedi. `main`'e push, canlı site
-  deploy'unu tetikler; bu kullanıcının kararı.
-- **Etiket `qa-shop-v1.0.0` push edildi** → imaj yayını iş akışı tetiklendi.
-
-### ✅ ELLE YAPILACAK İŞ KALMADI
-
-**Yapıldı ve ÖLÇÜLDÜ:**
-
-- `alter table profiles add column ... qa_shop_sandbox_key text;` — iki projede.
-- `grant update (qa_shop_sandbox_key) on public.profiles to authenticated;` —
-  iki projede. Üye senkronunun mutlu yolu artık uçtan uca yeşil: üye alan
-  açınca anahtar profile yazılıyor, TEMİZ bir tarayıcı aynı alana dönüyor.
-  Yazma çağrısı bilerek koparılarak kırmızıya döndürüldü.
-- GHCR paketleri Public. `docker login` OLMADAN `qa-shop-db` ve `qa-shop-api`
-  imajlarının `1.0.0` ve `latest` etiketleri çekilebiliyor; ikisi de
-  `linux/amd64` + `linux/arm64` taşıyor.
-
-⚠ Sütun düzeyinde yetki tuzağı kalıcı derse yazıldı (`CLAUDE.md` §23.25):
-bu projede `profiles` update yetkisi TABLO değil SÜTUN düzeyinde; yeni bir
-üye alanı eklerken `alter` + `grant` TEK göç adımıdır.
-
-### 🐞 Doğrulama sırasında bulunan gerçek ürün hatası
-
-Paralel koşumda konsola iki sayfa hatası düşüyordu:
-`Cannot read properties of null (reading 'items' / 'categories')`.
-İstek yardımcısı gövdeyi ayrıştıramadığında `null` döndürüyor; çağıranlar
-`govde.items ?? []` yazmıştı — koruma YANLIŞ TARAFTAYDI. 14 kullanımın hepsi
-`govde?.` yapıldı, sipariş akışında erken çıkış eklendi.
-
-Boş gövdeyi bilerek üreten bir test yazıldı; düzeltme geri alındığında AYNI
-iki hatayı üretiyor. Kalıcı ders: `CLAUDE.md` §23.26.
+- **Çalışma ağacı TEMİZ.** Üç oturumun 79 dosyalık birikimi + bu oturumun işi
+  → **14 commit**, hepsi `feature/qa-shop-pratik-ortami` dalında ve GitHub'a
+  push edilmiş durumda.
+- **`main` hâlâ `f4ef66b`.** Dal birleştirilmedi. `main`'e push canlı site
+  deploy'unu tetikler — bu bilinçli olarak kullanıcının kararına bırakıldı.
+- **`qa-shop-v1.0.0` etiketi yayında.** İmajlar herkese açık ve çekilebilir
+  (ölçüldü, aşağıda).
 
 ### 📋 Bu Oturumda Yapılanlar
 
-**1. Commit (79 dosya → 8 konu bazlı commit).** Yığın · türev üretimi ·
+**1. Commit.** 79 dosya, 8 konu bazlı commit'e bölündü: yığın · türev üretimi ·
 ürün fotoğrafları · içerik katmanı ve bekçiler · sayfalar ve giriş kapısı ·
-testler · terim düzeltmeleri · belgeler.
+testler · terim düzeltmeleri · belgeler. Dal açıldı ve push edildi.
 
 **2. Kavram baloncukları vitrine yayıldı (15 → 19).** Sipariş durum makinesi ·
-ödeme başarısız senaryosu · varsayılan adres · yorum onayı. Dördü de bu
-uygulamaya mahsus davranışı anlatıyor, hiçbirinde beklenen status kodu yok.
-Yeni test alışveriş akışını yürüyerek ölçüyor.
+ödeme başarısız senaryosu · varsayılan adres · yorum onayı. Dördü de yalnızca
+bu uygulamaya mahsus davranışı anlatıyor; hiçbirinde beklenen status kodu yok.
+Yeni test alışveriş akışını baştan sona yürüyerek ölçüyor.
 
-⚠ Bu testte bir iddia YANLIŞ yazılmıştı: tıklanabilirliği "baloncuk kutucuğun
-üstünü örtüyor mu" diye ölçüyordu ve `pointer-events` bilerek bozulduğunda
-YEŞİL kaldı — çünkü baloncuk bugünkü yerleşimde kutucuğun üstüne düşmüyor.
-Ölçüm katmanın hit-test'e hiç girmediğine çevrildi ve kırmızıya döndürüldü.
+**3. Tema/erişilebilirlik kapsamı.** Dört QA Shop sayfası da eklendi.
+⚠ Bir önceki devir notundaki "diğer üç sayfa zaten ekli" bilgisi YANLIŞTI —
+o dosyada hiçbir QA Shop sayfası yoktu. Ölçmeden geçilseydi iki arıza
+gizlenmiş olacaktı (aşağıya bak).
 
-**3. Tema/erişilebilirlik kapsamı — İKİ GERÇEK ARIZA çıktı.**
-Devir notundaki "diğer üç QA Shop sayfası ekli" bilgisi YANLIŞTI: o dosyada
-hiçbir QA Shop sayfası yoktu. Dördü birden eklendi ve şunlar bulundu:
-
-- **Odak modu düğmesi DÖRT sayfada da patlıyordu** (`is not a function`):
-  ortak başlık düğmeyi koşulsuz basıyor, sayfa ona durum vermiyordu.
-- **`/qa-shop` ve `/qa-shop-api` tema düğmesi** kök öğeye `dark` yazıyordu,
-  sitenin kullandığı `dark-mode`/`light-mode-forced` çiftini değil.
-
-İki kanca da tek dosyaya alındı (`src/hooks/useOdakModu.js`,
-`src/hooks/useKaranlikMod.js`). Ayrışmanın sebebi dört kopyaydı.
-
-**4. İmaj yayını.** Dal + `qa-shop-v1.0.0` etiketi push edildi. Koşum sonucu
-doğrulanamadı (kimliksiz GitHub API sınırı) — Actions sekmesinden bakılmalı.
+**4. İmaj yayını.** `qa-shop-v1.0.0` etiketi push edildi, iş akışı koştu.
+Ölçüldü: `docker login` OLMADAN `qa-shop-db` ve `qa-shop-api` imajlarının
+`1.0.0` ve `latest` etiketleri çekilebiliyor; ikisi de `linux/amd64` +
+`linux/arm64` taşıyor. Yani depoyu indirmeyen kullanıcı yığını kurabilir.
 
 **5. Üyelik senkronizasyonu.** Alan anahtarı artık üyenin profil satırında da
-tutuluyor ve dükkân açılırken geri alınıyor.
+tutuluyor (`profiles.qa_shop_sandbox_key`) ve dükkân açılırken geri alınıyor.
+Uçtan uca doğrulandı: üye alan açıyor → anahtar profile yazılıyor → TEMİZ bir
+tarayıcı aynı alana dönüyor.
+
+Hatırlama işi kimliği ZATEN doğrulanmış tarafta (üye profilinde) yapılır.
+QA Shop API'sine "şu e-postanın alanını ver" demek, doğrulanmamış bir
+e-postaya bakıp başkasının alanını açmak olurdu — **yığın hiç değişmedi.**
 
 ⚠ Önceki "Supabase köprüsü" ÖLÜ KODDU: `sb-token`/`sb-user-email` anahtarlarını
 okuyordu ama uygulamanın hiçbir yeri onları yazmıyordu; üstelik dönen değer
-alan kimliğiydi, alan ANAHTARI değil. Kaldırıldı.
+alan kimliğiydi, alan ANAHTARI değil. Kaldırıldı. Sunucudaki
+`POST /auth/supabase-bridge` ucu DURUYOR ama artık çağrılmıyor — sözleşmeyi ve
+yayınlanan imajı değiştirmemek için elleşilmedi (**temizlenecek borç**).
 
-Hatırlama işi kimliği ZATEN doğrulanmış tarafta yapılıyor. QA Shop API'sine
-"şu e-postanın alanını ver" demek, doğrulanmamış bir e-postaya bakıp
-başkasının alanını açmak olurdu — yığın hiç değişmedi. Sunucudaki
-`POST /auth/supabase-bridge` ucu DURUYOR ama artık çağrılmıyor; sözleşmeyi ve
-yayınlanan imajı değiştirmemek için elleşilmedi (temizlenecek borç).
+**6. Veritabanı göçü (kullanıcı koşturdu, iki projede de).**
 
-### 🔬 Bu oturumun kalıcı dersleri
+```sql
+alter table profiles add column if not exists qa_shop_sandbox_key text;
+grant  update (qa_shop_sandbox_key) on public.profiles to authenticated;
+```
 
-1. **Ekranda duran her düğme çalışıyor demek değildir** (`CLAUDE.md` §23.24) —
-   ortak bileşenin koşulsuz bastığı kontrol + hiç ateşlenmeyen istemci kodu.
-2. **Kopyalanan durum kancası ayrışır ve bunu hiçbir kapı görmez** — tema
-   kancasının dört kopyasından ikisi yanlış sınıfı yazıyordu.
-3. **Devir notu da eskir.** "Şu zaten yapılmış" cümlesine güvenip ölçmeden
-   geçmek, bu oturumda iki arızayı gizleyecekti.
-4. **Yanlış yere bakan bir iddia yeşil kalır.** Tıklanabilirlik iddiası
-   bozuk sürümde de geçti; ancak bilerek kırınca anlaşıldı.
+İkinci satır ilk turda atlanmıştı ve senkron sessizce ölüyordu; sebebi
+ölçüldü ve kalıcı derse yazıldı (`CLAUDE.md` §23.25).
+
+**7. Boş cevap gövdesi çökme yolu kapatıldı.** (Aşağıda, üçüncü arıza.)
+
+### 🐞 Bu oturumda bulunan ÜÇ gerçek arıza
+
+Üçü de "testler yeşildi, kimse bakmıyordu" ailesinden:
+
+1. **Odak modu düğmesi dört QA Shop sayfasında da patlıyordu**
+   (`is not a function`). Ortak başlık düğmeyi koşulsuz render ediyor,
+   durumu dışarıdan alıyor; bu sayfalar durum vermiyordu.
+2. **`/qa-shop` ve `/qa-shop-api` tema düğmesi** kök öğeye `dark` yazıyordu,
+   sitenin her yerde kullandığı `dark-mode`/`light-mode-forced` çiftini değil.
+   Sayfanın kendi renkleri dönüyor, global CSS'e dayanan parçalar karanlık
+   kalıyordu. Sebep dört kopyaydı → iki kanca tek dosyaya alındı
+   (`src/hooks/useOdakModu.js`, `src/hooks/useKaranlikMod.js`).
+3. **Boş/ayrıştırılamayan cevap gövdesi dükkânı çökertiyordu.** İstek
+   yardımcısı gövdeyi ayrıştıramadığında `null` döndürüyor; çağıranlar
+   `govde.items ?? []` yazmıştı — koruma YANLIŞ TARAFTAYDI. 14 kullanımın
+   hepsi `govde?.` yapıldı, sipariş akışına erken çıkış eklendi.
+   Bu, paket koşumunda "kalıcı olmayan düşüş" gibi görünüyordu.
+
+⚠ Tarayıcı içi katman AYNI tuzağı taşımıyor — ölçüldü: `api.js` gelen gövdeyi
+`govde ?? {}` ile normalize ediyor. Oraya dokunmaya gerek yok.
+
+### 🔬 Bu oturumun kalıcı dersleri (hepsi `CLAUDE.md`'ye yazıldı)
+
+1. **Ekranda duran her düğme çalışıyor demek değildir** (§23.24) — ortak
+   bileşenin koşulsuz bastığı kontrol + hiç ateşlenmeyen istemci kodu.
+2. **`profiles`'a sütun eklemek yetmez** (§23.25) — bu projede update yetkisi
+   TABLO değil SÜTUN düzeyinde; `alter` + `grant` TEK göç adımıdır. Ayırt
+   etme yolu: aynı oturumla mevcut bir sütunu güncelle, o geçiyorsa sorun
+   RLS'te değil GRANT'tedir.
+3. **`govde.alan ?? []` koruma değildir** (§23.26) — koruma zincirin İLK
+   halkasında olmalı (`govde?.alan`).
+4. **Kalıcı olmayan bir düşüşü "testin yarışı" diye geçme.** Bu oturumda iki
+   tane çıktı; biri gerçekten testin yarışıydı (DOM'dan kopan öğe), öbürü
+   ÜRÜNÜN çökme yoluydu. İkisini ayıran tek şey mesajı okumaktı.
+5. **Yanlış yere bakan bir iddia yeşil kalır — iki kez yaşandı.**
+   (a) Tıklanabilirlik iddiası "baloncuk kutucuğu örtüyor mu" diye ölçüyordu
+   ve `pointer-events` bilerek bozulunca YEŞİL kaldı; ölçüm katmanın
+   hit-test'e hiç girmediğine çevrildi. (b) Senkron testindeki yetki
+   yoklaması anahtarın KENDİSİNİ yazıyordu — grant gelince "uygulama yazdı
+   mı" iddiası kendi yoklamasıyla karşılanacak ve boşa dönecekti; yoklama
+   nötr bir değere (`null`) çevrilip alan açmadan önceye alındı.
+6. **Devir notu da eskir.** "Şu zaten yapılmış" cümlesine güvenip ölçmeden
+   geçmek bu oturumda iki arızayı gizleyecekti.
+
+### 🛡️ Bu oturumda eklenen/güçlendirilen bekçiler
+
+| Bekçi | Ne kırar |
+|---|---|
+| `qa-shop-pages` — vitrin kavramları | Baloncuk görüş alanı dışına taşarsa · status kodu sızarsa · baloncuk tıklama hedefi olursa |
+| `qa-shop-pages` — boş cevap gövdesi | Gövdesiz 200 cevabında sayfa hatası fırlarsa |
+| `theme-and-accessibility` — dört QA Shop rotası | Tema düğmesi yanlış sınıf yazarsa · odak düğmesi hata üretirse · seçim yenilemede kaybolursa |
+| `qa-shop-uye-senkronu` — iki test | Sütun yetkisi eksikse (adıyla söyler) · uygulama anahtarı yazmazsa · temiz tarayıcı benimsemezse |
+
+**Hepsi bilerek bozularak kırmızıya döndürüldü.**
 
 ### ✅ Doğrulama durumu
 
 `npm run build` ✔ · içerik bütünlüğü ✔ · i18n sızıntı (borç 0) ✔ ·
 SQL eşleme kapısı ✔ · kavram kapısı ✔ (19 kavram) ·
 `qa-shop-pages` + `qa-shop-logout-flow` + `theme-and-accessibility` +
-`qa-shop-uye-senkronu` **47 + 2 = hepsi yeşil**, tekrarlı koşumda kararlı.
+`qa-shop-uye-senkronu` → **49/49 yeşil**, tekrarlı koşumda kararlı.
 
-⚠ **Mutlu yol HÂLÂ yeşil değil ve bu doğru:** sütun eklendikten sonra test
-mutlu yolu koşmaya başladı ve gerçek bir eksiği yakaladı — üye sütuna
-YAZAMIYOR (sütun düzeyinde grant eksik, yukarıdaki tek satır). Test o eksiği
-adıyla söyleyerek düşüyor. Benimseme mantığı ayrı bir testle (profil
-okumasının cevabı sabitlenerek) doğrulandı ve kırmızıya döndürüldü.
+⚠ **Koşulmayan:** tam E2E paketi (53 test dosyası). Bu oturumda yalnızca
+etkilenen dört dosya koşturuldu. `main`'e birleştirmeden önce `npm run
+test:e2e` bir kez tam koşturulmalı — özellikle `src/hooks/` çıkarımı ve
+`QaShopPage` düzenlemeleri başka bir suite'i etkiliyor olabilir.
 
 ### 🎯 SIRADAKİ İŞ
 
 | # | İş | Bedel | Not |
 |---|---|---|---|
-| 1 | Supabase göçü + imaj görünürlüğü | Küçük | Yukarıdaki iki elle adım. |
-| 2 | Dalı `main`'e birleştir | Küçük | Canlı site deploy'unu tetikler — kullanıcı kararı. |
-| 3 | Ölü `supabase-bridge` ucunu kaldır | Orta | Sözleşme + yayınlanan imaj değişir; sürüm yükseltmesi ister. |
-| 4 | Rate limit kararı | Orta | API'de yok, 429 dönmüyor. Hâlâ karar bekliyor. |
-| 5 | Kavram baloncuklarını sipariş detayına yay | Küçük | İade penceresi ve kargo durumu için yer var. §25.7 ölçütü geçerli. |
+| 1 | **Tam E2E paketini koştur** | Küçük | `npm run test:e2e`. Birleştirme öncesi tek eksik doğrulama. |
+| 2 | **Dalı `main`'e birleştir** | Küçük | Canlı site deploy'unu tetikler — KULLANICI KARARI, sormadan yapma. |
+| 3 | Ölü `supabase-bridge` ucunu kaldır | Orta | Sözleşme + yayınlanan imaj değişir; `qa-shop-v1.0.1` etiketi ister. Temizlenecek borç. |
+| 4 | Rate limit kararı | Orta | API'de yok, 429 dönmüyor. Kullanıcı sormuştu, hâlâ karar bekliyor. Eklenirse iyi bir negatif test hedefi. |
+| 5 | Kavram baloncuklarını sipariş detayına yay | Küçük | İade penceresi ve kargo durumu için yer var. §25.7 ölçütü: "bu bize mi mahsus?" |
+| 6 | Faz 6 kabul kriterini ELLE koştur | Küçük | "Dükkâna ilk giren kullanıcı hiçbir status kodu görmeden bir defect bulabiliyor ve anahtarı aç/kapat yaparak kendisi doğrulayabiliyor." Testler bunu göremez (§23.18). |
 
 ### 🚫 Bilinçli olarak YAPILMAYACAK (yeniden tartışma açma)
 
@@ -139,6 +162,50 @@ kavrama genel terim girmez · SQL eşlemesi herkese açılmaz). Buna ek olarak:
 
 - **Alan anahtarını QA Shop API'sinde e-postaya bağlamak** — doğrulanmamış
   kimliğe alan açmak olur. Hatırlama üye profilinde kalır.
+- **`main`'e sormadan push** — canlı site deploy'unu tetikler.
+
+### 📋 SONRAKİ SOHBET İÇİN PROMPT (kopyala-yapıştır)
+
+    Önce CLAUDE.md'yi, sonra .claude/NEXT_SESSION.md'yi oku — en üstteki
+    "2026-08-28, ikinci oturum" devir notu geçerli.
+
+    Durum: çalışma ağacı TEMİZ. 14 commit feature/qa-shop-pratik-ortami
+    dalında ve push edilmiş. main hâlâ f4ef66b — dalı birleştirmek canlı site
+    deploy'unu tetikler, bunu BANA SORMADAN yapma. Elle yapılacak iş kalmadı
+    (Supabase göçü ve imaj görünürlüğü tamam, ölçüldü).
+
+    Sıradaki iş, devir notundaki tabloya göre:
+
+    1. npm run test:e2e ile TAM paketi bir kez koştur. Bu oturumda yalnızca
+       etkilenen dört dosya koşturuldu; src/hooks/ çıkarımı ve QaShopPage
+       düzenlemeleri başka bir suite'i etkilemiş olabilir. Düşen olursa
+       mesajını OKU: bu depoda "kalıcı olmayan düşüş" iki kez gerçek ürün
+       hatası çıktı.
+    2. Sonucu bana raporla ve birleştirme kararı için bekle.
+
+    Sonra (benim onayımla) sırasıyla:
+    - Ölü supabase-bridge ucunu kaldır (sözleşme + imaj sürümü değişir).
+    - Rate limit kararını bana sor; eklenirse negatif test hedefi olur.
+    - Kavram baloncuklarını sipariş detayına yay (iade penceresi, kargo
+      durumu). Her biri için önce "bu bize mi mahsus?" diye sor — genel
+      kavram açıklaması yazılmaz, build kapısı kırar.
+
+    Bağlayıcı ölçütler (hepsi CLAUDE.md'de):
+    · Bilgi "kuralın ne olduğunu" söylüyorsa VERİLİR; "o kuralı sınamak için
+      ne yapıp hangi cevabı bekleyeceğini" söylüyorsa VERİLMEZ.
+    · Arayüz açıklaması YALNIZCA bu uygulamaya mahsus davranışı anlatır.
+    · Repoyu indirmeyen, sadece Docker imajlarıyla kuran kullanıcı da her
+      belgeye ulaşabilmeli.
+
+    Çalışma kuralları:
+    · Her adımdan sonra CLAUDE.md §1.1'deki 4 maddelik checklist'i çalıştır.
+    · Yeni bir bekçi/iddia yazarsan BOZUK durumu bilerek üretip kırmızıya
+      döndüğünü GÖR. Bu oturumda iki iddia yanlış yere bakıyordu ve bozuk
+      sürümde de yeşil kaldı.
+    · Bu depoda satır sonları KARIŞIK (CLAUDE.md ve bazı bileşenler CRLF,
+      veri dosyaları LF). Çok satırlı düzenlemede Edit aracını kullan;
+      script yazacaksan önce satır sonunu ölç.
+    · Commit/push konusunda bana sormadan bir şey yapma.
 
 ---
 

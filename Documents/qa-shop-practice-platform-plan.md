@@ -15,7 +15,7 @@
 > | Faz 3 — K3 lokal Docker | ✅ Tamam | 41 iş ucu, Postman/Newman paketi, REST Assured projesi, `api/test` (Docker'sız 78 test) |
 > | Faz 4 — Bug anahtarları | ✅ Tamam | 10 anahtar + panel + gizli av modu (`pickRandomFlags`/`hiddenCount`) çalışıyor. ⚠️ Varsayılanı Faz 6.1 değiştirir |
 > | Faz 5 — K2 barındırılan | ⬜ Bilinçli olarak ertelendi | Maliyet + kötüye kullanım yüzeyi; talep kanıtlanınca |
-> | **Faz 6 — Keşif Önceliği** | 🔄 **SÜRÜYOR** | 6.1, 6.2, 6.3, 6.6, 6.7 tamam; 6.4 ve 6.5 açık. Bkz. Bölüm 0.5 |
+> | **Faz 6 — Keşif Önceliği** | ✅ **TAMAM** (2026-08-28) | 6.1-6.7 hepsi bitti. ⚠️ Kabul kriteri henüz ELLE koşturulmadı — testler onu göremez (bkz. Bölüm 0.5) |
 >
 > ### ✅ Canlı doğrulama (2026-08-17/18)
 >
@@ -145,14 +145,18 @@ Sıra ucuzdan pahalıya; her madde tek başına yayınlanabilir.
 | 6.1 | ✅ **TAMAM** — Gizli mod varsayılan. Dükkân ekranında av şeridi ("{n} defect canlı, hangileri söylenmiyor"), adlı liste opt-in, `catchableBy` tıkla-aç. | `QaShopPage.jsx` | Küçük — mekanizma hazırdı |
 | 6.2 | ✅ **TAMAM** — Manuel tur kendi kendini sınamaya çevrildi: adımı yap → gördüğün status kodunu yaz → sistem ancak o zaman doğrular. Beklenen kod ve endpoint yolu kayıttan ÖNCE hiç render edilmiyor. | `QaShopManuelTur.jsx` | Orta |
 | 6.3 | ✅ **TAMAM** — Paketler build sırasında `public/qa-shop/indirilebilir/` altına üretiliyor; `/qa-shop-api` ve `/qa-shop-setup` sayfalarından inilebiliyor. | `scripts/build-qa-shop-downloads.mjs`, `qaShopSetupData.js`, `QaShopApiPage.jsx` | Küçük |
-| 6.4 | **SQL katmanını yola bağla.** 127 sorgunun ilgili olanları senaryolara eşlensin; üçüncü katman böyle kapanır. | `validation-queries.sql` ↔ tur/story eşlemesi | Orta |
-| 6.5 | **Afişi ve nav'ı dükkâna çevir.** Şartname referans rafına insin. | `HomePage.jsx`, `QaShopGecis.jsx` | Küçük |
+| 6.4 | ✅ **TAMAM** — SQL katmanı üç yerleşime ayrıldı: nötr sorgu dizini (herkes), sorgu ↔ kural ↔ story ↔ defect eşlemesi (yalnız admin), cevap sızdıran satırların temizlenmesi. ⚠️ Plandaki "127 sorgu" YANLIŞTI; dosyada **30 adlı sorgu** var. Ayrıca paket siteden indirilebilir yapıldı — depoyu indirmeyen kullanıcının o dosyası yok. | `validation-queries.sql`, `qaShopSqlPackData.js`, `qaShopSqlMap.js`, `check-qa-shop-sql-map.mjs` | Orta |
+| 6.5 | ✅ **TAMAM** — Afiş, öne çıkan giriş linki, kart listesi, footer ve görünür site haritası dükkâna gidiyor; şartname/kurulum/sözleşme geçiş şeridinden bir tık uzakta referans rafı oldu. | `HomePage.jsx`, `QaShopGecis.jsx`, `whatIsTestingData.js` | Küçük |
 | 6.6 | ✅ **TAMAM** (planlanandan ileri gidildi) — `hint` ve `breaks` karttan tamamen çıktı; ayrıca teknik kabul kriterleri, kural kartı doğrulamaları ve iki cevap-anahtarı tablosu da admin'e taşındı ya da kurala çevrildi. | `QaShopSpecPage.jsx`, `qaShopSpecData.js`, `QaShopStoryIpucu.jsx` | Orta |
 | 6.7 | ✅ **TAMAM** — Sayaç artık kaydedilen bulguyu sayıyor, ziyaret edilen adımı değil. Eski "yapıldı" işaretleri (dizi biçimli localStorage kaydı) bulgu içermediği için sessizce atılıyor. | `QaShopManuelTur.jsx` | Küçük |
 
 **Faz 6 kabul kriteri:** Dükkâna ilk giren kullanıcı hiçbir beklenen status
-kodu görmeden bir kusur bulabiliyor ve bulduğunu anahtarı aç/kapat yaparak
+kodu görmeden bir defect bulabiliyor ve bulduğunu anahtarı aç/kapat yaparak
 kendisi doğrulayabiliyor.
+
+⚠️ **Bu kriter HENÜZ ELLE KOŞTURULMADI.** Otomatik testler bunu göremez:
+hepsi kendi kurulumunu yapıyor ve "sıfırdan gelen kişinin" yaşadığını
+ölçmüyor (`CLAUDE.md` §23.18). Sıradaki oturumun işlerinden biri budur.
 
 ### 0.6. Kapsam dışı — bilinçli olarak YAPILMAYACAK
 
